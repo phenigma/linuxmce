@@ -541,11 +541,9 @@ void Bluetooth_Dongle::CMD_Get_Signal_Strength(string sMac_address,int *iValue,s
 {
 	cout << "Need to implement command #61 - Get Signal Strength" << endl;
 	cout << "Parm #47 - Mac_address=" << sMac_address << endl;
-	//cout << "Parm #48 - Value_int_=" << *iValue << endl;
+	cout << "Parm #48 - Value_int_=" << *iValue << endl;
 
-	//BDCommandProcessor *pBDCommandProcessor = m_mapOrbiterSockets_Find( sMac_address );
 	int iLinkQuality = GetLinkQuality(sMac_address.c_str());
-
 	g_pPlutoLogger->Write( LV_WARNING, "Link quality for %s device is %d", sMac_address.c_str(), iLinkQuality );
 
 	*iValue = iLinkQuality;

@@ -1,5 +1,8 @@
 @echo on
 
+echo Deleting old pluto.makerelease folder...
+rmdir "/pluto.makerelease" /S /Q
+
 echo Checking out pluto sources...
 cd "c:\Program Files\Subversion\bin"
 svn co http://10.0.0.170/pluto/trunk/src /pluto.makerelease/trunk/src

@@ -229,7 +229,7 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
                     case SDLK_8: case SDLK_KP8: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_8_CONST; break;
                     case SDLK_9: case SDLK_KP9: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_9_CONST; break;
 #ifdef PHONEKEYS
-                    case SDLK_c:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_C_CONST; break;
+                    case SDLK_c:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_Phone_C_CONST; break;
                     case SDLK_p:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_Phone_Pencil_CONST; break;
                     case SDLK_t:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_Phone_Talk_CONST; break;
                     case SDLK_e:		orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_Phone_End_CONST; break;

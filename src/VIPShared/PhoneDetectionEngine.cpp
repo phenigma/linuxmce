@@ -51,7 +51,10 @@ void *HandleDetectionThread(void *p)
 void *NewDeviceThread(void *p)
 {
 	EnginePlusDevice *ed = (EnginePlusDevice *)p;
-	ed->m_pEngine->NewDeviceDetected(ed->m_pDevice);
+	
+	if( !ed->m_pEngine->m_bAbortScanLoop )
+		ed->m_pEngine->NewDeviceDetected(ed->m_pDevice);
+
 	delete ed;
 	return NULL;
 }
@@ -75,7 +78,9 @@ void *LostDeviceThread(void *p)
 void *SignalStrengthThread(void *p)
 {
 	EnginePlusDevice *ed = (EnginePlusDevice *)p;
-	ed->m_pEngine->SignalStrengthChanged(ed->m_pDevice);
+
+	if(!ed->m_pEngine->m_bAbortScanLoop)
+		ed->m_pEngine->SignalStrengthChanged(ed->m_pDevice);
 
 	delete ed->m_pDevice;
 	ed->m_pDevice = NULL;

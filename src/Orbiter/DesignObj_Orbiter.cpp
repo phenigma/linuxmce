@@ -149,6 +149,26 @@ DesignObj_Orbiter::~DesignObj_Orbiter()
 
 	int i;
 */
+
+	m_pGraphicToUndoSelect = NULL;
+	m_pvectCurrentGraphic = m_pvectCurrentPlayingGraphic = NULL;
+
+	size_t iIndex;
+	for(iIndex = 0; iIndex < m_vectGraphic.size(); iIndex++)
+		delete m_vectGraphic[iIndex];
+	m_vectGraphic.clear();
+
+	for(iIndex = 0; iIndex < m_vectSelectedGraphic.size(); iIndex++)
+		delete m_vectSelectedGraphic[iIndex];
+	m_vectSelectedGraphic.clear();
+
+	for(iIndex = 0; iIndex < m_vectHighlightedGraphic.size(); iIndex++)
+		delete m_vectHighlightedGraphic[iIndex];
+	m_vectHighlightedGraphic.clear();
+
+	m_vectAltGraphics.clear(); //for now
+	m_bvectLoop_Alt.clear();
+
 	DesignObjZoneList::iterator iZone;
 	for(iZone = m_ZoneList.begin(); iZone !=m_ZoneList.end(); ++iZone)
 		delete *iZone; 
@@ -165,11 +185,13 @@ DesignObj_Orbiter::~DesignObj_Orbiter()
 	VectorDesignObjText::iterator iT;
 	for(iT=m_vectDesignObjText.begin(); iT != m_vectDesignObjText.end(); ++iT)
 		delete *iT; 
-	DesignObj_DataList::iterator iHao;
-	for(iHao=m_ChildObjects.begin(); iHao != m_ChildObjects.end(); ++iHao)
-	{
-		delete *iHao;
-	} 
+
+	//IMPORTANT!!!
+	//because all DesignObj_Orbiter objects are stored on Orbiter::m_map_ObjAll,
+	//we don't want to delete here children of the object 
+	//there children will be deleted in Orbiter destructor using map_ObjAll
+	m_ChildObjects.clear();
+
 	delete m_pDataGridTable;
 // todo 2.0	delete m_pWebWindow; 
 #ifdef PRONTO

@@ -32,20 +32,21 @@ OrbiterSDL_Win32* Connect(int PK_Device,string sRouter_IP,string sLocalDirectory
 	if(!bLocalMode)
 		WriteStatusOutput("Connecting to DCERouter...");
 
-	try
-	{
+//	try
+//	{
 		OrbiterSDL_Win32::Cleanup();
 		OrbiterSDL_Win32::BuildOrbiterSDL_Win32(
 			PK_Device, sRouter_IP,
 			sLocalDirectory, bLocalMode, 
 			Width, Height, bFullScreen
 		); //the builder method
+/*
 	}
 	catch(...)
 	{
 		return NULL;
 	}
-
+*/
 	OrbiterSDL_Win32 *pOrbiter = OrbiterSDL_Win32::GetInstance();
 
 	if(!bLocalMode)
@@ -93,46 +94,49 @@ bool SDLEventLoop(OrbiterSDL_Win32* pOrbiter)
     // temporary hack --
     // have to figure out what should be the default behavior of the arrows, moving the highlighted object, or scrolling a grid
     // For now I'll assume that shift + arrows scrolls a grid
-    bool bShiftDown=false,bControlDown=false,bAltDown=false,bRepeat=false,bCapsLock=false;
-    clock_t cKeyDown=0;
+    //bool bShiftDown=false,bControlDown=false,bAltDown=false,bRepeat=false,bCapsLock=false;
+    //clock_t cKeyDown=0;
     while (!pOrbiter->m_bQuit && !pOrbiter->m_bReload)
     {
-		try
-		{
-			SDL_WaitEvent(&Event);
-		}
-		catch(...)
-		{
-			break;
-		}
+		SDL_WaitEvent(&Event);
+
+		Orbiter::Event orbiterEvent;
+		orbiterEvent.type = Orbiter::Event::NOT_PROCESSED;
 
         if (Event.type == SDL_QUIT)
             break;
+
 #ifdef AUDIDEMO
         if (Event.type == SDL_MOUSEBUTTONDOWN)
         {
             g_pPlutoLogger->Write(LV_WARNING, "================================= Mouse button pressed %d", Event.button.button);
-            if( Event.button.button==4 )
-                pOrbiter->ButtonDown(BUTTON_Up_Arrow_CONST);
-            else if( Event.button.button==5 )
-                pOrbiter->ButtonDown(BUTTON_Down_Arrow_CONST);
-            else if( Event.button.button==2 )
-                pOrbiter->ButtonDown(BUTTON_Enter_CONST);
-            else if( Event.button.button==1 )
-                pOrbiter->ButtonDown(BUTTON_4_CONST);
-            else if( Event.button.button==3 )
-                pOrbiter->ButtonDown(BUTTON_5_CONST);
-            else if( Event.button.button==7 )
-                pOrbiter->ButtonDown(BUTTON_1_CONST);
-            else if( Event.button.button==6 )
-                pOrbiter->ButtonDown(BUTTON_2_CONST);
-            else
-                g_pPlutoLogger->Write(LV_WARNING, "========================================== Mouse button not handled!");
+
+			orbiterEvent.type = Orbiter::Event::BUTTON_DOWN;
+			switch ( Event.button.button )
+			{
+				case 1:	orbiterEvent.data.button.m_iPK_Button = BUTTON_4_CONST; 			break;
+				case 2: orbiterEvent.data.button.m_iPK_Button = BUTTON_Enter_CONST; 		break;
+				case 3:	orbiterEvent.data.button.m_iPK_Button = BUTTON_5_CONST; 			break;
+				case 4:	orbiterEvent.data.button.m_iPK_Button = BUTTON_Up_Arrow_CONST; 		break;
+				case 5:	orbiterEvent.data.button.m_iPK_Button = BUTTON_Down_Arrow_CONST; 	break;
+				case 6:	orbiterEvent.data.button.m_iPK_Button = BUTTON_2_CONST; 			break;
+				case 7:	orbiterEvent.data.button.m_iPK_Button = BUTTON_1_CONST; 			break;
+
+				default:
+					g_pPlutoLogger->Write(LV_WARNING, "========================================== Mouse button not handled!");
+					orbiterEvent.type = Orbiter::Event::NOT_PROCESSED;
+					break;
+			}
+            pOrbiter->ProcessEvent(orbiterEvent);
         }
 #else
         if (Event.type == SDL_MOUSEBUTTONDOWN)
 		{
-            pOrbiter->RegionDown(Event.button.x, Event.button.y);
+			orbiterEvent.type = Orbiter::Event::REGION_DOWN;
+			orbiterEvent.data.region.m_iX = Event.button.x;
+			orbiterEvent.data.region.m_iY = Event.button.y;
+            pOrbiter->ProcessEvent(orbiterEvent);
+
 			RecordMouseAction(Event.button.x, Event.button.y);
 		}
 #endif

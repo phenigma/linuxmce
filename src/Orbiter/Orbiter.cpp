@@ -208,6 +208,7 @@ m_CallbackMutex( "callback" ), m_MaintThreadMutex("MaintThread")
 Orbiter::~Orbiter()
 //<-dceag-dest-e->
 {
+
 g_pPlutoLogger->Write(LV_STATUS,"Orbiter is exiting");
 	// Be sure we get the maint thread to cleanly exit
 	m_bQuit=true;
@@ -219,22 +220,28 @@ g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 	DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "0" );
     SendCommand( CMD_Orbiter_Registered );
 
+
+//string dummy = "1255.0.0.1257.14";
+//DesignObj_Orbiter* pObjDummy = m_mapObj_All[dummy];
+
+	DesignObj_OrbiterMap::iterator itDesignObjOrbiter;
+	for(itDesignObjOrbiter = m_mapObj_All.begin(); itDesignObjOrbiter != m_mapObj_All.end(); itDesignObjOrbiter++)
+	{
+		DesignObj_Orbiter* pObj = (*itDesignObjOrbiter).second;
+		string dummy = (*itDesignObjOrbiter).first;
+
+		delete pObj;
+		pObj = NULL;
+	}
+	m_mapObj_All.clear();
+
 	m_vectTexts_NeedRedraw.clear();
 	m_vectObjs_NeedRedraw.clear();
 	m_vectObjs_TabStops.clear();
 	m_vectObjs_Selected.clear();
-
-	//clearing all objects
-
-	DesignObj_OrbiterMap::iterator it;
-	for(it = m_ScreenMap.begin(); it != m_ScreenMap.end(); it++)
-	{
-		DesignObj_Orbiter* pDesignObj_Orbiter = (DesignObj_Orbiter*)((*it).second);
-
-		delete pDesignObj_Orbiter;
-		pDesignObj_Orbiter = NULL;
-	}
-	m_mapObj_All.clear();
+	m_ScreenMap.clear(); //shared with mapObj_All
+	m_mapDeviceGroups.clear();
+	m_mapUserIcons.clear();
 
 	map < string, DesignObj_DataList * >::iterator itSuffix; //
 	for(itSuffix = m_mapObj_AllNoSuffix.begin(); itSuffix != m_mapObj_AllNoSuffix.end(); itSuffix++)
@@ -251,18 +258,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 		delete (*itDeviceGroups).second;
 		(*itDeviceGroups).second = NULL;
 	}
-	m_mapDeviceGroups.clear();
-
-	//clearing user icons map
-	map<int, VectorPlutoGraphic *>::iterator itUserIcons;
-	/*
-	for(itUserIcons = m_mapUserIcons.begin(); itUserIcons != m_mapUserIcons.end(); itUserIcons++)
-	{
-		delete (*itUserIcons).second;
-		(*itUserIcons).second = NULL;
-	}
-	*/
-	m_mapUserIcons.clear();
 
 	//clearing floor plan object map
 	map<int, FloorplanObjectVectorMap *>::iterator itFPObjVM;
@@ -293,15 +288,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 	}
 	m_mapFloorplanObjectVector.clear();
 
-	//clearing design objects map
-	DesignObj_OrbiterMap::iterator itDesignObjOrbiter;
-	for(itDesignObjOrbiter = m_mapObj_All.begin(); itDesignObjOrbiter != m_mapObj_All.end(); itDesignObjOrbiter++)
-	{
-		delete (*itDesignObjOrbiter).second;
-		(*itDesignObjOrbiter).second = NULL;
-	}
-	m_mapObj_All.clear();
-
 	//clearing design object data list
 	list < ScreenHistory * >::iterator itDesignObjData;
 	for(itDesignObjData = m_listScreenHistory.begin(); itDesignObjData != m_listScreenHistory.end(); itDesignObjData++)
@@ -319,6 +305,15 @@ g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 		(*itDesignObjDataGrid).second = NULL;
 	}
 	m_mapObjs_AllGrids.clear();
+
+	map< string, class DesignObj_DataGrid * >::iterator itObj_Bound;
+	for(itObj_Bound = m_mapObjs_AllGrids.begin(); itObj_Bound != m_mapObjs_AllGrids.end(); itObj_Bound++)
+	{
+		delete (*itObj_Bound).second;
+		(*itObj_Bound).second = NULL;
+	}
+	m_mapObj_Bound.clear();
+
 
 	pthread_mutexattr_destroy(&m_MutexAttr);
 	pthread_mutex_destroy(&m_ScreenMutex.mutex);
@@ -452,6 +447,15 @@ void Orbiter::RealRedraw( void *data )
     PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );
 	size_t s;
 
+	//render objects
+	for( s = 0; s < m_vectObjs_NeedRedraw.size(); ++s )
+    {
+		class DesignObj_Orbiter *pObj = m_vectObjs_NeedRedraw[s];
+
+		if(pObj)
+			RenderObject( pObj, m_pScreenHistory_Current->m_pObj );
+    }
+
 	//render texts
 	for( s = 0; s < m_vectTexts_NeedRedraw.size(); ++s )
 	{
@@ -469,24 +473,9 @@ void Orbiter::RealRedraw( void *data )
 		}
 	}
 
-	//render objects
-
-	for( s = 0; s < m_vectObjs_NeedRedraw.size(); ++s )
-    {
-		class DesignObj_Orbiter *pObj = m_vectObjs_NeedRedraw[s];
-
-		if(pObj)
-			RenderObject( pObj, m_pScreenHistory_Current->m_pObj );
-    }
-
     // See if maybe we just added an object that's a tab stop that wasn't there before
     if(  !m_pObj_Highlighted && m_vectObjs_TabStops.size(  )  )
 	    HighlightFirstObject(  );
-
-	/*
-    if( NULL != m_pObj_Highlighted &&  m_pObj_Highlighted->m_pHighlightedGraphic==NULL  )
-		HighlightObject( m_pObj_Highlighted );
-	*/
 
     m_vectObjs_NeedRedraw.clear();
 	m_vectTexts_NeedRedraw.clear();
@@ -2073,7 +2062,7 @@ void Orbiter::Initialize( GraphicType Type )
                 m_bReload = true;
                 exit( 1 );
             }
-            delete buffer;
+            delete [] buffer;
         }
         else
         {
@@ -2123,7 +2112,7 @@ void Orbiter::Initialize( GraphicType Type )
                 char *Buffer = new char[sResult.length(  )+1];
                 strcpy( Buffer,  sResult.c_str(  ) );
                 SetTime( Buffer );
-                delete Buffer;
+                delete [] Buffer;
             }
             sSM.Release(  );
         }
@@ -2738,7 +2727,7 @@ ACCEPT OUTSIDE INPUT
 
 bool Orbiter::ProcessEvent( Orbiter::Event event )
 {
-	// a switch would be good but kdevelop somehow doesn't like the syntax and mekes it red :-(
+	// a switch would be good but kdevelop somehow doesn't like the syntax and mekes it red :-(	
 	if (event.type == Orbiter::Event::BUTTON_DOWN )
 		return ButtonDown(event.data.button.m_iPK_Button);
 	else if ( event.type == Orbiter::Event::BUTTON_UP )
@@ -5465,6 +5454,8 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 							pGraphic->m_Filename = pPlutoGraphic->m_Filename;
 							(*pVectorPlutoGraphic).push_back(pGraphic);
 						}
+
+						delete [] pFrameData;
 					}
 
 					delete pPlutoGraphic;

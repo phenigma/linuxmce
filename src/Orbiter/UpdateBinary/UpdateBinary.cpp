@@ -38,7 +38,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 					LPTSTR    lpCmdLine,
 					int       nCmdShow)
 {
-	string sOrbiterUpdateFileName = "Orbiter_Win32.dat";
+	string sOrbiterUpdateFileName = "Orbiter_WinCE.dat";
 	string sOrbiterFileName = "/InternalStorage/Orbiter.exe";
 	string sCommFile = "/Orbiter.cmm";
 	string sRouter_IP="dcerouter";
