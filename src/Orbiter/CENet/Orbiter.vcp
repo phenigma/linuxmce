@@ -2182,6 +2182,7 @@ DEP_CPP_ORBITER=\
 	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\pluto_main\Define_Text.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -2200,8 +2201,11 @@ DEP_CPP_ORBITER=\
 	"..\Floorplan.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
+	"..\RendererOCG.h"\
 	"..\SDL\OrbiterSDL.h"\
+	"..\SDL\PlutoSDLDefs.h"\
 	"..\SDL\SDLGraphic.h"\
+	"..\SDL\SDLRendererOCGHelper.h"\
 	"..\TextStyle.h"\
 	".\wince.h"\
 	
@@ -2644,6 +2648,58 @@ DEP_CPP_RENDER=\
 # End Source File
 # Begin Source File
 
+SOURCE=..\RendererOCG.cpp
+
+!IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
+
+DEP_CPP_RENDERE=\
+	"..\RendererOCG.h"\
+	
+NODEP_CPP_RENDERE=\
+	"..\PlutoUtils\FileUtils.h"\
+	"..\PlutoUtils\minilzo.h"\
+	"..\PlutoUtils\PlutoDefs.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Debug"
+
+DEP_CPP_RENDERE=\
+	"..\RendererOCG.h"\
+	
+NODEP_CPP_RENDERE=\
+	"..\PlutoUtils\FileUtils.h"\
+	"..\PlutoUtils\minilzo.h"\
+	"..\PlutoUtils\PlutoDefs.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_RENDERE=\
+	"..\RendererOCG.h"\
+	
+NODEP_CPP_RENDERE=\
+	"..\PlutoUtils\FileUtils.h"\
+	"..\PlutoUtils\minilzo.h"\
+	"..\PlutoUtils\PlutoDefs.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_RENDERE=\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\lzoconf.h"\
+	"..\..\PlutoUtils\minilzo.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\PlutoDefs.h"\
+	"..\RendererOCG.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=..\SDL\SDLGraphic.cpp
 
 !IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
@@ -2757,6 +2813,77 @@ DEP_CPP_SDLGR=\
 	
 NODEP_CPP_SDLGR=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\SDL\SDLRendererOCGHelper.cpp
+
+!IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
+
+DEP_CPP_SDLRE=\
+	"..\SDL\SDLRendererOCGHelper.h"\
+	
+NODEP_CPP_SDLRE=\
+	"..\SDL\PlutoUtils\PlutoDefs.h"\
+	"..\SDL\RendererOCG.h"\
+	"..\SDL\SDL\PlutoSDLDefs.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Debug"
+
+DEP_CPP_SDLRE=\
+	"..\SDL\SDLRendererOCGHelper.h"\
+	
+NODEP_CPP_SDLRE=\
+	"..\SDL\PlutoUtils\PlutoDefs.h"\
+	"..\SDL\RendererOCG.h"\
+	"..\SDL\SDL\PlutoSDLDefs.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_SDLRE=\
+	"..\SDL\SDLRendererOCGHelper.h"\
+	
+NODEP_CPP_SDLRE=\
+	"..\SDL\PlutoUtils\PlutoDefs.h"\
+	"..\SDL\RendererOCG.h"\
+	"..\SDL\SDL\PlutoSDLDefs.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_SDLRE=\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\begin_code.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\close_code.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_active.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_audio.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_byteorder.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_cdrom.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_error.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_events.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_getenv.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_joystick.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_keyboard.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_keysym.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_main.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_mouse.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_mutex.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_quit.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_rwops.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_timer.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_types.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_version.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_video.h"\
+	"..\..\PlutoUtils\PlutoDefs.h"\
+	"..\RendererOCG.h"\
+	"..\SDL\PlutoSDLDefs.h"\
+	"..\SDL\SDLRendererOCGHelper.h"\
 	
 
 !ENDIF 

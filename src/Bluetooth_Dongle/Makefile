@@ -33,6 +33,8 @@ sources += \
 	../Orbiter/RendererMNG.cpp \
 	../Orbiter/TextStyle.cpp \
 	../Orbiter/CacheImageManager.cpp \
+	../Orbiter/RendererOCG.cpp \ 
+	../Orbiter/SDL/SDLRendererOCGHelper.cpp \
 	../Orbiter/SDL/SDLGraphic.cpp \
 	../Orbiter/SDL/OrbiterSDL.cpp \
 	../Splitter/TextWrapper.cpp \

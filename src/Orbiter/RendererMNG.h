@@ -12,7 +12,7 @@ extern const char * MNGsignature;
 class MNGHeader;
 class PNGChunk;
 
-unsigned long & ReverseEndian(unsigned long & N);
+unsigned long & ReverseaEndian(unsigned long & N);
 void ParseMNGHeader(const char * RawData, MNGHeader * Header);
 bool ReadChunk(FILE * f, PNGChunk * chunk);
 

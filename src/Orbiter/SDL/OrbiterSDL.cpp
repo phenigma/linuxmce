@@ -21,6 +21,10 @@
 #include "OrbiterSDL.h"
 #include "SerializeClass/ShapesColors.h"
 
+#include "SDL/PlutoSDLDefs.h"
+#include "RendererOCG.h"
+#include "SDL/SDLRendererOCGHelper.h"
+
 #include "pluto_main/Define_DeviceCategory.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "DataGrid.h"
@@ -38,18 +42,6 @@
 
 #ifdef WINCE
 	#include "wince.h"
-#endif
-
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-    Uint32 rmask = 0xff000000;
-    Uint32 gmask = 0x00ff0000;
-    Uint32 bmask = 0x0000ff00;
-    Uint32 amask = 0x000000ff;
-#else
-    Uint32 rmask = 0x000000ff;
-    Uint32 gmask = 0x0000ff00;
-    Uint32 bmask = 0x00ff0000;
-    Uint32 amask = 0xff000000;
 #endif
 
 using namespace DCE;
@@ -121,8 +113,6 @@ g_pPlutoLogger->Write(LV_STATUS, "about to free surface");
 
     m_pScreenImage = NULL;
 
-	//SDL_Quit();
-
 g_pPlutoLogger->Write(LV_STATUS, "~OrbiterSDL finished");
 }
 //-----------------------------------------------------------------------------------------------------
@@ -137,6 +127,24 @@ g_pPlutoLogger->Write(LV_STATUS, "~OrbiterSDL finished");
     }
 
     Orbiter::RenderScreen();
+
+/*
+#if ( defined( PROFILING ) )
+	clock_t clkStart = clock();
+#endif
+	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
+
+	SDL_Surface *pMySurface = SDL_LoadOCG("bubu.ocg");
+	SDL_BlitSurface(pMySurface, NULL, m_pScreenImage, NULL);
+
+#if ( defined( PROFILING ) )
+	clock_t clkFinished = clock();
+	g_pPlutoLogger->Write( LV_CONTROLLER, "~~~~~ LoadOCG took %d ms ~~~~~", clkFinished - clkStart);
+#endif
+
+	SDL_FreeSurface(pMySurface);
+*/
+
     DisplayImageOnScreen(m_pScreenImage);
 }
 //-----------------------------------------------------------------------------------------------------
@@ -151,6 +159,7 @@ g_pPlutoLogger->Write(LV_STATUS, "~OrbiterSDL finished");
 #endif
 
 	SDL_UpdateRect(Screen, 0, 0, 0, 0);
+
 //g_pPlutoLogger->Write(LV_STATUS,"Exit display image on screen");
 }
 //-----------------------------------------------------------------------------------------------------
@@ -403,13 +412,21 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::UpdateRect(PlutoRectangle rect)
 {
-	if( rect.X<0 || rect.Y<0 || rect.Right()>m_Width || rect.Bottom()>m_Height )
-	{
-g_pPlutoLogger->Write(LV_CRITICAL, "Before UpdateRect x: %d y: %d w: %d h: %d", rect.X, rect.Y, rect.Width, rect.Height);
-rect.X=rect.Y=0;
-rect.Width=m_Width;
-rect.Height=m_Height;
-}
+	//clipping the rectangle 
+	//	SDL_UpdateRect dies in Linux if we are trying to update 
+	//	a rectangle outside the screen
+	if(rect.X < 0)
+		rect.X = 0;
+
+	if(rect.Y < 0)
+		rect.Y = 0;
+
+	if(rect.Right() >= m_Width)
+		rect.Width = m_Width - rect.X - 1;
+
+	if(rect.Bottom() >= m_Height)
+		rect.Height = m_Height - rect.Y - 1;
+
 	PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
 
 #ifdef USE_ONLY_SCREEN_SURFACE

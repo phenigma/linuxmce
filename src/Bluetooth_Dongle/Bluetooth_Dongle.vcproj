@@ -247,7 +247,13 @@
 				RelativePath="..\Orbiter\RendererMNG.cpp">
 			</File>
 			<File
+				RelativePath="..\Orbiter\RendererOCG.cpp">
+			</File>
+			<File
 				RelativePath="..\Orbiter\Sdl\SDLGraphic.cpp">
+			</File>
+			<File
+				RelativePath="..\Orbiter\Sdl\SDLRendererOCGHelper.cpp">
 			</File>
 			<File
 				RelativePath="..\Orbiter\Simulator.cpp">
