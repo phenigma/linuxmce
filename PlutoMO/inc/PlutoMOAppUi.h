@@ -17,7 +17,7 @@
 #include <eikapp.h>
 #include <eikdoc.h>
 
-#define VERSION "<=version=>"
+#define VERSION "2.0.0.0"
 
 _LIT(KPlutoVMCFile,"C:\\system\\apps\\PlutoMO\\PlutoMO.vmc");
 
