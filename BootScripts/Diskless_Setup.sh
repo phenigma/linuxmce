@@ -209,6 +209,14 @@ for Client in $DisklessR; do
 	sed -i 's/localhost/dce_router/g' /usr/pluto/diskless/$IP/usr/pluto/bin/Start_LocalDevices_Static.sh
 	chmod +x /usr/pluto/diskless/$IP/usr/pluto/bin/Start_LocalDevices_Static.sh
 
+	echo "MySQL_access"
+	Q="GRANT ALL PRIVILEGES ON pluto_main.* TO 'root'@'$IP';
+	GRANT ALL PRIVILEGES ON mythconverg.* TO 'root'@'$IP';"
+	echo "$Q" | /usr/bin/mysql
+
 	echo
 	MoonNumber=$((MoonNumber+1))
 done
+
+Q="FLUSH PRIVILEGES;"
+echo "$Q" | /usr/bin/mysql

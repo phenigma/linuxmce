@@ -24,7 +24,7 @@ iptables -A INPUT -s "$IntNet/$IntBitmask" -j ACCEPT
 iptables -t nat -A POSTROUTING -s "$IntNet/$IntBitmask" -j MASQUERADE
 
 echo "Setting up forwarded ports"
-Q="SELECT Protocol,SourcePort,SourcePortEnd,DestinationPort,DestinationIP FROM PortForward ORDER BY PK_PortForward"
+Q="SELECT Protocol,SourcePort,SourcePortEnd,DestinationPort,DestinationIP FROM PortForward WHERE Type='port_forward' ORDER BY PK_PortForward"
 R=$(RunSQL "$Q")
 
 ForwardPort()
@@ -35,10 +35,12 @@ ForwardPort()
 	ExtIP="$2"
 	SrcPort="$3"
 	DestIP="$4"
-	DesrPort="$5"
+	DestPort="$5"
+
+	[ "$DestPort" -eq 0 ] && DestPort="$SrcPort"
 	
-	echo "  Source port: $Port; Destination: $DestIP:$DNATport"
-	iptables -t nat -A PREROUTING -p "$Protocol" -d "$ExtIP" --dport "$Port" -j DNAT --to-destination "$DestIP:$DNATport"
+	echo "  Source port: $SrcPort/$Protocol; Destination: $DestIP:$DestPort"
+	iptables -t nat -A PREROUTING -p "$Protocol" -d "$ExtIP" --dport "$SrcPort" -j DNAT --to-destination "$DestIP:$DestPort"
 }
 
 for Port in $R; do
@@ -49,9 +51,12 @@ for Port in $R; do
 	DestIP=$(Field 5 "$Port")
 
 	if [ "$SrcPortEnd" -eq 0 ]; then
-		DNATport="$DestPort"
-		[ "$DNATport" -eq 0 ] && DNATport=$SrcPort
+		ForwardPort "$Protocol" "$ExtIP" "$SrcPort" "$DestIP" "$DestPort"
 	else
+		DPort="$DestPort"
+		for SPort in $(seq $SrcPort $SrcPortEnd); do
+			ForwardPort "$Protocol" "$ExtIP" "$SPort" "$DestIP" "$DPort"
+			: $((++DPort))
+		done
 	fi
-	
 done

@@ -4,7 +4,7 @@ RunSQL()
 {
 	local Q
 	Q="$*"
-	[ -z "$Q" ] || echo "$Q;" | mysql pluto_main | tail +2 | tr '\n\t ' ' ,~'
+	[ -z "$Q" ] || echo "$Q;" | mysql -N pluto_main | tr '\n\t ' ' ,~'
 }
 
 Field()
