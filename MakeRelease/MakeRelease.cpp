@@ -1086,7 +1086,6 @@ cout << "Copying Files\n";
 						cmd = "cp -f " + pFileInfo->m_sSource + " " + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 					}
 					system(cmd.c_str());
-					cout << cmd.c_str() << endl;
 #endif
 				}
 				flag = true;
@@ -1110,10 +1109,8 @@ cout << "Copying Files\n";
 #else
 					cmd = "cp -f " + pFileInfo->m_sSource + " " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 					system(cmd.c_str());
-					cout << cmd.c_str() << endl;
 					cmd = "cvs add " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 					system(cmd.c_str());
-					cout << cmd.c_str() << endl;
 #endif
 				}
 				else {
@@ -1127,11 +1124,8 @@ cout << "Copying Files\n";
 						mkdir(cmd.c_str(), 0777);
 						cmd2 = "cp " + pFileInfo->m_sSource + " " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 						system(cmd2.c_str());
-						cout << cmd.c_str() << endl;
 						cmd2 = "cvs add " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 						system(cmd2.c_str());
-						cout << cmd2.c_str() << endl;
-
 #endif
 					}
 					else {
@@ -1151,18 +1145,21 @@ cout << "Copying Files\n";
 		}
 		flag = false;
 	}
-	return true;
 ///////////////////////////////////////////////////////////
 ////////---------------- Findinf old files and delete them
 	flag = false;
 	cout << "Removing older files\n";
 	for (iMyList = MyList.begin();iMyList != MyList.end(); iMyList++)
 	{
-			cmd2 = FileUtils::BasePath(*iMyList);
-			pos = cmd2.rfind("/");
-			length = cmd2.length();
-			cmd2 = cmd2.substr(pos+1,length-pos-1);
+		cmd2 = FileUtils::BasePath(*iMyList);
+		pos = cmd2.rfind("/");
+		length = cmd2.length();
+		cmd2 = cmd2.substr(pos+1,length-pos-1);
+		if(cmd2 == "") {
+			cmd2 = FileUtils::FilenameWithoutPath(*iMyList);
+		} else {
 			cmd2 = cmd2 + "/" + FileUtils::FilenameWithoutPath(*iMyList);
+		}
 		for (iFileInfo = listFileInfo.begin();iFileInfo != listFileInfo.end(); iFileInfo++)
 		{
 			FileInfo *pFileInfo = (*iFileInfo);
@@ -1171,18 +1168,23 @@ cout << "Copying Files\n";
 			pos = cmd.rfind("/");
 			length = cmd.length();
 			cmd = cmd.substr(pos+1,length-pos-1);
-			cmd = cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+			if(cmd.compare(pRow_Package_Source->Name_get()) == 0)) {
+				cmd = FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+			} else {
+				cmd = cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+			}
 			
 			cout << cmd.c_str() << "=" << cmd2.c_str() << endl;
 			if(cmd.compare (cmd2) == 0) {
 				flag = true;
+				break;
 			}
 		}
 		if (flag != true) {
-				cmd = "rm -r -f " + cmd2 + "/" + FileUtils::FilenameWithoutPath(*iMyList);
+				cmd = "rm -r -f " + cmd2
 				system(cmd.c_str());
 				cout << cmd << endl;
-				cmd = "cvs remove " + cmd2 + "/" + FileUtils::FilenameWithoutPath(*iMyList);
+				cmd = "cvs remove " + cmd2
 				system(cmd.c_str());
 				cout << cmd << endl;
 		}
