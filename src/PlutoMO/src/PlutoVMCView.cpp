@@ -27,6 +27,7 @@
 #include "PlutoVMCView.h"
 #include "PlutoVMCUtil.h"
 #include "PlutoVMCContainer.h" 
+#include "PlutoMOAppUi.h"
 // ================= MEMBER FUNCTIONS =======================
 
 // C++ default constructor can NOT contain any code, that
@@ -119,7 +120,7 @@ void CPlutoVMCView::DoActivateL(const TVwsViewId& /*aPrevViewId*/,
     AppUi()->AddToStackL(*this, iContainer);
 
 	TRect xrect = ClientRect();
-	TRect rect(0, 0, 176, 300);
+	TRect rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
     iContainer->SetRect(rect);
 
 	bReadyToRedraw = true;

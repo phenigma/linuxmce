@@ -99,9 +99,7 @@ protected:
 	virtual void MessageBox(const char *Message,const char *Title)=0;
 	virtual bool DrawImage(const char *Filename,int X,int Y,int Width,int Height)=0;
 	virtual bool DrawImage(unsigned char ImageType,void *pGraphic,int GraphicSize,int X,int Y,int Width,int Height)=0;
-#ifdef VIPDESIGN
 	virtual bool Draw3dRect(MyRect &r)=0;
-#endif
 	virtual bool DrawText(const char *Text, MyRect &r)=0;
 	virtual void SetTextProperties(int Size,const char *Font,int R, int G, int B)=0;
 	virtual void SwitchToMenu(VIPMenu *pMenu)=0;

@@ -36,8 +36,7 @@
 #include "PlutoVMCView.h"
 #include "ImageLoader.h"
 
-#define SCREEN_WIDTH  176
-#define SCREEN_HEIGHT 300
+//#define TEST_DATAGRID
 
 //------------------------------------------------------------------------------------------------------------------
 CPlutoVMCUtil::CPlutoVMCUtil(TUid aUid, TScope scop/*=EThread*/) : CCoeStatic(aUid, scop)
@@ -60,8 +59,8 @@ CPlutoVMCUtil::CPlutoVMCUtil(TUid aUid, TScope scop/*=EThread*/) : CCoeStatic(aU
 
 	m_GridList.Reset();
 
-	/*
-	//HACK!! (testing showlist command)
+	//TEST! (testing showlist command)
+#ifdef TEST_DATAGRID
 	m_bGridExists = true;
 
 	m_uGridX = 10;
@@ -79,10 +78,10 @@ CPlutoVMCUtil::CPlutoVMCUtil(TUid aUid, TScope scop/*=EThread*/) : CCoeStatic(aU
 	m_GridList.Append(new string("18:30 ProTV - film"));
 	m_GridList.Append(new string("19:30 ProTV\nStirile ProTV"));
 	m_GridList.Append(new string("19:50 ProTV\nStirile ProTV"));
-	*/
+#endif
 
 	/*
-	//HACK!! (testing capture keyboard command)
+	//TEST!! (testing capture keyboard command)
 	m_CaptureKeyboardParam.bOnOff = true;
 	m_CaptureKeyboardParam.bDataGrid = true;
 	m_CaptureKeyboardParam.bReset = true;
@@ -305,7 +304,8 @@ void CPlutoVMCUtil::SetCaptureKeyboardCommand(
 /*virtual*/ bool CPlutoVMCUtil::DrawText(const char *Text, MyRect &r)
 {
 	//TODO: Use Radu's word wrap class
-	TPoint point(r.top, r.left);
+
+	TPoint point(r.left, r.top);
     m_pGC->DrawText(string(Text).Des(), point);
 
 	return true;
@@ -477,10 +477,10 @@ void CPlutoVMCUtil::SetCaptureKeyboardCommand(
 			const char *pStr1 = s1.c_str();
 			const char *pStr2 = s2.c_str();
 
-
-			MyRect RowRect1(X + SmallOffsetX, Y + SmallOffsetY +  (i - m_uGridTopItem) * RowHeight + iExpandOffset, Width, RowHeight);
+			//MyRect( top !!!, left, ...) << offf...
+			MyRect RowRect1(Y + SmallOffsetY +  (i - m_uGridTopItem) * RowHeight + iExpandOffset, X + SmallOffsetX, Width, RowHeight);
 			DrawText(pStr1, RowRect1);
-			MyRect RowRect2(X + SmallOffsetX, Y + SmallOffsetY +  (i - m_uGridTopItem) * RowHeight + iExpandOffset + iItemSizeOffset, Width, RowHeight);
+			MyRect RowRect2(Y + SmallOffsetY +  (i - m_uGridTopItem) * RowHeight + iExpandOffset + iItemSizeOffset, X + SmallOffsetX, Width, RowHeight);
 			DrawText(pStr2, RowRect2);			
 
 			iExpandOffset += RowHeight;
@@ -490,7 +490,7 @@ void CPlutoVMCUtil::SetCaptureKeyboardCommand(
 		}
 		else
 		{
-			MyRect RowRect(X + SmallOffsetX, Y + SmallOffsetY +  (i - m_uGridTopItem) * RowHeight + iExpandOffset, Width, RowHeight);
+			MyRect RowRect(Y + SmallOffsetY +  (i - m_uGridTopItem) * RowHeight + iExpandOffset, X + SmallOffsetX, Width, RowHeight);
 			DrawText(pStr, RowRect);
 		}
 
@@ -756,7 +756,7 @@ void CPlutoVMCUtil::SetImage(unsigned char Type, unsigned long Size, const char 
 	m_pGC->DrawRect(rect);
 
 	SetTextProperties(1, "Swiss", 255, 255, 255);
-	MyRect RowRect(EditX + 15, EditY + 15, EditWidth, EditHeight);
+	MyRect RowRect(EditY + 15, EditX + 15, EditWidth, EditHeight);
 
 	const char *pStr = m_CaptureKeyboardParam.sVariableValue.c_str();
 
@@ -833,5 +833,27 @@ void CPlutoVMCUtil::OpenProgram(string ProgramName)
 	pApp->iURL.Copy(pApp->iURLClone);
 	pApp->iURL.Append(ProgramName.Des());
 	pApp->LaunchBrowser();
+}
+//------------------------------------------------------------------------------------------------------------------
+bool CPlutoVMCUtil::Draw3dRect(MyRect &rect)
+{
+	TRgb black(0,0,0);
+	TRgb darkGray(85,85,85);
+	TRgb liteGray(140,140,200);//light gray + blue
+	TRgb white(255,255,255); // appears as blank screen gray-green color
+	TRgb blue(50,50,255); // appears as blank screen gray-green color
+	TRgb red(255, 0, 0); //darkRed
+
+	
+	//m_pGC->SetBrushStyle(CGraphicsContext::ESolidBrush);
+	//m_pGC->SetPenStyle(CGraphicsContext::ENullPen);
+
+	//background border - darkGray
+	//m_pGC->SetBrushColor(darkGray);
+
+	//TRect ItemRect(rect.left, rect.top, rect.right, rect.bottom);
+	//m_pGC->DrawRect(ItemRect);
+
+	return true;
 }
 //------------------------------------------------------------------------------------------------------------------

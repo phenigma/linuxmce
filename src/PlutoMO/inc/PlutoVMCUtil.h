@@ -81,6 +81,7 @@ protected:
 		virtual bool DrawEdit();
 
 		virtual void OpenProgram(string ProgramName);
+		virtual bool Draw3dRect(MyRect &r);
 		
 
 private:

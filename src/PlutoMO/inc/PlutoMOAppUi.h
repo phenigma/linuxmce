@@ -37,6 +37,9 @@ class CIncomingCallWatcher;
 #define MAX_PHONE_TYPES 100
 #define MAX_EVENT_TYPES	10
 //----------------------------------------------------------------------------------------------
+#define SCREEN_WIDTH  176
+#define SCREEN_HEIGHT 208 
+//----------------------------------------------------------------------------------------------
 class CPlutoPhoneTypes
 {
 public:

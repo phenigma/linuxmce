@@ -4,6 +4,7 @@
 #include <aknconsts.h>
 //#include <MultiViews.rsg>
 
+#include "PlutoMoAppUi.h"
 #include "PlutoEventView.h"
 #include "PlutoEventContainer.h"
 //#include "MultiViews.hrh"
@@ -37,7 +38,7 @@ void CPlutoEventView::DoActivateL(const TVwsViewId& /*aPrevViewId*/,
     iContainer = CPlutoEventContainer::NewL(ClientRect());
 
 	TRect xrect = ClientRect();
-	TRect rect(0, 0, 176, 300);
+	TRect rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
     iContainer->SetRect(rect);
     }
 

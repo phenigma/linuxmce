@@ -6,9 +6,6 @@
 #include "PlutoMOAppUi.h"
 #include <coecobs.h>
 
-#define SCREEN_WIDTH  176
-#define SCREEN_HEIGHT 300
-
 CPlutoEventContainer* CPlutoEventContainer::NewL(const TRect& aRect)
     {
     CPlutoEventContainer* self = CPlutoEventContainer::NewLC(aRect);
