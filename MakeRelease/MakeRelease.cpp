@@ -77,7 +77,7 @@ int k=2;
 
 string g_sPackages, g_sManufacturer, g_sSourcecodePrefix, g_sNonSourcecodePrefix;
 string g_sPK_RepositorySource;
-int g_iPK_Distro=0;
+int g_iPK_Distro=0,g_iSVNRevision=0;
 bool g_bBuildSource = true, g_bCreatePackage = true, g_bInteractive = false, g_bSimulate = false, g_bSupressPrompts = false;
 Database_pluto_main *g_pDatabase_pluto_main;
 Row_Version *g_pRow_Version;
@@ -117,7 +117,12 @@ bool CopySourceFile(string sInput,string sOutput)
 {
 	if( !g_bSimulate && StringUtils::EndsWith(sInput,".cpp",true) || StringUtils::EndsWith(sInput,".c",true) ||
 			StringUtils::EndsWith(sInput,".h",true) )
-		return StringUtils::Replace( sInput, sOutput, "<=version=>", g_pRow_Version->VersionName_get() );
+	{
+		if( !StringUtils::Replace( sInput, "/mkrelease_temp_file", "/*SVN_REVISION*/", "int g_SvnRevision=" + StringUtils::itos(g_iSVNRevision)) + ";" )
+			return false;
+
+		return StringUtils::Replace( "/mkrelease_temp_file", sOutput, "<=version=>", g_pRow_Version->VersionName_get() );
+	}
 	else
 		return FileUtils::PUCopyFile(sInput,sOutput);
 }
@@ -162,6 +167,9 @@ int main(int argc, char *argv[])
 			break;
 		case 'r':
 			g_sPK_RepositorySource = argv[++optnum];
+			break;
+		case 'R':
+			g_iSVNRevision = atoi(argv[++optnum]);
 			break;
 		case 'b':
 			g_bBuildSource = false;
