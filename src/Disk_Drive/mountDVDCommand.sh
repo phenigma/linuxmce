@@ -28,6 +28,9 @@ if [ "$OLD_PIDS" != "" ]; then
 	kill -15 $OLD_PIDS || true;
 fi
 
+# Limit the number of file descriptors to a sane value. Not all the 
+# application open sockets and never close them.
+ulimit -n 128
 $SOFTWARE_BINARY "$FILE" $PORT >> /var/log/pluto/dvd_mounts.log &
 
 TRIES=5;
