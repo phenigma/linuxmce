@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_Device_Device_Related()
 
 void Database_pluto_main::DeleteTable_Device_Device_Related()
 {
-	delete tblDevice_Device_Related;
+	if( tblDevice_Device_Related )
+		delete tblDevice_Device_Related;
 }
 
 Table_Device_Device_Related::~Table_Device_Device_Related()

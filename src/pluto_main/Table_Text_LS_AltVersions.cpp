@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_Text_LS_AltVersions()
 
 void Database_pluto_main::DeleteTable_Text_LS_AltVersions()
 {
-	delete tblText_LS_AltVersions;
+	if( tblText_LS_AltVersions )
+		delete tblText_LS_AltVersions;
 }
 
 Table_Text_LS_AltVersions::~Table_Text_LS_AltVersions()

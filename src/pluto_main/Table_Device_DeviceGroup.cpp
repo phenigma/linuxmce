@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_Device_DeviceGroup()
 
 void Database_pluto_main::DeleteTable_Device_DeviceGroup()
 {
-	delete tblDevice_DeviceGroup;
+	if( tblDevice_DeviceGroup )
+		delete tblDevice_DeviceGroup;
 }
 
 Table_Device_DeviceGroup::~Table_Device_DeviceGroup()

@@ -32,7 +32,8 @@ void Database_pluto_main::CreateTable_StyleVariation()
 
 void Database_pluto_main::DeleteTable_StyleVariation()
 {
-	delete tblStyleVariation;
+	if( tblStyleVariation )
+		delete tblStyleVariation;
 }
 
 Table_StyleVariation::~Table_StyleVariation()

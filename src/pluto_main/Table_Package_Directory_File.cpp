@@ -30,7 +30,8 @@ void Database_pluto_main::CreateTable_Package_Directory_File()
 
 void Database_pluto_main::DeleteTable_Package_Directory_File()
 {
-	delete tblPackage_Directory_File;
+	if( tblPackage_Directory_File )
+		delete tblPackage_Directory_File;
 }
 
 Table_Package_Directory_File::~Table_Package_Directory_File()

@@ -35,7 +35,8 @@ void Database_pluto_main::CreateTable_OperatingSystem()
 
 void Database_pluto_main::DeleteTable_OperatingSystem()
 {
-	delete tblOperatingSystem;
+	if( tblOperatingSystem )
+		delete tblOperatingSystem;
 }
 
 Table_OperatingSystem::~Table_OperatingSystem()

@@ -32,7 +32,8 @@ void Database_pluto_main::CreateTable_MediaType()
 
 void Database_pluto_main::DeleteTable_MediaType()
 {
-	delete tblMediaType;
+	if( tblMediaType )
+		delete tblMediaType;
 }
 
 Table_MediaType::~Table_MediaType()

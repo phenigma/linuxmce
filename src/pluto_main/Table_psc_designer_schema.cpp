@@ -27,7 +27,8 @@ void Database_pluto_main::CreateTable_psc_designer_schema()
 
 void Database_pluto_main::DeleteTable_psc_designer_schema()
 {
-	delete tblpsc_designer_schema;
+	if( tblpsc_designer_schema )
+		delete tblpsc_designer_schema;
 }
 
 Table_psc_designer_schema::~Table_psc_designer_schema()

@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_PaidLicense()
 
 void Database_pluto_main::DeleteTable_PaidLicense()
 {
-	delete tblPaidLicense;
+	if( tblPaidLicense )
+		delete tblPaidLicense;
 }
 
 Table_PaidLicense::~Table_PaidLicense()

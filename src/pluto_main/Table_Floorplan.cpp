@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_Floorplan()
 
 void Database_pluto_main::DeleteTable_Floorplan()
 {
-	delete tblFloorplan;
+	if( tblFloorplan )
+		delete tblFloorplan;
 }
 
 Table_Floorplan::~Table_Floorplan()

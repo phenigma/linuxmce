@@ -34,7 +34,8 @@ void Database_pluto_main::CreateTable_Pipe()
 
 void Database_pluto_main::DeleteTable_Pipe()
 {
-	delete tblPipe;
+	if( tblPipe )
+		delete tblPipe;
 }
 
 Table_Pipe::~Table_Pipe()

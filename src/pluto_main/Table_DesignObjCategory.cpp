@@ -30,7 +30,8 @@ void Database_pluto_main::CreateTable_DesignObjCategory()
 
 void Database_pluto_main::DeleteTable_DesignObjCategory()
 {
-	delete tblDesignObjCategory;
+	if( tblDesignObjCategory )
+		delete tblDesignObjCategory;
 }
 
 Table_DesignObjCategory::~Table_DesignObjCategory()

@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_ConfigType_Setting()
 
 void Database_pluto_main::DeleteTable_ConfigType_Setting()
 {
-	delete tblConfigType_Setting;
+	if( tblConfigType_Setting )
+		delete tblConfigType_Setting;
 }
 
 Table_ConfigType_Setting::~Table_ConfigType_Setting()

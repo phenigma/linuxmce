@@ -66,6 +66,7 @@ Climate_Plugin::Climate_Plugin(int DeviceID, string ServerAddress,bool bConnectE
 Climate_Plugin::~Climate_Plugin()
 //<-dceag-dest-e->
 {
+	delete m_pDatabase_pluto_main;
 }
 
 //<-dceag-reg-b->

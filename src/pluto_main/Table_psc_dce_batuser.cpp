@@ -28,7 +28,8 @@ void Database_pluto_main::CreateTable_psc_dce_batuser()
 
 void Database_pluto_main::DeleteTable_psc_dce_batuser()
 {
-	delete tblpsc_dce_batuser;
+	if( tblpsc_dce_batuser )
+		delete tblpsc_dce_batuser;
 }
 
 Table_psc_dce_batuser::~Table_psc_dce_batuser()

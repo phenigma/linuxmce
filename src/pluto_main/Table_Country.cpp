@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_Country()
 
 void Database_pluto_main::DeleteTable_Country()
 {
-	delete tblCountry;
+	if( tblCountry )
+		delete tblCountry;
 }
 
 Table_Country::~Table_Country()

@@ -27,7 +27,8 @@ void Database_pluto_main::CreateTable_System()
 
 void Database_pluto_main::DeleteTable_System()
 {
-	delete tblSystem;
+	if( tblSystem )
+		delete tblSystem;
 }
 
 Table_System::~Table_System()

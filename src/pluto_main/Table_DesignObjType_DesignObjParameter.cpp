@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_DesignObjType_DesignObjParameter()
 
 void Database_pluto_main::DeleteTable_DesignObjType_DesignObjParameter()
 {
-	delete tblDesignObjType_DesignObjParameter;
+	if( tblDesignObjType_DesignObjParameter )
+		delete tblDesignObjType_DesignObjParameter;
 }
 
 Table_DesignObjType_DesignObjParameter::~Table_DesignObjType_DesignObjParameter()

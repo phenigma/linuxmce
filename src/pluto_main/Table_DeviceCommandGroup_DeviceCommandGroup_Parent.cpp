@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_DeviceCommandGroup_DeviceCommandGroup_Pare
 
 void Database_pluto_main::DeleteTable_DeviceCommandGroup_DeviceCommandGroup_Parent()
 {
-	delete tblDeviceCommandGroup_DeviceCommandGroup_Parent;
+	if( tblDeviceCommandGroup_DeviceCommandGroup_Parent )
+		delete tblDeviceCommandGroup_DeviceCommandGroup_Parent;
 }
 
 Table_DeviceCommandGroup_DeviceCommandGroup_Parent::~Table_DeviceCommandGroup_DeviceCommandGroup_Parent()

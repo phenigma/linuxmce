@@ -31,7 +31,8 @@ void Database_pluto_main::CreateTable_DHCPDevice()
 
 void Database_pluto_main::DeleteTable_DHCPDevice()
 {
-	delete tblDHCPDevice;
+	if( tblDHCPDevice )
+		delete tblDHCPDevice;
 }
 
 Table_DHCPDevice::~Table_DHCPDevice()

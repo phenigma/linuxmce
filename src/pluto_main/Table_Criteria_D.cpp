@@ -32,7 +32,8 @@ void Database_pluto_main::CreateTable_Criteria_D()
 
 void Database_pluto_main::DeleteTable_Criteria_D()
 {
-	delete tblCriteria_D;
+	if( tblCriteria_D )
+		delete tblCriteria_D;
 }
 
 Table_Criteria_D::~Table_Criteria_D()

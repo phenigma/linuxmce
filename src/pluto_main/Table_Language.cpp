@@ -33,7 +33,8 @@ void Database_pluto_main::CreateTable_Language()
 
 void Database_pluto_main::DeleteTable_Language()
 {
-	delete tblLanguage;
+	if( tblLanguage )
+		delete tblLanguage;
 }
 
 Table_Language::~Table_Language()

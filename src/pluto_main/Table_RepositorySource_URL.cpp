@@ -30,7 +30,8 @@ void Database_pluto_main::CreateTable_RepositorySource_URL()
 
 void Database_pluto_main::DeleteTable_RepositorySource_URL()
 {
-	delete tblRepositorySource_URL;
+	if( tblRepositorySource_URL )
+		delete tblRepositorySource_URL;
 }
 
 Table_RepositorySource_URL::~Table_RepositorySource_URL()

@@ -32,7 +32,8 @@ void Database_pluto_main::CreateTable_Device_Device_Pipe()
 
 void Database_pluto_main::DeleteTable_Device_Device_Pipe()
 {
-	delete tblDevice_Device_Pipe;
+	if( tblDevice_Device_Pipe )
+		delete tblDevice_Device_Pipe;
 }
 
 Table_Device_Device_Pipe::~Table_Device_Device_Pipe()

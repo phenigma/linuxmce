@@ -31,7 +31,8 @@ void Database_pluto_main::CreateTable_psc_document_batdet()
 
 void Database_pluto_main::DeleteTable_psc_document_batdet()
 {
-	delete tblpsc_document_batdet;
+	if( tblpsc_document_batdet )
+		delete tblpsc_document_batdet;
 }
 
 Table_psc_document_batdet::~Table_psc_document_batdet()

@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_VertAlignment()
 
 void Database_pluto_main::DeleteTable_VertAlignment()
 {
-	delete tblVertAlignment;
+	if( tblVertAlignment )
+		delete tblVertAlignment;
 }
 
 Table_VertAlignment::~Table_VertAlignment()

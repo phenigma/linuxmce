@@ -54,6 +54,7 @@ Infrared_Plugin::Infrared_Plugin(int DeviceID, string ServerAddress,bool bConnec
 Infrared_Plugin::~Infrared_Plugin()
 //<-dceag-dest-e->
 {
+	delete m_pDatabase_pluto_main;
 }
 
 //<-dceag-reg-b->

@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_Orbiter_Variable()
 
 void Database_pluto_main::DeleteTable_Orbiter_Variable()
 {
-	delete tblOrbiter_Variable;
+	if( tblOrbiter_Variable )
+		delete tblOrbiter_Variable;
 }
 
 Table_Orbiter_Variable::~Table_Orbiter_Variable()

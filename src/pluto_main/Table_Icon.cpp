@@ -30,7 +30,8 @@ void Database_pluto_main::CreateTable_Icon()
 
 void Database_pluto_main::DeleteTable_Icon()
 {
-	delete tblIcon;
+	if( tblIcon )
+		delete tblIcon;
 }
 
 Table_Icon::~Table_Icon()

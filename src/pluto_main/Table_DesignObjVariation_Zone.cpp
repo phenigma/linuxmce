@@ -31,7 +31,8 @@ void Database_pluto_main::CreateTable_DesignObjVariation_Zone()
 
 void Database_pluto_main::DeleteTable_DesignObjVariation_Zone()
 {
-	delete tblDesignObjVariation_Zone;
+	if( tblDesignObjVariation_Zone )
+		delete tblDesignObjVariation_Zone;
 }
 
 Table_DesignObjVariation_Zone::~Table_DesignObjVariation_Zone()

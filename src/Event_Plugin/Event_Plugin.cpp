@@ -127,6 +127,7 @@ CriteriaParmNesting *Event_Plugin::LoadCriteriaParmNesting(CriteriaParmNesting *
 Event_Plugin::~Event_Plugin()
 //<-dceag-dest-e->
 {
+	delete m_pDatabase_pluto_main;
 }
 
 //<-dceag-reg-b->

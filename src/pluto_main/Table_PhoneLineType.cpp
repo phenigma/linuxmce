@@ -27,7 +27,8 @@ void Database_pluto_main::CreateTable_PhoneLineType()
 
 void Database_pluto_main::DeleteTable_PhoneLineType()
 {
-	delete tblPhoneLineType;
+	if( tblPhoneLineType )
+		delete tblPhoneLineType;
 }
 
 Table_PhoneLineType::~Table_PhoneLineType()

@@ -77,6 +77,8 @@ void MediaAttributes::TransformFilenameToDeque(string sFilename,deque<MediaFile 
 	{
 		dequeFilenames.push_back(new MediaFile(this,sFilename));  // Just a normal file
 	}
+
+	delete m_pDatabase_pluto_media;
 }
 
 int MediaAttributes::CreatedMedia( int PK_Type, string FilePath, listMediaAttribute *plistMediaAttribute, listMediaPicture *plistMediaPicture )

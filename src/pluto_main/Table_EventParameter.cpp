@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_EventParameter()
 
 void Database_pluto_main::DeleteTable_EventParameter()
 {
-	delete tblEventParameter;
+	if( tblEventParameter )
+		delete tblEventParameter;
 }
 
 Table_EventParameter::~Table_EventParameter()

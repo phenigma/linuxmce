@@ -45,7 +45,8 @@ void Database_pluto_main::CreateTable_Installation()
 
 void Database_pluto_main::DeleteTable_Installation()
 {
-	delete tblInstallation;
+	if( tblInstallation )
+		delete tblInstallation;
 }
 
 Table_Installation::~Table_Installation()

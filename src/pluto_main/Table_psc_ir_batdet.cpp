@@ -31,7 +31,8 @@ void Database_pluto_main::CreateTable_psc_ir_batdet()
 
 void Database_pluto_main::DeleteTable_psc_ir_batdet()
 {
-	delete tblpsc_ir_batdet;
+	if( tblpsc_ir_batdet )
+		delete tblpsc_ir_batdet;
 }
 
 Table_psc_ir_batdet::~Table_psc_ir_batdet()

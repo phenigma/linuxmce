@@ -34,7 +34,8 @@ void Database_pluto_main::CreateTable_Document()
 
 void Database_pluto_main::DeleteTable_Document()
 {
-	delete tblDocument;
+	if( tblDocument )
+		delete tblDocument;
 }
 
 Table_Document::~Table_Document()

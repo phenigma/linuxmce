@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_License()
 
 void Database_pluto_main::DeleteTable_License()
 {
-	delete tblLicense;
+	if( tblLicense )
+		delete tblLicense;
 }
 
 Table_License::~Table_License()

@@ -27,7 +27,8 @@ void Database_pluto_main::CreateTable_psc_dce_repset()
 
 void Database_pluto_main::DeleteTable_psc_dce_repset()
 {
-	delete tblpsc_dce_repset;
+	if( tblpsc_dce_repset )
+		delete tblpsc_dce_repset;
 }
 
 Table_psc_dce_repset::~Table_psc_dce_repset()

@@ -27,7 +27,8 @@ void Database_pluto_main::CreateTable_psc_local_repset()
 
 void Database_pluto_main::DeleteTable_psc_local_repset()
 {
-	delete tblpsc_local_repset;
+	if( tblpsc_local_repset )
+		delete tblpsc_local_repset;
 }
 
 Table_psc_local_repset::~Table_psc_local_repset()

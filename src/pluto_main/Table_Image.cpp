@@ -27,7 +27,8 @@ void Database_pluto_main::CreateTable_Image()
 
 void Database_pluto_main::DeleteTable_Image()
 {
-	delete tblImage;
+	if( tblImage )
+		delete tblImage;
 }
 
 Table_Image::~Table_Image()

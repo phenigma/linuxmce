@@ -31,7 +31,8 @@ void Database_pluto_main::CreateTable_psc_designer_batdet()
 
 void Database_pluto_main::DeleteTable_psc_designer_batdet()
 {
-	delete tblpsc_designer_batdet;
+	if( tblpsc_designer_batdet )
+		delete tblpsc_designer_batdet;
 }
 
 Table_psc_designer_batdet::~Table_psc_designer_batdet()

@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_DeviceTemplate_PageSetup()
 
 void Database_pluto_main::DeleteTable_DeviceTemplate_PageSetup()
 {
-	delete tblDeviceTemplate_PageSetup;
+	if( tblDeviceTemplate_PageSetup )
+		delete tblDeviceTemplate_PageSetup;
 }
 
 Table_DeviceTemplate_PageSetup::~Table_DeviceTemplate_PageSetup()

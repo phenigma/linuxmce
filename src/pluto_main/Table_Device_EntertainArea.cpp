@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_Device_EntertainArea()
 
 void Database_pluto_main::DeleteTable_Device_EntertainArea()
 {
-	delete tblDevice_EntertainArea;
+	if( tblDevice_EntertainArea )
+		delete tblDevice_EntertainArea;
 }
 
 Table_Device_EntertainArea::~Table_Device_EntertainArea()

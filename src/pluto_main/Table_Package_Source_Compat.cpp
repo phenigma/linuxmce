@@ -30,7 +30,8 @@ void Database_pluto_main::CreateTable_Package_Source_Compat()
 
 void Database_pluto_main::DeleteTable_Package_Source_Compat()
 {
-	delete tblPackage_Source_Compat;
+	if( tblPackage_Source_Compat )
+		delete tblPackage_Source_Compat;
 }
 
 Table_Package_Source_Compat::~Table_Package_Source_Compat()

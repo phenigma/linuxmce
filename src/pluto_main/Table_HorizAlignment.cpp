@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_HorizAlignment()
 
 void Database_pluto_main::DeleteTable_HorizAlignment()
 {
-	delete tblHorizAlignment;
+	if( tblHorizAlignment )
+		delete tblHorizAlignment;
 }
 
 Table_HorizAlignment::~Table_HorizAlignment()

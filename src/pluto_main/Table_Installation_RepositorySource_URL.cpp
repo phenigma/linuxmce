@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_Installation_RepositorySource_URL()
 
 void Database_pluto_main::DeleteTable_Installation_RepositorySource_URL()
 {
-	delete tblInstallation_RepositorySource_URL;
+	if( tblInstallation_RepositorySource_URL )
+		delete tblInstallation_RepositorySource_URL;
 }
 
 Table_Installation_RepositorySource_URL::~Table_Installation_RepositorySource_URL()

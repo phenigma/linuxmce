@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_InstallWizard()
 
 void Database_pluto_main::DeleteTable_InstallWizard()
 {
-	delete tblInstallWizard;
+	if( tblInstallWizard )
+		delete tblInstallWizard;
 }
 
 Table_InstallWizard::~Table_InstallWizard()

@@ -27,7 +27,8 @@ void Database_pluto_main::CreateTable_Size()
 
 void Database_pluto_main::DeleteTable_Size()
 {
-	delete tblSize;
+	if( tblSize )
+		delete tblSize;
 }
 
 Table_Size::~Table_Size()

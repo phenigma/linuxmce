@@ -34,7 +34,8 @@ void Database_pluto_main::CreateTable_InfraredGroup_Command()
 
 void Database_pluto_main::DeleteTable_InfraredGroup_Command()
 {
-	delete tblInfraredGroup_Command;
+	if( tblInfraredGroup_Command )
+		delete tblInfraredGroup_Command;
 }
 
 Table_InfraredGroup_Command::~Table_InfraredGroup_Command()

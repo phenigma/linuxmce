@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_CommandGroup_EntertainArea()
 
 void Database_pluto_main::DeleteTable_CommandGroup_EntertainArea()
 {
-	delete tblCommandGroup_EntertainArea;
+	if( tblCommandGroup_EntertainArea )
+		delete tblCommandGroup_EntertainArea;
 }
 
 Table_CommandGroup_EntertainArea::~Table_CommandGroup_EntertainArea()

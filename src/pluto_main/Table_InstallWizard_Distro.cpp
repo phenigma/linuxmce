@@ -30,7 +30,8 @@ void Database_pluto_main::CreateTable_InstallWizard_Distro()
 
 void Database_pluto_main::DeleteTable_InstallWizard_Distro()
 {
-	delete tblInstallWizard_Distro;
+	if( tblInstallWizard_Distro )
+		delete tblInstallWizard_Distro;
 }
 
 Table_InstallWizard_Distro::~Table_InstallWizard_Distro()

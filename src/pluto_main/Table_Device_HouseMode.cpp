@@ -30,7 +30,8 @@ void Database_pluto_main::CreateTable_Device_HouseMode()
 
 void Database_pluto_main::DeleteTable_Device_HouseMode()
 {
-	delete tblDevice_HouseMode;
+	if( tblDevice_HouseMode )
+		delete tblDevice_HouseMode;
 }
 
 Table_Device_HouseMode::~Table_Device_HouseMode()

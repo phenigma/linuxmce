@@ -53,7 +53,8 @@ void Database_pluto_main::CreateTable_DesignObj()
 
 void Database_pluto_main::DeleteTable_DesignObj()
 {
-	delete tblDesignObj;
+	if( tblDesignObj )
+		delete tblDesignObj;
 }
 
 Table_DesignObj::~Table_DesignObj()

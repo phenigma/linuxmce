@@ -31,7 +31,8 @@ void Database_pluto_main::CreateTable_Manufacturer()
 
 void Database_pluto_main::DeleteTable_Manufacturer()
 {
-	delete tblManufacturer;
+	if( tblManufacturer )
+		delete tblManufacturer;
 }
 
 Table_Manufacturer::~Table_Manufacturer()

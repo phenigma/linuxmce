@@ -33,7 +33,8 @@ void Database_pluto_main::CreateTable_DesignObjVariation_Text_Skin_Language()
 
 void Database_pluto_main::DeleteTable_DesignObjVariation_Text_Skin_Language()
 {
-	delete tblDesignObjVariation_Text_Skin_Language;
+	if( tblDesignObjVariation_Text_Skin_Language )
+		delete tblDesignObjVariation_Text_Skin_Language;
 }
 
 Table_DesignObjVariation_Text_Skin_Language::~Table_DesignObjVariation_Text_Skin_Language()

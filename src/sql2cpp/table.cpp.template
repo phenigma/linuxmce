@@ -27,7 +27,8 @@ void Database_@database_name@::CreateTable_@table_name@()
 
 void Database_@database_name@::DeleteTable_@table_name@()
 {
-	delete tbl@table_name@;
+	if( tbl@table_name@ )
+		delete tbl@table_name@;
 }
 
 Table_@table_name@::~Table_@table_name@()

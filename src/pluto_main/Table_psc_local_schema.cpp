@@ -27,7 +27,8 @@ void Database_pluto_main::CreateTable_psc_local_schema()
 
 void Database_pluto_main::DeleteTable_psc_local_schema()
 {
-	delete tblpsc_local_schema;
+	if( tblpsc_local_schema )
+		delete tblpsc_local_schema;
 }
 
 Table_psc_local_schema::~Table_psc_local_schema()

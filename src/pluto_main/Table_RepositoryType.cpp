@@ -30,7 +30,8 @@ void Database_pluto_main::CreateTable_RepositoryType()
 
 void Database_pluto_main::DeleteTable_RepositoryType()
 {
-	delete tblRepositoryType;
+	if( tblRepositoryType )
+		delete tblRepositoryType;
 }
 
 Table_RepositoryType::~Table_RepositoryType()

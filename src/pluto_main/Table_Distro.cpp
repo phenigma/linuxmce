@@ -35,7 +35,8 @@ void Database_pluto_main::CreateTable_Distro()
 
 void Database_pluto_main::DeleteTable_Distro()
 {
-	delete tblDistro;
+	if( tblDistro )
+		delete tblDistro;
 }
 
 Table_Distro::~Table_Distro()

@@ -30,7 +30,8 @@ void Database_pluto_main::CreateTable_CannedEvents()
 
 void Database_pluto_main::DeleteTable_CannedEvents()
 {
-	delete tblCannedEvents;
+	if( tblCannedEvents )
+		delete tblCannedEvents;
 }
 
 Table_CannedEvents::~Table_CannedEvents()

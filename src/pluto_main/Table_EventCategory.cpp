@@ -30,7 +30,8 @@ void Database_pluto_main::CreateTable_EventCategory()
 
 void Database_pluto_main::DeleteTable_EventCategory()
 {
-	delete tblEventCategory;
+	if( tblEventCategory )
+		delete tblEventCategory;
 }
 
 Table_EventCategory::~Table_EventCategory()

@@ -57,6 +57,9 @@
 #define DEVICEDATA_CacheSize_CONST 58
 #define DEVICEDATA_Configuration_CONST 59
 #define DEVICEDATA_Mapping_CONST 60
+#define DEVICEDATA_ThreshHold_CONST 61
+#define DEVICEDATA_Serial_Port_CONST 62
+#define DEVICEDATA_LIRC_Driver_CONST 63
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

@@ -183,6 +183,8 @@ Media_Plugin::~Media_Plugin()
 //<-dceag-dest-e->
 {
     delete m_pMediaAttributes;
+	delete m_pDatabase_pluto_main;
+	delete m_pDatabase_pluto_media;
 }
 
 //<-dceag-reg-b->

@@ -94,6 +94,7 @@ Orbiter_Plugin::~Orbiter_Plugin()
 //<-dceag-dest-e->
 {
     m_mapUnknownDevices.clear();
+	delete m_pDatabase_pluto_main;
 }
 
 /* Kind of a hack -- The goal was to allow the lighting, telecom, media, climate and security plug-ins to be
@@ -290,6 +291,13 @@ bool Orbiter_Plugin::SafeToReload()
 {
 	if( m_listRegenCommands.size()==0 )
 		return true;
+
+	g_pPlutoLogger->Write(LV_STATUS,"Cannot reboot %d pending",(int) m_listRegenCommands.size());
+	for(list<int>::iterator it=m_listRegenCommands.begin();it!=m_listRegenCommands.end();++it)
+	{
+g_pPlutoLogger->Write(LV_STATUS,"Cannot reboot becaues of %d ",*it);
+	}
+
 
 	DisplayMessageOnOrbiter(0,"I'm still regenerating some Orbiter skins, and can't allow the reset until I'm finished.  You will get a message when I have finished.  Please try again then.",false,20,true);
 	return false;
@@ -1301,7 +1309,7 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 		return;
 	}
 	pOH_Orbiter->m_tRegenTime = 0;
-	g_pPlutoLogger->Write(LV_STATUS,"Regen finished for: %d",iPK_Device);
+	g_pPlutoLogger->Write(LV_STATUS,"Regen finished for: %d size is: %d",iPK_Device,(int) m_listRegenCommands.size());
 
 	for(list<int>::iterator it = m_listRegenCommands.begin(); it != m_listRegenCommands.end(); ++it)
 	{
@@ -1311,17 +1319,7 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 			break;
 		}
 	}
-
-	if(SafeToReload())
-	{
-		g_pPlutoLogger->Write(LV_STATUS,"Ready to reload the router...");
-		Message *pMessageOut = new Message(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_SYSCOMMAND,SYSCOMMAND_RELOAD,0);
-		SendMessageToRouter(pMessageOut);
-	}
-	else
-	{
-		g_pPlutoLogger->Write(LV_STATUS, "Cannot reload the router yet. There are important tasks running now.");
-	}
+	g_pPlutoLogger->Write(LV_STATUS,"after Regen finished for: %d size is: %d",iPK_Device,(int) m_listRegenCommands.size());
 }
 //<-dceag-createinst-b->!
 

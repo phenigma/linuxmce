@@ -32,7 +32,8 @@ void Database_pluto_main::CreateTable_PageSetup()
 
 void Database_pluto_main::DeleteTable_PageSetup()
 {
-	delete tblPageSetup;
+	if( tblPageSetup )
+		delete tblPageSetup;
 }
 
 Table_PageSetup::~Table_PageSetup()

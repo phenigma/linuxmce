@@ -28,7 +28,9 @@
 #include "../pluto_main/Table_DeviceData.h"
 #include "../pluto_main/Table_DesignObj.h"
 
-#define  VERSION "04112802"
+#define  VERSION "<=version=>"
+const char *g_szCompile_Date="<=compile_date=>";
+/*SVN_REVISION*/
 
 extern pluto_pthread_mutex_t *m_mapLockMutex;
 #ifdef LL_DEBUG_FILE

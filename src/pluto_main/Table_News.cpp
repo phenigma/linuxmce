@@ -28,7 +28,8 @@ void Database_pluto_main::CreateTable_News()
 
 void Database_pluto_main::DeleteTable_News()
 {
-	delete tblNews;
+	if( tblNews )
+		delete tblNews;
 }
 
 Table_News::~Table_News()

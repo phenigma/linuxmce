@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_Device_Command()
 
 void Database_pluto_main::DeleteTable_Device_Command()
 {
-	delete tblDevice_Command;
+	if( tblDevice_Command )
+		delete tblDevice_Command;
 }
 
 Table_Device_Command::~Table_Device_Command()

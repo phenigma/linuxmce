@@ -30,7 +30,8 @@ void Database_pluto_main::CreateTable_DeviceTemplate_DeviceCategory_ControlledVi
 
 void Database_pluto_main::DeleteTable_DeviceTemplate_DeviceCategory_ControlledVia()
 {
-	delete tblDeviceTemplate_DeviceCategory_ControlledVia;
+	if( tblDeviceTemplate_DeviceCategory_ControlledVia )
+		delete tblDeviceTemplate_DeviceCategory_ControlledVia;
 }
 
 Table_DeviceTemplate_DeviceCategory_ControlledVia::~Table_DeviceTemplate_DeviceCategory_ControlledVia()

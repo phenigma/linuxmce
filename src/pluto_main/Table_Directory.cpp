@@ -28,7 +28,8 @@ void Database_pluto_main::CreateTable_Directory()
 
 void Database_pluto_main::DeleteTable_Directory()
 {
-	delete tblDirectory;
+	if( tblDirectory )
+		delete tblDirectory;
 }
 
 Table_Directory::~Table_Directory()

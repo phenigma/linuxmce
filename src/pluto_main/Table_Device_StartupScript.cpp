@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_Device_StartupScript()
 
 void Database_pluto_main::DeleteTable_Device_StartupScript()
 {
-	delete tblDevice_StartupScript;
+	if( tblDevice_StartupScript )
+		delete tblDevice_StartupScript;
 }
 
 Table_Device_StartupScript::~Table_Device_StartupScript()

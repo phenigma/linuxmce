@@ -31,7 +31,8 @@ void Database_pluto_main::CreateTable_DesignObjVariation_Text()
 
 void Database_pluto_main::DeleteTable_DesignObjVariation_Text()
 {
-	delete tblDesignObjVariation_Text;
+	if( tblDesignObjVariation_Text )
+		delete tblDesignObjVariation_Text;
 }
 
 Table_DesignObjVariation_Text::~Table_DesignObjVariation_Text()

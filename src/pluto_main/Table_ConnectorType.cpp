@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_ConnectorType()
 
 void Database_pluto_main::DeleteTable_ConnectorType()
 {
-	delete tblConnectorType;
+	if( tblConnectorType )
+		delete tblConnectorType;
 }
 
 Table_ConnectorType::~Table_ConnectorType()

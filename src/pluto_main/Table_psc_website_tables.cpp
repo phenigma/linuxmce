@@ -27,7 +27,8 @@ void Database_pluto_main::CreateTable_psc_website_tables()
 
 void Database_pluto_main::DeleteTable_psc_website_tables()
 {
-	delete tblpsc_website_tables;
+	if( tblpsc_website_tables )
+		delete tblpsc_website_tables;
 }
 
 Table_psc_website_tables::~Table_psc_website_tables()

@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_Device_Users()
 
 void Database_pluto_main::DeleteTable_Device_Users()
 {
-	delete tblDevice_Users;
+	if( tblDevice_Users )
+		delete tblDevice_Users;
 }
 
 Table_Device_Users::~Table_Device_Users()

@@ -28,7 +28,8 @@ void Database_pluto_main::CreateTable_Household()
 
 void Database_pluto_main::DeleteTable_Household()
 {
-	delete tblHousehold;
+	if( tblHousehold )
+		delete tblHousehold;
 }
 
 Table_Household::~Table_Household()

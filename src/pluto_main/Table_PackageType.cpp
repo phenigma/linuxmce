@@ -28,7 +28,8 @@ void Database_pluto_main::CreateTable_PackageType()
 
 void Database_pluto_main::DeleteTable_PackageType()
 {
-	delete tblPackageType;
+	if( tblPackageType )
+		delete tblPackageType;
 }
 
 Table_PackageType::~Table_PackageType()

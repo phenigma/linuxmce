@@ -37,7 +37,8 @@ void Database_pluto_main::CreateTable_Skin()
 
 void Database_pluto_main::DeleteTable_Skin()
 {
-	delete tblSkin;
+	if( tblSkin )
+		delete tblSkin;
 }
 
 Table_Skin::~Table_Skin()

@@ -27,7 +27,8 @@ void Database_pluto_main::CreateTable_psc_document_schema()
 
 void Database_pluto_main::DeleteTable_psc_document_schema()
 {
-	delete tblpsc_document_schema;
+	if( tblpsc_document_schema )
+		delete tblpsc_document_schema;
 }
 
 Table_psc_document_schema::~Table_psc_document_schema()

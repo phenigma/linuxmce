@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_DeviceTemplate_DSPMode()
 
 void Database_pluto_main::DeleteTable_DeviceTemplate_DSPMode()
 {
-	delete tblDeviceTemplate_DSPMode;
+	if( tblDeviceTemplate_DSPMode )
+		delete tblDeviceTemplate_DSPMode;
 }
 
 Table_DeviceTemplate_DSPMode::~Table_DeviceTemplate_DSPMode()

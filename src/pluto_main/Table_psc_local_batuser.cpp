@@ -28,7 +28,8 @@ void Database_pluto_main::CreateTable_psc_local_batuser()
 
 void Database_pluto_main::DeleteTable_psc_local_batuser()
 {
-	delete tblpsc_local_batuser;
+	if( tblpsc_local_batuser )
+		delete tblpsc_local_batuser;
 }
 
 Table_psc_local_batuser::~Table_psc_local_batuser()

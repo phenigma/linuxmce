@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_Command_Pipe()
 
 void Database_pluto_main::DeleteTable_Command_Pipe()
 {
-	delete tblCommand_Pipe;
+	if( tblCommand_Pipe )
+		delete tblCommand_Pipe;
 }
 
 Table_Command_Pipe::~Table_Command_Pipe()

@@ -184,7 +184,7 @@ bool Socket::SendMessage( Message *pMessage, bool bDeleteMessage )
 	if(NULL != pcData)
 	{
 		// delete[] pcData; // free heap
-		free(pcData);
+		delete[] pcData;
 		pcData = NULL;
 	}
 

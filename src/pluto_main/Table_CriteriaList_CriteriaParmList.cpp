@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_CriteriaList_CriteriaParmList()
 
 void Database_pluto_main::DeleteTable_CriteriaList_CriteriaParmList()
 {
-	delete tblCriteriaList_CriteriaParmList;
+	if( tblCriteriaList_CriteriaParmList )
+		delete tblCriteriaList_CriteriaParmList;
 }
 
 Table_CriteriaList_CriteriaParmList::~Table_CriteriaList_CriteriaParmList()

@@ -31,7 +31,8 @@ void Database_pluto_main::CreateTable_Orbiter()
 
 void Database_pluto_main::DeleteTable_Orbiter()
 {
-	delete tblOrbiter;
+	if( tblOrbiter )
+		delete tblOrbiter;
 }
 
 Table_Orbiter::~Table_Orbiter()

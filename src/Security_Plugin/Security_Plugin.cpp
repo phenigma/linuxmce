@@ -121,6 +121,8 @@ Security_Plugin::Security_Plugin(int DeviceID, string ServerAddress,bool bConnec
 Security_Plugin::~Security_Plugin()
 //<-dceag-dest-e->
 {
+	delete m_pDatabase_pluto_main;
+	delete m_pDatabase_pluto_security;
 }
 
 //<-dceag-reg-b->

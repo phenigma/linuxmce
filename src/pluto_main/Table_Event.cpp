@@ -34,7 +34,8 @@ void Database_pluto_main::CreateTable_Event()
 
 void Database_pluto_main::DeleteTable_Event()
 {
-	delete tblEvent;
+	if( tblEvent )
+		delete tblEvent;
 }
 
 Table_Event::~Table_Event()

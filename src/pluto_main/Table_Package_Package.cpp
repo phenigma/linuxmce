@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_Package_Package()
 
 void Database_pluto_main::DeleteTable_Package_Package()
 {
-	delete tblPackage_Package;
+	if( tblPackage_Package )
+		delete tblPackage_Package;
 }
 
 Table_Package_Package::~Table_Package_Package()

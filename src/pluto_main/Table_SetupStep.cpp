@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_SetupStep()
 
 void Database_pluto_main::DeleteTable_SetupStep()
 {
-	delete tblSetupStep;
+	if( tblSetupStep )
+		delete tblSetupStep;
 }
 
 Table_SetupStep::~Table_SetupStep()

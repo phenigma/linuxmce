@@ -27,7 +27,8 @@ void Database_pluto_main::CreateTable_psc_document_repset()
 
 void Database_pluto_main::DeleteTable_psc_document_repset()
 {
-	delete tblpsc_document_repset;
+	if( tblpsc_document_repset )
+		delete tblpsc_document_repset;
 }
 
 Table_psc_document_repset::~Table_psc_document_repset()

@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_DeviceTemplate_Event()
 
 void Database_pluto_main::DeleteTable_DeviceTemplate_Event()
 {
-	delete tblDeviceTemplate_Event;
+	if( tblDeviceTemplate_Event )
+		delete tblDeviceTemplate_Event;
 }
 
 Table_DeviceTemplate_Event::~Table_DeviceTemplate_Event()

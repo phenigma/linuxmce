@@ -28,7 +28,8 @@ void Database_pluto_main::CreateTable_RoomType()
 
 void Database_pluto_main::DeleteTable_RoomType()
 {
-	delete tblRoomType;
+	if( tblRoomType )
+		delete tblRoomType;
 }
 
 Table_RoomType::~Table_RoomType()

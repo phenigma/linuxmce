@@ -50,6 +50,13 @@ public:
 		MySQLConnect();
 	}
 
+	virtual ~MySqlHelper()
+	{
+		if( m_pMySQL )
+			mysql_close(m_pMySQL);
+		m_pMySQL=NULL;
+	}
+
 	bool MySQLConnect(string host, string user, string pass, string db_name, int port=3306,bool bReset=false)
 	{
 		m_pMySQL = mysql_init(NULL);

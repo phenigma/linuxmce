@@ -38,7 +38,8 @@ void Database_pluto_main::CreateTable_Users()
 
 void Database_pluto_main::DeleteTable_Users()
 {
-	delete tblUsers;
+	if( tblUsers )
+		delete tblUsers;
 }
 
 Table_Users::~Table_Users()

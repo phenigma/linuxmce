@@ -31,7 +31,8 @@ void Database_pluto_main::CreateTable_FloorplanObjectType()
 
 void Database_pluto_main::DeleteTable_FloorplanObjectType()
 {
-	delete tblFloorplanObjectType;
+	if( tblFloorplanObjectType )
+		delete tblFloorplanObjectType;
 }
 
 Table_FloorplanObjectType::~Table_FloorplanObjectType()

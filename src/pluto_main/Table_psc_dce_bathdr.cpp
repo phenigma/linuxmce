@@ -32,7 +32,8 @@ void Database_pluto_main::CreateTable_psc_dce_bathdr()
 
 void Database_pluto_main::DeleteTable_psc_dce_bathdr()
 {
-	delete tblpsc_dce_bathdr;
+	if( tblpsc_dce_bathdr )
+		delete tblpsc_dce_bathdr;
 }
 
 Table_psc_dce_bathdr::~Table_psc_dce_bathdr()

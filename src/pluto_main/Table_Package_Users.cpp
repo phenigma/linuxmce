@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_Package_Users()
 
 void Database_pluto_main::DeleteTable_Package_Users()
 {
-	delete tblPackage_Users;
+	if( tblPackage_Users )
+		delete tblPackage_Users;
 }
 
 Table_Package_Users::~Table_Package_Users()

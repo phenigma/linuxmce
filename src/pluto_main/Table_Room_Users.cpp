@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_Room_Users()
 
 void Database_pluto_main::DeleteTable_Room_Users()
 {
-	delete tblRoom_Users;
+	if( tblRoom_Users )
+		delete tblRoom_Users;
 }
 
 Table_Room_Users::~Table_Room_Users()

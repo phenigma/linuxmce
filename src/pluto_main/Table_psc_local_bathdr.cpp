@@ -32,7 +32,8 @@ void Database_pluto_main::CreateTable_psc_local_bathdr()
 
 void Database_pluto_main::DeleteTable_psc_local_bathdr()
 {
-	delete tblpsc_local_bathdr;
+	if( tblpsc_local_bathdr )
+		delete tblpsc_local_bathdr;
 }
 
 Table_psc_local_bathdr::~Table_psc_local_bathdr()

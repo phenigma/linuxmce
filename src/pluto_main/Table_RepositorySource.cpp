@@ -32,7 +32,8 @@ void Database_pluto_main::CreateTable_RepositorySource()
 
 void Database_pluto_main::DeleteTable_RepositorySource()
 {
-	delete tblRepositorySource;
+	if( tblRepositorySource )
+		delete tblRepositorySource;
 }
 
 Table_RepositorySource::~Table_RepositorySource()

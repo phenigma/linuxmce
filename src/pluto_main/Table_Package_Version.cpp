@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_Package_Version()
 
 void Database_pluto_main::DeleteTable_Package_Version()
 {
-	delete tblPackage_Version;
+	if( tblPackage_Version )
+		delete tblPackage_Version;
 }
 
 Table_Package_Version::~Table_Package_Version()

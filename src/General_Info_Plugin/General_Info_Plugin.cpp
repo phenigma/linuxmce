@@ -57,6 +57,7 @@ General_Info_Plugin::General_Info_Plugin(int DeviceID, string ServerAddress,bool
 General_Info_Plugin::~General_Info_Plugin()
 //<-dceag-dest-e->
 {
+	delete m_pDatabase_pluto_main;
 }
 
 //<-dceag-reg-b->

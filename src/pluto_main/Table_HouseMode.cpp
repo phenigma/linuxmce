@@ -28,7 +28,8 @@ void Database_pluto_main::CreateTable_HouseMode()
 
 void Database_pluto_main::DeleteTable_HouseMode()
 {
-	delete tblHouseMode;
+	if( tblHouseMode )
+		delete tblHouseMode;
 }
 
 Table_HouseMode::~Table_HouseMode()

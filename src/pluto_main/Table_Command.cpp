@@ -44,7 +44,8 @@ void Database_pluto_main::CreateTable_Command()
 
 void Database_pluto_main::DeleteTable_Command()
 {
-	delete tblCommand;
+	if( tblCommand )
+		delete tblCommand;
 }
 
 Table_Command::~Table_Command()

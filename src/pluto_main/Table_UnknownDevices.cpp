@@ -27,7 +27,8 @@ void Database_pluto_main::CreateTable_UnknownDevices()
 
 void Database_pluto_main::DeleteTable_UnknownDevices()
 {
-	delete tblUnknownDevices;
+	if( tblUnknownDevices )
+		delete tblUnknownDevices;
 }
 
 Table_UnknownDevices::~Table_UnknownDevices()

@@ -27,7 +27,8 @@ void Database_pluto_main::CreateTable_psc_ir_repset()
 
 void Database_pluto_main::DeleteTable_psc_ir_repset()
 {
-	delete tblpsc_ir_repset;
+	if( tblpsc_ir_repset )
+		delete tblpsc_ir_repset;
 }
 
 Table_psc_ir_repset::~Table_psc_ir_repset()

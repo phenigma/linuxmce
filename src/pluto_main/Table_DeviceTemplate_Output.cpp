@@ -30,7 +30,8 @@ void Database_pluto_main::CreateTable_DeviceTemplate_Output()
 
 void Database_pluto_main::DeleteTable_DeviceTemplate_Output()
 {
-	delete tblDeviceTemplate_Output;
+	if( tblDeviceTemplate_Output )
+		delete tblDeviceTemplate_Output;
 }
 
 Table_DeviceTemplate_Output::~Table_DeviceTemplate_Output()

@@ -42,7 +42,10 @@ namespace DCE
 			m_pDeviceData_Router=pDeviceData_Router;
 		}
 
-		~CommandGroup_Command();
+		~CommandGroup_Command()
+		{
+			m_mapParameter.clear();
+		}
 	};
 
 	class CommandGroup
@@ -187,6 +190,7 @@ namespace DCE
 
 		~DeviceData_Router()
 		{
+			delete[] m_pMySerializedData;
 			map<int,class DeviceRelation *>::iterator itMD;
 			for(itMD=m_mapDeviceRelation.begin();itMD!=m_mapDeviceRelation.end();++itMD)
 			{

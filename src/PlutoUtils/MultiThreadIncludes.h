@@ -74,6 +74,7 @@ public:
 	{
 		m_NumLocks=0;
 	}
+	virtual ~pluto_pthread_mutex_t() { if( m_bInitialized ) pthread_mutex_destroy(&mutex); }
 	void Init(pthread_mutexattr_t *type) 
 	{ 
 		pthread_mutex_init(&mutex, type); m_bInitialized=true; 

@@ -28,7 +28,8 @@ void Database_pluto_main::CreateTable_Template()
 
 void Database_pluto_main::DeleteTable_Template()
 {
-	delete tblTemplate;
+	if( tblTemplate )
+		delete tblTemplate;
 }
 
 Table_Template::~Table_Template()

@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_DeviceTemplate_MediaType_DesignObj()
 
 void Database_pluto_main::DeleteTable_DeviceTemplate_MediaType_DesignObj()
 {
-	delete tblDeviceTemplate_MediaType_DesignObj;
+	if( tblDeviceTemplate_MediaType_DesignObj )
+		delete tblDeviceTemplate_MediaType_DesignObj;
 }
 
 Table_DeviceTemplate_MediaType_DesignObj::~Table_DeviceTemplate_MediaType_DesignObj()

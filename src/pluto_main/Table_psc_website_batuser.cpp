@@ -28,7 +28,8 @@ void Database_pluto_main::CreateTable_psc_website_batuser()
 
 void Database_pluto_main::DeleteTable_psc_website_batuser()
 {
-	delete tblpsc_website_batuser;
+	if( tblpsc_website_batuser )
+		delete tblpsc_website_batuser;
 }
 
 Table_psc_website_batuser::~Table_psc_website_batuser()

@@ -31,7 +31,8 @@ void Database_pluto_main::CreateTable_EntertainArea()
 
 void Database_pluto_main::DeleteTable_EntertainArea()
 {
-	delete tblEntertainArea;
+	if( tblEntertainArea )
+		delete tblEntertainArea;
 }
 
 Table_EntertainArea::~Table_EntertainArea()

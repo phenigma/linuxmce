@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_DeviceTemplate_InfraredGroup()
 
 void Database_pluto_main::DeleteTable_DeviceTemplate_InfraredGroup()
 {
-	delete tblDeviceTemplate_InfraredGroup;
+	if( tblDeviceTemplate_InfraredGroup )
+		delete tblDeviceTemplate_InfraredGroup;
 }
 
 Table_DeviceTemplate_InfraredGroup::~Table_DeviceTemplate_InfraredGroup()

@@ -108,7 +108,8 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
     m_dwPK_Device=PK_Device;
     m_dwPK_Installation=PK_Installation;
     m_pDeviceStructure=NULL;
-    m_pRow_Device_Me=NULL;
+	m_pBufferForDeviceCategories=NULL;
+	m_pRow_Device_Me=NULL;
     m_sDBHost=DBHost;
     m_sDBUser=DBUser;
     m_sDBPassword=DBPassword;
@@ -221,14 +222,76 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
 Router::~Router()
 {
     delete m_pDeviceStructure;
+	delete m_pBufferForDeviceCategories;
 
-    map<int,Command *>::iterator iC;
-    for(iC = m_mapCommand.begin(); iC != m_mapCommand.end(); ++iC)
-        delete (*iC).second;
+	for(map<int, ListCommand_Impl *>::iterator it=m_mapPlugIn_DeviceTemplate.begin();it!=m_mapPlugIn_DeviceTemplate.end();++it)
+		delete (*it).second;
+	m_mapPlugIn_DeviceTemplate.clear();
+
+	for(list<class MessageInterceptorCallBack *>::iterator it=m_listMessageInterceptor_Global.begin();it!=m_listMessageInterceptor_Global.end();++it)
+		delete *it;
+
+	for(map<int,class MessageTypeInterceptor *>::iterator it=m_mapMessageTypeInterceptor.begin();it!=m_mapMessageTypeInterceptor.end();++it)
+		delete (*it).second;
+
+	for(map<int,class Room *>::iterator it=m_mapRoom.begin();it!=m_mapRoom.end();++it)
+		delete (*it).second;
+	m_mapRoom.clear();
+
+    for(map<int,class Command *>::iterator it=m_mapCommand.begin();it!=m_mapCommand.end();++it)
+		delete (*it).second;
+	m_mapCommand.clear();
+
+    for(map<int,class CommandGroup *>::iterator it=m_mapCommandGroup.begin();it!=m_mapCommandGroup.end();++it)
+		delete (*it).second;
+	m_mapCommandGroup.clear();
+
+	list<class DeviceData_Router *> listTopDevices;
+    for(map<int,class DeviceData_Router *>::iterator it=m_mapDeviceData_Router.begin();it!=m_mapDeviceData_Router.end();++it)
+	{
+		class DeviceData_Router *pDeviceData_Router = (*it).second;
+		if( !pDeviceData_Router->m_pDevice_ControlledVia )
+			listTopDevices.push_back(pDeviceData_Router); // Delete only top level devices, since other devices delete their children
+	}
+	m_mapDeviceData_Router.clear();
+
+	// Delete the top level devices
+	for(list<class DeviceData_Router *>::iterator it=listTopDevices.begin();it!=listTopDevices.end();++it)
+	{
+		DeviceData_Router *pDeviceData_Router = *it;
+			delete pDeviceData_Router;
+	}
+
+    for(map<int,ListDeviceData_Router *>::iterator it=m_mapDeviceByTemplate.begin();it!=m_mapDeviceByTemplate.end();++it)
+		delete (*it).second;
+	m_mapDeviceByTemplate.clear();
+
+    for(map<int,ListDeviceData_Router *>::iterator it=m_mapDeviceByCategory.begin();it!=m_mapDeviceByCategory.end();++it)
+		delete (*it).second;
+	m_mapDeviceByCategory.clear();
+
+    for(map<int,class DeviceGroup *>::iterator it=m_mapDeviceGroup.begin();it!=m_mapDeviceGroup.end();++it)
+		delete (*it).second;
+	m_mapDeviceGroup.clear();
+
+    for(Map_DeviceCategory::iterator it=m_mapDeviceCategory.begin();it!=m_mapDeviceCategory.end();++it)
+		delete (*it).second;
+	m_mapDeviceCategory.clear();
+
+    m_dwPK_Device_To_CommandLine.clear();
+    m_Routing_DeviceToController.clear();
+    m_Routing_VideoDeviceToController.clear();
+    m_Routing_ControllerToIP.clear();
+    m_RunningDevices.clear();
+    m_MessageQueue.clear();
+    m_mapCommandParmNames.clear();
+    m_mapEventNames.clear();
+	m_mapEventParmNames.clear();
 
     m_pAlarmManager->Stop();
     delete m_pAlarmManager;
     m_pAlarmManager = NULL;
+
 
     delete m_pDatabase_pluto_main;
 }
@@ -1939,6 +2002,7 @@ int k=2;
         m_mapEventParmNames[pRow_EventParameter->PK_EventParameter_get()]=pRow_EventParameter->Description_get();
     }
 
+	m_pBufferForDeviceCategories = allDevices.m_pcDataBlock;
 	allDevices.DontDeleteData(); // We use the category and group pointers here.  Just delete the device Data
     //free device data map
     Map_DeviceData_Base::iterator iD;

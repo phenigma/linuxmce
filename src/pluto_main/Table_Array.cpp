@@ -28,7 +28,8 @@ void Database_pluto_main::CreateTable_Array()
 
 void Database_pluto_main::DeleteTable_Array()
 {
-	delete tblArray;
+	if( tblArray )
+		delete tblArray;
 }
 
 Table_Array::~Table_Array()

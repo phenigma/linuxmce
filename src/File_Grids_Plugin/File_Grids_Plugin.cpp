@@ -65,6 +65,7 @@ File_Grids_Plugin::File_Grids_Plugin(int DeviceID, string ServerAddress,bool bCo
 File_Grids_Plugin::~File_Grids_Plugin()
 //<-dceag-dest-e->
 {
+	delete m_pDatabase_pluto_main;
 }
 
 //<-dceag-reg-b->

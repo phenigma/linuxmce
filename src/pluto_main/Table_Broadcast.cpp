@@ -28,7 +28,8 @@ void Database_pluto_main::CreateTable_Broadcast()
 
 void Database_pluto_main::DeleteTable_Broadcast()
 {
-	delete tblBroadcast;
+	if( tblBroadcast )
+		delete tblBroadcast;
 }
 
 Table_Broadcast::~Table_Broadcast()

@@ -28,7 +28,8 @@ void Database_pluto_main::CreateTable_Schema()
 
 void Database_pluto_main::DeleteTable_Schema()
 {
-	delete tblSchema;
+	if( tblSchema )
+		delete tblSchema;
 }
 
 Table_Schema::~Table_Schema()

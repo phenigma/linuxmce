@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_Text_LS()
 
 void Database_pluto_main::DeleteTable_Text_LS()
 {
-	delete tblText_LS;
+	if( tblText_LS )
+		delete tblText_LS;
 }
 
 Table_Text_LS::~Table_Text_LS()

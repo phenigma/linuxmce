@@ -28,7 +28,8 @@ void Database_pluto_main::CreateTable_FAQ()
 
 void Database_pluto_main::DeleteTable_FAQ()
 {
-	delete tblFAQ;
+	if( tblFAQ )
+		delete tblFAQ;
 }
 
 Table_FAQ::~Table_FAQ()

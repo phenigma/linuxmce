@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_Orbiter_Users_PasswordReq()
 
 void Database_pluto_main::DeleteTable_Orbiter_Users_PasswordReq()
 {
-	delete tblOrbiter_Users_PasswordReq;
+	if( tblOrbiter_Users_PasswordReq )
+		delete tblOrbiter_Users_PasswordReq;
 }
 
 Table_Orbiter_Users_PasswordReq::~Table_Orbiter_Users_PasswordReq()

@@ -36,7 +36,8 @@ void Database_pluto_main::CreateTable_Style()
 
 void Database_pluto_main::DeleteTable_Style()
 {
-	delete tblStyle;
+	if( tblStyle )
+		delete tblStyle;
 }
 
 Table_Style::~Table_Style()

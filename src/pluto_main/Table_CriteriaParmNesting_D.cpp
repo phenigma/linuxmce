@@ -31,7 +31,8 @@ void Database_pluto_main::CreateTable_CriteriaParmNesting_D()
 
 void Database_pluto_main::DeleteTable_CriteriaParmNesting_D()
 {
-	delete tblCriteriaParmNesting_D;
+	if( tblCriteriaParmNesting_D )
+		delete tblCriteriaParmNesting_D;
 }
 
 Table_CriteriaParmNesting_D::~Table_CriteriaParmNesting_D()

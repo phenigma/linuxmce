@@ -38,7 +38,8 @@ void Database_pluto_main::CreateTable_DeviceCategory()
 
 void Database_pluto_main::DeleteTable_DeviceCategory()
 {
-	delete tblDeviceCategory;
+	if( tblDeviceCategory )
+		delete tblDeviceCategory;
 }
 
 Table_DeviceCategory::~Table_DeviceCategory()

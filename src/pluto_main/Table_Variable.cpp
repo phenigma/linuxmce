@@ -28,7 +28,8 @@ void Database_pluto_main::CreateTable_Variable()
 
 void Database_pluto_main::DeleteTable_Variable()
 {
-	delete tblVariable;
+	if( tblVariable )
+		delete tblVariable;
 }
 
 Table_Variable::~Table_Variable()

@@ -27,7 +27,8 @@ void Database_pluto_main::CreateTable_psc_ir_schema()
 
 void Database_pluto_main::DeleteTable_psc_ir_schema()
 {
-	delete tblpsc_ir_schema;
+	if( tblpsc_ir_schema )
+		delete tblpsc_ir_schema;
 }
 
 Table_psc_ir_schema::~Table_psc_ir_schema()

@@ -28,7 +28,8 @@ void Database_pluto_main::CreateTable_FloorplanObjectType_Color()
 
 void Database_pluto_main::DeleteTable_FloorplanObjectType_Color()
 {
-	delete tblFloorplanObjectType_Color;
+	if( tblFloorplanObjectType_Color )
+		delete tblFloorplanObjectType_Color;
 }
 
 Table_FloorplanObjectType_Color::~Table_FloorplanObjectType_Color()

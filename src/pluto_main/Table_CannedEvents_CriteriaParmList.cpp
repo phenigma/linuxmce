@@ -31,7 +31,8 @@ void Database_pluto_main::CreateTable_CannedEvents_CriteriaParmList()
 
 void Database_pluto_main::DeleteTable_CannedEvents_CriteriaParmList()
 {
-	delete tblCannedEvents_CriteriaParmList;
+	if( tblCannedEvents_CriteriaParmList )
+		delete tblCannedEvents_CriteriaParmList;
 }
 
 Table_CannedEvents_CriteriaParmList::~Table_CannedEvents_CriteriaParmList()

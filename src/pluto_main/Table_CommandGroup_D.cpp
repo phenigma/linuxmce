@@ -35,7 +35,8 @@ void Database_pluto_main::CreateTable_CommandGroup_D()
 
 void Database_pluto_main::DeleteTable_CommandGroup_D()
 {
-	delete tblCommandGroup_D;
+	if( tblCommandGroup_D )
+		delete tblCommandGroup_D;
 }
 
 Table_CommandGroup_D::~Table_CommandGroup_D()

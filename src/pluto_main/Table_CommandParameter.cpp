@@ -31,7 +31,8 @@ void Database_pluto_main::CreateTable_CommandParameter()
 
 void Database_pluto_main::DeleteTable_CommandParameter()
 {
-	delete tblCommandParameter;
+	if( tblCommandParameter )
+		delete tblCommandParameter;
 }
 
 Table_CommandParameter::~Table_CommandParameter()

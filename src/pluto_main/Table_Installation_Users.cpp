@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_Installation_Users()
 
 void Database_pluto_main::DeleteTable_Installation_Users()
 {
-	delete tblInstallation_Users;
+	if( tblInstallation_Users )
+		delete tblInstallation_Users;
 }
 
 Table_Installation_Users::~Table_Installation_Users()

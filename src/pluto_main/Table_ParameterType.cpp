@@ -32,7 +32,8 @@ void Database_pluto_main::CreateTable_ParameterType()
 
 void Database_pluto_main::DeleteTable_ParameterType()
 {
-	delete tblParameterType;
+	if( tblParameterType )
+		delete tblParameterType;
 }
 
 Table_ParameterType::~Table_ParameterType()

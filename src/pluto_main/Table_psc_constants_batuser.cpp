@@ -28,7 +28,8 @@ void Database_pluto_main::CreateTable_psc_constants_batuser()
 
 void Database_pluto_main::DeleteTable_psc_constants_batuser()
 {
-	delete tblpsc_constants_batuser;
+	if( tblpsc_constants_batuser )
+		delete tblpsc_constants_batuser;
 }
 
 Table_psc_constants_batuser::~Table_psc_constants_batuser()

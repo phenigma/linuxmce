@@ -28,7 +28,8 @@ void Database_pluto_main::CreateTable_UserMode()
 
 void Database_pluto_main::DeleteTable_UserMode()
 {
-	delete tblUserMode;
+	if( tblUserMode )
+		delete tblUserMode;
 }
 
 Table_UserMode::~Table_UserMode()

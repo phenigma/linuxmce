@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_CommandGroup_Room()
 
 void Database_pluto_main::DeleteTable_CommandGroup_Room()
 {
-	delete tblCommandGroup_Room;
+	if( tblCommandGroup_Room )
+		delete tblCommandGroup_Room;
 }
 
 Table_CommandGroup_Room::~Table_CommandGroup_Room()

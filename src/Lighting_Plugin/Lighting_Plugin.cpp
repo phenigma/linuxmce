@@ -89,6 +89,7 @@ Lighting_Plugin::Lighting_Plugin(int DeviceID, string ServerAddress,bool bConnec
 Lighting_Plugin::~Lighting_Plugin()
 //<-dceag-dest-e->
 {
+	delete m_pDatabase_pluto_main;
 }
 
 //<-dceag-reg-b->

@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_DHCPDevice_DeviceData()
 
 void Database_pluto_main::DeleteTable_DHCPDevice_DeviceData()
 {
-	delete tblDHCPDevice_DeviceData;
+	if( tblDHCPDevice_DeviceData )
+		delete tblDHCPDevice_DeviceData;
 }
 
 Table_DHCPDevice_DeviceData::~Table_DHCPDevice_DeviceData()

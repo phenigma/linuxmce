@@ -31,7 +31,8 @@ void Database_pluto_main::CreateTable_StabilityStatus()
 
 void Database_pluto_main::DeleteTable_StabilityStatus()
 {
-	delete tblStabilityStatus;
+	if( tblStabilityStatus )
+		delete tblStabilityStatus;
 }
 
 Table_StabilityStatus::~Table_StabilityStatus()

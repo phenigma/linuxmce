@@ -27,7 +27,8 @@ void Database_pluto_main::CreateTable_DataGrid()
 
 void Database_pluto_main::DeleteTable_DataGrid()
 {
-	delete tblDataGrid;
+	if( tblDataGrid )
+		delete tblDataGrid;
 }
 
 Table_DataGrid::~Table_DataGrid()

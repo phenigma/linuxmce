@@ -30,7 +30,8 @@ void Database_pluto_main::CreateTable_Package_Source()
 
 void Database_pluto_main::DeleteTable_Package_Source()
 {
-	delete tblPackage_Source;
+	if( tblPackage_Source )
+		delete tblPackage_Source;
 }
 
 Table_Package_Source::~Table_Package_Source()

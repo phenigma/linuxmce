@@ -321,6 +321,9 @@
 #define COMMAND_Get_EntAreas_For_Device_CONST 331
 #define COMMAND_Ignore_MAC_Address_CONST 332
 #define COMMAND_Disconnect_From_Mobile_Orbiter_CONST 333
+#define COMMAND_Phone_Initiate_CONST 334
+#define COMMAND_Phone_Answer_CONST 335
+#define COMMAND_Phone_Drop_CONST 336
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

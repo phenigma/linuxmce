@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_Button()
 
 void Database_pluto_main::DeleteTable_Button()
 {
-	delete tblButton;
+	if( tblButton )
+		delete tblButton;
 }
 
 Table_Button::~Table_Button()

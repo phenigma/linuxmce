@@ -31,7 +31,8 @@ void Database_pluto_main::CreateTable_DeviceTemplate_DeviceCategory_ControlledVi
 
 void Database_pluto_main::DeleteTable_DeviceTemplate_DeviceCategory_ControlledVia_Pipe()
 {
-	delete tblDeviceTemplate_DeviceCategory_ControlledVia_Pipe;
+	if( tblDeviceTemplate_DeviceCategory_ControlledVia_Pipe )
+		delete tblDeviceTemplate_DeviceCategory_ControlledVia_Pipe;
 }
 
 Table_DeviceTemplate_DeviceCategory_ControlledVia_Pipe::~Table_DeviceTemplate_DeviceCategory_ControlledVia_Pipe()

@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_InfraredGroup_Command_Preferred()
 
 void Database_pluto_main::DeleteTable_InfraredGroup_Command_Preferred()
 {
-	delete tblInfraredGroup_Command_Preferred;
+	if( tblInfraredGroup_Command_Preferred )
+		delete tblInfraredGroup_Command_Preferred;
 }
 
 Table_InfraredGroup_Command_Preferred::~Table_InfraredGroup_Command_Preferred()

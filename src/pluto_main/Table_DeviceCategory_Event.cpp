@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_DeviceCategory_Event()
 
 void Database_pluto_main::DeleteTable_DeviceCategory_Event()
 {
-	delete tblDeviceCategory_Event;
+	if( tblDeviceCategory_Event )
+		delete tblDeviceCategory_Event;
 }
 
 Table_DeviceCategory_Event::~Table_DeviceCategory_Event()

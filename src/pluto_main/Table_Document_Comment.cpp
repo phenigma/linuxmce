@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_Document_Comment()
 
 void Database_pluto_main::DeleteTable_Document_Comment()
 {
-	delete tblDocument_Comment;
+	if( tblDocument_Comment )
+		delete tblDocument_Comment;
 }
 
 Table_Document_Comment::~Table_Document_Comment()

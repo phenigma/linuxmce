@@ -32,7 +32,8 @@ void Database_pluto_main::CreateTable_psc_constants_bathdr()
 
 void Database_pluto_main::DeleteTable_psc_constants_bathdr()
 {
-	delete tblpsc_constants_bathdr;
+	if( tblpsc_constants_bathdr )
+		delete tblpsc_constants_bathdr;
 }
 
 Table_psc_constants_bathdr::~Table_psc_constants_bathdr()

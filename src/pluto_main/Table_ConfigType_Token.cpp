@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_ConfigType_Token()
 
 void Database_pluto_main::DeleteTable_ConfigType_Token()
 {
-	delete tblConfigType_Token;
+	if( tblConfigType_Token )
+		delete tblConfigType_Token;
 }
 
 Table_ConfigType_Token::~Table_ConfigType_Token()

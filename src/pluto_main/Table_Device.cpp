@@ -50,7 +50,8 @@ void Database_pluto_main::CreateTable_Device()
 
 void Database_pluto_main::DeleteTable_Device()
 {
-	delete tblDevice;
+	if( tblDevice )
+		delete tblDevice;
 }
 
 Table_Device::~Table_Device()

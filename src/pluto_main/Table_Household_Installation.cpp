@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_Household_Installation()
 
 void Database_pluto_main::DeleteTable_Household_Installation()
 {
-	delete tblHousehold_Installation;
+	if( tblHousehold_Installation )
+		delete tblHousehold_Installation;
 }
 
 Table_Household_Installation::~Table_Household_Installation()

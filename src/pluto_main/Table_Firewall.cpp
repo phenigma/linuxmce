@@ -27,7 +27,8 @@ void Database_pluto_main::CreateTable_Firewall()
 
 void Database_pluto_main::DeleteTable_Firewall()
 {
-	delete tblFirewall;
+	if( tblFirewall )
+		delete tblFirewall;
 }
 
 Table_Firewall::~Table_Firewall()

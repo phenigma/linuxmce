@@ -27,7 +27,8 @@ void Database_pluto_main::CreateTable_psc_dce_tables()
 
 void Database_pluto_main::DeleteTable_psc_dce_tables()
 {
-	delete tblpsc_dce_tables;
+	if( tblpsc_dce_tables )
+		delete tblpsc_dce_tables;
 }
 
 Table_psc_dce_tables::~Table_psc_dce_tables()

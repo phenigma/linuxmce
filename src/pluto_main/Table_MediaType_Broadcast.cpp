@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_MediaType_Broadcast()
 
 void Database_pluto_main::DeleteTable_MediaType_Broadcast()
 {
-	delete tblMediaType_Broadcast;
+	if( tblMediaType_Broadcast )
+		delete tblMediaType_Broadcast;
 }
 
 Table_MediaType_Broadcast::~Table_MediaType_Broadcast()

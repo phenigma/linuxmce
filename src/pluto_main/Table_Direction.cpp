@@ -27,7 +27,8 @@ void Database_pluto_main::CreateTable_Direction()
 
 void Database_pluto_main::DeleteTable_Direction()
 {
-	delete tblDirection;
+	if( tblDirection )
+		delete tblDirection;
 }
 
 Table_Direction::~Table_Direction()

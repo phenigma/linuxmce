@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_CachedScreens()
 
 void Database_pluto_main::DeleteTable_CachedScreens()
 {
-	delete tblCachedScreens;
+	if( tblCachedScreens )
+		delete tblCachedScreens;
 }
 
 Table_CachedScreens::~Table_CachedScreens()

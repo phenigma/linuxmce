@@ -349,7 +349,7 @@ int main( int argc, char *argv[] )
 	db_h_out << "public:" << endl;
 	for (vector<TableInfo_Generator *>::iterator i=dbInfo.listTableInfo_get()->begin(); i<dbInfo.listTableInfo_get()->end(); i++)
 	{
-		db_h_out << "class Table_" + (*i)->get_table_name() + "* " + (*i)->get_table_name() + "_get() { return tbl"+(*i)->get_table_name()+"; }" << endl;
+		db_h_out << "class Table_" + (*i)->get_table_name() + "* " + (*i)->get_table_name() + "_get() { if( !tbl"+(*i)->get_table_name()+" ) CreateTable_" + (*i)->get_table_name() + "(); return tbl"+(*i)->get_table_name()+"; }" << endl;
 	}
 	db_h_out << "string m_sLastMySqlError;" << endl;
 	db_h_out << "bool Connect(string host, string user, string pass, string sDBName, int port);" << endl;
@@ -388,10 +388,10 @@ int main( int argc, char *argv[] )
 	db_cpp_out << endl << "#include \"DCEConfig.h\"" << endl << endl;
 	db_cpp_out << "Database_" << sDBName << "::Database_" << sDBName << "()" << endl;
 	db_cpp_out << "{" << endl;
-
 	for (vector<TableInfo_Generator *>::iterator i=dbInfo.listTableInfo_get()->begin(); i!=dbInfo.listTableInfo_get()->end(); i++)
-		db_cpp_out << "CreateTable_"+(*i)->get_table_name()+"();" << endl;
-
+	{
+		db_cpp_out << "tbl"+(*i)->get_table_name()+"=NULL;" << endl;
+	}
 	db_cpp_out << "}" << endl << endl;
 
 	db_cpp_out << "Database_" << sDBName << "::~Database_" << sDBName << "()" << endl;

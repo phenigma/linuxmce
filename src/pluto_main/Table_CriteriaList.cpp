@@ -30,7 +30,8 @@ void Database_pluto_main::CreateTable_CriteriaList()
 
 void Database_pluto_main::DeleteTable_CriteriaList()
 {
-	delete tblCriteriaList;
+	if( tblCriteriaList )
+		delete tblCriteriaList;
 }
 
 Table_CriteriaList::~Table_CriteriaList()

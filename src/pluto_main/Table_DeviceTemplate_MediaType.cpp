@@ -30,7 +30,8 @@ void Database_pluto_main::CreateTable_DeviceTemplate_MediaType()
 
 void Database_pluto_main::DeleteTable_DeviceTemplate_MediaType()
 {
-	delete tblDeviceTemplate_MediaType;
+	if( tblDeviceTemplate_MediaType )
+		delete tblDeviceTemplate_MediaType;
 }
 
 Table_DeviceTemplate_MediaType::~Table_DeviceTemplate_MediaType()

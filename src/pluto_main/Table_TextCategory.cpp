@@ -30,7 +30,8 @@ void Database_pluto_main::CreateTable_TextCategory()
 
 void Database_pluto_main::DeleteTable_TextCategory()
 {
-	delete tblTextCategory;
+	if( tblTextCategory )
+		delete tblTextCategory;
 }
 
 Table_TextCategory::~Table_TextCategory()

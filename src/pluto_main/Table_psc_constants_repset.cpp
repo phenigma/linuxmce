@@ -27,7 +27,8 @@ void Database_pluto_main::CreateTable_psc_constants_repset()
 
 void Database_pluto_main::DeleteTable_psc_constants_repset()
 {
-	delete tblpsc_constants_repset;
+	if( tblpsc_constants_repset )
+		delete tblpsc_constants_repset;
 }
 
 Table_psc_constants_repset::~Table_psc_constants_repset()

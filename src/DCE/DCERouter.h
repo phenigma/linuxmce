@@ -58,33 +58,63 @@ namespace DCE
     {
     public:
         list<class MessageInterceptorCallBack *> m_listMessageInterceptor;
+		~MessageFromInterceptor()
+		{
+			for(list<class MessageInterceptorCallBack *>::iterator it=m_listMessageInterceptor.begin();it!=m_listMessageInterceptor.end();++it)
+				delete *it;
+		}
     };
 
     class MessageToCategoryInterceptor
     {
     public:
         map<int,class MessageFromInterceptor *> m_mapMessageFromInterceptor;
+		~MessageToCategoryInterceptor()
+		{
+			for(map<int,class MessageFromInterceptor *>::iterator it=m_mapMessageFromInterceptor.begin();it!=m_mapMessageFromInterceptor.end();++it)
+				delete (*it).second;
+		}
     };
 
     class MessageToInterceptor
     {
     public:
         map<int,class MessageToCategoryInterceptor *> m_mapMessageToCategoryInterceptor;
+		~MessageToInterceptor()
+		{
+			for(map<int,class MessageToCategoryInterceptor *>::iterator it=m_mapMessageToCategoryInterceptor.begin();it!=m_mapMessageToCategoryInterceptor.end();++it)
+				delete (*it).second;
+		}
     };
     class MessageMDLInterceptor
     {
     public:
         map<int,class MessageToInterceptor *> m_mapMessageToInterceptor;
+		~MessageMDLInterceptor()
+		{
+			for(map<int,class MessageToInterceptor *>::iterator it=m_mapMessageToInterceptor.begin();it!=m_mapMessageToInterceptor.end();++it)
+				delete (*it).second;
+		}
     };
     class MessageIDInterceptor
     {
     public:
         map<int,class MessageMDLInterceptor *> m_mapMessageMDLInterceptor;
+		~MessageIDInterceptor()
+		{
+			for(map<int,class MessageMDLInterceptor *>::iterator it=m_mapMessageMDLInterceptor.begin();it!=m_mapMessageMDLInterceptor.end();++it)
+				delete (*it).second;
+		}
     };
     class MessageTypeInterceptor
     {
     public:
         map<int,class MessageIDInterceptor *> m_mapMessageIDInterceptor;
+		~MessageTypeInterceptor()
+		{
+			for(map<int,class MessageIDInterceptor *>::iterator it=m_mapMessageIDInterceptor.begin();it!=m_mapMessageIDInterceptor.end();++it)
+				delete (*it).second;
+		}
     };
 
     /*
@@ -106,6 +136,7 @@ namespace DCE
         // all devices when they register
         char *m_pDeviceStructure;
         unsigned long m_dwIDeviceStructure_Size;
+        char *m_pBufferForDeviceCategories;
 
         // The Plug-in's and interceptors
         map<int,class Command_Impl *> m_mapPlugIn;

@@ -30,7 +30,8 @@ void Database_pluto_main::CreateTable_CriteriaParm_D()
 
 void Database_pluto_main::DeleteTable_CriteriaParm_D()
 {
-	delete tblCriteriaParm_D;
+	if( tblCriteriaParm_D )
+		delete tblCriteriaParm_D;
 }
 
 Table_CriteriaParm_D::~Table_CriteriaParm_D()

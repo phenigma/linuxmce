@@ -31,7 +31,8 @@ void Database_pluto_main::CreateTable_psc_constants_batdet()
 
 void Database_pluto_main::DeleteTable_psc_constants_batdet()
 {
-	delete tblpsc_constants_batdet;
+	if( tblpsc_constants_batdet )
+		delete tblpsc_constants_batdet;
 }
 
 Table_psc_constants_batdet::~Table_psc_constants_batdet()

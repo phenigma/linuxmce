@@ -32,7 +32,8 @@ void Database_pluto_main::CreateTable_EventHandler()
 
 void Database_pluto_main::DeleteTable_EventHandler()
 {
-	delete tblEventHandler;
+	if( tblEventHandler )
+		delete tblEventHandler;
 }
 
 Table_EventHandler::~Table_EventHandler()

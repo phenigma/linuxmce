@@ -34,7 +34,8 @@ void Database_pluto_main::CreateTable_Room()
 
 void Database_pluto_main::DeleteTable_Room()
 {
-	delete tblRoom;
+	if( tblRoom )
+		delete tblRoom;
 }
 
 Table_Room::~Table_Room()

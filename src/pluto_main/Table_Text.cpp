@@ -32,7 +32,8 @@ void Database_pluto_main::CreateTable_Text()
 
 void Database_pluto_main::DeleteTable_Text()
 {
-	delete tblText;
+	if( tblText )
+		delete tblText;
 }
 
 Table_Text::~Table_Text()

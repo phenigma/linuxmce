@@ -28,7 +28,8 @@ void Database_pluto_main::CreateTable_DeviceTemplate_AV()
 
 void Database_pluto_main::DeleteTable_DeviceTemplate_AV()
 {
-	delete tblDeviceTemplate_AV;
+	if( tblDeviceTemplate_AV )
+		delete tblDeviceTemplate_AV;
 }
 
 Table_DeviceTemplate_AV::~Table_DeviceTemplate_AV()

@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_StartupScript()
 
 void Database_pluto_main::DeleteTable_StartupScript()
 {
-	delete tblStartupScript;
+	if( tblStartupScript )
+		delete tblStartupScript;
 }
 
 Table_StartupScript::~Table_StartupScript()

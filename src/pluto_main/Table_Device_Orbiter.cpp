@@ -29,7 +29,8 @@ void Database_pluto_main::CreateTable_Device_Orbiter()
 
 void Database_pluto_main::DeleteTable_Device_Orbiter()
 {
-	delete tblDevice_Orbiter;
+	if( tblDevice_Orbiter )
+		delete tblDevice_Orbiter;
 }
 
 Table_Device_Orbiter::~Table_Device_Orbiter()

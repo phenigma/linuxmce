@@ -30,7 +30,8 @@ void Database_pluto_main::CreateTable_Version()
 
 void Database_pluto_main::DeleteTable_Version()
 {
-	delete tblVersion;
+	if( tblVersion )
+		delete tblVersion;
 }
 
 Table_Version::~Table_Version()

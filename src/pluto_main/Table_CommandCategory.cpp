@@ -30,7 +30,8 @@ void Database_pluto_main::CreateTable_CommandCategory()
 
 void Database_pluto_main::DeleteTable_CommandCategory()
 {
-	delete tblCommandCategory;
+	if( tblCommandCategory )
+		delete tblCommandCategory;
 }
 
 Table_CommandCategory::~Table_CommandCategory()
