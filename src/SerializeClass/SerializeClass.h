@@ -555,9 +555,17 @@ public:
 
 	void Read_string(string &str)
 	{
+#ifndef SYMBIAN
 		str.clear();
+#else
+		str.SetLength(0);
+#endif
 		while ( m_pcCurrentPosition < m_pcDataBlock + m_dwAllocatedSize && *m_pcCurrentPosition) {
+#ifndef SYMBIAN
 			 str.append(1, *m_pcCurrentPosition++);
+#else
+			 str.Append(*m_pcCurrentPosition++);
+#endif
 		}
 
 		m_pcCurrentPosition++; //also skip '\0'
