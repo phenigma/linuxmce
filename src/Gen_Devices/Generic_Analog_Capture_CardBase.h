@@ -30,7 +30,8 @@ public:
 	virtual const char *GetDeviceDescription() { return "Generic_Analog_Capture_Card"; } ;
 	string Get_Type() { return m_mapParameters[47];}
 	int Get_Number_of_ports() { return atoi(m_mapParameters[48].c_str());}
-	string Get_Video_Standard() { return m_mapParameters[49];}
+	int Get_Video_Standard() { return atoi(m_mapParameters[49].c_str());}
+	int Get_Video_Input_Type() { return atoi(m_mapParameters[65].c_str());}
 };
 
 
@@ -75,7 +76,8 @@ public:
 	//Data accessors
 	string DATA_Get_Type() { return GetData()->Get_Type(); }
 	int DATA_Get_Number_of_ports() { return GetData()->Get_Number_of_ports(); }
-	string DATA_Get_Video_Standard() { return GetData()->Get_Video_Standard(); }
+	int DATA_Get_Video_Standard() { return GetData()->Get_Video_Standard(); }
+	int DATA_Get_Video_Input_Type() { return GetData()->Get_Video_Input_Type(); }
 	//Event accessors
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat,string &sCMD_Result,class Message *pMessage) {};
