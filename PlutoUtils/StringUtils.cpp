@@ -473,13 +473,13 @@ string StringUtils::GetStringFromConsole()
 	while(true)
 	{
 		char c = getch();
-		cout << c;
 		if (c == 8 && sOutput.length() > 0)
 		{
 			sOutput = sOutput.substr(0, sOutput.length() - 1);
 			cout << " " << "\x08";
 			continue;
 		}
+		cout << c;
 		if( c=='\n' || c=='\r' )
 			return sOutput;
 
