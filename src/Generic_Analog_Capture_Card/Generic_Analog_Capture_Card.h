@@ -55,23 +55,15 @@ public:
 	*/
 
 
-	/** @brief COMMAND: #84 - Get Video Frame */
-	/** Get's a picture from a specified surveilance camera */
+	/** @brief COMMAND: #277 - Get Capture Video Frame */
+	/** Get a video frame from a specified camera number */
 		/** @param #19 Data */
-			/** The video frame */
-		/** @param #20 Format */
-			/** Format of the frame */
-		/** @param #23 Disable Aspect Lock */
-			/** Disable Aspect Ratio */
-		/** @param #41 StreamID */
-			/** The ID of the stream */
-		/** @param #60 Width */
-			/** Frame width */
-		/** @param #61 Height */
-			/** Frame height */
+			/** The pointer to the video frame */
+		/** @param #112 CameraID */
+			/** The number (ID) of the camera where to capture from */
 
-	virtual void CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat) { string sCMD_Result; CMD_Get_Video_Frame(sDisable_Aspect_Lock.c_str(),iStreamID,iWidth,iHeight,pData,iData_Size,sFormat,sCMD_Result,NULL);};
-	virtual void CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Get_Capture_Video_Frame(int iCameraID,char **pData,int *iData_Size) { string sCMD_Result; CMD_Get_Capture_Video_Frame(iCameraID,pData,iData_Size,sCMD_Result,NULL);};
+	virtual void CMD_Get_Capture_Video_Frame(int iCameraID,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

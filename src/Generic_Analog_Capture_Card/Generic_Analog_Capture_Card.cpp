@@ -216,38 +216,39 @@ void Generic_Analog_Capture_Card::SomeFunction()
 
 */
 
-//<-dceag-c84-b->
+DeviceData_Router* Generic_Analog_Capture_Card::find_Device(int iPK_Device) {
+    /*search device by id*/
+	return m_pRouter->m_mapDeviceData_Router_Find(iPK_Device);
+}
+//<-dceag-c277-b->
 
-	/** @brief COMMAND: #84 - Get Video Frame */
-	/** Get's a picture from a specified surveilance camera */
+	/** @brief COMMAND: #277 - Get Capture Video Frame */
+	/** Get a video frame from a specified camera number */
 		/** @param #19 Data */
-			/** The video frame */
-		/** @param #20 Format */
-			/** Format of the frame */
-		/** @param #23 Disable Aspect Lock */
-			/** Disable Aspect Ratio */
-		/** @param #41 StreamID */
-			/** The ID of the stream */
-		/** @param #60 Width */
-			/** Frame width */
-		/** @param #61 Height */
-			/** Frame height */
+			/** The pointer to the video frame */
+		/** @param #112 CameraID */
+			/** The number (ID) of the camera where to capture from */
 
-void Generic_Analog_Capture_Card::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat,string &sCMD_Result,Message *pMessage)
-//<-dceag-c84-e->
+void Generic_Analog_Capture_Card::CMD_Get_Capture_Video_Frame(int iCameraID,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage)
+//<-dceag-c277-e->
 {
 	FILE *fp;
 	char pid[10];
 	char *Command;
+	string FilePath;
 	int size;
 
 	cout << "Need to implement command #84 - Get Video Frame" << endl;
 	cout << "Parm #19 - Data  (data value)" << endl;
-	cout << "Parm #41 - CameraID " << iCameraID << endl;
+	cout << "Parm #112 - CameraID " << iCameraID << endl;
 
 	Command = "ps -e | grep motion | awk '{print $1}' > camera_card.temp";
 	system(Command);
 	fp = fopen("camera_card.temp","rt");
+	if(fp == NULL) {
+		g_pPlutoLogger->Write(LV_STATUS, "Cannot get PID for the motion server, exiting...");
+		exit(99);
+	}
 	fgets(pid,10,fp);
 	size = strlen(pid);
 	if(pid[size-1] == 10) {
@@ -257,9 +258,19 @@ void Generic_Analog_Capture_Card::CMD_Get_Video_Frame(string sDisable_Aspect_Loc
 	Command = "kill -s SIGALRM ";
 	strcat(Command,pid);
 	system(Command);
-}
 
-DeviceData_Router* Generic_Analog_Capture_Card::find_Device(int iPK_Device) {
-    /*search device by id*/
-	return m_pRouter->m_mapDeviceData_Router_Find(iPK_Device);
+	FilePath = "/var/www/cam" + StringUtils::itos(iCameraID) + "/lastsnap.jpg";
+
+	fp = fopen(FilePath.c_str(),"rb");
+	size = 0;
+	if(fp == NULL) {
+		g_pPlutoLogger->Write(LV_STATUS, "Cannot open snapshot file");
+	} else {
+		while(feof(fp) == 0) {
+			fseek(fp,1,SEEK_CUR);
+			size++;
+		}
+		fclose(fp);
+	}
+	*pData = FileUtils::ReadFileIntoBuffer(FilePath, (size_t &)size);
 }
