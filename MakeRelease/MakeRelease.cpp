@@ -956,6 +956,11 @@ AsksSourceQuests:
 				if( !AskYNQuestion("Execute command?",false) )
 					return false;
 			}
+
+			// Be sure we compile with debug info
+			if( !g_bSimulate && g_pRow_Version->PK_Version_get()==1 )
+				StringUtils::Replace( "Makefile", "Makefile", "-D_DEVEL_DEFINES", "-DDEBUG -DTHREAD_LOG -DLL_DEBUG_FILE" );
+
 			fstr_compile << pRow_Package_Directory_File->MakeCommand_get() << endl;
 			cout << "Executing: " << pRow_Package_Directory_File->MakeCommand_get() << endl;
 			if( !g_bSimulate && system(pRow_Package_Directory_File->MakeCommand_get().c_str()) )
