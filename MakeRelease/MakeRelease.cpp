@@ -33,6 +33,7 @@
 #include "pluto_main/Table_RepositorySource_URL.h"
 #include "pluto_main/Table_Installation_RepositorySource_URL.h"
 #include "pluto_main/Table_Package.h"
+#include "pluto_main/Table_Package_Compat.h"
 #include "pluto_main/Table_Distro.h"
 #include "pluto_main/Table_Version.h"
 #include "pluto_main/Table_Installation.h"
@@ -104,6 +105,9 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 // Create archives
 bool TarFiles(string sArchiveFileName);
 bool ZipFiles(string sArchiveFileName);
+
+// Misc
+bool PackageIsCompatible(Row_Package *pRow_Package);
 
 fstream fstr_compile,fstr_make_release;
 
@@ -256,6 +260,12 @@ int main(int argc, char *argv[])
 		for(size_t s=0;s<vectPackages_Main.size();++s)
 		{
 			Row_Package *pRow_Package = vectPackages_Main[s];
+			if( !PackageIsCompatible(pRow_Package) )
+			{
+				cout << "Skipping: " << pRow_Package->Description_get() << " because it is not compatible" << endl;
+				continue;
+			}
+
 			if( g_bInteractive && pRow_Package->FK_Package_Sourcecode_isNull() && pRow_Package->IsSource_get()==0 )
 			{
 				cout << "There is no source code for package: " << pRow_Package->Description_get() << endl;
@@ -282,6 +292,11 @@ int main(int argc, char *argv[])
 		for(size_t s=0;s<vectPackages_Main.size();++s)
 		{
 			Row_Package *pRow_Package = vectPackages_Main[s];
+			if( !PackageIsCompatible(pRow_Package) )
+			{
+				cout << "Skipping: " << pRow_Package->Description_get() << " because it is not compatible" << endl;
+				continue;
+			}
 			if( !CreateSources(pRow_Package) )
 			{
 				cout << "Aborting!" << endl;
@@ -291,6 +306,17 @@ int main(int argc, char *argv[])
 	}
 
 	cout << "Done!" << endl;
+}
+
+bool PackageIsCompatible(Row_Package *pRow_Package)
+{
+	vector<Row_Package_Compat *> vectRow_Package_Compat;
+	pRow_Package->Table_Package_get()->Database_pluto_main_get()->Package_Compat_get()->GetRows(
+		"(FK_Distro IS NULL OR FK_Distro=" + StringUtils::itos(g_pRow_Distro->PK_Distro_get()) +") AND " +
+		"(FK_OperatingSystem IS NULL OR FK_OperatingSystem=" + StringUtils::itos(g_pRow_Distro->FK_OperatingSystem_get()),
+		&vectRow_Package_Compat);
+	return vectRow_Package_Compat.size()!=0;
+	
 }
 
 bool CreateSources(Row_Package *pRow_Package)
