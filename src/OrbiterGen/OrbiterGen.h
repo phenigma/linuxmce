@@ -20,7 +20,7 @@ public:
 	class Row_DesignObj *m_pRow_DesignObj_MainMenu,*m_pRow_DesignObj_Sleeping,*m_pRow_DesignObj_ScreenSaver;
 	class Row_Skin *m_pRow_Skin;
 	class Row_Language *m_pRow_Language;
-	bool m_bNoEffects;
+	bool m_bNoEffects,m_bUseOCG;
 
 	int m_iLocation;
 	map<int,int> m_htUsedStyleVariation;

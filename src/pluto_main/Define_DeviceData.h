@@ -60,6 +60,7 @@
 #define DEVICEDATA_ThreshHold_CONST 61
 #define DEVICEDATA_Serial_Port_CONST 62
 #define DEVICEDATA_LIRC_Driver_CONST 63
+#define DEVICEDATA_Use_OCG_Format_CONST 64
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

@@ -80,6 +80,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_DesignObj_GeneratorGoto=NULL;
     m_pOrbiterGenerator=pGenerator;
     m_bRendered=false;
+	m_bUseOCG=pGenerator->m_bUseOCG;
 
     m_mds=drDesignObj->Table_DesignObj_get()->Database_pluto_main_get();
     m_VariableMap = m_pOrbiterGenerator->m_mapVariable;

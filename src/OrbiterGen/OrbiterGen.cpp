@@ -286,6 +286,7 @@ int OrbiterGenerator::DoIt()
 		exit(1);
 	}
 
+
 	m_pRow_DesignObj_MainMenu = mds.DesignObj_get()->GetRow(m_pRow_Skin->FK_DesignObj_MainMenu_get());
 
 	if( !m_pRow_DesignObj_MainMenu )
@@ -327,6 +328,12 @@ int OrbiterGenerator::DoIt()
 		m_bNoEffects = atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str())==1;
 	else
 		m_bNoEffects = false;
+
+	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_Use_OCG_Format_CONST);
+	if( pRow_Device_DeviceData )
+		m_bUseOCG = atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str())==1;
+	else
+		m_bUseOCG = false;
 
 	// See if there's a default entertainment area for this orbiter
 	Row_EntertainArea *pRow_EntertainArea_Default = NULL;

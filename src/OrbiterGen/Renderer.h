@@ -49,7 +49,7 @@ public:
 	PlutoPoint Position,int iRenderStandard,bool bPreserveAspectRatio,int iOnlyVersion=-999);
 	void RenderObjectsChildren(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint pos,bool bPreserveAspectRatio,int iOnlyVersion);
 	void RenderObjectsText(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint pos,int iIteration);
-	static void SaveImageToFile(RendererImage * pRendererImage, string sSaveToFile);
+	static void SaveImageToFile(RendererImage * pRendererImage, string sSaveToFile, bool bUseOCG=false);
 	static void SaveImageToPNGFile(RendererImage * pRendererImage, FILE * File, bool Signature = true);
 	static RendererImage *Subset(RendererImage *pRenderImage,PlutoRectangle rect);
 	// If Crop is true and PreserveAspectRatio is true, then instead of shrinking to fit within the given space, it will

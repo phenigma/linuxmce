@@ -315,7 +315,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 				if( pRendererMNG )
 					SaveMNGToFile(m_sOutputDirectory + sSaveToFile,pRendererMNG);
 				else
-	                SaveImageToFile(pRenderImage,m_sOutputDirectory + sSaveToFile);
+	                SaveImageToFile(pRenderImage,m_sOutputDirectory + sSaveToFile,pDesignObj_Generator->m_bUseOCG);
 #ifdef OUTPUT_BMP
                 sSaveToFile+=".bmp";
 #else
@@ -453,7 +453,7 @@ void Renderer::SaveImageToPNGFile(RendererImage * pRendererImage, FILE * File, b
     png_destroy_write_struct(&png_ptr, &png_info);
 }
 
-void Renderer::SaveImageToFile(RendererImage * pRendererImage, string sSaveToFile)
+void Renderer::SaveImageToFile(RendererImage * pRendererImage, string sSaveToFile, bool bUseOCG)
 {
 if( sSaveToFile.find(".1257.")!=string::npos )
 {
@@ -471,12 +471,18 @@ int k=2;
         throw "Failed to write file: " + FileName + ": " + SDL_GetError();
     }
 #else
-    string FileName = sSaveToFile + ".png";
-    FILE * File = fopen(FileName.c_str(), "wb");
+	if( bUseOCG )
+	{
+	}
+	else
+	{
+		string FileName = sSaveToFile + ".png";
+		FILE * File = fopen(FileName.c_str(), "wb");
 
-	SaveImageToPNGFile(pRendererImage, File);
+		SaveImageToPNGFile(pRendererImage, File);
 
-    fclose(File);
+		fclose(File);
+	}
 #endif
 }
 
