@@ -32,6 +32,8 @@
 #ifndef WIN32
 	#include <dirent.h>
 	#include <unistd.h>
+#else
+//	#include <shellapi.h>
 #endif
 
 #ifndef SYMBIAN
@@ -41,6 +43,7 @@
 	#include <algorithm>
 	#include <stdarg.h>
 	#ifdef WIN32
+		#include <windows.h>
 		#ifndef WINCE
 			#include <direct.h>
 			#include <io.h>
@@ -261,6 +264,70 @@ bool FileUtils::DirExists( string sFile )
     return iResult == 0;
 }
 
+void FileUtils::DelFile(string sFileName)
+{
+#ifdef WIN32
+	#ifdef WINCE
+		wchar_t pFileNameW[256];
+		mbstowcs(pFileNameW, sFileName.c_str(), 256);
+		::DeleteFile(pFileNameW);
+	#else
+		::DeleteFile(sFileName.c_str());
+	#endif
+#else
+	system(("rm " + sFileName).c_str());
+#endif
+}
+
+void FileUtils::DelDir(string sDirectory)
+{
+#ifdef WIN32
+
+		string sDir = sDirectory + "/*";
+
+		WIN32_FIND_DATA findData;
+		::ZeroMemory(&findData, sizeof(findData));
+
+
+		#ifdef WINCE
+			wchar_t pDirectoryW[256];
+			mbstowcs(pDirectoryW, sDir.c_str(), 256);
+			HANDLE findFileHandle = FindFirstFile(pDirectoryW, &findData);//ignore "."
+		#else
+			HANDLE findFileHandle = FindFirstFile(sDir.c_str(), &findData);//ignore "."
+		#endif
+
+		FindNextFile(findFileHandle, &findData); //ignore ".."
+
+		while(FindNextFile(findFileHandle, &findData))
+		{
+		
+			string sPath = sDirectory + "/";
+		#ifdef WINCE
+			char pPath[256];
+			wcstombs(pPath, findData.cFileName, 256);
+			sPath += pPath;
+		#else
+			sPath += findData.cFileName;
+		#endif			
+
+			if(findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+				FileUtils::DelDir(sPath); 
+			else
+				FileUtils::DelFile(sPath);
+		}
+
+		FindClose(findFileHandle);
+
+		#ifdef WINCE
+			::RemoveDirectory(pDirectoryW);
+		#else
+			::RemoveDirectory(sDirectory.c_str());
+		#endif
+#else
+	system(("rm -rf " + sDirectory).c_str());
+#endif
+}
 
 #ifndef WINCE
 
