@@ -16,9 +16,10 @@ typedef pair<int, int> IntPair;
 //<-dceag-decl-b->
 namespace DCE
 {
-	class gc100 : public gc100_Command, public IRBase
-	{
+	class gc100 : public gc100_Command
 //<-dceag-decl-e->
+		, public IRBase
+	{
 		// Private member variables
 
 		// Private methods

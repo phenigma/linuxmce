@@ -19,7 +19,7 @@ sources = Main.cpp gc100.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS +=
 LDFLAGS +=
-XTRALDLIBS =
+XTRALDLIBS = -lIRBase -lSerial
 
 Gen_Dev_Files +=
 sources +=
