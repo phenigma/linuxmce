@@ -1060,7 +1060,12 @@ AsksSourceQuests:
 
 			// Be sure we compile with debug info
 			if( !g_bSimulate )
+{
+cout << "StringUtils::Replace( Makefile, Makefile, -D_DEVEL_DEFINES, g_sDefines );" << endl;
 				StringUtils::Replace( "Makefile", "Makefile", "-D_DEVEL_DEFINES", g_sDefines );
+StringUtils::Replace( "Makefile", "Makefile.foo", "-D_DEVEL_DEFINES", g_sDefines );
+StringUtils::Replace( "Makefile", "Makefile.foo2", "-D", "-XXX" );
+}
 
 			if( FileUtils::FileExists("Main.cpp") )
 				StringUtils::Replace( "Main.cpp", "Main.cpp", "/*SVN_REVISION*/", "int g_SvnRevision=" + StringUtils::itos(g_iSVNRevision) + ";" );
