@@ -285,8 +285,7 @@ function devices($output,$dbADO) {
 		$displayedDevicesArray=explode(',',@$_POST['displayedDevices']);
 		foreach($displayedDevicesArray as $value){
 			if(isset($_POST['delete_'.$value])){
-				$deleteDevice='DELETE FROM Device WHERE PK_Device=?';
-				$dbADO->Execute($deleteDevice,$value); 
+				deleteDevice($value,$dbADO);
 			}
 		}
 		

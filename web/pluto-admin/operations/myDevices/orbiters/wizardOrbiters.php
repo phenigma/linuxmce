@@ -242,8 +242,7 @@ function wizardOrbiters($output,$dbADO) {
 		$displayedDevicesArray=explode(',',$_POST['displayedDevices']);
 		foreach($displayedDevicesArray as $value){
 			if(isset($_POST['delete_'.$value])){
-				$deleteDevice='DELETE FROM Device WHERE PK_Device=?';
-				$dbADO->Execute($deleteDevice,$value); 
+				deleteDevice($value,$dbADO); 
 			}
 			if(isset($_POST['quickRegen_'.$value])){
 				$updateOrbiter='UPDATE Orbiter SET Regen=1 WHERE PK_Orbiter=?';
