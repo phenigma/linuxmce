@@ -8,7 +8,7 @@
 -- Table structure for table `ast_config`
 --
 
-CREATE TABLE `ast_config` (
+CREATE TABLE IF NOT EXISTS `ast_config` (
 `id` int(11) NOT NULL auto_increment,
 `cat_metric` int(11) NOT NULL default '0',
 `var_metric` int(11) NOT NULL default '0',
@@ -25,7 +25,7 @@ CREATE TABLE `ast_config` (
 -- Table structure for table `extensions_table`
 --
 
-CREATE TABLE `extensions_table` (
+CREATE TABLE IF NOT EXISTS `extensions_table` (
   `id` int(11) NOT NULL auto_increment,
   `context` varchar(100) default NULL,
   `exten` varchar(20) NOT NULL default '',
@@ -38,6 +38,9 @@ CREATE TABLE `extensions_table` (
 --
 -- Dumping data for table `extensions_table`
 --
+
+DELETE FROM extensions_table;
+
 
 INSERT INTO `extensions_table` VALUES (7,'trusted','_0.',1,'Goto','outgoing-local|${EXTEN}|1');
 INSERT INTO `extensions_table` VALUES (2,'trusted','_9.',1,'Goto','outgoing-extern|${EXTEN}|1');
@@ -62,7 +65,7 @@ INSERT INTO `extensions_table` VALUES (32,'default','_.',1,'Goto','incoming-loca
 -- Table structure for table `sip_buddies`
 --
 
-CREATE TABLE `sip_buddies` (
+CREATE TABLE IF NOT EXISTS `sip_buddies` (
   `uniqueid` int(11) NOT NULL auto_increment,
   `name` varchar(30) NOT NULL default '',
   `accountcode` varchar(30) default NULL,
@@ -112,7 +115,7 @@ CREATE TABLE `sip_buddies` (
 -- Table structure for table `voicemail_users`
 --
 
-CREATE TABLE `voicemail_users` (
+CREATE TABLE IF NOT EXISTS `voicemail_users` (
   `uniqueid` int(11) NOT NULL auto_increment,
   `customer_id` int(11) NOT NULL default '0',
   `context` varchar(50) NOT NULL default '',
