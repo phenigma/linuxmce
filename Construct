@@ -1,11 +1,10 @@
 # Where to put all our shared products.
-$EXPORT = '#export.';
 
-# $LIB = "$EXPORT/lib";
-# $BIN = "$EXPORT/bin";
+# $EXPORT = '#export/';
+$EXPORT = '#';
 
-$LIB="#lib";
-$BIN="#bin";
+$LIB = "${EXPORT}lib";
+$BIN = "${EXPORT}bin";
 
 $env = new cons(
 	'CC' => 'g++',
@@ -40,6 +39,10 @@ Build qw(
 	build/pluto_main/Conscript
 	build/pluto_security/Conscript
 
+	build/Media_Plugin/Conscript
+	build/Orbiter_Plugin/Conscript
+	build/Xine_Plugin/Conscript
+	
 	build/DCERouter/Conscript
 	build/Slim_Server_Streamer/Conscript
 	build/App_Server/Conscript

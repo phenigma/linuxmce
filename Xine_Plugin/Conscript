@@ -1,0 +1,21 @@
+Import qw( env BIN LIB );
+
+$env = $env->clone(
+		'CXXFLAGS_LOCAL' => '-I/usr/include/mysql',
+		'LDFLAGS' => '-shared',
+	#	LIBS => $env->{LIBS} . ' -lpluto_main -lpluto_media'
+
+	);
+	
+Install $env $BIN, 'Xine_Plugin.so';
+
+Program $env 'Xine_Plugin.so', qw( 
+	%GEN_DEVS/Xine_PluginBase.cpp 
+	%GEN_DEVS/Media_PluginBase.cpp 
+	%GEN_DEVS/Datagrid_PluginBase.cpp
+    ../Media_Plugin/MediaPluginInfo.cpp 
+    ../Media_Plugin/Media_Plugin.cpp 
+    ../Media_Plugin/MediaAttributes.cpp
+    ../Datagrid_Plugin/Datagrid_Plugin.cpp
+    ../File_Grids_Plugin/FileListGrid.cpp
+	), <*.cpp>;

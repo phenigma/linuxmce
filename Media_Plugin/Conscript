@@ -1,0 +1,16 @@
+Import qw( env BIN LIB );
+
+$env = $env->clone(
+		'CXXFLAGS_LOCAL' => '-I/usr/include/mysql',
+		'LDFLAGS' => '-shared',
+		LIBS => $env->{LIBS} . ' -lpluto_main -lpluto_media -lmysqlclient_r '
+
+	);
+	
+Install $env $BIN, 'Media_Plugin.so';
+
+Program $env 'Media_Plugin.so', qw(
+					%GEN_DEVS/Media_PluginBase.cpp
+					%GEN_DEVS/Datagrid_PluginBase.cpp
+					../Datagrid_Plugin/Datagrid_Plugin.cpp 
+					../File_Grids_Plugin/FileListGrid.cpp ), <*.cpp>;

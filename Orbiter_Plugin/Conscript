@@ -1,0 +1,12 @@
+Import qw( env BIN LIB );
+
+$env = $env->clone(
+		'CXXFLAGS_LOCAL' => '-I/usr/include/mysql',
+		'LDFLAGS' => '-shared',
+		LIBS => $env->{LIBS} . ' -lpluto_main -lpluto_media'
+
+	);
+	
+Install $env $BIN, 'Orbiter_Plugin.so';
+
+Program $env 'Orbiter_Plugin.so', qw( %GEN_DEVS/Orbiter_PluginBase.cpp ), <*.cpp>;

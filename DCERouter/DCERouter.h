@@ -120,7 +120,7 @@ namespace DCE
         pthread_mutex_t m_MessageQueueMutex;
         pthread_cond_t m_MessageQueueCond;
         int m_Port;
-		unsigned long m_dwPK_Device_Largest;
+        unsigned long m_dwPK_Device_Largest;
         string m_sBasePath;
         pthread_t m_pthread_queue_id;
         map<int,string> m_dwPK_Device_To_CommandLine;
@@ -261,7 +261,7 @@ namespace DCE
 #endif
 
         class Command_Impl *CreatePlugIn(int PK_Device, int PK_DeviceTemplate, string sCommandLine);  // Load the plug-in on the command line
-		int DynamicallyLoadPlugin(string sFile);
+        int DynamicallyLoadPlugin(string sFile);
         string GetDevicesByDeviceTemplate(int PK_DeviceTemplate,eBroadcastLevel BroadcastLevel, int sourceDeviceForBroadcastLevel);
         string GetDevicesByCategory(int PK_DeviceCategory,eBroadcastLevel BroadcastLevel);
         void ErrorResponse(Socket *pSocket,Message *pMessage); // Respond with an error condition if the sender is waiting for a response
@@ -276,17 +276,17 @@ namespace DCE
         void CleanFileName(string &FileName);
         Message *GetActionForInput(int PK_Device,int PK_Input);
         bool DeviceIsRegistered(int PK_Device);
-		void ExecuteCommandGroup(CommandGroup *pCommandGroup);
-		
-		void ExecuteCommandGroup(int PK_CommandGroup,size_t sStartingCommand=0);
-		void SendCommand(CommandGroup_Command *pCommandGroup_Command);
+        void ExecuteCommandGroup(CommandGroup *pCommandGroup);
+
+        void ExecuteCommandGroup(int PK_CommandGroup,size_t sStartingCommand=0);
+        void SendCommand(CommandGroup_Command *pCommandGroup_Command);
 
         Database_pluto_main *GetDatabase() { return m_pDatabase_pluto_main; }
         void StartListening() { SocketListener::StartListening(m_Port); }
         void Quit() { m_bQuit=true; }
 
         // declared inline since i use it from some plugins.
-        int FindClosestRelative(int MasterDeviceType, int CurrentDevice)
+        int FindClosestRelative(unsigned int MasterDeviceType, int CurrentDevice)
         {
             DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(CurrentDevice);
             if( pDevice )

@@ -179,6 +179,8 @@ void MediaStream::SetPlaylistPosition(int position)
         m_iDequeMediaFile_Pos = 0;
 
     m_iStoppedAtPosition = 0; // reset the file pointer also.
+
+    DumpPlaylist();
 }
 
 
@@ -223,7 +225,9 @@ void MediaStream::ClearPlaylist()
 
 bool MediaStream::HaveMoreInQueue()
 {
-    return m_iDequeMediaFile_Pos <= (m_dequeMediaFile.size() - 1);
+    g_pPlutoLogger->Write(LV_WARNING, "HaveMoreInQueue: position %d, size: %d, result %d", m_iDequeMediaFile_Pos, m_dequeMediaFile.size(), m_iDequeMediaFile_Pos < (m_dequeMediaFile.size() - 1));
+    DumpPlaylist();
+    return m_iDequeMediaFile_Pos < (m_dequeMediaFile.size() - 1);
 }
 
 MediaStream::~MediaStream( )
