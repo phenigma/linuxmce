@@ -82,7 +82,7 @@ function devices($output,$dbADO) {
 
 	
 	if ($action == 'form') {
-		$out.='
+		$out.=setLeftMenu($dbADO).'
 	<script>
 			function windowOpen(locationA,attributes) {
 				window.open(locationA,\'\',attributes);

@@ -815,7 +815,7 @@ switch ($section) {
 		$output->setTemplateFileType('large');
 	    include_once('operations/security/alertTypes.php');
 	    $output->setHelpSrc('/support/index.php?section=document&docID=168');
-	    alertTypes($output,$securityADO);
+	    alertTypes($output,$securityADO,$dbADO);
 	break;
 	case 'alertsLog';
 		$output = new Template($dbADO);
@@ -935,7 +935,7 @@ switch ($section) {
 		@include($GLOBALS['globalConfigPath'].'asteriskDB.inc.php');
 	    include_once('operations/phones/phoneLines.php');
 	    $output->setHelpSrc('/support/index.php?section=document&docID=148');
-	    phoneLines($output,$asteriskADO);
+	    phoneLines($output,$asteriskADO,$dbADO);
 	break;
 	case 'phoneExtensions';
 		$output = new Template($dbADO);

@@ -24,7 +24,7 @@ if($action=='form') {
 	}
 
 	
-	$out.='
+	$out.=setLeftMenu($dbADO).'
 	<div align="center" class="err">'.strip_tags(@$_GET['error']).'</div>
 	<div align="center" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg'].'<br>'):'').'</B></div>
 	<h2 align="center">'.$rowArray['Description'].'</h2>';
@@ -184,7 +184,6 @@ if($action=='form') {
 	header("Location: index.php?section=climateScenarios&msg=".@$msg);
 }
 
-	$output->setScriptInBody("onLoad=\"javascript:top.treeframe.location.reload();\"");
 	$output->setNavigationMenu(array("My Scenarios"=>'index.php?section=myScenarios',"Climate Scenarios"=>'index.php?section=climateScenarios'));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

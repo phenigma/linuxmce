@@ -28,7 +28,7 @@ function videoLinks($output,$dbADO) {
 		
 		
 	if ($action == 'form') {
-		$out.='
+		$out.=setLeftMenu($dbADO).'
 	<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
 	<div align="center"><B>'.@$_REQUEST['msg'].'</B></div>
 	<form action="index.php" method="POST" name="videoLinks">

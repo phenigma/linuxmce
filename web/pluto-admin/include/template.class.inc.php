@@ -218,23 +218,12 @@ function setTemplateFileType($type) {
   
   function setBody($myBody) {
   	$this->body = $myBody;
-  	$wizardPagesArray=getChildsOfWizard(1,$this->dbADO);
-  	$toCompare='index.php?'.$_SERVER['QUERY_STRING'];
-  	if(in_array($toCompare,$wizardPagesArray)){
-  		$pageID=array_search($toCompare,$wizardPagesArray);
-  		$isWizard=1;
-  		$redirectLink='index.php?section=wizard&pageSetup='.$pageID.'senderID=0';
-  	}else{
-  		$isWizard=0;
-  		$redirectLink='index.php?section=leftMenu';
-  	}
   	if($this->reloadLeftFrame==true && $this->templateType=='large'){
   		$this->body.='<script>
   			try{
 	  			var queryStr=top.treeframe.location.search.substring(9,top.treeframe.location.search.length);
-	  			var isWizard='.$isWizard.';
-	  			if((queryStr.substr(0,8)!=\'leftMenu\' && queryStr.substr(0,6)!=\'wizard\') || isWizard==1){
-	  				top.treeframe.location=\''.$redirectLink.'\';
+	  			if(queryStr.substr(0,8)!=\'leftMenu\' && queryStr.substr(0,6)!=\'wizard\'){
+	  				top.treeframe.location=\'index.php?section=leftMenu\';
 	  			}
 	  		}catch(e){
 	  			// do nothing, it\'s not in frame

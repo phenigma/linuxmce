@@ -1,5 +1,5 @@
 <?
-function alertTypes($output,$securitydbADO) {
+function alertTypes($output,$securitydbADO,$dbADO) {
 	/* @var $securitydbADO ADOConnection */
 	/* @var $res ADORecordSet */
 	
@@ -14,7 +14,7 @@ function alertTypes($output,$securitydbADO) {
 	$out.='<div align="center"><h3>Alert types</h3></div>';
 	
 	if ($action=='form') {
-		$out.='<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>';
+		$out.=setLeftMenu($dbADO).'<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>';
 		$out.='
 			<form action="index.php" method="post" name="alertTypes">
 			<input type="hidden" name="section" value="alertTypes">

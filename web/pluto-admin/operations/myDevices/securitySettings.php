@@ -37,7 +37,7 @@ function securitySettings($output,$dbADO,$securitydbADO) {
 	}
 
 	if ($action == 'form') {
-		$out.='
+		$out.=setLeftMenu($dbADO).'
 	<script>
 			function windowOpen(locationA,attributes) {
 				window.open(locationA,\'\',attributes);
@@ -80,7 +80,7 @@ function securitySettings($output,$dbADO,$securitydbADO) {
 					$resAlertType=$dbADO->Execute($queryAlertType,array($rowD['PK_Device'],$GLOBALS['securityAlertType']));
 					if($resAlertType->RecordCount()>0){
 						$rowAlertType=$resAlertType->FetchRow();
-						$pullDownArray[1]=$alertTypesLabels[$rowAlertType['IK_DeviceData']];
+						$pullDownArray[1]=@$alertTypesLabels[$rowAlertType['IK_DeviceData']];
 						$selectedAlertType=$rowAlertType['IK_DeviceData'];
 					}else
 						$selectedAlertType=0;

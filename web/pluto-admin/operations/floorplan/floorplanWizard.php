@@ -22,7 +22,7 @@ function floorplanWizard($output,$dbADO) {
 	$resFloorplans=$dbADO->Execute($queryFloorplans,$installationID);
 	
 	if($action=='form'){
-		$out='
+		$out=setLeftMenu($dbADO).'
 		<form name="form1" action="index.php" onsubmit="return submitForm();" method="POST">
 			<input type="hidden" name="section" value="floorplanWizard">
 			<input type="hidden" name="action" value="update">

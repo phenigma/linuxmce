@@ -28,9 +28,10 @@ function steps($output,$dbADO) {
 				}
 				top.basefrm.location=mainUrl;
 			}
-			else
+			else{
 				top.basefrm.location=\'index.php?section=installationSettings\';
-				self.location=\'index.php?section=wizard&pageSetup=\'+selfPage+\'&senderID=\'+sender;				
+			}
+			self.location=\'index.php?section=wizard&pageSetup=\'+selfPage+\'&senderID=\'+sender;				
 		}
 		</script>
 	';
@@ -81,7 +82,7 @@ function steps($output,$dbADO) {
 		if($GLOBALS['isSync'][$pos]==1)
 			$wizardLink.='<img src="include/images/sync.gif" align="middle">';
 
-		$nextLink=($currentItem==$GLOBALS['pagesArray'][$pos])?'<a <a href="#" onClick="setMenuItem(\''.$GLOBALS['linksArray'][$pos].'\',\''.$toPage.'\',\''.$fromPage.'\')">Next</a>':'&nbsp;';
+		$nextLink=($currentItem==$GLOBALS['pagesArray'][$pos])?'<a <a href="#" onClick="setMenuItem(\''.$GLOBALS['linksArray'][$toPos].'\',\''.$toPage.'\',\''.$fromPage.'\')">Next</a>':'&nbsp;';
 		
 		$out.='
 			<tr bgcolor="'.(($currentItem==$GLOBALS['pagesArray'][$pos])?'#CCCCCC':'').'">

@@ -29,7 +29,7 @@ if($action=='form') {
 	$resArray = $dbADO->Execute($queryArray,$arrayID);
 	$rowArray=$resArray->FetchRow();
 
-	$out.='
+	$out.=setLeftMenu($dbADO).'
 	<div align="center" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg'].'<br>'):'').'</B></div>
 	<h2 align="center">'.$rowArray['Description'].'</h2>';
 
@@ -125,7 +125,6 @@ if($action=='form') {
 	exit();
 }
 
-	$output->setScriptInBody("onLoad=\"javascript:top.treeframe.location.reload();\"");
 	$output->setNavigationMenu(array("My Scenarios"=>'index.php?section=myScenarios',"Mobile Orbiter Scenarios"=>'index.php?section=mobileScenarios'));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

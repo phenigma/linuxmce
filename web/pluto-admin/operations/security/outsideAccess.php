@@ -43,7 +43,7 @@ function outsideAccess($output,$dbADO) {
 		if(count($retArray)==0){
 			$out.='<div class="err">Insuffient rights: pluto.conf file cannot be opened.</div>';
 		}
-		$out.='<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>';
+		$out.=setLeftMenu($dbADO).'<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>';
 		$out.='
 	<script>
 	function validateInput()

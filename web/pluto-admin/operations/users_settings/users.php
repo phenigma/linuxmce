@@ -29,7 +29,7 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 
 
 	if ($resUsers) {
-		$out.="
+		$out.=setLeftMenu($dbADO)."
 		<script>
 			function windowOpen(locationA,attributes) {
 				window.open(locationA,'',attributes);

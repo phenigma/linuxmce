@@ -41,7 +41,7 @@ function telecomScenarios($output,$dbADO) {
 
 	if($action=='form') {
 
-		$out.='<h2>Telecom Scenarios</h2>';
+		$out.=setLeftMenu($dbADO).'<h2>Telecom Scenarios</h2>';
 
 		$out.='
 	<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>	
@@ -411,7 +411,6 @@ function telecomScenarios($output,$dbADO) {
 		header("Location: index.php?section=telecomScenarios&msg=Telecom scenario updated.");
 	}
 
-	$output->setScriptInBody("onLoad=\"javascript:top.treeframe.location.reload();\"");
 	$output->setNavigationMenu(array("My Scenarios"=>'index.php?section=myScenarios',"Telecom Scenarios"=>'index.php?section=telecomScenarios'));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

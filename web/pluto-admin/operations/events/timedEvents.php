@@ -41,7 +41,7 @@ function timedEvents($output,$dbADO) {
 	}
 	if ($action=='form') {
 		
-		$out.='
+		$out.=setLeftMenu($dbADO).'
 		<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 		<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 		<form action="index.php" method="post" name="timedEvents">

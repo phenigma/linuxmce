@@ -41,7 +41,7 @@ $displayedRooms = array();
 			$dbADO->Execute($deleteEA,$_GET['eaid']);
 		}
 		
-		$out.="
+		$out.=setLeftMenu($dbADO)."
 		<script>
 			function windowOpen(locationA,attributes) {
 				window.open(locationA,'',attributes);

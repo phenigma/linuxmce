@@ -2658,4 +2658,37 @@ function getDeviceNames($dbADO,$filter='')
 	}
 	return $devices;
 }
+
+function setLeftMenu($dbADO)
+{
+	$jsRedirect='';
+	$wizardPagesArray=getChildsOfWizard(1,$dbADO);
+	$toCompare='index.php?'.$_SERVER['QUERY_STRING'];
+	if(in_array($toCompare,$wizardPagesArray)){
+		$pageID=array_search($toCompare,$wizardPagesArray);
+		$isWizard=1;
+		$redirectLink='index.php?section=wizard&pageSetup='.$pageID.'&senderID=0';
+		$jsRedirect='<script>
+			function getQueryVariable(query,variable) {
+			  var vars = query.split("&");
+			  for (var i=0;i<vars.length;i++) {
+			    var pair = vars[i].split("=");
+			    if (pair[0] == variable) {
+			      return pair[1];
+			    }
+			  } 
+			}
+
+			try{
+				var queryStr=top.treeframe.location.search.substring(9,top.treeframe.location.search.length);
+				if(getQueryVariable(queryStr,"pageSetup")!='.$pageID.'){
+					top.treeframe.location=\''.$redirectLink.'\';
+				}
+			}catch(e){
+				// no frame
+			}
+		</script>';
+	}
+	return $jsRedirect;
+}
 ?>

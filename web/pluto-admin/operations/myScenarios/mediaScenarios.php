@@ -27,7 +27,7 @@ function mediaScenarios($output,$dbADO) {
 	another source, like a VCR, DVD player, etc., use the "Add Media Scenario" section.';
 	if($action=='form'){
 		$devicesMediaType=getDevicesArrayFromCategory($GLOBALS['rootAVEquipment'],$dbADO);	// start with all A/V/ devices
-		$out.='
+		$out.=setLeftMenu($dbADO).'
 			<script>
 				function windowOpen(locationA,attributes) {
 					window.open(locationA,\'\',attributes);
@@ -533,7 +533,6 @@ function mediaScenarios($output,$dbADO) {
 	}
 	if(@$_REQUEST['GoTo']=='addMS')
 		$jumpTo=';self.location=\'#addMS\'';
-	$output->setScriptInBody("onLoad=\"javascript:top.treeframe.location.reload();".@$jumpTo."\"");
 
 	$output->setNavigationMenu(array("My Scenarios"=>'index.php?section=myScenarios',"Media Scenarios"=>'index.php?section=mediaScenarios'));	
 	$output->setBody($out);

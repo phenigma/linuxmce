@@ -1,13 +1,13 @@
 <?
-function phoneLines($output,$dbADO) {
-	/* @var $dbADO ADOConnection */
+function phoneLines($output,$astADO,$dbADO) {
+	/* @var $astADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$out='';
 	$action = (isset($_REQUEST['action']) && $_REQUEST['action']!='')?cleanString($_REQUEST['action']):'form';
 	$installationID = (int)@$_SESSION['installationID'];
 
 	$queryDefaultLineType="SELECT id,appdata FROM extensions_table	WHERE context='outgoing-extern-selectline' AND exten='_XXXX.' AND appdata LIKE 'DIALLINETYPE=%'";
-	$resDefaultLineType=$dbADO->Execute($queryDefaultLineType);
+	$resDefaultLineType=$astADO->Execute($queryDefaultLineType);
 	if($resDefaultLineType->RecordCount()>0){
 		$rowDefaultLineType=$resDefaultLineType->FetchRow();
 		$defaultLineType=str_replace('DIALLINETYPE=','',$rowDefaultLineType['appdata']);
@@ -15,7 +15,7 @@ function phoneLines($output,$dbADO) {
 	}
 	
 	$queryDefaultLine="SELECT id,appdata FROM extensions_table	WHERE context='outgoing-extern-selectline' AND exten='_XXXX.' AND appdata LIKE 'DIALLINE=%'";
-	$resDefaultLine=$dbADO->Execute($queryDefaultLine);
+	$resDefaultLine=$astADO->Execute($queryDefaultLine);
 	if($resDefaultLine->RecordCount()>0){
 		$rowDefaultLine=$resDefaultLine->FetchRow();
 		$defaultLineName=str_replace('DIALLINE=','',$rowDefaultLine['appdata']);
@@ -24,7 +24,7 @@ function phoneLines($output,$dbADO) {
 
 	if($action=='form'){
 		
-		$out.='
+		$out.=setLeftMenu($dbADO).'
 		<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 		<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 		<h3 align="center">Phone Lines</h3>
@@ -44,7 +44,7 @@ function phoneLines($output,$dbADO) {
 			</tr>
 		';
 		
-		$resLines=$dbADO->Execute("SELECT * FROM sip_buddies WHERE type='peer' ORDER BY name ASC");
+		$resLines=$astADO->Execute("SELECT * FROM sip_buddies WHERE type='peer' ORDER BY name ASC");
 		$pos=0;
 		$sipLinesArray=array();
 		while($row=$resLines->FetchRow()){
@@ -68,7 +68,7 @@ function phoneLines($output,$dbADO) {
 			';
 		}
 
-		$resLines=$dbADO->Execute("SELECT * FROM iax_buddies WHERE type='peer' ORDER BY name ASC");
+		$resLines=$astADO->Execute("SELECT * FROM iax_buddies WHERE type='peer' ORDER BY name ASC");
 		$pos=0;
 		$iaxLinesArray=array();
 		while($row=$resLines->FetchRow()){
@@ -182,7 +182,7 @@ function phoneLines($output,$dbADO) {
 			
 			$phoneTable=(($type=='SIP')?'sip_buddies':'iax_buddies');
 			
-			$resNameExist=$dbADO->Execute('SELECT * FROM '.$phoneTable.' WHERE name=?',$name);
+			$resNameExist=$astADO->Execute('SELECT * FROM '.$phoneTable.' WHERE name=?',$name);
 			if($resNameExist->RecordCount()>0){
 				header('Location: index.php?section=phoneLines&error=A phone line called '.$name.' exist.');
 				exit();
@@ -190,16 +190,16 @@ function phoneLines($output,$dbADO) {
 			
 			$insertPhoneLine='INSERT INTO '.$phoneTable.' (username, secret, name, host, port, rtptimeout, type, context, accountcode, fromdomain, nat, fromuser) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)';
 			$insertAstConfig='INSERT INTO ast_config (filename,var_name,var_val,category) VALUES (?,?,?,?)';
-			$dbADO->Execute($insertAstConfig,array('sip.conf', 'register', $username.':'.$secret.'@'.$host.'/'.$phoneNumber,'general'));
-			$dbADO->Execute($insertPhoneLine,array($username,$secret,$name,$host,$port,$rtptimeout,'peer','registered-lines',$phoneNumber,$host,'Y',$phoneNumber));
+			$astADO->Execute($insertAstConfig,array('sip.conf', 'register', $username.':'.$secret.'@'.$host.'/'.$phoneNumber,'general'));
+			$astADO->Execute($insertPhoneLine,array($username,$secret,$name,$host,$port,$rtptimeout,'peer','registered-lines',$phoneNumber,$host,'Y',$phoneNumber));
 			
 			if(!isset($defaultLineID)){
-				$dbADO->Execute('INSERT INTO extensions_table (context, exten, priority, app, appdata) VALUES (?,?,?,?,?)',array('outgoing-extern-selectline','_XXXX.',2,'SetVar','DIALLINE='.$name));
-				$dbADO->Execute('INSERT INTO extensions_table (context, exten, priority, app, appdata) VALUES (?,?,?,?,?)',array('outgoing-extern-selectline','_XXXX.',1,'SetVar','DIALLINETYPE='.$type));
+				$astADO->Execute('INSERT INTO extensions_table (context, exten, priority, app, appdata) VALUES (?,?,?,?,?)',array('outgoing-extern-selectline','_XXXX.',2,'SetVar','DIALLINE='.$name));
+				$astADO->Execute('INSERT INTO extensions_table (context, exten, priority, app, appdata) VALUES (?,?,?,?,?)',array('outgoing-extern-selectline','_XXXX.',1,'SetVar','DIALLINETYPE='.$type));
 			}else{
 				if($isDefault==1){
-					$dbADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINE='.$name,$defaultLineID));
-					$dbADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINETYPE='.$type,$defaultLineTypeID));
+					$astADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINE='.$name,$defaultLineID));
+					$astADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINETYPE='.$type,$defaultLineTypeID));
 				}
 			}
 			$sync=exec('/usr/pluto/bin/SynchronizeAsterisk.sh');
@@ -215,8 +215,8 @@ function phoneLines($output,$dbADO) {
 			$uniqueID=(int)$_REQUEST['dID'];
 			$name=$_REQUEST['name'];
 			$delTable=$_REQUEST['delTable'];
-			setRandomLineDefault($name,$dbADO,$defaultLineID,$defaultLineTypeID);
-			deleteLine($uniqueID,$name,$delTable,$dbADO);
+			setRandomLineDefault($name,$astADO,$defaultLineID,$defaultLineTypeID);
+			deleteLine($uniqueID,$name,$delTable,$astADO);
 			
 			header('Location: index.php?section=phoneLines&msg=The phone line was deleted.');
 			exit();
@@ -234,18 +234,18 @@ function phoneLines($output,$dbADO) {
 			}
 			if(@$defaultLineName!=$newDefaultLine || @$defaultLineType!=$newDefaultLineType){
 				if(isset($defaultLineID)){
-					$dbADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINE='.@$newDefaultLine,@$defaultLineID));
+					$astADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINE='.@$newDefaultLine,@$defaultLineID));
 				}else{
-					$dbADO->Execute('INSERT INTO extensions_table (context, exten, priority, app, appdata) VALUES (?,?,?,?,?)',array('outgoing-extern-selectline','_XXXX.',2,'SetVar','DIALLINE='.$newDefaultLine));
+					$astADO->Execute('INSERT INTO extensions_table (context, exten, priority, app, appdata) VALUES (?,?,?,?,?)',array('outgoing-extern-selectline','_XXXX.',2,'SetVar','DIALLINE='.$newDefaultLine));
 				}
 					
 			}
 
 			if(@$defaultLineType!=$newDefaultLineType){
 				if(isset($defaultLineType)){
-					$dbADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINETYPE='.@$newDefaultLineType,@$defaultLineTypeID));
+					$astADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINETYPE='.@$newDefaultLineType,@$defaultLineTypeID));
 				}else{
-					$dbADO->Execute('INSERT INTO extensions_table (context, exten, priority, app, appdata) VALUES (?,?,?,?,?)',array('outgoing-extern-selectline','_XXXX.',1,'SetVar','DIALLINETYPE='.$newDefaultLineType));
+					$astADO->Execute('INSERT INTO extensions_table (context, exten, priority, app, appdata) VALUES (?,?,?,?,?)',array('outgoing-extern-selectline','_XXXX.',1,'SetVar','DIALLINETYPE='.$newDefaultLineType));
 				}
 			}
 			
@@ -261,20 +261,20 @@ function phoneLines($output,$dbADO) {
 					$type=@$_POST['type_'.$lineID];
 					
 					if($type=='SIP'){
-						$dbADO->Execute('UPDATE sip_buddies SET username=?, name=?, host=?, port=?, rtptimeout=? WHERE uniqueid=?',array($username,$name,$host,$port,$rtptimeout,$lineID));
+						$astADO->Execute('UPDATE sip_buddies SET username=?, name=?, host=?, port=?, rtptimeout=? WHERE uniqueid=?',array($username,$name,$host,$port,$rtptimeout,$lineID));
 						if($name!=$oldName){
-							$dbADO->Execute('UPDATE extensions_table SET appdata=? WHERE appdata=?',array('DIALLINE='.$name,'DIALLINE='.$oldName));
+							$astADO->Execute('UPDATE extensions_table SET appdata=? WHERE appdata=?',array('DIALLINE='.$name,'DIALLINE='.$oldName));
 						}
 					}else{
 						if($name==$defaultLineName && $type!=@$defaultLineType){
-							$dbADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINETYPE=IAX2',@$defaultLineTypeID));
+							$astADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINETYPE=IAX2',@$defaultLineTypeID));
 						}
 						$insertPhoneLine='
 							INSERT INTO iax_buddies 
 								(username, secret, name, host, port, rtptimeout, type, context, accountcode, fromdomain, nat, fromuser) 
 							SELECT username, secret, name, host, port, rtptimeout, type, context, accountcode, fromdomain, nat, fromuser FROM sip_buddies WHERE uniqueid=?';
-						$dbADO->Execute($insertPhoneLine,$lineID);
-						deleteLine($lineID,$name,'sip_buddies',$dbADO,1);
+						$astADO->Execute($insertPhoneLine,$lineID);
+						deleteLine($lineID,$name,'sip_buddies',$astADO,1);
 					}
 				}
 			}
@@ -291,20 +291,20 @@ function phoneLines($output,$dbADO) {
 					$type=@$_POST['type_'.$lineID];
 					
 					if($type=='IAX2'){
-						$dbADO->Execute('UPDATE iax_buddies SET username=?, name=?, host=?, port=?, rtptimeout=? WHERE uniqueid=?',array($username,$name,$host,$port,$rtptimeout,$lineID));
+						$astADO->Execute('UPDATE iax_buddies SET username=?, name=?, host=?, port=?, rtptimeout=? WHERE uniqueid=?',array($username,$name,$host,$port,$rtptimeout,$lineID));
 						if($name!=$oldName){
-							$dbADO->Execute('UPDATE extensions_table SET appdata=? WHERE appdata=?',array('DIALLINE='.$name,'DIALLINE='.$oldName));
+							$astADO->Execute('UPDATE extensions_table SET appdata=? WHERE appdata=?',array('DIALLINE='.$name,'DIALLINE='.$oldName));
 						}
 					}else{
 						if($name==$defaultLineName && $type!=@$defaultLineType){
-							$dbADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINETYPE=SIP',@$defaultLineTypeID));
+							$astADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINETYPE=SIP',@$defaultLineTypeID));
 						}
 						$insertPhoneLine='
 							INSERT INTO sip_buddies 
 								(username, secret, name, host, port, rtptimeout, type, context, accountcode, fromdomain, nat, fromuser) 
 							SELECT username, secret, name, host, port, rtptimeout, type, context, accountcode, fromdomain, nat, fromuser FROM iax_buddies WHERE uniqueid=?';
-						$dbADO->Execute($insertPhoneLine,$lineID);
-						deleteLine($lineID,$name,'iax_buddies',$dbADO,1);
+						$astADO->Execute($insertPhoneLine,$lineID);
+						deleteLine($lineID,$name,'iax_buddies',$astADO,1);
 					}
 				}
 			}			
@@ -330,52 +330,52 @@ function phoneLines($output,$dbADO) {
 	$output->output();
 }
 
-function deleteLine($uniqueID,$name,$delTable,$dbADO,$dontDelDefault=0)
+function deleteLine($uniqueID,$name,$delTable,$astADO,$dontDelDefault=0)
 {
 	
-	$resPL=$dbADO->Execute('SELECT * FROM '.$delTable.' WHERE uniqueid=?',$uniqueID);
+	$resPL=$astADO->Execute('SELECT * FROM '.$delTable.' WHERE uniqueid=?',$uniqueID);
 	if($resPL->RecordCount()>0){
 		$rowPL=$resPL->FetchRow();
 		$var_val=$rowPL['username'].':'.$rowPL['secret'].'@'.$rowPL['host'].'/'.$rowPL['fromuser'];
-		$dbADO->Execute('DELETE FROM ast_config WHERE var_val=? AND filename=? AND var_name=? AND category=?',array($var_val,'sip.conf', 'register','general'));
+		$astADO->Execute('DELETE FROM ast_config WHERE var_val=? AND filename=? AND var_name=? AND category=?',array($var_val,'sip.conf', 'register','general'));
 	}
 	
 	// check if the line is international or internal
-	$resCode=$dbADO->Execute('SELECT exten FROM extensions_table WHERE context=? AND appdata LIKE ?',array('outgoing-extern-selectline','INTERNATIONALCODE=%'));
+	$resCode=$astADO->Execute('SELECT exten FROM extensions_table WHERE context=? AND appdata LIKE ?',array('outgoing-extern-selectline','INTERNATIONALCODE=%'));
 	if($resCode->RecordCount()>0){
 		$rowCode=$resCode->FetchRow();
 		$fullCode=$rowCode['exten'];
 	}else
 		$fullCode='_9011.';
 
-	$resIsInternational=$dbADO->Execute('SELECT * FROM extensions_table WHERE exten=? AND context=? AND appdata = ?',array($fullCode,'outgoing-extern-selectline','DIALLINE='.$name));
+	$resIsInternational=$astADO->Execute('SELECT * FROM extensions_table WHERE exten=? AND context=? AND appdata = ?',array($fullCode,'outgoing-extern-selectline','DIALLINE='.$name));
 	if($resIsInternational->RecordCount()>0){
-		$dbADO->Execute('DELETE FROM extensions_table WHERE exten=? AND appdata LIKE?',array($fullCode,'DIALLINETYPE=%'));
+		$astADO->Execute('DELETE FROM extensions_table WHERE exten=? AND appdata LIKE?',array($fullCode,'DIALLINETYPE=%'));
 	}
-	$resIsIntern=$dbADO->Execute('SELECT * FROM extensions_table WHERE exten=? AND context=? AND appdata=?',array('_9XXX.','outgoing-extern-selectline','DIALLINE='.$name));
+	$resIsIntern=$astADO->Execute('SELECT * FROM extensions_table WHERE exten=? AND context=? AND appdata=?',array('_9XXX.','outgoing-extern-selectline','DIALLINE='.$name));
 	if($resIsIntern->RecordCount()>0){
-		$dbADO->Execute('DELETE FROM extensions_table WHERE exten=? AND appdata LIKE ?',array('_9XXX.','DIALLINETYPE=%'));
+		$astADO->Execute('DELETE FROM extensions_table WHERE exten=? AND appdata LIKE ?',array('_9XXX.','DIALLINETYPE=%'));
 	}
 
-	$dbADO->Execute('DELETE FROM '.$delTable.' WHERE uniqueid=?',$uniqueID);
+	$astADO->Execute('DELETE FROM '.$delTable.' WHERE uniqueid=?',$uniqueID);
 	if($dontDelDefault!=1)
-		$dbADO->Execute('DELETE FROM extensions_table WHERE appdata=?','DIALLINE='.$name);
+		$astADO->Execute('DELETE FROM extensions_table WHERE appdata=?','DIALLINE='.$name);
 	
 }
 
-function setRandomLineDefault($name,$dbADO,$defaultLineID,$defaultLineTypeID)
+function setRandomLineDefault($name,$astADO,$defaultLineID,$defaultLineTypeID)
 {
-	$resFirstOtherLine=$dbADO->Execute('SELECT name FROM sip_buddies WHERE name!=? AND type=? LIMIT 0,1',array($name,'peer'));
+	$resFirstOtherLine=$astADO->Execute('SELECT name FROM sip_buddies WHERE name!=? AND type=? LIMIT 0,1',array($name,'peer'));
 	if($resFirstOtherLine->RecordCount()!=0){
 		$rowFirstOtherLine=$resFirstOtherLine->FetchRow();
-		$dbADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINE='.$rowFirstOtherLine['name'],$defaultLineID));
-		$dbADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINETYPE=SIP',$defaultLineTypeID));
+		$astADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINE='.$rowFirstOtherLine['name'],$defaultLineID));
+		$astADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINETYPE=SIP',$defaultLineTypeID));
 	}else{
-		$resFirstOtherLine=$dbADO->Execute('SELECT name FROM iax_buddies WHERE name!=? AND type=? LIMIT 0,1',array($name,'peer'));
+		$resFirstOtherLine=$astADO->Execute('SELECT name FROM iax_buddies WHERE name!=? AND type=? LIMIT 0,1',array($name,'peer'));
 		if($resFirstOtherLine->RecordCount()!=0){
 			$rowFirstOtherLine=$resFirstOtherLine->FetchRow();
-			$dbADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINE='.$rowFirstOtherLine['name'],$defaultLineID));
-			$dbADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINETYPE=IAX2',$defaultLineTypeID));
+			$astADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINE='.$rowFirstOtherLine['name'],$defaultLineID));
+			$astADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINETYPE=IAX2',$defaultLineTypeID));
 		}
 	}
 }

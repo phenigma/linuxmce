@@ -16,7 +16,7 @@ if($action=='form') {
 	$resArray = $dbADO->Execute($queryArray,$arrayID);
 	$rowArray=$resArray->FetchRow();
 
-	$out.='
+	$out.=setLeftMenu($dbADO).'
 	<div align="center" class="err">'.strip_tags(@$_GET['error']).'</div>
 	<div align="center" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg'].'<br>'):'').'</B></div>
 	<h2 align="center">'.$rowArray['Description'].'</h2>';
@@ -178,7 +178,6 @@ if($action=='form') {
 	header("Location: index.php?section=lightingScenarios&msg=".@$msg);
 }
 
-	$output->setScriptInBody("onLoad=\"javascript:top.treeframe.location.reload();\"");
 	$output->setNavigationMenu(array("My Scenarios"=>'index.php?section=myScenarios',"Lighting Scenarios"=>'index.php?section=lightingScenarios'));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

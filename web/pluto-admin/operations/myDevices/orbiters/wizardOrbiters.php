@@ -37,7 +37,7 @@ function wizardOrbiters($output,$dbADO) {
 	}
 	
 	if ($action == 'form') {
-		$out.='
+		$out.=setLeftMenu($dbADO).'
 	<script>
 			function windowOpen(locationA,attributes) {
 				window.open(locationA,\'\',attributes);

@@ -25,7 +25,7 @@ if($action=='form') {
 	}
 
 	
-	$out.='<div align="center" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg'].'<br>'):'').'</B></div>
+	$out.=setLeftMenu($dbADO).'<div align="center" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg'].'<br>'):'').'</B></div>
 	<h2 align="center">'.$rowArray['Description'].'</h2>';
 
 	$out.='
@@ -648,7 +648,6 @@ if($action=='form') {
 	header("Location: index.php?section=securityScenarios&msg=$msg");
 }
 
-	$output->setScriptInBody("onLoad=\"javascript:top.treeframe.location.reload();\"");
 	$output->setNavigationMenu(array("My Scenarios"=>'index.php?section=myScenarios',"Security Scenarios"=>'index.php?section=securityScenarios'));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
