@@ -750,7 +750,7 @@ update_values_list = update_values_list + "`PK_Device`="+pRow->PK_Device_asSQL()
 
 	
 		string query = "update Device set " + update_values_list + " where " + condition;
-			
+printf("query: %s\n",query.c_str());			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);

@@ -141,7 +141,11 @@ namespace DCE
 
 		string m_sStatus_get() { return m_sStatus; }
 		string m_sState_get() { return m_sState; }
-		void m_sStatus_set(string sStatus) { m_sStatus=sStatus; m_pRow_Device->Status_set(m_sStatus); m_pRow_Device->Table_Device_get()->Commit(); }
+		void m_sStatus_set(string sStatus) {
+g_pPlutoLogger->Write(LV_CRITICAL,"Setting device: %d %s with mac %s ntc %d",
+m_pRow_Device->PK_Device_get(),m_pRow_Device->Description_get().c_str(),m_pRow_Device->MACaddress_get().c_str(),(int) m_pRow_Device->NeedConfigure_get());
+
+			m_sStatus=sStatus; m_pRow_Device->Status_set(m_sStatus); m_pRow_Device->Table_Device_get()->Commit(); }
 		void m_sState_set(string sState) { m_sState=sState; m_pRow_Device->State_set(m_sState); m_pRow_Device->Table_Device_get()->Commit(); }
 
 		// **** POINTERS CREATED BY THE SERIALIZED ID'S ****
