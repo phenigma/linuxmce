@@ -1,46 +1,109 @@
 #!/usr/bin/perl
 
+use DBI;
+use Socket;
+
+$db = DBI->connect("dbi:mysql:database=Simulate_Clicks;host=10.0.0.150;user=root;password=") or die "Could not conect to Database";
+
 if($ARGV[0] eq "fm") {
-  print "Making click for Fresh Meat for project ";
-  open(PRJ,"fmprojects.list");
-  @projects = <PRJ>;
-  close(PRJ);
+  print "Making click for Fresh Meat for project\n";
+  $type_project = 1;
 } elsif($ARGV[0] eq "sf") {
-  print "Making click for Source Forge for project ";
-  open(PRJ,"sfprojects.list");
-  @projects = <PRJ>;
-  close(PRJ);
+  print "Making click for Source Forge for project\n";
+  $type_project = 2;
 } else {
   print "Not known\n";
   exit(1);
 }	
-open(PROXY,"proxy.list");
-@proxys = <PROXY>;
-close(PROXY);
 
-$proxysize = get_size(@proxys);
-$projectsize = get_size(@projects);
-$random_proxy = rand($proxysize);
-@data = split(/\./,$random_proxy);
-$random_proxy = $data[0];
-$random_project = rand($projectsize);
-@data = split(/\./,$random_project);
-$random_project = $data[0];
+do {
+  $prox = get_proxy();
+} while(check_proxy($prox) == 0);
+print "Proxy Found : $prox\n";
 
-$prox = $proxys[$random_proxy];
-chomp($prox);
-$proj = $projects[$random_project];
-chomp($proj);
+$proj = get_project($type_project);
+print "Project Found : $proj\n";
+ 
+$db->disconnect();
 
-print "$proj ";
 system("curl -x $prox --connect-timeout 5 -f http://freshmeat.net/projects/$proj/");
 print "[DONE]\n";
 
-sub get_size {
-  @in = @_;
-  $counter = 0;
-  foreach $line (@in) {
-    $counter = $counter + 1;
+sub get_project() {
+  $type = shift;
+  if($type == 1) {
+    $sql = "SELECT MAX(Id) FROM FMProjects";
+  } elsif($type == 2) {
+    $sql = "SELECT MAX(Id) FROM SFProjects";
   }
-  return $counter;
+  $st = $db->prepare($sql);
+  $st->execute();
+  if($row = $st->fetchrow_hashref()) {
+    $projectsize = $row->{'MAX(Id)'};
+  }
+  $st->finish();
+  
+  $ran = rand($projectsize);
+  ($st,$nd) = split(/\./,$ran);
+  if($type == 1) {
+    $sql = "SELECT * FROM FMProjects WHERE Id>=$st LIMIT 1";
+  } elsif($type == 2) {
+    $sql = "SELECT * FROM SFProjects WHERE Id>=$st LIMIT 1";
+  }
+  $st = $db->prepare($sql);
+  $st->execute();
+  if($row = $st->fetchrow_hashref()) {
+    $project = $row->{'Project'};
+  }
+  $st->finish();
+  return $project;
+}
+
+sub check_proxy() {
+  $proxy = shift;
+  ($ip, $port) = split(/:/,$proxy);
+  print "Checking $ip:$port\n";
+  $proto = getprotobyname('tcp');
+  $iaddr = inet_aton($ip);
+  $paddr = sockaddr_in($port, $iaddr);
+  
+  socket(SOCKET, PF_INET, SOCK_STREAM, $proto) or print "socket: $!";
+  $var = 0;
+  connect(SOCKET, $paddr) or $var=1;
+  if($var == 1) {
+    print "Proxy Unavailable [Deleting $ip:$port]\n";
+    $sql = "DELETE FROM Proxy WHERE Ip='$ip'";
+    $st = $db->prepare($sql);
+    $st->execute();
+    $st->finish();
+    return 0;
+  } else {
+    close SOCKET;
+    return 1;
+  }
+}
+
+sub get_proxy {
+  $sql = "SELECT MAX(Id) FROM Proxy";
+  $st = $db->prepare($sql);
+  $st->execute();
+  if($row = $st->fetchrow_hashref()) {
+    $proxsize = $row->{"MAX(Id)"};
+  } else {
+    print "No proxy found\n";
+    exit(1);
+  }
+  $st->finish();
+      
+  $ran = rand($proxsize);
+  ($st,$nd) = split(/\./,$ran);
+  $sql = "SELECT * FROM Proxy WHERE Id>=$st LIMIT 1";
+  $st = $db->prepare($sql);
+  $st->execute();
+  if($row = $st->fetchrow_hashref()) {
+    $proxip = $row->{'Ip'};
+    $proxport = $row->{'Port'};
+  }
+  $st->finish();
+  return $proxip.":".$proxport;
 }
