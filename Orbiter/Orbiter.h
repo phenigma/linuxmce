@@ -456,7 +456,6 @@ void RealRedraw( void *data );  // temp hack -- see comments
 	virtual PlutoGraphic *CreateGraphic() = 0;
 
 	virtual void PlayMNG_CallBack(void *data);
-	virtual void RenderUnselectedGraphic_CallBack(void *data);
 
 	/**
 	 * @brief renders text with the specified style

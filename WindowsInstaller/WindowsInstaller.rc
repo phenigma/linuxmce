@@ -119,6 +119,17 @@ BEGIN
                     WS_VSCROLL | WS_TABSTOP
 END
 
+IDD_DIALOG_PROGRESS DIALOGEX 0, 0, 186, 50
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "Pluto - Windows Installer"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    PUSHBUTTON      "Cancel",IDCANCEL,123,19,46,14
+    LTEXT           "Installation in progress...",IDC_STATIC_PROGRESS,23,21,
+                    96,9
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -142,6 +153,14 @@ BEGIN
         RIGHTMARGIN, 313
         TOPMARGIN, 7
         BOTTOMMARGIN, 194
+    END
+
+    IDD_DIALOG_PROGRESS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 43
     END
 END
 #endif    // APSTUDIO_INVOKED

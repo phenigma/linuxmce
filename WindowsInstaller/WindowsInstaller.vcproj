@@ -76,11 +76,12 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="..;.;&quot;../CrossPlatform-Libs/unzip-101d&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG"
 				MinimalRebuild="FALSE"
 				RuntimeLibrary="2"
 				TreatWChar_tAsBuiltInType="TRUE"
-				UsePrecompiledHeader="3"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="3"/>
@@ -88,7 +89,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="zlib1-pluto-r.lib pluto-unzip-101-r.lib"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;../CrossPlatform-Libs/unzip-101d/VisualC7/Release&quot;;&quot;../CrossPlatform-Libs/zlib/projects/visualc6/Win32_DLL_Release&quot;;$(NOINHERIT)"
+				IgnoreDefaultLibraryNames="LIBC"
 				GenerateDebugInformation="TRUE"
 				SubSystem="2"
 				OptimizeReferences="2"

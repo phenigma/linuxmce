@@ -8,8 +8,10 @@
 #include "GetMoreInfo.h"
 #include ".\getmoreinfo.h"
 #include "PackageListDialog.h"
+
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/FileUtils.h"
+
 
 #include "unzip_wrapper.h"
 #define USE_CACHE_FILES
@@ -20,6 +22,7 @@ CGetMoreInfo::CGetMoreInfo(CDialog *pPrevDialog, CWnd* pParent /*=NULL*/)
 	: CDialog(CGetMoreInfo::IDD, pParent)
 {
 	m_pPrevDialog = pPrevDialog;
+	m_bAboutToCancel = false;
 }
 
 CGetMoreInfo::~CGetMoreInfo()
@@ -99,6 +102,8 @@ void CGetMoreInfo::OnBnClickedMoreinfoCancel()
 
 void CGetMoreInfo::CloseAll()
 {
+	m_bAboutToCancel = true;
+
 	OnCancel();
 	((CPackageListDialog *)m_pPrevDialog)->CloseAll();
 }
@@ -147,6 +152,9 @@ void CGetMoreInfo::OnBnClickedMoreinfoInstall()
 	for(INT_PTR i = 0; i < nCount; i++)
 	{
 		InstallPackage(aryListBoxSel.GetAt(i));
+
+		if(m_bAboutToCancel)
+			break;
 
 		m_Progress.SetPos(int(i + 1));
 	}
@@ -204,6 +212,8 @@ void CGetMoreInfo::LogInstallAction(CString str)
 
 void CGetMoreInfo::InstallPackage(int iIndex)
 {
+	ProcessMessages();
+
 	if(vectPackageInfos[iIndex].sPackageSourceDescription == "MySQL 4 server" &&
 		BST_UNCHECKED == m_RadioBoxOption1.GetCheck()
 	)
@@ -212,6 +222,7 @@ void CGetMoreInfo::InstallPackage(int iIndex)
 		return;
 	}
 
+	LogInstallAction("");
 	LogInstallAction("Installing package: " + vectPackageInfos[iIndex].sPackageSourceDescription + "...");
 
 	if(vectPackageInfos[iIndex].sParams == csNotSpecified.c_str())
@@ -230,6 +241,20 @@ void CGetMoreInfo::InstallPackage(int iIndex)
 
 	ParseAndExecuteCommands(sServer, sURL, vectPackageInfos[iIndex].sComments, sFileName,
 		vectPackageInfos[iIndex].sSourceImplementationPath);
+
+	//mysql server - hack: rename the folder to be 'mysql'
+	if(vectPackageInfos[iIndex].sPackageSourceDescription == "MySQL 4 server")
+	{
+		CString sDrive = GetInstallationDrive();
+		//TODO: we should use the unzip lib to read the parent folder
+		CString sMySQLDirName = sDrive + "\\" + "mysql-4.0.23-win"; //hack!!!
+		CString sMySQLDirNameDest = sDrive + "\\" + "mysql";
+
+		if(FileUtils::DirExists(string(sMySQLDirNameDest)))
+			::MoveFile(sMySQLDirNameDest, sMySQLDirNameDest + ".old");
+
+		::MoveFile(sMySQLDirName, sMySQLDirNameDest);
+	}
 }
 
 void CGetMoreInfo::AddMySqlServerIPToHosts()
@@ -306,6 +331,8 @@ void CGetMoreInfo::ParseAndExecuteCommands(CString sServer, CString sURL, CStrin
 	if(urlType != utSVN)
 		sURL = sURL + "/" + sFileName;	
 
+	ProcessMessages();
+
 #ifdef USE_CACHE_FILES
 	if(!FileUtils::FileExists(string(sDestinationFile + sFileName)))
 #endif
@@ -330,6 +357,8 @@ void CGetMoreInfo::ParseAndExecuteCommands(CString sServer, CString sURL, CStrin
 	else
 		LogInstallAction("Found file in cache: " + sDestinationFile + sFileName + ". ");
 #endif
+
+	ProcessMessages();
 
 	if(sCommands != csNotSpecified.c_str()) //we have additional instructions
 	{
@@ -379,6 +408,14 @@ bool CGetMoreInfo::DownloadFileFromHttp(CString sServer, CString sURL, CString s
 
 			fwrite(Buffer, iSize, 1, f);
 			::ZeroMemory(Buffer, sizeof(Buffer));
+
+			ProcessMessages(20);
+
+			if(m_bAboutToCancel)
+			{
+				::DeleteFile(sDestinationFile);
+				return false;
+			}
 		}
 
 		fclose(f);
@@ -561,4 +598,21 @@ bool CGetMoreInfo::InstallSVN()
 	);
 	
 	return LaunchProgram(sDestinationFile);
+}
+
+void CGetMoreInfo::ProcessMessages(DWORD dwMs/*=100*/)
+{
+	// Main message loop:
+	DWORD dwLast = ::GetTickCount();
+
+	MSG msg;
+	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) 
+	{
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+
+		DWORD dwNow = ::GetTickCount();
+		if(dwNow - dwLast > dwMs)
+			break;
+	}
 }

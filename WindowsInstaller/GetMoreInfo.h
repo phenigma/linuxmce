@@ -40,6 +40,9 @@ protected:
 	CString GetInstallationDrive();
 	CString GetLogFilePath();
 	bool InstallSVN();
+	void ProcessMessages(DWORD dwMs = 100);
+
+	bool m_bAboutToCancel;
 
 public:
 	virtual BOOL OnInitDialog();

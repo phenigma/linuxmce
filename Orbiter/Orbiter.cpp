@@ -435,6 +435,8 @@ void Orbiter::RealRedraw( void *data )
 		mapPendingCallbacks.clear();
 		pm.Release();
 
+		m_vectObjs_Selected.clear();
+
         RenderScreen(  );
 		m_bRerenderScreen = false;
         return;
@@ -5351,6 +5353,17 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 	PlutoGraphic *pPlutoGraphic = (*pVectorPlutoGraphic)[iCurrentFrame];
 	bIsMNG = pPlutoGraphic->m_GraphicFormat == GR_MNG;
 
+	size_t size = (*pVectorPlutoGraphic).size();
+	if(
+		iCurrentFrame == 0 && bIsMNG && 	
+		(pObj->m_GraphicToDisplay == GRAPHIC_HIGHLIGHTED || pObj->m_GraphicToDisplay == GRAPHIC_SELECTED) &&
+		size > 1
+	) //clear the images
+	{
+		for(int i = 0; i < size; i++)
+			(*pVectorPlutoGraphic)[i]->Clear();
+	}
+
 	if(pPlutoGraphic->IsEmpty() && m_sLocalDirectory.length() > 0)
 	{
 		string sFileName = m_sLocalDirectory + pPlutoGraphic->m_Filename;
@@ -5516,37 +5529,10 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 		for(int i = 0; i < size; i++)
 			(*pVectorPlutoGraphic)[i]->Clear();
 
-		CallMaintenanceInMiliseconds( iDelay, &Orbiter::DeselectObjects, ( void * ) pObj, true );
-		//CallMaintenanceInMiliseconds( iDelay, &Orbiter::RenderUnselectedGraphic_CallBack, pObj , false );
+		CallMaintenanceInMiliseconds( iDelay, &Orbiter::DeselectObjects, ( void * ) pObj, false );
 	}
     else
 		CallMaintenanceInMiliseconds( iDelay, &Orbiter::PlayMNG_CallBack, pObj , false );
-}
-
-/*virtual*/ void Orbiter::RenderUnselectedGraphic_CallBack(void *data)
-{
-	/*
-	DesignObj_Orbiter *pObj = (DesignObj_Orbiter *)data;
-
-	pObj->m_pvectCurrentGraphic = &(pObj->m_vectGraphic);
-	pObj->m_GraphicToDisplay = GRAPHIC_NORMAL;
-
-	BeginPaint();
-	RenderGraphic(pObj, pObj->m_rPosition, true);
-	EndPaint();
-
-	// Remove it from the list
-	for( vector<class DesignObj_Orbiter *>::iterator it=m_vectObjs_Selected.begin(  );it!=m_vectObjs_Selected.end(  );++it )
-	{
-		DesignObj_Orbiter *pObj_Sel = *it;
-		if(pObj == pObj_Sel)
-		{
-			m_vectObjs_Selected.erase( it );
-			break;
-		}
-	}
-	*/
-
 }
 
 //<-dceag-c260-b->
