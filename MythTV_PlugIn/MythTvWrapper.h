@@ -106,6 +106,7 @@ public:
     /** Methods used by the MythTV_PlugIn */
     
     DataGridTable *createShowsDataGrid(string GridID, QDateTime startTime, QDateTime endTime);
+    DataGridTable *createShowsForMobiles(string GridID, QDateTime currentTime);
 
     WatchTVRequestResult ProcessWatchTvRequest(string showStartTimeEncoded);
     WatchTVRequestResult ProcessWatchTvRequest(int channelId, int year, int month, int day, int hour, int minute);

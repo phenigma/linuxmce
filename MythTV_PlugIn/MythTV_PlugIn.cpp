@@ -4,7 +4,7 @@
  * @brief source file for the MythTvStream, MythTV_PlugIn classes
  *
  */
- 
+
 //<-dceag-d-b->
 #include "MythTV_PlugIn.h"
 #include "DCE/Logger.h"
@@ -60,33 +60,36 @@ bool MythTV_PlugIn::Register()
     /** Get a pointer to the media plugin */
     m_pMedia_Plugin=NULL;
     ListCommand_Impl *pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find(DEVICETEMPLATE_Media_Plugin_CONST);
-    
+
     if( !pListCommand_Impl || pListCommand_Impl->size()!=1 )
     {
         g_pPlutoLogger->Write(LV_CRITICAL,"MythTV plug in cannot find media handler %s",(pListCommand_Impl ? "There were more than 1" : ""));
         return false;
     }
     m_pMedia_Plugin=(Media_Plugin *) pListCommand_Impl->front();
-    
+
     m_pMedia_Plugin->RegisterMediaPlugin(this,this,DEVICETEMPLATE_MythTV_Player_CONST,true);
 
     /** And the datagrid plug-in */
     m_pDatagrid_Plugin=NULL;
-    
+
     pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find(DEVICETEMPLATE_Datagrid_Plugin_CONST);
-    
+
     if( !pListCommand_Impl || pListCommand_Impl->size()!=1 )
     {
         g_pPlutoLogger->Write(LV_CRITICAL,"File grids cannot find datagrid handler %s",(pListCommand_Impl ? "There were more than 1" : ""));
         return false;
     }
     m_pDatagrid_Plugin=(Datagrid_Plugin *) pListCommand_Impl->front();
-    
+
     m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&MythTV_PlugIn::CurrentShows))
-        										,DATAGRID_EPG_Current_Shows_CONST);
+                                                ,DATAGRID_EPG_Current_Shows_CONST);
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&MythTV_PlugIn::AllShows))
-        										,DATAGRID_EPG_All_Shows_CONST);
+                                                ,DATAGRID_EPG_All_Shows_CONST);
+
+    m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&MythTV_PlugIn::AllShowsForMobiles))
+                                                ,DATAGRID_EPG_All_Shows_Mobile_CONST);
 
     return Connect();
 }
@@ -101,7 +104,7 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
     PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
     MythTvStream *pMythTvStream = (MythTvStream *) pMediaStream;
 
-    g_pPlutoLogger->Write(LV_STATUS, "Media type %d %s", pMythTvStream->m_iPK_MediaType, pMythTvStream->m_dequeFilename.size()                    									? pMythTvStream->m_dequeFilename.front().c_str() : "empty files");
+    g_pPlutoLogger->Write(LV_STATUS, "Media type %d %s", pMythTvStream->m_iPK_MediaType, pMythTvStream->m_dequeFilename.size()                                                      ? pMythTvStream->m_dequeFilename.front().c_str() : "empty files");
 
     string Response;
 
@@ -121,9 +124,9 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
     if( !SendCommand(cmd, 1, &Response) )
     {
         g_pPlutoLogger->Write(LV_CRITICAL,"MythTV player didn't respond to play media command!");
-        
-	/** handle failure */
-	
+
+    /** handle failure */
+
 #pragma warning("Ignore this for now")
         return true;
         return false;
@@ -145,9 +148,9 @@ bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
     if( !SendCommand(cmd, 1, &Response) )
     {
         g_pPlutoLogger->Write(LV_CRITICAL,"MythTV player didn't respond to stop media command!");
-        
-	/** handle failure */
-	
+
+    /** handle failure */
+
 #pragma warning("Ignore this for now")
         return true;
         return false;
@@ -164,7 +167,7 @@ bool MythTV_PlugIn::BroadcastMedia(class MediaStream *pMediaStream)
 class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaPluginInfo *pMediaPluginInfo,int PK_Device_Source,string Filename,int StreamID)
 {
     PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
-    MythTvStream *pMediaStream = new MythTvStream(this, pMediaPluginInfo, pMediaPluginInfo->m_iPK_DesignObj, 0, st_RemovableMedia,StreamID);  
+    MythTvStream *pMediaStream = new MythTvStream(this, pMediaPluginInfo, pMediaPluginInfo->m_iPK_DesignObj, 0, st_RemovableMedia,StreamID);
     /** @warning hack hack hack */
 
 //     pMediaStream->m_iCurrentShow=0;
@@ -203,7 +206,7 @@ void MythTvStream::UpdateDescriptions()
 }
 
 class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign
-						, Message *pMessage)
+                        , Message *pMessage)
 {
     PLUTO_SAFETY_LOCK(mm, m_pMedia_Plugin->m_MediaMutex);
     g_pPlutoLogger->Write(LV_STATUS, "A datagrid for all the shows was requested %s params %s", GridID.c_str(), Parms.c_str());
@@ -211,21 +214,16 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
     if ( ! m_pMythWrapper )
     {
         g_pPlutoLogger->Write(LV_STATUS, "The myth wrapper object wasn't constructed at MythTV_PlugIn contructor time. Ignoring datagrid request!");
-	
+
         return NULL;
     }
 
     QDateTime currentTime = QDateTime::currentDateTime();
 
-    int nRoundedMinutes = 0;
-
-    if  (  currentTime.time().minute() >= 30 )
-        nRoundedMinutes = 30;
-
     currentTime.setTime(
                 QTime(
                     currentTime.time().hour(),
-                    nRoundedMinutes,
+                    currentTime.time().minute() >= 30 ? 30 : 0,
                     0));
 
     return m_pMythWrapper->createShowsDataGrid(GridID, currentTime, currentTime.addDays(14));
@@ -233,15 +231,36 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 //     return m_pAllShowsDataGrid;
 }
 
+class DataGridTable *MythTV_PlugIn::AllShowsForMobiles(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage)
+{
+    PLUTO_SAFETY_LOCK(mm, m_pMedia_Plugin->m_MediaMutex);
+
+    g_pPlutoLogger->Write(LV_STATUS, "Getting all shows");
+    if ( ! m_pMythWrapper )
+    {
+        g_pPlutoLogger->Write(LV_STATUS, "The myth wrapper object wasn't constructed at MythTV_PlugIn contructor time. Ignoring datagrid request!");
+        return NULL;
+    }
+
+    return m_pMythWrapper->createShowsForMobiles(GridID, QDateTime::currentDateTime());
+}
+
+// QDateTime MythTV_PlugIn::findCurrentStartTime()
+// {
+//
+//
+//     return currentTime;
+// }
+
 class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,Message *pMessage)
 {
     PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 
     class MediaStream *pMediaStream = m_pMedia_Plugin->DetermineStreamOnOrbiter(pMessage->m_dwPK_Device_From);
-    if( !pMediaStream || pMediaStream->GetType()!=MEDIASTREAM_TYPE_MYTHTV )  
-    
+    if( !pMediaStream || pMediaStream->GetType()!=MEDIASTREAM_TYPE_MYTHTV )
+
     /** @todo probably should have a virtual GetID method to confirm it's the right type to cast */
-    
+
         return NULL;
 
     class MythTvStream *pMythTvStream = (MythTvStream *) pMediaStream;
@@ -253,7 +272,7 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
     {
 /** @test
 //         Row_Listing *pListing = pMythTvStream->m_vectRow_Listing[s];
-//         pCell = new DataGridCell(StringUtils::itos(pListing->ChannelNum_get()) + " " + pListing->ChannelName_get() + " - " + 					pListing->ShowName_get(),StringUtils::itos(pListing->PK_Listing_get()));
+//         pCell = new DataGridCell(StringUtils::itos(pListing->ChannelNum_get()) + " " + pListing->ChannelName_get() + " - " +                     pListing->ShowName_get(),StringUtils::itos(pListing->PK_Listing_get()));
 
 */
         pCell = new DataGridCell(StringUtils::itos(1) + " " + "ChannelName" + " - " + "ShowName",StringUtils::itos(1));

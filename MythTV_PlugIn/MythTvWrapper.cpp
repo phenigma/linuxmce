@@ -4,7 +4,7 @@
  * @brief source file for the MythTvWrapper class
  *
  */
- 
+
 #include "MythTvWrapper.h"
 
 #include "DCE/Logger.h"
@@ -373,6 +373,80 @@ DataGridTable *MythTvWrapper::createShowsDataGrid(string GridID, QDateTime start
     pNewGrid->setGridBoundaries(startTime, endTime);
 
     return pNewGrid;
+}
+
+DataGridTable *MythTvWrapper::createShowsForMobiles(string GridID, QDateTime currentTime)
+{
+    QString strTimeFormat = "yyyy-MM-dd hh:mm:ss";
+    QString strQuery;
+
+    strQuery.sprintf(
+                     "SELECT c.chanid, c.name, p.title, p.starttime, p.endtime "
+                     " FROM program p "
+                        " INNER JOIN channel c ON c.chanid = p.chanid "
+                        " WHERE '%s' BETWEEN p.starttime and p.endtime "
+                        " ORDER BY p.chanid",
+                        currentTime.toString(strTimeFormat).ascii());
+
+    QSqlQuery query;
+    query.exec(strQuery);
+
+    if ( ! query.isActive() )
+    {
+        g_pPlutoLogger->Write(LV_WARNING,
+            "The query %s for the channel count failed: %s!",
+            strQuery.ascii(),
+            query.lastError().text().ascii());
+
+        return NULL;
+    }
+
+    if ( query.numRowsAffected() > 0 )
+    {
+        QString programName;
+        QString channelName;
+        QDateTime dateStart, dateEnd;
+
+        int channelId;
+
+        DataGridTable *pDataGridTable = new DataGridTable();
+        while ( query.next() )
+        {
+            channelId = query.value(0).toInt();
+            channelName = query.value(1).toString();
+            programName = query.value(2).toString();
+            dateStart = query.value(3).toDateTime();
+            dateEnd = query.value(4).toDateTime();
+
+            DataGridCell *pCell = new DataGridCell(
+                    QString("%1 - %2:%3 %4:%5\n%6")
+                        .arg(channelName)
+                        .arg(dateStart.time().hour())
+                        .arg(dateStart.time().minute())
+                        .arg(dateEnd.time().hour())
+                        .arg(dateEnd.time().minute())
+                        .arg(programName)
+                        .ascii(),
+                    QString("%1|%2|%3|%4|%5|%6")
+                        .arg(channelId)
+                        .arg(dateStart.date().year())
+                        .arg(dateStart.date().month())
+                        .arg(dateStart.date().day())
+                        .arg(dateStart.time().hour())
+                        .arg(dateStart.time().minute())
+                        .ascii());
+
+            pDataGridTable->SetData(0, query.at(), pCell);
+        }
+
+        return pDataGridTable;
+    }
+
+    DataGridTable *pDataGridTable = new DataGridTable();
+
+    pDataGridTable->SetData(0, 0, new DataGridCell("There are no shows\nin the database at\nthis time.", ""));
+
+    return pDataGridTable;
 }
 
 bool MythTvWrapper::decodeProgramStartTime(string sValue, int &nChanId, int &tmYear, int &tmMonth, int &tmDay, int &tmHour, int &tmMinute)

@@ -55,7 +55,7 @@ namespace DCE
         /** Private member variables */
 
         MythTvWrapper *m_pMythWrapper;
-//         MythTvEPGWrapper *m_pAllShowsDataGrid;
+        // MythTvEPGWrapper *m_pAllShowsDataGrid;
 
         /** Private methods */
     public:
@@ -70,8 +70,10 @@ public:
 //<-dceag-const-e->
 
     private:
-//         Database_FakeEPG *m_pDatabase_FakeEPG;
+        // Database_FakeEPG *m_pDatabase_FakeEPG;
         class Datagrid_Plugin *m_pDatagrid_Plugin;
+        // finds the nearest (up to 30 minutes rounding) previous date since the currentTime
+//         QDateTime findCurrentStartTime();
 
     public:
         /** Mandatory implementations */
@@ -89,6 +91,7 @@ public:
         
 	class DataGridTable *AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign
 						, Message *pMessage);
+        class DataGridTable *AllShowsForMobiles(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage);
 
         /** @test
 	 *  custom helper methods
