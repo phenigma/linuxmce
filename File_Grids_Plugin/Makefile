@@ -24,7 +24,9 @@ XTRALDLIBS = -lpluto_main
 Gen_Dev_Files += $(GENDEV)/Datagrid_PluginBase.cpp
 sources += ../Datagrid_Plugin/Datagrid_Plugin.cpp FileListOps.cpp
 
-#<-dceag-mf-b->! changed
+#<-dceag-mf-b->
+LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
+
 whattodo:
 	@echo "type 'make bin', 'make so' or 'make all'"
 
@@ -34,14 +36,14 @@ bin: File_Grids_Plugin
 
 so: File_Grids_Plugin.so
 
-File_Grids_Plugin.so: $(sources:.cpp=.o) Makefile
-	$(CXX) -shared -o $(MYNAME).so $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS)
+File_Grids_Plugin.so: $(sources:.cpp=.o)
+	$(CXX) -shared -o $(MYNAME).so $+ $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 		
-File_Grids_Plugin: $(sources:.cpp=.o) Makefile
-	$(CXX) -o $(MYNAME) $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS)
+File_Grids_Plugin: $(sources:.cpp=.o)
+	$(CXX) -o $(MYNAME) $+ $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@
 
@@ -50,7 +52,7 @@ clean: clean-recursive
 
 package:
 	chmod +x make_package.sh
-	./make_package.sh $(MYNAME) $(VERSION)
+	./make_package.sh $(MYNAME) $(VERSION) $(MYDEVTEMPLATEID)
 
 include $(ROOT)/PlutoUtils/make.rules
 -include $(sources:.cpp=.d)

@@ -29,6 +29,9 @@ int THE_getch(bool echo) // :P
 	struct termios ts;
 	struct termios new_ts;
 	char c;
+	
+	fflush(stdout);
+	
 	ioctl(0, TCGETS, &ts);
 	new_ts = ts;
 	new_ts.c_lflag &= !ICANON;
@@ -36,7 +39,8 @@ int THE_getch(bool echo) // :P
 		new_ts.c_lflag &= !ECHO;
 	ioctl(0, TCSETS, &new_ts);
 
-	while ((c = getchar()) == '\r') {}
+	do { read(0, &c, 1); } while (c == '\r');
+//	while ((c = getchar()) == '\r') {}
 //	cin >> c;
 
 	ioctl(0, TCSETS, &ts);

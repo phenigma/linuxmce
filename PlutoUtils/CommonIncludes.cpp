@@ -28,9 +28,9 @@ bool AskYNQuestion(string Question,bool bDefault)
 {
 	while(true)
 	{
+		fflush(stdin);
 		cout << Question << (bDefault ? " [Y/n] " : " [N/y] ");
 		char c = getch();
-cout << endl << "got: " << (int) c << endl;		
 		cout << endl;
 		if( c==3 )
 			exit(1);
@@ -48,6 +48,7 @@ char AskMCQuestion(string Question,string Prompts)
 	char cDefault=0;
 	while(true)
 	{
+		fflush(stdin);
 		cout << Question << " [";
 		bool bFirst=true;
 		for(size_t s=0;s<Prompts.length();++s)
