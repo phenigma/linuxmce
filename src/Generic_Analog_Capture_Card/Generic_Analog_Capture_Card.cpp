@@ -36,10 +36,11 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(int DeviceID, string Se
 	size_t size;
 	
     
-	string sVideoStandard = DATA_Get_Video_Standard();
+	int iVideoStandard = DATA_Get_Video_Standard();
 	int iNumberOfPorts = DATA_Get_Number_of_ports();
+	int iVideoInputType = DATA_Get_Video_Input_Type();
 
-	g_pPlutoLogger->Write(LV_STATUS, "Using Generic Analog Capture Card with parameters: VideoStandard=%s Number_of_Ports=%d",sVideoStandard.c_str(),iNumberOfPorts);
+	g_pPlutoLogger->Write(LV_STATUS, "Using Generic Analog Capture Card with parameters: VideoStandard=%d Number_of_Ports=%d Video_Input_Type=%d",iVideoStandard,iNumberOfPorts,iVideoInputType);
 	
 	g_pPlutoLogger->Write(LV_STATUS, "Writing configuration to motion.conf");
 
@@ -58,9 +59,9 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(int DeviceID, string Se
 	fp = fopen("/etc/motion/motion.conf","wt+");
 	//main config
 	fprintf(fp,"videodevice /dev/video0\n");
-	fprintf(fp,"input 8\n");
-	fprintf(fp,"norm %s\n",sVideoStandard.c_str());	//pal/secam
-	fprintf(fp,"frequncy 0\n");
+	fprintf(fp,"input %d\n",iVideoInputType);	//0 for video/tv and 8 for usb cammera
+	fprintf(fp,"norm %d\n",iVideoStandard);	//pal/secam
+	fprintf(fp,"frequency 0\n");
 	fprintf(fp,"rotate 0\n");
 	fprintf(fp,"width 320\n");
 	fprintf(fp,"height 240\n");

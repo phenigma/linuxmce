@@ -47,7 +47,8 @@ public:
 			*****DATA***** accessors inherited from base class
 	string DATA_Get_Type();
 	int DATA_Get_Number_of_ports();
-	string DATA_Get_Video_Standard();
+	int DATA_Get_Video_Standard();
+	int DATA_Get_Video_Input_Type();
 
 			*****EVENT***** accessors inherited from base class
 
