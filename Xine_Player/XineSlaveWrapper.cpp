@@ -287,7 +287,7 @@ void XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosit
     {
         g_pPlutoLogger->Write(LV_STATUS, "Opened..... ");
 
-        setXineStreamDebugging(iStreamID, true);
+        setXineStreamDebugging(iStreamID, false);
         xineStream->m_bHasVideo = xine_get_stream_info(xineStream->m_pStream, XINE_STREAM_INFO_HAS_VIDEO);
 
         if ( xineStream->m_iImgWidth == 0)
@@ -1314,6 +1314,7 @@ void XineSlaveWrapper::selectMenu(int iStreamID, int iMenuType)
 
 void XineSlaveWrapper::playbackCompleted(int iStreamID)
 {
+    g_pPlutoLogger->Write(LV_STATUS, "Fire playback completed event");
     this->m_pAggregatorObject->EVENT_Playback_Completed(iStreamID);
 }
 
