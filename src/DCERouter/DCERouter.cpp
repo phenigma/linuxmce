@@ -84,8 +84,14 @@ void DeadlockHandler()
 		int Delay = atoi(g_DCEConfig.ReadString("DelayReloadOnDeadlock").c_str());
 		if( g_pPlutoLogger )
 			g_pPlutoLogger->Write(LV_CRITICAL,"Deadlock detected.  DCERouter will die and reload in %d seconds",Delay);
+
+		time_t tTimeout = time(NULL) + Delay;
 		if( Delay )
-			Sleep(Delay * CLOCKS_PER_SEC);
+			while( tTimeout > time(NULL) )
+				Sleep(10);
+
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Telling DCERouter to reload and quit");
 		g_pRouter->Reload();
 		g_pRouter->Quit();
 	}
