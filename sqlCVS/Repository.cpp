@@ -554,7 +554,14 @@ bool Repository::CheckIn( )
 			if( AskYNQuestion("Do you want to re-enter the passwords and try again?",false) )
 			{
 				for(MapStringString::iterator it=g_GlobalConfig.m_mapUsersPasswords.begin();it!=g_GlobalConfig.m_mapUsersPasswords.end();++it)
-					g_GlobalConfig.m_mapUsersPasswords[(*it).first]="";
+				{
+					if( (*it).first=="0" || (*it).second=="" )
+						continue;
+					string Password;
+					cout << "Enter the password for user " << (*it).first << ": ";
+					cin >> Password;
+					g_GlobalConfig.m_mapUsersPasswords[(*it).first]=Password;
+				}
 				return CheckIn();
 			}
 		}

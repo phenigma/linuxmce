@@ -111,11 +111,13 @@ namespace sqlCVS
 		/**
 		 * @ brief validates all the users who logged in
 		 */
-		bool ValidateUsers(bool &bSupervisor,bool bExpectAtLeastOne=true)
+		bool ValidateUsers(bool &bSupervisor,bool bExpectAtLeastOne=true,MapStringString *pmapUsersPasswords=NULL)
 		{
+			if( !pmapUsersPasswords )
+				pmapUsersPasswords = &m_mapUsersPasswords;
 			bSupervisor=false;
 			bool bValidatedUser=false;  // Be sure there is at least 1 user that was validated, and the map isn't empty
-			for(MapStringString::iterator it=m_mapUsersPasswords.begin();it!=m_mapUsersPasswords.end();++it)
+			for(MapStringString::iterator it=pmapUsersPasswords->begin();it!=pmapUsersPasswords->end();++it)
 			{
 				bool bSupervisor;
 				int psc_user = ValidateUser( (*it).first, (*it).second, bSupervisor );

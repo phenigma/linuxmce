@@ -10,7 +10,7 @@
 
 #include "RAClientSocket.h"
 
-bool RAClientSocket::OnConnect(string ExtraInfo)
+bool RAClientSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 {
 	return true;
 }

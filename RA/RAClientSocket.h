@@ -8,7 +8,7 @@ class RAClientSocket : public DCE::ClientSocket
 public:
 	RAClientSocket(long DeviceID, string IPAddress,string Name) :
 		ClientSocket(DeviceID,IPAddress,Name) {};
-	bool OnConnect(string ExtraInfo);
+	bool OnConnect( int PK_DeviceTemplate,string sExtraInfo="" );
 };
 
 #endif

@@ -51,12 +51,12 @@ bool R_CommitChanges::ProcessRequest( class RA_Processor *pRA_Processor )
 	Repository *pRepository = g_GlobalConfig.m_pDatabase->m_mapRepository_Find( m_sRepository );
 	if( !pRepository )
 	{
-		cerr << "Cannot find repository: " << m_sRepository;
+		cerr << "Cannot find repository2: " << m_sRepository;
 		m_cProcessOutcome=INTERNAL_ERROR;
 	}
 	else
 	{
-		if( !g_GlobalConfig.ValidateUsers(psqlCVSprocessor->m_bSupervisor) )
+		if( !g_GlobalConfig.ValidateUsers(psqlCVSprocessor->m_bSupervisor,true,&m_mapUsersPasswords) )
 		{
 			m_cProcessOutcome=LOGIN_FAILED;
 			return true;

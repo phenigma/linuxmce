@@ -48,7 +48,7 @@ string FieldInfo::getCType()
 #ifdef C99_FORMAT_SPECIFIERS
 			return "long long int";
 #else
-			return "__int64";
+			return "u_int64_t";
 #endif
 			break;
 					

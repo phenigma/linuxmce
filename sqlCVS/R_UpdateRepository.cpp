@@ -49,7 +49,7 @@ bool R_UpdateRepository::ProcessRequest( class RA_Processor *pRA_Processor )
 	Repository *pRepository = g_GlobalConfig.m_pDatabase->m_mapRepository_Find( m_sRepository );
 	if( !pRepository )
 	{
-		cerr << "Cannot find repository: " << m_sRepository;
+		cerr << "Cannot find repository3: " << m_sRepository;
 		m_cProcessOutcome=INTERNAL_ERROR;
 	}
 	else
