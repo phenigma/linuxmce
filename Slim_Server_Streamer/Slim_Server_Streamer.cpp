@@ -18,7 +18,7 @@ using namespace DCE;
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 Slim_Server_Streamer::Slim_Server_Streamer(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-    : Slim_Server_Streamer_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
+	: Slim_Server_Streamer_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
     , m_mutexDataStructureAccess("internal-data-structure-mutex")
 {
@@ -36,6 +36,7 @@ Slim_Server_Streamer::Slim_Server_Streamer(int DeviceID, string ServerAddress,bo
 
     pthread_create(&m_threadPlaybackCompletedChecker, NULL, checkForPlaybackCompleted, this);
     pthread_detach(m_threadPlaybackCompletedChecker); // make the thread a free man..
+
 }
 
 //<-dceag-const2-b->!
@@ -82,7 +83,7 @@ void Slim_Server_Streamer::ReceivedUnknownCommand(string &sCMD_Result,Message *p
 }
 
 //<-dceag-sample-b->
-/*      **** SAMPLE ILLUSTRATING HOW TO USE THE BASE CLASSES ****
+/*		**** SAMPLE ILLUSTRATING HOW TO USE THE BASE CLASSES ****
 
 **** IF YOU DON'T WANT DCEGENERATOR TO KEEP PUTTING THIS AUTO-GENERATED SECTION ****
 **** ADD AN ! AFTER THE BEGINNING OF THE AUTO-GENERATE TAG, LIKE //<=dceag-sample-b->! ****
@@ -92,74 +93,74 @@ The above blocks are actually <- not <=.  We don't want a substitution here
 
 void Slim_Server_Streamer::SomeFunction()
 {
-    // If this is going to be loaded into the router as a plug-in, you can implement:   virtual bool Register();
-    // to do all your registration, such as creating message interceptors
+	// If this is going to be loaded into the router as a plug-in, you can implement: 	virtual bool Register();
+	// to do all your registration, such as creating message interceptors
 
-    // If you use an IDE with auto-complete, after you type DCE:: it should give you a list of all
-    // commands and requests, including the parameters.  See "AllCommandsRequests.h"
+	// If you use an IDE with auto-complete, after you type DCE:: it should give you a list of all
+	// commands and requests, including the parameters.  See "AllCommandsRequests.h"
 
-    // Examples:
+	// Examples:
 
-    // Send a specific the "CMD_Simulate_Mouse_Click" command, which takes an X and Y parameter.  We'll use 55,77 for X and Y.
-    DCE::CMD_Simulate_Mouse_Click CMD_Simulate_Mouse_Click(m_dwPK_Device,OrbiterID,55,77);
-    SendCommand(CMD_Simulate_Mouse_Click);
+	// Send a specific the "CMD_Simulate_Mouse_Click" command, which takes an X and Y parameter.  We'll use 55,77 for X and Y.
+	DCE::CMD_Simulate_Mouse_Click CMD_Simulate_Mouse_Click(m_dwPK_Device,OrbiterID,55,77);
+	SendCommand(CMD_Simulate_Mouse_Click);
 
-    // Send the message to orbiters 32898 and 27283 (ie a device list, hence the _DL)
-    // And we want a response, which will be "OK" if the command was successfull
-    string sResponse;
-    DCE::CMD_Simulate_Mouse_Click_DL CMD_Simulate_Mouse_Click_DL(m_dwPK_Device,"32898,27283",55,77)
-    SendCommand(CMD_Simulate_Mouse_Click_DL,&sResponse);
+	// Send the message to orbiters 32898 and 27283 (ie a device list, hence the _DL)
+	// And we want a response, which will be "OK" if the command was successfull
+	string sResponse;
+	DCE::CMD_Simulate_Mouse_Click_DL CMD_Simulate_Mouse_Click_DL(m_dwPK_Device,"32898,27283",55,77)
+	SendCommand(CMD_Simulate_Mouse_Click_DL,&sResponse);
 
-    // Send the message to all orbiters within the house, which is all devices with the category DEVICECATEGORY_Orbiter_CONST (see pluto_main/Define_DeviceCategory.h)
-    // Note the _Cat for category
-    DCE::CMD_Simulate_Mouse_Click_Cat CMD_Simulate_Mouse_Click_Cat(m_dwPK_Device,DEVICECATEGORY_Orbiter_CONST,true,BL_SameHouse,55,77)
+	// Send the message to all orbiters within the house, which is all devices with the category DEVICECATEGORY_Orbiter_CONST (see pluto_main/Define_DeviceCategory.h)
+	// Note the _Cat for category
+	DCE::CMD_Simulate_Mouse_Click_Cat CMD_Simulate_Mouse_Click_Cat(m_dwPK_Device,DEVICECATEGORY_Orbiter_CONST,true,BL_SameHouse,55,77)
     SendCommand(CMD_Simulate_Mouse_Click_Cat);
 
-    // Send the message to all "DeviceTemplate_Orbiter_CONST" devices within the room (see pluto_main/Define_DeviceTemplate.h)
-    // Note the _DT.
-    DCE::CMD_Simulate_Mouse_Click_DT CMD_Simulate_Mouse_Click_DT(m_dwPK_Device,DeviceTemplate_Orbiter_CONST,true,BL_SameRoom,55,77);
-    SendCommand(CMD_Simulate_Mouse_Click_DT);
+	// Send the message to all "DeviceTemplate_Orbiter_CONST" devices within the room (see pluto_main/Define_DeviceTemplate.h)
+	// Note the _DT.
+	DCE::CMD_Simulate_Mouse_Click_DT CMD_Simulate_Mouse_Click_DT(m_dwPK_Device,DeviceTemplate_Orbiter_CONST,true,BL_SameRoom,55,77);
+	SendCommand(CMD_Simulate_Mouse_Click_DT);
 
-    // This command has a normal string parameter, but also an int as an out parameter
-    int iValue;
-    DCE::CMD_Get_Signal_Strength CMD_Get_Signal_Strength(m_dwDeviceID, DestDevice, sMac_address,&iValue);
-    // This send command will wait for the destination device to respond since there is
-    // an out parameter
-    SendCommand(CMD_Get_Signal_Strength);
+	// This command has a normal string parameter, but also an int as an out parameter
+	int iValue;
+	DCE::CMD_Get_Signal_Strength CMD_Get_Signal_Strength(m_dwDeviceID, DestDevice, sMac_address,&iValue);
+	// This send command will wait for the destination device to respond since there is
+	// an out parameter
+	SendCommand(CMD_Get_Signal_Strength);
 
-    // This time we don't care about the out parameter.  We just want the command to
-    // get through, and don't want to wait for the round trip.  The out parameter, iValue,
-    // will not get set
-    SendCommandNoResponse(CMD_Get_Signal_Strength);
+	// This time we don't care about the out parameter.  We just want the command to
+	// get through, and don't want to wait for the round trip.  The out parameter, iValue,
+	// will not get set
+	SendCommandNoResponse(CMD_Get_Signal_Strength);
 
-    // This command has an out parameter of a data block.  Any parameter that is a binary
-    // data block is a pair of int and char *
-    // We'll also want to see the response, so we'll pass a string for that too
+	// This command has an out parameter of a data block.  Any parameter that is a binary
+	// data block is a pair of int and char *
+	// We'll also want to see the response, so we'll pass a string for that too
 
-    int iFileSize;
-    char *pFileContents
-    string sResponse;
-    DCE::CMD_Request_File CMD_Request_File(m_dwDeviceID, DestDevice, "filename",&pFileContents,&iFileSize,&sResponse);
-    SendCommand(CMD_Request_File);
+	int iFileSize;
+	char *pFileContents
+	string sResponse;
+	DCE::CMD_Request_File CMD_Request_File(m_dwDeviceID, DestDevice, "filename",&pFileContents,&iFileSize,&sResponse);
+	SendCommand(CMD_Request_File);
 
-    // If the device processed the command (in this case retrieved the file),
-    // sResponse will be "OK", and iFileSize will be the size of the file
-    // and pFileContents will be the file contents.  **NOTE**  We are responsible
-    // free deleting pFileContents.
+	// If the device processed the command (in this case retrieved the file),
+	// sResponse will be "OK", and iFileSize will be the size of the file
+	// and pFileContents will be the file contents.  **NOTE**  We are responsible
+	// free deleting pFileContents.
 
 
-    // To access our data and events below, you can type this-> if your IDE supports auto complete to see all the data and events you can access
+	// To access our data and events below, you can type this-> if your IDE supports auto complete to see all the data and events you can access
 
-    // Get our IP address from our data
-    string sIP = DATA_Get_IP_Address();
+	// Get our IP address from our data
+	string sIP = DATA_Get_IP_Address();
 
-    // Set our data "Filename" to "myfile"
-    DATA_Set_Filename("myfile");
+	// Set our data "Filename" to "myfile"
+	DATA_Set_Filename("myfile");
 
-    // Fire the "Finished with file" event, which takes no parameters
-    EVENT_Finished_with_file();
-    // Fire the "Touch or click" which takes an X and Y parameter
-    EVENT_Touch_or_click(10,150);
+	// Fire the "Finished with file" event, which takes no parameters
+	EVENT_Finished_with_file();
+	// Fire the "Touch or click" which takes an X and Y parameter
+	EVENT_Touch_or_click(10,150);
 }
 */
 //<-dceag-sample-e->
@@ -174,34 +175,20 @@ void Slim_Server_Streamer::SomeFunction()
 
 //<-dceag-c249-b->
 
-    /** @brief COMMAND: #249 - Start Streaming */
-    /** Starts streaming */
-        /** @param #13 Filename */
-            /** The filename to stream */
-        /** @param #41 StreamID */
-            /** Identifier for this streaming session. */
-        /** @param #59 MediaURL */
-            /** The url to use to play this stream. */
-        /** @param #105 StreamingDestinations */
-            /** Target destinations for streaming. Semantics dependent on the target device. */
+	/** @brief COMMAND: #249 - Start Streaming */
+	/** Starts streaming */
+		/** @param #41 StreamID */
+			/** Identifier for this streaming session. */
+		/** @param #59 MediaURL */
+			/** The url to use to play this stream. */
+		/** @param #105 StreamingTargets */
+			/** Target destinations for streaming. Semantics dependent on the target device. */
 
-void Slim_Server_Streamer::CMD_Start_Streaming(string sFilename,int iStreamID,string sStreamingTargets,string *sMediaURL,string &sCMD_Result,Message *pMessage)
+void Slim_Server_Streamer::CMD_Start_Streaming(int iStreamID,string sStreamingTargets,string *sMediaURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c249-e->
 {
     g_pPlutoLogger->Write(LV_STATUS, "Processing Start streaming command for target devices: %s", sStreamingTargets.c_str());
     PLUTO_SAFETY_LOCK( pm, m_mutexDataStructureAccess);
-
-    if ( sStreamingTargets == "" &&
-        m_mapStreamsToPlayers.find(iStreamID) != m_mapStreamsToPlayers.end() )
-    {
-        DeviceData_Base *playerDevice = m_mapStreamsToPlayers[iStreamID].second.front();
-
-        string macAddress = StringUtils::URLEncode(StringUtils::ToLower(playerDevice->GetMacAddress()));
-
-        SendReceiveCommand(macAddress + " playlist play " + StringUtils::URLEncode(string("file://") + StringUtils::Replace(sFilename, "//", "/")).c_str());
-        m_mapStreamsToPlayers[iStreamID].first = STATE_PLAY;
-        return;
-    }
 
     g_pPlutoLogger->Write(LV_STATUS, "Processing Start streaming command for target devices: %s", sStreamingTargets.c_str());
 
@@ -223,14 +210,14 @@ void Slim_Server_Streamer::CMD_Start_Streaming(string sFilename,int iStreamID,st
             g_pPlutoLogger->Write(LV_WARNING, "Player id string %s parsed to 0. Ignoring.", (*itPlayerIds).c_str() );
             continue;
         }
-		
+
         DeviceData_Base *pPlayerDeviceData = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(iPlayerId);
         if ( pPlayerDeviceData == NULL )
         {
             g_pPlutoLogger->Write(LV_WARNING, "Child with id: %d was not found. Ignoring", iPlayerId);
             continue;
         }
-       
+
 		vectDevices.push_back(pPlayerDeviceData);
 
         currentPlayerAddress = StringUtils::URLEncode(StringUtils::ToLower(pPlayerDeviceData->GetMacAddress()));
@@ -241,10 +228,21 @@ void Slim_Server_Streamer::CMD_Start_Streaming(string sFilename,int iStreamID,st
         *itPlayerIds++;
     }
 
-    // add this stream to the list of playing streams.
+	// add this stream to the list of playing streams.
     m_mapStreamsToPlayers[iStreamID] = make_pair(STATE_PLAY, vectDevices);
+}
 
-    SendReceiveCommand(lastPlayerAddress + " playlist play " + StringUtils::URLEncode(string("file://") + sFilename).c_str());
+//<-dceag-c262-b->
+
+	/** @brief COMMAND: #262 - Stop Streaming */
+	/** Stop the streaming of a particular media stream. */
+		/** @param #41 StreamID */
+			/** The ID of the stream to be stopped. */
+
+void Slim_Server_Streamer::CMD_Stop_Streaming(int iStreamID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c262-e->
+{
+	g_pPlutoLogger->Write(LV_STATUS, "Not implemented!");
 }
 
 bool Slim_Server_Streamer::ConnectToSlimServerCliCommandChannel()
@@ -310,7 +308,6 @@ string Slim_Server_Streamer::SendReceiveCommand(string command)
         if ( ! ConnectToSlimServerCliCommandChannel() )
         {
             g_pPlutoLogger->Write(LV_STATUS, "Reconnection failed. Sending a start command to the application server.");
-
 //             string notificationMessage = StringUtils::Format("%d %d %d %d",
 //                                                             0,
 //                                                             m_dwPK_Device,
@@ -390,6 +387,8 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
 
     while ( true )
     {
+		string macAddress, strResult;
+
         PLUTO_SAFETY_LOCK( pm, pStreamer->m_mutexDataStructureAccess);
 
         map<int, pair<StreamStateType, vector<DeviceData_Base *> > >::iterator itStreamsToPlayers;
@@ -399,14 +398,18 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
         {
             DeviceData_Base *pPlayerDeviceData = (*itStreamsToPlayers).second.second[0];
 
-            string strCommand = StringUtils::URLEncode(pPlayerDeviceData->GetMacAddress()) + " mode ?";
-            string strResult = pStreamer->SendReceiveCommand(strCommand);
+			macAddress = StringUtils::URLEncode(pPlayerDeviceData->GetMacAddress());
+			strResult = pStreamer->SendReceiveCommand((macAddress + " mode ?").c_str());
 
-            if (strResult == StringUtils::URLEncode(pPlayerDeviceData->GetMacAddress()) + " mode stop")
+            if (strResult == macAddress + " mode stop" || strResult == macAddress + " mode %3F" )
             {
-                (*itStreamsToPlayers).second.first = STATE_STOP;
+				pStreamer->ChangeStateForStream((*itStreamsToPlayers).first, STATE_STOP);
                 pStreamer->EVENT_Playback_Completed((*itStreamsToPlayers).first);
             }
+			else if ( strResult == macAddress + " mode pause" )
+			{
+				pStreamer->ChangeStateForStream((*itStreamsToPlayers).first, STATE_PAUSE);
+			}
 
             itStreamsToPlayers++;
         }
@@ -416,4 +419,165 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
     }
 
     return NULL;
+}
+
+
+string Slim_Server_Streamer::FindControllingMacForStream(int iStreamID)
+{
+	PLUTO_SAFETY_LOCK(dataMutex, m_mutexDataStructureAccess );
+
+    if ( m_mapStreamsToPlayers.find(iStreamID) != m_mapStreamsToPlayers.end() )
+    {
+        DeviceData_Base *playerDevice = m_mapStreamsToPlayers[iStreamID].second.front();
+        return StringUtils::URLEncode(StringUtils::ToLower(playerDevice->GetMacAddress()));
+    }
+
+	return "";
+}
+
+void Slim_Server_Streamer::ChangeStateForStream(int iStreamID, StreamStateType newState)
+{
+	PLUTO_SAFETY_LOCK(dataMutex, m_mutexDataStructureAccess);
+
+    if ( m_mapStreamsToPlayers.find(iStreamID) == m_mapStreamsToPlayers.end() )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Can't change the state of an invalid stream: %d!", iStreamID);
+		return;
+	}
+
+	m_mapStreamsToPlayers[iStreamID].first = newState;
+}
+
+//<-dceag-c37-b->
+
+	/** @brief COMMAND: #37 - Play Media */
+	/** This command will instruct a Media Player to play a media stream identified by a media descriptor created by the "Create Media" command. */
+		/** @param #13 Filename */
+			/** The file to play.  The format is specific on the media type and the media player. */
+		/** @param #29 PK_MediaType */
+			/** The type of media */
+		/** @param #41 StreamID */
+			/** The media that we need to play. */
+		/** @param #42 MediaPosition */
+			/** The position at which we need to start playing. */
+
+void Slim_Server_Streamer::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,Message *pMessage)
+//<-dceag-c37-e->
+{
+	g_pPlutoLogger->Write(LV_STATUS, "Got a play media command for stream %d", iStreamID);
+
+	string sControlledPlayerMac;
+	if ( (sControlledPlayerMac = FindControllingMacForStream(iStreamID)) == "" )
+		return;
+
+	// SendReceiveCommand(lastPlayerAddress + " playlist play " + StringUtils::URLEncode(string("file://") + sFilename).c_str());
+	SendReceiveCommand(sControlledPlayerMac + " playlist play " + StringUtils::URLEncode(string("file://") + StringUtils::Replace(sFilename,"//", "/")));
+	ChangeStateForStream(iStreamID, STATE_PLAY);
+}
+
+//<-dceag-c38-b->
+
+	/** @brief COMMAND: #38 - Stop Media */
+	/** This will instruct the media player to stop the playback of a media started with the "Play Media" Command */
+		/** @param #41 StreamID */
+			/** The media needing to be stopped. */
+		/** @param #42 MediaPosition */
+			/** The position at which this stream was last played. */
+
+void Slim_Server_Streamer::CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_Result,Message *pMessage)
+//<-dceag-c38-e->
+{
+}
+
+//<-dceag-c39-b->
+
+	/** @brief COMMAND: #39 - Pause Media */
+	/** This will stop a media that is currently played. This method should be paired with the "Restart Media" and used when the playback will be stopped and restarted on the same display device. */
+		/** @param #41 StreamID */
+			/** The media stream for which we need to pause playback. */
+
+void Slim_Server_Streamer::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c39-e->
+{
+
+}
+
+//<-dceag-c40-b->
+
+	/** @brief COMMAND: #40 - Restart Media */
+	/** This will restart a media was paused with the above command */
+		/** @param #41 StreamID */
+			/** The media stream that we need to restart playback for. */
+
+void Slim_Server_Streamer::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c40-e->
+{
+}
+
+//<-dceag-c41-b->
+
+	/** @brief COMMAND: #41 - Change Playback Speed */
+	/** Will make the playback to FF with a configurable amount of speed. */
+		/** @param #41 StreamID */
+			/** The media needing the playback speed change. */
+		/** @param #43 MediaPlaybackSpeed */
+			/** The requested media playback speed. This is a multiplier of the normal speed. (If we want 2x playback this parameter will be 2 if we want half of normal speed then the parameter will be 0.5). The formula is NextSpeed = MediaPlaybackSpeed * NormalPlaybackS */
+
+void Slim_Server_Streamer::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string &sCMD_Result,Message *pMessage)
+//<-dceag-c41-e->
+{
+}
+
+//<-dceag-c63-b->
+
+	/** @brief COMMAND: #63 - Skip Forward */
+	/** Chapter/Track Next/Down/Forward */
+
+void Slim_Server_Streamer::CMD_Skip_Forward(string &sCMD_Result,Message *pMessage)
+//<-dceag-c63-e->
+{
+}
+
+//<-dceag-c64-b->
+
+	/** @brief COMMAND: #64 - Skip Back */
+	/** Chapter/Track Back/Up/Prior */
+
+void Slim_Server_Streamer::CMD_Skip_Back(string &sCMD_Result,Message *pMessage)
+//<-dceag-c64-e->
+{
+}
+
+//<-dceag-c243-b->
+
+	/** @brief COMMAND: #243 - Enable Broadcasting */
+	/** Enable broadcasting from here. */
+		/** @param #41 StreamID */
+			/** The stream to enable broadcast for */
+		/** @param #59 MediaURL */
+			/** The media url from which this stream can be played. */
+
+void Slim_Server_Streamer::CMD_Enable_Broadcasting(int iStreamID,string *sMediaURL,string &sCMD_Result,Message *pMessage)
+//<-dceag-c243-e->
+{
+
+}
+
+//<-dceag-c259-b->
+
+	/** @brief COMMAND: #259 - Report Playback Position */
+	/** This will report the playback position of the current stream. */
+		/** @param #39 Options */
+			/** Other options that the player might record for this position. Usefull if we have a non standard encoding of the player position. */
+		/** @param #41 StreamID */
+			/** The stream ID on which to report the position. */
+		/** @param #42 MediaPosition */
+			/** The reported media position ( in milliseconds since the beginning of the stream). */
+		/** @param #106 Media Length */
+			/** The complete length of the media stream. Where appliable. */
+
+void Slim_Server_Streamer::CMD_Report_Playback_Position(int iStreamID,string *sOptions,int *iMediaPosition,int *iMedia_Length,string &sCMD_Result,Message *pMessage)
+//<-dceag-c259-e->
+{
+
 }

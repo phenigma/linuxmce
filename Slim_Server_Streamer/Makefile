@@ -3,7 +3,7 @@ GENDEV=../Gen_Devices
 
 ROOT = ..
 CXX = g++
-CXXFLAGS = -Wall -fPIC -ggdb3 -fmessage-length=0
+CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES
 LDFLAGS = -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
@@ -12,8 +12,8 @@ MYNAME = Slim_Server_Streamer
 VERSION = 2.0.0
 MYDEVTEMPLATEID = 53mplateID
 
-Gen_Dev_Files = $(GENDEV)/Slim_Server_StreamerBase.cpp $(GENDEV)/SqueezeBox_PlayerBase.cpp
-sources = Main.cpp Slim_Server_Streamer.cpp SqueezeBox_Player.cpp $(Gen_Dev_Files)
+Gen_Dev_Files = $(GENDEV)/Slim_Server_StreamerBase.cpp
+sources = Main.cpp Slim_Server_Streamer.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS +=
@@ -22,7 +22,8 @@ LDFLAGS +=
 XTRALDLIBS =
 
 Gen_Dev_Files +=
-sources +=
+sources += SqueezeBox_Player.cpp $(GENDEV)/SqueezeBox_PlayerBase.cpp
+
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
