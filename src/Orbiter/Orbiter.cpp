@@ -5293,16 +5293,24 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 	g_pPlutoLogger->Write(LV_WARNING, "Simulate key press. Key code: %d", key);
 
 	BeginPaint();
+
+	//render a text with the 
 	PlutoColor color(200, 200, 200, 100);
 	SolidRectangle(5, m_iImageHeight - 30, 200, 25, color, 50);
-
 	PlutoRectangle rect(5, m_iImageHeight - 30, 200, 25);
 	DesignObjText text(m_pScreenHistory_Current->m_pObj);
-	text.m_sText = "Key code pressed: " + StringUtils::ltos(key);
+	text.m_sText = "Key code: " + StringUtils::ltos(key);
 	text.m_rPosition = rect;
-
 	TextStyle *pTextStyle = m_mapTextStyle_Find( 1 );
 	RenderText(&text, pTextStyle);
+
+	//render current screen id
+	SolidRectangle( m_iImageWidth - 200, m_iImageHeight - 30, 200, 25, color, 50);
+	PlutoRectangle rect2(m_iImageWidth - 200, m_iImageHeight - 30, 200, 25);
+	DesignObjText text2(m_pScreenHistory_Current->m_pObj);
+	text2.m_sText = "Current screen: " + this->GetCurrentScreenID();
+	text2.m_rPosition = rect2;
+	RenderText(&text2, pTextStyle);
 
 	EndPaint();
 

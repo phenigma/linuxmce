@@ -80,14 +80,14 @@ void BD_CP_SendFile::ParseCommand(unsigned long size, const char *data)
 #ifdef VIPPHONE
 
 #ifdef SYMBIAN
-	unsigned long iFileNameSize = Read_unsigned_long();
-	const char *pFileName = Read_block(iFileNameSize);
-	unsigned long iFileDataSize = Read_unsigned_long();
-	const char *pFileData = Read_block(iFileDataSize);
+	m_iFileNameSize = Read_unsigned_long();
+	m_pFileName = Read_block(m_iFileNameSize);
+	m_iFileDataSize = Read_unsigned_long();
+	m_pFileData = Read_block(m_iFileDataSize);
 
 	LOG("#	Received 'SendFile' command  #\n");
 
-	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->SaveFile(iFileNameSize, pFileName, iFileDataSize, pFileData);
+	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->SaveFile(m_iFileNameSize, m_pFileName, m_iFileDataSize, m_pFileData);
 
 #endif //SYMBIAN
 

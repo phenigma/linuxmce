@@ -555,17 +555,17 @@ void RenderMenu::KeyPressed(int KeyCode)
 					continue;
 			}
 			//
-			//TODO: program name
 			if(pRes->m_sProgramName.length())
 			{
 				string sParams;
 				string sUrl = pRes->m_sProgramName;
 				if(pRes->m_iReportToServer)
 				{
-					for(map<long,class VIPVariable *>::iterator it = m_pMenuCollection->m_mapVariables.begin();
-						it != m_pMenuCollection->m_mapVariables.end(); it++)
+					MYSTL_ITERATE_LONG_MAP(m_pMenuCollection->m_mapVariables, VIPVariable, pVar, iVar)
+					//for(map<long,class VIPVariable *>::iterator it = m_pMenuCollection->m_mapVariables.begin();
+					//	it != m_pMenuCollection->m_mapVariables.end(); it++)
 					{
-						VIPVariable *pVariable = (*it).second;
+						VIPVariable *pVariable = pVar;
 						sParams += pVariable->m_sDescription + "=" + pVariable->m_sCurrentValue + "&";
 					}
 				}

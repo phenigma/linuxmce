@@ -148,7 +148,7 @@ RSC=rc.exe
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "DEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
 CPP=clarm.exe
 # ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /Yu"stdafx.h" /M$(CECrtMTDebug) /c
-# ADD CPP /nologo /W1 /Zi /Od /I "." /I ".." /I "../../.." /I "../../../Libraries/pthreads-snap-2002-11-04" /I "../../../Libraries/STLport-4.5.3/src" /I "../../../Libraries/STLport-4.5.3/stlport" /I "../../CENET" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /D "WIN32" /D "WINCE" /D "__STL_NO_IOSTREAMS" /M$(CECrtMTDebug) /c
+# ADD CPP /nologo /Zi /Od /I "." /I ".." /I "../../.." /I "../../../../libs/Libraries/pthreads-snap-2002-11-04" /I "../../../../libs/Libraries/STLport-4.5.3/src" /I "../../../../libs/Libraries/STLport-4.5.3/stlport" /I "../../CENET" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /D "WIN32" /D "WINCE" /D "__STL_NO_IOSTREAMS" /M$(CECrtMTDebug) /c
 # SUBTRACT CPP /YX /Yc /Yu
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
@@ -158,7 +158,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
-# ADD LINK32 commctrl.lib coredll.lib aygshell.lib PthreadsCE.lib winsock.lib ccrtrtti.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /libpath:"../../../Libraries/pthreads-snap-2002-11-04/PthreadsCE/ARMDbg" /libpath:"../../CENet/Ritti/ArmV4" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
+# ADD LINK32 commctrl.lib coredll.lib aygshell.lib PthreadsCE.lib winsock.lib ccrtrtti.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /libpath:"../../../../libs/Libraries/pthreads-snap-2002-11-04/PthreadsCE/ARMDbg" /libpath:"../../CENet/Ritti/ArmV4" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
 
 !ENDIF 
 
@@ -237,10 +237,6 @@ DEP_CPP_CLIEN=\
 	"..\..\..\DCE\Message.h"\
 	"..\..\..\DCE\PlutoLockLogger.h"\
 	"..\..\..\DCE\Socket.h"\
-	"..\..\..\Libraries\pthreads-snap-2002-11-04\config.h"\
-	"..\..\..\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
-	"..\..\..\Libraries\pthreads-snap-2002-11-04\pthread.h"\
-	"..\..\..\Libraries\pthreads-snap-2002-11-04\sched.h"\
 	"..\..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\..\PlutoUtils\FileUtils.h"\
 	"..\..\..\PlutoUtils\getch.h"\
@@ -377,10 +373,6 @@ DEP_CPP_LOGGE=\
 	"..\..\..\DCE\Logger.h"\
 	"..\..\..\DCE\Message.h"\
 	"..\..\..\DCE\PlutoLockLogger.h"\
-	"..\..\..\Libraries\pthreads-snap-2002-11-04\config.h"\
-	"..\..\..\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
-	"..\..\..\Libraries\pthreads-snap-2002-11-04\pthread.h"\
-	"..\..\..\Libraries\pthreads-snap-2002-11-04\sched.h"\
 	"..\..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\..\PlutoUtils\ConsoleColor.h"\
 	"..\..\..\PlutoUtils\FileUtils.h"\
@@ -453,10 +445,6 @@ DEP_CPP_MESSA=\
 	"..\..\..\DCE\Logger.h"\
 	"..\..\..\DCE\Message.h"\
 	"..\..\..\DCE\PlutoLockLogger.h"\
-	"..\..\..\Libraries\pthreads-snap-2002-11-04\config.h"\
-	"..\..\..\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
-	"..\..\..\Libraries\pthreads-snap-2002-11-04\pthread.h"\
-	"..\..\..\Libraries\pthreads-snap-2002-11-04\sched.h"\
 	"..\..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\..\PlutoUtils\FileUtils.h"\
 	"..\..\..\PlutoUtils\getch.h"\
@@ -521,10 +509,6 @@ NODEP_CPP_MULTI=\
 DEP_CPP_MULTI=\
 	"..\..\..\DCE\Logger.h"\
 	"..\..\..\DCE\PlutoLockLogger.h"\
-	"..\..\..\Libraries\pthreads-snap-2002-11-04\config.h"\
-	"..\..\..\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
-	"..\..\..\Libraries\pthreads-snap-2002-11-04\pthread.h"\
-	"..\..\..\Libraries\pthreads-snap-2002-11-04\sched.h"\
 	"..\..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\..\PlutoUtils\FileUtils.h"\
 	"..\..\..\PlutoUtils\getch.h"\
@@ -676,10 +660,6 @@ DEP_CPP_SOCKE=\
 	"..\..\..\DCE\Message.h"\
 	"..\..\..\DCE\PlutoLockLogger.h"\
 	"..\..\..\DCE\Socket.h"\
-	"..\..\..\Libraries\pthreads-snap-2002-11-04\config.h"\
-	"..\..\..\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
-	"..\..\..\Libraries\pthreads-snap-2002-11-04\pthread.h"\
-	"..\..\..\Libraries\pthreads-snap-2002-11-04\sched.h"\
 	"..\..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\..\PlutoUtils\FileUtils.h"\
 	"..\..\..\PlutoUtils\getch.h"\
@@ -799,7 +779,7 @@ DEP_CPP_UPDAT=\
 	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_UPDAT=\
-	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\emulator\vibrate.h"\
+	"..\..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\emulator\vibrate.h"\
 	"..\DCE\ClientSocket.h"\
 	"..\DCE\Logger.h"\
 	"..\DCE\Message.h"\
@@ -819,7 +799,7 @@ DEP_CPP_UPDAT=\
 	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_UPDAT=\
-	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\emulator\vibrate.h"\
+	"..\..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\emulator\vibrate.h"\
 	"..\DCE\ClientSocket.h"\
 	"..\DCE\Logger.h"\
 	"..\DCE\Message.h"\
@@ -839,7 +819,7 @@ DEP_CPP_UPDAT=\
 	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_UPDAT=\
-	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
+	"..\..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\DCE\ClientSocket.h"\
 	"..\DCE\Logger.h"\
 	"..\DCE\Message.h"\
@@ -859,10 +839,6 @@ DEP_CPP_UPDAT=\
 	"..\..\..\DCE\Message.h"\
 	"..\..\..\DCE\PlutoLockLogger.h"\
 	"..\..\..\DCE\Socket.h"\
-	"..\..\..\Libraries\pthreads-snap-2002-11-04\config.h"\
-	"..\..\..\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
-	"..\..\..\Libraries\pthreads-snap-2002-11-04\pthread.h"\
-	"..\..\..\Libraries\pthreads-snap-2002-11-04\sched.h"\
 	"..\..\..\pluto_main\Define_Command.h"\
 	"..\..\..\pluto_main\Define_CommandParameter.h"\
 	"..\..\..\pluto_main\Define_DeviceCategory.h"\
@@ -883,7 +859,7 @@ DEP_CPP_UPDAT=\
 	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_UPDAT=\
-	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
+	"..\..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\..\PlutoUtils\PKFUNCS.H"\
 	
 

@@ -73,10 +73,10 @@ BDCommandProcessor_Symbian_Base::~BDCommandProcessor_Symbian_Base()
 
 	MYSTL_CLEAR_LIST(m_listCommands);
 
-	PLUTO_SAFE_DELETE(m_ReceiveCmdHeader);
-	PLUTO_SAFE_DELETE(m_ReceiveCmdData);
-	PLUTO_SAFE_DELETE(m_ReceiveAckHeader);
-	PLUTO_SAFE_DELETE(m_ReceiveAckData);
+	PLUTO_SAFE_DELETE_ARRAY(m_ReceiveCmdHeader);
+	PLUTO_SAFE_DELETE_ARRAY(m_ReceiveCmdData);
+	PLUTO_SAFE_DELETE_ARRAY(m_ReceiveAckHeader);
+	PLUTO_SAFE_DELETE_ARRAY(m_ReceiveAckData);
 
 	PLUTO_SAFE_DELETE(m_HBuf_ReceiveCmdHeader);
 	PLUTO_SAFE_DELETE(m_HBuf_ReceiveCmdData);
@@ -396,7 +396,7 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 			LOG("ESendingCommand\n");
 			m_bImmediateCallback = false;
 
-			if( MYSTL_SIZEOF_LIST(m_listCommands)==0 )
+  			if( MYSTL_SIZEOF_LIST(m_listCommands)==0 )
 				m_pCommand_Sent = new BD_WhatDoYouHave();
 			else
 			{
@@ -439,23 +439,9 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 			else
 				AckHeaderSize = 4;
 
-			if(NULL != m_HBuf_ReceiveAckHeader)
-			{
-				delete m_HBuf_ReceiveAckHeader;
-				m_HBuf_ReceiveAckHeader = NULL;
-			}
-
-			if(NULL != m_ReceiveAckHeader)
-			{
-				delete m_ReceiveAckHeader;
-				m_ReceiveAckHeader = NULL;
-			}
-
-			if(NULL != m_Recv_iBuf)
-			{
-				delete m_Recv_iBuf;
-				m_Recv_iBuf = NULL;
-			}
+			PLUTO_SAFE_DELETE_ARRAY(m_ReceiveAckHeader);
+			PLUTO_SAFE_DELETE(m_HBuf_ReceiveAckHeader);
+			PLUTO_SAFE_DELETE(m_Recv_iBuf);
 
 			m_iRecvSize = AckHeaderSize;
 			m_HBuf_ReceiveAckHeader = HBufC8::NewL(m_iRecvSize);
@@ -474,7 +460,8 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 	case EReceivingAckHeader:
 		{
 			LOG("EReceivingAckHeader\n");
-			
+
+			PLUTO_SAFE_DELETE_ARRAY(m_ReceiveAckHeader);
 			m_ReceiveAckHeader = new char[m_iRecvSize];
 			for (int i = 0; i < m_iRecvSize; i++) 
 				m_ReceiveAckHeader[i] = (char)(*m_Recv_iBuf)[i];
@@ -491,17 +478,8 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 			if( *lSize )
 			{
-				if(NULL != m_HBuf_ReceiveAckData)
-				{
-					delete m_HBuf_ReceiveAckData;
-					m_HBuf_ReceiveAckData = NULL;
-				}
-
-				if(NULL != m_ReceiveAckData)
-				{
-					delete m_ReceiveAckData;
-					m_ReceiveAckData = NULL;
-				}
+				PLUTO_SAFE_DELETE(m_HBuf_ReceiveAckData);
+				PLUTO_SAFE_DELETE_ARRAY(m_ReceiveAckData);
 
 				m_iRecvSize = *lSize;
 				m_bStartRecv = true;
@@ -523,23 +501,9 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 			{
 				m_bStartRecv = false;
 
-				if(m_HBuf_ReceiveAckData)
-				{
-					delete m_HBuf_ReceiveAckData;
-					m_HBuf_ReceiveAckData = NULL;
-				}
-
-				if(m_ReceiveAckData)
-				{
-					delete m_ReceiveAckData;
-					m_ReceiveAckData = NULL;
-				}
-
-				if(NULL != m_Recv_iBuf)
-				{
-					delete m_Recv_iBuf;
-					m_Recv_iBuf = NULL;
-				}
+				PLUTO_SAFE_DELETE(m_HBuf_ReceiveAckData);
+				PLUTO_SAFE_DELETE_ARRAY(m_ReceiveAckData);
+				PLUTO_SAFE_DELETE(m_Recv_iBuf);
 
 				m_HBuf_ReceiveAckData = HBufC8::NewL(m_iRecvSize);
 				m_ReceiveAckData = new char[m_iRecvSize];
@@ -574,15 +538,14 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 				iStatus = KErrNone;
 				iState = EReceivingCommand;
 
-				//no break, continue
+				PLUTO_SAFE_DELETE(m_pCommand_Sent);
 			}
 			else
 			{
 				long *lSize = (long *) (m_ReceiveAckHeader);
 				m_pCommand_Sent->ParseAck(*lSize, m_ReceiveAckData);
 
-				delete m_pCommand_Sent;
-				m_pCommand_Sent=NULL;
+				PLUTO_SAFE_DELETE(m_pCommand_Sent);
 
 				iState = EIdle;
 				break;
@@ -608,23 +571,9 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 			}
 			else
 			{
-				if(NULL != m_HBuf_ReceiveCmdHeader)
-				{
-					delete m_HBuf_ReceiveCmdHeader;
-					m_HBuf_ReceiveCmdHeader = NULL;
-				}
-				
-				if(NULL != m_ReceiveCmdHeader)
-				{
-					delete m_ReceiveCmdHeader;
-					m_ReceiveCmdHeader = NULL;
-				}
-
-				if(NULL != m_Recv_iBuf)
-				{
-					delete m_Recv_iBuf;
-					m_Recv_iBuf = NULL;
-				}
+				PLUTO_SAFE_DELETE_ARRAY(m_ReceiveCmdHeader);
+				PLUTO_SAFE_DELETE(m_HBuf_ReceiveCmdHeader);
+				PLUTO_SAFE_DELETE(m_Recv_iBuf);
 
 				m_iRecvSize = 8;
 				m_HBuf_ReceiveCmdHeader = HBufC8::NewL(m_iRecvSize);
@@ -661,9 +610,7 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 		{
 			LOG("ERecvCommand_SendingCommandOrAckData\n");
 			m_pCommand->FreeSerializeMemory();
-
-			delete m_pCommand;
-			m_pCommand = NULL;
+			PLUTO_SAFE_DELETE(m_pCommand);
 
 			iState = ERecvCommand_End;
 
@@ -689,6 +636,7 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 		{
 			LOG("EReceivingCmdHeader\n");
 
+			PLUTO_SAFE_DELETE_ARRAY(m_ReceiveCmdHeader);
 			m_ReceiveCmdHeader = new char[m_iRecvSize];
 			for (int i = 0; i < m_iRecvSize; i++) 
 				m_ReceiveCmdHeader[i] = (char)(*m_Recv_iBuf)[i];
@@ -701,23 +649,10 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 			if( *lSize )
 			{
-				if(NULL != m_HBuf_ReceiveCmdData)
-				{
-					delete m_HBuf_ReceiveCmdData;
-					m_HBuf_ReceiveCmdData = NULL;
-				}
 
-				if(NULL != m_ReceiveCmdData)
-				{
-					delete m_ReceiveCmdData;
-					m_ReceiveCmdData = NULL;
-				}
-
-				if(NULL != m_Recv_iBuf)
-				{
-					delete m_Recv_iBuf;
-					m_Recv_iBuf = NULL;
-				}
+				PLUTO_SAFE_DELETE_ARRAY(m_ReceiveCmdData);
+				PLUTO_SAFE_DELETE(m_HBuf_ReceiveCmdData);
+				PLUTO_SAFE_DELETE(m_Recv_iBuf);
 
 				m_iRecvSize = 8;
 				m_HBuf_ReceiveCmdData = HBufC8::NewL(m_iRecvSize);
@@ -739,6 +674,7 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 		{
 			LOG("EReceivingCmdData\n");
 
+			PLUTO_SAFE_DELETE_ARRAY(m_ReceiveCmdData);
 			m_ReceiveCmdData = new char[m_iRecvSize];
 			for (int i = 0; i < m_iRecvSize; i++) 
 				m_ReceiveCmdData[i] = (char)(*m_Recv_iBuf)[i];

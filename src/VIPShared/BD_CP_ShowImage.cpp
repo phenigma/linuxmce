@@ -51,11 +51,13 @@ BD_CP_ShowImage::BD_CP_ShowImage(unsigned char ImageType,unsigned long ImageSize
 
 BD_CP_ShowImage::~BD_CP_ShowImage()
 {
+#ifndef SYMBIAN //VCMUtil is responsable for deleting the image
 	if(NULL != m_pImage)
 	{
 		delete m_pImage;
 		m_pImage = NULL;
 	}
+#endif
 }
 
 void BD_CP_ShowImage::ConvertCommandToBinary()
@@ -69,23 +71,23 @@ void BD_CP_ShowImage::ConvertCommandToBinary()
 void BD_CP_ShowImage::ParseCommand(unsigned long size,const char *data)
 {
 	BDCommand::ParseCommand(size,data);
-#ifdef VIPPHONE
 
-	unsigned char Type = Read_unsigned_char();
-	unsigned long Size = Read_long();
-	const char *Data = Read_block(Size);
+#ifdef VIPPHONE
+	m_iImageType = Read_unsigned_char();
+	m_ImageSize = Read_long();
+	m_pImage = Read_block(m_ImageSize);
 
 #ifdef SYMBIAN
 	LOG("#	Received 'ShowImage' command  #\n");
 
-	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->OpenImage(Type, Size, Data);
+	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->OpenImage(m_iImageType, m_ImageSize, m_pImage);
 	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->Show();
 #endif //SYMBIAN
 
 #ifdef VIPDESIGN
-	g_pPlutoConfig->m_pDoc->m_pImageStatic_Type=Read_unsigned_char();
-	g_pPlutoConfig->m_pDoc->m_pImageStatic_Size=Read_long();
-	g_pPlutoConfig->m_pDoc->m_pImageStatic_Data=Read_block(g_pPlutoConfig->m_pDoc->m_pImageStatic_Size);
+	g_pPlutoConfig->m_pDoc->m_pImageStatic_Type=m_iImageType;
+	g_pPlutoConfig->m_pDoc->m_pImageStatic_Size=m_ImageSize;
+	g_pPlutoConfig->m_pDoc->m_pImageStatic_Data=m_pImage;
 	g_pPlutoConfig->m_pDoc->InvalidateAllViews();
 #endif //VIPDESIGN
 

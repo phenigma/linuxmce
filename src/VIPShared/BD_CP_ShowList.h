@@ -6,9 +6,12 @@
 
 class BD_CP_ShowList : public BDCommand
 {
-#ifndef SYMBIAN
 	unsigned long m_x, m_y, m_Width, m_Height;
+
+#ifndef SYMBIAN
 	list<string> m_DataGridList;
+#else
+	RPointerArray<string> m_DataGridList;
 #endif //SYMBIAN
 
 public:
@@ -23,6 +26,8 @@ public:
 		list<string>  &DataGridList
 	);
 #endif //SYMBIAN
+
+	virtual ~BD_CP_ShowList();
 
 	virtual void ConvertCommandToBinary();
 	virtual void ParseCommand(unsigned long size, const char *data);

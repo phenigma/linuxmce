@@ -57,6 +57,15 @@ BD_CP_ShowList::BD_CP_ShowList(
 }
 #endif //SYMBIAN
 
+BD_CP_ShowList::~BD_CP_ShowList()
+{
+#ifndef SYMBIAN
+	m_DataGridList.clear();
+#else
+	m_DataGridList.Close();
+#endif //SYMBIAN
+}
+
 void BD_CP_ShowList::ConvertCommandToBinary()
 {
 #ifndef SYMBIAN
@@ -84,24 +93,23 @@ void BD_CP_ShowList::ParseCommand(unsigned long size,const char *data)
 
 #ifdef SYMBIAN
 
-	unsigned long x = Read_long();
-	unsigned long y = Read_long();
-	unsigned long Width = Read_long();
-	unsigned long Height = Read_long();
+	m_x = Read_long();
+	m_y = Read_long();
+	m_Width = Read_long();
+	m_Height = Read_long();
 
 	unsigned long ListSize = Read_long();
 
-	RPointerArray<string> DatagridStringList;
 	for(int i = 0; i < ListSize; i++)
 	{
 		string *s = new string;
 		Read_string(*s);
 
-		DatagridStringList.Append(s);
+		m_DataGridList.Append(s);
 	}
 
 	LOG("#	Received 'ShowList' command  #\n"); 
-	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->ShowList(x, y, Width, Height, DatagridStringList);
+	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->ShowList(m_x, m_y, m_Width, m_Height, m_DataGridList);
 	//((CPlutoBTAppUi *)CCoeEnv::Static()->AppUi())->Show();
 
 #endif //SYMBIAN

@@ -22,16 +22,16 @@ copy Orbiter.exe Orbiter_Win32.dat
 copy OrbiterCE.exe Orbiter_WinCE.dat
 
 echo Copying EXE files...
-copy *.exe "\\10.0.0.150\builds\Windows_Output\bin"
+copy *.exe "\\10.0.0.150\builds\Windows_Output\src\bin"
 echo Copying DLL files...
-copy *.dll "\\10.0.0.150\builds\Windows_Output\bin"
+copy *.dll "\\10.0.0.150\builds\Windows_Output\src\bin"
 echo Copying DAT files...
-copy *.dat "\\10.0.0.150\builds\Windows_Output\bin"
+copy *.dat "\\10.0.0.150\builds\Windows_Output\src\bin"
 echo Copying SIS files...
-copy *.sis "\\10.0.0.150\builds\Windows_Output\bin"
+copy *.sis "\\10.0.0.150\builds\Windows_Output\src\bin"
 
 echo Copying LIB files...
 cd "c:\pluto.makerelease\trunk\src\lib"
-copy *.lib "\\10.0.0.150\builds\Windows_Output\lib"
+copy *.lib "\\10.0.0.150\builds\Windows_Output\src\lib"
 
 

@@ -18,9 +18,9 @@ using namespace std;
 using namespace DCE;
 
 #ifdef WINCE
-	const string csOrbiter_Update("bin/Orbiter_WinCE.dat");
+	const string csOrbiter_Update("usr/pluto/bin/Orbiter_WinCE.dat");
 #else
-	const string csOrbiter_Update("bin/Orbiter_Win32.dat");
+	const string csOrbiter_Update("usr/pluto/bin/Orbiter_Win32.dat");
 #endif
 
 #ifdef WINCE
@@ -155,22 +155,22 @@ bool OrbiterSelfUpdate::DownloadUpdateBinary()
 		return false; //we'll continue with this version
 	}
 
-	string sNewOrbiterPath = sStoragePath + sUpdateName;
+	string sUpdateBinaryPath = sStoragePath + sUpdateName;
 
 #ifdef WINCE
-	wchar_t OrbiterFileNameW[256];
-	mbstowcs(OrbiterFileNameW, sNewOrbiterPath.c_str(), 256);
-#define ORBITER_FILE OrbiterFileNameW	
+	wchar_t UpdateFileNameW[256];
+	mbstowcs(UpdateFileNameW, sUpdateBinaryPath.c_str(), 256);
+#define UPDATEBINARY_FILE UpdateFileNameW	
 #else
-#define ORBITER_FILE const_cast<char *>(sNewOrbiterPath.c_str())
+#define UPDATEBINARY_FILE const_cast<char *>(sUpdateBinaryPath.c_str())
 #endif		
 
-	g_pPlutoLogger->Write( LV_CRITICAL,  "Ready to delete the orbiter.exe file");
-	::DeleteFile(ORBITER_FILE);
+	g_pPlutoLogger->Write( LV_CRITICAL,  "Ready to delete UpdateBinary.exe file");
+	::DeleteFile(UPDATEBINARY_FILE);
 
-	if(!FileUtils::WriteBufferIntoFile(sNewOrbiterPath, pUpdateFile, iSizeUpdateFile))
+	if(!FileUtils::WriteBufferIntoFile(sUpdateBinaryPath, pUpdateFile, iSizeUpdateFile))
 	{
-		g_pPlutoLogger->Write( LV_CRITICAL,  "Failed to save the update file to location '%s'", sNewOrbiterPath.c_str() );
+		g_pPlutoLogger->Write( LV_CRITICAL,  "Failed to save the update file to location '%s'", sUpdateBinaryPath.c_str() );
 		return false; //we'll continue with this version
 	}
 
@@ -224,7 +224,7 @@ bool OrbiterSelfUpdate::SpawnUpdateBinaryProcess()
 	sCmdLine += " -o " + m_sOrbiterFilePath;
 	sCmdLine += " -c " + sCommFile;
 
-	g_pPlutoLogger->Write( LV_CRITICAL,  "Ready to start OrbiterNew from the file: %s", sUpdateBinaryFilePath.c_str());
+	g_pPlutoLogger->Write( LV_CRITICAL,  "Ready to start: %s", sUpdateBinaryFilePath.c_str());
 
 #ifdef WINCE
 	wchar_t CmdLineW[256];

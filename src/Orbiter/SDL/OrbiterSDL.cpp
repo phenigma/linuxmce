@@ -150,7 +150,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirector
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::RedrawObjects()
 {
-    PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
+    //PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
     Orbiter::RedrawObjects();
 }
 

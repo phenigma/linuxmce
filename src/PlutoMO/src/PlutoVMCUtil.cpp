@@ -261,6 +261,8 @@ void CPlutoVMCUtil::SetCaptureKeyboardCommand(
 	HBufC16 *pPath = HBufC16::NewL(256);
 	TPtr16 aPath = pPath->Des();
 
+	delete [] (char *)pGraphic;
+
 	RFile file;
 	RFs aFs;
 	aFs.Connect();
@@ -568,7 +570,7 @@ void CPlutoVMCUtil::Parse(TFileName iFileName)
 
 	m_pMenuCollection = new VIPMenuCollection(FileSize, ch_buff);
 
-	delete ch_buff;
+	delete [] ch_buff;
 	ch_buff = NULL;
 
 	delete Buffer;
@@ -650,6 +652,7 @@ void CPlutoVMCUtil::SetImage(unsigned char Type, unsigned long Size, const char 
 	if(m_uGridSelectedItem > 0)
 	{
 		m_uGridSelectedItem--;
+		SelectCurrentItem(); //temp%%%
 		return true;
 	}
 	else
@@ -663,6 +666,7 @@ void CPlutoVMCUtil::SetImage(unsigned char Type, unsigned long Size, const char 
 	if(m_uGridSelectedItem < m_GridList.Count() - 1)
 	{
 		m_uGridSelectedItem++;
+		SelectCurrentItem(); //temp%%%
 		return true;
 	}
 	else

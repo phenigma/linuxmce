@@ -68,8 +68,8 @@ void BD_CP_SimulateEvent::ParseCommand(unsigned long size, const char *data)
 #ifdef VIPPHONE
 
 #ifdef SYMBIAN
-	long m_EventType = Read_long();
-	long m_key = Read_long();
+	m_EventType = Read_long();
+	m_key = Read_long();
 
 	LOG("#	Received 'SimulateEvent' command  #\n");
 

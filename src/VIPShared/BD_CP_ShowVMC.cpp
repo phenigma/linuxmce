@@ -79,10 +79,10 @@ void BD_CP_ShowVMC::ParseCommand(unsigned long size,const char *data)
 #ifdef VIPPHONE
 
 	m_iStore = Read_unsigned_char();
-	long m_iVMCSize = Read_long();
-	const char *m_pVMC = Read_block(m_iVMCSize);
-	long m_iVMCFileNameSize = Read_long();
-	const char *m_pVMCFileName = Read_block(m_iVMCFileNameSize);
+	m_iVMCSize = Read_long();
+	m_pVMC = Read_block(m_iVMCSize);
+	m_iVMCFileNameSize = Read_long();
+	m_pVMCFileName = Read_block(m_iVMCFileNameSize);
 
 #ifdef SYMBIAN
 
