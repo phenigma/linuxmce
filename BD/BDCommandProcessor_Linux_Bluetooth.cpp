@@ -1,9 +1,9 @@
 #include "VIPShared/VIPIncludes.h"
 #include "PlutoUtils/MyStl.h"
-#include "VIPShared/PlutoConfig.h"
 #include "Logger.h"
 #include "PhoneDevice.h"
-#include "BD/BDCommandProcessor.h"
+#include "BDCommandProcessor.h"
+#include "BDCommandProcessor_Linux_Bluetooth.h"
 
 #include <errno.h>
 #include <signal.h>
@@ -19,6 +19,8 @@
 #include <resolv.h>
 #include <netdb.h>
 #include <sys/socket.h>
+
+using namespace DCE;
 
 BDCommandProcessor_Linux_Bluetooth::BDCommandProcessor_Linux_Bluetooth(string sMacAddressPhone,string sMacAddressDongle,class PhoneDevice *pDevice)
 : BDCommandProcessor(sMacAddressPhone)
