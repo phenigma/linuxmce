@@ -294,7 +294,7 @@ void Disk_Drive::RunMonitorLoop()
     internal_monitor_step(false); // ignore any drive that is in the drive at the start.
 
     bool done = false;
-    while ( ! done )
+    while ( ! done  && !m_bQuit )
     {
         done = ! internal_monitor_step(true);
         sleep(3); // Sleep 3 seconds
