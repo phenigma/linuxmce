@@ -92,7 +92,7 @@ Renderer::~Renderer()
 void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint Position,int iRenderStandard,bool bPreserveAspectRatio,int iOnlyVersion)
 {
     //  cout << "Rendering " << pDesignObj_Generator->m_ObjectID << endl;
-	if( pDesignObj_Generator->m_ObjectID.find("1785")!=string::npos )
+	if( pDesignObj_Generator->m_ObjectID.find("2195")!=string::npos )
 //  //  ) //|| pDesignObj_Generator->m_ObjectID.find("2689.0.0.2790")!=string::npos )
         //if( pDesignObj_Generator->m_ObjectID== )
     {
@@ -103,7 +103,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
     // We'll make a loop that starts from the number of alt versions, counting down to -2, so when it's at
     // 0, it renders the selected, -1 the highlighted, -2 the standard.  Count down because the standard
     // version should be rendered last, since that's the only one that will be composited on top of the background.
-    // The others are all output as separate files.  The first time RenderObject is called, pRenderImage
+    // The others are all output as separate files.  The first time RenderObject is called, pRenderImage is null
     int StartingValue = iRenderStandard!=1 ? (int) pDesignObj_Generator->m_vectOrigAltGraphicFilename.size() : -2;
     int EndingValue = iRenderStandard!=0 ? -2 : -1;
 	if( iOnlyVersion!=-999 )
@@ -120,6 +120,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 
         // Create another pointer to the render image, because if we create a new image to be saved
         // in the above file, we want the pointer to return to the original one when this loop completes
+		// This shadows the pRenderImage passed in
         RendererImage *pRenderImageOriginal=pRenderImage;
         RendererImage *pRenderImage=pRenderImageOriginal; // TROUBLE nr 1: subsequent loops overwrite pRenderImage allocated in loop a few line below this
         PlutoPoint PositionOriginal=Position; // Ditto with the position
@@ -235,6 +236,12 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 				}
 			}
         }
+		else if( pRenderImageOriginal==NULL && iIteration==-2 )
+		{
+			// This is a top-level object (ie the background for a screen), but there is no image
+			SDL_FillRect(pRenderImage->m_pSDL_Surface, NULL,SDL_MapRGBA(pRenderImage->m_pSDL_Surface->format, 0, 0, 0, 255));
+			pRenderImage->NewSurface = false;
+		}
 
 		int iOnlyVersion_Children=-999;  // By default render all of our children
 		if( iOnlyVersion!=-999 )
