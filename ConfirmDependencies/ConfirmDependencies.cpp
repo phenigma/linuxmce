@@ -67,6 +67,10 @@ public:
 		Row_Package_Source *pRow_Package_Source, Row_RepositorySource_URL *pRow_RepositorySource_URL,
 		bool bMustBuild)
 	{
+if( pRow_Package_Source->FK_Package_getrow()->Description_get().find("MySql")!=string::npos )
+{
+int k=2;
+}
 		m_pRow_Package_Source_Compat=pRow_Package_Source_Compat;
 		m_pRow_Package_Source=pRow_Package_Source;
 		m_pRow_Package_Source=pRow_Package_Source;
@@ -92,6 +96,7 @@ bool bSummary=false;
 list<PackageInfo *> listPackageInfo;  // We need a list so we can keep them in the right order
 DCEConfig dceConfig;
 Row_Distro *pRow_Distro=NULL;
+map<int,Row_Package *> m_mapReportedErrors;
 
 string GetCommand()
 {
@@ -293,8 +298,14 @@ int main(int argc, char *argv[])
 			VerifyFiles(pPackageInfo,pPackageInfo->m_vectRow_Package_Directory_File_Configuration,pPackageInfo->m_sConfiguration);
 		}
 		cout << "rm -f /usr/pluto/install/.notdone" << endl;
-		cout << "echo \"Installation complete. If there was any source code that needed to be built, we created a file '/usr/pluto/install/compile.sh' which compiles them.\"" << endl;
-		cout << "echo \"Press enter to continue\"" << endl;
+		cout << "echo \"*************************\"" << endl;
+		cout << "echo \"*************************\"" << endl;
+		cout << "echo \"Installation complete.\"" << endl;
+		cout << "echo \"If there was any source code that needed to be built,\"" << endl;
+		cout << "echo \"we created a file '/usr/pluto/install/compile.sh' which compiles them.\"" << endl;
+		cout << "echo \"Press enter to continue.\"" << endl;
+		cout << "echo \"*************************\"" << endl;
+		cout << "echo \"*************************\"" << endl;
 		cout << "read" << endl;
 	}
 	else if( sCommand=="build" || sCommand=="buildall" )
@@ -518,7 +529,14 @@ int k=2;
 		}
 		else
 		{
-			cout << "#*ERROR* " << pRow_Package->Description_get() << " not available for this distro" << endl;
+			if( m_mapReportedErrors.find(pRow_Package->PK_Package_get())==m_mapReportedErrors.end() )
+			{
+				m_mapReportedErrors[pRow_Package->PK_Package_get()]=pRow_Package;
+				if( sCommand=="list" )
+					cout << pRow_Package->PK_Package_get() << "|" << "*ERROR* " << pRow_Package->Description_get() << " not found for this distro" << endl;
+				else
+					cout << "#*ERROR* " << pRow_Package->Description_get() << " not found for this distro" << endl;
+			}
 			return;
 		}
 	}
