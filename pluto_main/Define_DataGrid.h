@@ -21,6 +21,8 @@
 #define DATAGRID_Current_Media_Sections_CONST 18
 #define DATAGRID_Floorplan_Media_Choices_CONST 19
 #define DATAGRID_Playlists_CONST 20
+#define DATAGRID_Phone_Book_Auto_Compl_CONST 21
+#define DATAGRID_Phone_Book_List_of_Nos_CONST 22
 
 #define DATAGRID_TABLE "DataGrid"
 #define DATAGRID_PK_DATAGRID_FIELD "PK_DataGrid"
