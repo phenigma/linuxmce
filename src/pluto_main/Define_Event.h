@@ -35,6 +35,7 @@
 #define EVENT_Follow_Me_Media_CONST 32
 #define EVENT_Follow_Me_Telecom_CONST 33
 #define EVENT_Follow_Me_Security_CONST 34
+#define EVENT_Ripping_Completed_CONST 35
 
 #define EVENT_TABLE "Event"
 #define EVENT_PK_EVENT_FIELD "PK_Event"
