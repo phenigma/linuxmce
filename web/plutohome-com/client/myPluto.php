@@ -65,8 +65,11 @@ function myPluto($output,$dbADO,$conn) {
 				</tr>
 				<tr>
 					<td class="normaltext">You are logged in as <b>'.$_SESSION['username'].'</b></td>
-					<td class="normaltext" align="right"><img src="images/bullet_1.gif" width="11" height="11" align="absmiddle" /> <strong><a href="index.php?section=myPluto&redirect=forum">Forum </a></strong>  <img src="images/bullet_1.gif" width="11" height="11" align="middle" /> <strong><a href="support/index.php">Support site</a></strong>&nbsp;</td>
+					<td class="normaltext" align="right">&nbsp;</td>
       			</tr>
+				<tr>
+					<td class="normaltext" colspan="2">Visit our <a href="/support/index.php"><B>support site</B></a> to access <a href="support/index.php?section=home&package=0"><B>online documentation</B></a>, <a href="index.php?section=myPluto&redirect=forum"><B>forums</B></a>, <a href="index.php?section=myPluto&redirect=mantis"><B>bug reports</B></a>, and our <a href="support/index.php?section=document&docID=11"><B>quick start guide</B></a>.</td>
+      			</tr>	
 				<tr>
 					<td class="normaltext">&nbsp;</td>
 					<td class="normaltext" align="right">&nbsp;</td>
