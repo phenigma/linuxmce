@@ -231,8 +231,8 @@ if($action=='form') {
 		setOrbitersNeedConfigure($installationID,$dbADO);
 		$msg="New Climate Scenario added.";
 	}
-	
-	if(isset($_POST['updateCG'])){
+
+	if(isset($_POST['updateCG']) || $action=='externalSubmit'){
 		$displayedCommandGroupsArray=explode(',',$_POST['displayedCommandGroups']);
 		foreach($displayedCommandGroupsArray as $elem){
 			$cgDescription=cleanString($_POST['commandGroup_'.$elem]);

@@ -74,12 +74,12 @@ function phoneExtensions($output,$dbADO) {
 			header("Location: index.php?section=phoneExtensions&error=You are not authorised to change the installation.");
 			exit(0);
 		}	
-		if(isset($_POST['update'])){
+		if(isset($_POST['update']) || $action=='externalSubmit'){
 			$displayedDevicesArray=explode(',',$_POST['displayedDevicesArray']);
 			foreach ($displayedDevicesArray AS $deviceID){
 				$phoneNo=@$_POST['phoneNumber_'.$deviceID];
 				$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($phoneNo,$deviceID,$GLOBALS['PhoneNumber']));
-				$sync=exec('/usr/pluto/bin/SyncronizeAsterisk.sh');
+				$sync=exec('/usr/pluto/bin/SynchronizeAsterisk.sh');
 			}
 			if($sync!=0){
 				header("Location: index.php?section=phoneExtensions&error=Synchronisation failed.");

@@ -438,7 +438,7 @@ if($action=='form') {
 	}
 	
 	
-	if(isset($_POST['updateScenario'])){
+	if(isset($_POST['updateScenario']) || $action=='externalSubmit'){
 		$insertCG_C='
 			INSERT INTO CommandGroup_Command 
 				(FK_CommandGroup,FK_Command,TurnOff,OrderNum)

@@ -12,13 +12,11 @@ function avWizard($output,$dbADO) {
 
 	switch($type){
 		case 'avEquipment':
-			$output->setHelpSrc('/support/index.php?section=document&docID=131');
 			$deviceCategory=$GLOBALS['rootAVEquipment'];
 			$specificFloorplanType=$GLOBALS['AVEquipmentFlorplanType'];
 			$title='A/V Equipment';
 		break;
 		case 'media_directors':
-			$output->setHelpSrc('/support/index.php?section=document&docID=129');
 			$deviceCategory=$GLOBALS['rootMediaDirectors'];
 			$specificFloorplanType=$GLOBALS['EntertainmentZone'];
 		break;
@@ -467,7 +465,7 @@ function avWizard($output,$dbADO) {
 			}
 		}
 		
-		if(isset($_POST['update']) || $cmd==1){
+		if(isset($_POST['update']) || $cmd==1 || $action=='externalSubmit'){
 			setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
 			$DeviceDataToDisplayArray=explode(',',$_POST['DeviceDataToDisplay']);
 			foreach($displayedDevicesArray as $key => $value){

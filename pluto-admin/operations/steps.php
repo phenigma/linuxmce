@@ -22,8 +22,11 @@ function steps($output,$dbADO) {
 		function setMenuItem(mainUrl,selfPage,sender)
 		{
 			if(mainUrl!=\'\'){
-				top.basefrm.document.action.value=\'externalSubmit\';
-				top.basefrm.document.forms[0].submit();
+				if(top.basefrm.document.forms[0] && top.basefrm.document.forms[0].action){
+					top.basefrm.document.forms[0].action.value=\'externalSubmit\';
+	alert(top.basefrm.document.forms[0].name);
+					top.basefrm.document.forms[0].submit();
+				}
 				top.basefrm.location=mainUrl;
 			}
 			else

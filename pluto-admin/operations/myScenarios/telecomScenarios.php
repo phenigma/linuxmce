@@ -278,7 +278,7 @@ function telecomScenarios($output,$dbADO) {
 			$number=$_POST['number'];
 			$phone=(isset($_POST['phone']) && $_POST['phone']!='0')?$_POST['phone']:NULL;
 			$roomID=$_REQUEST['roomID'];
-			$roomName=$_REQUEST['roomName'];
+			$roomName=@$_REQUEST['roomName'];
 			
 			$insertTelecomScenario='INSERT INTO CommandGroup (FK_Array, FK_Installation, Description,FK_Template,Hint) VALUES (?,?,?,?,?)';
 			$dbADO->Execute($insertTelecomScenario,array($arrayID,$installationID,$description,$templateWizard,$roomName));
@@ -302,7 +302,7 @@ function telecomScenarios($output,$dbADO) {
 			exit();
 		}
 		
-		if(isset($_POST['update'])){
+		if(isset($_POST['update']) || $action=='externalSubmit'){
 			$displayedSpeedDialArray=explode(',',$_POST['displayedSpeedDial']);
 			foreach($displayedSpeedDialArray AS $speedDial){
 				$description=$_POST['description_'.$speedDial];

@@ -220,7 +220,7 @@ if($action=='form') {
 		$msg="New Lighting Scenario added";
 	}
 	
-	if(isset($_POST['updateCG'])){
+	if(isset($_POST['updateCG']) || $action=='externalSubmit'){
 		$displayedCommandGroupsArray=explode(',',$_POST['displayedCommandGroups']);
 		foreach($displayedCommandGroupsArray as $elem){
 			$cgDescription=cleanString($_POST['commandGroup_'.$elem]);
@@ -268,7 +268,7 @@ if($action=='form') {
 			}
 		}
 	}
-	
+
 	if(isset($_POST['updateDevices'])){
 		$roomID=$_POST['roomID'];
 		$cgID=$_POST['cgID'];

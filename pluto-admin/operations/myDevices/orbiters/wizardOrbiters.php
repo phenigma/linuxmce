@@ -256,7 +256,7 @@ function wizardOrbiters($output,$dbADO) {
 			}
 		}
 		
-		if(isset($_POST['update']) || isset($updateOrbiters)){
+		if(isset($_POST['update']) || isset($updateOrbiters) || $action=='externalSubmit'){
 			$DeviceDataToDisplayArray=explode(',',$_POST['DeviceDataToDisplay']);
 			foreach($displayedDevicesArray as $key => $value){
 				$deviceTemplate=(int)@$_POST['deviceTemplate_'.$value];

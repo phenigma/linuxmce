@@ -334,7 +334,6 @@ switch ($section) {
 	case 'myDevices'://used by myDevicesFrames
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
-		$output->setHelpSrc('/support/index.php?section=document&docID=133');
 	    include_once('operations/myDevices/myDevices.php');
 	    myDevices($output,$dbADO);	    
 	break;	
@@ -488,7 +487,6 @@ switch ($section) {
 	case 'wizardOrbiters':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
-		$output->setHelpSrc('/support/index.php?section=document&docID=125');
 	    include_once('operations/myDevices/orbiters/wizardOrbiters.php');
 	    wizardOrbiters($output,$dbADO);	    
 	break;
@@ -516,7 +514,6 @@ switch ($section) {
 	case 'myScenarios':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
-		$output->setHelpSrc('/support/index.php?section=document&docID=134');
 	    include_once('operations/myScenarios/myScenarios.php');
 	    myScenarios($output,$dbADO);
 	break;
@@ -588,7 +585,6 @@ switch ($section) {
 	case 'bootSequence':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
-		$output->setHelpSrc('/support/index.php?section=document&docID=135');
 	    include_once('operations/myDevices/bootSequence.php');
 	    bootSequence($output,$dbADO);	    
 	break;
@@ -687,7 +683,6 @@ switch ($section) {
 	case 'floorplanWizard':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
-		$output->setHelpSrc('/support/index.php?section=document&docID=137');
 	    include_once('operations/floorplan/floorplanWizard.php');
 	    floorplanWizard($output,$dbADO);
 	break;
@@ -700,7 +695,6 @@ switch ($section) {
 	case 'respondToEvents':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
-		$output->setHelpSrc('/support/index.php?section=document&docID=153');
 	    include_once('operations/events/respondToEvents.php');
 	    respondToEvents($output,$dbADO);
 	break;
@@ -713,7 +707,6 @@ switch ($section) {
 	case 'timedEvents':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
-		$output->setHelpSrc('/support/index.php?section=document&docID=154');
 	    include_once('operations/events/timedEvents.php');
 	    timedEvents($output,$dbADO);
 	break;
@@ -726,7 +719,6 @@ switch ($section) {
 	case 'advancedEvents':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
-		$output->setHelpSrc('/support/index.php?section=document&docID=162');
 	    include_once('operations/events/advancedEvents.php');
 	    advancedEvents($output,$dbADO);
 	break;
@@ -746,14 +738,12 @@ switch ($section) {
 	case 'securitySettings':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
-		$output->setHelpSrc('/support/index.php?section=document&docID=156');
 	    include_once('operations/myDevices/securitySettings.php');
 	    securitySettings($output,$dbADO,$securityADO);
 	break;
 	case 'outsideAccess':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
-		$output->setHelpSrc('/support/index.php?section=document&docID=176');
 	    include_once('operations/security/outsideAccess.php');
 	    outsideAccess($output,$dbADO);
 	break;
@@ -761,21 +751,18 @@ switch ($section) {
 	case 'videoLinks':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
-		$output->setHelpSrc('/support/index.php?section=document&docID=157');
 	    include_once('operations/myDevices/videoLinks.php');
 	    videoLinks($output,$dbADO);
 	break;
 	case 'cellphoneNotifications':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
-		$output->setHelpSrc('/support/index.php?section=document&docID=158');
 	    include_once('operations/myDevices/orbiters/cellphoneNotifications.php');
 	    cellphoneNotifications($output,$dbADO);
 	break;
 	case 'securityScenarios':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
-		$output->setHelpSrc('/support/index.php?section=document&docID=150');
 	    include_once('operations/myScenarios/securityScenarios.php');
 	    securityScenarios($output,$dbADO);
 	break;
@@ -832,56 +819,48 @@ switch ($section) {
 	case 'telecomScenarios';
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
-		$output->setHelpSrc('/support/index.php?section=document&docID=151');
 	    include_once('operations/myScenarios/telecomScenarios.php');
 	    telecomScenarios($output,$dbADO);
 	break;
 	case 'networkSettings';
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
-		$output->setHelpSrc('/support/index.php?section=document&docID=138');
 	    include_once('operations/network/networkSettings.php');
 	    networkSettings($output,$dbADO);
 	break;
 	case 'firewall';
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
-		$output->setHelpSrc('/support/index.php?section=document&docID=160');
 	    include_once('operations/network/firewall.php');
 	    firewall($output,$dbADO);
 	break;
 	case 'usersOrbiters';
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
-		$output->setHelpSrc('/support/index.php?section=document&docID=161');
 	    include_once('operations/users_settings/usersOrbiters.php');
 	    usersOrbiters($output,$dbADO);
 	break;
 	case 'usersRooms';
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
-		$output->setHelpSrc('/support/index.php?section=document&docID=161');
 	    include_once('operations/users_settings/usersRooms.php');
 	    usersRooms($output,$dbADO);
 	break;
 	case 'dceDeviceData';
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
-		$output->setHelpSrc('/support/index.php?section=document&docID=163');
 	    include_once('operations/dce/dceDeviceData.php');
 	    dceDeviceData($output,$dbADO);
 	break;
 	case 'dceEvents';
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
-		$output->setHelpSrc('/support/index.php?section=document&docID=163');
 	    include_once('operations/dce/dceEvents.php');
 	    dceEvents($output,$dbADO);
 	break;
 	case 'dceCommands';
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
-		$output->setHelpSrc('/support/index.php?section=document&docID=163');
 	    include_once('operations/dce/dceCommands.php');
 	    dceCommands($output,$dbADO);
 	break;
@@ -920,7 +899,6 @@ switch ($section) {
 	case 'phoneLines';
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
-		$output->setHelpSrc('/support/index.php?section=document&docID=148');
 		@include($GLOBALS['globalConfigPath'].'asteriskDB.inc.php');
 	    include_once('operations/phones/phoneLines.php');
 	    phoneLines($output,$asteriskADO);
@@ -928,7 +906,6 @@ switch ($section) {
 	case 'phoneExtensions';
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
-		$output->setHelpSrc('/support/index.php?section=document&docID=149');
 	    include_once('operations/phones/phoneExtensions.php');
 	    phoneExtensions($output,$dbADO);
 	break;
@@ -943,7 +920,6 @@ switch ($section) {
 	case 'addSoftware';
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
-		$output->setHelpSrc('/support/index.php?section=document&docID=159');
 	    include_once('operations/others/addSoftware.php');
 	    addSoftware($output,$dbADO);
 	break;	

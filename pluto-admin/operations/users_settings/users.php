@@ -160,11 +160,10 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 		';
 	}
 } else {
-	
 	//check if current user canModifyInstallation
 	$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
 	
-	if ($canModifyInstallation) {		
+	if ($canModifyInstallation) {	
 			//process			
 			$addNewUser = cleanString($_POST['addUserToInstallation'],30);
 			$_SESSION['users']['userNotValid'] = 0;
@@ -230,8 +229,7 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 			if (!is_array($displayedUsersArray) || $displayedUsersArray===array()) {
 				$displayedUsersArray=array();
 			}
-			
-			
+
 			foreach ($displayedUsersArray as $user) {
 				
 				
@@ -253,7 +251,6 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 				$userLanguage = cleanInteger(@$_POST['userLanguage_'.$user]);
 
 				$userMainInstallation = ((int)($_POST['userMainInstallation_'.$user])==0?NULL:cleanInteger($_POST['userMainInstallation_'.$user]));
-
 				$query = 'UPDATE Users set
 									UserName = ?,
 									HasMailbox =?,
