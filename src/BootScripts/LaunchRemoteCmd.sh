@@ -3,9 +3,12 @@
 IP="$1"
 Cmd="$2"
 
+date -R >>/var/log/pluto/remote_command.newlog
+echo "IP: $IP ; Cmd: $Cmd" >>/var/log/pluto/remote_command.newlog
+
 if [ -n "$IP" -a "$#" -ne 0 ]; then
 	if [ "$IP" != "127.0.0.1" ]; then
-		ssh -l root -i /usr/pluto/keys/id_dsa_pluto_apache "$IP" "$Cmd"
+		ssh -l root -i /usr/pluto/keys/id_dsa_pluto_apache "$IP" "$Cmd" &> >(tee -a /var/log/pluto/remote_command.newlog)
 		[ $? -ne 0 -a $? -ne 10 ] && echo "Failed to contact destination computer (IP: $IP)"
 	else
 		eval "$Cmd"
