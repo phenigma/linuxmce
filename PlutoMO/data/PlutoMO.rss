@@ -1,0 +1,179 @@
+//  RESOURCE IDENTIFIER
+NAME    FILE // 4 letter ID
+
+//  INCLUDES
+
+#include <eikon.rh>
+#include "plutobt.hrh"
+#include "plutobt.loc"
+#include <avkon.rsg>
+#include <avkon.rh>
+#include <avkon.mbg>
+
+
+//  RESOURCE DEFINITIONS 
+
+RESOURCE RSS_SIGNATURE { }
+
+RESOURCE TBUF { buf="PlutoBT"; }
+
+RESOURCE EIK_APP_INFO
+    {
+    hotkeys=r_plutobt_hotkeys;
+    menubar=r_plutobt_menubar;
+    cba=R_AVKON_SOFTKEYS_OPTIONS_BACK;     
+    }
+
+//----------------------------------------------------
+//   
+//    r_plutobt_hotkeys
+//
+//----------------------------------------------------
+//
+RESOURCE HOTKEYS r_plutobt_hotkeys
+    {
+    control=
+        {
+        HOTKEY { command=EAknCmdExit; key='e'; }
+        };
+    }
+
+//----------------------------------------------------
+//   
+//    r_plutobt_menubar
+//
+//----------------------------------------------------
+//
+RESOURCE MENU_BAR r_plutobt_menubar
+    {
+    titles=
+        {
+        MENU_TITLE { menu_pane=r_plutobt_menu; txt="File"; }
+        };
+    }
+
+//----------------------------------------------------
+//   
+//    r_plutobt_menu
+//
+//----------------------------------------------------
+//
+RESOURCE MENU_PANE r_plutobt_menu
+    {
+    items=
+        {
+        MENU_ITEM { command=EPlutoBTCmdAppTest1; txt=qtn_appl_option_item1; },
+        MENU_ITEM { command=EPlutoBTCmdAppTest2; txt=qtn_appl_option_item2; },
+        MENU_ITEM { command=EPlutoBTCmdAppTest3; txt=qtn_appl_option_item3; },
+        MENU_ITEM { command=EPlutoBTCmdAppTest4; txt=qtn_appl_option_item4; },
+        MENU_ITEM { command=EAknCmdExit; txt="Exit"; }
+        };
+    }
+
+//----------------------------------------------------
+//   
+//    r_plutobt_app_menu
+//
+//----------------------------------------------------
+//
+RESOURCE MENU_PANE r_plutobt_app_menu
+    {
+    items=
+        {
+        MENU_ITEM { command=EPlutoBTCmdAppTest; txt="<App spesific menu item>"; },
+        MENU_ITEM { command=EAknCmdExit; txt="Exit"; }
+        };
+    }
+
+//---------------------------------------------------
+//
+//
+//	  grid starts		
+//
+//
+//---------------------------------------------------
+
+RESOURCE GRID r_plutobt_games_grid
+	{
+	array_id = r_plutobt_games_grid_items;
+	flags = EAknListBoxSelectionGrid;
+	style=r_plutobt_games_grid_style;
+	}
+
+// ---------------------------------------------------------
+//		r_simplegrid_games_grid_items
+//		The games grid items
+//
+// ---------------------------------------------------------
+//
+RESOURCE ARRAY r_plutobt_games_grid_items
+	{
+	items =
+		{
+		LBUF
+			{
+			txt = GAMES_GRID_ITEM1_TEXT;
+			},
+		LBUF
+			{
+			txt = GAMES_GRID_ITEM2_TEXT;
+			},
+		LBUF
+			{
+			txt = GAMES_GRID_ITEM3_TEXT;
+			},
+		LBUF
+			{
+			txt = GAMES_GRID_ITEM4_TEXT;
+			},
+		LBUF
+			{
+			txt = GAMES_GRID_ITEM5_TEXT;
+			},
+		LBUF
+			{
+			txt = GAMES_GRID_ITEM6_TEXT;
+			},
+		LBUF
+			{
+			txt = GAMES_GRID_ITEM7_TEXT;
+			}
+
+		};	  
+	}
+
+
+
+RESOURCE GRID_STYLE r_plutobt_games_grid_style
+	{
+	layoutflags=EAknGridHorizontalOrientation| EAknGridLeftToRight | EAknGridTopToBottom;
+	primaryscroll= EAknGridFollowsItemsAndLoops; // horizontal scroll
+	secondaryscroll=EAknGridFollowsItemsAndLoops; // vertical scroll
+	itemsinprimaryorient=3; // number of items horizontally per screen
+	itemsinsecondaryorient=2; // number of items vertically per screen
+	gapwidth=5;
+	gapheight=5;
+	height = 68;
+	width = 50; 
+
+	}
+
+
+
+// ---------------------------------------------------------
+//   
+//    Strings used by the application
+//
+// ---------------------------------------------------------
+//
+RESOURCE TBUF r_icon_file_name
+	{ 
+	buf = ICON_FILE_NAME; 
+	}
+
+
+
+
+
+
+// End of File

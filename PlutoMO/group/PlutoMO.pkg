@@ -1,0 +1,21 @@
+;
+; Installation file for PlutoMO application - lite version
+;
+;Languages
+&EN
+;
+; UID is the app's UID
+;
+#{"PlutoMO"},(0x01483450),1,00,0
+
+; Series 60 identifier
+(0x101F6F88), 0, 0, 0, {"Series60ProductID"}
+
+"\Symbian\7.0s\Series60_v21\Epoc32\release\armi\urel\PlutoBT.app"         -"!:\system\apps\PlutoMO\PlutoMO.app"
+{
+"\Symbian\6.1\Series60\Epoc32\release\armi\urel\PlutoBT.rsc"
+}
+-"!:\system\apps\PlutoMO\PlutoMO.rsc"
+
+"\Symbian\6.1\Series60\Epoc32\release\armi\urel\PlutoBT_caption.rsc" -"!:\system\apps\PlutoMO\PlutoMO_caption.rsc"
+"\Symbian\6.1\Series60\Epoc32\release\armi\urel\PlutoBT.aif"         -"!:\system\apps\PlutoMO\PlutoMO.aif"

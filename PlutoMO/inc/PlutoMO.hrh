@@ -1,0 +1,31 @@
+#ifndef PLUTOBT_HRH
+#define PLUTOBT_HRH
+
+enum TPlutoBTCommandIds
+    {
+    EPlutoBTCmdAppTest = 1,
+    EPlutoBTCmdAppTest1,
+    EPlutoBTCmdAppTest2,
+    EPlutoBTCmdAppTest3,
+    EPlutoBTCmdAppTest4,
+    EPlutoBTCmdAppTest5
+    };
+
+enum TPlutoBTDirectories
+    {
+    EPlutoBTSounds = 1,
+	EPlutoBTPictures,
+	EPlutoBTVideos,
+	EPlutoBTDirNoChange
+    };
+
+enum TPlutoBTSizeDate
+    {
+    EPlutoBTSize = 1,
+	EPlutoBTDate,
+	EPlutoBTToggle,
+	EPlutoBTSizeDateNoChange
+    };
+
+
+#endif      // PLUTOBT_HRH
