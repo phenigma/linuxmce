@@ -78,7 +78,7 @@ int k=2;
 string g_sPackages, g_sManufacturer, g_sSourcecodePrefix, g_sNonSourcecodePrefix;
 string g_sPK_RepositorySource;
 int g_iPK_Distro=0;
-bool g_bBuildSource = true, g_bCreatePackage = true, g_bInteractive = false, g_bSimulate = false;
+bool g_bBuildSource = true, g_bCreatePackage = true, g_bInteractive = false, g_bSimulate = false, g_bSupressPrompts = false;
 Database_pluto_main *g_pDatabase_pluto_main;
 Row_Version *g_pRow_Version;
 Row_Distro *g_pRow_Distro;
@@ -178,6 +178,9 @@ int main(int argc, char *argv[])
 		case 'n':
 			g_sNonSourcecodePrefix = argv[++optnum];
 			break;
+		case 'a':
+			g_bSupressPrompts = true;
+			break;
 		case 'S':
 			g_bSimulate = true;
 			break;
@@ -194,14 +197,15 @@ int main(int argc, char *argv[])
 	if ( bError)
 	{
 		cout << "MakeRelease, v." << VERSION << endl
-			<< "Usage: MakeRelease [-h hostname] [-u username] [-p password] [-D database] [-P mysql port] [-k Packages] [-m Manufacturers] [-o Distro]" << endl
+			<< "Usage: MakeRelease [-h hostname] [-u username] [-p password] [-D database] [-P mysql port] [-k Packages] [-m Manufacturers] [-o Distro] [-a]" << endl
 			<< "hostname    -- address or DNS of database host, default is `dce_router`" << endl
 			<< "username    -- username for database connection" << endl
 			<< "password    -- password for database connection, default is `` (empty)" << endl
 			<< "database    -- database name.  default is pluto_main" << endl
 			<< "port        -- port for database connection, default is 3306" << endl
 			<< "output path -- Where to put the output files.  Default is ../[database name]" << endl
-			<< "input path  -- Where to find the template files.  Default is . then ../MakeRelease" << endl;
+			<< "input path  -- Where to find the template files.  Default is . then ../MakeRelease" << endl
+			<< "-a(abort)   -- Abort on error without prompting" << endl;
 
 		exit(0);
 	}
@@ -246,7 +250,7 @@ int main(int argc, char *argv[])
 	}
 
 	// If the user specified the version on the command line, he probably doesn't want any prompts.  It's an automated build
-	if( iVersion==-1 && !AskYNQuestion("Continue?",false) )
+	if( iVersion==-1 && (g_bSupressPrompts || !AskYNQuestion("Continue?",false)) )
 	{
 		return 1;
 	}
@@ -514,7 +518,7 @@ bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileIn
 				if( !FileUtils::FileExists(sDirectory + "/" + File) )
 				{
 					cout << "***WARNING*** " << sDirectory << "/" << File << " not found" <<  endl;
-					if( !AskYNQuestion("Continue?",false) )
+					if( g_bSupressPrompts || !AskYNQuestion("Continue?",false) )
 						return false;
 				}
 					//cout<<"\ncreate source SD: "<<sDirectory<<' '<<File;
@@ -588,7 +592,7 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 
 		if( sInputPath.length()==0 )
 		{
-			if( !AskYNQuestion("***WARNING*** Directory is empty.  Continue?",false) )
+			if( g_bSupressPrompts || !AskYNQuestion("***WARNING*** Directory is empty.  Continue?",false) )
 				return false;
 
 			sInputPath = g_sNonSourcecodePrefix;
@@ -619,7 +623,7 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 				{
 					cout << pRow_Package_Directory_File->MakeCommand_get() << " ***FAILED***" << endl;
 					cout << "Error: " << pRow_Package_Directory_File->MakeCommand_get() << " failed!" << endl;
-					if( !AskYNQuestion("Continue anyway?",false) )
+					if( g_bSupressPrompts || !AskYNQuestion("Continue anyway?",false) )
 						return false;
 				}
 			}
@@ -653,7 +657,7 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 				if( !FileUtils::FileExists(sInputPath + "/" + File) )
 				{
 					cout << "***WARNING*** " << sInputPath << "/" << File << " not found" <<  endl;
-					if( !AskYNQuestion("Continue?",false) )
+					if( g_bSupressPrompts || !AskYNQuestion("Continue?",false) )
 						return false;
 				}
 				//cout<<"\ncreate source : "<<sInputPath<<' '<<File;
@@ -738,7 +742,7 @@ bool CompileSource(Row_Package *pRow_Package)
 	if( vectRow_Package_Source.size()==0 )
 	{
 		cout << "Package: " << pRow_Package->Description_get() << " does not have an entry in Package_Source table for SVN." << endl;
-		if( AskYNQuestion("Create one?",true) )
+		if( !g_bSupressPrompts && AskYNQuestion("Create one?",true) )
 		{
 			pRow_Package_Source_SVN = g_pDatabase_pluto_main->Package_Source_get()->AddRow();
 			pRow_Package_Source_SVN->FK_RepositorySource_set(REPOSITORYSOURCE_Pluto_SVN_CONST);
@@ -883,7 +887,7 @@ AsksSourceQuests:
 			cout << "I can't find a corresponding row in Package_Source_Compat." << endl
 				<< "This is normal if this package cannot be built with this distro." << endl;
 				
-			if( !AskYNQuestion("Add a record Package_Source_Compat and try to build it?",false) )
+			if( g_bSupressPrompts || !AskYNQuestion("Add a record Package_Source_Compat and try to build it?",false) )
 				return true;
 			pRow_Package_Source_Compat = g_pDatabase_pluto_main->Package_Source_Compat_get()->AddRow();
 			pRow_Package_Source_Compat->FK_Package_Source_set(pRow_Package_Source_SVN->PK_Package_Source_get());
@@ -910,7 +914,7 @@ AsksSourceQuests:
 			}
 
 			cout << "No output file is specified.  You need one to compile this directory." << endl;
-			if( !AskYNQuestion("Specify one?",false) )
+			if( g_bSupressPrompts || !AskYNQuestion("Specify one?",false) )
 				continue;
 
 			cout << "What is the file?" << endl;
@@ -952,7 +956,7 @@ AsksSourceQuests:
 			{
 				cout << "About to execute make: " << pRow_Package_Directory_File->MakeCommand_get() << endl
 					<< "In directory: " << sSourceDirectory << endl;
-				if( !AskYNQuestion("Execute command?",false) )
+				if( g_bSupressPrompts || !AskYNQuestion("Execute command?",false) )
 					return false;
 			}
 
@@ -966,7 +970,7 @@ AsksSourceQuests:
 			{
 				cout << pRow_Package_Directory_File->MakeCommand_get() << " ***FAILED***" << endl;
 				cout << "Error: " << pRow_Package_Directory_File->MakeCommand_get() << " failed!" << endl;
-				if( !AskYNQuestion("Continue anyway?",false) )
+				if( g_bSupressPrompts || !AskYNQuestion("Continue anyway?",false) )
 					return false;
 			}
 			cout << pRow_Package_Directory_File->MakeCommand_get() << " succeeded" << endl;
@@ -974,7 +978,7 @@ AsksSourceQuests:
 			if( !g_bSimulate && !FileUtils::FileExists(sCompiledOutput + "/" + pRow_Package_Directory_File->File_get()) ) 
 			{
 				cout << "***ERROR*** The file: " << sCompiledOutput << "/" << pRow_Package_Directory_File->File_get() << " was not created.";
-				if( !AskYNQuestion("Continue anyway?",false) )
+				if( g_bSupressPrompts || !AskYNQuestion("Continue anyway?",false) )
 					return false;
 			}
 			cout << sCompiledOutput << "/" << pRow_Package_Directory_File->File_get() << " exists" << endl;
