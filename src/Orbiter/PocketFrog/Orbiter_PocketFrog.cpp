@@ -101,6 +101,12 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
     m_config.splashScreenTime = 0;	
 	m_bUpdating = false;
 	m_bFullScreen=bFullScreen;
+
+	m_bShiftDown = false;
+	m_bControlDown = false;
+	m_bAltDown = false;
+	m_bRepeat = false;
+	m_bCapsLock = false;
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ Orbiter_PocketFrog::~Orbiter_PocketFrog()
@@ -592,7 +598,7 @@ clock_t ccc=clock();
 
 
 #else //winxp/2000
-/*	
+/*
 	HDC hdc = GetDisplay()->GetBackBuffer()->GetDC(false);
 	
 	SetBkMode(hdc,TRANSPARENT);// for drawtext
@@ -685,7 +691,7 @@ clock_t ccc=clock();
 /*virtual*/ void Orbiter_PocketFrog::UpdateRect(PlutoRectangle rect)
 {
 	while(m_bUpdating)
-		Sleep(1);
+		Sleep(30);
 
 	if(!m_bUpdating)
 	{
@@ -699,7 +705,8 @@ clock_t ccc=clock();
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::OnQuit()
 {
-	Shutdown();
+	Shutdown(); //just in case
+	PostMessage( WM_CLOSE, 0, 0 ); //break pocketfrog loop
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainArea)
@@ -791,7 +798,7 @@ void Orbiter_PocketFrog::WriteStatusOutput(const char* pMessage)
 		return;
 
 	while(m_bUpdating)
-		Sleep(1);
+		Sleep(30);
 
 	if(!m_bUpdating)
 	{
