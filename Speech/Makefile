@@ -19,7 +19,7 @@ sources = Main.cpp Speech.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS +=
 LDFLAGS +=
-XTRALDLIBS =
+XTRALDLIBS = -lsphinx2 -lsphinx2ad -lsphinx2fe -lm
 
 Gen_Dev_Files +=
 sources +=

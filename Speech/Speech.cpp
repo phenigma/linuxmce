@@ -83,7 +83,7 @@ void Speech::SpeechRun(void) {
 	E_FATAL("Usage: %s <sampling-rate> <utt-end-sil(sec)>\n", argv[0]);
     }
 */
-	sps = 16;
+	sps = 16000;
 	endsil = 3;
     /* Convert desired min. inter-utterance silence duration to #samples */
     endsilsamples = (int32) (endsil * sps);
