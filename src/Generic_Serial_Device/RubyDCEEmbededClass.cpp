@@ -40,6 +40,7 @@ RubyDCEEmbededClass::~RubyDCEEmbededClass()
 void 
 RubyDCEEmbededClass::CallCmdHandler(RubyDCECodeSupplier* pcg, Message *pMessage) {
 	if(!pcg->isCmdImplemented(pMessage->m_dwID)) {
+		g_pPlutoLogger->Write(LV_STATUS, "Command %d not supported", pMessage->m_dwID);
 		return;
 	}
 	

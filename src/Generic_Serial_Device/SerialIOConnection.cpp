@@ -105,7 +105,7 @@ SerialIOConnection::isDataAvailable(int timeout) {
 			usleep(10);
 			timeout -= 10;
 		}
-		return !(psp_->IsReadEmpty());
+		return (!(psp_->IsReadEmpty()));
 	}
 	return false;
 }
