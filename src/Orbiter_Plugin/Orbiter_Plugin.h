@@ -135,11 +135,8 @@ public:
 			DCE::CMD_Show_Object_DL CMD_Show_Object( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_butRestartDCERouter_CONST), 0, "", "", "1" );
 			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Show_Object.m_pMessage);
 		}
-		if( iTimeout )
-		{
-			DCE::CMD_Set_Timeout_DL CMD_Set_Timeout( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), StringUtils::itos(iTimeout) );
-			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Timeout.m_pMessage);
-		}
+		DCE::CMD_Set_Timeout_DL CMD_Set_Timeout( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), StringUtils::itos(iTimeout) );
+		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Timeout.m_pMessage);
 		SendCommand( CMD_Goto_Screen );
 	}
 

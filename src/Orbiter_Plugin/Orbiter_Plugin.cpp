@@ -476,8 +476,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Mobile Orbiter %s cannot get signal strength 
             }
 
 			if( pOH_Orbiter->m_pDevice_CurrentDetected &&
-				pOH_Orbiter->m_iLastSignalStrength > m_iThreshHold &&
-				pOH_Orbiter->m_iLastSignalStrength >= SignalStrength
+				pOH_Orbiter->m_iLastSignalStrength >= SignalStrength &&
+				pOH_Orbiter->m_iLastSignalStrength > m_iThreshHold
 			)
             {
                 g_pPlutoLogger->Write(LV_STATUS,"Mobile Orbiter %s already has a strong association with %d (%d/%d)",
