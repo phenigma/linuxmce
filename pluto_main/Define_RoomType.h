@@ -9,6 +9,7 @@
 #define ROOMTYPE_Patio_CONST 6
 #define ROOMTYPE_Dining_Room_CONST 7
 #define ROOMTYPE_Outside_Area_CONST 8
+#define ROOMTYPE_Miscelaneous_CONST 9
 
 #define ROOMTYPE_TABLE "RoomType"
 #define ROOMTYPE_PK_ROOMTYPE_FIELD "PK_RoomType"

@@ -1,7 +1,7 @@
 #ifndef __Define_CommandParameter_H__
 #define __Define_CommandParameter_H__
 
-#define COMMANDPARAMETER_Relative_Level_CONST 1
+#define COMMANDPARAMETER_not_used_CONST 1
 #define COMMANDPARAMETER_PK_Device_CONST 2
 #define COMMANDPARAMETER_PK_DesignObj_CONST 3
 #define COMMANDPARAMETER_PK_Variable_CONST 4
@@ -75,7 +75,7 @@
 #define COMMANDPARAMETER_Seek_CONST 73
 #define COMMANDPARAMETER_Offset_CONST 74
 #define COMMANDPARAMETER_PhoneNumber_CONST 75
-#define COMMANDPARAMETER_Absolute_Level_CONST 76
+#define COMMANDPARAMETER_Level_CONST 76
 #define COMMANDPARAMETER_Save_as_new_CONST 77
 #define COMMANDPARAMETER_EK_Playlist_CONST 78
 #define COMMANDPARAMETER_OriginatorNumber_CONST 79
