@@ -1,6 +1,7 @@
 #enable MySQL networking
 sed -i 's/^skip-networking/#skip-networking/' /etc/mysql/my.cnf
 /etc/init.d/mysql restart
+echo "GRANT ALL PRIVILEGES ON pluto_main.* to 'root'@'127.0.0.1';" | mysql
 
 echo "setting up dce router2"
 hasRecords=`echo 'SELECT count(PK_Installation) FROM Installation' | mysql pluto_main | tail -n 1`;
