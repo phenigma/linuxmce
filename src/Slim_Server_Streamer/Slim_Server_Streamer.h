@@ -26,8 +26,10 @@ namespace DCE
 	class Slim_Server_Streamer : public Slim_Server_Streamer_Command
 	{
 //<-dceag-decl-e->
-        pthread_t               m_threadPlaybackCompletedChecker;
-        pthread_cond_t          m_condPlaybackCompletedChecker;
+        bool					m_bShouldQuit;
+		
+		pthread_t               m_threadPlaybackCompletedChecker;
+		pthread_cond_t          m_condPlaybackCompletedChecker;
         pluto_pthread_mutex_t   m_mutexDataStructureAccess;
 
         // map<int, list<string> > m_mapStreamsToSqueezeBoxesPlayers;

@@ -35,7 +35,8 @@ Slim_Server_Streamer::Slim_Server_Streamer(int DeviceID, string ServerAddress,bo
     m_mutexDataStructureAccess.Init( &mutexAttr );
 
     pthread_create(&m_threadPlaybackCompletedChecker, NULL, checkForPlaybackCompleted, this);
-    pthread_detach(m_threadPlaybackCompletedChecker); // make the thread a free man..
+	m_bShouldQuit = false;
+    //pthread_detach(m_threadPlaybackCompletedChecker); // make the thread a free man..
 
 }
 
@@ -45,6 +46,8 @@ Slim_Server_Streamer::Slim_Server_Streamer(int DeviceID, string ServerAddress,bo
 Slim_Server_Streamer::~Slim_Server_Streamer()
 //<-dceag-dest-e->
 {
+	m_bShouldQuit = true;
+	pthread_join(m_threadPlaybackCompletedChecker, NULL);
 }
 
 //<-dceag-reg-b->
@@ -307,6 +310,9 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
     while ( true )
     {
 		string macAddress, strResult;
+
+		if ( pStreamer->m_bShouldQuit ) 
+			return NULL;
 
         PLUTO_SAFETY_LOCK( pm, pStreamer->m_mutexDataStructureAccess);
 
