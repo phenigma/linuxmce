@@ -89,7 +89,7 @@
 	$GLOBALS['ArrayIDCommunicationScenarios']=4; 	// Communication scenarios
 	$GLOBALS['ArrayIDForMedia'] = 5;				// Media Scenarios
 	$GLOBALS['EventsHandlerArray']=20;				// Events Handler
-		
+	$GLOBALS['ArrayIDForMobileOrbiterScenarios']=23;// Mobile Orbiter Scenarios	
 	
 	// PK_Command from Command table
 	

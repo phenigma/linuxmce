@@ -929,6 +929,12 @@ switch ($section) {
 	    include_once('operations/infrared/learnCode.php');
 	    learnCode($output,$dbADO);
 	break;	
+	case 'mobileScenarios';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/myScenarios/mobileScenarios.php');
+	    mobileScenarios($output,$dbADO);
+	break;	
 	
 	case '';
 		$output = new Template($dbADO);	

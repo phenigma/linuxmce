@@ -44,6 +44,7 @@ if($action=='form') {
 		$out.='There are no rooms in this installation. Go to <a href="index.php?section=rooms">rooms</a> section to add rooms.';
 	}
 	$displayedCommandGroups=array();
+	$firstRoomArray=array();
 	while($rowRooms=$resRooms->FetchRow()){
 		$out.='
 		<tr bgcolor="#D1D9EA">
@@ -71,12 +72,14 @@ if($action=='form') {
 		}
 		$resCommandGroups->MoveFirst();
 		while($rowCG=$resCommandGroups->FetchRow()){
+			if(!in_array($rowCG['PK_CommandGroup'],$displayedCommandGroups))
+				$firstRoomArray[$rowCG['PK_CommandGroup']]=$rowRooms['RoomName'];
 			$pos++;
 			$out.='
-			<tr>
+			<tr bgcolor="'.(($rowCG['PK_CommandGroup']==@$_REQUEST['lastAdded'])?'lightgreen':'').'">
 				<td><input type="button" class="button" name="posDown" value="-" onClick="self.location=\'index.php?section=lightingScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&roomID='.$rowRooms['PK_Room'].'&operation=down&posInRoom='.urlencode(serialize($posInRoom)).'\'"> 
 					<input type="button" class="button" name="posUp" value="+" onClick="self.location=\'index.php?section=lightingScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&roomID='.$rowRooms['PK_Room'].'&operation=up&posInRoom='.urlencode(serialize($posInRoom)).'\'">
-				 Description: '.((!in_array($rowCG['PK_CommandGroup'],$displayedCommandGroups))?'<input type="text" name="commandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Description'].'"> Hint: <input type="text" name="hintCommandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Hint'].'">':'<b>'.$rowCG['Description'].': </b>Hint: <b>'.$rowCG['Hint'].'</b>').'</td>
+				 Description: '.((!in_array($rowCG['PK_CommandGroup'],$displayedCommandGroups))?'<input type="text" name="commandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Description'].'"> Hint: <input type="text" name="hintCommandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Hint'].'">':'<b>'.$rowCG['Description'].': </b>Hint: <b>'.$rowCG['Hint'].'</b> (See '.$firstRoomArray[$rowCG['PK_CommandGroup']].')').'</td>
 				<td>'.(($pos==1)?'Default ON':'').(($pos==2)?'Default OFF':'').'</td>
 				<td><a href="index.php?section=lightingScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=edit&roomID='.$rowRooms['PK_Room'].'">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=lightingScenarios&cgDelID='.$rowCG['PK_CommandGroup'].'\';">Delete</a></td>
 				<td>&nbsp;</td>
@@ -217,6 +220,8 @@ if($action=='form') {
 		$dbADO->Execute($insertCG_Room,array($insertID,$roomID,$insertID));
 		setOrbitersNeedConfigure($installationID,$dbADO);
 		$msg="New Lighting Scenario added";
+		header("Location: index.php?section=lightingScenarios&msg=".@$msg.'&lastAdded='.$insertID);
+		exit();
 	}
 	
 	if(isset($_POST['updateCG']) || $action=='externalSubmit'){

@@ -545,6 +545,36 @@ $out='';
 						</table>
 					</fieldset>
 					</td>
+				</tr>
+				<tr>
+						<td valign="top" colspan="2"><a name="eventsList_link"></a>
+				
+				<fieldset>
+            		<legend>Plug & Play</legend>
+						<table>';
+					$resDHCP=$dbADO->Execute('SELECT * FROM DHCPDevice WHERE FK_DeviceTemplate=?',$deviceID);
+					$out.='
+							<tr>
+								<td colspan="3">'.(($resDHCP->RecordCount()==0)?'No records.':'Range of MAC').'</td>
+							</tr>
+						';
+					while($rowDHCP=$resDHCP->FetchRow()){
+						$out.='
+							<tr>
+								<td>From: <input type="text" name="mac_from_'.$rowDHCP['PK_DHCPDevice'].'" value="'.$rowDHCP['Mac_Range_Low'].'"></td>
+								<td>To: <input type="text" name="mac_to_'.$rowDHCP['PK_DHCPDevice'].'" value="'.$rowDHCP['Mac_Range_High'].'"></td>
+								<td><input type="button" class="button" name="delDHCP" value="Edit"> <input type="button" class="button" name="delDHCP" value="Delete"></td>
+							</tr>';
+					}
+					$out.='
+							<tr>
+								<td>From: <input type="text" name="mac_from" value=""></td>
+								<td>To: <input type="text" name="mac_to" value=""></td>
+								<td><input type="submit" class="button" name="addDHCP" value="Add"></td>
+							</tr>					
+						</table>
+					</fieldset>
+					</td>
 				</tr>';
 			$queryDT_DO='
 				SELECT DesignObj.Description, PK_DesignObj 

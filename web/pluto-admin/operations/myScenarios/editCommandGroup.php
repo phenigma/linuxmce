@@ -539,7 +539,7 @@ function editCommandGroup($output,$dbADO) {
 			WHERE PK_CommandGroup = ?
 			";
 			$res=$dbADO->Execute($updateCommandGroup,array($description,$arrayID,$designObjID,$iconID,$templateID,$hint,$commandGroupID));
-			
+			$isModified=1;
 			
 			if ((@$_POST['addNewDevice']!=0) && cleanInteger(@$_POST['addNewDeviceCommand'])==0) {
 				$addNewDevice =  cleanInteger($_POST['addNewDevice']);			
