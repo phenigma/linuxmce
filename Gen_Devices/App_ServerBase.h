@@ -76,7 +76,7 @@ public:
 	virtual void CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Kill_Application(string sName,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Hide_Application(string sName,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Reboot(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Reboot(int iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -159,7 +159,8 @@ public:
 				case 268:
 					{
 						string sCMD_Result="OK";
-						CMD_Reboot(sCMD_Result,pMessage);
+					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
+						CMD_Reboot(iPK_Device,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);

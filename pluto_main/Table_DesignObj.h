@@ -198,6 +198,9 @@ void DeviceTemplate_DesignObj_FK_DesignObj_getrows(vector <class Row_DeviceTempl
 void DeviceTemplate_MediaType_DesignObj_FK_DesignObj_getrows(vector <class Row_DeviceTemplate_MediaType_DesignObj*> *rows);
 void FloorplanObjectType_FK_DesignObj_Control_getrows(vector <class Row_FloorplanObjectType*> *rows);
 void MediaType_FK_DesignObj_getrows(vector <class Row_MediaType*> *rows);
+void Skin_FK_DesignObj_MainMenu_getrows(vector <class Row_Skin*> *rows);
+void Skin_FK_DesignObj_Sleeping_getrows(vector <class Row_Skin*> *rows);
+void Skin_FK_DesignObj_ScreenSaver_getrows(vector <class Row_Skin*> *rows);
 
 
 		// Setup binary serialization

@@ -3,7 +3,6 @@
 #include "Logger.h"
 
 using namespace DCE;
-#include "../Disk_Drive/Disk_Drive.h"
 DeviceData_Impl *Disk_Drive_Data::CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition)
 {
 	// Peek ahead in the stream.  We're going to pass in the above pointers anyway so it won't affect the position

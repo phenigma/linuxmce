@@ -99,9 +99,11 @@ public:
 
 	/** @brief COMMAND: #268 - Reboot */
 	/** Reboots the computers this is running on. */
+		/** @param #2 PK_Device */
+			/** The computer to reboot.  This is ignored when AppServer receives the command--it reboots itself.  When General Info Plugin receives it, it reboots the mentioned computer. */
 
-	virtual void CMD_Reboot() { string sCMD_Result; CMD_Reboot(sCMD_Result,NULL);};
-	virtual void CMD_Reboot(string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Reboot(int iPK_Device) { string sCMD_Result; CMD_Reboot(iPK_Device,sCMD_Result,NULL);};
+	virtual void CMD_Reboot(int iPK_Device,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

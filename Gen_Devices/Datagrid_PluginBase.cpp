@@ -3,7 +3,6 @@
 #include "Logger.h"
 
 using namespace DCE;
-#include "../Datagrid_Plugin/Datagrid_Plugin.h"
 DeviceData_Impl *Datagrid_Plugin_Data::CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition)
 {
 	// Peek ahead in the stream.  We're going to pass in the above pointers anyway so it won't affect the position

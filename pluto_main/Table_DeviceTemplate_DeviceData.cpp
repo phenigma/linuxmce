@@ -127,8 +127,7 @@ m_UseDeviceTemplateDefault = 0;
 is_null[7] = false;
 m_ShowInWizard = 1;
 is_null[8] = false;
-m_ShortDescription = 1;
-is_null[9] = false;
+is_null[9] = true;
 is_null[10] = true;
 is_null[11] = true;
 is_null[12] = true;
@@ -170,7 +169,7 @@ return m_UseDeviceTemplateDefault;}
 short int Row_DeviceTemplate_DeviceData::ShowInWizard_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_ShowInWizard;}
-short int Row_DeviceTemplate_DeviceData::ShortDescription_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_DeviceTemplate_DeviceData::ShortDescription_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_ShortDescription;}
 long int Row_DeviceTemplate_DeviceData::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -217,7 +216,7 @@ m_UseDeviceTemplateDefault = val; is_modified=true; is_null[7]=false;}
 void Row_DeviceTemplate_DeviceData::ShowInWizard_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_ShowInWizard = val; is_modified=true; is_null[8]=false;}
-void Row_DeviceTemplate_DeviceData::ShortDescription_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate_DeviceData::ShortDescription_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_ShortDescription = val; is_modified=true; is_null[9]=false;}
 void Row_DeviceTemplate_DeviceData::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -249,6 +248,9 @@ return is_null[4];}
 bool Row_DeviceTemplate_DeviceData::Description_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[6];}
+bool Row_DeviceTemplate_DeviceData::ShortDescription_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[9];}
 bool Row_DeviceTemplate_DeviceData::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[10];}
@@ -275,6 +277,9 @@ is_null[4]=val;}
 void Row_DeviceTemplate_DeviceData::Description_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[6]=val;}
+void Row_DeviceTemplate_DeviceData::ShortDescription_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[9]=val;}
 void Row_DeviceTemplate_DeviceData::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[10]=val;}
@@ -415,10 +420,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[9])
 return "NULL";
 
-char buf[32];
-sprintf(buf, "%hi", m_ShortDescription);
-
-return buf;
+char *buf = new char[51];
+mysql_real_escape_string(table->database->db_handle, buf, m_ShortDescription.c_str(), (unsigned long) m_ShortDescription.size());
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_DeviceTemplate_DeviceData::psc_id_asSQL()
@@ -782,12 +788,12 @@ sscanf(row[8], "%hi", &(pRow->m_ShowInWizard));
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_ShortDescription = 0;
+pRow->m_ShortDescription = "";
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%hi", &(pRow->m_ShortDescription));
+pRow->m_ShortDescription = string(row[9],lengths[9]);
 }
 
 if (row[10] == NULL)
@@ -1056,12 +1062,12 @@ sscanf(row[8], "%hi", &(pRow->m_ShowInWizard));
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_ShortDescription = 0;
+pRow->m_ShortDescription = "";
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%hi", &(pRow->m_ShortDescription));
+pRow->m_ShortDescription = string(row[9],lengths[9]);
 }
 
 if (row[10] == NULL)

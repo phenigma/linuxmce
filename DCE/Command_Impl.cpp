@@ -28,7 +28,7 @@
 #include "DCE/Logger.h"
 
 #ifndef WINCE
-#include "DCERouter/DCERouter.h"
+#include "DCERouter.h"
 #endif
 
 #include "DeviceData_Impl.h"

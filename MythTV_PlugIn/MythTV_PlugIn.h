@@ -96,6 +96,11 @@ public:
 		void GetRenderDevices(MediaStream *pMediaStream, map<int,MediaDevice *> *pmapMediaDevices);
         //<-dceag-h-b->
 	/*
+				AUTO-GENERATED SECTION
+				Do not change the declarations
+	*/
+
+	/*
 			*****DATA***** accessors inherited from base class
 
 			*****EVENT***** accessors inherited from base class

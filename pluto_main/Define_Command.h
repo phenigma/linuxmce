@@ -83,7 +83,7 @@
 #define COMMAND_Navigate_Prev_CONST 82
 #define COMMAND_Select_Current_Navigable_Area_CONST 83
 #define COMMAND_Get_Video_Frame_CONST 84
-#define COMMAND_Rest_Highlight_CONST 85
+#define COMMAND_Reset_Highlight_CONST 85
 #define COMMAND_Goto_Menu_not_used_CONST 86
 #define COMMAND_Goto_Media_Menu_CONST 87
 #define COMMAND_Set_Current_Location_CONST 88

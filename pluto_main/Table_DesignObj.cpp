@@ -40,6 +40,9 @@ using namespace std;
 #include "Table_DeviceTemplate_MediaType_DesignObj.h"
 #include "Table_FloorplanObjectType.h"
 #include "Table_MediaType.h"
+#include "Table_Skin.h"
+#include "Table_Skin.h"
+#include "Table_Skin.h"
 
 
 void Database_pluto_main::CreateTable_DesignObj()
@@ -1419,6 +1422,27 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_MediaType *pTable = table->database->MediaType_get();
 pTable->GetRows("FK_DesignObj=" + StringUtils::itos(m_PK_DesignObj),rows);
+}
+void Row_DesignObj::Skin_FK_DesignObj_MainMenu_getrows(vector <class Row_Skin*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Skin *pTable = table->database->Skin_get();
+pTable->GetRows("FK_DesignObj_MainMenu=" + StringUtils::itos(m_PK_DesignObj),rows);
+}
+void Row_DesignObj::Skin_FK_DesignObj_Sleeping_getrows(vector <class Row_Skin*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Skin *pTable = table->database->Skin_get();
+pTable->GetRows("FK_DesignObj_Sleeping=" + StringUtils::itos(m_PK_DesignObj),rows);
+}
+void Row_DesignObj::Skin_FK_DesignObj_ScreenSaver_getrows(vector <class Row_Skin*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Skin *pTable = table->database->Skin_get();
+pTable->GetRows("FK_DesignObj_ScreenSaver=" + StringUtils::itos(m_PK_DesignObj),rows);
 }
 
 

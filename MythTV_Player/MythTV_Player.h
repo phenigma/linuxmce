@@ -62,7 +62,7 @@ namespace DCE
         /** Public member variables */
 
 //<-dceag-const-b->
-	public:
+public:
 		// Constructors/Destructor
 		MythTV_Player(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
 		virtual ~MythTV_Player();

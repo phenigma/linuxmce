@@ -670,13 +670,14 @@ int k=2;
 	fstr_DeviceCommand << "using namespace DCE;" << endl;
 
 	map<int,class Row_DeviceTemplate *>::iterator itMDL;
+/*
 	for(itMDL=p_mapRow_MasterDevice_Children->begin();itMDL!=p_mapRow_MasterDevice_Children->end();++itMDL)
 	{
 		Row_DeviceTemplate *p_Row_DeviceTemplate = (*itMDL).second;
 
 		fstr_DeviceCommand << "#include \"" + m_sTemplateOutput + FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get()) + ".h\"" << endl;
 	}
-
+*/
 	fstr_DeviceCommand << "DeviceData_Impl *" + Name + "_Data::CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition)" << endl;
 	fstr_DeviceCommand << "{" << endl;
 	fstr_DeviceCommand << "\t// Peek ahead in the stream.  We're going to pass in the above pointers anyway so it won't affect the position" << endl;
