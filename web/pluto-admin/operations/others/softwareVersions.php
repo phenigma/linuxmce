@@ -45,10 +45,10 @@ function softwareVersions($output,$dbADO) {
 			$computer=$_POST['computer'];
 			$parts=explode(':',$computer);
 			if(isCore($parts[0],$dbADO)){
-				$command='sudo -u root /usr/pluto/bin/ListSoftware.sh install 127.0.0.1';	
+				$command='/usr/pluto/bin/ListSoftware.sh install 127.0.0.1';	
 			}
 			elseif($parts[1]!=''){
-				$command='sudo -u root /usr/pluto/bin/ListSoftware.sh install '.$parts[1];	
+				$command='/usr/pluto/bin/ListSoftware.sh install '.$parts[1];	
 			}else {
 				header('Location: index.php?section=softwareVersions&error=No IP for media director selected.');
 				exit();
