@@ -12,7 +12,6 @@ function devices($output,$dbADO) {
 
 	switch($type){
 		case 'interfaces':
-			$output->setHelpSrc('/support/index.php?section=document&docID=126');
 			$deviceCategory=$GLOBALS['rootInterfaces'];
 		break;
 		case 'avEquipment':
@@ -20,22 +19,18 @@ function devices($output,$dbADO) {
 			$title='A/V Equipment';
 		break;
 		case 'lights':
-			$output->setHelpSrc('/support/index.php?section=document&docID=128');
 			$deviceCategory=$GLOBALS['rootLights'];
 			$specificFloorplanType=$GLOBALS['LightingFoorplanType'];
 		break;
 		case 'climate':
-			$output->setHelpSrc('/support/index.php?section=document&docID=130');
 			$deviceCategory=$GLOBALS['rootClimate'];
 			$specificFloorplanType=$GLOBALS['ClimateFoorplanType'];
 		break;
 		case 'security':
-			$output->setHelpSrc('/support/index.php?section=document&docID=127');
 			$deviceCategory=$GLOBALS['rootSecurity'];
 			$specificFloorplanType=$GLOBALS['SecurityFoorplanType'];
 		break;
 		case 'surveillance_cameras':
-			$output->setHelpSrc('/support/index.php?section=document&docID=147');
 			$deviceCategory=$GLOBALS['rootCameras'];
 			$specificFloorplanType=$GLOBALS['CameraFoorplanType'];
 		break;
@@ -290,7 +285,7 @@ function devices($output,$dbADO) {
 			}
 		}
 		
-		if(isset($_POST['update'])){
+		if(isset($_POST['update']) || $action=='externalSubmit'){
 			setDCERouterNeedConfigure($installationID,$dbADO);
 			$DeviceDataToDisplayArray=explode(',',$_POST['DeviceDataToDisplay']);
 			foreach($displayedDevicesArray as $key => $value){
