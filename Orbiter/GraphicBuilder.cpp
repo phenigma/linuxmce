@@ -1,5 +1,5 @@
 #include "GraphicBuilder.h"
-#include "SDLGraphic.h"
+#include "SDL/SDLGraphic.h"
 //-------------------------------------------------------------------------------------------------------
 PlutoGraphic *CreateGraphic(GraphicType Type, string Filename, eGraphicManagement GraphicManagement, 
 							Orbiter *pOrbiter)

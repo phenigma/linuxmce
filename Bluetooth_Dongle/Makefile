@@ -29,6 +29,8 @@ sources += \
 	../Orbiter/DesignObj_Data.cpp \
 	../Orbiter/DesignObj_Orbiter.cpp \
 	../Orbiter/Orbiter.cpp \
+	../Orbiter/GraphicBuilder.cpp \
+	../Orbiter/SDL/SDLGraphic.cpp \
 	../Orbiter/SDL/OrbiterSDL.cpp \
 	../Splitter/TextWrapper.cpp \
 	../Splitter/TextSplitter.cpp \

@@ -26,6 +26,8 @@ sources +=  DesignObj_Data.cpp DesignObj_Orbiter.cpp \
 			Simulator.cpp \
 			Linux/OrbiterLinux.cpp \
 			RendererMNG.cpp \
+			GraphicBuilder.cpp \
+			SDL/SDLGraphic.cpp \
 			SDL/OrbiterSDL.cpp SDL/StartOrbiterSDL.cpp \
 			$(ROOT)/Splitter/TextSplitter.cpp \
 			$(ROOT)/Splitter/TextWrapper.cpp \

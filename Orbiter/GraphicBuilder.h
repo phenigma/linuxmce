@@ -10,3 +10,4 @@ void CreateVectorGraphic(VectorPlutoGraphic& vectPlutoGraphic, GraphicType Type,
 	eGraphicManagement GraphicManagement, class Orbiter *pOrbiter);
 //-------------------------------------------------------------------------------------------------------
 #endif //__GRAPHIC_BUILDER_H__
+
