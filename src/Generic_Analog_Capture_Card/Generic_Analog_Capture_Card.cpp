@@ -13,6 +13,9 @@ using namespace DCE;
 //<-dceag-d-e->
 
 #include "DCERouter.h"
+#include "pluto_main/Define_DeviceData.h"
+#include "pluto_main/Define_Command.h"
+#include "pluto_main/Define_CommandParameter.h"
 #ifndef WIN32
 #include <unistd.h>
 #include <string.h>
@@ -37,13 +40,10 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(int DeviceID, string Se
 		return;
 	}
 
-	/*find phonetype and phonenumber*/
-	string sVideoStandard = pDeviceData->mapParameters_Find(49);
+	string sVideoStandard = pDeviceData->mapParameters_Find(DEVICEDATA_Video_Standard_CONST);
 
 	g_pPlutoLogger->Write(LV_STATUS, "Using Generic Analog Capture Card with parameters: VideoStandard=%s",sVideoStandard.c_str());
 	
-	//Get Device Data and parse it
-
 	g_pPlutoLogger->Write(LV_STATUS, "Writing configuration to motion.conf");
 	fp = fopen("/etc/motion/motion.conf","wt");
 	//main config
@@ -112,7 +112,80 @@ Generic_Analog_Capture_Card_Command *Create_Generic_Analog_Capture_Card(Command_
 void Generic_Analog_Capture_Card::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
-	sCMD_Result = "UNHANDLED CHILD";
+	FILE *fp;
+	char pid[10];
+	char *Command;
+	string FilePath;
+	unsigned long int size;
+
+	g_pPlutoLogger->Write(LV_STATUS, "Command %d received for child.", pMessage->m_dwID);
+	
+	
+	// find child device
+	DeviceData_Impl* pDeviceData_Impl = NULL;
+	
+	VectDeviceData_Impl& vDeviceData = m_pData->m_vectDeviceData_Impl_Children;
+	for(VectDeviceData_Impl::size_type i = 0; i < vDeviceData.size(); i++) {
+		if(vDeviceData[i]->m_dwPK_Device == pMessage->m_dwPK_Device_To) {
+			pDeviceData_Impl = vDeviceData[i];
+			break;
+		}
+	}
+	
+	if(!pDeviceData_Impl) {
+		g_pPlutoLogger->Write(LV_CRITICAL, "Child device %d not found.", pMessage->m_dwPK_Device_To);
+		return;
+	}
+	
+	g_pPlutoLogger->Write(LV_STATUS, "Child device %d found.", pMessage->m_dwPK_Device_To);
+
+	switch(pMessage->m_dwID) {
+		case COMMAND_Get_Video_Frame_CONST: {
+				DeviceData_Router *pDeviceData = find_Device(pMessage->m_dwPK_Device_To);
+ 				if(!pDeviceData) {
+					g_pPlutoLogger->Write(LV_CRITICAL, "No device found with id: %d", pMessage->m_dwPK_Device_To);
+					return;
+				}
+				string sPortNumber = pDeviceData->mapParameters_Find(DEVICEDATA_Port_Number_CONST);
+				char *pData = pMessage->m_mapData_Parameters[COMMANDPARAMETER_Data_CONST];
+
+				Command = "ps -e | grep motion | awk '{print $1}' > camera_card.temp";
+				system(Command);
+				fp = fopen("camera_card.temp","rt");
+				if(fp == NULL) {
+					g_pPlutoLogger->Write(LV_STATUS, "Cannot get PID for the motion server, exiting...");
+					exit(99);
+				}
+				fgets(pid,10,fp);
+				size = strlen(pid);
+				if(pid[size-1] == 10) {
+					pid[size-1] = '\0';
+				}
+				fclose(fp);
+				Command = "kill -s SIGALRM ";
+				strcat(Command,pid);
+				system(Command);
+
+				FilePath = "/var/www/cam" + sPortNumber + "/lastsnap.jpg";
+
+				fp = fopen(FilePath.c_str(),"rb");
+				size = 0;
+				if(fp == NULL) {
+					g_pPlutoLogger->Write(LV_STATUS, "Cannot open snapshot file");
+				} else {
+					while(feof(fp) == 0) {
+					fseek(fp,1,SEEK_CUR);
+					size++;
+				}
+				fclose(fp);
+				pData = FileUtils::ReadFileIntoBuffer(FilePath, (size_t &)size);
+			}
+			break;
+		}
+		default:
+			g_pPlutoLogger->Write(LV_CRITICAL, "Unknown command %d received.", pMessage->m_dwID);
+	}
+	sCMD_Result = "OK";
 }
 
 /*
@@ -220,57 +293,24 @@ DeviceData_Router* Generic_Analog_Capture_Card::find_Device(int iPK_Device) {
     /*search device by id*/
 	return m_pRouter->m_mapDeviceData_Router_Find(iPK_Device);
 }
-//<-dceag-c277-b->
+//<-dceag-c84-b->
 
-	/** @brief COMMAND: #277 - Get Capture Video Frame */
-	/** Get a video frame from a specified camera number */
+	/** @brief COMMAND: #84 - Get Video Frame */
+	/** Get's a picture from a specified surveilance camera */
 		/** @param #19 Data */
-			/** The pointer to the video frame */
-		/** @param #112 CameraID */
-			/** The number (ID) of the camera where to capture from */
+			/** The video frame */
+		/** @param #20 Format */
+			/** Format of the frame */
+		/** @param #23 Disable Aspect Lock */
+			/** Disable Aspect Ratio */
+		/** @param #41 StreamID */
+			/** The ID of the stream */
+		/** @param #60 Width */
+			/** Frame width */
+		/** @param #61 Height */
+			/** Frame height */
 
-void Generic_Analog_Capture_Card::CMD_Get_Capture_Video_Frame(int iCameraID,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage)
-//<-dceag-c277-e->
+void Generic_Analog_Capture_Card::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat,string &sCMD_Result,Message *pMessage)
+//<-dceag-c84-e->
 {
-	FILE *fp;
-	char pid[10];
-	char *Command;
-	string FilePath;
-	int size;
-
-	cout << "Need to implement command #84 - Get Video Frame" << endl;
-	cout << "Parm #19 - Data  (data value)" << endl;
-	cout << "Parm #112 - CameraID " << iCameraID << endl;
-
-	Command = "ps -e | grep motion | awk '{print $1}' > camera_card.temp";
-	system(Command);
-	fp = fopen("camera_card.temp","rt");
-	if(fp == NULL) {
-		g_pPlutoLogger->Write(LV_STATUS, "Cannot get PID for the motion server, exiting...");
-		exit(99);
-	}
-	fgets(pid,10,fp);
-	size = strlen(pid);
-	if(pid[size-1] == 10) {
-		pid[size-1] = '\0';
-	}
-	fclose(fp);
-	Command = "kill -s SIGALRM ";
-	strcat(Command,pid);
-	system(Command);
-
-	FilePath = "/var/www/cam" + StringUtils::itos(iCameraID) + "/lastsnap.jpg";
-
-	fp = fopen(FilePath.c_str(),"rb");
-	size = 0;
-	if(fp == NULL) {
-		g_pPlutoLogger->Write(LV_STATUS, "Cannot open snapshot file");
-	} else {
-		while(feof(fp) == 0) {
-			fseek(fp,1,SEEK_CUR);
-			size++;
-		}
-		fclose(fp);
-	}
-	*pData = FileUtils::ReadFileIntoBuffer(FilePath, (size_t &)size);
 }
