@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# replace /target/usr/lib/base-config/menu/pkgsel with ours
+cp -f /cdrom/Pluto-Install/pkgsel /target/usr/lib/base-config/menu/
+
+# copy install scripts to /usr/pluto/install
+DIR=/target/usr/pluto/install
+mkdir -p "$DIR"
+SCRIPTS="ConfirmDependencies_Debian.sh Initial_Config.sh"
+for S in $SCRIPTS; do
+	cp -f /cdrom/Pluto-Install/"$S" "$DIR"
+done
+
