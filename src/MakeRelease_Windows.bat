@@ -1,8 +1,8 @@
 SET PATH="c:\Program Files\Microsoft Visual Studio .NET 2003\Common7\IDE"
 
 CALL SET CONFIGURATION=debug
-CALL SET INPUT_PATH=c:\pluto.makerelease\trunk
-CALL SET MAKERELEASE_PATH=C:\pluto\trunk
+CALL SET INPUT_PATH=c:\pluto.makerelease\trunk\src
+CALL SET MAKERELEASE_PATH=C:\pluto\trunk\src
 CALL SET LOG_PATH=c:
 
 del %LOG_PATH%\Build_Windows.log

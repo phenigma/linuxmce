@@ -2,7 +2,8 @@
 
 echo Checking out pluto sources...
 cd "c:\Program Files\Subversion\bin"
-svn co http://10.0.0.170/pluto/trunk /pluto.makerelease/trunk
+svn co http://10.0.0.170/pluto/trunk/src /pluto.makerelease/trunk/src
+svn co http://10.0.0.170/pluto/trunk/libs /pluto.makerelease/trunk/libs
 
 cd "c:\pluto.makerelease\trunk\src"
 
@@ -16,7 +17,7 @@ echo Building pluto(symbian) sources...
 call "MakeRelease_WindowsCE.bat"
 
 echo Misc actions...
-cd "c:\pluto.makerelease\trunk\bin"
+cd "c:\pluto.makerelease\trunk\src\bin"
 copy Orbiter.exe Orbiter_Win32.dat
 copy OrbiterCE.exe Orbiter_WinCE.dat
 
