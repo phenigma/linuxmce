@@ -1072,7 +1072,7 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 	fclose(fp);
 	fp = fopen("name_pkg.tmp","wt");
 	cmd = pRow_Package_Source->Name_get();
-	fprintf(fp,"%s",cmd.c_str())
+	fprintf(fp,"%s",cmd.c_str());
 	fclose(fp);
 return true;
 //------------------------------------------------------------------------------------
