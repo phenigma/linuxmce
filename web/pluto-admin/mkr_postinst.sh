@@ -84,10 +84,15 @@ echo "$Site" >/etc/apache2/sites-available/pluto
 a2ensite pluto
 /etc/init.d/apache2 reload
 
-sudo="www-data        ALL=(root) NOPASSWD:/usr/pluto/bin/SetupRemoteAccess.sh"
-if ! grep -q www-data /etc/sudoers; then
-	echo "$sudo" >>/etc/sudoers
-fi
+cmd_alias="Cmnd_Alias	PLUTO_WEBCMD = /usr/pluto/bin/SetupRemoteAccess.sh, /usr/pluto/bin/Network_Firewall.sh"
+sudo="www-data	ALL=(root) NOPASSWD:PLUTO_WEBCMD"
+
+awk '!/Cmnd_Alias.*PLUTO_WEBCMD/ && !/www-data.*ALL=\(root\)/' /etc/sudoers >>/etc/sudoers.$$
+
+echo "$cmd_alias" >>/etc/sudoers.$$
+echo "$sudo" >>/etc/sudoers.$$
+mv -f /etc/sudoers.$$ /etc/sudoers
+chmod 440 /etc/sudoers
 
 sed -i 's/^session.gc_maxlifetime = 1440$/session.gc_maxlifetime = 144000/' /etc/php4/apache2/php.ini
 /etc/init.d/apache2 reload
