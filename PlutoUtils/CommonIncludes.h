@@ -5,7 +5,10 @@
 #include <map>
 #include <list>
 #include <vector>
+
+#ifndef _WIN32_WCE
 #include <fstream>
+#endif //_WIN32_WCE
 
 #include <stdarg.h>
 
@@ -90,6 +93,7 @@ using namespace std;
 
 #define CALL_MEMBER_FN(object,ptrToMember)  ((object).*(ptrToMember)) 
 
+#ifndef _WIN32_WCE
 class PlutoFile
 {
 public:
@@ -107,7 +111,7 @@ public:
 		}
 	}
 };
-
+#endif
 
 #ifdef CENET
 	extern "C" // Use extern "c" for C++ file only

@@ -248,6 +248,13 @@ const SDL_version * SDL_Linked_Version(void)
 /* Need to include DllMain() on Windows CE and Watcom C for some reason.. */
 #include <windows.h>
 
+#ifdef UNDER_CE
+SDL_bool SDL_HasMMX()
+{
+	return SDL_FALSE;
+} 
+#endif
+
 BOOL APIENTRY DllMain( HANDLE hModule, 
                        DWORD  ul_reason_for_call, 
                        LPVOID lpReserved )

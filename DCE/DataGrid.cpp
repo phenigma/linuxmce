@@ -70,9 +70,21 @@ DataGridCell::~DataGridCell()
 DataGridCell::DataGridCell(string Text, string Value)
 {
 	Initialize();
+
+#ifdef WINCE
+	m_Text = const_cast<char *>((Text + Text).c_str());
+#else
 	m_Text = strdup(Text.c_str());
+#endif
+
 	m_TextLength = (int)Text.length();
+
+#ifdef WINCE
+	m_Value = const_cast<char *>((Value + Value).c_str());
+#else
 	m_Value = strdup(Value.c_str());
+#endif
+	
 	m_ValueLength = (int)Value.length();
 }
 
@@ -188,8 +200,8 @@ DataGridTable::DataGridTable(int Size, char *Data)
 	}
 	__except(EXCEPTION_EXECUTE_HANDLER)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"lzo decompress data failed %p %d %p",
-			Data,Size,UncompressedData);
+		//g_pPlutoLogger->Write(LV_CRITICAL,"lzo decompress data failed %p %d %p",
+		//	Data,Size,UncompressedData);
 	}
 #else
 	lzo1x_decompress((lzo_byte *)Data+4,Size - 4,(lzo_byte *)UncompressedData,&new_len,NULL);

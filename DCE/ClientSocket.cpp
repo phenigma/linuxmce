@@ -38,6 +38,10 @@
 #include "Message.h"
 #include "ClientSocket.h"
 
+#ifdef WINCE
+	#include _STLP_NATIVE_C_HEADER(winsock.h)
+#endif
+
 #define DCE_DEFAULT_PORT 3450
 
 using namespace DCE;

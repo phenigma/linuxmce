@@ -57,8 +57,8 @@ RA_Action *RA_Processor::BuildActionFromData( long dwSize, const char *pcData, u
 	return pRA_Action;
 }
 
-RA_Processor *RA_Processor::CreateRA_Processor()
+RA_Processor *RA_Processor::CreateRA_Processor(class RA_Config *pRA_Config/* = NULL*/)
 {
-	return new sqlCVSprocessor();
-}
+	return new RA_Processor(0, 1, pRA_Config);
+} 
 

@@ -19,10 +19,12 @@
 #include "DCE/Logger.h" 
 #include "PlutoUtils/MultiThreadIncludes.h" 
 #include "PlutoUtils/FileUtils.h"
-#include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
-#include "PlutoUtils/Other.h"
+
+#ifdef WINCE
+	#include _STLP_NATIVE_C_HEADER(time.h)
+#endif
 
 map<int,PlutoLock *> mapLocks;
 int iNextLock=1;  // A counter to keep track of locks

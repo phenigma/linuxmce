@@ -4,17 +4,16 @@
 #endif
 
 #include "PlutoUtils/CommonIncludes.h"	
-#include "DesignObj_Generator.h"
-#include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
-#include "PlutoUtils/Other.h"
-
-//#define OUTPUT_BMP
 
 #include <list>
 using namespace std;
+
+#ifdef ORBITER_GEN
+#include "DesignObj_Generator.h"
+#endif
 
 #include "Renderer.h"
 
@@ -24,8 +23,10 @@ using namespace std;
 #include "png.h"
 #include "Orbiter/TextStyle.h"
 
+#ifndef ORBITER
 #include "pluto_main/Define_HorizAlignment.h"
 #include "pluto_main/Define_VertAlignment.h"
+#endif //#ifndef ORBITER
 
 int myCounter=0;
 
@@ -63,7 +64,7 @@ Renderer::~Renderer()
 	TTF_Quit();
 }
 
-
+#ifndef ORBITER
 
 // This takes an incoming pRenderImage of what's been rendered so far, and will add this new object and it's
 // children to it, or save them separately if set to can hide, or if rendering a selected, highlighted or alt versions
@@ -334,75 +335,6 @@ void Renderer::SaveImageToFile(RendererImage * pRendererImage, string sSaveToFil
 #endif
 }
 
-RendererImage * Renderer::CreateBlankCanvas(PlutoSize size)
-{
-	RendererImage * Canvas = new RendererImage;
-	Uint32 rmask, gmask, bmask, amask;
-
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-	rmask = 0xff000000; gmask = 0x00ff0000; bmask = 0x0000ff00; amask = 0x000000ff;
-#else
-	rmask = 0x000000ff; gmask = 0x0000ff00; bmask = 0x00ff0000; amask = 0xff000000;
-#endif
-
-	int Width = (size.Width == 0 ? m_Width : size.Width);
-	int Height = (size.Height == 0 ? m_Height : size.Height);
-
-	Canvas->m_sFilename = "(new surface)";
-	Canvas->m_pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE, Width, Height, 32, rmask, gmask, bmask, amask);
-
-	if (Canvas->m_pSDL_Surface == NULL)
-	{
-		throw string("Failed to create blank canvas: ") + SDL_GetError();
-		delete Canvas;
-		Canvas = NULL;
-	}
-
-//	SDL_FillRect(Canvas->m_pSDL_Surface, NULL,SDL_MapRGBA(Canvas->m_pSDL_Surface->format, 0, 0, 0, 255));
-
-	Canvas->NewSurface = true;
-
-	return Canvas;
-}
-
-// extract a subsurface from a surface
-RendererImage * Renderer::Subset(RendererImage *pRenderImage, PlutoRectangle rect)
-{
-	//	return pRenderImage; // this is just a hack to see if it's a bug in the downstream code
-
-	PlutoSize size(rect.Width, rect.Height);
-	RendererImage * SubSurface = CreateBlankCanvas(size);
-
-	//	cout << "SubSurface: " << pRenderImage->m_sFilename << ": "
-	//		<< rect.X << "," << rect.Y << "," << rect.Width << "," << rect.Height <<  endl;
-
-	if (SubSurface == NULL)
-	{
-		cerr << "Failed to create sub-surface. Can't extract subset" << endl;
-	}
-
-	// copy pixel by pixel (this can be optimized to get line by line?)
-	for (int j = 0; j < rect.Height; j++)
-	{
-		for (int i = 0; i < rect.Width; i++)
-		{
-			// we may need locking on the two surfaces
-			putpixel(SubSurface, i, j, getpixel(pRenderImage, i + rect.X, j + rect.Y));
-		}
-	}
-	SubSurface->NewSurface = false;
-	/*
-	SDL_FillRect(Screen, NULL, SDL_MapRGB(Screen->format, 0, 0, 0));
-	SDL_BlitSurface(SubSurface->m_pSDL_Surface, NULL, Screen, NULL);
-	SDL_Flip(Screen);
-	SDL_Event SDL_event;
-	SDL_PollEvent(&SDL_event);
-	*/
-	//Sleep(5000);
-
-	return SubSurface;
-}
-
 // load image from file and possibly scale/stretch it
 RendererImage * Renderer::CreateFromFile(string sFilename, PlutoSize size,bool bPreserveAspectRatio,bool bCrop)
 {
@@ -555,8 +487,160 @@ void Renderer::RenderText(RendererImage *pRenderImage, DesignObjText *pDesignObj
 		m_sFontPath, pTextStyle);
 }
 
+Uint32 Renderer::getpixel(RendererImage * RIsurface, int x, int y)
+{
+	SDL_Surface * surface = RIsurface->m_pSDL_Surface;
+
+	// all pixels outside the surface are black
+	if (x < 0 || x >= surface->w || y < 0 || y >= surface->h)
+		return SDL_MapRGB(surface->format, 0, 0, 0);
+
+	int bpp = surface->format->BytesPerPixel;
+	Uint8 * pixel = (Uint8 *) surface->pixels + y * surface->pitch + x * bpp;
+
+	switch(bpp)
+	{
+	case 1:
+		return * pixel;
+
+	case 2:
+		return * (Uint16 *) pixel;
+
+	case 3:
+		if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
+			return pixel[0] << 16 | pixel[1] << 8 | pixel[2];
+		else
+			return pixel[0] | pixel[1] << 8 | pixel[2] << 16;
+
+	case 4:
+		return * (Uint32 *) pixel;
+
+	default:
+		return 0;       /* shouldn't happen, but avoids warnings */
+	}
+}
+
+void Renderer::putpixel(RendererImage * RIsurface, int x, int y, Uint32 pixel_color)
+{
+	SDL_Surface * surface = RIsurface->m_pSDL_Surface;
+
+	// don't try to put a pixel outside the surface
+	if (x < 0 || x >= surface->w || y < 0 || y >= surface->h)
+		return;
+
+	int bpp = surface->format->BytesPerPixel;
+	Uint8 * pixel = (Uint8 *) surface->pixels + y * surface->pitch + x * bpp;
+
+	switch(bpp)
+	{
+	case 1:
+		* pixel = pixel_color;
+		break;
+
+	case 2:
+		* (Uint16 *) pixel = pixel_color;
+		break;
+
+	case 3:
+		if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
+		{
+			pixel[0] = (pixel_color >> 16) & 0xff;
+			pixel[1] = (pixel_color >> 8) & 0xff;
+			pixel[2] = pixel_color & 0xff;
+		}
+		else
+		{
+			pixel[0] = pixel_color & 0xff;
+			pixel[1] = (pixel_color >> 8) & 0xff;
+			pixel[2] = (pixel_color >> 16) & 0xff;
+		}
+		break;
+
+	case 4:
+		* (Uint32 *) pixel = pixel_color;
+		break;
+	}
+}
+
+// extract a subsurface from a surface
+RendererImage * Renderer::Subset(RendererImage *pRenderImage, PlutoRectangle rect)
+{
+	//	return pRenderImage; // this is just a hack to see if it's a bug in the downstream code
+
+	PlutoSize size(rect.Width, rect.Height);
+	RendererImage * SubSurface = CreateBlankCanvas(size);
+
+	//	cout << "SubSurface: " << pRenderImage->m_sFilename << ": "
+	//		<< rect.X << "," << rect.Y << "," << rect.Width << "," << rect.Height <<  endl;
+
+	if (SubSurface == NULL)
+	{
+		cerr << "Failed to create sub-surface. Can't extract subset" << endl;
+	}
+
+	// copy pixel by pixel (this can be optimized to get line by line?)
+	for (int j = 0; j < rect.Height; j++)
+	{
+		for (int i = 0; i < rect.Width; i++)
+		{
+			// we may need locking on the two surfaces
+			putpixel(SubSurface, i, j, getpixel(pRenderImage, i + rect.X, j + rect.Y));
+		}
+	}
+	SubSurface->NewSurface = false;
+	/*
+	SDL_FillRect(Screen, NULL, SDL_MapRGB(Screen->format, 0, 0, 0));
+	SDL_BlitSurface(SubSurface->m_pSDL_Surface, NULL, Screen, NULL);
+	SDL_Flip(Screen);
+	SDL_Event SDL_event;
+	SDL_PollEvent(&SDL_event);
+	*/
+	//Sleep(5000);
+
+	return SubSurface;
+}
+
+void DoRender(string font, string output,int width,int height,bool bAspectRatio,class DesignObj_Generator *ocDesignObj)
+{
+	Renderer r(font,output,width,height);
+	r.RenderObject(NULL,ocDesignObj,PlutoPoint(0,0),-1,bAspectRatio);  // Render everything
+}
+
+#endif //ifndef ORBITER
+
+RendererImage * Renderer::CreateBlankCanvas(PlutoSize size)
+{
+	RendererImage * Canvas = new RendererImage;
+	Uint32 rmask, gmask, bmask, amask;
+
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+	rmask = 0xff000000; gmask = 0x00ff0000; bmask = 0x0000ff00; amask = 0x000000ff;
+#else
+	rmask = 0x000000ff; gmask = 0x0000ff00; bmask = 0x00ff0000; amask = 0xff000000;
+#endif
+
+	int Width = (size.Width == 0 ? m_Width : size.Width);
+	int Height = (size.Height == 0 ? m_Height : size.Height);
+
+	Canvas->m_sFilename = "(new surface)";
+	Canvas->m_pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE, Width, Height, 32, rmask, gmask, bmask, amask);
+
+	if (Canvas->m_pSDL_Surface == NULL)
+	{
+		throw string("Failed to create blank canvas: ") + SDL_GetError();
+		delete Canvas;
+		Canvas = NULL;
+	}
+
+//	SDL_FillRect(Canvas->m_pSDL_Surface, NULL,SDL_MapRGBA(Canvas->m_pSDL_Surface->format, 0, 0, 0, 255));
+
+	Canvas->NewSurface = true;
+
+	return Canvas;
+}
+
 // pass NULL in pRenderImage if you're interested only in the rendered text canvas size
-PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *pDesignObjText, TextStyle *pTextStyle, DesignObj_Generator * pDesignObj_Generator, PlutoPoint pos)
+PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *pDesignObjText, TextStyle *pTextStyle, PlutoPoint pos)
 {
 	//	cout << "Starting to render text" << pDesignObjText->m_PK_Text << " " << pDesignObjText->m_Text << endl;
 	// hack
@@ -661,88 +745,6 @@ PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *
 	return RenderedSize;
 }
 
-Uint32 Renderer::getpixel(RendererImage * RIsurface, int x, int y)
-{
-	SDL_Surface * surface = RIsurface->m_pSDL_Surface;
-
-	// all pixels outside the surface are black
-	if (x < 0 || x >= surface->w || y < 0 || y >= surface->h)
-		return SDL_MapRGB(surface->format, 0, 0, 0);
-
-	int bpp = surface->format->BytesPerPixel;
-	Uint8 * pixel = (Uint8 *) surface->pixels + y * surface->pitch + x * bpp;
-
-	switch(bpp)
-	{
-	case 1:
-		return * pixel;
-
-	case 2:
-		return * (Uint16 *) pixel;
-
-	case 3:
-		if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
-			return pixel[0] << 16 | pixel[1] << 8 | pixel[2];
-		else
-			return pixel[0] | pixel[1] << 8 | pixel[2] << 16;
-
-	case 4:
-		return * (Uint32 *) pixel;
-
-	default:
-		return 0;       /* shouldn't happen, but avoids warnings */
-	}
-}
-
-void Renderer::putpixel(RendererImage * RIsurface, int x, int y, Uint32 pixel_color)
-{
-	SDL_Surface * surface = RIsurface->m_pSDL_Surface;
-
-	// don't try to put a pixel outside the surface
-	if (x < 0 || x >= surface->w || y < 0 || y >= surface->h)
-		return;
-
-	int bpp = surface->format->BytesPerPixel;
-	Uint8 * pixel = (Uint8 *) surface->pixels + y * surface->pitch + x * bpp;
-
-	switch(bpp)
-	{
-	case 1:
-		* pixel = pixel_color;
-		break;
-
-	case 2:
-		* (Uint16 *) pixel = pixel_color;
-		break;
-
-	case 3:
-		if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
-		{
-			pixel[0] = (pixel_color >> 16) & 0xff;
-			pixel[1] = (pixel_color >> 8) & 0xff;
-			pixel[2] = pixel_color & 0xff;
-		}
-		else
-		{
-			pixel[0] = pixel_color & 0xff;
-			pixel[1] = (pixel_color >> 8) & 0xff;
-			pixel[2] = (pixel_color >> 16) & 0xff;
-		}
-		break;
-
-	case 4:
-		* (Uint32 *) pixel = pixel_color;
-		break;
-	}
-}
-
-void DoRender(string font, string output,int width,int height,bool bAspectRatio,class DesignObj_Generator *ocDesignObj)
-{
-	Renderer r(font,output,width,height);
-	r.RenderObject(NULL,ocDesignObj,PlutoPoint(0,0),-1,bAspectRatio);  // Render everything
-}
-
-
 
 
 #ifdef OrbiterGen
@@ -760,6 +762,7 @@ Renderer r("/usr/share/fonts/truetype/msttcorefonts/", "", 800, 600, FLAG_DISABL
 #endif
 
 
+
 // the last (void *) parameter is actually a (RendererImage *)
 // but it's made (void *) to accomodate the WORKAROUND (just do a search for WORKAROUND)
 pair<int, int> GetWordWidth(string Word, string FontPath, TextStyle *pTextStyle, void * & RI, bool NewSurface = true)
@@ -770,7 +773,7 @@ pair<int, int> GetWordWidth(string Word, string FontPath, TextStyle *pTextStyle,
 	DesignObjText DOText;
 	DOText.m_sText = Word;
 
-	PlutoSize Size = r.RealRenderText(NULL, &DOText, pTextStyle, NULL, PlutoPoint(0,0));
+	PlutoSize Size = r.RealRenderText(NULL, &DOText, pTextStyle, PlutoPoint(0,0));
 	if (! NewSurface)
 	{
 		Canvas = (RendererImage *) RI;
@@ -778,7 +781,7 @@ pair<int, int> GetWordWidth(string Word, string FontPath, TextStyle *pTextStyle,
 	}
 
 	Canvas = r.CreateBlankCanvas(Size);
-	r.RealRenderText(Canvas, &DOText, pTextStyle, NULL, PlutoPoint(0,0));
+	r.RealRenderText(Canvas, &DOText, pTextStyle, PlutoPoint(0,0));
 
 	RI = Canvas;
 	return pair<int, int>(Size.Width, Size.Height);

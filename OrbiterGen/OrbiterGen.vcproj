@@ -20,7 +20,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;../CrossPlatform-Libs/sge030809-w32/src&quot;;&quot;../CrossPlatform-Libs/SDL_ttf-2.0.6&quot;;&quot;../CrossPlatform-Libs/SDL_image-1.2.3&quot;;&quot;../CrossPlatform-Libs/SDL-1.2.7/include&quot;;&quot;../Libraries/pthreads-win32/include&quot;;../DCE;..;/mysql/include;&quot;../CrossPlatform-Libs/lpng127&quot;;&quot;../CrossPlatform-Libs/zlib&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;MULTI_THREADED;OrbiterGen;X_CRTDBG_MAP_ALLOC;XWIN32_CRTDBG;DEBUG"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;MULTI_THREADED;OrbiterGen;ORBITER_GEN;X_CRTDBG_MAP_ALLOC;XWIN32_CRTDBG;DEBUG"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -141,7 +141,7 @@
 				RelativePath="OrbiterGen.cpp">
 			</File>
 			<File
-				RelativePath="Renderer.cpp">
+				RelativePath=".\Renderer.cpp">
 			</File>
 			<File
 				RelativePath="..\Splitter\TextSplitter.cpp">
@@ -168,6 +168,9 @@
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
 				RelativePath="..\..\level4\common\CommonIncludes.h">
+			</File>
+			<File
+				RelativePath="..\Orbiter\RendererImage.h">
 			</File>
 			<File
 				RelativePath="..\Orbiter\TextStyle.h">

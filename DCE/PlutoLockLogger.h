@@ -8,6 +8,10 @@ using namespace ::std;
 #include <sys/time.h>
 #endif
 
+#ifdef WINCE
+#include _STLP_NATIVE_C_HEADER(time.h)
+#endif
+
 #include "PlutoUtils/MultiThreadIncludes.h"
 
 // We need a special safety lock here since we can't log to ourselves if we're in a deadlock
@@ -35,7 +39,7 @@ namespace DCE
 			m_bGotLock=false;
 			m_pLock=pLock;
 	#ifdef UNDER_CE
-			LACA_B4_3("safetylocklogger::***NO FILENAME** lock clock: %d thread: %p lock: %p",clock(),pthread_self(),m_pLock);
+//			LACA_B4_3("safetylocklogger::***NO FILENAME** lock clock: %d thread: %p lock: %p",clock(),pthread_self(),m_pLock);
 	#endif
 			pthread_mutex_lock(&m_pLock->mutex);
 			m_sFileName = "*NONE*";

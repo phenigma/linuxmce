@@ -35,13 +35,18 @@
     #include <algorithm>
 	#include <locale>
     #include <stdarg.h>
-    #include <sys/types.h>
-    #include <sys/stat.h>
 	#include <iostream>
     #ifdef WIN32
-        #include <direct.h>
-		#include <conio.h>
+		#ifndef WINCE
+			#include <direct.h>
+			#include <conio.h>
+		#else
+			#include _STLP_NATIVE_C_HEADER(time.h)
+			#include _STLP_NATIVE_C_HEADER(stdio.h) 
+		#endif
     #else
+	    #include <sys/types.h>
+		#include <sys/stat.h>
         #include <dirent.h>
         #define stricmp(x, y) strcasecmp(x, y)
 		#include <signal.h>
@@ -489,7 +494,12 @@ string StringUtils::GetStringFromConsole()
 	string sOutput;
 	while(true)
 	{
+#ifndef WINCE		
 		char c = getch();
+#else
+		char c = getchar();
+#endif
+
 		// 8 and 127 are the two (known to me) backspace characters a terminal can send
 		if ((c == 8 || c == 127))
 		{

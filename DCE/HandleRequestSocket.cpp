@@ -201,12 +201,14 @@ g_pPlutoLogger->Write( LV_STATUS, "Closing event handler connection...");
 	}
 	__except( EXCEPTION_EXECUTE_HANDLER )
 	{
+		/*
 		::PostQuitMessage( 255 );
 		
 		PROCESS_INFORMATION pi;
 		TCHAR tfn[81];
 		::GetModuleFilesName( NULL, tfn, sizeof(tfn) );	
 		CreateProcess( tfn, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, &pi );
+		*/
 	}
 #endif
 	return;

@@ -39,15 +39,19 @@
 #include <cctype>
 #include <algorithm>
 #include <stdarg.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #ifdef WIN32
-#include <direct.h>
-#include <io.h>
+	#ifndef WINCE
+		#include <direct.h>
+		#include <io.h>
+	#endif
 #else
-#include <dirent.h>
+	#include <dirent.h>
 #endif
 
+#ifndef WINCE
+	#include <sys/types.h>
+	#include <sys/stat.h>
+#endif
 
 
 #endif //#ifndef SYMBIAN

@@ -1,5 +1,6 @@
 #include "PlutoUtils/CommonIncludes.h"
 #include <iostream>
+#include <string>
 #include "OGArray.h"
 #include "OGCommand.h"
 #include "DesignObj_Generator.h"

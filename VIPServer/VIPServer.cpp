@@ -38,8 +38,8 @@ namespace DCE
 }
 using namespace DCE;
 
-DCEConfig g_dceConfig;
-class PlutoConfig *g_pPlutoConfig;  // Temporary.  Required at some point, but we won't use it.
+//PlutoConfig g_dceConfig;
+//class PlutoConfig *g_pPlutoConfig;  // Temporary.  Required at some point, but we won't use it.
 
 int main(int argc, char *argv[])
 {
@@ -47,6 +47,7 @@ int main(int argc, char *argv[])
 	int iPort=3460;
 
 	char c;
+	/*
 	for(int optnum=1;optnum<argc;++optnum)
 	{
 		c=argv[optnum][1];
@@ -74,6 +75,7 @@ int main(int argc, char *argv[])
 			break;
 		};
 	}
+	*/
 
 	if ( bError)
 	{

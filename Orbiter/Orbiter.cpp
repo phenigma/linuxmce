@@ -782,14 +782,16 @@ void Orbiter::ObjectOnScreenWrapper(  )
 
 	// Do the on load actions for the screen itself,  and objects on it
 	ExecuteCommandsInList( &m_pScreenHistory_Current->m_pObj->m_Action_LoadList, m_pScreenHistory_Current->m_pObj, 0, 0 );
-	for( size_t s=0;s<vectDesignObj_Orbiter_OnScreen.size(  );++s )
+
+	size_t s;
+	for( s=0;s<vectDesignObj_Orbiter_OnScreen.size(  );++s )
 	{
 		DesignObj_Orbiter *pDesignObj_Orbiter = vectDesignObj_Orbiter_OnScreen[s];
 		if(  pDesignObj_Orbiter!=m_pScreenHistory_Current->m_pObj  )  // We just did the screen itself above
 			ExecuteCommandsInList( &pDesignObj_Orbiter->m_Action_LoadList, pDesignObj_Orbiter, 0, 0 );
 	}
 
-	for( size_t s=0;s<vectDesignObj_Orbiter_OnScreen.size(  );++s )
+	for( s=0;s<vectDesignObj_Orbiter_OnScreen.size(  );++s )
 	{
 		DesignObj_Orbiter *pDesignObj_Orbiter = vectDesignObj_Orbiter_OnScreen[s];
 		if ( pDesignObj_Orbiter->m_ObjectType == DESIGNOBJTYPE_Datagrid_CONST )
@@ -2355,7 +2357,8 @@ bool Orbiter::ButtonDown( int PK_Button )
 		{
 			vector<DesignObj_DataGrid *> vectSelectedGrids; // We don't want to fire the selected objects while holding the datagrid mutex
 			PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
-			for( size_t s=0;s<m_vectObjs_GridsOnScreen.size(  );++s )
+			size_t s;
+			for( s=0;s<m_vectObjs_GridsOnScreen.size(  );++s )
 			{
 				DesignObj_DataGrid *pDesignObj_DataGrid = m_vectObjs_GridsOnScreen[s];
 				if(  !pDesignObj_DataGrid->IsHidden(  ) && pDesignObj_DataGrid->m_pDataGridTable && pDesignObj_DataGrid->m_sExtraInfo.find( 'C' )!=string::npos  )
@@ -2371,7 +2374,7 @@ bool Orbiter::ButtonDown( int PK_Button )
 				}
 			}
 			dg.Release(  );
-			for( size_t s=0;s<vectSelectedGrids.size(  );++s )
+			for( s=0;s<vectSelectedGrids.size(  );++s )
 			{
 				DesignObj_DataGrid *pDesignObj_DataGrid = vectSelectedGrids[s];
 				SelectedObject( pDesignObj_DataGrid, -1, -1 );

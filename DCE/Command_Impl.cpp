@@ -163,13 +163,15 @@ bool Command_Impl::SpawnChildDevice( class DeviceData_Impl *pDeviceData_Impl_Chi
 			" sh -x " + sPrefix + "Spawn_Device.sh " + StringUtils::itos(pDeviceData_Impl_Child->m_dwPK_Device) + " " + m_sIPAddress + " " + sDisplay + " " + pDeviceData_Impl_Child->m_sCommandLine).c_str() );
 	m_vectSpawnedDevices.push_back( StringUtils::itos( pDeviceData_Impl_Child->m_dwPK_Device ) + "_" + pDeviceData_Impl_Child->m_sCommandLine );
 #else
-	STARTUPINFO si;
-	PROCESS_INFORMATION pi;
-	ZeroMemory ( &si, sizeof(si) );
-	si.cb = sizeof(si);
-	ZeroMemory ( &pi, sizeof(pi) );
-	CreateProcess( "C:\\WINDOWS\\system32\\cmd.exe", "/c bogus.bat", NULL, NULL, false, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi);
-	m_vectSpawnedDevices.push_back( StringUtils::itos( pDeviceData_Impl_Child->m_dwPK_Device ) + "_" + pDeviceData_Impl_Child->m_sCommandLine ); // push back the spawned device
+	#ifndef WINCE
+		STARTUPINFO si;
+		PROCESS_INFORMATION pi;
+		ZeroMemory ( &si, sizeof(si) );
+		si.cb = sizeof(si);
+		ZeroMemory ( &pi, sizeof(pi) );
+		CreateProcess( "C:\\WINDOWS\\system32\\cmd.exe", "/c bogus.bat", NULL, NULL, false, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi);
+		m_vectSpawnedDevices.push_back( StringUtils::itos( pDeviceData_Impl_Child->m_dwPK_Device ) + "_" + pDeviceData_Impl_Child->m_sCommandLine ); // push back the spawned device
+	#endif
 #endif
 	return true;
 }
