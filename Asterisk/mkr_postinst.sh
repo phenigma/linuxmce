@@ -26,7 +26,9 @@ sip.conf => odbc,asterisk,ast_config" >> /etc/asterisk/extconfig.conf
 
 : >/etc/asterisk/extensions.conf
 
-echo "[trusted]
+echo "[default]
+switch => Realtime/default@realtime_ext
+[trusted]
 switch => Realtime/trusted@realtime_ext
 [outgoing-extern]
 switch => Realtime/outgoing-extern@realtime_ext
