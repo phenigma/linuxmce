@@ -44,6 +44,9 @@ namespace DCE
         pthread_t                    m_qApplicationThreadId;
         RatPoisonWrapper            *m_pRatWrapper;
 
+        void selectWindow();
+        bool checkWindowName(long unsigned int window, string windowName);
+
     protected:
         bool InitMythTvGlobalContext();
         bool InitMythTvStuff();

@@ -36,6 +36,7 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#include <sstream>
 #include <qsqldatabase.h>
 
 #include <libmythtv/programinfo.h>
@@ -51,6 +52,8 @@ using namespace DCE;
 #include "X11/Xutil.h"
 #include "X11/keysym.h"
 #include <X11/extensions/XTest.h>
+
+#define MYTH_WINDOW_NAME "mythfrontend"
 
 class RatPoisonWrapper : public RatpoisonHandler<RatPoisonWrapper>
 {
@@ -165,7 +168,7 @@ bool MythTV_Player::LaunchMythFrontend()
 {
 //     char *const frontendCommand[] = { "/usr/bin/mythfrontend" };
 //     forkAndWait( frontendCommand, 3 ); // make a process and wait 3 secondss
-    system("`which mythfrontend`&");
+    system("`which " MYTH_WINDOW_NAME "`&");
     sleep(5);
 
     m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
@@ -196,7 +199,7 @@ bool MythTV_Player::Register()
 */
 //<-dceag-cmdch-b->
 void MythTV_Player::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
-//<-dceag-cmdch-e->
+//<-dceag-cmdch-e->Window
 {
     sCMD_Result = "UNHANDLED CHILD";
 }
@@ -290,10 +293,18 @@ bool MythTV_Player::forkAndWait(char *const args[], int waitTime)
     return true;
 }
 
+void MythTV_Player::selectWindow()
+{
+    m_pRatWrapper->commandRatPoison(":select " MYTH_WINDOW_NAME);
+}
+
 void MythTV_Player::processKeyBoardInputRequest(int iXKeySym)
 {
     Window oldWindow;
     int oldRevertBehaviour;
+
+    if ( ! checkWindowName(m_iMythFrontendWindowId, MYTH_WINDOW_NAME) )
+        LaunchMythFrontend();
 
     XGetInputFocus( m_pRatWrapper->getDisplay(), &oldWindow, &oldRevertBehaviour);
     XSetInputFocus( m_pRatWrapper->getDisplay(), (Window)m_iMythFrontendWindowId, RevertToParent, CurrentTime );
@@ -303,8 +314,17 @@ void MythTV_Player::processKeyBoardInputRequest(int iXKeySym)
 
     XFlush(m_pRatWrapper->getDisplay());
 
-    m_pRatWrapper->commandRatPoison(":select mythfrontend");
-    m_pRatWrapper->commandRatPoison(":redisplay");
+    selectWindow();
+}
+
+bool MythTV_Player::checkWindowName(long unsigned int window, string windowName)
+{
+    XTextProperty text;
+
+    if ( XGetWMName (m_pRatWrapper->getDisplay(), window, &text) && windowName == string((const char*)text.value) )
+        return true;
+
+    return false;
 }
 
 bool MythTV_Player::locateMythTvFrontendWindow(long unsigned int window)
@@ -313,14 +333,11 @@ bool MythTV_Player::locateMythTvFrontendWindow(long unsigned int window)
     unsigned int num_child_windows;
     XTextProperty text;
 
-    if ( XGetWMName (m_pRatWrapper->getDisplay(), (Window)window, &text) )
+    if ( checkWindowName(window, MYTH_WINDOW_NAME ) )
     {
-        if ( string("mythfrontend") == string((const char*)text.value) )
-        {
-            m_iMythFrontendWindowId = window;
-            g_pPlutoLogger->Write(LV_STATUS, "Found window id: 0x%x", window );
-            return true;
-        }
+        m_iMythFrontendWindowId = window;
+        g_pPlutoLogger->Write(LV_STATUS, "Found window id: 0x%x", window );
+        return true;
     }
 
     /* finally, make the query for the above values. */
@@ -350,25 +367,27 @@ bool MythTV_Player::locateMythTvFrontendWindow(long unsigned int window)
 void MythTV_Player::CMD_Start_TV(string &sCMD_Result,Message *pMessage)
 //<-dceag-c75-e->
 {
-    if ( m_pMythTV )
-    {
-        if ( m_pMythTV->GetState() == kState_WatchingLiveTV || m_pMythTV->GetState() == kState_ChangingState )
-        {
-            g_pPlutoLogger->Write( LV_STATUS, "LiveTV is already started or is starting now" );
-            return;
-        }
+//     if ( m_pMythTV )
+//     {
+//         if ( m_pMythTV->GetState() == kState_WatchingLiveTV || m_pMythTV->GetState() == kState_ChangingState )
+//         {
+//             g_pPlutoLogger->Write( LV_STATUS, "LiveTV is already started or is starting now" );
+//             return;
+//         }
+//
+//         g_pPlutoLogger->Write( LV_STATUS, "Starting Live TV Playback!" );
+//         if ( m_pMythTV->LiveTV( false ) == 0 )
+//         {
+//             EVENT_Error_Occured( "We weren't able to start LiveTV." );
+//         }
+//         else
+//         {
+//             m_iControllingDevice = pMessage->m_dwPK_Device_From;
+//             waitToFireMediaChanged();
+//         }
+//     }
 
-        g_pPlutoLogger->Write( LV_STATUS, "Starting Live TV Playback!" );
-        if ( m_pMythTV->LiveTV( false ) == 0 )
-        {
-            EVENT_Error_Occured( "We weren't able to start LiveTV." );
-        }
-        else
-        {
-            m_iControllingDevice = pMessage->m_dwPK_Device_From;
-            waitToFireMediaChanged();
-        }
-    }
+    selectWindow();
 }
 
 
