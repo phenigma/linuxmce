@@ -101,6 +101,13 @@ function irCodes($output,$dbADO) {
 		}else{
 			$commandsToShow=array($GLOBALS['genericONCommand'],$GLOBALS['genericOFFCommand']);
 		}
+		// exception for ruby codes
+		if($GLOBALS['label']!='infrared'){
+			$resRubyCommands=$dbADO->Execute('SELECT * FROM Command WHERE FK_CommandCategory=?',$GLOBALS['GeneralInternal']);
+			while($rowRubyCommands=$resRubyCommands->FetchRow()){
+				$commandsToShow[]=$rowRubyCommands['PK_Command'];
+			}
+		}		
 		$toglePowerCommands=showCodes($commandsToShow,$infraredGroupID,$deviceID,$dtID,$dbADO);
 
 		if($toggleDSP==1){
@@ -117,6 +124,7 @@ function irCodes($output,$dbADO) {
 				$excludedCommandsArray[]=$rowDSPCommands['FK_Command'];
 			}
 		}
+		
 		if(count($commandsToShow)>0)
 			$dspModesCommands='
 			<tr>
@@ -128,9 +136,9 @@ function irCodes($output,$dbADO) {
 			$commandsToShow=array($GLOBALS['inputSelectCommand']);
 		}else{
 			$queryInputCommands='
-			SELECT DeviceTemplate_Input.*
-			FROM DeviceTemplate_Input 	
-			WHERE FK_DeviceTemplate=? ORDER BY OrderNo ASC';
+				SELECT DeviceTemplate_Input.*
+				FROM DeviceTemplate_Input 	
+				WHERE FK_DeviceTemplate=? ORDER BY OrderNo ASC';
 			$resInputCommands=$dbADO->Execute($queryInputCommands,$dtID);
 			$commandsToShow=array();
 			while($rowInputCommands=$resInputCommands->FetchRow()){
