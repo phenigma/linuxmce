@@ -29,28 +29,28 @@ DesignObj_Data::~DesignObj_Data()
 	for(itCommands=m_Action_LoadList.begin();itCommands!=m_Action_LoadList.end();++itCommands)
 	{
 		DesignObjCommand *pCommand = *itCommands;
-		delete pCommand;
+		//delete pCommand;
 	}
 	m_Action_LoadList.clear();
 
 	for(itCommands=m_Action_UnloadList.begin();itCommands!=m_Action_UnloadList.end();++itCommands)
 	{
 		DesignObjCommand *pCommand = *itCommands;
-		delete pCommand;
+		//delete pCommand;
 	}
 	m_Action_UnloadList.clear();
 
 	for(itCommands=m_Action_TimeoutList.begin();itCommands!=m_Action_TimeoutList.end();++itCommands)
 	{
 		DesignObjCommand *pCommand = *itCommands;
-		delete pCommand;
+		//delete pCommand;
 	}
 	m_Action_TimeoutList.clear();
 
 	for(itCommands=m_Action_StartupList.begin();itCommands!=m_Action_StartupList.end();++itCommands)
 	{
 		DesignObjCommand *pCommand = *itCommands;
-		delete pCommand;
+		//delete pCommand;
 	}
 	m_Action_StartupList.clear();
 
@@ -58,7 +58,7 @@ DesignObj_Data::~DesignObj_Data()
 	for(itZones=m_ZoneList.begin();itZones!=m_ZoneList.end();++itZones)
 	{
 		DesignObjZone *pZone = *itZones;
-		//delete pZone; //this is crasing
+		//delete pZone; //this is crashing
 	}
 	m_ZoneList.clear();
 
@@ -66,12 +66,13 @@ DesignObj_Data::~DesignObj_Data()
 	for(itChild=m_ChildObjects.begin();itChild!=m_ChildObjects.end();++itChild)
 	{
 		DesignObj_Data *pObj = *itChild;
-		delete pObj;
+		//delete pObj;
 	}
 	m_ChildObjects.clear();	
 
-	for(size_t s=0;s<m_vectDesignObjText.size();++s)
-		delete m_vectDesignObjText[s];
+	//for(size_t s=0;s<m_vectDesignObjText.size();++s)
+	//	delete m_vectDesignObjText[s];
+
 	m_vectDesignObjText.clear();
 }
 

@@ -194,6 +194,26 @@ Orbiter::~Orbiter()
 	m_vectObjs_TabStops.clear();
 	m_vectObjs_Selected.clear();
 
+	//clearing all objects
+	
+	DesignObj_OrbiterMap::iterator it;
+	for(it = m_ScreenMap.begin(); it != m_ScreenMap.end(); it++)
+	{
+		DesignObj_Orbiter* pDesignObj_Orbiter = (DesignObj_Orbiter*)((*it).second);
+
+		delete pDesignObj_Orbiter;
+		pDesignObj_Orbiter = NULL;
+	}
+	m_mapObj_All.clear();
+
+	map < string, DesignObj_DataList * >::iterator itSuffix; //
+	for(itSuffix = m_mapObj_AllNoSuffix.begin(); itSuffix != m_mapObj_AllNoSuffix.end(); itSuffix++)
+	{
+		delete (*itSuffix).second;
+		(*itSuffix).second = NULL;
+	}
+	m_mapObj_AllNoSuffix.clear();
+
 	//clearing device groups map
 	map<int,class DeviceGroup *>::iterator itDeviceGroups;
 	for(itDeviceGroups = m_mapDeviceGroups.begin(); itDeviceGroups != m_mapDeviceGroups.end(); itDeviceGroups++)
@@ -281,7 +301,7 @@ Orbiter::~Orbiter()
 	map< string, class DesignObj_DataGrid * >::iterator itDesignObjDataGrid;
 	for(itDesignObjDataGrid = m_mapObjs_AllGrids.begin(); itDesignObjDataGrid != m_mapObjs_AllGrids.end(); itDesignObjDataGrid++)
 	{
-		delete (*itDesignObjDataGrid).second;
+		//delete (*itDesignObjDataGrid).second;
 		(*itDesignObjDataGrid).second = NULL;
 	}
 	m_mapObjs_AllGrids.clear();
