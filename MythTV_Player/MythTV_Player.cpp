@@ -176,7 +176,7 @@ bool MythTV_Player::LaunchMythFrontend()
     g_pPlutoLogger->Write(LV_STATUS, "Launching process: %s", command.c_str());
     system(command.c_str());
 
-    m_pData->m_AllDevices.
+//    m_pData->m_AllDevices.
 
     sleep(5);
 
