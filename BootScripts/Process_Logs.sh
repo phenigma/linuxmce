@@ -16,7 +16,8 @@ done
 tar -czf "$Output/$Filename.critical.tar.gz" "$Critical" /usr/pluto/coredump
 
 if [ "$1" != "0" ]; then
-	ftp-upload --ignore-quit-failure -h plutohome.com --passive -b -d upload "$Output/$Filename.critical.tar.gz" &
+	date >>/var/log/pluto/ftp-log.log
+	ftp-upload --ignore-quit-failure -h plutohome.com --passive -b -d upload "$Output/$Filename.critical.tar.gz" >>/var/log/pluto/ftp-upload.log 2>>/var/log/pluto/ftp-upload-err.log &
 fi
 
 rm -rf "$Critical"
