@@ -27,10 +27,10 @@ if [ -z "$HostFound" ] || ! grep "IdentityFile $Dir/$Key" "$File" &>/dev/null; t
 	echo "$HostEntry" >>"$File"
 fi
 
-KeyString="$(cat $Dir/$Key)"
+KeyString="$(cat $Dir/$Key.pub)"
 File='/root/.ssh/authorized_keys'
 [ -f "$File" ] && grep -F "$KeyString" "$File" &>/dev/null && KeyPresent=1
 
-[ -z "$KeyPresent" ] && cat $Dir/$Key >>"$File"
+[ -z "$KeyPresent" ] && cat $Dir/$Key.pub >>"$File"
 
 /etc/init.d/ssh restart
