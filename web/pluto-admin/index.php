@@ -1045,6 +1045,12 @@ switch ($section) {
 	    include_once('operations/others/restart.php');
 	    restart($output,$dbADO);
 	break;
+	case 'connectionWizard';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/myDevices/connectionWizard.php');
+	    connectionWizard($output,$dbADO);
+	break;
 
 	
 	case '';

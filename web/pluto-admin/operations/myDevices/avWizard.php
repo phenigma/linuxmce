@@ -91,6 +91,7 @@ function avWizard($output,$dbADO) {
 	<input type="hidden" name="type" value="'.$type.'">
 	<input type="hidden" name="action" value="add">
 	<input type="hidden" name="cmd" value="0">			
+	<a href="index.php?section=connectionWizard">Connection Wizard</a>
 	<div align="center"><h3>'.((isset($title))?$title:strtoupper(str_replace('_',' ',$type))).'</h3></div>';
 		if($type=='avEquipment'){
 			$queryDevice='

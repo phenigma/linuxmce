@@ -1540,12 +1540,12 @@ function getSubmenu($website,$level,$parentID,$dbADO)
 	return $menuPages;
 }
 
-function generatePullDown($name,$tableName,$valueField,$labelField,$selectedValue,$dbADO,$filterTable='')
+function generatePullDown($name,$tableName,$valueField,$labelField,$selectedValue,$dbADO,$filterTable='',$jsEvents='')
 {
 	$pullDown='
-		<select name="'.$name.'">	
+		<select name="'.$name.'" '.$jsEvents.'>	
 			<option value="0">- Please select -</option>';
-	$query="SELECT $valueField,$labelField FROM $tableName $filterTable ORDER BY $labelField ASC";
+	$query="SELECT $tableName.$valueField,$tableName.$labelField FROM $tableName $filterTable ORDER BY $labelField ASC";
 	$res=$dbADO->Execute($query);
 	while($row=$res->FetchRow()){
 		$pullDown.='<option value="'.$row[$valueField].'" '.(($row[$valueField]==$selectedValue)?'selected':'').'>'.$row[$labelField].'</option>';

@@ -5,13 +5,7 @@ function editMediaFile($output,$mediadbADO) {
 	$out='';
 	$action = (isset($_REQUEST['action']) && $_REQUEST['action']!='')?cleanString($_REQUEST['action']):'form';
 	$fileID=$_REQUEST['fileID'];
-	
-	$queryAttrTypes='SELECT * FROM AttributeType ORDER BY Description ASC';
-	$resAttrTypes=$mediadbADO->Execute($queryAttrTypes);
-	$attributeTypes=array();
-	while($rowTypes=$resAttrTypes->FetchRow()){
-		$attributeTypes[$rowTypes['PK_AttributeType']]=$rowTypes['Description'];
-	}
+	$picsPerLine=6;	
 	
 	$scriptInHead='
 	<script>
@@ -42,13 +36,26 @@ function editMediaFile($output,$mediadbADO) {
 		$out.='
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center"><B>'.@$_REQUEST['msg'].'</B></div>
-			<form action="index.php" method="POST" name="editMediaFile">
+			<form action="index.php" method="POST" name="editMediaFile" enctype="multipart/form-data">
 				<input type="hidden" name="section" value="editMediaFile">
 				<input type="hidden" name="action" value="update">
 				<input type="hidden" name="fileID" value="'.$fileID.'">
 		';
 		$resFile=$mediadbADO->Execute('SELECT * FROM File WHERE PK_File=?',$fileID);
 		$rowFile=$resFile->FetchRow();
+		
+		$queryAttrTypes='
+			SELECT * 
+			FROM AttributeType 
+			INNER JOIN Type_AttributeType ON FK_AttributeType=PK_AttributeType
+			WHERE FK_Type=?
+			ORDER BY Description ASC';
+		$resAttrTypes=$mediadbADO->Execute($queryAttrTypes,$rowFile['FK_Type']);
+		$attributeTypes=array();
+		while($rowTypes=$resAttrTypes->FetchRow()){
+			$attributeTypes[$rowTypes['PK_AttributeType']]=$rowTypes['Description'];
+		}
+
 		$out.='
 		<h4>Edit Media file</h4>
 		<table border="0" cellspacing="0" cellpadding="3">
@@ -105,6 +112,37 @@ function editMediaFile($output,$mediadbADO) {
 				<td>&nbsp;</td>
 			</tr>
 			<tr>
+				<td valign="top" align="left"><B>Pictures</B></td>
+				<td valign="top" align="left" colspan="6"><table>
+			<tr>';
+			$queryPictures='
+				SELECT * FROM Picture_File
+				INNER JOIN Picture ON Picture_File.FK_Picture=PK_Picture
+				WHERE FK_File=?';
+			$resPictures=$mediadbADO->Execute($queryPictures,$fileID);
+			$picsCount=0;
+			while($rowPictures=$resPictures->FetchRow()){
+				$picsCount++;
+				$out.='
+					<td style="background-color:#EEEEEE;" align="center"><a href="mediapics/'.$rowPictures['PK_Picture'].'.'.$rowPictures['Extension'].'" target="_blank"><img src="mediapics/'.$rowPictures['PK_Picture'].'_tn.'.$rowPictures['Extension'].'" border="0"></a> <br><a href="#" onClick="if(confirm(\'Are you sure you want to delete this picture?\'))self.location=\'index.php?section=editMediaFile&fileID='.$fileID.'&action=properties&picID='.$rowPictures['PK_Picture'].'\';">Delete</a></td>
+				';
+				if($picsCount%$picsPerLine==0)
+					$out.='</tr><tr>';
+			}
+			$out.='
+					</tr>
+				</table></td>
+			</tr>
+			<tr>
+				<td><B>Add picture</B></td>
+				<td colspan="6"> <input type="file" name="newPic" value=""> <input type="submit" class="button" name="addPic" value="Add Picture"></td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+			</tr>
+			
+			<tr>
 				<td><B>Add attribute:</B><br><select name="newAttributeType" onChange="document.editMediaFile.action.value=\'form\';document.editMediaFile.submit();">
 					<option value="0">- Please select -</option>';
 			foreach($attributeTypes AS $attributeID=>$attributeName){
@@ -141,7 +179,18 @@ function editMediaFile($output,$mediadbADO) {
 		}	
 	}else{
 	// process area
-	
+		if(isset($_REQUEST['picID'])){
+			$toDelete=$_REQUEST['picID'];
+			$deletePic='DELETE FROM Picture WHERE PK_Picture=?';
+			$mediadbADO->Execute($deletePic,$toDelete);
+			
+			$deletePicAttribute='DELETE FROM Picture_Attribute WHERE FK_Picture=?';
+			$mediadbADO->Execute($deletePicAttribute,$toDelete);
+			
+			unlink($GLOBALS['mediaPicsPath'].$toDelete.'.jpg');
+			unlink($GLOBALS['mediaPicsPath'].$toDelete.'_tn.jpg');
+		}
+
 		if(isset($_POST['add'])){
 			$newAttributeType=$_POST['newAttributeType'];
 			$newAttributeName=cleanString($_POST['newAttributeName']);
@@ -151,7 +200,7 @@ function editMediaFile($output,$mediadbADO) {
 				$rowExistingAttribute=$resExistingAttribute->FetchRow();
 				if($rowExistingAttribute['Name']!=$newAttributeName){
 					// new attribute, insert in Attribute and File_Attribute tables
-					$mediadbADO->Execute('INSERT INTO Atttribute (FK_AttributeType,Name) VALUES (?,?)',array($newAttributeType,$newAttributeName));
+					$mediadbADO->Execute('INSERT INTO Attribute (FK_AttributeType,Name) VALUES (?,?)',array($newAttributeType,$newAttributeName));
 					$insertID=$mediadbADO->Insert_ID();
 					
 					$mediadbADO->Execute('INSERT INTO File_Attribute (FK_File, FK_Attribute) VALUES (?,?)',array($fileID,$insertID));
@@ -160,7 +209,7 @@ function editMediaFile($output,$mediadbADO) {
 				}
 				
 			}else{
-				$mediadbADO->Execute('INSERT INTO Atttribute (FK_AttributeType,Name) VALUES (?,?)',array($newAttributeType,$newAttributeName));
+				$mediadbADO->Execute('INSERT INTO Attribute (FK_AttributeType,Name) VALUES (?,?)',array($newAttributeType,$newAttributeName));
 				$insertID=$mediadbADO->Insert_ID();
 				
 				$mediadbADO->Execute('INSERT INTO File_Attribute (FK_File, FK_Attribute) VALUES (?,?)',array($fileID,$insertID));
@@ -197,7 +246,42 @@ function editMediaFile($output,$mediadbADO) {
 			}
 			$mediadbADO->Execute('UPDATE File SET Filename=?, Path=?, FK_Type=? WHERE PK_File=?',array($fileName,$path,$type,$fileID));
 			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg=Media file updated.');			
+			exit();
 		}
+		
+		if(isset($_REQUEST['addPic']) && isset($_FILES['newPic']) && $_FILES['newPic']['name']!=''){
+			$picExtension=str_replace('.','',strtolower(strrchr($_FILES['newPic']['name'],".")));
+			$insertPicture='INSERT INTO Picture (Extension) VALUES (?)';
+			$mediadbADO->Execute($insertPicture,$picExtension);
+			$insertID=$mediadbADO->Insert_ID();
+			$newPicName=$insertID.'.'.$picExtension;
+			
+			$error='';
+			if(($_FILES['newPic']['type']!="image/jpg") && ($_FILES['newPic']['type']!="image/pjpeg") && ($_FILES['newPic']['type']!="image/jpeg")){
+				$error='The file is not a jpg file';
+			}
+			elseif(move_uploaded_file($_FILES['newPic']['tmp_name'],$GLOBALS['mediaPicsPath'].$newPicName)){
+				// create thumbnail
+				$resizeFlag=resizeImage($GLOBALS['mediaPicsPath'].$newPicName, $GLOBALS['mediaPicsPath'].$insertID.'_tn.'.$picExtension, 100, 100);
+				// update database
+				$insertPictureAttribute='INSERT INTO Picture_File (FK_File, FK_Picture) VALUES (?,?)';
+				$mediadbADO->Execute($insertPictureAttribute,array($fileID,$insertID));
+			}else{
+				//upload fail, prompt error message
+				$deletePicture='DELETE FROM Picture WHERE PK_Picture=?';
+				$mediadbADO->Execute($deletePicture,$insertID);
+				$error='Upload fail, check the rights for '.$GLOBALS['mediaPicsPath'].' directory.';
+			}
+			if($error!=''){
+				header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&error='.$error);			
+				exit();
+			}else{
+				header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg=The picture was uploaded.');			
+				exit();
+			}
+		}
+		
+		header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg=Media file updated.');			
 	}
 	$output->setReloadLeftFrame(false);
 	$output->setScriptInHead($scriptInHead);	

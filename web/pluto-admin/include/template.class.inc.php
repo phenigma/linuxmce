@@ -230,12 +230,15 @@ function setTemplateFileType($type) {
   	}
   	if($this->reloadLeftFrame==true && $this->templateType=='large'){
   		$this->body.='<script>
-  			var queryStr=top.treeframe.location.search.substring(9,top.treeframe.location.search.length);
-  			var isWizard='.$isWizard.';
-  			if((queryStr.substr(0,8)!=\'leftMenu\' && queryStr.substr(0,6)!=\'wizard\') || isWizard==1){
-  				top.treeframe.location=\''.$redirectLink.'\';
-  			}
-  			
+  			try{
+	  			var queryStr=top.treeframe.location.search.substring(9,top.treeframe.location.search.length);
+	  			var isWizard='.$isWizard.';
+	  			if((queryStr.substr(0,8)!=\'leftMenu\' && queryStr.substr(0,6)!=\'wizard\') || isWizard==1){
+	  				top.treeframe.location=\''.$redirectLink.'\';
+	  			}
+	  		}catch(e){
+	  			// do nothing, it\'s not in frame
+	  		}  			
   			</script>';
   	}
 
