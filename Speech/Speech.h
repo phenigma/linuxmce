@@ -5,6 +5,12 @@
 //	DCE Implemenation for #59 Speech
 
 #include "Gen_Devices/SpeechBase.h"
+#ifdef WIN32
+	#include "s2types.h"
+	#include "ad.h"
+	#include "cont_ad.h"
+	#include "err.h"
+#endif
 //<-dceag-d-e->
 
 //<-dceag-decl-b->
@@ -27,7 +33,7 @@ public:
 		virtual bool Register();
 		virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage);
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
-		void InitSpeech(void);
+		void Speech(void);
 //<-dceag-const-e->
 
 //<-dceag-const2-b->
