@@ -10,8 +10,8 @@
 
 MODULE_LICENSE("Dual BSD/GPL");
 
-#define BUF_SIZE 511
-#define N_DEVS 16
+#define BUF_SIZE (size_t) 511
+#define N_DEVS (int) 16
 
 typedef struct
 {
@@ -203,7 +203,7 @@ static int gc100_device_open(struct inode * inode, struct file * filp)
 	}
 	dev->minor_number = MINOR(inode->i_rdev);
 	
-	module_get(THIS_MODULE);
+	try_module_get(THIS_MODULE);
 //	MOD_INC_USE_COUNT;
 	
 	return 0;
@@ -223,17 +223,17 @@ static struct file_operations gc100_fops = {
 	.release = gc100_device_release
 };
 
-void /*__exit*/ gc100_exit()
+void /*__exit*/ gc100_exit(void)
 {
 	kfree(gc100_devices);
 	
 	unregister_chrdev(gc100_major, "gc100");
 }
 
-int __init gc100_init()
+int __init gc100_init(void)
 {
 	int i;
-	int result = 0;
+//	int result = 0;
 
 	SET_MODULE_OWNER(&gc100_fops);
 
@@ -251,9 +251,9 @@ int __init gc100_init()
 	
 	return 0;
 
-fail:
-	gc100_exit();
-	return result;
+//fail:
+//	gc100_exit();
+//	return result;
 }
 
 module_init(gc100_init);

@@ -1,0 +1,5 @@
+You need to manually set the kernel options. The build process won't setup the
+kernel for you and the module won't be loadable on kernels with different
+compile-time settings.
+
+You also need to apply the provided patch so the kernel knows about this module.
