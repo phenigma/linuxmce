@@ -445,7 +445,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t\tif( Size )" << endl;
 	fstr_DeviceCommand << "\t\t\tm_pData->SerializeRead(Size,pConfig);" << endl;
 
-	fstr_DeviceCommand << "\t\tdelete pConfig;" << endl;
+	fstr_DeviceCommand << "\t\tdelete[] pConfig;" << endl;
 	fstr_DeviceCommand << "\t\tpConfig = m_pEvent->GetDeviceList(Size);" << endl;
 	fstr_DeviceCommand << "\t\tm_pData->m_AllDevices.SerializeRead(Size,pConfig);" << endl;
 	fstr_DeviceCommand << "\t\tdelete pConfig;" << endl;

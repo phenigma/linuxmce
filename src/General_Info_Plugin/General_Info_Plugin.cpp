@@ -416,7 +416,7 @@ void General_Info_Plugin::CMD_Wake_Device(int iPK_Device,string &sCMD_Result,Mes
 		/** @param #2 PK_Device */
 			/** The device to halt */
 		/** @param #21 Force */
-			/** Normally this will do a suspend if the device supports suspend/resume, otherwise it will do a halt.  If Force is "H" it will always halt, if Force is "S" it will always suspend.  If Force is "D" it will only turn off the display */
+			/** If Force is not specified this will do a suspend if the device supports suspend/resume, otherwise it will do a halt.  Force:  "H"=halt, "S"=suspend, "D"=Display off, "R"=reboot, "N"=net boot, "V"=hard drive boot */
 
 void General_Info_Plugin::CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Result,Message *pMessage)
 //<-dceag-c323-e->

@@ -5607,7 +5607,7 @@ void Orbiter::CMD_Continuous_Refresh(string sTime,string &sCMD_Result,Message *p
 //<-dceag-c254-b->
 
 	/** @brief COMMAND: #254 - Bind Icon */
-	/** Used to make a button have an icon that reflects a current state, such as the user's status, the house mode, etc.  This is accomplished by creating an object with multiple alternate versions, and then executing a "Set  Status" to select the right one.  Se */
+	/** Used to make a button have an icon that reflects a current state, such as the user's status, the house mode, etc.  This is accomplished by creating an object with multiple alternate versions, and then executing a "Set  Bound Icon" to select the right one. */
 		/** @param #3 PK_DesignObj */
 			/** The object which contains the icon, or whose child objects contain the icon. */
 		/** @param #14 Type */

@@ -39,7 +39,6 @@ public:
 	void Set_Current_Screen(string Value) { SetParm(4,Value.c_str()); }
 	string Get_Update_Name() { return m_mapParameters[41];}
 	string Get_Communication_file() { return m_mapParameters[43];}
-	string Get_Timeout() { return m_mapParameters[56];}
 	string Get_CacheFolder() { return m_mapParameters[57];}
 	int Get_CacheSize() { return atoi(m_mapParameters[58].c_str());}
 };
@@ -66,7 +65,7 @@ public:
 		m_pData = new Orbiter_Data();
 		if( Size )
 			m_pData->SerializeRead(Size,pConfig);
-		delete pConfig;
+		delete[] pConfig;
 		pConfig = m_pEvent->GetDeviceList(Size);
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
 		delete pConfig;
@@ -90,7 +89,6 @@ public:
 	void DATA_Set_Current_Screen(string Value) { GetData()->Set_Current_Screen(Value); }
 	string DATA_Get_Update_Name() { return GetData()->Get_Update_Name(); }
 	string DATA_Get_Communication_file() { return GetData()->Get_Communication_file(); }
-	string DATA_Get_Timeout() { return GetData()->Get_Timeout(); }
 	string DATA_Get_CacheFolder() { return GetData()->Get_CacheFolder(); }
 	int DATA_Get_CacheSize() { return GetData()->Get_CacheSize(); }
 	//Event accessors

@@ -1202,40 +1202,35 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %d set follow me to %s for user %d",iPK
 	case 'L':
 		{
 			pOH_Orbiter->m_bFollowMe_Lighting = bOnOff;
-			DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_bFollowMe_Lighting ? "1" : "0","follow_light");
-			SendCommand(CMD_Set_Bound_Icon);
+			SetBoundIcons(pOH_Orbiter->m_iPK_Users,pOH_Orbiter->m_bFollowMe_Lighting,"follow_light");
 			FireFollowMe("L",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,	pOH_Orbiter->m_iPK_Users,bOnOff ? pOH_Orbiter->m_dwPK_Room : 0,0);
 		}
 		break;
 	case 'M':
 		{
 			pOH_Orbiter->m_bFollowMe_Media = bOnOff;
-			DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_bFollowMe_Media ? "1" : "0","follow_media");
-			SendCommand(CMD_Set_Bound_Icon);
+			SetBoundIcons(pOH_Orbiter->m_iPK_Users,pOH_Orbiter->m_bFollowMe_Media,"follow_media");
 			FireFollowMe("M",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,	pOH_Orbiter->m_iPK_Users,bOnOff && pOH_Orbiter->m_pEntertainArea ? pOH_Orbiter->m_pEntertainArea->m_iPK_EntertainArea : 0,0);
 		}
 		break;
 	case 'C':
 		{
 			pOH_Orbiter->m_bFollowMe_Climate = bOnOff;
-			DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_bFollowMe_Climate ? "1" : "0","follow_climate");
-			SendCommand(CMD_Set_Bound_Icon);
+			SetBoundIcons(pOH_Orbiter->m_iPK_Users,pOH_Orbiter->m_bFollowMe_Climate,"follow_climate");
 			FireFollowMe("C",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,	pOH_Orbiter->m_iPK_Users,bOnOff ? pOH_Orbiter->m_dwPK_Room : 0,0);
 		}
 		break;
 	case 'T':
 		{
 			pOH_Orbiter->m_bFollowMe_Telecom = bOnOff;
-			DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_bFollowMe_Telecom ? "1" : "0","follow_telecom");
-			SendCommand(CMD_Set_Bound_Icon);
+			SetBoundIcons(pOH_Orbiter->m_iPK_Users,pOH_Orbiter->m_bFollowMe_Telecom,"follow_telecom");
 			FireFollowMe("T",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,	pOH_Orbiter->m_iPK_Users,bOnOff ? pOH_Orbiter->m_dwPK_Room : 0,0);
 		}
 		break;
 	case 'S':
 		{
 			pOH_Orbiter->m_bFollowMe_Security = bOnOff;
-			DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_bFollowMe_Security ? "1" : "0","follow_security");
-			SendCommand(CMD_Set_Bound_Icon);
+			SetBoundIcons(pOH_Orbiter->m_iPK_Users,pOH_Orbiter->m_bFollowMe_Security,"follow_security");
 			FireFollowMe("S",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,	pOH_Orbiter->m_iPK_Users,bOnOff ? pOH_Orbiter->m_dwPK_Room : 0,0);
 		}
 		break;
@@ -1400,4 +1395,17 @@ void Orbiter_Plugin::FireFollowMe(string sMask,int iPK_Orbiter,int iPK_Users,int
 
 	if( pOH_Orbiter->m_bFollowMe_Media && sMask.find('M')!=string::npos )
 		EVENT_Follow_Me_Media(iPK_Orbiter, iPK_Users, iPK_RoomOrEntArea, iPK_RoomOrEntArea_Left);
+}
+
+void Orbiter_Plugin::SetBoundIcons(int iPK_Users,bool bOnOff,string sType)
+{
+    for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
+    {
+        OH_Orbiter *pOH_Orbiter = (*it).second;
+        if( pOH_Orbiter->m_iPK_Users != iPK_Users )
+			continue; // Don't change
+
+		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,bOnOff ? "1" : "0",sType);
+		SendCommand(CMD_Set_Bound_Icon);
+	}
 }

@@ -53,7 +53,7 @@ public:
 		m_pData = new Generic_Serial_Device_Data();
 		if( Size )
 			m_pData->SerializeRead(Size,pConfig);
-		delete pConfig;
+		delete[] pConfig;
 		pConfig = m_pEvent->GetDeviceList(Size);
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
 		delete pConfig;
@@ -84,7 +84,7 @@ public:
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{
 			Message *pMessage = s>=0 ? pMessageOriginal->m_vectExtraMessages[s] : pMessageOriginal;
-			if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND )
+			 if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND )
 			{
 				MapCommand_Impl::iterator it = m_mapCommandImpl_Children.find(pMessage->m_dwPK_Device_To);
 				if( it!=m_mapCommandImpl_Children.end() && !(*it).second->m_bGeneric )

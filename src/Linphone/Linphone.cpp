@@ -232,8 +232,6 @@ void Linphone::SomeFunction()
 void Linphone::CMD_Phone_Initiate(string sPhoneExtension,string &sCMD_Result,Message *pMessage)
 //<-dceag-c334-e->
 //<-dceag-c335-b->
-{
-}
 
 	/** @brief COMMAND: #335 - Phone_Answer */
 	/** Answer a call */
@@ -241,8 +239,6 @@ void Linphone::CMD_Phone_Initiate(string sPhoneExtension,string &sCMD_Result,Mes
 void Linphone::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 //<-dceag-c335-e->
 //<-dceag-c336-b->
-{
-}
 
 	/** @brief COMMAND: #336 - Phone_Drop */
 	/** Drop a call */

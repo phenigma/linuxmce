@@ -52,7 +52,7 @@ public:
 		m_pData = new General_Info_Plugin_Data();
 		if( Size )
 			m_pData->SerializeRead(Size,pConfig);
-		delete pConfig;
+		delete[] pConfig;
 		pConfig = m_pEvent->GetDeviceList(Size);
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
 		delete pConfig;

@@ -12,7 +12,7 @@
 //<-dceag-decl-b->
 namespace DCE
 {
-	class Generic_Serial_Device : public Generic_Serial_Device_Command, public GenericIODevice
+	class Generic_Serial_Device : public Generic_Serial_Device_Command
 	{
 //<-dceag-decl-e->
 		// Private member variables

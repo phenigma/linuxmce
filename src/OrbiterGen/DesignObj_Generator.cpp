@@ -15,6 +15,7 @@
 #include "Renderer.h"
 
 #include "pluto_main/Database_pluto_main.h"
+#include "pluto_main/Define_Criteria_D.h"
 #include "pluto_main/Table_Text_LS.h"
 #include "pluto_main/Table_Floorplan.h"
 #include "pluto_main/Table_FloorplanType.h"
@@ -90,7 +91,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==2195 )//2821 && bAddToGenerated )
+if( m_pRow_DesignObj->PK_DesignObj_get()==1687 )//2821 && bAddToGenerated )
 {
     int k=2;
 }
@@ -1100,13 +1101,13 @@ void DesignObj_Generator::PickVariation(OrbiterGenerator *pGenerator,class Row_D
             // We're going to have to figure it out ourselves
 
             // HACK _- todo
-            if( !drOV->FK_Criteria_D_isNull() && drOV->FK_Criteria_D_get()!=1 && (pDevice->FK_DeviceTemplate_get()==8 || 
-				pDevice->FK_DeviceTemplate_get()==62 || pDevice->FK_DeviceTemplate_get()==60 || pDevice->FK_DeviceTemplate_get()==61) )  // normal tablet
+            if( !drOV->FK_Criteria_D_isNull() && drOV->FK_Criteria_D_get()!=CRITERIA_D_Normal_VGA_CONST && (pDevice->FK_DeviceTemplate_get()==DEVICETEMPLATE_Orbiter_CONST || 
+  				pDevice->FK_DeviceTemplate_get()==DEVICETEMPLATE_OnScreen_Orbiter_CONST || pDevice->FK_DeviceTemplate_get()==DEVICETEMPLATE_Windows_CE_Orbiter_CONST || pDevice->FK_DeviceTemplate_get()==DEVICETEMPLATE_Windows_XP2000_Orbiter_CONST) )  // normal tablet
 				continue;  // Don't include the audi mmi prototype on the phone
-            if( !drOV->FK_Criteria_D_isNull() && drOV->FK_Criteria_D_get()!=2 && pDevice->FK_DeviceTemplate_get()==24 )   // phone
+            if( !drOV->FK_Criteria_D_isNull() && drOV->FK_Criteria_D_get()!=CRITERIA_D_PDA_CONST && pDevice->FK_DeviceTemplate_get()==DEVICETEMPLATE_Nokia_36503660_CONST )   // phone
                 continue;  // Don't include the phone on a the audi mmi prototype
 
-            // hack this in for audi
+			// hack this in for audi
             *drStandardVariation = drOV;        //hack
             alDesignObjVariations->push_back(drOV);     // hack
         }

@@ -144,6 +144,7 @@ public:
 	}
 
 	void FireFollowMe(string sMask,int iPK_Orbiter,int iPK_Users,int iPK_RoomOrEntArea,int iPK_RoomOrEntArea_Left);
+	void SetBoundIcons(int iPK_Users,bool bOnOff,string sType);
 
 	//<-dceag-h-b->
 	/*
