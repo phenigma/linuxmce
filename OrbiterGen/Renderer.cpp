@@ -219,10 +219,18 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 		for(size_t iFrame=0; iFrame < (pRendererMNG ? pRendererMNG->count() : 1); iFrame++)
 		{
 			// If this is multi-frame, we have to repeat, so we'll need a copy of the image
-			RendererImage *pRenderImageClone = DuplicateImage(pRenderImage);
-			RendererImage *pRenderImageClone_Child = pRenderImage_Child;
+			RendererImage *pRenderImageClone;
+			RendererImage *pRenderImageClone_Child;
 			if( pRendererMNG )
+			{
+				pRenderImageClone = DuplicateImage(pRenderImage);
 				pRenderImageClone_Child = pRendererMNG->GetFrame(iFrame);
+			}
+			else
+			{
+				pRenderImageClone = pRenderImage;
+				pRenderImageClone_Child = pRenderImage_Child;
+			}
 
 			// See if we're supposed to render our children first
 			if( pDesignObj_Generator->m_bChildrenBehind )
@@ -254,8 +262,6 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 //			SaveImageToFile(pRenderImageClone, "c:/x/compositec");
 			if( pRendererMNG )
 				pRendererMNG->ReplaceFrame(iFrame, pRenderImageClone);
-			else
-				delete pRenderImageClone;
 		}
         // If this is a screen (ie top level object) then we should always save something even
         // if there was no input file.
