@@ -192,6 +192,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 			return false;
 		}
 
+		/*
 		HWND hWnd_TaskBar = ::FindWindow("Shell_TrayWnd", NULL);
 
 		if(hWnd_TaskBar)
@@ -199,6 +200,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 			g_pPlutoLogger->Write(LV_CRITICAL, "### I found the taskbar window! I will hide it! ###");
 			::ShowWindow(hWnd_TaskBar, SW_HIDE);
 		}
+		*/
 
 		BringWindowToTop();
 		ModifyStyle(WS_TILEDWINDOW , 0);

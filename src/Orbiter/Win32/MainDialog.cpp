@@ -473,8 +473,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				s_sai.cbSize = sizeof (s_sai);
 #else
 				//make sure the that task bar is visible
-				HWND hTaskBarWindow = ::FindWindow(TEXT("Shell_TrayWnd"), NULL);
-				::ShowWindow(hTaskBarWindow, SW_SHOWNORMAL);
+				//HWND hTaskBarWindow = ::FindWindow(TEXT("Shell_TrayWnd"), NULL);
+				//::ShowWindow(hTaskBarWindow, SW_SHOWNORMAL);
 
 #endif //WINCE
 
@@ -916,9 +916,9 @@ void ShowMainDialog() //actually, hides the sdl window
 #ifdef WINCE
 	HWND hTaskBarWindow = ::FindWindow(TEXT("HHTaskBar"), NULL);
 	::ShowWindow(hTaskBarWindow, SW_SHOWNORMAL);
-#else
-	HWND hTaskBarWindow = ::FindWindow(TEXT("Shell_TrayWnd"), NULL);
-	::ShowWindow(hTaskBarWindow, SW_SHOWNORMAL);
+//#else
+	//HWND hTaskBarWindow = ::FindWindow(TEXT("Shell_TrayWnd"), NULL);
+	//::ShowWindow(hTaskBarWindow, SW_SHOWNORMAL);
 #endif
 }
 //-----------------------------------------------------------------------------------------------------
