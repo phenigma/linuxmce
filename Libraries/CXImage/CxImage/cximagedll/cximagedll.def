@@ -1,0 +1,7 @@
+; cximagedll.def : Declares the module parameters for the DLL.
+
+LIBRARY      "cximage"
+DESCRIPTION  'cximage Windows Dynamic Link Library'
+
+EXPORTS
+    ; Explicit exports can go here

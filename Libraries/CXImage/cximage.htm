@@ -1,0 +1,263 @@
+<!-- Article Starts --><!-- Download Links --> 
+<UL class=download>
+  <LI class=download><A 
+href="http://www.codeproject.com/bitmap/CXImage/cximage_src.zip">Download source 
+    files - 1.28 Mb</A> </LI>
+  <LI><a href="http://www.codeproject.com/bitmap/CXImage/cximage_demo.zip">Download 
+    demo 330 Kb</a></LI>
+</UL>
+<!-- Article image -->
+<P><img src="cximage.jpg" width="512" height="369"></P> 
+<H2>Introduction</H2> 
+<P><CODE>CxImage</CODE> is a C++ class to manage virtually any kind of images. 
+It can load, save, display, transform images in a very simple and fast way. 
+<H2>Why another image library?</H2> 
+<P>Around there are many good libraries (OpenIL, FreeImage, PaintLib ...), these 
+  are powerful, complete, and constantly updated. However if you ever try to use 
+  them, you may find some difficulties; because these libraries are mainly platform 
+  independent, written in C, sometimes with a basic C++ wrapper and with tons 
+  of compiler switch declarations. Now with the new GDI+ classes on the scene, 
+  CxImage isn't so useful, but at least here you have the source code.</P> 
+<H2>Is it a MFC library?</H2> <P>No. Altogether it's a windows library, because 
+of some particular constructors and the painting functions, but the backbone is 
+platform independent.</P> 
+<H2>What's new in version 5.00</H2>
+<ul>
+  <li>See file 'history.htm' for the complete list.
+  <li>new formats: WBMP, WMF - EMF, JBIG, JPEG2000 (beta). 
+  <li>new full codec for PCX, with support for RGBA images. 
+  <li>new methods: IsTransparent , ShiftRGB, Median, Gamma, Noise, Combine, FFT, 
+    Repair, AlphaSplit 
+  <li>added r/w support for 8bpp TIFFs with alpha layer. 
+  <li>added support for TrueColor, RLE and uncompressed GIFs. 
+  <li>added CXIMAGEJPG_SUPPORT_EXIF for JPGs.
+  <li>added ximadefs.h to adjust automatically the switches.
+  <li>the codecs for ICO, PNG, TGA and TIF work also with CXIMAGE_SUPPORT_ALPHA 
+    = 0
+  <li>new CxFile CxMemFile CxIOFile implementations
+  <li>...</li>
+</ul>
+<H2>To GIF or not to GIF?</H2> 
+<P>Easy: PNG and MNG! The library contains LZW encoders/decoders. Due to Unisys 
+  patent enforcement, you should be aware of the limitations. The TIFF library 
+  is also affected by this. With <code>CxImage</code> it's a simple operation 
+  to remove a specific format, you are free to make your choice.<br>
+  With the release 5.00, CxImage uses RLE compression as default for GIF images, 
+  it is less efficient but it's free. CxImage can also read and write truecolor 
+  images with the GIF format, it is a useless option, because the result is larger 
+  than a BMP, just try it if you are curious, IE5 loads correctly this format.</P>
+<H2>CxImage structure</H2>
+<img src="structure.png"> <br>
+<a href="cximage_reference.htm">CxImage Class Members &amp; Operations</a> [<a href="cximage_reference.htm" target="_blank">^</a>] 
+<H2>Hey, this library is huge!</H2> 
+<P>I'm sorry, but each JPG, PNG and TIFF library adds about 100KB to the final 
+  application. <code>CxImage</code> impact is less than 50KB. So you should support 
+  and link only the formats that your application really needs. These are the 
+  weights of the switches:</P>
+<table width="100%" border="1" cellspacing="0">
+  <tr> 
+    <td width="85%"><b>Option</b></td>
+    <td width="15%"><b>Size [Kbyte]</b></td>
+  </tr>
+  <tr> 
+    <td width="85%">CxImage core (all switches off)</td>
+    <td width="15%">20</td>
+  </tr>
+  <tr> 
+    <td width="85%"><font size="-1">CXIMAGE_SUPPORT_ALPHA + CXIMAGE_SUPPORT_SELECTION 
+      + CXIMAGE_SUPPORT_TRANSFORMATION</font></td>
+    <td width="15%">20</td>
+  </tr>
+  <tr> 
+    <td width="85%"><font size="-1">CXIMAGE_SUPPORT_DSP</font></td>
+    <td width="15%">16</td>
+  </tr>
+  <tr> 
+    <td width="85%"><font size="-1">CXIMAGE_SUPPORT_WINDOWS</font></td>
+    <td width="15%">8</td>
+  </tr>
+  <tr> 
+    <td width="85%">Built in codecs (<font size="-1">BMP, GIF, ICO, TGA, PCX, 
+      WBMP, WMF</font>)</td>
+    <td width="15%">24</td>
+  </tr>
+  <tr> 
+    <td width="85%">JPEG</td>
+    <td width="15%">88</td>
+  </tr>
+  <tr> 
+    <td width="85%">PNG</td>
+    <td width="15%">104</td>
+  </tr>
+  <tr> 
+    <td width="85%">TIFF</td>
+    <td width="15%">124</td>
+  </tr>
+</table>
+<H2>Will CxImage support more formats?</H2> 
+<P>Maybe. <code>CxImage</code> has been designed to be easily extended, but <code>CxImage</code> 
+  first should be stable enough to guarantee a good base class for the other formats. 
+  In any case, the actual formats cover the 99% of the normal demand.</P>
+<H2>History and 
+credits.</H2> 
+<P>Starting form my <CODE>CxDib</CODE> class, that implements memory DIBs only, 
+  I tried to add some members to read images from files. Looking for a solution, 
+  I found a nice MFC class named <CODE>CImage</CODE> on the net, release 1.4 (1998). 
+  <CODE>CImage</CODE> supports BMP, GIF, PNG and JPG, but suffers many little 
+  bugs and uses a complex class structure, so I decided to strip it to the base 
+  and merge <CODE>CxDib</CODE> with the <CODE>CImage</CODE> philosophy, to obtain 
+  the new <CODE>CxImage</CODE> class. Also I updated the libraries for JPG, PNG 
+  and ZLIB.<br>
+  With <CODE>CxImage</CODE> is very easy to add new image types, so I added the 
+  TIFF library (rev. 6) and a minimal support for <CODE>ICON</CODE>s, MNG, TGA 
+  and PCX. Finally I added some specific functions to obtain an image from global 
+  <CODE>HANDLE</CODE>s (windows clipboard) and objects (windows resources).<br>
+  With the release 5, CxImage has now a good support for memory files, new methods 
+  and file formats, and it is more portable: it works also with WinCE and Linux.</P>
+<UL>
+  <LI>CImage &copy; 1995-1998, <a href="mailto:asierra@servidor.unam.mx">Alejandro 
+    Aguilar Sierra</a>.<BR>
+  <LI>IJG JPEG library &copy;1994-1998, Thomas G. Lane.<BR>
+  <LI>LibPNG version 1.2.4 &copy; 1998-2001 Glenn Randers-Pehrson<BR>
+  <LI>LibTIFF version 3.5.7 &copy; 1988-1997 Sam Leffler, &copy; 1991-1997 Silicon 
+    Graphics, Inc. 
+  <LI> LibMNG version 1.0.2 &copy; 2000,2001 <a 
+href="mailto:gerard@libmng.com">Gerard Juyn</a>.
+  <LI>Gif-RLE &copy; Hutchison Avenue Software Corporation, 1998
+  <LI>LibJ2K&copy; David Janssens, 2001 - 2002
+  <LI>LibJBG &copy; Markus Kuhn, 2002<BR>
+  <LI>FreeImage 2.4.0 : Design and implementation by <a href="mailto:flvdberg@wxs.nl">Floris 
+    van den Berg</a>.</LI>
+  <LI>Thanks to <a 
+href="mailto:TRK@lyngsoe.com">Troels Knakkergaard</a> for his precious work in 
+    the earlier versions of CxImage, <a href="mailto:rrajivram@hotmail.com">Rajiv 
+    Ramachandran</a> for <code>CTwain</code> code; to <a href="mailto:God.bless@marihuana.com">Abe</a> 
+    for multi page tiffs code; to <a href="mailto:cscooper@frii.com">Chris Shearer 
+    Cooper</a> for memory file suggestions and code; to <a href="mailto:corkum@rocscience.com">Brent 
+    Corkum</a> for <code>BCMenu</code> code.</LI>
+</UL>
+<P>More specific credits and disclaimers are in every header file of each
+library.</P>
+<H2>How to ...</H2>
+<H2>... compile the library</H2>
+<P>You must compile all the libraries before you can link the demo application.
+  The whole operation is quite simple: open the <B>CxImgLib.dsw</B> workspace,
+  select the menu "Build/Batch Build..." and click the "Build" button.<BR>
+</P>
+<TABLE width="100%" border=0>
+  <TBODY>
+  <TR>
+    <TD vAlign=top><IMG height=128
+      src="The Code Project - CXImage - Bitmaps &amp; Palettes_file/sample1.gif"
+      width=203></TD>
+    <TD><IMG height=228
+      src="The Code Project - CXImage - Bitmaps &amp; Palettes_file/sample2.gif"
+      width=372></TD></TR></TBODY></TABLE>
+<P>This will need some minutes to complete (the intermediate files occupy
+60MB!). When everything is done, select the demo project and launch the
+application.<BR>The demo application shows how to:
+<UL>
+  <LI>Open, save, display and print images.
+  <LI>Display Bitmap, JPEG, PNG, TIFF or GIF resources.
+  <LI>Exchange images with the clipboard.
+  <LI>Capture windows screenshots or acquire image from TWAIN compatible devices.
+  <LI>Get pixels information and transform the images.
+</UL>
+<H2>... load an image resource</H2>
+<pre>	//Load the resource IDR_PNG1 from the PNG resource type
+	CxImage* newImage = new CxImage();
+	newImage->LoadResource(FindResource(NULL,MAKEINTRESOURCE(IDR_PNG1),"PNG"),CXIMAGE_FORMAT_PNG);</pre>
+or 
+<pre>	//Load the resource IDR_JPG1 from DLL
+ 	CxImage* newImage = new CxImage();
+	HINSTANCE hdll=LoadLibrary("imagelib.dll");
+	if (hdll){
+		HRSRC hres=FindResource(hdll,MAKEINTRESOURCE(IDR_JPG1),"JPG");
+		newImage->LoadResource(hres,CXIMAGE_FORMAT_JPG,hdll);
+		FreeLibrary(hdll);
+	}</pre>
+or 
+<pre>	//Load a bitmap resource;
+	HBITMAP bitmap = ::LoadBitmap(AfxGetInstanceHandle(),MAKEINTRESOURCE(IDB_BITMAP1)));
+	CxImage *newImage = new CxImage();<br>	newImage-&gt;CreateFromHBITMAP(bitmap);<br></pre>
+<H2>... decode an image from memory</H2>
+<pre>
+	CxImage image((BYTE*)buffer,size,image_type);</pre>
+or
+<pre>	CxMemFile memfile((BYTE*)buffer,size);
+	CxImage image(&memfile,image_type);</pre>
+or
+<pre>	CxMemFile memfile((BYTE*)buffer,size);
+	CxImage* image = new CxImage();
+	image->Decode(&memfile,type);</pre>
+<H2>... encode an image in memory</H2>
+<pre>
+	long size=0;
+	BYTE* buffer=0;
+	image.Encode(buffer,size,image_type);
+	...
+	free(buffer);</pre>
+or 
+<pre>	CxMemFile memfile;
+	memfile.Open();
+	image.Encode(&memfile,image_type);
+	BYTE* buffer = memfile.GetBuffer();
+	long size = memfile.Size();
+	...
+	free(buffer);</pre>
+<H2>... create a multipage TIFF</H2>
+<pre>	CxImage *pimage[3];
+	pimage[0]=&amp;image1;
+	pimage[1]=&amp;image2;
+	pimage[2]=&amp;image3;
+
+	FILE* hFile;
+	hFile = fopen("multipage.tif","w+b");
+
+	CxImageTIF multiimage;
+	multiimage.Encode(hFile,pimage,3);
+
+	fclose(hFile);</pre>
+	or
+	<pre>	FILE* hFile;
+	hFile = fopen("c:\\multi.tif","w+b");
+
+	CxImageTIF image;
+	image.Load("c:\\1.tif",CXIMAGE_FORMAT_TIF);
+	image.Encode(hFile,true);
+	image.Load("c:\\2.bmp",CXIMAGE_FORMAT_BMP);
+	image.Encode(hFile,true);
+	image.Load("c:\\3.png",CXIMAGE_FORMAT_PNG);
+	image.Encode(hFile);
+
+	fclose(hFile);
+</pre>
+<H2>... copy/paste an image</H2>
+<pre>	//copy
+	HANDLE hDIB = image->CopyToHandle();
+	if (::OpenClipboard(AfxGetApp()->m_pMainWnd->GetSafeHwnd())) {
+		if(::EmptyClipboard()) {
+			if (::SetClipboardData(CF_DIB,hDIB) == NULL ) {
+				AfxMessageBox( "Unable to set Clipboard data" );
+	}	}	}
+	CloseClipboard();
+
+	//paste
+	HANDLE hBitmap=NULL;
+	CxImage *newima = new CxImage();<br>	if (OpenClipboard()) hBitmap=GetClipboardData(CF_DIB);
+	if (hBitmap) newima-&gt;CreateFromHANDLE(hBitmap);<br>	CloseClipboard();</pre>
+<H2>... display a file in a picture box</H2>
+<pre>	CxImage image("myfile.png", CXIMAGE_FORMAT_PNG);
+	HBITMAP m_bitmap = image.MakeBitmap(m_picture.GetDC()->m_hDC);
+	m_picture.SetBitmap(m_bitmap);
+</pre>
+<H2>Remarks</H2>
+<UL>
+  <LI>The TIFF decoder for JPEG images generated by Imaging for Windows (aka OJPEG 
+    support) will not be implemented. The reasons can be found in the <a href="http://www.libtiff.org/bugs.html">LibTIFF</a> 
+    site.</LI>
+</UL>
+<H2>Compatibility</H2>
+<P>Win95,WinNT, Win98, WinME, W2K, WinXP, WinCE, Linux = Yes 
+<P>For any questions, e-mail to: <A
+href="mailto:ing.davide.pizzolato@libero.it">ing.davide.pizzolato@libero.it</A> <!-- Article Ends -->
