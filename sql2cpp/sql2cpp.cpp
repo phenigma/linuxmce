@@ -1,3 +1,11 @@
+/**
+ *
+ * @file sql2cpp.cpp
+ * @brief entry point for the sql2cpp project
+ * @author Aaron
+ */
+
+
 #include "PlutoUtils/CommonIncludes.h"
 
 #ifdef HAVE_CONFIG_H
