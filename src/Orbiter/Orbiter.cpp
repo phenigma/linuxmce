@@ -1068,21 +1068,30 @@ void Orbiter::ObjectOnScreenWrapper(  )
 
     // Do the on load actions for the screen itself,  and objects on it
     Message *pMessage_GotoScreen=NULL;
+	list <Message *> listTempMessages;
     ExecuteCommandsInList( &m_pScreenHistory_Current->m_pObj->m_Action_LoadList, m_pScreenHistory_Current->m_pObj, pMessage_GotoScreen, 0, 0 );
+
+	if(NULL != pMessage_GotoScreen)
+		listTempMessages.push_back(pMessage_GotoScreen);
 
     size_t s;
     for( s=0;s<vectDesignObj_Orbiter_OnScreen.size(  );++s )
     {
         DesignObj_Orbiter *pDesignObj_Orbiter = vectDesignObj_Orbiter_OnScreen[s];
         if(  pDesignObj_Orbiter!=m_pScreenHistory_Current->m_pObj  )  // We just did the screen itself above
+		{
             ExecuteCommandsInList( &pDesignObj_Orbiter->m_Action_LoadList, pDesignObj_Orbiter, pMessage_GotoScreen, 0, 0 );
+
+			if(NULL != pMessage_GotoScreen)
+				listTempMessages.push_back(pMessage_GotoScreen);
+		}
     }
     if( pMessage_GotoScreen )
-	{
 		ReceivedMessage( pMessage_GotoScreen );
-		delete pMessage_GotoScreen;
-		pMessage_GotoScreen = NULL;
-	}
+
+	for(list<Message *>::iterator it = listTempMessages.begin(); it != listTempMessages.end(); ++it)
+		delete *it;
+	listTempMessages.clear();
 
     for( s=0;s<vectDesignObj_Orbiter_OnScreen.size(  );++s )
     {
@@ -1193,6 +1202,7 @@ void Orbiter::ObjectOffScreen( DesignObj_Orbiter *pObj )
     if( pMessage_GotoScreen )
 	{
         ReceivedMessage( pMessage_GotoScreen );
+
 		delete pMessage_GotoScreen;
 		pMessage_GotoScreen = NULL;
 	}
@@ -1225,22 +1235,26 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
         // show/hides are executed before setting the selected state
         Message *pMessage_GotoScreen=NULL;
         DesignObjZoneList::iterator iZone;
-
+		
+		list<Message *> listTempMessages;
 		for( iZone=pObj->m_ZoneList.begin(  );iZone!=pObj->m_ZoneList.end(  );++iZone )
         {
             DesignObjZone *pDesignObjZone = ( *iZone );
             if(  pDesignObjZone->m_Rect.Width==0 || pDesignObjZone->m_Rect.Height==0 || pDesignObjZone->m_Rect.Contains( X, Y )  )
             {
                 ExecuteCommandsInList( &pDesignObjZone->m_Commands, pObj, pMessage_GotoScreen, X, Y );
+
+				if(NULL != pMessage_GotoScreen)
+					listTempMessages.push_back(pMessage_GotoScreen);
             }
         }
 
 		if( pMessage_GotoScreen )
-		{
             ReceivedMessage( pMessage_GotoScreen );
-			delete pMessage_GotoScreen;
-			pMessage_GotoScreen = NULL;
-		}
+
+		for(list<Message *>::iterator it = listTempMessages.begin(); it != listTempMessages.end(); ++it)
+			delete *it;
+		listTempMessages.clear();
 
         if(  pObj->m_vectSelectedGraphic.size() && pObj->m_GraphicToDisplay != GRAPHIC_SELECTED ) // TODO 2.0 && m_ChangeToScreen.length(  ) == 0 )
         {
@@ -2500,6 +2514,7 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
     if( pMessage_GotoScreen )
 	{
         ReceivedMessage( pMessage_GotoScreen );
+
 		delete pMessage_GotoScreen;
 		pMessage_GotoScreen = NULL;
 	}
@@ -3249,7 +3264,9 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
                                     DesignObj_Orbiter *pObj, Message *&pMessage_GotoScreen,
                                     int X,  int Y )
 {
-    if(  pDesignObjCommandList->size(  )==0  )
+	pMessage_GotoScreen = NULL;
+	
+	if(  pDesignObjCommandList->size(  )==0  )
         return;
 
     g_pPlutoLogger->Write( LV_STATUS, "Executing %d commands in object: %s", ( int ) pDesignObjCommandList->size(  ),  pObj->m_ObjectID.c_str(  ) );
@@ -3433,11 +3450,6 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 					continue;
 				}
                 ReceivedMessage( pThisMessage );
-                
-				//do we need this anymore?
-				//pThisMessage->m_dwPK_Device_To = DEVICEID_HANDLED_INTERNALLY;
-
-				//chris added this (2005.02.09) : we're not using this anymore and it goes out of scope
 				delete pThisMessage;
 				pThisMessage = NULL;
 
@@ -3460,6 +3472,8 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
     {
         if( !m_pcRequestSocket->SendMessage( pMessage ) )
             g_pPlutoLogger->Write( LV_CRITICAL,  "Send Message failed");
+
+		pMessage = NULL;
     }
     if(  bRefreshGrids  )
     {

@@ -193,8 +193,6 @@ namespace DCE
          */
         virtual ~Message();
 
-		virtual void ClearDataParameters();
-
         /**
          * @brief assignes default values to the member data and clears the map members data
          */

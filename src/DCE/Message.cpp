@@ -301,19 +301,14 @@ void Message::Clear()
 
     m_mapParameters.clear();
 
-	//data parameters will be deleted if we are sending a message calling ClearDataParameters
-	//if we are receiving a message, data parameters will be used and then deleted by the user
-    m_mapData_Parameters.clear();
-    m_mapData_Lengths.clear();
-}
-
-void Message::ClearDataParameters()
-{
 	map<long, char *>::iterator i;
 	for(i=m_mapData_Parameters.begin();i!=m_mapData_Parameters.end();++i)
 	{
-		delete[] (*i).second;
+		free((*i).second); //the data was allocated using malloc
 	}
+
+	m_mapData_Parameters.clear();
+    m_mapData_Lengths.clear();
 }
 
 void Message::ToData( unsigned long &dwSize, char* &pcData, bool bWithHeader )

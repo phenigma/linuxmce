@@ -1143,6 +1143,8 @@ PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *
 		}
 	}
 
+	delete chunk; //(for Radu) If ReadCheck returns false, who will delete the chunk? BUBU!
+
 	fclose(File);
 
 	pHeader->frame_height = RealH;

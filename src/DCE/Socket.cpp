@@ -189,8 +189,6 @@ bool Socket::SendMessage( Message *pMessage, bool bDeleteMessage )
 
 	if(bDeleteMessage && NULL != pMessage)
 	{
-		pMessage->ClearDataParameters();
-
 		delete pMessage;
 		pMessage = NULL;
 	}
