@@ -3753,8 +3753,20 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
             Output += m_sNowPlaying;
         else if(  Variable=="ND" )
 			Output += StringUtils::itos((int) m_mapDevice_Selected.size());
-        else if(  Variable=="GD" )
-			Output += StringUtils::itos(pObj->m_GraphicToDisplay);
+        else if(  Variable.length()>1 && Variable[0]=='G' && Variable[1]=='D' )
+		{
+			DesignObj_Orbiter *pObjGD = pObj;
+			if( Variable.length()>2 )
+			{
+				pObjGD = FindObject(Variable.substr(2));
+				if( !pObjGD )
+				{
+					g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find GD%s",Variable.substr(2).c_str());
+					pObjGD = pObj;
+				}
+			}
+			Output += StringUtils::itos(pObjGD->m_GraphicToDisplay);
+		}
         else if(  Variable=="SG" )
 		{
 			time_t t = m_tGenerationTime;
