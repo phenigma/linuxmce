@@ -39,9 +39,16 @@ public:
 //<-dceag-const2-e->
 
 protected:
-	void handleTelegram(const EIBBUS::TelegramMessage *pt);
+		/*callback methods from Message Pool*/
+		virtual void handleTelegram(const EIBBUS::TelegramMessage *pt);
 
+private:
+		/*process telegram methods*/
+		bool processTelegram(const EIBBUS::TelegramMessage *pt, DeviceData_Impl *pDevData);
 
+		/*helper methods*/		
+		static bool getParamsFromChannel(const std::string& sChannel, 
+							unsigned int index, std::string& param);
 private:
 	enum DATATYPE {
 		DT_UNKNOWN				= 0,

@@ -32,19 +32,28 @@ using namespace std;
 using namespace DCE;
 
 #define SLEEP_IO_ERROR			5000
-#define SLEEP_WAIT_MESSAGES		100
+#define SLEEP_WAIT_MESSAGES		10
+#define SLEEP_WAIT_ACKNOWLEDGE	500
 
 /* states */
 #define STATE_READY				1
-#define STATE_SLEEP				2
-#define STATE_INITIALIZEBUS		3
-#define STATE_INITIALIZEREAD	4
+#define STATE_INIT				2
+#define STATE_ACK				3
+#define STATE_SEND				4
+#define STATE_READ				5
 
 #define MAX_RECVQUEUE_SIZE		20
+#define MAX_RESEND_RETRIES		3
 
 namespace EIBBUS {
 
-MessagePool::MessagePool() {
+MessagePool::MessagePool(bool monitormode) 
+	: monitormode_(monitormode),
+		initstate_(this),
+		recvstate_(this),
+		sendstate_(this),
+		readystate_(this)
+{
 	pbusconn_ = BusConnector::getInstance();
 }
 
@@ -85,123 +94,44 @@ MessagePool::_Run() {
 				sleep(SLEEP_IO_ERROR / 1000);
 				continue;
 			}
-			setState(STATE_INITIALIZEBUS);
-		} else
-		if(pbusconn_->isDataAvailable()) {
-			setState(STATE_INITIALIZEREAD);
-		}
+			setState(&initstate_);
+		} 
 		
-		handleState();
+		Handle();
 	}	
 	return 0;
 }
 
-void 
-MessagePool::handleState() {
-	switch(getState()) {
-		case STATE_INITIALIZEBUS: {
-			g_pPlutoLogger->Write(LV_STATUS, "Sending BAU Initialization.");
-		
-			BauInitMessage bimsg;
-			if(bimsg.Send(pbusconn_)) {
-				g_pPlutoLogger->Write(LV_WARNING, "Error sending BAU Initialization. Waiting for next retry.");
-				return;
-			}
-			
-			g_pPlutoLogger->Write(LV_STATUS, "Requesting Monitor mode.");
-
-			MonitorRequestMessage mrmsg;
-			if(mrmsg.Send(pbusconn_)) {
-				g_pPlutoLogger->Write(LV_WARNING, "Error requesting Monitor mode. Waiting for next retry.");
-				return;
-			}
-			
-			g_pPlutoLogger->Write(LV_STATUS, "Expecting Acknowledge.");
-			AckMessage ackmsg;
-			if(ackmsg.Recv(pbusconn_)) {
-				g_pPlutoLogger->Write(LV_WARNING, "Error receiving Acknowledge message.");
-				return;
-			}
-			g_pPlutoLogger->Write(LV_STATUS, "Acknowledge received.");
-
-			setState(STATE_READY);
-		} break;
-			
-		case STATE_READY: {
-			if(esq_.Wait(SLEEP_WAIT_MESSAGES)) {
-				msq_.Lock();
-				if(sendqueue_.size() > 0) {
-					TelegramMessage& tlmsg = *sendqueue_.begin();
-					
-					g_pPlutoLogger->Write(LV_STATUS, "Sending telegram...");
-					
-					TimeTracker tk;
-					tk.Start();
-					if(tlmsg.Send(pbusconn_)) {
-						g_pPlutoLogger->Write(LV_WARNING, "Error sending telegram.");
-						return;
-					}
-					tk.Stop();
-					g_pPlutoLogger->Write(LV_STATUS, "Telegram sent in %.04f seconds", tk.getPeriodInSecs());
-					
-					sendqueue_.pop_front();
-				}
-				msq_.Unlock();
-			}
-		} break;
-		
-		case STATE_INITIALIZEREAD: {
-			g_pPlutoLogger->Write(LV_STATUS, "Data available. Checking for telegrams...");
-			while(pbusconn_->isDataAvailable()) {
-				TelegramMessage tlmsg;
-				int ret = tlmsg.Recv(pbusconn_);
-				if(ret < 0) {
-					g_pPlutoLogger->Write(LV_WARNING, "Error receiving telegram. Clearing input buffers...");
-					/* pbusconn_->Clear(); */
-				} else
-				if(ret > 0) {
-					/* g_pPlutoLogger->Write(LV_STATUS, "Not a telegram message..."); */
-					/* pbusconn_->Clear(); */
-				} else {
-					logTelegram(&tlmsg);
-					if(pi_ != NULL) {
-						pi_->handleTelegram(&tlmsg);
-					}
-					
-					/* put telegram into recv queue and unlock readers */
-					msq_.Lock();
-					if(recvqueue_.size() >= MAX_RECVQUEUE_SIZE) {
-						/* g_pPlutoLogger->Write(LV_STATUS, "Recv queue FULL. Removing front message.");*/
-						recvqueue_.pop_front();
-					}
-					recvqueue_.push_back(tlmsg);
-					msq_.Unlock();
-					erq_.Post();
-					
-					AckMessage ackmsg;
-					if(ackmsg.Send(pbusconn_)) {
-						g_pPlutoLogger->Write(LV_WARNING, "Error sending Acknowledge.");
-						return;
-					}
-				}
-			}
-			
-			setState(STATE_READY);
-		} break;
-	}
-}
 
 void 
-MessagePool::logTelegram(const TelegramMessage *pt) {
-	g_pPlutoLogger->Write(LV_STATUS, "Telegram: graddr: %s.", pt->getGroupAddress());
+MessagePool::handleNewState() {
+/*
+	std::string statestr;
+	if(getState() == &readystate_)
+		statestr = "READY";
+	else 
+	if(getState() == &initstate_)
+		statestr = "INIT";
+	else 
+	if(getState() == &sendstate_)
+		statestr = "SEND";
+	else 
+	if(getState() == &recvstate_)
+		statestr = "RECV";
+	else 
+		statestr = "UNKNOWN";
+	
+	g_pPlutoLogger->Write(LV_STATUS, "Now in %s state.", statestr.c_str());
+*/
 }
 
 int 
-MessagePool::sendTelegram(const TelegramMessage *ptelegram) {
+MessagePool::sendTelegram(const TelegramMessage *ptelegram, bool waitack) {
 	msq_.Lock();
 	sendqueue_.push_back(*ptelegram);
+	esq_.Signal();
 	msq_.Unlock();
-	esq_.Post();
+	g_pPlutoLogger->Write(LV_STATUS, "New telegram in Send Queue.");
 	return 0;
 }
 
@@ -228,6 +158,172 @@ MessagePool::readTelegram(TelegramMessage *ptelegram, int waitmilisecs) {
 		}
 	}
 	return ret;
+}
+
+/*state machines*/
+
+#define MPSM(member) (((MessagePool*)getStateMachine())->member)
+#define BUSCONNECTOR MPSM(pbusconn_)
+#define MONITORMODE MPSM(monitormode_)
+
+#define INITSTATE (&MPSM(initstate_))
+#define READYSTATE (&MPSM(readystate_))
+#define SENDSTATE (&MPSM(sendstate_))
+#define RECVSTATE (&MPSM(recvstate_))
+
+#define POOLINTERCEPTOR (MPSM(pi_))
+
+#define EVENTSENDQUEUE (MPSM(esq_))
+#define EVENTRECVQUEUE (MPSM(erq_))
+
+#define MSGLOCK (MPSM(msq_))
+#define RECVQUEUE (MPSM(recvqueue_))
+#define SENDQUEUE (MPSM(sendqueue_))
+
+bool MessagePool::BaseState::readAcknowledge() {
+	int ret;
+	TimeTracker tk(true);
+	
+	AckMessage ackmsg;
+	while((ret = ackmsg.Recv(BUSCONNECTOR)) != 0) {
+		if(tk.getCurrentPeriodInMiliSecs() > SLEEP_WAIT_ACKNOWLEDGE) {
+			//g_pPlutoLogger->Write(LV_WARNING, "Error receiving Acknowledge message.");
+			return false;
+		}
+		if(ret == Message::RECV_UNKNOWN){
+			BUSCONNECTOR->Skip(1);
+		}
+	}
+	//g_pPlutoLogger->Write(LV_STATUS, "Acknowledge received.");
+	return true;
+}
+
+void 
+MessagePool::BaseState::logTelegram(const TelegramMessage *pt) {
+	g_pPlutoLogger->Write(LV_STATUS, "Telegram: graddr: %s, SUD: %d.", pt->getGroupAddress(), pt->getShortUserData());
+}
+
+
+void MessagePool::InitState::Handle(void* p) {
+	g_pPlutoLogger->Write(LV_STATUS, "Sending BAU Initialization.");
+
+	BauInitMessage bimsg;
+	if(bimsg.Send(BUSCONNECTOR)) {
+		g_pPlutoLogger->Write(LV_WARNING, "Error sending BAU Initialization. Waiting for next retry.");
+		return;
+	}
+
+	if(MONITORMODE) {
+		g_pPlutoLogger->Write(LV_STATUS, "Requesting Monitor mode.");
+
+		MonitorRequestMessage mrmsg;
+		if(mrmsg.Send(MPSM(pbusconn_))) {
+			g_pPlutoLogger->Write(LV_WARNING, "Error requesting Monitor mode. Waiting for next retry.");
+			return;
+		}
+		if(readAcknowledge()) {
+			setState(READYSTATE);
+		}
+	} else {
+		setState(READYSTATE);
+	}
+}
+
+void MessagePool::ReadyState::Handle(void* p) {
+	bool dosend = false;
+	MSGLOCK.Lock();
+	if(SENDQUEUE.size() > 0) {
+		dosend = true;
+	}
+	MSGLOCK.Unlock();
+	if(!dosend && EVENTSENDQUEUE.Wait(SLEEP_WAIT_MESSAGES)) {
+		dosend = true;
+	}
+	if(dosend) {
+		setState(SENDSTATE);
+	} else {
+		if(BUSCONNECTOR->isDataAvailable()) {
+			setState(RECVSTATE);
+		}
+	}
+}
+
+void MessagePool::RecvState::Handle(void* p) {
+	//g_pPlutoLogger->Write(LV_STATUS, "Data available. Checking for telegrams...");
+	
+	TelegramMessage tlmsg;
+	int ret = tlmsg.Recv(BUSCONNECTOR);
+	if(ret == Message::RECV_INVALID) {
+		/*incalid message*/
+	} else
+	if(ret == Message::RECV_UNKNOWN) {
+		/*unknown message*/
+		BUSCONNECTOR->Skip(1);
+	} else {
+		logTelegram(&tlmsg);
+		if(POOLINTERCEPTOR != NULL) {
+			POOLINTERCEPTOR->handleTelegram(&tlmsg);
+		}
+
+		/* put telegram into recv queue and unlock readers */
+		MSGLOCK.Lock();
+		if(RECVQUEUE.size() >= MAX_RECVQUEUE_SIZE) {
+			/* g_pPlutoLogger->Write(LV_STATUS, "Recv queue FULL. Removing front message.");*/
+			RECVQUEUE.pop_front();
+		}
+		RECVQUEUE.push_back(tlmsg);
+		MSGLOCK.Unlock();
+		EVENTRECVQUEUE.Signal();
+
+		AckMessage ackmsg;
+		if(ackmsg.Send(BUSCONNECTOR)) {
+			g_pPlutoLogger->Write(LV_WARNING, "Error sending Acknowledge.");
+		}
+	}
+	
+	setState(READYSTATE);
+}
+
+void MessagePool::SendState::Handle(void* p) {
+	if(errcount_ >= MAX_RESEND_RETRIES) {
+		errcount_ = 0;
+		setState(READYSTATE);
+		
+		g_pPlutoLogger->Write(LV_STATUS, "Acknowledge not received. Abandoning message send.");
+		return;
+	}
+	
+	MSGLOCK.Lock();
+	if(SENDQUEUE.size() > 0) {
+		bool waitack = true;
+		TelegramMessage& tlmsg = *SENDQUEUE.begin();
+	
+		g_pPlutoLogger->Write(LV_STATUS, "Sending telegram...");
+	
+		TimeTracker tk;
+		tk.Start();
+		if(tlmsg.Send(BUSCONNECTOR)) {
+			g_pPlutoLogger->Write(LV_WARNING, "Error sending telegram.");
+			setState(READYSTATE);
+		} else {
+			tk.Stop();
+			g_pPlutoLogger->Write(LV_STATUS, "Telegram sent in %.04f seconds", tk.getTotalPeriodInSecs());
+	
+			if(!waitack || readAcknowledge()) {
+				SENDQUEUE.pop_front();
+				errcount_ = 0;
+				
+				g_pPlutoLogger->Write(LV_STATUS, "Acknowledge received.");
+				
+				setState(READYSTATE);
+			} else {
+				errcount_++;
+			}
+		}
+	} else {
+		setState(READYSTATE);
+	}
+	MSGLOCK.Unlock();
 }
 
 }

@@ -40,7 +40,7 @@ public:
 
 class MessagePool : public Thread, protected StateMachine {
 public:
-    MessagePool();
+    MessagePool(bool monitormode = true);
     ~MessagePool();
 	
 public:
@@ -48,7 +48,7 @@ public:
 	void unregInterceptor(MessagePoolInterceptor *pi);
 
 public:
-	int sendTelegram(const TelegramMessage *ptelegram);
+	int sendTelegram(const TelegramMessage *ptelegram, bool waitack = false);
 	int readTelegram(TelegramMessage *ptelegram, int waitmilisecs = -1);
 
 protected:
@@ -56,23 +56,76 @@ protected:
 	
 	virtual bool handleStartup();
 	virtual void handleTerminate();
+	virtual void handleNewState();
 
-private:
-	void handleState();
-	void logTelegram(const TelegramMessage *pt);
-	
 private:
 	BusConnector* pbusconn_;
 
 private:
+	bool monitormode_;
 	MessagePoolInterceptor* pi_;
 
 private:
 	Mutex msq_; /*lock on both queues*/
 	Event esq_, erq_; /*event for arriving in send/recv queues*/
-	std::list<TelegramMessage> sendqueue_;
 	std::list<TelegramMessage> recvqueue_;
+	std::list<TelegramMessage> sendqueue_;
+	
+protected:
+	/*BaseState*/
+	friend class BaseState;
+	class BaseState : public State {
+	public:
+		BaseState(StateMachine* psm)
+			: State(psm) {}
+	public:
+		bool readAcknowledge();
+		void logTelegram(const TelegramMessage *pt);
+	};
+	
+	/*InitState*/
+	friend class InitState;
+	class InitState : public BaseState {
+	public:
+		InitState(StateMachine* psm)
+			: BaseState(psm) {}
+	protected:
+		virtual void Handle(void* p);
+	} initstate_;
+	
+	/*RecvState*/
+	friend class RecvState;
+	class RecvState : public BaseState {
+	public:
+		RecvState(StateMachine* psm)
+			: BaseState(psm) {}
+	protected:
+		virtual void Handle(void* p);
+	} recvstate_;
+	
+	/*SendState*/
+	friend class SendState;
+	class SendState : public BaseState {
+	public:
+		SendState(StateMachine* psm)
+			: BaseState(psm), errcount_(0) {}
+	protected:
+		virtual void Handle(void* p);
+	private:
+		int errcount_;
+	} sendstate_;
+	
+	/*ReadyState*/
+	friend class ReadyState;
+	class ReadyState : public BaseState  {
+	public:
+		ReadyState(StateMachine* psm)
+			: BaseState(psm) {}
+	protected:
+		virtual void Handle(void* p);
+	} readystate_;
 };
+
 
 };
 

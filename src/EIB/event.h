@@ -12,7 +12,7 @@
 #ifndef EIBBUSEVENT_H
 #define EIBBUSEVENT_H
 
-#include <semaphore.h>
+#include <pthread.h>
 
 namespace EIBBUS {
 
@@ -26,12 +26,12 @@ public:
     ~Event();
 
 public:
-	void Post();
+	void Signal();
 	bool Wait(int milisecs = -1);
-	bool TryWait();
 
 private:
-	sem_t event_;
+	pthread_cond_t event_;
+	pthread_mutex_t mutex_;
 };
 
 };

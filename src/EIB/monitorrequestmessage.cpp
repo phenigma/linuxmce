@@ -14,12 +14,13 @@
 
 namespace EIBBUS {
 
-static const unsigned char s_monitorrequest[7] = 
-		{0xA9, 0x90, 0x18, 0x34, 0x56, 0x78, 0x0A};
+static const unsigned char s_monitorrequest[6] = 
+/*		{0xA9, 0x90, 0x18, 0x34, 0x56, 0x78, 0x0A};*/
+			  {0x90, 0x18, 0x34, 0x56, 0x78, 0x0A};
 
 int 
 MonitorRequestMessage::Send(BusConnector *pbusconn) {
-	SendPeiBuffer(pbusconn, s_monitorrequest, sizeof(s_monitorrequest));
+	SendPeiBuffer(pbusconn, 0x68, 0xA9, s_monitorrequest, sizeof(s_monitorrequest));
 	return 0;
 }
 

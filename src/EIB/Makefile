@@ -22,7 +22,7 @@ LDFLAGS +=
 XTRALDLIBS = -lSerial -lrt
 
 Gen_Dev_Files +=
-sources += messagepool.cpp busconnector.cpp message.cpp thread.cpp mutex.cpp event.cpp bauinitmessage.cpp ackmessage.cpp statemachine.cpp telegrammessage.cpp monitorrequestmessage.cpp timetracker.cpp
+sources += messagepool.cpp busconnector.cpp message.cpp thread.cpp mutex.cpp event.cpp bauinitmessage.cpp ackmessage.cpp statemachine.cpp telegrammessage.cpp monitorrequestmessage.cpp timetracker.cpp extendedserialport.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)

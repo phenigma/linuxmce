@@ -13,10 +13,13 @@
 
 namespace EIBBUS {
 
-TimeTracker::TimeTracker()
+TimeTracker::TimeTracker(bool start)
 {
 	starttm_.tv_sec = starttm_.tv_nsec = 0;
 	stoptm_.tv_sec = stoptm_.tv_nsec = 0;
+	if(start) {
+		Start();
+	}
 }
 
 TimeTracker::~TimeTracker(){
@@ -33,7 +36,21 @@ TimeTracker::Stop() {
 }
 
 double 
-TimeTracker::getPeriodInSecs() {
+TimeTracker::getCurrentPeriodInMiliSecs() {
+	struct timespec currtm;
+	clock_gettime(CLOCK_REALTIME, &currtm);
+	return (currtm.tv_sec - starttm_.tv_sec)* 1000 + 1.0 * (currtm.tv_nsec - starttm_.tv_nsec) / 1000000;
+}
+
+double 
+TimeTracker::getCurrentPeriodInSecs() {
+	struct timespec currtm;
+	clock_gettime(CLOCK_REALTIME, &currtm);
+	return currtm.tv_sec - starttm_.tv_sec + 1.0 * (currtm.tv_nsec - starttm_.tv_nsec) / 1000000000;
+}
+
+double 
+TimeTracker::getTotalPeriodInSecs() {
 	return stoptm_.tv_sec - starttm_.tv_sec + 1.0 * (stoptm_.tv_nsec - starttm_.tv_nsec) / 1000000000;
 }
 

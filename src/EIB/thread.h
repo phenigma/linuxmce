@@ -42,8 +42,8 @@ protected:
 	virtual void handleTerminate() {};
 	
 private:
-	bool requeststop_;
 	pthread_t threadid_;
+	bool requeststop_;
 	static void* _threadproc(void *arg);
 };
 

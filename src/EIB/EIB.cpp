@@ -13,6 +13,10 @@ using namespace DCE;
 //<-dceag-d-e->
 
 #include "telegrammessage.h"
+#include "pluto_main/Define_DeviceData.h"
+#include "pluto_main/Define_DeviceTemplate.h"
+#include "pluto_main/Define_Command.h"
+#include "pluto_main/Define_CommandParameter.h"
 
 using namespace EIBBUS;
 
@@ -51,7 +55,7 @@ bool EIB::Connect(int iPK_DeviceTemplate) {
 		return false;
 	}
 
-//	m_msgPool.regInterceptor(this);
+	m_msgPool.regInterceptor(this);
 	m_msgPool.Run(false);
 	
 /*	
@@ -99,7 +103,138 @@ EIB_Command *Create_EIB(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pD
 void EIB::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
-	sCMD_Result = "UNHANDLED CHILD";
+	g_pPlutoLogger->Write(LV_STATUS, "Command %d received for CHILD", pMessage->m_dwID);
+    
+	// find child device
+    DeviceData_Impl* pDeviceData_Impl = NULL;
+		
+	VectDeviceData_Impl& vDeviceData = m_pData->m_vectDeviceData_Impl_Children;
+    for(VectDeviceData_Impl::size_type i = 0; i < vDeviceData.size(); i++) {
+        if(vDeviceData[i]->m_dwPK_Device == pMessage->m_dwPK_Device_To) {
+            pDeviceData_Impl = vDeviceData[i];
+            break;
+        }
+    }
+
+    if(!pDeviceData_Impl) {
+        g_pPlutoLogger->Write(LV_CRITICAL, "Child device %d not found.", pMessage->m_dwPK_Device_To);
+        return;
+    }
+
+	TelegramMessage tlmsg;
+	switch(pMessage->m_dwID) {
+		case COMMAND_Toggle_Power_CONST: {
+			switch(pDeviceData_Impl->m_dwPK_DeviceTemplate) {
+				case DEVICETEMPLATE_Generic_Input_Ouput_CONST: {
+					string sInputOrOutput = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_InputOrOutput_CONST);
+					if(sInputOrOutput == "0" || sInputOrOutput == "2") { /* check if input */
+						string sPort = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_Port_CONST);
+						tlmsg.setGroupAddress(sPort.c_str());
+						tlmsg.setShortUserData((unsigned int)atoi(pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST].c_str()));
+						g_pPlutoLogger->Write(LV_STATUS, "Turning ON");
+						m_msgPool.sendTelegram(&tlmsg);
+					}
+				} break;
+				default: {
+					g_pPlutoLogger->Write(LV_WARNING, "Device type NOT Supported.");
+				} break;
+			}
+		} break;
+		
+		case COMMAND_Generic_On_CONST: {
+			/***all devices ***/
+			switch(pDeviceData_Impl->m_dwPK_DeviceTemplate) {
+				case DEVICETEMPLATE_Drapes_Switch_CONST:
+				case DEVICETEMPLATE_Light_Switch_onoff_CONST:
+				case DEVICETEMPLATE_Light_Switch_dimmable_CONST: {
+					/***default***/
+					string onoffaddr;
+					string sChannel = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_Channel_CONST);
+					if(getParamsFromChannel(sChannel, 0, onoffaddr)) {
+						tlmsg.setGroupAddress(onoffaddr.c_str());
+						tlmsg.setShortUserData(1);
+						g_pPlutoLogger->Write(LV_STATUS, "Turning ON");
+						m_msgPool.sendTelegram(&tlmsg);
+					}
+				} break;
+				default: {
+					g_pPlutoLogger->Write(LV_WARNING, "Device type NOT Supported.");
+				} break;
+			}
+			
+			} break;
+		case COMMAND_Generic_Off_CONST: {
+			/***all devices ***/
+			switch(pDeviceData_Impl->m_dwPK_DeviceTemplate) {
+				case DEVICETEMPLATE_Drapes_Switch_CONST:
+				case DEVICETEMPLATE_Light_Switch_onoff_CONST:
+				case DEVICETEMPLATE_Light_Switch_dimmable_CONST: {
+					/***default***/
+					string onoffaddr;
+					string sChannel = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_Channel_CONST);
+					if(getParamsFromChannel(sChannel, 0, onoffaddr)) {
+						tlmsg.setGroupAddress(onoffaddr.c_str());
+						tlmsg.setShortUserData(0);
+						g_pPlutoLogger->Write(LV_STATUS, "Turning OFF");
+						m_msgPool.sendTelegram(&tlmsg);
+					}
+				} break;
+				default: {
+					g_pPlutoLogger->Write(LV_WARNING, "Device type NOT Supported.");
+				} break;
+			}
+			} break;
+		case COMMAND_Set_Level_CONST: {
+			switch(pDeviceData_Impl->m_dwPK_DeviceTemplate) {
+				case DEVICETEMPLATE_Light_Switch_dimmable_CONST: {
+					string dimaddr;
+					string sChannel = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_Channel_CONST);
+					if(getParamsFromChannel(sChannel, 1, dimaddr)) {
+						int dimmval = 
+								(unsigned int)atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST].c_str());
+						unsigned char dimm 
+								= (255 * dimmval) / 100;
+						tlmsg.setUserData(&dimm, 1);
+						g_pPlutoLogger->Write(LV_STATUS, "Dimming to %d%%.", dimmval);
+						m_msgPool.sendTelegram(&tlmsg);
+					}
+				} break;
+				
+				case DEVICETEMPLATE_Drapes_Switch_CONST: {
+					/***drapes switch***/
+					string dimaddr;
+					string sChannel = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_Channel_CONST);
+					if(getParamsFromChannel(sChannel, 1, dimaddr)) {
+						tlmsg.setGroupAddress(dimaddr.c_str());
+						int dimmval = 
+								(unsigned int)atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST].c_str());
+						bool stepfwrd = 
+								(dimmval > 0);
+						unsigned nsteps = 
+								(dimmval > 0) ? dimmval : -dimmval;
+						if(stepfwrd) {
+							g_pPlutoLogger->Write(LV_STATUS, "Stepping FORWARD by %d.", nsteps);
+						} else {
+							g_pPlutoLogger->Write(LV_STATUS, "Stepping BACKWORD by %d.", nsteps);
+						}
+						tlmsg.setShortUserData(stepfwrd);
+						while(nsteps-- > 0) {
+							m_msgPool.sendTelegram(&tlmsg);
+							usleep(500*1000); // sleep 10 sec
+						}
+					}
+				} break;
+				default: {
+					g_pPlutoLogger->Write(LV_WARNING, "Device type NOT Supported.");
+				} break;
+			}
+			} break;
+		default:
+			g_pPlutoLogger->Write(LV_WARNING, "Unknown command %d received.", pMessage->m_dwID);
+			return;
+	}
+	
+	sCMD_Result = "OK";
 }
 
 /*
@@ -115,12 +250,70 @@ void EIB::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 }
 
 void EIB::handleTelegram(const TelegramMessage *pt) {
-/*	g_pPlutoLogger->Write(LV_STATUS, "Processing received Telegram...");
-	if(pt->getActionType() == TelegramMessage::ANSWER) {
-		g_pPlutoLogger->Write(LV_STATUS, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!: %d", pt->getShortUserData());
-	}*/
+	g_pPlutoLogger->Write(LV_STATUS, "Processing received Telegram..."); 
+	
+	VectDeviceData_Impl& vDeviceData = m_pData->m_vectDeviceData_Impl_Children;
+    for(VectDeviceData_Impl::size_type i = 0; i < vDeviceData.size(); i++) {
+		if(processTelegram(pt, vDeviceData[i])) {
+			break;
+		}
+    }
 }
 
+bool EIB::processTelegram(const EIBBUS::TelegramMessage *pt, DeviceData_Impl *pDevData) {
+	Message* pMessage = NULL;
+	switch(pDevData->m_dwPK_DeviceTemplate) {
+		case DEVICETEMPLATE_Generic_Input_Ouput_CONST: {
+			string sInputOrOutput = pDevData->mapParameters_Find(DEVICEDATA_InputOrOutput_CONST);
+			if(sInputOrOutput == "1" || sInputOrOutput == "2") { /* check if output */
+				string sPort = pDevData->mapParameters_Find(DEVICEDATA_Port_CONST);
+				if(sPort == pt->getGroupAddress()) {
+					g_pPlutoLogger->Write(LV_STATUS, "Sensor triggered. Sending Event."); 
+					pMessage = new Message(pDevData->m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
+																	9, 1, 25, StringUtils::itos(pt->getShortUserData()).c_str());
+				}
+			}
+		} break;
+	}
+
+	if(pMessage) {
+		if(!GetEvents()->SendMessage(pMessage)) {
+			g_pPlutoLogger->Write(LV_WARNING, "Error sending Event."); 
+		}
+	}
+		
+	return false;
+}
+
+bool EIB::getParamsFromChannel(const std::string& sChannel, 
+							unsigned int index, std::string& param)
+{
+	int bindex = -1, length = 0;
+	while(index  > 0) {
+		bindex = sChannel.find('|', bindex + 1);
+		if(bindex < 0) {
+			break;
+		}
+		index--;
+	}
+	if(index > 0) {
+		return false;
+	}
+		
+	length = sChannel.find('|', bindex + 1);
+	
+	if(bindex < 0) {
+		bindex = 0;
+	}
+	
+	if(length < 0) {
+		length = sChannel.length() - bindex;
+	} else {
+		length = length - bindex;
+	}
+	param = sChannel.substr(bindex, length);
+	return true;
+}
 
 //<-dceag-sample-b->
 /*		**** SAMPLE ILLUSTRATING HOW TO USE THE BASE CLASSES ****

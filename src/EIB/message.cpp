@@ -56,6 +56,7 @@
 #define EIB_SENT_SOURCE_ADDRESS_SHORT_VALUE 0x0000
 
 
+
 using namespace DCE;
 
 namespace EIBBUS {
@@ -70,7 +71,7 @@ Message::SendBuffer(BusConnector *pbusconn,
 	pbusconn->Send((unsigned char*)msg, length);
 	tk.Stop();
 	
-	g_pPlutoLogger->Write(LV_STATUS, "Buffer sent in %.5f seconds", tk.getPeriodInSecs());
+	g_pPlutoLogger->Write(LV_STATUS, "Buffer sent in %.5f seconds", tk.getTotalPeriodInSecs());
 		
 	pbusconn->incFrameBit();
 	return 0;
@@ -80,74 +81,48 @@ int
 Message::RecvBuffer(BusConnector *pbusconn, 
 		unsigned char* msg, unsigned int length)
 {
-	return pbusconn->Recv(msg, length, 1000);
+	unsigned int nread, totalread = 0;
+	while(totalread < length) {
+		nread = pbusconn->Recv(msg + totalread, length - totalread, 100);
+		if(nread <= 0) {
+			return totalread;
+		}
+		totalread += nread;
+	}
+	return totalread;
+}
+	
+int 
+Message::UndoRecvBuffer(BusConnector *pbusconn, 
+		const unsigned char* msg, unsigned int length)
+{
+	return pbusconn->UndoRecv(msg, length);
 }
 
 int
 PeiMessage::SendPeiBuffer(BusConnector *pbusconn, 
-		const unsigned char* msg, unsigned int length) 
+		unsigned char type, unsigned char code, const unsigned char* msg, unsigned int length) 
 {
 	unsigned char peibuff[MAX_FRAME_LENGTH];
 	
-	peibuff[EIB_FIRST_TYPE_BYTE] = EIB_TYPE_BYTE_VALUE;
-	peibuff[EIB_SECOND_TYPE_BYTE] = EIB_TYPE_BYTE_VALUE;
-	peibuff[EIB_MESSAGE_CODE_BYTE] = EIB_SENT_MESSAGE_CODE_VALUE;
+	peibuff[EIB_FIRST_TYPE_BYTE] = type;
+	peibuff[EIB_SECOND_TYPE_BYTE] = type;
+	
+	peibuff[EIB_MESSAGE_CODE_BYTE] = code;
 	
 	peibuff[EIB_FIRST_LENGTH_BYTE] =
-		length + EIB_SIZE_OF_PEI_CONTROL_FIELD;
+		length + EIB_SIZE_OF_PEI_CONTROL_FIELD + 1;
 	peibuff[EIB_SECOND_LENGTH_BYTE] =
-		length + EIB_SIZE_OF_PEI_CONTROL_FIELD ;
+		length + EIB_SIZE_OF_PEI_CONTROL_FIELD + 1;
 
-	memcpy(&peibuff[EIB_MESSAGE_CODE_BYTE], msg, length);
-	
 	// Set ControlField
 	if(pbusconn->getFrameBit()) {
 		peibuff[EIB_CONTROL_FIELD_BYTE]= 0x73;
 	} else {
 		peibuff[EIB_CONTROL_FIELD_BYTE]= 0x53;
 	}
-	
-	// Calculate PEI-CHKSUM,
-	unsigned char chksum = peibuff[EIB_CONTROL_FIELD_BYTE];
-	
-	int laenge = ((int)peibuff[EIB_FIRST_LENGTH_BYTE])
-						+ EIB_SIZE_OF_PEI_HEADER;
-	for ( int i = EIB_MESSAGE_CODE_BYTE ; i < laenge ; i++) {
-			chksum += peibuff[i];
-	}
-	// Set PEI-CHKSUM,
-	peibuff[laenge] = chksum;
-	
-	// Set Stop Byte
-	peibuff[laenge + 1] = EIB_STOP_BYTE_VALUE;
-	
-	return SendBuffer(pbusconn, peibuff, sizeof(peibuff));
-}
-
-int 
-ServerMessage::SendServerBuffer(BusConnector *pbusconn, 
-		const unsigned char* msg, unsigned int length) {
-	
-	unsigned char peibuff[MAX_FRAME_LENGTH];
-	
-	peibuff[EIB_FIRST_TYPE_BYTE] = EIB_TYPE_BYTE_VALUE;
-	peibuff[EIB_SECOND_TYPE_BYTE] = EIB_TYPE_BYTE_VALUE;
-	peibuff[EIB_MESSAGE_CODE_BYTE] = EIB_SENT_MESSAGE_CODE_VALUE;
-	
-	peibuff[EIB_FIRST_LENGTH_BYTE] =
-	peibuff[EIB_SECOND_LENGTH_BYTE] =
-		length + 2;
-		
-	*((unsigned short*)&peibuff[EIB_SENT_FIRST_SOURCE_ADDRESS_BYTE]) = EIB_SENT_SOURCE_ADDRESS_SHORT_VALUE;
 
 	memcpy(&peibuff[EIB_STATUS_BYTE], msg, length);
-		
-	// Set ControlField
-	if(pbusconn->getFrameBit()) {
-		peibuff[EIB_CONTROL_FIELD_BYTE]= 0x73;
-	} else {
-		peibuff[EIB_CONTROL_FIELD_BYTE]= 0x53;
-	}
 	
 	// Calculate PEI-CHKSUM,
 	unsigned char chksum = peibuff[EIB_CONTROL_FIELD_BYTE];
@@ -162,92 +137,87 @@ ServerMessage::SendServerBuffer(BusConnector *pbusconn,
 	
 	// Set Stop Byte
 	peibuff[laenge + 1] = EIB_STOP_BYTE_VALUE;
-	
 	return SendBuffer(pbusconn, peibuff, sizeof(peibuff));
 }
 
 int 
-ServerMessage::ReceiveServerBuffer(BusConnector *pbusconn, 
-	unsigned char* msg, unsigned int& length) 
+PeiMessage::ReceivePeiBuffer(BusConnector *pbusconn, 
+		unsigned char type, unsigned char& code, unsigned char* msg, unsigned int& length) 
 {
+	int totalread = 0;
 	unsigned char peibuff[MAX_FRAME_LENGTH];
 	
 	/*receive header*/
-	if(RecvBuffer(pbusconn, peibuff, 1) < 1) {
-		return -1;
-	}
-	
-	if(peibuff[0] != EIB_TYPE_BYTE_VALUE) {
-//		g_pPlutoLogger->Write(LV_STATUS, "Invalid Message Type");
-		return 1;
-	}
-		
-	if(RecvBuffer(pbusconn, &peibuff[1], EIB_SIZE_OF_PEI_HEADER - 1) < EIB_SIZE_OF_PEI_HEADER - 1) {
-//		g_pPlutoLogger->Write(LV_WARNING, "Could not receive complete Message Header");
-		return 1;
-	}
-	
-	/*get message length including TAIL length*/
-	unsigned mlength = 0;
-	if(peibuff[EIB_FIRST_LENGTH_BYTE] == peibuff[EIB_SECOND_LENGTH_BYTE]
-		&& EIB_TYPE_BYTE_VALUE == peibuff[EIB_SECOND_TYPE_BYTE]) {
-		mlength = peibuff[EIB_FIRST_LENGTH_BYTE];
+	int nread = RecvBuffer(pbusconn, &peibuff[0], 1);
+	if(nread < 1) {
+		return RECV_INVALID;
+ 	}
+	totalread += nread;
+
+	if(type != peibuff[0]) {
 	} else {
-//		g_pPlutoLogger->Write(LV_WARNING, "Length fields set incorrectly");
-		return 1;
+		nread = RecvBuffer(pbusconn, &peibuff[1], EIB_SIZE_OF_PEI_HEADER - 1);
+		if(nread >= 1) {
+			totalread += nread;
+		} 
+		if(nread < EIB_SIZE_OF_PEI_HEADER - 1) {
+			g_pPlutoLogger->Write(LV_WARNING, "Could not receive complete Message Header, only %d bytes.", nread);
+		} else {	
+			/*get message length including TAIL length*/
+			if(peibuff[EIB_FIRST_LENGTH_BYTE] != peibuff[EIB_SECOND_LENGTH_BYTE]) {
+				g_pPlutoLogger->Write(LV_WARNING, "Length fields set incorrectly");
+			} else {
+				int mlength = peibuff[EIB_FIRST_LENGTH_BYTE];
+				nread = RecvBuffer(pbusconn, &peibuff[EIB_SIZE_OF_PEI_HEADER], mlength + EIB_SIZE_OF_PEI_TAIL);
+				if(nread >= 1) {
+					totalread += nread;
+				} 
+				if(nread < (int)mlength + EIB_SIZE_OF_PEI_TAIL) {
+					g_pPlutoLogger->Write(LV_WARNING, "Could not receive message body, expected: %d but received: %d", 
+																		mlength + EIB_SIZE_OF_PEI_TAIL, nread);
+				
+				} else {
+					/* check tail */	
+					unsigned char chksum = peibuff[EIB_CONTROL_FIELD_BYTE];
+					
+					if(mlength > EIB_SIZE_OF_LINK_LAYER_FIELD + EIB_SIZE_OF_PEI_CONTROL_FIELD + 2) {
+						int dlength = mlength - EIB_SIZE_OF_PEI_CONTROL_FIELD;
+						
+						/* calculate checksum */
+						for ( int i = 0 ; i < dlength; i++)	{
+							chksum += peibuff[ i + EIB_MESSAGE_CODE_BYTE];
+						}
+						
+						if (( chksum != peibuff[ dlength + EIB_MESSAGE_CODE_BYTE] )
+							|| ( EIB_STOP_BYTE_VALUE != peibuff[dlength + EIB_MESSAGE_CODE_BYTE+1] ))	{
+							g_pPlutoLogger->Write(LV_WARNING, "Invalid CHECKSUM");
+							return RECV_INVALID;
+						};
+						
+						code = peibuff[EIB_MESSAGE_CODE_BYTE];
+						
+						/*copy msg*/
+						unsigned int ulength = mlength - EIB_SIZE_OF_LINK_LAYER_FIELD - EIB_SIZE_OF_PEI_CONTROL_FIELD - 2;
+						if(ulength <= length) {
+							length = ulength;
+							memcpy(msg, &peibuff[EIB_STATUS_BYTE + EIB_SIZE_OF_LINK_LAYER_FIELD], length);
+							return RECV_OK;
+						} else {
+							return RECV_INVALID;
+						}
+					} else {
+						length = 0;
+						return RECV_OK;
+					}
+				}
+			}
+		}
 	}
 	
-	if(RecvBuffer(pbusconn, &peibuff[EIB_SIZE_OF_PEI_HEADER], mlength + EIB_SIZE_OF_PEI_TAIL) < (int)mlength + EIB_SIZE_OF_PEI_TAIL) {
-//		g_pPlutoLogger->Write(LV_WARNING, "Could not receive message body");
-		return 1;
+	if(totalread > 0) {
+		UndoRecvBuffer(pbusconn, peibuff, totalread);
 	}
-
-	/* check tail */	
-	unsigned char chksum = peibuff[EIB_CONTROL_FIELD_BYTE];
-	int dlength = ((int)peibuff[EIB_FIRST_LENGTH_BYTE])
-                     - EIB_SIZE_OF_PEI_CONTROL_FIELD ;
-	
-	/* calculate checksum */
-	for ( int i = 0 ; i < dlength; i++)
-	{
-		chksum += peibuff[ i + EIB_MESSAGE_CODE_BYTE];
-	}
-	
-	if (( chksum != peibuff[ dlength + EIB_MESSAGE_CODE_BYTE] )
-		|| ( EIB_STOP_BYTE_VALUE != peibuff[dlength + EIB_MESSAGE_CODE_BYTE+1] ))	{
-		g_pPlutoLogger->Write(LV_WARNING, "Invalid CHECKSUM");
-		return -1;
-	};
-   
-	/* We are only interested in messages with
-	containing user data,
-	i.e. messages that are at least 13 bytes long */	
-	if ( 12 > (int)peibuff[EIB_FIRST_LENGTH_BYTE]-1 ) {
-		return 1;
-	}
-	
-	/* We are only interested in busmonitor messages */
-	if ( EIB_RECEIVED_MESSAGE_CODE_VALUE != peibuff[EIB_MESSAGE_CODE_BYTE]) {
- 		return 1;
-	}
-
-	/*check if repetition*/
-	unsigned short ts = *((unsigned short*)&peibuff[EIB_FIRST_TIMESTAMP_BYTE]);
-	if ( ts == pbusconn->getLastFrameTimestamp()) {
-		g_pPlutoLogger->Write(LV_STATUS, "Message is a REPETITION");
-		return 1;
-	}
-	pbusconn->setLastFrameTimestamp(ts);
-   	
-	/*copy msg*/
-	unsigned int ulength = peibuff[EIB_FIRST_LENGTH_BYTE] - EIB_SIZE_OF_LINK_LAYER_FIELD - 2 - 1;
-	if(ulength <= length) {
-		length = ulength;
-		memcpy(msg, &peibuff[EIB_STATUS_BYTE + EIB_SIZE_OF_LINK_LAYER_FIELD], length);
-		return 0;
-	}
-
-	return -1;
+	return RECV_UNKNOWN;
 }
 
 

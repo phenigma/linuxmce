@@ -12,28 +12,67 @@
 #ifndef EIBBUSSTATEMACHINE_H
 #define EIBBUSSTATEMACHINE_H
 
+#include <list>
+
 namespace EIBBUS {
 
-#define STATE_UNKNOWNSTATE	-1
+#define MIN_DEPTH		1
+#define DEF_DEPTH		10
 
 /**
 @author 
 */
-class StateMachine{
-public:
-    StateMachine() 
-	: state_(STATE_UNKNOWNSTATE) {}
+class StateMachine { 
+protected:
+	class State;
 
 public:
-	inline void setState(int state) {
-		state_=  state;
-	}
-	inline int getState() {
-		return state_;
-	}
+	StateMachine(int depth = DEF_DEPTH);
+	virtual ~StateMachine();
+		
+public:
+	void setState(State *pstate);
+	State *getState();
+	void rollState();
+	
+	void Handle(void* p = NULL); /*has an optional param*/
+	
+protected:
+	virtual void handleNewState() {};
 
 private:
-	int state_;
+	void regState(State *pstate);
+	void unregState(State *pstate);
+	
+private:
+	unsigned int depth_;
+	std::list<State*> statequeue_;
+	
+protected:
+	/*State class*/
+	class State {
+		friend class StateMachine;
+	public:
+		State(StateMachine* psm);
+		virtual ~State();
+			
+	public:
+		StateMachine* getStateMachine();
+		
+		void setState(State* pstate);
+		State* getState();
+	
+	protected:
+		virtual void Handle(void* p) 
+		{};
+	
+	private:
+		StateMachine* psm_;
+	};
+	/**/
+
+private:
+	State unknstate_;
 };
 
 };

@@ -22,14 +22,16 @@ namespace EIBBUS {
 class TimeTracker
 {
 public:
-    TimeTracker();
+    TimeTracker(bool start = false);
     ~TimeTracker();
 
 public:
 	void Start();
 	void Stop();
 
-	double getPeriodInSecs();
+	double getCurrentPeriodInMiliSecs(); // diff between current time and stop time
+	double getCurrentPeriodInSecs(); // diff between current time and stop time
+	double getTotalPeriodInSecs(); // diff between stop time and start time
 
 private:
 	struct timespec starttm_;

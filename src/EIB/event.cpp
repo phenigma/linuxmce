@@ -16,38 +16,37 @@
 namespace EIBBUS {
 
 Event::Event() {
-	sem_init(&event_, 0, 0);
+	pthread_cond_init(&event_, 0);
+	pthread_mutex_init(&mutex_, 0);
 }
 
 
 Event::~Event() {
-	sem_destroy(&event_);
+	pthread_mutex_destroy(&mutex_);
+	pthread_cond_destroy(&event_);
 }
 
 void 
-Event::Post() {
-	sem_post(&event_);
+Event::Signal() {
+	pthread_cond_signal(&event_);
 }
 
 bool 
 Event::Wait(int milisecs) {
 	if(milisecs < 0) {
-		sem_wait(&event_);
+		pthread_cond_wait(&event_, &mutex_);
 		return true;
 	} else {
 		struct timespec timespec;
 		clock_gettime(CLOCK_REALTIME, &timespec);
 		
-		timespec.tv_sec += milisecs / 1000;
-		timespec.tv_nsec += milisecs % 1000;
+//		return (sem_timedwait(&event_, hrt2ts(clock_gethrtime(CLOCK_REALTIME) + 1000*1000*milisecs)) == 0);
 		
-		return (sem_timedwait(&event_, &timespec) == 0);
+		timespec.tv_sec += milisecs / 1000;
+		timespec.tv_nsec += (milisecs % 1000) * 1000 * 1000;
+		
+		return (pthread_cond_timedwait(&event_, &mutex_, &timespec) == 0);
 	}
-}
-
-bool 
-Event::TryWait() {
-	return (sem_trywait(&event_) == 0);
 }
 
 };

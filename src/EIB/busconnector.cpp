@@ -26,6 +26,8 @@
 #define EIB_SER_PORT 		"ttyS0"
 #define EIB_BPS 			19200
 
+#define FOO_BUFF_SIZE		256
+#define SKIP_WAIT_TIME		100
 
 using namespace DCE;
 
@@ -60,7 +62,7 @@ BusConnector::getInstance() {
 int 
 BusConnector::Open() {
 	try {
-		psp_ = new CSerialPort(EIB_SER_PORT, EIB_BPS, epbsN81);
+		psp_ = new ExtendedSerialPort(EIB_SER_PORT, EIB_BPS, epbsN81);
 		int hserial = psp_->getHandle();
 
 		struct termios terminal;
@@ -122,28 +124,40 @@ BusConnector::isDataAvailable() {
 
 int 
 BusConnector::Recv(unsigned char* buff, unsigned int size, int timeout) {
-	if(!psp_) {
-		return -1;
-	}
-
+	if(!psp_) { return -1; };
 	return psp_->Read((char*)buff, size, timeout);
+}
+int 
+BusConnector::UndoRecv(const unsigned char* buff, unsigned int size) {
+	if(!psp_) { return -1; };
+	return psp_->UndoRead((char*)buff, size);
 }
 
 int 
 BusConnector::Send(const unsigned char* buff, unsigned int size) {	
-	if(!psp_) {
-		return -1;
-	}
-	
+	if(!psp_) { return -1; };
 	psp_->Write((char*)buff, size);
 	return size;
 }
 
 void 
+BusConnector::Skip(unsigned int size) {
+	char inchar[FOO_BUFF_SIZE];
+	int nread;
+	while(size > 0) {
+		nread = psp_->Read(inchar, (size > FOO_BUFF_SIZE) ? FOO_BUFF_SIZE : size, SKIP_WAIT_TIME);
+		if(nread < 0) {
+			break;
+		}
+		size -= nread;
+	}
+}
+
+void 
 BusConnector::Clear() {
-	char inchar;
+	char inchar[FOO_BUFF_SIZE];
 	while(!psp_->IsReadEmpty()) {
-		psp_->Read(&inchar, 1, 0);
+		psp_->Read(inchar, 1, FOO_BUFF_SIZE);
 	}
 }
 

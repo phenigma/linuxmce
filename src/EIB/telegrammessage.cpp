@@ -12,6 +12,8 @@
 #include "telegrammessage.h"
 #include "busconnector.h"
 
+#include "DCE/Logger.h"
+
 /* helper functions */
 /*static unsigned getunsignedfromint( int value );
 static int getintfromeis5( unsigned eis5 );*/
@@ -23,6 +25,8 @@ static unsigned short swapushort(unsigned short toswap);
 
 /* TelegramMessage */
 
+using namespace DCE;
+
 namespace EIBBUS {
 
 TelegramMessage::TelegramMessage()
@@ -33,22 +37,37 @@ TelegramMessage::TelegramMessage()
 TelegramMessage::~TelegramMessage()
 {
 }
+	
+TelegramMessage::TelegramMessage(const TelegramMessage& tlmsg) {
+	acttype_ = tlmsg.acttype_;
+	gaddr_ = tlmsg.gaddr_;
+	length_ = tlmsg.length_;
+	shortusrdata_ = tlmsg.shortusrdata_;
+	memcpy(usrdata_, tlmsg.usrdata_, tlmsg.length_);
+}
 
 int 
 TelegramMessage::Recv(BusConnector *pbusconn) {
 	int ret = 0;
+	
+	unsigned char code;
 	unsigned char inmsg[MAX_USERDATA_LENGTH];
 	unsigned int userlength = MAX_USERDATA_LENGTH;
-	if((ret = ReceiveServerBuffer(pbusconn, inmsg, userlength)) != 0) {
+	if((ret = ReceivePeiBuffer(pbusconn, 0x68, code, inmsg, userlength)) != 0) {
 		return ret;
 	}
+	
+	if(code != 0x2B || userlength < 8) {
+		return RECV_INVALID;
+	}
+	
 	length_ = userlength - 8;
 
 	/*get destination grou[ address*/
 	unsigned short groupaddr = *((unsigned short*)&inmsg[3]);
 	char gaddrstr[MAX_GROUPADDR_STR_LEN];
 	if(!getstrfromgroupaddr(groupaddr, gaddrstr, sizeof(gaddrstr))) {
-		return -1;
+		return RECV_INVALID;
 	}
 	
 	setGroupAddress(gaddrstr);
@@ -65,7 +84,7 @@ TelegramMessage::Recv(BusConnector *pbusconn) {
 		break;
 	}
 	
-	return 0;
+	return RECV_OK;
 }
 
 int 
@@ -101,8 +120,12 @@ TelegramMessage::Send(BusConnector *pbusconn) {
 		memcpy(&outmsg[8], usrdata_, userlength - 1);
 	}
 	outmsglength = 8 + userlength - 1;
-	
-	return SendServerBuffer(pbusconn, (unsigned char*)outmsg, outmsglength);
+
+	g_pPlutoLogger->Write(LV_STATUS, "Sending telegram with Group Address: %d(%s), Length: %d, Short User Data: %d", 
+														groupaddr, gaddr_.c_str(), length_, shortusrdata_);
+
+													
+	return SendPeiBuffer(pbusconn, 0x68, 0x11, (unsigned char*)outmsg, outmsglength);
 }
 
 };

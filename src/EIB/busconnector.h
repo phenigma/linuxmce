@@ -18,7 +18,7 @@
 #define EIBBUSCONNECTOR_H
 
 #include "mutex.h"
-#include "Serial/SerialPort.h"
+#include "extendedserialport.h"
 
 namespace EIBBUS {
 
@@ -40,7 +40,9 @@ public:
 	/*send/recv options*/
 	bool isDataAvailable();
 	int Recv(unsigned char* buff, unsigned int size, int timeout);
+	int UndoRecv(const unsigned char* buff, unsigned int size);
 	int Send(const unsigned char* buff, unsigned int size);
+	void Skip(unsigned int size);
 	void Clear();
 		
 public:
@@ -58,7 +60,7 @@ public:
 	}
 	
 private:
-	CSerialPort* psp_;
+	ExtendedSerialPort* psp_;
 	bool framebit_;
 	unsigned short framets_;
 	

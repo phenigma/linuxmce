@@ -23,13 +23,18 @@ namespace EIBBUS {
 /**
 @author 
 */
-class TelegramMessage : public ServerMessage
+class TelegramMessage : public PeiMessage
 {
 	friend class MessagePool;
 public:
     TelegramMessage();
+	TelegramMessage(const TelegramMessage& tlmsg);
     ~TelegramMessage();
 
+public:
+	virtual int Send(BusConnector *pbusconn);
+	virtual int Recv(BusConnector *pbusconn);
+		
 public:
 	enum ACTIONTYPE {
 		READ,
@@ -83,10 +88,6 @@ private:
 	unsigned int length_;
 	unsigned char shortusrdata_;
 	unsigned char usrdata_[MAX_STRING_DATA_LEN];
-	
-protected:
-	virtual int Send(BusConnector *pbusconn);
-	virtual int Recv(BusConnector *pbusconn);
 };
 
 };

@@ -25,22 +25,33 @@ class BusConnector;
 /**
 @author igor
 */
+
 class Message {
 	friend class MessagePool;
 public:
     Message() {};
     virtual ~Message() {};
 
+public:
+	/* recv error codes */
+	enum {
+		RECV_INVALID = -1,
+		RECV_OK,
+		RECV_UNKNOWN
+	};
+	
+	virtual int Send(BusConnector *pbusconn) 
+	{ return RECV_INVALID; };
+	virtual int Recv(BusConnector *pbusconn)
+	{ return RECV_INVALID; };
+
 protected:
 	int SendBuffer(BusConnector *pbusconn, 
 		const unsigned char* msg, unsigned int length);
 	int RecvBuffer(BusConnector *pbusconn, 
 		unsigned char* msg, unsigned int length);
-
-	virtual int Send(BusConnector *pbusconn) 
-	{ return -1; };
-	virtual int Recv(BusConnector *pbusconn)
-	{ return -1; };
+	int UndoRecvBuffer(BusConnector *pbusconn, 
+		const unsigned char* msg, unsigned int length);
 };
 
 
@@ -49,15 +60,9 @@ protected:
 class PeiMessage : public Message {
 protected:
 	int SendPeiBuffer(BusConnector *pbusconn, 
-		const unsigned char* msg, unsigned int length);
-};
-
-class ServerMessage : public Message {
-protected:
-	int SendServerBuffer(BusConnector *pbusconn, 
-		const unsigned char* msg, unsigned int length);
-	int ReceiveServerBuffer(BusConnector *pbusconn, 
-		unsigned char* msg, unsigned int& length);
+		unsigned char type, unsigned char code, const unsigned char* msg, unsigned int length);
+	int ReceivePeiBuffer(BusConnector *pbusconn, 
+		unsigned char type, unsigned char& code, unsigned char* msg, unsigned int& length);
 };
 
 };
