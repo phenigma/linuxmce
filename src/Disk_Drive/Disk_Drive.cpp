@@ -1297,12 +1297,20 @@ void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sName,string &sCMD_Result,Mes
 		return;
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Should launch ripping job with name \"%s\" for disk with type \"%d\"", sName.c_str(), m_mediaDiskStatus );
+	g_pPlutoLogger->Write(LV_STATUS, "Launching ripping job with name \"%s\" for disk with type \"%d\"", sName.c_str(), m_mediaDiskStatus );
 
 	string strParameters, strCommOnFailure, strCommOnSuccess;
 
-	// Job name, disk location, disk type
-	strParameters = StringUtils::itos(m_dwPK_Device) + " " + StringUtils::itos(pMessage->m_dwPK_Device_From) + " \"" + sName + "\" \"" + DATA_Get_Drive() + "\" " + StringUtils::itos(m_mediaDiskStatus) + " " + StringUtils::itos(iPK_Users);
+	// use temp variables since the Replace function changes the input string
+	string quotedDeviceName = DATA_Get_Drive();
+	string quotedJobName = sName;
+
+	strParameters = StringUtils::Format("%d %d %s %s %d %d",
+			m_dwPK_Device,
+			pMessage->m_dwPK_Device_From,
+			StringUtils::Replace(quotedJobName, " ", "\\ ").c_str(),
+			StringUtils::Replace(quotedDeviceName, " ", "\\ ").c_str(),
+			m_mediaDiskStatus, iPK_Users);
 
     DCE::CMD_Spawn_Application_DT
 		spawnApplication(m_dwPK_Device,
