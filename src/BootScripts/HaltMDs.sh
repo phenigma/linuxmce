@@ -38,3 +38,4 @@ done
 
 # wait 10 seconds more, just to be sure
 #sleep 10
+Logging $TYPE $SEVERITY_WARNING 0 "All MDs are down. Continuing."
