@@ -454,6 +454,8 @@ g_pPlutoLogger->Write(LV_CRITICAL,"::Screen saver Bypass screen saver now: %d",(
 	if( m_bBypassScreenSaver || !m_pDesignObj_Orbiter_ScreenSaveMenu )
 		return;
 
+	NeedToRender render( this, "Screen saver" );
+
 	if( m_pScreenHistory_Current->m_pObj == m_pDesignObj_Orbiter_ScreenSaveMenu )
 	{
 		CMD_Display_OnOff("0");
@@ -1096,7 +1098,14 @@ g_pPlutoLogger->Write(LV_STATUS,"Need to change screens executed to %s",pScreenH
 
     if ( m_pScreenHistory_Current )
     {
-        m_pScreenHistory_Current->m_pObj->m_bActive=false;
+
+		if( m_pScreenHistory_Current->m_pObj==m_pDesignObj_Orbiter_ScreenSaveMenu && m_pDesignObj_Orbiter_MainMenu!=m_pDesignObj_Orbiter_ScreenSaveMenu )
+{
+g_pPlutoLogger->Write(LV_WARNING,"Goto Screen -- wakign up from screen saver");
+			CMD_Set_Main_Menu("N");
+}
+		
+		m_pScreenHistory_Current->m_pObj->m_bActive=false;
         ObjectOffScreen( m_pScreenHistory_Current->m_pObj );
         if(  bAddToHistory  )
             m_listScreenHistory.push_back( m_pScreenHistory_Current );
@@ -4359,6 +4368,7 @@ g_pPlutoLogger->Write(LV_STATUS,"CMD_Goto_Screen: %s",sPK_DesignObj.c_str());
 	        return;
 		pObj_New = m_pScreenHistory_Current->m_pObj;
     }
+
 
 	/* Sometimes we layer the same screen on top of each other, such as with new device detection
 		// AB 2-5-05 removed this block of code
