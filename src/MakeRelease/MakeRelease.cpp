@@ -503,7 +503,7 @@ cout << "sources: " << vectRow_Package_Source.size() << endl;
 	for(size_t s=0;s<vectRow_Package_Source_All.size();++s)
 	{
 		Row_Package_Source *pRow_Package_Source = vectRow_Package_Source_All[s];
-		if( !CreateSource(pRow_Package_Source,listFileInfo) )
+		if( !g_bSimulate && !CreateSource(pRow_Package_Source,listFileInfo) )
 		{
 			cout << "***ABORTING***" << endl;
 			return false;
