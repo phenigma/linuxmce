@@ -46,7 +46,7 @@ using namespace DCE;
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_FloorplanType.h"
 
-#define VERSION "04122110"
+#define  VERSION "<=version=>"
 
 #ifdef WINCE
     #include "wince.h"
@@ -3453,7 +3453,7 @@ void Orbiter::FindDGArrows( DesignObj_Orbiter *pObj, DesignObj_DataGrid *pDGObj 
 
             if(  pCommand->m_PK_Command == COMMAND_Scroll_Grid_CONST  )
             {
-                if(  pCommand->m_ParameterList[COMMANDPARAMETER_Relative_Level_CONST]=="-1"  )
+                if(  pCommand->m_ParameterList[COMMANDPARAMETER_Level_CONST]=="-1"  )
                     continue; // This is just a move to the top/bottom
                 // If this Command points to this grid or to nothing,  it's a match
                 if(  atoi( pCommand->m_ParameterList[COMMANDPARAMETER_PK_DesignObj_CONST].c_str(  ) ) == pDGObj->m_iBaseObjectID ||
