@@ -113,7 +113,7 @@
 #endif
 //#include <assert.h>
 //#ifndef assert
-//#define assert(x) 
+#define assert(x) 
 
 #if !defined(LZO_COMPILE_TIME_ASSERT)
 #  define LZO_COMPILE_TIME_ASSERT(expr) \
