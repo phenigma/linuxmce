@@ -51,6 +51,7 @@ using namespace std;
 #endif
 
 using namespace DCE;
+extern DCEConfig g_DCEConfig;
 
 void* MessageQueueThread_DCER(void* param) // renamed to cancel link-time name collision in MS C++ 7.0 / VS .NET 2002
 {
@@ -102,17 +103,19 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
         g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
     }
 
-    if( !m_dwPK_Installation && g_DCEConfig.m_iPK_Installation )
+    if( !m_dwPK_Installation && g_DCEConfig.m_iPK_Installation>0 )
 		m_dwPK_Installation = g_DCEConfig.m_iPK_Installation;
 
-	if( !m_dwPK_Device && g_DCEConfig.m_iPK_Device_Computer )
+	if( !m_dwPK_Device && g_DCEConfig.m_iPK_Device_Computer>0 )
 	{
         vector<Row_Device *> vectRow_Device;
         m_pDatabase_pluto_main->Device_get()->GetRows( string(DEVICE_FK_DEVICETEMPLATE_FIELD) + "=" + StringUtils::itos(DEVICETEMPLATE_DCERouter_CONST)
-			+ " AND " + , &vectRow_Device);
-        if( vectRow_Device.size()!=1 )
-
-			m_dwPK_Device = g_DCEConfig.m_iPK_Installation;
+			+ " AND " + DEVICE_FK_DEVICE_CONTROLLEDVIA_FIELD + "=" + StringUtils::itos(g_DCEConfig.m_iPK_Device_Computer), &vectRow_Device);
+        if( vectRow_Device.size()==1 )
+		{
+			Row_Device *pRow_Device = vectRow_Device[0];
+			m_dwPK_Device = pRow_Device->PK_Device_get();
+		}
 	}
 
     if( !m_dwPK_Installation && !m_dwPK_Device )
