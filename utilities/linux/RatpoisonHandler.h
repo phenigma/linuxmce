@@ -39,6 +39,7 @@ class RatpoisonHandler
             if ( rp_command == None || rp_command_request == None || rp_command_result == None )
             {
                 g_pPlutoLogger->Write(LV_WARNING, "Ratpoison window manager does not seem to be running on this server!");
+                XUnlockDisplay(display);
                 return false;
             }
 

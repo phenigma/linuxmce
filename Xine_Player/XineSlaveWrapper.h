@@ -41,12 +41,12 @@ class XineSlaveWrapper
     class XineStream
     {
         int                 m_iStreamID;
-        int                 m_irequestingObject;
+        int                 m_iRequestingObject;
 
-        bool                m_bisRendering;
+        bool                m_bIsRendering;
         int                 m_iImgWidth, m_iImgHeight;
-        int                 m_iimgXPos, m_iimgYPos;
-        int                 m_iplaybackSpeed;
+        int                 m_iImgXPos, m_iImgYPos;
+        int                 m_iPlaybackSpeed;
 
         bool                m_bHasVideo;
         pthread_t           eventLoop;
@@ -74,7 +74,7 @@ class XineSlaveWrapper
     Cursor      cursors[2];
     Pixmap      noCursor;
 
-    int         m_icurrentScreen;
+    int         m_iCurrentScreen;
     int         m_iCurrentWindow;
 
     string      m_sXineVideoDriverName;
@@ -90,7 +90,6 @@ class XineSlaveWrapper
 
     /** @warning HACK: */
     XineStream *m_pSameStream;
-
 
     double  m_dPixelAspect; /** <  Image related data for a stream */
 

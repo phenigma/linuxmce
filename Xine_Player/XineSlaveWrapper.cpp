@@ -34,6 +34,9 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#define INPUT_MOTION (ExposureMask | ButtonPressMask | KeyPressMask | \
+                      ButtonMotionMask | StructureNotifyMask | PropertyChangeMask | PointerMotionMask)
+
 /** Define this here to avoid some dependency. */
 typedef struct
 {
@@ -79,7 +82,7 @@ XineSlaveWrapper::XineSlaveWrapper()
 {
     m_iCurrentWindow = 0;
 
-    m_sXineAudioDriverName = "arts";
+    m_sXineAudioDriverName = "alsa";
     m_sXineVideoDriverName = "xv";
 
     m_pXineVisualizationPlugin = NULL;
@@ -101,13 +104,13 @@ static const char noCursorDataDescription[] = {
  */
 bool XineSlaveWrapper::createWindow()
 {
-    XColor      black; //, dummy;
+    XColor          black; //, dummy;
     XSizeHints      sizeHints;
     MWMHints        wmHints;
 
-    long        propertyValues[1];
-    int         completionEvent;
-    int         xpos, ypos, width, height;
+    long            propertyValues[1];
+    int             completionEvent;
+    int             xpos, ypos, width, height;
 
     double          res_h, res_v;
 
@@ -117,33 +120,29 @@ bool XineSlaveWrapper::createWindow()
             return false;
     }
 
-    if((XServerDisplay = XOpenDisplay(getenv("DISPLAY"))) == NULL) {
-        /** @warning: This is a potential security threat (if hte DISPLAY is wayy too big what happends ? */
+    if((XServerDisplay = XOpenDisplay(getenv("DISPLAY"))) == NULL)
+    {
         g_pPlutoLogger->Write(LV_WARNING, "Could not open X DISPLAY from: %s", getenv("DISPLAY"));
         return false;
     }
 
-    m_icurrentScreen   = XDefaultScreen(XServerDisplay);
+    XLockDisplay(XServerDisplay);
+
+    m_iCurrentScreen   = XDefaultScreen(XServerDisplay);
     xpos            = 10;
     ypos            = 20;
     width           = 720;
     height          = 540;
 
-    XLockDisplay(XServerDisplay);
     windows[0] = XCreateSimpleWindow(XServerDisplay, XDefaultRootWindow(XServerDisplay),
                     xpos, ypos, width, height,
                     1, 0, 0);
     windows[1] = XCreateSimpleWindow(XServerDisplay, XDefaultRootWindow(XServerDisplay),
-                    0, 0, (DisplayWidth(XServerDisplay, m_icurrentScreen)), DisplayHeight(XServerDisplay, m_icurrentScreen),
+                    0, 0, (DisplayWidth(XServerDisplay, m_iCurrentScreen)), DisplayHeight(XServerDisplay, m_iCurrentScreen),
                     0, 0, 0);
 
-    XSelectInput(XServerDisplay, windows[0],
-                        (ExposureMask | ButtonPressMask | KeyPressMask | ButtonMotionMask |
-                         StructureNotifyMask | PropertyChangeMask | PointerMotionMask));
-
-    XSelectInput(XServerDisplay, windows[1],
-                        (ExposureMask | ButtonPressMask | KeyPressMask | ButtonMotionMask |
-                         StructureNotifyMask | PropertyChangeMask | PointerMotionMask));
+    XSelectInput(XServerDisplay, windows[0], INPUT_MOTION);
+    XSelectInput(XServerDisplay, windows[1], INPUT_MOTION);
 
     XSetStandardProperties(XServerDisplay, windows[0], m_sWindowTitle.c_str(), m_sWindowTitle.c_str(), None, NULL, 0, 0);
     XSetStandardProperties(XServerDisplay, windows[1], m_sWindowTitle.c_str(), m_sWindowTitle.c_str(), None, NULL, 0, 0);
@@ -154,11 +153,11 @@ bool XineSlaveWrapper::createWindow()
     XSetWMNormalHints(XServerDisplay, windows[0], &sizeHints);
     XSetWMNormalHints(XServerDisplay, windows[1], &sizeHints);
 
-    Atom XA_DELETE_WINDOW     = XInternAtom(XServerDisplay, "WM_DELETE_WINDOW", False);
+    Atom XA_DELETE_WINDOW = XInternAtom(XServerDisplay, "WM_DELETE_WINDOW", False);
     XSetWMProtocols(XServerDisplay, windows[0], &XA_DELETE_WINDOW, 1);
     XSetWMProtocols(XServerDisplay, windows[1], &XA_DELETE_WINDOW, 1);
 
-    Atom XA_NO_BORDER         = XInternAtom(XServerDisplay, "_MOTIF_WM_HINTS", False);
+    Atom XA_NO_BORDER   = XInternAtom(XServerDisplay, "_MOTIF_WM_HINTS", False);
     wmHints.flags       = (1L << 1); // MWM_HINTS_DECORATIONS
     wmHints.decorations = 0;
 
@@ -166,7 +165,7 @@ bool XineSlaveWrapper::createWindow()
                 PropModeReplace, (unsigned char *) &wmHints,
                 5 /* PROP_MWM_HINTS_ELEMENTS */);
 
-    Atom XA_WIN_LAYER    = XInternAtom(XServerDisplay, "_NET_WM_STATE", False);
+    Atom XA_WIN_LAYER = XInternAtom(XServerDisplay, "_NET_WM_STATE", False);
     propertyValues[0] = 10;
     XChangeProperty(XServerDisplay, windows[1], XA_WIN_LAYER, XA_CARDINAL, 32, PropModeReplace, (unsigned char *)propertyValues, 1);
 
@@ -180,7 +179,7 @@ bool XineSlaveWrapper::createWindow()
     else
             completionEvent = -1;
 
-    noCursor  = XCreateBitmapFromData(XServerDisplay, (DefaultRootWindow(XServerDisplay)), noCursorDataDescription, 8, 8);
+    noCursor   = XCreateBitmapFromData(XServerDisplay, (DefaultRootWindow(XServerDisplay)), noCursorDataDescription, 8, 8);
     cursors[0] = XCreateFontCursor(XServerDisplay, XC_left_ptr);
     cursors[1] = XCreatePixmapCursor(XServerDisplay, noCursor, noCursor, &black, &black, 0, 0);
     XFreePixmap(XServerDisplay, noCursor);
@@ -188,9 +187,8 @@ bool XineSlaveWrapper::createWindow()
     XDefineCursor(XServerDisplay, windows[m_iCurrentWindow], cursors[m_iCurrentWindow]);
     XMapRaised(XServerDisplay, windows[m_iCurrentWindow]);
 
-    res_h = (DisplayWidth(XServerDisplay, m_icurrentScreen) * 1000 / DisplayWidthMM(XServerDisplay, m_icurrentScreen));
-    res_v = (DisplayHeight(XServerDisplay, m_icurrentScreen) * 1000 / DisplayHeightMM(XServerDisplay, m_icurrentScreen));
-
+    res_h = (DisplayWidth(XServerDisplay, m_iCurrentScreen) * 1000 / DisplayWidthMM(XServerDisplay, m_iCurrentScreen));
+    res_v = (DisplayHeight(XServerDisplay, m_iCurrentScreen) * 1000 / DisplayHeightMM(XServerDisplay, m_iCurrentScreen));
 
     m_dPixelAspect = res_v / res_h;
 
@@ -199,7 +197,7 @@ bool XineSlaveWrapper::createWindow()
     if(fabs(m_dPixelAspect - 1.0) < 0.01)
         m_dPixelAspect = 1.0;
 
-    XSync(XServerDisplay, False);
+    XSync(XServerDisplay, True);
     XUnlockDisplay(XServerDisplay);
 
     return true;
@@ -207,9 +205,9 @@ bool XineSlaveWrapper::createWindow()
 
 /**
  *
- *  \fn XineSlaveWrapper::playStream(string fileName, int m_istreamID, int mediaPosition, int m_irequestingObject);
+ *  \fn XineSlaveWrapper::playStream(string fileName, int m_istreamID, int mediaPosition, int iRequestingObject);
  */
-void XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosition, int m_irequestingObject)
+void XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosition, int iRequestingObject)
 {
     g_pPlutoLogger->Write(LV_STATUS, "Got a play media command for %s", fileName.c_str());
 
@@ -236,20 +234,20 @@ void XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosit
         }
 
         xine_close(xineStream->m_pStream);
+
         g_pPlutoLogger->Write(LV_STATUS, "Closed previous stream!");
-        xineStream->m_bisRendering = false;
+
+        xineStream->m_bIsRendering = false;
         xineStream->m_iStreamID = iStreamID;
     }
 
-    g_pPlutoLogger->Write(LV_STATUS, "2");
     m_x11Visual.display           = XServerDisplay;
-    m_x11Visual.screen            = m_icurrentScreen;
+    m_x11Visual.screen            = m_iCurrentScreen;
     m_x11Visual.d                 = windows[m_iCurrentWindow];
     m_x11Visual.dest_size_cb      = &destinationSizeCallback;
     m_x11Visual.frame_output_cb   = &frameOutputCallback;
     m_x11Visual.user_data         = xineStream;
 
-    g_pPlutoLogger->Write(LV_STATUS, "3");
     if( isNewStream && (m_pXineVideo = xine_open_video_driver(m_pXine, m_sXineVideoDriverName.c_str(), XINE_VISUAL_TYPE_X11, (void *) &m_x11Visual)) == NULL)
     {
         g_pPlutoLogger->Write(LV_WARNING, "I'm unable to initialize m_pXine's '%s' video driver. Giving up.", m_sXineVideoDriverName.c_str());
@@ -269,8 +267,7 @@ void XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosit
         return;
     }
 
-    g_pPlutoLogger->Write(LV_STATUS, "5");
-    xineStream->m_irequestingObject = m_irequestingObject;
+    xineStream->m_iRequestingObject = iRequestingObject;
 
     if (isNewStream )
         m_mapStreams[iStreamID] = xineStream; /** @todo: check for leaks (if someone will send me multiple playStream with the same Stream ID it will leak memory) */
@@ -281,11 +278,9 @@ void XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosit
         xine_event_create_listener_thread(xineStream->m_pStreamEventQueue, xineEventListener, xineStream);
     }
 
-    g_pPlutoLogger->Write(LV_STATUS, "6");
-    xine_port_send_gui_data(m_pXineVideo, XINE_GUI_SEND_VIDEOWIN_VISIBLE, (void *) 0);
-    xine_port_send_gui_data(m_pXineVideo, XINE_GUI_SEND_DRAWABLE_CHANGED, (void *) windows[1 - m_iCurrentWindow]);
+    xine_port_send_gui_data(m_pXineVideo, XINE_GUI_SEND_DRAWABLE_CHANGED, (void *) windows[m_iCurrentWindow]);
+    xine_port_send_gui_data(m_pXineVideo, XINE_GUI_SEND_VIDEOWIN_VISIBLE, (void *) 1);
 
-    g_pPlutoLogger->Write(LV_STATUS, "7");
     if( xine_open(xineStream->m_pStream, fileName.c_str()))
     {
         g_pPlutoLogger->Write(LV_STATUS, "Opened..... ");
@@ -330,26 +325,33 @@ void XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosit
         xine_port_send_gui_data(m_pXineVideo, XINE_GUI_SEND_DRAWABLE_CHANGED, (void *) windows[m_iCurrentWindow]);
         xine_port_send_gui_data(m_pXineVideo, XINE_GUI_SEND_VIDEOWIN_VISIBLE, (void *) 1);
 
-        xineStream->m_bisRendering = true;
+        xineStream->m_bIsRendering = true;
 
         if ( isNewStream )
+        {
+            g_pPlutoLogger->Write(LV_STATUS, "Creating event processor");
             pthread_create(&xineStream->eventLoop, NULL, eventProcessingLoop, xineStream);
+            g_pPlutoLogger->Write(LV_STATUS, "Event processor started");
+        }
 
-        g_pPlutoLogger->Write(LV_STATUS, "Stream is seekable: %d", xine_get_stream_info(xineStream->m_pStream, XINE_STREAM_INFO_SEEKABLE));
-        g_pPlutoLogger->Write(LV_STATUS, "Starting stream from position: %d", mediaPosition);
-        xine_set_param(xineStream->m_pStream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE);
+        if ( ! xineStream->m_bHasVideo )
+        {
+            g_pPlutoLogger->Write(LV_STATUS, "Stream is seekable: %d", xine_get_stream_info(xineStream->m_pStream, XINE_STREAM_INFO_SEEKABLE));
+            g_pPlutoLogger->Write(LV_STATUS, "Starting stream from position: %d", mediaPosition);
+            xine_set_param(xineStream->m_pStream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE);
+        }
         if ( xine_play(xineStream->m_pStream, 0, 0) )
         {
-            getStreamPlaybackPosition(iStreamID);
-            xine_play(xineStream->m_pStream, mediaPosition, 0);
-            xine_set_param(xineStream->m_pStream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL);
-            g_pPlutoLogger->Write(LV_STATUS, "Playing... ");
 
-            getStreamPlaybackPosition(iStreamID);
-
-            g_pPlutoLogger->Write(LV_STATUS, "Stream is seekable: %d", xine_get_stream_info(xineStream->m_pStream, XINE_STREAM_INFO_SEEKABLE));
+            if ( ! xineStream->m_bHasVideo )
+            {
+                g_pPlutoLogger->Write(LV_STATUS, "Starting stream from position: %d", mediaPosition);
+                xine_play(xineStream->m_pStream, mediaPosition, 0);
+                xine_set_param(xineStream->m_pStream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL);
+                g_pPlutoLogger->Write(LV_STATUS, "Playing... ");
+            }
         }
-        else
+       else
             xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID);
     }
     else
@@ -364,6 +366,26 @@ bool XineSlaveWrapper::closeWindow()
 
         XUnmapWindow(XServerDisplay,  windows[m_iCurrentWindow]);
 
+
+//         if ( ! m_pXineVisualizationPlugin )
+//                 m_pXineVisualizationPlugin = xine_post_init(m_pXine, "goom", 1, &m_pXineAudio, &m_pXineVideo);
+
+//             if  ( m_pXineVisualizationPlugin )
+//             {
+//                 const char *const *inputs;
+//                 bool bPostWireResult;
+//
+// //                 bPostWireResult = xine_post_wire_audio_port(xine_get_audio_source(xineStream->m_pStream), m_pXineVisualizationPlugin->audio_input[1]);
+//                 bPostWireResult = false;
+
+/*                g_pPlutoLogger->Write(LV_STATUS, "Visualization plugin %s", bPostWireResult ?  "enabled" : "disabled");
+                if ( bPostWireResult )
+                {
+                    xineStream->m_iImgWidth = 100;
+                    xineStream->m_iImgHeight = 100;
+                }*/
+//             }
+
         XFreeCursor(XServerDisplay, cursors[0]);
         XFreeCursor(XServerDisplay, cursors[1]);
 
@@ -371,7 +393,6 @@ bool XineSlaveWrapper::closeWindow()
         XDestroyWindow(XServerDisplay,  windows[1]);
 
         XUnlockDisplay(XServerDisplay);
-
         XCloseDisplay (XServerDisplay);
 
         XServerDisplay = NULL;
@@ -402,12 +423,12 @@ void XineSlaveWrapper::destinationSizeCallback(void *data, int video_width, int 
 
 /**
 * @test
-  if( ! m_pStream->m_bisRendering )
+  if( ! m_pStream->m_bIsRendering )
          g_pPlutoLogger->Write(LV_STATUS, "Destination size callback called (not rendering)!");
 */
 
-    *dest_width        = pStream->m_iImgWidth  + (pStream->m_bisRendering ? 0 : 1);
-    *dest_height       = pStream->m_iImgHeight + (pStream->m_bisRendering ? 0 : 1);
+    *dest_width        = pStream->m_iImgWidth  + (pStream->m_bIsRendering ? 0 : 1);
+    *dest_height       = pStream->m_iImgHeight + (pStream->m_bIsRendering ? 0 : 1);
     *dest_pixel_aspect = pStream->m_pOwner->m_dPixelAspect;
 }
 
@@ -420,16 +441,16 @@ void XineSlaveWrapper::frameOutputCallback(void *data, int video_width, int vide
 
 /**
 * @test
-*     if( ! pStream->m_bisRendering)
+*     if( ! pStream->m_bIsRendering)
 *         g_pPlutoLogger->Write(LV_STATUS, "Framer Output callback called (not rendering).");
 */
 
     *dest_x            = 0;
     *dest_y            = 0;
-    *win_x             = pStream->m_iimgXPos;
-    *win_y             = pStream->m_iimgYPos;
-    *dest_width        = pStream->m_iImgWidth + (pStream->m_bisRendering ? 0 : 1);
-    *dest_height       = pStream->m_iImgHeight + (pStream->m_bisRendering ? 0 : 1);
+    *win_x             = pStream->m_iImgXPos;
+    *win_y             = pStream->m_iImgYPos;
+    *dest_width        = pStream->m_iImgWidth + (pStream->m_bIsRendering ? 0 : 1);
+    *dest_height       = pStream->m_iImgHeight + (pStream->m_bIsRendering ? 0 : 1);
     *dest_pixel_aspect = pStream->m_pOwner->m_dPixelAspect;
 }
 
@@ -461,25 +482,25 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
         */
             g_pPlutoLogger->Write(LV_WARNING, "Playback finished for m_pstream: %d", xineStream->m_iStreamID);
             xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID);
-            xineStream->m_bisRendering = false;
+            xineStream->m_bIsRendering = false;
             break;
 
         case XINE_EVENT_PROGRESS:
-    /**
-    * @test
-       xine_progress_data_t *pevent = (xine_progress_data_t *) event->data;
-
-            send_event(XINE_SE_PROGRESS, "%s [%d%%]",  pevent->description, pevent->percent);
-    */
+           /**
+            * @test
+                xine_progress_data_t *pevent = (xine_progress_data_t *) event->data;
+                send_event(XINE_SE_PROGRESS, "%s [%d%%]",  pevent->description, pevent->percent);
+            */
             g_pPlutoLogger->Write(LV_WARNING, "Playback is running along.");
             break;
 
         case XINE_EVENT_UI_NUM_BUTTONS:
+            g_pPlutoLogger->Write(LV_STATUS, "Buttons");
             {
                 int iButtons = ((xine_ui_data_t *)event->data)->num_buttons;
 
                 if ( xineStream->m_pOwner->m_pAggregatorObject )
-                    xineStream->m_pOwner->m_pAggregatorObject->FireMenuOnScreen(xineStream->m_irequestingObject, xineStream->m_iStreamID, iButtons != 0);
+                    xineStream->m_pOwner->m_pAggregatorObject->FireMenuOnScreen(xineStream->m_iRequestingObject, xineStream->m_iStreamID, iButtons != 0);
             }
             break;
 
@@ -509,6 +530,7 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
 
         case XINE_EVENT_INPUT_MOUSE_MOVE:
             // ignored at the moment;
+//             g_pPlutoLogger->Write(LV_STATUS, "Mouse move");
             break;
 
         default:
@@ -558,19 +580,26 @@ void XineSlaveWrapper::resume()
 
 void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 {
-    XineStream *m_pStream = (XineStream*)arguments;
+    XineStream *pStream = (XineStream*)arguments;
+
     Bool checkResult;
 
     XEvent  event;
     while ( true )
     {
-        checkResult = XCheckWindowEvent(m_pStream->m_pOwner->XServerDisplay, m_pStream->m_pOwner->windows[m_pStream->m_pOwner->m_iCurrentWindow], ~0, &event);
+        if ( ! pStream->m_bIsRendering )
+            checkResult = False;
+        else
+        {
+            XLockDisplay(pStream->m_pOwner->XServerDisplay);
+            checkResult = XCheckWindowEvent(pStream->m_pOwner->XServerDisplay, pStream->m_pOwner->windows[pStream->m_pOwner->m_iCurrentWindow], INPUT_MOTION, &event);
+            XUnlockDisplay(pStream->m_pOwner->XServerDisplay);
+        }
 
         if ( checkResult == True )
-            m_pStream->m_pOwner->XServerEventProcessor(m_pStream, event);
+            pStream->m_pOwner->XServerEventProcessor(pStream, event);
 
-//         if ( m_pstream->m_iplaybackSpeed != )
-        usleep(200);
+        usleep(20000);
     }
 
     return NULL;
@@ -580,6 +609,7 @@ int XineSlaveWrapper::XServerEventProcessor(XineStream *pStream, XEvent &event)
 {
     Atom  XA_DELETE_WINDOW;
 
+    g_pPlutoLogger->Write(LV_STATUS, "Got event");
     switch(event.type)
     {
         case ClientMessage:
@@ -587,7 +617,7 @@ int XineSlaveWrapper::XServerEventProcessor(XineStream *pStream, XEvent &event)
             XA_DELETE_WINDOW = XInternAtom(XServerDisplay, "WM_DELETE_WINDOW", False);
 
             if((unsigned)event.xclient.data.l[0] == XA_DELETE_WINDOW)
-                pStream->m_bisRendering = false;
+                pStream->m_bIsRendering = false;
             break;
         }
 
@@ -636,12 +666,14 @@ int XineSlaveWrapper::XServerEventProcessor(XineStream *pStream, XEvent &event)
 
             if((cev->x == 0) && (cev->y == 0))
             {
-                XTranslateCoordinates(cev->display, cev->window, DefaultRootWindow(cev->display), 0, 0, &pStream->m_iimgXPos, &pStream->m_iimgYPos, &tmp_win);
+                XLockDisplay(cev->display);
+                XTranslateCoordinates(cev->display, cev->window, DefaultRootWindow(cev->display), 0, 0, &pStream->m_iImgXPos, &pStream->m_iImgYPos, &tmp_win);
+                XUnlockDisplay(cev->display);
             }
             else
             {
-                pStream->m_iimgXPos = cev->x;
-                pStream->m_iimgYPos = cev->y;
+                pStream->m_iImgXPos = cev->x;
+                pStream->m_iImgYPos = cev->y;
             }
         }
         break;
@@ -686,7 +718,7 @@ int XineSlaveWrapper::translate_point(int gui_x, int gui_y, int *video_x, int *v
     height_scale = (float) m_imageHeight / (float) hwin;
     width_scale  = (float) m_imageWidth / (float) wwin;
     aspect       = (float) m_imageWidth / (float) m_imageHeight;
-    if(((float) wwin / (float) hwin) < aspect) {
+    if(((float) wwin / (float) hwin) \< aspect) {
     scale      = width_scale;
     xf         = (float) gui_x * scale;
     yf         = (float) gui_y * scale;
