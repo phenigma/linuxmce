@@ -4541,5 +4541,21 @@ namespace DCE
 	public:
 		CMD_Stop_Streaming_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,262,1,41,StringUtils::itos(iStreamID).c_str()); }
 	};
+	class CMD_Toggle_Event_Handler : public PreformedCommand {
+	public:
+		CMD_Toggle_Event_Handler(long DeviceIDFrom, long DeviceIDTo,int iPK_EventHandler) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,263,1,107,StringUtils::itos(iPK_EventHandler).c_str()); }
+	};
+	class CMD_Toggle_Event_Handler_DL : public PreformedCommand {
+	public:
+		CMD_Toggle_Event_Handler_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_EventHandler) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,263,1,107,StringUtils::itos(iPK_EventHandler).c_str()); }
+	};
+	class CMD_Toggle_Event_Handler_DT : public PreformedCommand {
+	public:
+		CMD_Toggle_Event_Handler_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_EventHandler) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,263,1,107,StringUtils::itos(iPK_EventHandler).c_str()); }
+	};
+	class CMD_Toggle_Event_Handler_Cat : public PreformedCommand {
+	public:
+		CMD_Toggle_Event_Handler_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_EventHandler) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,263,1,107,StringUtils::itos(iPK_EventHandler).c_str()); }
+	};
 }
 #endif

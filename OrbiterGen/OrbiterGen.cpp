@@ -476,6 +476,9 @@ int OrbiterGenerator::DoIt()
 		case DEVICECATEGORY_General_Info_Plugins_CONST:
 			m_dwPK_Device_GeneralInfoPlugIn = pRow_Device->PK_Device_get();
 			break;
+		case DEVICECATEGORY_Event_Plugins_CONST:
+			m_dwPK_Device_EventPlugIn = pRow_Device->PK_Device_get();
+			break;
 		case DEVICECATEGORY_Orbiter_Plugins_CONST:
 			m_dwPK_Device_OrbiterPlugIn = pRow_Device->PK_Device_get();
 			break;
@@ -606,37 +609,51 @@ int OrbiterGenerator::DoIt()
 	list<Row_DesignObj *> alNewDesignObjsToGenerate;  // Have to cache the list because I can't modify htgeneratedscreens while enumerating
 
 	map<int,listDesignObj_Generator *>::iterator itgs;
-	for(itgs=m_htGeneratedScreens.begin();itgs!=m_htGeneratedScreens.end();++itgs)
+	bool bKeepLooking=true;
+	while(bKeepLooking)
 	{
-		listDesignObj_Generator *o = (*itgs).second;
-		Row_DesignObj *pRow_DesignObj = NULL;
-
-		if( o->size()>0 )
+		bKeepLooking=false;  // We'll reset it if we found screens and want to restart the search to find more screens that may be deeper
+		int iNumGeneratedScreens=m_htGeneratedScreens.size();
+		for(itgs=m_htGeneratedScreens.begin();itgs!=m_htGeneratedScreens.end();++itgs)
 		{
-			DesignObj_Generator *oco = o->front();
-			if( oco->m_bUsingCache )
+			listDesignObj_Generator *o = (*itgs).second;
+			Row_DesignObj *pRow_DesignObj = NULL;
+
+			if( o->size()>0 )
 			{
-				// We're going to have to lookup the Row_DesignObj manually, and we're going to need to search for goto's in all the children
-				// since this was built from cache, and so the children were not created when the object was created
-				pRow_DesignObj = mds.DesignObj_get()->GetRow(atoi(oco->m_ObjectID.c_str()));
-				SearchForGotos(oco);
+				DesignObj_Generator *oco = o->front();
+	if( oco->m_ObjectID.find("3290.")!=string::npos )
+	{
+	int k=2;
+	}
+				if( oco->m_bUsingCache )
+				{
+					// We're going to have to lookup the Row_DesignObj manually, and we're going to need to search for goto's in all the children
+					// since this was built from cache, and so the children were not created when the object was created
+					pRow_DesignObj = mds.DesignObj_get()->GetRow(atoi(oco->m_ObjectID.c_str()));
+					SearchForGotos(oco);
+					if( iNumGeneratedScreens!=m_htGeneratedScreens.size() )
+					{
+						bKeepLooking=true;
+						break; // We added some more, start again until we've got them all
+					}
+				}
+				else
+					pRow_DesignObj = oco->m_pRow_DesignObj;
 			}
-			else
-				pRow_DesignObj = oco->m_pRow_DesignObj;
-		}
 
-		if( pRow_DesignObj!=NULL)
-		{
-			vector<Row_DesignObj *> vectros;
-			pRow_DesignObj->DesignObj_FK_DesignObj_IncludeIfOtherIncluded_getrows(&vectros);
-			for(size_t s=0;s<vectros.size();++s)
+			if( pRow_DesignObj!=NULL)
 			{
-				Row_DesignObj *m_pRow_DesignObjDependancy = vectros[s];
-				alNewDesignObjsToGenerate.push_back(m_pRow_DesignObjDependancy);
+				vector<Row_DesignObj *> vectros;
+				pRow_DesignObj->DesignObj_FK_DesignObj_IncludeIfOtherIncluded_getrows(&vectros);
+				for(size_t s=0;s<vectros.size();++s)
+				{
+					Row_DesignObj *m_pRow_DesignObjDependancy = vectros[s];
+					alNewDesignObjsToGenerate.push_back(m_pRow_DesignObjDependancy);
+				}
 			}
 		}
 	}
-
 
 	string sql = string("SELECT ") + COMMANDGROUP_COMMAND_COMMANDPARAMETER_IK_COMMANDPARAMETER_TABLE_FIELD + " FROM " +
 		EVENTHANDLER_TABLE + " JOIN " + COMMANDGROUP_COMMAND_TABLE + " ON " + COMMANDGROUP_COMMAND_FK_COMMANDGROUP_TABLE_FIELD + "=" +
@@ -719,6 +736,10 @@ int OrbiterGenerator::DoIt()
 		{
 			m_iPK_DesignObj_Screen = m_pRow_DesignObjDependancy->PK_DesignObj_get();
 			DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,m_pRow_DesignObjDependancy,PlutoRectangle(0,0,0,0),NULL,true,false);
+			if( ocDesignObj->m_bUsingCache )
+			{
+				SearchForGotos(ocDesignObj);
+			}
 		}
 	}
 	int NumScreens=0;
@@ -782,6 +803,10 @@ int OrbiterGenerator::DoIt()
 		for(listDesignObj_Generator::iterator itlcgo=o->begin();itlcgo!=o->end();++itlcgo)
 		{
 			DesignObj_Generator *oco = (*itlcgo);
+if( oco->m_ObjectID.find("3291.")!=string::npos)
+{
+int k=2;
+}
 			if( !oco->m_bUsingCache )
 			{
 				OutputScreen(oco);

@@ -626,3 +626,28 @@ string StringUtils::GetStringFromConsole()
 }
 
 #endif //#ifndef SYMBIAN
+
+string StringUtils::GetDow( int iDow, bool bFull )
+{
+	if( !bFull )
+	{
+		switch(iDow)
+		{
+		case 0:
+			return "Sun";
+		case 1:
+			return "Mon";
+		case 2:
+			return "Tue";
+		case 3:
+			return "Wed";
+		case 4:
+			return "Thu";
+		case 5:
+			return "Fri";
+		case 6:
+			return "Sat";
+		}
+	}
+	return "";
+}

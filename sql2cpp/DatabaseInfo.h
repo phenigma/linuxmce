@@ -26,12 +26,12 @@ using namespace std;
 
 class DatabaseInfo
 {
-
 	vector<class TABLEINFO_TYPE *> m_listTableInfo; /** < table info list */
 	MYSQL *m_pDB; /** < the database */
 	map<string,TableInfo_Generator *> map_tables_info; /** < for faster lookups */
 
 public:
+	bool m_bConnected;
 
 	/** @brief constructor */
 	DatabaseInfo( string db_host, string db_user, string db_pass, string db_name, int db_port )
@@ -41,10 +41,11 @@ public:
 		if ( mysql_real_connect( m_pDB, db_host.c_str(), db_user.c_str(), db_pass.c_str(), db_name.c_str(), db_port, NULL, 0 ) == NULL )
 		{
 			cout << "MySQL connection failed" << endl;
-			throw string("MySQL connect failed");
+			m_bConnected=false;
+			return;
 		}
-		else
-			cout << "Connection established!" << endl;
+		cout << "Connection established!" << endl;
+		m_bConnected=true;
 	}
 
 	/** @brief destructor */

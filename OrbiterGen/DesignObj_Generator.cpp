@@ -88,7 +88,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==1397 )//2821 && bAddToGenerated )
+if( m_pRow_DesignObj->PK_DesignObj_get()==3290 )//2821 && bAddToGenerated )
 {
     int k=2;
 }

@@ -432,6 +432,8 @@
 #define TEXT_Installed_Programs_CONST 1107
 #define TEXT_Recent_files_CONST 1108
 #define TEXT_Go_to_Pluto_Admin_web_site_CONST 1109
+#define TEXT_Display_Off_CONST 1110
+#define TEXT_instructions_CONST 1111
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

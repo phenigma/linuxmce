@@ -70,6 +70,7 @@ public:
 	//Data accessors
 	//Event accessors
 	//Commands - Override these to handle commands from the server
+	virtual void CMD_Toggle_Event_Handler(int iPK_EventHandler,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -80,7 +81,29 @@ public:
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{
 			Message *pMessage = s>=0 ? pMessageOriginal->m_vectExtraMessages[s] : pMessageOriginal;
-			 if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND )
+			if (pMessage->m_dwPK_Device_To==m_dwPK_Device && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)
+			{
+				switch(pMessage->m_dwID)
+				{
+				case 263:
+					{
+						string sCMD_Result="OK";
+					int iPK_EventHandler=atoi(pMessage->m_mapParameters[107].c_str());
+						CMD_Toggle_Event_Handler(iPK_EventHandler,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				}
+				iHandled += Command_Impl::ReceivedMessage(pMessage);
+			}
+			else if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND )
 			{
 				MapCommand_Impl::iterator it = m_mapCommandImpl_Children.find(pMessage->m_dwPK_Device_To);
 				if( it!=m_mapCommandImpl_Children.end() && !(*it).second->m_bGeneric )

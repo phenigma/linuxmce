@@ -2210,7 +2210,7 @@ void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
 
     ++m_dwIDataGridRequestCounter;
 #ifdef DEBUG
-    g_pPlutoLogger->Write( LV_CONTROLLER, "Initializing grid: %d ( %s ) options: %s ( # %d )", m_dwPK_Device, pObj->m_sGridID.c_str(  ), pObj->m_sOptions.c_str(  ), m_dwIDataGridRequestCounter );
+    g_pPlutoLogger->Write( LV_CONTROLLER, "Initializing grid: %d ( %s ) dev %d options: %s ( # %d )", pObj->m_iPK_Datagrid, pObj->m_sGridID.c_str(  ), m_dwPK_Device, pObj->m_sOptions.c_str(  ), m_dwIDataGridRequestCounter );
 #endif
 
     // Don't populate if we're not passing in anything at this point
@@ -2398,7 +2398,7 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
     }
 
 
-    if(  pObj->m_ObjectID.find( "1257.141" )!=string::npos  )
+    if(  pObj->m_ObjectID.find( "3290." )!=string::npos  )
         //if(  ocDesignObj->m_drDesignObj->PK_DesignObj_get(  )==2790  )
     {
         int k=2;
@@ -3209,6 +3209,9 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
                 case DEVICETEMPLATE_VirtDev_General_Info_Plugin_CONST:
                     pCommand->m_PK_Device=m_dwPK_Device_GeneralInfoPlugIn;
                     break;
+                case DEVICETEMPLATE_VirtDev_Event_Plugin_CONST:
+                    pCommand->m_PK_Device=m_dwPK_Device_EventPlugIn;
+                    break;
                 case DEVICETEMPLATE_VirtDev_Datagrid_Plugin_CONST:
                     pCommand->m_PK_Device=m_dwPK_Device_DatagridPlugIn;
                     break;
@@ -3256,6 +3259,14 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
         {
             if(  PK_Command==COMMAND_Populate_Datagrid_CONST  )
             {
+				// If we already added messages to the queue, go ahead and send them out so that the populate datagrid is executed in the proper order
+				if(  pMessage && !m_bLocalMode  )
+				{
+					if( !m_pcRequestSocket->SendMessage( pMessage ) )
+						g_pPlutoLogger->Write( LV_CRITICAL,  "Send Message failed");
+					pMessage = NULL;
+				}
+
                 PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
                 string GridID = pCommand->m_ParameterList[COMMANDPARAMETER_DataGrid_ID_CONST];
                 DesignObj_DataGrid *pDesignObj_DataGrid_OnScreen=NULL;
@@ -4009,6 +4020,15 @@ void Orbiter::CMD_Goto_Screen(int iPK_Device,string sPK_DesignObj,string sID,str
     DesignObj_Orbiter *pObj_New=m_ScreenMap_Find( sDestScreen );
     if(  !pObj_New  )
 		pObj_New=m_ScreenMap_Find( StringUtils::itos(atoi(sDestScreen.c_str())) + ".0.0" );
+DesignObj_OrbiterMap::iterator it;
+for(it = m_ScreenMap.begin(); it != m_ScreenMap.end(); it++)
+{
+DesignObj_Orbiter* pDesignObj_Orbiter = (DesignObj_Orbiter*)((*it).second);
+if( pDesignObj_Orbiter->m_ObjectID.substr(0,2)=="32" )
+{
+int k=2;
+}
+}
     if(  !pObj_New  )
     {
         g_pPlutoLogger->Write( LV_CRITICAL, "cannot find screen %s in goto", sPK_DesignObj.c_str(  ) );
@@ -4266,9 +4286,6 @@ void Orbiter::CMD_Refresh(string sDataGrid_ID,string &sCMD_Result,Message *pMess
 	}
 
     NeedToRender render( this, "CMD_Refresh" );  // Redraw anything that was changed by this command
-
-    // hack -- todo
-    // For now always re-render the whole screen
 }
 
 //<-dceag-c15-b->

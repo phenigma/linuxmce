@@ -25,6 +25,10 @@ using namespace DCE;
 #include "pluto_main/Table_CriteriaParmList.h"
 #include "pluto_main/Table_CriteriaParmNesting.h"
 #include "pluto_main/Table_EventHandler.h"
+#include "pluto_main/Define_DataGrid.h"
+
+#include "DataGrid.h"
+#include "TimedEvent.h"
 
 #define ALARM_TIMED_EVENT	1
 
@@ -53,10 +57,6 @@ Event_Plugin::Event_Plugin(int DeviceID, string ServerAddress,bool bConnectEvent
 	for(size_t s=0;s<vectRow_Criteria.size();++s)
 	{
 		Row_Criteria *pRow_Criteria = vectRow_Criteria[s];
-if( pRow_Criteria->PK_Criteria_get()==508 )
-{
-int k=2;
-}
 		CriteriaParmNesting *pCriteriaParmNesting = LoadCriteriaParmNesting(NULL,pRow_Criteria->FK_CriteriaParmNesting_getrow());
 		Criteria *pCriteria = new Criteria(pRow_Criteria->PK_Criteria_get(),pCriteriaParmNesting);
 		m_mapCriteria[pRow_Criteria->PK_Criteria_get()] = pCriteria;
@@ -74,7 +74,7 @@ int k=2;
 		if( pRow_EventHandler->TimedEvent_get() )
 		{
 			TimedEvent *pTimedEvent = new TimedEvent(pRow_EventHandler);
-			m_vectTimedEvent.push_back(pTimedEvent);
+			m_mapTimedEvent[pTimedEvent->m_pRow_EventHandler->PK_EventHandler_get()] = pTimedEvent;
 		}
 		else
 		{
@@ -134,6 +134,21 @@ Event_Plugin::~Event_Plugin()
 bool Event_Plugin::Register()
 //<-dceag-reg-e->
 {
+	// And the datagrid plug-in
+    m_pDatagrid_Plugin=NULL;
+    ListCommand_Impl *pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Datagrid_Plugin_CONST );
+    if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
+    {
+        g_pPlutoLogger->Write( LV_CRITICAL, "File grids cannot find datagrid handler %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
+        return false;
+    }
+
+    m_pDatagrid_Plugin=( Datagrid_Plugin * ) pListCommand_Impl->front( );
+
+    m_pDatagrid_Plugin->RegisterDatagridGenerator(
+        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Event_Plugin::AlarmsInRoom) )
+        , DATAGRID_Alarms_In_Room_CONST );
+
     RegisterMsgInterceptor((MessageInterceptorFn)(&Event_Plugin::ProcessEvent) ,0,0,0,0,MESSAGETYPE_EVENT,0);
 	return Connect(); 
 }
@@ -224,17 +239,21 @@ void Event_Plugin::ExecuteEvent(EventInstance *pEventInstance)
 
 void Event_Plugin::SetNextTimedEventCallback()
 {
-	if( m_vectTimedEvent.size()==0 )
+	if( m_mapTimedEvent.size()==0 )
 	{
 		m_pTimedEvent_Next=NULL;
 		return;
 	}
 
-	m_pTimedEvent_Next=m_vectTimedEvent[0];
-	for(size_t s=1;s<m_vectTimedEvent.size();++s)
+	m_pTimedEvent_Next=NULL;
+	for(MapTimedEvent::iterator it=m_mapTimedEvent.begin();it!=m_mapTimedEvent.end();++it)
 	{
-		if( m_vectTimedEvent[s]->m_tTime < m_pTimedEvent_Next->m_tTime )
-			m_pTimedEvent_Next = m_vectTimedEvent[s];
+		TimedEvent *pTimedEvent = (*it).second;
+		if( !m_pTimedEvent_Next )
+			m_pTimedEvent_Next = pTimedEvent;
+
+		if( pTimedEvent->m_tTime < m_pTimedEvent_Next->m_tTime )
+			m_pTimedEvent_Next = pTimedEvent;
 	}
 }
 
@@ -248,6 +267,75 @@ void Event_Plugin::AlarmCallback(int id, void* param)
 	}
 }
 
+class DataGridTable *Event_Plugin::AlarmsInRoom( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+    DataGridTable *pDataGrid = new DataGridTable();	
+    DataGridCell *pCell = NULL;
+
+	if( Parms.length()==0 )
+		return pDataGrid;
+
+	string sSQL = "JOIN CommandGroup ON EventHandler.FK_CommandGroup=PK_CommandGroup JOIN CommandGroup_Room ON CommandGroup_Room.FK_CommandGroup=PK_CommandGroup WHERE TimedEvent IS NOT NULL AND FK_Room=" + Parms;
+	vector<Row_EventHandler *> vectRow_EventHandler;
+	m_pDatabase_pluto_main->EventHandler_get()->GetRows(sSQL,&vectRow_EventHandler);
+	int iRow=0;
+	for(size_t s=0;s<vectRow_EventHandler.size();++s)
+	{
+		Row_EventHandler *pRow_EventHandler = vectRow_EventHandler[s];
+		TimedEvent *pTimedEvent = m_mapTimedEvent_Find(pRow_EventHandler->PK_EventHandler_get());
+
+		string sDescription;
+		switch(pRow_EventHandler->TimedEvent_get())
+		{
+		case INTERVAL_EVENT:
+			sDescription = "Interval";
+			break;
+		case DAY_OF_WEEK:
+			sDescription = "Day of Week";
+			break;
+		case DAY_OF_MONTH:
+			sDescription = "Day of Month";
+			break;
+		case ABSOLUTE_TIME:
+			sDescription = "Absolute Time";
+			break;
+		}
+
+		string sTime;
+		vector<Row_CriteriaParm *> vectRow_CriteriaParm;
+		pRow_EventHandler->FK_Criteria_getrow()->FK_CriteriaParmNesting_getrow()->CriteriaParm_FK_CriteriaParmNesting_getrows(&vectRow_CriteriaParm);
+		for(size_t s=0;s<vectRow_CriteriaParm.size();++s)
+		{
+			Row_CriteriaParm *pRow_CriteriaParm = vectRow_CriteriaParm[s];
+			if( pRow_CriteriaParm->FK_CriteriaParmList_get()==CRITERIAPARMLIST_Time_of_day_CONST )
+				sTime += " " + pRow_CriteriaParm->Value_get();
+			else if( pRow_CriteriaParm->FK_CriteriaParmList_get()==CRITERIAPARMLIST_Day_Of_Week_CONST )
+			{
+				string::size_type pos=0;
+				string sDow = pRow_CriteriaParm->Value_get();
+				while( pos<sDow.length() )
+					sDescription += StringUtils::GetDow( atoi(StringUtils::Tokenize(sDow,",",pos).c_str()) ) + " ";
+			}
+			else if( pRow_CriteriaParm->FK_CriteriaParmList_get()==CRITERIAPARMLIST_Day_Of_Month_CONST )
+				sDescription += " " + pRow_CriteriaParm->Value_get();
+		}
+
+		if( pTimedEvent )
+		{
+			int Minutes = (pTimedEvent->m_tTime - time(NULL))/60;
+			sTime += " left: " + StringUtils::itos( Minutes / 60 ) + ":" + StringUtils::itos( Minutes % 60 );
+		}
+		pCell = new DataGridCell(pRow_EventHandler->Disabled_get()==1 ? "" : "ON",StringUtils::itos(pRow_EventHandler->PK_EventHandler_get()));
+		pDataGrid->SetData(0,iRow,pCell);
+
+		pCell = new DataGridCell(pRow_EventHandler->Description_get() + "\n" + sTime + "\n" + sDescription,StringUtils::itos(pRow_EventHandler->PK_EventHandler_get()));
+		pCell->m_Colspan = 3;
+		pDataGrid->SetData(1,iRow++,pCell);
+	}
+
+	return pDataGrid;
+}
+
 //<-dceag-sample-b->!
 
 /*
@@ -258,3 +346,22 @@ void Event_Plugin::AlarmCallback(int id, void* param)
 
 
 
+//<-dceag-c263-b->
+
+	/** @brief COMMAND: #263 - Toggle Event Handler */
+	/** Turns an event handler on/off by toggling the 'disabled' flag. */
+		/** @param #107 PK_EventHandler */
+			/** The event handler to toggle. */
+
+void Event_Plugin::CMD_Toggle_Event_Handler(int iPK_EventHandler,string &sCMD_Result,Message *pMessage)
+//<-dceag-c263-e->
+{
+	Row_EventHandler *pRow_EventHandler = m_pDatabase_pluto_main->EventHandler_get()->GetRow(iPK_EventHandler);
+	if( !pRow_EventHandler )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot toggle event handler: %d",iPK_EventHandler);
+		return;
+	}
+	pRow_EventHandler->Disabled_set( pRow_EventHandler->Disabled_get()!=1 );
+	m_pDatabase_pluto_main->EventHandler_get()->Commit();
+}

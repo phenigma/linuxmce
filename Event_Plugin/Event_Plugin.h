@@ -11,27 +11,30 @@
 #include "AlarmManager.h"
 #include "TimedEvent.h"
 #include "pluto_main/Database_pluto_main.h"
+#include "Datagrid_Plugin/Datagrid_Plugin.h"
 
 class Criteria;
 class CriteriaParmNesting;
 class Row_CriteriaParmNesting;
 class EventInstance;
 
-//<-dceag-decl-b->
+//<-dceag-decl-b->!
 namespace DCE
 {	
-	class Event_Plugin : public Event_Plugin_Command, public AlarmEvent
+	class Event_Plugin : public Event_Plugin_Command, public AlarmEvent, public DataGridGeneratorPlugIn
 	{
 //<-dceag-decl-e->
 		// Private member variables
 	    Database_pluto_main *m_pDatabase_pluto_main;
 		map<int,Criteria *> m_mapCriteria;
 		map<int,ListEventHandler *> m_mapListEventHandler;
-		VectTimedEvent m_vectTimedEvent;
+		MapTimedEvent m_mapTimedEvent;
+		TimedEvent *m_mapTimedEvent_Find(int PK_TimedEvent) { MapTimedEvent::iterator it = m_mapTimedEvent.find(PK_TimedEvent); return it==m_mapTimedEvent.end() ? NULL : (*it).second; }
 		ListEventHandler *m_mapListEventHandler_Find(int PK_Event) { map<int,ListEventHandler *>::iterator it = m_mapListEventHandler.find(PK_Event); return it==m_mapListEventHandler.end() ? NULL : (*it).second; }
 		Criteria *m_mapCriteria_Find(int PK_Criteria) { map<int,class Criteria *>::iterator it = m_mapCriteria.find(PK_Criteria); return it==m_mapCriteria.end() ? NULL : (*it).second; }
 		int m_dwID_EventInstance;
 		TimedEvent *m_pTimedEvent_Next;
+	    class Datagrid_Plugin *m_pDatagrid_Plugin;
 
 		// Private methods
 public:
@@ -53,6 +56,9 @@ public:
         void AlarmCallback(int id, void* param);
 		void SetNextTimedEventCallback();
 
+		// Datagrid
+		class DataGridTable *AlarmsInRoom( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
+
 //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION
@@ -66,6 +72,15 @@ public:
 
 			*****COMMANDS***** we need to implement
 	*/
+
+
+	/** @brief COMMAND: #263 - Toggle Event Handler */
+	/** Turns an event handler on/off by toggling the 'disabled' flag. */
+		/** @param #107 PK_EventHandler */
+			/** The event handler to toggle. */
+
+	virtual void CMD_Toggle_Event_Handler(int iPK_EventHandler) { string sCMD_Result; CMD_Toggle_Event_Handler(iPK_EventHandler,sCMD_Result,NULL);};
+	virtual void CMD_Toggle_Event_Handler(int iPK_EventHandler,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

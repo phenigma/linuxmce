@@ -259,6 +259,7 @@
 #define COMMAND_Set_Main_Menu_CONST 260
 #define COMMAND_Set_FollowMe_CONST 261
 #define COMMAND_Stop_Streaming_CONST 262
+#define COMMAND_Toggle_Event_Handler_CONST 263
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

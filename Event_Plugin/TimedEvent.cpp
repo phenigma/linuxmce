@@ -12,11 +12,6 @@
 #include "pluto_main/Table_CriteriaParmList.h"
 #include "pluto_main/Table_EventHandler.h"
 
-#define	INTERVAL_EVENT	1
-#define DAY_OF_WEEK		2
-#define DAY_OF_MONTH	3
-#define ABSOLUTE_TIME	4
-
 TimedEvent::TimedEvent(Row_EventHandler *pRow_EventHandler)
 {
 	m_tTime=0;

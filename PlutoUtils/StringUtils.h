@@ -170,6 +170,7 @@ namespace StringUtils
 
 	time_t StringToDate(string Value);  /** < Converts a date/time as a string to a time_t */
 
+	string GetDow( int iDow, bool bFull=false );  /** < Returns the name of the day of the week based on the integer.  If bFull, it is not abbreviated */
 #endif //#ifndef SYMBIAN
 };
 

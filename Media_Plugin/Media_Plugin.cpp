@@ -1601,8 +1601,8 @@ class DataGridTable *Media_Plugin::ActiveMediaStreams( string GridID, string Par
 
 class DataGridTable *Media_Plugin::AvailablePlaylists( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
+    g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::AvailablePlaylists Called to populate: %s", Parms.c_str());
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
-    g_pPlutoLogger->Write(LV_STATUS, "Called to populate: %s", Parms.c_str());
 
     if( Parms.length( )==0 )
         return NULL; // Nothing passed in yet

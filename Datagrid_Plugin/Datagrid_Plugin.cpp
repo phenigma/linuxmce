@@ -250,37 +250,41 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 void Datagrid_Plugin::CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int iPK_DataGrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful,string &sCMD_Result,Message *pMessage)
 //<-dceag-c35-e->
 {
- *iPK_Variable=0;
- *bIsSuccessful=false; // assume we're not succesful
- PLUTO_SAFETY_LOCK( s, m_DataGridMutex );
- string::size_type pos=0;
+	*iPK_Variable=0;
+	*bIsSuccessful=false; // assume we're not succesful
+	PLUTO_SAFETY_LOCK( s, m_DataGridMutex );
+	string::size_type pos=0;
 
- DataGridTable *pDataGridTable=NULL;
- map<int, class DataGridGeneratorCallBack *>::iterator itGridCB = m_mapDataGridGeneratorCallBack.find( iPK_DataGrid );
- if( itGridCB != m_mapDataGridGeneratorCallBack.end() )
- {
-  DataGridGeneratorCallBack *pCB = ( *itGridCB ).second;
-  pDataGridTable = CALL_MEMBER_FN( *pCB->m_pDataGridGeneratorPlugIn, pCB->m_pDCEDataGridGeneratorFn ) ( sDataGrid_ID, sOptions, NULL, iPK_Variable, sValue_To_Assign, pMessage );
- }
+	g_pPlutoLogger->Write( LV_STATUS, "About to populate grid: %d %s", iPK_DataGrid, sDataGrid_ID.c_str() );
 
- if( !pDataGridTable )
- {
-  g_pPlutoLogger->Write( LV_CRITICAL, "Cannot populate grid: %s", sDataGrid_ID.c_str() );
-  pDataGridTable = new DataGridTable();
-  DataGridCell *pCell;
-  pCell = new DataGridCell( "Datagrid: " + sDataGrid_ID, "" );
-  pDataGridTable->SetData( 0, 0, pCell );
-  pCell = new DataGridCell( "Type: " + StringUtils::itos( iPK_DataGrid ), "" );
-  pDataGridTable->SetData( 0, 1, pCell );
-  pCell = new DataGridCell( "is invalid", "" );
-  pDataGridTable->SetData( 0, 2, pCell );
-  *bIsSuccessful=false; // it didn't work
- }
- else
-  *bIsSuccessful=true; // it worked
+	DataGridTable *pDataGridTable=NULL;
+	map<int, class DataGridGeneratorCallBack *>::iterator itGridCB = m_mapDataGridGeneratorCallBack.find( iPK_DataGrid );
+	if( itGridCB != m_mapDataGridGeneratorCallBack.end() )
+	{
+		DataGridGeneratorCallBack *pCB = ( *itGridCB ).second;
+		g_pPlutoLogger->Write( LV_STATUS, "About to call member function: %d %s", iPK_DataGrid, sDataGrid_ID.c_str() );
+		pDataGridTable = CALL_MEMBER_FN( *pCB->m_pDataGridGeneratorPlugIn, pCB->m_pDCEDataGridGeneratorFn ) ( sDataGrid_ID, sOptions, NULL, iPK_Variable, sValue_To_Assign, pMessage );
+		g_pPlutoLogger->Write( LV_STATUS, "Called datagrid populate function for grid: %d %s", iPK_DataGrid, sDataGrid_ID.c_str() );
+	}
 
- m_DataGrids[sDataGrid_ID]=pDataGridTable;
- return;
+	if( !pDataGridTable )
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot populate grid: %s", sDataGrid_ID.c_str() );
+		pDataGridTable = new DataGridTable();
+		DataGridCell *pCell;
+		pCell = new DataGridCell( "Datagrid: " + sDataGrid_ID, "" );
+		pDataGridTable->SetData( 0, 0, pCell );
+		pCell = new DataGridCell( "Type: " + StringUtils::itos( iPK_DataGrid ), "" );
+		pDataGridTable->SetData( 0, 1, pCell );
+		pCell = new DataGridCell( "is invalid", "" );
+		pDataGridTable->SetData( 0, 2, pCell );
+		*bIsSuccessful=false; // it didn't work
+	}
+	else
+		*bIsSuccessful=true; // it worked
+
+	m_DataGrids[sDataGrid_ID]=pDataGridTable;
+	return;
 }
 
 

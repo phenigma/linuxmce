@@ -1,6 +1,11 @@
 #ifndef TimedEvent_H
 #define TimedEvent_H
 
+#define	INTERVAL_EVENT	1
+#define DAY_OF_WEEK		2
+#define DAY_OF_MONTH	3
+#define ABSOLUTE_TIME	4
+
 class Row_EventHandler;
 
 namespace DCE
@@ -30,7 +35,7 @@ public:
 	bool SetNextTime(tm *tmAfter,tm *tmOutput,string sTimes);
 };
 
-typedef vector<TimedEvent *> VectTimedEvent;
+typedef map<int,TimedEvent *> MapTimedEvent;
 
 #endif
 

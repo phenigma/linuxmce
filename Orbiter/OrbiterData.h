@@ -62,10 +62,10 @@ public:
 	ScreenMap m_ScreenMap;
 
 	// Some global devices
-	int m_dwPK_Device_Router,m_dwPK_Device_DatagridPlugIn,m_dwPK_Device_GeneralInfoPlugIn,m_dwPK_Device_OrbiterPlugIn,
+	int m_dwPK_Device_Router,m_dwPK_Device_DatagridPlugIn,m_dwPK_Device_GeneralInfoPlugIn,m_dwPK_Device_EventPlugIn,m_dwPK_Device_OrbiterPlugIn,
 		m_dwPK_Device_LightingPlugIn, m_dwPK_Device_ClimatePlugIn, m_dwPK_Device_MediaPlugIn, m_dwPK_Device_TelecomPlugIn, m_dwPK_Device_SecurityPlugIn;
 
-	OrbiterData() { m_dwPK_Device_Router = m_dwPK_Device_DatagridPlugIn = m_dwPK_Device_GeneralInfoPlugIn = m_dwPK_Device_OrbiterPlugIn =
+	OrbiterData() { m_dwPK_Device_Router = m_dwPK_Device_DatagridPlugIn = m_dwPK_Device_GeneralInfoPlugIn = m_dwPK_Device_EventPlugIn = m_dwPK_Device_OrbiterPlugIn =
 		m_dwPK_Device_LightingPlugIn = m_dwPK_Device_ClimatePlugIn = m_dwPK_Device_MediaPlugIn = m_dwPK_Device_TelecomPlugIn = m_dwPK_Device_SecurityPlugIn = DEVICEID_NULL; }
 
 #ifdef ORBITER
@@ -97,7 +97,7 @@ public:
 	void SetupSerialization(int iSC_Version)
 	{
 		StartSerializeList() + m_mapVariable + m_Width + m_Height + m_AnimationStyle + m_sMainMenu + m_sSleepingMenu + m_sScreenSaveMenu + m_dwPK_Users_Default + m_iLocation_Initial
-			+ m_dwPK_Device_Router + m_dwPK_Device_DatagridPlugIn + m_dwPK_Device_GeneralInfoPlugIn + m_dwPK_Device_OrbiterPlugIn
+			+ m_dwPK_Device_Router + m_dwPK_Device_DatagridPlugIn + m_dwPK_Device_EventPlugIn + m_dwPK_Device_GeneralInfoPlugIn + m_dwPK_Device_OrbiterPlugIn
 			+ m_dwPK_Device_LightingPlugIn + m_dwPK_Device_ClimatePlugIn + m_dwPK_Device_MediaPlugIn + m_dwPK_Device_TelecomPlugIn + m_dwPK_Device_SecurityPlugIn;
 
 		(*this) + m_ScreenMap + m_mapTextStyle + m_dequeLocation; // this is serialized custom

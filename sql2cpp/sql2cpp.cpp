@@ -170,6 +170,11 @@ int main( int argc, char *argv[] )
 		sInputPath += "/"; // adding a final /
 
 	DatabaseInfo dbInfo( sDBHost, sDBUser, sDBPassword, sDBName, iDBPort ); // creating the DatabaseInfo object
+	if( !dbInfo.m_bConnected )
+	{
+		cerr << "Cannot connect.  Aborting" << endl;
+		exit(1);
+	}
 
 	dbInfo.getDatabaseTablesList(); // reading tables list	
 	dbInfo.ConvertTablesToStrings( &g_TablesList ); // obtaining their names
