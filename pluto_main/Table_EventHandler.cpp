@@ -128,13 +128,15 @@ is_null[6] = true;
 m_UserCreated = 0;
 is_null[7] = false;
 is_null[8] = true;
-is_null[9] = true;
+m_Disabled = 0;
+is_null[9] = false;
 is_null[10] = true;
 is_null[11] = true;
+is_null[12] = true;
 m_psc_frozen = 0;
-is_null[12] = false;
-m_psc_mod = "00000000000000";
 is_null[13] = false;
+m_psc_mod = "00000000000000";
+is_null[14] = false;
 
 
 	is_added=false;
@@ -169,6 +171,9 @@ return m_UserCreated;}
 long int Row_EventHandler::FK_CannedEvents_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_CannedEvents;}
+short int Row_EventHandler::Disabled_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Disabled;}
 long int Row_EventHandler::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_id;}
@@ -213,21 +218,24 @@ m_UserCreated = val; is_modified=true; is_null[7]=false;}
 void Row_EventHandler::FK_CannedEvents_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_CannedEvents = val; is_modified=true; is_null[8]=false;}
+void Row_EventHandler::Disabled_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Disabled = val; is_modified=true; is_null[9]=false;}
 void Row_EventHandler::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_id = val; is_modified=true; is_null[9]=false;}
+m_psc_id = val; is_modified=true; is_null[10]=false;}
 void Row_EventHandler::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_batch = val; is_modified=true; is_null[10]=false;}
+m_psc_batch = val; is_modified=true; is_null[11]=false;}
 void Row_EventHandler::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_user = val; is_modified=true; is_null[11]=false;}
+m_psc_user = val; is_modified=true; is_null[12]=false;}
 void Row_EventHandler::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_frozen = val; is_modified=true; is_null[12]=false;}
+m_psc_frozen = val; is_modified=true; is_null[13]=false;}
 void Row_EventHandler::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_mod = val; is_modified=true; is_null[13]=false;}
+m_psc_mod = val; is_modified=true; is_null[14]=false;}
 
 		
 bool Row_EventHandler::FK_Event_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -248,18 +256,21 @@ return is_null[6];}
 bool Row_EventHandler::FK_CannedEvents_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[8];}
-bool Row_EventHandler::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_EventHandler::Disabled_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[9];}
-bool Row_EventHandler::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_EventHandler::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[10];}
-bool Row_EventHandler::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_EventHandler::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[11];}
-bool Row_EventHandler::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_EventHandler::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[12];}
+bool Row_EventHandler::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[13];}
 
 			
 void Row_EventHandler::FK_Event_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -280,18 +291,21 @@ is_null[6]=val;}
 void Row_EventHandler::FK_CannedEvents_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[8]=val;}
-void Row_EventHandler::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_EventHandler::Disabled_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[9]=val;}
-void Row_EventHandler::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_EventHandler::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[10]=val;}
-void Row_EventHandler::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_EventHandler::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[11]=val;}
-void Row_EventHandler::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_EventHandler::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[12]=val;}
+void Row_EventHandler::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[13]=val;}
 	
 
 string Row_EventHandler::PK_EventHandler_asSQL()
@@ -412,11 +426,24 @@ sprintf(buf, "%li", m_FK_CannedEvents);
 return buf;
 }
 
-string Row_EventHandler::psc_id_asSQL()
+string Row_EventHandler::Disabled_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[9])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_Disabled);
+
+return buf;
+}
+
+string Row_EventHandler::psc_id_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[10])
 return "NULL";
 
 char buf[32];
@@ -429,7 +456,7 @@ string Row_EventHandler::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[10])
+if (is_null[11])
 return "NULL";
 
 char buf[32];
@@ -442,7 +469,7 @@ string Row_EventHandler::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[11])
+if (is_null[12])
 return "NULL";
 
 char buf[32];
@@ -455,7 +482,7 @@ string Row_EventHandler::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[12])
+if (is_null[13])
 return "NULL";
 
 char buf[32];
@@ -468,7 +495,7 @@ string Row_EventHandler::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[13])
+if (is_null[14])
 return "NULL";
 
 char *buf = new char[29];
@@ -516,10 +543,10 @@ bool Table_EventHandler::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_EventHandler_asSQL()+", "+pRow->FK_Event_asSQL()+", "+pRow->TimedEvent_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_Criteria_asSQL()+", "+pRow->FK_Installation_asSQL()+", "+pRow->FK_CommandGroup_asSQL()+", "+pRow->UserCreated_asSQL()+", "+pRow->FK_CannedEvents_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_EventHandler_asSQL()+", "+pRow->FK_Event_asSQL()+", "+pRow->TimedEvent_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_Criteria_asSQL()+", "+pRow->FK_Installation_asSQL()+", "+pRow->FK_CommandGroup_asSQL()+", "+pRow->UserCreated_asSQL()+", "+pRow->FK_CannedEvents_asSQL()+", "+pRow->Disabled_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into EventHandler (PK_EventHandler, FK_Event, TimedEvent, Description, FK_Criteria, FK_Installation, FK_CommandGroup, UserCreated, FK_CannedEvents, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into EventHandler (PK_EventHandler, FK_Event, TimedEvent, Description, FK_Criteria, FK_Installation, FK_CommandGroup, UserCreated, FK_CannedEvents, Disabled, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -569,7 +596,7 @@ condition = condition + "PK_EventHandler=" + tmp_PK_EventHandler;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_EventHandler="+pRow->PK_EventHandler_asSQL()+", FK_Event="+pRow->FK_Event_asSQL()+", TimedEvent="+pRow->TimedEvent_asSQL()+", Description="+pRow->Description_asSQL()+", FK_Criteria="+pRow->FK_Criteria_asSQL()+", FK_Installation="+pRow->FK_Installation_asSQL()+", FK_CommandGroup="+pRow->FK_CommandGroup_asSQL()+", UserCreated="+pRow->UserCreated_asSQL()+", FK_CannedEvents="+pRow->FK_CannedEvents_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_EventHandler="+pRow->PK_EventHandler_asSQL()+", FK_Event="+pRow->FK_Event_asSQL()+", TimedEvent="+pRow->TimedEvent_asSQL()+", Description="+pRow->Description_asSQL()+", FK_Criteria="+pRow->FK_Criteria_asSQL()+", FK_Installation="+pRow->FK_Installation_asSQL()+", FK_CommandGroup="+pRow->FK_CommandGroup_asSQL()+", UserCreated="+pRow->UserCreated_asSQL()+", FK_CannedEvents="+pRow->FK_CannedEvents_asSQL()+", Disabled="+pRow->Disabled_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update EventHandler set " + update_values_list + " where " + condition;
@@ -764,56 +791,67 @@ sscanf(row[8], "%li", &(pRow->m_FK_CannedEvents));
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_psc_id = 0;
+pRow->m_Disabled = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_psc_id));
+sscanf(row[9], "%hi", &(pRow->m_Disabled));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_psc_batch));
+sscanf(row[10], "%li", &(pRow->m_psc_id));
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-sscanf(row[11], "%li", &(pRow->m_psc_user));
+sscanf(row[11], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[12]=false;
-sscanf(row[12], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[12], "%li", &(pRow->m_psc_user));
 }
 
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[13]=false;
-pRow->m_psc_mod = string(row[13],lengths[13]);
+sscanf(row[13], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[14] == NULL)
+{
+pRow->is_null[14]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[14]=false;
+pRow->m_psc_mod = string(row[14],lengths[14]);
 }
 
 
@@ -1024,56 +1062,67 @@ sscanf(row[8], "%li", &(pRow->m_FK_CannedEvents));
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_psc_id = 0;
+pRow->m_Disabled = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_psc_id));
+sscanf(row[9], "%hi", &(pRow->m_Disabled));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_psc_batch));
+sscanf(row[10], "%li", &(pRow->m_psc_id));
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-sscanf(row[11], "%li", &(pRow->m_psc_user));
+sscanf(row[11], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[12]=false;
-sscanf(row[12], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[12], "%li", &(pRow->m_psc_user));
 }
 
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[13]=false;
-pRow->m_psc_mod = string(row[13],lengths[13]);
+sscanf(row[13], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[14] == NULL)
+{
+pRow->is_null[14]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[14]=false;
+pRow->m_psc_mod = string(row[14],lengths[14]);
 }
 
 

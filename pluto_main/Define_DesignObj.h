@@ -1108,6 +1108,7 @@
 #define DESIGNOBJ_butFloorsTelecom_CONST 3277
 #define DESIGNOBJ_pvr_full_screen_with_options_o_CONST 3279
 #define DESIGNOBJ_go_to_pvr_full_screen_with_opt_CONST 3281
+#define DESIGNOBJ_mnuMediaFileList3_CONST 3282
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

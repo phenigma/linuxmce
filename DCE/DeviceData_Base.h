@@ -12,6 +12,7 @@
 #define DEVICEDATA_BASE_H
 
 #include "SerializeClass/SerializeClass.h"
+#include "pluto_main/Define_DeviceCategory.h"
 
 #define SERIALIZE_DATA_TYPE_MAP_DCEDEVICEDATA_BASE			2000
 #define SERIALIZE_DATA_TYPE_MAP_DCECATEGORY					2001
@@ -190,7 +191,6 @@ namespace DCE
 	 */
 	class DeviceData_Base : public SerializeClass
 	{
-	
 	public:
 	
 		/** fields that corespond to primary keys */
@@ -214,6 +214,8 @@ namespace DCE
 		string m_sIPAddress; /** < the IP address for the device */
 		string m_sMacAddress; /** < the MAC address for the device */
 		string m_sDescription; /** < freeform description for the device */
+
+		bool m_bInheritsMacFromPC; /** < If true, this will return the MAC Address from the controlled_via tree that is a pc, otherwise it returns its own m_sMacAddress */
 
 		map<int,string> m_mapCommands; /** < map of commands for the device */
 		AllDevices m_AllDevices;  /** < all the devices in the system */
@@ -271,7 +273,8 @@ namespace DCE
 		 * Call this contstructor to create it dynamically
 		 */
 		DeviceData_Base( unsigned long dwPK_Device, unsigned long dwPK_Installation, unsigned long dwPK_DeviceTemplate, unsigned long dwPK_Device_ControlledVia,
-				unsigned long dwPK_DeviceCategory, unsigned long dwPK_Room, bool bImplementsDCE, bool bIsEmbedded, string sCommandLine, bool bIsPlugIn, string sDescription, string sIPAddress, string sMacAddress )
+				unsigned long dwPK_DeviceCategory, unsigned long dwPK_Room, bool bImplementsDCE, bool bIsEmbedded, string sCommandLine, bool bIsPlugIn, 
+				string sDescription, string sIPAddress, string sMacAddress, bool bInheritsMacFromPC )
 		{ 
 			m_pDeviceCategory = NULL;
 			m_pDevice_ControlledVia = NULL;
@@ -288,6 +291,7 @@ namespace DCE
 			m_sDescription=sDescription;
 			m_sIPAddress = sIPAddress;
 			m_sMacAddress = sMacAddress;
+			m_bInheritsMacFromPC = bInheritsMacFromPC;
 		}
 
 		/**
@@ -358,6 +362,24 @@ namespace DCE
 		bool SupportsCommand( unsigned long dwPK_Command )
 		{
 			return m_mapCommands.find( dwPK_Command ) != m_mapCommands.end();
+		}
+
+		string GetMacAddress()
+		{
+			if( !m_bInheritsMacFromPC )
+				return m_sMacAddress;
+
+			if( WithinCategory(DEVICECATEGORY_Computers_CONST) )
+				return m_sMacAddress;
+
+			DeviceData_Base *pParent = m_pDevice_ControlledVia;
+			while( pParent && !pParent->WithinCategory(DEVICECATEGORY_Computers_CONST) )
+				pParent = pParent->m_pDevice_ControlledVia;
+
+			if( pParent )
+				return pParent->m_sMacAddress;
+			else
+				return "";
 		}
 	};
 }

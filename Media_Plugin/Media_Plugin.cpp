@@ -965,7 +965,6 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
         "JOIN AttributeType ON FK_AttributeType=PK_AttributeType "\
         "WHERE Token like '" + AC + "%' AND PK_Attribute NOT IN (" + AttributesFirstSearch + ") "\
         "limit 30;";
-//        "WHERE Token like '" + AC + "%' "\
 
 	if( ( result.r=m_MySqlHelper_Media.mysql_query_result( SQL ) ) )
     {
