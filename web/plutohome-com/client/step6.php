@@ -175,7 +175,7 @@ if($_SESSION['sollutionType']==3){
 				$videoDevice=getSubDT($rowMediaDirectors['PK_Device'],$GLOBALS['VideoCards'],$dbADO);
 				$out.='
 				<tr class="normaltext" '.$rowcolor.'>
-					<td colspan="6">PVR Capture Card: '.htmlPulldown($pvrArray,'PVRCaptureCard_'.$rowMediaDirectors['PK_Device'],$pvrDevice,'None').' Sound Card '.htmlPulldown($soundArray,'SoundCard_'.$rowMediaDirectors['PK_Device'],$soundDevice,'Standard Sound Card').' Video Card '.htmlPulldown($videoArray,'VideoCard_'.$rowMediaDirectors['PK_Device'],$videoDevice,'Standard Video Card').'</td>
+					<td colspan="6">PVR Capture Card: '.htmlPulldown($pvrArray,'PVRCaptureCard_'.$rowMediaDirectors['PK_Device'],$pvrDevice,'None').' Sound Card '.htmlPulldown($soundArray,'SoundCard_'.$rowMediaDirectors['PK_Device'],$soundDevice,'Standard Sound Card').' <br>Video Card '.htmlPulldown($videoArray,'VideoCard_'.$rowMediaDirectors['PK_Device'],$videoDevice,'Standard Video Card').'</td>
 				</tr>';
 				
 				$out.='
@@ -244,7 +244,7 @@ if($_SESSION['sollutionType']==3){
 		}
 		$out.='
 			<tr class="normaltext">
-				<td colspan="2">PVR Capture Card: '.htmlPulldown($pvrArray,'PVRCaptureCard','','None').' Sound Card '.htmlPulldown($soundArray,'SoundCard','','Standard Sound Card').' Video Card '.htmlPulldown($videoArray,'VideoCard','','Standard Video Card').'</td>
+				<td colspan="2">PVR Capture Card: '.htmlPulldown($pvrArray,'PVRCaptureCard','','None').' Sound Card '.htmlPulldown($soundArray,'SoundCard','','Standard Sound Card').' <br>Video Card '.htmlPulldown($videoArray,'VideoCard','','Standard Video Card').'</td>
 			</tr>';
 		if($selectedPlatform!=0)
 			$out.='				<tr class="normaltext">
