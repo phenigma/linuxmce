@@ -28,17 +28,18 @@ MySQLCommand="mysql -h $MySqlHost -D $MySqlDBName"
 PerlCommand="
 	chomp;
 	(\$dev, \$desc, \$command) = split('\t');
+	\$desc =~ s/[ :+=()<]/_/g;
+	\$desc =~ s/[->*?\\$\.%\\/]//g;
+	\$desc =~ s/#/Num/g;
+	\$desc =~ s/__/_/g;
+	\$desc =~ s/^_*//g;
+	\$desc =~ s/_*\$//g;
+
 	if ( ! \$command || \$command eq \"NULL\" )
 	{
-		\$desc =~ s/[ :+=()<]/_/g;
-		\$desc =~ s/[->*?\\$\.%\\/]//g;
-		\$desc =~ s/#/Num/g;
-		\$desc =~ s/__/_/g;
-		\$desc =~ s/^_*//g;
-		\$desc =~ s/_*\$//g;
 		\$command = \$desc;
 	}
-	print \"\$dev|\$command\n\";
+	print \"\$dev|\$command|\$desc\n\";
 ";
 	
 CommandList=$(echo "$QUERY" | $MySQLCommand | tail +2 | perl -n -e "$PerlCommand");
@@ -46,12 +47,13 @@ for command in $CommandList; do
 
 	ChildDeviceID=`echo $command | cut -f 1 -d '|'`;
 	ChildCommand=`echo $command | cut -f 2 -d '|'`;
+	ChildDescription=`echo $command | cut -f 3 -d '|'`;
 
 	if [ ! -f /usr/pluto/bin/$ChildCommand ]; then 
 		Logging "$TYPE" "$SEVERITY_WARNING" "Child device ($ChildDeviceID) was configured but the startup script ($ChildCommand) is not available in /usr/pluto/bin.";
 	elif [ ! -x /usr/pluto/bin/$ChildCommand ]; then 
 		Logging "$TYPE" "$SEVERITY_WARNING" "Child device ($ChildDeviceID) was configured but the startup script ($ChildCommand) existent in /usr/pluto/bin is not executable.";
 	else
-		/usr/pluto/bin/$ChildCommand -d $ChildDeviceID -r $DCERouter;
+		screen -d -m -S "$ChildDescription" /bin/bash -c "(echo `date` Starting; /usr/pluto/bin/$ChildCommand -d $ChildDeviceID -r $DCERouter) | tee /var/pluto/log/$ChildDeviceID-$ChildDescription.log";
 	fi;
 done
