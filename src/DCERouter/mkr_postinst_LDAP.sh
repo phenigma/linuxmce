@@ -7,7 +7,11 @@ SlapdConf="/etc/ldap/slapd.conf"
 
 mkdir -p /usr/share/ldap/data
 
-ConfAppend="# Pluto
+ConfAppend="
+# Pluto
+
+allow bind_v2
+
 database bdb
 suffix \"dc=plutohome, dc=org\"
 rootdn \"cn=admin, dc=plutohome, dc=org\"
