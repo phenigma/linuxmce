@@ -98,7 +98,7 @@ void DeadlockHandler(PlutoLock *pPlutoLock)
 }
 
 Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,string DBUser,string DBPassword,string DBName,int DBPort,int ListenPort) :
-    SocketListener("Router Dev #" + StringUtils::itos(PK_Device)), m_CoreMutex("core"), m_InterceptorMutex("interceptor"), MySqlHelper(DBHost,DBUser,DBPassword,DBName,DBPort)
+    SocketListener("Router Dev #" + StringUtils::itos(PK_Device)), MySqlHelper(DBHost,DBUser,DBPassword,DBName,DBPort), m_CoreMutex("core"), m_InterceptorMutex("interceptor")
 {
 	g_pRouter=this;  // For the deadlock handler
 	g_pDeadlockHandler=DeadlockHandler;
@@ -724,7 +724,7 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 			Desc = "Event:\x1b[32;1m" + m_mapEventNames[pMessage->m_dwID] + "\x1b[0m";
 
 		int LogType = pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT ? LV_EVENT : (pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND ? LV_ACTION : LV_STATUS);
-		if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT || pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND ) 
+		if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT || pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
 		{
 			if (pMessage->m_dwPK_Device_To == DEVICEID_LIST)
 			{
@@ -1451,6 +1451,12 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
         for(map<int,Pipe *>::iterator it=pDeviceData_Router->m_mapPipe_Available.begin();it!=pDeviceData_Router->m_mapPipe_Available.end();++it)
         {
             Pipe *pPipe = (*it).second;
+
+			g_pPlutoLogger->Write(LV_STATUS, "Walking the command pipe: Command input: %d Command_Output: %d Device From: %d, FK_Pipe: %d",
+				pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_get(),
+				pPipe->m_pRow_Device_Device_Pipe->FK_Command_Output_get(),
+				pPipe->m_pRow_Device_Device_Pipe->FK_Device_From_get());
+
 			if( PK_Pipe && PK_Pipe!=pPipe->m_pRow_Device_Device_Pipe->FK_Pipe_get() )
 				continue;
             if( sPipesDevices.length()<3 || sPipesDevices.find("," + StringUtils::itos((*it).first) + ",")!=string::npos ) // It may be 2 characters: ,,
@@ -1670,7 +1676,7 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
                             DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(pDeviceConnection->m_dwPK_Device);
                             // cause the server to remove the socket
 // AB 1-4-2004 TODO -- have to fix this.  it crashed???
-//                              pFailedSocket = pDeviceConnection;
+//                              pFaipFailedSocketledSocket = pDeviceConnection;
 //                              FlagForRemoval(pDeviceConnection->m_dwPK_Device);
                         }
                         else
@@ -1697,9 +1703,13 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
                 }
             }
 //          g_pPlutoLogger->Write(LV_STATUS, "realsendmessage - before failed socket");
-            if (pFailedSocket)
+
+
+			if (pFailedSocket)
             {
-                RemoveSocket(pFailedSocket);
+				// the destructor will also remove it from the command maps.
+                delete pFailedSocket;
+				// RemoveSocket(pFailedSocket);
             }
         }
         else
@@ -1932,7 +1942,7 @@ int k=2;
 		pDevice->m_pDevice_Core = pDevice->FindSelfOrParentWithinCategory(DEVICECATEGORY_Core_CONST);
 		pDevice->m_pDevice_MD = pDevice->FindSelfOrParentWithinCategory(DEVICECATEGORY_Media_Director_CONST);
         DeviceData_Base *pDevice_AL = allDevices.m_mapDeviceData_Base_Find(pDevice->m_dwPK_Device);
-		
+
 		if( pDevice->m_pDevice_Core )
 			pDevice->m_dwPK_Device_Core = pDevice_AL->m_dwPK_Device_Core = pDevice->m_pDevice_Core->m_dwPK_Device;
 
