@@ -307,6 +307,7 @@ function floorplanWizard($output,$dbADO) {
 				$intCursor+=3;
 			}
 		}
+		setOrbitersNeedConfigure($installationID,$dbADO);
 		header("Location: index.php?section=floorplanWizard&page=".$page."&type=".$type);
 	}
 
