@@ -1,0 +1,17 @@
+#ifndef __Define_psc_local_batuser_H__
+#define __Define_psc_local_batuser_H__
+
+
+#define PSC_LOCAL_BATUSER_TABLE "psc_local_batuser"
+#define PSC_LOCAL_BATUSER_PK_PSC_LOCAL_BATUSER_FIELD "PK_psc_local_batuser"
+#define PSC_LOCAL_BATUSER_PK_PSC_LOCAL_BATUSER_TABLE_FIELD "psc_local_batuser.PK_psc_local_batuser"
+#define PSC_LOCAL_BATUSER_FK_PSC_LOCAL_BATHDR_FIELD "FK_psc_local_bathdr"
+#define PSC_LOCAL_BATUSER_FK_PSC_LOCAL_BATHDR_TABLE_FIELD "psc_local_batuser.FK_psc_local_bathdr"
+#define PSC_LOCAL_BATUSER_PSC_USER_FIELD "psc_user"
+#define PSC_LOCAL_BATUSER_PSC_USER_TABLE_FIELD "psc_local_batuser.psc_user"
+#define PSC_LOCAL_BATUSER_IS_SUP_FIELD "is_sup"
+#define PSC_LOCAL_BATUSER_IS_SUP_TABLE_FIELD "psc_local_batuser.is_sup"
+
+
+#endif
+

@@ -1,0 +1,17 @@
+#ifndef __Define_psc_constants_batuser_H__
+#define __Define_psc_constants_batuser_H__
+
+
+#define PSC_CONSTANTS_BATUSER_TABLE "psc_constants_batuser"
+#define PSC_CONSTANTS_BATUSER_PK_PSC_CONSTANTS_BATUSER_FIELD "PK_psc_constants_batuser"
+#define PSC_CONSTANTS_BATUSER_PK_PSC_CONSTANTS_BATUSER_TABLE_FIELD "psc_constants_batuser.PK_psc_constants_batuser"
+#define PSC_CONSTANTS_BATUSER_FK_PSC_CONSTANTS_BATHDR_FIELD "FK_psc_constants_bathdr"
+#define PSC_CONSTANTS_BATUSER_FK_PSC_CONSTANTS_BATHDR_TABLE_FIELD "psc_constants_batuser.FK_psc_constants_bathdr"
+#define PSC_CONSTANTS_BATUSER_PSC_USER_FIELD "psc_user"
+#define PSC_CONSTANTS_BATUSER_PSC_USER_TABLE_FIELD "psc_constants_batuser.psc_user"
+#define PSC_CONSTANTS_BATUSER_IS_SUP_FIELD "is_sup"
+#define PSC_CONSTANTS_BATUSER_IS_SUP_TABLE_FIELD "psc_constants_batuser.is_sup"
+
+
+#endif
+
