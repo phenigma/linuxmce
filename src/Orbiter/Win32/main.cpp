@@ -17,17 +17,14 @@ const char *g_szCompile_Date="<=compile_date=>";
 
 extern HWND	g_hWndList; //maindialog logger list
 
-#ifdef WINCE
-	#include <aygshell.h>                      // Add Pocket PC includes
-	#pragma comment( lib, "aygshell" )         // Link Pocket PC library
-	
-	#ifdef POCKETFROG
-		#include "Orbiter_PocketFrog.h"
-	#else
-		#include "OrbiterSDL_WinCE.h"
-	#endif
+#ifdef POCKETFROG
+	#include "Orbiter_PocketFrog.h"
 #else
-	#include "OrbiterSDL_Win32.h"
+	#ifdef WINCE
+		#include "OrbiterSDL_WinCE.h"
+	#else
+		#include "OrbiterSDL_Win32.h"
+	#endif
 #endif
 
 namespace DCE
@@ -241,8 +238,6 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		Simulator::GetInstance()->SaveConfigurationFile("/Storage Card/Orbiter.conf");
 		Simulator::Cleanup();
 
-		g_pPlutoLogger->Write(LV_STATUS, "About to cleanup orbiter.");
-
 		#ifdef POCKETFROG
 				Orbiter_PocketFrog::Cleanup();
 		#else
@@ -253,8 +248,11 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		Simulator::GetInstance()->SaveConfigurationFile("Orbiter.conf");
 		Simulator::Cleanup();
 
-		g_pPlutoLogger->Write(LV_STATUS, "About to cleanup 2");
-		OrbiterSDL_Win32::Cleanup();
+	#ifdef POCKETFROG
+			Orbiter_PocketFrog::Cleanup();
+	#else
+			OrbiterSDL_Win32::Cleanup();
+	#endif
 #endif
 
 		g_pPlutoLogger->Write(LV_STATUS, "About to delete logger. Logger out.");

@@ -8,16 +8,17 @@
 
 #include "Simulator.h"
 
-#ifndef WINCE
-	#include "Commctrl.h"
-	#include "OrbiterSDL_Win32.h"
+#ifdef POCKETFROG
+	#include "Orbiter_PocketFrog.h"
 #else
-	#ifdef POCKETFROG
-		#include "Orbiter_PocketFrog.h"
+	#ifndef WINCE
+		#include "Commctrl.h"
+		#include "OrbiterSDL_Win32.h"
 	#else
 		#include "OrbiterSDL_WinCE.h"
 	#endif
 #endif
+
 
 #pragma warning(disable : 4311 4312)
 
@@ -199,15 +200,16 @@ DWORD WINAPI PlayerThread( LPVOID lpParameter)
 
 	int Count = (int)::SendMessage(g_hWndRecord_List, LB_GETCOUNT, 0L, 0L);
 
-#ifdef WINCE
-	#ifdef POCKETFROG
-		Orbiter_PocketFrog *pOrbiter = Orbiter_PocketFrog::GetInstance();
-	#else
-		OrbiterSDL_WinCE *pOrbiter = OrbiterSDL_WinCE::GetInstance();
-	#endif
+#ifdef POCKETFROG
+	Orbiter_PocketFrog *pOrbiter = Orbiter_PocketFrog::GetInstance();
 #else
-	OrbiterSDL_Win32 *pOrbiter = OrbiterSDL_Win32::GetInstance();
+	#ifdef WINCE
+		OrbiterSDL_WinCE *pOrbiter = OrbiterSDL_WinCE::GetInstance();
+	#else
+		OrbiterSDL_Win32 *pOrbiter = OrbiterSDL_Win32::GetInstance();
+	#endif
 #endif
+
 
 	while(Times--)
 	for(int i = 0; i < Count; i++)

@@ -99,6 +99,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 {
     m_config.orientation      = ORIENTATION_WEST;
     m_config.splashScreenTime = 0;	
+	m_bUpdating = false;
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ Orbiter_PocketFrog::~Orbiter_PocketFrog()
@@ -110,9 +111,17 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 {
 	Surface* pLogoSurface;
 	pLogoSurface = LoadImage( GetDisplay(), TEXT("\\Storage Card\\logo.gif") );
-	GetDisplay()->Blit( 0, 0, pLogoSurface );
-	delete pLogoSurface;
-    GetDisplay()->Update();
+
+	if(pLogoSurface)
+	{
+		GetDisplay()->Blit( 0, 0, pLogoSurface );
+		delete pLogoSurface;
+	}
+	else
+	{
+		GetDisplay()->FillRect(0, 0, m_iImageWidth, m_iImageHeight, 0x00);
+	}
+	GetDisplay()->Update();
 
 	Initialize(gtPocketFrogGraphic);
 
@@ -125,15 +134,49 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 	if (!m_bLocalMode)
 		CreateChildren();
 
-#ifndef WINCE
-#define IDR_VGAROM IDR_FONT1
-#endif
-
+#ifdef WINCE//todo: winx86
 	HRSRC hResInfo	  = NULL;
 	HGLOBAL hResource = NULL;
 	hResInfo = FindResource(_Module.GetModuleInstance(), MAKEINTRESOURCE(IDR_VGAROM), TEXT("FONTS"));
 	hResource = LoadResource(_Module.GetModuleInstance(), hResInfo);
 	VGAROMFont = (unsigned char*)LockResource(hResource);
+#endif
+
+#ifndef WINCE
+	if(m_bFullScreen)
+	{
+		DEVMODE dmSettings;                          // Device Mode variable - Needed to change modes
+		memset(&dmSettings,0,sizeof(dmSettings));    // Makes Sure Memory's Cleared
+
+		// Get current settings -- This function fills our the settings
+		// This makes sure NT and Win98 machines change correctly
+		if(!EnumDisplaySettings(NULL,ENUM_CURRENT_SETTINGS,&dmSettings))
+		{
+			// Display error message if we couldn't get display settings
+			return false;
+		}
+
+		dmSettings.dmPelsWidth = m_iImageWidth;                        // Set the desired Screen Width
+		dmSettings.dmPelsHeight = m_iImageHeight;                      // Set the desired Screen Height
+		dmSettings.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;    // Set the flags saying we're changing the Screen Width and Height
+
+		// This function actually changes the screen to full screen
+		// CDS_FULLSCREEN Gets Rid Of Start Bar.
+		// We always want to get a result from this function to check if we failed
+		int result = ChangeDisplaySettings(&dmSettings,CDS_FULLSCREEN); 
+		// Check if we didn't recieved a good return message From the function
+		if(result != DISP_CHANGE_SUCCESSFUL)
+		{
+			// Display the error message and quit the program
+			PostQuitMessage(0);
+			return false;
+		}
+
+		ModifyStyle(WS_TILEDWINDOW , 0);
+		SetWindowPos(HWND_TOPMOST, 0, 0, m_iImageWidth, m_iImageHeight, SWP_SHOWWINDOW);
+		SetForegroundWindow(m_hWnd);
+	}
+#endif
 
 	return true;
 }
@@ -227,9 +270,9 @@ clock_t ccc=clock();
         if(wParam >= VK_A && wParam <= VK_Z) // A-Z keys
         {
             if((!m_bCapsLock && !m_bShiftDown) || (m_bCapsLock && m_bShiftDown))
-                bHandled = Orbiter::ButtonDown(BUTTON_a_CONST + wParam - VK_A);
+                bHandled = Orbiter::ButtonDown(BUTTON_a_CONST + int(wParam) - VK_A);
             else
-                bHandled = Orbiter::ButtonDown(BUTTON_A_CONST + wParam - VK_Z);
+                bHandled = Orbiter::ButtonDown(BUTTON_A_CONST + int(wParam) - VK_Z);
         }
         else
 #endif 
@@ -574,20 +617,11 @@ clock_t ccc=clock();
     if (m_pScreenHistory_Current)
     {
         PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
-		GetDisplay()->FillRect(0, 0, m_nImageWidth, m_nImageHeight, 0x0000);
+		GetDisplay()->FillRect(0, 0, m_iImageWidth, m_iImageHeight, 0x0000);
     }
 
     Orbiter::RenderScreen();
-
-	while(m_bUpdating)
-		Sleep(1);
-
-	if(!m_bUpdating)
-	{
-		m_bUpdating = true;
-		GetDisplay()->Update();
-		m_bUpdating = false;
-	}
+	TryToUpdate();
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::RedrawObjects()
@@ -715,5 +749,18 @@ void Orbiter_PocketFrog::WriteStatusOutput(const char* pMessage)
 		ExtEscape(gdc, SETPOWERMANAGEMENT, vpm.Length, (LPCSTR) &vpm, 0, NULL);
 	}
 	::ReleaseDC(NULL, gdc);
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void Orbiter_PocketFrog::TryToUpdate()
+{
+	while(m_bUpdating)
+		Sleep(1);
+
+	if(!m_bUpdating)
+	{
+		m_bUpdating = true;
+		GetDisplay()->Update();
+		m_bUpdating = false;
+	}
 }
 //-----------------------------------------------------------------------------------------------------

@@ -29,7 +29,11 @@ using namespace DCE;
 		#ifdef BLUETOOTH_DONGLE
 			#include "SDL_Bluetooth/OrbiterSDLBluetooth.h"
 		#else
-			#include "OrbiterSDL_Win32.h"
+			#ifdef POCKETFROG
+				#include "Orbiter_PocketFrog.h"
+			#else
+				#include "OrbiterSDL_Win32.h"
+			#endif
 		#endif
 
 	#endif
@@ -77,13 +81,21 @@ void *GeneratorThread( void *p)
 #else
 	#ifdef WIN32
 		#ifdef WINCE
+
 			#ifdef POCKETFROG
 				Orbiter_PocketFrog *pOrbiter = Orbiter_PocketFrog::GetInstance();
 			#else
 				OrbiterSDL_WinCE *pOrbiter = OrbiterSDL_WinCE::GetInstance();
 			#endif
+
 		#else
-			OrbiterSDL_Win32 *pOrbiter = OrbiterSDL_Win32::GetInstance();
+
+			#ifdef POCKETFROG
+				Orbiter_PocketFrog *pOrbiter = Orbiter_PocketFrog::GetInstance();
+			#else
+				OrbiterSDL_Win32 *pOrbiter = OrbiterSDL_Win32::GetInstance();
+			#endif
+
 		#endif
 	#else
 		OrbiterLinux *pOrbiter = (OrbiterLinux *)pSimulator->m_pOrbiter;

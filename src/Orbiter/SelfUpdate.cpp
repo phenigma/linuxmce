@@ -19,22 +19,26 @@ using namespace DCE;
 
 #ifdef WINCE
 	#ifdef POCKETFROG
-		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_PocketFrog.dat");
+		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_PocketFrogCE.dat");
 	#else
 		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_WinCE.dat");
 	#endif
 #else
-	const string csOrbiter_Update("/usr/pluto/bin/Orbiter_Win32.dat");
+	#ifdef POCKETFROG
+		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_PocketFrog.dat");
+	#else
+		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_Win32.dat");
+	#endif
 #endif
 
-#ifdef WINCE
-	#ifdef POCKETFROG
-		#include "Orbiter_PocketFrog.h"
-	#else
-		#include "OrbiterSDL_WinCE.h"
-	#endif
+#ifdef POCKETFROG
+	#include "Orbiter_PocketFrog.h"
 #else
-#include "OrbiterSDL_Win32.h"
+	#ifdef WINCE
+		#include "OrbiterSDL_WinCE.h"
+	#else
+		#include "OrbiterSDL_Win32.h"
+	#endif
 #endif 
 
 
@@ -276,15 +280,15 @@ bool OrbiterSelfUpdate::LastUpdateFailed()
 //-----------------------------------------------------------------------------------------------------
 bool OrbiterSelfUpdate::Run()
 {
-#ifdef WINCE
-	#ifdef POCKETFROG
-		((Orbiter_PocketFrog *)m_pOrbiter)->WriteStatusOutput("Updating orbiter...");
-	#else
-		((OrbiterSDL_WinCE *)m_pOrbiter)->WriteStatusOutput("Updating orbiter...");
-	#endif
+#ifdef POCKETFROG
+	((Orbiter_PocketFrog *)m_pOrbiter)->WriteStatusOutput("Updating orbiter...");
 #else
-	((OrbiterSDL_Win32 *)m_pOrbiter)->WriteStatusOutput("Updating orbiter...");
-#endif 
+	#ifdef WINCE
+		((OrbiterSDL_WinCE *)m_pOrbiter)->WriteStatusOutput("Updating orbiter...");
+	#else
+		((OrbiterSDL_Win32 *)m_pOrbiter)->WriteStatusOutput("Updating orbiter...");
+	#endif 
+#endif
 
 	if(LastUpdateFailed())
 	{	

@@ -1878,7 +1878,7 @@ void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbite
 	}
 	else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_mnuScreenSaver_CONST )
 	{
-		CMD_Set_Text(pDesignObj_Orbiter->m_ObjectID, StringUtils::itos(	m_tTimeoutTime - time(NULL) ) + " seconds",TEXT_USR_ENTRY_CONST);
+		CMD_Set_Text(pDesignObj_Orbiter->m_ObjectID, StringUtils::itos(	int(m_tTimeoutTime - time(NULL)) ) + " seconds",TEXT_USR_ENTRY_CONST);
 		CMD_Continuous_Refresh("1");
 	}
 }
@@ -2908,7 +2908,7 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
             TextStyle *pTextStyle = m_mapTextStyle_Find(  atoi( Style.c_str(  ) )  );
             if(  pTextStyle  )
             {
-				while(pObj_Datagrid->m_vectTextStyle_Alt.size()<Counter)
+				while(int(pObj_Datagrid->m_vectTextStyle_Alt.size()) < Counter)
                     pObj_Datagrid->m_vectTextStyle_Alt.push_back(NULL);
                 pObj_Datagrid->m_vectTextStyle_Alt.push_back(pTextStyle);
                 //              pObj_Datagrid->m_vectTextStyle_Alt[Counter] = pTextStyle;
@@ -5701,14 +5701,14 @@ void Orbiter::ContinuousRefresh( void *data )
 			DesignObjText *pText = FindText( m_pScreenHistory_Current->m_pObj, TEXT_USR_ENTRY_CONST );
 			if( pText  )
 			{
-				pText->m_sText = StringUtils::itos(	m_tTimeoutTime - time(NULL) ) + " seconds";
-				pText->m_rPosition.X = rand() * (float) (m_iImageWidth * .5 / RAND_MAX);
-				pText->m_rPosition.Y = rand() * (float) (m_iImageHeight *.9 / RAND_MAX);
+				pText->m_sText = StringUtils::itos(	int(m_tTimeoutTime - time(NULL)) ) + " seconds";
+				pText->m_rPosition.X = int(rand() * (float) (m_iImageWidth * .5 / RAND_MAX));
+				pText->m_rPosition.Y = int(rand() * (float) (m_iImageHeight *.9 / RAND_MAX));
 				g_pPlutoLogger->Write(LV_STATUS,"Rand (%d %d) position (RM: %d) x: %d y: %d w: %d h: %d",rand(), rand(), (int) RAND_MAX,
 					pText->m_rPosition.X, pText->m_rPosition.Y, m_iImageWidth, m_iImageHeight);
 			}
 
-			CMD_Set_Text(m_pScreenHistory_Current->m_pObj->m_ObjectID, StringUtils::itos( m_tTimeoutTime - time(NULL) ) + " seconds",TEXT_USR_ENTRY_CONST);
+			CMD_Set_Text(m_pScreenHistory_Current->m_pObj->m_ObjectID, StringUtils::itos( int(m_tTimeoutTime - time(NULL)) ) + " seconds",TEXT_USR_ENTRY_CONST);
 		}
 
 		CMD_Refresh("");
@@ -5860,7 +5860,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 	if(pVectorPlutoGraphic->size() == 0) //we have nothing to render
 		return;
 
-	if(pVectorPlutoGraphic->size() <= pObj->m_iCurrentFrame)
+	if(int(pVectorPlutoGraphic->size()) <= pObj->m_iCurrentFrame)
 		pObj->m_iCurrentFrame = 0;
 
 	int iCurrentFrame = pObj->m_iCurrentFrame;
@@ -5996,7 +5996,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 						size_t iFrameSize = 0;
 						char *pFrameData = NULL;
 
-						iFrameSize = pInMemoryMNG->GetFrame(i, pFrameData);
+						iFrameSize = pInMemoryMNG->GetFrame(int(i), pFrameData);
 
 						if(iFrameSize)
 						{
@@ -6101,7 +6101,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 	if(pVectorPlutoGraphic->size() == 0) //we have nothing to render
 		return;
 
-	int iFrameNum = pVectorPlutoGraphic->size();
+	int iFrameNum = int(pVectorPlutoGraphic->size());
 
 	PlutoGraphic *pPlutoGraphic = (*pVectorPlutoGraphic)[pObj->m_iCurrentFrame];
 

@@ -19,8 +19,6 @@ protected:
 
     bool m_bShiftDown, m_bControlDown, m_bAltDown, m_bRepeat, m_bCapsLock;
     clock_t m_cKeyDown;
-
-	//Rect m_UpdateRect;
 	bool m_bUpdating;
 
 protected: // (mtoader) I want access to them in the OrbiterLinuxDesktop
@@ -46,8 +44,9 @@ public:
     virtual void StylusMove( Point stylus );
 	virtual bool PocketFrogButtonDown(int button);
 	virtual bool PocketFrogButtonUp(int button); 
-
 	virtual void HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+	virtual void TryToUpdate();
 
 	// Drawing routines
 	virtual void SolidRectangle(int x, int y, int width, int height, PlutoColor color, int Opacity = 100);
