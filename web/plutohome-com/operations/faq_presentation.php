@@ -71,7 +71,7 @@
 		$res = mysql_query($selectFaqCateg,$conn);
 		while ($row=mysql_fetch_object($res)) {
  		$selectFaq = "select faqID,faqQuestion,faqAnswer,faqDate,faquserID,faqFAQCategID from FAQ where FAQ.markedDeleted!='1'  and faqFAQCategID='".$row->faqCategID."' order by faqDate asc";
-	 	$rsFaq = mysql_query($selectFaq) or die("Can not grab faq from database!!");
+	 	$rsFaq = mysql_query($selectFaq,$conn) or die("Can not grab faq from database!!");
       $out.='<table align="center" border="0" width=100% class="insidetable">
       <td align="left"><br><b>'.$row->faqCategName.'</b><hr size="1" color="#9BAEDB"></td></table><table  border="0" width=100% class="insidetable" >
       ';
@@ -87,41 +87,12 @@
                 <tr><td  align="left"><br><input type="submit" name="addfaq" value="Add New Faq" /></td></tr>
                  </form>';*/
          $out.='</table>';
-       /* if(isset($_POST['addfaq']))
-          {
-         // if($_SESSION['userLoggedIn'] == true)
-          // {
-           $out='';
-           $out.='<table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable"><td width="20"></td><td class="insidetable">';
-           $out.='<table align="center"><form name="form3" method="post" action="index.php?section=faq_presentation">
-	            <input type="hidden" name="section" value="faq_presentation"><br><br>
-               <tr><td align="right"><b>Categories: </b></td><td align="left"><select name="categories">';
-               $selectFaqCateg = 'select faqCategID,faqCategName from FAQCategories order by faqCategName asc';
-		         $res = mysql_query($selectFaqCateg);
-               while ($row=mysql_fetch_object($res)) 
-               { 
-                     $out.='<option value="'.$row->faqCategID.'">'.$row->faqCategName.'</option>';
-               }
-                $out.='<tr><td align="right"><b>Question: </b></td><td alig="left"><input type="text" name="question"></td></tr>
-                <tr><td align="right"><b>Details: </b></td><td align="left"><textarea rows="7" cols="50" name="details" cols="20"></textarea></td></tr>
-                 <tr><td colspan="2" align="right"><input type="submit" name="send_faq" value="Send FAQ"></tr>
-                 </form></table>';
-          // }
-          // else header("Location: index.php?section=faqPresentation");
-          }
-      
-        if(isset($_POST['send_faq']))
-         {
-          $date=date("Ymd");
-          $sql="insert into FAQ(faqFAQCategID,faqQuestion,faqDetails,faquserID,faqDate) values('".$_POST['categories']."','".$_POST['question']."','".$_POST['details']."','".@$_SESSION['userID']."','".$date."')";
-          $r=mysql_query($sql) or die("Can not insert into database" . mysql_error());
-          header("Location: index.php?section=faq_presentation");
-         }*/
+
          if(isset($_GET['action']))
          {
            $id=$_GET['action'];
            $sql="select faqID,faqQuestion,faqAnswer,faqDetails,faqDate from FAQ where faqID='".$id."'";
-           $r=mysql_query($sql) or die("Can not grab from database".mysql_error());
+           $r=mysql_query($sql,$conn) or die("Can not grab from database".mysql_error());
            $row=mysql_fetch_object($r);
            $out='';
            $out.='<table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable"> <td width="30%" valign="top" align="center" >

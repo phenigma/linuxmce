@@ -410,7 +410,7 @@ switch ($section) {
 		$output = new Template();
 		$output->setTemplateFileType('home');
 	    include_once('operations/full_story.php');
-	    full_story($output);
+	    full_story($output,$conn);
        break;
     case 'letter':
 		$output = new Template();
@@ -477,7 +477,7 @@ switch ($section) {
 		$output = new Template();	
 		$output->setTemplateFileType('home');
 		include_once('operations/news.php');
-	   news($output);
+	   news($output,$conn);
 	break;
 }
 ?>

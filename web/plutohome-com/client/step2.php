@@ -119,7 +119,6 @@ if($action=='form'){
 
 }else{
 	// process form
-
 	if(isset($_POST['continue']) || $action=='add'){
 		$_SESSION['dedicated']=(int)$_POST['dedicated'];
 		switch($_SESSION['dedicated']){
@@ -130,10 +129,12 @@ if($action=='form'){
 			case 2:
 				$_SESSION['distro']=7;		// 2000, XP
 				$_SESSION['OperatingSystem']=2;
+				unset($_SESSION['EnableDHCP']);
 			break;
 			case 3:
 				$_SESSION['distro']=(int)$_POST['distro'];
 				$_SESSION['OperatingSystem']=1;
+				unset($_SESSION['EnableDHCP']);
 			break;
 		}
 		header("Location: index.php?section=wizard&step=3");

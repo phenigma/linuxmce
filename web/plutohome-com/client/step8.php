@@ -127,7 +127,7 @@ while ($row=$resMediaDirectors->FetchRow()){
 		$queryDiskless='SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?';
 		$resDiskless=$dbADO->Execute($queryDiskless,array($rowMediaDirectors['PK_Device'],$GLOBALS['rootDisklessBoot']));
 
-		$mdDistroNameOS=$rowDDD['Description'].' / '.$rowDDD['OS'];
+		$mdDistroNameOS=$rowDDD['Platform'].' / '.$rowDDD['OS'];
 		$mdDistroKickStartCD=$rowDDD['KickStartCD'];
 		$mdAutoInstallScript=$rowMediaDirectors['PK_Device'].'-'.$_SESSION['ActivationCode'];
 		$mdDistroInstaller=$rowDDD['Installer'];
@@ -147,25 +147,6 @@ while ($row=$resMediaDirectors->FetchRow()){
 				<tr class="normaltext">
 					<td valign="top" colspan="2"><table width="75%" align="center">';
 				switch($rowDDD['IK_DeviceData']){
-					case 1:
-						if($_SESSION['dedicated']==1){
-							$mediaDirectorLines.='
-							<tr class="normaltext" bgcolor="#DADDE4">
-								<td width="30%" align="left">'.(($rowDDD['KickStartCD']=='')?'<span style="color:#999999;">- Kick-start CD</span>':'- <a href="'.$rowDDD['KickStartCD'].'" target="_blank">Kick-start CD</a>').'</td>
-								<td>'.(($rowDDD['KickStartCD']=='')?'<span style="color:#999999;">Not available for '.$mdDistroNameOS.'</span>':'An ISO image you can burn to a CD.  It is a self-booting CD for '.$mdDistroNameOS).'</td>
-							</tr>';
-						}else{
-							$mediaDirectorLines.='
-							<tr class="normaltext" bgcolor="#DADDE4">
-								<td width="30%" align="left">'.(($rowDDD['Installer']=='')?'<span style="color:#999999;">- Auto install script</span>':'- <a href="#" onClick="javascript:windowOpen(\''.$mdInstallerURL.'?code='.$mdAutoInstallScript.'&distro='.$mdDistroInstaller.'&name='.urlencode($rowMediaDirectors['Description']).'\',\'width=640,height=480,toolbars=true,scrollbars=1\');">Auto install script</a>').'</td>
-								<td>'.(($rowDDD['Installer']=='')?'<span style="color:#999999;">Not available for '.$rowDDD['Platform'].'</span>':'A script for '.$DistroNameOS.' that will install all the software automatically.').'</td>
-							</tr>
-							<tr class="normaltext" bgcolor="#DADDE4">
-								<td width="30%" align="left">- <a href="#" onClick="javascript:windowOpen(\'installWraper.php?code='.$autoInstallScript.'\',\'width=1024,height=768,toolbars=true,scrollbars=1\');">Custom Wrapper for '.$rowMediaDirectors['Description'].'</a></td>
-								<td>For you to write your own install script for '.$mdDistroNameOS.'.  You can use our 50-line Debian bash script as a template.</td>
-							</tr>';
-						}
-					break;
 					case 7:
 						$mediaDirectorLines.='
 							<tr class="normaltext" bgcolor="#DADDE4">
@@ -176,11 +157,16 @@ while ($row=$resMediaDirectors->FetchRow()){
 					default:
 						$mediaDirectorLines.='
 							<tr class="normaltext" bgcolor="#DADDE4">
+								<td width="30%" align="left">'.(($rowDDD['KickStartCD']=='')?'<span style="color:#999999;">- Kick-start CD</span>':'- <a href="'.$rowDDD['KickStartCD'].'" target="_blank">Kick-start CD</a>').'</td>
+								<td>'.(($rowDDD['KickStartCD']=='')?'<span style="color:#999999;">Not available for '.$mdDistroNameOS.'</span>':'An ISO image you can burn to a CD.  It is a self-booting CD for '.$mdDistroNameOS).'</td>
+							</tr>';
+						$mediaDirectorLines.='
+							<tr class="normaltext" bgcolor="#DADDE4">
 								<td width="30%" align="left">'.(($rowDDD['Installer']=='')?'<span style="color:#999999;">- Auto install script</span>':'- <a href="#" onClick="javascript:windowOpen(\''.$mdInstallerURL.'?code='.$mdAutoInstallScript.'&distro='.$mdDistroInstaller.'&name='.urlencode($rowMediaDirectors['Description']).'\',\'width=640,height=480,toolbars=true,scrollbars=1\');">Auto install script</a>').'</td>
-								<td>'.(($rowDDD['Installer']=='')?'<span style="color:#999999;">Not available for '.$rowDDD['Platform'].'</span>':'A script for '.$DistroNameOS.' that will install all the software automatically.').'</td>
+								<td>'.(($rowDDD['Installer']=='')?'<span style="color:#999999;">Not available for '.$rowDDD['Platform'].'</span>':'A script for '.$mdDistroNameOS.' that will install all the software automatically.').'</td>
 							</tr>
 							<tr class="normaltext" bgcolor="#DADDE4">
-								<td width="30%" align="left">- <a href="#" onClick="javascript:windowOpen(\'installWraper.php?code='.$autoInstallScript.'\',\'width=1024,height=768,toolbars=true,scrollbars=1\');">Custom Wrapper for '.$rowMediaDirectors['Description'].'</a></td>
+								<td width="30%" align="left">- <a href="#" onClick="javascript:windowOpen(\'installWraper.php?code='.$mdAutoInstallScript.'\',\'width=1024,height=768,toolbars=true,scrollbars=1\');">Custom Wrapper for '.$rowMediaDirectors['Description'].'</a></td>
 								<td>For you to write your own install script for '.$mdDistroNameOS.'.  You can use our 50-line Debian bash script as a template.</td>
 							</tr>';
 						break;

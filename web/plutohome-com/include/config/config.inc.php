@@ -112,6 +112,8 @@
   	//database 
   	require_once("database.inc.php");
 
+	@include_once('include/logsDB.inc.php');
+
   	
   	
   	// DO NOT CHANGE ANYTHING AFTER THIS LINE

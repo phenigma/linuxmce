@@ -1,5 +1,5 @@
 <?
-function full_story($output){
+function full_story($output,$conn){
   $out = '';
 		$out.='<table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable"><td  valign="top" align="center" >
      <table border="0" align="left" cellpadding="0" cellspacing="0">
@@ -47,7 +47,7 @@ function full_story($output){
       </td>';
      $id=$_GET['id'];
      $sql="SELECT * FROM News where newsID='".$id."'";
-     $r=mysql_query($sql) or die("Can not grab from database".mysql_error());
+     $r=mysql_query($sql,$conn) or die("Can not grab from database".mysql_error());
      $row=mysql_fetch_object($r);
      $out.='<td width="100%" class="insidetable"><img src="images/submenus/news_txt.gif" width="40" height="13">
      <br><br>

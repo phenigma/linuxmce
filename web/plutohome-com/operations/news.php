@@ -1,5 +1,5 @@
 <?
-function news($output){
+function news($output,$conn){
   $out = '';
 		
 $out.='
@@ -48,7 +48,7 @@ $out.='
         <td><img src="images/m_news.gif" width="251" height="23"></td>
       </tr>';
    $sql="select * from News  where markedDeleted!=1 order by newsDate desc limit 0,2";
-   $r=mysql_query($sql) or die("Can not grab from database" .mysql_error());
+   $r=mysql_query($sql,$conn) or die("Can not grab from database" .mysql_error());
    while($row=mysql_fetch_object($r))
   {
      $text=$row->newsContent;

@@ -102,8 +102,7 @@ $out='
 		$headers .= "bcc: "; 
 	
 		$subject = 'Website Form';
-		$to = 'info@plutohome.com';
-		//$to = 'valentin.g@newflavorstudio.com';
+		$to = $GLOBALS['sendNotificationsTo'];
 	
 		@mail($to,$subject,$message,$headers);
 	  	

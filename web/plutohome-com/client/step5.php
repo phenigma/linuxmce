@@ -61,7 +61,6 @@ if($action=='form'){
 		$FK_DeviceTemplate=0;
 		$FK_Distro=0;
 	}
-
 	if(isset($_SESSION['deviceID'])){
 		$queryDevice='SELECT * FROM Device WHERE PK_Device=?';
 		$resDevice=$dbADO->Execute($queryDevice,$_SESSION['deviceID']);

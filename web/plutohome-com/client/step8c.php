@@ -11,37 +11,24 @@ $out .= '
 		<td align="center" colspan="2" bgcolor="#DADDE4"><b>Step 8 of 8: Download</b></td>
 	</tr>
 	<tr class="normaltext">
-		<td colspan="2" align="left">You finished the wizard!  All the settings you made have been saved into a database so your system can install and configure itself automatically.  You can go back to a prior page to change options and return to this page at any time.  
-			Once your system is up and running, you will make all future changes on the Pluto Admin web site that gets installed on your '.$_SESSION['coreName'].'.  The settings you chose here are only used when you are installing the software, and have no effect once the software is already installed.<br><br></td>
-	</tr>
+		<td colspan="2" align="left">You\'re done!  During the installation you will be asked for your 
+		activation code: <b>'.$_SESSION['ActivationCode'].'</b> &nbsp; and device code: <b>'.$rowDevice['PK_Device'].'</b> &nbsp; so the installer can lookup the settings you chose.</p>
+		
+		<p>Until that happens you can go back to a prior page to change options.  But once your system is up and running, 
+		you will make all future changes on the <a href="support/index.php?section=document&docID=35">Pluto Admin web site</a> that gets installed on your '.$_SESSION['coreName'].'.  
+		The settings you chose here are only used during the initial install.</p>
+		<p><b><a href="http://plutohome.com/download/installers/windows/PlutoHomeInstaller.exe" onClick="self.location=\'index.php?section=wizard&action=win%20installer&step=8\';">DOWNLOAD WINDOWS INSTALLER</a></b> &nbsp; This will install the Pluto '.$_SESSION['coreName'].'
+		software.  The same installer can also be used on any Windows PC\'s you want to use as media directors.  Run the same installer and use the same activation code, but when prompted
+		specify the device ID of the media director instead.  Because your '.$_SESSION['coreName'].' is not dedicated, you cannot use network boot for the media directors--any
+		media directors must have the Pluto software installed.</td>
+	</tr>';
+	$out.=$mediaDirectorLines;	
+	$out.='
 	<tr class="normaltext">
-		<td colspan="2" align="left"><b>Your activation code is: '.$_SESSION['ActivationCode'].'</b> &nbsp;&nbsp;&nbsp; You will be asked for this during installation.<br><br>During installation you will be asked for the activation code, and the device ID listed below.  This will be used to lookup the configuration at plutohome.com.  Just be sure to correctly specify the device for each computer you use it on.</td>
-	</tr>
-	<tr class="normaltext">
-		<td colspan="2" align="left">&nbsp;</td>
-	</tr>
-	<tr class="normaltext">
-		<td colspan="2" align="left"><br>Here are the computers you will need software for.  Be sure to make note of the Device numbers and click the appropriate link to download the software.<br><br><B>Core:</B></td>
-	</tr>				
-	<tr class="normaltext" bgcolor="lightblue">
-		<td valign="top"><b>'.$DistroNameOS.'</b></td>
-		<td>Device #: <b>'.$_SESSION['deviceID'].'</b></td>
-	</tr>
-	<tr class="normaltext">
-		<td valign="top" colspan="2">Below are your link(s) to the the software for this computer: &nbsp;&nbsp;&nbsp;<b>FYI - Advanced users:</b> can get a list of all the software packages <a href="#" onClick="javascript:windowOpen(\'checkDependancies.php?device='.$rowDevice['PK_Device'].'\',\'width=1024,height=768,toolbars=true,scrollbars=1\');">here</a></td>
-	</tr>
-	<tr class="normaltext">
-		<td valign="top" colspan="2">
-		<table width="75%" align="center" border="0">
-			<tr class="normaltext" bgcolor="#DADDE4">
-				<td width="30%" align="left">- <a href="'.$InstallerURL.'">Windows installer</a></td>
-				<td>&nbsp;</td>
-			</tr>
-		</table>
-		</td>
-	</tr>
-	<tr class="normaltext">
-		<td valign="top" colspan="2">Windows installer details.</td>
+		<td colspan="2">
+		<p><b>Orbiters:</b><br>Once the '.$_SESSION['coreName'].' is running, open the <a href="support/index.php?section=document&docID=35">Pluto Admin website</a> in a web browser
+		on any devices you want to use as Orbiters (PDA\'s/WebPad\'s/Touch-screen or regular PC\'s).  It includes links to install the Orbiter softare.  Bluetooth
+		mobile phones are plug-and-play, the software is installed automatically when they come within range of a media director that has bluetooth.</td>
 	</tr>
 </table>';
 

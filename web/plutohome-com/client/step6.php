@@ -67,9 +67,6 @@ if($_SESSION['sollutionType']==3){
 						document.wizard.action.value="form";
 						document.wizard.submit();
 					}';
-		if(isset($_POST['Description']) && $_POST['Description']!=''){
-			$out.='self.location=\'#addForm\';';
-		}
 		$out.='				
 					</script>
 						<br>
@@ -177,12 +174,15 @@ if($_SESSION['sollutionType']==3){
 		$out.='		</table>
 									</td>
 								</tr>';
-		if(count($displayedDevices)>0){
-			$out.='
-								<tr class="normaltext">
-									<td colspan="2" align="center"><input type="button" name="continue" value="Next" onClick="javascript:document.wizard.action.value=\'update\';document.wizard.submit();"></td>
-								</tr>';
+		$showPlatform=(@$_SESSION['EnableDHCP']==1)?1:0;
+		if(isset($_POST['newType'])){
+			$showPlatform=(@$_POST['disklessBoot_']==1)?1:0;
 		}
+
+		$out.='
+					<tr class="normaltext">
+						<td colspan="2" align="center"><input type="button" name="continue" value="Next" onClick="javascript:document.wizard.action.value=\'update\';document.wizard.submit();"></td>
+					</tr>';
 		$out.='
 								<tr class="normaltext">
 									<td colspan="2"><B>Add a Media Director</B><a name="addForm"></a></td>
@@ -197,18 +197,19 @@ if($_SESSION['sollutionType']==3){
 								</tr>					
 								<tr class="normaltext">
 									<td>Type</td>
-									<td><select name="newType" onChange="showPlatforms();">
+									<td><select name="newType" '.(($showPlatform!=1)?'onChange="showPlatforms();"':'').'>
 										<option value="0">-Please select-</option>';
 		foreach ($deviceTemplateIdArray as $key => $value){
 			$out.='<option value="'.$value.'" '.(($value==@$_POST['newType'])?'selected':'').'>'.$deviceTemplateDescriptionArray[$key].'</option>';
 		}
+		
 		$out.='	</select> "Generic PC" if your model isn\'t listed</td>
 								</tr>
 								<tr class="normaltext">
 									<td>Network boot '.((@$_SESSION['EnableDHCP']==1)?'(Recommended)':'').'</td>
-									<td><input type="checkbox" name="disklessBoot_" value="1" '.((@$_POST['disklessBoot_']==1 || @$_SESSION['EnableDHCP']==1)?'checked':'').' onClick="'.((@$_SESSION['EnableDHCP']==1)?'showMAC(\'\')':'document.wizard.action.value=\'form\';document.wizard.submit();').';"> <span id="MACBox_" name="MACBox_" style="display:'.((@$_POST['disklessBoot_']==1 || @$_SESSION['EnableDHCP']==1)?'':'none').'">MAC Address: <input type="text" name="mdMAC" value=""></span> <a href="support/index.php?section=document&docID=144" target="_blank">what\'s the MAC address?</a></td>
+									<td><input type="checkbox" name="disklessBoot_" value="1" '.(($showPlatform==1)?'checked':'').' onClick="document.wizard.action.value=\'form\';document.wizard.submit();"> <span id="MACBox_" name="MACBox_" style="display:'.(($showPlatform==1)?'':'none').'">MAC Address: <input type="text" name="mdMAC" value=""></span> <a href="support/index.php?section=document&docID=144" target="_blank">what\'s the MAC address?</a></td>
 								</tr>';
-		if((isset($_SESSION['EnableDHCP']) && $_SESSION['EnableDHCP']==1) || isset($_POST['disklessBoot_'])){
+		if($showPlatform==1){
 			$selectedPlatform=1;	// Debian-sarge
 		}
 		else{
@@ -254,6 +255,10 @@ if($_SESSION['sollutionType']==3){
 							frmvalidator.addValidation("mdRoom","req","Please enter a name for the room.");
 							frmvalidator.addValidation("newType","dontselect=0","Please select the type for the media director.");
 						</script>';
+		}
+		if(isset($_POST['Description']) && $_POST['Description']!=''){
+			$scriptInBody='onLoad="self.location=\'#addForm\';"';
+			$output->setScriptInBody($scriptInBody);
 		}
 	
 	}elseif($action=='add'){
