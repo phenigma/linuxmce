@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../Libraries/pthreads-win32/include;..;/mysql/include"
+				AdditionalIncludeDirectories="../../libs/Libraries/pthreads-win32/include;..;/mysql/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -36,7 +36,7 @@
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib"
 				OutputFile="../bin/MessageSend.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="../Libraries/pthreads-win32/lib;../lib"
+				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
 				IgnoreDefaultLibraryNames=""
 				AddModuleNamesToAssembly=""
 				GenerateDebugInformation="TRUE"
