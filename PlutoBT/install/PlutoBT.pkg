@@ -1,0 +1,21 @@
+;
+; Installation file for PlutoBT application
+;
+;Languages
+&EN
+;
+; UID is the app's UID
+;
+#{"PlutoBT"},(0x01ef0015),1,0,0
+
+
+; Required line for Series 60 devices.
+(0x101F6F88), 0, 0, 0, {"Series60ProductID"}
+;
+; Four files to install
+;
+"\Epoc32\release\armi\urel\PlutoBT.app"         -"!:\system\apps\PlutoBT\PlutoBT.app"
+"\Epoc32\release\armi\urel\PlutoBT.rsc"         -"!:\system\apps\PlutoBT\PlutoBT.rsc"
+"\Epoc32\release\armi\urel\PlutoBT_caption.rsc" -"!:\system\apps\PlutoBT\PlutoBT_caption.rsc"
+"\Epoc32\release\armi\urel\PlutoBT.aif"         -"!:\system\apps\PlutoBT\PlutoBT.aif"
+

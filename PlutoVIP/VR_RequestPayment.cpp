@@ -1,0 +1,286 @@
+#include "VIPIncludes.h"
+#include "PlutoUtils/CommonIncludes.h"	
+#include "VIPShared/PlutoConfig.h"
+#include "PlutoUtils/FileUtils.h"
+#include "PlutoUtils/FileUtils.h"
+#include "PlutoUtils/StringUtils.h"
+#include "PlutoUtils/Other.h"
+#include "PlutoUtils/Other.h"
+#include "VR_RequestPayment.h"
+#include "VR_RequestSecureTransaction.h"
+#include "VR_ShowMenu.h"
+#include "VA_ForwardRequestToPhone.h"
+#include "VIPMenu.h"
+#include <iostream>
+#include <sstream>
+
+VR_RequestPayment::VR_RequestPayment(u_int64_t iMacAddress,long Amount,string InvoiceNumber,
+		string Description,string CashierName,unsigned long FKID_PlutoId_Establishment,
+		unsigned long FKID_PlutoId_User)
+	: RA_Request()
+{
+	// Request is of the form:
+	// AAAAIIIIdescription+null+CashierName+null
+	m_iMacAddress=iMacAddress;
+	m_iAmount=Amount;
+	m_sInvoiceNumber=InvoiceNumber;
+	m_sDescription=Description;
+	m_sCashierName=CashierName;
+	m_FKID_PlutoId_Establishment=FKID_PlutoId_Establishment;
+	m_FKID_PlutoId_User=FKID_PlutoId_User;
+}
+
+VR_RequestPayment::VR_RequestPayment(unsigned long size,const char *data) 
+	: RA_Request(size,data) 
+{
+	m_iAmount = Read_long();
+	m_iMacAddress=Read_unsigned_int64();
+	Read_string(m_sInvoiceNumber);
+	Read_string(m_sDescription);
+	Read_string(m_sCashierName);
+	m_FKID_PlutoId_Establishment=Read_unsigned_long();
+	m_FKID_PlutoId_User=Read_unsigned_long();
+	unsigned long NumberOfInvoiceDetails=Read_unsigned_long();
+
+	for(unsigned long i=0;i<NumberOfInvoiceDetails;++i)
+	{
+		InvoiceDetail *pID = new InvoiceDetail();
+
+		Read_string(pID->m_sLineID);
+		Read_string(pID->m_sProductID);
+		Read_string(pID->m_sDescription);
+		pID->m_iAmount=Read_long();
+
+		MYSTL_ADDTO_LIST(m_listInvoiceDetail, pID);
+	}
+
+	m_dwRequestSize = (unsigned long) (m_pcCurrentPosition-m_pcDataBlock);
+}
+
+void VR_RequestPayment::ConvertRequestToBinary()
+{
+	RA_Request::ConvertRequestToBinary();
+	Write_unsigned_int64(m_iMacAddress);
+	Write_long(m_iAmount);
+	Write_string(m_sInvoiceNumber);
+	Write_string(m_sDescription);
+	Write_string(m_sCashierName);
+	Write_long(m_FKID_PlutoId_Establishment);
+	Write_long(m_FKID_PlutoId_User);
+	Write_long((unsigned long) MYSTL_SIZEOF_LIST(m_listInvoiceDetail));
+
+	MYSTL_ITERATE_LIST(m_listInvoiceDetail,InvoiceDetail,pID,itListInvoiceDetail)
+	{
+		Write_string(pID->m_sLineID);
+		Write_string(pID->m_sProductID);
+		Write_string(pID->m_sDescription);
+		Write_unsigned_long(pID->m_iAmount);
+	}
+
+	m_dwRequestSize = (unsigned long) (m_pcCurrentPosition-m_pcDataBlock);
+	m_pcRequest = m_pcDataBlock;
+}
+
+void VR_RequestPayment::ConvertResponseToBinary()
+{
+	RA_Request::ConvertResponseToBinary();
+
+	Write_short(m_iPaymentResponse);
+	Write_unsigned_long(m_iTransactionNumber);
+	Write_string(m_sApprovalCode);
+	Write_string(m_sCardNumber);
+
+	m_dwResponseSize = (unsigned long) (m_pcCurrentPosition-m_pcDataBlock);
+	m_pcResponse = m_pcDataBlock;
+}
+
+
+bool VR_RequestPayment::ParseResponse(unsigned long size,const char *data)
+{
+	RA_Request::ParseResponse(size,data);
+
+	m_iPaymentResponse = Read_short();
+	m_iTransactionNumber = Read_unsigned_long();
+	Read_string(m_sApprovalCode);
+	Read_string(m_sCardNumber);
+
+ 	m_dwResponseSize = (unsigned long) (m_pcCurrentPosition-m_pcDataBlock);
+
+	return true;
+}
+
+bool VR_RequestPayment::ProcessRequest()
+{
+#ifdef VIPSERVER
+
+	std::ostringstream sql;
+
+	sql << "INSERT INTO PmtTrans (FKID_PlutoId_Establishment,FKID_PlutoId_User,InvoiceNumber,Description,Cashier,Amount,DateTime) VALUES(" <<
+		m_FKID_PlutoId_Establishment << "," << m_FKID_PlutoId_User << ",'" << StringUtils::SQLEscape(m_sInvoiceNumber) << "','" <<
+		StringUtils::SQLEscape(m_sDescription) << "','" << StringUtils::SQLEscape(m_sCashierName) << "'," << m_iAmount << 
+		",'" << StringUtils::SQLDateTime() << "');";
+
+	UsageLog << sql; }
+
+	int PKID_PmtTrans = g_pPlutoConfig->threaded_mysql_query_withID(sql.str());
+	if( PKID_PmtTrans==0 )
+	{
+		ErrorLog << "FAILED: " << sql; }
+		m_cProcessOutcome = INTERNAL_ERROR;
+		return true;
+	}
+
+	MYSTL_ITERATE_LIST(m_listInvoiceDetail,InvoiceDetail,pInvoiceDetail,itListInvoiceDetail)
+	{
+		sql.str("");
+		sql << "INSERT INTO PmtTrans_Detail (FKID_PmtTrans,LineID,ProductID,Description,Amount) VALUES(" <<
+			PKID_PmtTrans << ",'" << StringUtils::SQLEscape(pInvoiceDetail->m_sLineID) << "','" <<
+			StringUtils::SQLEscape(pInvoiceDetail->m_sProductID) << "','" << StringUtils::SQLEscape(pInvoiceDetail->m_sDescription) << "'," <<
+			pInvoiceDetail->m_iAmount << ");";
+
+		int PKID_PmtTrans_Detail = g_pPlutoConfig->threaded_mysql_query_withID(sql.str());
+		if( PKID_PmtTrans_Detail==0 )
+		{
+			ErrorLog << "FAILED: " << sql; }
+			// Ignore it since it's not needed anyway
+		}
+	}
+
+	sql.str("");
+	PlutoSqlResult rsEstablishment,rsPaymentMethods;
+	MYSQL_ROW EstablishmentRow=NULL,PaymentMethodsRow=NULL;
+	sql << "SELECT Name FROM Establishment WHERE FKID_PlutoId=" << m_FKID_PlutoId_Establishment;
+	
+
+	if( (rsEstablishment.r = g_pPlutoConfig->mysql_query_result(sql.str()))==NULL || 
+		(EstablishmentRow=mysql_fetch_row(rsEstablishment.r))==NULL )
+	{
+		ErrorLog << "UNKNOWN ESTALIBSHMENT: " << sql; }
+		m_cProcessOutcome = INVALID_REQUEST_DATA;
+		return true;
+	}
+
+	sql.str("");
+	sql << "SELECT PKID_CC,Description FROM Users_CC WHERE FKID_PlutoId=" << m_FKID_PlutoId_User;
+	if( (rsPaymentMethods.r = g_pPlutoConfig->mysql_query_result(sql.str()))==NULL || 
+		(PaymentMethodsRow=mysql_fetch_row(rsPaymentMethods.r))==NULL )
+	{
+		ErrorLog << "user Cannot pay: " << sql; }
+		m_cProcessOutcome = USER_CANNOT_PAY_ONLINE;
+		return true;
+	}
+
+	std::ostringstream pmtMethod;
+
+	while( PaymentMethodsRow )
+	{
+		pmtMethod << PaymentMethodsRow[0] << "\t" << PaymentMethodsRow[1] << "\n";
+		PaymentMethodsRow=mysql_fetch_row(rsPaymentMethods.r);
+	}
+
+	m_cProcessOutcome = SUCCESSFULLY_PROCESSED;
+	VR_ShowMenu *pMenu = new VR_ShowMenu((g_pPlutoConfig->m_sMenuPath + "payment.vmc").c_str());
+	
+	MYSTL_ADDTO_LIST(pMenu->m_listInputVariables, (new VIPVariable(VIPVAR_PAYMENT_AMOUNT_REQUESTED,0,StringUtils::itos(m_iAmount),0,0)));
+	MYSTL_ADDTO_LIST(pMenu->m_listInputVariables, (new VIPVariable(VIPVAR_INVOICE_NUM,0,m_sInvoiceNumber.c_str(),0,0)));
+	MYSTL_ADDTO_LIST(pMenu->m_listInputVariables, (new VIPVariable(VIPVAR_ESTABLISHMENT,0,EstablishmentRow[0],0,0)));
+	MYSTL_ADDTO_LIST(pMenu->m_listInputVariables, (new VIPVariable(VIPVAR_TRANS_DESC,0,m_sDescription.c_str(),0,0)));
+	MYSTL_ADDTO_LIST(pMenu->m_listInputVariables, (new VIPVariable(VIPVAR_VIP_TRANS_NUM,0,StringUtils::itos(PKID_PmtTrans),0,0)));
+	MYSTL_ADDTO_LIST(pMenu->m_listInputVariables, (new VIPVariable(VIPVAR_AVAIL_PAYMENT_METHODS,0,pmtMethod.str(),0,0)));
+
+	string sInvoiceDetail;
+	MYSTL_ITERATE_LIST(m_listInvoiceDetail,InvoiceDetail,pID,itID)
+	{
+		sInvoiceDetail += pID->m_sDescription + "\t" + StringUtils::itos(pID->m_iAmount) + "\n";
+	}
+
+	pMenu->m_listInputVariables.push_back(new VIPVariable(VIPVAR_INVOICE_DETAIL,0,sInvoiceDetail.c_str(),0,0));
+
+	VA_ForwardRequestToPhone *pbefore = new VA_ForwardRequestToPhone(0,pMenu,m_iMacAddress);
+	MYSTL_ADDTO_LIST(m_listActions,pbefore);
+	m_cProcessOutcome = SUCCESSFULLY_PROCESSED;
+	return true;
+
+	m_iPaymentResponse=1;
+	m_sApprovalCode="APP1234";
+	m_sCardNumber="3715XXXXXX12345";
+
+	VIPMenuCollection *pMenuCollection = new VIPMenuCollection(VIPMENUCOLL_SECURE_PAYMENT);
+
+	VIPVariable *pTransVariable = new VIPVariable(VIPVAR_INVOICE_NUM,1,StringUtils::itos(g_pPlutoConfig->m_iTransNumber++),false,0); // Number 1, phone sets value
+	pMenuCollection->AddVariable(pTransVariable);
+
+	VIPVariable *pAmountVariable = new VIPVariable(VIPVAR_PAYMENT_AMOUNT_USER,1,"",false,MENU_VARFORMAT_2_DECIMAL); // Number 1, phone sets value
+	pMenuCollection->AddVariable(pAmountVariable);
+
+	VIPVariable *pPaymentMethodVariable = new VIPVariable(VIPVAR_PAYMENT_METHOD,1,"",false,0); // Number 1, phone sets value
+	pMenuCollection->AddVariable(pPaymentMethodVariable);
+
+	VIPVariable *pPinCode = new VIPVariable(VIPVAR_PIN_CODE,1,"",true,MENU_VARFORMAT_NUMERIC_PIN); 
+	pMenuCollection->AddVariable(pPinCode);
+
+	// The user can continue by pressing Y or entering a value
+	VIPMenuResolution *pGotoPaymentTypeMenu = new VIPMenuResolution("YE",-1,"",
+		0 /* hide */,0 /* close */, 0 /* report*/,-1 /* goto */, -1 /* action var */,"");
+
+	// The payment menu, which also has a text input if the user wants to override the amount
+	VIPMenu *pInvoiceMenu = new VIPMenu(VIPMENU_INVOICE);
+	pMenuCollection->m_pMenu_Starting = pInvoiceMenu;
+	pInvoiceMenu->AddResolution(pGotoPaymentTypeMenu);
+	pInvoiceMenu->AddElement(new VIPMenuElement_Graphic("background.png",0,0,-1,-1));
+	pInvoiceMenu->AddElement(new VIPMenuElement_Text(12,"Arial",50,50,30,29,"The Matrix\nStar Wars\n",125,125,125));
+	VIPMenuElement_Text *pAmountToPay_Text = new VIPMenuElement_Text(12,"Arial",50,150,30,29,"",125,125,125);
+	pInvoiceMenu->AddElement(pAmountToPay_Text);
+	pInvoiceMenu->AddInput(new VIPMenuInput(0 /*#ofchars*/,0 /*term*/,1 /*clear*/,pAmountVariable,pAmountToPay_Text)); // Yes = Don't hide, don't report, just go to menu 2
+	pMenuCollection->AddMenu(pInvoiceMenu);
+
+	// The user chooses the pmt method by pressing 1, 2, or 3
+	VIPMenuResolution *pGotoPin = new VIPMenuResolution("123",-1,"",
+		0 /* hide */,0 /* close */, 0 /* report*/,-1 /* goto */, -1 /* action var */,"");
+
+	// The payment choices Menu
+	VIPMenu *pPaymentChoices = new VIPMenu(VIPMENU_PMTMETHODS);
+	pPaymentChoices->AddResolution(pGotoPin);
+	pPaymentChoices->AddElement(new VIPMenuElement_Graphic("background.png",0,0,-1,-1));
+	pPaymentChoices->AddElement(new VIPMenuElement_Text(12,"Arial",50,50,30,29,"How do you want to pay?",125,125,125));
+	pPaymentChoices->AddInput(new VIPMenuInput(1 /*#ofchars*/,1/*term*/,1 /* clear*/,pPaymentMethodVariable,NULL)); // Yes = Don't hide, don't report, just go to menu 2
+
+	pMenuCollection->AddMenu(pPaymentChoices);
+	pGotoPaymentTypeMenu->SetGotoMenu(pPaymentChoices);
+
+	// The user enters the pin and finishes with E or Y
+	VIPMenuResolution *pEnteredPinResolution = new VIPMenuResolution("EY",-1,"",
+		0 /* hide */,1 /* close */, 0 /* report*/,-1 /* goto */, -1 /* action var */,"");
+
+	// The PIN code Menu
+	VIPMenu *pPINCode = new VIPMenu(VIPMENU_PINNUMBER);
+	pPINCode->AddResolution(pEnteredPinResolution);
+	pPINCode->AddElement(new VIPMenuElement_Graphic("background.png",0,0,-1,-1));
+	pPINCode->AddElement(new VIPMenuElement_Text(12,"Arial",50,50,30,29,"Enter your pin",125,125,125));
+	VIPMenuElement_Text *pPin_Text = new VIPMenuElement_Text(12,"Arial",50,150,30,29,"",125,125,125);
+	pPINCode->AddElement(pPin_Text);
+
+	pPINCode->AddInput(new VIPMenuInput(1 /*#ofchars*/,1/*term*/,1 /* clear*/,pPinCode,pPin_Text)); // Yes = Report and go to processing menu
+
+	pMenuCollection->AddMenu(pPINCode);
+	pGotoPin->SetGotoMenu(pPINCode);
+
+
+	// We are processing your request
+	VIPMenu *pWaitForVerification = new VIPMenu(VIPMENU_WAITPMTAUTH);
+	pWaitForVerification->AddElement(new VIPMenuElement_Graphic("background.png",0,0,-1,-1));
+	pWaitForVerification->AddElement(new VIPMenuElement_Text(12,"Arial",50,50,30,29,"Wait for verification",125,125,125));
+	pMenuCollection->AddMenu(pWaitForVerification);
+	pEnteredPinResolution->SetGotoMenu(pWaitForVerification);
+/*
+	// Make a menu in response
+	VR_ShowMenu *pMenu = new VR_ShowMenu(pMenuCollection);
+	// And stick embed it within an action
+	VA_ForwardRequestToPhone *pbefore = new VA_ForwardRequestToPhone(pMenu);
+	listActions.push_back(pbefore);
+	m_cProcessOutcome = SUCCESSFULLY_PROCESSED;
+*/
+#endif
+	return true;
+}
+

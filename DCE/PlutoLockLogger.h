@@ -1,0 +1,229 @@
+#ifndef PlutoLockLogger_h
+#define PlutoLockLogger_h
+
+extern char *LoggerFileName;
+using namespace ::std;
+
+#ifndef WIN32
+#include <sys/time.h>
+#endif
+
+#include "PlutoUtils/MultiThreadIncludes.h"
+
+// We need a special safety lock here since we can't log to ourselves if we're in a deadlock
+#ifdef DEBUG
+	#define PLUTO_SAFETY_LOCK_LOGGER(x,y) PlutoLockLogger x(&y,m_iPK_Installation,__FILE__,__LINE__);
+#else
+	#define PLUTO_SAFETY_LOCK_LOGGER(x,y) PlutoLockLogger x(&y);
+#endif
+
+namespace DCE
+{
+	class PlutoLockLogger
+	{
+	public:
+		string m_sFileName;
+	string m_sTempCatchAWeirdBug;
+		int m_Line;
+		bool m_bReleased,m_bLog,m_bLogErrorsOnly,m_bGotLock;
+		pluto_pthread_mutex_t *m_pLock;
+
+	public:
+		PlutoLockLogger(pluto_pthread_mutex_t *pLock)
+		{
+			m_bReleased=false;
+			m_bGotLock=false;
+			m_pLock=pLock;
+	#ifdef UNDER_CE
+			LACA_B4_3("safetylocklogger::***NO FILENAME** lock clock: %d thread: %p lock: %p",clock(),pthread_self(),m_pLock);
+	#endif
+			pthread_mutex_lock(&m_pLock->mutex);
+			m_sFileName = "*NONE*";
+	m_sTempCatchAWeirdBug=m_sFileName;
+			m_Line = 9999999;
+		}
+
+
+		PlutoLockLogger(pluto_pthread_mutex_t *pLock,int PK_Installation,string File,int Line)
+		{
+			m_bReleased=false;
+			m_pLock=pLock;
+			m_sFileName=File;
+			m_Line=Line;
+			m_bGotLock = false;
+	m_sTempCatchAWeirdBug=m_sFileName;
+
+			// AB 3/5/2004 - For some reason trylock doesn't work under Windows CE.  Do normal thread 
+			// logging instead
+	#ifdef UNDER_CE
+	//		LACA_B4_3("safetylocklogger::this: %s:%d thread: %p",m_sFileName.c_str(),m_Line,pthread_self());
+			pthread_mutex_lock(&m_pLock->mutex);
+	//		LACA_B4_3("safetylocklogger::acquired clock: %d thread: %p lock: %p",clock(),pthread_self(),m_pLock);
+			m_pLock->m_Line=m_Line;
+			m_pLock->m_sFileName=m_sFileName;
+			m_pLock->m_thread=pthread_self();
+			return;
+	#endif
+			time_t t = time(NULL);
+			
+			while( t+5>time(NULL) && !m_bGotLock)
+			{
+				m_bGotLock = (pthread_mutex_trylock(&m_pLock->mutex)!=EBUSY);
+				if( m_bGotLock )
+					break;
+				Sleep(10);
+			}
+			if( !m_bGotLock )
+			{
+				timeval tv;
+				char Message[2000];
+				// Under Linux pthread_self is an int, under Windows it's a pointer
+	#ifdef WIN32
+				snprintf(Message,sizeof(Message),"Logger failed to get lock(%p): %s:%d thread: %p used by: %s:%d thread:%p got: %d\n",
+					m_pLock, m_sFileName.c_str(),m_Line, pthread_self(),m_pLock->m_sFileName.c_str(),m_pLock->m_Line,
+					m_pLock->m_thread,(m_bGotLock ? 1 : 0));
+	#else
+				snprintf(Message,sizeof(Message),"Logger failed to get lock(%p): %s:%d thread: %d used by: %s:%d thread:%d got: %d\n",
+					m_pLock, m_sFileName.c_str(),m_Line, (int) pthread_self(),m_pLock->m_sFileName.c_str(),m_pLock->m_Line,
+					(int) m_pLock->m_thread,(m_bGotLock ? 1 : 0));
+	#endif
+
+	#ifndef WIN32
+				gettimeofday(&tv, NULL);
+	#ifdef ERRORS2PLUTOHOME
+				FILE* f = popen(( string("wget -q -O - \"http://www.plutohome.com/utils/message.php?FK_Installation=") +
+					StringUtils::itos(PK_Installation) + "&Severity=3&Message=" + StringUtils::URLEncode(Message) + "\"").c_str(), "r");
+				if(f != NULL)
+					fclose(f);
+	// TODO -- need to somehow do this in a separate thread and not inline -- the whole system dies while this is happening
+	#endif
+
+	#else
+				SYSTEMTIME lt;
+				::GetLocalTime(&lt);
+				//TODO Need to fill tv
+				tv.tv_sec = (long) time(NULL);
+				tv.tv_usec = lt.wMilliseconds * 1000;
+	#endif
+				FILE *file = fopen(LoggerFileName,"ab");
+				if( file )
+				{
+
+					struct tm *t = localtime((time_t *)&tv.tv_sec);
+					char c[50];
+					double sec = (double)(tv.tv_usec/1E6) + t->tm_sec;
+					snprintf(c,sizeof(c),"%02d/%02d/%02d %d:%02d:%06.3f",(int) t->tm_mon+1,(int) t->tm_mday,(int) t->tm_year-100,(int) t->tm_hour,(int) t->tm_min, sec);
+
+					fprintf(file, "%02d\t%s\t%s\t", LV_CRITICAL,c,"Logger");
+					fwrite(Message, strlen(Message), 1, file);
+	#ifdef WIN32
+					fprintf(file, " <%p>\n",pthread_self());
+	#else
+					fprintf(file, " <%d>\n",(int) pthread_self());
+	#endif
+					fwrite("\n", 1, 1, file);
+					fflush(file);
+					fclose(file);
+				}
+				pthread_mutex_lock(&m_pLock->mutex);
+			}
+			else
+			{
+	#ifdef DEBUG
+
+				timeval tv;
+	#ifndef WIN32
+				gettimeofday(&tv, NULL);
+	#else
+				SYSTEMTIME lt;
+				::GetLocalTime(&lt);
+				//TODO Need to fill tv
+				tv.tv_sec = (long) time(NULL);
+				tv.tv_usec = lt.wMilliseconds * 1000;
+	#endif
+				FILE *file = fopen(LoggerFileName,"ab");
+				if( file )
+				{
+
+					struct tm *t = localtime((time_t *)&tv.tv_sec);
+					char c[50];
+					double sec = (double)(tv.tv_usec/1E6) + t->tm_sec;
+					snprintf(c,sizeof(c),"%02d/%02d/%02d %d:%02d:%06.3f",(int) t->tm_mon+1,(int) t->tm_mday,(int) t->tm_year-100,(int) t->tm_hour,(int) t->tm_min, sec);
+
+					fprintf(file, "%02d\t%s\t%s\t", LV_CRITICAL,c,"Logger");
+	#ifdef WIN32
+					fprintf(file, " got lock <%p>\n",pthread_self());
+	#else
+					fprintf(file, " got lock <%d>\n",(int) pthread_self());
+	#endif
+					fwrite("\n", 1, 1, file);
+					fflush(file);
+					fclose(file);
+				}
+	#endif
+			}
+			m_pLock->m_Line=m_Line;
+			m_pLock->m_sFileName=m_sFileName;
+			m_pLock->m_thread=pthread_self();
+		}
+		~PlutoLockLogger()
+		{
+	if( m_sTempCatchAWeirdBug!=m_sFileName )
+	{
+	char *ptr=NULL;
+	*ptr=1;
+	}
+			Release();
+	if( m_sTempCatchAWeirdBug!=m_sFileName )
+	{
+	char *ptr=NULL;
+	*ptr=1;
+	}
+		}	
+		void Release()
+		{
+	#ifdef UNDER_CE
+	//		LACA_B4_4("safetylocklogger::Release clock: %d thread: %p lock: %p released: %d",
+	//			clock(),pthread_self(),m_pLock,(m_bReleased ? 1 : 0));
+	#endif
+			if( !m_bReleased )
+			{
+	#ifdef DEBUG
+				timeval tv;
+	#ifndef WIN32
+				gettimeofday(&tv, NULL);
+	#else
+				SYSTEMTIME lt;
+				::GetLocalTime(&lt);
+				//TODO Need to fill tv
+				tv.tv_sec = (long) time(NULL);
+				tv.tv_usec = lt.wMilliseconds * 1000;
+	#endif
+				FILE *file = fopen(LoggerFileName,"ab");
+				if( file )
+				{
+					struct tm *t = localtime((time_t *)&tv.tv_sec);
+					char c[50];
+					double sec = (double)(tv.tv_usec/1E6) + t->tm_sec;
+					snprintf(c,sizeof(c),"%02d/%02d/%02d %d:%02d:%06.3f",(int) t->tm_mon+1,(int) t->tm_mday,(int) t->tm_year-100,(int) t->tm_hour,(int) t->tm_min, sec);
+
+					fprintf(file, "%02d\t%s\t%s\t", LV_CRITICAL,c,"Logger");
+	#ifdef WIN32
+					fprintf(file, " releasing <%p>\n",pthread_self());
+	#else
+					fprintf(file, " releasing <%d>\n",(int) pthread_self());
+	#endif
+					fwrite("\n", 1, 1, file);
+					fflush(file);
+					fclose(file);
+				}
+	#endif
+				pthread_mutex_unlock(&m_pLock->mutex);
+			}
+			m_bReleased=true;
+		}
+
+	};
+}
+
+#endif

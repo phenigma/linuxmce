@@ -1,0 +1,9 @@
+<-dceag-p-b->
+Package = DCE_Destination_Package
+Dir = 
+desc = DCE Implemenation for #10 File Grids Plug-in
+Maintainer = aaronName
+Email = 
+Depend = x
+<-dceag-p-e->
+

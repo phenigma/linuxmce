@@ -1,0 +1,23 @@
+#ifndef __Define_Device_Device_Related_H__
+#define __Define_Device_Device_Related_H__
+
+
+#define DEVICE_DEVICE_RELATED_TABLE "Device_Device_Related"
+#define DEVICE_DEVICE_RELATED_FK_DEVICE_FIELD "FK_Device"
+#define DEVICE_DEVICE_RELATED_FK_DEVICE_TABLE_FIELD "Device_Device_Related.FK_Device"
+#define DEVICE_DEVICE_RELATED_FK_DEVICE_RELATED_FIELD "FK_Device_Related"
+#define DEVICE_DEVICE_RELATED_FK_DEVICE_RELATED_TABLE_FIELD "Device_Device_Related.FK_Device_Related"
+#define DEVICE_DEVICE_RELATED_VALUE_FIELD "Value"
+#define DEVICE_DEVICE_RELATED_VALUE_TABLE_FIELD "Device_Device_Related.Value"
+#define DEVICE_DEVICE_RELATED_MODIFICATION_RECORDINFO_FIELD "Modification_RecordInfo"
+#define DEVICE_DEVICE_RELATED_MODIFICATION_RECORDINFO_TABLE_FIELD "Device_Device_Related.Modification_RecordInfo"
+#define DEVICE_DEVICE_RELATED_ISNEW_RECORDINFO_FIELD "IsNew_RecordInfo"
+#define DEVICE_DEVICE_RELATED_ISNEW_RECORDINFO_TABLE_FIELD "Device_Device_Related.IsNew_RecordInfo"
+#define DEVICE_DEVICE_RELATED_ISDELETED_RECORDINFO_FIELD "IsDeleted_RecordInfo"
+#define DEVICE_DEVICE_RELATED_ISDELETED_RECORDINFO_TABLE_FIELD "Device_Device_Related.IsDeleted_RecordInfo"
+#define DEVICE_DEVICE_RELATED_FK_USERS_RECORDINFO_FIELD "FK_Users_RecordInfo"
+#define DEVICE_DEVICE_RELATED_FK_USERS_RECORDINFO_TABLE_FIELD "Device_Device_Related.FK_Users_RecordInfo"
+
+
+#endif
+

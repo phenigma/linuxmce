@@ -1,0 +1,7 @@
+; transp_bth.def : Declares the module parameters for the DLL.
+
+LIBRARY      "transp_bth"
+DESCRIPTION  'transp_bth Windows Dynamic Link Library'
+
+EXPORTS
+    ; Explicit exports can go here

@@ -1,0 +1,99 @@
+#include "VIPIncludes.h"
+#include "PlutoUtils/CommonIncludes.h"	
+#include "VR_ManuallyMatchPhone.h"
+#include "VIPShared/PlutoConfig.h"
+#include "VIPMenu.h"
+#include <sstream>
+#include <iostream>
+
+VR_ManuallyMatchPhone::VR_ManuallyMatchPhone(unsigned long EstablishmentID,
+		string sBluetooth,u_int64_t MacAddress,unsigned long IdentifiedPlutoId,string IdentiedPlutoIdPin) 
+	: RA_Request()
+{
+	// Request is of the form:
+	// AAAAIIIIdescription+null+CashierName+null
+
+	m_iEstablishmentID=EstablishmentID;
+	m_sBluetoothID=sBluetooth;
+	m_iMacAddress=MacAddress;
+	m_iIdentifiedPlutoId=IdentifiedPlutoId;
+	m_sIdentifiedPlutoIdPin=IdentiedPlutoIdPin;
+}
+
+VR_ManuallyMatchPhone::VR_ManuallyMatchPhone(unsigned long size,const char *data) 
+	: RA_Request(size,data) 
+{
+	Read_string(m_sBluetoothID);
+	m_iMacAddress = Read_unsigned_int64();
+	m_iIdentifiedPlutoId = Read_unsigned_long();
+	Read_string(m_sIdentifiedPlutoIdPin);
+
+	m_dwRequestSize = (unsigned long) (m_pcCurrentPosition-m_pcDataBlock);
+}
+
+void VR_ManuallyMatchPhone::ConvertRequestToBinary()
+{
+	RA_Request::ConvertRequestToBinary();
+	Write_string(m_sBluetoothID);
+	Write_unsigned_int64(m_iMacAddress);
+	Write_unsigned_long(m_iIdentifiedPlutoId);
+	Write_string(m_sIdentifiedPlutoIdPin);
+
+	m_dwRequestSize = (unsigned long) (m_pcCurrentPosition-m_pcDataBlock);
+	m_pcRequest = m_pcDataBlock;
+}
+
+void VR_ManuallyMatchPhone::ConvertResponseToBinary()
+{
+	RA_Request::ConvertResponseToBinary();
+}
+
+
+bool VR_ManuallyMatchPhone::ParseResponse(unsigned long size,const char *data)
+{
+	RA_Request::ParseResponse(size,data);
+	return true;
+}
+
+bool VR_ManuallyMatchPhone::ProcessRequest()
+{
+#ifdef VIPSERVER
+	if( !m_iMacAddress )
+	{
+		UsageLog << "Request from " << m_iEstablishmentID << " had empty MAC"; }
+		m_cProcessOutcome=INVALID_REQUEST_DATA;
+		return true;
+	}
+
+	PlutoSqlResult rsPlutoId;
+	MYSQL_ROW PlutoIdRow=NULL;
+
+	ostringstream s;
+	UsageLog << "Manual Match from " << m_iEstablishmentID << 
+		" IdentiedPlutoID: " << m_iIdentifiedPlutoId << " " << m_sIdentifiedPlutoIdPin; }
+
+	s << "SELECT RecordVersion FROM PlutoId WHERE PKID_PlutoId=" << m_iIdentifiedPlutoId << " AND PIN='" << m_sIdentifiedPlutoIdPin << "'";
+	if( (rsPlutoId.r = g_pPlutoConfig->mysql_query_result(s.str())) && (PlutoIdRow=mysql_fetch_row(rsPlutoId.r)) )
+	{
+		UsageLog << "Match OK " << m_iEstablishmentID << 
+			" IdentiedPlutoID: " << m_iIdentifiedPlutoId << " " << m_sIdentifiedPlutoIdPin << " adding to database"; }
+		// Add it to the MacAddress table
+//		sprintf(sql,"INSERT INTO MacAddress(PKID_MacAddress,FKID_PlutoId,FKID_C_PhoneStatus) "
+//			"VALUES(%I64d,%d,%d)",m_iMacAddress,m_iIdentifiedPlutoId,C_PHONESTATUS_NEW_PHONE_CONST);
+
+		s.str("");
+		s << "INSERT INTO MacAddress(PKID_MacAddress,FKID_PlutoId,FKID_C_PhoneStatus) " <<
+			"VALUES(" << m_iMacAddress << "," << m_iIdentifiedPlutoId << "," << C_PHONESTATUS_NEW_PHONE_CONST << ")";
+
+
+		cout << "Executing: " << s << "\n";
+	
+		g_pPlutoConfig->threaded_mysql_query(s.str());
+		m_cProcessOutcome=SUCCESSFULLY_PROCESSED;
+	}
+	else
+		m_cProcessOutcome=INVALID_REQUEST_DATA;
+
+#endif
+	return true;
+}

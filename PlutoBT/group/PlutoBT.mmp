@@ -1,0 +1,116 @@
+TARGET  PlutoBT.app
+TARGETTYPE  app
+UID  0x100039CE 0x01ef0015 
+TARGETPATH \system\apps\PlutoBT
+
+MACRO   SYMBIAN
+MACRO	VIPPHONE
+
+SOURCEPATH ..\..\VIPShared
+SOURCE  BT_CP_Disconnect.cpp
+SOURCE  BT_CP_Have_Nothing.cpp
+SOURCE  BT_CP_SendMeKeystrokes.cpp
+SOURCE  BT_CP_ShowImage.cpp
+SOURCE  BT_CP_ShowVMC.cpp
+SOURCE  BT_CP_ShowList.cpp
+SOURCE  BT_CP_UpdateVariables.cpp
+SOURCE  BT_CP_CaptureKeyboard.cpp
+SOURCE  BT_PC_SelectedFromList.cpp
+SOURCE  BT_PC_Disconnect.cpp
+SOURCE  BT_PC_KeyWasPressed.cpp
+SOURCE  BT_PC_OrderPlaced.cpp
+SOURCE  BT_PC_ReportingVariables.cpp
+SOURCE  BT_PC_VMCHidden.cpp
+SOURCE  BT_PC_VMCTerminated.cpp
+SOURCE  BT_PC_WhatDoYouHave.cpp
+SOURCE  BT_PC_SetVariable.cpp
+SOURCE  BTCommand.cpp
+SOURCE  BTCommandProcessor.cpp
+SOURCE  MyString.cpp
+SOURCE  PlutoConfig.cpp
+SOURCE  RenderMenu.cpp
+SOURCE  VIPMenu.cpp
+SOURCE  BTCommandProcessor_Symbian_Base.cpp
+SOURCE  BTCommandProcessor_Symbian_Bluetooth.cpp
+
+SOURCEPATH ..\..\DCE
+SOURCE  StringUtils.cpp
+SOURCE  BinarySerialize.cpp
+
+SOURCEPATH ..\..\..\Symbian\7.0s\Series60_v21\Series60Ex\helperfunctions
+SOURCE  BitmapMethods.cpp
+
+SOURCEPATH ..\src
+SOURCE  PlutoBTApp.cpp 
+SOURCE  PlutoBTAppUi.cpp
+SOURCE  PlutoBTDocument.cpp
+SOURCE  PlutoBTContainer.cpp
+SOURCE  PlutoBTEngine.cpp
+SOURCE  PlutoBTGridEngine.cpp
+SOURCE  PlutoBTGridContainer.cpp
+SOURCE  PlutoVMCContainer.cpp
+SOURCE  PlutoVMCUtil.cpp
+SOURCE  PlutoVMCView.cpp
+
+RESOURCE ..\data\PlutoBT.rss
+RESOURCE ..\data\PlutoBT_caption.rss
+LANG     SC
+
+USERINCLUDE . ..\inc
+USERINCLUDE ..\..\DCE
+USERINCLUDE ..\..\VIPShared
+USERINCLUDE ..\..
+USERINCLUDE ..\..\..\Symbian\7.0s\Series60_v21\Series60Ex\helperfunctions
+
+SYSTEMINCLUDE   . \epoc32\include
+
+LIBRARY estor.lib
+LIBRARY euser.lib 
+LIBRARY apparc.lib 
+LIBRARY cone.lib 
+LIBRARY eikcore.lib 
+LIBRARY commonengine.lib
+LIBRARY eikcoctl.lib 
+LIBRARY avkon.lib 
+LIBRARY bafl.lib 
+LIBRARY apmime.lib 
+LIBRARY CommonUI.lib 
+LIBRARY palbview.lib
+LIBRARY esock.lib
+LIBRARY bluetooth.lib
+LIBRARY insock.lib 
+LIBRARY apgrfx.lib
+LIBRARY eikctl.lib
+LIBRARY sdpagent.lib
+LIBRARY sdpdatabase.lib
+LIBRARY btextnotifiers.lib
+LIBRARY btmanclient.lib
+LIBRARY efsrv.lib
+LIBRARY gdi.lib
+LIBRARY mediaclientimage.lib
+LIBRARY fbscli.lib
+LIBRARY etel.lib
+LIBRARY egul.lib
+LIBRARY msgs.lib 
+LIBRARY ws32.lib
+LIBRARY bitgdi.lib
+LIBRARY estlib.lib
+
+// Creates Mbm file.
+START BITMAP    PlutoBT.mbm
+HEADER
+TARGETPATH      \system\apps\PlutoBT
+SOURCEPATH      ..\bitmaps
+SOURCE          C12 Snap.bmp
+SOURCE          C12 Golf.bmp
+SOURCE          C12 Clock.bmp
+SOURCE          C12 Card_mask.bmp
+SOURCE          C12 Aces.bmp
+SOURCE          C12 Hearts.bmp
+SOURCE          C12 Rummy.bmp
+SOURCE          C12 Poker.bmp
+END
+
+AIF PlutoBT.aif ..\aif PlutoBTaif.rss c8 context_pane_icon.bmp context_pane_icon_mask.bmp list_icon.bmp list_icon_mask.bmp
+
+SRCDBG

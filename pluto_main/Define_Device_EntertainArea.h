@@ -1,0 +1,21 @@
+#ifndef __Define_Device_EntertainArea_H__
+#define __Define_Device_EntertainArea_H__
+
+
+#define DEVICE_ENTERTAINAREA_TABLE "Device_EntertainArea"
+#define DEVICE_ENTERTAINAREA_FK_DEVICE_FIELD "FK_Device"
+#define DEVICE_ENTERTAINAREA_FK_DEVICE_TABLE_FIELD "Device_EntertainArea.FK_Device"
+#define DEVICE_ENTERTAINAREA_FK_ENTERTAINAREA_FIELD "FK_EntertainArea"
+#define DEVICE_ENTERTAINAREA_FK_ENTERTAINAREA_TABLE_FIELD "Device_EntertainArea.FK_EntertainArea"
+#define DEVICE_ENTERTAINAREA_MODIFICATION_RECORDINFO_FIELD "Modification_RecordInfo"
+#define DEVICE_ENTERTAINAREA_MODIFICATION_RECORDINFO_TABLE_FIELD "Device_EntertainArea.Modification_RecordInfo"
+#define DEVICE_ENTERTAINAREA_ISNEW_RECORDINFO_FIELD "IsNew_RecordInfo"
+#define DEVICE_ENTERTAINAREA_ISNEW_RECORDINFO_TABLE_FIELD "Device_EntertainArea.IsNew_RecordInfo"
+#define DEVICE_ENTERTAINAREA_ISDELETED_RECORDINFO_FIELD "IsDeleted_RecordInfo"
+#define DEVICE_ENTERTAINAREA_ISDELETED_RECORDINFO_TABLE_FIELD "Device_EntertainArea.IsDeleted_RecordInfo"
+#define DEVICE_ENTERTAINAREA_FK_USERS_RECORDINFO_FIELD "FK_Users_RecordInfo"
+#define DEVICE_ENTERTAINAREA_FK_USERS_RECORDINFO_TABLE_FIELD "Device_EntertainArea.FK_Users_RecordInfo"
+
+
+#endif
+

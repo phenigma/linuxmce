@@ -1,0 +1,21 @@
+#ifndef __Define_Household_Installation_H__
+#define __Define_Household_Installation_H__
+
+
+#define HOUSEHOLD_INSTALLATION_TABLE "Household_Installation"
+#define HOUSEHOLD_INSTALLATION_FK_HOUSEHOLD_FIELD "FK_Household"
+#define HOUSEHOLD_INSTALLATION_FK_HOUSEHOLD_TABLE_FIELD "Household_Installation.FK_Household"
+#define HOUSEHOLD_INSTALLATION_FK_INSTALLATION_FIELD "FK_Installation"
+#define HOUSEHOLD_INSTALLATION_FK_INSTALLATION_TABLE_FIELD "Household_Installation.FK_Installation"
+#define HOUSEHOLD_INSTALLATION_MODIFICATION_RECORDINFO_FIELD "Modification_RecordInfo"
+#define HOUSEHOLD_INSTALLATION_MODIFICATION_RECORDINFO_TABLE_FIELD "Household_Installation.Modification_RecordInfo"
+#define HOUSEHOLD_INSTALLATION_ISNEW_RECORDINFO_FIELD "IsNew_RecordInfo"
+#define HOUSEHOLD_INSTALLATION_ISNEW_RECORDINFO_TABLE_FIELD "Household_Installation.IsNew_RecordInfo"
+#define HOUSEHOLD_INSTALLATION_ISDELETED_RECORDINFO_FIELD "IsDeleted_RecordInfo"
+#define HOUSEHOLD_INSTALLATION_ISDELETED_RECORDINFO_TABLE_FIELD "Household_Installation.IsDeleted_RecordInfo"
+#define HOUSEHOLD_INSTALLATION_FK_USERS_RECORDINFO_FIELD "FK_Users_RecordInfo"
+#define HOUSEHOLD_INSTALLATION_FK_USERS_RECORDINFO_TABLE_FIELD "Household_Installation.FK_Users_RecordInfo"
+
+
+#endif
+

@@ -1,0 +1,53 @@
+#ifndef __Define_MediaType_H__
+#define __Define_MediaType_H__
+
+#define MEDIATYPE_pluto_LiveTV_CONST 1
+#define MEDIATYPE_pluto_CD_CONST 2
+#define MEDIATYPE_pluto_DVD_CONST 3
+#define MEDIATYPE_pluto_StoredAudio_CONST 4
+#define MEDIATYPE_pluto_StoredVideo_CONST 5
+#define MEDIATYPE_pluto_LiveRadio_CONST 6
+#define MEDIATYPE_pluto_Pictures_CONST 7
+#define MEDIATYPE_np_LiveTV_CONST 11
+#define MEDIATYPE_np_DVD_CONST 12
+#define MEDIATYPE_np_OTARadio_CONST 13
+#define MEDIATYPE_np_SatelliteRadio_CONST 14
+#define MEDIATYPE_np_CableRadio_CONST 15
+#define MEDIATYPE_np_VideoTape_CONST 16
+#define MEDIATYPE_np_LaserDisc_CONST 17
+#define MEDIATYPE_np_Game_CONST 18
+#define MEDIATYPE_np_CD_CONST 19
+#define MEDIATYPE_misc_Burning_CONST 20
+#define MEDIATYPE_misc_Playlist_CONST 21
+#define MEDIATYPE_misc_EditPlaylist_CONST 22
+#define MEDIATYPE_misc_BlankMedia_CONST 23
+
+#define MEDIATYPE_TABLE "MediaType"
+#define MEDIATYPE_PK_MEDIATYPE_FIELD "PK_MediaType"
+#define MEDIATYPE_PK_MEDIATYPE_TABLE_FIELD "MediaType.PK_MediaType"
+#define MEDIATYPE_DEFINE_FIELD "Define"
+#define MEDIATYPE_DEFINE_TABLE_FIELD "MediaType.Define"
+#define MEDIATYPE_DESCRIPTION_FIELD "Description"
+#define MEDIATYPE_DESCRIPTION_TABLE_FIELD "MediaType.Description"
+#define MEDIATYPE_FK_DESIGNOBJ_FIELD "FK_DesignObj"
+#define MEDIATYPE_FK_DESIGNOBJ_TABLE_FIELD "MediaType.FK_DesignObj"
+#define MEDIATYPE_DCEAWARE_FIELD "DCEAware"
+#define MEDIATYPE_DCEAWARE_TABLE_FIELD "MediaType.DCEAware"
+#define MEDIATYPE_EXTENSIONS_FIELD "Extensions"
+#define MEDIATYPE_EXTENSIONS_TABLE_FIELD "MediaType.Extensions"
+#define MEDIATYPE_SUBDIRECTORY_FIELD "Subdirectory"
+#define MEDIATYPE_SUBDIRECTORY_TABLE_FIELD "MediaType.Subdirectory"
+#define MEDIATYPE_ISEXTERNALTRANSMISSION_FIELD "IsExternalTransmission"
+#define MEDIATYPE_ISEXTERNALTRANSMISSION_TABLE_FIELD "MediaType.IsExternalTransmission"
+#define MEDIATYPE_MODIFICATION_RECORDINFO_FIELD "Modification_RecordInfo"
+#define MEDIATYPE_MODIFICATION_RECORDINFO_TABLE_FIELD "MediaType.Modification_RecordInfo"
+#define MEDIATYPE_ISNEW_RECORDINFO_FIELD "IsNew_RecordInfo"
+#define MEDIATYPE_ISNEW_RECORDINFO_TABLE_FIELD "MediaType.IsNew_RecordInfo"
+#define MEDIATYPE_ISDELETED_RECORDINFO_FIELD "IsDeleted_RecordInfo"
+#define MEDIATYPE_ISDELETED_RECORDINFO_TABLE_FIELD "MediaType.IsDeleted_RecordInfo"
+#define MEDIATYPE_FK_USERS_RECORDINFO_FIELD "FK_Users_RecordInfo"
+#define MEDIATYPE_FK_USERS_RECORDINFO_TABLE_FIELD "MediaType.FK_Users_RecordInfo"
+
+
+#endif
+

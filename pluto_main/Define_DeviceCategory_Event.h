@@ -1,0 +1,21 @@
+#ifndef __Define_DeviceCategory_Event_H__
+#define __Define_DeviceCategory_Event_H__
+
+
+#define DEVICECATEGORY_EVENT_TABLE "DeviceCategory_Event"
+#define DEVICECATEGORY_EVENT_FK_DEVICECATEGORY_FIELD "FK_DeviceCategory"
+#define DEVICECATEGORY_EVENT_FK_DEVICECATEGORY_TABLE_FIELD "DeviceCategory_Event.FK_DeviceCategory"
+#define DEVICECATEGORY_EVENT_FK_EVENT_FIELD "FK_Event"
+#define DEVICECATEGORY_EVENT_FK_EVENT_TABLE_FIELD "DeviceCategory_Event.FK_Event"
+#define DEVICECATEGORY_EVENT_MODIFICATION_RECORDINFO_FIELD "Modification_RecordInfo"
+#define DEVICECATEGORY_EVENT_MODIFICATION_RECORDINFO_TABLE_FIELD "DeviceCategory_Event.Modification_RecordInfo"
+#define DEVICECATEGORY_EVENT_ISNEW_RECORDINFO_FIELD "IsNew_RecordInfo"
+#define DEVICECATEGORY_EVENT_ISNEW_RECORDINFO_TABLE_FIELD "DeviceCategory_Event.IsNew_RecordInfo"
+#define DEVICECATEGORY_EVENT_ISDELETED_RECORDINFO_FIELD "IsDeleted_RecordInfo"
+#define DEVICECATEGORY_EVENT_ISDELETED_RECORDINFO_TABLE_FIELD "DeviceCategory_Event.IsDeleted_RecordInfo"
+#define DEVICECATEGORY_EVENT_FK_USERS_RECORDINFO_FIELD "FK_Users_RecordInfo"
+#define DEVICECATEGORY_EVENT_FK_USERS_RECORDINFO_TABLE_FIELD "DeviceCategory_Event.FK_Users_RecordInfo"
+
+
+#endif
+

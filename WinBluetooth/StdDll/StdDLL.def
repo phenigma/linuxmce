@@ -1,0 +1,7 @@
+; StdDLL.def : Declares the module parameters for the DLL.
+
+LIBRARY      "StdDLL"
+DESCRIPTION  'StdDLL Windows Dynamic Link Library'
+
+EXPORTS
+    ; Explicit exports can go here

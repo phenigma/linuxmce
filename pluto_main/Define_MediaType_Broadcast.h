@@ -1,0 +1,21 @@
+#ifndef __Define_MediaType_Broadcast_H__
+#define __Define_MediaType_Broadcast_H__
+
+
+#define MEDIATYPE_BROADCAST_TABLE "MediaType_Broadcast"
+#define MEDIATYPE_BROADCAST_FK_MEDIATYPE_FIELD "FK_MediaType"
+#define MEDIATYPE_BROADCAST_FK_MEDIATYPE_TABLE_FIELD "MediaType_Broadcast.FK_MediaType"
+#define MEDIATYPE_BROADCAST_FK_BROADCAST_FIELD "FK_Broadcast"
+#define MEDIATYPE_BROADCAST_FK_BROADCAST_TABLE_FIELD "MediaType_Broadcast.FK_Broadcast"
+#define MEDIATYPE_BROADCAST_MODIFICATION_RECORDINFO_FIELD "Modification_RecordInfo"
+#define MEDIATYPE_BROADCAST_MODIFICATION_RECORDINFO_TABLE_FIELD "MediaType_Broadcast.Modification_RecordInfo"
+#define MEDIATYPE_BROADCAST_ISNEW_RECORDINFO_FIELD "IsNew_RecordInfo"
+#define MEDIATYPE_BROADCAST_ISNEW_RECORDINFO_TABLE_FIELD "MediaType_Broadcast.IsNew_RecordInfo"
+#define MEDIATYPE_BROADCAST_ISDELETED_RECORDINFO_FIELD "IsDeleted_RecordInfo"
+#define MEDIATYPE_BROADCAST_ISDELETED_RECORDINFO_TABLE_FIELD "MediaType_Broadcast.IsDeleted_RecordInfo"
+#define MEDIATYPE_BROADCAST_FK_USERS_RECORDINFO_FIELD "FK_Users_RecordInfo"
+#define MEDIATYPE_BROADCAST_FK_USERS_RECORDINFO_TABLE_FIELD "MediaType_Broadcast.FK_Users_RecordInfo"
+
+
+#endif
+

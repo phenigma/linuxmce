@@ -1,0 +1,23 @@
+#ifndef __Define_CommandCategory_H__
+#define __Define_CommandCategory_H__
+
+
+#define COMMANDCATEGORY_TABLE "CommandCategory"
+#define COMMANDCATEGORY_PK_COMMANDCATEGORY_FIELD "PK_CommandCategory"
+#define COMMANDCATEGORY_PK_COMMANDCATEGORY_TABLE_FIELD "CommandCategory.PK_CommandCategory"
+#define COMMANDCATEGORY_FK_COMMANDCATEGORY_PARENT_FIELD "FK_CommandCategory_Parent"
+#define COMMANDCATEGORY_FK_COMMANDCATEGORY_PARENT_TABLE_FIELD "CommandCategory.FK_CommandCategory_Parent"
+#define COMMANDCATEGORY_DESCRIPTION_FIELD "Description"
+#define COMMANDCATEGORY_DESCRIPTION_TABLE_FIELD "CommandCategory.Description"
+#define COMMANDCATEGORY_MODIFICATION_RECORDINFO_FIELD "Modification_RecordInfo"
+#define COMMANDCATEGORY_MODIFICATION_RECORDINFO_TABLE_FIELD "CommandCategory.Modification_RecordInfo"
+#define COMMANDCATEGORY_ISNEW_RECORDINFO_FIELD "IsNew_RecordInfo"
+#define COMMANDCATEGORY_ISNEW_RECORDINFO_TABLE_FIELD "CommandCategory.IsNew_RecordInfo"
+#define COMMANDCATEGORY_ISDELETED_RECORDINFO_FIELD "IsDeleted_RecordInfo"
+#define COMMANDCATEGORY_ISDELETED_RECORDINFO_TABLE_FIELD "CommandCategory.IsDeleted_RecordInfo"
+#define COMMANDCATEGORY_FK_USERS_RECORDINFO_FIELD "FK_Users_RecordInfo"
+#define COMMANDCATEGORY_FK_USERS_RECORDINFO_TABLE_FIELD "CommandCategory.FK_Users_RecordInfo"
+
+
+#endif
+

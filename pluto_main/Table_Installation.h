@@ -1,0 +1,228 @@
+#ifndef __Table_Installation_H__
+#define __Table_Installation_H__
+
+#ifdef SQL2CPP_DLLEXPORT
+#define DLL_EXPORT __declspec(dllexport)
+#else
+#define DLL_EXPORT
+#endif
+
+#include "TableRow.h"
+#include "Database_pluto_main.h"
+#include "PlutoUtils/MultiThreadIncludes.h"
+#include "Define_Installation.h"
+#include "SerializeClass/SerializeClass.h"
+
+class DLL_EXPORT Table_Installation
+{
+private:
+	Database_pluto_main *database;
+	struct Key;	//forward declaration
+	
+public:
+    pluto_pthread_mutex_t m_Mutex;
+	pthread_mutexattr_t m_MutexAttr;
+		
+	Table_Installation(Database_pluto_main *pDatabase):database(pDatabase), m_Mutex("Installation")
+	{
+		pthread_mutexattr_init(&m_MutexAttr);
+		pthread_mutexattr_settype(&m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP);
+		m_Mutex.Init(&m_MutexAttr); 
+	};
+	~Table_Installation();
+
+private:		
+	friend class Row_Installation;
+	struct Key
+	{
+		friend class Row_Installation;
+		long int pk_PK_Installation;
+
+		
+		Key(long int in_PK_Installation);
+	
+		Key(class Row_Installation *pRow);
+	};
+	struct Key_Less
+	{			
+		bool operator()(const Table_Installation::Key &key1, const Table_Installation::Key &key2) const;
+	};	
+
+	map<Table_Installation::Key, class Row_Installation*, Table_Installation::Key_Less> cachedRows;
+	map<Table_Installation::Key, class Row_Installation*, Table_Installation::Key_Less> deleted_cachedRows;
+	vector<class Row_Installation*> addedRows;
+	vector<class Row_Installation*> deleted_addedRows;	
+		
+
+public:				
+	void Commit();
+	bool GetRows(string where_statement,vector<class Row_Installation*> *rows);
+	class Row_Installation* AddRow();
+	Database_pluto_main *Database_pluto_main_get() { return database; }
+	
+		
+	class Row_Installation* GetRow(long int in_PK_Installation);
+	
+
+private:	
+	
+		
+	class Row_Installation* FetchRow(Key &key);
+		
+			
+};
+
+class DLL_EXPORT Row_Installation : public TableRow, public SerializeClass
+	{
+		friend struct Table_Installation::Key;
+		friend class Table_Installation;
+	private:
+		Table_Installation *table;
+		
+		long int m_PK_Installation;
+string m_Description;
+string m_Name;
+string m_Address;
+string m_City;
+string m_State;
+string m_Zip;
+string m_ActivationCode;
+string m_LastStatus;
+string m_LastAlive;
+short int m_isActive;
+long int m_FK_Version;
+short int m_isMonitored;
+string m_Modification_RecordInfo;
+short int m_IsNew_RecordInfo;
+short int m_IsDeleted_RecordInfo;
+long int m_FK_Users_RecordInfo;
+
+		bool is_null[17];
+	
+		bool is_deleted;
+		bool is_added;
+		bool is_modified;					
+	
+	public:
+		long int PK_Installation_get();
+string Description_get();
+string Name_get();
+string Address_get();
+string City_get();
+string State_get();
+string Zip_get();
+string ActivationCode_get();
+string LastStatus_get();
+string LastAlive_get();
+short int isActive_get();
+long int FK_Version_get();
+short int isMonitored_get();
+string Modification_RecordInfo_get();
+short int IsNew_RecordInfo_get();
+short int IsDeleted_RecordInfo_get();
+long int FK_Users_RecordInfo_get();
+
+		
+		void PK_Installation_set(long int val);
+void Description_set(string val);
+void Name_set(string val);
+void Address_set(string val);
+void City_set(string val);
+void State_set(string val);
+void Zip_set(string val);
+void ActivationCode_set(string val);
+void LastStatus_set(string val);
+void LastAlive_set(string val);
+void isActive_set(short int val);
+void FK_Version_set(long int val);
+void isMonitored_set(short int val);
+void Modification_RecordInfo_set(string val);
+void IsNew_RecordInfo_set(short int val);
+void IsDeleted_RecordInfo_set(short int val);
+void FK_Users_RecordInfo_set(long int val);
+
+		
+		bool Name_isNull();
+bool Address_isNull();
+bool City_isNull();
+bool State_isNull();
+bool Zip_isNull();
+bool ActivationCode_isNull();
+bool LastStatus_isNull();
+bool LastAlive_isNull();
+bool FK_Version_isNull();
+bool isMonitored_isNull();
+bool IsNew_RecordInfo_isNull();
+bool IsDeleted_RecordInfo_isNull();
+bool FK_Users_RecordInfo_isNull();
+
+			
+		void Name_setNull(bool val);
+void Address_setNull(bool val);
+void City_setNull(bool val);
+void State_setNull(bool val);
+void Zip_setNull(bool val);
+void ActivationCode_setNull(bool val);
+void LastStatus_setNull(bool val);
+void LastAlive_setNull(bool val);
+void FK_Version_setNull(bool val);
+void isMonitored_setNull(bool val);
+void IsNew_RecordInfo_setNull(bool val);
+void IsDeleted_RecordInfo_setNull(bool val);
+void FK_Users_RecordInfo_setNull(bool val);
+	
+	
+		void Delete();
+		void Reload();		
+	
+		Row_Installation(Table_Installation *pTable);
+	
+		bool IsDeleted(){return is_deleted;};
+		bool IsModified(){return is_modified;};			
+		class Table_Installation *Table_Installation_get() { return table; };
+
+		// Return the rows for foreign keys 
+		class Row_Version* FK_Version_getrow();
+
+
+		// Return the rows in other tables with foreign keys pointing here
+		void CommandGroup_FK_Installation_getrows(vector <class Row_CommandGroup*> *rows);
+void Device_FK_Installation_getrows(vector <class Row_Device*> *rows);
+void DeviceGroup_FK_Installation_getrows(vector <class Row_DeviceGroup*> *rows);
+void EventHandler_FK_Installation_getrows(vector <class Row_EventHandler*> *rows);
+void Floorplan_FK_Installation_getrows(vector <class Row_Floorplan*> *rows);
+void Household_Installation_FK_Installation_getrows(vector <class Row_Household_Installation*> *rows);
+void Installation_Users_FK_Installation_getrows(vector <class Row_Installation_Users*> *rows);
+void Room_FK_Installation_getrows(vector <class Row_Room*> *rows);
+void Users_FK_Installation_Main_getrows(vector <class Row_Users*> *rows);
+
+
+		// Setup binary serialization
+		void SetupSerialization() {
+			StartSerializeList() + m_PK_Installation+ m_Description+ m_Name+ m_Address+ m_City+ m_State+ m_Zip+ m_ActivationCode+ m_LastStatus+ m_LastAlive+ m_isActive+ m_FK_Version+ m_isMonitored+ m_Modification_RecordInfo+ m_IsNew_RecordInfo+ m_IsDeleted_RecordInfo+ m_FK_Users_RecordInfo;
+		}
+	private:
+		void SetDefaultValues();
+		
+		string PK_Installation_asSQL();
+string Description_asSQL();
+string Name_asSQL();
+string Address_asSQL();
+string City_asSQL();
+string State_asSQL();
+string Zip_asSQL();
+string ActivationCode_asSQL();
+string LastStatus_asSQL();
+string LastAlive_asSQL();
+string isActive_asSQL();
+string FK_Version_asSQL();
+string isMonitored_asSQL();
+string Modification_RecordInfo_asSQL();
+string IsNew_RecordInfo_asSQL();
+string IsDeleted_RecordInfo_asSQL();
+string FK_Users_RecordInfo_asSQL();
+
+	};
+
+#endif
+

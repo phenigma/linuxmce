@@ -1,0 +1,54 @@
+#ifndef __Define_DeviceCategory_H__
+#define __Define_DeviceCategory_H__
+
+#define DEVICECATEGORY_DCE_Router_CONST 1
+#define DEVICECATEGORY_Mobile_Orbiter_CONST 2
+#define DEVICECATEGORY_Standard_Orbiter_CONST 3
+#define DEVICECATEGORY_Plugins_for_the_router_CONST 4
+#define DEVICECATEGORY_Orbiter_CONST 5
+#define DEVICECATEGORY_Computers_CONST 6
+#define DEVICECATEGORY_Core_CONST 7
+#define DEVICECATEGORY_Media_Director_CONST 8
+#define DEVICECATEGORY_Pluto_General_PlugIns_CONST 9
+#define DEVICECATEGORY_DCE_Device_CONST 10
+#define DEVICECATEGORY_Media_Players_CONST 11
+#define DEVICECATEGORY_DCE_Software_Wrappers_CONST 12
+#define DEVICECATEGORY_Datagrids_CONST 14
+#define DEVICECATEGORY_Media_Plugins_CONST 15
+#define DEVICECATEGORY_Disk_Handlers_CONST 16
+#define DEVICECATEGORY_Orbiter_Plugins_CONST 56
+#define DEVICECATEGORY_Peripherals_CONST 57
+#define DEVICECATEGORY_Disc_Drives_CONST 59
+#define DEVICECATEGORY_Utilities_CONST 60
+#define DEVICECATEGORY_General_Info_Plugins_CONST 61
+#define DEVICECATEGORY_Virtual_Devices_CONST 62
+#define DEVICECATEGORY_App_Server_CONST 65
+#define DEVICECATEGORY_Datagrid_Plugins_CONST 66
+#define DEVICECATEGORY_Lighting_Plugins_CONST 67
+#define DEVICECATEGORY_Climate_Plugins_CONST 68
+#define DEVICECATEGORY_Telecom_Plugins_CONST 69
+#define DEVICECATEGORY_Security_Plugins_CONST 70
+
+#define DEVICECATEGORY_TABLE "DeviceCategory"
+#define DEVICECATEGORY_PK_DEVICECATEGORY_FIELD "PK_DeviceCategory"
+#define DEVICECATEGORY_PK_DEVICECATEGORY_TABLE_FIELD "DeviceCategory.PK_DeviceCategory"
+#define DEVICECATEGORY_FK_DEVICECATEGORY_PARENT_FIELD "FK_DeviceCategory_Parent"
+#define DEVICECATEGORY_FK_DEVICECATEGORY_PARENT_TABLE_FIELD "DeviceCategory.FK_DeviceCategory_Parent"
+#define DEVICECATEGORY_DESCRIPTION_FIELD "Description"
+#define DEVICECATEGORY_DESCRIPTION_TABLE_FIELD "DeviceCategory.Description"
+#define DEVICECATEGORY_DEFINE_FIELD "Define"
+#define DEVICECATEGORY_DEFINE_TABLE_FIELD "DeviceCategory.Define"
+#define DEVICECATEGORY_ISAV_FIELD "IsAV"
+#define DEVICECATEGORY_ISAV_TABLE_FIELD "DeviceCategory.IsAV"
+#define DEVICECATEGORY_MODIFICATION_RECORDINFO_FIELD "Modification_RecordInfo"
+#define DEVICECATEGORY_MODIFICATION_RECORDINFO_TABLE_FIELD "DeviceCategory.Modification_RecordInfo"
+#define DEVICECATEGORY_ISNEW_RECORDINFO_FIELD "IsNew_RecordInfo"
+#define DEVICECATEGORY_ISNEW_RECORDINFO_TABLE_FIELD "DeviceCategory.IsNew_RecordInfo"
+#define DEVICECATEGORY_ISDELETED_RECORDINFO_FIELD "IsDeleted_RecordInfo"
+#define DEVICECATEGORY_ISDELETED_RECORDINFO_TABLE_FIELD "DeviceCategory.IsDeleted_RecordInfo"
+#define DEVICECATEGORY_FK_USERS_RECORDINFO_FIELD "FK_Users_RecordInfo"
+#define DEVICECATEGORY_FK_USERS_RECORDINFO_TABLE_FIELD "DeviceCategory.FK_Users_RecordInfo"
+
+
+#endif
+

@@ -1,0 +1,710 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif\r\n"
+    "#include ""res\\TaskBar.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\TaskBar.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG  0, 0, 217, 98
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About TaskBar"
+FONT 8, "MS Sans Serif"
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,11,17,21,20
+    LTEXT           "PlutoVIP Version 1.0",IDC_STATIC,40,10,119,8,
+                    SS_NOPREFIX
+    LTEXT           "Copyright (C) 2004",IDC_STATIC,40,25,119,8
+    DEFPUSHBUTTON   "OK",IDOK,158,77,52,14,WS_GROUP
+END
+
+IDD_PLUTOVIP_MAIN_DIALOG DIALOGEX 0, 0, 185, 114
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | 
+    WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "PlutoVIP Services"
+MENU IDR_MAIN_MENU
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+END
+
+IDD_APPBAR DIALOGEX 0, 0, 312, 57
+STYLE DS_SETFONT | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | 
+    WS_CAPTION | WS_THICKFRAME
+EXSTYLE WS_EX_TOOLWINDOW
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+END
+
+IDD_HIGHLIGHT DIALOGEX 0, 0, 259, 294
+STYLE DS_SYSMODAL | DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE
+EXSTYLE WS_EX_TOPMOST
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    PUSHBUTTON      "&Action",IDC_ACTION,7,274,57,15
+    PUSHBUTTON      "&Task",IDC_TASK,123,274,57,15
+    PUSHBUTTON      "&Change to",IDC_CHANGE_STATE,183,274,65,15
+    LTEXT           "Nick name:",IDC_NICKNAME,84,6,164,13,NOT WS_GROUP
+    LTEXT           "Full Name:",IDC_FULLNAME,84,20,164,8,NOT WS_GROUP
+    LTEXT           "Static",IDC_ADDRESS,119,35,128,26,NOT WS_GROUP
+    LTEXT           "",IDC_CITY,107,68,50,11
+    LTEXT           "",IDC_STATE,109,83,57,11
+    LTEXT           "",IDC_ZIP,197,83,52,11
+    EDITTEXT        IDC_STORE_CUSTOMER_ID,70,149,47,13,ES_AUTOHSCROLL | 
+                    ES_NUMBER | NOT WS_BORDER,WS_EX_STATICEDGE
+    EDITTEXT        IDC_COMMENT,5,176,244,62,ES_MULTILINE | NOT WS_BORDER | 
+                    WS_VSCROLL,WS_EX_STATICEDGE
+    LTEXT           "Comment:",IDC_STATIC,5,164,34,10
+    LTEXT           "Address:",IDC_STATIC,84,35,34,8
+    LTEXT           "City:",IDC_STATIC,84,68,16,11
+    LTEXT           "State:",IDC_STATIC,84,83,20,11
+    LTEXT           "Zip:",IDC_STATIC,179,83,13,11
+    LTEXT           "",IDC_PICTURE,5,7,67,58,NOT WS_GROUP,WS_EX_STATICEDGE
+    LTEXT           "Total Visit: 0000\nAvailable Visit: 0000",IDC_VISIT,5,
+                    245,116,19
+    LTEXT           "Total Purchase: 0000 $\nAvailable Purchase: 0000 $",
+                    IDC_PURCHASE,140,245,106,19
+    LTEXT           "Store Customer ID:",IDC_STATIC,5,151,63,11
+    LTEXT           "",IDC_CUSTOMER_EMAIL,130,151,118,13
+    LTEXT           "",IDC_BDATE_GENDER,5,68,67,16
+    LTEXT           "Phone:",IDC_STATIC,5,96,38,10
+    LTEXT           "",IDC_PHONES,47,96,202,20
+    LTEXT           "",IDC_EXTRA,5,120,244,25
+END
+
+IDD_PAGE_INTRODUCTION DIALOGEX 0, 0, 350, 210
+STYLE DS_SETFONT | WS_CAPTION
+CAPTION "Introduction"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "Static",IDC_CREDIT,7,7,336,196,NOT WS_GROUP,
+                    WS_EX_STATICEDGE
+END
+
+IDD_PAGE_INTERNET DIALOG  0, 0, 350, 210
+STYLE DS_SETFONT | WS_CAPTION
+CAPTION "&Internet"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "It's always on (DSL/Cable/T1/etc.)",
+                    IDC_INTERNET_CONNECTION,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,15,22,126,15
+    CONTROL         "You have to dialup when you want to use it",
+                    IDC_INTERNET_DIALUP,"Button",BS_AUTORADIOBUTTON,15,39,
+                    152,15
+    COMBOBOX        IDC_CONNECTION,172,39,162,72,CBS_DROPDOWNLIST | 
+                    WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "I don't have Internet connection",
+                    IDC_INTERNET_NO_ACCESS,"Button",BS_AUTORADIOBUTTON,15,55,
+                    115,15
+    CONTROL         "Every time a new PlutoVIP approaches, connect to the Internet and retrieve its information and picture.",
+                    IDC_INTERNET_WHEN,"Button",BS_AUTORADIOBUTTON | 
+                    BS_MULTILINE | WS_GROUP,17,96,318,19
+    CONTROL         "Connect just once a day to download information for new PlutoVIP's",
+                    IDC_RADIO5,"Button",BS_AUTORADIOBUTTON,17,120,230,8
+    CONTROL         "Connect every so many hours",IDC_RADIO6,"Button",
+                    BS_AUTORADIOBUTTON,17,133,116,8
+    CONTROL         "Only connect when I tell you",IDC_RADIO7,"Button",
+                    BS_AUTORADIOBUTTON,17,146,103,8
+    GROUPBOX        "What type of Internet connection do you have?",
+                    IDC_STATIC,7,7,336,71
+    GROUPBOX        "When should we connect to Internet?",IDC_STATIC,7,83,
+                    336,120
+END
+
+IDD_PAGE_PANEL_POSITION DIALOGEX 0, 0, 350, 210
+STYLE DS_SETFONT | WS_CAPTION
+CAPTION "&Panel positions"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    CONTROL         "Always visible",IDC_NEW_APPEARANCE_VISIBLE,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP,68,17,70,15
+    CONTROL         "Auto hide",IDC_NEW_APPEARANCE_AUTOHIDE,"Button",
+                    BS_AUTORADIOBUTTON,146,17,55,15
+    CONTROL         "Invisible",IDC_NEW_APPEARANCE_INVISIBLE,"Button",
+                    BS_AUTORADIOBUTTON,212,17,85,15
+    COMBOBOX        IDC_NEW_CLIENTS_SIDE,49,45,79,59,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_CLIENT_NEW_TIME,255,45,52,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER | NOT WS_BORDER,WS_EX_STATICEDGE
+    COMBOBOX        IDC_ACTIVE_CLIENTS_SIDE,49,113,79,59,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_RECENT_CLIENTS_SIDE,49,177,79,59,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_CLIENT_RECENT_TIME,255,176,52,12,ES_AUTOHSCROLL | 
+                    ES_NUMBER | NOT WS_BORDER,WS_EX_STATICEDGE
+    GROUPBOX        "New Clients",IDC_STATIC,7,7,336,63
+    GROUPBOX        "Active Clients",IDC_STATIC,7,73,336,63
+    GROUPBOX        "Recent Clients",IDC_STATIC,7,139,336,63
+    LTEXT           "Appearance:",IDC_STATIC,18,21,45,10
+    LTEXT           "Side:",IDC_STATIC,19,46,20,10
+    LTEXT           "Minutes a client is new:",IDC_STATIC,163,46,78,10
+    LTEXT           "Appearance:",IDC_STATIC,17,89,45,10
+    LTEXT           "Side:",IDC_STATIC,19,114,20,10
+    LTEXT           "Appearance:",IDC_STATIC,18,153,45,10
+    LTEXT           "Side:",IDC_STATIC,19,178,20,10
+    LTEXT           "Minutes to keep on screen:",IDC_STATIC,163,178,89,10
+    CONTROL         "Always visible",IDC_ACTIVE_APPEARANCE_VISIBLE,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP,63,84,70,15
+    CONTROL         "Auto hide",IDC_ACTIVE_APPEARANCE_AUTOHIDE,"Button",
+                    BS_AUTORADIOBUTTON,141,84,55,15
+    CONTROL         "Invisible",IDC_ACTIVE_APPEARANCE_INVISIBLE,"Button",
+                    BS_AUTORADIOBUTTON,207,84,85,15
+    CONTROL         "Always visible",IDC_RECENT_APPEARANCE_VISIBLE,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP,64,151,70,15
+    CONTROL         "Auto hide",IDC_RECENT_APPEARANCE_AUTOHIDE,"Button",
+                    BS_AUTORADIOBUTTON,142,151,55,15
+    CONTROL         "Invisible",IDC_RECENT_APPEARANCE_INVISIBLE,"Button",
+                    BS_AUTORADIOBUTTON,208,151,85,15
+END
+
+IDD_PAGE_DATABASE DIALOG  0, 0, 349, 210
+STYLE DS_SETFONT | WS_CAPTION
+CAPTION "&Database"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LISTBOX         IDC_INFORMATTION,7,29,154,152,LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Add",IDC_ADD,7,187,49,16
+    PUSHBUTTON      "Rename",IDC_RENAME,59,187,49,16
+    PUSHBUTTON      "Remove",IDC_REMOVE,111,187,49,16
+    CONTROL         "Copy this value to clipboard",IDC_COPY,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,172,7,103,14
+    CONTROL         "Switch to another application",IDC_SWITCH,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,172,22,108,16
+    COMBOBOX        IDC_WHICH_ONE,173,57,169,71,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_WHAT_DO,173,97,169,71,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    LTEXT           "What other pieces of information do you want to track for each of client?",
+                    IDC_STATIC,7,7,154,20
+    LTEXT           "Which one?",IDC_STATIC,173,44,46,10
+    LTEXT           "What should I do with value of ",IDC_STATIC,173,86,98,
+                    10
+END
+
+IDD_PAGE_TERMINALS DIALOGEX 0, 0, 350, 210
+STYLE DS_SETFONT | WS_CAPTION
+CAPTION "Multiple &Terminals"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    CONTROL         "No, this is the only one.",IDC_OTHER_TERMINALS,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP,13,27,89,14
+    CONTROL         "Yes, there are other terminals at this location that need to share the PlutoVIP list.",
+                    IDC_OTHER_TERMINALS2,"Button",BS_AUTORADIOBUTTON | 
+                    WS_TABSTOP,13,47,268,22
+    EDITTEXT        IDC_SERVER,15,91,126,14,ES_AUTOHSCROLL | WS_DISABLED | 
+                    NOT WS_BORDER,WS_EX_STATICEDGE
+    PUSHBUTTON      "&Find",IDC_FIND,150,91,32,15,WS_DISABLED
+    EDITTEXT        IDC_DIRECTORY,15,132,278,15,ES_AUTOHSCROLL | WS_DISABLED | 
+                    NOT WS_BORDER,WS_EX_STATICEDGE
+    PUSHBUTTON      "&Browse",IDC_BROWSE,300,133,32,15,WS_DISABLED
+    GROUPBOX        "Are there other terminals that will also be using this system?",
+                    IDC_STATIC,7,7,336,196
+    LTEXT           "IP address/Name of the server:",IDC_STATIC,15,76,101,11
+    LTEXT           "Path to the shared directory:",IDC_STATIC,15,120,94,10
+    CONTROL         "When one client becomes active on one terminal, make him active on all terminals.",
+                    IDC_CLIENT,"Button",BS_AUTOCHECKBOX | WS_DISABLED | 
+                    WS_TABSTOP,15,166,273,13
+END
+
+IDD_UPDATE DIALOGEX 0, 0, 198, 90
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Update"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    PUSHBUTTON      "Stop",IDCANCEL,74,69,50,14
+    LTEXT           "Downloading the latest PlutoVIP from Internet:",
+                    IDC_STATIC,7,7,184,10
+    CONTROL         "Progress1",IDC_UPDATE_PROGRESS,"msctls_progress32",0x0,
+                    7,25,184,13,WS_EX_STATICEDGE
+    LTEXT           "",IDC_STATUS,7,48,184,13
+END
+
+IDD_RECORD_ERROR DIALOG  0, 0, 211, 92
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
+CAPTION "Error"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,81,71,50,14
+    CONTROL         39,IDC_STATIC,"Static",SS_BITMAP,13,14,33,31
+    LTEXT           "The record for following bluetooth id and MAC address was not found in server:",
+                    IDC_STATIC,60,14,135,20
+    LTEXT           "MAC Address:",IDC_MAC_ADDRESS,60,43,135,12
+END
+
+IDD_ADD_VISIT DIALOGEX 0, 0, 228, 50
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Add Visit"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_VISIT,189,7,32,12,ES_AUTOHSCROLL | NOT WS_BORDER,
+                    WS_EX_STATICEDGE
+    DEFPUSHBUTTON   "&Add",IDOK,60,29,50,14
+    PUSHBUTTON      "&Close",IDCANCEL,118,29,50,14
+    LTEXT           "Please enter the number of visit to be add to customer:",
+                    IDC_STATIC,7,8,175,11
+END
+
+IDD_ADD_PURCHASE DIALOGEX 0, 0, 262, 50
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Purchase"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_PURCHASE,195,7,45,12,ES_AUTOHSCROLL | NOT WS_BORDER,
+                    WS_EX_STATICEDGE
+    DEFPUSHBUTTON   "&Add",IDOK,76,29,50,14
+    PUSHBUTTON      "&Close",IDCANCEL,134,29,50,14
+    LTEXT           "Please enter the amount of money to be add to customer:",
+                    IDC_STATIC,8,8,185,11
+    LTEXT           "$",IDC_STATIC,245,8,10,12
+END
+
+IDD_REDEEM_VISIT DIALOGEX 0, 0, 189, 135
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Redeem Visit"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_VISIT,131,39,41,14,ES_AUTOHSCROLL | NOT WS_BORDER,
+                    WS_EX_STATICEDGE
+    EDITTEXT        IDC_REDEEM_VISIT_DESCRIPTION,7,72,175,36,ES_MULTILINE | 
+                    ES_AUTOHSCROLL | NOT WS_BORDER | WS_VSCROLL,
+                    WS_EX_STATICEDGE
+    DEFPUSHBUTTON   "&Redeem",IDOK,41,114,50,14
+    PUSHBUTTON      "&Close",IDCANCEL,99,114,50,14
+    LTEXT           "Please enter the number of visit to be redeem from customer:",
+                    IDC_STATIC,7,37,122,19
+    LTEXT           "",IDC_REDEEM_VISIT,7,7,175,26
+    LTEXT           "Description:",IDC_STATIC,7,60,44,10
+END
+
+IDD_REDEEM_PURCHASE DIALOGEX 0, 0, 189, 135
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Redeem Purchase"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_PURCHASE,131,39,41,14,ES_AUTOHSCROLL | NOT WS_BORDER,
+                    WS_EX_STATICEDGE
+    EDITTEXT        IDC_REDEEM_PURCHASE_DESCRIPTION,7,72,175,36,ES_MULTILINE | 
+                    ES_AUTOHSCROLL | NOT WS_BORDER | WS_VSCROLL,
+                    WS_EX_STATICEDGE
+    DEFPUSHBUTTON   "&Redeem",IDOK,41,114,50,14
+    PUSHBUTTON      "&Close",IDCANCEL,99,114,50,14
+    LTEXT           "Please enter the amount of money to be redeem from customer:",
+                    IDC_STATIC,7,37,122,19
+    LTEXT           "",IDC_REDEEM_PURCHASE,7,7,175,26
+    LTEXT           "Description:",IDC_STATIC,7,60,44,10
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName", "1Control.com"
+            VALUE "FileDescription", "PlutoVIP"
+            VALUE "FileVersion", "1, 0, 0, 1"
+            VALUE "InternalName", "PlutoVIP"
+            VALUE "LegalCopyright", "Copyright (C) 2004"
+            VALUE "OriginalFilename", "PlutoVIP.exe"
+            VALUE "ProductName", "PlutoVIP Application"
+            VALUE "ProductVersion", "1, 0, 0, 1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_PLUTO_CONTEXT_MENU MENU 
+BEGIN
+    POPUP "_DUMMY_"
+    BEGIN
+        MENUITEM "Always on top",               ID_APPBAR_ALWAYSONTOP
+        , GRAYED
+        MENUITEM "Autohide",                    ID_APPBAR_AUTOHIDE
+    END
+    POPUP "_STATE_"
+    BEGIN
+        MENUITEM "&New",                        ID_CUSTOMER_NEW
+        MENUITEM "&Active",                     ID_CUSTOMER_ACTIVE
+        MENUITEM "&Recent",                     ID_CUSTOMER_RECENT
+    END
+    POPUP "_TASK_"
+    BEGIN
+        MENUITEM "Charge Customer",             ID_TASK_CHARGE_CUSTOMER
+        MENUITEM "Send image",                  ID_TASK_SEND_IMAGE
+        MENUITEM "Task 3",                      ID_TASK_TASK3
+        MENUITEM "Task 4",                      ID_TASK_TASK4
+    END
+    POPUP "_ACTION_"
+    BEGIN
+        MENUITEM "Add Visit",                   ID_ACTION_ADDVISIT
+        MENUITEM "Add Purchase",                ID_ACTION_ADDPURCHASE
+        MENUITEM SEPARATOR
+        MENUITEM "Redeem Visit",                ID_ACTION_REDEEMVISIT
+        MENUITEM "Redeem Purchase",             ID_ACTION_REDEEMPURCHASE
+    END
+END
+
+IDR_POPUP_TRAY_ICON MENU 
+BEGIN
+    POPUP "_tray_"
+    BEGIN
+        MENUITEM "Restore",                     ID_TRAY_RESTORE
+        MENUITEM "About...",                    ID_TRAY_ABOUT
+        MENUITEM "Preferences...",              ID_TRAY_PREFERENCES
+        MENUITEM SEPARATOR
+        MENUITEM "Exit",                        ID_TRAY_EXIT
+    END
+END
+
+IDR_MAIN_MENU MENU 
+BEGIN
+    POPUP "&Main"
+    BEGIN
+        MENUITEM "Minimize to tray",            ID_MAIN_MINIMIZED
+        MENUITEM SEPARATOR
+        MENUITEM "&Preferences...",             ID_MAIN_PREFERENCES
+        MENUITEM "E&xit",                       ID_MAIN_EXIT
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&Contents",                   ID_HELP_CONTENTS
+        MENUITEM SEPARATOR
+        POPUP "&PlutoVIP on the Web"
+        BEGIN
+            MENUITEM "Free &Stuff",                 ID_HELP_PLUTOVIPONTHEWEB_FREESTUFF
+
+            MENUITEM "&Product News",               ID_HELP_PLUTOVIPONTHEWEB_PRODUCTNEWS
+
+            MENUITEM "&Frequently Asked Question",  ID_HELP_PLUTOVIPONTHEWEB_FREQUENTLYASKEDQUESTION
+
+            MENUITEM "&Online Support",             ID_HELP_PLUTOVIPONTHEWEB_ONLINESUPPORT
+
+            MENUITEM SEPARATOR
+            MENUITEM "PlutoVIP &Homepage",          ID_HELP_PLUTOVIPONTHEWEB_PLUTOVIPHOMEPAGE
+
+        END
+        MENUITEM "&Tip of the Day...",          ID_HELP_TIPOFTHEDAY
+        MENUITEM SEPARATOR
+        MENUITEM "Check for update version",    ID_HELP_CHECK_UPDATE
+        MENUITEM "&About...",                   ID_HELP_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 210
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 91
+    END
+
+    IDD_PLUTOVIP_MAIN_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 178
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 107
+    END
+
+    IDD_PAGE_INTRODUCTION, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 343
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 203
+    END
+
+    IDD_PAGE_INTERNET, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 343
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 203
+    END
+
+    IDD_PAGE_PANEL_POSITION, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 343
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 203
+    END
+
+    IDD_PAGE_DATABASE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 342
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 203
+    END
+
+    IDD_PAGE_TERMINALS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 343
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 203
+    END
+
+    IDD_UPDATE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 191
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 83
+    END
+
+    IDD_RECORD_ERROR, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 204
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 85
+    END
+
+    IDD_ADD_VISIT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 221
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 43
+    END
+
+    IDD_ADD_PURCHASE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 255
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 43
+    END
+
+    IDD_REDEEM_VISIT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 182
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 128
+    END
+
+    IDD_REDEEM_PURCHASE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 182
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 128
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_PAGE_PANEL_POSITION DLGINIT
+BEGIN
+    IDC_NEW_CLIENTS_SIDE, 0x403, 5, 0
+0x654c, 0x7466, "\000" 
+    IDC_NEW_CLIENTS_SIDE, 0x403, 4, 0
+0x6f54, 0x0070, 
+    IDC_NEW_CLIENTS_SIDE, 0x403, 6, 0
+0x6952, 0x6867, 0x0074, 
+    IDC_NEW_CLIENTS_SIDE, 0x403, 7, 0
+0x6f42, 0x7474, 0x6d6f, "\000" 
+    IDC_ACTIVE_CLIENTS_SIDE, 0x403, 5, 0
+0x654c, 0x7466, "\000" 
+    IDC_ACTIVE_CLIENTS_SIDE, 0x403, 4, 0
+0x6f54, 0x0070, 
+    IDC_ACTIVE_CLIENTS_SIDE, 0x403, 6, 0
+0x6952, 0x6867, 0x0074, 
+    IDC_ACTIVE_CLIENTS_SIDE, 0x403, 7, 0
+0x6f42, 0x7474, 0x6d6f, "\000" 
+    IDC_RECENT_CLIENTS_SIDE, 0x403, 5, 0
+0x654c, 0x7466, "\000" 
+    IDC_RECENT_CLIENTS_SIDE, 0x403, 4, 0
+0x6f54, 0x0070, 
+    IDC_RECENT_CLIENTS_SIDE, 0x403, 6, 0
+0x6952, 0x6867, 0x0074, 
+    IDC_RECENT_CLIENTS_SIDE, 0x403, 7, 0
+0x6f42, 0x7474, 0x6d6f, "\000" 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_DUMMY_BITMAP        BITMAP                  "res\\bitmap1.bmp"
+IDB_CUSTOMER            BITMAP                  "res\\customer.bmp"
+IDB_STATE               BITMAP                  "res\\State.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDS_ABOUTBOX            "&About PlutoVIP..."
+    IDS_ZERO_DIMENSION      "Specify the size of the client area please!\r\n"
+    IDS_ERROR_AUTOHIDE      "ERROR: Error trying to set autohidebar.\r\n"
+    IDS_ERROR_NOT_HIDDEN    "ERROR: We're not hidden currently\r\n"
+    IDS_ERROR_SET_AUTOHIDE  "ERROR: Error trying to set autohidebar.\r\n"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Farsi resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_FAR)
+#ifdef _WIN32
+LANGUAGE LANG_FARSI, SUBLANG_DEFAULT
+#pragma code_page(1256)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME_16X16_TRUE ICON                    "res\\16x16_truecolors.ico"
+IDR_MAINFRAME_32X32_TRUE ICON                    "res\\32x32_truecolors.ico"
+IDR_MAINFRAME_48X48_TRUE ICON                    "res\\48x48_truecolors.ico"
+IDR_MAINFRAME_48X48     ICON                    "res\\48x48_256colors.ico"
+#endif    // Farsi resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif
+#include "res\TaskBar.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#endif
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

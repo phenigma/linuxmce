@@ -1,0 +1,50 @@
+ROOT = ..
+CXXFLAGS = -Wall -ggdb3 -DAUDIDEMO -fmessage-length=0
+CPPFLAGS = -I$(ROOT)/ -I$(ROOT)/DCE -I/usr/include/mysql -D_REENTRANT -DXLL_DEBUG_FILE -D_GNU_SOURCE -DxUSE_THREAD_COUNT -DxTHREAD_LOG -DDEBUG -DUSE_LZO_DATAGRID
+LDFLAGS = -L$(ROOT)/lib 
+LDLIBS = -lpthread -lmysqlclient_r -lattr -lDCECommon -lSerializeClass -lPlutoUtils -lpluto_main -lFakeEPG
+
+APPNAME=DCERouter
+VERSION=2.0.0
+
+sources = CriteriaList.cpp CriteriaNesting.cpp \
+		DatabaseSchema.cpp \
+		EventHandler_CriteriaList.cpp\
+		Main.cpp DCERouter.cpp DCERouter_CreatePluginHardCoded_Impl.cpp
+
+
+sources += ../Gen_Devices/Media_PluginBase.cpp ../Media_Plugin/Media_Plugin.cpp ../Media_Plugin/MediaPluginInfo.cpp 
+sources += ../Gen_Devices/Datagrid_PluginBase.cpp ../Datagrid_Plugin/Datagrid_Plugin.cpp 
+sources += ../Gen_Devices/MythTV_PlugInBase.cpp  ../MythTV_PlugIn/MythTV_PlugIn.cpp
+sources += ../Gen_Devices/Xine_PluginBase.cpp ../Xine_Plugin/Xine_Plugin.cpp
+sources += ../Gen_Devices/Telecom_PluginBase.cpp ../Telecom_Plugin/Telecom_Plugin.cpp
+sources += ../Gen_Devices/Security_PluginBase.cpp ../Security_Plugin/Security_Plugin.cpp
+sources += ../Gen_Devices/Climate_PluginBase.cpp ../Climate_Plugin/Climate_Plugin.cpp
+sources += ../Gen_Devices/Lighting_PluginBase.cpp ../Lighting_Plugin/Lighting_Plugin.cpp
+sources += ../Gen_Devices/Mozilla_PluginBase.cpp ../Mozilla_Plugin/Mozilla_Plugin.cpp
+sources += ../Gen_Devices/General_Info_PluginBase.cpp ../General_Info_Plugin/General_Info_Plugin.cpp
+sources += ../Gen_Devices/Orbiter_PluginBase.cpp ../Orbiter_Plugin/Orbiter_Plugin.cpp
+sources += ../Gen_Devices/Media_Grids_PluginBase.cpp ../Media_Grids_Plugin/Media_Grids_Plugin.cpp
+sources += ../Gen_Devices/File_Grids_PluginBase.cpp ../File_Grids_Plugin/File_Grids_Plugin.cpp ../File_Grids_Plugin/FileListOps.cpp
+
+
+
+
+
+
+
+
+all: DCERouter
+
+DCERouter: $(sources:.cpp=.o)
+	$(CXX) -o $@ $+  $(LDFLAGS) $(LDLIBS)
+	cp $@ $(ROOT)/bin
+
+clean: clean-recursive
+	rm -f $(sources:.cpp=.o) $(sources:.cpp=.d) PlutoServer >/dev/null
+
+package:
+	./make_package.sh $(APPNAME) $(VERSION)
+
+include $(ROOT)/DCE/make.rules
+-include $(sources:.cpp=.d)

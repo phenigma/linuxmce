@@ -1,0 +1,23 @@
+#ifndef __Define_Installation_Users_H__
+#define __Define_Installation_Users_H__
+
+
+#define INSTALLATION_USERS_TABLE "Installation_Users"
+#define INSTALLATION_USERS_FK_INSTALLATION_FIELD "FK_Installation"
+#define INSTALLATION_USERS_FK_INSTALLATION_TABLE_FIELD "Installation_Users.FK_Installation"
+#define INSTALLATION_USERS_FK_USERS_FIELD "FK_Users"
+#define INSTALLATION_USERS_FK_USERS_TABLE_FIELD "Installation_Users.FK_Users"
+#define INSTALLATION_USERS_USERCANMODIFYINSTALLATION_FIELD "userCanModifyInstallation"
+#define INSTALLATION_USERS_USERCANMODIFYINSTALLATION_TABLE_FIELD "Installation_Users.userCanModifyInstallation"
+#define INSTALLATION_USERS_MODIFICATION_RECORDINFO_FIELD "Modification_RecordInfo"
+#define INSTALLATION_USERS_MODIFICATION_RECORDINFO_TABLE_FIELD "Installation_Users.Modification_RecordInfo"
+#define INSTALLATION_USERS_ISNEW_RECORDINFO_FIELD "IsNew_RecordInfo"
+#define INSTALLATION_USERS_ISNEW_RECORDINFO_TABLE_FIELD "Installation_Users.IsNew_RecordInfo"
+#define INSTALLATION_USERS_ISDELETED_RECORDINFO_FIELD "IsDeleted_RecordInfo"
+#define INSTALLATION_USERS_ISDELETED_RECORDINFO_TABLE_FIELD "Installation_Users.IsDeleted_RecordInfo"
+#define INSTALLATION_USERS_FK_USERS_RECORDINFO_FIELD "FK_Users_RecordInfo"
+#define INSTALLATION_USERS_FK_USERS_RECORDINFO_TABLE_FIELD "Installation_Users.FK_Users_RecordInfo"
+
+
+#endif
+

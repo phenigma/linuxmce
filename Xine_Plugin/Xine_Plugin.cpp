@@ -1,0 +1,406 @@
+//<-dceag-d-b->
+#include "Xine_Plugin.h"
+#include "DCE/Logger.h"
+#include "PlutoUtils/FileUtils.h"
+#include "PlutoUtils/FileUtils.h"
+#include "PlutoUtils/StringUtils.h"
+#include "PlutoUtils/Other.h"
+#include "PlutoUtils/Other.h"
+
+#include <iostream>
+using namespace std;
+using namespace DCE;
+
+#include "Gen_Devices/AllCommandsRequests.h"
+//<-dceag-d-e->
+#include "Orbiter_Plugin/Orbiter_Plugin.h"
+#include "pluto_main/Define_MediaType.h"
+#include "pluto_main/Define_DeviceCategory.h"
+#include "pluto_main/Define_Event.h"
+#include "pluto_main/Define_EventParameter.h"
+#include "pluto_main/Define_DesignObj.h"
+#include "pluto_main/Define_Variable.h"
+
+
+//<-dceag-const-b->
+Xine_Plugin::Xine_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
+	: Xine_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
+//<-dceag-const-e->
+{
+}
+
+//<-dceag-dest-b->
+Xine_Plugin::~Xine_Plugin()
+//<-dceag-dest-e->
+{
+}
+
+//<-dceag-reg-b->
+// This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in.  Otherwise Connect() will be called from the main()
+bool Xine_Plugin::Register()
+//<-dceag-reg-e->
+{
+    m_pMedia_Plugin=NULL;
+    ListCommand_Impl *pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find(DEVICETEMPLATE_Media_Plugin_CONST);
+    if( !pListCommand_Impl || pListCommand_Impl->size()!=1 )
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL,"Xine plug in cannot find media handler %s",(pListCommand_Impl ? "There were more than 1" : ""));
+        return false;
+    }
+
+    m_pMedia_Plugin=(Media_Plugin *) pListCommand_Impl->front();
+
+    m_pMedia_Plugin->RegisterMediaPlugin(this,this,DEVICETEMPLATE_Xine_Player_CONST,true);
+
+    m_pRouter->RegisterInterceptor(
+        new MessageInterceptorCallBack(this,(MessageInterceptorFn)(&Xine_Plugin::MenuOnScreen))
+        ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_Menu_Onscreen_CONST);
+
+    /*
+    // The constructor for this class registers itself, so we don't worry about deleting it or doing anything with it
+
+    // We can play cd's, both discs and stored media
+    MediaPluginInfo *pMediaPluginInfo = new MediaPluginInfo(this,MEDIATYPE_pluto_CD_CONST,DEVICETEMPLATE_Xine_Player_CONST,canjumptrue,usesdcetrue);
+
+    // We can play dvd's, both discs and stored media
+    pMediaPluginInfo = new MediaPluginInfo(this,MEDIATYPE_pluto_DVD_CONST,DEVICETEMPLATE_Xine_Player_CONST,true,true);
+
+    // We can play stored audio and video of all types
+    pMediaPluginInfo = new MediaPluginInfo(this,MEDIATYPE_pluto_StoredAudio_CONST,DEVICETEMPLATE_Xine_Player_CONST,true,true);
+    pMediaPluginInfo = new MediaPluginInfo(this,MEDIATYPE_pluto_StoredAudio_CONST,DEVICETEMPLATE_Xine_Player_CONST,true,true);
+*/
+    // todo list<int> m_PK_Broadcast_Send;  // What broadcast formats it supports to send
+    // todo list<int> m_PK_Broadcast_Receive;   // What broadcast formats it supports to receive
+
+    return Connect();
+}
+
+bool Xine_Plugin::MenuOnScreen(class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo)
+{
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+    // Confirm this is from one of ours
+    if( !pDeviceFrom || pDeviceFrom->m_iPK_DeviceTemplate!=DEVICETEMPLATE_Xine_Player_CONST )
+        return false; // Some other media player.  We only know xine's menu handling
+
+    int StreamID = atoi(pMessage->m_Parameters[EVENTPARAMETER_Stream_ID_CONST].c_str());
+    bool bOnOff = pMessage->m_Parameters[EVENTPARAMETER_OnOff_CONST]=="1";
+
+    // Find the stream
+    MediaStream *pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find(StreamID);
+    if( !pMediaStream )
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL,"DVD Menu appeared for stream %d, but I can't find it", StreamID);
+        return false; // Maybe somebody else knows what to do with it
+    }
+
+    string sOnScreenOrbiters="",sOtherOrbiters="";
+    map<int,OH_Orbiter *> mapOH_Orbiter; // Use a map so we don't have duplicates
+
+g_pPlutoLogger->Write(LV_STATUS,"Mediastream %p on menu id: %d type %d",pMediaStream,pMediaStream->m_iStreamID_get(),pMediaStream->m_iPK_MediaType);
+g_pPlutoLogger->Write(LV_STATUS,"Mediastream  mapea size %d",pMediaStream->m_mapEntertainArea.size());
+    // We're going to send a message to all the orbiters that are bound to remotes in any of the entertainment areas
+    for(MapEntertainArea::iterator itEA = pMediaStream->m_mapEntertainArea.begin();itEA != pMediaStream->m_mapEntertainArea.end();++itEA)
+    {
+        EntertainArea *pEntertainArea = (*itEA).second;
+g_pPlutoLogger->Write(LV_STATUS,"Mediastream  ea %p %d",pEntertainArea,pEntertainArea->m_iPK_EntertainArea);
+        for(MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin();itBR!=pEntertainArea->m_mapBoundRemote.end();++itBR)
+        {
+            BoundRemote *pBoundRemote = (*itBR).second;
+            mapOH_Orbiter[pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_iPK_Device] = pBoundRemote->m_pOH_Orbiter;
+        }
+    }
+
+    for( map<int,OH_Orbiter *>::iterator itOH=mapOH_Orbiter.begin();itOH!=mapOH_Orbiter.end();++itOH )
+    {
+        OH_Orbiter *pOH_Orbiter = (*itOH).second;
+        if( pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia && pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->m_iPK_DeviceCategory==DEVICECATEGORY_Media_Director_CONST )
+            sOnScreenOrbiters += StringUtils::itos(pOH_Orbiter->m_pDeviceData_Router->m_iPK_Device) + ",";
+        else
+            sOtherOrbiters += StringUtils::itos(pOH_Orbiter->m_pDeviceData_Router->m_iPK_Device) + ",";
+    }
+
+    if( sOnScreenOrbiters.size()==0 && sOtherOrbiters.size()==0 )
+    {
+        g_pPlutoLogger->Write(LV_WARNING,"Got a menu goto, but there are no related orbiters");
+        return false;
+    }
+
+    if( bOnOff )
+    {
+        if( sOtherOrbiters.size() )
+        {
+            // Send all the orbiters to the dvd menu
+            DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL(m_DeviceID,sOtherOrbiters,0,StringUtils::itos(DESIGNOBJ_dvd_menu_CONST),"","",false);
+            DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL(m_DeviceID,sOtherOrbiters,VARIABLE_PK_Device_CONST,StringUtils::itos(pMessage->m_DeviceIDFrom));
+
+            CMD_Set_Variable_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Goto_Screen_DL.m_pMessage );
+            QueueMessage(CMD_Set_Variable_DL.m_pMessage);
+        }
+        if( sOnScreenOrbiters.size() )
+        {
+            // If it's an on-screen orbiter, just send it to the full screen menu
+            DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL(m_DeviceID,sOnScreenOrbiters,0,StringUtils::itos(DESIGNOBJ_full_screen_CONST),"","",false);
+            SendCommand(CMD_Goto_Screen_DL);
+        }
+    }
+    else if( sOtherOrbiters.size() )
+    {
+        DCE::CMD_Go_back_DL CMD_Go_back_DL(m_DeviceID,sOtherOrbiters,StringUtils::itos(DESIGNOBJ_dvd_menu_CONST),"");
+        SendCommand(CMD_Go_back_DL);
+    }
+    return true;
+}
+
+class MediaStream *Xine_Plugin::CreateMediaStream(class MediaPluginInfo *pMediaPluginInfo,int PK_Device_Source,string Filename,int StreamID)
+{
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+    MediaStream *pMediaStream = new MediaStream(pMediaPluginInfo, pMediaPluginInfo->m_iPK_DesignObj, 0, st_RemovableMedia,StreamID);  // hack hack hack
+
+    if( !PK_Device_Source && pMediaPluginInfo->m_listMediaDevice.size() )
+    {
+        MediaDevice *pMediaDevice = pMediaPluginInfo->m_listMediaDevice.front();
+        PK_Device_Source=pMediaDevice->m_pDeviceData_Router->m_iPK_Device;
+    }
+    DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(PK_Device_Source);
+
+    bool bFoundDevice=false;
+    if( pDeviceData_Router->m_iPK_DeviceTemplate==DEVICETEMPLATE_Xine_Player_CONST )
+    {
+        pMediaStream->m_iPK_Device = PK_Device_Source;
+        bFoundDevice=true;
+    }
+    else if( pDeviceData_Router->m_iPK_DeviceCategory==DEVICECATEGORY_Disc_Drives_CONST )
+    {
+        // hack, find xine until we decide on a better solution -- todo
+        DeviceData_Router *pDeviceData_Router_MediaDirector = (DeviceData_Router *) pDeviceData_Router->m_pDevice_ControlledVia;
+        if( pDeviceData_Router_MediaDirector )
+        {
+            for(size_t s=0;s<pDeviceData_Router_MediaDirector->m_vectDeviceData_Impl_Children.size();++s)
+            {
+                DeviceData_Router *pDeviceData_Router_Xine = (DeviceData_Router *) pDeviceData_Router_MediaDirector->m_vectDeviceData_Impl_Children[s];
+                if( pDeviceData_Router_Xine->m_iPK_DeviceTemplate==DEVICETEMPLATE_Xine_Player_CONST )
+                {
+                    pMediaStream->m_iPK_Device = pDeviceData_Router_Xine->m_iPK_Device;
+                    bFoundDevice=true;
+                    break;
+                }
+            }
+        }
+    }
+    else
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL,"The device that sent the xine plug in the start has an unrecognized type: %d",pDeviceData_Router->m_iPK_DeviceCategory);
+        pMediaStream->m_iPK_Device=0;
+    }
+
+    if( !bFoundDevice )
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL,"Couldn't find xine player for create media stream");
+    }
+
+    return pMediaStream;
+}
+bool Xine_Plugin::StartMedia(class MediaStream *pMediaStream)
+{
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+    g_pPlutoLogger->Write(LV_STATUS, "Starting media stream playback--sending command, waiting for response");
+
+	g_pPlutoLogger->Write(LV_CRITICAL, "Media type %d %s", pMediaStream->m_iPK_MediaType, pMediaStream->m_dequeFilename.size() ? pMediaStream->m_dequeFilename.front().c_str() : "empty files");
+
+    string mediaURL;
+    string Response;
+
+    if ( pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST )
+    {
+        pMediaStream->m_sMediaDescription = "Media Desc";
+
+		DCE::CMD_Mount_Disk_Image mountCommand(pMediaStream->m_iPK_Device, 18, pMediaStream->m_dequeFilename.size() ? pMediaStream->m_dequeFilename.front() : "", &mediaURL);// HACK: This should be changed to a lookup code
+
+        if ( !SendCommand(mountCommand, 1, &Response))
+        {
+            g_pPlutoLogger->Write(LV_CRITICAL, "Failed to receive response from the disk drive device!. Response was: \"%s\"!", Response.c_str());
+            return false;
+        }
+
+        g_pPlutoLogger->Write(LV_CRITICAL, "Media device %d got back URL: %s", pMediaStream->m_iPK_Device,mediaURL.c_str());
+    }
+    else
+    {
+		pMediaStream->m_sMediaDescription = pMediaStream->m_dequeFilename.size() ? FileUtils::FilenameWithoutPath(pMediaStream->m_dequeFilename.front()) : "-unnamed-";  // HACK -- todo get a real description
+        mediaURL = pMediaStream->m_dequeFilename.size() ? pMediaStream->m_dequeFilename.front() : "-no name-";  // HACK -- todo get a real description
+    }
+
+    DCE::CMD_Play_Media cmd(m_DeviceID,
+                pMediaStream->m_iPK_Device,
+                mediaURL,
+                pMediaStream->m_iPK_MediaType,
+                pMediaStream->m_iStreamID_get(),
+                0);
+
+    m_pMedia_Plugin->MediaInfoChanged(pMediaStream);
+
+    if( !SendCommand(cmd, 1, &Response) )
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL,"Xine player didn't respond to play media command!");
+        // handle failure
+#pragma warning("Ignore this for now")
+        return true;
+        return false;
+    }
+    g_pPlutoLogger->Write(LV_STATUS,"Xine player responded to play media command!");
+    return true;
+}
+
+bool Xine_Plugin::StopMedia(class MediaStream *pMediaStream)
+{
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+    g_pPlutoLogger->Write(LV_STATUS, "Stopping media stream playback--sending command, waiting for response");
+
+    DCE::CMD_Stop_Media cmd(m_DeviceID,
+                pMediaStream->m_iPK_Device,
+                pMediaStream->m_iStreamID_get());
+    string Response;
+    if( !SendCommand(cmd, 1, &Response) )
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL,"Xine player didn't respond to stop media command!");
+        // handle failure
+#pragma warning("Ignore this for now")
+        return true;
+        return false;
+    }
+    g_pPlutoLogger->Write(LV_STATUS,"Xine player responded to stop media command!");
+    return true;
+}
+
+bool Xine_Plugin::BroadcastMedia(class MediaStream *pMediaStream)
+{
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+    return true;
+}
+
+
+/*
+
+    COMMANDS TO IMPLEMENT
+
+*/
+
+
+//<-dceag-c36-b->
+/* 
+	COMMAND: #36 - Create Media
+	COMMENTS: Create a media stream descriptor.
+	PARAMETERS:
+		#13 Filename
+			The filename of the media stream.
+		#41 StreamID
+			The media descriptor which will be associated with the current media.
+*/
+void Xine_Plugin::CMD_Create_Media(string sFilename,int iStreamID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c36-e->
+{
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+}
+
+//<-dceag-c37-b->
+/* 
+	COMMAND: #37 - Play Media
+	COMMENTS: Play a media stream descriptor.
+	PARAMETERS:
+		#13 Filename
+			The file to play.  The format is specific on the media type and the media player.
+		#29 PK_MediaType
+			The type of media
+		#41 StreamID
+			The media that we need to play.
+		#42 MediaPosition
+			The position at which we need to start playing.
+*/
+void Xine_Plugin::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,Message *pMessage)
+//<-dceag-c37-e->
+{
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+}
+
+//<-dceag-c38-b->
+/* 
+	COMMAND: #38 - Stop Media
+	COMMENTS: Stop playing a media stream descriptor.
+	PARAMETERS:
+		#41 StreamID
+			The media needing to be stopped.
+*/
+void Xine_Plugin::CMD_Stop_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c38-e->
+{
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+}
+
+//<-dceag-c39-b->
+/* 
+	COMMAND: #39 - Pause Media
+	COMMENTS: Pause a media playback.
+	PARAMETERS:
+		#41 StreamID
+			The media stream for which we need to pause playback.
+*/
+void Xine_Plugin::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c39-e->
+{
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+    Message *pNewMessage = new Message(pMessage);
+    pNewMessage->m_DeviceIDTo = 6; // hack this in.  need to lookup streams
+    QueueMessage(pNewMessage);
+}
+//<-dceag-c40-b->
+/* 
+	COMMAND: #40 - Restart Media
+	COMMENTS: Restart a media playback.
+	PARAMETERS:
+		#41 StreamID
+			The media stream that we need to restart playback for.
+*/
+void Xine_Plugin::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c40-e->
+{
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+}
+
+//<-dceag-c41-b->
+/* 
+	COMMAND: #41 - Change Playback Speed
+	COMMENTS: Change the playback speed of a media stream.
+	PARAMETERS:
+		#41 StreamID
+			The media needing the playback speed change.
+		#43 MediaPlaybackSpeed
+			The requested media playback speed. This is a multiplier of the normal speed. (If we want 2x playback this parameter will be 2 if we want half of normal speed then the parameter will be 0.5). The formula is NextSpeed = MediaPlaybackSpeed * NormalPlaybackS
+*/
+void Xine_Plugin::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string &sCMD_Result,Message *pMessage)
+//<-dceag-c41-e->
+{
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+    Message *pNewMessage = new Message(pMessage);
+    pNewMessage->m_DeviceIDTo = 6; // hack this in.  need to lookup streams
+    QueueMessage(pNewMessage);
+}
+
+//<-dceag-c65-b->
+/* 
+	COMMAND: #65 - Jump Position In Playlist
+	COMMENTS: Jumps to a position within some media, such as songs in a playlist, tracks on a cd, etc.  It will assume the sender is an orbiter, and find the entertainment area and stream associated with it.  The track can be an absolute or relative position.
+	PARAMETERS:
+		#5 Value To Assign
+			The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1.
+*/
+void Xine_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+//<-dceag-c65-e->
+{
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+    Message *pNewMessage = new Message(pMessage);
+    pNewMessage->m_DeviceIDTo = 6; // hack this in.  need to lookup streams
+    QueueMessage(pNewMessage);
+}
+
+//<-dceag-sample-b->! no sample
+

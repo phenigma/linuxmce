@@ -1,0 +1,27 @@
+#include "Xine_PlayerBase.h"
+#include "DeviceData_Impl.h"
+#include "Logger.h"
+
+using namespace DCE;
+DeviceData_Impl *Xine_Player_Data::CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition)
+{
+	// Peek ahead in the stream.  We're going to pass in the above pointers anyway so it won't affect the position
+	SerializeClass b;
+	b.ResumeReadWrite(pDataBlock,AllocatedSize,CurrentPosition);
+	int iPK_Device = b.Read_unsigned_long();
+	int iPK_Installation = b.Read_unsigned_long();
+	int iPK_DeviceTemplate = b.Read_unsigned_long();
+	g_pPlutoLogger->Write(LV_CRITICAL, "Got CreateData for unknown type %d.", iPK_DeviceTemplate);
+	return NULL;
+}
+
+Event_Impl *Xine_Player_Event::CreateEvent(int PK_DeviceTemplate, ClientSocket *pOCClientSocket, int DeviceID)
+{
+	g_pPlutoLogger->Write(LV_CRITICAL, "Got CreateEvent for unknown type %d.", PK_DeviceTemplate);
+	return NULL;
+}
+Command_Impl  *Xine_Player_Command::CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent)
+{
+	g_pPlutoLogger->Write(LV_CRITICAL, "Got CreateCommand for unknown type %d.", PK_DeviceTemplate);
+	return NULL;
+}

@@ -1,0 +1,992 @@
+// If using the thread logger, these generated classes create lots of activity
+#ifdef NO_SQL_THREAD_LOG
+#undef THREAD_LOG
+#endif
+
+#ifdef WIN32
+#include <winsock.h>
+#endif
+
+#include <iostream>
+#include <string>
+#include <vector>
+#include <map>
+#include <list>
+
+#include <mysql.h>
+
+using namespace std;
+#include "PlutoUtils/StringUtils.h"
+#include "Table_DeviceTemplate_DeviceData.h"
+#include "Table_DeviceTemplate.h"
+#include "Table_DeviceData.h"
+
+
+
+void Database_pluto_main::CreateTable_DeviceTemplate_DeviceData()
+{
+	tblDeviceTemplate_DeviceData = new Table_DeviceTemplate_DeviceData(this);
+}
+
+void Database_pluto_main::DeleteTable_DeviceTemplate_DeviceData()
+{
+	delete tblDeviceTemplate_DeviceData;
+}
+
+Table_DeviceTemplate_DeviceData::~Table_DeviceTemplate_DeviceData()
+{
+	map<Table_DeviceTemplate_DeviceData::Key, class Row_DeviceTemplate_DeviceData*, Table_DeviceTemplate_DeviceData::Key_Less>::iterator it;
+	for(it=cachedRows.begin();it!=cachedRows.end();++it)
+	{
+		delete (*it).second;
+	}
+
+	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
+	{
+		delete (*it).second;
+	}
+
+	size_t i;
+	for(i=0;i<addedRows.size();++i)
+		delete addedRows[i];
+	for(i=0;i<deleted_addedRows.size();++i)
+		delete deleted_addedRows[i];
+}
+
+
+void Row_DeviceTemplate_DeviceData::Delete()
+{
+	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	
+	if (!is_deleted)
+		if (is_added)	
+		{	
+			vector<Row_DeviceTemplate_DeviceData*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			
+			if (i!=	table->addedRows.end())
+				table->addedRows.erase(i);
+		
+			table->deleted_addedRows.push_back(this);
+			is_deleted = true;	
+		}
+		else
+		{
+			Table_DeviceTemplate_DeviceData::Key key(this);					
+			map<Table_DeviceTemplate_DeviceData::Key, Row_DeviceTemplate_DeviceData*, Table_DeviceTemplate_DeviceData::Key_Less>::iterator i = table->cachedRows.find(key);
+			if (i!=table->cachedRows.end())
+				table->cachedRows.erase(i);
+						
+			table->deleted_cachedRows[key] = this;
+			is_deleted = true;	
+		}	
+}
+
+void Row_DeviceTemplate_DeviceData::Reload()
+{
+	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	
+	
+	if (!is_added)
+	{
+		Table_DeviceTemplate_DeviceData::Key key(this);		
+		Row_DeviceTemplate_DeviceData *pRow = table->FetchRow(key);
+		
+		if (pRow!=NULL)
+		{
+			*this = *pRow;	
+			
+			delete pRow;		
+		}	
+	}	
+	
+}
+
+Row_DeviceTemplate_DeviceData::Row_DeviceTemplate_DeviceData(Table_DeviceTemplate_DeviceData *pTable):table(pTable)
+{
+	SetDefaultValues();
+}
+
+void Row_DeviceTemplate_DeviceData::SetDefaultValues()
+{
+	m_FK_DeviceTemplate = 0;
+is_null[0] = false;
+m_FK_DeviceData = 0;
+is_null[1] = false;
+is_null[2] = true;
+is_null[3] = true;
+is_null[4] = true;
+m_SetByDevice = 0;
+is_null[5] = false;
+is_null[6] = true;
+m_UseDeviceTemplateDefault = 0;
+is_null[7] = false;
+m_Modification_RecordInfo = "00000000000000";
+is_null[8] = false;
+m_IsNew_RecordInfo = 1;
+is_null[9] = false;
+m_IsDeleted_RecordInfo = 0;
+is_null[10] = false;
+is_null[11] = true;
+
+
+	is_added=false;
+	is_deleted=false;
+	is_modified=false;
+}
+
+long int Row_DeviceTemplate_DeviceData::FK_DeviceTemplate_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FK_DeviceTemplate;}
+long int Row_DeviceTemplate_DeviceData::FK_DeviceData_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FK_DeviceData;}
+string Row_DeviceTemplate_DeviceData::DefaultValue_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_DefaultValue;}
+short int Row_DeviceTemplate_DeviceData::Required_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Required;}
+short int Row_DeviceTemplate_DeviceData::AllowedToModify_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_AllowedToModify;}
+short int Row_DeviceTemplate_DeviceData::SetByDevice_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_SetByDevice;}
+string Row_DeviceTemplate_DeviceData::Description_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Description;}
+short int Row_DeviceTemplate_DeviceData::UseDeviceTemplateDefault_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_UseDeviceTemplateDefault;}
+string Row_DeviceTemplate_DeviceData::Modification_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Modification_RecordInfo;}
+short int Row_DeviceTemplate_DeviceData::IsNew_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_IsNew_RecordInfo;}
+short int Row_DeviceTemplate_DeviceData::IsDeleted_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_IsDeleted_RecordInfo;}
+long int Row_DeviceTemplate_DeviceData::FK_Users_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FK_Users_RecordInfo;}
+
+		
+void Row_DeviceTemplate_DeviceData::FK_DeviceTemplate_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_DeviceTemplate = val; is_modified=true; is_null[0]=false;}
+void Row_DeviceTemplate_DeviceData::FK_DeviceData_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_DeviceData = val; is_modified=true; is_null[1]=false;}
+void Row_DeviceTemplate_DeviceData::DefaultValue_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_DefaultValue = val; is_modified=true; is_null[2]=false;}
+void Row_DeviceTemplate_DeviceData::Required_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Required = val; is_modified=true; is_null[3]=false;}
+void Row_DeviceTemplate_DeviceData::AllowedToModify_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_AllowedToModify = val; is_modified=true; is_null[4]=false;}
+void Row_DeviceTemplate_DeviceData::SetByDevice_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_SetByDevice = val; is_modified=true; is_null[5]=false;}
+void Row_DeviceTemplate_DeviceData::Description_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Description = val; is_modified=true; is_null[6]=false;}
+void Row_DeviceTemplate_DeviceData::UseDeviceTemplateDefault_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_UseDeviceTemplateDefault = val; is_modified=true; is_null[7]=false;}
+void Row_DeviceTemplate_DeviceData::Modification_RecordInfo_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Modification_RecordInfo = val; is_modified=true; is_null[8]=false;}
+void Row_DeviceTemplate_DeviceData::IsNew_RecordInfo_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_IsNew_RecordInfo = val; is_modified=true; is_null[9]=false;}
+void Row_DeviceTemplate_DeviceData::IsDeleted_RecordInfo_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_IsDeleted_RecordInfo = val; is_modified=true; is_null[10]=false;}
+void Row_DeviceTemplate_DeviceData::FK_Users_RecordInfo_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_Users_RecordInfo = val; is_modified=true; is_null[11]=false;}
+
+		
+bool Row_DeviceTemplate_DeviceData::DefaultValue_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[2];}
+bool Row_DeviceTemplate_DeviceData::Required_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[3];}
+bool Row_DeviceTemplate_DeviceData::AllowedToModify_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[4];}
+bool Row_DeviceTemplate_DeviceData::Description_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[6];}
+bool Row_DeviceTemplate_DeviceData::IsNew_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[9];}
+bool Row_DeviceTemplate_DeviceData::IsDeleted_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[10];}
+bool Row_DeviceTemplate_DeviceData::FK_Users_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[11];}
+
+			
+void Row_DeviceTemplate_DeviceData::DefaultValue_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[2]=val;}
+void Row_DeviceTemplate_DeviceData::Required_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[3]=val;}
+void Row_DeviceTemplate_DeviceData::AllowedToModify_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[4]=val;}
+void Row_DeviceTemplate_DeviceData::Description_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[6]=val;}
+void Row_DeviceTemplate_DeviceData::IsNew_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[9]=val;}
+void Row_DeviceTemplate_DeviceData::IsDeleted_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[10]=val;}
+void Row_DeviceTemplate_DeviceData::FK_Users_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[11]=val;}
+	
+
+string Row_DeviceTemplate_DeviceData::FK_DeviceTemplate_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[0])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_DeviceTemplate);
+
+return buf;
+}
+
+string Row_DeviceTemplate_DeviceData::FK_DeviceData_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[1])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_DeviceData);
+
+return buf;
+}
+
+string Row_DeviceTemplate_DeviceData::DefaultValue_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[2])
+return "NULL";
+
+char buf[131071];
+mysql_real_escape_string(table->database->db_handle, buf, m_DefaultValue.c_str(), (unsigned long) m_DefaultValue.size());
+return string()+"\""+buf+"\"";
+}
+
+string Row_DeviceTemplate_DeviceData::Required_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[3])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_Required);
+
+return buf;
+}
+
+string Row_DeviceTemplate_DeviceData::AllowedToModify_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[4])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_AllowedToModify);
+
+return buf;
+}
+
+string Row_DeviceTemplate_DeviceData::SetByDevice_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[5])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_SetByDevice);
+
+return buf;
+}
+
+string Row_DeviceTemplate_DeviceData::Description_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[6])
+return "NULL";
+
+char buf[101];
+mysql_real_escape_string(table->database->db_handle, buf, m_Description.c_str(), (unsigned long) m_Description.size());
+return string()+"\""+buf+"\"";
+}
+
+string Row_DeviceTemplate_DeviceData::UseDeviceTemplateDefault_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[7])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_UseDeviceTemplateDefault);
+
+return buf;
+}
+
+string Row_DeviceTemplate_DeviceData::Modification_RecordInfo_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[8])
+return "NULL";
+
+char buf[29];
+mysql_real_escape_string(table->database->db_handle, buf, m_Modification_RecordInfo.c_str(), (unsigned long) m_Modification_RecordInfo.size());
+return string()+"\""+buf+"\"";
+}
+
+string Row_DeviceTemplate_DeviceData::IsNew_RecordInfo_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[9])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_IsNew_RecordInfo);
+
+return buf;
+}
+
+string Row_DeviceTemplate_DeviceData::IsDeleted_RecordInfo_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[10])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_IsDeleted_RecordInfo);
+
+return buf;
+}
+
+string Row_DeviceTemplate_DeviceData::FK_Users_RecordInfo_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[11])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_Users_RecordInfo);
+
+return buf;
+}
+
+
+
+
+Table_DeviceTemplate_DeviceData::Key::Key(long int in_FK_DeviceTemplate, long int in_FK_DeviceData)
+{
+			pk_FK_DeviceTemplate = in_FK_DeviceTemplate;
+pk_FK_DeviceData = in_FK_DeviceData;
+	
+}
+
+Table_DeviceTemplate_DeviceData::Key::Key(Row_DeviceTemplate_DeviceData *pRow)
+{
+			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+
+			pk_FK_DeviceTemplate = pRow->m_FK_DeviceTemplate;
+pk_FK_DeviceData = pRow->m_FK_DeviceData;
+	
+}		
+
+bool Table_DeviceTemplate_DeviceData::Key_Less::operator()(const Table_DeviceTemplate_DeviceData::Key &key1, const Table_DeviceTemplate_DeviceData::Key &key2) const
+{
+			if (key1.pk_FK_DeviceTemplate!=key2.pk_FK_DeviceTemplate)
+return key1.pk_FK_DeviceTemplate<key2.pk_FK_DeviceTemplate;
+else
+if (key1.pk_FK_DeviceData!=key2.pk_FK_DeviceData)
+return key1.pk_FK_DeviceData<key2.pk_FK_DeviceData;
+else
+return false;	
+}	
+
+void Table_DeviceTemplate_DeviceData::Commit()
+{
+	PLUTO_SAFETY_LOCK(M, m_Mutex);
+
+//insert added
+	while (!addedRows.empty())
+	{
+		vector<Row_DeviceTemplate_DeviceData*>::iterator i = addedRows.begin();
+	
+		Row_DeviceTemplate_DeviceData *pRow = *i;
+	
+		
+string values_list_comma_separated;
+values_list_comma_separated = values_list_comma_separated + pRow->FK_DeviceTemplate_asSQL()+", "+pRow->FK_DeviceData_asSQL()+", "+pRow->DefaultValue_asSQL()+", "+pRow->Required_asSQL()+", "+pRow->AllowedToModify_asSQL()+", "+pRow->SetByDevice_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->UseDeviceTemplateDefault_asSQL()+", "+pRow->Modification_RecordInfo_asSQL()+", "+pRow->IsNew_RecordInfo_asSQL()+", "+pRow->IsDeleted_RecordInfo_asSQL()+", "+pRow->FK_Users_RecordInfo_asSQL();
+
+	
+		string query = "insert into DeviceTemplate_DeviceData (FK_DeviceTemplate, FK_DeviceData, DefaultValue, Required, AllowedToModify, SetByDevice, Description, UseDeviceTemplateDefault, Modification_RecordInfo, IsNew_RecordInfo, IsDeleted_RecordInfo, FK_Users_RecordInfo) values ("+
+			values_list_comma_separated+")";
+			
+		if (mysql_query(database->db_handle, query.c_str()))
+		{	
+			cerr << "Cannot perform query: [" << query << "]" << endl;
+		}
+	
+		if (mysql_affected_rows(database->db_handle)!=0)
+		{
+			
+			
+			long int id	= (long int) mysql_insert_id(database->db_handle);
+		
+				
+			
+			addedRows.erase(i);
+			Key key(pRow);	
+			cachedRows[key] = pRow;
+					
+			
+			pRow->is_added = false;	
+			pRow->is_modified = false;	
+		}	
+				
+	}	
+
+
+//update modified
+	
+
+	for (map<Key, Row_DeviceTemplate_DeviceData*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified)
+	{
+		Row_DeviceTemplate_DeviceData* pRow = (*i).second;	
+		Key key(pRow);	
+
+		char tmp_FK_DeviceTemplate[32];
+sprintf(tmp_FK_DeviceTemplate, "%li", key.pk_FK_DeviceTemplate);
+
+char tmp_FK_DeviceData[32];
+sprintf(tmp_FK_DeviceData, "%li", key.pk_FK_DeviceData);
+
+
+string condition;
+condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate+" AND "+"FK_DeviceData=" + tmp_FK_DeviceData;
+	
+			
+		
+string update_values_list;
+update_values_list = update_values_list + "FK_DeviceTemplate="+pRow->FK_DeviceTemplate_asSQL()+", FK_DeviceData="+pRow->FK_DeviceData_asSQL()+", DefaultValue="+pRow->DefaultValue_asSQL()+", Required="+pRow->Required_asSQL()+", AllowedToModify="+pRow->AllowedToModify_asSQL()+", SetByDevice="+pRow->SetByDevice_asSQL()+", Description="+pRow->Description_asSQL()+", UseDeviceTemplateDefault="+pRow->UseDeviceTemplateDefault_asSQL()+", Modification_RecordInfo="+pRow->Modification_RecordInfo_asSQL()+", IsNew_RecordInfo="+pRow->IsNew_RecordInfo_asSQL()+", IsDeleted_RecordInfo="+pRow->IsDeleted_RecordInfo_asSQL()+", FK_Users_RecordInfo="+pRow->FK_Users_RecordInfo_asSQL();
+
+	
+		string query = "update DeviceTemplate_DeviceData set " + update_values_list + " where " + condition;
+			
+		if (mysql_query(database->db_handle, query.c_str()))
+		{	
+			cerr << "Cannot perform query: [" << query << "]" << endl;
+		}
+	
+		pRow->is_modified = false;	
+	}	
+	
+
+//delete deleted added
+	while (!deleted_addedRows.empty())
+	{	
+		vector<Row_DeviceTemplate_DeviceData*>::iterator i = deleted_addedRows.begin();
+		delete (*i);
+		deleted_addedRows.erase(i);
+	}	
+
+
+//delete deleted cached
+	
+	while (!deleted_cachedRows.empty())
+	{	
+		map<Key, Row_DeviceTemplate_DeviceData*, Key_Less>::iterator i = deleted_cachedRows.begin();
+	
+		Key key = (*i).first;
+	
+		char tmp_FK_DeviceTemplate[32];
+sprintf(tmp_FK_DeviceTemplate, "%li", key.pk_FK_DeviceTemplate);
+
+char tmp_FK_DeviceData[32];
+sprintf(tmp_FK_DeviceData, "%li", key.pk_FK_DeviceData);
+
+
+string condition;
+condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate+" AND "+"FK_DeviceData=" + tmp_FK_DeviceData;
+
+	
+		string query = "delete from DeviceTemplate_DeviceData where " + condition;
+		
+		if (mysql_query(database->db_handle, query.c_str()))
+		{	
+			cerr << "Cannot perform query: [" << query << "]" << endl;
+		}	
+		
+		delete (*i).second;
+		deleted_cachedRows.erase(key);
+	}
+	
+}
+
+bool Table_DeviceTemplate_DeviceData::GetRows(string where_statement,vector<class Row_DeviceTemplate_DeviceData*> *rows)
+{
+	PLUTO_SAFETY_LOCK(M, m_Mutex);
+
+	string query = "select * from DeviceTemplate_DeviceData where " + where_statement;
+		
+	if (mysql_query(database->db_handle, query.c_str()))
+	{	
+		cerr << "Cannot perform query" << endl;
+		return false;
+	}	
+
+	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	
+	if (!res)
+	{
+		cerr << "mysql_store_result returned NULL handler" << endl;
+		return false;
+	}	
+	
+	MYSQL_ROW row;
+						
+		
+	while ((row = mysql_fetch_row(res)) != NULL)
+	{	
+		unsigned long *lengths = mysql_fetch_lengths(res);
+
+		Row_DeviceTemplate_DeviceData *pRow = new Row_DeviceTemplate_DeviceData(this);
+		
+		if (row[0] == NULL)
+{
+pRow->is_null[0]=true;
+pRow->m_FK_DeviceTemplate = 0;
+}
+else
+{
+pRow->is_null[0]=false;
+sscanf(row[0], "%li", &(pRow->m_FK_DeviceTemplate));
+}
+
+if (row[1] == NULL)
+{
+pRow->is_null[1]=true;
+pRow->m_FK_DeviceData = 0;
+}
+else
+{
+pRow->is_null[1]=false;
+sscanf(row[1], "%li", &(pRow->m_FK_DeviceData));
+}
+
+if (row[2] == NULL)
+{
+pRow->is_null[2]=true;
+pRow->m_DefaultValue = "";
+}
+else
+{
+pRow->is_null[2]=false;
+pRow->m_DefaultValue = string(row[2],lengths[2]);
+}
+
+if (row[3] == NULL)
+{
+pRow->is_null[3]=true;
+pRow->m_Required = 0;
+}
+else
+{
+pRow->is_null[3]=false;
+sscanf(row[3], "%hi", &(pRow->m_Required));
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_AllowedToModify = 0;
+}
+else
+{
+pRow->is_null[4]=false;
+sscanf(row[4], "%hi", &(pRow->m_AllowedToModify));
+}
+
+if (row[5] == NULL)
+{
+pRow->is_null[5]=true;
+pRow->m_SetByDevice = 0;
+}
+else
+{
+pRow->is_null[5]=false;
+sscanf(row[5], "%hi", &(pRow->m_SetByDevice));
+}
+
+if (row[6] == NULL)
+{
+pRow->is_null[6]=true;
+pRow->m_Description = "";
+}
+else
+{
+pRow->is_null[6]=false;
+pRow->m_Description = string(row[6],lengths[6]);
+}
+
+if (row[7] == NULL)
+{
+pRow->is_null[7]=true;
+pRow->m_UseDeviceTemplateDefault = 0;
+}
+else
+{
+pRow->is_null[7]=false;
+sscanf(row[7], "%hi", &(pRow->m_UseDeviceTemplateDefault));
+}
+
+if (row[8] == NULL)
+{
+pRow->is_null[8]=true;
+pRow->m_Modification_RecordInfo = "";
+}
+else
+{
+pRow->is_null[8]=false;
+pRow->m_Modification_RecordInfo = string(row[8],lengths[8]);
+}
+
+if (row[9] == NULL)
+{
+pRow->is_null[9]=true;
+pRow->m_IsNew_RecordInfo = 0;
+}
+else
+{
+pRow->is_null[9]=false;
+sscanf(row[9], "%hi", &(pRow->m_IsNew_RecordInfo));
+}
+
+if (row[10] == NULL)
+{
+pRow->is_null[10]=true;
+pRow->m_IsDeleted_RecordInfo = 0;
+}
+else
+{
+pRow->is_null[10]=false;
+sscanf(row[10], "%hi", &(pRow->m_IsDeleted_RecordInfo));
+}
+
+if (row[11] == NULL)
+{
+pRow->is_null[11]=true;
+pRow->m_FK_Users_RecordInfo = 0;
+}
+else
+{
+pRow->is_null[11]=false;
+sscanf(row[11], "%li", &(pRow->m_FK_Users_RecordInfo));
+}
+
+
+
+		//checking for duplicates
+
+		Key key(pRow);
+		
+                map<Table_DeviceTemplate_DeviceData::Key, Row_DeviceTemplate_DeviceData*, Table_DeviceTemplate_DeviceData::Key_Less>::iterator i = cachedRows.find(key);
+			
+		if (i!=cachedRows.end())
+		{
+			delete pRow;
+			pRow = (*i).second;
+		}
+
+		rows->push_back(pRow);
+		
+		cachedRows[key] = pRow;
+	}
+
+	mysql_free_result(res);			
+		
+	return true;					
+}
+
+Row_DeviceTemplate_DeviceData* Table_DeviceTemplate_DeviceData::AddRow()
+{
+	PLUTO_SAFETY_LOCK(M, m_Mutex);
+
+	Row_DeviceTemplate_DeviceData *pRow = new Row_DeviceTemplate_DeviceData(this);
+	pRow->is_added=true;
+	addedRows.push_back(pRow);
+	return pRow;		
+}
+
+
+
+Row_DeviceTemplate_DeviceData* Table_DeviceTemplate_DeviceData::GetRow(long int in_FK_DeviceTemplate, long int in_FK_DeviceData)
+{
+	PLUTO_SAFETY_LOCK(M, m_Mutex);
+
+	Key row_key(in_FK_DeviceTemplate, in_FK_DeviceData);
+
+	map<Key, Row_DeviceTemplate_DeviceData*, Key_Less>::iterator i;
+	i = deleted_cachedRows.find(row_key);	
+		
+	//row was deleted	
+	if (i!=deleted_cachedRows.end())
+		return NULL;
+	
+	i = cachedRows.find(row_key);
+	
+	//row is cached
+	if (i!=cachedRows.end())
+		return (*i).second;
+	//we have to fetch row
+	Row_DeviceTemplate_DeviceData* pRow = FetchRow(row_key);
+
+	if (pRow!=NULL)
+		cachedRows[row_key] = pRow;
+	return pRow;	
+}
+
+
+
+Row_DeviceTemplate_DeviceData* Table_DeviceTemplate_DeviceData::FetchRow(Table_DeviceTemplate_DeviceData::Key &key)
+{
+	PLUTO_SAFETY_LOCK(M, m_Mutex);
+
+	//defines the string query for the value of key
+	char tmp_FK_DeviceTemplate[32];
+sprintf(tmp_FK_DeviceTemplate, "%li", key.pk_FK_DeviceTemplate);
+
+char tmp_FK_DeviceData[32];
+sprintf(tmp_FK_DeviceData, "%li", key.pk_FK_DeviceData);
+
+
+string condition;
+condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate+" AND "+"FK_DeviceData=" + tmp_FK_DeviceData;
+
+
+	string query = "select * from DeviceTemplate_DeviceData where " + condition;		
+
+	if (mysql_query(database->db_handle, query.c_str()))
+	{	
+		cerr << "Cannot perform query" << endl;
+		return NULL;
+	}	
+
+	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	
+	if (!res)
+	{
+		cerr << "mysql_store_result returned NULL handler" << endl;
+		return NULL;
+	}	
+	
+	MYSQL_ROW row = mysql_fetch_row(res);
+	
+	if (!row)
+	{
+		//dataset is empty
+		mysql_free_result(res);			
+		return NULL;		
+	}	
+						
+	unsigned long *lengths = mysql_fetch_lengths(res);
+
+	Row_DeviceTemplate_DeviceData *pRow = new Row_DeviceTemplate_DeviceData(this);
+		
+	if (row[0] == NULL)
+{
+pRow->is_null[0]=true;
+pRow->m_FK_DeviceTemplate = 0;
+}
+else
+{
+pRow->is_null[0]=false;
+sscanf(row[0], "%li", &(pRow->m_FK_DeviceTemplate));
+}
+
+if (row[1] == NULL)
+{
+pRow->is_null[1]=true;
+pRow->m_FK_DeviceData = 0;
+}
+else
+{
+pRow->is_null[1]=false;
+sscanf(row[1], "%li", &(pRow->m_FK_DeviceData));
+}
+
+if (row[2] == NULL)
+{
+pRow->is_null[2]=true;
+pRow->m_DefaultValue = "";
+}
+else
+{
+pRow->is_null[2]=false;
+pRow->m_DefaultValue = string(row[2],lengths[2]);
+}
+
+if (row[3] == NULL)
+{
+pRow->is_null[3]=true;
+pRow->m_Required = 0;
+}
+else
+{
+pRow->is_null[3]=false;
+sscanf(row[3], "%hi", &(pRow->m_Required));
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_AllowedToModify = 0;
+}
+else
+{
+pRow->is_null[4]=false;
+sscanf(row[4], "%hi", &(pRow->m_AllowedToModify));
+}
+
+if (row[5] == NULL)
+{
+pRow->is_null[5]=true;
+pRow->m_SetByDevice = 0;
+}
+else
+{
+pRow->is_null[5]=false;
+sscanf(row[5], "%hi", &(pRow->m_SetByDevice));
+}
+
+if (row[6] == NULL)
+{
+pRow->is_null[6]=true;
+pRow->m_Description = "";
+}
+else
+{
+pRow->is_null[6]=false;
+pRow->m_Description = string(row[6],lengths[6]);
+}
+
+if (row[7] == NULL)
+{
+pRow->is_null[7]=true;
+pRow->m_UseDeviceTemplateDefault = 0;
+}
+else
+{
+pRow->is_null[7]=false;
+sscanf(row[7], "%hi", &(pRow->m_UseDeviceTemplateDefault));
+}
+
+if (row[8] == NULL)
+{
+pRow->is_null[8]=true;
+pRow->m_Modification_RecordInfo = "";
+}
+else
+{
+pRow->is_null[8]=false;
+pRow->m_Modification_RecordInfo = string(row[8],lengths[8]);
+}
+
+if (row[9] == NULL)
+{
+pRow->is_null[9]=true;
+pRow->m_IsNew_RecordInfo = 0;
+}
+else
+{
+pRow->is_null[9]=false;
+sscanf(row[9], "%hi", &(pRow->m_IsNew_RecordInfo));
+}
+
+if (row[10] == NULL)
+{
+pRow->is_null[10]=true;
+pRow->m_IsDeleted_RecordInfo = 0;
+}
+else
+{
+pRow->is_null[10]=false;
+sscanf(row[10], "%hi", &(pRow->m_IsDeleted_RecordInfo));
+}
+
+if (row[11] == NULL)
+{
+pRow->is_null[11]=true;
+pRow->m_FK_Users_RecordInfo = 0;
+}
+else
+{
+pRow->is_null[11]=false;
+sscanf(row[11], "%li", &(pRow->m_FK_Users_RecordInfo));
+}
+
+
+
+	mysql_free_result(res);			
+	
+	return pRow;						
+}
+
+
+class Row_DeviceTemplate* Row_DeviceTemplate_DeviceData::FK_DeviceTemplate_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_DeviceTemplate *pTable = table->database->DeviceTemplate_get();
+return pTable->GetRow(m_FK_DeviceTemplate);
+}
+class Row_DeviceData* Row_DeviceTemplate_DeviceData::FK_DeviceData_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_DeviceData *pTable = table->database->DeviceData_get();
+return pTable->GetRow(m_FK_DeviceData);
+}
+
+
+
+
+

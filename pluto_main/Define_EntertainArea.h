@@ -1,0 +1,25 @@
+#ifndef __Define_EntertainArea_H__
+#define __Define_EntertainArea_H__
+
+
+#define ENTERTAINAREA_TABLE "EntertainArea"
+#define ENTERTAINAREA_PK_ENTERTAINAREA_FIELD "PK_EntertainArea"
+#define ENTERTAINAREA_PK_ENTERTAINAREA_TABLE_FIELD "EntertainArea.PK_EntertainArea"
+#define ENTERTAINAREA_FK_ROOM_FIELD "FK_Room"
+#define ENTERTAINAREA_FK_ROOM_TABLE_FIELD "EntertainArea.FK_Room"
+#define ENTERTAINAREA_ONLY1STREAM_FIELD "Only1Stream"
+#define ENTERTAINAREA_ONLY1STREAM_TABLE_FIELD "EntertainArea.Only1Stream"
+#define ENTERTAINAREA_DESCRIPTION_FIELD "Description"
+#define ENTERTAINAREA_DESCRIPTION_TABLE_FIELD "EntertainArea.Description"
+#define ENTERTAINAREA_MODIFICATION_RECORDINFO_FIELD "Modification_RecordInfo"
+#define ENTERTAINAREA_MODIFICATION_RECORDINFO_TABLE_FIELD "EntertainArea.Modification_RecordInfo"
+#define ENTERTAINAREA_ISNEW_RECORDINFO_FIELD "IsNew_RecordInfo"
+#define ENTERTAINAREA_ISNEW_RECORDINFO_TABLE_FIELD "EntertainArea.IsNew_RecordInfo"
+#define ENTERTAINAREA_ISDELETED_RECORDINFO_FIELD "IsDeleted_RecordInfo"
+#define ENTERTAINAREA_ISDELETED_RECORDINFO_TABLE_FIELD "EntertainArea.IsDeleted_RecordInfo"
+#define ENTERTAINAREA_FK_USERS_RECORDINFO_FIELD "FK_Users_RecordInfo"
+#define ENTERTAINAREA_FK_USERS_RECORDINFO_TABLE_FIELD "EntertainArea.FK_Users_RecordInfo"
+
+
+#endif
+

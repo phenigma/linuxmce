@@ -1,0 +1,382 @@
+// If using the thread logger, these generated classes create lots of activity
+#ifdef NO_SQL_THREAD_LOG
+#undef THREAD_LOG
+#endif
+
+#ifdef WIN32
+#include <winsock.h>
+#endif
+
+#include <iostream>
+#include <string>
+#include <vector>
+#include <map>
+#include <list>
+
+#include <mysql.h>
+
+using namespace std;
+#include "PlutoUtils/StringUtils.h"
+#include "Table_@table_name@.h"
+@rows_getters_includes@
+@fk_rows_getters_includes@
+
+void Database_@database_name@::CreateTable_@table_name@()
+{
+	tbl@table_name@ = new Table_@table_name@(this);
+}
+
+void Database_@database_name@::DeleteTable_@table_name@()
+{
+	delete tbl@table_name@;
+}
+
+Table_@table_name@::~Table_@table_name@()
+{
+	map<Table_@table_name@::Key, class Row_@table_name@*, Table_@table_name@::Key_Less>::iterator it;
+	for(it=cachedRows.begin();it!=cachedRows.end();++it)
+	{
+		delete (*it).second;
+	}
+
+	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
+	{
+		delete (*it).second;
+	}
+
+	size_t i;
+	for(i=0;i<addedRows.size();++i)
+		delete addedRows[i];
+	for(i=0;i<deleted_addedRows.size();++i)
+		delete deleted_addedRows[i];
+}
+
+
+void Row_@table_name@::Delete()
+{
+	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	
+	if (!is_deleted)
+		if (is_added)	
+		{	
+			vector<Row_@table_name@*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			
+			if (i!=	table->addedRows.end())
+				table->addedRows.erase(i);
+		
+			table->deleted_addedRows.push_back(this);
+			is_deleted = true;	
+		}
+		else
+		{
+			Table_@table_name@::Key key(this);					
+			map<Table_@table_name@::Key, Row_@table_name@*, Table_@table_name@::Key_Less>::iterator i = table->cachedRows.find(key);
+			if (i!=table->cachedRows.end())
+				table->cachedRows.erase(i);
+						
+			table->deleted_cachedRows[key] = this;
+			is_deleted = true;	
+		}	
+}
+
+void Row_@table_name@::Reload()
+{
+	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	
+	@ifdef_have_primary_keys@
+	if (!is_added)
+	{
+		Table_@table_name@::Key key(this);		
+		Row_@table_name@ *pRow = table->FetchRow(key);
+		
+		if (pRow!=NULL)
+		{
+			*this = *pRow;	
+			
+			delete pRow;		
+		}	
+	}	
+	@endif_have_primary_keys@
+}
+
+Row_@table_name@::Row_@table_name@(Table_@table_name@ *pTable):table(pTable)
+{
+	SetDefaultValues();
+}
+
+void Row_@table_name@::SetDefaultValues()
+{
+	@set_default_values@
+
+	is_added=false;
+	is_deleted=false;
+	is_modified=false;
+}
+
+@getters_definition@
+		
+@setters_definition@
+		
+@null_getters_definition@
+			
+@null_setters_definition@	
+
+@fields_sql_getters_definition@
+
+
+Table_@table_name@::Key::Key(@primary_fields_in_typed_list@)
+{
+			@primary_fields_assign_list@	
+}
+
+Table_@table_name@::Key::Key(Row_@table_name@ *pRow)
+{
+			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+
+			@primary_fields_assign_from_row@	
+}		
+
+bool Table_@table_name@::Key_Less::operator()(const Table_@table_name@::Key &key1, const Table_@table_name@::Key &key2) const
+{
+			@key_less_statement@	
+}	
+
+void Table_@table_name@::Commit()
+{
+	PLUTO_SAFETY_LOCK(M, m_Mutex);
+
+//insert added
+	while (!addedRows.empty())
+	{
+		vector<Row_@table_name@*>::iterator i = addedRows.begin();
+	
+		Row_@table_name@ *pRow = *i;
+	
+		@generate_insert_query@
+	
+		string query = "insert into @table_name@ (@fields_list_comma_separated@) values ("+
+			values_list_comma_separated+")";
+			
+		if (mysql_query(database->db_handle, query.c_str()))
+		{	
+			cerr << "Cannot perform query: [" << query << "]" << endl;
+		}
+	
+		if (mysql_affected_rows(database->db_handle)!=0)
+		{
+			@ifdef_have_primary_keys@
+			
+			long int id	= (long int) mysql_insert_id(database->db_handle);
+		
+			@primary_autoinc_key_init@	
+			
+			addedRows.erase(i);
+			Key key(pRow);	
+			cachedRows[key] = pRow;
+			@endif_have_primary_keys@		
+			
+			pRow->is_added = false;	
+			pRow->is_modified = false;	
+		}	
+				
+	}	
+
+
+//update modified
+	@ifdef_have_primary_keys@
+
+	for (map<Key, Row_@table_name@*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified)
+	{
+		Row_@table_name@* pRow = (*i).second;	
+		Key key(pRow);	
+
+		@build_query_for_key@	
+			
+		@generate_update_query@
+	
+		string query = "update @table_name@ set " + update_values_list + " where " + condition;
+			
+		if (mysql_query(database->db_handle, query.c_str()))
+		{	
+			cerr << "Cannot perform query: [" << query << "]" << endl;
+		}
+	
+		pRow->is_modified = false;	
+	}	
+	@endif_have_primary_keys@
+
+//delete deleted added
+	while (!deleted_addedRows.empty())
+	{	
+		vector<Row_@table_name@*>::iterator i = deleted_addedRows.begin();
+		delete (*i);
+		deleted_addedRows.erase(i);
+	}	
+
+
+//delete deleted cached
+	@ifdef_have_primary_keys@
+	while (!deleted_cachedRows.empty())
+	{	
+		map<Key, Row_@table_name@*, Key_Less>::iterator i = deleted_cachedRows.begin();
+	
+		Key key = (*i).first;
+	
+		@build_query_for_key@
+	
+		string query = "delete from @table_name@ where " + condition;
+		
+		if (mysql_query(database->db_handle, query.c_str()))
+		{	
+			cerr << "Cannot perform query: [" << query << "]" << endl;
+		}	
+		
+		delete (*i).second;
+		deleted_cachedRows.erase(key);
+	}
+	@endif_have_primary_keys@
+}
+
+bool Table_@table_name@::GetRows(string where_statement,vector<class Row_@table_name@*> *rows)
+{
+	PLUTO_SAFETY_LOCK(M, m_Mutex);
+
+	string query = "select * from @table_name@ where " + where_statement;
+		
+	if (mysql_query(database->db_handle, query.c_str()))
+	{	
+		cerr << "Cannot perform query" << endl;
+		return false;
+	}	
+
+	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	
+	if (!res)
+	{
+		cerr << "mysql_store_result returned NULL handler" << endl;
+		return false;
+	}	
+	
+	MYSQL_ROW row;
+						
+		
+	while ((row = mysql_fetch_row(res)) != NULL)
+	{	
+		unsigned long *lengths = mysql_fetch_lengths(res);
+
+		Row_@table_name@ *pRow = new Row_@table_name@(this);
+		
+		@init_fields_from_row@
+
+		//checking for duplicates
+
+		Key key(pRow);
+		
+                map<Table_@table_name@::Key, Row_@table_name@*, Table_@table_name@::Key_Less>::iterator i = cachedRows.find(key);
+			
+		if (i!=cachedRows.end())
+		{
+			delete pRow;
+			pRow = (*i).second;
+		}
+
+		rows->push_back(pRow);
+		
+		cachedRows[key] = pRow;
+	}
+
+	mysql_free_result(res);			
+		
+	return true;					
+}
+
+Row_@table_name@* Table_@table_name@::AddRow()
+{
+	PLUTO_SAFETY_LOCK(M, m_Mutex);
+
+	Row_@table_name@ *pRow = new Row_@table_name@(this);
+	pRow->is_added=true;
+	addedRows.push_back(pRow);
+	return pRow;		
+}
+
+
+@ifdef_have_primary_keys@
+Row_@table_name@* Table_@table_name@::GetRow(@primary_fields_in_typed_list@)
+{
+	PLUTO_SAFETY_LOCK(M, m_Mutex);
+
+	Key row_key(@primary_fields_in_untyped_list@);
+
+	map<Key, Row_@table_name@*, Key_Less>::iterator i;
+	i = deleted_cachedRows.find(row_key);	
+		
+	//row was deleted	
+	if (i!=deleted_cachedRows.end())
+		return NULL;
+	
+	i = cachedRows.find(row_key);
+	
+	//row is cached
+	if (i!=cachedRows.end())
+		return (*i).second;
+	//we have to fetch row
+	Row_@table_name@* pRow = FetchRow(row_key);
+
+	if (pRow!=NULL)
+		cachedRows[row_key] = pRow;
+	return pRow;	
+}
+@endif_have_primary_keys@
+
+@ifdef_have_primary_keys@
+Row_@table_name@* Table_@table_name@::FetchRow(Table_@table_name@::Key &key)
+{
+	PLUTO_SAFETY_LOCK(M, m_Mutex);
+
+	//defines the string query for the value of key
+	@build_query_for_key@
+
+	string query = "select * from @table_name@ where " + condition;		
+
+	if (mysql_query(database->db_handle, query.c_str()))
+	{	
+		cerr << "Cannot perform query" << endl;
+		return NULL;
+	}	
+
+	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	
+	if (!res)
+	{
+		cerr << "mysql_store_result returned NULL handler" << endl;
+		return NULL;
+	}	
+	
+	MYSQL_ROW row = mysql_fetch_row(res);
+	
+	if (!row)
+	{
+		//dataset is empty
+		mysql_free_result(res);			
+		return NULL;		
+	}	
+						
+	unsigned long *lengths = mysql_fetch_lengths(res);
+
+	Row_@table_name@ *pRow = new Row_@table_name@(this);
+		
+	@init_fields_from_row@
+
+	mysql_free_result(res);			
+	
+	return pRow;						
+}
+@endif_have_primary_keys@
+
+@rows_getters_definition@
+
+@fk_rows_getters_definition@
+

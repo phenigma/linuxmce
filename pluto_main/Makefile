@@ -1,0 +1,168 @@
+ROOT = ..
+CXXFLAGS = -Wall -D_GNU_SOURCE
+CPPFLAGS = -I/../.. -I/.. -I/usr/include/mysql -I.. -I../.. -I../DCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DMULTI_THREADED -DUSE_MYSQL
+CXX = g++
+LDFLAGS = -L$(ROOT)/lib
+LDLIBS =  -lmysqlclient_r
+
+APPNAME = pluto_main
+VERSION = 2.0.0
+sources = Database_pluto_main.cpp  \
+Table_Array.cpp \
+Table_Broadcast.cpp \
+Table_Button.cpp \
+Table_CachedScreens.cpp \
+Table_CannedEvents.cpp \
+Table_CannedEvents_CriteriaParmList.cpp \
+Table_Command.cpp \
+Table_CommandCategory.cpp \
+Table_CommandGroup.cpp \
+Table_CommandGroup_Command.cpp \
+Table_CommandGroup_Command_CommandParameter.cpp \
+Table_CommandGroup_D.cpp \
+Table_CommandGroup_D_Command.cpp \
+Table_CommandGroup_D_Command_CommandParameter.cpp \
+Table_CommandGroup_EntGroup.cpp \
+Table_CommandGroup_Room.cpp \
+Table_CommandParameter.cpp \
+Table_Command_CommandParameter.cpp \
+Table_Command_Pipe.cpp \
+Table_ConfigType.cpp \
+Table_ConfigType_File.cpp \
+Table_ConfigType_Setting.cpp \
+Table_ConfigType_Token.cpp \
+Table_ConnectorType.cpp \
+Table_Criteria.cpp \
+Table_CriteriaList.cpp \
+Table_CriteriaList_CriteriaParmList.cpp \
+Table_CriteriaParm.cpp \
+Table_CriteriaParmList.cpp \
+Table_CriteriaParmNesting.cpp \
+Table_CriteriaParmNesting_D.cpp \
+Table_CriteriaParm_D.cpp \
+Table_Criteria_D.cpp \
+Table_DSPMode.cpp \
+Table_DataGrid.cpp \
+Table_DesignObj.cpp \
+Table_DesignObjCategory.cpp \
+Table_DesignObjParameter.cpp \
+Table_DesignObjType.cpp \
+Table_DesignObjType_DesignObjParameter.cpp \
+Table_DesignObjVariation.cpp \
+Table_DesignObjVariation_DesignObj.cpp \
+Table_DesignObjVariation_DesignObjParameter.cpp \
+Table_DesignObjVariation_Text.cpp \
+Table_DesignObjVariation_Text_Skin_Language.cpp \
+Table_DesignObjVariation_Zone.cpp \
+Table_Device.cpp \
+Table_DeviceCategory.cpp \
+Table_DeviceCategory_DeviceData.cpp \
+Table_DeviceCategory_DeviceObj.cpp \
+Table_DeviceCategory_Event.cpp \
+Table_DeviceCommandGroup.cpp \
+Table_DeviceCommandGroup_Command.cpp \
+Table_DeviceCommandGroup_DeviceCommandGroup_Parent.cpp \
+Table_DeviceData.cpp \
+Table_DeviceGroup.cpp \
+Table_DeviceTemplate.cpp \
+Table_DeviceTemplate_DSPMode.cpp \
+Table_DeviceTemplate_DesignObj.cpp \
+Table_DeviceTemplate_DeviceCategory_ControlledVia.cpp \
+Table_DeviceTemplate_DeviceCategory_ControlledVia_Pipe.cpp \
+Table_DeviceTemplate_DeviceCommandGroup.cpp \
+Table_DeviceTemplate_DeviceData.cpp \
+Table_DeviceTemplate_DeviceTemplate_ControlledVia.cpp \
+Table_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe.cpp \
+Table_DeviceTemplate_DeviceTemplate_Related.cpp \
+Table_DeviceTemplate_Event.cpp \
+Table_DeviceTemplate_InfraredGroup.cpp \
+Table_DeviceTemplate_Input.cpp \
+Table_DeviceTemplate_MediaType.cpp \
+Table_DeviceTemplate_MediaType_DesignObj.cpp \
+Table_DeviceTemplate_Output.cpp \
+Table_DeviceTemplate_Package.cpp \
+Table_Device_Command.cpp \
+Table_Device_CommandGroup.cpp \
+Table_Device_DeviceData.cpp \
+Table_Device_DeviceGroup.cpp \
+Table_Device_Device_Pipe.cpp \
+Table_Device_Device_Related.cpp \
+Table_Device_EntertainArea.cpp \
+Table_Device_HouseMode.cpp \
+Table_Device_Orbiter.cpp \
+Table_Device_Users.cpp \
+Table_Direction.cpp \
+Table_EntertainArea.cpp \
+Table_Event.cpp \
+Table_EventCategory.cpp \
+Table_EventHandler.cpp \
+Table_EventParameter.cpp \
+Table_Event_EventParameter.cpp \
+Table_ExecTime.cpp \
+Table_Floorplan.cpp \
+Table_FloorplanObjectType.cpp \
+Table_FloorplanObjectType_Color.cpp \
+Table_FloorplanType.cpp \
+Table_HorizAlignment.cpp \
+Table_HouseMode.cpp \
+Table_Household.cpp \
+Table_Household_Installation.cpp \
+Table_Icon.cpp \
+Table_Image.cpp \
+Table_InfraredCode.cpp \
+Table_InfraredData.cpp \
+Table_InfraredGroup.cpp \
+Table_InfraredGroup_DSPMode.cpp \
+Table_InfraredGroup_Input.cpp \
+Table_Input.cpp \
+Table_Installation.cpp \
+Table_Installation_Users.cpp \
+Table_Language.cpp \
+Table_Manufacturer.cpp \
+Table_MediaType.cpp \
+Table_MediaType_Broadcast.cpp \
+Table_MobilePhoneVersion.cpp \
+Table_Orbiter.cpp \
+Table_Orbiter_Users_PasswordReq.cpp \
+Table_Orbiter_Variable.cpp \
+Table_Output.cpp \
+Table_Package.cpp \
+Table_ParameterType.cpp \
+Table_PhoneLineType.cpp \
+Table_Pipe.cpp \
+Table_Room.cpp \
+Table_RoomMode.cpp \
+Table_RoomType.cpp \
+Table_SetupStep.cpp \
+Table_Size.cpp \
+Table_Skin.cpp \
+Table_StabilityStatus.cpp \
+Table_Startup_Scripts.cpp \
+Table_Style.cpp \
+Table_StyleVariation.cpp \
+Table_System.cpp \
+Table_Text.cpp \
+Table_TextCategory.cpp \
+Table_Text_LS.cpp \
+Table_Text_LS_AltVersions.cpp \
+Table_UnknownDevices.cpp \
+Table_UserMode.cpp \
+Table_Users.cpp \
+Table_Variable.cpp \
+Table_Version.cpp \
+Table_VertAlignment.cpp
+
+all: libpluto_main.a all-recursive
+
+libpluto_main.a: $(sources:.cpp=.o)
+	$(AR) rc $@ $+
+	cp $@ ../lib
+
+clean: clean-recursive
+	rm -f *.o *.d libpluto_main.a >/dev/null
+
+package:
+	./make_package.sh $(APPNAME) $(VERSION)
+
+include $(ROOT)/DCE/make.rules
+-include $(sources:.cpp=.d)

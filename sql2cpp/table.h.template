@@ -1,0 +1,122 @@
+#ifndef __Table_@table_name@_H__
+#define __Table_@table_name@_H__
+
+#ifdef SQL2CPP_DLLEXPORT
+#define DLL_EXPORT __declspec(dllexport)
+#else
+#define DLL_EXPORT
+#endif
+
+#include "TableRow.h"
+#include "Database_@database_name@.h"
+#include "PlutoUtils/MultiThreadIncludes.h"
+#include "Define_@table_name@.h"
+#include "SerializeClass/SerializeClass.h"
+
+class DLL_EXPORT Table_@table_name@
+{
+private:
+	Database_@database_name@ *database;
+	struct Key;	//forward declaration
+	
+public:
+    pluto_pthread_mutex_t m_Mutex;
+	pthread_mutexattr_t m_MutexAttr;
+		
+	Table_@table_name@(Database_@database_name@ *pDatabase):database(pDatabase), m_Mutex("@table_name@")
+	{
+		pthread_mutexattr_init(&m_MutexAttr);
+		pthread_mutexattr_settype(&m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP);
+		m_Mutex.Init(&m_MutexAttr); 
+	};
+	~Table_@table_name@();
+
+private:		
+	friend class Row_@table_name@;
+	struct Key
+	{
+		friend class Row_@table_name@;
+		@primary_fields_declaration@
+		
+		Key(@primary_fields_in_typed_list@);
+	
+		Key(class Row_@table_name@ *pRow);
+	};
+	struct Key_Less
+	{			
+		bool operator()(const Table_@table_name@::Key &key1, const Table_@table_name@::Key &key2) const;
+	};	
+
+	map<Table_@table_name@::Key, class Row_@table_name@*, Table_@table_name@::Key_Less> cachedRows;
+	map<Table_@table_name@::Key, class Row_@table_name@*, Table_@table_name@::Key_Less> deleted_cachedRows;
+	vector<class Row_@table_name@*> addedRows;
+	vector<class Row_@table_name@*> deleted_addedRows;	
+		
+
+public:				
+	void Commit();
+	bool GetRows(string where_statement,vector<class Row_@table_name@*> *rows);
+	class Row_@table_name@* AddRow();
+	Database_@database_name@ *Database_@database_name@_get() { return database; }
+	
+	@ifdef_have_primary_keys@	
+	class Row_@table_name@* GetRow(@primary_fields_in_typed_list@);
+	@endif_have_primary_keys@
+
+private:	
+	
+	@ifdef_have_primary_keys@	
+	class Row_@table_name@* FetchRow(Key &key);
+	@endif_have_primary_keys@	
+			
+};
+
+class DLL_EXPORT Row_@table_name@ : public TableRow, public SerializeClass
+	{
+		friend struct Table_@table_name@::Key;
+		friend class Table_@table_name@;
+	private:
+		Table_@table_name@ *table;
+		
+		@fields_declaration@
+		bool is_null[@fields_count@];
+	
+		bool is_deleted;
+		bool is_added;
+		bool is_modified;					
+	
+	public:
+		@getters_declaration@
+		
+		@setters_declaration@
+		
+		@null_getters_declaration@
+			
+		@null_setters_declaration@	
+	
+		void Delete();
+		void Reload();		
+	
+		Row_@table_name@(Table_@table_name@ *pTable);
+	
+		bool IsDeleted(){return is_deleted;};
+		bool IsModified(){return is_modified;};			
+		class Table_@table_name@ *Table_@table_name@_get() { return table; };
+
+		// Return the rows for foreign keys 
+		@rows_getters_declaration@
+
+		// Return the rows in other tables with foreign keys pointing here
+		@fk_rows_getters_declaration@
+
+		// Setup binary serialization
+		void SetupSerialization() {
+			StartSerializeList() @member_variable_list@;
+		}
+	private:
+		void SetDefaultValues();
+		
+		@fields_sql_getters_declaration@
+	};
+
+#endif

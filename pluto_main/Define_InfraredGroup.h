@@ -1,0 +1,25 @@
+#ifndef __Define_InfraredGroup_H__
+#define __Define_InfraredGroup_H__
+
+
+#define INFRAREDGROUP_TABLE "InfraredGroup"
+#define INFRAREDGROUP_PK_INFRAREDGROUP_FIELD "PK_InfraredGroup"
+#define INFRAREDGROUP_PK_INFRAREDGROUP_TABLE_FIELD "InfraredGroup.PK_InfraredGroup"
+#define INFRAREDGROUP_FK_DEVICECATEGORY_FIELD "FK_DeviceCategory"
+#define INFRAREDGROUP_FK_DEVICECATEGORY_TABLE_FIELD "InfraredGroup.FK_DeviceCategory"
+#define INFRAREDGROUP_FK_MANUFACTURER_FIELD "FK_Manufacturer"
+#define INFRAREDGROUP_FK_MANUFACTURER_TABLE_FIELD "InfraredGroup.FK_Manufacturer"
+#define INFRAREDGROUP_DESCRIPTION_FIELD "Description"
+#define INFRAREDGROUP_DESCRIPTION_TABLE_FIELD "InfraredGroup.Description"
+#define INFRAREDGROUP_MODIFICATION_RECORDINFO_FIELD "Modification_RecordInfo"
+#define INFRAREDGROUP_MODIFICATION_RECORDINFO_TABLE_FIELD "InfraredGroup.Modification_RecordInfo"
+#define INFRAREDGROUP_ISNEW_RECORDINFO_FIELD "IsNew_RecordInfo"
+#define INFRAREDGROUP_ISNEW_RECORDINFO_TABLE_FIELD "InfraredGroup.IsNew_RecordInfo"
+#define INFRAREDGROUP_ISDELETED_RECORDINFO_FIELD "IsDeleted_RecordInfo"
+#define INFRAREDGROUP_ISDELETED_RECORDINFO_TABLE_FIELD "InfraredGroup.IsDeleted_RecordInfo"
+#define INFRAREDGROUP_FK_USERS_RECORDINFO_FIELD "FK_Users_RecordInfo"
+#define INFRAREDGROUP_FK_USERS_RECORDINFO_TABLE_FIELD "InfraredGroup.FK_Users_RecordInfo"
+
+
+#endif
+

@@ -1,0 +1,71 @@
+/** Include this define to get debug information if the serialization is ever off */
+/** #define DEBUG_SERIALIZATION */
+
+/**
+
+Derive a class you want to serialize from this class, and then use it in a combination of 2 ways.  
+You can call StartReading/StartWriting and then call all the Read_/Write_
+functions directly.  This will allocate a block of memory, pointed to by m_pcDataBlock, and CurrentSize() will always have the size.
+
+Or, this can be done automatically.  Add the members that you want to have serialized when the object is created, either
+by calling to AddToAutoSerializeList(...), or with the syntax: 
+StartSerializeList() + m_iMember1 + m_vectorMember2, etc.  (see operator +)
+
+Call SerializeWrite and SerializeRead to serialize the data members.  Pass in a filename to have them save to the file.
+
+If your derived class has objects that are not of a standard type that SerializeClass knows how to handle, you must create
+your own methods to add them to the serialize list, like this a typedef list<DesignObj_Data *> DesignObj_DataList object:
+
+#define SERIALIZE_DATA_TYPE_INT_DESIGNOBJCHILDLIST	1000	// Be sure this doesn't conflict with any other class in the tree
+void AddToAutoSerializeList(DesignObj_DataList &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_DESIGNOBJCHILDLIST,(void *) &i)); }
+DesignObj_Data &operator+ (DesignObjCommandList &i) { AddToAutoSerializeList(i); return (*this); }
+
+Then, implement the UnknownSerialize method, like this:
+
+virtual bool UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char *&pDataBlock,unsigned long &iAllocatedSize,char *&pCurrentPosition) s
+{ 
+	m_pcDataBlock=pDataBlock; m_dwAllocatedSize=iAllocatedSize; m_pcCurrentPosition=pCurrentPosition;
+	if( bWriting )
+	{	
+		switch(pItem->m_iSerializeDataType)
+		{
+		case SERIALIZE_DATA_TYPE_INT_DESIGNOBJACTIONLIST:
+			{
+				DesignObjCommandList *pList = (DesignObjCommandList *) pItem->m_pItem;
+				Write_unsigned_long((unsigned long) pList->size());
+				for(DesignObjCommandList::iterator it=pList->begin();it!=pList->end();++it)
+				{
+					(*it)->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition);
+				}
+				return true;  // We handled it
+			}
+			break;
+		.
+		.
+		.
+		.
+	}
+	else
+	{
+		switch(pItem->m_iSerializeDataType)
+		{
+		case SERIALIZE_DATA_TYPE_INT_DESIGNOBJACTIONLIST:
+			{
+				DesignObjCommandList *pList = (DesignObjCommandList *) pItem->m_pItem;
+				unsigned long count = Read_unsigned_long();
+				for(unsigned long i=0;i<count;++i)
+				{
+					DesignObjCommand *pAction = new DesignObjCommand();
+                    pAction->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition);
+					pList->push_back(pAction);
+				}
+				return true;  // We handled it
+			}
+			break;
+		.
+		.
+		.
+		.
+	}
+
+*/

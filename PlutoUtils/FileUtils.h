@@ -1,0 +1,46 @@
+/**
+ *
+ * @file FileUtils.h
+ * @brief header file for the file utils namespace
+ * @author
+ * @todo notcommented
+ *
+ */
+
+
+
+#ifndef FILEUTILS
+#define FILEUTILS
+
+#ifndef SYMBIAN
+#include <string>
+#include <vector>
+using namespace ::std;
+#else
+
+#include "../VIPShared/MyString.h" //for Symbian compatibility
+
+#define abs(x) Abs(x)
+#define atoi(x) SymbianAtoi(x, 0)
+#define itos(x) SymbianItoa(x)
+#define strchr(x, y) (x)
+
+#endif
+
+namespace FileUtils
+{
+#ifndef SYMBIAN
+    char *ReadFileIntoBuffer( string sFileName, size_t &Size ); /** < reads file into buffer; buffer must be freed by caller */
+    string FindExtension ( string sFileName ); /** < returns the extension of the file name specified */
+    string BasePath( string sFileName ); /** < returns the path one dir up @todo ask */
+    string FilenameWithoutPath( string sFullPath, bool bIncludeExtension=true ); /** < returnes only the file name from a path/filename string */
+    string ValidCPPName( string sInput ); /** < converts the input file name to a valid CPP file name */
+    bool FileExists( string sFileName ); /** < checks if the specified file exists */
+    time_t FileDate(string sFileName); /** < returns the date of the last file modification or 0 if error */
+    long FileSize(string sFileName); /** < returns the file size or zero if error */
+    void MakeDir(string sDirectory); /** < makes a directory, including all necessary parent directories, like mkdir -p in Linux */
+#endif //#ifndef SYMBIAN
+}
+
+#endif
+

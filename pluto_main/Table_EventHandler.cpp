@@ -1,0 +1,1053 @@
+// If using the thread logger, these generated classes create lots of activity
+#ifdef NO_SQL_THREAD_LOG
+#undef THREAD_LOG
+#endif
+
+#ifdef WIN32
+#include <winsock.h>
+#endif
+
+#include <iostream>
+#include <string>
+#include <vector>
+#include <map>
+#include <list>
+
+#include <mysql.h>
+
+using namespace std;
+#include "PlutoUtils/StringUtils.h"
+#include "Table_EventHandler.h"
+#include "Table_Event.h"
+#include "Table_Criteria.h"
+#include "Table_Installation.h"
+#include "Table_CommandGroup.h"
+#include "Table_CannedEvents.h"
+
+
+
+void Database_pluto_main::CreateTable_EventHandler()
+{
+	tblEventHandler = new Table_EventHandler(this);
+}
+
+void Database_pluto_main::DeleteTable_EventHandler()
+{
+	delete tblEventHandler;
+}
+
+Table_EventHandler::~Table_EventHandler()
+{
+	map<Table_EventHandler::Key, class Row_EventHandler*, Table_EventHandler::Key_Less>::iterator it;
+	for(it=cachedRows.begin();it!=cachedRows.end();++it)
+	{
+		delete (*it).second;
+	}
+
+	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
+	{
+		delete (*it).second;
+	}
+
+	size_t i;
+	for(i=0;i<addedRows.size();++i)
+		delete addedRows[i];
+	for(i=0;i<deleted_addedRows.size();++i)
+		delete deleted_addedRows[i];
+}
+
+
+void Row_EventHandler::Delete()
+{
+	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	
+	if (!is_deleted)
+		if (is_added)	
+		{	
+			vector<Row_EventHandler*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			
+			if (i!=	table->addedRows.end())
+				table->addedRows.erase(i);
+		
+			table->deleted_addedRows.push_back(this);
+			is_deleted = true;	
+		}
+		else
+		{
+			Table_EventHandler::Key key(this);					
+			map<Table_EventHandler::Key, Row_EventHandler*, Table_EventHandler::Key_Less>::iterator i = table->cachedRows.find(key);
+			if (i!=table->cachedRows.end())
+				table->cachedRows.erase(i);
+						
+			table->deleted_cachedRows[key] = this;
+			is_deleted = true;	
+		}	
+}
+
+void Row_EventHandler::Reload()
+{
+	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	
+	
+	if (!is_added)
+	{
+		Table_EventHandler::Key key(this);		
+		Row_EventHandler *pRow = table->FetchRow(key);
+		
+		if (pRow!=NULL)
+		{
+			*this = *pRow;	
+			
+			delete pRow;		
+		}	
+	}	
+	
+}
+
+Row_EventHandler::Row_EventHandler(Table_EventHandler *pTable):table(pTable)
+{
+	SetDefaultValues();
+}
+
+void Row_EventHandler::SetDefaultValues()
+{
+	m_PK_EventHandler = 0;
+is_null[0] = false;
+m_FK_Event = 0;
+is_null[1] = false;
+is_null[2] = true;
+m_Description = "";
+is_null[3] = false;
+is_null[4] = true;
+is_null[5] = true;
+is_null[6] = true;
+m_UserCreated = 0;
+is_null[7] = false;
+is_null[8] = true;
+m_Modification_RecordInfo = "00000000000000";
+is_null[9] = false;
+m_IsNew_RecordInfo = 1;
+is_null[10] = false;
+m_IsDeleted_RecordInfo = 0;
+is_null[11] = false;
+is_null[12] = true;
+
+
+	is_added=false;
+	is_deleted=false;
+	is_modified=false;
+}
+
+long int Row_EventHandler::PK_EventHandler_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_PK_EventHandler;}
+long int Row_EventHandler::FK_Event_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FK_Event;}
+long int Row_EventHandler::FK_EventType_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FK_EventType;}
+string Row_EventHandler::Description_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Description;}
+long int Row_EventHandler::FK_Criteria_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FK_Criteria;}
+long int Row_EventHandler::FK_Installation_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FK_Installation;}
+long int Row_EventHandler::FK_CommandGroup_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FK_CommandGroup;}
+short int Row_EventHandler::UserCreated_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_UserCreated;}
+long int Row_EventHandler::FK_CannedEvents_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FK_CannedEvents;}
+string Row_EventHandler::Modification_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Modification_RecordInfo;}
+short int Row_EventHandler::IsNew_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_IsNew_RecordInfo;}
+short int Row_EventHandler::IsDeleted_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_IsDeleted_RecordInfo;}
+long int Row_EventHandler::FK_Users_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FK_Users_RecordInfo;}
+
+		
+void Row_EventHandler::PK_EventHandler_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_PK_EventHandler = val; is_modified=true; is_null[0]=false;}
+void Row_EventHandler::FK_Event_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_Event = val; is_modified=true; is_null[1]=false;}
+void Row_EventHandler::FK_EventType_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_EventType = val; is_modified=true; is_null[2]=false;}
+void Row_EventHandler::Description_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Description = val; is_modified=true; is_null[3]=false;}
+void Row_EventHandler::FK_Criteria_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_Criteria = val; is_modified=true; is_null[4]=false;}
+void Row_EventHandler::FK_Installation_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_Installation = val; is_modified=true; is_null[5]=false;}
+void Row_EventHandler::FK_CommandGroup_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_CommandGroup = val; is_modified=true; is_null[6]=false;}
+void Row_EventHandler::UserCreated_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_UserCreated = val; is_modified=true; is_null[7]=false;}
+void Row_EventHandler::FK_CannedEvents_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_CannedEvents = val; is_modified=true; is_null[8]=false;}
+void Row_EventHandler::Modification_RecordInfo_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Modification_RecordInfo = val; is_modified=true; is_null[9]=false;}
+void Row_EventHandler::IsNew_RecordInfo_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_IsNew_RecordInfo = val; is_modified=true; is_null[10]=false;}
+void Row_EventHandler::IsDeleted_RecordInfo_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_IsDeleted_RecordInfo = val; is_modified=true; is_null[11]=false;}
+void Row_EventHandler::FK_Users_RecordInfo_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_Users_RecordInfo = val; is_modified=true; is_null[12]=false;}
+
+		
+bool Row_EventHandler::FK_EventType_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[2];}
+bool Row_EventHandler::FK_Criteria_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[4];}
+bool Row_EventHandler::FK_Installation_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[5];}
+bool Row_EventHandler::FK_CommandGroup_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[6];}
+bool Row_EventHandler::FK_CannedEvents_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[8];}
+bool Row_EventHandler::IsNew_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[10];}
+bool Row_EventHandler::IsDeleted_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[11];}
+bool Row_EventHandler::FK_Users_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[12];}
+
+			
+void Row_EventHandler::FK_EventType_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[2]=val;}
+void Row_EventHandler::FK_Criteria_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[4]=val;}
+void Row_EventHandler::FK_Installation_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[5]=val;}
+void Row_EventHandler::FK_CommandGroup_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[6]=val;}
+void Row_EventHandler::FK_CannedEvents_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[8]=val;}
+void Row_EventHandler::IsNew_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[10]=val;}
+void Row_EventHandler::IsDeleted_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[11]=val;}
+void Row_EventHandler::FK_Users_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[12]=val;}
+	
+
+string Row_EventHandler::PK_EventHandler_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[0])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_PK_EventHandler);
+
+return buf;
+}
+
+string Row_EventHandler::FK_Event_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[1])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_Event);
+
+return buf;
+}
+
+string Row_EventHandler::FK_EventType_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[2])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_EventType);
+
+return buf;
+}
+
+string Row_EventHandler::Description_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[3])
+return "NULL";
+
+char buf[81];
+mysql_real_escape_string(table->database->db_handle, buf, m_Description.c_str(), (unsigned long) m_Description.size());
+return string()+"\""+buf+"\"";
+}
+
+string Row_EventHandler::FK_Criteria_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[4])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_Criteria);
+
+return buf;
+}
+
+string Row_EventHandler::FK_Installation_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[5])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_Installation);
+
+return buf;
+}
+
+string Row_EventHandler::FK_CommandGroup_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[6])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_CommandGroup);
+
+return buf;
+}
+
+string Row_EventHandler::UserCreated_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[7])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_UserCreated);
+
+return buf;
+}
+
+string Row_EventHandler::FK_CannedEvents_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[8])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_CannedEvents);
+
+return buf;
+}
+
+string Row_EventHandler::Modification_RecordInfo_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[9])
+return "NULL";
+
+char buf[29];
+mysql_real_escape_string(table->database->db_handle, buf, m_Modification_RecordInfo.c_str(), (unsigned long) m_Modification_RecordInfo.size());
+return string()+"\""+buf+"\"";
+}
+
+string Row_EventHandler::IsNew_RecordInfo_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[10])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_IsNew_RecordInfo);
+
+return buf;
+}
+
+string Row_EventHandler::IsDeleted_RecordInfo_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[11])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_IsDeleted_RecordInfo);
+
+return buf;
+}
+
+string Row_EventHandler::FK_Users_RecordInfo_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[12])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_Users_RecordInfo);
+
+return buf;
+}
+
+
+
+
+Table_EventHandler::Key::Key(long int in_PK_EventHandler)
+{
+			pk_PK_EventHandler = in_PK_EventHandler;
+	
+}
+
+Table_EventHandler::Key::Key(Row_EventHandler *pRow)
+{
+			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+
+			pk_PK_EventHandler = pRow->m_PK_EventHandler;
+	
+}		
+
+bool Table_EventHandler::Key_Less::operator()(const Table_EventHandler::Key &key1, const Table_EventHandler::Key &key2) const
+{
+			if (key1.pk_PK_EventHandler!=key2.pk_PK_EventHandler)
+return key1.pk_PK_EventHandler<key2.pk_PK_EventHandler;
+else
+return false;	
+}	
+
+void Table_EventHandler::Commit()
+{
+	PLUTO_SAFETY_LOCK(M, m_Mutex);
+
+//insert added
+	while (!addedRows.empty())
+	{
+		vector<Row_EventHandler*>::iterator i = addedRows.begin();
+	
+		Row_EventHandler *pRow = *i;
+	
+		
+string values_list_comma_separated;
+values_list_comma_separated = values_list_comma_separated + pRow->PK_EventHandler_asSQL()+", "+pRow->FK_Event_asSQL()+", "+pRow->FK_EventType_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_Criteria_asSQL()+", "+pRow->FK_Installation_asSQL()+", "+pRow->FK_CommandGroup_asSQL()+", "+pRow->UserCreated_asSQL()+", "+pRow->FK_CannedEvents_asSQL()+", "+pRow->Modification_RecordInfo_asSQL()+", "+pRow->IsNew_RecordInfo_asSQL()+", "+pRow->IsDeleted_RecordInfo_asSQL()+", "+pRow->FK_Users_RecordInfo_asSQL();
+
+	
+		string query = "insert into EventHandler (PK_EventHandler, FK_Event, FK_EventType, Description, FK_Criteria, FK_Installation, FK_CommandGroup, UserCreated, FK_CannedEvents, Modification_RecordInfo, IsNew_RecordInfo, IsDeleted_RecordInfo, FK_Users_RecordInfo) values ("+
+			values_list_comma_separated+")";
+			
+		if (mysql_query(database->db_handle, query.c_str()))
+		{	
+			cerr << "Cannot perform query: [" << query << "]" << endl;
+		}
+	
+		if (mysql_affected_rows(database->db_handle)!=0)
+		{
+			
+			
+			long int id	= (long int) mysql_insert_id(database->db_handle);
+		
+			if (id!=0)
+pRow->m_PK_EventHandler=id;
+	
+			
+			addedRows.erase(i);
+			Key key(pRow);	
+			cachedRows[key] = pRow;
+					
+			
+			pRow->is_added = false;	
+			pRow->is_modified = false;	
+		}	
+				
+	}	
+
+
+//update modified
+	
+
+	for (map<Key, Row_EventHandler*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified)
+	{
+		Row_EventHandler* pRow = (*i).second;	
+		Key key(pRow);	
+
+		char tmp_PK_EventHandler[32];
+sprintf(tmp_PK_EventHandler, "%li", key.pk_PK_EventHandler);
+
+
+string condition;
+condition = condition + "PK_EventHandler=" + tmp_PK_EventHandler;
+	
+			
+		
+string update_values_list;
+update_values_list = update_values_list + "PK_EventHandler="+pRow->PK_EventHandler_asSQL()+", FK_Event="+pRow->FK_Event_asSQL()+", FK_EventType="+pRow->FK_EventType_asSQL()+", Description="+pRow->Description_asSQL()+", FK_Criteria="+pRow->FK_Criteria_asSQL()+", FK_Installation="+pRow->FK_Installation_asSQL()+", FK_CommandGroup="+pRow->FK_CommandGroup_asSQL()+", UserCreated="+pRow->UserCreated_asSQL()+", FK_CannedEvents="+pRow->FK_CannedEvents_asSQL()+", Modification_RecordInfo="+pRow->Modification_RecordInfo_asSQL()+", IsNew_RecordInfo="+pRow->IsNew_RecordInfo_asSQL()+", IsDeleted_RecordInfo="+pRow->IsDeleted_RecordInfo_asSQL()+", FK_Users_RecordInfo="+pRow->FK_Users_RecordInfo_asSQL();
+
+	
+		string query = "update EventHandler set " + update_values_list + " where " + condition;
+			
+		if (mysql_query(database->db_handle, query.c_str()))
+		{	
+			cerr << "Cannot perform query: [" << query << "]" << endl;
+		}
+	
+		pRow->is_modified = false;	
+	}	
+	
+
+//delete deleted added
+	while (!deleted_addedRows.empty())
+	{	
+		vector<Row_EventHandler*>::iterator i = deleted_addedRows.begin();
+		delete (*i);
+		deleted_addedRows.erase(i);
+	}	
+
+
+//delete deleted cached
+	
+	while (!deleted_cachedRows.empty())
+	{	
+		map<Key, Row_EventHandler*, Key_Less>::iterator i = deleted_cachedRows.begin();
+	
+		Key key = (*i).first;
+	
+		char tmp_PK_EventHandler[32];
+sprintf(tmp_PK_EventHandler, "%li", key.pk_PK_EventHandler);
+
+
+string condition;
+condition = condition + "PK_EventHandler=" + tmp_PK_EventHandler;
+
+	
+		string query = "delete from EventHandler where " + condition;
+		
+		if (mysql_query(database->db_handle, query.c_str()))
+		{	
+			cerr << "Cannot perform query: [" << query << "]" << endl;
+		}	
+		
+		delete (*i).second;
+		deleted_cachedRows.erase(key);
+	}
+	
+}
+
+bool Table_EventHandler::GetRows(string where_statement,vector<class Row_EventHandler*> *rows)
+{
+	PLUTO_SAFETY_LOCK(M, m_Mutex);
+
+	string query = "select * from EventHandler where " + where_statement;
+		
+	if (mysql_query(database->db_handle, query.c_str()))
+	{	
+		cerr << "Cannot perform query" << endl;
+		return false;
+	}	
+
+	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	
+	if (!res)
+	{
+		cerr << "mysql_store_result returned NULL handler" << endl;
+		return false;
+	}	
+	
+	MYSQL_ROW row;
+						
+		
+	while ((row = mysql_fetch_row(res)) != NULL)
+	{	
+		unsigned long *lengths = mysql_fetch_lengths(res);
+
+		Row_EventHandler *pRow = new Row_EventHandler(this);
+		
+		if (row[0] == NULL)
+{
+pRow->is_null[0]=true;
+pRow->m_PK_EventHandler = 0;
+}
+else
+{
+pRow->is_null[0]=false;
+sscanf(row[0], "%li", &(pRow->m_PK_EventHandler));
+}
+
+if (row[1] == NULL)
+{
+pRow->is_null[1]=true;
+pRow->m_FK_Event = 0;
+}
+else
+{
+pRow->is_null[1]=false;
+sscanf(row[1], "%li", &(pRow->m_FK_Event));
+}
+
+if (row[2] == NULL)
+{
+pRow->is_null[2]=true;
+pRow->m_FK_EventType = 0;
+}
+else
+{
+pRow->is_null[2]=false;
+sscanf(row[2], "%li", &(pRow->m_FK_EventType));
+}
+
+if (row[3] == NULL)
+{
+pRow->is_null[3]=true;
+pRow->m_Description = "";
+}
+else
+{
+pRow->is_null[3]=false;
+pRow->m_Description = string(row[3],lengths[3]);
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_FK_Criteria = 0;
+}
+else
+{
+pRow->is_null[4]=false;
+sscanf(row[4], "%li", &(pRow->m_FK_Criteria));
+}
+
+if (row[5] == NULL)
+{
+pRow->is_null[5]=true;
+pRow->m_FK_Installation = 0;
+}
+else
+{
+pRow->is_null[5]=false;
+sscanf(row[5], "%li", &(pRow->m_FK_Installation));
+}
+
+if (row[6] == NULL)
+{
+pRow->is_null[6]=true;
+pRow->m_FK_CommandGroup = 0;
+}
+else
+{
+pRow->is_null[6]=false;
+sscanf(row[6], "%li", &(pRow->m_FK_CommandGroup));
+}
+
+if (row[7] == NULL)
+{
+pRow->is_null[7]=true;
+pRow->m_UserCreated = 0;
+}
+else
+{
+pRow->is_null[7]=false;
+sscanf(row[7], "%hi", &(pRow->m_UserCreated));
+}
+
+if (row[8] == NULL)
+{
+pRow->is_null[8]=true;
+pRow->m_FK_CannedEvents = 0;
+}
+else
+{
+pRow->is_null[8]=false;
+sscanf(row[8], "%li", &(pRow->m_FK_CannedEvents));
+}
+
+if (row[9] == NULL)
+{
+pRow->is_null[9]=true;
+pRow->m_Modification_RecordInfo = "";
+}
+else
+{
+pRow->is_null[9]=false;
+pRow->m_Modification_RecordInfo = string(row[9],lengths[9]);
+}
+
+if (row[10] == NULL)
+{
+pRow->is_null[10]=true;
+pRow->m_IsNew_RecordInfo = 0;
+}
+else
+{
+pRow->is_null[10]=false;
+sscanf(row[10], "%hi", &(pRow->m_IsNew_RecordInfo));
+}
+
+if (row[11] == NULL)
+{
+pRow->is_null[11]=true;
+pRow->m_IsDeleted_RecordInfo = 0;
+}
+else
+{
+pRow->is_null[11]=false;
+sscanf(row[11], "%hi", &(pRow->m_IsDeleted_RecordInfo));
+}
+
+if (row[12] == NULL)
+{
+pRow->is_null[12]=true;
+pRow->m_FK_Users_RecordInfo = 0;
+}
+else
+{
+pRow->is_null[12]=false;
+sscanf(row[12], "%li", &(pRow->m_FK_Users_RecordInfo));
+}
+
+
+
+		//checking for duplicates
+
+		Key key(pRow);
+		
+                map<Table_EventHandler::Key, Row_EventHandler*, Table_EventHandler::Key_Less>::iterator i = cachedRows.find(key);
+			
+		if (i!=cachedRows.end())
+		{
+			delete pRow;
+			pRow = (*i).second;
+		}
+
+		rows->push_back(pRow);
+		
+		cachedRows[key] = pRow;
+	}
+
+	mysql_free_result(res);			
+		
+	return true;					
+}
+
+Row_EventHandler* Table_EventHandler::AddRow()
+{
+	PLUTO_SAFETY_LOCK(M, m_Mutex);
+
+	Row_EventHandler *pRow = new Row_EventHandler(this);
+	pRow->is_added=true;
+	addedRows.push_back(pRow);
+	return pRow;		
+}
+
+
+
+Row_EventHandler* Table_EventHandler::GetRow(long int in_PK_EventHandler)
+{
+	PLUTO_SAFETY_LOCK(M, m_Mutex);
+
+	Key row_key(in_PK_EventHandler);
+
+	map<Key, Row_EventHandler*, Key_Less>::iterator i;
+	i = deleted_cachedRows.find(row_key);	
+		
+	//row was deleted	
+	if (i!=deleted_cachedRows.end())
+		return NULL;
+	
+	i = cachedRows.find(row_key);
+	
+	//row is cached
+	if (i!=cachedRows.end())
+		return (*i).second;
+	//we have to fetch row
+	Row_EventHandler* pRow = FetchRow(row_key);
+
+	if (pRow!=NULL)
+		cachedRows[row_key] = pRow;
+	return pRow;	
+}
+
+
+
+Row_EventHandler* Table_EventHandler::FetchRow(Table_EventHandler::Key &key)
+{
+	PLUTO_SAFETY_LOCK(M, m_Mutex);
+
+	//defines the string query for the value of key
+	char tmp_PK_EventHandler[32];
+sprintf(tmp_PK_EventHandler, "%li", key.pk_PK_EventHandler);
+
+
+string condition;
+condition = condition + "PK_EventHandler=" + tmp_PK_EventHandler;
+
+
+	string query = "select * from EventHandler where " + condition;		
+
+	if (mysql_query(database->db_handle, query.c_str()))
+	{	
+		cerr << "Cannot perform query" << endl;
+		return NULL;
+	}	
+
+	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	
+	if (!res)
+	{
+		cerr << "mysql_store_result returned NULL handler" << endl;
+		return NULL;
+	}	
+	
+	MYSQL_ROW row = mysql_fetch_row(res);
+	
+	if (!row)
+	{
+		//dataset is empty
+		mysql_free_result(res);			
+		return NULL;		
+	}	
+						
+	unsigned long *lengths = mysql_fetch_lengths(res);
+
+	Row_EventHandler *pRow = new Row_EventHandler(this);
+		
+	if (row[0] == NULL)
+{
+pRow->is_null[0]=true;
+pRow->m_PK_EventHandler = 0;
+}
+else
+{
+pRow->is_null[0]=false;
+sscanf(row[0], "%li", &(pRow->m_PK_EventHandler));
+}
+
+if (row[1] == NULL)
+{
+pRow->is_null[1]=true;
+pRow->m_FK_Event = 0;
+}
+else
+{
+pRow->is_null[1]=false;
+sscanf(row[1], "%li", &(pRow->m_FK_Event));
+}
+
+if (row[2] == NULL)
+{
+pRow->is_null[2]=true;
+pRow->m_FK_EventType = 0;
+}
+else
+{
+pRow->is_null[2]=false;
+sscanf(row[2], "%li", &(pRow->m_FK_EventType));
+}
+
+if (row[3] == NULL)
+{
+pRow->is_null[3]=true;
+pRow->m_Description = "";
+}
+else
+{
+pRow->is_null[3]=false;
+pRow->m_Description = string(row[3],lengths[3]);
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_FK_Criteria = 0;
+}
+else
+{
+pRow->is_null[4]=false;
+sscanf(row[4], "%li", &(pRow->m_FK_Criteria));
+}
+
+if (row[5] == NULL)
+{
+pRow->is_null[5]=true;
+pRow->m_FK_Installation = 0;
+}
+else
+{
+pRow->is_null[5]=false;
+sscanf(row[5], "%li", &(pRow->m_FK_Installation));
+}
+
+if (row[6] == NULL)
+{
+pRow->is_null[6]=true;
+pRow->m_FK_CommandGroup = 0;
+}
+else
+{
+pRow->is_null[6]=false;
+sscanf(row[6], "%li", &(pRow->m_FK_CommandGroup));
+}
+
+if (row[7] == NULL)
+{
+pRow->is_null[7]=true;
+pRow->m_UserCreated = 0;
+}
+else
+{
+pRow->is_null[7]=false;
+sscanf(row[7], "%hi", &(pRow->m_UserCreated));
+}
+
+if (row[8] == NULL)
+{
+pRow->is_null[8]=true;
+pRow->m_FK_CannedEvents = 0;
+}
+else
+{
+pRow->is_null[8]=false;
+sscanf(row[8], "%li", &(pRow->m_FK_CannedEvents));
+}
+
+if (row[9] == NULL)
+{
+pRow->is_null[9]=true;
+pRow->m_Modification_RecordInfo = "";
+}
+else
+{
+pRow->is_null[9]=false;
+pRow->m_Modification_RecordInfo = string(row[9],lengths[9]);
+}
+
+if (row[10] == NULL)
+{
+pRow->is_null[10]=true;
+pRow->m_IsNew_RecordInfo = 0;
+}
+else
+{
+pRow->is_null[10]=false;
+sscanf(row[10], "%hi", &(pRow->m_IsNew_RecordInfo));
+}
+
+if (row[11] == NULL)
+{
+pRow->is_null[11]=true;
+pRow->m_IsDeleted_RecordInfo = 0;
+}
+else
+{
+pRow->is_null[11]=false;
+sscanf(row[11], "%hi", &(pRow->m_IsDeleted_RecordInfo));
+}
+
+if (row[12] == NULL)
+{
+pRow->is_null[12]=true;
+pRow->m_FK_Users_RecordInfo = 0;
+}
+else
+{
+pRow->is_null[12]=false;
+sscanf(row[12], "%li", &(pRow->m_FK_Users_RecordInfo));
+}
+
+
+
+	mysql_free_result(res);			
+	
+	return pRow;						
+}
+
+
+class Row_Event* Row_EventHandler::FK_Event_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Event *pTable = table->database->Event_get();
+return pTable->GetRow(m_FK_Event);
+}
+class Row_Criteria* Row_EventHandler::FK_Criteria_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Criteria *pTable = table->database->Criteria_get();
+return pTable->GetRow(m_FK_Criteria);
+}
+class Row_Installation* Row_EventHandler::FK_Installation_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Installation *pTable = table->database->Installation_get();
+return pTable->GetRow(m_FK_Installation);
+}
+class Row_CommandGroup* Row_EventHandler::FK_CommandGroup_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_CommandGroup *pTable = table->database->CommandGroup_get();
+return pTable->GetRow(m_FK_CommandGroup);
+}
+class Row_CannedEvents* Row_EventHandler::FK_CannedEvents_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_CannedEvents *pTable = table->database->CannedEvents_get();
+return pTable->GetRow(m_FK_CannedEvents);
+}
+
+
+
+
+

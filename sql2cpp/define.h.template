@@ -1,0 +1,7 @@
+#ifndef __Define_@table_name@_H__
+#define __Define_@table_name@_H__
+
+@table_constants_defines@
+@table_struct_defines@
+
+#endif

@@ -1,0 +1,661 @@
+#ifndef Symbian_60Base_h
+#define Symbian_60Base_h
+#include "DeviceData_Impl.h"
+#include "Message.h"
+#include "Command_Impl.h"
+
+
+namespace DCE
+{
+//   OUR EVENT CLASS 
+
+class Symbian_60_Event : public Event_Impl
+{
+public:
+	Symbian_60_Event(int DeviceID, string ServerAddress, bool bConnectEventHandler=true) : Event_Impl(DeviceID, ServerAddress, bConnectEventHandler) {};
+	Symbian_60_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
+	//Events
+	class Event_Impl *CreateEvent(int PK_DeviceTemplate, ClientSocket *pOCClientSocket, int DeviceID);
+};
+
+
+//   OUR DATA CLASS 
+
+class Symbian_60_Data : public DeviceData_Impl
+{
+public:
+	virtual ~Symbian_60_Data() {};
+	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
+	virtual int GetPK_DeviceList() { return 24; } ;
+	virtual const char *GetDeviceDescription() { return "Symbian_60"; } ;
+	int Get_PK_Users() { return atoi(m_Parameters[3].c_str());}
+};
+
+
+
+//   OUR COMMAND CLASS 
+
+class Symbian_60_Command : public Command_Impl
+{
+public:
+	Symbian_60_Command(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL)
+	: Command_Impl(DeviceID, ServerAddress, bLocalMode, pRouter)
+	{
+		if( m_bLocalMode )
+			return;
+		m_pData=NULL;
+		m_pEvent = new Symbian_60_Event(DeviceID, ServerAddress);
+		int Size; char *pConfig = m_pEvent->GetConfig(Size);
+		if( !pConfig )
+			throw "Cannot get configuration data";
+		m_pData = new Symbian_60_Data();
+		m_pData->SerializeRead(Size,pConfig);
+		delete pConfig;
+		pConfig = m_pEvent->GetDeviceList(Size);
+		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
+		delete pConfig;
+		m_pData->m_pEvent_Impl = m_pEvent;
+		m_pcRequestSocket = new Event_Impl(DeviceID, ServerAddress);
+	};
+	Symbian_60_Command(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter) : Command_Impl(pPrimaryDeviceCommand, pData, pEvent, pRouter) {};
+	virtual ~Symbian_60_Command() {};
+	Symbian_60_Event *GetEvents() { return (Symbian_60_Event *) m_pEvent; };
+	Symbian_60_Data *GetData() { return (Symbian_60_Data *) m_pData; };
+	const char *GetClassName() { return "Symbian_60_Command"; };
+	int PK_DeviceTemplate_get() { return 24; };
+	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
+	//Data accessors
+	int DATA_Get_PK_Users() { return GetData()->Get_PK_Users(); }
+	//Event accessors
+	//Commands - Override these to handle commands from the server
+	virtual void CMD_Capture_Keyboard_To_Variable(string sPK_DesignObj,int iPK_Variable,string sOnOff,string sType,string sReset,int iPK_Text,bool bDataGrid,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Orbiter_Beep(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Display_OnOff(string sOnOff,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Goto_Screen(int iPK_Device,string sPK_DesignObj,string sID,string sPK_DesignObj_CurrentScreen,bool bStore_Variables,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Show_Object(string sPK_DesignObj,int iPK_Variable,string sComparisson_Operator,string sComparisson_Value,string sOnOff,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Terminate_Orbiter(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Remove_Screen_From_History(string sPK_DesignObj,string sID,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iPK_Direction,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Move_Highlight(string sRelative_Level,string sPK_DesignObj,int iPK_Direction,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Play_Sound(char *pData,int iData_Size,string sFormat,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Refresh(string sDataGrid_ID,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Regen_Screen(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Requires_Special_Handling(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Seek_Data_Grid(string sText,int iPosition_X,int iPosition_Y,string sDataGrid_ID,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Set_Graphic_To_Display(string sPK_DesignObj,string sID,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Set_House_Mode(string sValue_To_Assign,string sErrors,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Set_Object_Parameter(string sPK_DesignObj,string sValue_To_Assign,int iPK_DesignObjParameter,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Set_Object_Position(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Set_Object_Size(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Set_Pos_Rel_To_Parent(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Set_Size_Rel_To_Parent(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Set_Text(string sPK_DesignObj,string sText,int iPK_Text,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Set_User_Mode(string sValue_To_Assign,int iPK_Users,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Set_Variable(int iPK_Variable,string sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Simulate_Keypress(int iPK_Button,string sName,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Stop_Sound(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Store_Variables(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pData,int iData_Size,string sDisable_Aspect_Lock,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Select_Object(string sPK_DesignObj,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Rest_Highlight(string &sCMD_Result,class Message *pMessage) {};
+
+	//This distributes a received message to your handler.
+	virtual bool ReceivedMessage(class Message *pMessageOriginal)
+	{
+		int iHandled=0;
+		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
+		{
+			Message *pMessage = s>=0 ? pMessageOriginal->m_vectExtraMessages[s] : pMessageOriginal;
+			if (pMessage->m_DeviceIDTo==m_DeviceID && pMessage->m_MessageType == MESSAGETYPE_COMMAND)
+			{
+				switch(pMessage->m_ID)
+				{
+				case 1:
+					{
+						string sCMD_Result="OK";
+					string sPK_DesignObj=pMessage->m_Parameters[3];
+					int iPK_Variable=atoi(pMessage->m_Parameters[4].c_str());
+					string sOnOff=pMessage->m_Parameters[8];
+					string sType=pMessage->m_Parameters[14];
+					string sReset=pMessage->m_Parameters[24];
+					int iPK_Text=atoi(pMessage->m_Parameters[25].c_str());
+					bool bDataGrid=(pMessage->m_Parameters[55]=="1" ? true : false);
+						CMD_Capture_Keyboard_To_Variable(sPK_DesignObj.c_str(),iPK_Variable,sOnOff.c_str(),sType.c_str(),sReset.c_str(),iPK_Text,bDataGrid,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 2:
+					{
+						string sCMD_Result="OK";
+						CMD_Orbiter_Beep(sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 3:
+					{
+						string sCMD_Result="OK";
+					string sOnOff=pMessage->m_Parameters[8];
+						CMD_Display_OnOff(sOnOff.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 4:
+					{
+						string sCMD_Result="OK";
+					string sPK_DesignObj_CurrentScreen=pMessage->m_Parameters[16];
+					string sForce=pMessage->m_Parameters[21];
+						CMD_Go_back(sPK_DesignObj_CurrentScreen.c_str(),sForce.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 5:
+					{
+						string sCMD_Result="OK";
+					int iPK_Device=atoi(pMessage->m_Parameters[2].c_str());
+					string sPK_DesignObj=pMessage->m_Parameters[3];
+					string sID=pMessage->m_Parameters[10];
+					string sPK_DesignObj_CurrentScreen=pMessage->m_Parameters[16];
+					bool bStore_Variables=(pMessage->m_Parameters[22]=="1" ? true : false);
+						CMD_Goto_Screen(iPK_Device,sPK_DesignObj.c_str(),sID.c_str(),sPK_DesignObj_CurrentScreen.c_str(),bStore_Variables,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 6:
+					{
+						string sCMD_Result="OK";
+					string sPK_DesignObj=pMessage->m_Parameters[3];
+					int iPK_Variable=atoi(pMessage->m_Parameters[4].c_str());
+					string sComparisson_Operator=pMessage->m_Parameters[6];
+					string sComparisson_Value=pMessage->m_Parameters[7];
+					string sOnOff=pMessage->m_Parameters[8];
+						CMD_Show_Object(sPK_DesignObj.c_str(),iPK_Variable,sComparisson_Operator.c_str(),sComparisson_Value.c_str(),sOnOff.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 7:
+					{
+						string sCMD_Result="OK";
+						CMD_Terminate_Orbiter(sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 8:
+					{
+						string sCMD_Result="OK";
+					string sPK_DesignObj=pMessage->m_Parameters[3];
+					string sID=pMessage->m_Parameters[10];
+						CMD_Remove_Screen_From_History(sPK_DesignObj.c_str(),sID.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 9:
+					{
+						string sCMD_Result="OK";
+					string sRelative_Level=pMessage->m_Parameters[1];
+					string sPK_DesignObj=pMessage->m_Parameters[3];
+					int iPK_Direction=atoi(pMessage->m_Parameters[30].c_str());
+						CMD_Scroll_Grid(sRelative_Level.c_str(),sPK_DesignObj.c_str(),iPK_Direction,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 10:
+					{
+						string sCMD_Result="OK";
+					string sRelative_Level=pMessage->m_Parameters[1];
+					string sPK_DesignObj=pMessage->m_Parameters[3];
+					int iPK_Direction=atoi(pMessage->m_Parameters[30].c_str());
+						CMD_Move_Highlight(sRelative_Level.c_str(),sPK_DesignObj.c_str(),iPK_Direction,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 13:
+					{
+						string sCMD_Result="OK";
+					char *pData=pMessage->m_DataParameters[19];
+					int iData_Size=pMessage->m_DataLengths[19];
+					string sFormat=pMessage->m_Parameters[20];
+						CMD_Play_Sound(pData,iData_Size,sFormat.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 14:
+					{
+						string sCMD_Result="OK";
+					string sDataGrid_ID=pMessage->m_Parameters[15];
+						CMD_Refresh(sDataGrid_ID.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 15:
+					{
+						string sCMD_Result="OK";
+						CMD_Regen_Screen(sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 16:
+					{
+						string sCMD_Result="OK";
+						CMD_Requires_Special_Handling(sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 17:
+					{
+						string sCMD_Result="OK";
+					string sText=pMessage->m_Parameters[9];
+					int iPosition_X=atoi(pMessage->m_Parameters[11].c_str());
+					int iPosition_Y=atoi(pMessage->m_Parameters[12].c_str());
+					string sDataGrid_ID=pMessage->m_Parameters[15];
+						CMD_Seek_Data_Grid(sText.c_str(),iPosition_X,iPosition_Y,sDataGrid_ID.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 18:
+					{
+						string sCMD_Result="OK";
+					string sPK_DesignObj=pMessage->m_Parameters[3];
+					string sID=pMessage->m_Parameters[10];
+						CMD_Set_Graphic_To_Display(sPK_DesignObj.c_str(),sID.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 19:
+					{
+						string sCMD_Result="OK";
+					string sValue_To_Assign=pMessage->m_Parameters[5];
+					string sErrors=pMessage->m_Parameters[18];
+						CMD_Set_House_Mode(sValue_To_Assign.c_str(),sErrors.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 20:
+					{
+						string sCMD_Result="OK";
+					string sPK_DesignObj=pMessage->m_Parameters[3];
+					string sValue_To_Assign=pMessage->m_Parameters[5];
+					int iPK_DesignObjParameter=atoi(pMessage->m_Parameters[27].c_str());
+						CMD_Set_Object_Parameter(sPK_DesignObj.c_str(),sValue_To_Assign.c_str(),iPK_DesignObjParameter,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 21:
+					{
+						string sCMD_Result="OK";
+					string sPK_DesignObj=pMessage->m_Parameters[3];
+					int iPosition_X=atoi(pMessage->m_Parameters[11].c_str());
+					int iPosition_Y=atoi(pMessage->m_Parameters[12].c_str());
+						CMD_Set_Object_Position(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 22:
+					{
+						string sCMD_Result="OK";
+					string sPK_DesignObj=pMessage->m_Parameters[3];
+					int iPosition_X=atoi(pMessage->m_Parameters[11].c_str());
+					int iPosition_Y=atoi(pMessage->m_Parameters[12].c_str());
+						CMD_Set_Object_Size(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 23:
+					{
+						string sCMD_Result="OK";
+					string sPK_DesignObj=pMessage->m_Parameters[3];
+					int iPosition_X=atoi(pMessage->m_Parameters[11].c_str());
+					int iPosition_Y=atoi(pMessage->m_Parameters[12].c_str());
+						CMD_Set_Pos_Rel_To_Parent(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 24:
+					{
+						string sCMD_Result="OK";
+					string sPK_DesignObj=pMessage->m_Parameters[3];
+					int iPosition_X=atoi(pMessage->m_Parameters[11].c_str());
+					int iPosition_Y=atoi(pMessage->m_Parameters[12].c_str());
+						CMD_Set_Size_Rel_To_Parent(sPK_DesignObj.c_str(),iPosition_X,iPosition_Y,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 25:
+					{
+						string sCMD_Result="OK";
+					string sPK_DesignObj=pMessage->m_Parameters[3];
+					string sText=pMessage->m_Parameters[9];
+					int iPK_Text=atoi(pMessage->m_Parameters[25].c_str());
+						CMD_Set_Text(sPK_DesignObj.c_str(),sText.c_str(),iPK_Text,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 26:
+					{
+						string sCMD_Result="OK";
+					string sValue_To_Assign=pMessage->m_Parameters[5];
+					int iPK_Users=atoi(pMessage->m_Parameters[17].c_str());
+						CMD_Set_User_Mode(sValue_To_Assign.c_str(),iPK_Users,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 27:
+					{
+						string sCMD_Result="OK";
+					int iPK_Variable=atoi(pMessage->m_Parameters[4].c_str());
+					string sValue_To_Assign=pMessage->m_Parameters[5];
+						CMD_Set_Variable(iPK_Variable,sValue_To_Assign.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 28:
+					{
+						string sCMD_Result="OK";
+					int iPK_Button=atoi(pMessage->m_Parameters[26].c_str());
+					string sName=pMessage->m_Parameters[50];
+						CMD_Simulate_Keypress(iPK_Button,sName.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 29:
+					{
+						string sCMD_Result="OK";
+					int iPosition_X=atoi(pMessage->m_Parameters[11].c_str());
+					int iPosition_Y=atoi(pMessage->m_Parameters[12].c_str());
+						CMD_Simulate_Mouse_Click(iPosition_X,iPosition_Y,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 30:
+					{
+						string sCMD_Result="OK";
+						CMD_Stop_Sound(sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 31:
+					{
+						string sCMD_Result="OK";
+						CMD_Store_Variables(sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 32:
+					{
+						string sCMD_Result="OK";
+					string sPK_DesignObj=pMessage->m_Parameters[3];
+					string sType=pMessage->m_Parameters[14];
+					char *pData=pMessage->m_DataParameters[19];
+					int iData_Size=pMessage->m_DataLengths[19];
+					string sDisable_Aspect_Lock=pMessage->m_Parameters[23];
+						CMD_Update_Object_Image(sPK_DesignObj.c_str(),sType.c_str(),pData,iData_Size,sDisable_Aspect_Lock.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 66:
+					{
+						string sCMD_Result="OK";
+					string sPK_DesignObj=pMessage->m_Parameters[3];
+						CMD_Select_Object(sPK_DesignObj.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 72:
+					{
+						string sCMD_Result="OK";
+					string sOnOff=pMessage->m_Parameters[8];
+					bool bFully_release_keyboard=(pMessage->m_Parameters[54]=="1" ? true : false);
+						CMD_Surrender_to_OS(sOnOff.c_str(),bFully_release_keyboard,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 85:
+					{
+						string sCMD_Result="OK";
+						CMD_Rest_Highlight(sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_DeviceIDFrom,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				}
+				iHandled += Command_Impl::ReceivedMessage(pMessage);			}
+		}
+		return iHandled!=0;
+	}
+}; // end class
+
+
+}
+#endif

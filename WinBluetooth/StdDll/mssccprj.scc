@@ -1,0 +1,5 @@
+SCC = This is a Source Code Control file
+
+[transp_bth.dsp]
+SCC_Aux_Path = "\\tdksys04\dev\vss"
+SCC_Project_Name = "$/Bluetooth/btmobiletransport/transp_bth", HPXBAAAA

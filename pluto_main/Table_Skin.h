@@ -1,0 +1,202 @@
+#ifndef __Table_Skin_H__
+#define __Table_Skin_H__
+
+#ifdef SQL2CPP_DLLEXPORT
+#define DLL_EXPORT __declspec(dllexport)
+#else
+#define DLL_EXPORT
+#endif
+
+#include "TableRow.h"
+#include "Database_pluto_main.h"
+#include "PlutoUtils/MultiThreadIncludes.h"
+#include "Define_Skin.h"
+#include "SerializeClass/SerializeClass.h"
+
+class DLL_EXPORT Table_Skin
+{
+private:
+	Database_pluto_main *database;
+	struct Key;	//forward declaration
+	
+public:
+    pluto_pthread_mutex_t m_Mutex;
+	pthread_mutexattr_t m_MutexAttr;
+		
+	Table_Skin(Database_pluto_main *pDatabase):database(pDatabase), m_Mutex("Skin")
+	{
+		pthread_mutexattr_init(&m_MutexAttr);
+		pthread_mutexattr_settype(&m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP);
+		m_Mutex.Init(&m_MutexAttr); 
+	};
+	~Table_Skin();
+
+private:		
+	friend class Row_Skin;
+	struct Key
+	{
+		friend class Row_Skin;
+		long int pk_PK_Skin;
+
+		
+		Key(long int in_PK_Skin);
+	
+		Key(class Row_Skin *pRow);
+	};
+	struct Key_Less
+	{			
+		bool operator()(const Table_Skin::Key &key1, const Table_Skin::Key &key2) const;
+	};	
+
+	map<Table_Skin::Key, class Row_Skin*, Table_Skin::Key_Less> cachedRows;
+	map<Table_Skin::Key, class Row_Skin*, Table_Skin::Key_Less> deleted_cachedRows;
+	vector<class Row_Skin*> addedRows;
+	vector<class Row_Skin*> deleted_addedRows;	
+		
+
+public:				
+	void Commit();
+	bool GetRows(string where_statement,vector<class Row_Skin*> *rows);
+	class Row_Skin* AddRow();
+	Database_pluto_main *Database_pluto_main_get() { return database; }
+	
+		
+	class Row_Skin* GetRow(long int in_PK_Skin);
+	
+
+private:	
+	
+		
+	class Row_Skin* FetchRow(Key &key);
+		
+			
+};
+
+class DLL_EXPORT Row_Skin : public TableRow, public SerializeClass
+	{
+		friend struct Table_Skin::Key;
+		friend class Table_Skin;
+	private:
+		Table_Skin *table;
+		
+		long int m_PK_Skin;
+string m_Description;
+long int m_FK_Criteria_D;
+short int m_MergeStandardVariation;
+string m_DataSubdirectory;
+long int m_FK_Style;
+long int m_FK_Skin_TextPlacement;
+short int m_DrawTextBeforeChildren;
+long int m_FK_AnimationStyle;
+long int m_FK_StabilityStatus;
+string m_Modification_RecordInfo;
+short int m_IsNew_RecordInfo;
+short int m_IsDeleted_RecordInfo;
+long int m_FK_Users_RecordInfo;
+
+		bool is_null[14];
+	
+		bool is_deleted;
+		bool is_added;
+		bool is_modified;					
+	
+	public:
+		long int PK_Skin_get();
+string Description_get();
+long int FK_Criteria_D_get();
+short int MergeStandardVariation_get();
+string DataSubdirectory_get();
+long int FK_Style_get();
+long int FK_Skin_TextPlacement_get();
+short int DrawTextBeforeChildren_get();
+long int FK_AnimationStyle_get();
+long int FK_StabilityStatus_get();
+string Modification_RecordInfo_get();
+short int IsNew_RecordInfo_get();
+short int IsDeleted_RecordInfo_get();
+long int FK_Users_RecordInfo_get();
+
+		
+		void PK_Skin_set(long int val);
+void Description_set(string val);
+void FK_Criteria_D_set(long int val);
+void MergeStandardVariation_set(short int val);
+void DataSubdirectory_set(string val);
+void FK_Style_set(long int val);
+void FK_Skin_TextPlacement_set(long int val);
+void DrawTextBeforeChildren_set(short int val);
+void FK_AnimationStyle_set(long int val);
+void FK_StabilityStatus_set(long int val);
+void Modification_RecordInfo_set(string val);
+void IsNew_RecordInfo_set(short int val);
+void IsDeleted_RecordInfo_set(short int val);
+void FK_Users_RecordInfo_set(long int val);
+
+		
+		bool FK_Criteria_D_isNull();
+bool DataSubdirectory_isNull();
+bool FK_Style_isNull();
+bool FK_Skin_TextPlacement_isNull();
+bool IsNew_RecordInfo_isNull();
+bool IsDeleted_RecordInfo_isNull();
+bool FK_Users_RecordInfo_isNull();
+
+			
+		void FK_Criteria_D_setNull(bool val);
+void DataSubdirectory_setNull(bool val);
+void FK_Style_setNull(bool val);
+void FK_Skin_TextPlacement_setNull(bool val);
+void IsNew_RecordInfo_setNull(bool val);
+void IsDeleted_RecordInfo_setNull(bool val);
+void FK_Users_RecordInfo_setNull(bool val);
+	
+	
+		void Delete();
+		void Reload();		
+	
+		Row_Skin(Table_Skin *pTable);
+	
+		bool IsDeleted(){return is_deleted;};
+		bool IsModified(){return is_modified;};			
+		class Table_Skin *Table_Skin_get() { return table; };
+
+		// Return the rows for foreign keys 
+		class Row_Criteria_D* FK_Criteria_D_getrow();
+class Row_Style* FK_Style_getrow();
+class Row_Skin* FK_Skin_TextPlacement_getrow();
+class Row_StabilityStatus* FK_StabilityStatus_getrow();
+
+
+		// Return the rows in other tables with foreign keys pointing here
+		void DesignObjVariation_Text_Skin_Language_FK_Skin_getrows(vector <class Row_DesignObjVariation_Text_Skin_Language*> *rows);
+void Orbiter_FK_Skin_getrows(vector <class Row_Orbiter*> *rows);
+void Skin_FK_Skin_TextPlacement_getrows(vector <class Row_Skin*> *rows);
+void StyleVariation_FK_Skin_getrows(vector <class Row_StyleVariation*> *rows);
+
+
+		// Setup binary serialization
+		void SetupSerialization() {
+			StartSerializeList() + m_PK_Skin+ m_Description+ m_FK_Criteria_D+ m_MergeStandardVariation+ m_DataSubdirectory+ m_FK_Style+ m_FK_Skin_TextPlacement+ m_DrawTextBeforeChildren+ m_FK_AnimationStyle+ m_FK_StabilityStatus+ m_Modification_RecordInfo+ m_IsNew_RecordInfo+ m_IsDeleted_RecordInfo+ m_FK_Users_RecordInfo;
+		}
+	private:
+		void SetDefaultValues();
+		
+		string PK_Skin_asSQL();
+string Description_asSQL();
+string FK_Criteria_D_asSQL();
+string MergeStandardVariation_asSQL();
+string DataSubdirectory_asSQL();
+string FK_Style_asSQL();
+string FK_Skin_TextPlacement_asSQL();
+string DrawTextBeforeChildren_asSQL();
+string FK_AnimationStyle_asSQL();
+string FK_StabilityStatus_asSQL();
+string Modification_RecordInfo_asSQL();
+string IsNew_RecordInfo_asSQL();
+string IsDeleted_RecordInfo_asSQL();
+string FK_Users_RecordInfo_asSQL();
+
+	};
+
+#endif
+

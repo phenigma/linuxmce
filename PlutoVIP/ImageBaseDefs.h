@@ -1,0 +1,9 @@
+#ifndef IMAGEBASEDEFS_H
+#define IMAGEBASEDEFS_H
+
+#define IMAGE_TYPE_UNKNOWN		0
+#define IMAGE_TYPE_NEW			1
+#define IMAGE_TYPE_ACTIVE		2
+#define IMAGE_TYPE_RECENT		3
+
+#endif // IMAGEBASEDEFS_H

@@ -1,0 +1,26 @@
+#ifndef __Define_HorizAlignment_H__
+#define __Define_HorizAlignment_H__
+
+#define HORIZALIGNMENT_Left_CONST 1
+#define HORIZALIGNMENT_Center_CONST 2
+#define HORIZALIGNMENT_Right_CONST 3
+
+#define HORIZALIGNMENT_TABLE "HorizAlignment"
+#define HORIZALIGNMENT_PK_HORIZALIGNMENT_FIELD "PK_HorizAlignment"
+#define HORIZALIGNMENT_PK_HORIZALIGNMENT_TABLE_FIELD "HorizAlignment.PK_HorizAlignment"
+#define HORIZALIGNMENT_DESCRIPTION_FIELD "Description"
+#define HORIZALIGNMENT_DESCRIPTION_TABLE_FIELD "HorizAlignment.Description"
+#define HORIZALIGNMENT_DEFINE_FIELD "Define"
+#define HORIZALIGNMENT_DEFINE_TABLE_FIELD "HorizAlignment.Define"
+#define HORIZALIGNMENT_MODIFICATION_RECORDINFO_FIELD "Modification_RecordInfo"
+#define HORIZALIGNMENT_MODIFICATION_RECORDINFO_TABLE_FIELD "HorizAlignment.Modification_RecordInfo"
+#define HORIZALIGNMENT_ISNEW_RECORDINFO_FIELD "IsNew_RecordInfo"
+#define HORIZALIGNMENT_ISNEW_RECORDINFO_TABLE_FIELD "HorizAlignment.IsNew_RecordInfo"
+#define HORIZALIGNMENT_ISDELETED_RECORDINFO_FIELD "IsDeleted_RecordInfo"
+#define HORIZALIGNMENT_ISDELETED_RECORDINFO_TABLE_FIELD "HorizAlignment.IsDeleted_RecordInfo"
+#define HORIZALIGNMENT_FK_USERS_RECORDINFO_FIELD "FK_Users_RecordInfo"
+#define HORIZALIGNMENT_FK_USERS_RECORDINFO_TABLE_FIELD "HorizAlignment.FK_Users_RecordInfo"
+
+
+#endif
+

@@ -1,0 +1,37 @@
+#ifndef __Define_InfraredData_H__
+#define __Define_InfraredData_H__
+
+
+#define INFRAREDDATA_TABLE "InfraredData"
+#define INFRAREDDATA_PK_INFRAREDDATA_FIELD "PK_InfraredData"
+#define INFRAREDDATA_PK_INFRAREDDATA_TABLE_FIELD "InfraredData.PK_InfraredData"
+#define INFRAREDDATA_MANUFACTURER_FIELD "Manufacturer"
+#define INFRAREDDATA_MANUFACTURER_TABLE_FIELD "InfraredData.Manufacturer"
+#define INFRAREDDATA_MODEL_FIELD "Model"
+#define INFRAREDDATA_MODEL_TABLE_FIELD "InfraredData.Model"
+#define INFRAREDDATA_DEVICE_FIELD "Device"
+#define INFRAREDDATA_DEVICE_TABLE_FIELD "InfraredData.Device"
+#define INFRAREDDATA_COMMAND_FIELD "Command"
+#define INFRAREDDATA_COMMAND_TABLE_FIELD "InfraredData.Command"
+#define INFRAREDDATA_PRONTO_FIELD "Pronto"
+#define INFRAREDDATA_PRONTO_TABLE_FIELD "InfraredData.Pronto"
+#define INFRAREDDATA_FREQUENCY_FIELD "Frequency"
+#define INFRAREDDATA_FREQUENCY_TABLE_FIELD "InfraredData.Frequency"
+#define INFRAREDDATA_DATA_FIELD "Data"
+#define INFRAREDDATA_DATA_TABLE_FIELD "InfraredData.Data"
+#define INFRAREDDATA_DATAREPEAT_FIELD "DataRepeat"
+#define INFRAREDDATA_DATAREPEAT_TABLE_FIELD "InfraredData.DataRepeat"
+#define INFRAREDDATA_LEADOUT_FIELD "Leadout"
+#define INFRAREDDATA_LEADOUT_TABLE_FIELD "InfraredData.Leadout"
+#define INFRAREDDATA_MODIFICATION_RECORDINFO_FIELD "Modification_RecordInfo"
+#define INFRAREDDATA_MODIFICATION_RECORDINFO_TABLE_FIELD "InfraredData.Modification_RecordInfo"
+#define INFRAREDDATA_ISNEW_RECORDINFO_FIELD "IsNew_RecordInfo"
+#define INFRAREDDATA_ISNEW_RECORDINFO_TABLE_FIELD "InfraredData.IsNew_RecordInfo"
+#define INFRAREDDATA_ISDELETED_RECORDINFO_FIELD "IsDeleted_RecordInfo"
+#define INFRAREDDATA_ISDELETED_RECORDINFO_TABLE_FIELD "InfraredData.IsDeleted_RecordInfo"
+#define INFRAREDDATA_FK_USERS_RECORDINFO_FIELD "FK_Users_RecordInfo"
+#define INFRAREDDATA_FK_USERS_RECORDINFO_TABLE_FIELD "InfraredData.FK_Users_RecordInfo"
+
+
+#endif
+

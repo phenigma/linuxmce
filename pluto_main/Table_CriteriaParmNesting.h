@@ -1,0 +1,168 @@
+#ifndef __Table_CriteriaParmNesting_H__
+#define __Table_CriteriaParmNesting_H__
+
+#ifdef SQL2CPP_DLLEXPORT
+#define DLL_EXPORT __declspec(dllexport)
+#else
+#define DLL_EXPORT
+#endif
+
+#include "TableRow.h"
+#include "Database_pluto_main.h"
+#include "PlutoUtils/MultiThreadIncludes.h"
+#include "Define_CriteriaParmNesting.h"
+#include "SerializeClass/SerializeClass.h"
+
+class DLL_EXPORT Table_CriteriaParmNesting
+{
+private:
+	Database_pluto_main *database;
+	struct Key;	//forward declaration
+	
+public:
+    pluto_pthread_mutex_t m_Mutex;
+	pthread_mutexattr_t m_MutexAttr;
+		
+	Table_CriteriaParmNesting(Database_pluto_main *pDatabase):database(pDatabase), m_Mutex("CriteriaParmNesting")
+	{
+		pthread_mutexattr_init(&m_MutexAttr);
+		pthread_mutexattr_settype(&m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP);
+		m_Mutex.Init(&m_MutexAttr); 
+	};
+	~Table_CriteriaParmNesting();
+
+private:		
+	friend class Row_CriteriaParmNesting;
+	struct Key
+	{
+		friend class Row_CriteriaParmNesting;
+		long int pk_PK_CriteriaParmNesting;
+
+		
+		Key(long int in_PK_CriteriaParmNesting);
+	
+		Key(class Row_CriteriaParmNesting *pRow);
+	};
+	struct Key_Less
+	{			
+		bool operator()(const Table_CriteriaParmNesting::Key &key1, const Table_CriteriaParmNesting::Key &key2) const;
+	};	
+
+	map<Table_CriteriaParmNesting::Key, class Row_CriteriaParmNesting*, Table_CriteriaParmNesting::Key_Less> cachedRows;
+	map<Table_CriteriaParmNesting::Key, class Row_CriteriaParmNesting*, Table_CriteriaParmNesting::Key_Less> deleted_cachedRows;
+	vector<class Row_CriteriaParmNesting*> addedRows;
+	vector<class Row_CriteriaParmNesting*> deleted_addedRows;	
+		
+
+public:				
+	void Commit();
+	bool GetRows(string where_statement,vector<class Row_CriteriaParmNesting*> *rows);
+	class Row_CriteriaParmNesting* AddRow();
+	Database_pluto_main *Database_pluto_main_get() { return database; }
+	
+		
+	class Row_CriteriaParmNesting* GetRow(long int in_PK_CriteriaParmNesting);
+	
+
+private:	
+	
+		
+	class Row_CriteriaParmNesting* FetchRow(Key &key);
+		
+			
+};
+
+class DLL_EXPORT Row_CriteriaParmNesting : public TableRow, public SerializeClass
+	{
+		friend struct Table_CriteriaParmNesting::Key;
+		friend class Table_CriteriaParmNesting;
+	private:
+		Table_CriteriaParmNesting *table;
+		
+		long int m_PK_CriteriaParmNesting;
+long int m_FK_CriteriaParmNesting_Parent;
+short int m_IsAnd;
+short int m_IsNot;
+string m_Modification_RecordInfo;
+short int m_IsNew_RecordInfo;
+short int m_IsDeleted_RecordInfo;
+long int m_FK_Users_RecordInfo;
+
+		bool is_null[8];
+	
+		bool is_deleted;
+		bool is_added;
+		bool is_modified;					
+	
+	public:
+		long int PK_CriteriaParmNesting_get();
+long int FK_CriteriaParmNesting_Parent_get();
+short int IsAnd_get();
+short int IsNot_get();
+string Modification_RecordInfo_get();
+short int IsNew_RecordInfo_get();
+short int IsDeleted_RecordInfo_get();
+long int FK_Users_RecordInfo_get();
+
+		
+		void PK_CriteriaParmNesting_set(long int val);
+void FK_CriteriaParmNesting_Parent_set(long int val);
+void IsAnd_set(short int val);
+void IsNot_set(short int val);
+void Modification_RecordInfo_set(string val);
+void IsNew_RecordInfo_set(short int val);
+void IsDeleted_RecordInfo_set(short int val);
+void FK_Users_RecordInfo_set(long int val);
+
+		
+		bool FK_CriteriaParmNesting_Parent_isNull();
+bool IsNew_RecordInfo_isNull();
+bool IsDeleted_RecordInfo_isNull();
+bool FK_Users_RecordInfo_isNull();
+
+			
+		void FK_CriteriaParmNesting_Parent_setNull(bool val);
+void IsNew_RecordInfo_setNull(bool val);
+void IsDeleted_RecordInfo_setNull(bool val);
+void FK_Users_RecordInfo_setNull(bool val);
+	
+	
+		void Delete();
+		void Reload();		
+	
+		Row_CriteriaParmNesting(Table_CriteriaParmNesting *pTable);
+	
+		bool IsDeleted(){return is_deleted;};
+		bool IsModified(){return is_modified;};			
+		class Table_CriteriaParmNesting *Table_CriteriaParmNesting_get() { return table; };
+
+		// Return the rows for foreign keys 
+		class Row_CriteriaParmNesting* FK_CriteriaParmNesting_Parent_getrow();
+
+
+		// Return the rows in other tables with foreign keys pointing here
+		void Criteria_FK_CriteriaParmNesting_getrows(vector <class Row_Criteria*> *rows);
+void CriteriaParm_FK_CriteriaParmNesting_getrows(vector <class Row_CriteriaParm*> *rows);
+void CriteriaParmNesting_FK_CriteriaParmNesting_Parent_getrows(vector <class Row_CriteriaParmNesting*> *rows);
+
+
+		// Setup binary serialization
+		void SetupSerialization() {
+			StartSerializeList() + m_PK_CriteriaParmNesting+ m_FK_CriteriaParmNesting_Parent+ m_IsAnd+ m_IsNot+ m_Modification_RecordInfo+ m_IsNew_RecordInfo+ m_IsDeleted_RecordInfo+ m_FK_Users_RecordInfo;
+		}
+	private:
+		void SetDefaultValues();
+		
+		string PK_CriteriaParmNesting_asSQL();
+string FK_CriteriaParmNesting_Parent_asSQL();
+string IsAnd_asSQL();
+string IsNot_asSQL();
+string Modification_RecordInfo_asSQL();
+string IsNew_RecordInfo_asSQL();
+string IsDeleted_RecordInfo_asSQL();
+string FK_Users_RecordInfo_asSQL();
+
+	};
+
+#endif
+

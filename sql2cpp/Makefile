@@ -1,0 +1,32 @@
+ROOT = ..
+CXXFLAGS = -Wall -g 
+CPPFLAGS = -I$(ROOT)/ -I$(ROOT)/DCE -I$(ROOT)/VIPShared -I/usr/include/mysql -D_REENTRANT -D_GNU_SOURCE -DDEBUG -DGENERATOR
+LDFLAGS = -L$(ROOT)/lib 
+LDLIBS = -lDCECommon -lPlutoUtils -lpthread -lmysqlclient_r -lattr
+CXX = g++
+
+APPNAME = sql2cpp
+VERSION = 2.0.0
+
+sources = TableInfo.cpp TableInfo_Generator.cpp DatabaseInfo.cpp CommonFunctions.cpp FieldInfo.cpp
+sql2cpp = $(sources) sql2cpp.cpp
+new_thing = $(sources) TableInfo_SCVS.cpp
+
+all: sql2cpp
+#all: newthing
+
+sql2cpp: $(sql2cpp:.cpp=.o)
+	$(CXX) -o $@ $+  $(LDFLAGS) $(LDLIBS)
+	cp $@ $(ROOT)/bin
+
+newthing: $(new_thing:.cpp=.o)
+	@echo "*** Something to do here ***"
+
+clean: clean-recursive
+	rm -f $(sources:.cpp=.o) $(sources:.cpp=.d) sql2cpp >/dev/null
+
+package:
+	./make_package.sh $(APPNAME) $(VERSION)
+
+include $(ROOT)/DCE/make.rules
+-include $(sources:.cpp=.d)

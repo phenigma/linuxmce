@@ -1,0 +1,81 @@
+/**
+ *
+ * @file Other.cpp
+ * @brief source file for the Other utilities
+ * @author
+ * @todo notcommented
+ *
+ */
+
+ /**
+  *
+  * Copyright Notice goes here
+  *
+  */
+
+#include "Other.h"
+
+#ifndef SYMBIAN
+	#include <stdio.h>
+	#include <time.h>
+	#include <cctype>
+	#include <algorithm>
+	#include <stdarg.h>
+	#include <sys/types.h>
+	#include <sys/stat.h>
+	#ifdef WIN32
+		#include <direct.h>
+	#else
+		#include <dirent.h>
+		#define stricmp(x, y) strcasecmp(x, y)
+	#endif
+#endif //#ifndef SYMBIAN
+
+
+
+int FastParser::GetNextNumParm()
+{
+    if ( !(*m_pcData) || IsAtEnd() )
+        return 0;
+
+    register int c;
+    int total=0;
+    int sign;
+
+    c = (int)*m_pcData++;
+    sign = c;
+    if (c == '-' || c == '+')
+        c = (int)*m_pcData++;
+
+    do
+    {
+        if (c==m_cDelimiter)
+            break;
+        if ( c>='0' && c<='9' )
+            total = 10 * total + (c-'0');
+        c = *m_pcData++;
+    }  while(c); //(*m_Data);
+
+    if ( sign == '-' )
+        return -total;
+    else
+        return total;
+}
+
+
+const char *FastParser::GetNextParm()
+{
+    if ( IsAtEnd() )
+        return NULL;
+
+    char *pcReturnValue = m_pcData;
+
+    for ( ; *m_pcData ; m_pcData++ )
+        if ( *m_pcData == m_cDelimiter)
+        {
+            *m_pcData = '\0';
+            break;
+        }
+    m_pcData++;
+    return (const char *)pcReturnValue;
+}

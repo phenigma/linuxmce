@@ -1,0 +1,40 @@
+LIBRARIES=
+APPS=DCERouter 
+DCEDEVS=App_Server Bluetooth_Dongle Disk_Drive Orbiter Xine_Player 
+PLUGINS=Datagrid_Plugin File_Grids_Plugin Media_Plugin Orbiter_Plugin Xine_Plugin Media_Grids_Plugin \
+	General_Info_Plugin Mozilla_Plugin Lighting_Plugin Climate_Plugin Security_Plugin Telecom_Plugin \
+	MythTV_PlugIn
+CONFLICTING=
+
+all: libs nolibs
+
+nolibs: plugins apps
+
+apps: required_dirs dcedevs intersecting
+	for i in $(APPS); do make -C $$i || exit $$?; done
+
+dcedevs: required_dirs
+	for i in $(DCEDEVS); do make -C $$i bin || exit $$?; done
+
+libs: required_dirs
+	for i in $(LIBRARIES); do make -C $$i || exit $$?; done
+
+plugins: required_dirs
+	for i in $(PLUGINS); do make -C $$i so || exit $$?; done
+
+intersecting: required_dirs
+	for i in $(CONFLICTING); do make -C $$i clean all || exit $$?; done
+
+required_dirs:
+	mkdir -p bin lib 2>/dev/null
+
+# you have to request yourself; there's no target depending on it
+packages: all
+	@echo "** Expect lots of editing to do :) Press enter to start"
+	read
+	for i in $(APPS) $(DCEDEVS) $(PLUGINS) $(CONFLICTING); do make -C $$i package; done
+
+clean:
+	@#for i in $(STANDALONE) $(PLUGINS) $(CONFLICTING); do make -C $$i clean || exit $$?; done
+	for i in '*.d' '*.d.*' '*.o'; do find -type f -name "$$i" -exec rm '{}' ';' ; done
+

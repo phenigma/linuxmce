@@ -1,0 +1,27 @@
+#ifndef __Define_Device_Device_Pipe_H__
+#define __Define_Device_Device_Pipe_H__
+
+
+#define DEVICE_DEVICE_PIPE_TABLE "Device_Device_Pipe"
+#define DEVICE_DEVICE_PIPE_FK_DEVICE_FROM_FIELD "FK_Device_From"
+#define DEVICE_DEVICE_PIPE_FK_DEVICE_FROM_TABLE_FIELD "Device_Device_Pipe.FK_Device_From"
+#define DEVICE_DEVICE_PIPE_FK_DEVICE_TO_FIELD "FK_Device_To"
+#define DEVICE_DEVICE_PIPE_FK_DEVICE_TO_TABLE_FIELD "Device_Device_Pipe.FK_Device_To"
+#define DEVICE_DEVICE_PIPE_FK_PIPE_FIELD "FK_Pipe"
+#define DEVICE_DEVICE_PIPE_FK_PIPE_TABLE_FIELD "Device_Device_Pipe.FK_Pipe"
+#define DEVICE_DEVICE_PIPE_FK_INPUT_FIELD "FK_Input"
+#define DEVICE_DEVICE_PIPE_FK_INPUT_TABLE_FIELD "Device_Device_Pipe.FK_Input"
+#define DEVICE_DEVICE_PIPE_FK_OUTPUT_FIELD "FK_Output"
+#define DEVICE_DEVICE_PIPE_FK_OUTPUT_TABLE_FIELD "Device_Device_Pipe.FK_Output"
+#define DEVICE_DEVICE_PIPE_MODIFICATION_RECORDINFO_FIELD "Modification_RecordInfo"
+#define DEVICE_DEVICE_PIPE_MODIFICATION_RECORDINFO_TABLE_FIELD "Device_Device_Pipe.Modification_RecordInfo"
+#define DEVICE_DEVICE_PIPE_ISNEW_RECORDINFO_FIELD "IsNew_RecordInfo"
+#define DEVICE_DEVICE_PIPE_ISNEW_RECORDINFO_TABLE_FIELD "Device_Device_Pipe.IsNew_RecordInfo"
+#define DEVICE_DEVICE_PIPE_ISDELETED_RECORDINFO_FIELD "IsDeleted_RecordInfo"
+#define DEVICE_DEVICE_PIPE_ISDELETED_RECORDINFO_TABLE_FIELD "Device_Device_Pipe.IsDeleted_RecordInfo"
+#define DEVICE_DEVICE_PIPE_FK_USERS_RECORDINFO_FIELD "FK_Users_RecordInfo"
+#define DEVICE_DEVICE_PIPE_FK_USERS_RECORDINFO_TABLE_FIELD "Device_Device_Pipe.FK_Users_RecordInfo"
+
+
+#endif
+

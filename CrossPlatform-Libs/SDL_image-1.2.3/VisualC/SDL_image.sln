@@ -1,0 +1,29 @@
+Microsoft Visual Studio Solution File, Format Version 7.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDL_image", "SDL_image.vcproj", "{A19E5155-DF9E-40C4-B362-16BB44B079B7}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "showimage", "showimage\showimage.vcproj", "{E4E84AD1-A0A1-45B3-BCE6-7F84B2F41A3D}"
+EndProject
+Global
+	GlobalSection(DevPartner Solution Properties) = postSolution
+	EndGlobalSection
+	GlobalSection(SolutionConfiguration) = preSolution
+		ConfigName.0 = Debug
+		ConfigName.1 = Release
+	EndGlobalSection
+	GlobalSection(ProjectDependencies) = postSolution
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{A19E5155-DF9E-40C4-B362-16BB44B079B7}.Debug.ActiveCfg = Debug|Win32
+		{A19E5155-DF9E-40C4-B362-16BB44B079B7}.Debug.Build.0 = Debug|Win32
+		{A19E5155-DF9E-40C4-B362-16BB44B079B7}.Release.ActiveCfg = Release|Win32
+		{A19E5155-DF9E-40C4-B362-16BB44B079B7}.Release.Build.0 = Release|Win32
+		{E4E84AD1-A0A1-45B3-BCE6-7F84B2F41A3D}.Debug.ActiveCfg = Debug|Win32
+		{E4E84AD1-A0A1-45B3-BCE6-7F84B2F41A3D}.Debug.Build.0 = Debug|Win32
+		{E4E84AD1-A0A1-45B3-BCE6-7F84B2F41A3D}.Release.ActiveCfg = Release|Win32
+		{E4E84AD1-A0A1-45B3-BCE6-7F84B2F41A3D}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

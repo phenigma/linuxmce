@@ -1,0 +1,42 @@
+#ifndef _IMAGE_DEFS_H_
+#define _IMAGE_DEFS_H_
+
+#include <map>
+#include "ximajpg.h"
+#include "ImageBaseDefs.h" 
+
+using namespace std;
+
+//linking automatically with CXImage.lib static library
+#pragma comment(lib, "../Libraries/CXImage/bin/cximage.lib")
+#pragma comment(lib, "../Libraries/CXImage/bin/png.lib")
+#pragma comment(lib, "../Libraries/CXImage/bin/jpeg.lib")
+#pragma comment(lib, "../Libraries/CXImage/bin/zlib.lib")
+
+
+//size of every images in image list
+#define THUMBNAIL_HEIGHT		45	//45 px
+#define THUMBNAIL_WIDTH			45	//45 px
+
+#ifndef GRAPHICTYPE_BMP
+#define GRAPHICTYPE_BMP			5
+#endif
+
+#define CUSTOMER_IMAGE_GAP		20	// 20 px
+
+//extern CImageList		PlutoVIPImageList;
+
+typedef struct tagPlutoCustomer
+{
+	int ImageType;
+	int ImageNumber;				//image number in ImageList
+	BOOL DefaultBitmap;				//TRUE=has no thumbnail, FALSE=has thumbnail
+	CTime Time;
+} PlutoCustomer;
+
+extern map<unsigned long  /*PlutoID*/, PlutoCustomer*> mapPlutoImageList;
+
+CString FindCustomerImageFileFromID(ULONG ID, int ImageType);
+
+#define THUMBNAIL_IMAGE_DIRECTORY		_T("Images")
+#endif //_IMAGE_DEFS_H_
