@@ -25,6 +25,7 @@ public:
 	string m_sRepository, m_sDefaultUser;
 
 	/** @brief Response Variables */
+	int m_psc_batch;
 
 	/** @brief constructors */
 	R_CommitChanges( string sRepository, string sDefaultUser );
@@ -42,6 +43,11 @@ public:
 	{
 		RA_Request::SetupSerialization_Request( );
 		StartSerializeList( ) + m_sRepository + m_sDefaultUser + m_vectTables + m_mapUsersPasswords ;
+	}
+	virtual void SetupSerialization_Response( )
+	{
+		RA_Request::SetupSerialization_Response( );
+		StartSerializeList( ) + m_psc_batch;
 	}
 
 	/**

@@ -22,7 +22,6 @@ class R_GetAll_psc_id : public RA_Request
 public:
 	/** @brief Request Variables */
 	string m_sTable;
-	int m_psc_id;
 
 	/** @brief Response Variables */
 	vector<int> m_vectAll_psc_id;
@@ -46,7 +45,7 @@ public:
 	virtual void SetupSerialization_Request( )
 	{
 		RA_Request::SetupSerialization_Request( );
-		StartSerializeList( ) + m_sTable + m_psc_id;
+		StartSerializeList( ) + m_sTable;
 	}
 
 	/**

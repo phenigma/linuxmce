@@ -246,7 +246,7 @@ void Table::HasFullHistory_set( bool bOn )
 			ostringstream sSql,sSqlMask;
 			sSql << "INSERT INTO `" << m_sName << "_pschist` (";
 			sSqlMask << "INSERT INTO `" << m_sName << "_pschmask` (";
-			for(int i=0;i<result_set3.r->field_count;++i)
+			for(int i=0;i<(int) result_set3.r->field_count;++i)
 			{
 				if( i!=0 )
 				{
@@ -258,7 +258,7 @@ void Table::HasFullHistory_set( bool bOn )
 			}
 			sSql << ") VALUES (";
 			sSqlMask << ") VALUES (";
-			for(int i=0;i<result_set3.r->field_count;++i)
+			for(int i=0;i<(int) result_set3.r->field_count;++i)
 			{
 				if( i!=0 )
 				{
@@ -457,6 +457,21 @@ bool Table::Update( RA_Processor &ra_Processor, DCE::Socket *pSocket )
 	}
 
 	R_UpdateTable r_UpdateTable( m_sName, m_psc_batch_last_sync, m_psc_id_last_sync, &vectFields );
+
+	// The server will send us all updates after m_psc_batch_last_sync, but we need to tell it to 
+	// explicitly exclude any batches that we sent ourselves, since have them already.  Create a list
+	// of the batches we created since our last sync
+	ostringstream sSQL;
+	sSQL << "SELECT PK_psc_" << m_pRepository->Name_get() << "_bathdr FROM psc_" << m_pRepository->Name_get() << "_bathdr "
+		<< " WHERE PK_psc_" << m_pRepository->Name_get() << "_bathdr>" << m_psc_batch_last_sync;
+	PlutoSqlResult result_set;
+	MYSQL_ROW row=NULL;
+	if( ( result_set.r=m_pDatabase->mysql_query_result( sSQL.str( ) ) ) )
+		while( ( row = mysql_fetch_row( result_set.r ) ) )
+			r_UpdateTable.m_vect_psc_batch.push_back( atoi(row[0]) );
+
+	cout << "Requesting update" << endl;
+
 	ra_Processor.SendRequest( &r_UpdateTable, pSocket );
 	if( r_UpdateTable.m_cProcessOutcome!=SUCCESSFULLY_PROCESSED )
 	{
@@ -471,16 +486,16 @@ bool Table::Update( RA_Processor &ra_Processor, DCE::Socket *pSocket )
 	/**
 	 * This will have already fired back actions, that did the actual update. All we need to do is update the psc_id and psc_batch 
 	 */
-	 
-	if( r_UpdateTable.m_psc_id_last_sync>m_psc_id_last_sync )
-		m_pRepository->psc_id_last_sync_set( this, r_UpdateTable.m_psc_id_last_sync );
-	if( r_UpdateTable.m_psc_batch_last_sync>m_psc_batch_last_sync )
-		m_pRepository->psc_batch_last_sync_set( this, r_UpdateTable.m_psc_batch_last_sync );
+	PlutoSqlResult result_set1,result_set2;
+	if( ( result_set1.r=m_pDatabase->mysql_query_result("SELECT max( psc_id ) FROM " + m_sName) ) && ( row = mysql_fetch_row( result_set1.r ) ) )
+		m_pRepository->psc_id_last_sync_set( this, atoi(row[0])  );
+	if( ( result_set2.r=m_pDatabase->mysql_query_result("SELECT max( psc_batch ) FROM " + m_sName) ) && ( row = mysql_fetch_row( result_set2.r ) ) )
+		m_pRepository->psc_batch_last_sync_set( this, atoi(row[0]) );
 
 	// Now delete any rows in our vect that we found during the DetermineDeletions phase
 	if( m_vectRowsToDelete.size() )
 	{
-		cout << "Deleting " << m_vectRowsToDelete.size() << " rows from table: " << m_sName << endl;
+		cout << "Deleting " << (int) m_vectRowsToDelete.size() << " rows from table: " << m_sName << endl;
 		ostringstream sSql;
 		sSql << "DELETE FROM `" << m_sName << "` WHERE psc_id IN (";
 
@@ -506,6 +521,13 @@ void Table::GetChanges( R_UpdateTable *pR_UpdateTable )
 		sSql << "`" << ( *pR_UpdateTable->m_pvectFields )[s] << "`, ";
 
 	sSql << "psc_id, psc_batch, psc_user FROM " << m_sName << " WHERE psc_batch>" << pR_UpdateTable->m_psc_batch_last_sync;
+	if( pR_UpdateTable->m_vect_psc_batch.size() )
+	{
+		sSql << " AND psc_batch NOT IN (";
+		for(size_t s=0;s<pR_UpdateTable->m_vect_psc_batch.size();++s)
+			sSql << (s>0 ? "," : "") << pR_UpdateTable->m_vect_psc_batch[s];
+		sSql << ")";
+	}
 
 	int i_psc_id_field = ( int ) pR_UpdateTable->m_pvectFields->size( );
 	int i_psc_batch_field = i_psc_id_field+1;
@@ -518,6 +540,8 @@ void Table::GetChanges( R_UpdateTable *pR_UpdateTable )
 		cerr << "Cannot get changes from SQL: " << sSql.str( ) << endl;
 		throw "Database error";
 	}
+
+	cout << "Sending changes to " << result_set.r->row_count << " rows." << endl;
 
 	while( ( row = mysql_fetch_row( result_set.r ) ) )
 	{
@@ -569,7 +593,6 @@ void Table::GetChanges( )
 				eTypeOfChange = toc_New; /** It's a new row if psc_id hasn't been assigned */
 			else
 				eTypeOfChange = toc_Modify;
-#pragma warning( "get a list of id's from the server and determine which rows were deleted" )
 
 			/** Add all the primary key values   */
 			vector<string> vectPrimaryKeys;
@@ -722,6 +745,11 @@ bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, D
 	}
 	else
 	{
+for(size_t s=0;s<r_GetAll_psc_id.m_vectAll_psc_id.size();++s)
+{
+int k=r_GetAll_psc_id.m_vectAll_psc_id[s];
+int k2=9;
+}
 		while( ( row = mysql_fetch_row( res.r ) ) )
 		{
 			if( !row[0] )
@@ -796,6 +824,8 @@ bool Table::CheckIn( int psc_user, RA_Processor &ra_Processor, DCE::Socket *pSoc
 				continue;
 
 			R_CommitRow r_CommitRow( pChangedRow );
+
+			cout << "Sending row toc: " << pChangedRow->m_eTypeOfChange << " psc_id: " << pChangedRow->m_psc_id << " " << pChangedRow->GetWhereClause() << endl;
 
 			std::ostringstream sSQL;
 			if( pChangedRow->m_eTypeOfChange!=toc_Delete )
@@ -992,6 +1022,8 @@ void Table::UpdateRow( A_UpdateRow *pA_UpdateRow, R_UpdateTable *pR_UpdateTable,
 {
 	std::ostringstream sSQL;
 
+	cout << "Updating row id " << pA_UpdateRow->m_psc_id << " last sync: " << m_psc_id_last_sync << endl;
+
 	/** See if this is a new row, or an updated one */
 	if( pA_UpdateRow->m_psc_id>m_psc_id_last_sync )
 	{
@@ -1010,7 +1042,7 @@ void Table::UpdateRow( A_UpdateRow *pA_UpdateRow, R_UpdateTable *pR_UpdateTable,
 				sSQL << "'" << StringUtils::SQLEscape( pA_UpdateRow->m_vectValues[s] ) << "', ";
 		}
 
-		sSQL << pA_UpdateRow->m_psc_id << ", " << pA_UpdateRow->m_psc_batch << ", " << pA_UpdateRow->m_psc_user << " )";
+		sSQL << pA_UpdateRow->m_psc_id << ", " << pA_UpdateRow->m_psc_batch << ", " << (pA_UpdateRow->m_psc_user ? StringUtils::itos(pA_UpdateRow->m_psc_user) : "NULL") << " )";
 
 		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
 		{
@@ -1030,7 +1062,7 @@ void Table::UpdateRow( A_UpdateRow *pA_UpdateRow, R_UpdateTable *pR_UpdateTable,
 			else
 				sSQL << "'" << StringUtils::SQLEscape( pA_UpdateRow->m_vectValues[s] ) << "', ";
 		}
-		sSQL << "psc_batch=" << pA_UpdateRow->m_psc_batch << ", psc_user=" << pA_UpdateRow->m_psc_user << " WHERE psc_id=" << pA_UpdateRow->m_psc_id;
+		sSQL << "psc_batch=" << pA_UpdateRow->m_psc_batch << ", psc_user=" << (pA_UpdateRow->m_psc_user ? StringUtils::itos(pA_UpdateRow->m_psc_user) : "NULL") << " WHERE psc_id=" << pA_UpdateRow->m_psc_id;
 		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
 		{
 			cerr << "Failed to update row: " << sSQL.str( ) << endl;
@@ -1164,7 +1196,9 @@ void Table::AddRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor
 			sSQL << "'" << StringUtils::SQLEscape( pR_CommitRow->m_vectValues[s] ) << "', ";
 	}
 
-	sSQL << m_psc_id_next << ", " << psqlCVSprocessor->m_i_psc_batch << ", " << pR_CommitRow->m_psc_user << " )"; /** @warning batch # todo - hack */
+	sSQL << m_psc_id_next << ", " << psqlCVSprocessor->m_i_psc_batch << ", " << (pR_CommitRow->m_psc_user ? StringUtils::itos(pR_CommitRow->m_psc_user) : "NULL") << " )"; /** @warning batch # todo - hack */
+
+	cout << "Adding new row with id: " << m_psc_id_next << endl;
 
 	pR_CommitRow->m_psc_id_new = m_psc_id_next;
 	pR_CommitRow->m_psc_batch_new = psqlCVSprocessor->m_i_psc_batch;
@@ -1199,7 +1233,7 @@ void Table::GetCurrentValues(int psc_id,MapStringString *mapCurrentValues)
 	MYSQL_ROW row=NULL;
 	if( ( result_set.r=m_pDatabase->mysql_query_result( sSql.str() ) ) && ( row = mysql_fetch_row( result_set.r ) ) )
 	{
-		for(int i=0;i<result_set.r->field_count;++i)
+		for(int i=0;i<(int) result_set.r->field_count;++i)
 		{
 			if( row[i] )
 				(*mapCurrentValues)[result_set.r->fields[i].name] = row[i];
@@ -1248,7 +1282,7 @@ void Table::GetBatchContents(int psc_batch,map<int,ChangedRow *> &mapChangedRow)
 				cerr << "Cannot find value in history mask table" << endl;
 				throw "History mask outdated";
 			}
-			for(int i=0;i<result_set2.r->field_count;++i)
+			for(int i=0;i<(int) result_set2.r->field_count;++i)
 			{
 				string Field = result_set2.r->fields[i].name;
 				if( Field=="psc_id" || Field=="psc_batch" || Field=="psc_toc" || !row2[i] || !atoi(row2[i]) )
@@ -1256,7 +1290,7 @@ void Table::GetBatchContents(int psc_batch,map<int,ChangedRow *> &mapChangedRow)
 				mapChangedFields[Field]=true;
 			}
 
-			for(int i=0;i<result_set.r->field_count;++i)
+			for(int i=0;i<(int) result_set.r->field_count;++i)
 			{
 				string Field = result_set.r->fields[i].name;
 				if( mapChangedFields.find(Field)==mapChangedFields.end() )
@@ -1333,7 +1367,7 @@ void Table::AddToHistory( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSpro
 		sSqlHistory << pR_CommitRow->m_iNewAutoIncrID << ", ";
 
 	sSqlHistory << pR_CommitRow->m_eTypeOfChange << "," << ( pR_CommitRow->m_eTypeOfChange==toc_New ? pR_CommitRow->m_psc_id_new : pR_CommitRow->m_psc_id ) << ", " << pR_CommitRow->m_psc_batch_new << ", " 
-		<< pR_CommitRow->m_psc_user << " )"; // batch # todo - hack
+		<< (pR_CommitRow->m_psc_user ? StringUtils::itos(pR_CommitRow->m_psc_user) : "NULL") << " )"; // batch # todo - hack
 	sSqlMask << ( pR_CommitRow->m_eTypeOfChange==toc_New ? pR_CommitRow->m_psc_id_new : pR_CommitRow->m_psc_id ) << ", " << psqlCVSprocessor->m_i_psc_batch << " )"; // batch # todo - hack
 	if( m_pDatabase->threaded_mysql_query( sSqlHistory.str( ) )!=0 || m_pDatabase->threaded_mysql_query( sSqlMask.str( ) )!=0 )
 	{
@@ -1399,7 +1433,7 @@ void Table::AddToHistory( ChangedRow *pChangedRow )
 		sSqlHistory << pChangedRow->m_iNewAutoIncrID << ", ";
 
 	sSqlHistory << pChangedRow->m_eTypeOfChange << "," << pChangedRow->m_psc_id << ", " << pChangedRow->m_psc_batch << ", " 
-		<< pChangedRow->m_psc_user << " )"; // batch # todo - hack
+		<< (pChangedRow->m_psc_user ? StringUtils::itos(pChangedRow->m_psc_user) : "NULL") << " )"; // batch # todo - hack
 	sSqlMask << pChangedRow->m_psc_id << ", " << pChangedRow->m_psc_batch << " )"; // batch # todo - hack
 	if( m_pDatabase->threaded_mysql_query( sSqlHistory.str( ) )!=0 || m_pDatabase->threaded_mysql_query( sSqlMask.str( ) )!=0 )
 	{
@@ -1553,26 +1587,26 @@ bool Table::ShowChanges(int psc_user)
 		if( ( result_set.r=m_pDatabase->mysql_query_result( sql.str( ) ) ) )
 		{
 			cout << "psc_id  ";
-			for(int i=1;i<result_set.r->field_count;++i)
+			for(int i=1;i<(int) result_set.r->field_count;++i)
 			{
 				string sField = result_set.r->fields[i].name;
-				if( sField.length()>iColumnWidth )
+				if( ((int) sField.length())>iColumnWidth )
 					cout << sField.substr(0,iColumnWidth);
 				else
-					cout << sField << StringUtils::RepeatChar( ' ', iColumnWidth - sField.length( ) );
+					cout << sField << StringUtils::RepeatChar( ' ', iColumnWidth - (int) sField.length( ) );
 			}
 			cout << endl;
 
 			while( ( row = mysql_fetch_row( result_set.r ) ) )
 			{
 				cout << setw(8) << row[0];
-				for(int i=1;i<result_set.r->field_count;++i)
+				for(int i=1;i<(int) result_set.r->field_count;++i)
 				{
 					string sValue = row[i] ? row[i] : NULL_TOKEN;
-					if( sValue.length()>iColumnWidth )
+					if( (int) sValue.length()>iColumnWidth )
 						cout << sValue.substr(0,iColumnWidth);
 					else
-						cout << sValue << StringUtils::RepeatChar( ' ', iColumnWidth - sValue.length( ) );
+						cout << sValue << StringUtils::RepeatChar( ' ', iColumnWidth - (int) sValue.length( ) );
 				}
 				cout << endl;
 			}

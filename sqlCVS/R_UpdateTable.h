@@ -22,6 +22,7 @@ public:
 	/** @brief Request Variables */
 	string m_sTableName;
 	vector<string> *m_pvectFields;
+	vector<int> m_vect_psc_batch;
 	int m_psc_batch_last_sync;
 	int m_psc_id_last_sync;
 
@@ -54,7 +55,7 @@ public:
 	void SetupSerialization_Request( )
 	{
 		RA_Request::SetupSerialization_Request( );
-		StartSerializeList( ) + m_sTableName + *m_pvectFields + m_psc_batch_last_sync + m_psc_id_last_sync;
+		StartSerializeList( ) + m_sTableName + *m_pvectFields + m_psc_batch_last_sync + m_psc_id_last_sync + m_vect_psc_batch;
 	}
 
 	/**

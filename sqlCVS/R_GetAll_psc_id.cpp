@@ -41,13 +41,12 @@ using namespace sqlCVS;
 R_GetAll_psc_id::R_GetAll_psc_id( string sTable, int psc_id )
 {
 	m_sTable=sTable;
-	m_psc_id=psc_id;
 }
 
 bool R_GetAll_psc_id::ProcessRequest( class RA_Processor *pRA_Processor )
 {
 	std::ostringstream sSQL;
-	sSQL << "SELECT psc_id FROM " << m_sTable << " WHERE psc_id<=" << m_psc_id << " ORDER BY psc_id";
+	sSQL << "SELECT psc_id FROM " << m_sTable << " ORDER BY psc_id";
 	PlutoSqlResult res;
 	MYSQL_ROW row=NULL;
 	res.r = g_GlobalConfig.m_pDatabase->mysql_query_result( sSQL.str( ) );

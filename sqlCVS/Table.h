@@ -162,8 +162,6 @@ namespace sqlCVS
 		bool TrackChanges_get( ) { return m_pField_id && m_pField_batch && m_pField_user && m_pField_frozen && m_pField_mod; }
 		void TrackChanges_set( bool bOn );
 
-		void psc_id_last_sync_set( int psc_id_last_sync ) { m_psc_id_last_sync=psc_id_last_sync; }
-		void psc_batch_last_sync_set( int psc_batch_last_sync ) { m_psc_batch_last_sync=psc_batch_last_sync; }
 		bool bIsSystemTable_get( ) { return m_bIsSystemTable; }
 
 		/** Give the psc_id, this will fill a map where the first string is the field name, and the second is the value of the field*/

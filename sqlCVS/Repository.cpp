@@ -204,7 +204,7 @@ void Repository::Setup( )
 			{
 				sql.str( "" );
 				sql << "DELETE FROM `" << Tablename << "` WHERE Tablename='" << row[0] << "'";
-		    m_pDatabase->threaded_mysql_query( sql.str( ) );
+			    m_pDatabase->threaded_mysql_query( sql.str( ) );
 			}
 		}
 	}
@@ -620,7 +620,21 @@ bool Repository::CheckIn( )
 	while( ra_Processor.SendRequests( "localhost:3485", &pSocket ) );
 
 	if( r_CloseTransaction.m_cProcessOutcome==SUCCESSFULLY_PROCESSED )
+	{
+		// Do the commit first since the server already confirmed
+		// TODO: This is a bit unsafe since it's possible the connection gets dropped the split second
+		// after we send the close transaction and before getting the server's reply, meaning we would
+		// roll back the transaction and try to re-commit.  Need a fail-safe reply
 		st.Commit();
+		ostringstream sql;
+		sql << "INSERT INTO " << m_pTable_BatchHeader->Name_get() << " (PK_" << m_pTable_BatchHeader->Name_get() << ",date) VALUES(" 
+			<< r_CommitChanges.m_psc_batch << ",NOW())";
+		if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+		{
+			cerr << "Cannot write new batch to file" << endl;
+			throw "Database write error";
+		}
+	}
 	else
 		cerr << "Failed to close transaction.  Transaction will be rolled back!" << endl;
 	return true;
@@ -874,10 +888,13 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 		sSQL << ", PRIMARY KEY( " << sPrimaryKey << " )";
 
 	sSQL << " ) TYPE=InnoDB";
-	if( bContainsAutoIncrement )
-		sSQL << " AUTO_INCREMENT=1000000000";
+
+#pragma warning( "had to remove this and relocate id's since innodb doesn't support this" );
+//	if( bContainsAutoIncrement )
+//		sSQL << " AUTO_INCREMENT=1000000000";
 
 #pragma warning( "This doesn't really handle types correctly, and may not handle indexes right either" );
+#pragma warning( "need to make an index for psc_id" );
 
 	if( !pTable )
 	{
@@ -1025,7 +1042,7 @@ bool Repository::ShowChanges()
 			Table *pTable = ( *it ).second;
 			vectTable.push_back(pTable);
 			cout << setw( 3 ) << vectTable.size() << " ";
-			if( pTable->Name_get().length() > 40 )
+			if( (int) pTable->Name_get().length() > 40 )
 				cout << pTable->Name_get().substr(0,40);
 			else
 			{
@@ -1060,7 +1077,7 @@ bool Repository::ShowChanges()
 			return false;
 
 		int iTable = atoi(sTable.c_str());
-		if( iTable < 1 || iTable > vectTable.size() )
+		if( iTable < 1 || iTable > (int) vectTable.size() )
 			cout << "That is not a valid selection" << endl;
 		else
 		{

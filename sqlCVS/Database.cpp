@@ -136,8 +136,8 @@ void Database::LoadDatabaseStructure()
 		pTable->GetDependencies( );
 		if( pTable->Repository_get( ) )
 		{
-			pTable->psc_id_last_sync_set( pTable->Repository_get( )->psc_id_last_sync_get( pTable ) );
-			pTable->psc_batch_last_sync_set( pTable->Repository_get( )->psc_batch_last_sync_get( pTable ) );
+			pTable->m_psc_id_last_sync = ( pTable->Repository_get( )->psc_id_last_sync_get( pTable ) );
+			pTable->m_psc_batch_last_sync = ( pTable->Repository_get( )->psc_batch_last_sync_get( pTable ) );
 		}
 	}
 }
@@ -483,7 +483,7 @@ void Database::ShowChanges()
 		{
 			Repository *pRepository = ( *it ).second;
 			vectRepository.push_back(pRepository);
-			cout << setw( 3 ) << vectRepository.size() << " ";
+			cout << setw( 3 ) << (int) vectRepository.size() << " ";
 			if( pRepository->Name_get().length() > 40 )
 				cout << pRepository->Name_get().substr(0,40);
 			else
@@ -521,7 +521,7 @@ void Database::ShowChanges()
 			return;
 
 		int iRepository = atoi(sRepository.c_str());
-		if( iRepository < 1 || iRepository > vectRepository.size() )
+		if( iRepository < 1 || iRepository > (int) vectRepository.size() )
 			cout << "That is not a valid selection" << endl;
 		else
 		{
@@ -645,7 +645,6 @@ void Database::CheckIn( )
 		cerr << "Checkin threw exception: " << pException << endl;
 		return;
 	}
-#pragma warning( "Repeat the process with the same tables any rows that are now again set to modified since modifying other rows may have modified rows that weren't already in the list" )
 }
 
 void Database::Update( )
@@ -657,9 +656,6 @@ void Database::Update( )
 		cerr << "No tables found to add. Aborting." << endl;
 		return;
 	}
-
-
-#pragma warning( "Allow users to be on the command line so this can be non-interactive" )
 
 	/** Now mapTable has all the tables we need to check in. Confirm the users if none were passed in on the command line */
 	if( g_GlobalConfig.m_mapUsersPasswords.size( )==0 && ConfirmUsersToCheckIn( )<1 )
@@ -682,7 +678,6 @@ void Database::Update( )
 		cerr << "Update threw exception: " << pException << endl;
 		return;
 	}
-#pragma warning( "Repeat the process with the same tables any rows that are now again set to modified since modifying other rows may have modified rows that weren't already in the list" )
 }
 
 void Database::GetTablesToCheckIn( )

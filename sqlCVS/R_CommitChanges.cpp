@@ -81,7 +81,7 @@ bool R_CommitChanges::ProcessRequest( class RA_Processor *pRA_Processor )
 		}
 
 		psqlCVSprocessor->m_pRepository = pRepository;
-		psqlCVSprocessor->m_psc_bathdr_orig = psqlCVSprocessor->m_i_psc_batch = pRepository->CreateBatch( &psqlCVSprocessor->m_mapValidatedUsers );
+		m_psc_batch = psqlCVSprocessor->m_psc_bathdr_orig = psqlCVSprocessor->m_i_psc_batch = pRepository->CreateBatch( &psqlCVSprocessor->m_mapValidatedUsers );
 
 		if( !psqlCVSprocessor->m_i_psc_batch )
 			m_cProcessOutcome=INTERNAL_ERROR;

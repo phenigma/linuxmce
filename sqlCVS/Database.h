@@ -16,9 +16,6 @@
 #include "Table.h"
 #include "PlutoUtils/MySQLHelper.h"
 
-#pragma warning( "do new's first, resetting the pkid, and the mod, so we can then do the mod's which will include the changed id's, lastly delete'sdon't need new, delete in tables ( new = mod and no batch ), delete we'll calculate automatically" )
-#pragma warning( "for each table, keep last batch, and last pscid. to calculate delete's, get list of pscid id's from server. Delete any local rows deleted on server, then fire delete actions. server returns unsorted--do on client side to minimize server load." )
-
 namespace sqlCVS
 {
 	/**
