@@ -45,6 +45,11 @@ MythTvWrapper::MythTvWrapper(Command_Impl *pCommandImpl)
     }
 }
 
+MythTvWrapper::~MythTvWrapper()
+{
+	delete m_pQApplication;
+}
+
 bool MythTvWrapper::initMythTVGlobalContext()
 {
     gContext = new MythContext(MYTH_BINARY_VERSION, false); /** we don't need X in the plugin */

@@ -41,6 +41,8 @@ using namespace DCE;
 void *BeginWapClientThread( void *SvSock )
 {	
 	ServerSocket *pCS = (ServerSocket *)SvSock;
+	if( !pCS->m_bThreadRunning )
+		return NULL; // Should have been set in the constructor
 	pCS->Run();
 	return NULL;
 }
@@ -51,18 +53,30 @@ ServerSocket::ServerSocket( SocketListener *pListener, SOCKET Sock, string sName
 	m_dwPK_Device = -1;
 	m_Socket = Sock;
 	m_pListener = pListener;
+	m_bThreadRunning=true;
 	
 	m_ConnectionMutex.Init( NULL );
 	
 	int iResult = pthread_create( &m_ClientThreadID, NULL, BeginWapClientThread, (void *)this );
 	if ( iResult != 0 )
+	{
+		m_bThreadRunning=false;
 		g_pPlutoLogger->Write( LV_CRITICAL, "Pthread create returned %d %s dev %d ptr %p", (int)iResult, m_sName.c_str(), m_dwPK_Device,this );
+	}
 	else
 		pthread_detach( m_ClientThreadID );
 }
 
 ServerSocket::~ServerSocket()
 {
+	m_pListener->m_bTerminate = true;
+
+	if( m_Socket != INVALID_SOCKET )
+		closesocket( m_Socket );
+
+	while( m_bThreadRunning )
+		Sleep(10);
+
 	// Shutdown of client sockets is either performed by their loops,
 	// or is triggered by the shutdown of the socket listener.
 	
@@ -141,6 +155,7 @@ void ServerSocket::Run()
 				{
 					SendString( "NOT IN THIS INSTALLATION" );
 					g_pPlutoLogger->Write(LV_CRITICAL,"Device %d registered but it doesn't exist",m_dwPK_Device);
+					m_bThreadRunning=false;
 					return;
 				}
 				if( PK_DeviceTemplate && iResponse!=2 )
@@ -173,6 +188,7 @@ void ServerSocket::Run()
 			// originating FROM other sources, so no thread is necessary.
 			// The socket will be periodically checked by the core
 			// or closed if replaced by another command handler.
+			m_bThreadRunning=false;
 			return;
 		}
 		
@@ -221,7 +237,7 @@ void ServerSocket::Run()
 	
 	m_pListener->OnDisconnected( m_dwPK_Device );
 	
-//	delete this;
+	m_bThreadRunning=false;
 	return;
 }
 

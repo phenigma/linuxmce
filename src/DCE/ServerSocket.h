@@ -37,6 +37,7 @@ namespace DCE
 		SocketListener *m_pListener; /** the listener that created this command handler */
 		class Command_Impl *m_pCommand; /** pointer to the command for this server socket (the one for the device) */
 
+		bool m_bThreadRunning;
 		/**
 		 * @brief constructor, assignes values to the member data and starts the looping thread
 		 */

@@ -48,6 +48,7 @@ MythTV_PlugIn::MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEve
 MythTV_PlugIn::~MythTV_PlugIn()
 //<-dceag-dest-e->
 {
+	delete m_pMythWrapper;
 }
 
 //<-dceag-reg-b->

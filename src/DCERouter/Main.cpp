@@ -217,6 +217,7 @@ int main(int argc, char *argv[])
 		delete m_LL_DEBUG_Mutex;
 	}
 #endif
+
 	g_pPlutoLogger->Write(LV_STATUS, "PlutoServer: terminating now with %d",(int) bStartRouter);
 	delete g_pPlutoLogger;
 	if( bStartRouter )

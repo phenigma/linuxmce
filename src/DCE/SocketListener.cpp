@@ -334,6 +334,7 @@ void SocketListener::DropAllSockets()
 			closesocket(pSocket->m_Socket);
 			pSocket->m_Socket = INVALID_SOCKET;
 		}
+		delete pSocket;
 	}
 	lm.Release();
 }

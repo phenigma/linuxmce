@@ -84,6 +84,7 @@ Socket::Socket(string Name,string sIPAddress) : m_SocketMutex("socket mutex " + 
 	m_sName = Name;
 	m_bQuit = false;
 
+
 #ifdef LL_DEBUG_FILE
 	m_pcSockLogFile = new char[200];
 	m_pcSockLogErrorFile = new char[200];
@@ -173,7 +174,6 @@ Socket::~Socket()
 
 	delete[] m_pcSockLogFile;
 	delete[] m_pcSockLogErrorFile;
-
 #endif
 }
 
