@@ -580,29 +580,56 @@ int k=2;
         int FloorplanType = atoi(GetParm(DESIGNOBJPARAMETER_Type_CONST).c_str());
         Row_FloorplanType *drFloorplanType = m_mds->FloorplanType_get()->GetRow(FloorplanType);
 
-//      string SQL = "SELECT * FROM " + string(DEVICE_DEVICEDATA_TABLE) +
-        string SQL= "JOIN " + string(DEVICE_TABLE) + " ON " + DEVICE_DEVICEDATA_FK_DEVICE_FIELD + "=" + DEVICE_PK_DEVICE_FIELD +
-            " JOIN " + FLOORPLANOBJECTTYPE_TABLE + " ON " + DEVICE_DEVICEDATA_IK_DEVICEDATA_FIELD + "=" + FLOORPLANOBJECTTYPE_PK_FLOORPLANOBJECTTYPE_FIELD +
-            " WHERE " + DEVICE_FK_INSTALLATION_FIELD + "=" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Device->FK_Installation_get()) +
-            " AND " + DEVICE_DEVICEDATA_FK_DEVICEDATA_FIELD + "=" + StringUtils::itos(DEVICEDATA_PK_FloorplanObjectType_CONST) +
-            " AND " + FLOORPLANOBJECTTYPE_FK_FLOORPLANTYPE_FIELD + "=" + StringUtils::itos(FloorplanType);
-
         vector<Row_Device_DeviceData *> vectRow_Device_DeviceData;
-        m_mds->Device_DeviceData_get()->GetRows(SQL,&vectRow_Device_DeviceData);
-        for(size_t s=0;s<vectRow_Device_DeviceData.size();++s)
+        vector<Row_EntertainArea *> vectRow_EntertainArea;
+
+		if( FloorplanType==FLOORPLANTYPE_Entertainment_Zone_CONST )
+		{
+			string SQL = "JOIN Room ON FK_Room=PK_Room WHERE FK_Installation=" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Device->FK_Installation_get());
+			m_mds->EntertainArea_get()->GetRows(SQL,&vectRow_EntertainArea);
+		}
+		else
+		{
+			string SQL = "JOIN " + string(DEVICE_TABLE) + " ON " + DEVICE_DEVICEDATA_FK_DEVICE_FIELD + "=" + DEVICE_PK_DEVICE_FIELD +
+				" JOIN " + FLOORPLANOBJECTTYPE_TABLE + " ON " + DEVICE_DEVICEDATA_IK_DEVICEDATA_FIELD + "=" + FLOORPLANOBJECTTYPE_PK_FLOORPLANOBJECTTYPE_FIELD +
+				" WHERE " + DEVICE_FK_INSTALLATION_FIELD + "=" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Device->FK_Installation_get()) +
+				" AND " + DEVICE_DEVICEDATA_FK_DEVICEDATA_FIELD + "=" + StringUtils::itos(DEVICEDATA_PK_FloorplanObjectType_CONST) +
+				" AND " + FLOORPLANOBJECTTYPE_FK_FLOORPLANTYPE_FIELD + "=" + StringUtils::itos(FloorplanType);
+
+			m_mds->Device_DeviceData_get()->GetRows(SQL,&vectRow_Device_DeviceData);
+		}
+		for(size_t s=0;s< (FloorplanType==FLOORPLANTYPE_Entertainment_Zone_CONST ? vectRow_EntertainArea.size() : vectRow_Device_DeviceData.size());++s)
         {
-            Row_Device_DeviceData *pRow_Device_DeviceData = vectRow_Device_DeviceData[s];
-            Row_Device_DeviceData *pRow_Device_DeviceData_FPInfo = m_mds->Device_DeviceData_get()->GetRow(pRow_Device_DeviceData->FK_Device_get(),DEVICEDATA_Floorplan_Info_CONST);
-            Row_Device_DeviceData *pRow_Device_DeviceData_ObjType = m_mds->Device_DeviceData_get()->GetRow(pRow_Device_DeviceData->FK_Device_get(),DEVICEDATA_PK_FloorplanObjectType_CONST);
-            int FloorplanObjectType = atoi(pRow_Device_DeviceData_ObjType->IK_DeviceData_get().c_str());
-            Row_FloorplanObjectType *pRow_FloorplanObjectType = m_mds->FloorplanObjectType_get()->GetRow(FloorplanObjectType);
-            if( pRow_Device_DeviceData_FPInfo )
+			string FPInfo_Value;
+			string Description;
+			int PK_Device_EA;
+            Row_FloorplanObjectType *pRow_FloorplanObjectType = NULL;
+			if( FloorplanType==FLOORPLANTYPE_Entertainment_Zone_CONST )
+			{
+				Row_EntertainArea *pRow_EntertainArea = vectRow_EntertainArea[s];
+				Description = pRow_EntertainArea->Description_get();
+				PK_Device_EA = pRow_EntertainArea->PK_EntertainArea_get();
+				pRow_FloorplanObjectType = pRow_EntertainArea->FK_FloorplanObjectType_getrow();
+				if( pRow_FloorplanObjectType )
+					FPInfo_Value = pRow_EntertainArea->FloorplanInfo_get();
+			}
+			else
+			{
+				Row_Device_DeviceData *pRow_Device_DeviceData = vectRow_Device_DeviceData[s];
+		        Row_Device_DeviceData *pRow_Device_DeviceData_FPInfo = m_mds->Device_DeviceData_get()->GetRow(pRow_Device_DeviceData->FK_Device_get(),DEVICEDATA_Floorplan_Info_CONST);
+			    Row_Device_DeviceData *pRow_Device_DeviceData_ObjType = m_mds->Device_DeviceData_get()->GetRow(pRow_Device_DeviceData->FK_Device_get(),DEVICEDATA_PK_FloorplanObjectType_CONST);
+	            int FloorplanObjectType = atoi(pRow_Device_DeviceData_ObjType->IK_DeviceData_get().c_str());
+		        pRow_FloorplanObjectType = m_mds->FloorplanObjectType_get()->GetRow(FloorplanObjectType);
+				FPInfo_Value = pRow_Device_DeviceData_FPInfo->IK_DeviceData_get();
+				Description = pRow_Device_DeviceData_FPInfo->FK_Device_getrow()->Description_get();
+				PK_Device_EA = pRow_Device_DeviceData_FPInfo->FK_Device_get();
+			}
+            if( FPInfo_Value.length() )
             {
                 // Parse the parameters to see if any of these sensors are on this page
                 string::size_type pos=0;
                 while(true)
                 {
-                    string FPInfo_Value = pRow_Device_DeviceData_FPInfo->IK_DeviceData_get();
                     string sFloorplan = StringUtils::Tokenize(FPInfo_Value,string(","),pos);
                     if( sFloorplan.length()==0 )
                         break;
@@ -611,7 +638,7 @@ int k=2;
                     if( atoi(sFloorplan.c_str())==m_pOrbiterGenerator->m_iFloorplanPage )
                     {
                         m_VariableMap[VARIABLE_Array_ID_CONST] = pRow_FloorplanObjectType->Description_get();
-                        m_VariableMap[VARIABLE_Array_Desc_CONST] = pRow_Device_DeviceData_FPInfo->FK_Device_getrow()->Description_get();
+                        m_VariableMap[VARIABLE_Array_Desc_CONST] = Description;
 
                         // We got ourselves an object to appear on this map
                         X = (X * ScaleFactor) / 1000;
@@ -627,7 +654,7 @@ int k=2;
 							pDesignObj_Generator->m_bChildrenBehind = false;
 							pDesignObj_Generator->m_bDontMergeBackground = false;
 							pDesignObj_Generator->m_iFloorplanPage = m_iFloorplanPage;
-							pDesignObj_Generator->m_iFloorplanDevice = pRow_Device_DeviceData_FPInfo->FK_Device_get();
+							pDesignObj_Generator->m_iFloorplanDevice = PK_Device_EA;
 
 							// Scale these here because we need to reset all the x/y positions since we may have used a different scale factor
 							pDesignObj_Generator->ScaleAllValues(m_pOrbiterGenerator->m_pRow_Size->ScaleX_get(),m_pOrbiterGenerator->m_pRow_Size->ScaleY_get(),NULL);

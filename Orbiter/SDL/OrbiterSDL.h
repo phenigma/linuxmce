@@ -48,6 +48,8 @@ public:
 	virtual void BeginPaint();
 	virtual void EndPaint();
 
+	virtual void OnQuit();
+
 	// Other
 	virtual void Initialize(GraphicType Type);
 	virtual void SetTime(char *ServerTimeString) {};

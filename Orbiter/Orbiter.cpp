@@ -1606,7 +1606,7 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter)
     CMD_Set_Variable(VARIABLE_Status_CONST,pDesignObj_Orbiter->m_pFloorplanObject->Status);
 
     // We've selected this object twice, cycle through the vector of device groups
-    if( m_pObj_LastSelected==pDesignObj_Orbiter )
+    if( m_pObj_LastSelected==pDesignObj_Orbiter && pDesignObj_Orbiter->m_pFloorplanObject->m_pDeviceData_Base )
     {
         // We went past the end, select nothing
         if( m_iLastEntryInDeviceGroup>=(int) pDesignObj_Orbiter->m_pFloorplanObject->m_pDeviceData_Base->m_vectDeviceGroup.size()-1 )
@@ -2335,7 +2335,8 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
             FloorplanObjectVector *fpObjVector = new FloorplanObjectVector();
             (*pFloorplanObjectVectorMap)[TypeNum] = fpObjVector;
 
-            int NumObjects = atoi(StringUtils::Tokenize(sResult, "|", pos).c_str());
+			string sNumObjects = StringUtils::Tokenize(sResult, "|", pos);
+            int NumObjects = atoi(sNumObjects.c_str());
             for(int ObjectCount=0;ObjectCount<NumObjects;++ObjectCount)
             {
                 FloorplanObject *fpObj = new FloorplanObject();
@@ -2347,7 +2348,7 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
                 fpObj->Page=atoi(StringUtils::Tokenize(sResult, "|", pos).c_str());
                 fpObj->PK_Device=atoi(StringUtils::Tokenize(sResult, "|", pos).c_str());
                 fpObj->m_pDeviceData_Base = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(fpObj->PK_Device);
-                fpObj->DeviceDescription=fpObj->m_pDeviceData_Base->m_sDescription;
+                fpObj->DeviceDescription=StringUtils::Tokenize(sResult, "|", pos);
                 fpObj->Type=atoi(StringUtils::Tokenize(sResult, "|", pos).c_str());
                 fpObj->pObj = FindObject(fpObj->ObjectID);
                 // TODO                 fpObj->ptrDevice = m_mapDevices_Find(fpObj->PK_Device);
@@ -2386,7 +2387,7 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
     }
 
 
-    if(  pObj->m_ObjectID.find( "2218" )!=string::npos  )
+    if(  pObj->m_ObjectID.find( "1257.141" )!=string::npos  )
         //if(  ocDesignObj->m_drDesignObj->PK_DesignObj_get(  )==2790  )
     {
         int k=2;
@@ -2758,7 +2759,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Before dg release.  %d",(int) vectSelectedGrids
             dg.Release(  );
             for( s=0;s<vectSelectedGrids.size(  );++s )
             {
-g_pPlutoLogger->Write(LV_STATUS,"in for loop: %s",(int) s);
+g_pPlutoLogger->Write(LV_STATUS,"in for loop: %d",(int) s);
                 DesignObj_DataGrid *pDesignObj_DataGrid = vectSelectedGrids[s];
                 SelectedObject( pDesignObj_DataGrid, -1, -1 );
             }

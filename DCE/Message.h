@@ -29,6 +29,11 @@
 // Other
 #define DEVICEID_HANDLED_INTERNALLY -300
 
+#if (defined(LL_DEBUG) || defined(LL_DEBUG_FILE))
+	// A counter used to mark messages so they can be traced in the low level logs
+	extern int g_MessageID;
+#endif
+
 namespace DCE
 {
 
@@ -77,6 +82,8 @@ namespace DCE
     {
 
     public:
+
+		int m_MessageID;  // For low-level debugging only
 
         /** fields that corespond to primary keys */
 

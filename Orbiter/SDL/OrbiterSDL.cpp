@@ -433,3 +433,10 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
 	DisplayImageOnScreen(m_pScreenImage);
 }
 //-----------------------------------------------------------------------------------------------------
+void OrbiterSDL::OnQuit()
+{
+	m_bQuit = true;
+	SDL_Event *pEvent = new SDL_Event;
+	pEvent->type = SDL_QUIT;
+	SDL_PushEvent(pEvent);
+}

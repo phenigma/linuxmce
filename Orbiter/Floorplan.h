@@ -9,6 +9,7 @@ namespace DCE
 {
 	class DeviceData_Router;
 	class DeviceData_Base;
+	class EntertainArea;
 }
 
 using namespace DCE;
@@ -25,6 +26,7 @@ public:
 	DCE::DeviceData_Base *m_pDeviceData_Base;
 #else
 	DCE::DeviceData_Router *m_pDeviceData_Router;
+	DCE::EntertainArea *m_pEntertainArea;
 #endif
 	class DesignObj_Orbiter *pObj; // Only used by the orbiter
 };
@@ -39,7 +41,7 @@ public:
 class FloorplanInfoProvider
 {
 public:
-	virtual void GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD)=0;
+	virtual void GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD)=0;
 };
 
 #endif

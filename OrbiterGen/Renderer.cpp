@@ -279,7 +279,10 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 #ifdef OUTPUT_BMP
                 sSaveToFile+=".bmp";
 #else
-                sSaveToFile+=".png";
+				if( pRendererMNG )
+	                sSaveToFile+=".mng";
+				else
+	                sSaveToFile+=".png";
 #endif
             }
 
@@ -405,7 +408,7 @@ void Renderer::SaveImageToPNGFile(RendererImage * pRendererImage, FILE * File, b
 
 void Renderer::SaveImageToFile(RendererImage * pRendererImage, string sSaveToFile)
 {
-if( sSaveToFile.find(".1393.")!=string::npos )
+if( sSaveToFile.find(".1257.")!=string::npos )
 {
 int k=2;
 }

@@ -41,6 +41,7 @@ using namespace DCE;
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_FloorplanType.h"
+#include "pluto_main/Table_EntertainArea.h"
 #include "pluto_main/Table_FloorplanObjectType.h"
 #include "pluto_main/Table_FloorplanObjectType_Color.h"
 #include "pluto_main/Table_Orbiter.h"
@@ -834,6 +835,7 @@ void Orbiter_Plugin::CMD_Get_Floorplan_Layout(string *sValue_To_Assign,string &s
 
                 (*sValue_To_Assign) += fpObj->ObjectTypeDescription + "|" + StringUtils::itos(fpObj->FillX) + "|" + StringUtils::itos(fpObj->FillY) + "|" +
                     fpObj->ObjectID + "|" + StringUtils::itos(fpObj->Page) + "|" + StringUtils::itos(fpObj->PK_Device) + "|" +
+					(fpObj->m_pDeviceData_Router ? fpObj->m_pDeviceData_Router->m_sDescription : fpObj->m_pEntertainArea->m_sDescription) + "|" +
                     StringUtils::itos(fpObj->Type) + "|";
             }
         }
@@ -908,7 +910,7 @@ void Orbiter_Plugin::CMD_Get_Current_Floorplan(string sID,int iPK_FloorplanType,
 			FloorplanObject *fpObj = (*fpObjVector)[i];
 			DeviceData_Router *pDeviceData_Router = fpObj->m_pDeviceData_Router;
 
-			pFloorplanInfoProvider->GetFloorplanDeviceInfo(pDeviceData_Router,fpObj->Type,iPK_FloorplanObjectType_Color,iColor,sDescription,OSD);
+			pFloorplanInfoProvider->GetFloorplanDeviceInfo(pDeviceData_Router,fpObj->m_pEntertainArea,fpObj->Type,iPK_FloorplanObjectType_Color,iColor,sDescription,OSD);
 			if( iPK_FloorplanObjectType_Color )
 				pRow_FloorplanObjectType_Color = m_pDatabase_pluto_main->FloorplanObjectType_Color_get()->GetRow(iPK_FloorplanObjectType_Color);
 
@@ -945,22 +947,30 @@ void Orbiter_Plugin::PrepareFloorplanInfo()
         int NumDevices = atoi( StringUtils::Tokenize(s, "\t", pos).c_str());
         for(int iDevice=0;iDevice<NumDevices;++iDevice)
         {
+			// The device can be either a device, or an EntertainArea if this is the media floorplan
             int PK_Device = atoi( StringUtils::Tokenize(s, "\t", pos).c_str());
             g_pPlutoLogger->Write(LV_STATUS, "DeviceID: %d", PK_Device);
             DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
+			EntertainArea *pEntertainArea = NULL;
 
             if ( pDeviceData_Router == NULL )
             {
-                g_pPlutoLogger->Write(LV_CRITICAL, "Device referred by the floorplan %d for orbiter %d does not exist", PK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
-                // clean the bogus data
-                StringUtils::Tokenize(s, "\t", pos);
-                StringUtils::Tokenize(s, "\t", pos);
-                StringUtils::Tokenize(s, "\t", pos);
-                StringUtils::Tokenize(s, "\t", pos);
-                continue;
+				pEntertainArea = this->m_pMedia_Plugin->m_mapEntertainAreas_Find(PK_Device);
+				if( !pEntertainArea )
+				{
+					g_pPlutoLogger->Write(LV_CRITICAL, "Device referred by the floorplan %d for orbiter %d does not exist", PK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+					// clean the bogus data
+					StringUtils::Tokenize(s, "\t", pos);
+					StringUtils::Tokenize(s, "\t", pos);
+					StringUtils::Tokenize(s, "\t", pos);
+					StringUtils::Tokenize(s, "\t", pos);
+					continue;
+				}
             }
 
-            int FloorplanObjectType = atoi(pDeviceData_Router->mapParameters_Find(DEVICEDATA_PK_FloorplanObjectType_CONST).c_str());
+			int FloorplanObjectType = pDeviceData_Router ? 
+				atoi(pDeviceData_Router->mapParameters_Find(DEVICEDATA_PK_FloorplanObjectType_CONST).c_str()) :
+				m_pDatabase_pluto_main->EntertainArea_get()->GetRow(pEntertainArea->m_iPK_EntertainArea)->FK_FloorplanObjectType_get();
             Row_FloorplanObjectType *pRow_FloorplanObjectType = m_pDatabase_pluto_main->FloorplanObjectType_get()->GetRow(FloorplanObjectType);
 
             int Page = atoi( StringUtils::Tokenize(s, "\t", pos).c_str());
@@ -995,7 +1005,8 @@ void Orbiter_Plugin::PrepareFloorplanInfo()
             }
             FloorplanObject *fp = new FloorplanObject();
             fp->PK_Device = PK_Device;
-            fp->m_pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
+            fp->m_pDeviceData_Router = pDeviceData_Router;
+			fp->m_pEntertainArea = pEntertainArea;
             fp->Type = FloorplanObjectType;
             fp->Page = Page;
             fp->FillX = FillX;

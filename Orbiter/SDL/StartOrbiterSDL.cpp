@@ -71,7 +71,7 @@ void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
         // For now I'll assume that shift + arrows scrolls a grid
         bool bShiftDown=false,bControlDown=false,bAltDown=false,bRepeat=false,bCapsLock=false;
         clock_t cKeyDown=0;
-        while (true)
+        while (!pCLinux->m_bQuit)
         {
 //g_pPlutoLogger->Write(LV_STATUS,"Before wait for event");
             SDL_WaitEvent(&Event);

@@ -50,15 +50,17 @@ void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
 //<-dceag-main-b->!  **DON'T AUTOMATICALLY OVERWRITE THIS SECTIONS, IT'S CUSTOM
 int main(int argc, char* argv[])
 {
+	g_sBinary = FileUtils::FilenameWithoutPath(argv[0]);
+	g_sBinaryPath = FileUtils::BasePath(argv[0]);
 
-		cout<<"Copyright (C) 2004 Pluto, Inc., a Florida Corporation"<<endl
-		    <<"www.plutohome.com"<<endl
-		    <<"Phone: +1 (877) 758-8648"<<endl
-		    <<"This program is distributed according to the terms of the Pluto Public License, available at: "<<endl
-		    <<"http://plutohome.com/index.php?section=public_license "<<endl
-		    <<"This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; "<<endl
-		    <<"without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. "<<endl
-		    <<"See the Pluto Public License for more details."<<endl << "-----" << endl << endl;    
+	cout<<"Copyright (C) 2004 Pluto, Inc., a Florida Corporation"<<endl
+		<<"www.plutohome.com"<<endl
+		<<"Phone: +1 (877) 758-8648"<<endl
+		<<"This program is distributed according to the terms of the Pluto Public License, available at: "<<endl
+		<<"http://plutohome.com/index.php?section=public_license "<<endl
+		<<"This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; "<<endl
+		<<"without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. "<<endl
+		<<"See the Pluto Public License for more details."<<endl << "-----" << endl << endl;    
     
     string sRouter_IP="dcerouter";
     int PK_Device=0;

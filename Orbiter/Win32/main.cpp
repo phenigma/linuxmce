@@ -27,7 +27,10 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 					LPTSTR    lpCmdLine,
 					int       nCmdShow)
 {
-    string sRouter_IP="dcerouter";
+	g_sBinary = "OrbiterWin.exe";
+	g_sBinaryPath = "";
+
+	string sRouter_IP="dcerouter";
     int PK_Device=0;
 	string sLogger="orbiter";
 

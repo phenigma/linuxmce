@@ -33,6 +33,11 @@
 
 using namespace DCE;
 
+#if (defined(LL_DEBUG) || defined(LL_DEBUG_FILE))
+	// A counter used to mark messages so they can be traced in the low level logs
+	int g_MessageID=0;
+#endif
+
 Message::Message()
 {
     Clear();
@@ -276,6 +281,10 @@ Message::~Message()
 
 void Message::Clear()
 {
+#if (defined(LL_DEBUG) || defined(LL_DEBUG_FILE))
+	m_MessageID = g_MessageID++;
+#endif
+
     m_bRelativeToSender = false;
     m_eExpectedResponse = ER_None;
     m_eBroadcastLevel = BL_SameHouse; // Default broadcast level
@@ -318,11 +327,21 @@ void Message::ToData( unsigned long &dwSize, char* &pcData, bool bWithHeader )
     {
         dwHeaderPosition = m_pcCurrentPosition - m_pcDataBlock + 8;
 #ifndef WIN32
+#if (defined(LL_DEBUG) || defined(LL_DEBUG_FILE))
+        string s("MESSAGE                      ");     //possibly this is a compiler bug  - gcc 3.3.3
+#else
         string s("MESSAGE               ");     //possibly this is a compiler bug  - gcc 3.3.3
+#endif
                                 //complains about call to non-existing function
         Write_string(s);
 #else
-        Write_string( string( "MESSAGE               " ) );
+
+#if (defined(LL_DEBUG) || defined(LL_DEBUG_FILE))
+		Write_string( string( "MESSAGE                      " ) );
+#else
+		Write_string( string( "MESSAGE               " ) );
+#endif
+
 #endif
         // Save a pointer to store the header size
         dwStartOfMessagePosition = m_pcCurrentPosition - m_pcDataBlock;
@@ -400,6 +419,9 @@ void Message::ToData( unsigned long &dwSize, char* &pcData, bool bWithHeader )
         char *pcFreezePosition = m_pcCurrentPosition;
         m_pcCurrentPosition = m_pcDataBlock + dwHeaderPosition;
         string Size = StringUtils::itos( MessageSize );
+#if (defined(LL_DEBUG) || defined(LL_DEBUG_FILE))
+		Size += "," + StringUtils::itos(m_MessageID);
+#endif
         // Don't do a Write_String(StringUtils::itos(MessageSize)) because that will add a null term
         Write_block((char *)Size.c_str(),Size.length());
         m_pcCurrentPosition = pcFreezePosition;

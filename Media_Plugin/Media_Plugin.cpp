@@ -133,7 +133,7 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
         for( size_t s=0;s<vectRow_EntertainArea.size( );++s )
         {
             Row_EntertainArea *pRow_EntertainArea = vectRow_EntertainArea[s];
-            EntertainArea *pEntertainArea = new EntertainArea( pRow_EntertainArea->PK_EntertainArea_get( ), ( pRow_EntertainArea->Only1Stream_get( )==1 ) );
+            EntertainArea *pEntertainArea = new EntertainArea( pRow_EntertainArea->PK_EntertainArea_get( ), ( pRow_EntertainArea->Only1Stream_get( )==1 ), pRow_EntertainArea->Description_get() );
             m_mapEntertainAreas[pEntertainArea->m_iPK_EntertainArea]=pEntertainArea;
             // Now find all the devices in the ent area
             vector<Row_Device_EntertainArea *> vectRow_Device_EntertainArea;
@@ -1612,20 +1612,17 @@ class DataGridTable *Media_Plugin::AvailablePlaylists( string GridID, string Par
 }
 
 
-void Media_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD)
+void Media_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD)
 {
-	MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pDeviceData_Router->m_dwPK_Device);
-	if( !pMediaDevice )
-		return;
-	for(list<EntertainArea *>::iterator it=pMediaDevice->m_listEntertainArea.begin();it!=pMediaDevice->m_listEntertainArea.end();++it)
+	if( pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->m_iOrder>=0 && pEntertainArea->m_pMediaStream->m_iOrder<MAX_MEDIA_COLORS )
 	{
-		EntertainArea *pEntertainArea = *it;
-		if( pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->m_iOrder>=0 && pEntertainArea->m_pMediaStream->m_iOrder<MAX_MEDIA_COLORS )
-		{
-			Color = UniqueColors[pEntertainArea->m_pMediaStream->m_iOrder];
-			sDescription = pEntertainArea->m_pMediaStream->m_sMediaDescription;
-			return;
-		}
+		Color = UniqueColors[pEntertainArea->m_pMediaStream->m_iOrder];
+		sDescription = pEntertainArea->m_pMediaStream->m_sMediaDescription;
+	}
+	else
+	{
+		Color = PlutoColor::Black().m_Value;
+		sDescription = "off";
 	}
 }
 //<-dceag-c241-b->

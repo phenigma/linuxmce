@@ -67,10 +67,11 @@ public:
 
     /** @brief constructor*/
 
-    EntertainArea(int iPK_EntertainArea,bool bOnly1Stream)
-    { m_iPK_EntertainArea=iPK_EntertainArea; m_bOnly1Stream=bOnly1Stream; m_pMediaStream=NULL; }
+    EntertainArea(int iPK_EntertainArea,bool bOnly1Stream,string sDescription)
+    { m_iPK_EntertainArea=iPK_EntertainArea; m_bOnly1Stream=bOnly1Stream; m_pMediaStream=NULL; m_sDescription=sDescription; }
 
     int m_iPK_EntertainArea;
+	string m_sDescription;
 
     class MediaStream  *m_pMediaStream;   /** The current media streams in this entertainment area */
 
@@ -286,7 +287,7 @@ public:
     /**
      * @brief Required for plug-ins that render floorplans
      */
-    virtual void GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD);
+    virtual void GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD);
 
     bool StartMedia(MediaPluginInfo *pMediaPluginInfo, unsigned int PK_Device_Orbiter,EntertainArea *pEntertainArea,int PK_Device_Source,int PK_DesignObj_Remote,deque<MediaFile *> *dequeMediaFile);
 
