@@ -9,7 +9,7 @@ int main()
 {
 	int fd;
 
-	fd = open("./dev/tty", O_RDWR);
+	fd = open("./dev/console", O_RDWR);
 	ioctl(fd, VT_ACTIVATE, 11);
 	ioctl(fd, VT_WAITACTIVE, 11);
 	return 0;
