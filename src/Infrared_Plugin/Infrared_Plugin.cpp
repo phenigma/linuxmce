@@ -450,7 +450,7 @@ void Infrared_Plugin::CMD_Get_Infrared_Codes(int iPK_Device,string *sValue_To_As
 	long FK_DeviceTemplate = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device)->FK_DeviceTemplate_get();
 	
 	vector<Row_DeviceTemplate_InfraredGroup *> vectRow_DeviceTemplate_InfraredGroup;
-	m_pDatabase_pluto_main->DeviceTemplate_InfraredGroup_get()->GetRows("FK_DeviceTemplate=" + StringUtils::itos(iPK_Device),
+	m_pDatabase_pluto_main->DeviceTemplate_InfraredGroup_get()->GetRows("FK_DeviceTemplate=" + StringUtils::itos(FK_DeviceTemplate),
 		&vectRow_DeviceTemplate_InfraredGroup);
 	
 	vector<Row_DeviceTemplate_InfraredGroup *>::iterator it_RDTIG;
