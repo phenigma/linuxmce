@@ -240,7 +240,10 @@ void CVIPEditDlg::PopulateWithMenu()
 	MYSTL_ITERATE_LONG_MAP((*m_mapMenu),VIPMenu,pMenu,i) 
 	{
 		int Item=m_lbItems.AddString(pMenu->m_sDescription.c_str());
-		m_lbItems.SetItemData(Item,pMenu->m_iMenuID);
+		//m_lbItems.SetItemData(Item,pMenu->m_iMenuID);
+		
+		//temp hack
+		m_lbItems.SetItemData(Item,Item);
 	}
 }
 void CVIPEditDlg::PopulateWithVariables()
