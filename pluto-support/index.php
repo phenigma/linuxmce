@@ -18,7 +18,7 @@
 			$leftParams='';
 
 			$rightFile='documents/documentDisplay';
-			$rightParams='&docID=0';
+			$rightParams='&docID=1';
 		break;
 		case 'home':
 			$leftFile='operations/leftHome';
