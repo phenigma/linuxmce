@@ -1025,6 +1025,7 @@ cout << "Making CVS Checkout to temporary\n";
 
 cout << "Reading files from temporary ";
 	getcwd(direct, 255);
+	cout << direct << " ";
 	FileUtils::FindFiles(MyList, direct, "*", true, "");
 	cout << MyList.size();
 cout << " [Done]\n";
