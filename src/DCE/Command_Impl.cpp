@@ -245,7 +245,7 @@ bool Command_Impl::SpawnChildDevice( class DeviceData_Impl *pDeviceData_Impl_Chi
 
 	g_pPlutoLogger->Write( LV_STATUS, "Spawning device: %d %s on display: %s ip: %s", pDeviceData_Impl_Child->m_dwPK_Device, pDeviceData_Impl_Child->m_sCommandLine.c_str(), sDisplay.c_str(), m_sIPAddress.c_str() );
 	system( ("screen -d -m -h 3000 -S " + StringUtils::itos( pDeviceData_Impl_Child->m_dwPK_Device ) + "_" + pDeviceData_Impl_Child->m_sCommandLine +
-			" sh -x " + sPrefix + "Spawn_Device.sh " + StringUtils::itos(pDeviceData_Impl_Child->m_dwPK_Device) + " " + m_sIPAddress + " " + sDisplay + " " + pDeviceData_Impl_Child->m_sCommandLine).c_str() );
+			" /bin/bash -x " + sPrefix + "Spawn_Device.sh " + StringUtils::itos(pDeviceData_Impl_Child->m_dwPK_Device) + " " + m_sIPAddress + " " + sDisplay + " " + pDeviceData_Impl_Child->m_sCommandLine).c_str() );
 #else
 	#ifndef WINCE
 		STARTUPINFO si;
