@@ -1524,7 +1524,7 @@ bool CreateSource_FTPHTTP(Row_Package_Source *pRow_Package_Source,list<FileInfo 
 		return false;
 	}
 
-	if( pRow_Package_Source->FK_RepositorySource_get()==REPOSITORYSOURCE_SourceForge_Archives_CONST && pRow_Package_Source->FK_RepositorySource_get()==17)
+	if( pRow_Package_Source->FK_RepositorySource_get()==REPOSITORYSOURCE_SourceForge_Archives_CONST || pRow_Package_Source->FK_RepositorySource_get()==17)
 	{
 		// ArchiveFileName will be the name of the archive.  Add code here to actually upload it to sourceforge
 		// Initiate an ftp upload using Username & Password
