@@ -232,7 +232,7 @@ int OrbiterGenerator::DoIt()
 		m_pRow_Orbiter->Table_Orbiter_get()->Commit();
 	}
 
-	cout << "Generating: " << m_pRow_Device->Description_get() << endl;
+	cout << "Generating: #" << m_pRow_Device->PK_Device_get() << " " << m_pRow_Device->Description_get() << endl;
 
 	if( m_sOutputPath[ m_sOutputPath.length()-1 ]!='/' )
 		m_sOutputPath += "/";
