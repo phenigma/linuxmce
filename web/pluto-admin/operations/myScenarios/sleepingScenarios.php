@@ -475,7 +475,7 @@ else{
 				}
 			}
 		}
-		header("Location: index.php?section=sleepingScenarios&roomID=$roomID&cgID=$cgID&action=editLighting&msg=Sleeping Obiter Scenario updated.");
+		header("Location: index.php?section=sleepingScenarios&roomID=$roomID&cgID=$cgID&msg=Sleeping Obiter Scenario updated.");
 		exit();
 	}
 	
@@ -534,7 +534,7 @@ else{
 			}
 			setOrbitersNeedConfigure($installationID,$dbADO);
 		}
-		header("Location: index.php?section=sleepingScenarios&roomID=$roomID&cgID=$cgID&action=editClimate&msg=Sleeping Obiter Scenario updated.");
+		header("Location: index.php?section=sleepingScenarios&roomID=$roomID&cgID=$cgID&msg=Sleeping Obiter Scenario updated.");
 		exit();
 	}
 	

@@ -40,7 +40,7 @@ function editRespondToEvent($output,$dbADO) {
 		
 		$out.='
 		<div align="center" class="err">'.@$_REQUEST['error'].'</div>
-		<div align="center"><B>'.@$_REQUEST['msg'].'</B></div>
+		<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 		<form action="index.php" method="post" name="editRespondToEvent">
 		<input type="hidden" name="section" value="editRespondToEvent">
 		<input type="hidden" name="action" value="update">
@@ -372,6 +372,11 @@ function editRespondToEvent($output,$dbADO) {
 			}			
 		}
 
+		// update EventHandler
+		$updateEventHandler='UPDATE EventHandler SET Description=?, FK_CannedEvents=? WHERE PK_EventHandler=?';
+		$dbADO->Execute($updateEventHandler,array($description,$cannedEvent,$eventHandlerID));
+
+	
 		// command group process
 		$x=cleanInteger(@$_POST['device']);
 		$y=cleanInteger(@$_POST['addNewDeviceCommand']);
@@ -459,11 +464,11 @@ function editRespondToEvent($output,$dbADO) {
 		}
 
 		
-		// update EventHandler
-		$updateEventHandler='UPDATE EventHandler SET Description=?, FK_CannedEvents=? WHERE PK_EventHandler=?';
-		$dbADO->Execute($updateEventHandler,array($description,$cannedEvent,$eventHandlerID));
-		
-		
+		if(isset($_POST['continue'])){
+			header('Location: index.php?section=respondToEvents&msg=The event handler was updated');	
+			exit();
+		}
+	
 		header('Location: index.php?section=editRespondToEvent&ehID='.$eventHandlerID.'&msg=The event handler was updated');
 	}
 	

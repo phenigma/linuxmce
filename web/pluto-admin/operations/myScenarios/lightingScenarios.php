@@ -324,7 +324,7 @@ if($action=='form') {
 				}
 			}
 		}
-		header("Location: index.php?section=lightingScenarios&roomID=$roomID&cgID=$cgID&action=edit&msg=Lighting scenario updated");
+		header("Location: index.php?section=lightingScenarios&roomID=$roomID&cgID=$cgID&msg=Lighting scenario updated");
 		exit();
 	}
 	

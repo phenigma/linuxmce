@@ -347,7 +347,7 @@ if($action=='form') {
 			}
 			setOrbitersNeedConfigure($installationID,$dbADO);
 		}
-		header("Location: index.php?section=climateScenarios&roomID=$roomID&cgID=$cgID&action=edit");
+		header("Location: index.php?section=climateScenarios&roomID=$roomID&cgID=$cgID&msg=Climate scenario updated");
 		exit();
 	}
 	

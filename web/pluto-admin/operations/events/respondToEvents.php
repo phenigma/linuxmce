@@ -43,7 +43,7 @@ function respondToEvents($output,$dbADO) {
 		
 		$out.='
 		<div align="center" class="err">'.@$_REQUEST['error'].'</div>
-		<div align="center"><B>'.@$_REQUEST['msg'].'</B></div>
+		<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 		<form action="index.php" method="post" name="respondToEvents">
 		<input type="hidden" name="section" value="respondToEvents">
 		<input type="hidden" name="action" value="add">

@@ -996,6 +996,12 @@ switch ($section) {
 	    include_once('operations/myDevices/eibDevices.php');
 	    eibDevices($output,$dbADO,$eibADO);
 	break;	
+	case 'basicInfo';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/others/basicInfo.php');
+	    basicInfo($output,$dbADO);
+	break;	
 	
 	case '';
 		$output = new Template($dbADO);	

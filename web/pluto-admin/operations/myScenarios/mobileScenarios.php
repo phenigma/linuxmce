@@ -399,7 +399,7 @@ else{
 				}
 			}
 		}
-		header("Location: index.php?section=mobileScenarios&cgID=$cgID&action=editLighting&msg=Mobile Obiter Scenario updated.");
+		header("Location: index.php?section=mobileScenarios&cgID=$cgID&msg=Mobile Obiter Scenario updated.");
 		exit();
 	}
 	
@@ -457,7 +457,7 @@ else{
 			}
 			setOrbitersNeedConfigure($installationID,$dbADO);
 		}
-		header("Location: index.php?section=mobileScenarios&cgID=$cgID&action=editClimate&msg=Mobile Obiter Scenario updated.");
+		header("Location: index.php?section=mobileScenarios&cgID=$cgID&msg=Mobile Obiter Scenario updated.");
 		exit();
 	}
 	
