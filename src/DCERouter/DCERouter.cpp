@@ -1444,18 +1444,8 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
                         return;
                     }
                     string sResponse;
-if ( (*(*pSafetyMessage))->m_dwID==183 )
-{
-int k=2;
-}
                     if (pDeviceConnection->ReceiveString(sResponse))
                     {
-
-if ( ID == 54 )
-{
-    g_pPlutoLogger->Write(LV_WARNING, "Got a String for 54: %s", sResponse.c_str());
-}
-
 /*
 #ifdef DEBUG
                         if( clock()-clk2>(CLOCKS_PER_SEC*4) )
@@ -1468,24 +1458,16 @@ if ( ID == 54 )
                             g_pPlutoLogger->Write(LV_STATUS, "1 pSocket=%p", pSocket);
                             if (pSocket && !(*(*pSafetyMessage))->m_bRespondedToMessage)
                             {
-if ( ID == 54 )
-{
-    g_pPlutoLogger->Write(LV_WARNING, "Reading message response id for %s", sResponse.substr(8).c_str());
-}
                                 DCE::Message *pMessage = pDeviceConnection->ReceiveMessage(atoi(sResponse.substr(8).c_str()));
-if ( ID == 54 )
-{
-    g_pPlutoLogger->Write(LV_WARNING, "Response message was read (%d) with %d params: %s %s", pMessage->m_dwID,
-        pMessage->m_mapParameters.size(),
-        pMessage->m_mapParameters[13].c_str(),
-        pMessage->m_mapParameters[59].c_str());
-//      pMessage->m_mapParameters);
-}
+								if( !pMessage )
+								{
+									g_pPlutoLogger->Write(LV_CRITICAL,"Sent message, got response but it's not a real message: %s",sResponse.c_str());
+								}
 
-if ( pSocket->SendMessage(pMessage) == false && ID == 54)
-{
-    g_pPlutoLogger->Write(LV_WARNING, "Failed to forward response message properly" );
-}
+								if ( pSocket->SendMessage(pMessage) == false )
+								{
+									g_pPlutoLogger->Write(LV_WARNING, "Failed to forward response message properly" );
+								}
                                 (*(*pSafetyMessage))->m_bRespondedToMessage = true;
                             }
                         }
