@@ -36,7 +36,6 @@ while (1 eq 1) {
     $mac_found = $data[10];
     $ip_sent = $data[8];
   }
-  print "we have tag=$tag $op=$op mac=$mac_found ip=$ip_sent\n";
   if($tag eq "dhcpd:") {
     if($op eq "DHCPOFFER") {
 
