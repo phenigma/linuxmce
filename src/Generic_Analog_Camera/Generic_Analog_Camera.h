@@ -57,8 +57,6 @@ public:
 
 
 //<-dceag-h-e->
-		private:
-		    DeviceData_Router* find_Device(int iPK_Device);
 	};
 
 //<-dceag-end-b->

@@ -32,29 +32,23 @@ Generic_Analog_Camera::Generic_Analog_Camera(int DeviceID, string ServerAddress,
 {
 	string sPortNumber, sPath, sLine;
 	FILE *fp;
-	char pid[10];
-	char *Command;
 	string FilePath, sData, sRep;
-	unsigned long int size, port;
+	unsigned long int size, iPortNumber, pid;
 
-    DeviceData_Router *pDeviceData = find_Device(DeviceID);
- 	if(!pDeviceData) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "No device found with id: %d", DeviceID);
-		return;
-	}
-
-	sPortNumber = pDeviceData->mapParameters_Find(DEVICEDATA_Port_Number_CONST);
-	sPath = "/etc/motion/thread" + sPortNumber + ".conf";
+	iPortNumber = DATA_Get_Port_Number();
+	sPath = "/etc/motion/thread" + StringUtils::itos(iPortNumber) + ".conf";
+	FilePath = sPath;
 	g_pPlutoLogger->Write(LV_STATUS, "Looking for camera config file");
 	if(FileUtils::FileExists(sPath) == true) {
+		g_pPlutoLogger->Write(LV_STATUS, "File found, modifing...");
 		sPath = "rm -f " + sPath;
 		system(sPath.c_str());
+	} else {
+		g_pPlutoLogger->Write(LV_STATUS, "Camera config file not found, writing new one");
 	}
-	g_pPlutoLogger->Write(LV_STATUS, "Camera config file not found, writing new one");
-	fp = fopen(sPath.c_str(),"wt");
+	fp = fopen(FilePath.c_str(),"wt+");
 	//main config
-	port = atoi(sPortNumber.c_str()) - 1;
-	sLine = "videodevice /dev/video" + StringUtils::itos(port) + "\n";
+	sLine = "videodevice /dev/video" + StringUtils::itos(iPortNumber) + "\n";
 	fprintf(fp,sLine.c_str());
 	fprintf(fp,"input 8\n");
 	fprintf(fp,"norm 0\n");	//pal/secam
@@ -103,23 +97,19 @@ Generic_Analog_Camera::Generic_Analog_Camera(int DeviceID, string ServerAddress,
 	FileUtils::WriteBufferIntoFile(sPath,pData,size-1);
 
 	g_pPlutoLogger->Write(LV_STATUS, "Getting PID of the motion server");
-	Command = "ps -e | grep motion | awk '{print $1}' > camera_card.temp";
-	system(Command);
-	fp = fopen("camera_card.temp","rt");
-	if(fp == NULL) {
-		g_pPlutoLogger->Write(LV_STATUS, "Cannot get PID for the motion server, exiting...");
-		exit(99);
+	sLine = "ps -e | grep motion | awk '{print $1}' > camera_card.temp";
+	system(sLine.c_str());
+	size_t s;
+	const char *ptr = FileUtils::ReadFileIntoBuffer("camera_card.temp",s);
+	pid = atoi(ptr);
+	if(pid == 0) {
+		g_pPlutoLogger->Write(LV_STATUS, "Motion Server is not running, exiting");
+		system("rm -f camera_card.temp");
+		exit(1);
 	}
-	fgets(pid,10,fp);
-	size = strlen(pid);
-	if(pid[size-1] == 10) {
-		pid[size-1] = '\0';
-	}
-	fclose(fp);
+	g_pPlutoLogger->Write(LV_STATUS, "Rehashing motion server with PID: %d",pid);
 
-	g_pPlutoLogger->Write(LV_STATUS, "Rehashing motion server");
-
-	sPath = "kill -s SIGHUP " + StringUtils::itos(atoi(pid));
+	sPath = "kill -s SIGHUP " + StringUtils::itos(pid);
 	system(sPath.c_str());
 }
 
@@ -270,7 +260,3 @@ void Generic_Analog_Camera::SomeFunction()
 	COMMANDS TO IMPLEMENT
 
 */
-DeviceData_Router* Generic_Analog_Camera::find_Device(int iPK_Device) {
-    /*search device by id*/
-	return m_pRouter->m_mapDeviceData_Router_Find(iPK_Device);
-}
