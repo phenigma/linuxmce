@@ -6,7 +6,7 @@ function phoneLines($output,$dbADO) {
 	$action = (isset($_REQUEST['action']) && $_REQUEST['action']!='')?cleanString($_REQUEST['action']):'form';
 	$installationID = (int)@$_SESSION['installationID'];
 		
-	$queryDefaultLine="SELECT id,appdata FROM extensions_table	WHERE exten='_.' AND appdata LIKE 'DIALLINE=%'";
+	$queryDefaultLine="SELECT id,appdata FROM extensions_table	WHERE context='outgoing-extern-selectline' AND exten='_.' AND appdata LIKE 'DIALLINE=%'";
 	$resDefaultLine=$dbADO->Execute($queryDefaultLine);
 	if($resDefaultLine->RecordCount()>0){
 		$rowDefaultLine=$resDefaultLine->FetchRow();
