@@ -875,9 +875,14 @@ AsksSourceQuests:
 
 bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo)
 {
-	// TODO: make dirname acceptable to dh_make
-	string Dir("/tmp/pluto-build-2.0-1");
+	vector<Row_Package_Source *> vect_pRow_Package_Source_Package_Name;
+	pRow_Package_Source->FK_Package_getrow()->Package_Source_FK_Package_getrows(&vect_pRow_Package_Source_Package_Name);
+	
+	string Dir("/tmp/pluto-build/" + vect_pRow_Package_Source_Package_Name[0]->Name_get() + "-" +
+		vect_pRow_Package_Source_Package_Name[0]->Version_get());
+
 	FILE * f;
+
 #ifndef WIN32
 	system(("rm -rf " + Dir).c_str());
 	mkdir(Dir.c_str(), 0666);
@@ -892,6 +897,11 @@ string Makefile = "none:\n"
 "\tcp -a root/* $(DESTDIR)\n";
 
 	f = fopen((Dir + "/Makefile").c_str(), "w");
+	if (!f)
+	{
+		cout << "Error: cannot open Makefile" << endl;
+		return false;
+	}
 	fprintf(f, "%s", Makefile.c_str(), Makefile.length());
 	fclose(f);
 #endif
@@ -906,13 +916,13 @@ string Makefile = "none:\n"
 #endif
 	}
 
-	f = fopen((Dir + "/root/dummy-file").c_str(), "w");
-	if( !f )
-	{
-		cout << "Error: cannot open dummy-file" << endl;
-		return false;
-	}
-	fclose(f);
+	//f = fopen((Dir + "/root/dummy-file").c_str(), "w");
+	//if( !f )
+	//{
+	//	cout << "Error: cannot open dummy-file" << endl;
+	//	return false;
+	//}
+	//fclose(f);
 
 	// Get a list of all the other packages which we depend on, and which have Debian sources.  We are going to add them to the .deb as dependencies
 	vector<Row_Package_Source *> vect_pRow_Package_Source_Dependencies;
