@@ -754,6 +754,12 @@ switch ($section) {
 	    include_once('operations/security/securityStatus.php');
 	    securityStatus($output,$dbADO);
 	break;
+	case 'telecomScenarios';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/myScenarios/telecomScenarios.php');
+	    telecomScenarios($output,$dbADO);
+	break;
 
 	
 	case '';

@@ -1433,7 +1433,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 
 function builtTopMenu($website,$dbADO)
 {
-	$selectMenu = "SELECT * FROM PageSetup WHERE FK_PageSetup_Parent IS NULL AND showInTopMenu = 1 AND Website='$website'";
+	$selectMenu = "SELECT * FROM PageSetup WHERE FK_PageSetup_Parent IS NULL AND showInTopMenu = 1 AND Website='$website' ORDER BY OrderNum";
 	$resSelectMenu = $dbADO->Execute($selectMenu);
 	$menuPages='';
 	$pos=0;	
@@ -1451,7 +1451,7 @@ function builtTopMenu($website,$dbADO)
 
 function getSubmenu($website,$level,$parentID,$dbADO)
 {
-	$selectMenu = "SELECT * FROM PageSetup WHERE FK_PageSetup_Parent =? AND showInTopMenu = 1 AND Website=?";
+	$selectMenu = "SELECT * FROM PageSetup WHERE FK_PageSetup_Parent =? AND showInTopMenu = 1 AND Website=? ORDER BY OrderNum";
 	$resSelectMenu = $dbADO->Execute($selectMenu,array($parentID,$website));
 	$menuPages='';
 	$pos=0;	

@@ -56,6 +56,7 @@
 	$GLOBALS['rootLightsInterfaces'] = 81;		// Light Interfaces
 	$GLOBALS['rootClimateInterfaces'] = 82;		// Climate Interfaces
 	$GLOBALS['rootSecurityInterfaces'] = 80;	// Security Interfaces
+	$GLOBALS['rootPhones'] = 89;				// Phones
 	
 	// PK_DeviceTemplate from table DeviceTemplate
 	
@@ -76,14 +77,17 @@
 	$GLOBALS['SecuritySOSTemplate']=14;				// Security - SOS
 	$GLOBALS['SecurityViewCamerasTemplate']=15;		// Security - View Cameras
 	$GLOBALS['SecurityViewOneCameraTemplate']=16;	// Security - View Camera
-
+	$GLOBALS['TelecomScenariosTemplate']=17;		// Telecom Scenarios
+	
 	// PK_Array from table Array
 	
-	$GLOBALS['ArrayIDForLight'] = 1;		// Lighting Scenarios
-	$GLOBALS['ArrayIDForClimate'] = 2;		// Climate Scenarios
-	$GLOBALS['ArrayIDForSecurity'] = 3;		// Security scenarios
-	$GLOBALS['ArrayIDForMedia'] = 5;		// Media Scenarios
-	$GLOBALS['EventsHandlerArray']=20;		// Events Handler
+	$GLOBALS['ArrayIDForLight'] = 1;				// Lighting Scenarios
+	$GLOBALS['ArrayIDForClimate'] = 2;				// Climate Scenarios
+	$GLOBALS['ArrayIDForSecurity'] = 3;				// Security scenarios
+	$GLOBALS['ArrayIDCommunicationScenarios']=4; 	// Communication scenarios
+	$GLOBALS['ArrayIDForMedia'] = 5;				// Media Scenarios
+	$GLOBALS['EventsHandlerArray']=20;				// Events Handler
+		
 	
 	// PK_Command from Command table
 	
@@ -92,10 +96,12 @@
 	$GLOBALS['genericSetLevelCommand']=184;			// Set Level
 	$GLOBALS['genericHeatCommand']=197;				// Generic Heat
 	$GLOBALS['genericCoolCommand']=196;				// Generic Cool
-	$GLOBALS['MediaScenariosCommand']=43;			// MH Play Media	
+	$GLOBALS['MediaScenariosCommand']=43;			// MH Play Media
+	$GLOBALS['commandSetUserMode']=26;					// Set User Mode	
 	$GLOBALS['commandSetVar']=27;					// Set Variable
 	$GLOBALS['commandGotoScreen']=5;				// Go to screen
 	$GLOBALS['commandMHPlayMedia']=43;				// MH Play Media
+	$GLOBALS['commandPL_Originate']=232;			// PL_Originate
 	
 	// PK_CommandParameters from table CommandParameters
 	
@@ -104,11 +110,12 @@
 	$GLOBALS['commandParameterVariableNumber']=4;	// Variable Number (PK_Variable)
 	$GLOBALS['commandParameterValueToAsign']=5;		// Value to assign
 	$GLOBALS['commandParamFilename']=13;			// Filename
+	$GLOBALS['commandParamPKUsers']=17;				// PK_Users
 	$GLOBALS['commandParamPK_MediaType']=29;		// PK_MediaType
 	$GLOBALS['commandParamPK_DeviceTemplate']=44;	// PK_DeviceTemplate
 	$GLOBALS['commandParamPK_EntertainArea']=45;	// PK_EntertainArea
 	$GLOBALS['commandParamAbsoluteLevel']=76;		// Absolute Level
-	
+	$GLOBALS['commandPhoneExtension']=83;			// PhoneExtension
 	
 	$GLOBALS['commandParameterObjectScreen']=16;	// Object(Screen)
 	
