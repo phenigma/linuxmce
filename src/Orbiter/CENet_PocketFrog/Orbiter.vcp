@@ -1136,6 +1136,7 @@ DEP_CPP_GRAPH=\
 	"..\RendererMNG.h"\
 	"..\SDL\SDLGraphic.h"\
 	"..\TextStyle.h"\
+	".\PocketFrogWrapper.h"\
 	
 NODEP_CPP_GRAPH=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
@@ -1226,8 +1227,15 @@ DEP_CPP_HANDL=\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\CENet\wince.h"\
+	"..\Win32\MainDialog.h"\
+	"..\Win32\StartOrbiter_Win32.h"\
+	".\stdafx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_HANDL=\
+	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 
@@ -1450,6 +1458,7 @@ DEP_CPP_MAIN_=\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\OrbiterSDL_Win32.h"\
 	"..\Win32\StartOrbiter_Win32.h"\
+	".\PocketFrogWrapper.h"\
 	".\stdafx.h"\
 	{$(INCLUDE)}"aygshell.h"\
 	{$(INCLUDE)}"sipapi.h"\
@@ -1602,6 +1611,7 @@ DEP_CPP_MAIND=\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\OrbiterSDL_Win32.h"\
 	"..\Win32\StartOrbiter_Win32.h"\
+	".\PocketFrogWrapper.h"\
 	".\stdafx.h"\
 	{$(INCLUDE)}"aygshell.h"\
 	{$(INCLUDE)}"sipapi.h"\
@@ -2103,8 +2113,10 @@ DEP_CPP_ORBITE=\
 	"..\..\DCE\PlutoLockLogger.h"\
 	"..\..\DCE\Socket.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
+	"..\..\pluto_main\Define_Button.h"\
 	"..\..\pluto_main\Define_DesignObjType.h"\
 	"..\..\pluto_main\Define_DeviceCategory.h"\
+	"..\..\pluto_main\Define_Direction.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -2127,8 +2139,16 @@ DEP_CPP_ORBITE=\
 	"..\PocketFrog\Orbiter_PocketFrog.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
 	"..\TextStyle.h"\
+	"..\Win32\MainDialog.h"\
+	"..\Win32\StartOrbiter_Win32.h"\
+	".\PocketFrogWrapper.h"\
+	".\stdafx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_ORBITE=\
+	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 
@@ -2379,6 +2399,7 @@ DEP_CPP_PFGHE=\
 	"..\PocketFrog\PocketFrogGraphic.h"\
 	"..\RendererOCG.h"\
 	"..\TextStyle.h"\
+	".\PocketFrogWrapper.h"\
 	
 NODEP_CPP_PFGHE=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
@@ -2526,9 +2547,55 @@ DEP_CPP_POCKE=\
 	"..\PocketFrog\PFGHelper.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
 	"..\TextStyle.h"\
+	".\PocketFrogWrapper.h"\
 	
 NODEP_CPP_POCKE=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\PocketFrogWrapper.cpp
+
+!IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
+
+DEP_CPP_POCKET=\
+	".\PocketFrogWrapper.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Debug"
+
+DEP_CPP_POCKET=\
+	".\PocketFrogWrapper.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_POCKET=\
+	".\PocketFrogWrapper.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_POCKET=\
+	"..\..\..\libs\Libraries\PocketFrog\PocketFrog.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\config.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\defs.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\display.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_array.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_ptr.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\utility.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\framework\game.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\image.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\input.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\pocketpc.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rasterizer.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rect.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\surface.h"\
+	".\PocketFrogWrapper.h"\
 	
 
 !ENDIF 
@@ -3022,6 +3089,7 @@ DEP_CPP_SELFU=\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\OrbiterSDL_Win32.h"\
 	"..\Win32\StartOrbiter_Win32.h"\
+	".\PocketFrogWrapper.h"\
 	".\stdafx.h"\
 	{$(INCLUDE)}"aygshell.h"\
 	{$(INCLUDE)}"sipapi.h"\
@@ -3258,6 +3326,7 @@ DEP_CPP_SIMUL=\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\OrbiterSDL_Win32.h"\
 	"..\Win32\StartOrbiter_Win32.h"\
+	".\PocketFrogWrapper.h"\
 	".\stdafx.h"\
 	{$(INCLUDE)}"aygshell.h"\
 	{$(INCLUDE)}"sipapi.h"\
@@ -3542,6 +3611,7 @@ DEP_CPP_START=\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\StartOrbiter_Win32.h"\
+	".\PocketFrogWrapper.h"\
 	{$(INCLUDE)}"aygshell.h"\
 	{$(INCLUDE)}"sipapi.h"\
 	{$(INCLUDE)}"winuserm.h"\
@@ -3872,6 +3942,10 @@ SOURCE=..\..\DCE\PlutoLockLogger.h
 # Begin Source File
 
 SOURCE=..\PocketFrog\PocketFrogGraphic.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\PocketFrogWrapper.h
 # End Source File
 # Begin Source File
 

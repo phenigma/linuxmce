@@ -288,7 +288,9 @@ public: // temp - remove this
 	 * @brief returnes the video frame from the DesignObj_Orbiter object pointed by iData
 	 * @param iData points to the DesignObj_Orbiter object we want the video frame from
 	 */
-	void GetVideoFrame( void *iData );
+	virtual void GetVideoFrame( void *iData );
+
+	virtual int GetVideoFrameInterval() { return 6000; } //default value. override this to speed up things.
 
 	/**
 	 * @brief

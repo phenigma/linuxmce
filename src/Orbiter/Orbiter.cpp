@@ -748,7 +748,7 @@ g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", pObj->m_ObjectI
 		if ( pObj->m_bOnScreen )
 		{
 			g_pPlutoLogger->Write(LV_STATUS, "Scheduling object @%p: %s", pObj, pObj->m_ObjectID.c_str());
-			CallMaintenanceInMiliseconds( 6000, &Orbiter::GetVideoFrame, ( void * ) pObj, true );
+			CallMaintenanceInMiliseconds( GetVideoFrameInterval(), &Orbiter::GetVideoFrame, ( void * ) pObj, true );
 		}
 		else
 		{
@@ -1092,8 +1092,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Need to change screens executed to %s",pScreenH
     m_vectObjs_GridsOnScreen.clear(  );
     dg.Release(  );
 
-    m_bRerenderScreen=true;
     PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );
+    m_bRerenderScreen=true;
     // The framework will call this when it's time to change screens.  This immediately calls RenderScreen.
 
 	// ATTEN: The siganture was changed from RegionUp() -> RegionUp(int x, int y);
@@ -4245,7 +4245,8 @@ void Orbiter::GetVideoFrame( void *data )
             return; // This will call RenderObject,  which will reset the timer
         }
     }
-    CallMaintenanceInMiliseconds( 6000, &Orbiter::GetVideoFrame, ( void * ) pObj, true );
+	//GetVideoFrame will be called again in RenderObj via CMD_Update_Object_Img -> RealRedraw
+    //CallMaintenanceInMiliseconds( 6000, &Orbiter::GetVideoFrame, ( void * ) pObj, true );
 }
 
 /*

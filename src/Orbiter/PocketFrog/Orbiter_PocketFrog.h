@@ -4,6 +4,7 @@
 #include "../Orbiter.h"
 #include "../DesignObj_Orbiter.h"
 #include "../PocketFrog/PocketFrogGraphic.h"
+#include "PocketFrogWrapper.h"
 //-----------------------------------------------------------------------------------------------------
 #include <PocketFrog.h>
 using namespace Frog;
@@ -11,10 +12,13 @@ using namespace Frog;
 namespace DCE
 {
 
-class Orbiter_PocketFrog : public Orbiter, public Game
+class Orbiter_PocketFrog : public Orbiter, public PlutoGame
 {
 protected:
 	static Orbiter_PocketFrog* m_pInstance; //the one and only instance of OrbiterSDL_Win32
+
+    bool m_bShiftDown, m_bControlDown, m_bAltDown, m_bRepeat, m_bCapsLock;
+    clock_t m_cKeyDown;
 
 protected: // (mtoader) I want access to them in the OrbiterLinuxDesktop
 	int m_nImageWidth, m_nImageHeight;
@@ -36,6 +40,10 @@ public:
     virtual void StylusDown( Point stylus );
     virtual void StylusUp( Point stylus );
     virtual void StylusMove( Point stylus );
+	virtual bool PocketFrogButtonDown(int button);
+	virtual bool PocketFrogButtonUp(int button); 
+
+	virtual void HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	// Drawing routines
 	virtual void SolidRectangle(int x, int y, int width, int height, PlutoColor color, int Opacity = 100);
@@ -67,6 +75,9 @@ public:
 	static void BuildOrbiter(int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
 		int nImageWidth, int nImageHeight, bool bFullScreen = false);
 	static Orbiter_PocketFrog *GetInstance();
+
+	static inline Pixel GetColor16(PlutoColor color);
+
 
 	void WriteStatusOutput(const char* pMessage);
 

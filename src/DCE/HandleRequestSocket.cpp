@@ -228,8 +228,6 @@ g_pPlutoLogger->Write( LV_STATUS, "Closing request handler connection...");
 	m_bRunning = false;
 	if ( m_bUnexpected )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "OnUnexpectedDisconnect");
-
 #ifdef WINCE
 		//starting orbiter
 		PROCESS_INFORMATION pi;
@@ -253,6 +251,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Closing request handler connection...");
 		exit(1); //die!!!
 #endif
 
+		g_pPlutoLogger->Write(LV_STATUS, "OnUnexpectedDisconnect");
 		OnUnexpectedDisconnect();
 	}
 

@@ -525,7 +525,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			CommandBar_Destroy(g_hwndCB);
 #endif
 			{
+#ifdef POCKETFROG
+				HWND hSDLWindow = ::FindWindow(TEXT("PocketFrog"), NULL);
+#else
 				HWND hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);						
+#endif
 				::PostMessage(hSDLWindow, WM_QUIT, 0L, 0L);
 				Sleep(250);
 			}
@@ -847,7 +851,12 @@ void ShowMainDialog() //actually, hides the sdl window
 {
 	WriteStatusOutput("Minimizing SDL window...");
 
-	HWND hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);
+#ifdef POCKETFROG
+	HWND hSDLWindow = ::FindWindow(TEXT("PocketFrog"), NULL);
+#else
+	HWND hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);						
+#endif
+
 	::ShowWindow(hSDLWindow, SW_HIDE);
 
 #ifdef WINCE
@@ -859,7 +868,12 @@ void ShowMainDialog() //actually, hides the sdl window
 void ShowSDLWindow() 
 {
 	WriteStatusOutput("Showing SDL window...");
-	HWND hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);
+#ifdef POCKETFROG
+	HWND hSDLWindow = ::FindWindow(TEXT("PocketFrog"), NULL);
+#else
+	HWND hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);						
+#endif
+
 	::ShowWindow(hSDLWindow, SW_SHOWNORMAL);
 }
 //-----------------------------------------------------------------------------------------------------
@@ -1105,7 +1119,12 @@ void OnRecord_Stop()
 //-----------------------------------------------------------------------------------------------------
 void PerformActionKeyPress(long key)
 {
-	HWND hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);
+#ifdef POCKETFROG
+	HWND hSDLWindow = ::FindWindow(TEXT("PocketFrog"), NULL);
+#else
+	HWND hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);						
+#endif
+
 
 	::SendMessage(hSDLWindow, WM_KEYDOWN, key, 0L);
 	::SendMessage(hSDLWindow, WM_KEYUP, key, 0L);
@@ -1132,7 +1151,11 @@ void PerformActionKeyPress(long key)
 //-----------------------------------------------------------------------------------------------------
 void PerformActionMouseClick(int x, int y)
 {
-	HWND hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);
+#ifdef POCKETFROG
+	HWND hSDLWindow = ::FindWindow(TEXT("PocketFrog"), NULL);
+#else
+	HWND hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);						
+#endif
 
 	::SendMessage(hSDLWindow, WM_LBUTTONDOWN, 0L, MAKELPARAM(x, y));
 	::SendMessage(hSDLWindow, WM_LBUTTONUP, 0L, MAKELPARAM(x, y));
