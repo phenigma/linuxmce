@@ -30,5 +30,5 @@ if [ "${RepositoryURL#deb }" != "$RepositoryURL" -a -z "$RepositoryName" ]; then
 	exit 1
 fi
 
-/usr/pluto/bin/LaunchRemoteCmd.sh "$IP" /usr/pluto/bin/InstallSoftware_Remote.sh '$IP' '$PackageName' '$RepositoryURL' '$RepositoryName'
+/usr/pluto/bin/LaunchRemoteCmd.sh "$IP" "/usr/pluto/bin/InstallSoftware_Remote.sh '$IP' '$PackageName' '$RepositoryURL' '$RepositoryName'"
 #ssh -l root -i /usr/pluto/keys/id_dsa_pluto_apache "$IP" "/usr/pluto/bin/InstallSoftware_Remote.sh '$IP' '$PackageName' '$RepositoryURL' '$RepositoryName'" || echo "Failed to contact destination computer"
