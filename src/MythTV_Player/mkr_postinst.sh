@@ -14,6 +14,9 @@ function addEntries
 	fi;
 }
 
+# make the proper ownership's because the backend can't read it otherwise
+chown mythtv /etc/mythtv/mysql.txt
+
 #Force the backend to make the database structure
 /etc/init.d/mythtv-backend force-reload || /bin/true
 
