@@ -2,7 +2,7 @@
 #define __CONTROLLERLINUXDESKTOP_H__
 
 #include "../SDL/OrbiterSDL.h"
-#include "utilities/linux/RatpoisonHandler.h"
+#include "RatpoisonHandler.h"
 
 #include <string>
 
