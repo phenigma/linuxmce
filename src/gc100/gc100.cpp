@@ -501,7 +501,7 @@ bool gc100::send_to_gc100(string Cmd)
 	if (result < (int) strlen(command))
 	{
 		string x = strerror(errno);
-		g_pPlutoLogger->Write(LV_CRITICAL, "Short write to GC100: %s\n", strerror(errno));
+		g_pPlutoLogger->Write(LV_CRITICAL, "Short write to GC100: %s (wrote: %d)\n", strerror(errno), result);
 		return_value = false;
 	}
 
