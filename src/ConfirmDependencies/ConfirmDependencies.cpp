@@ -61,10 +61,13 @@ public:
 	string m_sBinaryExecutiblesPathPath, m_sSourceIncludesPath, m_sSourceImplementationPath, m_sBinaryLibraryPath, m_sConfiguration;
 	vector<Row_Package_Directory_File *> m_vectRow_Package_Directory_File_BinaryExecutibles, m_vectRow_Package_Directory_File_SourceIncludes,
 		m_vectRow_Package_Directory_File_SourceImplementation,m_vectRow_Package_Directory_File_BinaryLibrary,
-		m_vectRow_Package_Directory_File_Configuration;
+		m_vectRow_Package_Directory_File_Configuration,m_vectRow_Package_Directory_File_CompiledOutput;
 
 	// If this package is SVN or CVS, we may need to do svn co's on multiple directories
 	vector<Row_Package_Directory *> m_vectAltSourceImplementation;
+
+	Row_Package_Directory *m_pRow_Package_Directory_Compiled_Output;
+
 
 	vector<PackageInfo *> m_vectPackageInfo; // Some alternates in case this one fails
 
@@ -81,6 +84,7 @@ int k=2;
 		m_pRow_Package_Source=pRow_Package_Source;
 		m_pRow_RepositorySource_URL=pRow_RepositorySource_URL;
 		m_bMustBuild=bMustBuild;
+		m_pRow_Package_Directory_Compiled_Output=NULL;
 	}
 };
 
@@ -418,15 +422,22 @@ makerelease isn't building all and isn't updating the versions
 		for(it=listPackageInfo.begin(); it!=listPackageInfo.end(); ++it)
 		{
 			PackageInfo *pPackageInfo = *it;
-			if( pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->IsSource_get()==0 || (!pPackageInfo->m_bMustBuild && sCommand!="buildall")  )
+			if( pPackageInfo->m_pRow_Package_Directory_Compiled_Output==NULL ||
+					pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->IsSource_get()==0 || (!pPackageInfo->m_bMustBuild && sCommand!="buildall")  )
 				continue;
 
-			cout << "./make "// << pRow_Distro->Installer_get()
-				<< " \"" << pPackageInfo->m_pRow_Package_Source->Name_get() << "\""
-				<< " \"" << pPackageInfo->m_pRow_RepositorySource_URL->URL_get() << "\""
-				<< " \"" << pPackageInfo->m_pRow_Package_Source->Repository_get() << "\""
-				<< " \"" << pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get() << "\""
-				<< " \"" << pPackageInfo->m_pRow_Package_Source->Version_get() << "\"" << endl;
+			cout << "cd " << pPackageInfo->m_pRow_Package_Directory_Compiled_Output->InputPath_get() << endl;
+
+			for(size_t s=0;s<pPackageInfo->m_vectRow_Package_Directory_File_CompiledOutput.size();++s)
+			{
+				Row_Package_Directory_File *pRow_Package_Directory_File = pPackageInfo->m_vectRow_Package_Directory_File_CompiledOutput[s];
+
+				if( pRow_Package_Directory_File->FK_Distro_get()==pRow_Distro->PK_Distro_get() ||
+						pRow_Package_Directory_File->FK_OperatingSystem_get()==pRow_Distro->FK_OperatingSystem_get() ||
+						(pRow_Package_Directory_File->FK_Distro_isNull() && pRow_Package_Directory_File->FK_OperatingSystem_isNull()) )
+					cout << pRow_Package_Directory_File->MakeCommand_get() << endl;
+			}
+			cout << "cd -" << endl;
 		}
 	}
 	else if( sCommand=="list" )
@@ -890,6 +901,14 @@ int k=2;
 		pPackageInfo->m_sSourceImplementationPath = pRow_Package_Directory->Path_get();
 		pRow_Package_Directory->Package_Directory_File_FK_Package_Directory_getrows(&pPackageInfo->m_vectRow_Package_Directory_File_SourceImplementation);
 	}
+
+	pRow_Package_Directory = GetDirectory(pRow_Package,DIRECTORY_Compiled_Output_CONST);
+	if( pRow_Package_Directory )
+	{
+		pPackageInfo->m_pRow_Package_Directory_Compiled_Output = pRow_Package_Directory;
+		pRow_Package_Directory->Package_Directory_File_FK_Package_Directory_getrows(&pPackageInfo->m_vectRow_Package_Directory_File_CompiledOutput);
+	}
+
 
 	pRow_Package_Directory = GetDirectory(pRow_Package,DIRECTORY_Binary_Library_CONST);
 	if( pRow_Package_Directory )
