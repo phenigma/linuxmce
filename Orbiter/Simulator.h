@@ -26,6 +26,8 @@ class Simulator
 
 public: //data
     
+	class Orbiter *m_pOrbiter;
+
 	bool m_bEnableGenerator;
 	long m_dwDelayMin;
 	long m_dwDelayMax;

@@ -63,6 +63,11 @@ using namespace DCE;
 
 #include "PlutoUtils/PlutoDefs.h"
 
+#ifdef WIN32 //for now
+#include "Simulator.h"
+#endif
+
+
 /** @test
 #ifdef BT_SOCKET
 
@@ -520,11 +525,19 @@ printf( "$$$ Ready to delete the orbiter...\n" );
 		class OrbiterSDLBluetooth *pOrbiter = 
 			StartOrbiterSDLBluetooth( pBD_Orbiter->m_pBDCommandProcessor, iPK_Device, m_sIPAddress, "", false, 176, 300 );
 
+#ifdef WIN32 //for now
+		if(NULL != pOrbiter)
+		{
+			Simulator::GetInstance()->m_pOrbiter = (Orbiter *)pOrbiter;	
+			Simulator::GetInstance()->LoadConfigurationFile("Orbiter.conf");
+		}	
+#endif
+
 		pBD_Orbiter->m_pOrbiter = ( Orbiter * )pOrbiter;
 	}
  else
 	{
-		if( NULL != pBD_Orbiter->m_pBDCommandProcessor )
+		if( NULL == pBD_Orbiter->m_pBDCommandProcessor )
 			g_pPlutoLogger->Write( LV_WARNING, "Cannot create orbiter for %s device: the CommandProcessor is null!", sMac_address.c_str() );
 		else
 			g_pPlutoLogger->Write( LV_WARNING, "Cannot create orbiter for %s device: the CommandProcessor is dead!", sMac_address.c_str() );

@@ -1,7 +1,7 @@
 #include "Simulator.h"
 
-#include "StringUtils.h"
-#include "FileUtils.h"
+#include "PlutoUtils/StringUtils.h"
+#include "PlutoUtils/FileUtils.h"
 #include "Pluto_Main/Define_Button.h"
 
 using namespace DCE;
@@ -17,8 +17,14 @@ using namespace DCE;
 		#include "OrbiterSDL_WinCE.h"
 	#else
 		#include "windows.h"
-		#include "StartOrbiter_Win32.h"
-		#include "OrbiterSDL_Win32.h"
+
+		#ifdef BLUETOOTH_DONGLE
+			#include "SDL_Bluetooth/OrbiterSDLBluetooth.h"
+		#else
+			#include "StartOrbiter_Win32.h"
+			#include "OrbiterSDL_Win32.h"
+		#endif
+
 	#endif
 
 #else //linux stuff
@@ -51,10 +57,18 @@ void *GeneratorThread( void *p)
 	srand( (unsigned)::GetTickCount() );
 	static Count = 0;
 
-#ifdef WINCE
-	OrbiterSDL_WinCE *pOrbiter = OrbiterSDL_WinCE::GetInstance();
+#ifdef BLUETOOTH_DONGLE
+	OrbiterSDLBluetooth *pOrbiter = (OrbiterSDLBluetooth *)pSimulator->m_pOrbiter;
 #else
-	OrbiterSDL_Win32 *pOrbiter = OrbiterSDL_Win32::GetInstance();
+	#ifdef WIN32
+		#ifdef WINCE
+			OrbiterSDL_WinCE *pOrbiter = OrbiterSDL_WinCE::GetInstance();
+		#else
+			OrbiterSDL_Win32 *pOrbiter = OrbiterSDL_Win32::GetInstance();
+		#endif
+	#else
+		OrbiterLinux *pOrbiter = (OrbiterLinux *)pSimulator->m_pOrbiter;
+	#endif
 #endif
 
 	while(true)

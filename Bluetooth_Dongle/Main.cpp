@@ -46,6 +46,8 @@
 namespace DCE
 {
 	Logger *g_pPlutoLogger;
+
+	string g_sBinary,g_sBinaryPath;
 }
 using namespace DCE;
 //<-dceag-incl-e->
