@@ -370,6 +370,27 @@ switch ($section) {
 		include_once('operations/contact.php');
 	    contact($output,$conn);
 	break; 
+	case 'forgotPassword':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('home');
+		include_once('client/login/forgotPassword.php');
+	    forgotPassword($output,$conn);
+	break; 
+	case 'changePassword':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('home');
+		include_once('client/login/changePassword.php');
+	    changePassword($output);
+	break; 
+	case 'changeEmail':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('home');
+		include_once('client/login/changeEmail.php');
+	    changeEmail($output);
+	break; 
 	
 	
 	default:			

@@ -34,7 +34,6 @@ function updateMasterUsersPassword($PK_MasterUsers,$NewPassword,$url,$oldPasswor
 {
 	$params = "PK_MasterUsers=".$PK_MasterUsers."&password=".$NewPassword."&oldPassword=".$oldPassword;
 	$result=queryExternalServer($params,$url);
-
 	if($result=="Password changed"){
 		return array(true,"");
 	}

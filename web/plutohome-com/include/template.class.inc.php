@@ -411,6 +411,12 @@ function setTemplateFileType($type) {
   	$this->content = str_replace("{b_how_pluto_works}", $this->b_how_pluto_works, $this->content);
   	$this->content = str_replace("{b_support}", $this->b_support, $this->content);
   	$this->content = str_replace("{b_get_pluto}", $this->b_get_pluto, $this->content);
+  	if(@$_SESSION['userIsLogged']!='yes'){
+  		$this->content = str_replace("{ChangeEmailPaswword}", '&nbsp;', $this->content);
+  	}else{
+  		$this->content = str_replace("{ChangeEmailPaswword}", '<a href="index.php?section=changePassword" class="login">Change Password</a> | <a href="index.php?section=changeEmail" class="login">Email</a>', $this->content);
+  	}
+  	
   	
    	$this->content = str_replace("{Body}", $this->body, $this->content);
   }

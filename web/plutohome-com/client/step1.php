@@ -51,10 +51,10 @@ if($action=='form'){
 	      				<td align="left" colspan="2" bgcolor="lightblue" class="normaltext" style="padding-left: 20px;padding-right: 20px;"><B>Whole-house solution with multiple media directors</B></td>
 	      			</tr>	
 	      			<tr>
-	      				<td align="left" colspan="2" class="normaltext" style="padding-left: 20px;padding-right: 20px;"><input type="radio" name="sollutionType" value="1" '.((@$_SESSION['sollutionType']==1)?'checked':((!isset($_SESSION['sollutionType']))?'checked':'')).'> I have a pc that I will use as the Core, or server, for the whole house.  I do not need to use it as a media director.  It will be a stand-alone Core that I put somewhere out of the way.  I have separate pc(s) that I will hook up to my tv\'s and use as media directors.</td>
+	      				<td align="left" colspan="2" class="normaltext" style="padding-left: 20px;padding-right: 20px;"><input type="radio" name="sollutionType" value="1" '.((@$_SESSION['sollutionType']==1)?'checked':((!isset($_SESSION['sollutionType']))?'checked':'')).'> I have a pc that I will use as the Core, or server, for the whole house.  I do not need to use it as a media director.  It will be a stand-alone Core that I put somewhere out of the way.  I have separate pc(s) that I will hook up to my TVs and use as media directors.</td>
 	      			</tr>	
 	      			<tr>
-	      				<td align="left" colspan="2" class="normaltext" style="padding-left: 20px;padding-right: 20px;"><input type="radio" name="sollutionType" value="2" '.((@$_SESSION['sollutionType']==2)?'checked':'').'> I want a hybrid--a pc that will be my Core, but will also be a media director that I hook up to the tv.  I have other pc(s) that will connect to it to be additional media directors.</td>
+	      				<td align="left" colspan="2" class="normaltext" style="padding-left: 20px;padding-right: 20px;"><input type="radio" name="sollutionType" value="2" '.((@$_SESSION['sollutionType']==2)?'checked':'').'> I want a hybrid--a pc that will be my Core, but will also be a media director that I hook up to the TV.  I have other pc(s) that will connect to it to be additional media directors.</td>
 	      			</tr>	
 	      			<tr>
 	      				<td align="left" colspan="2" bgcolor="lightblue" class="normaltext" style="padding-left: 20px;padding-right: 20px;"><B>Single-pc solution -- only 1 media director</B></td>
@@ -63,7 +63,7 @@ if($action=='form'){
 	      				<td align="left" colspan="2" class="normaltext" style="padding-left: 20px;padding-right: 20px;"><input type="radio" name="sollutionType" value="3" '.((@$_SESSION['sollutionType']==3)?'checked':'').'>  
 	      				I just want to install Pluto software on a stand-alone PC. I don\'t have other pc\'s that I want to be media directors.  You can still use this pc to control your home automation sub-systems 
 	      				(lighting, climate, etc.) and A/V equipment, and it works with both tablet and mobile phone Orbiters.  Also it can stream music to other rooms using audio directors, 
-	      				but you will not be distributing movies and tv to other rooms, since that would require media directors in those rooms.</td>
+	      				but you will not be distributing movies and TV to other rooms, since that would require media directors in those rooms.</td>
 	      			</tr>	
 					<tr>
 						<td colspan="2" align="center" class="insidetable2"><input type="submit" name="continue" value="Next"></td>
