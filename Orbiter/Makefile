@@ -24,6 +24,7 @@ XTRALDLIBS = -lDCECommon -lSDL -lSDL_ttf -lSDL_image -lSGE
 Gen_Dev_Files +=
 sources +=  DesignObj_Data.cpp DesignObj_Orbiter.cpp \
 			Linux/OrbiterLinux.cpp \
+			RendererMNG.cpp \
 			SDL/OrbiterSDL.cpp SDL/StartOrbiterSDL.cpp \
 			$(ROOT)/Splitter/TextSplitter.cpp \
 			$(ROOT)/Splitter/TextWrapper.cpp \

@@ -324,6 +324,7 @@ void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
                         bHandled=pCLinux->ButtonDown(BUTTON_9_CONST);
                         break;
 */
+					default: {}
                     };
                 }
                 else if( bRepeat )
@@ -397,6 +398,7 @@ void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
                         bHandled=pCLinux->ButtonDown(BUTTON_Rept_Pound_CONST);
                         break;
 #endif
+					default: {}
                     }
                 }
             }

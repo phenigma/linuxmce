@@ -66,7 +66,7 @@ bool ReadChunk(FILE * f, PNGChunk * chunk)
 
 size_t MNGHeader::BinaryForm(char * & MemoryZonePointer) const
 {
-	const chunk_size = 40;
+	const int chunk_size = 40;
 
 	MemoryZonePointer = new char[chunk_size];
 	char * Position = MemoryZonePointer;
@@ -203,7 +203,13 @@ void RendererMNG::InsertFrame(size_t number, const RendererImage & frame)
 {
 	if (number >= count())
 		return;
-	m_vectMNGframes.insert(&m_vectMNGframes[number], frame);
+	
+	vector<RendererImage>::iterator ivRI;
+	int i;
+
+	// Linux G++ 3.3.4 doesn't like this one
+	// m_vectMNGframes.insert(&m_vectMNGframes[number], frame);
+	m_vectMNGframes.insert(m_vectMNGframes.begin() + number, frame);
 }
 
 void RendererMNG::AppendFrame(const RendererImage & frame)
@@ -216,7 +222,9 @@ void RendererMNG::DeleteFrame(size_t number)
 	if (number >= count())
 		return;
 
-	m_vectMNGframes.erase(&m_vectMNGframes[number]);
+	// Linux G++ 3.3.4 doesn't like this one
+	// m_vectMNGframes.erase(&m_vectMNGframes[number]);
+	m_vectMNGframes.erase(m_vectMNGframes.begin() + number);
 }
 
 const MNGHeader & RendererMNG::GetHeader() const
