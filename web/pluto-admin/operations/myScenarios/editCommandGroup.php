@@ -183,7 +183,8 @@ function editCommandGroup($output,$dbADO) {
 				
 				while ($rowCommandAssigned = $resCommandAssigned->FetchRow()) {
 					$out.='
-						<tr><td valign="top">'.deviceForScenariosSelector('device_'.$rowCommandAssigned['PK_CommandGroup_Command'],$rowCommandAssigned['FK_Device'],$dbADO,0,'onChange="this.form.submit();"');
+						<tr>
+							<td valign="top"><input type="hidden" name="device_'.$rowCommandAssigned['PK_CommandGroup_Command'].'" value="'.$rowCommandAssigned['FK_Device'].'">'.getDeviceNameForScenarios($rowCommandAssigned['FK_Device'],$dbADO).'</td>';
 					/*
 							<select name="device_'.$rowCommandAssigned['PK_CommandGroup_Command'].'" onChange="this.form.submit();">
 								<option value="-300" '.(($rowCommandAssigned['FK_Device']=='-300')?'selected':'').'>[Local Orbiter]</option>
@@ -226,8 +227,7 @@ function editCommandGroup($output,$dbADO) {
 						$resNewCommand = $dbADO->Execute($query,array(cleanInteger($GLOBALS['deviceTemplateOrbiter'])));
 					}
 						if ($resNewCommand) {
-							$out.='<select name="deviceCommand_'.$rowCommandAssigned['PK_CommandGroup_Command'].'" onChange="this.form.submit();">
-								<option value="0">-please select-</option>';
+							$out.='<select name="deviceCommand_'.$rowCommandAssigned['PK_CommandGroup_Command'].'" onChange="this.form.submit();">';
 									while ($rowNewCommand = $resNewCommand->FetchRow()) {
 										$out.='<option '.($rowCommandAssigned['FK_Command']==$rowNewCommand['PK_Command']?'selected="selected"':'').' value="'.$rowNewCommand['PK_Command'].'">'.$rowNewCommand['Description'].'</option>';
 									}

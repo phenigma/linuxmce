@@ -8,6 +8,9 @@ function editTimedEvent($output,$dbADO) {
 	$eventHandlerID=$_REQUEST['ehID'];
 	$dayNamesArray= array(1=>"Monday", 2=>"Tuesday", 3=>"Wensday", 4=>"Thursday", 5=>"Friday", 6=>"Saturday", 7=>"Sunday");
 	$monthNamesArray = array(1=>"January", 2=>"February", 3=>"March", 4=>"April", 5=>"May", 6=>"June", 7=>"July", 8=>"August", 9=>"September", 10=>"October", 11=>"November", 12=>"December"); 	
+	$wizard=isset($_REQUEST['wizard'])?(int)$_REQUEST['wizard']:2;
+	$section=$_REQUEST['section'];
+
 	
 	$queryEventHandler='
 		SELECT EventHandler.*,Criteria.FK_CriteriaParmNesting 
@@ -55,6 +58,7 @@ function editTimedEvent($output,$dbADO) {
 		<input type="hidden" name="section" value="editTimedEvent">
 		<input type="hidden" name="action" value="update">
 		<input type="hidden" name="ehID" value="'.$eventHandlerID.'">
+		<input type="hidden" name="oldWizard" value="'.$wizard.'">
 		
 		<div align="center"><h3>Edit Timed</h3></div>
 		<table border="0" align="center" width="700">
@@ -176,153 +180,36 @@ function editTimedEvent($output,$dbADO) {
 			<tr>
 				<td colspan="2" align="center">Specify above when you want Pluto to do something, and below what you want Pluto to do by choosing a device, and then a command to send to that device.</td>
 			</tr>';
-
-			$selectCommandsAssigned = "
-				SELECT CommandGroup_Command.* FROM 
-					CommandGroup_Command				
-					INNER JOIN 
-						Device ON CommandGroup_Command.FK_Device = Device.PK_Device						
-					WHERE 
-						Device.FK_Installation = ?
-					AND CommandGroup_Command.FK_CommandGroup = ?
-				";
-			$resCommandAssigned = $dbADO->Execute($selectCommandsAssigned,array($installationID,$commandGroupID));
-
-			if ($resCommandAssigned->RecordCount()>0) {
-				$out.='<tr>
-					<td colspan="2">
-							<fieldset>
-								<legend>Commands</legend>
-								<table border="0">
-									';
-
-				while ($rowCommandAssigned = $resCommandAssigned->FetchRow()) {
-					$out.='
-						<tr><td valign="top">
-							<select name="device_'.$rowCommandAssigned['PK_CommandGroup_Command'].'" onChange="this.form.submit();">
-								<option value="0">-please select-</option>
-						';
-
-					$query = 'SELECT * From Device WHERE FK_Installation = ? order by Description ASC';
-					$resDevices=$dbADO->Execute($query,array($installationID));
-
-					if ($resDevices) {
-						while ($rowDevice = $resDevices->FetchRow()) {
-							$out.='<option '.($rowDevice['PK_Device']==$rowCommandAssigned['FK_Device']?' selected="selected" ':'').' value="'.$rowDevice['PK_Device'].'">'.$rowDevice['Description'].'</option>';
-						}
-					}
-
-					$out.='
-					 		</select></td>
-						<td>
-						';
-
-					$query = "SELECT PK_Command,Command.Description
-												FROM Device 
-													INNER JOIN DeviceTemplate_DeviceCommandGroup ON Device.FK_DeviceTemplate = DeviceTemplate_DeviceCommandGroup.FK_DeviceTemplate 
-													INNER JOIN DeviceCommandGroup_Command ON DeviceTemplate_DeviceCommandGroup.FK_DeviceCommandGroup = DeviceCommandGroup_Command.FK_DeviceCommandGroup 
-													INNER JOIN Command on DeviceCommandGroup_Command.FK_Command = Command.PK_Command
-										   WHERE PK_Device=?";
-					$resNewCommand = $dbADO->Execute($query,array($rowCommandAssigned['FK_Device']));
-					if ($resNewCommand) {
-						$out.='<select name="deviceCommand_'.$rowCommandAssigned['PK_CommandGroup_Command'].'" onChange="this.form.submit();">
-								<option value="0">-please select-</option>';
-						while ($rowNewCommand = $resNewCommand->FetchRow()) {
-							$out.='<option '.($rowCommandAssigned['FK_Command']==$rowNewCommand['PK_Command']?'selected="selected"':'').' value="'.$rowNewCommand['PK_Command'].'">'.$rowNewCommand['Description'].'</option>';
-						}
-						if ($resNewCommand->RecordCount()==0) {
-							$out.='<option value="0">-no command-</option>';
-						}
-						$out.='</select>';
-					}
-
-
-					$query = "SELECT Command_CommandParameter.FK_CommandParameter,Command_CommandParameter.Description as C_CP_Description,CommandParameter.Description as CP_Description,
-										CommandGroup_Command_CommandParameter.IK_CommandParameter,
-										ParameterType.Description as PT_Description
-											FROM Command_CommandParameter 
-												INNER JOIN Command on FK_Command = PK_Command
-												INNER JOIN CommandParameter ON Command_CommandParameter.FK_CommandParameter = CommandParameter.PK_CommandParameter
-												INNER JOIN ParameterType ON CommandParameter.FK_ParameterType = ParameterType.PK_ParameterType
-												LEFT JOIN CommandGroup_Command_CommandParameter ON CommandGroup_Command_CommandParameter.FK_CommandParameter = Command_CommandParameter.FK_CommandParameter
-									  WHERE FK_Command = ? AND FK_CommandGroup_Command =?
-									  ORDER BY CommandParameter.Description asc
-								";
-					$resSelectParameters = $dbADO->Execute($query,array($rowCommandAssigned['FK_Command'],$rowCommandAssigned['PK_CommandGroup_Command']));
-					if ($resSelectParameters) {
-						$out.='<table border="0">';
-						while ($rowSelectParameters=$resSelectParameters->FetchRow()) {
-							$out.="<tr ".(strlen(trim($rowSelectParameters['CP_Description']))==0?" bgColor='lightgreen' ":"").">
-												<td>#{$rowSelectParameters['FK_CommandParameter']} <span title=\"{$rowSelectParameters['C_CP_Description']}\">{$rowSelectParameters['CP_Description']}</span> ({$rowSelectParameters['PT_Description']})</td>
-												<td><input type='text' name=\"CommandParameterValue_{$rowCommandAssigned['PK_CommandGroup_Command']}_{$rowSelectParameters['FK_CommandParameter']}\" value=\"{$rowSelectParameters['IK_CommandParameter']}\" >".'</td></tr>';
-						}
-						$out.='</table>';
-					}
-					$out.='
-					
-							</td>
-						<td valign="top">
-						<input type="button" class="button" name="editA" value="Remove" onClick="self.location=\'index.php?section=editTimedEvent&ehID='.$eventHandlerID.'&cgcID='.$rowCommandAssigned['PK_CommandGroup_Command'].'\'">
-						</td>						
-					</tr>
-					';
-				}
-				$out.='
-				<tr>
-					<td colspan="3" align="center"><input type="submit" class="button" name="addNewDeviceButton" value="Save changes"></td>
-				</tr>
-				</table>
-				</fieldset>
-			</td>
-		</tr>';				
-			}
-
-			
-			$out.='
-				<tr>
-					<td><B>Device</B>:</td>
-					<td colspan="2"><select name="device" onChange="document.editTimedEvent.action.value=\'form\';document.editTimedEvent.submit()">
-							<option value="">Select a device</option>';
-				$queryDevice='
-					SELECT Device.*,DeviceTemplate.Description AS Template FROM Device
-						INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
-					WHERE FK_Installation=?';
-				$resDevice=$dbADO->Execute($queryDevice,$installationID);
-				while($rowDevice=$resDevice->FetchRow()){
-					$out.='<option value="'.$rowDevice['PK_Device'].'" '.(($rowDevice['PK_Device']==@$_REQUEST['device'])?'selected':'').'>('.$rowDevice['Template'].') '.$rowDevice['Description'].'</option>';
-				}
-			$out.='
-					</select></td>
-				</tr>';
-		
-			if(isset($_REQUEST['device']) && $_REQUEST['device']!=''){
-				$query = "
-					SELECT PK_Command,Command.Description
-						FROM Device 
-					INNER JOIN DeviceTemplate_DeviceCommandGroup ON Device.FK_DeviceTemplate = DeviceTemplate_DeviceCommandGroup.FK_DeviceTemplate 
-						INNER JOIN DeviceCommandGroup_Command ON DeviceTemplate_DeviceCommandGroup.FK_DeviceCommandGroup = DeviceCommandGroup_Command.FK_DeviceCommandGroup 
-						INNER JOIN Command on DeviceCommandGroup_Command.FK_Command = Command.PK_Command
-					WHERE PK_Device=?";
-				$resNewCommand = $dbADO->Execute($query,array(cleanInteger($_REQUEST['device'])));
-				if ($resNewCommand) {
-					$out.='
-				<tr>
-					<td>Command: </td>
-					<td><select name="addNewDeviceCommand" onChange="document.editTimedEvent.submit()">
-						<option value="0">-please select-</option>';
-							while ($rowNewCommand = $resNewCommand->FetchRow()) {
-								$out.='<option value="'.$rowNewCommand['PK_Command'].'">'.$rowNewCommand['Description'].'</option>';
-							}
-							if ($resNewCommand->RecordCount()==0) {
-								$out.='<option value="0">-no command-</option>';
-							}
-					$out.='</select> <input type="submit" class="button" name="submitX" value="Add">
-					</td>
-				</tr>';
-				}
-			}
-
 		$out.='
+		<tr>
+			<td colspan="2">';
+		$out.='
+			<table align="center">
+			<tr bgcolor="#D1D9EA">
+				<td><B>Add commands using Wizard:</B> <select name="wizard" onChange="document.editTimedEvent.submit();">
+					<option value="0" '.(($wizard==0)?'selected':'').'>Lighting wizard</option>
+					<option value="1" '.(($wizard==1)?'selected':'').'>Climate wizard</option>
+					<option value="2" '.(($wizard==2)?'selected':'').'>Advanced wizard</option>
+				</select>
+				</td>
+			</tr>
+		</table>
+		<center>';
+	switch ($wizard){
+		case 0:
+			$out.=lightingDevicesTable($commandGroupID,$dbADO);
+		break;
+		case 1:
+			$out.=climateDevicesTable($commandGroupID,$dbADO);
+		break;
+		case 2:
+			$out.=advancedCommandGroupCommandsTable($commandGroupID,$section,$dbADO);
+		break;
+	}
+		
+		$out.='</center>
+			</td>
+		</tr>
 		</table>
 		</form>
 		';
@@ -518,6 +405,36 @@ function editTimedEvent($output,$dbADO) {
 		$updateEventHandler='UPDATE EventHandler SET Description=?  WHERE PK_EventHandler=?';
 		$dbADO->Execute($updateEventHandler,array($description,$eventHandlerID));
 		
+		$oldWizard=(int)$_POST['oldWizard'];
+		$wizard=(int)$_POST['wizard'];
+		
+		switch($oldWizard){
+			case 0:
+				processLightingScenario($commandGroupID,$dbADO);
+				$msg='The event handler was updated';
+			break;
+			case 1:
+				processClimateScenario($commandGroupID,$dbADO);
+				$msg='The event handler was updated';
+			break;
+			case 2:
+				processAdvancedScenarios($commandGroupID,$section,$dbADO);
+				$isModified=$GLOBALS['isModified'];
+				$parametersUpdatedAlert=$GLOBALS['parametersUpdatedAlert'];
+				$msg="Command Group ".($isModified?"":"not")." updated! $parametersUpdatedAlert";
+			break;	
+		}
+	
+		setOrbitersNeedConfigure($installationID,$dbADO);
+		if($wizard!=$oldWizard){
+			if((int)@$_REQUEST['addNewDevice']!=0)
+				$sufix='&addNewDevice='.(int)@$_REQUEST['addNewDevice'];
+			header("Location: index.php?section=editTimedEvent&ehID=$eventHandlerID&wizard=$wizard".@$sufix);
+			exit();
+		}else{
+			header("Location: index.php?section=timedEvents&msg=$msg");
+			exit();
+		}
 		
 		header('Location: index.php?section=editTimedEvent&ehID='.$eventHandlerID.'&msg=The event handler was updated');
 	}

@@ -43,7 +43,7 @@ function timedEvents($output,$dbADO) {
 		
 		$out.='
 		<div align="center" class="err">'.@$_REQUEST['error'].'</div>
-		<div align="center"><B>'.@$_REQUEST['msg'].'</B></div>
+		<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 		<form action="index.php" method="post" name="timedEvents">
 		<input type="hidden" name="section" value="timedEvents">
 		<input type="hidden" name="action" value="add">
@@ -70,7 +70,7 @@ function timedEvents($output,$dbADO) {
 			$lineCount++;
 			$out.='
 				<tr bgcolor="'.(($lineCount%2==0)?'#E7E7E7':'#FFFFFF').'">
-					<td>'.$rowEvents['Description'].'</td>
+					<td align="center">'.$rowEvents['Description'].'</td>
 					<td align="center"><a href="index.php?section=editTimedEvent&ehID='.$rowEvents['PK_EventHandler'].'">Edit</a> <a href="#" onClick="if(confirm(\'Are you sure you want to delete the event?\'))self.location=\'index.php?section=timedEvents&dID='.$rowEvents['PK_EventHandler'].'\'">Delete</a></td>
 				</tr>';
 		}

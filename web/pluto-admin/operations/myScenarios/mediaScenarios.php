@@ -193,13 +193,17 @@ function mediaScenarios($output,$dbADO) {
 						INNER JOIN Template ON FK_Template=PK_Template
 					WHERE Template.Description=? AND FK_EntertainArea=?';
 				$resOptions=$dbADO->Execute($selectOptions,array('Media Wiz - '.$value,$rowEntAreas['PK_EntertainArea']));
-				
-				$checkBoxes.='<input type="checkbox" name="checkbox" value="1" '.(($resOptions->RecordCount()>0)?'checked':'').' onClick="javascript:document.mediaScenarios.optionEntArea.value=\''.$rowEntAreas['PK_EntertainArea'].'\';document.mediaScenarios.actionType.value=\''.(($resOptions->RecordCount()>0)?'deleteOption':'addOption').'\';document.mediaScenarios.optionName.value=\''.$value.'\';document.mediaScenarios.EntAreaDescription.value=\''.$rowEntAreas['Description'].'\';document.mediaScenarios.submit()"> '.$value.' ';
+				if($resOptions->RecordCount()>0){
+					$rowCG=$resOptions->FetchRow();
+					$optionLink='<a href="index.php?section=scenarioWizard&cgID='.$rowCG['PK_CommandGroup'].'&wizard=2&from=mediaScenarios">'.$value.'</a>';
+				}else
+					$optionLink=$value;
+				$checkBoxes.='<input type="checkbox" name="checkbox" value="1" '.(($resOptions->RecordCount()>0)?'checked':'').' onClick="javascript:document.mediaScenarios.optionEntArea.value=\''.$rowEntAreas['PK_EntertainArea'].'\';document.mediaScenarios.actionType.value=\''.(($resOptions->RecordCount()>0)?'deleteOption':'addOption').'\';document.mediaScenarios.optionName.value=\''.$value.'\';document.mediaScenarios.EntAreaDescription.value=\''.$rowEntAreas['Description'].'\';document.mediaScenarios.submit()"> '.$optionLink.' ';
 			}
 
 			$out.='
 			<tr bgcolor="#D1D9EA">
-				<td colspan="7" align="left"><B>'.$rowEntAreas['Description'].'</B></td>
+				<td colspan="7" align="left"><B>'.stripslashes($rowEntAreas['Description']).'</B></td>
 			</tr>
 			<tr>
 				<td colspan="7">'.$checkBoxes.'</td>

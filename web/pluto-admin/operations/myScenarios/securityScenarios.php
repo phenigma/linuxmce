@@ -139,12 +139,13 @@ if($action=='form') {
 			$out.='
 			<tr bgcolor="#DDDDDD">
 				<td><input type="text" name="commandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Description'].'"></td>
-				<td align="center"><a href="index.php?section=securityScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=editScenario">Edit</a></td>
+				<td align="center"><a href="index.php?section=securityScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=editScenario">Edit (simple mode)</a></td>
+				<td align="center"><a href="index.php?section=scenarioWizard&cgID='.$rowCG['PK_CommandGroup'].'&wizard=2&from=securityScenarios">Edit (wizard mode)</a></td>
 				<td align="center"><a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=securityScenarios&cgDelID='.$rowCG['PK_CommandGroup'].'\';">Delete</a></td>
 			</tr>
 			';
 		}
-		$out.='</table><input type="button" class="button" name="newScenario" value="New quad camera security scenario" onClick="self.location=\'index.php?section=securityScenarios&roomID='.$rowRooms['PK_Room'].'&RoomName='.$rowRooms['RoomName'].'&action=addScenario\'">';
+		$out.='</table><input type="button" class="button" name="newScenario" value="New quad camera security scenario" onClick="self.location=\'index.php?section=securityScenarios&roomID='.$rowRooms['PK_Room'].'&RoomName='.urlencode($rowRooms['RoomName']).'&action=addScenario\'">';
 	}
 	$out.='		</td>
 			</tr>';
@@ -169,7 +170,7 @@ if($action=='form') {
 		<input type="hidden" name="section" value="securityScenarios">
 		<input type="hidden" name="action" value="add">	
 		<input type="hidden" name="roomID" value="'.$roomID.'">	
-		<input type="hidden" name="RoomName" value="'.$_REQUEST['RoomName'].'">	
+		<input type="hidden" name="RoomName" value="'.stripslashes($_REQUEST['RoomName']).'">	
 		<table cellpadding="4" cellspacing="0" border="0">
 			<tr>
 				<td colspan="2"><h3>New quad camera security scenario</h3></td>
@@ -327,7 +328,7 @@ if($action=='form') {
 	}
 	if(isset($_POST['addScenario'])){
 		$roomID=(int)$_REQUEST['roomID'];
-		$roomName=$_REQUEST['RoomName'];
+		$roomName=stripslashes($_REQUEST['RoomName']);
 		$description=cleanString($_POST['description']);
 		$icon=((int)$_POST['icon']!=0)?(int)$_POST['icon']:NULL;
 		

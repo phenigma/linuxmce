@@ -118,6 +118,7 @@
 	$GLOBALS['genericSetLevelCommand']=184;			// Set Level
 	$GLOBALS['genericHeatCommand']=197;				// Generic Heat
 	$GLOBALS['genericCoolCommand']=196;				// Generic Cool
+	$GLOBALS['setCoolHeat']=280;					// Set cool/Heat, with parm C for Cool and H for Heat
 	$GLOBALS['MediaScenariosCommand']=43;			// MH Play Media
 	$GLOBALS['commandSetUserMode']=58;				// Set User Mode	
 	$GLOBALS['commandSetVar']=27;					// Set Variable
@@ -139,6 +140,7 @@
 	$GLOBALS['commandParamPK_DesignObj']=3;			// PK_DesignObj
 	$GLOBALS['commandParameterVariableNumber']=4;	// Variable Number (PK_Variable)
 	$GLOBALS['commandParameterValueToAsign']=5;		// Value to assign
+	$GLOBALS['commandParameterOnOff']=8;			// On/Off
 	$GLOBALS['commandParamID']=10;					// ID
 	$GLOBALS['commandParamFilename']=13;			// Filename
 	$GLOBALS['commandParamDesignObjCurrentScreen']=16;	// PK_DesignObj_CurrentScreen

@@ -169,6 +169,12 @@ function steps($output,$dbADO) {
 			<td colspan="2" align="center">&nbsp;</td>
 		</tr>
 		<tr>
+			<td colspan="2" align="left"><a href="index.php?section=restart" target="basefrm">Restart</a></td>
+		</tr>	
+		<tr>
+			<td colspan="2" align="center">&nbsp;</td>
+		</tr>
+		<tr>
 			<td colspan="2" align="center"><a href="index.php?section=leftMenu"><B>Back to devices</B></a></td>
 		</tr>
 	</table>';

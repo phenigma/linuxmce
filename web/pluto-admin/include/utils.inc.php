@@ -1866,6 +1866,24 @@ function deviceForScenariosSelector($name,$selectedValue,$dbADO,$allowNoValue=1,
 	return $out;
 }
 
+function getDeviceNameForScenarios($deviceID,$dbADO)
+{
+	$query = '
+		SELECT Device.*, Room.Description AS RoomName, DeviceTemplate.Description AS Template
+		FROM Device 
+		INNER JOIN DeviceTemplate ON FK_DEviceTemplate=PK_DeviceTemplate
+		LEFT JOIN Room ON FK_Room=PK_Room
+		WHERE PK_Device = ? ';
+	$resDevice=$dbADO->Execute($query,$deviceID);
+							
+	if ($resDevice->RecordCount()>0) {
+		$row = $resDevice->FetchRow();
+		return '<span title="Device template #'.$row['FK_DeviceTemplate'].' : '.$row['Template'].'"><B>'.$row['Description'].'</B> ['.(($row['RoomName']!='')?$row['RoomName']:'None').']</span>';
+	}else
+		return '';
+	
+}
+
 function pulldownChildsDevice($parentDevice,$selectedValue,$dbADO,$depth)
 {
 	$out='';
@@ -2011,5 +2029,623 @@ function getDevicesFromCategories($categoriesArray,$dbADO)
 		$devicesFullArray=$devicesFullArray+getDevicesArrayFromCategory($categoryID,$dbADO);
 	}
 	return $devicesFullArray;
+}
+
+function commandPulldownForDevice($deviceID,$dbADO)
+{
+	$out='';
+	if ($deviceID!=0) {
+		if(cleanInteger(@$_REQUEST['newDevice']!='-300')){
+			$query = "
+				SELECT PK_Command,Command.Description
+				FROM Device 
+				INNER JOIN DeviceTemplate_DeviceCommandGroup ON Device.FK_DeviceTemplate = DeviceTemplate_DeviceCommandGroup.FK_DeviceTemplate 
+				INNER JOIN DeviceCommandGroup_Command ON DeviceTemplate_DeviceCommandGroup.FK_DeviceCommandGroup = DeviceCommandGroup_Command.FK_DeviceCommandGroup 
+				INNER JOIN Command on DeviceCommandGroup_Command.FK_Command = Command.PK_Command
+				WHERE PK_Device=?";
+			$resNewCommand = $dbADO->Execute($query,$deviceID);
+		}else{
+			$query = "
+				SELECT PK_Command,Command.Description
+				FROM Command 
+				INNER JOIN DeviceCommandGroup_Command ON DeviceCommandGroup_Command.FK_Command = Command.PK_Command
+				INNER JOIN DeviceTemplate_DeviceCommandGroup ON DeviceTemplate_DeviceCommandGroup.FK_DeviceCommandGroup = DeviceCommandGroup_Command.FK_DeviceCommandGroup 
+				WHERE FK_DeviceTemplate=?
+				ORDER BY Command.Description ASC";
+			$resNewCommand = $dbADO->Execute($query,$GLOBALS['deviceTemplateOrbiter']);
+		}
+		if ($resNewCommand) {
+			$out.='<select name="addNewDeviceCommand">
+					<option value="0">-please select-</option>';
+			while ($rowNewCommand = $resNewCommand->FetchRow()) {
+				$out.='<option value="'.$rowNewCommand['PK_Command'].'">'.$rowNewCommand['Description'].'</option>';
+			}
+			if ($resNewCommand->RecordCount()==0) {
+				$out.='<option value="0">-no command-</option>';
+			}
+			$resNewCommand->Close();
+			$out.='</select>';
+		}
+	}else{
+		return '';
+	}
+	return $out;
+}
+
+function lightingDevicesTable($cgID,$dbADO)
+{
+	$out='
+		<table cellpadding="2">
+			<tr bgcolor="#DDDDDD">
+				<td align="center"><B>Device / Room</B></td>
+				<td align="center"><B>Type</B></td>
+				<td align="center"><B>Unchanged</B></td>
+				<td align="center"><B>On</B></td>
+				<td align="center"><B>Off</B></td>
+				<td align="center"><B>Set level</B></td>
+			</tr>';
+
+	$lightingDevicesArray=getValidLightingObjectsArray($_SESSION['installationID'],$dbADO);
+	if(count($lightingDevicesArray)==0)
+	$lightingDevicesArray[]=0;
+	$queryGetRoomsDevice = '
+			SELECT Device.*, DeviceTemplate.Description AS Type, Room.Description AS RoomName 
+				FROM Device 
+			INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+			LEFT JOIN Room ON FK_Room=PK_Room
+			WHERE PK_Device IN ('.join(',',$lightingDevicesArray).')
+			ORDER BY Description ASC';
+	$lineCount=0;
+	$resGetRoomsDevice = $dbADO->Execute($queryGetRoomsDevice);
+	if($resGetRoomsDevice->RecordCount()==0){
+		$out.='
+			<tr>
+				<td colspan="6">No lighting devices available in this room.</td>
+			</tr>';
+	}
+	$displayedDevices=array();
+	while ($rowGetRoomsDevice = $resGetRoomsDevice->FetchRow()) {
+		$displayedDevices[]=$rowGetRoomsDevice['PK_Device'];
+		$lineCount++;
+		$lightingCommands=$GLOBALS['genericONCommand'].','.$GLOBALS['genericOFFCommand'].','.$GLOBALS['genericSetLevelCommand'];
+		$queryCGCommands='
+				SELECT Device.PK_Device,Device.Description, CommandGroup_Command.FK_Command,FK_CommandParameter,IK_CommandParameter 
+				FROM Command 
+				INNER JOIN CommandGroup_Command ON CommandGroup_Command.FK_Command=PK_Command
+				INNER JOIN Device ON CommandGroup_Command.FK_Device=PK_Device
+				LEFT JOIN CommandGroup_Command_CommandParameter ON CommandGroup_Command_CommandParameter.FK_CommandGroup_Command=PK_CommandGroup_Command  
+				WHERE FK_Device =? AND PK_Command IN ('.$lightingCommands.') AND FK_CommandGroup=?
+				ORDER BY Description ASC';
+
+		$resCGCommands=$dbADO->Execute($queryCGCommands,array($rowGetRoomsDevice['PK_Device'],$cgID));
+		$dimValue='';
+		if($resCGCommands->RecordCount()==0)
+		$selectedCommand=1;
+		else{
+			$rowCGCommands=$resCGCommands->FetchRow();
+			switch($rowCGCommands['FK_Command']){
+				case $GLOBALS['genericONCommand']:
+				$selectedCommand=2;
+				break;
+				case $GLOBALS['genericOFFCommand']:
+				$selectedCommand=3;
+				break;
+				case $GLOBALS['genericSetLevelCommand']:
+				$selectedCommand=4;
+				$dimValue=($rowCGCommands['FK_CommandParameter']==$GLOBALS['commandParamAbsoluteLevel'])?$rowCGCommands['IK_CommandParameter']:'';
+				break;
+			}
+		}
+		$out.='
+			<tr bgcolor="'.(($lineCount%2==0)?'#DDDDDD':'').'">
+				<td>&nbsp;&nbsp;&nbsp;&nbsp;<B>'.$rowGetRoomsDevice['Description'].' / '.(($rowGetRoomsDevice['RoomName']=='')?'None':$rowGetRoomsDevice['RoomName']).'</B></td>
+				<td>&nbsp;&nbsp;&nbsp;&nbsp;<B>'.$rowGetRoomsDevice['Type'].'</B></td>
+				<td align="center"><input type="radio" name="command_'.$rowGetRoomsDevice['PK_Device'].'" value="1" '.(($selectedCommand==1)?'checked':'').'></td>
+				<td align="center"><input type="radio" name="command_'.$rowGetRoomsDevice['PK_Device'].'" value="2" '.(($selectedCommand==2)?'checked':'').'></td>
+				<td align="center"><input type="radio" name="command_'.$rowGetRoomsDevice['PK_Device'].'" value="3" '.(($selectedCommand==3)?'checked':'').'></td>
+				<td align="center"><input type="radio" name="command_'.$rowGetRoomsDevice['PK_Device'].'" value="4" '.(($selectedCommand==4)?'checked':'').'> <input type="text" name="dimValue_'.$rowGetRoomsDevice['PK_Device'].'" value="'.@$dimValue.'" size="3" onClick="eval(\'document.scenarioWizard.command_'.$rowGetRoomsDevice['PK_Device'].'[3].checked=true\');"></td>
+			</tr>
+			<input type="hidden" name="oldCommand_'.$rowGetRoomsDevice['PK_Device'].'" value="'.$selectedCommand.'">
+			<input type="hidden" name="oldDimValue_'.$rowGetRoomsDevice['PK_Device'].'" value="'.@$dimValue.'">		
+		';
+	}
+	if(count($displayedDevices)>0){
+		$out.='
+			<tr>
+				<td colspan="6" align="center"><input type="submit" class="button" name="updateDevices" value="Update"  ></td>
+			</tr>
+		';
+	}
+	$out.='</table>
+		<input type="hidden" name="displayedDevices" value="'.join(',',$displayedDevices).'">
+		<script>
+		function validateForm()
+		{
+			devicesNo='.count($displayedDevices).';
+			devicesArray=new Array(devicesNo);';
+			$posStart=0;
+			foreach($displayedDevices as $Device){
+				$out.='devicesArray['.$posStart.']='.$Device.';';
+				$posStart++;
+			}
+		$out.='
+			for(i=0;i<devicesNo;i++){
+				eval("isDim=document.scenarioWizard.command_"+devicesArray[i]+"[3].checked");
+				if(isDim==true){
+					eval("dimVal=parseInt(document.scenarioWizard.dimValue_"+devicesArray[i]+".value)");
+					if(dimVal<0 || dimVal>100 || isNaN(dimVal)){
+						alert("Please enter a value between 0 and 100.");
+						eval("document.scenarioWizard.dimValue_"+devicesArray[i]+".focus()");
+						return false;
+					}
+				}
+			}
+			return true;
+		}
+		</script>';
+	
+	return $out;
+}
+
+function climateDevicesTable($cgID,$dbADO)
+{
+	$out='
+		<table>
+			<tr bgcolor="#DDDDDD">
+				<td align="center"><B>Device / Room</B></td>
+				<td align="center"><B>Type</B></td>
+				<td align="center"><B>Unchanged</B></td>
+				<td align="center"><B>Auto</B></td>
+				<td align="center"><B>Heat</B></td>
+				<td align="center"><B>Cool</B></td>
+				<td align="center"><B>Off</B></td>
+				<td align="center"><B>Set temperature</B></td>
+			</tr>';
+
+	$climateDevicesArray=getValidClimateObjectsArray($_SESSION['installationID'],$dbADO);
+	if(count($climateDevicesArray)==0)
+	$climateDevicesArray[]=0;
+	$queryGetRoomsDevice = '
+			SELECT Device.*, DeviceTemplate.Description AS Type, Room.Description AS RoomName 
+				FROM Device 
+			INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+			LEFT JOIN Room ON FK_Room=PK_Room
+			WHERE PK_Device IN ('.join(',',$climateDevicesArray).')
+			ORDER BY Description ASC';
+	$lineCount=0;
+	$resGetRoomsDevice = $dbADO->Execute($queryGetRoomsDevice);
+	if($resGetRoomsDevice->RecordCount()==0){
+		$out.='
+			<tr>
+				<td colspan="9">No climate devices available in this room.</td>
+			</tr>';
+	}
+	$displayedDevices=array();
+	while ($rowGetRoomsDevice = $resGetRoomsDevice->FetchRow()) {
+		$displayedDevices[]=$rowGetRoomsDevice['PK_Device'];
+		$lineCount++;
+		$climateCommands=$GLOBALS['genericONCommand'].','.$GLOBALS['setCoolHeat'].','.$GLOBALS['setCoolHeat'].','.$GLOBALS['genericOFFCommand'].','.$GLOBALS['genericSetLevelCommand'];
+		$queryCGCommands='
+			SELECT Device.PK_Device,Device.Description, CommandGroup_Command.FK_Command,FK_CommandParameter,IK_CommandParameter 
+			FROM Command 
+			INNER JOIN CommandGroup_Command ON CommandGroup_Command.FK_Command=PK_Command
+			INNER JOIN Device ON CommandGroup_Command.FK_Device=PK_Device
+			LEFT JOIN CommandGroup_Command_CommandParameter ON CommandGroup_Command_CommandParameter.FK_CommandGroup_Command=PK_CommandGroup_Command  
+			WHERE FK_Device =? AND PK_Command IN ('.$climateCommands.') AND FK_CommandGroup=?
+			ORDER BY Description ASC';
+
+		$resCGCommands=$dbADO->Execute($queryCGCommands,array($rowGetRoomsDevice['PK_Device'],$cgID));
+		$dimValue='';
+		if($resCGCommands->RecordCount()==0)
+			$selectedCommand=1;
+		else{
+			$rowCGCommands=$resCGCommands->FetchRow();
+			switch($rowCGCommands['FK_Command']){
+				case $GLOBALS['genericONCommand']:
+					$selectedCommand=2;
+				break;
+				case $GLOBALS['setCoolHeat']:
+				if($rowCGCommands['IK_CommandParameter']=='H')
+					$selectedCommand=3;
+				else
+					$selectedCommand=4;
+				break;
+				case $GLOBALS['genericOFFCommand']:
+					$selectedCommand=5;
+				break;
+				case $GLOBALS['genericSetLevelCommand']:
+					$selectedCommand=6;
+					$dimValue=($rowCGCommands['FK_CommandParameter']==$GLOBALS['commandParamAbsoluteLevel'])?$rowCGCommands['IK_CommandParameter']:'';
+				break;
+			}
+		}
+		$out.='
+			<tr bgcolor="'.(($lineCount%2==0)?'#DDDDDD':'').'">
+				<td>&nbsp;&nbsp;&nbsp;&nbsp;<B>'.$rowGetRoomsDevice['Description'].' / '.(($rowGetRoomsDevice['RoomName']=='')?'None':$rowGetRoomsDevice['RoomName']).'</B></td>
+				<td>&nbsp;&nbsp;&nbsp;&nbsp;<B>'.$rowGetRoomsDevice['Type'].'</B></td>
+				<td align="center"><input type="radio" name="command_'.$rowGetRoomsDevice['PK_Device'].'" value="1" '.(($selectedCommand==1)?'checked':'').'></td>
+				<td align="center"><input type="radio" name="command_'.$rowGetRoomsDevice['PK_Device'].'" value="2" '.(($selectedCommand==2)?'checked':'').'></td>
+				<td align="center"><input type="radio" name="command_'.$rowGetRoomsDevice['PK_Device'].'" value="3" '.(($selectedCommand==3)?'checked':'').'></td>
+				<td align="center"><input type="radio" name="command_'.$rowGetRoomsDevice['PK_Device'].'" value="4" '.(($selectedCommand==4)?'checked':'').'></td>
+				<td align="center"><input type="radio" name="command_'.$rowGetRoomsDevice['PK_Device'].'" value="5" '.(($selectedCommand==5)?'checked':'').'></td>
+				<td align="center"><input type="radio" name="command_'.$rowGetRoomsDevice['PK_Device'].'" value="6" '.(($selectedCommand==6)?'checked':'').'> <input type="text" name="dimValue_'.$rowGetRoomsDevice['PK_Device'].'" value="'.@$dimValue.'" size="3" onClick="eval(\'document.climateScenarios.command_'.$rowGetRoomsDevice['PK_Device'].'[5].checked=true\');"></td>
+			</tr>
+			<input type="hidden" name="oldCommand_'.$rowGetRoomsDevice['PK_Device'].'" value="'.$selectedCommand.'">
+			<input type="hidden" name="oldDimValue_'.$rowGetRoomsDevice['PK_Device'].'" value="'.@$dimValue.'">		
+		';
+	}
+	if(count($displayedDevices)>0){
+		$out.='
+				<tr>
+					<td colspan="9" align="center"><input type="submit" class="button" name="updateDevices" value="Update"  ></td>
+				</tr>';
+	}
+	$out.='</table>
+			<input type="hidden" name="displayedDevices" value="'.join(',',$displayedDevices).'">';
+	return $out;
+}
+
+function advancedCommandGroupCommandsTable($cgID,$section,$dbADO)
+{
+	$selectCommandsAssigned = "
+		SELECT CommandGroup_Command.*
+		FROM CommandGroup_Command				
+		LEFT JOIN Device ON CommandGroup_Command.FK_Device = Device.PK_Device						
+		WHERE (Device.FK_Installation = ? OR Device.FK_Installation IS NULL) AND CommandGroup_Command.FK_CommandGroup = ?
+		ORDER BY PK_CommandGroup_Command ASC";
+	$resCommandAssigned = $dbADO->Execute($selectCommandsAssigned,array($_SESSION['installationID'],$cgID));
+	$out='
+		<input type="hidden" name="commandToTest" value="">
+		<input type="hidden" name="cgc" value="">
+		<table border="0" cellpadding="2" cellspacing="0">';
+
+	if($resCommandAssigned->RecordCount()>0){
+		$lineCount=0;
+		while ($rowCommandAssigned = $resCommandAssigned->FetchRow()) {
+			$lineCount++;
+			$out.='
+				<tr bgcolor="'.(($lineCount%2==1)?'#DDDDDD':'').'">
+					<td valign="top"><input type="hidden" name="device_'.$rowCommandAssigned['PK_CommandGroup_Command'].'" value="'.$rowCommandAssigned['FK_Device'].'">'.getDeviceNameForScenarios($rowCommandAssigned['FK_Device'],$dbADO).'</td>
+				<td>';
+			if($rowCommandAssigned['FK_Device']!='-300'){
+				$query = "SELECT PK_Command,Command.Description
+								FROM Device 
+									INNER JOIN DeviceTemplate_DeviceCommandGroup ON Device.FK_DeviceTemplate = DeviceTemplate_DeviceCommandGroup.FK_DeviceTemplate 
+									INNER JOIN DeviceCommandGroup_Command ON DeviceTemplate_DeviceCommandGroup.FK_DeviceCommandGroup = DeviceCommandGroup_Command.FK_DeviceCommandGroup 
+									INNER JOIN Command on DeviceCommandGroup_Command.FK_Command = Command.PK_Command
+							   WHERE PK_Device=?";
+				$resNewCommand = $dbADO->Execute($query,array($rowCommandAssigned['FK_Device']));
+			}else{
+				$query = "
+							SELECT PK_Command,Command.Description
+								FROM Command 
+									INNER JOIN DeviceCommandGroup_Command ON 
+										DeviceCommandGroup_Command.FK_Command = Command.PK_Command
+									INNER JOIN DeviceTemplate_DeviceCommandGroup ON 
+										DeviceTemplate_DeviceCommandGroup.FK_DeviceCommandGroup = DeviceCommandGroup_Command.FK_DeviceCommandGroup 
+							   WHERE FK_DeviceTemplate=?
+									ORDER BY Command.Description ASC";
+				$resNewCommand = $dbADO->Execute($query,array(cleanInteger($GLOBALS['deviceTemplateOrbiter'])));
+			}
+			if ($resNewCommand) {
+				$out.='<select name="deviceCommand_'.$rowCommandAssigned['PK_CommandGroup_Command'].'" onChange="this.form.submit();">';
+				while ($rowNewCommand = $resNewCommand->FetchRow()) {
+					$out.='<option '.($rowCommandAssigned['FK_Command']==$rowNewCommand['PK_Command']?'selected="selected"':'').' value="'.$rowNewCommand['PK_Command'].'">'.$rowNewCommand['Description'].'</option>';
+				}
+				if ($resNewCommand->RecordCount()==0) {
+					$out.='<option value="0">-no command-</option>';
+				}
+				$out.='</select>';
+			}
+
+
+			$query = "SELECT Command_CommandParameter.FK_CommandParameter,Command_CommandParameter.Description as C_CP_Description,CommandParameter.Description as CP_Description,
+										CommandGroup_Command_CommandParameter.IK_CommandParameter,
+										ParameterType.Description as PT_Description
+											FROM Command_CommandParameter 
+												INNER JOIN Command on FK_Command = PK_Command
+												INNER JOIN CommandParameter ON Command_CommandParameter.FK_CommandParameter = CommandParameter.PK_CommandParameter
+												INNER JOIN ParameterType ON CommandParameter.FK_ParameterType = ParameterType.PK_ParameterType
+												LEFT JOIN CommandGroup_Command_CommandParameter ON CommandGroup_Command_CommandParameter.FK_CommandParameter = Command_CommandParameter.FK_CommandParameter
+									  WHERE FK_Command = ? AND FK_CommandGroup_Command =?
+									  ORDER BY CommandParameter.Description asc
+								";
+			$resSelectParameters = $dbADO->Execute($query,array($rowCommandAssigned['FK_Command'],$rowCommandAssigned['PK_CommandGroup_Command']));
+
+			if ($resSelectParameters) {
+				$out.='<table>';
+				while ($rowSelectParameters=$resSelectParameters->FetchRow()) {
+					$out.="<tr ".(strlen(trim($rowSelectParameters['CP_Description']))==0?" bgColor='lightgreen' ":"").">
+												<td>#{$rowSelectParameters['FK_CommandParameter']} <span title=\"{$rowSelectParameters['C_CP_Description']}\">{$rowSelectParameters['CP_Description']}</span> ({$rowSelectParameters['PT_Description']})</td>
+												<td><input type='text' name=\"CommandParameterValue_{$rowCommandAssigned['PK_CommandGroup_Command']}_{$rowSelectParameters['FK_CommandParameter']}\" value=\"{$rowSelectParameters['IK_CommandParameter']}\" >".'</td></tr>';
+				}
+				$out.='</table>';
+			}
+
+
+			$out.='
+					
+							</td>
+						<td valign="top">
+						<input type="button" class="button" name="editA" value="Remove" onClick="document.'.$section.'.cgc.value='.$rowCommandAssigned['PK_CommandGroup_Command'].';document.'.$section.'.submit();">
+						</td>						
+					</tr>
+					<tr bgcolor="'.(($lineCount%2==1)?'#DDDDDD':'').'">
+						<td align="center" colspan="3"><input type="button" class="button" name="testCommand" value="Test command" onClick="document.'.$section.'.commandToTest.value='.$rowCommandAssigned['PK_CommandGroup_Command'].';document.'.$section.'.submit();"></td>
+					</tr>
+					';
+		}
+
+		$out.='
+					<tr>
+						<td colspan="3" align="center"><input type="submit" class="button" name="addNewDeviceButton" value="Update"  ></td>
+					</tr>';
+	}
+	$out.='<tr>
+						<td colspan="2">
+					 		<B>Device:</B>'.deviceForScenariosSelector('addNewDevice',cleanInteger(@$_REQUEST['addNewDevice']),$dbADO,1,'onChange="document.'.$section.'.oldWizard.value=\'-1\';this.form.submit();"');
+	$out.=(((int)@$_REQUEST['addNewDevice']!=0)?' Command: ':'').commandPulldownForDevice(cleanInteger(@$_REQUEST['addNewDevice']),$dbADO).'
+						<input type="submit" class="button" name="addNewDeviceButton" value="Add"  ></td>
+					</tr>
+				</table>';
+	return $out;
+}
+
+function processLightingScenario($cgID,$dbADO)
+{
+	$displayedDevicesArray=explode(',',$_POST['displayedDevices']);
+	foreach($displayedDevicesArray AS $elem){
+		$deviceCommand=(int)$_POST['command_'.$elem];
+		$dimValue=$_POST['dimValue_'.$elem];
+		$oldCommand=$_POST['oldCommand_'.$elem];
+		$oldDimValue=$_POST['oldDimValue_'.$elem];
+		$deleteCommand='DELETE FROM CommandGroup_Command WHERE FK_CommandGroup=? AND FK_Device=? AND FK_Command=?';
+		$deleteParameters='
+			DELETE CommandGroup_Command_CommandParameter
+			FROM CommandGroup_Command_CommandParameter
+			JOIN CommandGroup_Command on FK_CommandGroup_Command=PK_CommandGroup_Command
+			WHERE FK_CommandGroup=? AND FK_Device=?';
+
+		if($deviceCommand!=$oldCommand || ($deviceCommand==$oldCommand && $oldDimValue!=$dimValue))	{
+			$dbADO->Execute($deleteCommand,array($cgID,$elem,$GLOBALS['genericONCommand']));
+			$dbADO->Execute($deleteCommand,array($cgID,$elem,$GLOBALS['genericOFFCommand']));
+			$dbADO->Execute($deleteCommand,array($cgID,$elem,$GLOBALS['genericSetLevelCommand']));
+			$dbADO->Execute($deleteParameters,array($cgID,$elem));
+
+			switch($deviceCommand){
+				case 1:
+					// do nothing, delete is done above
+				break;
+				case 2:
+					$insertCG_C='INSERT INTO CommandGroup_Command (FK_CommandGroup, FK_Device, FK_Command) VALUES (?,?,?)';
+					$dbADO->Execute($insertCG_C,array($cgID,$elem,$GLOBALS['genericONCommand']));
+				break;
+				case 3:
+					$insertCG_C='INSERT INTO CommandGroup_Command (FK_CommandGroup, FK_Device, FK_Command) VALUES (?,?,?)';
+					$dbADO->Execute($insertCG_C,array($cgID,$elem,$GLOBALS['genericOFFCommand']));
+				break;
+				case 4:
+					$insertCG_C='INSERT INTO CommandGroup_Command (FK_CommandGroup, FK_Device, FK_Command) VALUES (?,?,?)';
+					$dbADO->Execute($insertCG_C,array($cgID,$elem,$GLOBALS['genericSetLevelCommand']));
+					$cgcInsertID=$dbADO->Insert_ID();
+
+					$insertCG_C_P='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
+					$dbADO->Execute($insertCG_C_P,array($cgcInsertID,$GLOBALS['commandParamAbsoluteLevel'],$dimValue));
+				break;
+			}
+		}
+	}
+}
+
+function processClimateScenario($cgID,$dbADO)
+{
+	$displayedDevicesArray=explode(',',$_POST['displayedDevices']);
+	foreach($displayedDevicesArray AS $elem){
+		$deviceCommand=(int)$_POST['command_'.$elem];
+		$dimValue=$_POST['dimValue_'.$elem];
+		$oldCommand=$_POST['oldCommand_'.$elem];
+		$oldDimValue=$_POST['oldDimValue_'.$elem];
+		$deleteCommand='DELETE FROM CommandGroup_Command WHERE FK_CommandGroup=? AND FK_Device=? AND FK_Command=?';
+		$deleteParameters='
+			DELETE CommandGroup_Command_CommandParameter
+			FROM CommandGroup_Command_CommandParameter
+			JOIN CommandGroup_Command on FK_CommandGroup_Command=PK_CommandGroup_Command
+			WHERE FK_CommandGroup=? AND FK_Device=?';
+		if($deviceCommand!=$oldCommand || ($deviceCommand==$oldCommand && $oldDimValue!=$dimValue))	{
+			$dbADO->Execute($deleteCommand,array($cgID,$elem,$GLOBALS['genericONCommand']));
+			$dbADO->Execute($deleteCommand,array($cgID,$elem,$GLOBALS['genericHeatCommand']));
+			$dbADO->Execute($deleteCommand,array($cgID,$elem,$GLOBALS['genericCoolCommand']));
+			$dbADO->Execute($deleteCommand,array($cgID,$elem,$GLOBALS['genericOFFCommand']));
+			$dbADO->Execute($deleteCommand,array($cgID,$elem,$GLOBALS['genericSetLevelCommand']));
+			$dbADO->Execute($deleteParameters,array($cgID,$elem));
+
+			switch($deviceCommand){
+				case 1:
+					// do nothing, delete is done above
+				break;
+				case 2:
+					$insertCG_C='INSERT INTO CommandGroup_Command (FK_CommandGroup, FK_Device, FK_Command) VALUES (?,?,?)';
+					$dbADO->Execute($insertCG_C,array($cgID,$elem,$GLOBALS['genericONCommand']));
+				break;
+				case 3:
+					$insertCG_C='INSERT INTO CommandGroup_Command (FK_CommandGroup, FK_Device, FK_Command) VALUES (?,?,?)';
+					$dbADO->Execute($insertCG_C,array($cgID,$elem,$GLOBALS['setCoolHeat']));
+					$cgcInsertID=$dbADO->Insert_ID();
+	
+					$insertCG_C_P='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
+					$dbADO->Execute($insertCG_C_P,array($cgcInsertID,$GLOBALS['commandParameterOnOff'],'H'));
+				break;
+				case 4:
+					$insertCG_C='INSERT INTO CommandGroup_Command (FK_CommandGroup, FK_Device, FK_Command) VALUES (?,?,?)';
+					$dbADO->Execute($insertCG_C,array($cgID,$elem,$GLOBALS['setCoolHeat']));
+					$cgcInsertID=$dbADO->Insert_ID();
+	
+					$insertCG_C_P='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
+					$dbADO->Execute($insertCG_C_P,array($cgcInsertID,$GLOBALS['commandParameterOnOff'],'C'));
+				break;
+				case 5:
+					$insertCG_C='INSERT INTO CommandGroup_Command (FK_CommandGroup, FK_Device, FK_Command) VALUES (?,?,?)';
+					$dbADO->Execute($insertCG_C,array($cgID,$elem,$GLOBALS['genericOFFCommand']));
+				break;
+				case 6:
+					$insertCG_C='INSERT INTO CommandGroup_Command (FK_CommandGroup, FK_Device, FK_Command) VALUES (?,?,?)';
+					$dbADO->Execute($insertCG_C,array($cgID,$elem,$GLOBALS['genericSetLevelCommand']));
+					$cgcInsertID=$dbADO->Insert_ID();
+
+					$insertCG_C_P='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
+					$dbADO->Execute($insertCG_C_P,array($cgcInsertID,$GLOBALS['commandParamAbsoluteLevel'],$dimValue));
+				break;
+			}
+		}
+	}
+}
+
+function processAdvancedScenarios($cgID,$section,$dbADO)
+{
+	$wizard=isset($_REQUEST['wizard'])?(int)$_REQUEST['wizard']:0;
+	$from=@$_REQUEST['from'];
+	$roomID=(int)@$_REQUEST['roomID'];
+	$ehID=@$_REQUEST['ehID'];
+
+	if(isset($_REQUEST['cgc']) && (int)$_REQUEST['cgc']>0){
+		$toDel=(int)$_REQUEST['cgc'];
+		$commandsDeleted='';
+		$parametersDeleted='';
+		$deleteObjFromDevice = 'DELETE FROM CommandGroup_Command WHERE PK_CommandGroup_Command = ?';
+		$query = $dbADO->Execute($deleteObjFromDevice,array($toDel));
+		//delete saved values
+		if ($dbADO->Affected_Rows()>0) {
+			$commandsDeleted = "Command removed from this command group!";
+			$deleteParamValues = 'DELETE FROM CommandGroup_Command_CommandParameter WHERE FK_CommandGroup_Command = ?';
+			$query = $dbADO->Execute($deleteParamValues,array($toDel));
+			if ($dbADO->Affected_Rows()>0) {
+				$parametersDeleted = 'Parameter values also deleted!';
+			} else {
+				$parametersDeleted = 'No parameter values deleted!';
+			}
+
+		} else {
+			$commandsDeleted = "Command not removed from this command group!";
+		}
+		if($section=='scenarioWizard'){
+			header("Location: index.php?section=scenarioWizard&roomID=$roomID&cgID=$cgID&from=$from&wizard=$wizard&msg=$commandsDeleted $parametersDeleted");
+		}
+		else{
+			header("Location: index.php?section=$section&ehID=$ehID&wizard=$wizard&msg=$commandsDeleted $parametersDeleted");
+		}
+		exit();
+	}
+
+	if(isset($_REQUEST['commandToTest']) && (int)$_REQUEST['commandToTest']>0){
+
+		$commandToTest=$_REQUEST['commandToTest'];
+		$queryCommands='
+			SELECT CommandGroup_Command_CommandParameter.*, FK_Command 
+			FROM CommandGroup_Command
+			LEFT JOIN CommandGroup_Command_CommandParameter ON FK_CommandGroup_Command=PK_CommandGroup_Command 
+			WHERE PK_CommandGroup_Command=?';
+
+		$resCommands=$dbADO->Execute($queryCommands,$commandToTest);
+		$commandParmsArray=array();
+		while($rowCommands=$resCommands->FetchRow()){
+			$commandParmsArray[]=$rowCommands['FK_CommandParameter'].' "'.$rowCommands['IK_CommandParameter'].'"';
+			$FK_Command=$rowCommands['FK_Command'];
+		}
+		$commandToSend='/usr/pluto/bin/MessageSend localhost 0 device 1 '.$FK_Command.' '.join(' ',$commandParmsArray);
+		exec($commandToSend);
+		if($section=='scenarioWizard'){
+			header("Location: index.php?section=scenarioWizard&roomID=$roomID&cgID=$cgID&from=$from&wizard=$wizard&msg=The command with parameters was sent.");
+		}else{
+			header("Location: index.php?section=$section&ehID=$ehID&wizard=$wizard&msg=The command with parameters was sent");
+		}
+		exit();
+	}
+
+	// process commands and params
+
+	$x=cleanInteger(@$_POST['addNewDevice']);
+	$y=cleanInteger(@$_POST['addNewDeviceCommand']);
+
+	if ($y!=0 && $x!=0) {
+		$queryInsertCommandGroup_Command = "INSERT INTO CommandGroup_Command (FK_CommandGroup,FK_Command,FK_Device) VALUES (?,?,?)";
+		$insertRs = $dbADO->Execute($queryInsertCommandGroup_Command,array($cgID,$y,$x));
+	}
+
+	$GLOBALS['isModified'] = 0;
+	if ($dbADO->Affected_Rows()>0) {
+		$GLOBALS['isModified']=1;
+	}
+	$selectCommandsAssigned = "
+				SELECT CommandGroup_Command.* 
+				FROM CommandGroup_Command				
+				LEFT JOIN Device ON CommandGroup_Command.FK_Device = Device.PK_Device						
+				WHERE (Device.FK_Installation = ? OR Device.FK_Installation IS NULL) AND CommandGroup_Command.FK_CommandGroup = ?";								
+
+	$resCommandAssigned = $dbADO->Execute($selectCommandsAssigned,array($_SESSION['installationID'],$cgID));
+	$GLOBALS['parametersUpdatedAlert'] = 'Parameters not updated!';
+
+	if ($resCommandAssigned) {
+		while ($rowCommandAssigned = $resCommandAssigned->FetchRow()) {
+
+			$deviceSelected = isset($_POST['device_'.$rowCommandAssigned['PK_CommandGroup_Command']])?$_POST['device_'.$rowCommandAssigned['PK_CommandGroup_Command']]:$x;
+			$commandSelected = isset($_POST['deviceCommand_'.$rowCommandAssigned['PK_CommandGroup_Command']])?$_POST['deviceCommand_'.$rowCommandAssigned['PK_CommandGroup_Command']]:$y;
+
+			$updateCommandGroup_Command = 'UPDATE CommandGroup_Command SET FK_Device = ? WHERE PK_CommandGroup_Command = ? ';
+			$resUpdateCommandGroup_Command  = $dbADO->Execute($updateCommandGroup_Command,array($deviceSelected,$rowCommandAssigned['PK_CommandGroup_Command']));
+
+			if ($dbADO->Affected_Rows()==1) {//enter here only if the Device is changed
+			$updateCommandGroup_Command = 'UPDATE CommandGroup_Command SET FK_Command = NULL WHERE PK_CommandGroup_Command = ? ';
+			$resUpdateCommandGroup_Command  = $dbADO->Execute($updateCommandGroup_Command,array($rowCommandAssigned['PK_CommandGroup_Command']));
+			//delete old parameters
+			$deleteParamValues = 'DELETE FROM CommandGroup_Command_CommandParameter WHERE FK_CommandGroup_Command = ? ';
+			$query = $dbADO->Execute($deleteParamValues,array($rowCommandAssigned['PK_CommandGroup_Command']));
+
+			} else {
+				$updateCommandGroup_Command = 'UPDATE CommandGroup_Command SET FK_Command = ? WHERE PK_CommandGroup_Command = ? ';
+				$resUpdateCommandGroup_Command  = $dbADO->Execute($updateCommandGroup_Command,array($commandSelected,$rowCommandAssigned['PK_CommandGroup_Command']));
+				if ($dbADO->Affected_Rows()==1) {//if we have changed the command, delete old values
+				$deleteParamValues = 'DELETE FROM CommandGroup_Command_CommandParameter WHERE FK_CommandGroup_Command = ? ';
+				$query = $dbADO->Execute($deleteParamValues,array($rowCommandAssigned['PK_CommandGroup_Command']));
+				}
+
+			}
+			//command parameters
+
+			$query = "
+				SELECT 
+					Command_CommandParameter.FK_CommandParameter,
+					Command_CommandParameter.Description as C_CP_Description,
+					CommandParameter.Description as CP_Description,
+					CommandGroup_Command_CommandParameter.IK_CommandParameter,
+					ParameterType.Description as PT_Description
+				FROM Command_CommandParameter 
+				INNER JOIN Command on FK_Command = PK_Command
+				INNER JOIN CommandParameter ON Command_CommandParameter.FK_CommandParameter = CommandParameter.PK_CommandParameter
+				INNER JOIN ParameterType ON CommandParameter.FK_ParameterType = ParameterType.PK_ParameterType
+				LEFT JOIN CommandGroup_Command_CommandParameter ON CommandGroup_Command_CommandParameter.FK_CommandParameter = Command_CommandParameter.FK_CommandParameter
+				WHERE FK_Command = ?";
+
+			$resSelectParameters = $dbADO->Execute($query,array($commandSelected));
+			if ($resSelectParameters) {
+				while ($rowSelectParameters=$resSelectParameters->fetchRow()) {
+					$value=cleanString(@$_POST['CommandParameterValue_'.$rowCommandAssigned['PK_CommandGroup_Command'].'_'.$rowSelectParameters['FK_CommandParameter']]);
+					//see if we need to update or to insert
+					$checkExists = "SELECT * FROM CommandGroup_Command_CommandParameter WHERE FK_CommandGroup_Command = ? AND  FK_CommandParameter = ?";
+					$resExists=$dbADO->Execute($checkExists,array($rowCommandAssigned['PK_CommandGroup_Command'],$rowSelectParameters['FK_CommandParameter']));
+					if ($resExists->RecordCount()==1) {
+						$update = "UPDATE CommandGroup_Command_CommandParameter  SET  IK_CommandParameter  = ? WHERE FK_CommandGroup_Command = ? AND  FK_CommandParameter =? ";
+						$dbADO->Execute($update,array($value,$rowCommandAssigned['PK_CommandGroup_Command'],$rowSelectParameters['FK_CommandParameter']));
+					} else {
+						$insert = "INSERT INTO CommandGroup_Command_CommandParameter (IK_CommandParameter,FK_CommandGroup_Command,FK_CommandParameter) values(?,?,?)";
+						$dbADO->Execute($insert,array($value,$rowCommandAssigned['PK_CommandGroup_Command'],$rowSelectParameters['FK_CommandParameter']));
+					}
+					if ($dbADO->Affected_Rows()==1) {
+						$GLOBALS['parametersUpdatedAlert']='Parameters updated!';
+					}
+				}
+			}
+		}
+	}
+
 }
 ?>

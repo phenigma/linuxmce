@@ -1033,7 +1033,20 @@ switch ($section) {
 	    include_once('operations/myDevices/deleteCriticalDevice.php');
 	    deleteCriticalDevice($output,$dbADO);
 	break;
-		
+	case 'scenarioWizard';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/myScenarios/scenarioWizard.php');
+	    scenarioWizard($output,$dbADO);
+	break;
+	case 'restart';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/others/restart.php');
+	    restart($output,$dbADO);
+	break;
+
+	
 	case '';
 		$output = new Template($dbADO);	
 		

@@ -571,7 +571,7 @@ function avWizard($output,$dbADO) {
 			$DeviceDataToDisplayArray=explode(',',@$_POST['DeviceDataToDisplay']);
 			if(@$_POST['displayedDevices']!=''){
 				foreach($displayedDevicesArray as $key => $value){
-					$description=@$_POST['description_'.$value];
+					$description=stripslashes(@$_POST['description_'.$value]);
 					if(isset($_POST['ip_'.$value])){
 						$ip=$_POST['ip_'.$value];
 						$mac=$_POST['mac_'.$value];
@@ -624,7 +624,7 @@ function avWizard($output,$dbADO) {
 					if($oldTo!=$audioConnectTo || $oldInput!=$audioInput || $oldOutput!=$audioOutput){
 						if($oldTo=='' || is_null($oldTo)){
 							$insertDDP='
-								INSERT INTO Device_Device_Pipe 
+								INSERT IGNORE INTO Device_Device_Pipe 
 									(FK_Device_From, FK_Device_To, FK_Command_Input, FK_Command_Output, FK_Pipe)
 								VALUES
 									(?,?,?,?,?)';
@@ -659,7 +659,7 @@ function avWizard($output,$dbADO) {
 						if($oldTo!=$videoConnectTo || $oldInput!=$videoInput || $oldOutput!=$videoOutput){
 							if($oldTo=='' || is_null($oldTo)){
 								$insertDDP='
-									INSERT INTO Device_Device_Pipe 
+									INSERT IGNORE INTO Device_Device_Pipe 
 										(FK_Device_From, FK_Device_To, FK_Command_Input, FK_Command_Output, FK_Pipe)
 									VALUES
 										(?,?,?,?,?)';
