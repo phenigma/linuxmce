@@ -2051,7 +2051,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Looking for device with temp: %d %s",iPK_Device
 			if( pDevice->m_sIPAddress==sIPorMacAddress || pDevice->m_sMacAddress==sIPorMacAddress )
 				return pDevice->m_dwPK_Device;
 		}
-		return 0;
 	}
 	// We'll have to search based on IP or Mac Address
 	if( sIPorMacAddress.length()==0 )
