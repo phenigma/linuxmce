@@ -109,7 +109,7 @@ function mainMediaFilesSync($output,$mediadbADO) {
 				}
 	
 				$out.='	<tr style="background-color:'.(($dbkey%2==0)?'#EEEEEE':'#EBEFF9').';">
-							<td colspan="2"><img src=include/images/db.gif align=middle border=0> <a href="index.php?section=editMediaFile&fileID='.@$dbPKFiles[$key].'"><B>'.$filename.'</B></a></td>
+							<td colspan="2"><img src=include/images/db.gif align=middle border=0> <a href="index.php?section=editMediaFile&fileID='.@$dbPKFiles[$dbkey].'"><B>'.$filename.'</B></a></td>
 						</tr>
 						<tr style="background-color:'.(($dbkey%2==0)?'#EEEEEE':'#EBEFF9').';">
 							<td colspan="2">'.@$attributes.'</td>

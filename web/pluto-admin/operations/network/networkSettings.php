@@ -56,10 +56,10 @@ function networkSettings($output,$dbADO) {
 	}	
 
 	$swaphtml = "";
-	if (($externalInterfaceArray[0] === "eth0" && $internalInterfaceArray[0] === "eth1")
-		|| ($externalInterfaceArray[0] === "eth1" && $internalInterfaceArray[0] === "eth0"))
+	if ((@$externalInterfaceArray[0] === "eth0" && @$internalInterfaceArray[0] === "eth1")
+		|| (@$externalInterfaceArray[0] === "eth1" && @$internalInterfaceArray[0] === "eth0"))
 	{
-		$swaphtml = "<br>Swap button goes here<br>";
+		$swaphtml = '<br><input type="submit" class="button" name="swap" value="Swap Interfaces"><br>';
 	}
 	if ($action == 'form') {
 		if(!isset($fatalError)){
@@ -143,7 +143,7 @@ function networkSettings($output,$dbADO) {
 	<form action="index.php" method="POST" name="networkSettings">
 	<input type="hidden" name="section" value="networkSettings">
 	<input type="hidden" name="action" value="add">
-	<div align="center"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg']):'').'</B></div>
+	<div align="center" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg']):'').'</B></div>
 	<table border="0">
 		<tr>
 			<td colspan="3" align="center" bgcolor="#EEEEEE"><b>Network Settings</b></td>
@@ -269,14 +269,20 @@ function networkSettings($output,$dbADO) {
 			$dbADO->Execute($deleteDDD,array($coreID,$GLOBALS['DHCPDeviceData']));
 		}
 
+		$externalInterface=$externalInterfaceArray[0];
+		$internalInterface=$internalInterfaceArray[0];
+		if(isset($_POST['swap'])){
+			$externalInterface=($externalInterface=='eth1')?'eth0':'eth1';
+			$internalInterface=($internalInterface=='eth1')?'eth0':'eth1';
+		}
 		if($resNC->RecordCount()>0){
-			$networkInterfaces=$externalInterfaceArray[0];
+			$networkInterfaces=$externalInterface;
 			if($_POST['ipFrom']=='DHCP'){
 				$networkInterfaces.=',dhcp';
 			}else{
 				$networkInterfaces.=','.getIpFromParts('coreIP_').','.getIpFromParts('coreNetMask_').','.getIpFromParts('coreGW_').','.getIpFromParts('coreDNS1_').','.getIpFromParts('coreDNS2_');
 			}
-			$networkInterfaces.='|'.$internalInterfaceArray[0].','.getIpFromParts('internalCoreIP_').','.getIpFromParts('internalCoreNetMask_');
+			$networkInterfaces.='|'.$internalInterface.','.getIpFromParts('internalCoreIP_').','.getIpFromParts('internalCoreNetMask_');
 			if($networkInterfaces!=$rowNC['IK_DeviceData']){
 				$updateDDD='UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?';
 				$dbADO->Execute($updateDDD,array($networkInterfaces,$coreID,$GLOBALS['NetworkInterfaces']));

@@ -13,7 +13,7 @@ function connectionWizard($output,$dbADO) {
 	$deviceCategory=$GLOBALS['rootAVEquipment'];
 	$output->setHelpSrc('/support/index.php?section=document&docID=131');
 	
-	$_SESSION['AVentertainArea']=(isset($_POST['entertainArea']) && (int)$_POST['entertainArea']!=0)?(int)$_POST['entertainArea']:@$_SESSION['AVentertainArea'];
+	$_SESSION['AVentertainArea']=(isset($_REQUEST['entertainArea']) && (int)$_REQUEST['entertainArea']!=0)?(int)$_REQUEST['entertainArea']:@$_SESSION['AVentertainArea'];
 	$entertainArea=@$_SESSION['AVentertainArea'];
 
 	$connectorsArray=array(0=>'other.gif',1=>'composite.gif',2=>'svideo.gif',3=>'component.gif',4=>'dvi.gif',5=>'vga.gif',6=>'scart.gif');
@@ -35,7 +35,7 @@ if ($action == 'form') {
 	<input type="hidden" name="action" value="add">
 	<div style="position:absolute;top:25px;Z-INDEX:2;"><br><br><a href="index.php?section=avWizard">Advanced mode</a></div>
 	<div align="center"><h3>A/V equipment connection wizard</h3></div>
-	Edit devices in:'.generatePullDown('entertainArea','EntertainArea','PK_EntertainArea','Description',$_SESSION['AVentertainArea'],$dbADO,' INNER JOIN Room ON FK_Room=PK_Room WHERE FK_Installation='.(int)$_SESSION['installationID'],'onChange="document.connectionWizard.action.value=\'form\';document.connectionWizard.submit();"').'<br>';
+	Edit devices in:'.generatePullDown('entertainArea','EntertainArea','PK_EntertainArea','Description',$_SESSION['AVentertainArea'],$dbADO,' INNER JOIN Room ON FK_Room=PK_Room WHERE FK_Installation='.(int)$_SESSION['installationID'],'onChange="document.connectionWizard.action.value=\'setCookie\';document.connectionWizard.submit();"').'<br>';
 	$devicesList=array();
 	if($entertainArea!=0){		
 		$out.='
@@ -168,13 +168,13 @@ if ($action == 'form') {
 			header("Location: index.php?section=connectionWizard&error=You are not authorised to change the installation.");
 			exit();
 		}
-
+		$entertainArea=(int)$_REQUEST['entertainArea'];
+		
+		setcookie('Pluto admin connection wizard','testing',31536000,'/',false);
 
 		
-		header("Location: index.php?section=connectionWizard&msg=The devices was updated");		
+		//header("Location: index.php?section=connectionWizard&msg=The devices was updated&entertainArea=$entertainArea");		
 	}
-
-	$output->setScriptCalendar('null');
 
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: A/V devices connection wizard');
