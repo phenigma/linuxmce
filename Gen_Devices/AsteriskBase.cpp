@@ -1,0 +1,41 @@
+#include "AsteriskBase.h"
+#include "DeviceData_Impl.h"
+#include "Logger.h"
+
+using namespace DCE;
+#include "AsteriskBase.h"
+DeviceData_Impl *Asterisk_Data::CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition)
+{
+	// Peek ahead in the stream.  We're going to pass in the above pointers anyway so it won't affect the position
+	SerializeClass b;
+	b.ResumeReadWrite(pDataBlock,AllocatedSize,CurrentPosition);
+	int iPK_Device = b.Read_unsigned_long();
+	int iPK_Installation = b.Read_unsigned_long();
+	int iPK_DeviceTemplate = b.Read_unsigned_long();
+	switch(iPK_DeviceTemplate) {
+		case 45:
+			return new Asterisk_Data();
+	};
+	g_pPlutoLogger->Write(LV_CRITICAL, "Got CreateData for unknown type %d.", iPK_DeviceTemplate);
+	return NULL;
+}
+
+Event_Impl *Asterisk_Event::CreateEvent(int PK_DeviceTemplate, ClientSocket *pOCClientSocket, int DeviceID)
+{
+	switch(PK_DeviceTemplate) {
+		case 45:
+			return (Event_Impl *) new Asterisk_Event(pOCClientSocket, DeviceID);
+	};
+	g_pPlutoLogger->Write(LV_CRITICAL, "Got CreateEvent for unknown type %d.", PK_DeviceTemplate);
+	return NULL;
+}
+Command_Impl  *Asterisk_Command::CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent)
+{
+	switch(PK_DeviceTemplate)
+	{
+		case 45:
+			return (Command_Impl *) new Asterisk_Command(pPrimaryDeviceCommand, pData, pEvent, m_pRouter);
+	};
+	g_pPlutoLogger->Write(LV_CRITICAL, "Got CreateCommand for unknown type %d.", PK_DeviceTemplate);
+	return NULL;
+}
