@@ -51,7 +51,7 @@ typedef struct
 
 
 XineSlaveWrapper::XineSlaveWrapper()
-    : m_sWindowTitle("xine-slave window (controlled by the DCE m_pXine Player device)"),
+    : m_sWindowTitle("pluto-xine-playback-window"),
       XServerDisplay(NULL),
       m_pSameStream(NULL)
 {
@@ -87,6 +87,7 @@ bool XineSlaveWrapper::createWindow()
     XColor          black; //, dummy;
     XSizeHints      sizeHints;
     MWMHints        wmHints;
+	XClassHint		classHint;
 
     long            propertyValues[1];
     int             completionEvent;
@@ -120,6 +121,13 @@ bool XineSlaveWrapper::createWindow()
     windows[1] = XCreateSimpleWindow(XServerDisplay, XDefaultRootWindow(XServerDisplay),
                     0, 0, (DisplayWidth(XServerDisplay, m_iCurrentScreen)), DisplayHeight(XServerDisplay, m_iCurrentScreen),
                     0, 0, 0);
+
+	classHint.res_name = (char*)m_sWindowTitle.c_str();
+	classHint.res_class = (char*)m_sWindowTitle.c_str();
+	XSetClassHint ( XServerDisplay, windows[0], &classHint );
+
+	classHint.res_class = (char*)m_sWindowTitle.c_str();
+	XSetClassHint ( XServerDisplay, windows[0], &classHint );
 
     XSelectInput(XServerDisplay, windows[0], INPUT_MOTION);
     XSelectInput(XServerDisplay, windows[1], INPUT_MOTION);
@@ -538,34 +546,37 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
             break;
 
         case XINE_EVENT_UI_SET_TITLE:
-            /**
-        * @test
-              {
-                char volume[256];
-                int dummy;
+			{
+//				char volume[256];
+//                int dummy;
                 xine_ui_data_t *data = (xine_ui_data_t *) event->data;
-                if(sscanf(data->str, "DVD Navigator: Menu, %s", volume)==1 ||
-                   sscanf(data->str, "DVD Menu, %s", volume)==1 ||
-                    sscanf(data->str, "DVD Root Menu, %s", volume)==1)
-                {
-                    if( !cur_mrl || !strchr(cur_mrl,TITLE_DELIMITER) )
-                    send_event(XINE_SE_DVD_TITLE, volume);
-                }
-                if(data->str && sscanf(data->str,"Title %d, Chapter %d",&dummy,&dvd_chapter) == 2) {
-                    send_event(XINE_SE_CHAPTER, "%d", dvd_chapter);
-                } else {
-                    dvd_chapter = 0;
-                }
-                }
-        */
-            g_pPlutoLogger->Write(LV_STATUS, "Event ui set title");
-			g_pPlutoLogger->Write(LV_STATUS, "Stream title: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_TITLE));
-            g_pPlutoLogger->Write(LV_STATUS, "Stream comment: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_COMMENT));
-			g_pPlutoLogger->Write(LV_STATUS, "Stream artist: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_ARTIST));
-			g_pPlutoLogger->Write(LV_STATUS, "Stream genre: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_GENRE));
-			g_pPlutoLogger->Write(LV_STATUS, "Stream album: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_ALBUM));
-			g_pPlutoLogger->Write(LV_STATUS, "Stream year: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_YEAR));
-			g_pPlutoLogger->Write(LV_STATUS, "Stream track: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_TRACK_NUMBER));
+
+
+
+				//if(sscanf(data->str, "DVD Navigator: Menu, %s", volume)==1 ||
+                   //sscanf(data->str, "DVD Menu, %s", volume)==1 ||
+				   //sscanf(data->str, "DVD Root Menu, %s", volume)==1)
+                //{
+                    //if( ! cur_mrl || ! strchr(cur_mrl, TITLE_DELIMITER) )
+//						g_pPlutoLogger->Write(LV_STATUS, "data: %s", data->str);
+
+                    // send_event(XINE_SE_DVD_TITLE, volume);
+  //              }
+    //            if(data->str && sscanf(data->str,"Title %d, Chapter %d",&dummy,&dvd_chapter) == 2) {
+      //              send_event(XINE_SE_CHAPTER, "%d", dvd_chapter);
+        //        } else {
+          //          dvd_chapter = 0;
+            //    }
+            	g_pPlutoLogger->Write(LV_STATUS, "Event ui set title");
+				g_pPlutoLogger->Write(LV_STATUS, "data: %s", data->str);
+				g_pPlutoLogger->Write(LV_STATUS, "Stream title: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_TITLE));
+				g_pPlutoLogger->Write(LV_STATUS, "Stream comment: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_COMMENT));
+				g_pPlutoLogger->Write(LV_STATUS, "Stream artist: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_ARTIST));
+				g_pPlutoLogger->Write(LV_STATUS, "Stream genre: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_GENRE));
+				g_pPlutoLogger->Write(LV_STATUS, "Stream album: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_ALBUM));
+				g_pPlutoLogger->Write(LV_STATUS, "Stream year: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_YEAR));
+				g_pPlutoLogger->Write(LV_STATUS, "Stream track: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_TRACK_NUMBER));
+			}
 			break;
 
         case XINE_EVENT_INPUT_MOUSE_MOVE:
