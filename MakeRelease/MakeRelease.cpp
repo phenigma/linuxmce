@@ -1021,14 +1021,16 @@ cout << "Making CVS Checkout to temporary\n";
 			pRow_Package_Source->Name_get()+
 			" checkout " + pRow_Package_Source->Name_get();
 	system(cmd.c_str());
+
+cout << "Reading files from temporary";
+	FileUtils::FindFiles(MyList, pRow_Package_Source->Name_get().c_str(), "*", true, "");
+cout << " [Done]\n";
+
 	cmd = pRow_Package_Source->Name_get();
 	cout << cmd << "\n";
 	chdir(cmd.c_str());
 
 	//reading actual directory list
-cout << "Reading files from temporary";
-//	FileUtils::FindFiles(MyList, "", "*", true, "");
-cout << " [Done]\n";
 //	cout<<"\n\n SourceForgeCVS : "<<pRow_Package_Source->FK_Package_getrow()->Description_get();
 //	cout<<"\n Nr of files : "<<listFileInfo.size();
 	
@@ -1131,7 +1133,6 @@ cout << "Copying Files\n";
 		}
 		flag = false;
 	}
-		return true;
 ///////////////////////////////////////////////////////////
 ////////---------------- Findinf old files and delete them
 	for (iMyList = MyList.begin();iMyList != MyList.end(); iMyList++)
