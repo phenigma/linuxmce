@@ -60,7 +60,7 @@ case "$URL_TYPE" in
 			apt-get update
 		fi
 
-		if ! dpkg -l "$PKG_NAME" &>/dev/null; then
+		if ! dpkg --get-selections "$PKG_NAME" | grep -q install; then
 			keep_sending_enters | apt-get -t "$REPOS" -y install "$PKG_NAME" || exit $ERR_APT
 		fi
 	;;

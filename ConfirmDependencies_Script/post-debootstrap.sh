@@ -11,3 +11,8 @@ for S in $SCRIPTS; do
 	cp -f /cdrom/Pluto-Install/"$S" "$DIR"
 done
 touch "$DIR/.notdone"
+
+if [ -d /cdrom/Debian-Cache ]; then
+	mkdir -p /target/usr/pluto/install/deb-cache
+	cp -a /cdrom/Debian-Cache/* /target/usr/pluto/install/deb-cache
+fi
