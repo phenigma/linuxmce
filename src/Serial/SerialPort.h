@@ -24,9 +24,9 @@ public:
 	CSerialPort(string Port, unsigned int BPS, enum eParityBitStop ParityBitStop, bool EnableFlowControl=false);
 	~CSerialPort();
 
-	bool IsReadEmpty();
-	size_t Read(char *Buf, size_t MaxLen, int Timeout=5);
-	void Write(char *Buf, size_t Len);
+	virtual bool IsReadEmpty();
+	virtual size_t Read(char *Buf, size_t MaxLen, int Timeout=5);
+	virtual void Write(char *Buf, size_t Len);
 
 public:
 #ifdef WIN32
