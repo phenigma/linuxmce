@@ -227,7 +227,6 @@ Router::~Router()
     for(it=m_mapPlugIn.begin();it!=m_mapPlugIn.end();++it)
 	{
 		class Command_Impl *pCommand_Impl = (*it).second;
-		pCommand_Impl->DeleteGlobalAllocs();
 		delete pCommand_Impl;
 	}
 	m_mapPlugIn.clear();
