@@ -38,7 +38,7 @@ using namespace DCE;
 extern "C" {
 	class Command_Impl *RegisterAsPlugIn(class Router *pRouter,int PK_Device,string sLogger)
 	{
-		if( sLogger=="dce_router" )
+		if( sLogger=="dcerouter" )
 		{
 			g_pPlutoLogger = new ServerLogger(PK_Device, "localhost");
 			if( ! ((ServerLogger *) g_pPlutoLogger)->IsConnected() )
@@ -52,7 +52,7 @@ extern "C" {
 			g_pPlutoLogger = new NullLogger();
 		else if( sLogger=="stdout" )
 			g_pPlutoLogger = new FileLogger(stdout);
-		else if( sLogger!="dce_router" )
+		else if( sLogger!="dcerouter" )
 			g_pPlutoLogger = new FileLogger(sLogger.c_str());
 
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
 	cout << "gc100, v." << VERSION << endl
 		<< "Visit www.plutohome.com for source code and license information" << endl << endl;
 
-	string sRouter_IP="dce_router";
+	string sRouter_IP="dcerouter";
 	int PK_Device=0;
 	string sLogger="stdout";
 
@@ -109,10 +109,10 @@ int main(int argc, char* argv[])
 	if (bError)
 	{
 		cout << "A Pluto DCE Device.  See www.plutohome.com/dce for details." << endl
-			<< "Usage: gc100 [-r Router's IP] [-d My Device ID] [-l dce_router|stdout|null|filename]" << endl
-			<< "-r -- the IP address of the DCE Router  Defaults to 'dce_router'." << endl
+			<< "Usage: gc100 [-r Router's IP] [-d My Device ID] [-l dcerouter|stdout|null|filename]" << endl
+			<< "-r -- the IP address of the DCE Router  Defaults to 'dcerouter'." << endl
 			<< "-d -- This device's ID number.  If not specified, it will be requested from the router based on our IP address." << endl
-			<< "-l -- Where to save the log files.  Specify 'dce_router' to have the messages logged to the DCE Router.  Defaults to stdout." << endl;
+			<< "-l -- Where to save the log files.  Specify 'dcerouter' to have the messages logged to the DCE Router.  Defaults to stdout." << endl;
 		exit(0);
 	}
 
@@ -132,7 +132,7 @@ int main(int argc, char* argv[])
 
 	try
 	{
-		if( sLogger=="dce_router" )
+		if( sLogger=="dcerouter" )
 			g_pPlutoLogger = new ServerLogger(PK_Device, sRouter_IP);
 		else if( sLogger=="null" )
 			g_pPlutoLogger = new NullLogger();

@@ -63,7 +63,8 @@ public:
 		if( !pConfig )
 			throw "Cannot get configuration data";
 		m_pData = new Xine_Player_Data();
-		m_pData->SerializeRead(Size,pConfig);
+		if( Size )
+			m_pData->SerializeRead(Size,pConfig);
 		delete pConfig;
 		pConfig = m_pEvent->GetDeviceList(Size);
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
@@ -76,7 +77,7 @@ public:
 	Xine_Player_Event *GetEvents() { return (Xine_Player_Event *) m_pEvent; };
 	Xine_Player_Data *GetData() { return (Xine_Player_Data *) m_pData; };
 	const char *GetClassName() { return "Xine_Player_Command"; };
-	int PK_DeviceTemplate_get() { return 5; };
+	static int PK_DeviceTemplate_get() { return 5; };
 	virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage) { };
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);

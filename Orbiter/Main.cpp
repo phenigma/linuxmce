@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
 		    <<"without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. "<<endl
 		    <<"See the Pluto Public License for more details."<<endl << "-----" << endl << endl;    
     
-    string sRouter_IP="dce_router";
+    string sRouter_IP="dcerouter";
     int PK_Device=0;
     string sLogger="stdout";
     int Width=800,Height=600;
@@ -115,12 +115,12 @@ int main(int argc, char* argv[])
 //                123456789012345678901234567890123456789012345678901234567890	
 	cout << "Orbiter, v." << VERSION << endl
             << "A Pluto DCE Device.  See www.plutohome.com/dce for details." << endl
-            << "Usage: Orbiter [-r Router's IP] [-d My Device ID] [-l dce_router|stdout|null|filename]" << endl 
+            << "Usage: Orbiter [-r Router's IP] [-d My Device ID] [-l dcerouter|stdout|null|filename]" << endl 
 	    << "[-D Directory] [-L] [-W Width] [-H Height]" << endl
-            << "-r router's IP		-- the IP address of the DCE Router  Defaults to 'dce_router'." << endl
+            << "-r router's IP		-- the IP address of the DCE Router  Defaults to 'dcerouter'." << endl
             << "-d my device ID		-- This device's ID number.  If not specified, it will be requested" << endl
 	    << " 	from the router based on our IP address." << endl
-            << "-l dce_router		-- Where to save the log files.  Specify 'dce_router' to have " << endl 
+            << "-l dcerouter		-- Where to save the log files.  Specify 'dce_router' to have " << endl 
 	    << "	the messages logged to the DCE Router.  Defaults to stdout." << endl
             << "-D directory		-- If a directory is specified, it will look for it's image " << endl
 	    << "	and config files here rather than requesting from the server." << endl
@@ -133,7 +133,7 @@ int main(int argc, char* argv[])
 
     try
     {
-        if( sLogger=="dce_router" )
+        if( sLogger=="dcerouter" )
             g_pPlutoLogger = new ServerLogger(PK_Device, sRouter_IP);
         else if( sLogger=="null" )
             g_pPlutoLogger = new NullLogger();

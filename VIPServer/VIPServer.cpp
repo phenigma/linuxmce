@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 	{
 		cout << "VIPServer, v." << VERSION << endl
 			<< "Usage: sqlCVS [-h hostname] [-u username] [-p password] [-D database] [-P mysql port] [-r Repository(-ies)] [-t Table(s)] [-U Users(s)]" << endl
-			<< "hostname    -- address or DNS of database host, default is `dce_router`" << endl
+			<< "hostname    -- address or DNS of database host, default is `dcerouter`" << endl
 			<< "username    -- username for database connection" << endl
 			<< "password    -- password for database connection, default is `` (empty)" << endl
 			<< "database    -- database name.  default is pluto_main" << endl

@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
 #endif
 	g_pPlutoLogger=new FileLogger(stdout);
 
-	string DBHost="dce_router",DBUser="root",DBPassword="",DBName="pluto_main";
+	string DBHost="dcerouter",DBUser="root",DBPassword="",DBName="pluto_main";
 #ifdef WIN32
 	string GraphicsFiles="/pluto/orbiter/skins",FontFiles="/windows/fonts",OutputFiles="/pluto/orbiter";
 #else

@@ -797,28 +797,28 @@ public:
 
 	/** @brief COMMAND: #9 - Scroll Grid */
 	/** Scroll a datagrid */
-		/** @param #1 Relative Level */
+		/** @param #1 ***not used*** */
 			/** The grid will scroll this many lines.  If prefaced with a P, it will scroll this many pages.  If not specified, it will scroll 1 page. */
 		/** @param #3 PK_DesignObj */
 			/** The grid to scroll.  If not specified, any currently visible grids will scroll */
 		/** @param #30 PK_Direction */
 			/** The direction to scroll the grid */
 
-	virtual void CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iPK_Direction) { string sCMD_Result; CMD_Scroll_Grid(sRelative_Level.c_str(),sPK_DesignObj.c_str(),iPK_Direction,sCMD_Result,NULL);};
-	virtual void CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iPK_Direction,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Scroll_Grid(string snot_used,string sPK_DesignObj,int iPK_Direction) { string sCMD_Result; CMD_Scroll_Grid(snot_used.c_str(),sPK_DesignObj.c_str(),iPK_Direction,sCMD_Result,NULL);};
+	virtual void CMD_Scroll_Grid(string snot_used,string sPK_DesignObj,int iPK_Direction,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #10 - Move Highlight */
 	/** Move the current highlight pointer */
-		/** @param #1 Relative Level */
+		/** @param #1 ***not used*** */
 			/** The grid will scroll this many lines.  If prefaced with a P, it will scroll this many pages.  If not specified, it will scroll 1 page. */
 		/** @param #3 PK_DesignObj */
 			/** The grid to scroll.  If not specified, any currently visible grids will scroll */
 		/** @param #30 PK_Direction */
 			/** The direction to move the highlight */
 
-	virtual void CMD_Move_Highlight(string sRelative_Level,string sPK_DesignObj,int iPK_Direction) { string sCMD_Result; CMD_Move_Highlight(sRelative_Level.c_str(),sPK_DesignObj.c_str(),iPK_Direction,sCMD_Result,NULL);};
-	virtual void CMD_Move_Highlight(string sRelative_Level,string sPK_DesignObj,int iPK_Direction,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Move_Highlight(string snot_used,string sPK_DesignObj,int iPK_Direction) { string sCMD_Result; CMD_Move_Highlight(snot_used.c_str(),sPK_DesignObj.c_str(),iPK_Direction,sCMD_Result,NULL);};
+	virtual void CMD_Move_Highlight(string snot_used,string sPK_DesignObj,int iPK_Direction,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #13 - Play Sound */

@@ -46,7 +46,7 @@ using namespace DCE;
 
 //<-dceag-const-b->
 Xine_Plugin::Xine_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-    : Xine_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
+	: Xine_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
 }
@@ -440,12 +440,12 @@ void XineMediaStream::setStreamerDeviceID(int deviceID)
 
 //<-dceag-c36-b->
 
-    /** @brief COMMAND: #36 - Create Media */
-    /** Create a media stream descriptor. */
-        /** @param #13 Filename */
-            /** The filename of the media stream. */
-        /** @param #41 StreamID */
-            /** The media descriptor which will be associated with the current media. */
+	/** @brief COMMAND: #36 - Create Media */
+	/** Create a media stream descriptor. */
+		/** @param #13 Filename */
+			/** The filename of the media stream. */
+		/** @param #41 StreamID */
+			/** The media descriptor which will be associated with the current media. */
 
 void Xine_Plugin::CMD_Create_Media(string sFilename,int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c36-e->
@@ -455,16 +455,16 @@ void Xine_Plugin::CMD_Create_Media(string sFilename,int iStreamID,string &sCMD_R
 
 //<-dceag-c37-b->
 
-    /** @brief COMMAND: #37 - Play Media */
-    /** Play a media stream descriptor. */
-        /** @param #13 Filename */
-            /** The file to play.  The format is specific on the media type and the media player. */
-        /** @param #29 PK_MediaType */
-            /** The type of media */
-        /** @param #41 StreamID */
-            /** The media that we need to play. */
-        /** @param #42 MediaPosition */
-            /** The position at which we need to start playing. */
+	/** @brief COMMAND: #37 - Play Media */
+	/** Play a media stream descriptor. */
+		/** @param #13 Filename */
+			/** The file to play.  The format is specific on the media type and the media player. */
+		/** @param #29 PK_MediaType */
+			/** The type of media */
+		/** @param #41 StreamID */
+			/** The media that we need to play. */
+		/** @param #42 MediaPosition */
+			/** The position at which we need to start playing. */
 
 void Xine_Plugin::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
@@ -474,12 +474,12 @@ void Xine_Plugin::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 
 //<-dceag-c38-b->
 
-    /** @brief COMMAND: #38 - Stop Media */
-    /** Stop playing a media stream descriptor. */
-        /** @param #41 StreamID */
-            /** The media needing to be stopped. */
-        /** @param #42 MediaPosition */
-            /** The position at which this stream was last played. */
+	/** @brief COMMAND: #38 - Stop Media */
+	/** Stop playing a media stream descriptor. */
+		/** @param #41 StreamID */
+			/** The media needing to be stopped. */
+		/** @param #42 MediaPosition */
+			/** The position at which this stream was last played. */
 
 void Xine_Plugin::CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c38-e->
@@ -489,10 +489,10 @@ void Xine_Plugin::CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_
 
 //<-dceag-c39-b->
 
-    /** @brief COMMAND: #39 - Pause Media */
-    /** Pause a media playback. */
-        /** @param #41 StreamID */
-            /** The media stream for which we need to pause playback. */
+	/** @brief COMMAND: #39 - Pause Media */
+	/** Pause a media playback. */
+		/** @param #41 StreamID */
+			/** The media stream for which we need to pause playback. */
 
 void Xine_Plugin::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c39-e->
@@ -504,10 +504,10 @@ void Xine_Plugin::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMe
 }
 //<-dceag-c40-b->
 
-    /** @brief COMMAND: #40 - Restart Media */
-    /** Restart a media playback. */
-        /** @param #41 StreamID */
-            /** The media stream that we need to restart playback for. */
+	/** @brief COMMAND: #40 - Restart Media */
+	/** Restart a media playback. */
+		/** @param #41 StreamID */
+			/** The media stream that we need to restart playback for. */
 
 void Xine_Plugin::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c40-e->
@@ -517,12 +517,12 @@ void Xine_Plugin::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message *p
 
 //<-dceag-c41-b->
 
-    /** @brief COMMAND: #41 - Change Playback Speed */
-    /** Change the playback speed of a media stream. */
-        /** @param #41 StreamID */
-            /** The media needing the playback speed change. */
-        /** @param #43 MediaPlaybackSpeed */
-            /** The requested media playback speed. This is a multiplier of the normal speed. (If we want 2x playback this parameter will be 2 if we want half of normal speed then the parameter will be 0.5). The formula is NextSpeed = MediaPlaybackSpeed * NormalPlaybackS */
+	/** @brief COMMAND: #41 - Change Playback Speed */
+	/** Change the playback speed of a media stream. */
+		/** @param #41 StreamID */
+			/** The media needing the playback speed change. */
+		/** @param #43 MediaPlaybackSpeed */
+			/** The requested media playback speed. This is a multiplier of the normal speed. (If we want 2x playback this parameter will be 2 if we want half of normal speed then the parameter will be 0.5). The formula is NextSpeed = MediaPlaybackSpeed * NormalPlaybackS */
 
 void Xine_Plugin::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string &sCMD_Result,Message *pMessage)
 //<-dceag-c41-e->
@@ -535,10 +535,10 @@ void Xine_Plugin::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpee
 
 //<-dceag-c65-b->
 
-    /** @brief COMMAND: #65 - Jump Position In Playlist */
-    /** Jumps to a position within some media, such as songs in a playlist, tracks on a cd, etc.  It will assume the sender is an orbiter, and find the entertainment area and stream associated with it.  The track can be an absolute or relative position. */
-        /** @param #5 Value To Assign */
-            /** The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1. */
+	/** @brief COMMAND: #65 - Jump Position In Playlist */
+	/** Jumps to a position within some media, such as songs in a playlist, tracks on a cd, etc.  It will assume the sender is an orbiter, and find the entertainment area and stream associated with it.  The track can be an absolute or relative position. */
+		/** @param #5 Value To Assign */
+			/** The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1. */
 
 void Xine_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c65-e->

@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
  
 	srand((int) time(NULL));
 
-	string DBHost="dce_router",DBUser="root",DBPassword="",DBName="pluto_main",BasePath="";
+	string DBHost="dcerouter",DBUser="root",DBPassword="",DBName="pluto_main",BasePath="";
 	int DBPort=3306,ListenPort=3450,Installation=0,PK_Device=0;
 	string sLogger="stdout";
 
@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
                 << "Usage: Router [-i installation] [-d device] [-h hostname]"<<endl
 		<< "[-u username] [-p password] [-D database] [-P mysql port]"<<endl
 		<< "[-t tcp/ip port to listen on] [-f Base Path][-l Logger]" << endl
-                << "-h hostname  -- address or DNS of database host, default is `dce_router`" << endl
+                << "-h hostname  -- address or DNS of database host, default is `dcerouter`" << endl
                 << "-u username  -- username for database connection" << endl
                 << "-p password  -- password for database connection, default is `` (empty)" << endl
                 << "-D database  -- database name" << endl

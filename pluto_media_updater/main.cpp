@@ -46,7 +46,7 @@ int main(int argc, char **argv)
     cout << "Media info updater daemon, v." << VERSION << endl
          << "Visit www.plutohome.com for source code and license information" << endl << endl;
 
-    string DBHost="dce_router",DBUser="root",DBPassword="",DBName="pluto_media";
+    string DBHost="dcerouter",DBUser="root",DBPassword="",DBName="pluto_media";
     int DBPort=3306,ListenPort=3450;
     string sLogger="stdout";
 
@@ -98,7 +98,7 @@ int main(int argc, char **argv)
     {
         cout << "A directory scanner for the pluto system.  See www.plutohome.com for details." << endl
             << "Usage: MediaUpdater [-r Router's IP] [stdout|null|filename] -s <list of folders to scan>" << endl
-            << "-h hostname  -- address or DNS of database host, default is `dce_router`" << endl
+            << "-h hostname  -- address or DNS of database host, default is `dcerouter`" << endl
             << "-u username  -- username for database connection" << endl
             << "-p password  -- password for database connection, default is `` (empty)" << endl
             << "-D database  -- database name" << endl

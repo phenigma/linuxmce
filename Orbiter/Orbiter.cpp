@@ -3976,14 +3976,14 @@ void Orbiter::CMD_Remove_Screen_From_History(string sPK_DesignObj,string sID,str
 
 	/** @brief COMMAND: #9 - Scroll Grid */
 	/** Scroll a datagrid */
-		/** @param #1 Relative Level */
+		/** @param #1 ***not used*** */
 			/** The grid will scroll this many lines.  If prefaced with a P, it will scroll this many pages.  If not specified, it will scroll 1 page. */
 		/** @param #3 PK_DesignObj */
 			/** The grid to scroll.  If not specified, any currently visible grids will scroll */
 		/** @param #30 PK_Direction */
 			/** The direction to scroll the grid */
 
-void Orbiter::CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iPK_Direction,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Scroll_Grid(string snot_used,string sPK_DesignObj,int iPK_Direction,string &sCMD_Result,Message *pMessage)
 //<-dceag-c9-e->
 {
     PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
@@ -4053,14 +4053,14 @@ void Orbiter::CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iP
 
 	/** @brief COMMAND: #10 - Move Highlight */
 	/** Move the current highlight pointer */
-		/** @param #1 Relative Level */
+		/** @param #1 ***not used*** */
 			/** The grid will scroll this many lines.  If prefaced with a P, it will scroll this many pages.  If not specified, it will scroll 1 page. */
 		/** @param #3 PK_DesignObj */
 			/** The grid to scroll.  If not specified, any currently visible grids will scroll */
 		/** @param #30 PK_Direction */
 			/** The direction to move the highlight */
 
-void Orbiter::CMD_Move_Highlight(string sRelative_Level,string sPK_DesignObj,int iPK_Direction,string &sCMD_Result,Message *pMessage)
+void Orbiter::CMD_Move_Highlight(string snot_used,string sPK_DesignObj,int iPK_Direction,string &sCMD_Result,Message *pMessage)
 //<-dceag-c10-e->
 {
     cout << "Need to implement command #10 - Move Highlight" << endl;

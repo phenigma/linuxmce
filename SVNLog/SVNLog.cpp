@@ -90,7 +90,7 @@ int main( int argc, char *argv[] )
 	<< " See the GNU General Public License for more details. "<< endl << "-------" << endl << endl;	
 
 	// setting some default values.... probablly just temporary
-	string sDBHost="dce_router", sDBUser="root", sDBPassword="", sDBName="pluto_main", sOutputPath="", sInputPath=".";
+	string sDBHost="dcerouter", sDBUser="root", sDBPassword="", sDBName="pluto_main", sOutputPath="", sInputPath=".";
 	int iDBPort=3306;
 
 	bool bError = false; // An error parsing the command line
@@ -144,7 +144,7 @@ int main( int argc, char *argv[] )
 	<< "Usage: SVNLog [-h hostname] [-u username] [-p password]" << endl
 	<< "[-D database] [-P mysql port] [-o output path] [-i input path]" << endl
 	<< "-h hostname    -- address or DNS of database host, " <<endl
-	<< "			 default is `dce_router`" << endl
+	<< "			 default is `dcerouter`" << endl
 	<< "-u username    -- username for database connection" << endl
 	<< "-p password    -- password for database connection," << endl
 	<< "			 default is `` (empty)" << endl

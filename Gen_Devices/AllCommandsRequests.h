@@ -4381,5 +4381,45 @@ namespace DCE
 	public:
 		CMD_Orbiter_Registered_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sOnOff) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,255,1,8,sOnOff.c_str()); }
 	};
+	class RESP_Text_To_Wave : public PreformedCommandResponse {
+		char **m_pData;int *m_iData_Size;
+	public:
+		RESP_Text_To_Wave(char **pData,int *iData_Size) { 
+		m_pData=pData; m_iData_Size=iData_Size; }
+		void ParseResponse(Message *pMessage) {
+			*m_pData=pMessage->m_mapData_Parameters[19]; *m_iData_Size=pMessage->m_mapData_Lengths[19]; };
+	};
+	class CMD_Text_To_Wave : public PreformedCommand {
+	public:
+		CMD_Text_To_Wave(long DeviceIDFrom, long DeviceIDTo,string sText,char **pData,int *iData_Size) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,256,2,9,sText.c_str(),-19,*pData,*iData_Size);		m_pcResponse = new RESP_Text_To_Wave(pData,iData_Size); }
+	};
+	class CMD_Text_To_Wave_DL : public PreformedCommand {
+	public:
+		CMD_Text_To_Wave_DL(long DeviceIDFrom, string DeviceIDTo,string sText,char **pData,int *iData_Size) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,256,2,9,sText.c_str(),-19,*pData,*iData_Size);		m_pcResponse = new RESP_Text_To_Wave(pData,iData_Size); }
+	};
+	class CMD_Text_To_Wave_DT : public PreformedCommand {
+	public:
+		CMD_Text_To_Wave_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sText,char **pData,int *iData_Size) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,256,2,9,sText.c_str(),-19,*pData,*iData_Size);		m_pcResponse = new RESP_Text_To_Wave(pData,iData_Size); }
+	};
+	class CMD_Text_To_Wave_Cat : public PreformedCommand {
+	public:
+		CMD_Text_To_Wave_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sText,char **pData,int *iData_Size) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,256,2,9,sText.c_str(),-19,*pData,*iData_Size);		m_pcResponse = new RESP_Text_To_Wave(pData,iData_Size); }
+	};
+	class CMD_NOREP_Text_To_Wave : public PreformedCommand {
+	public:
+		CMD_NOREP_Text_To_Wave(long DeviceIDFrom, long DeviceIDTo,string sText) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,256,1,9,sText.c_str()); }
+	};
+	class CMD_NOREP_Text_To_Wave_DL : public PreformedCommand {
+	public:
+		CMD_NOREP_Text_To_Wave_DL(long DeviceIDFrom, string DeviceIDTo,string sText) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,256,1,9,sText.c_str()); }
+	};
+	class CMD_NOREP_Text_To_Wave_DT : public PreformedCommand {
+	public:
+		CMD_NOREP_Text_To_Wave_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sText) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,256,1,9,sText.c_str()); }
+	};
+	class CMD_NOREP_Text_To_Wave_Cat : public PreformedCommand {
+	public:
+		CMD_NOREP_Text_To_Wave_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sText) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,256,1,9,sText.c_str()); }
+	};
 }
 #endif

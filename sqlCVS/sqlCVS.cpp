@@ -236,7 +236,7 @@ int main( int argc, char *argv[] )
 			<< "[-D database] [-P mysql port] [-r Repository( -ies )] [-v verify]" << endl
 			<< "[-t Table( s )] [-U Username[~Password][,...]] [-d username]" << endl
 			<< "-h hostname    -- address or DNS of database host," << endl
-			<< "			default is `dce_router`" << endl
+			<< "			default is `dcerouter`" << endl
 			<< "-u username    -- username for database connection" << endl
 			<< "-p password    -- password for database connection, "<< endl
 			<< "			default is `` ( empty )" << endl

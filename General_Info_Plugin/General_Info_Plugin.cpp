@@ -241,3 +241,30 @@ void General_Info_Plugin::CMD_Request_File_And_Checksum(string sFilename,char **
 		}
 	}
 }
+//<-dceag-c246-b->
+
+	/** @brief COMMAND: #246 - Set Device Data */
+	/** Gets the device data for a device */
+		/** @param #2 PK_Device */
+			/** The device to set */
+		/** @param #5 Value To Assign */
+			/** The value to assign */
+		/** @param #52 PK_DeviceData */
+			/** The device data */
+
+void General_Info_Plugin::CMD_Set_Device_Data(int iPK_Device,string sValue_To_Assign,int iPK_DeviceData,string &sCMD_Result,Message *pMessage)
+//<-dceag-c246-e->
+//<-dceag-c247-b->
+
+	/** @brief COMMAND: #247 - Get Device State */
+	/** Gets a device's current state */
+
+void General_Info_Plugin::CMD_Get_Device_State(string &sCMD_Result,Message *pMessage)
+//<-dceag-c247-e->
+//<-dceag-c248-b->
+
+	/** @brief COMMAND: #248 - Get Device Status */
+	/** Gets the status for a device */
+
+void General_Info_Plugin::CMD_Get_Device_Status(string &sCMD_Result,Message *pMessage)
+//<-dceag-c248-e->

@@ -100,6 +100,33 @@ public:
 	virtual void CMD_Request_File_And_Checksum(string sFilename,char **pData,int *iData_Size,string *sChecksum,bool *bChecksum_Only,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #246 - Set Device Data */
+	/** Gets the device data for a device */
+		/** @param #2 PK_Device */
+			/** The device to set */
+		/** @param #5 Value To Assign */
+			/** The value to assign */
+		/** @param #52 PK_DeviceData */
+			/** The device data */
+
+	virtual void CMD_Set_Device_Data(int iPK_Device,string sValue_To_Assign,int iPK_DeviceData) { string sCMD_Result; CMD_Set_Device_Data(iPK_Device,sValue_To_Assign.c_str(),iPK_DeviceData,sCMD_Result,NULL);};
+	virtual void CMD_Set_Device_Data(int iPK_Device,string sValue_To_Assign,int iPK_DeviceData,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #247 - Get Device State */
+	/** Gets a device's current state */
+
+	virtual void CMD_Get_Device_State() { string sCMD_Result; CMD_Get_Device_State(sCMD_Result,NULL);};
+	virtual void CMD_Get_Device_State(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #248 - Get Device Status */
+	/** Gets the status for a device */
+
+	virtual void CMD_Get_Device_Status() { string sCMD_Result; CMD_Get_Device_Status(sCMD_Result,NULL);};
+	virtual void CMD_Get_Device_Status(string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 };
 

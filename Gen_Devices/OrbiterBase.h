@@ -56,7 +56,8 @@ public:
 		if( !pConfig )
 			throw "Cannot get configuration data";
 		m_pData = new Orbiter_Data();
-		m_pData->SerializeRead(Size,pConfig);
+		if( Size )
+			m_pData->SerializeRead(Size,pConfig);
 		delete pConfig;
 		pConfig = m_pEvent->GetDeviceList(Size);
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
@@ -69,7 +70,7 @@ public:
 	Orbiter_Event *GetEvents() { return (Orbiter_Event *) m_pEvent; };
 	Orbiter_Data *GetData() { return (Orbiter_Data *) m_pData; };
 	const char *GetClassName() { return "Orbiter_Command"; };
-	int PK_DeviceTemplate_get() { return 8; };
+	static int PK_DeviceTemplate_get() { return 8; };
 	virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage) { };
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
@@ -88,8 +89,8 @@ public:
 	virtual void CMD_Show_Object(string sPK_DesignObj,int iPK_Variable,string sComparisson_Operator,string sComparisson_Value,string sOnOff,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Terminate_Orbiter(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Remove_Screen_From_History(string sPK_DesignObj,string sID,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iPK_Direction,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Move_Highlight(string sRelative_Level,string sPK_DesignObj,int iPK_Direction,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Scroll_Grid(string snot_used,string sPK_DesignObj,int iPK_Direction,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Move_Highlight(string snot_used,string sPK_DesignObj,int iPK_Direction,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Play_Sound(char *pData,int iData_Size,string sFormat,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Refresh(string sDataGrid_ID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Regen_Screen(string &sCMD_Result,class Message *pMessage) {};
@@ -268,10 +269,10 @@ public:
 				case 9:
 					{
 						string sCMD_Result="OK";
-					string sRelative_Level=pMessage->m_mapParameters[1];
+					string snot_used=pMessage->m_mapParameters[1];
 					string sPK_DesignObj=pMessage->m_mapParameters[3];
 					int iPK_Direction=atoi(pMessage->m_mapParameters[30].c_str());
-						CMD_Scroll_Grid(sRelative_Level.c_str(),sPK_DesignObj.c_str(),iPK_Direction,sCMD_Result,pMessage);
+						CMD_Scroll_Grid(snot_used.c_str(),sPK_DesignObj.c_str(),iPK_Direction,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
@@ -285,10 +286,10 @@ public:
 				case 10:
 					{
 						string sCMD_Result="OK";
-					string sRelative_Level=pMessage->m_mapParameters[1];
+					string snot_used=pMessage->m_mapParameters[1];
 					string sPK_DesignObj=pMessage->m_mapParameters[3];
 					int iPK_Direction=atoi(pMessage->m_mapParameters[30].c_str());
-						CMD_Move_Highlight(sRelative_Level.c_str(),sPK_DesignObj.c_str(),iPK_Direction,sCMD_Result,pMessage);
+						CMD_Move_Highlight(snot_used.c_str(),sPK_DesignObj.c_str(),iPK_Direction,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);

@@ -21,7 +21,7 @@
 DCEConfig::DCEConfig(string sFilename) : RA_Config()
 {
 	m_sConfigFile=sFilename;
-    m_sDBHost="dce_router"; m_sDBUser="root"; m_sDBPassword=""; m_sDBName="pluto_main"; m_sDCERouter="dce_router";
+    m_sDBHost="dce_router"; m_sDBUser="root"; m_sDBPassword=""; m_sDBName="pluto_main"; m_sDCERouter="dcerouter";
     m_iPK_Device_Computer=0; m_iDBPort=3306; m_iDCERouterPort=3450;
     m_iPK_Distro=m_iPK_Installation=-1;
 

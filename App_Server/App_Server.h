@@ -66,8 +66,6 @@ public:
 	/** Spawn an application */
 		/** @param #13 Filename */
 			/** The name of the executable file to spawn */
-		/** @param #39 Options */
-			/** This will contain the serialization of the command list that should be fired against the source device of this command. */
 		/** @param #50 Name */
 			/** A name that we'll remember the application by for future kill commands */
 		/** @param #51 Arguments */

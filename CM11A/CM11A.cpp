@@ -8,7 +8,6 @@
 #include <iostream>
 using namespace std;
 using namespace DCE;
-using namespace CM11ADEV;
 
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
@@ -159,8 +158,7 @@ void CM11A::SomeFunction()
 	DCE::CMD_Simulate_Mouse_Click_DL CMD_Simulate_Mouse_Click_DL(m_dwPK_Device,"32898,27283",55,77)
 	SendCommand(CMD_Simulate_Mouse_Click_DL,&sResponse);
 
-	// Send the message to all orbiters within the house, which is all devic
-	es with the category DEVICECATEGORY_Orbiter_CONST (see pluto_main/Define_DeviceCategory.h)
+	// Send the message to all orbiters within the house, which is all devices with the category DEVICECATEGORY_Orbiter_CONST (see pluto_main/Define_DeviceCategory.h)
 	// Note the _Cat for category
 	DCE::CMD_Simulate_Mouse_Click_Cat CMD_Simulate_Mouse_Click_Cat(m_dwPK_Device,DEVICECATEGORY_Orbiter_CONST,true,BL_SameHouse,55,77)
     SendCommand(CMD_Simulate_Mouse_Click_Cat);

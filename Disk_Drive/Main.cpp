@@ -41,7 +41,7 @@ using namespace DCE;
 extern "C" {
 	class Command_Impl *RegisterAsPlugIn(class Router *pRouter,int PK_Device,string sLogger)
 	{
-		if( sLogger=="dce_router" )
+		if( sLogger=="dcerouter" )
 		{
 			g_pPlutoLogger = new ServerLogger(PK_Device, "localhost");
 			if( ! ((ServerLogger *) g_pPlutoLogger)->IsConnected() )
@@ -55,7 +55,7 @@ extern "C" {
 			g_pPlutoLogger = new NullLogger();
 		else if( sLogger=="stdout" )
 			g_pPlutoLogger = new FileLogger(stdout);
-		else if( sLogger!="dce_router" )
+		else if( sLogger!="dcerouter" )
 			g_pPlutoLogger = new FileLogger(sLogger.c_str());
 
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
 		<< " of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. " <<endl
 		<< " See the GNU General Public License for more details. "<< endl << endl<< endl << endl << endl;	
 	    
-    string sRouter_IP="dce_router";
+    string sRouter_IP="dcerouter";
     int PK_Device=0;
     string sLogger="stdout";
 
@@ -124,14 +124,14 @@ int main(int argc, char* argv[])
 		cout << "Disk_Drive, v." << VERSION << endl
 			<< "A Pluto DCE Device. See www.plutohome.com/dce for details." << endl
 			<< "Usage: MythTV_Player [-r Router's IP] [-d My Device ID] " << endl
-			<< " [-l dce_router|stdout|null|filename]" << endl
+			<< " [-l dcerouter|stdout|null|filename]" << endl
 			<< "-r router's IP	-- the IP address of the DCE Router " << endl
-			<< "			 Defaults to 'dce_router'." << endl
+			<< "			 Defaults to 'dcerouter'." << endl
 			<< "-d my device ID	-- This device's ID number. " << endl
 			<< "			If not specified, it will be requested " << endl
 			<< "			from the router based on our IP address." << endl
-			<< "-l dce_router|stdout|filename	-- Where to save the log files. " << endl
-			<< "	Specify 'dce_router' to have the messages logged to the DCE Router." << endl
+			<< "-l dcerouter|stdout|filename	-- Where to save the log files. " << endl
+			<< "	Specify 'dcerouter' to have the messages logged to the DCE Router." << endl
 			<< "	Defaults to stdout." << endl;
 	      exit(0);
     }
@@ -152,7 +152,7 @@ int main(int argc, char* argv[])
 
     try
     {
-        if( sLogger=="dce_router" )
+        if( sLogger=="dcerouter" )
             g_pPlutoLogger = new ServerLogger(PK_Device, sRouter_IP);
         else if( sLogger=="null" )
             g_pPlutoLogger = new NullLogger();

@@ -50,7 +50,7 @@ void sh(int i) /* signal handler */
 
 //<-dceag-const-b->
 App_Server::App_Server(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-    : App_Server_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
+	: App_Server_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
     g_pAppServer = this;
@@ -108,12 +108,12 @@ void App_Server::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 
 //<-dceag-c28-b->
 
-    /** @brief COMMAND: #28 - Simulate Keypress */
-    /** Send a keypress event to an application */
-        /** @param #26 PK_Button */
-            /** What key to simulate being pressed.  If 2 numbers are specified, separated by a comma, the second will be used if the Shift key is specified. */
-        /** @param #50 Name */
-            /** The application to send the keypress to. If not specified, it goes to the DCE device. */
+	/** @brief COMMAND: #28 - Simulate Keypress */
+	/** Send a keypress event to an application */
+		/** @param #26 PK_Button */
+			/** What key to simulate being pressed.  If 2 numbers are specified, separated by a comma, the second will be used if the Shift key is specified. */
+		/** @param #50 Name */
+			/** The application to send the keypress to. If not specified, it goes to the DCE device. */
 
 void App_Server::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c28-e->
@@ -125,20 +125,18 @@ void App_Server::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sC
 
 //<-dceag-c67-b->
 
-    /** @brief COMMAND: #67 - Spawn Application */
-    /** Spawn an application */
-        /** @param #13 Filename */
-            /** The name of the executable file to spawn */
-        /** @param #39 Options */
-            /** This will contain the serialization of the command list that should be fired against the source device of this command. */
-        /** @param #50 Name */
-            /** A name that we'll remember the application by for future kill commands */
-        /** @param #51 Arguments */
-            /** Command arguments */
-        /** @param #94 SendOnFailure */
-            /** Send this messages if the process exited with failure error code. */
-        /** @param #95 SendOnSuccess */
-            /** Send this messages if the process exited with success error code. */
+	/** @brief COMMAND: #67 - Spawn Application */
+	/** Spawn an application */
+		/** @param #13 Filename */
+			/** The name of the executable file to spawn */
+		/** @param #50 Name */
+			/** A name that we'll remember the application by for future kill commands */
+		/** @param #51 Arguments */
+			/** Command arguments */
+		/** @param #94 SendOnFailure */
+			/** Send this messages if the process exited with failure error code. */
+		/** @param #95 SendOnSuccess */
+			/** Send this messages if the process exited with success error code. */
 
 void App_Server::CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,string &sCMD_Result,Message *pMessage)
 //<-dceag-c67-e->
@@ -156,10 +154,10 @@ void App_Server::CMD_Spawn_Application(string sFilename,string sName,string sArg
 
 //<-dceag-c69-b->
 
-    /** @brief COMMAND: #69 - Kill Application */
-    /** Kill an application */
-        /** @param #50 Name */
-            /** Application name given at spawn time */
+	/** @brief COMMAND: #69 - Kill Application */
+	/** Kill an application */
+		/** @param #50 Name */
+			/** Application name given at spawn time */
 
 void App_Server::CMD_Kill_Application(string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c69-e->
@@ -188,10 +186,10 @@ void App_Server::CMD_Kill_Application(string sName,string &sCMD_Result,Message *
 
 //<-dceag-c70-b->
 
-    /** @brief COMMAND: #70 - Hide Application */
-    /** Hide an application */
-        /** @param #50 Name */
-            /** Application name given at spawn time */
+	/** @brief COMMAND: #70 - Hide Application */
+	/** Hide an application */
+		/** @param #50 Name */
+			/** Application name given at spawn time */
 
 void App_Server::CMD_Hide_Application(string sName,string &sCMD_Result,Message *pMessage)
 //<-dceag-c70-e->
@@ -334,7 +332,7 @@ void App_Server::SendMessageList(string messageList)
 }
 
 //<-dceag-sample-b->
-/*      **** SAMPLE ILLUSTRATING HOW TO USE THE BASE CLASSES ****
+/*		**** SAMPLE ILLUSTRATING HOW TO USE THE BASE CLASSES ****
 
 **** IF YOU DON'T WANT DCEGENERATOR TO KEEP PUTTING THIS AUTO-GENERATED SECTION ****
 **** ADD AN ! AFTER THE BEGINNING OF THE AUTO-GENERATE TAG, LIKE //<=dceag-sample-b->! ****
@@ -344,74 +342,74 @@ The above blocks are actually <- not <=.  We don't want a substitution here
 
 void App_Server::SomeFunction()
 {
-    // If this is going to be loaded into the router as a plug-in, you can implement:   virtual bool Register();
-    // to do all your registration, such as creating message interceptors
+	// If this is going to be loaded into the router as a plug-in, you can implement: 	virtual bool Register();
+	// to do all your registration, such as creating message interceptors
 
-    // If you use an IDE with auto-complete, after you type DCE:: it should give you a list of all
-    // commands and requests, including the parameters.  See "AllCommandsRequests.h"
+	// If you use an IDE with auto-complete, after you type DCE:: it should give you a list of all
+	// commands and requests, including the parameters.  See "AllCommandsRequests.h"
 
-    // Examples:
+	// Examples:
+	
+	// Send a specific the "CMD_Simulate_Mouse_Click" command, which takes an X and Y parameter.  We'll use 55,77 for X and Y.
+	DCE::CMD_Simulate_Mouse_Click CMD_Simulate_Mouse_Click(m_dwPK_Device,OrbiterID,55,77);
+	SendCommand(CMD_Simulate_Mouse_Click);
 
-    // Send a specific the "CMD_Simulate_Mouse_Click" command, which takes an X and Y parameter.  We'll use 55,77 for X and Y.
-    DCE::CMD_Simulate_Mouse_Click CMD_Simulate_Mouse_Click(m_dwPK_Device,OrbiterID,55,77);
-    SendCommand(CMD_Simulate_Mouse_Click);
+	// Send the message to orbiters 32898 and 27283 (ie a device list, hence the _DL)
+	// And we want a response, which will be "OK" if the command was successfull
+	string sResponse;
+	DCE::CMD_Simulate_Mouse_Click_DL CMD_Simulate_Mouse_Click_DL(m_dwPK_Device,"32898,27283",55,77)
+	SendCommand(CMD_Simulate_Mouse_Click_DL,&sResponse);
 
-    // Send the message to orbiters 32898 and 27283 (ie a device list, hence the _DL)
-    // And we want a response, which will be "OK" if the command was successfull
-    string sResponse;
-    DCE::CMD_Simulate_Mouse_Click_DL CMD_Simulate_Mouse_Click_DL(m_dwPK_Device,"32898,27283",55,77)
-    SendCommand(CMD_Simulate_Mouse_Click_DL,&sResponse);
-
-    // Send the message to all orbiters within the house, which is all devices with the category DEVICECATEGORY_Orbiter_CONST (see pluto_main/Define_DeviceCategory.h)
-    // Note the _Cat for category
-    DCE::CMD_Simulate_Mouse_Click_Cat CMD_Simulate_Mouse_Click_Cat(m_dwPK_Device,DEVICECATEGORY_Orbiter_CONST,true,BL_SameHouse,55,77)
+	// Send the message to all orbiters within the house, which is all devices with the category DEVICECATEGORY_Orbiter_CONST (see pluto_main/Define_DeviceCategory.h)
+	// Note the _Cat for category
+	DCE::CMD_Simulate_Mouse_Click_Cat CMD_Simulate_Mouse_Click_Cat(m_dwPK_Device,DEVICECATEGORY_Orbiter_CONST,true,BL_SameHouse,55,77)
     SendCommand(CMD_Simulate_Mouse_Click_Cat);
 
-    // Send the message to all "DeviceTemplate_Orbiter_CONST" devices within the room (see pluto_main/Define_DeviceTemplate.h)
-    // Note the _DT.
-    DCE::CMD_Simulate_Mouse_Click_DT CMD_Simulate_Mouse_Click_DT(m_dwPK_Device,DeviceTemplate_Orbiter_CONST,true,BL_SameRoom,55,77);
-    SendCommand(CMD_Simulate_Mouse_Click_DT);
+	// Send the message to all "DeviceTemplate_Orbiter_CONST" devices within the room (see pluto_main/Define_DeviceTemplate.h)
+	// Note the _DT.
+	DCE::CMD_Simulate_Mouse_Click_DT CMD_Simulate_Mouse_Click_DT(m_dwPK_Device,DeviceTemplate_Orbiter_CONST,true,BL_SameRoom,55,77);
+	SendCommand(CMD_Simulate_Mouse_Click_DT);
 
-    // This command has a normal string parameter, but also an int as an out parameter
-    int iValue;
-    DCE::CMD_Get_Signal_Strength CMD_Get_Signal_Strength(m_dwDeviceID, DestDevice, sMac_address,&iValue);
-    // This send command will wait for the destination device to respond since there is
-    // an out parameter
-    SendCommand(CMD_Get_Signal_Strength);
+	// This command has a normal string parameter, but also an int as an out parameter
+	int iValue;
+	DCE::CMD_Get_Signal_Strength CMD_Get_Signal_Strength(m_dwDeviceID, DestDevice, sMac_address,&iValue);
+	// This send command will wait for the destination device to respond since there is
+	// an out parameter
+	SendCommand(CMD_Get_Signal_Strength);  
 
-    // This time we don't care about the out parameter.  We just want the command to
-    // get through, and don't want to wait for the round trip.  The out parameter, iValue,
-    // will not get set
-    SendCommandNoResponse(CMD_Get_Signal_Strength);
+	// This time we don't care about the out parameter.  We just want the command to 
+	// get through, and don't want to wait for the round trip.  The out parameter, iValue,
+	// will not get set
+	SendCommandNoResponse(CMD_Get_Signal_Strength);  
 
-    // This command has an out parameter of a data block.  Any parameter that is a binary
-    // data block is a pair of int and char *
-    // We'll also want to see the response, so we'll pass a string for that too
+	// This command has an out parameter of a data block.  Any parameter that is a binary
+	// data block is a pair of int and char *
+	// We'll also want to see the response, so we'll pass a string for that too
 
-    int iFileSize;
-    char *pFileContents
-    string sResponse;
-    DCE::CMD_Request_File CMD_Request_File(m_dwDeviceID, DestDevice, "filename",&pFileContents,&iFileSize,&sResponse);
-    SendCommand(CMD_Request_File);
+	int iFileSize;
+	char *pFileContents
+	string sResponse;
+	DCE::CMD_Request_File CMD_Request_File(m_dwDeviceID, DestDevice, "filename",&pFileContents,&iFileSize,&sResponse);
+	SendCommand(CMD_Request_File);
 
-    // If the device processed the command (in this case retrieved the file),
-    // sResponse will be "OK", and iFileSize will be the size of the file
-    // and pFileContents will be the file contents.  **NOTE**  We are responsible
-    // free deleting pFileContents.
+	// If the device processed the command (in this case retrieved the file),
+	// sResponse will be "OK", and iFileSize will be the size of the file
+	// and pFileContents will be the file contents.  **NOTE**  We are responsible
+	// free deleting pFileContents.
 
 
-    // To access our data and events below, you can type this-> if your IDE supports auto complete to see all the data and events you can access
+	// To access our data and events below, you can type this-> if your IDE supports auto complete to see all the data and events you can access
 
-    // Get our IP address from our data
-    string sIP = DATA_Get_IP_Address();
+	// Get our IP address from our data
+	string sIP = DATA_Get_IP_Address();
 
-    // Set our data "Filename" to "myfile"
-    DATA_Set_Filename("myfile");
+	// Set our data "Filename" to "myfile"
+	DATA_Set_Filename("myfile");
 
-    // Fire the "Finished with file" event, which takes no parameters
-    EVENT_Finished_with_file();
-    // Fire the "Touch or click" which takes an X and Y parameter
-    EVENT_Touch_or_click(10,150);
+	// Fire the "Finished with file" event, which takes no parameters
+	EVENT_Finished_with_file();
+	// Fire the "Touch or click" which takes an X and Y parameter
+	EVENT_Touch_or_click(10,150);
 }
 */
 //<-dceag-sample-e->

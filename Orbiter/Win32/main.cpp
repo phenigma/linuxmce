@@ -27,7 +27,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 					LPTSTR    lpCmdLine,
 					int       nCmdShow)
 {
-    string sRouter_IP="dce_router";
+    string sRouter_IP="dcerouter";
     int PK_Device=0;
 	string sLogger="orbiter";
 
@@ -94,12 +94,12 @@ int WINAPI WinMain(	HINSTANCE hInstance,
     {
 		printf("Orbiter, v. %s\n", VERSION);
 		printf("A Pluto DCE Device.  See www.plutohome.com/dce for details.\n");
-        printf("Usage: Orbiter [-r Router's IP] [-d My Device ID] [-l dce_router|stdout|null|filename]\n"); 
+        printf("Usage: Orbiter [-r Router's IP] [-d My Device ID] [-l dcerouter|stdout|null|filename]\n"); 
 	    printf("[-D Directory] [-L] [-W Width] [-H Height]\n");
-        printf("-r router's IP	-- the IP address of the DCE Router  Defaults to 'dce_router'.\n");
+        printf("-r router's IP	-- the IP address of the DCE Router  Defaults to 'dcerouter'.\n");
         printf("-d my device ID	-- This device's ID number.  If not specified, it will be requested\n");
 	    printf("	               from the router based on our IP address.\n");
-        printf("-l dce_router	-- Where to save the log files.  Specify 'dce_router' to have \n"); 
+        printf("-l dcerouter	-- Where to save the log files.  Specify 'dcerouter' to have \n"); 
 	    printf("	               the messages logged to the DCE Router.  Defaults to stdout.\n");
         printf("-D directory	-- If a directory is specified, it will look for it's image \n");
 	    printf("	               and config files here rather than requesting from the server.\n");

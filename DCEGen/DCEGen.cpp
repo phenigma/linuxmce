@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
 //	return result == 0;
 
 	g_pPlutoLogger=new FileLogger("DCEGen.log");
-	string DBHost="dce_router",DBUser="root",DBPassword="",DBName="pluto_main";
+	string DBHost="dcerouter",DBUser="root",DBPassword="",DBName="pluto_main";
 	string TemplateInput="../DCEGen",TemplateOutput="",GeneratedOutput="../Gen_Devices";
 	int DBPort=3306,PK_DeviceTemplate=0;
 
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
 			<< "-o -- Where to put the generated files.  Defaults to ../Gen_Devices" << endl
 			<< "-i -- Where to find the template files.  Defaults to ../DCEGen" << endl
 			<< "-t -- Where to write the templates.  If not specified, defaults to ../[device name].  If that directory exists, it will delete and recreate a ../[device name]_temp." << endl
-			<< "-h -- address or DNS of database host, default is dce_router" << endl
+			<< "-h -- address or DNS of database host, default is dcerouter" << endl
 			<< "-u -- username for database connection.  default is root " << endl
 			<< "-p -- password for database connection, default is `` (empty)" << endl
 			<< "-D -- database name.  default is pluto_main" << endl

@@ -37,7 +37,6 @@ public:
 class Datagrid_Plugin_Command : public Command_Impl
 {
 public:
-	// Set to true if this is a run-time plug-in, meaning the framework will load it if the file is found even if it is not in the Device table
 	Datagrid_Plugin_Command(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL)
 	: Command_Impl(DeviceID, ServerAddress, bLocalMode, pRouter)
 	{
@@ -49,7 +48,8 @@ public:
 		if( !pConfig )
 			throw "Cannot get configuration data";
 		m_pData = new Datagrid_Plugin_Data();
-		m_pData->SerializeRead(Size,pConfig);
+		if( Size )
+			m_pData->SerializeRead(Size,pConfig);
 		delete pConfig;
 		pConfig = m_pEvent->GetDeviceList(Size);
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
@@ -63,7 +63,6 @@ public:
 	Datagrid_Plugin_Data *GetData() { return (Datagrid_Plugin_Data *) m_pData; };
 	const char *GetClassName() { return "Datagrid_Plugin_Command"; };
 	static int PK_DeviceTemplate_get() { return 9; };
-	static int IsRuntimePlugin() { return 0; }
 	virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage) { };
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);

@@ -373,7 +373,7 @@ Command_Impl *Router::CreatePlugIn(int PK_Device, int PK_DeviceTemplate, string 
 	Command_Impl *pCommand_Impl=NULL;
 	try
 	{
-		pCommand_Impl = RegisterAsPlugin(this, PK_Device, "dce_router"); // hack!!!
+		pCommand_Impl = RegisterAsPlugin(this, PK_Device, "dcerouter"); // hack!!!
 	}
 	catch(...) {}
 

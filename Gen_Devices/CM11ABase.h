@@ -48,7 +48,8 @@ public:
 		if( !pConfig )
 			throw "Cannot get configuration data";
 		m_pData = new CM11A_Data();
-		m_pData->SerializeRead(Size,pConfig);
+		if( Size )
+			m_pData->SerializeRead(Size,pConfig);
 		delete pConfig;
 		pConfig = m_pEvent->GetDeviceList(Size);
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
@@ -61,7 +62,7 @@ public:
 	CM11A_Event *GetEvents() { return (CM11A_Event *) m_pEvent; };
 	CM11A_Data *GetData() { return (CM11A_Data *) m_pData; };
 	const char *GetClassName() { return "CM11A_Command"; };
-	int PK_DeviceTemplate_get() { return 48; };
+	static int PK_DeviceTemplate_get() { return 48; };
 	virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage) { };
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
@@ -72,6 +73,8 @@ public:
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
 	{
+		if( Command_Impl::ReceivedMessage(pMessageOriginal) )
+			return true;
 		int iHandled=0;
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{
@@ -99,6 +102,8 @@ public:
 					}
 					else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
 						SendString(sCMD_Result);
+					if( sCMD_Result!="UNHANDLED" )
+						iHandled++;
 				}
 			}
 		}
