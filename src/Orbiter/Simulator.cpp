@@ -379,3 +379,12 @@ void Simulator::StopRandomEventGenerator()
     return sValue;
 }
 //------------------------------------------------------------------------------------------------------
+/*static*/ void Simulator::Cleanup()
+{
+	if(m_pInstance)
+	{
+		delete m_pInstance;
+		m_pInstance = NULL;
+	}
+}
+//------------------------------------------------------------------------------------------------------

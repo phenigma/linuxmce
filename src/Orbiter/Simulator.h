@@ -43,6 +43,7 @@ public: //data
 public: //methods
 
 	static Simulator *GetInstance();
+	static void Cleanup();
 	~Simulator();
 
 	void LoadConfigurationFile(string sConfigurationFile);

@@ -181,6 +181,15 @@ Command_Impl::~Command_Impl()
 		g_pPlutoLogger->Write( LV_STATUS, "About to call kill spawned devices" );
 		KillSpawnedDevices();
 	}
+
+	//PLUTO_SAFETY_LOCK_ERRORSONLY( mq, m_listMessageQueueMutex );
+	for(list<Message *>::iterator it = m_listMessageQueue.begin(); it != m_listMessageQueue.end(); it++)
+	{
+		delete *it;
+	}
+	m_listMessageQueue.clear();
+	//mq.Release();
+
 	g_pPlutoLogger->Write( LV_STATUS, "~Command_Impl finished" );
 }
 

@@ -301,20 +301,19 @@ void Message::Clear()
 
     m_mapParameters.clear();
 
-    /** @todo check comment */
-    /*
-    HACK  HACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACK
-    THERE APPEARS TO BE SOME WEIRD BUT IN WINDOWS DLL MEMORY MANAGMEMENT.  THIS CRASHES AFTER THE DATA PARAMETER IS ALLOCATED WITH TODATA.  SEE REQUEST GRID.
-    TEMORARY CREATE A MEMORY LEAK SO WE CAN KEEP GOING
-    map<long, char *>::iterator i;
-    for(i=m_DataParameters.begin();i!=m_DataParameters.end();++i)
-    {
-        delete[] (*i).second;
-    }
-    */
-
+	//data parameters will be deleted if we are sending a message calling ClearDataParameters
+	//if we are receiving a message, data parameters will be used and then deleted by the user
     m_mapData_Parameters.clear();
     m_mapData_Lengths.clear();
+}
+
+void Message::ClearDataParameters()
+{
+	map<long, char *>::iterator i;
+	for(i=m_mapData_Parameters.begin();i!=m_mapData_Parameters.end();++i)
+	{
+		delete[] (*i).second;
+	}
 }
 
 void Message::ToData( unsigned long &dwSize, char* &pcData, bool bWithHeader )
@@ -407,7 +406,7 @@ void Message::ToData( unsigned long &dwSize, char* &pcData, bool bWithHeader )
             pMessage_Child->ToData( Size, Data, false );
             Write_unsigned_long( Size );
             Write_block( Data, Size );
-            delete Data;
+            free(Data);
         }
     }
 

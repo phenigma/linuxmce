@@ -15,6 +15,12 @@
 
 extern HWND	g_hWndList; //maindialog logger list
 
+#ifdef WINCE
+#include "OrbiterSDL_WinCE.h"
+#else
+#include "OrbiterSDL_Win32.h"
+#endif
+
 namespace DCE
 {
 	Logger *g_pPlutoLogger = NULL;
@@ -181,9 +187,17 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 
 #ifdef WINCE
 		Simulator::GetInstance()->SaveConfigurationFile("/Storage Card/Orbiter.conf");
+		Simulator::Cleanup();
+
+		OrbiterSDL_WinCE::Cleanup();
 #else
 		Simulator::GetInstance()->SaveConfigurationFile("Orbiter.conf");
+		Simulator::Cleanup();
+
+		OrbiterSDL_Win32::Cleanup();
 #endif
+
+		delete g_pPlutoLogger;
 
 		return int(msg.wParam);
 	}

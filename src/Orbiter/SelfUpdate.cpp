@@ -66,6 +66,9 @@ void OrbiterSelfUpdate::GetProcessFilePath(char *pProcessFilePath)
 
 	wchar_t *pProcessNameW = pCmdLineParams[0];
 	wcstombs(pProcessFilePath, pProcessNameW, 256);
+
+	::LocalFree(pCmdLineParams);
+	//delete pCmdLineParams;
 #endif
 }
 //-----------------------------------------------------------------------------------------------------
@@ -82,7 +85,10 @@ string OrbiterSelfUpdate::GetOrbiterCheckSum()
 	if(NULL == pMD5Data)
 		return "";
 
-	return string(pMD5Data);
+	string sChecksum(pMD5Data);
+	delete pMD5Data;
+
+	return sChecksum;
 }
 //-----------------------------------------------------------------------------------------------------
 bool OrbiterSelfUpdate::UpdateAvailable()

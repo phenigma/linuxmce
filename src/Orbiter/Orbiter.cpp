@@ -290,12 +290,18 @@ g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 	}
 	m_mapFloorplanObjectVector.clear();
 
-	//clearing design object data list
-	list < ScreenHistory * >::iterator itDesignObjData;
-	for(itDesignObjData = m_listScreenHistory.begin(); itDesignObjData != m_listScreenHistory.end(); itDesignObjData++)
+	if(NULL != m_pScreenHistory_Current)
 	{
-		delete *itDesignObjData;
-		*itDesignObjData = NULL;
+		delete m_pScreenHistory_Current;
+		m_pScreenHistory_Current = NULL;
+	}
+
+	//clearing screen history
+	list < ScreenHistory * >::iterator itScreenHistory;
+	for(itScreenHistory = m_listScreenHistory.begin(); itScreenHistory != m_listScreenHistory.end(); itScreenHistory++)
+	{
+		delete *itScreenHistory;
+		*itScreenHistory = NULL;
 	}
 	m_listScreenHistory.clear();
 
@@ -315,7 +321,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 		(*itObj_Bound).second = NULL;
 	}
 	m_mapObj_Bound.clear();
-
 
 	pthread_mutexattr_destroy(&m_MutexAttr);
 	pthread_mutex_destroy(&m_ScreenMutex.mutex);
@@ -1073,7 +1078,11 @@ void Orbiter::ObjectOnScreenWrapper(  )
             ExecuteCommandsInList( &pDesignObj_Orbiter->m_Action_LoadList, pDesignObj_Orbiter, pMessage_GotoScreen, 0, 0 );
     }
     if( pMessage_GotoScreen )
-        ReceivedMessage( pMessage_GotoScreen );
+	{
+		ReceivedMessage( pMessage_GotoScreen );
+		delete pMessage_GotoScreen;
+		pMessage_GotoScreen = NULL;
+	}
 
     for( s=0;s<vectDesignObj_Orbiter_OnScreen.size(  );++s )
     {
@@ -1173,7 +1182,7 @@ void Orbiter::ObjectOffScreen( DesignObj_Orbiter *pObj )
     }
     */
 
-    int i;
+    size_t i;
     for(i = 0; i < pObj->m_vectAltGraphics.size(); ++i)
         GraphicOffScreen(&(pObj->m_vectAltGraphics[i]));
 
@@ -1182,7 +1191,11 @@ void Orbiter::ObjectOffScreen( DesignObj_Orbiter *pObj )
     Message *pMessage_GotoScreen = NULL;
     ExecuteCommandsInList( &pObj->m_Action_UnloadList, m_pScreenHistory_Current->m_pObj, pMessage_GotoScreen, 0, 0 );
     if( pMessage_GotoScreen )
+	{
         ReceivedMessage( pMessage_GotoScreen );
+		delete pMessage_GotoScreen;
+		pMessage_GotoScreen = NULL;
+	}
 
     DesignObj_DataList::iterator iHao;
     for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
@@ -1222,8 +1235,12 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
             }
         }
 
-        if( pMessage_GotoScreen )
+		if( pMessage_GotoScreen )
+		{
             ReceivedMessage( pMessage_GotoScreen );
+			delete pMessage_GotoScreen;
+			pMessage_GotoScreen = NULL;
+		}
 
         if(  pObj->m_vectSelectedGraphic.size() && pObj->m_GraphicToDisplay != GRAPHIC_SELECTED ) // TODO 2.0 && m_ChangeToScreen.length(  ) == 0 )
         {
@@ -1268,7 +1285,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
 						if(pObj_Sel->m_vectSelectedGraphic.size())
 						{
 							size_t size = (*pVectorPlutoGraphic).size();
-							for(int i = 0; i < size; i++)
+							for(size_t i = 0; i < size; i++)
 								(*pVectorPlutoGraphic)[i]->Clear();
 						}
 
@@ -2479,8 +2496,13 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
     Message *pMessage_GotoScreen=NULL;
     if(  pObj->m_Action_StartupList.size(  )>0  )
         ExecuteCommandsInList( &pObj->m_Action_StartupList, pObj, pMessage_GotoScreen );
+
     if( pMessage_GotoScreen )
+	{
         ReceivedMessage( pMessage_GotoScreen );
+		delete pMessage_GotoScreen;
+		pMessage_GotoScreen = NULL;
+	}
 
     // Child objects have the format screen.version.page.objectid.x where x is an arbitrary increment to insure uniqueness
     // Some commands need to send messages to an object not knowing the value of x.  So,  we create another map without the suffix
@@ -2624,7 +2646,7 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
             TextStyle *pTextStyle = m_mapTextStyle_Find(  atoi( Style.c_str(  ) )  );
             if(  pTextStyle  )
             {
-while(pObj_Datagrid->m_vectTextStyle_Alt.size()<Counter)
+				while(pObj_Datagrid->m_vectTextStyle_Alt.size()<Counter)
                     pObj_Datagrid->m_vectTextStyle_Alt.push_back(NULL);
                 pObj_Datagrid->m_vectTextStyle_Alt.push_back(pTextStyle);
                 //              pObj_Datagrid->m_vectTextStyle_Alt[Counter] = pTextStyle;
@@ -3764,6 +3786,10 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable deleted indirect
             if ( size && data )
             {
                 pDataGridTable = new DataGridTable( size,  data );
+				
+				free(data); //data was allocated using malloc
+				data = NULL;
+
 				g_pPlutoLogger->Write( LV_STATUS, "Got %d rows %d cols in new %s m_pDataGridTable ", pDataGridTable->GetRows(  ), pDataGridTable->GetCols(  ), pObj->m_ObjectID.c_str() );
                 if(  !pDataGridTable->GetRows(  ) || !pDataGridTable->GetCols(  )  )
                 {
@@ -4742,7 +4768,7 @@ void Orbiter::CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pD
             PriorHeight = pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Height;
         }
 
-		for(int i = 0; i < pObj->m_vectGraphic.size(); i++)
+		for(size_t i = 0; i < pObj->m_vectGraphic.size(); i++)
 		{
 			delete pObj->m_vectGraphic[i];
 		}
@@ -5459,7 +5485,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 		size > 1
 	) //clear the images
 	{
-		for(int i = 0; i < size; i++)
+		for(size_t i = 0; i < size; i++)
 			(*pVectorPlutoGraphic)[i]->Clear();
 	}
 
@@ -5496,11 +5522,17 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 
 			case GR_MNG:
 				{
+					eGraphicFormat eGF = pPlutoGraphic->m_GraphicFormat;
+					eGraphicManagement eGM = pPlutoGraphic->m_GraphicManagement;
+					string sMNGFileName = pPlutoGraphic->m_Filename;
+
+					for(size_t iIndex = 0; iIndex < (*pVectorPlutoGraphic).size(); iIndex++)
+						delete (*pVectorPlutoGraphic)[iIndex];
 					(*pVectorPlutoGraphic).clear();
 
 					InMemoryMNG *pInMemoryMNG = Renderer::CreateInMemoryMNGFromFile(sFileName, rectTotal.Size());
 					size_t framesCount = pInMemoryMNG->m_vectMNGframes.size();
-					for(int i = 0; i < framesCount; i++)
+					for(size_t i = 0; i < framesCount; i++)
 					{
 						size_t iFrameSize = 0;
 						char *pFrameData = NULL;
@@ -5511,19 +5543,18 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 						{
 							PlutoGraphic *pGraphic = CreateGraphic();
 							pGraphic->LoadGraphic(pFrameData, iFrameSize);
-							pGraphic->m_GraphicFormat = pPlutoGraphic->m_GraphicFormat;
-							pGraphic->m_GraphicManagement = pPlutoGraphic->m_GraphicManagement;
-							pGraphic->m_Filename = pPlutoGraphic->m_Filename;
+							pGraphic->m_GraphicFormat = eGF;
+							pGraphic->m_GraphicManagement = eGM;
+							pGraphic->m_Filename = sMNGFileName;
 							(*pVectorPlutoGraphic).push_back(pGraphic);
 						}
 
 						delete [] pFrameData;
 					}
 
-					delete pPlutoGraphic;
 					pPlutoGraphic = (*pVectorPlutoGraphic)[0];
 
-					int iTime = 15; //hardcoding warning! don't know from where the get the framerate yet (ask Radu, libMNG)
+					int iTime = 15; //hardcoding warning! don't know from where to get the framerate yet (ask Radu, libMNG)
 					bool bLoop = false; //hardcoding warning!  (ask Radu, libMNG)
 
 					switch(pObj->m_GraphicToDisplay)
@@ -5634,7 +5665,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 		pObj->m_iCurrentFrame = 0;
 
 		size_t size = (*pVectorPlutoGraphic).size();
-		for(int i = 0; i < size; i++)
+		for(size_t i = 0; i < size; i++)
 			(*pVectorPlutoGraphic)[i]->Clear();
 
 		pObj->m_pvectCurrentPlayingGraphic = NULL;

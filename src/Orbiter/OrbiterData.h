@@ -79,7 +79,7 @@ public:
 		}
 		m_mapTextStyle.clear();
 
-		for(int iIndex = 0; iIndex < m_dequeLocation.size(); iIndex++)
+		for(size_t iIndex = 0; iIndex < m_dequeLocation.size(); iIndex++)
 			delete m_dequeLocation[iIndex];
 		m_dequeLocation.clear();
 	}
