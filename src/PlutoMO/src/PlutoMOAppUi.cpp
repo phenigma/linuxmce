@@ -48,7 +48,9 @@
 #include "PlutoEventView.h"
 #include "PlutoEventContainer.h"
 #include "eikmenub.h"
+#include <aknnotewrappers.h> 
 
+_LIT(KPlutoMODirCurrConnection,"c:\\system\\Apps\\PlutoMO\\0000.vmc");
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::ConstructL()
 {
@@ -212,11 +214,11 @@ void CPlutoMOAppUi::DynInitMenuPaneL(
 {
 	if(aResourceId == 511950854) //menu resource id
 	{
-		aMenuPane->SetItemDimmed(EAknCmdExit, m_bVMCViewerVisible && m_pVMCView);
-		aMenuPane->SetItemDimmed(EPlutoMOCmdAppTest1, m_bVMCViewerVisible && m_pVMCView);
-		aMenuPane->SetItemDimmed(EPlutoMOCmdAppTest2, m_bVMCViewerVisible && m_pVMCView);
-		aMenuPane->SetItemDimmed(EPlutoMOCmdAppTest3, m_bVMCViewerVisible && m_pVMCView);
-		aMenuPane->SetItemDimmed(EPlutoMOCmdAppTest4, m_bVMCViewerVisible && m_pVMCView);
+		aMenuPane->SetItemDimmed(EAknCmdExit, m_bVMCViewerVisible);
+		aMenuPane->SetItemDimmed(EPlutoMOCmdAppTest1, m_bVMCViewerVisible);
+		aMenuPane->SetItemDimmed(EPlutoMOCmdAppTest2, m_bVMCViewerVisible);
+		aMenuPane->SetItemDimmed(EPlutoMOCmdAppTest3, m_bVMCViewerVisible);
+		aMenuPane->SetItemDimmed(EPlutoMOCmdAppTest4, m_bVMCViewerVisible);
 	}
 }
 //----------------------------------------------------------------------------------------------
@@ -302,6 +304,23 @@ void CPlutoMOAppUi::CreateVMCView()
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::MakeViewerVisible(bool Value)
 {
+	if(!m_pVMCView)
+	{
+		// Display an information note
+		CAknInformationNote* informationNote;
+		informationNote = new (ELeave) CAknInformationNote;
+    	informationNote->ExecuteLD(_L("PlutoMO is currently disconnected"));
+
+		RFs iFsSession;
+		User::LeaveIfError(iFsSession.Connect()); 
+		User::LeaveIfError(iFsSession.Delete(KPlutoMODirCurrConnection));
+		iFsSession.Close();
+
+		iAppContainer->SetPlutoMO(EPlutoMOPictures, EPlutoMODate);
+
+		return;
+	}
+
 	if(Value)
 	{
 		m_pVMCView->iContainer->MakeVisible(Value);
