@@ -383,12 +383,6 @@ void General_Info_Plugin::CMD_Spawn_Application(string sFilename,string sName,st
             break;
 
         default:
-            vector_map::iterator element = m_mapAppPids.find(sName);
-
-            if (element == m_mapAppPids.end())
-                m_mapAppPids[sName] = map<int, pair<string, string> >();
-
-            m_mapAppPids[sName][pid] = make_pair(sCommandsOnSuccess, sCommandsOnFailure);
             return;
     }
 #else
