@@ -1367,11 +1367,13 @@ void Orbiter_Plugin::CMD_Set_Room_For_Device(int iPK_Device,int iPK_Room,string 
 	if( !pRow_Device || !pRow_Room )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot set device %d to room %d",iPK_Device,iPK_Room);
-		return;
 	}
-g_pPlutoLogger->Write(LV_STATUS,"Setting device %d to room %d",iPK_Device,iPK_Room);
-	pRow_Device->FK_Room_set( pRow_Room->PK_Room_get() );
-	pRow_Device->Table_Device_get()->Commit();
+	else
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Setting device %d to room %d",iPK_Device,iPK_Room);
+			pRow_Device->FK_Room_set( pRow_Room->PK_Room_get() );
+			pRow_Device->Table_Device_get()->Commit();
+	}
 
 	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL( m_dwPK_Device, m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_mnuNewPlugAndPlayDevice_CONST), StringUtils::itos(iPK_Device) );
 	SendCommand(CMD_Remove_Screen_From_History_DL);

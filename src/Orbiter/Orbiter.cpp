@@ -3589,6 +3589,7 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
             {
                 string Value = SubstituteVariables( ( *iap ).second, pObj, X, Y );
                 pThisMessage->m_mapParameters[( *iap ).first]=Value;
+g_pPlutoLogger->Write( LV_STATUS, "Parm %d = %s",( *iap ).first,Value.c_str());
             }
 
 			pThisMessage->m_dwPK_Device_Group_ID_To=pCommand->m_PK_DeviceGroup;
@@ -4860,6 +4861,7 @@ void Orbiter::CMD_Set_Bound_Icon(string sValue_To_Assign,string sType,string &sC
 void Orbiter::CMD_Set_Variable(int iPK_Variable,string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c27-e->
 {
+g_pPlutoLogger->Write(LV_STATUS,"Variable: %d set to %s",iPK_Variable,sValue_To_Assign.c_str());
     m_mapVariable[iPK_Variable] = sValue_To_Assign;
 }
 

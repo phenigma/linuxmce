@@ -587,74 +587,79 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
         CheckInterceptor(pMessageTypeInterceptors,pSocket,pMessageWillBeDeleted,pDeviceFrom,pDeviceTo);
     }
 
-    string Desc="",sCommand="";
-    Command *pCommand=NULL;
+	for(int s=-1;s<(int) (*SafetyMessage)->m_vectExtraMessages.size(); ++s)
+	{
+		Message *pMessage = s>=0 ? (*SafetyMessage)->m_vectExtraMessages[s] : (*SafetyMessage);
 
-    if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_COMMAND )
-    {
-        pCommand = mapCommand_Find((*SafetyMessage)->m_dwID);
-        if( pCommand )
-        {
-            sCommand = pCommand->m_sDescription;
-            Desc = "Command:\x1b[35;1m" + sCommand + "\x1b[0m";
-        }
-    }
-    else if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_EVENT )
-        Desc = "Event:\x1b[32;1m" + m_mapEventNames[(*SafetyMessage)->m_dwID] + "\x1b[0m";
+		string Desc="",sCommand="";
+		Command *pCommand=NULL;
 
-    int LogType = (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_EVENT ? LV_EVENT : ((*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_COMMAND ? LV_ACTION : LV_STATUS);
-    if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_EVENT || (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_COMMAND ) {
-        if ((*SafetyMessage)->m_dwPK_Device_To == DEVICEID_LIST)
-        {
-            string DeviceList;
-            string::size_type pos=0;
-            while(true)
-            {
-                string Device = StringUtils::Tokenize((*SafetyMessage)->m_sPK_Device_List_To,",",pos);
-                if( !Device.size() )
-                    break;
-                DeviceData_Router *pDeviceData_Router = m_mapDeviceData_Router[ atoi(Device.c_str()) ];
-                if( pDeviceData_Router )
-                    DeviceList += pDeviceData_Router->m_sDescription + "(" + Device + "),";
-                else
-                    DeviceList += "**unknown dev: " + Device + ",";
-            }
+		if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
+		{
+			pCommand = mapCommand_Find(pMessage->m_dwID);
+			if( pCommand )
+			{
+				sCommand = pCommand->m_sDescription;
+				Desc = "Command:\x1b[35;1m" + sCommand + "\x1b[0m";
+			}
+		}
+		else if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT )
+			Desc = "Event:\x1b[32;1m" + m_mapEventNames[pMessage->m_dwID] + "\x1b[0m";
 
-            g_pPlutoLogger->Write(LogType, "Received Message from %d (\x1b[36;1m%s\x1b[0m) to %s type %d id %d %s, parameters:",
-                (*SafetyMessage)->m_dwPK_Device_From,
-                (pDeviceFrom ? pDeviceFrom->m_sDescription.c_str() : "unknown"),
-                DeviceList.c_str(),
-                (*SafetyMessage)->m_dwMessage_Type, (*SafetyMessage)->m_dwID,Desc.c_str());
-        }
-        else if ((*SafetyMessage)->m_dwPK_Device_To != DEVICEID_LOGGER)
-            g_pPlutoLogger->Write(LogType, "Received Message from %d (\x1b[36;1m%s\x1b[0m) to %d (\x1b[36;1m%s\x1b[0m), type %d id %d %s, parameters:",
-                (*SafetyMessage)->m_dwPK_Device_From,
-                (pDeviceFrom ? pDeviceFrom->m_sDescription.c_str() : "unknown"),(*SafetyMessage)->m_dwPK_Device_To,
-                (pDeviceTo ? pDeviceTo->m_sDescription.c_str() : "unknown"),
-                (*SafetyMessage)->m_dwMessage_Type, (*SafetyMessage)->m_dwID,Desc.c_str());
-    }
-	else if( (*SafetyMessage)->m_dwMessage_Type != MESSAGETYPE_LOG )
-        g_pPlutoLogger->Write(LV_STATUS, "Received Message from %d (\x1b[36;1m%s\x1b[0m) to %d (\x1b[36;1m%s\x1b[0m), type %d id %d, parameters:",
-            (*SafetyMessage)->m_dwPK_Device_From,
-            (pDeviceFrom ? pDeviceFrom->m_sDescription.c_str() : "unknown"),(*SafetyMessage)->m_dwPK_Device_To,
-            (pDeviceTo ? pDeviceTo->m_sDescription.c_str() : "unknown"),
-            (*SafetyMessage)->m_dwMessage_Type, (*SafetyMessage)->m_dwID);
+		int LogType = pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT ? LV_EVENT : (pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND ? LV_ACTION : LV_STATUS);
+		if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT || pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND ) 
+		{
+			if (pMessage->m_dwPK_Device_To == DEVICEID_LIST)
+			{
+				string DeviceList;
+				string::size_type pos=0;
+				while(true)
+				{
+					string Device = StringUtils::Tokenize(pMessage->m_sPK_Device_List_To,",",pos);
+					if( !Device.size() )
+						break;
+					DeviceData_Router *pDeviceData_Router = m_mapDeviceData_Router[ atoi(Device.c_str()) ];
+					if( pDeviceData_Router )
+						DeviceList += pDeviceData_Router->m_sDescription + "(" + Device + "),";
+					else
+						DeviceList += "**unknown dev: " + Device + ",";
+				}
 
-    if ((*SafetyMessage)->m_dwPK_Device_To != DEVICEID_LOGGER)
-    {
-        map<long,string>::iterator i;
-        for(i=(*SafetyMessage)->m_mapParameters.begin();i!=(*SafetyMessage)->m_mapParameters.end();++i)
-        {
-            Desc="";
-            if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_COMMAND )
-                Desc = m_mapCommandParmNames[(*i).first];
-            else if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_EVENT )
-                Desc = m_mapEventParmNames[(*i).first];
-            if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_EVENT || (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_COMMAND )
-                g_pPlutoLogger->Write(LogType, "  Parameter %d(%s): %s", (*i).first, Desc.c_str(), (*i).second.c_str());
-        }
-    }
+				g_pPlutoLogger->Write(LogType, "Received Message from %d (\x1b[36;1m%s\x1b[0m) to %s type %d id %d %s, parameters:",
+					pMessage->m_dwPK_Device_From,
+					(pDeviceFrom ? pDeviceFrom->m_sDescription.c_str() : "unknown"),
+					DeviceList.c_str(),
+					pMessage->m_dwMessage_Type, pMessage->m_dwID,Desc.c_str());
+			}
+			else if (pMessage->m_dwPK_Device_To != DEVICEID_LOGGER)
+				g_pPlutoLogger->Write(LogType, "Received Message from %d (\x1b[36;1m%s\x1b[0m) to %d (\x1b[36;1m%s\x1b[0m), type %d id %d %s, parameters:",
+					pMessage->m_dwPK_Device_From,
+					(pDeviceFrom ? pDeviceFrom->m_sDescription.c_str() : "unknown"),pMessage->m_dwPK_Device_To,
+					(pDeviceTo ? pDeviceTo->m_sDescription.c_str() : "unknown"),
+					pMessage->m_dwMessage_Type, pMessage->m_dwID,Desc.c_str());
+		}
+		else if( pMessage->m_dwMessage_Type != MESSAGETYPE_LOG )
+			g_pPlutoLogger->Write(LV_STATUS, "Received Message from %d (\x1b[36;1m%s\x1b[0m) to %d (\x1b[36;1m%s\x1b[0m), type %d id %d, parameters:",
+				pMessage->m_dwPK_Device_From,
+				(pDeviceFrom ? pDeviceFrom->m_sDescription.c_str() : "unknown"),pMessage->m_dwPK_Device_To,
+				(pDeviceTo ? pDeviceTo->m_sDescription.c_str() : "unknown"),
+				pMessage->m_dwMessage_Type, pMessage->m_dwID);
 
+		if (pMessage->m_dwPK_Device_To != DEVICEID_LOGGER)
+		{
+			map<long,string>::iterator i;
+			for(i=pMessage->m_mapParameters.begin();i!=pMessage->m_mapParameters.end();++i)
+			{
+				Desc="";
+				if( pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
+					Desc = m_mapCommandParmNames[(*i).first];
+				else if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT )
+					Desc = m_mapEventParmNames[(*i).first];
+				if( pMessage->m_dwMessage_Type==MESSAGETYPE_EVENT || pMessage->m_dwMessage_Type==MESSAGETYPE_COMMAND )
+					g_pPlutoLogger->Write(LogType, "  Parameter %d(%s): %s", (*i).first, Desc.c_str(), (*i).second.c_str());
+			}
+		}
+	}
     int tempid = (*SafetyMessage)->m_dwPK_Device_To;
     if(tempid == m_dwPK_Device)
         tempid = DEVICEID_DCEROUTER;
