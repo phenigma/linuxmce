@@ -360,7 +360,7 @@ int main(int argc, char *argv[])
 if( bInteractive )
 	cout << "\t\tread answer" EOL;
 else
-	cout << "echo 01 Error processing package " + pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() + " >> /var/log/pluto/ConfirmDependencies.log" EOL;
+	cout << "\t\techo \"01 Error processing package " + pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() + "\" >> /var/log/pluto/ConfirmDependencies.log" EOL;
 
 cout << "\t\tif [ \"$answer\" == n -o \"$answer\" == N ]; then" EOL
 "\t\t\techo '*** Leaving package uninstalled'" EOL
