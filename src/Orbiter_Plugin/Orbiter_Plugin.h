@@ -106,7 +106,13 @@ public:
         return it==m_mapOH_Orbiter_Mac.end() ? NULL : (*it).second;
     }
 
-    // Our interceptors
+    map<int,OH_User *> m_mapOH_User;
+    OH_User *m_mapOH_User_Find(int PK_User) {
+        map<int,class OH_User *>::iterator it = m_mapOH_User.find(PK_User);
+        return it==m_mapOH_User.end() ? NULL : (*it).second;
+    }
+
+	// Our interceptors
     bool RouteToOrbitersInRoom(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
     bool MobileOrbiterDetected(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
     bool MobileOrbiterLinked(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);

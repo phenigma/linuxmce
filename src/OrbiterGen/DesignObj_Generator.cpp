@@ -175,6 +175,9 @@ int k=2;
         // Remove any old cached files
         system( ("rm \"" + Filespec + "\" 2>/dev/null").c_str() );
         system( ("rm \"" + Filespec2 + "\" 2>/dev/null").c_str() );
+		cout << "Executing: " << ("rm \"" + Filespec + "\" 2>/dev/null").c_str() << endl;
+		cout << "Executing: " << ("rm \"" + Filespec2 + "\" 2>/dev/null").c_str() << endl;
+
 #endif
     }
 

@@ -9,10 +9,10 @@
 
 #include "Serial/GenericIODevice.h"
 
-//<-dceag-decl-b->
+//<-dceag-decl-b->!
 namespace DCE
 {
-	class Generic_Serial_Device : public Generic_Serial_Device_Command
+	class Generic_Serial_Device : public Generic_Serial_Device_Command, public GenericIODevice
 	{
 //<-dceag-decl-e->
 		// Private member variables

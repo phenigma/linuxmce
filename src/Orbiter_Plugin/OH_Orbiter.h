@@ -1,6 +1,7 @@
 #ifndef OH_Orbiter_h
 #define OH_Orbiter_h
 
+#include "OH_User.h"
 
 namespace DCE
 {
@@ -14,7 +15,7 @@ namespace DCE
 		class DeviceData_Router *m_pDeviceData_Router;
 		class DeviceData_Router *m_pDevice_CurrentDetected;
 
-		int m_iPK_Users;  // The current user
+		OH_User *m_pOH_User;  // The current user
 		class EntertainArea *m_pEntertainArea,*m_pEntertainArea_Locked;  // The current entertain area
 		int m_dwPK_Room,m_dwPK_Room_Locked;  // The current room
 
@@ -24,18 +25,17 @@ namespace DCE
 
 		time_t m_tRegenTime;
 
-		bool m_bFollowMe_Lighting,m_bFollowMe_Media,m_bFollowMe_Climate,m_bFollowMe_Telecom,m_bFollowMe_Security;
+		int PK_Users_get() { return m_pOH_User ? m_pOH_User->m_iPK_Users : 0; }  // Lots of places just want a 0 when there is no user
 
 		OH_Orbiter(class DeviceData_Router *pDeviceData_Router)
 		{
 			m_pDeviceData_Router = pDeviceData_Router;
-			m_iPK_Users = m_dwPK_Room = m_dwPK_Room_Locked = 0;
+			m_dwPK_Room = m_dwPK_Room_Locked = 0;
 			m_pEntertainArea = m_pEntertainArea_Locked = NULL;
 			m_iLastSignalStrength = 0;
 			m_pDevice_CurrentDetected = NULL;
 			m_iFailedToConnectCount = 0;
 			m_bRegistered=false;
-			m_bFollowMe_Lighting=m_bFollowMe_Media=m_bFollowMe_Climate=m_bFollowMe_Telecom=m_bFollowMe_Security=false;
 			m_tRegenTime=0;
 		}
 	};
