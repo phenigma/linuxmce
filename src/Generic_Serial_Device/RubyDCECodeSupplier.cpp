@@ -156,7 +156,28 @@ RubyDCECodeSupplier::~RubyDCECodeSupplier() {
 
 std::string 
 RubyDCECodeSupplier::TranslateCommandToRuby(const std::string& cmdtxt) {
-	return cmdtxt;
+	string ret;
+	
+	int first = -1, last = -1;
+	while(1) {
+		first = cmdtxt.find("<$", last + 1);
+		if(first < 0) {	
+			ret += cmdtxt.substr(last + 1, cmdtxt.length() - last - 1);
+			break;
+		} else {
+			ret += cmdtxt.substr(last + 1, first - last - 1);
+			
+			first += 2;
+			last = cmdtxt.find("$>", first + 1);
+			if(last < 0) {
+				break;
+			} else {
+				ret += "conn_.Send(" + cmdtxt.substr(first, last - first) + ")\n";
+				last += 2;
+			}
+		}
+	}
+	return ret;
 }
 
 
