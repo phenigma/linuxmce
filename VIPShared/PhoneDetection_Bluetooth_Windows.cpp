@@ -52,7 +52,11 @@ bool PhoneDetection_Bluetooth_Windows::ScanningLoop()
 		class PhoneDevice *pD = (*itDevice).second;
 		
 		map<u_int64_t,class PhoneDevice *>::iterator itDeviceNew = m_mapDevicesDetectedThisScan.find(pD->m_iMacAddress);
-		if( itDeviceNew==m_mapDevicesDetectedThisScan.end() || !pD->m_bIsConnected )
+		if( itDeviceNew==m_mapDevicesDetectedThisScan.end() 
+#ifndef VIPESTABLISHMENT
+			|| !pD->m_bIsConnected 
+#endif
+		)
 		{
 			listDevicesLost.push_back( (*itDevice).second );
 			m_mapPhoneDevice_Detected.erase(itDevice++);
@@ -79,7 +83,7 @@ void PhoneDetection_Bluetooth_Windows::OnDeviceResponded(BD_ADDR bda,
 										BOOL b_connected)
 {
 	char name[100];
-	strcpy(name,(const char *)bd_name);
+	strcpy(name,(const char *)bd_name); 
 
 	u_int64_t iMacAddress=0;
 	for(int i=0;i<6;++i)
@@ -102,6 +106,7 @@ void PhoneDetection_Bluetooth_Windows::OnDeviceResponded(BD_ADDR bda,
 		delete pDNew;
 		return;
 	}
+
 	mm.Release();
 
 	if( !pDExisting )

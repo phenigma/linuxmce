@@ -34,7 +34,6 @@ VA_SendMenuToPhone::VA_SendMenuToPhone(string Filename, u_int64_t MacAddress)
 #include "BD/BDCommandProcessor.h"
 #include "VIPShared/BD_CP_SendMeKeystrokes.h"
 #include "VIPShared/BD_CP_ShowVMC.h"
-#include "VR_ShowMenu.h"
 #include "VIPEstablishment/EstablishmentSocket.h"
 
 void *HandleBDCommandProcessorThread(void *p)
@@ -56,18 +55,20 @@ void VA_SendMenuToPhone::ProcessAction(class RA_Request *pRequest,class RA_Proce
 		throw "We can't forward a request to a phone unless the original request was an identify phone";
 
 	VR_IdentifyPhone *pRA_Request_Original = (VR_IdentifyPhone *) pRequest;
-
-	VR_ShowMenu *pVR_ShowMenu = new VR_ShowMenu();
-	pVR_ShowMenu->CreateRequest(m_pdbMenu.m_dwSize, m_pdbMenu.m_pBlock);
-
-	pVR_ShowMenu->m_pMenuCollection->ConvertToBinary();
 	BD_CP_ShowVMC *pVMC = new BD_CP_ShowVMC(
 		0, 
-		pVR_ShowMenu->m_pMenuCollection->m_iBinarySize,
-		pVR_ShowMenu->m_pMenuCollection->m_pBinary
+		m_pdbMenu.m_dwSize,
+		m_pdbMenu.m_pBlock
 	);
 
 	BDCommandProcessor *pProcessor = pRA_Request_Original->m_pCustomer->GetCommandProcessor(); // This will create it if it doesn't exist
+
+	if( !pProcessor && pProcessor->m_bDead )
+	{
+		delete pProcessor;
+		pProcessor = NULL;
+	}
+
 	if( !pProcessor )
 		return; // This could be normal, if the phone went out of range or doesn't support RFCOM
 

@@ -11,7 +11,7 @@ public:
 	u_int64_t m_iMacAddress;
 
 	VA_SendMenuToPhone(string Filename, u_int64_t MacAddress);
-	VA_SendMenuToPhone() {}
+	VA_SendMenuToPhone() { m_pdbMenu.m_pBlock = NULL; m_pdbMenu.m_dwSize = 0;}
 
 	unsigned long ID() { return ACTION_SENDMENU_TOPHONE; }
 	virtual void SetupSerialization()

@@ -29,7 +29,6 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 //hack
-#include "VR_ShowMenu.h"
 #include "VA_SendMenuToPhone.h"
 
 
