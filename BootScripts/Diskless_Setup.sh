@@ -202,7 +202,7 @@ for Client in $DisklessR; do
 #	echo -n " Startup_Scripts"
 #	/etc/init.d/Startup_Scripts.sh script "$IP" >$DlPath/etc/pluto.startup
 
-	echo -n " MythTV DB Settings"
+	echo -n " MythTV_DB_Settings"
 	mkdir -p $DlPath/etc/mythtv
 	cp /etc/mythtv/mysql.txt $DlPath/etc/mythtv/mysql.txt.$$
 	SedCmd="s/^DBHostName.*/DBHostName=dcerouter/g"
@@ -222,8 +222,12 @@ for Client in $DisklessR; do
 	GRANT ALL PRIVILEGES ON mythconverg.* TO 'root'@'$IP';"
 	echo "$Q" | /usr/bin/mysql
 
-	echo -n " ConfirmDependencies"
-	cp /usr/pluto/install/ConfirmDependencies_Debian.sh $DlPath/usr/pluto/install
+	echo -n " Install"
+	mkdir -p $DlPath/usr/pluto/install
+	for Script in ConfirmDependencies_Debian.sh Common.sh Download_CVS.sh Download_Direct.sh Download_SVN.sh Initial_Config_Real.sh; do
+		cp /usr/pluto/install/$Script $DlPath/usr/pluto/install
+	done
+	sed '^Type= s/^.*$/Type="diskless"/' /usr/pluto/install/Initial_Config.sh >$DlPath/usr/pluto/install/Initial_Config.sh
 
 	echo
 	MoonNumber=$((MoonNumber+1))
