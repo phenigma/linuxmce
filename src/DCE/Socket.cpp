@@ -621,7 +621,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 #ifndef UNDER_CE
 					if ( iRet == -1 && errno == EINTR )
 						continue;
-#endir
+#endif
 					// iRet is bigger then one when the socket count is bigger than the fd_set size
 					if(iRet <= 0 || iRet > 1) { // error
 #ifndef WINCE
