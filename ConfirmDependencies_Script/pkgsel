@@ -40,7 +40,7 @@ case "$1" in
 
 	ok=0
 	until [ "$ok" -eq 1 ]; do
-		echo -n "Do you want a Pluto system or a regular Debian system?"
+		echo "Do you want a Pluto system or a regular Debian system?"
 		echo "(P=Pluto (default),D=Debian): "
 		read answer
 		[ "$answer" == "P" -o "$answer" == "p" -o -z "$answer" ] && want_pluto=1 && ok=1

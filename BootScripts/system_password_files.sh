@@ -17,17 +17,22 @@ cp /usr/pluto/templates/smb.conf.tmpl /etc/samba/smb.conf.$$
 cp /usr/pluto/templates/smbpasswd.tmpl /etc/samba/smbpasswd.$$
 
 # get a list of all users
-Q="SELECT PK_Users,UserName FROM Users"
+Q="SELECT PK_Users,UserName,Password_Unix,Password_Samba FROM Users"
 R=$(RunSQL "$Q")
 LinuxUserID=1001
-SambaPassword=609FCABC7B0F9AEAAAD3B435B51404EE:DDFF3B733E17BE6500375694FE258864
-LinuxPassword=
+DefaultSambaPassword=609FCABC7B0F9AEAAAD3B435B51404EE:DDFF3B733E17BE6500375694FE258864
+DefaultLinuxPassword=
 
 user_dirs="data data/movies data/pictures data/music data/documents data/home~videos data/play~lists data/tv~shows"
 
 for Users in $R; do
 	PlutoUserID=$(echo "$R" | cut -d, -f1)
 	UserName=$(echo "$R" | cut -d, -f2)
+	LinuxPassword=$(echo "$R" | cut -d, -f3)
+	SambaPassword=$(echo "$R" | cut -d, -f4)
+
+	[ -z "$LinuxPassword" ] && LinuxPassword="$DefaultLinuxPassword"
+	[ -z "$SambaPassword" ] && SambaPassword="$DefaultSambaPassword"
 	
 	SambaShare="[$UserName]
 	comment = $Username's private files

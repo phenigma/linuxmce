@@ -7,6 +7,7 @@ ACTIV="http://activate.plutohome.com"
 
 # !!!HACK!!!
 #echo "10.0.0.163 plutohome.com www.plutohome.com activate.plutohome.com dce_router" >>/etc/hosts
+echo "127.0.0.1 dce_router" >>/etc/hosts # I have to do something smarter than this for the moons, or they won't work
 
 activation_url="$ACTIV/activation.php"
 
@@ -89,11 +90,11 @@ while [ "$ok" -eq 0 ]; do
 	Code=$(echo "$activation_key" | cut -d- -f2)
 
 	pluto_conf="# Pluto config file
-MySqlHost = dce_router
+MySqlHost = localhost
 MySqlUser = root
 MySqlPassword = 
 MySqlDBName = pluto_main
-DCERouter = dce_router
+DCERouter = localhost
 MySqlPort = 3306
 DCERouterPort = 3450
 PK_Device = $Device
