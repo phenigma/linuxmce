@@ -409,6 +409,14 @@ Table_Image *p = m_mds->Image_get();
         }
     }
 
+	// See if there's a button
+	if( !m_pRow_DesignObjVariation->FK_Button_isNull() )
+		m_iPK_Button = m_pRow_DesignObjVariation->FK_Button_get();
+	else if( !m_pRow_DesignObjVariation_Standard->FK_Button_isNull() )
+		m_iPK_Button = m_pRow_DesignObjVariation_Standard->FK_Button_get();
+	else
+		m_iPK_Button = 0;
+
     // Add all text objects
 
     for(size_t sov=0;sov<m_alDesignObjVariations.size();++sov)

@@ -22,9 +22,15 @@
 #include "pluto_main/Table_CommandParameter.h"
 #include "pluto_main/Table_Command.h"
 #include "pluto_main/Table_Variable.h"
+#include "pluto_main/Define_Button.h"
 
 CGArray::CGArray(class DesignObj_Generator *DesignObj_Generator_Parent,class Row_DesignObjVariation_DesignObj * drDesignObjVariation_DesignObj,vector<class ArrayValue *> *alValues,class PlutoRectangle rBounds,int StartingOffset,int Page)
 {
+if( DesignObj_Generator_Parent->m_pRow_DesignObj->PK_DesignObj_get()==2611 )
+{
+	int k=2;
+}
+
 	m_bContainsMore=false;
 	m_iLastVisibleArrayEntry=0;
 	iScreenNum=0;
@@ -179,6 +185,23 @@ CGArray::CGArray(class DesignObj_Generator *DesignObj_Generator_Parent,class Row
 			ocNextDesignObj = new DesignObj_Generator(m_DesignObj_Generator_Parent->m_pOrbiterGenerator,m_mds->DesignObj_get()->GetRow(av->m_PK_DesignObjID_Substitute),PlutoRectangle(m_ptNextPosition,PlutoSize(0,0)),m_DesignObj_Generator_Parent,false,false);
 		}
 
+		// In an array we want to increment the buttons
+		if( ocNextDesignObj->m_iPK_Button )
+		{
+			if( m_DesignObj_Generator_Parent->m_pOrbiterGenerator->m_bIsMobilePhone )
+			{
+				if( ocNextDesignObj->m_iPK_Button==BUTTON_9_CONST )
+					ocNextDesignObj->m_iPK_Button = BUTTON_Asterisk_CONST;
+				else if( ocNextDesignObj->m_iPK_Button==BUTTON_Asterisk_CONST )
+					ocNextDesignObj->m_iPK_Button = BUTTON_0_CONST;
+				else if( ocNextDesignObj->m_iPK_Button==BUTTON_0_CONST )
+					ocNextDesignObj->m_iPK_Button = BUTTON_Pound_CONST;
+				else
+					ocNextDesignObj->m_iPK_Button += m_alChildDesignObjs.size();
+			}
+			else
+				ocNextDesignObj->m_iPK_Button += m_alChildDesignObjs.size();
+		}
 		ocNextDesignObj->m_bCanBeHidden = av->m_bCanHide;
 		ocNextDesignObj->m_bHideByDefault = av->m_bHideByDefault;
 		ocNextDesignObj->m_bChildrenBeforeText = drDesignObjVariation_DesignObj->DisplayChildrenBeforeText_get()==1;

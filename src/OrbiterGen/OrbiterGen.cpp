@@ -230,6 +230,8 @@ int OrbiterGenerator::DoIt()
 	if( !m_pRow_Device )
 		throw "No orbiter info for device: "; 
 
+	m_bIsMobilePhone = m_pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Mobile_Orbiter_CONST;
+
 	bool bNewOrbiter=false; // Will set to true if this is the first time this Orbiter was generated
 	m_pRow_Orbiter = mds.Orbiter_get()->GetRow(m_iPK_Orbiter);
 	if( !m_pRow_Orbiter )
@@ -726,7 +728,7 @@ int OrbiterGenerator::DoIt()
 		}
 	}
 
-	if( bNewOrbiter && m_pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()!=DEVICECATEGORY_Mobile_Orbiter_CONST )
+	if( bNewOrbiter && !m_bIsMobilePhone )
 	{
 		cout << "First time generating this orbiter" << endl;
 		Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(DESIGNOBJ_mnuFirstTime_CONST);
@@ -1186,13 +1188,6 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 				ocDesignObj->m_mapObjParms[drOVCP->FK_DesignObjParameter_get()]=StringUtils::Replace(Value,"<%=!%>",StringUtils::itos(PK_Orbiter));
 		}
 	}
-
-	if( !ocDesignObj->m_pRow_DesignObjVariation->FK_Button_isNull() )
-		ocDesignObj->m_iPK_Button = ocDesignObj->m_pRow_DesignObjVariation->FK_Button_get();
-	else if( !ocDesignObj->m_pRow_DesignObjVariation_Standard->FK_Button_isNull() )
-		ocDesignObj->m_iPK_Button = ocDesignObj->m_pRow_DesignObjVariation_Standard->FK_Button_get();
-	else
-		ocDesignObj->m_iPK_Button = 0;
 
 	if( ocDesignObj->m_ZoneList.size()==0 && ocDesignObj->m_sDesignObjGoto.length()>0 )
 	{

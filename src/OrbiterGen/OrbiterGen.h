@@ -29,7 +29,7 @@ public:
 	map<int,class TextStyle *> m_htStylesUsedInOrbiterText;
 //	Hashtable m_htUsedDevices;
 //	StringWriter m_swErrors;
-	bool m_bOrbiterChanged;
+	bool m_bOrbiterChanged,m_bIsMobilePhone;
 	string m_iID_Array;
 	string m_GraphicsBasePath;
 	int m_iPK_DesignObj_Screen;
