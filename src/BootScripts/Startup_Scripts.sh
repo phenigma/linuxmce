@@ -12,6 +12,9 @@ rm -rf /tmp/* # I doubt that this is safe to do here
 rm -f /tmp/pluto_spawned_local_devices.txt
 chown mythtv.mythtv /etc/mythtv/mysql.txt &>/dev/null
 
+# remove all ttyS_* (created by gc100s) entries from /dev
+rm -f /dev/ttyS_*
+
 # clean up locks
 mkdir -p /usr/pluto/locks
 rm -f /usr/pluto/locks/*
