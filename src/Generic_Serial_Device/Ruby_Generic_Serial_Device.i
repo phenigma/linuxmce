@@ -26,7 +26,6 @@
    $result = rb_str_new(arg2, arg3);
 }
 
-
 %include "std_map.i"
 %include "std_string.i"
 
@@ -36,6 +35,10 @@ namespace std
 	%template(ParamMap) map<std::string, std::string>;
 }
 
+
+%typemap(out) std::string {
+    $result = rb_str_new($1.data(), $1.length());
+}
 
 %include "RubyDeviceWrapper.h"
 %include "RubyCommandWrapper.h"

@@ -78,7 +78,7 @@ BufferedIOConnection::Recv(const char* delimbuff, unsigned int delimsize, int ti
 	unsigned delimindex = 0;
 	while(delimindex < delimsize) {
 		if(CacheSize() == 0) {
-			RecvCache(CACHE_READBLOCK_SIZE, timeout);
+			RecvCache(CACHE_READBLOCK_SIZE, 0);
 		}
 		
 		char c;

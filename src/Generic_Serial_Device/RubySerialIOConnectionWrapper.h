@@ -30,7 +30,7 @@ public:
 		return BufferedIOConnection::Recv(buff, size, timeout);
 	}
 	std::string 
-	Recv(const char* delimbuff, unsigned int delimsize) {
+	RecvDelimited(const char* delimbuff, unsigned int delimsize) {
 		return BufferedIOConnection::Recv(delimbuff, delimsize, 5000);
 	}
 	int Send(const char* buff, unsigned int size) {

@@ -156,8 +156,11 @@ RubyDCECodeSupplier::~RubyDCECodeSupplier() {
 
 std::string 
 RubyDCECodeSupplier::TranslateCommandToRuby(const std::string& cmdtxt) {
-	string ret;
+	if(cmdtxt.empty()) {
+		return cmdtxt;
+	}
 	
+	string ret;
 	int first = -1, last = -1;
 	while(1) {
 		first = cmdtxt.find("<$", last + 1);
