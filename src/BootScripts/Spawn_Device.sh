@@ -77,6 +77,7 @@ while [ "$i" -le 10 ]; do
 	elif [ "$?" -eq 2 ]; then
 		Logging $TYPE $SEVERITY_NORMAL "$module" "Device requests restart... $i $device_name"
 		echo $(date) Shutdown >> "$new_log"
+		sleep 10
 	else
 		Logging $TYPE $SEVERITY_CRITICAL "$module" "Device died... $i $device_name"
 		echo $(date) died >> "$new_log"
