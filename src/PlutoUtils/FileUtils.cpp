@@ -30,7 +30,8 @@
 #include "PlutoUtils/Other.h"
 
 #ifndef WIN32
-	#include "dirent.h"
+	#include <dirent.h>
+	#include <unistd.h>
 #endif
 
 #ifndef SYMBIAN
@@ -46,6 +47,7 @@
 		#endif
 	#else
 		#include <dirent.h>
+		#include <unistd.h>
 	#endif
 
 	#ifndef WINCE
@@ -419,7 +421,27 @@ bool FileUtils::FindFiles(list<string> &listFiles, string sDirectory, string sFi
     while (dirp != NULL && (readdir_r(dirp, direntp, & direntp) == 0) && direntp)
     {
 		struct stat s;
-		stat((sDirectory + entry.d_name).c_str(), &s);
+		lstat((sDirectory + entry.d_name).c_str(), &s);
+
+		if ( S_ISLNK(s.st_mode) )
+		{
+			char *pLinkContents = new char[s.st_size + 1];
+			if ( -1 == readlink((sDirectory + entry.d_name).c_str(),  pLinkContents, s.st_size) )
+			{
+				printf("Error reading link contents for symlink %s (%s).", (sDirectory + entry.d_name).c_str(), strerror(errno));
+				delete pLinkContents;
+				continue;
+			}
+			if ( pLinkContents[0] == '.' && s.st_size == 1 )
+			{
+				delete pLinkContents;
+				continue;
+			}
+			
+			delete pLinkContents;
+			stat((sDirectory + entry.d_name).c_str(), &s);
+		}
+
         if (!S_ISDIR(s.st_mode) && entry.d_name[0] != '.' )
         {
 // g_pPlutoLogger->Write(LV_STATUS, "found file entry %s", entry.d_name);
@@ -446,7 +468,7 @@ bool FileUtils::FindFiles(list<string> &listFiles, string sDirectory, string sFi
 			if ( iMaxFileCount && iMaxFileCount < listFiles.size() )
 				return true;
         }
-        else if (bRecurse && S_ISDIR(s.st_mode) && entry.d_name[0] != '.' && symlink != '.')
+        else if (bRecurse && S_ISDIR(s.st_mode) && entry.d_name[0] != '.') 
 		{
 			if ( FindFiles( listFiles, sDirectory + entry.d_name, sFileSpec_CSV, true, bFullyQualifiedPath, iMaxFileCount, PrependedPath + entry.d_name + "/" ) )
 				return true;
