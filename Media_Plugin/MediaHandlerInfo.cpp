@@ -52,7 +52,7 @@ MediaHandlerInfo::MediaHandlerInfo( class MediaHandlerBase *pMediaHandlerBase, c
         ListDeviceData_Router *pListDeviceData_Router=m_pMediaHandlerBase->m_pMedia_Plugin->m_pRouter->m_mapDeviceByTemplate_Find( PK_DeviceTemplate );
 		if( !pListDeviceData_Router )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Media Handler Info cannot find any devices for template: %d",PK_DeviceTemplate);
+			g_pPlutoLogger->Write(LV_STATUS,"Media Handler Info cannot find any devices for template: %d",PK_DeviceTemplate);
 			return;
 		}
         for( ListDeviceData_Router::iterator it=pListDeviceData_Router->begin( );it!=pListDeviceData_Router->end( );++it )
@@ -162,6 +162,7 @@ MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, DeviceData_
     m_iDequeMediaFile_Pos=0;
     m_iPK_Playlist=0;
     m_sPlaylistName="";
+	m_bIsMovable = true; // by default all the media can move but not always.
 
     m_pDeviceData_Router_Source=pDeviceData_Router;
 
@@ -171,24 +172,36 @@ MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, DeviceData_
     if( !m_pDeviceData_Router_Source || !m_pMediaHandlerInfo )
         g_pPlutoLogger->Write( LV_CRITICAL, "Media stream is invalid because of NULL pointers! %p %p", m_pDeviceData_Router_Source, m_pMediaHandlerInfo);
 
-g_pPlutoLogger->Write( LV_STATUS, "create Mediastream %p on menu id: %d type %d", this, m_iStreamID, m_iPK_MediaType );
-g_pPlutoLogger->Write( LV_STATUS, "Mediastream mapea size %d", m_mapEntertainArea.size( ) );
+g_pPlutoLogger->Write( LV_STATUS, "create Mediastream %p on stream id: %d type %d", this, m_iStreamID, m_iPK_MediaType );
+g_pPlutoLogger->Write( LV_STATUS, "Mediastream mapEntArea size %d", m_mapEntertainArea.size( ) );
+}
+
+bool MediaStream::isMovable()
+{
+	return m_bIsMovable;
+}
+
+void MediaStream::setIsMovable(bool bIsMovable)
+{
+	m_bIsMovable = bIsMovable;
 }
 
 void MediaStream::SetPlaylistPosition(int position)
 {
-    m_iDequeMediaFile_Pos = position;
+	if ( position < 0 )
+		m_iDequeMediaFile_Pos = m_dequeMediaFile.size() - 1;
+	else
+		m_iDequeMediaFile_Pos = position;
 
     if ( m_iDequeMediaFile_Pos >= m_dequeMediaFile.size() )
-        m_iDequeMediaFile_Pos = m_dequeMediaFile.size() - 1;
-
-    if ( m_iDequeMediaFile_Pos < 0 )
         m_iDequeMediaFile_Pos = 0;
 
 	// reset the stream position
 	if ( m_pMediaPosition )
 		m_pMediaPosition->Reset();
 
+	g_pPlutoLogger->Write(LV_STATUS, "New position in playlist: %d (tried %d) (queue size: %d)", m_iDequeMediaFile_Pos, position, m_dequeMediaFile.size());
+	DumpPlaylist();
 //     m_iSavedPosition = 0;
 // 	m_sSavedPosition = "";
 

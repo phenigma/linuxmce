@@ -333,7 +333,16 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
         if( pMediaHandlerInfo->m_bUsesRemovableMedia ) // todo - hack --- this should be a list of removable media devices
         {
             deque<MediaFile *> dequeMediaFile;
-            dequeMediaFile.push_back(new MediaFile(m_pMediaAttributes,MRL));
+
+			// we split the MRL by \n first and then pass this to the StartMedia.
+			deque<string> dequeFileNames;
+			deque<string>::const_iterator itFileNames;
+
+			StringUtils::Tokenize(MRL, "\n", dequeFileNames, false);
+			itFileNames = dequeFileNames.begin();
+			while( itFileNames != dequeFileNames.end() )
+				dequeMediaFile.push_back(new MediaFile(m_pMediaAttributes, *itFileNames++));
+
             StartMedia(pMediaHandlerInfo,0,pEntertainArea,pDeviceFrom->m_dwPK_Device,0,&dequeMediaFile);
             return true;
         }
@@ -404,7 +413,10 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
 		pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(pEntertainArea->m_pMediaStream,&mapMediaDevice_Prior);
 		PK_MediaType_Prior = pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType;
 
-		if( pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase != pMediaHandlerInfo->m_pMediaHandlerBase )
+		// this will reset the current media stream if the pMediaHandlerBase is different from the original media Handler.
+		// We should also look at the media types. If the current Media type is different then we will also do a new media stream.
+		if ( pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase != pMediaHandlerInfo->m_pMediaHandlerBase ||
+			 pEntertainArea->m_pMediaStream->m_iPK_MediaType != pMediaHandlerInfo->m_PK_MediaType )
         {
             // We can't queue this.
             pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
@@ -446,7 +458,7 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
 
     pMediaStream->m_pMediaHandlerInfo = pMediaHandlerInfo;
     pMediaStream->m_iPK_MediaType = pMediaHandlerInfo->m_PK_MediaType;
-    pMediaStream->m_mapEntertainArea[pEntertainArea->m_iPK_EntertainArea]=pEntertainArea;
+    pMediaStream->m_mapEntertainArea[pEntertainArea->m_iPK_EntertainArea] = pEntertainArea;
 
     // HACK: get the user if the message originated from an orbiter!
 
@@ -456,13 +468,13 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
 
     OH_Orbiter *pOH_Orbiter_OSD=NULL;
 
-	// If it's an applicable media type (media that requires displaying of the screen basically)
+	// If it's an applicable media type (media that requires displaying on the screen basically)
     if ( pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST ||		// either a DVD
 		 pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_LiveTV_CONST ||	// or the TV display
          pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_StoredVideo_CONST ) // or stored movies
     {
-        if( pMediaStream->m_pDeviceData_Router_Source->m_pDevice_ControlledVia &&
-            pMediaStream->m_pDeviceData_Router_Source->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Orbiter_CONST) )
+        if ( pMediaStream->m_pDeviceData_Router_Source->m_pDevice_ControlledVia &&
+             pMediaStream->m_pDeviceData_Router_Source->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Orbiter_CONST) )
         {
 			// store the orbiter which is directly controlling the target device as the target on-screen display.
 			pOH_Orbiter_OSD = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device_ControlledVia);
@@ -834,7 +846,7 @@ void Media_Plugin::CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,
 }
 
 
-#pragma warning( "put this in the mythtv plugin" )
+// #pragma warning( "put this in the mythtv plugin" )
 /*
 
 if( atoi( pEGO->Screen.c_str( ) )==OBJECT_MNUPVR_CONST )
@@ -1378,7 +1390,14 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string 
 
     deque<MediaFile *> dequeMediaFile;
     if( sFilename.length()>0 )
+// 	{
         m_pMediaAttributes->TransformFilenameToDeque(sFilename,dequeMediaFile);  // This will convert any #a, #f, etc.
+//
+// 		if ( sFilename.substr(sFilename.length() - 1) == '*' )
+// 		{
+// 			int nrFiles = CountFilesInDirectory(sFilename);
+// 		}
+// 	}
 
     // What is the media?  It must be a master device, or a media type, or filename
     if( iPK_DeviceTemplate )

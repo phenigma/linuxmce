@@ -129,13 +129,23 @@ void Xine_Plugin::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 class MediaStream *Xine_Plugin::CreateMediaStream( class MediaHandlerInfo *pMediaHandlerInfo, class EntertainArea *pEntertainArea, MediaDevice *pMediaDevice, int iPK_Users, deque<MediaFile *> *dequeFilenames, int StreamID )
 {
 	XineMediaStream *pXineMediaStream;
+	MediaDevice *pMediaDevice_PassedIn;
 
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 
+	pMediaDevice_PassedIn = NULL;
 	if ( pEntertainArea == NULL && pMediaDevice == NULL )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "I can't create a media stream without an ent are or a media device");
+		g_pPlutoLogger->Write(LV_CRITICAL, "I can't create a media stream without an entertainment area or a media device");
 		return NULL;
+	}
+
+	if ( pMediaDevice != NULL  && // test the media device only if it set
+		 pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate != DEVICETEMPLATE_Xine_Player_CONST &&
+	     pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate != DEVICETEMPLATE_SqueezeBox_Player_CONST )
+	{
+		pMediaDevice_PassedIn = pMediaDevice;
+		pMediaDevice = m_pMedia_Plugin->m_mapMediaDevice_Find(m_pRouter->FindClosestRelative(DEVICETEMPLATE_Xine_Player_CONST, pMediaDevice->m_pDeviceData_Router->m_dwPK_Device));
 	}
 
 	if ( ! pMediaDevice && (pMediaDevice = FindMediaDeviceForEntertainArea(pEntertainArea)) == NULL )
@@ -143,6 +153,8 @@ class MediaStream *Xine_Plugin::CreateMediaStream( class MediaHandlerInfo *pMedi
 		g_pPlutoLogger->Write(LV_CRITICAL, "I didn't find a device in the target ent area.");
 		return NULL;
 	}
+
+	g_pPlutoLogger->Write(LV_STATUS, "Selected device (%d) as playback device!", pMediaDevice->m_pDeviceData_Router->m_dwPK_Device);
 
 	pXineMediaStream = new XineMediaStream( this, pMediaHandlerInfo,
 							pMediaDevice->m_pDeviceData_Router,
@@ -155,6 +167,10 @@ class MediaStream *Xine_Plugin::CreateMediaStream( class MediaHandlerInfo *pMedi
 		pXineMediaStream->m_pDeviceData_Router_Source = FindStreamerDevice();
 		pXineMediaStream->setIsStreaming();
 	}
+
+	// if the source device is a disk drive then we can't move this media stream around.
+	if ( pMediaDevice_PassedIn && pMediaDevice_PassedIn->m_pDeviceData_Router->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Disk_Drive_CONST )
+		pXineMediaStream->setIsMovable(false);
 
 	return pXineMediaStream;
 }

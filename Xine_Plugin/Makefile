@@ -19,7 +19,7 @@ sources = Main.cpp Xine_Plugin.cpp $(Gen_Dev_Files)
 CXXFLAGS += -fmessage-length=0
 CPPFLAGS +=
 LDFLAGS +=
-XTRALDLIBS = -lpluto_main -lpluto_media
+XTRALDLIBS = -lpluto_main -lpluto_media -lattr
 
 Gen_Dev_Files += $(GENDEV)/Media_PluginBase.cpp $(GENDEV)/Datagrid_PluginBase.cpp
 sources += \

@@ -44,11 +44,15 @@ namespace DCE
 		char 		*m_pPictureData;
         size_t 		 m_iPictureSize;
 
-        int m_iPK_DesignObj_Remote; 		/** What screen to use as the remote control */
-        bool m_bPlaying;        			/** True if the media is now playing */
-        int m_iPK_Users;        			/** Who started the media */
-        bool m_bFollowMe;       			/** True if the media is supposed to follow the above user */
-        int m_iOrder;  						/** This is used for the floorplans to order and color code the streams */
+        int 	m_iPK_DesignObj_Remote; 		/** What screen to use as the remote control */
+
+		bool 	m_bPlaying;        				/** True if the media is now playing */
+
+		int 	m_iPK_Users;        			/** Who started the media */
+        bool 	m_bFollowMe;       				/** True if the media is supposed to follow the above user */
+
+		bool 	m_bIsMovable; 					/** < bCanMove - This if this media stream can be moved in a move media command */
+		int 	m_iOrder;  						/** This is used for the floorplans to order and color code the streams */
 
         enum SourceType m_eSourceType;  /** Where the media is coming from */
 
@@ -71,6 +75,9 @@ namespace DCE
         int m_iStreamID_get() { return m_iStreamID; }
 
         void SetPicture(char *pPictureData,int iPictureSize) { delete[] m_pPictureData; m_pPictureData=pPictureData; m_iPictureSize=iPictureSize; }
+
+		virtual bool isMovable();
+		virtual void setIsMovable(bool bIsMovable = true);
 
         virtual string GetFilenameToPlay( string defaultFileName = "" );
         virtual void SetPlaylistPosition(int position);

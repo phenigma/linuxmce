@@ -34,31 +34,31 @@ LDAPEntryCollection::~LDAPEntryCollection() {
 	}
 }
 
-LDAPEntryPtr 
+LDAPEntryPtr
 LDAPEntryCollection::First() {
 	LDAPEntry* pret = NULL;
-	
+
 	if(pce_ != NULL)  {
 		LDAPMessage *pe = ldap_first_entry( pldap_, pce_ );
 		if(pe !=  NULL) {
 			pret = new LDAPEntry(pldap_, pe);
 		}
 	}
-	
+
 	return LDAPEntryPtr(pret);
 }
 
-LDAPEntryPtr 
+LDAPEntryPtr
 LDAPEntryCollection::Next(LDAPEntryPtr ple) {
 	LDAPEntry* pret = NULL;
-	
+
 	if(pce_ != NULL)  {
 		LDAPMessage *pe = ldap_next_entry( pldap_, ple->GetLDAPMsg() );
 		if(pe !=  NULL) {
 			pret = new LDAPEntry(pldap_, pe);
 		}
 	}
-	
+
 	return LDAPEntryPtr(pret);
 }
 
