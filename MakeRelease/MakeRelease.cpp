@@ -452,7 +452,7 @@ bool CreateSource(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &list
 			CreateSource_SourceForgeCVS(pRow_Package_Source,listFileInfo);
 			break;
 		default:
-			cout << "***ERROR*** Don't know how to create this source." << endl;
+			cout << "***ERROR*** Don't know how to create this source. " ;
 			return false;
 		}
 	}
@@ -484,7 +484,7 @@ bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileIn
 			if( pRow_Package_Directory->Path_get()[0]=='/' )
 				sDirectory = pRow_Package_Directory->Path_get();
 			else
-				sDirectory += g_sSourcecodePrefix + pRow_Package_Directory->Path_get();
+				sDirectory += g_sSourcecodePrefix + "/" + pRow_Package_Directory->Path_get();
 		}
 
 		vector<Row_Package_Directory_File *> vectPackage_Directory_File;
@@ -496,8 +496,7 @@ bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileIn
 			if( File.find('*')!=string::npos || File.find('?')!=string::npos )
 			{
 				list<string> listFiles;
-				if( g_bInteractive )
-					cout << "Scanning: " << sDirectory;
+				cout << "Scanning: " << sDirectory;
 				FileUtils::FindFiles(listFiles,sDirectory,File,true);
 				if( g_bInteractive )
 					cout << "Found: " << listFiles.size() << " files" << endl;
@@ -627,8 +626,7 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 			{
 				list<string> listFiles;
 				
-				if( g_bInteractive )
-					cout << "Scanning: " << sInputPath;
+				cout << "Scanning: " << sInputPath;
 				FileUtils::FindFiles(listFiles,sInputPath,File,true);
 				if( g_bInteractive )
 					cout << "Found: " << listFiles.size() << " files" << endl;
@@ -956,6 +954,11 @@ AsksSourceQuests:
 				if( !AskYNQuestion("Execute command?",false) )
 					return false;
 			}
+
+			// Be sure we compile with debug info
+			if( !g_bSimulate && g_pRow_Version->PK_Version_get()==1 )
+				StringUtils::Replace( "Makefile", "Makefile", "-D_DEVEL_DEFINES", "-DDEBUG -DTHREAD_LOG -DLL_DEBUG_FILE" );
+
 			fstr_compile << pRow_Package_Directory_File->MakeCommand_get() << endl;
 			cout << "Executing: " << pRow_Package_Directory_File->MakeCommand_get() << endl;
 			if( !g_bSimulate && system(pRow_Package_Directory_File->MakeCommand_get().c_str()) )
@@ -985,24 +988,95 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 {
 	// Marius -- here you need to figure out how to take the package and upload it to SourceForge's CVS
 	
-	cout<<"\n\n SourceForgeCVS : "
-		<<pRow_Package_Source->FK_Package_getrow()->Description_get();
-	cout<<"\n Nr of files : "<<listFileInfo.size();
-	list<FileInfo *>::iterator iFileInfo; int i;
-	for (iFileInfo = listFileInfo.begin(),i=0;iFileInfo != listFileInfo.end(); iFileInfo++,i++)
-	{
-		cout<<endl<<i<<"\n\t"<<(*iFileInfo)->m_pRow_Package_Directory->Path_get();
-		cout<<endl<<"\t"<<(*iFileInfo)->m_sDestination;
-		cout<<endl<<"\t"<<(*iFileInfo)->m_sSource;
-		//FileUtils::
-		//chdir();
-		File *f;
-		freopen(
+	// 1.	Create a temporary directory
+	// 2.   chdir to the directory and do a cvs co .
+	// 3.   copy the files over one at a time
+	// 4.	Do a cvs add for each sub-directory
+	// 5.   Do a cvs add for each file
+	// 6.   Call FileUtils::GetDirectory(vector<strings)), and see what files are there, that are not in listFileInfo and do a delete
+	// 7.   Do a cvs ci
+	string MyPath, WorkPath;
+	string cmd;
+	list<FileInfo *>::iterator iFileInfo;
 
+	MyPath = "cvs_temp";
+	//Building Temporary Directory
+	mkdir(MyPath.c_str());
+	//ChDir to Temporary Directory
+	chdir(MyPath.c_str());
+
+	//Checking Version From SourceForge
+	cmd = " cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/"+
+			pRow_Package_Source->Name_get()+
+			" checkout " + pRow_Package_Source->Name_get();
+	system(cmd.c_str());
+	chdir(pRow_Package_Source->Name_get().c_str());
+
+//	cout<<"\n\n SourceForgeCVS : "<<pRow_Package_Source->FK_Package_getrow()->Description_get();
+//	cout<<"\n Nr of files : "<<listFileInfo.size();
+
+	for (iFileInfo = listFileInfo.begin();iFileInfo != listFileInfo.end(); iFileInfo++)
+	{
+		FileInfo *pFileInfo = (*iFileInfo);
+		WorkPath = pFileInfo->m_sSource;
+//		chdir(FileUtils::BasePath(pFileInfo->m_sSource).c_str());
+		if(FileUtils::BasePath(WorkPath).compare(pRow_Package_Source->Name_get()) == 0) {
+			cmd = "cp -f " + WorkPath + " " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+		} else {
+			if(FileUtils::DirExists(FileUtils::BasePath(WorkPath)) != TRUE) {
+				cmd = FileUtils::BasePath(WorkPath);
+				mkdir(cmd.c_str());
+				cmd = "cp -f " + WorkPath + " " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+			} else {
+				cmd = "cp -f " + WorkPath + " " + FileUtils::BasePath(WorkPath) + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource); 
+			}
+		}
 	}
-	//(*iFileInfo)->m_sDestination
-	//system();
-	cout<<endl;
+
+	//Making CVS add for each file and subdirectory
+	for (iFileInfo = listFileInfo.begin();iFileInfo != listFileInfo.end(); iFileInfo++)
+	{
+		FileInfo *pFileInfo = (*iFileInfo);
+		cmd = "cvs add " + FileUtils::BasePath(pFileInfo->m_sSource) + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+		system(cmd.c_str());
+	}
+
+	list <string> MyList;
+	list <string>::iterator iMyList;
+	//reading actual directory list
+	FileUtils::FindFiles(MyList, "", "*", TRUE, "");
+
+	//for every file from the temporary directory list ...
+	for(iMyList = MyList.begin();iMyList != MyList.end(); iMyList++) {
+		int found = 0;
+		//... it will be compared with all the entries from the input list
+		for (iFileInfo = listFileInfo.begin();iFileInfo != listFileInfo.end(); iFileInfo++) {
+			FileInfo *pFileInfo = (*iFileInfo);
+			cmd = FileUtils::BasePath(pFileInfo->m_sSource)+"/"+FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+			//if the file exists it will be left alone
+			if(cmd.compare (*iMyList) == 0) {
+				found = 1;
+			}
+		}
+		//if the file do not exist in the list, it will be deleted
+		if(found == 0) {
+			cmd = "rm " + *iMyList;
+			system(cmd.c_str());
+		}
+	}
+
+//	iFileInfo = listFileInfo.begin();
+	cout<<"\n Commit";
+	//Updating files from the server to the sourceforge
+	cmd = "cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/" + pRow_Package_Source->Name_get() + 
+		" commit";
+	system(cmd.c_str());
+
+	//at the end we delete the temporary directory
+	cmd = "cd ../";
+	system(cmd.c_str());
+	cmd = "rm cvs_temp -r";
+	system(cmd.c_str());
 	return true;
 }
 
