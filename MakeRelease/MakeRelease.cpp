@@ -1023,7 +1023,7 @@ cout << "Making CVS Checkout to temporary\n";
 	system(cmd.c_str());
 
 cout << "Reading files from temporary";
-	FileUtils::FindFiles(MyList, pRow_Package_Source->Name_get().c_str(), "*", true, "");
+	FileUtils::FindFiles(MyList, pRow_Package_Source->Name_get(), "*", true, "");
 cout << " [Done]\n";
 
 	cmd = pRow_Package_Source->Name_get();
@@ -1173,8 +1173,8 @@ cout << "Copying Files\n";
 	cout << cmd << endl;
 
 	//at the end we delete the temporary directory
-	cmd = "cd ../";
-	system(cmd.c_str());
+	cmd = "../../";
+	chdir(cmd.c_str());
 	cmd = "rm cvs_temp -r";
 	system(cmd.c_str());
 	return true;
