@@ -274,7 +274,7 @@ function addDeletePipe($operation,$deviceFrom,$pipe,$dbADO)
 	}else{
 		$arr=explode(':',$operation);
 		$deviceTo=$arr[0];
-		$dbADO->Execute('INSERT IGNORE INTO Device_Device_Pipe (FK_Device_From,FK_Device_To,FK_Pipe) VALUES (?,?,?)',array($deviceFrom,$deviceTo,$pipe));
+		$dbADO->Execute('INSERT IGNORE INTO Device_Device_Pipe (FK_Device_From,FK_Device_To,FK_Pipe,FK_Command_Input,FK_Command_Output) VALUES (?,?,?,?,?)',array($deviceFrom,$deviceTo,$pipe,$arr[2],$arr[3]));
 	}
 }
 

@@ -443,10 +443,10 @@ function showCodes($commandsToShow,$infraredGroupID,$deviceID,$dtID,$dbADO)
 			$queryUserCode='
 				SELECT Command.Description, FK_Command, IRData, PK_InfraredGroup_Command, FK_DeviceTemplate, FK_InfraredGroup , FK_Device, PK_InfraredGroup_Command, FK_Users, PK_Command 
 				FROM Command 
-				LEFT JOIN InfraredGroup_Command ON FK_Command=PK_Command AND FK_DeviceTemplate IS NOT NULL AND FK_InfraredGroup IS NULL
+				LEFT JOIN InfraredGroup_Command ON FK_Command=PK_Command AND FK_DeviceTemplate = ? AND FK_InfraredGroup IS NULL
 				WHERE PK_Command =? AND PK_InfraredGroup_Command IS NOT NULL
 				ORDER BY Command.Description ASC';
-			$resUserCode=$dbADO->Execute($queryUserCode,$commandID);
+			$resUserCode=$dbADO->Execute($queryUserCode,array($dtID,$commandID));
 		}else{
 			$queryStandardCode='
 				SELECT Command.Description, FK_Command, IRData, PK_InfraredGroup_Command, FK_DeviceTemplate, FK_InfraredGroup , FK_Device, PK_InfraredGroup_Command, FK_Users, PK_Command 
@@ -459,10 +459,10 @@ function showCodes($commandsToShow,$infraredGroupID,$deviceID,$dtID,$dbADO)
 			$queryUserCode='
 				SELECT Command.Description, FK_Command, IRData, PK_InfraredGroup_Command, FK_DeviceTemplate, FK_InfraredGroup , FK_Device, PK_InfraredGroup_Command, FK_Users, PK_Command 
 				FROM Command 
-				LEFT JOIN InfraredGroup_Command ON FK_Command=PK_Command AND FK_DeviceTemplate IS NOT NULL AND (FK_InfraredGroup=? OR FK_InfraredGroup IS NULL)
+				LEFT JOIN InfraredGroup_Command ON FK_Command=PK_Command AND FK_DeviceTemplate=? AND (FK_InfraredGroup=? OR FK_InfraredGroup IS NULL)
 				WHERE PK_Command =? AND PK_InfraredGroup_Command IS NOT NULL
 				ORDER BY Command.Description ASC';
-			$resUserCode=$dbADO->Execute($queryUserCode,array($infraredGroupID,$commandID));
+			$resUserCode=$dbADO->Execute($queryUserCode,array($infraredGroupID,$dtID,$commandID));
 
 		}
 		$out.='<table width="100%">';

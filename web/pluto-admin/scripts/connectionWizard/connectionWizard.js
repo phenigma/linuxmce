@@ -23,6 +23,8 @@ globalXFrom=-1;
 globalYFrom=-1;
 globalFromDevice=-1;
 globalToDevice=-1;
+globalInput=-1;
+globalOutput=-1;
 globalPipe='audio';
 globalXTo=-1;
 globalYTo=-1
@@ -151,8 +153,6 @@ function bring_to_front(val)
 
 function setPipe(device,command,prefix,itemName)
 {
-	// a lot of things goes here
-	// for now I only get coordinates of the object's anchor
 	eval("xContainer=parseInt(document.getElementById('device_"+device+"').style.left)");
 	eval("yContainer=parseInt(document.getElementById('device_"+device+"').style.top)");
 
@@ -166,6 +166,7 @@ function setPipe(device,command,prefix,itemName)
 			setMessage('Invalid pipe from input to input',1);
 		}
 		globalToDevice=device;		
+		globalInput=command;
 		document.getElementById('toMessage').innerHTML=itemName;
 		
 	}else{
@@ -175,6 +176,7 @@ function setPipe(device,command,prefix,itemName)
 			setMessage('Invalid pipe from output to output',1);
 		}		
 		globalFromDevice=device;
+		globalOutput=command;
 		document.getElementById('fromMessage').innerHTML=itemName;
 	}
 
@@ -187,24 +189,32 @@ function setPipe(device,command,prefix,itemName)
 				case 'audio':
 					audioPipe[globalFromDevice]=new Array();
 					audioPipe[globalFromDevice]['to']=globalToDevice;
+					audioPipe[globalFromDevice]['input']=globalInput;
+					audioPipe[globalFromDevice]['output']=globalOutput;
 					audioPipe[globalFromDevice]['coords']=globalXFrom+','+globalYFrom+','+globalXTo+','+globalYTo;
 					setMessage('Audio Pipe set',0);
 				break;
 				case 'video':
 					videoPipe[globalFromDevice]=new Array();
 					videoPipe[globalFromDevice]['to']=globalToDevice;
+					videoPipe[globalFromDevice]['input']=globalInput;
+					videoPipe[globalFromDevice]['output']=globalOutput;
 					videoPipe[globalFromDevice]['coords']=globalXFrom+','+globalYFrom+','+globalXTo+','+globalYTo;
 					setMessage('Video Pipe set',0);
 				break;
 				case 'audioLive':
 					audioLivePipe[globalFromDevice]=new Array();
 					audioLivePipe[globalFromDevice]['to']=globalToDevice;
+					audioLivePipe[globalFromDevice]['input']=globalInput;
+					audioLivePipe[globalFromDevice]['output']=globalOutput;
 					audioLivePipe[globalFromDevice]['coords']=globalXFrom+','+globalYFrom+','+globalXTo+','+globalYTo;
 					setMessage('Audio Live Pipe set',0);
 				break;
 				case 'videoLive':
 					videoLivePipe[globalFromDevice]=new Array();
 					videoLivePipe[globalFromDevice]['to']=globalToDevice;
+					videoLivePipe[globalFromDevice]['input']=globalInput;
+					videoLivePipe[globalFromDevice]['output']=globalOutput;
 					videoLivePipe[globalFromDevice]['coords']=globalXFrom+','+globalYFrom+','+globalXTo+','+globalYTo;
 					setMessage('Video Live Pipe set',0);
 				break;
@@ -278,10 +288,10 @@ function savePositions()
 	for(key in layersArray){
 		eval("xCoord=document.getElementById('device_"+layersArray[key]+"').style.left");
 		eval("yCoord=document.getElementById('device_"+layersArray[key]+"').style.top");
-		audioCoords=(audioPipe[layersArray[key]])?audioPipe[layersArray[key]]['to']+':'+audioPipe[layersArray[key]]['coords']:'none';
-		videoCoords=(videoPipe[layersArray[key]])?videoPipe[layersArray[key]]['to']+':'+videoPipe[layersArray[key]]['coords']:'none';
-		audioLiveCoords=(audioLivePipe[layersArray[key]])?audioLivePipe[layersArray[key]]['to']+':'+audioLivePipe[layersArray[key]]['coords']:'none';
-		videoLiveCoords=(videoLivePipe[layersArray[key]])?videoLivePipe[layersArray[key]]['to']+':'+videoLivePipe[layersArray[key]]['coords']:'none';
+		audioCoords=(audioPipe[layersArray[key]])?audioPipe[layersArray[key]]['to']+':'+audioPipe[layersArray[key]]['coords']+':'+audioPipe[layersArray[key]]['input']+':'+audioPipe[layersArray[key]]['output']:'none';
+		videoCoords=(videoPipe[layersArray[key]])?videoPipe[layersArray[key]]['to']+':'+videoPipe[layersArray[key]]['coords']+':'+videoPipe[layersArray[key]]['input']+':'+videoPipe[layersArray[key]]['output']:'none';
+		audioLiveCoords=(audioLivePipe[layersArray[key]])?audioLivePipe[layersArray[key]]['to']+':'+audioLivePipe[layersArray[key]]['coords']+':'+audioLivePipe[layersArray[key]]['input']+':'+audioLivePipe[layersArray[key]]['output']:'none';
+		videoLiveCoords=(videoLivePipe[layersArray[key]])?videoLivePipe[layersArray[key]]['to']+':'+videoLivePipe[layersArray[key]]['coords']+':'+videoLivePipe[layersArray[key]]['input']+':'+videoLivePipe[layersArray[key]]['output']:'none';
 		toSave+=';'+layersArray[key]+';'+xCoord+';'+yCoord+';'+audioCoords+';'+videoCoords+';'+audioLiveCoords+';'+videoLiveCoords;
 	}
 	document.forms[0].devicesCoords.value=toSave;
