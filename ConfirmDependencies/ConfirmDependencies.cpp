@@ -67,6 +67,10 @@ public:
 		Row_Package_Source *pRow_Package_Source, Row_RepositorySource_URL *pRow_RepositorySource_URL,
 		bool bMustBuild)
 	{
+if( pRow_Package_Source->FK_Package_get()==192 )
+{
+int k=2;
+}
 		m_pRow_Package_Source_Compat=pRow_Package_Source_Compat;
 		m_pRow_Package_Source=pRow_Package_Source;
 		m_pRow_Package_Source=pRow_Package_Source;
@@ -264,7 +268,7 @@ int main(int argc, char *argv[])
 			for(size_t s=0;s<pPackageInfo->m_vectPackageInfo.size();++s)
 			{
 				PackageInfo *pPackageInfoAlt = pPackageInfo->m_vectPackageInfo[s];
-				InstallPackage(pPackageInfo, true);
+				InstallPackage(pPackageInfoAlt, true);
 			}
 			cout << "else" << endl;
 //			cout << "\techo '**ERROR** Unable to get package " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << "'" << endl;
@@ -414,6 +418,10 @@ void CheckPackage(Row_Package *pRow_Package,Row_Device *pRow_Device,bool bDevelo
 		}
 	}
 
+if( pRow_Package->PK_Package_get()==192 )
+{
+int k=2;
+}
 
 	// If we find a source specific for our distro, that does not require a build from source code,
 	// that will be considered a perfect match, and added here.
@@ -434,18 +442,28 @@ void CheckPackage(Row_Package *pRow_Package,Row_Device *pRow_Device,bool bDevelo
 		vector<Row_Package_Source_Compat *> vectRPSC;
 		pRow_Package_Source->Package_Source_Compat_FK_Package_Source_getrows(&vectRPSC);
 
+		// We've got 3 lists we can put this in.  We'll put it in whatever one is the best
+		// We'll update the following when it's a match, and take the best
+		Row_Package_Source_Compat *pRPSC_Match=NULL,*pRPSC_OS=NULL,*pRPSC_Comp=NULL;
+
 		for(size_t t=0;t<vectRPSC.size();++t)
 		{
 			Row_Package_Source_Compat *pRPSC = vectRPSC[t];
 			if( pRPSC->FK_Distro_get()==pRow_Distro->PK_Distro_get() && !pRPSC->MustBuildFromSource_get() )
-				vectRow_Package_Source_Compat_Match.push_back(pRPSC); // This is considered the perfect match
+				pRPSC_Match=pRPSC; // This is considered the perfect match
 			else if( pRPSC->FK_OperatingSystem_get()==pRow_Distro->FK_OperatingSystem_get() && !pRPSC->MustBuildFromSource_get() )
-				vectRow_Package_Source_Compat_OS.push_back(pRPSC); // It matched the OS, so we'll use it if we don't find an exact match for the distro
+				pRPSC_OS=pRPSC; // It matched the OS, so we'll use it if we don't find an exact match for the distro
 		
 			if( (pRPSC->FK_Distro_isNull() || pRow_Distro->PK_Distro_get()==pRPSC->FK_Distro_get()) && 
 					(pRPSC->FK_OperatingSystem_isNull() || pRow_Distro->FK_OperatingSystem_get()==pRPSC->FK_OperatingSystem_get()) )
-				vectRow_Package_Source_Compat.push_back( pRPSC );
+				pRPSC_Comp=pRPSC;
 		}
+		if( pRPSC_Match )
+			vectRow_Package_Source_Compat_Match.push_back(pRPSC_Match); // This is considered the perfect match
+		else if( pRPSC_OS )
+			vectRow_Package_Source_Compat_OS.push_back(pRPSC_OS); // It matched the OS, so we'll use it if we don't find an exact match for the distro
+		else if( pRPSC_Comp )
+			vectRow_Package_Source_Compat.push_back( pRPSC_Comp );
 	}
 
 	// This will be the preferred source
