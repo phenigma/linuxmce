@@ -219,22 +219,18 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
 
     if(pObj->m_pDataGridTable)
     {
-        if(pObj->m_pDataGridTable->m_ColumnCount > 1)
+        if(pObj->m_pDataGridTable->m_ColumnCount != 1)
         {
             g_pPlutoLogger->Write(LV_WARNING,
-                "OrbiterSDLBluetooth: I don't know how to render grids with no columns."
+                "OrbiterSDLBluetooth: I don't know how to render grids with more then one columns, "
+				"I'll let the base render as a image"
             );
 
+			OrbiterSDL::RenderDataGrid(pObj);
             return;
         }
 
-        if(pObj->m_pDataGridTable->m_ColumnCount > 1)
-        {
-            g_pPlutoLogger->Write(LV_WARNING,
-                "OrbiterSDLBluetooth: I don't know how to render grids with more then one column."
-                "So I'll render only the first row!"
-            );
-        }
+		//now I have a grid with one column.. I know how to render it on the phone
 
         int x       = pObj->m_rPosition.X;
         int y       = pObj->m_rPosition.Y;
