@@ -1201,7 +1201,7 @@
 	###########################
 
 	# Specify where the user should be sent after logging out.
-	$g_logout_redirect_page			= $g_path.'login_page.php';
+	$g_logout_redirect_page			= 'plutoLogout.php';
 
 	###########################
 	# Headers

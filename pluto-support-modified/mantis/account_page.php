@@ -111,25 +111,6 @@
 		</td>
 	</tr>
 
-	<!-- Password -->
-	<tr class="row-2">
-		<td class="category">
-			<?php echo lang_get( 'password' ) ?>
-		</td>
-		<td>
-			<input type="password" size="32" maxlength="32" name="password" />
-		</td>
-	</tr>
-
-	<!-- Password confirmation -->
-	<tr class="row-1">
-		<td class="category">
-			<?php echo lang_get( 'confirm_password' ) ?>
-		</td>
-		<td>
-			<input type="password" size="32" maxlength="32" name="password_confirm" />
-		</td>
-	</tr>
 
 <?php } ?> <!-- End LDAP conditional -->
 
@@ -153,21 +134,11 @@
 			<?php echo lang_get( 'email' ) ?>
 		</td>
 		<td>
-			<?php print_email_input( 'email', $u_email ) ?>
+			<?php echo $u_email ?>
 		</td>
 	</tr>
 
 <?php } ?> <!-- End LDAP Email conditional -->
-
-	<!-- Realname -->
-	<tr class="row-1" valign="top">
-		<td class="category">
-			<?php echo lang_get( 'realname' ) ?>
-		</td>
-		<td>
-			<input type="text" size="32" maxlength="64" name="realname" value="<?php echo $u_realname ?>" />
-		</td>
-	</tr>
 
 	<!-- Access level -->
 	<tr class="row-2">

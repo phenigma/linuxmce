@@ -29,8 +29,8 @@
 
 	# set these values to match your setup
 	$g_hostname      = "localhost";
-	$g_db_username   = "root";
-	$g_db_password   = "";
+	$g_db_username   = "plutovip";
+	$g_db_password   = "bogata41";
 	$g_database_name = "mantis";
 
 	# --- email variables -------------

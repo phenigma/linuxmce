@@ -259,7 +259,6 @@
 	# (10) Print a user-defined banner at the top of the page if there is one.
 	function html_top_banner() {
 		$t_page = config_get( 'top_include_page' );
-
 		if ( !is_blank( $t_page ) && file_exists( $t_page ) && !is_dir( $t_page ) ) {
 			include( $t_page );
 		}
@@ -316,6 +315,12 @@
 			PRINT '</td>';
 		PRINT '</tr>';
 		PRINT '</table>';
+		if(isset($_GET['project']))
+			print '<script>
+				document.form_set_project.project_id.value="'.$_GET['project'].'";
+				document.form_set_project.submit();
+			</script>';
+
 	}
 
 	# --------------------
