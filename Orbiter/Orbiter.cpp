@@ -516,9 +516,9 @@ bool Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *
 		pTextStyle = pObj->m_pTextStyle_FirstRow;
 		bTransparentCell = false;
 	}
-	if ( pCell->m_AltColor > 0 && pCell->m_AltColor<( int ) pObj->m_pTextStyle_Alt.size(  ) )
+	if ( pCell->m_AltColor > 0 && pCell->m_AltColor<( int ) pObj->m_vectTextStyle_Alt.size(  ) )
 	{
-		pTextStyle = pObj->m_pTextStyle_Alt[pCell->m_AltColor];
+		pTextStyle = pObj->m_vectTextStyle_Alt[pCell->m_AltColor];
 		bTransparentCell = false;
 	}
 	if( GraphicToDisplay==GRAPHIC_SELECTED )
@@ -2198,7 +2198,12 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
 				break;
 			TextStyle *pTextStyle = m_mapTextStyle_Find(  atoi( Style.c_str(  ) )  );
 			if(  pTextStyle  )
-				pObj_Datagrid->m_pTextStyle_Alt[Counter] = pTextStyle;
+			{
+				while(pObj_Datagrid->m_vectTextStyle_Alt.size()<Counter)
+					pObj_Datagrid->m_vectTextStyle_Alt.push_back(NULL);
+				pObj_Datagrid->m_vectTextStyle_Alt.push_back(pTextStyle);
+				//				pObj_Datagrid->m_vectTextStyle_Alt[Counter] = pTextStyle;
+			}
 			Counter++;
 		}
 		m_mapObjs_AllGrids[pObj_Datagrid->m_sGridID] = pObj_Datagrid;

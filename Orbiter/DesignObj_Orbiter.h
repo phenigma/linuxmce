@@ -223,7 +223,7 @@ public:
 	bool bReAcquire;
 	class DataGridTable *m_pDataGridTableCache[CACHE_SIZE];
 	class TextStyle *m_pTextStyle,*m_pTextStyle_FirstCol,*m_pTextStyle_FirstRow,*m_pTextStyle_Selected,*m_pTextStyle_Highlighted;
-	vector<class TextStyle *> m_pTextStyle_Alt;
+	vector<class TextStyle *> m_vectTextStyle_Alt;
 
 	string sSelVariable;
 	bool m_bDontShowSelection,m_bIsMultiSelect,m_bKeepColHeader,m_bKeepRowHeader,m_bPersistXY;

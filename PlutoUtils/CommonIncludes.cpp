@@ -73,7 +73,7 @@ char AskMCQuestion(string Question,string Prompts)
 			return c;
 
 		// In case the user entered in upper case 
-		if( StringUtils::ToLower(Prompts).find(c-32)!=string::npos )
-			return c-32;
+		if( StringUtils::ToLower(Prompts).find(c+32)!=string::npos )
+			return c+32;
 	}
 }

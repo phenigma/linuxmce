@@ -121,14 +121,12 @@ namespace DCE
 	map<int,class EntertainArea *> m_mapEntertainArea; /** The entertainment areas where this stream is playing */
 	
         /** 
-	 * As more 'play media' commands come in to this stream, it will add them to the queue so the user can save as a play list. 
-	 * If it's a mounted media, like dvd, that won't happen
-	 */
+		* As more 'play media' commands come in to this stream, it will add them to the queue so the user can save as a play list. 
+		* If it's a mounted media, like dvd, that won't happen
+		*/
 
         deque<string> m_dequeFilename;  /** The filenames we're playing */
-        
-	deque<int> m_dequePK_MED_File; /** A list of media files from the Media attributes class */
-
+		deque<int> m_dequePK_MED_File; /** A list of media files from the Media attributes class */
         int m_ivectFilenames_Pos,m_iPK_MED_File_Pos;  /** The current position in either of the 2 above vectors.  
 							One or both must always be -1, since we can't be playing from both lists at the same time */
         
