@@ -243,7 +243,7 @@ for Client in $DisklessR; do
 	mkdir -p $DlPath/usr/pluto/deb-cache
 
 	echo -n " Timezone"
-	cp /etc/timezone $DlPath/etc
+	cp /etc/timezone /etc/localtime $DlPath/etc
 
 	echo
 	MoonNumber=$((MoonNumber+1))
