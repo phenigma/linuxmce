@@ -20,7 +20,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..;../DCE/;../../libs/Libraries/pthreads-win32/include;/mysql/include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;ORBITER_PLUGIN;VIPDESIGN"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -139,6 +139,12 @@
 			<File
 				RelativePath="..\Gen_Devices\Orbiter_PluginBase.cpp">
 			</File>
+			<File
+				RelativePath=".\PopulateListsInVMC.cpp">
+			</File>
+			<File
+				RelativePath="..\VIPShared\VIPMenu.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -148,6 +154,9 @@
 			</File>
 			<File
 				RelativePath="Orbiter_Plugin.h">
+			</File>
+			<File
+				RelativePath=".\PopulateListsInVMC.h">
 			</File>
 		</Filter>
 		<Filter

@@ -558,10 +558,28 @@ void RenderMenu::KeyPressed(int KeyCode)
 			//TODO: program name
 			if(pRes->m_sProgramName.length())
 			{
+				string sParams;
+				string sUrl = pRes->m_sProgramName;
+				if(pRes->m_iReportToServer)
+				{
+					for(map<long,class VIPVariable *>::iterator it = m_pMenuCollection->m_mapVariables.begin();
+						it != m_pMenuCollection->m_mapVariables.end(); it++)
+					{
+						VIPVariable *pVariable = (*it).second;
+						sParams += pVariable->m_sDescription + "=" + pVariable->m_sCurrentValue + "&";
+					}
+				}
+
+				if(sParams != "")
+					sParams += "dummy=0";
+
+				sUrl += sParams;	
+
 #ifndef SYMBIAN
-				MessageBox(pRes->m_sProgramName.c_str(), "Running program");
+				MessageBox(sUrl.c_str(), "Running program");
 #endif
-				OpenProgram(pRes->m_sProgramName);
+
+				OpenProgram(sUrl);
 				//bRedrawScreen = true;
 				break;
 			}

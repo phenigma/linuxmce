@@ -51,6 +51,8 @@ using namespace DCE;
 #include "DCERouter.h"
 #include "CreateDevice/CreateDevice.h"
 
+#include "PopulateListsInVMC.h"
+
 #include <cctype>
 #include <algorithm>
 
@@ -189,6 +191,30 @@ bool Orbiter_Plugin::Register()
                 m_mapOH_Orbiter_Mac[StringUtils::ToUpper(pDeviceData_Router->m_sMacAddress)] = pOH_Orbiter;
         }
     }
+
+
+	for(map<string, OH_Orbiter *>::iterator iter = m_mapOH_Orbiter_Mac.begin(); iter != m_mapOH_Orbiter_Mac.end(); ++iter)
+	{
+		OH_Orbiter *pOH_Orbiter = (*iter).second;
+
+		long dwPKDevice = pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device;
+		Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(dwPKDevice);
+		long dwDeviceTemplate = pRow_Device->FK_DeviceTemplate_get();
+		Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(dwDeviceTemplate);
+		string sDescription = pRow_DeviceTemplate->Description_get();
+		string sSourceVMCFileName = sDescription + ".vmc";
+
+		StringUtils::Replace(sSourceVMCFileName, "/", "-");
+		StringUtils::Replace(sSourceVMCFileName, ":", "-");
+		StringUtils::Replace(sSourceVMCFileName, "\\", "-");
+		StringUtils::Replace(sSourceVMCFileName, "*", "-");
+		StringUtils::Replace(sSourceVMCFileName, "?", "-");
+		sSourceVMCFileName = "/usr/pluto/bin/" + sSourceVMCFileName;
+
+		string sDestFileName = "/usr/pluto/bin/dev_" + StringUtils::ltos(dwPKDevice) + ".vmc";
+
+		PopulateListsInVMC(sSourceVMCFileName, sDestFileName, dwPKDevice, m_pDatabase_pluto_main);
+	}
 
     RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::MobileOrbiterDetected) ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_Mobile_orbiter_detected_CONST);
     RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::MobileOrbiterLinked) ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_Mobile_orbiter_linked_CONST);
@@ -366,7 +392,7 @@ printf("Mobile orbiter detected\n");
         vector<Row_Device *> vectRow_Device;
         m_pDatabase_pluto_main->Device_get()->GetRows( DEVICE_MACADDRESS_FIELD + string("='") + sMacAddress + "' ", &vectRow_Device );
 
-        g_pPlutoLogger->Write(LV_STATUS,"Found: %d rows in unknown devices for %s",(int) vectRow_Device.size(),sMacAddress.c_str());
+        g_pPlutoLogger->Write(LV_STATUS,"Found: %d rows in devices for %s",(int) vectRow_Device.size(),sMacAddress.c_str());
 
         // If we have any records, then it's something that is already in our database, and it's not a phone, since it's
         // not in the OH_Orbiter map.  Just ignore it.
@@ -420,7 +446,8 @@ printf("Mobile orbiter detected\n");
                     pOH_Orbiter->m_iLastSignalStrength = 0;
             }
 
-            if( pOH_Orbiter->m_pDevice_CurrentDetected && pOH_Orbiter->m_iLastSignalStrength >= SignalStrength )
+            if( pOH_Orbiter->m_pDevice_CurrentDetected && pOH_Orbiter->m_iLastSignalStrength > 0 &&
+				pOH_Orbiter->m_iLastSignalStrength >= SignalStrength )
             {
                 g_pPlutoLogger->Write(LV_STATUS,"Mobile Orbiter %s already has a strong association with %d (%d/%d)",
                     sMacAddress.c_str(),
@@ -630,6 +657,7 @@ bool Orbiter_Plugin::MobileOrbiterLost(class Socket *pSocket,class Message *pMes
             //pMobileOrbiter->RemovingAssocation();
 
             pOH_Orbiter->m_pDevice_CurrentDetected=NULL;
+			pOH_Orbiter->m_iLastSignalStrength = 0;
         }
 
     }

@@ -119,7 +119,20 @@ void CVIPEditDlg::OnBnClickedEditEdit()
 
 void CVIPEditDlg::OnBnClickedEditDelete()
 {
-	// TODO: Add your control notification handler code here
+	/*
+	int Selected = m_lbItems.GetCurSel();
+	if( Selected>=0 )
+	{
+		if( m_mapResolution )
+		{
+			VIPMenuResolution *pResolution = (*m_mapResolution)[(long) m_lbItems.GetItemData(Selected)];
+			pResolution->
+		}
+
+
+		PopulateListBox();
+	}
+	*/
 }
 
 void CVIPEditDlg::OnBnClickedOk()
@@ -229,6 +242,9 @@ void CVIPEditDlg::PopulateWithZone()
 }
 void CVIPEditDlg::PopulateWithResolution()
 {
+	while(m_lbItems.GetCount())
+		m_lbItems.DeleteString(0);
+
 	MYSTL_ITERATE_LONG_MAP((*m_mapResolution),VIPMenuResolution,pResolution,i) 
 	{
 		int Item=m_lbItems.AddString(pResolution->m_sTerminatingKey.c_str());

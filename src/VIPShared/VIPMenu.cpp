@@ -311,6 +311,7 @@ bool VIPMenuCollection::ConvertToBinary()
 				Write_unsigned_short(pGraphic->m_iGraphicType);
 				Write_string(pGraphic->m_sFileName);
 
+#ifndef ORBITER_PLUGIN
 				if( !pGraphic->m_iGraphicSize || !pGraphic->m_pGraphicData )
 				{
 					FILE *file = fopen( (g_pPlutoConfig->m_sMenuPath + pGraphic->m_sFileName).c_str(),"rb");
@@ -331,7 +332,7 @@ bool VIPMenuCollection::ConvertToBinary()
 						}
 					}
 				}
-
+#endif 
 
 				Write_unsigned_long(pGraphic->m_iGraphicSize);
 				Write_block((char *)pGraphic->m_pGraphicData,pGraphic->m_iGraphicSize);
@@ -369,7 +370,7 @@ bool VIPMenuCollection::ConvertToBinary()
 
 	m_iBinarySize = (unsigned long) (m_pcCurrentPosition-m_pcDataBlock);
 	m_pBinary = m_pcDataBlock;
-#endif
+#endif //VIPDESIGN
 
 	return true;
 }
