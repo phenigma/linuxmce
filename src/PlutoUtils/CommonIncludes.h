@@ -47,7 +47,7 @@ using namespace std;
 	#define SOCKFAIL(x) (x < 0)
 	#define SOCKOPTTYPE void *
 	#define INVALID_SOCKET -1
-	#define closesocket close
+	#define closesocket(a) shutdown(a,SHUT_RDWR)
 #else
 // Windows Stuff ----------------------
 	#define trunc(s) s 

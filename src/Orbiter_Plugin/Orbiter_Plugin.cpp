@@ -1265,12 +1265,26 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 
 bool Orbiter_Plugin::NewPnpDevice( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo ) 
 {
+	int PK_Device = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PK_Device_CONST].c_str());
+	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(PK_Device);
+	if( !pRow_Device )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Got invalid pnp device: %d",PK_Device);
+		return false;
+	}
     for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
     {
         OH_Orbiter *pOH_Orbiter = (*it).second;
 
-		DCE::CMD_Goto_Screen CMD_Goto_Screen( m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, 0, StringUtils::itos(DESIGNOBJ_mnuNewPlugAndPlayDevice_CONST), "", "", false );
-		SendCommand( CMD_Goto_Screen );
+		DCE::CMD_Goto_Screen CMD_Goto_Screen( m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, 0, StringUtils::itos(DESIGNOBJ_mnuNewPlugAndPlayDevice_CONST), "", "", true );
+		DCE::CMD_Set_Variable CMD_Set_Variable1( m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, VARIABLE_Misc_Data_1_CONST, pRow_Device->Description_get());
+		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable1.m_pMessage);
+		DCE::CMD_Set_Variable CMD_Set_Variable2( m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, VARIABLE_Misc_Data_2_CONST, pRow_Device->FK_DeviceTemplate_getrow()->Comments_get());
+		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable2.m_pMessage);
+		DCE::CMD_Set_Variable CMD_Set_Variable3( m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, VARIABLE_Misc_Data_3_CONST, StringUtils::itos(PK_Device));
+		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Variable3.m_pMessage);
+
+        QueueMessageToRouter(CMD_Goto_Screen.m_pMessage);
 	}
 
 	return false;  // Let anybody else have this who wants it
