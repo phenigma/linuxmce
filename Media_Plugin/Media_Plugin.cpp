@@ -355,13 +355,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
         return false;
     }
 
-    pMediaStream->ChangePositionInPlaylist(1);
-
-    pMediaStream->m_bCanChangePlaylist = false; // we are already playing from a filename from the playlist so there is no need to add it again.
-    StartMedia( pMediaStream->m_pMediaPluginInfo, pMediaStream->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pEntertainArea, m_dwPK_Device, 0, pMediaStream->GetFilenameToPlay());
-    pMediaStream->m_bCanChangePlaylist = true;  // we allow others to add filenames to the queue.
-
-    return true;
+    return StartMediaByPositionInPlaylist(pEntertainArea, pMediaStream->m_iDequeFilenames_Pos + 1, m_dwPK_Device, 0);
 }
 
 bool Media_Plugin::StartMedia( MediaPluginInfo *pMediaPluginInfo, int PK_Device_Orbiter, EntertainArea *pEntertainArea, int PK_Device_Source, int PK_DesignObj_Remote, string Filename )
