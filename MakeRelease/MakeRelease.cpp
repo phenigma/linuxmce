@@ -1138,6 +1138,7 @@ cout << "Copying Files\n";
 		}
 		flag = false;
 	}
+	return true;
 ///////////////////////////////////////////////////////////
 ////////---------------- Findinf old files and delete them
 	flag = false;
