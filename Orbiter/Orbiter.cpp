@@ -46,7 +46,7 @@ using namespace DCE;
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_FloorplanType.h"
 
-#define VERSION "<=version=>"
+#define VERSION "04122110"
 
 #ifdef WINCE
     #include "wince.h"
@@ -3308,7 +3308,7 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 			for(map<int,CallBackInfo *>::iterator it=mapPendingCallbacks.begin();it!=mapPendingCallbacks.end();++it)
 			{
 				CallBackInfo *pCallBackInfo = (*it).second;
-				if( pCallBackInfo->m_fnCallBack==DelayedSelectObject && !pCallBackInfo->m_bStop )
+				if( pCallBackInfo->m_fnCallBack == &Orbiter::DelayedSelectObject && !pCallBackInfo->m_bStop )
 				{
 					DelayedSelectObjectInfo *pDelayedSelectObjectInfo = (DelayedSelectObjectInfo *) pCallBackInfo->m_pData;
 					if( TestCurrentScreen(pDelayedSelectObjectInfo->m_sPK_DesignObj_CurrentScreen) )
@@ -4502,7 +4502,7 @@ void Orbiter::CMD_Select_Object(string sPK_DesignObj,string sPK_DesignObj_Curren
 		for(map<int,CallBackInfo *>::iterator it=mapPendingCallbacks.begin();it!=mapPendingCallbacks.end();++it)
 		{
 			CallBackInfo *pCallBackInfo = (*it).second;
-			if( pCallBackInfo->m_fnCallBack==DelayedSelectObject )
+			if( pCallBackInfo->m_fnCallBack== &Orbiter::DelayedSelectObject )
 			{
 				DelayedSelectObjectInfo *pDelayedSelectObjectInfo = (DelayedSelectObjectInfo *) pCallBackInfo->m_pData;
 				if( pDelayedSelectObjectInfo->m_pObj==pDesignObj_Orbiter )
@@ -4511,7 +4511,7 @@ void Orbiter::CMD_Select_Object(string sPK_DesignObj,string sPK_DesignObj_Curren
 		}
 		cm.Release();
 
-		CallMaintenanceInTicks( c, DelayedSelectObject, pDelayedSelectObjectInfo, false );
+		CallMaintenanceInTicks( c, &Orbiter::DelayedSelectObject, pDelayedSelectObjectInfo, false );
 	}
 	else
 	    SelectedObject( pDesignObj_Orbiter );
