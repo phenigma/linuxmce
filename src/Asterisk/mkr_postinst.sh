@@ -4,13 +4,16 @@ echo 'CREATE DATABASE IF NOT EXISTS `asterisk`;' | mysql
 # TODO: treat upgrades
 mysql asterisk </usr/pluto/install/asterisk.sql
 
+# add asterisk user
+echo "GRANT ALL PRIVILEGES ON asterisk.* to 'asterisk'@'localhost';" | mysql
+echo "FLUSH PRIVILEGES;" | mysql
 
 # update res_odbc.conf
 : >/etc/asterisk/res_odbc.conf
 
 echo "[asterisk]
 dsn => MySQL-asterisk
-username => root
+username => asterisk
 password =>
 pre-connect => yes" >> /etc/asterisk/res_odbc.conf
 
@@ -70,13 +73,11 @@ Description     = MySQL ODBC Driver Testing
 Driver          = MySQL
 Socket          = /var/run/mysqld/mysqld.sock
 Server          = localhost
-User            = root
+User            = asterisk
 Password        =
 Database        = asterisk
 Option          = 3
 " >> /etc/odbc.ini
-
-
 
 # restart asterisk
 asterisk -rx "restart gracefully" || true
