@@ -42,10 +42,10 @@ private:
 	{
 		friend class Row_DeviceTemplate_Output;
 		long int pk_FK_DeviceTemplate;
-long int pk_FK_Output;
+long int pk_FK_Command;
 
 		
-		Key(long int in_FK_DeviceTemplate, long int in_FK_Output);
+		Key(long int in_FK_DeviceTemplate, long int in_FK_Command);
 	
 		Key(class Row_DeviceTemplate_Output *pRow);
 	};
@@ -64,7 +64,7 @@ public:
 	Database_pluto_main *Database_pluto_main_get() { return database; }
 	
 		
-	class Row_DeviceTemplate_Output* GetRow(long int in_FK_DeviceTemplate, long int in_FK_Output);
+	class Row_DeviceTemplate_Output* GetRow(long int in_FK_DeviceTemplate, long int in_FK_Command);
 	
 
 private:	
@@ -83,7 +83,8 @@ class DLL_EXPORT Row_DeviceTemplate_Output : public TableRow, public SerializeCl
 		Table_DeviceTemplate_Output *table;
 		
 		long int m_FK_DeviceTemplate;
-long int m_FK_Output;
+long int m_FK_Command;
+long int m_FK_ConnectorType;
 short int m_OrderNo;
 long int m_psc_id;
 long int m_psc_batch;
@@ -91,11 +92,12 @@ long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[8];
+		bool is_null[9];
 	
 	public:
 		long int FK_DeviceTemplate_get();
-long int FK_Output_get();
+long int FK_Command_get();
+long int FK_ConnectorType_get();
 short int OrderNo_get();
 long int psc_id_get();
 long int psc_batch_get();
@@ -105,7 +107,8 @@ string psc_mod_get();
 
 		
 		void FK_DeviceTemplate_set(long int val);
-void FK_Output_set(long int val);
+void FK_Command_set(long int val);
+void FK_ConnectorType_set(long int val);
 void OrderNo_set(short int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
@@ -114,13 +117,15 @@ void psc_frozen_set(short int val);
 void psc_mod_set(string val);
 
 		
-		bool psc_id_isNull();
+		bool FK_ConnectorType_isNull();
+bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
 bool psc_frozen_isNull();
 
 			
-		void psc_id_setNull(bool val);
+		void FK_ConnectorType_setNull(bool val);
+void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
 void psc_frozen_setNull(bool val);
@@ -137,7 +142,8 @@ void psc_frozen_setNull(bool val);
 
 		// Return the rows for foreign keys 
 		class Row_DeviceTemplate* FK_DeviceTemplate_getrow();
-class Row_Output* FK_Output_getrow();
+class Row_Command* FK_Command_getrow();
+class Row_ConnectorType* FK_ConnectorType_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
@@ -145,13 +151,14 @@ class Row_Output* FK_Output_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_FK_DeviceTemplate+ m_FK_Output+ m_OrderNo+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_FK_DeviceTemplate+ m_FK_Command+ m_FK_ConnectorType+ m_OrderNo+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string FK_DeviceTemplate_asSQL();
-string FK_Output_asSQL();
+string FK_Command_asSQL();
+string FK_ConnectorType_asSQL();
 string OrderNo_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();

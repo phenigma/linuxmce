@@ -990,16 +990,16 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
 				if( (*(*pSafetyMessage))->m_mapParameters.find(COMMANDPARAMETER_Dont_Set_Inputs_CONST)!=(*(*pSafetyMessage))->m_mapParameters.end() ||
 					(*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_Dont_Set_Inputs_CONST]=="1") 
 				{
-					if( !pPipe->m_pRow_Device_Device_Pipe->FK_Input_isNull() )
+					if( !pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_isNull() )
 					{
 						Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
-							PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Input_Select_CONST,1,COMMANDPARAMETER_PK_Input_CONST,StringUtils::itos(pPipe->m_pRow_Device_Device_Pipe->FK_Input_get()));
+							PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Input_Select_CONST,1,COMMANDPARAMETER_PK_Command_Input_CONST,StringUtils::itos(pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_get()));
 						ReceivedMessage(NULL,pMessage);
 					}
-					if( !pPipe->m_pRow_Device_Device_Pipe->FK_Output_isNull() )
+					if( !pPipe->m_pRow_Device_Device_Pipe->FK_Command_Output_isNull() )
 					{
 						Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
-							PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Output_Select_CONST,1,COMMANDPARAMETER_PK_Output_CONST,StringUtils::itos(pPipe->m_pRow_Device_Device_Pipe->FK_Output_get()));
+							PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Output_Select_CONST,1,COMMANDPARAMETER_PK_Command_Output_CONST,StringUtils::itos(pPipe->m_pRow_Device_Device_Pipe->FK_Command_Output_get()));
 						ReceivedMessage(NULL,pMessage);
 					}
 				}
@@ -1404,32 +1404,6 @@ void Router::Configure()
         {
             Row_Device_DeviceData *pRow_DeviceParm = vectDeviceParms[s2];
             pDevice->m_mapParameters[ pRow_DeviceParm->FK_DeviceData_get()] = pRow_DeviceParm->IK_DeviceData_get();
-        }
-
-        vector<Row_DeviceTemplate_Input *> vectDeviceInputs;
-        GetDatabase()->DeviceTemplate_Input_get()->GetRows(
-            string(DEVICETEMPLATE_INPUT_FK_DEVICETEMPLATE_FIELD) + "=" + StringUtils::itos(pDevice->m_dwPK_DeviceTemplate),&vectDeviceInputs);
-
-        for(size_t s2=0;s2<vectDeviceInputs.size();++s2)
-        {
-            Row_DeviceTemplate_Input *pRow_DeviceInput = vectDeviceInputs[s2];
-            pDevice->m_mapInputs[pRow_DeviceInput->FK_Input_get()]=pRow_DeviceInput->FK_Input_getrow()->FK_Command_get();
-        }
-/*
-        vector<Row_DeviceTemplate_C_Output *> vectDeviceOutputs = GetDatabase()->DeviceTemplate_C_Output_get()->GetRows("WHERE " + DeviceTemplate_C_Output_FK_MASTERDEVICE_CONST + "=" StringUtils::itos(pDevice->m_dwPK_DeviceTemplate));
-        for(size_t s2=0;s2<vectDeviceOutputs.size();++s2)
-        {
-            Row_DeviceTemplate_C_Output *pRow_DeviceOutput = vectDeviceOutputs[s2];
-            pDevice->m_mapOutputs[pRow_DeviceOutput->FK_C_Output_get()]=pRow_DeviceOutput->FK_C_Output_getrow()->FK_Action_get();
-        }
-*/
-        vector<Row_DeviceTemplate_DSPMode *> vectDeviceDSPModes;
-        GetDatabase()->DeviceTemplate_DSPMode_get()->GetRows(
-            string(DEVICETEMPLATE_DSPMODE_FK_DEVICETEMPLATE_FIELD) + "=" + StringUtils::itos(pDevice->m_dwPK_DeviceTemplate),&vectDeviceDSPModes);
-        for(size_t s2=0;s2<vectDeviceDSPModes.size();++s2)
-        {
-            Row_DeviceTemplate_DSPMode *pRow_DeviceDSPMode = vectDeviceDSPModes[s2];
-            pDevice->m_mapDSPModes[pRow_DeviceDSPMode->FK_DSPMode_get()]=pRow_DeviceDSPMode->FK_DSPMode_getrow()->FK_Command_get();
         }
     }
 

@@ -48,7 +48,6 @@ class Table_CriteriaParmNesting* tblCriteriaParmNesting;
 class Table_CriteriaParmNesting_D* tblCriteriaParmNesting_D;
 class Table_CriteriaParm_D* tblCriteriaParm_D;
 class Table_Criteria_D* tblCriteria_D;
-class Table_DSPMode* tblDSPMode;
 class Table_DataGrid* tblDataGrid;
 class Table_DesignObj* tblDesignObj;
 class Table_DesignObjCategory* tblDesignObjCategory;
@@ -123,7 +122,6 @@ class Table_Icon* tblIcon;
 class Table_Image* tblImage;
 class Table_InfraredGroup* tblInfraredGroup;
 class Table_InfraredGroup_Command* tblInfraredGroup_Command;
-class Table_Input* tblInput;
 class Table_InstallWizard* tblInstallWizard;
 class Table_InstallWizard_Distro* tblInstallWizard_Distro;
 class Table_Installation* tblInstallation;
@@ -139,7 +137,6 @@ class Table_OperatingSystem* tblOperatingSystem;
 class Table_Orbiter* tblOrbiter;
 class Table_Orbiter_Users_PasswordReq* tblOrbiter_Users_PasswordReq;
 class Table_Orbiter_Variable* tblOrbiter_Variable;
-class Table_Output* tblOutput;
 class Table_Package* tblPackage;
 class Table_PackageType* tblPackageType;
 class Table_Package_Compat* tblPackage_Compat;
@@ -256,7 +253,6 @@ class Table_CriteriaParmNesting* CriteriaParmNesting_get() { return tblCriteriaP
 class Table_CriteriaParmNesting_D* CriteriaParmNesting_D_get() { return tblCriteriaParmNesting_D; }
 class Table_CriteriaParm_D* CriteriaParm_D_get() { return tblCriteriaParm_D; }
 class Table_Criteria_D* Criteria_D_get() { return tblCriteria_D; }
-class Table_DSPMode* DSPMode_get() { return tblDSPMode; }
 class Table_DataGrid* DataGrid_get() { return tblDataGrid; }
 class Table_DesignObj* DesignObj_get() { return tblDesignObj; }
 class Table_DesignObjCategory* DesignObjCategory_get() { return tblDesignObjCategory; }
@@ -331,7 +327,6 @@ class Table_Icon* Icon_get() { return tblIcon; }
 class Table_Image* Image_get() { return tblImage; }
 class Table_InfraredGroup* InfraredGroup_get() { return tblInfraredGroup; }
 class Table_InfraredGroup_Command* InfraredGroup_Command_get() { return tblInfraredGroup_Command; }
-class Table_Input* Input_get() { return tblInput; }
 class Table_InstallWizard* InstallWizard_get() { return tblInstallWizard; }
 class Table_InstallWizard_Distro* InstallWizard_Distro_get() { return tblInstallWizard_Distro; }
 class Table_Installation* Installation_get() { return tblInstallation; }
@@ -347,7 +342,6 @@ class Table_OperatingSystem* OperatingSystem_get() { return tblOperatingSystem; 
 class Table_Orbiter* Orbiter_get() { return tblOrbiter; }
 class Table_Orbiter_Users_PasswordReq* Orbiter_Users_PasswordReq_get() { return tblOrbiter_Users_PasswordReq; }
 class Table_Orbiter_Variable* Orbiter_Variable_get() { return tblOrbiter_Variable; }
-class Table_Output* Output_get() { return tblOutput; }
 class Table_Package* Package_get() { return tblPackage; }
 class Table_PackageType* PackageType_get() { return tblPackageType; }
 class Table_Package_Compat* Package_Compat_get() { return tblPackage_Compat; }
@@ -467,7 +461,6 @@ void CreateTable_CriteriaParmNesting();
 void CreateTable_CriteriaParmNesting_D();
 void CreateTable_CriteriaParm_D();
 void CreateTable_Criteria_D();
-void CreateTable_DSPMode();
 void CreateTable_DataGrid();
 void CreateTable_DesignObj();
 void CreateTable_DesignObjCategory();
@@ -542,7 +535,6 @@ void CreateTable_Icon();
 void CreateTable_Image();
 void CreateTable_InfraredGroup();
 void CreateTable_InfraredGroup_Command();
-void CreateTable_Input();
 void CreateTable_InstallWizard();
 void CreateTable_InstallWizard_Distro();
 void CreateTable_Installation();
@@ -558,7 +550,6 @@ void CreateTable_OperatingSystem();
 void CreateTable_Orbiter();
 void CreateTable_Orbiter_Users_PasswordReq();
 void CreateTable_Orbiter_Variable();
-void CreateTable_Output();
 void CreateTable_Package();
 void CreateTable_PackageType();
 void CreateTable_Package_Compat();
@@ -674,7 +665,6 @@ void DeleteTable_CriteriaParmNesting();
 void DeleteTable_CriteriaParmNesting_D();
 void DeleteTable_CriteriaParm_D();
 void DeleteTable_Criteria_D();
-void DeleteTable_DSPMode();
 void DeleteTable_DataGrid();
 void DeleteTable_DesignObj();
 void DeleteTable_DesignObjCategory();
@@ -749,7 +739,6 @@ void DeleteTable_Icon();
 void DeleteTable_Image();
 void DeleteTable_InfraredGroup();
 void DeleteTable_InfraredGroup_Command();
-void DeleteTable_Input();
 void DeleteTable_InstallWizard();
 void DeleteTable_InstallWizard_Distro();
 void DeleteTable_Installation();
@@ -765,7 +754,6 @@ void DeleteTable_OperatingSystem();
 void DeleteTable_Orbiter();
 void DeleteTable_Orbiter_Users_PasswordReq();
 void DeleteTable_Orbiter_Variable();
-void DeleteTable_Output();
 void DeleteTable_Package();
 void DeleteTable_PackageType();
 void DeleteTable_Package_Compat();

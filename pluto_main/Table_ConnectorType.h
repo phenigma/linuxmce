@@ -139,6 +139,7 @@ void psc_frozen_setNull(bool val);
 
 		// Return the rows in other tables with foreign keys pointing here
 		void DeviceTemplate_Input_FK_ConnectorType_getrows(vector <class Row_DeviceTemplate_Input*> *rows);
+void DeviceTemplate_Output_FK_ConnectorType_getrows(vector <class Row_DeviceTemplate_Output*> *rows);
 
 
 		// Setup binary serialization

@@ -151,12 +151,18 @@ void psc_frozen_setNull(bool val);
 void CommandGroup_D_Command_FK_Command_getrows(vector <class Row_CommandGroup_D_Command*> *rows);
 void Command_CommandParameter_FK_Command_getrows(vector <class Row_Command_CommandParameter*> *rows);
 void Command_Pipe_FK_Command_getrows(vector <class Row_Command_Pipe*> *rows);
-void DSPMode_FK_Command_getrows(vector <class Row_DSPMode*> *rows);
 void DeviceCommandGroup_Command_FK_Command_getrows(vector <class Row_DeviceCommandGroup_Command*> *rows);
+void DeviceTemplate_DSPMode_FK_Command_getrows(vector <class Row_DeviceTemplate_DSPMode*> *rows);
+void DeviceTemplate_DeviceCategory_ControlledVia_Pipe_FK_Command_Input_getrows(vector <class Row_DeviceTemplate_DeviceCategory_ControlledVia_Pipe*> *rows);
+void DeviceTemplate_DeviceCategory_ControlledVia_Pipe_FK_Command_Output_getrows(vector <class Row_DeviceTemplate_DeviceCategory_ControlledVia_Pipe*> *rows);
+void DeviceTemplate_DeviceTemplate_ControlledVia_Pipe_FK_Command_Input_getrows(vector <class Row_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe*> *rows);
+void DeviceTemplate_DeviceTemplate_ControlledVia_Pipe_FK_Command_Output_getrows(vector <class Row_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe*> *rows);
+void DeviceTemplate_Input_FK_Command_getrows(vector <class Row_DeviceTemplate_Input*> *rows);
+void DeviceTemplate_Output_FK_Command_getrows(vector <class Row_DeviceTemplate_Output*> *rows);
 void Device_Command_FK_Command_getrows(vector <class Row_Device_Command*> *rows);
+void Device_Device_Pipe_FK_Command_Input_getrows(vector <class Row_Device_Device_Pipe*> *rows);
+void Device_Device_Pipe_FK_Command_Output_getrows(vector <class Row_Device_Device_Pipe*> *rows);
 void InfraredGroup_Command_FK_Command_getrows(vector <class Row_InfraredGroup_Command*> *rows);
-void Input_FK_Command_getrows(vector <class Row_Input*> *rows);
-void Output_FK_Command_getrows(vector <class Row_Output*> *rows);
 
 
 		// Setup binary serialization

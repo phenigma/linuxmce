@@ -18,7 +18,7 @@ using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_DeviceTemplate_DSPMode.h"
 #include "Table_DeviceTemplate.h"
-#include "Table_DSPMode.h"
+#include "Table_Command.h"
 
 
 
@@ -74,7 +74,7 @@ void Row_DeviceTemplate_DSPMode::Delete()
 		}
 		else
 		{
-			DoubleLongKey key(pRow->m_FK_DeviceTemplate,pRow->m_FK_DSPMode);
+			DoubleLongKey key(pRow->m_FK_DeviceTemplate,pRow->m_FK_Command);
 			map<DoubleLongKey, TableRow*, DoubleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
@@ -93,7 +93,7 @@ void Row_DeviceTemplate_DSPMode::Reload()
 	
 	if (!is_added)
 	{
-		DoubleLongKey key(pRow->m_FK_DeviceTemplate,pRow->m_FK_DSPMode);
+		DoubleLongKey key(pRow->m_FK_DeviceTemplate,pRow->m_FK_Command);
 		Row_DeviceTemplate_DSPMode *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -115,7 +115,7 @@ void Row_DeviceTemplate_DSPMode::SetDefaultValues()
 {
 	m_FK_DeviceTemplate = 0;
 is_null[0] = false;
-m_FK_DSPMode = 0;
+m_FK_Command = 0;
 is_null[1] = false;
 m_OrderNo = 0;
 is_null[2] = false;
@@ -136,9 +136,9 @@ is_null[7] = false;
 long int Row_DeviceTemplate_DSPMode::FK_DeviceTemplate_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_DeviceTemplate;}
-long int Row_DeviceTemplate_DSPMode::FK_DSPMode_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_DeviceTemplate_DSPMode::FK_Command_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_FK_DSPMode;}
+return m_FK_Command;}
 short int Row_DeviceTemplate_DSPMode::OrderNo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_OrderNo;}
@@ -162,9 +162,9 @@ return m_psc_mod;}
 void Row_DeviceTemplate_DSPMode::FK_DeviceTemplate_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_DeviceTemplate = val; is_modified=true; is_null[0]=false;}
-void Row_DeviceTemplate_DSPMode::FK_DSPMode_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate_DSPMode::FK_Command_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_FK_DSPMode = val; is_modified=true; is_null[1]=false;}
+m_FK_Command = val; is_modified=true; is_null[1]=false;}
 void Row_DeviceTemplate_DSPMode::OrderNo_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_OrderNo = val; is_modified=true; is_null[2]=false;}
@@ -226,7 +226,7 @@ sprintf(buf, "%li", m_FK_DeviceTemplate);
 return buf;
 }
 
-string Row_DeviceTemplate_DSPMode::FK_DSPMode_asSQL()
+string Row_DeviceTemplate_DSPMode::FK_Command_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -234,7 +234,7 @@ if (is_null[1])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_FK_DSPMode);
+sprintf(buf, "%li", m_FK_Command);
 
 return buf;
 }
@@ -321,10 +321,10 @@ return s;
 
 
 
-Table_DeviceTemplate_DSPMode::Key::Key(long int in_FK_DeviceTemplate, long int in_FK_DSPMode)
+Table_DeviceTemplate_DSPMode::Key::Key(long int in_FK_DeviceTemplate, long int in_FK_Command)
 {
 			pk_FK_DeviceTemplate = in_FK_DeviceTemplate;
-pk_FK_DSPMode = in_FK_DSPMode;
+pk_FK_Command = in_FK_Command;
 	
 }
 
@@ -333,7 +333,7 @@ Table_DeviceTemplate_DSPMode::Key::Key(Row_DeviceTemplate_DSPMode *pRow)
 			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
 
 			pk_FK_DeviceTemplate = pRow->m_FK_DeviceTemplate;
-pk_FK_DSPMode = pRow->m_FK_DSPMode;
+pk_FK_Command = pRow->m_FK_Command;
 	
 }		
 
@@ -342,8 +342,8 @@ bool Table_DeviceTemplate_DSPMode::Key_Less::operator()(const Table_DeviceTempla
 			if (key1.pk_FK_DeviceTemplate!=key2.pk_FK_DeviceTemplate)
 return key1.pk_FK_DeviceTemplate<key2.pk_FK_DeviceTemplate;
 else
-if (key1.pk_FK_DSPMode!=key2.pk_FK_DSPMode)
-return key1.pk_FK_DSPMode<key2.pk_FK_DSPMode;
+if (key1.pk_FK_Command!=key2.pk_FK_Command)
+return key1.pk_FK_Command<key2.pk_FK_Command;
 else
 return false;	
 }	
@@ -361,10 +361,10 @@ bool Table_DeviceTemplate_DSPMode::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->FK_DeviceTemplate_asSQL()+", "+pRow->FK_DSPMode_asSQL()+", "+pRow->OrderNo_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->FK_DeviceTemplate_asSQL()+", "+pRow->FK_Command_asSQL()+", "+pRow->OrderNo_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into DeviceTemplate_DSPMode (FK_DeviceTemplate, FK_DSPMode, OrderNo, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into DeviceTemplate_DSPMode (FK_DeviceTemplate, FK_Command, OrderNo, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -382,7 +382,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_DeviceTempl
 				
 			
 			addedRows.erase(i);
-			DoubleLongKey key(pRow->m_FK_DeviceTemplate,pRow->m_FK_DSPMode);	
+			DoubleLongKey key(pRow->m_FK_DeviceTemplate,pRow->m_FK_Command);	
 			cachedRows[key] = pRow;
 					
 			
@@ -400,22 +400,22 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_DeviceTempl
 		if	(((*i).second)->is_modified_get())
 	{
 		Row_DeviceTemplate_DSPMode* pRow = (Row_DeviceTemplate_DSPMode*) (*i).second;	
-		DoubleLongKey key(pRow->m_FK_DeviceTemplate,pRow->m_FK_DSPMode);
+		DoubleLongKey key(pRow->m_FK_DeviceTemplate,pRow->m_FK_Command);
 
 		char tmp_FK_DeviceTemplate[32];
 sprintf(tmp_FK_DeviceTemplate, "%li", key.pk1);
 
-char tmp_FK_DSPMode[32];
-sprintf(tmp_FK_DSPMode, "%li", key.pk2);
+char tmp_FK_Command[32];
+sprintf(tmp_FK_Command, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate+" AND "+"FK_DSPMode=" + tmp_FK_DSPMode;
+condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate+" AND "+"FK_Command=" + tmp_FK_Command;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_DeviceTemplate="+pRow->FK_DeviceTemplate_asSQL()+", FK_DSPMode="+pRow->FK_DSPMode_asSQL()+", OrderNo="+pRow->OrderNo_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "FK_DeviceTemplate="+pRow->FK_DeviceTemplate_asSQL()+", FK_Command="+pRow->FK_Command_asSQL()+", OrderNo="+pRow->OrderNo_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update DeviceTemplate_DSPMode set " + update_values_list + " where " + condition;
@@ -452,12 +452,12 @@ update_values_list = update_values_list + "FK_DeviceTemplate="+pRow->FK_DeviceTe
 		char tmp_FK_DeviceTemplate[32];
 sprintf(tmp_FK_DeviceTemplate, "%li", key.pk1);
 
-char tmp_FK_DSPMode[32];
-sprintf(tmp_FK_DSPMode, "%li", key.pk2);
+char tmp_FK_Command[32];
+sprintf(tmp_FK_Command, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate+" AND "+"FK_DSPMode=" + tmp_FK_DSPMode;
+condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate+" AND "+"FK_Command=" + tmp_FK_Command;
 
 	
 		string query = "delete from DeviceTemplate_DSPMode where " + condition;
@@ -525,12 +525,12 @@ sscanf(row[0], "%li", &(pRow->m_FK_DeviceTemplate));
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_FK_DSPMode = 0;
+pRow->m_FK_Command = 0;
 }
 else
 {
 pRow->is_null[1]=false;
-sscanf(row[1], "%li", &(pRow->m_FK_DSPMode));
+sscanf(row[1], "%li", &(pRow->m_FK_Command));
 }
 
 if (row[2] == NULL)
@@ -603,7 +603,7 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 
 		//checking for duplicates
 
-		DoubleLongKey key(pRow->m_FK_DeviceTemplate,pRow->m_FK_DSPMode);
+		DoubleLongKey key(pRow->m_FK_DeviceTemplate,pRow->m_FK_Command);
 		
 		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.find(key);
 			
@@ -635,11 +635,11 @@ Row_DeviceTemplate_DSPMode* Table_DeviceTemplate_DSPMode::AddRow()
 
 
 
-Row_DeviceTemplate_DSPMode* Table_DeviceTemplate_DSPMode::GetRow(long int in_FK_DeviceTemplate, long int in_FK_DSPMode)
+Row_DeviceTemplate_DSPMode* Table_DeviceTemplate_DSPMode::GetRow(long int in_FK_DeviceTemplate, long int in_FK_Command)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	DoubleLongKey row_key(in_FK_DeviceTemplate, in_FK_DSPMode);
+	DoubleLongKey row_key(in_FK_DeviceTemplate, in_FK_Command);
 
 	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
@@ -671,12 +671,12 @@ Row_DeviceTemplate_DSPMode* Table_DeviceTemplate_DSPMode::FetchRow(DoubleLongKey
 	char tmp_FK_DeviceTemplate[32];
 sprintf(tmp_FK_DeviceTemplate, "%li", key.pk1);
 
-char tmp_FK_DSPMode[32];
-sprintf(tmp_FK_DSPMode, "%li", key.pk2);
+char tmp_FK_Command[32];
+sprintf(tmp_FK_Command, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate+" AND "+"FK_DSPMode=" + tmp_FK_DSPMode;
+condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate+" AND "+"FK_Command=" + tmp_FK_Command;
 
 
 	string query = "select * from DeviceTemplate_DSPMode where " + condition;		
@@ -722,12 +722,12 @@ sscanf(row[0], "%li", &(pRow->m_FK_DeviceTemplate));
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_FK_DSPMode = 0;
+pRow->m_FK_Command = 0;
 }
 else
 {
 pRow->is_null[1]=false;
-sscanf(row[1], "%li", &(pRow->m_FK_DSPMode));
+sscanf(row[1], "%li", &(pRow->m_FK_Command));
 }
 
 if (row[2] == NULL)
@@ -811,12 +811,12 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 class Table_DeviceTemplate *pTable = table->database->DeviceTemplate_get();
 return pTable->GetRow(m_FK_DeviceTemplate);
 }
-class Row_DSPMode* Row_DeviceTemplate_DSPMode::FK_DSPMode_getrow()
+class Row_Command* Row_DeviceTemplate_DSPMode::FK_Command_getrow()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-class Table_DSPMode *pTable = table->database->DSPMode_get();
-return pTable->GetRow(m_FK_DSPMode);
+class Table_Command *pTable = table->database->Command_get();
+return pTable->GetRow(m_FK_Command);
 }
 
 

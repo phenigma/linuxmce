@@ -42,10 +42,10 @@ private:
 	{
 		friend class Row_DeviceTemplate_DSPMode;
 		long int pk_FK_DeviceTemplate;
-long int pk_FK_DSPMode;
+long int pk_FK_Command;
 
 		
-		Key(long int in_FK_DeviceTemplate, long int in_FK_DSPMode);
+		Key(long int in_FK_DeviceTemplate, long int in_FK_Command);
 	
 		Key(class Row_DeviceTemplate_DSPMode *pRow);
 	};
@@ -64,7 +64,7 @@ public:
 	Database_pluto_main *Database_pluto_main_get() { return database; }
 	
 		
-	class Row_DeviceTemplate_DSPMode* GetRow(long int in_FK_DeviceTemplate, long int in_FK_DSPMode);
+	class Row_DeviceTemplate_DSPMode* GetRow(long int in_FK_DeviceTemplate, long int in_FK_Command);
 	
 
 private:	
@@ -83,7 +83,7 @@ class DLL_EXPORT Row_DeviceTemplate_DSPMode : public TableRow, public SerializeC
 		Table_DeviceTemplate_DSPMode *table;
 		
 		long int m_FK_DeviceTemplate;
-long int m_FK_DSPMode;
+long int m_FK_Command;
 short int m_OrderNo;
 long int m_psc_id;
 long int m_psc_batch;
@@ -95,7 +95,7 @@ string m_psc_mod;
 	
 	public:
 		long int FK_DeviceTemplate_get();
-long int FK_DSPMode_get();
+long int FK_Command_get();
 short int OrderNo_get();
 long int psc_id_get();
 long int psc_batch_get();
@@ -105,7 +105,7 @@ string psc_mod_get();
 
 		
 		void FK_DeviceTemplate_set(long int val);
-void FK_DSPMode_set(long int val);
+void FK_Command_set(long int val);
 void OrderNo_set(short int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
@@ -137,7 +137,7 @@ void psc_frozen_setNull(bool val);
 
 		// Return the rows for foreign keys 
 		class Row_DeviceTemplate* FK_DeviceTemplate_getrow();
-class Row_DSPMode* FK_DSPMode_getrow();
+class Row_Command* FK_Command_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
@@ -145,13 +145,13 @@ class Row_DSPMode* FK_DSPMode_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_FK_DeviceTemplate+ m_FK_DSPMode+ m_OrderNo+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_FK_DeviceTemplate+ m_FK_Command+ m_OrderNo+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string FK_DeviceTemplate_asSQL();
-string FK_DSPMode_asSQL();
+string FK_Command_asSQL();
 string OrderNo_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();

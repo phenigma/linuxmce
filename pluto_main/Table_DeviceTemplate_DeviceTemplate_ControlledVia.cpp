@@ -19,8 +19,6 @@ using namespace std;
 #include "Table_DeviceTemplate_DeviceTemplate_ControlledVia.h"
 #include "Table_DeviceTemplate.h"
 #include "Table_DeviceTemplate.h"
-#include "Table_Input.h"
-#include "Table_Input.h"
 
 #include "Table_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe.h"
 
@@ -130,12 +128,10 @@ is_null[5] = false;
 is_null[6] = true;
 is_null[7] = true;
 is_null[8] = true;
-is_null[9] = true;
-is_null[10] = true;
 m_psc_frozen = 0;
-is_null[11] = false;
+is_null[9] = false;
 m_psc_mod = "00000000000000";
-is_null[12] = false;
+is_null[10] = false;
 
 
 	is_added=false;
@@ -161,12 +157,6 @@ return m_RerouteMessagesToParent;}
 short int Row_DeviceTemplate_DeviceTemplate_ControlledVia::AutoCreateChildren_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_AutoCreateChildren;}
-long int Row_DeviceTemplate_DeviceTemplate_ControlledVia::FK_Input_Audio_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return m_FK_Input_Audio;}
-long int Row_DeviceTemplate_DeviceTemplate_ControlledVia::FK_Input_Video_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return m_FK_Input_Video;}
 long int Row_DeviceTemplate_DeviceTemplate_ControlledVia::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_id;}
@@ -202,73 +192,55 @@ m_RerouteMessagesToParent = val; is_modified=true; is_null[4]=false;}
 void Row_DeviceTemplate_DeviceTemplate_ControlledVia::AutoCreateChildren_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_AutoCreateChildren = val; is_modified=true; is_null[5]=false;}
-void Row_DeviceTemplate_DeviceTemplate_ControlledVia::FK_Input_Audio_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-m_FK_Input_Audio = val; is_modified=true; is_null[6]=false;}
-void Row_DeviceTemplate_DeviceTemplate_ControlledVia::FK_Input_Video_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-m_FK_Input_Video = val; is_modified=true; is_null[7]=false;}
 void Row_DeviceTemplate_DeviceTemplate_ControlledVia::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_id = val; is_modified=true; is_null[8]=false;}
+m_psc_id = val; is_modified=true; is_null[6]=false;}
 void Row_DeviceTemplate_DeviceTemplate_ControlledVia::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_batch = val; is_modified=true; is_null[9]=false;}
+m_psc_batch = val; is_modified=true; is_null[7]=false;}
 void Row_DeviceTemplate_DeviceTemplate_ControlledVia::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_user = val; is_modified=true; is_null[10]=false;}
+m_psc_user = val; is_modified=true; is_null[8]=false;}
 void Row_DeviceTemplate_DeviceTemplate_ControlledVia::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_frozen = val; is_modified=true; is_null[11]=false;}
+m_psc_frozen = val; is_modified=true; is_null[9]=false;}
 void Row_DeviceTemplate_DeviceTemplate_ControlledVia::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_mod = val; is_modified=true; is_null[12]=false;}
+m_psc_mod = val; is_modified=true; is_null[10]=false;}
 
 		
 bool Row_DeviceTemplate_DeviceTemplate_ControlledVia::Description_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[3];}
-bool Row_DeviceTemplate_DeviceTemplate_ControlledVia::FK_Input_Audio_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return is_null[6];}
-bool Row_DeviceTemplate_DeviceTemplate_ControlledVia::FK_Input_Video_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return is_null[7];}
 bool Row_DeviceTemplate_DeviceTemplate_ControlledVia::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[8];}
+return is_null[6];}
 bool Row_DeviceTemplate_DeviceTemplate_ControlledVia::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[9];}
+return is_null[7];}
 bool Row_DeviceTemplate_DeviceTemplate_ControlledVia::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[10];}
+return is_null[8];}
 bool Row_DeviceTemplate_DeviceTemplate_ControlledVia::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[11];}
+return is_null[9];}
 
 			
 void Row_DeviceTemplate_DeviceTemplate_ControlledVia::Description_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[3]=val;}
-void Row_DeviceTemplate_DeviceTemplate_ControlledVia::FK_Input_Audio_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[6]=val;}
-void Row_DeviceTemplate_DeviceTemplate_ControlledVia::FK_Input_Video_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[7]=val;}
 void Row_DeviceTemplate_DeviceTemplate_ControlledVia::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[8]=val;}
+is_null[6]=val;}
 void Row_DeviceTemplate_DeviceTemplate_ControlledVia::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[9]=val;}
+is_null[7]=val;}
 void Row_DeviceTemplate_DeviceTemplate_ControlledVia::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[10]=val;}
+is_null[8]=val;}
 void Row_DeviceTemplate_DeviceTemplate_ControlledVia::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[11]=val;}
+is_null[9]=val;}
 	
 
 string Row_DeviceTemplate_DeviceTemplate_ControlledVia::PK_DeviceTemplate_DeviceTemplate_ControlledVia_asSQL()
@@ -350,37 +322,11 @@ sprintf(buf, "%hi", m_AutoCreateChildren);
 return buf;
 }
 
-string Row_DeviceTemplate_DeviceTemplate_ControlledVia::FK_Input_Audio_asSQL()
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-if (is_null[6])
-return "NULL";
-
-char buf[32];
-sprintf(buf, "%li", m_FK_Input_Audio);
-
-return buf;
-}
-
-string Row_DeviceTemplate_DeviceTemplate_ControlledVia::FK_Input_Video_asSQL()
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-if (is_null[7])
-return "NULL";
-
-char buf[32];
-sprintf(buf, "%li", m_FK_Input_Video);
-
-return buf;
-}
-
 string Row_DeviceTemplate_DeviceTemplate_ControlledVia::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[8])
+if (is_null[6])
 return "NULL";
 
 char buf[32];
@@ -393,7 +339,7 @@ string Row_DeviceTemplate_DeviceTemplate_ControlledVia::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[9])
+if (is_null[7])
 return "NULL";
 
 char buf[32];
@@ -406,7 +352,7 @@ string Row_DeviceTemplate_DeviceTemplate_ControlledVia::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[10])
+if (is_null[8])
 return "NULL";
 
 char buf[32];
@@ -419,7 +365,7 @@ string Row_DeviceTemplate_DeviceTemplate_ControlledVia::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[11])
+if (is_null[9])
 return "NULL";
 
 char buf[32];
@@ -432,7 +378,7 @@ string Row_DeviceTemplate_DeviceTemplate_ControlledVia::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[12])
+if (is_null[10])
 return "NULL";
 
 char *buf = new char[29];
@@ -480,10 +426,10 @@ bool Table_DeviceTemplate_DeviceTemplate_ControlledVia::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_DeviceTemplate_DeviceTemplate_ControlledVia_asSQL()+", "+pRow->FK_DeviceTemplate_asSQL()+", "+pRow->FK_DeviceTemplate_ControlledVia_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->RerouteMessagesToParent_asSQL()+", "+pRow->AutoCreateChildren_asSQL()+", "+pRow->FK_Input_Audio_asSQL()+", "+pRow->FK_Input_Video_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_DeviceTemplate_DeviceTemplate_ControlledVia_asSQL()+", "+pRow->FK_DeviceTemplate_asSQL()+", "+pRow->FK_DeviceTemplate_ControlledVia_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->RerouteMessagesToParent_asSQL()+", "+pRow->AutoCreateChildren_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into DeviceTemplate_DeviceTemplate_ControlledVia (PK_DeviceTemplate_DeviceTemplate_ControlledVia, FK_DeviceTemplate, FK_DeviceTemplate_ControlledVia, Description, RerouteMessagesToParent, AutoCreateChildren, FK_Input_Audio, FK_Input_Video, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into DeviceTemplate_DeviceTemplate_ControlledVia (PK_DeviceTemplate_DeviceTemplate_ControlledVia, FK_DeviceTemplate, FK_DeviceTemplate_ControlledVia, Description, RerouteMessagesToParent, AutoCreateChildren, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -533,7 +479,7 @@ condition = condition + "PK_DeviceTemplate_DeviceTemplate_ControlledVia=" + tmp_
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_DeviceTemplate_DeviceTemplate_ControlledVia="+pRow->PK_DeviceTemplate_DeviceTemplate_ControlledVia_asSQL()+", FK_DeviceTemplate="+pRow->FK_DeviceTemplate_asSQL()+", FK_DeviceTemplate_ControlledVia="+pRow->FK_DeviceTemplate_ControlledVia_asSQL()+", Description="+pRow->Description_asSQL()+", RerouteMessagesToParent="+pRow->RerouteMessagesToParent_asSQL()+", AutoCreateChildren="+pRow->AutoCreateChildren_asSQL()+", FK_Input_Audio="+pRow->FK_Input_Audio_asSQL()+", FK_Input_Video="+pRow->FK_Input_Video_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_DeviceTemplate_DeviceTemplate_ControlledVia="+pRow->PK_DeviceTemplate_DeviceTemplate_ControlledVia_asSQL()+", FK_DeviceTemplate="+pRow->FK_DeviceTemplate_asSQL()+", FK_DeviceTemplate_ControlledVia="+pRow->FK_DeviceTemplate_ControlledVia_asSQL()+", Description="+pRow->Description_asSQL()+", RerouteMessagesToParent="+pRow->RerouteMessagesToParent_asSQL()+", AutoCreateChildren="+pRow->AutoCreateChildren_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update DeviceTemplate_DeviceTemplate_ControlledVia set " + update_values_list + " where " + condition;
@@ -695,78 +641,56 @@ sscanf(row[5], "%hi", &(pRow->m_AutoCreateChildren));
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_FK_Input_Audio = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%li", &(pRow->m_FK_Input_Audio));
+sscanf(row[6], "%li", &(pRow->m_psc_id));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_FK_Input_Video = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%li", &(pRow->m_FK_Input_Video));
+sscanf(row[7], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_id = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_psc_id));
+sscanf(row[8], "%li", &(pRow->m_psc_user));
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_psc_batch));
+sscanf(row[9], "%hi", &(pRow->m_psc_frozen));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_psc_user = 0;
-}
-else
-{
-pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_psc_user));
-}
-
-if (row[11] == NULL)
-{
-pRow->is_null[11]=true;
-pRow->m_psc_frozen = 0;
-}
-else
-{
-pRow->is_null[11]=false;
-sscanf(row[11], "%hi", &(pRow->m_psc_frozen));
-}
-
-if (row[12] == NULL)
-{
-pRow->is_null[12]=true;
 pRow->m_psc_mod = "";
 }
 else
 {
-pRow->is_null[12]=false;
-pRow->m_psc_mod = string(row[12],lengths[12]);
+pRow->is_null[10]=false;
+pRow->m_psc_mod = string(row[10],lengths[10]);
 }
 
 
@@ -944,78 +868,56 @@ sscanf(row[5], "%hi", &(pRow->m_AutoCreateChildren));
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_FK_Input_Audio = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%li", &(pRow->m_FK_Input_Audio));
+sscanf(row[6], "%li", &(pRow->m_psc_id));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_FK_Input_Video = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%li", &(pRow->m_FK_Input_Video));
+sscanf(row[7], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_id = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_psc_id));
+sscanf(row[8], "%li", &(pRow->m_psc_user));
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_psc_batch));
+sscanf(row[9], "%hi", &(pRow->m_psc_frozen));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_psc_user = 0;
-}
-else
-{
-pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_psc_user));
-}
-
-if (row[11] == NULL)
-{
-pRow->is_null[11]=true;
-pRow->m_psc_frozen = 0;
-}
-else
-{
-pRow->is_null[11]=false;
-sscanf(row[11], "%hi", &(pRow->m_psc_frozen));
-}
-
-if (row[12] == NULL)
-{
-pRow->is_null[12]=true;
 pRow->m_psc_mod = "";
 }
 else
 {
-pRow->is_null[12]=false;
-pRow->m_psc_mod = string(row[12],lengths[12]);
+pRow->is_null[10]=false;
+pRow->m_psc_mod = string(row[10],lengths[10]);
 }
 
 
@@ -1039,20 +941,6 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate *pTable = table->database->DeviceTemplate_get();
 return pTable->GetRow(m_FK_DeviceTemplate_ControlledVia);
-}
-class Row_Input* Row_DeviceTemplate_DeviceTemplate_ControlledVia::FK_Input_Audio_getrow()
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-class Table_Input *pTable = table->database->Input_get();
-return pTable->GetRow(m_FK_Input_Audio);
-}
-class Row_Input* Row_DeviceTemplate_DeviceTemplate_ControlledVia::FK_Input_Video_getrow()
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-class Table_Input *pTable = table->database->Input_get();
-return pTable->GetRow(m_FK_Input_Video);
 }
 
 

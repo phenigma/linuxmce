@@ -235,7 +235,7 @@
 #define COMMAND_PBX_Transfer_CONST 235
 #define COMMAND_PL_Hangup_CONST 236
 #define COMMAND_PBX_Hangup_CONST 237
-#define COMMAND_Light_ON_CONST 238
+#define COMMAND_not_used_CONST 238
 #define COMMAND_Request_File_And_Checksum_CONST 239
 #define COMMAND_Back_CONST 240
 #define COMMAND_MH_Move_Media_CONST 241

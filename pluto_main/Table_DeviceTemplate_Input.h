@@ -18,7 +18,7 @@
 // maps for the standard types of primary keys (single long, double long, etc.) and
 // put them in a common base class, which is optionally included as tablebase below
 
-class DLL_EXPORT Table_DeviceTemplate_Input : public TableBase , SingleLongKeyBase
+class DLL_EXPORT Table_DeviceTemplate_Input : public TableBase , DoubleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -41,10 +41,11 @@ private:
 	struct Key
 	{
 		friend class Row_DeviceTemplate_Input;
-		long int pk_PK_DeviceTemplate_Input;
+		long int pk_FK_DeviceTemplate;
+long int pk_FK_Command;
 
 		
-		Key(long int in_PK_DeviceTemplate_Input);
+		Key(long int in_FK_DeviceTemplate, long int in_FK_Command);
 	
 		Key(class Row_DeviceTemplate_Input *pRow);
 	};
@@ -63,13 +64,13 @@ public:
 	Database_pluto_main *Database_pluto_main_get() { return database; }
 	
 		
-	class Row_DeviceTemplate_Input* GetRow(long int in_PK_DeviceTemplate_Input);
+	class Row_DeviceTemplate_Input* GetRow(long int in_FK_DeviceTemplate, long int in_FK_Command);
 	
 
 private:	
 	
 		
-	class Row_DeviceTemplate_Input* FetchRow(SingleLongKey &key);
+	class Row_DeviceTemplate_Input* FetchRow(DoubleLongKey &key);
 		
 			
 };
@@ -81,9 +82,8 @@ class DLL_EXPORT Row_DeviceTemplate_Input : public TableRow, public SerializeCla
 	private:
 		Table_DeviceTemplate_Input *table;
 		
-		long int m_PK_DeviceTemplate_Input;
-long int m_FK_DeviceTemplate;
-long int m_FK_Input;
+		long int m_FK_DeviceTemplate;
+long int m_FK_Command;
 long int m_FK_ConnectorType;
 short int m_OrderNo;
 long int m_psc_id;
@@ -92,12 +92,11 @@ long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[10];
+		bool is_null[9];
 	
 	public:
-		long int PK_DeviceTemplate_Input_get();
-long int FK_DeviceTemplate_get();
-long int FK_Input_get();
+		long int FK_DeviceTemplate_get();
+long int FK_Command_get();
 long int FK_ConnectorType_get();
 short int OrderNo_get();
 long int psc_id_get();
@@ -107,9 +106,8 @@ short int psc_frozen_get();
 string psc_mod_get();
 
 		
-		void PK_DeviceTemplate_Input_set(long int val);
-void FK_DeviceTemplate_set(long int val);
-void FK_Input_set(long int val);
+		void FK_DeviceTemplate_set(long int val);
+void FK_Command_set(long int val);
 void FK_ConnectorType_set(long int val);
 void OrderNo_set(short int val);
 void psc_id_set(long int val);
@@ -119,13 +117,15 @@ void psc_frozen_set(short int val);
 void psc_mod_set(string val);
 
 		
-		bool psc_id_isNull();
+		bool FK_ConnectorType_isNull();
+bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
 bool psc_frozen_isNull();
 
 			
-		void psc_id_setNull(bool val);
+		void FK_ConnectorType_setNull(bool val);
+void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
 void psc_frozen_setNull(bool val);
@@ -142,7 +142,7 @@ void psc_frozen_setNull(bool val);
 
 		// Return the rows for foreign keys 
 		class Row_DeviceTemplate* FK_DeviceTemplate_getrow();
-class Row_Input* FK_Input_getrow();
+class Row_Command* FK_Command_getrow();
 class Row_ConnectorType* FK_ConnectorType_getrow();
 
 
@@ -151,14 +151,13 @@ class Row_ConnectorType* FK_ConnectorType_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_DeviceTemplate_Input+ m_FK_DeviceTemplate+ m_FK_Input+ m_FK_ConnectorType+ m_OrderNo+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_FK_DeviceTemplate+ m_FK_Command+ m_FK_ConnectorType+ m_OrderNo+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
 		
-		string PK_DeviceTemplate_Input_asSQL();
-string FK_DeviceTemplate_asSQL();
-string FK_Input_asSQL();
+		string FK_DeviceTemplate_asSQL();
+string FK_Command_asSQL();
 string FK_ConnectorType_asSQL();
 string OrderNo_asSQL();
 string psc_id_asSQL();

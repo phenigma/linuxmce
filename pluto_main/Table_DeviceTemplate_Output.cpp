@@ -18,7 +18,8 @@ using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_DeviceTemplate_Output.h"
 #include "Table_DeviceTemplate.h"
-#include "Table_Output.h"
+#include "Table_Command.h"
+#include "Table_ConnectorType.h"
 
 
 
@@ -74,7 +75,7 @@ void Row_DeviceTemplate_Output::Delete()
 		}
 		else
 		{
-			DoubleLongKey key(pRow->m_FK_DeviceTemplate,pRow->m_FK_Output);
+			DoubleLongKey key(pRow->m_FK_DeviceTemplate,pRow->m_FK_Command);
 			map<DoubleLongKey, TableRow*, DoubleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
@@ -93,7 +94,7 @@ void Row_DeviceTemplate_Output::Reload()
 	
 	if (!is_added)
 	{
-		DoubleLongKey key(pRow->m_FK_DeviceTemplate,pRow->m_FK_Output);
+		DoubleLongKey key(pRow->m_FK_DeviceTemplate,pRow->m_FK_Command);
 		Row_DeviceTemplate_Output *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -115,17 +116,18 @@ void Row_DeviceTemplate_Output::SetDefaultValues()
 {
 	m_FK_DeviceTemplate = 0;
 is_null[0] = false;
-m_FK_Output = 0;
+m_FK_Command = 0;
 is_null[1] = false;
+is_null[2] = true;
 m_OrderNo = 0;
-is_null[2] = false;
-is_null[3] = true;
+is_null[3] = false;
 is_null[4] = true;
 is_null[5] = true;
+is_null[6] = true;
 m_psc_frozen = 0;
-is_null[6] = false;
-m_psc_mod = "00000000000000";
 is_null[7] = false;
+m_psc_mod = "00000000000000";
+is_null[8] = false;
 
 
 	is_added=false;
@@ -136,9 +138,12 @@ is_null[7] = false;
 long int Row_DeviceTemplate_Output::FK_DeviceTemplate_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_DeviceTemplate;}
-long int Row_DeviceTemplate_Output::FK_Output_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_DeviceTemplate_Output::FK_Command_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_FK_Output;}
+return m_FK_Command;}
+long int Row_DeviceTemplate_Output::FK_ConnectorType_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FK_ConnectorType;}
 short int Row_DeviceTemplate_Output::OrderNo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_OrderNo;}
@@ -162,55 +167,64 @@ return m_psc_mod;}
 void Row_DeviceTemplate_Output::FK_DeviceTemplate_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_DeviceTemplate = val; is_modified=true; is_null[0]=false;}
-void Row_DeviceTemplate_Output::FK_Output_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate_Output::FK_Command_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_FK_Output = val; is_modified=true; is_null[1]=false;}
+m_FK_Command = val; is_modified=true; is_null[1]=false;}
+void Row_DeviceTemplate_Output::FK_ConnectorType_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_ConnectorType = val; is_modified=true; is_null[2]=false;}
 void Row_DeviceTemplate_Output::OrderNo_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_OrderNo = val; is_modified=true; is_null[2]=false;}
+m_OrderNo = val; is_modified=true; is_null[3]=false;}
 void Row_DeviceTemplate_Output::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_id = val; is_modified=true; is_null[3]=false;}
+m_psc_id = val; is_modified=true; is_null[4]=false;}
 void Row_DeviceTemplate_Output::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_batch = val; is_modified=true; is_null[4]=false;}
+m_psc_batch = val; is_modified=true; is_null[5]=false;}
 void Row_DeviceTemplate_Output::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_user = val; is_modified=true; is_null[5]=false;}
+m_psc_user = val; is_modified=true; is_null[6]=false;}
 void Row_DeviceTemplate_Output::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_frozen = val; is_modified=true; is_null[6]=false;}
+m_psc_frozen = val; is_modified=true; is_null[7]=false;}
 void Row_DeviceTemplate_Output::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_mod = val; is_modified=true; is_null[7]=false;}
+m_psc_mod = val; is_modified=true; is_null[8]=false;}
 
 		
+bool Row_DeviceTemplate_Output::FK_ConnectorType_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[2];}
 bool Row_DeviceTemplate_Output::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[3];}
+return is_null[4];}
 bool Row_DeviceTemplate_Output::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[4];}
+return is_null[5];}
 bool Row_DeviceTemplate_Output::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[5];}
+return is_null[6];}
 bool Row_DeviceTemplate_Output::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[6];}
+return is_null[7];}
 
 			
+void Row_DeviceTemplate_Output::FK_ConnectorType_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[2]=val;}
 void Row_DeviceTemplate_Output::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[3]=val;}
+is_null[4]=val;}
 void Row_DeviceTemplate_Output::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[4]=val;}
+is_null[5]=val;}
 void Row_DeviceTemplate_Output::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[5]=val;}
+is_null[6]=val;}
 void Row_DeviceTemplate_Output::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[6]=val;}
+is_null[7]=val;}
 	
 
 string Row_DeviceTemplate_Output::FK_DeviceTemplate_asSQL()
@@ -226,7 +240,7 @@ sprintf(buf, "%li", m_FK_DeviceTemplate);
 return buf;
 }
 
-string Row_DeviceTemplate_Output::FK_Output_asSQL()
+string Row_DeviceTemplate_Output::FK_Command_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -234,7 +248,20 @@ if (is_null[1])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_FK_Output);
+sprintf(buf, "%li", m_FK_Command);
+
+return buf;
+}
+
+string Row_DeviceTemplate_Output::FK_ConnectorType_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[2])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_ConnectorType);
 
 return buf;
 }
@@ -243,7 +270,7 @@ string Row_DeviceTemplate_Output::OrderNo_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[2])
+if (is_null[3])
 return "NULL";
 
 char buf[32];
@@ -256,7 +283,7 @@ string Row_DeviceTemplate_Output::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[3])
+if (is_null[4])
 return "NULL";
 
 char buf[32];
@@ -269,7 +296,7 @@ string Row_DeviceTemplate_Output::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[4])
+if (is_null[5])
 return "NULL";
 
 char buf[32];
@@ -282,7 +309,7 @@ string Row_DeviceTemplate_Output::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[5])
+if (is_null[6])
 return "NULL";
 
 char buf[32];
@@ -295,7 +322,7 @@ string Row_DeviceTemplate_Output::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[6])
+if (is_null[7])
 return "NULL";
 
 char buf[32];
@@ -308,7 +335,7 @@ string Row_DeviceTemplate_Output::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[7])
+if (is_null[8])
 return "NULL";
 
 char *buf = new char[29];
@@ -321,10 +348,10 @@ return s;
 
 
 
-Table_DeviceTemplate_Output::Key::Key(long int in_FK_DeviceTemplate, long int in_FK_Output)
+Table_DeviceTemplate_Output::Key::Key(long int in_FK_DeviceTemplate, long int in_FK_Command)
 {
 			pk_FK_DeviceTemplate = in_FK_DeviceTemplate;
-pk_FK_Output = in_FK_Output;
+pk_FK_Command = in_FK_Command;
 	
 }
 
@@ -333,7 +360,7 @@ Table_DeviceTemplate_Output::Key::Key(Row_DeviceTemplate_Output *pRow)
 			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
 
 			pk_FK_DeviceTemplate = pRow->m_FK_DeviceTemplate;
-pk_FK_Output = pRow->m_FK_Output;
+pk_FK_Command = pRow->m_FK_Command;
 	
 }		
 
@@ -342,8 +369,8 @@ bool Table_DeviceTemplate_Output::Key_Less::operator()(const Table_DeviceTemplat
 			if (key1.pk_FK_DeviceTemplate!=key2.pk_FK_DeviceTemplate)
 return key1.pk_FK_DeviceTemplate<key2.pk_FK_DeviceTemplate;
 else
-if (key1.pk_FK_Output!=key2.pk_FK_Output)
-return key1.pk_FK_Output<key2.pk_FK_Output;
+if (key1.pk_FK_Command!=key2.pk_FK_Command)
+return key1.pk_FK_Command<key2.pk_FK_Command;
 else
 return false;	
 }	
@@ -361,10 +388,10 @@ bool Table_DeviceTemplate_Output::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->FK_DeviceTemplate_asSQL()+", "+pRow->FK_Output_asSQL()+", "+pRow->OrderNo_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->FK_DeviceTemplate_asSQL()+", "+pRow->FK_Command_asSQL()+", "+pRow->FK_ConnectorType_asSQL()+", "+pRow->OrderNo_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into DeviceTemplate_Output (FK_DeviceTemplate, FK_Output, OrderNo, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into DeviceTemplate_Output (FK_DeviceTemplate, FK_Command, FK_ConnectorType, OrderNo, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -382,7 +409,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_DeviceTempl
 				
 			
 			addedRows.erase(i);
-			DoubleLongKey key(pRow->m_FK_DeviceTemplate,pRow->m_FK_Output);	
+			DoubleLongKey key(pRow->m_FK_DeviceTemplate,pRow->m_FK_Command);	
 			cachedRows[key] = pRow;
 					
 			
@@ -400,22 +427,22 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_DeviceTempl
 		if	(((*i).second)->is_modified_get())
 	{
 		Row_DeviceTemplate_Output* pRow = (Row_DeviceTemplate_Output*) (*i).second;	
-		DoubleLongKey key(pRow->m_FK_DeviceTemplate,pRow->m_FK_Output);
+		DoubleLongKey key(pRow->m_FK_DeviceTemplate,pRow->m_FK_Command);
 
 		char tmp_FK_DeviceTemplate[32];
 sprintf(tmp_FK_DeviceTemplate, "%li", key.pk1);
 
-char tmp_FK_Output[32];
-sprintf(tmp_FK_Output, "%li", key.pk2);
+char tmp_FK_Command[32];
+sprintf(tmp_FK_Command, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate+" AND "+"FK_Output=" + tmp_FK_Output;
+condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate+" AND "+"FK_Command=" + tmp_FK_Command;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_DeviceTemplate="+pRow->FK_DeviceTemplate_asSQL()+", FK_Output="+pRow->FK_Output_asSQL()+", OrderNo="+pRow->OrderNo_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "FK_DeviceTemplate="+pRow->FK_DeviceTemplate_asSQL()+", FK_Command="+pRow->FK_Command_asSQL()+", FK_ConnectorType="+pRow->FK_ConnectorType_asSQL()+", OrderNo="+pRow->OrderNo_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update DeviceTemplate_Output set " + update_values_list + " where " + condition;
@@ -452,12 +479,12 @@ update_values_list = update_values_list + "FK_DeviceTemplate="+pRow->FK_DeviceTe
 		char tmp_FK_DeviceTemplate[32];
 sprintf(tmp_FK_DeviceTemplate, "%li", key.pk1);
 
-char tmp_FK_Output[32];
-sprintf(tmp_FK_Output, "%li", key.pk2);
+char tmp_FK_Command[32];
+sprintf(tmp_FK_Command, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate+" AND "+"FK_Output=" + tmp_FK_Output;
+condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate+" AND "+"FK_Command=" + tmp_FK_Command;
 
 	
 		string query = "delete from DeviceTemplate_Output where " + condition;
@@ -525,85 +552,96 @@ sscanf(row[0], "%li", &(pRow->m_FK_DeviceTemplate));
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_FK_Output = 0;
+pRow->m_FK_Command = 0;
 }
 else
 {
 pRow->is_null[1]=false;
-sscanf(row[1], "%li", &(pRow->m_FK_Output));
+sscanf(row[1], "%li", &(pRow->m_FK_Command));
 }
 
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_OrderNo = 0;
+pRow->m_FK_ConnectorType = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-sscanf(row[2], "%hi", &(pRow->m_OrderNo));
+sscanf(row[2], "%li", &(pRow->m_FK_ConnectorType));
 }
 
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_psc_id = 0;
+pRow->m_OrderNo = 0;
 }
 else
 {
 pRow->is_null[3]=false;
-sscanf(row[3], "%li", &(pRow->m_psc_id));
+sscanf(row[3], "%hi", &(pRow->m_OrderNo));
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%li", &(pRow->m_psc_batch));
+sscanf(row[4], "%li", &(pRow->m_psc_id));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_psc_user));
+sscanf(row[5], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[6], "%li", &(pRow->m_psc_user));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-pRow->m_psc_mod = string(row[7],lengths[7]);
+sscanf(row[7], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[8] == NULL)
+{
+pRow->is_null[8]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[8]=false;
+pRow->m_psc_mod = string(row[8],lengths[8]);
 }
 
 
 
 		//checking for duplicates
 
-		DoubleLongKey key(pRow->m_FK_DeviceTemplate,pRow->m_FK_Output);
+		DoubleLongKey key(pRow->m_FK_DeviceTemplate,pRow->m_FK_Command);
 		
 		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.find(key);
 			
@@ -635,11 +673,11 @@ Row_DeviceTemplate_Output* Table_DeviceTemplate_Output::AddRow()
 
 
 
-Row_DeviceTemplate_Output* Table_DeviceTemplate_Output::GetRow(long int in_FK_DeviceTemplate, long int in_FK_Output)
+Row_DeviceTemplate_Output* Table_DeviceTemplate_Output::GetRow(long int in_FK_DeviceTemplate, long int in_FK_Command)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	DoubleLongKey row_key(in_FK_DeviceTemplate, in_FK_Output);
+	DoubleLongKey row_key(in_FK_DeviceTemplate, in_FK_Command);
 
 	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
@@ -671,12 +709,12 @@ Row_DeviceTemplate_Output* Table_DeviceTemplate_Output::FetchRow(DoubleLongKey &
 	char tmp_FK_DeviceTemplate[32];
 sprintf(tmp_FK_DeviceTemplate, "%li", key.pk1);
 
-char tmp_FK_Output[32];
-sprintf(tmp_FK_Output, "%li", key.pk2);
+char tmp_FK_Command[32];
+sprintf(tmp_FK_Command, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate+" AND "+"FK_Output=" + tmp_FK_Output;
+condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate+" AND "+"FK_Command=" + tmp_FK_Command;
 
 
 	string query = "select * from DeviceTemplate_Output where " + condition;		
@@ -722,78 +760,89 @@ sscanf(row[0], "%li", &(pRow->m_FK_DeviceTemplate));
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_FK_Output = 0;
+pRow->m_FK_Command = 0;
 }
 else
 {
 pRow->is_null[1]=false;
-sscanf(row[1], "%li", &(pRow->m_FK_Output));
+sscanf(row[1], "%li", &(pRow->m_FK_Command));
 }
 
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_OrderNo = 0;
+pRow->m_FK_ConnectorType = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-sscanf(row[2], "%hi", &(pRow->m_OrderNo));
+sscanf(row[2], "%li", &(pRow->m_FK_ConnectorType));
 }
 
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_psc_id = 0;
+pRow->m_OrderNo = 0;
 }
 else
 {
 pRow->is_null[3]=false;
-sscanf(row[3], "%li", &(pRow->m_psc_id));
+sscanf(row[3], "%hi", &(pRow->m_OrderNo));
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%li", &(pRow->m_psc_batch));
+sscanf(row[4], "%li", &(pRow->m_psc_id));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_psc_user));
+sscanf(row[5], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[6], "%li", &(pRow->m_psc_user));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-pRow->m_psc_mod = string(row[7],lengths[7]);
+sscanf(row[7], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[8] == NULL)
+{
+pRow->is_null[8]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[8]=false;
+pRow->m_psc_mod = string(row[8],lengths[8]);
 }
 
 
@@ -811,12 +860,19 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 class Table_DeviceTemplate *pTable = table->database->DeviceTemplate_get();
 return pTable->GetRow(m_FK_DeviceTemplate);
 }
-class Row_Output* Row_DeviceTemplate_Output::FK_Output_getrow()
+class Row_Command* Row_DeviceTemplate_Output::FK_Command_getrow()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-class Table_Output *pTable = table->database->Output_get();
-return pTable->GetRow(m_FK_Output);
+class Table_Command *pTable = table->database->Command_get();
+return pTable->GetRow(m_FK_Command);
+}
+class Row_ConnectorType* Row_DeviceTemplate_Output::FK_ConnectorType_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_ConnectorType *pTable = table->database->ConnectorType_get();
+return pTable->GetRow(m_FK_ConnectorType);
 }
 
 

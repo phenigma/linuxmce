@@ -86,8 +86,8 @@ class DLL_EXPORT Row_Device_Device_Pipe : public TableRow, public SerializeClass
 		long int m_FK_Device_From;
 long int m_FK_Device_To;
 long int m_FK_Pipe;
-long int m_FK_Input;
-long int m_FK_Output;
+long int m_FK_Command_Input;
+long int m_FK_Command_Output;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -100,8 +100,8 @@ string m_psc_mod;
 		long int FK_Device_From_get();
 long int FK_Device_To_get();
 long int FK_Pipe_get();
-long int FK_Input_get();
-long int FK_Output_get();
+long int FK_Command_Input_get();
+long int FK_Command_Output_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -112,8 +112,8 @@ string psc_mod_get();
 		void FK_Device_From_set(long int val);
 void FK_Device_To_set(long int val);
 void FK_Pipe_set(long int val);
-void FK_Input_set(long int val);
-void FK_Output_set(long int val);
+void FK_Command_Input_set(long int val);
+void FK_Command_Output_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -121,16 +121,16 @@ void psc_frozen_set(short int val);
 void psc_mod_set(string val);
 
 		
-		bool FK_Input_isNull();
-bool FK_Output_isNull();
+		bool FK_Command_Input_isNull();
+bool FK_Command_Output_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
 bool psc_frozen_isNull();
 
 			
-		void FK_Input_setNull(bool val);
-void FK_Output_setNull(bool val);
+		void FK_Command_Input_setNull(bool val);
+void FK_Command_Output_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -150,8 +150,8 @@ void psc_frozen_setNull(bool val);
 		class Row_Device* FK_Device_From_getrow();
 class Row_Device* FK_Device_To_getrow();
 class Row_Pipe* FK_Pipe_getrow();
-class Row_Input* FK_Input_getrow();
-class Row_Output* FK_Output_getrow();
+class Row_Command* FK_Command_Input_getrow();
+class Row_Command* FK_Command_Output_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
@@ -159,7 +159,7 @@ class Row_Output* FK_Output_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_FK_Device_From+ m_FK_Device_To+ m_FK_Pipe+ m_FK_Input+ m_FK_Output+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_FK_Device_From+ m_FK_Device_To+ m_FK_Pipe+ m_FK_Command_Input+ m_FK_Command_Output+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -167,8 +167,8 @@ class Row_Output* FK_Output_getrow();
 		string FK_Device_From_asSQL();
 string FK_Device_To_asSQL();
 string FK_Pipe_asSQL();
-string FK_Input_asSQL();
-string FK_Output_asSQL();
+string FK_Command_Input_asSQL();
+string FK_Command_Output_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

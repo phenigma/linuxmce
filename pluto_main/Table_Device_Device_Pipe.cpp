@@ -20,8 +20,8 @@ using namespace std;
 #include "Table_Device.h"
 #include "Table_Device.h"
 #include "Table_Pipe.h"
-#include "Table_Input.h"
-#include "Table_Output.h"
+#include "Table_Command.h"
+#include "Table_Command.h"
 
 
 
@@ -147,12 +147,12 @@ return m_FK_Device_To;}
 long int Row_Device_Device_Pipe::FK_Pipe_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_Pipe;}
-long int Row_Device_Device_Pipe::FK_Input_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Device_Device_Pipe::FK_Command_Input_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_FK_Input;}
-long int Row_Device_Device_Pipe::FK_Output_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_FK_Command_Input;}
+long int Row_Device_Device_Pipe::FK_Command_Output_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_FK_Output;}
+return m_FK_Command_Output;}
 long int Row_Device_Device_Pipe::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_id;}
@@ -179,12 +179,12 @@ m_FK_Device_To = val; is_modified=true; is_null[1]=false;}
 void Row_Device_Device_Pipe::FK_Pipe_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_Pipe = val; is_modified=true; is_null[2]=false;}
-void Row_Device_Device_Pipe::FK_Input_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Device_Device_Pipe::FK_Command_Input_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_FK_Input = val; is_modified=true; is_null[3]=false;}
-void Row_Device_Device_Pipe::FK_Output_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_FK_Command_Input = val; is_modified=true; is_null[3]=false;}
+void Row_Device_Device_Pipe::FK_Command_Output_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_FK_Output = val; is_modified=true; is_null[4]=false;}
+m_FK_Command_Output = val; is_modified=true; is_null[4]=false;}
 void Row_Device_Device_Pipe::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_id = val; is_modified=true; is_null[5]=false;}
@@ -202,10 +202,10 @@ void Row_Device_Device_Pipe::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table-
 m_psc_mod = val; is_modified=true; is_null[9]=false;}
 
 		
-bool Row_Device_Device_Pipe::FK_Input_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Device_Device_Pipe::FK_Command_Input_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[3];}
-bool Row_Device_Device_Pipe::FK_Output_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Device_Device_Pipe::FK_Command_Output_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[4];}
 bool Row_Device_Device_Pipe::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -222,10 +222,10 @@ bool Row_Device_Device_Pipe::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_
 return is_null[8];}
 
 			
-void Row_Device_Device_Pipe::FK_Input_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Device_Device_Pipe::FK_Command_Input_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[3]=val;}
-void Row_Device_Device_Pipe::FK_Output_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Device_Device_Pipe::FK_Command_Output_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[4]=val;}
 void Row_Device_Device_Pipe::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -281,7 +281,7 @@ sprintf(buf, "%li", m_FK_Pipe);
 return buf;
 }
 
-string Row_Device_Device_Pipe::FK_Input_asSQL()
+string Row_Device_Device_Pipe::FK_Command_Input_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -289,12 +289,12 @@ if (is_null[3])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_FK_Input);
+sprintf(buf, "%li", m_FK_Command_Input);
 
 return buf;
 }
 
-string Row_Device_Device_Pipe::FK_Output_asSQL()
+string Row_Device_Device_Pipe::FK_Command_Output_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -302,7 +302,7 @@ if (is_null[4])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_FK_Output);
+sprintf(buf, "%li", m_FK_Command_Output);
 
 return buf;
 }
@@ -421,10 +421,10 @@ bool Table_Device_Device_Pipe::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->FK_Device_From_asSQL()+", "+pRow->FK_Device_To_asSQL()+", "+pRow->FK_Pipe_asSQL()+", "+pRow->FK_Input_asSQL()+", "+pRow->FK_Output_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->FK_Device_From_asSQL()+", "+pRow->FK_Device_To_asSQL()+", "+pRow->FK_Pipe_asSQL()+", "+pRow->FK_Command_Input_asSQL()+", "+pRow->FK_Command_Output_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into Device_Device_Pipe (FK_Device_From, FK_Device_To, FK_Pipe, FK_Input, FK_Output, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into Device_Device_Pipe (FK_Device_From, FK_Device_To, FK_Pipe, FK_Command_Input, FK_Command_Output, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -478,7 +478,7 @@ condition = condition + "FK_Device_From=" + tmp_FK_Device_From+" AND "+"FK_Devic
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_Device_From="+pRow->FK_Device_From_asSQL()+", FK_Device_To="+pRow->FK_Device_To_asSQL()+", FK_Pipe="+pRow->FK_Pipe_asSQL()+", FK_Input="+pRow->FK_Input_asSQL()+", FK_Output="+pRow->FK_Output_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "FK_Device_From="+pRow->FK_Device_From_asSQL()+", FK_Device_To="+pRow->FK_Device_To_asSQL()+", FK_Pipe="+pRow->FK_Pipe_asSQL()+", FK_Command_Input="+pRow->FK_Command_Input_asSQL()+", FK_Command_Output="+pRow->FK_Command_Output_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update Device_Device_Pipe set " + update_values_list + " where " + condition;
@@ -613,23 +613,23 @@ sscanf(row[2], "%li", &(pRow->m_FK_Pipe));
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_FK_Input = 0;
+pRow->m_FK_Command_Input = 0;
 }
 else
 {
 pRow->is_null[3]=false;
-sscanf(row[3], "%li", &(pRow->m_FK_Input));
+sscanf(row[3], "%li", &(pRow->m_FK_Command_Input));
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_FK_Output = 0;
+pRow->m_FK_Command_Output = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%li", &(pRow->m_FK_Output));
+sscanf(row[4], "%li", &(pRow->m_FK_Command_Output));
 }
 
 if (row[5] == NULL)
@@ -835,23 +835,23 @@ sscanf(row[2], "%li", &(pRow->m_FK_Pipe));
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_FK_Input = 0;
+pRow->m_FK_Command_Input = 0;
 }
 else
 {
 pRow->is_null[3]=false;
-sscanf(row[3], "%li", &(pRow->m_FK_Input));
+sscanf(row[3], "%li", &(pRow->m_FK_Command_Input));
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_FK_Output = 0;
+pRow->m_FK_Command_Output = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%li", &(pRow->m_FK_Output));
+sscanf(row[4], "%li", &(pRow->m_FK_Command_Output));
 }
 
 if (row[5] == NULL)
@@ -938,19 +938,19 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 class Table_Pipe *pTable = table->database->Pipe_get();
 return pTable->GetRow(m_FK_Pipe);
 }
-class Row_Input* Row_Device_Device_Pipe::FK_Input_getrow()
+class Row_Command* Row_Device_Device_Pipe::FK_Command_Input_getrow()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-class Table_Input *pTable = table->database->Input_get();
-return pTable->GetRow(m_FK_Input);
+class Table_Command *pTable = table->database->Command_get();
+return pTable->GetRow(m_FK_Command_Input);
 }
-class Row_Output* Row_Device_Device_Pipe::FK_Output_getrow()
+class Row_Command* Row_Device_Device_Pipe::FK_Command_Output_getrow()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-class Table_Output *pTable = table->database->Output_get();
-return pTable->GetRow(m_FK_Output);
+class Table_Command *pTable = table->database->Command_get();
+return pTable->GetRow(m_FK_Command_Output);
 }
 
 

@@ -40,7 +40,6 @@ Table_CriteriaParmNesting.cpp \
 Table_CriteriaParmNesting_D.cpp \
 Table_CriteriaParm_D.cpp \
 Table_Criteria_D.cpp \
-Table_DSPMode.cpp \
 Table_DataGrid.cpp \
 Table_DesignObj.cpp \
 Table_DesignObjCategory.cpp \
@@ -115,7 +114,6 @@ Table_Icon.cpp \
 Table_Image.cpp \
 Table_InfraredGroup.cpp \
 Table_InfraredGroup_Command.cpp \
-Table_Input.cpp \
 Table_InstallWizard.cpp \
 Table_InstallWizard_Distro.cpp \
 Table_Installation.cpp \
@@ -131,7 +129,6 @@ Table_OperatingSystem.cpp \
 Table_Orbiter.cpp \
 Table_Orbiter_Users_PasswordReq.cpp \
 Table_Orbiter_Variable.cpp \
-Table_Output.cpp \
 Table_Package.cpp \
 Table_PackageType.cpp \
 Table_Package_Compat.cpp \

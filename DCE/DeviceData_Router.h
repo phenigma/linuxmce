@@ -138,7 +138,6 @@ namespace DCE
 		map<int,class DeviceRelation *> m_mapDeviceRelation;
 		map<int,class DeviceGroup *> m_mapDeviceGroup;
 		vector<DeviceData_Router *> m_vectDevices_SendingPipes;  // The devices that send this one something
-		map<int,int> m_mapInputs,m_mapOutputs,m_mapDSPModes;  // map PK_Command,Input/Output/DSPMode
 
 		// **** FLAGS AND INFORMATION SET AT RUNTIME ****
 
