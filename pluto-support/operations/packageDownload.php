@@ -100,7 +100,7 @@ while($rowSources=$resSources->FetchRow()){
 	if(in_array($rowSources['PK_RepositoryType'],$GLOBALS['HTTPorFTP'])){
 		$out.='
 		<tr bgcolor="'.(($sourcesCount%2==0)?'#F0F3F8':'#FFFFFF').'">
-			<td colspan="8"><B>Mirrors:</B></td>
+			<td colspan="8"><B>Download links:</B></td>
 		</tr>';
 		$queryRepositoryURLs='
 			SELECT 

@@ -33,7 +33,7 @@ if ($package == 0) {
 }
 
 else { // $package is not null
-	$out.='<br>Package: <b>**package**</b> : ';
+	$out='<br>Package: <b>**package**</b> : ';
 	$out.='<p>This is news for the module **package** only.  For all news about Pluto, see Pluto\'s **main support page**.</p>';
 	$queryNews1 = 'SELECT * FROM News
 					WHERE FK_Package = ?

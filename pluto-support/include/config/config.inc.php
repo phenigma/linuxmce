@@ -1,21 +1,17 @@
 <?PHP
-   
+   include_once('/var/www/globalconfig/globalconfig.inc.php');
       
    error_reporting(E_ALL);
   //debuging
   //$GLOBALS['inDebug']=1;
   	
   // PlutoHome website
-  	$GLOBALS['sendErrorsTo']='dragos.grosu@gmail.com';
+  	$GLOBALS['sendErrorsTo']='info@plutohome.com';
 
 	$directory="/support/";
 	$domain="http://plutohome.com/";
 
-//	$MasterUsersHost="https://localhost/masterusers/";
-	$MasterUsersHost="http://plutohome.com/masterusers/";
-	$PlutoHomeHost="http://plutohome.com/";
-	$PlutoSupportHost='http://plutohome.com/support/';
-	
+
 	$defaultHelpUrl='index.php?section=help';
 	
 	
@@ -37,10 +33,6 @@
   	//database 
   	require_once("database.inc.php");
     
-  	$GLOBALS['HTTPorFTP']=array(2,5,6);  	// the PK_RepositoryType for HTTP FTP and both from table RepositoryType
-	$GLOBALS['CVSorSVN']=array(2,5,6);  	// the PK_RepositoryType for CVS or SVN  from table RepositoryType
-	
-	$GLOBALS['userIsAdmin']=array(33129);
   
   // do not change the following lines
    	$plutoHomeRegister=$PlutoHomeHost.'index.php?section=register';

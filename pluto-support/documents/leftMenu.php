@@ -53,16 +53,16 @@
 
 		// display the siblings 
 		if($parentID!=0)
-			$query = 'SELECT * FROM Document WHERE FK_Document_Parent=?';
+			$query = 'SELECT * FROM Document WHERE FK_Document_Parent=? ORDER BY `Order`';
 		else
-			$query = "SELECT * from Document WHERE (FK_Document_Parent IS NULL OR FK_Document_Parent=0)";
+			$query = "SELECT * from Document WHERE (FK_Document_Parent IS NULL OR FK_Document_Parent=0) ORDER BY `Order`";
 		$res = $dbADO->Execute($query,$parentID);
 		if ($res) {
 			while ($row = $res->FetchRow()) {
 				$linePrefix=($_SESSION['editVar']!='0' && userIsAdmin(@$_SESSION['userID']))?$row['PK_Document'].' - '.$row['Order'].' ':'';
 				
 				$jsTree.='
-					auxS'.$row['PK_Document'].' = insFld(foldersTree,gFld("'.$linePrefix.$row['Title'].'", "right.php?section=documents/documentDisplay&docID='.$row['PK_Document'].'"))
+					auxS'.$row['PK_Document'].' = insFld(foldersTree,gFld("'.$linePrefix.addslashes($row['Title']).'", "right.php?section=documents/documentDisplay&docID='.$row['PK_Document'].'"))
 					auxS'.$row['PK_Document'].'.xID = '.$row['PK_Document'].';
 					';
 				$jsTree.=getChilds($row['PK_Document'],$dbADO);
@@ -70,13 +70,13 @@
 		}
 	}else{
 
-		$query = "SELECT * from Document WHERE (FK_Document_Parent IS NULL OR FK_Document_Parent=0)";
+		$query = "SELECT * from Document WHERE (FK_Document_Parent IS NULL OR FK_Document_Parent=0) ORDER BY `Order`";
 		$res = $dbADO->_Execute($query);
 		if ($res) {
 			while ($row = $res->FetchRow()) {
 				$linePrefix=($_SESSION['editVar']!='0' && userIsAdmin(@$_SESSION['userID']))?$row['PK_Document'].' - '.$row['Order'].' ':'';
 				$jsTree.='
-						auxS'.$row['PK_Document'].' = insFld(foldersTree, gFld("'.$linePrefix.$row['Title'].'", "right.php?section=documents/documentDisplay&docID='.$row['PK_Document'].'"));
+						auxS'.$row['PK_Document'].' = insFld(foldersTree, gFld("'.$linePrefix.addslashes($row['Title']).'", "right.php?section=documents/documentDisplay&docID='.$row['PK_Document'].'"));
 						auxS'.$row['PK_Document'].'.xID = -'.$row['PK_Document'].';
 						';
 				$jsTree.=getChilds($row['PK_Document'],$dbADO);
@@ -112,7 +112,7 @@
 			ICONPATH = 'scripts/treeview/' 
 			HIGHLIGHT = 1
 			GLOBALTARGET = 'R'
-			foldersTree = gFld('<b>".$rootTitle."</b>', '".$rootLink."');
+			foldersTree = gFld('<b>".addslashes($rootTitle)."</b>', '".$rootLink."');
 			foldersTree.xID = 1001635872
 
 			$jsTree
@@ -217,14 +217,14 @@
 
 
 function getChilds($parentID,$dbADO) {
-	$queryGP = "SELECT * FROM Document WHERE FK_Document_Parent = $parentID";
+	$queryGP = "SELECT * FROM Document WHERE FK_Document_Parent = $parentID ORDER BY `Order`";
 	$resGP = $dbADO->Execute($queryGP);
 	$jsTree='';
 	if ($resGP) {
 		while ($row=$resGP->FetchRow()) {
 				$linePrefix=($_SESSION['editVar']!='0' && userIsAdmin(@$_SESSION['userID']))?$row['PK_Document'].' - '.$row['Order'].' ':'';
 				$jsTree.= '
-					auxS'.$row['PK_Document'].' = insFld(auxS'.$parentID.', gFld("'.$linePrefix.$row['Title'].'", "right.php?section=documents/documentDisplay&docID='.$row['PK_Document'].'"))
+					auxS'.$row['PK_Document'].' = insFld(auxS'.$parentID.', gFld("'.$linePrefix.addslashes($row['Title']).'", "right.php?section=documents/documentDisplay&docID='.$row['PK_Document'].'"))
 					auxS'.$row['PK_Document'].'.xID = '.$row['PK_Document'].';
 				';
 				$jsTree.=getChilds($row['PK_Document'],$dbADO);

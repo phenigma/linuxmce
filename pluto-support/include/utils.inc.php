@@ -263,9 +263,9 @@ function getTopMenu($website,$dbADO,$package=0) {
 			';
 */		
 		while ($rowSelectMenu = $resSelectMenu->FetchRow()) {
-			
+			$menuUrl=(strpos($rowSelectMenu['pageURL'],'http://')===false)?ReplaceTokens($rowSelectMenu['pageURL']):ReplaceTokens($rowSelectMenu['pageURL']);
 			$menuPages.='
-				AddMenu("'.$rowSelectMenu['PK_PageSetup'].'"  ,  "'.$rowSelectMenu['PK_PageSetup'].'"   ,  "'.ReplaceTokens($rowSelectMenu['Description']).'"       ,  ""  ,  ""  , "'.ReplaceTokens($rowSelectMenu['pageURL']).'");
+				AddMenu("'.$rowSelectMenu['PK_PageSetup'].'"  ,  "'.$rowSelectMenu['PK_PageSetup'].'"   ,  "'.ReplaceTokens($rowSelectMenu['Description']).'"       ,  ""  ,  ""  , "'.$menuUrl.'");
 			';
 			//get childs (ne-recursive method)
 			$selectSubMenu1 = "SELECT * FROM PageSetup WHERE FK_PageSetup_Parent = {$rowSelectMenu['PK_PageSetup']} AND showInTopMenu = 1";
@@ -274,13 +274,14 @@ function getTopMenu($website,$dbADO,$package=0) {
 				//get level 2 childs (ne-recursive method)
 					$selectSubMenu2 = "SELECT * FROM PageSetup WHERE FK_PageSetup_Parent = {$rowSelectSubMenu1['PK_PageSetup']} AND showInTopMenu = 1";
 					$resSelectSubMenu2 = $dbADO->Execute($selectSubMenu2);
-					
+				$menuUrl=(strpos($rowSelectSubMenu1['pageURL'],'http://')===false)?ReplaceTokens($rowSelectSubMenu1['pageURL']):ReplaceTokens($rowSelectSubMenu1['pageURL']);	
 				$menuPages.='
-					AddMenu("'.$rowSelectSubMenu1['PK_PageSetup'].'"  ,  "'.$rowSelectMenu['PK_PageSetup'].'"   ,  "'.ReplaceTokens($rowSelectSubMenu1['Description']).($resSelectSubMenu2->RecordCount()>0?" &gt;&gt;":"").'"       ,  ""  ,  ""  , "'.ReplaceTokens($rowSelectSubMenu1['pageURL']).'");
+					AddMenu("'.$rowSelectSubMenu1['PK_PageSetup'].'"  ,  "'.$rowSelectMenu['PK_PageSetup'].'"   ,  "'.ReplaceTokens($rowSelectSubMenu1['Description']).($resSelectSubMenu2->RecordCount()>0?" &gt;&gt;":"").'"       ,  ""  ,  ""  , "'.$menuUrl.'");
 				';
 				
 					
 					while ($rowSelectSubMenu2 = $resSelectSubMenu2->FetchRow()) {
+						$menuUrl=(strpos($rowSelectSubMenu2['pageURL'],'http://')===false)?ReplaceTokens($rowSelectSubMenu2['pageURL']):ReplaceTokens($rowSelectSubMenu2['pageURL']);	
 						$menuPages.='
 							AddMenu("'.$rowSelectSubMenu2['PK_PageSetup'].'"  ,  "'.$rowSelectSubMenu1['PK_PageSetup'].'"   ,  "&nbsp;&nbsp;'.ReplaceTokens($rowSelectSubMenu2['Description']).'"       ,  ""  ,  ""  , "'.ReplaceTokens($rowSelectSubMenu2['pageURL']).'");
 						';

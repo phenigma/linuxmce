@@ -108,26 +108,28 @@ $topMenu='
 			';
 */		
 		while ($rowSelectMenu = $resSelectMenu->FetchRow()) {
-			
+			$menuUrl=(strpos($rowSelectMenu['pageURL'],'http://')===false)?$relativePath.ReplaceTokens($rowSelectMenu['pageURL']):ReplaceTokens($rowSelectMenu['pageURL']);
 			$menuPages.='
-				AddMenu("'.$rowSelectMenu['PK_PageSetup'].'"  ,  "'.$rowSelectMenu['PK_PageSetup'].'"   ,  "&nbsp;&nbsp;'.ReplaceTokens($rowSelectMenu['Description']).'"       ,  ""  ,  ""  , "'.$relativePath.ReplaceTokens($rowSelectMenu['pageURL']).'");
+				AddMenu("'.$rowSelectMenu['PK_PageSetup'].'"  ,  "'.$rowSelectMenu['PK_PageSetup'].'"   ,  "&nbsp;&nbsp;'.ReplaceTokens($rowSelectMenu['Description']).'"       ,  ""  ,  ""  , "'.$menuUrl.'");
 			';
 			//get childs (ne-recursive method)
 			$selectSubMenu1 = "SELECT * FROM PageSetup WHERE FK_PageSetup_Parent = {$rowSelectMenu['PK_PageSetup']} AND showInTopMenu = 1";
 			$resSelectSubMenu1 = $dbADO->Execute($selectSubMenu1);
 			while ($rowSelectSubMenu1 = $resSelectSubMenu1->FetchRow()) {
 				//get level 2 childs (ne-recursive method)
+					$menuUrl=(strpos($rowSelectSubMenu1['pageURL'],'http://')===false)?$relativePath.ReplaceTokens($rowSelectSubMenu1['pageURL']):ReplaceTokens($rowSelectSubMenu1['pageURL']);
 					$selectSubMenu2 = "SELECT * FROM PageSetup WHERE FK_PageSetup_Parent = {$rowSelectSubMenu1['PK_PageSetup']} AND showInTopMenu = 1";
 					$resSelectSubMenu2 = $dbADO->Execute($selectSubMenu2);
 					
 				$menuPages.='
-					AddMenu("'.$rowSelectSubMenu1['PK_PageSetup'].'"  ,  "'.$rowSelectMenu['PK_PageSetup'].'"   ,  "&nbsp;&nbsp;'.ReplaceTokens($rowSelectSubMenu1['Description']).($resSelectSubMenu2->RecordCount()>0?" &gt;&gt;":"").'"       ,  ""  ,  ""  , "'.$relativePath.ReplaceTokens($rowSelectSubMenu1['pageURL']).'");
+					AddMenu("'.$rowSelectSubMenu1['PK_PageSetup'].'"  ,  "'.$rowSelectMenu['PK_PageSetup'].'"   ,  "&nbsp;&nbsp;'.ReplaceTokens($rowSelectSubMenu1['Description']).($resSelectSubMenu2->RecordCount()>0?" &gt;&gt;":"").'"       ,  ""  ,  ""  , "'.$menuUrl.'");
 				';
 				
 					
 					while ($rowSelectSubMenu2 = $resSelectSubMenu2->FetchRow()) {
+						$menuUrl=(strpos($rowSelectSubMenu2['pageURL'],'http://')===false)?$relativePath.ReplaceTokens($rowSelectSubMenu2['pageURL']):ReplaceTokens($rowSelectSubMenu2['pageURL']);
 						$menuPages.='
-							AddMenu("'.$rowSelectSubMenu2['PK_PageSetup'].'"  ,  "'.$rowSelectSubMenu1['PK_PageSetup'].'"   ,  "&nbsp;&nbsp;'.ReplaceTokens($rowSelectSubMenu2['Description']).'"       ,  ""  ,  ""  , "'.$relativePath.ReplaceTokens($rowSelectSubMenu2['pageURL']).'");
+							AddMenu("'.$rowSelectSubMenu2['PK_PageSetup'].'"  ,  "'.$rowSelectSubMenu1['PK_PageSetup'].'"   ,  "&nbsp;&nbsp;'.ReplaceTokens($rowSelectSubMenu2['Description']).'"       ,  ""  ,  ""  , "'.$menuUrl.'");
 						';
 					}
 					$resSelectSubMenu2->Close();		
