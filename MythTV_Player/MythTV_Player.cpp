@@ -16,6 +16,8 @@ using namespace DCE;
 
 #include <qsqldatabase.h>
 
+#include <programinfo.h>
+
 MythContext *gContext;
 
 //<-dceag-const-b->
@@ -182,4 +184,40 @@ void MythTV_Player::CMD_Stop_TV(string &sCMD_Result,Message *pMessage)
     m_pMythTV->StopLiveTV();
 }
 
+//<-dceag-c187-b->
+/*
+    COMMAND: #187 - Tune to channel
+    COMMENTS: This will make the device to tune to a specific channel.
+    PARAMETERS:
+        #48 ProgramID
+            The Program ID that we need to tune to.
+*/
+void MythTV_Player::CMD_Tune_to_channel(string sProgramID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c187-e->
+{
+    ProgramInfo *programInfo;
 
+    vector<string> numbers;
+
+    StringUtils::Tokenize(sProgramID, "|", numbers);
+
+    QString channelName = numbers[0];
+    QDateTime startTime = QDateTime(
+                                QDate(
+                                    atoi(numbers[1].c_str()),
+                                    atoi(numbers[2].c_str()),
+                                    atoi(numbers[3].c_str())),
+
+                                QTime(
+                                    atoi(numbers[4].c_str()),
+                                    atoi(numbers[5].c_str())));
+
+    programInfo = ProgramInfo::GetProgramAtDateTime(
+                                        QSqlDatabase::database(),
+                                        channelName,
+                                        startTime);
+
+    g_pPlutoLogger->Write(LV_STATUS, "Tuning .. ");
+    m_pMythTV->Playback(programInfo);
+    g_pPlutoLogger->Write(LV_STATUS, "Done");
+}

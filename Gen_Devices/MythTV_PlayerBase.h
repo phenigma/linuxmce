@@ -68,6 +68,7 @@ public:
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Start_TV(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Stop_TV(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Tune_to_channel(string sProgramID,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -98,6 +99,21 @@ public:
 					{
 						string sCMD_Result="OK";
 						CMD_Stop_TV(sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 187:
+					{
+						string sCMD_Result="OK";
+					string sProgramID=pMessage->m_mapParameters[48];
+						CMD_Tune_to_channel(sProgramID.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);

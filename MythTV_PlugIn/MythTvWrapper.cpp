@@ -1,5 +1,7 @@
 #include "MythTvWrapper.h"
+
 #include "DCE/Logger.h"
+#include "Gen_Devices/AllCommandsRequests.h"
 
 #include <qapplication.h>
 #include <qsqldatabase.h>
@@ -10,12 +12,14 @@
 #include <mythtv/mythdialogs.h>
 #include <programinfo.h>
 
+
 using namespace DCE;
 
 MythContext *gContext;
 
 
-MythTvWrapper::MythTvWrapper()
+MythTvWrapper::MythTvWrapper(Command_Impl *pCommandImpl)
+    :m_pDCEDeviceWrapper(pCommandImpl)
 {
     int argc = 1;
     char *argv[] = { "", "", "" };
@@ -343,7 +347,7 @@ bool MythTvWrapper::decodeProgramStartTime(string sValue, int &nChanId, int &tmY
         return false;
     }
 
-    nChanId = atoi(numbers[0].c_str());
+    nChanId  = atoi(numbers[0].c_str());
     tmYear   = atoi(numbers[1].c_str());
     tmMonth  = atoi(numbers[2].c_str());
     tmDay    = atoi(numbers[3].c_str());
@@ -357,13 +361,25 @@ WatchTVRequestResult MythTvWrapper::ProcessWatchTvRequest(string showStartTimeEn
     int iChanId;
     int tmYear, tmMonth, tmDay, tmHour, tmMinute;
 
+
     if ( ! decodeProgramStartTime(showStartTimeEncoded,
                                   iChanId,
                                   tmYear, tmMonth, tmDay,
                                   tmHour, tmMinute))
         return WatchTVResult_Failed;
 
-    return ProcessWatchTvRequest(iChanId, tmYear, tmMonth, tmDay, tmHour, tmMinute);
+    WatchTVRequestResult result;
+    if ( (result = ProcessWatchTvRequest(iChanId, tmYear, tmMonth, tmDay, tmHour, tmMinute)) == WatchTVResult_Tuned )
+    {
+        DCE::CMD_Tune_to_channel tuneToChannel(
+                m_pDCEDeviceWrapper->m_dwPK_Device,
+                37,
+                showStartTimeEncoded);
+
+        m_pDCEDeviceWrapper->SendCommand(tuneToChannel);
+    }
+
+    return result;
 }
 
 WatchTVRequestResult MythTvWrapper::ProcessWatchTvRequest(int iChanId, int nYear, int nMonth, int nDay, int nHour, int nMinute)
@@ -376,15 +392,9 @@ WatchTVRequestResult MythTvWrapper::ProcessWatchTvRequest(int iChanId, int nYear
                                                 programStartTime);
 
     if ( QDateTime::currentDateTime() > programStartTime )
-    {
-        g_pPlutoLogger->Write(LV_STATUS, "Tunning to channel ID: %d", iChanId);
         return WatchTVResult_Tuned;
-    }
     else
-    {
-        g_pPlutoLogger->Write(LV_STATUS, "Program is in the future: need to move the orbiter to a screen");
         return WatchTVResult_InTheFuture;
-    }
 }
 
 ScheduleRecordTvResult MythTvWrapper::ProcessAddRecordingRequest(string showStartTimeEncoded)
@@ -412,6 +422,10 @@ ScheduleRecordTvResult MythTvWrapper::ProcessAddRecordingRequest(int channelId, 
                                         QString::number(channelId),
                                         programStartTime);
 
+
     programInfo->ApplyRecordStateChange(QSqlDatabase::database(), kSingleRecord);
+    g_pPlutoLogger->Write(LV_STATUS, "After recording: %s %s", programInfo->RecStatusChar().ascii(), programInfo->RecStatusText().ascii());
+
+    return ScheduleRecordTVResult_Success;
 }
 

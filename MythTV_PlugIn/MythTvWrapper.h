@@ -8,6 +8,9 @@
 #include <qdatetime.h>
 #include <qstring.h>
 
+#include "Message.h"
+#include "Command_Impl.h"
+
 class QApplication;
 
 using namespace std;
@@ -27,6 +30,7 @@ typedef enum {
 class MythTvWrapper
 {
     QApplication * m_pQApplication;
+    Command_Impl * m_pDCEDeviceWrapper;
 
 protected:
     bool initMythTVGlobalContext();
@@ -67,7 +71,7 @@ protected:
     bool decodeProgramStartTime(string sValue, int &nChanId, int &tmYear, int &tmMonth, int &tmDay, int &tmHour, int &tmMinute);
 public:
 
-    MythTvWrapper();
+    MythTvWrapper(Command_Impl *pCommandImpl);
 
     // Methods used by the MythTV_PlugIn
     DataGridTable *createShowsDataGrid(string GridID, QDateTime startTime, QDateTime endTime);

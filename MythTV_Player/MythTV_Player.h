@@ -10,6 +10,7 @@
 #include <qapplication.h>
 #include <mythtv/mythcontext.h>
 #include <mythtv/mythdialogs.h>
+#include <mythtv/lcddevice.h>
 
 #include <tv.h>
 
@@ -21,7 +22,6 @@ namespace DCE
 //<-dceag-decl-e->
     // Private member variables
     QApplication    *m_pQApplication;
-//     MythContext     *m_pMythContext;
     MythMainWindow  *m_pMythMainWindow;
     TV              *m_pMythTV;
 
@@ -68,6 +68,16 @@ public:
 */
 	virtual void CMD_Stop_TV() { string sCMD_Result; CMD_Stop_TV(sCMD_Result,NULL);};
 	virtual void CMD_Stop_TV(string &sCMD_Result,Message *pMessage);
+
+/* 
+	COMMAND: #187 - Tune to channel
+	COMMENTS: This will make the device to tune to a specific channel.
+	PARAMETERS:
+		#48 ProgramID
+			The Program ID that we need to tune to.
+*/
+	virtual void CMD_Tune_to_channel(string sProgramID) { string sCMD_Result; CMD_Tune_to_channel(sProgramID.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Tune_to_channel(string sProgramID,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 };
