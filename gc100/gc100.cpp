@@ -92,7 +92,6 @@ gc100::gc100(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool b
 	gc100_mutex.Init(NULL);
 	m_bQuit = false;
 	m_bLearning = false;
-	is_open_for_learning = open_for_learning();
 	
 	if (!Open_gc100_Socket())
 	{
@@ -1112,14 +1111,14 @@ bool gc100::open_for_learning()
 	g_pPlutoLogger->Write(LV_STATUS, "Trying to open learning device: %s", learn_device.c_str());
 	learn_fd = open(learn_device.c_str(), O_RDONLY | O_NONBLOCK);
 
-	if (learn_fd < 1)
+	if (learn_fd < 0)
 	{
 		g_pPlutoLogger->Write(LV_WARNING, "Failed to open learning device: %s %s", learn_device.c_str(), strerror(errno));
 		return_value = false;
 	}
 	else
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Opened learning device successfully: %s", learn_device.c_str());
+		g_pPlutoLogger->Write(LV_STATUS, "Opened learning device successfully: %s (%d)", learn_device.c_str(), learn_fd);
 	}
 
 #ifdef WIN32
@@ -1153,11 +1152,19 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 	if (is_open_for_learning)
 	{
 		retval = read(learn_fd, learn_buffer, 511);
+		cout << "retval: " << retval << ", learning_error: " << learning_error << ", StopLearning:" << m_bStopLearning
+			<< ", learn_fd: " << learn_fd << ", errno: " << errno << ", " << strerror(errno) << endl;
 
 		timeval CurTime;
 		gettimeofday(&CurTime, NULL);
 		timespec tsCurTime;
 		timeval_to_timespec(&CurTime, &tsCurTime);
+		
+		timespec R = tsStartTime + LEARNING_TIMEOUT;
+		cout << "CT: " << tsCurTime.tv_sec << ", " << tsCurTime.tv_nsec << endl;
+		cout << "ST: " << tsStartTime.tv_sec << ", " << tsStartTime.tv_nsec << endl;
+		cout << "LT: " << LEARNING_TIMEOUT.tv_sec << ", " << LEARNING_TIMEOUT.tv_nsec << endl;
+		cout << "R : " << R.tv_sec << ", " << R.tv_nsec << endl;
 		
 		while (tsCurTime < tsStartTime + LEARNING_TIMEOUT && (retval > 0) && !learning_error && !m_bStopLearning)
 		{
@@ -1214,6 +1221,8 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 	//		bLearnedCode ? DESIGNOBJ_learned : DESIGNOBJ_failed_to_learn);
 	//	pLearningInfo->m_pgc100->SendCommand(CMD_Goto_Screen);
 	//}
+	
+	g_pPlutoLogger->Write(LV_STATUS, "Learning thread finished");
 }
 
 void gc100::CreateChildren()
@@ -1230,6 +1239,8 @@ void gc100::CreateChildren()
 	    device_data = read_from_gc100();
 	} while (device_data != "endlistdevices");
 	Start_seriald(); // Start gc_seriald processes according to serial port inventory
+	Sleep(2000);
+	is_open_for_learning = open_for_learning();
 
 	if (pthread_create(&m_EventThread, NULL, StartEventThread, (void *) this))
 	{
