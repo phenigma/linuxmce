@@ -29,7 +29,7 @@ function myPluto($output,$dbADO,$conn) {
 		$installationsText='You have the following installations:<br>';
 		$isDealer=0;
 		while($rowInstallations=$res->FetchRow()){
-			if($rowInstallations['FK_Dealer']!='')
+			if(@$rowInstallations['EK_Dealer']!='')
 				$isDealer=1;
 			$installationsText.='
 				Installation no. <b>'.$rowInstallations['PK_Installation'].'</b><br>

@@ -5,13 +5,13 @@ function updateProfile($output,$conn,$dbADO) {
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';	
 	
 	// get dealer ID from Users table
-	$resUser=$dbADO->Execute('SELECT FK_Dealer FROM Users WHERE PK_Users=?',$_SESSION['userID']);
+	$resUser=$dbADO->Execute('SELECT EK_Dealer FROM Users WHERE PK_Users=?',$_SESSION['userID']);
 	if($resUser->RecordCount()==0){
 		header('Location: index.php?section=dealerApplication');
 		exit();
 	}
 	$rowUser=$resUser->FetchRow();
-	$dealerID=$rowUser['FK_Dealer'];
+	$dealerID=$rowUser['EK_Dealer'];
 	
 	// get dealer data from Dealer table
 	$resDealer=dbQuery("SELECT * FROM Dealer WHERE PK_Dealer='$dealerID'",$conn);
