@@ -1,3 +1,20 @@
+/*
+ Main
+ 
+ Copyright (C) 2004 Pluto, Inc., a Florida Corporation
+ 
+ www.plutohome.com		
+ 
+ Phone: +1 (877) 758-8648
+ 
+ This program is distributed according to the terms of the Pluto Public License, available at: 
+ http://plutohome.com/index.php?section=public_license 
+ 
+ This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
+ 
+ */
+ 
 //<-dceag-incl-b->
 #include "Orbiter.h"
 #include "DCE/Logger.h"
@@ -8,7 +25,7 @@
 #include "PlutoUtils/Other.h"
 #include "PlutoUtils/Other.h"
 
-#define  Orbiter_VERSION "testing"
+#define  VERSION "testing"
 
 namespace DCE
 {
@@ -29,6 +46,16 @@ void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
 //<-dceag-main-b->!  **DON'T AUTOMATICALLY OVERWRITE THIS SECTIONS, IT'S CUSTOM
 int main(int argc, char* argv[])
 {
+
+		cout<<"	Copyright (C) 2004 Pluto, Inc., a Florida Corporation"<<endl
+		    <<"	www.plutohome.com"<<endl
+		    <<"	Phone: +1 (877) 758-8648"<<endl
+		    <<"	This program is distributed according to the terms of the Pluto Public License, available at: "<<endl
+		    <<"	http://plutohome.com/index.php?section=public_license "<<endl
+		    <<"	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; "<<endl
+		    <<"	without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. "<<endl
+		    <<"	See the Pluto Public License for more details."<<endl;    
+    
     string sRouter_IP="dce_router";
     int PK_Device=0;
     string sLogger="stdout";
@@ -79,15 +106,21 @@ int main(int argc, char* argv[])
 
     if (bError)
     {
-        cout << "Orbiter, v." << Orbiter_VERSION << endl
+        
+//                123456789012345678901234567890123456789012345678901234567890	
+	cout << "Orbiter, v." << VERSION << endl
             << "A Pluto DCE Device.  See www.plutohome.com/dce for details." << endl
-            << "Usage: Orbiter [-r Router's IP] [-d My Device ID] [-l dce_router|stdout|null|filename] [-D Directory] [-L] [-W Width] [-H Height]" << endl
-            << "-r -- the IP address of the DCE Router  Defaults to 'dce_router'." << endl
-            << "-d -- This device's ID number.  If not specified, it will be requested from the router based on our IP address." << endl
-            << "-l -- Where to save the log files.  Specify 'dce_router' to have the messages logged to the DCE Router.  Defaults to stdout." << endl
-            << "-D -- If a directory is specified, it will look for it's image and config files here rather than requesting from the server." << endl
-            << "-L -- Local mode only.  Do not connect to the server.  All messages will just loop back." << endl
-            << "-W/H -- Width/Height default to full screen." << endl;
+            << "Usage: Orbiter [-r Router's IP] [-d My Device ID] [-l dce_router|stdout|null|filename]" << endl 
+	    << "[-D Directory] [-L] [-W Width] [-H Height]" << endl
+            << "-r router's IP		-- the IP address of the DCE Router  Defaults to 'dce_router'." << endl
+            << "-d my device ID		-- This device's ID number.  If not specified, it will be requested" << endl
+	    << " 	from the router based on our IP address." << endl
+            << "-l dce_router		-- Where to save the log files.  Specify 'dce_router' to have " << endl 
+	    << "	the messages logged to the DCE Router.  Defaults to stdout." << endl
+            << "-D directory		-- If a directory is specified, it will look for it's image " << endl
+	    << "	and config files here rather than requesting from the server." << endl
+            << "-L 			-- Local mode only.  Do not connect to the server.  All messages will just loop back." << endl
+            << "-W/H			-- Width/Height default to full screen." << endl;
         exit(0);
     }
 
