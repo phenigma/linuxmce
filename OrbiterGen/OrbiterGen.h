@@ -6,7 +6,7 @@
 #include "pluto_main/Database_pluto_main.h"
 #include "DesignObj_Generator.h"
 #include "Orbiter/OrbiterData.h"
-#include "PlutoUtils/MySqlHelper.h"
+#include "PlutoUtils/MySQLHelper.h"
 
 class OrbiterGenerator : public OrbiterData, public MySqlHelper
 {
