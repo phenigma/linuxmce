@@ -619,7 +619,7 @@ int MediaAttributes::GetFileIDFromFilePath( string File )
 		{
 			if( DatabaseFile.length( )==0 )
 			{
-				m_pOCLogger->Write( LV_CRITICAL, "There appears to be a foreign file in the system %d %s", value, File.c_str( ) );
+				g_pPlutoLogger->Write( LV_CRITICAL, "There appears to be a foreign file in the system %d %s", value, File.c_str( ) );
 				return 0;
 			}
 			else
@@ -628,13 +628,13 @@ int MediaAttributes::GetFileIDFromFilePath( string File )
 				FILE *file = fopen( DatabaseFile.c_str( ), "rb" );
 				if( file )
 				{
-					m_pOCLogger->Write( LV_CRITICAL, "There are 2 files with id %d %s and: %s", value, File.c_str( ), DatabaseFile.c_str( ) );
+					g_pPlutoLogger->Write( LV_CRITICAL, "There are 2 files with id %d %s and: %s", value, File.c_str( ), DatabaseFile.c_str( ) );
 					return 0;
 				}
 				else
 				{
 					// They must have moved it
-					m_pOCLogger->Write( LV_MEDIA, "File %d moved from %s to %s", ID, DatabaseFile.c_str( ), File.c_str( ) );
+					g_pPlutoLogger->Write( LV_MEDIA, "File %d moved from %s to %s", ID, DatabaseFile.c_str( ), File.c_str( ) );
 					string SQL = "UPDATE File SET Path='" + StringUtils::SQLEscape( File ) + "' WHERE PK_File=" + value;
 					m_pMedia_Plugin->threaded_mysql_query( SQL );
 				}
@@ -690,7 +690,7 @@ string MediaAttributes::GetAnyPictureUnderDirectory( string File, int *PK_Pictur
 	struct dirent *direntp = &entry;
 	if ( dirp == NULL )
 	{
-		m_pOCLogger->Write( LV_CRITICAL, "opendir2 %s failed: %s", File.c_str( ), strerror( errno ) );
+		g_pPlutoLogger->Write( LV_CRITICAL, "opendir2 %s failed: %s", File.c_str( ), strerror( errno ) );
 		return "";
 	}
 	while ( dirp != NULL && ( readdir_r( dirp, direntp, &direntp ) == 0 ) && direntp )
