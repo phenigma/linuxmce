@@ -324,6 +324,7 @@ class Table *Repository::CreateBatchHeaderTable( )
 	sql	<< "CREATE TABLE `" << Tablename << "`( " << endl
 		<< "`PK_" << Tablename << "` int( 11 ) NOT NULL auto_increment, " << endl
 		<< "`date` datetime, " << endl
+		<< "`comments` text, " << endl
 		<< "PRIMARY KEY ( `PK_" << Tablename << "` )" << endl
 		<< " ) TYPE=" << g_GlobalConfig.m_sTableType << ";" << endl;
 	if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
@@ -1112,14 +1113,25 @@ void Repository::ResetSystemTables()
 		}
 	}
 
-	list<string> listTables;
+	map<int,string> mapSchema;
 	sql.str("");
-	Tablename = "psc_" + m_sName + "_tables";
-	sql	<< "SELECT Tablename FROM `" << Tablename << "`";
+	Tablename = "psc_" + m_sName + "_schema";
+	sql	<< "SELECT PK_" << Tablename << ",`Value` FROM `" << Tablename << "`";
 	PlutoSqlResult result_set2;
 	if( ( result_set2.r=m_pDatabase->mysql_query_result( sql.str( ) ) ) )
 	{
 		while ( row = mysql_fetch_row( result_set2.r ) )
+			mapSchema[ atoi(row[0]) ] = row[1];
+	}
+
+	list<string> listTables;
+	sql.str("");
+	Tablename = "psc_" + m_sName + "_tables";
+	sql	<< "SELECT Tablename FROM `" << Tablename << "`";
+	PlutoSqlResult result_set3;
+	if( ( result_set3.r=m_pDatabase->mysql_query_result( sql.str( ) ) ) )
+	{
+		while ( row = mysql_fetch_row( result_set3.r ) )
 			listTables.push_back(row[0]);
 	}
 
@@ -1134,6 +1146,19 @@ void Repository::ResetSystemTables()
 		SetSetting((*it).first,(*it).second);  
 
 	GetSetting("schema","1");  // Be sure we at least have a default schema of 1
+
+	Tablename = "psc_" + m_sName + "_schema";
+	for(map<int,string>::iterator it=mapSchema.begin();it!=mapSchema.end();++it)
+	{
+		sql.str("");
+		sql	<< "INSERT INTO " << Tablename << "(PK_" << Tablename << ",`Value`) VALUES("
+			<< (*it).first << ",'" << StringUtils::SQLEscape((*it).second) << "');";
+		if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
+		{
+			cerr << "SQL failed: " << sql.str( ) << endl;
+			throw "Database Error";
+		}
+	}
 
 	// We reset all the psc_rep_tables, so put back any tables in there
 	for(list<string>::iterator it=listTables.begin();it!=listTables.end();++it)
