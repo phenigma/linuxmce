@@ -13,7 +13,7 @@ $pkid=(isset($_GET['pkid'])&&$_GET['pkid']!='0'&&$_GET['pkid']!='')?$_GET['pkid'
 function getPacks ($pack,$dbADO) {
 	$queryPacks = 	'SELECT PK_Package,Package.Description,OnlyToBuild
 						FROM Package_Package
-					JOIN Package ON FK_Package_DependsOn=PK_Package
+					INNER JOIN Package ON FK_Package_DependsOn=PK_Package
 						WHERE FK_Package=?';
 	$resPacks = $dbADO->Execute($queryPacks,$pack);
 	//$ind = 0;	
@@ -41,7 +41,7 @@ function getPacks ($pack,$dbADO) {
 function getPacks2 ($pack,$dbADO) {
 	$queryPacks = 	'SELECT PK_Package,Package.Description,OnlyToBuild
 						FROM Package_Package
-					JOIN Package ON FK_Package_DependsOn=PK_Package
+					INNER JOIN Package ON FK_Package_DependsOn=PK_Package
 						WHERE OnlyToBuild=1 and FK_Package=?';
 	$resPacks = $dbADO->Execute($queryPacks,$pack);
 	//$ind = 0;	
@@ -117,9 +117,9 @@ else{ //package is not 0
 						RepositorySource.Description as RepositorySource,
 						RepositoryType.Description as RepositoryType
 					FROM Package_Source_Compat
-				JOIN Package_Source ON FK_Package_Source=PK_Package_Source
-				JOIN RepositorySource ON FK_RepositorySource=PK_RepositorySource
-				JOIN RepositoryType ON FK_RepositoryType=PK_RepositoryType
+				INNER JOIN Package_Source ON FK_Package_Source=PK_Package_Source
+				INNER JOIN RepositorySource ON FK_RepositorySource=PK_RepositorySource
+				INNER JOIN RepositoryType ON FK_RepositoryType=PK_RepositoryType
 				LEFT JOIN Distro ON Package_Source_Compat.FK_Distro=PK_Distro
 				LEFT JOIN OperatingSystem ON Package_Source_Compat.FK_OperatingSystem=PK_OperatingSystem
 					WHERE FK_Package=?';

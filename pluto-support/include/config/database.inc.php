@@ -1,8 +1,8 @@
 <?PHP
 
 
-  $dbUser = 'root';
-  $dbPass = '';
+  $dbUser = 'plutovip';
+  $dbPass = 'bogata41';
   $dbDatabase = 'pluto_main';
   $dbServer = 'localhost';
   $dbType = 'mysql';

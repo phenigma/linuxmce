@@ -85,7 +85,7 @@ while($rowSources=$resSources->FetchRow()){
 			SELECT 
 				Distinct Directory.Description
 			FROM Package_Directory 
-				JOIN Directory ON FK_Directory=PK_Directory
+				INNER JOIN Directory ON FK_Directory=PK_Directory
 			WHERE FK_Package=?';
 		$resDirectories=$dbADO->Execute($queryDirectories,$PK_Package);
 		$directoriesList=array();
@@ -114,7 +114,7 @@ while($rowSources=$resSources->FetchRow()){
 			$out.='
 		<tr bgcolor="'.(($sourcesCount%2==0)?'#F0F3F8':'#FFFFFF').'">
 			<td></td>
-			<td><a href="'.$rowRepositoryURLs['URL'].'/'.(($rowSources['Repository']!='')?$rowSources['Repository'].'/':'').$rowSources['Name'].'_'.$rowSources['Version'].$rowSources['Parms'].'">'.$rowRepositoryURLs['URL'].'</a></td>
+			<td><a href="'.$rowRepositoryURLs['URL'].(($rowSources['Repository']!='')?$rowSources['Repository'].'/':'').$rowSources['Name'].'_'.$rowSources['Version'].$rowSources['Parms'].'">'.$rowRepositoryURLs['URL'].'</a></td>
 			<td>Location: </td>
 			<td>'.$rowRepositoryURLs['CountryName'].'</td>
 			<td>Username</td>

@@ -11,7 +11,7 @@
 	
 	$treeType = isset($_REQUEST['treeType'])?cleanString(strip_tags($_REQUEST['treeType'])):'devices';
 	$jsTree='';
-	$rootTitle='Documents tree';
+	$rootTitle='Document tree';
 	$rootLink='right.php?section=documents/userHome&reloadTree=true';
 
 	if($docID!=0){

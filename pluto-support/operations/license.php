@@ -38,8 +38,8 @@ if ($package != 0 ) {
 	//echo 'sadfasdf';
 	$queryLicense = 'SELECT PK_License,URL,License.Description,Manufacturer.Description as Manufact
 							FROM Package
-						JOIN License on FK_License=PK_License
-						JOIN Manufacturer on FK_Manufacturer=PK_Manufacturer
+						INNER JOIN License on FK_License=PK_License
+						INNER JOIN Manufacturer on FK_Manufacturer=PK_Manufacturer
 						WHERE PK_Package=?';
 	$resLicense = $dbADO->Execute($queryLicense,$package);
 	$found = 0;

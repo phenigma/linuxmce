@@ -14,8 +14,8 @@ if($package!=0){
 	$queryDevelopers='
 		SELECT Username,Administrator,Staff,Package_Users.Comments 
 			FROM Package_Users
-		JOIN Package ON FK_Package=PK_Package
-		JOIN Users ON FK_Users=PK_Users
+		INNER JOIN Package ON FK_Package=PK_Package
+		INNER JOIN Users ON FK_Users=PK_Users
 			WHERE FK_Package=?
 		ORDER BY Administrator DESC,Username';
 
@@ -32,8 +32,8 @@ if($package!=0){
 	$queryDevelopers='
 		SELECT Username,Administrator,Staff,Package_Users.Comments,Package.Description as Package,PK_Package 
 			FROM Package_Users
-		JOIN Package ON FK_Package=PK_Package
-		JOIN Users ON FK_Users=PK_Users
+		INNER JOIN Package ON FK_Package=PK_Package
+		INNER JOIN Users ON FK_Users=PK_Users
 			ORDER BY Username';
 	$resDevelopers=$dbADO->Execute($queryDevelopers);
 	$out.='<center><table>

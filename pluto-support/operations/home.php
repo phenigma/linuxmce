@@ -24,7 +24,7 @@ if($package!=0){
 		$out.=$out1.'<b>'.$out2.'</b>';
 	}
 	$queryDocs = 'SELECT Contents FROM Package
-					JOIN Document ON FK_Document=PK_Document
+					INNER JOIN Document ON FK_Document=PK_Document
 					where PK_Package=?';
 	$resDocs = $dbADO ->Execute($queryDocs,$package);
 	$rowDocs = $resDocs->FetchRow();

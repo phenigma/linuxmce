@@ -59,6 +59,10 @@ $package=(isset($_SESSION['package']))?$_SESSION['package']:0;
 			<tr>
 				<td><b>.</b></td>
 				<td><a href="index.php?section=document&docID=104">PlutoVip Download Page</td>
+			</tr>
+			<tr>
+				<td><b>.</b></td>
+				<td><a href="index.php?section=document&docID=106">Windows Software Installers Page</td>
 			</tr>';
 	if ($package != 0) {
 			$out.='<tr>
