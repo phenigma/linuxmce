@@ -67,7 +67,7 @@ case "$URL_TYPE" in
 				echo "add_backend /$FilteredRepos \$APT_PROXY_CACHE/$FilteredRepos $EndSlashRepos" >>/etc/apt-proxy/backends.sh
 			fi
 			apt-get update
-			[ "$Type" == "router" ] && apt-proxy-import-simple /usr/pluto/install/deb-cache
+#			[ "$Type" == "router" ] && apt-proxy-import-simple /usr/pluto/install/deb-cache
 		fi
 
 		if ! dpkg --get-selections "$PKG_NAME" | grep -q install; then

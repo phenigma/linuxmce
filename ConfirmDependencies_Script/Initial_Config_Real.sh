@@ -45,7 +45,8 @@ if [ "$Type" == "router" ] && ! dpkg -i /usr/pluto/install/deb-critical/*; then
 	echo "* ERROR * No APT proxy will be available. Chances are the installation will fail"
 fi
 
-grep ':9999' /etc/apt/sources.list >/etc/apt/sources.list.2
+echo "deb file:/usr/pluto/deb-cache/ sarge main" >/etc/apt/sources.list.2
+grep ':9999' /etc/apt/sources.list >>/etc/apt/sources.list.2
 mv /etc/apt/sources.list.2 /etc/apt/sources.list
 
 ok=0

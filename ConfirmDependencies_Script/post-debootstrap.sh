@@ -13,8 +13,9 @@ done
 touch "$DIR/.notdone"
 
 if [ -d /cdrom/Debian-Cache ]; then
-	mkdir -p /target/usr/pluto/install/deb-cache
-	cp -a /cdrom/Debian-Cache/* /target/usr/pluto/install/deb-cache
+	mkdir -p /target/usr/pluto/deb-cache/dists/sarge/main/binary-i386/
+	cp -a /cdrom/Debian-Cache/* /target/usr/pluto/deb-cache/dists/sarge/main/binary-i386/
+	ln -s sarge /target/usr/pluto/deb-cache/dists/testing
 fi
 
 mkdir -p /target/usr/pluto/install/deb-critical
