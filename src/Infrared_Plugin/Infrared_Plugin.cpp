@@ -30,6 +30,8 @@ using namespace DCE;
 #include "pluto_main/Define_DataGrid.h"
 #include "pluto_main/Define_Variable.h"
 
+#include "Orbiter_Plugin.h"
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 Infrared_Plugin::Infrared_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -536,8 +538,10 @@ g_pPlutoLogger->Write(LV_STATUS,"it's already in the preferred table for %d",pRo
 
 	/** @brief COMMAND: #276 - Add GC100 */
 	/** Add a GC100 Device */
+		/** @param #2 PK_Device */
+			/** Device from where the message comes */
 
-void Infrared_Plugin::CMD_Add_GC100(string &sCMD_Result,Message *pMessage)
+void Infrared_Plugin::CMD_Add_GC100(int iPK_Device,string &sCMD_Result,Message *pMessage)
 //<-dceag-c276-e->
 {
 #ifndef WIN32
@@ -581,6 +585,7 @@ void Infrared_Plugin::CMD_Add_GC100(string &sCMD_Result,Message *pMessage)
 					g_pPlutoLogger->Write(LV_STATUS, "GC100 Configure script did not generate any log's");
 				}
 				g_pPlutoLogger->Write(LV_STATUS, "The configure script returned with success");
+				DisplayMessageOnOrbiter(iPK_Device,"GC100 added with success");
 			} else {
 				fp = fopen("/var/log/pluto/gc100-conf.log","rt");
 				if(fp != NULL) {
@@ -600,6 +605,7 @@ void Infrared_Plugin::CMD_Add_GC100(string &sCMD_Result,Message *pMessage)
 					g_pPlutoLogger->Write(LV_STATUS, "GC100 Configure script did not generate any log's");
 				}
 				g_pPlutoLogger->Write(LV_STATUS, "The configure script failed to configure gc100");
+				DisplayMessageOnOrbiter(iPK_Device,"GC100 failed to be added");
 			}
 			break;
         }

@@ -85,9 +85,11 @@ public:
 
 	/** @brief COMMAND: #276 - Add GC100 */
 	/** Add a GC100 Device */
+		/** @param #2 PK_Device */
+			/** Device from where the message comes */
 
-	virtual void CMD_Add_GC100() { string sCMD_Result; CMD_Add_GC100(sCMD_Result,NULL);};
-	virtual void CMD_Add_GC100(string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Add_GC100(int iPK_Device) { string sCMD_Result; CMD_Add_GC100(iPK_Device,sCMD_Result,NULL);};
+	virtual void CMD_Add_GC100(int iPK_Device,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->
