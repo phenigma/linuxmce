@@ -35,6 +35,7 @@ using namespace DCE;
 #include "DCE/DataGrid.h"
 #include "DCERouter/DCERouter.h"
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
+#include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "pluto_main/Define_DeviceCategory.h"
 #include "pluto_main/Table_MediaType.h"
@@ -506,7 +507,7 @@ g_pPlutoLogger->Write(LV_WARNING, "Added dir '%s' to datagrid", pFileDetails->m_
 			else if( Actions.find('S')!=string::npos )
 			{
 				// The Orbiter wants us to attach an action to files too
-				DCE::CMD_Show_Object cmd(PK_Controller, PK_Controller, StringUtils::itos(DESIGNOBJ_butPreviewFileList_CONST), 0, "", "", "");
+				DCE::CMD_Show_Object cmd(PK_Controller, PK_Controller, StringUtils::itos(DESIGNOBJ_butPreviewFileList_CONST), 0, "", "", "1");
 				pCell->m_pMessage = cmd.m_pMessage;
 			}
 		}
