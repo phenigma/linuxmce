@@ -5,6 +5,23 @@
 -- Server version	4.0.23_Debian-1-log
 
 --
+-- Table structure for table `ast_config`
+--
+
+CREATE TABLE `ast_config` (
+`id` int(11) NOT NULL auto_increment,
+`cat_metric` int(11) NOT NULL default '0',
+`var_metric` int(11) NOT NULL default '0',
+`commented` int(11) NOT NULL default '0',
+`filename` varchar(128) NOT NULL default '',
+`category` varchar(128) NOT NULL default 'default',
+`var_name` varchar(128) NOT NULL default '',
+`var_val` varchar(128) NOT NULL default '',
+ PRIMARY KEY  (`id`),
+ KEY `filename_comment` (`filename`,`commented`)
+) TYPE=MyISAM;
+					
+--
 -- Table structure for table `extensions_table`
 --
 
@@ -15,7 +32,7 @@ CREATE TABLE `extensions_table` (
   `priority` tinyint(4) NOT NULL default '0',
   `app` varchar(20) NOT NULL default '',
   `appdata` varchar(255) NOT NULL default '',
-  KEY `id` (`id`)
+  PRIMARY_KEY (`id`)
 ) TYPE=MyISAM;
 
 --
