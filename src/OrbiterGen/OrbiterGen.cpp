@@ -455,6 +455,7 @@ int OrbiterGenerator::DoIt()
 	}
 
 	m_sMainMenu="";
+	m_dwPK_Device_LocalAppServer=0;
 
 	vector<Row_Device *> vectRow_Device;
 	mds.Device_get()->GetRows(DEVICE_FK_INSTALLATION_FIELD + string("=") + StringUtils::itos(m_pRow_Device->FK_Installation_get()),&vectRow_Device);
@@ -493,9 +494,13 @@ int OrbiterGenerator::DoIt()
 		case DEVICECATEGORY_Orbiter_Plugins_CONST:
 			m_dwPK_Device_OrbiterPlugIn = pRow_Device->PK_Device_get();
 			break;
-
+		case DEVICECATEGORY_App_Server_CONST:
+			if( pRow_Device->FK_Device_ControlledVia_get()==m_pRow_Device->FK_Device_ControlledVia_get() )
+				m_dwPK_Device_LocalAppServer = pRow_Device->PK_Device_get();
+			break;
 		};
 	}
+
 
 	for(size_t s=0;s<vectRow_Room.size();++s)
 	{

@@ -6,6 +6,7 @@
 #define DEVICETEMPLATE_Orbiters_in_my_room_CONST -301
 #define DEVICETEMPLATE_VirtDev_Disc_Drive_CONST -202
 #define DEVICETEMPLATE_VirtDev_AppServer_CONST -201
+#define DEVICETEMPLATE_VirtDev_Local_AppServer_CONST -150
 #define DEVICETEMPLATE_VirtDev_Event_Plugin_CONST -109
 #define DEVICETEMPLATE_VirtDev_Security_Plugin_CONST -108
 #define DEVICETEMPLATE_VirtDev_Telecom_Plugin_CONST -107
