@@ -6,6 +6,7 @@
   	if($GLOBALS['inDebug']!=1){
   		// production settings
   		error_reporting(E_ALL ^ E_NOTICE);
+  		#error_reporting(E_ALL);
   		include_once('/var/www/globalconfig/globalconfig.inc.php');
   		$GLOBALS['sendNotificationsTo']='info@plutohome.com';
   	}else{
