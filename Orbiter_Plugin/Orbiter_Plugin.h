@@ -8,6 +8,9 @@
 //<-dceag-d-e->
 
 #include "Orbiter/Floorplan.h"
+#include "pluto_main/Define_Text.h"
+#include "pluto_main/Define_DesignObj.h"
+#include "Gen_Devices/AllCommandsRequests.h"
 
 class Database_pluto_main;
 
@@ -40,7 +43,6 @@ namespace DCE
             m_pDevice_CurrentDetected = NULL;
             m_iFailedToConnectCount = 0;
         }
-
     };
 
 class UnknownDeviceInfos
@@ -131,7 +133,15 @@ public:
     bool MobileOrbiterLost(class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo);
 
     void ProcessUnknownDevice();
-
+	void DisplayMessageOnOrbiter(int dwPK_Device,string sMessage)
+	{
+		DCE::CMD_Set_Text CMD_Set_Text( 0, m_dwPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST),
+		"Unable to save playlist",TEXT_STATUS_CONST);
+	
+		DCE::CMD_Goto_Screen CMD_Goto_Screen( 0, m_dwPK_Device, 0, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), "", "", false );
+		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text.m_pMessage);
+		SendCommand( CMD_Goto_Screen );
+	}
 //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION

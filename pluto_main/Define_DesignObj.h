@@ -1066,6 +1066,9 @@
 #define DESIGNOBJ_mnuMediaFileList2_CONST 3226
 #define DESIGNOBJ_dgFileList2_CONST 3227
 #define DESIGNOBJ_LoadPlaylist_CONST 3228
+#define DESIGNOBJ_go_to_dvd_CONST 3229
+#define DESIGNOBJ_screen_app_desktop_CONST 3231
+#define DESIGNOBJ_go_to_app_desktop_CONST 3232
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

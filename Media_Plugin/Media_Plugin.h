@@ -28,6 +28,7 @@
 
 class Database_pluto_main;
 class Database_pluto_media;
+class MediaFile;
 
 /**
  * A Media Handler is derived from the Media Handler abstract class.  When it registers, it passes in a MediaPluginInfo pointer indicating
@@ -47,7 +48,8 @@ public:
     /** @brief constructor */
     MediaPluginBase() {}
 
-    virtual class MediaStream *CreateMediaStream(class MediaPluginInfo *pMediaPluginInfo,int PK_Device_Source,string Filename,int StreamID)=0;
+    /** @brief Each Plugin will create its own instance of MediaStream, so it can create a derived version with extra information */
+    virtual class MediaStream *CreateMediaStream(class MediaPluginInfo *pMediaPluginInfo,class EntertainArea *pEntertainArea,MediaDevice *pMediaDevice,int iPK_Users, deque<MediaFile *> *dequeMediaFile,int StreamID)=0;
     virtual bool StartMedia(class MediaStream *pMediaStream)=0;
     virtual bool StopMedia(class MediaStream *pMediaStream)=0;
     virtual bool BroadcastMedia(class MediaStream *pMediaStream)=0;
@@ -68,9 +70,11 @@ public:
     list<class EntertainArea *> m_listEntertainArea;
 };
 
+typedef list<MediaDevice *> ListMediaDevice;
 
-
-/** @brief An entertainment area is a cluster of devices.  Only 1 */
+/** @brief An entertainment area is a cluster of devices.  It's analogous to a Room, except you can have multiple entertainment areas in a room, like
+  * a 'his' and 'hers' tv in the bedroom.
+  */
 
 class EntertainArea
 {
@@ -86,13 +90,12 @@ public:
     class MediaStream  *m_pMediaStream;   /** The current media streams in this entertainment area */
 
     map<int, class MediaDevice *> m_mapMediaDevice;  /** All the media devices in the area */
+    MediaDevice *m_mapMediaDevice_Find(int PK_Device) { map<int,class MediaDevice *>::iterator it = m_mapMediaDevice.find(PK_Device); return it==m_mapMediaDevice.end() ? NULL : (*it).second; }
+	map<int, ListMediaDevice *> m_mapMediaDeviceByTemplate;  /** All the media devices in the area by device template */
+    ListMediaDevice *m_mapMediaDeviceByTemplate_Find(int PK_DeviceTemplate) { map<int,ListMediaDevice *>::iterator it = m_mapMediaDeviceByTemplate.find(PK_DeviceTemplate); return it==m_mapMediaDeviceByTemplate.end() ? NULL : (*it).second; }
 
-    MediaDevice *m_mapMediaDevice_Find(int PK_Device)
-    {
-        map<int,class MediaDevice *>::iterator it = m_mapMediaDevice.find(PK_Device);
-        return it==m_mapMediaDevice.end() ? NULL : (*it).second;
-    }
-
+	// These are the Orbiters that are currently controling this entertainment area.  When an 
+	// orbiter goes to a remote control for an entertainment area it becomes "bound".
     MapBoundRemote m_mapBoundRemote;
 
     BoundRemote *m_mapBoundRemote_Find(int iPK_Orbiter)
@@ -170,7 +173,7 @@ private:
     class Datagrid_Plugin *m_pDatagrid_Plugin;
 
     class DataGridTable *CurrentMedia( string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage );
-    class DataGridTable *StoredAudioPlaylist( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
+    class DataGridTable *CurrentMediaSections( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
     class DataGridTable *MediaSections( string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage );
     class DataGridTable *MediaAttrXref( string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage );
     class DataGridTable *MediaAttrCollections( string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage );
@@ -182,14 +185,7 @@ private:
     class DataGridTable *AllCommandsAppliableToEntAreas( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 
 protected:
-    /**
-     * This will play from the playlist using a specific position.
-     * If the media is not playabale on the current device it will find another device that will play it.
-     */
-    bool StartMediaByPositionInPlaylist(EntertainArea *pEntertainArea, int position, int iPK_Device_Source, int iPK_DesignObj_Remote);
-
     void PlayMediaByDeviceTemplate(int iPK_DeviceTemplate, int iPK_Device, int iPK_Device_Orbiter, EntertainArea *pEntertainArea, string &sCMD_Result);
-    void PlayMediaByMediaType(int iPK_MediaType, string sFilename, int iPK_Device, int iPK_Device_Orbiter, EntertainArea *pEntertainArea, string &sCMD_Result);
     void PlayMediaByFileName(string sFilename, int iPK_Device, int iPK_Device_Orbiter, EntertainArea *pEntertainArea, string &sCMD_Result);
     bool EnsureCorrectMediaStreamForDevice(MediaPluginInfo *pMediaPluginInfo, EntertainArea *pEntertainArea, int iPK_Device);
 
@@ -261,7 +257,7 @@ public:
 
     int DetermineUserOnOrbiter(int iPK_Device_Orbiter);
 
-    bool StartMedia(MediaPluginInfo *pMediaPluginInfo,int PK_Device_Orbiter,EntertainArea *pEntertainArea,int PK_Device_Source,int PK_DesignObj_Remote,string Filename);
+    bool StartMedia(MediaPluginInfo *pMediaPluginInfo,int PK_Device_Orbiter,EntertainArea *pEntertainArea,int PK_Device_Source,int PK_DesignObj_Remote,deque<MediaFile *> *dequeMediaFile);
 
     /**
      * @brief More capable StartMedia. Does not need an actual device since it will search for it at the play time.

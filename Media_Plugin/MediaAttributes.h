@@ -10,23 +10,36 @@
 
 #include <deque>
 using namespace std;
-enum _mediaAttributtesReturnCodes
-{
-    errNoError = 0,
-
-    // saving errors
-    errPlaylistNameAlreadyExists,
-    errPlaylistCommitFailed,
-
-    // loading errors
-    errNoSuchPlaylist,
-    errCantLoadEntries
-};
-
-typedef enum _mediaAttributtesReturnCodes MediaAttributesReturnCode;
 
 #include "PlutoUtils/MySQLHelper.h"
 #include "pluto_media/Database_pluto_media.h"
+#include "pluto_media/Table_PlaylistEntry.h"
+
+/**
+ * @brief Contains a media file
+ */
+
+class MediaFile
+{
+public:
+	MediaFile(int dwPK_File,string sFullyQualifiedFile)	{
+		m_dwPK_File=dwPK_File; m_sPath=FileUtils::BasePath(sFullyQualifiedFile); m_sFilename=FileUtils::FilenameWithoutPath(sFullyQualifiedFile);
+	}
+
+	MediaFile(string sFullyQualifiedFile)	{
+		m_dwPK_File=0; m_sPath=FileUtils::BasePath(sFullyQualifiedFile); m_sFilename=FileUtils::FilenameWithoutPath(sFullyQualifiedFile);
+	}
+
+	MediaFile(Row_PlaylistEntry *pRow_PlaylistEntry) {
+		m_dwPK_File=pRow_PlaylistEntry->FK_File_get(); 
+		m_sPath=pRow_PlaylistEntry->Path_get();
+		m_sFilename=pRow_PlaylistEntry->Filename_get();
+	}
+
+	int m_dwPK_File;
+	string m_sPath,m_sFilename;
+	string FullyQualifiedFile() { return m_sPath + "/" + m_sFilename; }
+};
 
 /**
  * @brief the attributes of the media
@@ -94,29 +107,16 @@ public:
     int GetAttributeFromFileID(int PK_File);
     int GetAttributeFromFilePath(string File);
     int GetFileIDFromAttributeID(int PK_Attribute);
+	void TransformFilenameToDeque(string sFilename,deque<MediaFile *> &dequeMediaFile);
 
     void MarkAsMissing(int iKey, string fileName);
 
-    // Utility function to allow removal of internal storage modes from other objects. Only the
-    // MediaAttribute class should be aware of #[Aa]|[Ff] syntax.
-    bool isAttributeSpecification(string sFilename);
-    bool isFileSpecification(string sFilename);
-
-    // convert from attr spec to list of file spec
-    bool GetFilesFromAttrBySpec(string sAttrSpecification, vector<string> &vectFilesListToUpdate);
-
-    // convert from file spec to file path
-    string ConvertFileSpecToFilePath(string sFileSpecification);
-    int ConvertFileSpecToFileID(string sFileSpecification);
-
-    // This will try to save the playlist into the database. It will return either errPlaylistNameAlreadyExists or errNoError depending on
-    // the operation outcome.
-    // If the operation is succesfull it will update the iPlaylistID also.
-    MediaAttributesReturnCode SavePlaylist(deque<string> &dequePlaylist, int iPK_Users, int &iPlaylistID, string sPlaylistName );
-    MediaAttributesReturnCode LoadPlaylist(int iPlaylistToLoadID, int &iPlaylistID, string &sPlaylistName, deque<string> &dequePlaylist);
+	bool SavePlaylist(deque<MediaFile *> &dequeMediaFile, int iPK_Users, int &iPK_Playlist, string sPlaylistName );
+	int LoadPlaylist(int iPK_Playlist, deque<MediaFile *> &dequeMediaFile, string &sPlaylistName);
+	static void PurgeDequeMediaFile(deque<MediaFile *> &dequeMediaFile);
 
 
-    static listMediaAttribute *AttributesFromString(string Input);
+	static listMediaAttribute *AttributesFromString(string Input);
     static string AttributesToString(listMediaAttribute *plistMediaAttribute);
 
     static listMediaPicture *PicturesFromString(string Input);

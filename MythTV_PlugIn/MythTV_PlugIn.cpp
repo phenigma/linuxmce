@@ -195,7 +195,7 @@ bool MythTV_PlugIn::BroadcastMedia(class MediaStream *pMediaStream)
     return true;
 }
 
-class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaPluginInfo *pMediaPluginInfo,int PK_Device_Source,string Filename,int StreamID)
+class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaPluginInfo *pMediaPluginInfo, class EntertainArea *pEntertainArea, MediaDevice *pMediaDevice,int iPK_Users, deque<MediaFile *> *dequeFilenames,int StreamID)
 {
     if ( m_pMedia_Plugin == NULL )
         return NULL;

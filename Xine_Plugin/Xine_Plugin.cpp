@@ -124,54 +124,23 @@ void Xine_Plugin::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
     sCMD_Result = "UNKNOWN DEVICE";
 }
 
-class MediaStream *Xine_Plugin::CreateMediaStream( class MediaPluginInfo *pMediaPluginInfo, int PK_Device_Source, string Filename, int StreamID )
+class MediaStream *Xine_Plugin::CreateMediaStream( class MediaPluginInfo *pMediaPluginInfo, class EntertainArea *pEntertainArea, MediaDevice *pMediaDevice, int iPK_Users, deque<MediaFile *> *dequeFilenames, int StreamID )
 {
-    PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
-  MediaStream *pMediaStream = new MediaStream( pMediaPluginInfo, pMediaPluginInfo->m_iPK_DesignObj, 0, st_RemovableMedia, StreamID ); // hack hack hack
+	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
+	if( (!pMediaDevice || pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_Xine_Player_CONST) && pEntertainArea )
+	{
+		ListMediaDevice *pListMediaDevice = pEntertainArea->m_mapMediaDeviceByTemplate_Find(DEVICETEMPLATE_Xine_Player_CONST);
+		if( pListMediaDevice && pListMediaDevice->size())
+			pMediaDevice = pListMediaDevice->front();
+	}
 
-  if( !PK_Device_Source && pMediaPluginInfo->m_listMediaDevice.size( ) )
-  {
-    MediaDevice *pMediaDevice = pMediaPluginInfo->m_listMediaDevice.front( );
-    PK_Device_Source=pMediaDevice->m_pDeviceData_Router->m_dwPK_Device;
-  }
-  DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find( PK_Device_Source );
+	if( !pMediaDevice || pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_Xine_Player_CONST )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Xine plugin being told to play in an entertainment area without a xine player");
+		return NULL;
+	}
 
-  bool bFoundDevice=false;
-  if( pDeviceData_Router->m_dwPK_DeviceTemplate==DEVICETEMPLATE_Xine_Player_CONST )
-  {
-    pMediaStream->m_dwPK_Device = PK_Device_Source;
-    bFoundDevice=true;
-  }
-  else if( pDeviceData_Router->m_dwPK_DeviceCategory==DEVICECATEGORY_Disc_Drives_CONST )
-  {
-    /** @todo hack, find xine until we decide on a better solution */
-    DeviceData_Router *pDeviceData_Router_MediaDirector = ( DeviceData_Router * ) pDeviceData_Router->m_pDevice_ControlledVia;
-    if( pDeviceData_Router_MediaDirector )
-    {
-      for( size_t s=0;s<pDeviceData_Router_MediaDirector->m_vectDeviceData_Impl_Children.size( );++s )
-      {
-        DeviceData_Router *pDeviceData_Router_Xine = ( DeviceData_Router * ) pDeviceData_Router_MediaDirector->m_vectDeviceData_Impl_Children[s];
-        if( pDeviceData_Router_Xine->m_dwPK_DeviceTemplate==DEVICETEMPLATE_Xine_Player_CONST )
-        {
-          pMediaStream->m_dwPK_Device = pDeviceData_Router_Xine->m_dwPK_Device;
-          bFoundDevice=true;
-          break;
-        }
-      }
-    }
-  }
-  else
-  {
-    g_pPlutoLogger->Write( LV_CRITICAL, "The device that sent the xine plug in the start has an unrecognized type: %d", pDeviceData_Router->m_dwPK_DeviceCategory );
-    pMediaStream->m_dwPK_Device=0;
-  }
-
-  if( !bFoundDevice )
-  {
-    g_pPlutoLogger->Write( LV_CRITICAL, "Couldn't find xine player for create media stream" );
-  }
-
-  return pMediaStream;
+	return new MediaStream( pMediaPluginInfo, pMediaDevice, pMediaPluginInfo->m_iPK_DesignObj, iPK_Users, st_RemovableMedia, StreamID ); // hack hack hack
 }
 
 bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
@@ -180,9 +149,6 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
     g_pPlutoLogger->Write( LV_STATUS, "Starting media stream playback--sending command, waiting for response" );
 
     string sFileToPlay = pMediaStream->GetFilenameToPlay("Empty file name");
-
-    if ( m_pMedia_Plugin->m_pMediaAttributes->isFileSpecification( sFileToPlay ) )
-        sFileToPlay = m_pMedia_Plugin->m_pMediaAttributes->ConvertFileSpecToFilePath(sFileToPlay);
 
     g_pPlutoLogger->Write( LV_STATUS, "Media type %d %s", pMediaStream->m_iPK_MediaType, sFileToPlay.c_str());
 
@@ -210,7 +176,7 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 
                 if( pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceCategory==DEVICECATEGORY_Disc_Drives_CONST )
                 {
-                    DCE::CMD_Mount_Disk_Image mountCommand( pMediaStream->m_dwPK_Device, pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, sFileToPlay, &mediaURL );
+                    DCE::CMD_Mount_Disk_Image mountCommand( pMediaStream->m_pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, sFileToPlay, &mediaURL );
 
                     g_pPlutoLogger->Write(LV_STATUS, "And Here ");
                     // TODO: read the response ( see if the mount was succesfull ) and continue if not.
@@ -229,7 +195,7 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
                     g_pPlutoLogger->Write(LV_STATUS, "Got response from the disk drive: %s", mediaURL.c_str() );
                 }
             }
-            g_pPlutoLogger->Write( LV_CRITICAL, "Media device %d got back URL: %s", pMediaStream->m_dwPK_Device, mediaURL.c_str( ) );
+            g_pPlutoLogger->Write( LV_CRITICAL, "Media device %d got back URL: %s", pMediaStream->m_pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, mediaURL.c_str( ) );
         }
     }
     else
@@ -241,7 +207,7 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 
     g_pPlutoLogger->Write(LV_STATUS, "Calling play command with media URL: %s", mediaURL.c_str());
     DCE::CMD_Play_Media cmd( m_dwPK_Device,
-                             pMediaStream->m_dwPK_Device,
+                             pMediaStream->m_pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
                              mediaURL,
                              pMediaStream->m_iPK_MediaType,
                              pMediaStream->m_iStreamID_get( ),
@@ -268,7 +234,7 @@ bool Xine_Plugin::StopMedia( class MediaStream *pMediaStream )
   g_pPlutoLogger->Write( LV_STATUS, "Stopping media stream playback--sending command, waiting for response" );
 
   DCE::CMD_Stop_Media cmd(  m_dwPK_Device,                          // Send from us
-                            pMediaStream->m_dwPK_Device,            // Send to the device that is actually playing
+                            pMediaStream->m_pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,	// Send to the device that is actually playing
                             pMediaStream->m_iStreamID_get( ),       // Send teh stream ID that we want to actually stop
                             &pMediaStream->m_iStoppedAtPosition);   // Get Back the position at which this stream was stopped.
   string Response;

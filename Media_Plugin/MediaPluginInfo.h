@@ -12,9 +12,11 @@
 #include "DCE/Logger.h"
 #include <deque>
 
+class MediaFile;
+void operator+= (deque<MediaFile *> &dTarget, deque<MediaFile *> &dAdditional);
+
 namespace DCE
 {
-
     enum SourceType {
         st_RemovableMedia,  /** The media is coming from a removable disc */
         st_Storage,         /** The media is stored on the core */
@@ -32,9 +34,9 @@ namespace DCE
 
     /** @brief
      *
-     * A Media Handler is derived from the Media Handler abstract class.  When it registers, it passes in a MediaPluginInfo pointer
+     * A Media Plugin is derived from the MediaPluginBase abstract class.  When it registers, it passes in a MediaPluginInfo pointer
      * indicating what type of media it can play.  It may register several times with different types of media and different capabilities.
-     *
+     * So there exists 1 MediaPluginInfo for each combination of MediaPlugin and MediaType (ie: xine/audio, xine/video, myth/tv, etc.)
      */
     class MediaPluginInfo
     {
@@ -108,6 +110,9 @@ namespace DCE
      * the destinations are seeing the same thing, and the appropriate plug-in must concern itself with proper audio/video sync,
      * and ensure that if 1 person changes the stream, they all stay in sync.
      * It is possible to do this even with non-stored media, like Broadcast TV.
+	 * Whatever media plugin first created the media is considered the 'responsible' plug-in.  A MediaStream can contain a 'playlist' or group
+	 * of files or media clips.  However, all must be of the same type since there is only 1 MediaPluginInfo for a stream.  You cannot, therefore, mix
+	 * audio and video clips in a playlist, or some stored audio (WAV, MP3, etc) with CD's or DVD's.
     */
     class MediaStream
     {
@@ -124,8 +129,8 @@ namespace DCE
          * As more 'play media' commands come in to this stream, it will add them to the queue so the user can save as a play list.
          * If it's a mounted media, like dvd, that won't happen
          */
-        deque<string>   m_dequeFilenames;        /** The filenames we're playing */
-        int             m_iDequeFilenames_Pos;   /** The play position in the m_dequeFilename deque. */
+        deque<MediaFile *>   m_dequeMediaFile;        /** The filenames we're playing */
+        int             m_iDequeMediaFile_Pos;   /** The play position in the m_dequeFilename deque. */
         int             m_iPK_Playlist;          /** the ID of the playlist. nonZero if the playlist was loaded from database, zero otherwise. */
         string          m_sPlaylistName;       /** the name of the playlist which was loaded from the database. */
 
@@ -135,7 +140,7 @@ namespace DCE
 
         char *m_pPictureData;
         int m_iPictureSize;
-        int m_dwPK_Device;      /** The source device */
+        MediaDevice *m_pMediaDevice;      /** The source device */
         int m_iPK_MediaType;        /** The type of media */
         int m_iPK_DesignObj_Remote; /** What screen to use as the remote control */
         bool m_bPlaying;        /** True if the media is now playing */
@@ -157,7 +162,7 @@ namespace DCE
         class MediaPosition *m_pMediaPosition; /** Where we are in the media stream */
 
         /** @brief constructor*/
-        MediaStream(class MediaPluginInfo *pMediaPluginInfo, int PK_DesignObj_Remote, int PK_Users,enum SourceType sourceType,int iStreamID);
+        MediaStream(class MediaPluginInfo *pMediaPluginInfo, MediaDevice *pMediaDevice, int PK_DesignObj_Remote, int PK_Users,enum SourceType sourceType,int iStreamID);
 
         /** @brief virtual destructor */
         virtual ~MediaStream();
@@ -168,12 +173,9 @@ namespace DCE
 
         void SetPicture(char *pPictureData,int iPictureSize) { delete[] m_pPictureData; m_pPictureData=pPictureData; m_iPictureSize=iPictureSize; }
 
-        virtual class DataGridTable *SectionList(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
-
         virtual string GetFilenameToPlay( string defaultFileName = "" );
         virtual void SetPlaylistPosition(int position);
         virtual void ChangePositionInPlaylist(int iHowMuch);
-        virtual void AddFileArrayToPlaylist(vector<string> &vectFileList);
         virtual void DumpPlaylist();
         virtual void ClearPlaylist();
         virtual bool HaveMoreInQueue();

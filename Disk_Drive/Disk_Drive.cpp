@@ -978,6 +978,10 @@ string Disk_Drive::dvd_read_name(const int fd)
 
 string Disk_Drive::startServer(string fileName)
 {
+	// In the future we may want to support running the disk drive on one machine and Xine on another machine
+	// but for now we'll always assume the media directors are running their own copy
+	string m_sIPAddress="localhost";
+
     if ( fileName.compare(this->DATA_Get_Drive() + ".dvd") == 0 )
         fileName = DATA_Get_Drive();
 
@@ -998,7 +1002,7 @@ string Disk_Drive::startServer(string fileName)
         g_pPlutoLogger->Write (LV_BURNER, ( string("fork error: ") + string( strerror (errno))).c_str() );
         return "";
     }
-
+#pragma warning("move this")
     if ( m_serverPid == 0 )
     {
         string convertedPort = StringUtils::itos(m_serverPort);

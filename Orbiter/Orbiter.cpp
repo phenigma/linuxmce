@@ -2927,13 +2927,13 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
             if(  pCommand->m_PK_Device==DEVICEID_HANDLED_INTERNALLY  )
             {
                 pThisMessage->m_dwPK_Device_To = m_dwPK_Device; // So the handler will loop back to ourselves
-                if( PK_Command==COMMAND_Goto_Screen_CONST )
-                {
-                    if( pMessage_GotoScreen )
-                        delete pMessage_GotoScreen;  // Shouldn't happen, but we're only going to process the last goto anyway
-                    pMessage_GotoScreen = pThisMessage;
-                    continue;
-                }
+				if( PK_Command==COMMAND_Goto_Screen_CONST || PK_Command==COMMAND_Go_back_CONST )
+				{
+					if( pMessage_GotoScreen )
+						delete pMessage_GotoScreen;  // Shouldn't happen, but we're only going to process the last goto anyway
+					pMessage_GotoScreen = pThisMessage;  
+					continue;
+				}
                 ReceivedMessage( pThisMessage );
                 pThisMessage->m_dwPK_Device_To = DEVICEID_HANDLED_INTERNALLY;
 
@@ -3216,6 +3216,7 @@ bool Orbiter::AcquireGrid( DesignObj_DataGrid *pObj,  int GridCurCol,  int &Grid
             if ( size && data )
             {
                 pDataGridTable = new DataGridTable( size,  data );
+				g_pPlutoLogger->Write( LV_STATUS, "Got %d rows %d cols", pDataGridTable->GetRows(  ), pDataGridTable->GetCols(  ) );
                 if(  !pDataGridTable->GetRows(  ) || !pDataGridTable->GetCols(  )  )
                 {
                     // Initialize grid will set these to 0,  assuming there will be data.  If the grid is empty,  change that

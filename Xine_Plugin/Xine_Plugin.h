@@ -50,7 +50,7 @@ public:
  /**
    * @brief
    */
-  virtual class MediaStream *CreateMediaStream( class MediaPluginInfo *pMediaPluginInfo, int PK_Device_Source, string Filename, int StreamID );
+  virtual class MediaStream *CreateMediaStream( class MediaPluginInfo *pMediaPluginInfo, class EntertainArea *pEntertainArea, MediaDevice *pMediaDevice, int iPK_Users, deque<MediaFile *> *dequeFilenames, int StreamID );
 
 /**
  * @brief destructor

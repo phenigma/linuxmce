@@ -42,6 +42,42 @@ MediaAttributes::MediaAttributes(string host, string user, string pass, string d
     }
 }
 
+void MediaAttributes::TransformFilenameToDeque(string sFilename,deque<MediaFile *> &dequeFilenames)
+{
+	if( sFilename.length()==0 )
+		return;
+
+	if( sFilename[0] != '#' || sFilename.length()<3 )
+	{
+		dequeFilenames.push_back(new MediaFile(sFilename));  // Just a normal file
+		return;
+	}
+
+	if( sFilename[1] == 'A' || sFilename[1] == 'a' )
+	{
+		Row_Attribute *pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow( atoi(sFilename.substr(2).c_str()) );
+		if( !pRow_Attribute )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Attribute lookup on %s is invalid",sFilename.c_str());
+			return;
+		}
+
+		vector<Row_File_Attribute *> vectRow_File_Attribute;
+		pRow_Attribute->File_Attribute_FK_Attribute_getrows(&vectRow_File_Attribute);
+		for(size_t s=0;s<vectRow_File_Attribute.size();++s)
+		{
+			Row_File_Attribute *pRow_File_Attribute = vectRow_File_Attribute[s];
+			dequeFilenames.push_back(new MediaFile(pRow_File_Attribute->FK_File_get(),GetFilePathFromFileID(pRow_File_Attribute->FK_File_get())));
+		}
+	}
+	else if( sFilename[1] == 'F' || sFilename[1] == 'f' )
+		dequeFilenames.push_back(new MediaFile(atoi(sFilename.substr(2).c_str()),GetFilePathFromFileID(atoi(sFilename.substr(2).c_str()))));
+	else
+	{
+		dequeFilenames.push_back(new MediaFile(sFilename));  // Just a normal file
+	}
+}
+
 int MediaAttributes::CreatedMedia( int PK_Type, string FilePath, listMediaAttribute *plistMediaAttribute, listMediaPicture *plistMediaPicture )
 {
     PlutoSqlResult result;
@@ -882,206 +918,83 @@ int MediaAttributes::GetAttributeFromFilePath( string File )
     return 0;
 }
 
-bool MediaAttributes::isAttributeSpecification(string sFilename)
+bool MediaAttributes::SavePlaylist(deque<MediaFile *> &dequeMediaFile, int iPK_Users, int &iPK_Playlist, string sPlaylistName )
 {
-    // first 2 chars are # and a file (should A or a for Attributte). after that we need a number also
-    return sFilename.length() >= 3 && sFilename[0] == '#' && (sFilename[1] == 'A' || sFilename[1] == 'a');
-}
+	Row_Playlist *pRow_Playlist=NULL;
+	if( iPK_Playlist )
+		pRow_Playlist = m_pDatabase_pluto_media->Playlist_get()->GetRow(iPK_Playlist);
+	else
+		pRow_Playlist = m_pDatabase_pluto_media->Playlist_get()->AddRow();
 
-bool MediaAttributes::isFileSpecification(string sFilename)
-{
-    return sFilename.length() >= 3 && sFilename[0] == '#' && (sFilename[1] == 'F' || sFilename[1] =='f' );
-}
+	if( !pRow_Playlist )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Tried to save to an invalid playlist");
+		return false;
+	}
 
-bool MediaAttributes::GetFilesFromAttrBySpec(string sAttrSpecification, vector<string> &vectFilesListToUpdate)
-{
-    Row_Attribute *pRow_Attribute;
-    int iAttrId;
+    pRow_Playlist->Name_set(sPlaylistName);
+    pRow_Playlist->EK_User_set(iPK_Users);
 
-    if ( (iAttrId = atoi(sAttrSpecification.substr(2).c_str())) == 0 )
+    if ( !pRow_Playlist->Table_Playlist_get()->Commit() )
     {
-        g_pPlutoLogger->Write(LV_WARNING, "MediaAttributtes::GetFilesFromAttrBySpec had invalid input ( the attr id was resolved to the 0 value ). Original input: %s", sAttrSpecification.c_str());
-        return false;
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot save/create playlist with ID %d",iPK_Playlist);
+		return false;
     }
 
-    pRow_Attribute = m_pDatabase_pluto_media->Attribute_get()->GetRow( iAttrId );
+    if( iPK_Playlist )
+	{
+		// We'll just re-write the whole thing out again anyway
+	    vector<Row_PlaylistEntry*> vectRow_PlaylistEntry;
+		pRow_Playlist->PlaylistEntry_FK_Playlist_getrows(&vectRow_PlaylistEntry);
+		for(size_t s=0;s<vectRow_PlaylistEntry.size();++s)
+			vectRow_PlaylistEntry[s]->Delete();
+	}
 
-    if( !pRow_Attribute )
+    iPK_Playlist = pRow_Playlist->PK_Playlist_get();
+
+	for(size_t s=0;s<dequeMediaFile.size();++s)
+	{
+		MediaFile *pMediaFile = dequeMediaFile[s];
+		Row_PlaylistEntry *pRow_PlaylistEntry = m_pDatabase_pluto_media->PlaylistEntry_get()->AddRow();
+		pRow_PlaylistEntry->FK_Playlist_set( iPK_Playlist );
+		if( pMediaFile->m_dwPK_File )
+			pRow_PlaylistEntry->FK_File_set(pMediaFile->m_dwPK_File);
+		pRow_PlaylistEntry->Path_set(pMediaFile->m_sPath);
+		pRow_PlaylistEntry->Filename_set(pMediaFile->m_sFilename);
+	}
+
+    if( !m_pDatabase_pluto_media->PlaylistEntry_get()->Commit() )
     {
-        g_pPlutoLogger->Write(LV_CRITICAL,"No attributte with id (%d) available in database (original attributte spec: %s)", sAttrSpecification.c_str());
+        g_pPlutoLogger->Write(LV_STATUS, "Could not save the playlist");
         return false;
-    }
-
-    vector<Row_File_Attribute *> vectRow_File_Attribute;
-    pRow_Attribute->File_Attribute_FK_Attribute_getrows(&vectRow_File_Attribute);
-    for(size_t s=0;s<vectRow_File_Attribute.size();++s)
-    {
-        Row_File_Attribute *pRow_File_Attribute = vectRow_File_Attribute[s];
-        if ( pRow_File_Attribute )
-        {
-            Row_File *pFile = pRow_File_Attribute->FK_File_getrow();
-            if ( pFile && pFile->Missing_get() == 0 )
-                vectFilesListToUpdate.push_back(string("#F" + StringUtils::itos(pFile->PK_File_get())));
-        }
     }
 
     return true;
 }
 
-int MediaAttributes::ConvertFileSpecToFileID(string sFileSpecification)
+int MediaAttributes::LoadPlaylist(int iPK_Playlist, deque<MediaFile *> &dequeMediaFile, string &sPlaylistName)
 {
-    int iFileID;
+    Row_Playlist *pRow_Playlist = m_pDatabase_pluto_media->Playlist_get()->GetRow(iPK_Playlist);
+    if ( !pRow_Playlist )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find playlist: %d",iPK_Playlist);
+		return false;
+	}
 
-    if ( ! isFileSpecification(sFileSpecification) )
-        return 0;
+    PurgeDequeMediaFile(dequeMediaFile);
+    vector<Row_PlaylistEntry *> vectRow_PlaylistEntry;
+	pRow_Playlist->PlaylistEntry_FK_Playlist_getrows(&vectRow_PlaylistEntry);
+    for( size_t s=0;s<vectRow_PlaylistEntry.size();++s )
+		dequeMediaFile.push_back(new MediaFile(vectRow_PlaylistEntry[s]));
 
-    if ( (iFileID = atoi(sFileSpecification.substr(2).c_str())) == 0 )
-    {
-        g_pPlutoLogger->Write(LV_WARNING, "MediaAttributtes::ConvertFileSpecToFilePath had invalid input ( the file id was resolved to the 0 value ). Original input: %s", sFileSpecification.c_str());
-        return 0;
-    }
-
-    return iFileID;
+    return (int) dequeMediaFile.size();
 }
 
-string MediaAttributes::ConvertFileSpecToFilePath(string sFileSpecification)
+void MediaAttributes::PurgeDequeMediaFile(deque<MediaFile *> &dequeMediaFile)
 {
-    Row_File *pRow_File;
-    int iFileID;
-
-
-    if ( (iFileID = ConvertFileSpecToFileID(sFileSpecification)) == 0 )
-        return sFileSpecification;
-
-    pRow_File = m_pDatabase_pluto_media->File_get()->GetRow( iFileID );
-
-    if ( !pRow_File )
-    {
-        g_pPlutoLogger->Write(LV_CRITICAL, "No file with id (%d) was found in the media database");
-        return sFileSpecification;
-    }
-
-    return pRow_File->Path_get() + "/" + pRow_File->Filename_get();
-}
-
-MediaAttributesReturnCode MediaAttributes::SavePlaylist(deque<string> &playlistContents, int iPK_Users, int &iPlaylistID, string sPlaylistName )
-{
-    Table_Playlist *pPlaylistTable;
-    Row_Playlist *pRowPlaylist;
-
-    Table_PlaylistEntry *pEntriesTable;
-    Row_PlaylistEntry *pEntry;
-    string sFileEntry;
-    int fileID;
-
-    pPlaylistTable = m_pDatabase_pluto_media->Playlist_get();
-    pEntriesTable = m_pDatabase_pluto_media->PlaylistEntry_get();
-
-    if ( iPlaylistID != 0 )
-        pRowPlaylist = pPlaylistTable->GetRow(iPlaylistID);
-    else
-        pRowPlaylist = pPlaylistTable->AddRow();
-
-    pRowPlaylist->Name_set(sPlaylistName);
-    pRowPlaylist->EK_User_set(iPK_Users);
-
-    if ( pPlaylistTable->Commit() == false )
-    {
-        if ( iPlaylistID == 0 )
-        {
-            pRowPlaylist->Delete();
-            pPlaylistTable->Commit();
-        }
-        else
-        {
-            pRowPlaylist->Reload();
-        }
-        return errPlaylistNameAlreadyExists;
-    }
-
-    // clear the previous playlist in order to be able to properly save it.
-    vector<Row_PlaylistEntry*> previousList;
-    pEntriesTable->GetRows( string("") + PLAYLISTENTRY_FK_PLAYLIST_FIELD + " = " + StringUtils::itos(iPlaylistID), &previousList);
-
-    for ( vector<Row_PlaylistEntry*>::iterator  itOldList = previousList.begin(); itOldList != previousList.end(); itOldList++ )
-        (*itOldList)->Delete();
-
-    iPlaylistID = pRowPlaylist->PK_Playlist_get();
-
-    deque<string>::iterator itEntries = playlistContents.begin();
-    while ( itEntries != playlistContents.end() )
-    {
-        sFileEntry = *itEntries;
-
-        pEntry = pEntriesTable->AddRow();
-        pEntry->FK_Playlist_set(iPlaylistID);
-
-        if ( (fileID = ConvertFileSpecToFileID(sFileEntry) ) == 0 )
-        { // this is not a file spec
-            pEntry->FK_File_setNull(true);
-            pEntry->Path_set(FileUtils::BasePath(sFileEntry));
-            pEntry->Filename_set(FileUtils::FilenameWithoutPath(sFileEntry, true));
-        }
-        else
-        {
-            pEntry->FK_File_set(fileID);
-            pEntry->Path_setNull(true);
-            pEntry->Filename_setNull(true);
-        }
-
-        itEntries++;
-    }
-
-    if ( pEntriesTable->Commit() == false )
-    {
-        g_pPlutoLogger->Write(LV_STATUS, "Could not save the playlist");
-        return errPlaylistCommitFailed;
-    }
-
-    return errNoError;
-}
-
-MediaAttributesReturnCode MediaAttributes::LoadPlaylist(int iPlaylistToLoadID, int &iPlaylistID, string &sPlaylistName, deque<string> &dequePlaylist)
-{
-    Table_Playlist *pPlaylistTable;
-    Row_Playlist *pRowPlaylist;
-
-    Table_PlaylistEntry *pEntriesTable;
-    Row_PlaylistEntry *pEntry;
-
-    string sEntry;
-
-    pPlaylistTable  = m_pDatabase_pluto_media->Playlist_get();
-    pEntriesTable   = m_pDatabase_pluto_media->PlaylistEntry_get();
-
-    pRowPlaylist = pPlaylistTable->GetRow(iPlaylistToLoadID);
-
-    if  ( pRowPlaylist == NULL )
-        return errNoSuchPlaylist;
-
-    vector<Row_PlaylistEntry*> listEntries;
-
-    // use a "WHERE FK_Playlist = <playlist_ID> ORDER BY PK_PlaylistEntry" clause on the select
-    if ( pEntriesTable->GetRows(string(PLAYLISTENTRY_FK_PLAYLIST_FIELD) + " = " + StringUtils::itos(iPlaylistToLoadID) + " ORDER BY " + PLAYLISTENTRY_PK_PLAYLISTENTRY_FIELD, &listEntries) == false )
-        return errCantLoadEntries;
-
-    sPlaylistName = pRowPlaylist->Name_get();
-    iPlaylistID   = pRowPlaylist->PK_Playlist_get();
-    dequePlaylist.clear();
-
-    for ( vector<Row_PlaylistEntry*>::iterator itEntries = listEntries.begin(); itEntries != listEntries.end(); itEntries++ )
-    {
-        pEntry = *itEntries;
-
-        if ( pEntry->FK_File_isNull() )
-            sEntry = pEntry->Path_get() + "/" + pEntry->Filename_get();
-        else
-            sEntry = string("#F ") + StringUtils::itos(pEntry->FK_File_get());
-
-        dequePlaylist.push_back(sEntry);
-    }
-
-    return errNoError;
+	for(size_t s=0;s<dequeMediaFile.size();++s)
+		delete dequeMediaFile[s];
+	dequeMediaFile.clear();
 }
 
 void MediaAttributes::MarkAsMissing(int iKey, string fileName)
