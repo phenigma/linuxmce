@@ -362,8 +362,8 @@ int OrbiterGenerator::DoIt()
 
 	m_dwPK_Users = drUsers_Default->PK_Users_get();
 
-	if( m_pRow_Device->FK_Room_isNull() )
-		throw "no room for orbiter: " + StringUtils::itos(m_pRow_Device->PK_Device_get());
+//	if( m_pRow_Device->FK_Room_isNull() )
+//		throw "no room for orbiter: " + StringUtils::itos(m_pRow_Device->PK_Device_get());
 
 	//	map<int,listDesignObj_Generator *> htGeneratedScreens;
 	//	map<int,string> htUsedDevices;

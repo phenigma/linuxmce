@@ -127,6 +127,7 @@ int main(int argc, char *argv[])
 {
 	g_pPlutoLogger = new FileLogger(stdout);
 
+	int iVersion=-1;
 	bool bError=false;
 	char c;
 	for(int optnum=1;optnum<argc;++optnum)
@@ -178,6 +179,9 @@ int main(int argc, char *argv[])
 			break;
 		case 'S':
 			g_bSimulate = true;
+			break;
+		case 'v':
+			iVersion = atoi(argv[++optnum]);
 			break;
 		default:
 			cout << "Unknown: " << argv[optnum] << endl;
@@ -240,7 +244,8 @@ int main(int argc, char *argv[])
 			cout << endl;
 	}
 
-	if( !AskYNQuestion("Continue?",false) )
+	// If the user specified the version on the command line, he probably doesn't want any prompts.  It's an automated build
+	if( iVersion==-1 && !AskYNQuestion("Continue?",false) )
 	{
 		return 1;
 	}
@@ -252,13 +257,19 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	cout << "What is the PK_Version?";
-	string sPK_Version = StringUtils::GetStringFromConsole();
-	g_pRow_Version = g_pDatabase_pluto_main->Version_get()->GetRow( atoi(sPK_Version.c_str()) );
+	if( iVersion != -1 )
+		g_pRow_Version = g_pDatabase_pluto_main->Version_get()->GetRow(iVersion);
+
 	if( !g_pRow_Version )
 	{
-		cout << "Cannot find that version" << endl;
-		return 1;
+		cout << "What is the PK_Version?";
+		string sPK_Version = StringUtils::GetStringFromConsole();
+		g_pRow_Version = g_pDatabase_pluto_main->Version_get()->GetRow( atoi(sPK_Version.c_str()) );
+		if( !g_pRow_Version )
+		{
+			cout << "Cannot find that version" << endl;
+			return 1;
+		}
 	}
 #pragma warning("had to use tiny text because medium text fails due to char[] in commit with field asSQL");
 	

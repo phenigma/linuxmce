@@ -8,7 +8,6 @@ echo "setting up dce router"
 
 device="$PK_Device"
 code="$Activation_Code"
-installation=1 # HACK, hardcoded
 
 wget -O /usr/pluto/install/database_initial_data.sql "http://plutohome.com/initialdata.php?code=$code&device=$device" 2>/dev/null
 
@@ -19,7 +18,6 @@ if [ "$size" -lt 100 ]; then
 else
 	/usr/bin/mysql pluto_main </usr/pluto/install/database_initial_data.sql
 fi
-
 
 devices=$(echo "SELECT PK_Device FROM Device;" | /usr/bin/mysql pluto_main | tail +2 | tr '\n' ' ')
 
@@ -56,8 +54,16 @@ JOIN DeviceCategory_DeviceData on DeviceCategory_DeviceData.FK_DeviceCategory=De
 LEFT JOIN Device_DeviceData ON FK_Device=PK_Device AND Device_DeviceData.FK_DeviceData=DeviceCategory_DeviceData.FK_DeviceData
 WHERE Device_DeviceData.FK_Device IS NULL AND PK_Device=$i;"
 
-(echo "$Q1"; echo "$Q2"; echo "$Q3") | /usr/bin/mysql pluto_main
+(echo "$Q1"; echo "$Q2"; echo "$Q3";) | /usr/bin/mysql pluto_main
 done
+
+# Add to Installation_Users
+Q4="INSERT INTO Installation_Users(FK_Installation,FK_Users,userCanModifyInstallation)
+SELECT PK_Installation,PK_Users,1
+FROM Installation
+JOIN Users;"
+
+(echo "$Q4";) | /usr/bin/mysql pluto_main
 
 /usr/pluto/bin/Update_StartupScrips.sh
 

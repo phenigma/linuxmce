@@ -127,5 +127,7 @@ if [ -z "$no_build_all" -a -s "$DIR"/build_all.sh ]; then
 fi
 
 wget -O "$DIR/message.txt" "$ACTIV/message.php?code=$CODE" 2>/dev/null && cat "$DIR/message.txt"
+echo "Press enter to continue"
+read
 exit 0
 

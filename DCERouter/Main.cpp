@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 {
 #endif
    		
-		cout<<"	Copyright (C) 2004 Pluto, Inc., a Florida Corporation"<<endl
+		cout<<" Copyright (C) 2004 Pluto, Inc., a Florida Corporation"<<endl
 		    <<"	www.plutohome.com"<<endl
 		    <<"	Phone: +1 (877) 758-8648"<<endl
 		    <<"	This program is distributed according to the terms of the Pluto Public License, available at: "<<endl
