@@ -924,6 +924,9 @@ AsksSourceQuests:
 		for(size_t s=0;s<vectRow_Package_Directory_File.size();++s)
 		{
 			Row_Package_Directory_File *pRow_Package_Directory_File = vectRow_Package_Directory_File[s];
+			if( (!pRow_Package_Directory_File->FK_Distro_isNull() && pRow_Package_Directory_File->FK_Distro_get()!=g_pRow_Distro->PK_Distro_get()) ||
+					(!pRow_Package_Directory_File->FK_OperatingSystem_isNull() && pRow_Package_Directory_File->FK_OperatingSystem_get()!=g_pRow_Distro->FK_OperatingSystem_get()) )
+				continue;
 
 			if( g_bInteractive )
 			{
