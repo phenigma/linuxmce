@@ -179,7 +179,14 @@ g_pPlutoLogger->Write(LV_STATUS,"*******rendering timeout at %d,%d - %d,%d",Text
     string BasePath="/usr/pluto/fonts/";
 #endif //win32
 
-	WrapAndRenderText(m_pScreenImage, TextToDisplay, TextLocation.x, TextLocation.y, TextLocation.w, TextLocation.h, BasePath, pTextStyle);
+	try
+	{
+		WrapAndRenderText(m_pScreenImage, TextToDisplay, TextLocation.x, TextLocation.y, TextLocation.w, TextLocation.h, BasePath, pTextStyle);
+	}
+	catch(char* ex)
+	{
+
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color)
@@ -400,8 +407,8 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::UpdateRect(PlutoRectangle rect)
 {
-	//clipping the rectangle 
-	//	SDL_UpdateRect dies in Linux if we are trying to update 
+	//clipping the rectangle
+	//	SDL_UpdateRect dies in Linux if we are trying to update
 	//	a rectangle outside the screen
 	if(rect.X < 0)
 		rect.X = 0;

@@ -14,14 +14,17 @@
 class XRecordExtensionHandler
 {
 	std::string 		m_strDisplayName;
-	bool 				m_bShouldRecord;
-	bool				m_bShouldQuit;
-	bool 				m_bIsRecording;
 
-	pthread_t			m_processingThread;
-	pthread_mutex_t		m_mutexCondition;
-	pthread_cond_t		m_condition;
+	bool 				m_isRecordingEnabled;
+	bool 				m_shouldRecord, m_shouldQuit;
 
+	pthread_t			recordingThread;
+
+	pthread_mutex_t 	mutexEnableRecordCondition;
+	pthread_mutex_t 	mutexStoppedRecordingCondition;
+
+    pthread_cond_t  	enableRecordCondition;
+	pthread_cond_t  	recordingStateChangedCondition;
 
 	XRecordContext		m_recordingContext;
 	// XRecordFlags m_RecordFlags;

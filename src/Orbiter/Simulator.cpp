@@ -52,13 +52,13 @@ Simulator *Simulator::m_pInstance = NULL;
 void *GeneratorThread( void *p)
 {
 	g_pPlutoLogger->Write(LV_WARNING, "Simulator enabled");
-	
+
 	Simulator *pSimulator = (Simulator *)p;
 
 	pSimulator->m_bIsRunning = true;
 
 	Sleep(pSimulator->m_dwStartGeneratorThreadDelay);
-	
+
 	bool bGenerateMouseClicks = pSimulator->m_bGenerateKeyboardEvents;
 	bool bGenerateKeyboardEvents = pSimulator->m_bGenerateMouseClicks;
 	bool bOption1 = pSimulator->m_iKeysSetToGenerate == 0;
@@ -67,7 +67,7 @@ void *GeneratorThread( void *p)
 
 	int iDelayMin = max(pSimulator->m_dwDelayMin, 1000);//if the interval is smaller then this, TTF_RenderText_Blended will crash
 	int iDelayMax = max(pSimulator->m_dwDelayMax, 1500);
-	
+
 	int iButtonsPerClick = pSimulator->m_iNumberOfButtonsPerClick;
 
 	string HomeScreen = pSimulator->m_sHomeScreen;
@@ -105,7 +105,7 @@ void *GeneratorThread( void *p)
 	while(true)
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Simulator: generating new event (orbiter : %p)", pOrbiter);
-		
+
 		if(!pOrbiter || pOrbiter->m_bQuit)
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "Orbiter is NULL!");
@@ -121,14 +121,14 @@ void *GeneratorThread( void *p)
 
 		if(time(NULL) - pOrbiter->GetLastScreenChangedTime() > 3600) //1 hour
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "@@@ Got stuck into the screen with id: %s @@@",  
+			g_pPlutoLogger->Write(LV_CRITICAL, "@@@ Got stuck into the screen with id: %s @@@",
 				pOrbiter->GetCurrentScreenID().c_str());
 
-			if(!pOrbiter->m_bQuit && HomeScreen != "")    
-				pOrbiter->GotoScreen(HomeScreen);	
+			if(!pOrbiter->m_bQuit && HomeScreen != "")
+				pOrbiter->GotoScreen(HomeScreen);
 		}
 
-		delay = iDelayMin + rand() % (iDelayMax - iDelayMin); 
+		delay = iDelayMin + rand() % (iDelayMax - iDelayMin);
 		Simulator::SimulateActionDelay(delay);
 
 		if(Count == iButtonsPerClick)
@@ -136,7 +136,7 @@ void *GeneratorThread( void *p)
 			Count = 0;
 
 			x = rand() % pOrbiter->m_iImageWidth;//  SDL_WIDTH;
-			y = rand() % pOrbiter->m_iImageHeight;			
+			y = rand() % pOrbiter->m_iImageHeight;
 
 			if(!pOrbiter->m_bQuit)
 				pOrbiter->SimulateMouseClick(x, y);
@@ -168,10 +168,10 @@ void *GeneratorThread( void *p)
 			}
 			else if(bOption2)
 			{
-				long list[] = 
-				{ 
+				long list[] =
+				{
 					BUTTON_Up_Arrow_CONST, BUTTON_Down_Arrow_CONST,
-					BUTTON_Left_Arrow_CONST, BUTTON_Right_Arrow_CONST, BUTTON_Enter_CONST 
+					BUTTON_Left_Arrow_CONST, BUTTON_Right_Arrow_CONST, BUTTON_Enter_CONST
 				};
 
 				int index = rand() % sizeof(list)/sizeof(list[0]);
@@ -181,12 +181,12 @@ void *GeneratorThread( void *p)
 			}
 			else if(bOption3) //phone keys
 			{
-				long list[] = 
-				{ 
+				long list[] =
+				{
 					BUTTON_1_CONST,
 					BUTTON_2_CONST,
 					BUTTON_3_CONST,
-					BUTTON_4_CONST, 
+					BUTTON_4_CONST,
 					BUTTON_5_CONST,
 					BUTTON_6_CONST,
 					BUTTON_7_CONST,
@@ -309,7 +309,7 @@ void Simulator::LoadConfigurationFile(string sConfigurationFile)
 
 	m_bTryToDetermineAutomatically = ReadInteger("TryToDetermineAutomatically", (int)m_bTryToDetermineAutomatically) != 0;
 	m_sDeviceID = ReadString("DeviceID", m_sDeviceID);
-	m_sRouterIP = ReadString("RouterIP", m_sRouterIP); 
+	m_sRouterIP = ReadString("RouterIP", m_sRouterIP);
 
 	if(m_dwDelayMax <= m_dwDelayMin)
 		m_dwDelayMax = m_dwDelayMin + 500;
@@ -359,10 +359,10 @@ void Simulator::SaveConfigurationFile(string sConfigurationFile)
             continue;
 
 		string::size_type pos_Slash = vectString[s].find("//");
-        
+
 		string Token = vectString[s].substr(0,pos_Equal);
 		StringUtils::TrimSpaces(Token);
-				
+
         string Value;
 
 		if( pos_Slash==string::npos )

@@ -2,7 +2,7 @@
 #define __CACHE_IMAGE_MANAGER_H__
 
 #include <string>
-#include <vector>	
+#include <vector>
 using namespace std;
 //------------------------------------------------------------------------
 struct CacheImageData

@@ -13,34 +13,37 @@ using namespace DCE;
 using namespace std;
 
 XRecordExtensionHandler::XRecordExtensionHandler(string displayName)
-	: m_strDisplayName(displayName), m_bShouldRecord(false), m_bShouldQuit(false), m_bIsRecording(false)
+	: m_strDisplayName(displayName), m_isRecordingEnabled(false), m_shouldRecord(false), m_shouldQuit(false)
 {
-	pthread_mutex_init(&m_mutexCondition, NULL);
-	pthread_cond_init(&m_condition, NULL);
+ 	pthread_mutex_init(&mutexEnableRecordCondition, NULL);
+	pthread_cond_init(&enableRecordCondition, NULL);
 
-	pthread_create(&m_processingThread, NULL, recordingThreadMainFunction, this);
+	pthread_mutex_init(&mutexStoppedRecordingCondition, NULL);
+	pthread_cond_init(&recordingStateChangedCondition, NULL);
+
+    pthread_create(&recordingThread, NULL, recordingThreadMainFunction, this);
 }
 
 XRecordExtensionHandler::~XRecordExtensionHandler()
 {
 	g_pPlutoLogger->Write(LV_STATUS, "Marking as quit");
-	m_bShouldQuit = true;
+	m_shouldQuit = true;
 
 
-	if ( m_bIsRecording )
+	if ( m_isRecordingEnabled )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Disabling recording");
+		g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::~XRecordExtensionHandler(): Disabling recording");
 		enableRecording(NULL, false); // stop any recording taking place. This will not put the thread of the cond_wait if it is there.
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Signaling the condition");
-	pthread_cond_signal(&m_condition); // if it is there it will be put out.
+	g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::~XRecordExtensionHandler(): Signaling the condition");
+	pthread_cond_signal(&enableRecordCondition); // if it is there it will be put out.
 
-	g_pPlutoLogger->Write(LV_STATUS, "cancelling the thread");
-	pthread_cancel(m_processingThread);
-	g_pPlutoLogger->Write(LV_STATUS, "Joining the theread");
-	pthread_join(m_processingThread, NULL);
-	g_pPlutoLogger->Write(LV_STATUS, "Done");
+	g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::~XRecordExtensionHandler(): cancelling the thread");
+	pthread_cancel(recordingThread);
+	g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::~XRecordExtensionHandler(): Joining the theread");
+	pthread_join(recordingThread, NULL);
+	g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::~XRecordExtensionHandler(): Done");
 }
 
 void *XRecordExtensionHandler::recordingThreadMainFunction(void *arguments)
@@ -58,11 +61,11 @@ void *XRecordExtensionHandler::recordingThreadMainFunction(void *arguments)
 
 	if ( ! XRecordQueryVersion(pControlConnection, &iMinorVersion, &iMajorVersion) )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "XRecord extension not available.");
+		g_pPlutoLogger->Write(LV_WARNING, "XRecordExtensionHandler::recordingThreadMainFunction(): XRecord extension not available.");
 		return NULL;
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Available XRecord extension with version %d.%d.", iMajorVersion, iMinorVersion);
+	g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::recordingThreadMainFunction(): Available XRecord extension with version %d.%d.", iMajorVersion, iMinorVersion);
 
 	//XSync(pControlConnection, True);
 	//XSync(pDataConnection, True);
@@ -94,31 +97,36 @@ void *XRecordExtensionHandler::recordingThreadMainFunction(void *arguments)
 	// pXRecordObject->m_recordingContext = XRecordCreateContext(pDataConnection, XRecordFromServerTime | XRecordFromClientTime | XRecordFromClientSequence, &recordClient, 1, &recordRange, 1);
 	pXRecordObject->m_recordingContext = XRecordCreateContext(pDataConnection, 0, &recordClient, 1, &recordRange, 1);
 
-	pXRecordObject->m_bIsRecording = false;
+	pXRecordObject->m_isRecordingEnabled = false;
 	pXRecordObject->m_pDisplay = pControlConnection;
 
+	XSync(pXRecordObject->m_pDisplay, True);
 	while ( true )
 	{
-		if ( pXRecordObject->m_bShouldRecord && ! pXRecordObject->m_bIsRecording )
+		if ( pXRecordObject->m_shouldRecord && ! pXRecordObject->m_isRecordingEnabled )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Enabling recording!!!");
-			pXRecordObject->m_bIsRecording = true;
-			if ( XRecordEnableContext(pDataConnection, pXRecordObject->m_recordingContext, (XRecordInterceptProc)&XRecordExtensionHandler::XRecordingDataCallback, (char*)pXRecordObject) == False)
-				g_pPlutoLogger->Write(LV_WARNING, "Could not enable recording context!");
+			g_pPlutoLogger->Write(LV_CRITICAL, "XRecordExtensionHandler::recordingThreadMainFunction(): Enabling recording!!!");
+			if ( ! XRecordEnableContext(
+					pDataConnection,
+					pXRecordObject->m_recordingContext,
+					(XRecordInterceptProc)&XRecordExtensionHandler::XRecordingDataCallback, (char*)pXRecordObject))
+				g_pPlutoLogger->Write(LV_WARNING, "XRecordExtensionHandler::recordingThreadMainFunction(): Could not enable recording context!");
 
-			g_pPlutoLogger->Write(LV_CRITICAL, "Recording completed!!!");
-			pXRecordObject->m_bIsRecording = false;
+			g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::recordingThreadMainFunction(): Recording completed!!!");
 		}
 
-		if ( pXRecordObject->m_bShouldQuit )
-			break;
+        if ( pXRecordObject->m_shouldQuit )
+            break;
 
-		pthread_mutex_lock(&pXRecordObject->m_mutexCondition);
-		pthread_cond_wait(&pXRecordObject->m_condition, &pXRecordObject->m_mutexCondition );
-		pthread_mutex_unlock(&pXRecordObject->m_mutexCondition);
+		g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::recordingThreadMainFunction(): Recording thread going to sleep!!!");
+        pthread_mutex_lock(&pXRecordObject->mutexEnableRecordCondition);
+        while ( ! pXRecordObject->m_shouldQuit && ! pXRecordObject->m_shouldRecord )
+			pthread_cond_wait(&pXRecordObject->enableRecordCondition, &pXRecordObject->mutexEnableRecordCondition);
+        pthread_mutex_unlock(&pXRecordObject->mutexEnableRecordCondition);
+		g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::recordingThreadMainFunction(): Recording thread is awake!!!");
 
-		if ( pXRecordObject->m_bShouldQuit )
-			break;
+        if ( pXRecordObject->m_shouldQuit )
+            break;
 	}
 
 	XRecordFreeContext( pControlConnection, pXRecordObject->m_recordingContext);
@@ -134,23 +142,36 @@ bool XRecordExtensionHandler::enableRecording(Orbiter *pRecordingOrbiter, bool b
 {
 	m_pOrbiter = pRecordingOrbiter;
 
-	m_bShouldRecord = bEnable;
+	m_shouldRecord = bEnable;
 
-	g_pPlutoLogger->Write(LV_STATUS, "Signalling record thread: %d, current state: %d ", m_bShouldRecord, m_bIsRecording);
-	if ( m_bIsRecording  && ! m_bShouldRecord )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Calling XRecord Disable: %d, current state: %d ", m_bShouldRecord, m_bIsRecording);
+	if (m_shouldRecord == m_isRecordingEnabled )
+		return m_isRecordingEnabled;
+
+	g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::enableRecording(): Trying to change recording state: CurrentState[:ShouldRecord: %d, :IsRecording: %d]", m_shouldRecord, m_isRecordingEnabled);
+	if ( m_isRecordingEnabled  && ! m_shouldRecord )
+    {
+		g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::enableRecording(): Calling XRecord Disable: ShouldRecord: %d, IsRecording: %d", m_shouldRecord, m_isRecordingEnabled);
 		XRecordProcessReplies(m_pDisplay);
-		XSync(m_pDisplay, True);
 		XRecordDisableContext(m_pDisplay, m_recordingContext);
-		g_pPlutoLogger->Write(LV_CRITICAL, "Calling should be Disables: %d, current state: %d ", m_bShouldRecord, m_bIsRecording);
+		XFlush(m_pDisplay);
+		g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::enableRecording():  XRecordDisableContext called: ShouldRecord: %d, IsRecording: %d", m_shouldRecord, m_isRecordingEnabled);
+	}
+	else
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::enableRecording(): Waiting for state change. for condition: %p", &recordingStateChangedCondition);
+
+		pthread_cond_signal(&enableRecordCondition);
+
+		pthread_mutex_lock(&mutexStoppedRecordingCondition);
+		while ( ! m_isRecordingEnabled )
+			pthread_cond_wait(&recordingStateChangedCondition, &mutexStoppedRecordingCondition);
+    	pthread_mutex_unlock(&mutexStoppedRecordingCondition);
+
+		g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::enableRecording(): State changed: CurrentState[:ShouldRecord: %d, :IsRecording: %d].", m_shouldRecord, m_isRecordingEnabled);
 	}
 
-	pthread_cond_signal(&m_condition);
-
-	return true;
+	return m_isRecordingEnabled;
 }
-
 
 void XRecordExtensionHandler::XRecordingDataCallback(XPointer pData, XRecordInterceptData *pRecordedData)
 {
@@ -159,17 +180,23 @@ void XRecordExtensionHandler::XRecordingDataCallback(XPointer pData, XRecordInte
 	switch ( pRecordedData->category )
 	{
 		case XRecordStartOfData:
-			g_pPlutoLogger->Write(LV_WARNING, "Recording context enabled.", pthread_self());
+			g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::XRecordingDataCallback(): Recording context enabled.");
 			pRecordingHandler->m_iMouseX = pRecordingHandler->m_iMouseY = -1;
+
+			pRecordingHandler->m_isRecordingEnabled = true;
+			g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::XRecordingDataCallback(): Signalling.");
+			pthread_cond_signal(&pRecordingHandler->recordingStateChangedCondition);
 			break;
 
 		case XRecordEndOfData:
-			g_pPlutoLogger->Write(LV_WARNING, "Recording context got end of data.", pthread_self());
+			pRecordingHandler->m_isRecordingEnabled = false;
+			g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::XRecordingDataCallback(): Recording context got end of data.");
+			pthread_cond_signal(&pRecordingHandler->recordingStateChangedCondition);
 			break;
 
 		default:
-			if ( pRecordingHandler->m_bShouldRecord )
-			{
+//			if ( pRecordingHandler->m_bShouldRecord )
+//			{
 				pRecordingHandler->processXRecordToOrbiterEvent(pRecordedData, &pRecordingHandler->m_OrbiterEvent, pRecordingHandler->m_pDisplay);
 				if ( pRecordingHandler->m_pOrbiter )
 				{
@@ -177,16 +204,16 @@ void XRecordExtensionHandler::XRecordingDataCallback(XPointer pData, XRecordInte
 					*pEvent = pRecordingHandler->m_OrbiterEvent;
 					pRecordingHandler->m_pOrbiter->CallMaintenanceInMiliseconds(0, &Orbiter::QueueEventForProcessing, pEvent, false );
 				}
-			}
+			//}
 	}
 
 	XRecordFreeData(pRecordedData);
 
-	if ( ! pRecordingHandler->m_bShouldRecord )
+/*	if ( ! pRecordingHandler->m_bShouldRecord )
 	{
 		XSync(pRecordingHandler->m_pDisplay, True);
 		XRecordDisableContext(pRecordingHandler->m_pDisplay, pRecordingHandler->m_recordingContext);
-	}
+	}*/
 }
 
 void XRecordExtensionHandler::processXRecordToOrbiterEvent(XRecordInterceptData *pRecordedData, Orbiter::Event *orbiterEvent, Display *pDisplay)
@@ -227,7 +254,7 @@ void XRecordExtensionHandler::processXRecordToOrbiterEvent(XRecordInterceptData 
 					break;
 
 				default:
-					g_pPlutoLogger->Write(LV_STATUS, "Thread 0x%x: Don't know how to processs recorded event: %d", pthread_self(), pxEvent->u.u.type );
+					g_pPlutoLogger->Write(LV_STATUS, "XRecordExtensionHandler::processXRecordToOrbiterEvent(): Don't know how to processs recorded event: %d", pxEvent->u.u.type );
 			}
 		}
 	}
@@ -235,5 +262,5 @@ void XRecordExtensionHandler::processXRecordToOrbiterEvent(XRecordInterceptData 
 
 pthread_t XRecordExtensionHandler::getRecordingThread()
 {
-	return m_processingThread;
+	return recordingThread;
 }
