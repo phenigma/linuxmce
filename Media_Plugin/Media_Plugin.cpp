@@ -49,6 +49,8 @@ using namespace DCE;
 #include "pluto_main/Table_Room.h"
 #include "pluto_main/Table_EventParameter.h"
 #include "pluto_main/Table_DeviceTemplate.h"
+#include "pluto_main/Table_Device_Device_Pipe.h"
+#include "pluto_main/Table_MediaType.h"
 #include "pluto_media/Database_pluto_media.h"
 #include "pluto_media/Table_Attribute.h"
 #include "pluto_media/Table_File_Attribute.h"
@@ -74,6 +76,12 @@ MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 	UniqueColors[4] = PlutoColor(128,128,0).m_Value;
 	m_pDeviceData_Router = pRouter->m_mapDeviceData_Router_Find( pRow_Device->PK_Device_get( ) );
 	// do stuff with this
+}
+
+void MediaPluginBase::GetRenderDevices(MediaStream *pMediaStream,map<int,MediaDevice *> *pmapMediaDevice) 
+{
+	if( pMediaStream && pMediaStream->m_pDeviceData_Router_Source )
+		(*pmapMediaDevice)[pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device] = m_pMedia_Plugin->m_mapMediaDevice_Find(pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
 }
 
 //<-dceag-const-b->! custom
@@ -408,11 +416,18 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
 bool Media_Plugin::StartMedia( MediaPluginInfo *pMediaPluginInfo, unsigned int PK_Device_Orbiter, EntertainArea *pEntertainArea, int PK_Device_Source, int PK_DesignObj_Remote, deque<MediaFile *> *dequeMediaFile )
 {
     PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
-    // Normally we'll add new files to the queue if we're playing stored audio/video.  However, if the current media is not playing files, or if it's playing a mounted dvd, or if the new
+	
+	// We need to keep track of the devices where we were previously rendering media so that we can send on/off commands
+	map<int,MediaDevice *> mapMediaDevice_Prior;
+	int PK_MediaType_Prior=0;
+	
+	// Normally we'll add new files to the queue if we're playing stored audio/video.  However, if the current media is not playing files, or if it's playing a mounted dvd, or if the new
     // file to play is a mounted dvd, then we can't add to the queue, and will need to create a new media stream
     if( pEntertainArea->m_pMediaStream )
     {
-        if( pEntertainArea->m_pMediaStream->m_pMediaPluginInfo!=pMediaPluginInfo )
+		pEntertainArea->m_pMediaStream->m_pMediaPluginInfo->m_pMediaPluginBase->GetRenderDevices(pEntertainArea->m_pMediaStream,&mapMediaDevice_Prior);
+		PK_MediaType_Prior = pEntertainArea->m_pMediaStream->m_pMediaPluginInfo->m_PK_MediaType;
+		if( pEntertainArea->m_pMediaStream->m_pMediaPluginInfo!=pMediaPluginInfo )
         {
             // We can't queue this.
             pEntertainArea->m_pMediaStream->m_pMediaPluginInfo->m_pMediaPluginBase->StopMedia( pEntertainArea->m_pMediaStream );
@@ -440,7 +455,7 @@ bool Media_Plugin::StartMedia( MediaPluginInfo *pMediaPluginInfo, unsigned int P
         pEntertainArea->m_pMediaStream=pMediaStream;
         pMediaStream->m_pOH_Orbiter = pOH_Orbiter;
         pMediaStream->m_dequeMediaFile += *dequeMediaFile;
-    }
+    }	
 
     pMediaStream->m_pMediaPluginInfo = pMediaPluginInfo;
     pMediaStream->m_iPK_MediaType = pMediaPluginInfo->m_PK_MediaType;
@@ -459,11 +474,11 @@ bool Media_Plugin::StartMedia( MediaPluginInfo *pMediaPluginInfo, unsigned int P
 		 pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_LiveTV_CONST ||	// or the TV display
          pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_StoredVideo_CONST ) // or stored movies
     {
-        if( pMediaStream->m_pMediaSourceDevice->m_pDeviceData_Router->m_pDevice_ControlledVia &&
-            pMediaStream->m_pMediaSourceDevice->m_pDeviceData_Router->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Orbiter_CONST) )
+        if( pMediaStream->m_pDeviceData_Router_Source->m_pDevice_ControlledVia &&
+            pMediaStream->m_pDeviceData_Router_Source->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Orbiter_CONST) )
         {
 			// store the orbiter which is directly controlling the target device as the target on-screen display.
-			pOH_Orbiter_OSD = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMediaStream->m_pMediaSourceDevice->m_pDeviceData_Router->m_dwPK_Device_ControlledVia);
+			pOH_Orbiter_OSD = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device_ControlledVia);
         }
     }
 
@@ -471,6 +486,12 @@ bool Media_Plugin::StartMedia( MediaPluginInfo *pMediaPluginInfo, unsigned int P
     if( pMediaPluginInfo->m_pMediaPluginBase->StartMedia(pMediaStream) )
     {
         g_pPlutoLogger->Write(LV_STATUS,"Plug-in started media");
+
+		// We need to get the current rendering devices so that we can send on/off commands
+		map<int,MediaDevice *> mapMediaDevice_Current;
+		pEntertainArea->m_pMediaStream->m_pMediaPluginInfo->m_pMediaPluginBase->GetRenderDevices(pEntertainArea->m_pMediaStream,&mapMediaDevice_Current);
+		HandleOnOffs(PK_MediaType_Prior,pEntertainArea->m_pMediaStream->m_pMediaPluginInfo->m_PK_MediaType,&mapMediaDevice_Prior,&mapMediaDevice_Current);
+
         if( pMediaStream->m_iPK_DesignObj_Remote )
         {
             for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
@@ -595,9 +616,10 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
         pMessage->m_dwPK_Device_To=pPlugIn->m_dwPK_Device;
         if( !pPlugIn->ReceivedMessage( pMessage ) )
         {
-            g_pPlutoLogger->Write( LV_STATUS, "Media plug in did not handled message id: %d forwarding to %d", pMessage->m_dwID, pEntertainArea->m_pMediaStream->m_pMediaSourceDevice->m_pDeviceData_Router->m_dwPK_Device );
+            g_pPlutoLogger->Write( LV_STATUS, "Media plug in did not handled message id: %d forwarding to %d", 
+				pMessage->m_dwID, pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device );
             // The plug-in doesn't know what to do with it either. Send the message to the actual media device
-            pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_pMediaSourceDevice->m_pDeviceData_Router->m_dwPK_Device;
+            pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device;
 
 			// TODO "Warning: received dcemessage should take a bool but don't delete in or something so we don't need to copy the message!"
             Message *pNewMessage = new Message( pMessage );
@@ -1797,7 +1819,7 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 	// save the current playback position.
 // 	DCE::CMD_Report_Playback_Position reportCurrentPosition(
 // 		m_dwPK_Device,
-// 		pMediaStream->m_pMediaSourceDevice->m_pDeviceData_Router->m_dwPK_Device,
+// 		pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
 // 		pMediaStream->m_iStreamID_get(),
 // 		&pMediaStream->m_sSavedPosition,
 // 		&pMediaStream->m_iSavedPosition,
@@ -1808,4 +1830,48 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 
 	// I'm not going to find the media devices in here. We will let the plugin decide what devices to use in there
 	pMediaStream->m_pMediaPluginInfo->m_pMediaPluginBase->MoveMedia(pMediaStream, listStart, listStop, listChange);
+}
+
+void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current, map<int,MediaDevice *> *pmapMediaDevice_Prior,map<int,MediaDevice *> *pmapMediaDevice_Current)
+{
+	Row_MediaType *pRow_MediaType_Prior = PK_MediaType_Prior ? m_pDatabase_pluto_main->MediaType_get()->GetRow(PK_MediaType_Prior) : NULL;
+	Row_MediaType *pRow_MediaType_Current = m_pDatabase_pluto_main->MediaType_get()->GetRow(PK_MediaType_Current);
+
+	int PK_Pipe_Prior = pRow_MediaType_Prior && pRow_MediaType_Prior->FK_Pipe_isNull()==false ? pRow_MediaType_Prior->FK_Pipe_get() : 0;
+	int PK_Pipe_Current = pRow_MediaType_Current && pRow_MediaType_Current->FK_Pipe_isNull()==false ? pRow_MediaType_Current->FK_Pipe_get() : 0;
+
+	// If we watching a DVD, and the pipe was from the dvd player to a video scaler to the tv, and we are now watching
+	// TV with the path from the media director to the tv, we want to turn off the scaler, but not the tv.  We will just
+	// send the media director an on and let the framework propagate the input selection automatically.  However, we don't
+	// want to just send the DVD player an off because then the framework will turn the tv off too.
+	for(map<int,MediaDevice *>::iterator it=pmapMediaDevice_Prior->begin();it!=pmapMediaDevice_Prior->end();++it)
+		// We need a recursive function to propagate the off's along the pipe, but not turning off any devices
+		// that we're still going to use in the current map
+		TurnDeviceOff(PK_Pipe_Prior,(*it).second->m_pDeviceData_Router,pmapMediaDevice_Current); 
+
+	for(map<int,MediaDevice *>::iterator it=pmapMediaDevice_Current->begin();it!=pmapMediaDevice_Current->end();++it)
+	{
+		DCE::CMD_On CMD_On(m_dwPK_Device,(*it).first,PK_Pipe_Current,"");
+		SendCommand(CMD_On);
+	}
+}
+
+void Media_Plugin::TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Router,map<int,MediaDevice *> *pmapMediaDevice_Current)
+{
+	if( pmapMediaDevice_Current->find( pDeviceData_Router->m_dwPK_Device ) != pmapMediaDevice_Current->end() )
+		return;
+
+	DCE::CMD_Off CMD_Off(m_dwPK_Device,pDeviceData_Router->m_dwPK_Device,-1);  // -1 means don't propagate to any pipes
+	SendCommand(CMD_Off);
+
+    for(map<int,Pipe *>::iterator it=pDeviceData_Router->m_mapPipe_Available.begin();it!=pDeviceData_Router->m_mapPipe_Available.end();++it)
+    {
+        Pipe *pPipe = (*it).second;
+		if( PK_Pipe && pPipe->m_pRow_Device_Device_Pipe->FK_Pipe_get()!=PK_Pipe )
+			continue;
+
+		DeviceData_Router *pDeviceData_RouterChild = m_pRouter->m_mapDeviceData_Router_Find( pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get() );
+		if( pDeviceData_RouterChild )
+			TurnDeviceOff(PK_Pipe,pDeviceData_RouterChild,pmapMediaDevice_Current);
+	}
 }

@@ -823,22 +823,18 @@ bool Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *
         SolidRectangle( x,  y,  pObj->BorderWidth,  h,  pObj->BorderColor );
         }
         else
-        SolidRectangle( x,  y,  w,  h,  pObj->BorderColor  );
+	        SolidRectangle( x,  y,  w,  h,  pObj->BorderColor  );
         */
-        /* todo 2.0
-        if ( pCell->m_pGraphicData )
+/*
+		if ( pCell->m_pGraphicData )
         {
-        //LACA_B4_0( "About to decompress grid video" )
-        void *pUncompressedImage  = UncompressImage( pCell->m_pGraphicData,  pCell->m_GraphicLength,  pCell->m_GraphicFormat );
-        if ( pUncompressedImage )
-        {
-
-        int OutputX,  OutputY;
-        RenderImage( x,  y,  w,  h,  pUncompressedImage, OutputX, OutputY,  pObj->m_bDisableAspectLock );
-        RemoveUncompressedImage( pUncompressedImage );
-        }
-        }
-        */
+			PlutoGraphic *pPlutoGraphic = CreateGraphic();
+			pPlutoGraphic->LoadGraphic(pCell->m_pGraphicData,  pCell->m_GraphicLength);
+			pPlutoGraphic->m_GraphicFormat = pCell->m_GraphicFormat;
+			RenderGraphic(pPlutoGraphic, rect(x,  y,  w,  h), pObj->m_bDisableAspectLock );
+			delete pPlutoGraphic;
+		}
+*/
         DesignObjText Text( pObj );
         Text.m_sText = pCell->GetText(  );
         // todo         Text.m_Rect = PlutoRectangle( x+pObj->BorderWidth,  y+pObj->BorderWidth,  w-( 2*pObj->BorderWidth ),  h-( 2*pObj->BorderWidth ) );

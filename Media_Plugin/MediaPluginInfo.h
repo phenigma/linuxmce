@@ -10,6 +10,7 @@
 #define MediaPluginInfo_h
 
 #include "DCE/Logger.h"
+#include "DeviceData_Router.h"
 #include <deque>
 
 class MediaFile;
@@ -135,7 +136,7 @@ namespace DCE
         int					m_iPK_Playlist;          /** the ID of the playlist. nonZero if the playlist was loaded from database, zero otherwise. */
         string				m_sPlaylistName;       	 /** the name of the playlist which was loaded from the database. */
 
-		MediaDevice 	*m_pMediaSourceDevice;      /** The device which is the source of this media stream. */
+		DeviceData_Router	*m_pDeviceData_Router_Source;      /** The device which is the source of this media stream. */
 		int 			 m_iPK_MediaType;        	/** The type of media in this stream. */
 
 		// TODO: Ask why do i need to put class in front here ?
@@ -161,7 +162,7 @@ namespace DCE
 
 
         /** @brief constructor*/
-        MediaStream(class MediaPluginInfo *pMediaPluginInfo, MediaDevice *pMediaDevice, int PK_DesignObj_Remote, int PK_Users,enum SourceType sourceType,int iStreamID);
+        MediaStream(class MediaPluginInfo *pMediaPluginInfo, DeviceData_Router *pDeviceData_Router, int PK_DesignObj_Remote, int PK_Users,enum SourceType sourceType,int iStreamID);
 
         /** @brief virtual destructor */
         virtual ~MediaStream();

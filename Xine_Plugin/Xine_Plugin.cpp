@@ -138,7 +138,7 @@ class MediaStream *Xine_Plugin::CreateMediaStream( class MediaPluginInfo *pMedia
 	}
 
 	 // HACK: hack hack hack.  Why is this a hack (mihai.t) ?
-	XineMediaStream *pXineMediaStream = new XineMediaStream( this, pMediaPluginInfo, pMediaDevice, pMediaPluginInfo->m_iPK_DesignObj, iPK_Users, st_RemovableMedia, StreamID );
+	XineMediaStream *pXineMediaStream = new XineMediaStream( this, pMediaPluginInfo, pMediaDevice->m_pDeviceData_Router, pMediaPluginInfo->m_iPK_DesignObj, iPK_Users, st_RemovableMedia, StreamID );
 	pXineMediaStream->m_pMediaPosition = new XineMediaStream::XineMediaPosition();
 
 	return pXineMediaStream;
@@ -199,7 +199,7 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 				if( pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceCategory==DEVICECATEGORY_Disc_Drives_CONST )
 				{
 					DCE::CMD_Mount_Disk_Image mountCommand(
-								pXineMediaStream->m_pMediaSourceDevice->m_pDeviceData_Router->m_dwPK_Device,
+								pXineMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device,
 								pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
 								sFileToPlay,
 								&mediaURL );
@@ -219,7 +219,7 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 					g_pPlutoLogger->Write(LV_STATUS, "Got response from the disk drive: %s", mediaURL.c_str() );
 				}
 			}
-			g_pPlutoLogger->Write( LV_CRITICAL, "Media device %d got back URL: %s", pXineMediaStream->m_pMediaSourceDevice->m_pDeviceData_Router->m_dwPK_Device, mediaURL.c_str( ) );
+			g_pPlutoLogger->Write( LV_CRITICAL, "Media device %d got back URL: %s", pXineMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device, mediaURL.c_str( ) );
 		}
 	}
 	else
@@ -231,7 +231,7 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 
 	g_pPlutoLogger->Write(LV_STATUS, "Calling play command with media URL: %s", mediaURL.c_str());
 	DCE::CMD_Play_Media cmd( m_dwPK_Device,
-							pMediaStream->m_pMediaSourceDevice->m_pDeviceData_Router->m_dwPK_Device,
+							pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device,
 							mediaURL,
 							pXineMediaStream->m_iPK_MediaType,
 							pXineMediaStream->m_iStreamID_get( ),
@@ -266,7 +266,7 @@ bool Xine_Plugin::StopMedia( class MediaStream *pMediaStream )
 	int iStoppedStreamPosition;
 
 	DCE::CMD_Stop_Media cmd( m_dwPK_Device,                          // Send from us
-							pMediaStream->m_pMediaSourceDevice->m_pDeviceData_Router->m_dwPK_Device,  // Send to the device that is actually playing
+							pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device,  // Send to the device that is actually playing
 							pMediaStream->m_iStreamID_get( ),       // Send the stream ID that we want to actually stop
 							&iStoppedStreamPosition);
 
@@ -322,7 +322,7 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
 
 	// we will stop the media differently if we are streaming and if we have only one playing device
 	// this assumes that the Media_Plugin is behaving correctly. When i get a a MoveMedia and i have a non
-	// streaming XineStream it means that is playing on a single XinePlayer device and the m_pMediaSourceDevice is
+	// streaming XineStream it means that is playing on a single XinePlayer device and the m_pMediaDevice_Source is
 	// target device also. Also it assumes that the listStop has has one.
 	if ( ! pXineMediaStream->isStreaming() )
 		StopMedia(pMediaStream);
@@ -353,14 +353,14 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
 		int iStreamingDeviceId;
 
 		if ( (iStreamingDeviceId = m_pRouter->FindClosestRelative(DEVICETEMPLATE_Slim_Server_Streamer_CONST, m_dwPK_Device)) == 0 )
-			pXineMediaStream->m_pMediaSourceDevice = NULL;
+			pXineMediaStream->m_pDeviceData_Router_Source = NULL;
 		else
-			pXineMediaStream->m_pMediaSourceDevice = m_pMedia_Plugin->m_mapMediaDevice_Find(iStreamingDeviceId);
+			pXineMediaStream->m_pDeviceData_Router_Source = m_pRouter->m_mapDeviceData_Router_Find(iStreamingDeviceId);
 
 		pXineMediaStream->setIsStreaming();
 
 		// This is a big error. We can't actually move media in multiple rooms if we don't have a proper streamer.
-		if ( pXineMediaStream->m_pMediaSourceDevice == NULL )
+		if ( pXineMediaStream->m_pDeviceData_Router_Source == NULL )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,
 				"Streaming is required but not streaming device was located. Please make sure that you have a device with template id %d as a child of the dcerouter machine",
@@ -375,7 +375,8 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
 		pXineMediaStream->setIsStreaming(false);
 
 		itIntToEntArea= pXineMediaStream->m_mapEntertainArea.begin();
-		pXineMediaStream->m_pMediaSourceDevice = pXineMediaStream->GetPlaybackDeviceForEntArea((*itIntToEntArea).second->m_iPK_EntertainArea);
+		MediaDevice *pMediaDevice = pXineMediaStream->GetPlaybackDeviceForEntArea((*itIntToEntArea).second->m_iPK_EntertainArea);
+		pXineMediaStream->m_pDeviceData_Router_Source = pMediaDevice ? pMediaDevice->m_pDeviceData_Router : NULL;
 	}
 
 	// Now there are two conditions which can be true.
@@ -410,14 +411,14 @@ bool Xine_Plugin::StartStreaming(XineMediaStream *pMediaStream, string strTarget
 		return false;
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Using the device %d as the source streamer !", pMediaStream->m_pMediaSourceDevice);
+	g_pPlutoLogger->Write(LV_STATUS, "Using the device %d as the source streamer !", pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
 	g_pPlutoLogger->Write(LV_STATUS, "Streaming to devices: %s", strTargetDevices.c_str());
 
 	string resultingURL;
 
 	DCE::CMD_Start_Streaming startStreamingCommand(
 					m_dwPK_Device,
-					pMediaStream->m_pMediaSourceDevice->m_pDeviceData_Router->m_dwPK_Device,
+					pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device,
 					pMediaStream->GetFilenameToPlay(),
 					pMediaStream->m_iStreamID_get(),
 					strTargetDevices,

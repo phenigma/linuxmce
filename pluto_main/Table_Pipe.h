@@ -139,6 +139,7 @@ void psc_frozen_setNull(bool val);
 void DeviceTemplate_DeviceCategory_ControlledVia_Pipe_FK_Pipe_getrows(vector <class Row_DeviceTemplate_DeviceCategory_ControlledVia_Pipe*> *rows);
 void DeviceTemplate_DeviceTemplate_ControlledVia_Pipe_FK_Pipe_getrows(vector <class Row_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe*> *rows);
 void Device_Device_Pipe_FK_Pipe_getrows(vector <class Row_Device_Device_Pipe*> *rows);
+void MediaType_FK_Pipe_getrows(vector <class Row_MediaType*> *rows);
 
 
 		// Setup binary serialization

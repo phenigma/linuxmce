@@ -116,8 +116,8 @@ class XineMediaStream : public MediaStream
     public:
         class Xine_Plugin *m_pXinePlugin;
 
-        XineMediaStream(class Xine_Plugin *pXinePlugin, class MediaPluginInfo *pMediaPluginInfo, MediaDevice *pMediaDevice, int PK_DesignObj_Remote, int PK_Users,enum SourceType sourceType,int iStreamID)
-            : MediaStream(pMediaPluginInfo, pMediaDevice, PK_DesignObj_Remote, PK_Users,sourceType, iStreamID) { m_pXinePlugin = pXinePlugin; m_bIsStreaming = 0; }
+        XineMediaStream(class Xine_Plugin *pXinePlugin, class MediaPluginInfo *pMediaPluginInfo, DeviceData_Router *pDeviceData_Router, int PK_DesignObj_Remote, int PK_Users,enum SourceType sourceType,int iStreamID)
+            : MediaStream(pMediaPluginInfo, pDeviceData_Router, PK_DesignObj_Remote, PK_Users,sourceType, iStreamID) { m_pXinePlugin = pXinePlugin; m_bIsStreaming = 0; }
 
 		virtual ~XineMediaStream();
         virtual int GetType() { return MEDIASTREAM_TYPE_XINE; }

@@ -39,6 +39,8 @@
 #define MEDIATYPE_SUBDIRECTORY_TABLE_FIELD "MediaType.Subdirectory"
 #define MEDIATYPE_ISEXTERNALTRANSMISSION_FIELD "IsExternalTransmission"
 #define MEDIATYPE_ISEXTERNALTRANSMISSION_TABLE_FIELD "MediaType.IsExternalTransmission"
+#define MEDIATYPE_FK_PIPE_FIELD "FK_Pipe"
+#define MEDIATYPE_FK_PIPE_TABLE_FIELD "MediaType.FK_Pipe"
 #define MEDIATYPE_PSC_ID_FIELD "psc_id"
 #define MEDIATYPE_PSC_ID_TABLE_FIELD "MediaType.psc_id"
 #define MEDIATYPE_PSC_BATCH_FIELD "psc_batch"

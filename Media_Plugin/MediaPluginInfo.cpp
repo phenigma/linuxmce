@@ -137,7 +137,7 @@ MediaPluginInfo::MediaPluginInfo( class MediaPluginBase *pMediaPluginBase, class
 }
 
 
-MediaStream::MediaStream( class MediaPluginInfo *pMediaPluginInfo, MediaDevice *pMediaDevice, int PK_DesignObj_Remote, int PK_Users, enum SourceType sourceType, int iStreamID )
+MediaStream::MediaStream( class MediaPluginInfo *pMediaPluginInfo, DeviceData_Router *pDeviceData_Router, int PK_DesignObj_Remote, int PK_Users, enum SourceType sourceType, int iStreamID )
 {
     m_iPK_MediaType = 0; // No media type specified here. The plugin should put the proper media type in here.
     m_iStreamID = iStreamID;
@@ -155,13 +155,13 @@ MediaStream::MediaStream( class MediaPluginInfo *pMediaPluginInfo, MediaDevice *
     m_iPK_Playlist=0;
     m_sPlaylistName="";
 
-    m_pMediaSourceDevice=pMediaDevice;
+    m_pDeviceData_Router_Source=pDeviceData_Router;
 
     if ( m_pMediaPluginInfo ) // If this stream is a "valid stream only"
         m_pMediaPluginInfo->m_pMediaPluginBase->m_pMedia_Plugin->m_mapMediaStream[m_iStreamID] = this;
 
-    if( !m_pMediaSourceDevice || !m_pMediaPluginInfo )
-        g_pPlutoLogger->Write( LV_CRITICAL, "Media stream is invalid because of NULL pointers! %p %p", m_pMediaSourceDevice, m_pMediaPluginInfo);
+    if( !m_pDeviceData_Router_Source || !m_pMediaPluginInfo )
+        g_pPlutoLogger->Write( LV_CRITICAL, "Media stream is invalid because of NULL pointers! %p %p", m_pDeviceData_Router_Source, m_pMediaPluginInfo);
 
 g_pPlutoLogger->Write( LV_STATUS, "create Mediastream %p on menu id: %d type %d", this, m_iStreamID, m_iPK_MediaType );
 g_pPlutoLogger->Write( LV_STATUS, "Mediastream mapea size %d", m_mapEntertainArea.size( ) );

@@ -22,6 +22,7 @@ using namespace std;
 #include "Table_DeviceTemplate_DeviceCategory_ControlledVia_Pipe.h"
 #include "Table_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe.h"
 #include "Table_Device_Device_Pipe.h"
+#include "Table_MediaType.h"
 
 
 void Database_pluto_main::CreateTable_Pipe()
@@ -780,6 +781,13 @@ void Row_Pipe::Device_Device_Pipe_FK_Pipe_getrows(vector <class Row_Device_Devic
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device_Device_Pipe *pTable = table->database->Device_Device_Pipe_get();
+pTable->GetRows("FK_Pipe=" + StringUtils::itos(m_PK_Pipe),rows);
+}
+void Row_Pipe::MediaType_FK_Pipe_getrows(vector <class Row_MediaType*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_MediaType *pTable = table->database->MediaType_get();
 pTable->GetRows("FK_Pipe=" + StringUtils::itos(m_PK_Pipe),rows);
 }
 

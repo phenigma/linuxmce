@@ -86,6 +86,17 @@ bool File_Grids_Plugin::Register()
 
 	m_pDatagrid_Plugin=(Datagrid_Plugin *) pListCommand_Impl->front();
 
+	m_pMedia_Plugin=NULL;
+	pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find(DEVICETEMPLATE_Media_Plugin_CONST);
+
+	if( !pListCommand_Impl || pListCommand_Impl->size()!=1 )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"File grids cannot find Media handler %s",(pListCommand_Impl ? "There were more than 1" : ""));
+		return false;
+	}
+
+	m_pMedia_Plugin=(Media_Plugin *) pListCommand_Impl->front();
+
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&File_Grids_Plugin::DevicesGrid)),
 		DATAGRID_Devices_by_Room_CONST);
@@ -276,7 +287,7 @@ class DataGridTable *File_Grids_Plugin::CommandsGrid(string GridID,string Parms,
 class DataGridTable * File_Grids_Plugin::FileList(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
 g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
-	DataGridTable *pDataGrid = new DataGridTable();
+	FileListGrid *pDataGrid = new FileListGrid(m_pDatagrid_Plugin,m_pMedia_Plugin);
 	DataGridCell *pCell;
 
 	string::size_type pos2 = 0;
@@ -355,11 +366,15 @@ g_pPlutoLogger->Write(LV_WARNING, "Build grid, actions %s GOT %d entries ", Acti
 		pCell->m_pMessage = CMDPDG.m_pMessage;
 		pCell->m_Colspan = 7;
 		pDataGrid->SetData(0, iRow++, pCell);
+		pDataGrid->m_vectFileInfo.push_back(new FileListInfo(true,Paths));
 	}
 
 	for (list<FileDetails *>::iterator i = listFileDetails.begin(); i != listFileDetails.end(); i++)
 	{
 		FileDetails *pFileDetails = *i;
+		FileListInfo *flInfo;
+		flInfo = new FileListInfo(pFileDetails->m_bIsDir,pFileDetails->m_sBaseName + pFileDetails->m_sFileName);
+
 		DataGridCell *pCellPicture = new DataGridCell("", pFileDetails->m_sBaseName + pFileDetails->m_sFileName);
 		pCell = new DataGridCell(pFileDetails->m_sFileName + " " + pFileDetails->m_sDescription, pFileDetails->m_sBaseName + pFileDetails->m_sFileName);
 		pCell->m_Colspan = 6;
@@ -395,109 +410,11 @@ g_pPlutoLogger->Write(LV_WARNING, "Added '%s' to datagrid", pFileDetails->m_sFil
 		delete pFileDetails; // We won't need it anymore and it was allocated on the heap
 		pDataGrid->SetData(0, iRow, pCellPicture);
 		pDataGrid->SetData(1, iRow++, pCell);
+		pDataGrid->m_vectFileInfo.push_back(flInfo);
 	}
 
 	return pDataGrid;
 
-	//	string IconFile;  // The generic icon for this media type
-
-/*
-//	FileListGrid *pDataGrid = new FileListGrid(this);
-
-//	pDataGrid->m_sIconFile = IconFile;
-//	pDataGrid->m_iType=TypeOfRequest;
-
-	pos=-1;  // this way +1 will be 0
-	int SlashCount=0;
-	string::size_type LastSlash=0;
-//#ifdef WIN32
-//	while( (pos=Path.find('\\',pos+1))!=string::npos && pos<Path.length()-1 )
-//#else
-	while( (pos=Path.find('/',pos+1))!=string::npos && pos<Path.length()-1 )
-//#endif
-	{
-		LastSlash=pos;
-		++SlashCount;
-	}
-
-	int row=0;
-	listDCEFileInfo::iterator iList;
-	for(iList=listFileNames->begin();iList!=listFileNames->end();++iList)
-	{
-		DCEFileInfo *fi = (*iList);
-			string FullPath = fi->m_sPath + fi->m_sRealFileName;
-
-// If this is a windows server, convert the \ back to / so the Linux DVD player will play it
-#ifdef WIN32
-			string::size_type s;
-			while( (s=FullPath.find('\\'))!=string::npos )
-				FullPath.replace(s,1,"/");
-#endif
-
-			string label = "`S24`" + fi->m_sDisplayName;
-			// Don't forget the style since the scrolling arrows will need it
-			if( fi->m_bIsDirectory )
-				pCell = new DataGridCell ("`S24`","");  // We want the variable to be empty so it hides the play button
-			else
-				pCell = new DataGridCell ("`S24`",FullPath);
-			pDataGrid->SetData(0, row, pCell);
-			if( fi->m_bIsDirectory )
-			{
-				pCell->m_pMessage = new Message(DEVICEID_DATAGRID,DEVICEID_DATAGRID,PRIORITY_NORMAL,MESSAGETYPE_COMMAND, COMMAND_POPULATE_DATAGRID_CONST, 2, 
-					COMMANDPARAMETER_DataGrid_ID_CONST, GridID.c_str(),
-					COMMANDPARAMETER_Type_CONST, ("1," + StringUtils::itos(TypeOfRequest) + "," + fi->m_sPath + fi->m_sRealFileName + "/," + sPK_User).c_str());
-			}
-			else
-				FileList+=FullPath + "|";
-
-			FileListInfo *flInfo;
-			if( fi->m_bIsDirectory )
-			{
-				flInfo = new FileListInfo(true,fi->m_sPath + fi->m_sRealFileName);
-				pCell = new DataGridCell(label,"");  // We want the variable to be empty so it hides the play button
-			}
-			else
-			{
-				flInfo = new FileListInfo(false,fi->m_sPath + fi->m_sRealFileName);
-				pCell = new DataGridCell(label, FullPath);
-			}
-			pCell->m_Colspan=6;
-			if( fi->m_bIsDirectory )
-			{
-				pCell->m_pMessage = new Message(DEVICEID_DATAGRID,DEVICEID_DATAGRID,PRIORITY_NORMAL,MESSAGETYPE_COMMAND, COMMAND_POPULATE_DATAGRID_CONST, 2, 
-					COMMANDPARAMETER_DataGrid_ID_CONST, GridID.c_str(),
-					COMMANDPARAMETER_Type_CONST, ("1," + StringUtils::itos(TypeOfRequest) + "," + fi->m_sPath + fi->m_sRealFileName + "/," + sPK_User).c_str());
-			}
-			pDataGrid->m_vectFileInfo.push_back(flInfo);
-			pDataGrid->SetData(1, row++, pCell);
-	}
-	g_pPlutoLogger->Write (LV_STATUS, "ready to list sub dirs");
-//	if( Path!="" )
-//		Parent += Path + "|";
-
-	g_pPlutoLogger->Write(LV_STATUS,"File list: %s",FileList.c_str());
-	if( PK_Controller )
-	{
-		// Set the variable for the 'play all' button
-		PlutoOrbiter *ptrController = m_mapPlutoOrbiter_Find(PK_Controller);
-		if( ptrController )
-			ptrController->SetVariable(VARIABLE_SHORTCUT2_CONST,FileList.c_str());
-		if( FileList.length()>0 && TypeOfRequest!=USING_ID_LIBRARY_MOVIES && TypeOfRequest!=USING_ID_LIBRARY_PLAYLISTS )
-		{
-			// Unhide
-			m_pRouter->DispatchMessage(new Message(0, PK_Controller,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_NAV_HIDE_OBJECT_CONST,
-				2,COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_BUTPLAYALL_CONST).c_str(),COMMANDPARAMETER_OnOff_CONST,"0"));
-		}
-		else
-		{
-			m_pRouter->DispatchMessage(new Message(0, PK_Controller,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_NAV_HIDE_OBJECT_CONST,
-				1,COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(DESIGNOBJ_BUTPLAYALL_CONST).c_str()));
-		}
-	}
-
-	delete listFileNames;
-	g_pPlutoLogger->Write(LV_STATUS,"Took %d to make the file list",c-clock());
-*/
 g_pPlutoLogger->Write(LV_STATUS,"End File list");
 	return pDataGrid;
 }

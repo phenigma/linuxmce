@@ -149,6 +149,11 @@ public:
     virtual bool BroadcastMedia(class MediaStream *pMediaStream)=0;
     virtual bool MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*> &listStart, list<EntertainArea *> &listStop, list<EntertainArea *> &listChange)=0;
 
+	// Given a stream, what is the rendering device(s).  The source device is stored in the stream.  Normally the source and rendering are the same (dvd player, for example).
+	// But sometimes the source may be a back-end streamer, and the rendering device(s) some network audio players.  The framework needs
+	// to know the rendering devices so it can send on/off's to them.  If the source & dest aren't the same, the plug-in must override this
+	virtual void GetRenderDevices(MediaStream *pMediaStream,map<int,MediaDevice *> *pmapMediaDevice);
+
     virtual bool isValidStreamForPlugin(class MediaStream *pMediaStream)=0;
 
     // it can't virtual and static at the same time.
@@ -220,6 +225,16 @@ protected:
      * Find a media plugin info object that will play the specified media type.
      */
     MediaPluginInfo *FindMediaPluginInfoForMediaType(EntertainArea *pEntertainArea, int iPK_MediaType);
+
+    /**
+     * Given that media was playing on the Prior list of devices, and now is on the Current list of devices, send the appropriate on/off's
+     */
+	void HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current, map<int,MediaDevice *> *pmapMediaDevice_Prior,map<int,MediaDevice *> *pmapMediaDevice_Current);
+
+    /**
+     * Turn off the device and other devices in the pipe, but without turning off devices we are currently using
+     */
+	void TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Router,map<int,MediaDevice *> *pmapMediaDevice_Current);
 
     /**
      * Find a media type specific for a file name

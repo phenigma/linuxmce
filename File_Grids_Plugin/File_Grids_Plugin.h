@@ -27,6 +27,7 @@ public:
 //<-dceag-const-e->
 	// Private member variables
 	class Datagrid_Plugin *m_pDatagrid_Plugin;
+	class Media_Plugin *m_pMedia_Plugin;
 	Database_pluto_main *m_pDatabase_pluto_main;
 
 	// Private methods

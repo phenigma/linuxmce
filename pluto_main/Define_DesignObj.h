@@ -307,7 +307,7 @@
 #define DESIGNOBJ_dgCDTracksSingle_CONST 1721
 #define DESIGNOBJ_objRipAllTracks_CONST 1722
 #define DESIGNOBJ_objNextRipStep_CONST 1723
-#define DESIGNOBJ_mnuCDTrackList_CONST 1724
+#define DESIGNOBJ_mnuCDRemote_CONST 1724
 #define DESIGNOBJ_mnuScreenRatio_CONST 1726
 #define DESIGNOBJ_dgScreenResolutions_CONST 1727
 #define DESIGNOBJ_mnuAdjustScreen_CONST 1728
@@ -722,7 +722,7 @@
 #define DESIGNOBJ_objPlayListSavePrivate_CONST 2333
 #define DESIGNOBJ_objPlayListSavePublic_CONST 2334
 #define DESIGNOBJ_butPlayLists_CONST 2335
-#define DESIGNOBJ_mnuPlayPlaylist_CONST 2336
+#define DESIGNOBJ_mnuMusicRemote_CONST 2336
 #define DESIGNOBJ_dgPlaylist_CONST 2338
 #define DESIGNOBJ_mnuCannotBeAddedToPlaylist_CONST 2343
 #define DESIGNOBJ_objDoSomethingElse_CONST 2344
@@ -1106,6 +1106,7 @@
 #define DESIGNOBJ_objHouseStatusIndicator_CONST 3275
 #define DESIGNOBJ_arrFloorsTelecom_CONST 3276
 #define DESIGNOBJ_butFloorsTelecom_CONST 3277
+#define DESIGNOBJ_mnuMoviesRemote_CONST 3278
 #define DESIGNOBJ_pvr_full_screen_with_options_o_CONST 3279
 #define DESIGNOBJ_mnuPicturesDocumentsList_CONST 3282
 #define DESIGNOBJ_butView_CONST 3283
@@ -1119,6 +1120,7 @@
 #define DESIGNOBJ_generic_full_screen_CONST 3292
 #define DESIGNOBJ_grpSeekPlaylist_CONST 3293
 #define DESIGNOBJ_dgCommands_CONST 3294
+#define DESIGNOBJ_temp_CONST 3295
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

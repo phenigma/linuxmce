@@ -133,9 +133,9 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
 
     string Response;
 
-    m_dwTargetDevice = pMythTvStream->m_pMediaSourceDevice->m_pDeviceData_Router->m_dwPK_Device;
+    m_dwTargetDevice = pMythTvStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
 
-    DCE::CMD_Start_TV cmd(m_dwPK_Device, pMythTvStream->m_pMediaSourceDevice->m_pDeviceData_Router->m_dwPK_Device);
+    DCE::CMD_Start_TV cmd(m_dwPK_Device, pMythTvStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
 
 //     DCE::CMD_Play_Media cmd(m_dwPK_Device,
 
@@ -169,7 +169,7 @@ bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
     g_pPlutoLogger->Write(LV_STATUS, "Stopping media stream playback--sending command, waiting for response");
 int i;
     DCE::CMD_Stop_Media cmd(m_dwPK_Device,
-        pMediaStream->m_pMediaSourceDevice->m_pDeviceData_Router->m_dwPK_Device,
+        pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
         pMediaStream->m_iStreamID_get(),&i);
 
     string Response;
@@ -184,7 +184,7 @@ int i;
         return false;
     }
 
-    map<int, int>::iterator it = m_mapDevicesToStreams.find(pMediaStream->m_pMediaSourceDevice->m_pDeviceData_Router->m_dwPK_Device);
+    map<int, int>::iterator it = m_mapDevicesToStreams.find(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
     if( it!=m_mapDevicesToStreams.end() )
         m_mapDevicesToStreams.erase(it);
 

@@ -18,6 +18,7 @@ using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_MediaType.h"
 #include "Table_DesignObj.h"
+#include "Table_Pipe.h"
 
 #include "Table_DeviceTemplate_MediaType.h"
 #include "Table_MediaType_Broadcast.h"
@@ -129,10 +130,11 @@ is_null[7] = false;
 is_null[8] = true;
 is_null[9] = true;
 is_null[10] = true;
+is_null[11] = true;
 m_psc_frozen = 0;
-is_null[11] = false;
-m_psc_mod = "00000000000000";
 is_null[12] = false;
+m_psc_mod = "00000000000000";
+is_null[13] = false;
 
 
 	is_added=false;
@@ -164,6 +166,9 @@ return m_Subdirectory;}
 short int Row_MediaType::IsExternalTransmission_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_IsExternalTransmission;}
+long int Row_MediaType::FK_Pipe_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FK_Pipe;}
 long int Row_MediaType::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_id;}
@@ -205,21 +210,24 @@ m_Subdirectory = val; is_modified=true; is_null[6]=false;}
 void Row_MediaType::IsExternalTransmission_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_IsExternalTransmission = val; is_modified=true; is_null[7]=false;}
+void Row_MediaType::FK_Pipe_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_Pipe = val; is_modified=true; is_null[8]=false;}
 void Row_MediaType::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_id = val; is_modified=true; is_null[8]=false;}
+m_psc_id = val; is_modified=true; is_null[9]=false;}
 void Row_MediaType::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_batch = val; is_modified=true; is_null[9]=false;}
+m_psc_batch = val; is_modified=true; is_null[10]=false;}
 void Row_MediaType::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_user = val; is_modified=true; is_null[10]=false;}
+m_psc_user = val; is_modified=true; is_null[11]=false;}
 void Row_MediaType::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_frozen = val; is_modified=true; is_null[11]=false;}
+m_psc_frozen = val; is_modified=true; is_null[12]=false;}
 void Row_MediaType::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_mod = val; is_modified=true; is_null[12]=false;}
+m_psc_mod = val; is_modified=true; is_null[13]=false;}
 
 		
 bool Row_MediaType::Define_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -234,18 +242,21 @@ return is_null[3];}
 bool Row_MediaType::Extensions_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[5];}
-bool Row_MediaType::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_MediaType::FK_Pipe_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[8];}
-bool Row_MediaType::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_MediaType::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[9];}
-bool Row_MediaType::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_MediaType::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[10];}
-bool Row_MediaType::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_MediaType::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[11];}
+bool Row_MediaType::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[12];}
 
 			
 void Row_MediaType::Define_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -260,18 +271,21 @@ is_null[3]=val;}
 void Row_MediaType::Extensions_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[5]=val;}
-void Row_MediaType::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_MediaType::FK_Pipe_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[8]=val;}
-void Row_MediaType::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_MediaType::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[9]=val;}
-void Row_MediaType::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_MediaType::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[10]=val;}
-void Row_MediaType::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_MediaType::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[11]=val;}
+void Row_MediaType::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[12]=val;}
 	
 
 string Row_MediaType::PK_MediaType_asSQL()
@@ -382,11 +396,24 @@ sprintf(buf, "%hi", m_IsExternalTransmission);
 return buf;
 }
 
-string Row_MediaType::psc_id_asSQL()
+string Row_MediaType::FK_Pipe_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[8])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_Pipe);
+
+return buf;
+}
+
+string Row_MediaType::psc_id_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[9])
 return "NULL";
 
 char buf[32];
@@ -399,7 +426,7 @@ string Row_MediaType::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[9])
+if (is_null[10])
 return "NULL";
 
 char buf[32];
@@ -412,7 +439,7 @@ string Row_MediaType::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[10])
+if (is_null[11])
 return "NULL";
 
 char buf[32];
@@ -425,7 +452,7 @@ string Row_MediaType::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[11])
+if (is_null[12])
 return "NULL";
 
 char buf[32];
@@ -438,7 +465,7 @@ string Row_MediaType::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[12])
+if (is_null[13])
 return "NULL";
 
 char *buf = new char[29];
@@ -486,10 +513,10 @@ bool Table_MediaType::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_MediaType_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_DesignObj_asSQL()+", "+pRow->DCEAware_asSQL()+", "+pRow->Extensions_asSQL()+", "+pRow->Subdirectory_asSQL()+", "+pRow->IsExternalTransmission_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_MediaType_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_DesignObj_asSQL()+", "+pRow->DCEAware_asSQL()+", "+pRow->Extensions_asSQL()+", "+pRow->Subdirectory_asSQL()+", "+pRow->IsExternalTransmission_asSQL()+", "+pRow->FK_Pipe_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into MediaType (PK_MediaType, Define, Description, FK_DesignObj, DCEAware, Extensions, Subdirectory, IsExternalTransmission, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into MediaType (PK_MediaType, Define, Description, FK_DesignObj, DCEAware, Extensions, Subdirectory, IsExternalTransmission, FK_Pipe, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -539,7 +566,7 @@ condition = condition + "PK_MediaType=" + tmp_PK_MediaType;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_MediaType="+pRow->PK_MediaType_asSQL()+", Define="+pRow->Define_asSQL()+", Description="+pRow->Description_asSQL()+", FK_DesignObj="+pRow->FK_DesignObj_asSQL()+", DCEAware="+pRow->DCEAware_asSQL()+", Extensions="+pRow->Extensions_asSQL()+", Subdirectory="+pRow->Subdirectory_asSQL()+", IsExternalTransmission="+pRow->IsExternalTransmission_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_MediaType="+pRow->PK_MediaType_asSQL()+", Define="+pRow->Define_asSQL()+", Description="+pRow->Description_asSQL()+", FK_DesignObj="+pRow->FK_DesignObj_asSQL()+", DCEAware="+pRow->DCEAware_asSQL()+", Extensions="+pRow->Extensions_asSQL()+", Subdirectory="+pRow->Subdirectory_asSQL()+", IsExternalTransmission="+pRow->IsExternalTransmission_asSQL()+", FK_Pipe="+pRow->FK_Pipe_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update MediaType set " + update_values_list + " where " + condition;
@@ -723,56 +750,67 @@ sscanf(row[7], "%hi", &(pRow->m_IsExternalTransmission));
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_id = 0;
+pRow->m_FK_Pipe = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_psc_id));
+sscanf(row[8], "%li", &(pRow->m_FK_Pipe));
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_psc_batch));
+sscanf(row[9], "%li", &(pRow->m_psc_id));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_psc_user));
+sscanf(row[10], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-sscanf(row[11], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[11], "%li", &(pRow->m_psc_user));
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[12]=false;
-pRow->m_psc_mod = string(row[12],lengths[12]);
+sscanf(row[12], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[13] == NULL)
+{
+pRow->is_null[13]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[13]=false;
+pRow->m_psc_mod = string(row[13],lengths[13]);
 }
 
 
@@ -972,56 +1010,67 @@ sscanf(row[7], "%hi", &(pRow->m_IsExternalTransmission));
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_id = 0;
+pRow->m_FK_Pipe = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_psc_id));
+sscanf(row[8], "%li", &(pRow->m_FK_Pipe));
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_psc_batch));
+sscanf(row[9], "%li", &(pRow->m_psc_id));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_psc_user));
+sscanf(row[10], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-sscanf(row[11], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[11], "%li", &(pRow->m_psc_user));
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[12]=false;
-pRow->m_psc_mod = string(row[12],lengths[12]);
+sscanf(row[12], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[13] == NULL)
+{
+pRow->is_null[13]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[13]=false;
+pRow->m_psc_mod = string(row[13],lengths[13]);
 }
 
 
@@ -1038,6 +1087,13 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObj *pTable = table->database->DesignObj_get();
 return pTable->GetRow(m_FK_DesignObj);
+}
+class Row_Pipe* Row_MediaType::FK_Pipe_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Pipe *pTable = table->database->Pipe_get();
+return pTable->GetRow(m_FK_Pipe);
 }
 
 
