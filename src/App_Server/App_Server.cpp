@@ -49,6 +49,9 @@ App_Server *g_pAppServer = NULL;
 
 void sh(int i) /* signal handler */
 {
+    if ( g_pAppServer && g_pAppServer->m_bQuit )
+		return;
+
     int status = 0;
     pid_t pid = 0;
 
