@@ -560,9 +560,7 @@ void Infrared_Plugin::CMD_Add_GC100(string &sCMD_Result,Message *pMessage)
   int iPK_Device_Orbiter = pMessage->m_dwPK_Device_From;
   m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"Finding GC100");
 
-  g_pPlutoLogger->Write(LV_STATUS, "Before");
   returned = system(Command.c_str());
-  g_pPlutoLogger->Write(LV_STATUS, "After");
 
     if ( returned == -1) {
 	g_pPlutoLogger->Write(LV_STATUS, "Failed Spawning configure script");
@@ -582,8 +580,17 @@ void Infrared_Plugin::CMD_Add_GC100(string &sCMD_Result,Message *pMessage)
 	}
         g_pPlutoLogger->Write(LV_STATUS, "The configure script returned with success");
 	m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 added with success");
+    } else if( returned == 1) {
+	g_pPlutoLogger->Write(LV_STATUS, "GC100 as default not found");
+	m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Not Found as factory default");
+    } else if( returned == 2) {
+	g_pPlutoLogger->Write(LV_STATUS, "GC100 already exist in the databse");
+	m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Allready exists");
+    } else if( returned == 3) {
+        g_pPlutoLogger->Write(LV_STATUS, "GC100 config did not found instalation number");
+        m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Failed, invalid instalation number");
     } else {
-	g_pPlutoLogger->Write(LV_STATUS, "The config script returned weierd error");
+	g_pPlutoLogger->Write(LV_STATUS, "The config script returned weird error");
 	m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Failed");
     }
 }
