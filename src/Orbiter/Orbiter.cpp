@@ -1262,6 +1262,13 @@ void Orbiter::ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, Des
     }
 }
 //------------------------------------------------------------------------
+void Orbiter::GraphicOffScreen(vector<class PlutoGraphic*> *pvectGraphic)
+{
+	size_t size = (*pvectGraphic).size();
+	for(size_t i = 0; i < size; i++)
+		(*pvectGraphic)[i]->Clear();
+}
+//------------------------------------------------------------------------
 void Orbiter::ObjectOffScreen( DesignObj_Orbiter *pObj )
 {
     if(  pObj->m_ObjectID.find( "2715" )!=string::npos  )
@@ -5972,8 +5979,8 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 
 
 	//free the surface
-	if( bDeleteSurface && !bIsMNG) //we'll delete the MNG at the end of playing
-		pPlutoGraphic->Clear();
+//	if( bDeleteSurface && !bIsMNG) //we'll delete the MNG at the end of playing
+//		pPlutoGraphic->Clear();
 
 
 #if ( defined( PROFILING ) )

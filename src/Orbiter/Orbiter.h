@@ -559,7 +559,7 @@ void RealRedraw( void *data );  // temp hack -- see comments
 	/**
 	 * @brief A graphic is no longer on screen. Maybe remove it from cache
 	 */
-	virtual void GraphicOffScreen(vector<class PlutoGraphic*> *pvectGraphic) {}
+	virtual void GraphicOffScreen(vector<class PlutoGraphic*> *pvectGraphic);
 
 public:
 
