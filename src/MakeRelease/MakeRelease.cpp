@@ -348,7 +348,7 @@ int main(int argc, char *argv[])
 			sDebPkg += it->first + " ";
 		}
 		
-		FILE * f = fopen("/home/tmp/pluto-build/debian-packages.tmp", "wb");
+		FILE * f = fopen(("/home/builds/" + g_pRow_Version->VersionName_get() + "/debian-packages.tmp").c_str(), "wb");
 		if(f)
 		{
 			cout << "Writing debian-packages.tmp" << endl;
@@ -1315,7 +1315,7 @@ bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,list<FileI
 	pRow_Package_Source->Version_set(Version);
 */	
 	string Package_Name = StringUtils::ToLower(pRow_Package_Source->Name_get());
-	string Dir("/home/tmp/pluto-build/" + Package_Name + "-" + Version);
+	string Dir("/home/builds/" + g_pRow_Version->VersionName_get() + "/tmp/" + Package_Name + "-" + Version);
 	string Prefix("/usr/");
 	if (pRow_Package_Source->FK_Package_getrow()->IsSource_get())
 	{
@@ -1490,10 +1490,10 @@ bool CreateSource_FTPHTTP(Row_Package_Source *pRow_Package_Source,list<FileInfo 
 	{
 		Username = dceConfig.ReadString("SF_User");
 		Password = dceConfig.ReadString("SF_Pass");
-		ArchiveFileName = "/home/sfarch/" + pRow_Package_Source->Repository_get() + "/";
+		ArchiveFileName = "/home/builds/" + g_pRow_Version->VersionName_get() + "/sfarch/" + pRow_Package_Source->Repository_get() + "/";
 	}
 	else
-		ArchiveFileName = "/var/www/download/" + pRow_Package_Source->Repository_get() + "/";
+		ArchiveFileName = "/home/builds/" + g_pRow_Version->VersionName_get() + "/" + pRow_Package_Source->Repository_get() + "/";
 	system(("mkdir -p " + ArchiveFileName).c_str());
 	
 	ArchiveFileName += pRow_Package_Source->Name_get() + "_" + pRow_Package_Source->Version_get() + pRow_Package_Source->Parms_get();

@@ -511,13 +511,15 @@ g_pPlutoLogger->Write(LV_STATUS,"In the database as PK_IRG_C %d",pRow_InfraredGr
 
 	Row_InfraredGroup_Command_Preferred *pRow_InfraredGroup_Command_Preferred = NULL;
 	if( !bNew )
-		pRow_InfraredGroup_Command_Preferred = m_pDatabase_pluto_main->InfraredGroup_Command_Preferred_get()->GetRow( pRow_InfraredGroup_Command->PK_InfraredGroup_Command_get() );
+		pRow_InfraredGroup_Command_Preferred = m_pDatabase_pluto_main->InfraredGroup_Command_Preferred_get()->GetRow( 
+			pRow_InfraredGroup_Command->PK_InfraredGroup_Command_get(), m_pRouter->iPK_Installation_get() );
 
 	if( !pRow_InfraredGroup_Command_Preferred )
 	{
 g_pPlutoLogger->Write(LV_STATUS,"adding the record to the preferred table for %d",pRow_InfraredGroup_Command->PK_InfraredGroup_Command_get());
 		pRow_InfraredGroup_Command_Preferred =  m_pDatabase_pluto_main->InfraredGroup_Command_Preferred_get()->AddRow();
 		pRow_InfraredGroup_Command_Preferred->FK_InfraredGroup_Command_set(pRow_InfraredGroup_Command->PK_InfraredGroup_Command_get());
+		pRow_InfraredGroup_Command_Preferred->FK_Installation_set(m_pRouter->iPK_Installation_get());
 		m_pDatabase_pluto_main->InfraredGroup_Command_Preferred_get()->Commit();
 	}
 else
