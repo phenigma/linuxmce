@@ -1,0 +1,9 @@
+#!/bin/bash
+
+. /usr/local/pluto/etc/pluto.func || exit
+module=$(basename $0)
+
+Logging $TYPE $SEVERITY_STAGE $module "Entering $module"
+
+Logging $TYPE $SEVERITY_NORMAL $module "Setting ivtv standard..."
+/usr/local/pluto/bin/test_ioctl -u #<IVTVSTANDARD>

@@ -1,6 +1,8 @@
 #!/bin/bash
 # set system password files
 
+. /usr/pluto/bin/pluto.func
+
 RunSQL()
 {
 	local Q
@@ -8,9 +10,9 @@ RunSQL()
 	echo "$Q;" | /usr/bin/mysql pluto_main | tail +2 | tr '\t\n' ', '
 }
 
-cp /usr/pluto/templates/group /etc/group.$$
-cp /usr/pluto/templates/passwd /etc/passwd.$$
-cp /usr/pluto/templates/shadow /etc/shadow.$$
+cp /usr/pluto/templates/group.tmpl /etc/group.$$
+cp /usr/pluto/templates/passwd.tmp /etc/passwd.$$
+cp /usr/pluto/templates/shadow.tmp /etc/shadow.$$
 cp /usr/pluto/templates/smb.conf.tmpl /etc/samba/smb.conf.$$
 cp /usr/pluto/templates/smbpasswd.tmpl /etc/samba/smbpasswd.$$
 

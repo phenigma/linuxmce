@@ -1,0 +1,13 @@
+[global]
+   workgroup = pluto
+   server string = %h server (Samba %v)
+   invalid users = root
+   log file = /var/log/samba/log.%m
+   max log size = 1000
+   syslog = 0
+   encrypt passwords = true
+   socket options = TCP_NODELAY
+   dns proxy = no
+   passwd program = /usr/bin/passwd %u
+   passwd chat = *Enter\snew\sUNIX\spassword:* %n\n *Retype\snew\sUNIX\spassword:* %n\n .
+

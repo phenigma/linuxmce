@@ -1,0 +1,6 @@
+LABEL linux
+KERNEL 192.168.2.10
+#APPEND root=/dev/nfs rw nfsroot=192.168.2.1:/usr/local/linux/workstations/192.168.2.10,nfsvers=v3 ip=dhcp hda=scsi hdb=scsi hdc=scsi hdd=scsi
+APPEND root=/dev/nfs rw nfsroot=192.168.2.1:/usr/local/linux/workstations/192.168.2.10,tsize=8192,rsize=8192,wsize=8192,nfsvers=v3 ip=dhcp hda=scsi hdb=scsi hdc=scsi hdd=scsi
+IPAPPEND 1
+INITRD=/boot/initrd-2.4.22.gz

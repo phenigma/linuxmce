@@ -1,0 +1,33 @@
+allow booting;
+allow bootp;
+authoritative;
+
+# PXELINUX OPTIONS
+option space pxelinux;
+option pxelinux.magic      code 208 = string;
+option pxelinux.pathprefix code 210 = text;
+option pxelinux.configfile code 209 = text;
+option pxelinux.pathprefix code 210 = text;
+option pxelinux.reboottime code 211 = unsigned integer 32;
+
+subnet 192.168.2.0 netmask 255.255.255.0 {
+  range 192.168.2.230 192.168.2.254;
+  default-lease-time 3600;
+  max-lease-time 7200;
+  option domain-name "1control.com";
+  option subnet-mask 255.255.255.0;
+  option broadcast-address 192.168.2.255;
+  option routers 192.168.2.1;
+  option domain-name-servers 66.167.63.130;
+  # PHONE
+  # IOBOARD
+}
+
+# Media consoles
+group {
+  next-server 192.168.2.1;
+  filename "pxelinux.0";
+  option pxelinux.reboottime = 30;
+
+  # DLMC
+}
