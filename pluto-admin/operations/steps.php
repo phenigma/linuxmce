@@ -6,7 +6,6 @@ function steps($output,$dbADO) {
 	$currentSection = @cleanString($_REQUEST['rightSection']);
 	$installationID = (int)@$_SESSION['installationID'];
 	$currentItem=(isset($_REQUEST['pageSetup']) && (int)$_REQUEST['pageSetup']>0)?(int)$_REQUEST['pageSetup']:$GLOBALS['InstallationPage'];
-	$rightFile='index.php?section=installationSettings';
 
 	if(isset($_REQUEST['senderID']) && (int)$_REQUEST['senderID']>0){
 		$senderStep=(int)$_REQUEST['senderID'];
@@ -22,7 +21,10 @@ function steps($output,$dbADO) {
 		<script>
 		function setMenuItem(mainUrl,selfPage,sender)
 		{
-			top.basefrm.location=mainUrl;
+			if(mainUrl!=\'\')
+				top.basefrm.location=mainUrl;
+			else
+				top.basefrm.location=\'index.php?section=installationSettings\';
 			self.location=\'index.php?section=wizard&pageSetup=\'+selfPage+\'&senderID=\'+sender;				
 		}
 		</script>
@@ -47,6 +49,7 @@ function steps($output,$dbADO) {
 			</tr>
 	';
 	$nextItem=array();
+	$nextUrl=array();
 	$startPos=0;
 	
 	$resrootNodes = $dbADO->Execute($selectMenu,$installationID);
@@ -57,10 +60,11 @@ function steps($output,$dbADO) {
 			WHERE FK_PageSetup_Parent = {$rootNodes['PK_PageSetup']} AND showInTopMenu = 1";
 		$resSelectLevel1 = $dbADO->Execute($selectLevel1,$installationID);
 		while ($rowSelectLevel1 = $resSelectLevel1->FetchRow()) {
-			if($rowSelectLevel1['pageURL']!='')
+			if($rowSelectLevel1['pageURL']!=''){
 				$nextItem[$startPos]=$rowSelectLevel1['PK_PageSetup'];
+				$nextUrl[$startPos]=$rowSelectLevel1['pageURL'];
+			}
 			$startPos=$rowSelectLevel1['PK_PageSetup'];
-			$rightFile=($rowSelectLevel1['PK_PageSetup']==$currentItem)?$rowSelectLevel1['pageURL']:$rightFile;
 			
 			$selectLevel2 = "
 				SELECT * FROM PageSetup
@@ -68,10 +72,11 @@ function steps($output,$dbADO) {
 				WHERE FK_PageSetup_Parent = {$rowSelectLevel1['PK_PageSetup']} AND showInTopMenu = 1";
 			$resSelectLevel2 = $dbADO->Execute($selectLevel2,$installationID);
 			while ($rowSelectLevel2 = $resSelectLevel2->FetchRow()) {
-				if($rowSelectLevel2['pageURL']!='')
+				if($rowSelectLevel2['pageURL']!=''){
 					$nextItem[$startPos]=$rowSelectLevel2['PK_PageSetup'];
+					$nextUrl[$startPos]=$rowSelectLevel1['pageURL'];
+				}
 					$startPos=$rowSelectLevel2['PK_PageSetup'];
-				$rightFile=($rowSelectLevel2['PK_PageSetup']==$currentItem)?$rowSelectLevel2['pageURL']:$rightFile;
 			}
 			$resSelectLevel2->Close();
 		}
@@ -108,7 +113,7 @@ function steps($output,$dbADO) {
 			<tr>
 				<td></td>
 				<td bgcolor="'.(($currentItem==$rowSelectSubMenu1['PK_PageSetup'])?'#CCCCCC':'').'">&nbsp;&nbsp;&nbsp;&nbsp;'.$wizardLink.'</td>
-				<td align="right" bgcolor="'.(($currentItem==$rowSelectSubMenu1['PK_PageSetup'])?'#CCCCCC':'').'"><a href="#" onClick="setMenuItem(\''.$rightFile.'\',\''.@$nextItem[$rowSelectSubMenu1['PK_PageSetup']].'\',\''.$rowSelectSubMenu1['PK_PageSetup'].'\')">Next'.'</a></td>
+				'.(($currentItem==$rowSelectSubMenu1['PK_PageSetup'])?'<td align="right" bgcolor="#CCCCCC"><a href="#" onClick="setMenuItem(\''.@$nextUrl[$rowSelectSubMenu1['PK_PageSetup']].'\',\''.@$nextItem[$rowSelectSubMenu1['PK_PageSetup']].'\',\''.$rowSelectSubMenu1['PK_PageSetup'].'\')">Next</a></td>':'<td>&nbsp;</td>').'
 			</tr>';
 			$selectLevel2 = "
 				SELECT * FROM PageSetup
@@ -126,7 +131,7 @@ function steps($output,$dbADO) {
 			<tr>
 				<td></td>
 				<td bgcolor="'.(($currentItem==$rowSelectSubMenu2['PK_PageSetup'])?'#CCCCCC':'').'">&nbsp;&nbsp;&nbsp;&nbsp;'.$wizardLink.'</td>
-				<td align="right" bgcolor="'.(($currentItem==$rowSelectSubMenu2['PK_PageSetup'])?'#CCCCCC':'').'"><a href="#" onClick="setMenuItem(\''.$rightFile.'\',\''.@$nextItem[$rowSelectSubMenu1['PK_PageSetup']].'\',\''.$rowSelectSubMenu1['PK_PageSetup'].'\')">Next</a></td>
+				'.(($currentItem==$rowSelectSubMenu2['PK_PageSetup'])?'<td align="right" bgcolor="#CCCCCC"><a href="#" onClick="setMenuItem(\''.@$nextUrl[$rowSelectSubMenu2['PK_PageSetup']].'\',\''.@$nextItem[$rowSelectSubMenu2['PK_PageSetup']].'\',\''.$rowSelectSubMenu1['PK_PageSetup'].'\')">Next</a></td>':'<td>&nbsp;</td>').'	
 			</tr>';
 			}
 			$resSelectSubMenu2->Close();
