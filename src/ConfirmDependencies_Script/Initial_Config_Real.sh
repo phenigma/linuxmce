@@ -45,8 +45,8 @@ try_again()
 
 RestoreCoreConf()
 {
-	[ -d /home/backup ] || exit 0
-	[ -f /home/backup/pluto.conf-Core ] || exit 0
+	[ -d /home/backup ] || return 0
+	[ -f /home/backup/pluto.conf-Core ] || return 0
 
 	sed "$NoSpace" /home/backup/pluto.conf-Core | egrep -v "^#|^//" >/etc/pluto.conf
 	while read line; do
