@@ -2222,7 +2222,7 @@ void Media_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_
 		g_pPlutoLogger->Write(LV_STATUS,"Move Media, but user %d isn't listening to anything.  Open Streams: %d",iPK_Users,(int) m_mapMediaStream.size());
 	else
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Move Media, user %d -- stream %d %s",pMediaStream->m_iStreamID_get(),pMediaStream->m_sMediaDescription.c_str());
+		g_pPlutoLogger->Write(LV_WARNING,"Move Media, user %d -- stream %d %s",iPK_Users,pMediaStream->m_iStreamID_get(),pMediaStream->m_sMediaDescription.c_str());
 		CMD_MH_Move_Media(pMediaStream->m_iStreamID_get(),StringUtils::itos(iPK_RoomOrEntArea));
 	}
 }
