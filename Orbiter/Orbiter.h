@@ -449,7 +449,9 @@ void RealRedraw( void *data );  // temp hack -- see comments
 	 * @brief renders a graphic object in the specified rectangle
 	 * @todo ask
 	 */
-	virtual void RenderGraphic( class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, bool bDisableAspectRatio = false ) = 0;
+	virtual void RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, bool bDisableAspectRatio = false) = 0;
+
+	virtual void RenderGraphic( class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, bool bDisableAspectRatio = false );
 
 	/**
 	 * @brief renders text with the specified style

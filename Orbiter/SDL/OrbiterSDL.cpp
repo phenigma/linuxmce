@@ -24,8 +24,9 @@
 #include "pluto_main/Define_DeviceCategory.h"
 #include "Gen_Devices/AllCommandsRequests.h"
 #include "DataGrid.h"
-#include "SDL_rotozoom.h"
+#include "SDLGraphic.h"
 
+#include "SDL_rotozoom.h"
 #include <SDL_ttf.h>
 #include <SDL_image.h>
 #include <sge.h>
@@ -189,118 +190,48 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
 }
 
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void OrbiterSDL::RenderGraphic(DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, bool bDisableAspectRatio)
+/*virtual*/ void OrbiterSDL::RenderGraphic(PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
+	bool bDisableAspectRatio)
 {
-    bool bDeleteSurface=true;  // Will set to false if we're going to cache
-    SDL_Surface * obj_image = NULL;
+	if(!pPlutoGraphic || pPlutoGraphic->GraphicType_get() != gtSDLGraphic) 
+		return;//nothing to render or not an sdl graphic
 
-	vector<PlutoGraphic*> *pVectorPlutoGraphic = pObj->m_pvectCurrentGraphic;
-
-	if(pVectorPlutoGraphic->size() == 0) //we have nothing to render
-		return;
-
-	int iCurrentFrame = 0;
-	switch(pObj->m_GraphicToDisplay)
-	{
-		case GRAPHIC_HIGHLIGHTED: iCurrentFrame = pObj->m_iFrame_Highlighted; break;
-		case GRAPHIC_SELECTED: iCurrentFrame = pObj->m_iFrame_Selected; break;
-		case GRAPHIC_NORMAL: iCurrentFrame = pObj->m_iFrame_Background; break;
-	}
-
-	PlutoGraphic *pPlutoGraphic = (*pVectorPlutoGraphic)[iCurrentFrame];
-
-	if( pPlutoGraphic->GraphicType_get()==gtSDLGraphic )
-    {
-		SDLGraphic *pSDLGraphic = (SDLGraphic *) pPlutoGraphic;
-        obj_image = pSDLGraphic->m_pSDL_Surface;
-        if( !obj_image && m_sLocalDirectory.length()>0 )
-        {
-            obj_image = IMG_Load ((m_sLocalDirectory + pSDLGraphic->m_Filename).c_str());
-            if( !obj_image )
-            {
-                g_pPlutoLogger->Write(LV_CRITICAL, "Unable to read file %s",(m_sLocalDirectory + pSDLGraphic->m_Filename).c_str());
-                return;
-            }
-        }
-        else if( !obj_image )
-        {
-            // Request our config info
-            char *pGraphicFile=NULL;
-            int iSizeGraphicFile=0;
-
-            DCE::CMD_Request_File CMD_Request_File(m_dwPK_Device,m_dwPK_Device_GeneralInfoPlugIn,"orbiter/C" + StringUtils::itos(m_dwPK_Device) + "/" + pSDLGraphic->m_Filename,
-                &pGraphicFile,&iSizeGraphicFile);
-            SendCommand(CMD_Request_File);
-
-            if (!iSizeGraphicFile)
-            {
-                g_pPlutoLogger->Write(LV_CRITICAL, "Unable to get file from server %s", pSDLGraphic->m_Filename.c_str());
-                return;
-            }
-
-            SDL_RWops * rw = SDL_RWFromMem(pGraphicFile, iSizeGraphicFile);
-            obj_image = IMG_Load_RW(rw, 1); // rw is freed here
-            delete pGraphicFile;
-
-        }
-#ifdef CACHE_IMAGES
-        pSDLGraphic->m_pSDL_Surface = obj_image;  // In case we loaded from cache
-        bDeleteSurface = false;
-#endif
-    }
-    else
-        g_pPlutoLogger->Write(LV_CRITICAL, "SDL Got a type of graphic I don't know how to render");
-
-    if( !obj_image )
-        return;
+	SDLGraphic *pSDLGraphic = (SDLGraphic *) pPlutoGraphic;
+	SDL_Surface *pSDL_Surface = pSDLGraphic->m_pSDL_Surface;
 
 	//render the sdl surface
 	SDL_Rect Destination;
-    Destination.x = rectTotal.X; Destination.y = rectTotal.Y;
-	Destination.w = pObj->m_rPosition.Width; Destination.h = pObj->m_rPosition.Height;
+	Destination.x = rectTotal.X; Destination.y = rectTotal.Y;
+	Destination.w = rectTotal.Width; Destination.h = rectTotal.Height;
 
-	if(obj_image->w == 0 || obj_image->h == 0) //nothing to render
-	{
-		//do nothing
-	}
+	if(pSDL_Surface->w == 0 || pSDL_Surface->h == 0) //nothing to render
+		return; //malformated image?
 	else
-		if(obj_image->w != pObj->m_rPosition.Width || obj_image->h != pObj->m_rPosition.Height) //different size. we'll have to stretch the surface
+		if(pSDL_Surface->w != rectTotal.Width || pSDL_Surface->h != rectTotal.Height) //different size. we'll have to stretch the surface
 		{
 			double ZoomX = 1;
 			double ZoomY = 1;
 
 			SDL_Surface *rotozoom_picture;
 
-			if(pObj->m_bDisableAspectLock) //no aspect ratio kept
+			if(bDisableAspectRatio) //no aspect ratio kept
 			{
-				ZoomX = pObj->m_rPosition.Width / double(obj_image->w);
-				ZoomY = pObj->m_rPosition.Height / double(obj_image->h);
+				ZoomX = rectTotal.Width / double(pSDL_Surface->w);
+				ZoomY = rectTotal.Height / double(pSDL_Surface->h);
 			}
 			else //we'll have to keep the aspect
 			{
-				ZoomX = ZoomY = min(pObj->m_rPosition.Width / double(obj_image->w), 
-					pObj->m_rPosition.Height / double(obj_image->h));
+				ZoomX = ZoomY = min(rectTotal.Width / double(pSDL_Surface->w), 
+					rectTotal.Height / double(pSDL_Surface->h));
 			}
 
-			rotozoom_picture = zoomSurface(obj_image, ZoomX, ZoomY, SMOOTHING_ON);
+			rotozoom_picture = zoomSurface(pSDL_Surface, ZoomX, ZoomY, SMOOTHING_ON);
 
 			SDL_BlitSurface(rotozoom_picture, NULL, m_pScreenImage, &Destination);
 			SDL_FreeSurface(rotozoom_picture);
 		}
 		else //same size ... just blit the surface
-			SDL_BlitSurface(obj_image, NULL, m_pScreenImage, &Destination);
-
-	//free the surface
-	if( bDeleteSurface )
-	{
-		if( pPlutoGraphic->GraphicType_get() == gtSDLGraphic )
-		{
-			SDLGraphic *pSDLGraphic = (SDLGraphic *) pPlutoGraphic;
-			SDL_FreeSurface(obj_image);
-
-			pSDLGraphic->m_pSDL_Surface = NULL;
-		}
-	}
+			SDL_BlitSurface(pSDL_Surface, NULL, m_pScreenImage, &Destination);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::SaveBackgroundForDeselect(DesignObj_Orbiter *pObj)

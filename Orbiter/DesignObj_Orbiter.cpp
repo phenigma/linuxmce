@@ -20,38 +20,9 @@
 #include "DesignObj_Orbiter.h"
 #include "Orbiter.h"
 
-#include <SDL.h>
-
 #ifdef PRONTO
 #include "CCF.h"
 #endif
-//=======================================================================================================
-//PlutoGraphic builder methods
-//-------------------------------------------------------------------------------------------------------
-/*extern*/ PlutoGraphic *CreateGraphic(GraphicType Type, string Filename, eGraphicManagement GraphicManagement, 
-	Orbiter *pOrbiter)
-{
-	class PlutoGraphic *pGraphic = NULL;
-
-	switch(Type)
-	{
-		case gtSDLGraphic: 
-			return new SDLGraphic(Filename, GraphicManagement, pOrbiter);
-	}
-
-	return pGraphic;
-}
-//-------------------------------------------------------------------------------------------------------
-/*extern*/ void CreateVectorGraphic(VectorPlutoGraphic& vectPlutoGraphic, GraphicType Type, string Filename, 
-	eGraphicManagement GraphicManagement, Orbiter *pOrbiter)
-{
-	//TODO
-	switch(Type) //for now, handle only single frame graphic files 
-	{
-		case gtSDLGraphic: 
-			vectPlutoGraphic.push_back(new SDLGraphic(Filename, GraphicManagement, pOrbiter));
-	}
-}
 //=======================================================================================================
 //Generic PlutoGraphic class methods
 //-------------------------------------------------------------------------------------------------------
@@ -92,49 +63,6 @@ PlutoGraphic::PlutoGraphic(string Filename, eGraphicManagement GraphicManagement
 { 
 	m_GraphicManagement = GR_KEEPCOMPRESSED; 
 	m_GraphicFormat = GR_UNKNOWN; 
-}
-//=======================================================================================================
-//Concrete SDLGraphic class methods
-//-------------------------------------------------------------------------------------------------------
-SDLGraphic::SDLGraphic(string Filename, eGraphicManagement GraphicManagement, 
-					   Orbiter *pOrbiter) 
-					   : PlutoGraphic(Filename, GraphicManagement, pOrbiter)
-{
-	Initialize();
-}
-//-------------------------------------------------------------------------------------------------------
-SDLGraphic::SDLGraphic(Orbiter *pOrbiter) 
-: PlutoGraphic(pOrbiter)
-{
-	Initialize();
-}
-//-------------------------------------------------------------------------------------------------------
-SDLGraphic::SDLGraphic(struct SDL_Surface *pSDL_Surface) 
-{ 
-	Initialize();
-
-	m_pSDL_Surface = pSDL_Surface; 
-}
-//-------------------------------------------------------------------------------------------------------
-SDLGraphic::~SDLGraphic()
-{
-	if (m_pImage)
-	{
-		delete m_pImage;
-		m_pImage = NULL;
-	}
-
-	if (m_pSDL_Surface)
-	{
-		SDL_FreeSurface(m_pSDL_Surface);
-		m_pSDL_Surface = NULL;
-	}
-}
-//-------------------------------------------------------------------------------------------------------
-void SDLGraphic::Initialize() 
-{ 
-	m_pSDL_Surface = NULL;
-	m_pImage = NULL; 
 }
 //=======================================================================================================
 //Concrete class DesignObj_Orbiter

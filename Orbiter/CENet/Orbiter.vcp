@@ -148,7 +148,7 @@ RSC=rc.exe
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "DEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
 CPP=clarm.exe
 # ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /Yu"stdafx.h" /M$(CECrtMTDebug) /c
-# ADD CPP /nologo /Zp8 /W1 /Zi /Od /I "." /I ".." /I "../Win32" /I "../.." /I "../../DCE" /I "../../Libraries/pthreads-snap-2002-11-04" /I "../../Libraries/pthreads-win32/include" /I "../../CrossPlatform-Libs/sge030809-w32/src" /I "../../CrossPlatform-Libs/SDL_ttf-2.0.6" /I "../../CrossPlatform-Libs/SDL_image-1.2.3" /I "../../CrossPlatform-Libs/SDL-1.2.7/include" /I "../../Splitter" /I "../../CrossPlatform-Libs/zlib" /I "../../CrossPlatform-Libs/lpng127" /I "../../Libraries/STLport-4.5.3/stlport" /I "../../Libraries/STLport-4.5.3/src" /I "../../PlutoUtils" /I "../../CrossPlatform-Libs/SDL_rotozoom-1.6" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /D "WIN32" /D "WINCE" /D "ORBITER" /D "__STL_NO_IOSTREAMS" /D "LOAD_PNG" /D "#PROFILING" /D "#CACHE_IMAGES" /I /pluto/trunk" /M$(CECrtMTDebug) " /c
+# ADD CPP /nologo /Zi /Od /I "." /I ".." /I "../Win32" /I "../SDL" /I "../.." /I "../../DCE" /I "../../Libraries/pthreads-snap-2002-11-04" /I "../../Libraries/pthreads-win32/include" /I "../../CrossPlatform-Libs/sge030809-w32/src" /I "../../CrossPlatform-Libs/SDL_ttf-2.0.6" /I "../../CrossPlatform-Libs/SDL_image-1.2.3" /I "../../CrossPlatform-Libs/SDL-1.2.7/include" /I "../../Splitter" /I "../../CrossPlatform-Libs/zlib" /I "../../CrossPlatform-Libs/lpng127" /I "../../Libraries/STLport-4.5.3/stlport" /I "../../Libraries/STLport-4.5.3/src" /I "../../PlutoUtils" /I "../../CrossPlatform-Libs/SDL_rotozoom-1.6" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /D "WIN32" /D "WINCE" /D "ORBITER" /D "__STL_NO_IOSTREAMS" /D "LOAD_PNG" /D "#PROFILING" /D "#CACHE_IMAGES" /I /pluto/trunk" /M$(CECrtMTDebug) " /c
 # SUBTRACT CPP /YX /Yc /Yu
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
@@ -605,28 +605,6 @@ NODEP_CPP_DESIGN=\
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_DESIGN=\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\begin_code.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\close_code.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_active.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_audio.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_byteorder.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_cdrom.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_error.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_events.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_getenv.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_joystick.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_keyboard.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_keysym.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_main.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_mouse.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_mutex.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_quit.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_rwops.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_timer.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_types.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_version.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_video.h"\
 	"..\..\DCE\ClientSocket.h"\
 	"..\..\DCE\Command_Impl.h"\
 	"..\..\DCE\DataGrid.h"\
@@ -954,6 +932,82 @@ DEP_CPP_FILEU=\
 	
 NODEP_CPP_FILEU=\
 	"..\..\PlutoUtils\dirent.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\GraphicBuilder.cpp
+
+!IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
+
+DEP_CPP_GRAPH=\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\GraphicBuilder.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_GRAPH=\
+	"..\PlutoUtils\GraphicFormat.h"\
+	"..\SDLGraphic.h"\
+	"..\SerializeClass\SerializeClass.h"\
+	"..\SerializeClass\ShapesColors.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Debug"
+
+DEP_CPP_GRAPH=\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\GraphicBuilder.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_GRAPH=\
+	"..\PlutoUtils\GraphicFormat.h"\
+	"..\SDLGraphic.h"\
+	"..\SerializeClass\SerializeClass.h"\
+	"..\SerializeClass\ShapesColors.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_GRAPH=\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\GraphicBuilder.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_GRAPH=\
+	"..\PlutoUtils\GraphicFormat.h"\
+	"..\SDLGraphic.h"\
+	"..\SerializeClass\SerializeClass.h"\
+	"..\SerializeClass\ShapesColors.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_GRAPH=\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\GraphicFormat.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\GraphicBuilder.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_GRAPH=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	"..\SDLGraphic.h"\
 	
 
 !ENDIF 
@@ -1696,6 +1750,7 @@ DEP_CPP_ORBIT=\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
+	"..\GraphicBuilder.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
 	"..\TextStyle.h"\
@@ -1980,6 +2035,7 @@ DEP_CPP_ORBITER=\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
 	"..\SDL\OrbiterSDL.h"\
+	"..\SDL\SDLGraphic.h"\
 	"..\TextStyle.h"\
 	".\wince.h"\
 	
@@ -2359,6 +2415,126 @@ NODEP_CPP_RENDE=\
 # End Source File
 # Begin Source File
 
+SOURCE=..\SDL\SDLGraphic.cpp
+
+!IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
+
+DEP_CPP_SDLGR=\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\SDL\SDLGraphic.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_SDLGR=\
+	"..\PlutoUtils\GraphicFormat.h"\
+	"..\SDL\Logger.h"\
+	"..\SerializeClass\SerializeClass.h"\
+	"..\SerializeClass\ShapesColors.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Debug"
+
+DEP_CPP_SDLGR=\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\SDL\SDLGraphic.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_SDLGR=\
+	"..\PlutoUtils\GraphicFormat.h"\
+	"..\SDL\Logger.h"\
+	"..\SerializeClass\SerializeClass.h"\
+	"..\SerializeClass\ShapesColors.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_SDLGR=\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\SDL\SDLGraphic.h"\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_SDLGR=\
+	"..\PlutoUtils\GraphicFormat.h"\
+	"..\SDL\Logger.h"\
+	"..\SerializeClass\SerializeClass.h"\
+	"..\SerializeClass\ShapesColors.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_SDLGR=\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\begin_code.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\close_code.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_active.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_audio.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_byteorder.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_cdrom.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_error.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_events.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_getenv.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_joystick.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_keyboard.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_keysym.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_main.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_mouse.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_mutex.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_quit.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_rwops.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_timer.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_types.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_version.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_video.h"\
+	"..\..\CrossPlatform-Libs\SDL_image-1.2.3\SDL_image.h"\
+	"..\..\CrossPlatform-Libs\SDL_ttf-2.0.6\SDL_ttf.h"\
+	"..\..\CrossPlatform-Libs\sge030809-w32\src\sge.h"\
+	"..\..\CrossPlatform-Libs\sge030809-w32\src\sge_blib.h"\
+	"..\..\CrossPlatform-Libs\sge030809-w32\src\sge_bm_text.h"\
+	"..\..\CrossPlatform-Libs\sge030809-w32\src\sge_collision.h"\
+	"..\..\CrossPlatform-Libs\sge030809-w32\src\sge_config.h"\
+	"..\..\CrossPlatform-Libs\sge030809-w32\src\sge_internal.h"\
+	"..\..\CrossPlatform-Libs\sge030809-w32\src\sge_misc.h"\
+	"..\..\CrossPlatform-Libs\sge030809-w32\src\sge_primitives.h"\
+	"..\..\CrossPlatform-Libs\sge030809-w32\src\sge_rotation.h"\
+	"..\..\CrossPlatform-Libs\sge030809-w32\src\sge_shape.h"\
+	"..\..\CrossPlatform-Libs\sge030809-w32\src\sge_surface.h"\
+	"..\..\CrossPlatform-Libs\sge030809-w32\src\sge_textpp.h"\
+	"..\..\CrossPlatform-Libs\sge030809-w32\src\sge_tt_text.h"\
+	"..\..\DCE\Logger.h"\
+	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\GraphicFormat.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\SDL\SDLGraphic.h"\
+	"..\TextStyle.h"\
+	".\wince.h"\
+	
+NODEP_CPP_SDLGR=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=..\SelfUpdate.cpp
 
 !IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
@@ -2445,6 +2621,28 @@ NODEP_CPP_SELFU=\
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_SELFU=\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\begin_code.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\close_code.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_active.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_audio.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_byteorder.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_cdrom.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_error.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_events.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_getenv.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_joystick.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_keyboard.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_keysym.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_main.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_mouse.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_mutex.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_quit.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_rwops.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_timer.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_types.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_version.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_video.h"\
 	"..\..\DCE\ClientSocket.h"\
 	"..\..\DCE\Command_Impl.h"\
 	"..\..\DCE\DeviceData_Base.h"\
@@ -2482,10 +2680,13 @@ DEP_CPP_SELFU=\
 	"..\Floorplan.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
+	"..\SDL\OrbiterSDL.h"\
 	"..\SelfUpdate.h"\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
+	"..\Win32\OrbiterSDL_Win32.h"\
 	"..\Win32\StartOrbiter_Win32.h"\
+	".\OrbiterSDL_WinCE.h"\
 	".\StartOrbiterCE.h"\
 	".\stdafx.h"\
 	".\wince.h"\

@@ -36,7 +36,6 @@ public:
 	virtual void DrawLine(int x, int y, int width, int height, PlutoColor color, int Opacity = 100) {};
 	virtual void ReplaceColorInRectangle(int x, int y, int width, int height, PlutoColor ColorToReplace, PlutoColor ReplacementColor);
 	virtual void FloodFill(int x, int y, PlutoColor ColorToReplace, PlutoColor ReplacementColor) {};
-	virtual void RenderGraphic(class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, bool bDisableAspectRatio=false);
 	virtual void RenderText(class DesignObjText *Text,class TextStyle *pTextStyle);
 	virtual void SaveBackgroundForDeselect(DesignObj_Orbiter *pObj);
 
@@ -44,6 +43,8 @@ public:
 	virtual void RenderScreen();
 	virtual void RedrawObjects();
 	virtual void DisplayImageOnScreen(SDL_Surface *m_pScreenImage);
+
+	virtual void RenderGraphic(class PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, bool bDisableAspectRatio);
 
 	virtual void BeginPaint();
 	virtual void EndPaint();

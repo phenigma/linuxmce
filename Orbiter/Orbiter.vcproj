@@ -134,6 +134,9 @@
 				RelativePath="DesignObj_Orbiter.cpp">
 			</File>
 			<File
+				RelativePath=".\GraphicBuilder.cpp">
+			</File>
+			<File
 				RelativePath=".\Win32\main.cpp">
 			</File>
 			<File
@@ -158,6 +161,9 @@
 				RelativePath=".\RendererMNG.cpp">
 			</File>
 			<File
+				RelativePath=".\Sdl\SDLGraphic.cpp">
+			</File>
+			<File
 				RelativePath=".\SelfUpdate.cpp">
 			</File>
 			<File
@@ -180,6 +186,9 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
+				RelativePath=".\GraphicBuilder.h">
+			</File>
+			<File
 				RelativePath=".\Win32\MainDialog.h">
 			</File>
 			<File
@@ -199,6 +208,9 @@
 			</File>
 			<File
 				RelativePath=".\resource.h">
+			</File>
+			<File
+				RelativePath=".\Sdl\SDLGraphic.h">
 			</File>
 			<File
 				RelativePath=".\Win32\StartOrbiter_Win32.h">

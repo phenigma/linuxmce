@@ -50,16 +50,6 @@ typedef vector<PlutoGraphic *> VectorPlutoGraphic;
 #define GRAPHIC_SELECTED	-1
 #define GRAPHIC_HIGHLIGHTED	-2
 //=======================================================================================================
-//PlutoGraphic builder methods
-//-------------------------------------------------------------------------------------------------------
-extern PlutoGraphic *CreateGraphic(GraphicType Type, string Filename, 
-										 eGraphicManagement GraphicManagement, 
-										 class Orbiter *pOrbiter); 
-//-------------------------------------------------------------------------------------------------------
-extern void CreateVectorGraphic(VectorPlutoGraphic& vectPlutoGraphic, GraphicType Type, string Filename, 
-												eGraphicManagement GraphicManagement, 
-												class Orbiter *pOrbiter);
-//=======================================================================================================
 //Generic abstract class PlutoGraphic
 //-------------------------------------------------------------------------------------------------------
 class PlutoGraphic
@@ -74,29 +64,16 @@ public:
 
 	virtual void Initialize();
 	virtual GraphicType GraphicType_get()=0;  // Must be implemented
+	virtual bool IsEmpty()=0; //Must be implemented
+	virtual bool LoadGraphic(string sFileName) = 0; //Must be implemented
+	virtual bool LoadGraphic(char *pData, size_t iSize) = 0; //Must be implemented
+	virtual void Clear() = 0; //Must be implemented
 
 	enum eGraphicManagement m_GraphicManagement;
 	enum eGraphicFormat m_GraphicFormat;
 
 	int Width, Height;
 	string m_Filename;
-};
-//=======================================================================================================
-//Concrete class SDLGraphic
-//-------------------------------------------------------------------------------------------------------
-class SDLGraphic : public PlutoGraphic
-{
-public:
-	SDLGraphic(string Filename, eGraphicManagement GraphicManagement, Orbiter *pCI);
-	SDLGraphic(struct SDL_Surface *pSDL_Surface);
-	SDLGraphic(Orbiter *pCI);
-	~SDLGraphic();
-
-	void Initialize();
-	GraphicType GraphicType_get() { return gtSDLGraphic; }
-
-	void *m_pImage;
-	struct SDL_Surface *m_pSDL_Surface;
 };
 //=======================================================================================================
 //Concrete class DesignObj_Orbiter

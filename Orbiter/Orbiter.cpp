@@ -46,6 +46,8 @@ using namespace DCE;
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_FloorplanType.h"
 
+#include "GraphicBuilder.h"
+
 #define  VERSION "<=version=>"
 
 #ifdef WINCE
@@ -298,15 +300,6 @@ Orbiter::~Orbiter()
 		*itDesignObjData = NULL;
 	}
 	m_listScreenHistory.clear();
-
-	//clearing device data map
-	map<int,class DeviceData_Base *>::iterator itDeviceData;
-	for(itDeviceData = m_mapDevice_Selected.begin(); itDeviceData != m_mapDevice_Selected.end(); itDeviceData++)
-	{
-		delete (*itDeviceData).second;
-		(*itDeviceData).second = NULL;
-	}
-	m_mapDevice_Selected.clear();
 
 	//clearing design object datagrid vector
 	vector < class DesignObj_DataGrid * >::iterator itDesignDataGrid;
@@ -5243,27 +5236,66 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 		m_vectObjs_NeedRedraw.push_back(pObj);
 }
 
-class A
+/*virtual*/ void Orbiter::RenderGraphic(DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, bool bDisableAspectRatio)
 {
-public:
-	map<int, VectorPlutoGraphic *> m_mapA;
-};
+    bool bDeleteSurface=true;  // Will set to false if we're going to cache
 
-class B
-{
-public:
-	VectorPlutoGraphic *m_vectB;
-};
+	vector<PlutoGraphic*> *pVectorPlutoGraphic = pObj->m_pvectCurrentGraphic;
 
-void test()
-{
-	VectorPlutoGraphic* p = NULL;
+	if(pVectorPlutoGraphic->size() == 0) //we have nothing to render
+		return;
 
-	A a;
-	a.m_mapA[1] = p;
+	int iCurrentFrame = 0;
+	switch(pObj->m_GraphicToDisplay)
+	{
+		case GRAPHIC_HIGHLIGHTED: iCurrentFrame = pObj->m_iFrame_Highlighted; break;
+		case GRAPHIC_SELECTED: iCurrentFrame = pObj->m_iFrame_Selected; break;
+		case GRAPHIC_NORMAL: iCurrentFrame = pObj->m_iFrame_Background; break;
+	}
 
-	VectorPlutoGraphic* p2 = a.m_mapA[1];
+	PlutoGraphic *pPlutoGraphic = (*pVectorPlutoGraphic)[iCurrentFrame];
 
-	B b;
-	b.m_vectB = p2;
+	if(pPlutoGraphic->IsEmpty() && m_sLocalDirectory.length() > 0)
+	{
+		if(!pPlutoGraphic->LoadGraphic((m_sLocalDirectory + pPlutoGraphic->m_Filename).c_str()))
+			return;
+	}
+	else if(pPlutoGraphic->IsEmpty())
+	{
+		// Request our config info
+		char *pGraphicFile=NULL;
+		int iSizeGraphicFile=0;
+
+		DCE::CMD_Request_File CMD_Request_File(
+			m_dwPK_Device,m_dwPK_Device_GeneralInfoPlugIn,
+			"orbiter/C" + StringUtils::itos(m_dwPK_Device) + "/" + pPlutoGraphic->m_Filename,
+			&pGraphicFile,&iSizeGraphicFile);
+		SendCommand(CMD_Request_File);
+
+		if (!iSizeGraphicFile)
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "Unable to get file from server %s", pPlutoGraphic->m_Filename.c_str());
+			return;
+		}	   
+
+		if(!pPlutoGraphic->LoadGraphic(pGraphicFile, iSizeGraphicFile))
+		{
+			delete pGraphicFile;
+			pGraphicFile = NULL;
+			return;
+		}
+
+		delete pGraphicFile;
+		pGraphicFile = NULL;
+	}
+	
+#ifdef CACHE_IMAGES
+    bDeleteSurface = false;
+#endif
+
+	RenderGraphic(pPlutoGraphic, rectTotal, bDisableAspectRatio);
+
+	//free the surface
+	if( bDeleteSurface )
+		pPlutoGraphic->Clear();	
 }
