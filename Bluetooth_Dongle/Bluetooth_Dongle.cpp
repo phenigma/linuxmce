@@ -59,11 +59,15 @@ void *HandleBDCommandProcessorThread(void *p)
 		return NULL;
 	}
 
+	pBD_Orbiter->m_pPhoneDevice->m_bIsConnected = true;
+
 	BDCommand *pCommand = new BD_CP_SendMeKeystrokes(1);
 	pBD_Orbiter->m_pBDCommandProcessor->AddCommand(pCommand);
 	while( pBD_Orbiter->m_pBDCommandProcessor->ReceiveCommand(0,0,NULL) && !pBD_Orbiter->m_pBDCommandProcessor->m_bDead );
 
 	g_pPlutoLogger->Write(LV_STATUS,"Exiting command processor: m_bDead: %d",(int) pBD_Orbiter->m_pBDCommandProcessor->m_bDead);
+
+	pBD_Orbiter->m_pPhoneDevice->m_bIsConnected = false;
 	
 	delete pBD_Orbiter->m_pBDCommandProcessor;
 	pBD_Orbiter->m_pBDCommandProcessor=NULL;
@@ -195,6 +199,8 @@ void Bluetooth_Dongle::LostDevice(class PhoneDevice *pDevice)
 		//PLUTO_SAFETY_LOCK(bm, m_BTMutex);
 		
 	    g_pPlutoLogger->Write(LV_WARNING, "Lost %s device and the BDCommandProcessor is dead!", pDevice->m_sMacAddress.c_str());
+
+		pBD_Orbiter->m_pPhoneDevice->m_bIsConnected = false;
 
 	    delete pBD_Orbiter->m_pOrbiter;
 	    pBD_Orbiter->m_pOrbiter = NULL;
