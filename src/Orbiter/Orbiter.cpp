@@ -452,6 +452,9 @@ void Orbiter::RedrawObjects(  )
 
 void Orbiter::ScreenSaver( void *data )
 {
+	if( !m_pDesignObj_Orbiter_ScreenSaveMenu )
+		return;
+
 	if( m_pScreenHistory_Current->m_pObj == m_pDesignObj_Orbiter_ScreenSaveMenu )
 	{
 		CMD_Display_OnOff("0");
@@ -1122,7 +1125,7 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable is now %p",pObj-
 
     // todo 2.0 SelectFirstObject(  );
 
-	if( !m_bBypassScreenSaver && pScreenHistory->m_pObj == m_pDesignObj_Orbiter_ScreenSaveMenu && m_iTimeoutBlank )
+	if( m_pDesignObj_Orbiter_ScreenSaveMenu && !m_bBypassScreenSaver && pScreenHistory->m_pObj == m_pDesignObj_Orbiter_ScreenSaveMenu && m_iTimeoutBlank )
 	{
 		m_tTimeoutTime = time(NULL) + m_iTimeoutBlank;
 
@@ -1130,7 +1133,7 @@ g_pPlutoLogger->Write( LV_STATUS, "@@@ About to call maint for display off with 
 
 		CallMaintenanceInMiliseconds( m_iTimeoutBlank * 1000, &Orbiter::ScreenSaver, NULL, true );
 	}
-	else if( !m_bBypassScreenSaver && pScreenHistory->m_pObj != m_pDesignObj_Orbiter_ScreenSaveMenu && m_iTimeoutScreenSaver )
+	else if( m_pDesignObj_Orbiter_ScreenSaveMenu && !m_bBypassScreenSaver && pScreenHistory->m_pObj != m_pDesignObj_Orbiter_ScreenSaveMenu && m_iTimeoutScreenSaver )
 		CallMaintenanceInMiliseconds( m_iTimeoutScreenSaver * 1000, &Orbiter::ScreenSaver, NULL, true );
 
     m_pScreenHistory_Current=pScreenHistory;
@@ -2547,12 +2550,6 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
         throw "Cannot find main menu";
     }
 
-    if(  !m_pDesignObj_Orbiter_SleepingMenu  )
-        m_pDesignObj_Orbiter_SleepingMenu = m_pDesignObj_Orbiter_MainMenu;
-
-    if(  !m_pDesignObj_Orbiter_ScreenSaveMenu  )
-        m_pDesignObj_Orbiter_ScreenSaveMenu = m_pDesignObj_Orbiter_MainMenu;
-
     if(  m_bLocalMode  )
         return true;
 
@@ -3331,7 +3328,7 @@ bool Orbiter::GotActivity(  )
     if(  !m_bDisplayOn  )
     {
         CMD_Display_OnOff( "1" );
-		if( m_pScreenHistory_Current->m_pObj == m_pDesignObj_Orbiter_ScreenSaveMenu )
+		if( m_pDesignObj_Orbiter_ScreenSaveMenu && m_pScreenHistory_Current->m_pObj == m_pDesignObj_Orbiter_ScreenSaveMenu )
 		{
 			CMD_Set_Main_Menu("N");
 			CMD_Go_back("","1");
@@ -3343,13 +3340,13 @@ g_pPlutoLogger->Write(LV_STATUS,"Ignoring click because screen saver was active"
 	if(  m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj->m_dwTimeoutSeconds  )
 		CallMaintenanceInMiliseconds( m_pScreenHistory_Current->m_pObj->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) m_pScreenHistory_Current->m_pObj, true );
 
-	if( m_pScreenHistory_Current->m_pObj == m_pDesignObj_Orbiter_ScreenSaveMenu )
+	if( m_pDesignObj_Orbiter_ScreenSaveMenu && m_pScreenHistory_Current->m_pObj == m_pDesignObj_Orbiter_ScreenSaveMenu )
 	{
 		CMD_Set_Main_Menu("N");
 		GotoScreen(m_sMainMenu);
 		return false;
 	}
-	else if( !m_bBypassScreenSaver && m_pScreenHistory_Current->m_pObj != m_pDesignObj_Orbiter_ScreenSaveMenu && m_iTimeoutScreenSaver )
+	else if( m_pDesignObj_Orbiter_ScreenSaveMenu && !m_bBypassScreenSaver && m_pScreenHistory_Current->m_pObj != m_pDesignObj_Orbiter_ScreenSaveMenu && m_iTimeoutScreenSaver )
 		CallMaintenanceInMiliseconds( m_iTimeoutScreenSaver * 1000, &Orbiter::ScreenSaver, NULL, true );
 	return true;
 }
@@ -5533,13 +5530,18 @@ bool Orbiter::TestCurrentScreen(string &sPK_DesignObj_CurrentScreen)
 	if( sPK_DesignObj_CurrentScreen.length(  ) && ( !m_pScreenHistory_Current || atoi( sPK_DesignObj_CurrentScreen.c_str(  ) )!=m_pScreenHistory_Current->m_pObj->m_iBaseObjectID )  ) // It should be at the beginning
     {
         // Be sure it's not a -1 telling us to be at the main menu
-        if(  sPK_DesignObj_CurrentScreen!="-1" || !m_pScreenHistory_Current || !m_pScreenHistory_Current->m_pObj ||
-            ( m_pScreenHistory_Current->m_pObj->m_iBaseObjectID!=m_pDesignObj_Orbiter_MainMenu->m_iBaseObjectID &&
-            m_pScreenHistory_Current->m_pObj->m_iBaseObjectID!=m_pDesignObj_Orbiter_SleepingMenu->m_iBaseObjectID &&
-            m_pScreenHistory_Current->m_pObj->m_iBaseObjectID!=m_pDesignObj_Orbiter_ScreenSaveMenu->m_iBaseObjectID )  )
-        {
-            return false;
-        }
+        if(  sPK_DesignObj_CurrentScreen=="-1" )
+		{
+			if( !m_pScreenHistory_Current || !m_pScreenHistory_Current->m_pObj )
+				return false;
+
+			if( m_pScreenHistory_Current->m_pObj->m_iBaseObjectID==m_pDesignObj_Orbiter_MainMenu->m_iBaseObjectID ||
+					(m_pDesignObj_Orbiter_SleepingMenu && m_pScreenHistory_Current->m_pObj->m_iBaseObjectID==m_pDesignObj_Orbiter_SleepingMenu->m_iBaseObjectID) ||
+					(m_pDesignObj_Orbiter_ScreenSaveMenu && m_pScreenHistory_Current->m_pObj->m_iBaseObjectID!=m_pDesignObj_Orbiter_ScreenSaveMenu->m_iBaseObjectID) )
+				return true;
+			else
+	            return false;
+		}
     }
 	return true;
 }
@@ -5979,9 +5981,9 @@ void Orbiter::CMD_Set_Main_Menu(string sText,string &sCMD_Result,Message *pMessa
 		{
 			if( sText[0]=='N' )
 				m_pDesignObj_Orbiter_MainMenu=pObj;
-			else if( sText[0]=='S' )
+			else if( sText[0]=='S' && m_pDesignObj_Orbiter_SleepingMenu )
 				m_pDesignObj_Orbiter_SleepingMenu=pObj;
-			else if( sText[0]=='V' )
+			else if( sText[0]=='V' && m_pDesignObj_Orbiter_ScreenSaveMenu )
 				m_pDesignObj_Orbiter_ScreenSaveMenu=pObj;
 		}
 		else
@@ -5993,9 +5995,9 @@ void Orbiter::CMD_Set_Main_Menu(string sText,string &sCMD_Result,Message *pMessa
 		// Just the normal N, S or V
 		if( sText[0]=='N' )
 			m_sMainMenu = m_pDesignObj_Orbiter_MainMenu->m_ObjectID;
-		else if( sText[0]=='S' )
+		else if( sText[0]=='S' && m_pDesignObj_Orbiter_SleepingMenu )
 			m_sMainMenu = m_pDesignObj_Orbiter_SleepingMenu->m_ObjectID;
-		else if( sText[0]=='V' )
+		else if( sText[0]=='V' && m_pDesignObj_Orbiter_ScreenSaveMenu )
 			m_sMainMenu = m_pDesignObj_Orbiter_ScreenSaveMenu->m_ObjectID;
 	}
 g_pPlutoLogger->Write(LV_STATUS,"Set menu: %s now %s",sText.c_str(),m_sMainMenu.c_str());
