@@ -105,7 +105,7 @@ OriginateCommand::handleToken(Token* ptoken) {
 				destchannel = channel;
 				g_pPlutoLogger->Write(LV_STATUS, "Originate destination channel: %s.", channel.c_str());
 				
-				AsteriskManager::getInstance()->NotifyResult(commandid, 0, destchannel);
+				AsteriskManager::getInstance()->NotifyResult(commandid, 0, srcchannel);
 				return 1;
 			} else {
 			}
