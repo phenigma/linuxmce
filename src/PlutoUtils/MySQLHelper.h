@@ -86,10 +86,11 @@ public:
 			m_pMySQL = mysql_init(NULL);
 		}
 
-		if  ( m_bConnectFromConstructor )
-			g_pPlutoLogger->Write(LV_STATUS, "MysqlHelper connecting to: %s, Port: %d, Database: %s", m_sMySQLHost.c_str(), m_iMySQLPort, m_sMySQLDBName.c_str());
-		else
-			g_pPlutoLogger->Write(LV_WARNING, "MysqlHelper reconnecting to failed Host: %s, Port: %d, Database: %s", m_sMySQLHost.c_str(), m_iMySQLPort, m_sMySQLDBName.c_str());
+// commented since it can taint the Confirm dependencies output.
+// 		if  ( m_bConnectFromConstructor )
+// 			g_pPlutoLogger->Write(LV_STATUS, "MysqlHelper connecting to: %s, Port: %d, Database: %s", m_sMySQLHost.c_str(), m_iMySQLPort, m_sMySQLDBName.c_str());
+// 		else
+// 			g_pPlutoLogger->Write(LV_WARNING, "MysqlHelper reconnecting to failed Host: %s, Port: %d, Database: %s", m_sMySQLHost.c_str(), m_iMySQLPort, m_sMySQLDBName.c_str());
 
 		if (mysql_real_connect(m_pMySQL, m_sMySQLHost.c_str(), m_sMySQLUser.c_str(), m_sMySQLPass.c_str(), m_sMySQLDBName.c_str(), m_iMySQLPort, NULL, 0) == NULL)
 		{
