@@ -40,6 +40,8 @@ VGcmd=""
 if [ -n "$Valgrind" ]; then
 	if which valgrind &>/dev/null; then
 		VGcmd="valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=15 " # trailing space is mandatory
+		export GLIBCXX_FORCE_NEW=1
+		export GLIBCPP_FORCE_NEW=1
 	else
 		echo "*** WARNING *** Valgrind not installed. Running programs the normal way ***"
 	fi
