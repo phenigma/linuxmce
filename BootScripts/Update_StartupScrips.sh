@@ -1,4 +1,7 @@
 #!/bin/bash
+. /usr/pluto/bin/pluto.func
+
+Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Updating startup scripts"
 
 Q="INSERT INTO Device_StartupScript(FK_Device,FK_StartupScript,Boot_Order,Background,Enabled,Parameter)
 SELECT PK_Device, PK_StartupScript,Hybrid_Boot_Order,Hybrid_Background,Hybrid_Enabled,Hybrid_Parameter FROM Device

@@ -1,4 +1,5 @@
-# hardcoded
+. /usr/pluto/bin/pluto.func
+
 SkinDir=/usr/pluto/skins
 FontDir=/usr/share/fonts/truetype/msttcorefonts
 OutDir=/usr/pluto
@@ -13,7 +14,9 @@ AND FK_Installation=1"
 
 Orbiters=$(echo "$Q;" | /usr/bin/mysql pluto_main | tail +2 | tr '\n' ' ')
 
+export SDL_VIDEODEVICE=dummy
+
 for OrbiterDev in $Orbiters; do
-	export SDL_VIDEODRIVER=dummy
-	/usr/pluto/bin/OrbiterGen -d "$OrbiterDev" -g "$SkinDir" -f "$FontDir" -o "$OutDir" -h localhost
+	Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Generating Orbiter nr. $OrbiterDev"
+	/usr/pluto/bin/OrbiterGen -d "$OrbiterDev" -g "$SkinDir" -f "$FontDir" -o "$OutDir" -h localhost || Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Failed to generate Orbiter nr. $OrbiterDev"
 done
