@@ -865,20 +865,17 @@ AsksSourceQuests:
 
 bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo)
 {
-	vector<Row_Package_Source *> vect_pRow_Package_Source_Package_Name;
-	pRow_Package_Source->FK_Package_getrow()->Package_Source_FK_Package_getrows(&vect_pRow_Package_Source_Package_Name);
-	
 	string Version("");
-	if (!vect_pRow_Package_Source_Package_Name[0]->Version_isNull())
+	if (!pRow_Package_Source->Version_isNull())
 	{
-		Version = vect_pRow_Package_Source_Package_Name[0]->Version_get();
+		Version = pRow_Package_Source->Version_get();
 	}
 	if (Version == "")
 	{
 		Version = "2.0.0.0";
 	}
 	
-	string Package_Name = StringUtils::ToLower(vect_pRow_Package_Source_Package_Name[0]->Name_get());
+	string Package_Name = StringUtils::ToLower(pRow_Package_Source->Name_get());
 	string Dir("/home/tmp/pluto-build/" + Package_Name + "-" + Version);
 
 	FILE * f;
@@ -947,9 +944,6 @@ string Makefile = "none:\n"
 		cout << "dpkg-buildpackage -b failed.  Aborting." << endl;
 		return false;
 	}
-
-	chdir(CurrentDir);
-	system(("rm -rf " + Dir).c_str());
 #endif
 	
 	cout << "------------DEBIAN PACKAGE OUTPUT" << endl;
@@ -957,6 +951,11 @@ string Makefile = "none:\n"
 	cout << "Press any key to continue..." << endl;
 	char c = getch();
 					
+#ifndef WIN32
+	chdir(CurrentDir);
+	system(("rm -rf " + Dir).c_str());
+#endif
+	
 	return true;
 }
 
