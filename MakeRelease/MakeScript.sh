@@ -29,17 +29,17 @@ else
 	cd /home/tmp/pluto-build/
 	./propagate.sh
 	if [ $version -ne 1 ]; then
-		cd /var/www
+		cd /home
 	
 		rm debian.tar.gz
-		tar zcvf /var/www/debian.tar.gz /var/www/debian/dists/20dev/main/binary-i386/*
+		tar zcvf /home/debian.tar.gz /var/www/debian/dists/20dev/main/binary-i386/*
 		scp debian.tar.gz problems@69.25.176.44:~/
 
 		rm download.tar.gz
-		tar zcvf /var/www/download.tar.gz /var/www/download/*
+		tar zcvf /home/download.tar.gz /var/www/download/*
 		scp download.tar.gz problems@69.25.176.44:~/
 
-		sh DumpVersionPackage.sh
+		sh -x /var/www/DumpVersionPackage.sh
 		scp dumpvp.tar.gz problems@69.25.176.44:~/
 
 		echo "Sent to server."

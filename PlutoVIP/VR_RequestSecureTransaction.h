@@ -2,7 +2,7 @@
 #define VR_RequestSecureTransaction_H
 
 #include "RA/RA_Request.h"
-#include "PlutoVIPrequests.h"
+#include "PlutoVIPRequests.h"
 
 class VR_RequestSecureTransaction : public RA_Request
 {

@@ -11,7 +11,9 @@
 #include <cstdlib>
 
 #include <stdio.h>
+#ifdef WIN32
 #include <conio.h>
+#endif
 
 #include <string>
 #include <vector>
@@ -25,6 +27,7 @@
 #include "PlutoUtils/Other.h"
 #include "DCE/Logger.h"
 #include "RA/RAServer.h"
+#include "DCE/DCEConfig.h"
 
 #define  VERSION "<=version=>"
 

@@ -2,7 +2,7 @@
 #define VR_PhoneRespondedToRequest_H
 
 #include "RA/RA_Request.h"
-#include "PlutoVIPrequests.h"
+#include "PlutoVIPRequests.h"
 
 class VR_PhoneRespondedToRequest : public RA_Request
 {

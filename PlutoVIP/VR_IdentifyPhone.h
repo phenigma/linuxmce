@@ -4,7 +4,7 @@
 #include "RA/RA_Request.h"
 #include "VIPShared/VIPIncludes.h"
 #include "SerializeClass/SerializeClass.h"
-#include "PlutoVIPrequests.h"
+#include "PlutoVIPRequests.h"
 
 #define SERIALIZE_DATA_TYPE_LIST_PHONE_NUM	4000
 #define SERIALIZE_DATA_TYPE_LIST_VIP_ATTR	4001

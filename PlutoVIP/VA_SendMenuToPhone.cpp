@@ -21,7 +21,7 @@
 #include "BD/PhoneDevice.h"
 #include "VR_IdentifyPhone.h"
 #include "PlutoVIP/Customer.h"
-#include "VIPShared/BD_CP_ShowVmc.h"
+#include "VIPShared/BD_CP_ShowVMC.h"
 
 #ifdef VIPESTABLISHMENT
 #include "VIPEstablishment/CellPhoneEmulator.h"

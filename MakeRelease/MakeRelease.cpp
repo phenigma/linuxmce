@@ -379,6 +379,7 @@ bool CreateSources(Row_Package *pRow_Package)
 	cout << endl;
 
 	// Now go through and figure out what files we need to move over.  The process is different if this is a source package versus a binary package
+	cout << "Scanning for files..." << endl;
 	list<FileInfo *> listFileInfo;
 	if( pRow_Package->IsSource_get() )
 	{
@@ -387,6 +388,8 @@ bool CreateSources(Row_Package *pRow_Package)
 	}
 	else if( !GetNonSourceFilesToMove(pRow_Package,listFileInfo) )
 		return false;
+
+	cout << "Found: " << listFileInfo.size() << " files" << endl;
 
 	if( listFileInfo.size()==0 )
 	{
@@ -488,7 +491,11 @@ bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileIn
 			if( File.find('*')!=string::npos || File.find('?')!=string::npos )
 			{
 				list<string> listFiles;
+				if( g_bInteractive )
+					cout << "Scanning: " << sDirectory;
 				FileUtils::FindFiles(listFiles,sDirectory,File,true);
+				if( g_bInteractive )
+					cout << "Found: " << listFiles.size() << " files" << endl;
 				for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
 				{
 					FileInfo *pFileInfo = new FileInfo(sDirectory + "/" + *it,
@@ -544,7 +551,6 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 
 	// What are the files for this?
 	pRow_Package->Package_Directory_FK_Package_getrows(&vectRow_Package_Directory);
-
 	for(size_t s=0;s<vectRow_Package_Directory.size();++s)
 	{
 		Row_Package_Directory *pRow_Package_Directory = vectRow_Package_Directory[s];
@@ -613,7 +619,13 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 			if( File.find('*')!=string::npos || File.find('?')!=string::npos )
 			{
 				list<string> listFiles;
+				
+				if( g_bInteractive )
+					cout << "Scanning: " << sInputPath;
 				FileUtils::FindFiles(listFiles,sInputPath,File,true);
+				if( g_bInteractive )
+					cout << "Found: " << listFiles.size() << " files" << endl;
+				
 				if( listFiles.size()==0 )
 				{
 					cout << "***WARNING*** No files found in " << sInputPath << endl;

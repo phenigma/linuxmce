@@ -2,7 +2,7 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
-#include "PlutoUtils/MySqlHelper.h"
+#include "PlutoUtils/MySQLHelper.h"
 #include "VR_PhoneRespondedToRequest.h"
 #include "VA_UpdateTransaction.h"
 #include "VIPShared/VIPMenu.h"

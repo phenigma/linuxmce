@@ -1,5 +1,5 @@
-#ifndef PlutoVIPrequests_h
-#define PlutoVIPrequests_h
+#ifndef PlutoVIPRequests_h
+#define PlutoVIPRequests_h
 
 /*
 	Implement the mandatory BuildRequestFromData for use with PlutoVIP

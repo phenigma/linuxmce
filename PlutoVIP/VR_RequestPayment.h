@@ -2,7 +2,7 @@
 #define VR_RequestPayment_H
 
 #include "RA/RA_Request.h"
-#include "PlutoVIPrequests.h"
+#include "PlutoVIPRequests.h"
 
 #define SERIALIZE_DATA_TYPE_LIST_INV_DETAIL		4011
 

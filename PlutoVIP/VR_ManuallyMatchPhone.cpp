@@ -2,7 +2,7 @@
 #include "PlutoUtils/CommonIncludes.h"	
 #include "VR_ManuallyMatchPhone.h"
 #include "VIPShared/VIPMenu.h"
-#include "PlutoUtils/MySqlHelper.h"
+#include "PlutoUtils/MySQLHelper.h"
 
 #include "RA/RA_Processor.h"
 #include "DCE/DCEMySqlConfig.h"

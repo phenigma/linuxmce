@@ -283,7 +283,7 @@ void FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
                     s = s.substr(1);  // If it's a *.ext drop the *
                 if (s == "")
                     break;
-                if (s == ".*" || StringUtils::EndsWith(finddata.name, s.c_str(),true) )
+                if (s == ".*" || s == "*" || StringUtils::EndsWith(finddata.name, s.c_str(),true) )
                 {
                     listFiles.push_back(PrependedPath + finddata.name);
                     break;
@@ -328,7 +328,7 @@ void FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
                     s = s.substr(1);
                 if (s == "")
                     break;
-                if (s == ".*" || StringUtils::EndsWith(entry.d_name, s.c_str(),true) )
+                if (s == ".*" || s == "*" || StringUtils::EndsWith(entry.d_name, s.c_str(),true) )
                 {
 // g_pPlutoLogger->Write(LV_STATUS, "added file %s", entry.d_name);
                     listFiles.push_back(PrependedPath + entry.d_name);
