@@ -930,7 +930,7 @@ bool Table::CheckIn( int psc_user, RA_Processor &ra_Processor, DCE::Socket *pSoc
 					return false;
 				}
 				sSQL.str( "" );
-				sSQL << "UPDATE " << m_sName << " SET psc_id=" << r_CommitRow.m_psc_id_new << pChangedRow->GetWhereClause( );
+				sSQL << "UPDATE `" << m_sName << "` SET psc_id=" << r_CommitRow.m_psc_id_new << pChangedRow->GetWhereClause( );
 
 				if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
 				{
@@ -949,7 +949,7 @@ bool Table::CheckIn( int psc_user, RA_Processor &ra_Processor, DCE::Socket *pSoc
 			if( r_CommitRow.m_psc_batch_new && r_CommitRow.m_psc_batch_new!=r_CommitRow.m_psc_batch )
 			{
 				sSQL.str( "" );
-				sSQL << "UPDATE " << m_sName << " SET psc_batch=" << r_CommitRow.m_psc_batch_new << pChangedRow->GetWhereClause( );
+				sSQL << "UPDATE `" << m_sName << "` SET psc_batch=" << r_CommitRow.m_psc_batch_new << pChangedRow->GetWhereClause( );
 				if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
 				{
 					cerr << "SQL failed: " << sSQL.str( );
@@ -999,7 +999,7 @@ bool Table::CheckIn( int psc_user, RA_Processor &ra_Processor, DCE::Socket *pSoc
 						throw "Internal error--data unexpected";
 					}
 					sSQL.str("");
-					sSQL << "UPDATE " << m_sName << " SET PK_" << m_sName << "=" << iHighestUsedID+1 << " WHERE PK_" << m_sName << "=" << pChangedRowToMove->m_iOriginalAutoIncrID;
+					sSQL << "UPDATE `" << m_sName << "` SET PK_" << m_sName << "=" << iHighestUsedID+1 << " WHERE PK_" << m_sName << "=" << pChangedRowToMove->m_iOriginalAutoIncrID;
 					if( m_pDatabase->threaded_mysql_query( sSQL.str() )!=0 )
 						throw "Internal error--query failed moving auto incr key";
 
@@ -1010,7 +1010,7 @@ bool Table::CheckIn( int psc_user, RA_Processor &ra_Processor, DCE::Socket *pSoc
 				}
 
 				sSQL.str( "" );
-				sSQL << "UPDATE " << m_sName << " SET " << m_pField_AutoIncrement->Name_get() << "=" << r_CommitRow.m_iNewAutoIncrID << pChangedRow->GetWhereClause( );
+				sSQL << "UPDATE `" << m_sName << "` SET " << m_pField_AutoIncrement->Name_get() << "=" << r_CommitRow.m_iNewAutoIncrID << pChangedRow->GetWhereClause( );
 				if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
 				{
 					cerr << "SQL failed: " << sSQL.str( );
@@ -1019,7 +1019,7 @@ bool Table::CheckIn( int psc_user, RA_Processor &ra_Processor, DCE::Socket *pSoc
 			}
 
 			sSQL.str( "" );
-			sSQL << "UPDATE " << m_sName << " SET psc_mod=0 WHERE psc_id=" << ( toc==toc_New ? r_CommitRow.m_psc_id_new : r_CommitRow.m_psc_id );
+			sSQL << "UPDATE `" << m_sName << "` SET psc_mod=0 WHERE psc_id=" << ( toc==toc_New ? r_CommitRow.m_psc_id_new : r_CommitRow.m_psc_id );
 			if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
 			{
 				cerr << "SQL failed: " << sSQL.str( );
@@ -1064,7 +1064,7 @@ void Table::PropagateUpdatedField( Field *pField_Changed, string NewValue, strin
 void Table::PropagateUpdatedField( Field *pField_Changed, string NewValue, string OldValue, ChangedRow *pChangedRow, Field *pField_FK )
 {
 	std::ostringstream sSQL;
-	sSQL << "UPDATE " << pField_FK->m_pTable->Name_get( ) << " SET " << pField_FK->Name_get( ) << "='" << NewValue << "'" << " WHERE " << pField_FK->Name_get( ) << "='" << OldValue << "'";
+	sSQL << "UPDATE `" << pField_FK->m_pTable->Name_get( ) << "` SET " << pField_FK->Name_get( ) << "='" << NewValue << "'" << " WHERE " << pField_FK->Name_get( ) << "='" << OldValue << "'";
 	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
 	{
 		cerr << "Failed to propagate change: " << sSQL.str( ) << endl;
@@ -1081,7 +1081,7 @@ void Table::UpdateRow( A_UpdateRow *pA_UpdateRow, R_UpdateTable *pR_UpdateTable,
 	/** See if this is a new row, or an updated one */
 	if( pA_UpdateRow->m_psc_id>m_psc_id_last_sync )
 	{
-		sSQL << "INSERT INTO " << m_sName << " ( ";
+		sSQL << "INSERT INTO `" << m_sName << "` ( ";
 
 		for( size_t s=0;s<pR_UpdateTable->m_pvectFields->size( );++s )
 			sSQL << "`" << ( *pR_UpdateTable->m_pvectFields )[s] << "`, "; 
@@ -1106,7 +1106,7 @@ void Table::UpdateRow( A_UpdateRow *pA_UpdateRow, R_UpdateTable *pR_UpdateTable,
 	}
 	else
 	{
-		sSQL << "UPDATE " << m_sName << " SET ";
+		sSQL << "UPDATE `" << m_sName << "` SET ";
 
 		for( size_t s=0;s<pR_UpdateTable->m_pvectFields->size( );++s )
 		{
@@ -1126,7 +1126,7 @@ void Table::UpdateRow( A_UpdateRow *pA_UpdateRow, R_UpdateTable *pR_UpdateTable,
 
 	// Reset the mod flag
 	sSQL.str( "" );
-	sSQL << "UPDATE " << m_sName << " SET psc_mod=0 WHERE psc_id=" << pA_UpdateRow->m_psc_id;
+	sSQL << "UPDATE `" << m_sName << "` SET psc_mod=0 WHERE psc_id=" << pA_UpdateRow->m_psc_id;
 	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
 	{
 		cerr << "SQL failed: " << sSQL.str( );
@@ -1171,7 +1171,7 @@ void Table::DeleteRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 	}
 
 	std::ostringstream sSQL;
-	sSQL << "DELETE FROM " << m_sName << " WHERE psc_id=" << pR_CommitRow->m_psc_id;
+	sSQL << "DELETE FROM `" << m_sName << "` WHERE psc_id=" << pR_CommitRow->m_psc_id;
 	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
 	{
 		cerr << "Failed to delete row: " << sSQL.str( ) << endl;
@@ -1233,7 +1233,7 @@ void Table::UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 	}
 
 	std::ostringstream sSQL;
-	sSQL << "UPDATE " << m_sName << " SET ";
+	sSQL << "UPDATE `" << m_sName << "` SET ";
 
 	for( size_t s=0;s<psqlCVSprocessor->m_pvectFields->size( );++s )
 	{
@@ -1267,10 +1267,10 @@ void Table::AddRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor
 		bFrozen=true;
 		psqlCVSprocessor->m_i_psc_batch = pR_CommitRow->m_psc_batch_new = psqlCVSprocessor->UnauthorizedBatch(psqlCVSprocessor->m_ipsc_user_default);
 		bUnauthorizedRow=true;
-		sSQL << "INSERT INTO " << m_pTable_History->Name_get( ) << "( ";
+		sSQL << "INSERT INTO `" << m_pTable_History->Name_get( ) << "` ( ";
 	}
 	else
-		sSQL << "INSERT INTO " << m_sName << "( ";
+		sSQL << "INSERT INTO `" << m_sName << "` ( ";
 
 	for( size_t s=0;s<psqlCVSprocessor->m_pvectFields->size( );++s )
 		sSQL << "`" << ( *psqlCVSprocessor->m_pvectFields )[s] << "`, ";
@@ -1423,7 +1423,7 @@ void Table::AddToHistory( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSpro
 	if( pR_CommitRow->m_eTypeOfChange==( int ) sqlCVS::toc_Delete )
 	{
 		std::ostringstream sSqlHistory;
-		sSqlHistory << "INSERT INTO " << m_pTable_History->Name_get( ) << "(psc_id,psc_batch,psc_toc) VALUES ("
+		sSqlHistory << "INSERT INTO `" << m_pTable_History->Name_get( ) << "` (psc_id,psc_batch,psc_toc) VALUES ("
 			<< pR_CommitRow->m_psc_id << ", " << psqlCVSprocessor->m_i_psc_batch << "," << pR_CommitRow->m_eTypeOfChange << ")"; 
 		if( m_pDatabase->threaded_mysql_query( sSqlHistory.str( ) )!=0 )
 		{
@@ -1435,8 +1435,8 @@ void Table::AddToHistory( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSpro
 	}
 
 	std::ostringstream sSqlHistory,sSqlMask;
-	sSqlHistory << "INSERT INTO " << m_pTable_History->Name_get( ) << "( ";
-	sSqlMask << "INSERT INTO " << m_pTable_History_Mask->Name_get( ) << "( ";
+	sSqlHistory << "INSERT INTO `" << m_pTable_History->Name_get( ) << "`( ";
+	sSqlMask << "INSERT INTO `" << m_pTable_History_Mask->Name_get( ) << "`( ";
 
 	MapStringString mapCurrentValues;
 	GetCurrentValues((pR_CommitRow->m_eTypeOfChange==toc_New ? pR_CommitRow->m_psc_id_new : pR_CommitRow->m_psc_id),&mapCurrentValues,psc_batch_in_history);
@@ -1492,7 +1492,7 @@ void Table::AddToHistory( ChangedRow *pChangedRow )
 	if( pChangedRow->m_eTypeOfChange==toc_Delete )
 	{
 		std::ostringstream sSqlHistory;
-		sSqlHistory << "INSERT INTO " << m_pTable_History->Name_get( ) << "(psc_id,psc_batch,psc_toc) VALUES ("
+		sSqlHistory << "INSERT INTO `" << m_pTable_History->Name_get( ) << "` (psc_id,psc_batch,psc_toc) VALUES ("
 			<< pChangedRow->m_psc_id << ", " << pChangedRow->m_psc_batch << "," << pChangedRow->m_eTypeOfChange << ")"; 
 		if( m_pDatabase->threaded_mysql_query( sSqlHistory.str( ) )!=0 )
 		{
@@ -1503,8 +1503,8 @@ void Table::AddToHistory( ChangedRow *pChangedRow )
 	}
 
 	std::ostringstream sSqlHistory,sSqlMask;
-	sSqlHistory << "INSERT INTO " << m_pTable_History->Name_get( ) << "( ";
-	sSqlMask << "INSERT INTO " << m_pTable_History_Mask->Name_get( ) << "( ";
+	sSqlHistory << "INSERT INTO `" << m_pTable_History->Name_get( ) << "` ( ";
+	sSqlMask << "INSERT INTO `" << m_pTable_History_Mask->Name_get( ) << "` ( ";
 
 	int NumChangedFields=0;
 
@@ -1907,7 +1907,7 @@ int k=2;
 							else if( AskYNQuestion("Delete the offending records?  (BE CAREFUL!)",false) )
 							{
 								sql.str("");
-								sql << "DELETE FROM " << Name_get() << " WHERE `" << pField->Name_get() << "` IN (" << Keys << ")";
+								sql << "DELETE FROM `" << Name_get() << "` WHERE `" << pField->Name_get() << "` IN (" << Keys << ")";
 								m_pDatabase->threaded_mysql_query(sql.str());
 
 							}

@@ -643,7 +643,7 @@ bool Repository::CheckIn( )
 		// roll back the transaction and try to re-commit.  Need a fail-safe reply
 		st.Commit();
 		ostringstream sql;
-		sql << "INSERT INTO " << m_pTable_BatchHeader->Name_get() << " (PK_" << m_pTable_BatchHeader->Name_get() << ",date) VALUES(" 
+		sql << "INSERT INTO `" << m_pTable_BatchHeader->Name_get() << "` (PK_" << m_pTable_BatchHeader->Name_get() << ",date) VALUES(" 
 			<< r_CommitChanges.m_psc_batch << ",NOW())";
 		if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
 		{
@@ -718,7 +718,7 @@ int Repository::CreateBatch( sqlCVSprocessor *psqlCVSprocessor, map<int,Validate
 	else
 	{
 		std::ostringstream sSQL;
-		sSQL << "INSERT INTO " << m_pTable_BatchHeader->Name_get( ) << "( IPAddress,date,comments ) VALUES( '" << 
+		sSQL << "INSERT INTO `" << m_pTable_BatchHeader->Name_get( ) << "` ( IPAddress,date,comments ) VALUES( '" << 
 			(psqlCVSprocessor->m_pSocket ? psqlCVSprocessor->m_pSocket->m_sIPAddress : "")<< "',NOW(),'" << StringUtils::SQLEscape(psqlCVSprocessor->m_sComments) << "' )";
 		int BatchID = m_pDatabase->threaded_mysql_query_withID( sSQL.str( ) );
 		if( !BatchID )
@@ -730,7 +730,7 @@ int Repository::CreateBatch( sqlCVSprocessor *psqlCVSprocessor, map<int,Validate
 			{
 				ValidatedUser *pValidatedUser = (*it).second;
 				std::ostringstream sSQL;
-				sSQL << "INSERT INTO " << m_pTable_BatchUser->Name_get( ) << "( FK_" 
+				sSQL << "INSERT INTO `" << m_pTable_BatchUser->Name_get( ) << "` ( FK_" 
 					<< m_pTable_BatchHeader->Name_get( ) << ",psc_user,is_sup,no_pass ) VALUES( " << BatchID << "," << (*it).first << "," << 
 					(pValidatedUser->m_bIsSupervisor ? "1" : "0") << "," << (pValidatedUser->m_bWithoutPassword ? "1" : "0") << " )";
 				int BatchID = m_pDatabase->threaded_mysql_query_withID( sSQL.str( ) );
@@ -765,7 +765,7 @@ void Repository::psc_id_last_sync_set( Table *pTable, int psc_id )
 		throw "Internal error Repository::psc_id_set";
 
 	std::ostringstream sSQL;
-	sSQL << "UPDATE " << m_pTable_Tables->Name_get( ) << " SET last_psc_id='" << psc_id << "' WHERE Tablename='" << pTable->Name_get( ) << "'";
+	sSQL << "UPDATE `" << m_pTable_Tables->Name_get( ) << "` SET last_psc_id='" << psc_id << "' WHERE Tablename='" << pTable->Name_get( ) << "'";
 	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
 	{
 		cerr << "SQL failed: " << sSQL.str( );
@@ -796,7 +796,7 @@ void Repository::psc_batch_last_sync_set( Table *pTable, int psc_batch )
 		throw "Internal error Repository::psc_batch_set";
 
 	std::ostringstream sSQL;
-	sSQL << "UPDATE " << m_pTable_Tables->Name_get( ) << " SET last_psc_batch='" << psc_batch << "' WHERE Tablename='" << pTable->Name_get( ) << "'";
+	sSQL << "UPDATE `" << m_pTable_Tables->Name_get( ) << "` SET last_psc_batch='" << psc_batch << "' WHERE Tablename='" << pTable->Name_get( ) << "'";
 	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
 	{
 		cerr << "SQL failed: " << sSQL.str( );
@@ -1043,7 +1043,7 @@ if( sTableName=="DeviceTemplate" )
 			cout << "Deleting row from import " << ipsc_id_deleted << " prior: " << i_psc_id_prior << " ipsc_id:" << i_psc_id << endl;
 
 			sSQL.str( "" );
-			sSQL << "DELETE FROM " << sTableName << " WHERE psc_id=" << ipsc_id_deleted;
+			sSQL << "DELETE FROM `" << sTableName << "` WHERE psc_id=" << ipsc_id_deleted;
 			if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
 			{
 				cerr << "SQL Failed: " << sSQL.str( ) << endl;
@@ -1085,9 +1085,9 @@ if( sTableName=="DeviceTemplate" )
 
 		sSQL.str( "" );
 		if( bUpdate )
-			sSQL << "UPDATE " << sTableName << " SET ";
+			sSQL << "UPDATE `" << sTableName << "` SET ";
 		else
-			sSQL << "INSERT INTO " << sTableName << " VALUES( ";
+			sSQL << "INSERT INTO `" << sTableName << "` VALUES( ";
 		bool bFirst=true;
 		for(list<string>::iterator it=listFields.begin();it!=listFields.end();++it)
 		{
@@ -1290,7 +1290,7 @@ void Repository::ResetSystemTables()
 	for(map<int,string>::iterator it=mapSchema.begin();it!=mapSchema.end();++it)
 	{
 		sql.str("");
-		sql	<< "INSERT INTO " << Tablename << "(PK_" << Tablename << ",`Value`) VALUES("
+		sql	<< "INSERT INTO `" << Tablename << "` (PK_" << Tablename << ",`Value`) VALUES("
 			<< (*it).first << ",'" << StringUtils::SQLEscape((*it).second) << "');";
 		if( m_pDatabase->threaded_mysql_query( sql.str( ) )!=0 )
 		{

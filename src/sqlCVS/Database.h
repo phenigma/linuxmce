@@ -188,13 +188,14 @@ namespace sqlCVS
 		bool m_bIsOpen;		/**< This will say whether the database is opened or not */
 	public:
 		/** @brief constructor */
-		SafetyTransaction( class Database *pDatabase ) { m_pDatabase=pDatabase; m_pDatabase->StartTransaction( ); m_bIsOpen=true; }
+		SafetyTransaction( class Database *pDatabase ) { m_pDatabase=pDatabase; m_pDatabase->StartTransaction( ); m_bIsOpen=true; printf("Starting transaction: %p\n",this); }
 		
 		/** @brief destructor */
 		~SafetyTransaction( ) 
 		{ 
 			if( m_bIsOpen )
 			{
+				printf("Transaction %p is open.  Rolling back\n",this);
 				cerr << "System error: Rolling back an incomplete transaction" << endl;
 				m_pDatabase->Rollback( );
 			}
@@ -203,13 +204,32 @@ namespace sqlCVS
 		/**
 		 * @brief This will roll back the transaction
 		 */
-		 void Rollback( ) { m_pDatabase->Rollback( ); m_bIsOpen=false; }
+		 void Rollback( ) 
+		 {
+			 if( m_bIsOpen )
+			 {
+				printf("Transaction %p is open.  Explicit rolling back\n",this);
+				m_pDatabase->Rollback( ); 
+				m_bIsOpen=false; 
+			 }
+			 else
+				printf("Transaction %p is closed.  Ignoring explicit rolling back\n",this);
+		 }
 		 
 		 /**
 		  * @brief  This will commit the transaction
 		  */
-		 void Commit( ) { m_pDatabase->Commit( ); m_bIsOpen=false; }
-
+		 void Commit( ) 
+		 { 
+			 if( m_bIsOpen )
+			 {
+				printf("Transaction %p is open.  Explicit Commit\n",this);
+				m_pDatabase->Commit( ); 
+				m_bIsOpen=false; 
+			 }
+			 else
+				printf("Transaction %p is closed.  Ignoring explicit Commit\n",this);
+		}
 		 /**
 		  * @brief  True if the transaction is open or pending and has not been rolledback or committed
 		  */

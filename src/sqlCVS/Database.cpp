@@ -1326,6 +1326,7 @@ void Database::StartTransaction( )
 
 void Database::Commit( )
 {
+	cout << "Doing a Commit" << endl;
 	if( threaded_mysql_query("COMMIT")!=0 )
 	{
 		cerr << "Could not commit transaction" << endl;
@@ -1335,6 +1336,7 @@ void Database::Commit( )
 
 void Database::Rollback( )
 {
+	cout << "Doing a rollback" << endl;
 	if( threaded_mysql_query("ROLLBACK")!=0 )
 	{
 		cerr << "Could not rollback transaction" << endl;
