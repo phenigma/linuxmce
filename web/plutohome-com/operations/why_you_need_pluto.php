@@ -83,7 +83,7 @@ Pluto gives you a live video feed on the mobile phone the instant someone shows 
             <tr>
               <td><br />
       Indulge the control freak within. <br />
-      Check out the screen shots. <br />
+      Check out the <a href="javascript:open_popup(\'operations/image.php?img=power&single=1\',\'width=530,height=430,scrollbars=0,toolbar=0,resizable=0\');">screen shot</a>. <br />
       Enough said.<br />      <br />        </td>
             </tr>
             <tr>

@@ -16,12 +16,16 @@ switch ($_REQUEST['img']){
 		$image=(!isset($_REQUEST['alt']))?'mobile_1.jpg':'mobile_2.jpg';
 		$title='Pluto Mobile Orbiter';
 	break;
+	case 'power':
+		$image='screenshot.jpg';
+		$title='';
+	break;
 	default:
 		$image='imagine-mare.jpg';
 	break;
 }
 $links=(!isset($_REQUEST['alt']))?'1 | <a href="image.php?img='.$_REQUEST['img'].'&alt=1">2</a>':'<a href="image.php?img='.$_REQUEST['img'].'">1</a> | 2';
-//$image='../images/imagine-mare.jpg';
+$links=(isset($_REQUEST['single']))?'':$links;
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
