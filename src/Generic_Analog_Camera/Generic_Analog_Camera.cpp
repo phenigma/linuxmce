@@ -35,7 +35,7 @@ Generic_Analog_Camera::Generic_Analog_Camera(int DeviceID, string ServerAddress,
 	char pid[10];
 	char *Command;
 	string FilePath, sData, sRep;
-	unsigned long int size;
+	unsigned long int size, port;
 
     DeviceData_Router *pDeviceData = find_Device(DeviceID);
  	if(!pDeviceData) {
@@ -46,41 +46,41 @@ Generic_Analog_Camera::Generic_Analog_Camera(int DeviceID, string ServerAddress,
 	sPortNumber = pDeviceData->mapParameters_Find(DEVICEDATA_Port_Number_CONST);
 	sPath = "/etc/motion/thread" + sPortNumber + ".conf";
 	g_pPlutoLogger->Write(LV_STATUS, "Looking for camera config file");
-	if(FileUtils::FileExists(sPath) == false) {
-		g_pPlutoLogger->Write(LV_STATUS, "Camera config file not found, writing new one");
-		fp = fopen(sPath.c_str(),"wt");
-		//main config
-		sLine = "videodevice /dev/video" + sPortNumber + "\n";
-		fprintf(fp,sLine.c_str());
-		fprintf(fp,"input 8\n");
-		fprintf(fp,"norm 0\n");	//pal/secam
-		fprintf(fp,"frequncy 0\n");
-		fprintf(fp,"rotate 0\n");
-		fprintf(fp,"width 320\n");
-		fprintf(fp,"height 240\n");
-		fprintf(fp,"framerate 2\n");
-		fprintf(fp,"auto_brightness off\n");
-		fprintf(fp,"brightness 0\n");
-		fprintf(fp,"contrast 0\n");
-		fprintf(fp,"saturation 0\n");
-		fprintf(fp,"hue 0\n");
-		//snapshot config
-		fprintf(fp,"snapshot_interval 3600\n");
-		//Output Directory
-		sLine = "/var/www/cam" + sPortNumber;
-		g_pPlutoLogger->Write(LV_STATUS, "Looking for camera output directory");
-		if(FileUtils::DirExists(sLine) == false) {
-			g_pPlutoLogger->Write(LV_STATUS, "Camera output directory not found, creating it");
-			FileUtils::MakeDir(sLine);
-		} else {
-			g_pPlutoLogger->Write(LV_STATUS, "Camera output found");
-		}
-		fprintf(fp,"target_dir %s\n",sLine.c_str());
-		fclose(fp);
-	} else {
-		g_pPlutoLogger->Write(LV_STATUS, "Camera config file found");
+	if(FileUtils::FileExists(sPath) == true) {
+		sPath = "rm -f " + sPath;
+		system(sPath.c_str());
 	}
-
+	g_pPlutoLogger->Write(LV_STATUS, "Camera config file not found, writing new one");
+	fp = fopen(sPath.c_str(),"wt");
+	//main config
+	port = atoi(sPortNumber.c_str()) - 1;
+	sLine = "videodevice /dev/video" + StringUtils::itos(port) + "\n";
+	fprintf(fp,sLine.c_str());
+	fprintf(fp,"input 8\n");
+	fprintf(fp,"norm 0\n");	//pal/secam
+	fprintf(fp,"frequncy 0\n");
+	fprintf(fp,"rotate 0\n");
+	fprintf(fp,"width 320\n");
+	fprintf(fp,"height 240\n");
+	fprintf(fp,"framerate 2\n");
+	fprintf(fp,"auto_brightness off\n");
+	fprintf(fp,"brightness 0\n");
+	fprintf(fp,"contrast 0\n");
+	fprintf(fp,"saturation 0\n");
+	fprintf(fp,"hue 0\n");
+	//snapshot config
+	fprintf(fp,"snapshot_interval 3600\n");
+	//Output Directory
+	sLine = "/var/www/cam" + sPortNumber;
+	g_pPlutoLogger->Write(LV_STATUS, "Looking for camera output directory");
+	if(FileUtils::DirExists(sLine) == false) {
+		g_pPlutoLogger->Write(LV_STATUS, "Camera output directory not found, creating it");
+		FileUtils::MakeDir(sLine);
+	} else {
+		g_pPlutoLogger->Write(LV_STATUS, "Camera output found");
+	}
+	fprintf(fp,"target_dir %s\n",sLine.c_str());
+	fclose(fp);
 	g_pPlutoLogger->Write(LV_STATUS, "Reading Main configuration file of the motion server");
 	sPath = "/etc/motion/motion.conf";
 	size = FileUtils::FileSize(sPath);
@@ -114,9 +114,8 @@ Generic_Analog_Camera::Generic_Analog_Camera(int DeviceID, string ServerAddress,
 
 	g_pPlutoLogger->Write(LV_STATUS, "Rehashing motion server");
 
-	Command = "kill -s SIGHUP ";
-	strcat(Command,pid);
-	system(Command);
+	sPath = "kill -s SIGHUP " + StringUtils::itos(atoi(pid));
+	system(sPath.c_str());
 }
 
 //<-dceag-const2-b->
