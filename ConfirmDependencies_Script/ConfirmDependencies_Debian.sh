@@ -6,6 +6,7 @@ ERR_UNKNOWN_REPOS_SRC_FORM=2
 ERR_APT=3
 ERR_DOWNLOAD=4
 ERR_DPKG_INSTALL=5
+ERR_MAKE=6
 
 SPACE_SED='s/  */ /g; s/^ *//g; s/ *$//g'
 
@@ -50,7 +51,7 @@ esac
 case "$REPOS_SRC" in
 	deb*) URL_TYPE=apt; REPOS_SRC="$(echo $REPOS_SRC | sed "$SPACE_SED")" ;;
 	http://*|ftp://*) URL_TYPE=direct ;;
-	*) [ -z "$URL_TYPE" ] && echo "Unknown URL form in '$REPOS_SRC'"; exit $ERR_UNKNOWN_REPOS_SRC_FORM ;;
+	*) [ -z "$URL_TYPE" ] && echo "Unknown URL form in '$REPOS_SRC'" && exit $ERR_UNKNOWN_REPOS_SRC_FORM ;;
 esac
 
 keep_sending_enters()
@@ -88,15 +89,24 @@ case "$URL_TYPE" in
 			svn_param="--non-interactive --no-auth-cache"
 			[ -n "$USERNAME" ] && svn_param="$svn_param --username $USERNAME"
 			[ -n "$PASSWORD" ] && svn_param="$svn_param --password $PASSWORD"
-			svn checkout $svn_param "$REPOS_SRC/$REPOS/$PKG_NAME" "$SRC_IMPL"
+			if ! svn checkout $svn_param "$REPOS_SRC/$REPOS/$PKG_NAME" "$SRC_IMPL"; then
+				echo "SVN source download failed: $REPOS_SRC/$REPOS/$PKG_NAME"
+				exit $ERR_DOWNLOAD
+			fi
 		elif [ "$URL_TYPE" == "cvs" ]; then
 			# TODO: CVS pserver login
-			cvs -d "$REPOS_SRC" checkout -d "$SRC_IMPL"
+			if ! cvs -d "$REPOS_SRC" checkout -d "$SRC_IMPL"; then
+				echo "CVS source download failed"
+				exit $ERR_DOWNLOAD
+			fi
 			# TODO: CVS pserver logout
 		fi
 
 		pushd "$REPOS_SRC" &>/dev/null
-		make
+		if ! make; then
+			echo "Source make failed"
+			exit $ERR_MAKE
+		fi
 		popd &>/dev/null
 	;;
 esac
