@@ -26,6 +26,11 @@ public:
 		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 7,2,9,StringUtils::itos(iStream_ID).c_str(),10,(bOnOff ? "1" : "0")));
 	}
 
+	virtual void Playback_Completed(int iStream_ID)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 12,1,9,StringUtils::itos(iStream_ID).c_str()));
+	}
+
 };
 
 
@@ -79,6 +84,7 @@ public:
 	//Event accessors
 	void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription) { GetEvents()->Playback_Info_Changed(sMediaDescription.c_str(),sSectionDescription.c_str(),sSynposisDescription.c_str()); }
 	void EVENT_Menu_Onscreen(int iStream_ID,bool bOnOff) { GetEvents()->Menu_Onscreen(iStream_ID,bOnOff); }
+	void EVENT_Playback_Completed(int iStream_ID) { GetEvents()->Playback_Completed(iStream_ID); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Stop_Media(int iStreamID,string &sCMD_Result,class Message *pMessage) {};
@@ -263,7 +269,9 @@ public:
 					int iStreamID=atoi(pMessage->m_mapParameters[41].c_str());
 					int iWidth=atoi(pMessage->m_mapParameters[60].c_str());
 					int iHeight=atoi(pMessage->m_mapParameters[61].c_str());
-						char *pData;int iData_Size;string sFormat;
+					char *pData=pMessage->m_mapData_Parameters[19];
+					int iData_Size=pMessage->m_mapData_Lengths[19];
+					string sFormat=pMessage->m_mapParameters[20];
 						CMD_Get_Video_Frame(sDisable_Aspect_Lock.c_str(),iStreamID,iWidth,iHeight,&pData,&iData_Size,&sFormat,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
