@@ -215,11 +215,12 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter is exiting");
 	pthread_cond_broadcast(&m_MaintThreadCond);  // Wake it up, it will quit when it sees the quit
 	pthread_mutex_lock(&m_MaintThreadMutex.mutex);  // Be sure it's not executing anything--it will lock this while it's doing an execute
 
+	PLUTO_SAFETY_LOCK( pm, m_CallbackMutex );
 	map<int,CallBackInfo *>::iterator itCallBackInfo;
 	for(itCallBackInfo = mapPendingCallbacks.begin(); itCallBackInfo != mapPendingCallbacks.end(); itCallBackInfo++)
 		delete (*itCallBackInfo).second;
-
 	mapPendingCallbacks.clear();
+	pm.Release();
 
 g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 
@@ -308,8 +309,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 	}
 	m_mapObjs_AllGrids.clear();
 
-	map< string, class DesignObj_DataGrid * >::iterator itObj_Bound;
-	for(itObj_Bound = m_mapObjs_AllGrids.begin(); itObj_Bound != m_mapObjs_AllGrids.end(); itObj_Bound++)
+	map< string, DesignObj_DataList * >::iterator itObj_Bound;
+	for(itObj_Bound = m_mapObj_Bound.begin(); itObj_Bound != m_mapObj_Bound.end(); itObj_Bound++)
 	{
 		delete (*itObj_Bound).second;
 		(*itObj_Bound).second = NULL;
@@ -425,6 +426,9 @@ void Orbiter::RealRedraw( void *data )
 
 		//also cancel all other pending tasks
 		PLUTO_SAFETY_LOCK( pm, m_CallbackMutex );
+		map<int,CallBackInfo *>::iterator itCallBackInfo;
+		for(itCallBackInfo = mapPendingCallbacks.begin(); itCallBackInfo != mapPendingCallbacks.end(); itCallBackInfo++)
+			delete (*itCallBackInfo).second;
 		mapPendingCallbacks.clear();
 		pm.Release();
 
@@ -1022,7 +1026,10 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable is now %p",pObj-
             m_listScreenHistory.push_back( m_pScreenHistory_Current );
 
         if ( m_listScreenHistory.size(  ) > 64 )
+		{
+			delete m_listScreenHistory.front();
             m_listScreenHistory.pop_front(  );
+		}
     }
 
     // todo 2.0 SelectFirstObject(  );
@@ -3777,23 +3784,6 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable deleted indirect
     return false;
 }
 
-/*
-void *DoCallBack( void *vpCallBackInfo )
-{
-	g_pPlutoLogger->Write(LV_STATUS,"doing a callback");
-    CallBackInfo *pCallBackInfo = ( CallBackInfo * ) vpCallBackInfo;
-    Sleep( pCallBackInfo->m_clock );
-
-	if( ! pCallBackInfo->m_bStop )
-		CALL_MEMBER_FN( *pCallBackInfo->m_pOrbiter, pCallBackInfo->m_fnCallBack )( pCallBackInfo->m_pData );
-
-	PLUTO_SAFETY_LOCK( pm, *pCallBackInfo->m_pCallbackMutex );
-	mapPendingCallbacks.erase(pCallBackInfo->m_iCounter);
-	delete pCallBackInfo;
-
-    return NULL;
-}
-*/
 void *MaintThread(void *p)
 {
 	Orbiter* pOrbiter = (Orbiter *)p;
@@ -3844,13 +3834,14 @@ void *MaintThread(void *p)
 					CALL_MEMBER_FN( *pCallBackInfo->m_pOrbiter, pCallBackInfo->m_fnCallBack )( pCallBackInfo->m_pData );
 
 				PLUTO_SAFETY_LOCK( pm2, pOrbiter->m_CallbackMutex );
-				mapPendingCallbacks.erase(pCallBackInfo->m_iCounter); //processed
 
-				//g_pPlutoLogger->Write( LV_CONTROLLER, "### 1. Now is %d. Callback processed id = %d, clock = %d",
-				//	(int)clock(), pCallBackInfo->m_iCounter, (int)pCallBackInfo->m_clock);
-
-				delete pCallBackInfo;
-				pCallBackInfo = NULL;
+				//let's be sure that meantime nobody clear the map
+				if(mapPendingCallbacks.size())
+				{
+					mapPendingCallbacks.erase(pCallBackInfo->m_iCounter); //processed
+					delete pCallBackInfo;
+					pCallBackInfo = NULL;
+				}
 
 				pm2.Release();
 			}
@@ -3872,14 +3863,14 @@ void *MaintThread(void *p)
 						CALL_MEMBER_FN( *pCallBackInfo->m_pOrbiter, pCallBackInfo->m_fnCallBack )( pCallBackInfo->m_pData );
 
 					PLUTO_SAFETY_LOCK( pm2, pOrbiter->m_CallbackMutex );
-					mapPendingCallbacks.erase(pCallBackInfo->m_iCounter); //processed
 
-					//g_pPlutoLogger->Write( LV_CONTROLLER, "### 2. Now is %d. Callback processed id = %d, clock = %d",
-					//	(int)clock(), pCallBackInfo->m_iCounter, (int)pCallBackInfo->m_clock);
-
-					delete pCallBackInfo;
-					pCallBackInfo = NULL;
-
+					//let's be sure that meantime nobody clear the map
+					if(mapPendingCallbacks.size())
+					{
+						mapPendingCallbacks.erase(pCallBackInfo->m_iCounter); //processed
+						delete pCallBackInfo;
+						pCallBackInfo = NULL;
+					}
 					pm2.Release();
 				}
 				//else
@@ -4147,7 +4138,7 @@ void Orbiter::CMD_Goto_Screen(int iPK_Device,string sPK_DesignObj,string sID,str
     // See if we need to store the variables on this screen,  so we restore them in case of a go back
     if(  bStore_Variables  )
         CMD_Store_Variables(  );
-    NeedToChangeScreens( pScreenHistory_New );
+     NeedToChangeScreens( pScreenHistory_New );
 }
 
 //<-dceag-c6-b->
@@ -4231,7 +4222,10 @@ void Orbiter::CMD_Remove_Screen_From_History(string sPK_DesignObj,string sID,str
 	{
 		ScreenHistory *pScreenHistory = *it;
 		if( pScreenHistory->m_pObj->m_ObjectID.find(sPK_DesignObj+".")==0 && (sID.length()==0 || sID==pScreenHistory->m_sID) )
+		{
+			delete (*it);
 			it = m_listScreenHistory.erase( it );
+		}
 		else
 			++it;
 	}

@@ -78,6 +78,7 @@ Renderer::Renderer(string FontPath,string OutputDirectory,int Width,int Height,b
 Renderer::~Renderer()
 {
     TTF_Quit();
+	SDL_Quit();
 }
 
 #ifndef ORBITER

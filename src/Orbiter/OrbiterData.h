@@ -70,6 +70,16 @@ public:
 	OrbiterData() { m_dwPK_Device_Router = m_dwPK_Device_DatagridPlugIn = m_dwPK_Device_GeneralInfoPlugIn = m_dwPK_Device_EventPlugIn = m_dwPK_Device_OrbiterPlugIn =
 		m_dwPK_Device_LightingPlugIn = m_dwPK_Device_ClimatePlugIn = m_dwPK_Device_MediaPlugIn = m_dwPK_Device_TelecomPlugIn = m_dwPK_Device_SecurityPlugIn = DEVICEID_NULL; }
 
+	virtual ~OrbiterData()
+	{
+		MapTextStyle::iterator it;
+		for(it = m_mapTextStyle.begin(); it != m_mapTextStyle.end(); ++it)
+		{
+			delete (*it).second; //TextStyle *
+		}
+		m_mapTextStyle.clear();
+	}
+
 #ifdef ORBITER
 	DesignObj_Orbiter *m_pDesignObj_Orbiter_MainMenu,*m_pDesignObj_Orbiter_SleepingMenu,*m_pDesignObj_Orbiter_ScreenSaveMenu;
 

@@ -184,7 +184,7 @@ void DataGridCell::ToData(unsigned long &Size, char* &Data)
 
 	if(NULL != MessageData)
 	{
-		delete MessageData;
+		free(MessageData);
 		MessageData = NULL;
 	}
 }

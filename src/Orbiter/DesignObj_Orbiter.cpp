@@ -166,7 +166,17 @@ DesignObj_Orbiter::~DesignObj_Orbiter()
 		delete m_vectHighlightedGraphic[iIndex];
 	m_vectHighlightedGraphic.clear();
 
-	m_vectAltGraphics.clear(); //for now
+	for(iIndex = 0; iIndex < m_vectAltGraphics.size(); iIndex++)
+	{
+		size_t iIndexVect = 0;
+		for(iIndexVect = 0; iIndexVect < m_vectAltGraphics[iIndex].size(); iIndexVect++)
+			delete (m_vectAltGraphics[iIndex])[iIndexVect];
+
+		m_vectAltGraphics[iIndex].clear();
+	}
+	m_vectAltGraphics.clear();
+
+
 	m_bvectLoop_Alt.clear();
 
 	DesignObjZoneList::iterator iZone;

@@ -199,9 +199,11 @@ g_pPlutoLogger->Write(LV_STATUS, "StartOrbiter finished with reload: %s",(bReloa
 #ifdef WIN32
     WSACleanup();
 #endif
-g_pPlutoLogger->Write(LV_STATUS, "Orbiter ready to return and die");
+g_pPlutoLogger->Write(LV_STATUS, "About to delete logger...");
 
 	delete g_pPlutoLogger;
+
+g_pPlutoLogger->Write(LV_STATUS, "Orbiter ready to return and die");
 
 	if( bReload )
 		return 2;

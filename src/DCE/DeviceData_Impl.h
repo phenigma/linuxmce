@@ -77,6 +77,12 @@ namespace DCE
 			bImplementsDCE, bIsEmbedded, sCommandLine, bIsPlugIn, sDescription, sIPAddress, sMacAddress, bInheritsMacFromPC )
 		{
 		}
+
+		virtual ~DeviceData_Impl()
+		{
+			for(size_t iIndex = 0; iIndex < m_vectDeviceData_Impl_Children.size(); iIndex++)
+				delete m_vectDeviceData_Impl_Children[iIndex];
+		}
 		
 		// TODO -- This should be pure virtual as below.  for some reason MS won't link when it's implemented in the auto-generated
 		// derived classes.  Got to figure out why.
