@@ -543,8 +543,8 @@ void Infrared_Plugin::CMD_Add_GC100(string &sCMD_Result,Message *pMessage)
 #ifndef WIN32
   char *Command;
   char line[45];
-  int returned;
-  file *fp;
+  int returned, size;
+  FILE *fp;
 
   Command = "/usr/pluto/bin/gc100-conf.pl";
 
