@@ -395,7 +395,9 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_DHCPDevice_
 			
 			long int id	= (long int) mysql_insert_id(database->db_handle);
 		
-				
+			if (id!=0)
+pRow->m_PK_DHCPDevice=id;
+	
 			
 			addedRows.erase(i);
 			SingleLongKey key(pRow->m_PK_DHCPDevice);	

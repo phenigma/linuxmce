@@ -41,7 +41,7 @@
 #define DEVICEDATA_File_Name_and_Path_CONST 42
 #define DEVICEDATA_Communication_file_CONST 43
 #define DEVICEDATA_MythTV_PVR_Input_CONST 44
-#define DEVICEDATA_PK_AlertType_CONST 45
+#define DEVICEDATA_EK_AlertType_CONST 45
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

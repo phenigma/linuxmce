@@ -125,6 +125,7 @@ class Table_Icon* tblIcon;
 class Table_Image* tblImage;
 class Table_InfraredGroup* tblInfraredGroup;
 class Table_InfraredGroup_Command* tblInfraredGroup_Command;
+class Table_InfraredGroup_Command_Preferred* tblInfraredGroup_Command_Preferred;
 class Table_InstallWizard* tblInstallWizard;
 class Table_InstallWizard_Distro* tblInstallWizard_Distro;
 class Table_Installation* tblInstallation;
@@ -333,6 +334,7 @@ class Table_Icon* Icon_get() { return tblIcon; }
 class Table_Image* Image_get() { return tblImage; }
 class Table_InfraredGroup* InfraredGroup_get() { return tblInfraredGroup; }
 class Table_InfraredGroup_Command* InfraredGroup_Command_get() { return tblInfraredGroup_Command; }
+class Table_InfraredGroup_Command_Preferred* InfraredGroup_Command_Preferred_get() { return tblInfraredGroup_Command_Preferred; }
 class Table_InstallWizard* InstallWizard_get() { return tblInstallWizard; }
 class Table_InstallWizard_Distro* InstallWizard_Distro_get() { return tblInstallWizard_Distro; }
 class Table_Installation* Installation_get() { return tblInstallation; }
@@ -544,6 +546,7 @@ void CreateTable_Icon();
 void CreateTable_Image();
 void CreateTable_InfraredGroup();
 void CreateTable_InfraredGroup_Command();
+void CreateTable_InfraredGroup_Command_Preferred();
 void CreateTable_InstallWizard();
 void CreateTable_InstallWizard_Distro();
 void CreateTable_Installation();
@@ -751,6 +754,7 @@ void DeleteTable_Icon();
 void DeleteTable_Image();
 void DeleteTable_InfraredGroup();
 void DeleteTable_InfraredGroup_Command();
+void DeleteTable_InfraredGroup_Command_Preferred();
 void DeleteTable_InstallWizard();
 void DeleteTable_InstallWizard_Distro();
 void DeleteTable_Installation();

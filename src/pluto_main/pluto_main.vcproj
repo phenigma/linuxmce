@@ -436,6 +436,9 @@
 				RelativePath=".\Table_InfraredGroup_Command.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_InfraredGroup_Command_Preferred.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_Installation.cpp">
 			</File>
 			<File

@@ -212,6 +212,7 @@ void DeviceGroup_FK_Installation_getrows(vector <class Row_DeviceGroup*> *rows);
 void EventHandler_FK_Installation_getrows(vector <class Row_EventHandler*> *rows);
 void Floorplan_FK_Installation_getrows(vector <class Row_Floorplan*> *rows);
 void Household_Installation_FK_Installation_getrows(vector <class Row_Household_Installation*> *rows);
+void InfraredGroup_Command_FK_Installation_getrows(vector <class Row_InfraredGroup_Command*> *rows);
 void Installation_RepositorySource_URL_FK_Installation_getrows(vector <class Row_Installation_RepositorySource_URL*> *rows);
 void Installation_Users_FK_Installation_getrows(vector <class Row_Installation_Users*> *rows);
 void Room_FK_Installation_getrows(vector <class Row_Room*> *rows);

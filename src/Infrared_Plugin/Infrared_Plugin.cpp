@@ -17,6 +17,7 @@ using namespace DCE;
 #include "pluto_main/Table_Device.h"
 #include "pluto_main/Table_InfraredGroup.h"
 #include "pluto_main/Table_InfraredGroup_Command.h"
+#include "pluto_main/Table_InfraredGroup_Command_Preferred.h"
 #include "pluto_main/Table_DeviceTemplate_InfraredGroup.h"
 #include "pluto_main/Table_Command.h"
 #include "pluto_main/Table_DeviceTemplate_AV.h"
@@ -423,7 +424,11 @@ void Infrared_Plugin::CMD_Get_Infrared_Codes(int iPK_Device,string *sValue_To_As
 	int i;
 	size_t Count = 0;
 	Table_InfraredGroup_Command * pTable_InfraredGroup_Command = m_pDatabase_pluto_main->InfraredGroup_Command_get();
-	vector<Row_InfraredGroup_Command *> vectRow_InfraredGroup_Command[3];
+
+	// We're going to go through the list twice.  First we'll get the stock codes where FK_DeviceTemplate IS NULL.  Any 
+	// Codes the user learned, or specifically wants to use instead will be in InfraredGroup_Command_Preferred, so we'll
+	// go through a second time to get the codes that are in there.
+	vector<Row_InfraredGroup_Command *> vectRow_InfraredGroup_Command[2];
 
 	long FK_DeviceTemplate = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device)->FK_DeviceTemplate_get();
 	
@@ -435,22 +440,22 @@ void Infrared_Plugin::CMD_Get_Infrared_Codes(int iPK_Device,string *sValue_To_As
 	for (it_RDTIG = vectRow_DeviceTemplate_InfraredGroup.begin(); it_RDTIG != vectRow_DeviceTemplate_InfraredGroup.end(); it_RDTIG++)
 	{
 		Row_DeviceTemplate_InfraredGroup * pRow_DeviceTemplate_InfraredGroup = *it_RDTIG;
-		pTable_InfraredGroup_Command->GetRows("FK_InfraredGroup=" + StringUtils::itos(pRow_DeviceTemplate_InfraredGroup->FK_InfraredGroup_get()),
+		pTable_InfraredGroup_Command->GetRows("FK_InfraredGroup=" + StringUtils::itos(pRow_DeviceTemplate_InfraredGroup->FK_InfraredGroup_get()) + " AND FK_DeviceTemplate IS NULL",
 			&vectRow_InfraredGroup_Command[0]);
 	}
-	pTable_InfraredGroup_Command->GetRows("FK_DeviceTemplate=" + StringUtils::itos(FK_DeviceTemplate),
+	pTable_InfraredGroup_Command->GetRows("JOIN InfraredGroup_Command_Preferred ON FK_InfraredGroup_Command=PK_InfraredGroup_Command WHERE FK_DeviceTemplate=" + StringUtils::itos(FK_DeviceTemplate),
 		&vectRow_InfraredGroup_Command[1]);
-	pTable_InfraredGroup_Command->GetRows("FK_Device=" + StringUtils::itos(iPK_Device),
-		&vectRow_InfraredGroup_Command[2]);
 
-
-	for (i = 0; i < 3; i++)
+	for (i = 0; i < 2; i++)
+{
+g_pPlutoLogger->Write(LV_STATUS,"Found %d codes for device %d",(int) vectRow_InfraredGroup_Command[i].size(),iPK_Device);
 		Count += vectRow_InfraredGroup_Command[i].size();
+}
 	
 	// Format: <Count> \t (<Command ID> \t <IRData> \t){<Count> times}
 	* sValue_To_Assign = StringUtils::ltos(Count) + "\t";
 
-	for (i = 0; i < 3; i++)
+	for (i = 0; i < 2; i++)
 	{
 		vector<Row_InfraredGroup_Command *>::iterator it_vRIGC;
 		for (it_vRIGC = vectRow_InfraredGroup_Command[i].begin(); it_vRIGC != vectRow_InfraredGroup_Command[i].end(); it_vRIGC++)
@@ -482,21 +487,38 @@ void Infrared_Plugin::CMD_Store_Infrared_Code(int iPK_Device,string sValue_To_As
 	vector<Row_InfraredGroup_Command *> vectRow_InfraredGroup_Command;
 	pTable_InfraredGroup_Command->GetRows("FK_Device=" + StringUtils::itos(iPK_Device) +
 		" AND FK_Command=" + StringUtils::itos(iPK_Command_Input), &vectRow_InfraredGroup_Command);
+g_pPlutoLogger->Write(LV_STATUS,"StoreIR Code.  Found %d rows for this already",(int) vectRow_InfraredGroup_Command.size());
+	bool bNew = false;
+	Row_InfraredGroup_Command *pRow_InfraredGroup_Command=NULL;
 	if (vectRow_InfraredGroup_Command.size() == 0)
 	{
 		// we found no existing entry for the Command+Device pair; adding a new one
-		Row_InfraredGroup_Command * pRow_InfraredGroup_Command = pTable_InfraredGroup_Command->AddRow();
+		pRow_InfraredGroup_Command = pTable_InfraredGroup_Command->AddRow();
 		pRow_InfraredGroup_Command->FK_Device_set(iPK_Device);
 		pRow_InfraredGroup_Command->FK_Command_set(iPK_Command_Input);
 		pRow_InfraredGroup_Command->FK_DeviceTemplate_set(pRow_InfraredGroup_Command->FK_Device_getrow()->FK_DeviceTemplate_get());
 		pRow_InfraredGroup_Command->IRData_set(sValue_To_Assign);
+		bNew = true;
 	}
 	else
 	{
 		// we found an entry; updating it
-		vectRow_InfraredGroup_Command[0]->IRData_set(sValue_To_Assign);
+		pRow_InfraredGroup_Command = vectRow_InfraredGroup_Command[0];
+		pRow_InfraredGroup_Command->IRData_set(sValue_To_Assign);
 	}
 	pTable_InfraredGroup_Command->Commit();
+g_pPlutoLogger->Write(LV_STATUS,"In the database as PK_IRG_C %d",pRow_InfraredGroup_Command->PK_InfraredGroup_Command_get());
+
+	Row_InfraredGroup_Command_Preferred *pRow_InfraredGroup_Command_Preferred = NULL;
+	if( !bNew )
+		pRow_InfraredGroup_Command_Preferred = m_pDatabase_pluto_main->InfraredGroup_Command_Preferred_get()->GetRow( pRow_InfraredGroup_Command->PK_InfraredGroup_Command_get() );
+
+	if( !pRow_InfraredGroup_Command_Preferred )
+	{
+		pRow_InfraredGroup_Command_Preferred =  m_pDatabase_pluto_main->InfraredGroup_Command_Preferred_get()->AddRow();
+		pRow_InfraredGroup_Command_Preferred->FK_InfraredGroup_Command_set(pRow_InfraredGroup_Command->PK_InfraredGroup_Command_get());
+		m_pDatabase_pluto_main->InfraredGroup_Command_Preferred_get()->Commit();
+	}
 
 	sCMD_Result = "OK";
 }

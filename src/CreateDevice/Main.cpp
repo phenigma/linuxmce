@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 {
 	g_pPlutoLogger = new FileLogger(stdout);
 
-	int iPK_DeviceTemplate=0,iPK_DHCPDevice=0;
+	int iPK_DeviceTemplate=0,iPK_DHCPDevice=0,iPK_Device_Controlled_Via=0;
 	string sIPAddress,sMacAddress;
 
 	bool bError=false;
@@ -66,6 +66,9 @@ int main(int argc, char *argv[])
 		case 'c':
 			iPK_DHCPDevice = atoi(argv[++optnum]);
 			break;
+		case 'C':
+			iPK_Device_Controlled_Via = atoi(argv[++optnum]);
+			break;
 		case 'd':
 			iPK_DeviceTemplate = atoi(argv[++optnum]);
 			break;
@@ -88,7 +91,9 @@ int main(int argc, char *argv[])
 	if ( bError || (!iPK_DHCPDevice && !iPK_DeviceTemplate) )
 	{
 		cout << "CreateDevice, v." << VERSION << endl
-			<< "Usage: CreateDevice [-h hostname] [-u username] [-p password] [-D database] [-P mysql port] [-c PK_DHCPDevice] [-d PK_DeviceTemplate] [-i PK_Installation] [-I IPAddress] [-M MacAddress]" << endl
+			<< "Usage: CreateDevice [-h hostname] [-u username] [-p password] [-D database] [-P mysql port]" << endl
+			<< "[-c PK_DHCPDevice] [-d PK_DeviceTemplate] [-i PK_Installation] [-I IPAddress] [-M MacAddress]" << endl
+			<< "[-C PK_Device_Controlled_Via}" << endl
 			<< "hostname    -- address or DNS of database host, default is `dce_router`" << endl
 			<< "username    -- username for database connection" << endl
 			<< "password    -- password for database connection, default is `` (empty)" << endl
@@ -99,7 +104,7 @@ int main(int argc, char *argv[])
 
 	CreateDevice createDevice(dceConfig.m_iPK_Installation,dceConfig.m_sDBHost,dceConfig.m_sDBUser,dceConfig.m_sDBPassword,dceConfig.m_sDBName,dceConfig.m_iDBPort);
 
-	int PK_Device=createDevice.DoIt(iPK_DHCPDevice,iPK_DeviceTemplate,sIPAddress,sMacAddress);
+	int PK_Device=createDevice.DoIt(iPK_DHCPDevice,iPK_DeviceTemplate,sIPAddress,sMacAddress,iPK_Device_Controlled_Via);
 	if( PK_Device==0 )
 	{
 		cerr << "CreateDevice failed" << endl;

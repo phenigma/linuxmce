@@ -116,6 +116,7 @@ Table_Icon.cpp \
 Table_Image.cpp \
 Table_InfraredGroup.cpp \
 Table_InfraredGroup_Command.cpp \
+Table_InfraredGroup_Command_Preferred.cpp \
 Table_InstallWizard.cpp \
 Table_InstallWizard_Distro.cpp \
 Table_Installation.cpp \
@@ -221,7 +222,7 @@ libpluto_main.a: $(sources:.cpp=.o)
 	cp $@ ../lib
 
 clean: clean-recursive
-#	rm -f *.o *.d libpluto_main.a >/dev/null
+	rm -f *.o *.d libpluto_main.a >/dev/null
 
 include $(ROOT)/PlutoUtils/make.rules
 -include $(sources:.cpp=.d)

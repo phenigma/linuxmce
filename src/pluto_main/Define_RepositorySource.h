@@ -13,10 +13,12 @@
 #define REPOSITORYSOURCE_Pluto_Windows_Archives_CONST 10
 #define REPOSITORYSOURCE_Pluto_Source_Archives_CONST 11
 #define REPOSITORYSOURCE_SourceForge_CVS_CONST 12
-#define REPOSITORYSOURCE_SourceForge_Archives_CONST 13
+#define REPOSITORYSOURCE_SourceForge_Debian_Sarge_Archi_CONST 13
 #define REPOSITORYSOURCE_Installable_Packages_CONST 14
 #define REPOSITORYSOURCE_Pluto_Windows_CE_Archives_CONST 15
 #define REPOSITORYSOURCE_Pluto_Symbian_Archives_CONST 16
+#define REPOSITORYSOURCE_SourceForge_Windows_Archives_CONST 17
+#define REPOSITORYSOURCE_SourceForge_Source_Archives_CONST 18
 
 #define REPOSITORYSOURCE_TABLE "RepositorySource"
 #define REPOSITORYSOURCE_PK_REPOSITORYSOURCE_FIELD "PK_RepositorySource"

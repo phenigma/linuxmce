@@ -29,6 +29,7 @@ using namespace std;
 #include "Table_EventHandler.h"
 #include "Table_Floorplan.h"
 #include "Table_Household_Installation.h"
+#include "Table_InfraredGroup_Command.h"
 #include "Table_Installation_RepositorySource_URL.h"
 #include "Table_Installation_Users.h"
 #include "Table_Room.h"
@@ -1513,6 +1514,13 @@ void Row_Installation::Household_Installation_FK_Installation_getrows(vector <cl
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Household_Installation *pTable = table->database->Household_Installation_get();
+pTable->GetRows("FK_Installation=" + StringUtils::itos(m_PK_Installation),rows);
+}
+void Row_Installation::InfraredGroup_Command_FK_Installation_getrows(vector <class Row_InfraredGroup_Command*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_InfraredGroup_Command *pTable = table->database->InfraredGroup_Command_get();
 pTable->GetRows("FK_Installation=" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::Installation_RepositorySource_URL_FK_Installation_getrows(vector <class Row_Installation_RepositorySource_URL*> *rows)
