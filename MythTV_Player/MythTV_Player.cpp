@@ -31,17 +31,33 @@ MythTV_Player::MythTV_Player(int DeviceID, string ServerAddress,bool bConnectEve
 //<-dceag-const-e->
 {
 //     print_verbose_messages = VB_ALL;
+
+}
+
+bool MythTV_Player::InitMythTvStuff()
+{
     int argc = 1;
     char *argv[] = { "", "", "" };
+
 
     g_pPlutoLogger->Write(LV_STATUS, "Passing params: %d", argc);
 
     m_pQApplication = new QApplication(argc, argv);
 
-    if ( ! initMythTVGlobalContext() )
+    if ( ! InitMythTvGlobalContext() )
+        return false;
+
+    QSqlDatabase *db = QSqlDatabase::addDatabase("QMYSQL3");
+    if (!db)
     {
-        delete m_pQApplication;
-        throw "Could not init Myth Global Context";
+        g_pPlutoLogger->Write(LV_CRITICAL, "Could not connect to mysql database");
+        return false;
+    }
+
+    if (!gContext->OpenDatabase(db))
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL, "Could not open mysql database");
+        return false;
     }
 
     m_pMythMainWindow = new MythMainWindow();
@@ -59,33 +75,38 @@ MythTV_Player::MythTV_Player(int DeviceID, string ServerAddress,bool bConnectEve
     m_pMythTV = new TV();
     m_pMythTV->Init();
 }
-
 //<-dceag-dest-b->
 MythTV_Player::~MythTV_Player()
 //<-dceag-dest-e->
 {
 }
 
-bool MythTV_Player::initMythTVGlobalContext()
+bool MythTV_Player::InitMythTvGlobalContext()
 {
+    gContext = new MythContext(MYTH_BINARY_VERSION, false); // create a now GUI version to test the server connectivity.
+
+    if ( ! (gContext->ConnectToMasterServer() && gContext->IsConnectedToMaster() ) )
+    {
+        this->EVENT_Error_Occured("The player wasn't able to connect to the master server!");
+        delete gContext;
+        return false;
+    }
+
+    delete gContext;
+
     gContext = new MythContext(MYTH_BINARY_VERSION);
     gContext->LoadQtConfig();
 
-    QSqlDatabase *db = QSqlDatabase::addDatabase("QMYSQL3");
-    if (!db)
-    {
-        g_pPlutoLogger->Write(LV_CRITICAL, "Could not connect to mysql database");
-        return false;
-    }
-
-    if (!gContext->OpenDatabase(db))
-    {
-        g_pPlutoLogger->Write(LV_CRITICAL, "Could not open mysql database");
-        return false;
-    }
 
     return true;
 }
+
+
+bool MythTV_Player::Connect()
+{
+    return Command_Impl::Connect() && InitMythTvStuff();
+}
+
 //<-dceag-reg-b->
 // This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in.  Otherwise Connect() will be called from the main()
 bool MythTV_Player::Register()
@@ -187,7 +208,7 @@ void MythTV_Player::CMD_Start_TV(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_Stop_TV(string &sCMD_Result,Message *pMessage)
 //<-dceag-c76-e->
 {
-    m_pRemoteEncoder->StopLiveTV();
+//     m_pRemoteEncoder->StopLiveTV();
     if ( m_pMythTV )
         m_pMythTV->Stop();
 }
@@ -225,15 +246,9 @@ void MythTV_Player::CMD_Tune_to_channel(string sProgramID,string &sCMD_Result,Me
                                         channelName,
                                         startTime);
 
-    g_pPlutoLogger->Write(LV_STATUS, "Tuning recorder num: %d to channel %s", m_pMythTV->GetLastRecorderNum(), channelName.ascii());
-//     RemoteEncoder *pRemoteEncoder = RemoteGetExistingRecorder(m_pMythTV->GetLastRecorderNum());
-//     if ( m_pRemoteEncoder )
-//     {
-//         g_pPlutoLogger->Write(LV_STATUS, "Doing a set channel!");
-//         m_pRemoteEncoder->SetChannel(channelName);
-//     }
+    g_pPlutoLogger->Write(LV_STATUS, "Tuning to channel %s", channelName.ascii());
+
     m_pMythTV->ChangeChannelByString(channelName);
 
-//     gContextRemoteEncoder->GetLCDDevice()->switchToChannel(channelName);
     g_pPlutoLogger->Write(LV_STATUS, "Done");
 }

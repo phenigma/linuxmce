@@ -3221,5 +3221,85 @@ namespace DCE
 	public:
 		CMD_NOREP_Get_Infrared_Codes_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,188,1,2,StringUtils::itos(iPK_Device).c_str()); }
 	};
+	class CMD_EnterGo : public PreformedCommand {
+	public:
+		CMD_EnterGo(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,190,0); }
+	};
+	class CMD_EnterGo_DL : public PreformedCommand {
+	public:
+		CMD_EnterGo_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,190,0); }
+	};
+	class CMD_EnterGo_MD : public PreformedCommand {
+	public:
+		CMD_EnterGo_MD(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,190,0); }
+	};
+	class CMD_EnterGo_Cat : public PreformedCommand {
+	public:
+		CMD_EnterGo_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,190,0); }
+	};
+	class CMD_Send_Code : public PreformedCommand {
+	public:
+		CMD_Send_Code(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,191,0); }
+	};
+	class CMD_Send_Code_DL : public PreformedCommand {
+	public:
+		CMD_Send_Code_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,191,0); }
+	};
+	class CMD_Send_Code_MD : public PreformedCommand {
+	public:
+		CMD_Send_Code_MD(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,191,0); }
+	};
+	class CMD_Send_Code_Cat : public PreformedCommand {
+	public:
+		CMD_Send_Code_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,191,0); }
+	};
+	class CMD_On : public PreformedCommand {
+	public:
+		CMD_On(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,192,0); }
+	};
+	class CMD_On_DL : public PreformedCommand {
+	public:
+		CMD_On_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,192,0); }
+	};
+	class CMD_On_MD : public PreformedCommand {
+	public:
+		CMD_On_MD(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,192,0); }
+	};
+	class CMD_On_Cat : public PreformedCommand {
+	public:
+		CMD_On_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,192,0); }
+	};
+	class CMD_Off : public PreformedCommand {
+	public:
+		CMD_Off(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,193,0); }
+	};
+	class CMD_Off_DL : public PreformedCommand {
+	public:
+		CMD_Off_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,193,0); }
+	};
+	class CMD_Off_MD : public PreformedCommand {
+	public:
+		CMD_Off_MD(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,193,0); }
+	};
+	class CMD_Off_Cat : public PreformedCommand {
+	public:
+		CMD_Off_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,193,0); }
+	};
+	class CMD_Power : public PreformedCommand {
+	public:
+		CMD_Power(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,194,0); }
+	};
+	class CMD_Power_DL : public PreformedCommand {
+	public:
+		CMD_Power_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,194,0); }
+	};
+	class CMD_Power_MD : public PreformedCommand {
+	public:
+		CMD_Power_MD(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,194,0); }
+	};
+	class CMD_Power_Cat : public PreformedCommand {
+	public:
+		CMD_Power_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,194,0); }
+	};
 }
 #endif

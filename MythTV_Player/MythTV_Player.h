@@ -24,10 +24,10 @@ namespace DCE
     QApplication    *m_pQApplication;
     MythMainWindow  *m_pMythMainWindow;
     TV              *m_pMythTV;
-    RemoteEncoder   *m_pRemoteEncoder;
 
 protected:
-    bool initMythTVGlobalContext();
+    bool InitMythTvGlobalContext();
+    bool InitMythTvStuff();
     // Private methods
 public:
     // Public member variables
@@ -38,6 +38,9 @@ public:
         MythTV_Player(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
         virtual ~MythTV_Player();
         virtual bool Register();
+        virtual bool Connect();
+
+
 //<-dceag-const-e->
 
 //<-dceag-h-b->

@@ -16,6 +16,11 @@ public:
 	MythTV_Player_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent(int PK_DeviceTemplate, ClientSocket *pOCClientSocket, int DeviceID);
+	virtual void Error_Occured(string sError_Message)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 8,1,12,sError_Message.c_str()));
+	}
+
 };
 
 
@@ -65,6 +70,7 @@ public:
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
 	//Event accessors
+	void EVENT_Error_Occured(string sError_Message) { GetEvents()->Error_Occured(sError_Message.c_str()); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Start_TV(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Stop_TV(string &sCMD_Result,class Message *pMessage) {};
