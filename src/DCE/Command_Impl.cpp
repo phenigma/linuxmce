@@ -61,6 +61,7 @@ void* MessageQueueThread_DCECI( void* param ) // renamed to cancel link-time nam
 	p->m_bMessageQueueThreadRunning=false;
 	return NULL;
 }
+vector<string> Command_Impl::m_vectSpawnedDevices;
 
 void *WatchDogThread( void *pData )
 {
