@@ -811,6 +811,7 @@ string MediaAttributes::GetAnyPictureUnderDirectory( string File, int *PK_Pictur
     }
     while ( dirp != NULL && ( readdir_r( dirp, direntp, &direntp ) == 0 ) && direntp )
     {
+g_pPlutoLogger->Write( LV_STATUS, "GetPicture: Reading %s %s depth %d",File.c_str().entry.d_name,MaxDepthToSearch);
         if( MaxDepthToSearch && ( entry.d_type==DT_DIR ) && entry.d_name[0]!='.' )
         {
             string Extension = GetAnyPictureUnderDirectory( File + "/" + entry.d_name, PK_Picture, MaxDepthToSearch-1 );
@@ -824,11 +825,13 @@ string MediaAttributes::GetAnyPictureUnderDirectory( string File, int *PK_Pictur
         {
             FilesToScan--;
             string Extension = GetPictureFromFilePath( File + "/" + entry.d_name, PK_Picture );
+
+g_pPlutoLogger->Write( LV_STATUS, "GetPicture: Reading %s %s got pic %d %s",File.c_str().entry.d_name,*PK_Picture,Extension.c_str());
             if( *PK_Picture )
             {
                 closedir( dirp );
                 return Extension;
-            }
+			}
         }
         if ( ! FilesToScan )
         {
