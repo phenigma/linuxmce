@@ -312,6 +312,11 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
     }
 
     g_pPlutoLogger->Write(LV_STATUS, "I have the streamer device ID: %d", pXineMediaStream->getStreamerDeviceID());
+
+    string resultingURL;
+
+    DCE::CMD_Start_Streaming startStreamingCommand(m_dwPK_Device, pXineMediaStream->getStreamerDeviceID(), pMediaStream->GetFilenameToPlay(), pMediaStream->m_iStreamID, &resultingURL);
+    SendCommand(startStreamingCommand);
 }
 
 bool Xine_Plugin::isValidStreamForPlugin(class MediaStream *pMediaStream)
@@ -539,9 +544,9 @@ void Xine_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &
 //<-dceag-c65-e->
 {
     PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
-  Message *pNewMessage = new Message( pMessage );
-  pNewMessage->m_dwPK_Device_To = 6; /** @warning hack this in. need to lookup streams   */
-  QueueMessageToRouter( pNewMessage );
+    Message *pNewMessage = new Message( pMessage );
+    pNewMessage->m_dwPK_Device_To = 6; /** @warning hack this in. need to lookup streams   */
+    QueueMessageToRouter( pNewMessage );
 }
 
 //<-dceag-sample-b->! no sample

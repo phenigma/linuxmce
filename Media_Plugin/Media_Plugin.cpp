@@ -459,7 +459,9 @@ bool Media_Plugin::StartMedia( MediaPluginInfo *pMediaPluginInfo, int PK_Device_
 
                 DeviceData_Router *pController = m_pRouter->m_mapDeviceData_Router_Find(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device_ControlledVia);
                 if (  pController && pController->m_dwPK_DeviceCategory == DEVICECATEGORY_Media_Director_CONST &&
-                    ( pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST || pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_LiveTV_CONST ) )
+                    ( pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST ||
+                      pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_LiveTV_CONST ||
+                      pMediaStream->m_iPK_MediaType == MEDIATYPE_StoredVideo_CONST ) )
                     iPK_DesignObj_Remote = DESIGNOBJ_screen_app_desktop_CONST;
 
                 // Only send the orbiter if it's at the main menu, unless it's the orbiter that started the stream in the first place
