@@ -239,7 +239,10 @@ g_pPlutoLogger->Write(LV_WARNING,"Ignoring MAC: %s",pDevice->m_sMacAddress.c_str
 		g_pPlutoLogger->Write(LV_STATUS, "This is not a new device");
 		if(pDExisting && pDExisting->m_bIsConnected) //let's get the link quality
 		{
-			pDevice->m_iLinkQuality = GetLinkQuality(pDevice->m_sMacAddress.c_str());
+			int iLinkQuality = GetLinkQuality(pDevice->m_sMacAddress.c_str());
+			
+			if(iLinkQuality)
+				pDevice->m_iLinkQuality = iLinkQuality;
 		}
 
 		//if this is not first time detected, but the link quality changed
