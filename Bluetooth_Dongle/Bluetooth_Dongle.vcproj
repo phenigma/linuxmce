@@ -159,6 +159,9 @@
 				RelativePath="..\VIPShared\BD_PC_ReportingVariables.cpp">
 			</File>
 			<File
+				RelativePath="..\VIPShared\BD_PC_ReportMyVersion.cpp">
+			</File>
+			<File
 				RelativePath="..\VIPShared\BD_PC_SelectedFromList.cpp">
 			</File>
 			<File

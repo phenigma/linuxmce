@@ -26,6 +26,7 @@
 #include "BD_PC_OrderPlaced.h"
 #include "BD_PC_SelectedFromList.h"
 #include "BD_PC_SetVariable.h"
+#include "BD_PC_ReportMyVersion.h"
 
 #include "BD/BD_HaveNothing.h"
 #include "BD_CP_SendMeKeystrokes.h"
@@ -57,6 +58,8 @@ class BDCommand *BuildCommandFromData( unsigned long dwType )
 		return new BD_PC_SelectedFromList();
 	case BD_PC_SET_VARIABLE:
 		return new BD_PC_SetVariable();
+	case BD_PC_REPORT_MY_VERSION:
+		return new BD_PC_ReportMyVersion();
 
 
 	case BD_CP_HAVE_NOTHING:

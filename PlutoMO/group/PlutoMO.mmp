@@ -23,6 +23,7 @@ SOURCE  BD_PC_ReportingVariables.cpp
 SOURCE  BD_PC_VMCHidden.cpp
 SOURCE  BD_PC_VMCTerminated.cpp
 SOURCE  BD_PC_SetVariable.cpp
+SOURCE  BD_PC_ReportMyVersion.cpp
 SOURCE  PlutoPhoneCommands.cpp
 SOURCE  RenderMenu.cpp
 SOURCE  VIPMenu.cpp

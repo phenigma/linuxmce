@@ -46,6 +46,8 @@ using namespace DCE;
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_FloorplanType.h"
 
+#define VERSION "<=version=>"
+
 // For DontRender
 namespace DCE
 {
@@ -2944,7 +2946,7 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 		else if(  Variable=="E" && m_pScreenHistory_Current && m_pScreenHistory_Current->m_pLocationInfo  )
 			Output += StringUtils::itos( m_pScreenHistory_Current->m_pLocationInfo->PK_EntertainArea );
 		else if(  Variable=="V" )
-			Output += VERSION;
+			Output += string(VERSION);
 		else if(  Variable=="R" && m_pScreenHistory_Current && m_pScreenHistory_Current->m_pLocationInfo  )
 			Output += StringUtils::itos( m_pScreenHistory_Current->m_pLocationInfo->PK_Room );
 		else if(  Variable=="U" && m_pScreenHistory_Current  )

@@ -17,6 +17,8 @@
 #include <eikapp.h>
 #include <eikdoc.h>
 
+#define VERSION "<=version=>"
+
 _LIT(KPlutoVMCFile,"C:\\system\\apps\\PlutoMO\\PlutoMO.vmc");
 
 #include "BD/BDCommandProcessor_Symbian_Bluetooth.h"

@@ -46,6 +46,8 @@ using namespace DCE;
 #include <cctype>
 #include <algorithm>
 
+#define VERSION "<=version=>"
+
 //<-dceag-const-b->!
 Orbiter_Plugin::Orbiter_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
     : Orbiter_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter), m_UnknownDevicesMutex("Unknown devices varibles")
@@ -374,6 +376,25 @@ bool Orbiter_Plugin::MobileOrbiterLinked(class Socket *pSocket,class Message *pM
     }
     else
     {
+		string sVersion = pMessage->m_mapParameters[EVENTPARAMETER_Version_CONST];
+
+		Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+		if( pRow_Device->NeedConfigure_get() == 1 || sVersion != VERSION )
+		{
+			pRow_Device->NeedConfigure_set(0);
+			pRow_Device->Table_Device_get()->Commit();
+
+	        DCE::CMD_Send_File_To_Device CMD_Send_File_To_Device(
+				m_dwPK_Device, 
+				pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, 
+				"PlutoMO.sis", 
+				sMacAddress, 
+				""
+			);
+
+		    SendCommand(CMD_Send_File_To_Device);
+		}
+
         pOH_Orbiter->m_iFailedToConnectCount = 0;//reset tries count
 
         //pMobileOrbiter->m_pController->m_bReady=true;

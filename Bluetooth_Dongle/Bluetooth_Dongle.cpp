@@ -421,8 +421,8 @@ void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter(int iMediaPosition,string sM
 	
 	if( NULL != pProcessor && !pProcessor->m_bDead )
 	{
- pthread_create( &pProcessor->m_BDSockThreadID, NULL, HandleBDCommandProcessorThread, ( void* )pBD_Orbiter );
-		GetEvents()->Mobile_orbiter_linked( sMac_address, "version" ); /** @todo: Chris add this */
+	    pthread_create( &pProcessor->m_BDSockThreadID, NULL, HandleBDCommandProcessorThread, ( void* )pBD_Orbiter );
+		//GetEvents()->Mobile_orbiter_linked( sMac_address, "version" ); /** @todo: Chris add this */
 	}
 }
 

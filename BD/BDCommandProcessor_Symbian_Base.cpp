@@ -10,6 +10,8 @@
 #include "PlutoMOApp.h"
 #include "PlutoMOAppUi.h"
 #include "Logger.h"
+
+#include "BD_PC_ReportMyVersion.h"
 //----------------------------------------------------------------------------------------------
 BDCommandProcessor_Symbian_Base::BDCommandProcessor_Symbian_Base
 	(
@@ -382,6 +384,8 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 			iCommandTimer->Start(100000, 1000000,
 				TCallBack(CommandTimerCallBack, this)); 
+
+			AddCommand(new BD_PC_ReportMyVersion(string(VERSION)));
 
 			iState = EIdle;
 		}
@@ -756,7 +760,8 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 			m_pCommand = BuildCommandFromData(*lType);
 			if( m_pCommand->ID() == BD_PC_WHAT_DO_YOU_HAVE )
 			{
-				iState = ESendingCommand;
+				GotoStage(ESendingCommand);
+				//iState = ESendingCommand;
 			}
 			else
 			{
@@ -766,9 +771,8 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 				SendLong(m_pCommand->GetCommandOrAckSize());
 				iState = ERecvCommand_SendingCommandOrAckSize_Step2;
+				SetActive();
 			}
-			
-			SetActive();
 		}
 		break;
 
@@ -785,7 +789,6 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 		{
 			LOG("ERecvCommand_SendingCommandOrAckData_Step2\n");
 			m_pCommand->FreeSerializeMemory();
-			iState = ERecvCommand_End;
 
 			long *lType = (long *) m_ReceiveCmdHeader;
 
