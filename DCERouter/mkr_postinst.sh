@@ -73,8 +73,3 @@ JOIN Users;"
 /usr/pluto/bin/Update_StartupScrips.sh
 mkdir -p /tftpboot/pxelinux.cfg
 cp /usr/lib/syslinux/pxelinux.0 /tftpboot
-
-Q="UPDATE user SET Host='%' WHERE User='mythtv';
-FLUSH PRIVILEGES;"
-echo "$Q" | /usr/bin/mysql mysql || /bin/true
-
