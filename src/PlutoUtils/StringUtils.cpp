@@ -346,6 +346,7 @@ void StringUtils::BreakIntoLines( string sInput, vector<string> *vectStrings, in
     int iNumCharsSoFar=0;
     string::size_type lastSpace = string::npos;
 
+	int iCurrentIndex = 0;
     for( int i=0; i< (int)sInput.length() + 1; ++i )
     {
         if( iNumCharsSoFar++ >= iNumChars && ( ( (int)sInput.length() ) == i || sInput[i]==' ' ) )
@@ -353,6 +354,7 @@ void StringUtils::BreakIntoLines( string sInput, vector<string> *vectStrings, in
             if( lastSpace != string::npos )
             {
                 vectStrings->push_back( sInput.substr( i + 1 - iNumCharsSoFar, lastSpace - ( i + 1 - iNumCharsSoFar ) ) );
+				iCurrentIndex = lastSpace;
                 iNumCharsSoFar = (int)( i - lastSpace );
                 while( iNumCharsSoFar > 0 && sInput[ i + 1 - iNumCharsSoFar ] == ' ' )
                     --iNumCharsSoFar;
@@ -361,11 +363,25 @@ void StringUtils::BreakIntoLines( string sInput, vector<string> *vectStrings, in
         }
         else if ( (int)sInput.length() > i && sInput[i] == ' ' )
             lastSpace = i;
-    }
+	}
 
+	int iFirst = iCurrentIndex;
     --iNumCharsSoFar; // we'll be 1 too many since we looped for the final position too
     if( iNumCharsSoFar > 0 )
-        vectStrings->push_back( sInput.substr( sInput.length() - iNumCharsSoFar));
+	{
+		if((int)sInput.length() - iCurrentIndex > iNumChars)
+		{	
+			while( iNumCharsSoFar > 0 )
+			{
+				int iLineLength = (iNumChars < int(sInput.length() - iFirst) ? iNumChars : int(sInput.length() - iFirst));
+				vectStrings->push_back( sInput.substr(iFirst, iLineLength));
+				iFirst += iLineLength;
+				iNumCharsSoFar -= iLineLength;
+			}
+		}
+		else
+			vectStrings->push_back( sInput.substr( sInput.length() - iNumCharsSoFar));
+	}
 }
 
 char StringUtils::HexByte2Num( char* pcPtr )

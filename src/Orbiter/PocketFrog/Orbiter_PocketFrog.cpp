@@ -1,8 +1,12 @@
 #include "Orbiter_PocketFrog.h"
 #include "MainDialog.h"
+#include "Resource.h"
 
 #include "../pluto_main/Define_Button.h"
 #include "../pluto_main/Define_Direction.h" 
+
+#include "../pluto_main/Define_VertAlignment.h" 
+#include "../pluto_main/Define_HorizAlignment.h" 
 //-----------------------------------------------------------------------------------------------------
 #define VK_A 0x41
 #define VK_C 0x43
@@ -13,12 +17,73 @@
 #define VK_R 0x52
 #define VK_Z 0x5A
 //-----------------------------------------------------------------------------------------------------
+const int ciCharWidth = 9;
+const int ciCharHeight = 16;
+const int ciSpaceHeight = 5;
+//-----------------------------------------------------------------------------------------------------
 #define RED_MASK_16		(0x1F << 11)
 #define GREEN_MASK_16	(0x3F << 5)
 #define BLUE_MASK_16	0x1F
 //-----------------------------------------------------------------------------------------------------
 using namespace Frog;
 CComModule _Module;
+//-----------------------------------------------------------------------------------------------------
+extern void (*g_pDeadlockHandler)(PlutoLock *pPlutoLock);
+extern void (*g_pSocketCrashHandler)(Socket *pSocket);
+extern Command_Impl *g_pCommand_Impl;
+//-----------------------------------------------------------------------------------------------------
+// GDI Escapes for ExtEscape()
+#define QUERYESCSUPPORT    8
+ 
+// The following are unique to CE
+#define GETVFRAMEPHYSICAL   6144
+#define GETVFRAMELEN    6145
+#define DBGDRIVERSTAT    6146
+#define SETPOWERMANAGEMENT   6147
+#define GETPOWERMANAGEMENT   6148
+ 
+#define REG_BACKLIGHT L"ControlPanel\\Backlight"
+#define REG_VAL_BATT_TO L"BatteryTimeout"
+#define REG_VAL_AC_TO L"ACTimeout"
+unsigned int OldBattBL=0;
+unsigned int OldACBL=0;
+//------------------------------------------------------------------------------------------------------------
+typedef enum _VIDEO_POWER_STATE {
+    VideoPowerOn = 1,
+    VideoPowerStandBy,
+    VideoPowerSuspend,
+    VideoPowerOff
+} VIDEO_POWER_STATE, *PVIDEO_POWER_STATE;
+//-----------------------------------------------------------------------------------------------------
+typedef struct _VIDEO_POWER_MANAGEMENT {
+    ULONG Length;
+    ULONG DPMSVersion;
+    ULONG PowerState;
+} VIDEO_POWER_MANAGEMENT, *PVIDEO_POWER_MANAGEMENT;
+//-----------------------------------------------------------------------------------------------------
+void DeadlockHandler(PlutoLock *pPlutoLock)
+{
+	// This isn't graceful, but for the moment in the event of a deadlock we'll just kill everything and force a reload
+	if( g_pCommand_Impl )
+	{
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Deadlock problem.  Going to reload and quit");
+		g_pCommand_Impl->OnReload();
+	}
+}
+//-----------------------------------------------------------------------------------------------------
+void SocketCrashHandler(Socket *pSocket)
+{
+	// This isn't graceful, but for the moment in the event of a socket crash we'll just kill everything and force a reload
+	g_pCommand_Impl = Orbiter_PocketFrog::GetInstance(); //it is possible that orbiter to be deleted and then 
+													   //SocketCrashHandler to be called (so let's verify this)
+	if( g_pCommand_Impl )
+	{
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Socket problem.  Going to reload and quit");
+		g_pCommand_Impl->OnReload();
+	}
+}
 //-----------------------------------------------------------------------------------------------------
 Orbiter_PocketFrog *Orbiter_PocketFrog::m_pInstance = NULL; //the one and only
 //-----------------------------------------------------------------------------------------------------
@@ -56,6 +121,12 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 
 	if (!m_bLocalMode)
 		CreateChildren();
+
+	HRSRC hResInfo	  = NULL;
+	HGLOBAL hResource = NULL;
+	hResInfo = FindResource(_Module.GetModuleInstance(), MAKEINTRESOURCE(IDR_VGAROM), TEXT("FONTS"));
+	hResource = LoadResource(_Module.GetModuleInstance(), hResInfo);
+	VGAROMFont = (unsigned char*)LockResource(hResource);
 
 	return true;
 }
@@ -367,18 +438,16 @@ clock_t ccc=clock();
 /*static inline*/ Pixel Orbiter_PocketFrog::GetColor16(PlutoColor color)
 {
 	return (Pixel)(((color.R() << 8) & RED_MASK_16) | ((color.G() << 3) & GREEN_MASK_16) | (color.B() >> 3));		
-
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::SolidRectangle(int x, int y, int width, int height, PlutoColor color, int Opacity)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Solid rectangle, %d, %d, %d, %d", x, y, width, height);
-	//GetDisplay()->FillRect(x, y, width, height, GetColor16(color));
+	GetDisplay()->FillRect(x, y, x + width, y + height, GetColor16(color));
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void Orbiter_PocketFrog::HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color)
+/*virtual*/ void Orbiter_PocketFrog::HollowRectangle(int x, int y, int width, int height, PlutoColor color)
 {
-	//TODO:
+	GetDisplay()->DrawRect(x, y, x + width, y + height, GetColor16(color));
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::ReplaceColorInRectangle(int x, int y, int width, int height, PlutoColor ColorToReplace, PlutoColor ReplacementColor)
@@ -388,7 +457,53 @@ clock_t ccc=clock();
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::RenderText(class DesignObjText *Text,class TextStyle *pTextStyle)
 {
+#if ( defined( PROFILING ) )
+    clock_t clkStart = clock(  );
+#endif
 
+	string TextToDisplay = SubstituteVariables(Text->m_sText, NULL, 0, 0).c_str();
+
+	int iNumChars = Text->m_rPosition.Width / ciCharWidth;
+	vector<string> vectStrings;
+	
+	StringUtils::BreakIntoLines( TextToDisplay, &vectStrings, iNumChars );
+
+	int Y = Text->m_rPosition.Y;
+	int iTextRectHeight = vectStrings.size() * ciCharHeight + (vectStrings.size() - 1) * ciSpaceHeight;
+
+	switch(pTextStyle->m_iPK_VertAlignment)
+	{
+		case VERTALIGNMENT_Top_CONST:
+			break;
+		case VERTALIGNMENT_Middle_CONST:
+			Y += (Text->m_rPosition.Height - iTextRectHeight) / 2;
+			break;
+		case VERTALIGNMENT_Bottom_CONST:
+			Y += Text->m_rPosition.Height - iTextRectHeight;
+			break;
+	}
+
+	wchar_t TextW[4096];
+
+	Pixel color = GetColor16(pTextStyle->m_ForeColor);
+
+	//workaround: pocketfrog has a bug somewhere.. doesn't render black text (a mask issue?)
+	if(color == Color(0, 0, 0)) //it's black
+		color = Color(7, 7, 7); 
+
+	for(int i = 0; i < vectStrings.size(); i++)
+	{
+		mbstowcs(TextW, vectStrings[i].c_str(), 4096);	
+		GetDisplay()->DrawVGAText(VGAROMFont, TextW, DVT_NONE, 
+			Text->m_rPosition.X, Y + i * (ciCharHeight + ciSpaceHeight), color);
+	}
+	vectStrings.clear();
+
+#if ( defined( PROFILING ) )
+    clock_t clkFinished = clock(  );
+    g_pPlutoLogger->Write( LV_CONTROLLER, "RenderText_PocketFrog: %s took %d ms",
+	    TextToDisplay.c_str(), clkFinished-clkStart );
+#endif
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::SaveBackgroundForDeselect(DesignObj_Orbiter *pObj)
@@ -497,5 +612,39 @@ clock_t ccc=clock();
 void Orbiter_PocketFrog::WriteStatusOutput(const char* pMessage)
 {
 	//
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void Orbiter_PocketFrog::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Message *pMessage)
+{
+	HDC gdc;
+	int iESC=SETPOWERMANAGEMENT;
+
+	gdc = ::GetDC(NULL);
+	if (ExtEscape(gdc, QUERYESCSUPPORT, sizeof(int), (LPCSTR)&iESC, 0, NULL)!=0)		
+	{
+		VIDEO_POWER_MANAGEMENT vpm;
+		vpm.Length = sizeof(VIDEO_POWER_MANAGEMENT);
+		vpm.DPMSVersion = 0x0001;
+		vpm.PowerState = VideoPowerOn;
+		ExtEscape(gdc, SETPOWERMANAGEMENT, vpm.Length, (LPCSTR) &vpm, 0, NULL);
+	}
+	::ReleaseDC(NULL, gdc);
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void Orbiter_PocketFrog::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
+{
+	HDC gdc;
+	int iESC=SETPOWERMANAGEMENT;
+
+	gdc = ::GetDC(NULL);
+	if (ExtEscape(gdc, QUERYESCSUPPORT, sizeof(int), (LPCSTR)&iESC, 0, NULL)!=0)		
+	{
+		VIDEO_POWER_MANAGEMENT vpm;
+		vpm.Length = sizeof(VIDEO_POWER_MANAGEMENT);
+		vpm.DPMSVersion = 0x0001;
+		vpm.PowerState = VideoPowerOff;
+		ExtEscape(gdc, SETPOWERMANAGEMENT, vpm.Length, (LPCSTR) &vpm, 0, NULL);
+	}
+	::ReleaseDC(NULL, gdc);
 }
 //-----------------------------------------------------------------------------------------------------

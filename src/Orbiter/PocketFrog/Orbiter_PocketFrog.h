@@ -24,6 +24,8 @@ protected: // (mtoader) I want access to them in the OrbiterLinuxDesktop
 	int m_nImageWidth, m_nImageHeight;
 	int m_bFullScreen;
 
+	unsigned char* VGAROMFont;
+
 public:
 
 	DisplayDevice* GetOrbiterDisplay() { return GetDisplay(); }
@@ -81,6 +83,9 @@ public:
 	void WriteStatusOutput(const char* pMessage);
 
 	bool m_bConnectionLost;
+
+	virtual void CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage);
 };
 
 }
