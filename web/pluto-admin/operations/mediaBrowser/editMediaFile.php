@@ -190,8 +190,8 @@ function editMediaFile($output,$mediadbADO) {
 			$deletePicFile='DELETE FROM Picture_File WHERE FK_Picture=?';
 			$mediadbADO->Execute($deletePicFile,$toDelete);
 			
-			unlink($GLOBALS['mediaPicsPath'].$toDelete.'.png');
-			unlink($GLOBALS['mediaPicsPath'].$toDelete.'_tn.png');
+			@unlink($GLOBALS['mediaPicsPath'].$toDelete.'.png');
+			@unlink($GLOBALS['mediaPicsPath'].$toDelete.'_tn.png');
 		}
 
 		if(isset($_POST['add'])){
@@ -244,7 +244,7 @@ function editMediaFile($output,$mediadbADO) {
 				}
 				else{
 					copy($oldFilePath,$newFilePath);
-					unlink($oldFilePath);
+					@unlink($oldFilePath);
 				}
 			}
 			$mediadbADO->Execute('UPDATE File SET Filename=?, Path=?, FK_Type=? WHERE PK_File=?',array($fileName,$path,$type,$fileID));

@@ -788,15 +788,16 @@ function deleteFromArray(toDelete,targetArray)
 	
 	$pos=1;
 	foreach ($outputOrderedArrayIDs as $outputElem) {
+		$connectorID=((int)@$_POST['connector_'.$outputElem]!=0)?(int)@$_POST['connector_'.$outputElem]:NULL;
 		$checkIfExists='SELECT * FROM DeviceTemplate_Output WHERE FK_DeviceTemplate = ? AND FK_Command = ?';
 		$resCheckIfExists = $dbADO->Execute($checkIfExists,array($deviceID,$outputElem));
 		if ($resCheckIfExists->RecordCount()==1) {
-			$updateOrder = "UPDATE DeviceTemplate_Output SET OrderNo = ? WHERE FK_DeviceTemplate= ? AND FK_Command = ? ";
-			$resUpdateOrder = $dbADO->Execute($updateOrder,array($pos,$deviceID,$outputElem));
+			$updateOrder = "UPDATE DeviceTemplate_Output SET FK_ConnectorType=?,OrderNo = ? WHERE FK_DeviceTemplate= ? AND FK_Command = ? ";
+			$resUpdateOrder = $dbADO->Execute($updateOrder,array($connectorID,$pos,$deviceID,$outputElem));
 		} else {
 			if ($outputElem!=0) {
-				$insertRecord = "INSERT INTO DeviceTemplate_Output (FK_DeviceTemplate,FK_Command,OrderNo) values(?,?,?)";
-				$resInsertRecord = $dbADO->Execute($insertRecord,array($deviceID,$outputElem,$pos));
+				$insertRecord = "INSERT INTO DeviceTemplate_Output (FK_DeviceTemplate,FK_Command,OrderNo,FK_ConnectorType) values(?,?,?,?)";
+				$resInsertRecord = $dbADO->Execute($insertRecord,array($deviceID,$outputElem,$pos,$connectorID));
 			}
 		}
 		$pos++;	

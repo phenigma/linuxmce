@@ -819,7 +819,7 @@ function grabDirectory ($path, $depth) {
 	else {
 		while ($f = readdir ($d)) {
 			if ($f != "." && $f != "..") {
-				if (is_dir ($path . "/" . $f)) {
+				if (@is_dir ($path . "/" . $f)) {
 					$GLOBALS['physicalPathsArray'][]=$path . "/" . $f;
 					$depth++;
 					grabDirectory ($path . "/" . $f, $depth);
@@ -839,7 +839,7 @@ function grabFiles($path) {
 	else {
 		while ($f = readdir ($d)) {
 			if ($f != "." && $f != "..") {
-				if (is_file ($path . "/" . $f)) {
+				if (@is_file ($path . "/" . $f)) {
 					$filesArray[]= $f;
 				} 
 			}
@@ -885,12 +885,16 @@ function resizeImage($source, $destination, $new_width, $new_height)
 	$new_w=$new_width;
 	$new_h=$new_height;	 
 
+	$tmpArray=@getimagesize($source);
+	
 	$dst_img=imagecreatetruecolor($new_w,$new_h);
-	$src_img=ImageCreateFromJpeg($source);
+	$src_img=(@$tmpArray[2]==2)?ImageCreateFromJpeg($source):imagecreatefrompng($source);
 	if(!@imagecopyresized($dst_img,$src_img,0,0,$src_x,$src_y,$new_w,$new_h,$src_w,$src_h))
 		return 3; // resize error
-	if(!@imagejpeg($dst_img, $destination, 100))
+	if((@$tmpArray[2]==2) && !@imagejpeg($dst_img, $destination, 100))
 		return 4; // writing thumbnail error
+	elseif(@$tmpArray[2]==3 && !@imagepng($dst_img, $destination, 100))
+		return 4;
 	else
 		return true;
 }
