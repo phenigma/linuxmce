@@ -1181,10 +1181,10 @@ cout << "Copying Files\n";
 			}
 		}
 		if (flag != true) {
-				cmd = "rm -r -f " + cmd2
+				cmd = "rm -r -f " + cmd2;
 				system(cmd.c_str());
 				cout << cmd << endl;
-				cmd = "cvs remove " + cmd2
+				cmd = "cvs remove " + cmd2;
 				system(cmd.c_str());
 				cout << cmd << endl;
 		}
