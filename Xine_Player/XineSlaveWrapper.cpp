@@ -209,12 +209,12 @@ bool XineSlaveWrapper::createWindow()
  *
  *  \fn XineSlaveWrapper::playStream(string fileName, int m_istreamID, int mediaPosition, int m_irequestingObject);
  */
-void XineSlaveWrapper::playStream(string fileName, int m_iStreamID, int mediaPosition, int m_irequestingObject)
+void XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosition, int m_irequestingObject)
 {
     g_pPlutoLogger->Write(LV_STATUS, "Got a play media command for %s", fileName.c_str());
 
     bool isNewStream = false;
-    XineStream *xineStream = getStreamForId(m_iStreamID, ""); /** @warning HACK: This should be changed to behave properly */
+    XineStream *xineStream = getStreamForId(iStreamID, ""); /** @warning HACK: This should be changed to behave properly */
 
     g_pPlutoLogger->Write(LV_STATUS, "1");
     if ( xineStream == NULL )
@@ -223,7 +223,7 @@ void XineSlaveWrapper::playStream(string fileName, int m_iStreamID, int mediaPos
         xineStream = new XineStream();
         m_pSameStream = xineStream; /** @warning HACK: this code should not be here */
         xineStream->m_pOwner = this;
-        xineStream->m_iStreamID = m_iStreamID;
+        xineStream->m_iStreamID = iStreamID;
     }
     else
     {
@@ -238,7 +238,7 @@ void XineSlaveWrapper::playStream(string fileName, int m_iStreamID, int mediaPos
         xine_close(xineStream->m_pStream);
         g_pPlutoLogger->Write(LV_STATUS, "Closed previous stream!");
         xineStream->m_bisRendering = false;
-        xineStream->m_iStreamID = m_iStreamID;
+        xineStream->m_iStreamID = iStreamID;
     }
 
     g_pPlutoLogger->Write(LV_STATUS, "2");
@@ -273,7 +273,7 @@ void XineSlaveWrapper::playStream(string fileName, int m_iStreamID, int mediaPos
     xineStream->m_irequestingObject = m_irequestingObject;
 
     if (isNewStream )
-        m_mapStreams[m_iStreamID] = xineStream; /** @todo: check for leaks (if someone will send me multiple playStream with the same Stream ID it will leak memory) */
+        m_mapStreams[iStreamID] = xineStream; /** @todo: check for leaks (if someone will send me multiple playStream with the same Stream ID it will leak memory) */
 
     if ( isNewStream )
     {
@@ -290,6 +290,7 @@ void XineSlaveWrapper::playStream(string fileName, int m_iStreamID, int mediaPos
     {
         g_pPlutoLogger->Write(LV_STATUS, "Opened..... ");
 
+        setXineStreamDebugging(iStreamID, true);
         xineStream->m_bHasVideo = xine_get_stream_info(xineStream->m_pStream, XINE_STREAM_INFO_HAS_VIDEO);
 
         if ( xineStream->m_iImgWidth == 0)
@@ -312,7 +313,8 @@ void XineSlaveWrapper::playStream(string fileName, int m_iStreamID, int mediaPos
                 const char *const *inputs;
                 bool bPostWireResult;
 
-                bPostWireResult = xine_post_wire_audio_port(xine_get_audio_source(xineStream->m_pStream), m_pXineVisualizationPlugin->audio_input[1]);
+//                 bPostWireResult = xine_post_wire_audio_port(xine_get_audio_source(xineStream->m_pStream), m_pXineVisualizationPlugin->audio_input[1]);
+                bPostWireResult = false;
 
                 g_pPlutoLogger->Write(LV_STATUS, "Visualization plugin %s", bPostWireResult ?  "enabled" : "disabled");
                 if ( bPostWireResult )
@@ -333,8 +335,20 @@ void XineSlaveWrapper::playStream(string fileName, int m_iStreamID, int mediaPos
         if ( isNewStream )
             pthread_create(&xineStream->eventLoop, NULL, eventProcessingLoop, xineStream);
 
+        g_pPlutoLogger->Write(LV_STATUS, "Stream is seekable: %d", xine_get_stream_info(xineStream->m_pStream, XINE_STREAM_INFO_SEEKABLE));
+        g_pPlutoLogger->Write(LV_STATUS, "Starting stream from position: %d", mediaPosition);
+        xine_set_param(xineStream->m_pStream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE);
         if ( xine_play(xineStream->m_pStream, 0, 0) )
+        {
+            getStreamPlaybackPosition(iStreamID);
+            xine_play(xineStream->m_pStream, mediaPosition, 0);
+            xine_set_param(xineStream->m_pStream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL);
             g_pPlutoLogger->Write(LV_STATUS, "Playing... ");
+
+            getStreamPlaybackPosition(iStreamID);
+
+            g_pPlutoLogger->Write(LV_STATUS, "Stream is seekable: %d", xine_get_stream_info(xineStream->m_pStream, XINE_STREAM_INFO_SEEKABLE));
+        }
         else
             xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID);
     }
@@ -856,27 +870,16 @@ void XineSlaveWrapper::setXinePlayerObject(Xine_Player *object)
 
 void XineSlaveWrapper::getScreenShot(int iStreamID, int iWidth, int iHeight, char *&pData, int &iDataSize, string &sFormat, string &sCMD_Result)
 {
-    XineStream *pStream;
+    XineStream *pStream = getStreamForId(iStreamID, "I need a valid stream to be able to make screenshots.");
 
-    if ( iStreamID != 0 )
+    if ( pStream == NULL )
+        return;
+
+    // only make screenshots if it's a video stream.
+    if ( ! pStream->m_bHasVideo )
     {
-        pStream = m_mapStreams[iStreamID];
-
-        if ( pStream == NULL )
-        {
-            g_pPlutoLogger->Write(LV_WARNING, "I need a valid m_pstream to be able to make screenshots.");
-            return;
-        }
-    }
-    else
-    {
-        if ( m_mapStreams.size() == 0 )
-        {
-            g_pPlutoLogger->Write(LV_WARNING, "No streams are defined. Ignoring command!");
-            return;
-        }
-
-        pStream = m_mapStreams.begin()->second;
+        iDataSize = 0;
+        return;
     }
 
     sFormat = "JPG";
@@ -1174,6 +1177,9 @@ XineSlaveWrapper::XineStream *XineSlaveWrapper::getStreamForId(int iStreamID, st
 //     if ( m_pSameStream == NULL )
 //         m_pSameStream = new XineStream();;
 
+    if ( m_pSameStream == NULL )
+        g_pPlutoLogger->Write(LV_STATUS, strMessageInvalid.c_str());
+
     return m_pSameStream;
 
 /**
@@ -1211,7 +1217,7 @@ XineSlaveWrapper::XineStream *XineSlaveWrapper::getStreamForId(int iStreamID, st
 
 void XineSlaveWrapper::selectMenu(int iStreamID, int iMenuType)
 {
-    XineStream *xineStream = getStreamForId(iStreamID, "Can't select menu for a nonexistent m_pstream!");
+    XineStream *xineStream = getStreamForId(iStreamID, "Can't select menu for a nonexistent stream!");
     if ( xineStream == NULL )
         return;
 
@@ -1232,3 +1238,31 @@ void XineSlaveWrapper::playbackCompleted(int iStreamID)
     this->m_pAggregatorObject->EVENT_Playback_Completed(iStreamID);
 }
 
+int XineSlaveWrapper::getStreamPlaybackPosition(int iStreamID)
+{
+    XineStream *xineStream = getStreamForId(iStreamID, "Can't get the position of a nonexistent stream !");
+
+    if ( xineStream == NULL )
+        return -1;
+
+    int iPosStream = 0;
+    int iPosTime = 0;
+    int iLengthTime = 0;
+
+    int count = 10;
+    while( --count && ! xine_get_pos_length(xineStream->m_pStream, &iPosStream, &iPosTime, &iLengthTime) )
+    {
+          g_pPlutoLogger->Write(LV_STATUS, "Error: %d", xine_get_error(xineStream->m_pStream));
+          usleep(20000);
+    }
+
+//     if ( xine_get_pos_length(xineStream->m_pStream, &iPosStream, &iPosTime, &iLengthTime) == 0 )
+//     {
+//         g_pPlutoLogger->Write(LV_STATUS, "Error getting the stream position");
+//         return -1;
+//     }
+
+    g_pPlutoLogger->Write(LV_STATUS, "Got those numbers: %d, %d", iPosTime, iLengthTime);
+
+    return iPosTime;
+}

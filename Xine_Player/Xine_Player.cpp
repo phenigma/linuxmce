@@ -187,8 +187,8 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 {
     if ( ! m_pXineSlaveControl )
     {
-    g_pPlutoLogger->Write(LV_WARNING, "I don't have a slave to make it play. The slave proabbly failed to initialize properly.");
-    return;
+        g_pPlutoLogger->Write(LV_WARNING, "I don't have a slave to make it play. The slave proabbly failed to initialize properly.");
+        return;
     }
 
     makeActive(m_pXineSlaveControl->getRenderingWindowName());
@@ -208,6 +208,8 @@ void Xine_Player::CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_
 //<-dceag-c38-e->
 {
     g_pPlutoLogger->Write(LV_STATUS, "Got a stop media for stream ID %d", iStreamID);
+    m_pXineSlaveControl->pauseMediaStream(iStreamID);
+    *iMediaPosition = m_pXineSlaveControl->getStreamPlaybackPosition(iStreamID);
     m_pXineSlaveControl->stopMedia(iStreamID);
     g_pPlutoLogger->Write(LV_STATUS, "The stream playback should be stopped at this moment and the resources should be freed!");
 }
@@ -341,12 +343,10 @@ void Xine_Player::CMD_Select_Current_Navigable_Area(int iStreamID,string &sCMD_R
 void Xine_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat,string &sCMD_Result,Message *pMessage)
 //<-dceag-c84-e->
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Getting the frame!");
     *pData = NULL;
     *iData_Size = 0;
 
     m_pXineSlaveControl->getScreenShot(iStreamID, iWidth, iHeight, *pData, *iData_Size, *sFormat, sCMD_Result);
-    g_pPlutoLogger->Write(LV_STATUS, "Done!");
 }
 
 //<-dceag-c87-b->
@@ -373,14 +373,4 @@ void Xine_Player::FireMenuOnScreen(int iDestinationDevice, int iStreamID, bool b
     g_pPlutoLogger->Write(LV_STATUS, "Sending Menu on screen event %s for stream %d", bOnOff ? "on" : "off", iStreamID);
 
     EVENT_Menu_Onscreen(iStreamID, bOnOff);
-/*    SendMessage(
-        new Message(
-            m_dwPK_Device,
-            iDestinationDevice,
-            PRIORITY_NORMAL,
-            MESSAGETYPE_EVENT,
-            7,                                        // the event ID
-            2,
-            9, StringUtils::itos(iStream_ID).c_str(), // the stream ID
-            10,(bOnOff ? "1" : "0")));                // the On/Off state of the Menu*/
 }

@@ -833,13 +833,11 @@ class DataGridTable *Media_Plugin::MediaAttrFiles( string GridID, string Parms, 
     DataGridCell *pCell;
 
     string PK_Attribute = Parms;
+
     if( PK_Attribute.substr( 0, 2 )=="#A" )
         PK_Attribute = PK_Attribute.substr( 2 );
     else if( PK_Attribute.substr( 0, 2 )=="#F" )
-        PK_Attribute = StringUtils::itos(
-            m_pMediaAttributes->GetAttributeFromFileID( atoi( PK_Attribute.substr( 2 ).c_str( ) ) )
-         );
-
+        PK_Attribute = StringUtils::itos(m_pMediaAttributes->GetAttributeFromFileID( atoi( PK_Attribute.substr( 2 ).c_str( ) ) ) );
 
     string SQL="select DISTINCT Dest.FK_File, Attribute.Name, Attribute.FirstName, AttributeType.Description "\
         "FROM File_Attribute As Source "\
@@ -920,12 +918,14 @@ class DataGridTable *Media_Plugin::MediaAttrXref( string GridID, string Parms, v
     DataGridCell *pCell;
 
     string PK_Attribute = Parms;
+    g_pPlutoLogger->Write(LV_STATUS, "Got this PK_Attributte: %s", PK_Attribute.c_str());
+
     if( PK_Attribute.substr( 0, 2 )=="#A" )
         PK_Attribute = PK_Attribute.substr( 2 );
     else if( PK_Attribute.substr( 0, 2 )=="#F" )
-        PK_Attribute = StringUtils::itos(
-            m_pMediaAttributes->GetAttributeFromFileID( atoi( PK_Attribute.substr( 2 ).c_str( ) ) )
-         );
+        PK_Attribute = StringUtils::itos(m_pMediaAttributes->GetAttributeFromFileID( atoi( PK_Attribute.substr( 2 ).c_str( ) ) ) );
+
+    g_pPlutoLogger->Write(LV_STATUS, "Transformed PK_Attributte: %s", PK_Attribute.c_str());
 
     string SQL="select DISTINCT Dest.FK_Attribute, Attribute.Name, Attribute.FirstName, AttributeType.Description "\
         "FROM File_Attribute As Source "\

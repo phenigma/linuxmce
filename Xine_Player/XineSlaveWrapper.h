@@ -282,6 +282,11 @@ public:
      * @brief Fired by a xineStream object when the stream has completed playback
      */
     void playbackCompleted(int iStreamID);
+
+    /**
+     * @brief Find current position for stream.
+     */
+    int getStreamPlaybackPosition(int iStreamID);
 };
 
 #endif

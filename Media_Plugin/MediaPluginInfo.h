@@ -129,8 +129,9 @@ namespace DCE
         int             m_iPK_Playlist;          /** the ID of the playlist. nonZero if the playlist was loaded from database, zero otherwise. */
         string          m_sPlaylistName;       /** the name of the playlist which was loaded from the database. */
 
-        // TOD: check to see if this is still needed.
-        bool            m_bCanChangePlaylist;    /** If the Play/StartMedia should append to this Stream Playlist */
+        // TODO: In the future check to see how to manage the file which is playing from which position.
+        // For the moment we should just ignore it.
+        int             m_iStoppedAtPosition;
 
         char *m_pPictureData;
         int m_iPictureSize;

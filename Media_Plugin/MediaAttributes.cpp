@@ -1022,7 +1022,6 @@ MediaAttributesReturnCode MediaAttributes::LoadPlaylist(int iPlaylistToLoadID, i
     Table_PlaylistEntry *pEntriesTable;
     Row_PlaylistEntry *pEntry;
 
-
     string sEntry;
 
     pPlaylistTable  = m_pDatabase_pluto_media->Playlist_get();
