@@ -242,7 +242,7 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 						break;
 					}
 
-					g_pPlutoLogger->Write(LV_CRITICAL, "Disk drive mount command didn't complete succesfully. Error message: %s", mediaURL.c_str( ) );
+					g_pPlutoLogger->Write(LV_CRITICAL, "Disk drive mount command didn't complete succesfully (response %s). Error message: %s", Response.c_str(), mediaURL.c_str( ) );
 				}
 			}
 			g_pPlutoLogger->Write( LV_STATUS, "Media device %d got back URL: %s", pXineMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device, mediaURL.c_str( ) );
@@ -558,23 +558,24 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 	string sOnScreenOrbiters="", sOtherOrbiters="";
 	map<int, OH_Orbiter *> mapOH_Orbiter; /** Use a map so we don't have duplicates */
 
-	g_pPlutoLogger->Write( LV_STATUS, "Mediastream %p on menu id: %d type %d", pMediaStream, pMediaStream->m_iStreamID_get( ), pMediaStream->m_iPK_MediaType );
-	g_pPlutoLogger->Write( LV_STATUS, "Mediastream mapea size %d", pMediaStream->m_mapEntertainArea.size( ) );
+	g_pPlutoLogger->Write( LV_STATUS, "MediaStream %p with id %d and type %d reached an OnScreen Menu.", pMediaStream, pMediaStream->m_iStreamID_get( ), pMediaStream->m_iPK_MediaType );
+	g_pPlutoLogger->Write( LV_STATUS, "MediaStream m_mapEntertainArea.size( ) %d", pMediaStream->m_mapEntertainArea.size( ) );
 
 	/** We're going to send a message to all the orbiters that are bound to remotes in any of the entertainment areas */
 	for( MapEntertainArea::iterator itEA = pMediaStream->m_mapEntertainArea.begin( );itEA != pMediaStream->m_mapEntertainArea.end( );++itEA )
 	{
 		EntertainArea *pEntertainArea = ( *itEA ).second;
-		g_pPlutoLogger->Write( LV_STATUS, "Mediastream ea %p %d", pEntertainArea, pEntertainArea->m_iPK_EntertainArea );
+		g_pPlutoLogger->Write( LV_STATUS, "Looking into the ent area (%p) with id %d", pEntertainArea, pEntertainArea->m_iPK_EntertainArea );
 		for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
 		{
 			BoundRemote *pBoundRemote = ( *itBR ).second;
+			g_pPlutoLogger->Write(LV_STATUS, "Processing bound remote: for orbiter: %d", pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 			mapOH_Orbiter[pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device] = pBoundRemote->m_pOH_Orbiter;
 		}
 	}
 
 	for( map<int, OH_Orbiter *>::iterator itOH=mapOH_Orbiter.begin( );itOH!=mapOH_Orbiter.end( );++itOH )
-	{// TODO: handle failure when sending the command. This is ignored now.
+	{
 		OH_Orbiter *pOH_Orbiter = ( *itOH ).second;
 		if( pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia && pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_DeviceCategory==DEVICECATEGORY_Media_Director_CONST )
 			sOnScreenOrbiters += StringUtils::itos( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device ) + ", ";
