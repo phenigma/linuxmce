@@ -47,9 +47,9 @@ void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
         clock_t cKeyDown=0;
         while (true)
         {
-g_pPlutoLogger->Write(LV_STATUS,"Before wait for event");
+//g_pPlutoLogger->Write(LV_STATUS,"Before wait for event");
             SDL_WaitEvent(&Event);
-g_pPlutoLogger->Write(LV_STATUS,"wait for event returned %d",Event.type);
+//g_pPlutoLogger->Write(LV_STATUS,"wait for event returned %d",Event.type);
 
             if (Event.type == SDL_QUIT)
                 break;

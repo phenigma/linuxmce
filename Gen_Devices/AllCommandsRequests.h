@@ -165,46 +165,6 @@ namespace DCE
 	public:
 		CMD_Move_Highlight_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sRelative_Level,string sPK_DesignObj,int iPK_Direction) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,10,3,1,sRelative_Level.c_str(),3,sPK_DesignObj.c_str(),30,StringUtils::itos(iPK_Direction).c_str()); }
 	};
-	class RESP_Request_Datagrid_Contents : public PreformedCommandResponse {
-		char **m_pData;int *m_iData_Size;
-	public:
-		RESP_Request_Datagrid_Contents(char **pData,int *iData_Size) { 
-		m_pData=pData; m_iData_Size=iData_Size; }
-		void ParseResponse(Message *pMessage) {
-			*m_pData=pMessage->m_mapData_Parameters[19]; *m_iData_Size=pMessage->m_mapData_Lengths[19]; };
-	};
-	class CMD_Request_Datagrid_Contents : public PreformedCommand {
-	public:
-		CMD_Request_Datagrid_Contents(long DeviceIDFrom, long DeviceIDTo,string sID,string sDataGrid_ID,int iRow,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows,char **pData,int *iData_Size) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,34,9,10,sID.c_str(),15,sDataGrid_ID.c_str(),32,StringUtils::itos(iRow).c_str(),33,StringUtils::itos(iColumn).c_str(),34,StringUtils::itos(iRow_count).c_str(),35,StringUtils::itos(iColumn_count).c_str(),36,(bKeep_Row_Header ? "1" : "0"),37,(bKeep_Column_Header ? "1" : "0"),49,(bAdd_UpDown_Arrows ? "1" : "0"));		m_pcResponse = new RESP_Request_Datagrid_Contents(pData,iData_Size); }
-	};
-	class CMD_Request_Datagrid_Contents_DL : public PreformedCommand {
-	public:
-		CMD_Request_Datagrid_Contents_DL(long DeviceIDFrom, string DeviceIDTo,string sID,string sDataGrid_ID,int iRow,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows,char **pData,int *iData_Size) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,34,9,10,sID.c_str(),15,sDataGrid_ID.c_str(),32,StringUtils::itos(iRow).c_str(),33,StringUtils::itos(iColumn).c_str(),34,StringUtils::itos(iRow_count).c_str(),35,StringUtils::itos(iColumn_count).c_str(),36,(bKeep_Row_Header ? "1" : "0"),37,(bKeep_Column_Header ? "1" : "0"),49,(bAdd_UpDown_Arrows ? "1" : "0"));		m_pcResponse = new RESP_Request_Datagrid_Contents(pData,iData_Size); }
-	};
-	class CMD_Request_Datagrid_Contents_MD : public PreformedCommand {
-	public:
-		CMD_Request_Datagrid_Contents_MD(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sID,string sDataGrid_ID,int iRow,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows,char **pData,int *iData_Size) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,34,9,10,sID.c_str(),15,sDataGrid_ID.c_str(),32,StringUtils::itos(iRow).c_str(),33,StringUtils::itos(iColumn).c_str(),34,StringUtils::itos(iRow_count).c_str(),35,StringUtils::itos(iColumn_count).c_str(),36,(bKeep_Row_Header ? "1" : "0"),37,(bKeep_Column_Header ? "1" : "0"),49,(bAdd_UpDown_Arrows ? "1" : "0"));		m_pcResponse = new RESP_Request_Datagrid_Contents(pData,iData_Size); }
-	};
-	class CMD_Request_Datagrid_Contents_Cat : public PreformedCommand {
-	public:
-		CMD_Request_Datagrid_Contents_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sID,string sDataGrid_ID,int iRow,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows,char **pData,int *iData_Size) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,34,9,10,sID.c_str(),15,sDataGrid_ID.c_str(),32,StringUtils::itos(iRow).c_str(),33,StringUtils::itos(iColumn).c_str(),34,StringUtils::itos(iRow_count).c_str(),35,StringUtils::itos(iColumn_count).c_str(),36,(bKeep_Row_Header ? "1" : "0"),37,(bKeep_Column_Header ? "1" : "0"),49,(bAdd_UpDown_Arrows ? "1" : "0"));		m_pcResponse = new RESP_Request_Datagrid_Contents(pData,iData_Size); }
-	};
-	class CMD_NOREP_Request_Datagrid_Contents : public PreformedCommand {
-	public:
-		CMD_NOREP_Request_Datagrid_Contents(long DeviceIDFrom, long DeviceIDTo,string sID,string sDataGrid_ID,int iRow,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,34,9,10,sID.c_str(),15,sDataGrid_ID.c_str(),32,StringUtils::itos(iRow).c_str(),33,StringUtils::itos(iColumn).c_str(),34,StringUtils::itos(iRow_count).c_str(),35,StringUtils::itos(iColumn_count).c_str(),36,(bKeep_Row_Header ? "1" : "0"),37,(bKeep_Column_Header ? "1" : "0"),49,(bAdd_UpDown_Arrows ? "1" : "0")); }
-	};
-	class CMD_NOREP_Request_Datagrid_Contents_DL : public PreformedCommand {
-	public:
-		CMD_NOREP_Request_Datagrid_Contents_DL(long DeviceIDFrom, string DeviceIDTo,string sID,string sDataGrid_ID,int iRow,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,34,9,10,sID.c_str(),15,sDataGrid_ID.c_str(),32,StringUtils::itos(iRow).c_str(),33,StringUtils::itos(iColumn).c_str(),34,StringUtils::itos(iRow_count).c_str(),35,StringUtils::itos(iColumn_count).c_str(),36,(bKeep_Row_Header ? "1" : "0"),37,(bKeep_Column_Header ? "1" : "0"),49,(bAdd_UpDown_Arrows ? "1" : "0")); }
-	};
-	class CMD_NOREP_Request_Datagrid_Contents_MD : public PreformedCommand {
-	public:
-		CMD_NOREP_Request_Datagrid_Contents_MD(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sID,string sDataGrid_ID,int iRow,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,34,9,10,sID.c_str(),15,sDataGrid_ID.c_str(),32,StringUtils::itos(iRow).c_str(),33,StringUtils::itos(iColumn).c_str(),34,StringUtils::itos(iRow_count).c_str(),35,StringUtils::itos(iColumn_count).c_str(),36,(bKeep_Row_Header ? "1" : "0"),37,(bKeep_Column_Header ? "1" : "0"),49,(bAdd_UpDown_Arrows ? "1" : "0")); }
-	};
-	class CMD_NOREP_Request_Datagrid_Contents_Cat : public PreformedCommand {
-	public:
-		CMD_NOREP_Request_Datagrid_Contents_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sID,string sDataGrid_ID,int iRow,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,34,9,10,sID.c_str(),15,sDataGrid_ID.c_str(),32,StringUtils::itos(iRow).c_str(),33,StringUtils::itos(iColumn).c_str(),34,StringUtils::itos(iRow_count).c_str(),35,StringUtils::itos(iColumn_count).c_str(),36,(bKeep_Row_Header ? "1" : "0"),37,(bKeep_Column_Header ? "1" : "0"),49,(bAdd_UpDown_Arrows ? "1" : "0")); }
-	};
 	class CMD_Play_Sound : public PreformedCommand {
 	public:
 		CMD_Play_Sound(long DeviceIDFrom, long DeviceIDTo,char *pData,int iData_Size,string sFormat) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,13,2,-19,pData,iData_Size,20,sFormat.c_str()); }
@@ -540,6 +500,46 @@ namespace DCE
 	class CMD_Start_Media_Cat : public PreformedCommand {
 	public:
 		CMD_Start_Media_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device,string sFilename,int iPK_MediaType) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,33,3,2,StringUtils::itos(iPK_Device).c_str(),13,sFilename.c_str(),29,StringUtils::itos(iPK_MediaType).c_str()); }
+	};
+	class RESP_Request_Datagrid_Contents : public PreformedCommandResponse {
+		char **m_pData;int *m_iData_Size;
+	public:
+		RESP_Request_Datagrid_Contents(char **pData,int *iData_Size) { 
+		m_pData=pData; m_iData_Size=iData_Size; }
+		void ParseResponse(Message *pMessage) {
+			*m_pData=pMessage->m_mapData_Parameters[19]; *m_iData_Size=pMessage->m_mapData_Lengths[19]; };
+	};
+	class CMD_Request_Datagrid_Contents : public PreformedCommand {
+	public:
+		CMD_Request_Datagrid_Contents(long DeviceIDFrom, long DeviceIDTo,string sID,string sDataGrid_ID,int iRow,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows,char **pData,int *iData_Size) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,34,9,10,sID.c_str(),15,sDataGrid_ID.c_str(),32,StringUtils::itos(iRow).c_str(),33,StringUtils::itos(iColumn).c_str(),34,StringUtils::itos(iRow_count).c_str(),35,StringUtils::itos(iColumn_count).c_str(),36,(bKeep_Row_Header ? "1" : "0"),37,(bKeep_Column_Header ? "1" : "0"),49,(bAdd_UpDown_Arrows ? "1" : "0"));		m_pcResponse = new RESP_Request_Datagrid_Contents(pData,iData_Size); }
+	};
+	class CMD_Request_Datagrid_Contents_DL : public PreformedCommand {
+	public:
+		CMD_Request_Datagrid_Contents_DL(long DeviceIDFrom, string DeviceIDTo,string sID,string sDataGrid_ID,int iRow,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows,char **pData,int *iData_Size) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,34,9,10,sID.c_str(),15,sDataGrid_ID.c_str(),32,StringUtils::itos(iRow).c_str(),33,StringUtils::itos(iColumn).c_str(),34,StringUtils::itos(iRow_count).c_str(),35,StringUtils::itos(iColumn_count).c_str(),36,(bKeep_Row_Header ? "1" : "0"),37,(bKeep_Column_Header ? "1" : "0"),49,(bAdd_UpDown_Arrows ? "1" : "0"));		m_pcResponse = new RESP_Request_Datagrid_Contents(pData,iData_Size); }
+	};
+	class CMD_Request_Datagrid_Contents_MD : public PreformedCommand {
+	public:
+		CMD_Request_Datagrid_Contents_MD(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sID,string sDataGrid_ID,int iRow,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows,char **pData,int *iData_Size) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,34,9,10,sID.c_str(),15,sDataGrid_ID.c_str(),32,StringUtils::itos(iRow).c_str(),33,StringUtils::itos(iColumn).c_str(),34,StringUtils::itos(iRow_count).c_str(),35,StringUtils::itos(iColumn_count).c_str(),36,(bKeep_Row_Header ? "1" : "0"),37,(bKeep_Column_Header ? "1" : "0"),49,(bAdd_UpDown_Arrows ? "1" : "0"));		m_pcResponse = new RESP_Request_Datagrid_Contents(pData,iData_Size); }
+	};
+	class CMD_Request_Datagrid_Contents_Cat : public PreformedCommand {
+	public:
+		CMD_Request_Datagrid_Contents_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sID,string sDataGrid_ID,int iRow,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows,char **pData,int *iData_Size) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,34,9,10,sID.c_str(),15,sDataGrid_ID.c_str(),32,StringUtils::itos(iRow).c_str(),33,StringUtils::itos(iColumn).c_str(),34,StringUtils::itos(iRow_count).c_str(),35,StringUtils::itos(iColumn_count).c_str(),36,(bKeep_Row_Header ? "1" : "0"),37,(bKeep_Column_Header ? "1" : "0"),49,(bAdd_UpDown_Arrows ? "1" : "0"));		m_pcResponse = new RESP_Request_Datagrid_Contents(pData,iData_Size); }
+	};
+	class CMD_NOREP_Request_Datagrid_Contents : public PreformedCommand {
+	public:
+		CMD_NOREP_Request_Datagrid_Contents(long DeviceIDFrom, long DeviceIDTo,string sID,string sDataGrid_ID,int iRow,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,34,9,10,sID.c_str(),15,sDataGrid_ID.c_str(),32,StringUtils::itos(iRow).c_str(),33,StringUtils::itos(iColumn).c_str(),34,StringUtils::itos(iRow_count).c_str(),35,StringUtils::itos(iColumn_count).c_str(),36,(bKeep_Row_Header ? "1" : "0"),37,(bKeep_Column_Header ? "1" : "0"),49,(bAdd_UpDown_Arrows ? "1" : "0")); }
+	};
+	class CMD_NOREP_Request_Datagrid_Contents_DL : public PreformedCommand {
+	public:
+		CMD_NOREP_Request_Datagrid_Contents_DL(long DeviceIDFrom, string DeviceIDTo,string sID,string sDataGrid_ID,int iRow,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,34,9,10,sID.c_str(),15,sDataGrid_ID.c_str(),32,StringUtils::itos(iRow).c_str(),33,StringUtils::itos(iColumn).c_str(),34,StringUtils::itos(iRow_count).c_str(),35,StringUtils::itos(iColumn_count).c_str(),36,(bKeep_Row_Header ? "1" : "0"),37,(bKeep_Column_Header ? "1" : "0"),49,(bAdd_UpDown_Arrows ? "1" : "0")); }
+	};
+	class CMD_NOREP_Request_Datagrid_Contents_MD : public PreformedCommand {
+	public:
+		CMD_NOREP_Request_Datagrid_Contents_MD(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sID,string sDataGrid_ID,int iRow,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,34,9,10,sID.c_str(),15,sDataGrid_ID.c_str(),32,StringUtils::itos(iRow).c_str(),33,StringUtils::itos(iColumn).c_str(),34,StringUtils::itos(iRow_count).c_str(),35,StringUtils::itos(iColumn_count).c_str(),36,(bKeep_Row_Header ? "1" : "0"),37,(bKeep_Column_Header ? "1" : "0"),49,(bAdd_UpDown_Arrows ? "1" : "0")); }
+	};
+	class CMD_NOREP_Request_Datagrid_Contents_Cat : public PreformedCommand {
+	public:
+		CMD_NOREP_Request_Datagrid_Contents_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sID,string sDataGrid_ID,int iRow,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,34,9,10,sID.c_str(),15,sDataGrid_ID.c_str(),32,StringUtils::itos(iRow).c_str(),33,StringUtils::itos(iColumn).c_str(),34,StringUtils::itos(iRow_count).c_str(),35,StringUtils::itos(iColumn_count).c_str(),36,(bKeep_Row_Header ? "1" : "0"),37,(bKeep_Column_Header ? "1" : "0"),49,(bAdd_UpDown_Arrows ? "1" : "0")); }
 	};
 	class RESP_Populate_Datagrid : public PreformedCommandResponse {
 		int *m_iPK_Variable;string *m_sValue_To_Assign;bool *m_bIsSuccessful;

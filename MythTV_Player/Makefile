@@ -14,7 +14,7 @@ MYDEVTEMPLATEID = 35mplateID
 
 Gen_Dev_Files = $(GENDEV)/MythTV_PlayerBase.cpp
 sources = Main.cpp MythTV_Player.cpp $(Gen_Dev_Files)
-#<-dceag-mh-e->
+#<-dceag-mh-e-
 
 CXXFLAGS +=
 CPPFLAGS += -I/usr/include/qt3 -I$(ROOT)/Libraries/ -DQT_NO_DEBUG -DQT_THREAD_SUPPORT -DQT_SHARED
@@ -22,7 +22,9 @@ LDFLAGS +=
 LDLIBS += -lSerializeClass -lPlutoUtils -lqt-mt -lmyth-0.16 -lmythtv-0.16 
 
 Gen_Dev_Files +=
-sources += 
+sources += \
+	MythMainWindowResizable.cpp \
+	../utilities/linux/ImageConvertor.cpp
 
 #<-dceag-mf-b->
 whattodo:

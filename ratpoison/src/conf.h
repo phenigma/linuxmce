@@ -69,7 +69,7 @@
 
 /* Treat windows with maxsize hints as if they were a transient window
    (don't hide the windows underneath, and center them) */
-#define MAXSIZE_WINDOWS_ARE_TRANSIENTS
+/* #define MAXSIZE_WINDOWS_ARE_TRANSIENTS */
 
 /* An alias command could recursively call inself infinitely. This
    stops that behavior. */

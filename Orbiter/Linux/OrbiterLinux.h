@@ -44,6 +44,7 @@ protected:
 
     virtual bool resizeMoveDesktop(int x, int y, int width, int height);
     virtual bool setDesktopVisible(bool visible = true);
+    virtual void setInputFocusToMe(void *);
 
 public:
     OrbiterLinux(int DeviceID,
@@ -58,7 +59,7 @@ public:
     // overriden to handle the desktop window hiding
     virtual void RenderScreen();
     virtual void reinitGraphics();
-	virtual void Initialize(GraphicType Type);
+    virtual void Initialize(GraphicType Type);
     virtual Display *getDisplay();
 
 //     virtual void Initialize(GraphicType Type);

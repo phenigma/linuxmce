@@ -17,13 +17,14 @@ class RatpoisonHandler
         Atom rp_command_request;
         Atom rp_command_result;
 
-    protected:
+    public:
 
         bool makeActive(string windowName)
         {
             return commandRatPoison(string(":select ") + windowName);
         }
 
+    protected:
         bool commandRatPoison(string command)
         {
             Display *display = static_cast<T*>(this)->getDisplay();
@@ -95,7 +96,7 @@ class RatpoisonHandler
             return true;
         }
 
-    private:
+    protected:
         void RatpoisonHandler::readCommandResult(Display *display, Window commandWindow)
         {
             int status;
@@ -128,7 +129,7 @@ class RatpoisonHandler
                             0, (bytes_after / 4) + (bytes_after % 4 ? 1 : 0),
                             True, XA_STRING,
                             &type_ret, &format_ret, &nitems,
-							&bytes_after, &result);
+                            &bytes_after, &result);
 
             /* Failed to retrieve property. */
             if (status != Success || result == NULL)
@@ -138,7 +139,7 @@ class RatpoisonHandler
             }
 
             /* If result is not the empty string, print it. */
-			// if ( strlen ((char*)result) )
+            // if ( strlen ((char*)result) )
             g_pPlutoLogger->Write(LV_STATUS, "Command result: \"%s\"", result);
 
             /* Free the result. */

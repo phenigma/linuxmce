@@ -22,6 +22,8 @@ using namespace DCE;
 #include "../Datagrid_Plugin/Datagrid_Plugin.h"
 #include "../pluto_main/Define_DataGrid.h"
 #include "../pluto_main/Define_DesignObj.h"
+#include "../pluto_main/Define_Event.h"
+#include "../pluto_main/Table_EventParameter.h"
 
 #include "DataGrid.h"
 
@@ -33,16 +35,6 @@ MythTV_PlugIn::MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEve
     : MythTV_PlugIn_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
-/** @test
-//     m_pDatabase_FakeEPG = new Database_FakeEPG();
-//     if(!m_pDatabase_FakeEPG->Connect(m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),"FakeEPG",m_pRouter->iDBPort_get()) )
-//     {
-//         g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
-//         m_bQuit=true;
-//         return;
-//     }
-*/
-
     m_pMythWrapper = new MythTvWrapper(this);
 }
 
@@ -91,6 +83,11 @@ bool MythTV_PlugIn::Register()
     m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&MythTV_PlugIn::AllShowsForMobiles))
                                                 ,DATAGRID_EPG_All_Shows_Mobile_CONST);
 
+    m_pRouter->RegisterInterceptor(
+        new MessageInterceptorCallBack( this, ( MessageInterceptorFn )( &MythTV_PlugIn::MediaInfoChanged) ),
+        0, 0, 0, 0,
+        MESSAGETYPE_EVENT, EVENT_Playback_Info_Changed_CONST );
+
     return Connect();
 }
 
@@ -116,7 +113,7 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
 //         "0", // todo -- the real channel
         //                 pMythTvStream->m_dequeFilename.front(),
 //         pMythTvStream->m_iPK_MediaType,
-//         pMythTvStream->m_iStreamID_get(),
+//         pMythTvStream->m_iStreamID_get(),#include "pluto_main/Table_EventParameter.h"
 //         0);
 
     m_pMedia_Plugin->MediaInfoChanged(pMythTvStream);
@@ -155,6 +152,11 @@ bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
         return true;
         return false;
     }
+
+    map<int, int>::iterator it = m_mapDevicesToStreams.find(pMediaStream->m_dwPK_Device);
+    if( it!=m_mapDevicesToStreams.end() )
+        m_mapDevicesToStreams.erase(it);
+
     g_pPlutoLogger->Write(LV_STATUS,"MythTV player responded to stop media command!");
     return true;
 }
@@ -168,22 +170,24 @@ class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaPluginInfo *pMedi
 {
     PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
     MythTvStream *pMediaStream = new MythTvStream(this, pMediaPluginInfo, pMediaPluginInfo->m_iPK_DesignObj, 0, st_RemovableMedia,StreamID);
-    /** @warning hack hack hack */
 
-//     pMediaStream->m_iCurrentShow=0;
-//     pMediaStream->UpdateDescriptions();
+    pMediaStream->m_sMediaDescription = "Not available";
+    pMediaStream->m_sSectionDescription = "Not available";
+    pMediaStream->m_sMediaSynopsis = "Not available";
 
     if( !PK_Device_Source && pMediaPluginInfo->m_listMediaDevice.size() )
     {
         MediaDevice *pMediaDevice = pMediaPluginInfo->m_listMediaDevice.front();
         PK_Device_Source=pMediaDevice->m_pDeviceData_Router->m_dwPK_Device;
     }
+
     DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(PK_Device_Source);
 
     bool bFoundDevice=false;
     if( pDeviceData_Router->m_dwPK_DeviceTemplate==DEVICETEMPLATE_MythTV_Player_CONST )
     {
         pMediaStream->m_dwPK_Device = PK_Device_Source;
+        m_mapDevicesToStreams[PK_Device_Source] = StreamID;
         bFoundDevice=true;
     }
 
@@ -193,16 +197,6 @@ class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaPluginInfo *pMedi
     }
 
     return pMediaStream;
-}
-
-void MythTvStream::UpdateDescriptions()
-{
-/** @test
-    Row_Listing *pRow_Listing = m_vectRow_Listing[m_iCurrentShow];
-    m_sMediaDescription=pRow_Listing->ChannelName_get();
-    m_sSectionDescription=pRow_Listing->ShowName_get();
-    m_sMediaSynopsis=pRow_Listing->Synopsis_get();
-*/
 }
 
 class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign
@@ -227,8 +221,6 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
                     0));
 
     return m_pMythWrapper->createShowsDataGrid(GridID, currentTime, currentTime.addDays(14));
-
-//     return m_pAllShowsDataGrid;
 }
 
 class DataGridTable *MythTV_PlugIn::AllShowsForMobiles(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage)
@@ -244,13 +236,6 @@ class DataGridTable *MythTV_PlugIn::AllShowsForMobiles(string GridID, string Par
 
     return m_pMythWrapper->createShowsForMobiles(GridID, QDateTime::currentDateTime());
 }
-
-// QDateTime MythTV_PlugIn::findCurrentStartTime()
-// {
-//
-//
-//     return currentTime;
-// }
 
 class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,Message *pMessage)
 {
@@ -282,6 +267,36 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
     return pDataGrid;
 }
 
+
+bool MythTV_PlugIn::MediaInfoChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Router *pDeviceFrom, class DeviceData_Router *pDeviceTo )
+{
+    MediaStream *pMediaStream;
+    MythTvStream *pMythStream;
+
+    if ( pDeviceFrom->m_dwPK_DeviceTemplate == DEVICETEMPLATE_MythTV_Player_CONST )
+    {
+        g_pPlutoLogger->Write(LV_STATUS, "Got event from Myth Player device: %d, associated stream is %d", pDeviceFrom->m_dwPK_Device, m_mapDevicesToStreams[pDeviceFrom->m_dwPK_Device]);
+        pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find(m_mapDevicesToStreams[pDeviceFrom->m_dwPK_Device]);
+
+        if ( pMediaStream == NULL || pMediaStream->GetType() != MEDIASTREAM_TYPE_MYTHTV )
+        {
+            if ( pMediaStream == NULL )
+                g_pPlutoLogger->Write(LV_WARNING, "Got a MediaInfoChanged but there is no stream in the media plugin associated with the device %d", pDeviceFrom->m_dwPK_Device );
+            else
+                g_pPlutoLogger->Write(LV_STATUS, "This device %d claims to be a MythTV Player but the stream assciated with it is not a Myth Stream", pDeviceFrom->m_dwPK_Device);
+
+            return false;
+        }
+
+        pMythStream = (MythTvStream *) pMediaStream;
+
+        pMythStream->m_sMediaDescription = pMessage->m_mapParameters[EVENTPARAMETER_MediaDescription_CONST];
+        pMythStream->m_sSectionDescription = pMessage->m_mapParameters[EVENTPARAMETER_SectionDescription_CONST];
+        pMythStream->m_sMediaSynopsis = pMessage->m_mapParameters[EVENTPARAMETER_SynposisDescription_CONST];
+
+        m_pMedia_Plugin->MediaInfoChanged(pMythStream);
+    }
+}
 /*
 
 COMMANDS TO IMPLEMENT
@@ -316,8 +331,6 @@ void MythTV_PlugIn::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string
     switch ( result )
     {
         case WatchTVResult_Tuned:
-            pMediaStream->UpdateDescriptions();
-            m_pMedia_Plugin->MediaInfoChanged(pMediaStream);
             return;
         case WatchTVResult_InTheFuture:
         {

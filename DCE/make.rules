@@ -9,7 +9,7 @@ clean-recursive:
 
 %.d: %.cpp
 	@echo -n Computing dependencies for $< 
-	@$(CXX) -M $(CPPFLAGS) $< > $@.$$$$; \
+	@$(CXX) -MM $(CPPFLAGS) $< > $@.$$$$; \
 	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
 	@echo " done"

@@ -37,11 +37,20 @@ void OrbiterLinux::reinitGraphics()
 
     commandRatPoison(":desktop off");
     SDL_WM_SetCaption(m_strWindowName.c_str(), "");
-	commandRatPoison(string(":select ") + m_strWindowName);
+    commandRatPoison(string(":select ") + m_strWindowName);
     commandRatPoison(":desktop on");
-	//commandRatPoison(":keybindings off");
-	commandRatPoison(":keystodesktop on");
+    commandRatPoison(":keystodesktop on");
+    commandRatPoison(":keybindings off");
     setDesktopVisible(false);
+
+    OrbiterCallBack callback = (OrbiterCallBack)&OrbiterLinux::setInputFocusToMe;
+    CallMaintenanceInTicks( 3000, callback, NULL );
+}
+
+void OrbiterLinux::setInputFocusToMe(void *)
+{
+    commandRatPoison(":keystodesktop on");
+    CallMaintenanceInTicks( 7000, (OrbiterCallBack)&OrbiterLinux::setInputFocusToMe, NULL ); // do this every 7 seconds
 }
 
 void OrbiterLinux::setWindowName(string strWindowName)
@@ -88,76 +97,6 @@ Display *OrbiterLinux::getDisplay()
     return XServerDisplay;
 }
 
-// int left, int top, int right, int bottom)
-// void OrbiterLinux::sendCommandToRatpoison(string command)
-// {
-//     if ( ! XServerDisplay && ! openDisplay() )
-//         return;
-//
-//     g_pPlutoLogger->Write(LV_STATUS, "Instructing ratpoison to do this: %s", command.c_str());
-//
-//     rp_command          = XInternAtom (XServerDisplay, "RP_COMMAND", True);
-//     rp_command_request  = XInternAtom (XServerDisplay, "RP_COMMAND_REQUEST", True);
-//     rp_command_result   = XInternAtom (XServerDisplay, "RP_COMMAND_RESULT", True);
-//
-//     if ( rp_command == None || rp_command_request == None || rp_command_result == None )
-//     {
-//         g_pPlutoLogger->Write(LV_WARNING, "Ratpoison window manager does not seem to be running on this server!");
-//         return;
-//     }
-//
-//     Window commandWindow = 0;
-//
-//     commandWindow = XCreateSimpleWindow (XServerDisplay, DefaultRootWindow (XServerDisplay), 0, 0, 1, 1, 0, 0, 0);
-//
-//     // wait for propertyChanges here.
-//     XSelectInput (XServerDisplay, commandWindow, PropertyChangeMask);
-//
-//     XChangeProperty (XServerDisplay, commandWindow,
-//                 rp_command, XA_STRING, 8, PropModeReplace,
-//                 (unsigned char *)command.c_str(), command.size() + 2);
-//
-//     XChangeProperty (XServerDisplay, DefaultRootWindow (XServerDisplay),
-//                 rp_command_request, XA_WINDOW, 8, PropModeAppend,
-//                 (unsigned char *)&commandWindow, sizeof (Window));
-//
-//     bool done = false;
-//
-//     long timeSpent;
-//     struct timeval startTime, currentTime;
-//
-//     gettimeofday(&startTime, NULL);
-//     while ( ! done )
-//     {
-//         XEvent ev;
-//
-//         gettimeofday(&currentTime, NULL);
-//
-//         timeSpent = (currentTime.tv_sec - startTime.tv_sec) * 1000000 + (currentTime.tv_usec - startTime.tv_usec);
-//         if ( XCheckMaskEvent (XServerDisplay, PropertyChangeMask, &ev) )
-//         {
-//             if (ev.xproperty.atom == rp_command_result && ev.xproperty.state == PropertyNewValue)
-//             {
-//                 g_pPlutoLogger->Write(LV_STATUS, "Reading command output");
-//                 readCommandResult(XServerDisplay, ev.xproperty.window);
-//                 done = 1;
-//             }
-//         }
-//         else if ( timeSpent < 800000 ) // wait for at most 1 sec for the reply
-//         {
-//             usleep(25000); // read the result 20 pe second
-//         }
-//         else // timeout reading command response
-//         {
-//             g_pPlutoLogger->Write(LV_WARNING, "The ratpoison window manager didn't reply to the command. It is either crashed or not started at all");
-//             done = 1;
-//         }
-//     }
-//
-//     // cleanups
-//     XDestroyWindow (XServerDisplay, commandWindow);
-// }
-
 bool OrbiterLinux::RenderDesktop(DesignObj_Orbiter *pObj, PlutoRectangle rectTotal)
 {
     g_pPlutoLogger->Write(LV_WARNING, "Need to resize in here [%d, %d, %dx%d]!",
@@ -184,6 +123,9 @@ bool OrbiterLinux::resizeMoveDesktop(int x, int y, int width, int height)
 
     commandRatPoison(commandLine.str());
 
+    commandLine.str("");
+    commandLine << ":redisplay";
+    commandRatPoison(commandLine.str());
     return true;
 }
 
@@ -238,8 +180,8 @@ bool OrbiterLinux::setDesktopVisible(bool visible)
 
 void OrbiterLinux::Initialize(GraphicType Type)
 {
-	OrbiterSDL::Initialize(Type);
-	reinitGraphics();
+    OrbiterSDL::Initialize(Type);
+    reinitGraphics();
 }
 
 void OrbiterLinux::RenderScreen()

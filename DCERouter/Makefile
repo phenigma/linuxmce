@@ -8,9 +8,13 @@ LDLIBS = -lpthread -lmysqlclient_r -lattr -lDCECommon -lSerializeClass -lPlutoUt
 APPNAME=DCERouter
 VERSION=2.0.0
 
-sources = CriteriaList.cpp CriteriaNesting.cpp \
-		EventHandler_CriteriaList.cpp\
-		Main.cpp DCERouter.cpp DCERouter_CreatePluginHardCoded_Impl.cpp
+sources = \
+		CriteriaList.cpp \
+		CriteriaNesting.cpp \
+		EventHandler_CriteriaList.cpp \
+		Main.cpp \
+		DCERouter.cpp \
+		DCERouter_CreatePluginHardCoded_Impl.cpp
 
 
 #sources += ../Gen_Devices/Media_PluginBase.cpp ../Media_Plugin/Media_Plugin.cpp ../Media_Plugin/MediaPluginInfo.cpp 

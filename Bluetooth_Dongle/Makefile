@@ -22,10 +22,17 @@ LDFLAGS +=
 LDLIBS += -lVIPCommon -lBDCommon -lPlutoUtils -lSerializeClass -lbluetooth -lpluto_main -lSDL -lSDL_ttf -lSDL_image -lSGE
 
 Gen_Dev_Files += $(GENDEV)/OrbiterBase.cpp
-sources += ../Orbiter/SDL_Bluetooth/OrbiterSDLBluetooth.cpp ../Orbiter/SDL_Bluetooth/StartOrbiterSDLBluetooth.cpp \
-	../Orbiter/DesignObj_Data.cpp ../Orbiter/DesignObj_Orbiter.cpp ../Orbiter/Orbiter.cpp \
-	../Orbiter/SDL/OrbiterSDL.cpp ../Splitter/TextWrapper.cpp ../Splitter/TextSplitter.cpp \
-	../OrbiterGen/Renderer.cpp ../VIPShared/PlutoPhoneCommands.cpp
+sources += \
+	../Orbiter/SDL_Bluetooth/OrbiterSDLBluetooth.cpp \
+	../Orbiter/SDL_Bluetooth/StartOrbiterSDLBluetooth.cpp \
+	../Orbiter/DesignObj_Data.cpp \
+	../Orbiter/DesignObj_Orbiter.cpp \
+	../Orbiter/Orbiter.cpp \
+	../Orbiter/SDL/OrbiterSDL.cpp \
+	../Splitter/TextWrapper.cpp \
+	../Splitter/TextSplitter.cpp \
+	../OrbiterGen/Renderer.cpp \
+	../VIPShared/PlutoPhoneCommands.cpp
 
 #<-dceag-mf-b->
 whattodo:
@@ -43,7 +50,7 @@ Bluetooth_Dongle.so: $(sources:.cpp=.o)
 	chmod +x post_make.sh
 	./post_make.sh $@
 		
-Bluetooth_Dongle: $(sources:.cpp=.o)
+Bluetooth_Dongle: $(sources:.cpp=.o) 
 	$(CXX) -o $(MYNAME) $+ $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@

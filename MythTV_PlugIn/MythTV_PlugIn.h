@@ -2,9 +2,9 @@
  *
  * @file MythTV_PlugIn.h
  * @brief header file for the  MythTvStream, MythTV_PlugIn classes
- * 
+ *
  */
- 
+
 //<-dceag-d-b->
 #ifndef MythTV_PlugIn_h
 #define MythTV_PlugIn_h
@@ -24,25 +24,25 @@ class MythTvWrapper;
 
 namespace DCE
 {
+    using namespace std;
 
     /**
-     * @brief 
+     * @brief
      */
-     
+
     class MythTvStream : public MediaStream
     {
     public:
         class MythTV_PlugIn *m_pMythTV_PlugIn;
 
         MythTvStream(class MythTV_PlugIn *pMythTV_PlugIn,class MediaPluginInfo *pMediaPluginInfo, int PK_DesignObj_Remote, int PK_Users
-				,enum SourceType sourceType,int StreamID)
+                ,enum SourceType sourceType,int StreamID)
             : MediaStream(pMediaPluginInfo,PK_DesignObj_Remote,PK_Users,sourceType,StreamID) { m_iCurrentShow=-1; m_pMythTV_PlugIn=pMythTV_PlugIn; }
 
             /** Temporary hacks, just populate m_vectRow_Listing with all the shows, and make m_iCurrentShow point to the current one */
-	    
+
             vector<Row_Listing *> m_vectRow_Listing;
             int m_iCurrentShow;
-            virtual void UpdateDescriptions();
 
             virtual int GetType() { return MEDIASTREAM_TYPE_MYTHTV; }
     };
@@ -54,6 +54,7 @@ namespace DCE
         friend class MythTvStream;
         /** Private member variables */
 
+        map<int, int> m_mapDevicesToStreams;
         MythTvWrapper *m_pMythWrapper;
         // MythTvEPGWrapper *m_pAllShowsDataGrid;
 
@@ -62,8 +63,8 @@ namespace DCE
         /** Public member variables */
 
         //<-dceag-const-b->
-public:
-        // Constructors/Destructor 
+    public:
+        // Constructors/Destructor
         MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
         virtual ~MythTV_PlugIn();
         virtual bool Register();
@@ -78,27 +79,26 @@ public:
     public:
         /** Mandatory implementations */
         virtual class MediaStream *CreateMediaStream(class MediaPluginInfo *pMediaPluginInfo,int PK_Device_Source,string Filename,int StreamID);
-        
-	virtual bool StartMedia(class MediaStream *pMediaStream);
-        
-	virtual bool StopMedia(class MediaStream *pMediaStream);
-        
-	virtual bool BroadcastMedia(class MediaStream *pMediaStream);
+
+    virtual bool StartMedia(class MediaStream *pMediaStream);
+
+    virtual bool StopMedia(class MediaStream *pMediaStream);
+
+    virtual bool BroadcastMedia(class MediaStream *pMediaStream);
 
         /** Datagrids */
-        class DataGridTable *CurrentShows(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign
-						,class Message *pMessage);
-        
-	class DataGridTable *AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign
-						, Message *pMessage);
-        class DataGridTable *AllShowsForMobiles(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage);
+    class DataGridTable *CurrentShows(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign
+                        ,class Message *pMessage);
 
-        /** @test
-	 *  custom helper methods
-            void ProcessWatchTvRequest(int channelId, QDateTime showStartTime);
-            ProgramInfo *getProgramInfo(int channelId, QDateTime insideTime); 
-	 */
+        /** All Shows available in the MythTv database */
+    class DataGridTable *AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign
+                        ,Message *pMessage);
 
+        /** All current shows on all channels (This grid is suitable for mobile phones.) */
+    class DataGridTable *AllShowsForMobiles(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage);
+
+        /** The interceptor for the MediaInfoChangedEvent from the playing device */
+    bool MediaInfoChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Router *pDeviceFrom, class DeviceData_Router *pDeviceTo );
         //<-dceag-h-b->
     /*
                 AUTO-GENERATED SECTION
