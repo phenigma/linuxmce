@@ -549,7 +549,9 @@ bool Orbiter_Plugin::MobileOrbiterLinked(class Socket *pSocket,class Message *pM
     // Associated with a new media director.  Show the corresponding menu
     pOH_Orbiter->m_pDevice_CurrentDetected = (DeviceData_Router *) pDeviceFrom;
 
-    DCE::CMD_Create_Mobile_Orbiter CMD_Create_Mobile_Orbiter(-1/*m_Device*/,pDeviceFrom->m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,sMacAddress);
+    DCE::CMD_Create_Mobile_Orbiter CMD_Create_Mobile_Orbiter(-1/*m_Device*/,pDeviceFrom->m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+		StringUtils::itos(pOH_Orbiter->m_pEntertainArea_Locked ? pOH_Orbiter->m_pEntertainArea_Locked->m_iPK_EntertainArea : 0),sMacAddress,
+		pOH_Orbiter->m_dwPK_Room_Locked ? pOH_Orbiter->m_dwPK_Room_Locked : 0);
     SendCommand(CMD_Create_Mobile_Orbiter);
 
 	if( pOH_Orbiter->m_bFollowMe_Lighting )

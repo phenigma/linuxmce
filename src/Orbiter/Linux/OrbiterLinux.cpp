@@ -226,9 +226,9 @@ bool OrbiterLinux::setDesktopVisible(bool visible)
 //     forkAndWait( ratpoisonArgs, 2 );
 // }
 
-void OrbiterLinux::Initialize(GraphicType Type)
+void OrbiterLinux::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainArea)
 {
-    OrbiterSDL::Initialize(Type);
+    OrbiterSDL::Initialize(Type,iPK_Room,iPK_EntertainArea);
     reinitGraphics();
 }
 

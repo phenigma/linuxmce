@@ -331,9 +331,9 @@ Uint32 OrbiterSDL::getpixel(SDL_Surface * pSDL_Surface, int x, int y)
     }
 }
 //-----------------------------------------------------------------------------------------------------
-void OrbiterSDL::Initialize(GraphicType Type)
+void OrbiterSDL::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainArea)
 {
-    Orbiter::Initialize(Type);
+    Orbiter::Initialize(Type, iPK_Room, iPK_EntertainArea);
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, PlutoColor ColorToReplace, PlutoColor ReplacementColor)

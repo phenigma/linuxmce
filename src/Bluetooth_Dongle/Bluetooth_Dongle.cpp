@@ -222,6 +222,18 @@ bool Bluetooth_Dongle::Register()
 	return Connect(PK_DeviceTemplate_get()); 
 }
 
+bool Bluetooth_Dongle::Connect(int iPK_DeviceTemplate) 
+{
+	if(!Bluetooth_Dongle_Command::Connect(iPK_DeviceTemplate)) {
+		return false;
+	}
+
+	string sPK_EntertainArea;
+	DCE::CMD_Get_EntAreas_For_Device_Cat CMD_Get_EntAreas_For_Device_Cat(m_dwPK_Device,DEVICECATEGORY_Media_Plugins_CONST,false,BL_SameHouse,m_dwPK_Device,&sPK_EntertainArea);
+	SendCommand(CMD_Get_EntAreas_For_Device_Cat);
+	m_dwPK_EntertainArea = atoi(sPK_EntertainArea.c_str());
+g_pPlutoLogger->Write(LV_CRITICAL,"Set EA to %d",m_dwPK_EntertainArea);
+}
 /*
 	When you receive commands that are destined to one of your children,
 	then if that child implements DCE then there will already be a separate class
@@ -562,10 +574,14 @@ void Bluetooth_Dongle::CMD_Get_Signal_Strength(string sMac_address,int *iValue,s
 	/** The bluetooth dongle spawns an internal mobile orbiter which communicates with the phone. */
 		/** @param #2 PK_Device */
 			/** The ID of the controller to spawn. */
+		/** @param #45 PK_EntertainArea */
+			/** If not empty, the Orbiter will be created in this entertainarea rather than the one for the dongle.  This will take precendence over PK_Room */
 		/** @param #47 Mac address */
 			/** The Mac Address of the phone. */
+		/** @param #57 PK_Room */
+			/** If not 0, the device will be created in this room instead of the default room for the dongle. */
 
-void Bluetooth_Dongle::CMD_Create_Mobile_Orbiter(int iPK_Device,string sMac_address,string &sCMD_Result,Message *pMessage)
+void Bluetooth_Dongle::CMD_Create_Mobile_Orbiter(int iPK_Device,string sPK_EntertainArea,string sMac_address,int iPK_Room,string &sCMD_Result,Message *pMessage)
 //<-dceag-c62-e->
 {
 	PLUTO_SAFETY_LOCK( bm, m_BTMutex );
@@ -587,8 +603,19 @@ printf( "$$$ Ready to delete the orbiter...\n" );
 
 		g_pPlutoLogger->Write( LV_WARNING, "Orbiter created for %s device", sMac_address.c_str() );
 
-		class OrbiterSDLBluetooth *pOrbiter = 
-			StartOrbiterSDLBluetooth( pBD_Orbiter->m_pBDCommandProcessor, iPK_Device, m_sIPAddress, "", false, 176, 208 );
+		class OrbiterSDLBluetooth *pOrbiter;
+		if( atoi(sPK_EntertainArea.c_str()) || iPK_Room )
+		{
+			pOrbiter = 
+				StartOrbiterSDLBluetooth( pBD_Orbiter->m_pBDCommandProcessor, iPK_Device, m_sIPAddress, "", false, 176, 208, 
+					iPK_Room,atoi(sPK_EntertainArea.c_str()));
+		}
+		else
+		{
+			pOrbiter = 
+				StartOrbiterSDLBluetooth( pBD_Orbiter->m_pBDCommandProcessor, iPK_Device, m_sIPAddress, "", false, 176, 208, 
+					0, m_dwPK_EntertainArea);
+		}
 
 		if(NULL != pOrbiter)
 		{

@@ -16,7 +16,9 @@ DCE::OrbiterSDLBluetooth *StartOrbiterSDLBluetooth(
 	string sLocalDirectory, 
 	bool bLocalMode, 
 	int Width,
-	int Height
+	int Height,
+	int PK_Room,
+	int PK_EntertainArea
 );
 //-----------------------------------------------------------------------------------------------------
 #endif

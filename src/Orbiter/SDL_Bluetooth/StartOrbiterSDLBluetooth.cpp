@@ -28,7 +28,9 @@ OrbiterSDLBluetooth *StartOrbiterSDLBluetooth(
 	string sLocalDirectory, 
 	bool bLocalMode, 
 	int Width,
-	int Height
+	int Height,
+	int PK_Room,
+	int PK_EntertainArea
 )
 {
 	OrbiterSDLBluetooth * pOrbiterSDLBluetooth = 
@@ -40,7 +42,7 @@ OrbiterSDLBluetooth *StartOrbiterSDLBluetooth(
 	if (bLocalMode || pOrbiterSDLBluetooth->Connect(0)) // Don't validate the device template
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
-		pOrbiterSDLBluetooth->Initialize(gtSDLGraphic);
+		pOrbiterSDLBluetooth->Initialize(gtSDLGraphic,PK_Room,PK_EntertainArea);
 		g_pPlutoLogger->Write(LV_STATUS, "SDLGraphic initialized");
 		
 		if( !bLocalMode  )

@@ -2134,3 +2134,35 @@ void Media_Plugin::CMD_Remove_playlist_entry(int iValue,string &sCMD_Result,Mess
 
 	pEntertainArea->m_pMediaStream->DeleteEntryFromPlaylist(iValue);
 }
+//<-dceag-c331-b->
+
+	/** @brief COMMAND: #331 - Get EntAreas For Device */
+	/** Returns the EntArea(s) that a given device is in. */
+		/** @param #2 PK_Device */
+			/** The Device */
+		/** @param #9 Text */
+			/** A comma delimted list of EntAreas */
+
+void Media_Plugin::CMD_Get_EntAreas_For_Device(int iPK_Device,string *sText,string &sCMD_Result,Message *pMessage)
+//<-dceag-c331-e->
+{
+	DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(iPK_Device);
+	MediaDevice *pMediaDevice = NULL;
+	while( pDevice && !pMediaDevice )
+	{
+		pMediaDevice = m_mapMediaDevice_Find( pDevice->m_dwPK_Device );
+		pDevice = (DeviceData_Router *) pDevice->m_pDevice_ControlledVia;
+	}
+
+	if( !pMediaDevice )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot get ent area for non media device: %d", iPK_Device);
+		return;
+	}
+	
+	for(list<class EntertainArea *>::iterator it=pMediaDevice->m_listEntertainArea.begin();it!=pMediaDevice->m_listEntertainArea.end();++it)
+	{
+		EntertainArea *pEntertainArea = *it;
+		(*sText) += StringUtils::itos(pEntertainArea->m_iPK_EntertainArea) + ",";
+	}
+}

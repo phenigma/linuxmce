@@ -416,6 +416,17 @@ public:
 	virtual void CMD_Remove_playlist_entry(int iValue,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #331 - Get EntAreas For Device */
+	/** Returns the EntArea(s) that a given device is in. */
+		/** @param #2 PK_Device */
+			/** The Device */
+		/** @param #9 Text */
+			/** A comma delimted list of EntAreas */
+
+	virtual void CMD_Get_EntAreas_For_Device(int iPK_Device,string *sText) { string sCMD_Result; CMD_Get_EntAreas_For_Device(iPK_Device,sText,sCMD_Result,NULL);};
+	virtual void CMD_Get_EntAreas_For_Device(int iPK_Device,string *sText,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 };
 

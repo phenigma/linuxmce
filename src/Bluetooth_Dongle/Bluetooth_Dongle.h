@@ -118,6 +118,7 @@ public:
 		pthread_mutexattr_t m_MutexAttr; /** < make it recursive */
 		pluto_pthread_mutex_t m_BTMutex; /**< to control access to the shared memory */
 		int m_iChannel; /**< specifies the channel to use */
+		int m_dwPK_EntertainArea; /**< Our EntertainArea */
 	
 	public:
 		// Public member variables
@@ -132,6 +133,8 @@ public:
 			return it == m_mapOrbiterSockets.end() ? NULL : ( *it ).second;
 		}
 	
+		bool Connect(int iPK_DeviceTemplate); // Special stuff after connection
+
 		/** From PhoneDetectionEngine class */
 		
 		/** 
@@ -219,11 +222,15 @@ public:
 	/** The bluetooth dongle spawns an internal mobile orbiter which communicates with the phone. */
 		/** @param #2 PK_Device */
 			/** The ID of the controller to spawn. */
+		/** @param #45 PK_EntertainArea */
+			/** If not empty, the Orbiter will be created in this entertainarea rather than the one for the dongle.  This will take precendence over PK_Room */
 		/** @param #47 Mac address */
 			/** The Mac Address of the phone. */
+		/** @param #57 PK_Room */
+			/** If not 0, the device will be created in this room instead of the default room for the dongle. */
 
-	virtual void CMD_Create_Mobile_Orbiter(int iPK_Device,string sMac_address) { string sCMD_Result; CMD_Create_Mobile_Orbiter(iPK_Device,sMac_address.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Create_Mobile_Orbiter(int iPK_Device,string sMac_address,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Create_Mobile_Orbiter(int iPK_Device,string sPK_EntertainArea,string sMac_address,int iPK_Room) { string sCMD_Result; CMD_Create_Mobile_Orbiter(iPK_Device,sPK_EntertainArea.c_str(),sMac_address.c_str(),iPK_Room,sCMD_Result,NULL);};
+	virtual void CMD_Create_Mobile_Orbiter(int iPK_Device,string sPK_EntertainArea,string sMac_address,int iPK_Room,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #80 - Send File To Device */

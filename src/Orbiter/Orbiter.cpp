@@ -2264,7 +2264,7 @@ int r=pDesignObj_DataGrid->m_pDataGridTable->GetRows(  );
 INITIALIZATION
 */
 //-----------------------------------------------------------------------------------------------------------
-void Orbiter::Initialize( GraphicType Type )
+void Orbiter::Initialize( GraphicType Type, int iPK_Room, int iPK_EntertainArea )
 {
     if ( !m_bQuit )
     {
@@ -2391,8 +2391,13 @@ void Orbiter::Initialize( GraphicType Type )
         for( DequeLocationInfo::iterator itLocations=m_dequeLocation.begin(  );itLocations!=m_dequeLocation.end(  );++itLocations )
         {
             class LocationInfo *pLocationInfo = *itLocations;
-            if(  pLocationInfo->iLocation==m_iLocation_Initial  )
+g_pPlutoLogger->Write(LV_STATUS,"Checing room: %d ea %d against %d %d",pLocationInfo->PK_Room,pLocationInfo->PK_EntertainArea,iPK_Room,iPK_EntertainArea);
+			// If a room/ent area is passed in use that location instead of m_iLocation_Initial
+            if( (pLocationInfo->iLocation==m_iLocation_Initial && !m_pLocationInfo_Initial) ||
+				(pLocationInfo->PK_Room==iPK_Room && pLocationInfo->PK_EntertainArea==0) ||
+				pLocationInfo->PK_EntertainArea==iPK_EntertainArea )
             {
+g_pPlutoLogger->Write(LV_STATUS,"using location");
                 m_pLocationInfo_Initial = pLocationInfo;
                 break;
             }

@@ -438,7 +438,7 @@ void RealRedraw( void *data );  // temp hack -- see comments
 	 * @brief initializises the orbiter with the specified graphic type
 	 * @todo ask
 	 */
-	virtual void Initialize( GraphicType Type );
+	virtual void Initialize( GraphicType Type, int iPK_Room=0, int iPK_EntertainArea=0 );
 
 	/**
 	 * @brief initializises the specified Grid

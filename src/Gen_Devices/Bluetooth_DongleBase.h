@@ -92,7 +92,7 @@ public:
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Link_with_mobile_orbiter(int iMediaPosition,string sMac_address,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Signal_Strength(string sMac_address,int *iValue,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Create_Mobile_Orbiter(int iPK_Device,string sMac_address,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Create_Mobile_Orbiter(int iPK_Device,string sPK_EntertainArea,string sMac_address,int iPK_Room,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Send_File_To_Device(string sFilename,string sMac_address,string sIP_Address,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
@@ -147,8 +147,10 @@ public:
 					{
 						string sCMD_Result="OK";
 					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
+					string sPK_EntertainArea=pMessage->m_mapParameters[45];
 					string sMac_address=pMessage->m_mapParameters[47];
-						CMD_Create_Mobile_Orbiter(iPK_Device,sMac_address.c_str(),sCMD_Result,pMessage);
+					int iPK_Room=atoi(pMessage->m_mapParameters[57].c_str());
+						CMD_Create_Mobile_Orbiter(iPK_Device,sPK_EntertainArea.c_str(),sMac_address.c_str(),iPK_Room,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
