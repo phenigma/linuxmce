@@ -3,6 +3,7 @@
 
 $out='
 <h3><b>Main download</b></h3>
+<p>You can go to PlutoVip Download <b><a href="index.php?section=document&docID=104">here</a></b></p>
 Pluto comes in many modules, and most of those modules require several other pieces of software to function.  The easiest way to get Pluto is to register or login to plutohome.com, choose "My Pluto" and then "New Installation". 
 An install wizard will ask a few questions and then compile a list of all the software you will need and build a custom installation script that will set everything up for you.
 <br><br>If you want to download individual modules manually, this page lists all the software Pluto offers, as well as all the 3rd party software Pluto needs to run.  The software

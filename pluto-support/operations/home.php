@@ -2,23 +2,23 @@
 $package=(isset($_SESSION['package']))?$_SESSION['package']:0;
 if($package!=0){
 	$out='
-	<p>This is the main home page for the software module <b>**package**</b>, which is part of a Pluto system.  Here you will find documentation, downloads, source code, forums, mailing lists and FAQ\'s for <b>**package**</b>.</p>
+	<p>This is the main home page for the software module <b>**package**</b>.  The above menu has links to documentation, downloads, source code, forums, mailing lists and FAQ\'s specific to <b>**package**</b>.</p>
 
-	<p>Pluto is a very modular system, and every installation can have its own unique mix of modules, such as <a href=index.php?section=document&docID=7>plug-ins</a> and <a href=index.php?section=document&docID=6>DCE devices</a>.  
-	If you are not familiar with Pluto, you should first visit the <a href=index.php?section=home&package=0>main</a> support page to learn about how Pluto works.  There you will find documentation, downloads, forums, etc. for Pluto in general.</p>
+	<p>Many of Pluto\'s <a href=index.php?section=document&docID=7>plug-ins</a> and <a href=index.php?section=document&docID=6>DCE devices</a> have their own home pages.  
+	For general help, visit the <a href=index.php?section=home&package=0>general support</a> page.</p>
 
 	<p><b><u>**package**</b></u></p>';
 	$queryDevices = 'SELECT PK_DeviceTemplate,Description FROM DeviceTemplate WHERE FK_Package=?';
 	$resDevices = $dbADO->Execute($queryDevices,$package);
 	$found = 0;
-	$out1='This DCE Devices are included : ';
+	$out1='This module includes the following DCE Devices: ';
 	$out2 = '';
 	while ($rowDevices = $resDevices->FetchRow()) {
 		$found = 1;
 		$out2.=' "'.$rowDevices['Description'].'" ';
 	}
 	if ($found == 0) {
-		$out.='<center><b>**No DCE Devices found**</b></center>';
+		$out.='<center><b>**No DCE Devices**</b></center>';
 	}
 	else {
 		$out.=$out1.'<b>'.$out2.'</b>';

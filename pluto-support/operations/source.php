@@ -23,7 +23,7 @@ $package=(isset($_SESSION['package']))?$_SESSION['package']:0;
 		if ($rowPaths['Path']=='') continue;
 		$found = 1;
 		if ($ind%2 == 1) $col = ' bgcolor="#C0C0C0"'; else $col = ' bgcolor="lightblue"';
-		$out2.='<tr'.$col.'><td><center><a href=/var/www/doxygen/html/'.$rowPaths['Path'].'/index.php>'
+		$out2.='<tr'.$col.'><td><center><a href="doxygen/'.$rowPaths['Path'].'/html/index.php">'
 			.$rowPaths['Path'].'</a></center></td></tr>';
 		$ind++;
 	}

@@ -65,6 +65,13 @@
 			$rightFile='operations/license';
 			$rightParams='';
 			break;
+		case 'help':
+			$leftFile='operations/leftHome';
+			$leftParams='';
+
+			$rightFile='operations/help';
+			$rightParams='';
+			break;
 		case 'faq':
 			$leftFile='operations/leftHome';
 			$leftParams='';

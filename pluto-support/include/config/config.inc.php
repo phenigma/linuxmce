@@ -11,11 +11,12 @@
 	$directory="/support/";
 	$domain="http://plutohome.com/";
 
-	$MasterUsersHost="https://localhost/masterusers/";
+//	$MasterUsersHost="https://localhost/masterusers/";
+	$MasterUsersHost="http://localhost/masterusers/";
 	$PlutoHomeHost="http://plutohome.com/";
 	$PlutoSupportHost='http://plutohome.com/support/';
 	
-	$defaultHelpUrl=$PlutoHomeHost.'index.php?section=help';
+	$defaultHelpUrl='index.php?section=help';
 	
 	
 	define("VERSION","0.1");

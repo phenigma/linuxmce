@@ -7,6 +7,7 @@ require($_SERVER['DOCUMENT_ROOT'].'/support/include/utils.inc.php');
 $serverPath=$PlutoSupportHost;
 $imagesPath=$serverPath.'include/images/';
 $supportPath=$PlutoSupportHost;
+$relativePath=(isset($overridePath))?$overridePath:'../';		// for the directories under support
 
 $login='<table width="239"  border="0" cellpadding="0" cellspacing="0">
               <tr>
@@ -19,7 +20,7 @@ $login='<table width="239"  border="0" cellpadding="0" cellspacing="0">
 $logout='<table width="214" border="0" cellpadding="0" cellspacing="0">
   <tr>
     <td width="115"><a href="'.$PlutoHomeHost.'index.php?section=myPluto"><img src="'.$imagesPath.'buton_my_pluto.jpg" width="115" height="36" border="0"/></a></td>
-    <td width="99"><a href="../index.php?section=logout"><img src="'.$imagesPath.'buton_logout.jpg" width="99" height="36" border="0"/></a></td>
+    <td width="99"><a href="<?=$relativePath?>index.php?section=logout"><img src="'.$imagesPath.'buton_logout.jpg" width="99" height="36" border="0"/></a></td>
   </tr>
 </table>';
 
@@ -83,12 +84,13 @@ $topMenu='
     </table></td>
   </tr>
   <tr>
-    <td style="background-image:url(<?=$imagesPath?>back_on.jpg);" valign="top" align="left" height="30"><table width="100%" cellpadding="0" cellspacing="0"><tr><td><span style="position:relative;">&nbsp;<?=$topMenu?></span></td><td align="right"><img src="../include/images/help.jpg" border="0"></td></tr></table>
+    <td style="background-image:url(<?=$imagesPath?>back_on.jpg);" valign="top" align="left" height="30"><table width="100%" cellpadding="0" cellspacing="0"><tr><td><span style="position:relative;">&nbsp;<?=$topMenu?></span></td><td align="right"><img src="<?=$imagesPath?>help.jpg" border="0"></td></tr></table>
   </tr>  
  </table>
  <?
  
  function getHeaderTopMenu($website,$dbADO,$package=0) {
+ 	global $relativePath;
 	$dbADO->debug=false;
 	$package=(isset($_SESSION['package']))?$_SESSION['package']:0;
 	if($package!=0){
@@ -108,7 +110,7 @@ $topMenu='
 		while ($rowSelectMenu = $resSelectMenu->FetchRow()) {
 			
 			$menuPages.='
-				AddMenu("'.$rowSelectMenu['PK_PageSetup'].'"  ,  "'.$rowSelectMenu['PK_PageSetup'].'"   ,  "&nbsp;&nbsp;'.ReplaceTokens($rowSelectMenu['Description']).'"       ,  ""  ,  ""  , "../'.ReplaceTokens($rowSelectMenu['pageURL']).'");
+				AddMenu("'.$rowSelectMenu['PK_PageSetup'].'"  ,  "'.$rowSelectMenu['PK_PageSetup'].'"   ,  "&nbsp;&nbsp;'.ReplaceTokens($rowSelectMenu['Description']).'"       ,  ""  ,  ""  , "'.$relativePath.ReplaceTokens($rowSelectMenu['pageURL']).'");
 			';
 			//get childs (ne-recursive method)
 			$selectSubMenu1 = "SELECT * FROM PageSetup WHERE FK_PageSetup_Parent = {$rowSelectMenu['PK_PageSetup']} AND showInTopMenu = 1";
@@ -119,13 +121,13 @@ $topMenu='
 					$resSelectSubMenu2 = $dbADO->Execute($selectSubMenu2);
 					
 				$menuPages.='
-					AddMenu("'.$rowSelectSubMenu1['PK_PageSetup'].'"  ,  "'.$rowSelectMenu['PK_PageSetup'].'"   ,  "&nbsp;&nbsp;'.ReplaceTokens($rowSelectSubMenu1['Description']).($resSelectSubMenu2->RecordCount()>0?" &gt;&gt;":"").'"       ,  ""  ,  ""  , "../'.ReplaceTokens($rowSelectSubMenu1['pageURL']).'");
+					AddMenu("'.$rowSelectSubMenu1['PK_PageSetup'].'"  ,  "'.$rowSelectMenu['PK_PageSetup'].'"   ,  "&nbsp;&nbsp;'.ReplaceTokens($rowSelectSubMenu1['Description']).($resSelectSubMenu2->RecordCount()>0?" &gt;&gt;":"").'"       ,  ""  ,  ""  , "'.$relativePath.ReplaceTokens($rowSelectSubMenu1['pageURL']).'");
 				';
 				
 					
 					while ($rowSelectSubMenu2 = $resSelectSubMenu2->FetchRow()) {
 						$menuPages.='
-							AddMenu("'.$rowSelectSubMenu2['PK_PageSetup'].'"  ,  "'.$rowSelectSubMenu1['PK_PageSetup'].'"   ,  "&nbsp;&nbsp;'.ReplaceTokens($rowSelectSubMenu2['Description']).'"       ,  ""  ,  ""  , "../'.ReplaceTokens($rowSelectSubMenu2['pageURL']).'");
+							AddMenu("'.$rowSelectSubMenu2['PK_PageSetup'].'"  ,  "'.$rowSelectSubMenu1['PK_PageSetup'].'"   ,  "&nbsp;&nbsp;'.ReplaceTokens($rowSelectSubMenu2['Description']).'"       ,  ""  ,  ""  , "'.$relativePath.ReplaceTokens($rowSelectSubMenu2['pageURL']).'");
 						';
 					}
 					$resSelectSubMenu2->Close();		

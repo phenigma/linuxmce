@@ -156,7 +156,7 @@ else{
 
 }
 
-$output->setHelpSrc('http://helpdevice.com/');
+$output->setHelpSrc('index.php?section=help');
 $output->setBody($out);
 $output->setTitle(APPLICATION_NAME);
 $output->output();
