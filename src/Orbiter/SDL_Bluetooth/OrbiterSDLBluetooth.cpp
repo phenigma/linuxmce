@@ -201,7 +201,7 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 //  delete dst;
 //  dst = NULL;
 
-    //if( m_bShowListSent/* && !m_vectObjs_GridsOnScreen.size()*/ )
+    if( m_bShowListSent && !m_vectObjs_GridsOnScreen.size() )
     {
         list<string> listGrid;
         listGrid.clear();
@@ -256,6 +256,13 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
 
 	if(pObj->m_pDataGridTable)
     {
+		list<string> listGridClean;
+		listGridClean.clear();
+
+		BD_CP_ShowList *pBD_CP_ShowList_Off = new BD_CP_ShowList(0, 0, 0, 0, 0, listGridClean, false, false);
+		if( m_pBDCommandProcessor )
+			m_pBDCommandProcessor->AddCommand(pBD_CP_ShowList_Off);
+
 		g_pPlutoLogger->Write(LV_WARNING, "Got to render a datagrid with %d columns", pObj->m_pDataGridTable->m_ColumnCount);
 
 		if(pObj->m_pDataGridTable->m_ColumnCount == 1)
