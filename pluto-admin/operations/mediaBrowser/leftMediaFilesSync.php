@@ -232,6 +232,7 @@ function getNodeName($nodesID,$level,$nodesNames,$nodesIDs,$nodesParentIDs)
 
 function getFullPath($currentDir,$currentLevel,$nodesNames,$nodesIDs,$nodesParentIDs)
 {
+	$fullPath='';
 	if($currentLevel>0){
 		$key=array_search($currentDir,$nodesNames[$currentLevel]);
 		$parentID=$nodesParentIDs[$currentLevel][$key];

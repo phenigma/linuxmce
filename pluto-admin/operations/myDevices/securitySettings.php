@@ -70,7 +70,7 @@ function securitySettings($output,$dbADO) {
 						$oldProperties=$rowDDD['IK_DeviceData'];
 						$oldPropertiesArray=explode(',',$oldProperties);
 					}
-					$out.='<input type="hidden" name="oldProperties" value="'.@$oldProperties.'">';
+					$out.='<input type="hidden" name="oldProperties_'.$rowD['PK_Device'].'" value="'.@$oldProperties.'">';
 					$out.='
 						<tr>
 							<td align="center"><b>'.$rowD['Description'].'</b><br>('.$rowD['DTemplate'].')</td>';
@@ -78,7 +78,7 @@ function securitySettings($output,$dbADO) {
 					foreach($properties AS $itemNo=> $itemValue){
 						$out.='<td><select name="'.$itemValue.'_'.$rowD['PK_Device'].'">';
 						foreach($pullDownArray AS $key=>$value){
-							$out.='<option value="'.$key.'" '.((@$oldPropertiesArray[$itemNo]==$key)?'selected':'').'>'.$value.'</option>';
+							$out.='<option value="'.$key.'" '.((@$oldPropertiesArray[$itemNo+1]==$key)?'selected':'').'>'.$value.'</option>';
 						}
 						$out.='</select></td>';
 					}
@@ -102,11 +102,24 @@ function securitySettings($output,$dbADO) {
 			exit(0);
 		}
 		// process and redirect
-		foreach($properties AS $itemNo=> $itemValue){
-			${'val'.$itemValue}=$_POST[];
-		}
 		
-		//header("Location: index.php?section=securitySettings");		
+		$displayedDevicesArray=explode(',',$_POST['displayedDevices']);
+		foreach($displayedDevicesArray AS $device){
+			$oldProperties=$_POST['oldProperties_'.$device];
+			$newProperties=(isset($_POST['monitor_mode_'.$device]))?1:0;
+			foreach($properties AS $itemNo=> $itemValue){
+				$newProperties.=','.$_POST[$itemValue.'_'.$device];
+			}
+			if($oldProperties==''){
+				$insertDDD='INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData, IK_DeviceData) VALUES (?,?,?)';
+				$dbADO->Execute($insertDDD,array($device,$GLOBALS['securityAlert'],$newProperties));
+			}elseif($newProperties!=$oldProperties){
+				$updateDDD='UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_DeviceData=? AND FK_Device=?';
+				$dbADO->Execute($updateDDD,array($newProperties,$GLOBALS['securityAlert'],$device));
+			}
+		}		
+		
+		header("Location: index.php?section=securitySettings");		
 	}
 
 	$output->setScriptCalendar('null');
