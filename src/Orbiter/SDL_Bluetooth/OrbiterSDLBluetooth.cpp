@@ -203,6 +203,9 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
 
     //if( m_bShowListSent/* && !m_vectObjs_GridsOnScreen.size()*/ )
     {
+        list<string> listGrid;
+        listGrid.clear();
+
         BD_CP_ShowList *pBD_CP_ShowList = new BD_CP_ShowList(0, 0, 0, 0, 0, listGrid, false, false);
         if( m_pBDCommandProcessor )
         {
