@@ -39,7 +39,7 @@ namespace DCE
 	private:
 	
 		list<Message *> m_listMessageQueue;  /** < there are two ways of sending a message: realtime and queued (in a sepparted thread); this is the queue of messages */
-		vector<string> m_vectSpawnedDevices;  /** < Keep track of all the devices we spawned so we can kill them on create */
+		static vector<string> m_vectSpawnedDevices;  /** < Keep track of all the devices we spawned so we can kill them on create */
 
 	public:
 	
@@ -48,7 +48,7 @@ namespace DCE
 		pluto_pthread_mutex_t m_listMessageQueueMutex; /** < for protecin the access to the MessageQueue */
 		pthread_t m_pthread_queue_id; /** < the thread id for the tread that's treating the messages from the message queue */
 		pthread_cond_t m_listMessageQueueCond; /** < condition for the messages in the queue */
-		bool m_bKillSpawnedDevicesOnExit;  /** < a derived class will set this to true if we should kill the devices when we die */
+		static bool m_bKillSpawnedDevicesOnExit;  /** < a derived class can set this to false if we should not kill the devices when we die */
 		class Router *m_pRouter; /** < this will be NULL if this is not a plug-in being loaded in the same memory space, otherwise it will point to the router that can see the shared mamory space */
 		
 		Command_Impl *m_pPrimaryDeviceCommand; /** < pointer to the command for the primary device (if this one was spawned by it) */
@@ -127,7 +127,7 @@ namespace DCE
 		 */
 		virtual bool SpawnChildDevice( class DeviceData_Impl *pDeviceData_Impl_Child, string sDisplay="" );  // Another implementation may override this, passing in the display to export -- Linux only
 		
-		virtual void KillSpawnedDevices();
+		static void KillSpawnedDevices();
 
 		/**
 		 * @brief replaces the values for all the parameters in m_pData with new values specified in sReplacement

@@ -38,6 +38,18 @@
 
 using namespace DCE;
 
+// An interceptor for crash signals that will kill all spawned children.  This is needed 
+// since the framework will restart our device, which will restart our children
+void sig_intercept(int sig)
+{
+	g_pPlutoLogger->Write( LV_CRITICAL, "Received a signal %d -- killing devices",sig );
+	if( Command_Impl::m_bKillSpawnedDevicesOnExit )
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "About to call kill spawned devices" );
+		Command_Impl::KillSpawnedDevices();
+	}
+}
+
 /**
  * @brief entry point for the MessageQueue thread
  */
@@ -100,6 +112,11 @@ void *WatchDogThread( void *pData )
 Command_Impl::Command_Impl( int DeviceID, string ServerAddress, bool bLocalMode, class Router *pRouter )
 	: HandleRequestSocket( DeviceID, ServerAddress, "Command_Impl1 Dev #" + StringUtils::itos(DeviceID) ), m_listMessageQueueMutex( "MessageQueue" )
 {
+#ifndef WIN32
+	signal(SIGFPE, sig_intercept);
+	signal(SIGILL, sig_intercept);
+	signal(SIGSEGV, sig_intercept);
+#endif
 	m_pRouter = pRouter;
 	m_pcRequestSocket = NULL;
 	m_bLocalMode = bLocalMode;
@@ -110,7 +127,7 @@ Command_Impl::Command_Impl( int DeviceID, string ServerAddress, bool bLocalMode,
 	m_bMessageQueueThreadRunning = false;
 	m_pParent = NULL;
 	m_listMessageQueueMutex.Init( NULL );
-	m_bKillSpawnedDevicesOnExit = false;
+	m_bKillSpawnedDevicesOnExit = true;
 	m_bGeneric = false;
 	pthread_cond_init( &m_listMessageQueueCond, NULL );
 	m_dwMessageInterceptorCounter=0;
@@ -139,7 +156,7 @@ Command_Impl::Command_Impl( Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl
 	m_bHandleChildren = false;
 	m_bMessageQueueThreadRunning = false;
 	m_listMessageQueueMutex.Init(NULL);
-	m_bKillSpawnedDevicesOnExit = false;
+	m_bKillSpawnedDevicesOnExit = true;
 	m_bGeneric = false;
 	pthread_cond_init( &m_listMessageQueueCond, NULL );
 	m_dwMessageInterceptorCounter=0;
@@ -368,17 +385,32 @@ bool Command_Impl::ReceivedMessage( Message *pMessage )
 	// If it can't it will pass it to this function.
 	map<long, string>::iterator p;
 
-	if ( pMessage->m_dwMessage_Type == MESSAGETYPE_SYSCOMMAND && pMessage->m_dwID == SYSCOMMAND_QUIT )
+	if ( pMessage->m_dwMessage_Type == MESSAGETYPE_SYSCOMMAND )
 	{
-		SendString("BYE");
-		Sleep(250);
-		OnQuit();
-		/* see notes in header file 1/2/2004
-		Disconnect();
-		if (m_pEvent && m_pEvent->m_pClientSocket)
-			m_pEvent->m_pClientSocket->Disconnect();
-		*/
-		return true;
+		if( pMessage->m_dwID == SYSCOMMAND_QUIT )
+		{
+			SendString("BYE");
+			Sleep(250);
+			OnQuit();
+			/* see notes in header file 1/2/2004
+			Disconnect();
+			if (m_pEvent && m_pEvent->m_pClientSocket)
+				m_pEvent->m_pClientSocket->Disconnect();
+			*/
+			return true;
+		}
+		else if( pMessage->m_dwID == SYSCOMMAND_SEGFAULT )
+		{
+			char *pNULLPointer=NULL;
+			strcpy(pNULLPointer,"this always crashes any os");
+		}
+		else if( pMessage->m_dwID == SYSCOMMAND_DEADLOCK )
+		{
+			PLUTO_SAFETY_LOCK( mq, m_listMessageQueueMutex );
+			mq.m_bReleased=true;
+			PLUTO_SAFETY_LOCK( sSM, m_SocketMutex );
+			sSM.m_bReleased=true;
+		}
 	}
 
 	if ( pMessage->m_dwMessage_Type == MESSAGETYPE_SYSCOMMAND && pMessage->m_dwID == SYSCOMMAND_RELOAD )

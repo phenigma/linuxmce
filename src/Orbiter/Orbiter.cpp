@@ -171,7 +171,6 @@ m_CallbackMutex( "callback" ), m_MaintThreadMutex("MaintThread")
     m_pScreenHistory_Current=NULL;
     m_pObj_LastSelected=m_pObj_Highlighted=NULL;
     m_LastActivityTime=time( NULL );
-    m_bKillSpawnedDevicesOnExit=true;
     m_iLastEntryInDeviceGroup=-1;
 
     pthread_mutexattr_init( &m_MutexAttr );
