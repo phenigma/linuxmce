@@ -146,7 +146,7 @@ bool Table_@table_name@::Key_Less::operator()(const Table_@table_name@::Key &key
 			@key_less_statement@	
 }	
 
-void Table_@table_name@::Commit()
+bool Table_@table_name@::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
@@ -165,6 +165,7 @@ void Table_@table_name@::Commit()
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		if (mysql_affected_rows(database->db_handle)!=0)
@@ -205,6 +206,7 @@ void Table_@table_name@::Commit()
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}
 	
 		pRow->is_modified = false;	
@@ -236,12 +238,14 @@ void Table_@table_name@::Commit()
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			return false;
 		}	
 		
 		delete (*i).second;
 		deleted_cachedRows.erase(key);
 	}
 	@endif_have_primary_keys@
+	return true;
 }
 
 bool Table_@table_name@::GetRows(string where_statement,vector<class Row_@table_name@*> *rows)

@@ -56,7 +56,7 @@ private:
 	@map_deleted_cached_rows@
 
 public:				
-	void Commit();
+	bool Commit();
 	bool GetRows(string where_statement,vector<class Row_@table_name@*> *rows);
 	class Row_@table_name@* AddRow();
 	Database_@database_name@ *Database_@database_name@_get() { return database; }
