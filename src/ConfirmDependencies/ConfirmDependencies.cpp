@@ -585,6 +585,10 @@ void CheckDeviceLoop(Row_Device *pRow_Device,bool bDevelopment)
 	}
 	else
 	{
+		if (sCommand == "install")
+		{
+			cout << "#Device: " << pRow_Device->Description_get() << " (#" << pRow_Device->FK_DeviceTemplate_get() << " " << pRow_Device->FK_DeviceTemplate_getrow()->Description_get() << ") requires software" << endl;
+		}
 		string PkgName = pRow_Device->FK_DeviceTemplate_getrow()->FK_Package_getrow()->Description_get();
 		CheckPackage(pRow_Device->FK_DeviceTemplate_getrow()->FK_Package_getrow(),pRow_Device,bDevelopment,pRow_Distro,false);
 	}
