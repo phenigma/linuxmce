@@ -288,6 +288,7 @@ int main(int argc, char *argv[])
 	if( !pRow_Device )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot get device information!");
+		exit(1);
 	}
 
 	if (sCommand == "install")
@@ -958,8 +959,30 @@ void InstallPackage(PackageInfo *pPackageInfo, bool bElse)
 		<< " \"" << pPackageInfo->m_sConfiguration << "\""
 		<< " \"" << pPackageInfo->m_pRow_RepositorySource_URL->Username_get() << "\""
 		<< " \"" << pPackageInfo->m_pRow_RepositorySource_URL->Password_get() << "\""
-		<< " \"" << pPackageInfo->m_pRow_Package_Source->Parms_get() << "\""
-		<< "; then"
+		<< " \"" << pPackageInfo->m_pRow_Package_Source->Parms_get() << "\"";
+
+	if( pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get()==REPOSITORYTYPE_CVS_CONST ||
+		pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get()==REPOSITORYTYPE_Subversion_SVN_CONST )
+	{
+		for(size_t s=0;s<pPackageInfo->m_vectAltSourceImplementation.size();++s)
+		{
+			cout << " && if /usr/pluto/install/" << pRow_Distro->Installer_get()
+				<< " \"" << pPackageInfo->m_pRow_Package_Source->Name_get() << "\""
+				<< " \"" << pPackageInfo->m_pRow_RepositorySource_URL->URL_get() << "\""
+				<< " \"" << pPackageInfo->m_pRow_Package_Source->Repository_get() << "\""
+				<< " \"" << pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get() << "\""
+				<< " \"" << pPackageInfo->m_pRow_Package_Source->Version_get() << "\"" 
+				<< " \"" << pPackageInfo->m_sBinaryExecutiblesPathPath << "\"" 
+				<< " \"" << pPackageInfo->m_sSourceIncludesPath << "\"" 
+				<< " \"" << pPackageInfo->m_vectAltSourceImplementation[s]->FK_Directory_get() << "\"" 
+				<< " \"" << pPackageInfo->m_sBinaryLibraryPath << "\"" 
+				<< " \"" << pPackageInfo->m_sConfiguration << "\""
+				<< " \"" << pPackageInfo->m_pRow_RepositorySource_URL->Username_get() << "\""
+				<< " \"" << pPackageInfo->m_pRow_RepositorySource_URL->Password_get() << "\""
+				<< " \"" << pPackageInfo->m_pRow_Package_Source->Parms_get() << "\"";
+		}
+	}
+	cout << "; then"
 		<< endl;
 	cout << "\t\techo \"Confirmation of package " << pPackageInfo->m_pRow_Package_Source->FK_Package_get() << " '" << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << "' went ok.\"" << endl;
 	cout << "\t\tok=1" << endl;
