@@ -1340,16 +1340,27 @@ class DataGridTable *Media_Plugin::MediaAttrXref( string GridID, string Parms, v
     DataGridTable *pDataGrid = new DataGridTable( );
     DataGridCell *pCell;
 
-	if( Parms.length()==0 )
-		return pDataGrid;
-
-	string PK_Attribute = Parms;
+	string::size_type pos=0;
+	string PK_MediaType = StringUtils::Tokenize(Parms,"|",pos);
+	string PK_Attribute = StringUtils::Tokenize(Parms,"|",pos);
     g_pPlutoLogger->Write(LV_STATUS, "Got this PK_Attributte: %s", PK_Attribute.c_str());
 
-    if( PK_Attribute.substr( 0, 2 )=="#A" )
+	if( PK_Attribute.length()==0 )
+		return pDataGrid;
+
+	if( PK_Attribute.substr( 0, 2 )=="#A" )
         PK_Attribute = PK_Attribute.substr( 2 );
-    else if( PK_Attribute.substr( 0, 2 )=="#F" )
+    
+    int PK_Picture;
+    string Extension;
+
+	if( PK_Attribute.substr( 0, 2 )=="#F" )
+	{
+        Extension = m_pMediaAttributes->GetPictureFromFileID(atoi(PK_Attribute.substr(2).c_str()),&PK_Picture);
         PK_Attribute = StringUtils::itos(m_pMediaAttributes->GetAttributeFromFileID( atoi( PK_Attribute.substr( 2 ).c_str( ) ) ) );
+	}
+	else
+        Extension = m_pMediaAttributes->GetPictureFromAttributeID(atoi(PK_Attribute.c_str()),&PK_Picture);
 
     g_pPlutoLogger->Write(LV_STATUS, "Transformed PK_Attributte: %s", PK_Attribute.c_str());
 
@@ -1362,7 +1373,7 @@ class DataGridTable *Media_Plugin::MediaAttrXref( string GridID, string Parms, v
         "JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "\
         "JOIN Type_AttributeType ON Type_AttributeType.FK_Type=File.FK_Type "\
         "AND Type_AttributeType.FK_AttributeType=Attribute.FK_AttributeType "\
-        "WHERE Identifier=3 ORDER BY AttributeType.Description limit 30;";
+        "WHERE Identifier>=2 ORDER BY AttributeType.Description limit 30;";
 
     PlutoSqlResult result;
     MYSQL_ROW row;
@@ -1383,7 +1394,21 @@ g_pPlutoLogger->Write(LV_STATUS, "Transformed 4 PK_Attributte: %s", PK_Attribute
         }
     }
 g_pPlutoLogger->Write(LV_STATUS, "Transformed 3 PK_Attributte: %s", PK_Attribute.c_str());
-    return pDataGrid;
+
+    size_t length=0;
+    char *buffer=NULL;
+    if( PK_Picture )
+        buffer = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + "." + Extension,length);
+
+	pos = 0;
+    StringUtils::Tokenize(GridID, "_", pos);
+    string controller = StringUtils::Tokenize(GridID, "_", pos);
+
+    DCE::CMD_Update_Object_Image CMD_Update_Object_Image(m_dwPK_Device, atoi(controller.c_str()),
+        StringUtils::itos(DESIGNOBJ_objCDCover_CONST),"1",buffer,(int) length,"");
+    SendCommand(CMD_Update_Object_Image);
+
+	return pDataGrid;
 }
 
 class DataGridTable *Media_Plugin::MediaItemAttr( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
