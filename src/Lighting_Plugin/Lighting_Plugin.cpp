@@ -123,7 +123,7 @@ bool Lighting_Plugin::Register()
 		, DATAGRID_Lighting_Scenarios_CONST );
 
     RegisterMsgInterceptor(( MessageInterceptorFn )( &Lighting_Plugin::LightingCommand ), 0, 0, 0, DEVICECATEGORY_Lighting_Device_CONST, MESSAGETYPE_COMMAND, 0 );
-    RegisterMsgInterceptor(( MessageInterceptorFn )( &Lighting_Plugin::HandleFollowMe ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Follow_Me_Lighting_CONST );
+    RegisterMsgInterceptor(( MessageInterceptorFn )( &Lighting_Plugin::LightingFollowMe ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Follow_Me_Lighting_CONST );
 
 	return Connect(PK_DeviceTemplate_get()); 
 }
@@ -171,6 +171,11 @@ class DataGridTable *Lighting_Plugin::LightingScenariosGrid( string GridID, stri
 	}
 
 	return pDataGrid;
+}
+
+bool Lighting_Plugin::LightingFollowMe( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+	return HandleFollowMe(pMessage);
 }
 
 bool Lighting_Plugin::LightingCommand( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )

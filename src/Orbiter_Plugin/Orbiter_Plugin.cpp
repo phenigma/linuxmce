@@ -1297,7 +1297,7 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 			"All your devices must be reset to use it.  Press Quick Reload Router to do it now.  "
 			"It takes about 20 seconds.  Phone calls will not be affected, but your media will.  "
 			"Otherwise press the 'back' arrow and you can do it another time by choosing the option "
-			"on the 'advanced' menu.",true,5);
+			"on the 'advanced' menu.",true,60);
 		return;
 	}
 	pOH_Orbiter->m_tRegenTime = 0;

@@ -25,7 +25,7 @@
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
 
-bool FollowMe_Device::HandleFollowMe( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+bool FollowMe_Device::HandleFollowMe( class Message *pMessage )
 {
 g_pPlutoLogger->Write(LV_WARNING,"Handle follow me type %d",pMessage->m_dwID);
 
@@ -41,7 +41,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Handle follow me type %d",pMessage->m_dwID);
 	if( !m_bOneAtATime )  // Some things, like media, climate, etc. can only have 1 thing going.  Others like Telecom don't have that restriction
 		FollowMe_EnteredRoom(pMessage->m_dwID, iPK_Orbiter, iPK_Users, iPK_RoomOrEntArea, iPK_RoomOrEntArea_Left);
 
-	return true;
+	return false; // Let other devices handle this too
 }
 
 void FollowMe_Device::CancelPendingMovesByType(class OH_Orbiter *pOH_Orbiter)

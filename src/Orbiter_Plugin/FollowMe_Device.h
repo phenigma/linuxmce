@@ -29,7 +29,7 @@ namespace DCE
 	public:
 		// Some things, like media, climate, etc. can only have 1 thing going.  Others like Telecom don't have that restriction.
 		bool m_bOneAtATime;
-		bool HandleFollowMe( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+		bool HandleFollowMe( class Message *pMessage );
 
 		/*	When a user enters another room that's already occupied and his move is put in the queue, if he then cancels
 			follow-me, we need to remove any such pending moves */
