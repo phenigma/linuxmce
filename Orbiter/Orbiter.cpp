@@ -2049,6 +2049,12 @@ void Orbiter::Initialize( GraphicType Type )
             exit( 1 );
         }
 
+		if( !m_pScreenHistory_Current )
+		{
+            g_pPlutoLogger->Write( LV_CRITICAL, "No initial screen" );
+            exit( 1 );
+		}
+
         m_pScreenHistory_Current->m_pLocationInfo = pLocationInfo_Initial;
         m_pScreenHistory_Current->m_dwPK_Users = m_dwPK_Users_Default;
 
