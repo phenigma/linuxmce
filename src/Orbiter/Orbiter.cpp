@@ -4065,7 +4065,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Awoke with %d pending",(int) mapPendingCallback
 			for(map<int,CallBackInfo *>::iterator it=mapPendingCallbacks.begin();it!=mapPendingCallbacks.end();)
 			{
 				CallBackInfo *pCallBackInfo = (*it).second;
-if( pCallBackInfo->m_fnCallBack==(OrbiterCallBack) Orbiter::Timeout)
+if( pCallBackInfo->m_fnCallBack==(OrbiterCallBack) &Orbiter::Timeout)
 g_pPlutoLogger->Write(LV_STATUS,"Found a screen timeout - stop: %d  sec: %d now: %d",(int) pCallBackInfo->m_bStop,(int) pCallBackInfo->m_abstime.tv_sec,(int) ts_now.tv_sec );
 				if( pCallBackInfo->m_bStop )
 				{
@@ -4075,7 +4075,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Found a screen timeout - stop: %d  sec: %d now:
 				}
 				else if(pCallBackInfo->m_abstime <= ts_now)
 				{
-if( pCallBackInfo->m_fnCallBack==(OrbiterCallBack) Orbiter::Timeout)
+if( pCallBackInfo->m_fnCallBack==(OrbiterCallBack) &Orbiter::Timeout)
 g_pPlutoLogger->Write(LV_STATUS,"Found a screen timeout - good to go");
 					mapPendingCallbacks.erase( it );
 					pCallBackInfoGood = pCallBackInfo;
@@ -4088,7 +4088,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Found a screen timeout - good to go");
 
 			if( pCallBackInfoGood )
 			{
-if( pCallBackInfoGood->m_fnCallBack==(OrbiterCallBack) Orbiter::Timeout)
+if( pCallBackInfoGood->m_fnCallBack==(OrbiterCallBack) &Orbiter::Timeout)
 g_pPlutoLogger->Write(LV_STATUS,"Found a screen timeout - executing");
 
 				pthread_mutex_unlock(&pOrbiter->m_MaintThreadMutex.mutex);  // Don't keep the mutex locked while executing
