@@ -177,7 +177,7 @@ public:
 		// were serialized, then will all have the same datablock.  It is the responsibility
 		// of whoever called SerializeWrite to be sure they delete the datablock.  Just start
 		// with a new one
-		m_pcDataBlock = (char *)malloc(BLOCK_SIZE);
+		m_pcDataBlock = new char[BLOCK_SIZE];
 
 #ifndef SYMBIAN
 		if(NULL == m_pcDataBlock)
@@ -578,7 +578,7 @@ public:
 		if( !CheckRead(size) )
 			return NULL;
 
-		char *ptr = (char *)malloc(size);
+		char *ptr = new char[size];
 		memcpy(ptr,m_pcCurrentPosition,size);
 		m_pcCurrentPosition += size;
 		return ptr;

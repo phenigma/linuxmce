@@ -321,12 +321,12 @@ bool SerializeClass::SerializeRead( string sFilename, void *pExtraSerializationD
 {
 #ifndef SYMBIAN
 	long lSize = FileUtils::FileSize(sFilename.c_str());
-	void *pBuf = malloc(lSize);
+	void *pBuf = new char[lSize];
 
 	FILE *pFile = fopen(sFilename.c_str(), "rb");
 	if( !pFile )
 	{
-		free( pBuf );
+		delete[] pBuf;
 		return false;
 	}
 
