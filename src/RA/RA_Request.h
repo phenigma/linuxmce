@@ -13,7 +13,7 @@
 
 
 #include "SerializeClass/SerializeClass.h"
-#include "VIPShared/VIPIncludes.h"
+//#include "VIPShared/VIPIncludes.h"
 
 // Process outcomes
 #define USER_CANNOT_PAY_ONLINE	-100
