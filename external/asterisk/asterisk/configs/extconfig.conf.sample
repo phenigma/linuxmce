@@ -1,0 +1,37 @@
+;
+; Static and realtime external configuration
+; engine configuration
+;
+; Please read doc/README.extconfig for basic table
+; formatting information.
+;
+[settings]
+;
+; Static configuration files: 
+;
+; file.conf => driver,database[,table]
+;
+; maps a particular configuration file to the given
+; database driver, database and table (or uses the
+; name of the file as the table if not specified)
+;
+;uncomment to load queues.conf via the odbc engine.
+;
+;queues.conf => odbc,asterisk,ast_config
+
+;
+; Realtime configuration engine
+;
+; maps a particular family of realtime
+; configuration to a given database driver,
+; database and table (or uses the name of
+; the family if the table is not specified
+;
+;example => odbc,asterisk,alttable
+;iaxusers => odbc,asterisk
+;iaxpeers => odbc,asterisk
+;sipusers => odbc,asterisk
+;sippeers => odbc,asterisk
+;voicemail => odbc,asterisk
+;extensions => odbc,asterisk
+

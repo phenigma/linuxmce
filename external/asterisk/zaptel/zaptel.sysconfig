@@ -1,0 +1,29 @@
+TELEPHONY=yes
+#DEBUG=yes
+
+# Un-comment as per your requirements; modules to load/unload
+#Module Name			  Hardware
+MODULES="$MODULES tor2"		# T400P - Quad Span T1 Card
+				# E400P - Quad Span E1 Card
+
+MODULES="$MODULES wct4xxp"	# TE405P - Quad Span T1/E1 Card (5v version)
+				# TE410P - Quad Span T1/E1 Card (3.3v version)
+
+MODULES="$MODULES wct1xxp"	# T100P - Single Span T1 Card
+				# E100P - Single Span E1 Card
+
+MODULES="$MODULES wcte11xp"	# TE110P - Single Span T1/E1 Card
+
+MODULES="$MODULES wcfxo"	# X100P - Single port FXO interface
+				# X101P - Single port FXO interface 
+
+MODULES="$MODULES wctdm"	# TDM400P - Modular FXS/FXO interface (1-4 ports)
+#MODULES="$MODULES wcfxs"	# either above or this
+
+MODULES="$MODULES wcusb"	# S100U - Single port FXS USB Interface
+#MODULES="$MODULES wcfxsusb"	# either above or this
+
+#MODULES="$MODULES torisa"	# Old Tormenta1 ISA Card
+
+#MODULES="$MODULES ztdummy"	# UHCI USB Zaptel Timing Only Interface
+

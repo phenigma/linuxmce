@@ -1,0 +1,16 @@
+libpri 0.3.0
+-- Fix talking to switch
+-- Add pri dump
+-- Add test application
+-- Fix strncpy stuff
+libpri 0.1.2
+-- Added PRI_EVENT_HANGUP_ACK so you can know when the disconnect was
+acknowledged
+
+libpri 0.1.1
+-- Added PRI_DEBUG_Q931_ANOMALY flag so that certain non-error-related
+messages would not be output unless specifically desired.
+
+libpri 0.1.0
+ -- Initial release
+

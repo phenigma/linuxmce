@@ -1,0 +1,140 @@
+#!/bin/sh
+#
+# zaptel        This shell script takes care of loading and unloading \
+#               Zapata Telephony interfaces
+# chkconfig: 2345 9 92
+# description: The zapata telephony drivers allow you to use your linux \
+# computer to accept incoming data and voice interfaces
+#
+# config: /etc/sysconfig/zaptel
+
+initdir=/etc/init.d
+
+#
+# Determine which kind of configuration we're using
+#
+system=redhat  # assume redhat
+if [ -f /etc/debian_version ]; then
+    system=debian
+fi
+
+# Source function library.
+if [ $system = redhat ]; then
+    . $initdir/functions || exit 0
+fi
+
+# Source zaptel configuration.
+if [ $system = debian ]; then
+    [ -f /etc/default/zaptel ] && . /etc/default/zaptel
+elif [ $system = redhat ]; then
+    [ -f /etc/sysconfig/zaptel ] && . /etc/sysconfig/zaptel
+fi
+
+if [ -z "${MODULES}" ]; then 
+	# Populate defaults if not present
+	MODULES="tor2 wct4xxp wct1xxp wcte11xp wcfxo wctdm" 
+fi
+
+RMODULES=""
+# Reverse list for un-loading; don't change
+for x in $MODULES; do 
+    RMODULES="$x $RMODULES"
+done
+
+# Check that telephony is up.
+[ "${TELEPHONY}" = "yes" ] || exit 0
+
+[ -f /sbin/ztcfg ] || exit 0
+
+[ -f /etc/zaptel.conf ] || exit 0
+
+if [ "${DEBUG}" = "yes" ]; then
+	ARGS="debug=1"
+fi
+
+RETVAL=0
+
+# See how we were called.
+case "$1" in
+  start)
+        # Load drivers
+	rmmod wcusb >& /dev/null
+	rmmod wcfxsusb >& /dev/null
+	rmmod audio >& /dev/null
+	if [ $system = debian ]; then
+	    echo -n "Loading zaptel framework: " 
+	    modprobe zaptel >& /dev/null && echo -n "done"
+	    echo "."
+	elif [ $system = redhat ]; then
+	    action "Loading zaptel framework: " modprobe zaptel
+	fi
+	echo -n "Waiting for zap to come online..."
+	TMOUT=10 # max secs to wait
+	while [ ! -d /dev/zap ] ; do
+ 		sleep 1
+		TMOUT=`expr $TMOUT - 1`
+		if [ $TMOUT -eq 0 ] ; then
+			echo "Error: missing /dev/zap!"
+			exit 1
+		fi
+	done
+	echo "OK"
+	echo -n "Loading zaptel hardware modules:"
+	for x in $MODULES; do 
+		if modprobe ${x} ${ARGS} >& /dev/null; then
+			echo -n " $x"
+		fi
+	done
+	if [ $system = debian ]; then
+	    echo -n "Running ztcfg: " 
+	    /sbin/ztcfg >& /dev/null && echo -n "done"
+	    echo "."
+	elif [ $system = redhat ]; then
+	    action "Running ztcfg: " /sbin/ztcfg
+	fi
+	RETVAL=$?
+
+        [ $RETVAL -eq 0 ] && touch /var/lock/subsys/zaptel
+        ;;
+  stop)
+        # Unload drivers
+        echo -n "Unloading zaptel hardware drivers:"
+	for x in $RMODULES; do 
+		if rmmod ${x} >& /dev/null; then
+			echo -n " $x"
+		fi
+	done
+	echo "."
+
+	if [ $system = debian ]; then
+	    echo -n "Removing zaptel module: " 
+	    rmmod zaptel >& /dev/null && echo -n "done"
+	    echo "."
+	elif [ $system = redhat ]; then
+	    action "Removing zaptel module: " rmmod zaptel
+	fi
+	RETVAL=$?
+
+        [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/zaptel
+        ;;
+ restart)
+	$0 stop
+	$0 start
+	;;
+  reload)
+	if [ $system = debian ]; then
+	    echo -n "Reloading ztcfg: "
+	    /sbin/ztcfg >& /dev/null && echo -n "done"
+	    echo "."
+	elif [ $system = redhat ]; then
+	    action "Reloading ztcfg: " /sbin/ztcfg
+	fi
+	RETVAL=$?
+	;;
+  *)
+        echo "Usage: zaptel {start|stop|restart|reload}"
+        exit 1
+esac
+
+exit $RETVAL
+

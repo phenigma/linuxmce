@@ -1,0 +1,4 @@
+0.1.6:
+	* Move network structures to be malloc()'d when needed
+	* Add HDLC PPP Support
+	* Fix multi-channel stuff in zaptel and torisa

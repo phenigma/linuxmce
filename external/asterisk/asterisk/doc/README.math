@@ -1,0 +1,60 @@
+
+Mathematical functions application
+
+Yeah, I thought it was a little insane too.. 
+
+adds:
+
+Sum, Multiply, Divide, Subtract, Modulus, GT, LT, GTE, LTE, EQ functions to asterisk
+
+All functions follow the same basic pattern for parameters:
+
+parameter 1 = the name of the return variable
+parameter 2 = the operation
+parameter 3 = the second number
+
+Each action is perfromed as
+
+ Action param1 on param2
+
+eg: 
+
+ Action = Divide
+ Param1 = 10
+ Param2 = 2
+
+Results in 
+
+ Divide 10 by 2
+
+
+Example dialplan:
+
+exten => 11099,1,Math(RV,1+20)
+exten => 11099,2,NOOP(${RV})
+exten => 11099,3,Math(RV,10*2)
+exten => 11099,4,NOOP(${RV})
+exten => 11099,5,Math(RV,10*2)
+exten => 11099,6,NOOP(${RV})
+exten => 11099,7,Math(RV,10-2)
+exten => 11099,8,NOOP(${RV})
+exten => 11099,9,Math(RV,2%10)
+exten => 11099,10,NOOP(${RV})
+exten => 11099,11,Math(RV,10/0)
+exten => 11099,12,NOOP(${RV})
+exten => 11099,13,math(RV,10-200)
+exten => 11099,14,NOOP(${RV})
+exten => 11099,15,Math(RV,1-20)
+exten => 11099,16,NOOP(${RV})
+exten => 11099,17,Math(RV,1<20)
+exten => 11099,18,NOOP(${RV})
+exten => 11099,19,Math(RV,1>=20)
+exten => 11099,20,NOOP(${RV})
+exten => 11099,21,Math(RV,101>20)
+exten => 11099,22,NOOP(${RV})
+exten => 11099,23,Math(RV,1==20)
+exten => 11099,24,NOOP(${RV})
+exten => 11099,25,Math(RV,20<=20)
+exten => 11099,26,NOOP(${RV})
+
+

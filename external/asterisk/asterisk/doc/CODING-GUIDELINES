@@ -1,0 +1,156 @@
+Asterisk Patch/Coding Guidelines
+
+To be accepted into the codebase, all non-trivial changes must be
+disclaimed to Digium or placed in the public domain. For more information
+see http://bugs.digium.com
+
+Patches should be in the form of a unified (-u) diff.
+
+All code, filenames, function names and comments must be in ENGLISH.
+
+Do not declare variables mid-function (e.g. like GNU lets you) since it is
+harder to read and not portable to GCC 2.95 and others.
+
+Don't annotate your changes with comments like "/* JMG 4/20/04 */";
+Comments should explain what the code does, not when something was changed
+or who changed it.
+
+Don't make unnecessary whitespace changes throughout the code.
+
+Don't use C++ type (//) comments.
+
+Try to match the existing formatting of the file you are working on.
+
+Functions and variables that are not intended to be global must be
+declared static.
+
+Roughly, Asterisk coding guidelines are generally equivalent to the 
+following:
+
+# indent -i4 -ts4 -br -brs -cdw -cli0 -ce -nbfda -npcs -npsl foo.c
+
+Function calls and arguments should be spaced in a consistent way across
+the codebase.
+GOOD: foo(arg1, arg2);
+GOOD: foo(arg1,arg2);	/* Acceptable but not preferred */
+BAD: foo (arg1, arg2);
+BAD: foo( arg1, arg2 );
+BAD: foo(arg1, arg2,arg3);
+
+Following are examples of how code should be formatted.
+
+Functions:
+int foo(int a, char *s)
+{
+	return 0;
+}
+
+If statements:
+if (foo) {
+	bar();
+} else {
+	blah();
+}
+
+Case statements:
+switch (foo) {
+case BAR:
+	blah();
+	break;
+case OTHER:
+	other();
+	break;
+}
+
+No nested statements without braces, e.g. no:
+
+for (x=0;x<5;x++)
+	if (foo) 
+		if (bar)
+			baz();
+
+instead do:
+for (x=0;x<5;x++) {
+	if (foo) {
+		if (bar)
+			baz();
+	}
+}
+
+
+
+Make sure you never use an uninitialized variable.  The compiler will 
+usually warn you if you do so.
+
+Name global variables (or local variables when you have a lot of them or
+are in a long function) something that will make sense to aliens who
+find your code in 100 years.  All variable names should be in lower 
+case.
+
+Make some indication in the name of global variables which represent
+options that they are in fact intended to be global.
+ e.g.: static char global_something[80]
+
+When making applications, always ast_strdupa(data) to a local pointer if
+you intend to parse it.
+ if(data)
+  mydata = ast_strdupa(data);
+
+Always derefrence or localize pointers to things that are not yours like
+channel members in a channel that is not associated with the current 
+thread and for which you do not have a lock.
+ channame = ast_strdupa(otherchan->name);
+
+If you do the same or a similar operation more than 1 time, make it a
+function or macro.
+
+Make sure you are not duplicating any functionality already found in an
+API call somewhere.  If you are duplicating functionality found in 
+another static function, consider the value of creating a new API call 
+which can be shared.
+
+When you achieve your desired functionalty, make another few refactor
+passes over the code to optimize it.
+
+Before submitting a patch, *read* the actual patch file to be sure that 
+all the changes you expect to be there are, and that there are no 
+surprising changes you did not expect.
+
+If you are asked to make changes to your patch, there is a good chance
+the changes will introduce bugs, check it even more at this stage.
+
+Avoid needless malloc(),strdup() calls.  If you only need the value in
+the scope of your function try ast_strdupa() or declare struts static
+and pass them as a pointer with &.
+
+If you are going to reuse a computable value, save it in a variable
+instead of recomputing it over and over.  This can prevent you from 
+making a mistake in subsequent computations, make it easier to correct
+if the formula has an error and may or may not help optimization but 
+will at least help readability.
+
+Just an example, so don't over analyze it, that'd be a shame:
+
+
+const char *prefix = "pre";	
+const char *postfix = "post";
+char *newname = NULL;
+char *name = "data";
+
+if (name && (newname = (char *) alloca(strlen(name) + strlen(prefix) + strlen(postfix) + 3)))
+	snprintf(newname, strlen(name) + strlen(prefix) + strlen(postfix) + 3, "%s/%s/%s", prefix, name, postfix);
+
+vs
+
+const char *prefix = "pre";
+const char *postfix = "post";
+char *newname = NULL;
+char *name = "data";
+int len = 0;
+
+if (name && (len = strlen(name) + strlen(prefix) + strlen(postfix) + 3) && (newname = (char *) alloca(len)))
+	snprintf(newname, len, "%s/%s/%s", prefix, name, postfix);
+
+
+Use const on pointers which your function will not be modifying, as this 
+allows the compiler to make certain optimizations.
