@@ -515,7 +515,7 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
     }
 
     DataGridTable *pDataGrid = new DataGridTable();
-    DataGridCell *pCell = NULL;
+    // DataGridCell *pCell = NULL;
 
     deque<MediaFile *>::iterator itFiles;
     string sCurrentFile;
@@ -523,7 +523,7 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
     int currentPos = 0;
     for ( itFiles = pMediaStream->m_dequeMediaFile.begin(); itFiles != pMediaStream->m_dequeMediaFile.end(); itFiles++ )
     {
-        int index = itFiles - pMediaStream->m_dequeMediaFile.begin();
+        // int index = itFiles - pMediaStream->m_dequeMediaFile.begin();
 
         sCurrentFile = (*itFiles)->FullyQualifiedFile();
 
@@ -553,6 +553,7 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
 
         // We know it's derived from CommandImpl
         class Command_Impl *pPlugIn = pEntertainArea->m_pMediaStream->m_pMediaPluginInfo->m_pCommand_Impl;
+        g_pPlutoLogger->Write( LV_STATUS, "Checking to see if the plugin %s will handle it!", pPlugIn->m_sName.c_str());
         pMessage->m_dwPK_Device_To=pPlugIn->m_dwPK_Device;
         if( !pPlugIn->ReceivedMessage( pMessage ) )
         {

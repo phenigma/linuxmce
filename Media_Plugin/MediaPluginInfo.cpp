@@ -152,7 +152,7 @@ MediaStream::MediaStream( class MediaPluginInfo *pMediaPluginInfo, MediaDevice *
     m_pPictureData=NULL;
     m_iPictureSize=0;
     m_iOrder=0;
-    m_iDequeMediaFile_Pos=-1;
+    m_iDequeMediaFile_Pos=0;
     m_iPK_Playlist=0;
     m_sPlaylistName="";
 
@@ -172,7 +172,7 @@ void MediaStream::SetPlaylistPosition(int position)
 {
     m_iDequeMediaFile_Pos = position;
 
-    if ( m_iDequeMediaFile_Pos >= (int)m_dequeMediaFile.size() )
+    if ( m_iDequeMediaFile_Pos >= m_dequeMediaFile.size() )
         m_iDequeMediaFile_Pos = m_dequeMediaFile.size() - 1;
 
     if ( m_iDequeMediaFile_Pos < 0 )
@@ -209,7 +209,7 @@ void MediaStream::DumpPlaylist()
     while ( itPlaylist != m_dequeMediaFile.end() )
     {
         g_pPlutoLogger->Write(LV_STATUS, "File%c%d: %s",
-                    (m_iDequeMediaFile_Pos == itPlaylist - m_dequeMediaFile.begin()) ? '*' : ' ',
+                    (m_iDequeMediaFile_Pos == (unsigned int)(itPlaylist - m_dequeMediaFile.begin())) ? '*' : ' ',
                     itPlaylist - m_dequeMediaFile.begin(),
                     (*itPlaylist)->FullyQualifiedFile().c_str());
         itPlaylist++;
@@ -218,7 +218,7 @@ void MediaStream::DumpPlaylist()
 
 void MediaStream::ClearPlaylist()
 {
-    m_iDequeMediaFile_Pos = -1;
+    m_iDequeMediaFile_Pos = 0;
     MediaAttributes::PurgeDequeMediaFile(m_dequeMediaFile);
     m_dequeMediaFile.clear();
 }
@@ -239,6 +239,13 @@ MediaStream::~MediaStream( )
 
 void BoundRemote::UpdateOrbiter( MediaStream *pMediaStream )
 {
+    // Log a big warning on the log file. This should not crash the router but it is an error to call UpdateOrbiter with a NULL media Stream.
+    if ( pMediaStream == NULL )
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL, "BoundRemote::UpdateOrbiter was called with a NULL pointer!. Ignoring request!");
+        return;
+    }
+
     // TODO -- Figure out the media information, like track, timecode, picture, etc. For now just update the text object. Also need to update the pictures
 //  size_t size; char *pPic = FileUtils::ReadFileIntoBuffer( "/image.jpg", size );
     DCE::CMD_Update_Object_Image CMD_Update_Object_Image( 0, m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, m_sPK_DesignObj_GraphicImage, "jpg", pMediaStream->m_pPictureData, pMediaStream->m_iPictureSize, "0" );

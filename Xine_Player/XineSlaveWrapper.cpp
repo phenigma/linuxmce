@@ -307,7 +307,7 @@ void XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosit
 
             if  ( m_pXineVisualizationPlugin )
             {
-                const char *const *inputs;
+                // const char *const *inputs;
                 bool bPostWireResult;
 
 //                 bPostWireResult = xine_post_wire_audio_port(xine_get_audio_source(xineStream->m_pStream), m_pXineVisualizationPlugin->audio_input[1]);
@@ -709,7 +709,7 @@ int XineSlaveWrapper::XServerEventProcessor(XineStream *pStream, XEvent &event)
             g_pPlutoLogger->Write(LV_STATUS, "Key (%d), %s %d", len, kbuf, ksym);
 
             xine_event_t       xineEvent;
-            xine_input_data_t  xineInput;
+            // xine_input_data_t  xineInput;
 
             switch ( ksym )
             {
@@ -872,8 +872,6 @@ void XineSlaveWrapper::changePlaybackSpeed(int iStreamID, int iMediaPlaybackSpee
         xine_set_param(pStream->m_pStream, XINE_PARAM_SPEED, xineSpeed);
 }
 
-
-
 /**
     \fn XineSlaveWrapper::stopMedia(int iStreamID)
  */
@@ -888,7 +886,6 @@ void XineSlaveWrapper::stopMedia(int iStreamID)
     //xine_close(m_pstream->m_pstream);
 }
 
-
 /**
     \fn XineSlaveWrapper::restartMediaStream(int iStreamID)
  */
@@ -897,7 +894,6 @@ void XineSlaveWrapper::restartMediaStream(int iStreamID)
     changePlaybackSpeed(iStreamID, PLAYBACK_FF_1);
 }
 
-
 /**
     \fn XineSlaveWrapper::pauseMediaStream(int iStreamID)
  */
@@ -905,7 +901,6 @@ void XineSlaveWrapper::pauseMediaStream(int iStreamID)
 {
     changePlaybackSpeed(iStreamID, PLAYBACK_STOP);
 }
-
 
 void XineSlaveWrapper::XineStream::setPlaybackSpeed(int speed)
 {
@@ -1175,29 +1170,29 @@ void XineSlaveWrapper::yuy2toyv12 (uint8_t *y, uint8_t *u, uint8_t *v, uint8_t *
     {
         for (j = 0; j < w2; j++)
         {
+            /*
+             * packed YUV 422 is: Y[i] U[i] Y[i+1] V[i]
+             */
+            *(y++) = *(input++);
+            *(u++) = *(input++);
+            *(y++) = *(input++);
+            *(v++) = *(input++);
+        }
+
         /*
-         * packed YUV 422 is: Y[i] U[i] Y[i+1] V[i]
+         * down sampling
          */
-        *(y++) = *(input++);
-        *(u++) = *(input++);
-        *(y++) = *(input++);
-        *(v++) = *(input++);
+        for (j = 0; j < w2; j++)
+        {
+            /*
+             * skip every second line for U and V
+             */
+            *(y++) = *(input++);
+            input++;
+            *(y++) = *(input++);
+            input++;
+        }
     }
-
-    /*
-     * down sampling
-     */
-
-    for (j = 0; j < w2; j++) {
-      /*
-       * skip every second line for U and V
-       */
-      *(y++) = *(input++);
-      input++;
-      *(y++) = *(input++);
-      input++;
-    }
-  }
 }
 
 /*
@@ -1269,9 +1264,9 @@ uint8_t * XineSlaveWrapper::yv12torgb (uint8_t *src_y, uint8_t *src_u, uint8_t *
       u = src_u[(sub_i_uv * uv_width) + sub_j_uv] - 128;
       v = src_v[(sub_i_uv * uv_width) + sub_j_uv] - 128;
 
-      r = (1.1644 * y) + (1.5960 * v);
-      g = (1.1644 * y) - (0.3918 * u) - (0.8130 * v);
-      b = (1.1644 * y) + (2.0172 * u);
+      r = (int)((1.1644 * y) + (1.5960 * v));
+      g = (int)((1.1644 * y) - (0.3918 * u) - (0.8130 * v));
+      b = (int)((1.1644 * y) + (2.0172 * u));
 
       clip_8_bit (r);
       clip_8_bit (g);
@@ -1355,12 +1350,12 @@ void XineSlaveWrapper::playbackCompleted(int iStreamID)
     this->m_pAggregatorObject->EVENT_Playback_Completed(iStreamID);
 }
 
-int XineSlaveWrapper::getStreamPlaybackPosition(int iStreamID)
+int XineSlaveWrapper::getStreamPlaybackPosition(int iStreamID, int &positionTime, int &totalTime)
 {
-    XineStream *xineStream = getStreamForId(iStreamID, "Can't get the position of a nonexistent stream !");
+    XineStream *xineStream = getStreamForId(iStreamID, "Can't get the position of a nonexistent stream!");
 
     if ( xineStream == NULL )
-        return -1;
+        return 0;
 
     int iPosStream = 0;
     int iPosTime = 0;
@@ -1369,8 +1364,8 @@ int XineSlaveWrapper::getStreamPlaybackPosition(int iStreamID)
     int count = 10;
     while( --count && ! xine_get_pos_length(xineStream->m_pStream, &iPosStream, &iPosTime, &iLengthTime) )
     {
-          g_pPlutoLogger->Write(LV_STATUS, "Error: %d", xine_get_error(xineStream->m_pStream));
-          usleep(20000);
+          g_pPlutoLogger->Write(LV_STATUS, "Error reading stream position: %d", xine_get_error(xineStream->m_pStream));
+          usleep(25000);
     }
 
 //     if ( xine_get_pos_length(xineStream->m_pStream, &iPosStream, &iPosTime, &iLengthTime) == 0 )
@@ -1381,7 +1376,9 @@ int XineSlaveWrapper::getStreamPlaybackPosition(int iStreamID)
 
     g_pPlutoLogger->Write(LV_STATUS, "Got those numbers: %d, %d", iPosTime, iLengthTime);
 
-    return iPosTime;
+    positionTime = iPosTime;
+    totalTime = iLengthTime;
+    return 1;
 }
 
 int XineSlaveWrapper::enableBroadcast(int iStreamID)
@@ -1392,20 +1389,22 @@ int XineSlaveWrapper::enableBroadcast(int iStreamID)
         return 0;
 
     int portNumber = 7866;
-    if( portNumber != xine_get_param(pStream->m_pStream, XINE_PARAM_BROADCASTER_PORT) ) {
+    if( portNumber != xine_get_param(pStream->m_pStream, XINE_PARAM_BROADCASTER_PORT) )
+    {
 //         if( port && xine_get_param(pStream->m_pStream, XINE_PARAM_BROADCASTER_PORT) )
             xine_set_param(pStream->m_pStream, XINE_PARAM_BROADCASTER_PORT, portNumber);
 
-    /* try up to ten times from port base. sometimes we have trouble
-     * binding to the same port we just used.
-     */
-    for( int i = 0; i < 10; i++ ) {
-      xine_set_param(pStream->m_pStream, XINE_PARAM_BROADCASTER_PORT, ++portNumber);
-      if( portNumber == xine_get_param(pStream->m_pStream, XINE_PARAM_BROADCASTER_PORT) )
-        return portNumber;
+        /* try up to ten times from port base. sometimes we have trouble
+        * binding to the same port we just used.
+        */
+        for( int i = 0; i < 10; i++ )
+        {
+            xine_set_param(pStream->m_pStream, XINE_PARAM_BROADCASTER_PORT, ++portNumber);
+            if( portNumber == xine_get_param(pStream->m_pStream, XINE_PARAM_BROADCASTER_PORT) )
+                return portNumber;
+        }
     }
-  }
 
-  return 0;
+    return 0;
 }
 

@@ -16,7 +16,7 @@ Gen_Dev_Files = $(GENDEV)/Orbiter_PluginBase.cpp
 sources = Main.cpp Orbiter_Plugin.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
-CXXFLAGS +=
+CXXFLAGS += -fmessage-length=0
 CPPFLAGS +=
 LDFLAGS +=
 XTRALDLIBS = -lpluto_main

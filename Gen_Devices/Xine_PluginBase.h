@@ -76,13 +76,6 @@ public:
 	//Event accessors
 	void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription) { GetEvents()->Playback_Info_Changed(sMediaDescription.c_str(),sSectionDescription.c_str(),sSynposisDescription.c_str()); }
 	//Commands - Override these to handle commands from the server
-	virtual void CMD_Create_Media(string sFilename,int iStreamID,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Pause_Media(int iStreamID,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Restart_Media(int iStreamID,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -93,126 +86,7 @@ public:
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{
 			Message *pMessage = s>=0 ? pMessageOriginal->m_vectExtraMessages[s] : pMessageOriginal;
-			if (pMessage->m_dwPK_Device_To==m_dwPK_Device && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)
-			{
-				switch(pMessage->m_dwID)
-				{
-				case 36:
-					{
-						string sCMD_Result="OK";
-					string sFilename=pMessage->m_mapParameters[13];
-					int iStreamID=atoi(pMessage->m_mapParameters[41].c_str());
-						CMD_Create_Media(sFilename.c_str(),iStreamID,sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
-						{
-							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-							SendMessage(pMessageOut);
-						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
-							SendString(sCMD_Result);
-					};
-					iHandled++;
-					continue;
-				case 37:
-					{
-						string sCMD_Result="OK";
-					string sFilename=pMessage->m_mapParameters[13];
-					int iPK_MediaType=atoi(pMessage->m_mapParameters[29].c_str());
-					int iStreamID=atoi(pMessage->m_mapParameters[41].c_str());
-					int iMediaPosition=atoi(pMessage->m_mapParameters[42].c_str());
-						CMD_Play_Media(sFilename.c_str(),iPK_MediaType,iStreamID,iMediaPosition,sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
-						{
-							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-							SendMessage(pMessageOut);
-						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
-							SendString(sCMD_Result);
-					};
-					iHandled++;
-					continue;
-				case 38:
-					{
-						string sCMD_Result="OK";
-					int iStreamID=atoi(pMessage->m_mapParameters[41].c_str());
-					int iMediaPosition=atoi(pMessage->m_mapParameters[42].c_str());
-						CMD_Stop_Media(iStreamID,&iMediaPosition,sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
-						{
-							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-						pMessageOut->m_mapParameters[42]=StringUtils::itos(iMediaPosition);
-							SendMessage(pMessageOut);
-						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
-							SendString(sCMD_Result);
-					};
-					iHandled++;
-					continue;
-				case 39:
-					{
-						string sCMD_Result="OK";
-					int iStreamID=atoi(pMessage->m_mapParameters[41].c_str());
-						CMD_Pause_Media(iStreamID,sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
-						{
-							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-							SendMessage(pMessageOut);
-						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
-							SendString(sCMD_Result);
-					};
-					iHandled++;
-					continue;
-				case 40:
-					{
-						string sCMD_Result="OK";
-					int iStreamID=atoi(pMessage->m_mapParameters[41].c_str());
-						CMD_Restart_Media(iStreamID,sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
-						{
-							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-							SendMessage(pMessageOut);
-						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
-							SendString(sCMD_Result);
-					};
-					iHandled++;
-					continue;
-				case 41:
-					{
-						string sCMD_Result="OK";
-					int iStreamID=atoi(pMessage->m_mapParameters[41].c_str());
-					int iMediaPlaybackSpeed=atoi(pMessage->m_mapParameters[43].c_str());
-						CMD_Change_Playback_Speed(iStreamID,iMediaPlaybackSpeed,sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
-						{
-							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-							SendMessage(pMessageOut);
-						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
-							SendString(sCMD_Result);
-					};
-					iHandled++;
-					continue;
-				case 65:
-					{
-						string sCMD_Result="OK";
-					string sValue_To_Assign=pMessage->m_mapParameters[5];
-						CMD_Jump_Position_In_Playlist(sValue_To_Assign.c_str(),sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
-						{
-							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-							SendMessage(pMessageOut);
-						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
-							SendString(sCMD_Result);
-					};
-					iHandled++;
-					continue;
-				}
-				iHandled += Command_Impl::ReceivedMessage(pMessage);
-			}
-			else if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND )
+			 if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND )
 			{
 				MapCommand_Impl::iterator it = m_mapCommandImpl_Children.find(pMessage->m_dwPK_Device_To);
 				if( it!=m_mapCommandImpl_Children.end() && !(*it).second->m_bGeneric )

@@ -285,7 +285,7 @@ public:
     /**
      * @brief Find current position for stream.
      */
-    int getStreamPlaybackPosition(int iStreamID);
+    int getStreamPlaybackPosition(int iStreamID, int &positionTime, int &totalTime);
 
     /**
      * @brief Enable broadcasting on this stream

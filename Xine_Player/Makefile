@@ -22,7 +22,7 @@ LDFLAGS += -L/usr/X11R6/lib
 XTRALDLIBS = `xine-config --libs` -lpng -lX11 -lm -lXext -lXxf86vm
 
 Gen_Dev_Files +=
-sources +=  XineSlaveWrapper.cpp
+sources +=  XineSlaveWrapper.cpp 
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
