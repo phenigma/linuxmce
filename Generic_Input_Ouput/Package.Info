@@ -1,9 +1,0 @@
-<-dceag-p-b->
-Package = DCE_Destination_Package
-Dir = 
-desc = DCE Implemenation for #43 Generic Input Ouput
-Maintainer = AdministratorName
-Email = 
-Depend = DCE_Dependencies
-<-dceag-p-e->
-
