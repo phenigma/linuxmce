@@ -347,7 +347,7 @@ bool FileUtils::PUCopyFile(string sSource,string sDestination)
 
 	void *Buffer = malloc(BUFFER_SIZE);
 	size_t BytesRead;
-	while((BytesRead = fread(Buffer,1,BUFFER_SIZE,fileSource) > 0))
+	while((BytesRead = fread(Buffer,1,BUFFER_SIZE,fileSource)) > 0)
 	{
 		size_t BytesWritten = fwrite(Buffer,1,BytesRead,fileDest);
 		if( BytesWritten!=BytesRead )
