@@ -34,6 +34,9 @@ pluto_pthread_mutex_t *m_mapLockMutex=NULL;
 
 using namespace DCE;
 
+// An application can create another handler that gets called instead in the event of a deadlock
+void (*g_pDeadlockHandler)()=NULL;
+
 // This may get called before the logger is initialized.  If so, we don't want to log until if( g_pPlutoLogger ) is true
 
 PlutoLock::PlutoLock(pluto_pthread_mutex_t *pLock)
@@ -396,6 +399,9 @@ void PlutoLock::DumpOutstandingLocks()
 		if( g_pPlutoLogger )
 			g_pPlutoLogger->Write(LV_WARNING,(*itMessages).c_str());
 	}
+
+	if( g_pDeadlockHandler )
+        (*g_pDeadlockHandler)();
 }
 
 void PlutoLock::Relock()

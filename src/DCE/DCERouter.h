@@ -180,6 +180,7 @@ namespace DCE
 
         Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,string DBUser,string DBPassword,string DBName,int DBPort,int ListenPort);
         virtual ~Router();
+		void Reload() { m_bReload=true; }
 
         // Plug-In's
         void RegisterAllPlugins(); // Iterates through all plug-ins, calling the register method

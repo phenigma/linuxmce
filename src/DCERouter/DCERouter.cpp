@@ -74,9 +74,28 @@ class DelayedCommandInfo {
 		int m_PK_CommandGroup,m_iStartingCommand;
 };
 
+extern void (*g_pDeadlockHandler)();
+Router *g_pRouter=NULL;
+void DeadlockHandler()
+{
+	// This isn't graceful, but for the moment in the event of a deadlock we'll just kill everything and force a reload
+	if( g_pRouter )
+	{
+		int Delay = atoi(g_DCEConfig.ReadString("DelayReloadOnDeadlock").c_str());
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Deadlock detected.  DCERouter will die and reload in %d seconds",Delay);
+		if( Delay )
+			Sleep(Delay * CLOCKS_PER_SEC);
+		g_pRouter->Reload();
+		g_pRouter->Quit();
+	}
+}
+
 Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,string DBUser,string DBPassword,string DBName,int DBPort,int ListenPort) :
     SocketListener("Router Dev #" + StringUtils::itos(PK_Device)), m_CoreMutex("core"), MySqlHelper(DBHost,DBUser,DBPassword,DBName,DBPort)
 {
+	g_pRouter=this;  // For the deadlock handler
+	g_pDeadlockHandler=DeadlockHandler;
     m_sBasePath=BasePath;
     m_bReload = false;
     m_bQuit = false;
@@ -640,15 +659,16 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 				break;
             case SYSCOMMAND_DEADLOCK:
 				{
-                    PLUTO_SAFETY_LOCK(slCore,m_CoreMutex);
-					PLUTO_SAFETY_LOCK(slListener,m_CoreMutex);
-			
 					for(DeviceClientMap::iterator iDeviceConnection=m_mapCommandHandlers.begin();iDeviceConnection!=m_mapCommandHandlers.end();++iDeviceConnection)
 					{
 			            ServerSocket *pDeviceConnection = (*iDeviceConnection).second;
 						PLUTO_SAFETY_LOCK(slConnMutex,pDeviceConnection->m_ConnectionMutex);
 						slConnMutex.m_bReleased=true; // So it never gets released
 					}
+					PLUTO_SAFETY_LOCK(slListener,m_CoreMutex);
+					slListener.m_bReleased=true;
+                    PLUTO_SAFETY_LOCK(slCore,m_CoreMutex);
+					slCore.m_bReleased=true; // So it never gets released
 				}
 				break;			
 			
