@@ -152,6 +152,30 @@ if [ -z "$no_build_all" -a -s "$DIR"/build_all.sh ]; then
 	echo "$BUILD_ALL_MSG"
 fi
 
+# At this point these scripts should be available (installation finished, didn't it?)
+. /usr/pluto/bin/SQL_Ops.sh
+. /usr/pluto/bin/Config_Ops.sh
+
+Q="SELECT FK_DeviceCategory FROM DeviceTemplate JOIN Device ON FK_DeviceTemplate=PK_DeviceTemplate WHERE PK_Device=1468"
+R=$(RunSQL "$Q")
+
+case "$R" in
+	# Core
+	7)
+		Type="Core"
+	;;
+
+	# Media Director
+	8)
+		Type="Media Director"
+	;;
+
+	# Other
+	*)
+		Type="Unknown Device Type '$R' :)"
+	;;
+esac
+
 wget -O "$DIR/message.txt" "$ACTIV/message.php?code=$CODE" 2>/dev/null && cat "$DIR/message.txt"
 echo "Congratulations.  Pluto installation has completed."
 echo "The system will now reboot.  The Pluto Core software will"
@@ -162,7 +186,7 @@ echo "directors and other plug-and-play devices.  If you are an"
 echo "advanced Linux user and want to access a terminal before"
 echo "the reboot, press ALT+F2.  Otherwise..."
 echo ""
-echo "Press any key to reboot and startup your new Pluto Core."
+echo "Press any key to reboot and startup your new Pluto $Type."
 read
 
 if [ "$Type" == "diskless" ]; then
