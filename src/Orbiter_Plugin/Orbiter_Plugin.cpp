@@ -804,6 +804,7 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate
     else
     {
 		Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(PK_Device);
+		pRow_Device->Reload(); // Just in case it's been changed
 		pRow_Device->NeedConfigure_set(0);
 		pRow_Device->Table_Device_get()->Commit();
 		
@@ -1365,6 +1366,7 @@ void Orbiter_Plugin::CMD_Set_Room_For_Device(int iPK_Device,int iPK_Room,string 
 	else
 	{
 		g_pPlutoLogger->Write(LV_STATUS,"Setting device %d to room %d",iPK_Device,iPK_Room);
+			pRow_Device->Reload();
 			pRow_Device->FK_Room_set( pRow_Room->PK_Room_get() );
 			pRow_Device->Table_Device_get()->Commit();
 	}
@@ -1416,6 +1418,7 @@ void Orbiter_Plugin::SendAppToPhone(OH_Orbiter *pOH_Orbiter,DeviceData_Base *pDe
 g_pPlutoLogger->Write(LV_STATUS,"Phone needs file - nc: %d version: / %s / %s",
 		(int) pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device->NeedConfigure_get(),g_sLatestMobilePhoneVersion.c_str(),pOH_Orbiter->m_sVersion.c_str());
 	pOH_Orbiter->m_sVersion = g_sLatestMobilePhoneVersion;
+	pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device->Reload(); // Just in case it's been changed
     pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device->NeedConfigure_set(0);
     pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device->Table_Device_get()->Commit();
 
