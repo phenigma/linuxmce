@@ -20,7 +20,11 @@ while [ "$i" -le 200 ]; do
 	echo $(date) Starting > "$new_log"
 
 	/usr/pluto/bin/UpdateEntArea -h localhost > >(tee -a /var/log/pluto/updateea.newlog)
-	/usr/pluto/bin/Spawn_Wrapper.sh $VGcmd/usr/pluto/bin/DCERouter -h localhost > >(tee $new_log)
+	if [ "${Valgrind/DCERouter}" != "$Valgrind" ]; then
+		/usr/pluto/bin/Spawn_Wrapper.sh $VGcmd/usr/pluto/bin/DCERouter -h localhost &> >(tee $new_log)
+	else
+		/usr/pluto/bin/Spawn_Wrapper.sh /usr/pluto/bin/DCERouter -h localhost &> >(tee $new_log)
+	fi
 
 	Ret="$?"
 	echo "Return code: $Ret" >>"$new_log"
