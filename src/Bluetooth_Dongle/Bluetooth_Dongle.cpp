@@ -139,7 +139,7 @@ void *HandleBDCommandProcessorThread( void *p )
 	/******************************************/
 
 	bm.Release();
-	while( pBD_Orbiter->m_pBDCommandProcessor->ReceiveCommand( 0, 0, NULL ) && NULL != pBD_Orbiter->m_pBDCommandProcessor && !pBD_Orbiter->m_pBDCommandProcessor->m_bDead ); // loop for receiving commands
+	while( NULL != pBD_Orbiter->m_pBDCommandProcessor && !pBD_Orbiter->m_pBDCommandProcessor->m_bDead && pBD_Orbiter->m_pBDCommandProcessor->ReceiveCommand( 0, 0, NULL )); // loop for receiving commands
 	bm.Relock();
 
 	g_pPlutoLogger->Write( LV_STATUS, "Exiting command processor...");
@@ -400,10 +400,14 @@ void Bluetooth_Dongle::LostDevice( class PhoneDevice *pDevice )
 			
 		if( NULL != pBD_Orbiter->m_pBDCommandProcessor )
 		{
+			/*
 			delete pBD_Orbiter->m_pBDCommandProcessor;
 			pBD_Orbiter->m_pBDCommandProcessor = NULL;
+			*/
 
-			g_pPlutoLogger->Write( LV_WARNING, "CommandProcessor deleted for %s device!", pDevice->m_sMacAddress.c_str() );
+			pBD_Orbiter->m_pBDCommandProcessor->m_bDead = true;
+
+			g_pPlutoLogger->Write( LV_WARNING, "Setting m_bDead = true for BDCommandProcessor, %s device!", pDevice->m_sMacAddress.c_str() );
 		}
 
 		return;
@@ -755,12 +759,14 @@ void Bluetooth_Dongle::CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,st
 
 		if( NULL != pBD_Orbiter->m_pBDCommandProcessor )
 		{
+			/*
 			delete pBD_Orbiter->m_pBDCommandProcessor;
 			pBD_Orbiter->m_pBDCommandProcessor = NULL;
+			*/
 
-			g_pPlutoLogger->Write( LV_WARNING, "CommandProcessor deleted for %s device!", sMac_address.c_str() );
+			pBD_Orbiter->m_pBDCommandProcessor->m_bDead = true;
+			g_pPlutoLogger->Write( LV_WARNING, "Setting m_bDead = true for BDCommandProcessor, %s device!", sMac_address.c_str() );
 		}
-
 
 		return;
 	}
