@@ -16,15 +16,15 @@
 #define DEVICEID_NULL			-1	// Invalid device
 
 // Some system devices
-#define DEVICEID_LOGGER			-100
-#define DEVICEID_EVENTMANAGER		-101	// Not a real device, just the destination of events
-#define DEVICEID_DCEROUTER		-102	// System commands for the router itself
+#define DEVICEID_LOGGER			-1000
+#define DEVICEID_EVENTMANAGER	-1001	// Not a real device, just the destination of events
+#define DEVICEID_DCEROUTER		-1002	// System commands for the router itself
 
 // Virtual devices
-#define DEVICEID_MASTERDEVICE		-200
-#define DEVICEID_CATEGORY		-201
-#define DEVICEID_LIST			-202
-#define DEVICEID_GROUP			-203
+#define DEVICEID_MASTERDEVICE	-2000
+#define DEVICEID_CATEGORY		-2001
+#define DEVICEID_LIST			-2002
+#define DEVICEID_GROUP			-2003
 
 // Other
 #define DEVICEID_HANDLED_INTERNALLY	-300

@@ -194,12 +194,14 @@ CGZone::CGZone(Row_CommandGroup_D * drCommandGroup_D,DesignObj_Generator *Parent
 	if( drCommandGroup_D!=NULL )
 	{
 		vector<class Row_CommandGroup_D_Command *> vectraga;
-		m_drCommandGroup_D->CommandGroup_D_Command_FK_CommandGroup_D_getrows(&vectraga);
+		drCommandGroup_D->Table_CommandGroup_D_get()->Database_pluto_main_get()->CommandGroup_D_Command_get()->GetRows(
+			"WHERE FK_CommandGroup_D=" + StringUtils::itos(drCommandGroup_D->PK_CommandGroup_D_get()) + " ORDER BY PK_CommandGroup_D_Command",&vectraga);
+//		m_drCommandGroup_D->CommandGroup_D_Command_FK_CommandGroup_D_getrows(&vectraga);
 		for(size_t s=0;s<vectraga.size();++s)
 		{
 			class Row_CommandGroup_D_Command * drAGA = vectraga[s];
 			CGCommand *oca = new CGCommand(drAGA,Parent);
-			m_Commands.push_back((DesignObjCommand *) oca);
+			m_Commands.push_front((DesignObjCommand *) oca);
 		}
 	}
 }

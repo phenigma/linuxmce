@@ -1371,7 +1371,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 
                     alArray->push_back(new ArrayValue(StringUtils::itos(drF->Page_get()),drF->Description_get(),
                         drF->FK_Icon_isNull() ? NULL : drF->FK_Icon_getrow(),
-                        0,0,0,VARIABLE_PK_CommandGroup_CONST,drOVO->CanBeHidden_get()==1,drOVO->HideByDefault_get()==1,false));
+                        0,0,0,0,drOVO->CanBeHidden_get()==1,drOVO->HideByDefault_get()==1,false));
                 }
             }
             break;

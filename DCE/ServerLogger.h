@@ -28,6 +28,8 @@ public:
 
 	virtual bool IsConnected() { return m_bConnected; }
 
+	virtual int GetType() { return LT_LOGGER_SERVER; }
+
 protected:
 	bool m_bConnected;
 

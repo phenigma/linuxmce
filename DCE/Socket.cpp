@@ -652,7 +652,7 @@ bool Socket::ReceiveString( string &sRefString )
 	printf( "%s-Received String: %s\n", Module, acBuf );
 #endif
 #ifdef LL_DEBUG_FILE
-	PLUTO_SAFETY_LOCK( ll4, (*m_LL_DEBUG_Mutex) ); 
+	PLUTO_SAFETY_LOCK_ERRORSONLY( ll4, (*m_LL_DEBUG_Mutex) ); 
 	FILE *file = fopen( m_pcSockLogFile, "a" );
 	if( !file )
 	{
@@ -686,7 +686,7 @@ bool Socket::SendString( string sLine )
 	printf( "%s-Send strng: %s\n", Module, sLine.c_str() );
 #endif
 #ifdef LL_DEBUG_FILE
-	PLUTO_SAFETY_LOCK( ll, (*m_LL_DEBUG_Mutex) ); 
+	PLUTO_SAFETY_LOCK_ERRORSONLY( ll, (*m_LL_DEBUG_Mutex) ); 
 	FILE *file = fopen( m_pcSockLogFile, "a" );
 	if( !file )
 	{

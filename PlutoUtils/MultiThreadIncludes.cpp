@@ -34,6 +34,8 @@ pluto_pthread_mutex_t *m_mapLockMutex=NULL;
 
 using namespace DCE;
 
+// This may get called before the logger is initialized.  If so, we don't want to log until if( g_pPlutoLogger ) is true
+
 PlutoLock::PlutoLock(pluto_pthread_mutex_t *pLock)
 {
 	m_bLogErrorsOnly=true;
@@ -65,6 +67,7 @@ PlutoLock::PlutoLock(pluto_pthread_mutex_t *pLock,string File,int Line,bool bLog
 		m_mapLockMutex = new pluto_pthread_mutex_t("maplock");
 		m_mapLockMutex->Init(NULL);
 	}
+
 	pthread_mutex_lock(&m_mapLockMutex->mutex);
 	mapLocks[m_LockNum] = this;
 	pthread_mutex_unlock(&m_mapLockMutex->mutex);
@@ -107,7 +110,8 @@ PlutoLock::~PlutoLock()
 		{
 			pthread_mutex_unlock(&m_mapLockMutex->mutex);
 			
-			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find self in maplock!");
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find self in maplock!");
 			DumpOutstandingLocks();
 		}
 		else
@@ -151,7 +155,8 @@ void PlutoLock::ConfirmNoLocks(string File,int Line)
 	TCHARDELETE(tfn);
 #else
 */
-	g_pPlutoLogger->Write(LV_CRITICAL,"Locks found: %s",sProblems.c_str());
+	if( g_pPlutoLogger )
+		g_pPlutoLogger->Write(LV_CRITICAL,"Locks found: %s",sProblems.c_str());
 //#endif
 }
 
@@ -179,8 +184,10 @@ void PlutoLock::CheckLocks()
 
 void PlutoLock::DumpOutstandingLocks()
 {
-	g_pPlutoLogger->Write(LV_LOCKING,"Dumping locks %p mutex %p\n",&mapLocks,&m_mapLockMutex); // This way it'll get in the log without doing any locks
-	g_pPlutoLogger->Write(LV_LOCKING,"Size of locks: %d\n",mapLocks.size());
+	if( g_pPlutoLogger )
+		g_pPlutoLogger->Write(LV_LOCKING,"Dumping locks %p mutex %p\n",&mapLocks,&m_mapLockMutex); // This way it'll get in the log without doing any locks
+	if( g_pPlutoLogger )
+		g_pPlutoLogger->Write(LV_LOCKING,"Size of locks: %d\n",mapLocks.size());
 
 	if( !m_mapLockMutex )
 		return;
@@ -190,13 +197,15 @@ void PlutoLock::DumpOutstandingLocks()
 	list<pthread_t> listKilledPthreads;
 	pthread_mutex_lock(&m_mapLockMutex->mutex);
 
-	g_pPlutoLogger->Write(LV_LOCKING,"Dumping %d locks\n",mapLocks.size()); // This way it'll get in the log without doing any locks
+	if( g_pPlutoLogger )
+		g_pPlutoLogger->Write(LV_LOCKING,"Dumping %d locks\n",mapLocks.size()); // This way it'll get in the log without doing any locks
 
 	listMessages.push_back(string("Dumping " + StringUtils::itos((int) mapLocks.size()) + " locks"));
 	for(itMapLock=mapLocks.begin();itMapLock!=mapLocks.end();)
 	{
 		PlutoLock *pSafetyLock = (*itMapLock).second;
-		g_pPlutoLogger->Write(LV_LOCKING,"pSafetyLock: %p check for exceptions\n",pSafetyLock);
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_LOCKING,"pSafetyLock: %p check for exceptions\n",pSafetyLock);
 
 		// Somehow, for some reason, pSafetyLock->m_pMyLock->m_sName occasionally throws an exception, 
 		// like one of the values has been deleted.  But that should be impossible.  This map is protected
@@ -216,10 +225,12 @@ void PlutoLock::DumpOutstandingLocks()
 		}
 		catch(...)
 		{
-			g_pPlutoLogger->Write(LV_LOCKING,"pSafetyLock: %p caught an exception for exceptions\n",pSafetyLock);
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_LOCKING,"pSafetyLock: %p caught an exception for exceptions\n",pSafetyLock);
 			bThrewException=true;
 		}
-		g_pPlutoLogger->Write(LV_LOCKING,"pSafetyLock: %p finished check for exceptions: %d\n",pSafetyLock,(int) bThrewException);
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_LOCKING,"pSafetyLock: %p finished check for exceptions: %d\n",pSafetyLock,(int) bThrewException);
 
 		if( bThrewException )
 		{
@@ -229,13 +240,15 @@ void PlutoLock::DumpOutstandingLocks()
 			try
 			{
 #ifndef WIN32
-				g_pPlutoLogger->Write(LV_LOCKING,"^01\t (>%d) %s l:%d time: (%d s) thread: %ld Rel: %s Got: %s",
-					pSafetyLock->m_LockNum,pSafetyLock->m_sFileName.c_str(),pSafetyLock->m_Line,(int) (time(NULL)-pSafetyLock->m_tTime),
-					pSafetyLock->m_thread,(pSafetyLock->m_bReleased ? "Y" : "N"),(pSafetyLock->m_bGotLock ? "Y" : "N"));
+				if( g_pPlutoLogger )
+					g_pPlutoLogger->Write(LV_LOCKING,"^01\t (>%d) %s l:%d time: (%d s) thread: %ld Rel: %s Got: %s",
+						pSafetyLock->m_LockNum,pSafetyLock->m_sFileName.c_str(),pSafetyLock->m_Line,(int) (time(NULL)-pSafetyLock->m_tTime),
+						pSafetyLock->m_thread,(pSafetyLock->m_bReleased ? "Y" : "N"),(pSafetyLock->m_bGotLock ? "Y" : "N"));
 #else
-				g_pPlutoLogger->Write(LV_LOCKING,"^01\t (>%d) %s l:%d time: (%d s) thread: %p Rel: %s Got: %s",
-					pSafetyLock->m_LockNum,pSafetyLock->m_sFileName.c_str(),pSafetyLock->m_Line,(int) (time(NULL)-pSafetyLock->m_tTime),
-					pSafetyLock->m_thread,(pSafetyLock->m_bReleased ? "Y" : "N"),(pSafetyLock->m_bGotLock ? "Y" : "N"));
+				if( g_pPlutoLogger )
+					g_pPlutoLogger->Write(LV_LOCKING,"^01\t (>%d) %s l:%d time: (%d s) thread: %p Rel: %s Got: %s",
+						pSafetyLock->m_LockNum,pSafetyLock->m_sFileName.c_str(),pSafetyLock->m_Line,(int) (time(NULL)-pSafetyLock->m_tTime),
+						pSafetyLock->m_thread,(pSafetyLock->m_bReleased ? "Y" : "N"),(pSafetyLock->m_bGotLock ? "Y" : "N"));
 #endif
 			}
 			catch(...)
@@ -271,10 +284,12 @@ void PlutoLock::DumpOutstandingLocks()
 			pSafetyLock->m_thread,(pSafetyLock->m_bReleased ? "Y" : "N"),(pSafetyLock->m_bGotLock ? "Y" : "N"));
 #endif
 
-		g_pPlutoLogger->Write(LV_LOCKING,"^01\t%s\n",Message);
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_LOCKING,"^01\t%s\n",Message);
 		if( ((int) time(NULL)-pSafetyLock->m_tTime)>=60 && pSafetyLock->m_bGotLock && !pSafetyLock->m_bReleased )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"releasing %s\n",Message);
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_CRITICAL,"releasing %s\n",Message);
 			strcat(Message,"**RELEASING**");
 			listMessages.push_back(string(Message));
 
@@ -305,7 +320,8 @@ void PlutoLock::DumpOutstandingLocks()
 #ifdef UNDER_CE
 #ifdef CENET
 				// Under Windows CE, just reboot
-				g_pPlutoLogger->Write(LV_LOCKING,"going to reboot");
+				if( g_pPlutoLogger )
+					g_pPlutoLogger->Write(LV_LOCKING,"going to reboot");
 #endif
 #endif
 			}
@@ -316,7 +332,8 @@ void PlutoLock::DumpOutstandingLocks()
 			++itMapLock;
 		listMessages.push_back(string(Message));
 #ifndef WIN32
-		g_pPlutoLogger->Write(LV_CRITICAL,"--%s\n",Message);
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"--%s\n",Message);
 #endif
 	}
 
@@ -324,7 +341,8 @@ void PlutoLock::DumpOutstandingLocks()
 	// for each thread since there could have been other entries in the map
 	if( listKilledPthreads.size()>0 )
 	{
-		g_pPlutoLogger->Write(LV_LOCKING,"killed %d threads",(int) listKilledPthreads.size());
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_LOCKING,"killed %d threads",(int) listKilledPthreads.size());
 
 #ifdef UNDER_CE
 #ifdef CENET
@@ -342,7 +360,8 @@ void PlutoLock::DumpOutstandingLocks()
 				PlutoLock *pSafetyLock = (*itMapLock).second;
 				if( pSafetyLock->m_thread == (*itKilledThreads) )
 				{
-					g_pPlutoLogger->Write(LV_LOCKING,"already killed (>%d) threads",pSafetyLock->m_LockNum);
+					if( g_pPlutoLogger )
+						g_pPlutoLogger->Write(LV_LOCKING,"already killed (>%d) threads",pSafetyLock->m_LockNum);
 					listMessages.push_back("already killed (>" + StringUtils::itos(pSafetyLock->m_LockNum) + ")");
 					mapLocks.erase(itMapLock++);
 				}
@@ -355,7 +374,8 @@ void PlutoLock::DumpOutstandingLocks()
 		for(itKilledThreads=listKilledPthreads.begin();itKilledThreads!=listKilledPthreads.end();++itKilledThreads)
 		{
 			pthread_t thread = (*itKilledThreads);
-			g_pPlutoLogger->Write(LV_LOCKING,"doing the kill: %ld",thread);
+			if( g_pPlutoLogger )
+				g_pPlutoLogger->Write(LV_LOCKING,"doing the kill: %ld",thread);
 #ifndef UNDER_CE
 			pthread_cancel(thread);
 #endif
@@ -368,8 +388,10 @@ void PlutoLock::DumpOutstandingLocks()
 	list<string>::iterator itMessages;
 	for(itMessages=listMessages.begin();itMessages!=listMessages.end();++itMessages)
 	{
-		g_pPlutoLogger->Write(LV_LOCKING,"logging message %s\n",(*itMessages).c_str());
-		g_pPlutoLogger->Write(LV_WARNING,(*itMessages).c_str());
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_LOCKING,"logging message %s\n",(*itMessages).c_str());
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_WARNING,(*itMessages).c_str());
 	}
 }
 
@@ -378,9 +400,11 @@ void PlutoLock::Relock()
 	if( !m_bReleased )
 	{
 #ifdef WIN32
-		g_pPlutoLogger->Write(LV_CRITICAL, "failure relocking(%p): %s:%d %s",m_pMyLock->mutex, m_sFileName.c_str(),m_Line,m_sMessage.c_str()); 
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL, "failure relocking(%p): %s:%d %s",m_pMyLock->mutex, m_sFileName.c_str(),m_Line,m_sMessage.c_str()); 
 #else
-		g_pPlutoLogger->Write(LV_CRITICAL, "failure relocking(%p): %s:%d %s",&m_pMyLock->mutex, m_sFileName.c_str(),m_Line,m_sMessage.c_str()); 
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL, "failure relocking(%p): %s:%d %s",&m_pMyLock->mutex, m_sFileName.c_str(),m_Line,m_sMessage.c_str()); 
 #endif
 		return; // We don't have a lock
 	}
@@ -389,9 +413,11 @@ void PlutoLock::Relock()
 	if( !m_bLogErrorsOnly )
 	{
 	#ifdef WIN32
-		g_pPlutoLogger->Write(LV_LOCKING, "relocking (%p) %s", m_pMyLock->mutex,m_sMessage.c_str());
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_LOCKING, "relocking (%p) %s", m_pMyLock->mutex,m_sMessage.c_str());
 	#else
-		g_pPlutoLogger->Write(LV_LOCKING, "relocking (%p) %s", &m_pMyLock->mutex,m_sMessage.c_str());
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_LOCKING, "relocking (%p) %s", &m_pMyLock->mutex,m_sMessage.c_str());
 	#endif
 		DoLock();
 	}
@@ -413,17 +439,20 @@ void PlutoLock::DoLock()
 	m_bReleased=false;
 	if( !m_pMyLock->m_bInitialized )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "attempting to use un-initialized lock (%p) (>%d) %s: %s:%d %s",
-			&m_pMyLock->mutex, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL, "attempting to use un-initialized lock (%p) (>%d) %s: %s:%d %s",
+				&m_pMyLock->mutex, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
 		return;  // We just won't get the lock this first time
 	}
 #ifdef THREAD_LOG
 	if( !m_bLogErrorsOnly )
 	{
 	#ifdef WIN32
-		g_pPlutoLogger->Write(LV_LOCKING, "lock(%p) (>%d) %s: %s:%d %s",m_pMyLock->mutex, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str()); 
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_LOCKING, "lock(%p) (>%d) %s: %s:%d %s",m_pMyLock->mutex, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str()); 
 	#else
-		g_pPlutoLogger->Write(LV_LOCKING, "lock(%p) (>%d) %s: %s:%d %s",&m_pMyLock->mutex, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_LOCKING, "lock(%p) (>%d) %s: %s:%d %s",&m_pMyLock->mutex, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
 	#endif
 	}
 #endif
@@ -444,12 +473,13 @@ void PlutoLock::DoLock()
 #endif
 	if( !m_bGotLock )
 	{
+		if( g_pPlutoLogger )
 #ifdef WIN32
-		g_pPlutoLogger->Write(LV_CRITICAL, "Failed to get lock(%p) %s: %s:%d last used %s:%d thread: %p (>%d) %s",
-			m_pMyLock->mutex, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_pMyLock->m_sFileName.c_str(),m_pMyLock->m_Line,m_pMyLock->m_thread,m_pMyLock->m_LockNum,m_sMessage.c_str()); 
+			g_pPlutoLogger->Write(LV_CRITICAL, "Failed to get lock(%p) %s: %s:%d last used %s:%d thread: %p (>%d) %s",
+				m_pMyLock->mutex, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_pMyLock->m_sFileName.c_str(),m_pMyLock->m_Line,m_pMyLock->m_thread,m_pMyLock->m_LockNum,m_sMessage.c_str()); 
 #else
-		g_pPlutoLogger->Write(LV_CRITICAL, "Failed to get lock(%p) %s: %s:%d last used %s:%d thread: %d (>%d) %s",
-			&m_pMyLock->mutex, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_pMyLock->m_sFileName.c_str(),m_pMyLock->m_Line,m_pMyLock->m_thread,m_pMyLock->m_LockNum,m_sMessage.c_str()); 
+			g_pPlutoLogger->Write(LV_CRITICAL, "Failed to get lock(%p) %s: %s:%d last used %s:%d thread: %d (>%d) %s",
+				&m_pMyLock->mutex, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_pMyLock->m_sFileName.c_str(),m_pMyLock->m_Line,m_pMyLock->m_thread,m_pMyLock->m_LockNum,m_sMessage.c_str()); 
 #endif
 		DumpOutstandingLocks();
 		pthread_mutex_lock(&m_pMyLock->mutex);
@@ -461,12 +491,13 @@ void PlutoLock::DoLock()
 #ifdef THREAD_LOG
 	if( !m_bLogErrorsOnly )
 	{
+		if( g_pPlutoLogger )
 	#ifdef WIN32
-		g_pPlutoLogger->Write(LV_LOCKING, "acquired(%p) #%d (>%d) %s %s:%d %s", 
-			m_pMyLock->mutex,m_pMyLock->m_NumLocks,m_LockNum,m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
+			g_pPlutoLogger->Write(LV_LOCKING, "acquired(%p) #%d (>%d) %s %s:%d %s", 
+				m_pMyLock->mutex,m_pMyLock->m_NumLocks,m_LockNum,m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
 	#else
-		g_pPlutoLogger->Write(LV_LOCKING, "acquired(%p) #%d (>%d) %s %s:%d %s", 
-			&m_pMyLock->mutex,m_pMyLock->m_NumLocks,m_LockNum,m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
+			g_pPlutoLogger->Write(LV_LOCKING, "acquired(%p) #%d (>%d) %s %s:%d %s", 
+				&m_pMyLock->mutex,m_pMyLock->m_NumLocks,m_LockNum,m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
 	#endif
 	}
 #endif
@@ -481,10 +512,11 @@ void PlutoLock::Release()
 #ifdef THREAD_LOG
 		if( !m_bLogErrorsOnly )
 		{
+			if( g_pPlutoLogger )
 	#ifdef WIN32
-			g_pPlutoLogger->Write(LV_LOCKING, "unlock(%p) #%d (>%d) %s: %s:%d %s", m_pMyLock->mutex, m_pMyLock->m_NumLocks, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
+				g_pPlutoLogger->Write(LV_LOCKING, "unlock(%p) #%d (>%d) %s: %s:%d %s", m_pMyLock->mutex, m_pMyLock->m_NumLocks, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
 	#else
-			g_pPlutoLogger->Write(LV_LOCKING, "unlock(%p) #%d (>%d) %s: %s:%d %s", &m_pMyLock->mutex, m_pMyLock->m_NumLocks, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
+				g_pPlutoLogger->Write(LV_LOCKING, "unlock(%p) #%d (>%d) %s: %s:%d %s", &m_pMyLock->mutex, m_pMyLock->m_NumLocks, m_LockNum, m_pMyLock->m_sName.c_str(), m_sFileName.c_str(),m_Line,m_sMessage.c_str());
 	#endif
 		}
 #endif

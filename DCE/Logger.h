@@ -59,6 +59,10 @@
 #include "PlutoUtils/MultiThreadIncludes.h"
 #include "PlutoLockLogger.h"
 
+#define LT_LOGGER_NULL		1
+#define LT_LOGGER_FILE		2
+#define LT_LOGGER_SERVER	3
+
 namespace DCE 
 {
 	/**
@@ -96,6 +100,11 @@ namespace DCE
 		*/
 		virtual ~Logger();
 		
+		/**
+		* @brief sets the value for the type of logger
+		*/
+		virtual int GetType()=0;
+
 		/**
 		* @brief sets the value for the m_dwPK_Installation member
 		*/
@@ -185,6 +194,8 @@ namespace DCE
 		{}
 	
 		virtual void WriteEntry( class Logger::Entry& entry ) {}
+
+		virtual int GetType() { return LT_LOGGER_NULL; }
 	};
 	
 	/**
@@ -241,7 +252,9 @@ namespace DCE
 		* @brief prints the log entry data to the log file
 		*/
 		virtual void WriteEntry( class Logger::Entry& entry );
-		
+
+		virtual int GetType() { return LT_LOGGER_FILE; }
+
 	};
 	typedef map<string, Logger*> NameLoggerMap;
 	typedef map<string, string> StringStringMap;

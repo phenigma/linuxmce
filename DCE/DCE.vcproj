@@ -20,7 +20,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;..\Libraries\pthreads-win32\include&quot;;.."
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;DEBUG;xTHREAD_LOG"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;DEBUG;THREAD_LOG;LL_DEBUG_FILE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
