@@ -50,7 +50,7 @@ $out='
 	<tr>
 		<td height="22">Country:</td>
 		<td height="22"><input type="text" class="textfield" name="Country" size="25"></td>
-		<td colspan="2"><input type="image" name="send" src="images/buttons/buton_send_message.gif"></td>
+		<td colspan="2"><input type="image" name="send" src="images/buttons/buton_send_message.gif" value="1"></td>
 	</tr>
 	<tr>
 		<td height="19">Your message:</td>
@@ -62,7 +62,7 @@ $out='
 	</tr>
 </table>
 </form>'; 
-	if(isset($_POST['send'])){
+	if(isset($_POST['send']) || isset($_POST['Name'])){
     
 		$leadTypeDescr=explode('-',$_POST['FKID_LeadType']);
 	  	$leadType=@$leadTypeDescr[0];
