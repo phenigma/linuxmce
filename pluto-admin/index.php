@@ -667,17 +667,29 @@ switch ($section) {
 	    include_once('operations/floorplan/uploadFloorplan.php');
 	    uploadFloorplan($output,$dbADO);
 	break;
-	case 'eventsHandler':
+	case 'respondToEvents':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
-	    include_once('operations/events/eventsHandler.php');
-	    eventsHandler($output,$dbADO);
+	    include_once('operations/events/respondToEvents.php');
+	    respondToEvents($output,$dbADO);
 	break;
-	case 'editEventHandler':
+	case 'editRespondToEvent':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
-	    include_once('operations/events/editEventHandler.php');
-	    editEventHandler($output,$dbADO);
+	    include_once('operations/events/editRespondToEvent.php');
+	    editRespondToEvent($output,$dbADO);
+	break;
+	case 'timedEvents':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/events/timedEvents.php');
+	    timedEvents($output,$dbADO);
+	break;
+	case 'editTimedEvent':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/events/editTimedEvent.php');
+	    editTimedEvent($output,$dbADO);
 	break;
 
 	case 'securitySettings':

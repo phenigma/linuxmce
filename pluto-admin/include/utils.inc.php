@@ -1472,12 +1472,12 @@ function getSubmenu($website,$level,$parentID,$dbADO)
 	return $menuPages;
 }
 
-function generatePullDown($name,$tableName,$valueField,$labelField,$selectedValue,$dbADO)
+function generatePullDown($name,$tableName,$valueField,$labelField,$selectedValue,$dbADO,$filterTable='')
 {
 	$pullDown='
 		<select name="'.$name.'">	
 			<option value="0">- Please select -</option>';
-	$query="SELECT $valueField,$labelField FROM $tableName ORDER BY $labelField ASC";
+	$query="SELECT $valueField,$labelField FROM $tableName $filterTable ORDER BY $labelField ASC";
 	$res=$dbADO->Execute($query);
 	while($row=$res->FetchRow()){
 		$pullDown.='<option value="'.$row[$valueField].'" '.(($row[$valueField]==$selectedValue)?'selected':'').'>'.$row[$labelField].'</option>';
@@ -1502,5 +1502,12 @@ function getDeviceTemplatesFromCategory($categoryID,$dbADO)
 		$DTArray[]=$rowDeviceCategory['PK_DeviceTemplate'];
 	}
 	return $DTArray;
+}
+
+// convert a Y-m-d date in a custom format
+function formatMySQLDate($mySQLformat,$customFormat)
+{
+	$dataParts=explode('-',$mySQLformat);
+	return date($customFormat,mktime(0,0,0,$dataParts[1],$dataParts[2],$dataParts[0]));
 }
 ?>

@@ -31,6 +31,7 @@ $out='';
 		$quarantine = $row['FK_StabilityStatus'];
 		$package = $row['FK_Package'];
 		$isPlugIn = $row['IsPlugIn'];
+		$isEmbedded = $row['IsEmbedded'];
 		$rs->Close();
 		
 		$out='
@@ -185,6 +186,11 @@ $out='';
 					<td valign="top">Is PlugIg</td>
 					<td><input type="checkbox" name="isPlugIn" value="1" '.(($isPlugIn==1)?'checked':'').' onClick=\'javascript:this.form.submit();\'>
 					<input type="hidden" name="oldIsPlugIn" value="'.(($isPlugIn==1)?'1':'0').'"></td>
+				</tr>					
+				<tr>
+					<td valign="top">Is Embedded</td>
+					<td><input type="checkbox" name="isEmbedded" value="1" '.(($isEmbedded==1)?'checked':'').' onClick=\'javascript:this.form.submit();\'>
+					<input type="hidden" name="oldIsEmbedded" value="'.(($isEmbedded==1)?'1':'0').'"></td>
 				</tr>					
 				<tr>
 					<td valign="top">Contact</td>
@@ -568,6 +574,8 @@ $out='';
 		$package = (@$_POST['package']!='0')?cleanInteger(@$_POST['package']):NULL;
 		$isPlugIn = cleanInteger(@$_POST['isPlugIn']);
 		$oldIsPlugIn = cleanInteger(@$_POST['oldIsPlugIn']);
+		$isEmbedded = cleanInteger(@$_POST['isEmbedded']);
+		$oldIsEmbedded = cleanInteger(@$_POST['oldIsEmbedded']);
 		
 		$locationGoTo=''; 
 
@@ -766,10 +774,11 @@ $out='';
 							FK_DeviceCategory = ?,FK_Manufacturer  = ?,
 							IsAVDevice = ?,
 							FK_Package=?,
-							IsPlugIn =?
+							IsPlugIn =?,
+							IsEmbedded=?
 							WHERE PK_DeviceTemplate = ?";
 
-		$dbADO->Execute($updateQuery,array($description,$ImplementsDCE,$commandLine,$category,$manufacturer,$isAVDevice,$package,$isPlugIn,$deviceID));
+		$dbADO->Execute($updateQuery,array($description,$ImplementsDCE,$commandLine,$category,$manufacturer,$isAVDevice,$package,$isPlugIn,$isEmbedded,$deviceID));
 
 		if($isPlugIn==1 && $oldIsPlugIn==0){
 			$insertControlledVia = '

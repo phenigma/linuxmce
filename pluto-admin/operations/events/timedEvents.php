@@ -1,5 +1,5 @@
 <?php
-function eventsHandler($output,$dbADO) {
+function timedEvents($output,$dbADO) {
 	/* @var $dbADO ADOConnection */
 	$out='';
 	$installationID = (int)@$_SESSION['installationID'];
@@ -9,7 +9,7 @@ function eventsHandler($output,$dbADO) {
 	
 	if(isset($_REQUEST['dID']) && $_REQUEST['dID']!=0){
 		if(!$canModifyInstallation){
-			header("Location: index.php?section=eventsHandler&error=You are not authorised to modify installation.");
+			header("Location: index.php?section=timedEvents&error=You are not authorised to modify installation.");
 			exit();
 		}
 
@@ -18,7 +18,7 @@ function eventsHandler($output,$dbADO) {
 			SELECT EventHandler.*, Criteria.FK_CriteriaParmNesting 
 			FROM EventHandler 
 				INNER JOIN Criteria ON FK_Criteria=PK_Criteria
-			WHERE PK_EventHandler=?';
+			WHERE PK_EventHandler=? AND TimedEvent IS NOT NULL';
 		$resEH=$dbADO->Execute($queryEventsHandler,$eventHandlerID);
 		if($resEH->RecordCount()!=0){
 			$rowEH=$resEH->FetchRow();
@@ -44,22 +44,19 @@ function eventsHandler($output,$dbADO) {
 		$out.='
 		<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 		<div align="center"><B>'.@$_REQUEST['msg'].'</B></div>
-		<form action="index.php" method="post" name="eventsHandler">
-		<input type="hidden" name="section" value="eventsHandler">
+		<form action="index.php" method="post" name="timedEvents">
+		<input type="hidden" name="section" value="timedEvents">
 		<input type="hidden" name="action" value="add">
-		<div align="center"><h3>Events handler</h3></div>
-		<table border="0" align="center">
+		<div align="center"><h3>Timed Events</h3></div>
+		<table border="0" align="center" cellpading="3">
 			<tr bgcolor="lightblue">
 				<td align="center"><B>Description</B></td>
-				<td align="center"><B>Event</B></td>
 				<td align="center">&nbsp;</td>
 			</tr>
 		';
 		$queryEvents='
-			SELECT EventHandler.*, CannedEvents.Description AS CannedEvent
-			FROM EventHandler
-				INNER JOIN CannedEvents ON FK_CannedEvents=PK_CannedEvents
-			WHERE EventHandler.FK_Installation=?
+			SELECT EventHandler.* FROM EventHandler
+			WHERE EventHandler.FK_Installation=? AND TimedEvent IS NOT NULL
 		';
 		$resEvents=$dbADO->Execute($queryEvents,$installationID);
 		if($resEvents->RecordCount()==0){
@@ -74,30 +71,42 @@ function eventsHandler($output,$dbADO) {
 			$out.='
 				<tr bgcolor="'.(($lineCount%2==0)?'#E7E7E7':'#FFFFFF').'">
 					<td>'.$rowEvents['Description'].'</td>
-					<td>'.$rowEvents['CannedEvent'].'</td>
-					<td align="center"><a href="index.php?section=editEventHandler&ehID='.$rowEvents['PK_EventHandler'].'">Edit</a> <a href="#" onClick="if(confirm(\'Are you sure you want to delete the event?\'))self.location=\'index.php?section=eventsHandler&dID='.$rowEvents['PK_EventHandler'].'\'">Delete</a></td>
+					<td align="center"><a href="index.php?section=editTimedEvent&ehID='.$rowEvents['PK_EventHandler'].'">Edit</a> <a href="#" onClick="if(confirm(\'Are you sure you want to delete the event?\'))self.location=\'index.php?section=timedEvents&dID='.$rowEvents['PK_EventHandler'].'\'">Delete</a></td>
 				</tr>';
 		}
-		$queryCannedEvents='SELECT * FROM CannedEvents ORDER By Description ASC';
-		$resCannedEvents=$dbADO->Execute($queryCannedEvents);
 		$out.='
 			<tr>
 				<td colspan="3">&nbsp;</td>
 			</tr>
 			<tr>
-				<td><B>Description</B>:</td>
+				<td><B>New timed event description</B>:</td>
 				<td colspan="2"><input type="text" name="Description" value=""></td>
+			</tr>	
+			<tr>
+				<td><B>Interval based:</B></td>
+				<td colspan="2">Do something every x minutes, or every other hour</td>
+			</tr>	
+			<tr>
+				<td><B>Day of week based:</B></td>
+				<td colspan="2">Do something at 7:00 and 9:00 on Monday, Wednesday and Friday</td>
 			</tr>		
 			<tr>
-				<td><B>New event</B>: </td>
-				<td colspan="2"><select name="cannedEvent">
-					<option value="0">- Please select an event -</option>';
-
-		while($rowCE=$resCannedEvents->FetchRow()){
-			$out.='<option value="'.$rowCE['PK_CannedEvents'].'">'.$rowCE['Description'].'</option>';
-		}
-		$out.='
-			</select></td>
+				<td><B>Day of month based:</B></td>
+				<td colspan="2">Do something at 8:00 on the 1st and 15th of each month</td>
+			</tr>		
+			<tr>
+				<td><B>Absolute:</B></td>
+				<td colspan="2">Do something on 5 Mar 2005 at 11:15</td>
+			</tr>
+			<tr>
+				<td align="right"><B>Add:</B></td>
+				<td colspan="2"><select name="timedEventType">
+					<option value="1">Interval</option>
+					<option value="2">Day of week</option>
+					<option value="3">Day of month</option>
+					<option value="4">Absolute</option>
+				</select></td>
+			</tr>		
 			<tr>
 				<td colspan="3" align="center"><input type="submit" name="continue" value="Add"></td>
 			</tr>';
@@ -105,9 +114,8 @@ function eventsHandler($output,$dbADO) {
 		</table>
 		</form>
 		<script>
-		 	var frmvalidator = new formValidator("eventsHandler");			
+		 	var frmvalidator = new formValidator("timedEvents");			
  			frmvalidator.addValidation("Description","req","Please enter the description!");
-			frmvalidator.addValidation("cannedEvent","dontselect=0","Please select an event!");
 		</script>		
 		';
 		
@@ -119,7 +127,7 @@ function eventsHandler($output,$dbADO) {
 		}
 
 		$description=cleanString($_POST['Description']);
-		$cannedEvent=cleanInteger($_POST['cannedEvent']);
+		$timedEventType=cleanInteger($_POST['timedEventType']);
 		$insertCriteriaParmNesting='INSERT INTO CriteriaParmNesting (IsAnd,IsNot) VALUES (1,0)';
 		$dbADO->Execute($insertCriteriaParmNesting);
 		$insertID=$dbADO->Insert_ID();
@@ -136,18 +144,18 @@ function eventsHandler($output,$dbADO) {
 		$dbADO->Execute($insertCommandGroup,array($GLOBALS['EventsHandlerArray'],$installationID,'Event ActionGroup',0,0,0,$GLOBALS['EventsHandlerTemplate']));
 		$cgID=$dbADO->Insert_ID();
 		
-		$insertEventHandler='
+		$insertEventHandler="
 			INSERT INTO EventHandler 
-				(Description, FK_Criteria, FK_Installation, FK_CommandGroup,FK_CannedEvents)
+				(Description, FK_Criteria, FK_Installation, FK_CommandGroup,FK_CannedEvents,FK_Event,TimedEvent)
 			VALUES
-				(?,?,?,?,?)';
-		$dbADO->Execute($insertEventHandler,array($description,$criteriaID,$installationID,$cgID,$cannedEvent));
+				(?,?,?,?,?,?,?) ";
+		$dbADO->Execute($insertEventHandler,array($description,$criteriaID,$installationID,$cgID,NULL,NULL,$timedEventType));
 		$ehID=$dbADO->Insert_ID();
-		header("Location: index.php?section=editEventHandler&ehID=".$ehID);
+		header("Location: index.php?section=editTimedEvent&ehID=".$ehID);
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME.' :: Events handler');			
+	$output->setTitle(APPLICATION_NAME.' :: Timed Events');			
 	$output->output();
 }
 ?>

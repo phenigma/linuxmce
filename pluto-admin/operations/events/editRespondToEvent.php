@@ -1,5 +1,5 @@
 <?php
-function editEventHandler($output,$dbADO) {
+function editRespondToEvent($output,$dbADO) {
 	/* @var $dbADO ADOConnection */
 	$out='';
 	$installationID = (int)@$_SESSION['installationID'];
@@ -23,7 +23,7 @@ function editEventHandler($output,$dbADO) {
 		$objID=$_REQUEST['cgcID'];
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
 		if(!$canModifyInstallation){
-			header("Location: index.php?section=editEventHandler&error=You are not authorised to modify installation.");
+			header("Location: index.php?section=editRespondToEvent&error=You are not authorised to modify installation.");
 			exit();
 		}
 		$deleteObjFromDevice = 'DELETE FROM CommandGroup_Command WHERE PK_CommandGroup_Command = ?';
@@ -41,12 +41,12 @@ function editEventHandler($output,$dbADO) {
 		$out.='
 		<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 		<div align="center"><B>'.@$_REQUEST['msg'].'</B></div>
-		<form action="index.php" method="post" name="editEventHandler">
-		<input type="hidden" name="section" value="editEventHandler">
+		<form action="index.php" method="post" name="editRespondToEvent">
+		<input type="hidden" name="section" value="editRespondToEvent">
 		<input type="hidden" name="action" value="update">
 		<input type="hidden" name="ehID" value="'.$eventHandlerID.'">
 		
-		<div align="center"><h3>Edit Event Handler</h3></div>
+		<div align="center"><h3>Edit Respond to Event</h3></div>
 		<table border="0" align="center">
 		';
 		$out.='
@@ -59,7 +59,7 @@ function editEventHandler($output,$dbADO) {
 		$out.='
 			<tr>
 				<td>Event:</td>
-				<td colspan="2"><select name="cannedEvent" onChange="document.editEventHandler.action.value=\'form\'; document.editEventHandler.submit();">';
+				<td colspan="2"><select name="cannedEvent" onChange="document.editRespondToEvent.action.value=\'form\'; document.editRespondToEvent.submit();">';
 
 		while($rowCE=$resCannedEvents->FetchRow()){
 			$out.='<option value="'.$rowCE['PK_CannedEvents'].'" '.(($rowCE['PK_CannedEvents']==$parmlistToDisplay)?'selected':'').'>'.$rowCE['Description'].'</option>';
@@ -69,7 +69,7 @@ function editEventHandler($output,$dbADO) {
 			</tr>';
 			$displayedCE_CP=array();
 			$queryCriteriaParmlist='
-				SELECT CannedEvents_CriteriaParmList.Description, CriteriaParmList.Description AS PK_Table, CriteriaParmList.FK_ParameterType,CannedEvents_CriteriaParmList.Operator,PK_CannedEvents_CriteriaParmList,CannedEvents_CriteriaParmList.FK_CriteriaParmList,DefaultValue
+				SELECT CannedEvents_CriteriaParmList.Description, CriteriaParmList.Description AS PK_Table, CriteriaParmList.FK_ParameterType,CannedEvents_CriteriaParmList.Operator,PK_CannedEvents_CriteriaParmList,CannedEvents_CriteriaParmList.FK_CriteriaParmList,DefaultValue,ExtraInfo
 				FROM CannedEvents_CriteriaParmList 
 					INNER JOIN CriteriaParmList ON CannedEvents_CriteriaParmList.FK_CriteriaParmList=PK_CriteriaParmList 
 				WHERE FK_CannedEvents=?';
@@ -82,6 +82,11 @@ function editEventHandler($output,$dbADO) {
 					$rowOldValues=$resOldValues->FetchRow();
 					$oldOperator=$rowOldValues['Operator'];
 					$oldValue=$rowOldValues['Value'];
+					$oldParm=$rowOldValues['Parm'];
+				}else{
+					$oldOperator='';
+					$oldValue='';
+					$oldParm='';
 				}
 				$displayedCE_CP[]=$rowCriteria['PK_CannedEvents_CriteriaParmList'];
 				$selectedOperator=(!isset($oldOperator))?$rowCriteria['Operator']:@$oldOperator;
@@ -90,35 +95,67 @@ function editEventHandler($output,$dbADO) {
 				$out.='
 				<tr>
 					<td>'.$rowCriteria['Description'].'</td>
-					<td><select name="CriteriaParmOperator_'.$rowCriteria['PK_CannedEvents_CriteriaParmList'].'">
+					<td>';
+				if($rowCriteria['FK_CriteriaParmList']==$GLOBALS['PK_EventParameterParmList']){
+					$resEventParameter=$dbADO->Execute('SELECT * FROM EventParameter ORDER BY Description ASC');
+					$out.='Event parameter: <select name="CriteriaParmParm_'.$rowCriteria['PK_CannedEvents_CriteriaParmList'].'" onChange="document.editRespondToEvent.action.value=\'form\';document.editRespondToEvent.action.value=\'form\';document.editRespondToEvent.submit();">
+						<option value="0" ></option>';
+					while($rowEP=$resEventParameter->FetchRow()){
+						$isSelectedParm=($oldParm==$rowEP['PK_EventParameter'] && !isset($_POST['CriteriaParmParm_'.$rowCriteria['PK_CannedEvents_CriteriaParmList']]))?'selected':'';
+						$out.='<option value="'.$rowEP['PK_EventParameter'].'" '.(($rowEP['PK_EventParameter']==@$_POST['CriteriaParmParm_'.$rowCriteria['PK_CannedEvents_CriteriaParmList']])?'selected':$isSelectedParm).'>'.$rowEP['Description'].'</option>';						
+						if(!isset($_POST['CriteriaParmParm_'.$rowCriteria['PK_CannedEvents_CriteriaParmList']]) && $rowEP['PK_EventParameter']==$oldParm)
+							$selectedEventParameter=$rowEP['Description'];
+						if(isset($_POST['CriteriaParmParm_'.$rowCriteria['PK_CannedEvents_CriteriaParmList']]) && $rowEP['PK_EventParameter']==$_POST['CriteriaParmParm_'.$rowCriteria['PK_CannedEvents_CriteriaParmList']]){
+							$selectedEventParameter=$rowEP['Description'];
+						}
+					}
+					$out.='</select>';
+				}
+				$out.='
+					<select name="CriteriaParmOperator_'.$rowCriteria['PK_CannedEvents_CriteriaParmList'].'">
 						<option value="1" '.(($selectedOperator==1)?'selected':'').'>=</option>
 						<option value="2" '.(($selectedOperator==2)?'selected':'').'>&lt;&gt;</option>
 					</select> ';
 				
-				if(substr($rowCriteria['PK_Table'],0,3)=='PK_'){
-					$out.='<select name="CriteriaParmValue_'.$rowCriteria['PK_CannedEvents_CriteriaParmList'].'">
-						<option value="0" ></option>';
-					$tableName=substr($rowCriteria['PK_Table'],3);
-					$filterTable=($tableName=='Device' || $tableName=='Room')?" WHERE FK_Installation='".$installationID."' ":'';
-					$queryTable="SELECT * FROM $tableName $filterTable ORDER BY Description ASC";
-					$resTable=$dbADO->Execute($queryTable);
-					while($rowTable=$resTable->FetchRow()){
-						$out.='<option value="'.$rowTable[$rowCriteria['PK_Table']].'" '.(($selectedValue==$rowTable[$rowCriteria['PK_Table']])?'selected':'').'>'.$rowTable['Description'].'</option>';
+				if($rowCriteria['FK_CriteriaParmList']==$GLOBALS['PK_EventParameterParmList']){
+					$out.='Value: ';
+					switch(@$selectedEventParameter){
+						case 'PK_Device':
+						case 'PK_Room':
+							$tableName=substr($selectedEventParameter,3);
+							$out.=generatePullDown('CriteriaParmValue_'.$rowCriteria['PK_CannedEvents_CriteriaParmList'],$tableName,'PK_'.$tableName,'Description',$selectedValue,$dbADO,"WHERE FK_Installation='$installationID'");
+						break;
+						default:			
+							$out.='<input type="textbox" name="CriteriaParmValue_'.$rowCriteria['PK_CannedEvents_CriteriaParmList'].'" value="'.$oldValue.'">';
+						break;
 					}
-					$out.='</select>';
-				}elseif($rowCriteria['PK_Table']=='State'){
-					$stateArray=array(5=>'Afternoon',1=>'Daylight',6=>'Evening',3=>'Morning',7=>'Night',2=>'Not Daylight',9=>'Weekday',8=>'Weekend');
-					$out.='<select name="CriteriaParmValue_'.$rowCriteria['PK_CannedEvents_CriteriaParmList'].'">
-								<option value=""></option>';
-						foreach($stateArray AS $key => $value){
-							$out.='<option value="'.$key.'" '.(($selectedValue==$key)?'selected':'').'>'.$value.'</option>';
+				}else{
+					if(substr($rowCriteria['PK_Table'],0,3)=='PK_'){
+						$out.='<select name="CriteriaParmValue_'.$rowCriteria['PK_CannedEvents_CriteriaParmList'].'">
+							<option value="0" ></option>';
+						$tableName=substr($rowCriteria['PK_Table'],3);
+						$filterTable=($tableName=='Device' || $tableName=='Room')?" WHERE FK_Installation='".$installationID."' ":'';
+						$queryTable="SELECT * FROM $tableName $filterTable ORDER BY Description ASC";
+						$resTable=$dbADO->Execute($queryTable);
+						while($rowTable=$resTable->FetchRow()){
+							$out.='<option value="'.$rowTable[$rowCriteria['PK_Table']].'" '.(($selectedValue==$rowTable[$rowCriteria['PK_Table']])?'selected':'').'>'.$rowTable['Description'].'</option>';
 						}
-					$out.='			
-					</select>';
+						$out.='</select>';
+					}elseif($rowCriteria['PK_Table']=='State'){
+						$stateArray=array(5=>'Afternoon',1=>'Daylight',6=>'Evening',3=>'Morning',7=>'Night',2=>'Not Daylight',9=>'Weekday',8=>'Weekend');
+						$out.='<select name="CriteriaParmValue_'.$rowCriteria['PK_CannedEvents_CriteriaParmList'].'">
+									<option value=""></option>';
+							foreach($stateArray AS $key => $value){
+								$out.='<option value="'.$key.'" '.(($selectedValue==$key)?'selected':'').'>'.$value.'</option>';
+							}
+						$out.='			
+						</select>';
+					}
+					else{
+						$out.='<input type="text" name="CriteriaParmValue_'.$rowCriteria['PK_CannedEvents_CriteriaParmList'].'" value="'.$oldValue.'">';
+					}
 				}
-				else{
-					$out.='<input type="text" name="CriteriaParmValue_'.$rowCriteria['PK_CannedEvents_CriteriaParmList'].'" value="">';
-				}
+				$out.=($rowCriteria['ExtraInfo']!='')?' Extra info: '.$rowCriteria['ExtraInfo']:'';
 				$out.='
 					</td>
 				</tr>				
@@ -215,7 +252,7 @@ function editEventHandler($output,$dbADO) {
 					
 							</td>
 						<td valign="top">
-						<input type="button" name="editA" value="Remove" onClick="self.location=\'index.php?section=editEventHandler&ehID='.$eventHandlerID.'&cgcID='.$rowCommandAssigned['PK_CommandGroup_Command'].'\'">
+						<input type="button" name="editA" value="Remove" onClick="self.location=\'index.php?section=editRespondToEvent&ehID='.$eventHandlerID.'&cgcID='.$rowCommandAssigned['PK_CommandGroup_Command'].'\'">
 						</td>						
 					</tr>
 					';
@@ -234,7 +271,7 @@ function editEventHandler($output,$dbADO) {
 			$out.='
 				<tr>
 					<td><B>Device</B>:</td>
-					<td colspan="2"><select name="device" onChange="document.editEventHandler.action.value=\'form\';document.editEventHandler.submit()">
+					<td colspan="2"><select name="device" onChange="document.editRespondToEvent.action.value=\'form\';document.editRespondToEvent.submit()">
 							<option value="">Select a device</option>';
 				$queryDevice='
 					SELECT Device.*,DeviceTemplate.Description AS Template FROM Device
@@ -261,7 +298,7 @@ function editEventHandler($output,$dbADO) {
 					$out.='
 				<tr>
 					<td>Command: </td>
-					<td><select name="addNewDeviceCommand" onChange="document.editEventHandler.submit()">
+					<td><select name="addNewDeviceCommand" onChange="document.editRespondToEvent.submit()">
 						<option value="0">-please select-</option>';
 							while ($rowNewCommand = $resNewCommand->FetchRow()) {
 								$out.='<option value="'.$rowNewCommand['PK_Command'].'">'.$rowNewCommand['Description'].'</option>';
@@ -284,7 +321,7 @@ function editEventHandler($output,$dbADO) {
 		// processing area
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
 		if(!$canModifyInstallation){
-			header("Location: index.php?section=editEventHandler&ehID=".$eventHandlerID."&error=You are not authorised to modify installation.");
+			header("Location: index.php?section=editRespondToEvent&ehID=".$eventHandlerID."&error=You are not authorised to modify installation.");
 			exit();
 		}
 		$description=$_POST['description'];
@@ -294,6 +331,7 @@ function editEventHandler($output,$dbADO) {
 		foreach($displayedCE_CPArray AS $elem){
 			$operator=@$_POST['CriteriaParmOperator_'.$elem];
 			$value=@$_POST['CriteriaParmValue_'.$elem];
+			$parm=isset($_POST['CriteriaParmParm_'.$elem])?$_POST['CriteriaParmParm_'.$elem]:NULL;
 			$criteriaParmList=@$_POST['CriteriaParmList_'.$elem];
 			
 			$queryOldValues='SELECT * FROM CriteriaParm WHERE FK_CannedEvents_CriteriaParmList=? AND FK_CriteriaParmNesting=?';
@@ -302,26 +340,27 @@ function editEventHandler($output,$dbADO) {
 				// insert new values
 				$insertCriteriaParm='
 					INSERT INTO CriteriaParm 
-						(FK_CriteriaParmNesting,FK_CriteriaParmList,Operator,Value,FK_CannedEvents_CriteriaParmList)
+						(FK_CriteriaParmNesting,FK_CriteriaParmList,Operator,Value,FK_CannedEvents_CriteriaParmList,Parm)
 					VALUES
-						(?,?,?,?,?)';
-				$dbADO->Execute($insertCriteriaParm,array($FK_CriteriaParmNesting,$criteriaParmList,$operator,$value,$elem));
+						(?,?,?,?,?,?)';
+				$dbADO->Execute($insertCriteriaParm,array($FK_CriteriaParmNesting,$criteriaParmList,$operator,$value,$elem,$parm));
 			}else{
 				$rowOldValues=$resOldValues->FetchRow();
 				$oldCriteriaParmList=$rowOldValues['FK_CriteriaParmList'];
 				$oldOperator=$rowOldValues['Operator'];
 				$oldValue=$rowOldValues['Value'];
 				// update if changed
+
 				if($criteriaParmList!=$oldCriteriaParmList || $operator!=$oldOperator || $value!=$oldValue){
 					$updateCriteriaParm='
 						UPDATE CriteriaParm 
-							SET FK_CriteriaParmNesting=?, FK_CriteriaParmList=?, Operator=?, Value=? 
+							SET FK_CriteriaParmNesting=?, FK_CriteriaParmList=?, Operator=?, Value=?,Parm=? 
 						WHERE PK_CriteriaParm=?';
-					$dbADO->Execute($updateCriteriaParm,array($FK_CriteriaParmNesting,$criteriaParmList,$operator,$value,$rowOldValues['PK_CriteriaParm']));
+					$dbADO->Execute($updateCriteriaParm,array($FK_CriteriaParmNesting,$criteriaParmList,$operator,$value,$parm,$rowOldValues['PK_CriteriaParm']));
 				}
 			}			
 		}
-		
+
 		// command group process
 		$x=cleanInteger(@$_POST['device']);
 		$y=cleanInteger(@$_POST['addNewDeviceCommand']);
@@ -414,10 +453,10 @@ function editEventHandler($output,$dbADO) {
 		$dbADO->Execute($updateEventHandler,array($description,$cannedEvent,$eventHandlerID));
 		
 		
-		header('Location: index.php?section=editEventHandler&ehID='.$eventHandlerID.'&msg=The event handler was updated');
+		header('Location: index.php?section=editRespondToEvent&ehID='.$eventHandlerID.'&msg=The event handler was updated');
 	}
 	
-	$output->setNavigationMenu(array("Events Handler"=>'index.php?section=eventsHandler'));
+	$output->setNavigationMenu(array("Respond to Events"=>'index.php?section=respondToEvents'));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);			
 	$output->output();

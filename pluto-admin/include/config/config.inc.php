@@ -147,6 +147,14 @@
 	
 	$GLOBALS['EventCriteriaList']=2;			// Events
 
+	// PK_CriteriaParmList from table CriteriaParmList
+	
+	$GLOBALS['TimeOfDayParmList']=11;					// Interval and also Time of Day
+	$GLOBALS['DayOfWeekParmList']=17;					// Day Of Week
+	$GLOBALS['DayOfMonthParmList']=18;					// Day Of Month
+	$GLOBALS['SpecificDateParmList']=11;				// Specific Date or Absolute
+	$GLOBALS['PK_EventParameterParmList']=24;			// PK_EventParameter
+
 	// PK_Variable from table Variable
 	
 	$GLOBALS['camerasVariableNumbersArray']=array(18,19,20,21);
