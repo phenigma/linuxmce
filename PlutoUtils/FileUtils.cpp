@@ -331,6 +331,7 @@ void FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
 
 // Use a 1 meg buffer
 #define BUFFER_SIZE		1000000
+#include <iostream>
 bool FileUtils::PUCopyFile(string sSource,string sDestination)
 {
 	FILE *fileSource = fopen(sSource.c_str(),"rb");

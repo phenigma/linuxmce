@@ -881,17 +881,24 @@ bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,list<FileI
 	vector<Row_Package_Source *> vect_pRow_Package_Source_Package_Name;
 	pRow_Package_Source->FK_Package_getrow()->Package_Source_FK_Package_getrows(&vect_pRow_Package_Source_Package_Name);
 	
-	string Dir("/tmp/pluto-build/" + vect_pRow_Package_Source_Package_Name[0]->Name_get() + "-" +
-		vect_pRow_Package_Source_Package_Name[0]->Version_get());
+	string Version("");
+	if (!vect_pRow_Package_Source_Package_Name[0]->Version_isNull())
+	{
+		Version = vect_pRow_Package_Source_Package_Name[0]->Version_get();
+	}
+	if (Version == "")
+	{
+		Version = "2.0.0.0";
+	}
+	
+	string Dir("/home/tmp/pluto-build/" + vect_pRow_Package_Source_Package_Name[0]->Name_get() + "-" + Version);
 
 	FILE * f;
 
 #ifndef WIN32
 	system(("rm -rf " + Dir).c_str());
-	mkdir(Dir.c_str(), 0666);
-	mkdir((Dir + "/root").c_str(), 0666);
+	system(("mkdir -p " + Dir + "/root").c_str());
 	chdir(Dir.c_str());
-	system("echo | dh_make -c gpl -s -n");
 
 string Makefile = "none:\n"
 "\t\n"
@@ -907,15 +914,16 @@ string Makefile = "none:\n"
 	}
 	fprintf(f, "%s", Makefile.c_str(), Makefile.length());
 	fclose(f);
+	system("echo | dh_make -c gpl -s -n");
 #endif
 
 	list<FileInfo *>::iterator iFileInfo;
 	for (iFileInfo = listFileInfo.begin(); iFileInfo != listFileInfo.end(); iFileInfo++)
 	{
+		cout << "COPY: " << (*iFileInfo)->m_sSource << " --> " + Dir + "/root" + (*iFileInfo)->m_sDestination << endl;
 #ifndef WIN32
+		system(("mkdir -p " + FileUtils::BasePath(Dir + "/root" + (*iFileInfo)->m_sDestination)).c_str());
 		FileUtils::PUCopyFile((*iFileInfo)->m_sSource, Dir + "/root" + (*iFileInfo)->m_sDestination);
-#else
-		cout << "COPY " << (*iFileInfo)->m_sSource << " " + Dir + "/root" + (*iFileInfo)->m_sDestination << endl;
 #endif
 	}
 
@@ -949,8 +957,10 @@ string Makefile = "none:\n"
 		cout << "dpkg-buildpackage -b failed.  Aborting." << endl;
 		return false;
 	}
-#endif
 
+	system(("rm -rf " + Dir).c_str());
+#endif
+	
 	cout << "------------DEBIAN PACKAGE OUTPUT" << endl;
 	cout << " rep: " << pRow_Package_Source->Repository_get() << " ver: " << pRow_Package_Source->Version_get() << " parm: " << pRow_Package_Source->Parms_get() << endl;
 	cout << "Press any key to continue..." << endl;
