@@ -8,5 +8,5 @@ else
 	#if the table was already modified, this won't hurt anything
 	echo 'alter table `pluto_main`.`Users` ,add column `Password_Unix` varchar (100)   NULL  after `Staff`, add column `Password_Samba` varchar (100)   NULL  after `Password_Unix`;' | mysql pluto_main
 	# Don't want an error code
-	date
+	exit 0
 fi
