@@ -502,7 +502,11 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 				list<string> listFiles;
 				FileUtils::FindFiles(listFiles,sDirectory,File,true);
 				if( listFiles.size()==0 )
+				{
 					cout << "**WARNING** No files found in " << sDirectory << endl;
+					if( !AskYNQuestion("Continue?",false) )
+						return false;
+				}
 				for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
 				{
 					FileInfo *pFileInfo = new FileInfo(sDirectory + "/" + *it,
@@ -513,6 +517,12 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 			}
 			else
 			{
+				if( !FileUtils::FileExists(sDirectory + "/" + File) )
+				{
+					cout << "**WARNING** " << sDirectory << "/" << File << " not found" <<  endl;
+					if( !AskYNQuestion("Continue?",false) )
+						return false;
+				}
 				FileInfo *pFileInfo = new FileInfo(sDirectory + "/" + File,
 					pRow_Package_Directory->Path_get() + "/" + File,
 					pRow_Package_Directory);
