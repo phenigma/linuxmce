@@ -38,7 +38,7 @@ public:
 	// Public member variables
 
 	// Datagrids
-	class DataGridTable * BookmarkList(string GridID, string Parms, void * ExtraData,int *iPK_Variable,string *sValue_To_Assign);
+	class DataGridTable * BookmarkList(string GridID, string Parms, void * ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
 
 //<-dceag-h-b->
 	/*
