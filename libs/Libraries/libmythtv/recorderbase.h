@@ -49,6 +49,7 @@ class RecorderBase
 
     virtual long long GetFramesWritten(void) = 0;
     
+    virtual bool Open(void) = 0;
     virtual int GetVideoFd(void) = 0;
     
     virtual long long GetKeyframePosition(long long desired) = 0;
@@ -70,6 +71,7 @@ class RecorderBase
 
     char vbimode;
     int ntsc;
+    int ntsc_framerate;
     double video_frame_rate;
 
     ProgramInfo *curRecording;

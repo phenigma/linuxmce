@@ -198,14 +198,14 @@ class ManagedListGroup : public ManagedListItem
         ManagedListItem* getItem(int index) { return itemList.at(index); }
         ManagedListItem* getCurItem() { return itemList.at(curItem); }
 
-        const QString& getCurItemValue() { return getItemValue(curItem); }
-        const QString& getItemValue(int which) { return getItem(which)->getValue(); }
+        const QString getCurItemValue() { return getItemValue(curItem); }
+        const QString getItemValue(int which) { ManagedListItem *itm = getItem(which);
+                                                return itm ? itm->getValue() : 0; }
 
-        const QString& getCurItemText() { return getItemText(curItem); }
-        const QString& getItemText(int which) { return getItem(which)->getText(); }
+        const QString getCurItemText() { return getItemText(curItem); }
+        const QString getItemText(int which) { ManagedListItem *itm = getItem(which);
+                                               return itm ? itm->getText() : ""; }
 
-        virtual const QString& getItemLabel(int which) { return getItem(which)->getText(); }
-        virtual const QString& getSelectionLabel(void) { return getItemLabel(curItem); }
         virtual void setParentList(ManagedList* _parent);
 
         virtual void clear();
@@ -238,8 +238,8 @@ class SelectManagedListItem : public ManagedListGroup
     public:
         SelectManagedListItem(const QString& baseText, ManagedListGroup* pGroup, ManagedList* parentList,
                               QObject* _parent=NULL, const char* _name=0);
-        virtual ManagedListItem* addSelection(const QString& label, QString value=QString::null, bool select=false);
-        virtual ManagedListItem* addButton(const QString& label, QString value=QString::null, bool select=false);
+        virtual ManagedListItem* addSelection(const QString& label, QString value=QString::null, bool selectit=false);
+        virtual ManagedListItem* addButton(const QString& label, QString value=QString::null, bool selectit=false);
 
         virtual void clearSelections(void);
 
@@ -502,7 +502,7 @@ class SelectManagedListSetting : public ManagedListSetting
                                  QString _table, QString _column, ManagedList* _parentList=NULL)
                                : ManagedListSetting(_table, _column, _parentList)
         {
-            constructListItem(QObject::tr(listText), _group, _parentList, listName);
+            constructListItem(listText, _group, _parentList, listName);
             listItem = selectItem;
 
             connect(listItem, SIGNAL(changed(ManagedListItem*)), this, SLOT(itemChanged(ManagedListItem*)));
@@ -517,41 +517,27 @@ class SelectManagedListSetting : public ManagedListSetting
         }
 
     public:
-        ManagedListItem* addSelection(const QString& label, const QString& value, bool trans = true )
+        ManagedListItem* addSelection(const QString& label, const QString& value)
         {
             if (selectItem)
-            {
-                if (trans)
-                    return selectItem->addSelection(QObject::tr(label), value);
-                else
-                    return selectItem->addSelection(label, value);
-            }
+                return selectItem->addSelection(label, value);
 
             return NULL;
         }
 
-        ManagedListItem* addButton(const QString& label, const QString& value, bool trans = true )
+        ManagedListItem* addButton(const QString& label, const QString& value)
         {
             if (selectItem)
-            {
-                if (trans)
-                    return selectItem->addButton(QObject::tr(label), value);
-                else
-                    return selectItem->addButton(label, value);
-            }
+                return selectItem->addButton(label, value);
 
             return NULL;
         }
 
-        ManagedListItem* addSelection(const QString& label, int value, bool trans = true )
+        ManagedListItem* addSelection(const QString& label, int value)
         {
             if (selectItem)
-            {
-                if (trans)
-                    return selectItem->addSelection(QObject::tr(label), QString::number(value));
-                else
-                    return selectItem->addSelection(label, QString::number(value));
-            }
+                return selectItem->addSelection(label, QString::number(value));
+
             return NULL;
         }
 
@@ -574,7 +560,7 @@ class BoolManagedListSetting : public ManagedListSetting
         {
             boolListItem = new BoolManagedListItem(false, _group, _parentList, this, ItemName);
             listItem = boolListItem;
-            boolListItem->setLabels(QObject::tr(trueText), QObject::tr(falseText));
+            boolListItem->setLabels(trueText, falseText);
             connect(listItem, SIGNAL(changed(ManagedListItem*)), this, SLOT(itemChanged(ManagedListItem*)));
         }
 
@@ -675,6 +661,8 @@ class ManagedList : public QObject
         bool goBack();
         bool getLocked() const { return locked; }
         void setLocked(bool val = true) { locked = val; }
+        
+        
 
     public slots:
         void cursorDown(bool page = false);
@@ -683,6 +671,9 @@ class ManagedList : public QObject
         void cursorRight(bool page = false);
         void select();
         void itemChanged(ManagedListItem* itm);
+        //void itemCanceled(ManagedListItem* itm);
+        //void itemSelected(ManagedListItem* itm);
+        
 
     protected:
         QGuardedPtr<ManagedListGroup> curGroup;

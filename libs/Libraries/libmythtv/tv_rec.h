@@ -19,6 +19,7 @@ class ProgramInfo;
 class RingBuffer;
 class NuppelVideoRecorder;
 class RecorderBase;
+class SIScan;
 
 typedef enum
 {
@@ -39,6 +40,14 @@ typedef struct _dvb_options_t
     int pkt_buf_size;
     bool dvb_on_demand;
 } dvb_options_t;
+
+typedef struct _firewire_options_t
+{
+    int port;
+    int node;
+    int speed;
+    QString model;
+} firewire_options_t;
 
 class TVRec
 {
@@ -155,7 +164,8 @@ class TVRec
 
     void GetDevices(int cardnum, QString &video, QString &vbi, QString &audio,
                     int &rate, QString &defaultinput, QString &startchannel,
-                    QString &type, dvb_options_t &dvb_opts, bool &skip_bt);
+                    QString &type, dvb_options_t &dvb_opts, firewire_options_t &firewire_opts,
+                    bool &skip_bt);
 
     void ConnectDB(int cardnum);
     void DisconnectDB(void);
@@ -231,8 +241,14 @@ class TVRec
     int autoTranscode;
 
     dvb_options_t dvb_options;
+    firewire_options_t firewire_options;
 
     char requestBuffer[256001];
+
+#ifdef USING_DVB
+    SIScan* scanner;
+    pthread_t scanner_thread;
+#endif
 };
 
 #endif

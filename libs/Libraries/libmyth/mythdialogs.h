@@ -16,7 +16,6 @@
 using namespace std;
 
 #include "uitypes.h"
-#include "lcddevice.h"
 
 class XMLParse;
 class UIType;
@@ -25,6 +24,7 @@ class UITextType;
 class UIMultiTextType;
 class UIPushButtonType;
 class UITextButtonType;
+class UIRemoteEditType;
 class UIRepeatedImageType;
 class UICheckBoxType;
 class UISelectorType;
@@ -71,7 +71,7 @@ class MythMainWindow : public QDialog
 {
   public:
     MythMainWindow(QWidget *parent = 0, const char *name = 0, 
-                   bool modal = FALSE);
+                   bool modal = FALSE, WFlags flags = 0);
     virtual ~MythMainWindow();
 
     void Init(void);
@@ -197,6 +197,9 @@ class MythPopupBox : public MythDialog
     static int show2ButtonPopup(MythMainWindow *parent, QString title,
                                 QString message, QString button1msg,
                                 QString button2msg, int defvalue);
+    static int showButtonPopup(MythMainWindow *parent, QString title,
+                               QString message, QStringList buttonmsgs,
+                               int defvalue);
 
     static bool showGetTextPopup(MythMainWindow *parent, QString title,
                                  QString message, QString& text);
@@ -231,7 +234,7 @@ class MythProgressDialog: public MythDialog
     QProgressBar *progress;
     int steps;
 
-    QPtrList<LCDTextItem> *textItems;
+    QPtrList<class LCDTextItem> * textItems;
 };
 
 class MythThemedDialog : public MythDialog
@@ -256,6 +259,7 @@ class MythThemedDialog : public MythDialog
     UIMultiTextType *getUIMultiTextType(const QString &name);
     UIPushButtonType *getUIPushButtonType(const QString &name);
     UITextButtonType *getUITextButtonType(const QString &name);
+    UIRemoteEditType *getUIRemoteEditType(const QString &name);
     UIRepeatedImageType *getUIRepeatedImageType(const QString &name);
     UICheckBoxType *getUICheckBoxType(const QString &name);
     UISelectorType *getUISelectorType(const QString &name);
@@ -337,6 +341,39 @@ class MythPasswordDialog: public MythDialog
     MythLineEdit        *password_editor;
     QString             target_text;
     bool                *success_flag;
+};
+
+class MythSearchDialog: public MythPopupBox
+{
+  Q_OBJECT
+
+  public:
+
+    MythSearchDialog(MythMainWindow *parent, const char *name = 0); 
+    ~MythSearchDialog();
+
+  public: 
+    void setCaption(QString text);
+    void setSearchText(QString text);
+    void setItems(QStringList items); 
+    QString getResult(void);
+    
+ protected slots:
+    void okPressed(void);
+    void cancelPressed(void);   
+    void searchTextChanged(void);
+    void itemSelected(int index);
+     
+ protected:
+    void keyPressEvent(QKeyEvent *e);
+
+  private:
+  
+    QLabel              *caption;
+    MythRemoteLineEdit  *editor;
+    MythListBox         *listbox;  
+    QButton             *ok_button;
+    QButton             *cancel_button;
 };
 
 class MythImageFileDialog: public MythThemedDialog

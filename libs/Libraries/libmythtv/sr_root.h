@@ -31,16 +31,8 @@ class RootSRGroup : public ManagedListGroup
 
          class SRSchedOptionsGroup* schedOptions;
          class SRStorageOptionsGroup* storageOptions;
+         class SRJobQueueGroup* jobQueue;
          
          class SRRecordingType* recType;
-#if 0         
-         class SRProfileSelector* profile;
-         class SRDupSettingsGroup* dupSettings;
-         class SROffsetGroup* offsetGroup;
-         class SRAutoExpire* autoExpire;
-         class SRRecPriority* recPriority;
-         class SREpisodesGroup* episodes;
-         class SRRecGroup* recGroup;
-#endif
 };
 #endif

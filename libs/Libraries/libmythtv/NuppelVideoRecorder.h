@@ -68,6 +68,7 @@ class NuppelVideoRecorder : public RecorderBase
 
     long long GetFramesWritten(void); 
 
+    bool Open(void);
     int GetVideoFd(void);
     void Reset(void);
 
@@ -101,6 +102,8 @@ class NuppelVideoRecorder : public RecorderBase
     void doVbiThread(void);
     
  private:
+    inline void NuppelVideoRecorder::WriteFrameheader(rtframeheader *fh);
+
     void InitBuffers(void);
     void InitFilters(void);   
     void ResizeVideoBuffers(void);

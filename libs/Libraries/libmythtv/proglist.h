@@ -11,14 +11,16 @@
 enum ProgListType {
     plUnknown = 0,
     plTitle = 1,
-    plNewListings = 2,
-    plTitleSearch = 3,
-    plKeywordSearch = 4,
-    plChannel = 5,
-    plCategory = 6,
-    plMovies = 7,
-    plPeopleSearch = 8,
-    plTime = 9
+    plTitleSearch,
+    plKeywordSearch,
+    plPeopleSearch,
+    plPowerSearch,
+    plSQLSearch,
+    plNewListings,
+    plMovies,
+    plCategory,
+    plChannel,
+    plTime
 };
 
 class QSqlDatabase;
@@ -49,6 +51,8 @@ class ProgLister : public MythDialog
     void upcoming(void);
     void details(void);
     void chooseView(void);
+    void powerEdit(void);
+    void setViewFromPowerEdit(void);
 
 
   protected:
@@ -79,6 +83,10 @@ class ProgLister : public MythDialog
     ProgramList itemList;
     ProgramList schedList;
 
+    QStringList typeList;
+    QStringList categoryList;
+    QStringList stationList;
+
     XMLParse *theme;
     QDomElement xmldata;
 
@@ -107,11 +115,23 @@ class ProgLister : public MythDialog
     MythPopupBox *choosePopup;
     MythListBox *chooseListBox;
     MythRemoteLineEdit *chooseLineEdit;
+    MythPushButton *chooseEditButton;
     MythPushButton *chooseOkButton;
     MythPushButton *chooseDeleteButton;
     MythPushButton *chooseRecordButton;
     MythComboBox *chooseDay;
     MythComboBox *chooseHour;
+
+    MythPopupBox *powerPopup;
+    MythRemoteLineEdit *powerTitleEdit;
+    MythRemoteLineEdit *powerSubtitleEdit;
+    MythRemoteLineEdit *powerDescEdit;
+    MythComboBox *powerCatType;
+    MythComboBox *powerCategory;
+    MythComboBox *powerStation;
+    MythPushButton *powerOkButton;
+
+    QString powerStringToSQL(QString &qphrase);
 };
 
 #endif

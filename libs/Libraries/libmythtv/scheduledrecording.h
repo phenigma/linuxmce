@@ -15,12 +15,18 @@ class QSqlDatabase;
 class RootSRGroup;
 class RecOptDialog;
 
-
+class SRInactive;
 class SRRecordingType;
 class SRRecSearchType;
 class SRProfileSelector;
 class SRDupIn;
 class SRDupMethod;
+class SRAutoTranscode;
+class SRAutoCommFlag;
+class SRAutoUserJob1;
+class SRAutoUserJob2;
+class SRAutoUserJob3;
+class SRAutoUserJob4;
 class SRAutoExpire;
 class SRStartOffset;
 class SREndOffset;
@@ -40,6 +46,9 @@ class SRRecPriority;
 class SRRecGroup;
 class SRSeriesid;
 class SRProgramid;
+class SRFindDay;
+class SRFindTime;
+class SRFindId;
 
 class ScheduledRecording: public ConfigurationGroup, public ConfigurationDialog {
     Q_OBJECT
@@ -66,6 +75,8 @@ public:
     int GetMaxEpisodes(void) const;
     bool GetMaxNewest(void) const;
 
+    int GetAutoRunJobs(void) const;
+
     void setStart(const QDateTime& start);
     void setEnd(const QDateTime& end);
     void setRecPriority(int recpriority);
@@ -76,7 +87,8 @@ public:
 
     virtual void loadByID(QSqlDatabase* db, int id);
     virtual void loadByProgram(QSqlDatabase* db, ProgramInfo* proginfo);
-    virtual void loadBySearch(QSqlDatabase *db, RecSearchType lsearch, QString what);
+    virtual void loadBySearch(QSqlDatabase *db, RecSearchType lsearch,
+                              QString text, QString what);
 
     virtual int exec(QSqlDatabase* db, bool saveOnExec = true, bool doLoad = false)
         { return ConfigurationDialog::exec(db, saveOnExec, doLoad); }    
@@ -99,17 +111,26 @@ public:
     // be recorded again)
     void forgetHistory(QSqlDatabase* db, const ProgramInfo& proginfo);
 
-    static bool hasChanged(QSqlDatabase* db);
-
     static void fillSelections(QSqlDatabase* db, SelectSetting* setting);
 
-    static void signalChange(QSqlDatabase* db);
+    static void signalChange(int recordid);
+    // Use -1 for recordid when all recordids are potentially
+    // affected, such as when the program table is updated.  
+    // Use 0 for recordid when a reschdule isn't specific to a single
+    // recordid, such as when a recording type priority is changed.
     
+    void setInactiveObj(SRInactive* val) {inactive = val;}
     void setRecTypeObj(SRRecordingType* val) {type = val;}
     void setSearchTypeObj(SRRecSearchType* val) {search = val;}
     void setProfileObj( SRProfileSelector* val) {profile = val;}
     void setDupInObj(SRDupIn* val) {dupin = val;}
     void setDupMethodObj(SRDupMethod* val) {dupmethod = val;}
+    void setAutoTranscodeObj(SRAutoTranscode* val) {autotranscode = val;}
+    void setAutoCommFlagObj(SRAutoCommFlag* val) {autocommflag = val;}
+    void setAutoUserJob1Obj(SRAutoUserJob1* val) {autouserjob1 = val;}
+    void setAutoUserJob2Obj(SRAutoUserJob2* val) {autouserjob2 = val;}
+    void setAutoUserJob3Obj(SRAutoUserJob3* val) {autouserjob3 = val;}
+    void setAutoUserJob4Obj(SRAutoUserJob4* val) {autouserjob4 = val;}
     void setAutoExpireObj(SRAutoExpire* val) {autoexpire = val;}
     void setStartOffsetObj(SRStartOffset* val) {startoffset = val;}
     void setEndOffsetObj(SREndOffset* val) {endoffset = val;}
@@ -129,18 +150,23 @@ public:
     void setRecGroupObj(SRRecGroup* val) {recgroup = val;}
     void setSeriesIDObj(SRSeriesid* val) {seriesid = val;}
     void setProgramIDObj(SRProgramid* val) {programid = val;}
+    void setFindDayObj(SRFindDay* val) {findday = val;}
+    void setFindTimeObj(SRFindTime* val) {findtime = val;}
+    void setFindIdObj(SRFindId* val) {findid = val;}
     
     void ToMap(QMap<QString, QString>& infoMap);
     
     QString ChannelText(QString format);
 
-protected slots:
+public slots:
     void runProgList();
+
+protected slots:
     void runShowDetails();
 
 protected:
     virtual void setDefault(QSqlDatabase *db, bool haschannel);
-    virtual void setProgram(ProgramInfo *proginfo);
+    virtual void setProgram(ProgramInfo *proginfo, QSqlDatabase *db = NULL);
     void fetchChannelInfo(QSqlDatabase *db);
     
     class ID: virtual public IntegerSetting,
@@ -156,11 +182,18 @@ protected:
     };
 
     ID* id;
+    class SRInactive* inactive;
     class SRRecordingType* type;
     class SRRecSearchType* search;
     class SRProfileSelector* profile;
     class SRDupIn* dupin;
     class SRDupMethod* dupmethod;
+    class SRAutoTranscode* autotranscode;
+    class SRAutoCommFlag* autocommflag;
+    class SRAutoUserJob1* autouserjob1;
+    class SRAutoUserJob2* autouserjob2;
+    class SRAutoUserJob3* autouserjob3;
+    class SRAutoUserJob4* autouserjob4;
     class SRAutoExpire* autoexpire;
     class SRStartOffset* startoffset;
     class SREndOffset* endoffset;
@@ -180,6 +213,9 @@ protected:
     class SRRecGroup* recgroup;
     class SRSeriesid* seriesid;
     class SRProgramid* programid;
+    class SRFindDay* findday;
+    class SRFindTime* findtime;
+    class SRFindId* findid;
     
     ProgramInfo* m_pginfo;
     QGuardedPtr<RootSRGroup> rootGroup;

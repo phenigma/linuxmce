@@ -14,6 +14,7 @@ class VideoOutputXvMC : public VideoOutput
 
     bool Init(int width, int height, float aspect, WId winid,
               int winx, int winy, int winw, int winh, WId embedid = 0);
+    bool SetupDeinterlace(bool interlaced);
     bool NeedsDoubleFramerate() const;
     bool ApproveDeintFilter(const QString& filtername) const;
     void PrepareFrame(VideoFrame *buffer, FrameScanType);
@@ -30,7 +31,7 @@ class VideoOutputXvMC : public VideoOutput
 
     void DrawSlice(VideoFrame *frame, int x, int y, int w, int h);
 
-    void DrawUnusedRects(void);
+    void DrawUnusedRects(bool sync = true);
 
     float GetDisplayAspect(void);
 
@@ -41,9 +42,11 @@ class VideoOutputXvMC : public VideoOutput
 
     int ChangePictureAttribute(int attributeType, int newValue);
 
-    bool hasIDCTAcceleration() const;
+    inline bool hasIDCTAcceleration() const;
+    inline bool hasVLDAcceleration() const;
 
   private:
+    void InitColorKey(bool turnoffautopaint);
     void Exit(void);
     bool CreateXvMCBuffers(void);
     void DeleteXvMCBuffers(void);
@@ -66,7 +69,6 @@ class VideoOutputXvMC : public VideoOutput
 
     pthread_mutex_t lock;
 
-    int colorkey;
     int chroma;
 };
 

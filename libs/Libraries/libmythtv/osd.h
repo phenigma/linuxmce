@@ -20,7 +20,8 @@ enum OSDFunctionalType
     kOSDFunctionalType_Default = 0,
     kOSDFunctionalType_PictureAdjust,
     kOSDFunctionalType_RecPictureAdjust,
-    kOSDFunctionalType_SmartForward
+    kOSDFunctionalType_SmartForward,
+    kOSDFunctionalType_TimeStretchAdjust
 };
 
 class QImage;
@@ -117,6 +118,8 @@ class OSD : public QObject
     bool TreeMenuHandleKeypress(QKeyEvent *e);
     OSDListTreeType *ShowTreeMenu(const QString &name, 
                                   OSDGenericTree *treeToShow);
+
+    void DisableFade(void);
 
  private:
     void SetDefaults();

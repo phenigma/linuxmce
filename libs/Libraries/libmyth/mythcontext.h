@@ -27,7 +27,6 @@ class QSqlDatabase;
 class QSqlQuery;
 class QSqlError;
 class QSocket;
-class LCD;
 class MythMainWindow;
 class MythPluginManager;
 class MediaMonitor;
@@ -47,6 +46,8 @@ enum VerboseMask {
     VB_COMMFLAG  = 0x0200,
     VB_AUDIO     = 0x0400,
     VB_LIBAV     = 0x0800,
+    VB_JOBQUEUE  = 0x1000,
+    VB_SIPARSER  = 0x2000,
     VB_NONE      = 0x0000,
     VB_ALL       = 0xffff
 };
@@ -62,10 +63,27 @@ enum LogPriorities {
     LP_DEBUG     = 7
 };
 
+struct DatabaseParams {
+    QString dbHostName;         // database server
+    QString dbUserName;         // DB user name 
+    QString dbPassword;         // DB password
+    QString dbName;             // database name
+    QString dbType;             // database type (MySQL, Postgres, etc.)
+    
+    bool    localEnabled;       // true if localHostName is not default
+    QString localHostName;      // name used for loading/saving settings
+    
+    bool    wolEnabled;         // true if wake-on-lan params are used
+    int     wolReconnect;       // seconds to wait for reconnect
+    int     wolRetry;           // times to retry
+    QString wolCommand;         // command to use for wake-on-lan
+};
+    
+
 #define VERBOSE(mask,args...) \
 do { \
 if ((print_verbose_messages & mask) != 0) \
-    cout << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") \
+    cout << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz") \
          << " " << args << endl; \
 } while (0)
 
@@ -110,8 +128,8 @@ class MythPrivRequest
     void *m_data;
 };
 
-#define MYTH_BINARY_VERSION "0.16.20040906-1"
-#define MYTH_PROTO_VERSION "13"
+#define MYTH_BINARY_VERSION "0.17.20050130-1"
+#define MYTH_PROTO_VERSION "14"
 
 extern int print_verbose_messages;
 
@@ -121,7 +139,7 @@ class MythContext : public QObject
 {
     Q_OBJECT
   public:
-    MythContext(const QString &binversion, bool gui = true, bool lcd = true);
+    MythContext(const QString &binversion, bool gui = true);
     virtual ~MythContext();
 
     QString GetMasterHostPrefix(void);
@@ -131,9 +149,12 @@ class MythContext : public QObject
     bool ConnectToMasterServer(void);
     bool ConnectServer(const QString &hostname, int port);
     bool IsConnectedToMaster(void);
+    void SetBackend(bool backend);
+    bool IsBackend(void);
 
     QString GetInstallPrefix(void);
     QString GetShareDir(void);
+    QString GetLibraryDir(void);
 
     QString GetFilePrefix(void);
 
@@ -154,11 +175,30 @@ class MythContext : public QObject
 
     QString GetMenuThemeDir(void);
 
-    int OpenDatabase(QSqlDatabase *db);
+    QString GetThemesParentDir(void);
+
+    QString GetPluginsDir(void);
+    QString GetPluginsNameFilter(void);
+    QString FindPlugin(const QString &plugname);
+
+    QString GetTranslationsDir(void);
+    QString GetTranslationsNameFilter(void);
+    QString FindTranslation(const QString &translation);
+
+    QString GetFontsDir(void);
+    QString GetFontsNameFilter(void);
+    QString FindFont(const QString &fontname);
+
+    QString GetFiltersDir(void);
+
+    int OpenDatabase(QSqlDatabase *db, bool promptOnFailure = true);
     static void KickDatabase(QSqlDatabase *db);
     static void DBError(const QString &where, const QSqlQuery& query);
     static QString DBErrorMessage(const QSqlError& err);
 
+    DatabaseParams GetDatabaseParams(void);
+    bool SaveDatabaseParams(const DatabaseParams &params);
+    
     void LogEntry(const QString &module, int priority,
                   const QString &message, const QString &details);
 
@@ -200,8 +240,6 @@ class MythContext : public QObject
     void SetMainWindow(MythMainWindow *mainwin);
     MythMainWindow *GetMainWindow(void);
 
-    LCD *GetLCDDevice(void);
-
     bool TestPopupVersion(const QString &name, const QString &libversion,
                           const QString &pluginversion);
 
@@ -229,7 +267,7 @@ class MythContext : public QObject
     bool GetScreensaverEnabled(void);
 
     void addPrivRequest(MythPrivRequest::Type t, void *data);
-    bool hasPrivRequest() const;
+    void waitPrivRequest() const;
     MythPrivRequest popPrivRequest();
 
   private slots:

@@ -1,104 +1,97 @@
+// -*- Mode: c++ -*-
+/**
+ *  HDTVRecorder
+ *  Copyright (c) 2003-2004 by Brandon Beattie, Doug Larrick, 
+ *    Jason Hoos, and Daniel Thor Kristjansson
+ *  Device ringbuffer added by John Poet
+ *  Distributed as part of MythTV under GPL v2 and later.
+ */
+
 #ifndef HDTVRECORDER_H_
 #define HDTVRECORDER_H_
 
-#include "recorderbase.h"
+#include "dtvrecorder.h"
+#include "tsstats.h"
 
 struct AVFormatContext;
 struct AVPacket;
+class ATSCStreamData;
 
-class HDTVRecorder : public RecorderBase
+class HDTVRecorder : public DTVRecorder
 {
+    friend class ATSCStreamData;
+    friend class TSPacketProcessor;
   public:
+    enum {report_loops = 20000};
+
     HDTVRecorder();
    ~HDTVRecorder();
-
-    void SetOption(const QString &opt, int value);
-    void SetOption(const QString &name, const QString &value)
-                       { RecorderBase::SetOption(name, value); }
-    void SetVideoFilters(QString &filters);
 
     void SetOptionsFromProfile(RecordingProfile *profile,
                                const QString &videodev,
                                const QString &audiodev,
                                const QString &vbidev, int ispip);
 
-    void Initialize(void);
     void StartRecording(void);
     void StopRecording(void);
-    void Reset(void);
 
-    void Pause(bool clear = true);
-    void Unpause(void);
+    void Pause(bool /*clear*/);
     bool GetPause(void);
     void WaitForPause(void);
-    bool IsRecording(void);
-    bool IsErrored(void) { return false; }
+    void Reset(void);
 
-    long long GetFramesWritten(void);
-
-    int GetVideoFd(void);
-
-    long long GetKeyframePosition(long long desired);
-    void GetBlankFrameMap(QMap<long long, int> &blank_frame_map);
+    bool Open(void);
 
     void ChannelNameChanged(const QString& new_freqid);
 
   private:
-    bool SetupRecording();
-    void FinishRecording();
-
     int ProcessData(unsigned char *buffer, int len);
-    void FindKeyframes(const unsigned char *buffer, 
-                       int packet_start_pos,
-                       int pkt_pos,
-                       char adaptation_field_control,
-                       bool payload_unit_start_indicator);
+    bool ProcessTSPacket(const TSPacket& tspacket);
+    void HandleVideo(const TSPacket* tspacket);
+    void HandleAudio(const TSPacket* tspacket);
 
     int ResyncStream(unsigned char *buffer, int curr_pos, int len);
-    void RewritePID(unsigned char *buffer, int pid);
-    bool RewritePAT(unsigned char *buffer, int pid, int pkt_len);
-    bool RewritePMT(unsigned char *buffer, int new_pid, int pkt_len);
-    bool recording;
-    bool encoding;
 
-    bool paused;
-    bool mainpaused;
-    bool cleartimeonpause;
+    void WritePAT();
+    void WritePMT();
 
-    long long framesWritten;
-    long long framesSeen;
+    static void *boot_ringbuffer(void *);
+    void fill_ringbuffer(void);
+    int ringbuf_read(unsigned char *buffer, size_t count);
 
-    int width, height;
 
-    int chanfd;
+    ATSCStreamData* StreamData() { return _atsc_stream_data; }
+    const ATSCStreamData* StreamData() const { return _atsc_stream_data; }
 
-    int keyframedist;
-    bool gopset;
-    bool m_in_mpg_headers;
-    bool seq_start_is_gop;
-    int seq_count;
-    int m_header_sync;
+    ATSCStreamData* _atsc_stream_data;
 
-    QMap<long long, long long> positionMap;
-    QMap<long long, long long> positionMapDelta;
+    // statistics
+    TSStats _ts_stats;
+    long long _resync_count;
+    size_t loop;
 
-    int firstgoppos;
-    int desired_program;
-
-    int pat_pid;
-    int pmt_pid;
-    int video_pid;
-    int audio_pid;
-    int psip_pid;
-    int output_base_pid;
-
-    int ts_packets;
-
-    int lowest_video_pid;
-    int video_pid_packets;
-
-#define HD_BUFFER_SIZE 255868
-    unsigned char buffer[HD_BUFFER_SIZE];
+    // Data for managing the device ringbuffer
+    struct {
+        pthread_t        thread;
+        pthread_mutex_t  lock;
+        pthread_mutex_t  lock_stats;
+        bool             run;
+        bool             eof;
+        bool             error;
+        bool             request_pause;
+        bool             paused;
+        size_t           size;
+        size_t           used;
+        size_t           max_used;
+        size_t           avg_used;
+        size_t           avg_cnt;
+        size_t           dev_read_size;
+        size_t           min_read;
+        unsigned char  * buffer;
+        unsigned char  * readPtr;
+        unsigned char  * writePtr;
+        unsigned char  * endPtr;
+    } ringbuf;
 };
 
 #endif

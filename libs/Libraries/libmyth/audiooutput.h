@@ -5,21 +5,31 @@
 using namespace std;
 
 #include "mythcontext.h"
+#include "volumebase.h"
+#include "output.h"
 
-class AudioOutput
+typedef enum {
+    AUDIOOUTPUT_VIDEO,
+    AUDIOOUTPUT_MUSIC
+} AudioOutputSource;
+
+class AudioOutput : public VolumeBase, public OutputListeners
 {
  public:
     // opens one of the concrete subclasses
     static AudioOutput *OpenAudio(QString audiodevice, int audio_bits, 
-                                 int audio_channels, int audio_samplerate);
+                                 int audio_channels, int audio_samplerate,
+                                 AudioOutputSource source, bool set_initial_vol);
 
-    AudioOutput() { lastError = QString::null; };
+    AudioOutput() : VolumeBase(), OutputListeners() { lastError = QString::null; };
     virtual ~AudioOutput() { };
 
     // reconfigure sound out for new params
     virtual void Reconfigure(int audio_bits, 
                              int audio_channels, int audio_samplerate) = 0;
     
+    virtual void SetStretchFactor(float factor);
+
     // do AddSamples calls block?
     virtual void SetBlocking(bool blocking) = 0;
     
@@ -29,15 +39,20 @@ class AudioOutput
     virtual void Reset(void) = 0;
 
     // timecode is in milliseconds.
-    virtual void AddSamples(char *buffer, int samples, long long timecode) = 0;
-    virtual void AddSamples(char *buffers[], int samples, long long timecode) = 0;
+    // Return true if all samples were written, false if none.
+    virtual bool AddSamples(char *buffer, int samples, long long timecode) = 0;
+    virtual bool AddSamples(char *buffers[], int samples, long long timecode) = 0;
 
     virtual void SetTimecode(long long timecode) = 0;
     virtual bool GetPause(void) = 0;
     virtual void Pause(bool paused) = 0;
  
+    // Wait for all data to finish playing
+    virtual void Drain(void) = 0;
+
     virtual int GetAudiotime(void) = 0;
-//  virtual int WaitForFreeSpace(int bytes) = 0;
+
+    virtual void SetSourceBitrate(int ) { }
 
     QString GetError() { return lastError; };
 

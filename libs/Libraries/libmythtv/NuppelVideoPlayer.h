@@ -74,10 +74,14 @@ class NuppelVideoPlayer
 
     void SetAudioSampleRate(int rate) { audio_samplerate = rate; }
 
+    void SetAudioStretchFactor(float factor) { audio_stretchfactor = factor; }
+
     void Pause(bool waitvideo = true);
     bool Play(float speed = 1.0, bool normal = true,
               bool unpauseaudio = true);
     bool GetPause(void);
+    int GetFFRewSkip(void) { return ffrew_skip; }
+    bool AtNormalSpeed(void) { return next_normal_speed; }
 
     bool FastForward(float seconds);
     bool Rewind(float seconds);
@@ -119,8 +123,9 @@ class NuppelVideoPlayer
     void TranscodeWriteText(void (*func)(void *, unsigned char *, int, int, int), void *ptr);
 
     int FlagCommercials(bool showPercentage = false, bool fullSpeed = false,
-                        bool *abortFlag = NULL);
-    bool RebuildSeekTable(bool showPercentage = true, StatusCallback cb = NULL, void* cbData = NULL);
+                        int *controlFlag = NULL, bool inJobQueue = false);
+    bool RebuildSeekTable(bool showPercentage = true, StatusCallback cb = NULL,
+                          void* cbData = NULL);
 
     VideoFrame *GetCurrentFrame(int &w, int &h);
     void ReleaseCurrentFrame(VideoFrame *frame);
@@ -149,9 +154,10 @@ class NuppelVideoPlayer
     // decoder stuff..
     void ForceVideoOutputType(VideoOutputType type);
 
+    void SetKeyframeDistance(int keyframedistance);
     void SetVideoParams(int width, int height, double fps,
                         int keyframedistance, float aspect = 1.33333,
-                        FrameScanType scan = kScan_Ignore);
+                        FrameScanType scan = kScan_Ignore, bool reinit = false);
     void SetAudioParams(int bps, int channels, int samplerate);
     void SetEffDsp(int dsprate);
     void SetFileLength(int total, int frames);
@@ -174,6 +180,7 @@ class NuppelVideoPlayer
     void SetFramesPlayed(long long played) { framesPlayed = played; }
 
     VideoOutput *getVideoOutput(void) { return videoOutput; }
+    AudioOutput *getAudioOutput(void) { return audioOutput; }
 
     VideoSync *getVideoSync() const { return videosync; }
 
@@ -183,6 +190,7 @@ class NuppelVideoPlayer
 
     bool GetLimitKeyRepeat(void) { return limitKeyRepeat; }
 
+    void ReinitOSD(void);
     void ReinitVideo(void);
     void ReinitAudio(void);
 
@@ -197,6 +205,10 @@ class NuppelVideoPlayer
     bool setCurrentAudioTrack(int trackNo);
     int getCurrentAudioTrack();
 
+    long long CalcMaxFFTime(long long ff);
+
+    bool IsErrored() { return errored; }
+
  protected:
     void OutputVideoLoop(void);
     void IvtvVideoLoop(void);
@@ -206,7 +218,7 @@ class NuppelVideoPlayer
     VideoOutputType forceVideoOutput;
 
  private:
-    void InitVideo(void);
+    bool InitVideo(void);
 
     void InitFilters(void);
 
@@ -218,10 +230,10 @@ class NuppelVideoPlayer
 
     bool DecodeFrame(struct rtframeheader *frameheader,
                      unsigned char *strm, unsigned char *outbuf);
-    void GetFrame(int onlyvideo, bool unsafe = false);
+    bool GetFrame(int onlyvideo, bool unsafe = false);
 
-    long long CalcMaxFFTime(long long ff);
-
+    void DoPause();
+    void DoPlay();
     bool DoFastForward();
     bool DoRewind();
 
@@ -251,6 +263,7 @@ class NuppelVideoPlayer
     void UpdateEditSlider(void);
     void AddMark(long long frames, int type);
     void DeleteMark(long long frames);
+    void ReverseMark(long long frames);
     void HandleSelect(void);
     void HandleResponse(void);
     void HandleArbSeek(bool right);
@@ -282,6 +295,7 @@ class NuppelVideoPlayer
     float video_aspect;
     FrameScanType m_scan;
     bool m_double_framerate;
+    bool m_can_double;
 
     int filesize;
     int startpos;
@@ -309,10 +323,11 @@ class NuppelVideoPlayer
     int audio_channels;
     int audio_bits;
     int audio_samplerate;
+    float audio_stretchfactor;
 
     AudioOutput *audioOutput;
 
-    bool paused, previously_paused, pausevideo;
+    bool paused, pausevideo;
     bool actuallypaused, video_actually_paused;
     QWaitCondition decoderThreadPaused, videoThreadPaused;
 
@@ -413,9 +428,15 @@ class NuppelVideoPlayer
     int avsync_avg;
     int avsync_oldavg;
     int refreshrate;
+
+    QMutex decoder_lock;
     int frame_interval; // always adjusted for play_speed
     float play_speed;
     bool normal_speed;
+    int ffrew_skip;
+    float next_play_speed;
+    bool next_normal_speed;
+    int videobuf_retries;
 
     float warpfactor;
     float warpfactor_avg;
@@ -423,6 +444,8 @@ class NuppelVideoPlayer
     short int *warplbuff;
     short int *warprbuff;
     int warpbuffsize;
+ 
+    int prevtc;
 
     bool delay_clipping;
     struct timeval nexttrigger, now;
@@ -445,6 +468,10 @@ class NuppelVideoPlayer
     QMutex vidExitLock;
 
     QMutex videofiltersLock;
+
+    bool errored;
+
+    int m_DeintSetting;
 };
 
 #endif

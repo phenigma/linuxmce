@@ -98,6 +98,9 @@ class OSDSet : public QObject
     int m_xoff;
     int m_yoff;
 
+    int m_xoffsetbase;
+    int m_yoffsetbase;
+
     bool m_allowfade;
 
     QMap<QString, OSDType *> typeList;
@@ -326,7 +329,6 @@ class OSDTypeEditSlider : public OSDTypeImage
     QRect m_displayrect;
     int m_maxval;
     int m_curval;
-    int m_drawwidth;
 
     unsigned char *m_drawMap;
 
@@ -449,6 +451,7 @@ class OSDTypeCC : public OSDType
     TTFFont *m_font;
     vector<ccText *> *m_textlist;
     OSDTypeBox *m_box;
+    int m_ccbackground;
 
     int xoffset, yoffset, displaywidth, displayheight;
 };

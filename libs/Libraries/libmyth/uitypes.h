@@ -19,11 +19,13 @@
 #include "util.h"
 #include "mythdialogs.h"
 #include "generictree.h"
+#include "mythwidgets.h"
 
 using namespace std;
 
 class UIType;
 class MythDialog;
+class MythThemedDialog;
 
 struct fontProp {
     QFont face;
@@ -599,7 +601,6 @@ class UITextType : public UIType
     QRect m_altdisplaysize;
     QString m_message;
     QString m_default_msg;
-    QString m_name;
 
     fontProp *m_font;
 
@@ -664,6 +665,47 @@ class UIMultiTextType : public UITextType
 
 };
 
+class UIRemoteEditType : public UIType
+{
+    Q_OBJECT
+
+  public:
+
+    UIRemoteEditType(const QString &name, fontProp *font, const QString &text, 
+                     int dorder, QRect displayrect);
+    ~UIRemoteEditType();
+    
+    void    createEdit(MythThemedDialog* parent);
+    void    Draw(QPainter *, int drawlayer, int context);
+    void    setArea(QRect area){m_displaysize = area;}
+    void    setText(const QString some_text);
+    QString getText();
+    void    setFont(fontProp *font);
+    void    setCharacterColors(QColor unselected, QColor selected, QColor special);
+    void    calculateScreenArea();
+
+  public slots:
+    void takeFocusAwayFromEditor(bool up_or_down);
+    virtual bool takeFocus();
+    virtual void looseFocus();
+    virtual void show();
+    virtual void hide();
+     
+  signals:
+    void    changed();
+
+  private:
+    MythRemoteLineEdit *edit;
+    QRect    m_displaysize;
+    QString  m_text;
+    fontProp *m_font;
+    QColor   m_unselected; 
+    QColor   m_selected; 
+    QColor   m_special;
+
+    MythThemedDialog* m_parentDialog;
+};
+
 class UIStatusBarType : public UIType
 {
   public:
@@ -721,7 +763,10 @@ class UIManagedTreeListType : public UIType
 
     UIManagedTreeListType(const QString &name);
     ~UIManagedTreeListType();
-
+    void    setUpArrowOffset(QPoint& pt) { upArrowOffset = pt;}    
+    void    setDownArrowOffset(QPoint& pt) { downArrowOffset = pt;}    
+    void    setSelectPoint(QPoint& pt) { selectPoint = pt;}
+    void    setSelectPadding(int pad) {selectPadding = pad;}
     void    setArea(QRect an_area) { area = an_area; }
     void    setBins(int l_bins) { bins = l_bins; }
     void    setBinAreas(CornerMap some_bin_corners) { bin_corners = some_bin_corners; }
@@ -741,9 +786,10 @@ class UIManagedTreeListType : public UIType
                             left_arrow_image = left;
                             right_arrow_image = right;
                           }
+    void    addIcon(int i, QPixmap *img) { iconMap[i] = img; }
     void    setFonts(QMap<QString, QString> fonts, QMap<QString, fontProp> fontfcn) {
                           m_fonts = fonts; m_fontfcns = fontfcn; }
-    void    drawText(QPainter *p, QString the_text, QString font_name, int x, int y, int bin_number);
+    void    drawText(QPainter *p, QString the_text, QString font_name, int x, int y, int bin_number, int icon_number);
     void    setJustification(int jst) { m_justification = jst; }
     int     getJustification() { return m_justification; }
     void    makeHighlights();
@@ -752,6 +798,7 @@ class UIManagedTreeListType : public UIType
     void    calculateScreenArea();
     void    setTreeOrdering(int an_int){tree_order = an_int;}
     void    setVisualOrdering(int an_int){visual_order = an_int;}
+    void    setIconSelector(int an_int){iconAttr = an_int;}
     void    showWholeTree(bool yes_or_no){ show_whole_tree = yes_or_no; }
     void    scrambleParents(bool yes_or_no){ scrambled_parents = yes_or_no; }
     void    colorSelectables(bool yes_or_no){color_selectables = yes_or_no; }
@@ -798,7 +845,9 @@ class UIManagedTreeListType : public UIType
     GenericTree *active_node;
     int         tree_order;
     int         visual_order;
-
+    int         iconAttr;
+    int         selectPadding;
+    
     QMap<QString, QString>  m_fonts;
     QMap<QString, fontProp> m_fontfcns;
     int                     m_justification;
@@ -813,7 +862,10 @@ class UIManagedTreeListType : public UIType
     bool                    show_whole_tree;
     bool                    scrambled_parents;
     bool                    color_selectables;
-
+    QMap<int, QPixmap*>     iconMap;
+    QPoint                  selectPoint;
+    QPoint                  upArrowOffset;
+    QPoint                  downArrowOffset;
 };
 
 class UIPushButtonType : public UIType

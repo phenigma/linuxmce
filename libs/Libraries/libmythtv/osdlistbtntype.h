@@ -39,16 +39,22 @@ class OSDGenericTree : public GenericTree
     // This class will _not_ delete the image it's given, if any.
     OSDGenericTree(OSDGenericTree *parent, const QString &name, 
                    const QString &action = "", int check = -1, 
-                   OSDTypeImage *image = NULL);
+                   OSDTypeImage *image = NULL, QString group = "");
 
     OSDTypeImage *getImage(void) { return m_image; }
     QString getAction(void) { return m_action; }
     int getCheckable(void) { return m_checkable; }
+    QString getGroup(void) { return m_group; }
+    void setParentButton(OSDListBtnTypeItem *button)
+                         { m_parentButton = button; };
+    OSDListBtnTypeItem *getParentButton(void) { return m_parentButton; };
 
   private:
     OSDTypeImage *m_image;
     QString m_action;
     int m_checkable;
+    QString m_group;
+    OSDListBtnTypeItem *m_parentButton;
 };
 
 // Will _not_ delete the GenericTree that it's given.
@@ -59,6 +65,9 @@ class OSDListTreeType : public OSDType
     OSDListTreeType(const QString &name, const QRect &area, 
                     const QRect &levelsize, int levelspacing,
                     float wmult, float hmult);
+
+    void Reinit(float wchange, float hchange, float wmult, float hmult);
+    void SetGroupCheckState(QString group, int newState = 0);
 
     void SetFontActive(TTFFont *font);
     void SetFontInactive(TTFFont *font);
@@ -129,6 +138,9 @@ class OSDListBtnType : public OSDType
                    float wmult, float hmult,
                    bool showScrollArrows = false);
     ~OSDListBtnType();
+
+    void  Reinit(float wchange, float hchange, float wmult, float hmult);
+    void  SetGroupCheckState(QString group, int newState = 0);
 
     void  SetFontActive(TTFFont *font);
     void  SetFontInactive(TTFFont *font);
@@ -248,6 +260,10 @@ class OSDListBtnTypeItem
     void  setChecked(CheckState state);
     void  setData(void *data);
     void* getData();
+    void  setGroup(QString group) { m_group = group; };
+    QString getGroup(void) { return m_group; }
+
+    void  Reinit(float wchange, float hchange, float wmult, float hmult);
     
     void  paint(OSDSurface *surface, TTFFont *font, int fade, int maxfade, 
                 int x, int y);
@@ -260,6 +276,7 @@ class OSDListBtnTypeItem
     bool           m_checkable;
     CheckState     m_state;
     void          *m_data;
+    QString        m_group;
 
     QRect          m_checkRect;
     QRect          m_pixmapRect;

@@ -45,7 +45,7 @@ class NuppelDecoder : public DecoderBase
     static bool CanHandle(char testbuf[2048]);
 
     int OpenFile(RingBuffer *rbuffer, bool novideo, char testbuf[2048]);
-    void GetFrame(int onlyvideo);
+    bool GetFrame(int onlyvideo);
 
     bool isLastFrameKey(void) { return (lastKey == framesPlayed); }
     void WriteStoredData(RingBuffer *rb, bool writevid);
@@ -55,6 +55,9 @@ class NuppelDecoder : public DecoderBase
     QString GetEncodingType(void);
 
   private:
+    inline bool NuppelDecoder::ReadFileheader(struct rtfileheader *fileheader);
+    inline bool NuppelDecoder::ReadFrameheader(struct rtframeheader *frameheader);
+
     bool DecodeFrame(struct rtframeheader *frameheader,
                      unsigned char *lstrm, VideoFrame *frame);
     bool isValidFrametype(char type);
@@ -78,6 +81,9 @@ class NuppelDecoder : public DecoderBase
     int video_width, video_height, video_size;
     double video_frame_rate;
     int audio_samplerate;
+#ifdef WORDS_BIGENDIAN
+    int audio_bits_per_sample;
+#endif
 
     int ffmpeg_extradatasize;
     char *ffmpeg_extradata;
@@ -96,9 +102,7 @@ class NuppelDecoder : public DecoderBase
 
     AVCodec *mpa_codec;
     AVCodecContext *mpa_ctx;
-    AVFrame *mpa_pic;
     AVPicture tmppicture;
-    AVPicture mpa_pic_tmp;
 
     bool directrendering;
 

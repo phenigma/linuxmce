@@ -53,7 +53,7 @@ enum FlagMask {
     FL_CUTLIST   = 0x02,
     FL_AUTOEXP   = 0x04,
     FL_EDITING   = 0x08,
-    FL_BOOKMARK  = 0x10,
+    FL_BOOKMARK  = 0x10
 };
 
 enum RecStatusType {
@@ -72,7 +72,7 @@ enum RecStatusType {
     rsConflict = 7,
     rsLaterShowing = 8,
     rsRepeat = 9,
-    //rsUnused = 10,
+    rsInactive = 10,
     rsLowDiskSpace = 11,
     rsTunerBusy = 12
 };
@@ -106,7 +106,7 @@ class ProgramInfo
 
     RecordingType GetProgramRecordingStatus(QSqlDatabase *db);
     QString GetProgramRecordingProfile(QSqlDatabase *db);
-    bool AllowRecordingNewEpisodes(QSqlDatabase *db);
+
     int GetChannelRecPriority(QSqlDatabase *db, const QString &chanid);
     int GetRecordingTypeRecPriority(RecordingType type);
 
@@ -133,6 +133,7 @@ class ProgramInfo
 
     QString GetRecordBasename(void);
     QString GetRecordFilename(const QString &prefix);
+    QString GetPlaybackURL(QString playbackHost = "");
 
     QString MakeUniqueKey(void) const;
 
@@ -150,11 +151,18 @@ class ProgramInfo
     bool IsEditing(QSqlDatabase *db);
     void SetEditing(bool edit, QSqlDatabase *db);
     bool IsCommFlagged(QSqlDatabase *db);
+    void SetDeleteFlag(bool deleteFlag, QSqlDatabase *db);
     // 1 = flagged, 2 = processing
     void SetCommFlagged(int flag, QSqlDatabase *db);
     bool IsCommProcessing(QSqlDatabase *db);
     void SetAutoExpire(bool autoExpire, QSqlDatabase *db);
+    void SetPreserveEpisode(bool preserveEpisode, QSqlDatabase *db);
     bool GetAutoExpireFromRecorded(QSqlDatabase *db);
+    bool GetPreserveEpisodeFromRecorded(QSqlDatabase *db);
+
+    bool UsesMaxEpisodes(QSqlDatabase *db);
+
+    int GetAutoRunJobs(QSqlDatabase *db);
 
     void GetCutList(QMap<long long, int> &delMap, QSqlDatabase *db);
     void SetCutList(QMap<long long, int> &delMap, QSqlDatabase *db);
@@ -185,6 +193,7 @@ class ProgramInfo
                              QSqlDatabase *db);
 
     void DeleteHistory(QSqlDatabase *db);
+    void setIgnoreBookmark(bool ignore) { ignoreBookmark = ignore; }
     QString RecTypeChar(void);
     QString RecTypeText(void);
     QString RecStatusChar(void);
@@ -236,7 +245,9 @@ class ProgramInfo
     bool isVideo;
     int lenMins;
     
+    QString year;
     float stars;
+
     QDate originalAirDate;
     QDateTime lastmodified;
     
@@ -266,15 +277,19 @@ class ProgramInfo
     bool conflictfixed;
 
     QString schedulerid;
+    int findid;
 
     int programflags;
     QString chanOutputFilters;
     
     QString seriesid;
     QString programid;
+    QString catType;
 
+    QString sortTitle;
 
 private:
+    bool ignoreBookmark;
     void handleRecording(QSqlDatabase *db);
     void handleNotRecording(QSqlDatabase *db);
 
@@ -306,6 +321,8 @@ class ProgramList: public QPtrList<ProgramInfo> {
         return FromProgram(db, sql, dummySched);
     }
 
+    bool FromOldRecorded(QSqlDatabase *db, const QString sql);
+
     bool FromRecorded(QSqlDatabase *db, const QString sql,
                       ProgramList &schedList);
     bool FromRecorded(QSqlDatabase *db, const QString sql) {
@@ -322,7 +339,8 @@ class ProgramList: public QPtrList<ProgramInfo> {
     };
 
  protected:
-    virtual int compareItems(ProgramInfo *p1, ProgramInfo *p2);
+    virtual int compareItems(QPtrCollection::Item item1,
+                             QPtrCollection::Item item2);
 
  private:
     CompareFunc compareFunc;

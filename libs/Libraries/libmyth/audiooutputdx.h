@@ -11,11 +11,12 @@ using namespace std;
 //#include <mmsystem.h>
 #include <dsound.h>
 
-class AudioOutputDX : public AudioOutput
+class AudioOutputDX : public AudioOutputBase
 {
 public:
     AudioOutputDX(QString audiodevice, int audio_bits, 
-                  int audio_channels, int audio_samplerate);
+                  int audio_channels, int audio_samplerate,
+		  AudioOutputSource source, bool set_initial_vol);
     virtual ~AudioOutputDX();
 
     virtual void Reset(void);
@@ -23,15 +24,21 @@ public:
                          int audio_channels, int audio_samplerate);
     virtual void SetBlocking(bool blocking);
 
-    virtual void AddSamples(char *buffer, int samples, long long timecode);
-    virtual void AddSamples(char *buffers[], int samples, long long timecode);
+    virtual bool AddSamples(char *buffer, int samples, long long timecode);
+    virtual bool AddSamples(char *buffers[], int samples, long long timecode);
     virtual void SetEffDsp(int dsprate);
     virtual void SetTimecode(long long timecode);
 
     virtual bool GetPause(void);
     virtual void Pause(bool paused);
 
+    virtual void Drain(void);
+
     virtual int GetAudiotime(void);
+
+    // Volume control
+    virtual int GetVolumeChannel(int channel); // Returns 0-100
+    virtual void SetVolumeChannel(int channel, int volume); // range 0-100 for vol
 
  private:
     HINSTANCE dsound_dll;      /* handle of the opened dsound dll */

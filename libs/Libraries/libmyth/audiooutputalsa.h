@@ -9,99 +9,60 @@
 #define ALSA_PCM_NEW_SW_PARAMS_API
 #include <alsa/asoundlib.h>
 
-#include "audiooutput.h"
+#include "audiooutputbase.h"
 
 using namespace std;
 
-#define AUDBUFSIZE 512000
-
-class AudioOutputALSA : public AudioOutput
+class AudioOutputALSA : public AudioOutputBase
 {
   public:
     AudioOutputALSA(QString audiodevice, int laudio_bits, 
-                   int laudio_channels, int laudio_samplerate);
+                   int laudio_channels, int laudio_samplerate,
+                   AudioOutputSource source, bool set_initial_vol);
     virtual ~AudioOutputALSA();
+
+    // Volume control
+    virtual int GetVolumeChannel(int channel); // Returns 0-100
+    virtual void SetVolumeChannel(int channel, int volume); // range 0-100 for vol
+
     
-    virtual void SetBlocking(bool blocking);
-    virtual void Reset(void);
-    virtual void Reconfigure(int laudio_bits, 
-                             int laudio_channels, int laudio_samplerate);
+  protected:
+    // You need to implement the following functions
+    virtual bool OpenDevice(void);
+    virtual void CloseDevice(void);
+    virtual void WriteAudio(unsigned char *aubuf, int size);
+    virtual inline int getSpaceOnSoundcard(void);
+    virtual inline int getBufferedOnSoundcard(void);
 
-    virtual void AddSamples(char *buffer, int samples, long long timecode);
-    virtual void AddSamples(char *buffers[], int samples, long long timecode);
-    virtual void SetTimecode(long long timecode);
-    virtual void SetEffDsp(int dsprate);
+  private:
 
-    virtual bool GetPause(void);
-    virtual void Pause(bool paused);
- 
-    virtual int GetAudiotime(void);
+    snd_pcm_t *pcm_handle;
+
+    int numbadioctls;
+
+    QMutex killAudioLock;
 
     inline int SetParameters(snd_pcm_t *handle, snd_pcm_access_t access,
                              snd_pcm_format_t format, unsigned int channels,
                              unsigned int rate, unsigned int buffer_time,
                              unsigned int period_time);
 
-  protected:
-    void KillAudio();
-    void OutputAudioLoop(void);
-    static void *kickoffOutputAudioLoop(void *player);
 
-  private:
-    int audiolen(bool use_lock); // number of valid bytes in audio buffer
-    int audiofree(bool use_lock); // number of free bytes in audio buffer
+    // Volume related
+    void SetCurrentVolume(QString control, int channel, int volume);
+    void OpenMixer(bool setstartingvolume);
+    void CloseMixer(void);
+    void SetupMixer(void);
+    inline void GetVolumeRange(void);
 
-    void WriteAudio(unsigned char *aubuf, int size);
+    snd_mixer_t          *mixer_handle;
+    snd_mixer_elem_t     *elem;
+    snd_mixer_selem_id_t *sid;
 
-    inline int getSpaceOnSoundcard(void);
-    void SetFragSize(void);
-    void SetAudiotime(void);
+    QString mixer_control;  // e.g. "PCM"
 
-    bool killaudio;
-
-    QString audiodevice;
-    snd_pcm_t *pcm_handle;
-
-    int effdsp; // from the recorded stream
-
-    int audio_channels;
-    int audio_bytes_per_sample;
-    int audio_bits;
-    int audio_samplerate;
-    int audio_buffer_unused;
-    int fragment_size;
-
-
-    bool pauseaudio, audio_actually_paused;
-    
-    bool blocking; // do AddSamples calls block?
-    
-    int lastaudiolen;
-
-    pthread_t output_audio;
-    pthread_mutex_t audio_buflock; /* adjustments to audiotimecode, waud, and
-                                      raud can only be made while holding this
-                                      lock */
-    pthread_cond_t audio_bufsig;  /* condition is signaled when the buffer
-                                     gets more free space. Must be holding
-                                     audio_buflock to use. */
-    
-    pthread_mutex_t avsync_lock; /* must hold avsync_lock to read or write
-                                    'audiotime' and 'audiotime_updated' */
-    int audiotime; // timecode of audio leaving the soundcard (same units as
-                   //                                          timecodes) ...
-    struct timeval audiotime_updated; // ... which was last updated at this time
-
-    /* Audio circular buffer */
-    unsigned char audiobuffer[AUDBUFSIZE];  /* buffer */
-    int raud, waud;     /* read and write positions */
-    int audbuf_timecode;    /* timecode of audio most recently placed into
-                   buffer */
-
-    int numbadioctls;
-    int numlowbuffer;
-
-    QMutex killAudioLock;
+    float volume_range_multiplier;
+    long playback_vol_min, playback_vol_max;	
 };
 
 #endif

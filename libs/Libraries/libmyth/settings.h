@@ -21,7 +21,7 @@ class Configurable: virtual public QObject {
     Q_OBJECT
 public:
     Configurable():
-        labelAboveWidget(false), visible(true) {};
+        labelAboveWidget(false), enabled(true), visible(true) {};
     virtual ~Configurable() {};
 
     // Create and return a widget for configuring this entity
@@ -51,8 +51,12 @@ public:
     void setVisible(bool b) { visible = b; };
     bool isVisible(void) const { return visible; };
 
+    virtual void setEnabled(bool b) { enabled = b; }
+    bool isEnabled() { return enabled; }
+
 protected:
     bool labelAboveWidget; 
+    bool enabled;
 
 private:
     QString configName;
@@ -169,12 +173,17 @@ protected:
 };
 
 class ConfigurationDialogWidget: public MythDialog {
+    Q_OBJECT
 public:
     ConfigurationDialogWidget(MythMainWindow *parent, 
                               const char* widgetName = 0):
         MythDialog(parent, widgetName) {};
 
     virtual void keyPressEvent(QKeyEvent* e);
+
+signals:
+    void editButtonPressed();
+    void deleteButtonPressed();
 };
 
 class ConfigurationDialog: virtual public Configurable {
@@ -209,13 +218,16 @@ public:
 
 class LineEditSetting: virtual public Setting {
 protected:
-    LineEditSetting(bool readwrite = true) { rw = readwrite; };
+    LineEditSetting(bool readwrite = true) : edit(NULL) { rw = readwrite; };
 public:
     virtual QWidget* configWidget(ConfigurationGroup *cg, QWidget* parent, 
                                   const char* widgetName = 0);
 
     void setRW(bool readwrite = true) { rw = readwrite; edit->setRW(rw); };
     void setRO() { rw = false; edit->setRO(); };
+
+    virtual void setEnabled(bool b);
+    virtual void setVisible(bool b);
 
 private:
     MythLineEdit* edit;
@@ -365,6 +377,9 @@ public:
 
     void setFocus() { if (widget) widget->setFocus(); }
 
+    virtual void setEnabled(bool b);
+    virtual void setVisible(bool b);
+
 public slots:
     void addSelection(const QString& label,
                       QString value=QString::null,
@@ -384,11 +399,16 @@ private:
 class ListBoxSetting: public SelectSetting {
     Q_OBJECT
 public:
-    ListBoxSetting(): widget(NULL) { }
+    ListBoxSetting(): widget(NULL), selectionMode(MythListBox::Single) { }
     virtual QWidget* configWidget(ConfigurationGroup *cg, QWidget* parent, 
                                   const char* widgetName = 0);
 
     void setFocus() { if (widget) widget->setFocus(); }
+    void setSelectionMode(MythListBox::SelectionMode mode);
+    void setCurrentItem(int i) { if (widget) widget->setCurrentItem(i); }
+    void setCurrentItem(const QString& str)  { if (widget) widget->setCurrentItem(str); }
+
+    virtual void setEnabled(bool b);
 
 signals:
     void accepted(int);
@@ -399,13 +419,14 @@ protected slots:
     void addSelection(const QString& label,
                       QString value=QString::null,
                       bool select=false) {
+        SelectSetting::addSelection(label, value, select);
         if (widget != NULL)
             widget->insertItem(label);
-        SelectSetting::addSelection(label, value, select);
     };
     void widgetDestroyed() { widget=NULL; };
 protected:
     MythListBox* widget;
+    MythListBox::SelectionMode selectionMode;
 };
 
 class RadioSetting: public SelectSetting {
@@ -454,8 +475,12 @@ signals:
 
 class CheckBoxSetting: public BooleanSetting {
 public:
+    CheckBoxSetting() : widget(NULL) {}
     virtual QWidget* configWidget(ConfigurationGroup *cg, QWidget* parent,
                                   const char* widgetName = 0);
+    virtual void setEnabled(bool b);
+protected:
+    MythCheckBox *widget;
 };
 
 
@@ -606,10 +631,16 @@ public:
 class ButtonSetting: virtual public Setting {
     Q_OBJECT
 public:
+    ButtonSetting() : button(NULL) {}
     virtual QWidget* configWidget(ConfigurationGroup* cg, QWidget* parent,
                                   const char* widgetName=0);
+
+    virtual void setEnabled(bool b);
+
 signals:
     void pressed();
+protected:
+    MythPushButton *button;
 };
 
 class TransButtonSetting: public ButtonSetting, public TransientStorage {
@@ -618,6 +649,7 @@ public:
 };
 
 class ConfigPopupDialogWidget: public MythPopupBox {
+    Q_OBJECT
 public:
     ConfigPopupDialogWidget(MythMainWindow* parent, const char* widgetName=0):
         MythPopupBox(parent, widgetName) {};
@@ -641,6 +673,9 @@ public slots:
     void accept() { if (dialog) dialog->accept(); };
     void reject() { if (dialog) dialog->reject(); };
 
+signals:
+    void popupDone();
+
 protected:
     ConfigPopupDialogWidget* dialog;
 };
@@ -655,5 +690,122 @@ public:
 private:
     int totalSteps;
 };
+
+class TransLabelSetting: public LabelSetting, public TransientStorage {
+public:
+    TransLabelSetting() {};
+};
+
+class TransCheckBoxSetting: public CheckBoxSetting, public TransientStorage {
+public:
+    TransCheckBoxSetting() {};
+};
+
+class HostSetting: public SimpleDBStorage, virtual public Configurable {
+public:
+    HostSetting(QString name):
+        SimpleDBStorage("settings", "data") {
+        setName(name);
+    };
+
+protected:
+    virtual QString whereClause(void);
+    virtual QString setClause(void);
+};
+
+class GlobalSetting: public SimpleDBStorage, virtual public Configurable {
+public:
+    GlobalSetting(QString name):
+        SimpleDBStorage("settings", "data") {
+        setName(name);
+    };
+
+protected:
+    virtual QString whereClause(void);
+    virtual QString setClause(void);
+};
+
+class HostSlider: public SliderSetting, public HostSetting {
+  public:
+    HostSlider(const QString &name, int min, int max, int step) :
+        SliderSetting(min, max, step),
+        HostSetting(name) { }
+};
+
+class HostSpinBox: public SpinBoxSetting, public HostSetting {
+  public:
+    HostSpinBox(const QString &name, int min, int max, int step, 
+                  bool allow_single_step = false) :
+        SpinBoxSetting(min, max, step, allow_single_step),
+        HostSetting(name) { }
+};
+
+class HostCheckBox: public CheckBoxSetting, public HostSetting {
+  public:
+    HostCheckBox(const QString &name) :
+        HostSetting(name) { }
+};
+
+class HostComboBox: public ComboBoxSetting, public HostSetting {
+  public:
+    HostComboBox(const QString &name, bool rw = false) :
+        ComboBoxSetting(rw),
+        HostSetting(name) { }
+};
+
+class HostLineEdit: public LineEditSetting, public HostSetting {
+  public:
+    HostLineEdit(const QString &name, bool rw = true) :
+        LineEditSetting(rw),
+        HostSetting(name) { }
+};
+
+class HostImageSelect: public ImageSelectSetting, public HostSetting {
+  public:
+    HostImageSelect(const QString &name) :
+        HostSetting(name) { }
+};
+
+class GlobalSlider: public SliderSetting, public GlobalSetting {
+  public:
+    GlobalSlider(const QString &name, int min, int max, int step) :
+        SliderSetting(min, max, step),
+        GlobalSetting(name) { }
+};
+
+class GlobalSpinBox: public SpinBoxSetting, public GlobalSetting {
+  public:
+    GlobalSpinBox(const QString &name, int min, int max, int step,
+                   bool allow_single_step = false) :
+        SpinBoxSetting(min, max, step, allow_single_step),
+        GlobalSetting(name) { }
+};
+
+class GlobalCheckBox: public CheckBoxSetting, public GlobalSetting {
+  public:
+    GlobalCheckBox(const QString &name) :
+        GlobalSetting(name) { }
+};
+
+class GlobalComboBox: public ComboBoxSetting, public GlobalSetting {
+  public:
+    GlobalComboBox(const QString &name, bool rw = false) :
+        ComboBoxSetting(rw),
+        GlobalSetting(name) { }
+};
+
+class GlobalLineEdit: public LineEditSetting, public GlobalSetting {
+  public:
+    GlobalLineEdit(const QString &name, bool rw = true) :
+        LineEditSetting(rw),
+        GlobalSetting(name) { }
+};
+
+class GlobalImageSelect: public ImageSelectSetting, public GlobalSetting {
+  public:
+    GlobalImageSelect(const QString &name) :
+        GlobalSetting(name) { }
+};
+
 
 #endif

@@ -17,6 +17,8 @@ extern "C" {
 class ProgramInfo;
 class MythSqlDatabase;
 
+extern "C" void HandleStreamChange(void*);
+
 /// A decoder for video files.
 
 /// The AvFormatDecoder is used to decode non-NuppleVideo files.
@@ -24,6 +26,7 @@ class MythSqlDatabase;
 /// and IvtvDecoder (if "USING_IVTV" is defined).
 class AvFormatDecoder : public DecoderBase
 {
+    friend void HandleStreamChange(void*);
   public:
     AvFormatDecoder(NuppelVideoPlayer *parent, MythSqlDatabase *db,
                     ProgramInfo *pginfo);
@@ -38,7 +41,7 @@ class AvFormatDecoder : public DecoderBase
     int OpenFile(RingBuffer *rbuffer, bool novideo, char testbuf[2048]);
 
     /// Decode a frame of video/audio.  If onlyvideo is set, just decode the video portion.
-    void GetFrame(int onlyvideo);
+    bool GetFrame(int onlyvideo);
 
     bool isLastFrameKey(void) { return false; }
 
@@ -69,10 +72,9 @@ class AvFormatDecoder : public DecoderBase
     virtual void decCurrentAudioTrack();
     virtual bool setCurrentAudioTrack(int trackNo);
 
-  protected:
-    /// Loop through the streams in the file to identify audio streams.
-    bool scanAudioTracks();
+    int ScanStreams(bool novideo);
 
+  protected:
     /// Attempt to find the optimal audio stream to use based on the number of channels,
     /// and if we're doing AC3 passthrough.  This will select the highest stream number
     /// that matches our criteria.
@@ -88,11 +90,6 @@ class AvFormatDecoder : public DecoderBase
     friend void release_avf_buffer_xvmc(struct AVCodecContext *c, AVFrame *pic);
     friend void render_slice_xvmc(struct AVCodecContext *c, const AVFrame *src,
                                   int offset[4], int y, int type, int height);
-
-    friend int get_avf_buffer_via(struct AVCodecContext *c, AVFrame *pic);
-    friend void release_avf_buffer_via(struct AVCodecContext *c, AVFrame *pic);
-    friend void render_slice_via(struct AVCodecContext *c, const AVFrame *src,
-                                 int offset[4], int y, int type, int height);
 
     friend int open_avf(URLContext *h, const char *filename, int flags);
     friend int read_avf(URLContext *h, uint8_t *buf, int buf_size);
@@ -115,13 +112,16 @@ class AvFormatDecoder : public DecoderBase
     bool CheckVideoParams(int width, int height);
 
     /// See if the audio parameters have changed, return true if so.
-    bool CheckAudioParams(int freq, int channels);
+    void CheckAudioParams(int freq, int channels, bool safe);
+    void SetupAudioStream(void);
 
     int EncodeAC3Frame(unsigned char* data, int len, short *samples,
                        int &samples_size);
 
     // Update our position map, keyframe distance, and the like.  Called for key frame packets.
     void HandleGopStart(AVPacket *pkt);
+    
+    class AvFormatDecoderPrivate *d;
 
     AVFormatContext *ic;
     AVFormatParameters params;
@@ -141,8 +141,6 @@ class AvFormatDecoder : public DecoderBase
     int audio_sampling_rate_2nd; ///< Used by CheckAudioParams
     int audio_channels_2nd;      ///< Used by CheckAudioParams
 
-    bool hasbframes;             ///< Set in open but not used.
-
     int bitrate;
 
     bool gopset;
@@ -161,7 +159,6 @@ class AvFormatDecoder : public DecoderBase
 
     unsigned char prvpkt[3];
 
-    long long video_last_P_pts;
     long long lastvpts;
     long long lastapts;
 

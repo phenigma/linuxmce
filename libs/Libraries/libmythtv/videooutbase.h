@@ -68,11 +68,13 @@ enum ZoomDirections
 enum letterboxModes
 {
     kLetterbox_Toggle = -1,
-    kLetterbox_4_3 = 0,
+    kLetterbox_Off = 0,
+    kLetterbox_4_3,
     kLetterbox_16_9,
     kLetterbox_4_3_Zoom,
     kLetterbox_16_9_Zoom,
     kLetterbox_16_9_Stretch,
+    kLetterbox_Fill,
     kLetterbox_END
 };
 
@@ -91,9 +93,6 @@ class VideoOutput
 
     VideoOutput();
     virtual ~VideoOutput();
-
-    void InitBuffers(int numdecode, bool extra_for_pause, int need_free,
-                     int needprebuffer);
 
     virtual bool Init(int width, int height, float aspect,
                       WId winid, int winx, int winy, int winw, 
@@ -116,12 +115,13 @@ class VideoOutput
     virtual void Zoom(int direction);
  
     virtual void GetDrawSize(int &xoff, int &yoff, int &width, int &height);
+    virtual void GetVisibleSize(int &xoff, int &yoff, int &width, int &height);
 
     virtual int GetRefreshRate(void) = 0;
 
     virtual void DrawSlice(VideoFrame *frame, int x, int y, int w, int h);
 
-    virtual void DrawUnusedRects(void) = 0;
+    virtual void DrawUnusedRects(bool sync = true) = 0;
 
     virtual float GetDisplayAspect(void) { return 4.0/3; }
 
@@ -171,9 +171,19 @@ class VideoOutput
 
     virtual bool hasIDCTAcceleration() const { return false; }
 
+    void SetPrebuffering(bool normal) 
+        { needprebufferframes = (normal ? needprebufferframes_normal : 
+                                 needprebufferframes_small); };
+
+    void SetFramesPlayed(long long fp) { framesPlayed = fp; };
+    long long GetFramesPlayed(void) { return framesPlayed; };
+
+    bool IsErrored() { return errored; }
+
   protected:
     void InitBuffers(int numdecode, bool extra_for_pause, int need_free,
-                     int needprebuffer, int keepprebuffer);
+                     int needprebuffer_normal, int needprebuffer_small,
+                     int keepprebuffer);
 
     virtual void ShowPip(VideoFrame *frame, NuppelVideoPlayer *pipplayer);
     int DisplayOSD(VideoFrame *frame, OSD *osd, int stride = -1);
@@ -192,10 +202,11 @@ class VideoOutput
     void DoPipResize(int pipwidth, int pipheight);
     void ShutdownPipResize(void);
 
-    void AspectOverride(int override);
+    void AspectSet(float aspect);
 
     int XJ_width, XJ_height;
     float XJ_aspect;
+    float videoAspect;
 
     int w_mm;
     int h_mm;
@@ -239,6 +250,8 @@ class VideoOutput
 
     int needfreeframes;
     int needprebufferframes;
+    int needprebufferframes_normal;
+    int needprebufferframes_small;;
     int keepprebufferframes;
 
     bool needrepaint;
@@ -262,6 +275,10 @@ class VideoOutput
     FilterChain *m_deintFilter;
 
     bool m_deinterlaceBeforeOSD;;
+
+    long long framesPlayed;
+
+    bool errored;
 };
 
 #endif

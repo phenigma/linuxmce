@@ -17,7 +17,6 @@ class MythSqlDatabase;
 class QDateTime;
 class OSD;
 class RemoteEncoder;
-class VolumeControl;
 class NuppelVideoPlayer;
 class RingBuffer;
 class ProgramInfo;
@@ -119,10 +118,8 @@ class TV : public QObject
     void SetChannel(bool needopen = false);
     QString getFiltersForChannel();
 
-  public:
     void ToggleChannelFavorite(void);
     void ChangeChannel(int direction, bool force = false);
-
     void ChangeChannelByString(QString &name, bool force = false);
 
     void ChangeVolume(bool up);
@@ -135,7 +132,7 @@ class TV : public QObject
 
     QString QueuedChannel(void);
     void ChannelClear(bool hideosd = false); 
-    void ChannelKey(int key);
+    void ChannelKey(char key);
     void ChannelCommit(void);
 
     void ToggleInputs(void); 
@@ -143,18 +140,20 @@ class TV : public QObject
     void SwitchCards(void);
 
     void ToggleSleepTimer(void);
+    void ToggleSleepTimer(const QString);
 
     void DoInfo(void);
     void DoPlay(void);
     void DoPause(void);
-    bool UpdatePosOSD(float time, const QString &mesg);
+    bool UpdatePosOSD(float time, const QString &mesg, int disptime = 2);
     void DoSeek(float time, const QString &mesg);
     void DoArbSeek(int dir);
     void NormalSpeed(void);
     void ChangeSpeed(int direction);
+    void ChangeTimeStretch(int dir, bool allowEdit = true);
     float StopFFRew(void);
     void ChangeFFRew(int direction);
-    void RepeatFFRew(void);
+    void SetFFRew(int index);
     void DoToggleCC(int mode);
     void DoSkipCommercials(int direction);
     void DoEditMode(void);
@@ -204,7 +203,8 @@ class TV : public QObject
     void UpdateLCD(void);
     void ShowLCDChannelInfo(void);
 
-private:
+    QString PlayMesg(void);
+
     int osd_display_time;
 
     bool arrowAccel;
@@ -243,11 +243,12 @@ private:
     int doing_ff_rew;
     int ff_rew_index;
     int speed_index;
+    float normal_speed;
+    bool stretchAdjustment;
 
     OSD *osd;
     bool update_osd_pos;
 
-public:
     NuppelVideoPlayer *nvp;
     NuppelVideoPlayer *pipnvp;
     NuppelVideoPlayer *activenvp;
@@ -260,7 +261,6 @@ public:
     RingBuffer *piprbuffer;
     RingBuffer *activerbuffer;
 
-private:
     QString dialogname;
     bool editmode;
     bool requestDelete;
@@ -279,8 +279,6 @@ private:
     ProgramInfo *playbackinfo;
 
     MythSqlDatabase *m_db;
-
-    VolumeControl *volumeControl;
 
     WId embedid;
     int embx, emby, embw, embh;
