@@ -64,7 +64,7 @@ class PNGCatChunks
 
 		bool AddChunk(const PNGChunk * Chunk);
 		size_t CatChunks(char * & MemoryZonePointer) const;
-		const PNGChunk *GetChunk(int i) const { return (i < count() ? m_Chunks[i] : NULL); };
+		const PNGChunk *GetChunk(int i) const { return (i < int(count()) ? m_Chunks[i] : NULL); };
 		void clear();
 		size_t count() const;
 };

@@ -771,7 +771,9 @@ PackageInfo *MakePackageInfo(Row_Package_Source_Compat *pRow_Package_Source_Comp
 
 	if( !pRow_RepositorySource_URL )
 	{
-		cout << "**ERROR** Cannot find a URL for Repository Source: " << pRow_RepositorySource->Description_get() << endl;
+		cout << pRow_Package->PK_Package_get() << "," << pRow_Package->Description_get() << ","
+			 << "**ERROR** Cannot find a URL for Repository Source: " 
+			 << pRow_RepositorySource->Description_get() << endl;
 		return NULL;
 	}
 

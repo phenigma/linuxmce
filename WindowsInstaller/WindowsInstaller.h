@@ -8,8 +8,36 @@
 #endif
 
 #include "resource.h"		// main symbols
+#include <vector>
+#include "afxtempl.h"
+using namespace std;
 
 bool HandleCancel(CDialog *pDialog);
+
+class PackageInfos
+{
+public:
+	CString sPackageID;
+	CString sPackageName;
+	CString sURL;
+	CString sComments;
+	CString sRepository;
+	CString sRepositoryType;
+	CString sVersion;
+	CString sBinaryExecutiblesPathPath;
+	CString sSourceIncludesPath;
+	CString sSourceImplementationPath;
+	CString sBinaryLibraryPath;
+	CString sConfiguration;
+	CString sRepositorySourceUsername;
+	CString sRepositorySourcePassword;
+	CString sParams;
+	CString sPackageSourceDescription;
+};
+
+extern vector<PackageInfos> vectPackageInfos;
+extern CArray<int,int> aryListBoxSel;
+extern const string csNotSpecified;
 
 // CWindowsInstallerApp:
 // See WindowsInstaller.cpp for the implementation of this class

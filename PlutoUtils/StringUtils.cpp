@@ -625,8 +625,6 @@ string StringUtils::GetStringFromConsole()
     }
 }
 
-#endif //#ifndef SYMBIAN
-
 string StringUtils::GetDow( int iDow, bool bFull )
 {
 	if( !bFull )
@@ -651,3 +649,7 @@ string StringUtils::GetDow( int iDow, bool bFull )
 	}
 	return "";
 }
+
+#endif //#ifndef SYMBIAN
+
+

@@ -4,17 +4,21 @@
 #include "stdafx.h"
 #include "WindowsInstaller.h"
 #include "WindowsInstallerDlg.h"
+#include "afxtempl.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-
 
 bool HandleCancel(CDialog *pDialog)
 {
 	return IDYES == ::MessageBox(pDialog->m_hWnd, "Are you sure you want to cancel the installation?", 
 		"Pluto - Windows Installer", MB_ICONEXCLAMATION | MB_YESNO);
 }
+
+/*extern*/ vector<PackageInfos> vectPackageInfos;
+/*extern*/ CArray<int,int> aryListBoxSel;
+/*extern*/ const string csNotSpecified = "<not specified>";
 
 // CWindowsInstallerApp
 

@@ -122,7 +122,7 @@ size_t MNGHeader::BinaryForm(char * & MemoryZonePointer) const
 
 PNGCatChunks::~PNGCatChunks()
 {
-	for (int i = 0; i < count(); i++)
+	for (size_t i = 0; i < count(); i++)
 		if (m_Chunks[i])
 			delete m_Chunks[i];
 	m_Chunks.clear();
@@ -232,7 +232,7 @@ void RendererMNG::InsertFrame(size_t number, RendererImage * frame)
 		return;
 	
 	vector<RendererImage>::iterator ivRI;
-	int i;
+	//int i;
 
 	// Linux G++ 3.3.4 doesn't like this one
 	// m_vectMNGframes.insert(&m_vectMNGframes[number], frame);
@@ -273,7 +273,7 @@ InMemoryMNG::~InMemoryMNG()
 {
 	size_t iSize = m_vectMNGframes.size();
 
-	for(int i = 0; i < iSize; i++)
+	for(size_t i = 0; i < iSize; i++)
 	{
 		delete m_vectMNGframes[i];
 	}

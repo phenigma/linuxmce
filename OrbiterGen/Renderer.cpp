@@ -474,17 +474,6 @@ RendererImage * Renderer::CreateFromFile(string sFilename, PlutoSize size,bool b
 	FILE * File;
 
 	File = fopen(sFilename.c_str(), "rb");
-	if( !File )
-	{
-		cerr << "Can't open: " << sFilename << endl;
-// temp hack to test why this is failing
-StringUtils::Replace(sFilename,sFilename,"\\\\","\\");
-StringUtils::Replace(sFilename,sFilename,"//","/");
-File = fopen(sFilename.c_str(), "rb");
-cerr << "Retry to open: " << sFilename << (File!=NULL ? " SUCCEEDED" : " FAILED") << endl;
-        throw "Can't open: " + sFilename;
-	}
-
 	RendererImage * Result = CreateFromFile(File, size, bPreserveAspectRatio, bCrop);
     if (Result == NULL)
     {

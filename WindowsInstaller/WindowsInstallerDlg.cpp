@@ -205,25 +205,27 @@ void CWindowsInstallerDlg::OnBnClickedNext()
 		return;
 	}
 
-	const CString sPlutoHomeURL = "http://activate.plutohome.com/activation.php?code=" + sDeviceID + "-" + sActivationCode;
-
+	const CString sPlutoHomeURL = "http://activate.plutohome.com/activation_win.php?code=" + sDeviceID + "-" + sActivationCode;
 	m_Status.SetWindowText("Connecting to plutohome site...");
 
 	CInternetSession inetSession;
-	CStdioFile *psFile = inetSession.OpenURL(sPlutoHomeURL);
+	CHttpFile *psFile = (CHttpFile *)inetSession.OpenURL(sPlutoHomeURL);
 
 	m_Status.SetWindowText("Verifying activate code...");
 
 	char Buffer[16];
 	psFile->Read(Buffer, sizeof(Buffer));
 	psFile->Close();
+	delete psFile;
+	inetSession.Close();
 
 	m_Status.SetWindowText("Done.");
 
 	if(Buffer[0] == 'O' && Buffer[1] == 'K')
 	{
-		//next dialog
-		ShowWindow(SW_HIDE);
+		RECT rect;
+		GetWindowRect(&rect);
+		SetWindowPos(&CWnd::wndNoTopMost, 0, 0, 0, 0, SWP_SHOWWINDOW);
 
 		if(NULL == m_pNextDialog)
 		{
@@ -231,7 +233,9 @@ void CWindowsInstallerDlg::OnBnClickedNext()
 			m_pNextDialog->Create(IDD_DIALOG_PACKAGESLIST, this);
 		}
 
-		m_pNextDialog->ShowWindow(SW_SHOW);
+		m_pNextDialog->ShowWindow(SW_SHOWNORMAL);
+		m_pNextDialog->SetWindowPos(&CWnd::wndNoTopMost, rect.left, rect.top, rect.right - rect.left, 
+			rect.bottom - rect.top, SWP_SHOWWINDOW);
 	}
 	else
 		::MessageBox(m_hWnd, "Invalid activation code", "Error", MB_OK | MB_ICONERROR);

@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="WindowsInstaller"
-	ProjectGUID="{771E21C8-6493-4CB0-98DC-2741979B5FBD}"
-	Keyword="MFCProj">
+	Name="UnzipTest"
+	ProjectGUID="{D03BB285-CD25-4447-8170-E5B049351043}"
+	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
 			Name="Win32"/>
@@ -15,18 +15,16 @@
 			OutputDirectory="Debug"
 			IntermediateDirectory="Debug"
 			ConfigurationType="1"
-			UseOfMFC="2"
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;.;&quot;../CrossPlatform-Libs/unzip-101d&quot;"
-				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG"
+				AdditionalIncludeDirectories="../..;../../../zlib"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				TreatWChar_tAsBuiltInType="TRUE"
-				UsePrecompiledHeader="0"
+				RuntimeLibrary="5"
+				UsePrecompiledHeader="3"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="4"/>
@@ -34,17 +32,16 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="zlib1-pluto-d.lib pluto-unzip-101-d.lib"
+				AdditionalDependencies="pluto-unzip-101-d.lib zlib1-pluto-d.lib"
+				OutputFile="$(OutDir)/UnzipTest.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;../CrossPlatform-Libs/unzip-101d/VisualC7/Debug&quot;;&quot;../CrossPlatform-Libs/zlib/projects/visualc6/Win32_DLL_Debug&quot;;$(NOINHERIT)"
-				IgnoreDefaultLibraryNames="LIBCD"
+				AdditionalLibraryDirectories="..\..\..\zlib\projects\visualc6\Win32_DLL_Debug;../Debug"
 				GenerateDebugInformation="TRUE"
-				SubSystem="2"
+				ProgramDatabaseFile="$(OutDir)/UnzipTest.pdb"
+				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG"
-				MkTypLibCompatible="FALSE"/>
+				Name="VCMIDLTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -52,10 +49,7 @@
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"/>
+				Name="VCResourceCompilerTool"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -72,14 +66,11 @@
 			OutputDirectory="Release"
 			IntermediateDirectory="Release"
 			ConfigurationType="1"
-			UseOfMFC="2"
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG"
-				MinimalRebuild="FALSE"
-				RuntimeLibrary="2"
-				TreatWChar_tAsBuiltInType="TRUE"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				RuntimeLibrary="4"
 				UsePrecompiledHeader="3"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
@@ -88,16 +79,15 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				OutputFile="$(OutDir)/UnzipTest.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="TRUE"
-				SubSystem="2"
+				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"/>
 			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG"
-				MkTypLibCompatible="FALSE"/>
+				Name="VCMIDLTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -105,10 +95,7 @@
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"/>
+				Name="VCResourceCompilerTool"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -129,18 +116,6 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath=".\ErrnoTrick.cpp">
-			</File>
-			<File
-				RelativePath="..\PlutoUtils\FileUtils.cpp">
-			</File>
-			<File
-				RelativePath=".\GetMoreInfo.cpp">
-			</File>
-			<File
-				RelativePath=".\PackageListDialog.cpp">
-			</File>
-			<File
 				RelativePath=".\stdafx.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -156,13 +131,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\PlutoUtils\StringUtils.cpp">
-			</File>
-			<File
-				RelativePath=".\WindowsInstaller.cpp">
-			</File>
-			<File
-				RelativePath=".\WindowsInstallerDlg.cpp">
+				RelativePath=".\UnzipTest.cpp">
 			</File>
 		</Filter>
 		<Filter
@@ -170,48 +139,18 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
-				RelativePath=".\GetMoreInfo.h">
-			</File>
-			<File
-				RelativePath=".\PackageListDialog.h">
-			</File>
-			<File
-				RelativePath=".\Resource.h">
-			</File>
-			<File
 				RelativePath=".\stdafx.h">
-			</File>
-			<File
-				RelativePath=".\WindowsInstaller.h">
-			</File>
-			<File
-				RelativePath=".\WindowsInstallerDlg.h">
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
-			<File
-				RelativePath=".\res\WindowsInstaller.ico">
-			</File>
-			<File
-				RelativePath=".\WindowsInstaller.rc">
-			</File>
-			<File
-				RelativePath=".\res\WindowsInstaller.rc2">
-			</File>
 		</Filter>
 		<File
 			RelativePath=".\ReadMe.txt">
 		</File>
-		<File
-			RelativePath=".\res\WindowsInstaller.manifest">
-		</File>
 	</Files>
 	<Globals>
-		<Global
-			Name="RESOURCE_FILE"
-			Value="WindowsInstaller.rc"/>
 	</Globals>
 </VisualStudioProject>

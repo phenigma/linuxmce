@@ -1,0 +1,29 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VisualC7", "VisualC7.vcproj", "{938A2C30-74DC-4851-8774-685E25DD59AB}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnzipTest", "UnzipTest\UnzipTest.vcproj", "{D03BB285-CD25-4447-8170-E5B049351043}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{938A2C30-74DC-4851-8774-685E25DD59AB}.Debug.ActiveCfg = Debug|Win32
+		{938A2C30-74DC-4851-8774-685E25DD59AB}.Debug.Build.0 = Debug|Win32
+		{938A2C30-74DC-4851-8774-685E25DD59AB}.Release.ActiveCfg = Release|Win32
+		{938A2C30-74DC-4851-8774-685E25DD59AB}.Release.Build.0 = Release|Win32
+		{D03BB285-CD25-4447-8170-E5B049351043}.Debug.ActiveCfg = Debug|Win32
+		{D03BB285-CD25-4447-8170-E5B049351043}.Debug.Build.0 = Debug|Win32
+		{D03BB285-CD25-4447-8170-E5B049351043}.Release.ActiveCfg = Release|Win32
+		{D03BB285-CD25-4447-8170-E5B049351043}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

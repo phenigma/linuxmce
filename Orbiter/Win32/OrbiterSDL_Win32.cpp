@@ -154,7 +154,7 @@ void OrbiterSDL_Win32::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
     else if (uMsg == WM_KEYUP)
     {
-		RecordKeyboardAction(wParam);
+		RecordKeyboardAction(long(wParam));
 
         bool bHandled=false;
 clock_t ccc=clock();
