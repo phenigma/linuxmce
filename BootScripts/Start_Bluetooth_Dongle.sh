@@ -1,6 +1,6 @@
 #!/bin/bash
 . /usr/pluto/bin/Config_Ops.sh
-. /usr/pluto/bin/pluto.conf
+. /usr/pluto/bin/pluto.func
 
 Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Starting Bluetooth Dongle"
 
