@@ -52,7 +52,6 @@ public:
 // Todo - Remove me, use macros
 #ifndef SYMBIAN
 #include <fstream>
-typedef list<class BasketItem *> ListBasketItem;
 
 class PrettyLog
 {
@@ -103,7 +102,7 @@ public:
 
 	string PlutoConfig::GetSetting(const char *Token,char *Buffer,char *Default);
 
-	class BTCommandProcessor *m_pBTCommandProcessor;
+	class BDCommandProcessor *m_pBDCommandProcessor;
 	bool m_bSendKeyStrokes;
 	unsigned long m_iPollingInterval;  // In nano seconds
 

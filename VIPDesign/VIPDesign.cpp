@@ -133,12 +133,12 @@ BOOL CVIPDesignApp::InitInstance()
 	g_pPlutoConfig->m_hWnd_Emulator=pMainFrame->m_hWnd;
 	g_pPlutoConfig->m_pDocTemplate=pDocTemplate;
 	g_pPlutoConfig->m_pMainFrame=pMainFrame;
-
+#ifdef EMULATOR
 	if(pthread_create(&m_pthread_emulator, NULL, EmulatorThread, (void*)this))
 	{
 		return FALSE;
 	}
-
+#endif
 
 	return TRUE;
 }

@@ -2,7 +2,6 @@
 #define VR_ShowMenu_H
 
 #include "RA/RA_Request.h"
-#include "VIPShared/VIPRequest.h"
 
 class VR_ShowMenu : public RA_Request
 {

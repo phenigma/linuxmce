@@ -108,7 +108,7 @@ protected:
 	RSdpDatabase iSdpDatabase;
 	RNotifier iNotifier;
 
-	//btcommandprocessor 
+	//bdcommandprocessor 
 	MYSTL_CREATE_LIST(m_listCommands, BDCommand);
 
 	TBool m_bImmediateCallback;

@@ -1,5 +1,5 @@
-#ifndef __BTCOMMANDPROCESSOR_BLUETOOTH_DONGLE_H__
-#define __BTCOMMANDPROCESSOR_BLUETOOTH_DONGLE_H__
+#ifndef __BDCOMMANDPROCESSOR_BLUETOOTH_DONGLE_H__
+#define __BDCOMMANDPROCESSOR_BLUETOOTH_DONGLE_H__
 
 namespace DCE
 {
@@ -46,4 +46,4 @@ public:
 	);
 };
 //-----------------------------------------------------------------------------------------------------
-#endif // __BTCOMMANDPROCESSOR_BLUETOOTH_DONGLE_H__
+#endif // __BDCOMMANDPROCESSOR_BLUETOOTH_DONGLE_H__

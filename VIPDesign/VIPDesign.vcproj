@@ -34,9 +34,9 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib;DCE.lib"
+				AdditionalDependencies="pthreadVC.lib DCE.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;C:\ha\level1\Libraries\pthreads-win32\lib&quot;;../lib"
+				AdditionalLibraryDirectories="/mysql/lib/debug;../Libraries/pthreads-win32/lib;../lib"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="TRUE"
 				SubSystem="2"
@@ -133,85 +133,19 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
-				RelativePath="..\DCE\AlarmManager.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_CP_CaptureKeyboard.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_CP_Disconnect.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_CP_SendMeKeystrokes.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_CP_ShowImage.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_CP_ShowList.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_CP_ShowVMC.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_CP_UpdateVariables.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_PC_Disconnect.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_PC_KeyWasPressed.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_PC_OrderPlaced.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_PC_ReportingVariables.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_PC_SelectedFromList.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_PC_SetVariable.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_PC_VMCHidden.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BD_PC_VMCTerminated.cpp">
-			</File>
-			<File
-				RelativePath="..\Bd\BDCommand.cpp">
-			</File>
-			<File
-				RelativePath="..\Bd\BDCommandProcessor.cpp">
-			</File>
-			<File
-				RelativePath="..\Bd\BDCommandProcessor_Windows_Bluetooth.cpp">
-			</File>
-			<File
 				RelativePath="ChildFrm.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPEstablishment\EstablishmentSocket.cpp">
 			</File>
 			<File
 				RelativePath="MainFrm.cpp">
 			</File>
 			<File
-				RelativePath="..\DCE\MultiThreadIncludes.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\Picture.cpp">
+				RelativePath="..\Dce\Picture.cpp">
 			</File>
 			<File
 				RelativePath="..\VIPShared\PlutoConfig.cpp">
 			</File>
 			<File
 				RelativePath="..\VIPShared\RenderMenu.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\RequestProcessor.cpp">
 			</File>
 			<File
 				RelativePath="ResetEmulatorDlg.cpp">
@@ -232,24 +166,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\DCE\StringUtils.cpp">
-			</File>
-			<File
-				RelativePath="..\DCE\TokenStream.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\VA_ForwardRequestToPhone.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\VA_SendFileToPhone.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\VA_UpdateTransaction.cpp">
-			</File>
-			<File
-				RelativePath="..\VIPShared\VIPAction.cpp">
-			</File>
-			<File
 				RelativePath="VIPDesign.cpp">
 			</File>
 			<File
@@ -260,12 +176,6 @@
 			</File>
 			<File
 				RelativePath="VIPEditDlg.cpp">
-			</File>
-			<File
-				RelativePath="VIPEmulator.cpp">
-			</File>
-			<File
-				RelativePath="VIPEmulatorSocket.cpp">
 			</File>
 			<File
 				RelativePath="VIPGraphicDlg.cpp">
@@ -293,12 +203,6 @@
 			</File>
 			<File
 				RelativePath="VIPVariableDlg.cpp">
-			</File>
-			<File
-				RelativePath="..\PlutoVIP\VR_RequestSecureTransaction.cpp">
-			</File>
-			<File
-				RelativePath="..\PlutoVIP\VR_ShowMenu.cpp">
 			</File>
 		</Filter>
 		<Filter

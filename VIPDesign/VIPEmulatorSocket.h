@@ -4,9 +4,9 @@
 #include "DCE/Socket.h"
 
 using namespace std;
+using namespace DCE;
 
 class OCServerCore;
-class DCELogger;
 class VIPEmulator;
 
 using namespace DCE;
@@ -19,7 +19,7 @@ public:
 	map<string,string> m_mapHTTPHeaders;
 	string m_CMDString;
     
-	class DCELogger *g_pDCELogger;
+	class Logger *g_pPlutoLogger;
 
 	VIPEmulator *m_pListener;
 	class OCDeviceCommand *m_pCommand;

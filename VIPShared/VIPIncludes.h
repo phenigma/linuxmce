@@ -65,6 +65,8 @@ public:
 	}
 };
 
+typedef list<class BasketItem *> ListBasketItem;
+
 // Phone Status Codes
 #define C_PHONESTATUS_NORMAL_CONST		1
 #define C_PHONESTATUS_LOST_CONST		2

@@ -7,11 +7,11 @@
 #include "VIPEmulator.h"
 #include "VIPEmulatorSocket.h"
 #include "VIPShared/RequestProcessor.h"
-#include "VIPShared/VIPRequest.h"
+#include "RA/RA_Request.h"
 #include "VIPShared/VR_UnknownRequest.h"
 #include "VIPShared/VR_RequestPayment.h"
 #include "VIPShared/VIPAction.h"
-#include "VIPShared/BTCommandProcessor_Windows_Socket.h"
+#include "BD/BDCommandProcessor_Windows_Socket.h"
 #include "VIPShared/PlutoConfig.h"
 #include <iostream>
 
@@ -43,7 +43,7 @@ VIPEmulatorSocket::~VIPEmulatorSocket()
 
 void VIPEmulatorSocket::Run()
 {
-	BTCommandProcessor_Windows_Socket *pProcessor = new BTCommandProcessor_Windows_Socket("",this);
+	BDCommandProcessor_Windows_Socket *pProcessor = new BDCommandProcessor_Windows_Socket("",this);
 
 	pthread_mutex_lock(&pProcessor->m_PollingMutex.mutex);
 	while(true)

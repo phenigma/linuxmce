@@ -5,7 +5,7 @@
 #include "VIPShared/VIPIncludes.h"
 #include "VIPShared/VIPMenu.h"
 #include "VIPShared/PlutoConfig.h"
-#include "PlutoVIP/VR_ShowMenu.h"
+//#include "PlutoVIP/VR_ShowMenu.h"
 #include "PlutoUtils/StringUtils.h"
 
 #include "VIPDesign.h"
@@ -194,7 +194,7 @@ void CVIPDesignView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 		case 0x0B:			KeyCode=BUTTON_Asterisk_CONST;			break;
 
 		//'#'
-		case 0x0C:			KeyCode=BUTTON_Pount_CONST;				break;
+		case 0x0C:			KeyCode=BUTTON_Pound_CONST;				break;
 
 		case 0x30:
 		case VK_NUMPAD0:	KeyCode=BUTTON_0_CONST;					break;

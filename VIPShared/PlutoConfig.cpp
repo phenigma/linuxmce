@@ -19,7 +19,7 @@ PlutoConfig::PlutoConfig()
 #endif
 #endif
 
-	m_pBTCommandProcessor = NULL;
+	m_pBDCommandProcessor = NULL;
 	m_bSendKeyStrokes = false;
 	m_iPollingInterval = 500000000;  // half a second
 

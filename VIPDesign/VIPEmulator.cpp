@@ -17,12 +17,12 @@
 
 
 class PlutoConfig *gp_PlutoConfig=NULL;
-class DCELogger *g_pDCELogger;
+class Logger *g_pPlutoLogger;
 
 void* EmulatorThread(void* param)
 {
-	g_pDCELogger = new DCEFileLogger("C:\\temp.log");
-	if(g_pDCELogger == NULL)
+	g_pPlutoLogger = new DCEFileLogger("C:\\temp.log");
+	if(g_pPlutoLogger == NULL)
 		fprintf(stderr,"Problem creating logger.  Check params.\n");
 
 
@@ -31,7 +31,7 @@ void* EmulatorThread(void* param)
 	pServer->StartListening(3461);//gp_PlutoConfig->m_iServerPort);
 	pServer->Run();
 	delete pServer;
-	delete g_pDCELogger;
+	delete g_pPlutoLogger;
 	return NULL;
 }
 

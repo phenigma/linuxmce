@@ -2,7 +2,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "../VIPShared/stdafx.h"
+#include "../VIPDesign/stdafx.h"
 #include "PlutoUtils/CommonIncludes.h"	
 #include "../VIPShared/VIPIncludes.h"
 #include "../VIPShared/PlutoConfig.h"

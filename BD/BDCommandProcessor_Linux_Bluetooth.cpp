@@ -153,7 +153,7 @@ char *BDCommandProcessor_Linux_Bluetooth::ReceiveData(int size)
 /*
 void MobileOrbiterSocket::ProcessSocket()
 {
-//	while( m_btCommandProcessor->ReceiveCommand() );
+//	while( m_bdCommandProcessor->ReceiveCommand() );
 //	return;
 
 printf("in read bt\n");

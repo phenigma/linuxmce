@@ -1,6 +1,6 @@
  #include "VIPIncludes.h"
 
-//#include "VIPShared/PlutoConfig.h"
+#include "VIPShared/PlutoConfig.h"
 
 //#include "VIPShared/VR_ShowMenu.h"
 
@@ -671,13 +671,14 @@ void RenderMenu::KeyPressed(int KeyCode)
 	bool bRedrawScreen = false;
 
 #ifndef SYMBIAN
-	if( g_pPlutoConfig->m_bSendKeyStrokes && g_pPlutoConfig->m_pBTCommandProcessor )
+#ifdef EMULATOR
+	if( g_pPlutoConfig->m_bSendKeyStrokes && g_pPlutoConfig->m_pBDCommandProcessor )
 	{
-		BTCommand *pCommand = new BT_PC_KeyWasPressed(KeyCode);
-		g_pPlutoConfig->m_pBTCommandProcessor->AddCommand(pCommand);
+		BDCommand *pCommand = new BD_PC_KeyWasPressed(KeyCode);
+		g_pPlutoConfig->m_pBDCommandProcessor->AddCommand(pCommand);
 	}
+#endif
 #else
-	
 	if(
 		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bSendKeyStrokes     && 
 		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_pBDCommandProcessor
