@@ -134,9 +134,8 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
     png_set_filter(png_ptr, 0, PNG_FILTER_NONE);
     png_set_compression_level(png_ptr, Z_BEST_COMPRESSION);
 
-    //BitsPerColor = Drawing->format->BitsPerPixel / Drawing->format->BytesPerPixel;
-	BitsPerColor = 2; //2 bytes per color
-    png_set_IHDR(png_ptr, png_info, Drawing->w, Drawing->h, BitsPerColor, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
+    BitsPerColor = Drawing->format->BitsPerPixel / Drawing->format->BytesPerPixel;
+    png_set_IHDR(png_ptr, png_info, Drawing->w, Drawing->h, BitsPerColor, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
             PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 
     png_write_info(png_ptr, png_info);
