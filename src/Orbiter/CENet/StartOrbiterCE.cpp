@@ -33,26 +33,34 @@ OrbiterSDL_WinCE* Connect(int PK_Device,string sRouter_IP,string sLocalDirectory
 
 	try
 	{
+		g_pPlutoLogger->Write(LV_STATUS, "About to cleanup Orbiter");
+		
 		OrbiterSDL_WinCE::Cleanup();
+	
+		g_pPlutoLogger->Write(LV_STATUS, "Orbiter cleanup finished");
+
+		int bubu = 1;
+
 		OrbiterSDL_WinCE::BuildOrbiterSDL_WinCE(
 			PK_Device, sRouter_IP,
 			sLocalDirectory, bLocalMode, 
 			Width, Height, bFullScreen
 		); //the builder method
+		g_pPlutoLogger->Write(LV_STATUS, "New orbiter created!");
 	}
 	catch(string s)
 	{
-		WriteStatusOutput(s.c_str());
+		g_pPlutoLogger->Write(LV_STATUS,s.c_str());
 		return NULL;
 	}
 	catch(const char *s)
 	{
-		WriteStatusOutput(s);
+		g_pPlutoLogger->Write(LV_STATUS, s);
 		return NULL;
 	}
 	catch(...)
 	{
-		WriteStatusOutput("Unknown exception!!");
+		g_pPlutoLogger->Write(LV_STATUS, "Unknown exception!!");
 		return NULL;
 	}
 

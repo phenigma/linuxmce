@@ -119,6 +119,9 @@ g_pPlutoLogger->Write(LV_STATUS, "about to free surface");
 #endif
 
     m_pScreenImage = NULL;
+
+	SDL_Quit();
+
 g_pPlutoLogger->Write(LV_STATUS, "~OrbiterSDL finished");
 }
 //-----------------------------------------------------------------------------------------------------

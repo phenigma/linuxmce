@@ -161,7 +161,9 @@ Command_Impl::~Command_Impl()
 {
 	g_pCommand_Impl = NULL;
 	g_pPlutoLogger->Write( LV_STATUS, "Waiting for message queue thread to quit" );
+
 	m_bQuit=true;
+
 	while( m_bMessageQueueThreadRunning )
 	{
 		pthread_cond_broadcast( &m_listMessageQueueCond );
@@ -175,6 +177,7 @@ Command_Impl::~Command_Impl()
 		delete m_pEvent;
 	if( m_pcRequestSocket )
 		delete m_pcRequestSocket;
+
 	m_pEvent=m_pcRequestSocket=NULL;
 	if( m_bKillSpawnedDevicesOnExit )
 	{
@@ -182,13 +185,11 @@ Command_Impl::~Command_Impl()
 		KillSpawnedDevices();
 	}
 
-	//PLUTO_SAFETY_LOCK_ERRORSONLY( mq, m_listMessageQueueMutex );
 	for(list<Message *>::iterator it = m_listMessageQueue.begin(); it != m_listMessageQueue.end(); it++)
 	{
 		delete *it;
 	}
 	m_listMessageQueue.clear();
-	//mq.Release();
 
 	g_pPlutoLogger->Write( LV_STATUS, "~Command_Impl finished" );
 }

@@ -304,7 +304,7 @@ void Message::Clear()
 	map<long, char *>::iterator i;
 	for(i=m_mapData_Parameters.begin();i!=m_mapData_Parameters.end();++i)
 	{
-		free((*i).second); //the data was allocated using malloc
+		delete [] (*i).second; 
 	}
 
 	m_mapData_Parameters.clear();

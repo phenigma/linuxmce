@@ -142,7 +142,7 @@ Socket::Socket(string Name,string sIPAddress) : m_SocketMutex("socket mutex " + 
 Socket::~Socket()
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write( LV_SOCKET, "deleting socket %p %s", this, m_sName.c_str() );
+	//g_pPlutoLogger->Write( LV_SOCKET, "deleting socket %p %s", this, m_sName.c_str() );
 #endif
 	if ( m_Socket != INVALID_SOCKET )
 		closesocket( m_Socket );

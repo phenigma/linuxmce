@@ -120,6 +120,9 @@ OrbiterSDL_WinCE::~OrbiterSDL_WinCE()
 {
 	if(NULL != m_pInstance)
 	{
+		//restore windowproc
+     	::SetWindowLong(m_pInstance->hSDLWindow, GWL_WNDPROC, reinterpret_cast<long>(m_pInstance->OldSDLWindowProc));
+
 		delete m_pInstance;
 		m_pInstance = NULL;
 	}

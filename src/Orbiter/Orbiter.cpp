@@ -131,6 +131,7 @@ public:
 template<class T> inline static T Dist( T x,  T y ) { return x * x + y * y; }
 //------------------------------------------------------------------------
 void *MaintThread(void *p);
+static bool bMaintThreadIsRunning = false;
 //------------------------------------------------------------------------
 
 
@@ -213,7 +214,10 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter is exiting");
 	// Be sure we get the maint thread to cleanly exit
 	m_bQuit=true;
 	pthread_cond_broadcast(&m_MaintThreadCond);  // Wake it up, it will quit when it sees the quit
-	pthread_mutex_lock(&m_MaintThreadMutex.mutex);  // Be sure it's not executing anything--it will lock this while it's doing an execute
+	//pthread_mutex_lock(&m_MaintThreadMutex.mutex);  // Be sure it's not executing anything--it will lock this while it's doing an execute
+
+	while(bMaintThreadIsRunning)
+		Sleep(10);
 
 	PLUTO_SAFETY_LOCK( pm, m_CallbackMutex );
 	map<int,CallBackInfo *>::iterator itCallBackInfo;
@@ -3831,6 +3835,7 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable deleted indirect
 
 void *MaintThread(void *p)
 {
+	bMaintThreadIsRunning = true;
 	Orbiter* pOrbiter = (Orbiter *)p;
 
 	while(!pOrbiter->m_bQuit) //
@@ -3928,6 +3933,7 @@ void *MaintThread(void *p)
 	}
 
 g_pPlutoLogger->Write(LV_STATUS,"Maint thread exited");
+	bMaintThreadIsRunning = false;
 	return NULL;
 }
 
