@@ -26,7 +26,7 @@ EXTERNAL_LIBS_NAMES += xine z nsl rt png X11 m Xext Xxf86vm
 XTRALDLIBS =
 
 Gen_Dev_Files +=
-sources +=  XineSlaveWrapper.cpp SlimServerClient.cpp NetworkUtils.cpp
+sources +=  XineSlaveWrapper.cpp 
 
 #<-dceag-mf-b->!
 LDLIBS_NAMES = $(INTERNAL_LIBS_NAMES) $(EXTERNAL_LIBS_NAMES)

@@ -16,7 +16,7 @@
 //<-dceag-d-e->
 
 #include "XineSlaveWrapper.h"
-#include "SlimServerClient.h"
+//#include "SlimServerClient.h"
 #include "utilities/linux/RatpoisonHandler.h"
 
 //<-dceag-decl-b->! custom
@@ -48,7 +48,7 @@ public:
 
     XineSlaveWrapper *m_pXineSlaveControl; /** < m_pXineSlaveControl points to the XineSlaveWrapper object */
 
-	SlimServerClient *m_pSlimServerClient; /** < m_pSlimServerClient is the wrapper around the slim server protocol */
+	class SlimServerClient *m_pSlimServerClient; /** < m_pSlimServerClient is the wrapper around the slim server protocol */
 
 	string GetMacAddress();
     /**

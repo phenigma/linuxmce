@@ -45,8 +45,8 @@ Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHa
 {
     m_pXineSlaveControl = new XineSlaveWrapper();
 
-	m_pSlimServerClient = new SlimServerClient();
-	m_pSlimServerClient->setXineSlaveObject(m_pXineSlaveControl);
+	//m_pSlimServerClient = new SlimServerClient();
+//	m_pSlimServerClient->setXineSlaveObject(m_pXineSlaveControl);
 
     if ( ! m_pXineSlaveControl->createWindow() )
     {
@@ -145,14 +145,14 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Need to behave like a slim server client");
 		m_pXineSlaveControl->stopMedia(iStreamID);
-		m_pSlimServerClient->setMacAddress(GetMacAddress());
+		//m_pSlimServerClient->setMacAddress(GetMacAddress());
 		// To not break more stuff
 		// m_pSlimServerClient->connectToServer(sFilename.substr(strlen("slim://")), iStreamID);
 	}
 	else
 	{
-		if ( m_pSlimServerClient->isConnected(iStreamID) )
-			m_pSlimServerClient->disconnectFromServer(iStreamID);
+		//if ( m_pSlimServerClient->isConnected(iStreamID) )
+		//	m_pSlimServerClient->disconnectFromServer(iStreamID);
 
 		m_pXineSlaveControl->playStream(sFilename, iStreamID, iMediaPosition, pMessage->m_dwPK_Device_From);
 	}
