@@ -25,6 +25,7 @@ rm -f "$DIR"/*_new
 
 ICS_MSG="When you have internet connection, run '$DIR/$ICS' to download your activation script from plutohome.com"
 NOCODE_MSG="Whenever you get a code from $PHURL, you can run '$DIR/$ICS' to get back to this script"
+NOACTIV_MSG="There was a problem while downloading the activation script. To reattempt an installation, you can run anytime '$DIR/$ICS' without using the installation CD"
 ACTIV_MSG="There was a problem while retrieving/processing the activation data. You can re-run the script anytime later to try again by typing '$DIR/activation.sh' at your shells prompt"
 BUILD_MSG="We created a file called '$DIR/build.sh' that you can run to make any required packages from source"
 BUILD_ALL_MSG="We created a file called '$DIR/build_all.sh' which will make the entire Pluto system from source"
@@ -76,7 +77,7 @@ while [ "$ok" -eq 0 ]; do
 		echo -n "Device number: "
 		read device
 		[ -z "$device" ] && echo "Empty device number" || ok_device=1
-		clear # blank
+		ClearBlack
 		
 #		device=$(InputBox "$Message1" "$Message2")
 #		[ -z "$device" ] && MessageBox "Empty device number" || ok_device=1
@@ -107,7 +108,7 @@ while [ "$ok" -eq 0 ]; do
 			try_again "Failed to contact activation server over the Internet" && continue
 			echo "$ICS_MSG" | fmt
 #			MessageBox "$ICS_MSG"
-			break
+			exit
 		fi
 		ok_internet=1
 	done
@@ -122,12 +123,24 @@ while [ "$ok" -eq 0 ]; do
 		try_again "$Message1" "$Message2" && continue
 		echo "$NOCODE_MSG" | fmt
 #		MessageBox "$NOCODE_MSG"
-		break
+		exit
 	fi
 
 # everything went ok
 	echo "Code accepted"
-	echo "$answer" | awk 'NR>1' >"$DIR/activation.sh"
+
+	ok_script=0
+	while [ "$ok_script" -eq 0 ]; do
+		echo "$answer" | awk 'NR>1' >"$DIR/activation.sh"
+		if [ "$(tail -1 "$DIR/activation.sh")" != "#EOF" ]; then
+			try_again "Activation script transfer failed" && continue
+			echo "$NOACTIV_MSG" | fmt
+#			MessageBox "$NOACTIV_MSG"
+			exit
+		else
+			ok_script=1
+		fi
+	done
 	
 	Device=$(echo "$activation_key" | cut -d- -f1)
 	Code=$(echo "$activation_key" | cut -d- -f2)
