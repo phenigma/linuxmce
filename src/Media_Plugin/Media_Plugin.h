@@ -223,7 +223,7 @@ g_pPlutoLogger->Write(LV_STATUS,"FOUND %d records for media type %d %p",(int) ve
 	void AddDefaultCommandsToEntArea(Row_EntertainArea *pRow_EntertainArea);
 	void AddDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea);
 	// Returns 0 if a command group exists for this entarea/template.  Otherwise creates one and returns the id
-	int FindCommandGroupByTemplate(Row_EntertainArea *pRow_EntertainArea,int PK_Template,string sDescription);
+		int FindCommandGroupByTemplate(Row_EntertainArea *pRow_EntertainArea,int PK_Template,string sDescription);
 	void AddCommand(int PK_CommandGroup,int PK_Device,int PK_Command,int NumParms,...);
 	// For each MD, all it's direct children go in the same room, and if it has an on-screen Orbiter, it's direct children too
 	void PutMDsChildrenInRoom(DeviceData_Router *pDeviceData_Router);
@@ -267,6 +267,11 @@ g_pPlutoLogger->Write(LV_STATUS,"FOUND %d records for media type %d %p",(int) ve
      * @brief EVENT_Media_Followme event interceptor. Called when the router finds an event of this type in the queue.
      */
 	bool MediaFollowMe( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
+
+	/**
+	 * @brief EVENT_Ripping_Completed_CONST event interceptor.
+	 */
+	bool RippingCompleted( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
 	// Follow-me
 	virtual void FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left);

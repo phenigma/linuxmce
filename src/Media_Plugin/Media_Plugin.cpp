@@ -216,6 +216,7 @@ bool Media_Plugin::Register()
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::MediaInserted ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Media_Inserted_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::PlaybackCompleted ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Completed_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::MediaFollowMe ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Follow_Me_Media_CONST );
+	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::RippingCompleted ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Ripping_Completed_CONST );
 
     // And the datagrid plug-in
     m_pDatagrid_Plugin=NULL;
@@ -2323,7 +2324,7 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sName,string &sCMD_Result,M
 			return;
 		}
 
-		DCE::CMD_Rip_Disk cmdRipDisk(iPK_Users, m_dwPK_Device, pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, sName);
+		DCE::CMD_Rip_Disk cmdRipDisk(m_dwPK_Device, pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, iPK_Users, sName);
 		SendCommand(cmdRipDisk);
 		m_mapRippingJobsToRippingDevices[sName] = make_pair<int, int>(pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, pMessage->m_dwPK_Device_From);
 		return;
@@ -2335,6 +2336,59 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sName,string &sCMD_Result,M
 	g_pPlutoLogger->Write(LV_STATUS, "Media plugin got a CMD_Rip_Disk with an empty desired name and needs to ask the user for the name.");
 	DCE::CMD_Goto_Screen gotoScreen(m_dwPK_Device, pMessage->m_dwPK_Device_From, 0, StringUtils::itos(DESIGNOBJ_mnuPVRFileSave_CONST), "", "", false, false);
 	SendCommand(gotoScreen);
+}
+
+// This should be in sync with the typedef in the Disk_Drive.h
+typedef enum {
+	RIP_RESULT_BEGIN_ENUM		 = 0x01,
+	RIP_RESULT_ALREADY_RIPPING,
+	RIP_RESULT_NO_DISC,
+	RIP_RESULT_INVALID_DISC_TYPE,
+	RIP_RESULT_SUCCESS,
+	RIP_RESULT_FAILURE,
+	RIP_RESULT_END_ENUM
+} rippingResult;
+
+bool Media_Plugin::RippingCompleted( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+    string 	sJobName = pMessage->m_mapParameters[EVENTPARAMETER_Name_CONST];
+	int		iResult  = atoi( pMessage->m_mapParameters[EVENTPARAMETER_Result_CONST].c_str( ) );
+
+	// See Disk_Drive.h for the defines
+	if ( iResult <= RIP_RESULT_BEGIN_ENUM || iResult >= RIP_RESULT_END_ENUM )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Invalid result parameters. Ignoring event.");
+		return true;
+	}
+
+	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+
+	g_pPlutoLogger->Write(LV_STATUS, "Got a ripping completed event for job named \"%s\" from device: \"%d\"", sJobName.c_str(), pMessage->m_dwPK_Device_From);
+	map<string, pair<int, int> >::const_iterator itRippingJobs;
+
+	if ( (itRippingJobs = m_mapRippingJobsToRippingDevices.find(sJobName)) == m_mapRippingJobsToRippingDevices.end() )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Unrecognized ripping job: %s. Ignoring event.", sJobName.c_str());
+		return true;
+	}
+
+	string sMessage;
+	switch ( iResult )
+	{
+		case RIP_RESULT_ALREADY_RIPPING: 	sMessage = "There is already a ripping job in this entertainment area!"; 	break;
+		case RIP_RESULT_NO_DISC:			sMessage = "There is no disk in the Media Director which is controlling this entertainment area!";	break;
+		case RIP_RESULT_INVALID_DISC_TYPE:	sMessage = "Can't rip the disk that is in the unit at this moment (unknown format)!";	break;
+		case RIP_RESULT_FAILURE:			sMessage = "Unspecified error while ripping the disk.";	break;
+		case RIP_RESULT_SUCCESS:			sMessage = "The disk was ripped succesfully.";	break;
+		case RIP_RESULT_BEGIN_ENUM:
+		case RIP_RESULT_END_ENUM:
+			break;
+	}
+
+	int sourceOrbiter = m_mapRippingJobsToRippingDevices[sJobName].second;
+	m_mapRippingJobsToRippingDevices.erase(sJobName);
+
+	m_pOrbiter_Plugin->DisplayMessageOnOrbiter(sourceOrbiter,sMessage);
 }
 
 bool Media_Plugin::SafeToReload()
