@@ -564,7 +564,7 @@ function GetActivationSh($code,$param='install',$otherParam='')
 	// || die("ERROR. Can't generate answer: $device:$pin");
 
 	if ($retcode == 0)
-		$return = "OK\n" . implode("\n", (array)$result);
+		$return = "OK\n" . implode("\n", (array)$result) . "\nEOF";
 	else
 		$return = "ERROR. Something went terribly wrong while generating the activation script. The installation can not continue. Please contact Plutohome to solve this problem. Thank you.";
 	return $return;
