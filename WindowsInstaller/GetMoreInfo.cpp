@@ -126,6 +126,30 @@ void CGetMoreInfo::OnBnClickedMoreinfoInstall()
 	else
 		fclose(f);
 
+	//disabling controls
+	m_PlutoDriveComboBox.EnableWindow(FALSE);
+	m_ServerIPAddressEdit.EnableWindow(FALSE);
+	m_RadioBoxOption1.EnableWindow(FALSE);
+	m_RadioBoxOption2.EnableWindow(FALSE);
+	m_RadioBoxOption3.EnableWindow(FALSE);
+	m_PrevButton.EnableWindow(FALSE);
+	m_InstallButton.EnableWindow(FALSE);
+	UpdateWindow();
+
+	//svn installation
+	if(NeedToInstallSVN() && !IsSVNInstalled())
+		if(!InstallSVN())
+		{
+			LogInstallAction("ERROR: Subversion is not installed!");
+			return;
+		}
+		else
+		{
+			LogInstallAction("Need to restart the computer.");
+			MessageBox("In order to use Subversion, will have to restart the computer.", "Restart needed");
+			return;
+		}
+
 
 	m_InstallEdit.Clear();
 
@@ -136,18 +160,8 @@ void CGetMoreInfo::OnBnClickedMoreinfoInstall()
     LogInstallAction("Creating pluto folder '" + sPlutoFolder + "'...");
 
 	//installing packages
-	INT_PTR nCount = aryListBoxSel.GetCount();
-
-	m_PlutoDriveComboBox.EnableWindow(FALSE);
-	m_ServerIPAddressEdit.EnableWindow(FALSE);
-	m_RadioBoxOption1.EnableWindow(FALSE);
-	m_RadioBoxOption2.EnableWindow(FALSE);
-	m_RadioBoxOption3.EnableWindow(FALSE);
-	m_PrevButton.EnableWindow(FALSE);
-	m_InstallButton.EnableWindow(FALSE);
-	UpdateWindow();
-
 	BeginWaitCursor();
+	INT_PTR nCount = aryListBoxSel.GetCount();
 	m_Progress.SetRange(0, short(nCount));
 	for(INT_PTR i = 0; i < nCount; i++)
 	{
@@ -158,8 +172,8 @@ void CGetMoreInfo::OnBnClickedMoreinfoInstall()
 
 		m_Progress.SetPos(int(i + 1));
 	}
-	EndWaitCursor();
 
+	EndWaitCursor();
 	m_CancelFinishButton.SetWindowText("&Finish");
 }
 
@@ -254,6 +268,9 @@ void CGetMoreInfo::InstallPackage(int iIndex)
 			::MoveFile(sMySQLDirNameDest, sMySQLDirNameDest + ".old");
 
 		::MoveFile(sMySQLDirName, sMySQLDirNameDest);
+
+		LaunchProgram(sMySQLDirNameDest + "\\bin\\winmysqladmin.exe", false
+			);
 	}
 }
 
@@ -298,6 +315,8 @@ void CGetMoreInfo::ParseAndExecuteCommands(CString sServer, CString sURL, CStrin
 	CString sDrive = GetInstallationDrive();
 	CString sDestinationFile;
 
+	bool bRealUrlInComment = false;
+
 	if(sCommands == csNotSpecified.c_str()) //assume that the downloaded file should be copied to /pluto/bin folder
 	{
 		sDestinationFile = sDrive + "\\pluto\\bin";
@@ -312,6 +331,30 @@ void CGetMoreInfo::ParseAndExecuteCommands(CString sServer, CString sURL, CStrin
 
 	enum URLType { utHTTP, utFTP, utSVN };
 	URLType urlType;
+
+	if(sCommands != csNotSpecified.c_str()) //we have additional pre-download instructions
+	{
+		string sData(sCommands);
+		vector<string> vectLines;
+		StringUtils::Tokenize(sData, "`", vectLines);
+
+		for(size_t i = 0; i < vectLines.size(); ++i)
+		{
+			string sLine(vectLines[i].c_str());
+			vector<string> vectWords;
+			StringUtils::Tokenize(sLine, " ", vectWords); 
+
+			if(vectWords[0] == "REALURL")
+			{
+				sURL = vectWords[1].c_str();
+				bRealUrlInComment = true;
+			}
+
+			vectWords.clear();
+		}
+
+		vectLines.clear();
+	}
 
 	CString sFullUrl = sServer + sURL;
 
@@ -328,7 +371,7 @@ void CGetMoreInfo::ParseAndExecuteCommands(CString sServer, CString sURL, CStrin
 		urlType = utHTTP;
 	}
 
-	if(urlType != utSVN)
+	if(urlType != utSVN && !bRealUrlInComment)
 		sURL = sURL + "/" + sFileName;	
 
 	ProcessMessages();
@@ -364,7 +407,7 @@ void CGetMoreInfo::ParseAndExecuteCommands(CString sServer, CString sURL, CStrin
 	{
 		string sData(sCommands);
 		vector<string> vectLines;
-		StringUtils::Tokenize(sData, "%", vectLines);
+		StringUtils::Tokenize(sData, "`", vectLines);
 
 		for(size_t i = 0; i < vectLines.size(); ++i)
 		{
@@ -372,10 +415,12 @@ void CGetMoreInfo::ParseAndExecuteCommands(CString sServer, CString sURL, CStrin
 			vector<string> vectWords;
 			StringUtils::Tokenize(sLine, " ", vectWords); 
 
-			if(vectWords[i] == "UNZIP")
+			if(vectWords[0] == "UNZIP")
 				UnzipFileToFolder(sDestinationFile + sFileName, sDrive + vectWords[1].c_str());
-			else if(vectWords[i] == "RUN")
+			else if(vectWords[0] == "RUN")
 				LaunchProgram(sDestinationFile + sFileName);
+			else if(vectWords[0] == "LAUNCH")
+				LaunchProgram(sDrive + vectWords[1].c_str());
 
 			vectWords.clear();
         }
@@ -470,15 +515,6 @@ bool CGetMoreInfo::DownloadFileFromSvn(CString sServer, CString sRepository, CSt
 	CString sFullURL = sServer + "/" + sRepository + "/" + sSourceImplementationPath;
 	LogInstallAction("Checking out folder from subversion: '" + sFullURL + "'...");
 
-	static bool bSVNInstalled = IsSVNInstalled();
-
-	if(!bSVNInstalled)
-		if(!InstallSVN())
-		{
-			LogInstallAction("ERROR: Subversion is not installed!");
-			return false;
-		}
-
 	PROCESS_INFORMATION pi;
 	::ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
 
@@ -526,7 +562,7 @@ bool CGetMoreInfo::UnzipFileToFolder(CString sSourceFile, CString sDestinationFo
 	return true;
 }
 
-bool CGetMoreInfo::LaunchProgram(CString sFilePath)
+bool CGetMoreInfo::LaunchProgram(CString sFilePath, bool bWaitProcessToTerminate/*= true*/)
 {
 	PROCESS_INFORMATION pi;
 	::ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
@@ -539,17 +575,23 @@ bool CGetMoreInfo::LaunchProgram(CString sFilePath)
 	if(FileUtils::FindExtension(string(sFilePath)) == "msi")
 		sFilePath = "msiexec /i " + sFilePath;
 
+	LogInstallAction("Running process: '" + sFilePath + "'");
 	if(!::CreateProcess(NULL, const_cast<char *>(string(sFilePath).c_str()), NULL, NULL, NULL, 0, NULL, NULL, &si, &pi)) //all ok
 	{
+		LogInstallAction("ERROR: Failed to run '" + sFilePath + "'");
 		return FALSE;
 	}
+	
+	if(bWaitProcessToTerminate)
+		::WaitForSingleObject(pi.hProcess, 10 * 60 * 1000); //wait 10 minutes for user to install
 
-	::WaitForSingleObject(pi.hProcess, 10 * 1000 * 1000); //wait 10 minutes for user to install
 	return TRUE;
 }
 
 bool CGetMoreInfo::IsSVNInstalled()
 {
+	LogInstallAction("Checking to see if svn is installed...");
+
 	PROCESS_INFORMATION pi;
 	::ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
 
@@ -560,10 +602,12 @@ bool CGetMoreInfo::IsSVNInstalled()
 
 	if(!::CreateProcess(NULL, "svn.exe", NULL, NULL, NULL, 0, NULL, NULL, &si, &pi)) //all ok
 	{
+		LogInstallAction("SVN is not installed...");
 		return FALSE;
 	}
 
 	::TerminateProcess(pi.hThread, 0);
+	LogInstallAction("SVN is installed...");
 	return TRUE;
 }
 
@@ -615,4 +659,21 @@ void CGetMoreInfo::ProcessMessages(DWORD dwMs/*=100*/)
 		if(dwNow - dwLast > dwMs)
 			break;
 	}
+}
+
+bool CGetMoreInfo::NeedToInstallSVN()
+{
+	INT_PTR nCount = aryListBoxSel.GetCount();
+	for(INT_PTR i = 0; i < nCount; i++)
+	{
+		int iIndex = aryListBoxSel.GetAt(i);
+		if(vectPackageInfos[iIndex].sURL.Find("svn.") != -1)
+		{
+			LogInstallAction("Need to install SVN!");
+			return true;
+		}
+	}
+
+	LogInstallAction("Don't need to install SVN!");
+	return false;
 }

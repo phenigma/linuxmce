@@ -99,25 +99,25 @@ BOOL CVIPResolutionDlg::OnInitDialog()
 {
    CDialog::OnInitDialog();
 
-	m_Y=m_pResolution->m_sTerminatingKey.find("Y")!=string::npos;
-	m_N=m_pResolution->m_sTerminatingKey.find("N")!=string::npos;
-	m_E=m_pResolution->m_sTerminatingKey.find("E")!=string::npos;
-	m_F=m_pResolution->m_sTerminatingKey.find("F")!=string::npos;
-	m_C=m_pResolution->m_sTerminatingKey.find("C")!=string::npos;
-	m_U=m_pResolution->m_sTerminatingKey.find("U")!=string::npos;
-	m_D=m_pResolution->m_sTerminatingKey.find("D")!=string::npos;
-	m_L=m_pResolution->m_sTerminatingKey.find("L")!=string::npos;
-	m_R=m_pResolution->m_sTerminatingKey.find("R")!=string::npos;
-	m_0=m_pResolution->m_sTerminatingKey.find("0")!=string::npos;
-	m_1=m_pResolution->m_sTerminatingKey.find("1")!=string::npos;
-	m_2=m_pResolution->m_sTerminatingKey.find("2")!=string::npos;
-	m_3=m_pResolution->m_sTerminatingKey.find("3")!=string::npos;
-	m_4=m_pResolution->m_sTerminatingKey.find("4")!=string::npos;
-	m_5=m_pResolution->m_sTerminatingKey.find("5")!=string::npos;
-	m_6=m_pResolution->m_sTerminatingKey.find("6")!=string::npos;
-	m_7=m_pResolution->m_sTerminatingKey.find("7")!=string::npos;
-	m_8=m_pResolution->m_sTerminatingKey.find("8")!=string::npos;
-	m_9=m_pResolution->m_sTerminatingKey.find("9")!=string::npos;
+	m_Y=m_pResolution->m_sTerminatingKey.find(BUTTON_Phone_Talk_CONST)!=string::npos;
+	m_N=m_pResolution->m_sTerminatingKey.find(BUTTON_Phone_End_CONST)!=string::npos;
+	m_E=m_pResolution->m_sTerminatingKey.find(BUTTON_Enter_CONST)!=string::npos;
+	m_F=m_pResolution->m_sTerminatingKey.find(BUTTON_Asterisk_CONST)!=string::npos;//F
+	m_C=m_pResolution->m_sTerminatingKey.find(BUTTON_Phone_C_CONST)!=string::npos;
+	m_U=m_pResolution->m_sTerminatingKey.find(BUTTON_Up_Arrow_CONST)!=string::npos;
+	m_D=m_pResolution->m_sTerminatingKey.find(BUTTON_Down_Arrow_CONST)!=string::npos;
+	m_L=m_pResolution->m_sTerminatingKey.find(BUTTON_Left_Arrow_CONST)!=string::npos;
+	m_R=m_pResolution->m_sTerminatingKey.find(BUTTON_Right_Arrow_CONST)!=string::npos;
+	m_0=m_pResolution->m_sTerminatingKey.find(BUTTON_0_CONST)!=string::npos;
+	m_1=m_pResolution->m_sTerminatingKey.find(BUTTON_1_CONST)!=string::npos;
+	m_2=m_pResolution->m_sTerminatingKey.find(BUTTON_2_CONST)!=string::npos;
+	m_3=m_pResolution->m_sTerminatingKey.find(BUTTON_3_CONST)!=string::npos;
+	m_4=m_pResolution->m_sTerminatingKey.find(BUTTON_4_CONST)!=string::npos;
+	m_5=m_pResolution->m_sTerminatingKey.find(BUTTON_5_CONST)!=string::npos;
+	m_6=m_pResolution->m_sTerminatingKey.find(BUTTON_6_CONST)!=string::npos;
+	m_7=m_pResolution->m_sTerminatingKey.find(BUTTON_7_CONST)!=string::npos;
+	m_8=m_pResolution->m_sTerminatingKey.find(BUTTON_8_CONST)!=string::npos;
+	m_9=m_pResolution->m_sTerminatingKey.find(BUTTON_9_CONST)!=string::npos;
 
 	m_HideApp=m_pResolution->m_iHideApp;
 	m_ReportVariables=m_pResolution->m_iReportToServer;

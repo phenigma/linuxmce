@@ -29,7 +29,7 @@ protected:
 	void ParseAndExecuteCommands(CString sServer, CString sURL, CString sCommands, CString sFileName, 
 		CString sSourceImplementationPath);
 	bool UnzipFileToFolder(CString sSourceFile, CString sDestinationFolder);
-	bool LaunchProgram(CString sFilePath);
+	bool LaunchProgram(CString sFilePath, bool bWaitProcessToTerminate = true);
 
 	bool DownloadFileFromHttp(CString sServer, CString sURL, CString sDestinationFile);
 	bool DownloadFileFromFtp(CString sServer, CString sURL, CString sDestinationFile);
@@ -41,6 +41,7 @@ protected:
 	CString GetLogFilePath();
 	bool InstallSVN();
 	void ProcessMessages(DWORD dwMs = 100);
+	bool NeedToInstallSVN();
 
 	bool m_bAboutToCancel;
 

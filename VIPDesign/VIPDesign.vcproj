@@ -35,6 +35,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib DCE.lib"
+				OutputFile="../bin/VIPDesign.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="/mysql/lib/debug;../Libraries/pthreads-win32/lib;../lib"
 				IgnoreDefaultLibraryNames=""
@@ -179,6 +180,9 @@
 			</File>
 			<File
 				RelativePath="VIPGraphicDlg.cpp">
+			</File>
+			<File
+				RelativePath="..\VIPShared\VIPIncludes.cpp">
 			</File>
 			<File
 				RelativePath="VIPInputDlg.cpp">
