@@ -1,3 +1,6 @@
+#!/bin/bash
+
+. /usr/pluto/bin/Config_Opts.sh
 . /usr/pluto/bin/pluto.func
 
 SkinDir=/usr/pluto/skins
