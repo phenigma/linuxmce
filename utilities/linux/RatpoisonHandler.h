@@ -28,7 +28,7 @@ class RatpoisonHandler
         {
             Display *display = static_cast<T*>(this)->getDisplay();
 
-            g_pPlutoLogger->Write(LV_STATUS, "Instructing ratpoison to do this: %s", command.c_str());
+            g_pPlutoLogger->Write(LV_STATUS, "Instructing ratpoison to do this: \"%s\"", command.c_str());
 
             rp_command          = XInternAtom (display, "RP_COMMAND", True);
             rp_command_request  = XInternAtom (display, "RP_COMMAND_REQUEST", True);
@@ -72,7 +72,7 @@ class RatpoisonHandler
                 {
                     if (ev.xproperty.atom == rp_command_result && ev.xproperty.state == PropertyNewValue && ev.xproperty.window == commandWindow)
                     {
-                        g_pPlutoLogger->Write(LV_STATUS, "Reading command output after %s",command.c_str());
+                        g_pPlutoLogger->Write(LV_STATUS, "Reading command result.");
                         readCommandResult(display, ev.xproperty.window);
                         done = 1;
                     }
@@ -128,7 +128,7 @@ class RatpoisonHandler
                             0, (bytes_after / 4) + (bytes_after % 4 ? 1 : 0),
                             True, XA_STRING,
                             &type_ret, &format_ret, &nitems,
-                        &bytes_after, &result);
+							&bytes_after, &result);
 
             /* Failed to retrieve property. */
             if (status != Success || result == NULL)
@@ -138,8 +138,8 @@ class RatpoisonHandler
             }
 
             /* If result is not the empty string, print it. */
-            if ( strlen ((char*)result) )
-                g_pPlutoLogger->Write(LV_STATUS, "Ratpoison command output: %s", result);
+			// if ( strlen ((char*)result) )
+            g_pPlutoLogger->Write(LV_STATUS, "Command result: \"%s\"", result);
 
             /* Free the result. */
             XFree (result);

@@ -3167,19 +3167,19 @@ namespace DCE
 	};
 	class CMD_Tune_to_channel : public PreformedCommand {
 	public:
-		CMD_Tune_to_channel(long DeviceIDFrom, long DeviceIDTo,int iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,187,1,48,StringUtils::itos(iValue).c_str()); }
+		CMD_Tune_to_channel(long DeviceIDFrom, long DeviceIDTo,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,187,1,68,sProgramID.c_str()); }
 	};
 	class CMD_Tune_to_channel_DL : public PreformedCommand {
 	public:
-		CMD_Tune_to_channel_DL(long DeviceIDFrom, string DeviceIDTo,int iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,187,1,48,StringUtils::itos(iValue).c_str()); }
+		CMD_Tune_to_channel_DL(long DeviceIDFrom, string DeviceIDTo,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,187,1,68,sProgramID.c_str()); }
 	};
 	class CMD_Tune_to_channel_MD : public PreformedCommand {
 	public:
-		CMD_Tune_to_channel_MD(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iValue) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,187,1,48,StringUtils::itos(iValue).c_str()); }
+		CMD_Tune_to_channel_MD(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,187,1,68,sProgramID.c_str()); }
 	};
 	class CMD_Tune_to_channel_Cat : public PreformedCommand {
 	public:
-		CMD_Tune_to_channel_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iValue) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,187,1,48,StringUtils::itos(iValue).c_str()); }
+		CMD_Tune_to_channel_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sProgramID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,187,1,68,sProgramID.c_str()); }
 	};
 	class RESP_Get_Infrared_Codes : public PreformedCommandResponse {
 		string *m_sValue_To_Assign;

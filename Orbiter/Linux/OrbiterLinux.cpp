@@ -22,10 +22,7 @@ OrbiterLinux::OrbiterLinux(int DeviceID,
 {
     openDisplay();
 
-    commandRatPoison(":keybindings off");
-    reinitGraphics();
-
-// //     registerSignalHandlers();
+    //reinitGraphics();
 }
 
 OrbiterLinux::~OrbiterLinux()
@@ -39,12 +36,11 @@ void OrbiterLinux::reinitGraphics()
         return;
 
     commandRatPoison(":desktop off");
-
     SDL_WM_SetCaption(m_strWindowName.c_str(), "");
-
-    commandRatPoison(string("select ") + m_strWindowName);
-    commandRatPoison(":desktop");
-    commandRatPoison(":keystodesktop");
+	commandRatPoison(string(":select ") + m_strWindowName);
+    commandRatPoison(":desktop on");
+	//commandRatPoison(":keybindings off");
+	commandRatPoison(":keystodesktop on");
     setDesktopVisible(false);
 }
 
@@ -239,6 +235,12 @@ bool OrbiterLinux::setDesktopVisible(bool visible)
 //     forkAndWait( xnest, 4 );
 //     forkAndWait( ratpoisonArgs, 2 );
 // }
+
+void OrbiterLinux::Initialize(GraphicType Type)
+{
+	OrbiterSDL::Initialize(Type);
+	reinitGraphics();
+}
 
 void OrbiterLinux::RenderScreen()
 {

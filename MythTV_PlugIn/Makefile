@@ -18,11 +18,16 @@ sources = Main.cpp MythTV_PlugIn.cpp $(Gen_Dev_Files)
 
 CXXFLAGS +=
 CPPFLAGS += -I/usr/include/qt3 -I/home/work/mythtv/libs/libmythtv
-LDFLAGS += 
-LDLIBS += -lpluto_main -lFakeEPG -lPlutoUtils -lSerializeClass
+LDLIBS += -lpluto_main -lPlutoUtils -lSerializeClass
 
 Gen_Dev_Files += $(GENDEV)/Media_PluginBase.cpp $(GENDEV)/Datagrid_PluginBase.cpp
-sources += ../Media_Plugin/MediaPluginInfo.cpp ../Media_Plugin/Media_Plugin.cpp ../Datagrid_Plugin/Datagrid_Plugin.cpp MythTvWrapper.cpp 
+sources += \
+	../Media_Plugin/MediaPluginInfo.cpp \
+	../Media_Plugin/Media_Plugin.cpp \
+	../Media_Plugin/MediaAttributes.cpp \
+	../Datagrid_Plugin/Datagrid_Plugin.cpp \
+	../File_Grids_Plugin/FileListGrid.cpp \
+	MythTvWrapper.cpp 
 
 #<-dceag-mf-b->
 whattodo:
@@ -34,14 +39,14 @@ bin: MythTV_PlugIn
 
 so: MythTV_PlugIn.so
 
-MythTV_PlugIn.so: $(sources:.cpp=.o)
-	$(CXX) -shared -o $(MYNAME).so $+ $(LDFLAGS) $(LDLIBS)
+MythTV_PlugIn.so: $(sources:.cpp=.o) Makefile
+	$(CXX) -shared -o $(MYNAME).so $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 		
-MythTV_PlugIn: $(sources:.cpp=.o)
-	$(CXX) -o $(MYNAME) $+ $(LDFLAGS) $(LDLIBS)
+MythTV_PlugIn: $(sources:.cpp=.o) Makefile
+	$(CXX) -o $(MYNAME) $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@
 

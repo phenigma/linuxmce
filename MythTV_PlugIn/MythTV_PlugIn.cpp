@@ -12,8 +12,6 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
-#include "../FakeEPG/Database_FakeEPG.h"
-#include "../FakeEPG/Table_Listing.h"
 #include "../Datagrid_Plugin/Datagrid_Plugin.h"
 #include "../pluto_main/Define_DataGrid.h"
 #include "../pluto_main/Define_DesignObj.h"
@@ -25,7 +23,7 @@ using namespace DCE;
 
 //<-dceag-const-b->
 MythTV_PlugIn::MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-	: MythTV_PlugIn_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
+    : MythTV_PlugIn_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
 //     m_pDatabase_FakeEPG = new Database_FakeEPG();
@@ -231,8 +229,9 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
 
     for(size_t s=0;s<pMythTvStream->m_vectRow_Listing.size();++s)
     {
-        Row_Listing *pListing = pMythTvStream->m_vectRow_Listing[s];
-        pCell = new DataGridCell(StringUtils::itos(pListing->ChannelNum_get()) + " " + pListing->ChannelName_get() + " - " + pListing->ShowName_get(),StringUtils::itos(pListing->PK_Listing_get()));
+//         Row_Listing *pListing = pMythTvStream->m_vectRow_Listing[s];
+//         pCell = new DataGridCell(StringUtils::itos(pListing->ChannelNum_get()) + " " + pListing->ChannelName_get() + " - " + pListing->ShowName_get(),StringUtils::itos(pListing->PK_Listing_get()));
+        pCell = new DataGridCell(StringUtils::itos(1) + " " + "ChannelName" + " - " + "ShowName",StringUtils::itos(1));
         pDataGrid->SetData(0,s,pCell);
     }
 
@@ -247,12 +246,12 @@ COMMANDS TO IMPLEMENT
 
 //<-dceag-sample-b->!
 //<-dceag-c65-b->
-/* 
-	COMMAND: #65 - Jump Position In Playlist
-	COMMENTS: Change channels.  +1 and -1 mean up and down 1 channel.
-	PARAMETERS:
-		#5 Value To Assign
-			The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1.
+/*
+    COMMAND: #65 - Jump Position In Playlist
+    COMMENTS: Change channels.  +1 and -1 mean up and down 1 channel.
+    PARAMETERS:
+        #5 Value To Assign
+            The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1.
 */
 void MythTV_PlugIn::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c65-e->
@@ -295,12 +294,12 @@ void MythTV_PlugIn::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string
 }
 
 //<-dceag-c185-b->
-/* 
-	COMMAND: #185 - Schedule Recording
-	COMMENTS: This will schedule a recording.
-	PARAMETERS:
-		#68 ProgramID
-			The program which will need to be recorded. (The format is defined by the device which created the original datagrid)
+/*
+    COMMAND: #185 - Schedule Recording
+    COMMENTS: This will schedule a recording.
+    PARAMETERS:
+        #68 ProgramID
+            The program which will need to be recorded. (The format is defined by the device which created the original datagrid)
 */
 void MythTV_PlugIn::CMD_Schedule_Recording(string sProgramID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c185-e->

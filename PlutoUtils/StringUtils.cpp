@@ -22,6 +22,7 @@
     #include <time.h>
     #include <cctype>
     #include <algorithm>
+	#include <locale>
     #include <stdarg.h>
     #include <sys/types.h>
     #include <sys/stat.h>

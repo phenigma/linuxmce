@@ -21,16 +21,10 @@ void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
         PK_Device, sRouter_IP,
         sLocalDirectory, bLocalMode, Width, Height);
 #else
-//     OrbiterLinux *pOrbiterLinux =
     OrbiterSDL *pCLinux =
         new OrbiterLinux(
         PK_Device, sRouter_IP,
         sLocalDirectory, bLocalMode, Width, Height);
-
-//  pOrbiterLinux->setDesktopDisplayName(NestedDesktop);
-//  pOrbiterLinux->setDisplayName(getenv("DISPLAY"));
-//  pOrbiterLinux->bootNestedXServer();
-//     OrbiterSDL *pCLinux = pOrbiterLinux;
 #endif
 
     if (bLocalMode || pCLinux->Connect())
@@ -53,9 +47,9 @@ void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
         clock_t cKeyDown=0;
         while (true)
         {
-//g_pPlutoLogger->Write(LV_STATUS,"Before wait for event");
+g_pPlutoLogger->Write(LV_STATUS,"Before wait for event");
             SDL_WaitEvent(&Event);
-//g_pPlutoLogger->Write(LV_STATUS,"wait for event returned %d",Event.type);
+g_pPlutoLogger->Write(LV_STATUS,"wait for event returned %d",Event.type);
 
             if (Event.type == SDL_QUIT)
                 break;
@@ -88,7 +82,8 @@ void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
                 int k=2; //pCLinux->RegionDown(Event.button.x,Event.button.y);
             else if (Event.type == SDL_KEYDOWN)
             {
-                switch (Event.key.keysym.sym)
+                g_pPlutoLogger->Write(LV_STATUS, "Key pressed event");
+				switch (Event.key.keysym.sym)
                 {
                 case SDLK_LSHIFT:
                 case SDLK_RSHIFT:

@@ -1,10 +1,10 @@
-LIBRARIES=pluto_main DCE PlutoUtils SerializeClass BD VIPShared FakeEPG
+LIBRARIES=pluto_main DCE PlutoUtils SerializeClass BD VIPShared 
 APPS=DCERouter MessageSend 
 DCEDEVS=App_Server Disk_Drive Xine_Player 
-PLUGINS=Datagrid_Plugin File_Grids_Plugin Media_Plugin Orbiter_Plugin Xine_Plugin Media_Grids_Plugin \
+PLUGINS=Datagrid_Plugin File_Grids_Plugin Media_Plugin Orbiter_Plugin Xine_Plugin \
 	General_Info_Plugin Mozilla_Plugin Lighting_Plugin Climate_Plugin Security_Plugin Telecom_Plugin \
 	MythTV_PlugIn
-CONFLICTING=Bluetooth_Dongle Orbiter OrbiterGen
+CONFLICTING=Bluetooth_Dongle Orbiter 
 
 all: libs nolibs
 

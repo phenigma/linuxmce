@@ -22,7 +22,12 @@ LDFLAGS +=
 LDLIBS += -lpluto_main -lPlutoUtils -lSerializeClass
 
 Gen_Dev_Files += $(GENDEV)/Media_PluginBase.cpp $(GENDEV)/Datagrid_PluginBase.cpp
-sources += ../Media_Plugin/MediaPluginInfo.cpp ../Media_Plugin/Media_Plugin.cpp ../Datagrid_Plugin/Datagrid_Plugin.cpp
+sources += \
+	../Media_Plugin/MediaPluginInfo.cpp \
+	../Media_Plugin/Media_Plugin.cpp \
+	../Media_Plugin/MediaAttributes.cpp \
+	../Datagrid_Plugin/Datagrid_Plugin.cpp \
+	../File_Grids_Plugin/FileListGrid.cpp
 
 #<-dceag-mf-b->
 whattodo:
