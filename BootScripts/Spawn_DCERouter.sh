@@ -19,7 +19,7 @@ while [ "$i" -le 10 ]; do
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Starting... $i"
 	echo $(date) Starting > "$new_log"
 
-	(echo \$(date) Starting; /usr/pluto/bin/Spawn_Wrapper.sh $VGcmd/usr/pluto/bin/DCERouter -h localhost) | tee $new_log
+	(echo \$\(date\) Starting; /usr/pluto/bin/Spawn_Wrapper.sh $VGcmd/usr/pluto/bin/DCERouter -h localhost) | tee $new_log
 
 	if [ "$?" -eq 3 ]; then
 		# Abort
