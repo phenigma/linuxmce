@@ -179,6 +179,9 @@ void DataGridCell::ToData(unsigned long &Size, char* &Data)
 		memcpy(Datap, MessageData, m_MessageLength);
 		Datap+=m_MessageLength;
 	}
+
+	delete MessageData;
+	MessageData = NULL;
 }
 
 

@@ -22,28 +22,32 @@ void StartOrbiterCE(int PK_Device,string sRouter_IP,string sLocalDirectory,bool 
 		Width, Height, bFullScreen
 	); //the builder method
 
+	OrbiterSDL_WinCE *pOrbiter = OrbiterSDL_WinCE::GetInstance();
 
-	OrbiterSDL *pOrbiter = OrbiterSDL_WinCE::GetInstance();
+	pOrbiter->WriteStatusOutput("Connecting to DCERouter...");
+	Sleep(500);
 
     if (bLocalMode || pOrbiter->Connect())
     {
         g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
+
+		pOrbiter->WriteStatusOutput("Parsing configuration data...");
         pOrbiter->Initialize(gtSDLGraphic);
 
         if (!bLocalMode)
             pOrbiter->CreateChildren();
 
-        //pOrbiter->Initialize_Display();
-
         g_pPlutoLogger->Write(LV_STATUS, "Starting processing events");
         SDL_Event Event;
+
+		pOrbiter->WriteStatusOutput("Starting processing events...");
 
         // temporary hack --
         // have to figure out what should be the default behavior of the arrows, moving the highlighted object, or scrolling a grid
         // For now I'll assume that shift + arrows scrolls a grid
         bool bShiftDown=false,bControlDown=false,bAltDown=false,bRepeat=false,bCapsLock=false;
         clock_t cKeyDown=0;
-        while (true)
+        while (!pOrbiter->m_bQuitWinCE)
         {
 //g_pPlutoLogger->Write(LV_STATUS,"Before wait for event");
             SDL_WaitEvent(&Event);
@@ -80,9 +84,11 @@ void StartOrbiterCE(int PK_Device,string sRouter_IP,string sLocalDirectory,bool 
                 int k=2; //pOrbiter->RegionDown(Event.button.x,Event.button.y);
         }  // while
     } // if connect
+
     
-	
-	delete pOrbiter; 
+	//hack: if we'll try to delete pOrbiter, we'll stuck here
+	pOrbiter->~OrbiterSDL_WinCE(); 
+
 	pOrbiter = NULL;
 }
 //-----------------------------------------------------------------------------------------------------

@@ -6,13 +6,7 @@
 --------------------Configuration: Orbiter - Win32 (WCE ARMV4) Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\Race\LOCALS~1\Temp\RSPBD2.tmp" with contents
-[
-/nologo /Zp4 /Zi /Od /I "." /I ".." /I "../.." /I "../../DCE" /I "../../Libraries/pthreads-snap-2002-11-04" /I "../../Libraries/pthreads-win32/include" /I "../../CrossPlatform-Libs/sge030809-w32/src" /I "../../CrossPlatform-Libs/SDL_ttf-2.0.6" /I "../../CrossPlatform-Libs/SDL_image-1.2.3" /I "../../CrossPlatform-Libs/SDL-1.2.7/include" /I "../../Splitter" /I "../../CrossPlatform-Libs/zlib" /I "../../CrossPlatform-Libs/lpng127" /I "../../Libraries/STLport-4.5.3/stlport" /I "../../Libraries/STLport-4.5.3/src" /I "../../PlutoUtils" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=420 /D _WIN32_WCE=420 /D "WIN32_PLATFORM_PSPC=400" /D "UNICODE" /D "_UNICODE" /D "WIN32" /D "WINCE" /D "ORBITER" /D "__STL_NO_IOSTREAMS" /D "LOAD_PNG" /D "PROFILING" /D "CACHE_IMAGES" /Fo"ARMV4Dbg/" /Fd"ARMV4Dbg/" /I /pluto/trunk" /MC " /c 
-"C:\pluto\trunk\Orbiter\CENet\OrbiterSDL_WinCE.cpp"
-]
-Creating command line "clarm.exe @C:\DOCUME~1\Race\LOCALS~1\Temp\RSPBD2.tmp" 
-Creating temporary file "C:\DOCUME~1\Race\LOCALS~1\Temp\RSPBD3.tmp" with contents
+Creating temporary file "C:\DOCUME~1\Race\LOCALS~1\Temp\RSP170.tmp" with contents
 [
 commctrl.lib coredll.lib PthreadsCE.lib winsock.lib sdl.lib sdl_image_wince.lib sdl_ttf_wince.lib freetype_wince.lib zlib_wince.lib ccrtrtti.lib sge_wince.lib lpng_wince.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /incremental:yes /pdb:"ARMV4Dbg/Orbiter.pdb" /debug /nodefaultlib:"libc.lib /nodefaultlib:libcd.lib /nodefaultlib:libcmt.lib /nodefaultlib:libcmtd.lib /nodefaultlib:msvcrt.lib /nodefaultlib:msvcrtd.lib" /out:"ARMV4Dbg/Orbiter.exe" /libpath:"Ritti/ArmV4" /libpath:"../../CrossPlatform-Libs/zlib/zlib_wince/ARMV4Dbg" /libpath:"../../CrossPlatform-Libs/sge030809-w32/sge_wince/ARMV4Dbg" /libpath:"../../CrossPlatform-Libs/lpng127/lpng_wince/ARMV4Dbg\\" /libpath:""../../CrossPlatform-Libs/SDL_image-1.2.3/WINCE/ARMV4Dbg"" /libpath:""../../CrossPlatform-Libs/SDL_ttf-2.0.6/WinCE/ARMV4Dbg"" /libpath:""c:\pluto\trunk\CrossPlatform-Libs\freetype-2.1.9\freetype_wince\ARMV4Dbg\"" /libpath:""../../CrossPlatform-Libs/SDL-1.2.7/VisualCE/SDL/ARMV4Dbg"" /libpath:""../../Libraries/pthreads-snap-2002-11-04/PthreadsCE/ARMDbg"" /libpath:""C:\Program /libpath:""../../CrossPlatform-Libs/SDL-1.2.7/VisualC7/SDL/Debug"" /libpath:""../../CrossPlatform-Libs/SDL_image-1.2.3/VisualC/Debug"" /libpath:""../../CrossPlatform-Libs/SDL_ttf-2.0.6/VisualC/Debug"" /libpath:""../../CrossPlatform-Libs/sge030809-w32/sge-msvc/sge/VisualC/Debug"" /libpath:""../../CrossPlatform-Libs/lpng127/projects/visualc6/Win32_DLL_Debug"" /libpath:""../../CrossPlatform-Libs/zlib/projects/visualc6/Win32_DLL_Debug"" /subsystem:windowsce,4.20 /align:"4096" /MACHINE:THUMB 
 .\ARMV4Dbg\ClientSocket.obj
@@ -44,19 +38,17 @@ commctrl.lib coredll.lib PthreadsCE.lib winsock.lib sdl.lib sdl_image_wince.lib 
 .\ARMV4Dbg\WinCE.obj
 .\ARMV4Dbg\Orbiter.res
 ]
-Creating command line "link.exe @C:\DOCUME~1\Race\LOCALS~1\Temp\RSPBD3.tmp"
+Creating command line "link.exe @C:\DOCUME~1\Race\LOCALS~1\Temp\RSP170.tmp"
 <h3>Output Window</h3>
-Compiling...
-OrbiterSDL_WinCE.cpp
 Linking...
    Creating library ARMV4Dbg/Orbiter.lib and object ARMV4Dbg/Orbiter.exp
-Orbiter.obj : warning LNK1166: cannot adjust code at offset=0x00001000, rva=0x000335EC
-freetype_wince.lib(ftbase.obj) : warning LNK1166: cannot adjust code at offset=0x00001000, rva=0x0007FD10
-freetype_wince.lib(sfnt.obj) : warning LNK1166: cannot adjust code at offset=0x00001000, rva=0x0009A8E0
-freetype_wince.lib(cff.obj) : warning LNK1166: cannot adjust code at offset=0x00001000, rva=0x000C4A6C
-freetype_wince.lib(truetype.obj) : warning LNK1166: cannot adjust code at offset=0x00001000, rva=0x000D5D7C
-sge_wince.lib(sge_primitives.obj) : warning LNK1166: cannot adjust code at offset=0x00001000, rva=0x000FE408
-lpng_wince.lib(pngrtran.obj) : warning LNK1166: cannot adjust code at offset=0x00001000, rva=0x00112CB0
+Orbiter.obj : warning LNK1166: cannot adjust code at offset=0x00001000, rva=0x000333B8
+freetype_wince.lib(ftbase.obj) : warning LNK1166: cannot adjust code at offset=0x00001000, rva=0x000812A8
+freetype_wince.lib(sfnt.obj) : warning LNK1166: cannot adjust code at offset=0x00001000, rva=0x0009B8E0
+freetype_wince.lib(cff.obj) : warning LNK1166: cannot adjust code at offset=0x00001000, rva=0x000C5A6C
+freetype_wince.lib(truetype.obj) : warning LNK1166: cannot adjust code at offset=0x00001000, rva=0x000D6D7C
+sge_wince.lib(sge_primitives.obj) : warning LNK1166: cannot adjust code at offset=0x00001000, rva=0x000FF408
+lpng_wince.lib(pngrtran.obj) : warning LNK1166: cannot adjust code at offset=0x00001000, rva=0x00113CB0
 
 
 

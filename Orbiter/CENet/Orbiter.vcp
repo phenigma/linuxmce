@@ -1894,6 +1894,7 @@ DEP_CPP_ORBITERS=\
 	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_mutex.h"\
 	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_quit.h"\
 	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_rwops.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_syswm.h"\
 	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_timer.h"\
 	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_types.h"\
 	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_version.h"\
@@ -2644,7 +2645,7 @@ SOURCE=.\StartOrbiterCE.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File
 
-SOURCE=.\Orbiter.ico
+SOURCE=".\Misc files\Orbiter.ICO"
 # End Source File
 # End Group
 # Begin Source File

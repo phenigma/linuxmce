@@ -37,6 +37,8 @@ public:
 
 	list<TextWinCEObject *> m_listTextWinCEObject;
 
+	bool m_bQuitWinCE;
+
 	WNDPROC OldSDLWindowProc;
 	HWND hSDLWindow;
 
@@ -45,6 +47,8 @@ public:
 	//OrbiterSDL public methods
 	void RenderScreen();
 	void RenderText(DesignObjText *Text,TextStyle *pTextStyle);
+
+	void WriteStatusOutput(const char* pMessage);
 
 	//OrbiterSDL_WinCE public methods
 	void RenderTextObjectsWinCE(HWND hWnd);

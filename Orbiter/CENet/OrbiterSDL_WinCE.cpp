@@ -1,8 +1,11 @@
 #include "OrbiterSDL_WinCE.h"
 #include "StringUtils.h"
+#include "SDL_syswm.h"
 
 #include "../pluto_main/Define_Button.h"
 #include "../pluto_main/Define_Direction.h" 
+
+const MAX_STRING_LEN = 4096;
 //-----------------------------------------------------------------------------------------------------
 LRESULT CALLBACK SDLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -49,6 +52,7 @@ OrbiterSDL_WinCE::OrbiterSDL_WinCE(int DeviceID, string ServerAddress, string sL
 	m_bRepeat = false;
 	m_bCapsLock = false;
     m_cKeyDown=0;
+	m_bQuitWinCE=false;
 }
 //-----------------------------------------------------------------------------------------------------
 OrbiterSDL_WinCE::~OrbiterSDL_WinCE()
@@ -125,7 +129,6 @@ void OrbiterSDL_WinCE::RenderText(DesignObjText *Text,TextStyle *pTextStyle)
 //-----------------------------------------------------------------------------------------------------
 /*static*/ void OrbiterSDL_WinCE::RenderTextWinCE(HDC hDC, TextWinCEObject *pTextWinCEObject)
 {
-	const MAX_STRING_LEN = 4096; //todo: find something else
     string TextToDisplay = pTextWinCEObject->m_sText;
 
 	TextStyle *pTextStyle = pTextWinCEObject->m_pTextStyle;
@@ -161,28 +164,6 @@ void OrbiterSDL_WinCE::RenderText(DesignObjText *Text,TextStyle *pTextStyle)
 
     hFontNew = ::CreateFontIndirect(&lf);
     hFontOld = (HFONT) ::SelectObject(hDC, hFontNew);
-
-	/*
-	string token;
-	string::size_type pos = 0;
-
-	do
-	{
-		token = StringUtils::Tokenize( TextToDisplay, "\n", pos );
-
-		if(token != "")
-		{
-			wchar_t wTextBuffer[MAX_STRING_LEN];
-			mbstowcs(wTextBuffer, token.c_str(), MAX_STRING_LEN);
-
-			::DrawText(hDC, wTextBuffer, token.length(), &(pTextWinCEObject->m_rectLocation), 
-				DT_WORDBREAK | DT_VCENTER | DT_CENTER | DT_NOPREFIX); 
-
-			pTextWinCEObject->m_rectLocation.top += 25; //hardcoding warning
-		}
-	}
-	while(token != "");
-	*/
 
 	TextToDisplay = StringUtils::Replace(TextToDisplay, "\n", "\n\r");
 
@@ -279,6 +260,17 @@ void OrbiterSDL_WinCE::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
             m_bControlDown=false;
         else if( wParam == VK_MENU )
             m_bAltDown=false;
+		else if( wParam == VK_ESCAPE && m_bControlDown && m_bAltDown)
+		{
+			m_bQuitWinCE = true;
+
+			atexit(SDL_Quit);
+			::PostMessage(hSDLWindow, WM_QUIT, 0L, 0L);
+
+			SDL_Event event;
+			event.type = SDL_USEREVENT;
+			SDL_PushEvent(&event); 
+		}
         else if( !m_bShiftDown && !m_bControlDown && !m_bAltDown && !m_bRepeat )
         {
             switch (wParam)
@@ -411,5 +403,26 @@ void OrbiterSDL_WinCE::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			}
 		}
 	}
+}
+//-----------------------------------------------------------------------------------------------------
+void OrbiterSDL_WinCE::WriteStatusOutput(const char* pMessage)
+{
+	RECT rect = { 0, 0, m_iImageWidth, m_iImageHeight };
+
+	wchar_t wTextBuffer[MAX_STRING_LEN];
+	mbstowcs(wTextBuffer, pMessage, MAX_STRING_LEN);
+
+	HDC hDC = ::GetDC(hSDLWindow);
+
+	::FillRect(hDC, &rect, (HBRUSH)::GetStockObject(BLACK_BRUSH));
+
+	::SetBkColor(hDC, RGB(0, 0, 0));
+	::SetTextColor(hDC, RGB(0xFF, 0xFF, 0xFF));
+	::SetBkMode(hDC, OPAQUE);	
+
+	::DrawText(hDC, wTextBuffer, string(pMessage).length(), &rect, 
+		DT_NOPREFIX | DT_VCENTER | DT_CENTER | DT_SINGLELINE); 
+
+	::ReleaseDC(hSDLWindow, hDC);
 }
 //-----------------------------------------------------------------------------------------------------
