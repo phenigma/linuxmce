@@ -24,6 +24,7 @@ sources = \
     BD_PC_VMCHidden.cpp \
     BD_PC_VMCTerminated.cpp \
 	BD_PC_ReportMyVersion.cpp \
+	BD_CP_SimulateEvent.cpp \
     PhoneDetection_Bluetooth_Linux.cpp \
     PhoneDetectionEngine.cpp \
     PhoneDetection_Simulate.cpp \
