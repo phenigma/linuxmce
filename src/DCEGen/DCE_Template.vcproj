@@ -33,7 +33,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib"
-				OutputFile="../bin/DCE_Template.exe"
+				OutputFile="../Debug/DCE_Template.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
 				GenerateDebugInformation="TRUE"
@@ -70,6 +70,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
+				AdditionalIncludeDirectories="..;../DCE/;../../libs/Libraries/pthreads-win32/include;/mysql/include"
 				InlineFunctionExpansion="1"
 				OmitFramePointers="TRUE"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
@@ -84,7 +85,9 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/DCE_Template.exe"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE-r.lib"
+				OutputFile="../bin/DCE_Template.exe"
+				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
