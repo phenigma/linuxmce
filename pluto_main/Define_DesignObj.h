@@ -994,15 +994,10 @@
 #define DESIGNOBJ_mmenu0_CONST 2646
 #define DESIGNOBJ_mmenuNum_CONST 2647
 #define DESIGNOBJ_temp_desktop_CONST 2648
-#define DESIGNOBJ_goto_lighting_CONST 2649
-#define DESIGNOBJ_goto_climate_CONST 2650
-#define DESIGNOBJ_goto_telecom_CONST 2651
 #define DESIGNOBJ_go_to_phone_call_CONST 3141
 #define DESIGNOBJ_go_to_security_CONST 3142
 #define DESIGNOBJ_go_to_tv_CONST 3143
 #define DESIGNOBJ_go_to_music_CONST 3144
-#define DESIGNOBJ_test_epg_CONST 3145
-#define DESIGNOBJ_test_epg_dg_CONST 3148
 #define DESIGNOBJ_New_phone_detected_CONST 3150
 #define DESIGNOBJ_yes_CONST 3151
 #define DESIGNOBJ_no_CONST 3152

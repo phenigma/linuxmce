@@ -587,7 +587,7 @@ int OrbiterGenerator::DoIt()
 	for(itgs=m_htGeneratedScreens.begin();itgs!=m_htGeneratedScreens.end();++itgs)
 	{
 		listDesignObj_Generator *o = (*itgs).second;
-		m_pRow_DesignObj_MainMenu=NULL;
+		Row_DesignObj *pRow_DesignObj = NULL;
 
 		if( o->size()>0 )
 		{
@@ -596,17 +596,17 @@ int OrbiterGenerator::DoIt()
 			{
 				// We're going to have to lookup the Row_DesignObj manually, and we're going to need to search for goto's in all the children
 				// since this was built from cache, and so the children were not created when the object was created
-				m_pRow_DesignObj_MainMenu = mds.DesignObj_get()->GetRow(atoi(oco->m_ObjectID.c_str()));
+				pRow_DesignObj = mds.DesignObj_get()->GetRow(atoi(oco->m_ObjectID.c_str()));
 				SearchForGotos(oco);
 			}
 			else
-				m_pRow_DesignObj_MainMenu = oco->m_pRow_DesignObj;
+				pRow_DesignObj = oco->m_pRow_DesignObj;
 		}
 
-		if( m_pRow_DesignObj_MainMenu!=NULL)
+		if( pRow_DesignObj!=NULL)
 		{
 			vector<Row_DesignObj *> vectros;
-			m_pRow_DesignObj_MainMenu->DesignObj_FK_DesignObj_IncludeIfOtherIncluded_getrows(&vectros);
+			pRow_DesignObj->DesignObj_FK_DesignObj_IncludeIfOtherIncluded_getrows(&vectros);
 			for(size_t s=0;s<vectros.size();++s)
 			{
 				Row_DesignObj *m_pRow_DesignObjDependancy = vectros[s];

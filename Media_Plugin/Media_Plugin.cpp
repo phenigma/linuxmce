@@ -37,9 +37,11 @@ using namespace DCE;
 #include "Orbiter_Plugin/Orbiter_Plugin.h"
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Define_MediaType.h"
+#include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Table_Event.h"
 #include "pluto_main/Table_EntertainArea.h"
+#include "pluto_main/Table_CommandGroup.h"
 #include "pluto_main/Table_Device.h"
 #include "pluto_main/Table_Device_EntertainArea.h"
 #include "pluto_main/Table_DeviceCategory.h"
@@ -228,8 +230,12 @@ bool Media_Plugin::Register()
 
     // datagrids to support the floorplans
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
-        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::AllCommandsAppliableToEntAreas ) )
-        , DATAGRID_Appliable_commands_CONST );
+        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::FloorplanMediaChoices ) )
+        , DATAGRID_Floorplan_Media_Choices_CONST );
+
+    m_pDatagrid_Plugin->RegisterDatagridGenerator(
+        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::ActiveMediaStreams ) )
+        , DATAGRID_Floorplan_Media_Streams_CONST );
 
     //  m_pMediaAttributes->ScanDirectory( "/home/public/data/music/" );
 //  m_pMediaAttributes->ScanDirectory( "Z:\\" );
@@ -1359,11 +1365,47 @@ void Media_Plugin::CMD_Load_Playlist(int iPK_EntertainArea,int iEK_Playlist,stri
 	StartMedia(pMediaPluginInfo,pMessage->m_dwPK_Device_From,pEntertainArea,0,0,&dequeMediaFile);  // We'll let the plug-in figure out the source, and we'll use the default remote
 }
 
-class DataGridTable *Media_Plugin::AllCommandsAppliableToEntAreas( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+class DataGridTable *Media_Plugin::FloorplanMediaChoices( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
-    g_pPlutoLogger->Write(LV_STATUS, "Media plugin called!");
-    return NULL;
+    DataGridTable *pDataGrid = new DataGridTable();
+
+	EntertainArea *pEntertainArea = m_mapEntertainAreas_Find(atoi(Parms.c_str()));
+	if( !pEntertainArea )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find entertainment area for flooplan");
+		return new DataGridTable();
+	}
+
+	string sWhereClause = string("JOIN CommandGroup_Command ON CommandGroup_Command.FK_CommandGroup=PK_CommandGroup ") + 
+		"JOIN CommandGroup_EntertainArea ON CommandGroup_EntertainArea.FK_CommandGroup=PK_CommandGroup " + 
+		"WHERE FK_EntertainArea=" + StringUtils::itos(pEntertainArea->m_iPK_EntertainArea) + " AND FK_Command=" + StringUtils::itos(COMMAND_MH_Play_Media_CONST);
+	vector<Row_CommandGroup *> vectRow_CommandGroup;
+	m_pDatabase_pluto_main->CommandGroup_get()->GetRows(sWhereClause,&vectRow_CommandGroup);
+
+	for(size_t s=0;s<vectRow_CommandGroup.size();++s)
+	{
+		Row_CommandGroup *pRow_CommandGroup = vectRow_CommandGroup[s];
+		DataGridCell *pDataGridCell = new DataGridCell(pRow_CommandGroup->Description_get(),StringUtils::itos(pRow_CommandGroup->PK_CommandGroup_get()));
+		pDataGrid->SetData(0,s,pDataGridCell);
+	}
+
+    return pDataGrid;
+}
+
+class DataGridTable *Media_Plugin::ActiveMediaStreams( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+    DataGridTable *pDataGrid = new DataGridTable();
+
+	int iRow=0;
+	for(MapMediaStream::iterator it=m_mapMediaStream.begin();it!=m_mapMediaStream.end();++it)
+	{
+		MediaStream *pMediaStream = (*it).second;
+		DataGridCell *pDataGridCell = new DataGridCell(pMediaStream->m_sMediaDescription,StringUtils::itos(pMediaStream->m_iStreamID_get()));
+		pDataGrid->SetData(0,iRow++,pDataGridCell);
+	}
+    return pDataGrid;
 }
 
 class DataGridTable *Media_Plugin::AvailablePlaylists( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )

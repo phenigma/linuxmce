@@ -23,6 +23,7 @@
 #define VARIABLE_Camera_3_CONST 20
 #define VARIABLE_Camera_4_CONST 21
 #define VARIABLE_Camera_CONST 22
+#define VARIABLE_Media_Stream_ID_CONST 23
 
 #define VARIABLE_TABLE "Variable"
 #define VARIABLE_PK_VARIABLE_FIELD "PK_Variable"

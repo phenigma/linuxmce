@@ -168,8 +168,8 @@ protected:
 	pluto_pthread_mutex_t m_ScreenMutex; /** < Anything that should not be done during a screen render, change, etc. Blocking this will prevent screen changes */
 	pluto_pthread_mutex_t m_VariableMutex; /** < Short mutex to protect members like strings and maps */
 	pluto_pthread_mutex_t m_DatagridMutex; /** < Don't allow 2 threads to operate on datagrids at the same time */
+	pluto_pthread_mutex_t m_CallbackMutex; /** < Don't allow 2 threads to operate on the callback map at the same time */
 
-	
 	/** these methods are general purpose, and will call Orbiter-specific methods to do the work */
 	
 	
@@ -630,12 +630,12 @@ public:
 	/**
 	 * @brief We need the maintenance function to be called at this time
 	 */
-	void CallMaintenanceAtTime( time_t t, OrbiterCallBack fnCallBack, void *iData ) { CallMaintenanceInTicks( ( clock_t ) ( t-time( NULL ) ) * CLOCKS_PER_SEC, fnCallBack, iData ); }
+	void CallMaintenanceAtTime( time_t t, OrbiterCallBack fnCallBack, void *iData, bool bPurgeExisting ) { CallMaintenanceInTicks( ( clock_t ) ( t-time( NULL ) ) * CLOCKS_PER_SEC, fnCallBack, iData, bPurgeExisting ); }
 	
 	/**
 	 * @brief We need the maintenance function to be called in this many clock ticks
 	 */
-	void CallMaintenanceInTicks( clock_t c, OrbiterCallBack fnCallBack, void *iData );
+	void CallMaintenanceInTicks( clock_t c, OrbiterCallBack fnCallBack, void *iData, bool bPurgeExisting );
 
 	/**
 	 *	MAINTENANCE CALL BACKS

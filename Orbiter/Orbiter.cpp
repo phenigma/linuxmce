@@ -86,7 +86,7 @@ Constructors/Destructor
 //<-dceag-const-b->!
 Orbiter::Orbiter( int DeviceID,  string ServerAddress,  string sLocalDirectory,  bool bLocalMode,  int iImageWidth,  int iImageHeight )
 : Orbiter_Command( DeviceID,  ServerAddress, true, bLocalMode ),
-m_ScreenMutex( "rendering" ), m_VariableMutex( "variable" ), m_DatagridMutex( "datagrid" )
+m_ScreenMutex( "rendering" ), m_VariableMutex( "variable" ), m_DatagridMutex( "datagrid" ), m_CallbackMutex( "callback" )
 //<-dceag-const-e->
 
 {
@@ -109,6 +109,7 @@ m_ScreenMutex( "rendering" ), m_VariableMutex( "variable" ), m_DatagridMutex( "d
     m_VariableMutex.Init( &m_MutexAttr );
     m_ScreenMutex.Init( &m_MutexAttr );
     m_DatagridMutex.Init( &m_MutexAttr );
+	m_CallbackMutex.Init( NULL );
 
     m_dwIDataGridRequestCounter=0;
 
@@ -214,7 +215,7 @@ void Orbiter::RedrawObjects(  )
     // There appears to be a problem with SDL_Flip sometimes calling _XRead to wait for an event,  causing the thread
     // to block until there's an event,  so that our loop no longer gets back to the SDL_WaitEvent in the main pump
     // So for now just do the redraw's always on a separate thread
-    CallMaintenanceInTicks( 0, &Orbiter::RealRedraw, NULL );
+    CallMaintenanceInTicks( 0, &Orbiter::RealRedraw, NULL, true );
 }
 
 void Orbiter::RealRedraw( void *data )
@@ -423,7 +424,7 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
         break;
 #endif
     case DESIGNOBJTYPE_Broadcast_Video_CONST:
-        CallMaintenanceInTicks( CLOCKS_PER_SEC*6000, &Orbiter::GetVideoFrame, ( void * ) pObj );
+        CallMaintenanceInTicks( CLOCKS_PER_SEC*6000, &Orbiter::GetVideoFrame, ( void * ) pObj, true );
         break;
 
         // Grabbing up to four video frames can take some time.  Draw the rest of the
@@ -968,7 +969,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
 
             SaveBackgroundForDeselect( pObj );  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
             if(  !pObj->m_bDontResetState  )
-                CallMaintenanceInTicks( CLOCKS_PER_SEC, &Orbiter::DeselectObjects, ( void * ) pObj );
+                CallMaintenanceInTicks( CLOCKS_PER_SEC, &Orbiter::DeselectObjects, ( void * ) pObj, true );
 
             // Unless the screen's don't reset state is set,  we'll clear any other selected graphics
             if(  !m_pScreenHistory_Current->m_pObj->m_bDontResetState  )
@@ -3236,34 +3237,59 @@ bool Orbiter::AcquireGrid( DesignObj_DataGrid *pObj,  int GridCurCol,  int &Grid
 }
 //------------------------------------------------------------------------
 // Stuff the callback routines need
+int iCallbackCounter=0;
 class CallBackInfo
 {
 public:
+	CallBackInfo(pluto_pthread_mutex_t *pCallbackMutex) { m_iCounter=iCallbackCounter++; m_bStop=false; m_pCallbackMutex=pCallbackMutex; }
     Orbiter *m_pOrbiter;
     OrbiterCallBack m_fnCallBack;
     clock_t m_clock;
     void *m_pData;
+	int m_iCounter; // A unique ID
+	bool m_bStop; // Don't execute after all, we've decided to stop it (probably started another one of same type)
+	pluto_pthread_mutex_t *m_pCallbackMutex; 
 };
+map<int,CallBackInfo *> mapPendingCallbacks;
 
 void *DoCallBack( void *vpCallBackInfo )
 {
+	g_pPlutoLogger->Write(LV_STATUS,"doing a callback");
     CallBackInfo *pCallBackInfo = ( CallBackInfo * ) vpCallBackInfo;
     Sleep( pCallBackInfo->m_clock );
-    CALL_MEMBER_FN( *pCallBackInfo->m_pOrbiter, pCallBackInfo->m_fnCallBack )( pCallBackInfo->m_pData );
-    delete pCallBackInfo;
+
+	if( ! pCallBackInfo->m_bStop )
+		CALL_MEMBER_FN( *pCallBackInfo->m_pOrbiter, pCallBackInfo->m_fnCallBack )( pCallBackInfo->m_pData );
+
+	PLUTO_SAFETY_LOCK( pm, *pCallBackInfo->m_pCallbackMutex );
+	mapPendingCallbacks.erase(pCallBackInfo->m_iCounter);
+	delete pCallBackInfo;
+
     return NULL;
 }
 
 //------------------------------------------------------------------------
-void Orbiter::CallMaintenanceInTicks( clock_t c, OrbiterCallBack fnCallBack, void *data )
+void Orbiter::CallMaintenanceInTicks( clock_t c, OrbiterCallBack fnCallBack, void *data, bool bPurgeExisting )
 {
+    PLUTO_SAFETY_LOCK( cm, m_CallbackMutex );
+	if( bPurgeExisting )
+	{
+		for(map<int,CallBackInfo *>::iterator it=mapPendingCallbacks.begin();it!=mapPendingCallbacks.end();++it)
+		{
+			CallBackInfo *pCallBackInfo = (*it).second;
+			if( pCallBackInfo->m_fnCallBack==fnCallBack )
+				pCallBackInfo->m_bStop=true;
+		}
+	}
     pthread_t CallBackThread;  // We don't care about this
-    CallBackInfo *pCallBack = new CallBackInfo(  );
+    CallBackInfo *pCallBack = new CallBackInfo( &m_CallbackMutex );
     pCallBack->m_clock=c;
     pCallBack->m_fnCallBack=fnCallBack;
     pCallBack->m_pData=data;
     pCallBack->m_pOrbiter=this;
-    int iResult1=pthread_create( &CallBackThread,  NULL,  DoCallBack,  ( void * ) pCallBack );
+	mapPendingCallbacks[pCallBack->m_iCounter]=pCallBack;
+
+	int iResult1=pthread_create( &CallBackThread,  NULL,  DoCallBack,  ( void * ) pCallBack );
     int iResult2=pthread_detach( CallBackThread );
     if(  iResult1 || iResult2  )
         g_pPlutoLogger->Write( LV_CRITICAL, "CallMaint failed: %d %d", iResult1, iResult2 );
@@ -3322,7 +3348,7 @@ void Orbiter::GetVideoFrame( void *data )
             return; // This will call RenderObject,  which will reset the timer
         }
     }
-    CallMaintenanceInTicks( CLOCKS_PER_SEC*6000, &Orbiter::GetVideoFrame, ( void * ) pObj );
+    CallMaintenanceInTicks( CLOCKS_PER_SEC*6000, &Orbiter::GetVideoFrame, ( void * ) pObj, true );
 }
 
 /*
@@ -4466,7 +4492,8 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
         }
     }
 
-    CallMaintenanceInTicks(CLOCKS_PER_SEC * 3,&Orbiter::RealRedraw,NULL);
+	g_pPlutoLogger->Write(LV_STATUS,"Ready to call floorplan redraw in 3 secs");
+    CallMaintenanceInTicks(CLOCKS_PER_SEC * 3,&Orbiter::RealRedraw,NULL,true);
 /*
     if( Type==FLOORPLANTYPE_Entertainment_Zone_CONST )
     {
