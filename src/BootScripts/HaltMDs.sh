@@ -27,15 +27,24 @@ for Host in $R; do
 done
 
 offline=0
-while [ "$offline" -eq 0 ]; do
+tries=30
+while [ "$offline" -eq 0 -a "$tries" -gt 0 ]; do
 	offline=1
 	for Host in $R; do
 #		nc -z "$Host" "$DCERouterPort" && offline=0
 		# TODO: remember which hosts are offline as to not ping them anymore
-		ping -qnc 1 -W 1 "$Host" &>/dev/null && offline=0 #&& Logging $TYPE $SEVERITY_WARNING 0 "$host still online"
+		ping -qnc 1 -W 1 "$Host" &>/dev/null && offline=0 && Logging $TYPE $SEVERITY_WARNING "$0" "$Host still online"
 	done
+	: $((tries--))
 done
 
 # wait 10 seconds more, just to be sure
 #sleep 10
-Logging $TYPE $SEVERITY_WARNING 0 "All MDs are down. Continuing."
+if [ "$offline" -eq 1 ]; then
+	Msg="All MDs are down. Continuing."
+elif [ "$tries" -eq 0 ]; then
+	Msg="Not waiting for MDs to shutdown anymore. Continuing."
+else
+	Msg="Loop exited prematurely"
+fi
+Logging $TYPE $SEVERITY_WARNING "$0" "$Msg"
