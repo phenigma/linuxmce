@@ -43,7 +43,6 @@ ProxyServer::ProxyServer()
 ProxyServer::~ProxyServer()
 {
 	checkTerminatedThreads(true);
-	Wait(true);
 }
 
 bool ProxyServer::handleStartup()
@@ -51,7 +50,7 @@ bool ProxyServer::handleStartup()
 	if((sockfd_ = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 		g_pPlutoLogger->Write(LV_CRITICAL, "Can't open socket.");
 		return false;
-	}	
+	}
 
 	struct hostent *hent;
 	if ((hent = gethostbyname(host_.c_str())) == 0) {
@@ -61,7 +60,7 @@ bool ProxyServer::handleStartup()
 
 	int reuseport = 1;
 	setsockopt(sockfd_, SOL_SOCKET, SO_REUSEADDR, &reuseport, sizeof(reuseport));
-	
+
 	struct sockaddr_in serv_addr;
 	memset((char *) &serv_addr, 0, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
@@ -150,7 +149,7 @@ void* ProxyServer::_Run()
 	return 0;
 }
 
-void 
+void
 ProxyServer::checkTerminatedThreads(bool forceterminate) {
 	std::list<ProxyPeerThread*>::iterator it = threads_.begin();
 	while(it != threads_.end()) {
@@ -163,12 +162,12 @@ ProxyServer::checkTerminatedThreads(bool forceterminate) {
 	}
 }
 
-void 
+void
 ProxyServer::addThread(ProxyPeerThread* pthread) {
 	threads_.push_back(pthread);
 }
 
-void 
+void
 ProxyServer::removeThread(ProxyPeerThread* pthread) {
 }
 

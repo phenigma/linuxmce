@@ -44,6 +44,7 @@ namespace MYTHTV {
 
 	MasterProxyServer::~MasterProxyServer()
 	{
+		Wait(true);
 	}
 
 	void MasterProxyServer::handleAccept(int sockfd, int peersockfd)
