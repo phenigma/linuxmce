@@ -88,7 +88,7 @@ $out.='
 		<td><input type="text" name="State" size="10"> Zip: <input type="text" name="Postal_Code" size="10"></td>
 		<td>Interest:</td>
 		<td>
-  			<select size="1" name="FKID_LEAD_LeadType">
+  			<select size="1" name="FKID_LeadType">
   <option value="5" selected>(select one)</option>';
         include("include/config/contactdatabase.inc.php");
         $sql1="select PKID_LeadType,Description from LeadType";
@@ -121,7 +121,7 @@ if(isset($_POST['send']))
   
   $address=$_POST['Address1'].' '.$_POST['Address2'];
   $sql="insert into Lead(Name,CustomerID,Address1,Address2,City,State,Postal_Code,Country,Phone,Fax,Email,website,FKID_LeadType,Comments) values('".$_POST['Name']."','".$_POST['CustomerID']."','".$_POST['Address1']."','".$_POST['Address2']."','".$_POST['City'].
-    "','".$_POST['State']."','".$_POST['Postal_Code']."','".$_POST['Country']."','".$_POST['Phone']."','".$_POST['Fax']."','".$_POST['Email']."','".$_POST['Website']."','".$_POST['FKID_LEAD_LeadType']."','".$_POST['Comments']."')";
+    "','".$_POST['State']."','".$_POST['Postal_Code']."','".$_POST['Country']."','".$_POST['Phone']."','".$_POST['Fax']."','".$_POST['Email']."','".$_POST['Website']."','".$_POST['FKID_LeadType']."','".$_POST['Comments']."')";
   $r=mysql_query($sql) or die("Can not insert into database". mysql_error());
    $message=$_POST['Comments'];
    $headers = 'From: website@plutohome.com';

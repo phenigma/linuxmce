@@ -318,6 +318,13 @@ function wizard($output,$dbADO) {
 						$rowDeviceMD=$resDeviceMD->FetchRow();
 						$_SESSION['coreHybridID']=$rowDeviceMD['PK_Device'];
 					}
+					
+					$getDCERouter='SELECT * FROM Device WHERE FK_DeviceTemplate=? AND FK_Device_ControlledVia=?';
+					$resDCERouter=$dbADO->Execute($getDCERouter,array($GLOBALS['rootDCERouter'],$_SESSION['deviceID']));
+					if($resDCERouter->RecordCount()!=0){
+						$rowDCERouter=$resDCERouter->FetchRow();
+						$_SESSION['CoreDCERouter']=$rowDCERouter['PK_Device'];
+					}
 				}
 				
 				if(isset($_POST['computerType']) && $_POST['computerType']!='0'){
@@ -508,8 +515,8 @@ function wizard($output,$dbADO) {
 					}
 					
 					$IPtoDeviceDeviceData=($plutoOnlyIP==1)?"$ip_1.$ip_2.$ip_3.2-$ip_1.$ip_2.$ip_3.254":"$ip_1.$ip_2.$ip_3.2-$ip_1.$ip_2.$ip_3.128,$ip_1.$ip_2.$ip_3.129-$ip_1.$ip_2.$ip_3.254";
-					if($IPtoDeviceDeviceData!=$oldDHCP && $enableDHCP==1){
-						if(!isset($oldDHCP) || $oldDHCP==''){
+					if($enableDHCP==1){
+						if($IPtoDeviceDeviceData!=$oldDHCP || $oldDHCP==''){
 							$insertDHCP='INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData,IK_DeviceData) VALUES (?,?,?)';
 							$dbADO->Execute($insertDHCP,array($_SESSION['deviceID'],$GLOBALS['DHCPDeviceData'],$IPtoDeviceDeviceData));
 						}else{
