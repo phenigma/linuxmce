@@ -62,6 +62,7 @@ void* MessageQueueThread_DCECI( void* param ) // renamed to cancel link-time nam
 	return NULL;
 }
 vector<string> Command_Impl::m_vectSpawnedDevices;
+bool Command_Impl::m_bKillSpawnedDevicesOnExit=true;
 
 void *WatchDogThread( void *pData )
 {
@@ -128,7 +129,6 @@ Command_Impl::Command_Impl( int DeviceID, string ServerAddress, bool bLocalMode,
 	m_bMessageQueueThreadRunning = false;
 	m_pParent = NULL;
 	m_listMessageQueueMutex.Init( NULL );
-	m_bKillSpawnedDevicesOnExit = true;
 	m_bGeneric = false;
 	pthread_cond_init( &m_listMessageQueueCond, NULL );
 	m_dwMessageInterceptorCounter=0;
@@ -157,7 +157,6 @@ Command_Impl::Command_Impl( Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl
 	m_bHandleChildren = false;
 	m_bMessageQueueThreadRunning = false;
 	m_listMessageQueueMutex.Init(NULL);
-	m_bKillSpawnedDevicesOnExit = true;
 	m_bGeneric = false;
 	pthread_cond_init( &m_listMessageQueueCond, NULL );
 	m_dwMessageInterceptorCounter=0;
