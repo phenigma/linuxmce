@@ -10,6 +10,8 @@
   $dsn = $dbPlutoMainType.'://'.urlencode($dbPlutoMainUser).':'.urlencode($dbPlutoMainPass).'@'.$dbPlutoMainServer.'/'.urlencode($dbPlutoMainDatabase); 
   $dbADO = &ADONewConnection($dsn);
 
+  $webdsn = $dbType.'://'.urlencode($dbUser).':'.urlencode($dbPass).'@'.$dbServer.'/'.urlencode($dbDatabase); 
+  $webADO = &ADONewConnection($webdsn);
 
   if (!$dbADO) {
 	die("Connection failed");
