@@ -835,7 +835,7 @@ function grabDirectory ($path, $depth) {
 function grabFiles($path) {
 	$filesArray=array();
 	// required to read files larger than 2G
-	exec('find '.$path.' -type f -maxdepth 1',$retArray);
+	exec('find "'.$path.'" -type f -maxdepth 1',$retArray);
 	foreach ($retArray AS $file){
 		$filesArray[]=str_replace($path.'/','',$file);
 	}
