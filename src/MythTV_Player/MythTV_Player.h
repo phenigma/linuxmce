@@ -58,13 +58,14 @@ namespace DCE
         // This should be Window but if i put #include <X11/Xlib.h>  in this it will break the compilation.
         bool locateMythTvFrontendWindow(long unsigned int window);
 
+		bool checkXServerConnection();
         /** Private methods */
     public:
         /** Public member variables */
 
 //<-dceag-const-b->
 public:
-		// Constructors/Destructor
+	// Constructors/Destructor
 		MythTV_Player(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
 		virtual ~MythTV_Player();
 		virtual bool Register();

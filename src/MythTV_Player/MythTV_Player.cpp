@@ -90,7 +90,7 @@ MythTV_Player::~MythTV_Player()
 //<-dceag-dest-e->
 {
     delete m_pRatWrapper;
-	
+
 }
 
 bool MythTV_Player::LaunchMythFrontend()
@@ -126,8 +126,30 @@ bool MythTV_Player::Register()
     return Connect(PK_DeviceTemplate_get());
 }
 
+bool MythTV_Player::checkXServerConnection()
+{
+	if ( ! m_pRatWrapper || ! m_pRatWrapper->getDisplay() )
+	{
+		if ( !m_pRatWrapper )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "The ratpoison command handler value is null. This usually means the XServer connection is down or useless");
+			return false;
+		}
+
+		if ( !m_pRatWrapper->getDisplay() )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "The Display* value in the ratpoison command handler is null. This ususally means the XServer connection is down or useless");
+			return false;
+		}
+	}
+
+	return true;
+}
 void MythTV_Player::CreateChildren()
 {
+	if ( ! checkXServerConnection())
+		return;
+
     if ( ! locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay())) )
     {
 		LaunchMythFrontend();
@@ -212,14 +234,17 @@ void MythTV_Player::processKeyBoardInputRequest(int iXKeySym)
     Window oldWindow;
     int oldRevertBehaviour;
 
-    if ( ! locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay())) )
+	if ( ! checkXServerConnection())
+		return;
+
+	if ( ! locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay())) )
     {
             LaunchMythFrontend();
             locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
     }
 
 	selectWindow();
-	
+
 	XGetInputFocus( m_pRatWrapper->getDisplay(), &oldWindow, &oldRevertBehaviour);
     XSetInputFocus( m_pRatWrapper->getDisplay(), (Window)m_iMythFrontendWindowId, RevertToParent, CurrentTime );
     XTestFakeKeyEvent( m_pRatWrapper->getDisplay(), XKeysymToKeycode(m_pRatWrapper->getDisplay(), iXKeySym), True, 0 );
@@ -235,7 +260,10 @@ bool MythTV_Player::checkWindowName(long unsigned int window, string windowName)
 {
     XTextProperty text;
 
-    if ( XGetWMName (m_pRatWrapper->getDisplay(), window, &text) && windowName == string((const char*)text.value) )
+	if ( ! checkXServerConnection())
+		return;
+
+	if ( XGetWMName (m_pRatWrapper->getDisplay(), window, &text) && windowName == string((const char*)text.value) )
         return true;
 
     return false;
@@ -245,6 +273,9 @@ bool MythTV_Player::locateMythTvFrontendWindow(long unsigned int window)
 {
     Window parent_win, root_win, *child_windows;
     unsigned int num_child_windows;
+
+	if ( ! checkXServerConnection())
+		return;
 
     if ( checkWindowName(window, MYTH_WINDOW_NAME ) )
     {
@@ -279,7 +310,10 @@ bool MythTV_Player::locateMythTvFrontendWindow(long unsigned int window)
 void MythTV_Player::CMD_Start_TV(string &sCMD_Result,Message *pMessage)
 //<-dceag-c75-e->
 {
-    if ( ! locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay())) )
+	if ( ! checkXServerConnection())
+		return;
+
+	if ( ! locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay())) )
     {
             LaunchMythFrontend();
             locateMythTvFrontendWindow(DefaultRootWindow(m_pRatWrapper->getDisplay()));
@@ -297,7 +331,10 @@ void MythTV_Player::CMD_Start_TV(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_Stop_TV(string &sCMD_Result,Message *pMessage)
 //<-dceag-c76-e->
 {
-    //  m_pRemoteEncoder->StopLiveTV();
+	if ( ! checkXServerConnection())
+		return;
+
+	//  m_pRemoteEncoder->StopLiveTV();
     // DCE::CMD_Spawn_Application_DT (m_dwPK_Device, DEVICETEMPLATE_App_Server_CONST, BL_SameComputer, "/usr/bin/mythfrontend", MYTH_WINDOW_NAME, "", "", "");
     DCE::CMD_Kill_Application_DT killApplicationCommand(m_dwPK_Device, DEVICETEMPLATE_App_Server_CONST, BL_SameComputer, MYTH_WINDOW_NAME);
     SendCommand(killApplicationCommand);
@@ -313,7 +350,10 @@ void MythTV_Player::CMD_Stop_TV(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_Tune_to_channel(string sProgramID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c187-e->
 {
-    vector<string> numbers;
+	if ( ! checkXServerConnection())
+		return;
+
+	vector<string> numbers;
     StringUtils::Tokenize( sProgramID, "|", numbers );
 
     string channelNumber = numbers[0];
@@ -404,7 +444,10 @@ void MythTV_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamI
 void MythTV_Player::CMD_PIP_Channel_Up(string &sCMD_Result,Message *pMessage)
 //<-dceag-c129-e->
 {
-    CMD_Move_Up(sCMD_Result, pMessage);
+	if ( ! checkXServerConnection())
+		return;
+
+	CMD_Move_Up(sCMD_Result, pMessage);
 }
 
 //<-dceag-c130-b->
@@ -415,7 +458,10 @@ void MythTV_Player::CMD_PIP_Channel_Up(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_PIP_Channel_Down(string &sCMD_Result,Message *pMessage)
 //<-dceag-c130-e->
 {
-    CMD_Move_Down(sCMD_Result, pMessage);
+	if ( ! checkXServerConnection())
+		return;
+
+	CMD_Move_Down(sCMD_Result, pMessage);
 }
 //<-dceag-c190-b->
 
@@ -425,7 +471,7 @@ void MythTV_Player::CMD_PIP_Channel_Down(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
 //<-dceag-c190-e->
 {
-    processKeyBoardInputRequest(XK_Return);
+	processKeyBoardInputRequest(XK_Return);
 }
 
 //<-dceag-c200-b->
@@ -436,7 +482,7 @@ void MythTV_Player::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
 //<-dceag-c200-e->
 {
-    processKeyBoardInputRequest(XK_Up);
+	processKeyBoardInputRequest(XK_Up);
 }
 
 //<-dceag-c201-b->
@@ -447,7 +493,7 @@ void MythTV_Player::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
 //<-dceag-c201-e->
 {
-    processKeyBoardInputRequest(XK_Down);
+	processKeyBoardInputRequest(XK_Down);
 }
 
 //<-dceag-c202-b->
