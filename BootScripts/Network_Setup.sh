@@ -66,13 +66,17 @@ else
 	IfConf="auto $ExtIf
 	iface $ExtIf inet dhcp"
 	echo "$IfConf" >>"$File"
+
+	DNSservers=$(grep nameserver /etc/resolv.conf | grep -v '#' | sed 's/nameserver//g; s/ *//g' | tr '\n' ' ')
 fi
 
-IfConf="auto $IntIf
-iface $IntIf inet static
-	address $IntIP
-	netmask $IntNetmask"
-echo "$IfConf" >>"$File"
+if [ -n "$IntIf" ]; then
+	IfConf="auto $IntIf
+	iface $IntIf inet static
+		address $IntIP
+		netmask $IntNetmask"
+	echo "$IfConf" >>"$File"
+fi
 
 if [ -n "$DHCPcard" ]; then
 	echo "INTERFACES=\"$DHCPcard\"" >/etc/default/dhcp3-server
