@@ -1331,6 +1331,7 @@ bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,list<FileI
 	char CurrentDir[1024];
 	getcwd(CurrentDir, 1024);
 	chdir(Dir.c_str());
+	cout << "chdir " << Dir << endl;
 
 string Makefile = "none:\n"
 "\t\n"
@@ -1457,6 +1458,8 @@ string Makefile = "none:\n"
 	cout << "Depends list: " << sDepends << endl;
 
 #ifndef WIN32
+	cout << string(("sed -i 's/^Depends:.*$/Depends: ${shlibs:Depends}, ${misc:Depends}" + sDepends + "/' " + Dir + "/debian/control")) << endl;
+	cout << string(("dpkg-buildpackage -b -rfakeroot")) << endl;
 	system(("sed -i 's/^Depends:.*$/Depends: ${shlibs:Depends}, ${misc:Depends}" + sDepends + "/' " + Dir + "/debian/control").c_str());
 	if( !g_bSimulate && system("dpkg-buildpackage -b -rfakeroot") )
 	{
@@ -1472,6 +1475,7 @@ string Makefile = "none:\n"
 					
 #ifndef WIN32
 	chdir(CurrentDir);
+	cout << "chdir " << Dir << endl;
 	if( !g_bSimulate )
 		system(("rm -rf " + Dir).c_str());
 #endif
