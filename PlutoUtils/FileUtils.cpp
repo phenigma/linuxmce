@@ -248,6 +248,10 @@ void FileUtils::MakeDir(string sDirectory)
 #endif
 }
 
+
+#include <iostream>
+using namespace std;
+
 void FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFileSpec_CSV,bool bRecurse,string PrependedPath)
 {
     if( !StringUtils::EndsWith(sDirectory,"/") )
@@ -301,7 +305,9 @@ void FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
     int x;
     while (dirp != NULL && (readdir_r(dirp, direntp, & direntp) == 0) && direntp)
     {
-        if (entry.d_type != DT_DIR && entry.d_name[0] != '.' )
+		struct stat s;
+		stat((sDirectory + entry.d_name).c_str(), &s);
+        if (!S_ISDIR(s.st_mode) && entry.d_name[0] != '.' )
         {
 // g_pPlutoLogger->Write(LV_STATUS, "found file entry %s", entry.d_name);
             size_t pos = 0;
@@ -321,7 +327,7 @@ void FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
                 }
             }
         }
-        else if (bRecurse && entry.d_type == DT_DIR && entry.d_name[0] != '.')
+        else if (bRecurse && S_ISDIR(s.st_mode) && entry.d_name[0] != '.')
 		{
 			FindFiles(listFiles,sDirectory + entry.d_name,sFileSpec_CSV,true,PrependedPath + entry.d_name + "/");
 		}
@@ -336,7 +342,7 @@ void FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
 bool FileUtils::PUCopyFile(string sSource,string sDestination)
 {
 #ifndef WIN32
-	system(("mkdir -p " + FileUtils::BasePath(sDestination)).c_str());
+	system(("mkdir -p \"" + FileUtils::BasePath(sDestination) + "\"").c_str());
 #endif
 
 	FILE *fileSource = fopen(sSource.c_str(),"rb");
@@ -374,5 +380,4 @@ bool FileUtils::PUCopyFile(string sSource,string sDestination)
 	fclose(fileDest);
 	return true;
 }
-
 
