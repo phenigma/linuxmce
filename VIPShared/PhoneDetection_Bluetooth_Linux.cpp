@@ -246,7 +246,7 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
 g_pPlutoLogger->Write(LV_WARNING, "Executing /tmp/hciscan hack");
 system("hcitool scan > /tmp/hciscan");
 vector<string> vectstr;
-FileUtils::ReadFileIntoVector( "/tmp/hciscan", &vectstr );
+FileUtils::ReadFileIntoVector( "/tmp/hciscan", vectstr );
 g_pPlutoLogger->Write(LV_WARNING, "got %d lines",(int) vectstr.size());
 for(size_t s=0;s<vectstr.size();++s)
 {
