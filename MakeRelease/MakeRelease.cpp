@@ -542,8 +542,8 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 			continue;
 		string sInputPath;
 
-		// If there's a compiled output directory, use that
-		if( pRow_Package_Directory_CompiledOutput && 
+		// If there's a compiled output directory, use that unless the user specifically gave an input path
+		if( pRow_Package_Directory_CompiledOutput && pRow_Package_Directory->InputPath_get()=="" &&
 			(pRow_Package_Directory->FK_Directory_get()==DIRECTORY_Binary_Executables_CONST ||
 			pRow_Package_Directory->FK_Directory_get()==DIRECTORY_Binary_Library_CONST) )
 		{
@@ -588,7 +588,7 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 				if( g_bInteractive && !AskYNQuestion("About to execute non-source make: " + pRow_Package_Directory_File->MakeCommand_get() + " Continue?",false) )
 					return false;
 #ifndef WIN32
-				system(("mkdir -p " + sDirectory).c_str());
+				system(("mkdir -p " + sInputPath).c_str());
 #endif
 				chdir(sInputPath.c_str());
 				cout << "Executing: " << pRow_Package_Directory_File->MakeCommand_get() << " from dir: " << sInputPath << endl;
