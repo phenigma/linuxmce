@@ -554,7 +554,7 @@ function CheckValidCode($code,$dbADO)
 }
 
 // return an array of packages
-function GetActivationSh($code)
+function GetActivationSh($code,$param='install')
 {
 	global $dbPlutoMainUser;
 	global $dbPlutoMainPass;
@@ -563,7 +563,7 @@ function GetActivationSh($code)
 
 	list($device, $pin) = explode("-", $code);
 #	echo("/usr/pluto/bin/ConfirmDependencies -h ".$dbPlutoMainServer." -u ".$dbPlutoMainUser." -p ".$dbPlutoMainPass." -d $device install");
-	exec("/usr/pluto/bin/ConfirmDependencies -h ".$dbPlutoMainServer." -u ".$dbPlutoMainUser." -p ".$dbPlutoMainPass." -d $device install", $result);
+	exec("/usr/pluto/bin/ConfirmDependencies -h ".$dbPlutoMainServer." -u ".$dbPlutoMainUser." -p ".$dbPlutoMainPass." -d $device $param", $result);
 	// || die("ERROR. Can't generate answer: $device:$pin");
 
 	return $result;
