@@ -457,7 +457,7 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 
 	// What are the files for this?
 	g_pDatabase_pluto_main->Package_Directory_get()->GetRows( 
-		"FK_Package=" + StringUtils::itos(pRow_Package->PK_Package_get()) + " AND (FK_Directory=" + StringUtils::itos(DIRECTORY_Binary_Executibles_CONST) + 
+		"FK_Package=" + StringUtils::itos(pRow_Package->PK_Package_get()) + " AND (FK_Directory=" + StringUtils::itos(DIRECTORY_Binary_Executables_CONST) + 
 		" OR FK_Directory=" + StringUtils::itos(DIRECTORY_Binary_Library_CONST) + " OR FK_Directory=" + StringUtils::itos(DIRECTORY_Configuration_CONST) + 
 		" OR FK_Directory=" + StringUtils::itos(DIRECTORY_Miscellaneous_Files_CONST) + ")",&vectRow_Package_Directory);
 
@@ -468,7 +468,7 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 
 		// If there's a compiled output directory, use that
 		if( pRow_Package_Directory_CompiledOutput && 
-			(pRow_Package_Directory->FK_Directory_get()==DIRECTORY_Binary_Executibles_CONST ||
+			(pRow_Package_Directory->FK_Directory_get()==DIRECTORY_Binary_Executables_CONST ||
 			pRow_Package_Directory->FK_Directory_get()==DIRECTORY_Binary_Library_CONST) )
 		{
 			sDirectory = pRow_Package_Directory_CompiledOutput->Path_get();
@@ -692,58 +692,29 @@ AsksSourceQuests:
 
 		Row_Package_Directory *pRow_Package_Directory_Binary = NULL;
 
-		bool bIsExecutible=false,bIsLibrary=false;
-		// Is this directory going to output a binary or a lib file?
+		// Where are we going to output?
 		vector<Row_Package_Directory *> vectRow_Package_Directory;
 		g_pDatabase_pluto_main->Package_Directory_get()->GetRows(
-				StringUtils::itos(pRow_Package->FK_Package_Sourcecode_get()) + " AND FK_Directory=" + StringUtils::itos(DIRECTORY_Binary_Executibles_CONST),
+				"FK_Package=" + StringUtils::itos(pRow_Package->FK_Package_Sourcecode_get()) + " AND FK_Directory=" + StringUtils::itos(DIRECTORY_Compiled_Output_CONST),
 				&vectRow_Package_Directory);
 
 		if( vectRow_Package_Directory.size() )
-		{
 			pRow_Package_Directory_Binary = vectRow_Package_Directory[0];
-			bIsExecutible=true;
-		}
-
-		vectRow_Package_Directory.clear();
-		g_pDatabase_pluto_main->Package_Directory_get()->GetRows(
-				StringUtils::itos(pRow_Package->FK_Package_Sourcecode_get()) + " AND FK_Directory=" + StringUtils::itos(DIRECTORY_Binary_Library_CONST),
-				&vectRow_Package_Directory);
-
-		if( vectRow_Package_Directory.size() )
+		else
 		{
-			pRow_Package_Directory_Binary = vectRow_Package_Directory[0];
-			bIsLibrary=true;
-		}
-
-		if( bIsLibrary && bIsExecutible )
-		{
-			cout << "Error: This package has both an executible and a library path specified." << endl
-				<< "I don't know how to handle this yet, since I can't tell which it is." << endl;
-			return false;
-		}
-		if( !bIsLibrary && !bIsExecutible )
-		{
-			cout << "This package has neither an executible nor a library path specified." << endl 
-				<< "This is where the compiled files will go, such as /pluto/bin" << endl;
-			char c = AskMCQuestion("Which is it? (Executible,Library,Abort)","ela");
-			if( c=='a' )
+			cout << "This package has no output directory specified." << endl;
+			string sOutput = StringUtils::GetStringFromConsole();
+			if( sOutput.length()==0 )
+			{
+				cout << "***ABORTING***  You didn't specify an output directory" << endl;
 				return false;
-
-			if( c=='l' )
-				bIsLibrary=true;
-			else
-				bIsExecutible=true;
+			}
 
 			pRow_Package_Directory_Binary = g_pDatabase_pluto_main->Package_Directory_get()->AddRow();
 			pRow_Package_Directory_Binary->FK_Package_set(pRow_Package->PK_Package_get());
-			pRow_Package_Directory_Binary->FK_Directory_set(bIsLibrary ? DIRECTORY_Binary_Library_CONST : DIRECTORY_Binary_Executibles_CONST);
+			pRow_Package_Directory_Binary->FK_Directory_set(DIRECTORY_Compiled_Output_CONST);
 			pRow_Package_Directory_Binary->FK_Distro_set(g_iPK_Distro);
-
-			cout << "What is the name of the directory?"; 
-			string s = StringUtils::GetStringFromConsole();
-
-			pRow_Package_Directory_Binary->Path_set(s);
+			pRow_Package_Directory_Binary->Path_set(sOutput);
 			g_pDatabase_pluto_main->Package_Directory_get()->Commit();
 		}
 
