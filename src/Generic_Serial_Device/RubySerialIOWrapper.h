@@ -12,10 +12,10 @@
 #ifndef DCERUBYSERIALIOWRAPPER_H
 #define DCERUBYSERIALIOWRAPPER_H
 
-#include "IOConnection.h"
 #include "RubyDeviceWrapper.h"
 #include "RubyCommandWrapper.h"
 #include "RubyDCEConnector.h"
+#include "RubySerialIOConnectionWrapper.h"
 
 #include <map>
 
@@ -34,18 +34,18 @@ public:
 
 	/*accessed from our code*/
 public:
-	void setConn(IOConnection *pc) {
-		conn_ = pc;
+	void setConn(const RubySerialIOConnectionWrapper& conn) {
+		conn_ = conn;
 	}
-	IOConnection * getConn() {
+	RubySerialIOConnectionWrapper& getConn() {
 		return conn_;
 	}
 	
-	RubyDeviceWrapper& getDevice() {
-		return device_;
-	}
 	void setDevice(const RubyDeviceWrapper& device) {
 		device_ = device;
+	}
+	RubyDeviceWrapper& getDevice() {
+		return device_;
 	}
 	
 	void setDCEConnector(RubyDCEConnector* pdce) {
@@ -60,7 +60,7 @@ public:
 
 	/*accessed from ruby code*/
 public:
-	IOConnection* conn_; /*connection*/
+	RubySerialIOConnectionWrapper conn_; /*connection*/
 	RubyDeviceWrapper device_; /*our device*/
 	
 private:

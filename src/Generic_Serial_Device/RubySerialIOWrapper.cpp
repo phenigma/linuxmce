@@ -14,7 +14,7 @@
 namespace DCE {
 
 RubySerialIOWrapper::RubySerialIOWrapper()
-	: conn_(NULL), pdce_(NULL)
+	: pdce_(NULL)
 {}
 
 RubySerialIOWrapper::~RubySerialIOWrapper()

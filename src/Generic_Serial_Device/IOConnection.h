@@ -32,9 +32,9 @@ public:
 	
 	virtual int Send(const char* buff, unsigned int size) = 0;
 	virtual int Recv(char* buff, unsigned int size, int timeout) = 0;
-	
+
 	virtual bool isOpened() = 0;
-	virtual bool isDataAvailable() = 0;
+	virtual bool isDataAvailable(int timeout) = 0;
 };
 
 };

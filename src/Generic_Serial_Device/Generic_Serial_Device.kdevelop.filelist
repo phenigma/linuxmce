@@ -93,3 +93,7 @@ RubySerialIOManager.cpp
 /InterThreadCallMasquerader.cpp
 IOEvent.cpp
 IOEvent.h
+/BufferedIOConnection.h
+/BufferedIOConnection.cpp
+/RubySerialIOConnectionWrapper.h
+/RubySerialIOConnectionWrapper.cpp

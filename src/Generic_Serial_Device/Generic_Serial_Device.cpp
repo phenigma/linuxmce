@@ -183,6 +183,6 @@ void Generic_Serial_Device::RunThread() {
 	
 	sermanager_.Run(false);
 	Generic_Serial_Device_Command::RunThread();
+	sermanager_.Wait(true);
     g_pPlutoLogger->Write(LV_STATUS, "Generic Serial Device RunThread ended.");
-	sermanager_.Wait();
 }

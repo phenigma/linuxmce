@@ -61,7 +61,9 @@ RubySerialIOPool::handleStartup() {
 			return false;
 		}
 		
-		pWrapper->setConn(getConnection());
+		RubySerialIOConnectionWrapper conn(getConnection());
+		pWrapper->setConn(conn);
+		
 		pWrapper->setDCEConnector(pdceconn_);
 		
 		if(!pdevdata_) {

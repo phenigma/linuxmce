@@ -146,7 +146,7 @@ RubySerialIOManager::ProcessIdle() {
 	while(it != pools_.end()) {
 		if((*it).second != NULL) {
 			IOConnection* pconn = (*it).second->getConnection();
-			if(pconn != NULL && pconn->isDataAvailable()) {
+			if(pconn != NULL && pconn->isDataAvailable(0)) {
 				(*it).second->RouteMessage(&datamsg);
 			} else {
 				(*it).second->RouteMessage(&idlemsg);

@@ -51,7 +51,7 @@ IOPool::handleIteration() {
 			}
 		}
 		IOConnection* pconn = getConnection();
-		if(pconn && pconn->isDataAvailable()) {
+		if(pconn && pconn->isDataAvailable(0)) {
 			if(pstate != NULL) {
 				pstate->handleRead(pconn);
 				return true;

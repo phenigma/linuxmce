@@ -29,6 +29,10 @@ class Event_Impl;
 */
 
 /*manages instances of serial pools*/
+/* ----!!!!!!!!!!!!!
+	manager was added because of limitation of ruby to run only in process context and not in thread context,
+	because of this we will not use each Pool's state machine, intead will use this class to manage comunication between ruby and DCE
+	*/
 class RubySerialIOManager : protected RubyDCEConnector, public IOThread {
 public:
     RubySerialIOManager();

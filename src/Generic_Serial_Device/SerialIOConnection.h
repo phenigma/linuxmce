@@ -70,7 +70,7 @@ public:
 	virtual int Recv(char* buff, unsigned int size, int timeout);
 	
 	virtual bool isOpened();
-	virtual bool isDataAvailable();
+	virtual bool isDataAvailable(int timeout);
 	
 private:
 	std::string FormatHexBuffer(const char* buff, unsigned int size);

@@ -96,12 +96,18 @@ SerialIOConnection::isOpened() {
 }
 
 bool 
-SerialIOConnection::isDataAvailable() {
+SerialIOConnection::isDataAvailable(int timeout) {
 	if(psp_ != NULL) {
+		while(timeout > 0) {
+			if(!(psp_->IsReadEmpty())) {
+				return true;
+			}
+			usleep(10);
+			timeout -= 10;
+		}
 		return !(psp_->IsReadEmpty());
-	} else {
-		return false;
 	}
+	return false;
 }
 
 std::string 

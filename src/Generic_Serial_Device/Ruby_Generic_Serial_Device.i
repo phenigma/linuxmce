@@ -4,11 +4,14 @@
 	#include "RubyDeviceWrapper.h"
 	#include "RubyCommandWrapper.h"
 	#include "RubySerialIOWrapper.h"
+	#include "RubySerialIOConnectionWrapper.h"
 
 	using namespace DCE;
 %}
 
 %apply (char *STRING, int LENGTH) { (const char* buff, unsigned int size) };
+%apply (char *STRING, int LENGTH) { (const char* delimbuff, unsigned int delimsize) };
+
 
 %typemap(in) (char* buff, unsigned int size) {
    $2 = NUM2INT($input);
@@ -34,9 +37,10 @@ namespace std
 }
 
 
-%include "IOConnection.h"
 %include "RubyDeviceWrapper.h"
 %include "RubyCommandWrapper.h"
+%include "RubySerialIOConnectionWrapper.h"
 %include "RubySerialIOWrapper.h"
+
 
 
