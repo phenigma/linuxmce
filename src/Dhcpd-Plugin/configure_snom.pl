@@ -20,13 +20,6 @@ foreach $line (@data) {
 }
 
 $db_handle = DBI->connect("dbi:mysql:database=pluto_main;host=$DBHOST;user=$DBUSER;password=$DBPASSWD") or die "Could not connect to MySQL";
-$sql = "select IPaddress from Device where PK_Device=$PK_Device";
-$statement = $db_handle->prepare($sql) or die "Couldn't prepare query '$sql': $DBI::errstr\n";
-$statement->execute() or die "Couldn't execute query '$sql': $DBI::errstr\n";
-while($row_ref = $statement->fetchrow_hashref())
-{
-  $DCEIP = $row_ref->{IPaddress};
-}
 
 $sql = "select IPaddress from Device where Description='CORE'";
 $st = $db_handle->prepare($sql);
