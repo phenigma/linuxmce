@@ -72,6 +72,25 @@ echo "deb file:/usr/pluto/deb-cache/ sarge main" >/etc/apt/sources.list.2
 grep ':9999' /etc/apt/sources.list >>/etc/apt/sources.list.2
 mv /etc/apt/sources.list.2 /etc/apt/sources.list
 
+# Format: OK-Device-Code
+ok=0
+mac=$(/sbin/ifconfig eth0|grep HWaddr|awk '{ print $5; }'|sed s/://g)
+while [ "$ok" -eq 0 ]; do
+	answer=$(wget -O - "$activation_url?mac=$mac" 2>/dev/null)
+	if [ "$?" -ne 0 ]; then
+		echo "Failed to contact activation server over the Internet"
+		try_again && continue
+		echo "$ICS_MSG"
+		break
+	fi
+	result=$(echo $answer |cut -d- -f1)
+	if [ "$result" == "OK" ]; then
+		Device=$(echo $answer |cut -d- -f2)
+		Code=$(echo $answer |cut -d- -f3)
+	fi
+	ok=1
+done
+
 ok=0
 while [ "$ok" -eq 0 ]; do
 # ask user for activation key
