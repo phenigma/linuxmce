@@ -58,29 +58,24 @@ class RatpoisonHandler
 
 
 			XLockDisplay(display);
-			g_pPlutoLogger->Write(LV_STATUS, "Looking up RP_COMMAND atoms");
-			if ( XInternAtoms(display, atom_names, 3, True, atoms) != Success )
+			if ( XInternAtoms(display, atom_names, 3, True, atoms) == 0 )
 			{
-                g_pPlutoLogger->Write(LV_WARNING, "Ratpoison window manager does not seem to be running on this server!");
+                g_pPlutoLogger->Write(LV_WARNING, "Ratpoison window manager does not seem to be running on this server");
                 XUnlockDisplay(display);
                 return false;
             }
 
             Window commandWindow = 0;
 
-g_pPlutoLogger->Write(LV_STATUS, "Creating command window");
             commandWindow = XCreateSimpleWindow (display, DefaultRootWindow (display), 0, 0, 1, 1, 0, 0, 0);
 
-g_pPlutoLogger->Write(LV_STATUS, "Selecting input");
             // wait for propertyChanges here.
             XSelectInput (display, commandWindow, PropertyChangeMask);
 
-g_pPlutoLogger->Write(LV_STATUS, "Changing property");
             XChangeProperty (display, commandWindow,
                         atoms[RP_COMMAND], XA_STRING, 8, PropModeReplace,
                         (unsigned char *)command.c_str(), command.size() + 2);
 
-g_pPlutoLogger->Write(LV_STATUS, "Changing property again");
             XChangeProperty (display, DefaultRootWindow (display),
                         atoms[RP_COMMAND_REQUEST], XA_WINDOW, 8, PropModeAppend,
                         (unsigned char *)&commandWindow, sizeof (Window));
@@ -97,13 +92,11 @@ g_pPlutoLogger->Write(LV_STATUS, "Changing property again");
 
                 gettimeofday(&currentTime, NULL);
 
-g_pPlutoLogger->Write(LV_STATUS, "Chacking for response");
                 timeSpent = (currentTime.tv_sec - startTime.tv_sec) * 1000000 + (currentTime.tv_usec - startTime.tv_usec);
                 if ( XCheckMaskEvent (display, PropertyChangeMask, &ev) )
                 {
                     if (ev.xproperty.atom == atoms[RP_COMMAND_RESULT] && ev.xproperty.state == PropertyNewValue && ev.xproperty.window == commandWindow)
                     {
-                        g_pPlutoLogger->Write(LV_STATUS, "Reading command result.");
                         readCommandResult(display, ev.xproperty.window);
                         done = 1;
                     }
@@ -119,11 +112,10 @@ g_pPlutoLogger->Write(LV_STATUS, "Chacking for response");
                 }
             }
 
-g_pPlutoLogger->Write(LV_STATUS, "Destroying command window");
             // cleanups
             XDestroyWindow (display, commandWindow);
-
             XUnlockDisplay(display);
+
             g_pPlutoLogger->Write(LV_STATUS, "Exiting rat poison command");
             return true;
         }
