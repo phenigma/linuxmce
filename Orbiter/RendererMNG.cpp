@@ -145,7 +145,8 @@ size_t PNGCatChunks::CatChunks(char * & MemoryZonePointer) const // it is the us
 	size_t Size = 8;
 	const int Chunk_Extra = 3 * sizeof(unsigned long);
 
-	for (size_t i = 0; i < count(); i++)
+	size_t i;
+	for (i = 0; i < count(); i++)
 	{
 		Size += m_Chunks[i]->length + Chunk_Extra; // data length plus 3 32bit chunk values
 	}
@@ -154,7 +155,7 @@ size_t PNGCatChunks::CatChunks(char * & MemoryZonePointer) const // it is the us
 	char * Position = MemoryZonePointer;
 
 	strncpy(Position, PNGsignature, 8); Position += 8;
-	for (size_t i = 0; i < count(); i++)
+	for (i = 0; i < count(); i++)
 	{
 		unsigned long ChunkLength = m_Chunks[i]->length;
 		unsigned long ChunkCRC32 = m_Chunks[i]->crc32;
@@ -261,4 +262,32 @@ const MNGHeader & RendererMNG::GetHeader() const
 void RendererMNG::SetHeader(const MNGHeader & Header)
 {
 	m_MNGHeader = Header;
+}
+
+InMemoryMNG::InMemoryMNG()
+{
+	m_pMNGHeader = NULL;
+}
+
+InMemoryMNG::~InMemoryMNG()
+{
+	size_t iSize = m_vectMNGframes.size();
+
+	for(int i = 0; i < iSize; i++)
+	{
+		delete m_vectMNGframes[i];
+	}
+	m_vectMNGframes.clear();
+
+	if(NULL != m_pMNGHeader)
+	{
+		delete m_pMNGHeader;
+		m_pMNGHeader = NULL;
+	}
+}
+
+size_t InMemoryMNG::GetFrame(int iIndex, char *&pData)
+{
+	PNGCatChunks *pPNGCatChunks = m_vectMNGframes[iIndex];
+	return pPNGCatChunks->CatChunks(pData);
 }

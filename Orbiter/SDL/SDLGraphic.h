@@ -14,11 +14,9 @@ public:
 	void Initialize();
 	GraphicType GraphicType_get() { return gtSDLGraphic; }
 	bool IsEmpty() { return NULL == m_pSDL_Surface; }
-	bool LoadGraphic(string sFileName);
 	bool LoadGraphic(char *pData, size_t iSize);
 	void Clear(); 
 
-	void *m_pImage;
 	struct SDL_Surface *m_pSDL_Surface;
 };
 //-------------------------------------------------------------------------------------------------------

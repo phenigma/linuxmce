@@ -1014,10 +1014,16 @@ PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *
 	clock_t clkBlending = clock(  );
 #endif
 
-    SDL_Surface * RenderedText = TTF_RenderText_Blended((TTF_Font *)pTextStyle->m_pTTF_Font, pDesignObjText->m_sText.c_str(), SDL_color);
-
-	//SDL_Surface * RenderedText = TTF_RenderText_Solid((TTF_Font *)pTextStyle->m_pTTF_Font, pDesignObjText->m_sText.c_str(), SDL_color);
-
+	SDL_Surface * RenderedText = NULL;
+	try
+	{
+	    RenderedText = TTF_RenderText_Blended((TTF_Font *)pTextStyle->m_pTTF_Font, pDesignObjText->m_sText.c_str(), SDL_color);
+	}
+	catch(...) //if the clipping rectagle is too big, SDL_FreeSurface will crash
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Renderer::RealRenderText : TTF_RenderText_Blended crashed!");
+	}
+	
     if (RenderedText == NULL)
     {
         TTF_Quit();
@@ -1074,6 +1080,64 @@ PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *
     return RenderedSize;
 }
 
+/*static*/ InMemoryMNG *Renderer::CreateInMemoryMNGFromFile(string sFileName, PlutoSize Size)
+{
+	FILE * File;
+	int RealW, RealH;
+	MNGHeader *pHeader = new MNGHeader;
+	int kounter = 0;
+
+	File = fopen(sFileName.c_str(), "rb");
+	if (! File)
+		return NULL;
+
+	char buffer[1024];
+	fread(buffer, 1, 8, File); // strip signature
+
+	PNGChunk * chunk;
+	bool BuildingPNG = false;
+
+	InMemoryMNG *pInMemoryMNG = new InMemoryMNG;
+	PNGCatChunks * InMemoryPNG;
+
+	while (ReadChunk(File, chunk = new PNGChunk))
+	{
+		if (chunk->type == "MHDR")
+		{
+			ParseMNGHeader(chunk->data, pHeader);
+			RealW = Size.Width == 0 ? pHeader->frame_width : Size.Width;
+			RealH = Size.Height == 0 ? pHeader->frame_height : Size.Height;
+		}
+
+		if (chunk->type == "IHDR")
+		{
+			InMemoryPNG = new PNGCatChunks;
+			BuildingPNG = true;
+		}
+
+		if (BuildingPNG)
+		{
+			InMemoryPNG->AddChunk(chunk);
+			if (chunk->type == "IEND")
+			{
+				BuildingPNG = false;
+				pInMemoryMNG->m_vectMNGframes.push_back(InMemoryPNG);
+			}
+		}
+		else
+		{
+			delete chunk;
+		}
+	}
+
+	fclose(File);
+
+	pHeader->frame_height = RealH;
+	pHeader->frame_width = RealW;
+	pInMemoryMNG->m_pMNGHeader = pHeader;
+
+	return pInMemoryMNG;
+}
 
 
 #ifdef OrbiterGen

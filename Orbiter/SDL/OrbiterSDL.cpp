@@ -196,6 +196,9 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
 	if(!pPlutoGraphic || pPlutoGraphic->GraphicType_get() != gtSDLGraphic) 
 		return;//nothing to render or not an sdl graphic
 
+	if(pPlutoGraphic->IsEmpty())
+		return;
+
 	SDLGraphic *pSDLGraphic = (SDLGraphic *) pPlutoGraphic;
 	SDL_Surface *pSDL_Surface = pSDLGraphic->m_pSDL_Surface;
 
@@ -364,10 +367,15 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
 	DisplayImageOnScreen(m_pScreenImage);
 }
 //-----------------------------------------------------------------------------------------------------
-void OrbiterSDL::OnQuit()
+/*virtual*/ void OrbiterSDL::OnQuit()
 {
 	m_bQuit = true;
 	SDL_Event *pEvent = new SDL_Event;
 	pEvent->type = SDL_QUIT;
 	SDL_PushEvent(pEvent);
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ PlutoGraphic *OrbiterSDL::CreateGraphic()
+{
+	return new SDLGraphic(this);
 }

@@ -63,6 +63,8 @@ PlutoGraphic::PlutoGraphic(string Filename, eGraphicManagement GraphicManagement
 { 
 	m_GraphicManagement = GR_KEEPCOMPRESSED; 
 	m_GraphicFormat = GR_UNKNOWN; 
+
+	m_Filename = "";
 }
 //=======================================================================================================
 //Concrete class DesignObj_Orbiter
@@ -80,6 +82,7 @@ DesignObj_Orbiter::DesignObj_Orbiter(Orbiter *pCore)
 	m_vectAltGraphics.clear();
 	m_pvectCurrentGraphic = NULL;
 	m_pGraphicToUndoSelect = NULL;
+	m_pvectCurrentPlayingGraphic = NULL;
 
 	m_iFrame_Background = 0;
 	m_iFrame_Selected = 0;
@@ -87,6 +90,7 @@ DesignObj_Orbiter::DesignObj_Orbiter(Orbiter *pCore)
 
 	m_pCriteria=NULL;
 	m_GraphicToDisplay=GRAPHIC_NORMAL;
+	m_GraphicToPlay=GRAPHIC_NORMAL;
 	m_GridCurRow=-1;
 	m_GridCurCol=-1;
 	m_bOneTimeDontReset=false;

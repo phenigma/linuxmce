@@ -46,6 +46,8 @@ using namespace DCE;
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_FloorplanType.h"
 
+#include "Renderer.h"
+
 #include "GraphicBuilder.h"
 
 #define  VERSION "<=version=>"
@@ -813,28 +815,28 @@ bool Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *
     {
         if ( !bTransparentCell )
 			SolidRectangle( x,  y,  w,  h,  pCell->m_AltColor ? pCell->m_AltColor : pTextStyle->m_BackColor); 
-#pragma warning( "test style isn't right" )
-        /* todo 2.0
-        if ( pObj->BorderColor2.m_Value!=pObj->BorderColor.m_Value )
+
+		/*
+		if ( pObj->BorderColor2.m_Value!=pObj->BorderColor.m_Value )
         {
-        SolidRectangle( x+w-pObj->BorderWidth,  y,  pObj->BorderWidth,  h,  pObj->BorderColor2 );
-        SolidRectangle( x,  y+h-pObj->BorderWidth,  w,  pObj->BorderWidth,  pObj->BorderColor2 );
-        SolidRectangle( x,  y,  w,  pObj->BorderWidth,  pObj->BorderColor );
-        SolidRectangle( x,  y,  pObj->BorderWidth,  h,  pObj->BorderColor );
+			SolidRectangle( x+w-pObj->BorderWidth,  y,  pObj->BorderWidth,  h,  pObj->BorderColor2 );
+			SolidRectangle( x,  y+h-pObj->BorderWidth,  w,  pObj->BorderWidth,  pObj->BorderColor2 );
+			SolidRectangle( x,  y,  w,  pObj->BorderWidth,  pObj->BorderColor );
+			SolidRectangle( x,  y,  pObj->BorderWidth,  h,  pObj->BorderColor );
         }
         else
-	        SolidRectangle( x,  y,  w,  h,  pObj->BorderColor  );
-        */
-/*
+		*/
+
+		//SolidRectangle( x,  y,  w,  h,  pObj->BorderColor  );
 		if ( pCell->m_pGraphicData )
-        {
+		{
 			PlutoGraphic *pPlutoGraphic = CreateGraphic();
 			pPlutoGraphic->LoadGraphic(pCell->m_pGraphicData,  pCell->m_GraphicLength);
 			pPlutoGraphic->m_GraphicFormat = pCell->m_GraphicFormat;
-			RenderGraphic(pPlutoGraphic, rect(x,  y,  w,  h), pObj->m_bDisableAspectLock );
+			RenderGraphic(pPlutoGraphic, PlutoRectangle(x,  y,  w,  h), pObj->m_bDisableAspectLock );
 			delete pPlutoGraphic;
 		}
-*/
+
         DesignObjText Text( pObj );
         Text.m_sText = pCell->GetText(  );
         // todo         Text.m_Rect = PlutoRectangle( x+pObj->BorderWidth,  y+pObj->BorderWidth,  w-( 2*pObj->BorderWidth ),  h-( 2*pObj->BorderWidth ) );
@@ -1043,7 +1045,7 @@ void Orbiter::ObjectOnScreenWrapper(  )
 
     // I used to call DoLoadUnload from within ObjectOnScreen,  but that means some of the
     // load/unload actions and the initialize grid's are getting called before the objects
-    // are on the screen.  This caused a problem when there is an onload that sets
+;    // are on the screen.  This caused a problem when there is an onload that sets
     // a variable and a datagrid that uses it.  PopulateDataGrid can get called before the
     // variable is set.  10-15-2003
     ObjectOnScreen( &vectDesignObj_Orbiter_OnScreen, m_pScreenHistory_Current->m_pObj, false );
@@ -1224,9 +1226,18 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
                 int k=2;
             }
 
-            SaveBackgroundForDeselect( pObj );  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
-            if(  !pObj->m_bDontResetState  )
-				CallMaintenanceInMiliseconds( 500, &Orbiter::DeselectObjects, ( void * ) pObj, true );
+			vector<PlutoGraphic*> *pVectorPlutoGraphic = pObj->m_pvectCurrentGraphic;
+			if(pObj->m_pvectCurrentGraphic->size())	
+			{
+				PlutoGraphic *pPlutoGraphic = pObj->m_pvectCurrentGraphic->operator [](0);
+
+				if(pPlutoGraphic->m_GraphicFormat != GR_MNG)
+				{
+					SaveBackgroundForDeselect( pObj );  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
+					if(  !pObj->m_bDontResetState  )
+						CallMaintenanceInMiliseconds( 500, &Orbiter::DeselectObjects, ( void * ) pObj, true );
+				}
+			}
 
             // Unless the screen's don't reset state is set,  we'll clear any other selected graphics
             if(  !m_pScreenHistory_Current->m_pObj->m_bDontResetState  )
@@ -2411,7 +2422,7 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
     for( size_t salt=0;salt<pObj->m_vectAltGraphicFilename.size(  );++salt )
     {
 		VectorPlutoGraphic vectPlutoGraphic;
-		CreateVectorGraphic( vectPlutoGraphic, Type,  pObj->m_vectAltGraphicFilename[salt],  eMgmt,  this );
+		CreateVectorGraphic(vectPlutoGraphic, Type,  pObj->m_vectAltGraphicFilename[salt],  eMgmt,  this);
 		pObj->m_vectAltGraphics.push_back( vectPlutoGraphic );
     }
 
@@ -2579,7 +2590,7 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
             TextStyle *pTextStyle = m_mapTextStyle_Find(  atoi( Style.c_str(  ) )  );
             if(  pTextStyle  )
             {
-                while(pObj_Datagrid->m_vectTextStyle_Alt.size()<Counter)
+while(pObj_Datagrid->m_vectTextStyle_Alt.size()<Counter)
                     pObj_Datagrid->m_vectTextStyle_Alt.push_back(NULL);
                 pObj_Datagrid->m_vectTextStyle_Alt.push_back(pTextStyle);
                 //              pObj_Datagrid->m_vectTextStyle_Alt[Counter] = pTextStyle;
@@ -3702,8 +3713,8 @@ void *MaintThread(void *p)
 			CallBackInfo *pCallBackInfo = mapPendingCallbacks[Index];
 			pm.Release();
 
-			g_pPlutoLogger->Write( LV_CONTROLLER, "### Now is %d, Callback candidate to be processed id = %d, time = %d msec = %d", 
-				clock_t(), pCallBackInfo->m_iCounter, (int)pCallBackInfo->m_abstime.tv_sec,(int)pCallBackInfo->m_abstime.tv_nsec);
+			//g_pPlutoLogger->Write( LV_CONTROLLER, "### Now is %d, Callback candidate to be processed id = %d, time = %d msec = %d", 
+			//	clock_t(), pCallBackInfo->m_iCounter, (int)pCallBackInfo->m_abstime.tv_sec,(int)pCallBackInfo->m_abstime.tv_nsec);
 
 			timespec ts_Current;
 			gettimeofday(&ts_Current,NULL);
@@ -3726,8 +3737,8 @@ void *MaintThread(void *p)
 			}
 			else
 			{
-				g_pPlutoLogger->Write( LV_CONTROLLER, "### 2. Now is %d. Waiting to process callback id = %d, time = %d msec = %d", 
-					time(NULL), pCallBackInfo->m_iCounter, (int)pCallBackInfo->m_abstime.tv_sec,(int)pCallBackInfo->m_abstime.tv_nsec);
+				//g_pPlutoLogger->Write( LV_CONTROLLER, "### 2. Now is %d. Waiting to process callback id = %d, time = %d msec = %d", 
+				//	time(NULL), pCallBackInfo->m_iCounter, (int)pCallBackInfo->m_abstime.tv_sec,(int)pCallBackInfo->m_abstime.tv_nsec);
 
 				pthread_mutex_lock(&pOrbiter->m_MaintThreadMutex.mutex);
 
@@ -4605,6 +4616,12 @@ void Orbiter::CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pD
         //pWinGraphic->m_GraphicFormat = ( eGraphicFormat )atoi( sType.c_str(  ) );
         //pWinGraphic->m_GraphicManagement = GR_DYNAMIC;
 
+		PlutoGraphic *pPlutoGraphic = CreateGraphic();
+		pPlutoGraphic->LoadGraphic(pData, iData_Size);
+		//pPlutoGraphic->m_GraphicFormat = pObj->m_GraphicFormat;
+		pObj->m_vectGraphic.push_back(pPlutoGraphic);
+		pObj->m_pvectCurrentGraphic = &(pObj->m_vectGraphic);
+
         if (  sDisable_Aspect_Lock.length(  )  )
             pObj->m_bDisableAspectLock = ( sDisable_Aspect_Lock=="1" ) ? true : false;
         m_vectObjs_NeedRedraw.push_back( pObj );
@@ -5255,6 +5272,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 
 /*virtual*/ void Orbiter::RenderGraphic(DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, bool bDisableAspectRatio)
 {
+	bool bIsMNG = false;
     bool bDeleteSurface=true;  // Will set to false if we're going to cache
 
 	vector<PlutoGraphic*> *pVectorPlutoGraphic = pObj->m_pvectCurrentGraphic;
@@ -5268,14 +5286,105 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 		case GRAPHIC_HIGHLIGHTED: iCurrentFrame = pObj->m_iFrame_Highlighted; break;
 		case GRAPHIC_SELECTED: iCurrentFrame = pObj->m_iFrame_Selected; break;
 		case GRAPHIC_NORMAL: iCurrentFrame = pObj->m_iFrame_Background; break;
+		//todo alternate graphics ?
 	}
 
 	PlutoGraphic *pPlutoGraphic = (*pVectorPlutoGraphic)[iCurrentFrame];
 
+	bIsMNG = pPlutoGraphic->m_GraphicFormat == GR_MNG;
+
 	if(pPlutoGraphic->IsEmpty() && m_sLocalDirectory.length() > 0)
 	{
-		if(!pPlutoGraphic->LoadGraphic((m_sLocalDirectory + pPlutoGraphic->m_Filename).c_str()))
+		string sFileName = m_sLocalDirectory + pPlutoGraphic->m_Filename;
+
+		if(!FileUtils::FileExists(sFileName))
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "Unable to read file %s", (sFileName).c_str());
 			return;
+		}
+		
+		switch(pPlutoGraphic->m_GraphicFormat)
+		{
+			case GR_JPG:
+			case GR_GIF:
+			case GR_TIF:
+			case GR_PNG:
+			case GR_BMP:
+				{
+					size_t size = 0;
+					char *pData = FileUtils::ReadFileIntoBuffer(sFileName.c_str(), size);
+
+					if(!size)
+						return;
+
+					if(!pPlutoGraphic->LoadGraphic(pData, size))
+						return;
+
+					delete pData;
+				}
+				break;
+
+			case GR_MNG:
+				{
+					(*pVectorPlutoGraphic).clear();
+
+					InMemoryMNG *pInMemoryMNG = Renderer::CreateInMemoryMNGFromFile(sFileName, rectTotal.Size());
+					size_t framesCount = pInMemoryMNG->m_vectMNGframes.size();
+					for(int i = 0; i < framesCount; i++)
+					{
+						size_t iFrameSize = 0;
+						char *pFrameData = NULL;
+						
+						iFrameSize = pInMemoryMNG->GetFrame(i, pFrameData);
+
+						if(iFrameSize)
+						{
+							PlutoGraphic *pGraphic = CreateGraphic();
+							pGraphic->LoadGraphic(pFrameData, iFrameSize);
+							pGraphic->m_GraphicFormat = pPlutoGraphic->m_GraphicFormat;
+							pGraphic->m_GraphicManagement = pPlutoGraphic->m_GraphicManagement;
+							pGraphic->m_Filename = pPlutoGraphic->m_Filename;
+							(*pVectorPlutoGraphic).push_back(pGraphic);
+						}
+					}
+
+					delete pPlutoGraphic;
+					pPlutoGraphic = (*pVectorPlutoGraphic)[0];
+
+					int iTime = 15; //hardcoding warning! don't know from where the get the framerate yet (ask Radu, libMNG)
+					bool bLoop = false; //hardcoding warning!  (ask Radu, libMNG)
+					
+					switch(pObj->m_GraphicToDisplay)
+					{
+						case GRAPHIC_HIGHLIGHTED:	
+							pObj->m_iTime_Highlighted = iTime;	
+							pObj->m_bLoop_Highlighted = bLoop;
+							pObj->m_iFrame_Highlighted = 12;
+							break;
+						case GRAPHIC_SELECTED:		
+							pObj->m_iTime_Selected = iTime;		
+							pObj->m_bLoop_Selected = bLoop;	
+							pObj->m_iFrame_Selected = 1;
+							break;
+						case GRAPHIC_NORMAL:		
+							pObj->m_iTime_Background = iTime;	
+							pObj->m_bLoop_Background = bLoop;	
+							pObj->m_iFrame_Background = 1;
+							break;
+							//todo alternate graphics ?
+					}
+
+					delete pInMemoryMNG;
+					pInMemoryMNG = NULL;
+
+					//schedule next frame for animation
+					pObj->m_pvectCurrentPlayingGraphic = pObj->m_pvectCurrentGraphic;
+					pObj->m_GraphicToPlay = pObj->m_GraphicToDisplay;
+					CallMaintenanceInMiliseconds( iTime, &Orbiter::PlayMNG_CallBack, pObj , false ); 
+				}
+				break;
+			
+		}
 	}
 	else if(pPlutoGraphic->IsEmpty())
 	{
@@ -5295,6 +5404,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 			return;
 		}	   
 
+		//TODO: same logic for in-memory data
 		if(!pPlutoGraphic->LoadGraphic(pGraphicFile, iSizeGraphicFile))
 		{
 			delete pGraphicFile;
@@ -5313,9 +5423,72 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 	RenderGraphic(pPlutoGraphic, rectTotal, bDisableAspectRatio);
 
 	//free the surface
-	if( bDeleteSurface )
+	if( bDeleteSurface && !bIsMNG) //will delete the MNG at the end of playing
 		pPlutoGraphic->Clear();	
 }
+
+/*virtual*/ void Orbiter::PlayMNG_CallBack(void *data) 
+{
+	DesignObj_Orbiter* pObj = (DesignObj_Orbiter*)data;
+
+	vector<PlutoGraphic*> *pVectorPlutoGraphic = pObj->m_pvectCurrentPlayingGraphic;
+
+	if(pVectorPlutoGraphic->size() == 0) //we have nothing to render
+		return;
+
+	int* piCurrentFrame = NULL;
+	int iFrameNum = pVectorPlutoGraphic->size();
+	switch(pObj->m_GraphicToPlay)
+	{
+		case GRAPHIC_HIGHLIGHTED: 
+			piCurrentFrame = &(pObj->m_iFrame_Highlighted); 
+			break;
+		case GRAPHIC_SELECTED: 
+			piCurrentFrame = &(pObj->m_iFrame_Selected);
+			break;
+		case GRAPHIC_NORMAL: 
+			piCurrentFrame = &(pObj->m_iFrame_Background); 
+			break;
+
+			//todo alternate graphics ?
+	}
+
+	PlutoGraphic *pPlutoGraphic = (*pVectorPlutoGraphic)[*piCurrentFrame];
+
+	if(!pPlutoGraphic->IsEmpty())
+	{
+		BeginPaint();
+		RenderGraphic(pPlutoGraphic, pObj->m_rBackgroundPosition, pObj->m_bDisableAspectLock);
+		EndPaint();
+	}
+
+	(*piCurrentFrame)++;
+	
+	const iDelay = 15; //temp
+
+	if(*piCurrentFrame >= iFrameNum) //this is the last one
+	{
+		*piCurrentFrame = 0;
+
+		size_t size = (*pVectorPlutoGraphic).size();
+		for(int i = 0; i < size; i++)
+			(*pVectorPlutoGraphic)[i]->Clear();
+
+		CallMaintenanceInMiliseconds( iDelay, &Orbiter::RenderUnselectedGraphic_CallBack, pObj , false );
+	}
+    else
+		CallMaintenanceInMiliseconds( iDelay, &Orbiter::PlayMNG_CallBack, pObj , false ); 
+}
+
+/*virtual*/ void Orbiter::RenderUnselectedGraphic_CallBack(void *data)
+{
+	DesignObj_Orbiter *pObj = (DesignObj_Orbiter *)data;
+
+	BeginPaint();
+	RenderGraphic(pObj, pObj->m_rPosition, true);
+	EndPaint();
+}
+
 //<-dceag-c260-b->
 
 	/** @brief COMMAND: #260 - Set Main Menu */

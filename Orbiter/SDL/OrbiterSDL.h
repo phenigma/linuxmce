@@ -38,6 +38,7 @@ public:
 	virtual void FloodFill(int x, int y, PlutoColor ColorToReplace, PlutoColor ReplacementColor) {};
 	virtual void RenderText(class DesignObjText *Text,class TextStyle *pTextStyle);
 	virtual void SaveBackgroundForDeselect(DesignObj_Orbiter *pObj);
+	virtual PlutoGraphic *CreateGraphic();
 
 	// Rendering
 	virtual void RenderScreen();

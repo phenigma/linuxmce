@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;../DCE/;&quot;../Libraries/pthreads-win32/include&quot;;/mysql/include;../VIPShared/;../pluto_dce;&quot;..\CrossPlatform-Libs\sge030809-w32&quot;;&quot;..\CrossPlatform-Libs\SDL_ttf-2.0.6&quot;;&quot;..\CrossPlatform-Libs\SDL_image-1.2.3&quot;;&quot;..\CrossPlatform-Libs\SDL-1.2.7\include&quot;;..\Orbiter;&quot;../CrossPlatform-Libs/lpng127&quot;;&quot;../CrossPlatform-Libs/zlib&quot;;&quot;../CrossPlatform-Libs/sge030809-w32/src&quot;;../BD;../Orbiter/Win32;&quot;../CrossPlatform-Libs/SDL_rotozoom-1.6&quot;;../Orbiter/SDL"
+				AdditionalIncludeDirectories="..;../DCE/;&quot;../Libraries/pthreads-win32/include&quot;;/mysql/include;../VIPShared/;../pluto_dce;&quot;..\CrossPlatform-Libs\sge030809-w32&quot;;&quot;..\CrossPlatform-Libs\SDL_ttf-2.0.6&quot;;&quot;..\CrossPlatform-Libs\SDL_image-1.2.3&quot;;&quot;..\CrossPlatform-Libs\SDL-1.2.7\include&quot;;..\Orbiter;&quot;../CrossPlatform-Libs/lpng127&quot;;&quot;../CrossPlatform-Libs/zlib&quot;;&quot;../CrossPlatform-Libs/sge030809-w32/src&quot;;../BD;../Orbiter/Win32;&quot;../CrossPlatform-Libs/SDL_rotozoom-1.6&quot;;../Orbiter/SDL;../OrbiterGen"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;ORBITER;BLUETOOTH_DONGLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -32,10 +32,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib WidcommSdk.lib StdDLL.lib SDL-pluto-d.lib SDL_image-pluto-d.lib SDL_ttf-pluto-d.lib SGE-pluto-d.lib libmySQL.lib dce.lib libpng-pluto-d.lib SDL_rotozoom-pluto-d.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib WidcommSdk.lib StdDLL.lib SDL-pluto-d.lib SDL_image-pluto-d.lib SDL_ttf-pluto-d.lib SGE-pluto-d.lib libmySQL.lib dce.lib libpng-pluto-d.lib SDL_rotozoom-pluto-d.lib zlib1-pluto-d.lib"
 				OutputFile="$(OutDir)/Bluetooth_Dongle.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;../Libraries/pthreads-win32/lib&quot;;../WinBluetooth/lib;&quot;../CrossPlatform-Libs/SDL-1.2.7/VisualC7/SDL/Debug&quot;;&quot;../CrossPlatform-Libs/SDL_image-1.2.3/VisualC/Debug&quot;;&quot;../CrossPlatform-Libs/SDL_ttf-2.0.6/VisualC/Debug&quot;;&quot;../CrossPlatform-Libs/sge030809-w32/sge-msvc/sge/VisualC/Debug&quot;;/mysql/lib/Debug;../lib;&quot;../CrossPlatform-Libs/lpng127/projects/visualc6/Win32_DLL_Debug&quot;;&quot;../CrossPlatform-Libs/SDL_rotozoom-1.6/VisualC/SDL_rotozoom/Debug&quot;"
+				AdditionalLibraryDirectories="&quot;../Libraries/pthreads-win32/lib&quot;;../WinBluetooth/lib;&quot;../CrossPlatform-Libs/SDL-1.2.7/VisualC7/SDL/Debug&quot;;&quot;../CrossPlatform-Libs/SDL_image-1.2.3/VisualC/Debug&quot;;&quot;../CrossPlatform-Libs/SDL_ttf-2.0.6/VisualC/Debug&quot;;&quot;../CrossPlatform-Libs/sge030809-w32/sge-msvc/sge/VisualC/Debug&quot;;/mysql/lib/Debug;../lib;&quot;../CrossPlatform-Libs/lpng127/projects/visualc6/Win32_DLL_Debug&quot;;&quot;../CrossPlatform-Libs/SDL_rotozoom-1.6/VisualC/SDL_rotozoom/Debug&quot;;../CrossPlatform-Libs/zlib/projects/visualc6/Win32_DLL_Debug"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/Bluetooth_Dongle.pdb"
 				SubSystem="1"
@@ -238,6 +238,9 @@
 			</File>
 			<File
 				RelativePath="..\OrbiterGen\Renderer.cpp">
+			</File>
+			<File
+				RelativePath="..\Orbiter\RendererMNG.cpp">
 			</File>
 			<File
 				RelativePath="..\Orbiter\Sdl\SDLGraphic.cpp">

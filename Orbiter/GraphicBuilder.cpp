@@ -1,28 +1,48 @@
 #include "GraphicBuilder.h"
 #include "SDL/SDLGraphic.h"
+#include "RendererMNG.h"
+#include "Renderer.h"
+#include "DCE/Logger.h"
 //-------------------------------------------------------------------------------------------------------
-PlutoGraphic *CreateGraphic(GraphicType Type, string Filename, eGraphicManagement GraphicManagement, 
-							Orbiter *pOrbiter)
+bool IsMNG(string sFileName)
 {
-	class PlutoGraphic *pGraphic = NULL;
+	string sExtension = FileUtils::FindExtension(sFileName);
 
-	switch(Type)
-	{
-	case gtSDLGraphic: 
-		return new SDLGraphic(Filename, GraphicManagement, pOrbiter);
-	}
+	return "MNG" == sExtension || "mng" == sExtension;
+}
+//-------------------------------------------------------------------------------------------------------
+bool IsPNG(string sFileName)
+{
+	string sExtension = FileUtils::FindExtension(sFileName);
 
-	return pGraphic;
+	return "PNG" == sExtension || "png" == sExtension;
 }
 //-------------------------------------------------------------------------------------------------------
 void CreateVectorGraphic(VectorPlutoGraphic& vectPlutoGraphic, GraphicType Type, string Filename, 
 						 eGraphicManagement GraphicManagement, Orbiter *pOrbiter)
 {
-	//TODO
-	switch(Type) //for now, handle only single frame graphic files 
+	size_t iFileSize = 0;
+	char *pFileData = NULL;
+
+	//TODO: set the right graphic format, instead of GR_UNKNOWN for non-MNG graphic files
+	eGraphicFormat eGF = GR_UNKNOWN;
+
+	if(IsMNG(Filename))
+		eGF = GR_MNG;
+	else if(IsPNG(Filename))
+		eGF = GR_PNG;
+
+	switch(Type) 
 	{
-	case gtSDLGraphic: 
-		vectPlutoGraphic.push_back(new SDLGraphic(Filename, GraphicManagement, pOrbiter));
+		case gtSDLGraphic: 
+		{
+			SDLGraphic *pSDL_Graphic = new SDLGraphic(pOrbiter); //we won't load the graphic yet
+			pSDL_Graphic->m_GraphicFormat = eGF;
+			pSDL_Graphic->m_GraphicManagement = GraphicManagement;
+			pSDL_Graphic->m_Filename = Filename;
+			vectPlutoGraphic.push_back(pSDL_Graphic);
+		}
+		break;
 	}
 }
 //-------------------------------------------------------------------------------------------------------

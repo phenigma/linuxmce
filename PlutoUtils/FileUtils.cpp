@@ -175,8 +175,6 @@ long FileUtils::FileSize(string sFile)
 #endif
 }
 
-#ifndef WINCE
-
 string FileUtils::FindExtension( string sFileName )
 {
     // This function is a bit primitive because
@@ -201,6 +199,9 @@ string FileUtils::FindExtension( string sFileName )
     }
     return sResult;
 }
+
+
+#ifndef WINCE
 
 string FileUtils::FileWithoutExtension ( string sFileName )
 {

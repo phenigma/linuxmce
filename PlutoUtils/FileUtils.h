@@ -37,9 +37,9 @@ namespace FileUtils
     bool WriteVectorToFile( string sFileName, vector<string> &vectString ); /** < writes a file where the vector of strings are the lines */
     bool FileExists( string sFileName ); /** < checks if the specified file exists */
     long FileSize(string sFileName); /** < returns the file size or zero if error */
+    string FindExtension ( string sFileName ); /** < returns the extension of the file name specified */
 
 #ifndef WINCE
-    string FindExtension ( string sFileName ); /** < returns the extension of the file name specified */
     string FileWithoutExtension ( string sFileName ); /** < returns the filename without the extension */
     string BasePath( string sFileName ); /** < returns the path one dir up @todo ask */
     string FilenameWithoutPath( string sFullPath, bool bIncludeExtension=true ); /** < returnes only the file name from a path/filename string */

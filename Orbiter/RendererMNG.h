@@ -57,14 +57,27 @@ class PNGCatChunks
 {
 	private:
 		vector<const PNGChunk *> m_Chunks;
-		size_t count() const;
 
 	public:
+		PNGCatChunks() {}
 		~PNGCatChunks();
 
 		bool AddChunk(const PNGChunk * Chunk);
 		size_t CatChunks(char * & MemoryZonePointer) const;
+		const PNGChunk *GetChunk(int i) const { return (i < count() ? m_Chunks[i] : NULL); };
 		void clear();
+		size_t count() const;
+};
+
+class InMemoryMNG
+{
+public:
+	vector<PNGCatChunks *> m_vectMNGframes;
+	MNGHeader *m_pMNGHeader;
+
+	InMemoryMNG();
+	~InMemoryMNG();
+	size_t GetFrame(int iIndex, char *&pData);
 };
 
 class RendererMNG

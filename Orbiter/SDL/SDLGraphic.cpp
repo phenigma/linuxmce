@@ -35,19 +35,6 @@ SDLGraphic::~SDLGraphic()
 void SDLGraphic::Initialize() 
 { 
 	m_pSDL_Surface = NULL;
-	m_pImage = NULL; 
-}
-//-------------------------------------------------------------------------------------------------------
-bool SDLGraphic::LoadGraphic(string sFileName)
-{
-	m_pSDL_Surface = IMG_Load(sFileName.c_str());
-	if( !m_pSDL_Surface )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Unable to read file %s", (sFileName).c_str());
-		return false;
-	}
-
-	return true;
 }
 //-------------------------------------------------------------------------------------------------------
 bool SDLGraphic::LoadGraphic(char *pData, size_t iSize)
@@ -66,12 +53,6 @@ bool SDLGraphic::LoadGraphic(char *pData, size_t iSize)
 //-------------------------------------------------------------------------------------------------------
 void SDLGraphic::Clear()
 {
-	if (m_pImage)
-	{
-		delete m_pImage;
-		m_pImage = NULL;
-	}
-
 	if (m_pSDL_Surface)
 	{
 		SDL_FreeSurface(m_pSDL_Surface);

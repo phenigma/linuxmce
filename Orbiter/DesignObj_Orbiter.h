@@ -65,7 +65,6 @@ public:
 	virtual void Initialize();
 	virtual GraphicType GraphicType_get()=0;  // Must be implemented
 	virtual bool IsEmpty()=0; //Must be implemented
-	virtual bool LoadGraphic(string sFileName) = 0; //Must be implemented
 	virtual bool LoadGraphic(char *pData, size_t iSize) = 0; //Must be implemented
 	virtual void Clear() = 0; //Must be implemented
 
@@ -102,6 +101,7 @@ public:
 	DesignObj_DataList m_OverlayObjects;
 
 	int m_GraphicToDisplay;
+	int m_GraphicToPlay;
 
 	//// m_pGraphicToUndoSelect is a temporary snapshot of the background that may be created during a select or restore
 	//// to return it to it's previous state
@@ -111,7 +111,7 @@ public:
 	// m_pGraphicToUndoSelect is a temporary snapshot of the background that may be created during a select or restore
 	// to return it to it's previous state
 	PlutoGraphic *m_pGraphicToUndoSelect;
-	VectorPlutoGraphic *m_pvectCurrentGraphic;
+	VectorPlutoGraphic *m_pvectCurrentGraphic, *m_pvectCurrentPlayingGraphic;
 	VectorPlutoGraphic m_vectGraphic,m_vectSelectedGraphic,m_vectHighlightedGraphic;
 	vector<VectorPlutoGraphic> m_vectAltGraphics;
 	int m_iTime_Background,m_iTime_Selected,m_iTime_Highlighted;

@@ -453,6 +453,11 @@ void RealRedraw( void *data );  // temp hack -- see comments
 
 	virtual void RenderGraphic( class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, bool bDisableAspectRatio = false );
 
+	virtual PlutoGraphic *CreateGraphic() = 0;
+
+	virtual void PlayMNG_CallBack(void *data);
+	virtual void RenderUnselectedGraphic_CallBack(void *data);
+
 	/**
 	 * @brief renders text with the specified style
 	 */
