@@ -952,7 +952,7 @@ function multi_page_format($row, $art_index,$mediadbADO)
 	$out='
 		<tr style="background-color:'.(($art_index%2==0)?'#EEEEEE':'#EBEFF9').';">
 			<td title="'.$row['Path'].'" align="left">'.(($row['Missing']!=0)?'<img src="include/images/missing.gif" align="top"> ':'').'<b>Filename:</b> <a href="index.php?section=editMediaFile&fileID='.$row['PK_File'].'">'.$row['Filename'].'</a><br><B>Path:</B> <a href="index.php?section=mainMediaFilesSync&path='.$row['Path'].'&filename='.urlencode($row['Filename']).'">'.$row['Path'].'</a></td>
-			<td rowspan="2"><a href="#" onClick="self.location=\'index.php?section=mainMediaBrowser&attributeID='.$GLOBALS['attributeID'].'&action=properties&fileID='.$row['PK_File'].'\';">Delete</a></td>
+			<td rowspan="2"><a href="#" onClick="if(confirm(\'Are you sure you want to delete the media file? The physical file will be deleted too if exist!\'))self.location=\'index.php?section=mainMediaBrowser&attributeID='.$GLOBALS['attributeID'].'&action=properties&fileID='.$row['PK_File'].'\';">Delete</a></td>
 		</tr>
 		<tr style="background-color:'.(($art_index%2==0)?'#EEEEEE':'#EBEFF9').';">
 			<td align="left">'.$otherAttributes.'</td>

@@ -633,7 +633,19 @@ switch ($section) {
 	    include_once('operations/mediaBrowser/editMediaFile.php');
 	    editMediaFile($output,$mediadbADO);	    
 	break;
-
+	case 'playlists':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/mediaBrowser/playlists.php');
+	    playlists($output,$mediadbADO);	    
+	break;
+	case 'editPlaylist':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/mediaBrowser/editPlaylist.php');
+	    editPlaylist($output,$mediadbADO);	    
+	break;
+	
 	case 'mediaFilesSync';
 	    include_once('operations/mediaBrowser/mediaFilesSync.php');
 	    mediaFilesSync();	    

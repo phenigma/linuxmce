@@ -54,11 +54,11 @@ function editMediaFile($output,$mediadbADO) {
 		<table border="0" cellspacing="0" cellpadding="3">
 			<tr bgColor="#EEEEEE">
 				<td><B>File:</B></td>
-				<td>'.$rowFile['Filename'].'</td>
+				<td><input type="text" name="filename" value="'.$rowFile['Filename'].'" size="55"></td>
 			</tr>
 			<tr bgcolor="#EBEFF9">
 				<td><B>Location:</B></td>
-				<td>'.((file_exists($rowFile['Path'])?'<img src=include/images/sync.gif align=middle border=0>':'<img src=include/images/db.gif align=middle border=0>')).$rowFile['Path'].'</td>
+				<td><input type="text" name="Path" value="'.stripslashes($rowFile['Path']).'" size="55">'.((file_exists($rowFile['Path'].'/'.$rowFile['Filename'])?'<img src=include/images/sync.gif align=middle border=0>':'<img src=include/images/db.gif align=middle border=0>')).'</td>
 			</tr>
 			<tr bgcolor="#EEEEEE">
 				<td><B>Type:</B></td>
@@ -95,6 +95,12 @@ function editMediaFile($output,$mediadbADO) {
 				</table></td>
 			</tr>			
 			<tr>
+				<td colspan="2" align="center"><input type="submit" name="update" value="Update">
+				<input type="hidden" name="oldPath" value="'.$rowFile['Path'].'">
+				<input type="hidden" name="oldFilename" value="'.$rowFile['Filename'].'">
+				</td>
+			</tr>			
+			<tr>
 				<td>&nbsp;</td>
 				<td>&nbsp;</td>
 			</tr>
@@ -124,13 +130,15 @@ function editMediaFile($output,$mediadbADO) {
 			$out.='
 		</table>';
 		$out.='
-		</form>
-		<script>
-		 	var frmvalidator = new formValidator("editMediaFile");			
- 			frmvalidator.addValidation("newAttributeName","req","Please enter a name for attribute or select it from the list below!");
-		</script>		
-		';
-	
+		</form>';
+		if(isset($_POST['newAttributeType']) && $_POST['newAttributeType']!='0'){
+			$out.='
+			<script>
+			 	var frmvalidator = new formValidator("editMediaFile");			
+	 			frmvalidator.addValidation("newAttributeName","req","Please enter a name for attribute or select it from the list below!");
+			</script>		
+			';
+		}	
 	}else{
 	// process area
 	
@@ -168,6 +176,28 @@ function editMediaFile($output,$mediadbADO) {
 			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg=Attribute deleted from this file.');			
 		}
 	
+		if(isset($_POST['update'])){
+			$fileName=$_POST['filename'];
+			$path=stripslashes($_POST['Path']);
+			$type=(int)$_POST['type'];
+			$newFilePath=$path.'/'.$fileName;
+			
+			$oldPath=stripslashes($_POST['oldPath']);
+			$oldFilename=stripslashes($_POST['oldFilename']);
+			$oldFilePath=$oldPath.'/'.$oldFilename;
+			if(file_exists($oldFilePath)){
+				if($path==$oldPath){
+					if($fileName!=$oldFilename)
+						rename($oldFilePath,$newFilePath);
+				}
+				else{
+					copy($oldFilePath,$newFilePath);
+					unlink($oldFilePath);
+				}
+			}
+			$mediadbADO->Execute('UPDATE File SET Filename=?, Path=?, FK_Type=? WHERE PK_File=?',array($fileName,$path,$type,$fileID));
+			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg=Media file updated.');			
+		}
 	}
 	
 	$output->setScriptInHead($scriptInHead);	

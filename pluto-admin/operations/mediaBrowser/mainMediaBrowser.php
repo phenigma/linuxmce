@@ -91,6 +91,23 @@ function mainMediaBrowser($output,$mediadbADO) {
 		$resAttribute=$mediadbADO->Execute($queryAttribute,$attributeID);
 		$rowAttribute=$resAttribute->FetchRow();
 		$attrType=$rowAttribute['FK_AttributeType'];
+		
+		if(isset($_REQUEST['fileID'])){
+			$fileID=(int)$_REQUEST['fileID'];
+			$resDelFile=$mediadbADO->Execute('SELECT * FROM File WHERE PK_File=?',$fileID);
+			if($resDelFile->RecordCount()>0){
+				$rowDelFile=$resDelFile->FetchRow();
+				$delFilePath=$rowDelFile['Path'].'/'.$rowDelFile['Filename'];
+				if(file_exists($delFilePath)){
+					unlink($delFilePath);
+				}
+			}
+			$mediadbADO->Execute('DELETE FROM File WHERE PK_File=?',$fileID);
+			$mediadbADO->Execute('DELETE FROM File_Attribute WHERE FK_File=?',$fileID);
+			$mediadbADO->Execute('DELETE FROM Picture_File WHERE FK_File=?',$fileID);
+		}
+		
+		
 		if(isset($_REQUEST['picID'])){
 			$toDelete=$_REQUEST['picID'];
 			$deletePic='DELETE FROM Picture WHERE PK_Picture=?';
