@@ -1,35 +1,37 @@
-Microsoft Visual Studio Solution File, Format Version 7.00
+Microsoft Visual Studio Solution File, Format Version 8.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpng", "libpng.vcproj", "{B9D08426-9CA4-4CD3-855D-C3188923A3DD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B6231DC5-B62A-4936-A842-90C1BF2098C7} = {B6231DC5-B62A-4936-A842-90C1BF2098C7}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pngtest", "pngtest.vcproj", "{ECD7C100-5686-4A3E-9218-69A4E11E855B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B9D08426-9CA4-4CD3-855D-C3188923A3DD} = {B9D08426-9CA4-4CD3-855D-C3188923A3DD}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "..\..\..\zlib\projects\visualc6\zlib.vcproj", "{B6231DC5-B62A-4936-A842-90C1BF2098C7}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Global
-	GlobalSection(DevPartner Solution Properties) = postSolution
-	EndGlobalSection
 	GlobalSection(SolutionConfiguration) = preSolution
-		ConfigName.0 = DLL
-		ConfigName.1 = DLL ASM
-		ConfigName.2 = DLL ASM Debug
-		ConfigName.3 = DLL ASM Release
-		ConfigName.4 = DLL Debug
-		ConfigName.5 = DLL Debug ASM
-		ConfigName.6 = DLL Release
-		ConfigName.7 = DLL VB
-		ConfigName.8 = LIB
-		ConfigName.9 = LIB ASM Debug
-		ConfigName.10 = LIB ASM Release
-		ConfigName.11 = LIB Debug
-		ConfigName.12 = LIB Release
-	EndGlobalSection
-	GlobalSection(ProjectDependencies) = postSolution
-		{B9D08426-9CA4-4CD3-855D-C3188923A3DD}.0 = {B6231DC5-B62A-4936-A842-90C1BF2098C7}
-		{ECD7C100-5686-4A3E-9218-69A4E11E855B}.0 = {B9D08426-9CA4-4CD3-855D-C3188923A3DD}
+		DLL = DLL
+		DLL ASM = DLL ASM
+		DLL ASM Debug = DLL ASM Debug
+		DLL ASM Release = DLL ASM Release
+		DLL Debug = DLL Debug
+		DLL Debug ASM = DLL Debug ASM
+		DLL Release = DLL Release
+		DLL VB = DLL VB
+		LIB = LIB
+		LIB ASM Debug = LIB ASM Debug
+		LIB ASM Release = LIB ASM Release
+		LIB Debug = LIB Debug
+		LIB Release = LIB Release
 	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
-		{B9D08426-9CA4-4CD3-855D-C3188923A3DD}.DLL.ActiveCfg = DLL Debug|Win32
-		{B9D08426-9CA4-4CD3-855D-C3188923A3DD}.DLL.Build.0 = DLL Debug|Win32
+		{B9D08426-9CA4-4CD3-855D-C3188923A3DD}.DLL.ActiveCfg = DLL Release|Win32
+		{B9D08426-9CA4-4CD3-855D-C3188923A3DD}.DLL.Build.0 = DLL Release|Win32
 		{B9D08426-9CA4-4CD3-855D-C3188923A3DD}.DLL ASM.ActiveCfg = DLL ASM Release|Win32
 		{B9D08426-9CA4-4CD3-855D-C3188923A3DD}.DLL ASM.Build.0 = DLL ASM Release|Win32
 		{B9D08426-9CA4-4CD3-855D-C3188923A3DD}.DLL ASM Debug.ActiveCfg = DLL ASM Debug|Win32
@@ -55,7 +57,6 @@ Global
 		{B9D08426-9CA4-4CD3-855D-C3188923A3DD}.LIB Release.ActiveCfg = LIB Release|Win32
 		{B9D08426-9CA4-4CD3-855D-C3188923A3DD}.LIB Release.Build.0 = LIB Release|Win32
 		{ECD7C100-5686-4A3E-9218-69A4E11E855B}.DLL.ActiveCfg = DLL ASM Release|Win32
-		{ECD7C100-5686-4A3E-9218-69A4E11E855B}.DLL.Build.0 = DLL ASM Release|Win32
 		{ECD7C100-5686-4A3E-9218-69A4E11E855B}.DLL ASM.ActiveCfg = DLL ASM Release|Win32
 		{ECD7C100-5686-4A3E-9218-69A4E11E855B}.DLL ASM.Build.0 = DLL ASM Release|Win32
 		{ECD7C100-5686-4A3E-9218-69A4E11E855B}.DLL ASM Debug.ActiveCfg = DLL ASM Debug|Win32
@@ -110,5 +111,7 @@ Global
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
 	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+	GlobalSection(DevPartner Solution Properties) = postSolution
 	EndGlobalSection
 EndGlobal

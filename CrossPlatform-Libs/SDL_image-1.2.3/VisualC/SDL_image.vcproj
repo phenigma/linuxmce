@@ -21,7 +21,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\ha\level4\CrossPlatform-Libs\SDL-1.2.7\include&quot;;&quot;C:\ha\level4\CrossPlatform-Libs\jpeg-6b&quot;;&quot;C:\ha\level4\CrossPlatform-Libs\lpng127&quot;;&quot;C:\ha\level4\CrossPlatform-Libs\zlib&quot;"
+				AdditionalIncludeDirectories="&quot;C:\pluto\trunk\CrossPlatform-Libs\SDL-1.2.7\include&quot;;&quot;C:\pluto\trunk\CrossPlatform-Libs\jpeg-6b&quot;;&quot;C:\pluto\trunk\CrossPlatform-Libs\lpng127&quot;;&quot;C:\pluto\trunk\CrossPlatform-Libs\zlib&quot;"
 				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;LOAD_BMP;LOAD_GIF;LOAD_LBM;LOAD_PCX;LOAD_PNM;LOAD_XPM;LOAD_JPG;LOAD_PNG;LOAD_TGA;PNG_USE_DLL;ZLIB_DLL"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
@@ -42,7 +42,7 @@
 				OutputFile=".\Debug/SDL_image-pluto-d.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="&quot;C:\ha\level4\CrossPlatform-Libs\SDL-1.2.7\VisualC7\SDL\Debug&quot;;&quot;C:\ha\level4\CrossPlatform-Libs\zlib\projects\visualc6\Win32_DLL_Debug&quot;;&quot;C:\ha\level4\CrossPlatform-Libs\lpng127\projects\visualc6\Win32_DLL_Debug&quot;;&quot;C:\ha\level4\CrossPlatform-Libs\jpeg-6b\jpeg-6b\Debug&quot;"
+				AdditionalLibraryDirectories="&quot;C:\pluto\trunk\CrossPlatform-Libs\SDL-1.2.7\VisualC7\SDL\Debug&quot;;&quot;C:\pluto\trunk\CrossPlatform-Libs\zlib\projects\visualc6\Win32_DLL_Debug&quot;;&quot;C:\pluto\trunk\CrossPlatform-Libs\lpng127\projects\visualc6\Win32_DLL_Debug&quot;;&quot;C:\pluto\trunk\CrossPlatform-Libs\jpeg-6b\jpeg-6b\Debug&quot;"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\Debug/SDL_image.pdb"
 				SubSystem="2"
@@ -85,7 +85,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="graphics\include"
+				AdditionalIncludeDirectories="&quot;C:\pluto\trunk\CrossPlatform-Libs\SDL-1.2.7\include&quot;;&quot;C:\pluto\trunk\CrossPlatform-Libs\jpeg-6b&quot;;&quot;C:\pluto\trunk\CrossPlatform-Libs\lpng127&quot;;&quot;C:\pluto\trunk\CrossPlatform-Libs\zlib&quot;"
 				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;LOAD_BMP;LOAD_GIF;LOAD_LBM;LOAD_PCX;LOAD_PNM;LOAD_XPM;LOAD_JPG;LOAD_PNG;LOAD_TGA;PNG_USE_DLL;ZLIB_DLL"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -103,13 +103,14 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="SDL.lib"
-				OutputFile=".\Release/SDL_image.dll"
+				AdditionalDependencies="SDL-pluto-r.lib jpeg6b-pluto-r.lib libpng-pluto-r.lib zlib1-pluto-r.lib"
+				OutputFile=".\Release/SDL_image-pluto-r.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="&quot;C:\pluto\trunk\CrossPlatform-Libs\SDL-1.2.7\VisualC7\SDL\Release&quot;;&quot;C:\pluto\trunk\CrossPlatform-Libs\zlib\projects\visualc6\Win32_DLL_Release&quot;;&quot;C:\pluto\trunk\CrossPlatform-Libs\lpng127\projects\visualc6\Win32_DLL_Release&quot;;&quot;C:\pluto\trunk\CrossPlatform-Libs\jpeg-6b\jpeg-6b\Release&quot;"
 				ProgramDatabaseFile=".\Release/SDL_image.pdb"
 				SubSystem="2"
-				ImportLibrary=".\Release/SDL_image.lib"/>
+				ImportLibrary=".\Release/SDL_image-pluto-r.lib"/>
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="NDEBUG"

@@ -74,8 +74,8 @@
 		</Configuration>
 		<Configuration
 			Name="DLL|Win32"
-			OutputDirectory=".\win32\zlib\dll"
-			IntermediateDirectory=".\win32\zlib\dll"
+			OutputDirectory=".\Win32_DLL_Release"
+			IntermediateDirectory=".\Win32_DLL_Release"
 			ConfigurationType="2"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
@@ -99,12 +99,12 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
 				AdditionalDependencies="odbc32.lib odbccp32.lib"
-				OutputFile=".\win32\zlib\dll/zlib.dll"
+				OutputFile="$(OutDir)\zlib1-pluto-r.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				ModuleDefinitionFile=".\zlib.def"
 				ProgramDatabaseFile=".\win32\zlib\dll/zlib.pdb"
-				ImportLibrary=".\win32\zlib\dll/zlib.lib"/>
+				ImportLibrary="$(OutDir)\zlib1-pluto-r.lib"/>
 			<Tool
 				Name="VCMIDLTool"
 				TypeLibraryName=".\win32\zlib\dll/zlib.tlb"/>

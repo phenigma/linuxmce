@@ -103,12 +103,12 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
 				AdditionalDependencies="winmm.lib dxguid.lib"
-				OutputFile=".\Release/SDL.dll"
+				OutputFile=".\Release/SDL-pluto-r.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				ProgramDatabaseFile=".\Release/SDL.pdb"
 				SubSystem="2"
-				ImportLibrary=".\Release/SDL.lib"/>
+				ImportLibrary=".\Release/SDL-pluto-r.lib"/>
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="NDEBUG"

@@ -22,7 +22,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\..\,..\..\SDL\include\,..\..\freetype\include\"
+				AdditionalIncludeDirectories="&quot;c:\pluto/trunk\CrossPlatform-Libs\SDL-1.2.7\include&quot;;&quot;c:\pluto/trunk\CrossPlatform-Libs\freetype-2.1.9\include&quot;;&quot;c:\pluto/trunk\CrossPlatform-Libs\SDL_image-1.2.3&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;LIBSGE_EXPORTS"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -40,13 +40,13 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="freetype.lib sdl.lib odbc32.lib odbccp32.lib"
-				OutputFile="Release/SGE.dll"
+				AdditionalDependencies="freetype219-pluto-r.lib sdl-pluto-r.lib sdl_image-pluto-r.lib odbc32.lib odbccp32.lib"
+				OutputFile="Release/SGE-pluto-r.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\..\SDL\VisualC\Release,..\..\freetype\lib"
+				AdditionalLibraryDirectories="&quot;c:\pluto/trunk\CrossPlatform-Libs\freetype-2.1.9\objs\release&quot;;&quot;c:\pluto/trunk\CrossPlatform-Libs\SDL-1.2.7\VisualC7\SDL\Release&quot;;&quot;c:\pluto/trunk\CrossPlatform-Libs\SDL_image-1.2.3\VisualC/Release&quot;"
 				ProgramDatabaseFile=".\Release/SGE.pdb"
-				ImportLibrary=".\Release/SGE.lib"/>
+				ImportLibrary=".\Release/SGE-pluto-r.lib"/>
 			<Tool
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="NDEBUG"
@@ -86,7 +86,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\ha\level4\CrossPlatform-Libs\SDL-1.2.7\include&quot;;&quot;C:\ha\level4\CrossPlatform-Libs\freetype-2.1.9\include&quot;;&quot;C:\ha\level4\CrossPlatform-Libs\SDL_image-1.2.3&quot;"
+				AdditionalIncludeDirectories="&quot;c:\pluto/trunk\CrossPlatform-Libs\SDL-1.2.7\include&quot;;&quot;c:\pluto/trunk\CrossPlatform-Libs\freetype-2.1.9\include&quot;;&quot;c:\pluto/trunk\CrossPlatform-Libs\SDL_image-1.2.3&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;LIBSGE_EXPORTS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -108,7 +108,7 @@
 				OutputFile="Debug/SGE-pluto-d.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="&quot;C:\ha\level4\CrossPlatform-Libs\freetype-2.1.9\objs\debug&quot;;&quot;C:\ha\level4\CrossPlatform-Libs\SDL-1.2.7\VisualC7\SDL\Debug&quot;;&quot;C:\ha\level4\CrossPlatform-Libs\SDL_image-1.2.3\VisualC\Debug&quot;"
+				AdditionalLibraryDirectories="&quot;c:\pluto/trunk\CrossPlatform-Libs\freetype-2.1.9\objs\debug&quot;;&quot;c:\pluto/trunk\CrossPlatform-Libs\SDL-1.2.7\VisualC7\SDL\Debug&quot;;&quot;c:\pluto/trunk\CrossPlatform-Libs\SDL_image-1.2.3\VisualC\Debug&quot;"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\Debug/SGE.pdb"
 				ImportLibrary=".\Debug/SGE-pluto-d.lib"/>
