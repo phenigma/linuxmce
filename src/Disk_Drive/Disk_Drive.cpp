@@ -31,6 +31,8 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#include "pluto_main/Define_DeviceTemplate.h"
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -1296,4 +1298,19 @@ void Disk_Drive::CMD_Rip_Disk(int iPK_Users,string sName,string &sCMD_Result,Mes
 	}
 
 	g_pPlutoLogger->Write(LV_STATUS, "Should launch ripping job with name \"%s\" for disk with type \"%d\"", sName.c_str(), m_mediaDiskStatus );
+
+	string strParameters, strCommOnFailure, strCommOnSuccess;
+
+	// Job name, disk location, disk type
+	strParameters = StringUtils::itos(m_dwPK_Device) + " " + StringUtils::itos(pMessage->m_dwPK_Device_From) + " \"" + sName + "\" \"" + DATA_Get_Drive() + "\" " + StringUtils::itos(m_mediaDiskStatus) + " " + StringUtils::itos(iPK_Users);
+
+    DCE::CMD_Spawn_Application_DT
+		spawnApplication(m_dwPK_Device,
+						DEVICETEMPLATE_App_Server_CONST,
+						BL_SameComputer,
+						"/usr/pluto/bin/ripDiskWrapper.sh", sName, strParameters,
+						"", "");
+
+    spawnApplication.m_pMessage->m_bRelativeToSender = true;
+    SendCommand(spawnApplication);
 }

@@ -28,13 +28,15 @@ typedef enum {
     MEDIA_TYPE_ERROR        = 0x99
 } discMediaType;
 
-
+// This should be in sync with the typedef in the Media_Plugin.cpp
 typedef enum {
-	RIP_RESULT_ALREADY_RIPPING	 = 0x00,
-	RIP_RESULT_NO_DISC			 = 0x01,
-	RIP_RESULT_INVALID_DISC_TYPE = 0x02,
-	RIP_RESULT_SUCCESS			 = 0x03,
-	RIP_RESULT_FAILURE			 = 0x04,
+	RIP_RESULT_BEGIN_ENUM		 = 0x01,
+	RIP_RESULT_ALREADY_RIPPING	 = 0x02,
+	RIP_RESULT_NO_DISC			 = 0x03,
+	RIP_RESULT_INVALID_DISC_TYPE = 0x04,
+	RIP_RESULT_SUCCESS			 = 0x05,
+	RIP_RESULT_FAILURE			 = 0x06,
+	RIP_RESULT_END_ENUM			 = 0x07
 } rippingResult;
 
 //<-dceag-decl-b->
