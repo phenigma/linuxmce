@@ -9,6 +9,11 @@ Device="$PK_Device"
 
 rm /var/log/pluto/running.pids
 rm -rf /tmp/* # I doubt that this is safe to do here
+rm -f /tmp/pluto_spawned_local_devices.txt
+
+# clean up locks
+mkdir -p /usr/pluto/locks
+rm -f /usr/pluto/locks/*
 
 if [ "$Parameter" != "start" -a "$Parameter" != "script" -a "$Parameter" != "stop" ]; then
 	echo "Usage: $0 start|script|stop"

@@ -94,12 +94,14 @@ while [ "$i" -le 10 ]; do
 		Logging $TYPE $SEVERITY_WARNING "$module" "Device requests restart... $i $device_name"
 		echo $(date) Shutdown >> "$new_log"
 		sleep 10
+		/usr/pluto/bin/Start_LocalDevices.sh
 	else
 		Logging $TYPE $SEVERITY_CRITICAL "$module" "Device died... $i $device_name"
 		echo $(date) died >> "$new_log"
 		echo $(date) $device_name died >> /var/log/pluto/deaths
 		echo $(date) died >> /var/log/pluto/died_${device_id}_$device_name
 		sleep 5
+		/usr/pluto/bin/Start_LocalDevices.sh
 		i=$((i+1))
 	fi
 	echo out
