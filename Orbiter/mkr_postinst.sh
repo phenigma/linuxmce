@@ -21,7 +21,4 @@ else
 /Depth.*16/ { print("\t\tModes\t\"800x600\"") }
 ' "$config" >/etc/X11/XF86Config-4
 	rm -f "$config"
-
-	# TODO: correct link for 2.4 too
-	ln -sf /dev/input/mice /dev/mouse # for 2.6
 fi
