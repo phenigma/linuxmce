@@ -97,6 +97,12 @@ namespace DCE
         virtual void DumpPlaylist();
         virtual void ClearPlaylist();
         virtual bool HaveMoreInQueue();
+
+		/**
+		 * @brief The stream will change his internal state to match the new location specificated.
+		 * @return true if the specification was undestood by the MediaStream, false otherwise.
+		 */
+		virtual bool ProcessJumpPosition(string sJumpSpecification);
     };
 
     typedef map<int,MediaStream *> MapMediaStream;

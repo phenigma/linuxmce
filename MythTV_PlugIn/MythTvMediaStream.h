@@ -22,6 +22,7 @@ namespace DCE
 	class MythTvMediaStream : public MediaStream
 	{
 	public:
+		int m_iCurrentProgramChannelID;
 
 		int m_iNextProgramChannelID;
 		int m_iNextProgramTimeYear;
@@ -46,6 +47,8 @@ namespace DCE
 		virtual void GetRenderDevices(map<int, MediaDevice *> *pmapMediaDevices);
 
 		virtual bool ProcessJumpPosition(string sJumpSpecification);
+
+		virtual bool ShouldTuneToNewChannel();
 	};
 };
 

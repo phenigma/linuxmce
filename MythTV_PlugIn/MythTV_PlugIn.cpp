@@ -133,45 +133,38 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
 
     m_dwTargetDevice = pMythTvMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device;
 
-	if ( WatchTVResult_Tuned == m_pMythWrapper->ProcessWatchTvRequest(	pMythTvMediaStream->m_iNextProgramChannelID,
-				pMythTvMediaStream->m_iNextProgramTimeYear, pMythTvMediaStream->m_iNextProgramTimeMonth, pMythTvMediaStream->m_iNextProgramTimeDay,
-				pMythTvMediaStream->m_iNextProgramTimeHour, pMythTvMediaStream->m_iNextProgramTimeMinute))
+	if ( pMythTvMediaStream->ShouldTuneToNewChannel() )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Need to tune to channel: %d", pMythTvMediaStream->m_iNextProgramChannelID);
-	}
-	else
-	{
-		DCE::CMD_Goto_Screen cmdGotoScreen(
+		if ( WatchTVResult_Tuned == m_pMythWrapper->ProcessWatchTvRequest( pMythTvMediaStream->m_iNextProgramChannelID,
+					pMythTvMediaStream->m_iNextProgramTimeYear, pMythTvMediaStream->m_iNextProgramTimeMonth, pMythTvMediaStream->m_iNextProgramTimeDay,
+					pMythTvMediaStream->m_iNextProgramTimeHour, pMythTvMediaStream->m_iNextProgramTimeMinute))
+		{
+			DCE::CMD_Tune_to_channel tuneCommand(
+					m_dwPK_Device,
+					pMythTvMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device,
+					StringUtils::itos(pMythTvMediaStream->m_iNextProgramChannelID));
+
+			SendCommand(tuneCommand);
+		}
+		else
+		{
+			DCE::CMD_Goto_Screen cmdGotoScreen(
                     m_dwPK_Device, -1,
                     0, StringUtils::itos(DESIGNOBJ_mnuPVROptions_CONST).c_str(),
                     "", "", false);
-		SendCommand(cmdGotoScreen);
+			SendCommand(cmdGotoScreen);
 
-		g_pPlutoLogger->Write(LV_STATUS, "Requesting confirmation.");
+			return true;
+		}
+	}
+	else
+	{
+		// if there is no next channel to tune then just start it.
+		DCE::CMD_Start_TV cmd(m_dwPK_Device, pMythTvMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
+		SendCommand(cmd);
 	}
 
-	DCE::CMD_Start_TV cmd(m_dwPK_Device, pMythTvMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
-
-//     DCE::CMD_Play_Media cmd(m_dwPK_Device,
-
-//      pMythTvStream->m_dwPK_Device,
-//         "0", // todo -- the real channel
-//                 pMythTvStream->m_dequeFilename.front(),
-//         pMythTvStream->m_iPK_MediaType,
-//         pMythTvStream->m_iStreamID_get(),#include "pluto_main/Table_EventParameter.h"
-//         0);
-
-    m_pMedia_Plugin->MediaInfoChanged(pMythTvMediaStream);
-
-    if( !SendCommand(cmd, &Response) )
-    {
-        g_pPlutoLogger->Write(LV_CRITICAL,"MythTV player didn't respond to play media command!");
-
-    	// TODO: See how to handle failure here
-        return false;
-    }
-
-    g_pPlutoLogger->Write(LV_STATUS,"MythTV player responded to Start TV command!");
+	m_pMedia_Plugin->MediaInfoChanged(pMythTvMediaStream);
     return true;
 }
 
@@ -389,6 +382,7 @@ bool MythTV_PlugIn::MediaInfoChanged( class Socket *pSocket, class Message *pMes
     if ( pDeviceFrom->m_dwPK_DeviceTemplate == DEVICETEMPLATE_MythTV_Backend_Proxy_CONST )
     {
 		int playbackDevice = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PK_Device_CONST].c_str());
+		int tunedChannel = atoi(pMessage->m_mapParameters[EVENTPARAMETER_ChannelID_CONST].c_str());
 		if ( playbackDevice == 0 )
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "MythTV_PlugIn::MediaInfoChanged() called for an event which didn't provided a proper device ID");
@@ -401,16 +395,17 @@ bool MythTV_PlugIn::MediaInfoChanged( class Socket *pSocket, class Message *pMes
 			return false;
 		}
 
-		if ( m_pMythWrapper->GetCurrentChannelProgram(atoi(pMessage->m_mapParameters[EVENTPARAMETER_ChannelID_CONST].c_str()),
-			pMythTvStream->m_sMediaDescription,
-			pMythTvStream->m_sSectionDescription,
-			pMythTvStream->m_sMediaSynopsis) == false )
+		if ( m_pMythWrapper->GetCurrentChannelProgram(tunedChannel,
+															pMythTvStream->m_sMediaDescription,
+															pMythTvStream->m_sSectionDescription,
+															pMythTvStream->m_sMediaSynopsis) == false )
 		{
-			pMythTvStream->m_sMediaDescription = "Channel: " + pMessage->m_mapParameters[EVENTPARAMETER_ChannelID_CONST];
+			pMythTvStream->m_sMediaDescription = "Channel: " + StringUtils::itos(tunedChannel);
 			pMythTvStream->m_sSectionDescription = "Show info not available";
 			pMythTvStream->m_sMediaSynopsis = "Other info not available";
 		}
 
+		pMythTvStream->m_iNextProgramChannelID = pMythTvStream->m_iCurrentProgramChannelID = tunedChannel;
 		m_pMedia_Plugin->MediaInfoChanged(pMythTvStream);
     }
 

@@ -771,7 +771,7 @@ void Media_Plugin::CMD_MH_Send_Me_To_Remote(bool bNot_Full_Screen,string &sCMD_R
    g_pPlutoLogger->Write(LV_STATUS, "Found entertainment area: (%d) %p %p", pEntertainArea->m_iPK_EntertainArea, pEntertainArea, pEntertainArea->m_pMediaStream);
 
 	if( pEntertainArea->m_pMediaStream->m_pOH_Orbiter_OSD &&
-		pEntertainArea->m_pMediaStream->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device==pMessage->m_dwPK_Device_From &&
+		pEntertainArea->m_pMediaStream->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device == (unsigned long)pMessage->m_dwPK_Device_From &&
 		pEntertainArea->m_pMediaStream->m_iPK_DesignObj_RemoteOSD )
 	{
 	    DCE::CMD_Goto_Screen CMD_Goto_Screen( m_dwPK_Device, pMessage->m_dwPK_Device_From, 0, StringUtils::itos( pEntertainArea->m_pMediaStream->m_iPK_DesignObj_RemoteOSD ), "", "", false );
@@ -1493,20 +1493,14 @@ void Media_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string 
         return;
     }
 
-    switch ( sValue_To_Assign[0] )
-    {
-        case '-':
-            pEntertainArea->m_pMediaStream->ChangePositionInPlaylist(-atoi(sValue_To_Assign.substr(1).c_str()));
-            break;
-        case '+':
-            pEntertainArea->m_pMediaStream->ChangePositionInPlaylist(atoi(sValue_To_Assign.substr(1).c_str()));
-            break;
-        default:
-            pEntertainArea->m_pMediaStream->SetPlaylistPosition(atoi(sValue_To_Assign.c_str()));
-            break;
-    }
-
-    pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pEntertainArea->m_pMediaStream);
+	// Made the Jump to position to be the responsibility of hte Media stream. Most of them will just inherit the previous behaviour
+	// +1 next in playlist
+	// -1 prev in playlist
+	// number select that channel
+	//
+	// but a few specific ones (like the MythTV MediaStream need to so special handling here)
+	if ( pEntertainArea->m_pMediaStream->ProcessJumpPosition(sValue_To_Assign) ) // if the specification was valid for this stream then continue processing in the media plugin
+    	pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pEntertainArea->m_pMediaStream);
 
 //  StartMediaByPositionInPlaylist(pEntertainArea, pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos, 0, 0);
 }

@@ -77,7 +77,7 @@ void MediaStream::setIsMovable(bool bIsMovable)
 
 void MediaStream::SetPlaylistPosition(int position)
 {
-	if ( position == m_iDequeMediaFile_Pos )
+	if ( (unsigned int)position == m_iDequeMediaFile_Pos )
 		return;
 
 	if ( position < 0 )
@@ -145,4 +145,22 @@ MediaStream::~MediaStream( )
     if ( m_pMediaHandlerInfo )
         m_pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_mapMediaStream_Remove( m_iStreamID );
     ClearPlaylist();
+}
+
+bool MediaStream::ProcessJumpPosition(string sJumpSpecification)
+{
+    switch ( sJumpSpecification[0] )
+    {
+        case '-':
+            ChangePositionInPlaylist(-atoi(sJumpSpecification.substr(1).c_str()));
+            break;
+        case '+':
+            ChangePositionInPlaylist(atoi(sJumpSpecification.substr(1).c_str()));
+            break;
+        default:
+            SetPlaylistPosition(atoi(sJumpSpecification.c_str()));
+            break;
+    }
+
+	return true;
 }

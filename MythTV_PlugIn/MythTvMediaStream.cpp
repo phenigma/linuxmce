@@ -71,4 +71,9 @@ namespace DCE
 
 		return true;
 	}
+
+	bool MythTvMediaStream::ShouldTuneToNewChannel()
+	{
+		return m_iNextProgramChannelID != m_iCurrentProgramChannelID;
+	}
 };
