@@ -504,6 +504,9 @@ bool Table::Update( RA_Processor &ra_Processor, DCE::Socket *pSocket )
 			sSql << (s ? "," : "") << m_vectRowsToDelete[s];
 
 		sSql << ")";
+cout << sSql.str() << endl;
+if( !AskYNQuestion("Proceed with delete?",false) )
+throw "problem with delete";
 		if( m_pDatabase->threaded_mysql_query( sSql.str() )!=0 )
 		{
 			cerr << "Unable to delete local rows" << endl;
@@ -1176,6 +1179,9 @@ void Table::DeleteRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 
 	std::ostringstream sSQL;
 	sSQL << "DELETE FROM `" << m_sName << "` WHERE psc_id=" << pR_CommitRow->m_psc_id;
+cout << sSQL.str() << endl;
+if( !AskYNQuestion("Proceed with delete?",false) )
+throw "problem with delete";
 	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
 	{
 		cerr << "Failed to delete row: " << sSQL.str( ) << endl;
@@ -1783,7 +1789,12 @@ void Table::ApplyChangedRow(ChangedRow *pChangedRow)
 
 	ostringstream sSql,sSqlMask;
 	if( pChangedRow->m_eTypeOfChange==toc_Delete )
+	{
 		sSql << "DELETE FROM `" << m_sName << "` WHERE psc_id=" << pChangedRow->m_psc_id;
+cout << sSql.str() << endl;
+if( !AskYNQuestion("Proceed with delete?",false) )
+throw "problem with delete";
+	}
 	else if( pChangedRow->m_eTypeOfChange==toc_Modify )
 	{
 		sSql << "UPDATE `" << m_sName << "` SET ";
