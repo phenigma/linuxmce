@@ -71,15 +71,16 @@ void *HandleBDCommandProcessorThread(void *p)
 	pBD_Orbiter->m_pBDCommandProcessor->AddCommand(pBD_CP_SendMeKeystrokes);
 
 	/******************************************/
-	//testing
+	//testing BD_CP_SendFile
 
-	char *pFileName = "C:\\a.gif"; ///HARDCODING WARNING!
+	/*
+	char *pFileName = "a.gif"; ///HARDCODING WARNING!
 	char *pFileData; 
 	unsigned long iFileNameSize = string(pFileName).size();
 	unsigned long iFileDataSize;
 
 	FILE* file;
-	file = fopen(pFileName, "rb"); 
+	file = fopen("C:\\a.gif", "rb"); 
 	fseek(file, 0, SEEK_END);
 	iFileDataSize = ftell(file);
 	fseek(file, 0, SEEK_SET);
@@ -87,10 +88,11 @@ void *HandleBDCommandProcessorThread(void *p)
 	fread(pFileData, 1, iFileDataSize, file);
 	fclose(file); 
 
-	BD_CP_SendFile *pBD_CP_SendFile = new BD_CP_SendFile(pFileName, pFileData, iFileNameSize, iFileDataSize);
+ 	BD_CP_SendFile *pBD_CP_SendFile = new BD_CP_SendFile(pFileName, pFileData, iFileNameSize, iFileDataSize);
 	pBD_Orbiter->m_pBDCommandProcessor->AddCommand(pBD_CP_SendFile);
 
 	PLUTO_SAFE_DELETE(pFileData);
+	*/
 
 	/******************************************/
 
