@@ -5,6 +5,8 @@
 Parameter="$1"
 Device="$PK_Device"
 
+[ "$Parameter" == "stop" ] && exit 0
+
 Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Processing startup scripts for device $Device; parameter: $Parameter"
 if [ -e /usr/pluto/install/.notdone ]; then
 	Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "It appears the installation was not successful. Pluto's startup scripts are disabled. To enable them, complete the installation process, or manually remove the file /usr/pluto/install/.notdone"
