@@ -228,7 +228,7 @@ $installationID = (int)@$_SESSION['installationID'];
 				</tr>
 				<tr>
 					<td><input type="checkbox" name="needConfigure" value="1" '.(($deviceNeedConfigure==1)?'checked':'').' onClick="javascript:document.editDeviceParams.submit();"></td>
-					<td>Resend the software to the device</td>
+					<td>Reconfigure device</td>
 				</tr>
 					
 				<tr>

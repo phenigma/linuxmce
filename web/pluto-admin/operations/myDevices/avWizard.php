@@ -187,7 +187,7 @@ function avWizard($output,$dbADO) {
 				$pos++;
 				$out.='
 				<tr bgcolor="'.(($pos%2==0)?'#EFF2F9':'').'">
-					<td align="center"><input type="text" name="description_'.$rowD['PK_Device'].'" value="'.$rowD['Description'].'"></td>
+					<td align="center"><a name="deviceLink_'.$rowD['PK_Device'].'"></a><input type="text" name="description_'.$rowD['PK_Device'].'" value="'.$rowD['Description'].'"></td>
 					<td><select name="room_'.$rowD['PK_Device'].'">
 						<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Select room -&nbsp;&nbsp;&nbsp;&nbsp;</option>';
 				foreach($roomIDArray as $key => $value){
@@ -323,8 +323,8 @@ function avWizard($output,$dbADO) {
 				$out.='</td>';
 				$out.='<td align="center" rowspan="2" valign="top">';
 				if($type=='avEquipment')
-					$out.='	<input type="button" class="button" name="btn" value="IR Codes" onClick="windowOpen(\'index.php?section=irCodes&from=avWizard&deviceID='.$rowD['PK_Device'].'&dtID='.$rowD['FK_DeviceTemplate'].'&from='.urlencode('avWizard&type='.$type).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"><br>
-							<input type="button" class="button" name="btn" value="A/V Properties" onClick="windowOpen(\'index.php?section=editAVDevice&deviceID='.$rowD['FK_DeviceTemplate'].'&from='.urlencode('avWizard&type='.$type).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"><br>';
+					$out.='	<input type="button" class="button" name="btn" value="A/V Properties" onClick="windowOpen(\'index.php?section=editAVDevice&deviceID='.$rowD['FK_DeviceTemplate'].'&from='.urlencode('avWizard&type='.$type).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"><br>
+							<input type="button" class="button" name="btn" value="IR Codes" onClick="windowOpen(\'index.php?section=irCodes&from=avWizard&deviceID='.$rowD['PK_Device'].'&dtID='.$rowD['FK_DeviceTemplate'].'&from='.urlencode('avWizard&type='.$type).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"><br>';
 						$out.='<input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="Delete"  ></td>
 					</tr>
 					<tr bgcolor="'.(($pos%2==0)?'#EFF2F9':'').'">			
@@ -421,7 +421,7 @@ function avWizard($output,$dbADO) {
 					<td colspan="8">&nbsp;</td>
 				</tr>
 				<tr>
-					<td colspan="8" align="center"><input type="button" class="button" name="button" value="Add device" onClick="document.avWizard.action.value=\'externalSubmit\';document.avWizard.submit();windowOpen(\'index.php?section=deviceTemplatePicker&from='.urlencode('avWizard&type='.$type).'&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
+					<td colspan="8" align="center"><input type="button" class="button" name="button" value="Add device" onClick="document.avWizard.action.value=\'externalSubmit\';document.avWizard.submit();windowOpen(\'index.php?section=deviceTemplatePicker&allowAdd=1&from='.urlencode('avWizard&type='.$type).'&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
 				</tr>
 			</table>
 		</form>
@@ -578,7 +578,7 @@ function avWizard($output,$dbADO) {
 				$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID);	
 				setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
 			}
-			header("Location: index.php?section=avWizard&type=$type&lastAdded=$deviceTemplate");
+			header("Location: index.php?section=avWizard&type=$type&lastAdded=$deviceTemplate#deviceLink_".$insertID);
 			exit();
 		}
 		

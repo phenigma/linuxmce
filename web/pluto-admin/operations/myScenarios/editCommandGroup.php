@@ -185,7 +185,6 @@ function editCommandGroup($output,$dbADO) {
 					$out.='
 						<tr><td valign="top">
 							<select name="device_'.$rowCommandAssigned['PK_CommandGroup_Command'].'" onChange="this.form.submit();">
-								<option value="0">-please select-</option>
 								<option value="-300" '.(($rowCommandAssigned['FK_Device']=='-300')?'selected':'').'>[Local Orbiter</option>
 						';
 							

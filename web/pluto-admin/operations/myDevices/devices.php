@@ -203,7 +203,7 @@ function devices($output,$dbADO) {
 						$rowDDforDevice=$resDDforDevice->FetchRow();
 						$ddValue=$rowDDforDevice['IK_DeviceData'];
 					}
-					if(($rowDDforDevice['ShowInWizard']==1 || $rowDDforDevice['ShowInWizard']=='') && $resDDforDevice->RecordCount()>0 && $value!=$GLOBALS['securityAlert']){
+					if((@$rowDDforDevice['ShowInWizard']==1 || @$rowDDforDevice['ShowInWizard']=='') && @$resDDforDevice->RecordCount()>0 && $value!=$GLOBALS['securityAlert']){
 						$out.='<b>'.((@$rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$DeviceDataDescriptionToDisplay[$key]).'</b> ';
 						switch($DDTypesToDisplay[$key]){
 							case 'int':

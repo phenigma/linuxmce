@@ -8,7 +8,9 @@ function deviceTemplatePicker($output,$dbADO) {
 	$_SESSION['from']=(isset($_REQUEST['from']))?cleanString(@$_REQUEST['from']):@$_SESSION['from'];
 	$_SESSION['categoryID']=(isset($_REQUEST['categoryID']))?cleanInteger(@$_REQUEST['categoryID']):@$_SESSION['categoryID'];
 	
-	$out.=pickDeviceTemplate($_SESSION['categoryID'],0,0,0,1,1,'deviceTemplatePicker','',$dbADO);
+	$allowAddDT=((int)@$_REQUEST['allowAdd']==1)?1:0;
+	
+	$out.=pickDeviceTemplate($_SESSION['categoryID'],0,0,$allowAddDT,1,1,'deviceTemplatePicker','',$dbADO);
 	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

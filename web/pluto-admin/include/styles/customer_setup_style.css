@@ -133,3 +133,8 @@ textarea {
 	font-size: 12px;
 	color: green;
 }
+.grayout {
+	font-family: Arial, Verdana,  Helvetica, sans-serif;
+	font-size: 12px;
+	color: #CCCCCC;
+}

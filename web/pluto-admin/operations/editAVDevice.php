@@ -20,6 +20,11 @@ $deviceID = (int)$_REQUEST['deviceID'];
 
 if ($action=='form') {
 	
+	$connectorsArray=array();
+	$resConnectors=$dbADO->Execute('SELECT * FROM ConnectorType ORDER BY Description ASC');
+	while($rowConnectors=$resConnectors->FetchRow()){
+		$connectorsArray[$rowConnectors['PK_ConnectorType']]=$rowConnectors['Description'];
+	}
 	
 	
 	$queryModels = "SELECT DeviceTemplate.*,DeviceCategory.Description as deviceDescription,
@@ -84,12 +89,18 @@ if ($action=='form') {
 		
 	$dspUnselected=array();
 	$dspUnselected[]=0;
-	
-	$queryDsp="SELECT * FROM Command WHERE FK_CommandCategory=21 AND PK_Command NOT IN (".join(",",$dspSelected).") ORDER BY Description";
+	$jsArray='
+		var DSPModeArray=new Array();
+		var Input__Array=new Array();
+		var Output_Array=new Array();
+	';
+	$queryDsp="SELECT * FROM Command WHERE FK_CommandCategory=21 ORDER BY Description";
 	$resDsp= $dbADO->_Execute($queryDsp);
 		if ($resDsp) {
 			while ($row=$resDsp->FetchRow()) {
-				$dspUnselectedTxt.='<option value="'.$row['PK_Command'].'">'.$row['Description'].'</option>';
+				$onclickFunction=(!in_array($row['PK_Command'],$dspSelected))?'moveDualList(this.form.DSPMode__available,this.form.DSPMode__selected,false,this.form.DSPMode__selectedOrdered,this.form.DSPMode__selected);':'moveDualList(this.form.DSPMode__selected,this.form.DSPMode__available,false,this.form.DSPMode__selectedOrdered,this.form.DSPMode__selected);';
+				$jsArray.='DSPModeArray['.$row['PK_Command'].']="'.$row['Description'].'";';
+				$dspUnselectedTxt.='<input type="checkbox" name="DSPMode__available" value="'.$row['PK_Command'].'" '.((in_array($row['PK_Command'],$dspSelected))?'checked':'').' onClick="'.$onclickFunction.'">'.$row['Description'].'<br>';
 				$dspUnselected[]=$row['PK_Command'];
 			}
 		}
@@ -101,8 +112,9 @@ if ($action=='form') {
 	
 	$inputSelected=array();
 	$inputSelected[]=0;
+	$inputConnectorsArray=array();
 	
-	$queryInputSelected = "SELECT DeviceTemplate_Input.*,Command.Description as Input_Desc
+	$queryInputSelected = "SELECT DeviceTemplate_Input.*,Command.Description as Input_Desc, FK_ConnectorType
 								FROM DeviceTemplate_Input 	
 									INNER JOIN Command on PK_Command = FK_Command
 						   WHERE FK_DeviceTemplate='$deviceID' order by OrderNo ASC";
@@ -110,31 +122,47 @@ if ($action=='form') {
 	$resInputSelected = $dbADO->_Execute($queryInputSelected);
 		if ($resInputSelected) {
 			while ($row=$resInputSelected->FetchRow()) {				
+			
 				$inputSelectedTxt.='<option value="'.$row['FK_Command'].'">'.$row['Input_Desc'].'</option>';
 				$inputSelected[]=$row['FK_Command'];
+				$inputConnectorsArray[$row['FK_Command']]=$row['FK_ConnectorType'];
 			}
 		}
 	$resInputSelected->close();
-	
-	
-	$queryInput="SELECT * FROM Command WHERE FK_CommandCategory=22 AND PK_Command NOT IN (".join(",",$inputSelected).") ORDER BY Description ASC";
+
+	$inputUnselectedTxt='<table>';
+	$queryInput="SELECT * FROM Command WHERE FK_CommandCategory=22 AND PK_Command ORDER BY Description ASC";
 	$resInput= $dbADO->_Execute($queryInput);
 		if ($resInput) {
 			while ($row=$resInput->FetchRow()) {				
-				$inputUnselectedTxt.='<option value="'.$row['PK_Command'].'">'.$row['Description'].'</option>';
+				
+				$onclickFunction=(!in_array($row['PK_Command'],$inputSelected))?'moveDualList(this.form.Input__available,this.form.Input__selected,false,this.form.Input__selectedOrdered,this.form.Input__selected);':'moveDualList(this.form.Input__selected,this.form.Input__available,false,this.form.Input__selectedOrdered,this.form.Input__selected);';
+				$jsArray.='Input__Array['.$row['PK_Command'].']="'.$row['Description'].'";';
+				$connectorPullDown='<select name="connector_'.$row['PK_Command'].'" style="display:'.((in_array($row['PK_Command'],$inputSelected))?'':'none').';">
+					<option value="0">- Please select -</option>';
+				foreach ($connectorsArray AS $connectorID=>$connectorDescription){
+					$connectorPullDown.='<option value="'.$connectorID.'" '.(($connectorID==@$inputConnectorsArray[$row['PK_Command']])?'selected':'').'>'.$connectorDescription.'</option>';
+				}
+				$connectorPullDown.='</select>';
+				
+				$inputUnselectedTxt.='
+					<tr>
+						<td><input type="checkbox" name="Input__available" value="'.$row['PK_Command'].'" '.((in_array($row['PK_Command'],$inputSelected))?'checked':'').' onClick="'.$onclickFunction.'if(this.checked)showPulldown(\'connector_'.$row['PK_Command'].'\',\'\')">'.$row['Description'].'</td>
+						<td>'.$connectorPullDown.'</td>
+					</tr>';
 				$inputUnselected[]=$row['PK_Command'];
 			}
 		}
 	$resInput->close();
-	
+	$inputUnselectedTxt.='</table>';
 	
 	$outputSelectedTxt='';
 	$outputUnselectedTxt='';
 	
 	$outputSelected=array();
 	$outputSelected[]=0;
-	
-	$queryOutputSelected = "SELECT DeviceTemplate_Output.*,Command.Description as Output_Desc
+	$outputConnectorsArray=array();
+	$queryOutputSelected = "SELECT DeviceTemplate_Output.*,Command.Description as Output_Desc,FK_ConnectorType
 								FROM DeviceTemplate_Output 	
 									INNER JOIN Command on PK_Command = FK_Command
 						   WHERE FK_DeviceTemplate='$deviceID' order by OrderNo ASC";
@@ -144,31 +172,46 @@ if ($action=='form') {
 			while ($row=$resOutputSelected->FetchRow()) {				
 				$outputSelectedTxt.='<option value="'.$row['FK_Command'].'">'.$row['Output_Desc'].'</option>';
 				$outputSelected[]=$row['FK_Command'];
+				$outputConnectorsArray[$row['FK_Command']]=$row['FK_ConnectorType'];
 			}
 		}
 	$resOutputSelected->close();
 	
-	
-	$queryOutput="SELECT * FROM Command WHERE FK_CommandCategory=27 AND PK_Command NOT IN (".join(",",$outputSelected).") ORDER BY Description ASC";
+	$outputUnselectedTxt='<table>';
+	$queryOutput="SELECT * FROM Command WHERE FK_CommandCategory=27 AND PK_Command ORDER BY Description ASC";
 	$resOutput= $dbADO->_Execute($queryOutput);
 		if ($resOutput) {
 			while ($row=$resOutput->FetchRow()) {				
-				$outputUnselectedTxt.='<option value="'.$row['PK_Command'].'">'.$row['Description'].'</option>';
+				$onclickFunction=(!in_array($row['PK_Command'],$outputSelected))?'moveDualList(this.form.Output__available,this.form.Output__selected,false,this.form.Output__selectedOrdered,this.form.Output__selected);':'moveDualList(this.form.Output__selected,this.form.Output__available,false,this.form.Output__selectedOrdered,this.form.Output__selected);';
+				$jsArray.='Output_Array['.$row['PK_Command'].']="'.$row['Description'].'";';
+				$connectorPullDown='<select name="connector_'.$row['PK_Command'].'" style="display:'.((in_array($row['PK_Command'],$outputSelected))?'':'none').';">
+					<option value="0">- Please select -</option>';
+				foreach ($connectorsArray AS $connectorID=>$connectorDescription){
+					$connectorPullDown.='<option value="'.$connectorID.'" '.(($connectorID==@$outputConnectorsArray[$row['PK_Command']])?'selected':'').'>'.$connectorDescription.'</option>';
+				}
+				$connectorPullDown.='</select>';
+				
+				$outputUnselectedTxt.='
+					<tr>
+						<td><input type="checkbox" name="Output__available" value="'.$row['PK_Command'].'" '.((in_array($row['PK_Command'],$outputSelected))?'checked':'').' onClick="'.$onclickFunction.'if(this.checked)showPulldown(\'connector_'.$row['PK_Command'].'\',\'\')">'.$row['Description'].'</td>
+						<td>'.$connectorPullDown.'</td>
+					</tr>';
 				$outputUnselected[]=$row['PK_Command'];
 			}
 		}
 	$resOutput->close();
-	
+	$outputUnselectedTxt.='</table>';
 	
 	$checkedTogglePower = $togglePower>0?"checked":"";
 	$checkedDSPModes = $toggleDSP>0?"checked":"";
 	$checkedInput = $toggleInput>0?"checked":"";
 	$checkedOutput = $toggleOutput>0?"checked":"";
 	$checkedUsesIR = $usesIR>0?"checked":"";
-
+	$enabledIROptions=($usesIR>0)?'':'disabled';
+	
 $out.='
 
-<form action="index.php" method="POST" name="editAVDevice">
+<form action="index.php" method="POST" name="editAVDevice" onSubmit="setCheckboxes();">
 <input type="hidden" name="section" value="editAVDevice">
 <input type="hidden" name="action" value="update">
 <input type="hidden" name="deviceID" value="'.$deviceID.'">
@@ -182,31 +225,40 @@ $out.='
 <div align="center">
 		<b>'.$deviceTemplateName.'</b>
 	<br />
-		IR Power Delay: <input type="text" name="irPowerDelay" value="'.$irPowerDelay.'" size="5" /><br />
-		IR Mode Delay: <input type="text" name="irModeDelay" value="'.$irModeDelay.'" size="5" /><br />
-		Digit Delay (ms): <input type="text" name="irDigitDelay" value="'.$digitDelay.'" size="5" /><br /><br />
-		Toggle Power: <input type="checkbox" name="toggle_power" value="1" '.$checkedTogglePower.'>  <br />
-		Uses IR: <input type="checkbox" name="usesIR" value="1" '.$checkedUsesIR.'>  <br />
 </div>
 	
 <br />
-			
+	<table align="center">
+		<tr>
+			<td align="right" width="50%">Uses IR: </td>
+			<td><input type="checkbox" name="usesIR" value="1" '.$checkedUsesIR.' onclick="document.editAVDevice.action.value=\'update\';document.editAVDevice.submit();setCheckboxes();">
+		</td>
+		</tr>
+		<tr>
+			<td colspan="2" align="center"><span class="'.(($usesIR>0)?'':'grayout').'">IR Power Delay: <input type="text" name="irPowerDelay" value="'.$irPowerDelay.'" size="5" '.$enabledIROptions.' /> IR Mode Delay: <input type="text" name="irModeDelay" value="'.$irModeDelay.'" size="5" '.$enabledIROptions.'/> Digit Delay (ms): <input type="text" name="irDigitDelay" value="'.$digitDelay.'" size="5" '.$enabledIROptions.'/></span></td>
+		</tr>
+		<tr>
+			<td align="right"><span class="'.(($usesIR>0)?'':'grayout').'">Toggle Power: </span></td>
+			<td><input type="checkbox" name="toggle_power" value="1" '.$checkedTogglePower.' '.$enabledIROptions.'></td>
+		</tr>
+	</table>
+
 		<table cellpadding="5" cellspacing="0" border="1" align="center">
-		<tr><th>DSP Modes</th><th>Inputs</th><th>Outputs</th></tr>
+		<tr>
+			<th>DSP Modes</th><th>Inputs</th><th>Outputs</th>
+		</tr>
 		<tr>
 			<td valign="top">
-				<input type="checkbox" value="1" name="toggle_dsp" '.$checkedDSPModes.'/>Toggle (no discrete codes)
+				<input type="checkbox" value="1" name="toggle_dsp" '.$checkedDSPModes.' onClick="document.editAVDevice.submit();setCheckboxes();"/>Toggle (no discrete codes)
 				<br />
 				<table cellpadding="2" cellspacing="0" border="0">
 						<tr>
 							<td>
-								<select name="DSPMode__available" size="10">									
-									'.$dspUnselectedTxt.'
-								</select>
-							</td>
+								'.$dspUnselectedTxt.'
+							</td>';
+			if($toggleDSP>0){
+				$out.='
 							<td>
-									<input type="button" class="button" style="width:40" onclick="moveDualList(this.form.DSPMode__available,this.form.DSPMode__selected,false,this.form.DSPMode__selectedOrdered,this.form.DSPMode__selected)" name=">>"  value="&gt;">
-								    <br>
 									<input type="button" class="button" style="width:40" onclick="moveDualList(this.form.DSPMode__selected,this.form.DSPMode__available,false,this.form.DSPMode__selectedOrdered,this.form.DSPMode__selected)" name="<<"  value="&lt;">
 								    <br>       
 								    <input type="button" class="button" style="width:40" onclick="moveDualList(this.form.DSPMode__available,this.form.DSPMode__selected,true,this.form.DSPMode__selectedOrdered,this.form.DSPMode__selected)"  name=">>>>"  value="&gt;&gt;"> 
@@ -221,59 +273,55 @@ $out.='
 							<td>
 								<input type="button" class="button" value="U" onClick="move(this.form.DSPMode__selected,this.form.DSPMode__selected.selectedIndex,-1,this.form.DSPMode__selectedOrdered)"><br><br>
 								<input type="button" class="button" value="D" onClick="move(this.form.DSPMode__selected,this.form.DSPMode__selected.selectedIndex,+1,this.form.DSPMode__selectedOrdered)">
-								<input type="hidden" name="DSPMode__selectedOrdered" value="">
-							</td>
+							</td>';
+			}
+			$out.='
+					<input type="hidden" name="DSPMode__selectedOrdered" value="">
 						</tr>
 				</table>
 			</td>
 
 
 			<td valign="top">
-				<input type="checkbox" name="toggle_input" value="1" '.$checkedInput.'/>Toggle (no discrete codes)
+				<input type="checkbox" name="toggle_input" value="1" '.$checkedInput.' onClick="document.editAVDevice.submit();setCheckboxes();"/>Toggle (no discrete codes)
 				<br />
 				<table cellpadding="2" cellspacing="0" border="0">
 						<tr>
-							<td>
-								<select name="Input__available" size="10">									
-									'.$inputUnselectedTxt.'
-								</select>
-							</td>
-							<td>
-									<input type="button" class="button" style="width:40" onclick="moveDualList(this.form.Input__available,this.form.Input__selected,false,this.form.Input__selectedOrdered,this.form.Input__selected)" name=">>"  value="&gt;">
-								    <br>
+							<td>'.$inputUnselectedTxt.'</td>';
+			if($toggleInput>0){
+				$out.='
+							<td valign="top">
 									<input type="button" class="button" style="width:40" onclick="moveDualList(this.form.Input__selected,this.form.Input__available,false,this.form.Input__selectedOrdered,this.form.Input__selected)" name="<<"  value="&lt;">
 								    <br>       
 								    <input type="button" class="button" style="width:40" onclick="moveDualList(this.form.Input__available,this.form.Input__selected,true,this.form.Input__selectedOrdered,this.form.Input__selected)"  name=">>>>"  value="&gt;&gt;"> 
 								    <br />
 								    <input type="button" class="button" style="width:40" onclick="moveDualList(this.form.Input__selected,this.form.Input__available,true,this.form.Input__selectedOrdered,this.form.Input__selected)"  name="<<<<"  value="&lt;&lt;">
 							</td>
-							<td>							
+							<td valign="top">							
 								<select name="Input__selected" size="10">
 									'.$inputSelectedTxt.'
 								</select>
 							</td>
-							<td>
+							<td valign="top">
 								<input type="button" class="button" value="U" onClick="move(this.form.Input__selected,this.form.Input__selected.selectedIndex,-1,this.form.Input__selectedOrdered)"><br><br>
 								<input type="button" class="button" value="D" onClick="move(this.form.Input__selected,this.form.Input__selected.selectedIndex,+1,this.form.Input__selectedOrdered)">
-								<input type="hidden" name="Input__selectedOrdered" value="">
 							</td>
-						</tr>
+						</tr>';
+			}
+			$out.='
+					<input type="hidden" name="Input__selectedOrdered" value="">
 				</table>
 			</td>
 
 			<td valign="top">
-				<input type="checkbox" name="toggle_output" value="1" '.$checkedOutput.'/>Toggle (no discrete codes)
+				<input type="checkbox" name="toggle_output" value="1" '.$checkedOutput.' onClick="document.editAVDevice.submit();setCheckboxes();"/>Toggle (no discrete codes)
 				<br />
 				<table cellpadding="2" cellspacing="0" border="0">
 						<tr>
+							<td valign="top">'.$outputUnselectedTxt.'</td>';
+			if($toggleOutput>0){
+				$out.='
 							<td>
-								<select name="Output__available" size="10">									
-									'.$outputUnselectedTxt.'
-								</select>
-							</td>
-							<td>
-									<input type="button" class="button" style="width:40" onclick="moveDualList(this.form.Output__available,this.form.Output__selected,false,this.form.Output__selectedOrdered,this.form.Output__selected)" name=">>"  value="&gt;">
-								    <br>
 									<input type="button" class="button" style="width:40" onclick="moveDualList(this.form.Output__selected,this.form.Output__available,false,this.form.Output__selectedOrdered,this.form.Output__selected)" name="<<"  value="&lt;">
 								    <br>       
 								    <input type="button" class="button" style="width:40" onclick="moveDualList(this.form.Output__available,this.form.Output__selected,true,this.form.Output__selectedOrdered,this.form.Output__selected)"  name=">>>>"  value="&gt;&gt;"> 
@@ -288,9 +336,11 @@ $out.='
 							<td>
 								<input type="button" class="button" value="U" onClick="move(this.form.Output__selected,this.form.Output__selected.selectedIndex,-1,this.form.Output__selectedOrdered)"><br><br>
 								<input type="button" class="button" value="D" onClick="move(this.form.Output__selected,this.form.Output__selected.selectedIndex,+1,this.form.Output__selectedOrdered)">
-								<input type="hidden" name="Output__selectedOrdered" value="">
 							</td>
-						</tr>
+						</tr>';
+			}
+			$out.='
+				<input type="hidden" name="Output__selectedOrdered" value="">
 				</table>
 			</td>
 
@@ -306,6 +356,28 @@ $output->setScriptCalendar('null');
 
 $scriptInHead = '
 <SCRIPT LANGUAGE="JavaScript">
+
+'.$jsArray.'
+
+function showPulldown(pullDownName,value)
+{
+	eval("document.editAVDevice."+pullDownName+".style.display=\'"+value+"\';");
+}
+
+
+function setCheckboxes()
+{
+	if(document.editAVDevice.DSPMode__selectedOrdered.value==""){
+		for(i=0;i<document.editAVDevice.DSPMode__available.length;i++){
+			document.editAVDevice.DSPMode__selectedOrdered.value+=document.editAVDevice.DSPMode__available[i].value+",";
+		}
+	}
+	
+alert(document.editAVDevice.DSPMode__selectedOrdered.length);
+	alert(document.editAVDevice.DSPMode__selectedOrdered.value.substr(0,document.editAVDevice.DSPMode__selectedOrdered.length))
+	//alert(document.editAVDevice.Input__selectedOrdered.value)
+	//alert(document.editAVDevice.Output__selectedOrdered.value)
+}
 
 
 function compareOptionValues(a, b) { 
@@ -340,64 +412,94 @@ function compareOptionText(a, b) {
 // Dual list move function
 
 function moveDualList( srcList, destList, moveAll,saveToField,fieldThatWillBeOrdered) {
-
   // Do nothing if nothing is selected
+	var srcIsCheckbox=(srcList[0].type=="checkbox")?1:0;
 
-  if (( srcList.selectedIndex == -1) && (moveAll == false))  {
-    return;
-  }
+	if(srcIsCheckbox==1){
 
+		newDestList = new Array( destList.options.length );
+		var len = 0;
 
+		for( len = 0; len < destList.options.length; len++ ) {
+			if ( destList.options[ len ] != null ) {
+				newDestList[ len ] = new Option( destList.options[ len ].text, destList.options[ len ].value, destList.options[ len ].defaultSelected, destList.options[ len ].selected );
+			}
+		}
+		
+		// get source elements
+		for( var i = 0; i < srcList.length; i++ ) { 
+	    	if ((srcList[i].checked || moveAll) && !inCheckboxArray(srcList[i].value,newDestList)) {    
+				eval("tmpval="+srcList[0].name.substr(0,7)+"Array["+srcList[i].value+"]");
+	       		newDestList[ len ] = new Option( tmpval, srcList[i].value);
+	       		len++;
+	    	}
+	 	}
 
-  newDestList = new Array( destList.options.length );
+		// Populate the destination with the items from the new array
+		for (var j = 0;j < newDestList.length; j++) {
+			if ( newDestList[ j ] != null ){
+		    	destList.options[ j ] = newDestList[ j ];
+			}
+		}
 
-  var len = 0;
+		if(moveAll == true){
+			for(i=0;i<srcList.length;i++)
+				srcList[i].checked=true;
+		}
+	}else{
+		if (( srcList.selectedIndex == -1) && (moveAll == false))  {
+    		return;
+		}
 
-  for( len = 0; len < destList.options.length; len++ ) {
-    if ( destList.options[ len ] != null ) {
-      newDestList[ len ] = new Option( destList.options[ len ].text, destList.options[ len ].value, destList.options[ len ].defaultSelected, destList.options[ len ].selected );
-    }
-  }
+		newDestList = new Array( destList.length );
+		var len = 0;
 
+		for( len = 0; len < destList.length; len++ ) {
+			if ( destList[len].checked ) {
+				newDestList[ len ] = destList[len].value;
+			}
+		}
+		
+		// get source elements
+	  	for( var i = 0; i < srcList.options.length; i++ ) { 
+	    	if (srcList.options[i] != null && (srcList.options[i].selected == true || moveAll)) {       
+	       		newDestList = deleteFromArray(srcList.options[i].value,newDestList);
+	       		len++;
+	    	}
+	 	}
 
+		// Populate the destination with the items from the new array
+		for (var j = 0;j < destList.length; j++) {
+			if ( inArray(destList[ j ].value,newDestList) ){
+		    	destList[j].checked = true;
+			}else{
+				destList[j].checked = false;
+				try{
+					showPulldown(\'connector_\'+destList[ j ].value,\'none\');
+				}catch(e){
+				}
+			}
+		}
 
-  for( var i = 0; i < srcList.options.length; i++ ) { 
-    if (srcList.options[i] != null && (srcList.options[i].selected == true || moveAll)) {       
-       newDestList[ len ] = new Option( srcList.options[i].text, srcList.options[i].value, srcList.options[i].defaultSelected, srcList.options[i].selected );
-       len++;
-    }
-  }
+		// Erase source list selected elements
+		for( var i = srcList.options.length - 1; i >= 0; i-- ) { 
+	    	if ( srcList.options[i] != null && ( srcList.options[i].selected == true || moveAll ) ) {
+	
+	       		// Erase Source
+	       		//srcList.options[i].value = "";
+	       		//srcList.options[i].text  = "";
+				srcList.options[i]       = null;
+	    	}
+		}
+	}
 
-
-
+	
   // Sort out the new destination list
 
   //newDestList.sort( compareOptionValues );   // BY VALUES
 
   //newDestList.sort( compareOptionText );   // BY TEXT
 
-
-
-  // Populate the destination with the items from the new array
-
-  for (var j = 0;j < newDestList.length; j++) {
-    if ( newDestList[ j ] != null ){
-      destList.options[ j ] = newDestList[ j ];
-    }
-  }
-
-
-
-  // Erase source list selected elements
-  for( var i = srcList.options.length - 1; i >= 0; i-- ) { 
-    if ( srcList.options[i] != null && ( srcList.options[i].selected == true || moveAll ) ) {
-
-       // Erase Source
-       //srcList.options[i].value = "";
-       //srcList.options[i].text  = "";
-       srcList.options[i]       = null;
-    }
-  }
   saveOrdered(fieldThatWillBeOrdered,saveToField);
 } 
 
@@ -440,30 +542,64 @@ function saveOrdered(listA,saveToFieldA) {
 	saveToFieldA.value = theList;   
 	//alert(theList);
 }
+function inCheckboxArray(toFind,targetList)
+{
+	for(i=0;i<targetList.length;i++){
+		if(toFind==targetList[i].value)
+			return true;
+	}
+	return false;
+}
+
+function inArray(toFind,targetList)
+{
+	for(i=0;i<targetList.length;i++){
+		if(toFind==targetList[i])
+			return true;
+	}
+	return false;
+}
+
+function deleteFromArray(toDelete,targetArray)
+{
+	retArray=new Array();
+	len=0;
+	for(i=0;i<targetArray.length;i++){
+		if(targetArray[i]!=toDelete){
+			retArray[len]=targetArray[i];
+			len++;
+		}
+	}
+	return retArray;
+}
 </script>
 
 ';
-$onLoad = "onLoad=saveOrdered(document.forms.editAVDevice.DSPMode__selected,document.forms.editAVDevice.DSPMode__selectedOrdered);saveOrdered(document.forms.editAVDevice.Input__selected,document.forms.editAVDevice.Input__selectedOrdered);saveOrdered(document.forms.editAVDevice.Output__selected,document.forms.editAVDevice.Output__selectedOrdered);";
-$output->setScriptInHead($scriptInHead);
-$output->setScriptInBody($onLoad);
+	$onLoad='onLoad=';
+	if($toggleDSP>0)
+		$onLoad .= "saveOrdered(document.forms.editAVDevice.DSPMode__selected,document.forms.editAVDevice.DSPMode__selectedOrdered);";
+	if($toggleInput>0)
+		$onLoad .="saveOrdered(document.forms.editAVDevice.Input__selected,document.forms.editAVDevice.Input__selectedOrdered);";
+	if($toggleOutput>0)
+		$onLoad.="saveOrdered(document.forms.editAVDevice.Output__selected,document.forms.editAVDevice.Output__selectedOrdered);";
+	$output->setScriptInHead($scriptInHead);
+	$output->setScriptInBody($onLoad);
 } else {
-	
-	$powerDelay = cleanInteger($_POST['irPowerDelay']);
-	$modeDelay = cleanInteger($_POST['irModeDelay']);
-	$digitDelay = cleanInteger($_POST['irDigitDelay']);
-	
+	$powerDelay = cleanInteger(@$_POST['irPowerDelay']);
+	$modeDelay = cleanInteger(@$_POST['irModeDelay']);
+	$digitDelay = cleanInteger(@$_POST['irDigitDelay']);
+
 	$togglePower = cleanInteger(@$_POST['toggle_power']);
 	$toggleDSP = cleanInteger(@$_POST['toggle_dsp']);
 	$toggleInput = cleanInteger(@$_POST['toggle_input']);
 	$toggleOutput = cleanInteger(@$_POST['toggle_output']);
 	$usesIR = cleanInteger(@$_POST['usesIR']);
 	
-	$dspOrdered=cleanString($_POST['DSPMode__selectedOrdered']);
+	$dspOrdered=cleanString(@$_POST['DSPMode__selectedOrdered']);
 	$inputOrdered=cleanString($_POST['Input__selectedOrdered']);
 	$outputOrdered=cleanString($_POST['Output__selectedOrdered']);
 	
-	
-	
+
 	$updateBasicDetails = "UPDATE DeviceTemplate_AV SET 
 			IR_PowerDelay = ?,IR_ModeDelay = ?,DigitDelay =?,TogglePower=?,ToggleDSP=?,ToggleInput=?,ToggleOutput=?, UsesIR=?
 						WHERE  FK_DeviceTemplate = ? ";
@@ -536,15 +672,16 @@ $output->setScriptInBody($onLoad);
 	
 	$pos=1;
 	foreach ($inputOrderedArrayIDs as $inputElem) {
+		$connectorID=((int)@$_POST['connector_'.$inputElem]!=0)?(int)@$_POST['connector_'.$inputElem]:NULL;
 		$checkIfExists='SELECT * FROM DeviceTemplate_Input WHERE FK_DeviceTemplate = ? AND FK_Command = ?';
 		$resCheckIfExists = $dbADO->Execute($checkIfExists,array($deviceID,$inputElem));
 		if ($resCheckIfExists->RecordCount()==1) {
-			$updateOrder = "UPDATE DeviceTemplate_Input SET OrderNo = ? WHERE FK_DeviceTemplate= ? AND FK_Command = ? ";
-			$resUpdateOrder = $dbADO->Execute($updateOrder,array($pos,$deviceID,$inputElem));
+			$updateOrder = "UPDATE DeviceTemplate_Input SET OrderNo = ?, FK_ConnectorType=? WHERE FK_DeviceTemplate= ? AND FK_Command = ? ";
+			$resUpdateOrder = $dbADO->Execute($updateOrder,array($pos,$connectorID,$deviceID,$inputElem));
 		} else {
 			if ($inputElem!=0) {
-				$insertRecord = "INSERT INTO DeviceTemplate_Input (FK_DeviceTemplate,FK_Command,OrderNo) values(?,?,?)";
-				$resInsertRecord = $dbADO->Execute($insertRecord,array($deviceID,$inputElem,$pos));
+				$insertRecord = "INSERT INTO DeviceTemplate_Input (FK_DeviceTemplate,FK_Command,OrderNo,FK_ConnectorType) values(?,?,?,?)";
+				$resInsertRecord = $dbADO->Execute($insertRecord,array($deviceID,$inputElem,$pos,$connectorID));
 			}
 		}
 		$pos++;	

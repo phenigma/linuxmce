@@ -10,6 +10,12 @@ function securitySettings($output,$dbADO,$securitydbADO) {
 	$deviceCategory=$GLOBALS['rootSecurity'];
 	
 	$queryAlertTypes='SELECT * FROM AlertType';
+	$res=$securitydbADO->Execute($queryAlertTypes);
+	$alertTypesLabels=array();
+	while($row=$res->FetchRow()){
+		$alertTypesLabels[$row['PK_AlertType']]=$row['Description'];
+	}
+	
 	$pullDownArray = array(0=>'Do Nothing',2=>'Announcement');
 	
 	$properties = array('disarmed', 'armed - away', 'armed - at home', 'sleeping', 'entertaining', 'extended away');
@@ -68,14 +74,13 @@ function securitySettings($output,$dbADO,$securitydbADO) {
 				while($rowD=$resDevice->FetchRow()){
 					$displayedDevices[]=$rowD['PK_Device'];
 					$queryAlertType='
-						SELECT Device_DeviceData.IK_DeviceData, AlertType.Description 
+						SELECT Device_DeviceData.IK_DeviceData
 						FROM Device_DeviceData 
-						INNER JOIN AlertType ON IK_DeviceData=PK_AlertType 
 						WHERE FK_Device=? AND FK_DeviceData=?';
 					$resAlertType=$dbADO->Execute($queryAlertType,array($rowD['PK_Device'],$GLOBALS['securityAlertType']));
 					if($resAlertType->RecordCount()>0){
 						$rowAlertType=$resAlertType->FetchRow();
-						$pullDownArray[1]=$rowAlertType['Description'];
+						$pullDownArray[1]=$alertTypesLabels[$rowAlertType['IK_DeviceData']];
 						$selectedAlertType=$rowAlertType['IK_DeviceData'];
 					}else
 						$selectedAlertType=0;

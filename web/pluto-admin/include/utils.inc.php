@@ -1058,6 +1058,7 @@ function getChilds($parentID,$dbADO) {
 
 function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDeviceTemplate,$returnValue,$defaultAll,$section,$firstColText,$dbADO,$useframes=0)
 {
+	global $dbPlutoMainDatabase;
 	$out='';
 	$selectedManufacturer = (int)@$_REQUEST['manufacturers'];
 	$selectedDeviceCateg= (int)@$_REQUEST['deviceCategSelected'];
@@ -1271,6 +1272,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 		<input type="hidden" name="deviceCategSelected" value="'.$selectedDeviceCateg.'">
 		<input type="hidden" name="deviceSelected" value="'.$selectedDevice.'">
 		<input type="hidden" name="modelSelected" value="'.$selectedModel.'">
+		<input type="hidden" name="allowAdd" value="'.(int)@$_REQUEST['allowAdd'].'">
 		
 		<table cellpadding="5" cellspacing="0" border="0" align="center">
 				<input type="hidden" name="selectedField" value="" />
@@ -1362,16 +1364,31 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 							}
 					
 							$disabled_str = "disabled";
-				if($boolDeviceTemplate==1){
-					
-					$out.='	<b>New:</b>
-							<input type="text" name="DeviceTemplate_Description" size="15"'.$disabledAdd.' />
-							<input type="submit" class="button" name="addDeviceTemplate" value="Add"'. $disabledAdd .'  />
-							<br>Device templates highlighted are plug and play.';
-				}
+				
+				$out.='	<b>Device templates highlighted are plug and play.';
 				$out.='
 						</td>				
-					</tr>
+					</tr>';
+				if($returnValue!=0){
+					$out.='
+					<tr>
+						<td colspan="3">To add a device, choose the manufacturer and the category to see all models for you selection. Pick the model you want and click <B>"Add device"</B>.</td>
+					</tr>';
+				}
+				if($boolDeviceTemplate==1){
+					$out.='
+					<tr>
+						<td colspan="3">If your model is not listed, pick the manufacturer and the category and then type the model here: <input type="text" name="DeviceTemplate_Description" size="15"'.$disabledAdd.' />
+							<input type="submit" class="button" name="addDeviceTemplate" value="Add"'. $disabledAdd .'  /></td>
+					</tr>';
+				}
+				if($categoryID==$GLOBALS['rootAVEquipment']){
+					$out.='
+					<tr>
+						<td colspan="3">After you add the device you\'ll to choose the A/V properties button and then I/R codes.</td>
+					</tr>';
+				}
+				$out.='
 				</table>
 							
 		</form>
@@ -1391,6 +1408,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 		 $deviceSelected = (int)$_POST['deviceSelected'];
 		 $manufacturerSelected = (int)$_POST['manufacturers'];
 	
+
 		 // process form only if user is logged
 		 if (isset($_SESSION['userLoggedIn']) && $_SESSION['userLoggedIn']==true) {
 	
@@ -1403,7 +1421,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 			 		$deviceCategParent=($deviceSelected==0)?$categoryID:$deviceSelected;
 			 		$dbADO->Execute($queryInsertCategoryDesc,array($deviceCategParent,$deviceCategoryDesc));	 			
 			 		$justAddedNode = $deviceSelected;
-			 			 			 		
+			 		header("Location: index.php?section=$section&manufacturers=$manufacturerSelected&deviceCategSelected=$selectedDeviceCateg&deviceSelected=$selectedDevice&model=$selectedModel&allowAdd=$boolDeviceTemplate&justAddedNode=$justAddedNode");	 			 		
 				}
 			 }	
 			 	 
@@ -1415,6 +1433,19 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 			 		if ($deviceSelected!=0 && $manufacturerSelected!=0) {	 			
 			 			$queryInsertMasterDevice = 'INSERT INTO DeviceTemplate (Description,FK_DeviceCategory,FK_Manufacturer) values(?,?,?)';
 			 			$res = $dbADO->Execute($queryInsertMasterDevice,array($DeviceTemplate_Desc,$deviceSelected,$manufacturerSelected));	 			
+			 			
+			 			if($categoryID==$GLOBALS['rootAVEquipment']){
+			 				$templateID=$dbADO->Insert_ID();
+							$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$templateID.' -i '.$_SESSION['installationID']);	
+							setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
+							$out.='
+								<script>
+									opener.location="index.php?section=avWizard&type=avEquipment#deviceLink_'.$insertID.'";
+									self.close();
+								</script>';
+			 			}else{
+							header("Location: index.php?section=$section&manufacturers=$manufacturerSelected&deviceCategSelected=$selectedDeviceCateg&deviceSelected=$selectedDevice&model=$selectedModel&allowAdd=$boolDeviceTemplate&justAddedNode=$justAddedNode");			 			
+			 			}
 			 		}	 			 		
 			 	}
 			 }
@@ -1424,11 +1455,18 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 			 	if ($Manufacturer_Description!='') {
 		 			$queryInsertManufacturer = 'INSERT INTO Manufacturer (Description) values(?)';
 		 			$res = $dbADO->Execute($queryInsertManufacturer,array($Manufacturer_Description));	 			
+		 			header("Location: index.php?section=$section&manufacturers=$manufacturerSelected&deviceCategSelected=$selectedDeviceCateg&deviceSelected=$selectedDevice&model=$selectedModel&allowAdd=$boolDeviceTemplate&justAddedNode=$justAddedNode");
 		 		}	 			 		
 			 }
-			 header("Location: index.php?section=$section&manufacturers=$manufacturerSelected&deviceCategSelected=$selectedDeviceCateg&deviceSelected=$selectedDevice&model=$selectedModel&justAddedNode=$justAddedNode");
+			$out.="
+				<script>
+					self.location='index.php?section=$section&manufacturers=$manufacturerSelected&deviceCategSelected=$selectedDeviceCateg&deviceSelected=$selectedDevice&model=$selectedModel&allowAdd=$boolDeviceTemplate&justAddedNode=$justAddedNode';
+				</script>";
 		}else{
-			header("Location: index.php?section=$section&manufacturers=$manufacturerSelected&deviceCategSelected=$selectedDeviceCateg&deviceSelected=$selectedDevice&model=$selectedModel&error=Please login if you want to change device templates.");
+			$out.="
+				<script>
+					self.location='index.php?section=$section&manufacturers=$manufacturerSelected&deviceCategSelected=$selectedDeviceCateg&deviceSelected=$selectedDevice&model=$selectedModel&allowAdd=$boolDeviceTemplate&error=Please login if you want to change device templates.';
+				</script>";
 		}
 	}
 	return $out;

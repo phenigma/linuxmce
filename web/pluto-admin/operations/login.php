@@ -5,7 +5,7 @@ $out='';
 $actionX = cleanString(@$_REQUEST['action']);
 
 $loginFormBig= '
-	<h1 align="center">Welcome to Pluto Admin.  Please log in:</h1>
+	<h1 align="center">'.((isset($_REQUEST['msg']))?$_REQUEST['msg']:'Welcome to Pluto Admin.  Please log in:').'</h1>
 	<div align="center"></div>	
 	<form name="form1" id="form1" method="post" action="'.$_SERVER['PHP_SELF'].'">
 	<input type="hidden" name="section" value="login">
@@ -115,10 +115,10 @@ if (isset($_POST['submitX'])) {
 } elseif ($actionX=='logout') {	
 	$_SESSION = array();
 	session_destroy();
-	$out.='Thank you for your visit!';
 	
 	$scriptInHead='
 		<script>
+			parent.frames[\'basefrm\'].location.href="index.php?section=login&msg=Thank you for your visit!"
 			if (parent.frames[\'treeframe\']) {
 				parent.frames[\'treeframe\'].location.href=\'index.php?section=leftMenu&rightSection=login\';
 			}		

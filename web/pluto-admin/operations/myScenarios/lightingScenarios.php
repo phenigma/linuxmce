@@ -114,6 +114,7 @@ if($action=='form') {
 	$rowCG=$resCG->FetchRow();
 
 	$out.='
+		<div align="left" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg'].'<br>'):'').'</B></div>	
 		<form action="index.php" method="POST" name="lightingScenarios">
 			<input type="hidden" name="section" value="lightingScenarios">
 			<input type="hidden" name="action" value="add">	
@@ -323,7 +324,7 @@ if($action=='form') {
 				}
 			}
 		}
-		header("Location: index.php?section=lightingScenarios&roomID=$roomID&cgID=$cgID&action=edit");
+		header("Location: index.php?section=lightingScenarios&roomID=$roomID&cgID=$cgID&action=edit&msg=Lighting scenario updated");
 		exit();
 	}
 	
