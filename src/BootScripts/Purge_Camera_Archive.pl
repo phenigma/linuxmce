@@ -58,13 +58,58 @@ if($datas eq "") {
 	exit(-1);
 }
 
-print "$devices\n";
-print "$datas\n";
+@da = split(/\,/,$datas);
+@de = split(/\,/,$devices);
 
-opendir(DIR, /var/log) || die "can' T to opendir #: $!";
-@dots = grep {/^\./ && - F" # _ "} readdir(DIR); 
-to closedir DIR;
-
-foreach $line (@dots) {
-	print "[$line]\n";
+$count = 0;
+foreach $line (@de) {
+	if($da[$count] eq "") {
+		print "We have a device without data parameter\n";
+		exit(-1);
+	}
+	$count = $count + 1;
 }
+print "Found $count camera devices. Purgeing ...";
+
+($lsec,$lmin,$lhour,$lmday,$lmon,$lyear,$lwday,$lyday,$lisdst) = localtime(time);
+$lmon = $lmon + 1;
+
+$count = 0;
+$path = "/home/cameras/";
+foreach $dev (@de) {
+	$path1 = "/home/cameras/".$dev;
+	$time = time - $da[$count]*86400;
+	($osec,$omin,$ohour,$omday,$omon,$oyear,$owday,$oyday,$oisdst) = localtime($time);
+	$omon = $omon + 1;
+	opendir(ROOTDIR, $path1);
+	@years = grep {!/^\./} readdir(ROOTDIR);
+	foreach $year (@years) {
+		if($year >= $lyear && $year <= $oyear) {
+			$path2 = $path1."/".$year;
+			opendir(YEARDIR, $path2);
+			@months = grep {!/^\./} readdir(YEARDIR);
+			foreach $month (@months) {
+				$path3 = $path2."/".$month;
+				if($month >= $lmon && $month <= $omon) {
+					opendir(MONTHDIR, $path3);
+					@days = grep {!/^\./} readdir(MONTHDIR);
+					foreach $day (@days) {
+						if($day >= $lmday && $day <= $omday) {
+							system("rm -rf $path4");
+						}
+					}
+					closedir(MONTHDIR);
+				} else {
+					system("rm -rf $path3");
+				}
+			}
+			closedir(YEARDIR);
+		} else {
+			$path2 = $path1."/".$year;
+			system("rm -rf $path2");
+		}
+	}
+	closedir(ROOTDIR);
+	$count = $count + 1;
+}
+print "[DONE]\n";
