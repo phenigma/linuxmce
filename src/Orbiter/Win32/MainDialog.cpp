@@ -4,6 +4,7 @@
 #include "FileUtils.h"
 #include "Commdlg.h"
 #include "MultiThreadIncludes.h"
+#include "SelfUpdate.h"
 
 #include "Simulator.h"
 
@@ -22,13 +23,19 @@
 
 #ifdef WINCE
 #define PLAYER_OFFSET 0
+#define BOTTOM_OFFSET 60
+#define SMALL_BOTTOM_OFFSET 5
+#define BOTTOM_ADJUSTMENT 2
 #else
 #define PLAYER_OFFSET 5
+#define BOTTOM_OFFSET 30 
+#define SMALL_BOTTOM_OFFSET 3
+#define BOTTOM_ADJUSTMENT 0
 #endif
 
 #define MAX_LOADSTRING 100
-#define WIN_WIDTH	   600
-#define WIN_HEIGHT	   400
+#define WIN_WIDTH	   800
+#define WIN_HEIGHT	   570
 
 #define SDL_WIDTH	   800
 #define SDL_HEIGHT	   600
@@ -62,6 +69,11 @@ HWND				g_hWndTab;
 HWND				g_hWndPage1;
 HWND				g_hWndPage2;
 HWND				g_hWndPage3;
+//-----------------------------------------------------------------------------------------------------
+HWND				g_hWnd_TryAutomCheckBox;
+HWND				g_hWnd_DeviceIDEdit;
+HWND				g_hWnd_RouterIPEdit;
+HWND				g_hWnd_ApplyButton;
 //-----------------------------------------------------------------------------------------------------
 //page 1
 /*extern*/ HWND				g_hWndList;
@@ -112,7 +124,7 @@ HWND CreatePage(HWND hWnd);
 HWND CreateListBox(HWND hWnd, RECT rt);			
 HWND CreateCheckBox(HWND hParentWnd, int x, int y, const char* caption, int width = 155);
 HWND CreateButton(HWND hParentWnd, int x, int y, const char* caption, int width = 50);
-HWND CreateLabel(HWND hParentWnd, int x, int y, int width, char* caption);
+HWND CreateLabel(HWND hParentWnd, int x, int y, int width, char* caption, int height = 20);
 HWND CreateEdit(HWND hParentWnd, int x, int y,  int width, char* caption, bool bNumber, bool bAlignRight);
 HWND CreateRadioBox(HWND hParentWnd, int x, int y, const char* caption, int width = 130);
 
@@ -130,6 +142,8 @@ void OnRecord_Go();
 void OnRecord_Stop();
 void OnRandom_Generate();
 void OnRandom_Stop();
+void OnApply();
+void OnTryAutomCheckBoxChanged();
 
 void GetEditText(HWND hWndEdit, string& Text);
 
@@ -420,6 +434,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			wmEvent = HIWORD(wParam); 
 			// Parse the menu selections:
 
+			switch(wmEvent)
+			{
+			case BN_CLICKED:
+				{
+					if(lParam == (LPARAM)g_hWnd_ApplyButton)
+						OnApply();
+
+					if(lParam ==  (LPARAM)g_hWnd_TryAutomCheckBox)
+						OnTryAutomCheckBoxChanged();
+
+					break;
+				}
+			}
+
 			switch (wmId)
 			{	
 				case IDM_MAIN_FILE_QUIT:
@@ -448,13 +476,27 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				s_sai.cbSize = sizeof (s_sai);
 #endif //WINCE
 
+				//configuration info
+				g_hWnd_TryAutomCheckBox = CreateCheckBox(hWnd, 10, WIN_HEIGHT - 4 * MENU_HEIGHT - SMALL_BOTTOM_OFFSET - BOTTOM_ADJUSTMENT, "Try to determine automatically the device id", 330);
+				::SendMessage(g_hWnd_TryAutomCheckBox, BM_SETCHECK, BST_CHECKED, 1);
+	
+				CreateLabel(hWnd, 10, WIN_HEIGHT - 4 * MENU_HEIGHT + 15 - SMALL_BOTTOM_OFFSET + 3 - BOTTOM_ADJUSTMENT, 80, "Device ID: ");	
+				g_hWnd_DeviceIDEdit = CreateEdit(hWnd, 90, WIN_HEIGHT - 4 * MENU_HEIGHT + 15 - SMALL_BOTTOM_OFFSET + 3 - BOTTOM_ADJUSTMENT, 50, "", true, true);
+				CreateLabel(hWnd, 150, WIN_HEIGHT - 4 * MENU_HEIGHT + 15 - SMALL_BOTTOM_OFFSET + 3 - BOTTOM_ADJUSTMENT, 660, "(To determine the device ID automatically, this device's IP address must be listed in teh database)");
+
+				CreateLabel(hWnd, 10, WIN_HEIGHT - 4 * MENU_HEIGHT + 35 - SMALL_BOTTOM_OFFSET + 3 - BOTTOM_ADJUSTMENT, 80, "Router IP: ");	
+				g_hWnd_RouterIPEdit = CreateEdit(hWnd, 90, WIN_HEIGHT - 4 * MENU_HEIGHT + 35 - SMALL_BOTTOM_OFFSET + 3 - BOTTOM_ADJUSTMENT, 100, "", false, false);
+				CreateLabel(hWnd, 200, WIN_HEIGHT - 4 * MENU_HEIGHT + 35 - SMALL_BOTTOM_OFFSET + 3 - BOTTOM_ADJUSTMENT, 500, "(If no IP is specified, this will try to resolve the name 'dcerouter')");
+
+				g_hWnd_ApplyButton = CreateButton(hWnd, WIN_WIDTH - 60, WIN_HEIGHT - 4 * MENU_HEIGHT + 35 - SMALL_BOTTOM_OFFSET + 3 - BOTTOM_ADJUSTMENT, "&Apply");
+
 				g_hWndTab = CreateTabControl(hWnd);
 				g_hWndPage1 = CreatePage(g_hWndTab);
 				g_hWndPage2 = CreatePage(g_hWndTab);
 				g_hWndPage3 = CreatePage(g_hWndTab);
 
 				//page 1
-				RECT rt_list = { 1, 1, WIN_WIDTH - 16, WIN_HEIGHT - 4 * MENU_HEIGHT - 5 };
+				RECT rt_list = { 1, 1, WIN_WIDTH - 16, WIN_HEIGHT - 4 * MENU_HEIGHT - 5 - BOTTOM_OFFSET };
 				g_hWndList = CreateListBox(g_hWndPage1, rt_list);
 
 				//page 2
@@ -464,12 +506,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				g_hWndRecord_KeyboardCheckBox = CreateCheckBox(g_hWndPage2, 10, 30, "Record keyboard");
 				::SendMessage(g_hWndRecord_KeyboardCheckBox, BM_SETCHECK, BST_CHECKED, 0);
 				
-				RECT rt_record_list = { 170, 10, WIN_WIDTH - 190, WIN_HEIGHT - 150 };
+				RECT rt_record_list = { 170, 10, WIN_WIDTH - 190, WIN_HEIGHT - 150 - BOTTOM_OFFSET };
 				g_hWndRecord_List = CreateListBox(g_hWndPage2, rt_record_list);
 
-				g_hWndRecord_SaveButton = CreateButton(g_hWndPage2, 120 + 170, WIN_HEIGHT - 140, "&Save");
-				g_hWndRecord_LoadButton = CreateButton(g_hWndPage2, 120 + 230, WIN_HEIGHT - 140, "&Load");
-				g_hWndRecord_ClearButton = CreateButton(g_hWndPage2, 120 + 290, WIN_HEIGHT - 140, "&Clear");
+				g_hWndRecord_SaveButton = CreateButton(g_hWndPage2, 120 + 170, WIN_HEIGHT - 140 - BOTTOM_OFFSET, "&Save");
+				g_hWndRecord_LoadButton = CreateButton(g_hWndPage2, 120 + 230, WIN_HEIGHT - 140 - BOTTOM_OFFSET, "&Load");
+				g_hWndRecord_ClearButton = CreateButton(g_hWndPage2, 120 + 290, WIN_HEIGHT - 140 - BOTTOM_OFFSET, "&Clear");
 
 				CreateLabel(g_hWndPage2, 10, 200, 25 + PLAYER_OFFSET, "Play");
 				g_hWndRecord_RepeatEdit = CreateEdit(g_hWndPage2, 35 + 2 * PLAYER_OFFSET, 200, 32, "1", true, true);
@@ -514,11 +556,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 
 		case WM_PAINT:
-			RECT rt;
-			hdc = BeginPaint(hWnd, &ps);
-			GetClientRect(hWnd, &rt);
-			FillRect(hdc, &rt, (HBRUSH)::GetStockObject(GRAY_BRUSH));
-			EndPaint(hWnd, &ps);
+			{
+				RECT rt;
+				hdc = BeginPaint(hWnd, &ps);
+				GetClientRect(hWnd, &rt);
+				COLORREF crBkColor = ::GetSysColor(COLOR_3DFACE);
+				HBRUSH hBrush = CreateSolidBrush(crBkColor);
+				SelectObject(hdc, hBrush);
+				FillRect(hdc, &rt, hBrush);//(HBRUSH)::GetStockObject(GRAY_BRUSH));
+				DeleteObject(hBrush);
+				EndPaint(hWnd, &ps);
+			}
 			break; 
 		case WM_DESTROY:
 #ifdef WINCE
@@ -656,7 +704,7 @@ HWND CreateTabControl(HWND hWnd)
 	#define OFFSET 1
 #endif
 
-	RECT rt = {1, OFFSET, WIN_WIDTH - 5, WIN_HEIGHT - 3 * MENU_HEIGHT };
+	RECT rt = {1, OFFSET, WIN_WIDTH - 5, WIN_HEIGHT - 3 * MENU_HEIGHT - BOTTOM_OFFSET };
 
 	HWND hTabCtrl = CreateWindowEx(0, WC_TABCONTROL, NULL, WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | WS_VISIBLE ,
 		rt.left, rt.top, rt.right, rt.bottom, hWnd,(HMENU)"", g_hInst, NULL );
@@ -676,7 +724,7 @@ HWND CreateTabControl(HWND hWnd)
 //-----------------------------------------------------------------------------------------------------
 HWND CreatePage(HWND hWnd)
 {
-	RECT rt = {3, MENU_HEIGHT, WIN_WIDTH - 12, WIN_HEIGHT - 4 * MENU_HEIGHT - 4 };
+	RECT rt = {3, MENU_HEIGHT, WIN_WIDTH - 12, WIN_HEIGHT - 4 * MENU_HEIGHT - 4 - BOTTOM_OFFSET };
 
 	HWND hWndPage = CreateWindow(TEXT("STATIC"), NULL, WS_CHILD | WS_CLIPSIBLINGS | WS_BORDER,
 		rt.left, rt.top, rt.right, rt.bottom, hWnd, (HMENU)"", g_hInst, NULL );
@@ -762,9 +810,9 @@ HWND CreateButton(HWND hParentWnd, int x, int y, const char* caption, int width/
 	return hWndList;
 }
 //-----------------------------------------------------------------------------------------------------
-HWND CreateLabel(HWND hParentWnd, int x, int y, int width, char* caption)
+HWND CreateLabel(HWND hParentWnd, int x, int y, int width, char* caption, int height)
 {
-	RECT rt_label = { x, y, width, 20 };
+	RECT rt_label = { x, y, width, height };
 
 #ifdef WINCE
 	wchar_t wTextBuffer[MAX_STRING_LEN];
@@ -1184,6 +1232,64 @@ void OnRandom_Stop()
 	Simulator::GetInstance()->StopRandomEventGenerator();
 }
 //-----------------------------------------------------------------------------------------------------
+void OnApply()
+{
+	SaveUI_To_ConfigurationData();
+
+	PROCESS_INFORMATION pi;
+	::ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
+
+	STARTUPINFO si;
+	::ZeroMemory(&si, sizeof(STARTUPINFO));
+	si.cb = sizeof(STARTUPINFO);
+	si.lpReserved = 0;
+
+	string sCmdLine;
+
+	if(!Simulator::GetInstance()->m_bTryToDetermineAutomatically)
+	{
+		sCmdLine = "-d " + Simulator::GetInstance()->m_sDeviceID + " -r " + Simulator::GetInstance()->m_sRouterIP;
+	}
+
+#ifdef WINCE
+	wchar_t pProcessNameW[256];
+	::GetModuleFileName(NULL, pProcessNameW, sizeof(pProcessNameW));
+
+	wchar_t wCmdLine[256];
+	mbstowcs(wCmdLine, sCmdLine.c_str(), 256);
+
+	::CreateProcess(pProcessNameW, wCmdLine, NULL, NULL, NULL, 0, NULL, NULL, &si, &pi);
+#else
+
+	char pProcessFilePath[256];
+	OrbiterSelfUpdate::GetProcessFilePath(pProcessFilePath);
+
+	sCmdLine = string(pProcessFilePath) + " " + sCmdLine;
+	::CreateProcess(NULL, const_cast<char *>(sCmdLine.c_str()), NULL, NULL, NULL, 0, NULL, NULL, &si, &pi);
+#endif
+
+	exit(1);
+}
+//-----------------------------------------------------------------------------------------------------
+void OnTryAutomCheckBoxChanged()
+{
+	bool bAutomDetection = BST_CHECKED == ::SendMessage(g_hWnd_TryAutomCheckBox, BM_GETCHECK, 0, 0);
+
+	if(bAutomDetection) 
+	{
+#ifdef WINCE
+		wchar_t wTextBuffer[MAX_STRING_LEN];
+		mbstowcs(wTextBuffer, "", MAX_STRING_LEN);
+
+		::SetWindowText(g_hWnd_DeviceIDEdit, wTextBuffer);
+		::SetWindowText(g_hWnd_RouterIPEdit, wTextBuffer);
+#else
+		::SetWindowText(g_hWnd_DeviceIDEdit, "");
+		::SetWindowText(g_hWnd_RouterIPEdit, "");
+#endif
+	}
+}
+//-----------------------------------------------------------------------------------------------------
 void GetEditText(HWND hWndEdit, string& Text)
 {
 #ifdef WINCE
@@ -1247,6 +1353,13 @@ void SaveUI_To_ConfigurationData()
 	string HomeScreen;
 	GetEditText(g_hWndRandom_HomeEdit, HomeScreen);
 
+	bool bAutomDetection = BST_CHECKED == ::SendMessage(g_hWnd_TryAutomCheckBox, BM_GETCHECK, 0, 0);
+
+	string DeviceID;
+	GetEditText(g_hWnd_DeviceIDEdit, DeviceID);
+	string RouterIP;
+	GetEditText(g_hWnd_RouterIPEdit, RouterIP);
+
 	Simulator::GetInstance()->m_dwDelayMin = atoi(DelayMin.c_str());
 	Simulator::GetInstance()->m_dwDelayMax = atoi(DelayMax.c_str());
 	Simulator::GetInstance()->m_iNumberOfButtonsPerClick = atoi(ButtonsPerClick.c_str());
@@ -1254,10 +1367,21 @@ void SaveUI_To_ConfigurationData()
 	Simulator::GetInstance()->m_bGenerateKeyboardEvents = bGenerateKeyboardEvents;
 	Simulator::GetInstance()->m_iKeysSetToGenerate = bOption2 * 1 + bOption3 * 2;
 	Simulator::GetInstance()->m_sHomeScreen = HomeScreen;
+	Simulator::GetInstance()->m_bTryToDetermineAutomatically = bAutomDetection;
+	Simulator::GetInstance()->m_sDeviceID = DeviceID;
+	Simulator::GetInstance()->m_sRouterIP = RouterIP;
+
+	if(Simulator::GetInstance()->m_sConfigurationFile != "")
+		Simulator::GetInstance()->SaveConfigurationFile(Simulator::GetInstance()->m_sConfigurationFile);
 }
 //-----------------------------------------------------------------------------------------------------
 void LoadUI_From_ConfigurationData()
 {
+	Simulator::GetInstance()->m_sDeviceID = StringUtils::ltos(CmdLineParams.PK_Device);
+	Simulator::GetInstance()->m_sRouterIP = CmdLineParams.sRouter_IP;
+	Simulator::GetInstance()->m_bTryToDetermineAutomatically = 
+		CmdLineParams.PK_Device == 0 && CmdLineParams.sRouter_IP == "dcerouter";
+
 	::SendMessage(g_hWndRandom_MouseCheckBox, BM_SETCHECK, 
 		Simulator::GetInstance()->m_bGenerateMouseClicks ? BST_CHECKED : BST_UNCHECKED, 0);
 	::SendMessage(g_hWndRandom_KeyboardCheckBox, BM_SETCHECK, 
@@ -1277,6 +1401,12 @@ void LoadUI_From_ConfigurationData()
 
 	mbstowcs(wTextBuffer, Simulator::GetInstance()->m_sHomeScreen.c_str(), MAX_STRING_LEN);
 	::SetWindowText(g_hWndRandom_HomeEdit, wTextBuffer);
+
+	mbstowcs(wTextBuffer, Simulator::GetInstance()->m_sDeviceID.c_str(), MAX_STRING_LEN);
+	::SetWindowText(g_hWnd_DeviceIDEdit, wTextBuffer);
+
+	mbstowcs(wTextBuffer, Simulator::GetInstance()->m_sRouterIP.c_str(), MAX_STRING_LEN);
+	::SetWindowText(g_hWnd_RouterIPEdit, wTextBuffer);
 #else
 	::SetWindowText(g_hWndRandom_DelayMin, 
 		StringUtils::ltos(Simulator::GetInstance()->m_dwDelayMin).c_str());
@@ -1286,6 +1416,9 @@ void LoadUI_From_ConfigurationData()
 		StringUtils::ltos(Simulator::GetInstance()->m_iNumberOfButtonsPerClick).c_str());
 
 	::SetWindowText(g_hWndRandom_HomeEdit, Simulator::GetInstance()->m_sHomeScreen.c_str());
+
+	::SetWindowText(g_hWnd_DeviceIDEdit, Simulator::GetInstance()->m_sDeviceID.c_str());
+	::SetWindowText(g_hWnd_RouterIPEdit, Simulator::GetInstance()->m_sRouterIP.c_str());
 #endif
 
 	switch(Simulator::GetInstance()->m_iKeysSetToGenerate)
@@ -1294,6 +1427,9 @@ void LoadUI_From_ConfigurationData()
 		case 1: ::SendMessage(g_hWndRandom_KeyOption2RadioBox, BM_SETCHECK, BST_CHECKED, 0); break;
 		case 2: ::SendMessage(g_hWndRandom_KeyOption3RadioBox, BM_SETCHECK, BST_CHECKED, 0); break;
 	}
+
+	::SendMessage(g_hWnd_TryAutomCheckBox, BM_SETCHECK, 
+		Simulator::GetInstance()->m_bTryToDetermineAutomatically ? BST_CHECKED : BST_UNCHECKED, 0);
 }
 //-----------------------------------------------------------------------------------------------------
 #pragma warning( default : 4311 4312)

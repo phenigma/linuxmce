@@ -42,6 +42,9 @@ struct CommandLineParams
 	bool bFullScreen;
 	string sLocalDirectory;
 	string sNestedDisplay;
+
+	bool bRouterIPSpecified;
+	bool bDeviceIDSpecified;
 };
 //-----------------------------------------------------------------------------------------------------
 extern CommandLineParams CmdLineParams;

@@ -37,10 +37,16 @@ public: //data
 	int m_iKeysSetToGenerate;
 	string m_sHomeScreen;
 
+	bool m_bTryToDetermineAutomatically;
+	string m_sDeviceID;
+	string m_sRouterIP;
+
 	bool m_bStopGeneratorThread;
 	long m_dwStartGeneratorThreadDelay;
 
 	bool m_bIsRunning;
+
+	string m_sConfigurationFile;
 
 public: //methods
 

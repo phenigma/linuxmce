@@ -18,6 +18,9 @@ const char *g_szCompile_Date="<=compile_date=>";
 extern HWND	g_hWndList; //maindialog logger list
 
 #ifdef WINCE
+	#include <aygshell.h>                      // Add Pocket PC includes
+	#pragma comment( lib, "aygshell" )         // Link Pocket PC library
+	
 	#ifdef POCKETFROG
 		#include "Orbiter_PocketFrog.h"
 	#else
@@ -52,6 +55,9 @@ int WINAPI WinMain(	HINSTANCE hInstance,
     string sLocalDirectory="";
     string sNestedDisplay = "";
 
+	bool bDeviceIDSpecified = false;
+	bool bRouterIPSpecified = false;
+
     bool bError=false; // An error parsing the command line
 
 #ifdef WINCE
@@ -81,9 +87,11 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 			{	
 				case 'r':
 					sRouter_IP = StringUtils::Tokenize(command_line, " ", pos);
+					bRouterIPSpecified = true;
 					break;
 				case 'd':
 					PK_Device = atoi(StringUtils::Tokenize(command_line, " ", pos).c_str());
+					bDeviceIDSpecified = true;
 					break;
 				case 'l':
 					//sLogger = StringUtils::Tokenize(command_line, " ", pos);
@@ -164,6 +172,8 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		CmdLineParams.bFullScreen		= bFullScreen;
 		CmdLineParams.sLocalDirectory	= sLocalDirectory;
 		CmdLineParams.sNestedDisplay    = sNestedDisplay;
+		CmdLineParams.bDeviceIDSpecified = bDeviceIDSpecified;
+		CmdLineParams.bRouterIPSpecified = bRouterIPSpecified;
 
 		// Perform application initialization:
 		if (!InitInstance (hInstance, nCmdShow)) 
@@ -193,7 +203,24 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		Simulator::GetInstance()->LoadConfigurationFile("Orbiter.conf");
 #endif
 
-		g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",PK_Device,sRouter_IP.c_str());
+		if(!CmdLineParams.bDeviceIDSpecified)
+			if(!Simulator::GetInstance()->m_bTryToDetermineAutomatically)
+			{
+				try
+				{
+					CmdLineParams.PK_Device = atoi(Simulator::GetInstance()->m_sDeviceID.c_str());
+				}
+				catch(...)
+				{
+				}
+			}
+
+		if(!CmdLineParams.bRouterIPSpecified)
+			if(!Simulator::GetInstance()->m_bTryToDetermineAutomatically)
+				CmdLineParams.sRouter_IP = Simulator::GetInstance()->m_sRouterIP;
+
+		g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",CmdLineParams.PK_Device,
+			CmdLineParams.sRouter_IP.c_str());
 
 		//now it's safe to start orbiter's thread
 		StartOrbiterThread();

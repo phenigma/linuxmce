@@ -13,7 +13,7 @@ public:
 	OrbiterSelfUpdate(Orbiter *pOrbiter);
 	~OrbiterSelfUpdate();
 
-	void GetProcessFilePath(char *pProcessFilePath);
+	static void GetProcessFilePath(char *pProcessFilePath);
 	//bool IsTheNewOrbiter();
 	string GetOrbiterCheckSum();
 	bool UpdateAvailable();

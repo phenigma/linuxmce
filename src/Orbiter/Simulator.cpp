@@ -232,6 +232,7 @@ Simulator::Simulator()
 	m_bGenerateKeyboardEvents = 1;
 	m_iKeysSetToGenerate = 1;
 	m_sHomeScreen = "1255";
+	m_bTryToDetermineAutomatically = true;
 
 	m_bStopGeneratorThread = false;
 	m_dwStartGeneratorThreadDelay = 0;
@@ -259,6 +260,8 @@ Simulator::~Simulator()
 //------------------------------------------------------------------------------------------------------
 void Simulator::LoadConfigurationFile(string sConfigurationFile)
 {
+	m_sConfigurationFile = sConfigurationFile;
+
 	vector<string> vectString;
 	FileUtils::ReadFileIntoVector( sConfigurationFile, vectString );
 
@@ -290,6 +293,10 @@ void Simulator::LoadConfigurationFile(string sConfigurationFile)
 	m_bGenerateKeyboardEvents = ReadInteger("GenerateKeyboardEvents", m_bGenerateKeyboardEvents) != 0;
 	m_iKeysSetToGenerate = ReadInteger("KeysSetToGenerate", m_iKeysSetToGenerate);
 	m_sHomeScreen = ReadString("HomeScreen", m_sHomeScreen);
+
+	m_bTryToDetermineAutomatically = ReadInteger("TryToDetermineAutomatically", (int)m_bTryToDetermineAutomatically) != 0;
+	m_sDeviceID = ReadString("DeviceID", m_sDeviceID);
+	m_sRouterIP = ReadString("RouterIP", m_sRouterIP); 
 
 	if(m_dwDelayMax <= m_dwDelayMin)
 		m_dwDelayMax = m_dwDelayMin + 500;
@@ -323,6 +330,10 @@ void Simulator::SaveConfigurationFile(string sConfigurationFile)
 	m_mapParameters["GenerateKeyboardEvents"] = StringUtils::ltos(long(m_bGenerateKeyboardEvents));
 	m_mapParameters["KeysSetToGenerate"] = StringUtils::ltos(m_iKeysSetToGenerate);
 	m_mapParameters["HomeScreen"] = m_sHomeScreen;
+
+	m_mapParameters["TryToDetermineAutomatically"] = StringUtils::ltos(m_bTryToDetermineAutomatically);
+	m_mapParameters["DeviceID"] = m_sDeviceID;
+	m_mapParameters["RouterIP"] = m_sRouterIP;
 
 	// Make a copy of the parameters.  We'll go through the existing file and modify any changed values
 	map<string,string> mapParameters_Copy = m_mapParameters;
