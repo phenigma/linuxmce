@@ -73,8 +73,10 @@ bool MythTV_Player::InitMythTvStuff()
 //     TV::InitKeys();
 
     m_pMythTV = new TV();
-    m_pMythTV->Init();
 
+    m_pMythTV->Init();
+    g_pPlutoLogger->Write(LV_STATUS, "TV object initialized %d");
+    return true;
 }
 //<-dceag-dest-b->
 MythTV_Player::~MythTV_Player()
@@ -161,7 +163,7 @@ void MythTV_Player::SomeFunction()
     char *FileContents;
     int FileSize;
     bool bResult = SendRequest(new DERC::REQ_File_Contents(m_dwPK_Device,DeviceTemplate_Standard_Plug_In_CONST,true,BL_SameHouse,"some_file_name",&FileContents,&FileSize,&plutoDate);
-
+net
     // To access our data and events below, you can type this-> if your IDE supports auto complete to see all the data and events you can access
 
     // Get our IP address from our data
@@ -195,8 +197,17 @@ void MythTV_Player::CMD_Start_TV(string &sCMD_Result,Message *pMessage)
 {
     if ( m_pMythTV )
     {
+        if ( m_pMythTV->GetState() == kState_WatchingLiveTV || m_pMythTV->GetState() == kState_ChangingState)
+        {
+            g_pPlutoLogger->Write(LV_STATUS, "LiveTV is already started or is starting now");
+            return;
+        }
+
         g_pPlutoLogger->Write(LV_STATUS, "Starting Live TV Playback!");
-        m_pMythTV->LiveTV(true);
+        if ( m_pMythTV->LiveTV(false) == 0 )
+        {
+            EVENT_Error_Occured("We weren't able to start LiveTV.");
+        }
     }
 }
 
