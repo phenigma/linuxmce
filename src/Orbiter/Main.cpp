@@ -174,7 +174,9 @@ int main(int argc, char* argv[])
 	bool bReload=false;
     try
     {
+g_pPlutoLogger->Write(LV_STATUS, "about to call StartOrbiter");
         bReload = StartOrbiter(PK_Device,sRouter_IP,sLocalDirectory,bLocalMode,Width,Height,bFullScreen);
+g_pPlutoLogger->Write(LV_STATUS, "StartOrbiter finished with reload: %s",(bReload ? "Y" : "N"));
     }
     catch(string s)
     {
@@ -192,6 +194,7 @@ int main(int argc, char* argv[])
 #ifdef WIN32
     WSACleanup();
 #endif
+g_pPlutoLogger->Write(LV_STATUS, "Orbiter ready to return and die");
 
 	if( bReload )
 		return 2;

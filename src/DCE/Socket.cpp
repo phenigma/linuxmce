@@ -233,6 +233,24 @@ Message *Socket::ReceiveMessage( int iLength )
 			{
 				pcBuffer[iLength]=0;
 				Message *pMessage = new Message( iLength, pcBuffer[0] ? pcBuffer : pcBuffer + 1 ); // making a message from the data
+
+#ifdef LL_DEBUG_FILE
+			PLUTO_SAFETY_LOCK_ERRORSONLY(ll2,(*m_LL_DEBUG_Mutex));
+			FILE *file = fopen( m_pcSockLogFile, "a" );
+			if( !file )
+			{
+				file = fopen( m_pcSockLogErrorFile, "a" );
+				// Don't check -- if this still fails just throw an exception something is very wrong!
+				fprintf( file, "Received message type %d id %d expecting reply %d",pMessage->m_dwMessage_Type,pMessage->m_dwID,(int) pMessage->m_eExpectedResponse );
+				fclose( file );
+			}
+			else
+			{
+				fprintf( file, "Received message type %d id %d expecting reply %d",pMessage->m_dwMessage_Type,pMessage->m_dwID,(int) pMessage->m_eExpectedResponse );
+				fclose( file );
+			}
+			ll2.Release();
+#endif
 				delete[] pcBuffer; // freeing the buffer we no longer need
 			#ifdef LOG_ALL_CONTROLLER_ACTIVITY
 				LACA_B4_5( "Received Message from: %d to: %d type: %d id: %d %s", 

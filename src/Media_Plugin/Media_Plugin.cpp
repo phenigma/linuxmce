@@ -243,6 +243,15 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
             for( size_t s2=0;s2<vectRow_Device_EntertainArea.size( );++s2 )
             {
                 Row_Device_EntertainArea *pRow_Device_EntertainArea = vectRow_Device_EntertainArea[s2];
+if( !pRow_Device_EntertainArea || !pRow_Device_EntertainArea->FK_Device_getrow( ) )
+{
+g_pPlutoLogger->Write(LV_CRITICAL,"Device_EntertainArea refers to a NULL device %d %d",pRow_Device_EntertainArea->FK_EntertainArea_get(),pRow_Device_EntertainArea->FK_Device_get());
+//pRow_Device_EntertainArea->Delete();
+//TODO: add the delete above and also do a commit.
+continue;
+}
+
+
                 // This will recurse all the other devices in the path, and add them too
                 AddDeviceToEntertainArea( pEntertainArea, pRow_Device_EntertainArea->FK_Device_getrow( ) );
 

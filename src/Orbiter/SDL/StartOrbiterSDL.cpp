@@ -410,6 +410,7 @@ bool StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
         }  // while
     } // if connect
 	bool bReload = pCLinux->m_bReload;
+g_pPlutoLogger->Write(LV_STATUS, "End of SDL loop with reload: %s",(bReload ? "Y" : "N"));
     delete pCLinux;
 	return bReload;
 }
