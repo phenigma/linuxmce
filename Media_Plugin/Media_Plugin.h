@@ -114,7 +114,7 @@ protected:
 	void TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Router,map<int,MediaDevice *> *pmapMediaDevice_Current);
 
     /**
-     * If the device passed in is a child of an on-screen orbiter which is a child of a pc, or a child of a pc itself, 
+     * If the device passed in is a child of an on-screen orbiter which is a child of a pc, or a child of a pc itself,
 	 * then this will return the id of the pc
      */
 	int Media_Plugin::GetComputerForMediaDevice(DeviceData_Router *pDeviceData_Router);
@@ -133,6 +133,11 @@ public:
     MediaDevice *m_mapMediaDevice_Find(int iPK_Device) { map<int,class MediaDevice *>::iterator it = m_mapMediaDevice.find(iPK_Device); return it==m_mapMediaDevice.end() ? NULL : (*it).second; }
     MediaStream *m_mapMediaStream_Find(int StreamID)  { MapMediaStream::iterator it = m_mapMediaStream.find(StreamID);  return it==m_mapMediaStream.end() ? NULL : (*it).second; }
     void m_mapMediaStream_Remove(int StreamID) { MapMediaStream::iterator it = m_mapMediaStream.find(StreamID); if( it!=m_mapMediaStream.end() ) m_mapMediaStream.erase(it); }
+
+	Database_pluto_main *GetMainDatabaseConnection()
+	{
+		return m_pDatabase_pluto_main;
+	}
 
     // A MediaPlugIn call call this function, passing in the type of device that it will handle.  This will automatically build MediaPlugInInfo's for all the
     // types that the device supports, using all the default values from the database.  A plug-in could also call the MediaHandlerInfo constructor that will
@@ -222,7 +227,7 @@ public:
 	// Follow-me
 	virtual void FollowMe_EnteredRoom(OH_Orbiter *pOH_Orbiter,class Room *pRoom_Prior,class Room *pRoom_Current) {}
 	virtual void FollowMe_LeftRoom(OH_Orbiter *pOH_Orbiter,class Room *pRoom_Prior,class Room *pRoom_Current) {}
-	
+
 //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION

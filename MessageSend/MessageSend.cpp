@@ -55,12 +55,12 @@ int main(int argc, char *argv[])
 
 	int baseMessageSpecPos = 2;
 	int targetType = 0; // Device;
-	if ( argv[2] == "-targetType" )
+	if ( strcmp(argv[2], "-targetType") == 0 )
 	{
 		baseMessageSpecPos += 2;
-		if ( argv[3] == "category" )
+		if ( strcmp(argv[3], "category") == 0 )
 			targetType = 1;
-		else if ( argv[3] == "template" )
+		else if ( strcmp(argv[3], "template") == 0 )
 			targetType = 2;
 	}
 

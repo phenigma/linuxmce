@@ -35,6 +35,8 @@ namespace DCE
 	//<-dceag-decl-e->
         // friend class MythTvStream;
 
+		map<int, int> m_mapMythInputsToDevices;
+
 		DeviceData_Router *m_pMythBackend_ProxyDevice;
 
 		/** Private member variables */
@@ -58,6 +60,7 @@ public:
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 
+		virtual void BuildAttachedInfraredTargetsMap();
     private:
         // Database_FakeEPG *m_pDatabase_FakeEPG;
         class Datagrid_Plugin *m_pDatagrid_Plugin;

@@ -18,6 +18,7 @@
 namespace DCE
 {
 	class MythTV_Backend_Proxy : public MythTV_Backend_Proxy_Command
+	{
 //<-dceag-decl-e->
 		, public MYTHTV::ProxyEventHandler
 	{

@@ -57,7 +57,9 @@ BackendProxyPeerThread::processData(const char* data, bool fromsrc) {
 	if(fromsrc) {
 		if((index = tok.findValue("GET_PROGRAM_INFO")) >= 0) {
 			setState(PEER_STATE_GETPROGRAMINFO);
-		} /*else
+		}
+		// else if ( (index = tok.findValue("QUERY_INPUT)))
+		/*else
 		if((index = tok.findValue("CHANGE_CHANNEL")) >= 0 && tok.getValuesNum() > index + 1) {
 			direction_ = atoi(tok.getValue(index + 1).c_str());
 			setState(PEER_STATE_CHANGECHANNEL);

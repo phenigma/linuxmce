@@ -23,6 +23,7 @@ using namespace DCE;
 #include "../pluto_main/Define_DataGrid.h"
 #include "../pluto_main/Define_DesignObj.h"
 #include "../pluto_main/Define_Event.h"
+#include "../pluto_main/Define_DeviceData.h"
 #include "../pluto_main/Table_EventParameter.h"
 
 #include "DataGrid.h"
@@ -109,7 +110,46 @@ bool MythTV_PlugIn::Register()
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::MediaInfoChanged), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_MythTV_Channel_Changed_CONST );
 	// RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::MediaInfoChanged), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Info_Changed_CONST );
 
+	BuildAttachedInfraredTargetsMap();
     return Connect(PK_DeviceTemplate_get());
+}
+
+void MythTV_PlugIn::BuildAttachedInfraredTargetsMap()
+{
+	string SQL = 	"SELECT FK_Device, IK_DeviceData "
+					"FROM Device_DeviceData "
+						"JOIN Device ON PK_Device=FK_Device "
+					"WHERE FK_Installation=" + StringUtils::itos(m_pRouter->iPK_Installation_get()) + " AND "
+						"FK_DeviceData=" + StringUtils::itos(DEVICEDATA_MythTV_PVR_Input_CONST);
+
+	PlutoSqlResult result;
+	MYSQL_ROW row;
+
+	if( ( result.r=m_pMedia_Plugin->GetMainDatabaseConnection()->mysql_query_result( SQL ) ) )
+	{
+		while( ( row=mysql_fetch_row( result.r ) ) )
+		{
+			if( !row[1] || !row[0])
+			{
+				g_pPlutoLogger->Write(LV_STATUS, "MythTV_PlugIn::BuildAttachedInfraredTargetsMap() found a database row with null entries. Ignoring!");
+				continue;
+			}
+
+			int PK_Device = atoi(row[0]);
+			int mythConnectionID = atoi(row[1]);
+
+			if ( PK_Device == 0 || mythConnectionID == 0 )
+			{
+				g_pPlutoLogger->Write(LV_STATUS,
+							"MythTV_PlugIn::BuildAttachedInfraredTargetsMap() one of the device ID or the mythconnection specification is 0: (device: %d, mythconnID: %d)",
+							PK_Device, mythConnectionID);
+				continue;
+			}
+
+			g_pPlutoLogger->Write(LV_STATUS, "Mapping MythTV tuner input with ID %d to device ID %d", mythConnectionID, PK_Device);
+			m_mapMythInputsToDevices[mythConnectionID] = PK_Device;
+		}
+	}
 }
 
 /*
@@ -401,7 +441,7 @@ bool MythTV_PlugIn::MediaInfoChanged( class Socket *pSocket, class Message *pMes
     if ( pDeviceFrom->m_dwPK_DeviceTemplate == DEVICETEMPLATE_MythTV_Backend_Proxy_CONST )
     {
 		int playbackDevice = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PK_Device_CONST].c_str());
-		int tunedChannel = atoi(pMessage->m_mapParameters[EVENTPARAMETER_ChannelID_CONST].c_str());
+		int tunedChannel = atoi(pMessage->m_mapParameters[EVENTPARAMETER_MythTV_ChannelID_CONST].c_str());
 		if ( playbackDevice == 0 )
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "MythTV_PlugIn::MediaInfoChanged() called for an event which didn't provided a proper device ID");
@@ -451,35 +491,32 @@ void MythTV_PlugIn::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string
 
     g_pPlutoLogger->Write(LV_STATUS, "Jump to position called %s", sValue_To_Assign.c_str());
 
-    class MythTvStream *pMediaStream =
-        (MythTvStream *) m_pMedia_Plugin->DetermineStreamOnOrbiter(pMessage->m_dwPK_Device_From);
+//     class MythTvStream *pMediaStream =
+//         (MythTvStream *) m_pMedia_Plugin->DetermineStreamOnOrbiter(pMessage->m_dwPK_Device_From);
+//
+//     if( !pMediaStream )
+//         return;  /** Can't do anything */
 
-    if( !pMediaStream )
-        return;  /** Can't do anything */
+	vector<string> vectData;
+	StringUtils::Tokenize(sValue_To_Assign, "|", vectData);
 
+	if ( vectData.size() != 2 )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Invalid format in CMD_Jump_Position_In_Playlist: if you are telling it to jump for an external device call it with 2 params connid|channelNumber");
+		return;
+	}
 
-    WatchTVRequestResult result;
-    result = m_pMythWrapper->ProcessWatchTvRequest(sValue_To_Assign);
-    switch ( result )
-    {
-        case WatchTVResult_Tuned:
-            return;
-        case WatchTVResult_InTheFuture:
-        {
-            DCE::CMD_Goto_Screen
-                cmdGotoScreen(
-                    m_dwPK_Device,
-                    pMessage->m_dwPK_Device_From,
-                    0,
-                    StringUtils::itos(DESIGNOBJ_mnuPVROptions_CONST).c_str(),
-                    "", "", false);
+	int connectionID = atoi(vectData[0].c_str());
+	int targetChannelID = atoi(vectData[1].c_str());
 
-            SendCommand(cmdGotoScreen);
-        }
+	if ( m_mapMythInputsToDevices.find(connectionID) == m_mapMythInputsToDevices.end() )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "No Pluto device is connected to this myth TV according to the pluto database.");
+		return;
+	}
 
-        default:
-            return;
-        }
+	DCE::CMD_Tune_to_channel tuneCommand(m_dwPK_Device, m_mapMythInputsToDevices[connectionID], StringUtils::itos(targetChannelID));
+	SendCommand(tuneCommand);
 }
 
 //<-dceag-c185-b->

@@ -1,20 +1,20 @@
 /*
 	IRBase
- 
+
 	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
- 
-	www.plutohome.com		
- 
+
+	www.plutohome.com
+
  	Phone: +1 (877) 758-8648
- 
-	This program is distributed according to the terms of the Pluto Public License, available at: 
-	http://plutohome.com/index.php?section=public_license 
- 
-	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
+
+	This program is distributed according to the terms of the Pluto Public License, available at:
+	http://plutohome.com/index.php?section=public_license
+
+	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
 	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
- 
+
  */
- 
+
 #include "IRBase.h"
 
 #include "pluto_main/Define_DeviceData.h"
@@ -67,13 +67,13 @@ void IRBase::ParseDevices()
 	for (iChild = m_pCommand_Impl->m_mapCommandImpl_Children.begin(); iChild != m_pCommand_Impl->m_mapCommandImpl_Children.end(); ++iChild)
 	{
 		long DeviceID = (*iChild).first;
-		
+
 		string codes;
 		m_mapsDevicePort[DeviceID] = (*iChild).second->m_pData->m_mapParameters[DEVICEDATA_Port_CONST];
 		DCE::CMD_Get_Infrared_Codes_Cat CMD_Get_Infrared_Codes_Cat(m_pCommand_Impl->m_dwPK_Device, DEVICECATEGORY_Infrared_Plugins_CONST,
 			false, BL_SameHouse, DeviceID, &codes);
 		m_pCommand_Impl->SendCommand(CMD_Get_Infrared_Codes_Cat);
-	
+
 		long iPK_Command, count;
 		string code;
 		size_t pos = 0;
@@ -86,12 +86,12 @@ void IRBase::ParseDevices()
 		{
 			iPK_Command = atoi(StringUtils::Tokenize(codes, "\t", pos).c_str());
 			code = StringUtils::Tokenize(codes, "\t", pos);
-			m_CodeMap[longPair(DeviceID, iPK_Command)] = code;	
+			m_CodeMap[longPair(DeviceID, iPK_Command)] = code;
 			g_pPlutoLogger->Write(LV_STATUS, "Loaded IR code for Device %ld, Action %ld", DeviceID, iPK_Command);
 		}
 		m_DevicePreDelays[DeviceID] = DEFAULT_PREDELAY;
 		m_DeviceDefaultDelays[DeviceID] = DEFAULT_POSTDELAY;
-		
+
 		map<int, string>::iterator param;
        	param = (*iChild).second->m_pData->m_mapParameters.find(DEVICEDATA_IR_Sleep_BeforeAfter_CONST);
 		// IR_Sleep_BeforeAfter syntax: PreDelay[,DefaultDelay]
@@ -122,15 +122,15 @@ void IRBase::AddIRToQueue(string Port, string IRCode, timespec Delay, long Devic
 {
 	pthread_mutex_lock(&m_IRMutex.mutex);
 
-	// If this is a volume command, check the outgoing queue and erase other volume requests. 
+	// If this is a volume command, check the outgoing queue and erase other volume requests.
 	if (CommandNum == COMMAND_Vol_Up_CONST || CommandNum == COMMAND_Vol_Down_CONST)
 	{
 		list<IRQueue *>::iterator ipQueue, ipNextQueue;
 		for(ipNextQueue = m_IRQueue.begin(); ipNextQueue != m_IRQueue.end(); )
 		{
 			ipQueue = ipNextQueue++;
-			
-			if (((*ipQueue)->m_CommandNum == COMMAND_Vol_Up_CONST || (*ipQueue)->m_CommandNum == COMMAND_Vol_Down_CONST) && 
+
+			if (((*ipQueue)->m_CommandNum == COMMAND_Vol_Up_CONST || (*ipQueue)->m_CommandNum == COMMAND_Vol_Down_CONST) &&
 				(*ipQueue)->m_DeviceNum == DeviceNum)
 			{
 				m_IRQueue.erase(ipQueue);
@@ -143,10 +143,10 @@ void IRBase::AddIRToQueue(string Port, string IRCode, timespec Delay, long Devic
 		for(ipNextQueue = m_IRQueue.begin(); ipNextQueue != m_IRQueue.end(); )
 		{
 			ipQueue = ipNextQueue++;
-			
+
 			if (((*ipQueue)->m_ChannelSequenceNumber && DeviceNum > -1 &&
 				(*ipQueue)->m_ChannelSequenceNumber != ChannelSequenceNumber &&
-				(*ipQueue)->m_DeviceNum == DeviceNum) && 
+				(*ipQueue)->m_DeviceNum == DeviceNum) &&
 				(*ipQueue)->m_ChannelSequenceNumber != m_ExecutingChannelSequenceNumber[DeviceNum])
 			{
 				printf("Removing redundant channel change digit (action %ld, seq %ld).\n", (*ipQueue)->m_CommandNum, (*ipQueue)->m_ChannelSequenceNumber);
@@ -154,7 +154,7 @@ void IRBase::AddIRToQueue(string Port, string IRCode, timespec Delay, long Devic
 			}
 		}
 	}
-	
+
 	longPair IRCodePair(DeviceNum, CommandNum);
 	if (IRCode.length() == 0)
 	{
@@ -180,7 +180,7 @@ void IRBase::AddIRToQueue(string Port, string IRCode, timespec Delay, long Devic
 	{
 		if (CommandNum != -1 && DeviceNum != -1)
 		{
-			// We have an IRCode and an action pair, this is usually the result of being sent a new code from 
+			// We have an IRCode and an action pair, this is usually the result of being sent a new code from
 			// the server, so, update our map.
 			m_CodeMap[IRCodePair] = IRCode;
 		}
@@ -266,12 +266,12 @@ bool IRBase::AddChannelChangeToQueue(long ChannelNumber, long Device)
 	for(long i=NumDigits;i>0;i--)
 	{
 		unsigned char digit = (ChannelNumber % (long) pow((double) 10, (double) i)) / (long) pow((double) 10, (double) (i-1));
-		g_pPlutoLogger->Write(LV_STATUS, "Sending digit %d...",digit);	
+		g_pPlutoLogger->Write(LV_STATUS, "Sending digit %d...",digit);
 		AddIRToQueue("", "", DigitDelay, Device, digit + 80, 1, m_CurrentChannelSequenceNumber);
 	}
 	if (bSendEnter)
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Sending <enter>...");			
+		g_pPlutoLogger->Write(LV_STATUS, "Sending <enter>...");
 		AddIRToQueue("", "", DigitDelay, Device, COMMAND_Send_Generic_EnterGo_CONST, 1, m_CurrentChannelSequenceNumber);
 	}
 	m_CurrentChannelSequenceNumber++;
@@ -286,8 +286,8 @@ bool IRBase::ProcessMessage(Message *pMessage)
 	{
 		long CommandNum = -1, DeviceNum = -1;
 
-		// Is an action ID specified? 
-		if (pMessage->m_mapParameters.count(COMMANDPARAMETER_ID_CONST)>0) 
+		// Is an action ID specified?
+		if (pMessage->m_mapParameters.count(COMMANDPARAMETER_ID_CONST)>0)
 		{
 			CommandNum=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_ID_CONST].c_str());
 			DeviceNum=TargetDevice;
@@ -298,11 +298,12 @@ bool IRBase::ProcessMessage(Message *pMessage)
 	}
 	if( pMessage->m_dwID == COMMAND_Tune_to_channel_CONST)
 	{
-		AddChannelChangeToQueue(atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Absolute_Channel_CONST].c_str()), TargetDevice);
+		//AddChannelChangeToQueue(atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Absolute_Channel_CONST].c_str()), TargetDevice);
+		AddChannelChangeToQueue(atoi(pMessage->m_mapParameters[COMMANDPARAMETER_ProgramID_CONST].c_str()), TargetDevice);
 		return true;
 	}
 
-	// Ok, not a system-handled action.  
+	// Ok, not a system-handled action.
 
 	//Check the device/code map to see if we have an IR code for it.
 	if (m_CodeMap.count(longPair(TargetDevice, pMessage->m_dwID))>0)
@@ -350,7 +351,7 @@ bool IRBase::ProcessQueue()
 	bool retval = false;
 
 	pthread_mutex_lock(&m_IRMutex.mutex);
-	
+
 	while (m_IRQueue.size() == 0)
 	{
 		pthread_cond_wait(&m_IRCond, &m_IRMutex.mutex);
@@ -371,7 +372,7 @@ bool IRBase::ProcessQueue()
 	for (ipQueue = m_IRQueue.begin(); ipQueue!= m_IRQueue.end(); ipQueue++)
 	{
 		// Is the last IR on this port + this pre delay still in the future?  If so continue on to the next queued item
-		
+
 		if ((*ipQueue)->m_PreDelay > ms_to_timespec(0) && tsCurTime < (*ipQueue)->m_PreDelay + m_PortLastIRSent[(*ipQueue)->m_Port])
 		{
 //			printf("Not ready yet: %d %d %d %d (1)\n", (*ipQueue)->m_PreDelay, MS_TO_CLK((*ipQueue)->m_PreDelay), m_PortLastIRSent[(*ipQueue)->m_Port], CurTime);
@@ -393,13 +394,13 @@ bool IRBase::ProcessQueue()
 		// All above checks passed for this entry.  Fire it off, update the scheduler, remove, and return.
 
 		if ((*ipQueue)->m_Port.substr(0,4)!="ttyS")
-		{ 
+		{
 			g_pPlutoLogger->Write(LV_STATUS, "IRQueue: Device %d, Action %d, Step %d", (*ipQueue)->m_DeviceNum, (*ipQueue)->m_CommandNum, (*ipQueue)->m_StepNumber);
 			SendIR((*ipQueue)->m_Port, (*ipQueue)->m_IRCode);
 			gettimeofday(&tvCurTime, NULL);
 			timeval_to_timespec(&tvCurTime, &tsCurTime);
 		}
-		else 
+		else
 		{
 			// If the target is a serial port, send it directly to the port
 
