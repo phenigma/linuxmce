@@ -90,6 +90,7 @@ while [ "$i" -le 10 ]; do
 	fi
 	screen -wipe &>/dev/null
 	
+	echo "Return code: $Ret" >>"$new_log"
 	if [ "$Ret" -eq 3 ]; then
 		# Abort
 		Logging $TYPE $SEVERITY_WARNING "$module" "Shutting down... $i $device_name"

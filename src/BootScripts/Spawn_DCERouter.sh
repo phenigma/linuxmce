@@ -22,6 +22,7 @@ while [ "$i" -le 10 ]; do
 	/usr/pluto/bin/Spawn_Wrapper.sh $VGcmd/usr/pluto/bin/DCERouter -h localhost > >(tee $new_log)
 
 	Ret="$?"
+	echo "Return code: $Ret" >>"$new_log"
 	if [ "$Ret" -eq 3 ]; then
 		# Abort
 		Logging $TYPE $SEVERITY_NORMAL "$module" "Shutting down... $i $device_name"
