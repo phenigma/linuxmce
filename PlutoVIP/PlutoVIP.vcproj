@@ -425,6 +425,9 @@
 				RelativePath="..\VIPShared\VIPMenu.cpp">
 			</File>
 			<File
+				RelativePath=".\VR_IdentifyPhone.cpp">
+			</File>
+			<File
 				RelativePath=".\VR_ManuallyMatchPhone.cpp">
 			</File>
 			<File
@@ -525,10 +528,10 @@
 				RelativePath=".\StaticPicture.h">
 			</File>
 			<File
-				RelativePath=".\StdAfx.h">
+				RelativePath="..\VIPShared\stdafx.h">
 			</File>
 			<File
-				RelativePath="..\VIPShared\stdafx.h">
+				RelativePath=".\StdAfx.h">
 			</File>
 		</Filter>
 		<Filter
