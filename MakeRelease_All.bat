@@ -2,7 +2,7 @@
 
 echo Checking out pluto sources...
 cd "c:\Program Files\Subversion\bin"
-svn co svn://10.0.0.150/pluto2/trunk  /pluto.makerelease/trunk --username cmiron --password cmiron
+svn co svn://10.0.0.150/pluto2/trunk  /pluto.makerelease/trunk
 
 cd "c:\pluto.makerelease\trunk"
 
