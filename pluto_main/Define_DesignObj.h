@@ -538,7 +538,7 @@
 #define DESIGNOBJ_objBrowseTitle_CONST 2065
 #define DESIGNOBJ_objBrowseGenre_CONST 2066
 #define DESIGNOBJ_objBrowseFolder_CONST 2067
-#define DESIGNOBJ_mnuMediaFileList_CONST 2071
+#define DESIGNOBJ_mnuFileList_CONST 2071
 #define DESIGNOBJ_objBrowsePerformer_CONST 2072
 #define DESIGNOBJ_mnuDisplayMedia_CONST 2073
 #define DESIGNOBJ_dgMediaDisplay_CONST 2074

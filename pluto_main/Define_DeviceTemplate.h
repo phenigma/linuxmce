@@ -67,7 +67,7 @@
 #define DEVICETEMPLATE_Speech_CONST 59
 #define DEVICETEMPLATE_Windows_CE_Orbiter_CONST 60
 #define DEVICETEMPLATE_Windows_XP2000_Orbiter_CONST 61
-#define DEVICETEMPLATE_Linux_OnScreen_Orbiter_CONST 62
+#define DEVICETEMPLATE_OnScreen_Orbiter_CONST 62
 #define DEVICETEMPLATE_MythTV_Backend_Proxy_CONST 63
 
 #define DEVICETEMPLATE_TABLE "DeviceTemplate"
