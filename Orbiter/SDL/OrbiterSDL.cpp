@@ -341,3 +341,26 @@ void OrbiterSDL::Initialize(GraphicType Type)
 {
     Orbiter::Initialize(Type);
 }
+//-----------------------------------------------------------------------------------------------------
+void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, PlutoColor ColorToReplace, PlutoColor ReplacementColor)
+{
+	SDL_PixelFormat * PF = m_pScreenImage->format;
+	Uint32 PlutoPixelDest, PlutoPixelSrc, Pixel;
+
+	PlutoPixelSrc = (ColorToReplace.R() << PF->Rshift) | (ColorToReplace.G() << PF->Gshift) | (ColorToReplace.B() << PF->Bshift) | (ColorToReplace.A() << PF->Ashift);
+	PlutoPixelDest = ReplacementColor.R() << PF->Rshift | ReplacementColor.G() << PF->Gshift | ReplacementColor.B() << PF->Bshift | ReplacementColor.A() << PF->Ashift;
+
+    for (int j = 0; j < height; j++)
+    {
+        for (int i = 0; i < width; i++)
+        {
+            // we may need locking on the surface
+			Pixel = getpixel(m_pScreenImage, i + x, j + y);
+			if (Pixel == PlutoPixelSrc)
+			{
+				putpixel(m_pScreenImage, i + x, j + y, PlutoPixelDest);
+			}
+        }
+    }
+//	SDL_Flip(m_pScreenImage);
+}

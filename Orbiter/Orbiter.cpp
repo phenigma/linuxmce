@@ -4584,7 +4584,7 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
                     continue;
                 }
 
-                PlutoColor Magenta(255,255,101);
+                PlutoColor Magenta(255,102,255);
                 ReplaceColorInRectangle(fpObj->pObj->m_rBackgroundPosition.X,fpObj->pObj->m_rBackgroundPosition.Y,fpObj->pObj->m_rBackgroundPosition.Width,
                     fpObj->pObj->m_rBackgroundPosition.Height, Magenta, Color);
 

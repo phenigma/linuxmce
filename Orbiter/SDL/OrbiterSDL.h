@@ -33,7 +33,7 @@ public:
 	virtual void SolidRectangle(int x, int y, int width, int height, PlutoColor color, int Opacity = 100);
 	virtual void HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color);
 	virtual void DrawLine(int x, int y, int width, int height, PlutoColor color, int Opacity = 100) {};
-	virtual void ReplaceColorInRectangle(int x, int y, int width, int height, PlutoColor ColorToReplace, PlutoColor ReplacementColor) {};
+	virtual void ReplaceColorInRectangle(int x, int y, int width, int height, PlutoColor ColorToReplace, PlutoColor ReplacementColor);
 	virtual void FloodFill(int x, int y, PlutoColor ColorToReplace, PlutoColor ReplacementColor) {};
 	virtual void RenderGraphic(class DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, bool bDisableAspectRatio=false);
 	virtual void RenderText(class DesignObjText *Text,class TextStyle *pTextStyle);
