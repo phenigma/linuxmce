@@ -355,7 +355,7 @@ bool CreateSources(Row_Package *pRow_Package)
 			"FK_RepositorySource=" + sPK_RepositorySource,&vectRow_Package_Source);
 		if( vectRow_Package_Source.size()==0 )
 		{
-			cout << "There is no info for this package and repository source " << sPK_RepositorySource << endl;
+			cout << "***WARNING*** There is no info for this package and repository source " << sPK_RepositorySource << endl;
 			if( g_bInteractive && !AskYNQuestion("Is this okay?",false) )
 				return false;
 			continue;
@@ -441,7 +441,7 @@ bool CreateSource(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &list
 			CreateSource_PlutoDebian(pRow_Package_Source,listFileInfo);
 			break;
 		default:
-			cout << "**Error** Don't know how to create this source." << endl;
+			cout << "***ERROR*** Don't know how to create this source." << endl;
 			return false;
 		}
 	}
@@ -501,7 +501,7 @@ bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileIn
 			{
 				if( !FileUtils::FileExists(sDirectory + "/" + File) )
 				{
-					cout << "**WARNING** " << sDirectory << "/" << File << " not found" <<  endl;
+					cout << "***WARNING*** " << sDirectory << "/" << File << " not found" <<  endl;
 					if( !AskYNQuestion("Continue?",false) )
 						return false;
 				}
@@ -576,7 +576,7 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 
 		if( sInputPath.length()==0 )
 		{
-			if( !AskYNQuestion("**WARNING** Directory is empty.  Continue?",false) )
+			if( !AskYNQuestion("***WARNING*** Directory is empty.  Continue?",false) )
 				return false;
 
 			sInputPath = g_sNonSourcecodePrefix;
@@ -605,7 +605,7 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 				cout << "Executing: " << pRow_Package_Directory_File->MakeCommand_get() << " from dir: " << sInputPath << endl;
 				if( !g_bSimulate && system(pRow_Package_Directory_File->MakeCommand_get().c_str()) )
 				{
-					cout << pRow_Package_Directory_File->MakeCommand_get() << " ****FAILED****" << endl;
+					cout << pRow_Package_Directory_File->MakeCommand_get() << " ***FAILED***" << endl;
 					cout << "Error: " << pRow_Package_Directory_File->MakeCommand_get() << " failed!" << endl;
 					return false;
 				}
@@ -616,7 +616,7 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 				FileUtils::FindFiles(listFiles,sInputPath,File,true);
 				if( listFiles.size()==0 )
 				{
-					cout << "**WARNING** No files found in " << sInputPath << endl;
+					cout << "***WARNING*** No files found in " << sInputPath << endl;
 					if( g_bInteractive )
 						return AskYNQuestion("Continue anyway?",false);
 					return true;
@@ -633,7 +633,7 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 			{
 				if( !FileUtils::FileExists(sInputPath + "/" + File) )
 				{
-					cout << "**WARNING** " << sInputPath << "/" << File << " not found" <<  endl;
+					cout << "***WARNING*** " << sInputPath << "/" << File << " not found" <<  endl;
 					if( !AskYNQuestion("Continue?",false) )
 						return false;
 				}
@@ -794,7 +794,7 @@ AsksSourceQuests:
 			sSource=pRow_Package_Directory->InputPath_get();
 		else
 		{
-			cout << "***Warning: *** There is no separate input directory.  Using the output directory.  This isn't normal" << endl;
+			cout << "***WARNING*** There is no separate input directory.  Using the output directory.  This isn't normal" << endl;
 			sSource = sCompiledOutput;
 		}
 		
@@ -852,7 +852,7 @@ AsksSourceQuests:
 		{
 			if( !g_bInteractive )
 			{
-				cout << "***Source code is not compatible with this distro***" << endl;
+				cout << "***WARNING*** Source code is not compatible with this distro" << endl;
 				return true; // It's okay
 			}
 
@@ -931,7 +931,7 @@ AsksSourceQuests:
 			fstr_compile << pRow_Package_Directory_File->MakeCommand_get() << endl;
 			if( !g_bSimulate && system(pRow_Package_Directory_File->MakeCommand_get().c_str()) )
 			{
-				cout << pRow_Package_Directory_File->MakeCommand_get() << " ****FAILED****" << endl;
+				cout << pRow_Package_Directory_File->MakeCommand_get() << " ***FAILED***" << endl;
 				cout << "Error: " << pRow_Package_Directory_File->MakeCommand_get() << " failed!" << endl;
 				return false;
 			}
@@ -939,7 +939,7 @@ AsksSourceQuests:
 
 			if( !g_bSimulate && !FileUtils::FileExists(sCompiledOutput + "/" + pRow_Package_Directory_File->File_get()) ) 
 			{
-				cout << "**ERROR** The file: " << sCompiledOutput << "/" << pRow_Package_Directory_File->File_get() << " was not created.";
+				cout << "***ERROR*** The file: " << sCompiledOutput << "/" << pRow_Package_Directory_File->File_get() << " was not created.";
  				return false;
 			}
 			cout << sCompiledOutput << "/" << pRow_Package_Directory_File->File_get() << " exists" << endl;
@@ -1168,7 +1168,7 @@ bool CreateSource_FTPHTTP(Row_Package_Source *pRow_Package_Source,list<FileInfo 
 		FileInfo *pFileInfo = *it;
 		if( !g_bSimulate && !CopySourceFile(pFileInfo->m_sSource,"/home/tmp/" + TempDir + "/" + pFileInfo->m_sDestination) )
 		{
-			cout << "**Error: Unable to copy file " <<  pFileInfo->m_sSource << " -> " << TempDir << "/" <<  pFileInfo->m_sDestination << endl;
+			cout << "***ERROR*** Unable to copy file " <<  pFileInfo->m_sSource << " -> " << TempDir << "/" <<  pFileInfo->m_sDestination << endl;
 			return false;
 		}
 	}
@@ -1177,7 +1177,7 @@ bool CreateSource_FTPHTTP(Row_Package_Source *pRow_Package_Source,list<FileInfo 
 	{
 		if( !g_bSimulate && !TarFiles(ArchiveFileName) )
 		{
-			cout << "**ERROR:** Tar " << ArchiveFileName << endl;
+			cout << "***ERROR*** Tar " << ArchiveFileName << endl;
 			return false;
 		}
 	}
@@ -1185,13 +1185,13 @@ bool CreateSource_FTPHTTP(Row_Package_Source *pRow_Package_Source,list<FileInfo 
 	{
 		if( !g_bSimulate && !ZipFiles(ArchiveFileName) )
 		{
-			cout << "**ERROR:** Zip " << ArchiveFileName << endl;
+			cout << "***ERROR*** Zip " << ArchiveFileName << endl;
 			return false;
 		}
 	}
 	else
 	{
-		cout << "**ERROR:** Unknown archive type: " << pRow_Package_Source->Parms_get() << endl;
+		cout << "***ERROR*** Unknown archive type (" << pRow_Package_Source->PK_Package_Source_get() << "/" << pRow_Package_Source->FK_Package_get() << "): " << pRow_Package_Source->Parms_get() << endl;
 		return false;
 	}
 	system(("ls -l " + ArchiveFileName + " >> ../dirlist").c_str());
