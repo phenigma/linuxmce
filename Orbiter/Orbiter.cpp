@@ -1699,11 +1699,15 @@ void Orbiter::Initialize( GraphicType Type )
 #endif
                 if(  !( bFileExists=FileUtils::FileExists( m_sLocalDirectory + Filename ) )  )
                 {
-                    m_sLocalDirectory = "C" + StringUtils::itos( m_dwPK_Device ) + "/";
+                    m_sLocalDirectory = "orbiter/C" + StringUtils::itos( m_dwPK_Device ) + "/";
                     if(  !( bFileExists=FileUtils::FileExists( m_sLocalDirectory + Filename ) )  )
                     {
-                        m_sLocalDirectory = "../C" + StringUtils::itos( m_dwPK_Device ) + "/";
-                        bFileExists=FileUtils::FileExists( m_sLocalDirectory + Filename );
+                        m_sLocalDirectory = "../orbiter/C" + StringUtils::itos( m_dwPK_Device ) + "/";
+						if(  !( bFileExists=FileUtils::FileExists( m_sLocalDirectory + Filename ) )  )
+						{
+							m_sLocalDirectory = "C" + StringUtils::itos( m_dwPK_Device ) + "/";
+							bFileExists=FileUtils::FileExists( m_sLocalDirectory + Filename );
+						}
                     }
                 }
             }

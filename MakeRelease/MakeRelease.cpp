@@ -118,6 +118,8 @@ bool CopySourceFile(string sInput,string sOutput)
 	if( !g_bSimulate && StringUtils::EndsWith(sInput,".cpp",true) || StringUtils::EndsWith(sInput,".c",true) ||
 			StringUtils::EndsWith(sInput,".h",true) )
 		return StringUtils::Replace( sInput, sOutput, "<=version=>", g_pRow_Version->VersionName_get() );
+	else if( !g_bSimulate && sInput.find("Makefile")!=string::npos && g_pRow_Version->PK_Version_get()==1 )
+		return StringUtils::Replace( sInput, sOutput, "-D_DEVEL_DEFINES", "-DDEBUG -DTHREAD_LOG -DLL_DEBUG_FILE" );
 	else
 		return FileUtils::PUCopyFile(sInput,sOutput);
 }
