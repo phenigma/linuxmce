@@ -23,6 +23,9 @@
 #include "PlutoUtils/Other.h"
 #include "PlutoUtils/Other.h"
 
+#ifdef WINCE
+#include "../Orbiter/CENet/WinCE.h"
+#endif
 
 // Message parameter list.
 
@@ -59,7 +62,7 @@ void DataGridCell::Initialize()
 
 DataGridCell::~DataGridCell()
 {
-	if (m_Text)
+	if (m_Text) 
 		free(m_Text);
 	if (m_Value)
 		free(m_Value);
@@ -81,20 +84,10 @@ DataGridCell::DataGridCell(string Text, string Value)
 {
 	Initialize();
 
-#ifdef WINCE
-	m_Text = const_cast<char *>((Text + Text).c_str());
-#else
 	m_Text = strdup(Text.c_str());
-#endif
-
 	m_TextLength = (int)Text.length();
 
-#ifdef WINCE
-	m_Value = const_cast<char *>((Value + Value).c_str());
-#else
 	m_Value = strdup(Value.c_str());
-#endif
-	
 	m_ValueLength = (int)Value.length();
 }
 

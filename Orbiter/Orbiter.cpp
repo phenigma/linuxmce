@@ -141,6 +141,8 @@ m_CallbackMutex( "callback" ), m_MaintThreadMutex("MaintThread")
 //<-dceag-const-e->
 
 {
+	m_bPartialRendering = false;
+
     m_sLocalDirectory=sLocalDirectory;
     m_iImageWidth=iImageWidth;
     m_iImageHeight=iImageHeight;
@@ -3658,15 +3660,6 @@ void Orbiter::CallMaintenanceInMiliseconds( clock_t milliseconds, OrbiterCallBac
 
 	gettimeofday(&pCallBack->m_abstime,NULL);
 	pCallBack->m_abstime += milliseconds;
-
-/*
-	pCallBack->m_abstime.tv_nsec += milliseconds * 1000000;
-	if( pCallBack->m_abstime.tv_nsec > 1000000000 )
-	{
-		pCallBack->m_abstime.tv_sec++;
-		pCallBack->m_abstime.tv_nsec -= 1000000000;
-	}
-*/  
 
 	pCallBack->m_fnCallBack=fnCallBack;
     pCallBack->m_pData=data;

@@ -31,7 +31,7 @@ OrbiterSDL_Win32* Connect(int PK_Device,string sRouter_IP,string sLocalDirectory
 	if(!bLocalMode)
 		WriteStatusOutput("Connecting to DCERouter...");
 
-	//try
+	try
 	{
 		OrbiterSDL_Win32::Cleanup();
 		OrbiterSDL_Win32::BuildOrbiterSDL_Win32(
@@ -40,12 +40,10 @@ OrbiterSDL_Win32* Connect(int PK_Device,string sRouter_IP,string sLocalDirectory
 			Width, Height, bFullScreen
 		); //the builder method
 	}
-	/*
 	catch(...)
 	{
 		return NULL;
 	}
-	*/
 
 	OrbiterSDL_Win32 *pOrbiter = OrbiterSDL_Win32::GetInstance();
 
