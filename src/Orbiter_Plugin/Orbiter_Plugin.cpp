@@ -1254,6 +1254,9 @@ void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string &sCMD
     {
         OH_Orbiter *pOH_Orbiter = (*it).second;
 
+		if( iPK_Device==0 ) //we'll regen all of them
+			m_listRegenCommands.push_back(iPK_Device);
+
 		if( iPK_Device==0 || pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device==iPK_Device )
 		{
 			if( pOH_Orbiter->m_tRegenTime )
@@ -1270,7 +1273,10 @@ void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string &sCMD
 
 	// Launch it in the background with &
 	string Cmd = "/usr/pluto/bin/RegenOrbiterOnTheFly.sh " + StringUtils::itos(iPK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " " + sForce;
-	m_listRegenCommands.push_back(iPK_Device);
+
+	if(iPK_Device) 
+		m_listRegenCommands.push_back(iPK_Device);
+
 	g_pPlutoLogger->Write(LV_STATUS,"Executing: %s",Cmd.c_str());
 	FileUtils::LaunchProcessInBackground(Cmd);
 	g_pPlutoLogger->Write(LV_STATUS,"Execution returned: %s",Cmd.c_str());
