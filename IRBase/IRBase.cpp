@@ -101,18 +101,24 @@ void IRBase::ParseDevices()
 			string tok = StringUtils::Tokenize((*param).second, ",", pos);
 			if (tok.length())
 			{
-				m_DevicePreDelays[DeviceID] = atoi(tok.c_str());
+				m_DevicePreDelays[DeviceID] = ms_to_timespec(atoi(tok.c_str()));
 				tok = StringUtils::Tokenize((*param).second, ",", pos);
 				if (tok.length())
 				{
-					m_DeviceDefaultDelays[DeviceID] = atoi(tok.c_str());
+					m_DeviceDefaultDelays[DeviceID] = ms_to_timespec(atoi(tok.c_str()));
 				}
 			}
 		}
 	}
 }
 
-void IRBase::AddIRToQueue(string Port, string IRCode, long Delay, long DeviceNum, long CommandNum, long Count, long ChannelSequenceNumber)
+
+void IRBase::AddIRToQueue(string Port, string IRCode, unsigned long Delay, long DeviceNum, long CommandNum, long Count, long ChannelSequenceNumber)
+{
+	AddIRToQueue(Port, IRCode, ms_to_timespec(Delay), DeviceNum, CommandNum, Count, ChannelSequenceNumber);
+}
+
+void IRBase::AddIRToQueue(string Port, string IRCode, timespec Delay, long DeviceNum, long CommandNum, long Count, long ChannelSequenceNumber)
 {
 	pthread_mutex_lock(&m_IRMutex.mutex);
 
@@ -205,12 +211,12 @@ void IRBase::AddIRToQueue(string Port, string IRCode, long Delay, long DeviceNum
 		{
 			string::size_type pos2=0;
 			string Code = StringUtils::Tokenize(tok, "@", pos2);
-			long Delay = atoi(StringUtils::Tokenize(tok, "@", pos2).c_str());
-			m_IRQueue.push_back((pLastQueued = new IRQueue(Port, Code, Delay, DeviceNum, CommandNum, Step++, m_DevicePreDelays[DeviceNum], ChannelSequenceNumber)));
+			timespec tsDelay = ms_to_timespec(atoi(StringUtils::Tokenize(tok, "@", pos2).c_str()));
+			m_IRQueue.push_back((pLastQueued = new IRQueue(Port, Code, tsDelay, m_DevicePreDelays[DeviceNum], DeviceNum, CommandNum, Step++, ChannelSequenceNumber)));
 		}
 		if (pLastQueued)
 		{
-			pLastQueued->m_Delay+=Delay;
+			pLastQueued->m_Delay += Delay;
 		}
 	}
 
@@ -242,11 +248,11 @@ bool IRBase::AddChannelChangeToQueue(long ChannelNumber, long Device)
 	{
 		printf("Device id %ld has no number digits parameter.  Assuming 3 and no enter.\n", Device);
 	}
-	long DigitDelay = 0;
+	timespec DigitDelay = {0, 0};
 	param = m_pCommand_Impl->m_mapCommandImpl_Children[Device]->m_pData->m_mapParameters.find(DEVICEDATA_Digit_Delay_CONST);
 	if (param != m_pCommand_Impl->m_mapCommandImpl_Children[Device]->m_pData->m_mapParameters.end())
 	{
-		DigitDelay = atoi((*param).second.c_str());
+		DigitDelay = ms_to_timespec(atoi((*param).second.c_str()));
 	}
 	long TotalDigits = StringUtils::ltos(ChannelNumber).length();
 	if (NumDigits < TotalDigits)
@@ -286,7 +292,8 @@ bool IRBase::ProcessMessage(Message *pMessage)
 			CommandNum=atoi(pMessage->m_mapParameters[COMMANDPARAMETER_ID_CONST].c_str());
 			DeviceNum=TargetDevice;
 		}
-		AddIRToQueue(pMessage->m_mapParameters[COMMANDPARAMETER_Absolute_Channel_CONST],pMessage->m_mapParameters[COMMANDPARAMETER_Tokens_CONST], 0, DeviceNum, CommandNum);
+		AddIRToQueue(pMessage->m_mapParameters[COMMANDPARAMETER_Absolute_Channel_CONST],
+				pMessage->m_mapParameters[COMMANDPARAMETER_Tokens_CONST], 0, DeviceNum, CommandNum);
 		return true;
 	}
 	if( pMessage->m_dwID == COMMAND_Tune_to_channel_CONST)
@@ -353,7 +360,10 @@ bool IRBase::ProcessQueue()
 
 	list<IRQueue *>::iterator ipQueue;
 	list<IRQueue *> NewIRQueue;
-	clock_t CurTime = xClock();
+	timeval tvCurTime;
+	timespec tsCurTime;
+	gettimeofday(&tvCurTime, NULL);
+	timeval_to_timespec(&tvCurTime, &tsCurTime);
 
 	// printf("Clk = %d, CLK_TCK = %d\n", xClock(), CLK_TCK);
 
@@ -362,7 +372,7 @@ bool IRBase::ProcessQueue()
 	{
 		// Is the last IR on this port + this pre delay still in the future?  If so continue on to the next queued item
 		
-		if ((*ipQueue)->m_PreDelay && MS_TO_CLK((*ipQueue)->m_PreDelay) + m_PortLastIRSent[(*ipQueue)->m_Port] > CurTime)
+		if ((*ipQueue)->m_PreDelay > ms_to_timespec(0) && tsCurTime < (*ipQueue)->m_PreDelay + m_PortLastIRSent[(*ipQueue)->m_Port])
 		{
 //			printf("Not ready yet: %d %d %d %d (1)\n", (*ipQueue)->m_PreDelay, MS_TO_CLK((*ipQueue)->m_PreDelay), m_PortLastIRSent[(*ipQueue)->m_Port], CurTime);
 			NewIRQueue.push_back(* ipQueue);
@@ -370,7 +380,7 @@ bool IRBase::ProcessQueue()
 		}
 
 		// Can this device accept IR yet?
-		if ((*ipQueue)->m_DeviceNum > -1 && m_DeviceNextAvailableTime[(*ipQueue)->m_DeviceNum] > CurTime)
+		if ((*ipQueue)->m_DeviceNum > -1 && tsCurTime < m_DeviceNextAvailableTime[(*ipQueue)->m_DeviceNum])
 		{
 //			printf("Not ready yet (2)\n");
 			NewIRQueue.push_back(* ipQueue);
@@ -386,7 +396,8 @@ bool IRBase::ProcessQueue()
 		{ 
 			g_pPlutoLogger->Write(LV_STATUS, "IRQueue: Device %d, Action %d, Step %d", (*ipQueue)->m_DeviceNum, (*ipQueue)->m_CommandNum, (*ipQueue)->m_StepNumber);
 			SendIR((*ipQueue)->m_Port, (*ipQueue)->m_IRCode);
-			CurTime = xClock();
+			gettimeofday(&tvCurTime, NULL);
+			timeval_to_timespec(&tvCurTime, &tsCurTime);
 		}
 		else 
 		{
@@ -413,9 +424,9 @@ bool IRBase::ProcessQueue()
 		if ((*ipQueue)->m_DeviceNum > -1)
 		{
 			(*ipQueue)->m_Delay = max((*ipQueue)->m_Delay, m_DeviceDefaultDelays[(*ipQueue)->m_DeviceNum]);
-			m_DeviceNextAvailableTime[(*ipQueue)->m_DeviceNum] = CurTime + MS_TO_CLK((*ipQueue)->m_Delay);
+			m_DeviceNextAvailableTime[(*ipQueue)->m_DeviceNum] = tsCurTime + (*ipQueue)->m_Delay;
 		}
-		m_PortLastIRSent[(*ipQueue)->m_Port] = CurTime;
+		m_PortLastIRSent[(*ipQueue)->m_Port] = tsCurTime;
 //		m_IRQueue.erase(ipQueue);
 		retval = true;
 	}
