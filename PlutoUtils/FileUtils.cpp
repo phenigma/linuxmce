@@ -320,7 +320,7 @@ void FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
                 }
             }
         }
-        else if (bRecurse && entry.d_type != DT_DIR && entry.d_name[0] != '.')
+        else if (bRecurse && entry.d_type == DT_DIR && entry.d_name[0] != '.')
 		{
 			FindFiles(listFiles,sDirectory + entry.d_name,sFileSpec_CSV,true,PrependedPath + entry.d_name + "/");
 		}
