@@ -881,6 +881,24 @@ switch ($section) {
 	    include_once('operations/security/viewCameras.php');
 	    viewCameras($output,$dbADO);
 	break;
+	case 'phoneLines';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/phones/phoneLines.php');
+	    phoneLines($output,$asteriskADO);
+	break;
+	case 'phoneExtensions';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/phones/phoneExtensions.php');
+	    phoneExtensions($output,$dbADO);
+	break;
+	case 'callRouting';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/phones/callRouting.php');
+	    callRouting($output,$asteriskADO);
+	break;
 		
 	case '';
 		$output = new Template($dbADO);	

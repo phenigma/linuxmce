@@ -58,17 +58,19 @@ $installationID = (int)@$_SESSION['installationID'];
 			$deviceDataToShow[]=$row['FK_DeviceData'];
 	}
 
-	$deviceData="SELECT
-						Distinct 
-						DeviceData.Description as DD_desc,
-						DeviceData.PK_DeviceData as PK_DD,
-						ParameterType.Description as PT_Desc,
-						Device_DeviceData.IK_DeviceData as IK_DeviceData
-						 FROM 
-								DeviceData 
-								INNER JOIN ParameterType on FK_ParameterType = PK_ParameterType
-								LEFT JOIN Device_DeviceData on Device_DeviceData.FK_DeviceData = DeviceData.PK_DeviceData							
-						 WHERE FK_Device = $deviceID";
+	$deviceData="
+		SELECT
+			DeviceData.Description as DD_desc,
+			DeviceData.PK_DeviceData as PK_DD,
+			ParameterType.Description as PT_Desc,
+			Device_DeviceData.IK_DeviceData as IK_DeviceData,
+			AllowedToModify
+		FROM Device_DeviceData 
+			INNER JOIN DeviceData ON Device_DeviceData.FK_DeviceData=PK_DeviceData
+			INNER JOIN ParameterType on FK_ParameterType = PK_ParameterType
+			INNER JOIN Device ON FK_Device=PK_Device
+			INNER JOIN DeviceTemplate_DeviceData ON DeviceTemplate_DeviceData.FK_DeviceTemplate=Device.FK_DeviceTemplate AND DeviceTemplate_DeviceData.FK_DeviceData=Device_DeviceData.FK_DeviceData
+		 WHERE FK_Device = $deviceID";
 	$resDeviceData = $dbADO->_Execute($deviceData);
 	$childsNo = getChildsNo($deviceID,$dbADO);
 	$out.='
@@ -472,7 +474,11 @@ $installationID = (int)@$_SESSION['installationID'];
 		} 
 			
 		while ($rowDevicedata = $resDeviceData->FetchRow()) {
-			$out.="<tr><td>{$rowDevicedata['DD_desc']}({$rowDevicedata['PT_Desc']})</td><td><input type=\"text\" name=\"deviceData_".$rowDevicedata['PK_DD']."\" value=\"".stripslashes($rowDevicedata['IK_DeviceData'])."\"></td></tr>";
+			$out.="
+				<tr>
+					<td>{$rowDevicedata['DD_desc']}({$rowDevicedata['PT_Desc']})</td>
+					<td><input type=\"text\" name=\"deviceData_".$rowDevicedata['PK_DD']."\" value=\"".stripslashes($rowDevicedata['IK_DeviceData'])."\" ".(($rowDevicedata['AllowedToModify']==0)?'disabled':'')."></td>
+				</tr>";
 			$deviceData[]=$rowDevicedata['PK_DD'];
 		}
 	}

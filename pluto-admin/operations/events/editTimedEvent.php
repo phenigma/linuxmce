@@ -144,8 +144,32 @@ function editTimedEvent($output,$dbADO) {
 		$out.='<span id="type_4" style="display:'.(($timedEventType!=4)?'none':'').';">What date day/month/year? <input type="text" name="absoluteDate" size="7" value="'.((isset($dataParts[0]))?formatMySQLDate($dataParts[0],'d/m/Y'):date('d/m/Y')).'">  What time? <input type="text" name="absoluteTime" value="'.((isset($dataParts[1]))?$dataParts[1]:date('h:i')).'"> (comma separated list for multiple values)</span>';
 		$out.='</td>
 			</tr>		
+			<tr>
+				<td>
 			';
+			$queryCG_R='
+				SELECT Room.Description AS RoomName,PK_Room, FK_CommandGroup 
+				FROM Room
+				LEFT JOIN CommandGroup_Room ON FK_Room=PK_Room AND FK_CommandGroup=?
+				WHERE Room.FK_Installation=? 
+				ORDER BY RoomName ASC';
+
+			$resCG_R=$dbADO->Execute($queryCG_R,array($commandGroupID,$installationID));
+			$displayedRoomsArray=array();
+			$oldCheckedRooms=array();
+			while($rowCG_R=$resCG_R->FetchRow()){
+				$displayedRoomsArray[]=$rowCG_R['PK_Room'];
+				if($rowCG_R['FK_CommandGroup']!='')
+					$oldCheckedRooms[]=$rowCG_R['PK_Room'];
+				$out.='<input type="checkbox" name="cg_r_'.$rowCG_R['PK_Room'].'" value="1" '.(($rowCG_R['FK_CommandGroup']!='')?'checked':'').'> '.$rowCG_R['RoomName'].'<br>';
+			}
+
 			$out.='
+					<input type="hidden" name="oldCheckedRooms" value="'.join(',',$oldCheckedRooms).'">
+					<input type="hidden" name="displayedRoomsArray" value="'.join(',',$displayedRoomsArray).'">
+				<td>
+				<td>If you would like to use this event as an alarm clock, choose what rooms this event should act as an alarm clock in. It will appear on the Orbiters\' sleeping menu and you can change the time on the Orbiter.</td>
+			</tr>
 			<tr bgcolor="#E7E7E7">
 				<td colspan="3" align="center"><input type="submit" name="continue" value="Update"></td>
 			</tr>';
@@ -476,6 +500,16 @@ function editTimedEvent($output,$dbADO) {
 			}
 		}
 
+		$displayedRoomsArray=explode(',',$_POST['displayedRoomsArray']);
+		$oldCheckedRooms=explode(',',$_POST['oldCheckedRooms']);
+		foreach($displayedRoomsArray AS $roomID){
+			if(isset($_POST['cg_r_'.$roomID])){
+				if(!in_array($roomID,$oldCheckedRooms))
+					$dbADO->Execute('INSERT INTO CommandGroup_Room (FK_CommandGroup, FK_Room, Sort) VALUES (?,?,?)',array($commandGroupID,$roomID,$commandGroupID));
+			}elseif(in_array($roomID,$oldCheckedRooms)){
+				$dbADO->Execute('DELETE FROM CommandGroup_Room WHERE FK_CommandGroup=? AND FK_Room=?',array($commandGroupID,$roomID));
+			}
+		}
 		
 		// update EventHandler
 		$updateEventHandler='UPDATE EventHandler SET Description=?  WHERE PK_EventHandler=?';

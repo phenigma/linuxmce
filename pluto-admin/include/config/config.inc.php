@@ -123,6 +123,7 @@
 	$GLOBALS['FloorplanInfo']=10;				// FloorplanInfo (coordinates)
 	$GLOBALS['FloorplanObjectType']=11;			// FloorplanObjectType
 	$GLOBALS['DHCPDeviceData']=28;				// DHCP
+	$GLOBALS['PhoneNumber']=31;					// Phone Number
 	$GLOBALS['NetworkInterfaces']=32;			// Network Interfaces
 	$GLOBALS['securityAlert']=33;				// Alert 
 	$GLOBALS['MobileOrbiterNotification']=34;	// Mobile Orbiter Notification
