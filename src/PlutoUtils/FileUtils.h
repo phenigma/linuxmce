@@ -43,6 +43,7 @@ namespace FileUtils
 	void DelFile(string sFileName);
 	void DelDir(string sDirectory);
 
+	bool LaunchProcessInBackground(string sCommandLine);
 #ifndef WINCE
     string FileWithoutExtension ( string sFileName ); /** < returns the filename without the extension */
     string BasePath( string sFileName ); /** < returns the path one dir up @todo ask */

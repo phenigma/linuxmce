@@ -32,6 +32,7 @@
 #ifndef WIN32
 	#include <dirent.h>
 	#include <unistd.h>
+	#include <fcntl.h>
 #else
 //	#include <shellapi.h>
 #endif
@@ -51,6 +52,7 @@
 	#else
 		#include <dirent.h>
 		#include <unistd.h>
+		#include <fcntl.h>
 	#endif
 
 	#ifndef WINCE
@@ -239,7 +241,7 @@ bool FileUtils::DirExists( string sFile )
 {
     int iResult = 0;
 
-#ifndef WINCE    
+#ifndef WINCE
 	struct stat buf;
 
     if( sFile.length() && sFile[sFile.length()-1]=='/' )
@@ -301,7 +303,7 @@ void FileUtils::DelDir(string sDirectory)
 
 		while(FindNextFile(findFileHandle, &findData))
 		{
-		
+
 			string sPath = sDirectory + "/";
 		#ifdef WINCE
 			char pPath[256];
@@ -309,10 +311,10 @@ void FileUtils::DelDir(string sDirectory)
 			sPath += pPath;
 		#else
 			sPath += findData.cFileName;
-		#endif			
+		#endif
 
 			if(findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-				FileUtils::DelDir(sPath); 
+				FileUtils::DelDir(sPath);
 			else
 				FileUtils::DelFile(sPath);
 		}
@@ -530,7 +532,7 @@ bool FileUtils::FindFiles(list<string> &listFiles, string sDirectory, string sFi
 				delete pLinkContents;
 				continue;
 			}
-			
+
 			delete pLinkContents;
 			stat((sDirectory + entry.d_name).c_str(), &s);
 		}
@@ -561,7 +563,7 @@ bool FileUtils::FindFiles(list<string> &listFiles, string sDirectory, string sFi
 			if ( iMaxFileCount && iMaxFileCount < listFiles.size() )
 				return true;
         }
-        else if (bRecurse && S_ISDIR(s.st_mode) && entry.d_name[0] != '.') 
+        else if (bRecurse && S_ISDIR(s.st_mode) && entry.d_name[0] != '.')
 		{
 			if ( FindFiles( listFiles, sDirectory + entry.d_name, sFileSpec_CSV, true, bFullyQualifiedPath, iMaxFileCount, PrependedPath + entry.d_name + "/" ) )
 				return true;
@@ -621,3 +623,79 @@ bool FileUtils::PUCopyFile(string sSource,string sDestination)
 }
 
 #endif
+
+bool FileUtils::LaunchProcessInBackground(string sCommandLine)
+{
+    if (sCommandLine == "")
+    {
+        // g_pPlutoLogger->Write(LV_WARNING, "FileUtils::LaunchProcessInBackground(): Invalid parameters (empty params)");
+        return false;
+    }
+
+#ifndef WIN32
+    //parse the args
+    const int MaxArgs = 32;
+
+    char * ptr;
+
+	ptr = (char *) sCommandLine.c_str();
+    char * args[MaxArgs];
+    int i = 0;
+
+	// this looks too complicated but i don't have time to make it cleaner :-( mtoader@gmail.com)
+    args[0] = (char *) sCommandLine.c_str();
+    while ( *ptr && i < MaxArgs - 1)
+    {
+		if ( *ptr == ' ' || *ptr == '\t' )
+			*ptr++ = 0;
+		while ( *ptr && (*ptr == ' ' || *ptr == '\t') ) ptr++;  // skip the white spaces.
+		if ( *ptr )
+		{
+			args[++i] = ptr; 			// put the next thing as a parameter
+			while ( *ptr && *ptr != ' ' && *ptr != '\t' ) ptr++;  // skip to the next white space. (this doesn't take into account quoted parameters) )
+		}
+    }
+
+	args[++i] = 0;
+    fprintf(stderr, "Found %d arguments\n", i);
+
+    for (int x = 1 ; x < i; x++)
+		fprintf(stderr, "Argument %d: %s\n", x, args[x]);
+
+    pid_t pid = fork();
+    switch (pid)
+    {
+        case 0: //child
+        {
+            fprintf(stderr, "FileUtils::LaunchProcessInBackground(), Fork was succesfull.\n");
+
+			// set the Close on Exec flag on all the descriptors bigger than 3.
+			for ( int i = 3; i < 255; i++ )
+				close(i);
+
+			fprintf(stderr, "File descriptors closed.\n");
+
+            if ( execvp(args[1], args + 1) == -1)
+			{
+                fprintf(stderr, "Exec failed %s\n", strerror(errno));
+				exit(99);
+			}
+        }
+
+        case -1:
+            fprintf(stderr, "Error starting %s, err: %s\n", sCommandLine.c_str(), strerror(errno));
+            return false;
+
+        default:
+			return true;
+    }
+#else
+    STARTUPINFO si;
+    PROCESS_INFORMATION pi;
+    ZeroMemory (&si, sizeof(si));
+    si.cb = sizeof(si);
+    ZeroMemory (&pi, sizeof(pi));
+    CreateProcess("C:\\WINDOWS\\system32\\cmd.exe", "/c bogus.bat", NULL, NULL, false, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi);
+	return true;
+#endif
+}

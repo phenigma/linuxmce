@@ -97,7 +97,7 @@ Orbiter_Plugin::~Orbiter_Plugin()
 }
 
 /* Kind of a hack -- The goal was to allow the lighting, telecom, media, climate and security plug-ins to be
-replaced with another model.  This plug-in needs to call them for handling floorplans and follow-me.  
+replaced with another model.  This plug-in needs to call them for handling floorplans and follow-me.
 So rather than including including pointers directly to the plug-ins, I made generic 'follow-me plugin' and 'floorplan plugin'
 classes which our lcmts plug-ins are derived from.  However I can't just cast the pointer to those plug-in which I
 receive as pointers to Command_Impl, because they are not the first base class (ie multiple derived).  So, here the
@@ -457,9 +457,9 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
 				// We know both signal strengths.  Do a comparisson and take the stronger one
 			}
 */
-            if( pOH_Orbiter->m_pDevice_CurrentDetected && 
+            if( pOH_Orbiter->m_pDevice_CurrentDetected &&
 				pOH_Orbiter->m_iLastSignalStrength > m_iThreshHold &&
-				pOH_Orbiter->m_iLastSignalStrength >= SignalStrength 
+				pOH_Orbiter->m_iLastSignalStrength >= SignalStrength
 			)
             {
                 g_pPlutoLogger->Write(LV_STATUS,"Mobile Orbiter %s already has a strong association with %d (%d/%d)",
@@ -477,7 +477,7 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
 				if(NULL != pOH_Orbiter->m_pDevice_CurrentDetected)
 				{
 					DCE::CMD_Disconnect_From_Mobile_Orbiter cmd_Disconnect_From_Mobile_Orbiter(
-						-1, 
+						-1,
 						pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device,
 						sMacAddress);
 					SendCommand(cmd_Disconnect_From_Mobile_Orbiter);
@@ -652,7 +652,7 @@ bool Orbiter_Plugin::MobileOrbiterLost(class Socket *pSocket,class Message *pMes
         {
             pOH_Orbiter->m_pDevice_CurrentDetected=NULL;
 			pOH_Orbiter->m_iLastSignalStrength = 0;
-			
+
 			FireFollowMe("LCTS",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_iPK_Users,
 				0,pOH_Orbiter->m_dwPK_Room);
 			FireFollowMe("M",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_iPK_Users,
@@ -798,10 +798,10 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate
 	pRow_Device_DeviceData->Table_Device_DeviceData_get()->Commit();
 
 	// Same thing like in regen orbiter
-	string Cmd = "/usr/pluto/bin/RegenOrbiterOnTheFly.sh " + StringUtils::itos(PK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " &";
+	string Cmd = "/usr/pluto/bin/RegenOrbiterOnTheFly.sh " + StringUtils::itos(PK_Device) + " " + StringUtils::itos(m_dwPK_Device);
 	m_listRegenCommands.push_back(PK_Device);
 	g_pPlutoLogger->Write(LV_STATUS,"Executing: %s",Cmd.c_str());
-	system(Cmd.c_str());
+	FileUtils::LaunchProcessInBackground(Cmd);
 	g_pPlutoLogger->Write(LV_STATUS,"Execution returned: %s",Cmd.c_str());
 
     // todo -- need to restart the dce router automatically
@@ -1072,7 +1072,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Preparing floorplan %d devices",NumDevices);
 				}
             }
 
-			int FloorplanObjectType = pDeviceData_Router ? 
+			int FloorplanObjectType = pDeviceData_Router ?
 				atoi(pDeviceData_Router->mapParameters_Find(DEVICEDATA_PK_FloorplanObjectType_CONST).c_str()) :
 				m_pDatabase_pluto_main->EntertainArea_get()->GetRow(pEntertainArea->m_iPK_EntertainArea)->FK_FloorplanObjectType_get();
             Row_FloorplanObjectType *pRow_FloorplanObjectType = m_pDatabase_pluto_main->FloorplanObjectType_get()->GetRow(FloorplanObjectType);
@@ -1261,10 +1261,10 @@ void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string &sCMD
 	}
 
 	// Launch it in the background with &
-	string Cmd = "/usr/pluto/bin/RegenOrbiterOnTheFly.sh " + StringUtils::itos(iPK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " " + sForce + " &";
+	string Cmd = "/usr/pluto/bin/RegenOrbiterOnTheFly.sh " + StringUtils::itos(iPK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " " + sForce;
 	m_listRegenCommands.push_back(iPK_Device);
 	g_pPlutoLogger->Write(LV_STATUS,"Executing: %s",Cmd.c_str());
-	system(Cmd.c_str());
+	FileUtils::LaunchProcessInBackground(Cmd);
 	g_pPlutoLogger->Write(LV_STATUS,"Execution returned: %s",Cmd.c_str());
 }
 
@@ -1323,7 +1323,7 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 //<-dceag-createinst-b->!
 
 
-bool Orbiter_Plugin::NewPnpDevice( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo ) 
+bool Orbiter_Plugin::NewPnpDevice( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
 	int PK_Device = atoi(pMessage->m_mapParameters[EVENTPARAMETER_PK_Device_CONST].c_str());
 	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(PK_Device);

@@ -10,7 +10,7 @@ bool PopulateListsInVMC(string sSourceVMC, string sDestVMC, long dwPKDevice,
 class VIPMenuCollection *LoadMenuCollection(string sVMCFile);
 bool SaveMenuCollection(class VIPMenuCollection *pMenuCollection, string sVMCFile);
 
-void PopulateStandardScenariosList(class VIPMenuCollection *pMenuCollection, 
+void PopulateStandardScenariosList(class VIPMenuCollection *pMenuCollection,
 								   class Database_pluto_main *pDatabase_pluto_main);
 
 void AddResolutionsForSetHouseMode(VIPMenuCollection *pMenuCollection, Database_pluto_main *pDatabase_pluto_main);

@@ -15,7 +15,7 @@ enum MenuIds { miMain, miStandardScenarios, miSetHouseMode, miChooseMode, miSpea
 
 static const string csRelativeURL = "/bubu.php?";
 
-bool PopulateListsInVMC(string sSourceVMC, string sDestVMC, long dwPKDevice, 
+bool PopulateListsInVMC(string sSourceVMC, string sDestVMC, long dwPKDevice,
 						Database_pluto_main *pDatabase_pluto_main)
 {
 	g_pPlutoLogger->Write(LV_STATUS, "Ready to populate lists in %s file", sSourceVMC.c_str());
@@ -63,13 +63,13 @@ bool SaveMenuCollection(VIPMenuCollection *pMenuCollection, string sVMCFile)
 {
 	pMenuCollection->ConvertToBinary();
 
-	return FileUtils::WriteBufferIntoFile(sVMCFile, pMenuCollection->m_pBinary, 
+	return FileUtils::WriteBufferIntoFile(sVMCFile, pMenuCollection->m_pBinary,
 		pMenuCollection->m_iBinarySize);
 }
 
 void PopulateStandardScenariosList(VIPMenuCollection *pMenuCollection, Database_pluto_main *pDatabase_pluto_main)
 {
-	VIPMenu *pStandardScenariosMenu = pMenuCollection->m_mapMenus_Find(miStandardScenarios); 
+	VIPMenu *pStandardScenariosMenu = pMenuCollection->m_mapMenus_Find(miStandardScenarios);
 	VIPMenuElement *pStandardScenariosElement = pStandardScenariosMenu->m_mapMenuElements_Find(liStandardScenarios);
 
 	VIPMenuElement_List *pStandardScenariosList = NULL;
@@ -79,7 +79,7 @@ void PopulateStandardScenariosList(VIPMenuCollection *pMenuCollection, Database_
 		return;
 
 	vector <Row_CommandGroup *> vectRow_CommandGroup;
-	pDatabase_pluto_main->CommandGroup_get()->GetRows("FK_Array = " + StringUtils::ltos(ARRAY_Mobile_Orbiter_Scenarios_CONST), 
+	pDatabase_pluto_main->CommandGroup_get()->GetRows("FK_Array = " + StringUtils::ltos(ARRAY_Mobile_Orbiter_Scenarios_CONST),
 		&vectRow_CommandGroup);
 
 	int iIndex = 0;
@@ -101,7 +101,7 @@ void PopulateStandardScenariosList(VIPMenuCollection *pMenuCollection, Database_
 
 void AddResolutionsForSetHouseMode(VIPMenuCollection *pMenuCollection, Database_pluto_main *pDatabase_pluto_main)
 {
-	VIPMenu *pStandardScenariosMenu = pMenuCollection->m_mapMenus_Find(miChooseMode); 
+	VIPMenu *pStandardScenariosMenu = pMenuCollection->m_mapMenus_Find(miChooseMode);
 	VIPMenuElement *pStandardScenariosElement = pStandardScenariosMenu->m_mapMenuElements_Find(liSetHouseMode);
 
 	VIPMenuResolution *pMenuResolution = new VIPMenuResolution("",0,"","", 0,0,0,0,0,"");
