@@ -18,6 +18,7 @@ JOIN Installation_Users ON Installation_Users.FK_Installation=PK_Installation
 WHERE PK_Device=? AND ActivationCode=?';
 //$dbADO->debug=true;
 $res=$dbADO->Execute($query,array($device,$code));
+$installation = "";
 while($row=$res->FetchRow()){
 	$installation=$row['PK_Installation'];
 	if($user!=''){
@@ -26,8 +27,17 @@ while($row=$res->FetchRow()){
 	$user=$user.$row['FK_Users'];
 }
 
-$message = implode("\n", (array)GetInitialData($installation,$user));
-echo "$message";
+if ($installation === "")
+{
+	$header = "-- ERROR. Invalid Device or Activation Code. If you see this, something changed since you started the installation";
+	$message = "";
+}
+else
+{
+	$header = "-- OK. SQL data follows";
+	$message = implode("\n", (array)GetInitialData($installation,$user)) . "\n-- EOF";
+}
 
+echo "$header\n$message";
 ?>
 
