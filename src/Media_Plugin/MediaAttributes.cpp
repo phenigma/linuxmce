@@ -954,11 +954,13 @@ bool MediaAttributes::SavePlaylist(deque<MediaFile *> &dequeMediaFile, int iPK_U
 		// We'll just re-write the whole thing out again anyway
 	    vector<Row_PlaylistEntry*> vectRow_PlaylistEntry;
 		pRow_Playlist->PlaylistEntry_FK_Playlist_getrows(&vectRow_PlaylistEntry);
+g_pPlutoLogger->Write(LV_STATUS,"Deleting %d rows from old playlist",(int) vectRow_PlaylistEntry.size());
 		for(size_t s=0;s<vectRow_PlaylistEntry.size();++s)
 			vectRow_PlaylistEntry[s]->Delete();
 	}
 
     iPK_Playlist = pRow_Playlist->PK_Playlist_get();
+g_pPlutoLogger->Write(LV_STATUS,"Save playlist id %d with %d rows",iPK_Playlist,(int) dequeMediaFile.size());
 
 	for(size_t s=0;s<dequeMediaFile.size();++s)
 	{
