@@ -11,6 +11,12 @@ function floorplanWizard($output,$dbADO) {
 	$maxWidth=400;
 	$maxHeight=400;
 
+	echo (int)@$_REQUEST['mumu'];
+	if($installationID==0){
+		header('Location: index.php?section=login');
+		exit();
+	}
+	
 	$colors = array('pixel_lightblue.gif','pixel_green.gif','pixel_blue.gif','pixel_pink.gif','pixel_red.gif','pixel_orange.gif');
 
 	$queryFloorplans='SELECT Page,Description FROM Floorplan WHERE FK_Installation=? ORDER BY Page ASC';

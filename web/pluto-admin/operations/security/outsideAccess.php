@@ -3,7 +3,6 @@ function outsideAccess($output,$dbADO) {
 	/* @var $dbADO ADOConnection */
 	/* @var $res ADORecordSet */
 	
-	// TODO: change path to /etc/pluto.comf
 	$accessFile='/etc/pluto.conf';
 	exec('cat '.$accessFile.' | grep -v -E "^#|^$" ',$retArray);	
 	foreach ($retArray as $comf){
@@ -15,6 +14,17 @@ function outsideAccess($output,$dbADO) {
 
 	$installationID = cleanInteger($_SESSION['installationID']);
 	
+	$queryDSS='
+		SELECT Device_StartupScript.Enabled, FK_Device,Parameter
+		FROM Device_StartupScript
+		INNER JOIN Device ON FK_Device=PK_Device
+		WHERE FK_DeviceTemplate=? AND FK_Installation=? AND FK_StartupScript=?';
+	$resDSS=$dbADO->Execute($queryDSS,array($GLOBALS['rootCoreID'],$installationID,$GLOBALS['ProcessLogs']));
+	if($resDSS->RecordCount()>0){
+		$rowDSS=$resDSS->FetchRow();
+		$sendErrorsToPluto=($rowDSS['Enabled']==1 && $rowDSS['Parameter']!='0')?1:0;
+		$coreID=$rowDSS['FK_Device'];
+	}
 	$out.='<div align="left"><h3>Outside Access</h3></div>';
 	
 	if ($action=='form') {
@@ -29,7 +39,7 @@ function outsideAccess($output,$dbADO) {
 	<form action="index.php" method="post" name="outsideAccess">
 	<input type="hidden" name="section" value="outsideAccess">
 	<input type="hidden" name="action" value="add">
-	<table>
+	<table width="500">
 		<tr>
 			<td><input type="checkbox" name="allowOnPort" value="1" '.(isset($Website)?'checked':'').'></td>
 			<td>Allow outside to tthe website on port</td>
@@ -41,9 +51,17 @@ function outsideAccess($output,$dbADO) {
 			<td><input type="password" name="password" value="'.(isset($remote)?$remote:'').'"></td>
 		</tr>
 		<tr>
+			<td><input type="checkbox" name="sendErrorsToPluto" value="1" '.((@$sendErrorsToPluto==1)?'checked':'').'></td>
+			<td>Send errors to pluto</td>
+			<td>&nbsp;</td>
+		</tr>		
+		<tr>
+			<td>&nbsp;</td>
+			<td colspan="2">Pluto monitors itself and prepares reports if there are any software bugs or crashes. There is no confidential information in these reports--just technical stuff about the cause of the crash (core dumps). By sharing this information Pluto can make the product any better. Also, if your system has a problem that we have fixed we will send you an email and let you know.</td>
+		</tr>		
+		<tr>
 			<td colspan="3" align="center"><input type="submit" class="button" name="save" value="Update"></td>
 		</tr>
-		
 	</table>
 	</form>
 		';
@@ -55,6 +73,26 @@ function outsideAccess($output,$dbADO) {
 		}
 		
 		if(isset($_POST['save'])){
+			
+			$oldSendErrorsToPluto=(int)@$sendErrorsToPluto;
+			$newSendErrorsToPluto=(int)@$_POST['sendErrorsToPluto'];
+			if($oldSendErrorsToPluto==0){
+				if($newSendErrorsToPluto==1){
+					if(isset($coreID)){
+						$dbADO->Execute('UPDATE Device_StartupScript SET Enabled=1, Parameter=? WHERE FK_Device=? AND FK_StartupScript=?',array('',$coreID,$GLOBALS['ProcessLogs']));
+					}else{
+						$dbADO->Execute('INSERT INTO Device_StartupScript (FK_Device, FK_StartupScript,Enabled,Parameter) VALUES (?,?,1,?)',array($coreID,$GLOBALS['ProcessLogs'],''));
+					}
+				}
+			}else{
+				if($newSendErrorsToPluto==0){
+					if(isset($coreID)){
+						$dbADO->Execute('UPDATE Device_StartupScript SET Parameter=0 WHERE FK_Device=? AND FK_StartupScript=?',array($coreID,$GLOBALS['ProcessLogs']));
+					}
+				}
+			}
+		
+			
 			if(isset($_POST['allowOnPort'])){
 				$port=(int)$_POST['port'];
 				writeToFile($accessFile, 'Website', @$Website,$port);

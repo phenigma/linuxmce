@@ -31,7 +31,8 @@ if($action=='form') {
 	<form action="index.php" method="POST" name="lightingScenarios">
 		<input type="hidden" name="section" value="lightingScenarios">
 		<input type="hidden" name="action" value="add">	
-		<input type="hidden" name="roomID" value="">	
+		<input type="hidden" name="roomID" value="">
+		<input type="hidden" name="editedCgID" value="">	
 		<input type="hidden" name="roomName" value="">
 	
 	<table width="100%" cellpadding="4" cellspacing="0" border="0">';
@@ -50,7 +51,7 @@ if($action=='form') {
 		<tr bgcolor="#D1D9EA">
 			<td><B>'.$rowRooms['RoomName'].'</B></td>
 			<td>&nbsp;</td>
-			<td align="right"><input type="button" class="button" name="add" value="Add scenario" onClick="javascript:document.lightingScenarios.action.value=\'add\';document.lightingScenarios.roomID.value='.$rowRooms['PK_Room'].';document.lightingScenarios.roomName.value=\''.$rowRooms['RoomName'].'\';document.lightingScenarios.submit();"></td>
+			<td align="right"><input type="button" class="button" name="add" value="Add scenario" onClick="javascript:document.lightingScenarios.action.value=\'addToRoom\';document.lightingScenarios.roomID.value='.$rowRooms['PK_Room'].';document.lightingScenarios.roomName.value=\''.$rowRooms['RoomName'].'\';document.lightingScenarios.submit();"></td>
 		</tr>';
 		$selectCommandGroups='
 			SELECT * 
@@ -81,7 +82,7 @@ if($action=='form') {
 					<input type="button" class="button" name="posUp" value="+" onClick="self.location=\'index.php?section=lightingScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&roomID='.$rowRooms['PK_Room'].'&operation=up&posInRoom='.urlencode(serialize($posInRoom)).'\'">
 				 Description: '.((!in_array($rowCG['PK_CommandGroup'],$displayedCommandGroups))?'<input type="text" name="commandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Description'].'"> Hint: <input type="text" name="hintCommandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Hint'].'">':'<b>'.$rowCG['Description'].': </b>Hint: <b>'.$rowCG['Hint'].'</b> (See '.$firstRoomArray[$rowCG['PK_CommandGroup']].')').'</td>
 				<td>'.(($pos==1)?'Default ON':'').(($pos==2)?'Default OFF':'').'</td>
-				<td><a href="index.php?section=lightingScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=edit&roomID='.$rowRooms['PK_Room'].'">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=lightingScenarios&cgDelID='.$rowCG['PK_CommandGroup'].'\';">Delete</a></td>
+				<td><a href="#" onClick="document.lightingScenarios.editedCgID.value='.$rowCG['PK_CommandGroup'].';document.lightingScenarios.roomID.value='.$rowRooms['PK_Room'].';document.lightingScenarios.submit();">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=lightingScenarios&cgDelID='.$rowCG['PK_CommandGroup'].'\';">Delete</a></td>
 				<td>&nbsp;</td>
 			</tr>
 			';
@@ -210,7 +211,7 @@ if($action=='form') {
 }else{	
 	// action='add'
 	// insert command group in specified room
-	if(isset($_POST['roomID']) && (int)$_POST['roomID']!=0 && !isset($_POST['updateDevices'])){
+	if($action=='addToRoom'){
 		$roomID=(int)$_POST['roomID'];
 		$roomName=$_POST['roomName'];
 		$insertCommandGroup='INSERT INTO CommandGroup (Description,FK_Array,FK_Installation,FK_Template,Hint) VALUES (?,?,?,?,?)';
@@ -224,7 +225,7 @@ if($action=='form') {
 		exit();
 	}
 	
-	if(isset($_POST['updateCG']) || $action=='externalSubmit'){
+	if(isset($_POST['updateCG']) || $action=='externalSubmit' || @(int)$_REQUEST['editedCgID']!=0){
 		$displayedCommandGroupsArray=explode(',',$_POST['displayedCommandGroups']);
 		foreach($displayedCommandGroupsArray as $elem){
 			$cgDescription=cleanString($_POST['commandGroup_'.$elem]);
@@ -233,6 +234,10 @@ if($action=='form') {
 			$dbADO->Execute($updateCG,array($cgDescription,$cgHint,$elem));
 		}
 		setOrbitersNeedConfigure($installationID,$dbADO);
+		if(@(int)$_REQUEST['editedCgID']!=0 && @(int)$_REQUEST['roomID']!=0){
+			header('Location: index.php?section=lightingScenarios&cgID='.$_REQUEST['editedCgID'].'&action=edit&roomID='.$_REQUEST['roomID']);
+			exit();
+		}
 		$msg="Lighting Scenario updated";
 	}
 	

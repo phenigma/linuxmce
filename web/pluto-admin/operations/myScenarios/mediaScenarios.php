@@ -402,7 +402,7 @@ function mediaScenarios($output,$dbADO) {
 
 									$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
 									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamID'],''));
-									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_DesignObj'],$GLOBALS['TelecomMenu']));
+									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_DesignObj'],$GLOBALS['mnuPicturesDocumentsList']));
 									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamDesignObjCurrentScreen'],''));
 									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_Device'],''));
 									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamStoreVariables'],''));

@@ -153,6 +153,7 @@
 	$GLOBALS['mnuMediaFileList2DesignObj']=3226;		// mnuMediaFileList2
 	$GLOBALS['butViewDesignObj']=3283;					// butView
 	$GLOBALS['TelecomMenu']=1323;						// Telecom Menu mnuMakeCallFavorites
+	$GLOBALS['mnuPicturesDocumentsList']=3282;			// mnuPicturesDocumentsList
 	
 	// PK_CriteriaList from table CriteriaList
 	
@@ -172,8 +173,9 @@
 	$GLOBALS['cameraVariable']=22;
 	
 	// PK_StartupScript from table StartupScript
+	$GLOBALS['ProcessLogs']=45;					// Process_Logs.sh
 	$GLOBALS['ShareIRCodes']=49;				// Share IR codes
-	
+		
 	// options to display in Media Wizard
 	
 	$GLOBALS['mediaOptionsArray']=array('TV', 'playlists', 'music', 'movies', 'videos', 'pictures', 'documents', 'Disc CD/DVD');

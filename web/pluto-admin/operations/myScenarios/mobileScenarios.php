@@ -37,7 +37,9 @@ if($action=='form') {
 	<form action="index.php" method="POST" name="mobileScenarios">
 		<input type="hidden" name="section" value="mobileScenarios">
 		<input type="hidden" name="action" value="add">	
-		<input type="hidden" name="roomID" value="">	
+		<input type="hidden" name="roomID" value="">
+		<input type="hidden" name="editedCgID" value="">
+		<input type="hidden" name="editedTemplate" value="">	
 		<input type="hidden" name="roomName" value="">
 	
 	<table width="100%" cellpadding="4" cellspacing="0" border="0">';
@@ -61,7 +63,7 @@ if($action=='form') {
 			}
 			$out.='
 				<option value="0">Advanced mode</option>
-			</select> <input type="button" class="button" name="add" value="Add scenario" onClick="javascript:document.mobileScenarios.action.value=\'add\';document.mobileScenarios.roomID.value='.$rowRooms['PK_Room'].';document.mobileScenarios.roomName.value=\''.$rowRooms['RoomName'].'\';document.mobileScenarios.submit();"></td>
+			</select> <input type="button" class="button" name="add" value="Add scenario" onClick="javascript:document.mobileScenarios.action.value=\'addToRoom\';document.mobileScenarios.roomID.value='.$rowRooms['PK_Room'].';document.mobileScenarios.roomName.value=\''.$rowRooms['RoomName'].'\';document.mobileScenarios.submit();"></td>
 		</tr>';
 		$selectCommandGroups='
 			SELECT * 
@@ -94,7 +96,7 @@ if($action=='form') {
 				<td>Category: <b>'.$allTemplateArray[$rowCG['FK_Template']].'</b></td>
 				<td>&nbsp;</td>';
 			if(in_array($rowCG['FK_Template'],array_keys($templateArray)))
-				$editLink='<a href="index.php?section=mobileScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action='.(($rowCG['FK_Template']==$GLOBALS['LightingScenariosTemplate'])?'editLighting':'editClimate').'&roomID='.$rowRooms['PK_Room'].'">Edit</a>';
+				$editLink='<a href="#" onClick="document.mobileScenarios.editedTemplate.value='.$rowCG['FK_Template'].';document.mobileScenarios.editedCgID.value='.$rowCG['PK_CommandGroup'].';document.mobileScenarios.roomID.value='.$rowRooms['PK_Room'].';document.mobileScenarios.submit();">Edit</a>';
 			else
 				$editLink='<a href="index.php?section=editCommandGroup&cgID='.$rowCG['PK_CommandGroup'].'">Edit</a>';
 			$out.='
@@ -346,7 +348,7 @@ if($action=='form') {
 else{	
 	// action='add'
 	// insert command group in specified room
-	if(isset($_POST['roomID']) && (int)$_POST['roomID']!=0 && !isset($_POST['updateLightingDevices']) && !isset($_POST['updateClimateDevices'])){
+	if($action=='addToRoom'){
 		$roomID=(int)$_POST['roomID'];
 		$roomName=$_POST['roomName'];
 		$newScenarioType=$_POST['newScenarioType_'.$roomID];
@@ -370,7 +372,7 @@ else{
 		}
 	}
 
-	if(isset($_POST['updateCG']) || $action=='externalSubmit'){
+	if(isset($_POST['updateCG']) || $action=='externalSubmit' || @(int)$_REQUEST['editedCgID']!=0){
 		$displayedCommandGroupsArray=explode(',',$_POST['displayedCommandGroups']);
 		foreach($displayedCommandGroupsArray as $elem){
 			$cgDescription=cleanString($_POST['commandGroup_'.$elem]);
@@ -379,6 +381,11 @@ else{
 			$dbADO->Execute($updateCG,array($cgDescription,$cgHint,$elem));
 		}
 		setOrbitersNeedConfigure($installationID,$dbADO);
+		
+		if(@(int)$_REQUEST['editedCgID']!=0 && @(int)$_REQUEST['roomID']!=0){
+			header('Location: index.php?section=mobileScenarios&cgID='.$_REQUEST['editedCgID'].'&action='.(((int)$_REQUEST['editedTemplate']==$GLOBALS['LightingScenariosTemplate'])?'editLighting':'editClimate').'&roomID='.$_REQUEST['roomID']);
+			exit();
+		}
 		$msg="Mobile Orbiter Scenario updated.";
 		header("Location: index.php?section=mobileScenarios&msg=".@$msg);
 		exit();

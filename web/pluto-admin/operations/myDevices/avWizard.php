@@ -321,7 +321,7 @@ function avWizard($output,$dbADO) {
 				$out.='</td>';
 				$out.='<td align="center" rowspan="2" valign="top">';
 				if($type=='avEquipment')
-					$out.='	<input type="button" class="button" name="btn" value="IR Codes" onClick="windowOpen(\'index.php?section=irCodes&from=avWizard&deviceID='.$rowD['FK_DeviceTemplate'].'&from='.urlencode('avWizard&type='.$type).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"><br>
+					$out.='	<input type="button" class="button" name="btn" value="IR Codes" onClick="windowOpen(\'index.php?section=irCodes&from=avWizard&deviceID='.$rowD['PK_Device'].'&dtID='.$rowD['FK_DeviceTemplate'].'&from='.urlencode('avWizard&type='.$type).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"><br>
 							<input type="button" class="button" name="btn" value="A/V Properties" onClick="windowOpen(\'index.php?section=editAVDevice&deviceID='.$rowD['FK_DeviceTemplate'].'&from='.urlencode('avWizard&type='.$type).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"><br>';
 						$out.='<input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="Delete"  ></td>
 					</tr>
@@ -419,7 +419,7 @@ function avWizard($output,$dbADO) {
 					<td colspan="8">&nbsp;</td>
 				</tr>
 				<tr>
-					<td colspan="8" align="center"><input type="button" class="button" name="button" value="Add device" onClick="windowOpen(\'index.php?section=deviceTemplatePicker&from='.urlencode('avWizard&type='.$type).'&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
+					<td colspan="8" align="center"><input type="button" class="button" name="button" value="Add device" onClick="document.avWizard.action.value=\'externalSubmit\';document.avWizard.submit();windowOpen(\'index.php?section=deviceTemplatePicker&from='.urlencode('avWizard&type='.$type).'&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
 				</tr>
 			</table>
 		</form>
@@ -441,8 +441,8 @@ function avWizard($output,$dbADO) {
 		}
 		
 		
-		$oldShareIRCodes=(int)$_POST['oldShareIRCodes'];
-		$coreID=(int)$_POST['coreID'];
+		$oldShareIRCodes=@(int)$_POST['oldShareIRCodes'];
+		$coreID=@(int)$_POST['coreID'];
 		$resShare=$dbADO->Execute('SELECT * FROM Device_StartupScript WHERE FK_Device=? AND FK_StartupScript=?',array($coreID,$GLOBALS['ShareIRCodes']));
 		if(isset($_POST['shareIRCodes'])){
 			if($oldShareIRCodes==0 && $coreID!=0){
@@ -467,107 +467,109 @@ function avWizard($output,$dbADO) {
 		
 		if(isset($_POST['update']) || $cmd==1 || $action=='externalSubmit'){
 			setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
-			$DeviceDataToDisplayArray=explode(',',$_POST['DeviceDataToDisplay']);
-			foreach($displayedDevicesArray as $key => $value){
-				$description=@$_POST['description_'.$value];
-				if(isset($_POST['ip_'.$value])){
-					$ip=$_POST['ip_'.$value];
-					$mac=$_POST['mac_'.$value];
-					$updateMacIp=",IPaddress='$ip', MACaddress='$mac'";
-				}
-								
-				$room=(@$_POST['room_'.$value]!=0)?(int)@$_POST['room_'.$value]:NULL;
-				$controlledBy=(@$_POST['controlledBy_'.$value]!=0)?(int)@$_POST['controlledBy_'.$value]:NULL;
-				
-				$updateDevice='UPDATE Device SET Description=?, FK_Room=?,FK_Device_ControlledVia =? '.@$updateMacIp.' WHERE PK_Device=?';
-				$dbADO->Execute($updateDevice,array($description,$room,$controlledBy,$value));
-
-				foreach($DeviceDataToDisplayArray as $ddValue){
-					$deviceData=(isset($_POST['deviceData_'.$value.'_'.$ddValue]))?$_POST['deviceData_'.$value.'_'.$ddValue]:0;
-					$oldDeviceData=@$_POST['oldDeviceData_'.$value.'_'.$ddValue];
-					if($oldDeviceData!=$deviceData){
-						if($oldDeviceData=='NULL'){
-							$insertDDD='
-								INSERT INTO Device_DeviceData 
-									(FK_Device, FK_DeviceData, IK_DeviceData)
-								VALUES 
-									(?,?,?)';
-							$dbADO->Execute($insertDDD,array($value,$ddValue,$deviceData));
-						}
-						else{
-							$updateDDD='
-								UPDATE Device_DeviceData 
-									SET IK_DeviceData=? 
-								WHERE FK_Device=? AND FK_DeviceData=?';
-							$dbADO->Execute($updateDDD,array($deviceData,$value,$ddValue));
+			$DeviceDataToDisplayArray=explode(',',@$_POST['DeviceDataToDisplay']);
+			if(@$_POST['displayedDevices']!=''){
+				foreach($displayedDevicesArray as $key => $value){
+					$description=@$_POST['description_'.$value];
+					if(isset($_POST['ip_'.$value])){
+						$ip=$_POST['ip_'.$value];
+						$mac=$_POST['mac_'.$value];
+						$updateMacIp=",IPaddress='$ip', MACaddress='$mac'";
+					}
+									
+					$room=(@$_POST['room_'.$value]!=0)?(int)@$_POST['room_'.$value]:NULL;
+					$controlledBy=(@$_POST['controlledBy_'.$value]!=0)?(int)@$_POST['controlledBy_'.$value]:NULL;
+					
+					$updateDevice='UPDATE Device SET Description=?, FK_Room=?,FK_Device_ControlledVia =? '.@$updateMacIp.' WHERE PK_Device=?';
+					$dbADO->Execute($updateDevice,array($description,$room,$controlledBy,$value));
+	
+					foreach($DeviceDataToDisplayArray as $ddValue){
+						$deviceData=(isset($_POST['deviceData_'.$value.'_'.$ddValue]))?$_POST['deviceData_'.$value.'_'.$ddValue]:0;
+						$oldDeviceData=@$_POST['oldDeviceData_'.$value.'_'.$ddValue];
+						if($oldDeviceData!=$deviceData){
+							if($oldDeviceData=='NULL'){
+								$insertDDD='
+									INSERT INTO Device_DeviceData 
+										(FK_Device, FK_DeviceData, IK_DeviceData)
+									VALUES 
+										(?,?,?)';
+								$dbADO->Execute($insertDDD,array($value,$ddValue,$deviceData));
+							}
+							else{
+								$updateDDD='
+									UPDATE Device_DeviceData 
+										SET IK_DeviceData=? 
+									WHERE FK_Device=? AND FK_DeviceData=?';
+								$dbADO->Execute($updateDDD,array($deviceData,$value,$ddValue));
+							}
 						}
 					}
-				}
-				$oldAudioPipeArray=explode(',',$_POST['oldAudioPipe_'.$value]);
-				$oldTo=$oldAudioPipeArray[0];
-				$oldInput=$oldAudioPipeArray[1];
-				$oldOutput=$oldAudioPipeArray[2];
-				$audioOutput=(isset($_POST['audioOutput_'.$value]) && $_POST['audioOutput_'.$value]!='0')?cleanInteger($_POST['audioOutput_'.$value]):NULL;
-				$audioInput=(isset($_POST['audioInput_'.$value]) && $_POST['audioInput_'.$value]!='0')?cleanInteger($_POST['audioInput_'.$value]):NULL;
-				$audioConnectTo=(isset($_POST['audioConnectTo_'.$value]) && $_POST['audioConnectTo_'.$value]!='0')?cleanInteger($_POST['audioConnectTo_'.$value]):NULL;
-				if($oldTo!=$audioConnectTo || $oldInput!=$audioInput || $oldOutput!=$audioOutput){
-					if($oldTo=='' || is_null($oldTo)){
-						$insertDDP='
-							INSERT INTO Device_Device_Pipe 
-								(FK_Device_From, FK_Device_To, FK_Command_Input, FK_Command_Output, FK_Pipe)
-							VALUES
-								(?,?,?,?,?)';
-						if(!is_null($audioConnectTo))
-							$dbADO->Execute($insertDDP,array($value,$audioConnectTo,$audioInput,$audioOutput,$GLOBALS['AudioPipe']));
-					}else{
-						if(is_null($audioConnectTo)){
-							$deleteDDP='DELETE FROM Device_Device_Pipe WHERE FK_Device_From=? AND FK_Device_To=? AND FK_Pipe=?';
-							$dbADO->Execute($deleteDDP,array($value,$oldTo,$GLOBALS['AudioPipe']));
+					$oldAudioPipeArray=explode(',',$_POST['oldAudioPipe_'.$value]);
+					$oldTo=$oldAudioPipeArray[0];
+					$oldInput=$oldAudioPipeArray[1];
+					$oldOutput=$oldAudioPipeArray[2];
+					$audioOutput=(isset($_POST['audioOutput_'.$value]) && $_POST['audioOutput_'.$value]!='0')?cleanInteger($_POST['audioOutput_'.$value]):NULL;
+					$audioInput=(isset($_POST['audioInput_'.$value]) && $_POST['audioInput_'.$value]!='0')?cleanInteger($_POST['audioInput_'.$value]):NULL;
+					$audioConnectTo=(isset($_POST['audioConnectTo_'.$value]) && $_POST['audioConnectTo_'.$value]!='0')?cleanInteger($_POST['audioConnectTo_'.$value]):NULL;
+					if($oldTo!=$audioConnectTo || $oldInput!=$audioInput || $oldOutput!=$audioOutput){
+						if($oldTo=='' || is_null($oldTo)){
+							$insertDDP='
+								INSERT INTO Device_Device_Pipe 
+									(FK_Device_From, FK_Device_To, FK_Command_Input, FK_Command_Output, FK_Pipe)
+								VALUES
+									(?,?,?,?,?)';
+							if(!is_null($audioConnectTo))
+								$dbADO->Execute($insertDDP,array($value,$audioConnectTo,$audioInput,$audioOutput,$GLOBALS['AudioPipe']));
 						}else{
-							$updateDDP='
-								UPDATE Device_Device_Pipe 
-								SET FK_Device_To=?, FK_Command_Input=?, FK_Command_Output=? 
-								WHERE FK_Device_From=? AND FK_Device_To=? AND FK_Pipe=?';
-							$dbADO->Execute($updateDDP,array($audioConnectTo,$audioInput,$audioOutput,$value,$oldTo,$GLOBALS['AudioPipe']));
+							if(is_null($audioConnectTo)){
+								$deleteDDP='DELETE FROM Device_Device_Pipe WHERE FK_Device_From=? AND FK_Device_To=? AND FK_Pipe=?';
+								$dbADO->Execute($deleteDDP,array($value,$oldTo,$GLOBALS['AudioPipe']));
+							}else{
+								$updateDDP='
+									UPDATE Device_Device_Pipe 
+									SET FK_Device_To=?, FK_Command_Input=?, FK_Command_Output=? 
+									WHERE FK_Device_From=? AND FK_Device_To=? AND FK_Pipe=?';
+								$dbADO->Execute($updateDDP,array($audioConnectTo,$audioInput,$audioOutput,$value,$oldTo,$GLOBALS['AudioPipe']));
+							}
 						}
+						$anchor=($cmd==1)?'#AudioPipe_'.$value.'':'';
 					}
-					$anchor=($cmd==1)?'#AudioPipe_'.$value.'':'';
-				}
-
-				$oldVideoPipeArray=explode(',',$_POST['oldVideoPipe_'.$value]);
-				$oldTo=$oldVideoPipeArray[0];
-				$oldInput=$oldVideoPipeArray[1];
-				$oldOutput=$oldVideoPipeArray[2];
-				
-				$videoOutput=(isset($_POST['videoOutput_'.$value]) && $_POST['videoOutput_'.$value]!='0')?cleanInteger($_POST['videoOutput_'.$value]):NULL;
-				$videoInput=(isset($_POST['videoInput_'.$value]) && $_POST['videoInput_'.$value]!='0')?cleanInteger($_POST['videoInput_'.$value]):NULL;
-				$videoConnectTo=(isset($_POST['videoConnectTo_'.$value]) && $_POST['videoConnectTo_'.$value]!='0')?cleanInteger($_POST['videoConnectTo_'.$value]):NULL;
-				if($oldTo!=$videoConnectTo || $oldInput!=$videoInput || $oldOutput!=$videoOutput){
-					if($oldTo=='' || is_null($oldTo)){
-						$insertDDP='
-							INSERT INTO Device_Device_Pipe 
-								(FK_Device_From, FK_Device_To, FK_Command_Input, FK_Command_Output, FK_Pipe)
-							VALUES
-								(?,?,?,?,?)';
-						if(!is_null($videoConnectTo))
-							$dbADO->Execute($insertDDP,array($value,$videoConnectTo,$videoInput,$videoOutput,$GLOBALS['VideoPipe']));
-					}else{
-						if(is_null($videoConnectTo)){
-							$deleteDDP='DELETE FROM Device_Device_Pipe WHERE FK_Device_From=? AND FK_Device_To=? AND FK_Pipe=?';
-							$dbADO->Execute($deleteDDP,array($value,$oldTo,$GLOBALS['VideoPipe']));
+	
+					$oldVideoPipeArray=explode(',',$_POST['oldVideoPipe_'.$value]);
+					$oldTo=$oldVideoPipeArray[0];
+					$oldInput=$oldVideoPipeArray[1];
+					$oldOutput=$oldVideoPipeArray[2];
+					
+					$videoOutput=(isset($_POST['videoOutput_'.$value]) && $_POST['videoOutput_'.$value]!='0')?cleanInteger($_POST['videoOutput_'.$value]):NULL;
+					$videoInput=(isset($_POST['videoInput_'.$value]) && $_POST['videoInput_'.$value]!='0')?cleanInteger($_POST['videoInput_'.$value]):NULL;
+					$videoConnectTo=(isset($_POST['videoConnectTo_'.$value]) && $_POST['videoConnectTo_'.$value]!='0')?cleanInteger($_POST['videoConnectTo_'.$value]):NULL;
+					if($oldTo!=$videoConnectTo || $oldInput!=$videoInput || $oldOutput!=$videoOutput){
+						if($oldTo=='' || is_null($oldTo)){
+							$insertDDP='
+								INSERT INTO Device_Device_Pipe 
+									(FK_Device_From, FK_Device_To, FK_Command_Input, FK_Command_Output, FK_Pipe)
+								VALUES
+									(?,?,?,?,?)';
+							if(!is_null($videoConnectTo))
+								$dbADO->Execute($insertDDP,array($value,$videoConnectTo,$videoInput,$videoOutput,$GLOBALS['VideoPipe']));
 						}else{
-							$updateDDP='
-								UPDATE Device_Device_Pipe 
-								SET FK_Device_To=?, FK_Command_Input=?, FK_Command_Output=? 
-								WHERE FK_Device_From=? AND FK_Device_To=? AND FK_Pipe=?';
-							$dbADO->Execute($updateDDP,array($videoConnectTo,$videoInput,$videoOutput,$value,$oldTo,$GLOBALS['VideoPipe']));
+							if(is_null($videoConnectTo)){
+								$deleteDDP='DELETE FROM Device_Device_Pipe WHERE FK_Device_From=? AND FK_Device_To=? AND FK_Pipe=?';
+								$dbADO->Execute($deleteDDP,array($value,$oldTo,$GLOBALS['VideoPipe']));
+							}else{
+								$updateDDP='
+									UPDATE Device_Device_Pipe 
+									SET FK_Device_To=?, FK_Command_Input=?, FK_Command_Output=? 
+									WHERE FK_Device_From=? AND FK_Device_To=? AND FK_Pipe=?';
+								$dbADO->Execute($updateDDP,array($videoConnectTo,$videoInput,$videoOutput,$value,$oldTo,$GLOBALS['VideoPipe']));
+							}
 						}
+						$anchor='#VideoPipe_'.$value;
 					}
-					$anchor='#VideoPipe_'.$value;
 				}
 			}
 		}
-		
+				
 		if(isset($_REQUEST['add'])){
 			unset($_SESSION['from']);
 			$deviceTemplate=(int)$_REQUEST['deviceTemplate'];
