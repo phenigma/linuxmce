@@ -33,7 +33,6 @@ ownerID=$6;
 
 echo "Ripping $sourceDevice to \"$targetFileName\" with a disk of type $diskType for $ownerID";
 
-exit
 command="";
 result=$ERR_NONE;
 case $diskType in 
