@@ -388,7 +388,7 @@ bool FileUtils::FindFiles(list<string> &listFiles, string sDirectory, string sFi
                 }
             }
 
-			if ( iMaxFileCount < listFiles.size() )
+			if ( iMaxFileCount && iMaxFileCount < listFiles.size() )
 				return true; // max depth hit
         }
         else if (bRecurse && finddata.attrib == _A_SUBDIR && finddata.name[0] != '.')
@@ -441,7 +441,7 @@ bool FileUtils::FindFiles(list<string> &listFiles, string sDirectory, string sFi
                 }
             }
 
-			if ( iMaxFileCount < listFiles.size() )
+			if ( iMaxFileCount && iMaxFileCount < listFiles.size() )
 				return true;
         }
         else if (bRecurse && S_ISDIR(s.st_mode) && entry.d_name[0] != '.')
