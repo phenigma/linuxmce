@@ -51,7 +51,7 @@ RubyDCECodeSupplier::addCode(Database_pluto_main* pdb, DeviceData_Base* pdeviced
 	string sql = "select FK_Command, IRData "
 					"from InfraredGroup_Command "
 						"inner join InfraredGroup_Command_Preferred on FK_InfraredGroup_Command=PK_InfraredGroup_Command "
- 					"where FK_DeviceTemplate="; sql += sdevtemplid; sql += " order by FK_Command asc; ";
+ 					"where FK_DeviceTemplate="; sql += sdevtemplid; sql += " group by FK_Command order by FK_Command asc; ";
 
 	g_pPlutoLogger->Write(LV_STATUS, "Running query to get Ruby code: \n%s", sql.c_str())	;
 						
@@ -164,7 +164,7 @@ RubyDCECodeSupplier::TranslateCommandToRuby(const std::string& cmdtxt) {
 	
 	string ret;
 	int first = -1, last = -1;
-	while(last < cmdtxt.length()) {
+	while(last < (int)cmdtxt.length()) {
 		first = cmdtxt.find("<$", last + 1);
 		if(first < 0) {	
 			ret += cmdtxt.substr(last + 1, cmdtxt.length() - last - 1);
