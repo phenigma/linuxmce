@@ -22,6 +22,8 @@ valgrind_log_file="/var/log/pluto/valgrind_${device_id}_`basename $cmd_line`";
 new_log="$log_file.newlog"
 real_log="$log_file.log"
 
+[ -n "$VGcmd" ] && VGcmd="$VGcmd --log-file=$valgrind_log_file "
+
 if [ -z "$cmd_line" ]; then
 	Logging "$TYPE" "$SEVERITY_WARNING" "$0 $module" "Empty command line"
 	exit 1
@@ -62,7 +64,7 @@ while [ "$i" -le 10 ]; do
 
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Found $Path$cmd_line"
 	if [ "${cmd_line/Spawn_Device}" == "$cmd_line" ] && [ "${Valgrind/$cmd_line}" != "$Valgrind" ]; then
-		/usr/pluto/bin/Spawn_Wrapper.sh $(echo "$VGcmd")"--log-file=$valgrind_log_file $Path$cmd_line" -d "$device_id" -r "$ip_of_router" | tee "$new_log"
+		/usr/pluto/bin/Spawn_Wrapper.sh $(echo "$VGcmd")"$Path$cmd_line" -d "$device_id" -r "$ip_of_router" | tee "$new_log"
 	else
 		/usr/pluto/bin/Spawn_Wrapper.sh "$Path$cmd_line" -d "$device_id" -r "$ip_of_router" | tee "$new_log" 
 	fi
