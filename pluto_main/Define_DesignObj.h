@@ -1277,6 +1277,7 @@
 #define DESIGNOBJ_New_phone_detected_CONST 3150
 #define DESIGNOBJ_yes_CONST 3151
 #define DESIGNOBJ_no_CONST 3152
+#define DESIGNOBJ_go_to_new_device_CONST 3153
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

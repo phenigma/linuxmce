@@ -25,6 +25,8 @@
 #define ORBITER_FK_LANGUAGE_TABLE_FIELD "Orbiter.FK_Language"
 #define ORBITER_NOEFFECTS_FIELD "NoEffects"
 #define ORBITER_NOEFFECTS_TABLE_FIELD "Orbiter.NoEffects"
+#define ORBITER_FLOORPLANINFO_FIELD "FloorplanInfo"
+#define ORBITER_FLOORPLANINFO_TABLE_FIELD "Orbiter.FloorplanInfo"
 #define ORBITER_MODIFICATION_LASTGEN_FIELD "Modification_LastGen"
 #define ORBITER_MODIFICATION_LASTGEN_TABLE_FIELD "Orbiter.Modification_LastGen"
 #define ORBITER_PSC_ID_FIELD "psc_id"

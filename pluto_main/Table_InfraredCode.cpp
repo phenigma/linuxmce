@@ -550,11 +550,17 @@ bool Table_InfraredCode::GetRows(string where_statement,vector<class Row_Infrare
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	string query = "select * from InfraredCode where " + where_statement;
+	string query;
+	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
+		query = "select * from InfraredCode " + where_statement;
+	else if( StringUtils::StartsWith(where_statement,"select ",true) )
+		query = where_statement;
+	else
+		query = "select * from InfraredCode where " + where_statement;
 		
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query" << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return false;
 	}	
 
@@ -780,7 +786,7 @@ condition = condition + "FK_InfraredGroup=" + tmp_FK_InfraredGroup+" AND "+"FK_C
 
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query" << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return NULL;
 	}	
 

@@ -16,6 +16,7 @@
 #define VARIABLE_Misc_Data_2_CONST 13
 #define VARIABLE_Media_Type_CONST 14
 #define VARIABLE_URL_from_phone_CONST 15
+#define VARIABLE_Status_CONST 16
 
 #define VARIABLE_TABLE "Variable"
 #define VARIABLE_PK_VARIABLE_FIELD "PK_Variable"

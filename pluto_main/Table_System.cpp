@@ -435,11 +435,17 @@ bool Table_System::GetRows(string where_statement,vector<class Row_System*> *row
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	string query = "select * from System where " + where_statement;
+	string query;
+	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
+		query = "select * from System " + where_statement;
+	else if( StringUtils::StartsWith(where_statement,"select ",true) )
+		query = where_statement;
+	else
+		query = "select * from System where " + where_statement;
 		
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query" << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return false;
 	}	
 
@@ -618,7 +624,7 @@ condition = condition + "PK_System=" + tmp_PK_System;
 
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query" << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return NULL;
 	}	
 

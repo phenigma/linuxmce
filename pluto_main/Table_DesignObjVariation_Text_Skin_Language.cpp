@@ -733,11 +733,17 @@ bool Table_DesignObjVariation_Text_Skin_Language::GetRows(string where_statement
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	string query = "select * from DesignObjVariation_Text_Skin_Language where " + where_statement;
+	string query;
+	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
+		query = "select * from DesignObjVariation_Text_Skin_Language " + where_statement;
+	else if( StringUtils::StartsWith(where_statement,"select ",true) )
+		query = where_statement;
+	else
+		query = "select * from DesignObjVariation_Text_Skin_Language where " + where_statement;
 		
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query" << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return false;
 	}	
 
@@ -1048,7 +1054,7 @@ condition = condition + "PK_DesignObjVariation_Text_Skin_Language=" + tmp_PK_Des
 
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query" << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return NULL;
 	}	
 

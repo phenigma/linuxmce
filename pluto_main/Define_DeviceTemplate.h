@@ -43,6 +43,9 @@
 #define DEVICETEMPLATE_MythTV_PlugIn_CONST 36
 #define DEVICETEMPLATE_Light_Switch_onoff_CONST 37
 #define DEVICETEMPLATE_Light_Switch_dimmable_CONST 38
+#define DEVICETEMPLATE_Infrared_Plugin_CONST 39
+#define DEVICETEMPLATE_gc100_CONST 40
+#define DEVICETEMPLATE_Test_TV_CONST 41
 
 #define DEVICETEMPLATE_TABLE "DeviceTemplate"
 #define DEVICETEMPLATE_PK_DEVICETEMPLATE_FIELD "PK_DeviceTemplate"

@@ -398,7 +398,9 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_UnknownDevi
 			
 			long int id	= (long int) mysql_insert_id(database->db_handle);
 		
-				
+			if (id!=0)
+pRow->m_PK_UnknownDevices=id;
+	
 			
 			addedRows.erase(i);
 			Key key(pRow);	
@@ -487,11 +489,17 @@ bool Table_UnknownDevices::GetRows(string where_statement,vector<class Row_Unkno
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	string query = "select * from UnknownDevices where " + where_statement;
+	string query;
+	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
+		query = "select * from UnknownDevices " + where_statement;
+	else if( StringUtils::StartsWith(where_statement,"select ",true) )
+		query = where_statement;
+	else
+		query = "select * from UnknownDevices where " + where_statement;
 		
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query" << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return false;
 	}	
 
@@ -692,7 +700,7 @@ condition = condition + "PK_UnknownDevices=" + tmp_PK_UnknownDevices;
 
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query" << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return NULL;
 	}	
 

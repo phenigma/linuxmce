@@ -466,11 +466,17 @@ bool Table_Text_LS::GetRows(string where_statement,vector<class Row_Text_LS*> *r
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	string query = "select * from Text_LS where " + where_statement;
+	string query;
+	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
+		query = "select * from Text_LS " + where_statement;
+	else if( StringUtils::StartsWith(where_statement,"select ",true) )
+		query = where_statement;
+	else
+		query = "select * from Text_LS where " + where_statement;
 		
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query" << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return false;
 	}	
 
@@ -663,7 +669,7 @@ condition = condition + "FK_Text=" + tmp_FK_Text+" AND "+"FK_Language=" + tmp_FK
 
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query" << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return NULL;
 	}	
 

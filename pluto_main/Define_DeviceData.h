@@ -12,6 +12,12 @@
 #define DEVICEDATA_Diskless_Boot_CONST 9
 #define DEVICEDATA_Floorplan_Info_CONST 10
 #define DEVICEDATA_PK_FloorplanObjectType_CONST 11
+#define DEVICEDATA_Channel_CONST 12
+#define DEVICEDATA_IR_Sleep_BeforeAfter_CONST 13
+#define DEVICEDATA_Number_of_Digits_CONST 14
+#define DEVICEDATA_Digit_Delay_CONST 15
+#define DEVICEDATA_IR_Power_Delay_CONST 16
+#define DEVICEDATA_IR_Mode_Delay_CONST 17
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

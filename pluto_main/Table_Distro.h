@@ -140,7 +140,8 @@ void Installer_setNull(bool val);
 
 
 		// Return the rows in other tables with foreign keys pointing here
-		void Package_Directory_FK_Distro_getrows(vector <class Row_Package_Directory*> *rows);
+		void InstallWizard_Distro_FK_Distro_getrows(vector <class Row_InstallWizard_Distro*> *rows);
+void Package_Directory_FK_Distro_getrows(vector <class Row_Package_Directory*> *rows);
 void Package_Directory_File_FK_Distro_getrows(vector <class Row_Package_Directory_File*> *rows);
 void Package_Source_Compat_FK_Distro_getrows(vector <class Row_Package_Source_Compat*> *rows);
 void RepositorySource_FK_Distro_getrows(vector <class Row_RepositorySource*> *rows);

@@ -181,6 +181,17 @@
 #define COMMAND_Svideo_CONST 180
 #define COMMAND_Composite_CONST 181
 #define COMMAND_RF_Input_CONST 182
+#define COMMAND_Get_Floorplan_Layout_CONST 183
+#define COMMAND_UNUSED_CONST 184
+#define COMMAND_Schedule_Recording_CONST 185
+#define COMMAND_Get_Current_Floorplan_CONST 186
+#define COMMAND_Tune_to_channel_CONST 187
+#define COMMAND_Get_Infrared_Codes_CONST 188
+#define COMMAND_Send_Generic_EnterGo_CONST 190
+#define COMMAND_Send_Code_CONST 191
+#define COMMAND_Generic_On_CONST 192
+#define COMMAND_Generic_Off_CONST 193
+#define COMMAND_Power_CONST 194
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

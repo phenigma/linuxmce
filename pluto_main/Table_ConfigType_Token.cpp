@@ -497,11 +497,17 @@ bool Table_ConfigType_Token::GetRows(string where_statement,vector<class Row_Con
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	string query = "select * from ConfigType_Token where " + where_statement;
+	string query;
+	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
+		query = "select * from ConfigType_Token " + where_statement;
+	else if( StringUtils::StartsWith(where_statement,"select ",true) )
+		query = where_statement;
+	else
+		query = "select * from ConfigType_Token where " + where_statement;
 		
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query" << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return false;
 	}	
 
@@ -708,7 +714,7 @@ condition = condition + "FK_ConfigType_Setting=" + tmp_FK_ConfigType_Setting+" A
 
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query" << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return NULL;
 	}	
 

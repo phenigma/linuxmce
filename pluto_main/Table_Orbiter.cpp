@@ -143,10 +143,11 @@ is_null[11] = true;
 is_null[12] = true;
 is_null[13] = true;
 is_null[14] = true;
+is_null[15] = true;
 m_psc_frozen = 0;
-is_null[15] = false;
-m_psc_mod = "00000000000000";
 is_null[16] = false;
+m_psc_mod = "00000000000000";
+is_null[17] = false;
 
 
 	is_added=false;
@@ -187,6 +188,9 @@ return m_FK_Language;}
 short int Row_Orbiter::NoEffects_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_NoEffects;}
+string Row_Orbiter::FloorplanInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FloorplanInfo;}
 string Row_Orbiter::Modification_LastGen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Modification_LastGen;}
@@ -240,24 +244,27 @@ m_FK_Language = val; is_modified=true; is_null[9]=false;}
 void Row_Orbiter::NoEffects_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_NoEffects = val; is_modified=true; is_null[10]=false;}
+void Row_Orbiter::FloorplanInfo_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FloorplanInfo = val; is_modified=true; is_null[11]=false;}
 void Row_Orbiter::Modification_LastGen_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Modification_LastGen = val; is_modified=true; is_null[11]=false;}
+m_Modification_LastGen = val; is_modified=true; is_null[12]=false;}
 void Row_Orbiter::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_id = val; is_modified=true; is_null[12]=false;}
+m_psc_id = val; is_modified=true; is_null[13]=false;}
 void Row_Orbiter::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_batch = val; is_modified=true; is_null[13]=false;}
+m_psc_batch = val; is_modified=true; is_null[14]=false;}
 void Row_Orbiter::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_user = val; is_modified=true; is_null[14]=false;}
+m_psc_user = val; is_modified=true; is_null[15]=false;}
 void Row_Orbiter::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_frozen = val; is_modified=true; is_null[15]=false;}
+m_psc_frozen = val; is_modified=true; is_null[16]=false;}
 void Row_Orbiter::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_mod = val; is_modified=true; is_null[16]=false;}
+m_psc_mod = val; is_modified=true; is_null[17]=false;}
 
 		
 bool Row_Orbiter::FK_DesignObj_Sleeping_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -269,21 +276,24 @@ return is_null[3];}
 bool Row_Orbiter::FK_EntertainArea_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[4];}
-bool Row_Orbiter::Modification_LastGen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Orbiter::FloorplanInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[11];}
-bool Row_Orbiter::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Orbiter::Modification_LastGen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[12];}
-bool Row_Orbiter::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Orbiter::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[13];}
-bool Row_Orbiter::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Orbiter::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[14];}
-bool Row_Orbiter::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Orbiter::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[15];}
+bool Row_Orbiter::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[16];}
 
 			
 void Row_Orbiter::FK_DesignObj_Sleeping_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -295,21 +305,24 @@ is_null[3]=val;}
 void Row_Orbiter::FK_EntertainArea_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[4]=val;}
-void Row_Orbiter::Modification_LastGen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Orbiter::FloorplanInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[11]=val;}
-void Row_Orbiter::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Orbiter::Modification_LastGen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[12]=val;}
-void Row_Orbiter::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Orbiter::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[13]=val;}
-void Row_Orbiter::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Orbiter::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[14]=val;}
-void Row_Orbiter::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Orbiter::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[15]=val;}
+void Row_Orbiter::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[16]=val;}
 	
 
 string Row_Orbiter::PK_Orbiter_asSQL()
@@ -455,11 +468,23 @@ sprintf(buf, "%hi", m_NoEffects);
 return buf;
 }
 
-string Row_Orbiter::Modification_LastGen_asSQL()
+string Row_Orbiter::FloorplanInfo_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[11])
+return "NULL";
+
+char buf[33554431];
+mysql_real_escape_string(table->database->db_handle, buf, m_FloorplanInfo.c_str(), (unsigned long) m_FloorplanInfo.size());
+return string()+"\""+buf+"\"";
+}
+
+string Row_Orbiter::Modification_LastGen_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[12])
 return "NULL";
 
 char buf[39];
@@ -471,7 +496,7 @@ string Row_Orbiter::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[12])
+if (is_null[13])
 return "NULL";
 
 char buf[32];
@@ -484,7 +509,7 @@ string Row_Orbiter::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[13])
+if (is_null[14])
 return "NULL";
 
 char buf[32];
@@ -497,7 +522,7 @@ string Row_Orbiter::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[14])
+if (is_null[15])
 return "NULL";
 
 char buf[32];
@@ -510,7 +535,7 @@ string Row_Orbiter::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[15])
+if (is_null[16])
 return "NULL";
 
 char buf[32];
@@ -523,7 +548,7 @@ string Row_Orbiter::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[16])
+if (is_null[17])
 return "NULL";
 
 char buf[29];
@@ -569,10 +594,10 @@ void Table_Orbiter::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Orbiter_asSQL()+", "+pRow->FK_DesignObj_MainMenu_asSQL()+", "+pRow->FK_DesignObj_Sleeping_asSQL()+", "+pRow->FK_DesignObj_ScreenSaver_asSQL()+", "+pRow->FK_EntertainArea_asSQL()+", "+pRow->FK_System_asSQL()+", "+pRow->FK_Skin_asSQL()+", "+pRow->FK_Size_asSQL()+", "+pRow->FK_Version_asSQL()+", "+pRow->FK_Language_asSQL()+", "+pRow->NoEffects_asSQL()+", "+pRow->Modification_LastGen_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Orbiter_asSQL()+", "+pRow->FK_DesignObj_MainMenu_asSQL()+", "+pRow->FK_DesignObj_Sleeping_asSQL()+", "+pRow->FK_DesignObj_ScreenSaver_asSQL()+", "+pRow->FK_EntertainArea_asSQL()+", "+pRow->FK_System_asSQL()+", "+pRow->FK_Skin_asSQL()+", "+pRow->FK_Size_asSQL()+", "+pRow->FK_Version_asSQL()+", "+pRow->FK_Language_asSQL()+", "+pRow->NoEffects_asSQL()+", "+pRow->FloorplanInfo_asSQL()+", "+pRow->Modification_LastGen_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into Orbiter (PK_Orbiter, FK_DesignObj_MainMenu, FK_DesignObj_Sleeping, FK_DesignObj_ScreenSaver, FK_EntertainArea, FK_System, FK_Skin, FK_Size, FK_Version, FK_Language, NoEffects, Modification_LastGen, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into Orbiter (PK_Orbiter, FK_DesignObj_MainMenu, FK_DesignObj_Sleeping, FK_DesignObj_ScreenSaver, FK_EntertainArea, FK_System, FK_Skin, FK_Size, FK_Version, FK_Language, NoEffects, FloorplanInfo, Modification_LastGen, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -621,7 +646,7 @@ condition = condition + "PK_Orbiter=" + tmp_PK_Orbiter;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Orbiter="+pRow->PK_Orbiter_asSQL()+", FK_DesignObj_MainMenu="+pRow->FK_DesignObj_MainMenu_asSQL()+", FK_DesignObj_Sleeping="+pRow->FK_DesignObj_Sleeping_asSQL()+", FK_DesignObj_ScreenSaver="+pRow->FK_DesignObj_ScreenSaver_asSQL()+", FK_EntertainArea="+pRow->FK_EntertainArea_asSQL()+", FK_System="+pRow->FK_System_asSQL()+", FK_Skin="+pRow->FK_Skin_asSQL()+", FK_Size="+pRow->FK_Size_asSQL()+", FK_Version="+pRow->FK_Version_asSQL()+", FK_Language="+pRow->FK_Language_asSQL()+", NoEffects="+pRow->NoEffects_asSQL()+", Modification_LastGen="+pRow->Modification_LastGen_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_Orbiter="+pRow->PK_Orbiter_asSQL()+", FK_DesignObj_MainMenu="+pRow->FK_DesignObj_MainMenu_asSQL()+", FK_DesignObj_Sleeping="+pRow->FK_DesignObj_Sleeping_asSQL()+", FK_DesignObj_ScreenSaver="+pRow->FK_DesignObj_ScreenSaver_asSQL()+", FK_EntertainArea="+pRow->FK_EntertainArea_asSQL()+", FK_System="+pRow->FK_System_asSQL()+", FK_Skin="+pRow->FK_Skin_asSQL()+", FK_Size="+pRow->FK_Size_asSQL()+", FK_Version="+pRow->FK_Version_asSQL()+", FK_Language="+pRow->FK_Language_asSQL()+", NoEffects="+pRow->NoEffects_asSQL()+", FloorplanInfo="+pRow->FloorplanInfo_asSQL()+", Modification_LastGen="+pRow->Modification_LastGen_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update Orbiter set " + update_values_list + " where " + condition;
@@ -677,11 +702,17 @@ bool Table_Orbiter::GetRows(string where_statement,vector<class Row_Orbiter*> *r
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	string query = "select * from Orbiter where " + where_statement;
+	string query;
+	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
+		query = "select * from Orbiter " + where_statement;
+	else if( StringUtils::StartsWith(where_statement,"select ",true) )
+		query = where_statement;
+	else
+		query = "select * from Orbiter where " + where_statement;
 		
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query" << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return false;
 	}	
 
@@ -826,67 +857,78 @@ sscanf(row[10], "%hi", &(pRow->m_NoEffects));
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_Modification_LastGen = "";
+pRow->m_FloorplanInfo = "";
 }
 else
 {
 pRow->is_null[11]=false;
-pRow->m_Modification_LastGen = string(row[11],lengths[11]);
+pRow->m_FloorplanInfo = string(row[11],lengths[11]);
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_psc_id = 0;
+pRow->m_Modification_LastGen = "";
 }
 else
 {
 pRow->is_null[12]=false;
-sscanf(row[12], "%li", &(pRow->m_psc_id));
+pRow->m_Modification_LastGen = string(row[12],lengths[12]);
 }
 
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[13]=false;
-sscanf(row[13], "%li", &(pRow->m_psc_batch));
+sscanf(row[13], "%li", &(pRow->m_psc_id));
 }
 
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[14]=false;
-sscanf(row[14], "%li", &(pRow->m_psc_user));
+sscanf(row[14], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[15]=false;
-sscanf(row[15], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[15], "%li", &(pRow->m_psc_user));
 }
 
 if (row[16] == NULL)
 {
 pRow->is_null[16]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[16]=false;
-pRow->m_psc_mod = string(row[16],lengths[16]);
+sscanf(row[16], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[17] == NULL)
+{
+pRow->is_null[17]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[17]=false;
+pRow->m_psc_mod = string(row[17],lengths[17]);
 }
 
 
@@ -970,7 +1012,7 @@ condition = condition + "PK_Orbiter=" + tmp_PK_Orbiter;
 
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query" << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return NULL;
 	}	
 
@@ -1119,67 +1161,78 @@ sscanf(row[10], "%hi", &(pRow->m_NoEffects));
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_Modification_LastGen = "";
+pRow->m_FloorplanInfo = "";
 }
 else
 {
 pRow->is_null[11]=false;
-pRow->m_Modification_LastGen = string(row[11],lengths[11]);
+pRow->m_FloorplanInfo = string(row[11],lengths[11]);
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_psc_id = 0;
+pRow->m_Modification_LastGen = "";
 }
 else
 {
 pRow->is_null[12]=false;
-sscanf(row[12], "%li", &(pRow->m_psc_id));
+pRow->m_Modification_LastGen = string(row[12],lengths[12]);
 }
 
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[13]=false;
-sscanf(row[13], "%li", &(pRow->m_psc_batch));
+sscanf(row[13], "%li", &(pRow->m_psc_id));
 }
 
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[14]=false;
-sscanf(row[14], "%li", &(pRow->m_psc_user));
+sscanf(row[14], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[15]=false;
-sscanf(row[15], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[15], "%li", &(pRow->m_psc_user));
 }
 
 if (row[16] == NULL)
 {
 pRow->is_null[16]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[16]=false;
-pRow->m_psc_mod = string(row[16],lengths[16]);
+sscanf(row[16], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[17] == NULL)
+{
+pRow->is_null[17]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[17]=false;
+pRow->m_psc_mod = string(row[17],lengths[17]);
 }
 
 

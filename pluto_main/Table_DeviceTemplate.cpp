@@ -44,6 +44,7 @@ using namespace std;
 #include "Table_DeviceTemplate_Output.h"
 #include "Table_DeviceTemplate_PageSetup.h"
 #include "Table_InfraredCode.h"
+#include "Table_InstallWizard.h"
 
 
 void Database_pluto_main::CreateTable_DeviceTemplate()
@@ -817,11 +818,17 @@ bool Table_DeviceTemplate::GetRows(string where_statement,vector<class Row_Devic
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	string query = "select * from DeviceTemplate where " + where_statement;
+	string query;
+	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
+		query = "select * from DeviceTemplate " + where_statement;
+	else if( StringUtils::StartsWith(where_statement,"select ",true) )
+		query = where_statement;
+	else
+		query = "select * from DeviceTemplate where " + where_statement;
 		
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query" << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return false;
 	}	
 
@@ -1165,7 +1172,7 @@ condition = condition + "PK_DeviceTemplate=" + tmp_PK_DeviceTemplate;
 
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query" << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return NULL;
 	}	
 
@@ -1615,6 +1622,13 @@ void Row_DeviceTemplate::InfraredCode_FK_DeviceTemplate_getrows(vector <class Ro
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_InfraredCode *pTable = table->database->InfraredCode_get();
+pTable->GetRows("FK_DeviceTemplate=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
+}
+void Row_DeviceTemplate::InstallWizard_FK_DeviceTemplate_getrows(vector <class Row_InstallWizard*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_InstallWizard *pTable = table->database->InstallWizard_get();
 pTable->GetRows("FK_DeviceTemplate=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 

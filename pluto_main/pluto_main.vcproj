@@ -376,6 +376,12 @@
 				RelativePath=".\Table_Distro.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_Document.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Document_Comment.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_EntertainArea.cpp">
 			</File>
 			<File
@@ -427,9 +433,6 @@
 				RelativePath=".\Table_InfraredCode.cpp">
 			</File>
 			<File
-				RelativePath=".\Table_InfraredData.cpp">
-			</File>
-			<File
 				RelativePath=".\Table_InfraredGroup.cpp">
 			</File>
 			<File
@@ -442,6 +445,12 @@
 				RelativePath=".\Table_Input.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_InstallWizard.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_InstallWizard_Distro.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_Installation.cpp">
 			</File>
 			<File
@@ -452,6 +461,9 @@
 			</File>
 			<File
 				RelativePath=".\Table_Language.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_License.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_Manufacturer.cpp">
@@ -581,6 +593,90 @@
 			</File>
 			<File
 				RelativePath=".\Table_VertAlignment.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_constants_batdet.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_constants_bathdr.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_constants_repset.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_constants_tables.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_dce_batdet.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_dce_bathdr.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_dce_repset.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_dce_tables.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_designer_batdet.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_designer_bathdr.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_designer_repset.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_designer_tables.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_ir_batdet.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_ir_bathdr.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_ir_repset.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_ir_tables.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_local_batdet.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_local_bathdr.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_local_repset.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_local_tables.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_shared_batdet.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_shared_bathdr.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_shared_repset.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_shared_tables.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_user_batdet.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_user_bathdr.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_user_repset.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_user_tables.cpp">
 			</File>
 
 		</Filter>

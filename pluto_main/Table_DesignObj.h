@@ -179,6 +179,7 @@ void psc_frozen_setNull(bool val);
 class Row_DesignObjCategory* FK_DesignObjCategory_getrow();
 class Row_DesignObj* FK_DesignObj_IncludeIfOtherIncluded_getrow();
 class Row_StabilityStatus* FK_StabilityStatus_getrow();
+class Row_Document* FK_Document_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here

@@ -511,7 +511,7 @@
 #define TEXT_more_CONST 824
 #define TEXT_Yes_Install_the_software_CONST 1065
 #define TEXT_No_This_device_is_not_a_mobile_phone_CONST 1066
-#define TEXT_This_is_device_with_the_ID__13_and_M_CONST 1067
+#define TEXT_new_phone_detected_CONST 1067
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

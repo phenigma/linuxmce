@@ -19,6 +19,7 @@ using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_PageSetup.h"
 #include "Table_PageSetup.h"
+#include "Table_Package.h"
 
 #include "Table_DeviceTemplate_PageSetup.h"
 #include "Table_PageSetup.h"
@@ -113,19 +114,22 @@ void Row_PageSetup::SetDefaultValues()
 	m_PK_PageSetup = 0;
 is_null[0] = false;
 is_null[1] = true;
-m_Description = "";
+m_Website = 1;
 is_null[2] = false;
-m_pageURL = "";
-is_null[3] = false;
-m_showInTopMenu = 0;
+is_null[3] = true;
+m_Description = "";
 is_null[4] = false;
-m_Modification_RecordInfo = "00000000000000";
+m_pageURL = "";
 is_null[5] = false;
-m_IsNew_RecordInfo = 1;
+m_showInTopMenu = 0;
 is_null[6] = false;
-m_IsDeleted_RecordInfo = 0;
+m_Modification_RecordInfo = "00000000000000";
 is_null[7] = false;
-is_null[8] = true;
+m_IsNew_RecordInfo = 1;
+is_null[8] = false;
+m_IsDeleted_RecordInfo = 0;
+is_null[9] = false;
+is_null[10] = true;
 
 
 	is_added=false;
@@ -139,6 +143,12 @@ return m_PK_PageSetup;}
 long int Row_PageSetup::FK_PageSetup_Parent_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_PageSetup_Parent;}
+short int Row_PageSetup::Website_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Website;}
+long int Row_PageSetup::FK_Package_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FK_Package;}
 string Row_PageSetup::Description_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Description;}
@@ -168,55 +178,67 @@ m_PK_PageSetup = val; is_modified=true; is_null[0]=false;}
 void Row_PageSetup::FK_PageSetup_Parent_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_PageSetup_Parent = val; is_modified=true; is_null[1]=false;}
+void Row_PageSetup::Website_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Website = val; is_modified=true; is_null[2]=false;}
+void Row_PageSetup::FK_Package_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_Package = val; is_modified=true; is_null[3]=false;}
 void Row_PageSetup::Description_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Description = val; is_modified=true; is_null[2]=false;}
+m_Description = val; is_modified=true; is_null[4]=false;}
 void Row_PageSetup::pageURL_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_pageURL = val; is_modified=true; is_null[3]=false;}
+m_pageURL = val; is_modified=true; is_null[5]=false;}
 void Row_PageSetup::showInTopMenu_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_showInTopMenu = val; is_modified=true; is_null[4]=false;}
+m_showInTopMenu = val; is_modified=true; is_null[6]=false;}
 void Row_PageSetup::Modification_RecordInfo_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Modification_RecordInfo = val; is_modified=true; is_null[5]=false;}
+m_Modification_RecordInfo = val; is_modified=true; is_null[7]=false;}
 void Row_PageSetup::IsNew_RecordInfo_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_IsNew_RecordInfo = val; is_modified=true; is_null[6]=false;}
+m_IsNew_RecordInfo = val; is_modified=true; is_null[8]=false;}
 void Row_PageSetup::IsDeleted_RecordInfo_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_IsDeleted_RecordInfo = val; is_modified=true; is_null[7]=false;}
+m_IsDeleted_RecordInfo = val; is_modified=true; is_null[9]=false;}
 void Row_PageSetup::FK_Users_RecordInfo_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_FK_Users_RecordInfo = val; is_modified=true; is_null[8]=false;}
+m_FK_Users_RecordInfo = val; is_modified=true; is_null[10]=false;}
 
 		
 bool Row_PageSetup::FK_PageSetup_Parent_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[1];}
+bool Row_PageSetup::FK_Package_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[3];}
 bool Row_PageSetup::IsNew_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[6];}
+return is_null[8];}
 bool Row_PageSetup::IsDeleted_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[7];}
+return is_null[9];}
 bool Row_PageSetup::FK_Users_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[8];}
+return is_null[10];}
 
 			
 void Row_PageSetup::FK_PageSetup_Parent_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[1]=val;}
+void Row_PageSetup::FK_Package_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[3]=val;}
 void Row_PageSetup::IsNew_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[6]=val;}
+is_null[8]=val;}
 void Row_PageSetup::IsDeleted_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[7]=val;}
+is_null[9]=val;}
 void Row_PageSetup::FK_Users_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[8]=val;}
+is_null[10]=val;}
 	
 
 string Row_PageSetup::PK_PageSetup_asSQL()
@@ -245,11 +267,37 @@ sprintf(buf, "%li", m_FK_PageSetup_Parent);
 return buf;
 }
 
-string Row_PageSetup::Description_asSQL()
+string Row_PageSetup::Website_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[2])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_Website);
+
+return buf;
+}
+
+string Row_PageSetup::FK_Package_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[3])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_Package);
+
+return buf;
+}
+
+string Row_PageSetup::Description_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[4])
 return "NULL";
 
 char buf[201];
@@ -261,7 +309,7 @@ string Row_PageSetup::pageURL_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[3])
+if (is_null[5])
 return "NULL";
 
 char buf[511];
@@ -273,7 +321,7 @@ string Row_PageSetup::showInTopMenu_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[4])
+if (is_null[6])
 return "NULL";
 
 char buf[32];
@@ -286,7 +334,7 @@ string Row_PageSetup::Modification_RecordInfo_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[5])
+if (is_null[7])
 return "NULL";
 
 char buf[29];
@@ -298,7 +346,7 @@ string Row_PageSetup::IsNew_RecordInfo_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[6])
+if (is_null[8])
 return "NULL";
 
 char buf[32];
@@ -311,7 +359,7 @@ string Row_PageSetup::IsDeleted_RecordInfo_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[7])
+if (is_null[9])
 return "NULL";
 
 char buf[32];
@@ -324,7 +372,7 @@ string Row_PageSetup::FK_Users_RecordInfo_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[8])
+if (is_null[10])
 return "NULL";
 
 char buf[32];
@@ -371,10 +419,10 @@ void Table_PageSetup::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_PageSetup_asSQL()+", "+pRow->FK_PageSetup_Parent_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->pageURL_asSQL()+", "+pRow->showInTopMenu_asSQL()+", "+pRow->Modification_RecordInfo_asSQL()+", "+pRow->IsNew_RecordInfo_asSQL()+", "+pRow->IsDeleted_RecordInfo_asSQL()+", "+pRow->FK_Users_RecordInfo_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_PageSetup_asSQL()+", "+pRow->FK_PageSetup_Parent_asSQL()+", "+pRow->Website_asSQL()+", "+pRow->FK_Package_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->pageURL_asSQL()+", "+pRow->showInTopMenu_asSQL()+", "+pRow->Modification_RecordInfo_asSQL()+", "+pRow->IsNew_RecordInfo_asSQL()+", "+pRow->IsDeleted_RecordInfo_asSQL()+", "+pRow->FK_Users_RecordInfo_asSQL();
 
 	
-		string query = "insert into PageSetup (PK_PageSetup, FK_PageSetup_Parent, Description, pageURL, showInTopMenu, Modification_RecordInfo, IsNew_RecordInfo, IsDeleted_RecordInfo, FK_Users_RecordInfo) values ("+
+		string query = "insert into PageSetup (PK_PageSetup, FK_PageSetup_Parent, Website, FK_Package, Description, pageURL, showInTopMenu, Modification_RecordInfo, IsNew_RecordInfo, IsDeleted_RecordInfo, FK_Users_RecordInfo) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -423,7 +471,7 @@ condition = condition + "PK_PageSetup=" + tmp_PK_PageSetup;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_PageSetup="+pRow->PK_PageSetup_asSQL()+", FK_PageSetup_Parent="+pRow->FK_PageSetup_Parent_asSQL()+", Description="+pRow->Description_asSQL()+", pageURL="+pRow->pageURL_asSQL()+", showInTopMenu="+pRow->showInTopMenu_asSQL()+", Modification_RecordInfo="+pRow->Modification_RecordInfo_asSQL()+", IsNew_RecordInfo="+pRow->IsNew_RecordInfo_asSQL()+", IsDeleted_RecordInfo="+pRow->IsDeleted_RecordInfo_asSQL()+", FK_Users_RecordInfo="+pRow->FK_Users_RecordInfo_asSQL();
+update_values_list = update_values_list + "PK_PageSetup="+pRow->PK_PageSetup_asSQL()+", FK_PageSetup_Parent="+pRow->FK_PageSetup_Parent_asSQL()+", Website="+pRow->Website_asSQL()+", FK_Package="+pRow->FK_Package_asSQL()+", Description="+pRow->Description_asSQL()+", pageURL="+pRow->pageURL_asSQL()+", showInTopMenu="+pRow->showInTopMenu_asSQL()+", Modification_RecordInfo="+pRow->Modification_RecordInfo_asSQL()+", IsNew_RecordInfo="+pRow->IsNew_RecordInfo_asSQL()+", IsDeleted_RecordInfo="+pRow->IsDeleted_RecordInfo_asSQL()+", FK_Users_RecordInfo="+pRow->FK_Users_RecordInfo_asSQL();
 
 	
 		string query = "update PageSetup set " + update_values_list + " where " + condition;
@@ -479,11 +527,17 @@ bool Table_PageSetup::GetRows(string where_statement,vector<class Row_PageSetup*
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	string query = "select * from PageSetup where " + where_statement;
+	string query;
+	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
+		query = "select * from PageSetup " + where_statement;
+	else if( StringUtils::StartsWith(where_statement,"select ",true) )
+		query = where_statement;
+	else
+		query = "select * from PageSetup where " + where_statement;
 		
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query" << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return false;
 	}	
 
@@ -529,78 +583,100 @@ sscanf(row[1], "%li", &(pRow->m_FK_PageSetup_Parent));
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_Description = "";
+pRow->m_Website = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-pRow->m_Description = string(row[2],lengths[2]);
+sscanf(row[2], "%hi", &(pRow->m_Website));
 }
 
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_pageURL = "";
+pRow->m_FK_Package = 0;
 }
 else
 {
 pRow->is_null[3]=false;
-pRow->m_pageURL = string(row[3],lengths[3]);
+sscanf(row[3], "%li", &(pRow->m_FK_Package));
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_showInTopMenu = 0;
+pRow->m_Description = "";
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%hi", &(pRow->m_showInTopMenu));
+pRow->m_Description = string(row[4],lengths[4]);
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_Modification_RecordInfo = "";
+pRow->m_pageURL = "";
 }
 else
 {
 pRow->is_null[5]=false;
-pRow->m_Modification_RecordInfo = string(row[5],lengths[5]);
+pRow->m_pageURL = string(row[5],lengths[5]);
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_IsNew_RecordInfo = 0;
+pRow->m_showInTopMenu = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%hi", &(pRow->m_IsNew_RecordInfo));
+sscanf(row[6], "%hi", &(pRow->m_showInTopMenu));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_IsDeleted_RecordInfo = 0;
+pRow->m_Modification_RecordInfo = "";
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%hi", &(pRow->m_IsDeleted_RecordInfo));
+pRow->m_Modification_RecordInfo = string(row[7],lengths[7]);
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_FK_Users_RecordInfo = 0;
+pRow->m_IsNew_RecordInfo = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_FK_Users_RecordInfo));
+sscanf(row[8], "%hi", &(pRow->m_IsNew_RecordInfo));
+}
+
+if (row[9] == NULL)
+{
+pRow->is_null[9]=true;
+pRow->m_IsDeleted_RecordInfo = 0;
+}
+else
+{
+pRow->is_null[9]=false;
+sscanf(row[9], "%hi", &(pRow->m_IsDeleted_RecordInfo));
+}
+
+if (row[10] == NULL)
+{
+pRow->is_null[10]=true;
+pRow->m_FK_Users_RecordInfo = 0;
+}
+else
+{
+pRow->is_null[10]=false;
+sscanf(row[10], "%li", &(pRow->m_FK_Users_RecordInfo));
 }
 
 
@@ -684,7 +760,7 @@ condition = condition + "PK_PageSetup=" + tmp_PK_PageSetup;
 
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query" << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return NULL;
 	}	
 
@@ -734,78 +810,100 @@ sscanf(row[1], "%li", &(pRow->m_FK_PageSetup_Parent));
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_Description = "";
+pRow->m_Website = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-pRow->m_Description = string(row[2],lengths[2]);
+sscanf(row[2], "%hi", &(pRow->m_Website));
 }
 
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_pageURL = "";
+pRow->m_FK_Package = 0;
 }
 else
 {
 pRow->is_null[3]=false;
-pRow->m_pageURL = string(row[3],lengths[3]);
+sscanf(row[3], "%li", &(pRow->m_FK_Package));
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_showInTopMenu = 0;
+pRow->m_Description = "";
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%hi", &(pRow->m_showInTopMenu));
+pRow->m_Description = string(row[4],lengths[4]);
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_Modification_RecordInfo = "";
+pRow->m_pageURL = "";
 }
 else
 {
 pRow->is_null[5]=false;
-pRow->m_Modification_RecordInfo = string(row[5],lengths[5]);
+pRow->m_pageURL = string(row[5],lengths[5]);
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_IsNew_RecordInfo = 0;
+pRow->m_showInTopMenu = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%hi", &(pRow->m_IsNew_RecordInfo));
+sscanf(row[6], "%hi", &(pRow->m_showInTopMenu));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_IsDeleted_RecordInfo = 0;
+pRow->m_Modification_RecordInfo = "";
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%hi", &(pRow->m_IsDeleted_RecordInfo));
+pRow->m_Modification_RecordInfo = string(row[7],lengths[7]);
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_FK_Users_RecordInfo = 0;
+pRow->m_IsNew_RecordInfo = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_FK_Users_RecordInfo));
+sscanf(row[8], "%hi", &(pRow->m_IsNew_RecordInfo));
+}
+
+if (row[9] == NULL)
+{
+pRow->is_null[9]=true;
+pRow->m_IsDeleted_RecordInfo = 0;
+}
+else
+{
+pRow->is_null[9]=false;
+sscanf(row[9], "%hi", &(pRow->m_IsDeleted_RecordInfo));
+}
+
+if (row[10] == NULL)
+{
+pRow->is_null[10]=true;
+pRow->m_FK_Users_RecordInfo = 0;
+}
+else
+{
+pRow->is_null[10]=false;
+sscanf(row[10], "%li", &(pRow->m_FK_Users_RecordInfo));
 }
 
 
@@ -822,6 +920,13 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_PageSetup *pTable = table->database->PageSetup_get();
 return pTable->GetRow(m_FK_PageSetup_Parent);
+}
+class Row_Package* Row_PageSetup::FK_Package_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Package *pTable = table->database->Package_get();
+return pTable->GetRow(m_FK_Package);
 }
 
 

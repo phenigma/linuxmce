@@ -13,6 +13,9 @@ using namespace std;
 
 #include "Database_pluto_main.h"
 
+
+#include "DCEConfig.h"
+
 Database_pluto_main::Database_pluto_main()
 {
 CreateTable_Array();
@@ -105,6 +108,8 @@ CreateTable_Device_Users();
 CreateTable_Direction();
 CreateTable_Directory();
 CreateTable_Distro();
+CreateTable_Document();
+CreateTable_Document_Comment();
 CreateTable_EntertainArea();
 CreateTable_Event();
 CreateTable_EventCategory();
@@ -122,15 +127,17 @@ CreateTable_Household_Installation();
 CreateTable_Icon();
 CreateTable_Image();
 CreateTable_InfraredCode();
-CreateTable_InfraredData();
 CreateTable_InfraredGroup();
 CreateTable_InfraredGroup_DSPMode();
 CreateTable_InfraredGroup_Input();
 CreateTable_Input();
+CreateTable_InstallWizard();
+CreateTable_InstallWizard_Distro();
 CreateTable_Installation();
 CreateTable_Installation_RepositorySource_URL();
 CreateTable_Installation_Users();
 CreateTable_Language();
+CreateTable_License();
 CreateTable_Manufacturer();
 CreateTable_MediaType();
 CreateTable_MediaType_Broadcast();
@@ -174,6 +181,34 @@ CreateTable_Users();
 CreateTable_Variable();
 CreateTable_Version();
 CreateTable_VertAlignment();
+CreateTable_psc_constants_batdet();
+CreateTable_psc_constants_bathdr();
+CreateTable_psc_constants_repset();
+CreateTable_psc_constants_tables();
+CreateTable_psc_dce_batdet();
+CreateTable_psc_dce_bathdr();
+CreateTable_psc_dce_repset();
+CreateTable_psc_dce_tables();
+CreateTable_psc_designer_batdet();
+CreateTable_psc_designer_bathdr();
+CreateTable_psc_designer_repset();
+CreateTable_psc_designer_tables();
+CreateTable_psc_ir_batdet();
+CreateTable_psc_ir_bathdr();
+CreateTable_psc_ir_repset();
+CreateTable_psc_ir_tables();
+CreateTable_psc_local_batdet();
+CreateTable_psc_local_bathdr();
+CreateTable_psc_local_repset();
+CreateTable_psc_local_tables();
+CreateTable_psc_shared_batdet();
+CreateTable_psc_shared_bathdr();
+CreateTable_psc_shared_repset();
+CreateTable_psc_shared_tables();
+CreateTable_psc_user_batdet();
+CreateTable_psc_user_bathdr();
+CreateTable_psc_user_repset();
+CreateTable_psc_user_tables();
 }
 
 Database_pluto_main::~Database_pluto_main()
@@ -273,6 +308,8 @@ DeleteTable_Device_Users();
 DeleteTable_Direction();
 DeleteTable_Directory();
 DeleteTable_Distro();
+DeleteTable_Document();
+DeleteTable_Document_Comment();
 DeleteTable_EntertainArea();
 DeleteTable_Event();
 DeleteTable_EventCategory();
@@ -290,15 +327,17 @@ DeleteTable_Household_Installation();
 DeleteTable_Icon();
 DeleteTable_Image();
 DeleteTable_InfraredCode();
-DeleteTable_InfraredData();
 DeleteTable_InfraredGroup();
 DeleteTable_InfraredGroup_DSPMode();
 DeleteTable_InfraredGroup_Input();
 DeleteTable_Input();
+DeleteTable_InstallWizard();
+DeleteTable_InstallWizard_Distro();
 DeleteTable_Installation();
 DeleteTable_Installation_RepositorySource_URL();
 DeleteTable_Installation_Users();
 DeleteTable_Language();
+DeleteTable_License();
 DeleteTable_Manufacturer();
 DeleteTable_MediaType();
 DeleteTable_MediaType_Broadcast();
@@ -342,14 +381,46 @@ DeleteTable_Users();
 DeleteTable_Variable();
 DeleteTable_Version();
 DeleteTable_VertAlignment();
+DeleteTable_psc_constants_batdet();
+DeleteTable_psc_constants_bathdr();
+DeleteTable_psc_constants_repset();
+DeleteTable_psc_constants_tables();
+DeleteTable_psc_dce_batdet();
+DeleteTable_psc_dce_bathdr();
+DeleteTable_psc_dce_repset();
+DeleteTable_psc_dce_tables();
+DeleteTable_psc_designer_batdet();
+DeleteTable_psc_designer_bathdr();
+DeleteTable_psc_designer_repset();
+DeleteTable_psc_designer_tables();
+DeleteTable_psc_ir_batdet();
+DeleteTable_psc_ir_bathdr();
+DeleteTable_psc_ir_repset();
+DeleteTable_psc_ir_tables();
+DeleteTable_psc_local_batdet();
+DeleteTable_psc_local_bathdr();
+DeleteTable_psc_local_repset();
+DeleteTable_psc_local_tables();
+DeleteTable_psc_shared_batdet();
+DeleteTable_psc_shared_bathdr();
+DeleteTable_psc_shared_repset();
+DeleteTable_psc_shared_tables();
+DeleteTable_psc_user_batdet();
+DeleteTable_psc_user_bathdr();
+DeleteTable_psc_user_repset();
+DeleteTable_psc_user_tables();
 }
 
-bool Database_pluto_main::Connect(string host, string user, string pass, string DBName, int port)
+bool Database_pluto_main::Connect(string host, string user, string pass, string sDBName, int port)
 {
 db_handle = mysql_init(NULL);
-if (mysql_real_connect(db_handle, host.c_str(), user.c_str(), pass.c_str(), DBName.c_str(), port, NULL, 0) == NULL)
+if (mysql_real_connect(db_handle, host.c_str(), user.c_str(), pass.c_str(), sDBName.c_str(), port, NULL, 0) == NULL)
 {return false;}
 else
 {return true;}
 }
 
+bool Database_pluto_main::Connect(class DCEConfig *pDCEConfig)
+{
+	return Connect(pDCEConfig->m_sDBHost,pDCEConfig->m_sDBUser,pDCEConfig->m_sDBPassword,pDCEConfig->m_sDBName,pDCEConfig->m_iDBPort);
+}

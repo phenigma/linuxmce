@@ -225,6 +225,7 @@ void DeviceTemplate_MediaType_FK_DeviceTemplate_getrows(vector <class Row_Device
 void DeviceTemplate_Output_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_Output*> *rows);
 void DeviceTemplate_PageSetup_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_PageSetup*> *rows);
 void InfraredCode_FK_DeviceTemplate_getrows(vector <class Row_InfraredCode*> *rows);
+void InstallWizard_FK_DeviceTemplate_getrows(vector <class Row_InstallWizard*> *rows);
 
 
 		// Setup binary serialization

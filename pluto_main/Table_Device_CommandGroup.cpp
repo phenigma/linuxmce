@@ -472,11 +472,17 @@ bool Table_Device_CommandGroup::GetRows(string where_statement,vector<class Row_
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	string query = "select * from Device_CommandGroup where " + where_statement;
+	string query;
+	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
+		query = "select * from Device_CommandGroup " + where_statement;
+	else if( StringUtils::StartsWith(where_statement,"select ",true) )
+		query = where_statement;
+	else
+		query = "select * from Device_CommandGroup where " + where_statement;
 		
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query" << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return false;
 	}	
 
@@ -669,7 +675,7 @@ condition = condition + "FK_Device=" + tmp_FK_Device+" AND "+"FK_CommandGroup=" 
 
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query" << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return NULL;
 	}	
 

@@ -1,12 +1,10 @@
 ROOT = ..
-CXXFLAGS = -Wall -D_GNU_SOURCE
+CXXFLAGS = -Wall -g -D_GNU_SOURCE
 CPPFLAGS = -I/usr/include/mysql -I.. -I../.. -I../DCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DMULTI_THREADED -DUSE_MYSQL
 CXX = g++
 LDFLAGS = -L$(ROOT)/lib
 LDLIBS =  -lmysqlclient_r
 
-APPNAME = pluto_main
-VERSION = 2.0.0
 sources = Database_pluto_main.cpp  \
 Table_Array.cpp \
 Table_Broadcast.cpp \
@@ -98,6 +96,8 @@ Table_Device_Users.cpp \
 Table_Direction.cpp \
 Table_Directory.cpp \
 Table_Distro.cpp \
+Table_Document.cpp \
+Table_Document_Comment.cpp \
 Table_EntertainArea.cpp \
 Table_Event.cpp \
 Table_EventCategory.cpp \
@@ -115,15 +115,17 @@ Table_Household_Installation.cpp \
 Table_Icon.cpp \
 Table_Image.cpp \
 Table_InfraredCode.cpp \
-Table_InfraredData.cpp \
 Table_InfraredGroup.cpp \
 Table_InfraredGroup_DSPMode.cpp \
 Table_InfraredGroup_Input.cpp \
 Table_Input.cpp \
+Table_InstallWizard.cpp \
+Table_InstallWizard_Distro.cpp \
 Table_Installation.cpp \
 Table_Installation_RepositorySource_URL.cpp \
 Table_Installation_Users.cpp \
 Table_Language.cpp \
+Table_License.cpp \
 Table_Manufacturer.cpp \
 Table_MediaType.cpp \
 Table_MediaType_Broadcast.cpp \
@@ -166,7 +168,35 @@ Table_UserMode.cpp \
 Table_Users.cpp \
 Table_Variable.cpp \
 Table_Version.cpp \
-Table_VertAlignment.cpp
+Table_VertAlignment.cpp \
+Table_psc_constants_batdet.cpp \
+Table_psc_constants_bathdr.cpp \
+Table_psc_constants_repset.cpp \
+Table_psc_constants_tables.cpp \
+Table_psc_dce_batdet.cpp \
+Table_psc_dce_bathdr.cpp \
+Table_psc_dce_repset.cpp \
+Table_psc_dce_tables.cpp \
+Table_psc_designer_batdet.cpp \
+Table_psc_designer_bathdr.cpp \
+Table_psc_designer_repset.cpp \
+Table_psc_designer_tables.cpp \
+Table_psc_ir_batdet.cpp \
+Table_psc_ir_bathdr.cpp \
+Table_psc_ir_repset.cpp \
+Table_psc_ir_tables.cpp \
+Table_psc_local_batdet.cpp \
+Table_psc_local_bathdr.cpp \
+Table_psc_local_repset.cpp \
+Table_psc_local_tables.cpp \
+Table_psc_shared_batdet.cpp \
+Table_psc_shared_bathdr.cpp \
+Table_psc_shared_repset.cpp \
+Table_psc_shared_tables.cpp \
+Table_psc_user_batdet.cpp \
+Table_psc_user_bathdr.cpp \
+Table_psc_user_repset.cpp \
+Table_psc_user_tables.cpp
 
 all: libpluto_main.a all-recursive
 
@@ -176,9 +206,6 @@ libpluto_main.a: $(sources:.cpp=.o)
 
 clean: clean-recursive
 	rm -f *.o *.d libpluto_main.a >/dev/null
-
-package:
-	./make_package.sh $(APPNAME) $(VERSION)
 
 include $(ROOT)/DCE/make.rules
 -include $(sources:.cpp=.d)

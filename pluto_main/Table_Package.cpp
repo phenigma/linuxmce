@@ -19,6 +19,8 @@ using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_Package.h"
 #include "Table_Package.h"
+#include "Table_Document.h"
+#include "Table_Document.h"
 
 #include "Table_DeviceTemplate.h"
 #include "Table_Package.h"
@@ -26,6 +28,7 @@ using namespace std;
 #include "Table_Package_Package.h"
 #include "Table_Package_Package.h"
 #include "Table_Package_Source.h"
+#include "Table_PageSetup.h"
 
 
 void Database_pluto_main::CreateTable_Package()
@@ -565,11 +568,17 @@ bool Table_Package::GetRows(string where_statement,vector<class Row_Package*> *r
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	string query = "select * from Package where " + where_statement;
+	string query;
+	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
+		query = "select * from Package " + where_statement;
+	else if( StringUtils::StartsWith(where_statement,"select ",true) )
+		query = where_statement;
+	else
+		query = "select * from Package where " + where_statement;
 		
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query" << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return false;
 	}	
 
@@ -803,7 +812,7 @@ condition = condition + "PK_Package=" + tmp_PK_Package;
 
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query" << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return NULL;
 	}	
 
@@ -975,6 +984,20 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 class Table_Package *pTable = table->database->Package_get();
 return pTable->GetRow(m_FK_Package_Sourcecode);
 }
+class Row_Document* Row_Package::FK_Document_User_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Document *pTable = table->database->Document_get();
+return pTable->GetRow(m_FK_Document_User);
+}
+class Row_Document* Row_Package::FK_Document_Programmer_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Document *pTable = table->database->Document_get();
+return pTable->GetRow(m_FK_Document_Programmer);
+}
 
 
 void Row_Package::DeviceTemplate_FK_Package_getrows(vector <class Row_DeviceTemplate*> *rows)
@@ -1017,6 +1040,13 @@ void Row_Package::Package_Source_FK_Package_getrows(vector <class Row_Package_So
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Source *pTable = table->database->Package_Source_get();
+pTable->GetRows("FK_Package=" + StringUtils::itos(m_PK_Package),rows);
+}
+void Row_Package::PageSetup_FK_Package_getrows(vector <class Row_PageSetup*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_PageSetup *pTable = table->database->PageSetup_get();
 pTable->GetRows("FK_Package=" + StringUtils::itos(m_PK_Package),rows);
 }
 

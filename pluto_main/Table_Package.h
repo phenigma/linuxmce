@@ -158,6 +158,8 @@ void psc_frozen_setNull(bool val);
 
 		// Return the rows for foreign keys 
 		class Row_Package* FK_Package_Sourcecode_getrow();
+class Row_Document* FK_Document_User_getrow();
+class Row_Document* FK_Document_Programmer_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
@@ -167,6 +169,7 @@ void Package_Directory_FK_Package_getrows(vector <class Row_Package_Directory*> 
 void Package_Package_FK_Package_getrows(vector <class Row_Package_Package*> *rows);
 void Package_Package_FK_Package_DependsOn_getrows(vector <class Row_Package_Package*> *rows);
 void Package_Source_FK_Package_getrows(vector <class Row_Package_Source*> *rows);
+void PageSetup_FK_Package_getrows(vector <class Row_PageSetup*> *rows);
 
 
 		// Setup binary serialization

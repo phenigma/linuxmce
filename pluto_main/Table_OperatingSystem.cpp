@@ -20,6 +20,7 @@ using namespace std;
 #include "Table_OperatingSystem.h"
 
 #include "Table_Distro.h"
+#include "Table_InstallWizard_Distro.h"
 #include "Table_Package_Directory.h"
 #include "Table_Package_Directory_File.h"
 #include "Table_Package_Source_Compat.h"
@@ -339,11 +340,17 @@ bool Table_OperatingSystem::GetRows(string where_statement,vector<class Row_Oper
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	string query = "select * from OperatingSystem where " + where_statement;
+	string query;
+	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
+		query = "select * from OperatingSystem " + where_statement;
+	else if( StringUtils::StartsWith(where_statement,"select ",true) )
+		query = where_statement;
+	else
+		query = "select * from OperatingSystem where " + where_statement;
 		
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query" << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return false;
 	}	
 
@@ -478,7 +485,7 @@ condition = condition + "PK_OperatingSystem=" + tmp_PK_OperatingSystem;
 
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query" << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return NULL;
 	}	
 
@@ -551,6 +558,13 @@ void Row_OperatingSystem::Distro_FK_OperatingSystem_getrows(vector <class Row_Di
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Distro *pTable = table->database->Distro_get();
+pTable->GetRows("FK_OperatingSystem=" + StringUtils::itos(m_PK_OperatingSystem),rows);
+}
+void Row_OperatingSystem::InstallWizard_Distro_FK_OperatingSystem_getrows(vector <class Row_InstallWizard_Distro*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_InstallWizard_Distro *pTable = table->database->InstallWizard_Distro_get();
 pTable->GetRows("FK_OperatingSystem=" + StringUtils::itos(m_PK_OperatingSystem),rows);
 }
 void Row_OperatingSystem::Package_Directory_FK_OperatingSystem_getrows(vector <class Row_Package_Directory*> *rows)

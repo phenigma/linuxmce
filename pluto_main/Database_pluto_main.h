@@ -104,6 +104,8 @@ class Table_Device_Users* tblDevice_Users;
 class Table_Direction* tblDirection;
 class Table_Directory* tblDirectory;
 class Table_Distro* tblDistro;
+class Table_Document* tblDocument;
+class Table_Document_Comment* tblDocument_Comment;
 class Table_EntertainArea* tblEntertainArea;
 class Table_Event* tblEvent;
 class Table_EventCategory* tblEventCategory;
@@ -121,15 +123,17 @@ class Table_Household_Installation* tblHousehold_Installation;
 class Table_Icon* tblIcon;
 class Table_Image* tblImage;
 class Table_InfraredCode* tblInfraredCode;
-class Table_InfraredData* tblInfraredData;
 class Table_InfraredGroup* tblInfraredGroup;
 class Table_InfraredGroup_DSPMode* tblInfraredGroup_DSPMode;
 class Table_InfraredGroup_Input* tblInfraredGroup_Input;
 class Table_Input* tblInput;
+class Table_InstallWizard* tblInstallWizard;
+class Table_InstallWizard_Distro* tblInstallWizard_Distro;
 class Table_Installation* tblInstallation;
 class Table_Installation_RepositorySource_URL* tblInstallation_RepositorySource_URL;
 class Table_Installation_Users* tblInstallation_Users;
 class Table_Language* tblLanguage;
+class Table_License* tblLicense;
 class Table_Manufacturer* tblManufacturer;
 class Table_MediaType* tblMediaType;
 class Table_MediaType_Broadcast* tblMediaType_Broadcast;
@@ -173,6 +177,34 @@ class Table_Users* tblUsers;
 class Table_Variable* tblVariable;
 class Table_Version* tblVersion;
 class Table_VertAlignment* tblVertAlignment;
+class Table_psc_constants_batdet* tblpsc_constants_batdet;
+class Table_psc_constants_bathdr* tblpsc_constants_bathdr;
+class Table_psc_constants_repset* tblpsc_constants_repset;
+class Table_psc_constants_tables* tblpsc_constants_tables;
+class Table_psc_dce_batdet* tblpsc_dce_batdet;
+class Table_psc_dce_bathdr* tblpsc_dce_bathdr;
+class Table_psc_dce_repset* tblpsc_dce_repset;
+class Table_psc_dce_tables* tblpsc_dce_tables;
+class Table_psc_designer_batdet* tblpsc_designer_batdet;
+class Table_psc_designer_bathdr* tblpsc_designer_bathdr;
+class Table_psc_designer_repset* tblpsc_designer_repset;
+class Table_psc_designer_tables* tblpsc_designer_tables;
+class Table_psc_ir_batdet* tblpsc_ir_batdet;
+class Table_psc_ir_bathdr* tblpsc_ir_bathdr;
+class Table_psc_ir_repset* tblpsc_ir_repset;
+class Table_psc_ir_tables* tblpsc_ir_tables;
+class Table_psc_local_batdet* tblpsc_local_batdet;
+class Table_psc_local_bathdr* tblpsc_local_bathdr;
+class Table_psc_local_repset* tblpsc_local_repset;
+class Table_psc_local_tables* tblpsc_local_tables;
+class Table_psc_shared_batdet* tblpsc_shared_batdet;
+class Table_psc_shared_bathdr* tblpsc_shared_bathdr;
+class Table_psc_shared_repset* tblpsc_shared_repset;
+class Table_psc_shared_tables* tblpsc_shared_tables;
+class Table_psc_user_batdet* tblpsc_user_batdet;
+class Table_psc_user_bathdr* tblpsc_user_bathdr;
+class Table_psc_user_repset* tblpsc_user_repset;
+class Table_psc_user_tables* tblpsc_user_tables;
 public:
 class Table_Array* Array_get() { return tblArray; }
 class Table_Broadcast* Broadcast_get() { return tblBroadcast; }
@@ -264,6 +296,8 @@ class Table_Device_Users* Device_Users_get() { return tblDevice_Users; }
 class Table_Direction* Direction_get() { return tblDirection; }
 class Table_Directory* Directory_get() { return tblDirectory; }
 class Table_Distro* Distro_get() { return tblDistro; }
+class Table_Document* Document_get() { return tblDocument; }
+class Table_Document_Comment* Document_Comment_get() { return tblDocument_Comment; }
 class Table_EntertainArea* EntertainArea_get() { return tblEntertainArea; }
 class Table_Event* Event_get() { return tblEvent; }
 class Table_EventCategory* EventCategory_get() { return tblEventCategory; }
@@ -281,15 +315,17 @@ class Table_Household_Installation* Household_Installation_get() { return tblHou
 class Table_Icon* Icon_get() { return tblIcon; }
 class Table_Image* Image_get() { return tblImage; }
 class Table_InfraredCode* InfraredCode_get() { return tblInfraredCode; }
-class Table_InfraredData* InfraredData_get() { return tblInfraredData; }
 class Table_InfraredGroup* InfraredGroup_get() { return tblInfraredGroup; }
 class Table_InfraredGroup_DSPMode* InfraredGroup_DSPMode_get() { return tblInfraredGroup_DSPMode; }
 class Table_InfraredGroup_Input* InfraredGroup_Input_get() { return tblInfraredGroup_Input; }
 class Table_Input* Input_get() { return tblInput; }
+class Table_InstallWizard* InstallWizard_get() { return tblInstallWizard; }
+class Table_InstallWizard_Distro* InstallWizard_Distro_get() { return tblInstallWizard_Distro; }
 class Table_Installation* Installation_get() { return tblInstallation; }
 class Table_Installation_RepositorySource_URL* Installation_RepositorySource_URL_get() { return tblInstallation_RepositorySource_URL; }
 class Table_Installation_Users* Installation_Users_get() { return tblInstallation_Users; }
 class Table_Language* Language_get() { return tblLanguage; }
+class Table_License* License_get() { return tblLicense; }
 class Table_Manufacturer* Manufacturer_get() { return tblManufacturer; }
 class Table_MediaType* MediaType_get() { return tblMediaType; }
 class Table_MediaType_Broadcast* MediaType_Broadcast_get() { return tblMediaType_Broadcast; }
@@ -333,7 +369,36 @@ class Table_Users* Users_get() { return tblUsers; }
 class Table_Variable* Variable_get() { return tblVariable; }
 class Table_Version* Version_get() { return tblVersion; }
 class Table_VertAlignment* VertAlignment_get() { return tblVertAlignment; }
-bool Connect(string host, string user, string pass, string DBName, int port);
+class Table_psc_constants_batdet* psc_constants_batdet_get() { return tblpsc_constants_batdet; }
+class Table_psc_constants_bathdr* psc_constants_bathdr_get() { return tblpsc_constants_bathdr; }
+class Table_psc_constants_repset* psc_constants_repset_get() { return tblpsc_constants_repset; }
+class Table_psc_constants_tables* psc_constants_tables_get() { return tblpsc_constants_tables; }
+class Table_psc_dce_batdet* psc_dce_batdet_get() { return tblpsc_dce_batdet; }
+class Table_psc_dce_bathdr* psc_dce_bathdr_get() { return tblpsc_dce_bathdr; }
+class Table_psc_dce_repset* psc_dce_repset_get() { return tblpsc_dce_repset; }
+class Table_psc_dce_tables* psc_dce_tables_get() { return tblpsc_dce_tables; }
+class Table_psc_designer_batdet* psc_designer_batdet_get() { return tblpsc_designer_batdet; }
+class Table_psc_designer_bathdr* psc_designer_bathdr_get() { return tblpsc_designer_bathdr; }
+class Table_psc_designer_repset* psc_designer_repset_get() { return tblpsc_designer_repset; }
+class Table_psc_designer_tables* psc_designer_tables_get() { return tblpsc_designer_tables; }
+class Table_psc_ir_batdet* psc_ir_batdet_get() { return tblpsc_ir_batdet; }
+class Table_psc_ir_bathdr* psc_ir_bathdr_get() { return tblpsc_ir_bathdr; }
+class Table_psc_ir_repset* psc_ir_repset_get() { return tblpsc_ir_repset; }
+class Table_psc_ir_tables* psc_ir_tables_get() { return tblpsc_ir_tables; }
+class Table_psc_local_batdet* psc_local_batdet_get() { return tblpsc_local_batdet; }
+class Table_psc_local_bathdr* psc_local_bathdr_get() { return tblpsc_local_bathdr; }
+class Table_psc_local_repset* psc_local_repset_get() { return tblpsc_local_repset; }
+class Table_psc_local_tables* psc_local_tables_get() { return tblpsc_local_tables; }
+class Table_psc_shared_batdet* psc_shared_batdet_get() { return tblpsc_shared_batdet; }
+class Table_psc_shared_bathdr* psc_shared_bathdr_get() { return tblpsc_shared_bathdr; }
+class Table_psc_shared_repset* psc_shared_repset_get() { return tblpsc_shared_repset; }
+class Table_psc_shared_tables* psc_shared_tables_get() { return tblpsc_shared_tables; }
+class Table_psc_user_batdet* psc_user_batdet_get() { return tblpsc_user_batdet; }
+class Table_psc_user_bathdr* psc_user_bathdr_get() { return tblpsc_user_bathdr; }
+class Table_psc_user_repset* psc_user_repset_get() { return tblpsc_user_repset; }
+class Table_psc_user_tables* psc_user_tables_get() { return tblpsc_user_tables; }
+bool Connect(string host, string user, string pass, string sDBName, int port);
+bool Connect(class DCEConfig *pDCEConfig);
 void Disconnect();
 private:
 void CreateTable_Array();
@@ -426,6 +491,8 @@ void CreateTable_Device_Users();
 void CreateTable_Direction();
 void CreateTable_Directory();
 void CreateTable_Distro();
+void CreateTable_Document();
+void CreateTable_Document_Comment();
 void CreateTable_EntertainArea();
 void CreateTable_Event();
 void CreateTable_EventCategory();
@@ -443,15 +510,17 @@ void CreateTable_Household_Installation();
 void CreateTable_Icon();
 void CreateTable_Image();
 void CreateTable_InfraredCode();
-void CreateTable_InfraredData();
 void CreateTable_InfraredGroup();
 void CreateTable_InfraredGroup_DSPMode();
 void CreateTable_InfraredGroup_Input();
 void CreateTable_Input();
+void CreateTable_InstallWizard();
+void CreateTable_InstallWizard_Distro();
 void CreateTable_Installation();
 void CreateTable_Installation_RepositorySource_URL();
 void CreateTable_Installation_Users();
 void CreateTable_Language();
+void CreateTable_License();
 void CreateTable_Manufacturer();
 void CreateTable_MediaType();
 void CreateTable_MediaType_Broadcast();
@@ -495,6 +564,34 @@ void CreateTable_Users();
 void CreateTable_Variable();
 void CreateTable_Version();
 void CreateTable_VertAlignment();
+void CreateTable_psc_constants_batdet();
+void CreateTable_psc_constants_bathdr();
+void CreateTable_psc_constants_repset();
+void CreateTable_psc_constants_tables();
+void CreateTable_psc_dce_batdet();
+void CreateTable_psc_dce_bathdr();
+void CreateTable_psc_dce_repset();
+void CreateTable_psc_dce_tables();
+void CreateTable_psc_designer_batdet();
+void CreateTable_psc_designer_bathdr();
+void CreateTable_psc_designer_repset();
+void CreateTable_psc_designer_tables();
+void CreateTable_psc_ir_batdet();
+void CreateTable_psc_ir_bathdr();
+void CreateTable_psc_ir_repset();
+void CreateTable_psc_ir_tables();
+void CreateTable_psc_local_batdet();
+void CreateTable_psc_local_bathdr();
+void CreateTable_psc_local_repset();
+void CreateTable_psc_local_tables();
+void CreateTable_psc_shared_batdet();
+void CreateTable_psc_shared_bathdr();
+void CreateTable_psc_shared_repset();
+void CreateTable_psc_shared_tables();
+void CreateTable_psc_user_batdet();
+void CreateTable_psc_user_bathdr();
+void CreateTable_psc_user_repset();
+void CreateTable_psc_user_tables();
 void DeleteTable_Array();
 void DeleteTable_Broadcast();
 void DeleteTable_Button();
@@ -585,6 +682,8 @@ void DeleteTable_Device_Users();
 void DeleteTable_Direction();
 void DeleteTable_Directory();
 void DeleteTable_Distro();
+void DeleteTable_Document();
+void DeleteTable_Document_Comment();
 void DeleteTable_EntertainArea();
 void DeleteTable_Event();
 void DeleteTable_EventCategory();
@@ -602,15 +701,17 @@ void DeleteTable_Household_Installation();
 void DeleteTable_Icon();
 void DeleteTable_Image();
 void DeleteTable_InfraredCode();
-void DeleteTable_InfraredData();
 void DeleteTable_InfraredGroup();
 void DeleteTable_InfraredGroup_DSPMode();
 void DeleteTable_InfraredGroup_Input();
 void DeleteTable_Input();
+void DeleteTable_InstallWizard();
+void DeleteTable_InstallWizard_Distro();
 void DeleteTable_Installation();
 void DeleteTable_Installation_RepositorySource_URL();
 void DeleteTable_Installation_Users();
 void DeleteTable_Language();
+void DeleteTable_License();
 void DeleteTable_Manufacturer();
 void DeleteTable_MediaType();
 void DeleteTable_MediaType_Broadcast();
@@ -654,5 +755,33 @@ void DeleteTable_Users();
 void DeleteTable_Variable();
 void DeleteTable_Version();
 void DeleteTable_VertAlignment();
+void DeleteTable_psc_constants_batdet();
+void DeleteTable_psc_constants_bathdr();
+void DeleteTable_psc_constants_repset();
+void DeleteTable_psc_constants_tables();
+void DeleteTable_psc_dce_batdet();
+void DeleteTable_psc_dce_bathdr();
+void DeleteTable_psc_dce_repset();
+void DeleteTable_psc_dce_tables();
+void DeleteTable_psc_designer_batdet();
+void DeleteTable_psc_designer_bathdr();
+void DeleteTable_psc_designer_repset();
+void DeleteTable_psc_designer_tables();
+void DeleteTable_psc_ir_batdet();
+void DeleteTable_psc_ir_bathdr();
+void DeleteTable_psc_ir_repset();
+void DeleteTable_psc_ir_tables();
+void DeleteTable_psc_local_batdet();
+void DeleteTable_psc_local_bathdr();
+void DeleteTable_psc_local_repset();
+void DeleteTable_psc_local_tables();
+void DeleteTable_psc_shared_batdet();
+void DeleteTable_psc_shared_bathdr();
+void DeleteTable_psc_shared_repset();
+void DeleteTable_psc_shared_tables();
+void DeleteTable_psc_user_batdet();
+void DeleteTable_psc_user_bathdr();
+void DeleteTable_psc_user_repset();
+void DeleteTable_psc_user_tables();
 };
 #endif

@@ -22,6 +22,7 @@ using namespace std;
 #include "Table_DesignObjCategory.h"
 #include "Table_DesignObj.h"
 #include "Table_StabilityStatus.h"
+#include "Table_Document.h"
 
 #include "Table_CachedScreens.h"
 #include "Table_CommandGroup.h"
@@ -709,11 +710,17 @@ bool Table_DesignObj::GetRows(string where_statement,vector<class Row_DesignObj*
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	string query = "select * from DesignObj where " + where_statement;
+	string query;
+	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
+		query = "select * from DesignObj " + where_statement;
+	else if( StringUtils::StartsWith(where_statement,"select ",true) )
+		query = where_statement;
+	else
+		query = "select * from DesignObj where " + where_statement;
 		
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query" << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return false;
 	}	
 
@@ -1013,7 +1020,7 @@ condition = condition + "PK_DesignObj=" + tmp_PK_DesignObj;
 
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query" << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return NULL;
 	}	
 
@@ -1271,6 +1278,13 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_StabilityStatus *pTable = table->database->StabilityStatus_get();
 return pTable->GetRow(m_FK_StabilityStatus);
+}
+class Row_Document* Row_DesignObj::FK_Document_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Document *pTable = table->database->Document_get();
+return pTable->GetRow(m_FK_Document);
 }
 
 
