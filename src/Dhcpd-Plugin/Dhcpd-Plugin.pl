@@ -28,7 +28,7 @@ while (1 eq 1) {
       $mac_found = $data[9];
       $ip_sent = $data[7];
 
-      system("convert_mac $mac_found > dhcpd_temp.file");
+      system("/usr/pluto/bin/convert_mac $mac_found > dhcpd_temp.file");
       open(FILE, "dhcpd_temp.file");
       @data = <FILE>;
       $mac_2_nr = $data[0];
@@ -46,7 +46,6 @@ while (1 eq 1) {
           $dev_template = $row_ref->{FK_DeviceTemplate};
           $configure_script = $row_ref->{ConfigureScript};
           $package_name = $row_ref->{Name};
-          $sql="select PK_Device,MACaddress from Device where MACaddress=\"$mac_found\"";
           $statement = $db_handle->prepare($sql) or die "Couldn't prepare query '$sql': $DBI::errstr\n";
           $statement->execute() or die "Couldn't execute query '$sql': $DBI::errstr\n";
           $tmp = "";
@@ -69,10 +68,8 @@ while (1 eq 1) {
             $Device_ID = $tmp;
           }
           chomp($Device_ID);
-          $db_handle->disconnect();
           system("/usr/pluto/bin/$configure_script -d $Device_ID -i $ip_sent -m $mac_found");
       }
-      $db_handle = DBI->connect("dbi:mysql:database=pluto_main;host=$DBHOST;user=$DBUSER;password=$DBPASSWD") or die "Could not connect";
       if($found == 0) {
         $sql = "select PK_UnknownDevices FROM UnknownDevices WHERE MacAddress='$mac_found'";
         $statement = $db_handle->prepare($sql) or die "Couldn't prepare query '$sql': $DBI::errstr\n";
