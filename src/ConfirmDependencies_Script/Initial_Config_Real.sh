@@ -299,7 +299,8 @@ if [ "$Type" == "diskless" ]; then
 	awk '
 		/1:23:once/ { next }
 		/^#1:2345:respawn/ { print substr($0, 2); next }
-		{ print }' /etc/inittab >/etc/inittab.new
+		{ print }
+	' /etc/inittab >/etc/inittab.new
 	mv -f /etc/inittab.new /etc/inittab
 	reboot
 fi
