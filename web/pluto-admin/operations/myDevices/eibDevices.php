@@ -17,8 +17,12 @@ function eibDevices($output,$dbADO,$eibADO) {
 			$labels=array('On/Off','Dim');
 		break;
 		case 'sensors':
-			$allowedTemplates=array($GLOBALS['GenericInputOuput']=>'Generic Input/Ouput');
-			$targetDeviceData=$GLOBALS['Port'];
+			$resDT=$dbADO->Execute('SELECT PK_DeviceTemplate,Description FROM DeviceTemplate WHERE FK_DeviceCategory=? ORDER BY Description ASC',$GLOBALS['rootSecurity']);
+			$allowedTemplates=array();
+			while($rowDT=$resDT->FetchRow()){
+				$allowedTemplates[$rowDT['PK_DeviceTemplate']]=$rowDT['Description'];
+			}
+			$targetDeviceData=$GLOBALS['Channel'];
 			$labels=array('On/Off');
 		break;
 		case 'drapes':
@@ -313,8 +317,9 @@ function eibDevices($output,$dbADO,$eibADO) {
 			$controlledBy=(int)$_POST['controlledBy'];
 			$deviceData=(in_array($deviceTemplate,$multiGroupAddress))?$_POST['newOnOff'].'|'.$_POST['newDim']:$_POST['newOnOff'];
 			if($newDevice!=''){
-				$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID.' -C '.$controlledBy);
-				
+				$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID.' -C '.$controlledBy,$ret);
+				print_r($ret);
+				echo '<br>K '.$insertID;
 				$dbADO->Execute('UPDATE Device SET Description=? WHERE PK_Device=?',array($newDevice,$insertID));
 				$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($deviceData,$insertID,$targetDeviceData));
 				

@@ -1,5 +1,4 @@
 <?
-//se iau intai cele selectate, din baza de date si apoi se verifica array-ul din DeviceTemplate_DeviceParameter!
 function editAVDevice($output,$dbADO) {
 /* @var $dbADO ADOConnection */
 /* @var $rs ADORecordSet */
