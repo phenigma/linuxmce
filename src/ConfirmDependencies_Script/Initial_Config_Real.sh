@@ -43,8 +43,25 @@ try_again()
 	return 0
 }
 
-if [ "$Type" == "router" ] && ! dpkg -i /usr/pluto/install/deb-critical/*; then
-	echo "* ERROR * No APT proxy will be available."
+RestoreCoreConf()
+{
+	[ -d /home/backup ] || exit 0
+	[ -f /home/backup/pluto.conf-Core ] || exit 0
+
+	sed "$NoSpace" /home/backup/pluto.conf-Core | egrep -v "^#|^//" >/etc/pluto.conf
+	while read line; do
+		eval "local $line" &>/dev/null
+	done </etc/pluto.conf
+	export Device="$PK_Device"
+	export Code="$Activation_Code"
+}
+
+if [ "$Type" == "router" ]; then
+	dpkg -i /usr/pluto/install/deb-critical/* || echo "* ERROR * No APT proxy will be available."
+	RestoreCoreConf
+	WhereCode="in pluto.conf backup"
+else
+	WhereCode="in diskless.conf"
 fi
 
 echo "deb file:/usr/pluto/deb-cache/ sarge main" >/etc/apt/sources.list.2
@@ -55,9 +72,9 @@ ok=0
 while [ "$ok" -eq 0 ]; do
 # ask user for activation key
 	ok_key=0
-	if [ "$Type" == "diskless" -a -n "$Device" -a -n "$Code" ]; then
+	if [ -n "$Device" -a -n "$Code" ]; then
 		clear
-		echo "Found Device and Activation Code in diskless.conf"
+		echo "Found Device and Activation Code in $WhereCode"
 		echo "Device: $Device"
 		echo "Activation Code: $Code"
 		ok_key=1
@@ -160,7 +177,7 @@ PK_Device = $Device
 PK_Installation = 
 PK_Distro = 
 Activation_Code = $Code"
-	echo "$pluto_conf" >/etc/pluto.conf
+	[ -f /etc/pluto.conf ] || echo "$pluto_conf" >/etc/pluto.conf
 	chmod 666 /etc/pluto.conf # that 666 is octal, and equals 438 in decimal :)
 	
 	ok=1
@@ -195,6 +212,13 @@ if "$DIR"/activation.sh; then
 	echo "Activation went ok"
 else
 	echo "$ACTIV_MSG" | fmt
+fi
+
+if [ "$Type" == "router" ]; then
+	if [ -d /home/backup -a -f /home/backup/entire_database.sql ]; then
+		echo "Restoring database"
+		mysql < /home/backup/entire_database.sql
+	fi
 fi
 
 #if [ -z "$no_build" -a -s "$DIR"/build.sh ]; then

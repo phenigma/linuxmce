@@ -11,22 +11,55 @@ Device="$3"
 Code="$4"
 
 FSarchive=PlutoMD.tar.bz2
+DlPath="/usr/pluto/diskless/$IP"
 HexIP=$(gethostip -x "$IP")
 
-echo "Extracting filesystem for diskless client '$IP , $MAC' ($Device)"
+KERNEL_VERSION="$(uname -r)"
 
-mkdir -p /usr/pluto/diskless/"$IP"
-cd /usr/pluto/diskless/"$IP"
-tar -xjvf /usr/pluto/install/"$FSarchive" >/dev/null
-conf="IP=$IP
+InstallKernel()
+{
+	local KERNEL_VERSION="$1"
+
+	if chroot . dpkg --get-selections "kernel-image-$KERNEL_VERSION" | grep -q install; then
+		return 0
+	fi
+	
+	kernel="$(find /usr/pluto/deb-cache/dists/sarge/main/binary-i386/ -name "kernel-image-$KERNEL_VERSION*.deb")"
+	words="$(echo "$kernel" | wc -w)"
+	if [ "$words" -eq 0 ]; then
+		echo "No kernel matching 'kernel-image-$KERNEL_VERSION' was found"
+		exit 1
+	elif [ "$words" -gt 1 ]; then
+		kernel="$(echo "$kernel" | cut -d' ' -f1)"
+		echo "More than one kernel found (this shouldn't happen). Using '$kernel'."
+	fi
+
+	cp "$kernel" tmp/
+	mount -t proc proc proc
+	echo | chroot . dpkg -i "/tmp/${kernel##*/}"
+	umount ./proc
+}
+
+mkdir -p "$DlPath"
+cd "$DlPath"
+
+if [ ! -d "$DlPath" -o ! -f "$DlPath/etc/diskless.conf" ]; then
+	echo "Extracting filesystem for diskless client '$IP , $MAC' ($Device)"
+
+	tar -xjvf "/usr/pluto/install/$FSarchive" >/dev/null
+
+	conf="IP=$IP
 MAC=$MAC
 Device=$Device
 Code=$Code"
+	echo "$conf" >etc/diskless.conf
+	[ -d /home/backup -a -f "/home/backup/pluto.conf-$IP" ] && cp "/home/backup/pluto.conf-$IP" "$DlPath/etc"
+fi
 
-echo "$conf" >etc/diskless.conf
-
-[ -e /tftpboot/initrd.img-2.6.8-2-686 ] || cp boot/initrd.img-2.6.8-2-686 /tftpboot
-[ -e /tftpboot/vmlinuz-2.6.8-2-686 ] || cp boot/vmlinuz-2.6.8-2-686 /tftpboot
+# Make sure the right kernel version is installed
+InstallKernel $KERNEL_VERSION || exit 1
+mkdir -p "/tftpboot/$IP"
+[ -e "/tftpboot/$IP/initrd.img-$KERNEL_VERSION" ] || cp "boot/initrd.img-$KERNEL_VERSION" "/tftpboot/$IP"
+[ -e "/tftpboot/$IP/vmlinuz-$KERNEL_VERSION" ] || cp "boot/vmlinuz-$KERNEL_VERSION" "/tftpboot/$IP"
 
 cd -
-

@@ -12,13 +12,17 @@ DlDir="/usr/pluto/diskless"
 # MOON_ENTRIES
 # MOON_ADDRESS
 # DYNAMIC_IP_RANGE
+# KERNEL_VERSION
+
+KERNEL_VERSION="$(uname -r)"
+
 ReplaceVars()
 {
 	# TODO
 	local File Commands Vars VarValue SedCmd
 	File="$1"
 	
-	Vars="CORE_INTERNAL_ADDRESS INTERNAL_SUBNET INTERNAL_SUBNET_MASK MOON_ENTRIES MOON_ADDRESS DYNAMIC_IP_RANGE"
+	Vars="CORE_INTERNAL_ADDRESS INTERNAL_SUBNET INTERNAL_SUBNET_MASK MOON_ENTRIES MOON_ADDRESS DYNAMIC_IP_RANGE KERNEL_VERSION"
 
 	for i in $Vars; do
 		eval "VarValue=\"\$$i\""
@@ -135,10 +139,7 @@ for Client in $R; do
 		continue
 	fi
 
-	if ! [ -d $DlPath -a -f $DlPath/etc/diskless.conf ]; then
-		echo "Creating initial filesystem for moon '$IP , $MAC' ($Device)"
-		/usr/pluto/bin/Create_DisklessMD_FS.sh "$IP" "$MAC" "$Device" "$Activation_Code"
-	fi
+	/usr/pluto/bin/Create_DisklessMD_FS.sh "$IP" "$MAC" "$Device" "$Activation_Code"
 	DisklessR="$DisklessR $Client"
 done
 
