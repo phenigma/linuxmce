@@ -18,7 +18,7 @@ function avWizard($output,$dbADO) {
 			$deviceCategory=$GLOBALS['rootMediaDirectors'];
 		break;
 	}
-
+	// get selected category Device Templates
 	getDeviceCategoryChildsArray($deviceCategory,$dbADO);
 	$GLOBALS['childsDeviceCategoryArray']=cleanArray($GLOBALS['childsDeviceCategoryArray']);
 	$GLOBALS['childsDeviceCategoryArray'][]=$deviceCategory;
@@ -34,6 +34,23 @@ function avWizard($output,$dbADO) {
 		$DTArray[]=$rowDeviceCategory['Description'];
 		$DTIDArray[]=$rowDeviceCategory['PK_DeviceTemplate'];
 	}
+	
+	// get AV Device Templates
+	unset($GLOBALS['childsDeviceCategoryArray']);
+	getDeviceCategoryChildsArray($GLOBALS['rootAVEquipment'],$dbADO);
+	$GLOBALS['childsDeviceCategoryArray']=cleanArray($GLOBALS['childsDeviceCategoryArray']);
+	$GLOBALS['childsDeviceCategoryArray'][]=$GLOBALS['rootAVEquipment'];
+	
+	$queryDeviceTemplate='
+		SELECT * FROM DeviceTemplate 
+			WHERE FK_DeviceCategory IN ('.join(',',$GLOBALS['childsDeviceCategoryArray']).')
+		ORDER BY Description ASC';
+	$resDeviceTemplate=$dbADO->Execute($queryDeviceTemplate);
+	$avDTIDArray=array();
+	while($rowDeviceCategory=$resDeviceTemplate->FetchRow()){
+		$avDTIDArray[]=$rowDeviceCategory['PK_DeviceTemplate'];
+	}
+	
 	
 	$queryRooms='SELECT * FROM Room WHERE FK_Installation=? ORDER BY Description ASC';
 	$resRooms=$dbADO->Execute($queryRooms,$installationID);
@@ -84,13 +101,29 @@ function avWizard($output,$dbADO) {
 					<td align="center"><B>Actions</B></td>
 				</tr>
 					';
+				if(count($avDTIDArray)==0)
+					$avDTIDArray[]=0;
+				$displayedAVDevices=array();
+				$displayedAVDevicesDescription=array();
+				$queryDevice='
+					SELECT 
+						Device.* FROM Device 
+					WHERE
+						FK_DeviceTemplate IN ('.join(',',$avDTIDArray).') AND FK_Installation=?';	
+				$resDevice=$dbADO->Execute($queryDevice,$installationID);
+				while($rowD=$resDevice->FetchRow()){
+					$displayedAVDevices[]=$rowD['PK_Device'];
+					$displayedAVDevicesDescription[]=$rowD['Description'];
+				}
+				$resDevice->Close();
+				
+			
 				$displayedDevices=array();
 				$displayedDevicesDescription=array();
 				$DeviceDataToDisplay=array();
 				$DeviceDataDescriptionToDisplay=array();
 				$DDTypesToDisplay=array();	
 				$joinArray=$DTIDArray;	// used only for query when there are no DT in selected category
-				$joinArray[]=0;
 				$queryDevice='
 					SELECT 
 						Device.* FROM Device 
@@ -194,9 +227,9 @@ function avWizard($output,$dbADO) {
 						<a name="AudioPipe_'.$rowD['PK_Device'].'"></a>
 					<select name="audioConnectTo_'.$rowD['PK_Device'].'" onChange="document.avWizard.cmd.value=1;document.forms[0].submit();">
 						<option value="0"></option>';
-					foreach($displayedDevices AS $key=>$device){
+					foreach($displayedAVDevices AS $key=>$device){
 						if($device!=$rowD['PK_Device'])
-							$out.='<option value="'.$device.'" '.(($device==@$toDevice)?'selected':'').'>'.$displayedDevicesDescription[$key].'</option>';					
+							$out.='<option value="'.$device.'" '.(($device==@$toDevice)?'selected':'').'>'.$displayedAVDevicesDescription[$key].'</option>';					
 					}
 					$out.='</select></td>
 					<td><select name="audioInput_'.$rowD['PK_Device'].'">
@@ -342,9 +375,9 @@ function avWizard($output,$dbADO) {
 						<a name="VideoPipe_'.$rowD['PK_Device'].'"></a>
 					<select name="videoConnectTo_'.$rowD['PK_Device'].'" onChange="document.avWizard.cmd.value=1;document.forms[0].submit();">
 						<option value="0"></option>';
-					foreach($displayedDevices AS $key=>$device){
+					foreach($displayedAVDevices AS $key=>$device){
 						if($device!=$rowD['PK_Device'])
-							$out.='<option value="'.$device.'" '.(($device==@$toDevice)?'selected':'').'>'.$displayedDevicesDescription[$key].'</option>';					
+							$out.='<option value="'.$device.'" '.(($device==@$toDevice)?'selected':'').'>'.$displayedAVDevicesDescription[$key].'</option>';					
 					}
 					$out.='</select></td>
 					<td><select name="videoInput_'.$rowD['PK_Device'].'">
@@ -465,7 +498,7 @@ function avWizard($output,$dbADO) {
 						}else{
 							$updateDDP='
 								UPDATE Device_Device_Pipe 
-								SET FK_Device_To=?, FK_Input=?, FK_Output=? 
+								SET FK_Device_To=?, FK_Command_Input=?, FK_Command_Output=? 
 								WHERE FK_Device_From=? AND FK_Device_To=? AND FK_Pipe=?';
 							$dbADO->Execute($updateDDP,array($audioConnectTo,$audioInput,$audioOutput,$value,$oldTo,$GLOBALS['AudioPipe']));
 						}
@@ -497,7 +530,7 @@ function avWizard($output,$dbADO) {
 						}else{
 							$updateDDP='
 								UPDATE Device_Device_Pipe 
-								SET FK_Device_To=?, FK_Input=?, FK_Output=? 
+								SET FK_Device_To=?, FK_Command_Input=?, FK_Command_Output=? 
 								WHERE FK_Device_From=? AND FK_Device_To=? AND FK_Pipe=?';
 							$dbADO->Execute($updateDDP,array($videoConnectTo,$videoInput,$videoOutput,$value,$oldTo,$GLOBALS['VideoPipe']));
 						}

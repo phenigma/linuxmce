@@ -13,7 +13,6 @@ function editCommandGroup($output,$dbADO) {
 	
 	//use wizard mode
 	
-	$useWizard = cleanInteger(@$_REQUEST['useWizard']);
 		
 	if ($action=='form') {
 		$query = "SELECT * FROM CommandGroup WHERE PK_CommandGroup = ? AND FK_Installation = ?";
@@ -36,7 +35,7 @@ function editCommandGroup($output,$dbADO) {
 				
 				<input type="hidden" name="action" value="add">	
 				<input type="hidden" name="cgID" value="'.$commandGroupID.'">
-				<h2>Edit My Scenario</h2> Use wizard:<input type="checkbox" value="1" name="useWizard" onClick="this.form.submit();" '.($useWizard==1?"checked":'').'>
+				<h2>Edit My Scenario</h2>
 				<table>
 						<tr><td>Description</td><td><input type="text" size="20" name="description" value="'.$rowCommandGroupDetails['Description'].'"></td></tr>
 						<tr><td>Array Type</td><td>
@@ -258,15 +257,15 @@ function editCommandGroup($output,$dbADO) {
 				';
 				}//end if there are no commands
 				
-				if ($rowCommandGroupDetails['FK_Array']==$GLOBALS['ArrayIDForLight'] && $useWizard) {
+				if ($rowCommandGroupDetails['FK_Array']==$GLOBALS['ArrayIDForLight']) {
 						$devicesAllowed = getValidLightningObjectsArray($installationID,$dbADO);						
 				}
 				
-				if ($rowCommandGroupDetails['FK_Array']==$GLOBALS['ArrayIDForClimate'] && $useWizard) {
+				if ($rowCommandGroupDetails['FK_Array']==$GLOBALS['ArrayIDForClimate']) {
 						$devicesAllowed = getValidClimateObjectsArray($installationID,$dbADO);						
 				}
 				
-				if ($rowCommandGroupDetails['FK_Array']==$GLOBALS['ArrayIDForSecurity'] && $useWizard) {
+				if ($rowCommandGroupDetails['FK_Array']==$GLOBALS['ArrayIDForSecurity']) {
 						$devicesAllowed = getValidSecurityObjectsArray($installationID,$dbADO);						
 				}
 				
@@ -368,10 +367,10 @@ function editCommandGroup($output,$dbADO) {
 			
 		if (isset($_POST['searchCommandGroup'])) {
 			if ($_SESSION['editCommandGroup']['designObjID'] !=0) {
-				header("Location: index.php?section=editCommandGroup&from=$from&cgID=$commandGroupID&useWizard=$useWizard");
+				header("Location: index.php?section=editCommandGroup&from=$from&cgID=$commandGroupID");
 				exit();
 			} else {
-				header("Location: index.php?section=editCommandGroup&from=$from&cgID=$commandGroupID&useWizard=$useWizard&msg=Invalid+ID");
+				header("Location: index.php?section=editCommandGroup&from=$from&cgID=$commandGroupID&msg=Invalid+ID");
 				exit();				
 			}
 		}
@@ -494,7 +493,7 @@ function editCommandGroup($output,$dbADO) {
 			
 			if ((@$_POST['addNewDevice']!=0) && cleanInteger(@$_POST['addNewDeviceCommand'])==0) {
 				$addNewDevice =  cleanInteger($_POST['addNewDevice']);			
-				header("Location: index.php?section=editCommandGroup&from=$from&cgID=$commandGroupID&newDevice=$addNewDevice&useWizard=$useWizard");
+				header("Location: index.php?section=editCommandGroup&from=$from&cgID=$commandGroupID&newDevice=$addNewDevice");
 				exit();							
 			}
 
@@ -558,7 +557,7 @@ function editCommandGroup($output,$dbADO) {
 			    //opener.document.forms.{$from}.action.value='form';
 				//opener.document.forms.{$from}.submit();
 				//self.close();
-				document.location.href='index.php?section=editCommandGroup&from=$from&cgID=$commandGroupID&useWizard=$useWizard';
+				document.location.href='index.php?section=editCommandGroup&from=$from&cgID=$commandGroupID';
 			</script>
 			";
 			$_SESSION['editCommandGroup']=array();
