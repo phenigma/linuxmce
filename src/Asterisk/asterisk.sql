@@ -20,7 +20,17 @@ CREATE TABLE IF NOT EXISTS `ast_config` (
  PRIMARY KEY (`id`),
  KEY `filename_comment` (`filename`,`commented`)
 ) TYPE=MyISAM;
+
+DELETE FROM ast_config;
 					
+INSERT INTO `ast_config` (cat_metric, var_metric, commented, filename, category, var_name, var_val) VALUES (0,0,0,'sip.conf','general','videosupport','yes');
+INSERT INTO `ast_config` (cat_metric, var_metric, commented, filename, category, var_name, var_val) VALUES (0,0,0,'sip.conf','general','allow','h263');
+INSERT INTO `ast_config` (cat_metric, var_metric, commented, filename, category, var_name, var_val) VALUES (0,0,0,'sip.conf','general','port','5060');
+INSERT INTO `ast_config` (cat_metric, var_metric, commented, filename, category, var_name, var_val) VALUES (0,0,0,'sip.conf','general','allow','ulaw');
+
+INSERT INTO `ast_config` (cat_metric, var_metric, commented, filename, category, var_name, var_val) VALUES (0,0,0,'sip.conf','general','maxexpirey','60');
+INSERT INTO `ast_config` (cat_metric, var_metric, commented, filename, category, var_name, var_val) VALUES (0,0,0,'sip.conf','general','defaultexpirey','60');
+
 --
 -- Table structure for table `extensions_table`
 --
