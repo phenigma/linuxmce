@@ -62,7 +62,7 @@ using namespace DCE;
 static int SocketCounter=0;
 
 // An application can create another handler that gets called instead in the event of a deadlock
-void (*g_pSocketCrashHandler)()=NULL;
+void (*g_pSocketCrashHandler)(Socket *pSocket)=NULL;
 
 void hexmemcpy( char *pDest, const char *pSource, int NumBytes )
 {
@@ -229,7 +229,7 @@ Message *Socket::ReceiveMessage( int iLength )
 		{
 			g_pPlutoLogger->Write( LV_CRITICAL, "Failed Socket::ReceiveMessage - failed to allocate buffer - socket: %d %s", m_Socket, m_sName.c_str() );
 			if( g_pSocketCrashHandler )
-				(*g_pSocketCrashHandler)();
+				(*g_pSocketCrashHandler)(this);
 		}
 		else
 		{
@@ -266,7 +266,7 @@ Message *Socket::ReceiveMessage( int iLength )
 			g_pPlutoLogger->Write( LV_CRITICAL, "Failed Socket::ReceiveMessage - failed ReceiveData - socket: %d %s", m_Socket, m_sName.c_str() );
 			PlutoLock::DumpOutstandingLocks();
 			if( g_pSocketCrashHandler )
-				(*g_pSocketCrashHandler)();
+				(*g_pSocketCrashHandler)(this);
 		}
 	}
 #ifdef UNDER_CE
@@ -278,7 +278,7 @@ Message *Socket::ReceiveMessage( int iLength )
 		g_pPlutoLogger->Write( LV_CRITICAL, "Failed Socket::ReceiveMessage - out of memory? socket: %d %s", m_Socket, m_sName.c_str() );
 		PlutoLock::DumpOutstandingLocks();
 		if( g_pSocketCrashHandler )
-			(*g_pSocketCrashHandler)();
+			(*g_pSocketCrashHandler)(this);
 	}
 	
 	return NULL; // errors, just returning NULL
@@ -461,7 +461,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 		g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveData failed, m_socket %d (%p) %s", m_Socket, this, m_sName.c_str() );
 		PlutoLock::DumpOutstandingLocks();
 		if( g_pSocketCrashHandler )
-			(*g_pSocketCrashHandler)();
+			(*g_pSocketCrashHandler)(this);
 		return false;
 	}
 
@@ -583,7 +583,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 				PlutoLock::DumpOutstandingLocks();
 #endif
 				if( g_pSocketCrashHandler )
-					(*g_pSocketCrashHandler)();
+					(*g_pSocketCrashHandler)(this);
 				return false;
 			}
 			
@@ -697,7 +697,7 @@ bool Socket::ReceiveString( string &sRefString )
 			g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveString failed, m_socket %d buf %p %s", m_Socket, acBuf, m_sName.c_str() );
 			PlutoLock::DumpOutstandingLocks();
 			if( g_pSocketCrashHandler )
-				(*g_pSocketCrashHandler)();
+				(*g_pSocketCrashHandler)(this);
 		}
 		return false;
 	}
@@ -744,7 +744,7 @@ bool Socket::ReceiveString( string &sRefString )
 		g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveString failed len: %d socket: %d %s", iLen, m_Socket, m_sName.c_str() );
 		PlutoLock::DumpOutstandingLocks();
 		if( g_pSocketCrashHandler )
-			(*g_pSocketCrashHandler)();
+			(*g_pSocketCrashHandler)(this);
 
 		return false;
 	}

@@ -35,7 +35,7 @@ pluto_pthread_mutex_t *m_mapLockMutex=NULL;
 using namespace DCE;
 
 // An application can create another handler that gets called instead in the event of a deadlock
-void (*g_pDeadlockHandler)()=NULL;
+void (*g_pDeadlockHandler)(PlutoLock *pPlutoLock)=NULL;
 
 // This may get called before the logger is initialized.  If so, we don't want to log until if( g_pPlutoLogger ) is true
 
@@ -169,22 +169,22 @@ void PlutoLock::CheckLocks()
 	map<int,PlutoLock *>::iterator itMapLock;
 	pthread_mutex_lock(&m_mapLockMutex->mutex);  // Protect the map
 
-	bool bFoundProblem=false;  
+	PlutoLock *pSafetyLock_Problem=NULL;
 	for(itMapLock=mapLocks.begin();itMapLock!=mapLocks.end();++itMapLock)
 	{
 		PlutoLock *pSafetyLock = (*itMapLock).second;
 		if( time(NULL)-pSafetyLock->m_tTime>15 )
 		{
-			bFoundProblem=true;
+			pSafetyLock_Problem=pSafetyLock;
 			break;
 		}
 	}
 	pthread_mutex_unlock(&m_mapLockMutex->mutex);
-	if( bFoundProblem )
+	if( pSafetyLock_Problem )
 	{
 		DumpOutstandingLocks();
 		if( g_pDeadlockHandler )
-			(*g_pDeadlockHandler)();
+			(*g_pDeadlockHandler)(pSafetyLock_Problem);
 	}
 }
 
@@ -493,7 +493,7 @@ void PlutoLock::DoLock()
 #endif
 		DumpOutstandingLocks();
 		if( g_pDeadlockHandler )
-			(*g_pDeadlockHandler)();
+			(*g_pDeadlockHandler)(this);
 		pthread_mutex_lock(&m_pMyLock->mutex);
 	}
 	m_pMyLock->m_Line=m_Line;

@@ -20,16 +20,26 @@ namespace DCE
 using namespace DCE;
 
 // You can override this block if you don't want the app to reload in the event of a problem
-extern void (*g_pDeadlockHandler)();
-extern void (*g_pSocketCrashHandler)();
+extern void (*g_pDeadlockHandler)(PlutoLock *pPlutoLock);
+extern void (*g_pSocketCrashHandler)(Socket *pSocket);
 Command_Impl *g_pCommand_Impl=NULL;
-void DeadlockSocketHandler()
+void DeadlockHandler(PlutoLock *pPlutoLock)
 {
 	// This isn't graceful, but for the moment in the event of a deadlock we'll just kill everything and force a reload
 	if( g_pCommand_Impl )
 	{
 		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Deadlock/socket problem.  Going to reload and quit");
+			g_pPlutoLogger->Write(LV_CRITICAL,"Deadlock problem.  Going to reload and quit");
+		g_pCommand_Impl->OnReload();
+	}
+}
+void SocketCrashHandler(Socket *pSocket)
+{
+	// This isn't graceful, but for the moment in the event of a socket crash we'll just kill everything and force a reload
+	if( g_pCommand_Impl )
+	{
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Socket problem.  Going to reload and quit");
 		g_pCommand_Impl->OnReload();
 	}
 }
@@ -173,11 +183,14 @@ int main(int argc, char* argv[])
 		Event_Plugin *pEvent_Plugin = new Event_Plugin(PK_Device, sRouter_IP);	
 		if ( pEvent_Plugin->Connect(pEvent_Plugin->PK_DeviceTemplate_get()) ) 
 		{
-			g_pDeadlockHandler=g_pSocketCrashHandler=DeadlockSocketHandler;
+			g_pCommand_Impl=pEvent_Plugin;
+			g_pDeadlockHandler=DeadlockHandler;
+			g_pSocketCrashHandler=SocketCrashHandler;
 			g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
 			pEvent_Plugin->CreateChildren();
-			pthread_join(pEvent_Plugin->m_RequestHandlerThread, NULL);
-			g_pDeadlockHandler=g_pSocketCrashHandler=NULL;
+			pthread_join(pEvent_Plugin->m_RequestHandlerThread, NULL);  // This function will return when the device is shutting down
+			g_pDeadlockHandler=NULL;
+			g_pSocketCrashHandler=NULL;
 		} 
 		else 
 		{

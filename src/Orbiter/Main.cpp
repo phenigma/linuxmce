@@ -35,7 +35,6 @@ namespace DCE
 	Logger *g_pPlutoLogger;
 }
 using namespace DCE;
-
 //<-dceag-incl-e->
 
 // For whatever reason, if I put: #include "OrbiterImageSDL.h" in this file,

@@ -265,10 +265,14 @@ int OrbiterGenerator::DoIt()
 	Row_Device_DeviceData *pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_Skin_CONST);
 	if( pRow_Device_DeviceData )
 		m_pRow_Skin = mds.Skin_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
-	else if( m_bIsMobilePhone )
-		m_pRow_Skin = mds.Skin_get()->GetRow( 3 );  // The default phone skin
-	else
-		m_pRow_Skin = mds.Skin_get()->GetRow( 1 );  // The default skin
+
+	if( !m_pRow_Skin  )
+	{
+		if( m_bIsMobilePhone )
+			m_pRow_Skin = mds.Skin_get()->GetRow( 3 );  // The default phone skin
+		else
+			m_pRow_Skin = mds.Skin_get()->GetRow( 1 );  // The default skin
+	}
 
 	if( !m_pRow_Skin )
 	{
@@ -404,10 +408,14 @@ int OrbiterGenerator::DoIt()
 	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_Size_CONST);
 	if( pRow_Device_DeviceData )
 		m_pRow_Size = mds.Size_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
-	else if( m_bIsMobilePhone )
-		m_pRow_Size = mds.Size_get()->GetRow( 3 );  // The default phone size
-	else
-		m_pRow_Size = mds.Size_get()->GetRow( 1 );  // The default size
+
+	if( !m_pRow_Size )
+	{
+		if( m_bIsMobilePhone )
+			m_pRow_Size = mds.Size_get()->GetRow( 3 );  // The default phone size
+		else
+			m_pRow_Size = mds.Size_get()->GetRow( 1 );  // The default size
+	}
 
 	if( !m_pRow_Size )
 		throw "Cannot determine the size";
