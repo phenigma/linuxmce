@@ -116,8 +116,8 @@ function mainMediaBrowser($output,$mediadbADO) {
 			$deletePicAttribute='DELETE FROM Picture_Attribute WHERE FK_Picture=?';
 			$mediadbADO->Execute($deletePicAttribute,$toDelete);
 			
-			unlink($GLOBALS['mediaPicsPath'].$toDelete.'.jpg');
-			unlink($GLOBALS['mediaPicsPath'].$toDelete.'_tn.jpg');
+			unlink($GLOBALS['mediaPicsPath'].$toDelete.'.png');
+			unlink($GLOBALS['mediaPicsPath'].$toDelete.'_tn.png');
 		}
 		$out.='
 			<div class="err">'.((isset($_REQUEST['error']))?$_REQUEST['error']:'').'</div>
@@ -293,8 +293,9 @@ function mainMediaBrowser($output,$mediadbADO) {
 			$newPicName=$insertID.'.'.$picExtension;
 			
 			$error='';
-			if(($_FILES['newPic']['type']!="image/jpg") && ($_FILES['newPic']['type']!="image/pjpeg") && ($_FILES['newPic']['type']!="image/jpeg")){
-				$error='The file is not a jpg file';
+			// mihai.t: We need the file types to be png actually since this is the format that the tablet software will understand
+			if(($_FILES['newPic']['type']!="image/png") ) { // && ($_FILES['newPic']['type']!="image/pjpeg") && ($_FILES['newPic']['type']!="image/jpeg")){
+				$error='The file is not a png file';
 			}
 			elseif(move_uploaded_file($_FILES['newPic']['tmp_name'],$GLOBALS['mediaPicsPath'].$newPicName)){
 				// create thumbnail
