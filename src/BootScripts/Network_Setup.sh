@@ -5,7 +5,7 @@
 
 if [ "$NetIfConf" -eq 0 ]; then
 	echo "Populating network settings from current system config"
-	NCards=$(lspci | grep Ethernet | wc -l)
+	NCards=$(lspci | egrep 'Ethernet|Network' | wc -l)
 	NetSettings=$(ParseInterfaces)
 	ExtData=$(echo "$NetSettings" | head -1)
 	ExtractData "$ExtData"
@@ -23,7 +23,8 @@ if [ "$NetIfConf" -eq 0 ]; then
 		IntIP="$(echo "$DHCPsetting" | cut -d. -f-3).1"
 		if [ "$NCards" -eq 1 ]; then
 			IntIf="eth0:0"
-		elif [ "$NCards" -eq 2 ]; then
+#		elif [ "$NCards" -eq 2 ]; then
+		else
 			[ "$ExtIf" == "eth0" ] && IntIf="eth1" || IntIf="eth0"
 		fi
 		if [ "$ExtIP" == "dhcp" ]; then
@@ -86,6 +87,12 @@ fi
 
 /etc/init.d/networking start
 
+if [ "$ExtIP" == "dhcp" ]; then
+	RealExtIP=$(ip addr ls "$ExtIf" | grep "inet .*$ExtIf\$" | awk '{print $2}' | cut -d/ -f1)
+	Q="UPDATE Device SET IPaddress='$RealExtIP' WHERE PK_Device='$PK_Device'"
+	RunSQL "$Q"
+fi
+
 Fwd="forwarders {"
 for i in $DNSservers; do
 	Fwd=$(printf "%s" "$Fwd~!$i;")
@@ -142,11 +149,12 @@ Allow SSH connections? [y/N]?"
 #	RunSQL "$Q"
 #fi
 
-[ -z "$IntIP" ] && IntIP="127.0.0.1"
+dcerouterIP="$IntIP"
+[ -z "$IntIP" ] && dcerouterIP="$RealExtIP" #dcerouterIP="127.0.0.1"
 
 hosts="
 127.0.0.1       localhost.localdomain   localhost
-$IntIP	dcerouter
+$dcerouterIP	dcerouter
 
 # The following lines are desirable for IPv6 capable hosts
 ::1     ip6-localhost ip6-loopback

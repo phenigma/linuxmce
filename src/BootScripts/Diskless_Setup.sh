@@ -105,6 +105,9 @@ if [ -n "$DHCPsetting" ]; then
 			RunSQL "$Q" >/dev/null
 		fi
 	done
+else
+	echo "Diskless MDs can't exist in the current setup (no DHCP). Not setting up any."
+	exit
 fi
 
 Q="SELECT IPaddress, MACaddress, PK_Device
