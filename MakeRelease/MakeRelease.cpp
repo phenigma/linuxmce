@@ -1076,7 +1076,7 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 	fprintf(fp,"%s\n",cmd.c_str());
 	fprintf(fp,"%s\n",basepath.c_str());
 	fclose(fp);
-	system("./sync-SF.pl");
+	system("/usr/sbin/sync-SF.pl");
 return true;
 //------------------------------------------------------------------------------------
 
