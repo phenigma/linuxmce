@@ -175,6 +175,8 @@ proxyAddress = "::"
 proxyPort = 8123
 allowedClients = 0.0.0.0/0
 logFile = /var/log/polipo.log
+relaxTransparency = maybe
+dnsUseGethostbyname = true
 '
 # /etc/frox.conf
 frox_conf='# Pluto config for frox

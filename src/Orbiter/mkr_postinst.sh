@@ -26,7 +26,38 @@ else
 	echo 'Section "ServerFlags"
 	Option "AllowMouseOpenFail" "true"
 EndSection' >>/etc/X11/XF86Config-4.new
-	egrep -v 'Load.*"dri"|Load.*"glx"' /etc/X11/XF86Config-4.new >/etc/X11/XF86Config-4
+
+	EnableWheel='
+BEGIN {
+	axis = 0;
+	text = "";
+	section = 0;
+}
+
+/Section "InputDevice"/,/EndSection/ {
+	section = 1;
+	if (match($0, /Driver.*mouse/))
+		axis = 1;
+	if (match($0, /ZAxisMapping/))
+		axis = 0;
+	if (match($0, /EndSection/) && axis == 1)
+	{
+		text = text "Option \"ZAxisMapping\" \"4 5\"\n";
+		axis = 0;
+	}
+	text = text $0 "\n";
+	next;
+}
+
+section == 1 {
+	printf "%s", text;
+	text = "";
+	section = 0;
+}
+
+{ print }'
+
+	egrep -v 'Load.*"dri"|Load.*"glx"' /etc/X11/XF86Config-4.new | awk "$EnableWheel" >/etc/X11/XF86Config-4
 	rm -f "$config"
 
 	sed -i 's!/dev/mouse!/dev/input/mice!g' /etc/X11/XF86Config-4
