@@ -41,6 +41,7 @@ using namespace DCE;
 #include "pluto_main/Define_DataGrid.h"
 #include "pluto_main/Define_DeviceCategory.h"
 #include "pluto_main/Define_Command.h"
+#include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_FloorplanObjectType.h"
 #include "pluto_main/Define_FloorplanObjectType_Color.h"
 
@@ -122,6 +123,7 @@ bool Lighting_Plugin::Register()
 		, DATAGRID_Lighting_Scenarios_CONST );
 
     RegisterMsgInterceptor(( MessageInterceptorFn )( &Lighting_Plugin::LightingCommand ), 0, 0, 0, DEVICECATEGORY_Lighting_Device_CONST, MESSAGETYPE_COMMAND, 0 );
+    RegisterMsgInterceptor(( MessageInterceptorFn )( &Lighting_Plugin::HandleFollowMe ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Follow_Me_Lighting_CONST );
 
 	return Connect(PK_DeviceTemplate_get()); 
 }
@@ -231,15 +233,15 @@ void Lighting_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Rout
 */
 
 
-void Lighting_Plugin::FollowMe_EnteredRoom(OH_Orbiter *pOH_Orbiter,class Room *pRoom_Prior,class Room *pRoom_Current)
+void Lighting_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left)
 {
-g_pPlutoLogger->Write(LV_WARNING,"Lighting entered room, exec %d",m_mapRoom_CommandGroup[pRoom_Current->m_dwPK_Room].first);
-	ExecCommandGroup(m_mapRoom_CommandGroup[pRoom_Current->m_dwPK_Room].first);
+g_pPlutoLogger->Write(LV_WARNING,"Lighting entered room, exec %d",m_mapRoom_CommandGroup[iPK_RoomOrEntArea].first);
+	ExecCommandGroup(m_mapRoom_CommandGroup[iPK_RoomOrEntArea].first);
 }
 
-void Lighting_Plugin::FollowMe_LeftRoom(OH_Orbiter *pOH_Orbiter,class Room *pRoom_Prior,class Room *pRoom_Current)
+void Lighting_Plugin::FollowMe_LeftRoom(int iPK_Event, int iPK_Orbiter, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left)
 {
-g_pPlutoLogger->Write(LV_WARNING,"Lighting left room, exec %d",m_mapRoom_CommandGroup[pRoom_Current->m_dwPK_Room].second);
-	ExecCommandGroup(m_mapRoom_CommandGroup[pRoom_Prior->m_dwPK_Room].second);
+g_pPlutoLogger->Write(LV_WARNING,"Lighting left room, exec %d",m_mapRoom_CommandGroup[iPK_RoomOrEntArea_Left].second);
+	ExecCommandGroup(m_mapRoom_CommandGroup[iPK_RoomOrEntArea_Left].second);
 }
 //<-dceag-createinst-b->!

@@ -29,7 +29,7 @@
 #include "MediaAttributes.h"
 
 #include "../Orbiter/Floorplan.h"
-#include "Orbiter_Plugin/FollowMe_Plugin.h"
+#include "Orbiter_Plugin/FollowMe_Device.h"
 #include "MediaStream.h"
 #include "EntertainArea.h"
 
@@ -49,7 +49,7 @@ namespace DCE
 
 
 //<-dceag-decl-b->!
-class Media_Plugin : public Media_Plugin_Command, public DataGridGeneratorPlugIn, public FloorplanInfoProvider, public FollowMe_Plugin
+class Media_Plugin : public Media_Plugin_Command, public DataGridGeneratorPlugIn, public FloorplanInfoProvider, public FollowMe_Device
 {
 //<-dceag-decl-e->
     friend class MediaStream;
@@ -248,8 +248,8 @@ public:
     bool PlaybackCompleted( class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
 
 	// Follow-me
-	virtual void FollowMe_EnteredRoom(OH_Orbiter *pOH_Orbiter,class Room *pRoom_Prior,class Room *pRoom_Current) {}
-	virtual void FollowMe_LeftRoom(OH_Orbiter *pOH_Orbiter,class Room *pRoom_Prior,class Room *pRoom_Current) {}
+	virtual void FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left) {}
+	virtual void FollowMe_LeftRoom(int iPK_Event, int iPK_Orbiter, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left) {}
 
 	void StreamEnded(MediaStream *pMediaStream);
 	void MediaInEAEnded(EntertainArea *pEntertainArea);

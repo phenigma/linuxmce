@@ -125,9 +125,6 @@
 				RelativePath="..\CreateDevice\CreateDevice.cpp">
 			</File>
 			<File
-				RelativePath=".\FollowMe_Plugin.cpp">
-			</File>
-			<File
 				RelativePath="Main.cpp">
 			</File>
 			<File

@@ -16,6 +16,31 @@ public:
 	Orbiter_Plugin_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice );
+	virtual void Follow_Me_Lighting(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 30,4,14,StringUtils::itos(iPK_Orbiter).c_str(),27,StringUtils::itos(iPK_Room).c_str(),31,StringUtils::itos(iPK_Users).c_str(),32,StringUtils::itos(iPK_Room_Left).c_str()));
+	}
+
+	virtual void Follow_Me_Climate(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 31,4,14,StringUtils::itos(iPK_Orbiter).c_str(),27,StringUtils::itos(iPK_Room).c_str(),31,StringUtils::itos(iPK_Users).c_str(),32,StringUtils::itos(iPK_Room_Left).c_str()));
+	}
+
+	virtual void Follow_Me_Media(int iPK_Orbiter,int iPK_Users,int iPK_EntArea,int iPK_EntArea_Left)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 32,4,14,StringUtils::itos(iPK_Orbiter).c_str(),31,StringUtils::itos(iPK_Users).c_str(),33,StringUtils::itos(iPK_EntArea).c_str(),34,StringUtils::itos(iPK_EntArea_Left).c_str()));
+	}
+
+	virtual void Follow_Me_Telecom(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 33,4,14,StringUtils::itos(iPK_Orbiter).c_str(),27,StringUtils::itos(iPK_Room).c_str(),31,StringUtils::itos(iPK_Users).c_str(),32,StringUtils::itos(iPK_Room_Left).c_str()));
+	}
+
+	virtual void Follow_Me_Security(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 34,4,14,StringUtils::itos(iPK_Orbiter).c_str(),27,StringUtils::itos(iPK_Room).c_str(),31,StringUtils::itos(iPK_Users).c_str(),32,StringUtils::itos(iPK_Room_Left).c_str()));
+	}
+
 };
 
 
@@ -71,6 +96,11 @@ public:
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
 	//Event accessors
+	void EVENT_Follow_Me_Lighting(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left) { GetEvents()->Follow_Me_Lighting(iPK_Orbiter,iPK_Room,iPK_Users,iPK_Room_Left); }
+	void EVENT_Follow_Me_Climate(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left) { GetEvents()->Follow_Me_Climate(iPK_Orbiter,iPK_Room,iPK_Users,iPK_Room_Left); }
+	void EVENT_Follow_Me_Media(int iPK_Orbiter,int iPK_Users,int iPK_EntArea,int iPK_EntArea_Left) { GetEvents()->Follow_Me_Media(iPK_Orbiter,iPK_Users,iPK_EntArea,iPK_EntArea_Left); }
+	void EVENT_Follow_Me_Telecom(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left) { GetEvents()->Follow_Me_Telecom(iPK_Orbiter,iPK_Room,iPK_Users,iPK_Room_Left); }
+	void EVENT_Follow_Me_Security(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left) { GetEvents()->Follow_Me_Security(iPK_Orbiter,iPK_Room,iPK_Users,iPK_Room_Left); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Entertainment_Area(string sPK_EntertainArea,string &sCMD_Result,class Message *pMessage) {};

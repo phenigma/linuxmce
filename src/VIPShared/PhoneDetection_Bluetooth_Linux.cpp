@@ -621,7 +621,7 @@ int PhoneDetection_Bluetooth_Linux::GetLinkQuality(const char *addr)
 		
     if(hci_create_connection(dd, &bdaddr, htobs(ptype), 0, role, handle,4000) < 0)
     {
-	    printf("Cannot create connection\n");
+//	    printf("Cannot create connection\n");
 	//return 0;
 	}
 	

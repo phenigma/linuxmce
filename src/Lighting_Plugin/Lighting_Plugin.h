@@ -10,7 +10,7 @@
 
 #include "../Orbiter/Floorplan.h"
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
-#include "Orbiter_Plugin/FollowMe_Plugin.h"
+#include "Orbiter_Plugin/FollowMe_Device.h"
 class Database_pluto_main;
 
 typedef pair<long, long> longPair;
@@ -18,7 +18,7 @@ typedef pair<long, long> longPair;
 //<-dceag-decl-b->!
 namespace DCE
 {
-	class Lighting_Plugin : public Lighting_Plugin_Command, public DataGridGeneratorPlugIn, public FloorplanInfoProvider, public FollowMe_Plugin
+	class Lighting_Plugin : public Lighting_Plugin_Command, public DataGridGeneratorPlugIn, public FloorplanInfoProvider, public FollowMe_Device
 	{
 //<-dceag-decl-e->
 	// Private member variables
@@ -49,8 +49,8 @@ public:
 	class DataGridTable *LightingScenariosGrid( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 
 	// Follow-me
-	virtual void FollowMe_EnteredRoom(OH_Orbiter *pOH_Orbiter,class Room *pRoom_Prior,class Room *pRoom_Current);
-	virtual void FollowMe_LeftRoom(OH_Orbiter *pOH_Orbiter,class Room *pRoom_Prior,class Room *pRoom_Current);
+	virtual void FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left);
+	virtual void FollowMe_LeftRoom(int iPK_Event, int iPK_Orbiter, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left);
 
 //<-dceag-h-b->
 	/*

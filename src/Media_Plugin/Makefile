@@ -26,7 +26,7 @@ Gen_Dev_Files += $(GENDEV)/Datagrid_PluginBase.cpp
 sources += \
 	../Datagrid_Plugin/Datagrid_Plugin.cpp \
 	../File_Grids_Plugin/FileListGrid.cpp \
-	../Orbiter_Plugin/FollowMe_Plugin.cpp \
+	../Orbiter_Plugin/FollowMe_Device.cpp \
 	MediaHandlerInfo.cpp \
 	MediaAttributes.cpp \
 	MediaStream.cpp \

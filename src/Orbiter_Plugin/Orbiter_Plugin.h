@@ -71,7 +71,6 @@ public:
 
 	// Private member variables
     Database_pluto_main *m_pDatabase_pluto_main;
-	class FollowMe_Plugin *m_pLighting_Followme,*m_pMedia_Followme,*m_pClimate_Followme,*m_pSecurity_Followme,*m_pTelecom_Followme;
 	class FloorplanInfoProvider *m_pLighting_Floorplan,*m_pClimate_Floorplan,*m_pMedia_Floorplan,*m_pSecurity_Floorplan,*m_pTelecom_Floorplan;
 	class Media_Plugin *m_pMedia_Plugin;
 
@@ -143,6 +142,8 @@ public:
 		SendCommand( CMD_Set_Now_Playing );
 	}
 
+	void FireFollowMe(string sMask,int iPK_Orbiter,int iPK_Users,int iPK_RoomOrEntArea,int iPK_RoomOrEntArea_Left);
+
 	//<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION
@@ -153,6 +154,11 @@ public:
 			*****DATA***** accessors inherited from base class
 
 			*****EVENT***** accessors inherited from base class
+	void EVENT_Follow_Me_Lighting(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left);
+	void EVENT_Follow_Me_Climate(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left);
+	void EVENT_Follow_Me_Media(int iPK_Orbiter,int iPK_Users,int iPK_EntArea,int iPK_EntArea_Left);
+	void EVENT_Follow_Me_Telecom(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left);
+	void EVENT_Follow_Me_Security(int iPK_Orbiter,int iPK_Room,int iPK_Users,int iPK_Room_Left);
 
 			*****COMMANDS***** we need to implement
 	*/

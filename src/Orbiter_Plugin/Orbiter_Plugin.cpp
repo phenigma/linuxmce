@@ -64,7 +64,6 @@ using namespace DCE;
 
 #define VERSION "<=version=>"
 
-#include "FollowMe_Plugin.h"
 #include "../Media_Plugin/EntertainArea.h"
 #include "../Media_Plugin/Media_Plugin.h"
 
@@ -119,7 +118,6 @@ bool Orbiter_Plugin::Register()
 	ListCommand_Impl *pListCommand_Impl;
 
 	m_pLighting_Floorplan=NULL;
-	m_pLighting_Followme=NULL;
 	pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Lighting_Plugin_CONST );
 	if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
 	{
@@ -127,11 +125,9 @@ bool Orbiter_Plugin::Register()
 		return false;
 	}
 	Lighting_Plugin *pLighting_Plugin = ( Lighting_Plugin * ) pListCommand_Impl->front( );
-	m_pLighting_Followme=( FollowMe_Plugin * ) pLighting_Plugin;
 	m_pLighting_Floorplan=( FloorplanInfoProvider * ) pLighting_Plugin;
 
 	m_pClimate_Floorplan=NULL;
-	m_pClimate_Followme=NULL;
 	pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Climate_Plugin_CONST );
 	if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
 	{
@@ -139,11 +135,9 @@ bool Orbiter_Plugin::Register()
 		return false;
 	}
 	Climate_Plugin *pClimate_Plugin = ( Climate_Plugin * ) pListCommand_Impl->front( );
-	m_pClimate_Followme=( FollowMe_Plugin * ) pClimate_Plugin;
 	m_pClimate_Floorplan=( FloorplanInfoProvider * ) pClimate_Plugin;
 
 	m_pMedia_Floorplan=NULL;
-	m_pMedia_Followme=NULL;
 	m_pMedia_Plugin=NULL;
 	pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Media_Plugin_CONST );
 	if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
@@ -152,11 +146,9 @@ bool Orbiter_Plugin::Register()
 		return false;
 	}
 	m_pMedia_Plugin=( Media_Plugin * ) pListCommand_Impl->front( );
-	m_pMedia_Followme=( FollowMe_Plugin * ) m_pMedia_Plugin;
 	m_pMedia_Floorplan=( FloorplanInfoProvider * ) m_pMedia_Plugin;
 
 	m_pSecurity_Floorplan=NULL;
-	m_pSecurity_Followme=NULL;
 	pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Security_Plugin_CONST );
 	if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
 	{
@@ -164,11 +156,9 @@ bool Orbiter_Plugin::Register()
 		return false;
 	}
 	Security_Plugin *pSecurity_Plugin = ( Security_Plugin * ) pListCommand_Impl->front( );
-	m_pSecurity_Followme=( FollowMe_Plugin * ) pSecurity_Plugin;
 	m_pSecurity_Floorplan=( FloorplanInfoProvider * ) pSecurity_Plugin;
 
 	m_pTelecom_Floorplan=NULL;
-	m_pTelecom_Followme=NULL;
 	pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Telecom_Plugin_CONST );
 	if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
 	{
@@ -176,7 +166,6 @@ bool Orbiter_Plugin::Register()
 		return false;
 	}
 	Telecom_Plugin *pTelecom_Plugin = ( Telecom_Plugin * ) pListCommand_Impl->front( );
-	m_pTelecom_Followme=( FollowMe_Plugin * ) pTelecom_Plugin;
 	m_pTelecom_Floorplan=( FloorplanInfoProvider * ) pTelecom_Plugin;
 
     // Check for all orbiters
@@ -565,21 +554,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Phone needs file - nc: %d version: %s / %s",(in
 		pOH_Orbiter->m_dwPK_Room_Locked ? pOH_Orbiter->m_dwPK_Room_Locked : 0);
     SendCommand(CMD_Create_Mobile_Orbiter);
 
-	if( pOH_Orbiter->m_bFollowMe_Lighting )
-		m_pLighting_Followme->HandleFollowMe( pDevice_PriorDetected, 'L', pOH_Orbiter );
-
-	if( pOH_Orbiter->m_bFollowMe_Media )
-		m_pMedia_Followme->HandleFollowMe( pDevice_PriorDetected, 'M', pOH_Orbiter );
-
-	if( pOH_Orbiter->m_bFollowMe_Climate )
-		m_pClimate_Followme->HandleFollowMe( pDevice_PriorDetected, 'C', pOH_Orbiter );
-
-	if( pOH_Orbiter->m_bFollowMe_Security )
-		m_pSecurity_Followme->HandleFollowMe( pDevice_PriorDetected, 'S', pOH_Orbiter );
-
-	if( pOH_Orbiter->m_bFollowMe_Telecom )
-		m_pTelecom_Followme->HandleFollowMe( pDevice_PriorDetected, 'T', pOH_Orbiter );
-
 		// See if there's an ent group involved
 
     //if( pOH_Orbiter->m_pEntGroupAudioZone_LockedOn )
@@ -673,23 +647,16 @@ bool Orbiter_Plugin::MobileOrbiterLost(class Socket *pSocket,class Message *pMes
 
         if(pOH_Orbiter->m_pDevice_CurrentDetected == pDeviceFrom)
         {
-            /*
-            if( pMobileOrbiter->m_pController->m_pEntGroup )
-            {
-                ReceivedOCMessage(NULL,new OCMessage(DEVICEID_DCEROUTER,DEVICEID_DCEROUTER,
-                    PRIORITY_NORMAL,MESSAGETYPE_COMMAND,ACTION_LINK_MEDIA_REMOTE_CONST,2,
-                    C_ACTIONPARAMETER_PKID_DEVICE_CONST,StringUtils::itos(pMobileOrbiter->m_pController->m_pEntGroup->m_PKID_EntGroup).c_str(),
-                    C_ACTIONPARAMETER_ON_OFF_CONST,"0"));
-            }
-            ReceivedOCMessage(NULL,new OCMessage(DEVICEID_DCEROUTER,pMobileOrbiter->m_pDevice_CurrentDetected->m_iPKID_Device,
-                PRIORITY_NORMAL,MESSAGETYPE_COMMAND,ACTION_LINK_WITH_MOBILE_ORBITER_CONST,2,C_ACTIONPARAMETER_ID_CONST,pMobileOrbiter->m_sID.c_str(),
-                C_ACTIONPARAMETER_ON_OFF_CONST,"0"));
-            */
-
-            //pMobileOrbiter->RemovingAssocation();
-
             pOH_Orbiter->m_pDevice_CurrentDetected=NULL;
 			pOH_Orbiter->m_iLastSignalStrength = 0;
+			
+			FireFollowMe("LCTS",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_iPK_Users,
+				0,pOH_Orbiter->m_dwPK_Room);
+			FireFollowMe("M",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_iPK_Users,
+				0,pOH_Orbiter->m_pEntertainArea ? pOH_Orbiter->m_pEntertainArea->m_iPK_EntertainArea : 0);
+			pOH_Orbiter->m_dwPK_Room=0;
+			pOH_Orbiter->m_pEntertainArea=NULL;
+
         }
 
     }
@@ -721,7 +688,14 @@ void Orbiter_Plugin::CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,Mess
         return;
     }
 
+	int iPK_Users_Last = pOH_Orbiter->m_iPK_Users;
+	if( pOH_Orbiter->m_iPK_Users && pOH_Orbiter->m_iPK_Users!=iPK_Users )
+		FireFollowMe("LCMST",pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device,pOH_Orbiter->m_iPK_Users,0,0);
     pOH_Orbiter->m_iPK_Users=iPK_Users;
+	if( pOH_Orbiter->m_iPK_Users && pOH_Orbiter->m_iPK_Users!=iPK_Users_Last && pOH_Orbiter->m_dwPK_Room )
+		FireFollowMe("LCST",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_iPK_Users,pOH_Orbiter->m_dwPK_Room,0);
+	if( pOH_Orbiter->m_iPK_Users && pOH_Orbiter->m_iPK_Users!=iPK_Users_Last && pOH_Orbiter->m_pEntertainArea )
+		FireFollowMe("M",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_iPK_Users,pOH_Orbiter->m_pEntertainArea->m_iPK_EntertainArea,0);
 }
 
 //<-dceag-c59-b->
@@ -741,14 +715,13 @@ void Orbiter_Plugin::CMD_Set_Entertainment_Area(string sPK_EntertainArea,string 
         g_pPlutoLogger->Write(LV_CRITICAL,"Set current user from unknown orbiter: %d",pMessage->m_dwPK_Device_From);
         return;
     }
-	if( !pEntertainArea )
-	{
-		g_pPlutoLogger->Write(LV_WARNING, "Could not find entertainment area object for : %s", sPK_EntertainArea.c_str());
-		return;
-	}
-	
+	EntertainArea *pEntertainArea_Last = pOH_Orbiter->m_pEntertainArea;
     pOH_Orbiter->m_pEntertainArea=pEntertainArea;
-	SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pEntertainArea->m_pMediaStream ? pEntertainArea->m_pMediaStream->m_sMediaDescription : "" );
+	SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, pEntertainArea && pEntertainArea->m_pMediaStream ? pEntertainArea->m_pMediaStream->m_sMediaDescription : "" );
+
+	FireFollowMe("M",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_iPK_Users,
+		pOH_Orbiter->m_pEntertainArea ? pOH_Orbiter->m_pEntertainArea->m_iPK_EntertainArea : 0,
+		pEntertainArea_Last ? pEntertainArea_Last->m_iPK_EntertainArea : 0);
 }
 
 //<-dceag-sample-b->! no sample
@@ -770,7 +743,10 @@ void Orbiter_Plugin::CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Messa
         return;
     }
 
-    pOH_Orbiter->m_dwPK_Room=iPK_Room;
+	int iPK_Room_Prior = pOH_Orbiter->m_dwPK_Room;
+	pOH_Orbiter->m_dwPK_Room=iPK_Room;
+	FireFollowMe("LCTS",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_iPK_Users,
+		iPK_Room,iPK_Room_Prior);
 }
 //<-dceag-c78-b->
 
@@ -1203,7 +1179,7 @@ void Orbiter_Plugin::CMD_Set_FollowMe(int iPK_Device,string sText,int iPK_Users,
 		return;
 	}
 
-	bool bOnOff = sText[1]=='1';
+	bool bOnOff = sText[1]=='0';
 
 g_pPlutoLogger->Write(LV_STATUS,"Orbiter %d set follow me to %s for user %d",iPK_Device,sText.c_str(),iPK_Users);
 
@@ -1214,8 +1190,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %d set follow me to %s for user %d",iPK
 			pOH_Orbiter->m_bFollowMe_Lighting = bOnOff;
 			DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_bFollowMe_Lighting ? "1" : "0","follow_light");
 			SendCommand(CMD_Set_Bound_Icon);
-			if( !bOnOff )
-				m_pLighting_Followme->CancelPendingMovesByType(pOH_Orbiter,'L');
+			FireFollowMe("L",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,	pOH_Orbiter->m_iPK_Users,bOnOff ? pOH_Orbiter->m_dwPK_Room : 0,0);
 		}
 		break;
 	case 'M':
@@ -1223,8 +1198,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %d set follow me to %s for user %d",iPK
 			pOH_Orbiter->m_bFollowMe_Media = bOnOff;
 			DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_bFollowMe_Media ? "1" : "0","follow_media");
 			SendCommand(CMD_Set_Bound_Icon);
-			if( !bOnOff )
-				m_pMedia_Followme->CancelPendingMovesByType(pOH_Orbiter,'M');
+			FireFollowMe("M",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,	pOH_Orbiter->m_iPK_Users,bOnOff && pOH_Orbiter->m_pEntertainArea ? pOH_Orbiter->m_pEntertainArea->m_iPK_EntertainArea : 0,0);
 		}
 		break;
 	case 'C':
@@ -1232,8 +1206,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %d set follow me to %s for user %d",iPK
 			pOH_Orbiter->m_bFollowMe_Climate = bOnOff;
 			DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_bFollowMe_Climate ? "1" : "0","follow_climate");
 			SendCommand(CMD_Set_Bound_Icon);
-			if( !bOnOff )
-				m_pClimate_Followme->CancelPendingMovesByType(pOH_Orbiter,'C');
+			FireFollowMe("C",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,	pOH_Orbiter->m_iPK_Users,bOnOff ? pOH_Orbiter->m_dwPK_Room : 0,0);
 		}
 		break;
 	case 'T':
@@ -1241,8 +1214,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %d set follow me to %s for user %d",iPK
 			pOH_Orbiter->m_bFollowMe_Telecom = bOnOff;
 			DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_bFollowMe_Telecom ? "1" : "0","follow_telecom");
 			SendCommand(CMD_Set_Bound_Icon);
-			if( !bOnOff )
-				m_pTelecom_Followme->CancelPendingMovesByType(pOH_Orbiter,'T');
+			FireFollowMe("T",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,	pOH_Orbiter->m_iPK_Users,bOnOff ? pOH_Orbiter->m_dwPK_Room : 0,0);
 		}
 		break;
 	case 'S':
@@ -1250,8 +1222,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %d set follow me to %s for user %d",iPK
 			pOH_Orbiter->m_bFollowMe_Security = bOnOff;
 			DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_bFollowMe_Security ? "1" : "0","follow_security");
 			SendCommand(CMD_Set_Bound_Icon);
-			if( !bOnOff )
-				m_pSecurity_Followme->CancelPendingMovesByType(pOH_Orbiter,'S');
+			FireFollowMe("S",pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,	pOH_Orbiter->m_iPK_Users,bOnOff ? pOH_Orbiter->m_dwPK_Room : 0,0);
 		}
 		break;
 	}
@@ -1398,4 +1369,29 @@ g_pPlutoLogger->Write(LV_STATUS,"Setting device %d to room %d",iPK_Device,iPK_Ro
 
 	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL( m_dwPK_Device, m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_mnuNewPlugAndPlayDevice_CONST), StringUtils::itos(iPK_Device) );
 	SendCommand(CMD_Remove_Screen_From_History_DL);
+}
+
+void Orbiter_Plugin::FireFollowMe(string sMask,int iPK_Orbiter,int iPK_Users,int iPK_RoomOrEntArea,int iPK_RoomOrEntArea_Left)
+{
+	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(iPK_Orbiter);
+	if( !pOH_Orbiter )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot fire follow me for unknown orbiter: %d",iPK_Orbiter);
+		return;
+	}
+
+	if( pOH_Orbiter->m_bFollowMe_Lighting && sMask.find('L')!=string::npos )
+		EVENT_Follow_Me_Lighting(iPK_Orbiter, iPK_RoomOrEntArea, iPK_Users, iPK_RoomOrEntArea_Left);
+
+	if( pOH_Orbiter->m_bFollowMe_Climate && sMask.find('C')!=string::npos )
+		EVENT_Follow_Me_Climate(iPK_Orbiter, iPK_RoomOrEntArea, iPK_Users, iPK_RoomOrEntArea_Left);
+
+	if( pOH_Orbiter->m_bFollowMe_Security && sMask.find('S')!=string::npos )
+		EVENT_Follow_Me_Security(iPK_Orbiter, iPK_RoomOrEntArea, iPK_Users, iPK_RoomOrEntArea_Left);
+
+	if( pOH_Orbiter->m_bFollowMe_Telecom && sMask.find('T')!=string::npos )
+		EVENT_Follow_Me_Telecom(iPK_Orbiter, iPK_RoomOrEntArea, iPK_Users, iPK_RoomOrEntArea_Left);
+
+	if( pOH_Orbiter->m_bFollowMe_Media && sMask.find('M')!=string::npos )
+		EVENT_Follow_Me_Media(iPK_Orbiter, iPK_Users, iPK_RoomOrEntArea, iPK_RoomOrEntArea_Left);
 }

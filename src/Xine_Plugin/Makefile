@@ -27,7 +27,7 @@ EXTERNAL_LIBS_NAMES += attr
 Gen_Dev_Files += $(GENDEV)/Media_PluginBase.cpp $(GENDEV)/Datagrid_PluginBase.cpp
 sources += \
 	XineMediaStream.cpp \
-	../Orbiter_Plugin/FollowMe_Plugin.cpp \
+	../Orbiter_Plugin/FollowMe_Device.cpp \
 	../Media_Plugin/MediaHandlerInfo.cpp \
 	../Media_Plugin/MediaHandlerBase.cpp \
 	../Media_Plugin/Media_Plugin.cpp \

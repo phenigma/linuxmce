@@ -320,6 +320,7 @@
 #define COMMAND_Set_Mouse_Pointer_Over_Object_CONST 330
 #define COMMAND_Get_EntAreas_For_Device_CONST 331
 #define COMMAND_Ignore_MAC_Address_CONST 332
+#define COMMAND_Disconnect_From_Mobile_Orbiter_CONST 333
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

@@ -9,13 +9,13 @@
 
 #include "DCE/DeviceData_Router.h"
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
-#include "Orbiter_Plugin/FollowMe_Plugin.h"
+#include "Orbiter_Plugin/FollowMe_Device.h"
 class Database_pluto_main;
 
 //<-dceag-decl-b->!
 namespace DCE
 {
-	class Telecom_Plugin : public Telecom_Plugin_Command, public DataGridGeneratorPlugIn, public FollowMe_Plugin
+	class Telecom_Plugin : public Telecom_Plugin_Command, public DataGridGeneratorPlugIn, public FollowMe_Device
 	{
 //<-dceag-decl-e->
 	// Private member variables
@@ -44,8 +44,8 @@ public:
 	class DataGridTable *PhoneBookListOfNos(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
 
 	// Follow-me
-	virtual void FollowMe_EnteredRoom(OH_Orbiter *pOH_Orbiter,class Room *pRoom_Prior,class Room *pRoom_Current) {}
-	virtual void FollowMe_LeftRoom(OH_Orbiter *pOH_Orbiter,class Room *pRoom_Prior,class Room *pRoom_Current) {}
+	virtual void FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left) {}
+	virtual void FollowMe_LeftRoom(int iPK_Event, int iPK_Orbiter, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left) {}
 
 //<-dceag-h-b->
 	/*

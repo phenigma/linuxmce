@@ -30,6 +30,11 @@
 #define EVENT_Thermostat_Set_Point_Chan_CONST 27
 #define EVENT_On_CONST 28
 #define EVENT_Off_CONST 29
+#define EVENT_Follow_Me_Lighting_CONST 30
+#define EVENT_Follow_Me_Climate_CONST 31
+#define EVENT_Follow_Me_Media_CONST 32
+#define EVENT_Follow_Me_Telecom_CONST 33
+#define EVENT_Follow_Me_Security_CONST 34
 
 #define EVENT_TABLE "Event"
 #define EVENT_PK_EVENT_FIELD "PK_Event"

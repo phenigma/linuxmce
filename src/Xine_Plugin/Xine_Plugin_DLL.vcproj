@@ -134,7 +134,7 @@
 				RelativePath="..\File_Grids_Plugin\FileListGrid.cpp">
 			</File>
 			<File
-				RelativePath="..\Orbiter_Plugin\FollowMe_Plugin.cpp">
+				RelativePath="..\Orbiter_Plugin\FollowMe_Device.cpp">
 			</File>
 			<File
 				RelativePath="Main.cpp">
