@@ -1,6 +1,5 @@
 // OCDeviceTemplate.cpp : Defines the entry point for the console application.
 //
-
 #include "PlutoUtils/CommonIncludes.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/FileUtils.h"
@@ -11,12 +10,15 @@
 #include "DCE/Message.h"
 #include "DCE/DeviceData_Impl.h"
 
+#include <iostream>
+
 namespace DCE
 {
     Logger *g_pPlutoLogger;
 }
 
 using namespace DCE;
+using namespace std;
 
 #ifdef WIN32
 int _tmain(int argc, _TCHAR* argv[])
@@ -31,8 +33,10 @@ int main(int argc, char *argv[])
 
     if (argc<6)
     {
-        printf("Usage: MessageSendTest server DeviceFrom DeviceTo MsgType(1=Command, 2=Event) MsgID [parm1id param1value] [parm2id parm2value] ...\n"
-               "Prefix parameter value with \"@filename.ext\" to insert a data parameter from a file\n\n");
+		cout << "Usage: MessageSendTest server [-targetType [device|category|template]] DeviceFrom DeviceTo MsgType(1=Command, 2=Event) MsgID [parm1id param1value] [parm2id parm2value] ..." << endl;
+		cout << "\t Important:" << endl;
+		cout << "\t\t- you can prefix parameter value with \"@filename.ext\" to insert a data parameter from a file" << endl;
+		cout << "\t\t- the default target type is the device." << endl;
         return 1;
     }
     if (((argc) % 2) != 0)
@@ -50,14 +54,47 @@ int main(int argc, char *argv[])
 
     Event_Impl *pEvent = new Event_Impl(DeviceID, ServerAddress);
 
-    int msgFrom=atoi(argv[2]), msgTo=atoi(argv[3]), msgType=atoi(argv[4]), msgID=atoi(argv[5]);
+	int baseMessageSpecPos = 2;
+	int targetType = 0; // Device;
+	if ( argv[2] == "-targetType" )
+	{
+		baseMessageSpecPos += 2;
+		if ( argv[3] == "category" )
+			targetType = 1;
+		else if ( argv[3] == "template" )
+			targetType = 2;
+	}
 
-    Message *pMsg = new Message(msgFrom, msgTo, PRIORITY_NORMAL, msgType, msgID, 0);
+    int msgFrom=atoi(argv[baseMessageSpecPos + 0]);
+	int msgTo=atoi(argv[baseMessageSpecPos + 1]);
+	int msgType=atoi(argv[baseMessageSpecPos + 2]);
+	int msgID=atoi(argv[baseMessageSpecPos + 3]);
 
-    for(int i=0;i<(argc-6)/2;i++)
+    Message *pMsg;
+
+	switch ( targetType )
+	{
+		case 0: // the destination is not an actual device.
+			pMsg = new Message(msgFrom, msgTo, PRIORITY_NORMAL, msgType, msgID, 0);
+			break;
+		case 1: // the target is a category
+			pMsg = new Message(msgFrom, msgTo, true, BL_SameHouse,  PRIORITY_NORMAL, msgType, msgID, 0);
+			break;
+		case 2:
+			pMsg = new Message(msgFrom, msgTo, BL_SameHouse,  PRIORITY_NORMAL, msgType, msgID, 0);
+			break;
+	}
+
+	if ( pMsg == NULL )
+	{
+		cout << "Could not parse command line params. Exiting!" << endl;
+		exit(100);
+	}
+
+    for(int i=baseMessageSpecPos + 4; i<argc; i+=2)
     {
-        char *pParam = argv[(i*2)+7];
-        int ParamNum = atoi(argv[(i*2)+6]);
+        char *pParam = argv[i + 1];
+        int ParamNum = atoi(argv[i]);
         if (pParam[0]=='@')
         {
             if (ParamNum < 0)
