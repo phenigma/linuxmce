@@ -55,3 +55,15 @@ if [ "$XineVer" != "$DCERouterVer" ]; then
 	apt-get clean
 	apt-get install -y pluto-xine-plugin
 fi
+# End of workaround
+
+SysLogCfg="*.*;auth,authpriv.none	/dev/tty12"
+if ! grep -qF "$SysLogCfg" /etc/syslog.conf; then
+	echo "$SysLogCfg" >>/etc/syslog.conf
+	/etc/init.d/sysklogd reload
+fi
+
+if ! grep -q '^SYSLOGD="-r"$' /etc/init.d/sysklogd; then
+	sed -i 's/^SYSLOGD=.*$/SYSLOGD="-r"/' /etc/init.d/sysklogd
+	/etc/init.d/sysklogd restart
+fi

@@ -66,4 +66,5 @@ if [ -n "$GDB" ]; then
 fi
 
 ulimit -c unlimited
+ulimit -n 4096
 shopt -s nullglob

@@ -155,7 +155,8 @@ for Client in $R; do
 done
 ReplaceVars /etc/exports.$$
 mv /etc/exports.$$ /etc/exports
-/etc/init.d/nfs-kernel-server restart
+#/etc/init.d/nfs-kernel-server restart
+/usr/sbin/exportfs -ra
 
 echo "Setting up /etc/dhcp3/dhcpd.conf, /etc/hosts"
 cp /usr/pluto/templates/dhcpd.conf.tmpl /etc/dhcp3/dhcpd.conf.$$
@@ -269,6 +270,16 @@ for Client in $DisklessR; do
 	echo "$TimeZone" >/etc/timezone
 	[ -f "$DlPath/etc/localtime" ] && rm -f $DlPath/etc/localtime # in case it's a file from the old (wrong) way of setting this up
 	ln -sf /usr/share/zoneinfo/$TimeZone $DlPath/etc/localtime
+
+	echo -n " syslog"
+	SysLogCfg1="*.*;auth,authpriv.none		/dev/tty12"
+	SysLogCfg2="*.*;auth,authpriv.none		@dcerouter"
+	if ! grep -qF "$SysLogCfg1" $DlPath/etc/syslog.conf; then
+		echo "$SysLogCfg1" >>$DlPath/etc/syslog.conf
+	fi
+	if ! grep -qF "$SysLogCfg2" $DlPath/etc/syslog.conf; then
+		echo "$SysLogCfg2" >>$DlPath/etc/syslog.conf
+	fi
 
 	echo
 	MoonNumber=$((MoonNumber+1))
