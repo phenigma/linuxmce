@@ -1319,7 +1319,7 @@ bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,list<FileI
 	string Prefix("/usr/");
 	if (pRow_Package_Source->FK_Package_getrow()->IsSource_get())
 	{
-		Prefix = "/usr/pluto/src/";
+		Prefix = "/usr/pluto/sources/";
 	}
 
 //	FILE * f;
