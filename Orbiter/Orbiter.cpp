@@ -82,7 +82,7 @@ public:
 	CallBackInfo(pluto_pthread_mutex_t *pCallbackMutex) { m_iCounter=iCallbackCounter++; m_bStop=false; m_pCallbackMutex=pCallbackMutex; }
     Orbiter *m_pOrbiter;
     OrbiterCallBack m_fnCallBack;
-    clock_t m_clock;//absolute time
+    time_t m_clock;//absolute time
     void *m_pData;
 	int m_iCounter; // A unique ID
 	bool m_bStop; // Don't execute after all, we've decided to stop it (probably started another one of same type)
@@ -392,7 +392,7 @@ void Orbiter::RedrawObjects(  )
     // There appears to be a problem with SDL_Flip sometimes calling _XRead to wait for an event,  causing the thread
     // to block until there's an event,  so that our loop no longer gets back to the SDL_WaitEvent in the main pump
     // So for now just do the redraw's always on a separate thread
-	CallMaintenanceInTicks( 0, &Orbiter::RealRedraw, NULL, true ); 
+	CallMaintenanceInMiliseconds( 0, &Orbiter::RealRedraw, NULL, true ); 
 }
 
 void Orbiter::RealRedraw( void *data )
@@ -630,7 +630,7 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
         break;
 #endif
     case DESIGNOBJTYPE_Broadcast_Video_CONST:
-		CallMaintenanceInTicks( 6000, &Orbiter::GetVideoFrame, ( void * ) pObj, true );
+		CallMaintenanceInMiliseconds( 6000, &Orbiter::GetVideoFrame, ( void * ) pObj, true );
         break;
 
         // Grabbing up to four video frames can take some time.  Draw the rest of the
@@ -1180,7 +1180,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
 
             SaveBackgroundForDeselect( pObj );  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
             if(  !pObj->m_bDontResetState  )
-				CallMaintenanceInTicks( 500, &Orbiter::DeselectObjects, ( void * ) pObj, true );
+				CallMaintenanceInMiliseconds( 500, &Orbiter::DeselectObjects, ( void * ) pObj, true );
 
             // Unless the screen's don't reset state is set,  we'll clear any other selected graphics
             if(  !m_pScreenHistory_Current->m_pObj->m_bDontResetState  )
@@ -3546,7 +3546,7 @@ void *RendererThread(void *p)
 			pthread_mutex_lock(&pOrbiter->m_RendererThreadMutex.mutex);
 
 			timespec abstime;
-			abstime.tv_sec = time(NULL) + 10000; //nothing to process. let's wait 10 sec or to be wake up
+			abstime.tv_sec = long(time(NULL) + 10000); //nothing to process. let's wait 10 sec or to be wake up
 			abstime.tv_nsec = 0;
 			pthread_cond_timedwait(&pOrbiter->m_RendererThreadCond,&pOrbiter->m_RendererThreadMutex.mutex, &abstime);
 			pthread_mutex_unlock(&pOrbiter->m_RendererThreadMutex.mutex);
@@ -3554,7 +3554,7 @@ void *RendererThread(void *p)
 		else
 		{
 			int Index = (*mapPendingCallbacks.begin()).second->m_iCounter;
-			int ClockMin = (*mapPendingCallbacks.begin()).second->m_clock;
+			time_t ClockMin = (*mapPendingCallbacks.begin()).second->m_clock;
 
 			//g_pPlutoLogger->Write( LV_CONTROLLER, "### The queue size is %d", mapPendingCallbacks.size());
 
@@ -3576,7 +3576,7 @@ void *RendererThread(void *p)
 			g_pPlutoLogger->Write( LV_CONTROLLER, "### Now is %d, Callback candidate to be processed id = %d, clock = %d", 
 				clock_t(), pCallBackInfo->m_iCounter, (int)pCallBackInfo->m_clock);
 
-			if(pCallBackInfo->m_clock <= xClock()) 
+			if(pCallBackInfo->m_clock <= time(NULL)) 
 			{
 				if( ! pCallBackInfo->m_bStop ) //let's process this one, is ready to go
 					CALL_MEMBER_FN( *pCallBackInfo->m_pOrbiter, pCallBackInfo->m_fnCallBack )( pCallBackInfo->m_pData );
@@ -3600,8 +3600,8 @@ void *RendererThread(void *p)
 				pthread_mutex_lock(&pOrbiter->m_RendererThreadMutex.mutex);
 
 				timespec abstime;
-				abstime.tv_sec = time(NULL) + (pCallBackInfo->m_clock - time(NULL)) / 1000;
-				abstime.tv_nsec = (pCallBackInfo->m_clock - time(NULL)) * 1000000;
+				abstime.tv_sec = long(time(NULL) + (pCallBackInfo->m_clock - time(NULL)) / 1000);
+				abstime.tv_nsec = long((pCallBackInfo->m_clock - time(NULL)) * 1000000);
 
 				//g_pPlutoLogger->Write( LV_CONTROLLER, "@@@ %d, %d", abstime.tv_sec, abstime.tv_nsec);
 
@@ -3637,7 +3637,7 @@ void *RendererThread(void *p)
 }
 
 //------------------------------------------------------------------------
-void Orbiter::CallMaintenanceInTicks( long miliseconds, OrbiterCallBack fnCallBack, void *data, bool bPurgeExisting )
+void Orbiter::CallMaintenanceInMiliseconds( time_t miliseconds, OrbiterCallBack fnCallBack, void *data, bool bPurgeExisting )
 {
     PLUTO_SAFETY_LOCK( cm, m_CallbackMutex );
 	if( bPurgeExisting )
@@ -3718,7 +3718,7 @@ void Orbiter::GetVideoFrame( void *data )
             return; // This will call RenderObject,  which will reset the timer
         }
     }
-    CallMaintenanceInTicks( 6000, &Orbiter::GetVideoFrame, ( void * ) pObj, true );
+    CallMaintenanceInMiliseconds( 6000, &Orbiter::GetVideoFrame, ( void * ) pObj, true );
 }
 
 /*
@@ -4532,7 +4532,7 @@ void Orbiter::CMD_Select_Object(string sPK_DesignObj,string sPK_DesignObj_Curren
 		}
 		cm.Release();
 
-		CallMaintenanceInTicks( c, &Orbiter::DelayedSelectObject, pDelayedSelectObjectInfo, false );
+		CallMaintenanceInMiliseconds( c, &Orbiter::DelayedSelectObject, pDelayedSelectObjectInfo, false );
 	}
 	else
 	    SelectedObject( pDesignObj_Orbiter );
@@ -4924,7 +4924,7 @@ PlutoColor p2(0,128,128);
     }
 
 	g_pPlutoLogger->Write(LV_STATUS,"Ready to call floorplan redraw in 3 secs");
-//    CallMaintenanceInTicks(CLOCKS_PER_SEC * 3,&Orbiter::RealRedraw,NULL,true);
+//    CallMaintenanceInMiliseconds(CLOCKS_PER_SEC * 3,&Orbiter::RealRedraw,NULL,true);
 /*
     if( Type==FLOORPLANTYPE_Entertainment_Zone_CONST )
     {
@@ -4936,7 +4936,7 @@ PlutoColor p2(0,128,128);
 //          m_AutoRefreshTime = clock();
 //      else
 //          m_AutoRefreshTime = clock() + (CLOCKS_PER_SEC * 3);
-            CallMaintenanceInTicks(CLOCKS_PER_SEC * 3,&Orbiter::RealRedraw,NULL);
+            CallMaintenanceInMiliseconds(CLOCKS_PER_SEC * 3,&Orbiter::RealRedraw,NULL);
     }
     else
         m_AutoInvalidateTime = clock() + (CLOCKS_PER_SEC * 2);
@@ -4993,7 +4993,7 @@ void Orbiter::ContinuousRefresh( void *data )
 	else
 	{
 		CMD_Refresh("");
-		CallMaintenanceInTicks( pContinuousRefreshInfo->m_iInterval, &Orbiter::ContinuousRefresh, pContinuousRefreshInfo, true ); 
+		CallMaintenanceInMiliseconds( pContinuousRefreshInfo->m_iInterval, &Orbiter::ContinuousRefresh, pContinuousRefreshInfo, true ); 
 	}
 }
 
@@ -5008,7 +5008,7 @@ void Orbiter::CMD_Continuous_Refresh(string sTime,string &sCMD_Result,Message *p
 //<-dceag-c238-e->
 {
 	ContinuousRefreshInfo *pContinuousRefreshInfo = new ContinuousRefreshInfo(m_pScreenHistory_Current->m_pObj,atoi(sTime.c_str()));
-	CallMaintenanceInTicks( pContinuousRefreshInfo->m_iInterval, &Orbiter::ContinuousRefresh, pContinuousRefreshInfo, true ); 
+	CallMaintenanceInMiliseconds( pContinuousRefreshInfo->m_iInterval, &Orbiter::ContinuousRefresh, pContinuousRefreshInfo, true ); 
 }
 
 //timingofsetnowplaying

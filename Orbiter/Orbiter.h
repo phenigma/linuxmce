@@ -42,7 +42,7 @@ public:
 	 */
 	ScreenHistory( class DesignObj_Orbiter *pObj, class ScreenHistory *pScreenHistory_Prior ) 
 	{ 
-		m_tTime = CLK_TO_MS(xClock());
+		m_tTime = time(NULL);
 		m_pObj=pObj; m_dwPK_Device=m_dwPK_Users=0; m_bCantGoBack=false; m_pLocationInfo=NULL; 
 		if(  pScreenHistory_Prior  )
 		{
@@ -653,12 +653,12 @@ public:
 	/**
 	 * @brief We need the maintenance function to be called at this time
 	 */
-	void CallMaintenanceAtTime( time_t t, OrbiterCallBack fnCallBack, void *iData, bool bPurgeExisting ) { CallMaintenanceInTicks( ( clock_t ) ( t-time( NULL ) ) * CLOCKS_PER_SEC, fnCallBack, iData, bPurgeExisting ); }
+	void CallMaintenanceAtTime( time_t t, OrbiterCallBack fnCallBack, void *iData, bool bPurgeExisting ) { CallMaintenanceInMiliseconds( t - time( NULL ), fnCallBack, iData, bPurgeExisting ); }
 	
 	/**
 	 * @brief We need the maintenance function to be called in this many clock ticks
 	 */
-	void CallMaintenanceInTicks( long miliseconds, OrbiterCallBack fnCallBack, void *iData, bool bPurgeExisting );
+	void CallMaintenanceInMiliseconds( time_t miliseconds, OrbiterCallBack fnCallBack, void *iData, bool bPurgeExisting );
 
 	/**
 	 *	MAINTENANCE CALL BACKS
