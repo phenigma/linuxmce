@@ -33,4 +33,4 @@ fi
 [ -z "$Result" ] && Result="Installation complete" || Err="yes"
 
 echo "$Result"
-[ -n "$Err" ] && return 10 || return 0
+[ -n "$Err" ] && exit 10 || exit 0
