@@ -36,7 +36,7 @@ public:
 		m_MySqlMutex.Init(NULL);
 	}
 	
-	MySqlHelper(string host, string user, string pass, string db_name, int port)
+	MySqlHelper(string host, string user, string pass, string db_name, int port=3306)
 		: m_MySqlMutex("mysql")
 	{
 		m_MySqlMutex.Init(NULL);
@@ -49,7 +49,7 @@ public:
 		MySQLConnect();
 	}
 
-	bool MySQLConnect(string host, string user, string pass, string db_name, int port,bool bReset=false)
+	bool MySQLConnect(string host, string user, string pass, string db_name, int port=3306,bool bReset=false)
 	{
 		mysql_init(&m_MySQL);
 		m_sMySQLHost=host;
@@ -70,6 +70,16 @@ public:
 		else
 			m_bConnected=true;
 		return m_bConnected;
+	}
+
+	string md5(string Input)
+	{
+		PlutoSqlResult result_set;
+		MYSQL_ROW row=NULL;
+		if( (result_set.r=mysql_query_result("SELECT md5('" + Input +"')"))==0 || (row = mysql_fetch_row(result_set.r))==NULL )
+			throw "error getting md5";
+
+		return row[0];
 	}
 
 	MYSQL_RES *mysql_query_result(string query)

@@ -71,6 +71,7 @@ public:
 #define SERIALIZE_DATA_TYPE_VECT_STRING		7
 #define SERIALIZE_DATA_TYPE_INT_STRING		8
 #define SERIALIZE_DATA_TYPE_VECT_INT		9
+#define SERIALIZE_DATA_TYPE_STRING_STRING	10
 
 #define SERIALIZE_DATA_TYPE_COLOR			50
 #define SERIALIZE_DATA_TYPE_POINT			51
@@ -216,6 +217,7 @@ public:
 #ifndef SYMBIAN
 	SerializeClass &operator+ (vector<string> &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_VECT_STRING,(void *) &i)); return (*this); } /** < @brief overloading + to take a vector of strings */
 	SerializeClass &operator+ (map<int,string> &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_INT_STRING,(void *) &i)); return (*this); } /** < @brief overloading + to take a map<int,string> */
+	SerializeClass &operator+ (map<string,string> &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_STRING_STRING,(void *) &i)); return (*this); } /** < @brief overloading + to take a map<string,string> */
 	SerializeClass &operator+ (vector<int> &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_VECT_INT,(void *) &i)); return (*this); } /** < @brief overloading + to take a map<int,string> */
 #endif
 

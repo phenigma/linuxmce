@@ -152,6 +152,22 @@ bool SerializeClass::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 					}
 				}
 				break;
+			case SERIALIZE_DATA_TYPE_STRING_STRING:
+				{
+					map<string,string> *pMap = (map<string,string> *) pItem->m_pItem;
+					Write_unsigned_long((unsigned long) pMap->size());
+#ifdef DEBUG_SERIALIZATION
+					cout << "Writing " << (unsigned long) pMap->size() << " map string strings" << endl;
+#endif
+					map<string,string>::iterator it;
+					for(it=pMap->begin(); it!=pMap->end(); ++it)
+					{
+						string key=(*it).first;
+						Write_string( key );
+						Write_string( (*it).second );
+					}
+				}
+				break;
 
 #endif
 
@@ -246,6 +262,22 @@ bool SerializeClass::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 						string value;
 						Read_string(value);
 						(*pMap)[Key]=value;
+					}
+				}
+				break;
+			case SERIALIZE_DATA_TYPE_STRING_STRING:
+				{
+					map<string,string> *pMap = (map<string,string> *) pItem->m_pItem;
+					unsigned long count=Read_unsigned_long();
+#ifdef DEBUG_SERIALIZATION
+					cout << "Reading " << count << " map string strings" << endl;
+#endif
+					for(size_t s=0;s<count;++s)
+					{
+						string key,value;
+						Read_string(key);
+						Read_string(value);
+						(*pMap)[key]=value;
 					}
 				}
 				break;

@@ -19,6 +19,7 @@
 #define USER_CANNOT_PAY_ONLINE	-100
 
 // General Messages
+#define LOGIN_FAILED			-4
 #define INTERNAL_ERROR			-3
 #define RECORD_NOT_FOUND		-2
 #define INVALID_REQUEST_DATA	-1
