@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -39,15 +38,17 @@ void Database_pluto_main::DeleteTable_OperatingSystem()
 
 Table_OperatingSystem::~Table_OperatingSystem()
 {
-	map<Table_OperatingSystem::Key, class Row_OperatingSystem*, Table_OperatingSystem::Key_Less>::iterator it;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_OperatingSystem *pRow = (Row_OperatingSystem *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_OperatingSystem *pRow = (Row_OperatingSystem *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -61,12 +62,13 @@ Table_OperatingSystem::~Table_OperatingSystem()
 void Row_OperatingSystem::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_OperatingSystem *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_OperatingSystem*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_OperatingSystem *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -76,8 +78,8 @@ void Row_OperatingSystem::Delete()
 		}
 		else
 		{
-			Table_OperatingSystem::Key key(this);					
-			map<Table_OperatingSystem::Key, Row_OperatingSystem*, Table_OperatingSystem::Key_Less>::iterator i = table->cachedRows.find(key);
+			SingleLongKey key(pRow->m_PK_OperatingSystem);
+			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -88,12 +90,14 @@ void Row_OperatingSystem::Delete()
 
 void Row_OperatingSystem::Reload()
 {
+	Row_OperatingSystem *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_OperatingSystem::Key key(this);		
+		SingleLongKey key(pRow->m_PK_OperatingSystem);
 		Row_OperatingSystem *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -226,9 +230,9 @@ void Table_OperatingSystem::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_OperatingSystem*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_OperatingSystem *pRow = *i;
+		Row_OperatingSystem *pRow = (Row_OperatingSystem *)*i;
 	
 		
 string values_list_comma_separated;
@@ -254,7 +258,7 @@ pRow->m_PK_OperatingSystem=id;
 	
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			SingleLongKey key(pRow->m_PK_OperatingSystem);	
 			cachedRows[key] = pRow;
 					
 			
@@ -268,14 +272,14 @@ pRow->m_PK_OperatingSystem=id;
 //update modified
 	
 
-	for (map<Key, Row_OperatingSystem*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_OperatingSystem* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_OperatingSystem* pRow = (Row_OperatingSystem*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_OperatingSystem);
 
 		char tmp_PK_OperatingSystem[32];
-sprintf(tmp_PK_OperatingSystem, "%li", key.pk_PK_OperatingSystem);
+sprintf(tmp_PK_OperatingSystem, "%li", key.pk);
 
 
 string condition;
@@ -301,7 +305,7 @@ update_values_list = update_values_list + "PK_OperatingSystem="+pRow->PK_Operati
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_OperatingSystem*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -311,12 +315,13 @@ update_values_list = update_values_list + "PK_OperatingSystem="+pRow->PK_Operati
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_OperatingSystem*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		SingleLongKey key = (*i).first;
+		Row_OperatingSystem* pRow = (Row_OperatingSystem*) (*i).second;	
+
 		char tmp_PK_OperatingSystem[32];
-sprintf(tmp_PK_OperatingSystem, "%li", key.pk_PK_OperatingSystem);
+sprintf(tmp_PK_OperatingSystem, "%li", key.pk);
 
 
 string condition;
@@ -408,14 +413,14 @@ pRow->m_Define = string(row[2],lengths[2]);
 
 		//checking for duplicates
 
-		Key key(pRow);
+		SingleLongKey key(pRow->m_PK_OperatingSystem);
 		
-                map<Table_OperatingSystem::Key, Row_OperatingSystem*, Table_OperatingSystem::Key_Less>::iterator i = cachedRows.find(key);
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_OperatingSystem *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -444,9 +449,9 @@ Row_OperatingSystem* Table_OperatingSystem::GetRow(long int in_PK_OperatingSyste
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_PK_OperatingSystem);
+	SingleLongKey row_key(in_PK_OperatingSystem);
 
-	map<Key, Row_OperatingSystem*, Key_Less>::iterator i;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -457,7 +462,7 @@ Row_OperatingSystem* Table_OperatingSystem::GetRow(long int in_PK_OperatingSyste
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_OperatingSystem*) (*i).second;
 	//we have to fetch row
 	Row_OperatingSystem* pRow = FetchRow(row_key);
 
@@ -468,13 +473,13 @@ Row_OperatingSystem* Table_OperatingSystem::GetRow(long int in_PK_OperatingSyste
 
 
 
-Row_OperatingSystem* Table_OperatingSystem::FetchRow(Table_OperatingSystem::Key &key)
+Row_OperatingSystem* Table_OperatingSystem::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_OperatingSystem[32];
-sprintf(tmp_PK_OperatingSystem, "%li", key.pk_PK_OperatingSystem);
+sprintf(tmp_PK_OperatingSystem, "%li", key.pk);
 
 
 string condition;

@@ -13,7 +13,12 @@
 #include "Define_CachedScreens.h"
 #include "SerializeClass/SerializeClass.h"
 
-class DLL_EXPORT Table_CachedScreens
+// If we declare the maps locally, the compiler will create multiple copies of them
+// making the output files enormous.  The solution seems to be to create some predefined
+// maps for the standard types of primary keys (single long, double long, etc.) and
+// put them in a common base class, which is optionally included as tablebase below
+
+class DLL_EXPORT Table_CachedScreens : public TableBase , TripleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -50,11 +55,8 @@ long int pk_Version;
 		bool operator()(const Table_CachedScreens::Key &key1, const Table_CachedScreens::Key &key2) const;
 	};	
 
-	map<Table_CachedScreens::Key, class Row_CachedScreens*, Table_CachedScreens::Key_Less> cachedRows;
-	map<Table_CachedScreens::Key, class Row_CachedScreens*, Table_CachedScreens::Key_Less> deleted_cachedRows;
-	vector<class Row_CachedScreens*> addedRows;
-	vector<class Row_CachedScreens*> deleted_addedRows;	
-		
+	
+	
 
 public:				
 	void Commit();
@@ -69,7 +71,7 @@ public:
 private:	
 	
 		
-	class Row_CachedScreens* FetchRow(Key &key);
+	class Row_CachedScreens* FetchRow(TripleLongKey &key);
 		
 			
 };
@@ -92,10 +94,6 @@ short int m_psc_frozen;
 string m_psc_mod;
 
 		bool is_null[9];
-	
-		bool is_deleted;
-		bool is_added;
-		bool is_modified;					
 	
 	public:
 		long int FK_Orbiter_get();

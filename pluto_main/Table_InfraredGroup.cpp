@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -39,15 +38,17 @@ void Database_pluto_main::DeleteTable_InfraredGroup()
 
 Table_InfraredGroup::~Table_InfraredGroup()
 {
-	map<Table_InfraredGroup::Key, class Row_InfraredGroup*, Table_InfraredGroup::Key_Less>::iterator it;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_InfraredGroup *pRow = (Row_InfraredGroup *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_InfraredGroup *pRow = (Row_InfraredGroup *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -61,12 +62,13 @@ Table_InfraredGroup::~Table_InfraredGroup()
 void Row_InfraredGroup::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_InfraredGroup *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_InfraredGroup*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_InfraredGroup *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -76,8 +78,8 @@ void Row_InfraredGroup::Delete()
 		}
 		else
 		{
-			Table_InfraredGroup::Key key(this);					
-			map<Table_InfraredGroup::Key, Row_InfraredGroup*, Table_InfraredGroup::Key_Less>::iterator i = table->cachedRows.find(key);
+			SingleLongKey key(pRow->m_PK_InfraredGroup);
+			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -88,12 +90,14 @@ void Row_InfraredGroup::Delete()
 
 void Row_InfraredGroup::Reload()
 {
+	Row_InfraredGroup *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_InfraredGroup::Key key(this);		
+		SingleLongKey key(pRow->m_PK_InfraredGroup);
 		Row_InfraredGroup *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -373,9 +377,9 @@ void Table_InfraredGroup::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_InfraredGroup*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_InfraredGroup *pRow = *i;
+		Row_InfraredGroup *pRow = (Row_InfraredGroup *)*i;
 	
 		
 string values_list_comma_separated;
@@ -401,7 +405,7 @@ pRow->m_PK_InfraredGroup=id;
 	
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			SingleLongKey key(pRow->m_PK_InfraredGroup);	
 			cachedRows[key] = pRow;
 					
 			
@@ -415,14 +419,14 @@ pRow->m_PK_InfraredGroup=id;
 //update modified
 	
 
-	for (map<Key, Row_InfraredGroup*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_InfraredGroup* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_InfraredGroup* pRow = (Row_InfraredGroup*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_InfraredGroup);
 
 		char tmp_PK_InfraredGroup[32];
-sprintf(tmp_PK_InfraredGroup, "%li", key.pk_PK_InfraredGroup);
+sprintf(tmp_PK_InfraredGroup, "%li", key.pk);
 
 
 string condition;
@@ -448,7 +452,7 @@ update_values_list = update_values_list + "PK_InfraredGroup="+pRow->PK_InfraredG
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_InfraredGroup*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -458,12 +462,13 @@ update_values_list = update_values_list + "PK_InfraredGroup="+pRow->PK_InfraredG
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_InfraredGroup*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		SingleLongKey key = (*i).first;
+		Row_InfraredGroup* pRow = (Row_InfraredGroup*) (*i).second;	
+
 		char tmp_PK_InfraredGroup[32];
-sprintf(tmp_PK_InfraredGroup, "%li", key.pk_PK_InfraredGroup);
+sprintf(tmp_PK_InfraredGroup, "%li", key.pk);
 
 
 string condition;
@@ -621,14 +626,14 @@ pRow->m_psc_mod = string(row[8],lengths[8]);
 
 		//checking for duplicates
 
-		Key key(pRow);
+		SingleLongKey key(pRow->m_PK_InfraredGroup);
 		
-                map<Table_InfraredGroup::Key, Row_InfraredGroup*, Table_InfraredGroup::Key_Less>::iterator i = cachedRows.find(key);
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_InfraredGroup *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -657,9 +662,9 @@ Row_InfraredGroup* Table_InfraredGroup::GetRow(long int in_PK_InfraredGroup)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_PK_InfraredGroup);
+	SingleLongKey row_key(in_PK_InfraredGroup);
 
-	map<Key, Row_InfraredGroup*, Key_Less>::iterator i;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -670,7 +675,7 @@ Row_InfraredGroup* Table_InfraredGroup::GetRow(long int in_PK_InfraredGroup)
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_InfraredGroup*) (*i).second;
 	//we have to fetch row
 	Row_InfraredGroup* pRow = FetchRow(row_key);
 
@@ -681,13 +686,13 @@ Row_InfraredGroup* Table_InfraredGroup::GetRow(long int in_PK_InfraredGroup)
 
 
 
-Row_InfraredGroup* Table_InfraredGroup::FetchRow(Table_InfraredGroup::Key &key)
+Row_InfraredGroup* Table_InfraredGroup::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_InfraredGroup[32];
-sprintf(tmp_PK_InfraredGroup, "%li", key.pk_PK_InfraredGroup);
+sprintf(tmp_PK_InfraredGroup, "%li", key.pk);
 
 
 string condition;

@@ -13,7 +13,12 @@
 #include "Define_psc_user_batdet.h"
 #include "SerializeClass/SerializeClass.h"
 
-class DLL_EXPORT Table_psc_user_batdet
+// If we declare the maps locally, the compiler will create multiple copies of them
+// making the output files enormous.  The solution seems to be to create some predefined
+// maps for the standard types of primary keys (single long, double long, etc.) and
+// put them in a common base class, which is optionally included as tablebase below
+
+class DLL_EXPORT Table_psc_user_batdet : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -48,11 +53,8 @@ private:
 		bool operator()(const Table_psc_user_batdet::Key &key1, const Table_psc_user_batdet::Key &key2) const;
 	};	
 
-	map<Table_psc_user_batdet::Key, class Row_psc_user_batdet*, Table_psc_user_batdet::Key_Less> cachedRows;
-	map<Table_psc_user_batdet::Key, class Row_psc_user_batdet*, Table_psc_user_batdet::Key_Less> deleted_cachedRows;
-	vector<class Row_psc_user_batdet*> addedRows;
-	vector<class Row_psc_user_batdet*> deleted_addedRows;	
-		
+	
+	
 
 public:				
 	void Commit();
@@ -67,7 +69,7 @@ public:
 private:	
 	
 		
-	class Row_psc_user_batdet* FetchRow(Key &key);
+	class Row_psc_user_batdet* FetchRow(SingleLongKey &key);
 		
 			
 };
@@ -83,10 +85,6 @@ class DLL_EXPORT Row_psc_user_batdet : public TableRow, public SerializeClass
 string m_Value;
 
 		bool is_null[2];
-	
-		bool is_deleted;
-		bool is_added;
-		bool is_modified;					
 	
 	public:
 		long int PK_psc_user_batdet_get();

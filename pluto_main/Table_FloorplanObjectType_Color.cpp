@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -34,15 +33,17 @@ void Database_pluto_main::DeleteTable_FloorplanObjectType_Color()
 
 Table_FloorplanObjectType_Color::~Table_FloorplanObjectType_Color()
 {
-	map<Table_FloorplanObjectType_Color::Key, class Row_FloorplanObjectType_Color*, Table_FloorplanObjectType_Color::Key_Less>::iterator it;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_FloorplanObjectType_Color *pRow = (Row_FloorplanObjectType_Color *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_FloorplanObjectType_Color *pRow = (Row_FloorplanObjectType_Color *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -56,12 +57,13 @@ Table_FloorplanObjectType_Color::~Table_FloorplanObjectType_Color()
 void Row_FloorplanObjectType_Color::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_FloorplanObjectType_Color *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_FloorplanObjectType_Color*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_FloorplanObjectType_Color *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -71,8 +73,8 @@ void Row_FloorplanObjectType_Color::Delete()
 		}
 		else
 		{
-			Table_FloorplanObjectType_Color::Key key(this);					
-			map<Table_FloorplanObjectType_Color::Key, Row_FloorplanObjectType_Color*, Table_FloorplanObjectType_Color::Key_Less>::iterator i = table->cachedRows.find(key);
+			SingleLongKey key(pRow->m_PK_FloorplanObjectType_Color);
+			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -83,12 +85,14 @@ void Row_FloorplanObjectType_Color::Delete()
 
 void Row_FloorplanObjectType_Color::Reload()
 {
+	Row_FloorplanObjectType_Color *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_FloorplanObjectType_Color::Key key(this);		
+		SingleLongKey key(pRow->m_PK_FloorplanObjectType_Color);
 		Row_FloorplanObjectType_Color *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -383,9 +387,9 @@ void Table_FloorplanObjectType_Color::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_FloorplanObjectType_Color*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_FloorplanObjectType_Color *pRow = *i;
+		Row_FloorplanObjectType_Color *pRow = (Row_FloorplanObjectType_Color *)*i;
 	
 		
 string values_list_comma_separated;
@@ -411,7 +415,7 @@ pRow->m_PK_FloorplanObjectType_Color=id;
 	
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			SingleLongKey key(pRow->m_PK_FloorplanObjectType_Color);	
 			cachedRows[key] = pRow;
 					
 			
@@ -425,14 +429,14 @@ pRow->m_PK_FloorplanObjectType_Color=id;
 //update modified
 	
 
-	for (map<Key, Row_FloorplanObjectType_Color*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_FloorplanObjectType_Color* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_FloorplanObjectType_Color* pRow = (Row_FloorplanObjectType_Color*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_FloorplanObjectType_Color);
 
 		char tmp_PK_FloorplanObjectType_Color[32];
-sprintf(tmp_PK_FloorplanObjectType_Color, "%li", key.pk_PK_FloorplanObjectType_Color);
+sprintf(tmp_PK_FloorplanObjectType_Color, "%li", key.pk);
 
 
 string condition;
@@ -458,7 +462,7 @@ update_values_list = update_values_list + "PK_FloorplanObjectType_Color="+pRow->
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_FloorplanObjectType_Color*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -468,12 +472,13 @@ update_values_list = update_values_list + "PK_FloorplanObjectType_Color="+pRow->
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_FloorplanObjectType_Color*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		SingleLongKey key = (*i).first;
+		Row_FloorplanObjectType_Color* pRow = (Row_FloorplanObjectType_Color*) (*i).second;	
+
 		char tmp_PK_FloorplanObjectType_Color[32];
-sprintf(tmp_PK_FloorplanObjectType_Color, "%li", key.pk_PK_FloorplanObjectType_Color);
+sprintf(tmp_PK_FloorplanObjectType_Color, "%li", key.pk);
 
 
 string condition;
@@ -642,14 +647,14 @@ pRow->m_psc_mod = string(row[9],lengths[9]);
 
 		//checking for duplicates
 
-		Key key(pRow);
+		SingleLongKey key(pRow->m_PK_FloorplanObjectType_Color);
 		
-                map<Table_FloorplanObjectType_Color::Key, Row_FloorplanObjectType_Color*, Table_FloorplanObjectType_Color::Key_Less>::iterator i = cachedRows.find(key);
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_FloorplanObjectType_Color *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -678,9 +683,9 @@ Row_FloorplanObjectType_Color* Table_FloorplanObjectType_Color::GetRow(long int 
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_PK_FloorplanObjectType_Color);
+	SingleLongKey row_key(in_PK_FloorplanObjectType_Color);
 
-	map<Key, Row_FloorplanObjectType_Color*, Key_Less>::iterator i;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -691,7 +696,7 @@ Row_FloorplanObjectType_Color* Table_FloorplanObjectType_Color::GetRow(long int 
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_FloorplanObjectType_Color*) (*i).second;
 	//we have to fetch row
 	Row_FloorplanObjectType_Color* pRow = FetchRow(row_key);
 
@@ -702,13 +707,13 @@ Row_FloorplanObjectType_Color* Table_FloorplanObjectType_Color::GetRow(long int 
 
 
 
-Row_FloorplanObjectType_Color* Table_FloorplanObjectType_Color::FetchRow(Table_FloorplanObjectType_Color::Key &key)
+Row_FloorplanObjectType_Color* Table_FloorplanObjectType_Color::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_FloorplanObjectType_Color[32];
-sprintf(tmp_PK_FloorplanObjectType_Color, "%li", key.pk_PK_FloorplanObjectType_Color);
+sprintf(tmp_PK_FloorplanObjectType_Color, "%li", key.pk);
 
 
 string condition;

@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -34,15 +33,17 @@ void Database_pluto_main::DeleteTable_RoomType()
 
 Table_RoomType::~Table_RoomType()
 {
-	map<Table_RoomType::Key, class Row_RoomType*, Table_RoomType::Key_Less>::iterator it;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_RoomType *pRow = (Row_RoomType *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_RoomType *pRow = (Row_RoomType *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -56,12 +57,13 @@ Table_RoomType::~Table_RoomType()
 void Row_RoomType::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_RoomType *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_RoomType*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_RoomType *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -71,8 +73,8 @@ void Row_RoomType::Delete()
 		}
 		else
 		{
-			Table_RoomType::Key key(this);					
-			map<Table_RoomType::Key, Row_RoomType*, Table_RoomType::Key_Less>::iterator i = table->cachedRows.find(key);
+			SingleLongKey key(pRow->m_PK_RoomType);
+			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -83,12 +85,14 @@ void Row_RoomType::Delete()
 
 void Row_RoomType::Reload()
 {
+	Row_RoomType *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_RoomType::Key key(this);		
+		SingleLongKey key(pRow->m_PK_RoomType);
 		Row_RoomType *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -341,9 +345,9 @@ void Table_RoomType::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_RoomType*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_RoomType *pRow = *i;
+		Row_RoomType *pRow = (Row_RoomType *)*i;
 	
 		
 string values_list_comma_separated;
@@ -369,7 +373,7 @@ pRow->m_PK_RoomType=id;
 	
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			SingleLongKey key(pRow->m_PK_RoomType);	
 			cachedRows[key] = pRow;
 					
 			
@@ -383,14 +387,14 @@ pRow->m_PK_RoomType=id;
 //update modified
 	
 
-	for (map<Key, Row_RoomType*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_RoomType* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_RoomType* pRow = (Row_RoomType*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_RoomType);
 
 		char tmp_PK_RoomType[32];
-sprintf(tmp_PK_RoomType, "%li", key.pk_PK_RoomType);
+sprintf(tmp_PK_RoomType, "%li", key.pk);
 
 
 string condition;
@@ -416,7 +420,7 @@ update_values_list = update_values_list + "PK_RoomType="+pRow->PK_RoomType_asSQL
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_RoomType*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -426,12 +430,13 @@ update_values_list = update_values_list + "PK_RoomType="+pRow->PK_RoomType_asSQL
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_RoomType*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		SingleLongKey key = (*i).first;
+		Row_RoomType* pRow = (Row_RoomType*) (*i).second;	
+
 		char tmp_PK_RoomType[32];
-sprintf(tmp_PK_RoomType, "%li", key.pk_PK_RoomType);
+sprintf(tmp_PK_RoomType, "%li", key.pk);
 
 
 string condition;
@@ -578,14 +583,14 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 
 		//checking for duplicates
 
-		Key key(pRow);
+		SingleLongKey key(pRow->m_PK_RoomType);
 		
-                map<Table_RoomType::Key, Row_RoomType*, Table_RoomType::Key_Less>::iterator i = cachedRows.find(key);
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_RoomType *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -614,9 +619,9 @@ Row_RoomType* Table_RoomType::GetRow(long int in_PK_RoomType)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_PK_RoomType);
+	SingleLongKey row_key(in_PK_RoomType);
 
-	map<Key, Row_RoomType*, Key_Less>::iterator i;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -627,7 +632,7 @@ Row_RoomType* Table_RoomType::GetRow(long int in_PK_RoomType)
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_RoomType*) (*i).second;
 	//we have to fetch row
 	Row_RoomType* pRow = FetchRow(row_key);
 
@@ -638,13 +643,13 @@ Row_RoomType* Table_RoomType::GetRow(long int in_PK_RoomType)
 
 
 
-Row_RoomType* Table_RoomType::FetchRow(Table_RoomType::Key &key)
+Row_RoomType* Table_RoomType::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_RoomType[32];
-sprintf(tmp_PK_RoomType, "%li", key.pk_PK_RoomType);
+sprintf(tmp_PK_RoomType, "%li", key.pk);
 
 
 string condition;

@@ -13,7 +13,12 @@
 #include "Define_@table_name@.h"
 #include "SerializeClass/SerializeClass.h"
 
-class DLL_EXPORT Table_@table_name@
+// If we declare the maps locally, the compiler will create multiple copies of them
+// making the output files enormous.  The solution seems to be to create some predefined
+// maps for the standard types of primary keys (single long, double long, etc.) and
+// put them in a common base class, which is optionally included as tablebase below
+
+class DLL_EXPORT Table_@table_name@ : public TableBase @table_base@
 {
 private:
 	Database_@database_name@ *database;
@@ -47,11 +52,8 @@ private:
 		bool operator()(const Table_@table_name@::Key &key1, const Table_@table_name@::Key &key2) const;
 	};	
 
-	map<Table_@table_name@::Key, class Row_@table_name@*, Table_@table_name@::Key_Less> cachedRows;
-	map<Table_@table_name@::Key, class Row_@table_name@*, Table_@table_name@::Key_Less> deleted_cachedRows;
-	vector<class Row_@table_name@*> addedRows;
-	vector<class Row_@table_name@*> deleted_addedRows;	
-		
+	@map_cached_rows@
+	@map_deleted_cached_rows@
 
 public:				
 	void Commit();
@@ -66,7 +68,7 @@ public:
 private:	
 	
 	@ifdef_have_primary_keys@	
-	class Row_@table_name@* FetchRow(Key &key);
+	class Row_@table_name@* FetchRow(@table_key@ &key);
 	@endif_have_primary_keys@	
 			
 };
@@ -80,10 +82,6 @@ class DLL_EXPORT Row_@table_name@ : public TableRow, public SerializeClass
 		
 		@fields_declaration@
 		bool is_null[@fields_count@];
-	
-		bool is_deleted;
-		bool is_added;
-		bool is_modified;					
 	
 	public:
 		@getters_declaration@

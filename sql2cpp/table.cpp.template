@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -33,15 +32,17 @@ void Database_@database_name@::DeleteTable_@table_name@()
 
 Table_@table_name@::~Table_@table_name@()
 {
-	map<Table_@table_name@::Key, class Row_@table_name@*, Table_@table_name@::Key_Less>::iterator it;
+	map<@table_key@, class TableRow*, @table_key_comparer@>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_@table_name@ *pRow = (Row_@table_name@ *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_@table_name@ *pRow = (Row_@table_name@ *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -55,12 +56,13 @@ Table_@table_name@::~Table_@table_name@()
 void Row_@table_name@::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_@table_name@ *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_@table_name@*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_@table_name@ *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -70,8 +72,8 @@ void Row_@table_name@::Delete()
 		}
 		else
 		{
-			Table_@table_name@::Key key(this);					
-			map<Table_@table_name@::Key, Row_@table_name@*, Table_@table_name@::Key_Less>::iterator i = table->cachedRows.find(key);
+			@table_key@ key(@primary_fields@);
+			map<@table_key@, TableRow*, @table_key_comparer@>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -82,12 +84,14 @@ void Row_@table_name@::Delete()
 
 void Row_@table_name@::Reload()
 {
+	Row_@table_name@ *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	@ifdef_have_primary_keys@
 	if (!is_added)
 	{
-		Table_@table_name@::Key key(this);		
+		@table_key@ key(@primary_fields@);
 		Row_@table_name@ *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -149,9 +153,9 @@ void Table_@table_name@::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_@table_name@*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_@table_name@ *pRow = *i;
+		Row_@table_name@ *pRow = (Row_@table_name@ *)*i;
 	
 		@generate_insert_query@
 	
@@ -172,7 +176,7 @@ void Table_@table_name@::Commit()
 			@primary_autoinc_key_init@	
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			@table_key@ key(@primary_fields@);	
 			cachedRows[key] = pRow;
 			@endif_have_primary_keys@		
 			
@@ -186,11 +190,11 @@ void Table_@table_name@::Commit()
 //update modified
 	@ifdef_have_primary_keys@
 
-	for (map<Key, Row_@table_name@*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<@table_key@, class TableRow*, @table_key_comparer@>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_@table_name@* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_@table_name@* pRow = (Row_@table_name@*) (*i).second;	
+		@table_key@ key(@primary_fields@);
 
 		@build_query_for_key@	
 			
@@ -210,7 +214,7 @@ void Table_@table_name@::Commit()
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_@table_name@*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -220,10 +224,11 @@ void Table_@table_name@::Commit()
 	@ifdef_have_primary_keys@
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_@table_name@*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<@table_key@, class TableRow*, @table_key_comparer@>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		@table_key@ key = (*i).first;
+		Row_@table_name@* pRow = (Row_@table_name@*) (*i).second;	
+
 		@build_query_for_key@
 	
 		string query = "delete from @table_name@ where " + condition;
@@ -278,14 +283,14 @@ bool Table_@table_name@::GetRows(string where_statement,vector<class Row_@table_
 
 		//checking for duplicates
 
-		Key key(pRow);
+		@table_key@ key(@primary_fields@);
 		
-                map<Table_@table_name@::Key, Row_@table_name@*, Table_@table_name@::Key_Less>::iterator i = cachedRows.find(key);
+		map<@table_key@, class TableRow*, @table_key_comparer@>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_@table_name@ *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -314,9 +319,9 @@ Row_@table_name@* Table_@table_name@::GetRow(@primary_fields_in_typed_list@)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(@primary_fields_in_untyped_list@);
+	@table_key@ row_key(@primary_fields_in_untyped_list@);
 
-	map<Key, Row_@table_name@*, Key_Less>::iterator i;
+	map<@table_key@, class TableRow*, @table_key_comparer@>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -327,7 +332,7 @@ Row_@table_name@* Table_@table_name@::GetRow(@primary_fields_in_typed_list@)
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_@table_name@*) (*i).second;
 	//we have to fetch row
 	Row_@table_name@* pRow = FetchRow(row_key);
 
@@ -338,7 +343,7 @@ Row_@table_name@* Table_@table_name@::GetRow(@primary_fields_in_typed_list@)
 @endif_have_primary_keys@
 
 @ifdef_have_primary_keys@
-Row_@table_name@* Table_@table_name@::FetchRow(Table_@table_name@::Key &key)
+Row_@table_name@* Table_@table_name@::FetchRow(@table_key@ &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 

@@ -13,7 +13,12 @@
 #include "Define_Household_Installation.h"
 #include "SerializeClass/SerializeClass.h"
 
-class DLL_EXPORT Table_Household_Installation
+// If we declare the maps locally, the compiler will create multiple copies of them
+// making the output files enormous.  The solution seems to be to create some predefined
+// maps for the standard types of primary keys (single long, double long, etc.) and
+// put them in a common base class, which is optionally included as tablebase below
+
+class DLL_EXPORT Table_Household_Installation : public TableBase , DoubleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -49,11 +54,8 @@ long int pk_FK_Installation;
 		bool operator()(const Table_Household_Installation::Key &key1, const Table_Household_Installation::Key &key2) const;
 	};	
 
-	map<Table_Household_Installation::Key, class Row_Household_Installation*, Table_Household_Installation::Key_Less> cachedRows;
-	map<Table_Household_Installation::Key, class Row_Household_Installation*, Table_Household_Installation::Key_Less> deleted_cachedRows;
-	vector<class Row_Household_Installation*> addedRows;
-	vector<class Row_Household_Installation*> deleted_addedRows;	
-		
+	
+	
 
 public:				
 	void Commit();
@@ -68,7 +70,7 @@ public:
 private:	
 	
 		
-	class Row_Household_Installation* FetchRow(Key &key);
+	class Row_Household_Installation* FetchRow(DoubleLongKey &key);
 		
 			
 };
@@ -89,10 +91,6 @@ short int m_psc_frozen;
 string m_psc_mod;
 
 		bool is_null[7];
-	
-		bool is_deleted;
-		bool is_added;
-		bool is_modified;					
 	
 	public:
 		long int FK_Household_get();

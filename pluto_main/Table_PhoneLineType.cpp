@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -33,15 +32,17 @@ void Database_pluto_main::DeleteTable_PhoneLineType()
 
 Table_PhoneLineType::~Table_PhoneLineType()
 {
-	map<Table_PhoneLineType::Key, class Row_PhoneLineType*, Table_PhoneLineType::Key_Less>::iterator it;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_PhoneLineType *pRow = (Row_PhoneLineType *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_PhoneLineType *pRow = (Row_PhoneLineType *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -55,12 +56,13 @@ Table_PhoneLineType::~Table_PhoneLineType()
 void Row_PhoneLineType::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_PhoneLineType *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_PhoneLineType*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_PhoneLineType *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -70,8 +72,8 @@ void Row_PhoneLineType::Delete()
 		}
 		else
 		{
-			Table_PhoneLineType::Key key(this);					
-			map<Table_PhoneLineType::Key, Row_PhoneLineType*, Table_PhoneLineType::Key_Less>::iterator i = table->cachedRows.find(key);
+			SingleLongKey key(pRow->m_PK_PhoneLineType);
+			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -82,12 +84,14 @@ void Row_PhoneLineType::Delete()
 
 void Row_PhoneLineType::Reload()
 {
+	Row_PhoneLineType *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_PhoneLineType::Key key(this);		
+		SingleLongKey key(pRow->m_PK_PhoneLineType);
 		Row_PhoneLineType *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -340,9 +344,9 @@ void Table_PhoneLineType::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_PhoneLineType*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_PhoneLineType *pRow = *i;
+		Row_PhoneLineType *pRow = (Row_PhoneLineType *)*i;
 	
 		
 string values_list_comma_separated;
@@ -368,7 +372,7 @@ pRow->m_PK_PhoneLineType=id;
 	
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			SingleLongKey key(pRow->m_PK_PhoneLineType);	
 			cachedRows[key] = pRow;
 					
 			
@@ -382,14 +386,14 @@ pRow->m_PK_PhoneLineType=id;
 //update modified
 	
 
-	for (map<Key, Row_PhoneLineType*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_PhoneLineType* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_PhoneLineType* pRow = (Row_PhoneLineType*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_PhoneLineType);
 
 		char tmp_PK_PhoneLineType[32];
-sprintf(tmp_PK_PhoneLineType, "%li", key.pk_PK_PhoneLineType);
+sprintf(tmp_PK_PhoneLineType, "%li", key.pk);
 
 
 string condition;
@@ -415,7 +419,7 @@ update_values_list = update_values_list + "PK_PhoneLineType="+pRow->PK_PhoneLine
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_PhoneLineType*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -425,12 +429,13 @@ update_values_list = update_values_list + "PK_PhoneLineType="+pRow->PK_PhoneLine
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_PhoneLineType*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		SingleLongKey key = (*i).first;
+		Row_PhoneLineType* pRow = (Row_PhoneLineType*) (*i).second;	
+
 		char tmp_PK_PhoneLineType[32];
-sprintf(tmp_PK_PhoneLineType, "%li", key.pk_PK_PhoneLineType);
+sprintf(tmp_PK_PhoneLineType, "%li", key.pk);
 
 
 string condition;
@@ -577,14 +582,14 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 
 		//checking for duplicates
 
-		Key key(pRow);
+		SingleLongKey key(pRow->m_PK_PhoneLineType);
 		
-                map<Table_PhoneLineType::Key, Row_PhoneLineType*, Table_PhoneLineType::Key_Less>::iterator i = cachedRows.find(key);
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_PhoneLineType *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -613,9 +618,9 @@ Row_PhoneLineType* Table_PhoneLineType::GetRow(long int in_PK_PhoneLineType)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_PK_PhoneLineType);
+	SingleLongKey row_key(in_PK_PhoneLineType);
 
-	map<Key, Row_PhoneLineType*, Key_Less>::iterator i;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -626,7 +631,7 @@ Row_PhoneLineType* Table_PhoneLineType::GetRow(long int in_PK_PhoneLineType)
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_PhoneLineType*) (*i).second;
 	//we have to fetch row
 	Row_PhoneLineType* pRow = FetchRow(row_key);
 
@@ -637,13 +642,13 @@ Row_PhoneLineType* Table_PhoneLineType::GetRow(long int in_PK_PhoneLineType)
 
 
 
-Row_PhoneLineType* Table_PhoneLineType::FetchRow(Table_PhoneLineType::Key &key)
+Row_PhoneLineType* Table_PhoneLineType::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_PhoneLineType[32];
-sprintf(tmp_PK_PhoneLineType, "%li", key.pk_PK_PhoneLineType);
+sprintf(tmp_PK_PhoneLineType, "%li", key.pk);
 
 
 string condition;

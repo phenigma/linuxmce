@@ -247,6 +247,7 @@ int main( int argc, char *argv[] )
 
 	// Make a vcproject files.
 	string Sources="\t\t\t<File\r\n\t\t\t\tRelativePath=\".\\Database_" + sDBName + ".cpp\">\r\n\t\t\t</File>\r\n";
+	Sources += "\t\t\t<File\r\n\t\t\t\tRelativePath=\".\\TableRow.cpp\">\r\n\t\t\t</File>\r\n";
 
 	for ( it=p_listTableInfo->begin(); it<p_listTableInfo->end(); ++it )
 	{
@@ -272,7 +273,7 @@ int main( int argc, char *argv[] )
 	makefile_out << "LDFLAGS = -L$(ROOT)/lib" << endl;
 	makefile_out << "LDLIBS =  -lmysqlclient_r" << endl << endl;
 
-	makefile_out << "sources = Database_" << sDBName << ".cpp ";
+	makefile_out << "sources = Database_" << sDBName << ".cpp TableRow.cpp";
 
 	db_h_out << "#ifndef __Database_"<<sDBName<<"_H_" << endl;
 	db_h_out << "#define __Database_"<<sDBName<<"_H_" << endl;
@@ -381,8 +382,10 @@ int main( int argc, char *argv[] )
 	db_cpp_out << "}" << endl;
 
 	string tbrow_h = sOutputPath + "TableRow.h";
-	ofstream tbrow_h_out(tbrow_h.c_str());
-	tbrow_h_out << "#ifndef __TableRow_H_\n#define __TableRow_H_\n\nclass TableRow\n{\n};\n\n#endif\n" ;
+	FileUtils::PUCopyFile(sInputPath + "TableRow.h",tbrow_h);
+
+	string tbrow_cpp = sOutputPath + "TableRow.cpp";
+	FileUtils::PUCopyFile(sInputPath + "TableRow.cpp",tbrow_cpp);
 
 	cout << "Classes generated successfully!" << endl;
 

@@ -13,7 +13,12 @@
 #include "Define_Icon.h"
 #include "SerializeClass/SerializeClass.h"
 
-class DLL_EXPORT Table_Icon
+// If we declare the maps locally, the compiler will create multiple copies of them
+// making the output files enormous.  The solution seems to be to create some predefined
+// maps for the standard types of primary keys (single long, double long, etc.) and
+// put them in a common base class, which is optionally included as tablebase below
+
+class DLL_EXPORT Table_Icon : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -48,11 +53,8 @@ private:
 		bool operator()(const Table_Icon::Key &key1, const Table_Icon::Key &key2) const;
 	};	
 
-	map<Table_Icon::Key, class Row_Icon*, Table_Icon::Key_Less> cachedRows;
-	map<Table_Icon::Key, class Row_Icon*, Table_Icon::Key_Less> deleted_cachedRows;
-	vector<class Row_Icon*> addedRows;
-	vector<class Row_Icon*> deleted_addedRows;	
-		
+	
+	
 
 public:				
 	void Commit();
@@ -67,7 +69,7 @@ public:
 private:	
 	
 		
-	class Row_Icon* FetchRow(Key &key);
+	class Row_Icon* FetchRow(SingleLongKey &key);
 		
 			
 };
@@ -94,10 +96,6 @@ short int m_psc_frozen;
 string m_psc_mod;
 
 		bool is_null[13];
-	
-		bool is_deleted;
-		bool is_added;
-		bool is_modified;					
 	
 	public:
 		long int PK_Icon_get();

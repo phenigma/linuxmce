@@ -8,6 +8,51 @@ using namespace std;
 #include "PlutoUtils/FileUtils.h"
 #include "CommonFunctions.h"
 
+TableInfo_Generator::TableInfo_Generator( MYSQL * pDB, map<string,TableInfo_Generator*> *pTables ) :
+	TableInfo( pDB ),
+	m_sTableClassPrefix( "Table_" ),
+	m_sRowClassPrefix( "Row_" ),
+	m_sPrimaryKeyClassPrefix( "PrimaryKey_" )
+{
+	m_pTables = pTables;
+	m_eKnownPkTypes = PKTYPES_UNKNOWN;
+}
+
+bool TableInfo_Generator::loadFromDB( string sTable )
+{
+	bool bResult = TableInfo::loadFromDB( sTable ); // Fill the fields structure 
+
+	// See if this hass a known pattern of primary key, like a single int, etc.
+	int iNumLongPrimaryKeys=0,iNumStringPrimaryKeys=0;
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++ )
+	{
+		if ((*i)->m_iFlags & PRI_KEY_FLAG)
+		{
+			string sType = (*i)->getCType();
+			if( sType=="long int" )
+				iNumLongPrimaryKeys++;
+			else
+			{
+				cout << m_sTableName << " will have a custom Key" << endl;
+				return bResult; // Leave it as PKTYPES_UNKNOWN -- we don't know what this is
+			}
+		}
+	}
+
+	// We had no primary keys of unknown types
+	if( iNumStringPrimaryKeys==0 && iNumLongPrimaryKeys==1 )
+		m_eKnownPkTypes = PKTYPES_SINGLE_LONG;
+	else if( iNumStringPrimaryKeys==0 && iNumLongPrimaryKeys==2 )
+		m_eKnownPkTypes = PKTYPES_DOUBLE_LONG;
+	else if( iNumStringPrimaryKeys==0 && iNumLongPrimaryKeys==3 )
+		m_eKnownPkTypes = PKTYPES_TRIPLE_LONG;
+	else if( iNumStringPrimaryKeys==1 && iNumLongPrimaryKeys==0 )
+		m_eKnownPkTypes = PKTYPES_SINGLE_STRING;
+	else
+		cout << m_sTableName << " will have a custom Key" << endl;
+	return bResult;
+}
+
 string TableInfo_Generator::ExpandString(string s)
 {
 	if (s=="table_name")
@@ -52,6 +97,21 @@ string TableInfo_Generator::ExpandString(string s)
 		if (s=="primary_fields_assign_list")
 			return get_primary_fields_assign_list();
 	else
+		if (s=="table_key")
+			return get_table_key();
+	else
+		if (s=="table_base")
+			return get_table_base();
+	else
+		if (s=="map_cached_rows")
+			return get_map_cached_rows();
+	else
+		if (s=="map_deleted_cached_rows")
+			return get_map_deleted_cached_rows();
+	else
+		if (s=="table_key_comparer")
+			return get_table_key_comparer();
+	else
 		if (s=="key_less_statement")
 			return get_key_less_statement();
 	else
@@ -78,6 +138,9 @@ string TableInfo_Generator::ExpandString(string s)
 	else
 		if (s=="primary_fields_assign_from_row")
 			return get_primary_fields_assign_from_row();
+	else
+		if (s=="primary_fields")
+			return get_primary_fields();
 	else
 		if (s=="build_query_for_key")
 			return get_build_query_for_key();
@@ -274,6 +337,61 @@ string TableInfo_Generator::get_primary_fields_in_typed_list()
 	return s;
 }
 
+string TableInfo_Generator::get_table_key()
+{
+	if( m_eKnownPkTypes==PKTYPES_SINGLE_LONG )
+		return "SingleLongKey";
+	else if( m_eKnownPkTypes==PKTYPES_DOUBLE_LONG )
+		return "DoubleLongKey";
+	else if( m_eKnownPkTypes==PKTYPES_TRIPLE_LONG )
+		return "TripleLongKey";
+	else if( m_eKnownPkTypes==PKTYPES_SINGLE_STRING )
+		return "SingleStringKey";
+	else
+		return "Table_" + m_sTableName + "::Key";
+}
+
+string TableInfo_Generator::get_table_base()
+{
+	if( m_eKnownPkTypes==PKTYPES_SINGLE_LONG )
+		return ", SingleLongKeyBase";
+	else if( m_eKnownPkTypes==PKTYPES_DOUBLE_LONG )
+		return ", DoubleLongKeyBase";
+	else if( m_eKnownPkTypes==PKTYPES_TRIPLE_LONG )
+		return ", TripleLongKeyBase";
+	else if( m_eKnownPkTypes==PKTYPES_SINGLE_STRING )
+		return ", SingleStringKeyBase";
+	else
+		return ""; // We'll declare the maps locally
+}
+
+string TableInfo_Generator::get_map_cached_rows()
+{
+	if( m_eKnownPkTypes!=PKTYPES_UNKNOWN )
+		return "";
+	return "map<" + get_table_key() + ", class TableRow*, " + get_table_key_comparer() + "> cachedRows;";
+}
+string TableInfo_Generator::get_map_deleted_cached_rows()
+{
+	if( m_eKnownPkTypes!=PKTYPES_UNKNOWN )
+		return "";
+	return "map<" + get_table_key() + ", class TableRow*, " + get_table_key_comparer() + "> deleted_cachedRows;";
+}
+
+string TableInfo_Generator::get_table_key_comparer()
+{
+	if( m_eKnownPkTypes==PKTYPES_SINGLE_LONG )
+		return "SingleLongKey_Less";
+	else if( m_eKnownPkTypes==PKTYPES_DOUBLE_LONG )
+		return "DoubleLongKey_Less";
+	else if( m_eKnownPkTypes==PKTYPES_TRIPLE_LONG )
+		return "TripleLongKey_Less";
+	else if( m_eKnownPkTypes==PKTYPES_SINGLE_STRING )
+		return "SingleStringKey_Less";
+	else
+		return "Table_" + m_sTableName + "::Key_Less";
+}
+
 string TableInfo_Generator::get_primary_fields_in_untyped_list()
 {
 	string s;
@@ -317,6 +435,17 @@ string TableInfo_Generator::get_primary_fields_assign_from_row()
 	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++ )
 		if ((*i)->m_iFlags & PRI_KEY_FLAG)
 			s = s + "pk_" + (*i)->m_pcFieldName + " = pRow->m_" + (*i)->m_pcFieldName + ";\n";
+	
+	return s;
+}
+
+string TableInfo_Generator::get_primary_fields()
+{
+	string s;
+	
+	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++ )
+		if ((*i)->m_iFlags & PRI_KEY_FLAG)
+			s = s + (s.length()>0 ? "," : "") + "pRow->m_" + (*i)->m_pcFieldName;
 	
 	return s;
 }
@@ -405,23 +534,34 @@ string TableInfo_Generator::get_bind_parameters_to_key()
 	string s="";
 	int iIndex=0;
 	int iPrimaryIndex=0;
+	int iPKCounter=0;  // How many primary keys we've found so far for the KnownPkTypes with double
 	
 	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++, iIndex++ )
 		if ((*i)->m_iFlags & PRI_KEY_FLAG)
 		{
+			iPKCounter++;
 			s = s + "is_param_null[" + int2string( iPrimaryIndex) + "]=false;\n";
 			s = s + "parameters[" + int2string(iPrimaryIndex) + "].buffer_type=" + (*i)->getMType() + ";\n";
 			
 			if ((*i)->getCType() != "string")
 			{
-				s = s + "parameters[" + int2string(iPrimaryIndex) + "].buffer=&(key.pk_" + (*i)->m_pcFieldName + ");\n";
+				if( m_eKnownPkTypes==PKTYPES_SINGLE_LONG )
+					s = s + "parameters[" + int2string(iPrimaryIndex) + "].buffer=&(key.pk);\n";
+				else if( m_eKnownPkTypes==PKTYPES_DOUBLE_LONG || m_eKnownPkTypes==PKTYPES_TRIPLE_LONG )
+					s = s + "parameters[" + int2string(iPrimaryIndex) + "].buffer=&(key.pk" + StringUtils::itos(iPKCounter) + ");\n";
+				else
+					s = s + "parameters[" + int2string(iPrimaryIndex) + "].buffer=&(key.pk_" + (*i)->m_pcFieldName + ");\n";
 				s = s + "parameters[" + int2string(iPrimaryIndex) + "].length=0;\n";
 			}
 			else
 			{
 				s = s + "char tmp_" + (*i)->m_pcFieldName + "[" + int2string((*i)->m_iLength+1) + "];\n";
-				s = s + "snprintf(tmp_" + (*i)->m_pcFieldName + ", "+ int2string((*i)->m_iLength+1)+", \"%*s\", key.pk_" + (*i)->m_pcFieldName
-						+ ".length(), key.pk_" + (*i)->m_pcFieldName + ".c_str());\n";
+				if( m_eKnownPkTypes==PKTYPES_SINGLE_STRING )
+					s = s + "snprintf(tmp_" + (*i)->m_pcFieldName + ", "+ int2string((*i)->m_iLength+1)+", \"%*s\", key.pk"
+							+ ".length(), key.pk.c_str());\n";
+				else
+					s = s + "snprintf(tmp_" + (*i)->m_pcFieldName + ", "+ int2string((*i)->m_iLength+1)+", \"%*s\", key.pk_" + (*i)->m_pcFieldName
+							+ ".length(), key.pk_" + (*i)->m_pcFieldName + ".c_str());\n";
 				s = s + "parameters[" + int2string(iPrimaryIndex) + "].buffer=tmp_" + (*i)->m_pcFieldName + ";\n";
 				s = s + "parameters[" + int2string(iPrimaryIndex) + "].length=&param_lengths["  + int2string(iPrimaryIndex) +  "];\n";
 			}
@@ -485,10 +625,12 @@ string TableInfo_Generator::get_build_query_for_key()
 {
 	string sCode="";
 	string sCondition=""; //default true to keep ..AND stuff happy
+	int iPKCounter=0;  // How many primary keys we've found so far for the KnownPkTypes with double
 		
 	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++ )
 		if ( (*i)->m_iFlags & PRI_KEY_FLAG )
 		{
+			iPKCounter++;
 			if (sCondition!="")
 				sCondition = sCondition + "+\" AND \"+";
 			
@@ -500,7 +642,12 @@ string TableInfo_Generator::get_build_query_for_key()
 			{
 				sCode = sCode + "char tmp_" + (*i)->m_pcFieldName + "[" ;
 				sCode = sCode + "32];\n";
-				sCode = sCode + "sprintf(tmp_" + (*i)->m_pcFieldName+", \"" + (*i)->getPrintFormat() + "\", " + "key.pk_" + (*i)->m_pcFieldName + ");\n\n";
+				if( m_eKnownPkTypes==PKTYPES_SINGLE_LONG )
+					sCode = sCode + "sprintf(tmp_" + (*i)->m_pcFieldName+", \"" + (*i)->getPrintFormat() + "\", " + "key.pk);\n\n";
+				else if( m_eKnownPkTypes==PKTYPES_DOUBLE_LONG || m_eKnownPkTypes==PKTYPES_TRIPLE_LONG )
+					sCode = sCode + "sprintf(tmp_" + (*i)->m_pcFieldName+", \"" + (*i)->getPrintFormat() + "\", " + "key.pk" + StringUtils::itos(iPKCounter) + ");\n\n";
+				else
+					sCode = sCode + "sprintf(tmp_" + (*i)->m_pcFieldName+", \"" + (*i)->getPrintFormat() + "\", " + "key.pk_" + (*i)->m_pcFieldName + ");\n\n";
 				sCondition = sCondition + " + tmp_" + (*i)->m_pcFieldName;
 			}
 			else
@@ -508,12 +655,19 @@ string TableInfo_Generator::get_build_query_for_key()
 				{
 					sCode = sCode + "char tmp_" + (*i)->m_pcFieldName + "[" ;
 					sCode = sCode + int2string(1+2*(*i)->m_iLength) + "];\n";
-					sCode = sCode + "mysql_real_escape_string(database->db_handle,tmp_" + (*i)->m_pcFieldName 
-							+ ", key.pk_" + (*i)->m_pcFieldName + ".c_str(), (unsigned long) key.pk_" + (*i)->m_pcFieldName + ".size());\n\n";
+
+					if( m_eKnownPkTypes==PKTYPES_SINGLE_STRING )
+						sCode = sCode + "mysql_real_escape_string(database->db_handle,tmp_" + (*i)->m_pcFieldName 
+								+ ", key.pk.c_str(), (unsigned long) key.pk.size());\n\n";
+					else
+						sCode = sCode + "mysql_real_escape_string(database->db_handle,tmp_" + (*i)->m_pcFieldName 
+								+ ", key.pk_" + (*i)->m_pcFieldName + ".c_str(), (unsigned long) key.pk_" + (*i)->m_pcFieldName + ".size());\n\n";
 					sCondition = sCondition + " + \"\\\"\" + tmp_" + (*i)->m_pcFieldName + "+ \"\\\"\"";
 				}
 				else
+				{
 					sCondition = sCondition + " + \"\\\"\" + key.pk_" + (*i)->m_pcFieldName + ".c_str()+ \"\\\"\"";
+				}
 			
 			
 		}

@@ -1295,6 +1295,24 @@
 #define DESIGNOBJ_down_CONST 3169
 #define DESIGNOBJ_left_CONST 3170
 #define DESIGNOBJ_right_CONST 3171
+#define DESIGNOBJ_enter_CONST 3172
+#define DESIGNOBJ_round_dial_CONST 3173
+#define DESIGNOBJ_record_CONST 3174
+#define DESIGNOBJ_go_to_recorded_tv_CONST 3175
+#define DESIGNOBJ_recorded_tv_CONST 3176
+#define DESIGNOBJ_playlists_CONST 3181
+#define DESIGNOBJ_loading_CONST 3183
+#define DESIGNOBJ_go_to_movies_CONST 3184
+#define DESIGNOBJ_go_to_radio_CONST 3186
+#define DESIGNOBJ_go_to_loading_CONST 3187
+#define DESIGNOBJ_go_to_pictures_CONST 3188
+#define DESIGNOBJ_go_to_home_video_CONST 3189
+#define DESIGNOBJ_go_to_burning_CONST 3190
+#define DESIGNOBJ_more_CONST 3193
+#define DESIGNOBJ_go_to_computing_CONST 3194
+#define DESIGNOBJ_go_to_playlists_CONST 3195
+#define DESIGNOBJ_go_to_more_CONST 3196
+#define DESIGNOBJ_go_to_current_media_CONST 3197
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

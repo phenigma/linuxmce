@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -35,15 +34,17 @@ void Database_pluto_main::DeleteTable_CommandGroup_Room()
 
 Table_CommandGroup_Room::~Table_CommandGroup_Room()
 {
-	map<Table_CommandGroup_Room::Key, class Row_CommandGroup_Room*, Table_CommandGroup_Room::Key_Less>::iterator it;
+	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_CommandGroup_Room *pRow = (Row_CommandGroup_Room *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_CommandGroup_Room *pRow = (Row_CommandGroup_Room *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -57,12 +58,13 @@ Table_CommandGroup_Room::~Table_CommandGroup_Room()
 void Row_CommandGroup_Room::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_CommandGroup_Room *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_CommandGroup_Room*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_CommandGroup_Room *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -72,8 +74,8 @@ void Row_CommandGroup_Room::Delete()
 		}
 		else
 		{
-			Table_CommandGroup_Room::Key key(this);					
-			map<Table_CommandGroup_Room::Key, Row_CommandGroup_Room*, Table_CommandGroup_Room::Key_Less>::iterator i = table->cachedRows.find(key);
+			DoubleLongKey key(pRow->m_FK_CommandGroup,pRow->m_FK_Room);
+			map<DoubleLongKey, TableRow*, DoubleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -84,12 +86,14 @@ void Row_CommandGroup_Room::Delete()
 
 void Row_CommandGroup_Room::Reload()
 {
+	Row_CommandGroup_Room *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_CommandGroup_Room::Key key(this);		
+		DoubleLongKey key(pRow->m_FK_CommandGroup,pRow->m_FK_Room);
 		Row_CommandGroup_Room *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -349,9 +353,9 @@ void Table_CommandGroup_Room::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_CommandGroup_Room*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_CommandGroup_Room *pRow = *i;
+		Row_CommandGroup_Room *pRow = (Row_CommandGroup_Room *)*i;
 	
 		
 string values_list_comma_separated;
@@ -375,7 +379,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_CommandGrou
 				
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			DoubleLongKey key(pRow->m_FK_CommandGroup,pRow->m_FK_Room);	
 			cachedRows[key] = pRow;
 					
 			
@@ -389,17 +393,17 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_CommandGrou
 //update modified
 	
 
-	for (map<Key, Row_CommandGroup_Room*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_CommandGroup_Room* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_CommandGroup_Room* pRow = (Row_CommandGroup_Room*) (*i).second;	
+		DoubleLongKey key(pRow->m_FK_CommandGroup,pRow->m_FK_Room);
 
 		char tmp_FK_CommandGroup[32];
-sprintf(tmp_FK_CommandGroup, "%li", key.pk_FK_CommandGroup);
+sprintf(tmp_FK_CommandGroup, "%li", key.pk1);
 
 char tmp_FK_Room[32];
-sprintf(tmp_FK_Room, "%li", key.pk_FK_Room);
+sprintf(tmp_FK_Room, "%li", key.pk2);
 
 
 string condition;
@@ -425,7 +429,7 @@ update_values_list = update_values_list + "FK_CommandGroup="+pRow->FK_CommandGro
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_CommandGroup_Room*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -435,15 +439,16 @@ update_values_list = update_values_list + "FK_CommandGroup="+pRow->FK_CommandGro
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_CommandGroup_Room*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		DoubleLongKey key = (*i).first;
+		Row_CommandGroup_Room* pRow = (Row_CommandGroup_Room*) (*i).second;	
+
 		char tmp_FK_CommandGroup[32];
-sprintf(tmp_FK_CommandGroup, "%li", key.pk_FK_CommandGroup);
+sprintf(tmp_FK_CommandGroup, "%li", key.pk1);
 
 char tmp_FK_Room[32];
-sprintf(tmp_FK_Room, "%li", key.pk_FK_Room);
+sprintf(tmp_FK_Room, "%li", key.pk2);
 
 
 string condition;
@@ -590,14 +595,14 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 
 		//checking for duplicates
 
-		Key key(pRow);
+		DoubleLongKey key(pRow->m_FK_CommandGroup,pRow->m_FK_Room);
 		
-                map<Table_CommandGroup_Room::Key, Row_CommandGroup_Room*, Table_CommandGroup_Room::Key_Less>::iterator i = cachedRows.find(key);
+		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_CommandGroup_Room *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -626,9 +631,9 @@ Row_CommandGroup_Room* Table_CommandGroup_Room::GetRow(long int in_FK_CommandGro
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_FK_CommandGroup, in_FK_Room);
+	DoubleLongKey row_key(in_FK_CommandGroup, in_FK_Room);
 
-	map<Key, Row_CommandGroup_Room*, Key_Less>::iterator i;
+	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -639,7 +644,7 @@ Row_CommandGroup_Room* Table_CommandGroup_Room::GetRow(long int in_FK_CommandGro
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_CommandGroup_Room*) (*i).second;
 	//we have to fetch row
 	Row_CommandGroup_Room* pRow = FetchRow(row_key);
 
@@ -650,16 +655,16 @@ Row_CommandGroup_Room* Table_CommandGroup_Room::GetRow(long int in_FK_CommandGro
 
 
 
-Row_CommandGroup_Room* Table_CommandGroup_Room::FetchRow(Table_CommandGroup_Room::Key &key)
+Row_CommandGroup_Room* Table_CommandGroup_Room::FetchRow(DoubleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_FK_CommandGroup[32];
-sprintf(tmp_FK_CommandGroup, "%li", key.pk_FK_CommandGroup);
+sprintf(tmp_FK_CommandGroup, "%li", key.pk1);
 
 char tmp_FK_Room[32];
-sprintf(tmp_FK_Room, "%li", key.pk_FK_Room);
+sprintf(tmp_FK_Room, "%li", key.pk2);
 
 
 string condition;

@@ -13,7 +13,12 @@
 #include "Define_DesignObjVariation_DesignObj.h"
 #include "SerializeClass/SerializeClass.h"
 
-class DLL_EXPORT Table_DesignObjVariation_DesignObj
+// If we declare the maps locally, the compiler will create multiple copies of them
+// making the output files enormous.  The solution seems to be to create some predefined
+// maps for the standard types of primary keys (single long, double long, etc.) and
+// put them in a common base class, which is optionally included as tablebase below
+
+class DLL_EXPORT Table_DesignObjVariation_DesignObj : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -48,11 +53,8 @@ private:
 		bool operator()(const Table_DesignObjVariation_DesignObj::Key &key1, const Table_DesignObjVariation_DesignObj::Key &key2) const;
 	};	
 
-	map<Table_DesignObjVariation_DesignObj::Key, class Row_DesignObjVariation_DesignObj*, Table_DesignObjVariation_DesignObj::Key_Less> cachedRows;
-	map<Table_DesignObjVariation_DesignObj::Key, class Row_DesignObjVariation_DesignObj*, Table_DesignObjVariation_DesignObj::Key_Less> deleted_cachedRows;
-	vector<class Row_DesignObjVariation_DesignObj*> addedRows;
-	vector<class Row_DesignObjVariation_DesignObj*> deleted_addedRows;	
-		
+	
+	
 
 public:				
 	void Commit();
@@ -67,7 +69,7 @@ public:
 private:	
 	
 		
-	class Row_DesignObjVariation_DesignObj* FetchRow(Key &key);
+	class Row_DesignObjVariation_DesignObj* FetchRow(SingleLongKey &key);
 		
 			
 };
@@ -108,10 +110,6 @@ short int m_psc_frozen;
 string m_psc_mod;
 
 		bool is_null[27];
-	
-		bool is_deleted;
-		bool is_added;
-		bool is_modified;					
 	
 	public:
 		long int PK_DesignObjVariation_DesignObj_get();

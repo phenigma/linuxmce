@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -37,15 +36,17 @@ void Database_pluto_main::DeleteTable_PageSetup()
 
 Table_PageSetup::~Table_PageSetup()
 {
-	map<Table_PageSetup::Key, class Row_PageSetup*, Table_PageSetup::Key_Less>::iterator it;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_PageSetup *pRow = (Row_PageSetup *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_PageSetup *pRow = (Row_PageSetup *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -59,12 +60,13 @@ Table_PageSetup::~Table_PageSetup()
 void Row_PageSetup::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_PageSetup *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_PageSetup*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_PageSetup *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -74,8 +76,8 @@ void Row_PageSetup::Delete()
 		}
 		else
 		{
-			Table_PageSetup::Key key(this);					
-			map<Table_PageSetup::Key, Row_PageSetup*, Table_PageSetup::Key_Less>::iterator i = table->cachedRows.find(key);
+			SingleLongKey key(pRow->m_PK_PageSetup);
+			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -86,12 +88,14 @@ void Row_PageSetup::Delete()
 
 void Row_PageSetup::Reload()
 {
+	Row_PageSetup *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_PageSetup::Key key(this);		
+		SingleLongKey key(pRow->m_PK_PageSetup);
 		Row_PageSetup *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -440,9 +444,9 @@ void Table_PageSetup::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_PageSetup*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_PageSetup *pRow = *i;
+		Row_PageSetup *pRow = (Row_PageSetup *)*i;
 	
 		
 string values_list_comma_separated;
@@ -468,7 +472,7 @@ pRow->m_PK_PageSetup=id;
 	
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			SingleLongKey key(pRow->m_PK_PageSetup);	
 			cachedRows[key] = pRow;
 					
 			
@@ -482,14 +486,14 @@ pRow->m_PK_PageSetup=id;
 //update modified
 	
 
-	for (map<Key, Row_PageSetup*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_PageSetup* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_PageSetup* pRow = (Row_PageSetup*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_PageSetup);
 
 		char tmp_PK_PageSetup[32];
-sprintf(tmp_PK_PageSetup, "%li", key.pk_PK_PageSetup);
+sprintf(tmp_PK_PageSetup, "%li", key.pk);
 
 
 string condition;
@@ -515,7 +519,7 @@ update_values_list = update_values_list + "PK_PageSetup="+pRow->PK_PageSetup_asS
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_PageSetup*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -525,12 +529,13 @@ update_values_list = update_values_list + "PK_PageSetup="+pRow->PK_PageSetup_asS
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_PageSetup*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		SingleLongKey key = (*i).first;
+		Row_PageSetup* pRow = (Row_PageSetup*) (*i).second;	
+
 		char tmp_PK_PageSetup[32];
-sprintf(tmp_PK_PageSetup, "%li", key.pk_PK_PageSetup);
+sprintf(tmp_PK_PageSetup, "%li", key.pk);
 
 
 string condition;
@@ -721,14 +726,14 @@ sscanf(row[11], "%li", &(pRow->m_FK_Users_RecordInfo));
 
 		//checking for duplicates
 
-		Key key(pRow);
+		SingleLongKey key(pRow->m_PK_PageSetup);
 		
-                map<Table_PageSetup::Key, Row_PageSetup*, Table_PageSetup::Key_Less>::iterator i = cachedRows.find(key);
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_PageSetup *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -757,9 +762,9 @@ Row_PageSetup* Table_PageSetup::GetRow(long int in_PK_PageSetup)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_PK_PageSetup);
+	SingleLongKey row_key(in_PK_PageSetup);
 
-	map<Key, Row_PageSetup*, Key_Less>::iterator i;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -770,7 +775,7 @@ Row_PageSetup* Table_PageSetup::GetRow(long int in_PK_PageSetup)
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_PageSetup*) (*i).second;
 	//we have to fetch row
 	Row_PageSetup* pRow = FetchRow(row_key);
 
@@ -781,13 +786,13 @@ Row_PageSetup* Table_PageSetup::GetRow(long int in_PK_PageSetup)
 
 
 
-Row_PageSetup* Table_PageSetup::FetchRow(Table_PageSetup::Key &key)
+Row_PageSetup* Table_PageSetup::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_PageSetup[32];
-sprintf(tmp_PK_PageSetup, "%li", key.pk_PK_PageSetup);
+sprintf(tmp_PK_PageSetup, "%li", key.pk);
 
 
 string condition;

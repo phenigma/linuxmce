@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -36,15 +35,17 @@ void Database_pluto_main::DeleteTable_CriteriaParm()
 
 Table_CriteriaParm::~Table_CriteriaParm()
 {
-	map<Table_CriteriaParm::Key, class Row_CriteriaParm*, Table_CriteriaParm::Key_Less>::iterator it;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_CriteriaParm *pRow = (Row_CriteriaParm *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_CriteriaParm *pRow = (Row_CriteriaParm *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -58,12 +59,13 @@ Table_CriteriaParm::~Table_CriteriaParm()
 void Row_CriteriaParm::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_CriteriaParm *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_CriteriaParm*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_CriteriaParm *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -73,8 +75,8 @@ void Row_CriteriaParm::Delete()
 		}
 		else
 		{
-			Table_CriteriaParm::Key key(this);					
-			map<Table_CriteriaParm::Key, Row_CriteriaParm*, Table_CriteriaParm::Key_Less>::iterator i = table->cachedRows.find(key);
+			SingleLongKey key(pRow->m_PK_CriteriaParm);
+			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -85,12 +87,14 @@ void Row_CriteriaParm::Delete()
 
 void Row_CriteriaParm::Reload()
 {
+	Row_CriteriaParm *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_CriteriaParm::Key key(this);		
+		SingleLongKey key(pRow->m_PK_CriteriaParm);
 		Row_CriteriaParm *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -287,9 +291,9 @@ void Table_CriteriaParm::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_CriteriaParm*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_CriteriaParm *pRow = *i;
+		Row_CriteriaParm *pRow = (Row_CriteriaParm *)*i;
 	
 		
 string values_list_comma_separated;
@@ -315,7 +319,7 @@ pRow->m_PK_CriteriaParm=id;
 	
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			SingleLongKey key(pRow->m_PK_CriteriaParm);	
 			cachedRows[key] = pRow;
 					
 			
@@ -329,14 +333,14 @@ pRow->m_PK_CriteriaParm=id;
 //update modified
 	
 
-	for (map<Key, Row_CriteriaParm*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_CriteriaParm* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_CriteriaParm* pRow = (Row_CriteriaParm*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_CriteriaParm);
 
 		char tmp_PK_CriteriaParm[32];
-sprintf(tmp_PK_CriteriaParm, "%li", key.pk_PK_CriteriaParm);
+sprintf(tmp_PK_CriteriaParm, "%li", key.pk);
 
 
 string condition;
@@ -362,7 +366,7 @@ update_values_list = update_values_list + "PK_CriteriaParm="+pRow->PK_CriteriaPa
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_CriteriaParm*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -372,12 +376,13 @@ update_values_list = update_values_list + "PK_CriteriaParm="+pRow->PK_CriteriaPa
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_CriteriaParm*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		SingleLongKey key = (*i).first;
+		Row_CriteriaParm* pRow = (Row_CriteriaParm*) (*i).second;	
+
 		char tmp_PK_CriteriaParm[32];
-sprintf(tmp_PK_CriteriaParm, "%li", key.pk_PK_CriteriaParm);
+sprintf(tmp_PK_CriteriaParm, "%li", key.pk);
 
 
 string condition;
@@ -502,14 +507,14 @@ sscanf(row[5], "%li", &(pRow->m_FK_CannedEvents_CriteriaParmList));
 
 		//checking for duplicates
 
-		Key key(pRow);
+		SingleLongKey key(pRow->m_PK_CriteriaParm);
 		
-                map<Table_CriteriaParm::Key, Row_CriteriaParm*, Table_CriteriaParm::Key_Less>::iterator i = cachedRows.find(key);
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_CriteriaParm *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -538,9 +543,9 @@ Row_CriteriaParm* Table_CriteriaParm::GetRow(long int in_PK_CriteriaParm)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_PK_CriteriaParm);
+	SingleLongKey row_key(in_PK_CriteriaParm);
 
-	map<Key, Row_CriteriaParm*, Key_Less>::iterator i;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -551,7 +556,7 @@ Row_CriteriaParm* Table_CriteriaParm::GetRow(long int in_PK_CriteriaParm)
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_CriteriaParm*) (*i).second;
 	//we have to fetch row
 	Row_CriteriaParm* pRow = FetchRow(row_key);
 
@@ -562,13 +567,13 @@ Row_CriteriaParm* Table_CriteriaParm::GetRow(long int in_PK_CriteriaParm)
 
 
 
-Row_CriteriaParm* Table_CriteriaParm::FetchRow(Table_CriteriaParm::Key &key)
+Row_CriteriaParm* Table_CriteriaParm::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_CriteriaParm[32];
-sprintf(tmp_PK_CriteriaParm, "%li", key.pk_PK_CriteriaParm);
+sprintf(tmp_PK_CriteriaParm, "%li", key.pk);
 
 
 string condition;

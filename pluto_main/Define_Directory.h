@@ -1,7 +1,7 @@
 #ifndef __Define_Directory_H__
 #define __Define_Directory_H__
 
-#define DIRECTORY_Binary_Executibles_CONST 1
+#define DIRECTORY_Binary_Executables_CONST 1
 #define DIRECTORY_Source_Includes_CONST 2
 #define DIRECTORY_Source_Implementation_CONST 3
 #define DIRECTORY_Binary_Library_CONST 4

@@ -13,7 +13,12 @@
 #include "Define_DSPMode.h"
 #include "SerializeClass/SerializeClass.h"
 
-class DLL_EXPORT Table_DSPMode
+// If we declare the maps locally, the compiler will create multiple copies of them
+// making the output files enormous.  The solution seems to be to create some predefined
+// maps for the standard types of primary keys (single long, double long, etc.) and
+// put them in a common base class, which is optionally included as tablebase below
+
+class DLL_EXPORT Table_DSPMode : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -48,11 +53,8 @@ private:
 		bool operator()(const Table_DSPMode::Key &key1, const Table_DSPMode::Key &key2) const;
 	};	
 
-	map<Table_DSPMode::Key, class Row_DSPMode*, Table_DSPMode::Key_Less> cachedRows;
-	map<Table_DSPMode::Key, class Row_DSPMode*, Table_DSPMode::Key_Less> deleted_cachedRows;
-	vector<class Row_DSPMode*> addedRows;
-	vector<class Row_DSPMode*> deleted_addedRows;	
-		
+	
+	
 
 public:				
 	void Commit();
@@ -67,7 +69,7 @@ public:
 private:	
 	
 		
-	class Row_DSPMode* FetchRow(Key &key);
+	class Row_DSPMode* FetchRow(SingleLongKey &key);
 		
 			
 };
@@ -90,10 +92,6 @@ short int m_psc_frozen;
 string m_psc_mod;
 
 		bool is_null[9];
-	
-		bool is_deleted;
-		bool is_added;
-		bool is_modified;					
 	
 	public:
 		long int PK_DSPMode_get();

@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -35,15 +34,17 @@ void Database_pluto_main::DeleteTable_ConfigType_Token()
 
 Table_ConfigType_Token::~Table_ConfigType_Token()
 {
-	map<Table_ConfigType_Token::Key, class Row_ConfigType_Token*, Table_ConfigType_Token::Key_Less>::iterator it;
+	map<Table_ConfigType_Token::Key, class TableRow*, Table_ConfigType_Token::Key_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_ConfigType_Token *pRow = (Row_ConfigType_Token *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_ConfigType_Token *pRow = (Row_ConfigType_Token *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -57,12 +58,13 @@ Table_ConfigType_Token::~Table_ConfigType_Token()
 void Row_ConfigType_Token::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_ConfigType_Token *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_ConfigType_Token*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_ConfigType_Token *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -72,8 +74,8 @@ void Row_ConfigType_Token::Delete()
 		}
 		else
 		{
-			Table_ConfigType_Token::Key key(this);					
-			map<Table_ConfigType_Token::Key, Row_ConfigType_Token*, Table_ConfigType_Token::Key_Less>::iterator i = table->cachedRows.find(key);
+			Table_ConfigType_Token::Key key(pRow->m_FK_ConfigType_Setting,pRow->m_FK_ConfigType_File,pRow->m_FindStr);
+			map<Table_ConfigType_Token::Key, TableRow*, Table_ConfigType_Token::Key_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -84,12 +86,14 @@ void Row_ConfigType_Token::Delete()
 
 void Row_ConfigType_Token::Reload()
 {
+	Row_ConfigType_Token *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_ConfigType_Token::Key key(this);		
+		Table_ConfigType_Token::Key key(pRow->m_FK_ConfigType_Setting,pRow->m_FK_ConfigType_File,pRow->m_FindStr);
 		Row_ConfigType_Token *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -373,9 +377,9 @@ void Table_ConfigType_Token::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_ConfigType_Token*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_ConfigType_Token *pRow = *i;
+		Row_ConfigType_Token *pRow = (Row_ConfigType_Token *)*i;
 	
 		
 string values_list_comma_separated;
@@ -399,7 +403,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_ConfigType_
 				
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			Table_ConfigType_Token::Key key(pRow->m_FK_ConfigType_Setting,pRow->m_FK_ConfigType_File,pRow->m_FindStr);	
 			cachedRows[key] = pRow;
 					
 			
@@ -413,11 +417,11 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_ConfigType_
 //update modified
 	
 
-	for (map<Key, Row_ConfigType_Token*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<Table_ConfigType_Token::Key, class TableRow*, Table_ConfigType_Token::Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_ConfigType_Token* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_ConfigType_Token* pRow = (Row_ConfigType_Token*) (*i).second;	
+		Table_ConfigType_Token::Key key(pRow->m_FK_ConfigType_Setting,pRow->m_FK_ConfigType_File,pRow->m_FindStr);
 
 		char tmp_FK_ConfigType_Setting[32];
 sprintf(tmp_FK_ConfigType_Setting, "%li", key.pk_FK_ConfigType_Setting);
@@ -452,7 +456,7 @@ update_values_list = update_values_list + "FK_ConfigType_Setting="+pRow->FK_Conf
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_ConfigType_Token*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -462,10 +466,11 @@ update_values_list = update_values_list + "FK_ConfigType_Setting="+pRow->FK_Conf
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_ConfigType_Token*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<Table_ConfigType_Token::Key, class TableRow*, Table_ConfigType_Token::Key_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		Table_ConfigType_Token::Key key = (*i).first;
+		Row_ConfigType_Token* pRow = (Row_ConfigType_Token*) (*i).second;	
+
 		char tmp_FK_ConfigType_Setting[32];
 sprintf(tmp_FK_ConfigType_Setting, "%li", key.pk_FK_ConfigType_Setting);
 
@@ -631,14 +636,14 @@ pRow->m_psc_mod = string(row[8],lengths[8]);
 
 		//checking for duplicates
 
-		Key key(pRow);
+		Table_ConfigType_Token::Key key(pRow->m_FK_ConfigType_Setting,pRow->m_FK_ConfigType_File,pRow->m_FindStr);
 		
-                map<Table_ConfigType_Token::Key, Row_ConfigType_Token*, Table_ConfigType_Token::Key_Less>::iterator i = cachedRows.find(key);
+		map<Table_ConfigType_Token::Key, class TableRow*, Table_ConfigType_Token::Key_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_ConfigType_Token *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -667,9 +672,9 @@ Row_ConfigType_Token* Table_ConfigType_Token::GetRow(long int in_FK_ConfigType_S
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_FK_ConfigType_Setting, in_FK_ConfigType_File, in_FindStr);
+	Table_ConfigType_Token::Key row_key(in_FK_ConfigType_Setting, in_FK_ConfigType_File, in_FindStr);
 
-	map<Key, Row_ConfigType_Token*, Key_Less>::iterator i;
+	map<Table_ConfigType_Token::Key, class TableRow*, Table_ConfigType_Token::Key_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -680,7 +685,7 @@ Row_ConfigType_Token* Table_ConfigType_Token::GetRow(long int in_FK_ConfigType_S
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_ConfigType_Token*) (*i).second;
 	//we have to fetch row
 	Row_ConfigType_Token* pRow = FetchRow(row_key);
 

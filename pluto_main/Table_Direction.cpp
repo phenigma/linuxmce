@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -33,15 +32,17 @@ void Database_pluto_main::DeleteTable_Direction()
 
 Table_Direction::~Table_Direction()
 {
-	map<Table_Direction::Key, class Row_Direction*, Table_Direction::Key_Less>::iterator it;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_Direction *pRow = (Row_Direction *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_Direction *pRow = (Row_Direction *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -55,12 +56,13 @@ Table_Direction::~Table_Direction()
 void Row_Direction::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_Direction *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_Direction*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_Direction *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -70,8 +72,8 @@ void Row_Direction::Delete()
 		}
 		else
 		{
-			Table_Direction::Key key(this);					
-			map<Table_Direction::Key, Row_Direction*, Table_Direction::Key_Less>::iterator i = table->cachedRows.find(key);
+			SingleLongKey key(pRow->m_PK_Direction);
+			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -82,12 +84,14 @@ void Row_Direction::Delete()
 
 void Row_Direction::Reload()
 {
+	Row_Direction *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_Direction::Key key(this);		
+		SingleLongKey key(pRow->m_PK_Direction);
 		Row_Direction *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -340,9 +344,9 @@ void Table_Direction::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_Direction*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_Direction *pRow = *i;
+		Row_Direction *pRow = (Row_Direction *)*i;
 	
 		
 string values_list_comma_separated;
@@ -368,7 +372,7 @@ pRow->m_PK_Direction=id;
 	
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			SingleLongKey key(pRow->m_PK_Direction);	
 			cachedRows[key] = pRow;
 					
 			
@@ -382,14 +386,14 @@ pRow->m_PK_Direction=id;
 //update modified
 	
 
-	for (map<Key, Row_Direction*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_Direction* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_Direction* pRow = (Row_Direction*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_Direction);
 
 		char tmp_PK_Direction[32];
-sprintf(tmp_PK_Direction, "%li", key.pk_PK_Direction);
+sprintf(tmp_PK_Direction, "%li", key.pk);
 
 
 string condition;
@@ -415,7 +419,7 @@ update_values_list = update_values_list + "PK_Direction="+pRow->PK_Direction_asS
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_Direction*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -425,12 +429,13 @@ update_values_list = update_values_list + "PK_Direction="+pRow->PK_Direction_asS
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_Direction*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		SingleLongKey key = (*i).first;
+		Row_Direction* pRow = (Row_Direction*) (*i).second;	
+
 		char tmp_PK_Direction[32];
-sprintf(tmp_PK_Direction, "%li", key.pk_PK_Direction);
+sprintf(tmp_PK_Direction, "%li", key.pk);
 
 
 string condition;
@@ -577,14 +582,14 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 
 		//checking for duplicates
 
-		Key key(pRow);
+		SingleLongKey key(pRow->m_PK_Direction);
 		
-                map<Table_Direction::Key, Row_Direction*, Table_Direction::Key_Less>::iterator i = cachedRows.find(key);
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_Direction *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -613,9 +618,9 @@ Row_Direction* Table_Direction::GetRow(long int in_PK_Direction)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_PK_Direction);
+	SingleLongKey row_key(in_PK_Direction);
 
-	map<Key, Row_Direction*, Key_Less>::iterator i;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -626,7 +631,7 @@ Row_Direction* Table_Direction::GetRow(long int in_PK_Direction)
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_Direction*) (*i).second;
 	//we have to fetch row
 	Row_Direction* pRow = FetchRow(row_key);
 
@@ -637,13 +642,13 @@ Row_Direction* Table_Direction::GetRow(long int in_PK_Direction)
 
 
 
-Row_Direction* Table_Direction::FetchRow(Table_Direction::Key &key)
+Row_Direction* Table_Direction::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_Direction[32];
-sprintf(tmp_PK_Direction, "%li", key.pk_PK_Direction);
+sprintf(tmp_PK_Direction, "%li", key.pk);
 
 
 string condition;

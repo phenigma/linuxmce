@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -35,15 +34,17 @@ void Database_pluto_main::DeleteTable_CommandGroup_Command_CommandParameter()
 
 Table_CommandGroup_Command_CommandParameter::~Table_CommandGroup_Command_CommandParameter()
 {
-	map<Table_CommandGroup_Command_CommandParameter::Key, class Row_CommandGroup_Command_CommandParameter*, Table_CommandGroup_Command_CommandParameter::Key_Less>::iterator it;
+	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_CommandGroup_Command_CommandParameter *pRow = (Row_CommandGroup_Command_CommandParameter *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_CommandGroup_Command_CommandParameter *pRow = (Row_CommandGroup_Command_CommandParameter *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -57,12 +58,13 @@ Table_CommandGroup_Command_CommandParameter::~Table_CommandGroup_Command_Command
 void Row_CommandGroup_Command_CommandParameter::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_CommandGroup_Command_CommandParameter *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_CommandGroup_Command_CommandParameter*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_CommandGroup_Command_CommandParameter *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -72,8 +74,8 @@ void Row_CommandGroup_Command_CommandParameter::Delete()
 		}
 		else
 		{
-			Table_CommandGroup_Command_CommandParameter::Key key(this);					
-			map<Table_CommandGroup_Command_CommandParameter::Key, Row_CommandGroup_Command_CommandParameter*, Table_CommandGroup_Command_CommandParameter::Key_Less>::iterator i = table->cachedRows.find(key);
+			DoubleLongKey key(pRow->m_FK_CommandGroup_Command,pRow->m_FK_CommandParameter);
+			map<DoubleLongKey, TableRow*, DoubleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -84,12 +86,14 @@ void Row_CommandGroup_Command_CommandParameter::Delete()
 
 void Row_CommandGroup_Command_CommandParameter::Reload()
 {
+	Row_CommandGroup_Command_CommandParameter *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_CommandGroup_Command_CommandParameter::Key key(this);		
+		DoubleLongKey key(pRow->m_FK_CommandGroup_Command,pRow->m_FK_CommandParameter);
 		Row_CommandGroup_Command_CommandParameter *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -353,9 +357,9 @@ void Table_CommandGroup_Command_CommandParameter::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_CommandGroup_Command_CommandParameter*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_CommandGroup_Command_CommandParameter *pRow = *i;
+		Row_CommandGroup_Command_CommandParameter *pRow = (Row_CommandGroup_Command_CommandParameter *)*i;
 	
 		
 string values_list_comma_separated;
@@ -379,7 +383,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_CommandGrou
 				
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			DoubleLongKey key(pRow->m_FK_CommandGroup_Command,pRow->m_FK_CommandParameter);	
 			cachedRows[key] = pRow;
 					
 			
@@ -393,17 +397,17 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_CommandGrou
 //update modified
 	
 
-	for (map<Key, Row_CommandGroup_Command_CommandParameter*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_CommandGroup_Command_CommandParameter* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_CommandGroup_Command_CommandParameter* pRow = (Row_CommandGroup_Command_CommandParameter*) (*i).second;	
+		DoubleLongKey key(pRow->m_FK_CommandGroup_Command,pRow->m_FK_CommandParameter);
 
 		char tmp_FK_CommandGroup_Command[32];
-sprintf(tmp_FK_CommandGroup_Command, "%li", key.pk_FK_CommandGroup_Command);
+sprintf(tmp_FK_CommandGroup_Command, "%li", key.pk1);
 
 char tmp_FK_CommandParameter[32];
-sprintf(tmp_FK_CommandParameter, "%li", key.pk_FK_CommandParameter);
+sprintf(tmp_FK_CommandParameter, "%li", key.pk2);
 
 
 string condition;
@@ -429,7 +433,7 @@ update_values_list = update_values_list + "FK_CommandGroup_Command="+pRow->FK_Co
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_CommandGroup_Command_CommandParameter*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -439,15 +443,16 @@ update_values_list = update_values_list + "FK_CommandGroup_Command="+pRow->FK_Co
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_CommandGroup_Command_CommandParameter*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		DoubleLongKey key = (*i).first;
+		Row_CommandGroup_Command_CommandParameter* pRow = (Row_CommandGroup_Command_CommandParameter*) (*i).second;	
+
 		char tmp_FK_CommandGroup_Command[32];
-sprintf(tmp_FK_CommandGroup_Command, "%li", key.pk_FK_CommandGroup_Command);
+sprintf(tmp_FK_CommandGroup_Command, "%li", key.pk1);
 
 char tmp_FK_CommandParameter[32];
-sprintf(tmp_FK_CommandParameter, "%li", key.pk_FK_CommandParameter);
+sprintf(tmp_FK_CommandParameter, "%li", key.pk2);
 
 
 string condition;
@@ -594,14 +599,14 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 
 		//checking for duplicates
 
-		Key key(pRow);
+		DoubleLongKey key(pRow->m_FK_CommandGroup_Command,pRow->m_FK_CommandParameter);
 		
-                map<Table_CommandGroup_Command_CommandParameter::Key, Row_CommandGroup_Command_CommandParameter*, Table_CommandGroup_Command_CommandParameter::Key_Less>::iterator i = cachedRows.find(key);
+		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_CommandGroup_Command_CommandParameter *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -630,9 +635,9 @@ Row_CommandGroup_Command_CommandParameter* Table_CommandGroup_Command_CommandPar
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_FK_CommandGroup_Command, in_FK_CommandParameter);
+	DoubleLongKey row_key(in_FK_CommandGroup_Command, in_FK_CommandParameter);
 
-	map<Key, Row_CommandGroup_Command_CommandParameter*, Key_Less>::iterator i;
+	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -643,7 +648,7 @@ Row_CommandGroup_Command_CommandParameter* Table_CommandGroup_Command_CommandPar
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_CommandGroup_Command_CommandParameter*) (*i).second;
 	//we have to fetch row
 	Row_CommandGroup_Command_CommandParameter* pRow = FetchRow(row_key);
 
@@ -654,16 +659,16 @@ Row_CommandGroup_Command_CommandParameter* Table_CommandGroup_Command_CommandPar
 
 
 
-Row_CommandGroup_Command_CommandParameter* Table_CommandGroup_Command_CommandParameter::FetchRow(Table_CommandGroup_Command_CommandParameter::Key &key)
+Row_CommandGroup_Command_CommandParameter* Table_CommandGroup_Command_CommandParameter::FetchRow(DoubleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_FK_CommandGroup_Command[32];
-sprintf(tmp_FK_CommandGroup_Command, "%li", key.pk_FK_CommandGroup_Command);
+sprintf(tmp_FK_CommandGroup_Command, "%li", key.pk1);
 
 char tmp_FK_CommandParameter[32];
-sprintf(tmp_FK_CommandParameter, "%li", key.pk_FK_CommandParameter);
+sprintf(tmp_FK_CommandParameter, "%li", key.pk2);
 
 
 string condition;

@@ -106,6 +106,9 @@
 				RelativePath=".\Database_pluto_main.cpp">
 			</File>
 			<File
+				RelativePath=".\TableRow.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_Array.cpp">
 			</File>
 			<File

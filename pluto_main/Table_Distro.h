@@ -13,7 +13,12 @@
 #include "Define_Distro.h"
 #include "SerializeClass/SerializeClass.h"
 
-class DLL_EXPORT Table_Distro
+// If we declare the maps locally, the compiler will create multiple copies of them
+// making the output files enormous.  The solution seems to be to create some predefined
+// maps for the standard types of primary keys (single long, double long, etc.) and
+// put them in a common base class, which is optionally included as tablebase below
+
+class DLL_EXPORT Table_Distro : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -48,11 +53,8 @@ private:
 		bool operator()(const Table_Distro::Key &key1, const Table_Distro::Key &key2) const;
 	};	
 
-	map<Table_Distro::Key, class Row_Distro*, Table_Distro::Key_Less> cachedRows;
-	map<Table_Distro::Key, class Row_Distro*, Table_Distro::Key_Less> deleted_cachedRows;
-	vector<class Row_Distro*> addedRows;
-	vector<class Row_Distro*> deleted_addedRows;	
-		
+	
+	
 
 public:				
 	void Commit();
@@ -67,7 +69,7 @@ public:
 private:	
 	
 		
-	class Row_Distro* FetchRow(Key &key);
+	class Row_Distro* FetchRow(SingleLongKey &key);
 		
 			
 };
@@ -90,10 +92,6 @@ string m_SourceCode;
 short int m_Confirmed;
 
 		bool is_null[9];
-	
-		bool is_deleted;
-		bool is_added;
-		bool is_modified;					
 	
 	public:
 		long int PK_Distro_get();

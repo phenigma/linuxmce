@@ -13,7 +13,12 @@
 #include "Define_Document.h"
 #include "SerializeClass/SerializeClass.h"
 
-class DLL_EXPORT Table_Document
+// If we declare the maps locally, the compiler will create multiple copies of them
+// making the output files enormous.  The solution seems to be to create some predefined
+// maps for the standard types of primary keys (single long, double long, etc.) and
+// put them in a common base class, which is optionally included as tablebase below
+
+class DLL_EXPORT Table_Document : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -48,11 +53,8 @@ private:
 		bool operator()(const Table_Document::Key &key1, const Table_Document::Key &key2) const;
 	};	
 
-	map<Table_Document::Key, class Row_Document*, Table_Document::Key_Less> cachedRows;
-	map<Table_Document::Key, class Row_Document*, Table_Document::Key_Less> deleted_cachedRows;
-	vector<class Row_Document*> addedRows;
-	vector<class Row_Document*> deleted_addedRows;	
-		
+	
+	
 
 public:				
 	void Commit();
@@ -67,7 +69,7 @@ public:
 private:	
 	
 		
-	class Row_Document* FetchRow(Key &key);
+	class Row_Document* FetchRow(SingleLongKey &key);
 		
 			
 };
@@ -87,10 +89,6 @@ string m_Title;
 string m_Contents;
 
 		bool is_null[6];
-	
-		bool is_deleted;
-		bool is_added;
-		bool is_modified;					
 	
 	public:
 		long int PK_Document_get();

@@ -1,7 +1,7 @@
 #ifndef __Define_RepositoryType_H__
 #define __Define_RepositoryType_H__
 
-#define REPOSITORYTYPE_Package_CONST 1
+#define REPOSITORYTYPE_PACKAGE_CONST 1
 #define REPOSITORYTYPE_FTP_download_CONST 2
 #define REPOSITORYTYPE_CVS_CONST 3
 #define REPOSITORYTYPE_Subversion_SVN_CONST 4
@@ -14,6 +14,8 @@
 #define REPOSITORYTYPE_DESCRIPTION_TABLE_FIELD "RepositoryType.Description"
 #define REPOSITORYTYPE_DEFINE_FIELD "Define"
 #define REPOSITORYTYPE_DEFINE_TABLE_FIELD "RepositoryType.Define"
+#define REPOSITORYTYPE_SOURCEONLY_FIELD "SourceOnly"
+#define REPOSITORYTYPE_SOURCEONLY_TABLE_FIELD "RepositoryType.SourceOnly"
 #define REPOSITORYTYPE_PATHTOFILE_FIELD "PathToFile"
 #define REPOSITORYTYPE_PATHTOFILE_TABLE_FIELD "RepositoryType.PathToFile"
 #define REPOSITORYTYPE_INSTRUCTIONS_FIELD "Instructions"

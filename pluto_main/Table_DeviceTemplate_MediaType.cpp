@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -36,15 +35,17 @@ void Database_pluto_main::DeleteTable_DeviceTemplate_MediaType()
 
 Table_DeviceTemplate_MediaType::~Table_DeviceTemplate_MediaType()
 {
-	map<Table_DeviceTemplate_MediaType::Key, class Row_DeviceTemplate_MediaType*, Table_DeviceTemplate_MediaType::Key_Less>::iterator it;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_DeviceTemplate_MediaType *pRow = (Row_DeviceTemplate_MediaType *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_DeviceTemplate_MediaType *pRow = (Row_DeviceTemplate_MediaType *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -58,12 +59,13 @@ Table_DeviceTemplate_MediaType::~Table_DeviceTemplate_MediaType()
 void Row_DeviceTemplate_MediaType::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_DeviceTemplate_MediaType *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_DeviceTemplate_MediaType*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_DeviceTemplate_MediaType *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -73,8 +75,8 @@ void Row_DeviceTemplate_MediaType::Delete()
 		}
 		else
 		{
-			Table_DeviceTemplate_MediaType::Key key(this);					
-			map<Table_DeviceTemplate_MediaType::Key, Row_DeviceTemplate_MediaType*, Table_DeviceTemplate_MediaType::Key_Less>::iterator i = table->cachedRows.find(key);
+			SingleLongKey key(pRow->m_PK_DeviceTemplate_MediaType);
+			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -85,12 +87,14 @@ void Row_DeviceTemplate_MediaType::Delete()
 
 void Row_DeviceTemplate_MediaType::Reload()
 {
+	Row_DeviceTemplate_MediaType *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_DeviceTemplate_MediaType::Key key(this);		
+		SingleLongKey key(pRow->m_PK_DeviceTemplate_MediaType);
 		Row_DeviceTemplate_MediaType *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -454,9 +458,9 @@ void Table_DeviceTemplate_MediaType::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_DeviceTemplate_MediaType*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_DeviceTemplate_MediaType *pRow = *i;
+		Row_DeviceTemplate_MediaType *pRow = (Row_DeviceTemplate_MediaType *)*i;
 	
 		
 string values_list_comma_separated;
@@ -482,7 +486,7 @@ pRow->m_PK_DeviceTemplate_MediaType=id;
 	
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			SingleLongKey key(pRow->m_PK_DeviceTemplate_MediaType);	
 			cachedRows[key] = pRow;
 					
 			
@@ -496,14 +500,14 @@ pRow->m_PK_DeviceTemplate_MediaType=id;
 //update modified
 	
 
-	for (map<Key, Row_DeviceTemplate_MediaType*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_DeviceTemplate_MediaType* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_DeviceTemplate_MediaType* pRow = (Row_DeviceTemplate_MediaType*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_DeviceTemplate_MediaType);
 
 		char tmp_PK_DeviceTemplate_MediaType[32];
-sprintf(tmp_PK_DeviceTemplate_MediaType, "%li", key.pk_PK_DeviceTemplate_MediaType);
+sprintf(tmp_PK_DeviceTemplate_MediaType, "%li", key.pk);
 
 
 string condition;
@@ -529,7 +533,7 @@ update_values_list = update_values_list + "PK_DeviceTemplate_MediaType="+pRow->P
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_DeviceTemplate_MediaType*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -539,12 +543,13 @@ update_values_list = update_values_list + "PK_DeviceTemplate_MediaType="+pRow->P
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_DeviceTemplate_MediaType*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		SingleLongKey key = (*i).first;
+		Row_DeviceTemplate_MediaType* pRow = (Row_DeviceTemplate_MediaType*) (*i).second;	
+
 		char tmp_PK_DeviceTemplate_MediaType[32];
-sprintf(tmp_PK_DeviceTemplate_MediaType, "%li", key.pk_PK_DeviceTemplate_MediaType);
+sprintf(tmp_PK_DeviceTemplate_MediaType, "%li", key.pk);
 
 
 string condition;
@@ -746,14 +751,14 @@ pRow->m_psc_mod = string(row[12],lengths[12]);
 
 		//checking for duplicates
 
-		Key key(pRow);
+		SingleLongKey key(pRow->m_PK_DeviceTemplate_MediaType);
 		
-                map<Table_DeviceTemplate_MediaType::Key, Row_DeviceTemplate_MediaType*, Table_DeviceTemplate_MediaType::Key_Less>::iterator i = cachedRows.find(key);
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_DeviceTemplate_MediaType *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -782,9 +787,9 @@ Row_DeviceTemplate_MediaType* Table_DeviceTemplate_MediaType::GetRow(long int in
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_PK_DeviceTemplate_MediaType);
+	SingleLongKey row_key(in_PK_DeviceTemplate_MediaType);
 
-	map<Key, Row_DeviceTemplate_MediaType*, Key_Less>::iterator i;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -795,7 +800,7 @@ Row_DeviceTemplate_MediaType* Table_DeviceTemplate_MediaType::GetRow(long int in
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_DeviceTemplate_MediaType*) (*i).second;
 	//we have to fetch row
 	Row_DeviceTemplate_MediaType* pRow = FetchRow(row_key);
 
@@ -806,13 +811,13 @@ Row_DeviceTemplate_MediaType* Table_DeviceTemplate_MediaType::GetRow(long int in
 
 
 
-Row_DeviceTemplate_MediaType* Table_DeviceTemplate_MediaType::FetchRow(Table_DeviceTemplate_MediaType::Key &key)
+Row_DeviceTemplate_MediaType* Table_DeviceTemplate_MediaType::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_DeviceTemplate_MediaType[32];
-sprintf(tmp_PK_DeviceTemplate_MediaType, "%li", key.pk_PK_DeviceTemplate_MediaType);
+sprintf(tmp_PK_DeviceTemplate_MediaType, "%li", key.pk);
 
 
 string condition;

@@ -13,7 +13,12 @@
 #include "Define_MobilePhoneVersion.h"
 #include "SerializeClass/SerializeClass.h"
 
-class DLL_EXPORT Table_MobilePhoneVersion
+// If we declare the maps locally, the compiler will create multiple copies of them
+// making the output files enormous.  The solution seems to be to create some predefined
+// maps for the standard types of primary keys (single long, double long, etc.) and
+// put them in a common base class, which is optionally included as tablebase below
+
+class DLL_EXPORT Table_MobilePhoneVersion : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -48,11 +53,8 @@ private:
 		bool operator()(const Table_MobilePhoneVersion::Key &key1, const Table_MobilePhoneVersion::Key &key2) const;
 	};	
 
-	map<Table_MobilePhoneVersion::Key, class Row_MobilePhoneVersion*, Table_MobilePhoneVersion::Key_Less> cachedRows;
-	map<Table_MobilePhoneVersion::Key, class Row_MobilePhoneVersion*, Table_MobilePhoneVersion::Key_Less> deleted_cachedRows;
-	vector<class Row_MobilePhoneVersion*> addedRows;
-	vector<class Row_MobilePhoneVersion*> deleted_addedRows;	
-		
+	
+	
 
 public:				
 	void Commit();
@@ -67,7 +69,7 @@ public:
 private:	
 	
 		
-	class Row_MobilePhoneVersion* FetchRow(Key &key);
+	class Row_MobilePhoneVersion* FetchRow(SingleLongKey &key);
 		
 			
 };
@@ -87,10 +89,6 @@ long int m_Height;
 long int m_Width;
 
 		bool is_null[6];
-	
-		bool is_deleted;
-		bool is_added;
-		bool is_modified;					
 	
 	public:
 		long int PK_MobilePhoneVersion_get();

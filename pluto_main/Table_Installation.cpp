@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -20,6 +19,8 @@ using namespace std;
 #include "Table_Installation.h"
 #include "Table_Country.h"
 #include "Table_Version.h"
+#include "Table_RepositoryType.h"
+#include "Table_RepositoryType.h"
 
 #include "Table_CommandGroup.h"
 #include "Table_Device.h"
@@ -45,15 +46,17 @@ void Database_pluto_main::DeleteTable_Installation()
 
 Table_Installation::~Table_Installation()
 {
-	map<Table_Installation::Key, class Row_Installation*, Table_Installation::Key_Less>::iterator it;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_Installation *pRow = (Row_Installation *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_Installation *pRow = (Row_Installation *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -67,12 +70,13 @@ Table_Installation::~Table_Installation()
 void Row_Installation::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_Installation *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_Installation*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_Installation *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -82,8 +86,8 @@ void Row_Installation::Delete()
 		}
 		else
 		{
-			Table_Installation::Key key(this);					
-			map<Table_Installation::Key, Row_Installation*, Table_Installation::Key_Less>::iterator i = table->cachedRows.find(key);
+			SingleLongKey key(pRow->m_PK_Installation);
+			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -94,12 +98,14 @@ void Row_Installation::Delete()
 
 void Row_Installation::Reload()
 {
+	Row_Installation *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_Installation::Key key(this);		
+		SingleLongKey key(pRow->m_PK_Installation);
 		Row_Installation *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -140,10 +146,12 @@ is_null[13] = true;
 is_null[14] = true;
 is_null[15] = true;
 is_null[16] = true;
+is_null[17] = true;
+is_null[18] = true;
 m_psc_frozen = 0;
-is_null[17] = false;
+is_null[19] = false;
 m_psc_mod = "00000000000000";
-is_null[18] = false;
+is_null[20] = false;
 
 
 	is_added=false;
@@ -193,6 +201,12 @@ return m_FK_Version;}
 short int Row_Installation::isMonitored_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_isMonitored;}
+long int Row_Installation::FK_RepositoryType_Source_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FK_RepositoryType_Source;}
+long int Row_Installation::FK_RepositoryType_Binaries_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FK_RepositoryType_Binaries;}
 long int Row_Installation::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_id;}
@@ -252,21 +266,27 @@ m_FK_Version = val; is_modified=true; is_null[12]=false;}
 void Row_Installation::isMonitored_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_isMonitored = val; is_modified=true; is_null[13]=false;}
+void Row_Installation::FK_RepositoryType_Source_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_RepositoryType_Source = val; is_modified=true; is_null[14]=false;}
+void Row_Installation::FK_RepositoryType_Binaries_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_RepositoryType_Binaries = val; is_modified=true; is_null[15]=false;}
 void Row_Installation::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_id = val; is_modified=true; is_null[14]=false;}
+m_psc_id = val; is_modified=true; is_null[16]=false;}
 void Row_Installation::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_batch = val; is_modified=true; is_null[15]=false;}
+m_psc_batch = val; is_modified=true; is_null[17]=false;}
 void Row_Installation::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_user = val; is_modified=true; is_null[16]=false;}
+m_psc_user = val; is_modified=true; is_null[18]=false;}
 void Row_Installation::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_frozen = val; is_modified=true; is_null[17]=false;}
+m_psc_frozen = val; is_modified=true; is_null[19]=false;}
 void Row_Installation::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_mod = val; is_modified=true; is_null[18]=false;}
+m_psc_mod = val; is_modified=true; is_null[20]=false;}
 
 		
 bool Row_Installation::Name_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -299,18 +319,24 @@ return is_null[12];}
 bool Row_Installation::isMonitored_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[13];}
-bool Row_Installation::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Installation::FK_RepositoryType_Source_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[14];}
-bool Row_Installation::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Installation::FK_RepositoryType_Binaries_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[15];}
-bool Row_Installation::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Installation::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[16];}
-bool Row_Installation::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Installation::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[17];}
+bool Row_Installation::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[18];}
+bool Row_Installation::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[19];}
 
 			
 void Row_Installation::Name_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -343,18 +369,24 @@ is_null[12]=val;}
 void Row_Installation::isMonitored_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[13]=val;}
-void Row_Installation::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::FK_RepositoryType_Source_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[14]=val;}
-void Row_Installation::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::FK_RepositoryType_Binaries_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[15]=val;}
-void Row_Installation::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[16]=val;}
-void Row_Installation::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[17]=val;}
+void Row_Installation::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[18]=val;}
+void Row_Installation::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[19]=val;}
 	
 
 string Row_Installation::PK_Installation_asSQL()
@@ -530,11 +562,37 @@ sprintf(buf, "%hi", m_isMonitored);
 return buf;
 }
 
-string Row_Installation::psc_id_asSQL()
+string Row_Installation::FK_RepositoryType_Source_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[14])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_RepositoryType_Source);
+
+return buf;
+}
+
+string Row_Installation::FK_RepositoryType_Binaries_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[15])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_RepositoryType_Binaries);
+
+return buf;
+}
+
+string Row_Installation::psc_id_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[16])
 return "NULL";
 
 char buf[32];
@@ -547,7 +605,7 @@ string Row_Installation::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[15])
+if (is_null[17])
 return "NULL";
 
 char buf[32];
@@ -560,7 +618,7 @@ string Row_Installation::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[16])
+if (is_null[18])
 return "NULL";
 
 char buf[32];
@@ -573,7 +631,7 @@ string Row_Installation::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[17])
+if (is_null[19])
 return "NULL";
 
 char buf[32];
@@ -586,7 +644,7 @@ string Row_Installation::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[18])
+if (is_null[20])
 return "NULL";
 
 char buf[29];
@@ -626,16 +684,16 @@ void Table_Installation::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_Installation*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_Installation *pRow = *i;
+		Row_Installation *pRow = (Row_Installation *)*i;
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Installation_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Name_asSQL()+", "+pRow->Address_asSQL()+", "+pRow->City_asSQL()+", "+pRow->State_asSQL()+", "+pRow->Zip_asSQL()+", "+pRow->FK_Country_asSQL()+", "+pRow->ActivationCode_asSQL()+", "+pRow->LastStatus_asSQL()+", "+pRow->LastAlive_asSQL()+", "+pRow->isActive_asSQL()+", "+pRow->FK_Version_asSQL()+", "+pRow->isMonitored_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Installation_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Name_asSQL()+", "+pRow->Address_asSQL()+", "+pRow->City_asSQL()+", "+pRow->State_asSQL()+", "+pRow->Zip_asSQL()+", "+pRow->FK_Country_asSQL()+", "+pRow->ActivationCode_asSQL()+", "+pRow->LastStatus_asSQL()+", "+pRow->LastAlive_asSQL()+", "+pRow->isActive_asSQL()+", "+pRow->FK_Version_asSQL()+", "+pRow->isMonitored_asSQL()+", "+pRow->FK_RepositoryType_Source_asSQL()+", "+pRow->FK_RepositoryType_Binaries_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into Installation (PK_Installation, Description, Name, Address, City, State, Zip, FK_Country, ActivationCode, LastStatus, LastAlive, isActive, FK_Version, isMonitored, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into Installation (PK_Installation, Description, Name, Address, City, State, Zip, FK_Country, ActivationCode, LastStatus, LastAlive, isActive, FK_Version, isMonitored, FK_RepositoryType_Source, FK_RepositoryType_Binaries, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -654,7 +712,7 @@ pRow->m_PK_Installation=id;
 	
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			SingleLongKey key(pRow->m_PK_Installation);	
 			cachedRows[key] = pRow;
 					
 			
@@ -668,14 +726,14 @@ pRow->m_PK_Installation=id;
 //update modified
 	
 
-	for (map<Key, Row_Installation*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_Installation* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_Installation* pRow = (Row_Installation*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_Installation);
 
 		char tmp_PK_Installation[32];
-sprintf(tmp_PK_Installation, "%li", key.pk_PK_Installation);
+sprintf(tmp_PK_Installation, "%li", key.pk);
 
 
 string condition;
@@ -684,7 +742,7 @@ condition = condition + "PK_Installation=" + tmp_PK_Installation;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Installation="+pRow->PK_Installation_asSQL()+", Description="+pRow->Description_asSQL()+", Name="+pRow->Name_asSQL()+", Address="+pRow->Address_asSQL()+", City="+pRow->City_asSQL()+", State="+pRow->State_asSQL()+", Zip="+pRow->Zip_asSQL()+", FK_Country="+pRow->FK_Country_asSQL()+", ActivationCode="+pRow->ActivationCode_asSQL()+", LastStatus="+pRow->LastStatus_asSQL()+", LastAlive="+pRow->LastAlive_asSQL()+", isActive="+pRow->isActive_asSQL()+", FK_Version="+pRow->FK_Version_asSQL()+", isMonitored="+pRow->isMonitored_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_Installation="+pRow->PK_Installation_asSQL()+", Description="+pRow->Description_asSQL()+", Name="+pRow->Name_asSQL()+", Address="+pRow->Address_asSQL()+", City="+pRow->City_asSQL()+", State="+pRow->State_asSQL()+", Zip="+pRow->Zip_asSQL()+", FK_Country="+pRow->FK_Country_asSQL()+", ActivationCode="+pRow->ActivationCode_asSQL()+", LastStatus="+pRow->LastStatus_asSQL()+", LastAlive="+pRow->LastAlive_asSQL()+", isActive="+pRow->isActive_asSQL()+", FK_Version="+pRow->FK_Version_asSQL()+", isMonitored="+pRow->isMonitored_asSQL()+", FK_RepositoryType_Source="+pRow->FK_RepositoryType_Source_asSQL()+", FK_RepositoryType_Binaries="+pRow->FK_RepositoryType_Binaries_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update Installation set " + update_values_list + " where " + condition;
@@ -701,7 +759,7 @@ update_values_list = update_values_list + "PK_Installation="+pRow->PK_Installati
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_Installation*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -711,12 +769,13 @@ update_values_list = update_values_list + "PK_Installation="+pRow->PK_Installati
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_Installation*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		SingleLongKey key = (*i).first;
+		Row_Installation* pRow = (Row_Installation*) (*i).second;	
+
 		char tmp_PK_Installation[32];
-sprintf(tmp_PK_Installation, "%li", key.pk_PK_Installation);
+sprintf(tmp_PK_Installation, "%li", key.pk);
 
 
 string condition;
@@ -928,70 +987,92 @@ sscanf(row[13], "%hi", &(pRow->m_isMonitored));
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_psc_id = 0;
+pRow->m_FK_RepositoryType_Source = 0;
 }
 else
 {
 pRow->is_null[14]=false;
-sscanf(row[14], "%li", &(pRow->m_psc_id));
+sscanf(row[14], "%li", &(pRow->m_FK_RepositoryType_Source));
 }
 
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_psc_batch = 0;
+pRow->m_FK_RepositoryType_Binaries = 0;
 }
 else
 {
 pRow->is_null[15]=false;
-sscanf(row[15], "%li", &(pRow->m_psc_batch));
+sscanf(row[15], "%li", &(pRow->m_FK_RepositoryType_Binaries));
 }
 
 if (row[16] == NULL)
 {
 pRow->is_null[16]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[16]=false;
-sscanf(row[16], "%li", &(pRow->m_psc_user));
+sscanf(row[16], "%li", &(pRow->m_psc_id));
 }
 
 if (row[17] == NULL)
 {
 pRow->is_null[17]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[17]=false;
-sscanf(row[17], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[17], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[18] == NULL)
 {
 pRow->is_null[18]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[18]=false;
-pRow->m_psc_mod = string(row[18],lengths[18]);
+sscanf(row[18], "%li", &(pRow->m_psc_user));
+}
+
+if (row[19] == NULL)
+{
+pRow->is_null[19]=true;
+pRow->m_psc_frozen = 0;
+}
+else
+{
+pRow->is_null[19]=false;
+sscanf(row[19], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[20] == NULL)
+{
+pRow->is_null[20]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[20]=false;
+pRow->m_psc_mod = string(row[20],lengths[20]);
 }
 
 
 
 		//checking for duplicates
 
-		Key key(pRow);
+		SingleLongKey key(pRow->m_PK_Installation);
 		
-                map<Table_Installation::Key, Row_Installation*, Table_Installation::Key_Less>::iterator i = cachedRows.find(key);
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_Installation *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -1020,9 +1101,9 @@ Row_Installation* Table_Installation::GetRow(long int in_PK_Installation)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_PK_Installation);
+	SingleLongKey row_key(in_PK_Installation);
 
-	map<Key, Row_Installation*, Key_Less>::iterator i;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -1033,7 +1114,7 @@ Row_Installation* Table_Installation::GetRow(long int in_PK_Installation)
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_Installation*) (*i).second;
 	//we have to fetch row
 	Row_Installation* pRow = FetchRow(row_key);
 
@@ -1044,13 +1125,13 @@ Row_Installation* Table_Installation::GetRow(long int in_PK_Installation)
 
 
 
-Row_Installation* Table_Installation::FetchRow(Table_Installation::Key &key)
+Row_Installation* Table_Installation::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_Installation[32];
-sprintf(tmp_PK_Installation, "%li", key.pk_PK_Installation);
+sprintf(tmp_PK_Installation, "%li", key.pk);
 
 
 string condition;
@@ -1243,56 +1324,78 @@ sscanf(row[13], "%hi", &(pRow->m_isMonitored));
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_psc_id = 0;
+pRow->m_FK_RepositoryType_Source = 0;
 }
 else
 {
 pRow->is_null[14]=false;
-sscanf(row[14], "%li", &(pRow->m_psc_id));
+sscanf(row[14], "%li", &(pRow->m_FK_RepositoryType_Source));
 }
 
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_psc_batch = 0;
+pRow->m_FK_RepositoryType_Binaries = 0;
 }
 else
 {
 pRow->is_null[15]=false;
-sscanf(row[15], "%li", &(pRow->m_psc_batch));
+sscanf(row[15], "%li", &(pRow->m_FK_RepositoryType_Binaries));
 }
 
 if (row[16] == NULL)
 {
 pRow->is_null[16]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[16]=false;
-sscanf(row[16], "%li", &(pRow->m_psc_user));
+sscanf(row[16], "%li", &(pRow->m_psc_id));
 }
 
 if (row[17] == NULL)
 {
 pRow->is_null[17]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[17]=false;
-sscanf(row[17], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[17], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[18] == NULL)
 {
 pRow->is_null[18]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[18]=false;
-pRow->m_psc_mod = string(row[18],lengths[18]);
+sscanf(row[18], "%li", &(pRow->m_psc_user));
+}
+
+if (row[19] == NULL)
+{
+pRow->is_null[19]=true;
+pRow->m_psc_frozen = 0;
+}
+else
+{
+pRow->is_null[19]=false;
+sscanf(row[19], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[20] == NULL)
+{
+pRow->is_null[20]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[20]=false;
+pRow->m_psc_mod = string(row[20],lengths[20]);
 }
 
 
@@ -1316,6 +1419,20 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Version *pTable = table->database->Version_get();
 return pTable->GetRow(m_FK_Version);
+}
+class Row_RepositoryType* Row_Installation::FK_RepositoryType_Source_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_RepositoryType *pTable = table->database->RepositoryType_get();
+return pTable->GetRow(m_FK_RepositoryType_Source);
+}
+class Row_RepositoryType* Row_Installation::FK_RepositoryType_Binaries_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_RepositoryType *pTable = table->database->RepositoryType_get();
+return pTable->GetRow(m_FK_RepositoryType_Binaries);
 }
 
 

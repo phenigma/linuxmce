@@ -13,7 +13,12 @@
 #include "Define_InfraredGroup_Input.h"
 #include "SerializeClass/SerializeClass.h"
 
-class DLL_EXPORT Table_InfraredGroup_Input
+// If we declare the maps locally, the compiler will create multiple copies of them
+// making the output files enormous.  The solution seems to be to create some predefined
+// maps for the standard types of primary keys (single long, double long, etc.) and
+// put them in a common base class, which is optionally included as tablebase below
+
+class DLL_EXPORT Table_InfraredGroup_Input : public TableBase , DoubleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -49,11 +54,8 @@ long int pk_FK_Input;
 		bool operator()(const Table_InfraredGroup_Input::Key &key1, const Table_InfraredGroup_Input::Key &key2) const;
 	};	
 
-	map<Table_InfraredGroup_Input::Key, class Row_InfraredGroup_Input*, Table_InfraredGroup_Input::Key_Less> cachedRows;
-	map<Table_InfraredGroup_Input::Key, class Row_InfraredGroup_Input*, Table_InfraredGroup_Input::Key_Less> deleted_cachedRows;
-	vector<class Row_InfraredGroup_Input*> addedRows;
-	vector<class Row_InfraredGroup_Input*> deleted_addedRows;	
-		
+	
+	
 
 public:				
 	void Commit();
@@ -68,7 +70,7 @@ public:
 private:	
 	
 		
-	class Row_InfraredGroup_Input* FetchRow(Key &key);
+	class Row_InfraredGroup_Input* FetchRow(DoubleLongKey &key);
 		
 			
 };
@@ -90,10 +92,6 @@ short int m_psc_frozen;
 string m_psc_mod;
 
 		bool is_null[8];
-	
-		bool is_deleted;
-		bool is_added;
-		bool is_modified;					
 	
 	public:
 		long int FK_InfraredGroup_get();

@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -37,15 +36,17 @@ void Database_pluto_main::DeleteTable_ConfigType()
 
 Table_ConfigType::~Table_ConfigType()
 {
-	map<Table_ConfigType::Key, class Row_ConfigType*, Table_ConfigType::Key_Less>::iterator it;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_ConfigType *pRow = (Row_ConfigType *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_ConfigType *pRow = (Row_ConfigType *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -59,12 +60,13 @@ Table_ConfigType::~Table_ConfigType()
 void Row_ConfigType::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_ConfigType *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_ConfigType*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_ConfigType *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -74,8 +76,8 @@ void Row_ConfigType::Delete()
 		}
 		else
 		{
-			Table_ConfigType::Key key(this);					
-			map<Table_ConfigType::Key, Row_ConfigType*, Table_ConfigType::Key_Less>::iterator i = table->cachedRows.find(key);
+			SingleLongKey key(pRow->m_PK_ConfigType);
+			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -86,12 +88,14 @@ void Row_ConfigType::Delete()
 
 void Row_ConfigType::Reload()
 {
+	Row_ConfigType *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_ConfigType::Key key(this);		
+		SingleLongKey key(pRow->m_PK_ConfigType);
 		Row_ConfigType *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -396,9 +400,9 @@ void Table_ConfigType::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_ConfigType*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_ConfigType *pRow = *i;
+		Row_ConfigType *pRow = (Row_ConfigType *)*i;
 	
 		
 string values_list_comma_separated;
@@ -424,7 +428,7 @@ pRow->m_PK_ConfigType=id;
 	
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			SingleLongKey key(pRow->m_PK_ConfigType);	
 			cachedRows[key] = pRow;
 					
 			
@@ -438,14 +442,14 @@ pRow->m_PK_ConfigType=id;
 //update modified
 	
 
-	for (map<Key, Row_ConfigType*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_ConfigType* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_ConfigType* pRow = (Row_ConfigType*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_ConfigType);
 
 		char tmp_PK_ConfigType[32];
-sprintf(tmp_PK_ConfigType, "%li", key.pk_PK_ConfigType);
+sprintf(tmp_PK_ConfigType, "%li", key.pk);
 
 
 string condition;
@@ -471,7 +475,7 @@ update_values_list = update_values_list + "PK_ConfigType="+pRow->PK_ConfigType_a
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_ConfigType*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -481,12 +485,13 @@ update_values_list = update_values_list + "PK_ConfigType="+pRow->PK_ConfigType_a
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_ConfigType*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		SingleLongKey key = (*i).first;
+		Row_ConfigType* pRow = (Row_ConfigType*) (*i).second;	
+
 		char tmp_PK_ConfigType[32];
-sprintf(tmp_PK_ConfigType, "%li", key.pk_PK_ConfigType);
+sprintf(tmp_PK_ConfigType, "%li", key.pk);
 
 
 string condition;
@@ -655,14 +660,14 @@ pRow->m_psc_mod = string(row[9],lengths[9]);
 
 		//checking for duplicates
 
-		Key key(pRow);
+		SingleLongKey key(pRow->m_PK_ConfigType);
 		
-                map<Table_ConfigType::Key, Row_ConfigType*, Table_ConfigType::Key_Less>::iterator i = cachedRows.find(key);
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_ConfigType *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -691,9 +696,9 @@ Row_ConfigType* Table_ConfigType::GetRow(long int in_PK_ConfigType)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_PK_ConfigType);
+	SingleLongKey row_key(in_PK_ConfigType);
 
-	map<Key, Row_ConfigType*, Key_Less>::iterator i;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -704,7 +709,7 @@ Row_ConfigType* Table_ConfigType::GetRow(long int in_PK_ConfigType)
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_ConfigType*) (*i).second;
 	//we have to fetch row
 	Row_ConfigType* pRow = FetchRow(row_key);
 
@@ -715,13 +720,13 @@ Row_ConfigType* Table_ConfigType::GetRow(long int in_PK_ConfigType)
 
 
 
-Row_ConfigType* Table_ConfigType::FetchRow(Table_ConfigType::Key &key)
+Row_ConfigType* Table_ConfigType::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_ConfigType[32];
-sprintf(tmp_PK_ConfigType, "%li", key.pk_PK_ConfigType);
+sprintf(tmp_PK_ConfigType, "%li", key.pk);
 
 
 string condition;

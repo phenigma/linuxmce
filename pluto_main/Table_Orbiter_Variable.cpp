@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -35,15 +34,17 @@ void Database_pluto_main::DeleteTable_Orbiter_Variable()
 
 Table_Orbiter_Variable::~Table_Orbiter_Variable()
 {
-	map<Table_Orbiter_Variable::Key, class Row_Orbiter_Variable*, Table_Orbiter_Variable::Key_Less>::iterator it;
+	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_Orbiter_Variable *pRow = (Row_Orbiter_Variable *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_Orbiter_Variable *pRow = (Row_Orbiter_Variable *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -57,12 +58,13 @@ Table_Orbiter_Variable::~Table_Orbiter_Variable()
 void Row_Orbiter_Variable::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_Orbiter_Variable *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_Orbiter_Variable*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_Orbiter_Variable *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -72,8 +74,8 @@ void Row_Orbiter_Variable::Delete()
 		}
 		else
 		{
-			Table_Orbiter_Variable::Key key(this);					
-			map<Table_Orbiter_Variable::Key, Row_Orbiter_Variable*, Table_Orbiter_Variable::Key_Less>::iterator i = table->cachedRows.find(key);
+			DoubleLongKey key(pRow->m_FK_Orbiter,pRow->m_FK_Variable);
+			map<DoubleLongKey, TableRow*, DoubleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -84,12 +86,14 @@ void Row_Orbiter_Variable::Delete()
 
 void Row_Orbiter_Variable::Reload()
 {
+	Row_Orbiter_Variable *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_Orbiter_Variable::Key key(this);		
+		DoubleLongKey key(pRow->m_FK_Orbiter,pRow->m_FK_Variable);
 		Row_Orbiter_Variable *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -353,9 +357,9 @@ void Table_Orbiter_Variable::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_Orbiter_Variable*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_Orbiter_Variable *pRow = *i;
+		Row_Orbiter_Variable *pRow = (Row_Orbiter_Variable *)*i;
 	
 		
 string values_list_comma_separated;
@@ -379,7 +383,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Orbiter_asS
 				
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			DoubleLongKey key(pRow->m_FK_Orbiter,pRow->m_FK_Variable);	
 			cachedRows[key] = pRow;
 					
 			
@@ -393,17 +397,17 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Orbiter_asS
 //update modified
 	
 
-	for (map<Key, Row_Orbiter_Variable*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_Orbiter_Variable* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_Orbiter_Variable* pRow = (Row_Orbiter_Variable*) (*i).second;	
+		DoubleLongKey key(pRow->m_FK_Orbiter,pRow->m_FK_Variable);
 
 		char tmp_FK_Orbiter[32];
-sprintf(tmp_FK_Orbiter, "%li", key.pk_FK_Orbiter);
+sprintf(tmp_FK_Orbiter, "%li", key.pk1);
 
 char tmp_FK_Variable[32];
-sprintf(tmp_FK_Variable, "%li", key.pk_FK_Variable);
+sprintf(tmp_FK_Variable, "%li", key.pk2);
 
 
 string condition;
@@ -429,7 +433,7 @@ update_values_list = update_values_list + "FK_Orbiter="+pRow->FK_Orbiter_asSQL()
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_Orbiter_Variable*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -439,15 +443,16 @@ update_values_list = update_values_list + "FK_Orbiter="+pRow->FK_Orbiter_asSQL()
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_Orbiter_Variable*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		DoubleLongKey key = (*i).first;
+		Row_Orbiter_Variable* pRow = (Row_Orbiter_Variable*) (*i).second;	
+
 		char tmp_FK_Orbiter[32];
-sprintf(tmp_FK_Orbiter, "%li", key.pk_FK_Orbiter);
+sprintf(tmp_FK_Orbiter, "%li", key.pk1);
 
 char tmp_FK_Variable[32];
-sprintf(tmp_FK_Variable, "%li", key.pk_FK_Variable);
+sprintf(tmp_FK_Variable, "%li", key.pk2);
 
 
 string condition;
@@ -594,14 +599,14 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 
 		//checking for duplicates
 
-		Key key(pRow);
+		DoubleLongKey key(pRow->m_FK_Orbiter,pRow->m_FK_Variable);
 		
-                map<Table_Orbiter_Variable::Key, Row_Orbiter_Variable*, Table_Orbiter_Variable::Key_Less>::iterator i = cachedRows.find(key);
+		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_Orbiter_Variable *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -630,9 +635,9 @@ Row_Orbiter_Variable* Table_Orbiter_Variable::GetRow(long int in_FK_Orbiter, lon
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_FK_Orbiter, in_FK_Variable);
+	DoubleLongKey row_key(in_FK_Orbiter, in_FK_Variable);
 
-	map<Key, Row_Orbiter_Variable*, Key_Less>::iterator i;
+	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -643,7 +648,7 @@ Row_Orbiter_Variable* Table_Orbiter_Variable::GetRow(long int in_FK_Orbiter, lon
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_Orbiter_Variable*) (*i).second;
 	//we have to fetch row
 	Row_Orbiter_Variable* pRow = FetchRow(row_key);
 
@@ -654,16 +659,16 @@ Row_Orbiter_Variable* Table_Orbiter_Variable::GetRow(long int in_FK_Orbiter, lon
 
 
 
-Row_Orbiter_Variable* Table_Orbiter_Variable::FetchRow(Table_Orbiter_Variable::Key &key)
+Row_Orbiter_Variable* Table_Orbiter_Variable::FetchRow(DoubleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_FK_Orbiter[32];
-sprintf(tmp_FK_Orbiter, "%li", key.pk_FK_Orbiter);
+sprintf(tmp_FK_Orbiter, "%li", key.pk1);
 
 char tmp_FK_Variable[32];
-sprintf(tmp_FK_Variable, "%li", key.pk_FK_Variable);
+sprintf(tmp_FK_Variable, "%li", key.pk2);
 
 
 string condition;

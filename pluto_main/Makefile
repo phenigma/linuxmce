@@ -5,7 +5,7 @@ CXX = g++
 LDFLAGS = -L$(ROOT)/lib
 LDLIBS =  -lmysqlclient_r
 
-sources = Database_pluto_main.cpp  \
+sources = Database_pluto_main.cpp TableRow.cpp \
 Table_Array.cpp \
 Table_Broadcast.cpp \
 Table_Button.cpp \

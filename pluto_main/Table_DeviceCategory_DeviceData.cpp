@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -35,15 +34,17 @@ void Database_pluto_main::DeleteTable_DeviceCategory_DeviceData()
 
 Table_DeviceCategory_DeviceData::~Table_DeviceCategory_DeviceData()
 {
-	map<Table_DeviceCategory_DeviceData::Key, class Row_DeviceCategory_DeviceData*, Table_DeviceCategory_DeviceData::Key_Less>::iterator it;
+	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_DeviceCategory_DeviceData *pRow = (Row_DeviceCategory_DeviceData *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_DeviceCategory_DeviceData *pRow = (Row_DeviceCategory_DeviceData *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -57,12 +58,13 @@ Table_DeviceCategory_DeviceData::~Table_DeviceCategory_DeviceData()
 void Row_DeviceCategory_DeviceData::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_DeviceCategory_DeviceData *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_DeviceCategory_DeviceData*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_DeviceCategory_DeviceData *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -72,8 +74,8 @@ void Row_DeviceCategory_DeviceData::Delete()
 		}
 		else
 		{
-			Table_DeviceCategory_DeviceData::Key key(this);					
-			map<Table_DeviceCategory_DeviceData::Key, Row_DeviceCategory_DeviceData*, Table_DeviceCategory_DeviceData::Key_Less>::iterator i = table->cachedRows.find(key);
+			DoubleLongKey key(pRow->m_FK_DeviceCategory,pRow->m_FK_DeviceData);
+			map<DoubleLongKey, TableRow*, DoubleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -84,12 +86,14 @@ void Row_DeviceCategory_DeviceData::Delete()
 
 void Row_DeviceCategory_DeviceData::Reload()
 {
+	Row_DeviceCategory_DeviceData *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_DeviceCategory_DeviceData::Key key(this);		
+		DoubleLongKey key(pRow->m_FK_DeviceCategory,pRow->m_FK_DeviceData);
 		Row_DeviceCategory_DeviceData *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -441,9 +445,9 @@ void Table_DeviceCategory_DeviceData::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_DeviceCategory_DeviceData*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_DeviceCategory_DeviceData *pRow = *i;
+		Row_DeviceCategory_DeviceData *pRow = (Row_DeviceCategory_DeviceData *)*i;
 	
 		
 string values_list_comma_separated;
@@ -467,7 +471,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_DeviceCateg
 				
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			DoubleLongKey key(pRow->m_FK_DeviceCategory,pRow->m_FK_DeviceData);	
 			cachedRows[key] = pRow;
 					
 			
@@ -481,17 +485,17 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_DeviceCateg
 //update modified
 	
 
-	for (map<Key, Row_DeviceCategory_DeviceData*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_DeviceCategory_DeviceData* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_DeviceCategory_DeviceData* pRow = (Row_DeviceCategory_DeviceData*) (*i).second;	
+		DoubleLongKey key(pRow->m_FK_DeviceCategory,pRow->m_FK_DeviceData);
 
 		char tmp_FK_DeviceCategory[32];
-sprintf(tmp_FK_DeviceCategory, "%li", key.pk_FK_DeviceCategory);
+sprintf(tmp_FK_DeviceCategory, "%li", key.pk1);
 
 char tmp_FK_DeviceData[32];
-sprintf(tmp_FK_DeviceData, "%li", key.pk_FK_DeviceData);
+sprintf(tmp_FK_DeviceData, "%li", key.pk2);
 
 
 string condition;
@@ -517,7 +521,7 @@ update_values_list = update_values_list + "FK_DeviceCategory="+pRow->FK_DeviceCa
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_DeviceCategory_DeviceData*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -527,15 +531,16 @@ update_values_list = update_values_list + "FK_DeviceCategory="+pRow->FK_DeviceCa
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_DeviceCategory_DeviceData*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		DoubleLongKey key = (*i).first;
+		Row_DeviceCategory_DeviceData* pRow = (Row_DeviceCategory_DeviceData*) (*i).second;	
+
 		char tmp_FK_DeviceCategory[32];
-sprintf(tmp_FK_DeviceCategory, "%li", key.pk_FK_DeviceCategory);
+sprintf(tmp_FK_DeviceCategory, "%li", key.pk1);
 
 char tmp_FK_DeviceData[32];
-sprintf(tmp_FK_DeviceData, "%li", key.pk_FK_DeviceData);
+sprintf(tmp_FK_DeviceData, "%li", key.pk2);
 
 
 string condition;
@@ -726,14 +731,14 @@ pRow->m_psc_mod = string(row[11],lengths[11]);
 
 		//checking for duplicates
 
-		Key key(pRow);
+		DoubleLongKey key(pRow->m_FK_DeviceCategory,pRow->m_FK_DeviceData);
 		
-                map<Table_DeviceCategory_DeviceData::Key, Row_DeviceCategory_DeviceData*, Table_DeviceCategory_DeviceData::Key_Less>::iterator i = cachedRows.find(key);
+		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_DeviceCategory_DeviceData *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -762,9 +767,9 @@ Row_DeviceCategory_DeviceData* Table_DeviceCategory_DeviceData::GetRow(long int 
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_FK_DeviceCategory, in_FK_DeviceData);
+	DoubleLongKey row_key(in_FK_DeviceCategory, in_FK_DeviceData);
 
-	map<Key, Row_DeviceCategory_DeviceData*, Key_Less>::iterator i;
+	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -775,7 +780,7 @@ Row_DeviceCategory_DeviceData* Table_DeviceCategory_DeviceData::GetRow(long int 
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_DeviceCategory_DeviceData*) (*i).second;
 	//we have to fetch row
 	Row_DeviceCategory_DeviceData* pRow = FetchRow(row_key);
 
@@ -786,16 +791,16 @@ Row_DeviceCategory_DeviceData* Table_DeviceCategory_DeviceData::GetRow(long int 
 
 
 
-Row_DeviceCategory_DeviceData* Table_DeviceCategory_DeviceData::FetchRow(Table_DeviceCategory_DeviceData::Key &key)
+Row_DeviceCategory_DeviceData* Table_DeviceCategory_DeviceData::FetchRow(DoubleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_FK_DeviceCategory[32];
-sprintf(tmp_FK_DeviceCategory, "%li", key.pk_FK_DeviceCategory);
+sprintf(tmp_FK_DeviceCategory, "%li", key.pk1);
 
 char tmp_FK_DeviceData[32];
-sprintf(tmp_FK_DeviceData, "%li", key.pk_FK_DeviceData);
+sprintf(tmp_FK_DeviceData, "%li", key.pk2);
 
 
 string condition;

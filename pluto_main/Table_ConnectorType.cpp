@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -34,15 +33,17 @@ void Database_pluto_main::DeleteTable_ConnectorType()
 
 Table_ConnectorType::~Table_ConnectorType()
 {
-	map<Table_ConnectorType::Key, class Row_ConnectorType*, Table_ConnectorType::Key_Less>::iterator it;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_ConnectorType *pRow = (Row_ConnectorType *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_ConnectorType *pRow = (Row_ConnectorType *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -56,12 +57,13 @@ Table_ConnectorType::~Table_ConnectorType()
 void Row_ConnectorType::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_ConnectorType *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_ConnectorType*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_ConnectorType *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -71,8 +73,8 @@ void Row_ConnectorType::Delete()
 		}
 		else
 		{
-			Table_ConnectorType::Key key(this);					
-			map<Table_ConnectorType::Key, Row_ConnectorType*, Table_ConnectorType::Key_Less>::iterator i = table->cachedRows.find(key);
+			SingleLongKey key(pRow->m_PK_ConnectorType);
+			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -83,12 +85,14 @@ void Row_ConnectorType::Delete()
 
 void Row_ConnectorType::Reload()
 {
+	Row_ConnectorType *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_ConnectorType::Key key(this);		
+		SingleLongKey key(pRow->m_PK_ConnectorType);
 		Row_ConnectorType *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -341,9 +345,9 @@ void Table_ConnectorType::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_ConnectorType*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_ConnectorType *pRow = *i;
+		Row_ConnectorType *pRow = (Row_ConnectorType *)*i;
 	
 		
 string values_list_comma_separated;
@@ -369,7 +373,7 @@ pRow->m_PK_ConnectorType=id;
 	
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			SingleLongKey key(pRow->m_PK_ConnectorType);	
 			cachedRows[key] = pRow;
 					
 			
@@ -383,14 +387,14 @@ pRow->m_PK_ConnectorType=id;
 //update modified
 	
 
-	for (map<Key, Row_ConnectorType*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_ConnectorType* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_ConnectorType* pRow = (Row_ConnectorType*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_ConnectorType);
 
 		char tmp_PK_ConnectorType[32];
-sprintf(tmp_PK_ConnectorType, "%li", key.pk_PK_ConnectorType);
+sprintf(tmp_PK_ConnectorType, "%li", key.pk);
 
 
 string condition;
@@ -416,7 +420,7 @@ update_values_list = update_values_list + "PK_ConnectorType="+pRow->PK_Connector
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_ConnectorType*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -426,12 +430,13 @@ update_values_list = update_values_list + "PK_ConnectorType="+pRow->PK_Connector
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_ConnectorType*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		SingleLongKey key = (*i).first;
+		Row_ConnectorType* pRow = (Row_ConnectorType*) (*i).second;	
+
 		char tmp_PK_ConnectorType[32];
-sprintf(tmp_PK_ConnectorType, "%li", key.pk_PK_ConnectorType);
+sprintf(tmp_PK_ConnectorType, "%li", key.pk);
 
 
 string condition;
@@ -578,14 +583,14 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 
 		//checking for duplicates
 
-		Key key(pRow);
+		SingleLongKey key(pRow->m_PK_ConnectorType);
 		
-                map<Table_ConnectorType::Key, Row_ConnectorType*, Table_ConnectorType::Key_Less>::iterator i = cachedRows.find(key);
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_ConnectorType *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -614,9 +619,9 @@ Row_ConnectorType* Table_ConnectorType::GetRow(long int in_PK_ConnectorType)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_PK_ConnectorType);
+	SingleLongKey row_key(in_PK_ConnectorType);
 
-	map<Key, Row_ConnectorType*, Key_Less>::iterator i;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -627,7 +632,7 @@ Row_ConnectorType* Table_ConnectorType::GetRow(long int in_PK_ConnectorType)
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_ConnectorType*) (*i).second;
 	//we have to fetch row
 	Row_ConnectorType* pRow = FetchRow(row_key);
 
@@ -638,13 +643,13 @@ Row_ConnectorType* Table_ConnectorType::GetRow(long int in_PK_ConnectorType)
 
 
 
-Row_ConnectorType* Table_ConnectorType::FetchRow(Table_ConnectorType::Key &key)
+Row_ConnectorType* Table_ConnectorType::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_ConnectorType[32];
-sprintf(tmp_PK_ConnectorType, "%li", key.pk_PK_ConnectorType);
+sprintf(tmp_PK_ConnectorType, "%li", key.pk);
 
 
 string condition;

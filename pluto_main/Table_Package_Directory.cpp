@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -39,15 +38,17 @@ void Database_pluto_main::DeleteTable_Package_Directory()
 
 Table_Package_Directory::~Table_Package_Directory()
 {
-	map<Table_Package_Directory::Key, class Row_Package_Directory*, Table_Package_Directory::Key_Less>::iterator it;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_Package_Directory *pRow = (Row_Package_Directory *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_Package_Directory *pRow = (Row_Package_Directory *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -61,12 +62,13 @@ Table_Package_Directory::~Table_Package_Directory()
 void Row_Package_Directory::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_Package_Directory *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_Package_Directory*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_Package_Directory *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -76,8 +78,8 @@ void Row_Package_Directory::Delete()
 		}
 		else
 		{
-			Table_Package_Directory::Key key(this);					
-			map<Table_Package_Directory::Key, Row_Package_Directory*, Table_Package_Directory::Key_Less>::iterator i = table->cachedRows.find(key);
+			SingleLongKey key(pRow->m_PK_Package_Directory);
+			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -88,12 +90,14 @@ void Row_Package_Directory::Delete()
 
 void Row_Package_Directory::Reload()
 {
+	Row_Package_Directory *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_Package_Directory::Key key(this);		
+		SingleLongKey key(pRow->m_PK_Package_Directory);
 		Row_Package_Directory *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -322,9 +326,9 @@ void Table_Package_Directory::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_Package_Directory*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_Package_Directory *pRow = *i;
+		Row_Package_Directory *pRow = (Row_Package_Directory *)*i;
 	
 		
 string values_list_comma_separated;
@@ -350,7 +354,7 @@ pRow->m_PK_Package_Directory=id;
 	
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			SingleLongKey key(pRow->m_PK_Package_Directory);	
 			cachedRows[key] = pRow;
 					
 			
@@ -364,14 +368,14 @@ pRow->m_PK_Package_Directory=id;
 //update modified
 	
 
-	for (map<Key, Row_Package_Directory*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_Package_Directory* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_Package_Directory* pRow = (Row_Package_Directory*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_Package_Directory);
 
 		char tmp_PK_Package_Directory[32];
-sprintf(tmp_PK_Package_Directory, "%li", key.pk_PK_Package_Directory);
+sprintf(tmp_PK_Package_Directory, "%li", key.pk);
 
 
 string condition;
@@ -397,7 +401,7 @@ update_values_list = update_values_list + "PK_Package_Directory="+pRow->PK_Packa
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_Package_Directory*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -407,12 +411,13 @@ update_values_list = update_values_list + "PK_Package_Directory="+pRow->PK_Packa
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_Package_Directory*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		SingleLongKey key = (*i).first;
+		Row_Package_Directory* pRow = (Row_Package_Directory*) (*i).second;	
+
 		char tmp_PK_Package_Directory[32];
-sprintf(tmp_PK_Package_Directory, "%li", key.pk_PK_Package_Directory);
+sprintf(tmp_PK_Package_Directory, "%li", key.pk);
 
 
 string condition;
@@ -548,14 +553,14 @@ sscanf(row[6], "%hi", &(pRow->m_GenerateDoxygen));
 
 		//checking for duplicates
 
-		Key key(pRow);
+		SingleLongKey key(pRow->m_PK_Package_Directory);
 		
-                map<Table_Package_Directory::Key, Row_Package_Directory*, Table_Package_Directory::Key_Less>::iterator i = cachedRows.find(key);
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_Package_Directory *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -584,9 +589,9 @@ Row_Package_Directory* Table_Package_Directory::GetRow(long int in_PK_Package_Di
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_PK_Package_Directory);
+	SingleLongKey row_key(in_PK_Package_Directory);
 
-	map<Key, Row_Package_Directory*, Key_Less>::iterator i;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -597,7 +602,7 @@ Row_Package_Directory* Table_Package_Directory::GetRow(long int in_PK_Package_Di
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_Package_Directory*) (*i).second;
 	//we have to fetch row
 	Row_Package_Directory* pRow = FetchRow(row_key);
 
@@ -608,13 +613,13 @@ Row_Package_Directory* Table_Package_Directory::GetRow(long int in_PK_Package_Di
 
 
 
-Row_Package_Directory* Table_Package_Directory::FetchRow(Table_Package_Directory::Key &key)
+Row_Package_Directory* Table_Package_Directory::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_Package_Directory[32];
-sprintf(tmp_PK_Package_Directory, "%li", key.pk_PK_Package_Directory);
+sprintf(tmp_PK_Package_Directory, "%li", key.pk);
 
 
 string condition;

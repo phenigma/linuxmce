@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -45,15 +44,17 @@ void Database_pluto_main::DeleteTable_Input()
 
 Table_Input::~Table_Input()
 {
-	map<Table_Input::Key, class Row_Input*, Table_Input::Key_Less>::iterator it;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_Input *pRow = (Row_Input *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_Input *pRow = (Row_Input *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -67,12 +68,13 @@ Table_Input::~Table_Input()
 void Row_Input::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_Input *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_Input*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_Input *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -82,8 +84,8 @@ void Row_Input::Delete()
 		}
 		else
 		{
-			Table_Input::Key key(this);					
-			map<Table_Input::Key, Row_Input*, Table_Input::Key_Less>::iterator i = table->cachedRows.find(key);
+			SingleLongKey key(pRow->m_PK_Input);
+			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -94,12 +96,14 @@ void Row_Input::Delete()
 
 void Row_Input::Reload()
 {
+	Row_Input *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_Input::Key key(this);		
+		SingleLongKey key(pRow->m_PK_Input);
 		Row_Input *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -378,9 +382,9 @@ void Table_Input::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_Input*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_Input *pRow = *i;
+		Row_Input *pRow = (Row_Input *)*i;
 	
 		
 string values_list_comma_separated;
@@ -406,7 +410,7 @@ pRow->m_PK_Input=id;
 	
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			SingleLongKey key(pRow->m_PK_Input);	
 			cachedRows[key] = pRow;
 					
 			
@@ -420,14 +424,14 @@ pRow->m_PK_Input=id;
 //update modified
 	
 
-	for (map<Key, Row_Input*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_Input* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_Input* pRow = (Row_Input*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_Input);
 
 		char tmp_PK_Input[32];
-sprintf(tmp_PK_Input, "%li", key.pk_PK_Input);
+sprintf(tmp_PK_Input, "%li", key.pk);
 
 
 string condition;
@@ -453,7 +457,7 @@ update_values_list = update_values_list + "PK_Input="+pRow->PK_Input_asSQL()+", 
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_Input*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -463,12 +467,13 @@ update_values_list = update_values_list + "PK_Input="+pRow->PK_Input_asSQL()+", 
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_Input*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		SingleLongKey key = (*i).first;
+		Row_Input* pRow = (Row_Input*) (*i).second;	
+
 		char tmp_PK_Input[32];
-sprintf(tmp_PK_Input, "%li", key.pk_PK_Input);
+sprintf(tmp_PK_Input, "%li", key.pk);
 
 
 string condition;
@@ -626,14 +631,14 @@ pRow->m_psc_mod = string(row[8],lengths[8]);
 
 		//checking for duplicates
 
-		Key key(pRow);
+		SingleLongKey key(pRow->m_PK_Input);
 		
-                map<Table_Input::Key, Row_Input*, Table_Input::Key_Less>::iterator i = cachedRows.find(key);
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_Input *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -662,9 +667,9 @@ Row_Input* Table_Input::GetRow(long int in_PK_Input)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_PK_Input);
+	SingleLongKey row_key(in_PK_Input);
 
-	map<Key, Row_Input*, Key_Less>::iterator i;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -675,7 +680,7 @@ Row_Input* Table_Input::GetRow(long int in_PK_Input)
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_Input*) (*i).second;
 	//we have to fetch row
 	Row_Input* pRow = FetchRow(row_key);
 
@@ -686,13 +691,13 @@ Row_Input* Table_Input::GetRow(long int in_PK_Input)
 
 
 
-Row_Input* Table_Input::FetchRow(Table_Input::Key &key)
+Row_Input* Table_Input::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_Input[32];
-sprintf(tmp_PK_Input, "%li", key.pk_PK_Input);
+sprintf(tmp_PK_Input, "%li", key.pk);
 
 
 string condition;

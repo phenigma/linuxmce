@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -35,15 +34,17 @@ void Database_pluto_main::DeleteTable_CachedScreens()
 
 Table_CachedScreens::~Table_CachedScreens()
 {
-	map<Table_CachedScreens::Key, class Row_CachedScreens*, Table_CachedScreens::Key_Less>::iterator it;
+	map<TripleLongKey, class TableRow*, TripleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_CachedScreens *pRow = (Row_CachedScreens *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_CachedScreens *pRow = (Row_CachedScreens *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -57,12 +58,13 @@ Table_CachedScreens::~Table_CachedScreens()
 void Row_CachedScreens::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_CachedScreens *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_CachedScreens*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_CachedScreens *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -72,8 +74,8 @@ void Row_CachedScreens::Delete()
 		}
 		else
 		{
-			Table_CachedScreens::Key key(this);					
-			map<Table_CachedScreens::Key, Row_CachedScreens*, Table_CachedScreens::Key_Less>::iterator i = table->cachedRows.find(key);
+			TripleLongKey key(pRow->m_FK_Orbiter,pRow->m_FK_DesignObj,pRow->m_Version);
+			map<TripleLongKey, TableRow*, TripleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -84,12 +86,14 @@ void Row_CachedScreens::Delete()
 
 void Row_CachedScreens::Reload()
 {
+	Row_CachedScreens *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_CachedScreens::Key key(this);		
+		TripleLongKey key(pRow->m_FK_Orbiter,pRow->m_FK_DesignObj,pRow->m_Version);
 		Row_CachedScreens *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -374,9 +378,9 @@ void Table_CachedScreens::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_CachedScreens*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_CachedScreens *pRow = *i;
+		Row_CachedScreens *pRow = (Row_CachedScreens *)*i;
 	
 		
 string values_list_comma_separated;
@@ -400,7 +404,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Orbiter_asS
 				
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			TripleLongKey key(pRow->m_FK_Orbiter,pRow->m_FK_DesignObj,pRow->m_Version);	
 			cachedRows[key] = pRow;
 					
 			
@@ -414,20 +418,20 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Orbiter_asS
 //update modified
 	
 
-	for (map<Key, Row_CachedScreens*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<TripleLongKey, class TableRow*, TripleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_CachedScreens* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_CachedScreens* pRow = (Row_CachedScreens*) (*i).second;	
+		TripleLongKey key(pRow->m_FK_Orbiter,pRow->m_FK_DesignObj,pRow->m_Version);
 
 		char tmp_FK_Orbiter[32];
-sprintf(tmp_FK_Orbiter, "%li", key.pk_FK_Orbiter);
+sprintf(tmp_FK_Orbiter, "%li", key.pk1);
 
 char tmp_FK_DesignObj[32];
-sprintf(tmp_FK_DesignObj, "%li", key.pk_FK_DesignObj);
+sprintf(tmp_FK_DesignObj, "%li", key.pk2);
 
 char tmp_Version[32];
-sprintf(tmp_Version, "%li", key.pk_Version);
+sprintf(tmp_Version, "%li", key.pk3);
 
 
 string condition;
@@ -453,7 +457,7 @@ update_values_list = update_values_list + "FK_Orbiter="+pRow->FK_Orbiter_asSQL()
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_CachedScreens*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -463,18 +467,19 @@ update_values_list = update_values_list + "FK_Orbiter="+pRow->FK_Orbiter_asSQL()
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_CachedScreens*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<TripleLongKey, class TableRow*, TripleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		TripleLongKey key = (*i).first;
+		Row_CachedScreens* pRow = (Row_CachedScreens*) (*i).second;	
+
 		char tmp_FK_Orbiter[32];
-sprintf(tmp_FK_Orbiter, "%li", key.pk_FK_Orbiter);
+sprintf(tmp_FK_Orbiter, "%li", key.pk1);
 
 char tmp_FK_DesignObj[32];
-sprintf(tmp_FK_DesignObj, "%li", key.pk_FK_DesignObj);
+sprintf(tmp_FK_DesignObj, "%li", key.pk2);
 
 char tmp_Version[32];
-sprintf(tmp_Version, "%li", key.pk_Version);
+sprintf(tmp_Version, "%li", key.pk3);
 
 
 string condition;
@@ -632,14 +637,14 @@ pRow->m_psc_mod = string(row[8],lengths[8]);
 
 		//checking for duplicates
 
-		Key key(pRow);
+		TripleLongKey key(pRow->m_FK_Orbiter,pRow->m_FK_DesignObj,pRow->m_Version);
 		
-                map<Table_CachedScreens::Key, Row_CachedScreens*, Table_CachedScreens::Key_Less>::iterator i = cachedRows.find(key);
+		map<TripleLongKey, class TableRow*, TripleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_CachedScreens *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -668,9 +673,9 @@ Row_CachedScreens* Table_CachedScreens::GetRow(long int in_FK_Orbiter, long int 
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_FK_Orbiter, in_FK_DesignObj, in_Version);
+	TripleLongKey row_key(in_FK_Orbiter, in_FK_DesignObj, in_Version);
 
-	map<Key, Row_CachedScreens*, Key_Less>::iterator i;
+	map<TripleLongKey, class TableRow*, TripleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -681,7 +686,7 @@ Row_CachedScreens* Table_CachedScreens::GetRow(long int in_FK_Orbiter, long int 
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_CachedScreens*) (*i).second;
 	//we have to fetch row
 	Row_CachedScreens* pRow = FetchRow(row_key);
 
@@ -692,19 +697,19 @@ Row_CachedScreens* Table_CachedScreens::GetRow(long int in_FK_Orbiter, long int 
 
 
 
-Row_CachedScreens* Table_CachedScreens::FetchRow(Table_CachedScreens::Key &key)
+Row_CachedScreens* Table_CachedScreens::FetchRow(TripleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_FK_Orbiter[32];
-sprintf(tmp_FK_Orbiter, "%li", key.pk_FK_Orbiter);
+sprintf(tmp_FK_Orbiter, "%li", key.pk1);
 
 char tmp_FK_DesignObj[32];
-sprintf(tmp_FK_DesignObj, "%li", key.pk_FK_DesignObj);
+sprintf(tmp_FK_DesignObj, "%li", key.pk2);
 
 char tmp_Version[32];
-sprintf(tmp_Version, "%li", key.pk_Version);
+sprintf(tmp_Version, "%li", key.pk3);
 
 
 string condition;

@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -35,15 +34,17 @@ void Database_pluto_main::DeleteTable_Text_LS_AltVersions()
 
 Table_Text_LS_AltVersions::~Table_Text_LS_AltVersions()
 {
-	map<Table_Text_LS_AltVersions::Key, class Row_Text_LS_AltVersions*, Table_Text_LS_AltVersions::Key_Less>::iterator it;
+	map<TripleLongKey, class TableRow*, TripleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_Text_LS_AltVersions *pRow = (Row_Text_LS_AltVersions *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_Text_LS_AltVersions *pRow = (Row_Text_LS_AltVersions *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -57,12 +58,13 @@ Table_Text_LS_AltVersions::~Table_Text_LS_AltVersions()
 void Row_Text_LS_AltVersions::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_Text_LS_AltVersions *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_Text_LS_AltVersions*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_Text_LS_AltVersions *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -72,8 +74,8 @@ void Row_Text_LS_AltVersions::Delete()
 		}
 		else
 		{
-			Table_Text_LS_AltVersions::Key key(this);					
-			map<Table_Text_LS_AltVersions::Key, Row_Text_LS_AltVersions*, Table_Text_LS_AltVersions::Key_Less>::iterator i = table->cachedRows.find(key);
+			TripleLongKey key(pRow->m_FK_Text,pRow->m_FK_Language,pRow->m_Version);
+			map<TripleLongKey, TableRow*, TripleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -84,12 +86,14 @@ void Row_Text_LS_AltVersions::Delete()
 
 void Row_Text_LS_AltVersions::Reload()
 {
+	Row_Text_LS_AltVersions *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_Text_LS_AltVersions::Key key(this);		
+		TripleLongKey key(pRow->m_FK_Text,pRow->m_FK_Language,pRow->m_Version);
 		Row_Text_LS_AltVersions *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -374,9 +378,9 @@ void Table_Text_LS_AltVersions::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_Text_LS_AltVersions*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_Text_LS_AltVersions *pRow = *i;
+		Row_Text_LS_AltVersions *pRow = (Row_Text_LS_AltVersions *)*i;
 	
 		
 string values_list_comma_separated;
@@ -400,7 +404,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Text_asSQL(
 				
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			TripleLongKey key(pRow->m_FK_Text,pRow->m_FK_Language,pRow->m_Version);	
 			cachedRows[key] = pRow;
 					
 			
@@ -414,20 +418,20 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Text_asSQL(
 //update modified
 	
 
-	for (map<Key, Row_Text_LS_AltVersions*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<TripleLongKey, class TableRow*, TripleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_Text_LS_AltVersions* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_Text_LS_AltVersions* pRow = (Row_Text_LS_AltVersions*) (*i).second;	
+		TripleLongKey key(pRow->m_FK_Text,pRow->m_FK_Language,pRow->m_Version);
 
 		char tmp_FK_Text[32];
-sprintf(tmp_FK_Text, "%li", key.pk_FK_Text);
+sprintf(tmp_FK_Text, "%li", key.pk1);
 
 char tmp_FK_Language[32];
-sprintf(tmp_FK_Language, "%li", key.pk_FK_Language);
+sprintf(tmp_FK_Language, "%li", key.pk2);
 
 char tmp_Version[32];
-sprintf(tmp_Version, "%li", key.pk_Version);
+sprintf(tmp_Version, "%li", key.pk3);
 
 
 string condition;
@@ -453,7 +457,7 @@ update_values_list = update_values_list + "FK_Text="+pRow->FK_Text_asSQL()+", FK
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_Text_LS_AltVersions*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -463,18 +467,19 @@ update_values_list = update_values_list + "FK_Text="+pRow->FK_Text_asSQL()+", FK
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_Text_LS_AltVersions*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<TripleLongKey, class TableRow*, TripleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		TripleLongKey key = (*i).first;
+		Row_Text_LS_AltVersions* pRow = (Row_Text_LS_AltVersions*) (*i).second;	
+
 		char tmp_FK_Text[32];
-sprintf(tmp_FK_Text, "%li", key.pk_FK_Text);
+sprintf(tmp_FK_Text, "%li", key.pk1);
 
 char tmp_FK_Language[32];
-sprintf(tmp_FK_Language, "%li", key.pk_FK_Language);
+sprintf(tmp_FK_Language, "%li", key.pk2);
 
 char tmp_Version[32];
-sprintf(tmp_Version, "%li", key.pk_Version);
+sprintf(tmp_Version, "%li", key.pk3);
 
 
 string condition;
@@ -632,14 +637,14 @@ pRow->m_psc_mod = string(row[8],lengths[8]);
 
 		//checking for duplicates
 
-		Key key(pRow);
+		TripleLongKey key(pRow->m_FK_Text,pRow->m_FK_Language,pRow->m_Version);
 		
-                map<Table_Text_LS_AltVersions::Key, Row_Text_LS_AltVersions*, Table_Text_LS_AltVersions::Key_Less>::iterator i = cachedRows.find(key);
+		map<TripleLongKey, class TableRow*, TripleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_Text_LS_AltVersions *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -668,9 +673,9 @@ Row_Text_LS_AltVersions* Table_Text_LS_AltVersions::GetRow(long int in_FK_Text, 
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_FK_Text, in_FK_Language, in_Version);
+	TripleLongKey row_key(in_FK_Text, in_FK_Language, in_Version);
 
-	map<Key, Row_Text_LS_AltVersions*, Key_Less>::iterator i;
+	map<TripleLongKey, class TableRow*, TripleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -681,7 +686,7 @@ Row_Text_LS_AltVersions* Table_Text_LS_AltVersions::GetRow(long int in_FK_Text, 
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_Text_LS_AltVersions*) (*i).second;
 	//we have to fetch row
 	Row_Text_LS_AltVersions* pRow = FetchRow(row_key);
 
@@ -692,19 +697,19 @@ Row_Text_LS_AltVersions* Table_Text_LS_AltVersions::GetRow(long int in_FK_Text, 
 
 
 
-Row_Text_LS_AltVersions* Table_Text_LS_AltVersions::FetchRow(Table_Text_LS_AltVersions::Key &key)
+Row_Text_LS_AltVersions* Table_Text_LS_AltVersions::FetchRow(TripleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_FK_Text[32];
-sprintf(tmp_FK_Text, "%li", key.pk_FK_Text);
+sprintf(tmp_FK_Text, "%li", key.pk1);
 
 char tmp_FK_Language[32];
-sprintf(tmp_FK_Language, "%li", key.pk_FK_Language);
+sprintf(tmp_FK_Language, "%li", key.pk2);
 
 char tmp_Version[32];
-sprintf(tmp_Version, "%li", key.pk_Version);
+sprintf(tmp_Version, "%li", key.pk3);
 
 
 string condition;

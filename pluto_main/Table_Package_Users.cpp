@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -35,15 +34,17 @@ void Database_pluto_main::DeleteTable_Package_Users()
 
 Table_Package_Users::~Table_Package_Users()
 {
-	map<Table_Package_Users::Key, class Row_Package_Users*, Table_Package_Users::Key_Less>::iterator it;
+	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_Package_Users *pRow = (Row_Package_Users *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_Package_Users *pRow = (Row_Package_Users *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -57,12 +58,13 @@ Table_Package_Users::~Table_Package_Users()
 void Row_Package_Users::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_Package_Users *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_Package_Users*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_Package_Users *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -72,8 +74,8 @@ void Row_Package_Users::Delete()
 		}
 		else
 		{
-			Table_Package_Users::Key key(this);					
-			map<Table_Package_Users::Key, Row_Package_Users*, Table_Package_Users::Key_Less>::iterator i = table->cachedRows.find(key);
+			DoubleLongKey key(pRow->m_FK_Package,pRow->m_FK_Users);
+			map<DoubleLongKey, TableRow*, DoubleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -84,12 +86,14 @@ void Row_Package_Users::Delete()
 
 void Row_Package_Users::Reload()
 {
+	Row_Package_Users *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_Package_Users::Key key(this);		
+		DoubleLongKey key(pRow->m_FK_Package,pRow->m_FK_Users);
 		Row_Package_Users *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -255,9 +259,9 @@ void Table_Package_Users::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_Package_Users*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_Package_Users *pRow = *i;
+		Row_Package_Users *pRow = (Row_Package_Users *)*i;
 	
 		
 string values_list_comma_separated;
@@ -281,7 +285,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Package_asS
 				
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			DoubleLongKey key(pRow->m_FK_Package,pRow->m_FK_Users);	
 			cachedRows[key] = pRow;
 					
 			
@@ -295,17 +299,17 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Package_asS
 //update modified
 	
 
-	for (map<Key, Row_Package_Users*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_Package_Users* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_Package_Users* pRow = (Row_Package_Users*) (*i).second;	
+		DoubleLongKey key(pRow->m_FK_Package,pRow->m_FK_Users);
 
 		char tmp_FK_Package[32];
-sprintf(tmp_FK_Package, "%li", key.pk_FK_Package);
+sprintf(tmp_FK_Package, "%li", key.pk1);
 
 char tmp_FK_Users[32];
-sprintf(tmp_FK_Users, "%li", key.pk_FK_Users);
+sprintf(tmp_FK_Users, "%li", key.pk2);
 
 
 string condition;
@@ -331,7 +335,7 @@ update_values_list = update_values_list + "FK_Package="+pRow->FK_Package_asSQL()
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_Package_Users*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -341,15 +345,16 @@ update_values_list = update_values_list + "FK_Package="+pRow->FK_Package_asSQL()
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_Package_Users*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		DoubleLongKey key = (*i).first;
+		Row_Package_Users* pRow = (Row_Package_Users*) (*i).second;	
+
 		char tmp_FK_Package[32];
-sprintf(tmp_FK_Package, "%li", key.pk_FK_Package);
+sprintf(tmp_FK_Package, "%li", key.pk1);
 
 char tmp_FK_Users[32];
-sprintf(tmp_FK_Users, "%li", key.pk_FK_Users);
+sprintf(tmp_FK_Users, "%li", key.pk2);
 
 
 string condition;
@@ -452,14 +457,14 @@ pRow->m_Comments = string(row[3],lengths[3]);
 
 		//checking for duplicates
 
-		Key key(pRow);
+		DoubleLongKey key(pRow->m_FK_Package,pRow->m_FK_Users);
 		
-                map<Table_Package_Users::Key, Row_Package_Users*, Table_Package_Users::Key_Less>::iterator i = cachedRows.find(key);
+		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_Package_Users *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -488,9 +493,9 @@ Row_Package_Users* Table_Package_Users::GetRow(long int in_FK_Package, long int 
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_FK_Package, in_FK_Users);
+	DoubleLongKey row_key(in_FK_Package, in_FK_Users);
 
-	map<Key, Row_Package_Users*, Key_Less>::iterator i;
+	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -501,7 +506,7 @@ Row_Package_Users* Table_Package_Users::GetRow(long int in_FK_Package, long int 
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_Package_Users*) (*i).second;
 	//we have to fetch row
 	Row_Package_Users* pRow = FetchRow(row_key);
 
@@ -512,16 +517,16 @@ Row_Package_Users* Table_Package_Users::GetRow(long int in_FK_Package, long int 
 
 
 
-Row_Package_Users* Table_Package_Users::FetchRow(Table_Package_Users::Key &key)
+Row_Package_Users* Table_Package_Users::FetchRow(DoubleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_FK_Package[32];
-sprintf(tmp_FK_Package, "%li", key.pk_FK_Package);
+sprintf(tmp_FK_Package, "%li", key.pk1);
 
 char tmp_FK_Users[32];
-sprintf(tmp_FK_Users, "%li", key.pk_FK_Users);
+sprintf(tmp_FK_Users, "%li", key.pk2);
 
 
 string condition;

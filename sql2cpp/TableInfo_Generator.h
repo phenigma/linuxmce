@@ -15,11 +15,18 @@
 
 using namespace std;
 
+// We need to create a maps using stl templates which the key of which is used to lookup any rows.
+// We create a custom struct within each table class, but if we use this, then stl will rebuild an
+// entire new copy of the map template for this type of object, making the database code become
+// incredibly huge.  So, we identify some standard primary key, like a single long number, or 2 longs,
+// and use those stock structures instead whenever possible.
+enum KnownPkTypes { PKTYPES_UNKNOWN,PKTYPES_SINGLE_LONG,PKTYPES_DOUBLE_LONG,PKTYPES_TRIPLE_LONG,PKTYPES_SINGLE_STRING };
+
 class TableInfo_Generator : public TableInfo
 {
 
 private:
-
+	KnownPkTypes m_eKnownPkTypes; /** < what type of primary key this table has */
 	string m_sTableClassPrefix; /** < prefix of the table class */
 	string m_sRowClassPrefix; /** < prefix of the row class */
 	string m_sPrimaryKeyClassPrefix; /** < prefix of the primary class */
@@ -33,14 +40,7 @@ public:
 	/**
 	 * @brief constructor
 	 */
-	TableInfo_Generator( MYSQL * pDB, map<string,TableInfo_Generator*> *pTables ):
-		TableInfo( pDB ),
-		m_sTableClassPrefix( "Table_" ),
-		m_sRowClassPrefix( "Row_" ),
-		m_sPrimaryKeyClassPrefix( "PrimaryKey_" )
-	{
-		m_pTables = pTables;
-	};
+	TableInfo_Generator( MYSQL * pDB, map<string,TableInfo_Generator*> *pTables );
 
 	/** @todo add destructor */
 	
@@ -48,7 +48,12 @@ public:
 	 * @brief does a switch based on the parameter string and calls one of the appropiate templates below
 	 */
 	string ExpandString( string s );
-				
+
+	/**
+	 * @brief override the default implementation to match primary key types
+	 */
+	virtual bool loadFromDB( string sTable );
+
 	/** following: template variables -- get_VAR_NAME -- @VAR_NAME@ */
 	/** they turn an ellement of the table    structure to c++ code */
 
@@ -69,7 +74,13 @@ public:
 	string get_primary_fields_in_untyped_list(); /** < member variables coresponding to primary fields in a comma separated list */
 	string get_primary_fields_assign_list(); /** < generates code for assigning from pk_ mb to in_ for primary key fields */
 	string get_primary_autoinc_key_init();  /** < if id != 0 initializes field with the value of id */
+	string get_primary_fields(); /** < get all the primary keys in pRow */
 	string get_primary_fields_assign_from_row(); /** < assign to the primary key values taken from row */
+	string get_table_key(); /** < what struct we will use storing row pointers in a map (like Key) */
+	string get_table_base(); /** < what base class to use if we have a known type of key */
+	string get_map_cached_rows(); /** < get the map for the cached rows if we're not using a predefined type */
+	string get_map_deleted_cached_rows(); /** < get the map for the deleted cached rows if we're not using a predefined type */
+	string get_table_key_comparer(); /** < what struct we will use for comparing when we store row pointers in a map (like Key_Less) */
 	string get_key_less_statement(); /** < genearates code for return sum of booth keys if they are distinct */
 	string get_set_default_values(); /** < gets/sets the default value */
 	string get_fields_count(); /** < returns the number of fields in mFields as a string */

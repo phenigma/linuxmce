@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -35,15 +34,17 @@ void Database_pluto_main::DeleteTable_DesignObjVariation_DesignObjParameter()
 
 Table_DesignObjVariation_DesignObjParameter::~Table_DesignObjVariation_DesignObjParameter()
 {
-	map<Table_DesignObjVariation_DesignObjParameter::Key, class Row_DesignObjVariation_DesignObjParameter*, Table_DesignObjVariation_DesignObjParameter::Key_Less>::iterator it;
+	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_DesignObjVariation_DesignObjParameter *pRow = (Row_DesignObjVariation_DesignObjParameter *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_DesignObjVariation_DesignObjParameter *pRow = (Row_DesignObjVariation_DesignObjParameter *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -57,12 +58,13 @@ Table_DesignObjVariation_DesignObjParameter::~Table_DesignObjVariation_DesignObj
 void Row_DesignObjVariation_DesignObjParameter::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_DesignObjVariation_DesignObjParameter *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_DesignObjVariation_DesignObjParameter*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_DesignObjVariation_DesignObjParameter *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -72,8 +74,8 @@ void Row_DesignObjVariation_DesignObjParameter::Delete()
 		}
 		else
 		{
-			Table_DesignObjVariation_DesignObjParameter::Key key(this);					
-			map<Table_DesignObjVariation_DesignObjParameter::Key, Row_DesignObjVariation_DesignObjParameter*, Table_DesignObjVariation_DesignObjParameter::Key_Less>::iterator i = table->cachedRows.find(key);
+			DoubleLongKey key(pRow->m_FK_DesignObjVariation,pRow->m_FK_DesignObjParameter);
+			map<DoubleLongKey, TableRow*, DoubleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -84,12 +86,14 @@ void Row_DesignObjVariation_DesignObjParameter::Delete()
 
 void Row_DesignObjVariation_DesignObjParameter::Reload()
 {
+	Row_DesignObjVariation_DesignObjParameter *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_DesignObjVariation_DesignObjParameter::Key key(this);		
+		DoubleLongKey key(pRow->m_FK_DesignObjVariation,pRow->m_FK_DesignObjParameter);
 		Row_DesignObjVariation_DesignObjParameter *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -353,9 +357,9 @@ void Table_DesignObjVariation_DesignObjParameter::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_DesignObjVariation_DesignObjParameter*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_DesignObjVariation_DesignObjParameter *pRow = *i;
+		Row_DesignObjVariation_DesignObjParameter *pRow = (Row_DesignObjVariation_DesignObjParameter *)*i;
 	
 		
 string values_list_comma_separated;
@@ -379,7 +383,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_DesignObjVa
 				
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			DoubleLongKey key(pRow->m_FK_DesignObjVariation,pRow->m_FK_DesignObjParameter);	
 			cachedRows[key] = pRow;
 					
 			
@@ -393,17 +397,17 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_DesignObjVa
 //update modified
 	
 
-	for (map<Key, Row_DesignObjVariation_DesignObjParameter*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_DesignObjVariation_DesignObjParameter* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_DesignObjVariation_DesignObjParameter* pRow = (Row_DesignObjVariation_DesignObjParameter*) (*i).second;	
+		DoubleLongKey key(pRow->m_FK_DesignObjVariation,pRow->m_FK_DesignObjParameter);
 
 		char tmp_FK_DesignObjVariation[32];
-sprintf(tmp_FK_DesignObjVariation, "%li", key.pk_FK_DesignObjVariation);
+sprintf(tmp_FK_DesignObjVariation, "%li", key.pk1);
 
 char tmp_FK_DesignObjParameter[32];
-sprintf(tmp_FK_DesignObjParameter, "%li", key.pk_FK_DesignObjParameter);
+sprintf(tmp_FK_DesignObjParameter, "%li", key.pk2);
 
 
 string condition;
@@ -429,7 +433,7 @@ update_values_list = update_values_list + "FK_DesignObjVariation="+pRow->FK_Desi
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_DesignObjVariation_DesignObjParameter*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -439,15 +443,16 @@ update_values_list = update_values_list + "FK_DesignObjVariation="+pRow->FK_Desi
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_DesignObjVariation_DesignObjParameter*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		DoubleLongKey key = (*i).first;
+		Row_DesignObjVariation_DesignObjParameter* pRow = (Row_DesignObjVariation_DesignObjParameter*) (*i).second;	
+
 		char tmp_FK_DesignObjVariation[32];
-sprintf(tmp_FK_DesignObjVariation, "%li", key.pk_FK_DesignObjVariation);
+sprintf(tmp_FK_DesignObjVariation, "%li", key.pk1);
 
 char tmp_FK_DesignObjParameter[32];
-sprintf(tmp_FK_DesignObjParameter, "%li", key.pk_FK_DesignObjParameter);
+sprintf(tmp_FK_DesignObjParameter, "%li", key.pk2);
 
 
 string condition;
@@ -594,14 +599,14 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 
 		//checking for duplicates
 
-		Key key(pRow);
+		DoubleLongKey key(pRow->m_FK_DesignObjVariation,pRow->m_FK_DesignObjParameter);
 		
-                map<Table_DesignObjVariation_DesignObjParameter::Key, Row_DesignObjVariation_DesignObjParameter*, Table_DesignObjVariation_DesignObjParameter::Key_Less>::iterator i = cachedRows.find(key);
+		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_DesignObjVariation_DesignObjParameter *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -630,9 +635,9 @@ Row_DesignObjVariation_DesignObjParameter* Table_DesignObjVariation_DesignObjPar
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_FK_DesignObjVariation, in_FK_DesignObjParameter);
+	DoubleLongKey row_key(in_FK_DesignObjVariation, in_FK_DesignObjParameter);
 
-	map<Key, Row_DesignObjVariation_DesignObjParameter*, Key_Less>::iterator i;
+	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -643,7 +648,7 @@ Row_DesignObjVariation_DesignObjParameter* Table_DesignObjVariation_DesignObjPar
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_DesignObjVariation_DesignObjParameter*) (*i).second;
 	//we have to fetch row
 	Row_DesignObjVariation_DesignObjParameter* pRow = FetchRow(row_key);
 
@@ -654,16 +659,16 @@ Row_DesignObjVariation_DesignObjParameter* Table_DesignObjVariation_DesignObjPar
 
 
 
-Row_DesignObjVariation_DesignObjParameter* Table_DesignObjVariation_DesignObjParameter::FetchRow(Table_DesignObjVariation_DesignObjParameter::Key &key)
+Row_DesignObjVariation_DesignObjParameter* Table_DesignObjVariation_DesignObjParameter::FetchRow(DoubleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_FK_DesignObjVariation[32];
-sprintf(tmp_FK_DesignObjVariation, "%li", key.pk_FK_DesignObjVariation);
+sprintf(tmp_FK_DesignObjVariation, "%li", key.pk1);
 
 char tmp_FK_DesignObjParameter[32];
-sprintf(tmp_FK_DesignObjParameter, "%li", key.pk_FK_DesignObjParameter);
+sprintf(tmp_FK_DesignObjParameter, "%li", key.pk2);
 
 
 string condition;

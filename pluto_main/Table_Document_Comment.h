@@ -13,7 +13,12 @@
 #include "Define_Document_Comment.h"
 #include "SerializeClass/SerializeClass.h"
 
-class DLL_EXPORT Table_Document_Comment
+// If we declare the maps locally, the compiler will create multiple copies of them
+// making the output files enormous.  The solution seems to be to create some predefined
+// maps for the standard types of primary keys (single long, double long, etc.) and
+// put them in a common base class, which is optionally included as tablebase below
+
+class DLL_EXPORT Table_Document_Comment : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -48,11 +53,8 @@ private:
 		bool operator()(const Table_Document_Comment::Key &key1, const Table_Document_Comment::Key &key2) const;
 	};	
 
-	map<Table_Document_Comment::Key, class Row_Document_Comment*, Table_Document_Comment::Key_Less> cachedRows;
-	map<Table_Document_Comment::Key, class Row_Document_Comment*, Table_Document_Comment::Key_Less> deleted_cachedRows;
-	vector<class Row_Document_Comment*> addedRows;
-	vector<class Row_Document_Comment*> deleted_addedRows;	
-		
+	
+	
 
 public:				
 	void Commit();
@@ -67,7 +69,7 @@ public:
 private:	
 	
 		
-	class Row_Document_Comment* FetchRow(Key &key);
+	class Row_Document_Comment* FetchRow(SingleLongKey &key);
 		
 			
 };
@@ -86,10 +88,6 @@ string m_Comment;
 string m_Date;
 
 		bool is_null[5];
-	
-		bool is_deleted;
-		bool is_added;
-		bool is_modified;					
 	
 	public:
 		long int PK_Document_Comment_get();

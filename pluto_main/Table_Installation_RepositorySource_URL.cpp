@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -35,15 +34,17 @@ void Database_pluto_main::DeleteTable_Installation_RepositorySource_URL()
 
 Table_Installation_RepositorySource_URL::~Table_Installation_RepositorySource_URL()
 {
-	map<Table_Installation_RepositorySource_URL::Key, class Row_Installation_RepositorySource_URL*, Table_Installation_RepositorySource_URL::Key_Less>::iterator it;
+	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_Installation_RepositorySource_URL *pRow = (Row_Installation_RepositorySource_URL *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_Installation_RepositorySource_URL *pRow = (Row_Installation_RepositorySource_URL *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -57,12 +58,13 @@ Table_Installation_RepositorySource_URL::~Table_Installation_RepositorySource_UR
 void Row_Installation_RepositorySource_URL::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_Installation_RepositorySource_URL *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_Installation_RepositorySource_URL*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_Installation_RepositorySource_URL *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -72,8 +74,8 @@ void Row_Installation_RepositorySource_URL::Delete()
 		}
 		else
 		{
-			Table_Installation_RepositorySource_URL::Key key(this);					
-			map<Table_Installation_RepositorySource_URL::Key, Row_Installation_RepositorySource_URL*, Table_Installation_RepositorySource_URL::Key_Less>::iterator i = table->cachedRows.find(key);
+			DoubleLongKey key(pRow->m_FK_Installation,pRow->m_FK_RepositorySource_URL);
+			map<DoubleLongKey, TableRow*, DoubleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -84,12 +86,14 @@ void Row_Installation_RepositorySource_URL::Delete()
 
 void Row_Installation_RepositorySource_URL::Reload()
 {
+	Row_Installation_RepositorySource_URL *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_Installation_RepositorySource_URL::Key key(this);		
+		DoubleLongKey key(pRow->m_FK_Installation,pRow->m_FK_RepositorySource_URL);
 		Row_Installation_RepositorySource_URL *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -203,9 +207,9 @@ void Table_Installation_RepositorySource_URL::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_Installation_RepositorySource_URL*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_Installation_RepositorySource_URL *pRow = *i;
+		Row_Installation_RepositorySource_URL *pRow = (Row_Installation_RepositorySource_URL *)*i;
 	
 		
 string values_list_comma_separated;
@@ -229,7 +233,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Installatio
 				
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			DoubleLongKey key(pRow->m_FK_Installation,pRow->m_FK_RepositorySource_URL);	
 			cachedRows[key] = pRow;
 					
 			
@@ -243,17 +247,17 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Installatio
 //update modified
 	
 
-	for (map<Key, Row_Installation_RepositorySource_URL*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_Installation_RepositorySource_URL* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_Installation_RepositorySource_URL* pRow = (Row_Installation_RepositorySource_URL*) (*i).second;	
+		DoubleLongKey key(pRow->m_FK_Installation,pRow->m_FK_RepositorySource_URL);
 
 		char tmp_FK_Installation[32];
-sprintf(tmp_FK_Installation, "%li", key.pk_FK_Installation);
+sprintf(tmp_FK_Installation, "%li", key.pk1);
 
 char tmp_FK_RepositorySource_URL[32];
-sprintf(tmp_FK_RepositorySource_URL, "%li", key.pk_FK_RepositorySource_URL);
+sprintf(tmp_FK_RepositorySource_URL, "%li", key.pk2);
 
 
 string condition;
@@ -279,7 +283,7 @@ update_values_list = update_values_list + "FK_Installation="+pRow->FK_Installati
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_Installation_RepositorySource_URL*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -289,15 +293,16 @@ update_values_list = update_values_list + "FK_Installation="+pRow->FK_Installati
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_Installation_RepositorySource_URL*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		DoubleLongKey key = (*i).first;
+		Row_Installation_RepositorySource_URL* pRow = (Row_Installation_RepositorySource_URL*) (*i).second;	
+
 		char tmp_FK_Installation[32];
-sprintf(tmp_FK_Installation, "%li", key.pk_FK_Installation);
+sprintf(tmp_FK_Installation, "%li", key.pk1);
 
 char tmp_FK_RepositorySource_URL[32];
-sprintf(tmp_FK_RepositorySource_URL, "%li", key.pk_FK_RepositorySource_URL);
+sprintf(tmp_FK_RepositorySource_URL, "%li", key.pk2);
 
 
 string condition;
@@ -378,14 +383,14 @@ sscanf(row[1], "%li", &(pRow->m_FK_RepositorySource_URL));
 
 		//checking for duplicates
 
-		Key key(pRow);
+		DoubleLongKey key(pRow->m_FK_Installation,pRow->m_FK_RepositorySource_URL);
 		
-                map<Table_Installation_RepositorySource_URL::Key, Row_Installation_RepositorySource_URL*, Table_Installation_RepositorySource_URL::Key_Less>::iterator i = cachedRows.find(key);
+		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_Installation_RepositorySource_URL *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -414,9 +419,9 @@ Row_Installation_RepositorySource_URL* Table_Installation_RepositorySource_URL::
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_FK_Installation, in_FK_RepositorySource_URL);
+	DoubleLongKey row_key(in_FK_Installation, in_FK_RepositorySource_URL);
 
-	map<Key, Row_Installation_RepositorySource_URL*, Key_Less>::iterator i;
+	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -427,7 +432,7 @@ Row_Installation_RepositorySource_URL* Table_Installation_RepositorySource_URL::
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_Installation_RepositorySource_URL*) (*i).second;
 	//we have to fetch row
 	Row_Installation_RepositorySource_URL* pRow = FetchRow(row_key);
 
@@ -438,16 +443,16 @@ Row_Installation_RepositorySource_URL* Table_Installation_RepositorySource_URL::
 
 
 
-Row_Installation_RepositorySource_URL* Table_Installation_RepositorySource_URL::FetchRow(Table_Installation_RepositorySource_URL::Key &key)
+Row_Installation_RepositorySource_URL* Table_Installation_RepositorySource_URL::FetchRow(DoubleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_FK_Installation[32];
-sprintf(tmp_FK_Installation, "%li", key.pk_FK_Installation);
+sprintf(tmp_FK_Installation, "%li", key.pk1);
 
 char tmp_FK_RepositorySource_URL[32];
-sprintf(tmp_FK_RepositorySource_URL, "%li", key.pk_FK_RepositorySource_URL);
+sprintf(tmp_FK_RepositorySource_URL, "%li", key.pk2);
 
 
 string condition;

@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -36,15 +35,17 @@ void Database_pluto_main::DeleteTable_InstallWizard_Distro()
 
 Table_InstallWizard_Distro::~Table_InstallWizard_Distro()
 {
-	map<Table_InstallWizard_Distro::Key, class Row_InstallWizard_Distro*, Table_InstallWizard_Distro::Key_Less>::iterator it;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_InstallWizard_Distro *pRow = (Row_InstallWizard_Distro *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_InstallWizard_Distro *pRow = (Row_InstallWizard_Distro *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -58,12 +59,13 @@ Table_InstallWizard_Distro::~Table_InstallWizard_Distro()
 void Row_InstallWizard_Distro::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_InstallWizard_Distro *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_InstallWizard_Distro*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_InstallWizard_Distro *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -73,8 +75,8 @@ void Row_InstallWizard_Distro::Delete()
 		}
 		else
 		{
-			Table_InstallWizard_Distro::Key key(this);					
-			map<Table_InstallWizard_Distro::Key, Row_InstallWizard_Distro*, Table_InstallWizard_Distro::Key_Less>::iterator i = table->cachedRows.find(key);
+			SingleLongKey key(pRow->m_PK_InstallWizard_Distro);
+			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -85,12 +87,14 @@ void Row_InstallWizard_Distro::Delete()
 
 void Row_InstallWizard_Distro::Reload()
 {
+	Row_InstallWizard_Distro *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_InstallWizard_Distro::Key key(this);		
+		SingleLongKey key(pRow->m_PK_InstallWizard_Distro);
 		Row_InstallWizard_Distro *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -276,9 +280,9 @@ void Table_InstallWizard_Distro::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_InstallWizard_Distro*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_InstallWizard_Distro *pRow = *i;
+		Row_InstallWizard_Distro *pRow = (Row_InstallWizard_Distro *)*i;
 	
 		
 string values_list_comma_separated;
@@ -304,7 +308,7 @@ pRow->m_PK_InstallWizard_Distro=id;
 	
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			SingleLongKey key(pRow->m_PK_InstallWizard_Distro);	
 			cachedRows[key] = pRow;
 					
 			
@@ -318,14 +322,14 @@ pRow->m_PK_InstallWizard_Distro=id;
 //update modified
 	
 
-	for (map<Key, Row_InstallWizard_Distro*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_InstallWizard_Distro* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_InstallWizard_Distro* pRow = (Row_InstallWizard_Distro*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_InstallWizard_Distro);
 
 		char tmp_PK_InstallWizard_Distro[32];
-sprintf(tmp_PK_InstallWizard_Distro, "%li", key.pk_PK_InstallWizard_Distro);
+sprintf(tmp_PK_InstallWizard_Distro, "%li", key.pk);
 
 
 string condition;
@@ -351,7 +355,7 @@ update_values_list = update_values_list + "PK_InstallWizard_Distro="+pRow->PK_In
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_InstallWizard_Distro*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -361,12 +365,13 @@ update_values_list = update_values_list + "PK_InstallWizard_Distro="+pRow->PK_In
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_InstallWizard_Distro*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		SingleLongKey key = (*i).first;
+		Row_InstallWizard_Distro* pRow = (Row_InstallWizard_Distro*) (*i).second;	
+
 		char tmp_PK_InstallWizard_Distro[32];
-sprintf(tmp_PK_InstallWizard_Distro, "%li", key.pk_PK_InstallWizard_Distro);
+sprintf(tmp_PK_InstallWizard_Distro, "%li", key.pk);
 
 
 string condition;
@@ -480,14 +485,14 @@ pRow->m_Comments = string(row[4],lengths[4]);
 
 		//checking for duplicates
 
-		Key key(pRow);
+		SingleLongKey key(pRow->m_PK_InstallWizard_Distro);
 		
-                map<Table_InstallWizard_Distro::Key, Row_InstallWizard_Distro*, Table_InstallWizard_Distro::Key_Less>::iterator i = cachedRows.find(key);
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_InstallWizard_Distro *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -516,9 +521,9 @@ Row_InstallWizard_Distro* Table_InstallWizard_Distro::GetRow(long int in_PK_Inst
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_PK_InstallWizard_Distro);
+	SingleLongKey row_key(in_PK_InstallWizard_Distro);
 
-	map<Key, Row_InstallWizard_Distro*, Key_Less>::iterator i;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -529,7 +534,7 @@ Row_InstallWizard_Distro* Table_InstallWizard_Distro::GetRow(long int in_PK_Inst
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_InstallWizard_Distro*) (*i).second;
 	//we have to fetch row
 	Row_InstallWizard_Distro* pRow = FetchRow(row_key);
 
@@ -540,13 +545,13 @@ Row_InstallWizard_Distro* Table_InstallWizard_Distro::GetRow(long int in_PK_Inst
 
 
 
-Row_InstallWizard_Distro* Table_InstallWizard_Distro::FetchRow(Table_InstallWizard_Distro::Key &key)
+Row_InstallWizard_Distro* Table_InstallWizard_Distro::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_InstallWizard_Distro[32];
-sprintf(tmp_PK_InstallWizard_Distro, "%li", key.pk_PK_InstallWizard_Distro);
+sprintf(tmp_PK_InstallWizard_Distro, "%li", key.pk);
 
 
 string condition;

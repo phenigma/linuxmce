@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -36,15 +35,17 @@ void Database_pluto_main::DeleteTable_Icon()
 
 Table_Icon::~Table_Icon()
 {
-	map<Table_Icon::Key, class Row_Icon*, Table_Icon::Key_Less>::iterator it;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_Icon *pRow = (Row_Icon *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_Icon *pRow = (Row_Icon *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -58,12 +59,13 @@ Table_Icon::~Table_Icon()
 void Row_Icon::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_Icon *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_Icon*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_Icon *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -73,8 +75,8 @@ void Row_Icon::Delete()
 		}
 		else
 		{
-			Table_Icon::Key key(this);					
-			map<Table_Icon::Key, Row_Icon*, Table_Icon::Key_Less>::iterator i = table->cachedRows.find(key);
+			SingleLongKey key(pRow->m_PK_Icon);
+			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -85,12 +87,14 @@ void Row_Icon::Delete()
 
 void Row_Icon::Reload()
 {
+	Row_Icon *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_Icon::Key key(this);		
+		SingleLongKey key(pRow->m_PK_Icon);
 		Row_Icon *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -464,9 +468,9 @@ void Table_Icon::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_Icon*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_Icon *pRow = *i;
+		Row_Icon *pRow = (Row_Icon *)*i;
 	
 		
 string values_list_comma_separated;
@@ -492,7 +496,7 @@ pRow->m_PK_Icon=id;
 	
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			SingleLongKey key(pRow->m_PK_Icon);	
 			cachedRows[key] = pRow;
 					
 			
@@ -506,14 +510,14 @@ pRow->m_PK_Icon=id;
 //update modified
 	
 
-	for (map<Key, Row_Icon*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_Icon* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_Icon* pRow = (Row_Icon*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_Icon);
 
 		char tmp_PK_Icon[32];
-sprintf(tmp_PK_Icon, "%li", key.pk_PK_Icon);
+sprintf(tmp_PK_Icon, "%li", key.pk);
 
 
 string condition;
@@ -539,7 +543,7 @@ update_values_list = update_values_list + "PK_Icon="+pRow->PK_Icon_asSQL()+", De
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_Icon*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -549,12 +553,13 @@ update_values_list = update_values_list + "PK_Icon="+pRow->PK_Icon_asSQL()+", De
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_Icon*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		SingleLongKey key = (*i).first;
+		Row_Icon* pRow = (Row_Icon*) (*i).second;	
+
 		char tmp_PK_Icon[32];
-sprintf(tmp_PK_Icon, "%li", key.pk_PK_Icon);
+sprintf(tmp_PK_Icon, "%li", key.pk);
 
 
 string condition;
@@ -756,14 +761,14 @@ pRow->m_psc_mod = string(row[12],lengths[12]);
 
 		//checking for duplicates
 
-		Key key(pRow);
+		SingleLongKey key(pRow->m_PK_Icon);
 		
-                map<Table_Icon::Key, Row_Icon*, Table_Icon::Key_Less>::iterator i = cachedRows.find(key);
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_Icon *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -792,9 +797,9 @@ Row_Icon* Table_Icon::GetRow(long int in_PK_Icon)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_PK_Icon);
+	SingleLongKey row_key(in_PK_Icon);
 
-	map<Key, Row_Icon*, Key_Less>::iterator i;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -805,7 +810,7 @@ Row_Icon* Table_Icon::GetRow(long int in_PK_Icon)
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_Icon*) (*i).second;
 	//we have to fetch row
 	Row_Icon* pRow = FetchRow(row_key);
 
@@ -816,13 +821,13 @@ Row_Icon* Table_Icon::GetRow(long int in_PK_Icon)
 
 
 
-Row_Icon* Table_Icon::FetchRow(Table_Icon::Key &key)
+Row_Icon* Table_Icon::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_Icon[32];
-sprintf(tmp_PK_Icon, "%li", key.pk_PK_Icon);
+sprintf(tmp_PK_Icon, "%li", key.pk);
 
 
 string condition;

@@ -41,7 +41,7 @@ public:
 	/**
 	 * @brief load table definition from table
 	 */
-	bool loadFromDB( string sTable );
+	virtual bool loadFromDB( string sTable );
 	
 	/**
 	 * @brief returns true if table has primary keys, false otherwise

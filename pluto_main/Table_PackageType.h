@@ -13,7 +13,12 @@
 #include "Define_PackageType.h"
 #include "SerializeClass/SerializeClass.h"
 
-class DLL_EXPORT Table_PackageType
+// If we declare the maps locally, the compiler will create multiple copies of them
+// making the output files enormous.  The solution seems to be to create some predefined
+// maps for the standard types of primary keys (single long, double long, etc.) and
+// put them in a common base class, which is optionally included as tablebase below
+
+class DLL_EXPORT Table_PackageType : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -48,11 +53,8 @@ private:
 		bool operator()(const Table_PackageType::Key &key1, const Table_PackageType::Key &key2) const;
 	};	
 
-	map<Table_PackageType::Key, class Row_PackageType*, Table_PackageType::Key_Less> cachedRows;
-	map<Table_PackageType::Key, class Row_PackageType*, Table_PackageType::Key_Less> deleted_cachedRows;
-	vector<class Row_PackageType*> addedRows;
-	vector<class Row_PackageType*> deleted_addedRows;	
-		
+	
+	
 
 public:				
 	void Commit();
@@ -67,7 +69,7 @@ public:
 private:	
 	
 		
-	class Row_PackageType* FetchRow(Key &key);
+	class Row_PackageType* FetchRow(SingleLongKey &key);
 		
 			
 };
@@ -84,10 +86,6 @@ string m_Description;
 string m_Define;
 
 		bool is_null[3];
-	
-		bool is_deleted;
-		bool is_added;
-		bool is_modified;					
 	
 	public:
 		long int PK_PackageType_get();

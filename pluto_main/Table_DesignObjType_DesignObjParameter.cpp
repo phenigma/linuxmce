@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -35,15 +34,17 @@ void Database_pluto_main::DeleteTable_DesignObjType_DesignObjParameter()
 
 Table_DesignObjType_DesignObjParameter::~Table_DesignObjType_DesignObjParameter()
 {
-	map<Table_DesignObjType_DesignObjParameter::Key, class Row_DesignObjType_DesignObjParameter*, Table_DesignObjType_DesignObjParameter::Key_Less>::iterator it;
+	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_DesignObjType_DesignObjParameter *pRow = (Row_DesignObjType_DesignObjParameter *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_DesignObjType_DesignObjParameter *pRow = (Row_DesignObjType_DesignObjParameter *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -57,12 +58,13 @@ Table_DesignObjType_DesignObjParameter::~Table_DesignObjType_DesignObjParameter(
 void Row_DesignObjType_DesignObjParameter::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_DesignObjType_DesignObjParameter *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_DesignObjType_DesignObjParameter*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_DesignObjType_DesignObjParameter *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -72,8 +74,8 @@ void Row_DesignObjType_DesignObjParameter::Delete()
 		}
 		else
 		{
-			Table_DesignObjType_DesignObjParameter::Key key(this);					
-			map<Table_DesignObjType_DesignObjParameter::Key, Row_DesignObjType_DesignObjParameter*, Table_DesignObjType_DesignObjParameter::Key_Less>::iterator i = table->cachedRows.find(key);
+			DoubleLongKey key(pRow->m_FK_DesignObjType,pRow->m_FK_DesignObjParameter);
+			map<DoubleLongKey, TableRow*, DoubleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -84,12 +86,14 @@ void Row_DesignObjType_DesignObjParameter::Delete()
 
 void Row_DesignObjType_DesignObjParameter::Reload()
 {
+	Row_DesignObjType_DesignObjParameter *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_DesignObjType_DesignObjParameter::Key key(this);		
+		DoubleLongKey key(pRow->m_FK_DesignObjType,pRow->m_FK_DesignObjParameter);
 		Row_DesignObjType_DesignObjParameter *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -328,9 +332,9 @@ void Table_DesignObjType_DesignObjParameter::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_DesignObjType_DesignObjParameter*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_DesignObjType_DesignObjParameter *pRow = *i;
+		Row_DesignObjType_DesignObjParameter *pRow = (Row_DesignObjType_DesignObjParameter *)*i;
 	
 		
 string values_list_comma_separated;
@@ -354,7 +358,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_DesignObjTy
 				
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			DoubleLongKey key(pRow->m_FK_DesignObjType,pRow->m_FK_DesignObjParameter);	
 			cachedRows[key] = pRow;
 					
 			
@@ -368,17 +372,17 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_DesignObjTy
 //update modified
 	
 
-	for (map<Key, Row_DesignObjType_DesignObjParameter*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_DesignObjType_DesignObjParameter* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_DesignObjType_DesignObjParameter* pRow = (Row_DesignObjType_DesignObjParameter*) (*i).second;	
+		DoubleLongKey key(pRow->m_FK_DesignObjType,pRow->m_FK_DesignObjParameter);
 
 		char tmp_FK_DesignObjType[32];
-sprintf(tmp_FK_DesignObjType, "%li", key.pk_FK_DesignObjType);
+sprintf(tmp_FK_DesignObjType, "%li", key.pk1);
 
 char tmp_FK_DesignObjParameter[32];
-sprintf(tmp_FK_DesignObjParameter, "%li", key.pk_FK_DesignObjParameter);
+sprintf(tmp_FK_DesignObjParameter, "%li", key.pk2);
 
 
 string condition;
@@ -404,7 +408,7 @@ update_values_list = update_values_list + "FK_DesignObjType="+pRow->FK_DesignObj
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_DesignObjType_DesignObjParameter*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -414,15 +418,16 @@ update_values_list = update_values_list + "FK_DesignObjType="+pRow->FK_DesignObj
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_DesignObjType_DesignObjParameter*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		DoubleLongKey key = (*i).first;
+		Row_DesignObjType_DesignObjParameter* pRow = (Row_DesignObjType_DesignObjParameter*) (*i).second;	
+
 		char tmp_FK_DesignObjType[32];
-sprintf(tmp_FK_DesignObjType, "%li", key.pk_FK_DesignObjType);
+sprintf(tmp_FK_DesignObjType, "%li", key.pk1);
 
 char tmp_FK_DesignObjParameter[32];
-sprintf(tmp_FK_DesignObjParameter, "%li", key.pk_FK_DesignObjParameter);
+sprintf(tmp_FK_DesignObjParameter, "%li", key.pk2);
 
 
 string condition;
@@ -558,14 +563,14 @@ pRow->m_psc_mod = string(row[6],lengths[6]);
 
 		//checking for duplicates
 
-		Key key(pRow);
+		DoubleLongKey key(pRow->m_FK_DesignObjType,pRow->m_FK_DesignObjParameter);
 		
-                map<Table_DesignObjType_DesignObjParameter::Key, Row_DesignObjType_DesignObjParameter*, Table_DesignObjType_DesignObjParameter::Key_Less>::iterator i = cachedRows.find(key);
+		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_DesignObjType_DesignObjParameter *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -594,9 +599,9 @@ Row_DesignObjType_DesignObjParameter* Table_DesignObjType_DesignObjParameter::Ge
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_FK_DesignObjType, in_FK_DesignObjParameter);
+	DoubleLongKey row_key(in_FK_DesignObjType, in_FK_DesignObjParameter);
 
-	map<Key, Row_DesignObjType_DesignObjParameter*, Key_Less>::iterator i;
+	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -607,7 +612,7 @@ Row_DesignObjType_DesignObjParameter* Table_DesignObjType_DesignObjParameter::Ge
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_DesignObjType_DesignObjParameter*) (*i).second;
 	//we have to fetch row
 	Row_DesignObjType_DesignObjParameter* pRow = FetchRow(row_key);
 
@@ -618,16 +623,16 @@ Row_DesignObjType_DesignObjParameter* Table_DesignObjType_DesignObjParameter::Ge
 
 
 
-Row_DesignObjType_DesignObjParameter* Table_DesignObjType_DesignObjParameter::FetchRow(Table_DesignObjType_DesignObjParameter::Key &key)
+Row_DesignObjType_DesignObjParameter* Table_DesignObjType_DesignObjParameter::FetchRow(DoubleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_FK_DesignObjType[32];
-sprintf(tmp_FK_DesignObjType, "%li", key.pk_FK_DesignObjType);
+sprintf(tmp_FK_DesignObjType, "%li", key.pk1);
 
 char tmp_FK_DesignObjParameter[32];
-sprintf(tmp_FK_DesignObjParameter, "%li", key.pk_FK_DesignObjParameter);
+sprintf(tmp_FK_DesignObjParameter, "%li", key.pk2);
 
 
 string condition;

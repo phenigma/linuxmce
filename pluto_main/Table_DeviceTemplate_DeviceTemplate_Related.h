@@ -13,7 +13,12 @@
 #include "Define_DeviceTemplate_DeviceTemplate_Related.h"
 #include "SerializeClass/SerializeClass.h"
 
-class DLL_EXPORT Table_DeviceTemplate_DeviceTemplate_Related
+// If we declare the maps locally, the compiler will create multiple copies of them
+// making the output files enormous.  The solution seems to be to create some predefined
+// maps for the standard types of primary keys (single long, double long, etc.) and
+// put them in a common base class, which is optionally included as tablebase below
+
+class DLL_EXPORT Table_DeviceTemplate_DeviceTemplate_Related : public TableBase , DoubleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -49,11 +54,8 @@ long int pk_FK_DeviceTemplate_Related;
 		bool operator()(const Table_DeviceTemplate_DeviceTemplate_Related::Key &key1, const Table_DeviceTemplate_DeviceTemplate_Related::Key &key2) const;
 	};	
 
-	map<Table_DeviceTemplate_DeviceTemplate_Related::Key, class Row_DeviceTemplate_DeviceTemplate_Related*, Table_DeviceTemplate_DeviceTemplate_Related::Key_Less> cachedRows;
-	map<Table_DeviceTemplate_DeviceTemplate_Related::Key, class Row_DeviceTemplate_DeviceTemplate_Related*, Table_DeviceTemplate_DeviceTemplate_Related::Key_Less> deleted_cachedRows;
-	vector<class Row_DeviceTemplate_DeviceTemplate_Related*> addedRows;
-	vector<class Row_DeviceTemplate_DeviceTemplate_Related*> deleted_addedRows;	
-		
+	
+	
 
 public:				
 	void Commit();
@@ -68,7 +70,7 @@ public:
 private:	
 	
 		
-	class Row_DeviceTemplate_DeviceTemplate_Related* FetchRow(Key &key);
+	class Row_DeviceTemplate_DeviceTemplate_Related* FetchRow(DoubleLongKey &key);
 		
 			
 };
@@ -90,10 +92,6 @@ short int m_psc_frozen;
 string m_psc_mod;
 
 		bool is_null[8];
-	
-		bool is_deleted;
-		bool is_added;
-		bool is_modified;					
 	
 	public:
 		long int FK_DeviceTemplate_get();

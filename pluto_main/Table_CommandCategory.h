@@ -13,7 +13,12 @@
 #include "Define_CommandCategory.h"
 #include "SerializeClass/SerializeClass.h"
 
-class DLL_EXPORT Table_CommandCategory
+// If we declare the maps locally, the compiler will create multiple copies of them
+// making the output files enormous.  The solution seems to be to create some predefined
+// maps for the standard types of primary keys (single long, double long, etc.) and
+// put them in a common base class, which is optionally included as tablebase below
+
+class DLL_EXPORT Table_CommandCategory : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -48,11 +53,8 @@ private:
 		bool operator()(const Table_CommandCategory::Key &key1, const Table_CommandCategory::Key &key2) const;
 	};	
 
-	map<Table_CommandCategory::Key, class Row_CommandCategory*, Table_CommandCategory::Key_Less> cachedRows;
-	map<Table_CommandCategory::Key, class Row_CommandCategory*, Table_CommandCategory::Key_Less> deleted_cachedRows;
-	vector<class Row_CommandCategory*> addedRows;
-	vector<class Row_CommandCategory*> deleted_addedRows;	
-		
+	
+	
 
 public:				
 	void Commit();
@@ -67,7 +69,7 @@ public:
 private:	
 	
 		
-	class Row_CommandCategory* FetchRow(Key &key);
+	class Row_CommandCategory* FetchRow(SingleLongKey &key);
 		
 			
 };
@@ -89,10 +91,6 @@ short int m_psc_frozen;
 string m_psc_mod;
 
 		bool is_null[8];
-	
-		bool is_deleted;
-		bool is_added;
-		bool is_modified;					
 	
 	public:
 		long int PK_CommandCategory_get();

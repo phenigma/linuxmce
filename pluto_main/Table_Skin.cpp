@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -41,15 +40,17 @@ void Database_pluto_main::DeleteTable_Skin()
 
 Table_Skin::~Table_Skin()
 {
-	map<Table_Skin::Key, class Row_Skin*, Table_Skin::Key_Less>::iterator it;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_Skin *pRow = (Row_Skin *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_Skin *pRow = (Row_Skin *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -63,12 +64,13 @@ Table_Skin::~Table_Skin()
 void Row_Skin::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_Skin *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_Skin*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_Skin *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -78,8 +80,8 @@ void Row_Skin::Delete()
 		}
 		else
 		{
-			Table_Skin::Key key(this);					
-			map<Table_Skin::Key, Row_Skin*, Table_Skin::Key_Less>::iterator i = table->cachedRows.find(key);
+			SingleLongKey key(pRow->m_PK_Skin);
+			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -90,12 +92,14 @@ void Row_Skin::Delete()
 
 void Row_Skin::Reload()
 {
+	Row_Skin *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_Skin::Key key(this);		
+		SingleLongKey key(pRow->m_PK_Skin);
 		Row_Skin *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -494,9 +498,9 @@ void Table_Skin::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_Skin*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_Skin *pRow = *i;
+		Row_Skin *pRow = (Row_Skin *)*i;
 	
 		
 string values_list_comma_separated;
@@ -522,7 +526,7 @@ pRow->m_PK_Skin=id;
 	
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			SingleLongKey key(pRow->m_PK_Skin);	
 			cachedRows[key] = pRow;
 					
 			
@@ -536,14 +540,14 @@ pRow->m_PK_Skin=id;
 //update modified
 	
 
-	for (map<Key, Row_Skin*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_Skin* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_Skin* pRow = (Row_Skin*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_Skin);
 
 		char tmp_PK_Skin[32];
-sprintf(tmp_PK_Skin, "%li", key.pk_PK_Skin);
+sprintf(tmp_PK_Skin, "%li", key.pk);
 
 
 string condition;
@@ -569,7 +573,7 @@ update_values_list = update_values_list + "PK_Skin="+pRow->PK_Skin_asSQL()+", De
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_Skin*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -579,12 +583,13 @@ update_values_list = update_values_list + "PK_Skin="+pRow->PK_Skin_asSQL()+", De
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_Skin*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		SingleLongKey key = (*i).first;
+		Row_Skin* pRow = (Row_Skin*) (*i).second;	
+
 		char tmp_PK_Skin[32];
-sprintf(tmp_PK_Skin, "%li", key.pk_PK_Skin);
+sprintf(tmp_PK_Skin, "%li", key.pk);
 
 
 string condition;
@@ -797,14 +802,14 @@ pRow->m_psc_mod = string(row[13],lengths[13]);
 
 		//checking for duplicates
 
-		Key key(pRow);
+		SingleLongKey key(pRow->m_PK_Skin);
 		
-                map<Table_Skin::Key, Row_Skin*, Table_Skin::Key_Less>::iterator i = cachedRows.find(key);
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_Skin *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -833,9 +838,9 @@ Row_Skin* Table_Skin::GetRow(long int in_PK_Skin)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_PK_Skin);
+	SingleLongKey row_key(in_PK_Skin);
 
-	map<Key, Row_Skin*, Key_Less>::iterator i;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -846,7 +851,7 @@ Row_Skin* Table_Skin::GetRow(long int in_PK_Skin)
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_Skin*) (*i).second;
 	//we have to fetch row
 	Row_Skin* pRow = FetchRow(row_key);
 
@@ -857,13 +862,13 @@ Row_Skin* Table_Skin::GetRow(long int in_PK_Skin)
 
 
 
-Row_Skin* Table_Skin::FetchRow(Table_Skin::Key &key)
+Row_Skin* Table_Skin::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_Skin[32];
-sprintf(tmp_PK_Skin, "%li", key.pk_PK_Skin);
+sprintf(tmp_PK_Skin, "%li", key.pk);
 
 
 string condition;

@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -36,15 +35,17 @@ void Database_pluto_main::DeleteTable_CommandCategory()
 
 Table_CommandCategory::~Table_CommandCategory()
 {
-	map<Table_CommandCategory::Key, class Row_CommandCategory*, Table_CommandCategory::Key_Less>::iterator it;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_CommandCategory *pRow = (Row_CommandCategory *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_CommandCategory *pRow = (Row_CommandCategory *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -58,12 +59,13 @@ Table_CommandCategory::~Table_CommandCategory()
 void Row_CommandCategory::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_CommandCategory *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_CommandCategory*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_CommandCategory *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -73,8 +75,8 @@ void Row_CommandCategory::Delete()
 		}
 		else
 		{
-			Table_CommandCategory::Key key(this);					
-			map<Table_CommandCategory::Key, Row_CommandCategory*, Table_CommandCategory::Key_Less>::iterator i = table->cachedRows.find(key);
+			SingleLongKey key(pRow->m_PK_CommandCategory);
+			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -85,12 +87,14 @@ void Row_CommandCategory::Delete()
 
 void Row_CommandCategory::Reload()
 {
+	Row_CommandCategory *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_CommandCategory::Key key(this);		
+		SingleLongKey key(pRow->m_PK_CommandCategory);
 		Row_CommandCategory *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -354,9 +358,9 @@ void Table_CommandCategory::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_CommandCategory*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_CommandCategory *pRow = *i;
+		Row_CommandCategory *pRow = (Row_CommandCategory *)*i;
 	
 		
 string values_list_comma_separated;
@@ -382,7 +386,7 @@ pRow->m_PK_CommandCategory=id;
 	
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			SingleLongKey key(pRow->m_PK_CommandCategory);	
 			cachedRows[key] = pRow;
 					
 			
@@ -396,14 +400,14 @@ pRow->m_PK_CommandCategory=id;
 //update modified
 	
 
-	for (map<Key, Row_CommandCategory*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_CommandCategory* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_CommandCategory* pRow = (Row_CommandCategory*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_CommandCategory);
 
 		char tmp_PK_CommandCategory[32];
-sprintf(tmp_PK_CommandCategory, "%li", key.pk_PK_CommandCategory);
+sprintf(tmp_PK_CommandCategory, "%li", key.pk);
 
 
 string condition;
@@ -429,7 +433,7 @@ update_values_list = update_values_list + "PK_CommandCategory="+pRow->PK_Command
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_CommandCategory*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -439,12 +443,13 @@ update_values_list = update_values_list + "PK_CommandCategory="+pRow->PK_Command
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_CommandCategory*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		SingleLongKey key = (*i).first;
+		Row_CommandCategory* pRow = (Row_CommandCategory*) (*i).second;	
+
 		char tmp_PK_CommandCategory[32];
-sprintf(tmp_PK_CommandCategory, "%li", key.pk_PK_CommandCategory);
+sprintf(tmp_PK_CommandCategory, "%li", key.pk);
 
 
 string condition;
@@ -591,14 +596,14 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 
 		//checking for duplicates
 
-		Key key(pRow);
+		SingleLongKey key(pRow->m_PK_CommandCategory);
 		
-                map<Table_CommandCategory::Key, Row_CommandCategory*, Table_CommandCategory::Key_Less>::iterator i = cachedRows.find(key);
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_CommandCategory *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -627,9 +632,9 @@ Row_CommandCategory* Table_CommandCategory::GetRow(long int in_PK_CommandCategor
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_PK_CommandCategory);
+	SingleLongKey row_key(in_PK_CommandCategory);
 
-	map<Key, Row_CommandCategory*, Key_Less>::iterator i;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -640,7 +645,7 @@ Row_CommandCategory* Table_CommandCategory::GetRow(long int in_PK_CommandCategor
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_CommandCategory*) (*i).second;
 	//we have to fetch row
 	Row_CommandCategory* pRow = FetchRow(row_key);
 
@@ -651,13 +656,13 @@ Row_CommandCategory* Table_CommandCategory::GetRow(long int in_PK_CommandCategor
 
 
 
-Row_CommandCategory* Table_CommandCategory::FetchRow(Table_CommandCategory::Key &key)
+Row_CommandCategory* Table_CommandCategory::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_CommandCategory[32];
-sprintf(tmp_PK_CommandCategory, "%li", key.pk_PK_CommandCategory);
+sprintf(tmp_PK_CommandCategory, "%li", key.pk);
 
 
 string condition;

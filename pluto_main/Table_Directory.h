@@ -13,7 +13,12 @@
 #include "Define_Directory.h"
 #include "SerializeClass/SerializeClass.h"
 
-class DLL_EXPORT Table_Directory
+// If we declare the maps locally, the compiler will create multiple copies of them
+// making the output files enormous.  The solution seems to be to create some predefined
+// maps for the standard types of primary keys (single long, double long, etc.) and
+// put them in a common base class, which is optionally included as tablebase below
+
+class DLL_EXPORT Table_Directory : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -48,11 +53,8 @@ private:
 		bool operator()(const Table_Directory::Key &key1, const Table_Directory::Key &key2) const;
 	};	
 
-	map<Table_Directory::Key, class Row_Directory*, Table_Directory::Key_Less> cachedRows;
-	map<Table_Directory::Key, class Row_Directory*, Table_Directory::Key_Less> deleted_cachedRows;
-	vector<class Row_Directory*> addedRows;
-	vector<class Row_Directory*> deleted_addedRows;	
-		
+	
+	
 
 public:				
 	void Commit();
@@ -67,7 +69,7 @@ public:
 private:	
 	
 		
-	class Row_Directory* FetchRow(Key &key);
+	class Row_Directory* FetchRow(SingleLongKey &key);
 		
 			
 };
@@ -84,10 +86,6 @@ string m_Description;
 string m_Define;
 
 		bool is_null[3];
-	
-		bool is_deleted;
-		bool is_added;
-		bool is_modified;					
 	
 	public:
 		long int PK_Directory_get();

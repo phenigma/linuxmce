@@ -13,7 +13,12 @@
 #include "Define_RepositoryType.h"
 #include "SerializeClass/SerializeClass.h"
 
-class DLL_EXPORT Table_RepositoryType
+// If we declare the maps locally, the compiler will create multiple copies of them
+// making the output files enormous.  The solution seems to be to create some predefined
+// maps for the standard types of primary keys (single long, double long, etc.) and
+// put them in a common base class, which is optionally included as tablebase below
+
+class DLL_EXPORT Table_RepositoryType : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -48,11 +53,8 @@ private:
 		bool operator()(const Table_RepositoryType::Key &key1, const Table_RepositoryType::Key &key2) const;
 	};	
 
-	map<Table_RepositoryType::Key, class Row_RepositoryType*, Table_RepositoryType::Key_Less> cachedRows;
-	map<Table_RepositoryType::Key, class Row_RepositoryType*, Table_RepositoryType::Key_Less> deleted_cachedRows;
-	vector<class Row_RepositoryType*> addedRows;
-	vector<class Row_RepositoryType*> deleted_addedRows;	
-		
+	
+	
 
 public:				
 	void Commit();
@@ -67,7 +69,7 @@ public:
 private:	
 	
 		
-	class Row_RepositoryType* FetchRow(Key &key);
+	class Row_RepositoryType* FetchRow(SingleLongKey &key);
 		
 			
 };
@@ -82,19 +84,17 @@ class DLL_EXPORT Row_RepositoryType : public TableRow, public SerializeClass
 		long int m_PK_RepositoryType;
 string m_Description;
 string m_Define;
+short int m_SourceOnly;
 string m_PathToFile;
 string m_Instructions;
 
-		bool is_null[5];
-	
-		bool is_deleted;
-		bool is_added;
-		bool is_modified;					
+		bool is_null[6];
 	
 	public:
 		long int PK_RepositoryType_get();
 string Description_get();
 string Define_get();
+short int SourceOnly_get();
 string PathToFile_get();
 string Instructions_get();
 
@@ -102,16 +102,19 @@ string Instructions_get();
 		void PK_RepositoryType_set(long int val);
 void Description_set(string val);
 void Define_set(string val);
+void SourceOnly_set(short int val);
 void PathToFile_set(string val);
 void Instructions_set(string val);
 
 		
 		bool Define_isNull();
+bool SourceOnly_isNull();
 bool PathToFile_isNull();
 bool Instructions_isNull();
 
 			
 		void Define_setNull(bool val);
+void SourceOnly_setNull(bool val);
 void PathToFile_setNull(bool val);
 void Instructions_setNull(bool val);
 	
@@ -129,12 +132,14 @@ void Instructions_setNull(bool val);
 		
 
 		// Return the rows in other tables with foreign keys pointing here
-		void RepositorySource_FK_RepositoryType_getrows(vector <class Row_RepositorySource*> *rows);
+		void Installation_FK_RepositoryType_Source_getrows(vector <class Row_Installation*> *rows);
+void Installation_FK_RepositoryType_Binaries_getrows(vector <class Row_Installation*> *rows);
+void RepositorySource_FK_RepositoryType_getrows(vector <class Row_RepositorySource*> *rows);
 
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_RepositoryType+ m_Description+ m_Define+ m_PathToFile+ m_Instructions;
+			StartSerializeList() + m_PK_RepositoryType+ m_Description+ m_Define+ m_SourceOnly+ m_PathToFile+ m_Instructions;
 		}
 	private:
 		void SetDefaultValues();
@@ -142,6 +147,7 @@ void Instructions_setNull(bool val);
 		string PK_RepositoryType_asSQL();
 string Description_asSQL();
 string Define_asSQL();
+string SourceOnly_asSQL();
 string PathToFile_asSQL();
 string Instructions_asSQL();
 

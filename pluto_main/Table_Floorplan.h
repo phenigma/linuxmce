@@ -13,7 +13,12 @@
 #include "Define_Floorplan.h"
 #include "SerializeClass/SerializeClass.h"
 
-class DLL_EXPORT Table_Floorplan
+// If we declare the maps locally, the compiler will create multiple copies of them
+// making the output files enormous.  The solution seems to be to create some predefined
+// maps for the standard types of primary keys (single long, double long, etc.) and
+// put them in a common base class, which is optionally included as tablebase below
+
+class DLL_EXPORT Table_Floorplan : public TableBase , DoubleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -49,11 +54,8 @@ long int pk_Page;
 		bool operator()(const Table_Floorplan::Key &key1, const Table_Floorplan::Key &key2) const;
 	};	
 
-	map<Table_Floorplan::Key, class Row_Floorplan*, Table_Floorplan::Key_Less> cachedRows;
-	map<Table_Floorplan::Key, class Row_Floorplan*, Table_Floorplan::Key_Less> deleted_cachedRows;
-	vector<class Row_Floorplan*> addedRows;
-	vector<class Row_Floorplan*> deleted_addedRows;	
-		
+	
+	
 
 public:				
 	void Commit();
@@ -68,7 +70,7 @@ public:
 private:	
 	
 		
-	class Row_Floorplan* FetchRow(Key &key);
+	class Row_Floorplan* FetchRow(DoubleLongKey &key);
 		
 			
 };
@@ -91,10 +93,6 @@ short int m_psc_frozen;
 string m_psc_mod;
 
 		bool is_null[9];
-	
-		bool is_deleted;
-		bool is_added;
-		bool is_modified;					
 	
 	public:
 		long int FK_Installation_get();

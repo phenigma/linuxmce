@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -35,15 +34,17 @@ void Database_pluto_main::DeleteTable_HorizAlignment()
 
 Table_HorizAlignment::~Table_HorizAlignment()
 {
-	map<Table_HorizAlignment::Key, class Row_HorizAlignment*, Table_HorizAlignment::Key_Less>::iterator it;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_HorizAlignment *pRow = (Row_HorizAlignment *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_HorizAlignment *pRow = (Row_HorizAlignment *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -57,12 +58,13 @@ Table_HorizAlignment::~Table_HorizAlignment()
 void Row_HorizAlignment::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_HorizAlignment *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_HorizAlignment*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_HorizAlignment *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -72,8 +74,8 @@ void Row_HorizAlignment::Delete()
 		}
 		else
 		{
-			Table_HorizAlignment::Key key(this);					
-			map<Table_HorizAlignment::Key, Row_HorizAlignment*, Table_HorizAlignment::Key_Less>::iterator i = table->cachedRows.find(key);
+			SingleLongKey key(pRow->m_PK_HorizAlignment);
+			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -84,12 +86,14 @@ void Row_HorizAlignment::Delete()
 
 void Row_HorizAlignment::Reload()
 {
+	Row_HorizAlignment *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_HorizAlignment::Key key(this);		
+		SingleLongKey key(pRow->m_PK_HorizAlignment);
 		Row_HorizAlignment *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -342,9 +346,9 @@ void Table_HorizAlignment::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_HorizAlignment*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_HorizAlignment *pRow = *i;
+		Row_HorizAlignment *pRow = (Row_HorizAlignment *)*i;
 	
 		
 string values_list_comma_separated;
@@ -370,7 +374,7 @@ pRow->m_PK_HorizAlignment=id;
 	
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			SingleLongKey key(pRow->m_PK_HorizAlignment);	
 			cachedRows[key] = pRow;
 					
 			
@@ -384,14 +388,14 @@ pRow->m_PK_HorizAlignment=id;
 //update modified
 	
 
-	for (map<Key, Row_HorizAlignment*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_HorizAlignment* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_HorizAlignment* pRow = (Row_HorizAlignment*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_HorizAlignment);
 
 		char tmp_PK_HorizAlignment[32];
-sprintf(tmp_PK_HorizAlignment, "%li", key.pk_PK_HorizAlignment);
+sprintf(tmp_PK_HorizAlignment, "%li", key.pk);
 
 
 string condition;
@@ -417,7 +421,7 @@ update_values_list = update_values_list + "PK_HorizAlignment="+pRow->PK_HorizAli
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_HorizAlignment*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -427,12 +431,13 @@ update_values_list = update_values_list + "PK_HorizAlignment="+pRow->PK_HorizAli
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_HorizAlignment*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		SingleLongKey key = (*i).first;
+		Row_HorizAlignment* pRow = (Row_HorizAlignment*) (*i).second;	
+
 		char tmp_PK_HorizAlignment[32];
-sprintf(tmp_PK_HorizAlignment, "%li", key.pk_PK_HorizAlignment);
+sprintf(tmp_PK_HorizAlignment, "%li", key.pk);
 
 
 string condition;
@@ -579,14 +584,14 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 
 		//checking for duplicates
 
-		Key key(pRow);
+		SingleLongKey key(pRow->m_PK_HorizAlignment);
 		
-                map<Table_HorizAlignment::Key, Row_HorizAlignment*, Table_HorizAlignment::Key_Less>::iterator i = cachedRows.find(key);
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_HorizAlignment *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -615,9 +620,9 @@ Row_HorizAlignment* Table_HorizAlignment::GetRow(long int in_PK_HorizAlignment)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_PK_HorizAlignment);
+	SingleLongKey row_key(in_PK_HorizAlignment);
 
-	map<Key, Row_HorizAlignment*, Key_Less>::iterator i;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -628,7 +633,7 @@ Row_HorizAlignment* Table_HorizAlignment::GetRow(long int in_PK_HorizAlignment)
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_HorizAlignment*) (*i).second;
 	//we have to fetch row
 	Row_HorizAlignment* pRow = FetchRow(row_key);
 
@@ -639,13 +644,13 @@ Row_HorizAlignment* Table_HorizAlignment::GetRow(long int in_PK_HorizAlignment)
 
 
 
-Row_HorizAlignment* Table_HorizAlignment::FetchRow(Table_HorizAlignment::Key &key)
+Row_HorizAlignment* Table_HorizAlignment::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_HorizAlignment[32];
-sprintf(tmp_PK_HorizAlignment, "%li", key.pk_PK_HorizAlignment);
+sprintf(tmp_PK_HorizAlignment, "%li", key.pk);
 
 
 string condition;

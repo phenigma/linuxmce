@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -37,15 +36,17 @@ void Database_pluto_main::DeleteTable_InfraredCode()
 
 Table_InfraredCode::~Table_InfraredCode()
 {
-	map<Table_InfraredCode::Key, class Row_InfraredCode*, Table_InfraredCode::Key_Less>::iterator it;
+	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_InfraredCode *pRow = (Row_InfraredCode *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_InfraredCode *pRow = (Row_InfraredCode *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -59,12 +60,13 @@ Table_InfraredCode::~Table_InfraredCode()
 void Row_InfraredCode::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_InfraredCode *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_InfraredCode*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_InfraredCode *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -74,8 +76,8 @@ void Row_InfraredCode::Delete()
 		}
 		else
 		{
-			Table_InfraredCode::Key key(this);					
-			map<Table_InfraredCode::Key, Row_InfraredCode*, Table_InfraredCode::Key_Less>::iterator i = table->cachedRows.find(key);
+			DoubleLongKey key(pRow->m_FK_InfraredGroup,pRow->m_FK_Command);
+			map<DoubleLongKey, TableRow*, DoubleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -86,12 +88,14 @@ void Row_InfraredCode::Delete()
 
 void Row_InfraredCode::Reload()
 {
+	Row_InfraredCode *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_InfraredCode::Key key(this);		
+		DoubleLongKey key(pRow->m_FK_InfraredGroup,pRow->m_FK_Command);
 		Row_InfraredCode *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -432,9 +436,9 @@ void Table_InfraredCode::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_InfraredCode*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_InfraredCode *pRow = *i;
+		Row_InfraredCode *pRow = (Row_InfraredCode *)*i;
 	
 		
 string values_list_comma_separated;
@@ -458,7 +462,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_InfraredGro
 				
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			DoubleLongKey key(pRow->m_FK_InfraredGroup,pRow->m_FK_Command);	
 			cachedRows[key] = pRow;
 					
 			
@@ -472,17 +476,17 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_InfraredGro
 //update modified
 	
 
-	for (map<Key, Row_InfraredCode*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_InfraredCode* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_InfraredCode* pRow = (Row_InfraredCode*) (*i).second;	
+		DoubleLongKey key(pRow->m_FK_InfraredGroup,pRow->m_FK_Command);
 
 		char tmp_FK_InfraredGroup[32];
-sprintf(tmp_FK_InfraredGroup, "%li", key.pk_FK_InfraredGroup);
+sprintf(tmp_FK_InfraredGroup, "%li", key.pk1);
 
 char tmp_FK_Command[32];
-sprintf(tmp_FK_Command, "%li", key.pk_FK_Command);
+sprintf(tmp_FK_Command, "%li", key.pk2);
 
 
 string condition;
@@ -508,7 +512,7 @@ update_values_list = update_values_list + "FK_InfraredGroup="+pRow->FK_InfraredG
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_InfraredCode*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -518,15 +522,16 @@ update_values_list = update_values_list + "FK_InfraredGroup="+pRow->FK_InfraredG
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_InfraredCode*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		DoubleLongKey key = (*i).first;
+		Row_InfraredCode* pRow = (Row_InfraredCode*) (*i).second;	
+
 		char tmp_FK_InfraredGroup[32];
-sprintf(tmp_FK_InfraredGroup, "%li", key.pk_FK_InfraredGroup);
+sprintf(tmp_FK_InfraredGroup, "%li", key.pk1);
 
 char tmp_FK_Command[32];
-sprintf(tmp_FK_Command, "%li", key.pk_FK_Command);
+sprintf(tmp_FK_Command, "%li", key.pk2);
 
 
 string condition;
@@ -706,14 +711,14 @@ pRow->m_psc_mod = string(row[10],lengths[10]);
 
 		//checking for duplicates
 
-		Key key(pRow);
+		DoubleLongKey key(pRow->m_FK_InfraredGroup,pRow->m_FK_Command);
 		
-                map<Table_InfraredCode::Key, Row_InfraredCode*, Table_InfraredCode::Key_Less>::iterator i = cachedRows.find(key);
+		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_InfraredCode *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -742,9 +747,9 @@ Row_InfraredCode* Table_InfraredCode::GetRow(long int in_FK_InfraredGroup, long 
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_FK_InfraredGroup, in_FK_Command);
+	DoubleLongKey row_key(in_FK_InfraredGroup, in_FK_Command);
 
-	map<Key, Row_InfraredCode*, Key_Less>::iterator i;
+	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -755,7 +760,7 @@ Row_InfraredCode* Table_InfraredCode::GetRow(long int in_FK_InfraredGroup, long 
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_InfraredCode*) (*i).second;
 	//we have to fetch row
 	Row_InfraredCode* pRow = FetchRow(row_key);
 
@@ -766,16 +771,16 @@ Row_InfraredCode* Table_InfraredCode::GetRow(long int in_FK_InfraredGroup, long 
 
 
 
-Row_InfraredCode* Table_InfraredCode::FetchRow(Table_InfraredCode::Key &key)
+Row_InfraredCode* Table_InfraredCode::FetchRow(DoubleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_FK_InfraredGroup[32];
-sprintf(tmp_FK_InfraredGroup, "%li", key.pk_FK_InfraredGroup);
+sprintf(tmp_FK_InfraredGroup, "%li", key.pk1);
 
 char tmp_FK_Command[32];
-sprintf(tmp_FK_Command, "%li", key.pk_FK_Command);
+sprintf(tmp_FK_Command, "%li", key.pk2);
 
 
 string condition;

@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -19,6 +18,8 @@ using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_RepositoryType.h"
 
+#include "Table_Installation.h"
+#include "Table_Installation.h"
 #include "Table_RepositorySource.h"
 
 
@@ -34,15 +35,17 @@ void Database_pluto_main::DeleteTable_RepositoryType()
 
 Table_RepositoryType::~Table_RepositoryType()
 {
-	map<Table_RepositoryType::Key, class Row_RepositoryType*, Table_RepositoryType::Key_Less>::iterator it;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_RepositoryType *pRow = (Row_RepositoryType *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_RepositoryType *pRow = (Row_RepositoryType *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -56,12 +59,13 @@ Table_RepositoryType::~Table_RepositoryType()
 void Row_RepositoryType::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_RepositoryType *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_RepositoryType*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_RepositoryType *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -71,8 +75,8 @@ void Row_RepositoryType::Delete()
 		}
 		else
 		{
-			Table_RepositoryType::Key key(this);					
-			map<Table_RepositoryType::Key, Row_RepositoryType*, Table_RepositoryType::Key_Less>::iterator i = table->cachedRows.find(key);
+			SingleLongKey key(pRow->m_PK_RepositoryType);
+			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -83,12 +87,14 @@ void Row_RepositoryType::Delete()
 
 void Row_RepositoryType::Reload()
 {
+	Row_RepositoryType *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_RepositoryType::Key key(this);		
+		SingleLongKey key(pRow->m_PK_RepositoryType);
 		Row_RepositoryType *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -115,6 +121,7 @@ is_null[1] = false;
 is_null[2] = true;
 is_null[3] = true;
 is_null[4] = true;
+is_null[5] = true;
 
 
 	is_added=false;
@@ -131,6 +138,9 @@ return m_Description;}
 string Row_RepositoryType::Define_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Define;}
+short int Row_RepositoryType::SourceOnly_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_SourceOnly;}
 string Row_RepositoryType::PathToFile_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_PathToFile;}
@@ -148,34 +158,43 @@ m_Description = val; is_modified=true; is_null[1]=false;}
 void Row_RepositoryType::Define_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Define = val; is_modified=true; is_null[2]=false;}
+void Row_RepositoryType::SourceOnly_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_SourceOnly = val; is_modified=true; is_null[3]=false;}
 void Row_RepositoryType::PathToFile_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_PathToFile = val; is_modified=true; is_null[3]=false;}
+m_PathToFile = val; is_modified=true; is_null[4]=false;}
 void Row_RepositoryType::Instructions_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Instructions = val; is_modified=true; is_null[4]=false;}
+m_Instructions = val; is_modified=true; is_null[5]=false;}
 
 		
 bool Row_RepositoryType::Define_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[2];}
-bool Row_RepositoryType::PathToFile_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_RepositoryType::SourceOnly_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[3];}
-bool Row_RepositoryType::Instructions_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_RepositoryType::PathToFile_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[4];}
+bool Row_RepositoryType::Instructions_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[5];}
 
 			
 void Row_RepositoryType::Define_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[2]=val;}
-void Row_RepositoryType::PathToFile_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_RepositoryType::SourceOnly_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[3]=val;}
-void Row_RepositoryType::Instructions_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_RepositoryType::PathToFile_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[4]=val;}
+void Row_RepositoryType::Instructions_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[5]=val;}
 	
 
 string Row_RepositoryType::PK_RepositoryType_asSQL()
@@ -215,11 +234,24 @@ mysql_real_escape_string(table->database->db_handle, buf, m_Define.c_str(), (uns
 return string()+"\""+buf+"\"";
 }
 
-string Row_RepositoryType::PathToFile_asSQL()
+string Row_RepositoryType::SourceOnly_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[3])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_SourceOnly);
+
+return buf;
+}
+
+string Row_RepositoryType::PathToFile_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[4])
 return "NULL";
 
 char buf[101];
@@ -231,7 +263,7 @@ string Row_RepositoryType::Instructions_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[4])
+if (is_null[5])
 return "NULL";
 
 char buf[511];
@@ -271,16 +303,16 @@ void Table_RepositoryType::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_RepositoryType*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_RepositoryType *pRow = *i;
+		Row_RepositoryType *pRow = (Row_RepositoryType *)*i;
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_RepositoryType_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->PathToFile_asSQL()+", "+pRow->Instructions_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_RepositoryType_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->SourceOnly_asSQL()+", "+pRow->PathToFile_asSQL()+", "+pRow->Instructions_asSQL();
 
 	
-		string query = "insert into RepositoryType (PK_RepositoryType, Description, Define, PathToFile, Instructions) values ("+
+		string query = "insert into RepositoryType (PK_RepositoryType, Description, Define, SourceOnly, PathToFile, Instructions) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -299,7 +331,7 @@ pRow->m_PK_RepositoryType=id;
 	
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			SingleLongKey key(pRow->m_PK_RepositoryType);	
 			cachedRows[key] = pRow;
 					
 			
@@ -313,14 +345,14 @@ pRow->m_PK_RepositoryType=id;
 //update modified
 	
 
-	for (map<Key, Row_RepositoryType*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_RepositoryType* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_RepositoryType* pRow = (Row_RepositoryType*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_RepositoryType);
 
 		char tmp_PK_RepositoryType[32];
-sprintf(tmp_PK_RepositoryType, "%li", key.pk_PK_RepositoryType);
+sprintf(tmp_PK_RepositoryType, "%li", key.pk);
 
 
 string condition;
@@ -329,7 +361,7 @@ condition = condition + "PK_RepositoryType=" + tmp_PK_RepositoryType;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_RepositoryType="+pRow->PK_RepositoryType_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", PathToFile="+pRow->PathToFile_asSQL()+", Instructions="+pRow->Instructions_asSQL();
+update_values_list = update_values_list + "PK_RepositoryType="+pRow->PK_RepositoryType_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", SourceOnly="+pRow->SourceOnly_asSQL()+", PathToFile="+pRow->PathToFile_asSQL()+", Instructions="+pRow->Instructions_asSQL();
 
 	
 		string query = "update RepositoryType set " + update_values_list + " where " + condition;
@@ -346,7 +378,7 @@ update_values_list = update_values_list + "PK_RepositoryType="+pRow->PK_Reposito
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_RepositoryType*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -356,12 +388,13 @@ update_values_list = update_values_list + "PK_RepositoryType="+pRow->PK_Reposito
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_RepositoryType*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		SingleLongKey key = (*i).first;
+		Row_RepositoryType* pRow = (Row_RepositoryType*) (*i).second;	
+
 		char tmp_PK_RepositoryType[32];
-sprintf(tmp_PK_RepositoryType, "%li", key.pk_PK_RepositoryType);
+sprintf(tmp_PK_RepositoryType, "%li", key.pk);
 
 
 string condition;
@@ -452,37 +485,48 @@ pRow->m_Define = string(row[2],lengths[2]);
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_PathToFile = "";
+pRow->m_SourceOnly = 0;
 }
 else
 {
 pRow->is_null[3]=false;
-pRow->m_PathToFile = string(row[3],lengths[3]);
+sscanf(row[3], "%hi", &(pRow->m_SourceOnly));
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_Instructions = "";
+pRow->m_PathToFile = "";
 }
 else
 {
 pRow->is_null[4]=false;
-pRow->m_Instructions = string(row[4],lengths[4]);
+pRow->m_PathToFile = string(row[4],lengths[4]);
+}
+
+if (row[5] == NULL)
+{
+pRow->is_null[5]=true;
+pRow->m_Instructions = "";
+}
+else
+{
+pRow->is_null[5]=false;
+pRow->m_Instructions = string(row[5],lengths[5]);
 }
 
 
 
 		//checking for duplicates
 
-		Key key(pRow);
+		SingleLongKey key(pRow->m_PK_RepositoryType);
 		
-                map<Table_RepositoryType::Key, Row_RepositoryType*, Table_RepositoryType::Key_Less>::iterator i = cachedRows.find(key);
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_RepositoryType *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -511,9 +555,9 @@ Row_RepositoryType* Table_RepositoryType::GetRow(long int in_PK_RepositoryType)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_PK_RepositoryType);
+	SingleLongKey row_key(in_PK_RepositoryType);
 
-	map<Key, Row_RepositoryType*, Key_Less>::iterator i;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -524,7 +568,7 @@ Row_RepositoryType* Table_RepositoryType::GetRow(long int in_PK_RepositoryType)
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_RepositoryType*) (*i).second;
 	//we have to fetch row
 	Row_RepositoryType* pRow = FetchRow(row_key);
 
@@ -535,13 +579,13 @@ Row_RepositoryType* Table_RepositoryType::GetRow(long int in_PK_RepositoryType)
 
 
 
-Row_RepositoryType* Table_RepositoryType::FetchRow(Table_RepositoryType::Key &key)
+Row_RepositoryType* Table_RepositoryType::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_RepositoryType[32];
-sprintf(tmp_PK_RepositoryType, "%li", key.pk_PK_RepositoryType);
+sprintf(tmp_PK_RepositoryType, "%li", key.pk);
 
 
 string condition;
@@ -613,23 +657,34 @@ pRow->m_Define = string(row[2],lengths[2]);
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_PathToFile = "";
+pRow->m_SourceOnly = 0;
 }
 else
 {
 pRow->is_null[3]=false;
-pRow->m_PathToFile = string(row[3],lengths[3]);
+sscanf(row[3], "%hi", &(pRow->m_SourceOnly));
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_Instructions = "";
+pRow->m_PathToFile = "";
 }
 else
 {
 pRow->is_null[4]=false;
-pRow->m_Instructions = string(row[4],lengths[4]);
+pRow->m_PathToFile = string(row[4],lengths[4]);
+}
+
+if (row[5] == NULL)
+{
+pRow->is_null[5]=true;
+pRow->m_Instructions = "";
+}
+else
+{
+pRow->is_null[5]=false;
+pRow->m_Instructions = string(row[5],lengths[5]);
 }
 
 
@@ -642,6 +697,20 @@ pRow->m_Instructions = string(row[4],lengths[4]);
 
 
 
+void Row_RepositoryType::Installation_FK_RepositoryType_Source_getrows(vector <class Row_Installation*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Installation *pTable = table->database->Installation_get();
+pTable->GetRows("FK_RepositoryType_Source=" + StringUtils::itos(m_PK_RepositoryType),rows);
+}
+void Row_RepositoryType::Installation_FK_RepositoryType_Binaries_getrows(vector <class Row_Installation*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Installation *pTable = table->database->Installation_get();
+pTable->GetRows("FK_RepositoryType_Binaries=" + StringUtils::itos(m_PK_RepositoryType),rows);
+}
 void Row_RepositoryType::RepositorySource_FK_RepositoryType_getrows(vector <class Row_RepositorySource*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);

@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -34,15 +33,17 @@ void Database_pluto_main::DeleteTable_Document_Comment()
 
 Table_Document_Comment::~Table_Document_Comment()
 {
-	map<Table_Document_Comment::Key, class Row_Document_Comment*, Table_Document_Comment::Key_Less>::iterator it;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_Document_Comment *pRow = (Row_Document_Comment *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_Document_Comment *pRow = (Row_Document_Comment *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -56,12 +57,13 @@ Table_Document_Comment::~Table_Document_Comment()
 void Row_Document_Comment::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_Document_Comment *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_Document_Comment*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_Document_Comment *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -71,8 +73,8 @@ void Row_Document_Comment::Delete()
 		}
 		else
 		{
-			Table_Document_Comment::Key key(this);					
-			map<Table_Document_Comment::Key, Row_Document_Comment*, Table_Document_Comment::Key_Less>::iterator i = table->cachedRows.find(key);
+			SingleLongKey key(pRow->m_PK_Document_Comment);
+			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -83,12 +85,14 @@ void Row_Document_Comment::Delete()
 
 void Row_Document_Comment::Reload()
 {
+	Row_Document_Comment *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_Document_Comment::Key key(this);		
+		SingleLongKey key(pRow->m_PK_Document_Comment);
 		Row_Document_Comment *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -258,9 +262,9 @@ void Table_Document_Comment::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_Document_Comment*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_Document_Comment *pRow = *i;
+		Row_Document_Comment *pRow = (Row_Document_Comment *)*i;
 	
 		
 string values_list_comma_separated;
@@ -284,7 +288,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Document_Co
 				
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			SingleLongKey key(pRow->m_PK_Document_Comment);	
 			cachedRows[key] = pRow;
 					
 			
@@ -298,14 +302,14 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Document_Co
 //update modified
 	
 
-	for (map<Key, Row_Document_Comment*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_Document_Comment* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_Document_Comment* pRow = (Row_Document_Comment*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_Document_Comment);
 
 		char tmp_PK_Document_Comment[32];
-sprintf(tmp_PK_Document_Comment, "%li", key.pk_PK_Document_Comment);
+sprintf(tmp_PK_Document_Comment, "%li", key.pk);
 
 
 string condition;
@@ -331,7 +335,7 @@ update_values_list = update_values_list + "PK_Document_Comment="+pRow->PK_Docume
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_Document_Comment*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -341,12 +345,13 @@ update_values_list = update_values_list + "PK_Document_Comment="+pRow->PK_Docume
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_Document_Comment*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		SingleLongKey key = (*i).first;
+		Row_Document_Comment* pRow = (Row_Document_Comment*) (*i).second;	
+
 		char tmp_PK_Document_Comment[32];
-sprintf(tmp_PK_Document_Comment, "%li", key.pk_PK_Document_Comment);
+sprintf(tmp_PK_Document_Comment, "%li", key.pk);
 
 
 string condition;
@@ -460,14 +465,14 @@ pRow->m_Date = string(row[4],lengths[4]);
 
 		//checking for duplicates
 
-		Key key(pRow);
+		SingleLongKey key(pRow->m_PK_Document_Comment);
 		
-                map<Table_Document_Comment::Key, Row_Document_Comment*, Table_Document_Comment::Key_Less>::iterator i = cachedRows.find(key);
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_Document_Comment *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -496,9 +501,9 @@ Row_Document_Comment* Table_Document_Comment::GetRow(long int in_PK_Document_Com
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_PK_Document_Comment);
+	SingleLongKey row_key(in_PK_Document_Comment);
 
-	map<Key, Row_Document_Comment*, Key_Less>::iterator i;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -509,7 +514,7 @@ Row_Document_Comment* Table_Document_Comment::GetRow(long int in_PK_Document_Com
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_Document_Comment*) (*i).second;
 	//we have to fetch row
 	Row_Document_Comment* pRow = FetchRow(row_key);
 
@@ -520,13 +525,13 @@ Row_Document_Comment* Table_Document_Comment::GetRow(long int in_PK_Document_Com
 
 
 
-Row_Document_Comment* Table_Document_Comment::FetchRow(Table_Document_Comment::Key &key)
+Row_Document_Comment* Table_Document_Comment::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_Document_Comment[32];
-sprintf(tmp_PK_Document_Comment, "%li", key.pk_PK_Document_Comment);
+sprintf(tmp_PK_Document_Comment, "%li", key.pk);
 
 
 string condition;

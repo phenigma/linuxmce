@@ -13,7 +13,12 @@
 #include "Define_Criteria.h"
 #include "SerializeClass/SerializeClass.h"
 
-class DLL_EXPORT Table_Criteria
+// If we declare the maps locally, the compiler will create multiple copies of them
+// making the output files enormous.  The solution seems to be to create some predefined
+// maps for the standard types of primary keys (single long, double long, etc.) and
+// put them in a common base class, which is optionally included as tablebase below
+
+class DLL_EXPORT Table_Criteria : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -48,11 +53,8 @@ private:
 		bool operator()(const Table_Criteria::Key &key1, const Table_Criteria::Key &key2) const;
 	};	
 
-	map<Table_Criteria::Key, class Row_Criteria*, Table_Criteria::Key_Less> cachedRows;
-	map<Table_Criteria::Key, class Row_Criteria*, Table_Criteria::Key_Less> deleted_cachedRows;
-	vector<class Row_Criteria*> addedRows;
-	vector<class Row_Criteria*> deleted_addedRows;	
-		
+	
+	
 
 public:				
 	void Commit();
@@ -67,7 +69,7 @@ public:
 private:	
 	
 		
-	class Row_Criteria* FetchRow(Key &key);
+	class Row_Criteria* FetchRow(SingleLongKey &key);
 		
 			
 };
@@ -86,10 +88,6 @@ string m_Description;
 string m_Define;
 
 		bool is_null[5];
-	
-		bool is_deleted;
-		bool is_added;
-		bool is_modified;					
 	
 	public:
 		long int PK_Criteria_get();

@@ -107,18 +107,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PlutoVIP", "PlutoVIP\PlutoV
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StdDLL", "WinBluetooth\StdDll\StdDLL.vcproj", "{D7399E52-D787-4C51-9085-C341D579647B}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
 Global
-	GlobalSection(SourceCodeControl) = preSolution
-		SccNumberOfProjects = 1
-		SccProjectUniqueName0 = WinBluetooth\\StdDll\\StdDLL.vcproj
-		SccProjectName0 = \u0022$/Bluetooth/Applications/StdDLL/StdDLL\u0022,\u0020CYWBAAAA
-		SccLocalPath0 = WinBluetooth\\StdDll
-		SccProvider0 = MSSCCI:Microsoft\u0020Visual\u0020SourceSafe
-	EndGlobalSection
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
 		Release = Release
@@ -232,10 +221,6 @@ Global
 		{05A67227-6223-4B99-9C33-44C93CD27DCD}.Debug.Build.0 = Debug|Win32
 		{05A67227-6223-4B99-9C33-44C93CD27DCD}.Release.ActiveCfg = Release|Win32
 		{05A67227-6223-4B99-9C33-44C93CD27DCD}.Release.Build.0 = Release|Win32
-		{D7399E52-D787-4C51-9085-C341D579647B}.Debug.ActiveCfg = Debug|Win32
-		{D7399E52-D787-4C51-9085-C341D579647B}.Debug.Build.0 = Debug|Win32
-		{D7399E52-D787-4C51-9085-C341D579647B}.Release.ActiveCfg = Release|Win32
-		{D7399E52-D787-4C51-9085-C341D579647B}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

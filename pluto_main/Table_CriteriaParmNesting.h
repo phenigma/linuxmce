@@ -13,7 +13,12 @@
 #include "Define_CriteriaParmNesting.h"
 #include "SerializeClass/SerializeClass.h"
 
-class DLL_EXPORT Table_CriteriaParmNesting
+// If we declare the maps locally, the compiler will create multiple copies of them
+// making the output files enormous.  The solution seems to be to create some predefined
+// maps for the standard types of primary keys (single long, double long, etc.) and
+// put them in a common base class, which is optionally included as tablebase below
+
+class DLL_EXPORT Table_CriteriaParmNesting : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -48,11 +53,8 @@ private:
 		bool operator()(const Table_CriteriaParmNesting::Key &key1, const Table_CriteriaParmNesting::Key &key2) const;
 	};	
 
-	map<Table_CriteriaParmNesting::Key, class Row_CriteriaParmNesting*, Table_CriteriaParmNesting::Key_Less> cachedRows;
-	map<Table_CriteriaParmNesting::Key, class Row_CriteriaParmNesting*, Table_CriteriaParmNesting::Key_Less> deleted_cachedRows;
-	vector<class Row_CriteriaParmNesting*> addedRows;
-	vector<class Row_CriteriaParmNesting*> deleted_addedRows;	
-		
+	
+	
 
 public:				
 	void Commit();
@@ -67,7 +69,7 @@ public:
 private:	
 	
 		
-	class Row_CriteriaParmNesting* FetchRow(Key &key);
+	class Row_CriteriaParmNesting* FetchRow(SingleLongKey &key);
 		
 			
 };
@@ -85,10 +87,6 @@ short int m_IsAnd;
 short int m_IsNot;
 
 		bool is_null[4];
-	
-		bool is_deleted;
-		bool is_added;
-		bool is_modified;					
 	
 	public:
 		long int PK_CriteriaParmNesting_get();

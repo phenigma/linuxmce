@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -34,15 +33,17 @@ void Database_pluto_main::DeleteTable_Template()
 
 Table_Template::~Table_Template()
 {
-	map<Table_Template::Key, class Row_Template*, Table_Template::Key_Less>::iterator it;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_Template *pRow = (Row_Template *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_Template *pRow = (Row_Template *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -56,12 +57,13 @@ Table_Template::~Table_Template()
 void Row_Template::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_Template *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_Template*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_Template *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -71,8 +73,8 @@ void Row_Template::Delete()
 		}
 		else
 		{
-			Table_Template::Key key(this);					
-			map<Table_Template::Key, Row_Template*, Table_Template::Key_Less>::iterator i = table->cachedRows.find(key);
+			SingleLongKey key(pRow->m_PK_Template);
+			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -83,12 +85,14 @@ void Row_Template::Delete()
 
 void Row_Template::Reload()
 {
+	Row_Template *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_Template::Key key(this);		
+		SingleLongKey key(pRow->m_PK_Template);
 		Row_Template *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -196,9 +200,9 @@ void Table_Template::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_Template*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_Template *pRow = *i;
+		Row_Template *pRow = (Row_Template *)*i;
 	
 		
 string values_list_comma_separated;
@@ -224,7 +228,7 @@ pRow->m_PK_Template=id;
 	
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			SingleLongKey key(pRow->m_PK_Template);	
 			cachedRows[key] = pRow;
 					
 			
@@ -238,14 +242,14 @@ pRow->m_PK_Template=id;
 //update modified
 	
 
-	for (map<Key, Row_Template*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_Template* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_Template* pRow = (Row_Template*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_Template);
 
 		char tmp_PK_Template[32];
-sprintf(tmp_PK_Template, "%li", key.pk_PK_Template);
+sprintf(tmp_PK_Template, "%li", key.pk);
 
 
 string condition;
@@ -271,7 +275,7 @@ update_values_list = update_values_list + "PK_Template="+pRow->PK_Template_asSQL
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_Template*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -281,12 +285,13 @@ update_values_list = update_values_list + "PK_Template="+pRow->PK_Template_asSQL
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_Template*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		SingleLongKey key = (*i).first;
+		Row_Template* pRow = (Row_Template*) (*i).second;	
+
 		char tmp_PK_Template[32];
-sprintf(tmp_PK_Template, "%li", key.pk_PK_Template);
+sprintf(tmp_PK_Template, "%li", key.pk);
 
 
 string condition;
@@ -367,14 +372,14 @@ pRow->m_Description = string(row[1],lengths[1]);
 
 		//checking for duplicates
 
-		Key key(pRow);
+		SingleLongKey key(pRow->m_PK_Template);
 		
-                map<Table_Template::Key, Row_Template*, Table_Template::Key_Less>::iterator i = cachedRows.find(key);
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_Template *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -403,9 +408,9 @@ Row_Template* Table_Template::GetRow(long int in_PK_Template)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_PK_Template);
+	SingleLongKey row_key(in_PK_Template);
 
-	map<Key, Row_Template*, Key_Less>::iterator i;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -416,7 +421,7 @@ Row_Template* Table_Template::GetRow(long int in_PK_Template)
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_Template*) (*i).second;
 	//we have to fetch row
 	Row_Template* pRow = FetchRow(row_key);
 
@@ -427,13 +432,13 @@ Row_Template* Table_Template::GetRow(long int in_PK_Template)
 
 
 
-Row_Template* Table_Template::FetchRow(Table_Template::Key &key)
+Row_Template* Table_Template::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_Template[32];
-sprintf(tmp_PK_Template, "%li", key.pk_PK_Template);
+sprintf(tmp_PK_Template, "%li", key.pk);
 
 
 string condition;

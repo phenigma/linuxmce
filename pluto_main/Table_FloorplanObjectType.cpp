@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -36,15 +35,17 @@ void Database_pluto_main::DeleteTable_FloorplanObjectType()
 
 Table_FloorplanObjectType::~Table_FloorplanObjectType()
 {
-	map<Table_FloorplanObjectType::Key, class Row_FloorplanObjectType*, Table_FloorplanObjectType::Key_Less>::iterator it;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_FloorplanObjectType *pRow = (Row_FloorplanObjectType *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_FloorplanObjectType *pRow = (Row_FloorplanObjectType *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -58,12 +59,13 @@ Table_FloorplanObjectType::~Table_FloorplanObjectType()
 void Row_FloorplanObjectType::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_FloorplanObjectType *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_FloorplanObjectType*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_FloorplanObjectType *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -73,8 +75,8 @@ void Row_FloorplanObjectType::Delete()
 		}
 		else
 		{
-			Table_FloorplanObjectType::Key key(this);					
-			map<Table_FloorplanObjectType::Key, Row_FloorplanObjectType*, Table_FloorplanObjectType::Key_Less>::iterator i = table->cachedRows.find(key);
+			SingleLongKey key(pRow->m_PK_FloorplanObjectType);
+			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -85,12 +87,14 @@ void Row_FloorplanObjectType::Delete()
 
 void Row_FloorplanObjectType::Reload()
 {
+	Row_FloorplanObjectType *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_FloorplanObjectType::Key key(this);		
+		SingleLongKey key(pRow->m_PK_FloorplanObjectType);
 		Row_FloorplanObjectType *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -477,9 +481,9 @@ void Table_FloorplanObjectType::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_FloorplanObjectType*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_FloorplanObjectType *pRow = *i;
+		Row_FloorplanObjectType *pRow = (Row_FloorplanObjectType *)*i;
 	
 		
 string values_list_comma_separated;
@@ -505,7 +509,7 @@ pRow->m_PK_FloorplanObjectType=id;
 	
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			SingleLongKey key(pRow->m_PK_FloorplanObjectType);	
 			cachedRows[key] = pRow;
 					
 			
@@ -519,14 +523,14 @@ pRow->m_PK_FloorplanObjectType=id;
 //update modified
 	
 
-	for (map<Key, Row_FloorplanObjectType*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_FloorplanObjectType* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_FloorplanObjectType* pRow = (Row_FloorplanObjectType*) (*i).second;	
+		SingleLongKey key(pRow->m_PK_FloorplanObjectType);
 
 		char tmp_PK_FloorplanObjectType[32];
-sprintf(tmp_PK_FloorplanObjectType, "%li", key.pk_PK_FloorplanObjectType);
+sprintf(tmp_PK_FloorplanObjectType, "%li", key.pk);
 
 
 string condition;
@@ -552,7 +556,7 @@ update_values_list = update_values_list + "PK_FloorplanObjectType="+pRow->PK_Flo
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_FloorplanObjectType*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -562,12 +566,13 @@ update_values_list = update_values_list + "PK_FloorplanObjectType="+pRow->PK_Flo
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_FloorplanObjectType*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		SingleLongKey key = (*i).first;
+		Row_FloorplanObjectType* pRow = (Row_FloorplanObjectType*) (*i).second;	
+
 		char tmp_PK_FloorplanObjectType[32];
-sprintf(tmp_PK_FloorplanObjectType, "%li", key.pk_PK_FloorplanObjectType);
+sprintf(tmp_PK_FloorplanObjectType, "%li", key.pk);
 
 
 string condition;
@@ -780,14 +785,14 @@ pRow->m_psc_mod = string(row[13],lengths[13]);
 
 		//checking for duplicates
 
-		Key key(pRow);
+		SingleLongKey key(pRow->m_PK_FloorplanObjectType);
 		
-                map<Table_FloorplanObjectType::Key, Row_FloorplanObjectType*, Table_FloorplanObjectType::Key_Less>::iterator i = cachedRows.find(key);
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_FloorplanObjectType *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -816,9 +821,9 @@ Row_FloorplanObjectType* Table_FloorplanObjectType::GetRow(long int in_PK_Floorp
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_PK_FloorplanObjectType);
+	SingleLongKey row_key(in_PK_FloorplanObjectType);
 
-	map<Key, Row_FloorplanObjectType*, Key_Less>::iterator i;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -829,7 +834,7 @@ Row_FloorplanObjectType* Table_FloorplanObjectType::GetRow(long int in_PK_Floorp
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_FloorplanObjectType*) (*i).second;
 	//we have to fetch row
 	Row_FloorplanObjectType* pRow = FetchRow(row_key);
 
@@ -840,13 +845,13 @@ Row_FloorplanObjectType* Table_FloorplanObjectType::GetRow(long int in_PK_Floorp
 
 
 
-Row_FloorplanObjectType* Table_FloorplanObjectType::FetchRow(Table_FloorplanObjectType::Key &key)
+Row_FloorplanObjectType* Table_FloorplanObjectType::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_PK_FloorplanObjectType[32];
-sprintf(tmp_PK_FloorplanObjectType, "%li", key.pk_PK_FloorplanObjectType);
+sprintf(tmp_PK_FloorplanObjectType, "%li", key.pk);
 
 
 string condition;

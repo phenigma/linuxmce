@@ -11,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include <mysql.h>
 
@@ -35,15 +34,17 @@ void Database_pluto_main::DeleteTable_Event_EventParameter()
 
 Table_Event_EventParameter::~Table_Event_EventParameter()
 {
-	map<Table_Event_EventParameter::Key, class Row_Event_EventParameter*, Table_Event_EventParameter::Key_Less>::iterator it;
+	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_Event_EventParameter *pRow = (Row_Event_EventParameter *) (*it).second;
+		delete pRow;
 	}
 
 	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
 	{
-		delete (*it).second;
+		Row_Event_EventParameter *pRow = (Row_Event_EventParameter *) (*it).second;
+		delete pRow;
 	}
 
 	size_t i;
@@ -57,12 +58,13 @@ Table_Event_EventParameter::~Table_Event_EventParameter()
 void Row_Event_EventParameter::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	Row_Event_EventParameter *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_Event_EventParameter*>::iterator i;	
-			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			vector<TableRow*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && ( (Row_Event_EventParameter *) *i != this); i++);
 			
 			if (i!=	table->addedRows.end())
 				table->addedRows.erase(i);
@@ -72,8 +74,8 @@ void Row_Event_EventParameter::Delete()
 		}
 		else
 		{
-			Table_Event_EventParameter::Key key(this);					
-			map<Table_Event_EventParameter::Key, Row_Event_EventParameter*, Table_Event_EventParameter::Key_Less>::iterator i = table->cachedRows.find(key);
+			DoubleLongKey key(pRow->m_FK_Event,pRow->m_FK_EventParameter);
+			map<DoubleLongKey, TableRow*, DoubleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -84,12 +86,14 @@ void Row_Event_EventParameter::Delete()
 
 void Row_Event_EventParameter::Reload()
 {
+	Row_Event_EventParameter *pRow = this; // Needed so we will have only 1 version of get_primary_fields_assign_from_row
+
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_Event_EventParameter::Key key(this);		
+		DoubleLongKey key(pRow->m_FK_Event,pRow->m_FK_EventParameter);
 		Row_Event_EventParameter *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -353,9 +357,9 @@ void Table_Event_EventParameter::Commit()
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_Event_EventParameter*>::iterator i = addedRows.begin();
+		vector<TableRow*>::iterator i = addedRows.begin();
 	
-		Row_Event_EventParameter *pRow = *i;
+		Row_Event_EventParameter *pRow = (Row_Event_EventParameter *)*i;
 	
 		
 string values_list_comma_separated;
@@ -379,7 +383,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Event_asSQL
 				
 			
 			addedRows.erase(i);
-			Key key(pRow);	
+			DoubleLongKey key(pRow->m_FK_Event,pRow->m_FK_EventParameter);	
 			cachedRows[key] = pRow;
 					
 			
@@ -393,17 +397,17 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Event_asSQL
 //update modified
 	
 
-	for (map<Key, Row_Event_EventParameter*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
-		if	(((*i).second)->is_modified)
+	for (map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified_get())
 	{
-		Row_Event_EventParameter* pRow = (*i).second;	
-		Key key(pRow);	
+		Row_Event_EventParameter* pRow = (Row_Event_EventParameter*) (*i).second;	
+		DoubleLongKey key(pRow->m_FK_Event,pRow->m_FK_EventParameter);
 
 		char tmp_FK_Event[32];
-sprintf(tmp_FK_Event, "%li", key.pk_FK_Event);
+sprintf(tmp_FK_Event, "%li", key.pk1);
 
 char tmp_FK_EventParameter[32];
-sprintf(tmp_FK_EventParameter, "%li", key.pk_FK_EventParameter);
+sprintf(tmp_FK_EventParameter, "%li", key.pk2);
 
 
 string condition;
@@ -429,7 +433,7 @@ update_values_list = update_values_list + "FK_Event="+pRow->FK_Event_asSQL()+", 
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_Event_EventParameter*>::iterator i = deleted_addedRows.begin();
+		vector<TableRow*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -439,15 +443,16 @@ update_values_list = update_values_list + "FK_Event="+pRow->FK_Event_asSQL()+", 
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_Event_EventParameter*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		Key key = (*i).first;
-	
+		DoubleLongKey key = (*i).first;
+		Row_Event_EventParameter* pRow = (Row_Event_EventParameter*) (*i).second;	
+
 		char tmp_FK_Event[32];
-sprintf(tmp_FK_Event, "%li", key.pk_FK_Event);
+sprintf(tmp_FK_Event, "%li", key.pk1);
 
 char tmp_FK_EventParameter[32];
-sprintf(tmp_FK_EventParameter, "%li", key.pk_FK_EventParameter);
+sprintf(tmp_FK_EventParameter, "%li", key.pk2);
 
 
 string condition;
@@ -594,14 +599,14 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 
 		//checking for duplicates
 
-		Key key(pRow);
+		DoubleLongKey key(pRow->m_FK_Event,pRow->m_FK_EventParameter);
 		
-                map<Table_Event_EventParameter::Key, Row_Event_EventParameter*, Table_Event_EventParameter::Key_Less>::iterator i = cachedRows.find(key);
+		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
 			delete pRow;
-			pRow = (*i).second;
+			pRow = (Row_Event_EventParameter *)(*i).second;
 		}
 
 		rows->push_back(pRow);
@@ -630,9 +635,9 @@ Row_Event_EventParameter* Table_Event_EventParameter::GetRow(long int in_FK_Even
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_FK_Event, in_FK_EventParameter);
+	DoubleLongKey row_key(in_FK_Event, in_FK_EventParameter);
 
-	map<Key, Row_Event_EventParameter*, Key_Less>::iterator i;
+	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -643,7 +648,7 @@ Row_Event_EventParameter* Table_Event_EventParameter::GetRow(long int in_FK_Even
 	
 	//row is cached
 	if (i!=cachedRows.end())
-		return (*i).second;
+		return (Row_Event_EventParameter*) (*i).second;
 	//we have to fetch row
 	Row_Event_EventParameter* pRow = FetchRow(row_key);
 
@@ -654,16 +659,16 @@ Row_Event_EventParameter* Table_Event_EventParameter::GetRow(long int in_FK_Even
 
 
 
-Row_Event_EventParameter* Table_Event_EventParameter::FetchRow(Table_Event_EventParameter::Key &key)
+Row_Event_EventParameter* Table_Event_EventParameter::FetchRow(DoubleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
 	char tmp_FK_Event[32];
-sprintf(tmp_FK_Event, "%li", key.pk_FK_Event);
+sprintf(tmp_FK_Event, "%li", key.pk1);
 
 char tmp_FK_EventParameter[32];
-sprintf(tmp_FK_EventParameter, "%li", key.pk_FK_EventParameter);
+sprintf(tmp_FK_EventParameter, "%li", key.pk2);
 
 
 string condition;
