@@ -23,9 +23,12 @@
 
 #ifdef WIN32
 #include "OrbiterSDL.h"
+#include "MainDialog.h"
 #else
 #include "../Linux/OrbiterLinux.h"
 #endif
+
+#include "StartOrbiterSDL.h"
 
 #include "../pluto_main/Define_Button.h"
 #include "../pluto_main/Define_Direction.h"
@@ -74,6 +77,9 @@ void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
 #ifdef AUDIDEMO
             if (Event.type == SDL_MOUSEBUTTONDOWN)
             {
+#ifdef WIN32				
+				RecordMouseAction(Event.button.x, Event.button.y);	
+#endif
                 g_pPlutoLogger->Write(LV_WARNING, "================================= Mouse button pressed %d", Event.button.button);
                 if( Event.button.button==4 )
                     pCLinux->ButtonDown(BUTTON_Up_Arrow_CONST);
@@ -94,7 +100,12 @@ void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
             }
 #else
             if (Event.type == SDL_MOUSEBUTTONDOWN)
+			{
+#ifdef WIN32				
+				RecordMouseAction(Event.button.x, Event.button.y);	
+#endif
                 pCLinux->RegionDown(Event.button.x, Event.button.y);
+			}
 #endif
             else if (Event.type == SDL_MOUSEMOTION)
                 int k=2; //pCLinux->RegionDown(Event.button.x,Event.button.y);
@@ -125,6 +136,9 @@ void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
             }
             else if (Event.type == SDL_KEYUP)
             {
+#ifdef WIN32				
+				RecordKeyboardAction(Event.key.keysym.sym);
+#endif
                 bool bHandled=false;
                 bRepeat = cKeyDown && clock()-cKeyDown > CLOCKS_PER_SEC/2;
                 cKeyDown=0;

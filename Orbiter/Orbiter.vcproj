@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;..;../DCE;&quot;../Libraries/pthreads-win32/include&quot;;&quot;../CrossPlatform-Libs/sge030809-w32/src&quot;;&quot;../CrossPlatform-Libs/SDL_ttf-2.0.6&quot;;&quot;../CrossPlatform-Libs/SDL_image-1.2.3&quot;;&quot;../CrossPlatform-Libs/SDL-1.2.7/include&quot;;../Splitter;&quot;../CrossPlatform-Libs/zlib&quot;;&quot;../CrossPlatform-Libs/lpng127&quot;"
+				AdditionalIncludeDirectories=".;..;Win32;../DCE;&quot;../Libraries/pthreads-win32/include&quot;;&quot;../CrossPlatform-Libs/sge030809-w32/src&quot;;&quot;../CrossPlatform-Libs/SDL_ttf-2.0.6&quot;;&quot;../CrossPlatform-Libs/SDL_image-1.2.3&quot;;&quot;../CrossPlatform-Libs/SDL-1.2.7/include&quot;;../Splitter;&quot;../CrossPlatform-Libs/zlib&quot;;&quot;../CrossPlatform-Libs/lpng127&quot;;../PlutoUtils;SDL"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;ORBITER;DEBUG;@PHONEKEYS;THREAD_LOG;CACHE_IMAGES;xTHREAD_LOG"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -38,7 +38,7 @@
 				AdditionalLibraryDirectories="&quot;../Libraries/pthreads-win32/lib&quot;;&quot;../CrossPlatform-Libs/SDL-1.2.7/VisualC7/SDL/Debug&quot;;&quot;../CrossPlatform-Libs/SDL_image-1.2.3/VisualC/Debug&quot;;&quot;../CrossPlatform-Libs/SDL_ttf-2.0.6/VisualC/Debug&quot;;&quot;../CrossPlatform-Libs/sge030809-w32/sge-msvc/sge/VisualC/Debug&quot;;../lib;&quot;../CrossPlatform-Libs/lpng127/projects/visualc6/Win32_DLL_Debug&quot;;&quot;../CrossPlatform-Libs/zlib/projects/visualc6/Win32_DLL_Debug&quot;"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/Orbiter.pdb"
-				SubSystem="1"
+				SubSystem="2"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -134,7 +134,10 @@
 				RelativePath="DesignObj_Orbiter.cpp">
 			</File>
 			<File
-				RelativePath="Main.cpp">
+				RelativePath=".\Win32\main.cpp">
+			</File>
+			<File
+				RelativePath=".\Win32\MainDialog.cpp">
 			</File>
 			<File
 				RelativePath="Orbiter.cpp">
@@ -146,10 +149,13 @@
 				RelativePath=".\Sdl\OrbiterSDL.cpp">
 			</File>
 			<File
+				RelativePath=".\Win32\OrbiterSDL_Win32.cpp">
+			</File>
+			<File
 				RelativePath="..\OrbiterGen\Renderer.cpp">
 			</File>
 			<File
-				RelativePath=".\Sdl\StartOrbiterSDL.cpp">
+				RelativePath=".\Win32\StartOrbiter_Win32.cpp">
 			</File>
 			<File
 				RelativePath="..\Splitter\TextSplitter.cpp">
@@ -162,13 +168,25 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
+				RelativePath=".\Win32\MainDialog.h">
+			</File>
+			<File
 				RelativePath="Orbiter.h">
+			</File>
+			<File
+				RelativePath=".\Win32\OrbiterSDL_Win32.h">
 			</File>
 			<File
 				RelativePath="..\OrbiterGen\Renderer.h">
 			</File>
 			<File
 				RelativePath=".\RendererImage.h">
+			</File>
+			<File
+				RelativePath=".\resource.h">
+			</File>
+			<File
+				RelativePath=".\Win32\StartOrbiter_Win32.h">
 			</File>
 			<File
 				RelativePath="..\Splitter\TextSplitter.h">
@@ -180,6 +198,15 @@
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
+			<File
+				RelativePath=".\Orbiter.ico">
+			</File>
+			<File
+				RelativePath=".\Orbiter.rc">
+			</File>
+			<File
+				RelativePath=".\small.ico">
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

@@ -1,12 +1,13 @@
 // Orbiter.cpp : Defines the entry point for the application.
 //
 
+#ifdef WINCE
 #include "stdafx.h"
 #include <commctrl.h>
+#endif
 
 #include "main.h"
 #include "MainDialog.h"
-#include "StartOrbiterCE.h"
 #include "DCE/Logger.h"
 
 #define  VERSION "<=version=>"
@@ -33,15 +34,19 @@ int WINAPI WinMain(	HINSTANCE hInstance,
     string sNestedDisplay = "";
 
     bool bError=false; // An error parsing the command line
-    char c;
 
 	//parse command line
 	string::size_type pos = 0;
 
+#ifdef WINCE
 	char pCmdLine[256];
 	wcstombs(pCmdLine, lpCmdLine, 256);
+	#define CMD_LINE pCmdLine
+#else
+	#define CMD_LINE lpCmdLine
+#endif
 
-	string command_line = pCmdLine;
+	string command_line = CMD_LINE;
 	string token;
 	do
 	{
@@ -128,13 +133,11 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		if (WSAStartup(wVersion, &wsaData)!=0)
 		{
 			int ec = WSAGetLastError();
-			char s[91];
 			printf("WSAStartup err %d", ec);
 			return 0;
 		}
 
 		MSG msg;
-		HACCEL hAccelTable;
 
 		CmdLineParams.sRouter_IP		= sRouter_IP;
 		CmdLineParams.PK_Device			= PK_Device;
@@ -155,14 +158,11 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		// Main message loop:
 		while (GetMessage(&msg, NULL, 0, 0)) 
 		{
-			if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg)) 
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
 		}
 
-		return msg.wParam;
+		return int(msg.wParam);
 	}
 
 

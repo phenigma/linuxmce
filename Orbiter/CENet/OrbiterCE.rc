@@ -58,37 +58,12 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// String Table
-//
-
-STRINGTABLE DISCARDABLE 
-BEGIN
-    IDS_APP_TITLE           "Orbiter CE"
-    IDS_HELLO               "Orbiter 2.0.0.0"
-    IDC_ORBITER             "ORBITER"
-END
-
-#endif    // Romanian resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-#ifdef _WIN32
-LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
-#pragma code_page(1252)
-#endif //_WIN32
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // Icon
 //
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_ORBITER             ICON    DISCARDABLE     "Misc files\\Orbiter.ICO"
+IDI_ORBITER             ICON    DISCARDABLE     "Orbiter.ICO"
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -126,21 +101,8 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "&Show Orbiter",               IDM_MAIN_SHOW_SDLWINDOW
-        MENUITEM "&Quit",                       IDM_MAIN_FILE_QUIT
+        MENUITEM "&Exit",                       IDM_MAIN_FILE_QUIT
     END
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Data
-//
-
-IDM_MENU SHMENUBAR DISCARDABLE 
-BEGIN
-    IDM_MENU, 1,
-    I_IMAGENONE, IDM_MAIN_FILE, TBSTATE_ENABLED, 
-    TBSTYLE_DROPDOWN | TBSTYLE_AUTOSIZE, IDS_CAP_FILE, 0, 0,
 END
 
 
@@ -151,10 +113,17 @@ END
 
 STRINGTABLE DISCARDABLE 
 BEGIN
+    IDS_APP_TITLE           "Orbiter CE"
+    IDS_HELLO               "Orbiter 2.0.0.0"
+    IDC_ORBITER             "ORBITER"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
     IDS_CAP_FILE            "&File"
 END
 
-#endif    // English (U.S.) resources
+#endif    // Romanian resources
 /////////////////////////////////////////////////////////////////////////////
 
 

@@ -1,0 +1,17 @@
+#ifndef __START_ORBITER_H__
+#define __START_ORBITER_H__
+
+#include <string>
+using namespace std;
+
+void StartOrbiter_Win32(
+	int PK_Device,
+	string sRouter_IP,
+	string sLocalDirectory,
+	bool bLocalMode,
+	int Width,
+	int Height,
+	bool bFullScreen
+);
+
+#endif //__START_ORBITER_H__

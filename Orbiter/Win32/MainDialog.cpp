@@ -5,6 +5,18 @@
 #include "Commdlg.h"
 #include "MultiThreadIncludes.h"
 
+#ifndef WINCE
+	#include "Commctrl.h"
+#endif
+
+#pragma warning(disable : 4311 4312)
+
+#ifdef WINCE
+#define PLAYER_OFFSET 0
+#else
+#define PLAYER_OFFSET 5
+#endif
+
 #define MAX_LOADSTRING 100
 #define WIN_WIDTH	   600
 #define WIN_HEIGHT	   400
@@ -15,6 +27,8 @@
 #define MENU_HEIGHT	   25
 //-----------------------------------------------------------------------------------------------------
 const MAX_STRING_LEN = 4096;
+static bool bStartRecording = true;
+static long OldTick = ::GetTickCount();
 //-----------------------------------------------------------------------------------------------------
 enum PageIndex
 {
@@ -27,10 +41,16 @@ DWORD OrbiterThreadId;
 DWORD PlayerThreadId;
 DWORD GeneratorThreadId;
 //-----------------------------------------------------------------------------------------------------
+bool g_bStopPlayerThread = false;
+bool g_bStopGeneratorThread = false;
+//-----------------------------------------------------------------------------------------------------
 // Global Variables:
 HINSTANCE			g_hInst;				// The current instance
 HWND				g_hwndMainDialog;		// The main dialog window handle
+
+#ifdef WINCE
 HWND				g_hwndCB;				// The command bar handle
+#endif
 //-----------------------------------------------------------------------------------------------------
 HWND				g_hWndTab;
 HWND				g_hWndPage1;
@@ -48,6 +68,7 @@ HWND				g_hWndRecord_SaveButton;
 HWND				g_hWndRecord_LoadButton;
 HWND				g_hWndRecord_ClearButton;
 HWND				g_hWndRecord_GoButton;
+HWND				g_hWndRecord_StopButton;
 HWND				g_hWndRecord_RepeatEdit;
 //-----------------------------------------------------------------------------------------------------
 //page 3
@@ -64,18 +85,24 @@ HWND				g_hWndRandom_KeyOption2RadioBox;
 HWND				g_hWndRandom_KeyOption3RadioBox;
 
 HWND				g_hWndRandom_GenerateButton;
+HWND				g_hWndRandom_StopButton;
 //-----------------------------------------------------------------------------------------------------
+#ifdef WINCE
 static SHACTIVATEINFO s_sai;
+#endif
 //-----------------------------------------------------------------------------------------------------
 /*extern*/ CommandLineParams CmdLineParams;
 //-----------------------------------------------------------------------------------------------------
 LRESULT CALLBACK PagesWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 //-----------------------------------------------------------------------------------------------------
-HWND CreateRpCommandBar(HWND);
+#ifdef WINCE
+	HWND CreateRpCommandBar(HWND);
+#endif
+
 HWND CreateTabControl(HWND hWnd);
 HWND CreatePage(HWND hWnd);
 HWND CreateListBox(HWND hWnd, RECT rt);			
-HWND CreateCheckBox(HWND hParentWnd, int x, int y, const char* caption, int width = 130);
+HWND CreateCheckBox(HWND hParentWnd, int x, int y, const char* caption, int width = 155);
 HWND CreateButton(HWND hParentWnd, int x, int y, const char* caption, int width = 50);
 HWND CreateLabel(HWND hParentWnd, int x, int y, int width, char* caption);
 HWND CreateEdit(HWND hParentWnd, int x, int y,  int width, char* caption, bool bNumber, bool bAlignRight);
@@ -93,7 +120,9 @@ void OnRecord_Load();
 void OnRecord_Save();  
 void OnRecord_Clear(); 
 void OnRecord_Go();
+void OnRecord_Stop();
 void OnRandom_Generate();
+void OnRandom_Stop();
 
 void GetEditText(HWND hWndEdit, string& Text);
 //-----------------------------------------------------------------------------------------------------
@@ -101,7 +130,13 @@ DWORD WINAPI OrbiterThread( LPVOID lpParameter)
 {
 	try
 	{
-		StartOrbiterCE(
+#ifdef WINCE
+	#define START_ORBITER StartOrbiterCE
+#else
+	#define	START_ORBITER StartOrbiter_Win32
+#endif
+
+		START_ORBITER(
 			CmdLineParams.PK_Device, 
 			CmdLineParams.sRouter_IP,
 			CmdLineParams.sLocalDirectory,
@@ -132,18 +167,28 @@ DWORD WINAPI PlayerThread( LPVOID lpParameter)
 
 	int Times = atoi(sTimesText.c_str());
 
-	int Count = ::SendMessage(g_hWndRecord_List, LB_GETCOUNT, 0L, 0L);
+	int Count = (int)::SendMessage(g_hWndRecord_List, LB_GETCOUNT, 0L, 0L);
 
 	while(Times--)
 	for(int i = 0; i < Count; i++)
 	{
+		if(g_bStopPlayerThread)
+			return 0L;
+
+#ifdef WINCE
 		wchar_t lpszBuffer[256];
+#else
+		char lpszBuffer[256];
+#endif
 		::SendMessage(g_hWndRecord_List, LB_GETTEXT, i, (LPARAM)(LPCTSTR)lpszBuffer);
 
+#ifdef WINCE
 		char pItemBuffer[MAX_STRING_LEN];
 		wcstombs(pItemBuffer, lpszBuffer, MAX_STRING_LEN);
-
 		string sItemBuffer = pItemBuffer;
+#else
+		string sItemBuffer = lpszBuffer;
+#endif
 
 		string::size_type CurPos = 0;
 		string sAction = StringUtils::Tokenize(sItemBuffer, " ", CurPos);
@@ -210,13 +255,10 @@ DWORD WINAPI GeneratorThread( LPVOID lpParameter)
 
 	while(true)
 	{
-		HWND hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);
+		if(g_bStopGeneratorThread)
+			return 0L;
 
-		if(!hSDLWindow)
-		{
-			Sleep(10000); //Orbiter is closed. Let's wait.. :)
-			continue;
-		}
+		HWND hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);
 		
 		delay = iDelayMin + rand() % (iDelayMax - iDelayMin); 
 		PerformActionDelay(delay);
@@ -265,8 +307,9 @@ DWORD WINAPI GeneratorThread( LPVOID lpParameter)
 //    It is important to call this function so that the application 
 //    will get 'well formed' small icons associated with it.
 //
-ATOM MyRegisterClass(HINSTANCE hInstance, LPTSTR szWindowClass)
+WORD MyRegisterClass(HINSTANCE hInstance, LPTSTR szWindowClass)
 {
+#ifdef WINCE
 	WNDCLASS	wc;
 
     wc.style			= CS_HREDRAW | CS_VREDRAW;
@@ -274,13 +317,33 @@ ATOM MyRegisterClass(HINSTANCE hInstance, LPTSTR szWindowClass)
     wc.cbClsExtra		= 0;
     wc.cbWndExtra		= 0;
     wc.hInstance		= hInstance;
-    wc.hIcon			= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ORBITER));
-    wc.hCursor			= 0;
+	wc.hIcon			= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ORBITER));
+	wc.hCursor			= 0;
     wc.hbrBackground	= (HBRUSH) GetStockObject(WHITE_BRUSH);
     wc.lpszMenuName		= 0;
     wc.lpszClassName	= szWindowClass;
 
 	return RegisterClass(&wc);
+
+#else
+	WNDCLASSEX wcex;
+
+	wcex.cbSize = sizeof(WNDCLASSEX); 
+
+	wcex.style			= CS_HREDRAW | CS_VREDRAW;
+	wcex.lpfnWndProc	= (WNDPROC)WndProc;
+	wcex.cbClsExtra		= 0;
+	wcex.cbWndExtra		= 0;
+	wcex.hInstance		= hInstance;
+	wcex.hIcon			= LoadIcon(hInstance, (LPCTSTR)IDI_ORBITER);
+	wcex.hCursor		= LoadCursor(NULL, IDC_ARROW);
+	wcex.hbrBackground	= (HBRUSH)(COLOR_WINDOW+1);
+	wcex.lpszMenuName	= (LPCTSTR)IDC_ORBITER;
+	wcex.lpszClassName	= szWindowClass;
+	wcex.hIconSm		= LoadIcon(wcex.hInstance, (LPCTSTR)IDI_SMALL);
+
+	return RegisterClassEx(&wcex);
+#endif
 }
 //-----------------------------------------------------------------------------------------------------
 //
@@ -296,10 +359,11 @@ ATOM MyRegisterClass(HINSTANCE hInstance, LPTSTR szWindowClass)
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	HWND	hWnd = NULL;
+	g_hInst = hInstance;		// Store instance handle in our global variable
+
 	TCHAR	szTitle[MAX_LOADSTRING];			// The title bar text
 	TCHAR	szWindowClass[MAX_LOADSTRING];		// The window class name
 
-	g_hInst = hInstance;		// Store instance handle in our global variable
 	// Initialize global strings
 	LoadString(hInstance, IDC_ORBITER, szWindowClass, MAX_LOADSTRING);
 	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
@@ -316,9 +380,15 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	} 
 
 	MyRegisterClass(hInstance, szWindowClass);
-	
+
+#ifdef WINCE
 	hWnd = CreateWindow(szWindowClass, szTitle, WS_VISIBLE | WS_SYSMENU | WS_BORDER | WS_CAPTION,
 		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
+#else
+   hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_SIZEBOX,
+      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
+#endif
+
 	if (!hWnd)
 	{	
 		return FALSE;
@@ -327,10 +397,15 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	//When the main window is created using CW_USEDEFAULT the height of the menubar (if one
 	// is created is not taken into account). So we resize the window after creating it
 	// if a menubar is present
+#ifdef WINCE
 	if (g_hwndCB)
+#endif
     {
 		RECT rc;
-        RECT rcMenuBar;
+
+#ifdef WINCE		
+		RECT rcMenuBar;
+#endif
 
 		GetWindowRect(hWnd, &rc);
 
@@ -342,9 +417,11 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		rc.top = (iHeight - WIN_HEIGHT) / 2;
 		rc.bottom = rc.top + WIN_HEIGHT;
 
-        GetWindowRect(g_hwndCB, &rcMenuBar);
+#ifdef WINCE
+		GetWindowRect(g_hwndCB, &rcMenuBar);
 		rc.bottom -= (rcMenuBar.bottom - rcMenuBar.top);
-		
+#endif		
+
 		MoveWindow(hWnd, rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top, FALSE);
 	}
 
@@ -371,7 +448,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	HDC hdc;
 	int wmId, wmEvent;
 	PAINTSTRUCT ps;
-	TCHAR szHello[MAX_LOADSTRING];
 
 	switch (message) 
 	{
@@ -379,6 +455,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			wmId    = LOWORD(wParam); 
 			wmEvent = HIWORD(wParam); 
 			// Parse the menu selections:
+
 			switch (wmId)
 			{	
 				case IDM_MAIN_FILE_QUIT:
@@ -391,19 +468,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				default:
 				   return DefWindowProc(hWnd, message, wParam, lParam);
 			}
-
 			break;
 		case WM_CREATE:
 			{
+				
+#ifdef WINCE
 				//make sure the that task bar is visible
 				HWND hTaskBarWindow = ::FindWindow(TEXT("HHTaskBar"), NULL);
 				::ShowWindow(hTaskBarWindow, SW_SHOWNORMAL);
-				
+
 				g_hwndCB = CreateRpCommandBar(hWnd);
 
 				// Initialize the shell activate info structure
 				memset (&s_sai, 0, sizeof (s_sai));
 				s_sai.cbSize = sizeof (s_sai);
+#endif //WINCE
 
 				g_hWndTab = CreateTabControl(hWnd);
 				g_hWndPage1 = CreatePage(g_hWndTab);
@@ -427,14 +506,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				g_hWndRecord_SaveButton = CreateButton(g_hWndPage2, 120 + 170, WIN_HEIGHT - 140, "&Save");
 				g_hWndRecord_LoadButton = CreateButton(g_hWndPage2, 120 + 230, WIN_HEIGHT - 140, "&Load");
 				g_hWndRecord_ClearButton = CreateButton(g_hWndPage2, 120 + 290, WIN_HEIGHT - 140, "&Clear");
-				g_hWndRecord_GoButton = CreateButton(g_hWndPage2, 110, 200, "&Go");
 
-				CreateLabel(g_hWndPage2, 10, 200, 25, "Play");
-				g_hWndRecord_RepeatEdit = CreateEdit(g_hWndPage2, 35, 200, 32, "1", true, true);
-				CreateLabel(g_hWndPage2, 70, 200, 30, "times");
+				CreateLabel(g_hWndPage2, 10, 200, 25 + PLAYER_OFFSET, "Play");
+				g_hWndRecord_RepeatEdit = CreateEdit(g_hWndPage2, 35 + 2 * PLAYER_OFFSET, 200, 32, "1", true, true);
+				CreateLabel(g_hWndPage2, 70 + 3 * PLAYER_OFFSET, 200, 30 + PLAYER_OFFSET, "times");
+				g_hWndRecord_GoButton = CreateButton(g_hWndPage2, 10, 230, "&Go");
+				g_hWndRecord_StopButton = CreateButton(g_hWndPage2, 80, 230, "&Stop");
 
-				reinterpret_cast<WNDPROC>(::SetWindowLong(g_hWndPage2, GWL_WNDPROC, 
-					reinterpret_cast<long>(PagesWndProc)));
+				::SetWindowLong(g_hWndPage2, GWL_WNDPROC, reinterpret_cast<long>(PagesWndProc));
 
 				//page 3
 				CreateLabel(g_hWndPage3, 10, 10, 150, "Delay between events:");	
@@ -442,8 +521,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				CreateLabel(g_hWndPage3, 215, 10, 5, "-");	
 				g_hWndRandom_DelayMax = CreateEdit(g_hWndPage3, 225, 10, 50, "5000", true, true);
 
-				CreateLabel(g_hWndPage3, 10, 40, 160, "Number of buttons per click: ");	
-				g_hWndRandom_ButtonsPerClick = CreateEdit(g_hWndPage3, 175, 40, 50, "0", true, true);
+				CreateLabel(g_hWndPage3, 10, 40, 200, "Number of buttons per click: ");	
+				g_hWndRandom_ButtonsPerClick = CreateEdit(g_hWndPage3, 225, 40, 50, "0", true, true);
 
 				g_hWndRandom_MouseCheckBox = CreateCheckBox(g_hWndPage3, 10, 70, "Generate mouse clicks", 200);
 				::SendMessage(g_hWndRandom_MouseCheckBox, BM_SETCHECK, BST_CHECKED, 0);
@@ -451,15 +530,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				g_hWndRandom_KeyboardCheckBox = CreateCheckBox(g_hWndPage3, 10, 90, "Generate keyboard events", 200);
 				::SendMessage(g_hWndRandom_KeyboardCheckBox, BM_SETCHECK, BST_CHECKED, 0);
 
-				g_hWndRandom_KeyOption1RadioBox = CreateRadioBox(g_hWndPage3, 10, 120, "A - Z, 0 - 9", 220);
-				g_hWndRandom_KeyOption2RadioBox = CreateRadioBox(g_hWndPage3, 10, 140, "UP, DOWN, LEFT, RIGHT, ENTER", 220);
-				g_hWndRandom_KeyOption3RadioBox = CreateRadioBox(g_hWndPage3, 10, 160, "Phone keys: 0 - 9, *, #, C, n", 220);
+				g_hWndRandom_KeyOption1RadioBox = CreateRadioBox(g_hWndPage3, 10, 120, "A - Z, 0 - 9", 250);
+				g_hWndRandom_KeyOption2RadioBox = CreateRadioBox(g_hWndPage3, 10, 140, "UP, DOWN, LEFT, RIGHT, ENTER", 250);
+				g_hWndRandom_KeyOption3RadioBox = CreateRadioBox(g_hWndPage3, 10, 160, "Phone keys: 0 - 9, *, #, C, n", 250);
 				::SendMessage(g_hWndRandom_KeyOption2RadioBox, BM_SETCHECK, BST_CHECKED, 0);
 
 				g_hWndRandom_GenerateButton = CreateButton(g_hWndPage3, 10, 200, "&Generate", 100);
+				g_hWndRandom_StopButton = CreateButton(g_hWndPage3, 120, 200, "&Stop");
 
-				reinterpret_cast<WNDPROC>(::SetWindowLong(g_hWndPage3, GWL_WNDPROC, 
-					reinterpret_cast<long>(PagesWndProc)));
+				::SetWindowLong(g_hWndPage3, GWL_WNDPROC, reinterpret_cast<long>(PagesWndProc));
 
 				SetActivePage(piLogger);
 
@@ -476,15 +555,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			EndPaint(hWnd, &ps);
 			break; 
 		case WM_DESTROY:
+#ifdef WINCE
 			CommandBar_Destroy(g_hwndCB);
+#endif
 			PostQuitMessage(0);
 			break;
 		case WM_ACTIVATE:
-            // Notify shell of our activate message
+			// Notify shell of our activate message
+#ifdef WINCE			
 			SHHandleWMActivate(hWnd, wParam, lParam, &s_sai, FALSE);
+#endif
      		break;
 		case WM_SETTINGCHANGE:
+#ifdef WINCE
 			SHHandleWMSettingChange(hWnd, wParam, lParam, &s_sai);
+#endif
      		break;
 
 		case WM_NOTIFY:
@@ -534,8 +619,12 @@ LRESULT CALLBACK PagesWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 						OnRecord_Clear(); 
 					else if(lParam == (LPARAM)g_hWndRecord_GoButton)    
 						OnRecord_Go(); 
+					else if(lParam == (LPARAM)g_hWndRecord_StopButton)    
+						OnRecord_Stop(); 
 					else if(lParam == (LPARAM)g_hWndRandom_GenerateButton)
 						OnRandom_Generate();
+					else if(lParam == (LPARAM)g_hWndRandom_StopButton)
+						OnRandom_Stop();
 
 					break;
 				}
@@ -559,7 +648,7 @@ LRESULT CALLBACK PagesWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 	return 0;
 }
 //-----------------------------------------------------------------------------------------------------
-
+#ifdef WINCE
 HWND CreateRpCommandBar(HWND hwnd)
 {
 	SHMENUBARINFO mbi;
@@ -577,15 +666,21 @@ HWND CreateRpCommandBar(HWND hwnd)
 
 	return mbi.hwndMB;
 }
+#endif
 //-----------------------------------------------------------------------------------------------------
 HWND CreateTabControl(HWND hWnd)
 {
+#ifdef WINCE
 	INITCOMMONCONTROLSEX iccex;
 	iccex.dwSize = sizeof (INITCOMMONCONTROLSEX);
 	iccex.dwSize = ICC_TAB_CLASSES;
 	InitCommonControlsEx (&iccex);
+	#define OFFSET MENU_HEIGHT
+#else
+	#define OFFSET 1
+#endif
 
-	RECT rt = {1, MENU_HEIGHT, WIN_WIDTH - 5, WIN_HEIGHT - 3 * MENU_HEIGHT };
+	RECT rt = {1, OFFSET, WIN_WIDTH - 5, WIN_HEIGHT - 3 * MENU_HEIGHT };
 
 	HWND hTabCtrl = CreateWindowEx(0, WC_TABCONTROL, NULL, WS_CHILD | WS_TABSTOP | WS_CLIPSIBLINGS | WS_VISIBLE ,
 		rt.left, rt.top, rt.right, rt.bottom, hWnd,(HMENU)"", g_hInst, NULL );
@@ -629,11 +724,16 @@ HWND CreateCheckBox(HWND hParentWnd, int x, int y, const char* caption, int widt
 {
 	RECT rt_cb = { x, y, width, 18 };
 
+#ifdef WINCE
 	wchar_t wTextBuffer[MAX_STRING_LEN];
 	mbstowcs(wTextBuffer, caption, MAX_STRING_LEN);
+	#define CAPTION wTextBuffer
+#else
+	#define CAPTION caption
+#endif
 
 	HWND hWndList = 
-		CreateWindow(TEXT("BUTTON"), wTextBuffer, 
+		CreateWindow(TEXT("BUTTON"), CAPTION, 
 			WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_AUTOCHECKBOX, 
 			rt_cb.left, rt_cb.top, rt_cb.right, rt_cb.bottom, 
 			hParentWnd, NULL, g_hInst, NULL
@@ -646,11 +746,16 @@ HWND CreateRadioBox(HWND hParentWnd, int x, int y, const char* caption, int widt
 {
 	RECT rt_cb = { x, y, width, 18 };
 
+#ifdef WINCE
 	wchar_t wTextBuffer[MAX_STRING_LEN];
 	mbstowcs(wTextBuffer, caption, MAX_STRING_LEN);
+	#define CAPTION wTextBuffer
+#else
+	#define CAPTION caption
+#endif
 
 	HWND hWndList = 
-		CreateWindow(TEXT("BUTTON"), wTextBuffer, 
+		CreateWindow(TEXT("BUTTON"), CAPTION, 
 			WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON | WS_TABSTOP, 
 			rt_cb.left, rt_cb.top, rt_cb.right, rt_cb.bottom, 
 			hParentWnd, NULL, g_hInst, NULL
@@ -663,11 +768,16 @@ HWND CreateButton(HWND hParentWnd, int x, int y, const char* caption, int width/
 {
 	RECT rt_cb = { x, y, width, 20 };
 
+#ifdef WINCE
 	wchar_t wTextBuffer[MAX_STRING_LEN];
 	mbstowcs(wTextBuffer, caption, MAX_STRING_LEN);
+	#define CAPTION wTextBuffer
+#else
+	#define CAPTION caption
+#endif
 
 	HWND hWndList = 
-		CreateWindow(TEXT("BUTTON"), wTextBuffer, 
+		CreateWindow(TEXT("BUTTON"), CAPTION, 
 			WS_CHILD | WS_VISIBLE | BS_CENTER | BS_VCENTER | BS_PUSHBUTTON | WS_TABSTOP, 
 			rt_cb.left, rt_cb.top, rt_cb.right, rt_cb.bottom, 
 			hParentWnd, NULL, g_hInst, NULL
@@ -680,12 +790,17 @@ HWND CreateLabel(HWND hParentWnd, int x, int y, int width, char* caption)
 {
 	RECT rt_label = { x, y, width, 20 };
 
+#ifdef WINCE
 	wchar_t wTextBuffer[MAX_STRING_LEN];
 	mbstowcs(wTextBuffer, caption, MAX_STRING_LEN);
+	#define CAPTION wTextBuffer
+#else
+	#define CAPTION caption
+#endif
 
 	HWND hWndList = 
-		CreateWindow(TEXT("STATIC"), wTextBuffer, 
-			WS_CHILD | WS_VISIBLE | SS_CENTER, 
+		CreateWindow(TEXT("STATIC"), CAPTION, 
+			WS_CHILD | WS_VISIBLE, 
 			rt_label.left, rt_label.top, rt_label.right, rt_label.bottom, 
 			hParentWnd, NULL, g_hInst, NULL
 		);
@@ -697,12 +812,17 @@ HWND CreateEdit(HWND hParentWnd, int x, int y,  int width, char* caption, bool b
 {
 	RECT rt_edit = { x, y, width, 18 };
 
+#ifdef WINCE
 	wchar_t wTextBuffer[MAX_STRING_LEN];
 	mbstowcs(wTextBuffer, caption, MAX_STRING_LEN);
+	#define CAPTION wTextBuffer
+#else
+	#define CAPTION caption
+#endif
 
 	HWND hWndList = 
 		CreateWindow(
-			TEXT("EDIT"), wTextBuffer, 
+			TEXT("EDIT"), CAPTION, 
 			ES_MULTILINE | WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_BORDER |
 				(bAlignRight ? ES_RIGHT : ES_LEFT) |
 				(bNumber ? ES_NUMBER : 0), 
@@ -734,12 +854,17 @@ void SetActivePage(int TabIndex)
 //-----------------------------------------------------------------------------------------------------
 void WriteStatusOutput(const char* pMessage)
 {
+#ifdef WINCE
 	wchar_t wTextBuffer[MAX_STRING_LEN];
 	mbstowcs(wTextBuffer, pMessage, MAX_STRING_LEN);
+	#define MESSAGE wTextBuffer
+#else
+	#define MESSAGE pMessage
+#endif
 
-	::SendMessage(g_hWndList, LB_ADDSTRING, 0L, (LPARAM)wTextBuffer);
+	::SendMessage(g_hWndList, LB_ADDSTRING, 0L, (LPARAM)MESSAGE);
 
-	int Count = ::SendMessage(g_hWndList, LB_GETCOUNT, 0L, 0L);
+	int Count = (int)::SendMessage(g_hWndList, LB_GETCOUNT, 0L, 0L);
 	::SendMessage(g_hWndList, LB_SETTOPINDEX, Count - 1, 0L);
 }
 //-----------------------------------------------------------------------------------------------------
@@ -750,8 +875,10 @@ void ShowMainDialog() //actually, hides the sdl window
 	HWND hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);
 	::ShowWindow(hSDLWindow, SW_HIDE);
 
+#ifdef WINCE
 	HWND hTaskBarWindow = ::FindWindow(TEXT("HHTaskBar"), NULL);
 	::ShowWindow(hTaskBarWindow, SW_SHOWNORMAL);
+#endif
 }
 //-----------------------------------------------------------------------------------------------------
 void ShowSDLWindow() 
@@ -760,42 +887,36 @@ void ShowSDLWindow()
 
 	HWND hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);
 
-	if(hSDLWindow)
-	{
-		::ShowWindow(hSDLWindow, SW_SHOWNORMAL);
+	::ShowWindow(hSDLWindow, SW_SHOWNORMAL);
 
-		HWND hTaskBarWindow = ::FindWindow(TEXT("HHTaskBar"), NULL);
-		::ShowWindow(hTaskBarWindow, SW_HIDE);
-	}
-	else
-	{
-		::MessageBox(NULL, TEXT("Orbiter is not running"), TEXT("Orbiter 2.0.0.0"), MB_ICONINFORMATION); 
-	}
+//	HWND hTaskBarWindow = ::FindWindow(TEXT("HHTaskBar"), NULL);
+//	::ShowWindow(hTaskBarWindow, SW_HIDE);
 }
 //-----------------------------------------------------------------------------------------------------
 void RecordAction(const char* sAction)
 {
 	string s = string(sAction) + "\n";
-
 	FILE* f = fopen("record.out", "a+");
-	
 	fseek(f, 0, SEEK_END);
-	fwrite(f, s.length(), 1, (void *)s.c_str());
-
+	fwrite(s.c_str(), s.length(), 1, f);
 	fclose(f);
 
+#ifdef WINCE
 	wchar_t wTextBuffer[MAX_STRING_LEN];
 	mbstowcs(wTextBuffer, sAction, MAX_STRING_LEN);
+	#define MESSAGE_RECORD wTextBuffer
+#else
+	#define MESSAGE_RECORD sAction
+#endif
 
-	::SendMessage(g_hWndRecord_List, LB_ADDSTRING, 0L, (LPARAM)wTextBuffer);
+	::SendMessage(g_hWndRecord_List, LB_ADDSTRING, 0L, (LPARAM)MESSAGE_RECORD);
 
-	int Count = ::SendMessage(g_hWndRecord_List, LB_GETCOUNT, 0L, 0L);
+	int Count = (int)::SendMessage(g_hWndRecord_List, LB_GETCOUNT, 0L, 0L);
 	::SendMessage(g_hWndRecord_List, LB_SETTOPINDEX, Count - 1, 0L);
 }
 //-----------------------------------------------------------------------------------------------------
 void RecordDelay()
 {
-	static long OldTick = ::GetTickCount();
 	long Tick = ::GetTickCount();
 
 	string sDelay = "delay " + StringUtils::ltos(Tick - OldTick) + " ";
@@ -809,7 +930,15 @@ void RecordMouseAction(int x, int y)
 {
 	if(BST_CHECKED == ::SendMessage(g_hWndRecord_MouseCheckBox, BM_GETCHECK, 0, 0))
 	{
-		RecordDelay();
+		if(bStartRecording)
+		{
+			bStartRecording = false;
+			OldTick = ::GetTickCount();
+			string sDelay = "delay 2000"; 
+			RecordAction(sDelay.c_str());
+		}
+		else
+			RecordDelay();
 
 		string sAction = "click " + StringUtils::ltos(x) + ", " + StringUtils::ltos(y) + " ";
 		RecordAction(sAction.c_str());
@@ -823,7 +952,15 @@ void RecordKeyboardAction(long key)
 		if(key == 121) //don't record key F10
 			return;
 
-		RecordDelay();
+		if(bStartRecording)
+		{
+			bStartRecording = false;
+			OldTick = ::GetTickCount();
+			string sDelay = "delay 2000"; 
+			RecordAction(sDelay.c_str());
+		}
+		else
+			RecordDelay();
 
 		string sAction = "button " + StringUtils::ltos(key) + " (char: '" + char(key) + "')";
 		RecordAction(sAction.c_str());
@@ -836,7 +973,12 @@ void OnRecord_Load()
 
 	OPENFILENAME ofn;
 
+#ifdef WINCE
 	wchar_t lpstrFile[256];
+#else
+	char lpstrFile[256];
+#endif
+
 	ZeroMemory(lpstrFile, sizeof(lpstrFile));
 	ZeroMemory(&ofn, sizeof(OPENFILENAME));
 	ofn.lStructSize = sizeof(OPENFILENAME);
@@ -852,21 +994,30 @@ void OnRecord_Load()
 
 	if(GetOpenFileName(&ofn))
 	{
+#ifdef WINCE
 		char sTextBuffer[256];
 		wcstombs(sTextBuffer, ofn.lpstrFile, 256);
+#else
+		#define sTextBuffer ofn.lpstrFile
+#endif
 
 		vector<string> vectString;
 		FileUtils::ReadFileIntoVector( sTextBuffer, vectString ); /** < reads file into a vector of strings for each line */
 
 		for(vector<string>::iterator it = vectString.begin(); it != vectString.end(); it++)
 		{
+#ifdef WINCE
 			wchar_t wTextBuffer[MAX_STRING_LEN];
 			mbstowcs(wTextBuffer, (*it).c_str(), MAX_STRING_LEN);
+			#define MY_LINE_LOAD wTextBuffer
+#else
+			#define MY_LINE_LOAD (*it).c_str()
+#endif
 
-			::SendMessage(g_hWndRecord_List, LB_ADDSTRING, 0L, (LPARAM)wTextBuffer);
+			::SendMessage(g_hWndRecord_List, LB_ADDSTRING, 0L, (LPARAM)MY_LINE_LOAD);
 		}
 
-		int Count = ::SendMessage(g_hWndRecord_List, LB_GETCOUNT, 0L, 0L);
+		int Count = (int)::SendMessage(g_hWndRecord_List, LB_GETCOUNT, 0L, 0L);
 		::SendMessage(g_hWndRecord_List, LB_SETTOPINDEX, Count - 1, 0L);
 
 		vectString.clear();
@@ -879,12 +1030,17 @@ void OnRecord_Save()
 
 	OPENFILENAME ofn;
 
+#ifdef WINCE
 	wchar_t lpstrFile[256];
 	ZeroMemory(lpstrFile, sizeof(lpstrFile));
-
 	wcscpy(lpstrFile, TEXT("RecordOutput.txt"));
-	ZeroMemory(&ofn, sizeof(OPENFILENAME));
+#else
+	char lpstrFile[256];
+	ZeroMemory(lpstrFile, sizeof(lpstrFile));
+	strcpy(lpstrFile, "RecordOutput.txt");
+#endif
 
+	ZeroMemory(&ofn, sizeof(OPENFILENAME));
 	ofn.lStructSize = sizeof(OPENFILENAME);
 	ofn.hwndOwner = g_hwndMainDialog;
 	ofn.lpstrFile = lpstrFile;
@@ -898,23 +1054,34 @@ void OnRecord_Save()
 
 	if(GetSaveFileName(&ofn))
 	{
-		int Count = ::SendMessage(g_hWndRecord_List, LB_GETCOUNT, 0L, 0L);
+		int Count = (int)::SendMessage(g_hWndRecord_List, LB_GETCOUNT, 0L, 0L);
 
 		vector<string> vectString;
 		for(int i = 0; i < Count; i++)
 		{
+#ifdef WINCE
 			wchar_t lpszBuffer[256];
+#else
+			char lpszBuffer[256];
+#endif
 			::SendMessage(g_hWndRecord_List, LB_GETTEXT, i, (LPARAM)(LPCTSTR)lpszBuffer);
 
+#ifdef WINCE
 			char sItemBuffer[MAX_STRING_LEN];
 			wcstombs(sItemBuffer, lpszBuffer, MAX_STRING_LEN);
-
-			vectString.push_back(string(sItemBuffer));
+			#define MY_LINE_SAVE sItemBuffer
+#else
+			#define MY_LINE_SAVE lpszBuffer
+#endif
+			vectString.push_back(string(MY_LINE_SAVE));
 		}
 
-
+#ifdef WINCE
 		char sTextBuffer[MAX_STRING_LEN];
 		wcstombs(sTextBuffer, ofn.lpstrFile, MAX_STRING_LEN);
+#else
+		#define sTextBuffer ofn.lpstrFile
+#endif
 
 		FileUtils::WriteVectorToFile( sTextBuffer, vectString ); /** < writes a file where the vector of strings are the lines */
 
@@ -925,6 +1092,7 @@ void OnRecord_Save()
 void OnRecord_Clear()
 {
 	WriteStatusOutput("RECORD: CLEAR");
+	bStartRecording = true;
 
 	while(::SendMessage(g_hWndRecord_List, LB_GETCOUNT, 0L, 0L) > 0)
 		::SendMessage(g_hWndRecord_List, LB_DELETESTRING, 0L, 0L);
@@ -939,7 +1107,15 @@ void OnRecord_Go()
 
 	ShowSDLWindow();
 
+	g_bStopPlayerThread = false;
 	::CreateThread(NULL, 0, PlayerThread, 0, 0, &PlayerThreadId);
+}
+//-----------------------------------------------------------------------------------------------------
+void OnRecord_Stop()
+{
+	WriteStatusOutput("RECORD: STOP");
+
+	g_bStopPlayerThread = true;
 }
 //-----------------------------------------------------------------------------------------------------
 void PerformActionDelay(long delay)
@@ -951,9 +1127,14 @@ void PerformActionKeyPress(long key)
 {
 	HWND hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);
 
-	//should be send
 	::SendMessage(hSDLWindow, WM_KEYDOWN, key, 0L);
 	::SendMessage(hSDLWindow, WM_KEYUP, key, 0L);
+/*
+	INPUT Input;
+	::ZeroMemory(&Input, sizeof(Input));
+	Input.ki.wVk = key;
+	::SendInput(1, &Input, sizeof(INPUT));
+*/
 
 	RECT rc = { 5, SDL_HEIGHT - 20, 200, SDL_HEIGHT - 1};
 
@@ -961,12 +1142,17 @@ void PerformActionKeyPress(long key)
 
 	string Str = "Key press: " + StringUtils::ltos(key);
 
+#ifdef WINCE
 	wchar_t wTextBuffer[MAX_STRING_LEN];
 	mbstowcs(wTextBuffer, Str.c_str(), MAX_STRING_LEN);
+	#define MY_TEXT wTextBuffer
+#else
+	#define MY_TEXT Str.c_str()
+#endif
 
 	::SetTextColor(hDC, RGB(255, 0, 0));
 	::SetBkMode(hDC, TRANSPARENT);
-	::DrawText(hDC, wTextBuffer, Str.length(), &rc, 0);
+	::DrawText(hDC, MY_TEXT, (int)Str.length(), &rc, 0);
 	::ReleaseDC(hSDLWindow, hDC); 
 }
 //-----------------------------------------------------------------------------------------------------
@@ -974,7 +1160,6 @@ void PerformActionMouseClick(int x, int y)
 {
 	HWND hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);
 
-	//should be send
 	::SendMessage(hSDLWindow, WM_LBUTTONDOWN, 0L, MAKELPARAM(x, y));
 	::SendMessage(hSDLWindow, WM_LBUTTONUP, 0L, MAKELPARAM(x, y));
 
@@ -988,23 +1173,35 @@ void PerformActionMouseClick(int x, int y)
 void OnRandom_Generate()
 {
 	WriteStatusOutput("RANDOM: GENERATE");
-
-	//::SendMessage(g_hWndRecord_MouseCheckBox, BM_SETCHECK, BST_UNCHECKED, 0);
-	//::SendMessage(g_hWndRecord_KeyboardCheckBox, BM_SETCHECK, BST_UNCHECKED, 0);
-
 	ShowSDLWindow();
 
+	g_bStopGeneratorThread = false;
 	::CreateThread(NULL, 0, GeneratorThread, 0, 0, &GeneratorThreadId);
+}
+//-----------------------------------------------------------------------------------------------------
+void OnRandom_Stop()
+{
+	WriteStatusOutput("RANDOM: STOP");
+	g_bStopGeneratorThread = true;	
 }
 //-----------------------------------------------------------------------------------------------------
 void GetEditText(HWND hWndEdit, string& Text)
 {
+#ifdef WINCE
 	wchar_t lpstrFile[256];
+#else
+	char lpstrFile[256];
+#endif
+
 	ZeroMemory(lpstrFile, sizeof(lpstrFile));
 	
 	union
 		{
+#ifdef WINCE
 			wchar_t str[4];
+#else
+			char str[4];
+#endif
 			long l;
 		}
 	temp;
@@ -1018,9 +1215,14 @@ void GetEditText(HWND hWndEdit, string& Text)
 
 	::SendMessage(hWndEdit, EM_GETLINE, 0, reinterpret_cast<long>(lpstrFile));
 
+#ifdef WINCE
 	char sItemBuffer[MAX_STRING_LEN];
 	wcstombs(sItemBuffer, lpstrFile, MAX_STRING_LEN);
-
 	Text = sItemBuffer;
+#else
+	Text = lpstrFile;
+#endif
 }
+//-----------------------------------------------------------------------------------------------------
+#pragma warning( default : 4311 4312)
 //-----------------------------------------------------------------------------------------------------
