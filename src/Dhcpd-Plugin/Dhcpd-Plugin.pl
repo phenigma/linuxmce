@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use DBI;
 
+log_plugin("\n\n\n\nDhcp-Plugin Process Started","log");
 open(CONF,"/etc/pluto.conf");
 @data=<CONF>;
 close(CONF);
@@ -19,6 +20,7 @@ foreach $line (@data) {
   }
 }
 
+log_plugin("Dhcp-Plugin Started","log");
 while (1 eq 1) {
   $inline = <STDIN>;
   chomp($inline);
@@ -65,6 +67,7 @@ while (1 eq 1) {
 			if($pnp eq "1") {
 				log_plugin("Running Configure Script for the Pnp Device","log");
 				system("/usr/pluto/bin/$cfg -d $Device_ID -i $ip_sent -m $mac_found");
+				log_plugin("/usr/pluto/bin/$cfg -d $Device_ID -i $ip_sent -m $mac_found");
 			} else {
 				log_plugin("The Device is not PNP so we will not configure","log");
 			}
@@ -115,6 +118,7 @@ while (1 eq 1) {
 	      chomp($Device_ID);
 	      	log_plugin("Running configuration script","log");
               system("/usr/pluto/bin/$configure_script -d $Device_ID -i $ip_sent -m $mac_found");
+	      log_plugin("/usr/pluto/bin/$configure_script -d $Device_ID -i $ip_sent -m $mac_found");
           }
           if($found == 0) {
 		log_plugin("We declare this device as unkown for PnP","log");
