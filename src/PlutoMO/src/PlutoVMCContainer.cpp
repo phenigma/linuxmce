@@ -139,6 +139,13 @@ int CPlutoVMCContainer::GetKeyCode(const TKeyEvent& aKeyEvent, TEventCode aType)
 {
 	int KeyCode = 0;
 
+	LOGN("GetKeyCode: ");
+	LOGN(aKeyEvent.iScanCode);
+	LOGN("\n");
+
+	if(aType == EEventKeyDown && aKeyEvent.iScanCode == 0x12)
+		KeyCode=BUTTON_Phone_Pencil_CONST;
+
 	if(aType == EEventKeyUp)
 	{
 		if(!m_bRepeated)
