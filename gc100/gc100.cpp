@@ -618,7 +618,7 @@ void gc100::Start_seriald()
 			global_slot=serial_iter->second.global_slot;
 
 //			sprintf(command,"/usr/pluto/bin/gc_seriald %s %d /dev/gcsd%d &",ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, global_slot-1);
-			sprintf(command, "socat TCP4:%s:%d PTY,link=/dev/gcs%d,echo=false,raw &", ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, global_slot - 1);
+			sprintf(command, "socat TCP4:%s:%d PTY,link=/dev/gcs%d,echo=false,icanon=false,raw &", ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, global_slot - 1);
 			g_pPlutoLogger->Write(LV_STATUS,"seriald cmd: %s",command);
 			system(command);
 		}
@@ -1116,7 +1116,7 @@ bool gc100::open_for_learning()
 #endif
 
 	g_pPlutoLogger->Write(LV_STATUS, "Trying to open learning device: %s", learn_device.c_str());
-	learn_fd = open(learn_device.c_str(), O_RDONLY | O_NONBLOCK);
+	learn_fd = open(learn_device.c_str(), O_RDONLY /*| O_NONBLOCK*/);
 
 	if (learn_fd < 0)
 	{
@@ -1141,9 +1141,8 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 {
 	bool bLearnedCode = false;
 	char learn_buffer[512];
-	int retval;
 	bool learning_error = false;
-	bool receiving_data = false;
+	int retval;
 	int ErrNo;
 
 	g_pPlutoLogger->Write(LV_STATUS, "Learning thread started");
@@ -1159,29 +1158,19 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 	m_bLearning = true;
 	if (is_open_for_learning)
 	{
-		retval = read(learn_fd, learn_buffer, 511);
-		ErrNo = errno;
-		cout << "retval: " << retval << ", learning_error: " << learning_error << ", StopLearning:" << m_bStopLearning
-			<< ", learn_fd: " << learn_fd << ", errno: " << ErrNo << ", " << strerror(ErrNo) << endl;
+		fd_set fdset;
 
-		timeval CurTime;
-		gettimeofday(&CurTime, NULL);
-		timespec tsCurTime;
-		timeval_to_timespec(&CurTime, &tsCurTime);
-		
-		timespec R = tsStartTime + LEARNING_TIMEOUT;
-		cout << "CT: " << tsCurTime.tv_sec << ", " << tsCurTime.tv_nsec << endl;
-		cout << "ST: " << tsStartTime.tv_sec << ", " << tsStartTime.tv_nsec << endl;
-		cout << "LT: " << LEARNING_TIMEOUT.tv_sec << ", " << LEARNING_TIMEOUT.tv_nsec << endl;
-		cout << "R : " << R.tv_sec << ", " << R.tv_nsec << endl;
-		cout << "C : " << (tsCurTime < tsStartTime) << ", " << (tsCurTime < tsStartTime + LEARNING_TIMEOUT) << ", " << (tsCurTime < (tsStartTime + LEARNING_TIMEOUT)) << endl;
-		
-		learning_error = ErrNo == EAGAIN ? 0 : retval <= 0;
-		while (tsCurTime < tsStartTime + LEARNING_TIMEOUT && !learning_error && !m_bStopLearning)
+		FD_ZERO(&fdset);
+		FD_SET(learn_fd, &fdset);
+
+		struct timeval timeout;
+		timespec_to_timeval(&LEARNING_TIMEOUT, &timeout);
+		if (select(learn_fd + 1, &fdset, NULL, NULL, &timeout) > 0)
 		{
-			if (retval > 0)
+			retval = read(learn_fd, learn_buffer, 511);
+
+			while (retval > 0)
 			{
-				string new_string;
 				learn_buffer[retval]='\0';
 				if (strstr(learn_buffer, "X")!=NULL)
 				{ // X from GC-IRL indicates error, probably "code too long"
@@ -1189,43 +1178,54 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 					g_pPlutoLogger->Write(LV_STATUS, "learning error detected");
 				}
 
-				new_string = std::string(learn_buffer);
-				g_pPlutoLogger->Write(LV_STATUS, "IR %d Data received: %s", retval, new_string.c_str());
-				learn_input_string += new_string;
+				g_pPlutoLogger->Write(LV_STATUS, "IR %d Data received: %s", retval, learn_buffer);
+				learn_input_string += learn_buffer;
 				receiving_data = true;
-				learning_timeout_count = 0;
+
+				timeout.tv_sec = 0;
+				timeout.tv_usec = 100000;
+				FD_ZERO(&fdset);
+				FD_SET(learn_fd, &fdset);
+				
+				retval = select(learn_fd + 1, &fdset, NULL, NULL, &timeout);
+				if (retval > 0)
+					retval = read(learn_fd, learn_buffer, 511);
+				cout << "R: " << retval << ", S: " << (FD_ISSET(learn_fd, &fdset) ? 1 : 0) << endl;
 			}
 
-			retval = read(learn_fd, learn_buffer, 511);
 			ErrNo = errno;
-			learning_error |= ErrNo == EAGAIN ? 0 : retval <= 0;
-		}
+			learning_error |= retval < 0;
 
-		if (receiving_data)
-		{
-			std::string pronto_result;
-
-			if (!learning_error)
-			{  // Only send this if there was no error detected
-				g_pPlutoLogger->Write(LV_STATUS, "Finished learning, IRDevice=%d, IRCommandID=%d, controller=%d, size=%d",m_IRDeviceID,
-					m_IRCommandID,m_ControllerID,learn_input_string.length());
-				g_pPlutoLogger->Write(LV_STATUS, "Terminating on retval of %d err=%d, desc=%s, timeout_count of %d",retval,errno,strerror(errno),learning_timeout_count);
-				g_pPlutoLogger->Write(LV_STATUS, "Raw learn string received: %s",learn_input_string.c_str());
-
-				pronto_result=IRL_to_pronto(learn_input_string);
-				g_pPlutoLogger->Write(LV_STATUS, "Conversion to Pronto: %s",pronto_result.c_str());
-
-				// TODO: lookup IR plugin once and send message to it directly instead of this
-				DCE::CMD_Store_Infrared_Code_Cat CMD_Store_Infrared_Code_Cat(m_dwPK_Device,
-					DEVICECATEGORY_Infrared_Plugins_CONST, false, BL_SameHouse, pLearningInfo->m_PK_Device, pronto_result);
-				m_pCommand_Impl->SendCommand(CMD_Store_Infrared_Code_Cat);
-				m_CodeMap[IntPair(m_IRDeviceID, m_IRCommandID)] = pronto_result;
-				bLearnedCode = true;
-			}
-			else
+			if (receiving_data)
 			{
-				g_pPlutoLogger->Write(LV_WARNING, "Learn event not sent because GC-IRL indicated error, possibly code was too long to be learned");
+				std::string pronto_result;
+
+				if (!learning_error)
+				{  // Only send this if there was no error detected
+					g_pPlutoLogger->Write(LV_STATUS, "Finished learning, IRDevice=%d, IRCommandID=%d, controller=%d, size=%d",m_IRDeviceID,
+						m_IRCommandID,m_ControllerID,learn_input_string.length());
+					g_pPlutoLogger->Write(LV_STATUS, "Terminating on retval of %d err=%d, desc=%s",retval,ErrNo,strerror(errno));
+					g_pPlutoLogger->Write(LV_STATUS, "Raw learn string received: %s\n",learn_input_string.c_str());
+
+					pronto_result=IRL_to_pronto(learn_input_string);
+					g_pPlutoLogger->Write(LV_STATUS, "Conversion to Pronto: %s",pronto_result.c_str());
+
+					// TODO: lookup IR plugin once and send message to it directly instead of this
+					DCE::CMD_Store_Infrared_Code_Cat CMD_Store_Infrared_Code_Cat(m_dwPK_Device,
+						DEVICECATEGORY_Infrared_Plugins_CONST, false, BL_SameHouse, pLearningInfo->m_PK_Device, pronto_result);
+					m_pCommand_Impl->SendCommand(CMD_Store_Infrared_Code_Cat);
+					m_CodeMap[IntPair(m_IRDeviceID, m_IRCommandID)] = pronto_result;
+					bLearnedCode = true;
+				}
+				else
+				{
+					g_pPlutoLogger->Write(LV_WARNING, "Learn event not sent because GC-IRL indicated error, possibly code was too long to be learned");
+				}
 			}
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Timeout");
 		}
 	} // end if is_open_for_learning
 	m_bLearning=false;
