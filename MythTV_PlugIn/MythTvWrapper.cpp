@@ -193,16 +193,26 @@ void MythTvWrapper::MythTvEpgGrid::readDataGridBlock(int rowStart, int rowCount,
     startDataAsString = periodStart.toString(strTimeFormat);
     endDateAsString   = periodEnd.toString(strTimeFormat);
 
+    QString channelList = getChannelList(rowStart, m_bKeepRowHeader ? rowCount - 1 : rowCount);
 
-    strQuery.sprintf("SELECT p.chanid, p.title, p.starttime, p.endtime"
-                     " FROM program p"
+    if ( channelList.isEmpty() )
+    {
+        DataGridCell *pDataGridCell = new DataGridCell("No programs are available in the database", "");
+
+        pDataGridCell->m_Colspan = colCount;
+        SetData(colStart, 0, pDataGridCell);
+    }
+
+    strQuery.sprintf("SELECT c.channum, p.title, p.starttime, p.endtime"
+                     " FROM program p, channel c "
                      " WHERE p.chanid IN (%s) AND "
+                           " p.chanid = c.chanid AND "
                            "("
                             "(p.starttime BETWEEN '%s' and '%s') OR "
                             "(p.endtime BETWEEN '%s' and '%s') OR "
                             "(p.starttime < '%s' AND p.endtime > '%s')"
                            ")"
-                     " ORDER BY p.chanid, p.starttime",
+                     " ORDER BY c.channum, p.starttime",
                      getChannelList(rowStart, m_bKeepRowHeader ? rowCount - 1 : rowCount).ascii(),
                      periodStart.toString(strTimeFormat).ascii(),
                      periodEnd.addSecs(-1).toString(strTimeFormat).ascii(),

@@ -32,7 +32,7 @@ using namespace DCE;
 
 //<-dceag-const-b->
 MythTV_PlugIn::MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-	: MythTV_PlugIn_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
+    : MythTV_PlugIn_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
     m_pMythWrapper = new MythTvWrapper(this);
@@ -120,11 +120,12 @@ void MythTV_PlugIn::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage
 
 bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
 {
-    if( pMediaStream->GetType()!=MEDIASTREAM_TYPE_MYTHTV )
+    if( pMediaStream->GetType() != MEDIASTREAM_TYPE_MYTHTV )
     {
         g_pPlutoLogger->Write(LV_CRITICAL,"Trying to start a non myth-tv stream");
         return false;
     }
+
     PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
     MythTvStream *pMythTvStream = (MythTvStream *) pMediaStream;
 
@@ -206,18 +207,18 @@ class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaPluginInfo *pMedi
         return NULL;
 
 
-	if( (!pMediaDevice || pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_MythTV_Player_CONST) && pEntertainArea )
-	{
-		ListMediaDevice *pListMediaDevice = pEntertainArea->m_mapMediaDeviceByTemplate_Find(DEVICETEMPLATE_MythTV_Player_CONST);
-		if( pListMediaDevice && pListMediaDevice->size())
-			pMediaDevice = pListMediaDevice->front();
-	}
+    if( (!pMediaDevice || pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_MythTV_Player_CONST) && pEntertainArea )
+    {
+        ListMediaDevice *pListMediaDevice = pEntertainArea->m_mapMediaDeviceByTemplate_Find(DEVICETEMPLATE_MythTV_Player_CONST);
+        if( pListMediaDevice && pListMediaDevice->size())
+            pMediaDevice = pListMediaDevice->front();
+    }
 
-	if( !pMediaDevice || pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_MythTV_Player_CONST )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Myth plugin being told to play in an entertainment area without a xine player");
-		return NULL;
-	}
+    if( !pMediaDevice || pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_MythTV_Player_CONST )
+    {
+        g_pPlutoLogger->Write(LV_CRITICAL,"Myth plugin being told to play in an entertainment area without a xine player");
+        return NULL;
+    }
 
     MythTvStream *pMediaStream = new MythTvStream(this, pMediaPluginInfo, pMediaDevice, pMediaPluginInfo->m_iPK_DesignObj, 0, st_RemovableMedia,StreamID);
 
@@ -343,10 +344,10 @@ COMMANDS TO IMPLEMENT
 //<-dceag-sample-b->!
 //<-dceag-c65-b->
 
-	/** @brief COMMAND: #65 - Jump Position In Playlist */
-	/** Change channels.  +1 and -1 mean up and down 1 channel. */
-		/** @param #5 Value To Assign */
-			/** The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1. */
+    /** @brief COMMAND: #65 - Jump Position In Playlist */
+    /** Change channels.  +1 and -1 mean up and down 1 channel. */
+        /** @param #5 Value To Assign */
+            /** The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1. */
 
 void MythTV_PlugIn::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c65-e->
@@ -388,10 +389,10 @@ void MythTV_PlugIn::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string
 
 //<-dceag-c185-b->
 
-	/** @brief COMMAND: #185 - Schedule Recording */
-	/** This will schedule a recording. */
-		/** @param #68 ProgramID */
-			/** The program which will need to be recorded. (The format is defined by the device which created the original datagrid) */
+    /** @brief COMMAND: #185 - Schedule Recording */
+    /** This will schedule a recording. */
+        /** @param #68 ProgramID */
+            /** The program which will need to be recorded. (The format is defined by the device which created the original datagrid) */
 
 void MythTV_PlugIn::CMD_Schedule_Recording(string sProgramID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c185-e->

@@ -357,7 +357,10 @@ void XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosit
             xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID);
     }
     else
-        xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID);
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Failed to open %s", fileName.c_str()); 
+		xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID);
+	}
 }
 
 bool XineSlaveWrapper::closeWindow()
