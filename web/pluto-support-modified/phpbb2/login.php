@@ -1,5 +1,5 @@
 <?php
-include ($_SERVER['DOCUMENT_ROOT'].'/support/include/config/config.inc.php');
+include_once ($_SERVER['DOCUMENT_ROOT'].'/support/include/config/config.inc.php');
 
 $HTTP_POST_VARS['username']=@$HTTP_GET_VARS['username'];
 $HTTP_POST_VARS['password']=@$HTTP_GET_VARS['password'];
@@ -10,7 +10,7 @@ if(isset($_GET['redirect'])){
 	$redirectString=substr($oldParams,strpos($oldParams,'redirect')+9);
 	$firstQM=strpos($redirectString,'&');
 	$HTTP_POST_VARS['redirect']=$redirectString;
-	if( ($HTTP_GET_VARS['username']=='') || ($HTTP_GET_VARS['password']=='') )
+	if( (@$HTTP_GET_VARS['username']=='') || (@$HTTP_GET_VARS['password']=='') )
 	{
 		header("location: ".$forumHost.$redirectString);
 		exit;
@@ -195,6 +195,7 @@ else
 	if( !$userdata['session_logged_in'] )
 	{
 		header("Location: $loginUrl");
+		exit();
 		$page_title = $lang['Login'];
 		include($phpbb_root_path . 'includes/page_header.'.$phpEx);
 
