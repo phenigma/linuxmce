@@ -48,4 +48,5 @@ echo "Installation number: $Installation"
 echo -n "Type in a password for remote access: "
 /bin/stty -echo; read Password; /bin/stty echo
 ConfSet remote "$Password"
+ConfSet PK_Installation "$Installation"
 "$SRA"
