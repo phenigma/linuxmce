@@ -152,10 +152,10 @@ function wizardOrbiters($output,$dbADO) {
 						$rowDDforDevice=$resDDforDevice->FetchRow();
 						$ddValue=$rowDDforDevice['IK_DeviceData'];
 					}
-					if($rowDDforDevice['ShowInWizard']==1 || $rowDDforDevice['ShowInWizard']==''){
+					if(@$rowDDforDevice['ShowInWizard']==1 || @$rowDDforDevice['ShowInWizard']==''){
 						$out.='
 						<tr>
-							<td align="right"><b>'.((@$rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$DeviceDataDescriptionToDisplay[$key]).'</b></td>
+							<td align="right"><b>'.((@$rowDDforDevice['ShortDescription']!='')?$rowDDforDevice['ShortDescription']:$DeviceDataDescriptionToDisplay[$key]).'</b> '.((@$rowDDforDevice['Tooltip']!='')?'<img src="include/images/tooltip.gif" title="'.@$rowDDforDevice['Tooltip'].'" border="0" align="middle">':'').'</td>
 							<td align="left">';
 						switch($DDTypesToDisplay[$key]){
 							case 'int':
@@ -185,7 +185,7 @@ function wizardOrbiters($output,$dbADO) {
 						}
 						
 						
-						$out.='	<img src="include/images/tooltip.gif" title="'.$rowDDforDevice['Tooltip'].'" border="0" align="middle"></td>
+						$out.='</td>
 							</tr>
 							<input type="hidden" name="oldDeviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.(($resDDforDevice->RecordCount()>0)?$ddValue:'NULL').'">';					
 						unset($ddValue);

@@ -224,9 +224,8 @@ function setTemplateFileType($type) {
   	$this->body = $myBody;
   	if($this->reloadLeftFrame==true && $this->templateType=='large'){
   		$this->body.='<script>
-
   			var queryStr=top.treeframe.location.search.substring(9,top.treeframe.location.search.length);
-  			if(queryStr.substr(0,8)!=\'leftMenu\')
+  			if(queryStr.substr(0,8)!=\'leftMenu\' && queryStr.substr(0,6)!=\'wizard\')
   				top.treeframe.location=\'index.php?section=leftMenu\';
   			
   			</script>';

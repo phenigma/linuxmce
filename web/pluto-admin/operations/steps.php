@@ -39,6 +39,7 @@ function steps($output,$dbADO) {
 		SELECT * FROM PageSetup 
 		LEFT JOIN SetupStep ON FK_PageSetup=PK_PageSetup AND (FK_Installation IS NULL OR FK_Installation=?)
 		WHERE FK_PageSetup_Parent = 1 AND showInTopMenu = 1 AND Website=1
+		ORDER BY OrderNum ASC
 		";
 	$resSelectMenu = $dbADO->Execute($selectMenu,$installationID);
 	$out.='<table border="0" cellpading="2" cellspacing="0" width="100%">
@@ -62,7 +63,8 @@ function steps($output,$dbADO) {
 		$selectLevel1 = "
 			SELECT * FROM PageSetup 
 			LEFT JOIN SetupStep ON FK_PageSetup=PK_PageSetup AND (FK_Installation IS NULL OR FK_Installation=?)
-			WHERE FK_PageSetup_Parent = {$rootNodes['PK_PageSetup']} AND showInTopMenu = 1";
+			WHERE FK_PageSetup_Parent = {$rootNodes['PK_PageSetup']} AND showInTopMenu = 1
+			ORDER BY OrderNum ASC";
 		$resSelectLevel1 = $dbADO->Execute($selectLevel1,$installationID);
 		while ($rowSelectLevel1 = $resSelectLevel1->FetchRow()) {
 			if($rowSelectLevel1['pageURL']!=''){
@@ -105,7 +107,8 @@ function steps($output,$dbADO) {
 		$selectLevel1 = "
 			SELECT * FROM PageSetup 
 			LEFT JOIN SetupStep ON FK_PageSetup=PK_PageSetup AND (FK_Installation IS NULL OR FK_Installation=?)
-			WHERE FK_PageSetup_Parent = {$rowSelectMenu['PK_PageSetup']} AND showInTopMenu = 1";
+			WHERE FK_PageSetup_Parent = {$rowSelectMenu['PK_PageSetup']} AND showInTopMenu = 1
+			ORDER BY OrderNum ASC";
 
 		$resSelectSubMenu1 = $dbADO->Execute($selectLevel1,$installationID);
 		while ($rowSelectSubMenu1 = $resSelectSubMenu1->FetchRow()) {
@@ -144,7 +147,14 @@ function steps($output,$dbADO) {
 		$resSelectSubMenu1->Close();
 	}
 	$resSelectMenu->Close();
-	$out.='</table>';
+	$out.='
+		<tr>
+			<td colspan="2" align="center">&nbsp;</td>
+		</tr>
+		<tr>
+			<td colspan="2" align="center"><a href="index.php?section=leftMenu"><B>Back to devices</B></a></td>
+		</tr>
+	</table>';
 	
 	$output->setScriptInHead($scriptInHead);
 	$output->setScriptInBody('bgColor="#F0F3F8"');
