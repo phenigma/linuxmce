@@ -8,6 +8,8 @@ SkinDir=/usr/pluto/orbiter/skins
 FontDir=/usr/share/fonts/truetype/msttcorefonts
 OutDir=/usr/pluto/orbiter
 
+/usr/pluto/bin/UpdateEntArea -h localhost > >(tee -a /var/log/pluto/updateea.newlog)
+
 Q="SELECT PK_Installation FROM Installation LIMIT 1"
 installation=$(echo "$Q;" | /usr/bin/mysql -h $MySqlHost pluto_main | tail +2)
 

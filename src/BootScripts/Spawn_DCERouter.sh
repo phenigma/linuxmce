@@ -19,7 +19,6 @@ while [ "$i" -le 10 ]; do
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Starting... $i"
 	echo $(date) Starting > "$new_log"
 
-	/usr/pluto/bin/UpdateEntArea -h localhost > >(tee $new_log)
 	/usr/pluto/bin/Spawn_Wrapper.sh $VGcmd/usr/pluto/bin/DCERouter -h localhost > >(tee $new_log)
 
 	Ret="$?"
