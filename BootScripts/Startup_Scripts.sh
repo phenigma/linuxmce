@@ -1,8 +1,15 @@
 #!/bin/bash
 . /usr/pluto/bin/Config_Ops.sh
+. /usr/pluto/bin/pluto.func
 
 Parameter="$1"
 Device="$PK_Device"
+
+Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Processing startup scripts for device $Device; parameter: $Parameter"
+if [ -e /usr/pluto/install/.notdone ]; then
+	Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "It appears the installation was not successful. Pluto's startup scripts are disabled. To enable them, complete the installation process, or manually remove the file /usr/pluto/install/.notdone"
+	exit 1
+fi
 
 RunSQL()
 {
@@ -17,20 +24,31 @@ RunSQL()
 	fi
 }
 
-Q="SELECT Command
+Q="SELECT Command,Enabled
 FROM Device_StartupScript
 JOIN StartupScript ON FK_StartupScript=PK_StartupScript
-WHERE Enabled=1 AND FK_Device='$Device'
+WHERE FK_Device='$Device'
 ORDER BY Boot_Order"
 
 # susceptibile to "spaces in name" problem
-scripts=$(RunSQL 0 "$Q" | tr '\n' ' ')
-for i in $scripts; do
-	if [ -e "$i" ]; then
-		"$i" $Parameter
-	elif [ -e "/usr/pluto/bin/$i" ]; then
-		"/usr/pluto/bin/$i" $Parameter
+result=$(RunSQL 0 "$Q" | sed 's/\t/,/')
+
+echo "$result" |
+while read line; do
+	script=$(echo "$line" | cut -d, -f1)
+	enabled=$(echo "$line" | cut -d, -f2)
+
+	if [ "$enabled" -eq 0 ]; then
+		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Skipping '$script' (not enabled)"
+	fi
+	
+	if [ -e "$script" ]; then
+		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Running '$script' '$Parameter'"
+		"$script" $Parameter
+	elif [ -e "/usr/pluto/bin/$script" ]; then
+		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Running '/usr/pluto/bin/$script' '$Parameter'"
+		"/usr/pluto/bin/$script" $Parameter
 	else
-		echo "Boot Script: Command '$i' not found"
+		Logging "$TYPE" "$SEVERITY_WARNING" "$0" "Boot Script: Command '$script' not found"
 	fi
 done

@@ -42,6 +42,7 @@ OrbiterSDLBluetooth *StartOrbiterSDLBluetooth(
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
 		pOrbiterSDLBluetooth->Initialize(gtSDLGraphic);
+		g_pPlutoLogger->Write(LV_STATUS, "SDLGraphic initialized");
 		
 		if( !bLocalMode  )
 			pOrbiterSDLBluetooth->CreateChildren();

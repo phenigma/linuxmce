@@ -48,7 +48,9 @@ Logging() {
   if [ -z $1 ]; then
     return
   fi
+  mkdir -p /var/log/pluto
   logfile=/var/log/pluto/pluto.log
+  touch "$logfile"
   type=$1; shift
   severitylevel=$1; shift
   module=$1; shift

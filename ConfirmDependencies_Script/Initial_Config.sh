@@ -37,14 +37,24 @@ try_again()
 ok=0
 while [ "$ok" -eq 0 ]; do
 # ask user for activation key
-	echo -n "Please input your activation key: "
-	read activation_key
-	if [ -z "$activation_key" ]; then
-		echo "Empty activation key. If you don't have a key, you can get one from $PHURL."
-		try_again && continue
-		echo "$NOCODE_MSG"
-		break
-	fi
+	ok_device=0
+	while [ "$ok_device" -ne 1 ]; do
+		echo "What device is this going to be? : "
+		echo "The device number is listed on step 7 of the new installation wizard at plutohome.com"
+		echo -n "Device number: "
+		read device
+		[ -z "$device" ] && echo "Empty device number" || ok_device=1
+	done
+
+	ok_code=0
+	while [ "$ok_code" -ne 1 ]; do
+		echo "What is your activation code for this installation from plutohome.com? "
+		echo -n "Activation code: "
+		read code
+		[ -z "$code" ] && echo "Empty activation code" || ok_code=1
+	done
+
+	activation_key="$device-$code"
 
 # try to get data off the Internet
 	ok_internet=0
@@ -117,4 +127,5 @@ if [ -z "$no_build_all" -a -s "$DIR"/build_all.sh ]; then
 fi
 
 wget -O "$DIR/message.txt" "$ACTIV/message.php?code=$CODE" 2>/dev/null && cat "$DIR/message.txt"
+exit 0
 

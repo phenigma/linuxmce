@@ -810,6 +810,19 @@ AsksSourceQuests:
 			return false;
 		}
 
+       if( sCompiledOutput[0]!='/' )
+		   sCompiledOutput = g_sSourcecodePrefix + sCompiledOutput;
+
+	   if( !FileUtils::DirExists(sCompiledOutput) )
+		{
+			cout << "Warning: Compiled Output directory: " << sCompiledOutput << " doesn't exist" << endl;
+#ifndef WIN32
+            system(("mkdir -p " + sCompiledOutput).c_str());
+#endif			
+		}
+	   
+
+		
 		if( !g_bSimulate )
 		{
 			chdir(sSourceDirectory.c_str());

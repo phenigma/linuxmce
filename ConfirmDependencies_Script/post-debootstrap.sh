@@ -10,4 +10,4 @@ SCRIPTS="ConfirmDependencies_Debian.sh Initial_Config.sh Common.sh Download_Dire
 for S in $SCRIPTS; do
 	cp -f /cdrom/Pluto-Install/"$S" "$DIR"
 done
-
+touch "$DIR/.notdone"
