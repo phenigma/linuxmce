@@ -240,7 +240,7 @@ public:
      * @brief play the stream represented by the fileName.
      */
 
-    void playStream(string fileName, int streamID, int mediaPosition, int requestingObject);
+    bool playStream(string fileName, int streamID, int mediaPosition, int requestingObject);
 
     /**
      * @brief callback function to listen for events from the xine lib.

@@ -197,7 +197,7 @@ bool XineSlaveWrapper::createWindow()
  *
  *  \fn XineSlaveWrapper::playStream(string fileName, int m_istreamID, int mediaPosition, int iRequestingObject);
  */
-void XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosition, int iRequestingObject)
+bool XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosition, int iRequestingObject)
 {
     g_pPlutoLogger->Write(LV_STATUS, "Got a play media command for %s", fileName.c_str());
 
@@ -245,20 +245,20 @@ void XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosit
     if( isNewStream && (m_pXineVideo = xine_open_video_driver(m_pXine, m_sXineVideoDriverName.c_str(), XINE_VISUAL_TYPE_X11, (void *) &m_x11Visual)) == NULL)
     {
         g_pPlutoLogger->Write(LV_WARNING, "I'm unable to initialize m_pXine's '%s' video driver. Giving up.", m_sXineVideoDriverName.c_str());
-        return;
+        return false;
     }
 
     if ( isNewStream && (m_pXineAudio = xine_open_audio_driver(m_pXine, m_sXineAudioDriverName.c_str(), NULL)) == NULL )
     {
         g_pPlutoLogger->Write(LV_WARNING, "I'm unable to initialize m_pXine's '%s' audio driver.", m_sXineAudioDriverName.c_str());
-        return;
+        return false;
     }
 
     if ( isNewStream && (xineStream->m_pStream = xine_stream_new(m_pXine, m_pXineAudio, m_pXineVideo)) == NULL )
     {
         g_pPlutoLogger->Write(LV_WARNING, "Could not create stream (wanted to play: %s)", fileName.c_str());
         delete xineStream;
-        return;
+        return false;
     }
 
     xineStream->m_iRequestingObject = iRequestingObject;
@@ -355,6 +355,8 @@ void XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosit
         g_pPlutoLogger->Write(LV_STATUS, "Failed to open %s", fileName.c_str());
         xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID);
     }
+
+	return true;
 }
 
 bool XineSlaveWrapper::closeWindow()
