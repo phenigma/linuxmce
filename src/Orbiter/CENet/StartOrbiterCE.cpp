@@ -146,10 +146,10 @@ bool Run(ORBITER* pOrbiter, bool bLocalMode)
     pOrbiter->Initialize(gtSDLGraphic);
 
 	if(pOrbiter->m_bQuit)
-		return true;
+		return false;
 
 	if(pOrbiter->m_bReload)
-		return true;
+		return false;
 
     if (!bLocalMode)
         pOrbiter->CreateChildren();
@@ -177,7 +177,9 @@ bool EventLoop(ORBITER* pOrbiter)
     {
 		try
 		{
+			g_pPlutoLogger->Write(LV_WARNING, "before SDL_WaitEvent");
 			SDL_WaitEvent(&Event);
+			g_pPlutoLogger->Write(LV_WARNING, "after SDL_WaitEvent");
 		}
 		catch(...) {}
 
@@ -245,6 +247,7 @@ void StartOrbiterCE(int PK_Device,string sRouter_IP,string sLocalDirectory,bool 
 		switch(stage)
 		{
 			case osConnect:
+				g_pPlutoLogger->Write(LV_STATUS, "Stage connect");
 				pOrbiter = Connect(PK_Device, sRouter_IP, sLocalDirectory, bLocalMode, Width, Height, bFullScreen);
 
 				if(pOrbiter != NULL)
@@ -264,6 +267,7 @@ void StartOrbiterCE(int PK_Device,string sRouter_IP,string sLocalDirectory,bool 
 				break;
 
 			case osRun:
+				g_pPlutoLogger->Write(LV_STATUS, "Stage run");
 				if(Run(pOrbiter, bLocalMode))
 					stage = osQuit; 
 				else
@@ -277,6 +281,8 @@ void StartOrbiterCE(int PK_Device,string sRouter_IP,string sLocalDirectory,bool 
 				break; //not implemented yet
 		}
 	}
+
+	g_pPlutoLogger->Write(LV_STATUS, "Stage is now osQuit.");	
     
 	ORBITER::Cleanup();
 

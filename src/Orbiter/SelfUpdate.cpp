@@ -234,7 +234,7 @@ bool OrbiterSelfUpdate::SpawnUpdateBinaryProcess()
 
 	string sCmdLine = "";
 
-	sCmdLine += "-d " + StringUtils::ltos(CmdLineParams.PK_Device);
+	sCmdLine += "-d " + StringUtils::ltos(m_pOrbiter->m_dwPK_Device);
 	sCmdLine += " -r " + CmdLineParams.sRouter_IP;
 
 	sCmdLine += " -l " + sUpdateName + ".log";

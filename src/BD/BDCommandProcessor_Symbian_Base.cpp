@@ -331,11 +331,11 @@ void BDCommandProcessor_Symbian_Base::AdvertiseThePlutoService()
 //----------------------------------------------------------------------------------------------
 void  BDCommandProcessor_Symbian_Base::RunL() 
 {
-	LOGN("*");
+	//LOGN("*");
 
 	if (iStatus != KErrNone || iState == EConnectionLost)
 	{
-		LOG("Disconnected!\n");
+		//LOG("Disconnected!\n");
 		//iSocket.CancelAll();
 		iSocket.Close();
 
@@ -384,11 +384,11 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 	}
 
 	
-	if(iState == EIdle)
-		LOG("IDLE\n"); 
+	//if(iState == EIdle)
+	//	LOG("IDLE\n"); 
 
-	if(iPendingKey)
-		LOG("KEYPENDING\n");
+	//if(iPendingKey)
+	//	LOG("KEYPENDING\n");
 
 	if(
 		iPendingKey							&& 
@@ -399,14 +399,14 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 		)
 	)
 	{
-		LOG("PENDINGKEY-OVER");
+		//LOG("PENDINGKEY-OVER");
 		iPendingKey = false;
 		iState = ESendingCommand;
 	}
 
-	LOGN("-");
-	LOGN(iState);
-	LOGN(",");
+	//LOGN("-");
+	//LOGN(iState);
+	//LOGN(",");
 
 	if(m_iTimedOut)
 	{
@@ -472,14 +472,14 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
   			if( MYSTL_SIZEOF_LIST(m_listCommands)==0 )
 			{
-				LOG("LIST IS EMPTY\n");
+				//LOG("LIST IS EMPTY\n");
 				m_pCommand_Sent = new BD_WhatDoYouHave();
 			}
 			else
 			{
-				LOG("LIST IS NOT EMPTY\n");
-				int size = MYSTL_SIZEOF_LIST(m_listCommands);
-				LOG(size);
+				//LOG("LIST IS NOT EMPTY\n");
+				//int size = MYSTL_SIZEOF_LIST(m_listCommands);
+				//LOG(size);
 				MYSTL_EXTRACT_FIRST(m_listCommands, BDCommand, pC);
 				m_pCommand_Sent = pC;
 			}
@@ -775,7 +775,7 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 				m_bStatusOk = true;
 			}
 
-			LOG("<<<ERecvCommand_End>>>\n");
+			//LOG("<<<ERecvCommand_End>>>\n");
 
 			long *lType = (long *) m_ReceiveAckHeader;
 
@@ -967,7 +967,7 @@ void BDCommandProcessor_Symbian_Base::ProcessCommands(bool bCriticalRequest /*=t
 
 		if(bCriticalRequest && IsActive()) //the object is already active.
 		{
-			LOG("ACTIVE-KEY\n"); 
+			//LOG("ACTIVE-KEY\n"); 
 			//LOG("Key was press, but the object is still active. Will just set a flag\n"); 
 			//GotoStage(ESendingCommand); //don't force object activation
 			iPendingKey = true;
@@ -976,8 +976,8 @@ void BDCommandProcessor_Symbian_Base::ProcessCommands(bool bCriticalRequest /*=t
 
 		if(iState == EIdle || bCriticalRequest)
 		{
-			if(bCriticalRequest)
-				LOG("KEY\n");
+			//if(bCriticalRequest)
+			//	LOG("KEY\n");
 
 			GotoStage(ESendingCommand);
 			SetActive();
@@ -991,7 +991,7 @@ void BDCommandProcessor_Symbian_Base::ProcessCommands(bool bCriticalRequest /*=t
 		LOGN(m_iTimedOut);
 		LOGN(" \n");
 
-		if(m_iTimedOut >= 5)
+		if(m_iTimedOut >= 10)
 		{
 			m_bStatusOk = false;
 			return;
@@ -1001,7 +1001,7 @@ void BDCommandProcessor_Symbian_Base::ProcessCommands(bool bCriticalRequest /*=t
 //----------------------------------------------------------------------------------------------
 TInt BDCommandProcessor_Symbian_Base::CommandTimerCallBack(TAny* aBluetoothHandler)
 {
-	LOG("$$$\n");
+	//LOG("$$$\n");
 
 	BDCommandProcessor_Symbian_Base* pProcessor = 
 		(BDCommandProcessor_Symbian_Base*)aBluetoothHandler;

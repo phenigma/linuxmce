@@ -139,9 +139,9 @@ int CPlutoVMCContainer::GetKeyCode(const TKeyEvent& aKeyEvent, TEventCode aType)
 {
 	int KeyCode = 0;
 
-	LOGN("GetKeyCode: ");
-	LOGN(aKeyEvent.iScanCode);
-	LOGN("\n");
+	//LOGN("GetKeyCode: ");
+	//LOGN(aKeyEvent.iScanCode);
+	//LOGN("\n");
 
 	if(aType == EEventKeyDown && aKeyEvent.iScanCode == 0x12)
 		KeyCode=BUTTON_Phone_Pencil_CONST;
@@ -224,10 +224,10 @@ int CPlutoVMCContainer::GetKeyCode(const TKeyEvent& aKeyEvent, TEventCode aType)
 //------------------------------------------------------------------------------------------------------------------
 bool CPlutoVMCContainer::HandleCommonKeys(const TKeyEvent& aKeyEvent, TEventCode aType)
 {
-	if(aType == EEventKeyUp)
-		LOG("KEYUP");
+	//if(aType == EEventKeyUp)
+	//	LOG("KEYUP");
 
-	LOG("LOCALKEY");
+	//LOG("LOCALKEY");
 
 	CPlutoVMCUtil *pVMCUtil = (CPlutoVMCUtil *)CCoeEnv::Static(KCPlutoVMCUtilId);
 	int KeyCode = GetKeyCode(aKeyEvent, aType);
@@ -279,7 +279,7 @@ bool CPlutoVMCContainer::HandleDataGridKeys(const TKeyEvent& aKeyEvent, TEventCo
 
 		if(aKeyEvent.iScanCode == /*EStdKeyEnter*/ 167)
 		{
-			LOG("ENDER-sending selected");
+			//LOG("ENTER-sending selected");
 			if(pVMCUtil->SelectCurrentItem())
 				m_bNeedRefresh = true; 
 

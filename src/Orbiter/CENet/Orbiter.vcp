@@ -148,7 +148,7 @@ RSC=rc.exe
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "DEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
 CPP=clarm.exe
 # ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /Yu"stdafx.h" /M$(CECrtMTDebug) /c
-# ADD CPP /nologo /Zi /Od /I "." /I ".." /I "../Win32" /I "../SDL" /I "../.." /I "../../DCE" /I "../../../libs/Libraries/pthreads-snap-2002-11-04" /I "../../../libs/Libraries/pthreads-win32/include" /I "../../../libs/CrossPlatform/sge030809-w32/src" /I "../../../libs/CrossPlatform/SDL_ttf-2.0.6" /I "../../../libs/CrossPlatform/SDL_image-1.2.3" /I "../../../libs/CrossPlatform/SDL-1.2.7/include" /I "../../Splitter" /I "../../../libs/CrossPlatform/zlib" /I "../../../libs/CrossPlatform/lpng127" /I "../../../libs/Libraries/STLport-4.5.3/stlport" /I "../../../libs/Libraries/STLport-4.5.3/src" /I "../../PlutoUtils" /I "../../../libs/CrossPlatform/SDL_rotozoom-1.6" /I "../../OrbiterGen" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /D "WIN32" /D "WINCE" /D "ORBITER" /D "__STL_NO_IOSTREAMS" /D "LOAD_PNG" /D "PROFILING" /D "#CACHE_IMAGES" /FR /I /pluto/trunk" /M$(CECrtMTDebug) " /c
+# ADD CPP /nologo /Zi /Od /I "." /I ".." /I "../Win32" /I "../SDL" /I "../.." /I "../../DCE" /I "../../../libs/Libraries/pthreads-snap-2002-11-04" /I "../../../libs/Libraries/pthreads-win32/include" /I "../../../libs/CrossPlatform/sge030809-w32/src" /I "../../../libs/CrossPlatform/SDL_ttf-2.0.6" /I "../../../libs/CrossPlatform/SDL_image-1.2.3" /I "../../../libs/CrossPlatform/SDL-1.2.7/include" /I "../../Splitter" /I "../../../libs/CrossPlatform/zlib" /I "../../../libs/CrossPlatform/lpng127" /I "../../../libs/Libraries/STLport-4.5.3/stlport" /I "../../../libs/Libraries/STLport-4.5.3/src" /I "../../PlutoUtils" /I "../../../libs/CrossPlatform/SDL_rotozoom-1.6" /I "../../OrbiterGen" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /D "WIN32" /D "WINCE" /D "ORBITER" /D "__STL_NO_IOSTREAMS" /D "LOAD_PNG" /D "PROFILING#" /D "#CACHE_IMAGES" /FR /I /pluto/trunk" /M$(CECrtMTDebug) " /c
 # SUBTRACT CPP /YX /Yc /Yu
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
@@ -1082,9 +1082,20 @@ DEP_CPP_GRAPH=\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\DCE\ClientSocket.h"\
+	"..\..\DCE\Command_Impl.h"\
+	"..\..\DCE\DeviceData_Base.h"\
+	"..\..\DCE\DeviceData_Impl.h"\
+	"..\..\DCE\Event_Impl.h"\
+	"..\..\DCE\HandleRequestSocket.h"\
 	"..\..\DCE\Logger.h"\
+	"..\..\DCE\Message.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\DCE\Socket.h"\
+	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\OrbiterGen\Renderer.h"\
+	"..\..\pluto_main\Define_DesignObjType.h"\
+	"..\..\pluto_main\Define_DeviceCategory.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
@@ -1097,9 +1108,15 @@ DEP_CPP_GRAPH=\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
+	"..\CacheImageManager.h"\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
+	"..\Floorplan.h"\
 	"..\GraphicBuilder.h"\
+	"..\Orbiter.h"\
+	"..\OrbiterData.h"\
+	"..\PocketFrog\Orbiter_PocketFrog.h"\
+	"..\PocketFrog\PocketFrogGraphic.h"\
 	"..\RendererImage.h"\
 	"..\RendererMNG.h"\
 	"..\SDL\SDLGraphic.h"\
@@ -1412,6 +1429,7 @@ DEP_CPP_MAIN_=\
 NODEP_CPP_MAIN_=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
+	"..\Win32\Orbiter_PocketFrog.h"\
 	
 
 !ENDIF 
@@ -1549,6 +1567,7 @@ DEP_CPP_MAIND=\
 NODEP_CPP_MAIND=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
+	"..\Win32\Orbiter_PocketFrog.h"\
 	
 
 !ENDIF 
@@ -2576,6 +2595,8 @@ DEP_CPP_RENDE=\
 	"..\DesignObj_Data.h"\
 	"..\RendererImage.h"\
 	"..\RendererMNG.h"\
+	"..\RendererOCG.h"\
+	"..\SDL\SDLRendererOCGHelper.h"\
 	"..\TextStyle.h"\
 	".\wince.h"\
 	
@@ -2808,6 +2829,7 @@ DEP_CPP_SDLGR=\
 	"..\DesignObj_Data.h"\
 	"..\DesignObj_Orbiter.h"\
 	"..\SDL\SDLGraphic.h"\
+	"..\SDL\SDLRendererOCGHelper.h"\
 	"..\TextStyle.h"\
 	".\wince.h"\
 	
@@ -2880,10 +2902,23 @@ DEP_CPP_SDLRE=\
 	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_types.h"\
 	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_version.h"\
 	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_video.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\PlutoDefs.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
 	"..\RendererOCG.h"\
 	"..\SDL\PlutoSDLDefs.h"\
 	"..\SDL\SDLRendererOCGHelper.h"\
+	
+NODEP_CPP_SDLRE=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 
 !ENDIF 
@@ -3054,6 +3089,7 @@ DEP_CPP_SELFU=\
 NODEP_CPP_SELFU=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
+	"..\Orbiter_PocketFrog.h"\
 	
 
 !ENDIF 
@@ -3275,6 +3311,7 @@ DEP_CPP_SIMUL=\
 NODEP_CPP_SIMUL=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
+	"..\Orbiter_PocketFrog.h"\
 	
 
 !ENDIF 
@@ -3494,6 +3531,7 @@ DEP_CPP_START=\
 NODEP_CPP_START=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
+	".\Orbiter_PocketFrog.h"\
 	
 
 !ENDIF 

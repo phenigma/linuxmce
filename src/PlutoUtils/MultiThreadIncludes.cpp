@@ -191,6 +191,12 @@ void PlutoLock::CheckLocks()
 
 void PlutoLock::DumpOutstandingLocks()
 {
+#ifdef WINCE
+	//this is crashing under ce ?
+	g_pPlutoLogger->Write(LV_STATUS,"DumpOutstandingLocks ... exiting");
+	return;
+#endif
+
 	if( g_pPlutoLogger )
 		g_pPlutoLogger->Write(LV_LOCKING,"Dumping locks %p mutex %p\n",&mapLocks,&m_mapLockMutex); // This way it'll get in the log without doing any locks
 	if( g_pPlutoLogger )

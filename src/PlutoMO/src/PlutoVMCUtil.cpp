@@ -160,15 +160,6 @@ void CPlutoVMCUtil::SetList(
 	m_bGridExists = bTurnOn;
 	m_bGridSendSelectedOnMove = bSendSelectedOnMove;
 
-	if(m_bGridSendSelectedOnMove)
-	{
-		LOG("m_bGridSendSelectedOnMove is true");
-	}
-	else
-	{
-		LOG("m_bGridSendSelectedOnMove is false");
-	}
-
 	if(bTurnOn)
 	{
 		m_uGridX		= x;
@@ -271,6 +262,10 @@ void CPlutoVMCUtil::SetCaptureKeyboardCommand(
 //------------------------------------------------------------------------------------------------------------------
 /*virtual*/ bool CPlutoVMCUtil::DrawImage(unsigned char ImageType,void *pGraphic,int GraphicSize,int X,int Y,int Width,int Height)
 {
+	LOG("Drawing image, size : ");
+	LOGN(GraphicSize);
+	LOGN("\n");
+
 	TFileName aName;
 
 	char *Buff = (char *)pGraphic;
@@ -292,12 +287,16 @@ void CPlutoVMCUtil::SetCaptureKeyboardCommand(
 	file.Write(pStr, GraphicSize);
 	file.Close();
 
+	LOG("Image saved on the disk : ");
+
 	char* sFilename = new char[256];
 	for(i = 0; i < aName.Length(); i++)
 		sFilename[i] = aName[i];
 	sFilename[i] = '\0';
 
 	DrawImage(sFilename, X, Y, Width, Height);
+
+	LOG("Image rendered : ");
 
     // Create file management object
     CFileMan* fileMan = CFileMan::NewL(aFs);
@@ -676,7 +675,7 @@ void CPlutoVMCUtil::SetImage(unsigned char Type, unsigned long Size, const char 
 //------------------------------------------------------------------------------------------------------------------
 /*virtual*/ bool CPlutoVMCUtil::ScrollListUp()
 {
-	LOG("SCROLL_LIST_UP\n");
+	//LOG("SCROLL_LIST_UP\n");
 
 	m_bRedrawOnlyGrid = true;
 	
@@ -695,7 +694,7 @@ void CPlutoVMCUtil::SetImage(unsigned char Type, unsigned long Size, const char 
 //------------------------------------------------------------------------------------------------------------------
 /*virtual*/ bool CPlutoVMCUtil::ScrollListDown()
 {
-	LOG("SCROLL_LIST_DOWN\n");
+	//LOG("SCROLL_LIST_DOWN\n");
 
 	m_bRedrawOnlyGrid = true;
 
@@ -763,7 +762,7 @@ void CPlutoVMCUtil::SetImage(unsigned char Type, unsigned long Size, const char 
 //------------------------------------------------------------------------------------------------------------------
 /*virtual*/ bool CPlutoVMCUtil::SelectCurrentItem()
 {
-	LOG("SELECT_CURRENT_ITEM\n");
+	//LOG("SELECT_CURRENT_ITEM\n");
 
 	if(
 		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_pBDCommandProcessor

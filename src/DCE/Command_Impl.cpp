@@ -51,6 +51,9 @@ void* MessageQueueThread_DCECI( void* param ) // renamed to cancel link-time nam
 	if( p->m_bMessageQueueThreadRunning )  // The constructor should have set this to true
 		p->ProcessMessageQueue();
 	p->m_bMessageQueueThreadRunning=false;
+	
+	g_pPlutoLogger->Write(LV_SOCKET,"Exiting MessageQueueThread_DCECI thread...");
+
 	return NULL;
 }
 

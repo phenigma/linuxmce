@@ -660,7 +660,7 @@ void OrbiterSDL_WinCE::WriteStatusOutput(const char* pMessage)
 //-----------------------------------------------------------------------------------------------------
 void OrbiterSDL_WinCE::OnQuit()
 {
-	g_pPlutoLogger->Write(LV_STATUS, "OnQuit()");
+	g_pPlutoLogger->Write(LV_STATUS, "OnQuit starting");
 
 	m_bQuit = true;
 	m_bConnectionLost = true;
@@ -671,6 +671,8 @@ void OrbiterSDL_WinCE::OnQuit()
 	SDL_Event event;
 	event.type = SDL_USEREVENT;
 	SDL_PushEvent(&event); 
+
+	g_pPlutoLogger->Write(LV_STATUS, "OnQuit() exiting");
 }
 //-----------------------------------------------------------------------------------------------------
 bool OrbiterSDL_WinCE::SelfUpdate()

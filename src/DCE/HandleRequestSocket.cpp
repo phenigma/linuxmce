@@ -40,6 +40,8 @@ void *BeginHandleRequestThread( void *HRqSock )
 {
 	HandleRequestSocket *pCS = (HandleRequestSocket *)HRqSock;
 	pCS->RunThread();
+
+	g_pPlutoLogger->Write(LV_SOCKET,"Exiting BeginHandleRequestThread thread...");
 	return NULL;
 }
 
