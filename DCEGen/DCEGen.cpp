@@ -515,12 +515,17 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 		for(it=deviceInfo.m_mapCommandInfo.begin();it!=deviceInfo.m_mapCommandInfo.end();++it)
 		{
 			class CommandInfo *pCommandInfo = (*it).second;
+if( pCommandInfo->m_pRow_Command->PK_Command_get()==COMMAND_Request_Datagrid_Contents_CONST )
+{
+int k=2;
+}
 			fstr_DeviceCommand << "\t\t\t\tcase " << pCommandInfo->m_pRow_Command->PK_Command_get() << ":" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\t{" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\t\tstring sCMD_Result=\"OK\";" << endl;
 			fstr_DeviceCommand << pCommandInfo->m_sAssignParmToLocal_In;
-			if( pCommandInfo->m_sParmsWithType_Out.length()>0 )
-				fstr_DeviceCommand << "\t\t\t\t\t\t" << StringUtils::Replace(pCommandInfo->m_sParmsWithType_Out,",",";") << ";" << endl;  // we want int i1;sting s2 not int i1,string s2
+			fstr_DeviceCommand << pCommandInfo->m_sAssignParmToLocal_Out;
+//			if( pCommandInfo->m_sParmsWithType_Out.length()>0 )
+//				fstr_DeviceCommand << "\t\t\t\t\t\t" << StringUtils::Replace(pCommandInfo->m_sParmsWithType_Out,",",";") << ";" << endl;  // we want int i1;sting s2 not int i1,string s2
 			fstr_DeviceCommand << "\t\t\t\t\t\tCMD_" << pCommandInfo->CPPName() <<  "("  << pCommandInfo->m_sParmsWithNoType_In << (pCommandInfo->m_sParmsWithNoType_In.length() ? "," : "") << "sCMD_Result,pMessage);" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\t\tif( pMessage->m_eExpectedResponse==ER_ReplyMessage )" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\t\t{" << endl;
@@ -1172,7 +1177,10 @@ void DCEGen::CreateFunctionParms(int iParameterID,int iParameterType,string sPar
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + "&" + Prefix + sParameterName+",&"+SizePrefix+sParameterName+"_Size";
 		else
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + Prefix + sParameterName+","+SizePrefix+sParameterName+"_Size";
-		sPassingToMessage+=",-" + StringUtils::itos(iParameterID)+","+ Prefix + sParameterName + ","+SizePrefix+sParameterName + "_Size";
+		if( bByReference )
+			sPassingToMessage+=",-" + StringUtils::itos(iParameterID)+",*"+ Prefix + sParameterName + ",*"+SizePrefix+sParameterName + "_Size";
+		else
+			sPassingToMessage+=",-" + StringUtils::itos(iParameterID)+","+ Prefix + sParameterName + ","+SizePrefix+sParameterName + "_Size";
 	}
 	else if (iParameterType == PARAMETERTYPE_int_CONST)
 	{
@@ -1185,7 +1193,10 @@ void DCEGen::CreateFunctionParms(int iParameterID,int iParameterType,string sPar
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + "&" + Prefix + sParameterName;
 		else
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + Prefix + sParameterName;
-		sPassingToMessage+="," + StringUtils::itos(iParameterID)+",StringUtils::itos("+ Prefix + sParameterName + ").c_str()";
+		if( bByReference )
+			sPassingToMessage+="," + StringUtils::itos(iParameterID)+",StringUtils::itos(*"+ Prefix + sParameterName + ").c_str()";
+		else
+			sPassingToMessage+="," + StringUtils::itos(iParameterID)+",StringUtils::itos("+ Prefix + sParameterName + ").c_str()";
 	}
 	else if (iParameterType == PARAMETERTYPE_bool_CONST)
 	{
@@ -1198,7 +1209,10 @@ void DCEGen::CreateFunctionParms(int iParameterID,int iParameterType,string sPar
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + "&" + Prefix + sParameterName;
 		else
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + Prefix + sParameterName;
-		sPassingToMessage+="," + StringUtils::itos(iParameterID)+",("+ Prefix + sParameterName + " ? \"1\" : \"0\")";
+		if( bByReference )
+			sPassingToMessage+="," + StringUtils::itos(iParameterID)+",(*"+ Prefix + sParameterName + " ? \"1\" : \"0\")";
+		else
+			sPassingToMessage+="," + StringUtils::itos(iParameterID)+",("+ Prefix + sParameterName + " ? \"1\" : \"0\")";
 	}
 	else if (iParameterType == PARAMETERTYPE_PlutoColor_CONST)
 	{
@@ -1211,7 +1225,10 @@ void DCEGen::CreateFunctionParms(int iParameterID,int iParameterType,string sPar
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + "&" + Prefix + sParameterName;
 		else
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + Prefix + sParameterName;
-		sPassingToMessage+="," + StringUtils::itos(iParameterID)+",StringUtils::itos("+ Prefix + sParameterName+".m_value).c_str()";
+		if( bByReference )
+			sPassingToMessage+="," + StringUtils::itos(iParameterID)+",StringUtils::itos(*"+ Prefix + sParameterName+".m_value).c_str()";
+		else
+			sPassingToMessage+="," + StringUtils::itos(iParameterID)+",StringUtils::itos("+ Prefix + sParameterName+".m_value).c_str()";
 	}
 	else 
 	{
@@ -1224,7 +1241,10 @@ void DCEGen::CreateFunctionParms(int iParameterID,int iParameterType,string sPar
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + "&" + Prefix + sParameterName ;
 		else
 			sParmsWithNoType+= string(sParmsWithNoType.length()==0 ? "" : ",") + Prefix + sParameterName + ".c_str()";
-		sPassingToMessage+="," + StringUtils::itos(iParameterID)+","+ Prefix + sParameterName+".c_str()";
+		if( bByReference )
+			sPassingToMessage+="," + StringUtils::itos(iParameterID)+",(*"+ Prefix + sParameterName+").c_str()";
+		else
+			sPassingToMessage+="," + StringUtils::itos(iParameterID)+","+ Prefix + sParameterName+".c_str()";
 	}
 }
 
@@ -1300,7 +1320,7 @@ void DCEGen::WriteGlobals()
 			fstr_DeviceCommand << "," << commandInfo.m_sParmsWithTypePointers_Out;
 
 		fstr_DeviceCommand << ") {";
-		fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) commandInfo.m_vectRow_Command_CommandParameter_In.size() << commandInfo.m_sPassingToMessage_In << ");";
+		fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) commandInfo.m_vectRow_Command_CommandParameter_In.size() << commandInfo.m_sPassingToMessage_In << commandInfo.m_sPassingToMessage_Out << ");";
 		if( commandInfo.m_vectRow_Command_CommandParameter_Out.size() )
 		{
 			fstr_DeviceCommand << "\t\tm_pcResponse = new RESP_" << Name << "(" << StringUtils::Replace(commandInfo.m_sParmsWithNoType_Out,".c_str()","") << ");";

@@ -16,11 +16,6 @@ public:
 	Datagrid_Plugin_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent(int PK_DeviceTemplate, ClientSocket *pOCClientSocket, int DeviceID);
-	virtual void Touch_or_click(int iX_Position,int iY_Position)
-	{
-		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 1,2,1,StringUtils::itos(iX_Position).c_str(),2,StringUtils::itos(iY_Position).c_str()));
-	}
-
 };
 
 
@@ -72,9 +67,8 @@ public:
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
 	//Event accessors
-	void EVENT_Touch_or_click(int iX_Position,int iY_Position) { GetEvents()->Touch_or_click(iX_Position,iY_Position); }
 	//Commands - Override these to handle commands from the server
-	virtual void CMD_Request_Datagrid_Contents(string sID,string sDataGrid_ID,int iRow,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows,char **pData,int *iData_Size,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Request_Datagrid_Contents(string sID,string sDataGrid_ID,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows,string sSeek,int iOffset,char **pData,int *iData_Size,int *iRow,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int iPK_DataGrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
@@ -93,19 +87,23 @@ public:
 						string sCMD_Result="OK";
 					string sID=pMessage->m_mapParameters[10];
 					string sDataGrid_ID=pMessage->m_mapParameters[15];
-					int iRow=atoi(pMessage->m_mapParameters[32].c_str());
 					int iColumn=atoi(pMessage->m_mapParameters[33].c_str());
 					int iRow_count=atoi(pMessage->m_mapParameters[34].c_str());
 					int iColumn_count=atoi(pMessage->m_mapParameters[35].c_str());
 					bool bKeep_Row_Header=(pMessage->m_mapParameters[36]=="1" ? true : false);
 					bool bKeep_Column_Header=(pMessage->m_mapParameters[37]=="1" ? true : false);
 					bool bAdd_UpDown_Arrows=(pMessage->m_mapParameters[49]=="1" ? true : false);
-						char *pData;int iData_Size;
-						CMD_Request_Datagrid_Contents(sID.c_str(),sDataGrid_ID.c_str(),iRow,iColumn,iRow_count,iColumn_count,bKeep_Row_Header,bKeep_Column_Header,bAdd_UpDown_Arrows,&pData,&iData_Size,sCMD_Result,pMessage);
+					string sSeek=pMessage->m_mapParameters[73];
+					int iOffset=atoi(pMessage->m_mapParameters[74].c_str());
+					char *pData=pMessage->m_mapData_Parameters[19];
+					int iData_Size=pMessage->m_mapData_Lengths[19];
+					int iRow=atoi(pMessage->m_mapParameters[32].c_str());
+						CMD_Request_Datagrid_Contents(sID.c_str(),sDataGrid_ID.c_str(),iColumn,iRow_count,iColumn_count,bKeep_Row_Header,bKeep_Column_Header,bAdd_UpDown_Arrows,sSeek.c_str(),iOffset,&pData,&iData_Size,&iRow,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 						pMessageOut->m_mapData_Parameters[19]=pData; pMessageOut->m_mapData_Lengths[19]=iData_Size;
+						pMessageOut->m_mapParameters[32]=StringUtils::itos(iRow);
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
@@ -120,7 +118,9 @@ public:
 					string sDataGrid_ID=pMessage->m_mapParameters[15];
 					int iPK_DataGrid=atoi(pMessage->m_mapParameters[38].c_str());
 					string sOptions=pMessage->m_mapParameters[39];
-						int iPK_Variable;string sValue_To_Assign;bool bIsSuccessful;
+					int iPK_Variable=atoi(pMessage->m_mapParameters[4].c_str());
+					string sValue_To_Assign=pMessage->m_mapParameters[5];
+					bool bIsSuccessful=(pMessage->m_mapParameters[40]=="1" ? true : false);
 						CMD_Populate_Datagrid(sID.c_str(),sDataGrid_ID.c_str(),iPK_DataGrid,sOptions.c_str(),&iPK_Variable,&sValue_To_Assign,&bIsSuccessful,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{

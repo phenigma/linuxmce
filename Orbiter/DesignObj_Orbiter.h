@@ -227,8 +227,8 @@ public:
 
 	string sSelVariable;
 	bool m_bDontShowSelection,m_bIsMultiSelect,m_bKeepColHeader,m_bKeepRowHeader,m_bPersistXY;
-	int m_iInitialColNum,m_iInitialRowNum,m_iPK_Datagrid,m_iPK_Variable;
-	string m_sGridID,m_sOptions,m_sExtraInfo;
+	int m_iInitialColNum,m_iInitialRowNum,m_iPK_Datagrid,m_iPK_Variable,m_iSeekColumn;
+	string m_sGridID,m_sOptions,m_sExtraInfo,m_sSeek;
 	DesignObj_Orbiter *m_pObjLeft,*m_pObjRight,*m_pObjUp,*m_pObjDown;
 
 	bool CanGoUp();

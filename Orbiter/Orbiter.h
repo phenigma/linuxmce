@@ -159,6 +159,7 @@ protected:
 	vector < class DesignObj_Orbiter * > m_vectObjs_Selected; /** < All the objects currently selected */
 	vector < class DesignObj_DataGrid * > m_vectObjs_GridsOnScreen; /** < All the grids currently on the screen */
 
+	map< string, class DesignObj_DataGrid * > m_mapObjs_AllGrids; /** < All the datagrids */
 	
 	/** for threads and shared memory control @todo ask */
 	
@@ -613,9 +614,10 @@ public:
 	void FindDGArrows( DesignObj_Orbiter *pObj, DesignObj_DataGrid *pDGObj );
 	
 	/**
-	 * @brief gets the grid from the DesignObj_DataGrid object into the pDataGridTable parmeter
+	 * @brief gets the grid from the DesignObj_DataGrid object into the pDataGridTable parmeter.  This may change the 
+	 * value of GridCurRow if the pObj->m_sSeek is set to seek to a given position
 	 */
-	bool AcquireGrid( DesignObj_DataGrid *pObj, int GridCurCol, int GridCurRow, class DataGridTable* &pDataGridTable );
+	bool AcquireGrid( DesignObj_DataGrid *pObj, int GridCurCol, int &GridCurRow, class DataGridTable* &pDataGridTable );
 	
 	/**
 	 * @brief returns the selected identifiing it by the row number

@@ -174,7 +174,7 @@ void Datagrid_Plugin::SomeFunction()
 		/** @param #19 Data */
 			/** The binary contents of the grid. */
 		/** @param #32 Row */
-			/** The starting row */
+			/** The starting row.   This is both an 'in' and 'out'.  If sSeek is not empty, the grid will ignore the value passed in here, and seek to that row instead.  It will also return the value of the row in this variable so the requestor will know the current row. */
 		/** @param #33 Column */
 			/** The starting column */
 		/** @param #34 Row count */
@@ -187,52 +187,85 @@ void Datagrid_Plugin::SomeFunction()
 			/** True means the first column(0) is locked and will always be at the top as a header. */
 		/** @param #49 Add Up-Down Arrows */
 			/** If to add up/down arrows to the returned datagrid when datagrid doesn't fully fit. */
+		/** @param #73 Seek */
+			/** If a value is specified, the grid will seek to the first row matching this value.  The search is case insensitive.  The value of "Row" will be ignored, and the new top row will be returned as the out value of "Row".  If offset is specified, the comparisso */
+		/** @param #74 Offset */
+			/** See the "Seek" parameter for an explanation. */
 
-void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_ID,int iRow,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage)
+void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_ID,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows,string sSeek,int iOffset,char **pData,int *iData_Size,int *iRow,string &sCMD_Result,Message *pMessage)
 //<-dceag-c34-e->
 {
- *iData_Size=0;
- *pData=NULL;
+	*iData_Size=0;
+	*pData=NULL;
 
 #ifdef DEBUG
- g_pPlutoLogger->Write( LV_DATAGRID, "Requesting grid: %s", sDataGrid_ID.c_str() );
+	g_pPlutoLogger->Write( LV_DATAGRID, "Requesting grid: %s", sDataGrid_ID.c_str() );
 #endif
- //jjhuff
- //Message *pMessage = new Message();
- PLUTO_SAFETY_LOCK( s, m_DataGridMutex );
- DataGridTable *dgs=NULL;
- DataGridMap::iterator dg = m_DataGrids.find( sDataGrid_ID );
- if ( dg == m_DataGrids.end() )
- {
-  g_pPlutoLogger->Write( LV_CRITICAL, "Requesting data from unknown grid %s", sDataGrid_ID.c_str() );
-  return;
- }
- try
- {
-  dgs = ( *dg ).second;
+	PLUTO_SAFETY_LOCK( s, m_DataGridMutex );
+	DataGridTable *pDataGridTable=NULL;
+	DataGridMap::iterator dg = m_DataGrids.find( sDataGrid_ID );
+	if ( dg == m_DataGrids.end() )
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL, "Requesting data from unknown grid %s", sDataGrid_ID.c_str() );
+		return;
+	}
+	try
+	{
+		pDataGridTable = ( *dg ).second;
 
-  dgs->m_bKeepColumnHeader = bKeep_Column_Header;
-  dgs->m_bKeepRowHeader = bKeep_Row_Header;
-
-  dgs->ToData( sDataGrid_ID, *iData_Size, *pData, iColumn, iRow, iColumn_count, iRow_count );
-// hack, what the hell. If I delete the pointer, the system crashes. But it's a valid pointer. It was just allocated in the prior todata
-  /*
-g_ptest=*pData;
-delete[] ( *pData );
+		if( sSeek.length() )
+		{
+			sSeek = StringUtils::ToUpper(sSeek);
+			// We need to do a seek for this value
+			int dgrow;
+			// Scroll through here until we find the row right after
+			for(dgrow=0;dgrow<pDataGridTable->GetRows();++dgrow)
+			{
+				DataGridCell *pCell = pDataGridTable->GetData(iOffset,dgrow);
+				string::size_type posStart=0,posEnd=0;
+				string CellText = StringUtils::ToUpper(pCell->m_Text);
+				if( CellText[0]=='~' )
+					posStart++;
+				if( CellText[posStart]=='`' )
+				{
+					while(CellText[++posStart]!='`');
+				}
+/* don't remember what this was needed for.  It just strips off the first character??
+				posEnd = CellText.find('\n');
+				if( posEnd )
+					CellText = CellText.substr(posStart+1,posEnd-posStart-1);
+				else
+					CellText = CellText.substr(posStart+1);
 */
+				if( StringUtils::ToUpper(CellText)>StringUtils::ToUpper(sSeek) )
+					break;
+			}
+			if( dgrow>0 )
+				--dgrow; // We're always the cell 1 after
+			*iRow=dgrow;
+		}
+		pDataGridTable->m_bKeepColumnHeader = bKeep_Column_Header;
+		pDataGridTable->m_bKeepRowHeader = bKeep_Row_Header;
+
+		pDataGridTable->ToData( sDataGrid_ID, *iData_Size, *pData, iColumn, *iRow, iColumn_count, iRow_count );
+		// hack, what the hell. If I delete the pointer, the system crashes. But it's a valid pointer. It was just allocated in the prior todata
+		/*
+		g_ptest=*pData;
+		delete[] ( *pData );
+		*/
 #ifdef DEBUG
-  g_pPlutoLogger->Write( LV_DATAGRID, "Sending datagrid %s, size: %d, cols: %d, rows: %d", sDataGrid_ID.c_str(), *iData_Size, iColumn_count, iRow_count );
+		g_pPlutoLogger->Write( LV_DATAGRID, "Sending datagrid %s, size: %d, cols: %d, rows: %d", sDataGrid_ID.c_str(), *iData_Size, iColumn_count, iRow_count );
 #endif
- }
- catch( ... )
- {
-  g_pPlutoLogger->Write( LV_CRITICAL, "Exception getting grid #%s pointer %p", sDataGrid_ID.c_str(), dgs );
-  g_pPlutoLogger->Write( LV_CRITICAL, "col start: %d row start: %d col count: %d rowcount: %d", iColumn, iRow, iColumn_count, iRow_count );
+	}
+	catch( ... )
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL, "Exception getting grid #%s pointer %p", sDataGrid_ID.c_str(), pDataGridTable );
+		g_pPlutoLogger->Write( LV_CRITICAL, "col start: %d row start: %d col count: %d rowcount: %d", iColumn, iRow, iColumn_count, iRow_count );
 #ifdef USE_DATAGRID2
-  if( dgs )
-   g_pPlutoLogger->Write( LV_CRITICAL, "cell count: %d col count: %d row count %d", dgs->m_CellCount, dgs->m_ColumnCount, dgs->m_RowCount );
+		if( pDataGridTable )
+			g_pPlutoLogger->Write( LV_CRITICAL, "cell count: %d col count: %d row count %d", pDataGridTable->m_CellCount, pDataGridTable->m_ColumnCount, pDataGridTable->m_RowCount );
 #endif
- }
+	}
 }
 
 //<-dceag-c35-b->

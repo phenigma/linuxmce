@@ -453,8 +453,12 @@ Path="music";
 
 	string PathsToScan;
 	if( sSubDirectory.length() )
-		for(int i=0;i<iDirNumber;++i)
-			PathsToScan = StringUtils::Tokenize(Parms, ",", pos);
+	{
+		pos=0;
+		for(int i=0;i<=iDirNumber;++i)
+			PathsToScan = StringUtils::Tokenize(Paths, ",", pos);
+		PathsToScan += "/" + sSubDirectory;
+	}
 	else 
 		PathsToScan = Paths;
 

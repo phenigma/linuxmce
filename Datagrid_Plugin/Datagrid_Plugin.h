@@ -98,7 +98,6 @@ public:
 			*****DATA***** accessors inherited from base class
 
 			*****EVENT***** accessors inherited from base class
-	void EVENT_Touch_or_click(int iX_Position,int iY_Position);
 
 			*****COMMANDS***** we need to implement
 	*/
@@ -113,7 +112,7 @@ public:
 		/** @param #19 Data */
 			/** The binary contents of the grid. */
 		/** @param #32 Row */
-			/** The starting row */
+			/** The starting row.   This is both an 'in' and 'out'.  If sSeek is not empty, the grid will ignore the value passed in here, and seek to that row instead.  It will also return the value of the row in this variable so the requestor will know the current row. */
 		/** @param #33 Column */
 			/** The starting column */
 		/** @param #34 Row count */
@@ -126,9 +125,13 @@ public:
 			/** True means the first column(0) is locked and will always be at the top as a header. */
 		/** @param #49 Add Up-Down Arrows */
 			/** If to add up/down arrows to the returned datagrid when datagrid doesn't fully fit. */
+		/** @param #73 Seek */
+			/** If a value is specified, the grid will seek to the first row matching this value.  The search is case insensitive.  The value of "Row" will be ignored, and the new top row will be returned as the out value of "Row".  If offset is specified, the comparisso */
+		/** @param #74 Offset */
+			/** See the "Seek" parameter for an explanation. */
 
-	virtual void CMD_Request_Datagrid_Contents(string sID,string sDataGrid_ID,int iRow,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows,char **pData,int *iData_Size) { string sCMD_Result; CMD_Request_Datagrid_Contents(sID.c_str(),sDataGrid_ID.c_str(),iRow,iColumn,iRow_count,iColumn_count,bKeep_Row_Header,bKeep_Column_Header,bAdd_UpDown_Arrows,pData,iData_Size,sCMD_Result,NULL);};
-	virtual void CMD_Request_Datagrid_Contents(string sID,string sDataGrid_ID,int iRow,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Request_Datagrid_Contents(string sID,string sDataGrid_ID,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows,string sSeek,int iOffset,char **pData,int *iData_Size,int *iRow) { string sCMD_Result; CMD_Request_Datagrid_Contents(sID.c_str(),sDataGrid_ID.c_str(),iColumn,iRow_count,iColumn_count,bKeep_Row_Header,bKeep_Column_Header,bAdd_UpDown_Arrows,sSeek.c_str(),iOffset,pData,iData_Size,iRow,sCMD_Result,NULL);};
+	virtual void CMD_Request_Datagrid_Contents(string sID,string sDataGrid_ID,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows,string sSeek,int iOffset,char **pData,int *iData_Size,int *iRow,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #35 - Populate Datagrid */

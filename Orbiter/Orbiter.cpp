@@ -2107,6 +2107,8 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
 		pObj_Datagrid->m_iInitialRowNum = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Initial_Row_Number_CONST ).c_str(  ) );
 		pObj_Datagrid->m_iInitialColNum = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Initial_Column_Numb_CONST ).c_str(  ) );
 		pObj_Datagrid->m_MaxCol = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Num_of_Columns_CONST ).c_str(  ) );
+		pObj_Datagrid->m_sSeek = pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Seek_Value_CONST );
+		pObj_Datagrid->m_iSeekColumn = atoi( pObj_Datagrid->GetParameterValue( DESIGNOBJPARAMETER_Seek_Column_CONST ).c_str(  ) );
 		if ( pObj_Datagrid->m_MaxCol == 0 )
 		{
 			if(  pObj_Datagrid->m_FixedColumnWidth==0  )
@@ -2199,6 +2201,7 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
 				pObj_Datagrid->m_pTextStyle_Alt[Counter] = pTextStyle;
 			Counter++;
 		}
+		m_mapObjs_AllGrids[pObj_Datagrid->m_sGridID] = pObj_Datagrid;
 	}
 
 	DesignObj_DataList::iterator iHao;
@@ -3090,11 +3093,11 @@ void Orbiter::FindDGArrows( DesignObj_Orbiter *pObj, DesignObj_DataGrid *pDGObj 
 		FindDGArrows( ( DesignObj_Orbiter * )( *iHao ), pDGObj );
 	}
 }
-bool Orbiter::AcquireGrid( DesignObj_DataGrid *pObj,  int GridCurCol,  int GridCurRow,  DataGridTable* &pDataGridTable )
+bool Orbiter::AcquireGrid( DesignObj_DataGrid *pObj,  int GridCurCol,  int &GridCurRow,  DataGridTable* &pDataGridTable )
 {
 	bool bLoadedSomething = false;
 
-	if (  pObj->bReAcquire || !pDataGridTable || pDataGridTable->m_StartingColumn != GridCurCol || pDataGridTable->m_StartingRow != GridCurRow )
+	if (  pObj->bReAcquire || !pDataGridTable || pDataGridTable->m_StartingColumn != GridCurCol || pDataGridTable->m_StartingRow != GridCurRow || pObj->m_sSeek.length() )
 	{
 		// See if we're supposed to highlight rows.  If so,  we should reset this
 		pObj->bReAcquire=false;
@@ -3114,8 +3117,8 @@ bool Orbiter::AcquireGrid( DesignObj_DataGrid *pObj,  int GridCurCol,  int GridC
 		char *data = NULL;
 
 		DCE::CMD_Request_Datagrid_Contents_DT CMD_Request_Datagrid_Contents_DT( m_dwPK_Device,  DEVICETEMPLATE_Datagrid_Plugin_CONST,  BL_SameHouse, 
-			StringUtils::itos( m_dwIDataGridRequestCounter ), pObj->m_sGridID, GridCurRow, GridCurCol, 
-			pObj->m_MaxRow, pObj->m_MaxCol, pObj->m_bKeepRowHeader, pObj->m_bKeepColHeader, true, &data, &size );
+			StringUtils::itos( m_dwIDataGridRequestCounter ), pObj->m_sGridID, GridCurCol, 
+			pObj->m_MaxRow, pObj->m_MaxCol, pObj->m_bKeepRowHeader, pObj->m_bKeepColHeader, true, pObj->m_sSeek, pObj->m_iSeekColumn, &data, &size, &GridCurRow );
 
 		if(  !SendCommand( CMD_Request_Datagrid_Contents_DT )  )
 			g_pPlutoLogger->Write( LV_CRITICAL, "Populate datagrid: %s failed", pObj->m_ObjectID.c_str(  ) );
@@ -3130,6 +3133,7 @@ bool Orbiter::AcquireGrid( DesignObj_DataGrid *pObj,  int GridCurCol,  int GridC
 					pObj->m_iHighlightedRow=-1;
 					pObj->m_iHighlightedColumn=-1;
 				}
+				pObj->m_sSeek="";  // Only do the seek 1 time
 				return pDataGridTable!=NULL;
 			}
 			else
@@ -3642,11 +3646,19 @@ void Orbiter::CMD_Requires_Special_Handling(string &sCMD_Result,Message *pMessag
 void Orbiter::CMD_Seek_Data_Grid(string sText,int iPosition_X,int iPosition_Y,string sDataGrid_ID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c17-e->
 {
-	cout << "Need to implement command #17 - Seek Data Grid" << endl;
-	cout << "Parm #9 - Text=" << sText << endl;
-	cout << "Parm #11 - Position_X=" << iPosition_X << endl;
-	cout << "Parm #12 - Position_Y=" << iPosition_Y << endl;
-	cout << "Parm #15 - DataGrid_ID=" << sDataGrid_ID << endl;
+	DesignObj_DataGrid *pObj_Datagrid=NULL;
+	if( sDataGrid_ID.length() )
+		pObj_Datagrid = m_mapObjs_AllGrids[sDataGrid_ID];
+	else if( m_vectObjs_GridsOnScreen.size() )
+		pObj_Datagrid = m_vectObjs_GridsOnScreen[0];
+	
+	if( !pObj_Datagrid )
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot seek to unknown grid");
+	else
+	{
+		pObj_Datagrid->m_sSeek = sText;
+		CMD_Refresh(pObj_Datagrid->m_sGridID);
+	}
 }
 
 //<-dceag-c18-b->
