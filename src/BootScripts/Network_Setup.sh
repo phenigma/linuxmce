@@ -184,3 +184,6 @@ ff02::3 ip6-allhosts
 "
 
 echo "$hosts" >/etc/hosts
+# polipo, at least, caches DNS settings, so it needs restarting if we changed them
+/etc/init.d/polipo restart
+/etc/init.d/frox restart

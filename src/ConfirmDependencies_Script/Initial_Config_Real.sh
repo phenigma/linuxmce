@@ -346,6 +346,8 @@ echo "$(CatMessages "$Message1" "$Message2")" | fmt
 read
 #MessageBox "$Message1" "$Message2"
 
+[ -e /usr/share/vim/vimrc ] || cp /usr/share/vim/vim63/vimrc_example.vim /usr/share/vim/vimrc
+
 if [ "$Type" == "diskless" ]; then
 	# Replace Initial_Config.sh entry with regular one in inittab
 	awk '
