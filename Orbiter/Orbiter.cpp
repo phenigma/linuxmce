@@ -3573,8 +3573,8 @@ void *RendererThread(void *p)
 			CallBackInfo *pCallBackInfo = mapPendingCallbacks[Index];
 			pm.Release();
 
-			//g_pPlutoLogger->Write( LV_CONTROLLER, "### Now is %d, Callback candidate to be processed id = %d, clock = %d", 
-			//	(int)clock(), pCallBackInfo->m_iCounter, (int)pCallBackInfo->m_clock);
+			g_pPlutoLogger->Write( LV_CONTROLLER, "### Now is %d, Callback candidate to be processed id = %d, clock = %d", 
+				clock_t(), pCallBackInfo->m_iCounter, (int)pCallBackInfo->m_clock);
 
 			if(pCallBackInfo->m_clock <= xClock()) 
 			{
