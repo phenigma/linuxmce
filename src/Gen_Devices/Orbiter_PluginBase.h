@@ -135,14 +135,18 @@ public:
 						string sCMD_Result="OK";
 					int iPK_Users=atoi(pMessage->m_mapParameters[17].c_str());
 						CMD_Set_Current_User(iPK_Users,sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -151,14 +155,18 @@ public:
 						string sCMD_Result="OK";
 					string sPK_EntertainArea=pMessage->m_mapParameters[45];
 						CMD_Set_Entertainment_Area(sPK_EntertainArea.c_str(),sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -167,14 +175,18 @@ public:
 						string sCMD_Result="OK";
 					int iPK_Room=atoi(pMessage->m_mapParameters[57].c_str());
 						CMD_Set_Current_Room(iPK_Room,sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -185,14 +197,18 @@ public:
 					int iPK_DeviceTemplate=atoi(pMessage->m_mapParameters[44].c_str());
 					string sMac_address=pMessage->m_mapParameters[47];
 						CMD_New_Mobile_Orbiter(iPK_Users,iPK_DeviceTemplate,sMac_address.c_str(),sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -203,14 +219,18 @@ public:
 					string sID=pMessage->m_mapParameters[10];
 					string sMac_address=pMessage->m_mapParameters[47];
 						CMD_Add_Unknown_Device(sText.c_str(),sID.c_str(),sMac_address.c_str(),sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -219,15 +239,19 @@ public:
 						string sCMD_Result="OK";
 					string sValue_To_Assign=pMessage->m_mapParameters[5];
 						CMD_Get_Floorplan_Layout(&sValue_To_Assign,sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 						pMessageOut->m_mapParameters[5]=sValue_To_Assign;
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -238,15 +262,19 @@ public:
 					int iPK_FloorplanType=atoi(pMessage->m_mapParameters[46].c_str());
 					string sValue_To_Assign=pMessage->m_mapParameters[5];
 						CMD_Get_Current_Floorplan(sID.c_str(),iPK_FloorplanType,&sValue_To_Assign,sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 						pMessageOut->m_mapParameters[5]=sValue_To_Assign;
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -255,14 +283,18 @@ public:
 						string sCMD_Result="OK";
 					string sOnOff=pMessage->m_mapParameters[8];
 						CMD_Orbiter_Registered(sOnOff.c_str(),sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -273,14 +305,18 @@ public:
 					string sText=pMessage->m_mapParameters[9];
 					int iPK_Users=atoi(pMessage->m_mapParameters[17].c_str());
 						CMD_Set_FollowMe(iPK_Device,sText.c_str(),iPK_Users,sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -290,14 +326,18 @@ public:
 					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
 					string sForce=pMessage->m_mapParameters[21];
 						CMD_Regen_Orbiter(iPK_Device,sForce.c_str(),sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -306,14 +346,18 @@ public:
 						string sCMD_Result="OK";
 					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
 						CMD_Regen_Orbiter_Finished(iPK_Device,sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -323,14 +367,18 @@ public:
 					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
 					int iPK_Room=atoi(pMessage->m_mapParameters[57].c_str());
 						CMD_Set_Room_For_Device(iPK_Device,iPK_Room,sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -353,14 +401,18 @@ public:
 					ReceivedCommandForChild(pDeviceData_Base,sCMD_Result,pMessage);
 				else
 					ReceivedUnknownCommand(sCMD_Result,pMessage);
-					if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+					if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 					{
+							pMessage->m_bRespondedToMessage=true;
 						Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 						pMessageOut->m_mapParameters[0]=sCMD_Result;
 						SendMessage(pMessageOut);
 					}
-					else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+					else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 						SendString(sCMD_Result);
+						}
 					if( sCMD_Result!="UNHANDLED" )
 						iHandled++;
 				}

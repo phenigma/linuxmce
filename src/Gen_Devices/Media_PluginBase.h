@@ -133,14 +133,18 @@ public:
 					int iPK_DeviceTemplate=atoi(pMessage->m_mapParameters[44].c_str());
 					string sPK_EntertainArea=pMessage->m_mapParameters[45];
 						CMD_MH_Play_Media(iPK_Device,sPK_DesignObj.c_str(),sFilename.c_str(),iPK_MediaType,iPK_DeviceTemplate,sPK_EntertainArea.c_str(),sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -152,14 +156,18 @@ public:
 					int iPK_DeviceTemplate=atoi(pMessage->m_mapParameters[44].c_str());
 					string sPK_EntertainArea=pMessage->m_mapParameters[45];
 						CMD_MH_Stop_Media(iPK_Device,iPK_MediaType,iPK_DeviceTemplate,sPK_EntertainArea.c_str(),sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -168,14 +176,18 @@ public:
 						string sCMD_Result="OK";
 					string sValue_To_Assign=pMessage->m_mapParameters[5];
 						CMD_Jump_Position_In_Playlist(sValue_To_Assign.c_str(),sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -184,14 +196,18 @@ public:
 						string sCMD_Result="OK";
 					bool bNot_Full_Screen=(pMessage->m_mapParameters[93]=="1" ? true : false);
 						CMD_MH_Send_Me_To_Remote(bNot_Full_Screen,sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -209,14 +225,18 @@ public:
 					int iPK_Text_SectionDesc=atoi(pMessage->m_mapParameters[62].c_str());
 					int iPK_Text_Synopsis=atoi(pMessage->m_mapParameters[63].c_str());
 						CMD_Bind_to_Media_Remote(iPK_Device,sPK_DesignObj.c_str(),sOnOff.c_str(),sPK_DesignObj_CurrentScreen.c_str(),iPK_Text,sOptions.c_str(),sPK_EntertainArea.c_str(),iPK_Text_Timecode,iPK_Text_SectionDesc,iPK_Text_Synopsis,sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -228,14 +248,18 @@ public:
 					string sName=pMessage->m_mapParameters[50];
 					bool bSave_as_new=(pMessage->m_mapParameters[77]=="1" ? true : false);
 						CMD_Save_playlist(iPK_Users,sPK_EntertainArea.c_str(),sName.c_str(),bSave_as_new,sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -245,14 +269,18 @@ public:
 					string sPK_EntertainArea=pMessage->m_mapParameters[45];
 					int iEK_Playlist=atoi(pMessage->m_mapParameters[78].c_str());
 						CMD_Load_Playlist(sPK_EntertainArea.c_str(),iEK_Playlist,sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -262,14 +290,18 @@ public:
 					int iStreamID=atoi(pMessage->m_mapParameters[41].c_str());
 					string sPK_EntertainArea=pMessage->m_mapParameters[45];
 						CMD_MH_Move_Media(iStreamID,sPK_EntertainArea.c_str(),sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -278,14 +310,18 @@ public:
 						string sCMD_Result="OK";
 					int iValue=atoi(pMessage->m_mapParameters[48].c_str());
 						CMD_Move_Playlist_entry_Up(iValue,sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -294,14 +330,18 @@ public:
 						string sCMD_Result="OK";
 					int iValue=atoi(pMessage->m_mapParameters[48].c_str());
 						CMD_Move_Playlist_entry_Down(iValue,sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -310,14 +350,18 @@ public:
 						string sCMD_Result="OK";
 					int iValue=atoi(pMessage->m_mapParameters[48].c_str());
 						CMD_Remove_playlist_entry(iValue,sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -327,15 +371,19 @@ public:
 					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
 					string sText=pMessage->m_mapParameters[9];
 						CMD_Get_EntAreas_For_Device(iPK_Device,&sText,sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 						pMessageOut->m_mapParameters[9]=sText;
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -345,14 +393,18 @@ public:
 					int iPK_Users=atoi(pMessage->m_mapParameters[17].c_str());
 					string sName=pMessage->m_mapParameters[50];
 						CMD_Rip_Disk(iPK_Users,sName.c_str(),sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -375,14 +427,18 @@ public:
 					ReceivedCommandForChild(pDeviceData_Base,sCMD_Result,pMessage);
 				else
 					ReceivedUnknownCommand(sCMD_Result,pMessage);
-					if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+					if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 					{
+							pMessage->m_bRespondedToMessage=true;
 						Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 						pMessageOut->m_mapParameters[0]=sCMD_Result;
 						SendMessage(pMessageOut);
 					}
-					else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+					else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 						SendString(sCMD_Result);
+						}
 					if( sCMD_Result!="UNHANDLED" )
 						iHandled++;
 				}

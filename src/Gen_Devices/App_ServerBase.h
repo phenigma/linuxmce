@@ -97,14 +97,18 @@ public:
 					string sPK_Button=pMessage->m_mapParameters[26];
 					string sName=pMessage->m_mapParameters[50];
 						CMD_Simulate_Keypress(sPK_Button.c_str(),sName.c_str(),sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -117,14 +121,18 @@ public:
 					string sSendOnFailure=pMessage->m_mapParameters[94];
 					string sSendOnSuccess=pMessage->m_mapParameters[95];
 						CMD_Spawn_Application(sFilename.c_str(),sName.c_str(),sArguments.c_str(),sSendOnFailure.c_str(),sSendOnSuccess.c_str(),sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -133,14 +141,18 @@ public:
 						string sCMD_Result="OK";
 					string sName=pMessage->m_mapParameters[50];
 						CMD_Kill_Application(sName.c_str(),sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -149,14 +161,18 @@ public:
 						string sCMD_Result="OK";
 					string sName=pMessage->m_mapParameters[50];
 						CMD_Hide_Application(sName.c_str(),sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -166,14 +182,18 @@ public:
 					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
 					string sForce=pMessage->m_mapParameters[21];
 						CMD_Halt_Device(iPK_Device,sForce.c_str(),sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -196,14 +216,18 @@ public:
 					ReceivedCommandForChild(pDeviceData_Base,sCMD_Result,pMessage);
 				else
 					ReceivedUnknownCommand(sCMD_Result,pMessage);
-					if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+					if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 					{
+							pMessage->m_bRespondedToMessage=true;
 						Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 						pMessageOut->m_mapParameters[0]=sCMD_Result;
 						SendMessage(pMessageOut);
 					}
-					else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+					else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 						SendString(sCMD_Result);
+						}
 					if( sCMD_Result!="UNHANDLED" )
 						iHandled++;
 				}

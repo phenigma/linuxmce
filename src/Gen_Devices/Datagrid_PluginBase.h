@@ -105,16 +105,20 @@ public:
 					int iData_Size=pMessage->m_mapData_Lengths[19];
 					int iRow=atoi(pMessage->m_mapParameters[32].c_str());
 						CMD_Request_Datagrid_Contents(sID.c_str(),sDataGrid_ID.c_str(),iColumn,iRow_count,iColumn_count,bKeep_Row_Header,bKeep_Column_Header,bAdd_UpDown_Arrows,sSeek.c_str(),iOffset,&pData,&iData_Size,&iRow,sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 						pMessageOut->m_mapData_Parameters[19]=pData; pMessageOut->m_mapData_Lengths[19]=iData_Size;
 						pMessageOut->m_mapParameters[32]=StringUtils::itos(iRow);
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -131,8 +135,9 @@ public:
 					int iWidth=atoi(pMessage->m_mapParameters[60].c_str());
 					int iHeight=atoi(pMessage->m_mapParameters[61].c_str());
 						CMD_Populate_Datagrid(sID.c_str(),sDataGrid_ID.c_str(),iPK_DataGrid,sOptions.c_str(),&iPK_Variable,&sValue_To_Assign,&bIsSuccessful,&iWidth,&iHeight,sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 						{
+							pMessage->m_bRespondedToMessage=true;
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 						pMessageOut->m_mapParameters[4]=StringUtils::itos(iPK_Variable);
 						pMessageOut->m_mapParameters[5]=sValue_To_Assign;
@@ -142,8 +147,11 @@ public:
 							pMessageOut->m_mapParameters[0]=sCMD_Result;
 							SendMessage(pMessageOut);
 						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+						else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 							SendString(sCMD_Result);
+						}
 					};
 					iHandled++;
 					continue;
@@ -166,14 +174,18 @@ public:
 					ReceivedCommandForChild(pDeviceData_Base,sCMD_Result,pMessage);
 				else
 					ReceivedUnknownCommand(sCMD_Result,pMessage);
-					if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+					if( pMessage->m_eExpectedResponse==ER_ReplyMessage && !pMessage->m_bRespondedToMessage )
 					{
+							pMessage->m_bRespondedToMessage=true;
 						Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 						pMessageOut->m_mapParameters[0]=sCMD_Result;
 						SendMessage(pMessageOut);
 					}
-					else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+					else if( (pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString) && !pMessage->m_bRespondedToMessage )
+						{
+							pMessage->m_bRespondedToMessage=true;
 						SendString(sCMD_Result);
+						}
 					if( sCMD_Result!="UNHANDLED" )
 						iHandled++;
 				}
