@@ -206,6 +206,8 @@ for Client in $DisklessR; do
 	SedCmd="s/^DBHostName.*/DBHostName=dce_router/g"
 	sed -i "$SedCmd" $DlPath/etc/mythtv/mysql.txt.$$
 	mv $DlPath/etc/mythtv/mysql.txt.$$ $DlPath/etc/mythtv/mysql.txt
+	chown mythtv.mythtv $DlPath/etc/mythtv/mysql.txt
+	chmod 0660 $DlPath/etc/mythtv/mysql.txt
 
 #	echo -n " Start_LocalDevices"
 #	Q="SELECT PK_Device FROM Device WHERE IPaddress='$IP' AND MACaddress='$MAC' LIMIT 1"
