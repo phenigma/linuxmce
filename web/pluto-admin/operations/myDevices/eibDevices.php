@@ -66,9 +66,8 @@ function eibDevices($output,$dbADO,$eibADO) {
 		function pickGroupAddress(groupName,groupAddress)
 		{
 			document.getElementById("addressPicker").style.display="";
-
 			document.getElementById("addressPicker").style.top=yMousePos;
-			document.getElementById("addressPicker").style.left=xMousePos-410;
+			document.getElementById("addressPicker").style.left=xMousePos-200;
 			eval("selectedValue=document.eibDevices."+groupAddress+".value");
 			for(i=0;i<document.eibDevices.generic.length;i++){
 				if(document.eibDevices.generic[i].value==selectedValue){
@@ -138,7 +137,7 @@ function eibDevices($output,$dbADO,$eibADO) {
 			<td colspan="3">&nbsp;</td>
 		</tr>';
 	
-	$resEIB=$dbADO->Execute('SELECT * FROM Device WHERE FK_DeviceTemplate=? ORDER BY Description ASC',$GLOBALS['EIB']);
+	$resEIB=$dbADO->Execute('SELECT * FROM Device WHERE FK_DeviceTemplate=? AND FK_Installation=? ORDER BY Description ASC',array($GLOBALS['EIB'],$installationID));
 	$eibDevices=array();
 	while($row=$resEIB->FetchRow()){
 		$eibDevices[$row['PK_Device']]=$row['Description'];
@@ -166,7 +165,7 @@ function eibDevices($output,$dbADO,$eibADO) {
 				<table>
 					<tr>
 						<td>'.$labels[0].'</td>
-						<td><input type="text" name="onOffName_'.$rowDevices['PK_Device'].'" size="50" value="'.$channelArray[$channelParts[0]].' ('.$channelParts[0].')'.'" disabled> <input type="hidden" name="onOff_'.$rowDevices['PK_Device'].'" value="'.$channelParts[0].'"></td>
+						<td><input type="text" name="onOffName_'.@$rowDevices['PK_Device'].'" size="50" value="'.@$channelArray[$channelParts[0]].' ('.@$channelParts[0].')'.'" disabled> <input type="hidden" name="onOff_'.$rowDevices['PK_Device'].'" value="'.@$channelParts[0].'"></td>
 						<td><input type="button" class="button" name="setGroup" value="Pick" onClick="pickGroupAddress(\'onOffName_'.$rowDevices['PK_Device'].'\',\'onOff_'.$rowDevices['PK_Device'].'\');"></td>
 					</tr>';
 		if(in_array($rowDevices['FK_DeviceTemplate'],$multiGroupAddress)){
@@ -238,7 +237,7 @@ function eibDevices($output,$dbADO,$eibADO) {
 		</tr>
 	</table>
 		<input type="hidden" name="devicesArray" value="'.urlencode(serialize($devicesArray)).'">
-		<div id="addressPicker" style="position:absolute;display:none;top:0;left:0;">'.channelPullDown($channelArray,'generic','','onChange="setGroupValue();"').'</div>
+		<div id="addressPicker" style="position:absolute;display:none;top:0;left:0;">'.channelPullDown($channelArray,'generic','','onChange="setGroupValue();" onBlur="setGroupValue();"').'</div>
 	</form>
 	';
 	} else {
@@ -318,6 +317,10 @@ function eibDevices($output,$dbADO,$eibADO) {
 				
 				$dbADO->Execute('UPDATE Device SET Description=? WHERE PK_Device=?',array($newDevice,$insertID));
 				$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($deviceData,$insertID,$targetDeviceData));
+				
+				if($type=='sensors'){
+					$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array(2,$insertID,$GLOBALS['InputOrOutput']));
+				}
 				header("Location: index.php?section=eibDevices&type=$type&msg=The device was added.");
 				exit();
 			}else{

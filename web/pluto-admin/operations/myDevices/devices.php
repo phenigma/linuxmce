@@ -67,7 +67,8 @@ function devices($output,$dbADO) {
 		$roomArray[]=$rowRoom['Description'];
 		$roomIDArray[]=$rowRoom['PK_Room'];
 	}
-	
+
+	$deviceNames=getDeviceNames($dbADO);
 	
 	if(isset($_REQUEST['lastAdded']) && (int)$_REQUEST['lastAdded']!=0){
 		$rs=$dbADO->Execute('SELECT Comments FROM DeviceTemplate WHERE PK_DeviceTemplate=?',(int)$_REQUEST['lastAdded']);
@@ -78,7 +79,7 @@ function devices($output,$dbADO) {
 			</script>';
 		}
 	}
-	
+
 	
 	if ($action == 'form') {
 		$out.='
@@ -245,13 +246,14 @@ function devices($output,$dbADO) {
 								{
 									$out.='<select name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
 									$out .= '<option value="">-- Empty --';
+									$serial_ports=array();
 									exec('sudo -u root /usr/pluto/bin/ListSerialPorts.sh', $serial_ports);
 									foreach ($serial_ports as $serial_port)
 									{
 										if ($serial_port === "")
 											continue;
 										$selected = $ddValue === $serial_port ? " selected" : "";
-										$out .= "<option value=\"$serial_port\"$selected>".PortForHumans($serial_port);
+										$out .= "<option value=\"$serial_port\"$selected>".PortForHumans($serial_port,$deviceNames);
 									}
 									$out.='</select>';
 								}
@@ -368,7 +370,7 @@ function devices($output,$dbADO) {
 	$output->output();
 }
 
-function PortForHumans($device)
+function PortForHumans($device,$deviceNames)
 {
 	$devname = substr(strrchr($device, '/'), 1);
 
@@ -381,7 +383,7 @@ function PortForHumans($device)
 			list($PK_Device, $number) = split("_", substr($devid, 1));
 			$number++;
 			# TODO: translate $PK_Device to actual device name
-			return "Port $number on 'device $PK_Device'";
+			return "Port $number on 'device ".@$deviceNames[$PK_Device]."'";
 		}
 		else
 		{

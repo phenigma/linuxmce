@@ -253,8 +253,8 @@ function floorplanWizard($output,$dbADO) {
 				if($res->RecordCount()==0){
 					while($rowFloorplans=$resFloorplans->FetchRow()){
 						$entAreaCoords[]=$rowFloorplans['Page'];
-						$entAreaCoords[]=($rowFloorplans['Page']==$page)?floor($scaleFactor*($arIncomingCoords[$intCursor+1])):-1;
-						$entAreaCoords[]=($rowFloorplans['Page']==$page)?floor($scaleFactor*($arIncomingCoords[$intCursor+2])):-1;
+						$entAreaCoords[]=($rowFloorplans['Page']==$page)?floor(($arIncomingCoords[$intCursor+1]/$scaleFactor)):-1;
+						$entAreaCoords[]=($rowFloorplans['Page']==$page)?floor(($arIncomingCoords[$intCursor+2]/$scaleFactor)):-1;
 					}
 					
 					$updateCoords='UPDATE EntertainArea SET FloorplanInfo=? WHERE PK_EntertainArea=?';
@@ -265,8 +265,8 @@ function floorplanWizard($output,$dbADO) {
 					$key=0;
 					while($rowFloorplans=$resFloorplans->FetchRow()){
 						$entAreaCoords[$key]=$rowFloorplans['Page'];
-						$xcoord=($arIncomingCoords[$intCursor+1]!=-1)?floor($scaleFactor*($arIncomingCoords[$intCursor+1]+10)):-1;
-						$ycoord=($arIncomingCoords[$intCursor+2]!=-1)?floor($scaleFactor*($arIncomingCoords[$intCursor+2]+10)):-1;
+						$xcoord=($arIncomingCoords[$intCursor+1]!=-1)?ceil(($arIncomingCoords[$intCursor+1]+10)/$scaleFactor):-1;
+						$ycoord=($arIncomingCoords[$intCursor+2]!=-1)?ceil(($arIncomingCoords[$intCursor+2]+10)/$scaleFactor):-1;
 						$entAreaCoords[$key+1]=($rowFloorplans['Page']==$page)?$xcoord:(isset($oldCoordsArray[$key+1])?$oldCoordsArray[$key+1]:-1);
 						$entAreaCoords[$key+2]=($rowFloorplans['Page']==$page)?$ycoord:(isset($oldCoordsArray[$key+2])?$oldCoordsArray[$key+2]:-1);
 						$key+=3;

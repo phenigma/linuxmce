@@ -581,8 +581,8 @@ function avWizard($output,$dbADO) {
 					$room=(@$_POST['room_'.$value]!=0)?(int)@$_POST['room_'.$value]:NULL;
 					$controlledBy=(@$_POST['controlledBy_'.$value]!=0)?(int)@$_POST['controlledBy_'.$value]:NULL;
 
-					if(isset($_POST['controlledBy_'.$value])){
-						$updateDevice='UPDATE Device SET Description=?, FK_Room=?,FK_Device_ControlledVia =? '.@$updateMacIp.' WHERE PK_Device=?';
+					if(isset($_POST['controlledBy_'.$value]) && $type!='media_directors'){
+						$updateDevice='UPDATE Device SET Description=?, FK_Room=?, FK_Device_ControlledVia=? '.@$updateMacIp.' WHERE PK_Device=?';
 						$dbADO->Execute($updateDevice,array($description,$room,$controlledBy,$value));
 					}else{
 						if($type=='media_directors'){

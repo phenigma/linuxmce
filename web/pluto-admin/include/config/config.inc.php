@@ -159,6 +159,7 @@
 	$GLOBALS['FloorplanInfo']=10;				// FloorplanInfo (coordinates)
 	$GLOBALS['FloorplanObjectType']=11;			// FloorplanObjectType
 	$GLOBALS['Channel']=12;						// Channel
+	$GLOBALS['InputOrOutput']=18;				// InputOrOutput
 	$GLOBALS['DHCPDeviceData']=28;				// DHCP
 	$GLOBALS['PhoneNumber']=31;					// Phone Number
 	$GLOBALS['NetworkInterfaces']=32;			// Network Interfaces

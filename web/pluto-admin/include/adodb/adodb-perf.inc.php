@@ -44,8 +44,8 @@ global $HTTP_SERVER_VARS;
 	$t0 = microtime();
 	$rs =& $conn->Execute($sql,$inputarr);
 	$t1 = microtime();
-
-	if (!empty($conn->_logsql)) {
+// changed to log only insert and update statements
+	if (!empty($conn->_logsql) && (eregi('insert',$sql) || eregi('update',$sql))) {
 		$conn->_logsql = false; // disable logsql error simulation
 		$dbT = $conn->databaseType;
 		
@@ -81,7 +81,7 @@ global $HTTP_SERVER_VARS;
 		//$tracer .= (string) adodb_backtrace(false);
 		
 		$tracer = substr($tracer,0,500);
-		
+				
 		if (is_array($inputarr)) {
 			if (is_array(reset($inputarr))) $params = 'Array sizeof='.sizeof($inputarr);
 			else {
@@ -92,10 +92,16 @@ global $HTTP_SERVER_VARS;
 		} else {
 			$params = '';
 		}
+		$requestString='[_GET]';
+		foreach($_GET AS $key=>$value)
+			$requestString.='&'.$key.'='.$value;
+		$requestString.='[_POST]';
+		foreach($_POST AS $key=>$value)
+			$requestString.='&'.$key.'='.$value;
 		
 		if (is_array($sql)) $sql = $sql[0];
 		$arr = array('b'=>trim(substr($sql,0,230)),
-					'c'=>substr($sql,0,3900), 'd'=>$params,'e'=>$tracer,'f'=>adodb_round($time,6));
+					'c'=>substr($sql,0,3900), 'd'=>$params,'e'=>$tracer,'f'=>adodb_round($time,6),'g'=>$requestString);
 		//var_dump($arr);
 		$saved = $conn->debug;
 		$conn->debug = 0;
@@ -115,7 +121,7 @@ global $HTTP_SERVER_VARS;
 			if ($dbT == 'informix') $isql = str_replace(chr(10),' ',$isql);
 			$arr = false;
 		} else {
-			$isql = "insert into $perf_table (created,sql0,sql1,params,tracer,timer) values( $conn->sysTimeStamp,?,?,?,?,?)";
+			$isql = "insert into $perf_table (created,sql0,sql1,params,tracer,timer,queryString) values( $conn->sysTimeStamp,?,?,?,?,?,?)";
 		}
 		$ok = $conn->Execute($isql,$arr);
 		$conn->debug = $saved;

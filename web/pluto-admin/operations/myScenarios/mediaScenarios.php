@@ -11,7 +11,7 @@ function mediaScenarios($output,$dbADO) {
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';
 	$arrayID=$GLOBALS['ArrayIDForMedia'];
 	$templateWizard=$GLOBALS['MediaScenariosTemplate'];			// from table Template, PK_Template for Media Wizard
-	
+		
 	$queryEntAreas='
 		SELECT 
 			EntertainArea.*,
@@ -26,6 +26,7 @@ function mediaScenarios($output,$dbADO) {
 	$out='Each Media Scenario will be a button on the Orbiter.  To use Media from a Pluto Media Director, just check the box for the type of media you want.  To use Media from
 	another source, like a VCR, DVD player, etc., use the "Add Media Scenario" section.';
 	if($action=='form'){
+		$devicesMediaType=getDevicesArrayFromCategory($GLOBALS['rootAVEquipment'],$dbADO);	// start with all A/V/ devices
 		$out.='
 			<script>
 				function windowOpen(locationA,attributes) {
@@ -71,23 +72,31 @@ function mediaScenarios($output,$dbADO) {
 			
 			if((int)@$_POST['newEntArea']!=0){
 				$queryDevices='
-					SELECT DISTINCT PK_Device, Device.Description, Device.FK_DeviceTemplate
+					SELECT DISTINCT Device.*
 						FROM Device_EntertainArea
 					INNER JOIN Device ON FK_Device=PK_Device
 					INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
 					INNER JOIN DeviceTemplate_MediaType ON DeviceTemplate_MediaType.FK_DeviceTemplate=Device.FK_DeviceTemplate
 					WHERE FK_EntertainArea=?';
+				$resDevices=$dbADO->Execute($queryDevices,array($_POST['newEntArea']));
+				$deviceTemplatesArray=array();
+				while($rowDevices=$resDevices->FetchRow()){
+					if(!in_array($rowDevices['PK_Device'],$devicesMediaType)){
+						$devicesMediaType[$rowDevices['PK_Device']]=$rowDevices['Description'];
+						$deviceTemplatesArray[$rowDevices['PK_Device']]=$rowDevices['FK_DeviceTemplate'];
+					}
+				}
 				$out.='
 					<tr>
 						<td>Device</td>
-						<td><select name="MSDevice" onChange="document.mediaScenarios.action.value=\'form\';document.mediaScenarios.GoTo.value=\'addMS\';document.mediaScenarios.submit()">
-							<option value="0">Please select</option>';
-				$resDevices=$dbADO->Execute($queryDevices,array($_POST['newEntArea']));
-				while($rowDevices=$resDevices->FetchRow()){
-					$out.='<option value="'.$rowDevices['PK_Device'].'-'.$rowDevices['FK_DeviceTemplate'].'" '.((@$_POST['MSDevice']==$rowDevices['PK_Device'].'-'.$rowDevices['FK_DeviceTemplate'])?'selected':'').'>'.$rowDevices['Description'].'</option>';
+						<td><select name="MSDevice" onChange="document.mediaScenarios.action.value=\'form\';document.mediaScenarios.GoTo.value=\'addMS\';document.mediaScenarios.submit()" '.((substr($_POST['MSDevice'],-1)=='-')?'style="background:red;"':'').'>
+							<option value="0" style="background:white;">Please select</option>';
+
+				foreach ($devicesMediaType AS $deviceID=>$description){
+					$out.='<option value="'.$deviceID.'-'.@$deviceTemplatesArray[$deviceID].'" '.((@$_POST['MSDevice']==$deviceID.'-'.@$deviceTemplatesArray[$deviceID])?'selected':'').' '.((!isset($deviceTemplatesArray[$deviceID]))?'style="background:red;"':'style="background:white;"').'>'.$description.'</option>';
 				}
 				$out.='
-						</select></td>
+						</select>'.((count($devicesMediaType)!=count($deviceTemplatesArray))?' <font color=red>The devices highlighted doen\'t have specified a media type.</font>':'').'</td>
 					</tr>';
 			if($resDevices->RecordCount()==0){
 				$out.='
@@ -97,7 +106,7 @@ function mediaScenarios($output,$dbADO) {
 			}
 
 				
-				if(isset($_POST['MSDevice']) && $_POST['MSDevice']!='0'){
+				if(isset($_POST['MSDevice']) && $_POST['MSDevice']!='0' && substr($_POST['MSDevice'],-1)!='-'){
 					$deviceArray=explode('-',$_POST['MSDevice']);
 					$out.='
 					<tr>

@@ -2648,4 +2648,14 @@ function processAdvancedScenarios($cgID,$section,$dbADO)
 	}
 
 }
+
+function getDeviceNames($dbADO,$filter='')
+{
+	$devices=array();
+	$resDevices=$dbADO->Execute('SELECT * FROM Device WHERE FK_Installation=? '.$filter,$_SESSION['installationID']);
+	while($row=$resDevices->fetchRow()){
+		$devices[$row['PK_Device']]=$row['Description'];
+	}
+	return $devices;
+}
 ?>

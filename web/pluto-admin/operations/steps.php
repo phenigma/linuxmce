@@ -35,7 +35,13 @@ function steps($output,$dbADO) {
 		</script>
 	';
 	
-	$selectMenu = "
+	$GLOBALS['pagesArray']=array();
+	$GLOBALS['descriptionArray']=array();
+	$GLOBALS['linksArray']=array();
+	$GLOBALS['levelArray']=array();
+	$GLOBALS['isSync']=array();
+	
+	$selectWizard = "
 		SELECT DISTINCT PageSetup.*, SetupStep.FK_Installation
 		FROM PageSetup 
 		LEFT JOIN DeviceTemplate ON PageSetup.FK_Package=DeviceTemplate.FK_Package
@@ -44,7 +50,15 @@ function steps($output,$dbADO) {
 		WHERE FK_PageSetup_Parent = 1 AND showInTopMenu = 1 AND Website=1 AND (PageSetup.FK_Package IS NULL OR (PK_Device IS NOT NULL AND Device.FK_Installation=?))
 		ORDER BY OrderNum ASC
 		";
-	$resSelectMenu = $dbADO->Execute($selectMenu,array($installationID,$installationID));
+	$resWizard = $dbADO->Execute($selectWizard,array($installationID,$installationID));
+	while ($rowNode = $resWizard->FetchRow()) {
+		$GLOBALS['pagesArray'][]=$rowNode['PK_PageSetup'];
+		$GLOBALS['linksArray'][]=$rowNode['pageURL'];
+		$GLOBALS['descriptionArray'][]=$rowNode['Description'];
+		$GLOBALS['levelArray'][]=0;
+		$GLOBALS['isSync'][]=(($rowNode['FK_Installation']!='')?1:0);
+		getChildPages($rowNode['PK_PageSetup'],1,$dbADO);
+	}
 	$out.='<table border="0" cellpading="2" cellspacing="0" width="100%">
 			<tr>
 				<td colspan="3" align="center">
@@ -57,113 +71,26 @@ function steps($output,$dbADO) {
 				</td>
 			</tr>
 	';
-	$nextItem=array();
-	$nextUrl=array();
-	$startPos=0;
-	
-	$resrootNodes = $dbADO->Execute($selectMenu,array($installationID,$installationID));
-	while ($rootNodes = $resrootNodes->FetchRow()) {
-		$selectLevel1 = "
-			SELECT DISTINCT PageSetup.*, SetupStep.FK_Installation
-			FROM PageSetup 
-			LEFT JOIN DeviceTemplate ON PageSetup.FK_Package=DeviceTemplate.FK_Package
-			LEFT JOIN Device ON Device.FK_DeviceTemplate=PK_DeviceTemplate
-			LEFT JOIN SetupStep ON FK_PageSetup=PK_PageSetup AND (SetupStep.FK_Installation IS NULL OR SetupStep.FK_Installation=?)
-			WHERE FK_PageSetup_Parent = {$rootNodes['PK_PageSetup']} AND showInTopMenu = 1 AND Website=1 AND (PageSetup.FK_Package IS NULL OR (PK_Device IS NOT NULL AND Device.FK_Installation=?))		
-			ORDER BY OrderNum ASC";
-		$resSelectLevel1 = $dbADO->Execute($selectLevel1,array($installationID,$installationID));
-		while ($rowSelectLevel1 = $resSelectLevel1->FetchRow()) {
-			if($rowSelectLevel1['pageURL']!=''){
-				$nextItem[$startPos]=$rowSelectLevel1['PK_PageSetup'];
-				$nextUrl[$startPos]=$rowSelectLevel1['pageURL'];
-			}
-			$startPos=$rowSelectLevel1['PK_PageSetup'];
-			
-			$selectLevel2 = "
-				SELECT DISTINCT PageSetup.*, SetupStep.FK_Installation
-				FROM PageSetup 
-				LEFT JOIN DeviceTemplate ON PageSetup.FK_Package=DeviceTemplate.FK_Package
-				LEFT JOIN Device ON Device.FK_DeviceTemplate=PK_DeviceTemplate
-				LEFT JOIN SetupStep ON FK_PageSetup=PK_PageSetup AND (SetupStep.FK_Installation IS NULL OR SetupStep.FK_Installation=?)
-				WHERE FK_PageSetup_Parent = {$rowSelectLevel1['PK_PageSetup']} AND showInTopMenu = 1 AND Website=1 AND (PageSetup.FK_Package IS NULL OR (PK_Device IS NOT NULL AND Device.FK_Installation=?))		
-				ORDER BY OrderNum ASC";
-			$resSelectLevel2 = $dbADO->Execute($selectLevel2,array($installationID,$installationID));
-			while ($rowSelectLevel2 = $resSelectLevel2->FetchRow()) {
-				if($rowSelectLevel2['pageURL']!=''){
-					$nextItem[$startPos]=$rowSelectLevel2['PK_PageSetup'];
-					$nextUrl[$startPos]=$rowSelectLevel1['pageURL'];
-				}
-					$startPos=$rowSelectLevel2['PK_PageSetup'];
-			}
-			$resSelectLevel2->Close();
-		}
-		$resSelectLevel1->Close();
-	}
-	$resrootNodes->Close();
-
-	$resSelectMenu = $dbADO->Execute($selectMenu,array($installationID,$installationID));
-	while ($rowSelectMenu = $resSelectMenu->FetchRow()) {
-		$wizardLink=($rowSelectMenu['pageURL']!='')?'<a href="'.$rowSelectMenu['pageURL'].'" target="basefrm">'.$rowSelectMenu['Description'].'</a>':'<b>'.$rowSelectMenu['Description'].'</b>';
-		if($rowSelectMenu['FK_Installation']!='')
+	foreach ($GLOBALS['descriptionArray'] AS $pos=>$description){
+		$fromPage=$GLOBALS['pagesArray'][$pos];
+		$toPos=(isset($GLOBALS['pagesArray'][$pos+1]) && $GLOBALS['linksArray'][$pos+1]!='')?$pos+1:$pos+2;
+		
+		$toPage=isset($GLOBALS['pagesArray'][$toPos])?$GLOBALS['pagesArray'][$toPos]:$GLOBALS['pagesArray'][$pos];
+		
+		$wizardLink=($GLOBALS['linksArray'][$pos]!='')?'<a <a href="#" onClick="setMenuItem(\''.$GLOBALS['linksArray'][$pos].'\',\''.$fromPage.'\',\''.$fromPage.'\')">'.$description.'</a>':'<b>'.$description.'</b>';
+		if($GLOBALS['isSync'][$pos]==1)
 			$wizardLink.='<img src="include/images/sync.gif" align="middle">';
+
+		$nextLink=($currentItem==$GLOBALS['pagesArray'][$pos])?'<a <a href="#" onClick="setMenuItem(\''.$GLOBALS['linksArray'][$pos].'\',\''.$toPage.'\',\''.$fromPage.'\')">Next</a>':'&nbsp;';
+		
 		$out.='
-			<tr>
+			<tr bgcolor="'.(($currentItem==$GLOBALS['pagesArray'][$pos])?'#CCCCCC':'').'">
 				<td></td>
-				<td height="22">'.$wizardLink.'</td>
-				<td align="right">&nbsp;</td>
+				<td height="22">'.indent($GLOBALS['levelArray'][$pos]).$wizardLink.'</td>
+				<td align="right">'.$nextLink.'</td>
 			</tr>
-			';
-		//get childs (ne-recursive method)
-		$selectLevel1 = "
-				SELECT DISTINCT PageSetup.*, SetupStep.FK_Installation
-				FROM PageSetup 
-				LEFT JOIN DeviceTemplate ON PageSetup.FK_Package=DeviceTemplate.FK_Package
-				LEFT JOIN Device ON Device.FK_DeviceTemplate=PK_DeviceTemplate
-				LEFT JOIN SetupStep ON FK_PageSetup=PK_PageSetup AND (SetupStep.FK_Installation IS NULL OR SetupStep.FK_Installation=?)
-				WHERE FK_PageSetup_Parent = {$rowSelectMenu['PK_PageSetup']} AND showInTopMenu = 1 AND Website=1 AND (PageSetup.FK_Package IS NULL OR (PK_Device IS NOT NULL AND Device.FK_Installation=?))		
-				ORDER BY OrderNum ASC";
-
-		$resSelectSubMenu1 = $dbADO->Execute($selectLevel1,array($installationID,$installationID));
-		while ($rowSelectSubMenu1 = $resSelectSubMenu1->FetchRow()) {
-
-			//get level 2 childs (ne-recursive method)
-			$wizardLink=($rowSelectSubMenu1['pageURL']!='')?'<a href="#" onClick="setMenuItem(\''.$rowSelectSubMenu1['pageURL'].'\',\''.@$rowSelectSubMenu1['PK_PageSetup'].'\',\''.@$rowSelectSubMenu1['PK_PageSetup'].'\')">'.$rowSelectSubMenu1['Description'].'</a>':'<b>'.$rowSelectSubMenu1['Description'].'</b>';
-			if($rowSelectSubMenu1['FK_Installation']!='')
-				$wizardLink.='<img src="include/images/sync.gif" align="middle">';
-			$out.='
-			<tr>
-				<td></td>
-				<td bgcolor="'.(($currentItem==$rowSelectSubMenu1['PK_PageSetup'])?'#CCCCCC':'').'">&nbsp;&nbsp;&nbsp;&nbsp;'.$wizardLink.'</td>
-				'.(($currentItem==$rowSelectSubMenu1['PK_PageSetup'])?'<td align="right" bgcolor="#CCCCCC"><a href="#" onClick="setMenuItem(\''.@$nextUrl[$rowSelectSubMenu1['PK_PageSetup']].'\',\''.@$nextItem[$rowSelectSubMenu1['PK_PageSetup']].'\',\''.$rowSelectSubMenu1['PK_PageSetup'].'\')">Next</a></td>':'<td>&nbsp;</td>').'
-			</tr>';
-			$selectLevel2 = "
-				SELECT DISTINCT PageSetup.*, SetupStep.FK_Installation
-				FROM PageSetup 
-				LEFT JOIN DeviceTemplate ON PageSetup.FK_Package=DeviceTemplate.FK_Package
-				LEFT JOIN Device ON Device.FK_DeviceTemplate=PK_DeviceTemplate
-				LEFT JOIN SetupStep ON FK_PageSetup=PK_PageSetup AND (SetupStep.FK_Installation IS NULL OR SetupStep.FK_Installation=?)
-				WHERE FK_PageSetup_Parent = {$rowSelectSubMenu1['PK_PageSetup']} AND showInTopMenu = 1 AND Website=1 AND (PageSetup.FK_Package IS NULL OR (PK_Device IS NOT NULL AND Device.FK_Installation=?))		
-				ORDER BY OrderNum ASC";
-
-			$resSelectSubMenu2 = $dbADO->Execute($selectLevel2,array($installationID,$installationID));
-
-			while ($rowSelectSubMenu2 = $resSelectSubMenu2->FetchRow()) {
-				$wizardLink=($rowSelectSubMenu2['pageURL']!='')?'<a href="#" onClick="setMenuItem(\''.$rowSelectSubMenu2['pageURL'].'\',\''.@$rowSelectSubMenu2['PK_PageSetup'].'\',\''.@$rowSelectSubMenu2['PK_PageSetup'].'\')">'.$rowSelectSubMenu2['Description'].'</a>':'<b>'.$rowSelectSubMenu2['Description'].'</b>';
-				if($rowSelectSubMenu2['FK_Installation']!='')
-					$wizardLink.='<img src="include/images/sync.gif" align="middle">';
-
-			$out.='
-			<tr>
-				<td></td>
-				<td bgcolor="'.(($currentItem==$rowSelectSubMenu2['PK_PageSetup'])?'#CCCCCC':'').'">&nbsp;&nbsp;&nbsp;&nbsp;'.$wizardLink.'</td>
-				'.(($currentItem==$rowSelectSubMenu2['PK_PageSetup'])?'<td align="right" bgcolor="#CCCCCC"><a href="#" onClick="setMenuItem(\''.@$nextUrl[$rowSelectSubMenu2['PK_PageSetup']].'\',\''.@$nextItem[$rowSelectSubMenu2['PK_PageSetup']].'\',\''.$rowSelectSubMenu1['PK_PageSetup'].'\')">Next</a></td>':'<td>&nbsp;</td>').'	
-			</tr>';
-			}
-			$resSelectSubMenu2->Close();
-		}
-		$resSelectSubMenu1->Close();
+			';	
 	}
-	$resSelectMenu->Close();
 	$out.='
 		<tr>
 			<td colspan="2" align="center">&nbsp;</td>
@@ -186,5 +113,33 @@ function steps($output,$dbADO) {
 	$output->output();  
 }
 
+function getChildPages($parentNode,$level,$dbADO)
+{
+	$selectNodes = '
+		SELECT DISTINCT PageSetup.*, SetupStep.FK_Installation
+		FROM PageSetup 
+		LEFT JOIN DeviceTemplate ON PageSetup.FK_Package=DeviceTemplate.FK_Package
+		LEFT JOIN Device ON Device.FK_DeviceTemplate=PK_DeviceTemplate
+		LEFT JOIN SetupStep ON FK_PageSetup=PK_PageSetup AND (SetupStep.FK_Installation IS NULL OR SetupStep.FK_Installation=?)
+		WHERE FK_PageSetup_Parent = ? AND showInTopMenu = 1 AND Website=1 AND (PageSetup.FK_Package IS NULL OR (PK_Device IS NOT NULL AND Device.FK_Installation=?))		
+		ORDER BY OrderNum ASC';
+	$resNodes= $dbADO->Execute($selectNodes,array($_SESSION['installationID'],$parentNode,$_SESSION['installationID']));
+	while($row=$resNodes->FetchRow()){
+		$GLOBALS['pagesArray'][]=$row['PK_PageSetup'];
+		$GLOBALS['linksArray'][]=$row['pageURL'];
+		$GLOBALS['descriptionArray'][]=$row['Description'];
+		$GLOBALS['levelArray'][]=$level;
+		$GLOBALS['isSync'][]=(($row['FK_Installation']!='')?1:0);
+		getChildPages($row['PK_PageSetup'],$level+1,$dbADO);
+	}
+}
 
+function indent($level)
+{
+	$out='';
+	for ($i=0;$i<$level;$i++){
+		$out.='&nbsp;&nbsp;&nbsp;&nbsp;';
+	}
+	return $out;
+}
 ?>

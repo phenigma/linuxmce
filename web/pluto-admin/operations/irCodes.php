@@ -342,7 +342,7 @@ function irCodes($output,$dbADO) {
 				if(isset($GLOBALS['igcPrefered'][$commandID]) && $GLOBALS['igcPrefered'][$commandID]!=$preferredCommand){
 					$dbADO->Execute('UPDATE InfraredGroup_Command_Preferred SET FK_InfraredGroup_Command=? WHERE FK_InfraredGroup_Command=? AND FK_Installation=?',array($preferredCommand,$GLOBALS['igcPrefered'][$commandID],$installationID));
 				}elseif(!isset($GLOBALS['igcPrefered'][$commandID])){
-					$dbADO->Execute('INSERT INTO InfraredGroup_Command_Preferred (FK_InfraredGroup_Command,FK_Installation) VALUES (?,?)',array($preferredCommand,$installationID));
+					$dbADO->Execute('INSERT IGNORE INTO InfraredGroup_Command_Preferred (FK_InfraredGroup_Command,FK_Installation) VALUES (?,?)',array($preferredCommand,$installationID));
 				}
 			}
 		}
@@ -351,7 +351,7 @@ function irCodes($output,$dbADO) {
 			$deviceCGArray=explode(',',$_POST['deviceCG']);
 			$oldCheckedDCG=explode(',',$_POST['oldCheckedDCG']);
 			foreach ($deviceCGArray AS $deviceCG){
-				if(isset($_POST['dcg_'.$deviceCG]) && !in_array($deviceCG,$oldCheckedDCG)){
+				if(isset($_POST['dcg_'.$deviceCG])){
 					// insert commands in IRG_C
 					$res=$dbADO->Execute('
 						SELECT DeviceCommandGroup_Command.FK_Command,FK_InfraredGroup,PK_InfraredGroup_Command
@@ -365,7 +365,8 @@ function irCodes($output,$dbADO) {
 							$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command,FK_Device,FK_DeviceTemplate,IRData,FK_Users) VALUES (?,?,?,?,?,?)',array(NULL,$rowC['FK_Command'],$deviceID,$dtID,'',$_SESSION['userID']));
 						}
 					}
-				$dbADO->Execute('INSERT INTO DeviceTemplate_DeviceCommandGroup (FK_DeviceTemplate, FK_DeviceCommandGroup) VALUES (?,?)',array($dtID,$deviceCG));
+				if(!in_array($deviceCG,$oldCheckedDCG))
+					$dbADO->Execute('INSERT INTO DeviceTemplate_DeviceCommandGroup (FK_DeviceTemplate, FK_DeviceCommandGroup) VALUES (?,?)',array($dtID,$deviceCG));
 
 				}elseif(!isset($_POST['dcg_'.$deviceCG]) && in_array($deviceCG,$oldCheckedDCG)){
 					// delete from IRG_C
@@ -377,7 +378,7 @@ function irCodes($output,$dbADO) {
 
 					while($rowC=$res->FetchRow()){
 						if($rowC['PK_InfraredGroup_Command']!=''){
-							$dbADO->Execute('DELETE FROM InfraredGroup_Command WHERE PK_InfraredGroup_Command=? AND FK_Users=?',$rowC['PK_InfraredGroup_Command'],$_SESSION['userID']);
+							$dbADO->Execute('DELETE FROM InfraredGroup_Command WHERE PK_InfraredGroup_Command=? AND FK_Users=?',array($rowC['PK_InfraredGroup_Command'],$_SESSION['userID']));
 						}
 					}
 					$dbADO->Execute('DELETE FROM DeviceTemplate_DeviceCommandGroup WHERE FK_DeviceTemplate=? AND FK_DeviceCommandGroup=?',array($dtID,$deviceCG));
