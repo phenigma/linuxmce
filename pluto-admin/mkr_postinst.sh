@@ -31,4 +31,4 @@ for File in $Index; do
 done
 
 Redirect="<?php header('Location: pluto-support/index.php?section=pluto'); ?>"
-echo "$Redirect" >/var/www/index.php
+[ -e /var/www/index.php ] || echo "$Redirect" >/var/www/index.php
