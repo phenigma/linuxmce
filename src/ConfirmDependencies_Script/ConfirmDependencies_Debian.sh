@@ -75,7 +75,7 @@ case "$URL_TYPE" in
 
 		if ! PackageIsInstalled "$PKG_NAME"; then
 			keep_sending_enters | apt-get -t "$REPOS" -y install "$PKG_NAME" || exit $ERR_APT
-			apt-get clean
+#			apt-get clean
 		fi
 	;;
 	

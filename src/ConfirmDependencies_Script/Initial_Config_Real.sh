@@ -275,6 +275,8 @@ case "$R" in
 	;;
 esac
 
+apt-get clean
+
 #wget -O "$DIR/message.txt" "$ACTIV/message.php?code=$CODE" 2>/dev/null && cat "$DIR/message.txt"
 Message1="Congratulations.  Pluto installation has completed.
 The system will now reboot.  The Pluto Core software will
