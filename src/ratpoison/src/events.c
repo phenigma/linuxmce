@@ -186,6 +186,12 @@ destroy_window (XDestroyWindowEvent *ev)
 {
   rp_window *win;
 
+  if ( desktop_window && ev->window == desktop_window->w )
+  {
+      PRINT_DEBUG (("The desktop window need to be destroyed now!"));
+	  clear_destkop_application();
+  }
+
   win = find_window (ev->window);
   if (win == NULL) return;
 
@@ -575,6 +581,7 @@ property_notify (XEvent *ev)
       switch (ev->xproperty.atom)
     {
     case XA_WM_NAME:
+	// case XA_WM_TITLE:
       PRINT_DEBUG (("updating window name\n"));
       update_window_name (win);
       update_window_names (win->scr);

@@ -37,6 +37,8 @@ static int num_unmanaged_windows = 0;
 
 rp_screen *frames_screen(rp_frame *);
 
+Atom atomUtfString = None;
+
 void
 clear_unmanaged_list ()
 {
@@ -221,6 +223,11 @@ update_normal_hints (rp_window *win)
 #endif
 }
 
+// static char *
+// get_wmtitle (Window w)
+// {
+//
+// }
 
 static char *
 get_wmname (Window w)
@@ -242,15 +249,32 @@ get_wmname (Window w)
 
   if (status != Success || name == NULL)
     {
-      PRINT_DEBUG (("I can't get the WMName.\n"));
+      PRINT_DEBUG (("I can't get the WMName as XA_STRING for window: 0x%x\n", (int)w));
       return NULL;
     }
 
   if (n == 0)
-    {
-      PRINT_DEBUG (("I can't get the WMName.\n"));
-      XFree (name);
-      return NULL;
+	{
+		if ( atomUtfString == None )
+		{
+			atomUtfString = XInternAtom(dpy, "UTF8_STRING", True);
+			if ( atomUtfString == None )
+			{
+				PRINT_DEBUG (("Failure trying to get the UTF8_STRING atom from server!\n"));
+				return NULL;
+			}
+		}
+
+		// TRY to get it as a UTF8 string
+		status = XGetWindowProperty (dpy, w, wm_name, 0L, 100L, False,
+                   		atomUtfString, &actual_type, &actual_format,
+                   		&n, &bytes_after, &name);
+
+		if (status != Success || name == NULL)
+    	{
+      		PRINT_DEBUG (("I can't get the WMName as UTF8_STRING for window: 0x%x\n", (int)w));
+      		return NULL;
+    	}
     }
 
   PRINT_DEBUG (("WM_NAME: '%s'\n", name));
@@ -343,6 +367,11 @@ update_window_name (rp_window *win)
       free (win->wm_name);
       win->wm_name = newstr;
     }
+//   else if  (win->wm_name == NULL)
+//   	{
+// 		if ( (newstr = get_wmtitle(win->w)) != NULL )
+// 			win->wm_name = newstr;
+// 	}
 
   newstr = get_res_class (win->w);
   if (newstr != NULL)

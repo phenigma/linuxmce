@@ -29,6 +29,9 @@ class RatpoisonHandler
         {
             Display *display = static_cast<T*>(this)->getDisplay();
 
+			if ( display == NULL )
+				return false;
+
             XLockDisplay(display);
             g_pPlutoLogger->Write(LV_STATUS, "Instructing ratpoison to do this: \"%s\"", command.c_str());
 
@@ -109,6 +112,9 @@ class RatpoisonHandler
             unsigned long nitems;
             unsigned long bytes_after;
             unsigned char *result = NULL;
+
+			if ( display == NULL )
+				return;
 
             /* First, find out how big the property is. */
             status = XGetWindowProperty (display, commandWindow, rp_command_result,

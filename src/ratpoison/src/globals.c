@@ -93,7 +93,7 @@ set_rp_window_focus (rp_window *win)
 {
   if ( desktop_has_focus() == 1 && win != desktop_window )
   {
-    PRINT_DEBUG (("The target window is not the desktop window and the desktop has the focus. Ignoring request!"));
+    PRINT_DEBUG (("The target window is not the desktop window and the desktop has the focus. Ignoring request!\n"));
     return;
   }
 
