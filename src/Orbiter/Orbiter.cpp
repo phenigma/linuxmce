@@ -1797,6 +1797,7 @@ bool Orbiter::SelectedGrid( int DGRow )
 
     DataGridCell *pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData( iSelectedColumn,  DGRow );
 	pDesignObj_DataGrid->m_iHighlightedRow = DGRow;
+	pDesignObj_DataGrid->m_GridCurCol = iSelectedColumn;
 
 	g_pPlutoLogger->Write(LV_STATUS, "Selected row: %d, selected column: %d", 
 		DGRow, iSelectedColumn);
@@ -3104,7 +3105,7 @@ bool Orbiter::ButtonDown( int PK_Button )
 						pDesignObj_DataGrid->m_iHighlightedRow, pDesignObj_DataGrid->m_GridCurRow);
 
                     DataGridCell *pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData(
-						pDesignObj_DataGrid->m_iHighlightedColumn!=-1 ? pDesignObj_DataGrid->m_iHighlightedColumn + pDesignObj_DataGrid->m_GridCurCol : 0,
+						pDesignObj_DataGrid->m_iHighlightedColumn!=-1 ? pDesignObj_DataGrid->m_iHighlightedColumn + pDesignObj_DataGrid->m_GridCurCol : pDesignObj_DataGrid->m_GridCurCol,
 						pDesignObj_DataGrid->m_iHighlightedRow!=-1 ? pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow : 0);
                     if(  pCell  )
                     {
