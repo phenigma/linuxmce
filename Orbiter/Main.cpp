@@ -37,7 +37,8 @@ using namespace DCE;
 // For whatever reason, if I put: #include "OrbiterImageSDL.h" in this file,
 // then Microsoft won't compile, reporting an unresolved symbol _main.  It is something
 // to do with SDL.  Moving those references to another cpp file solves the problems.  See StartOrbiterSDL.cpp
-void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLocalMode,int Width,int Height);
+void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLocalMode,
+				  int Width,int Height, bool bFullScreen);
 
 
 
@@ -61,6 +62,7 @@ int main(int argc, char* argv[])
     string sLogger="stdout";
     int Width=800,Height=600;
     bool bLocalMode=false; // If true, it will not connect to PlutoServer but will look for it's files in the local directory
+	bool bFullScreen=false;
     string sLocalDirectory="";
     string sNestedDisplay = "";
 
@@ -98,6 +100,9 @@ int main(int argc, char* argv[])
         case 'H':
             Height = atoi(argv[++optnum]);
             break;
+		case 'F':
+			bFullScreen = true;
+			break;
         default:
             bError=true;
             break;
@@ -120,7 +125,9 @@ int main(int argc, char* argv[])
             << "-D directory		-- If a directory is specified, it will look for it's image " << endl
 	    << "	and config files here rather than requesting from the server." << endl
             << "-L 			-- Local mode only.  Do not connect to the server.  All messages will just loop back." << endl
-            << "-W/H			-- Width/Height default to full screen." << endl;
+            << "-F			-- Full screen."
+			<< "-W/H			-- Width/Height default to full screen." << endl;
+			
         exit(0);
     }
 
@@ -161,7 +168,7 @@ int main(int argc, char* argv[])
 
     try
     {
-        StartOrbiter(PK_Device,sRouter_IP,sLocalDirectory,bLocalMode,Width,Height);
+        StartOrbiter(PK_Device,sRouter_IP,sLocalDirectory,bLocalMode,Width,Height,bFullScreen);
     }
     catch(string s)
     {

@@ -32,7 +32,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE.lib pluto_main.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE.lib pluto_main.lib pluto_media.lib"
 				OutputFile="../bin/File_Grids_Plugin.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="C:\mysql\lib\Debug;../Libraries/pthreads-win32/lib;../lib"

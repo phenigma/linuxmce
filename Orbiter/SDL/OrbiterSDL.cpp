@@ -47,31 +47,47 @@
 using namespace DCE;
 
 //-----------------------------------------------------------------------------------------------------
-OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, int nImageWidth, int nImageHeight)
+OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
+					   int nImageWidth, int nImageHeight, bool bFullScreen/*=false*/)
     : Orbiter(DeviceID, ServerAddress, sLocalDirectory, bLocalMode, nImageWidth, nImageHeight)
 {
     m_pScreenImage = NULL;
     m_nImageWidth=nImageWidth;
     m_nImageHeight=nImageHeight;
+	m_bFullScreen=bFullScreen;
 
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == -1)
+	Uint32 uSDLInitFlags = SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE;
+
+	if(m_bFullScreen)
+		uSDLInitFlags |= SDL_FULLSCREEN;
+
+	if (SDL_Init(uSDLInitFlags) == -1)
     {
 #ifndef WINCE
-        cerr << "Failed to initialize SDL" << SDL_GetError() << endl;
+		cerr << "Failed to initialize SDL" << SDL_GetError() << endl;
 #else
 		printf("Failed to initialize SDL %s\n", SDL_GetError());
 #endif //WINCE
-        throw "Failed to initialize SDL";
+
+		throw "Failed to initialize SDL";
     }
-    atexit(SDL_Quit);
+
+	atexit(SDL_Quit);
     g_pPlutoLogger->Write(LV_STATUS, "Initialized SDL");
+
 #ifndef BLUETOOTH_DONGLE
-    if ((Screen = SDL_SetVideoMode(800, 600, 0, SDL_SWSURFACE)) == NULL)
+	Uint32 uVideoModeFlags = SDL_SWSURFACE;
+
+	if(m_bFullScreen)
+		uVideoModeFlags |= SDL_FULLSCREEN;
+	
+	if ((Screen = SDL_SetVideoMode(800, 600, 0, uVideoModeFlags)) == NULL)
     {
         g_pPlutoLogger->Write(LV_WARNING, "Failed to set video mode: %s", SDL_GetError());
         throw "Failed to set video mode";
     }
 #endif
+
     g_pPlutoLogger->Write(LV_STATUS, "Set video mode to 800x600 Window.");
 
     m_pScreenImage = SDL_CreateRGBSurface(SDL_SWSURFACE, m_nImageWidth, m_nImageHeight, 32, rmask, gmask, bmask, amask);

@@ -27,11 +27,15 @@
 
 #include "PlutoUtils/CommonIncludes.h"	
 #include "DCE/Logger.h"
+
 #ifndef WIN32 
 	#include <fcntl.h>
-#else
+#endif
+
+#ifdef WINCE
 	#include "wince.h"
 #endif
+
 #include "Message.h"
 #include "Socket.h"
 #include "PlutoUtils/FileUtils.h"

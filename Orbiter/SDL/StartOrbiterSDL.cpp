@@ -30,13 +30,14 @@
 #include "../pluto_main/Define_Button.h"
 #include "../pluto_main/Define_Direction.h"
 
-void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLocalMode,int Width,int Height)
+void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLocalMode,
+				  int Width, int Height, bool bFullScreen)
 {
 #ifdef WIN32
     OrbiterSDL *pCLinux =
         new OrbiterSDL(
         PK_Device, sRouter_IP,
-        sLocalDirectory, bLocalMode, Width, Height);
+        sLocalDirectory, bLocalMode, Width, Height, bFullScreen);
 #else
     OrbiterSDL *pCLinux =
         new OrbiterLinux(

@@ -87,9 +87,14 @@ bool FileUtils::FileExists( string sFile )
 
     return iResult == 0;
 #else
-	//todo : to be implemented
+	FILE *file = fopen(sFile.c_str(), "r");
 
-	return 0;
+	if(!file)
+		return false;
+
+	fclose(file);
+
+	return true;
 #endif
 }
 
@@ -107,23 +112,19 @@ long FileUtils::FileSize(string sFile)
         return buf.st_size;
 #else
 
-	//todo: to be implemented
+	FILE *file = fopen(sFile.c_str(), "r");
 
-	/*
+	if(!file)
+		return 0;
 
 	long dwSize;
 
-	// Try to obtain hFile's size 
-	dwSize = GetFileSize (hFile, NULL) ; 
- 
-	// Result on failure. 
-	if (dwSize == 0xFFFFFFFF) 
-		return 0;
-	else
-		return dwSize;
-	*/
+	fseek(file, 0, SEEK_END);
+	dwSize = ftell(file);
+	fclose(file);
 
 	return 0;
+
 #endif
 }
 

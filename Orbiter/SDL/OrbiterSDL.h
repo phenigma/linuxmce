@@ -22,9 +22,11 @@ class OrbiterSDL : public Orbiter
 	
 protected: // (mtoader) I want access to them in the OrbiterLinuxDesktop
 	int m_nImageWidth, m_nImageHeight;
+	int m_bFullScreen;
 
 public:
-	OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, int nImageWidth, int nImageHeight);
+	OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
+		int nImageWidth, int nImageHeight, bool bFullScreen = false);
 	virtual ~OrbiterSDL();
 
 	// Public virtual methods

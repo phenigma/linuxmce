@@ -1606,52 +1606,15 @@ NODEP_CPP_ORBITER=\
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_ORBITER=\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\begin_code.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\close_code.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_active.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_audio.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_byteorder.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_cdrom.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_error.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_events.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_getenv.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_joystick.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_keyboard.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_keysym.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_main.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_mouse.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_mutex.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_quit.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_rwops.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_timer.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_types.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_version.h"\
-	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_video.h"\
-	"..\..\DCE\AlarmManager.h"\
-	"..\..\DCE\ClientSocket.h"\
-	"..\..\DCE\Command_Impl.h"\
-	"..\..\DCE\DeviceData_Base.h"\
-	"..\..\DCE\DeviceData_Impl.h"\
-	"..\..\DCE\Event_Impl.h"\
-	"..\..\DCE\HandleRequestSocket.h"\
 	"..\..\DCE\Logger.h"\
-	"..\..\DCE\Message.h"\
 	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\DCE\ServerLogger.h"\
-	"..\..\DCE\Socket.h"\
-	"..\..\Gen_Devices\OrbiterBase.h"\
 	"..\..\Libraries\pthreads-snap-2002-11-04\config.h"\
 	"..\..\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
 	"..\..\Libraries\pthreads-snap-2002-11-04\pthread.h"\
 	"..\..\Libraries\pthreads-snap-2002-11-04\sched.h"\
-	"..\..\pluto_main\Define_Button.h"\
-	"..\..\pluto_main\Define_DesignObjType.h"\
-	"..\..\pluto_main\Define_Direction.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
-	"..\..\PlutoUtils\GraphicFormat.h"\
 	"..\..\PlutoUtils\MultiThreadIncludes.h"\
 	"..\..\PlutoUtils\MyMap.h"\
 	"..\..\PlutoUtils\MyStl.h"\
@@ -1659,15 +1622,8 @@ DEP_CPP_ORBITER=\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
-	"..\..\SerializeClass\ShapesColors.h"\
-	"..\DesignObj_Data.h"\
-	"..\DesignObj_Orbiter.h"\
-	"..\Floorplan.h"\
-	"..\Orbiter.h"\
-	"..\OrbiterData.h"\
-	"..\SDL\OrbiterSDL.h"\
-	"..\TextStyle.h"\
 	".\OrbiterCENet.h"\
+	".\StartOrbiterCE.h"\
 	".\StdAfx.h"\
 	".\wince.h"\
 	
@@ -2196,6 +2152,135 @@ NODEP_CPP_SOCKE=\
 # End Source File
 # Begin Source File
 
+SOURCE=.\StartOrbiterCE.cpp
+
+!IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
+
+DEP_CPP_START=\
+	".\StartOrbiterCE.h"\
+	
+NODEP_CPP_START=\
+	"..\pluto_main\Define_Button.h"\
+	"..\pluto_main\Define_Direction.h"\
+	".\DCE\Logger.h"\
+	".\Orbiter.h"\
+	".\Orbiter\SDL\OrbiterSDL.h"\
+	".\PlutoUtils\CommonIncludes.h"\
+	".\PlutoUtils\Other.h"\
+	".\PlutoUtils\StringUtils.h"\
+	".\ServerLogger.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Debug"
+
+DEP_CPP_START=\
+	".\StartOrbiterCE.h"\
+	
+NODEP_CPP_START=\
+	"..\pluto_main\Define_Button.h"\
+	"..\pluto_main\Define_Direction.h"\
+	".\DCE\Logger.h"\
+	".\Orbiter.h"\
+	".\Orbiter\SDL\OrbiterSDL.h"\
+	".\PlutoUtils\CommonIncludes.h"\
+	".\PlutoUtils\Other.h"\
+	".\PlutoUtils\StringUtils.h"\
+	".\ServerLogger.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_START=\
+	".\StartOrbiterCE.h"\
+	
+NODEP_CPP_START=\
+	"..\pluto_main\Define_Button.h"\
+	"..\pluto_main\Define_Direction.h"\
+	".\DCE\Logger.h"\
+	".\Orbiter.h"\
+	".\Orbiter\SDL\OrbiterSDL.h"\
+	".\PlutoUtils\CommonIncludes.h"\
+	".\PlutoUtils\Other.h"\
+	".\PlutoUtils\StringUtils.h"\
+	".\ServerLogger.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_START=\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\begin_code.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\close_code.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_active.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_audio.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_byteorder.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_cdrom.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_error.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_events.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_getenv.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_joystick.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_keyboard.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_keysym.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_main.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_mouse.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_mutex.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_quit.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_rwops.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_timer.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_types.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_version.h"\
+	"..\..\CrossPlatform-Libs\SDL-1.2.7\include\SDL_video.h"\
+	"..\..\DCE\AlarmManager.h"\
+	"..\..\DCE\ClientSocket.h"\
+	"..\..\DCE\Command_Impl.h"\
+	"..\..\DCE\DeviceData_Base.h"\
+	"..\..\DCE\DeviceData_Impl.h"\
+	"..\..\DCE\Event_Impl.h"\
+	"..\..\DCE\HandleRequestSocket.h"\
+	"..\..\DCE\Logger.h"\
+	"..\..\DCE\Message.h"\
+	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\DCE\ServerLogger.h"\
+	"..\..\DCE\Socket.h"\
+	"..\..\Gen_Devices\OrbiterBase.h"\
+	"..\..\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\pluto_main\Define_Button.h"\
+	"..\..\pluto_main\Define_DesignObjType.h"\
+	"..\..\pluto_main\Define_Direction.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\GraphicFormat.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\DesignObj_Data.h"\
+	"..\DesignObj_Orbiter.h"\
+	"..\Floorplan.h"\
+	"..\Orbiter.h"\
+	"..\OrbiterData.h"\
+	"..\SDL\OrbiterSDL.h"\
+	"..\TextStyle.h"\
+	".\StartOrbiterCE.h"\
+	".\wince.h"\
+	
+NODEP_CPP_START=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\PlutoUtils\StringUtils.cpp
 
 !IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
@@ -2389,6 +2474,10 @@ SOURCE=..\..\DCE\PlutoLockLogger.h
 # Begin Source File
 
 SOURCE=.\resource.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\StartOrbiterCE.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
