@@ -644,6 +644,7 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
 bool Media_Plugin::ReceivedMessage( class Message *pMessage )
 {
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+
     g_pPlutoLogger->Write( LV_STATUS, "Media plug in received message id: %d", pMessage->m_dwID );
     // Give it to our base class to see if we have a handler
     if( !Media_Plugin_Command::ReceivedMessage( pMessage ) )
@@ -718,25 +719,35 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
 void Media_Plugin::MediaInfoChanged( MediaStream *pMediaStream )
 {
     delete pMediaStream->m_pPictureData;
-    pMediaStream->m_iPictureSize=0;
+	pMediaStream->m_pPictureData = NULL;
+    pMediaStream->m_iPictureSize = 0;
 
     if( pMediaStream->m_dequeMediaFile.size() )
     {
-        MediaFile *pMediaFile = pMediaStream->m_dequeMediaFile[pMediaStream->m_iDequeMediaFile_Pos];
-        pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer(pMediaFile->m_sPath + "/" +
-            FileUtils::FileWithoutExtension(pMediaFile->m_sFilename) + ".png", pMediaStream->m_iPictureSize);
+g_pPlutoLogger->Write(LV_STATUS, "We have %d media entries in the playback list", pMediaStream->m_dequeMediaFile.size());
+		MediaFile *pMediaFile = pMediaStream->m_dequeMediaFile[pMediaStream->m_iDequeMediaFile_Pos];
+        pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer(
+													pMediaFile->m_sPath + "/" + FileUtils::FileWithoutExtension(pMediaFile->m_sFilename) + ".png", pMediaStream->m_iPictureSize);
 
+g_pPlutoLogger->Write(LV_STATUS, "Got 1 picture data %p", pMediaStream->m_pPictureData);
         if( !pMediaStream->m_pPictureData )
         {
             pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer(pMediaFile->m_sPath + "/cover.png", pMediaStream->m_iPictureSize);
+
+g_pPlutoLogger->Write(LV_STATUS, "Got 2 picture data %p (FK_File: %d)", pMediaStream->m_pPictureData, pMediaFile->m_dwPK_File);
             if( !pMediaStream->m_pPictureData && pMediaFile->m_dwPK_File )
             {
                 int PK_Picture=0;
+
+g_pPlutoLogger->Write(LV_STATUS, "Looking got media database file with ID: %d", pMediaFile->m_dwPK_File )
                 Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(pMediaFile->m_dwPK_File);
                 vector<Row_Picture_File *> vectRow_Picture_File;
                 if( pRow_File )
                 {
+g_pPlutoLogger->Write(LV_STATUS, "We found a file row %p", pMediaFile->m_dwPK_File );
                     pRow_File->Picture_File_FK_File_getrows(&vectRow_Picture_File);
+
+g_pPlutoLogger->Write(LV_STATUS, "We got %d rows.", vectRow_Picture_File.size() );
                     if( vectRow_Picture_File.size() )
                         PK_Picture = vectRow_Picture_File[0]->FK_Picture_get();
                     else
@@ -754,6 +765,8 @@ void Media_Plugin::MediaInfoChanged( MediaStream *pMediaStream )
                             }
                         }
                     }
+
+g_pPlutoLogger->Write(LV_STATUS, "Found PK_Picture to be: %d.", PK_Picture);
                 }
                 if( PK_Picture )
                     pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + ".png", pMediaStream->m_iPictureSize);
