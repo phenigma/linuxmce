@@ -14,7 +14,7 @@ cat "$new_log" >> "$real_log"
 Logging $TYPE $SEVERITY_NORMAL "$module" "Starting... $i"
 echo $(date) Starting > "$new_log"
 
-screen -d -m -S DCERouter bash -c "(echo \$(date) Starting; /usr/pluto/bin/DCERouter -h localhost) | tee $new_log"
+screen -d -m -S DCERouter bash -c "(echo \$(date) Starting; $VGcmd/usr/pluto/bin/DCERouter -h localhost) | tee $new_log"
 timeout=60
 waited=0
 while ! nc -z localhost 3450 &>/dev/null && [ "$waited" -lt "$timeout" ]; do
@@ -26,4 +26,6 @@ if [ "$waited" -eq "$timeout" ]; then
 	exit 1
 else
 	Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "DCERouter started ok"
+	PID=$(ps ax | grep /usr/pluto/bin/DCERouter | egrep -v 'SCREEN|grep|bash' | awk '{ print $1 }')
+	echo "$PID DCERouter (by $0)" >>/var/log/pluto/running.pids
 fi

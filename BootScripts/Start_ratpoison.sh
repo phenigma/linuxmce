@@ -8,3 +8,5 @@ export DISPLAY=:0
 screen -d -m -S RatPoison /usr/pluto/bin/ratpoison
 sleep 1
 
+PID=$(ps ax | grep /usr/pluto/bin/ratpoison | egrep -v 'SCREEN|grep' | awk '{ print $1 }')
+echo "$PID ratpoison (by $0)" >>/var/log/pluto/running.pids

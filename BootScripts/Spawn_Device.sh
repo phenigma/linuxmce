@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. /usr/pluto/bin/Config_Ops.sh
+
 mkdir -p /var/log/pluto
 echo "$(date) Spawn_Device $*" >> /var/log/pluto/Spawn_Device.log
 # syntax: $0 <device_id> <ip_of_router> <cmd_line> 
@@ -55,7 +57,11 @@ for i in $(seq 1 10); do
 	echo $(date) Starting > "$new_log"
 
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Found $Path$cmd_line"
-	"$Path$cmd_line" -d "$device_id" -r "$ip_of_router" | tee "$new_log"
+	if [ "${cmd_line/Spawn_Device}" == "$cmd_line" ]; then
+		/usr/pluto/bin/Spawn_Wrapper.sh $(echo "$VGcmd")"$Path$cmd_line" -d "$device_id" -r "$ip_of_router" | tee "$new_log"
+	else
+		/usr/pluto/bin/Spawn_Wrapper.sh "$Path$cmd_line" -d "$device_id" -r "$ip_of_router" | tee "$new_log" &
+	fi
 	
 	if [ -f /var/pluto/bootpluto/shutdown_$device_id -o -f /var/tmp/shutdown_$device_id ];
 	then
@@ -67,6 +73,7 @@ for i in $(seq 1 10); do
 		echo $(date) died >> "$new_log"
 		echo $(date) $device_name died >> /var/log/pluto/deaths
 		echo $(date) died >> /var/log/pluto/core/died_${device_id}_$device_name
+		sleep 5
 	fi
 	echo out
 done
