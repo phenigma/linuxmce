@@ -431,7 +431,7 @@ printf("Mobile orbiter detected\n");
         }
         else
         {
-            if( pOH_Orbiter->m_pDevice_CurrentDetected )
+            //if( pOH_Orbiter->m_pDevice_CurrentDetected )
             {
                 DCE::CMD_Get_Signal_Strength CMD_Get_Signal_Strength(
                     m_dwPK_Device,
@@ -455,8 +455,13 @@ printf("Mobile orbiter detected\n");
 				// We know both signal strengths.  Do a comparisson and take the stronger one
 			}
 */
-            if( pOH_Orbiter->m_pDevice_CurrentDetected && pOH_Orbiter->m_iLastSignalStrength > 0 &&
-				pOH_Orbiter->m_iLastSignalStrength >= SignalStrength )
+			//temp
+			const unsigned int uThreshHold = 200;
+
+            if( pOH_Orbiter->m_pDevice_CurrentDetected && 
+				pOH_Orbiter->m_iLastSignalStrength > uThreshHold &&
+				pOH_Orbiter->m_iLastSignalStrength >= SignalStrength 
+			)
             {
                 g_pPlutoLogger->Write(LV_STATUS,"Mobile Orbiter %s already has a strong association with %d (%d/%d)",
                     sMacAddress.c_str(),
@@ -467,16 +472,16 @@ printf("Mobile orbiter detected\n");
             }
             else
             {
-                g_pPlutoLogger->Write(LV_STATUS,"Mobile Orbiter %s told to link with %d",
-                    sMacAddress.c_str(),
+                g_pPlutoLogger->Write(LV_STATUS,"Mobile Orbiter %s told to link with %d", sMacAddress.c_str(),
                     pDeviceFrom->m_dwPK_Device);
+
                 DCE::CMD_Link_with_mobile_orbiter CMD_Link_with_mobile_orbiter(
                     -1,
                     pDeviceFrom->m_dwPK_Device,
                     1, //iMediaPosition = On
                     sMacAddress);
 
-                SendCommand(CMD_Link_with_mobile_orbiter);
+				SendCommand(CMD_Link_with_mobile_orbiter);
             }
         }
     }

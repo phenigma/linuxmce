@@ -18,9 +18,9 @@ using namespace std;
 using namespace DCE;
 
 #ifdef WINCE
-	const string csOrbiter_Update("usr/pluto/bin/Orbiter_WinCE.dat");
+	const string csOrbiter_Update("/usr/pluto/bin/Orbiter_WinCE.dat");
 #else
-	const string csOrbiter_Update("usr/pluto/bin/Orbiter_Win32.dat");
+	const string csOrbiter_Update("/usr/pluto/bin/Orbiter_Win32.dat");
 #endif
 
 #ifdef WINCE
@@ -143,7 +143,7 @@ bool OrbiterSelfUpdate::DownloadUpdateBinary()
 		DEVICECATEGORY_General_Info_Plugins_CONST, 
 		false,
 		BL_SameHouse,
-		"bin/" + sUpdateName, //update binary file
+		"/usr/pluto/bin/" + sUpdateName, //update binary file
 		&pUpdateFile,
 		&iSizeUpdateFile
 		);

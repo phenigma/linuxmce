@@ -158,7 +158,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
-# ADD LINK32 commctrl.lib coredll.lib aygshell.lib PthreadsCE.lib winsock.lib ccrtrtti.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /libpath:"../../../../libs/Libraries/pthreads-snap-2002-11-04/PthreadsCE/ARMDbg" /libpath:"../../CENet/Ritti/ArmV4" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
+# ADD LINK32 commctrl.lib coredll.lib aygshell.lib PthreadsCE.lib winsock.lib ccrtrtti.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /out:"../../../bin/UpdateBinaryCE.exe" /libpath:"../../../../libs/Libraries/pthreads-snap-2002-11-04/PthreadsCE/ARMDbg" /libpath:"../../CENet/Ritti/ArmV4" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
 
 !ENDIF 
 
@@ -232,6 +232,10 @@ NODEP_CPP_CLIEN=\
 !ELSEIF  "$(CFG)" == "UpdateBinary - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_CLIEN=\
+	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
 	"..\..\..\DCE\ClientSocket.h"\
 	"..\..\..\DCE\Logger.h"\
 	"..\..\..\DCE\Message.h"\
@@ -370,6 +374,10 @@ NODEP_CPP_LOGGE=\
 !ELSEIF  "$(CFG)" == "UpdateBinary - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_LOGGE=\
+	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
 	"..\..\..\DCE\Logger.h"\
 	"..\..\..\DCE\Message.h"\
 	"..\..\..\DCE\PlutoLockLogger.h"\
@@ -442,6 +450,10 @@ NODEP_CPP_MESSA=\
 !ELSEIF  "$(CFG)" == "UpdateBinary - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_MESSA=\
+	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
 	"..\..\..\DCE\Logger.h"\
 	"..\..\..\DCE\Message.h"\
 	"..\..\..\DCE\PlutoLockLogger.h"\
@@ -507,6 +519,10 @@ NODEP_CPP_MULTI=\
 !ELSEIF  "$(CFG)" == "UpdateBinary - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_MULTI=\
+	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
 	"..\..\..\DCE\Logger.h"\
 	"..\..\..\DCE\PlutoLockLogger.h"\
 	"..\..\..\PlutoUtils\CommonIncludes.h"\
@@ -656,6 +672,10 @@ NODEP_CPP_SOCKE=\
 !ELSEIF  "$(CFG)" == "UpdateBinary - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_SOCKE=\
+	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
 	"..\..\..\DCE\Logger.h"\
 	"..\..\..\DCE\Message.h"\
 	"..\..\..\DCE\PlutoLockLogger.h"\
@@ -834,6 +854,10 @@ NODEP_CPP_UPDAT=\
 !ELSEIF  "$(CFG)" == "UpdateBinary - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_UPDAT=\
+	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
 	"..\..\..\DCE\ClientSocket.h"\
 	"..\..\..\DCE\Logger.h"\
 	"..\..\..\DCE\Message.h"\
