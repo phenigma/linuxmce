@@ -7,7 +7,7 @@
   		include_once('/var/www/globalconfig/globalconfig.inc.php');
   	}else{
   		error_reporting(E_ALL);
-  		include_once('/var/www/test/globalconfig/globalconfig.inc.php');
+  		include_once('/home/users/vali/work/web/globalconfig/globalconfig.inc.php');
   	}
   	
   // PlutoHome website
