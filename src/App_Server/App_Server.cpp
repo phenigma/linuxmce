@@ -34,7 +34,7 @@ using namespace DCE;
 #include <sys/wait.h>
 #endif
 
-#ifndef WIN32 // we only have signals on Linux and hte global var is only used there. so we ifndef it.. 
+#ifndef WIN32 // we only have signals on Linux and hte global var is only used there. so we ifndef it..
 App_Server *g_pAppServer = NULL;
 
 void sh(int i) /* signal handler */
@@ -220,24 +220,26 @@ bool App_Server::StartApp(string CmdExecutable, string CmdParams, string AppName
     const int MaxArgs = 32;
 
     char * ptr;
-    char * params;
-    params = ptr = (char *) CmdParams.c_str();
+
+	ptr = (char *) CmdParams.c_str();
     char * args[MaxArgs];
     int i = 0;
 
+	// this looks to complicated but i don;t have time to make it cleaner :-( mtoader@gmail.com)
     args[0] = (char *) CmdExecutable.c_str();
-    args[1] = params;
-    while (++i < MaxArgs - 1)
+    while ( *ptr && i < MaxArgs - 1)
     {
-        ptr = strchr(ptr, ' ');
-        if (ptr == NULL)
-            break;
-        * ptr = 0;
-        args[i] = params;
-        params = ++ptr;
+		if ( *ptr == ' ' || *ptr == '\t' )
+			*ptr++ = 0;
+		while ( *ptr && (*ptr == ' ' || *ptr == '\t') ) ptr++;  // skip the white spaces.
+		if ( *ptr )
+		{
+			args[++i] = ptr; 			// put the next thing as a parameter
+			while ( *ptr && *ptr != ' ' && *ptr != '\t' ) ptr++;  // skip to the next white space. (this doesn't take into account quoted parameters) )
+		}
     }
-    if (i == 1) i++;
-    args[i] = NULL;
+
+	args[++i] = 0;
     g_pPlutoLogger->Write(LV_STATUS, "Found %d arguments", i);
 
     for (int x = 0 ; x < i; x++)
