@@ -3,9 +3,8 @@
 #include <fstream>
 #include "PlutoUtils/CommonIncludes.h"
 #include "BD/BDCommandProcessor.h"
-#else
-#include "VIPShared/VIPIncludes.h"
 #endif
+#include "VIPShared/VIPIncludes.h"
 
 #include "PlutoUtils/MyStl.h"
 #include "BD_PC_OrderPlaced.h"
