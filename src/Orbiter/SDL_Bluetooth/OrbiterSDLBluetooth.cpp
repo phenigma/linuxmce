@@ -369,5 +369,6 @@ void OrbiterSDLBluetooth::CMD_Capture_Keyboard_To_Variable(string sPK_DesignObj,
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDLBluetooth::EndPaint()
 {
+	DisplayImageOnScreen(m_pScreenImage);
 }
 //-----------------------------------------------------------------------------------------------------
