@@ -368,7 +368,7 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
 				AdditionalDependencies="odbc32.lib odbccp32.lib"
-				OutputFile="$(OutDir)\zlib1-pluto-r.dll"
+				OutputFile="$(OutDir)\zlib1-pluto-d.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				ModuleDefinitionFile=".\zlib.def"
