@@ -224,6 +224,8 @@ int main(int argc, char *argv[])
 		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot get device information!");
 	}
 
+	if (sCommand == "install")
+		cout << "#!/bin/sh" << endl;
 	pRow_Installation = pRow_Device->FK_Installation_getrow();
 
 	CheckDevice(pRow_Device,bSourceCode);
@@ -253,7 +255,6 @@ int main(int argc, char *argv[])
 
 	if( sCommand=="install" )
 	{
-		cout << "#!/bin/sh" << endl;
 		list<PackageInfo *>::iterator it;
 		for(it=listPackageInfo.begin(); it!=listPackageInfo.end(); ++it)
 		{
@@ -366,7 +367,7 @@ void CheckDevice(Row_Device *pRow_Device,bool bSourceCode)
 void CheckDeviceLoop(Row_Device *pRow_Device,bool bDevelopment)
 {
 	if( pRow_Device->FK_DeviceTemplate_getrow()->FK_Package_isNull() )
-		cout << "No package info for device: " << pRow_Device->Description_get() << " (" << pRow_Device->FK_DeviceTemplate_getrow()->Description_get() << ")" << endl;
+		cout << "#No package info for device: " << pRow_Device->Description_get() << " (" << pRow_Device->FK_DeviceTemplate_getrow()->Description_get() << ")" << endl;
 	else
 		CheckPackage(pRow_Device->FK_DeviceTemplate_getrow()->FK_Package_getrow(),bDevelopment,pRow_Distro,false);
 
@@ -487,7 +488,7 @@ void CheckPackage(Row_Package *pRow_Package,bool bDevelopment,Row_Distro *pRow_D
 			else 
 			{
 				// If we got here, we failed to find even source code for this package, and will have to abort
-				cout << "**ERROR** Package: " << pRow_Package->Description_get() << " must be built from source, but it has no source" << endl;
+				cout << "#**ERROR** Package: " << pRow_Package->Description_get() << " must be built from source, but it has no source" << endl;
 				return;
 			}
 		}
