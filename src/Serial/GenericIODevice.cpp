@@ -90,11 +90,14 @@ void GenericIODevice::ProcessToken(string sToken,string sParms,string sFormat,st
 	else if( sToken=="NULL" )
 		Write_unsigned_char('\003'); // confirm this
 	else if( sToken=="C" )
-		Write_string(FormatAndTranslate(StringUtils::itos(pMessage->m_dwID),sFormat,sTranslation));
+	{
+		string s=FormatAndTranslate(StringUtils::itos(pMessage->m_dwID),sFormat,sTranslation);
+		Write_string(s);
 	else if( sToken=="CP" && sParms.length() )
 	{
 		int PK_CommandParameter = atoi( sParms.c_str() );
-		Write_string(FormatAndTranslate(pMessage->m_mapParameters[PK_CommandParameter],sFormat,sTranslation));
+		string s=FormatAndTranslate(pMessage->m_mapParameters[PK_CommandParameter],sFormat,sTranslation);
+		Write_string(s);
 	}
 }
 
