@@ -58,7 +58,7 @@ Xine_Plugin::Xine_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHa
 Xine_Plugin::~Xine_Plugin()
 //<-dceag-dest-e->
 {
-	
+
 }
 
 //<-dceag-reg-b->
@@ -234,7 +234,7 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 			pXineMediaStream->m_sMediaDescription = "DVD";
 
 		g_pPlutoLogger->Write(LV_STATUS, "Got pluto DVD media type");
-		// Find a disk Drive in one of the entertainment areas.
+		// Find a disk Drive in one of the entertainment areas.// Wait(true);
 		map<int, EntertainArea *>::iterator itEntertainmentAreas;
 
 		bool bFound = false ;
@@ -300,9 +300,9 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 
 	// TODO: Handle error more gracefully.
 	if( !SendCommand( cmd, &Response ) )
-		g_pPlutoLogger->Write( LV_CRITICAL, "The player %d () didn't respond to play media command!",
-					pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device,
-					pMediaStream->m_pDeviceData_Router_Source->m_sDescription.c_str());
+		g_pPlutoLogger->Write( LV_CRITICAL, "The player %d (%s) didn't respond to play media command!",
+					pXineMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device,
+					pXineMediaStream->m_pDeviceData_Router_Source->m_sDescription.c_str());
 	else
 		g_pPlutoLogger->Write(LV_STATUS, "The sources device responded to play media command!" );
 
