@@ -42,7 +42,7 @@ $login='<table width="239"  border="0" cellpadding="0" cellspacing="0">
 $logout='<table width="214" border="0" cellpadding="0" cellspacing="0">
   <tr>
     <td width="115"><a href="'.$PlutoHomeHost.'index.php?section=myPluto"><img src="'.$imagesPath.'buton_my_pluto.jpg" width="115" height="36" border="0"/></a></td>
-    <td width="99"><a href="'.$relativePath.'index.php?section=logout"><img src="'.$imagesPath.'buton_logout.jpg" width="99" height="36" border="0"/></a></td>
+    <td width="99"><a href="'.$PlutoHomeHost.'index.php?section=logout"><img src="'.$imagesPath.'buton_logout.jpg" width="99" height="36" border="0"/></a></td>
   </tr>
 </table>';
 
