@@ -939,7 +939,7 @@ bool Disk_Drive::mountDVD(string fileName, string &strMediaUrl)
 	g_pPlutoLogger->Write(LV_STATUS,"cmd: %s",cmd.c_str());
 	system(cmd.c_str());  // Don't care about the return. 
 
-    cmd = "losetup /dev/loop5 " + fileName;
+    cmd = "losetup /dev/loop5 \"" + fileName + "\"";
 	g_pPlutoLogger->Write(LV_STATUS,"cmd: %s",cmd.c_str());
     int iResult2=0,iResult = system(cmd.c_str());
 
