@@ -1,3 +1,18 @@
+/*
+	sql2cpp
+	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
+	
+	www.plutohome.com		
+	
+	Phone: +1 (877) 758-8648
+	
+	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
+	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
+	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+	
+	See the GNU General Public License for more details.
+*/
+
 /**
  *
  * @file sql2cpp.cpp
@@ -34,7 +49,7 @@
 #include "DatabaseInfo.h"
 #include "CommonFunctions.h"
 
-#define SQL2CPP_VERSION "0.1"
+#define VERSION "0.1"
 
 using namespace std;
 
@@ -43,6 +58,18 @@ class DCELogger *g_pDCELogger;
 
 int main( int argc, char *argv[] )
 {
+	
+//                123456789012345678901234567890123456789012345678901234567890
+	cout<< " Copyright (C) 2004 Pluto, Inc., a Florida Corporation " << endl
+	    	<< " www.plutohome.com " << endl
+	    	<< " Phone: +1 (877) 758-8648 " << endl
+	    	<< " This program is free software; you can redistribute it " << endl
+		<< " and/or modify it under the terms of the GNU General Public License. " << endl
+		<< " This program is distributed in the hope that it will be useful, " << endl
+		<< " but WITHOUT ANY WARRANTY; without even the implied warranty " <<endl
+		<< " of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. " <<endl
+		<< " See the GNU General Public License for more details. "<< endl;	
+	
 	// setting some default values.... probablly just temporary
 	string sDBHost="dce_router", sDBUser="root", sDBPassword="", sDBName="pluto_main", sOutputPath="", sInputPath=".";
 	int iDBPort=3306;
@@ -92,15 +119,22 @@ int main( int argc, char *argv[] )
 	// checking for errors
 	if ( bError)
 	{
-		cout << "sql2cpp, v." << SQL2CPP_VERSION << endl
-			<< "Usage: sql2cpp [-h hostname] [-u username] [-p password] [-D database] [-P mysql port] [-o output path] [-i input path]" << endl
-			<< "hostname    -- address or DNS of database host, default is `dce_router`" << endl
-			<< "username    -- username for database connection" << endl
-			<< "password    -- password for database connection, default is `` (empty)" << endl
-			<< "database    -- database name.  default is pluto_main" << endl
-			<< "port        -- port for database connection, default is 3306" << endl
-			<< "output path -- Where to put the output files.  Default is ../[database name]" << endl
-			<< "input path  -- Where to find the template files.  Default is . then ../sql2cpp" << endl;
+
+//                123456789012345678901234567890123456789012345678901234567890			
+		cout << "sql2cpp, v." << VERSION << endl
+			<< "Usage: sql2cpp [-h hostname] [-u username] [-p password]" << endl
+			<< "[-D database] [-P mysql port] [-o output path] [-i input path]" << endl
+			<< "-h hostname    -- address or DNS of database host, " <<endl
+			<< "			 default is `dce_router`" << endl
+			<< "-u username    -- username for database connection" << endl
+			<< "-p password    -- password for database connection," << endl
+			<< "			 default is `` (empty)" << endl
+			<< "-D database    -- database name.  default is pluto_main" << endl
+			<< "-P port        -- port for database connection, default is 3306" << endl
+			<< "-o output path -- Where to put the output files. "
+			<< "			 Default is ../[database name]" << endl
+			<< "-i input path  -- Where to find the template files. " << endl
+			<< "			 Default is . then ../sql2cpp" << endl;
 
 		exit(0); // errors
 	}
