@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ ! -e /etc/mythtv/mysql.txt ]; then 
+if [ ! -e /etc/mythtv/mysql.txt ]; then
 	echo "Mythtv doesn't seem to be installed here";
 	exit 0;
 fi;
@@ -28,30 +28,38 @@ if [ "$hasSchema" != "1" ]; then
 	exit 1;
 fi
 
-isSetup=`echo "$query" | $mysql_command`;
-
-if [ "$isSetup" != 0  ]; then
-        echo "Removing old mythtv configuration for this machine";
-        echo "delete from settings where hostname='`hostname`' AND value LIkE 'Backend%'" | $mysql_command;
-        echo "delete from settings where value LIkE 'MasterServer%'" | $mysql_command;
-        echo "delete from settings where hostname='`hostname`' AND value LIkE 'RecordFilePrefix'" | $mysql_command;
-fi;
-
 echo "Setting up mythtv configuration for this machine";
 hostname=`hostname`;
 hostip=`gethostip $hostname | cut -f 2 -d ' '`;
 routerip=`gethostip dcerouter | cut -f 2 -d ' '`;
 
-addEntries BackendServerIP $hostip $hostname;
-addEntries BackendServerPort 6143 $hostname;
-#
-# The is for Myth 0.17 * They changed the names
-#
-# addEntries BackendStatusPort 6143 $hostname;
-addEntries BackendServerStatus 6544 $hostname;
-addEntries RecordFilePrefix /var/lib/mythtv/ $hostname;
-# addEntries LiveBufferDir /var/cache/mythtv/ $hostname;
+isSetup=`echo "$query" | $mysql_command`;
+
+if [ "$isSetup" != 0  ]; then
+        echo "Removing old mythtv configuration for this machine";
+        echo "delete from settings where hostname='$hostname' AND value LIKE 'Backend%'" | $mysql_command;
+		echo "delete from settings where hostname='$hostname' AND value LIKE 'RecordFilePrefix'" | $mysql_command;
+		echo "delete from settings where hostname='$hostname' AND value LIKE 'LiveBufferDir'" | $mysql_command;
+
+		echo "delete from settings where value LIkE 'MasterServer%'" | $mysql_command;
+fi;
 
 addEntries MasterServerIP       $routerip;
 addEntries MasterServerPort     6543;
 
+addEntries BackendServerIP 		$hostip $hostname;
+addEntries BackendServerPort 	6143 	$hostname;
+
+addEntries RecordFilePrefix 	/home/mythtv/shows/$hostip $hostname;
+addEntries LiveBufferDir 		/home/mythtv/cache/$hostip $hostname;
+
+echo -n Creating and/or setting the cache and recorded folder paths ...
+mkdir -p 		/home/mythtv/shows/$hostip
+chown mythtv 	/home/mythtv/shows/$hostip
+chmod 766 	 	/home/mythtv/shows/$hostip
+
+mkdir -p 		/home/mythtv/cache/$hostip
+chown mythtv 	/home/mythtv/cache/$hostip
+chmod 766 	 	/home/mythtv/cache/$hostip
+
+echo done.
