@@ -132,9 +132,9 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
 
     string Response;
 
-    m_dwTargetDevice = pMythTvStream->m_dwPK_Device;
+    m_dwTargetDevice = pMythTvStream->m_pMediaDevice->m_pDeviceData_Router->m_dwPK_Device;
 
-    DCE::CMD_Start_TV cmd(m_dwPK_Device, pMythTvStream->m_dwPK_Device);
+    DCE::CMD_Start_TV cmd(m_dwPK_Device, pMythTvStream->m_pMediaDevice->m_pDeviceData_Router->m_dwPK_Device);
 
 //     DCE::CMD_Play_Media cmd(m_dwPK_Device,
 
@@ -168,7 +168,7 @@ bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
     g_pPlutoLogger->Write(LV_STATUS, "Stopping media stream playback--sending command, waiting for response");
 int i;
     DCE::CMD_Stop_Media cmd(m_dwPK_Device,
-        pMediaStream->m_dwPK_Device,
+        pMythTvStream->m_pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
         pMediaStream->m_iStreamID_get(),&i);
     string Response;
     if( !SendCommand(cmd, &Response) )
@@ -182,7 +182,7 @@ int i;
         return false;
     }
 
-    map<int, int>::iterator it = m_mapDevicesToStreams.find(pMediaStream->m_dwPK_Device);
+    map<int, int>::iterator it = m_mapDevicesToStreams.find(pMythTvStream->m_pMediaDevice->m_pDeviceData_Router->m_dwPK_Device);
     if( it!=m_mapDevicesToStreams.end() )
         m_mapDevicesToStreams.erase(it);
 
@@ -205,32 +205,26 @@ class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaPluginInfo *pMedi
     if ( pMediaPluginInfo == NULL )
         return NULL;
 
+
+	if( (!pMediaDevice || pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_MythTV_Player_CONST) && pEntertainArea )
+	{
+		ListMediaDevice *pListMediaDevice = pEntertainArea->m_mapMediaDeviceByTemplate_Find(DEVICETEMPLATE_MythTV_Player_CONST);
+		if( pListMediaDevice && pListMediaDevice->size())
+			pMediaDevice = pListMediaDevice->front();
+	}
+
+	if( !pMediaDevice || pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_MythTV_Player_CONST )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Myth plugin being told to play in an entertainment area without a xine player");
+		return NULL;
+	}
+
     MythTvStream *pMediaStream = new MythTvStream(this, pMediaPluginInfo, pMediaDevice, pMediaPluginInfo->m_iPK_DesignObj, 0, st_RemovableMedia,StreamID);
 
     pMediaStream->m_sMediaDescription = "Not available";
     pMediaStream->m_sSectionDescription = "Not available";
     pMediaStream->m_sMediaSynopsis = "Not available";
-
-    if( !PK_Device_Source && pMediaPluginInfo->m_listMediaDevice.size() )
-    {
-        MediaDevice *pMediaDevice = pMediaPluginInfo->m_listMediaDevice.front();
-        PK_Device_Source=pMediaDevice->m_pDeviceData_Router->m_dwPK_Device;
-    }
-
-    DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(PK_Device_Source);
-
-    bool bFoundDevice=false;
-    if( pDeviceData_Router->m_dwPK_DeviceTemplate==DEVICETEMPLATE_MythTV_Player_CONST )
-    {
-        pMediaStream->m_dwPK_Device = PK_Device_Source;
-        m_mapDevicesToStreams[PK_Device_Source] = StreamID;
-        bFoundDevice=true;
-    }
-
-    if( !bFoundDevice )
-    {
-        g_pPlutoLogger->Write(LV_CRITICAL,"Couldn't find myth tv player for create media stream");
-    }
+    m_mapDevicesToStreams[pMediaDevice->m_pDeviceData_Router->m_dwPK_Device] = StreamID;
 
     return pMediaStream;
 }
