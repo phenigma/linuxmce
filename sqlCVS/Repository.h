@@ -24,7 +24,6 @@ namespace sqlCVS
 	class Repository
 	{
 		friend class Database;
-		class Database *m_pDatabase;
 		
 		/** @brief All our system tables */		
 		class Table *m_pTable_Setting;
@@ -39,6 +38,8 @@ namespace sqlCVS
 		MapTable m_mapTable; 
 
 	public:
+		class Database *m_pDatabase;
+
 		/** @brief constructor */
 		Repository( class Database *pDatabase, string sName )
 		{

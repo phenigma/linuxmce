@@ -61,6 +61,7 @@ bool R_CommitTable::ProcessRequest( class RA_Processor *pRA_Processor )
 {
 	sqlCVSprocessor *psqlCVSprocessor = ( sqlCVSprocessor * ) pRA_Processor;
 
+	psqlCVSprocessor->RecordChangesToTable();
 	psqlCVSprocessor->m_pTable = g_GlobalConfig.m_pDatabase->m_mapTable_Find( m_sTableName );
 
 	if( !psqlCVSprocessor->m_pTable->Repository_get( ) )

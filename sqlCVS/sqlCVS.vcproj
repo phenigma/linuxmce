@@ -183,6 +183,9 @@
 				RelativePath="sqlCVS.cpp">
 			</File>
 			<File
+				RelativePath=".\sqlCVSprocessor.cpp">
+			</File>
+			<File
 				RelativePath=".\sqlCVSrequests.cpp">
 			</File>
 			<File

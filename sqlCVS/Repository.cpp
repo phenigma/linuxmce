@@ -381,6 +381,7 @@ class Table *Repository::CreateBatchDetailTable( )
 	sql	<< "CREATE TABLE `" << Tablename << "`( " << endl
 		<< "`PK_" << Tablename << "` int( 11 ) NOT NULL auto_increment, " << endl
 		<< "`FK_psc_" + m_sName + "_bathdr` int( 11 ) NOT NULL, " << endl
+		<< "`Tablename` varchar( 60 ) NOT NULL default '', " << endl
 		<< "`New` int( 11 ) NOT NULL, " << endl
 		<< "`Deleted` int( 11 ) NOT NULL, " << endl
 		<< "`Modified` int( 11 ) NOT NULL, " << endl
@@ -519,8 +520,8 @@ bool Repository::CheckIn( )
 	R_CommitChanges r_CommitChanges( m_sName, g_GlobalConfig.m_sDefaultUser );
 	for(map<string,string>::iterator it=g_GlobalConfig.m_mapUsersPasswords.begin();it!=g_GlobalConfig.m_mapUsersPasswords.end();++it)
 	{
-		// We don't care about user 0
-		if( (*it).first=="0" )
+		// We don't care about user 0, or users who didn't log in
+		if( (*it).first=="0" || (*it).second=="" )
 			continue;
 		r_CommitChanges.m_mapUsersPasswords[(*it).first]=(*it).second;
 	}
@@ -549,30 +550,41 @@ bool Repository::CheckIn( )
 	}
 
 	/** First add all records */
-	
-	for( MapTable::iterator it=g_GlobalConfig.m_mapTable.begin( );it!=g_GlobalConfig.m_mapTable.end( );++it )
+	for( map<int,MapTable *>::iterator it=g_GlobalConfig.m_mapUsersTables.begin( );it!=g_GlobalConfig.m_mapUsersTables.end( );++it )
 	{
-		Table *pTable = ( *it ).second;
-		if( pTable->Repository_get( )==this && !pTable->CheckIn( ra_Processor, pSocket, toc_New ) )
-			return false;
+		MapTable *pMapTable = ( *it ).second;
+		for( MapTable::iterator itT=pMapTable->begin( );itT!=pMapTable->end( );++itT )
+		{
+			Table *pTable = ( *itT ).second;
+			if( pTable->Repository_get( )==this && !pTable->CheckIn( ra_Processor, pSocket, toc_New ) )
+				return false;
+		}
 	}
 	
 	/** Now scan for updates */
 	
-	for( MapTable::iterator it=g_GlobalConfig.m_mapTable.begin( );it!=g_GlobalConfig.m_mapTable.end( );++it )
+	for( map<int,MapTable *>::iterator it=g_GlobalConfig.m_mapUsersTables.begin( );it!=g_GlobalConfig.m_mapUsersTables.end( );++it )
 	{
-		Table *pTable = ( *it ).second;
-		if( pTable->Repository_get( )==this && !pTable->CheckIn( ra_Processor, pSocket, toc_Modify ) )
-			return false;
+		MapTable *pMapTable = ( *it ).second;
+		for( MapTable::iterator itT=pMapTable->begin( );itT!=pMapTable->end( );++itT )
+		{
+			Table *pTable = ( *itT ).second;
+			if( pTable->Repository_get( )==this && !pTable->CheckIn( ra_Processor, pSocket, toc_Modify ) )
+				return false;
+		}
 	}
 	
 	/** Finally handle deletions */
 	
-	for( MapTable::iterator it=g_GlobalConfig.m_mapTable.begin( );it!=g_GlobalConfig.m_mapTable.end( );++it )
+	for( map<int,MapTable *>::iterator it=g_GlobalConfig.m_mapUsersTables.begin( );it!=g_GlobalConfig.m_mapUsersTables.end( );++it )
 	{
-		Table *pTable = ( *it ).second;
-		if( pTable->Repository_get( )==this && !pTable->CheckIn( ra_Processor, pSocket, toc_Delete ) )
-			return false;
+		MapTable *pMapTable = ( *it ).second;
+		for( MapTable::iterator itT=pMapTable->begin( );itT!=pMapTable->end( );++itT )
+		{
+			Table *pTable = ( *itT ).second;
+			if( pTable->Repository_get( )==this && !pTable->CheckIn( ra_Processor, pSocket, toc_Delete ) )
+				return false;
+		}
 	}
 	return true;
 }
@@ -633,7 +645,8 @@ int Repository::CreateBatch( map<int,bool> *mapValidatedUsers )
 			for(map<int,bool>::iterator it=mapValidatedUsers->begin();it!=mapValidatedUsers->end();++it)
 			{
 				std::ostringstream sSQL;
-				sSQL << "INSERT INTO " << m_pTable_BatchUser->Name_get( ) << "( psc_user,is_sup ) VALUES( " << (*it).first << "," << ((*it).second ? "1" : "0") << " )";
+				sSQL << "INSERT INTO " << m_pTable_BatchUser->Name_get( ) << "( FK_" 
+					<< m_pTable_BatchHeader->Name_get( ) << ",psc_user,is_sup ) VALUES( " << BatchID << "," << (*it).first << "," << ((*it).second ? "1" : "0") << " )";
 				int BatchID = m_pDatabase->threaded_mysql_query_withID( sSQL.str( ) );
 
 			}

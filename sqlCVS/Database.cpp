@@ -584,12 +584,15 @@ void Database::CheckIn( )
 		string Password = (*it).second;
 		while( Password.length()==0 )
 		{
-			cout << "Enter the password for user " << (*it).first << ": ";
+			cout << "Enter the password for user " << (*it).first << " or 0 if you don't know it: ";
 			cin >> Password;
 		}
 
 		// It requires the this->????  Guess there's another md5 function
-		g_GlobalConfig.m_mapUsersPasswords[(*it).first]=this->md5(Password);
+		if( Password=="0" )
+			g_GlobalConfig.m_mapUsersPasswords[(*it).first]="";
+		else
+			g_GlobalConfig.m_mapUsersPasswords[(*it).first]=this->md5(Password);
 	}
 
 	/** If any of the records to be checked in refer to a record with an auto-increment field that is new and is not being checked in,

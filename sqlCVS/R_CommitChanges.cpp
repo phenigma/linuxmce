@@ -48,6 +48,7 @@ R_CommitChanges::R_CommitChanges( string sRepository, string sDefaultUser )
 
 bool R_CommitChanges::ProcessRequest( class RA_Processor *pRA_Processor )
 {
+	cout << "Received Commit changes for repository: " << m_sRepository << endl;
 	sqlCVSprocessor *psqlCVSprocessor = ( sqlCVSprocessor * ) pRA_Processor;
 	Repository *pRepository = g_GlobalConfig.m_pDatabase->m_mapRepository_Find( m_sRepository );
 	if( !pRepository )
@@ -67,6 +68,7 @@ bool R_CommitChanges::ProcessRequest( class RA_Processor *pRA_Processor )
 				m_cProcessOutcome=LOGIN_FAILED;
 				return true;
 			}
+			cout << "Validated user: " << psc_user << " Is sup: " << bSupervisor << endl;
 			bValidatedUser=true;
 			psqlCVSprocessor->m_mapValidatedUsers[psc_user]=bSupervisor;
 			if( bSupervisor )
@@ -79,7 +81,7 @@ bool R_CommitChanges::ProcessRequest( class RA_Processor *pRA_Processor )
 		}
 
 		psqlCVSprocessor->m_pRepository = pRepository;
-		psqlCVSprocessor->m_i_psc_batch = pRepository->CreateBatch( &psqlCVSprocessor->m_mapValidatedUsers );
+		psqlCVSprocessor->m_psc_bathdr_orig = psqlCVSprocessor->m_i_psc_batch = pRepository->CreateBatch( &psqlCVSprocessor->m_mapValidatedUsers );
 
 		if( !psqlCVSprocessor->m_i_psc_batch )
 			m_cProcessOutcome=INTERNAL_ERROR;

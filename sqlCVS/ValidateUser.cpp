@@ -30,5 +30,6 @@ int ValidateUser(string Username,string Password,bool &bSupervisor)
 	if( Password==md5 || mySqlHelper.md5(Password)==md5 )
 		return psc_user;
 
+	cout << "Username: " << Username << " Password: " << Password << " failed login" << endl;
 	return 0;
 }

@@ -690,7 +690,7 @@ bool Table::DetermineDeletions( RA_Processor &ra_Processor, string Connection, D
 	}
 	std::ostringstream sSQL;
 
-	sSQL << "SELECT psc_id FROM " << m_sName << " ORDER BY psc_id";
+	sSQL << "SELECT psc_id FROM " << m_sName << " WHERE psc_id IS NOT NULL AND psc_id>0 ORDER BY psc_id";
 	PlutoSqlResult res;
 	MYSQL_ROW row=NULL;
 	res.r = m_pDatabase->mysql_query_result( sSQL.str( ) );
@@ -995,7 +995,7 @@ void Table::UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 
 			if( bFrozen || psc_user )
 			{
-				pR_CommitRow->m_psc_batch_new = psqlCVSprocessor->UnauthorizedBatch(psc_user);
+				psqlCVSprocessor->m_i_psc_batch = pR_CommitRow->m_psc_batch_new = psqlCVSprocessor->UnauthorizedBatch(psc_user);
 				AddToHistory( pR_CommitRow, psqlCVSprocessor );
 				return;
 			}
@@ -1033,7 +1033,7 @@ void Table::AddRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor
 	for( size_t s=0;s<psqlCVSprocessor->m_pvectFields->size( );++s )
 		sSQL << "`" << ( *psqlCVSprocessor->m_pvectFields )[s] << "`, ";
 
-	sSQL << "psc_id, psc_batch ) VALUES( ";
+	sSQL << "psc_id, psc_batch, psc_user ) VALUES( ";
 
 	for( size_t s=0;s<pR_CommitRow->m_vectValues.size( );++s )
 	{
@@ -1043,7 +1043,7 @@ void Table::AddRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor
 			sSQL << "'" << StringUtils::SQLEscape( pR_CommitRow->m_vectValues[s] ) << "', ";
 	}
 
-	sSQL << m_psc_id_next << ", " << psqlCVSprocessor->m_i_psc_batch << " )"; /** @warning batch # todo - hack */
+	sSQL << m_psc_id_next << ", " << psqlCVSprocessor->m_i_psc_batch << ", " << pR_CommitRow->m_psc_user << " )"; /** @warning batch # todo - hack */
 
 	pR_CommitRow->m_psc_id_new = m_psc_id_next;
 	pR_CommitRow->m_psc_batch_new = psqlCVSprocessor->m_i_psc_batch;
@@ -1112,7 +1112,7 @@ void Table::AddToHistory( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSpro
 	if( m_pField_AutoIncrement && pR_CommitRow->m_eTypeOfChange==toc_New )
 		sSqlHistory << m_pField_AutoIncrement->Name_get( ) << ", ";
 
-	sSqlHistory << "psc_id, psc_batch ) VALUES( ";
+	sSqlHistory << "psc_id, psc_batch, psc_user ) VALUES( ";
 
 	for( size_t s=0;s<pR_CommitRow->m_vectValues.size( );++s )
 	{
@@ -1135,20 +1135,20 @@ void Table::AddToHistory( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSpro
 	if( m_pField_AutoIncrement && pR_CommitRow->m_eTypeOfChange==toc_New )
 		sSqlHistory << pR_CommitRow->m_iNewAutoIncrID << ", ";
 
-	sSqlHistory << ( pR_CommitRow->m_eTypeOfChange==toc_New ? pR_CommitRow->m_psc_id_new : pR_CommitRow->m_psc_id ) << ", " << psqlCVSprocessor->m_i_psc_batch << " )"; // batch # todo - hack
+	sSqlHistory << ( pR_CommitRow->m_eTypeOfChange==toc_New ? pR_CommitRow->m_psc_id_new : pR_CommitRow->m_psc_id ) << ", " << pR_CommitRow->m_psc_batch_new << ", " 
+		<< pR_CommitRow->m_psc_user << " )"; // batch # todo - hack
 	sSqlMask << ( pR_CommitRow->m_eTypeOfChange==toc_New ? pR_CommitRow->m_psc_id_new : pR_CommitRow->m_psc_id ) << ", " << psqlCVSprocessor->m_i_psc_batch << " )"; // batch # todo - hack
 	if( m_pDatabase->threaded_mysql_query( sSqlHistory.str( ) )!=0 || m_pDatabase->threaded_mysql_query( sSqlMask.str( ) )!=0 )
 	{
 		cerr << "Failed to insert history row: " << sSqlHistory.str( ) << endl;
 		throw "Failed to insert row";
 	}
-
 }
-
-
 
 bool Table::Dump( SerializeableStrings &str )
 {
+	int num_psc_id=-1,num_psc_mod=-1;
+
 	str.m_vectString.push_back( m_sName );
 
 	std::ostringstream sSQL;
@@ -1158,6 +1158,7 @@ bool Table::Dump( SerializeableStrings &str )
 	if( !( result_set2.r=m_pDatabase->mysql_query_result( sSQL.str( ) ) ) )
 		return false;
 
+	int FieldCount=0;
 	string sFieldList;
 	str.m_vectString.push_back( StringUtils::itos( ( int ) ( result_set2.r->row_count ) ) );
 	while( ( row = mysql_fetch_row( result_set2.r ) ) )
@@ -1166,6 +1167,15 @@ bool Table::Dump( SerializeableStrings &str )
 			sFieldList += ", ";
 
 		sFieldList += string( "`" ) + row[0] + "`";
+
+		if( strcmp(row[0],"psc_id")==0 )
+			num_psc_id = FieldCount;
+
+		if( strcmp(row[0],"psc_mod")==0 )
+			num_psc_mod = FieldCount;
+
+		FieldCount++;
+
 		for( size_t s=0;s<6;++s )
 			str.m_vectString.push_back( row[s] ? row[s] : NULL_TOKEN );
 	}
@@ -1182,7 +1192,19 @@ bool Table::Dump( SerializeableStrings &str )
 	while( ( row = mysql_fetch_row( result_set.r ) ) )
 	{
 		for( size_t s=0;s<m_mapField.size( );++s )
-			str.m_vectString.push_back( row[s] ? row[s] : NULL_TOKEN );
+		{
+			if( s==num_psc_id && (!row[s] || !atoi(row[s])) )
+			{
+				cerr << "Not all the records in table: " << m_sName << " have an ID." << endl
+					<< "You can run sqlCVS with the 'update-psc' command to correct this," << endl
+					<< "however it should never have happened." << endl;
+				throw "Missing psc_id";
+			}
+			if( s==num_psc_mod )
+				str.m_vectString.push_back( "0" );
+			else
+				str.m_vectString.push_back( row[s] ? row[s] : NULL_TOKEN );
+		}
 	}
 
 	return true;

@@ -62,16 +62,19 @@ bool R_CommitRow::ProcessRequest( class RA_Processor *pRA_Processor )
 	{
 		if( m_eTypeOfChange==( int ) sqlCVS::toc_New )
 		{
+			psqlCVSprocessor->m_iNew++;
 			/**  This is a new record */
 			psqlCVSprocessor->m_pTable->AddRow( this, psqlCVSprocessor );
 		}
 		else if( m_eTypeOfChange==( int ) sqlCVS::toc_Modify )
 		{
+			psqlCVSprocessor->m_iMod++;
 			/** The user is updating an existing record */
 			psqlCVSprocessor->m_pTable->UpdateRow( this, psqlCVSprocessor, m_bFrozen, m_psc_user_needs_to_authorize );
 		}
 		else if( m_eTypeOfChange==( int ) sqlCVS::toc_Delete )
 		{
+			psqlCVSprocessor->m_iDel++;
 			/** The user is deleting an existing record */
 		}
 	}
