@@ -2018,6 +2018,9 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 //------------------------------------------------------------------------
 /*virtual*/ void Orbiter::HighlightFirstObject(  )
 {
+	if(m_bQuit)
+		return;
+
     if( !m_ScreenMap.size(  )  || !m_vectObjs_TabStops.size(  )  )
         return;
 
@@ -2029,9 +2032,10 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 //------------------------------------------------------------------------
 /*virtual*/ bool Orbiter::HighlightFirstChildObject( DesignObj_Orbiter* pObj )
 {
-    DesignObj_DataList::iterator iter;
+	if(m_bQuit)
+		return false;
 
-	int iUnused = pObj->m_ChildObjects.size();
+    DesignObj_DataList::iterator iter;
     for( iter = pObj->m_ChildObjects.begin(  ); iter != pObj->m_ChildObjects.end(  ); iter++ )
     {
         DesignObj_Data *p = ( *iter );
