@@ -21,7 +21,7 @@ ShellLoop()
 Emergency()
 {
 	Connectivity
-	./bin/chvt-11
+	./bin/chroot . chvt 11
 }
 
 mke2fs -m 0 /dev/ram0
