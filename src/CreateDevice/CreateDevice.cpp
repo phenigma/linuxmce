@@ -76,8 +76,8 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 	if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
 	{
 		iPK_DeviceCategory = atoi(row[0]);
-		if( row[2] && row[3] && string(row[3])!="1" )
-			ConfigureScript = row[2];
+		if( row[2] && row[3] && string(row[3])!="1" ) // Plug and play devices will spawn the ConfigureScript when plugged and call us--don't call the configure script again
+			ConfigureScript = string("/usr/pluto/bin/") + row[2];
 	}
 	else
 	{
