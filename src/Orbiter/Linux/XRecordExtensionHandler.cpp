@@ -26,8 +26,13 @@ XRecordExtensionHandler::~XRecordExtensionHandler()
 	g_pPlutoLogger->Write(LV_STATUS, "Marking as quit");
 	m_bShouldQuit = true;
 
-	g_pPlutoLogger->Write(LV_STATUS, "Disabling recording");
-	enableRecording(NULL, false); // stop any recording taking place. This will not put the thread of the cond_wait if it is there.
+
+	if ( m_bIsRecording )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Disabling recording");
+		enableRecording(NULL, false); // stop any recording taking place. This will not put the thread of the cond_wait if it is there.
+	}
+
 	g_pPlutoLogger->Write(LV_STATUS, "Signaling the condition");
 	pthread_cond_signal(&m_condition); // if it is there it will be put out.
 

@@ -123,13 +123,17 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
 #endif
 			kbdState->bRepeat = (kbdState->cKeyDown && (clock() - kbdState->cKeyDown > CLOCKS_PER_SEC / 2) );
 			kbdState->cKeyDown = 0;
-			g_pPlutoLogger->Write(LV_STATUS, "key up %d  rept: %d  shif: %d",
+			g_pPlutoLogger->Write(LV_STATUS, "key up %d  rept: %d  shif: %d ctrl: %d alt: %d caps: %d: downtime: %d",
 					(int) sdlEvent.key.keysym.sym,
 					(int) kbdState->bRepeat,
-					(int) kbdState->bShiftDown);
+					(int) kbdState->bShiftDown,
+					(int) kbdState->bControlDown,
+					(int) kbdState->bAltDown,
+					(int) kbdState->bCapsLock,
+					(int) kbdState->cKeyDown);
 
 #ifndef PHONEKEYS
-			if ( sdlEvent.key.keysym.sym >= SDLK_a && sdlEvent.key.keysym.sym <= SDLK_z )
+			if ( SDLK_a <= sdlEvent.key.keysym.sym && sdlEvent.key.keysym.sym <= SDLK_z )
 			{
 				orbiterEvent->type = Orbiter::Event::BUTTON_DOWN;
 				if( ( ! kbdState->bCapsLock && ! kbdState->bShiftDown ) ||
@@ -294,8 +298,8 @@ bool StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
 		Orbiter::Event orbiterEvent;
 		struct keyboardState keyboardState; // keep the state of the Ctrl/Shift etc if we need it in the furter calls.
 
-		keyboardState.bShiftDown = keyboardState.bControlDown = keyboardState.bAltDown;
-		keyboardState.bRepeat = keyboardState.bCapsLock;
+		keyboardState.bShiftDown = keyboardState.bControlDown = keyboardState.bAltDown = 0;
+		keyboardState.bRepeat = keyboardState.bCapsLock = 0;
 		keyboardState.cKeyDown = 0;
 
 		while (!pCLinux->m_bQuit)
