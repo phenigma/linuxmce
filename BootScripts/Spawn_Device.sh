@@ -9,7 +9,7 @@ echo "$(date) Spawn_Device $*" >> /var/log/pluto/Spawn_Device.log
 TYPE=spawning-device
 device_id="$1"
 ip_of_router="$2"
-device_name="$device_id"
+device_name="$device_id";
 module="$device_name" #$(basename $0)
 cmd_line="$3"
 
