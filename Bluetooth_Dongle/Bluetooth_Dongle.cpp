@@ -179,6 +179,14 @@ void Bluetooth_Dongle::LostDevice(class PhoneDevice *pDevice)
 		delete pBD_Orbiter->m_pOrbiter;
 		pBD_Orbiter->m_pOrbiter = NULL;
 	}
+
+	if(NULL != pBD_Orbiter && NULL != pBD_Orbiter->m_pBDCommandProcessor)
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "BDCommandProcessor deleted for %s device!", pDevice->m_sID.c_str());
+
+		delete pBD_Orbiter->m_pBDCommandProcessor;
+		pBD_Orbiter->m_pBDCommandProcessor = NULL;
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 void Bluetooth_Dongle::SignalStrengthChanged(class PhoneDevice *pDevice)
