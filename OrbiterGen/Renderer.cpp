@@ -28,6 +28,11 @@ using namespace std;
 #include "pluto_main/Define_VertAlignment.h"
 #endif //#ifndef ORBITER
 
+#ifdef WINCE
+	#define endl '\n'
+#endif
+
+
 int myCounter=0;
 
 Renderer::Renderer(string FontPath,string OutputDirectory,int Width,int Height,bool bDisableVideo)
@@ -42,18 +47,26 @@ Renderer::Renderer(string FontPath,string OutputDirectory,int Width,int Height,b
     m_Width=Width;
     m_Height=Height;
 
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == -1)
-    {
-        cerr << "Failed initializing SDL: " << SDL_GetError() << endl;
-        throw "Failed initializing SDL";
-    }
-    atexit(SDL_Quit);
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == -1)
+	{
+#ifndef WINCE
+		cerr << "Failed initializing SDL: " << SDL_GetError() << endl;
+#else
+		printf("Failed to initialize SDL %s\n", SDL_GetError());
+#endif //WINCE
+		throw "Failed initializing SDL";
+	}
+	atexit(SDL_Quit);
 
-    if (TTF_Init() == -1)
-    {
-        cout << "Failed to init SDL TTF: " << TTF_GetError() << "\nText won't be rendered" << endl;
-        return;
-    }
+	if (TTF_Init() == -1)
+	{
+#ifndef WINCE
+		cout << "Failed to init SDL TTF: " << TTF_GetError() << "\nText won't be rendered" << endl;
+#else
+		printf("Failed to init SDL TTF: %s\nText won't be rendered\n", TTF_GetError());
+#endif
+		return;
+	}
 
 
 //      Screen = SDL_SetVideoMode(800, 600, 0, SDL_SWSURFACE);
@@ -756,7 +769,11 @@ PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *
 /** @todo: Ask radu to fix this .. global font renderer issue */
 // Nasty hack -- Ask Radu why the fuck he decided to reinitialize the entire font engine for every word todo
 #ifdef WIN32
-Renderer r("C:/windows/fonts/", "", 800, 600, FLAG_DISABLE_VIDEO);
+	#ifndef WINCE
+		Renderer r("C:/windows/fonts/", "", 800, 600, FLAG_DISABLE_VIDEO);
+	#else
+		Renderer r("\\", "", 800, 600, FLAG_DISABLE_VIDEO);
+	#endif
 #else
 Renderer r("/usr/share/fonts/truetype/msttcorefonts/", "", 800, 600, FLAG_DISABLE_VIDEO);
 #endif

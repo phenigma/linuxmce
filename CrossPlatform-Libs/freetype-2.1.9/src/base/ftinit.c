@@ -38,6 +38,9 @@
 
 
 #include <ft2build.h>
+#ifndef FT_CONFIG_CONFIG_H
+#define FT_CONFIG_CONFIG_H  <freetype/config/ftconfig.h>
+#endif
 #include FT_CONFIG_CONFIG_H
 #include FT_INTERNAL_OBJECTS_H
 #include FT_INTERNAL_DEBUG_H

@@ -17,6 +17,7 @@
 
 
 #include <ft2build.h>
+#define FT_MULTIPLE_MASTERS_H  <freetype/ftmm.h> 
 #include FT_MULTIPLE_MASTERS_H
 #include FT_INTERNAL_OBJECTS_H
 #include FT_SERVICE_MULTIPLE_MASTERS_H

@@ -14,6 +14,13 @@
 #ifndef Orbiter_h
 #define Orbiter_h
 
+#ifdef WINCE
+	#ifndef _CLOCK_T_DEFINED
+	typedef unsigned long clock_t;
+	#define _CLOCK_T_DEFINED
+	#endif 
+#endif
+
 //	DCE Implemenation for #8 Orbiter
 
 #include "Gen_Devices/OrbiterBase.h"
@@ -1105,18 +1112,7 @@ public:
 	/**
 	 * @brief constructor
 	 */
-	NeedToRender( class Orbiter *pOrbiter, const char *pWhere ) 
-	{
-		if ( g_cLastTime && ( clock() - g_cLastTime ) > CLOCKS_PER_SEC * 3 && g_iDontRender )
-		{
-			g_pPlutoLogger->Write( LV_CRITICAL, "Need to render has blocked!!!" );
-			g_iDontRender=0;
-		}
-		m_pWhere = pWhere;
-		m_pOrbiter = pOrbiter;
-		g_cLastTime = clock();
-		g_iDontRender++;
-	}
+	NeedToRender( class Orbiter *pOrbiter, const char *pWhere );
 
 	/**
 	 * @brief destructor

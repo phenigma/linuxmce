@@ -10,6 +10,8 @@ using namespace ::std;
 
 #ifdef WINCE
 #include _STLP_NATIVE_C_HEADER(time.h)
+#include "wince.h"
+
 #endif
 
 #include "PlutoUtils/MultiThreadIncludes.h"

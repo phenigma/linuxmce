@@ -24,6 +24,7 @@
 
 #ifdef WINCE
 	#include _STLP_NATIVE_C_HEADER(time.h)
+	#include "wince.h"
 #endif
 
 map<int,PlutoLock *> mapLocks;

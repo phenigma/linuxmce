@@ -32,17 +32,21 @@ namespace FileUtils
 {
 #ifndef SYMBIAN
     char *ReadFileIntoBuffer( string sFileName, size_t &Size ); /** < reads file into buffer; buffer must be freed by caller */
+    bool FileExists( string sFileName ); /** < checks if the specified file exists */
+    long FileSize(string sFileName); /** < returns the file size or zero if error */
+
+#ifndef WINCE
     string FindExtension ( string sFileName ); /** < returns the extension of the file name specified */
     string BasePath( string sFileName ); /** < returns the path one dir up @todo ask */
     string FilenameWithoutPath( string sFullPath, bool bIncludeExtension=true ); /** < returnes only the file name from a path/filename string */
     string ValidCPPName( string sInput ); /** < converts the input file name to a valid CPP file name */
-    bool FileExists( string sFileName ); /** < checks if the specified file exists */
     time_t FileDate(string sFileName); /** < returns the date of the last file modification or 0 if error */
-    long FileSize(string sFileName); /** < returns the file size or zero if error */
     void MakeDir(string sDirectory); /** < makes a directory, including all necessary parent directories, like mkdir -p in Linux */
     bool DirExists(string sDirectory); /** < Returns true if the directory exists */
 	void FindFiles(list<string> &listFiles,string sDirectory,string sFileSpec_CSV,bool bRecurse=false,string PrependedPath=""); /** < scan sDirectory, for files matching any of the sFilespec_CVS (ie *.jpg,a*,bcd*.mpg), and store the names in listFiles.  Optionally recurse into sub-directories.  The prepended path will be prepended to any files that are found.  Normally this is for internal use only while recursing. */
 	bool PUCopyFile(string sSource,string sDestination); /** < Copies a file from sSource to sDestination.  returns false if it fails, true otherwise */
+#endif
+
 #endif //#ifndef SYMBIAN
 }
 

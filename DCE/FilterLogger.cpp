@@ -31,7 +31,10 @@
 #include "PlutoUtils/Other.h"
 #include "PlutoUtils/Other.h"
 #include "Message.h"
+
+#ifndef WINCE
 #include "PlutoUtils/TokenStream.h"
+#endif
 
 using namespace DCE;
 

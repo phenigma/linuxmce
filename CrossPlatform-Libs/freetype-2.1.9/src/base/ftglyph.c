@@ -28,7 +28,9 @@
   /*************************************************************************/
 
 
-#include <ft2build.h>
+#include "ft2build.h"
+
+#define FT_GLYPH_H  <freetype/ftglyph.h>
 #include FT_GLYPH_H
 #include FT_OUTLINE_H
 #include FT_INTERNAL_OBJECTS_H

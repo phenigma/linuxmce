@@ -28,7 +28,9 @@
 #include "PlutoUtils/CommonIncludes.h"	
 #include "DCE/Logger.h"
 #ifndef WIN32 
-#include <fcntl.h>
+	#include <fcntl.h>
+#else
+	#include "wince.h"
 #endif
 #include "Message.h"
 #include "Socket.h"

@@ -1,0 +1,1098 @@
+# Microsoft eMbedded Visual Tools Project File - Name="lpng_wince" - Package Owner=<4>
+# Microsoft eMbedded Visual Tools Generated Build File, Format Version 6.02
+# ** DO NOT EDIT **
+
+# TARGTYPE "Win32 (WCE ARMV4) Static Library" 0xa304
+# TARGTYPE "Win32 (WCE emulator) Static Library" 0xa604
+
+CFG=lpng_wince - Win32 (WCE emulator) Debug
+!MESSAGE This is not a valid makefile. To build this project using NMAKE,
+!MESSAGE use the Export Makefile command and run
+!MESSAGE 
+!MESSAGE NMAKE /f "lpng_wince.vcn".
+!MESSAGE 
+!MESSAGE You can specify a configuration when running NMAKE
+!MESSAGE by defining the macro CFG on the command line. For example:
+!MESSAGE 
+!MESSAGE NMAKE /f "lpng_wince.vcn" CFG="lpng_wince - Win32 (WCE emulator) Debug"
+!MESSAGE 
+!MESSAGE Possible choices for configuration are:
+!MESSAGE 
+!MESSAGE "lpng_wince - Win32 (WCE emulator) Release" (based on "Win32 (WCE emulator) Static Library")
+!MESSAGE "lpng_wince - Win32 (WCE emulator) Debug" (based on "Win32 (WCE emulator) Static Library")
+!MESSAGE "lpng_wince - Win32 (WCE ARMV4) Release" (based on "Win32 (WCE ARMV4) Static Library")
+!MESSAGE "lpng_wince - Win32 (WCE ARMV4) Debug" (based on "Win32 (WCE ARMV4) Static Library")
+!MESSAGE 
+
+# Begin Project
+# PROP AllowPerConfigDependencies 0
+# PROP Scc_ProjName ""
+# PROP Scc_LocalPath ""
+# PROP ATL_Project 2
+
+!IF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Release"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "emulatorRel"
+# PROP BASE Intermediate_Dir "emulatorRel"
+# PROP BASE CPU_ID "{32E52003-403E-442D-BE48-DE10F8C6131D}"
+# PROP BASE Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "emulatorRel"
+# PROP Intermediate_Dir "emulatorRel"
+# PROP CPU_ID "{32E52003-403E-442D-BE48-DE10F8C6131D}"
+# PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Target_Dir ""
+CPP=cl.exe
+# ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /D "_LIB" /YX /Gs8192 /GF /O2 /c
+# ADD CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /D "_LIB" /YX /Gs8192 /GF /O2 /c
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo
+# ADD LIB32 /nologo
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Debug"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 1
+# PROP BASE Output_Dir "emulatorDbg"
+# PROP BASE Intermediate_Dir "emulatorDbg"
+# PROP BASE CPU_ID "{32E52003-403E-442D-BE48-DE10F8C6131D}"
+# PROP BASE Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 1
+# PROP Output_Dir "emulatorDbg"
+# PROP Intermediate_Dir "emulatorDbg"
+# PROP CPU_ID "{32E52003-403E-442D-BE48-DE10F8C6131D}"
+# PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Target_Dir ""
+CPP=cl.exe
+# ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "_LIB" /YX /Gs8192 /GF /c
+# ADD CPP /nologo /W3 /Zi /Od /I "../../zlib" /D "DEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "_LIB" /YX /Gs8192 /GF /c
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo
+# ADD LIB32 /nologo
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Release"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "ARMV4Rel"
+# PROP BASE Intermediate_Dir "ARMV4Rel"
+# PROP BASE CPU_ID "{ECBEA43D-CD7B-4852-AD55-D4227B5D624B}"
+# PROP BASE Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "ARMV4Rel"
+# PROP Intermediate_Dir "ARMV4Rel"
+# PROP CPU_ID "{ECBEA43D-CD7B-4852-AD55-D4227B5D624B}"
+# PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Target_Dir ""
+CPP=clarm.exe
+# ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "NDEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /YX /O2 /M$(CECrtMT) /c
+# ADD CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "NDEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /YX /O2 /M$(CECrtMT) /c
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo
+# ADD LIB32 /nologo
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Debug"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 1
+# PROP BASE Output_Dir "ARMV4Dbg"
+# PROP BASE Intermediate_Dir "ARMV4Dbg"
+# PROP BASE CPU_ID "{ECBEA43D-CD7B-4852-AD55-D4227B5D624B}"
+# PROP BASE Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 1
+# PROP Output_Dir "ARMV4Dbg"
+# PROP Intermediate_Dir "ARMV4Dbg"
+# PROP CPU_ID "{ECBEA43D-CD7B-4852-AD55-D4227B5D624B}"
+# PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Target_Dir ""
+CPP=clarm.exe
+# ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /YX /M$(CECrtMTDebug) /c
+# ADD CPP /nologo /W3 /Zi /Od /I "../../zlib" /D "DEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /D "WINCE" /YX /M$(CECrtMTDebug) /c
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo
+# ADD LIB32 /nologo
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+
+!ENDIF 
+
+# Begin Target
+
+# Name "lpng_wince - Win32 (WCE emulator) Release"
+# Name "lpng_wince - Win32 (WCE emulator) Debug"
+# Name "lpng_wince - Win32 (WCE ARMV4) Release"
+# Name "lpng_wince - Win32 (WCE ARMV4) Debug"
+# Begin Group "Source Files"
+
+# PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+# Begin Source File
+
+SOURCE=..\png.c
+
+!IF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Release"
+
+DEP_CPP_PNG_C=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNG_C=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Debug"
+
+DEP_CPP_PNG_C=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNG_C=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_PNG_C=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNG_C=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_PNG_C=\
+	"..\..\zlib\zconf.h"\
+	"..\..\zlib\zlib.h"\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNG_C=\
+	"..\pngusr.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\png.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\pngconf.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\pngerror.c
+
+!IF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Release"
+
+DEP_CPP_PNGER=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGER=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Debug"
+
+DEP_CPP_PNGER=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGER=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_PNGER=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGER=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_PNGER=\
+	"..\..\zlib\zconf.h"\
+	"..\..\zlib\zlib.h"\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGER=\
+	"..\pngusr.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\pnggccrd.c
+
+!IF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Release"
+
+DEP_CPP_PNGGC=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGGC=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Debug"
+
+DEP_CPP_PNGGC=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGGC=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_PNGGC=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGGC=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_PNGGC=\
+	"..\..\zlib\zconf.h"\
+	"..\..\zlib\zlib.h"\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGGC=\
+	"..\pngusr.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\pngget.c
+
+!IF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Release"
+
+DEP_CPP_PNGGE=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGGE=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Debug"
+
+DEP_CPP_PNGGE=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGGE=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_PNGGE=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGGE=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_PNGGE=\
+	"..\..\zlib\zconf.h"\
+	"..\..\zlib\zlib.h"\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGGE=\
+	"..\pngusr.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\pngmem.c
+
+!IF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Release"
+
+DEP_CPP_PNGME=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGME=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Debug"
+
+DEP_CPP_PNGME=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGME=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_PNGME=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGME=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_PNGME=\
+	"..\..\zlib\zconf.h"\
+	"..\..\zlib\zlib.h"\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGME=\
+	"..\pngusr.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\pngpread.c
+
+!IF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Release"
+
+DEP_CPP_PNGPR=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGPR=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Debug"
+
+DEP_CPP_PNGPR=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGPR=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_PNGPR=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGPR=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_PNGPR=\
+	"..\..\zlib\zconf.h"\
+	"..\..\zlib\zlib.h"\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGPR=\
+	"..\pngusr.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\pngread.c
+
+!IF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Release"
+
+DEP_CPP_PNGRE=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGRE=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Debug"
+
+DEP_CPP_PNGRE=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGRE=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_PNGRE=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGRE=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_PNGRE=\
+	"..\..\zlib\zconf.h"\
+	"..\..\zlib\zlib.h"\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGRE=\
+	"..\pngusr.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\pngrio.c
+
+!IF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Release"
+
+DEP_CPP_PNGRI=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGRI=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Debug"
+
+DEP_CPP_PNGRI=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGRI=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_PNGRI=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGRI=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_PNGRI=\
+	"..\..\zlib\zconf.h"\
+	"..\..\zlib\zlib.h"\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGRI=\
+	"..\pngusr.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\pngrtran.c
+
+!IF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Release"
+
+DEP_CPP_PNGRT=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGRT=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Debug"
+
+DEP_CPP_PNGRT=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGRT=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_PNGRT=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGRT=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_PNGRT=\
+	"..\..\zlib\zconf.h"\
+	"..\..\zlib\zlib.h"\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGRT=\
+	"..\pngusr.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\pngrutil.c
+
+!IF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Release"
+
+DEP_CPP_PNGRU=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGRU=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Debug"
+
+DEP_CPP_PNGRU=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGRU=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_PNGRU=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGRU=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_PNGRU=\
+	"..\..\zlib\zconf.h"\
+	"..\..\zlib\zlib.h"\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGRU=\
+	"..\pngusr.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\pngset.c
+
+!IF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Release"
+
+DEP_CPP_PNGSE=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGSE=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Debug"
+
+DEP_CPP_PNGSE=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGSE=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_PNGSE=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGSE=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_PNGSE=\
+	"..\..\zlib\zconf.h"\
+	"..\..\zlib\zlib.h"\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGSE=\
+	"..\pngusr.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\pngtest.c
+
+!IF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Release"
+
+DEP_CPP_PNGTE=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGTE=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Debug"
+
+DEP_CPP_PNGTE=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGTE=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_PNGTE=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGTE=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_PNGTE=\
+	"..\..\zlib\zconf.h"\
+	"..\..\zlib\zlib.h"\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGTE=\
+	"..\pngusr.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\pngtrans.c
+
+!IF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Release"
+
+DEP_CPP_PNGTR=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGTR=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Debug"
+
+DEP_CPP_PNGTR=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGTR=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_PNGTR=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGTR=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_PNGTR=\
+	"..\..\zlib\zconf.h"\
+	"..\..\zlib\zlib.h"\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGTR=\
+	"..\pngusr.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\pngvcrd.c
+
+!IF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Release"
+
+DEP_CPP_PNGVC=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGVC=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Debug"
+
+DEP_CPP_PNGVC=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGVC=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_PNGVC=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGVC=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_PNGVC=\
+	"..\..\zlib\zconf.h"\
+	"..\..\zlib\zlib.h"\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGVC=\
+	"..\pngusr.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\pngwio.c
+
+!IF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Release"
+
+DEP_CPP_PNGWI=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGWI=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Debug"
+
+DEP_CPP_PNGWI=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGWI=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_PNGWI=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGWI=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_PNGWI=\
+	"..\..\zlib\zconf.h"\
+	"..\..\zlib\zlib.h"\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGWI=\
+	"..\pngusr.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\pngwrite.c
+
+!IF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Release"
+
+DEP_CPP_PNGWR=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGWR=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Debug"
+
+DEP_CPP_PNGWR=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGWR=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_PNGWR=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGWR=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_PNGWR=\
+	"..\..\zlib\zconf.h"\
+	"..\..\zlib\zlib.h"\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGWR=\
+	"..\pngusr.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\pngwtran.c
+
+!IF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Release"
+
+DEP_CPP_PNGWT=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGWT=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Debug"
+
+DEP_CPP_PNGWT=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGWT=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_PNGWT=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGWT=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_PNGWT=\
+	"..\..\zlib\zconf.h"\
+	"..\..\zlib\zlib.h"\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGWT=\
+	"..\pngusr.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\pngwutil.c
+
+!IF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Release"
+
+DEP_CPP_PNGWU=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGWU=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE emulator) Debug"
+
+DEP_CPP_PNGWU=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGWU=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_PNGWU=\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGWU=\
+	"..\pngusr.h"\
+	"..\zlib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "lpng_wince - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_PNGWU=\
+	"..\..\zlib\zconf.h"\
+	"..\..\zlib\zlib.h"\
+	"..\png.h"\
+	"..\pngconf.h"\
+	
+NODEP_CPP_PNGWU=\
+	"..\pngusr.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# End Group
+# Begin Group "Header Files"
+
+# PROP Default_Filter "h;hpp;hxx;hm;inl"
+# End Group
+# End Target
+# End Project

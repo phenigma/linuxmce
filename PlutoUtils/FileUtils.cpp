@@ -30,30 +30,28 @@
 #include "PlutoUtils/Other.h"
 
 #ifndef WIN32
-#include "dirent.h"
+	#include "dirent.h"
 #endif
 
 #ifndef SYMBIAN
-#include <stdio.h>
-#include <time.h>
-#include <cctype>
-#include <algorithm>
-#include <stdarg.h>
-#ifdef WIN32
-	#ifndef WINCE
-		#include <direct.h>
-		#include <io.h>
+	#include <stdio.h>
+	#include <time.h>
+	#include <cctype>
+	#include <algorithm>
+	#include <stdarg.h>
+	#ifdef WIN32
+		#ifndef WINCE
+			#include <direct.h>
+			#include <io.h>
+		#endif
+	#else
+		#include <dirent.h>
 	#endif
-#else
-	#include <dirent.h>
-#endif
 
-#ifndef WINCE
-	#include <sys/types.h>
-	#include <sys/stat.h>
-#endif
-
-
+	#ifndef WINCE
+		#include <sys/types.h>
+		#include <sys/stat.h>
+	#endif
 #endif //#ifndef SYMBIAN
 
 char *FileUtils::ReadFileIntoBuffer( string sFileName, size_t &Size )
@@ -75,6 +73,61 @@ char *FileUtils::ReadFileIntoBuffer( string sFileName, size_t &Size )
     fclose( pFile );
     return pChr;
 }
+
+bool FileUtils::FileExists( string sFile )
+{
+#ifndef WINCE
+    struct stat buf;
+    int iResult;
+
+    if( sFile.length() && sFile[sFile.length()-1]=='/' )
+        iResult = stat( sFile.substr(0, sFile.length()-1).c_str(), &buf );
+    else
+        iResult = stat( sFile.c_str(), &buf );
+
+    return iResult == 0;
+#else
+	//todo : to be implemented
+
+	return 0;
+#endif
+}
+
+long FileUtils::FileSize(string sFile)
+{
+#ifndef WINCE
+    struct stat buf;
+    int iResult;
+
+    iResult = stat( sFile.c_str(), &buf );
+
+    if( iResult != 0 ) // checks if statistics are valid
+        return 0;
+    else
+        return buf.st_size;
+#else
+
+	//todo: to be implemented
+
+	/*
+
+	long dwSize;
+
+	// Try to obtain hFile's size 
+	dwSize = GetFileSize (hFile, NULL) ; 
+ 
+	// Result on failure. 
+	if (dwSize == 0xFFFFFFFF) 
+		return 0;
+	else
+		return dwSize;
+	*/
+
+	return 0;
+#endif
+}
+
+#ifndef WINCE
 
 string FileUtils::FindExtension( string sFileName )
 {
@@ -191,19 +244,6 @@ string FileUtils::ValidCPPName(string sInput)
     return sInput;
 }
 
-bool FileUtils::FileExists( string sFile )
-{
-    struct stat buf;
-    int iResult;
-
-    if( sFile.length() && sFile[sFile.length()-1]=='/' )
-        iResult = stat( sFile.substr(0, sFile.length()-1).c_str(), &buf );
-    else
-        iResult = stat( sFile.c_str(), &buf );
-
-    return iResult == 0;
-}
-
 bool FileUtils::DirExists( string sFile )
 {
     struct stat buf;
@@ -229,19 +269,6 @@ time_t FileUtils::FileDate(string sFile)
     else
         return buf.st_mtime;
 
-}
-
-long FileUtils::FileSize(string sFile)
-{
-    struct stat buf;
-    int iResult;
-
-    iResult = stat( sFile.c_str(), &buf );
-
-    if( iResult != 0 ) // checks if statistics are valid
-        return 0;
-    else
-        return buf.st_size;
 }
 
 void FileUtils::MakeDir(string sDirectory)
@@ -396,3 +423,4 @@ bool FileUtils::PUCopyFile(string sSource,string sDestination)
 	return true;
 }
 
+#endif

@@ -28,6 +28,10 @@
 #include <SDL_ttf.h>
 #include <SDL_image.h>
 
+#ifdef WINCE
+	#include "wince.h"
+#endif
+
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
     Uint32 rmask = 0xff000000;
     Uint32 gmask = 0x00ff0000;
@@ -52,7 +56,11 @@ OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirector
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == -1)
     {
+#ifndef WINCE
         cerr << "Failed to initialize SDL" << SDL_GetError() << endl;
+#else
+		printf("Failed to initialize SDL %s\n", SDL_GetError());
+#endif //WINCE
         throw "Failed to initialize SDL";
     }
     atexit(SDL_Quit);
@@ -263,6 +271,22 @@ void OrbiterSDL::DrawRectangle(int x, int y, int width, int height, PlutoColor c
                 g_pPlutoLogger->Write(LV_CRITICAL, "Unable to get file from server %s", pIMGraphic->m_Filename.c_str());
                 return;
             }
+
+#ifdef WINCE
+	//hack! test if png rendering works
+
+	/*
+	unsigned int size;
+	pGraphicFile = FileUtils::ReadFileIntoBuffer( "\\temp\\1255.4.0.png", size );
+	iSizeGraphicFile = size;
+	*/
+
+	/*
+	FILE* f = fopen("\temp\1255.4.0.png", "r");
+	fread(pGraphicFile, 1, iSizeGraphicFile, f);
+	fclose(f);
+	*/
+#endif
 
             SDL_RWops * rw = SDL_RWFromMem(pGraphicFile, iSizeGraphicFile);
             obj_image = IMG_Load_RW(rw, 1); // rw is freed here

@@ -53,6 +53,10 @@
 using namespace ::std;
 using namespace DCE;
 
+#ifdef WINCE
+	#include "wince.h"
+#endif
+
 Logger::Logger( const char* pcName ) : m_Lock( "logger" )
 {
 	if( pcName ) m_Name = pcName;

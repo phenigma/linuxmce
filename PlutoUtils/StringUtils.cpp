@@ -43,6 +43,7 @@
 		#else
 			#include _STLP_NATIVE_C_HEADER(time.h)
 			#include _STLP_NATIVE_C_HEADER(stdio.h) 
+			#include "wince.h"
 		#endif
     #else
 	    #include <sys/types.h>
@@ -506,7 +507,11 @@ string StringUtils::GetStringFromConsole()
 			if (sOutput.length() > 0)
 			{
 				sOutput = sOutput.substr(0, sOutput.length() - 1);
+#ifndef WINCE				
 				cout << c << " " << c;
+#else
+				printf("%c %c", c, c);
+#endif
 			}
 			continue;
 		}
@@ -518,7 +523,11 @@ string StringUtils::GetStringFromConsole()
 			kill(getpid(), SIGINT);
 #endif
 		}
-		cout << c;
+#ifndef WINCE				
+				cout << c;
+#else
+				printf("%c", c);
+#endif
 		if( c=='\n' || c=='\r' )
 			return sOutput;
 

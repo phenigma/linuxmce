@@ -193,6 +193,7 @@ DataGridTable::DataGridTable(int Size, char *Data)
 	int UncompressedLength = *((int *)Data);
 	char *UncompressedData = new char[UncompressedLength];
 	lzo_uint new_len;
+
 #ifdef UNDER_CE
 	__try
 	{
@@ -206,6 +207,7 @@ DataGridTable::DataGridTable(int Size, char *Data)
 #else
 	lzo1x_decompress((lzo_byte *)Data+4,Size - 4,(lzo_byte *)UncompressedData,&new_len,NULL);
 #endif
+
 #else
 	int UncompressedLength = Size;
 	char *UncompressedData = Data;

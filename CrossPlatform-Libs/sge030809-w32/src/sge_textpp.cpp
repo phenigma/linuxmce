@@ -337,6 +337,7 @@ void sge_TextEditor::clear_text(void)
 }
 
 
+#ifndef WINCE	
 void sge_TextEditor::change_text(const string s)
 {
 	clear_text();
@@ -344,6 +345,26 @@ void sge_TextEditor::change_text(const string s)
 	for(unsigned int i=0; i<s.size(); i++)
 		insert(char(s[i]));
 }
+
+void sge_TextEditor::change_textf(const char *text, ...)
+{
+	char buf[256];
+
+	va_list ap;
+	
+	#ifdef __WIN32__
+	va_start((va_list*)ap, text); //Stupid win32 crosscompiler
+	#else
+	va_start(ap, text);
+	#endif
+	
+	vsprintf(buf, text, ap);
+	va_end(ap);
+
+	change_text(buf);
+}
+#endif
+
 
 /*
 void sge_TextEditor::change_utext(const std::basic_string<Uint16> s)
@@ -365,26 +386,6 @@ void sge_TextEditor::change_uctext(Uint16 *text)
 	for(ch=text; *ch; ch++)
 		insert(*ch);
 }
-
-
-void sge_TextEditor::change_textf(const char *text, ...)
-{
-	char buf[256];
-
-	va_list ap;
-	
-	#ifdef __WIN32__
-	va_start((va_list*)ap, text); //Stupid win32 crosscompiler
-	#else
-	va_start(ap, text);
-	#endif
-	
-	vsprintf(buf, text, ap);
-	va_end(ap);
-
-	change_text(buf);
-}
-
 
 
 

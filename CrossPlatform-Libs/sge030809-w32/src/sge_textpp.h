@@ -103,10 +103,16 @@ public:
 	
 	//Change the text
 	void clear_text(void);
+	
+#ifndef WINCE	
 	void change_text(const std::string s);
+	void change_textf(const char *text, ...);             //printf c-style... urk
+#endif
+
+
 	//void change_utext(const std::basic_string<Uint16> s);
 	void change_uctext(Uint16 *text);
-	void change_textf(const char *text, ...);             //printf c-style... urk
+	
 	
 	//Set max chars (default: limited only by memory)
 	void max_chars(unsigned int c){mChars=c;}
@@ -203,7 +209,14 @@ public:
 	sge_TextSurface(SDL_Surface *screen, const std::string text, Sint16 x=0, Sint16 y=0):
 		sge_surface(screen,screen,x,y)
 		{
+#ifndef WINCE
 			change_text(text);
+#else
+			clear_text();
+
+			for(unsigned int i=0; i<text.size(); i++)
+				insert(char(text[i]));
+#endif
 			current_pos.w=0; current_pos.h=0;
 		}
 		
@@ -227,7 +240,14 @@ public:
 	sge_TextSsprite(SDL_Surface *screen, const std::string text, Sint16 x=0, Sint16 y=0):
 		sge_ssprite(screen,screen,x,y)
 		{
+#ifndef WINCE
 			change_text(text);
+#else
+			clear_text();
+
+			for(unsigned int i=0; i<text.size(); i++)
+				insert(char(text[i]));
+#endif
 			current_pos.w=0; current_pos.h=0;
 		}
 		
@@ -251,7 +271,14 @@ public:
 	sge_TextSprite(SDL_Surface *screen, const std::string text, Sint16 x=0, Sint16 y=0):
 		sge_sprite(screen,screen,x,y)
 		{
+#ifndef WINCE
 			change_text(text);
+#else
+			clear_text();
+
+			for(unsigned int i=0; i<text.size(); i++)
+				insert(char(text[i]));
+#endif
 			current_pos.w=0; current_pos.h=0;
 		}
 		

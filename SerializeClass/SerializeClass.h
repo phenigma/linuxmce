@@ -367,7 +367,16 @@ public:
 	void Write_unsigned_long(unsigned long v) {
 		CheckWrite(sizeof(unsigned long));
 		unsigned long *pl = (unsigned long *) m_pcCurrentPosition;
+
+#ifndef WINCE
 		*pl = v;
+#else
+		//try to avoid "Datatype misalignment" exception
+		((unsigned char *)pl)[3] = (v >> 24)	& 0x000000FF;
+		((unsigned char *)pl)[2] = (v >> 16)	& 0x000000FF;
+		((unsigned char *)pl)[1] = (v >> 8)		& 0x000000FF;
+		((unsigned char *)pl)[0] = v			& 0x000000FF;
+#endif
 		m_pcCurrentPosition += sizeof(unsigned long);
 	}
 
@@ -398,7 +407,18 @@ public:
 #endif
 		CheckWrite(sizeof(long));
 		 long *pl = (long *) m_pcCurrentPosition;
+
+#ifndef WINCE
 		*pl = v;
+#else
+		//try to avoid "Datatype misalignment" exception
+		((unsigned char *)pl)[3] = (v >> 24)	& 0x000000FF;
+		((unsigned char *)pl)[2] = (v >> 16)	& 0x000000FF;
+		((unsigned char *)pl)[1] = (v >> 8)		& 0x000000FF;
+		((unsigned char *)pl)[0] = v			& 0x000000FF;
+#endif
+
+
 		m_pcCurrentPosition += sizeof(long);
 	}
 

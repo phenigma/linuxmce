@@ -21,6 +21,7 @@
 
 
 #include <ft2build.h>
+#define FT_INTERNAL_MEMORY_H              <freetype/internal/ftmemory.h>
 #include FT_INTERNAL_MEMORY_H
 #include FT_INTERNAL_STREAM_H
 #include FT_INTERNAL_DEBUG_H

@@ -85,6 +85,7 @@ static int IMG_string_equals(const char *str1, const char *str2)
 SDL_Surface *IMG_LoadTyped_RW(SDL_RWops *src, int freesrc, char *type)
 {
 	int i, start;
+
 	SDL_Surface *image;
 
 	/* Make sure there is something to do.. */
@@ -103,6 +104,7 @@ SDL_Surface *IMG_LoadTyped_RW(SDL_RWops *src, int freesrc, char *type)
 	/* Detect the type of image being loaded */
 	start = SDL_RWtell(src);
 	image = NULL;
+
 	for ( i=0; i < ARRAYSIZE(supported); ++i ) {
 		if(supported[i].is) {
 			SDL_RWseek(src, start, SEEK_SET);

@@ -24,7 +24,6 @@
  *
  */
 
-
 #include "PlutoUtils/CommonIncludes.h"	
 
 #ifndef WIN32
@@ -38,13 +37,13 @@
 #include "Message.h"
 #include "ClientSocket.h"
 
-#ifdef WINCE
-	#include _STLP_NATIVE_C_HEADER(winsock.h)
-#endif
-
 #define DCE_DEFAULT_PORT 3450
 
 using namespace DCE;
+
+#ifdef WINCE
+	#include "wince.h"
+#endif
 
 void *WatchDogThread( void *pData )
 {
@@ -62,6 +61,7 @@ void *WatchDogThread( void *pData )
 	}
 
 	pClientSocket->m_bWatchdogRunning = false;
+
 	return NULL;
 }
 
@@ -87,8 +87,11 @@ bool ClientSocket::Connect( string sExtraInfo )
 #ifdef DEBUG
 		if( g_pPlutoLogger )
 			g_pPlutoLogger->Write( LV_SOCKET, "ClientSocket::Connect - disconnecting previous socket this: %p device: %d socket %d", this, m_dwPK_Device, m_Socket );
+#ifndef WINCE
 		else // no logger
 			cerr << "ClientSocket::Connect - disconnecting previous socket this: device: " << m_dwPK_Device << " Socket: " << (int) m_Socket << endl;
+#endif
+
 #endif
 		Disconnect();
 	}
@@ -128,9 +131,10 @@ bool ClientSocket::Connect( string sExtraInfo )
 #endif 
 					if( g_pPlutoLogger )
 						g_pPlutoLogger->Write( LV_CRITICAL, "gethostbyname for '%s', failed, Last Error Code %d, Device: %d", sAddress.c_str(), ec, m_dwPK_Device );
+#ifndef WINCE
 					else // no logger
 						cerr << "gethostbyname for " << sAddress << " failed, Last Error Code " << ec << " device: " << m_dwPK_Device << endl;
-
+#endif
 					Disconnect();
 					break;
 				}
@@ -166,8 +170,10 @@ bool ClientSocket::Connect( string sExtraInfo )
 #endif
 				if( g_pPlutoLogger )
 					g_pPlutoLogger->Write(LV_CRITICAL, "Connect() failed, Error Code %d", ec);
+#ifndef WINCE
 				else // no logger
 					cerr << "Connect() failed, Error Code" << ec << endl;
+#endif
 			}
 			
 		}
@@ -177,8 +183,10 @@ bool ClientSocket::Connect( string sExtraInfo )
 		{
 			if( g_pPlutoLogger )
 				g_pPlutoLogger->Write(LV_CRITICAL, "ClientSocket::Connect() not successful");
+#ifndef WINCE
 			else // no logger
 				cerr << "ClientSocket::Connect() not successful" << endl;
+#endif
 			Disconnect();
 		}
 	}
@@ -186,8 +194,10 @@ bool ClientSocket::Connect( string sExtraInfo )
 	{
 			if( g_pPlutoLogger )
 			g_pPlutoLogger->Write(LV_CRITICAL, "socket() failed, is the TCP stack initialized?, device: %d", m_dwPK_Device);
+#ifndef WINCE
 			else // no logger
 				cerr << "socket() failed, is the TCP stack initialized?, device: " << m_dwPK_Device << endl;
+#endif
 	}
 	if ( bSuccess )
 	{
@@ -232,6 +242,7 @@ void ClientSocket::Disconnect()
 	}
 }
 
+#ifndef WINCE
 void ClientSocket::StartWatchDog( clock_t Timeout )
 {
 	m_bStopWatchdog = false;
@@ -241,6 +252,7 @@ void ClientSocket::StartWatchDog( clock_t Timeout )
     pthread_create( &m_pThread, NULL, WatchDogThread, (void *)this );
     Sleep(1);
 }
+#endif 
 
 void ClientSocket::StopWatchDog()
 {

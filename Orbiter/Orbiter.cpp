@@ -48,14 +48,30 @@ using namespace DCE;
 
 #define VERSION "<=version=>"
 
+#ifdef WINCE
+	#include "wince.h"
+
+	//very nasty hack :) (this will ignore cout's. could be improved to actually log all this in a file)
+	class cout_dummy
+	{
+	public:
+		static cout_dummy cout_dummy_;
+		cout_dummy& operator<<(const string& s) { return cout_dummy_;}
+		cout_dummy& operator<<(const char& c) { return cout_dummy_;}
+		cout_dummy& operator<<(const int& l) { return cout_dummy_;}
+		cout_dummy& operator<<(const char* s) { return cout_dummy_;}
+	};
+	cout_dummy cout_dummy::cout_dummy_;
+	#define cout cout_dummy::cout_dummy_
+
+#endif
+
 // For DontRender
 namespace DCE
 {
 	int g_iDontRender;
 	clock_t g_cLastTime; // debug only
 }
-
-// #include "../PlutoServer/Floorplan.h"
 
 //------------------------------------------------------------------------
 template<class T> inline static T Dist( T x,  T y ) { return x * x + y * y; }
@@ -4404,4 +4420,17 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
 	else
         m_AutoInvalidateTime = clock() + (CLOCKS_PER_SEC * 2);
 */
+}
+
+NeedToRender::NeedToRender( class Orbiter *pOrbiter, const char *pWhere ) 
+{
+	if ( g_cLastTime && ( clock() - g_cLastTime ) > CLOCKS_PER_SEC * 3 && g_iDontRender )
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL, "Need to render has blocked!!!" );
+		g_iDontRender=0;
+	}
+	m_pWhere = pWhere;
+	m_pOrbiter = pOrbiter;
+	g_cLastTime = clock();
+	g_iDontRender++;
 }

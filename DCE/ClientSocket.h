@@ -11,6 +11,14 @@
 #ifndef DCECLIENTSOCKET_H
 #define DCECLIENTSOCKET_H
 
+#ifdef WINCE
+	#include <time.h>
+	#ifndef _CLOCK_T_DEFINED
+		typedef unsigned long clock_t;
+		#define _CLOCK_T_DEFINED
+	#endif 
+#endif
+
 #include "Socket.h"
 
 #define MAX_RETRIES 3	// Maximum retries to establish TCP connection
@@ -68,6 +76,7 @@ namespace DCE
 		 * @brief starts the watchdog thread with the specified timeout
 		 */
 		void StartWatchDog( clock_t Timeout );
+
 
 		/**
 		 * @brief stops the watchdog tread
