@@ -104,6 +104,7 @@ gc100::~gc100()
 {
 	m_bQuit = true; // should this be using a mutex? :)
 	pthread_cancel(m_MessageQueueThread);
+	pthread_cancel(m_EventThread);
 	pthread_join(m_MessageQueueThread, NULL);
 	pthread_join(m_EventThread, NULL);
 }
@@ -822,25 +823,24 @@ void gc100::parse_gc100_reply(std::string message)
 std::string gc100::read_from_gc100()
 {
 	std::string return_value;
+	return_value = "";
 
 //	PLUTO_SAFETY_LOCK(sl, gc100_mutex);
-	return_value="";
-
-	while (recv(gc100_socket, &recv_buffer[recv_pos], 1, 0)>0)
+	while (recv(gc100_socket, &recv_buffer[recv_pos], 1, 0) > 0)
 	{
-		if (recv_buffer[recv_pos]=='\r')
+		if (recv_buffer[recv_pos] == '\r')
 		{
-			recv_buffer[recv_pos]='\0';
-			if (strlen(recv_buffer)>0) {
+			recv_buffer[recv_pos] = '\0';
+			if (strlen(recv_buffer) > 0) {
 				parse_gc100_reply(string(recv_buffer));
-				recv_pos=0;
+				recv_pos = 0;
 				return_value = string(recv_buffer);
 				break;
 			}
 		}
 		else
 		{
-			recv_pos++;
+			recv_pos ++;
 		}
 	}
 	return return_value; // returns the last complete message
@@ -859,7 +859,7 @@ bool gc100::Open_gc100_Socket()
 	return_value=false;
 
 	ip_addr=GetData()->m_sIPAddress;
-	g_pPlutoLogger->Write(LV_STATUS, "Conencting to: %s", ip_addr.c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "Connecting to gc100: %s", ip_addr.c_str());
 
 	// Do the socket connect
 	hp = gethostbyname(ip_addr.c_str());
@@ -1383,6 +1383,7 @@ void gc100::LEARN_IR_CANCEL()
 
 void gc100::SetQuitFlag()
 {
+	g_pPlutoLogger->Write(LV_STATUS, "Setting 'quit' flag");
 	m_bQuit = true;
 }
 

@@ -157,7 +157,7 @@ ReplaceVars /etc/exports.$$
 mv /etc/exports.$$ /etc/exports
 /etc/init.d/nfs-kernel-server restart
 
-echo "Setting up /etc/dhcp3/dhcpd.conf"
+echo "Setting up /etc/dhcp3/dhcpd.conf, /etc/hosts"
 cp /usr/pluto/templates/dhcpd.conf.tmpl /etc/dhcp3/dhcpd.conf.$$
 MoonNumber=1
 MOON_ENTRIES=""
@@ -186,6 +186,7 @@ if [ "${DHCPsetting%,*}" != "$DHCPsetting" ]; then
 fi
 
 ReplaceVars /etc/dhcp3/dhcpd.conf.$$
+ReplaceVars /etc/hosts
 mv /etc/dhcp3/dhcpd.conf.$$ /etc/dhcp3/dhcpd.conf
 /etc/init.d/dhcp3-server restart
 

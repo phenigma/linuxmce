@@ -1,6 +1,7 @@
 #!/bin/bash
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/pluto.func
+. /usr/pluto/bin/SQL_Ops.sh
 
 Parameter="$1"; shift
 Device="$PK_Device"
@@ -21,10 +22,10 @@ rm -f /usr/pluto/locks/*
 
 # assure some settings
 Q="SELECT FK_Installation FROM Device WHERE PK_Device='$PK_Device'"
-R=$(echo "$Q;" | /usr/bin/mysql pluto_main -N)
+R="$(RunSQL "$Q")"
 ConfSet PK_Installation "$R"
 Q="SELECT PK_Users FROM Users LIMIT 1"
-R=$(echo "$Q;" | /usr/bin/mysql pluto_main -N)
+R="$(RunSQL "$Q")"
 ConfSet PK_Users "$R"
 
 if [ "$Parameter" != "start" -a "$Parameter" != "script" -a "$Parameter" != "stop" ]; then
@@ -52,19 +53,6 @@ if [ -e /usr/pluto/install/.notdone ]; then
 	exit 1
 fi
 
-RunSQL()
-{
-	local Q;
-
-	Headers="$1"; shift
-	Q="$*"
-	if [ "$Headers" -eq 0 ]; then
-		echo "$Q;" | mysql -h $MySqlHost pluto_main | tail +2
-	else
-		echo "$Q;" | mysql -h $MySqlHost pluto_main
-	fi
-}
-
 if [ -n "$Script" ]; then
 	Q="SELECT PK_Device
 FROM Device
@@ -73,16 +61,16 @@ LIMIT 1"
 	Device=$(RunSQL 0 "$Q")
 fi
 
-Q="SELECT Command,Enabled
+Q="SELECT Command,Enabled,Background,FK_DeviceTemplate
 FROM Device_StartupScript
 JOIN StartupScript ON FK_StartupScript=PK_StartupScript
 WHERE FK_Device='$Device' AND StartupScript.When='$When'
 ORDER BY Boot_Order"
 
 if [ ! -e /etc/pluto.startup ]; then
-	result=$(RunSQL 0 "$Q" | tr '\t ' ',~')
+	result="$(RunSQL "$Q")"
 else
-	result=$(cat /etc/pluto.startup)
+	result="$(cat /etc/pluto.startup)"
 fi
 
 if [ -n "$Script" ]; then
@@ -91,25 +79,63 @@ if [ -n "$Script" ]; then
 fi
 [ -z "$result" ] && echo "No boot scripts were configured for device $Device for '$When'" && exit
 
-echo "$result" |
-while read line; do
-	script=$(echo "$line" | cut -d, -f1 | tr '~' ' ')
-	enabled=$(echo "$line" | cut -d, -f2)
+FindDevice()
+{
+	local PK_Device_Parent="${1//'}" FK_DeviceTemplate="${2//'}"
+
+	if [ -z "$PK_Device_Parent" -o -z "$FK_DeviceTemplate" ]; then
+		echo ""
+		return 1
+	fi
+
+	local i R Q
+	Q="SELECT PK_Device FROM Device WHERE FK_Device_ControlledVia='$PK_Device_Parent' AND FK_DeviceTemplate='$FK_DeviceTemplate'"
+	R="$(RunSQL "$Q")"
+
+	if [ -z "$R" ]; then
+		Q="SELECT PK_Device FROM Device WHERE FK_Device_ControlledVia='$PK_Device_Parent'"
+		R="$(RunSQL "$Q")"
+		for i in $R; do
+			FindDevice "$i" "$FK_DeviceTemplate" && return 0
+		done
+	else
+		echo "$R"
+		return 0
+	fi
+	return 1
+}
+
+for line in $result; do
+	script="$(Field 1 $line)"
+	enabled="$(Field 2 $line)"
+	Background="$(Field 3 "$line")"
+	FK_DeviceTemplate="$(Field 4 $line)"
 
 	if [ "$enabled" -eq 0 ]; then
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Skipping '$script' (not enabled)"
 		continue
 	fi
 	
+	if [ "$FK_DeviceTemplate" != NULL ]; then
+		FoundDevice="$(FindDevice "$PK_Device" "$FK_DeviceTemplate")"
+		if [ -z "$FoundDevice" ]; then
+			Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Skipping '$script' (no corresponding device found)"
+			continue
+		fi
+	fi
+	
+	Screen=""
+	[ "$Background" -ne 0 ] && Screen="screen -d -m -S \"BkgSS-$script\""
+	
 	if [ -e "./$script" ]; then
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Running '$script' '$Parameter'"
-		"./$script" $Parameter || Logging "$TYPE" "$SEVERITY_WARNING" "$0" "Failed to run '$script' '$Parameter'"
+		eval $Screen "\"./$script\"" $Parameter || Logging "$TYPE" "$SEVERITY_WARNING" "$0" "Failed to run '$script' '$Parameter'"
 	elif [ -e "/usr/pluto/bin/$script" ]; then
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Running '/usr/pluto/bin/$script' '$Parameter'"
-		"/usr/pluto/bin/$script" $Parameter || Logging "$TYPE" "$SEVERITY_WARNING" "$0" "Failed to run '$script' '$Parameter'"
+		eval $Screen "\"/usr/pluto/bin/$script\"" $Parameter || Logging "$TYPE" "$SEVERITY_WARNING" "$0" "Failed to run '$script' '$Parameter'"
 	elif [ -e "$script" ]; then
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Running '$script' '$Parameter'"
-		"$script" $Parameter || Logging "$TYPE" "$SEVERITY_WARNING" "$0" "Failed to run '$script' '$Parameter'"
+		eval $Screen "\"$script\"" $Parameter || Logging "$TYPE" "$SEVERITY_WARNING" "$0" "Failed to run '$script' '$Parameter'"
 	else
 		Logging "$TYPE" "$SEVERITY_WARNING" "$0" "Boot Script: Command '$script' not found"
 	fi

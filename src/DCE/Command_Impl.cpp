@@ -295,7 +295,7 @@ void Command_Impl::KillSpawnedDevices()
 //		system( sCmd.c_str() );
 	}
 	g_pPlutoLogger->Write(LV_STATUS, "Initiating kill for: %s", sSpawnedDevices.c_str());
-	string sCmd = string("/usr/pluto/bin/KillPids.sh ") + sSpawnedDevices;
+	string sCmd = string("/usr/pluto/bin/KillScreens.sh ") + sSpawnedDevices;
 	g_pPlutoLogger->Write(LV_STATUS, "Cmd: %s", sCmd.c_str());
 	system(sCmd.c_str());
 	g_pPlutoLogger->Write(LV_STATUS, "Killing completed.");

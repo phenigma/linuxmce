@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. /usr/pluto/bin/pluto.func
+
 if [ "$#" -ne 4 ]; then
 	echo "Syntax: $0 <IP> <MAC> <Device> <Activation Code>"
 	exit 1
@@ -27,17 +29,17 @@ InstallKernel()
 	kernel="$(find /usr/pluto/deb-cache/dists/sarge/main/binary-i386/ -name "kernel-image-$KERNEL_VERSION*.deb")"
 	words="$(echo "$kernel" | wc -w)"
 	if [ "$words" -eq 0 ]; then
-		echo "No kernel matching 'kernel-image-$KERNEL_VERSION' was found"
+		Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "No kernel matching 'kernel-image-$KERNEL_VERSION' was found"
 		exit 1
 	elif [ "$words" -gt 1 ]; then
 		kernel="$(echo "$kernel" | cut -d' ' -f1)"
-		echo "More than one kernel found (this shouldn't happen). Using '$kernel'."
+		Logging "$TYPE" "$SEVERITY_STATUS" "$0" "More than one kernel found (this shouldn't happen). Using '$kernel'."
 	fi
 
 	cp "$kernel" tmp/
 	mount -t proc proc proc
-	if ! echo | chroot . dpkg -i "/tmp/${kernel##*/}" >/dev/null; then
-		echo "Failed to install kernel '$KERNEL_VERSION' on '$IP'"
+	if ! echo | chroot . dpkg -i "/tmp/${kernel##*/}" &>/dev/null; then
+		Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Failed to install kernel '$KERNEL_VERSION' on '$IP'"
 	fi
 	umount ./proc
 }
@@ -46,7 +48,7 @@ mkdir -p "$DlPath"
 cd "$DlPath"
 
 if [ ! -d "$DlPath" -o ! -f "$DlPath/etc/diskless.conf" ]; then
-	echo "Extracting filesystem for diskless client '$IP , $MAC' ($Device)"
+	Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Extracting filesystem for diskless client '$IP , $MAC' ($Device)"
 
 	tar -xjvf "/usr/pluto/install/$FSarchive" >/dev/null
 
