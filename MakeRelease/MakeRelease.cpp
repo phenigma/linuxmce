@@ -1113,23 +1113,27 @@ string Makefile = "none:\n"
 
 bool CreateSource_FTPHTTP(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo)
 {
-	string ArchiveFileName = pRow_Package_Source->Name_get() + "_" + pRow_Package_Source->Version_get() + pRow_Package_Source->Parms_get();
+	string ArchiveFileName = "/var/www/download/" + pRow_Package_Source->Repository_get() + "/";
+	system(("mkdir -p " + ArchiveFileName).c_str());
+	
+	ArchiveFileName += pRow_Package_Source->Name_get() + "_" + pRow_Package_Source->Version_get() + pRow_Package_Source->Parms_get();
+	cout << "Creating Archive: " << ArchiveFileName << endl;
 	chdir("/home/tmp");
 	
 #ifdef WIN32
 	string TempDir = mktemp("mra_XXXXXX");
 #else
-	string TempDir = tempnam(".","mra_");
+	char templ[12]="mra_XXXXXX";
+	string TempDir = mktemp(templ);
+	system(("mkdir -p /home/tmp/" + TempDir).c_str());
 #endif
 	unlink( ("/home/tmp/" + ArchiveFileName).c_str() );
 	chdir(("/home/tmp/" + TempDir).c_str());
 	
-cout << "TempDir: " << TempDir << endl;
 	for(list<FileInfo *>::iterator it=listFileInfo.begin();it!=listFileInfo.end();++it)
 	{
 		FileInfo *pFileInfo = *it;
-cout << "copy file " << pFileInfo->m_sSource << " -> tmp/" <<  pFileInfo->m_sDestination << endl;
-		if( !FileUtils::PUCopyFile(pFileInfo->m_sSource,TempDir + "/" + pFileInfo->m_sDestination) )
+		if( !FileUtils::PUCopyFile(pFileInfo->m_sSource,"/home/tmp/" + TempDir + "/" + pFileInfo->m_sDestination) )
 		{
 			cout << "**Error: Unable to copy file " <<  pFileInfo->m_sSource << " -> " << TempDir << "/" <<  pFileInfo->m_sDestination << endl;
 			return false;
@@ -1138,7 +1142,7 @@ cout << "copy file " << pFileInfo->m_sSource << " -> tmp/" <<  pFileInfo->m_sDes
 	// See what type it is
 	if( pRow_Package_Source->Parms_get()==".tar.gz" )
 	{
-		if( !TarFiles("../" + ArchiveFileName) )
+		if( !TarFiles(ArchiveFileName) )
 		{
 			cout << "**ERROR:** Tar " << ArchiveFileName << endl;
 			return false;
@@ -1146,7 +1150,7 @@ cout << "copy file " << pFileInfo->m_sSource << " -> tmp/" <<  pFileInfo->m_sDes
 	}
 	else if( pRow_Package_Source->Parms_get()==".zip" )
 	{
-		if( !ZipFiles("../" + ArchiveFileName) )
+		if( !ZipFiles(ArchiveFileName) )
 		{
 			cout << "**ERROR:** Zip " << ArchiveFileName << endl;
 			return false;
@@ -1157,9 +1161,9 @@ cout << "copy file " << pFileInfo->m_sSource << " -> tmp/" <<  pFileInfo->m_sDes
 		cout << "**ERROR:** Unknown archive type: " << pRow_Package_Source->Parms_get() << endl;
 		return false;
 	}
-
+	chdir("/");
 #ifndef WIN32
-	system(("rm -rf " + TempDir).c_str());
+	system(("rm -rf /home/tmp/" + TempDir).c_str());
 #endif
 	
 	return true;
@@ -1168,15 +1172,13 @@ cout << "copy file " << pFileInfo->m_sSource << " -> tmp/" <<  pFileInfo->m_sDes
 bool TarFiles(string sArchiveFileName)
 {
 	string SystemCall = "tar -zcvf " + sArchiveFileName + " *";
-	cout << "Tar: executing: " << SystemCall << endl;
-	getch();
+	cout << "Executing: " << SystemCall << endl;
 	return system(SystemCall.c_str())==0;
 }
 
 bool ZipFiles(string sArchiveFileName)
 {
-	string SystemCall = "tar -zcvf " + sArchiveFileName + " *";
-	cout << "Tar: executing: " << SystemCall << endl;
-	getch();
+	string SystemCall = "zip -r " + sArchiveFileName + " *";
+	cout << "executing: " << SystemCall << endl;
 	return system(SystemCall.c_str())==0;
 }
