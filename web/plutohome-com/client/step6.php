@@ -187,7 +187,7 @@ if($_SESSION['sollutionType']==3){
 		if(count($displayedDevices)>0){
 			$out.='
 								<tr class="normaltext">
-									<td colspan="2" align="center"><input type="button" name="continue" value="Save changes" onClick="javascript:document.wizard.action.value=\'updateOnly\';document.wizard.submit();"></td>
+									<td colspan="2" align="center"><input type="button" name="continue" value="Next" onClick="javascript:document.wizard.action.value=\'update\';document.wizard.submit();"></td>
 								</tr>';
 		}
 		$out.='
@@ -238,7 +238,7 @@ if($_SESSION['sollutionType']==3){
 									<td colspan="2">'.getInstallWizardDeviceTemplates($step,$dbADO,'',$selectedPlatform).'</td>
 								</tr>';
 		$out.='	<tr>
-									<td colspan="2" align="center">'.(($selectedPlatform!=0)?'<input type="submit" name="continue" value="Add&Continue">':'').' '.(($selectedPlatform!=0)?'<input type="button" name="cancel" value="Cancel" onClick="self.location=\'index.php?section=wizard&step=6\'">':'<input type="button" name="next" value="Next" onClick="javascript:document.wizard.action.value=\'update\';document.wizard.submit();">').'</td>
+									<td colspan="2" align="center">'.(($selectedPlatform!=0)?'<input type="submit" name="continue" value="Add Media Director">':'').'</td>
 								</tr>
 				      		</table>
 						</form>

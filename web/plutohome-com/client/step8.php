@@ -175,6 +175,7 @@ if($action=='form'){
 		FROM Device 
 		INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
 		WHERE FK_Device_ControlledVia IS NULL AND FK_DeviceTemplate=? AND FK_Installation=?';
+	$resMediaDirectors=$dbADO->Execute($queryMediaDirectors,array($GLOBALS['rootGenericMediaDirector'],$installationID));
 	if($resMediaDirectors->RecordCount()==0){
 		$out.='		<tr class="normaltext">
 										<td colspan="2" align="center">No Media Directors</td>
