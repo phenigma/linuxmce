@@ -247,12 +247,12 @@ Message *Socket::ReceiveMessage( int iLength )
 			{
 				file = fopen( m_pcSockLogErrorFile, "a" );
 				// Don't check -- if this still fails just throw an exception something is very wrong!
-				fprintf( file, "Received message type %d id %d expecting reply %d",pMessage->m_dwMessage_Type,pMessage->m_dwID,(int) pMessage->m_eExpectedResponse );
+				fprintf( file, "Received message type %d id %d expecting reply %d\n",pMessage->m_dwMessage_Type,pMessage->m_dwID,(int) pMessage->m_eExpectedResponse );
 				fclose( file );
 			}
 			else
 			{
-				fprintf( file, "Received message type %d id %d expecting reply %d",pMessage->m_dwMessage_Type,pMessage->m_dwID,(int) pMessage->m_eExpectedResponse );
+				fprintf( file, "Received message type %d id %d expecting reply %d\n",pMessage->m_dwMessage_Type,pMessage->m_dwID,(int) pMessage->m_eExpectedResponse );
 				fclose( file );
 			}
 			ll2.Release();

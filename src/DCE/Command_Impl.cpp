@@ -565,10 +565,10 @@ g_pPlutoLogger->Write(LV_STATUS,"Requesting confirmation for message id: %d resu
 	Message *pResponse = m_pcRequestSocket->SendReceiveMessage( pPreformedCommand.m_pMessage );
 	if( !pResponse || pResponse->m_dwID != 0 )
 	{
+g_pPlutoLogger->Write(LV_CRITICAL,"Requesting confirmation 2 for message id: %d failed %p", pPreformedCommand.m_pMessage->m_dwID, pResponse);
 		if(pResponse)
 			delete pResponse;
 
-g_pPlutoLogger->Write(LV_CRITICAL,"Requesting confirmation 2 for message id: %d failed", pPreformedCommand.m_pMessage->m_dwID);
 
 		return false;
 	}
