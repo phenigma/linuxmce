@@ -1,7 +1,7 @@
 #ifndef DCE_Gen_h
 #define DCE_Gen_h
 
-#include "PlutoUtils/MySqlHelper.h"
+#include "PlutoUtils/MySQLHelper.h"
 #include "../pluto_main/Database_pluto_main.h"
 #include "../pluto_main/Table_Command.h"
 
