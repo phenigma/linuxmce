@@ -42,8 +42,12 @@ void *BeginWapClientThread( void *SvSock )
 {	
 	ServerSocket *pCS = (ServerSocket *)SvSock;
 	if( !pCS->m_bThreadRunning )
+	{
+		delete pCS;
 		return NULL; // Should have been set in the constructor
+	}
 	pCS->Run();
+	delete pCS;
 	return NULL;
 }
 
