@@ -196,6 +196,7 @@ ReplaceVars /etc/exports.$$
 mv /etc/exports.$$ /etc/exports
 /etc/init.d/nfs-kernel-server restart
 
+# TODO: use dynamic IP range too :)
 echo "Setting up /etc/dhcp3/dhcpd.conf"
 cp /usr/pluto/templates/dhcpd.conf.tmpl /etc/dhcp3/dhcpd.conf.$$
 MoonNumber=1
