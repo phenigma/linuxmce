@@ -21,8 +21,10 @@ CPPFLAGS +=
 LDFLAGS +=
 XTRALDLIBS = -lpluto_main
 
-Gen_Dev_Files += Criteria.cpp  CriteriaParmNesting.cpp  Criteria_EvaluateExpression.cpp TimedEvent.cpp
-sources +=
+Gen_Dev_Files += $(GENDEV)/Datagrid_PluginBase.cpp
+sources += Criteria.cpp  CriteriaParmNesting.cpp \
+	Criteria_EvaluateExpression.cpp TimedEvent.cpp \
+    ../Datagrid_Plugin/Datagrid_Plugin.cpp 
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
