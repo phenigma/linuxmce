@@ -927,13 +927,22 @@ string Disk_Drive::dvd_read_name(const int fd)
 
 bool Disk_Drive::mountDVD(string fileName, string &strMediaUrl)
 {
-	string sDrive = DATA_Get_Drive();
+	// True if we're playing a physical dis, false if it's a file
+	bool bDriveMount = StringUtils::StartsWith(fileName,"/dev/",true);
+
+	string sDrive = bDriveMount ? fileName : DATA_Get_Drive();
 	if( sDrive.length()==0 )
 		sDrive = "/dev/cdrom";
 
 	string cmd = "ln -sf " + sDrive + " /dev/dvd";
-	g_pPlutoLogger->Write(LV_STATUS,"cmd: %s",cmd.c_str());
+	g_pPlutoLogger->Write(LV_STATUS,"cmd drivemount: %d - %s",(int) bDriveMount,cmd.c_str());
 	system(cmd.c_str());  // Don't care about the return.  Just making sure it's not loop 5 so we can delete it
+	if( bDriveMount )
+	{
+g_pPlutoLogger->Write(LV_ACTION,"returning mounted drive");
+		strMediaUrl = "dvd:/";
+		return true;
+	}
 
 	cmd = "losetup -d /dev/loop5";
 	g_pPlutoLogger->Write(LV_STATUS,"cmd: %s",cmd.c_str());
@@ -1199,7 +1208,7 @@ bool Disk_Drive::internal_reset_drive(bool bFireEvent)
                 break;
 
             case DISCTYPE_DVD_VIDEO:
-                mrl = DATA_Get_Drive() + ".dvd";
+                mrl = DATA_Get_Drive();
                 // "dvd:/";
 //              serverMRL = "dvd:/" + m_MyIPAddress + ": " + DVDCSS_SERVER_PORT + "/";
 //              title = dvd_read_name (fd);
