@@ -1,4 +1,3 @@
-
 /* 
 	Xine_Plugin
 	
