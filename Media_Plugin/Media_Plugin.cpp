@@ -1210,8 +1210,10 @@ class DataGridTable *Media_Plugin::MediaAttrXref( string GridID, string Parms, v
 
     if( ( result.r=m_pDatabase_pluto_media->mysql_query_result( SQL ) ) )
     {
+g_pPlutoLogger->Write(LV_STATUS, "Transformed 2 PK_Attributte: %s", PK_Attribute.c_str());
         while( ( row=mysql_fetch_row( result.r ) ) )
         {
+g_pPlutoLogger->Write(LV_STATUS, "Transformed 4 PK_Attributte: %s", PK_Attribute.c_str());
             string label = row[1];
             if( row[2] && *row[2] )
                 label += string( ", " ) + row[2];
@@ -1220,6 +1222,7 @@ class DataGridTable *Media_Plugin::MediaAttrXref( string GridID, string Parms, v
             pDataGrid->SetData( 0, RowCount++, pCell );
         }
     }
+g_pPlutoLogger->Write(LV_STATUS, "Transformed 3 PK_Attributte: %s", PK_Attribute.c_str());
     return pDataGrid;
 }
 

@@ -63,13 +63,16 @@ public:
 
 	bool MySQLConnect(bool bReset=false)
 	{
+g_pPlutoLogger->Write(LV_STATUS,"In MySQLConnect 1");
 		if( bReset && m_bConnected )
 			mysql_close(m_pMySQL);
 
+g_pPlutoLogger->Write(LV_STATUS,"In MySQLConnect 2");
 		if (mysql_real_connect(m_pMySQL, m_sMySQLHost.c_str(), m_sMySQLUser.c_str(), m_sMySQLPass.c_str(), m_sMySQLDBName.c_str(), m_iMySQLPort, NULL, 0) == NULL)
 			m_bConnected=false;
 		else
 			m_bConnected=true;
+g_pPlutoLogger->Write(LV_STATUS,"In MySQLConnect 3");
 		return m_bConnected;
 	}
 
