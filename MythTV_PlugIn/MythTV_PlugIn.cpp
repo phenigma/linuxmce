@@ -25,7 +25,7 @@ using namespace DCE;
 
 //<-dceag-const-b->
 MythTV_PlugIn::MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-	: MythTV_PlugIn_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
+    : MythTV_PlugIn_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
     m_pDatabase_FakeEPG = new Database_FakeEPG();
@@ -89,19 +89,20 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
     PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
     MythTvStream *pMythTvStream = (MythTvStream *) pMediaStream;
 
-    g_pPlutoLogger->Write(LV_STATUS, "Starting media stream playback--sending command, waiting for response");
-
-    g_pPlutoLogger->Write(LV_CRITICAL, "Media type %d %s", pMythTvStream->m_iPK_MediaType, pMythTvStream->m_dequeFilename.size() ? pMythTvStream->m_dequeFilename.front().c_str() : "empty files");
+    g_pPlutoLogger->Write(LV_STATUS, "Media type %d %s", pMythTvStream->m_iPK_MediaType, pMythTvStream->m_dequeFilename.size() ? pMythTvStream->m_dequeFilename.front().c_str() : "empty files");
 
     string Response;
 
-    DCE::CMD_Play_Media cmd(m_dwPK_Device,
-        pMythTvStream->m_dwPK_Device,
-        "0", // todo -- the real channel
+    DCE::CMD_Start_TV cmd(m_dwPK_Device, pMythTvStream->m_dwPK_Device);
+
+//     DCE::CMD_Play_Media cmd(m_dwPK_Device,
+
+//      pMythTvStream->m_dwPK_Device,
+//         "0", // todo -- the real channel
         //                 pMythTvStream->m_dequeFilename.front(),
-        pMythTvStream->m_iPK_MediaType,
-        pMythTvStream->m_iStreamID_get(),
-        0);
+//         pMythTvStream->m_iPK_MediaType,
+//         pMythTvStream->m_iStreamID_get(),
+//         0);
 
     m_pMedia_Plugin->MediaInfoChanged(pMythTvStream);
 
@@ -113,7 +114,8 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
         return true;
         return false;
     }
-    g_pPlutoLogger->Write(LV_STATUS,"MythTV player responded to play media command!");
+    g_pPlutoLogger->Write(LV_STATUS,"MythTV player responded to Start TV command!");
+
     return true;
 }
 
@@ -146,10 +148,10 @@ bool MythTV_PlugIn::BroadcastMedia(class MediaStream *pMediaStream)
 class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaPluginInfo *pMediaPluginInfo,int PK_Device_Source,string Filename,int StreamID)
 {
     PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
-    MythTvStream *pMediaStream = new MythTvStream(this,pMediaPluginInfo, pMediaPluginInfo->m_iPK_DesignObj, 0, st_RemovableMedia,StreamID);  // hack hack hack
-    m_pDatabase_FakeEPG->Listing_get()->GetRows("1=1",&pMediaStream->m_vectRow_Listing); // temporary epg hack
-    pMediaStream->m_iCurrentShow=0;
-    pMediaStream->UpdateDescriptions();
+    MythTvStream *pMediaStream = new MythTvStream(this, pMediaPluginInfo, pMediaPluginInfo->m_iPK_DesignObj, 0, st_RemovableMedia,StreamID);  // hack hack hack
+
+//     pMediaStream->m_iCurrentShow=0;
+//     pMediaStream->UpdateDescriptions();
 
     if( !PK_Device_Source && pMediaPluginInfo->m_listMediaDevice.size() )
     {
@@ -159,7 +161,7 @@ class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaPluginInfo *pMedi
     DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(PK_Device_Source);
 
     bool bFoundDevice=false;
-    if( pDeviceData_Router->m_dwPK_DeviceTemplate==DEVICETEMPLATE_MythTV_PlugIn_CONST )
+    if( pDeviceData_Router->m_dwPK_DeviceTemplate==DEVICETEMPLATE_MythTV_Player_CONST )
     {
         pMediaStream->m_dwPK_Device = PK_Device_Source;
         bFoundDevice=true;
@@ -175,10 +177,12 @@ class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaPluginInfo *pMedi
 
 void MythTvStream::UpdateDescriptions()
 {
+/*
     Row_Listing *pRow_Listing = m_vectRow_Listing[m_iCurrentShow];
     m_sMediaDescription=pRow_Listing->ChannelName_get();
     m_sSectionDescription=pRow_Listing->ShowName_get();
     m_sMediaSynopsis=pRow_Listing->Synopsis_get();
+*/
 }
 
 class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage)
@@ -194,8 +198,17 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
 
     QDateTime currentTime = QDateTime::currentDateTime();
 
-//     currentTime.setDate(QDate(2004, 10, 27));
-//     currentTime.setTime(QTime(0, 0));
+    int nRoundedMinutes = 0;
+
+    if  (  currentTime.time().minute() >= 30 )
+        nRoundedMinutes = 30;
+
+    currentTime.setTime(
+                QTime(
+                    currentTime.time().hour(),
+                    nRoundedMinutes,
+                    0));
+
     m_pAllShowsDataGrid->setGridBoundaries(currentTime, currentTime.addDays(14)); // i want 3 days.)
     return m_pAllShowsDataGrid;
 }
@@ -231,12 +244,12 @@ COMMANDS TO IMPLEMENT
 
 //<-dceag-sample-b->!
 //<-dceag-c65-b->
-/* 
-	COMMAND: #65 - Jump Position In Playlist
-	COMMENTS: Change channels.  +1 and -1 mean up and down 1 channel.
-	PARAMETERS:
-		#5 Value To Assign
-			The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1.
+/*
+    COMMAND: #65 - Jump Position In Playlist
+    COMMENTS: Change channels.  +1 and -1 mean up and down 1 channel.
+    PARAMETERS:
+        #5 Value To Assign
+            The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1.
 */
 void MythTV_PlugIn::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c65-e->
@@ -245,23 +258,36 @@ void MythTV_PlugIn::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string
 
     g_pPlutoLogger->Write(LV_STATUS, "Jump to position called %s", sValue_To_Assign.c_str());
 
-    class MythTvStream *pMediaStream = (MythTvStream *) m_pMedia_Plugin->DetermineStreamOnOrbiter(pMessage->m_dwPK_Device_From);
+    class MythTvStream *pMediaStream =
+        (MythTvStream *) m_pMedia_Plugin->DetermineStreamOnOrbiter(pMessage->m_dwPK_Device_From);
+
     if( !pMediaStream )
         return;  // Can't do anything
 
-    if( sValue_To_Assign=="+1" )
+
+    vector<string> numbers;
+    StringUtils::Tokenize(sValue_To_Assign, "|", numbers);
+
+    if ( numbers.size() != 6 )
     {
-        pMediaStream->m_iCurrentShow++;
-        if( pMediaStream->m_iCurrentShow >= (int) pMediaStream->m_vectRow_Listing.size() )
-            pMediaStream->m_iCurrentShow=0;
+        g_pPlutoLogger->Write(LV_STATUS, "We can't decode this: %s", sValue_To_Assign.c_str());
+        return;
     }
-    else
-    {
-        pMediaStream->m_iCurrentShow--;
-        if( pMediaStream->m_iCurrentShow<0  )
-            pMediaStream->m_iCurrentShow= (int) pMediaStream->m_vectRow_Listing.size()-1;
-    }
+
+    int iChanId = atoi(numbers[0].c_str());
+    int nYear   = atoi(numbers[1].c_str());
+    int nMonth  = atoi(numbers[2].c_str());
+    int nDay    = atoi(numbers[3].c_str());
+    int nHour   = atoi(numbers[4].c_str());
+    int nMinute = atoi(numbers[5].c_str());
+
+    ProcessWatchTvRequest(iChanId, QDateTime(QDate(nYear, nMonth, nDay), QTime(nHour, nMinute)));
+
     pMediaStream->UpdateDescriptions();
     m_pMedia_Plugin->MediaInfoChanged(pMediaStream);
 }
 
+void MythTV_PlugIn::ProcessWatchTvRequest(int channelId, QDateTime showStartTime)
+{
+    //
+}

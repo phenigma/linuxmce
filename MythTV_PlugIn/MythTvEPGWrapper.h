@@ -32,6 +32,7 @@ protected:
     void readDataGridBlock(int rowStart, int rowCount, int colStart, int colCount);
     bool initMythTVGlobalContext();
 
+    void MakeTimeRow(int ColStart, int ColCount);
 public:
     MythTvEPGWrapper();
 
