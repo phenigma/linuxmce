@@ -2943,6 +2943,8 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 			Output += StringUtils::itos( m_dwPK_Device );
 		else if(  Variable=="E" && m_pScreenHistory_Current && m_pScreenHistory_Current->m_pLocationInfo  )
 			Output += StringUtils::itos( m_pScreenHistory_Current->m_pLocationInfo->PK_EntertainArea );
+		else if(  Variable=="V" )
+			Output += VERSION;
 		else if(  Variable=="R" && m_pScreenHistory_Current && m_pScreenHistory_Current->m_pLocationInfo  )
 			Output += StringUtils::itos( m_pScreenHistory_Current->m_pLocationInfo->PK_Room );
 		else if(  Variable=="U" && m_pScreenHistory_Current  )
