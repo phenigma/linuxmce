@@ -559,12 +559,23 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
                 }
         */
             g_pPlutoLogger->Write(LV_STATUS, "Event ui set title");
-            break;
+			g_pPlutoLogger->Write(LV_STATUS, "Stream title: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_TITLE));
+            g_pPlutoLogger->Write(LV_STATUS, "Stream comment: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_COMMENT));
+			g_pPlutoLogger->Write(LV_STATUS, "Stream artist: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_ARTIST));
+			g_pPlutoLogger->Write(LV_STATUS, "Stream genre: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_GENRE));
+			g_pPlutoLogger->Write(LV_STATUS, "Stream album: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_ALBUM));
+			g_pPlutoLogger->Write(LV_STATUS, "Stream year: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_YEAR));
+			g_pPlutoLogger->Write(LV_STATUS, "Stream track: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_TRACK_NUMBER));
+			break;
 
         case XINE_EVENT_INPUT_MOUSE_MOVE:
             // ignored at the moment;
 //             g_pPlutoLogger->Write(LV_STATUS, "Mouse move");
             break;
+
+		case XINE_EVENT_UI_CHANNELS_CHANGED:
+			g_pPlutoLogger->Write(LV_STATUS, "Stream info audio channels %d", xine_get_stream_info(xineStream->m_pStream, XINE_STREAM_INFO_MAX_AUDIO_CHANNEL));
+			break;
 
         default:
             g_pPlutoLogger->Write(LV_STATUS, "Got unprocessed m_pXine playback event: %d", event->type);
@@ -676,6 +687,38 @@ int XineSlaveWrapper::XServerEventProcessor(XineStream *pStream, XEvent &event)
             break;
         }
 
+		case ButtonPress:
+		{
+			XButtonEvent *bevent = (XButtonEvent *) &event;
+			xine_input_data_t xineInputData;
+			xine_event_t xineEvent;
+
+			x11_rectangle_t   rect;
+
+			g_pPlutoLogger->Write(LV_STATUS, "Xine player: mouse button event: mx=%d my=%d", bevent->x, bevent->y);
+
+			rect.x = bevent->x;
+			rect.y = bevent->y;
+			rect.w = 0;
+			rect.h = 0;
+
+			xineEvent.stream = pStream->m_pStream;
+  			xineEvent.type = XINE_EVENT_INPUT_MOUSE_BUTTON;
+			xineEvent.data = &xineInputData;
+    		xineEvent.data_length = sizeof(xineInputData);
+
+			xineInputData.button = bevent->button;
+    		xineInputData.x = bevent->x;
+    		xineInputData.y = bevent->y;
+
+			gettimeofday(&xineEvent.tv, NULL);
+ 			XLockDisplay(bevent->display);
+			xine_event_send(pStream->m_pStream, &xineEvent);
+			XUnlockDisplay(bevent->display);
+
+			break;
+		}
+
         case KeyPress:
         {
             XKeyEvent  kevent;
@@ -708,6 +751,7 @@ int XineSlaveWrapper::XServerEventProcessor(XineStream *pStream, XEvent &event)
             xineEvent.data_length = 0;
             gettimeofday(&xineEvent.tv, NULL);
             xine_event_send(pStream->m_pStream, &xineEvent);
+			break;
         }
 
         case Expose:
@@ -1356,12 +1400,13 @@ XineSlaveWrapper::XineStream *XineSlaveWrapper::getStreamForId(int iStreamID, st
 void XineSlaveWrapper::selectMenu(int iStreamID, int iMenuType)
 {
     XineStream *xineStream = getStreamForId(iStreamID, "Can't select menu for a nonexistent stream!");
+
     if ( xineStream == NULL )
         return;
 
     xine_event_t xine_event;
 
-    xine_event.type        = XINE_EVENT_INPUT_MENU3;
+    xine_event.type        = iMenuType + XINE_EVENT_INPUT_MENU1;
     xine_event.data_length = 0;
     xine_event.data        = NULL;
     xine_event.stream      = xineStream->m_pStream;
