@@ -1,7 +1,7 @@
 <?
 	// pluto Asterisk
 	$dbPlutoAsteriskType = "MySQL";
-	$dbPlutoAsteriskUser = "plutoasterisk";
+	$dbPlutoAsteriskUser = "asterisk";
 	$dbPlutoAsteriskPass = "";
 	$dbPlutoAsteriskServer = "localhost";
 	$dbPlutoAsteriskDatabase = "asterisk";
