@@ -23,7 +23,7 @@ include $SlapdInc
 	eval "echo \"$Template\"" >>"$SlapdConf"
 fi
 
-Template='database bdb
+TemplateDB='database bdb
 suffix "dc=$UserName, dc=plutohome, dc=org"
 rootdn "cn=admin, dc=$UserName, dc=plutohome, dc=org"
 rootpw secret
@@ -33,14 +33,32 @@ lastmod on
 index cn,sn,st eq,pres,sub
 '
 
+TemplateTemp='
+dn: uid=$UserName, ou=users, dc=plutohome, dc=org
+uid: $UserName
+sn: $UserName
+userPassword: secret
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+
+dn: dc=$UserName, dc=plutohome, dc=org
+dc: $UserName
+objectClass: top
+objectClass: domain
+description: $UserName
+'
+
 Q="SELECT UserName from Users"
 R=$(RunSQL "$Q")
 
 : >"$SlapdInc"
+: >/tmp/data.ldap
 
 for User in $R; do
 	UserName=$(Field 1 "$User")
-	eval "echo \"$Template\"" >>"$SlapdInc"
+	eval "echo \"$TemplateDB\"" >>"$SlapdInc"
+	eval "echo \"$TemplateTemp\"" >>/tmp/data.ldap
 done
-
 
