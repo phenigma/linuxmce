@@ -324,6 +324,7 @@
 #define COMMAND_Phone_Initiate_CONST 334
 #define COMMAND_Phone_Answer_CONST 335
 #define COMMAND_Phone_Drop_CONST 336
+#define COMMAND_Rip_Disk_CONST 337
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

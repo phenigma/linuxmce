@@ -813,7 +813,7 @@
 #define DESIGNOBJ_objNowPlayingLong_CONST 2455
 #define DESIGNOBJ_grpMediaNavigation_CONST 2456
 #define DESIGNOBJ_butAdvancedPlutoDVD_CONST 2457
-#define DESIGNOBJ_butGuideMediaFileList_CONST 2458
+#define DESIGNOBJ_butMusicFileList_CONST 2458
 #define DESIGNOBJ_butIndexE_CONST 2459
 #define DESIGNOBJ_butIndexF_CONST 2460
 #define DESIGNOBJ_butIndexG_CONST 2461
@@ -1104,9 +1104,9 @@
 #define DESIGNOBJ_objHouseStatusIndicator_CONST 3275
 #define DESIGNOBJ_arrFloorsTelecom_CONST 3276
 #define DESIGNOBJ_butFloorsTelecom_CONST 3277
-#define DESIGNOBJ_mnuMoviesRemote_CONST 3278
+#define DESIGNOBJ_mnuVideosRemote_CONST 3278
 #define DESIGNOBJ_pvr_full_screen_with_options_o_CONST 3279
-#define DESIGNOBJ_mnuPicturesDocumentsList_CONST 3282
+#define DESIGNOBJ_mnuFileList2_CONST 3282
 #define DESIGNOBJ_butView_CONST 3283
 #define DESIGNOBJ_butManagePlaylist_CONST 3285
 #define DESIGNOBJ_go_to_advanced_CONST 3286
@@ -1169,7 +1169,19 @@
 #define DESIGNOBJ_appDesktopMozilla_CONST 3349
 #define DESIGNOBJ_dvd_menu_CONST 3350
 #define DESIGNOBJ_mnuGenericRemote_CONST 3352
+#define DESIGNOBJ_butMoviesFileList_CONST 3353
+#define DESIGNOBJ_butVideosFileList_CONST 3354
+#define DESIGNOBJ_mnuPhonePlaylist_CONST 3355
+#define DESIGNOBJ_go_to_playlist_CONST 3356
 #define DESIGNOBJ_dvd_menu_full_screen_CONST 3358
+#define DESIGNOBJ_grpMediaNavigation3_CONST 3361
+#define DESIGNOBJ_grpMediaNavigation4_CONST 3362
+#define DESIGNOBJ_pluto_logo_CONST 3368
+#define DESIGNOBJ_dgFileListPictures_CONST 3369
+#define DESIGNOBJ_mnuFileListPictureMobile_CONST 3370
+#define DESIGNOBJ_go_to_filelistPictures_CONST 3371
+#define DESIGNOBJ_go_to_filelist_CONST 3372
+#define DESIGNOBJ_dvd_menu_full_screen_with_opti_CONST 3373
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

@@ -456,6 +456,7 @@
 #define TEXT_Checking_drive_CONST 1131
 #define TEXT_Cannot_play_DVD_CONST 1132
 #define TEXT_Exit_Pluto_CONST 1133
+#define TEXT_advanced_CONST 1134
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
