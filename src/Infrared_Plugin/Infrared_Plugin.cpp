@@ -552,7 +552,7 @@ void Infrared_Plugin::CMD_Add_GC100(string &sCMD_Result,Message *pMessage)
 //<-dceag-c276-e->
 {
 #ifndef WIN32
-  char *Command;
+  string Command;
   char line[45];
   int returned, size;
   FILE *fp;
@@ -570,57 +570,32 @@ void Infrared_Plugin::CMD_Add_GC100(string &sCMD_Result,Message *pMessage)
             //now, exec the process
             g_pPlutoLogger->Write(LV_STATUS, "Spawning");
 
-			returned = system(Command);
-			if ( returned == -1) {
-                g_pPlutoLogger->Write(LV_STATUS, "Failed Spawning configure script");
-			} else if( returned == 0) {
-				fp = fopen("/var/log/pluto/gc100-conf.log","rt");
-				if(fp != NULL) {
-					while(feof(fp) == 0) {
-						fgets(line, 45, fp);
-						size = strlen(line);
-						if(line[size-1] == 0 || line[size-1] == 10) {
-							line[size-1] = '\0';
-						}
-						strcpy(line,"");
-						if(strcmp(line,"") != 0) {
-							g_pPlutoLogger->Write(LV_STATUS, "GC100-Conf : %s",line);
-						}
-					}
-					fclose(fp);
-				} else {
-					g_pPlutoLogger->Write(LV_STATUS, "GC100 Configure script did not generate any log's");
-				}
-				g_pPlutoLogger->Write(LV_STATUS, "The configure script returned with success");
-				m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 added with success");
-			} else {
-				fp = fopen("/var/log/pluto/gc100-conf.log","rt");
-				if(fp != NULL) {
-					while(feof(fp) == 0) {
-						fgets(line, 45, fp);
-						size = strlen(line);
-						if(line[size-1] == 0 || line[size-1] == 10) {
-							line[size-1] = '\0';
-						}
-						strcpy(line,"");
-						if(strcmp(line,"") != 0) {
-							g_pPlutoLogger->Write(LV_STATUS, "GC100-Conf : %s",line);
-						}
-					}
-					fclose(fp);
-				} else {
-					g_pPlutoLogger->Write(LV_STATUS, "GC100 Configure script did not generate any log's");
-				}
-				g_pPlutoLogger->Write(LV_STATUS, "The configure script failed to configure gc100");
-				m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 failed to be added");
-			}
-			break;
+            returned = system(Command.c_str());
+            if ( returned == -1) {
+              g_pPlutoLogger->Write(LV_STATUS, "Failed Spawning configure script");
+            } else if( returned == 0) {
+              fp = fopen("/var/log/pluto/gc100-conf.log","rt");
+              if(fp != NULL) {
+                g_pPlutoLogger->Write(LV_STATUS, "Reading GC100 log file");
+                while(feof(fp) == 0) {
+		  fgets(line, 45, fp);
+		  size = strlen(line);
+                  g_pPlutoLogger->Write(LV_STATUS, "GC100-Conf : %s",line);
+		}
+		fclose(fp);
+              } else {
+		g_pPlutoLogger->Write(LV_STATUS, "GC100 Configure script did not generate any log's");
+              }
+              g_pPlutoLogger->Write(LV_STATUS, "The configure script returned with success");
+	      m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 added with success");
+            }
+            break;
         }
         case -1:
             g_pPlutoLogger->Write(LV_CRITICAL, "Error starting %s, err: %s", Command, strerror(errno));
             break;
         default:
-			break;
+	    break;
   }
 #endif
 }
