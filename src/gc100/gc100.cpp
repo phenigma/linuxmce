@@ -892,12 +892,12 @@ bool gc100::Open_gc100_Socket()
 #ifdef WIN32
 				{
 					unsigned long x = 1;
-					res = ioctlsocket(gc100_socket, FIONBIO, &x);
+					res = 0/*ioctlsocket(gc100_socket, FIONBIO, &x)*/;
 				}
 				if ((res == SOCKET_ERROR))
 #else
 				res = fcntl(gc100_socket, F_GETFL);
-				if ((res < 0) || (fcntl(gc100_socket, F_SETFL, res | O_NONBLOCK) < 0))
+				if ((res < 0) || (fcntl(gc100_socket, F_SETFL, res /*| O_NONBLOCK*/) < 0))
 #endif
 				{
 					g_pPlutoLogger->Write(LV_CRITICAL, "Unable to set flags on GC100 socket.");
