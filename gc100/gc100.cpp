@@ -884,10 +884,23 @@ bool gc100::Open_gc100_Socket()
 bool gc100::ReceivedMessage(class Message *pMessage)
 {
 	m_pThisMessage = pMessage;
+
+	cout << "Message ID: " << pMessage->m_dwID << endl;
+	cout << "From:" << pMessage->m_dwPK_Device_From << endl;
+	cout << "To: " << pMessage->m_dwPK_Device_To << endl;
+	
+	map<long, string>::iterator i;
+	for (i = pMessage->m_mapParameters.begin(); i != pMessage->m_mapParameters.end(); i++)
+	{
+		cout << "Parameter: " << i->first << " Value: " << i->second << endl;
+	}
+
 	// Let the IR Base classes try to handle the message
 	if (gc100_Command::ReceivedMessage(pMessage))
 		return true;
 
+	cout << "Processing..." << endl;
+	
 	// TODO: use mnemonics instead of numbers
 	if (pMessage->m_dwID == 350 /* ACTION_SET_FREQUENCY */)
 	{
