@@ -154,8 +154,7 @@ void Command_Pipe_FK_Command_getrows(vector <class Row_Command_Pipe*> *rows);
 void DSPMode_FK_Command_getrows(vector <class Row_DSPMode*> *rows);
 void DeviceCommandGroup_Command_FK_Command_getrows(vector <class Row_DeviceCommandGroup_Command*> *rows);
 void Device_Command_FK_Command_getrows(vector <class Row_Device_Command*> *rows);
-void InfraredCode_FK_Command_getrows(vector <class Row_InfraredCode*> *rows);
-void InfraredGroup_DSPMode_FK_Command_getrows(vector <class Row_InfraredGroup_DSPMode*> *rows);
+void InfraredGroup_Command_FK_Command_getrows(vector <class Row_InfraredGroup_Command*> *rows);
 void Input_FK_Command_getrows(vector <class Row_Input*> *rows);
 void Output_FK_Command_getrows(vector <class Row_Output*> *rows);
 

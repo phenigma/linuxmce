@@ -29,7 +29,6 @@ using namespace std;
 #include "Table_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe.h"
 #include "Table_DeviceTemplate_Input.h"
 #include "Table_Device_Device_Pipe.h"
-#include "Table_InfraredGroup_Input.h"
 
 
 void Database_pluto_main::CreateTable_Input()
@@ -929,13 +928,6 @@ void Row_Input::Device_Device_Pipe_FK_Input_getrows(vector <class Row_Device_Dev
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device_Device_Pipe *pTable = table->database->Device_Device_Pipe_get();
-pTable->GetRows("FK_Input=" + StringUtils::itos(m_PK_Input),rows);
-}
-void Row_Input::InfraredGroup_Input_FK_Input_getrows(vector <class Row_InfraredGroup_Input*> *rows)
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-class Table_InfraredGroup_Input *pTable = table->database->InfraredGroup_Input_get();
 pTable->GetRows("FK_Input=" + StringUtils::itos(m_PK_Input),rows);
 }
 

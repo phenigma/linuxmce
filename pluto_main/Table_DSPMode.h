@@ -145,7 +145,6 @@ void psc_frozen_setNull(bool val);
 
 		// Return the rows in other tables with foreign keys pointing here
 		void DeviceTemplate_DSPMode_FK_DSPMode_getrows(vector <class Row_DeviceTemplate_DSPMode*> *rows);
-void InfraredGroup_DSPMode_FK_DSPMode_getrows(vector <class Row_InfraredGroup_DSPMode*> *rows);
 
 
 		// Setup binary serialization

@@ -113,10 +113,8 @@ Table_Household.cpp \
 Table_Household_Installation.cpp \
 Table_Icon.cpp \
 Table_Image.cpp \
-Table_InfraredCode.cpp \
 Table_InfraredGroup.cpp \
-Table_InfraredGroup_DSPMode.cpp \
-Table_InfraredGroup_Input.cpp \
+Table_InfraredGroup_Command.cpp \
 Table_Input.cpp \
 Table_InstallWizard.cpp \
 Table_InstallWizard_Distro.cpp \

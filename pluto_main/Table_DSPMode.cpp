@@ -20,7 +20,6 @@ using namespace std;
 #include "Table_Command.h"
 
 #include "Table_DeviceTemplate_DSPMode.h"
-#include "Table_InfraredGroup_DSPMode.h"
 
 
 void Database_pluto_main::CreateTable_DSPMode()
@@ -857,13 +856,6 @@ void Row_DSPMode::DeviceTemplate_DSPMode_FK_DSPMode_getrows(vector <class Row_De
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_DSPMode *pTable = table->database->DeviceTemplate_DSPMode_get();
-pTable->GetRows("FK_DSPMode=" + StringUtils::itos(m_PK_DSPMode),rows);
-}
-void Row_DSPMode::InfraredGroup_DSPMode_FK_DSPMode_getrows(vector <class Row_InfraredGroup_DSPMode*> *rows)
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-class Table_InfraredGroup_DSPMode *pTable = table->database->InfraredGroup_DSPMode_get();
 pTable->GetRows("FK_DSPMode=" + StringUtils::itos(m_PK_DSPMode),rows);
 }
 

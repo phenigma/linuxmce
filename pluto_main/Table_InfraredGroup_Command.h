@@ -1,5 +1,5 @@
-#ifndef __Table_InfraredCode_H__
-#define __Table_InfraredCode_H__
+#ifndef __Table_InfraredGroup_Command_H__
+#define __Table_InfraredGroup_Command_H__
 
 #ifdef SQL2CPP_DLLEXPORT
 #define DLL_EXPORT __declspec(dllexport)
@@ -10,7 +10,7 @@
 #include "TableRow.h"
 #include "Database_pluto_main.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
-#include "Define_InfraredCode.h"
+#include "Define_InfraredGroup_Command.h"
 #include "SerializeClass/SerializeClass.h"
 
 // If we declare the maps locally, the compiler will create multiple copies of them
@@ -18,7 +18,7 @@
 // maps for the standard types of primary keys (single long, double long, etc.) and
 // put them in a common base class, which is optionally included as tablebase below
 
-class DLL_EXPORT Table_InfraredCode : public TableBase , DoubleLongKeyBase
+class DLL_EXPORT Table_InfraredGroup_Command : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -28,30 +28,29 @@ public:
     pluto_pthread_mutex_t m_Mutex;
 	pthread_mutexattr_t m_MutexAttr;
 		
-	Table_InfraredCode(Database_pluto_main *pDatabase):database(pDatabase), m_Mutex("InfraredCode")
+	Table_InfraredGroup_Command(Database_pluto_main *pDatabase):database(pDatabase), m_Mutex("InfraredGroup_Command")
 	{
 		pthread_mutexattr_init(&m_MutexAttr);
 		pthread_mutexattr_settype(&m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP);
 		m_Mutex.Init(&m_MutexAttr); 
 	};
-	~Table_InfraredCode();
+	~Table_InfraredGroup_Command();
 
 private:		
-	friend class Row_InfraredCode;
+	friend class Row_InfraredGroup_Command;
 	struct Key
 	{
-		friend class Row_InfraredCode;
-		long int pk_FK_InfraredGroup;
-long int pk_FK_Command;
+		friend class Row_InfraredGroup_Command;
+		long int pk_PK_InfraredGroup_Command;
 
 		
-		Key(long int in_FK_InfraredGroup, long int in_FK_Command);
+		Key(long int in_PK_InfraredGroup_Command);
 	
-		Key(class Row_InfraredCode *pRow);
+		Key(class Row_InfraredGroup_Command *pRow);
 	};
 	struct Key_Less
 	{			
-		bool operator()(const Table_InfraredCode::Key &key1, const Table_InfraredCode::Key &key2) const;
+		bool operator()(const Table_InfraredGroup_Command::Key &key1, const Table_InfraredGroup_Command::Key &key2) const;
 	};	
 
 	
@@ -59,34 +58,34 @@ long int pk_FK_Command;
 
 public:				
 	bool Commit();
-	bool GetRows(string where_statement,vector<class Row_InfraredCode*> *rows);
-	class Row_InfraredCode* AddRow();
+	bool GetRows(string where_statement,vector<class Row_InfraredGroup_Command*> *rows);
+	class Row_InfraredGroup_Command* AddRow();
 	Database_pluto_main *Database_pluto_main_get() { return database; }
 	
 		
-	class Row_InfraredCode* GetRow(long int in_FK_InfraredGroup, long int in_FK_Command);
+	class Row_InfraredGroup_Command* GetRow(long int in_PK_InfraredGroup_Command);
 	
 
 private:	
 	
 		
-	class Row_InfraredCode* FetchRow(DoubleLongKey &key);
+	class Row_InfraredGroup_Command* FetchRow(SingleLongKey &key);
 		
 			
 };
 
-class DLL_EXPORT Row_InfraredCode : public TableRow, public SerializeClass
+class DLL_EXPORT Row_InfraredGroup_Command : public TableRow, public SerializeClass
 	{
-		friend struct Table_InfraredCode::Key;
-		friend class Table_InfraredCode;
+		friend struct Table_InfraredGroup_Command::Key;
+		friend class Table_InfraredGroup_Command;
 	private:
-		Table_InfraredCode *table;
+		Table_InfraredGroup_Command *table;
 		
-		long int m_FK_InfraredGroup;
+		long int m_PK_InfraredGroup_Command;
+long int m_FK_InfraredGroup;
 long int m_FK_Command;
 long int m_FK_DeviceTemplate;
 long int m_FK_Device;
-string m_Description;
 string m_IRData;
 long int m_psc_id;
 long int m_psc_batch;
@@ -97,11 +96,11 @@ string m_psc_mod;
 		bool is_null[11];
 	
 	public:
-		long int FK_InfraredGroup_get();
+		long int PK_InfraredGroup_Command_get();
+long int FK_InfraredGroup_get();
 long int FK_Command_get();
 long int FK_DeviceTemplate_get();
 long int FK_Device_get();
-string Description_get();
 string IRData_get();
 long int psc_id_get();
 long int psc_batch_get();
@@ -110,11 +109,11 @@ short int psc_frozen_get();
 string psc_mod_get();
 
 		
-		void FK_InfraredGroup_set(long int val);
+		void PK_InfraredGroup_Command_set(long int val);
+void FK_InfraredGroup_set(long int val);
 void FK_Command_set(long int val);
 void FK_DeviceTemplate_set(long int val);
 void FK_Device_set(long int val);
-void Description_set(string val);
 void IRData_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
@@ -123,9 +122,9 @@ void psc_frozen_set(short int val);
 void psc_mod_set(string val);
 
 		
-		bool FK_DeviceTemplate_isNull();
+		bool FK_InfraredGroup_isNull();
+bool FK_DeviceTemplate_isNull();
 bool FK_Device_isNull();
-bool Description_isNull();
 bool IRData_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
@@ -133,9 +132,9 @@ bool psc_user_isNull();
 bool psc_frozen_isNull();
 
 			
-		void FK_DeviceTemplate_setNull(bool val);
+		void FK_InfraredGroup_setNull(bool val);
+void FK_DeviceTemplate_setNull(bool val);
 void FK_Device_setNull(bool val);
-void Description_setNull(bool val);
 void IRData_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
@@ -146,11 +145,11 @@ void psc_frozen_setNull(bool val);
 		void Delete();
 		void Reload();		
 	
-		Row_InfraredCode(Table_InfraredCode *pTable);
+		Row_InfraredGroup_Command(Table_InfraredGroup_Command *pTable);
 	
 		bool IsDeleted(){return is_deleted;};
 		bool IsModified(){return is_modified;};			
-		class Table_InfraredCode *Table_InfraredCode_get() { return table; };
+		class Table_InfraredGroup_Command *Table_InfraredGroup_Command_get() { return table; };
 
 		// Return the rows for foreign keys 
 		class Row_InfraredGroup* FK_InfraredGroup_getrow();
@@ -164,16 +163,16 @@ class Row_Device* FK_Device_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_FK_InfraredGroup+ m_FK_Command+ m_FK_DeviceTemplate+ m_FK_Device+ m_Description+ m_IRData+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_InfraredGroup_Command+ m_FK_InfraredGroup+ m_FK_Command+ m_FK_DeviceTemplate+ m_FK_Device+ m_IRData+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
 		
-		string FK_InfraredGroup_asSQL();
+		string PK_InfraredGroup_Command_asSQL();
+string FK_InfraredGroup_asSQL();
 string FK_Command_asSQL();
 string FK_DeviceTemplate_asSQL();
 string FK_Device_asSQL();
-string Description_asSQL();
 string IRData_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();

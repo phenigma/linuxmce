@@ -154,7 +154,6 @@ void DeviceTemplate_DeviceTemplate_ControlledVia_FK_Input_Video_getrows(vector <
 void DeviceTemplate_DeviceTemplate_ControlledVia_Pipe_FK_Input_getrows(vector <class Row_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe*> *rows);
 void DeviceTemplate_Input_FK_Input_getrows(vector <class Row_DeviceTemplate_Input*> *rows);
 void Device_Device_Pipe_FK_Input_getrows(vector <class Row_Device_Device_Pipe*> *rows);
-void InfraredGroup_Input_FK_Input_getrows(vector <class Row_InfraredGroup_Input*> *rows);
 
 
 		// Setup binary serialization

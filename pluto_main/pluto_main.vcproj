@@ -430,16 +430,10 @@
 				RelativePath=".\Table_Image.cpp">
 			</File>
 			<File
-				RelativePath=".\Table_InfraredCode.cpp">
-			</File>
-			<File
 				RelativePath=".\Table_InfraredGroup.cpp">
 			</File>
 			<File
-				RelativePath=".\Table_InfraredGroup_DSPMode.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_InfraredGroup_Input.cpp">
+				RelativePath=".\Table_InfraredGroup_Command.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_Input.cpp">

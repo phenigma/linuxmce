@@ -4,6 +4,7 @@
 #define VERSION_First_Preview_Release_CONST 2
 #define VERSION_Important_Fix_CONST 3
 #define VERSION_Client_Server_Architecture_CONST 4
+#define VERSION_Wizards_Media_&_Floorplans_Fu_CONST 5
 
 #define VERSION_TABLE "Version"
 #define VERSION_PK_VERSION_FIELD "PK_Version"

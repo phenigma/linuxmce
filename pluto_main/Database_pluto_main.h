@@ -121,10 +121,8 @@ class Table_Household* tblHousehold;
 class Table_Household_Installation* tblHousehold_Installation;
 class Table_Icon* tblIcon;
 class Table_Image* tblImage;
-class Table_InfraredCode* tblInfraredCode;
 class Table_InfraredGroup* tblInfraredGroup;
-class Table_InfraredGroup_DSPMode* tblInfraredGroup_DSPMode;
-class Table_InfraredGroup_Input* tblInfraredGroup_Input;
+class Table_InfraredGroup_Command* tblInfraredGroup_Command;
 class Table_Input* tblInput;
 class Table_InstallWizard* tblInstallWizard;
 class Table_InstallWizard_Distro* tblInstallWizard_Distro;
@@ -331,10 +329,8 @@ class Table_Household* Household_get() { return tblHousehold; }
 class Table_Household_Installation* Household_Installation_get() { return tblHousehold_Installation; }
 class Table_Icon* Icon_get() { return tblIcon; }
 class Table_Image* Image_get() { return tblImage; }
-class Table_InfraredCode* InfraredCode_get() { return tblInfraredCode; }
 class Table_InfraredGroup* InfraredGroup_get() { return tblInfraredGroup; }
-class Table_InfraredGroup_DSPMode* InfraredGroup_DSPMode_get() { return tblInfraredGroup_DSPMode; }
-class Table_InfraredGroup_Input* InfraredGroup_Input_get() { return tblInfraredGroup_Input; }
+class Table_InfraredGroup_Command* InfraredGroup_Command_get() { return tblInfraredGroup_Command; }
 class Table_Input* Input_get() { return tblInput; }
 class Table_InstallWizard* InstallWizard_get() { return tblInstallWizard; }
 class Table_InstallWizard_Distro* InstallWizard_Distro_get() { return tblInstallWizard_Distro; }
@@ -544,10 +540,8 @@ void CreateTable_Household();
 void CreateTable_Household_Installation();
 void CreateTable_Icon();
 void CreateTable_Image();
-void CreateTable_InfraredCode();
 void CreateTable_InfraredGroup();
-void CreateTable_InfraredGroup_DSPMode();
-void CreateTable_InfraredGroup_Input();
+void CreateTable_InfraredGroup_Command();
 void CreateTable_Input();
 void CreateTable_InstallWizard();
 void CreateTable_InstallWizard_Distro();
@@ -753,10 +747,8 @@ void DeleteTable_Household();
 void DeleteTable_Household_Installation();
 void DeleteTable_Icon();
 void DeleteTable_Image();
-void DeleteTable_InfraredCode();
 void DeleteTable_InfraredGroup();
-void DeleteTable_InfraredGroup_DSPMode();
-void DeleteTable_InfraredGroup_Input();
+void DeleteTable_InfraredGroup_Command();
 void DeleteTable_Input();
 void DeleteTable_InstallWizard();
 void DeleteTable_InstallWizard_Distro();

@@ -146,9 +146,7 @@ class Row_Manufacturer* FK_Manufacturer_getrow();
 
 		// Return the rows in other tables with foreign keys pointing here
 		void DeviceTemplate_InfraredGroup_FK_InfraredGroup_getrows(vector <class Row_DeviceTemplate_InfraredGroup*> *rows);
-void InfraredCode_FK_InfraredGroup_getrows(vector <class Row_InfraredCode*> *rows);
-void InfraredGroup_DSPMode_FK_InfraredGroup_getrows(vector <class Row_InfraredGroup_DSPMode*> *rows);
-void InfraredGroup_Input_FK_InfraredGroup_getrows(vector <class Row_InfraredGroup_Input*> *rows);
+void InfraredGroup_Command_FK_InfraredGroup_getrows(vector <class Row_InfraredGroup_Command*> *rows);
 
 
 		// Setup binary serialization

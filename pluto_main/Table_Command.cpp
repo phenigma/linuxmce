@@ -26,8 +26,7 @@ using namespace std;
 #include "Table_DSPMode.h"
 #include "Table_DeviceCommandGroup_Command.h"
 #include "Table_Device_Command.h"
-#include "Table_InfraredCode.h"
-#include "Table_InfraredGroup_DSPMode.h"
+#include "Table_InfraredGroup_Command.h"
 #include "Table_Input.h"
 #include "Table_Output.h"
 
@@ -953,18 +952,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 class Table_Device_Command *pTable = table->database->Device_Command_get();
 pTable->GetRows("FK_Command=" + StringUtils::itos(m_PK_Command),rows);
 }
-void Row_Command::InfraredCode_FK_Command_getrows(vector <class Row_InfraredCode*> *rows)
+void Row_Command::InfraredGroup_Command_FK_Command_getrows(vector <class Row_InfraredGroup_Command*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-class Table_InfraredCode *pTable = table->database->InfraredCode_get();
-pTable->GetRows("FK_Command=" + StringUtils::itos(m_PK_Command),rows);
-}
-void Row_Command::InfraredGroup_DSPMode_FK_Command_getrows(vector <class Row_InfraredGroup_DSPMode*> *rows)
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-class Table_InfraredGroup_DSPMode *pTable = table->database->InfraredGroup_DSPMode_get();
+class Table_InfraredGroup_Command *pTable = table->database->InfraredGroup_Command_get();
 pTable->GetRows("FK_Command=" + StringUtils::itos(m_PK_Command),rows);
 }
 void Row_Command::Input_FK_Command_getrows(vector <class Row_Input*> *rows)

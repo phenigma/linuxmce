@@ -234,7 +234,7 @@ void Device_HouseMode_FK_Device_getrows(vector <class Row_Device_HouseMode*> *ro
 void Device_Orbiter_FK_Device_getrows(vector <class Row_Device_Orbiter*> *rows);
 void Device_StartupScript_FK_Device_getrows(vector <class Row_Device_StartupScript*> *rows);
 void Device_Users_FK_Device_getrows(vector <class Row_Device_Users*> *rows);
-void InfraredCode_FK_Device_getrows(vector <class Row_InfraredCode*> *rows);
+void InfraredGroup_Command_FK_Device_getrows(vector <class Row_InfraredGroup_Command*> *rows);
 
 
 		// Setup binary serialization
