@@ -133,9 +133,9 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
 
     string Response;
 
-    m_dwTargetDevice = pMythTvStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device;
+    m_dwTargetDevice = pMythTvStream->m_pDeviceData_Router_Source->m_dwPK_Device;
 
-    DCE::CMD_Start_TV cmd(m_dwPK_Device, pMythTvStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
+    DCE::CMD_Start_TV cmd(m_dwPK_Device, pMythTvStream->m_pDeviceData_Router_Source->m_dwPK_Device);
 
 //     DCE::CMD_Play_Media cmd(m_dwPK_Device,
 
@@ -152,14 +152,11 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
     {
         g_pPlutoLogger->Write(LV_CRITICAL,"MythTV player didn't respond to play media command!");
 
-    /** handle failure */
-
-#pragma warning("Ignore this for now")
-        return true;
+    	// TODO: See how to handle failure here
         return false;
     }
-    g_pPlutoLogger->Write(LV_STATUS,"MythTV player responded to Start TV command!");
 
+    g_pPlutoLogger->Write(LV_STATUS,"MythTV player responded to Start TV command!");
     return true;
 }
 
@@ -167,9 +164,10 @@ bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
 {
     PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
     g_pPlutoLogger->Write(LV_STATUS, "Stopping media stream playback--sending command, waiting for response");
-int i;
+
+	int i; // report the current playback position here.
     DCE::CMD_Stop_Media cmd(m_dwPK_Device,
-        pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device,
+        pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device,
         pMediaStream->m_iStreamID_get(),&i);
 
     string Response;
@@ -177,14 +175,11 @@ int i;
     {
         g_pPlutoLogger->Write(LV_CRITICAL,"MythTV player didn't respond to stop media command!");
 
-    /** handle failure */
-
-#pragma warning("Ignore this for now")
-        return true;
+		// TODO: See how to handle failure here
         return false;
     }
 
-    map<int, int>::iterator it = m_mapDevicesToStreams.find(pMediaStream->m_pMediaDevice_Source->m_pDeviceData_Router->m_dwPK_Device);
+    map<int, int>::iterator it = m_mapDevicesToStreams.find(pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
     if( it!=m_mapDevicesToStreams.end() )
         m_mapDevicesToStreams.erase(it);
 
@@ -221,7 +216,7 @@ class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaPluginInfo *pMedi
         return NULL;
     }
 
-    MythTvStream *pMediaStream = new MythTvStream(this, pMediaPluginInfo, pMediaDevice, pMediaPluginInfo->m_iPK_DesignObj, 0, st_RemovableMedia,StreamID);
+    MythTvStream *pMediaStream = new MythTvStream(this, pMediaPluginInfo, pMediaDevice->m_pDeviceData_Router, pMediaPluginInfo->m_iPK_DesignObj, 0, st_RemovableMedia,StreamID);
 
     pMediaStream->m_sMediaDescription = "Not available";
     pMediaStream->m_sSectionDescription = "Not available";
@@ -234,6 +229,7 @@ class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaPluginInfo *pMedi
 bool MythTV_PlugIn::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*> &listStart, list<EntertainArea *> &listStop, list<EntertainArea *> &listChange)
 {
     g_pPlutoLogger->Write(LV_STATUS, "This is not implemented yet here");
+	return true;
 }
 
 bool MythTV_PlugIn::isValidStreamForPlugin(class MediaStream *pMediaStream)
