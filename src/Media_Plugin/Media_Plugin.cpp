@@ -460,7 +460,7 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
             // We can't queue this.
 			pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
 			g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::StartMedia(): Calling Stream ended after the Stop Media");
-			StreamEnded(pEntertainArea->m_pMediaStream);
+			StreamEnded(pEntertainArea->m_pMediaStream,false);
 			g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::StartMedia(): Call completed.");
         }
 		else
@@ -834,10 +834,10 @@ void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_De
 	g_pPlutoLogger->Write( LV_STATUS, "Got MH_stop media" );
     pTmpMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pTmpMediaStream );
     g_pPlutoLogger->Write( LV_STATUS, "Called StopMedia" );
-	StreamEnded(pEntertainArea->m_pMediaStream);
+	StreamEnded(pTmpMediaStream);
 }
 
-void Media_Plugin::StreamEnded(MediaStream *pMediaStream)
+void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff)
 {
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 	map<int,MediaDevice *> mapMediaDevice_Prior;
@@ -851,7 +851,8 @@ void Media_Plugin::StreamEnded(MediaStream *pMediaStream)
 		MediaInEAEnded(pEntertainArea);
     }
 
-	HandleOnOffs(pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType,0,&mapMediaDevice_Prior,NULL);
+	if( bSendOff )
+		HandleOnOffs(pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType,0,&mapMediaDevice_Prior,NULL);
 
     delete pMediaStream;
 }
@@ -2386,6 +2387,17 @@ void Media_Plugin::CMD_Rip_Disk(int iPK_Users,string sName,string &sCMD_Result,M
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): No disk drive was found in the target ent. area with id: %d. Not ripping anything.", pEntertainArea->m_iPK_EntertainArea);
 			return;
+		}
+
+		if( pEntertainArea->m_pMediaStream )
+		{
+			MediaStream *pTmpMediaStream = pEntertainArea->m_pMediaStream;
+			mm.Release();
+
+			g_pPlutoLogger->Write( LV_STATUS, "Sending stop media before rip" );
+			pTmpMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pTmpMediaStream );
+			g_pPlutoLogger->Write( LV_STATUS, "Called StopMedia begfore rip" );
+			StreamEnded(pTmpMediaStream);
 		}
 
 		DCE::CMD_Rip_Disk cmdRipDisk(m_dwPK_Device, pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, iPK_Users, sName);

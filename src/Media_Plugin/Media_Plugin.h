@@ -279,7 +279,7 @@ g_pPlutoLogger->Write(LV_STATUS,"FOUND %d records for media type %d %p",(int) ve
 	virtual void FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left);
 	virtual void FollowMe_LeftRoom(int iPK_Event, int iPK_Orbiter, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left);
 
-	void StreamEnded(MediaStream *pMediaStream);
+	void StreamEnded(MediaStream *pMediaStream,bool bSendOff=true);
 	void MediaInEAEnded(EntertainArea *pEntertainArea);
 
 	virtual bool SafeToReload();

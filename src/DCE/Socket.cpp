@@ -78,6 +78,7 @@ void hexmemcpy( char *pDest, const char *pSource, int NumBytes )
 
 Socket::Socket(string Name,string sIPAddress) : m_SocketMutex("socket mutex " + Name)
 {
+	printf("start const %p\n",this);
 	m_pcSockLogFile=m_pcSockLogErrorFile=NULL;
 	m_sIPAddress = sIPAddress;
 	m_iSocketCounter = SocketCounter++;
@@ -139,10 +140,12 @@ Socket::Socket(string Name,string sIPAddress) : m_SocketMutex("socket mutex " + 
 		m_LL_DEBUG_Mutex->Init( NULL );
 	}
 #endif
+	printf("stop const %p\n",this);
 }
 
 Socket::~Socket()
 {
+	printf("start dest %p\n",this);
 #ifdef DEBUG
 	g_pPlutoLogger->Write( LV_SOCKET, "Socket::~Socket(): deleting socket @%p %s (socket id in destructor: %d)", this, m_sName.c_str(), m_Socket );
 #endif
@@ -181,6 +184,7 @@ Socket::~Socket()
 	delete[] m_pcSockLogFile;
 	delete[] m_pcSockLogErrorFile;
 #endif
+	printf("stop dest %p\n",this);
 }
 
 bool Socket::SendMessage( Message *pMessage, bool bDeleteMessage )
