@@ -67,7 +67,6 @@ public:
 
 		bool m_bRedrawOnlyGrid;
 		bool m_bRedrawOnlyEdit;
-		bool m_bGridSendSelectedOnMove;
 		bool m_bSimulation;
 
 		TRect m_ImageRect;
@@ -108,6 +107,8 @@ private:
 		unsigned long m_uGridHeight;
 
 		RPointerArray<string> m_GridList;
+
+		bool m_bGridSendSelectedOnMove;
 };
 //------------------------------------------------------------------------------------------------------------------
 #endif

@@ -46,6 +46,7 @@ CPlutoVMCContainer::CPlutoVMCContainer()
 	m_bRepeated = false;
 	m_bNeedRefresh = false;
 	m_bDeleteLastKey = false;
+	m_bDataKeys = false;
 }
 //------------------------------------------------------------------------------------------------------------------
 void CPlutoVMCContainer::ConstructL(const TRect& aRect)
@@ -208,7 +209,7 @@ int CPlutoVMCContainer::GetKeyCode(const TKeyEvent& aKeyEvent, TEventCode aType)
 			}
 	}
 
-	if(!KeyCode && aType == EEventKeyDown) //unknown key
+	if(!KeyCode && aType == EEventKeyUp) //unknown key
 		KeyCode = -aKeyEvent.iScanCode;
 
 	return KeyCode;
@@ -216,6 +217,11 @@ int CPlutoVMCContainer::GetKeyCode(const TKeyEvent& aKeyEvent, TEventCode aType)
 //------------------------------------------------------------------------------------------------------------------
 bool CPlutoVMCContainer::HandleCommonKeys(const TKeyEvent& aKeyEvent, TEventCode aType)
 {
+	if(aType == EEventKeyUp)
+		LOG("KEYUP");
+
+	LOG("LOCALKEY");
+
 	CPlutoVMCUtil *pVMCUtil = (CPlutoVMCUtil *)CCoeEnv::Static(KCPlutoVMCUtilId);
 	int KeyCode = GetKeyCode(aKeyEvent, aType);
 
@@ -248,6 +254,8 @@ bool CPlutoVMCContainer::HandleDataGridKeys(const TKeyEvent& aKeyEvent, TEventCo
 		{
 			if(pVMCUtil->ScrollListUp())
 				m_bNeedRefresh = true;
+
+			m_bDataKeys = true;
 			
 			return true;
 		}
@@ -257,13 +265,18 @@ bool CPlutoVMCContainer::HandleDataGridKeys(const TKeyEvent& aKeyEvent, TEventCo
 			if(pVMCUtil->ScrollListDown())
 				m_bNeedRefresh = true; 
 
+			m_bDataKeys = true;
+
 			return true;
 		}
 
 		if(aKeyEvent.iScanCode == /*EStdKeyEnter*/ 167)
 		{
+			LOG("ENDER-sending selected");
 			if(pVMCUtil->SelectCurrentItem())
 				m_bNeedRefresh = true; 
+
+			//m_bDataKeys = true;
 
 			return true;
 		}
@@ -550,6 +563,9 @@ TKeyResponse CPlutoVMCContainer::OfferKeyEventL(const TKeyEvent& aKeyEvent, TEve
 //------------------------------------------------------------------------------------------------------------------
 TKeyResponse CPlutoVMCContainer::OfferKeyEvent(const TKeyEvent& aKeyEvent, TEventCode aType)
 {
+	if(aType == EEventKeyDown)
+		m_bDataKeys = false;
+
 	//if the viewer is not visible on the screen, ignore the key pressed
 	if(!((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bVMCViewerVisible)
 		return EKeyWasNotConsumed;
@@ -585,7 +601,7 @@ TKeyResponse CPlutoVMCContainer::OfferKeyEvent(const TKeyEvent& aKeyEvent, TEven
 
 		return Response;
 	}
-	
+
 	//handles capture keyboard keys
 	if(HandleCaptureKeyboardKeys(aKeyEvent, aType))
 	{
@@ -596,6 +612,9 @@ TKeyResponse CPlutoVMCContainer::OfferKeyEvent(const TKeyEvent& aKeyEvent, TEven
 
 		return Response; 
 	}
+
+	if(m_bDataKeys)
+		return EKeyWasConsumed;
 
 	//handles common keys
 	if(HandleCommonKeys(aKeyEvent, aType))

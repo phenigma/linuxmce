@@ -55,6 +55,8 @@ class CPlutoVMCContainer : public CCoeControl, public MCoeControlObserver
 
 		 void SimulateEvent(long eventType, long key);
 
+		 bool m_bDataKeys;
+
     public: // New functions
         /**
         * Change focussed control using specified command.
