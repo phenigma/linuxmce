@@ -27,9 +27,9 @@ RunSQL()
 	Headers="$1"; shift
 	Q="$*"
 	if [ "$Headers" -eq 0 ]; then
-		echo "$Q;" | mysql pluto_main | tail +2
+		echo "$Q;" | mysql -h $MySqlHost pluto_main | tail +2
 	else
-		echo "$Q;" | mysql pluto_main
+		echo "$Q;" | mysql -h $MySqlHost pluto_main
 	fi
 }
 

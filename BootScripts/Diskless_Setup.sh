@@ -207,13 +207,13 @@ for Client in $DisklessR; do
 	sed -i "$SedCmd" $DlPath/etc/mythtv/mysql.txt.$$
 	mv $DlPath/etc/mythtv/mysql.txt.$$ $DlPath/etc/mythtv/mysql.txt
 
-	echo -n " Start_LocalDevices"
-	Q="SELECT PK_Device FROM Device WHERE IPaddress='$IP' AND MACaddress='$MAC' LIMIT 1"
-	PK_Device=$(RunSQL "$Q")
-	mkdir -p $DlPath/usr/pluto/bin
-	/usr/pluto/bin/Start_LocalDevices.sh script "$IP" -d "$PK_Device" >$DlPath/usr/pluto/bin/Start_LocalDevices_Static.sh
-	sed -i 's/localhost/dce_router/g' $DlPath/usr/pluto/bin/Start_LocalDevices_Static.sh
-	chmod +x $DlPath/usr/pluto/bin/Start_LocalDevices_Static.sh
+#	echo -n " Start_LocalDevices"
+#	Q="SELECT PK_Device FROM Device WHERE IPaddress='$IP' AND MACaddress='$MAC' LIMIT 1"
+#	PK_Device=$(RunSQL "$Q")
+#	mkdir -p $DlPath/usr/pluto/bin
+#	/usr/pluto/bin/Start_LocalDevices.sh script "$IP" -d "$PK_Device" >$DlPath/usr/pluto/bin/Start_LocalDevices_Static.sh
+#	sed -i 's/localhost/dce_router/g' $DlPath/usr/pluto/bin/Start_LocalDevices_Static.sh
+#	chmod +x $DlPath/usr/pluto/bin/Start_LocalDevices_Static.sh
 
 	echo -n " MySQL_access"
 	Q="GRANT ALL PRIVILEGES ON pluto_main.* TO 'root'@'$IP';
