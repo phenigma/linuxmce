@@ -1151,6 +1151,7 @@
 #define DESIGNOBJ_mnuNewPlugAndPlayDevice_CONST 3326
 #define DESIGNOBJ_arrRooms_CONST 3327
 #define DESIGNOBJ_butRooms_CONST 3328
+#define DESIGNOBJ_butRegenAllOrbiters_CONST 3329
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

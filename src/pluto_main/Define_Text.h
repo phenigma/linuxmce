@@ -440,6 +440,7 @@
 #define TEXT_Delete_Playlist_CONST 1115
 #define TEXT_Addgc_CONST 1116
 #define TEXT_New_PnP_CONST 1117
+#define TEXT_Regen_all_Orbiters_CONST 1118
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

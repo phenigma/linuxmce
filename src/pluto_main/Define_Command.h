@@ -273,6 +273,7 @@
 #define COMMAND_Set_Room_For_Device_CONST 274
 #define COMMAND_EIB_Read_CONST 275
 #define COMMAND_Add_GC100_CONST 276
+#define COMMAND_Get_Capture_Video_Frame_CONST 277
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

@@ -73,6 +73,7 @@
 #define DEVICETEMPLATE_Generic_Analog_Capture_Card_CONST 64
 #define DEVICETEMPLATE_Generic_Analog_Camera_CONST 66
 #define DEVICETEMPLATE_Generic_Blackbird_TV_card_CONST 67
+#define DEVICETEMPLATE_Drapes_Switch_CONST 68
 
 #define DEVICETEMPLATE_TABLE "DeviceTemplate"
 #define DEVICETEMPLATE_PK_DEVICETEMPLATE_FIELD "PK_DeviceTemplate"
