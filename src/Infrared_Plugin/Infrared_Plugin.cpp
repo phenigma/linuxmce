@@ -585,7 +585,7 @@ void Infrared_Plugin::CMD_Add_GC100(int iPK_Device,string &sCMD_Result,Message *
 					g_pPlutoLogger->Write(LV_STATUS, "GC100 Configure script did not generate any log's");
 				}
 				g_pPlutoLogger->Write(LV_STATUS, "The configure script returned with success");
-				DisplayMessageOnOrbiter(iPK_Device,"GC100 added with success");
+//				DisplayMessageOnOrbiter(iPK_Device,"GC100 added with success");
 			} else {
 				fp = fopen("/var/log/pluto/gc100-conf.log","rt");
 				if(fp != NULL) {
@@ -605,7 +605,7 @@ void Infrared_Plugin::CMD_Add_GC100(int iPK_Device,string &sCMD_Result,Message *
 					g_pPlutoLogger->Write(LV_STATUS, "GC100 Configure script did not generate any log's");
 				}
 				g_pPlutoLogger->Write(LV_STATUS, "The configure script failed to configure gc100");
-				DisplayMessageOnOrbiter(iPK_Device,"GC100 failed to be added");
+//				DisplayMessageOnOrbiter(iPK_Device,"GC100 failed to be added");
 			}
 			break;
         }
