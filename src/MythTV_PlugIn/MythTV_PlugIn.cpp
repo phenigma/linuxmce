@@ -262,9 +262,9 @@ bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
     g_pPlutoLogger->Write(LV_STATUS,"MythTV player responded to stop media command!");
     return true;
 */
-	g_pPlutoLogger(LV_STATUS, "MythTV_PlugIn::StopMedia(): Sending command to stop media to the player: %d", pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
+	g_pPlutoLogger->Write(LV_STATUS, "MythTV_PlugIn::StopMedia(): Sending command to stop media to the player: %d", pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
 	SendCommand(cmd);
-	g_pPlutoLogger(LV_STATUS, "MythTV_PlugIn::StopMedia(): Returning from stop media command to the player: %d", pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
+	g_pPlutoLogger->Write(LV_STATUS, "MythTV_PlugIn::StopMedia(): Returning from stop media command to the player: %d", pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
 
 	return true;
 }
