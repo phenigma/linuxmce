@@ -1051,6 +1051,7 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 	// 6.   Call FileUtils::GetDirectory(vector<strings)), and see what files are there, that are not in listFileInfo and do a delete
 	// 7.   Do a cvs ci
 	string MyPath, WorkPath;
+	FILE *fp;
 	string cmd, cmd2;
 	bool flag;
 	list<FileInfo *>::iterator iFileInfo;
@@ -1059,7 +1060,15 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 	list <string> MyList;
 	list <string>::iterator iMyList;
 	char direct[255];
-	
+
+	fp = fopen("file_list.tmp","wt");
+	for (iFileInfo = listFileInfo.begin();iFileInfo != listFileInfo.end(); iFileInfo++)
+	{
+		FileInfo *pFileInfo = (*iFileInfo);
+		fprintf(fp,"%s",FileUtils::BasePath(pFileInfo->m_sSource));
+	}
+	fclose(fp);
+return true;
 	cout << "\nCreting temporary directory\n";
 	MyPath = "cvs_temp";
 	//Building Temporary Directory
@@ -1290,7 +1299,7 @@ bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,list<FileI
 		Prefix = "/usr/pluto/src/";
 	}
 
-	FILE * f;
+//	FILE * f;
 
 #ifndef WIN32
 	system(("rm -rf " + Dir).c_str());
