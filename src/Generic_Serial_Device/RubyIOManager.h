@@ -99,7 +99,7 @@ private:
 	MESSAGEQUEUE msgqueue_;
 	IOMutex mmsg_;
 	IOEvent emsg_;
-	
+
 	typedef std::map<std::string, RubyIOPool*> POOLMAP;
 	POOLMAP pools_; /*[serial port <--> pool] map*/
 };

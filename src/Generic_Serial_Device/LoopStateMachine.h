@@ -34,11 +34,24 @@ class LoopStateMachine : public StateMachine {
 public:
     LoopStateMachine(bool usemain = false);
     virtual ~LoopStateMachine();
+
+public:
+	void setIdleDelay(unsigned idledelay) {
+		idledelay_ = idledelay;
+	}
+	unsigned getIdleDelay() {
+		return idledelay_;
+	}
 	
+		
 protected:
 	virtual bool handleStartup();
 	virtual bool handleIteration();
 	virtual void handleTerminate();
+	
+private:
+	unsigned idledelay_;
+	struct timespec lastidle_;
 	
 /*
 	//thread callback

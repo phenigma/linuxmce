@@ -42,7 +42,6 @@ IOPool::handleIteration() {
 	if(pstate != NULL) {
 		if(!pconn->isOpened()) {
 			if(!pconn->Open()) {
-				usleep(FAIL_SLEEP_TIME * 1000);
 				return true;
 			} else {
 				if(pstate != NULL) {

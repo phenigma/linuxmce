@@ -25,6 +25,8 @@
 using namespace std;
 using namespace EMBRUBY;
 
+#define DEFAULT_POOL_TIME		500
+
 namespace DCE {
 
 RubyIOManager* RubyIOManager::s_instance_ = NULL;
@@ -54,7 +56,7 @@ RubyIOManager::addDevice(DeviceData_Impl* pdevdata) {
 	
 	string sport = pdevdata->m_mapParameters[DEVICEDATA_Port_CONST],
 			sporttype = pdevdata->m_mapParameters[DEVICEDATA_Port_Type_CONST];
-			
+	
 	if(sport.empty() || sporttype.empty()) {
 		g_pPlutoLogger->Write(LV_CRITICAL, "Port and Port Type parameters must both be specified.");
 		return -1;
@@ -62,12 +64,6 @@ RubyIOManager::addDevice(DeviceData_Impl* pdevdata) {
 
 	/*check the kind of device we instantiate, based on port string*/
 	int porttype = atoi(sporttype.c_str());
-	/*
-	PORTTYPE porttype = PortType(portdesc, port);
-	if(porttype == PORTTYPE_UNKNOWN) {
-		g_pPlutoLogger->Write(LV_WARNING, "Could not determine port Type from port Parameter.");
-		return -1;
-	}*/
 	
 	RubyIOPool*& ppool = pools_[sport];
 	if(ppool != NULL) {
@@ -134,8 +130,12 @@ RubyIOManager::addDevice(DeviceData_Impl* pdevdata) {
 			return -1;
 	}
 	
+	int delay = atoi(pdevdata->m_mapParameters[DEVICEDATA_Idle_Delay_CONST].c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "Using Idle Delay: %d.", delay);
+
 	ppool = new RubyIOPool(pnewpool);
 	ppool->setDeviceData(pdevdata);
+	ppool->setIdleDelay(delay);
 	
 	g_pPlutoLogger->Write(LV_STATUS, "Child device %d added.", pdevdata->m_dwPK_Device);
 	return 0;
@@ -159,29 +159,6 @@ RubyIOManager::hasDevice(DeviceData_Base* pdevdata) {
 	return false;
 }
 
-/*
-RubyIOManager::PORTTYPE 
-RubyIOManager::PortType(const std::string& portdesc, std::string& port) {
-	if(portdesc.length() < 4) {
-		return PORTTYPE_UNKNOWN;
-	}
-	
-	string porttype = portdesc.substr(0, 3);
-	if(porttype == SPORTTYPE_SERIAL) {
-		port = portdesc.substr(4, portdesc.length() - 4);
-		return PORTTYPE_SERIAL;
-	} else
-	if(porttype == SPORTTYPE_NETWORK) {
-		port = portdesc.substr(4, portdesc.length() - 4);
-		return PORTTYPE_NETWORK;
-	} else {
-		port = portdesc;
-		return PORTTYPE_SERIAL;
-	}
-	return PORTTYPE_UNKNOWN;
-}
-*/
-	
 int 
 RubyIOManager::RouteMessageToDevice(DeviceData_Base* pdevdata, Message *pMessage) {
 	g_pPlutoLogger->Write(LV_STATUS, "Pushing message to stack..."); 
@@ -196,7 +173,7 @@ RubyIOManager::RouteMessageToDevice(DeviceData_Base* pdevdata, Message *pMessage
 void* 
 RubyIOManager::_Run() {
 	while(!isStopRequested()) {
-		bool msgarrived = emsg_.Wait(1000);
+		bool msgarrived = emsg_.Wait(DEFAULT_POOL_TIME);
 		mmsg_.Lock();
 		if(!msgarrived && msgqueue_.size() == 0) {
 			mmsg_.Unlock();

@@ -20,11 +20,16 @@
 #include "LoopStateMachine.h"
 
 #include <unistd.h>
+#include <stdio.h>
+
+#define DEFAULT_IDLE_DELAY	1000
 
 namespace DCE {
 
 LoopStateMachine::LoopStateMachine(bool usemain)
+	: idledelay_(DEFAULT_IDLE_DELAY)
 {
+	lastidle_.tv_sec = lastidle_.tv_nsec = 0;
 }
 
 
@@ -41,7 +46,14 @@ bool
 LoopStateMachine::handleIteration() {
 	LoopState* pstate = reinterpret_cast<LoopState*>(getState());
 	if(pstate != NULL) {
-		pstate->handleIdle();
+		struct timespec timespec;
+		clock_gettime(CLOCK_REALTIME, &timespec);
+		
+		if( (timespec.tv_sec - lastidle_.tv_sec) * 1000  
+				+ ((timespec.tv_nsec - lastidle_.tv_nsec) / 1000000) >= (int)idledelay_) {
+			lastidle_ = timespec;
+			pstate->handleIdle();
+		}
 	}
 	return true;
 }
