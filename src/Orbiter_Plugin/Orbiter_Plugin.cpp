@@ -463,12 +463,14 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
 
                 if( SendCommand(CMD_Get_Signal_Strength) )
 			{
-                    pOH_Orbiter->m_iLastSignalStrength = SignalStrength;
 g_pPlutoLogger->Write(LV_CRITICAL,"Mobile Orbiter %s dongle %d reported strength of %d",sMacAddress.c_str(),pDeviceFrom->m_dwPK_Device,SignalStrength);
+					if(SignalStrength)
+						pOH_Orbiter->m_iLastSignalStrength = SignalStrength;
 			}
                 else
 				{
-                    pOH_Orbiter->m_iLastSignalStrength = 0;
+					//leave the last value
+                    //pOH_Orbiter->m_iLastSignalStrength = 0;
 g_pPlutoLogger->Write(LV_CRITICAL,"Mobile Orbiter %s cannot get signal strength from dongle %d",sMacAddress.c_str(),pDeviceFrom->m_dwPK_Device);
 				}
             }
