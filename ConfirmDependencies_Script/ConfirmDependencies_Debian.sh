@@ -47,6 +47,8 @@ keep_sending_enters()
 	while : ; do echo; done
 }
 
+export DEBIAN_FRONTEND=noninteractive
+
 case "$URL_TYPE" in
 	apt)
 		TMP_SECT=$(echo -n "$REPOS" | cut -d' ' -f2-)
