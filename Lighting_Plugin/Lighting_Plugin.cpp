@@ -147,7 +147,7 @@ class DataGridTable *Lighting_Plugin::LightingScenariosGrid( string GridID, stri
 bool Lighting_Plugin::LightingCommand( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
 	// This only runs as a plug-in so we can safely cast it
-	class DeviceData_Router *pDevice_RouterTo = (class DeviceData_Router *) pDevice_RouterTo;
+	class DeviceData_Router *pDevice_RouterTo = (class DeviceData_Router *) pDeviceTo;
 	if( pDevice_RouterTo )
 	{
 		if( pMessage->m_dwID==COMMAND_Generic_On_CONST )
