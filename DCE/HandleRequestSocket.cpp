@@ -174,8 +174,11 @@ void HandleRequestSocket::RunThread()
 		}
 	}
 	m_bRunning = false;
-	g_pPlutoLogger->Write( LV_STATUS, "Closing event handler connection %d (%d,%s), Terminate: %d %s\n", 
-		m_dwPK_Device, (int) m_bUnexpected, sMessage.c_str(), (int) m_bTerminate, m_sName.c_str() );
+
+//HACK this is crashing! :(	
+g_pPlutoLogger->Write( LV_STATUS, "Closing event handler connection...");
+//	g_pPlutoLogger->Write( LV_STATUS, "Closing event handler connection %d (%d,%s), Terminate: %d %s\n", 
+//		m_dwPK_Device, (int) m_bUnexpected, sMessage.c_str(), (int) m_bTerminate, m_sName.c_str() );
 	if ( m_bUnexpected )
 	{
 		//OnUnexpectedDisconnect();

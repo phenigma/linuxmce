@@ -378,7 +378,7 @@ void Bluetooth_Dongle::CMD_Create_Mobile_Orbiter(int iPK_Device,string sMac_addr
 			pBD_Orbiter->m_pOrbiter = NULL;
 		}
 
-		g_pPlutoLogger->Write(LV_WARNING, "Orbiter created for %s device", sMac_address);
+		g_pPlutoLogger->Write(LV_WARNING, "Orbiter created for %s device", sMac_address.c_str());
 
 		class OrbiterSDLBluetooth *pOrbiter = 
 			StartOrbiterSDLBluetooth(

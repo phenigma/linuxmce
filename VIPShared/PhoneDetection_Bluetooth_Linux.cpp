@@ -247,6 +247,7 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
 
 					PhoneDevice *pDNew = new PhoneDevice("",addr,result.rssi);
 					bacpy(&pDNew->m_bdaddrDongle, &m_DevInfo.bdaddr);
+					
 					PLUTO_SAFETY_LOCK(mm,m_MapMutex);
 					m_mapDevicesDetectedThisScan[pDNew->m_iMacAddress] = pDNew;
 
@@ -277,17 +278,15 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
 				{
 					/* The inquiry ended, because of time or number of responses */
 					cancel = 0;
+				
+					list<PhoneDevice *> listDevicesLost;
 
-					
-					//list<PhoneDevice *> listDevicesLost;
-
-					// Make a list of all the devices that were lost this scan
-					//PLUTO_SAFETY_LOCK(mm, m_MapMutex);
+					//Make a list of all the devices that were lost this scan
+					PLUTO_SAFETY_LOCK(mm, m_MapMutex);
 
 					printf("# Devices detected last scan: %d\n", m_mapPhoneDevice_Detected.size());
 					printf("# Devices detected this scan: %d\n", m_mapDevicesDetectedThisScan.size());
 
-					/*
 					map<u_int64_t,class PhoneDevice *>::iterator itDevice;
 					for(itDevice=m_mapPhoneDevice_Detected.begin();itDevice!=m_mapPhoneDevice_Detected.end();)
 					{
@@ -300,21 +299,20 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
 						}
 						else
 							itDevice++;
-					}*/
+					}
 
-					//mm.Release();
+					mm.Release();
 
-					//printf("# Devices lost this scan: %d\n", listDevicesLost.size());
+					printf("# Devices lost this scan: %d\n", listDevicesLost.size());
 
-					/*
+					
 					list<PhoneDevice *>::iterator itLost;
 					for(itLost = listDevicesLost.begin();itLost != listDevicesLost.end();++itLost)
 					{
 						g_pPlutoLogger->Write(LV_STATUS, "Lost connection to device: %s", (*itLost)->m_sMacAddress.c_str());
 						Intern_LostDevice(*itLost);
 					}
-					*/
-
+	
 					g_pPlutoLogger->Write(LV_WARNING, "Inquiry complete\n");
 				}
 				break;

@@ -41,7 +41,9 @@ g_pPlutoLogger->Write(LV_STATUS,"start of const");
 	bacpy(&laddr.rc_bdaddr, &m_pDevice->m_bdaddrDongle);
 	laddr.rc_channel = 0;
 
-	printf("@adr dongle: %s\n", m_pDevice->m_bdaddrDongle);
+	//if( NULL != m_pDevice->m_bdaddrDongle ) 
+	//printf("m_pDevice->m_bdaddrDongle is null !!\n");
+
 	printf("@mac address: %s\n", pDevice->m_sMacAddress.c_str());
 	
 	raddr.rc_family = AF_BLUETOOTH;

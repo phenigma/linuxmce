@@ -142,7 +142,12 @@ public:
             g_pPlutoLogger->Write(LV_CRITICAL,"Invalid device template %d as plugin",iPK_MasterDeviceList);
             return;  // Nothing we can do
         }
-
+int Device = pCommand_Impl->m_dwPK_Device;
+int Template =pRow_DeviceTemplate->PK_DeviceTemplate_get();
+string Desc = pRow_DeviceTemplate->Description_get();
+cout << "Device: " << Device;
+cout << "Template " << Template;
+cout << "Desc " << Desc;
         int iPKDevice = pCommand_Impl->m_dwPK_Device;
         int iPKDeviceTemplate = pRow_DeviceTemplate->PK_DeviceTemplate_get();
         string strDescription = pRow_DeviceTemplate->Description_get();
