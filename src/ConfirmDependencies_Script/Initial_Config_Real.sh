@@ -171,6 +171,29 @@ done
 #wget -O "$DIR"/build.sh "$ACTIV/build.php?code=$activation_key" 2>/dev/null || no_build=1
 #wget -O "$DIR"/build_all.sh "$ACTIV/build_all.php?code=$activation_key" 2>/dev/null || no_build_all=1
 
+if [ "$Type" == "router" ]; then
+	selectedInterface=$(grep 'iface..*eth' /etc/network/interfaces | awk '{print $2}')
+	dcerouterIP=$(ifconfig $selectedInterface | awk 'NR==2' | cut -d: -f2 | cut -d' ' -f1)
+
+	hosts="
+127.0.0.1       localhost.localdomain   localhost
+$dcerouterIP    dcerouter
+
+# The following lines are desirable for IPv6 capable hosts
+::1     ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+ff02::3 ip6-allhosts
+"
+	echo "$hosts" >/etc/hosts
+fi
+
+echo "DEBUG: Press enter to start activation"
+echo "DEBUG: Router IP written in /etc/hosts is '$dcerouterIP'"
+read
+
 chmod +x "$DIR"/activation.sh
 if "$DIR"/activation.sh; then
 	echo "Activation went ok"
