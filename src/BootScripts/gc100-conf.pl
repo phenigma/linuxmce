@@ -24,9 +24,9 @@ if($ARGV[0] eq "") {
 	  $db->disconnect();
 	  exit(0);
 	}
-
 	system("/usr/pluto/bin/CreateDevice -i $install -d $dev_templ -I $ip -M $mac\n");
     } else {
+        print "Gc100 as default not found\n";
 	exit(0);
     }
 } else {
@@ -37,9 +37,11 @@ if($ARGV[0] eq "") {
 	    $ip = find_ip();
 	    update_db();
 	} else {
+	    print "Gc100 as default not found\n";
 	    exit(0);
 	}
     }
+    $ip = $ARGV[1];
     $flag = allias_up();
     if($flag == 1) {
         allias_down();
@@ -130,7 +132,7 @@ sub get_template {
 }
 
 sub get_gc100mac {
-  system("curl http://192.168.1.170/Commands.cgi -o gc100mac --silent");
+  system("curl http://192.168.1.70/Commands.cgi -o gc100mac --silent");
   system("curl http://192.168.1.101/Commands.cgi -o gc100mac --silent");
   open(FILE,"gc100mac");
   @data = <FILE>;
@@ -184,14 +186,41 @@ sub allias_down {
 }
 
 sub find_gc100 {
+
+    $host = shift || '192.168.1.70';
+    $port = shift || 80;
+
+    $proto = getprotobyname('tcp');
+
+    $iaddr = inet_aton($host);
+    $paddr = sockaddr_in($port, $iaddr); 
+
     socket(SOCKET, PF_INET, SOCK_STREAM, $proto) or print "socket: $!";
     $var = 0;
     connect(SOCKET, $paddr) or $var=1;
-    if($var == 1) {
-	return 0;
-    } else {
+    if($var == 0) {
         close SOCKET;
 	return 1;
+    }
+    
+    $host = shift || '192.168.1.101';
+    $port = shift || 80;
+           
+    $proto = getprotobyname('tcp');
+                
+    $iaddr = inet_aton($host);
+    $paddr = sockaddr_in($port, $iaddr);
+                        
+    socket(SOCKET, PF_INET, SOCK_STREAM, $proto) or print "socket: $!";
+    $varr = 0;
+    connect(SOCKET, $paddr) or $varr=1;
+    if($varr == 0) {
+      close SOCKET;
+      return 1;
+    }
+    
+    if($var == 1 && $varr == 1) {
+      return 0;
     }
 }
 
@@ -251,6 +280,6 @@ sub update_db {
 }
 
 sub configure_webgc {
-    system("wget -q -T 3 --read-timeout=4 -t 1 \"http://192.168.1.170/commands.cgi?2=$ip&3=255.255.255.0&4=$gw&7=submit\"");
+    system("wget -q -T 3 --read-timeout=4 -t 1 \"http://192.168.1.70/commands.cgi?2=$ip&3=255.255.255.0&4=$gw&7=submit\"");
     system("wget -q -T 3 --read-timeout=4 -t 1 \"http://192.168.1.101/commands.cgi?2=$ip&3=255.255.255.0&4=$gw&7=submit\"");
 }
