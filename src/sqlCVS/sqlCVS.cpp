@@ -574,6 +574,7 @@ void ChangeLoginUsers()
 		{
 			g_GlobalConfig.dceConfig.AddString("sqlCVS_MySqlHost",g_GlobalConfig.m_sDBHost);
 			g_GlobalConfig.dceConfig.AddString("sqlCVS_MySqlUser",g_GlobalConfig.m_sDBUser);
+			g_GlobalConfig.dceConfig.AddString("sqlCVS_MySqlPassword",g_GlobalConfig.m_sDBPassword);
 			g_GlobalConfig.dceConfig.AddString("sqlCVS_MySqlDatabase",g_GlobalConfig.m_sDBName);
 			g_GlobalConfig.dceConfig.AddInteger("sqlCVS_MySqlPort",g_GlobalConfig.m_iDBPort);
 			g_GlobalConfig.dceConfig.AddInteger("sqlCVS_Port",g_GlobalConfig.m_iSqlCVSPort);

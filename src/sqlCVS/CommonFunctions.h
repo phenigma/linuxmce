@@ -95,6 +95,7 @@ namespace sqlCVS
 			m_sTableType="InnoDB";
 			m_sDBHost=dceConfig.ReadString("sqlCVS_MySqlHost","localhost");
 			m_sDBUser=dceConfig.ReadString("sqlCVS_MySqlUser","root");
+			m_sDBPassword=dceConfig.ReadString("sqlCVS_MySqlPassword","");
 			m_sDBName=dceConfig.ReadString("sqlCVS_MySqlDatabase","pluto_main");
 			m_iDBPort=dceConfig.ReadInteger("sqlCVS_MySqlPort",3306);
 			m_iSqlCVSPort=dceConfig.ReadInteger("sqlCVS_Port",3485);

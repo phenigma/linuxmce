@@ -1187,6 +1187,8 @@ void Database::ListTables( )
 	for(MapTable::iterator it=m_mapTable.begin();it!=m_mapTable.end();++it)
 	{
 		Table *pTable = (*it).second;
+		if( pTable->m_bIsSystemTable )
+			continue;
 		cout << "Table: " << pTable->Name_get();
 		if( pTable->Repository_get() )
 			cout << "\t\tRepository: " << pTable->Repository_get()->Name_get();
