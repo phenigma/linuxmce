@@ -22,7 +22,7 @@ function steps($output,$dbADO) {
 		function setMenuItem(mainUrl,selfPage,sender)
 		{
 			if(mainUrl!=\'\'){
-				top.basefrm.forms[0].submit();
+				top.basefrm.document.forms[0].submit();
 				top.basefrm.location=mainUrl;
 			}
 			else
