@@ -4,7 +4,7 @@
 Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Updating startup scripts"
 
 Q="INSERT INTO Device_StartupScript(FK_Device,FK_StartupScript,Boot_Order,Background,Enabled,Parameter)
-SELECT PK_Device, PK_StartupScript,Hybrid_Boot_Order,Hybrid_Background,Hybrid_Enabled,Hybrid_Parameter FROM Device
+SELECT FK_Device_ControlledVia, PK_StartupScript,Hybrid_Boot_Order,Hybrid_Background,Hybrid_Enabled,Hybrid_Parameter FROM Device
 JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate 
 JOIN StartupScript ON 1=1
 LEFT JOIN Device_StartupScript ON Device_StartupScript.FK_Device=PK_Device AND Device_StartupScript.FK_StartupScript=PK_StartupScript

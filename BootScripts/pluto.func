@@ -72,27 +72,27 @@ Logging() {
   TERM=linux
   printf "$severitylevel\t$date\t$module ($type)\t${sc}${message}${rc}\n" >> $logfile
   printf "$severitylevel\t$date\t$module ($type)\t${sc}${message}${rc}\n"
-  if [ $severitylevel -eq 3 ]; then
-    tempfile=$(/bin/tempfile)
-    count=0
-    while [ $count -lt 5 ]; do
-      wget -q -O $tempfile "http://www.plutohome.com/utils/message.php?FKID_Installation=${INSTALLATION}&Severity=${severitylevel}&Message=${message}"
-      response=$(/bin/cat $tempfile)
-      if [ "x$response" = "xLOGGED TO DB EMAIL SENT" ]; then
-        break
-      fi
-      if [ "x$response" = "xERROR INSTALLATION NOT BEING MONITORED" ]; then
-        printf "$SEVERITY_NORMAL\t$date\t$module ($type)\t${snc}This installation is not being monitored${rc}\n" >> $logfile
-        printf "$SEVERITY_NORMAL\t$date\t$module ($type)\t${snc}This installation is not being monitored${rc}\n"
-        break
-      fi
-      printf "$SEVERITY_CRITICAL\t$date\t$module ($type)\t${scc}Failed to report critical error: '$response'${rc}\n" >> $logfile
-      printf "$SEVERITY_CRITICAL\t$date\t$module ($type)\t${scc}Failed to report critical error: '$response'${rc}\n"
-      count=$(($count+1))
-      sleep 5
-    done
-    rm $tempfile
-  fi
+#  if [ $severitylevel -eq 3 ]; then
+#    tempfile=$(/bin/tempfile)
+#    count=0
+#    while [ $count -lt 5 ]; do
+#      wget -q -O $tempfile "http://www.plutohome.com/utils/message.php?FKID_Installation=${INSTALLATION}&Severity=${severitylevel}&Message=${message}"
+#      response=$(/bin/cat $tempfile)
+#      if [ "x$response" = "xLOGGED TO DB EMAIL SENT" ]; then
+#        break
+#      fi
+#      if [ "x$response" = "xERROR INSTALLATION NOT BEING MONITORED" ]; then
+#        printf "$SEVERITY_NORMAL\t$date\t$module ($type)\t${snc}This installation is not being monitored${rc}\n" >> $logfile
+#        printf "$SEVERITY_NORMAL\t$date\t$module ($type)\t${snc}This installation is not being monitored${rc}\n"
+#        break
+#      fi
+#      printf "$SEVERITY_CRITICAL\t$date\t$module ($type)\t${scc}Failed to report critical error: '$response'${rc}\n" >> $logfile
+#      printf "$SEVERITY_CRITICAL\t$date\t$module ($type)\t${scc}Failed to report critical error: '$response'${rc}\n"
+#      count=$(($count+1))
+#      sleep 5
+#    done
+#    rm $tempfile
+#  fi
 }
 
 # Use our own reboot so we know what called it
