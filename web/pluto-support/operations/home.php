@@ -36,7 +36,7 @@ if($package!=0){
 	while ($rowDevices = $resDevices->FetchRow()) 
 	{
 		if ($found == 1) {
-			$out2.=' - ';
+			$out2=' - ';
 		}
 		$found = 1;
 		$devices .= ' <b>'.$rowDevices['Description'].'</b>';

@@ -9,7 +9,7 @@ if($package!=0){
 	$documentLinks='';
 	if($resParentDoc->RecordCount()>0){
 		$rowParentDoc=$resParentDoc->FetchRow();
-		$documentLinks.='<a href="right.php?section=documents/documentDisplay&docID='.$rowParentDoc['PK_Document'].'" target="basefrm">Documentation for '.$rowParentDoc['Title'].'</a><br>';
+		$documentLinks.='<a href="index.php?section=document&docID='.$rowParentDoc['PK_Document'].'" target="_top">Documentation for '.$rowParentDoc['Title'].'</a><br>';
 		
 		$resChilds=$dbADO->Execute('SELECT PK_Document,Title FROM Document WHERE FK_Document_Parent=?',$rowParentDoc['PK_Document']);
 		while($rowChilds=$resChilds->FetchRow()){
