@@ -489,7 +489,7 @@ clock_t ccc=clock();
 
 	//workaround: pocketfrog has a bug somewhere.. doesn't render black text (a mask issue?)
 	if(color == Color(0, 0, 0)) //it's black
-		color = Color(7, 7, 7); 
+		color = Color(7, 7, 7); //almost black :)
 
 	for(int i = 0; i < vectStrings.size(); i++)
 	{
@@ -523,7 +523,7 @@ clock_t ccc=clock();
     if (m_pScreenHistory_Current)
     {
         PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
-		//SDL_FillRect(m_pScreenImage, NULL, SDL_MapRGBA(m_pScreenImage->format, 0, 0, 0, 255));
+		GetDisplay()->FillRect(0, 0, m_iWidth, m_iHeight, 0x0000);
     }
 
     Orbiter::RenderScreen();
