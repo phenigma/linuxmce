@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../DCE;..;../Libraries/pthreads-win32/include;/mysql/include"
+				AdditionalIncludeDirectories="../DCE;..;../../libs/Libraries/pthreads-win32/include;/mysql/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;DEBUG"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -106,9 +106,6 @@
 				RelativePath=".\Database_pluto_security.cpp">
 			</File>
 			<File
-				RelativePath=".\TableRow.cpp">
-			</File>
-			<File
 				RelativePath=".\Table_Alert.cpp">
 			</File>
 			<File
@@ -141,7 +138,9 @@
 			<File
 				RelativePath=".\Table_psc_security_tables.cpp">
 			</File>
-
+			<File
+				RelativePath=".\TableRow.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

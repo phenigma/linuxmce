@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;../DCE/;../Libraries/pthreads-win32/include;/mysql/include"
+				AdditionalIncludeDirectories="..;../DCE/;../../libs/Libraries/pthreads-win32/include;/mysql/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -35,7 +35,7 @@
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib libmysql.lib pluto_main.lib"
 				OutputFile="../bin/Telecom_Plugin.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="/mysql/lib/debug;../Libraries/pthreads-win32/lib;../lib"
+				AdditionalLibraryDirectories="/mysql/lib/debug;../../libs/Libraries/pthreads-win32/lib;../lib"
 				ModuleDefinitionFile="Telecom_Plugin.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/Telecom_Plugin.pdb"

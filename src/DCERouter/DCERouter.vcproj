@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../DCE;&quot;../Libraries/pthreads-win32/include&quot;;/mysql/include;.."
+				AdditionalIncludeDirectories="../DCE;&quot;../../libs/Libraries/pthreads-win32/include&quot;;/mysql/include;.."
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;DEBUG;"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -35,7 +35,7 @@
 				AdditionalDependencies="pthreadvc.lib wsock32.lib libmysql.lib pluto_main.lib dce.lib"
 				OutputFile="../bin/DCERouter.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="/mysql/lib/debug;../lib;&quot;../Libraries/pthreads-win32/lib&quot;"
+				AdditionalLibraryDirectories="/mysql/lib/debug;../lib;&quot;../../libs/Libraries/pthreads-win32/lib&quot;"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/DCERouter.pdb"
 				SubSystem="1"

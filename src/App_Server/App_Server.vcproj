@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;../DCE/;../Libraries/pthreads-win32/include;/mysql/include"
+				AdditionalIncludeDirectories="..;../DCE/;&quot;../../libs/Libraries/pthreads-win32/include&quot;;/mysql/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -35,7 +35,7 @@
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib"
 				OutputFile="../bin/App_Server.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="../Libraries/pthreads-win32/lib;../lib"
+				AdditionalLibraryDirectories="&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/App_Server.pdb"
 				SubSystem="1"
@@ -120,23 +120,23 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
-				RelativePath="Main.cpp">
-			</File>
-			<File
 				RelativePath="App_Server.cpp">
 			</File>
 			<File
 				RelativePath="..\Gen_Devices\App_ServerBase.cpp">
+			</File>
+			<File
+				RelativePath="Main.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
-				RelativePath="..\DCE\DCEDeviceData_Impl.h">
+				RelativePath="App_Server.h">
 			</File>
 			<File
-				RelativePath="App_Server.h">
+				RelativePath="..\DCE\DCEDeviceData_Impl.h">
 			</File>
 		</Filter>
 		<Filter

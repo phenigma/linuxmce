@@ -19,16 +19,14 @@ using namespace std;
 /** linking automatically with CXImage.lib static library */
 
 #ifdef _DEBUG
-	#pragma comment(lib, "../Libraries/CXImage/CXImage/Debug/cximage.lib")
-	#pragma comment(lib, "../Libraries/CXImage/png/Debug/png.lib")
-	#pragma comment(lib, "../Libraries/CXImage/zlib/Debug/zlib.lib")
+	#pragma comment(lib, "../../libs/Libraries/CXImage/CXImage/Debug/cximage.lib")
+	#pragma comment(lib, "../../libs/Libraries/CXImage/png/Debug/png.lib")
+	#pragma comment(lib, "../../libs/Libraries/CXImage/zlib/Debug/zlib.lib")
 #else
-	#pragma comment(lib, "../Libraries/CXImage/CXImage/Release/cximage.lib")
-	#pragma comment(lib, "../Libraries/CXImage/png/Release/png.lib")
-	#pragma comment(lib, "../Libraries/CXImage/zlib/Release/zlib.lib")
+	#pragma comment(lib, "../../libs/Libraries/CXImage/CXImage/Release/cximage.lib")
+	#pragma comment(lib, "../../libs/Libraries/CXImage/png/Release/png.lib")
+	#pragma comment(lib, "../../libs/Libraries/CXImage/zlib/Release/zlib.lib")
 #endif
-
-
 
 /** size of every images in image list */
 #define THUMBNAIL_HEIGHT		45	//45 px

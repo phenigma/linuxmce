@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;../DCE/;../Libraries/pthreads-win32/include;/mysql/include"
+				AdditionalIncludeDirectories="..;../DCE/;&quot;../../libs/Libraries/pthreads-win32/include&quot;;/mysql/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -35,7 +35,7 @@
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib libmysql.lib pluto_main.lib"
 				OutputFile="../bin/Climate_Plugin.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="/mysql/lib/debug;../Libraries/pthreads-win32/lib;../lib"
+				AdditionalLibraryDirectories="/mysql/lib/debug;&quot;../../libs/Libraries/pthreads-win32/lib&quot;;../lib"
 				ModuleDefinitionFile="Climate_Plugin.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/Climate_Plugin.pdb"

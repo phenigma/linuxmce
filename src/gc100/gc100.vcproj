@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;../DCE/;../Libraries/pthreads-win32/include;/mysql/include"
+				AdditionalIncludeDirectories="..;../DCE/;&quot;../../libs/Libraries/pthreads-win32/include&quot;;/mysql/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;DEBUG"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -35,7 +35,7 @@
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib IRBase.lib Serial.lib"
 				OutputFile="../bin/gc100.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="../Libraries/pthreads-win32/lib;../lib"
+				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/gc100.pdb"
 				SubSystem="1"

@@ -68,7 +68,7 @@ USERINCLUDE ..\..\BD
 USERINCLUDE ..\..\PlutoUtils
 USERINCLUDE ..\..\VIPShared
 USERINCLUDE ..\..
-USERINCLUDE ..\..\..\..\Symbian\7.0s\Series60_v21\Series60Ex\helperfunctions
+USERINCLUDE ..\..\..\..\..\Symbian\7.0s\Series60_v21\Series60Ex\helperfunctions
 
 SYSTEMINCLUDE   . \epoc32\include
 

@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;../DCE/;../Libraries/pthreads-win32/include;/mysql/include"
+				AdditionalIncludeDirectories="..;../DCE/;../../libs/Libraries/pthreads-win32/include;/mysql/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -35,7 +35,7 @@
 				AdditionalDependencies="pthreadVC.lib wsock32.lib  libmySQL.lib DCE.lib pluto_main.lib"
 				OutputFile="../bin/Orbiter_Plugin.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="\mysql\lib\Debug;../Libraries/pthreads-win32/lib;../lib"
+				AdditionalLibraryDirectories="\mysql\lib\Debug;../../libs/Libraries/pthreads-win32/lib;../lib"
 				ModuleDefinitionFile="Orbiter_Plugin.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/Orbiter_Plugin.pdb"

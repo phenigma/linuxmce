@@ -2,9 +2,9 @@
 
 echo Checking out pluto sources...
 cd "c:\Program Files\Subversion\bin"
-svn co svn://10.0.0.150/pluto2/trunk  /pluto.makerelease/trunk
+svn co http://10.0.0.170/pluto/trunk /pluto.makerelease/trunk
 
-cd "c:\pluto.makerelease\trunk"
+cd "c:\pluto.makerelease\trunk\src"
 
 echo Building pluto(windows ce) sources...
 call "MakeRelease_Symbian_S60.bat"
@@ -30,7 +30,7 @@ echo Copying SIS files...
 copy *.sis "\\10.0.0.150\www_docs\WinMakeRelease_output\bin"
 
 echo Copying LIB files...
-cd "c:\pluto.makerelease\trunk\lib"
+cd "c:\pluto.makerelease\trunk\src\lib"
 copy *.lib "\\10.0.0.150\www_docs\WinMakeRelease_output\lib"
 
 

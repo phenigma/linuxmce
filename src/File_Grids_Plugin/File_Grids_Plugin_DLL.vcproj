@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;../DCE/;../Libraries/pthreads-win32/include;/mysql/include"
+				AdditionalIncludeDirectories="..;../DCE/;&quot;../../libs/Libraries/pthreads-win32/include&quot;;/mysql/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;DEBUG"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -35,7 +35,7 @@
 				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE.lib pluto_main.lib pluto_media.lib"
 				OutputFile="../bin/File_Grids_Plugin.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="C:\mysql\lib\Debug;../Libraries/pthreads-win32/lib;../lib"
+				AdditionalLibraryDirectories="C:\mysql\lib\Debug;../../libs/Libraries/pthreads-win32/lib;../lib"
 				ModuleDefinitionFile="File_Grids_Plugin.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/File_Grids_Plugin.pdb"

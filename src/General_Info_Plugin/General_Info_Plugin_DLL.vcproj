@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;../DCE/;../Libraries/pthreads-win32/include;/mysql/include;../PlutoUtils"
+				AdditionalIncludeDirectories="..;../DCE/;&quot;../../libs/Libraries/pthreads-win32/include&quot;;/mysql/include;../PlutoUtils"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -35,7 +35,7 @@
 				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE.lib pluto_main.lib"
 				OutputFile="../bin/General_Info_Plugin.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="\mysql\lib\Debug;../Libraries/pthreads-win32/lib;../lib"
+				AdditionalLibraryDirectories="\mysql\lib\Debug;../../libs/Libraries/pthreads-win32/lib;../lib"
 				ModuleDefinitionFile="General_Info_Plugin.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/General_Info_Plugin.pdb"

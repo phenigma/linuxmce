@@ -22,7 +22,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;../DCE;../Libraries/CXImage/CxImage/;&quot;../Libraries/pthreads-win32/include&quot;;/mysql/Include"
+				AdditionalIncludeDirectories="..;../DCE;../../libs/Libraries/CXImage/CxImage/;&quot;../../libs/Libraries/pthreads-win32/include&quot;;/mysql/Include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;MULTI_THREADED;VIPESTABLISHMENT;XBT_SOCKET"
 				RuntimeLibrary="3"
 				PrecompiledHeaderFile=".\Debug/PlutoVIP.pch"
@@ -38,12 +38,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="tiff.lib cximage.lib jpeg.lib pthreadVC.lib stddll.lib"
+				AdditionalDependencies="stddll.lib cximage.lib tiff.lib jpeg.lib pthreadVC.lib"
 				ShowProgress="0"
 				OutputFile="../Bin/PlutoVIP.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="../Libraries/CXImage/tiff/Debug;../Libraries/CXImage/jpeg/Debug/;../Libraries/CXImage/CXImage/Debug/;&quot;../Libraries/pthreads-win32/lib/&quot;;../winbluetooth/lib/"
+				AdditionalLibraryDirectories="../../libs/Libraries/CXImage/tiff/Debug;../../libs/Libraries/CXImage/jpeg/Debug/;../../libs/Libraries/CXImage/CXImage/Debug/;&quot;../../libs/Libraries/pthreads-win32/lib/&quot;;../winbluetooth/lib/"
 				IgnoreAllDefaultLibraries="FALSE"
 				IgnoreDefaultLibraryNames="libc.lib, libcmt.lib, msvcrt.lib, libcd.lib, libcmtd.lib"
 				GenerateDebugInformation="TRUE"
@@ -87,7 +87,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..;../DCE;../Libraries/CXImage/CxImage/;&quot;../Libraries/pthreads-win32/include&quot;;/mysql/Include"
+				AdditionalIncludeDirectories="..;../DCE;../../libs/Libraries/CXImage/CxImage/;&quot;../../libs/Libraries/pthreads-win32/include&quot;;/mysql/Include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;MULTI_THREADED;VIPESTABLISHMENT"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -108,7 +108,7 @@
 				OutputFile="../Release/PlutoVIP.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="../Libraries/CXImage/tiff/Release;../Libraries/CXImage/jpeg/Release/;../Libraries/CXImage/CXImage/Release/;&quot;../Libraries/pthreads-win32/lib/&quot;;../winbluetooth/lib/Release"
+				AdditionalLibraryDirectories="../../libs/Libraries/CXImage/tiff/Release;../../libs/Libraries/CXImage/jpeg/Release/;../../libs/Libraries/CXImage/CXImage/Release/;&quot;../../libs/Libraries/pthreads-win32/lib/&quot;;../winbluetooth/lib/Release"
 				IgnoreAllDefaultLibraries="FALSE"
 				IgnoreDefaultLibraryNames=""
 				ProgramDatabaseFile=".\Release/PlutoVIP.pdb"
@@ -534,10 +534,10 @@
 				RelativePath=".\StaticPicture.h">
 			</File>
 			<File
-				RelativePath="..\VIPShared\stdafx.h">
+				RelativePath=".\StdAfx.h">
 			</File>
 			<File
-				RelativePath=".\StdAfx.h">
+				RelativePath="..\VIPShared\stdafx.h">
 			</File>
 		</Filter>
 		<Filter
