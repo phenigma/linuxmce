@@ -330,15 +330,17 @@ int main( int argc, char *argv[] )
 
 		while( true ) /** An endless loop processing commands */
 		{
-			while( g_GlobalConfig.m_sCommand.length( )==0 )
+			while( !g_GlobalConfig.m_bNoPrompts && g_GlobalConfig.m_sCommand.length( )==0 )
 			{
 				g_GlobalConfig.m_sCommand=GetCommand( );
 				database.m_bInteractiveMode=true;
 			}
-			if( database.bIsInvalid( ) && g_GlobalConfig.m_sCommand!="import" && g_GlobalConfig.m_sCommand!="update-psc")
+			if( database.bIsInvalid( ) && g_GlobalConfig.m_sCommand!="import" )
 			{
 				g_GlobalConfig.m_sCommand="";
-				cerr << "Database is invalid. Import and update-psc " << endl << "are the only available options" << endl;
+				cerr << "Database is invalid. Import " << endl << "is the only available options" << endl;
+				if( g_GlobalConfig.m_bNoPrompts )
+					exit(1);
 				continue;
 			}
 			if( g_GlobalConfig.m_sCommand=="create" )
