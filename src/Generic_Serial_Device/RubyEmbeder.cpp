@@ -69,12 +69,20 @@ RubyEmbeder::loadCode(RubyEmbederCodeSupplier *psup) throw(RubyException) {
 		//RubyStdStreamRedirector in(HF_STDIN);
 		//write(in, code.c_str(), code.length());
 	}
-	rb_eval_string(code.c_str());
 	
-/*	rb_load_file("-");
-	ruby_exec();
-	*/
+//	rb_eval_string(code.c_str());
+	int error = 0;
+	VALUE vret = rb_protect(_loadcode, reinterpret_cast<VALUE>(code.c_str()), &error);
+	if(error) {
+		throw RubyException("Syntax Error");
+	}
 }
 
+VALUE 
+RubyEmbeder::_loadcode(VALUE arg) {
+	const char *pstr = reinterpret_cast<const char*>(arg);
+	rb_eval_string(pstr);
+	return 0;
+}
 
 }

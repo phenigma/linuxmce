@@ -44,6 +44,9 @@ public:
 	static RubyEmbeder* getInstance();
 
 private:
+	static VALUE _loadcode(VALUE arg);
+	
+private:
 	static RubyEmbeder* s_instance_;
 };
 
