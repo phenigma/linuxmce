@@ -69,16 +69,20 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(int DeviceID, string Se
 	//snapshot config
 	fprintf(fp,"snapshot_interval 3600\n");
 	//Output Directory
-	if(FileUtils::DirExists("/var/www/cam") == false) {
-		FileUtils::MakeDir("/var/www/cam");
+	sLine = "/home/cameras/" + StringUtils::itos(DeviceID);
+	if(FileUtils::DirExists(sLine) == false) {
+		FileUtils::MakeDir(sLine);
 	}
-	fprintf(fp,"target_dir /var/www/cam\n");
+	fprintf(fp,"target_dir %s\n",sLine.c_str());
 
 	for(i = 1 ; i < atoi(sNumberOfPorts.c_str())+1 ; i++) {
 		sLine = "#thread /etc/motion/thread" + StringUtils::itos(i) + ".conf";
 		fprintf(fp,"%s\n",sLine.c_str());
 	}
-
+	sLine = "snapshot_filename %Y/%m/%d/%H/%M_%S";
+	fprintf(fp,"%s\n",sLine.c_str());
+	sLine = "jpeg_filename %Y/%m/%d/%H/%M_%S";
+	fprintf(fp,"%s\n",sLine.c_str());
 	fclose(fp);
 	g_pPlutoLogger->Write(LV_STATUS, "Starting motion server");
 	system("/usr/bin/motion");
