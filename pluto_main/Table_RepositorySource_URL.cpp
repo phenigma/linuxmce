@@ -294,9 +294,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[2])
 return "NULL";
 
-char buf[511];
+char *buf = new char[511];
 mysql_real_escape_string(table->database->db_handle, buf, m_URL.c_str(), (unsigned long) m_URL.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_RepositorySource_URL::FK_Country_asSQL()
@@ -319,9 +321,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[4])
 return "NULL";
 
-char buf[61];
+char *buf = new char[61];
 mysql_real_escape_string(table->database->db_handle, buf, m_Username.c_str(), (unsigned long) m_Username.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_RepositorySource_URL::Password_asSQL()
@@ -331,9 +335,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[5])
 return "NULL";
 
-char buf[61];
+char *buf = new char[61];
 mysql_real_escape_string(table->database->db_handle, buf, m_Password.c_str(), (unsigned long) m_Password.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_RepositorySource_URL::Comments_asSQL()
@@ -343,9 +349,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[6])
 return "NULL";
 
-char buf[61];
+char *buf = new char[61];
 mysql_real_escape_string(table->database->db_handle, buf, m_Comments.c_str(), (unsigned long) m_Comments.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_RepositorySource_URL::psc_id_asSQL()
@@ -407,9 +415,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[11])
 return "NULL";
 
-char buf[29];
+char *buf = new char[29];
 mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 

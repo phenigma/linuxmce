@@ -305,9 +305,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[2])
 return "NULL";
 
-char buf[101];
+char *buf = new char[101];
 mysql_real_escape_string(table->database->db_handle, buf, m_Description.c_str(), (unsigned long) m_Description.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_FloorplanObjectType::Define_asSQL()
@@ -317,9 +319,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[3])
 return "NULL";
 
-char buf[101];
+char *buf = new char[101];
 mysql_real_escape_string(table->database->db_handle, buf, m_Define.c_str(), (unsigned long) m_Define.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_FloorplanObjectType::Direction_asSQL()
@@ -329,9 +333,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[4])
 return "NULL";
 
-char buf[9];
+char *buf = new char[9];
 mysql_real_escape_string(table->database->db_handle, buf, m_Direction.c_str(), (unsigned long) m_Direction.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_FloorplanObjectType::FK_DesignObj_Control_asSQL()
@@ -354,9 +360,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[6])
 return "NULL";
 
-char buf[401];
+char *buf = new char[401];
 mysql_real_escape_string(table->database->db_handle, buf, m_Filename.c_str(), (unsigned long) m_Filename.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_FloorplanObjectType::FillX_asSQL()
@@ -444,9 +452,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[13])
 return "NULL";
 
-char buf[29];
+char *buf = new char[29];
 mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 

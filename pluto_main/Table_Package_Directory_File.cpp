@@ -325,9 +325,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[4])
 return "NULL";
 
-char buf[61];
+char *buf = new char[61];
 mysql_real_escape_string(table->database->db_handle, buf, m_File.c_str(), (unsigned long) m_File.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_Package_Directory_File::Search_asSQL()
@@ -337,9 +339,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[5])
 return "NULL";
 
-char buf[511];
+char *buf = new char[511];
 mysql_real_escape_string(table->database->db_handle, buf, m_Search.c_str(), (unsigned long) m_Search.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_Package_Directory_File::MakeCommand_asSQL()
@@ -349,9 +353,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[6])
 return "NULL";
 
-char buf[511];
+char *buf = new char[511];
 mysql_real_escape_string(table->database->db_handle, buf, m_MakeCommand.c_str(), (unsigned long) m_MakeCommand.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_Package_Directory_File::psc_id_asSQL()
@@ -413,9 +419,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[11])
 return "NULL";
 
-char buf[29];
+char *buf = new char[29];
 mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 

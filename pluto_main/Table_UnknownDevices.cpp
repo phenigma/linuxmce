@@ -254,9 +254,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[1])
 return "NULL";
 
-char buf[61];
+char *buf = new char[61];
 mysql_real_escape_string(table->database->db_handle, buf, m_Description.c_str(), (unsigned long) m_Description.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_UnknownDevices::MacAddress_asSQL()
@@ -266,9 +268,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[2])
 return "NULL";
 
-char buf[33];
+char *buf = new char[33];
 mysql_real_escape_string(table->database->db_handle, buf, m_MacAddress.c_str(), (unsigned long) m_MacAddress.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_UnknownDevices::IPAddress_asSQL()
@@ -278,9 +282,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[3])
 return "NULL";
 
-char buf[25];
+char *buf = new char[25];
 mysql_real_escape_string(table->database->db_handle, buf, m_IPAddress.c_str(), (unsigned long) m_IPAddress.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_UnknownDevices::psc_id_asSQL()
@@ -342,9 +348,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[8])
 return "NULL";
 
-char buf[29];
+char *buf = new char[29];
 mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 

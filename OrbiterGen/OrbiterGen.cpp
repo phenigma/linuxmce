@@ -220,10 +220,17 @@ int OrbiterGenerator::DoIt()
 		exit(1);
 	}
 
-	m_pRow_Orbiter = mds.Orbiter_get()->GetRow(m_iPK_Orbiter);
 	m_pRow_Device = mds.Device_get()->GetRow(m_iPK_Orbiter);
-	if( !m_pRow_Orbiter || !m_pRow_Device )
+	if( !m_pRow_Device )
 		throw "No orbiter info for device: "; 
+
+	m_pRow_Orbiter = mds.Orbiter_get()->GetRow(m_iPK_Orbiter);
+	if( !m_pRow_Orbiter )
+	{
+		m_pRow_Orbiter = mds.Orbiter_get()->AddRow();
+		m_pRow_Orbiter->PK_Orbiter_set(m_iPK_Orbiter);
+		m_pRow_Orbiter->Table_Orbiter_get()->Commit();
+	}
 
 	cout << "Generating: " << m_pRow_Device->Description_get() << endl;
 

@@ -262,9 +262,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[2])
 return "NULL";
 
-char buf[131071];
+char *buf = new char[131071];
 mysql_real_escape_string(table->database->db_handle, buf, m_InputFile.c_str(), (unsigned long) m_InputFile.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_ConfigType_File::OutputFile_asSQL()
@@ -274,9 +276,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[3])
 return "NULL";
 
-char buf[131071];
+char *buf = new char[131071];
 mysql_real_escape_string(table->database->db_handle, buf, m_OutputFile.c_str(), (unsigned long) m_OutputFile.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_ConfigType_File::EFS_asSQL()
@@ -351,9 +355,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[9])
 return "NULL";
 
-char buf[29];
+char *buf = new char[29];
 mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 

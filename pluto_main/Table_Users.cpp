@@ -371,9 +371,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[1])
 return "NULL";
 
-char buf[51];
+char *buf = new char[51];
 mysql_real_escape_string(table->database->db_handle, buf, m_UserName.c_str(), (unsigned long) m_UserName.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_Users::Password_asSQL()
@@ -383,9 +385,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[2])
 return "NULL";
 
-char buf[65];
+char *buf = new char[65];
 mysql_real_escape_string(table->database->db_handle, buf, m_Password.c_str(), (unsigned long) m_Password.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_Users::samePasswordMasterUsers_asSQL()
@@ -447,9 +451,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[7])
 return "NULL";
 
-char buf[41];
+char *buf = new char[41];
 mysql_real_escape_string(table->database->db_handle, buf, m_FirstName.c_str(), (unsigned long) m_FirstName.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_Users::LastName_asSQL()
@@ -459,9 +465,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[8])
 return "NULL";
 
-char buf[61];
+char *buf = new char[61];
 mysql_real_escape_string(table->database->db_handle, buf, m_LastName.c_str(), (unsigned long) m_LastName.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_Users::Nickname_asSQL()
@@ -471,9 +479,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[9])
 return "NULL";
 
-char buf[31];
+char *buf = new char[31];
 mysql_real_escape_string(table->database->db_handle, buf, m_Nickname.c_str(), (unsigned long) m_Nickname.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_Users::ExtensionRingTimeout_asSQL()
@@ -496,9 +506,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[11])
 return "NULL";
 
-char buf[101];
+char *buf = new char[101];
 mysql_real_escape_string(table->database->db_handle, buf, m_ForwardEmail.c_str(), (unsigned long) m_ForwardEmail.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_Users::FK_Language_asSQL()
@@ -599,9 +611,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[19])
 return "NULL";
 
-char buf[29];
+char *buf = new char[29];
 mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 

@@ -281,9 +281,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[1])
 return "NULL";
 
-char buf[21];
+char *buf = new char[21];
 mysql_real_escape_string(table->database->db_handle, buf, m_Date.c_str(), (unsigned long) m_Date.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_News::FK_Package_asSQL()
@@ -306,9 +308,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[3])
 return "NULL";
 
-char buf[81];
+char *buf = new char[81];
 mysql_real_escape_string(table->database->db_handle, buf, m_Title.c_str(), (unsigned long) m_Title.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_News::ShortSummary_asSQL()
@@ -318,9 +322,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[4])
 return "NULL";
 
-char buf[511];
+char *buf = new char[511];
 mysql_real_escape_string(table->database->db_handle, buf, m_ShortSummary.c_str(), (unsigned long) m_ShortSummary.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_News::FullText_asSQL()
@@ -330,9 +336,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[5])
 return "NULL";
 
-char buf[33554431];
+char *buf = new char[5000000];
 mysql_real_escape_string(table->database->db_handle, buf, m_FullText.c_str(), (unsigned long) m_FullText.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_News::psc_id_asSQL()
@@ -394,9 +402,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[10])
 return "NULL";
 
-char buf[29];
+char *buf = new char[29];
 mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 

@@ -318,9 +318,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[4])
 return "NULL";
 
-char buf[41];
+char *buf = new char[41];
 mysql_real_escape_string(table->database->db_handle, buf, m_Description.c_str(), (unsigned long) m_Description.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_InfraredCode::IRData_asSQL()
@@ -330,9 +332,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[5])
 return "NULL";
 
-char buf[33554431];
+char *buf = new char[5000000];
 mysql_real_escape_string(table->database->db_handle, buf, m_IRData.c_str(), (unsigned long) m_IRData.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_InfraredCode::psc_id_asSQL()
@@ -394,9 +398,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[10])
 return "NULL";
 
-char buf[29];
+char *buf = new char[29];
 mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 

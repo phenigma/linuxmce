@@ -824,9 +824,16 @@ string TableInfo_Generator::get_fields_sql_getters_definition()
 		else
 			if ((*i)->getCType() == "string")
 		{
-			sCode = sCode + "char buf[" + int2string(1+2*(*i)->m_iLength) + "];\n";		
+			int iSize = 1+2*(*i)->m_iLength;
+			if( iSize>5000000 )
+				iSize=5000000;  // Don't allow runaway fields with big text.  Assume 5MB is the maximum we would need to use
+
+			sCode = sCode + "char *buf = new char[" + int2string(iSize) + "];\n";		
 			sCode = sCode + "mysql_real_escape_string(table->database->db_handle, buf, m_" + (*i)->m_pcFieldName + ".c_str(), (unsigned long) m_" + (*i)->m_pcFieldName + ".size());\n";
-			sCode = sCode + "return string("")+\"\\\"\"+buf+\"\\\"\";\n";
+
+			sCode = sCode + "string s=string("")+\"\\\"\"+buf+\"\\\"\";\n";
+			sCode = sCode + "delete buf;\n";
+			sCode = sCode + "return s;\n";
 		}
 		else
 			sCode = sCode + "return string("")+\"\\\"\"+m_" + (*i)->m_pcFieldName+"+\"\\\"\";\n";

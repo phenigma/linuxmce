@@ -324,9 +324,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[3])
 return "NULL";
 
-char buf[201];
+char *buf = new char[201];
 mysql_real_escape_string(table->database->db_handle, buf, m_Description.c_str(), (unsigned long) m_Description.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_CannedEvents_CriteriaParmList::Comments_asSQL()
@@ -336,9 +338,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[4])
 return "NULL";
 
-char buf[201];
+char *buf = new char[201];
 mysql_real_escape_string(table->database->db_handle, buf, m_Comments.c_str(), (unsigned long) m_Comments.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_CannedEvents_CriteriaParmList::Operator_asSQL()
@@ -361,9 +365,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[6])
 return "NULL";
 
-char buf[101];
+char *buf = new char[101];
 mysql_real_escape_string(table->database->db_handle, buf, m_DefaultValue.c_str(), (unsigned long) m_DefaultValue.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_CannedEvents_CriteriaParmList::ExtraInfo_asSQL()
@@ -373,9 +379,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[7])
 return "NULL";
 
-char buf[131071];
+char *buf = new char[131071];
 mysql_real_escape_string(table->database->db_handle, buf, m_ExtraInfo.c_str(), (unsigned long) m_ExtraInfo.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_CannedEvents_CriteriaParmList::Required_asSQL()
@@ -450,9 +458,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[13])
 return "NULL";
 
-char buf[29];
+char *buf = new char[29];
 mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 

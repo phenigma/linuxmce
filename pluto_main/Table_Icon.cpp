@@ -294,9 +294,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[1])
 return "NULL";
 
-char buf[51];
+char *buf = new char[51];
 mysql_real_escape_string(table->database->db_handle, buf, m_Define.c_str(), (unsigned long) m_Define.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_Icon::Description_asSQL()
@@ -306,9 +308,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[2])
 return "NULL";
 
-char buf[51];
+char *buf = new char[51];
 mysql_real_escape_string(table->database->db_handle, buf, m_Description.c_str(), (unsigned long) m_Description.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_Icon::TransparentColor_asSQL()
@@ -331,9 +335,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[4])
 return "NULL";
 
-char buf[101];
+char *buf = new char[101];
 mysql_real_escape_string(table->database->db_handle, buf, m_MainFileName.c_str(), (unsigned long) m_MainFileName.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_Icon::SelectedFileName_asSQL()
@@ -343,9 +349,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[5])
 return "NULL";
 
-char buf[101];
+char *buf = new char[101];
 mysql_real_escape_string(table->database->db_handle, buf, m_SelectedFileName.c_str(), (unsigned long) m_SelectedFileName.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_Icon::AltFileNames_asSQL()
@@ -355,9 +363,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[6])
 return "NULL";
 
-char buf[401];
+char *buf = new char[401];
 mysql_real_escape_string(table->database->db_handle, buf, m_AltFileNames.c_str(), (unsigned long) m_AltFileNames.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_Icon::BackgroundFileName_asSQL()
@@ -367,9 +377,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[7])
 return "NULL";
 
-char buf[101];
+char *buf = new char[101];
 mysql_real_escape_string(table->database->db_handle, buf, m_BackgroundFileName.c_str(), (unsigned long) m_BackgroundFileName.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_Icon::psc_id_asSQL()
@@ -431,9 +443,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[12])
 return "NULL";
 
-char buf[29];
+char *buf = new char[29];
 mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 

@@ -336,9 +336,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[1])
 return "NULL";
 
-char buf[61];
+char *buf = new char[61];
 mysql_real_escape_string(table->database->db_handle, buf, m_Description.c_str(), (unsigned long) m_Description.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_Distro::Define_asSQL()
@@ -348,9 +350,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[2])
 return "NULL";
 
-char buf[51];
+char *buf = new char[51];
 mysql_real_escape_string(table->database->db_handle, buf, m_Define.c_str(), (unsigned long) m_Define.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_Distro::FK_OperatingSystem_asSQL()
@@ -373,9 +377,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[4])
 return "NULL";
 
-char buf[121];
+char *buf = new char[121];
 mysql_real_escape_string(table->database->db_handle, buf, m_Installer.c_str(), (unsigned long) m_Installer.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_Distro::KickStartCD_asSQL()
@@ -385,9 +391,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[5])
 return "NULL";
 
-char buf[121];
+char *buf = new char[121];
 mysql_real_escape_string(table->database->db_handle, buf, m_KickStartCD.c_str(), (unsigned long) m_KickStartCD.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_Distro::Binaries_asSQL()
@@ -397,9 +405,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[6])
 return "NULL";
 
-char buf[121];
+char *buf = new char[121];
 mysql_real_escape_string(table->database->db_handle, buf, m_Binaries.c_str(), (unsigned long) m_Binaries.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_Distro::SourceCode_asSQL()
@@ -409,9 +419,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[7])
 return "NULL";
 
-char buf[121];
+char *buf = new char[121];
 mysql_real_escape_string(table->database->db_handle, buf, m_SourceCode.c_str(), (unsigned long) m_SourceCode.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_Distro::Confirmed_asSQL()
@@ -525,9 +537,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[16])
 return "NULL";
 
-char buf[29];
+char *buf = new char[29];
 mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 

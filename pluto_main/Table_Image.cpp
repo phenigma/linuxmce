@@ -231,9 +231,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[0])
 return "NULL";
 
-char buf[201];
+char *buf = new char[201];
 mysql_real_escape_string(table->database->db_handle, buf, m_PK_Image.c_str(), (unsigned long) m_PK_Image.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_Image::Date_asSQL()
@@ -243,9 +245,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[1])
 return "NULL";
 
-char buf[39];
+char *buf = new char[39];
 mysql_real_escape_string(table->database->db_handle, buf, m_Date.c_str(), (unsigned long) m_Date.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 string Row_Image::Width_asSQL()
@@ -333,9 +337,11 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[8])
 return "NULL";
 
-char buf[29];
+char *buf = new char[29];
 mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
-return string()+"\""+buf+"\"";
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
 }
 
 
