@@ -24,6 +24,7 @@ Gen_Dev_Files += $(GENDEV)/Media_PluginBase.cpp $(GENDEV)/Datagrid_PluginBase.cp
 sources += \
 	../Orbiter_Plugin/FollowMe_Plugin.cpp \
 	../Media_Plugin/MediaHandlerInfo.cpp \
+	../Media_Plugin/MediaHandlerBase.cpp \
 	../Media_Plugin/Media_Plugin.cpp \
 	../Media_Plugin/MediaAttributes.cpp \
 	../Datagrid_Plugin/Datagrid_Plugin.cpp \
