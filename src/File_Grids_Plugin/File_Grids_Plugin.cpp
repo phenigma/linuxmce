@@ -44,6 +44,16 @@ using namespace DCE;
 
 #include "FileListOps.h"
 
+static bool FileNameComparer(FileDetails *x, FileDetails *y)
+{
+	return StringUtils::ToUpper(x->m_sFileName)<StringUtils::ToUpper(y->m_sFileName);
+}
+
+static bool FileDateComparer(FileDetails *x, FileDetails *y)
+{
+	return x->m_tDate<y->m_tDate;
+}
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 File_Grids_Plugin::File_Grids_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -201,7 +211,13 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 	}
 
 	list<FileDetails *> listFileDetails;
-	GetDirContents(listFileDetails,PathsToScan,bSortByDate,Extensions);
+	GetDirContents(listFileDetails,PathsToScan,Extensions);
+
+	if( bSortByDate )
+		listFileDetails.sort(FileDateComparer);
+	else
+		listFileDetails.sort(FileNameComparer);
+
 
 	int iRow=0;
 	if( sSubDirectory.length() )

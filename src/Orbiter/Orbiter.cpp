@@ -2604,6 +2604,8 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
                 fpObj->DeviceDescription=StringUtils::Tokenize(sResult, "|", pos);
                 fpObj->Type=atoi(StringUtils::Tokenize(sResult, "|", pos).c_str());
                 fpObj->pObj = FindObject(fpObj->ObjectID);
+				if( !fpObj->pObj )
+					g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find floorplan object: %s",fpObj->ObjectID.c_str());
 
 				g_pPlutoLogger->Write(LV_STATUS,"Adding device %d %s to floorplan", fpObj->PK_Device, fpObj->DeviceDescription.c_str());
 
@@ -2637,7 +2639,7 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 //------------------------------------------------------------------------
 void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Screen, DesignObj_Orbiter *pObj_Parent, GraphicType Type,  int Lev )
 {
-    if(  pObj->m_sPK_DesignObj_TiedTo.find( "2938::0" )!=string::npos  )
+    if(  pObj->m_ObjectID.find( "2211.0.0.2233" )!=string::npos  )
     {
         int k=2;
     }

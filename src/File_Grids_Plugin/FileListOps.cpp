@@ -45,7 +45,7 @@ bool PathEq(string Path1, string Path2)
     return Path1 == Path2;
 }
 
-void GetDirContents(list<FileDetails *> &listFileNames,string Path, bool bSortByDate, string sValidExtensions_CSV)
+void GetDirContents(list<FileDetails *> &listFileNames,string Path, string sValidExtensions_CSV)
 {
     string BasePath;
 
