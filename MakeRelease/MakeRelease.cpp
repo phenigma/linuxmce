@@ -1302,6 +1302,7 @@ bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,list<FileI
 //	FILE * f;
 
 #ifndef WIN32
+	FILE *f;
 	system(("rm -rf " + Dir).c_str());
 	system(("mkdir -p " + Dir + "/root").c_str());
 	char CurrentDir[1024];
