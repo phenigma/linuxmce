@@ -44,8 +44,12 @@ if ($action=='form') {
 	$grabOldValues = "SELECT * FROM DeviceTemplate_AV WHERE FK_DeviceTemplate = ?";
 	$resGrabOldValues = $dbADO->Execute($grabOldValues,array($deviceID));
 	if ($resGrabOldValues->RecordCount()==0) {
-		$insertRecord = "INSERT INTO DeviceTemplate_AV (FK_DeviceTemplate) values(?)";
+		$insertRecord = "INSERT INTO DeviceTemplate_AV (FK_DeviceTemplate,UsesIR) values(?,1)";
 		$resInsertRecord = $dbADO->Execute($insertRecord,array($deviceID));
+		$controlSQL='INSERT INTO DeviceTemplate_DeviceCategory_ControlledVia (FK_DeviceTemplate,FK_DeviceCategory) VALUES (?,?)';
+		$dbADO->Execute($controlSQL,array($deviceID,$GLOBALS['specialized']));
+		$dbADO->Execute($controlSQL,array($deviceID,$GLOBALS['InfraredInterface']));
+		
 		$irPowerDelay = 0;
 		$irModeDelay = 0;
 		$digitDelay = 0;
@@ -53,6 +57,7 @@ if ($action=='form') {
 		$toggleDSP = 0;
 		$toggleInput = 0;
 		$toggleOutput = 0;
+		$usesIR=1;
 	} else {
 		$row=$resGrabOldValues->FetchRow();
 		$irPowerDelay = $row['IR_PowerDelay'];
@@ -637,9 +642,12 @@ function deleteFromArray(toDelete,targetArray)
 	$updateBasicDetails = "UPDATE DeviceTemplate_AV SET 
 			IR_PowerDelay = ?,IR_ModeDelay = ?,DigitDelay =?,TogglePower=?,ToggleDSP=?,ToggleInput=?,ToggleOutput=?, UsesIR=?
 						WHERE  FK_DeviceTemplate = ? ";
-	$res = $dbADO->Execute($updateBasicDetails,array($powerDelay,$modeDelay,$digitDelay,$togglePower,
-													$toggleDSP,$toggleInput,$toggleOutput,$usesIR,$deviceID)
-	);
+	$res = $dbADO->Execute($updateBasicDetails,array($powerDelay,$modeDelay,$digitDelay,$togglePower,$toggleDSP,$toggleInput,$toggleOutput,$usesIR,$deviceID));
+	if($usesIR==1){
+		$dbADO->Execute('UPDATE DeviceTemplate_DeviceCategory_ControlledVia SET FK_DeviceCategory=? WHERE FK_DeviceTemplate=? AND FK_DeviceCategory=?',array($GLOBALS['InfraredInterface'],$deviceID,$GLOBALS['rootComputerID']));
+	}else{
+		$dbADO->Execute('UPDATE DeviceTemplate_DeviceCategory_ControlledVia SET FK_DeviceCategory=? WHERE FK_DeviceTemplate=? AND FK_DeviceCategory=?',array($GLOBALS['rootComputerID'],$deviceID,$GLOBALS['InfraredInterface']));
+	}
 	
 	$dspOrderedArray = explode(",",$dspOrdered);
 	$inputOrderedArray = explode(",",$inputOrdered);

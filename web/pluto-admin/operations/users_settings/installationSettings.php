@@ -44,10 +44,6 @@ function installationSettings($output,$dbADO) {
 					<td colspan="2">This information is optional and presently not used. In the future some plug-ins, like security monitoring, may require address information.</td>
 				</tr>
 				<tr>
-					<td><B>Country</B>:</td>
-					<td>'.generatePullDown('country','Country','PK_Country','Description',$rowInstallation['FK_Country'],$dbADO).'</td>
-				</tr>		
-				<tr>
 					<td><B>City</B>:</td>
 					<td><input type="text" size="30" name="City" value="'.$rowInstallation['City'].'"></td>
 				</tr>
@@ -55,6 +51,10 @@ function installationSettings($output,$dbADO) {
 					<td><B>State</B>:</td>
 					<td><input type="text" size="30" name="State" value="'.$rowInstallation['State'].'"></td>
 				</tr>
+				<tr>
+					<td><B>Country</B>:</td>
+					<td>'.generatePullDown('country','Country','PK_Country','Description',$rowInstallation['FK_Country'],$dbADO).'</td>
+				</tr>		
 				<tr>
 					<td><B>Zip/Postal Code</B>:</td>
 					<td><input type="text" size="30" name="Zip" value="'.$rowInstallation['Zip'].'"></td>

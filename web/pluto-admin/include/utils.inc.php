@@ -284,8 +284,9 @@ function getDeviceCategoryChildsOptions($parentID,$parentName,$selectedValue,$no
 	$options='';
 	if ($resGP) {
 		while ($row=$resGP->FetchRow()) {
-				$options.= '<option '.($selectedValue==$row['PK_DeviceCategory']?' selected="selected" ':'').' value="'.$row['PK_DeviceCategory'].'">'.$parentName.' - '.$row['Description'].' #'.$row['PK_DeviceCategory'].'</option>';
-				$options.= getDeviceCategoryChildsOptions($row['PK_DeviceCategory'],$parentName.' - '.$row['Description'],$selectedValue,$notIn,$dbADO);
+			@$GLOBALS['categoriesArray'][$row['PK_DeviceCategory']]=$parentName.' - '.$row['Description'];
+			$options.= '<option '.($selectedValue==$row['PK_DeviceCategory']?' selected="selected" ':'').' value="'.$row['PK_DeviceCategory'].'">'.$parentName.' - '.$row['Description'].' #'.$row['PK_DeviceCategory'].'</option>';
+			$options.= getDeviceCategoryChildsOptions($row['PK_DeviceCategory'],$parentName.' - '.$row['Description'],$selectedValue,$notIn,$dbADO);
 		}
 		$resGP->Close();
 	}
@@ -1781,5 +1782,29 @@ function getMediaPluginID($installationID,$dbADO)
 	$res=$dbADO->Execute('SELECT * FROM Device WHERE FK_DeviceTemplate=? AND FK_Installation=?',array($GLOBALS['rootMediaPlugin'],$installationID));
 	$row=$res->FetchRow();
 	return $row['PK_Device'];
+}
+
+function pulldownFromArray($valuesArray,$name,$selectedValue,$extra='')
+{
+	if(count($valuesArray)==0)
+		return null;
+	$out='<select name="'.$name.'" "'.$extra.'">
+			<option value="0">- Please select -</option>';
+	foreach ($valuesArray AS $key=>$value){
+		$out.='<option value="'.$key.'" '.(($key==$selectedValue)?'selected':'').'>'.$value.'</option>';
+	}
+	$out.='</select>';
+	return $out;
+}
+
+$GLOBALS['wizardChilds']=array();
+function getChildsOfWizard($page,$dbADO)
+{
+	$res=$dbADO->Execute('SELECT * FROM PageSetup WHERE FK_PageSetup_Parent=? ORDER BY OrderNum ASC',$page);
+	while($row=$res->FetchRow()){
+		$GLOBALS['wizardChilds'][$row['PK_PageSetup']]=$row['pageURL'];
+		getChildsOfWizard($row['PK_PageSetup'],$dbADO);
+	}
+	return $GLOBALS['wizardChilds'];
 }
 ?>

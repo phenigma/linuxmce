@@ -25,6 +25,7 @@ if($action=='form') {
 
 	
 	$out.='
+	<div align="center" class="err">'.strip_tags(@$_GET['error']).'</div>
 	<div align="center" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg'].'<br>'):'').'</B></div>
 	<h2 align="center">'.$rowArray['Description'].'</h2>';
 
@@ -221,6 +222,13 @@ if($action=='form') {
 		<input type="hidden" name="displayedDevices" value="'.join(',',$displayedDevices).'">
 	</form>';
 }else{	
+	$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
+	if(!$canModifyInstallation){
+		Header('Location: index.php?section=climateScenarios&error=You are not allowed to modify installation.');
+		exit();
+	}
+
+	
 	// action='add'
 	// insert command group in specified room
 	if($action=='addToRoom'){

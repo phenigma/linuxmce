@@ -336,7 +336,7 @@ function avWizard($output,$dbADO) {
 							<option value="0">- Select device -</option>';
 	
 					GetDeviceControlledVia($rowD['PK_Device'], $dbADO);
-					if(count($GLOBALS['DeviceIDControlledVia'])>0){
+					if(count(@$GLOBALS['DeviceIDControlledVia'])>0){
 						foreach($GLOBALS['DeviceIDControlledVia'] as $key => $value){
 							$out.='<option value="'.$value.'" '.(($rowD['FK_Device_ControlledVia']==$value)?'selected':'').'>'.$GLOBALS['DeviceControlledVia'][$key].'</option>';
 						}

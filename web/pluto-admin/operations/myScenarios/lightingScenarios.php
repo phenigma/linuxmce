@@ -16,14 +16,8 @@ if($action=='form') {
 	$resArray = $dbADO->Execute($queryArray,$arrayID);
 	$rowArray=$resArray->FetchRow();
 
-	if(isset($_GET['cgDelID']) && (int)$_GET['cgDelID']!=0){
-		$cgToDelete=(int)$_GET['cgDelID'];
-		deleteCommandGroup($cgToDelete,$dbADO);
-		header("Location: index.php?section=lightingScenarios&msg=Lighting scenario deleted.");
-	}
-
-	
 	$out.='
+	<div align="center" class="err">'.strip_tags(@$_GET['error']).'</div>
 	<div align="center" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg'].'<br>'):'').'</B></div>
 	<h2 align="center">'.$rowArray['Description'].'</h2>';
 
@@ -82,7 +76,7 @@ if($action=='form') {
 					<input type="button" class="button" name="posUp" value="+" onClick="self.location=\'index.php?section=lightingScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&roomID='.$rowRooms['PK_Room'].'&operation=up&posInRoom='.urlencode(serialize($posInRoom)).'\'">
 				 Description: '.((!in_array($rowCG['PK_CommandGroup'],$displayedCommandGroups))?'<input type="text" name="commandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Description'].'"> Hint: <input type="text" name="hintCommandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Hint'].'">':'<b>'.$rowCG['Description'].': </b>Hint: <b>'.$rowCG['Hint'].'</b> (See '.$firstRoomArray[$rowCG['PK_CommandGroup']].')').'</td>
 				<td>'.(($pos==1)?'Default ON':'').(($pos==2)?'Default OFF':'').'</td>
-				<td><a href="#" onClick="document.lightingScenarios.editedCgID.value='.$rowCG['PK_CommandGroup'].';document.lightingScenarios.roomID.value='.$rowRooms['PK_Room'].';document.lightingScenarios.submit();">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=lightingScenarios&cgDelID='.$rowCG['PK_CommandGroup'].'\';">Delete</a></td>
+				<td><a href="#" onClick="document.lightingScenarios.editedCgID.value='.$rowCG['PK_CommandGroup'].';document.lightingScenarios.roomID.value='.$rowRooms['PK_Room'].';document.lightingScenarios.submit();">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=lightingScenarios&action=del&cgDelID='.$rowCG['PK_CommandGroup'].'\';">Delete</a></td>
 				<td>&nbsp;</td>
 			</tr>
 			';
@@ -212,6 +206,17 @@ if($action=='form') {
 }else{	
 	// action='add'
 	// insert command group in specified room
+	$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
+	if(!$canModifyInstallation){
+		Header('Location: index.php?section=lightingScenarios&error=You are not allowed to modify installation.');
+		exit();
+	}
+	if(isset($_GET['cgDelID']) && (int)$_GET['cgDelID']!=0){
+		$cgToDelete=(int)$_GET['cgDelID'];
+		deleteCommandGroup($cgToDelete,$dbADO);
+		header("Location: index.php?section=lightingScenarios&msg=Lighting scenario deleted.");
+	}
+		
 	if($action=='addToRoom'){
 		$roomID=(int)$_POST['roomID'];
 		$roomName=$_POST['roomName'];

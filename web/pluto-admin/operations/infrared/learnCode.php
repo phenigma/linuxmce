@@ -118,7 +118,7 @@ function learnCode($output,$dbADO) {
 				</script>
 			';
 		}elseif(isset($_POST['add'])){
-			$irData=$_POST['irData'];
+			$irData=stripslashes($_POST['irData']);
 			$infraredGroupID=($infraredGroupID==0)?NULL:$infraredGroupID;
 			if($infraredGroupID!=0)
 				$isSingleCode=$dbADO->Execute('

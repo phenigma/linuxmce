@@ -20,6 +20,7 @@ $out.='<h3>Users</h3>';
 
 $out.='<p>Add all the users, or family members, who will be using Pluto.</p>';
 
+
 if ($action=='form') {
 $queryUsers = 'SELECT Users.*,Installation_Users.userCanModifyInstallation as canModifyInstallation FROM Users 
 		INNER JOIN Installation_Users on FK_Users = PK_Users

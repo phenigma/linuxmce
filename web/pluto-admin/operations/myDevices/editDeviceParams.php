@@ -631,7 +631,8 @@ $installationID = (int)@$_SESSION['installationID'];
 			top.frames[\'treeframe\'].location=\'index.php?section=leftMenu\';
 		</script>';
 	} else {
-			$out = 'You are not allowed to do that!<a href="javascript:window.close();">Close</a>';
+		Header('Location: index.php?section=editDeviceParams&deviceID='.$deviceID.'&error=You are not allowed to modify installation.');
+		exit();
 	}
 }
 

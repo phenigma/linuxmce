@@ -33,6 +33,7 @@ $out='';
 		$isEmbedded = $row['IsEmbedded'];
 		$inheritsMacFromPC = $row['InheritsMacFromPC'];
 		$isIPBased=$row['IsIPBased'];
+		$ConfigureScript=$row['ConfigureScript'];
 		$comments=$row['Comments'];
 		$rs->Close();
 		
@@ -49,6 +50,7 @@ $out='';
 			<input type="hidden" name="action" value="modify">
 			<input type="hidden" name="lastAction" value="">
 			<input type="hidden" name="model" value="'.$deviceID.'">
+			<input type="hidden" name="toDel" value="">
 			<table>
 				<tr>
 					<td>Description:</td><td><input type="text" name="description" value="'.$description.'" size="40"> #'.$deviceID.'</td>
@@ -66,9 +68,11 @@ $out='';
 						<select name="MasterDeviceCategory">
 						<option value="0">-please select-</option>
 		';
+		$GLOBALS['categoriesArray']=array();
 		$queryMasterDeviceCategories_parents = 'select PK_DeviceCategory,Description from DeviceCategory where FK_Devicecategory_Parent is null order by Description asc';
 		$rs = $dbADO->_Execute($queryMasterDeviceCategories_parents);
 							while ($row = $rs->FetchRow()) {
+								$GLOBALS['categoriesArray'][$row['PK_DeviceCategory']]=$row['Description'];
 								$out.='<option '.($row['PK_DeviceCategory']==$deviceCategID?' selected ': ' ').' value="'.$row['PK_DeviceCategory'].'">'.stripslashes($row['Description']).' #'.$row['PK_DeviceCategory'].'</option>';
 								$out.=getDeviceCategoryChildsOptions($row['PK_DeviceCategory'],stripslashes($row['Description']),$deviceCategID,'',$dbADO);
 							}
@@ -80,10 +84,12 @@ $out='';
 						<select name="Manufacturer">
 						<option value="0">-please select-</option>
 		';
+				$manufacturersArray=array();
 		$queryManufacturers = 'select Description, PK_Manufacturer from Manufacturer order by Description asc';
 		$rs = $dbADO->_Execute($queryManufacturers);
 							while ($row = $rs->FetchRow()) {								
-									$out.='<option '.($row['PK_Manufacturer']==$manufacturerID?' selected ': ' ').' value="'.$row['PK_Manufacturer'].'">'.stripslashes($row['Description']).'</option>';
+								$manufacturersArray[$row['PK_Manufacturer']]=$row['Description'];
+								$out.='<option '.($row['PK_Manufacturer']==$manufacturerID?' selected ': ' ').' value="'.$row['PK_Manufacturer'].'">'.stripslashes($row['Description']).'</option>';
 							}
 		$out.='			</select> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addManufacturer&from=editMasterDevice\',\'width=300,height=200,toolbars=true\');">Create Manufacturer</a>
 					</td>
@@ -200,6 +206,11 @@ $out='';
 					<td><input type="checkbox" name="isIPBased" value="1" '.(($isIPBased==1)?'checked':'').' onClick=\'javascript:this.form.submit();\'>
 					<input type="hidden" name="oldIsIPBased" value="'.(($isIPBased==1)?'1':'0').'"></td>
 				</tr>	
+				<tr>
+					<td valign="top">Configuration script</td>
+					<td><input type="text" name="ConfigureScript" value="'.$ConfigureScript.'">
+				</tr>	
+				
 				<tr>
 					<td valign="top">Comments</td>
 					<td><textarea name="comments" rows="2" style="width:500;">'.$comments.'</textarea></td>
@@ -565,14 +576,33 @@ $out='';
 							<tr>
 								<td>From: <input type="text" name="mac_from_'.$rowDHCP['PK_DHCPDevice'].'" value="'.$rowDHCP['Mac_Range_Low'].'"></td>
 								<td>To: <input type="text" name="mac_to_'.$rowDHCP['PK_DHCPDevice'].'" value="'.$rowDHCP['Mac_Range_High'].'"></td>
-								<td><input type="button" class="button" name="editDHCP" value="Edit" onClick="windowOpen(\'index.php?section=editDHCP&dhcpID='.$rowDHCP['PK_DHCPDevice'].'\',\'width=500,height=400,toolbars=true,resizable=1\');"> <input type="button" class="button" name="delDHCP" value="Delete" onClick="self.location=\'index.php?section=editMasterDevice&model='.$deviceID.'&action=removeDHCP&dhcpID='.$rowDHCP['PK_DHCPDevice'].'\'"></td>
+								<td>Manufacturer: '.pulldownFromArray($manufacturersArray,'manufacturerPnp_'.$rowDHCP['PK_DHCPDevice'],$rowDHCP['FK_Manufacturer']).'</td>
+							</tr>
+							<tr>
+								<td align="right">Category: </td>
+								<td colspan="2">'.pulldownFromArray($GLOBALS['categoriesArray'],'categoryPnp_'.$rowDHCP['PK_DHCPDevice'],$rowDHCP['FK_DeviceCategory']).'</td>
+							</tr>
+							<tr>
+								<td align="right">Comment: </td>
+								<td colspan="2"><textarea name="commentPnp_'.$rowDHCP['PK_DHCPDevice'].'" rows="2" cols="50">'.$rowDHCP['Description'].'</textarea> <input type="button" class="button" name="editDHCP" value="Edit" onClick="windowOpen(\'index.php?section=editDHCP&dhcpID='.$rowDHCP['PK_DHCPDevice'].'\',\'width=500,height=400,toolbars=true,resizable=1\');"> <input type="button" class="button" name="delDHCP" value="Delete" onClick="document.editMasterDevice.toDel.value=\''.$rowDHCP['PK_DHCPDevice'].'\';document.editMasterDevice.submit();"></td>
 							</tr>';
 					}
 					$out.='
 							<tr>
+								<td colspan="3"><hr></td>
+							</tr>
+							<tr bgcolor="#EEEEEE">
 								<td>From: <input type="text" name="mac_from" value=""></td>
 								<td>To: <input type="text" name="mac_to" value=""></td>
-								<td><input type="submit" class="button" name="addDHCP" value="Add"></td>
+								<td>Manufacturer: '.pulldownFromArray($manufacturersArray,'manufacturerPnp','').'</td>
+							</tr>
+							<tr bgcolor="#EEEEEE">
+								<td align="right">Category: </td>
+								<td colspan="2">'.pulldownFromArray($GLOBALS['categoriesArray'],'categoryPnp','').'</td>
+							</tr>
+							<tr bgcolor="#EEEEEE">
+								<td align="right">Comment: </td>
+								<td colspan="2"><textarea name="commentPnp" rows="2" cols="50"></textarea> <input type="submit" class="button" name="addDHCP" value="Add"></td>
 							</tr>
 							<input type="hidden" name="dhcpArray" value="'.((join(',',$dhcpArray))).'">	
 						</table>
@@ -673,25 +703,37 @@ $out='';
 		$inheritsMacFromPC = cleanInteger(@$_POST['inheritsMacFromPC']);
 		$oldInheritsMacFromPC= cleanInteger(@$_POST['oldInheritsMacFromPC']);
 		$isIPBased= cleanInteger(@$_POST['isIPBased']);
+		$ConfigureScript=$_POST['ConfigureScript'];
 		$oldIsIPBased= cleanInteger(@$_POST['oldIsIPBased']);
 		$comments=cleanString($_POST['comments']);
 		$newScreen=(int)$_POST['newScreen'];
 		$newMacFrom=(int)$_POST['mac_from'];
 		$newMacTo=(int)$_POST['mac_to'];
+		$newManufacturer=((int)$_POST['manufacturerPnp']>0)?(int)$_POST['manufacturerPnp']:NULL;
+		$newCategory=((int)$_POST['categoryPnp']>0)?(int)$_POST['categoryPnp']:NULL;
+		$newComment=$_POST['commentPnp'];
 		$dhcpArray=explode(',',$_POST['dhcpArray']);
 		
 		if($newMacFrom!='' && $newMacTo!=''){
-			$dbADO->Execute('INSERT INTO DHCPDevice (FK_DeviceTemplate, Mac_Range_Low, Mac_Range_High) VALUES (?,?,?)',array($deviceID,$newMacFrom,$newMacTo));
+			$dbADO->Execute('INSERT INTO DHCPDevice (FK_DeviceTemplate, Mac_Range_Low, Mac_Range_High,FK_Manufacturer,FK_DeviceCategory,Description) VALUES (?,?,?,?,?,?)',array($deviceID,$newMacFrom,$newMacTo,$newManufacturer,$newCategory,$newComment));
 			$locationGoTo='plugAndPlay';
 		}
 		
 		foreach ($dhcpArray AS $dhcpID){
 			$macFrom=@$_POST['mac_from_'.$dhcpID];
 			$macTo=@$_POST['mac_to_'.$dhcpID];
-			$dbADO->Execute('UPDATE DHCPDevice SET Mac_Range_Low=?, Mac_Range_High=? WHERE PK_DHCPDevice=?',array($macFrom, $macTo,$dhcpID));
+			$newManufacturer=((int)$_POST['manufacturerPnp_'.$dhcpID]>0)?(int)$_POST['manufacturerPnp_'.$dhcpID]:NULL;
+			$newCategory=((int)$_POST['categoryPnp_'.$dhcpID]>0)?(int)$_POST['categoryPnp_'.$dhcpID]:NULL;
+			$newComment=$_POST['commentPnp_'.$dhcpID];
+			$dbADO->Execute('UPDATE DHCPDevice SET Mac_Range_Low=?, Mac_Range_High=?,FK_Manufacturer=?,FK_DeviceCategory=?,Description=? WHERE PK_DHCPDevice=?',array($macFrom, $macTo,$newManufacturer,$newCategory,$newComment,$dhcpID));
 		}
 		
-		if(isset($_REQUEST['']))
+		if($_REQUEST['toDel']!=''){
+			$dhcpID=(int)$_REQUEST['toDel'];
+			if($dhcpID!=0){
+				$dbADO->Execute('DELETE FROM DHCPDevice WHERE PK_DHCPDevice=?',$dhcpID);
+			}
+		}
 		
 		if($newScreen!=0){
 			$newScreenExist=$dbADO->Execute('SELECT * FROM DesignObj WHERE PK_DesignObj=?',$newScreen);
@@ -905,10 +947,11 @@ $out='';
 							IsEmbedded=?,
 							InheritsMacFromPC=?,
 							IsIPBased=?,
+							ConfigureScript=?,
 							Comments=?
 							WHERE PK_DeviceTemplate = ?";
 
-		$dbADO->Execute($updateQuery,array($description,$ImplementsDCE,$commandLine,$category,$manufacturer,$package,$isPlugIn,$isEmbedded,$inheritsMacFromPC,$isIPBased,$comments,$deviceID));
+		$dbADO->Execute($updateQuery,array($description,$ImplementsDCE,$commandLine,$category,$manufacturer,$package,$isPlugIn,$isEmbedded,$inheritsMacFromPC,$isIPBased,$ConfigureScript,$comments,$deviceID));
 
 		if($isPlugIn==1 && $oldIsPlugIn==0){
 			$insertControlledVia = '

@@ -159,7 +159,7 @@ function createUser($output,$dbADO) {
 					//frmvalidator.addValidation("userLastName","req","Please enter a user last name");
 					frmvalidator.addValidation("pinCode","req","Please enter a number for PIN code.");
 			 		frmvalidator.addValidation("pinCode","numeric","PIN code must be a number.");
-					frmvalidator.addValidation("userForwardEmail","req","Please enter an email address");
+					frmvalidator.addValidation("userForwardEmail","email","Please enter an email address");
 				</script>
 			';
 		

@@ -65,7 +65,7 @@ function mediaScenarios($output,$dbADO) {
 			if($resEntAreas->RecordCount()==0){
 				$out.='
 				<tr>
-					<td colspan="2" class="err">No entertain areas available. Please go to <a href="index.php?section=rooms">rooms</a> and add entertain areas.</td>
+					<td colspan="2" class="err">No entertain areas available. They will be created automatically when you next restart your Core, and you can add media scenarios then. If you want to manually configure your entertainment areas please do so on the <a href="index.php?section=rooms">Rooms</a> page. Refer to the help on that page for details.</td>
 				</tr>';
 			}
 			

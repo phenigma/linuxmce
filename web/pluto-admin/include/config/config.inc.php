@@ -48,9 +48,6 @@
 	$GLOBALS['rootOrbiterID'] = 5; 				// Orbiter
 	$GLOBALS['rootComputerID'] = 6; 			// Computers
 	$GLOBALS['rootMediaDirectors'] = 8; 		// Media Directors
-	$GLOBALS['LightSwitchOnOff']=37;			// Light Switch (on/off)
-	$GLOBALS['LightSwitchDimmable']=38;			// Light Switch (dimmable)
-	$GLOBALS['EIB']=49;							// EIB
 	$GLOBALS['rootInterfaces'] = 71; 			// Interfaces
 	$GLOBALS['rootLights'] = 73; 				// Lighting devices
 	$GLOBALS['rootAVEquipment'] = 76; 			// AV Equipment
@@ -62,15 +59,24 @@
 	$GLOBALS['rootClimateInterfaces'] = 82;		// Climate Interfaces
 	$GLOBALS['rootSecurityInterfaces'] = 80;	// Security Interfaces
 	$GLOBALS['rootPhones'] = 89;				// Phones
+	$GLOBALS['specialized']=97;					// Specialized
+	$GLOBALS['InfraredInterface']=114;			// Infrared Interface
 	
 	// PK_DeviceTemplate from table DeviceTemplate
 	
 	$GLOBALS['rootDCERouter'] = 1; 				// DCE Router
+	$GLOBALS['rootMediaPlugin']=2;				// Media Plug-in
 	$GLOBALS['rootCoreID'] = 7; 				// Core
+	$GLOBALS['deviceTemplateOrbiter']=8;		// Orbiter
 	$GLOBALS['OrbiterPlugIn'] = 12; 			// Orbiter Plug In
 	$GLOBALS['rootMediaDirectorsID'] = 28; 		// Media Directors
-	$GLOBALS['rootMediaPlugin']=2;				// Media Plug-in
-	$GLOBALS['deviceTemplateOrbiter']=8;		// Orbiter
+	$GLOBALS['LightSwitchOnOff']=37;			// Light Switch (on/off)
+	$GLOBALS['LightSwitchDimmable']=38;			// Light Switch (dimmable)
+	$GLOBALS['EIB']=49;							// EIB
+	$GLOBALS['GenericInputOuput']=43;			// Generic Input Ouput 
+	$GLOBALS['DrapesSwitch']=68;				// Drapes Switch
+	$GLOBALS['StandardThermostat']=4;			// Standard Thermostat
+	
 	
 	// PK_Template from table Template
 	
@@ -144,6 +150,7 @@
 	$GLOBALS['MobileOrbiterNotification']=34;	// Mobile Orbiter Notification
 	$GLOBALS['OtherPhoneNotifications']=35;		// Other Phone Notifications 
 	$GLOBALS['NeighborstoCall']=36;				// Neighbors to Call 
+	$GLOBALS['Port']=37;						// Port
 	$GLOBALS['securityAlertType']=45;			// Alert type 
 	
 	// PK_FloorplanType from table FloorplanType 

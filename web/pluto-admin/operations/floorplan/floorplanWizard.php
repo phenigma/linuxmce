@@ -37,8 +37,7 @@ function floorplanWizard($output,$dbADO) {
 				$out.='
 					</select>
 				<select name="type" onchange="submitForm();">';
-				
-				$queryFloorplanTypes='SELECT PK_FloorplanType,Description FROM FloorplanType';
+				$queryFloorplanTypes='SELECT PK_FloorplanType,Description FROM FloorplanType ORDER BY Description ASC';
 				$resFloorplanTypes=$dbADO->Execute($queryFloorplanTypes);
 				while($rowFloorplanTypes=$resFloorplanTypes->FetchRow()){
 					$out.='<option value="'.$rowFloorplanTypes['PK_FloorplanType'].'" '.(($type==$rowFloorplanTypes['PK_FloorplanType'])?'selected':'').'>'.$rowFloorplanTypes['Description'].'</option>';

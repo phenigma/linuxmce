@@ -145,6 +145,7 @@ function basicInfo($output,$dbADO) {
 	$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 	if (!$canModifyInstallation) {	
 		header('Location: index.php?section=basicInfo&error=You are not allowed to change the installation');
+		exit();
 	}
 		$newTimeZone=$_POST['newTimeZone'];
 		$oldTimeZone=$_POST['oldTimeZone'];
