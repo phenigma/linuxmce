@@ -153,7 +153,7 @@ ln -s $BASE_OUT_FOLDER/$version_name $BASE_OUT_FOLDER/current
 
 #mv /home/builds/$version_name/debian-packages.tmp /home/builds/$version_name/debian-packages.list
 
-if ! MakeRelease -a -o 7 -n / -s /home/samba/builds/Windows_Output/ -r 10 -v $version -b -k 116,119,124,126,154,159,193,203,213,226,237,242,255,277,204,118,303,128,162,191,195,280,272,362,363,364 > /home/MakeRelease/MakeRelease2.log ; then
+if ! MakeRelease -a -o 7 -n / -s /home/samba/builds/Windows_Output/ -r 10 -v $version -b -k 116,119,124,126,154,159,193,203,213,226,237,242,255,277,204,118,303,128,162,191,195,280,272,363,364 > /home/MakeRelease/MakeRelease2.log ; then
 	echo "MakeRelease Failed.  Press any key"
 	reportError
 	read
