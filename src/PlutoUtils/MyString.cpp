@@ -27,11 +27,22 @@ string::string(const char *str):tmp_buff(NULL)
 		pStr.Append(TChar(str[i]));
 }
 //-----------------------------------------------------------------------------------------
-string::string(const string& str):tmp_buff(NULL) {
+string::string(const string& str):tmp_buff(NULL) 
+{
+	TInt len = str.length();
+	base_str = HBufC::NewL(len);
+	TPtr pStr = base_str->Des();
+
+	for (int i = 0; i < len; i++)
+		pStr.Append(str[i]);
+
+
+	/*
 	base_str = HBufC::NewL(str.base_str->Length());
 	TPtr local = base_str->Des();
 	TPtr another = str.base_str->Des();
 	local.Copy(another);
+	*/
 }
 //-----------------------------------------------------------------------------------------
 string::string(const TDesC& str):tmp_buff(NULL) {
