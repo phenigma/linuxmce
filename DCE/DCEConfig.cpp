@@ -37,7 +37,8 @@ DCEConfig::DCEConfig(string sFilename) : RA_Config()
 
 		string::size_type pos_Slash = vectString[s].find("//");
 
-		string Token=StringUtils::TrimSpaces(vectString[s].substr(0,pos_Equal));
+        string Token=vectString[s].substr(0,pos_Equal);
+		StringUtils::TrimSpaces(Token);
         string Value;
 		if( pos_Slash==string::npos )
 			Value = vectString[s].substr(pos_Equal+1);
@@ -111,8 +112,10 @@ bool DCEConfig::WriteSettings()
             continue;
 
 		string::size_type pos_Slash = vectString[s].find("//");
-
-		string Token=StringUtils::TrimSpaces(vectString[s].substr(0,pos_Equal));
+        
+		string Token = vectString[s].substr(0,pos_Equal);
+		StringUtils::TrimSpaces(Token);
+				
         string Value;
 
 		if( pos_Slash==string::npos )
