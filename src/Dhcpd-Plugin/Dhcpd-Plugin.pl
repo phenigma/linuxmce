@@ -54,7 +54,31 @@ while (1 eq 1) {
       $st->execute();
       if($row = $st->fetchrow_hashref()) {
 	log_plugin("Device allready exists","log");
+	  $Device_ID = $row->{'PK_Device'};
 	  $found = 0;
+	  $sql = "select FK_DeviceTemplate from Device where MACaddress='$mac_found'   and IPaddress='$ip_sent'";
+	  $st2 = $db_handle->prepare($sql);
+	  $st2->execute();
+	  if($ndrow = $st2->fetchrow_hashref()) {
+	  	$template_dev = $ndrow->{'FK_DeviceTemplate'};
+		$sql = "select IsPlugAndPlay, ConfigureScript from DeviceTemplate where  PK_DeviceTemplate='$template_dev'";
+		$st3 = $db_handle->prepare($sql);
+		$st3->execute();
+		if($trdrow = $st3->fetchrow_hashref()) {
+			$pnp = $trdrow->{'IsPlugAndPlay'};
+			$cfg = $trdrow->{'ConfigureScript'};
+			if($pnp eq "1") {
+				log_plugin("Running Configure Script for the Pnp Device","log");
+				system("/usr/pluto/bin/$cfg -d $Device_ID -i $ip_sent -m $mac_found");
+			} else {
+				log_plugin("The Device is not PNP so we will not configure","log");
+			}
+		}	
+		$st3->finish();
+	  } else {
+	  	log_plugin("Cannot find Device template for the Device Found","err");
+	  }
+	  $st2->finish();
       } else {
 	log_plugin("Device not found in the database, checking if it is pnp","log");
           $sql = "select PK_DHCPDevice,FK_DeviceTemplate,ConfigureScript,Package_Source.Name FROM DHCPDevice JOIN DeviceTemplate ON DHCPDevice.FK_DeviceTemplate=DeviceTemplate.PK_DeviceTemplate LEFT JOIN Package ON DeviceTemplate.FK_Package=PK_Package LEFT JOIN Package_Source ON Package_Source.FK_Package=Package.PK_Package WHERE Mac_Range_Low<=$mac_2_nr AND Mac_Range_High>=$mac_2_nr";
@@ -116,8 +140,9 @@ while (1 eq 1) {
               $statement->execute() or die "Couldn't execute query '$sql': $DBI::errstr\n";
             }
           }
-          $db_handle->disconnect();
         }
+	$st->finish();
+	$db_handle->disconnect();
      }
   }
 }
