@@ -1048,13 +1048,17 @@ cout << "Copying Files\n";
 			pos = cmd.rfind("/");
 			length = cmd.length();
 			cmd = cmd.substr(pos+1,length-pos-1);
-			cmd = cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+			if(cmd.compare(pRow_Package_Source->Name_get().c_str()) == 0) {
+				cmd = FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+			} else {
+				cmd = cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+			}
 			
 			cmd2 = FileUtils::BasePath(*iMyList);
 			pos = cmd2.rfind("/");
 			length = cmd2.length();
 			cmd2 = cmd2.substr(pos+1,length-pos-1);
-			cmd2 = cmd2 + "/" + FileUtils::FilenameWithoutPath(*iMyList);
+			cmd2 = FileUtils::FilenameWithoutPath(*iMyList);
 
 			cout << cmd.c_str() << "=" << cmd2.c_str() << endl;
 			if(cmd.compare (cmd2) == 0) {
