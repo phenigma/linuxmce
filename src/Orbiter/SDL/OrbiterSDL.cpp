@@ -21,9 +21,9 @@
 #include "OrbiterSDL.h"
 #include "SerializeClass/ShapesColors.h"
 
-#include "SDL/PlutoSDLDefs.h"
-#include "RendererOCG.h"
-#include "SDL/SDLRendererOCGHelper.h"
+#include "PlutoSDLDefs.h"
+#include "../RendererOCG.h"
+#include "SDLRendererOCGHelper.h"
 
 #include "pluto_main/Define_DeviceCategory.h"
 #include "Gen_Devices/AllCommandsRequests.h"
