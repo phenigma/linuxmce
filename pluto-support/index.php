@@ -22,7 +22,7 @@
 				$_SESSION['userIsLogged']="yes";
 				$_SESSION['categ']=$FirstAccount;
 				$_SESSION['Email']=$Email;
-				$_SESSION['extPassword']=$extPassword;
+				$_SESSION['extPassword']=trim($extPassword);
 			}
 		}
 	}
