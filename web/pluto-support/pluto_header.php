@@ -1,7 +1,7 @@
 <?
 session_start('Pluto');
 
-require($_SERVER['DOCUMENT_ROOT'].'/support/include/config/config.inc.php');
+include($_SERVER['DOCUMENT_ROOT'].'/support/include/config/config.inc.php');
 require($_SERVER['DOCUMENT_ROOT'].'/support/include/utils.inc.php');
 require($_SERVER['DOCUMENT_ROOT'].'/support/include/masterusers.inc.php');
 
