@@ -836,6 +836,7 @@ function wizard($output,$dbADO) {
 							}
 							$orbiterMDChild=getMediaDirectorOrbiterChild($rowMediaDirectors['PK_Device'],$dbADO);
 							if($orbiterMDChild){
+								echo "MD: ".$orbiterMDChild;
 								$out.='
 									<tr '.$rowcolor.'>	
 										<td colspan="7">'.getInstallWizardDeviceTemplates($step,$dbADO,$orbiterMDChild,$selectedDistro).'</td>

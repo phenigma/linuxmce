@@ -520,7 +520,6 @@ function getInstallWizardDeviceTemplates($step,$dbADO,$device='',$distro=0,$oper
 					VALUES (?,?,?,?,?)';
 				$dbADO->Execute($insertDevice,array($row['Template'],$row['FK_DeviceTemplate'],$_SESSION['installationID'],$_SESSION['OrbiterHybridChild'],$_SESSION['coreRoom']));
 				$insertHybridID=$dbADO->Insert_ID();
-				addDeviceToEntertainArea($insertHybridID,$_SESSION['coreEntertainArea'],$dbADO);
 			}
 			$res->MoveFirst();
 			$out.=$rowIWD['Comments'];
@@ -577,8 +576,11 @@ function GetInitialData($installation,$user)
 
 function getMediaDirectorOrbiterChild($MD_PK_Device,$dbADO)
 {
-	$getOrbiterChild='SELECT * FROM Device WHERE FK_DeviceTemplate=? AND FK_Device_ControlledVia=?';
-	$resOrbiterChild=$dbADO->Execute($getOrbiterChild,array($GLOBALS['deviceTemplateOrbiter'],$MD_PK_Device));
+	$DTArray=getDeviceTemplatesFromCategory($GLOBALS['rootOrbiterID'],$dbADO);
+	if(count($DTArray)==0)
+		return null;
+	$getOrbiterChild='SELECT * FROM Device WHERE FK_DeviceTemplate IN ('.join(',',$DTArray).') AND FK_Device_ControlledVia=?';
+	$resOrbiterChild=$dbADO->Execute($getOrbiterChild,array($MD_PK_Device));
 	if($resOrbiterChild->RecordCount()!=0){
 		$rowOrbiterChild=$resOrbiterChild->FetchRow();
 		return $rowOrbiterChild['PK_Device'];
@@ -732,5 +734,23 @@ function dbQuery($query,$conn,$error='MySQL error')
 {
 	$res=mysql_query($query,$conn) or die($error.": ".mysql_error($conn));
 	return $res;
+}
+
+function getDeviceTemplatesFromCategory($categoryID,$dbADO)
+{
+	getDeviceCategoryChildsArray($categoryID,$dbADO);
+	$GLOBALS['childsDeviceCategoryArray']=cleanArray($GLOBALS['childsDeviceCategoryArray']);
+	$GLOBALS['childsDeviceCategoryArray'][]=$categoryID;
+	
+	$queryDeviceTemplate='
+		SELECT * FROM DeviceTemplate 
+			WHERE FK_DeviceCategory IN ('.join(',',$GLOBALS['childsDeviceCategoryArray']).')
+		ORDER BY Description ASC';
+	$resDeviceTemplate=$dbADO->Execute($queryDeviceTemplate);
+	$DTArray=array();
+	while($rowDeviceCategory=$resDeviceTemplate->FetchRow()){
+		$DTArray[]=$rowDeviceCategory['PK_DeviceTemplate'];
+	}
+	return $DTArray;
 }
 ?>
