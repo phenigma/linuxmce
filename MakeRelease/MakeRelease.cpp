@@ -67,7 +67,7 @@ public:
 	Row_Package_Directory *m_pRow_Package_Directory;
 };
 
-string g_sPackages, g_sManufacturer, g_sSourcePath;
+string g_sPackages, g_sManufacturer, g_sSourcecodePrefix, g_sNonSourcecodePrefix;
 string g_sPK_RepositorySource;
 int g_iPK_Distro=0;
 bool g_bBuildSource = true, g_bCreatePackage = true, g_bInteractive = false, g_bSimulate = false;
@@ -148,7 +148,10 @@ int main(int argc, char *argv[])
 			g_bInteractive = true;
 			break;
 		case 's':
-			g_sSourcePath = argv[++optnum];
+			g_sSourcecodePrefix = argv[++optnum];
+			break;
+		case 'n':
+			g_sNonSourcecodePrefix = argv[++optnum];
 			break;
 		case 'S':
 			g_bSimulate = true;
@@ -187,8 +190,10 @@ int main(int argc, char *argv[])
 		sWhere += "FK_Manufacturer IN (" + g_sManufacturer + ")";
 	}
 
-	if( g_sSourcePath.length() && g_sSourcePath[ g_sSourcePath.length()-1 ]!='/' )
-		g_sSourcePath += "/";
+	if( g_sSourcecodePrefix.length() && g_sSourcecodePrefix[ g_sSourcecodePrefix.length()-1 ]!='/' )
+		g_sSourcecodePrefix += "/";
+	if( g_sNonSourcecodePrefix.length() && g_sNonSourcecodePrefix[ g_sNonSourcecodePrefix.length()-1 ]!='/' )
+		g_sNonSourcecodePrefix += "/";
 
 	fstr_compile.open("Compile.script",fstream::out);  // A log of all the commands we executed to do the compile
 	fstr_make_release.open("MakeRelease.script",fstream::out);  // A log of all the commands we executed to make the release
@@ -408,7 +413,7 @@ bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileIn
 		if( pRow_Package_Directory->Path_get()[0]=='/' )
 			sDirectory = pRow_Package_Directory->Path_get();
 		else
-			sDirectory += g_sSourcePath + "/" + pRow_Package_Directory->Path_get();
+			sDirectory += g_sSourcecodePrefix + "/" + pRow_Package_Directory->Path_get();
 #pragma warning("Need something other than this");
 
 		vector<Row_Package_Directory_File *> vectPackage_Directory_File;
@@ -482,10 +487,10 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 			if( !AskYNQuestion("**WARNING** Directory is empty.  Continue?",false) )
 				return false;
 
-			sDirectory = g_sSourcePath;
+			sDirectory = g_sNonSourcecodePrefix;
 		}
 		else if( sDirectory[0]!='/' && sDirectory.substr(1,2) != ":\\" && sDirectory.substr(1,2) != ":/")
-			sDirectory = g_sSourcePath + sDirectory;
+			sDirectory = g_sNonSourcecodePrefix + sDirectory;
 	
 		vector<Row_Package_Directory_File *> vectPackage_Directory_File;
 		pRow_Package_Directory->Package_Directory_File_FK_Package_Directory_getrows(&vectPackage_Directory_File);
@@ -703,7 +708,7 @@ AsksSourceQuests:
 	if( pRow_Package_Directory_CompiledOutput->Path_get()[0]=='/' )
 		sCompiledOutput = pRow_Package_Directory_CompiledOutput->Path_get();
 	else
-		sCompiledOutput += g_sSourcePath + "/" + pRow_Package_Directory_CompiledOutput->Path_get();
+		sCompiledOutput += g_sSourcecodePrefix + "/" + pRow_Package_Directory_CompiledOutput->Path_get();
 
 	for(size_t s=0;s<vectRow_Package_Directory.size();++s)
 	{
@@ -747,7 +752,7 @@ AsksSourceQuests:
 		}
 
 		// If the directory starts with a /, it is considered absolute.  Otherwise it's relative
-		string sSourceDirectory = g_sSourcePath;
+		string sSourceDirectory = g_sSourcecodePrefix;
 		if( pRow_Package_Directory->Path_get()[0]=='/' )
 			sSourceDirectory = pRow_Package_Directory->Path_get();
 		else
