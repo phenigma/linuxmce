@@ -397,6 +397,9 @@
 				RelativePath=".\Table_Event_EventParameter.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_Firewall.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_Floorplan.cpp">
 			</File>
 			<File
@@ -530,9 +533,6 @@
 			</File>
 			<File
 				RelativePath=".\Table_Pipe.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_PortForward.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_RepositorySource.cpp">

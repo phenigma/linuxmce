@@ -110,6 +110,7 @@ class Table_EventCategory* tblEventCategory;
 class Table_EventHandler* tblEventHandler;
 class Table_EventParameter* tblEventParameter;
 class Table_Event_EventParameter* tblEvent_EventParameter;
+class Table_Firewall* tblFirewall;
 class Table_Floorplan* tblFloorplan;
 class Table_FloorplanObjectType* tblFloorplanObjectType;
 class Table_FloorplanObjectType_Color* tblFloorplanObjectType_Color;
@@ -155,7 +156,6 @@ class Table_PageSetup* tblPageSetup;
 class Table_ParameterType* tblParameterType;
 class Table_PhoneLineType* tblPhoneLineType;
 class Table_Pipe* tblPipe;
-class Table_PortForward* tblPortForward;
 class Table_RepositorySource* tblRepositorySource;
 class Table_RepositorySource_URL* tblRepositorySource_URL;
 class Table_RepositoryType* tblRepositoryType;
@@ -320,6 +320,7 @@ class Table_EventCategory* EventCategory_get() { return tblEventCategory; }
 class Table_EventHandler* EventHandler_get() { return tblEventHandler; }
 class Table_EventParameter* EventParameter_get() { return tblEventParameter; }
 class Table_Event_EventParameter* Event_EventParameter_get() { return tblEvent_EventParameter; }
+class Table_Firewall* Firewall_get() { return tblFirewall; }
 class Table_Floorplan* Floorplan_get() { return tblFloorplan; }
 class Table_FloorplanObjectType* FloorplanObjectType_get() { return tblFloorplanObjectType; }
 class Table_FloorplanObjectType_Color* FloorplanObjectType_Color_get() { return tblFloorplanObjectType_Color; }
@@ -365,7 +366,6 @@ class Table_PageSetup* PageSetup_get() { return tblPageSetup; }
 class Table_ParameterType* ParameterType_get() { return tblParameterType; }
 class Table_PhoneLineType* PhoneLineType_get() { return tblPhoneLineType; }
 class Table_Pipe* Pipe_get() { return tblPipe; }
-class Table_PortForward* PortForward_get() { return tblPortForward; }
 class Table_RepositorySource* RepositorySource_get() { return tblRepositorySource; }
 class Table_RepositorySource_URL* RepositorySource_URL_get() { return tblRepositorySource_URL; }
 class Table_RepositoryType* RepositoryType_get() { return tblRepositoryType; }
@@ -533,6 +533,7 @@ void CreateTable_EventCategory();
 void CreateTable_EventHandler();
 void CreateTable_EventParameter();
 void CreateTable_Event_EventParameter();
+void CreateTable_Firewall();
 void CreateTable_Floorplan();
 void CreateTable_FloorplanObjectType();
 void CreateTable_FloorplanObjectType_Color();
@@ -578,7 +579,6 @@ void CreateTable_PageSetup();
 void CreateTable_ParameterType();
 void CreateTable_PhoneLineType();
 void CreateTable_Pipe();
-void CreateTable_PortForward();
 void CreateTable_RepositorySource();
 void CreateTable_RepositorySource_URL();
 void CreateTable_RepositoryType();
@@ -742,6 +742,7 @@ void DeleteTable_EventCategory();
 void DeleteTable_EventHandler();
 void DeleteTable_EventParameter();
 void DeleteTable_Event_EventParameter();
+void DeleteTable_Firewall();
 void DeleteTable_Floorplan();
 void DeleteTable_FloorplanObjectType();
 void DeleteTable_FloorplanObjectType_Color();
@@ -787,7 +788,6 @@ void DeleteTable_PageSetup();
 void DeleteTable_ParameterType();
 void DeleteTable_PhoneLineType();
 void DeleteTable_Pipe();
-void DeleteTable_PortForward();
 void DeleteTable_RepositorySource();
 void DeleteTable_RepositorySource_URL();
 void DeleteTable_RepositoryType();

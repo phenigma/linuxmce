@@ -102,6 +102,7 @@ Table_EventCategory.cpp \
 Table_EventHandler.cpp \
 Table_EventParameter.cpp \
 Table_Event_EventParameter.cpp \
+Table_Firewall.cpp \
 Table_Floorplan.cpp \
 Table_FloorplanObjectType.cpp \
 Table_FloorplanObjectType_Color.cpp \
@@ -147,7 +148,6 @@ Table_PageSetup.cpp \
 Table_ParameterType.cpp \
 Table_PhoneLineType.cpp \
 Table_Pipe.cpp \
-Table_PortForward.cpp \
 Table_RepositorySource.cpp \
 Table_RepositorySource_URL.cpp \
 Table_RepositoryType.cpp \
