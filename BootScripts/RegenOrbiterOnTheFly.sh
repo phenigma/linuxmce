@@ -6,15 +6,12 @@
 
 SkinDir=/usr/pluto/orbiter/skins
 FontDir=/usr/share/fonts/truetype/msttcorefonts
-OutDir=/usr/pluto/orbiter/temp
+OutDir=/usr/pluto/orbiter
 
 export SDL_VIDEODEVICE=dummy
 
 Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Generating Orbiter on the fly nr. $1"
 /usr/pluto/bin/OrbiterGen -d "$1" -g "$SkinDir" -f "$FontDir" -o "$OutDir" -h "$MySqlHost" || Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Failed to generate Orbiter nr. $1"
-read
-mv "$OutDir" "$OutDir/.."
-read
 Q="UPDATE Device SET NeedConfigure=0 WHERE PK_Device=$1"
 RunSQL "$Q"
 
