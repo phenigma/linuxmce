@@ -10,7 +10,7 @@ URL="$3"
 MozId="$($Rat -c 'windows %n %c' | grep -F Firefox-bin | head -1 | cut -d' ' -f1)"
 if [ -z "$MozId" ]; then
 	$Moz "$URL"
-	/usr/pluto/bin/MessageSend localhost 0 "$Orbiter" 1 4 16 "$Screen"
+	/usr/pluto/bin/MessageSend dcerouter 0 "$Orbiter" 1 4 16 "$Screen"
 else
 	$Rat -c "select $MozId"
 	$Moz -remote "openurl($URL)"
