@@ -817,7 +817,7 @@ int k=2;
 				sSQL << ", ";
 
 			if( bUpdate )
-				sSQL << " " << *it << "=";
+				sSQL << " `" << *it << "`=";
 
 			string Value = str.m_vectString[pos++];
 			if( Value=="**( NULL )**" )

@@ -1058,14 +1058,23 @@ void Database::Import( string sRepository, Repository *pRepository )
 	if( CurrentSchema<PriorSchema )
 		throw ("Database error: CurrentSchema<PriorSchema for repository: " + pRepository->Name_get()).c_str();
 	else if( CurrentSchema>PriorSchema )
+	{
 		pRepository->UpdateSchema(PriorSchema);
+		// Get all the fields again since this could have changed things.  Don't worry about matching
+		// up until we get to re-assigning primary keys
+		for( MapTable::iterator it=m_mapTable.begin( );it!=m_mapTable.end( );++it )
+		{
+			Table *pTable = ( *it ).second;
+			pTable->GetFields();
+		}
+	}
 
 	int NumTables = atoi( str.m_vectString[pos++].c_str( ) );
 	for( int i=0;i<NumTables;++i )
 	{
 		std::ostringstream sSQL;
 		string sTable = str.m_vectString[pos++];
-		Table *pTable = pRepository->m_mapTable_Find(sTable);
+		Table *pTable = m_mapTable_Find(sTable);
 		pRepository->ImportTable(sTable,str,pos,pTable);
 	}
 
