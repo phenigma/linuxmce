@@ -264,8 +264,10 @@ void Simulator::LoadConfigurationFile(string sConfigurationFile)
 	if(m_dwDelayMax <= m_dwDelayMin)
 		m_dwDelayMax = m_dwDelayMin + 500;
 
-#ifdef WIN32
-	LoadUI_From_ConfigurationData();
+#ifndef BLUETOOTH_DONGLE
+	#ifdef WIN32
+		LoadUI_From_ConfigurationData();
+	#endif
 #endif
 
 	if(m_bEnableGenerator)
