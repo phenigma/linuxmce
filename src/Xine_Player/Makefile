@@ -21,12 +21,12 @@ CXXFLAGS += -fmessage-length=0
 CPPFLAGS +=
 LDFLAGS += -L/usr/X11R6/lib -L/usr/lib
 INTERNAL_LIBS_NAMES +=
-EXTERNAL_LIBS_NAMES += xine z nsl rt png X11 m Xext Xxf86vm
+EXTERNAL_LIBS_NAMES += xine z nsl rt png X11 m Xext Xxf86vm Xtst
 
 XTRALDLIBS =
 
 Gen_Dev_Files +=
-sources +=  XineSlaveWrapper.cpp 
+sources +=  XineSlaveWrapper.cpp
 
 #<-dceag-mf-b->!
 LDLIBS_NAMES = $(INTERNAL_LIBS_NAMES) $(EXTERNAL_LIBS_NAMES)

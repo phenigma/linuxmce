@@ -23,6 +23,7 @@
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
 #include <X11/extensions/XShm.h>
+#include <X11/extensions/XTest.h>
 #include <X11/extensions/xf86vmode.h>
 #include <X11/cursorfont.h>
 
@@ -195,6 +196,11 @@ class XineSlaveWrapper
 
     void make_snapshot(xine_stream_t *stream, string sFormat, int iWidth, int iHeight, bool bKeepAspect, char*&pData, int &iDataSize);
 
+	/**
+	 * @brief Translate a PlutoKey definition into a XKeySym definition
+	 */
+	 KeySym translatePlutoKeySymToXKeySym(int plutoButton);
+
 public:
     /**
      * @brief constructor
@@ -307,6 +313,16 @@ public:
      */
 
     void selectMenu(int iStreamID, int iMenuType);
+
+	/**
+	 * @brief simlate a mouse click on the current active window.
+	 */
+	void simulateMouseClick(int X, int Y);
+
+	/**
+	 * @brief simlate a mouse click on the current active window.
+	 */
+	void simulateKeystroke(int plutoButton);
 
     /**
      * @brief Fired by a xineStream object when the stream has completed playback

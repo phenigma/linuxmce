@@ -35,6 +35,8 @@ using namespace std;
 using namespace DCE;
 
 #include "Gen_Devices/AllCommandsRequests.h"
+
+#include "pluto_main/Define_Button.h"
 //<-dceag-d-e->
 
 //<-dceag-const-b->
@@ -397,6 +399,8 @@ string Xine_Player::GetMacAddress()
 void Xine_Player::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage)
 //<-dceag-c29-e->
 {
+    makeActive(m_pXineSlaveControl->getRenderingWindowName());
+	m_pXineSlaveControl->simulateMouseClick(iPosition_X, iPosition_Y);
 }
 
 //<-dceag-c190-b->
@@ -407,7 +411,8 @@ void Xine_Player::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,strin
 void Xine_Player::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
 //<-dceag-c190-e->
 {
-    //m_pXineSlaveControl->pushCurrentButton(iStreamID);
+    makeActive(m_pXineSlaveControl->getRenderingWindowName());
+	m_pXineSlaveControl->simulateKeystroke(BUTTON_Enter_CONST);
 }
 
 //<-dceag-c200-b->
@@ -418,6 +423,8 @@ void Xine_Player::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
 //<-dceag-c200-e->
 {
+    makeActive(m_pXineSlaveControl->getRenderingWindowName());
+	m_pXineSlaveControl->simulateKeystroke(BUTTON_Up_Arrow_CONST);
 }
 
 //<-dceag-c201-b->
@@ -428,6 +435,8 @@ void Xine_Player::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
 //<-dceag-c201-e->
 {
+    makeActive(m_pXineSlaveControl->getRenderingWindowName());
+	m_pXineSlaveControl->simulateKeystroke(BUTTON_Down_Arrow_CONST);
 }
 
 //<-dceag-c202-b->
@@ -438,6 +447,8 @@ void Xine_Player::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_Move_Left(string &sCMD_Result,Message *pMessage)
 //<-dceag-c202-e->
 {
+    makeActive(m_pXineSlaveControl->getRenderingWindowName());
+ 	m_pXineSlaveControl->simulateKeystroke(BUTTON_Left_Arrow_CONST);
 }
 
 //<-dceag-c203-b->
@@ -448,4 +459,6 @@ void Xine_Player::CMD_Move_Left(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
 //<-dceag-c203-e->
 {
+    makeActive(m_pXineSlaveControl->getRenderingWindowName());
+	m_pXineSlaveControl->simulateKeystroke(BUTTON_Right_Arrow_CONST);
 }

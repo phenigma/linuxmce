@@ -36,6 +36,8 @@
 
 #include "DCE/DCEConfig.h"
 
+#include "pluto_main/Define_Button.h"
+
 #define INPUT_MOTION (ExposureMask | ButtonPressMask | KeyPressMask | \
                       ButtonMotionMask | StructureNotifyMask | PropertyChangeMask | PointerMotionMask)
 
@@ -1499,3 +1501,40 @@ int XineSlaveWrapper::enableBroadcast(int iStreamID)
     return 0;
 }
 
+void XineSlaveWrapper::simulateMouseClick(int X, int Y)
+{
+}
+
+void XineSlaveWrapper::simulateKeystroke(int plutoButton)
+{
+    Window oldWindow;
+    int oldRevertBehaviour;
+
+	XLockDisplay(XServerDisplay);
+	XGetInputFocus( XServerDisplay, &oldWindow, &oldRevertBehaviour);
+    XSetInputFocus( XServerDisplay, windows[m_iCurrentWindow], RevertToParent, CurrentTime );
+    XTestFakeKeyEvent( XServerDisplay, XKeysymToKeycode(XServerDisplay, translatePlutoKeySymToXKeySym(plutoButton)), True, 0 );
+    XTestFakeKeyEvent( XServerDisplay, XKeysymToKeycode(XServerDisplay, translatePlutoKeySymToXKeySym(plutoButton)), False, 0 );
+
+	if ( oldWindow )
+        XSetInputFocus( XServerDisplay, oldWindow, oldRevertBehaviour, CurrentTime );
+
+    XFlush(XServerDisplay);
+	XUnlockDisplay(XServerDisplay);
+}
+
+KeySym XineSlaveWrapper::translatePlutoKeySymToXKeySym(int plutoButton)
+{
+	switch ( plutoButton )
+	{
+		case BUTTON_Up_Arrow_CONST: return XK_Up;
+		case BUTTON_Down_Arrow_CONST: return XK_Down;
+		case BUTTON_Left_Arrow_CONST: return XK_Left;
+		case BUTTON_Right_Arrow_CONST: return XK_Right;
+		case BUTTON_Enter_CONST: return XK_Return;
+
+		default:
+			g_pPlutoLogger->Write(LV_WARNING, "Translating of the %d pluto key is not handled yet.", plutoButton);
+			return 0;
+	}
+}
