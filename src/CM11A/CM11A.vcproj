@@ -85,7 +85,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE-r.lib serial.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE-r.lib serial-r.lib"
 				OutputFile="../Release/CM11A.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
