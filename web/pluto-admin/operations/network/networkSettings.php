@@ -280,7 +280,10 @@ function networkSettings($output,$dbADO) {
 			if($_POST['ipFrom']=='DHCP'){
 				$networkInterfaces.=',dhcp';
 			}else{
-				$networkInterfaces.=','.getIpFromParts('coreIP_').','.getIpFromParts('coreNetMask_').','.getIpFromParts('coreGW_').','.getIpFromParts('coreDNS1_').','.getIpFromParts('coreDNS2_');
+				$dns1 = getIpFromParts('coreDNS1_');
+				$dns2 = getIpFromParts('coreDNS2_');
+				$dns_string = $dns1 . ($dns2 === "" ? "" : ",$dns2");
+				$networkInterfaces.=','.getIpFromParts('coreIP_').','.getIpFromParts('coreNetMask_').','.getIpFromParts('coreGW_').','.$dns_string;
 			}
 			$networkInterfaces.='|'.$internalInterface.','.getIpFromParts('internalCoreIP_').','.getIpFromParts('internalCoreNetMask_');
 			if($networkInterfaces!=$rowNC['IK_DeviceData']){
