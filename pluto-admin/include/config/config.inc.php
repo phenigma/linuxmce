@@ -97,7 +97,7 @@
 	$GLOBALS['genericHeatCommand']=197;				// Generic Heat
 	$GLOBALS['genericCoolCommand']=196;				// Generic Cool
 	$GLOBALS['MediaScenariosCommand']=43;			// MH Play Media
-	$GLOBALS['commandSetUserMode']=26;					// Set User Mode	
+	$GLOBALS['commandSetUserMode']=58;					// Set User Mode	
 	$GLOBALS['commandSetVar']=27;					// Set Variable
 	$GLOBALS['commandGotoScreen']=5;				// Go to screen
 	$GLOBALS['commandMHPlayMedia']=43;				// MH Play Media
