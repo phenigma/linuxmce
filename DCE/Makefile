@@ -7,12 +7,12 @@ CXX = g++
 APPNAME = DCECommon
 VERSION = 2.0.0
 
-sources = minilzo.cpp DataGrid.cpp DCEClientSocket.cpp DCELogger.cpp DCEMessage.cpp \
-	DCESocket.cpp DCEServerSocket.cpp DCESocketListener.cpp DCEServerLogger.cpp \
-	AlarmManager.cpp md5c.cpp DCECommand_Impl.cpp DCEEvent_Impl.cpp \
-	DCEHandleRequestSocket.cpp TokenStream.cpp CommonIncludes.cpp \
-	DCEDeviceData_Impl.cpp DCEDeviceData_Base.cpp \
-	MultiThreadIncludes.cpp
+sources = ../PlutoUtils/minilzo.cpp DataGrid.cpp ClientSocket.cpp Logger.cpp Message.cpp \
+	Socket.cpp ServerSocket.cpp SocketListener.cpp ServerLogger.cpp \
+	AlarmManager.cpp ../PlutoUtils/md5c.cpp Command_Impl.cpp Event_Impl.cpp \
+	HandleRequestSocket.cpp ../PlutoUtils/CommonIncludes.cpp \
+	DeviceData_Impl.cpp DeviceData_Base.cpp \
+	../PlutoUtils/MultiThreadIncludes.cpp
 
 all: libDCECommon all-recursive
 
