@@ -1414,8 +1414,8 @@ function wizard($output,$dbADO) {
 				$getInstallation='SELECT * FROM Installation WHERE PK_Installation=?';
 				$resInstallation=$dbADO->Execute($getInstallation,$installationID);
 				$rowInstallation=$resInstallation->FetchRow();
-				$selectedRepositoryType=($rowInstallation['FK_RepositoryType_Source'])?$rowInstallation['FK_RepositoryType_Source']:6;
-											
+				$selectedRepositoryType=($rowInstallation['FK_RepositoryType_Source'])?$rowInstallation['FK_RepositoryType_Source']:4;
+				$selectedRepositoryType_Binaries=($rowInstallation['FK_RepositoryType_Binaries'])?$rowInstallation['FK_RepositoryType_Binaries']:0;							
 
 				if($action=='form'){
 				
@@ -1463,11 +1463,17 @@ function wizard($output,$dbADO) {
 										<input type="radio" name="method" value="4" '.(($selectedRepositoryType==4)?'checked':'').' onClick="document.wizard.submit();"> svn&nbsp;&nbsp;&nbsp
 									</td>
 								</tr>
-								</tr>
 								</table>
 								</td>
+							</tr>
 							<tr class="normaltext">
-							<td colspan="2" align="left"><br>Here are the computers you will need software for.  Be sure to make note of the Device numbers:<br><br><B>Core:</B></td>
+								<td>How do you prefere to get your binaries? 
+									<input type="radio" name="binaries" value="1" '.(($selectedRepositoryType_Binaries==1)?'checked':'').' onClick="document.wizard.submit();"> Packages &nbsp;&nbsp;&nbsp;&nbsp;
+									<input type="radio" name="binaries" value="6" '.(($selectedRepositoryType_Binaries==6)?'checked':'').' onClick="document.wizard.submit();"> Archives
+								</td>
+							</tr>
+							<tr class="normaltext">
+							<td colspan="3" align="left"><br>Here are the computers you will need software for.  Be sure to make note of the Device numbers:<br><br><B>Core:</B></td>
 							</tr>				
 							<tr class="normaltext" bgcolor="lightblue">
 								<td valign="top"><b>'.$DistroNameOS.'</b></td>
@@ -1649,8 +1655,8 @@ function wizard($output,$dbADO) {
 				
 			}else{
 				// process form step 7
-				$updateInstallation='UPDATE Installation SET FK_RepositoryType_Source=? WHERE PK_Installation=?';
-				$dbADO->Execute($updateInstallation,array($_POST['method'],$installationID));
+				$updateInstallation='UPDATE Installation SET FK_RepositoryType_Source=?, FK_RepositoryType_Binaries=? WHERE PK_Installation=?';
+				$dbADO->Execute($updateInstallation,array((int)$_POST['method'],(int)$_POST['binaries'],$installationID));
 
 				header("Location: index.php?section=wizard&step=7");
 			}
