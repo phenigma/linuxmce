@@ -209,9 +209,10 @@ void CreateDevice::CreateChildrenByCategory(int iPK_Device,int iPK_DeviceCategor
 				threaded_mysql_query(SQL.c_str());
 
 				PlutoSqlResult result;
-				SQL = "SELECT FK_Pipe,FK_Command_Input,FK_Command_Output,ToChild FROM DeviceTemplate_DeviceCategory_ControlledVia_Pipe WHERE FK_DeviceTemplate_DeviceCategory_ControlledVia="+string(row[2]);
+				SQL = "SELECT FK_Pipe,FK_Command_Input,FK_Command_Output,ToChild,Command.Description FROM DeviceTemplate_DeviceCategory_ControlledVia_Pipe LEFT JOIN Command ON FK_Command_Input=PK_Command WHERE FK_DeviceTemplate_DeviceCategory_ControlledVia="+string(row[2]);
 				if( ( result.r=mysql_query_result( SQL ) ) )
 				{
+					string sLastDescription;
 					while( row=mysql_fetch_row( result.r ) )
 					{
 						SQL = "INSERT INTO Device_Device_Pipe(FK_Device_To,FK_Device_From,FK_Pipe,FK_Command_Input,FK_Command_Output) VALUES(";
@@ -221,6 +222,13 @@ void CreateDevice::CreateChildrenByCategory(int iPK_Device,int iPK_DeviceCategor
 							SQL += StringUtils::itos(iPK_Device) + "," + StringUtils::itos(PK_Device);
 						SQL += string(",") + (row[0] ? row[0] : "NULL") + "," + (row[1] ? row[1] : "NULL")  + "," + (row[2] ? row[2] : "NULL") + ")";
 						threaded_mysql_query(SQL.c_str());
+
+						if( row[4] && sLastDescription!=row[4] ) // We've got a description for the input
+						{
+							sLastDescription=row[4];
+							SQL = "UPDATE Device SET Description = concat(Description,'/" + StringUtils::SQLEscape(sLastDescription) + "') WHERE PK_Device=" + StringUtils::itos(PK_Device);
+							threaded_mysql_query(SQL.c_str());
+						}
 					}
 				}
 			}
@@ -250,9 +258,10 @@ void CreateDevice::CreateChildrenByTemplate(int iPK_Device,int iPK_DeviceTemplat
 				threaded_mysql_query(SQL.c_str());
 
 				PlutoSqlResult result;
-				SQL = "SELECT FK_Pipe,FK_Command_Input,FK_Command_Output,ToChild FROM DeviceTemplate_DeviceTemplate_ControlledVia_Pipe WHERE FK_DeviceTemplate_DeviceTemplate_ControlledVia="+string(row[2]);
+				SQL = "SELECT FK_Pipe,FK_Command_Input,FK_Command_Output,ToChild,Command.Description FROM DeviceTemplate_DeviceTemplate_ControlledVia_Pipe LEFT JOIN Command ON FK_Command_Input=PK_Command WHERE FK_DeviceTemplate_DeviceTemplate_ControlledVia="+string(row[2]);
 				if( ( result.r=mysql_query_result( SQL ) ) )
 				{
+					string sLastDescription;
 					while( row=mysql_fetch_row( result.r ) )
 					{
 						SQL = "INSERT INTO Device_Device_Pipe(FK_Device_To,FK_Device_From,FK_Pipe,FK_Command_Input,FK_Command_Output) VALUES(";
@@ -262,6 +271,13 @@ void CreateDevice::CreateChildrenByTemplate(int iPK_Device,int iPK_DeviceTemplat
 							SQL += StringUtils::itos(iPK_Device) + "," + StringUtils::itos(PK_Device);
 						SQL += string(",") + (row[0] ? row[0] : "NULL") + "," + (row[1] ? row[1] : "NULL")  + "," + (row[2] ? row[2] : "NULL") + ")";
 						threaded_mysql_query(SQL.c_str());
+
+						if( row[4] && sLastDescription!=row[4] ) // We've got a description for the input
+						{
+							sLastDescription=row[4];
+							SQL = "UPDATE Device SET Description = concat(Description,'/" + StringUtils::SQLEscape(sLastDescription) + "') WHERE PK_Device=" + StringUtils::itos(PK_Device);
+							threaded_mysql_query(SQL.c_str());
+						}
 					}
 				}
 			}
