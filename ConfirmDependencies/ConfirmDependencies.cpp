@@ -508,8 +508,27 @@ void CheckDeviceLoop(Row_Device *pRow_Device,bool bDevelopment)
 void CheckPackage(Row_Package *pRow_Package,Row_Device *pRow_Device,bool bDevelopment,Row_Distro *pRow_Distro,bool bMustBuildFromSource)
 {
 	Database_pluto_main *pDatabase_pluto_main = pRow_Distro->Table_Distro_get()->Database_pluto_main_get();
+	vector<Row_Package_Compat *> vectRow_Package_Compat;
+	pRow_Package->Package_Compat_FK_Package_getrows(&vectRow_Package_Compat);
+	bool bFound=false;
+	for(size_t s=0;s<vectRow_Package_Compat.size();++s)
+	{
+		Row_Package_Compat *pRow_Package_Compat = vectRow_Package_Compat[s];
+		if( pRow_Package_Compat->FK_Distro_get()==pRow_Distro->PK_Distro_get() ||
+			pRow_Package_Compat->FK_OperatingSystem_get()==pRow_Distro->FK_OperatingSystem_get() )
+		{
+			bFound=true;
+			break;
+		}
+	}
 
 	string PkgName = pRow_Package->Description_get();
+
+	if( !bFound )
+	{
+		cout << "Skipping package " << PkgName << " because it is not compatible with this distro" << endl;
+		return;
+	}
 
 	// Start with the dependencies first, since we want the lowest dependency, and then the top one
 	vector<Row_Package_Package *> vectRow_Package_Package;
