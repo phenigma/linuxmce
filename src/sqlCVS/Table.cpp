@@ -1151,9 +1151,9 @@ void Table::UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 		sSQL << "SELECT psc_user,psc_frozen FROM " << m_sName << " WHERE psc_id=" << pR_CommitRow->m_psc_id;
 		PlutoSqlResult result_set;
 		MYSQL_ROW row=NULL;
-		if( ( result_set.r=m_pDatabase->mysql_query_result(sSQL.str()) ) && ( row = mysql_fetch_row( result_set.r ) ) )
+		if( (result_set.r=m_pDatabase->mysql_query_result(sSQL.str())) && (row = mysql_fetch_row(result_set.r)) )
 		{
-			if( row[1] && row[1][0]=='1' )
+			if( m_bFrozen || (row[1] && row[1][0]=='1') )
 				bFrozen=true;
 			else
 				bFrozen=false;

@@ -910,7 +910,10 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 #pragma warning( "need to make an index for psc_id" );
 
 	map<int,int> map_id_mod;
-
+if( sTableName=="Command_CommandParameter" )
+{
+	int k=2;
+}
 	if( !pTable )
 	{
 		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
@@ -943,7 +946,7 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 		}
 
 		sSQL.str( "" );
-		sSQL << "SELECT psc_id,psc_mod FROM " << sTableName;
+		sSQL << "SELECT psc_id,psc_mod FROM " << sTableName;// << " WHERE psc_mod<>0 AND psc_mod IS NOT NULL";
 		PlutoSqlResult result_set;
 		MYSQL_ROW row=NULL;
 		if( ( result_set.r=m_pDatabase->mysql_query_result( sSQL.str( ) ) ) )
@@ -955,7 +958,7 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 	}
 
 	bool bCheckForUpdate = map_id_mod.size()!=0;
-
+	int i_psc_id_prior=0; // Keep track of the prior psc_id so we can see if any records were deleted on the server
 	int NumRows = atoi( str.m_vectString[pos++].c_str( ) );
 	cout << "Importing table: " << sTableName << " (" << m_sName << ") " << NumRows << " rows" << endl;
 	for( int j=0;j<NumRows;++j )
@@ -964,11 +967,34 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 			cout << "Completed " << j << " rows out of " << NumRows << endl;
 
 		bool bUpdate=false; // Make this an update rather than an insert
-		int i_psc_id=0; // If an update, this will be the psc_id
+		int i_psc_id= iField_psc_id!=-1 ? atoi(str.m_vectString[pos+iField_psc_id].c_str()) : 0; // The psc_id of the row we're importing
+
+		// Delete any psc_id's that were since deleted on the server
+		for(int ipsc_id_deleted=i_psc_id_prior+1;ipsc_id_deleted<i_psc_id;ipsc_id_deleted++)
+		{
+			// The user modified a row that we need to delete
+			if( bCheckForUpdate && map_id_mod.find(ipsc_id_deleted)!=map_id_mod.end() && map_id_mod[ipsc_id_deleted] )
+			{
+				cout << endl << "***Warning*** While importing into table: " << sTableName << " pscid: " << ipsc_id_deleted << endl;
+				cout << "You modified the row that was deleted on the server." << endl;
+				if( !AskYNQuestion("Delete anyway and lose your changes?",false) )
+				{
+					cerr << "Local database modified deleted rows on server" << endl;
+					throw "Cannot rollback local changes";
+				}
+			}
+			sSQL.str( "" );
+			sSQL << "DELETE FROM " << sTableName << " WHERE psc_id=" << ipsc_id_deleted;
+			if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+			{
+				cerr << "SQL Failed: " << sSQL.str( ) << endl;
+				throw "Database error";
+			}
+		}
+
 		if( bCheckForUpdate )
 		{
 			// See if a record with this psc_id already exists, only if we didn't create the table new
-			i_psc_id = atoi(str.m_vectString[pos+iField_psc_id].c_str());
 			if( map_id_mod.find(i_psc_id)!=map_id_mod.end() )
 			{
 				bUpdate=true;
@@ -1020,6 +1046,7 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 			cerr << "SQL Failed: " << sSQL.str( ) << endl;
 			throw "Database error";
 		}
+		i_psc_id_prior = i_psc_id;
 	}
 	if( !pTable && iField_psc_id!=-1 )
 	{
