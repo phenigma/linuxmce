@@ -162,7 +162,7 @@ namespace sqlCVS
 		void Commit( );
 		void Rollback( );
 
-		void CheckIn( );
+		void CheckIn( bool bFirstLoop );
 		void Update( );
 		void Dump( );
 		void Import( );

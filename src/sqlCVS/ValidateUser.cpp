@@ -34,6 +34,6 @@ cout << "Ready to validate Masterusers with host: " << g_GlobalConfig.dceConfig.
 	if( bNoPassword || Password==md5 || mySqlHelper.md5(Password)==md5 )
 		return psc_user;
 
-	cout << "Username: " << Username << " Password: " << Password << " failed login" << endl;
+	cout << "Username: " << Username << " Password: " << Password << " md5: " << md5 << " failed login" << endl;
 	return 0;
 }

@@ -565,9 +565,10 @@ void Database::ShowChanges()
 	}
 }
 
-void Database::CheckIn( )
+void Database::CheckIn( bool bFirstLoop )
 {
-	GetTablesToCheckIn( );
+	if( bFirstLoop )
+		GetTablesToCheckIn( );
 	
 	if( g_GlobalConfig.m_mapTable.size( )==0 )
 	{
@@ -581,84 +582,87 @@ void Database::CheckIn( )
 		pTable->GetChanges( );
 	}
 
-	bool bDependenciesMet=true;
-	if( !g_GlobalConfig.m_bAllowUnmetDependencies )
+	if( bFirstLoop )
 	{
-		for( MapTable::iterator it=g_GlobalConfig.m_mapTable.begin( );it!=g_GlobalConfig.m_mapTable.end( );++it )
+		bool bDependenciesMet=true;
+		if( !g_GlobalConfig.m_bAllowUnmetDependencies )
 		{
-			if( !( *it ).second->ConfirmDependencies( ) )
-				bDependenciesMet=false;
-		}
-	}
-
-	if( !bDependenciesMet )
-	{
-		cerr << "Aborting checkin due to unmet dependencies" << endl;
-		throw "Unmet dependencies";
-	}
-
-	for( MapRepository::iterator it=g_GlobalConfig.m_mapRepository.begin( );it!=g_GlobalConfig.m_mapRepository.end( );++it )
-	{
-		Repository *pRepository = ( *it ).second;
-		if( !pRepository->DetermineDeletions( ) )
-			return; /**< This will throw an exception with the transaction */
-	}
-
-	/** Now mapTable has all the tables we need to check in. Confirm the users if none were passed in on the command line   */
-	if( g_GlobalConfig.m_mapUsersPasswords.size( )==0 && ConfirmUsersToCheckIn( )<1 )
-		return;
-
-	// If the only user in the map is the 0 user (ie new, unclaimed records), then at least 1 real user must be logged in
-	if( (*(g_GlobalConfig.m_mapUsersPasswords.begin())).first=="0" && g_GlobalConfig.m_mapUsersPasswords.size()==1 )
-	{
-		while( g_GlobalConfig.m_mapUsersPasswords.size()==1 )
-		{
-			cout << "Type in user names, or id's who will be doing the checkin." << endl
-				<< "You can separate multiple ones with a comma." << endl
-				<< "Enter 'q' to quit." << endl;
-			
-			string sUsers;
-			cin >> sUsers;
-
-			if( sUsers=="q" || sUsers=="Q" )
-				return;
-			string::size_type pos=0;
-			string Token;
-			while( (Token=StringUtils::Tokenize(sUsers,",",pos)).length() )
-				g_GlobalConfig.m_mapUsersPasswords[Token]="";  // Add the user with no password.  We will prompt for the password below
-		}
-	}
-
-	// If no default user is specified, we will pick one.  This will be the user that is assigned ownership of any new, unclaimed records
-	if( g_GlobalConfig.m_sDefaultUser.size()==0 )
-		g_GlobalConfig.m_sDefaultUser = (*(g_GlobalConfig.m_mapUsersPasswords.begin())).first;
-
-	for(MapStringString::iterator it=g_GlobalConfig.m_mapUsersPasswords.begin();it!=g_GlobalConfig.m_mapUsersPasswords.end();++it)
-	{
-		if( (*it).first=="0" )
-			continue; // We don't care about the '0' user.  This is for unclaimed new records
-
-		string md5;
-		string Password = (*it).second;
-		while( Password.length()==0 )
-		{
-			cout << "Enter the password for user " << (*it).first << " or 0 if you don't know it or "
-				<< "'nopass' to checkin without his password: ";
-			cin >> Password;
+			for( MapTable::iterator it=g_GlobalConfig.m_mapTable.begin( );it!=g_GlobalConfig.m_mapTable.end( );++it )
+			{
+				if( !( *it ).second->ConfirmDependencies( ) )
+					bDependenciesMet=false;
+			}
 		}
 
-		// It requires the this->????  Guess there's another md5 function
-		if( Password=="0" )
-			g_GlobalConfig.m_mapUsersPasswords[(*it).first]="";
-		else
-			g_GlobalConfig.m_mapUsersPasswords[(*it).first]=this->md5(Password);
-	}
+		if( !bDependenciesMet )
+		{
+			cerr << "Aborting checkin due to unmet dependencies" << endl;
+			throw "Unmet dependencies";
+		}
 
-	/** If any of the records to be checked in refer to a record with an auto-increment field that is new and is not being checked in,
-	 * this will fail
-	 */
-	if( !ConfirmRecordsToCheckIn( ) )
-		return;
+		for( MapRepository::iterator it=g_GlobalConfig.m_mapRepository.begin( );it!=g_GlobalConfig.m_mapRepository.end( );++it )
+		{
+			Repository *pRepository = ( *it ).second;
+			if( !pRepository->DetermineDeletions( ) )
+				return; /**< This will throw an exception with the transaction */
+		}
+
+		/** Now mapTable has all the tables we need to check in. Confirm the users if none were passed in on the command line   */
+		if( g_GlobalConfig.m_mapUsersPasswords.size( )==0 && ConfirmUsersToCheckIn( )<1 )
+			return;
+
+		// If the only user in the map is the 0 user (ie new, unclaimed records), then at least 1 real user must be logged in
+		if( (*(g_GlobalConfig.m_mapUsersPasswords.begin())).first=="0" && g_GlobalConfig.m_mapUsersPasswords.size()==1 )
+		{
+			while( g_GlobalConfig.m_mapUsersPasswords.size()==1 )
+			{
+				cout << "Type in user names, or id's who will be doing the checkin." << endl
+					<< "You can separate multiple ones with a comma." << endl
+					<< "Enter 'q' to quit." << endl;
+				
+				string sUsers;
+				cin >> sUsers;
+
+				if( sUsers=="q" || sUsers=="Q" )
+					return;
+				string::size_type pos=0;
+				string Token;
+				while( (Token=StringUtils::Tokenize(sUsers,",",pos)).length() )
+					g_GlobalConfig.m_mapUsersPasswords[Token]="";  // Add the user with no password.  We will prompt for the password below
+			}
+		}
+
+		// If no default user is specified, we will pick one.  This will be the user that is assigned ownership of any new, unclaimed records
+		if( g_GlobalConfig.m_sDefaultUser.size()==0 )
+			g_GlobalConfig.m_sDefaultUser = (*(g_GlobalConfig.m_mapUsersPasswords.begin())).first;
+
+		for(MapStringString::iterator it=g_GlobalConfig.m_mapUsersPasswords.begin();it!=g_GlobalConfig.m_mapUsersPasswords.end();++it)
+		{
+			if( (*it).first=="0" )
+				continue; // We don't care about the '0' user.  This is for unclaimed new records
+
+			string md5;
+			string Password = (*it).second;
+			while( Password.length()==0 )
+			{
+				cout << "Enter the password for user " << (*it).first << " or 0 if you don't know it or "
+					<< "'nopass' to checkin without his password: ";
+				cin >> Password;
+			}
+
+			// It requires the this->????  Guess there's another md5 function
+			if( Password=="0" )
+				g_GlobalConfig.m_mapUsersPasswords[(*it).first]="";
+			else
+				g_GlobalConfig.m_mapUsersPasswords[(*it).first]=this->md5(Password);
+		}
+
+		/** If any of the records to be checked in refer to a record with an auto-increment field that is new and is not being checked in,
+		* this will fail
+		*/
+		if( !ConfirmRecordsToCheckIn( ) )
+			return;
+	}
 
 	try
 	{
@@ -683,7 +687,7 @@ void Database::CheckIn( )
 		return;
 	}
 
-	if( g_GlobalConfig.m_mapBatch_ChangedRow.size() )
+	if( !bFirstLoop && g_GlobalConfig.m_mapBatch_ChangedRow.size() )
 	{
 		cout << "Some records have been checked-in, but are pending" << endl
 			<< "because you are not authorized to modify the table." << endl
