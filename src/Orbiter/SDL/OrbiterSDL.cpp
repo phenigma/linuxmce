@@ -396,10 +396,14 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::UpdateRect(PlutoRectangle rect)
 {
+g_pPlutoLogger->Write(LV_CRITICAL, "Before UpdateRect x: %d y: %d w: %d h: %d", rect.X, rect.Y, rect.Width, rect.Height);
+sleep(500);
 	PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
 
 #ifdef USE_ONLY_SCREEN_SURFACE
 	SDL_UpdateRect(Screen, rect.Left(), rect.Top(), rect.Width, rect.Height);
 #endif
+g_pPlutoLogger->Write(LV_CRITICAL, "After UpdateRect");
+sleep(500);
 }
 //-----------------------------------------------------------------------------------------------------

@@ -246,12 +246,19 @@ void OrbiterLinux::RenderScreen()
     desktopInScreen = false;
 
 
-    OrbiterSDL::RenderScreen();
-
+g_pPlutoLogger->Write(LV_CRITICAL, "Before render screen");
+sleep(500);
+	OrbiterSDL::RenderScreen();
+g_pPlutoLogger->Write(LV_CRITICAL, "After render screen %d",(int) desktopInScreen);
+sleep(500);
     if ( false == desktopInScreen )
         setDesktopVisible(false);
+g_pPlutoLogger->Write(LV_CRITICAL, "Before Xflush");
+sleep(500);
 
     XFlush(XServerDisplay);
+g_pPlutoLogger->Write(LV_CRITICAL, "After Xflush");
+sleep(500);
 }
 
 /**
