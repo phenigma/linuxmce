@@ -28,13 +28,14 @@ if ! grep "$CORE_INTERNAL_INTERFACE" /etc/network/interfaces &>/dev/null; then
 	ifup "$CORE_INTERNAL_INTERFACE"
 fi
 
-NS=$(grep nameserver /etc/resolv.conf | sed 's/nameserver//g; s/^ *//g; s/ *$//g' | tr '\n' ' ')
+NS=$(grep nameserver /etc/resolv.conf | sed 's/#.*$//g; s/nameserver//g; s/^ *//g; s/ *$//g' | tr '\n' ' ')
 
 Fwd="forwarders {"
 for i in $NS; do
-	Fwd=$(printf "%s" "$Fwd\n\t$i;")
+	Fwd=$(printf "%s" "$Fwd~!$i;")
 done
-Fwd=$(printf "%s" "$Fwd\n}\n")
+Fwd=$(printf "%s" "$Fwd~}~")
+echo "$Fwd" | tr '~!' '\n\t' >/etc/bind9/named.conf.forwarders
 
 awk 'BEGIN { Replace = 0 }
 /\/\/ forwarders/ {
