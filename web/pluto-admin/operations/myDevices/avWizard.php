@@ -10,6 +10,10 @@ function avWizard($output,$dbADO) {
 	$type = isset($_REQUEST['type'])?cleanString($_REQUEST['type']):'avEquipment';
 	$installationID = (int)@$_SESSION['installationID'];
 
+	$pvrArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,' WHERE FK_DeviceCategory='.$GLOBALS['PVRCaptureCards'],'ORDER BY Description ASC');
+	$soundArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,' WHERE FK_DeviceCategory='.$GLOBALS['SoundCards'],'ORDER BY Description ASC');
+	$videoArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,' WHERE FK_DeviceCategory='.$GLOBALS['VideoCards'],'ORDER BY Description ASC');
+
 	switch($type){
 		case 'avEquipment':
 			$deviceCategory=$GLOBALS['rootAVEquipment'];
@@ -500,6 +504,14 @@ function avWizard($output,$dbADO) {
 							<td colspan="8">'.getInstallWizardDeviceTemplates(6,$dbADO,$orbiterMDChild,$mdDistro,1).'<hr></td>
 						</tr>';
 					}
+					$pvrDevice=getSubDT($rowD['PK_Device'],$GLOBALS['PVRCaptureCards'],$dbADO);
+					$soundDevice=getSubDT($rowD['PK_Device'],$GLOBALS['SoundCards'],$dbADO);
+					$videoDevice=getSubDT($rowD['PK_Device'],$GLOBALS['VideoCards'],$dbADO);
+					$out.='
+						<tr class="normaltext">
+							<td colspan="6">PVR Capture Card: '.htmlPulldown($pvrArray,'PVRCaptureCard_'.$rowD['PK_Device'],$pvrDevice,'None').' Sound Card '.htmlPulldown($soundArray,'SoundCard_'.$rowD['PK_Device'],$soundDevice,'Standard Sound Card').' Video Card '.htmlPulldown($videoArray,'VideoCard_'.$rowD['PK_Device'],$videoDevice,'Standard Video Card').'</td>
+						</tr>';
+
 				}else {
 					$out.='
 						<tr>
@@ -701,6 +713,14 @@ function avWizard($output,$dbADO) {
 								}
 							}
 						}
+						// add/delete PVR Capture Card, sound card and video card
+						$pvrDT=$_POST['PVRCaptureCard_'.$value];
+						recreateDevice($value,$GLOBALS['PVRCaptureCards'],$pvrDT,$_SESSION['installationID'],$room,$dbADO);
+						$soundDT=$_POST['SoundCard_'.$value];
+						recreateDevice($value,$GLOBALS['SoundCards'],$soundDT,$_SESSION['installationID'],$room,$dbADO);
+						$videoDT=$_POST['VideoCard_'.$value];
+						recreateDevice($value,$GLOBALS['VideoCards'],$videoDT,$_SESSION['installationID'],$room,$dbADO);
+						
 					}
 				}
 			}
@@ -731,5 +751,46 @@ function avWizard($output,$dbADO) {
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.((isset($title))?' :: '.$title:' :: '.strtoupper(str_replace('_',' ',$type))));
 	$output->output();
+}
+
+function getSubDT($mdID,$categoryID,$dbADO)
+{
+	$res=$dbADO->Execute('
+		SELECT FK_DeviceTemplate
+		FROM Device 
+		INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+		WHERE FK_DeviceCategory=? AND FK_Device_ControlledVia=?',array($categoryID,$mdID));
+	if($res->RecordCount()>0){
+		$row=$res->FetchRow();
+		return $row['FK_DeviceTemplate'];
+	}else{
+		return 0;
+	}
+}
+
+function getSubDevice($mdID,$categoryID,$dbADO)
+{
+	$res=$dbADO->Execute('
+		SELECT PK_Device
+		FROM Device 
+		INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+		WHERE FK_DeviceCategory=? AND FK_Device_ControlledVia=?',array($categoryID,$mdID));
+	if($res->RecordCount()>0){
+		$row=$res->FetchRow();
+		return $row['PK_Device'];
+	}else{
+		return 0;
+	}
+}
+
+function recreateDevice($mdID,$categoryID,$dtID,$installationID,$roomID,$dbADO)
+{
+	$deviceID=getSubDevice($mdID,$categoryID,$dbADO);
+	if($deviceID!=0){
+		deleteDevice($deviceID,$dbADO);
+	}
+	if($dtID!=0){
+		createDevice($dtID,$installationID,$mdID,$roomID,$dbADO);
+	}
 }
 ?>

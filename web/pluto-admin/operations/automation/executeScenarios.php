@@ -112,7 +112,7 @@ function executeScenarios($output,$dbADO) {
 		if(isset($_REQUEST['cgID'])){
 			$cgID=(int)$_REQUEST['cgID'];
 			$commandToSend='/usr/pluto/bin/MessageSend localhost 0 0 10 '.$cgID;
-			system($commandToSend);
+			exec($commandToSend);
 			
 			header('Location: index.php?section=executeScenarios&msg=The scenario was executed.');
 			exit();

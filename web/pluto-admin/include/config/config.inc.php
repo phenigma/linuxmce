@@ -67,7 +67,10 @@
 	$GLOBALS['TVVCRCombo']=106;					// TV VCR Combo
 	$GLOBALS['AmpsReceivers']=103;				// Amps/Receivers
 	$GLOBALS['GenericSerialDevices']=119;		// GenericSerialDevices
-	
+	$GLOBALS['PVRCaptureCards']=75;			// PVR Capture Cards
+	$GLOBALS['SoundCards']=-1;			// Sound Cards
+	$GLOBALS['VideoCards']=-1;			// Video Cards
+
 	$GLOBALS['TVdevicesArray']=array($GLOBALS['TVdevices'],$GLOBALS['TVVCRCombo'],$GLOBALS['AmpsReceivers']);
 	
 	// PK_DeviceTemplate from table DeviceTemplate

@@ -431,7 +431,7 @@ function editCommandGroup($output,$dbADO) {
 					$FK_Command=$rowCommands['FK_Command'];
 				}
 				$commandToSend='/usr/pluto/bin/MessageSend localhost 0 device 1 '.$FK_Command.' '.join(' ',$commandParmsArray);
-				system($commandToSend);
+				exec($commandToSend);
 				header('Location: index.php?section=editCommandGroup&cgID='.$commandGroupID.'&msg=The command with parameters was sent.');
 				exit();
 			}

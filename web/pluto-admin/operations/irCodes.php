@@ -319,7 +319,7 @@ function irCodes($output,$dbADO) {
 			$ig_c=(int)$_REQUEST['ig_c'];
 			$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=?',array($irCode,$ig_c));
 			$commandToTest='/usr/pluto/bin/MessageSend localhost 0 '.$deviceID.' 1 191 70 "'.$irCode.'"';
-			system($commandToTest);
+			exec($commandToTest);
 			header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=The command was sent.&label=".$GLOBALS['label']);
 			exit();
 		}

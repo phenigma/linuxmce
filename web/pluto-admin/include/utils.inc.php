@@ -2740,4 +2740,35 @@ function GetActivationSh($code,$param='install',$otherParam='')
 		$return = "ERROR. Something went terribly wrong while generating the activation script. The installation can not continue. Please contact Plutohome to solve this problem. Thank you.";
 	return $return;
 }
+
+function htmlPulldown($contentArray,$name,$selectedValue='None',$unselectedLabel)
+{
+	if(!is_array($contentArray))
+		return '';	// error
+	$out='<select name="'.$name.'">
+		<option value="0">'.$unselectedLabel.'</option>';
+	foreach ($contentArray AS $key=>$label){
+		$out.='<option value="'.$key.'" '.(($key==$selectedValue)?'selected':'').'>'.$label.'</option>';
+	}
+	$out.='</select>';
+	return $out;
+}
+
+function getAssocArray($table,$keyField,$labelField,$dbADO,$whereClause='',$orderClause)
+{
+	$retArray=array();
+	$res=$dbADO->Execute("SELECT $keyField,$labelField FROM $table $whereClause $orderClause");
+	while($row=$res->FetchRow()){
+		$retArray[$row[$keyField]]=$row[$labelField];
+	}
+	return $retArray;
+}
+
+function createDevice($FK_DeviceTemplate,$FK_Installation,$controlledBy,$roomID,$dbADO,$deviceName='')
+{
+	global $dbPlutoMainDatabase;
+	
+	$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$FK_DeviceTemplate.' -i '.$FK_Installation);
+	$dbADO->Execute('UPDATE Device SET FK_Device_ControlledVia=?,FK_Room=? WHERE PK_Device=?',array($controlledBy,$roomID,$insertID));
+}
 ?>

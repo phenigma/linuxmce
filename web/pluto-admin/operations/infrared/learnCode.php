@@ -103,7 +103,7 @@ function learnCode($output,$dbADO) {
 	} else {
 		if(isset($_REQUEST['cancel']) || $action=='cancel'){
 			$commandToSend='/usr/pluto/bin/MessageSend localhost 0 '.$deviceID.' 1 245 8 0';
-			system($commandToSend);
+			exec($commandToSend);
 			if($action=='cancel'){
 				$out.="
 				<script>
@@ -153,7 +153,7 @@ function learnCode($output,$dbADO) {
 			$rowLastCommand=$resLastCommand->FetchRow();
 			$_SESSION['LastInfraredGroup_CommandTime']=$rowLastCommand['lastTime'];
 			$commandToSend='/usr/pluto/bin/MessageSend localhost 0 '.$deviceID.' 1 245 8 1 71 '.$commandID;
-			system($commandToSend);
+			exec($commandToSend);
 			
 			header("Location: index.php?section=learnCode&deviceID=$deviceID&dtID=$dtID&infraredGroupID=$infraredGroupID&commandID=".$commandID);
 		}
