@@ -5,8 +5,10 @@ if [ ! -e /etc/mythtv/mysql.txt ]; then
 	exit 0;
 fi;
 
-chown -R mythtv /etc/mythtv
-chmod -R 660 /etc/mythtv
+chown -R mythtv.mythtv /etc/mythtv/mysql.txt
+chown root.root /etc/mythtv
+chmod 751 /etc/mythtv
+chmod 760 /etc/mythtv/mysql.txt
 
 eval `cat /etc/mythtv/mysql.txt | grep -v "^#" | grep -v "^$"`;
 
