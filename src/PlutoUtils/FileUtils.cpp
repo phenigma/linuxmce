@@ -101,6 +101,8 @@ void FileUtils::ReadFileIntoVector( string sFileName, vector<string> &vectString
 	// Strip any \r that will be in a Windows file
 	for(s=0;s<vectString.size();++s)
 		vectString[s] = StringUtils::Replace(vectString[s],"\r","");
+
+	delete [] Buffer;
 }
 
 bool FileUtils::WriteVectorToFile( string sFileName, vector<string> &vectString )

@@ -214,7 +214,13 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter is exiting");
 	m_bQuit=true;
 	pthread_cond_broadcast(&m_MaintThreadCond);  // Wake it up, it will quit when it sees the quit
 	pthread_mutex_lock(&m_MaintThreadMutex.mutex);  // Be sure it's not executing anything--it will lock this while it's doing an execute
+	
+	map<int,CallBackInfo *>::iterator itCallBackInfo;
+	for(itCallBackInfo = mapPendingCallbacks.begin(); itCallBackInfo != mapPendingCallbacks.end(); itCallBackInfo++)
+		delete (*itCallBackInfo).second;
+
 	mapPendingCallbacks.clear();
+
 g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 
 	DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "0" );
