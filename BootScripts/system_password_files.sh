@@ -8,12 +8,13 @@ RunSQL()
 	echo "$Q;" | /usr/bin/mysql pluto_main | tail +2 | tr '\t\n' ', '
 }
 
-cat /usr/pluto/templates/group groups >/etc/group.$$
-cat /usr/pluto/templates/passwd >/etc/passwd.$$
-cat /usr/pluto/templates/shadow >/etc/shadow.$$
-cat /usr/pluto/templates/smb.conf.tmpl >/etc/samba/smb.conf.$$
-cat /usr/pluto/templates/smbpasswd.tmpl >/etc/samba/smbpasswd.$$
+cp /usr/pluto/templates/group /etc/group.$$
+cp /usr/pluto/templates/passwd /etc/passwd.$$
+cp /usr/pluto/templates/shadow /etc/shadow.$$
+cp /usr/pluto/templates/smb.conf.tmpl /etc/samba/smb.conf.$$
+cp /usr/pluto/templates/smbpasswd.tmpl /etc/samba/smbpasswd.$$
 
+# get a list of all users
 Q="SELECT PK_Users,UserName FROM Users"
 R=$(RunSQL "$Q")
 LinuxUserID=1001
@@ -70,3 +71,9 @@ for Device in $R; do
 	MD=$(echo "$R" | cut -d, -f1)
 	mkdir -m 0755 /home/tmp_$MD
 done
+
+files="samba/smb.conf samba/smbpasswd shadow passwd group"
+for file in $files; do
+	mv -f /etc/$file.$$ /etc/$file
+done
+
