@@ -527,8 +527,6 @@ void RealRedraw( void *data );  // temp hack -- see comments
 	 */
 	virtual void GraphicOffScreen(vector<class PlutoGraphic*> *pvectGraphic) {}
 
-	virtual void OnReload() { Orbiter_Command::OnReload(); OnQuit(); g_pPlutoLogger->Write(LV_WARNING,"Orbiter reloading"); }  // The OnQuit handlers take care of terminating the orbiter's event procesor, such as by firing an SDL event
-
 public:
 
 	/**
@@ -690,6 +688,7 @@ public:
 	 */
 	void DeselectObjects( void *iData );
 
+	virtual void OnReload() { Orbiter_Command::OnReload(); OnQuit(); g_pPlutoLogger->Write(LV_WARNING,"Orbiter reloading"); }  // The OnQuit handlers take care of terminating the orbiter's event procesor, such as by firing an SDL event
 
 //<-dceag-h-b->
 	/*
