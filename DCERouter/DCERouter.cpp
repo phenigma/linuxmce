@@ -194,6 +194,8 @@ Router::~Router()
     m_pAlarmManager->Stop();
     delete m_pAlarmManager;
     m_pAlarmManager = NULL;
+
+	delete m_pDatabase_pluto_main;
 }
 
 void Router::RegisterAllPlugins()
@@ -1603,6 +1605,14 @@ void Router::Configure()
         Row_EventParameter *pRow_EventParameter = vectRow_EventParameter[s];
         m_mapEventParmNames[pRow_EventParameter->PK_EventParameter_get()]=pRow_EventParameter->Description_get();
     }
+	
+	//free device data map
+	Map_DeviceData_Base::iterator iD;
+	for(iD = allDevices.m_mapDeviceData_Base.begin();
+			iD != allDevices.m_mapDeviceData_Base.end(); iD++) {
+		delete (*iD).second;
+	}
+
 }
 
 // tempoarary hack.  need to optimize & handle broadcats

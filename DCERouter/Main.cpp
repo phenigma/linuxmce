@@ -45,10 +45,19 @@ namespace DCE
 
 DCEConfig g_DCEConfig;
 
+#define SIGINT_NOTIFY_MESSAGE	"Got SIGINT, exiting\n"
 void sig_int(int sig)
 {
-	g_pRouter->Quit();
-	printf("Got SIGINT, exiting");
+	if(g_pPlutoLogger) {
+		g_pPlutoLogger->Write(LV_STATUS, SIGINT_NOTIFY_MESSAGE);
+	} else {
+		cout << SIGINT_NOTIFY_MESSAGE;
+	}
+	
+	if(g_pRouter) {
+		g_pRouter->Quit();
+		delete g_pRouter;
+	}
 }
 
 #ifdef WIN32
@@ -144,6 +153,8 @@ int main(int argc, char *argv[])
         exit(0);
     }
 
+		
+	
 	try
 	{
 		if( sLogger=="null" )
@@ -158,6 +169,13 @@ int main(int argc, char *argv[])
 		cerr << "Unable to create logger" << endl;
 	}
 
+#ifndef _WIN32
+	/* install interrupt handler*/
+	signal(SIGINT, sig_int);
+#endif
+	
+	
+	
 
 	if( BasePath.length()>0 && BasePath[ BasePath.length()-1 ]!='/' )
 		BasePath += "/";
@@ -170,6 +188,7 @@ int main(int argc, char *argv[])
 		if( bStartRouter )
 		{
 			delete g_pRouter;
+			g_pRouter = NULL;
 			Sleep(2000); // Sleep a few just to be sure everything had a chance to disconnect
 		}
 	}
