@@ -229,7 +229,7 @@ int main(int argc, char *argv[])
 	g_pRow_Version = g_pDatabase_pluto_main->Version_get()->GetRow( atoi(sPK_Version.c_str()) );
 	if( !g_pRow_Version )
 	{
-		cout << "Cannot find that version" << endl;
+		cout << "Cannot find that version: " << sPK_Version << endl;
 		return 1;
 	}
 #pragma warning("had to use tiny text because medium text fails due to char[] in commit with field asSQL");
@@ -878,6 +878,12 @@ bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,list<FileI
 		Version = "2.0.0.0";
 	}
 	
+	string Prefix("/usr/");
+	if (pRow_Package_Source->FK_Package_getrow()->IsSource_get())
+	{
+		Prefix = "/usr/pluto/src/";
+	}
+	
 	string Dir("/home/tmp/pluto-build/" + vect_pRow_Package_Source_Package_Name[0]->Name_get() + "-" + Version);
 
 	FILE * f;
@@ -907,10 +913,10 @@ string Makefile = "none:\n"
 	list<FileInfo *>::iterator iFileInfo;
 	for (iFileInfo = listFileInfo.begin(); iFileInfo != listFileInfo.end(); iFileInfo++)
 	{
-		cout << "COPY: " << (*iFileInfo)->m_sSource << " --> " + Dir + "/root" + (*iFileInfo)->m_sDestination << endl;
+		cout << "COPY: " << (*iFileInfo)->m_sSource << " --> " + Dir + "/root/" + Prefix + (*iFileInfo)->m_sDestination << endl;
 #ifndef WIN32
-		system(("mkdir -p " + FileUtils::BasePath(Dir + "/root" + (*iFileInfo)->m_sDestination)).c_str());
-		FileUtils::PUCopyFile((*iFileInfo)->m_sSource, Dir + "/root" + (*iFileInfo)->m_sDestination);
+		system(("mkdir -p " + FileUtils::BasePath(Dir + "/root/" + Prefix + (*iFileInfo)->m_sDestination)).c_str());
+		FileUtils::PUCopyFile((*iFileInfo)->m_sSource, Dir + "/root/" + Prefix + (*iFileInfo)->m_sDestination);
 #endif
 	}
 
