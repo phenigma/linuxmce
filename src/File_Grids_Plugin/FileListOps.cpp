@@ -64,7 +64,7 @@ void GetDirContents(list<FileDetails *> &listFileNames,string Path, string sVali
         ptrFileList = _findfirst((BasePath + "*.*").c_str(), & finddata);
         while (ptrFileList != -1)
         {
-            if (finddata.attrib == _A_SUBDIR)
+            if (finddata.attrib & _A_SUBDIR) //if (finddata.attrib == _A_SUBDIR)
             {
                 if (finddata.name[0] != '.')
                 {

@@ -120,13 +120,13 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
-				RelativePath="Main.cpp">
-			</File>
-			<File
 				RelativePath="Disk_Drive.cpp">
 			</File>
 			<File
 				RelativePath="..\Gen_Devices\Disk_DriveBase.cpp">
+			</File>
+			<File
+				RelativePath="Main.cpp">
 			</File>
 		</Filter>
 		<Filter
@@ -137,6 +137,9 @@
 			</File>
 			<File
 				RelativePath="Disk_Drive.h">
+			</File>
+			<File
+				RelativePath="..\Gen_Devices\Disk_DriveBase.h">
 			</File>
 		</Filter>
 		<Filter

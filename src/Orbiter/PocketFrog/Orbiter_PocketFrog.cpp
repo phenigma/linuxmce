@@ -540,14 +540,14 @@ clock_t ccc=clock();
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::RenderText(class DesignObjText *Text,class TextStyle *pTextStyle)
 {
+	string TextToDisplay = SubstituteVariables(Text->m_sText, NULL, 0, 0).c_str();
+
 	//temp
 #ifdef WINCE
 
 #if ( defined( PROFILING ) )
     clock_t clkStart = clock(  );
 #endif
-
-	string TextToDisplay = SubstituteVariables(Text->m_sText, NULL, 0, 0).c_str();
 
 	int iNumChars = Text->m_rPosition.Width / ciCharWidth;
 	vector<string> vectStrings;
@@ -590,6 +590,20 @@ clock_t ccc=clock();
 	    TextToDisplay.c_str(), clkFinished-clkStart );
 #endif
 
+
+#else //winxp/2000
+/*	
+	HDC hdc = GetDisplay()->GetBackBuffer()->GetDC(false);
+	
+	SetBkMode(hdc,TRANSPARENT);// for drawtext
+
+	TextToDisplay = "baaau bau";
+	RECT rect = {100, 100, 200, 200};
+	::DrawText(hdc, TextToDisplay.c_str(), TextToDisplay.length(), &rect, 
+		DT_WORDBREAK | DT_NOPREFIX); 
+
+	GetDisplay()->GetBackBuffer()->ReleaseDC(hdc);
+*/
 #endif
 }
 //-----------------------------------------------------------------------------------------------------
@@ -773,6 +787,9 @@ void Orbiter_PocketFrog::WriteStatusOutput(const char* pMessage)
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::TryToUpdate()
 {
+	if(m_bQuit)
+		return;
+
 	while(m_bUpdating)
 		Sleep(1);
 
