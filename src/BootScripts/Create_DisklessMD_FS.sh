@@ -36,6 +36,7 @@ InstallKernel()
 		kernel="$(echo "$kernel" | cut -d' ' -f1)"
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "More than one kernel found (this shouldn't happen). Using '$kernel'."
 	fi
+	Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Installing kernel '$kernel' on '$IP'"
 
 	cp "$kernel" tmp/
 	mount -t proc proc proc
