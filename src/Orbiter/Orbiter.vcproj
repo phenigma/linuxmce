@@ -183,7 +183,7 @@
 				RelativePath=".\Simulator.h">
 			</File>
 			<File
-				RelativePath=".\Win32\StartOrbiter_Win32.cpp">
+				RelativePath=".\Win32\StartOrbiter.cpp">
 			</File>
 			<File
 				RelativePath="..\Splitter\TextSplitter.cpp">

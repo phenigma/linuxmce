@@ -129,7 +129,7 @@ OrbiterSDL_Win32::~OrbiterSDL_Win32()
 	::SetWindowLong(hSDLWindow, GWL_WNDPROC, reinterpret_cast<long>(OldSDLWindowProc));
 }
 //-----------------------------------------------------------------------------------------------------
-/*static*/ void OrbiterSDL_Win32::BuildOrbiterSDL_Win32(
+/*static*/ void OrbiterSDL_Win32::BuildOrbiter(
 	int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
 	int nImageWidth, int nImageHeight, bool bFullScreen
 )
@@ -154,9 +154,12 @@ OrbiterSDL_Win32::~OrbiterSDL_Win32()
 {
 	g_pPlutoLogger->Write(LV_STATUS, "OrbiterSDL_Win32: need to cleanup orbiter...");
 	if(NULL != m_pInstance)
-	{
-		delete m_pInstance;
+	{	
+		OrbiterSDL_Win32 *pCopy = m_pInstance;
 		m_pInstance = NULL;
+
+		delete pCopy;
+		pCopy = NULL;
 
 		g_pPlutoLogger->Write(LV_STATUS, "OrbiterSDL_Win32: orbiter deleted.");
 	}

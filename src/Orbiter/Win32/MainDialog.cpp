@@ -160,18 +160,11 @@ DWORD WINAPI OrbiterThread( LPVOID lpParameter)
 {
 	try
 	{
-#ifdef WINCE
-
 #ifdef POCKETFROG
     _Module.Init( 0, g_hInst );
 #endif
 
-	#define START_ORBITER StartOrbiterCE
-#else
-	#define	START_ORBITER StartOrbiter_Win32
-#endif
-
-		START_ORBITER(
+		StartOrbiter(
 			CmdLineParams.PK_Device, 
 			CmdLineParams.sRouter_IP,
 			CmdLineParams.sLocalDirectory,

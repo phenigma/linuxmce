@@ -27,7 +27,7 @@ extern HWND	g_hWndList; //maindialog logger list
 		#include "OrbiterSDL_WinCE.h"
 	#endif
 #else
-#include "OrbiterSDL_Win32.h"
+	#include "OrbiterSDL_Win32.h"
 #endif
 
 namespace DCE

@@ -61,7 +61,7 @@ Renderer::Renderer(string FontPath,string OutputDirectory,int Width,int Height,b
 #else
 			printf("Failed to initialize SDL %s\n", SDL_GetError());
 #endif //WINCE
-			throw "Failed initializing SDL";
+			exit(1);
 		}
 		atexit(SDL_Quit);
 	}

@@ -4107,13 +4107,13 @@ void *MaintThread(void *p)
 			timespec ts_NextCallBack,ts_now;
 			ts_NextCallBack.tv_sec=0;
 			gettimeofday(&ts_now,NULL);
-g_pPlutoLogger->Write(LV_STATUS,"Awoke with %d pending",(int) mapPendingCallbacks.size());
+//g_pPlutoLogger->Write(LV_STATUS,"Awoke with %d pending",(int) mapPendingCallbacks.size());
 			//let's choose the one which must be processed first
 			for(map<int,CallBackInfo *>::iterator it=mapPendingCallbacks.begin();it!=mapPendingCallbacks.end();)
 			{
 				CallBackInfo *pCallBackInfo = (*it).second;
-if( pCallBackInfo->m_fnCallBack==(OrbiterCallBack) &Orbiter::Timeout)
-g_pPlutoLogger->Write(LV_STATUS,"Found a screen timeout - stop: %d  sec: %d now: %d",(int) pCallBackInfo->m_bStop,(int) pCallBackInfo->m_abstime.tv_sec,(int) ts_now.tv_sec );
+//if( pCallBackInfo->m_fnCallBack==(OrbiterCallBack) &Orbiter::Timeout)
+//g_pPlutoLogger->Write(LV_STATUS,"Found a screen timeout - stop: %d  sec: %d now: %d",(int) pCallBackInfo->m_bStop,(int) pCallBackInfo->m_abstime.tv_sec,(int) ts_now.tv_sec );
 				if( pCallBackInfo->m_bStop )
 				{
 					mapPendingCallbacks.erase( it++ );  // This is dead anyway
@@ -4122,8 +4122,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Found a screen timeout - stop: %d  sec: %d now:
 				}
 				else if(pCallBackInfo->m_abstime <= ts_now)
 				{
-if( pCallBackInfo->m_fnCallBack==(OrbiterCallBack) &Orbiter::Timeout)
-g_pPlutoLogger->Write(LV_STATUS,"Found a screen timeout - good to go");
+//if( pCallBackInfo->m_fnCallBack==(OrbiterCallBack) &Orbiter::Timeout)
+//g_pPlutoLogger->Write(LV_STATUS,"Found a screen timeout - good to go");
 					mapPendingCallbacks.erase( it );
 					pCallBackInfoGood = pCallBackInfo;
 					break;  // We got one to execute now
@@ -4135,8 +4135,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Found a screen timeout - good to go");
 
 			if( pCallBackInfoGood )
 			{
-if( pCallBackInfoGood->m_fnCallBack==(OrbiterCallBack) &Orbiter::Timeout)
-g_pPlutoLogger->Write(LV_STATUS,"Found a screen timeout - executing");
+//if( pCallBackInfoGood->m_fnCallBack==(OrbiterCallBack) &Orbiter::Timeout)
+//g_pPlutoLogger->Write(LV_STATUS,"Found a screen timeout - executing");
 
 				pthread_mutex_unlock(&pOrbiter->m_MaintThreadMutex.mutex);  // Don't keep the mutex locked while executing
 				CALL_MEMBER_FN(*(pCallBackInfoGood->m_pOrbiter), pCallBackInfoGood->m_fnCallBack)(pCallBackInfoGood->m_pData);
@@ -5849,7 +5849,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 	clock_t clkStart = clock();
 #endif
 
-#if ( defined( PROFILINGX ) )
+#if ( defined( PROFILING_ ) )
 	clock_t clkStart9 = clock();
 #endif
 
@@ -5931,7 +5931,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 		pGraphicFile = NULL;
 	}
 
-#if ( defined( PROFILINGX ) )
+#if ( defined( PROFILING_ ) )
 	clock_t clkFinished9 = clock();
 	g_pPlutoLogger->Write( LV_CONTROLLER, "######### RenderGraphic logic for obj %s took %d ms ######",
 		pObj->m_ObjectID.c_str(), clkFinished9 - clkStart9);
@@ -5956,7 +5956,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 			//case GR_PFG:
 				{
 
-#if ( defined( PROFILINGX ) )
+#if ( defined( PROFILING_ ) )
 					clock_t clkStart1 = clock();
 #endif
 
@@ -5971,7 +5971,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 
 					delete [] pData;
 
-#if ( defined( PROFILINGX ) )
+#if ( defined( PROFILING_ ) )
 					clock_t clkFinished1 = clock();
 					g_pPlutoLogger->Write( LV_CONTROLLER, "~~~~~~~~~~~ LoadGraphic %s took %d ms ~~~~~~~",
 						pObj->m_ObjectID.c_str(), clkFinished1 - clkStart1);
@@ -6056,7 +6056,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
     bDeleteSurface = false;
 #endif
 
-#if ( defined( PROFILINGX ) )
+#if ( defined( PROFILING_ ) )
 	clock_t clkStart2 = clock();
 #endif
 
@@ -6065,7 +6065,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 	else
 		g_pPlutoLogger->Write(LV_STATUS, "No graphic to render for object %s", pObj->m_ObjectID.c_str());
 
-#if ( defined( PROFILINGX ) )
+#if ( defined( PROFILING_ ) )
 	clock_t clkFinished2 = clock();
 	g_pPlutoLogger->Write( LV_CONTROLLER, "********** Surface bliting %s took %d ms *********",
 		pObj->m_ObjectID.c_str(), clkFinished2 - clkStart2);

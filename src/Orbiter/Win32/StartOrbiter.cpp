@@ -1,4 +1,4 @@
-#include "StartOrbiterCE.h"
+#include "StartOrbiter.h"
 
 #include "PlutoUtils/CommonIncludes.h"	
 
@@ -11,11 +11,21 @@
 	#endif
 
 #else
-	#include "OrbiterSDL_WinCE.h"
 
-	#ifdef ORBITER
-	#undef ORBITER
-	#define ORBITER OrbiterSDL_WinCE
+	#ifdef WINCE
+		#include "OrbiterSDL_WinCE.h"
+
+		#ifdef ORBITER
+		#undef ORBITER
+		#define ORBITER OrbiterSDL_WinCE
+		#endif
+	#else
+		#include "OrbiterSDL_Win32.h"
+
+		#ifdef ORBITER
+		#undef ORBITER
+		#define ORBITER OrbiterSDL_Win32
+		#endif
 	#endif
 
 #endif
@@ -31,40 +41,6 @@ using namespace std;
 #include "PlutoUtils/Other.h"
 
 #include "MainDialog.h"
-//-----------------------------------------------------------------------------------------------------
-
-bool CheckMemory()
-{
-	bool bResult = true;
-	const int iAmountKB = 512;
-
-	g_pPlutoLogger->Write(LV_STATUS, "Checking memory...");
-	g_pPlutoLogger->Write(LV_STATUS, "Trying to allocate %d KB of memory", iAmountKB);
-
-	char* pDummy = NULL;
-
-	try
-	{
-		pDummy = new char[512 * 1024];
-	}
-	catch(...)
-	{
-		bResult = false;
-	}
-
-	if(!pDummy)
-		bResult = false;
-
-	if(pDummy)
-		delete [] pDummy;
-
-	if(!bResult)
-		g_pPlutoLogger->Write(LV_STATUS, "Failed to allocate %d KB of memory", iAmountKB);
-	else
-		g_pPlutoLogger->Write(LV_STATUS, "Successfully allocated and then deallocated %d KB of memory ", iAmountKB);
-
-	return bResult;
-}
 //-----------------------------------------------------------------------------------------------------
 enum OrbiterStages
 {
@@ -85,23 +61,14 @@ ORBITER *Connect(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLo
 	try
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "About to cleanup Orbiter");
-
-		CheckMemory();
-		
 		ORBITER::Cleanup();
-
-		CheckMemory();
-	
 		g_pPlutoLogger->Write(LV_STATUS, "Orbiter cleanup finished");
-
 		ORBITER::BuildOrbiter(
 			PK_Device, sRouter_IP,
 			sLocalDirectory, bLocalMode, 
 			Width, Height, bFullScreen
 		); //the builder method
 		g_pPlutoLogger->Write(LV_STATUS, "New orbiter created!");
-
-		CheckMemory();
 	}
 	catch(string s)
 	{
@@ -113,12 +80,13 @@ ORBITER *Connect(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLo
 		g_pPlutoLogger->Write(LV_STATUS, s);
 		return NULL;
 	}
+/*
 	catch(...)
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Unknown exception!!");
 		return NULL;
 	}
-
+*/
 	ORBITER *pOrbiter = ORBITER::GetInstance();
 
 	if(!bLocalMode)
@@ -177,9 +145,7 @@ bool EventLoop(ORBITER* pOrbiter)
     {
 		try
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "before SDL_WaitEvent");
 			SDL_WaitEvent(&Event);
-			g_pPlutoLogger->Write(LV_WARNING, "after SDL_WaitEvent");
 		}
 		catch(...) 
 		{
@@ -240,7 +206,7 @@ bool EventLoop(ORBITER* pOrbiter)
 	return !(pOrbiter->m_bConnectionLost && pOrbiter->m_bReload);
 }
 //-----------------------------------------------------------------------------------------------------
-void StartOrbiterCE(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLocalMode,
+void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLocalMode,
 					int Width,int Height, bool bFullScreen)
 {
 	ORBITER *pOrbiter = NULL;
@@ -288,8 +254,6 @@ void StartOrbiterCE(int PK_Device,string sRouter_IP,string sLocalDirectory,bool 
 
 	g_pPlutoLogger->Write(LV_STATUS, "Stage is now osQuit.");	
     
-	ORBITER::Cleanup();
-
 	pOrbiter = NULL;
 }
 //-----------------------------------------------------------------------------------------------------

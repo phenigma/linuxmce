@@ -10,13 +10,13 @@ using namespace DCE;
 #ifdef WIN32
 
 	#include "Win32/MainDialog.h"
+	#include "StartOrbiter.h"
 
 	#ifdef WINCE
 		#include "stdafx.h"
 		#include <commctrl.h>
 		#include <aygshell.h>
 		#include <sipapi.h>
-		#include "StartOrbiterCE.h"
 
 		#ifdef POCKETFROG
 			#include "Orbiter_PocketFrog.h"
@@ -29,7 +29,6 @@ using namespace DCE;
 		#ifdef BLUETOOTH_DONGLE
 			#include "SDL_Bluetooth/OrbiterSDLBluetooth.h"
 		#else
-			#include "StartOrbiter_Win32.h"
 			#include "OrbiterSDL_Win32.h"
 		#endif
 

@@ -4,7 +4,7 @@
 #include <string>
 using namespace std;
 
-void StartOrbiterCE(
+void StartOrbiter(
 	int PK_Device,
 	string sRouter_IP,
 	string sLocalDirectory,

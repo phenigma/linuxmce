@@ -37,7 +37,7 @@ public:
 	int GetVideoFrameInterval() { return 50; } 
 
 	static void Cleanup();
-	static void BuildOrbiterSDL_Win32(int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
+	static void BuildOrbiter(int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
 		int nImageWidth, int nImageHeight, bool bFullScreen = false);
 	static OrbiterSDL_Win32 *GetInstance();
 };
