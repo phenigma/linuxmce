@@ -1,4 +1,4 @@
-(cd /usr/pluto/database; /usr/pluto/bin/sqlCVS -D pluto_security -r security import) || exit $?
+(cd /usr/pluto/database; /usr/pluto/bin/sqlCVS -n -D pluto_security -r security import) || exit $?
 
 Q="GRANT ALL PRIVILEGES ON pluto_security.* TO 'plutosecurity'@'localhost';"
 echo "$Q" | /usr/bin/mysql
