@@ -72,7 +72,7 @@ public:
 		Row_Package_Source *pRow_Package_Source, Row_RepositorySource_URL *pRow_RepositorySource_URL,
 		bool bMustBuild)
 	{
-if( pRow_Package_Source->FK_Package_get()==277 )
+if( pRow_Package_Source->FK_Package_get()==133 )
 {
 int k=2;
 }
@@ -296,7 +296,7 @@ int main(int argc, char *argv[])
 	pRow_Installation = pRow_Device->FK_Installation_getrow();
 
 	CheckDevice(pRow_Device,bSourceCode);
-
+/*
 	if( bIncludeDisklessMD )
 	{
 		if( pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Core_CONST )
@@ -316,7 +316,7 @@ int main(int argc, char *argv[])
 			}
 		}
 	}
-
+*/
 	if( !pRow_Distro )
 		return 0;
 
