@@ -2,17 +2,10 @@
  *
  * @file XineSlaveWrapper.cpp
  * @brief source file for XineSlaveWrapper class
- * @author Toader Mihai Claudiu mtoader@gmail.com, (C) 2004
- * C++ Implementation: m_pXine Player DCE Plugin (the m_pXine lib slave controller)
+ *
+ * C++ Implementation: Xine Player DCE Plugin (the Xine lib slave controller)
  *
  */
-
- /**
-  *
-  * Copyright:  See COPYING file that comes with this distribution
-  *
-  */
-
 #include "DCE/Logger.h"
 #include "XineSlaveWrapper.h"
 #include "Xine_Player.h"

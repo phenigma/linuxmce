@@ -5,13 +5,6 @@
  *
  */
 
- /**
- *
- * Copyright:  See COPYING file that comes with this distribution
- *
- */
-
-
 #ifndef XINESLAVEWRAPPER_H
 #define XINESLAVEWRAPPER_H
 
