@@ -1,16 +1,16 @@
-/* 
+/*
 	SocketListener
-	
+
 	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-	
-	www.plutohome.com		
-	
+
+	www.plutohome.com
+
 	Phone: +1 (877) 758-8648
-	
+
 	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
-	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-	
+	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
 	See the GNU General Public License for more details.
 */
 
@@ -107,7 +107,7 @@ void SocketListener::Run()
 		m_bRunning = false;
 		return;
 	}
-	
+
 	int iOpt = 1;
 	if( setsockopt( m_Socket, SOL_SOCKET, SO_REUSEADDR, (SOCKOPTTYPE)&iOpt, sizeof(iOpt) ) ) // error
 	{
@@ -117,7 +117,7 @@ void SocketListener::Run()
 		m_bRunning=false;
 		return;
 	}
-	
+
 	g_pPlutoLogger->Write( LV_SOCKET, "TCPIP: Listening on %d.", m_iListenPort ); // from now trying to start listening
 
 	memset( &addrT, 0, sizeof(addrT) ); // clearing it
@@ -149,7 +149,7 @@ void SocketListener::Run()
 			struct timeval tv;
 
 			int iRet = 0;
-		
+
 			while( !m_bTerminate && iRet != 1 )
 			{
 				FD_ZERO( &rfds );
@@ -217,27 +217,30 @@ Socket *SocketListener::CreateSocket( SOCKET newsock, string sName, string sIPAd
 	ServerSocket *pSocket = new ServerSocket( this, newsock, sName, sIPAddress );
 	pSocket->Run();
 	return pSocket;
-}				
+}
 
-void SocketListener::RemoveSocket( Socket *Socket )
+void SocketListener::RemoveSocket( Socket *pSocket )
 {
 	PLUTO_SAFETY_LOCK( lm, m_ListenerMutex );
 
-	m_listClients.remove( Socket ); // removing it from the clients map
-	closesocket( Socket->m_Socket );
+	g_pPlutoLogger->Write(LV_SOCKET, "Removing socket %p from socket listener", pSocket);
+	m_listClients.remove( pSocket ); // removing it from the clients map
+
+	//	closesocket( pSocket->m_Socket );
+	//	close( pSocket->m_Socket );
 
 	// See if we have this socket mapped to a device ID and removing the coresponding entries
-	ServerSocket *pServerSocket = (ServerSocket *)(Socket);
+	ServerSocket *pServerSocket = (ServerSocket *)pSocket;
 	if ( pServerSocket )
 	{
 		int iDeviceID = pServerSocket->m_dwPK_Device;
-		Socket->m_Socket = INVALID_SOCKET;
+		pSocket->m_Socket = INVALID_SOCKET;
 		if( iDeviceID >= 0 )
 		{
 			DeviceClientMap::iterator i = m_mapCommandHandlers.find( iDeviceID );
-			if ( i != m_mapCommandHandlers.end() && (*i).second == Socket )
+			if ( i != m_mapCommandHandlers.end() && (*i).second == pSocket )
 			{
-				g_pPlutoLogger->Write( LV_REGISTRATION, "Command handler for \x1b[34;1m%d\x1b[0m closed.", iDeviceID );
+				g_pPlutoLogger->Write( LV_REGISTRATION, "Command handler (%p) for \x1b[34;1m%d\x1b[0m closed.", pSocket, iDeviceID );
 				OnDisconnected( iDeviceID );
 				m_mapCommandHandlers.erase( iDeviceID );
 			}
@@ -260,8 +263,10 @@ void SocketListener::RegisterCommandHandler( ServerSocket *Socket, int iDeviceID
 	{
 		g_pPlutoLogger->Write( LV_REGISTRATION, "!!! Replacing command handler on device ID \x1b[34;1m%d!\x1b[0m", iDeviceID );
 		ll.Release();
-		RemoveSocket( (*iDC).second ); // then remove it
-		// delete (*iDC).second; // TODO HACK : socket leak
+		// the delete line below will also unregister it from the SocketListener.
+		// RemoveSocket( (*iDC).second );
+		// TODO HACK : socket leak
+		delete (*iDC).second;
 		ll.Relock();
 	}
 	m_mapCommandHandlers[iDeviceID] = Socket; // assigning it the new specified socket
@@ -276,7 +281,7 @@ string SocketListener::GetIPAddress()
 {
 	char acBuf[256];
 	gethostname( acBuf, sizeof(acBuf) );
-	
+
 	struct hostent *he = gethostbyname ( acBuf );
 
 	char* addr = he->h_addr_list[0];
@@ -298,7 +303,7 @@ string SocketListener::GetIPAddress( int iDeviceID )
 	socklen_t sl = sizeof(inAddr);
 	if( getpeername( ss->m_Socket, (sockaddr*)&inAddr, &sl ) ) return "";
 	return  string( inet_ntoa( inAddr.sin_addr ) );
-	
+
 }
 
 bool SocketListener::SendMessage( int iDeviceID, Message *pMessage )

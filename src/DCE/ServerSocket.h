@@ -26,9 +26,9 @@ namespace DCE
 	 */
 	class ServerSocket : public Socket
 	{
-		
+
 	public:
-		
+
 		unsigned long m_dwPK_Device; /** < the device ID */
 
 		pluto_pthread_mutex_t m_ConnectionMutex; /** < for controlling access to the shared memory */
@@ -47,18 +47,20 @@ namespace DCE
 		 * @brief destructor, kills the tread
 		 */
 		virtual ~ServerSocket();
-			
+
+
 		void Run();
 
 	private:
 		/**
 		 * @brief runs a loop that handles the client
+		 * Returns true if the socket is to be delete after this and false in the other case.
 		 */
-		void _Run();
-		
+		bool _Run();
+
 		static void *BeginWapClientThread(void*);
-		
-		
+
+
 	};
 }
 

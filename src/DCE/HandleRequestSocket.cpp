@@ -1,16 +1,16 @@
-/* 
+/*
 	HandleRequestSocket
-	
+
 	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-	
-	www.plutohome.com		
-	
+
+	www.plutohome.com
+
 	Phone: +1 (877) 758-8648
-	
+
 	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
-	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-	
+	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
 	See the GNU General Public License for more details.
 */
 
@@ -25,7 +25,7 @@
 
 
 
-#include "PlutoUtils/CommonIncludes.h"	
+#include "PlutoUtils/CommonIncludes.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
@@ -43,7 +43,7 @@ void *BeginHandleRequestThread( void *HRqSock )
 	return NULL;
 }
 
-HandleRequestSocket::HandleRequestSocket( int iDeviceID, string sIPAddress, string sName ) : 
+HandleRequestSocket::HandleRequestSocket( int iDeviceID, string sIPAddress, string sName ) :
 	ClientSocket( iDeviceID, sIPAddress, sName )
 {
 	m_RequestHandlerThread = 0;
@@ -63,8 +63,7 @@ void HandleRequestSocket::Disconnect()
 	// We override Disconnect so our processor thread knows the difference
 	// between an explicit disconnect and an unexpected one.
 
-	g_pPlutoLogger->Write( LV_SOCKET, "RequestSocket::Disconnect %p device: %d", 
-		this, m_dwPK_Device );
+	g_pPlutoLogger->Write( LV_SOCKET, "RequestSocket::Disconnect %p device: %d", this, m_dwPK_Device );
 
 	m_bTerminate = true;
 	ClientSocket::Disconnect();
@@ -104,7 +103,7 @@ bool HandleRequestSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 		g_pPlutoLogger->Write( LV_CRITICAL, "Connection for requesthandler %p (device: %d) reported %s. %s", this, m_dwPK_Device, sResponse.c_str(), m_sName.c_str() );
 		return false;
 	}
-	
+
 	m_bTerminate = false;
     pthread_create( &m_RequestHandlerThread, NULL, BeginHandleRequestThread, (void *)this );
 
@@ -163,7 +162,7 @@ void HandleRequestSocket::RunThread()
 #ifdef DEBUG
 				g_pPlutoLogger->Write( LV_STATUS, "Received %s %p device: %d", sMessage.c_str(), this, m_dwPK_Device);
 #endif
-				if ( sMessage.substr(0,7)  == "MESSAGE" )	
+				if ( sMessage.substr(0,7)  == "MESSAGE" )
 				{
 					Message *pMessage = ReceiveMessage( atoi( sMessage.substr(8).c_str() ) );
 					if ( pMessage )
@@ -182,7 +181,7 @@ void HandleRequestSocket::RunThread()
 							g_pPlutoLogger->Write( LV_STATUS, "Could not find a handler for message - from %d to %d Type: %d ID: %d (device: %d) %s",
 								pMessage->m_dwPK_Device_From, pMessage->m_dwPK_Device_To,
 								pMessage->m_dwMessage_Type, pMessage->m_dwID, m_dwPK_Device, m_sName.c_str() );
-						}			
+						}
 						delete pMessage;
 					}
 					else
@@ -199,9 +198,9 @@ void HandleRequestSocket::RunThread()
 		}
 	}
 
-//HACK this is crashing! :(	
+//HACK this is crashing! :(
 g_pPlutoLogger->Write( LV_STATUS, "Closing request handler connection...");
-//	g_pPlutoLogger->Write( LV_STATUS, "Closing event handler connection %d (%d,%s), Terminate: %d %s\n", 
+//	g_pPlutoLogger->Write( LV_STATUS, "Closing event handler connection %d (%d,%s), Terminate: %d %s\n",
 //		m_dwPK_Device, (int) m_bUnexpected, sMessage.c_str(), (int) m_bTerminate, m_sName.c_str() );
 #ifdef UNDER_CE
 	}
@@ -210,10 +209,10 @@ g_pPlutoLogger->Write( LV_STATUS, "Closing request handler connection...");
 		g_pPlutoLogger->Write(LV_CRITICAL, "Unknown critical error.");
 		/*
 		::PostQuitMessage( 255 );
-		
+
 		PROCESS_INFORMATION pi;
 		TCHAR tfn[81];
-		::GetModuleFilesName( NULL, tfn, sizeof(tfn) );	
+		::GetModuleFilesName( NULL, tfn, sizeof(tfn) );
 		CreateProcess( tfn, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, &pi );
 		*/
 	}

@@ -1,16 +1,16 @@
-/* 
+/*
 	ServerSocket
-	
+
 	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-	
-	www.plutohome.com		
-	
+
+	www.plutohome.com
+
 	Phone: +1 (877) 758-8648
-	
+
 	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
-	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-	
+	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
 	See the GNU General Public License for more details.
 */
 
@@ -26,7 +26,7 @@
 
 
 
-#include "PlutoUtils/CommonIncludes.h"	
+#include "PlutoUtils/CommonIncludes.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
@@ -39,26 +39,41 @@
 using namespace DCE;
 
 void *ServerSocket::BeginWapClientThread( void *SvSock )
-{	
+{
 	ServerSocket *pCS = (ServerSocket *)SvSock;
+
+//	g_pPlutoLogger->Write(LV_STATUS, "ServerSocket::BeginWapClientThread() enter: %p", pCS);
+
+	// i don't know if this is usefull here. We are doing the same check below.
 	if( !pCS->m_bThreadRunning )
 	{
 //		delete pCS;  // TODO: HACK -- we've got a socket leak here
+//		g_pPlutoLogger->Write(LV_STATUS, "ServerSocket::BeginWapClientThread() pCS->m_bThreadRunning false, %p", pCS);
 		return NULL; // Should have been set in the constructor
 	}
-	pCS->_Run();
-	delete pCS;  // TODO: HACK -- we've got a socket leak here
+
+	// TODO: HACK -- we've got a socket leak here.
+	// We can't close the socket unless it was marked as running in a separate thread.
+	// If we close it even when it isn't marked not a single device will be able to connect to it.
+	//
+	// The caller can't tell if this is the until a converation is taking place on the connection.
+	// Se:
+	// 		- we enter the thread
+	// 		- look to see if this is the case and remove the socket in this case.
+	if( pCS->_Run() )
+		delete pCS;
+
 	return NULL;
 }
 
-ServerSocket::ServerSocket( SocketListener *pListener, SOCKET Sock, string sName, string sIPAddress ) : 
+ServerSocket::ServerSocket( SocketListener *pListener, SOCKET Sock, string sName, string sIPAddress ) :
 	m_ConnectionMutex( "connection " + sName ), Socket( sName, sIPAddress )
 {
 	m_dwPK_Device = -1;
 	m_Socket = Sock;
 	m_pListener = pListener;
 	m_bThreadRunning=true;
-	
+
 	m_ConnectionMutex.Init( NULL );
 }
 
@@ -70,23 +85,23 @@ ServerSocket::~ServerSocket()
 	g_pPlutoLogger->Write( LV_STATUS, "Deleting socket %p...", this );
 #endif
 	g_pPlutoLogger->Write( LV_STATUS, "Deleting socket %p...", this );
-	
 
-	if( m_Socket != INVALID_SOCKET ) {
+
+	if( m_Socket != INVALID_SOCKET )
+ 	{
 		closesocket( m_Socket );
 		close(m_Socket);
 	}
-	
 
 	while( m_bThreadRunning )
 		Sleep(10);
-		
-		
+
+
 	m_pListener->RemoveSocket(this);
 
 	// Shutdown of client sockets is either performed by their loops,
 	// or is triggered by the shutdown of the socket listener.
-	
+
 	// Wait for any outstanding locks to finish
 	PLUTO_SAFETY_LOCK( cm, m_ConnectionMutex );
 	cm.Release();
@@ -108,16 +123,17 @@ void ServerSocket::Run() {
 		g_pPlutoLogger->Write( LV_CRITICAL, "Pthread create returned %d %s dev %d ptr %p", (int)iResult, m_sName.c_str(), m_dwPK_Device,this );
 	}
 	else
-		pthread_detach( m_ClientThreadID );    
+		pthread_detach( m_ClientThreadID );
+
 }
 
-void ServerSocket::_Run()
+bool ServerSocket::_Run()
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write( LV_STATUS, "Running socket %p...", this );
+	g_pPlutoLogger->Write( LV_STATUS, "Running socket %p... m_bTerminate: %d", this, m_pListener->m_bTerminate );
 #endif
-	g_pPlutoLogger->Write( LV_STATUS, "Running socket %p...", this );
-	
+	g_pPlutoLogger->Write( LV_STATUS, "Running socket %p... m_bTerminate: %d", this, m_pListener->m_bTerminate );
+
 	string sMessage;
 	while( !m_pListener->m_bTerminate )
 	{
@@ -137,15 +153,15 @@ void ServerSocket::_Run()
 				memcpy( &gt, gmtime(&t), sizeof(struct tm) );
 			}
 			char s[128];
-			sprintf( s, "TIME|%d|%d|%d|%d|%d|%d|UGMT|%lu|BIAS|%lu|%d", 
-				lt.tm_hour, lt.tm_min, lt.tm_sec, lt.tm_mon+1, lt.tm_mday, 
+			sprintf( s, "TIME|%d|%d|%d|%d|%d|%d|UGMT|%lu|BIAS|%lu|%d",
+				lt.tm_hour, lt.tm_min, lt.tm_sec, lt.tm_mon+1, lt.tm_mday,
 				lt.tm_year+1900, (long unsigned int)t, (long unsigned int) mktime(&lt) - mktime(&gt), lt.tm_isdst );
 			g_pPlutoLogger->Write(LV_STATUS, "Device %d requested time: sending %s",m_dwPK_Device,s);
 			SendString( s );
 			continue;
 		}
 		/** @todo check comment */
-		//g_pDCELogger->Write(LV_SOCKET, "TCPIP: Received %s", msg.c_str());
+		// g_pPlutoLogger->Write(LV_SOCKET, "TCPIP: Received %s", sMessage.c_str());
 
 		if ( sMessage.length() >= 5 && sMessage.substr(0,5) == "HELLO")
 		{
@@ -180,7 +196,7 @@ void ServerSocket::_Run()
 					SendString( "NOT IN THIS INSTALLATION" );
 					g_pPlutoLogger->Write(LV_CRITICAL,"Device %d registered but it doesn't exist",m_dwPK_Device);
 					m_bThreadRunning=false;
-					return;
+					return true;
 				}
 				if( PK_DeviceTemplate && iResponse!=2 )
 					g_pPlutoLogger->Write(LV_STATUS,"Device %d connected as foreign template %d",m_dwPK_Device, PK_DeviceTemplate);
@@ -188,18 +204,18 @@ void ServerSocket::_Run()
 				m_sName += sMessage;
 			}
 
-#ifdef TEST_DISCONNECT	
+#ifdef TEST_DISCONNECT
 			if ( m_dwPK_Device == TEST_DISCONNECT )
 				m_pListener->m_pTestDisconnectEvent = this;
  #endif
 			continue;
 		}
-		
+
 		if (  sMessage.length() >= 14 && sMessage.substr(0,14) == "REQUESTHANDLER" )
 		{
 			SendString( "OK" );
 			m_dwPK_Device = atoi( sMessage.substr(14).c_str() );
-#ifdef TEST_DISCONNECT	
+#ifdef TEST_DISCONNECT
 			if (m_dwPK_Device == TEST_DISCONNECT)
 			{
 				m_pListener->m_pTestDisconnectCmdHandler = this;
@@ -213,22 +229,23 @@ void ServerSocket::_Run()
 			// The socket will be periodically checked by the core
 			// or closed if replaced by another command handler.
 			m_bThreadRunning=false;
-			return;
+
+			return false;
 		}
-		
+
 		if ( sMessage == "BYE" )
 		{
 			SendString( "OK" );
 			break;
 		}
-		
+
 		if ( m_dwPK_Device == -1 )
 		{
 			g_pPlutoLogger->Write( LV_WARNING, "Received %s, but device hasn't identified itself yet.", sMessage.c_str() );
 		}
 		else
 		{
-			if ( sMessage.substr(0,7) == "MESSAGE" )	
+			if ( sMessage.substr(0,7) == "MESSAGE" )
 			{
 				Message *pMessage = ReceiveMessage( atoi(sMessage.substr(8).c_str()) );
 				if ( pMessage )
@@ -246,12 +263,13 @@ void ServerSocket::_Run()
 							}
 						}
 					}
-					m_pListener->ReceivedMessage( this, pMessage );	
+					m_pListener->ReceivedMessage( this, pMessage );
 				}
 			}
 			else m_pListener->ReceivedString( this, sMessage );
 		}
 	}
+
    	if ( !SOCKFAIL( m_Socket ) )
 	{
 		closesocket( m_Socket );
@@ -259,10 +277,10 @@ void ServerSocket::_Run()
 		m_Socket = INVALID_SOCKET;
 	}
 	g_pPlutoLogger->Write( LV_WARNING, "TCPIP: Closing connection to %d (%s)", m_dwPK_Device,m_pListener->m_sName.c_str() );
-	
+
 	m_pListener->OnDisconnected( m_dwPK_Device );
-	
+
 	m_bThreadRunning=false;
-	return;
+	return true;
 }
 

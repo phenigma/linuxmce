@@ -1,16 +1,16 @@
-/* 
+/*
 	ClientSocket
-	
+
 	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-	
-	www.plutohome.com		
-	
+
+	www.plutohome.com
+
 	Phone: +1 (877) 758-8648
-	
+
 	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
-	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-	
+	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
 	See the GNU General Public License for more details.
 */
 
@@ -24,7 +24,7 @@
  *
  */
 
-#include "PlutoUtils/CommonIncludes.h"	
+#include "PlutoUtils/CommonIncludes.h"
 
 #ifndef WIN32
 #include <fcntl.h>
@@ -64,7 +64,7 @@ ClientSocket::~ClientSocket()
 bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 {
 	bool bSuccess = false;
-	
+
 	// flush the socket buffer
 	m_pcCurInsockBuffer = NULL;
 
@@ -83,7 +83,7 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 	}
 
 	m_Socket = socket( AF_INET, SOCK_STREAM, 0 );
-	
+
 	/** @todo check comment */
 	//int b = 1;
 	//setsockopt(m_Socket, IPPROTO_TCP, TCP_NODELAY, (SOCKOPTTYPE) &b, sizeof(b));
@@ -113,8 +113,8 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 #ifdef _WIN32
 					int ec = WSAGetLastError();
 #else
-					int ec = h_errno;	
-#endif 
+					int ec = h_errno;
+#endif
 					if( g_pPlutoLogger )
 						g_pPlutoLogger->Write( LV_CRITICAL, "gethostbyname for '%s', failed, Last Error Code %d, Device: %d", sAddress.c_str(), ec, m_dwPK_Device );
 #ifndef WINCE
@@ -124,15 +124,15 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 					Disconnect();
 					break;
 				}
-				addrT.sin_addr.s_addr = *(long *)phe->h_addr; 
+				addrT.sin_addr.s_addr = *(long *)phe->h_addr;
 			}
 			else
 			{ // Convert nnn.nnn address to a usable one
-				addrT.sin_addr.s_addr = dwAddr; 
+				addrT.sin_addr.s_addr = dwAddr;
 			}
 
 			iRet = connect( m_Socket, (sockaddr *)&addrT, sizeof(addrT) );
-			if ( !SOCKFAIL( iRet ) ) 
+			if ( !SOCKFAIL( iRet ) )
 			{
 #ifdef _WIN32
 				/** @todo: inet_ntop doesn't exist in Windows */
@@ -161,7 +161,7 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 					cerr << "Connect() failed, Error Code" << ec << endl;
 #endif
 			}
-			
+
 		}
 		/** @todo check comment */
 		//setsockopt(m_Socket, IPPROTO_TCP, TCP_NODELAY, (const char *)&on, sizeof(on));
@@ -197,7 +197,7 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 #endif
 		OnConnect( PK_DeviceTemplate, sExtraInfo );
 	}
-	return bSuccess;    
+	return bSuccess;
 }
 
 bool ClientSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
@@ -239,13 +239,14 @@ bool ClientSocket::OnConnect( int PK_DeviceTemplate,string sExtraInfo )
 
 void ClientSocket::Disconnect()
 {
-	////g_pPlutoLogger->Write( LV_WARNING, "void ClientSocket::Disconnect()");
-		
+	g_pPlutoLogger->Write( LV_WARNING, "void ClientSocket::Disconnect() on this socket: %p (m_Socket: %d)", this, m_Socket);
+
 	if ( m_Socket != INVALID_SOCKET )
 	{
+		// this will usually force it out from the select.
 		closesocket( m_Socket );
-		close(m_Socket);
-		m_Socket= INVALID_SOCKET;
+// 		close(m_Socket);
+//		m_Socket = INVALID_SOCKET;
 	}
 }
 
