@@ -5469,5 +5469,21 @@ namespace DCE
 	public:
 		CMD_Halt_Device_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device,string sForce) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,323,2,2,StringUtils::itos(iPK_Device).c_str(),21,sForce.c_str()); }
 	};
+	class CMD_Set_Timeout : public PreformedCommand {
+	public:
+		CMD_Set_Timeout(long DeviceIDFrom, long DeviceIDTo,string sPK_DesignObj,string sTime) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,324,2,3,sPK_DesignObj.c_str(),102,sTime.c_str()); }
+	};
+	class CMD_Set_Timeout_DL : public PreformedCommand {
+	public:
+		CMD_Set_Timeout_DL(long DeviceIDFrom, string DeviceIDTo,string sPK_DesignObj,string sTime) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,324,2,3,sPK_DesignObj.c_str(),102,sTime.c_str()); }
+	};
+	class CMD_Set_Timeout_DT : public PreformedCommand {
+	public:
+		CMD_Set_Timeout_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sPK_DesignObj,string sTime) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,324,2,3,sPK_DesignObj.c_str(),102,sTime.c_str()); }
+	};
+	class CMD_Set_Timeout_Cat : public PreformedCommand {
+	public:
+		CMD_Set_Timeout_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sPK_DesignObj,string sTime) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,324,2,3,sPK_DesignObj.c_str(),102,sTime.c_str()); }
+	};
 }
 #endif

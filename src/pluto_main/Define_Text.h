@@ -450,6 +450,7 @@
 #define TEXT_Current_media_CONST 1125
 #define TEXT_Halt_CONST 1126
 #define TEXT_My_Media_CONST 1127
+#define TEXT_Yes_its_a_phone_CONST 1128
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

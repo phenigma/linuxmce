@@ -999,7 +999,6 @@
 #define DESIGNOBJ_go_to_tv_CONST 3143
 #define DESIGNOBJ_go_to_music_CONST 3144
 #define DESIGNOBJ_mnuNewPhoneDetected_CONST 3150
-#define DESIGNOBJ_yes_CONST 3151
 #define DESIGNOBJ_no_CONST 3152
 #define DESIGNOBJ_go_to_new_device_CONST 3153
 #define DESIGNOBJ_navmode_CONST 3154
@@ -1164,6 +1163,8 @@
 #define DESIGNOBJ_DisplayOFF_halt_CONST 3339
 #define DESIGNOBJ_mnuMyDisplay_Off_CONST 3340
 #define DESIGNOBJ_mnuMyMD_Halt_CONST 3341
+#define DESIGNOBJ_arrUsersPhone_CONST 3342
+#define DESIGNOBJ_butUserPhone_CONST 3343
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

@@ -314,6 +314,7 @@
 #define COMMAND_SVideoYC_3_CONST 321
 #define COMMAND_Wake_Device_CONST 322
 #define COMMAND_Halt_Device_CONST 323
+#define COMMAND_Set_Timeout_CONST 324
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

@@ -889,14 +889,14 @@ int k=2;
 					pdrCachedScreen->FK_Orbiter_set(m_pRow_Orbiter->PK_Orbiter_get());
 					pdrCachedScreen->FK_DesignObj_set(oco->m_pRow_DesignObj->PK_DesignObj_get());
 					pdrCachedScreen->Version_set(oco->m_iVersion);
-					pdrCachedScreen->Schema_set(ORBITER_SCHEMA);
-					pdrCachedScreen->ContainsArrays_set(oco->m_bContainsArrays ? 1 : 0);
 				}
 				string Filename = m_sOutputPath + "screen " + StringUtils::itos(m_pRow_Orbiter->PK_Orbiter_get()) + "." + 
 					StringUtils::itos(oco->m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(oco->m_iVersion) + "." + 
 					StringUtils::itos((int) StringUtils::SQLDateTime(oco->m_pRow_DesignObj->psc_mod_get())) + ".cache";
 
 				oco->SerializeWrite(Filename);
+				pdrCachedScreen->Schema_set(ORBITER_SCHEMA);
+				pdrCachedScreen->ContainsArrays_set(oco->m_bContainsArrays ? 1 : 0);
 				pdrCachedScreen->Modification_LastGen_set(oco->m_pRow_DesignObj->psc_mod_get());
 				mds.CachedScreens_get()->Commit();
 			}

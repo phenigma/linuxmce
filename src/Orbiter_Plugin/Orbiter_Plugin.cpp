@@ -828,8 +828,10 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate
     }
 
 g_pPlutoLogger->Write(LV_STATUS,"setting process flag to false");
-	DCE::CMD_Go_back_DL CMD_Go_back_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_mnuNewPhoneDetected_CONST), "1");
-    SendCommand(CMD_Go_back_DL);
+	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL( m_dwPK_Device, m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_mnuNewPhoneDetected_CONST), "" );
+    SendCommand(CMD_Remove_Screen_From_History_DL);
+
+	DisplayMessageOnOrbiter(pMessage->m_dwPK_Device_From,"<%=T1111%>",false);
 
 	m_bNoUnknownDeviceIsProcessing = false;
 
@@ -863,8 +865,8 @@ void Orbiter_Plugin::CMD_Add_Unknown_Device(string sText,string sID,string sMac_
 
     m_bNoUnknownDeviceIsProcessing = false;
 
-	DCE::CMD_Go_back_DL CMD_Go_back_DL(m_dwPK_Device, m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_mnuNewPhoneDetected_CONST), "1");
-    SendCommand(CMD_Go_back_DL);
+	DCE::CMD_Remove_Screen_From_History_DL CMD_Remove_Screen_From_History_DL( m_dwPK_Device, m_sPK_Device_AllOrbiters, StringUtils::itos(DESIGNOBJ_mnuNewPhoneDetected_CONST), "" );
+    SendCommand(CMD_Remove_Screen_From_History_DL);
 
     ProcessUnknownDevice();
 }
@@ -1290,11 +1292,12 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 			return;
 		}
 
-		DisplayMessageOnOrbiter(iPK_Device,"Your new " + pRow_Device->Description_get() + " is ready to go.  "
+		// Send this to all orbiters
+		DisplayMessageOnOrbiter(0,"Your new " + pRow_Device->Description_get() + " is ready to go.  "
 			"All your devices must be reset to use it.  Press Quick Reload Router to do it now.  "
 			"It takes about 20 seconds.  Phone calls will not be affected, but your media will.  "
 			"Otherwise press the 'back' arrow and you can do it another time by choosing the option "
-			"on the 'advanced' menu.",true);
+			"on the 'advanced' menu.",true,5);
 		return;
 	}
 	pOH_Orbiter->m_tRegenTime = 0;

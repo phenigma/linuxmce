@@ -215,6 +215,11 @@ protected:
 	void RealRedraw( void *iData );
 
 	/**
+	 * @brief Timeout the object, which is data
+	 */
+	void Timeout( void *data );
+
+	/**
 	 * @brief renders an object on the screen
 	 * @todo ask
 	 */
@@ -1197,6 +1202,17 @@ public:
 
 	virtual void CMD_Quit() { string sCMD_Result; CMD_Quit(sCMD_Result,NULL);};
 	virtual void CMD_Quit(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #324 - Set Timeout */
+	/**  */
+		/** @param #3 PK_DesignObj */
+			/** The screen to set the timeout on.  If blank the current screen. */
+		/** @param #102 Time */
+			/** The timeout in seconds.  0 or blank means no timeout. */
+
+	virtual void CMD_Set_Timeout(string sPK_DesignObj,string sTime) { string sCMD_Result; CMD_Set_Timeout(sPK_DesignObj.c_str(),sTime.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Set_Timeout(string sPK_DesignObj,string sTime,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

@@ -419,6 +419,25 @@ void Orbiter::RedrawObjects(  )
 	CallMaintenanceInMiliseconds( 0, &Orbiter::RealRedraw, NULL, true );
 }
 
+void Orbiter::Timeout( void *data )
+{
+	if( !data || data!=(void *) m_pScreenHistory_Current->m_pObj )
+		return;
+
+	DesignObj_Orbiter *pObj = (DesignObj_Orbiter *) data;
+    Message *pMessage_GotoScreen=NULL;
+    if(  pObj->m_Action_TimeoutList.size(  )>0  )
+        ExecuteCommandsInList( &pObj->m_Action_TimeoutList, pObj, pMessage_GotoScreen );
+
+    if( pMessage_GotoScreen )
+	{
+        ReceivedMessage( pMessage_GotoScreen );
+
+		delete pMessage_GotoScreen;
+		pMessage_GotoScreen = NULL;
+	}
+}
+
 void Orbiter::RealRedraw( void *data )
 {
 	if( m_bQuit )
@@ -1043,6 +1062,9 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable is now %p",pObj-
 
     m_pScreenHistory_Current=pScreenHistory;
     m_pScreenHistory_Current->m_pObj->m_bActive=true;
+	if( m_pScreenHistory_Current->m_pObj->m_dwTimeoutSeconds )
+		CallMaintenanceInMiliseconds( m_pScreenHistory_Current->m_pObj->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) m_pScreenHistory_Current->m_pObj, true );
+
     g_pPlutoLogger->Write( LV_STATUS, "Changing screen to %s", m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(  ) );
     ObjectOnScreenWrapper(  );
 }
@@ -3142,13 +3164,9 @@ void Orbiter::GotActivity(  )
         CMD_Display_OnOff( "1" );
         return;  // Ignore this first touch
     }
-    /* todo 2.0
-    if(  m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj->m_dwTimeoutSeconds  )
-    m_Timeout = clock(  ) + ( m_pScreenHistory_Current->m_pObj->m_dwTimeoutSeconds * CLOCKS_PER_SEC  );
-    else
-    m_Timeout = 0;
-    */
 
+	if(  m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj->m_dwTimeoutSeconds  )
+		CallMaintenanceInMiliseconds( m_pScreenHistory_Current->m_pObj->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) m_pScreenHistory_Current->m_pObj, true );
 }
 
 /*
@@ -3822,6 +3840,7 @@ void *MaintThread(void *p)
 			pthread_mutex_lock(&pOrbiter->m_MaintThreadMutex.mutex);
 			pthread_cond_wait(&pOrbiter->m_MaintThreadCond,&pOrbiter->m_MaintThreadMutex.mutex);
 			pthread_mutex_unlock(&pOrbiter->m_MaintThreadMutex.mutex);
+g_pPlutoLogger->Write( LV_CONTROLLER, "### maint thread awake - the queue size is %d", mapPendingCallbacks.size());
 		}
 		else
 		{
@@ -3837,6 +3856,7 @@ void *MaintThread(void *p)
 
 				if(pCallBackInfo->m_abstime < ts_NextCallBack)
 				{
+g_pPlutoLogger->Write( LV_CONTROLLER, "found one to call");
 					ts_NextCallBack = pCallBackInfo->m_abstime;
 					Index = pCallBackInfo->m_iCounter;
 				}
@@ -3936,8 +3956,7 @@ void Orbiter::CallMaintenanceInMiliseconds( clock_t milliseconds, OrbiterCallBac
 
 	mapPendingCallbacks[pCallBack->m_iCounter]=pCallBack;
 
-	//g_pPlutoLogger->Write( LV_CONTROLLER, "### Added callback id = %d, clock = %d",
-	//	pCallBack->m_iCounter, (int)pCallBack->m_clock);
+g_pPlutoLogger->Write( LV_CONTROLLER, "### Added callback id = %d, size is now: %d", pCallBack->m_iCounter, (int) mapPendingCallbacks.size());
 
 	cm.Release();
 	pthread_cond_broadcast(&m_MaintThreadCond);
@@ -5795,4 +5814,34 @@ int Orbiter::TranslateVirtualDevice(int PK_DeviceTemplate)
 		return m_dwPK_Device_LocalAppServer;
 		
 	}
+}
+
+//<-dceag-c324-b->
+
+	/** @brief COMMAND: #324 - Set Timeout */
+	/**  */
+		/** @param #3 PK_DesignObj */
+			/** The screen to set the timeout on.  If blank the current screen. */
+		/** @param #102 Time */
+			/** The timeout in seconds.  0 or blank means no timeout. */
+
+void Orbiter::CMD_Set_Timeout(string sPK_DesignObj,string sTime,string &sCMD_Result,Message *pMessage)
+//<-dceag-c324-e->
+{
+	DesignObj_Orbiter *pObj;
+	if( atoi(sPK_DesignObj.c_str())==0 )
+		pObj = m_pScreenHistory_Current->m_pObj;
+	else
+	{
+	    sPK_DesignObj = SubstituteVariables( sPK_DesignObj,  NULL,  0,  0 );
+		pObj = FindObject( sPK_DesignObj );
+	}
+    if(  !pObj  )
+    {
+        g_pPlutoLogger->Write( LV_CRITICAL, "Cannot find object in CMD_Set_Timeout: %s", sPK_DesignObj.c_str(  ) );
+        return;
+    }
+	pObj->m_dwTimeoutSeconds = atoi(sTime.c_str());
+	if( pObj==m_pScreenHistory_Current->m_pObj )
+		CallMaintenanceInMiliseconds( pObj->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) pObj, true );
 }
