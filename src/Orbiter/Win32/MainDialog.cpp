@@ -471,11 +471,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				// Initialize the shell activate info structure
 				memset (&s_sai, 0, sizeof (s_sai));
 				s_sai.cbSize = sizeof (s_sai);
-#endif //WINCE
-
+#else
 				//make sure the that task bar is visible
 				HWND hTaskBarWindow = ::FindWindow(TEXT("Shell_TrayWnd"), NULL);
 				::ShowWindow(hTaskBarWindow, SW_SHOWNORMAL);
+
+#endif //WINCE
+
 
 				//configuration info
 				g_hWnd_TryAutomCheckBox = CreateCheckBox(hWnd, 10, WIN_HEIGHT - 4 * MENU_HEIGHT - SMALL_BOTTOM_OFFSET - BOTTOM_ADJUSTMENT, "Try to determine automatically the device id", 330);
