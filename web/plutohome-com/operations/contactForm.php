@@ -3,7 +3,7 @@ function contactForm($section,$conn)
 {
 $out='
 <table height="285" class="insidetable2">
-  <form action="index.php" method="POST">
+  <form action="index.php" method="POST" name="'.$section.'">
   <input type="hidden" name="section" value="'.$section.'">
 	<tr>
 		<td height="22">Name:</td>
@@ -61,7 +61,14 @@ $out='
 		</td>
 	</tr>
 </table>
-</form>'; 
+</form>
+<script>
+	var frmvalidator = new formValidator("'.$section.'");
+	frmvalidator.addValidation("Name","req","Please enter a name.");			
+  	frmvalidator.addValidation("Email","req","Please enter your email.");			
+ 	frmvalidator.addValidation("Email","email","Please enter a valid email address.");			
+</script>  			
+'; 
 	if(isset($_POST['send']) || isset($_POST['Name'])){
     
 		$leadTypeDescr=explode('-',$_POST['FKID_LeadType']);

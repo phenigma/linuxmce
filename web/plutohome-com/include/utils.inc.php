@@ -864,4 +864,39 @@ function addScenariosToRoom($roomID, $installationID, $dbADO)
 	}
 	$dbADO->Execute($insertCG_Room,array($sosCG,$roomID,$sosCG));
 }
+
+function htmlPulldown($contentArray,$name,$selectedValue='None',$unselectedLabel)
+{
+	if(!is_array($contentArray))
+		return '';	// error
+	$out='<select name="'.$name.'">
+		<option value="0">'.$unselectedLabel.'</option>';
+	foreach ($contentArray AS $key=>$label){
+		$out.='<option value="'.$key.'" '.(($key==$selectedValue)?'selected':'').'>'.$label.'</option>';
+	}
+	$out.='</select>';
+	return $out;
+}
+
+function getAssocArray($table,$keyField,$labelField,$dbADO,$whereClause='',$orderClause)
+{
+	$retArray=array();
+	$res=$dbADO->Execute("SELECT $keyField,$labelField FROM $table $whereClause $orderClause");
+	while($row=$res->FetchRow()){
+		$retArray[$row[$keyField]]=$row[$labelField];
+	}
+	return $retArray;
+}
+
+function createDevice($FK_DeviceTemplate,$FK_Installation,$controlledBy,$roomID,$dbADO,$deviceName='')
+{
+	$insertDevice="INSERT INTO Device (Description, FK_DeviceTemplate, FK_Installation,FK_Device_ControlledVia) SELECT Description,PK_DeviceTemplate,$FK_Installation,$controlledBy FROM DeviceTemplate WHERE PK_DeviceTemplate='$FK_DeviceTemplate'";
+	$dbADO->Execute($insertDevice);
+	$insertID=$dbADO->Insert_ID();
+	
+	InheritDeviceData($FK_DeviceTemplate,$insertID,$dbADO);
+	createChildsForControledViaDeviceTemplate($FK_DeviceTemplate,$FK_Installation,$insertID,$dbADO,$roomID);
+	createChildsForControledViaDeviceCategory($FK_DeviceTemplate,$FK_Installation,$insertID,$dbADO,$roomID);
+
+}
 ?>

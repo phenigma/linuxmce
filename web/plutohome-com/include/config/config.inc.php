@@ -41,6 +41,9 @@
 	$GLOBALS['rootCoreID'] = 7; 			// the PK_DeviceCategory from DeviceCategory table for the root Core
 	$GLOBALS['rootMediaDirectorID'] = 8;	// the PK_DeviceCategory from DeviceCategory table for the root MediaDirector
 	$GLOBALS['MobileOrbiterCategory'] = 2;	// the PK_DeviceCategory Mobile Orbiter
+	$GLOBALS['PVRCaptureCards']=75;			// PVR Capture Cards
+	$GLOBALS['SoundCards']=-1;			// Sound Cards
+	$GLOBALS['VideoCards']=-1;			// Video Cards
 	
 	$GLOBALS['rootGenericMediaDirector']=28;// the PK_DeviceTemplate for Generic Media Director
 	$GLOBALS['rootDCERouter'] = 1; 			// the PK_DeviceTemplate from DeviceTemplate table for the root DCE Router

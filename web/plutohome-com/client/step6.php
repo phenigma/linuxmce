@@ -1,9 +1,13 @@
 <?
+$pvrArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,' WHERE FK_DeviceCategory='.$GLOBALS['PVRCaptureCards'],'ORDER BY Description ASC');
+$soundArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,' WHERE FK_DeviceCategory='.$GLOBALS['SoundCards'],'ORDER BY Description ASC');
+$videoArray=getAssocArray('DeviceTemplate','PK_DeviceTemplate','Description',$dbADO,' WHERE FK_DeviceCategory='.$GLOBALS['VideoCards'],'ORDER BY Description ASC');
+
 if($_SESSION['sollutionType']==3){
 		$out='
 			<table align="center" border="0" width="100%">
 				 <tr>
-					<td align="left" class="insidetable"><img src="images/titles/installation_wizzard.gif"></td>
+					<td align="left" class="insidetable"><img src="images/titles/installation_wizard.gif"></td>
 					<td align="right" class="insidetable"><a href="index.php?section=wizard&step=5">&lt;&lt; Previous</a> <a href="index.php?section=wizard&step=7">Next &gt;&gt;</a></td>
 				</tr>				
 				<tr>
@@ -78,7 +82,7 @@ if($_SESSION['sollutionType']==3){
 						<input type="hidden" name="action" value="'.$action.'">	
 				      		<table align="center" width="100%">
 								 <tr>
-									<td align="left" class="insidetable"><img src="images/titles/installation_wizzard.gif"></td>
+									<td align="left" class="insidetable"><img src="images/titles/installation_wizard.gif"></td>
 									<td align="right" class="insidetable"><a href="index.php?section=wizard&step=5">&lt;&lt; Previous</a> <a href="#" onClick="javascript:document.wizard.action.value=\'update\';document.wizard.submit();">Next &gt;&gt;</a></td>
 								</tr>				
 								<tr>
@@ -171,6 +175,14 @@ if($_SESSION['sollutionType']==3){
 							<td colspan="7">'.getInstallWizardDeviceTemplates($step,$dbADO,$orbiterMDChild,$selectedDistro).'</td>
 						</tr>';
 			}
+			
+			$pvrDevice=getSubDT($rowMediaDirectors['PK_Device'],$GLOBALS['PVRCaptureCards'],$dbADO);
+			$soundDevice=getSubDT($rowMediaDirectors['PK_Device'],$GLOBALS['SoundCards'],$dbADO);
+			$videoDevice=getSubDT($rowMediaDirectors['PK_Device'],$GLOBALS['VideoCards'],$dbADO);
+			$out.='
+				<tr class="normaltext" '.$rowcolor.'>
+					<td colspan="6">PVR Capture Card: '.htmlPulldown($pvrArray,'PVRCaptureCard_'.$rowMediaDirectors['PK_Device'],$pvrDevice,'None').' Sound Card '.htmlPulldown($soundArray,'SoundCard_'.$rowMediaDirectors['PK_Device'],$soundDevice,'Standard Sound Card').' Video Card '.htmlPulldown($videoArray,'VideoCard_'.$rowMediaDirectors['PK_Device'],$videoDevice,'Standard Video Card').'</td>
+				</tr>';
 		}
 		$out.='<input type="hidden" name="displayedDevices" value="'.join(',',$displayedDevices).'">';
 		$out.='		</table>
@@ -229,16 +241,20 @@ if($_SESSION['sollutionType']==3){
 			$out.='</select> Normally Debian Sarge / Linux</td>
 								</tr>';
 		}
+		$out.='
+			<tr class="normaltext">
+				<td colspan="2">PVR Capture Card: '.htmlPulldown($pvrArray,'PVRCaptureCard','','None').' Sound Card '.htmlPulldown($soundArray,'SoundCard','','Standard Sound Card').' Video Card '.htmlPulldown($videoArray,'VideoCard','','Standard Video Card').'</td>
+			</tr>';
 		if($selectedPlatform!=0)
 			$out.='				<tr class="normaltext">
 									<td colspan="2">'.getInstallWizardDeviceTemplates($step,$dbADO,'',$selectedPlatform).'</td>
 								</tr>';
-		$out.='	<tr>
-									<td colspan="2" align="center">'.(($selectedPlatform!=0)?'<input type="submit" name="continue" value="Add Media Director">':'').'</td>
-								</tr>
-				      		</table>
-						</form>
-						<script>
+		$out.='			<tr>
+							<td colspan="2" align="center">'.(($selectedPlatform!=0)?'<input type="submit" name="continue" value="Add Media Director">':'').'</td>
+						</tr>
+				      </table>
+					</form>
+					<script>
 						function showMAC(deviceID)
 						{
 							isDiskless=eval("document.wizard.disklessBoot_"+deviceID+".checked");
@@ -264,7 +280,7 @@ if($_SESSION['sollutionType']==3){
 		}
 	
 	}elseif($action=='add'){
-		// process form step 5
+		// process form step 6
 		updateMediaDirectors($displayedDevicesArray,$dbADO);
 		
 		if(isset($_POST['continue'])){
@@ -323,6 +339,21 @@ if($_SESSION['sollutionType']==3){
 				$insertDeviceDeviceData='INSERT INTO Device_DeviceData (FK_Device,FK_DeviceData,IK_DeviceData) VALUES (?,?,?)';
 				$dbADO->Execute($insertDeviceDeviceData,array($insertID,$GLOBALS['rootDisklessBoot'],1));
 			}
+			
+			// insert devices from PVR, Audio and video categories
+			$pvrDT=(int)$_POST['PVRCaptureCard'];
+			if($pvrDT!=0){
+				createDevice($pvrDT,$installationID,$insertID,$roomID,$dbADO);
+			}
+			$soundDT=(int)$_POST['SoundCard'];
+			if($soundDT!=0){
+				createDevice($soundDT,$installationID,$insertID,$roomID,$dbADO);
+			}
+			$videoDT=(int)$_POST['VideoCard'];
+			if($videoDT!=0){
+				createDevice($videoDT,$installationID,$insertID,$roomID,$dbADO);
+			}
+
 		}
 		
 		header("Location: index.php?section=wizard&step=6");
@@ -400,6 +431,55 @@ function updateMediaDirectors($displayedDevicesArray,$dbADO)
 				deleteDevice($oldDevice,$dbADO);
 			}
 		}
+		
+		// add/delete PVR Capture Card, sound card and vide card
+		$pvrDT=$_POST['PVRCaptureCard_'.$value];
+		recreateDevice($value,$GLOBALS['PVRCaptureCards'],$pvrDT,$_SESSION['installationID'],$oldRoomID,$dbADO);
+		$soundDT=$_POST['SoundCard_'.$value];
+		recreateDevice($value,$GLOBALS['SoundCards'],$soundDT,$_SESSION['installationID'],$oldRoomID,$dbADO);
+		$videoDT=$_POST['VideoCard_'.$value];
+		recreateDevice($value,$GLOBALS['VideoCards'],$videoDT,$_SESSION['installationID'],$oldRoomID,$dbADO);
+	}
+}
+
+function getSubDT($mdID,$categoryID,$dbADO)
+{
+	$res=$dbADO->Execute('
+		SELECT FK_DeviceTemplate
+		FROM Device 
+		INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+		WHERE FK_DeviceCategory=? AND FK_Device_ControlledVia=?',array($categoryID,$mdID));
+	if($res->RecordCount()>0){
+		$row=$res->FetchRow();
+		return $row['FK_DeviceTemplate'];
+	}else{
+		return 0;
+	}
+}
+
+function getSubDevice($mdID,$categoryID,$dbADO)
+{
+	$res=$dbADO->Execute('
+		SELECT PK_Device
+		FROM Device 
+		INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+		WHERE FK_DeviceCategory=? AND FK_Device_ControlledVia=?',array($categoryID,$mdID));
+	if($res->RecordCount()>0){
+		$row=$res->FetchRow();
+		return $row['PK_Device'];
+	}else{
+		return 0;
+	}
+}
+
+function recreateDevice($mdID,$categoryID,$dtID,$installationID,$roomID,$dbADO)
+{
+	$deviceID=getSubDevice($mdID,$categoryID,$dbADO);
+	if($deviceID!=0){
+		deleteDevice($deviceID,$dbADO);
+	}
+	if($dtID!=0){
+		createDevice($dtID,$installationID,$mdID,$roomID,$dbADO);
 	}
 }
 ?>

@@ -145,7 +145,7 @@ if($action=='form'){
 					<input type="hidden" name="action" value="'.((isset($_SESSION['deviceID']))?'update':'addDevice').'">	
 			      		<table align="left" border="0" width="100%">
 							 <tr>
-								<td align="left" class="insidetable"><img src="images/titles/installation_wizzard.gif"></td>
+								<td align="left" class="insidetable"><img src="images/titles/installation_wizard.gif"></td>
 								<td align="right" class="insidetable"><a href="index.php?section=wizard&step=4">&lt;&lt; Previous</a> '.((isset($_SESSION['deviceID']))?'<a href="#" onClick="javascript:document.wizard.submit();">Next &gt;&gt;</a>':'').'</td>
 							</tr>				
 							<tr>

@@ -20,7 +20,7 @@ $out.='
       Your Pluto Pro dealer offers a complete, custom installed, turn-key solution.  Also, only Pro dealers can sell Pluto Pro: our high-end line, made from the finest materials, available in a variety of finishes and colors to complement any d&eacute;cor.</p>
     
       <p>Pluto Series 2 is expected to be released for retail in March, 2005.  We are now signing up dealers.  The dealer locator service is available from February.</p>
-      <p>If you wish to be contacted by a dealer in your area, you can complete the form below.  We will forward all inquiries to dealers in February.</p>
+      <p>If you wish to be contacted by a dealer in your area, you can complete the form below.</p>
 	</td>
   </tr>
 </table>

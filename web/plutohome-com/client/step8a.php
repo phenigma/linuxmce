@@ -4,7 +4,7 @@
 $out .= '
 <table align="center" width="100%" border="0">
 	<tr>
-		<td align="left" class="insidetable"><img src="images/titles/installation_wizzard.gif"></td>
+		<td align="left" class="insidetable"><img src="images/titles/installation_wizard.gif"></td>
 		<td align="right" class="insidetable" width="150"><a href="index.php?section=wizard&step=7">&lt;&lt; Previous</a></td>
 	</tr>
 	<tr>

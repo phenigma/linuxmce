@@ -35,7 +35,7 @@ if($action=='form'){
 			<input type="hidden" name="action" value="add">	
 	      		<table align="center">
 					<tr>
-						<td align="left" class="insidetable"><img src="images/titles/installation_wizzard.gif"></td>
+						<td align="left" class="insidetable"><img src="images/titles/installation_wizard.gif"></td>
 	      				<td align="right" class="insidetable"><a href="index.php?section=wizard&step=1">&lt;&lt; Previous</a> <a href="#" onClick="javascript:document.wizard.submit();">Next &gt;&gt;</a></td>
 	      			</tr>
 	      			<tr>
@@ -49,7 +49,7 @@ if($action=='form'){
 			$out.='
 				<p>Since you want a whole-house solution, the 1 computer you will be using as the '.$_SESSION['coreName'].' must always be running--the 
 				other media directors will not work when the '.$_SESSION['coreName'].' is turned off.  
-				We recommended that you chose the first option below to get a <b>dedicated</b> '.$_SESSION['coreName'].', and 
+				We recommended that you choose the first option below to get a <b>dedicated</b> '.$_SESSION['coreName'].', and 
 				then choose <a href="http://plutohome.com/support/index.php?section=document&docID=144">network boot</a> for your media directors.
 				This is the configuration Pluto\'s testers always use, and the one offered in our commercial product.</p>
 				<p>Dedicated means that for the 1 computer that will be your '.$_SESSION['coreName'].' you do not install the Pluto software on top of your existing operating system, 

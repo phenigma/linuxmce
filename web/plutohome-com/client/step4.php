@@ -11,7 +11,7 @@ if($action=='form'){
 							<tr>
 								<td colspan="2"><table width="100%">
 				      			<tr>
-									<td align="left" class="insidetable"><img src="images/titles/installation_wizzard.gif"></td>
+									<td align="left" class="insidetable"><img src="images/titles/installation_wizard.gif"></td>
 									<td align="right" class="insidetable"><a href="index.php?section=wizard&step=3">&lt;&lt; Previous</a> <a href="index.php?section=wizard&step=5">Next &gt;&gt;</a></td>
 								</tr>
 								</table>

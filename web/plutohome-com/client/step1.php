@@ -30,7 +30,7 @@ if($action=='form'){
 			<input type="hidden" name="action" value="add">	
 	      		<table align="center">
 					<tr>
-						<td align="left" class="insidetable"><img src="images/titles/installation_wizzard.gif"></td>
+						<td align="left" class="insidetable"><img src="images/titles/installation_wizard.gif"></td>
 	      				<td align="right" class="insidetable"><a href="#" onClick="javascript:document.wizard.submit();">Next &gt;&gt;</a></td>
 	      			</tr>
 	      			<tr>
