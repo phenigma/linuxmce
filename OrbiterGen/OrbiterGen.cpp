@@ -772,7 +772,7 @@ int OrbiterGenerator::DoIt()
 				cout << "Rendering screen " << oco->m_ObjectID << " in orbiter: " << m_pRow_Device->PK_Device_get() << endl;
 				try
 				{
-//if( oco->m_ObjectID.find("1389")!=string::npos )
+if( oco->m_ObjectID.find("1389")!=string::npos )
 					DoRender(m_sFontPath,m_sOutputPath,m_Width,m_Height,m_pRow_Size->PreserveAspectRatio_get()==1,oco);
 				}
 				catch(string s)

@@ -106,6 +106,10 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==1399 )//2821 && bAddToGenerated )
 
     if( bAddToGenerated )
     {
+if( m_pRow_DesignObj->PK_DesignObj_get()!=1389 &&  m_pRow_DesignObj->PK_DesignObj_get()!=1255 )
+{
+	return;
+}
 		cout << "Generating screen: " << drDesignObj->PK_DesignObj_get() << " in orbiter: " << pGenerator->m_pRow_Device->PK_Device_get() << endl;
         listDesignObj_Generator *al = m_pOrbiterGenerator->m_htGeneratedScreens[drDesignObj->PK_DesignObj_get()];
         if( al==NULL )
@@ -124,6 +128,7 @@ int k=2;
         {
             m_iVersion = m_pOrbiterGenerator->m_iLocation;
         }
+/* 1389 remove
         else if( m_pOrbiterGenerator->m_bOrbiterChanged==false )
         {
             // Let's see if we can just use a cached version
@@ -148,6 +153,7 @@ int k=2;
                 }
             }
         }
+*/
         string Filespec = m_pOrbiterGenerator->m_sOutputPath + "*" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get()) + "." +
             StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + ".*";
         string Filespec2 = m_pOrbiterGenerator->m_sOutputPath + StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + ".*";
