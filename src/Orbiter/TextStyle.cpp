@@ -15,13 +15,18 @@
  
  */
  
-#include "PlutoUtils/CommonIncludes.h"	
-#include "pluto_main/Table_Style.h"
-#include "pluto_main/Table_StyleVariation.h"
+#ifndef ORBITER
+	#include "PlutoUtils/CommonIncludes.h"	
+	#include "pluto_main/Table_Style.h"
+	#include "pluto_main/Table_StyleVariation.h"
+#endif
+
 #include "TextStyle.h"
+#include <SDL_ttf.h>
 
 TextStyle::TextStyle(class Row_StyleVariation *pRow_StyleVariation)
 {
+#ifndef ORBITER
 	m_iPK_Style = pRow_StyleVariation->FK_Style_get();
 	m_iPK_StyleVariation = pRow_StyleVariation->PK_StyleVariation_get();
 	m_iPK_Style_Selected = pRow_StyleVariation->FK_Style_getrow()->FK_Style_Selected_get();
@@ -47,4 +52,11 @@ TextStyle::TextStyle(class Row_StyleVariation *pRow_StyleVariation)
 	m_HighlightedBGColor = pRow_StyleVariation->;
 	m_sAltBGColor = pRow_StyleVariation->;
 */
+#endif ORBITER
+}
+
+TextStyle::~TextStyle()
+{
+	if( m_pTTF_Font )  
+		TTF_CloseFont((TTF_Font *)m_pTTF_Font);
 }

@@ -256,6 +256,9 @@
 				RelativePath="..\Splitter\TextSplitter.cpp">
 			</File>
 			<File
+				RelativePath="..\Orbiter\TextStyle.cpp">
+			</File>
+			<File
 				RelativePath="..\Splitter\TextWrapper.cpp">
 			</File>
 			<File

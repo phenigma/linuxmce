@@ -31,6 +31,7 @@ sources += \
 	../Orbiter/Orbiter.cpp \
 	../Orbiter/GraphicBuilder.cpp \
 	../Orbiter/RendererMNG.cpp \
+	../Orbiter/TextStyle.cpp \
 	../Orbiter/SDL/SDLGraphic.cpp \
 	../Orbiter/SDL/OrbiterSDL.cpp \
 	../Splitter/TextWrapper.cpp \

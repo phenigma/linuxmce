@@ -180,6 +180,9 @@
 				RelativePath="..\Splitter\TextSplitter.cpp">
 			</File>
 			<File
+				RelativePath=".\TextStyle.cpp">
+			</File>
+			<File
 				RelativePath="..\Splitter\TextWrapper.cpp">
 			</File>
 		</Filter>

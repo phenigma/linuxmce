@@ -28,6 +28,7 @@ sources +=  DesignObj_Data.cpp DesignObj_Orbiter.cpp \
 			Linux/XRecordExtensionHandler.cpp \
 			RendererMNG.cpp \
 			GraphicBuilder.cpp \
+			TextStyle.cpp \
 			SDL/SDLGraphic.cpp \
 			SDL/OrbiterSDL.cpp SDL/StartOrbiterSDL.cpp \
 			$(ROOT)/Splitter/TextSplitter.cpp \

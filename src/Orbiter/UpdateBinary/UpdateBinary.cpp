@@ -79,7 +79,16 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 				sOrbiterUpdateFileName = StringUtils::Tokenize(command_line, " ", pos);
 				break;
 			case 'o':
-				sOrbiterFileName = StringUtils::Tokenize(command_line, " ", pos);
+				{
+					if(command_line[pos] == '\"')
+					{
+						pos++;
+						sOrbiterFileName = StringUtils::Tokenize(command_line, "\"", pos);
+						pos++;
+					}
+					else
+						sOrbiterFileName = StringUtils::Tokenize(command_line, " ", pos);
+				}
 				break;
 			case 'c':
 				sCommFile = StringUtils::Tokenize(command_line, " ", pos);
@@ -183,7 +192,9 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 	//save the Orbiter.MD5 file
 	string sOrbiterMD5FileName = sOrbiterFileName;
 	StringUtils::Replace(sOrbiterMD5FileName, ".exe", ".MD5");
+	StringUtils::Replace(sOrbiterMD5FileName, ".EXE", ".MD5");
 
+	g_pPlutoLogger->Write( LV_CRITICAL,  "Ready to update MD5 file: %s", sOrbiterMD5FileName.c_str());
 	while(!FileUtils::WriteBufferIntoFile(sOrbiterMD5FileName, const_cast<char *>(sChecksum.c_str()), sChecksum.length()))
 	{
 		g_pPlutoLogger->Write( LV_CRITICAL,  "Failed to save the update file" );
@@ -246,15 +257,6 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 	g_pPlutoLogger->Write( LV_CRITICAL,  "Orbiter path: %s", sOrbiterPath.c_str() );
 	g_pPlutoLogger->Write( LV_CRITICAL,  "Orbiter cmd line: %s", sCmdLine.c_str() );
 
-	if(!::CreateProcess(OrbiterPathW, CmdLineW, NULL, NULL, NULL, 0, NULL, NULL, &si, &pi))
-#else
-	if(!::CreateProcess(NULL, const_cast<char *>(sOrbiterCommandLine.c_str()), NULL, NULL, NULL, 0, NULL, NULL, &si, &pi))
-#endif
-	{
-		g_pPlutoLogger->Write( LV_CRITICAL,  "Failed to start Orbiter application '%s'", sOrbiterCommandLine.c_str() );
-		return false; 
-	}
-
 #ifdef WINCE
 	wchar_t CommFileW[256];
 	mbstowcs(CommFileW, sCommFile.c_str(), 256);
@@ -265,6 +267,15 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 
 	g_pPlutoLogger->Write( LV_CRITICAL,  "Ready to delete the communcation file");
 	::DeleteFile(COMM_FILE);
+
+	if(!::CreateProcess(OrbiterPathW, CmdLineW, NULL, NULL, NULL, 0, NULL, NULL, &si, &pi))
+#else
+	if(!::CreateProcess(NULL, const_cast<char *>(sOrbiterCommandLine.c_str()), NULL, NULL, NULL, 0, NULL, NULL, &si, &pi))
+#endif
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL,  "Failed to start Orbiter application '%s'", sOrbiterCommandLine.c_str() );
+		return false; 
+	}
 
 	g_pPlutoLogger->Write( LV_CRITICAL,  "Update done.");
 

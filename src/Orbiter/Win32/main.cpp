@@ -167,7 +167,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		StartOrbiterThread();
 
 #ifdef WINCE
-		Simulator::GetInstance()->LoadConfigurationFile("/InternalStorage/Orbiter.conf");
+		Simulator::GetInstance()->LoadConfigurationFile("/Storage Card/Orbiter.conf");
 #else
 		Simulator::GetInstance()->LoadConfigurationFile("Orbiter.conf");
 #endif
@@ -180,7 +180,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		}
 
 #ifdef WINCE
-		Simulator::GetInstance()->SaveConfigurationFile("/InternalStorage/Orbiter.conf");
+		Simulator::GetInstance()->SaveConfigurationFile("/Storage Card/Orbiter.conf");
 #else
 		Simulator::GetInstance()->SaveConfigurationFile("Orbiter.conf");
 #endif

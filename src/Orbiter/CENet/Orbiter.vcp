@@ -3011,6 +3011,7 @@ DEP_CPP_SIMUL=\
 	"..\DesignObj_Orbiter.h"\
 	"..\Floorplan.h"\
 	"..\Linux\OrbiterLinux.h"\
+	"..\Linux\XRecordExtensionHandler.h"\
 	"..\Orbiter.h"\
 	"..\OrbiterData.h"\
 	"..\SDL\OrbiterSDL.h"\

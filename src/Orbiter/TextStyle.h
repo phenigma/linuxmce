@@ -36,13 +36,7 @@ public:
 			m_iPK_HorizAlignment + m_iPK_VertAlignment + m_iRotate;
 	}
 
-	~TextStyle()
-	{
-//#ifdef ORBITER  -- hack, find a solution.  see void * above
-//		if( m_pTTF_Font )  
-//			TTF_CloseFont(m_pTTF_Font);
-//#endif
-	}
+	TextStyle::~TextStyle();
 };
 
 typedef map<int,TextStyle *> MapTextStyle;

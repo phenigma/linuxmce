@@ -73,6 +73,7 @@ string OrbiterSelfUpdate::GetOrbiterCheckSum()
 {
 	string sMD5FilePath = m_sOrbiterFilePath;
 	StringUtils::Replace(sMD5FilePath, ".exe", ".MD5");
+	StringUtils::Replace(sMD5FilePath, ".EXE", ".MD5");
 
 	//read data from the comm file
 	size_t iMD5Size;
@@ -122,6 +123,9 @@ bool OrbiterSelfUpdate::UpdateAvailable()
 		g_pPlutoLogger->Write( LV_CRITICAL,  "The MD5 file is missing." );
 		return false; //we'll continue with this version
 	}
+
+	g_pPlutoLogger->Write( LV_STATUS,  "sActualChecksum : %s", sActualChecksum.c_str() );	
+	g_pPlutoLogger->Write( LV_STATUS,  "sChecksum : %s", sChecksum.c_str() );	
 
 	if(sActualChecksum == sChecksum)
 		return false; //no updates needed
@@ -221,10 +225,11 @@ bool OrbiterSelfUpdate::SpawnUpdateBinaryProcess()
 
 	sCmdLine += " -l " + sUpdateName + ".log";
 	sCmdLine += " -i " + csOrbiter_Update;
-	sCmdLine += " -o " + m_sOrbiterFilePath;
+	sCmdLine += " -o \"" + m_sOrbiterFilePath + "\"";
 	sCmdLine += " -c " + sCommFile;
 
 	g_pPlutoLogger->Write( LV_CRITICAL,  "Ready to start: %s", sUpdateBinaryFilePath.c_str());
+	g_pPlutoLogger->Write( LV_CRITICAL,  "Communication file: %s", sCmdLine.c_str());
 
 #ifdef WINCE
 	wchar_t CmdLineW[256];
@@ -268,24 +273,28 @@ bool OrbiterSelfUpdate::Run()
 		g_pPlutoLogger->Write( LV_CRITICAL,  "Last update failed. We won't try to update again." );
 		return false;
 	}
+	g_pPlutoLogger->Write( LV_CRITICAL,  "Last update didn't failed." );
 
 	if(!UpdateAvailable())
 	{
 		g_pPlutoLogger->Write( LV_STATUS,  "No update available on the server." );
 		return false;
 	}
+	g_pPlutoLogger->Write( LV_CRITICAL,  "Update available on the server." );
 
 	if(!DownloadUpdateBinary())
 	{
 		g_pPlutoLogger->Write( LV_CRITICAL,  "Unable to download UpdateBinary application from the server." );
 		return false;
 	}
+	g_pPlutoLogger->Write( LV_CRITICAL,  "Downloaded UpdateBinary app from the server." );
 
 	if(!CreateCommunicationFile())
 	{
 		g_pPlutoLogger->Write( LV_CRITICAL,  "Unable to create the commuication file for UpdateBinary applicaiton." );
 		return false;
 	}
+	g_pPlutoLogger->Write( LV_CRITICAL,  "Created comm file." );
 
 	SpawnUpdateBinaryProcess();
 	return true;	//need restart
