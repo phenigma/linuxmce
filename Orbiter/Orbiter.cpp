@@ -2392,12 +2392,15 @@ bool Orbiter::ButtonDown( int PK_Button )
                     }
                 }
             }
-            dg.Release(  );
+g_pPlutoLogger->Write(LV_STATUS,"Before dg release.  %d",(int) vectSelectedGrids.size(  ));
+			dg.Release(  );
             for( s=0;s<vectSelectedGrids.size(  );++s )
             {
+g_pPlutoLogger->Write(LV_STATUS,"in for loop: %s",(int) s);
                 DesignObj_DataGrid *pDesignObj_DataGrid = vectSelectedGrids[s];
                 SelectedObject( pDesignObj_DataGrid, -1, -1 );
             }
+g_pPlutoLogger->Write(LV_STATUS,"after for loop");
         }
     }
     if(  !( bHandled=ClickedButton( m_pScreenHistory_Current->m_pObj,  PK_Button ) )  )
