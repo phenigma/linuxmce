@@ -444,7 +444,7 @@ void MythTV_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamI
 void MythTV_Player::CMD_PIP_Channel_Up(string &sCMD_Result,Message *pMessage)
 //<-dceag-c129-e->
 {
-    m_pMythTV->ChannelKey(3);
+    m_pMythTV->ChannelKey(8);
 
     waitToFireMediaChanged();
 }
@@ -457,7 +457,7 @@ void MythTV_Player::CMD_PIP_Channel_Up(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_PIP_Channel_Down(string &sCMD_Result,Message *pMessage)
 //<-dceag-c130-e->
 {
-    m_pMythTV->ChannelKey(9);
+    m_pMythTV->ChannelKey(2);
 
     waitToFireMediaChanged();
 }
