@@ -529,6 +529,7 @@ bool Orbiter_Plugin::MobileOrbiterLinked(class Socket *pSocket,class Message *pM
         g_pPlutoLogger->Write(LV_WARNING,"Got orbiter detected, but pDeviceFrom is NULL or unknown dev %s",pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST].c_str());
 		return false;
     }
+g_pPlutoLogger->Write(LV_STATUS,"mobile orbiter linked: %p",pOH_Orbiter);
     string sVersion = pMessage->m_mapParameters[EVENTPARAMETER_Version_CONST];
 
     Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
@@ -553,21 +554,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Phone needs file - nc: %d version: %s / %s / %s
         SendCommand(CMD_Send_File_To_Device);
 
         g_pPlutoLogger->Write(LV_WARNING, "Sending command CMD_Send_File_To_Device... PlutoMO file: %s, mac: %s", PlutoMOInstaller.c_str(), sMacAddress.c_str());
-    }
-
-    //pOH_Orbiter->m_iFailedToConnectCount = 0;//reset tries count
-
-    //pMobileOrbiter->m_pController->m_bReady=true;
-    //pMobileOrbiter->m_pController->SetDefaultFlags();
-
-    if(pOH_Orbiter->m_pDevice_CurrentDetected)
-    {
-//              pMobileOrbiter->RemovingAssocation();
-
-//              ReceivedOCMessage(NULL,new OCMessage(DEVICEID_DCEROUTER,pMobileOrbiter->m_pDevice_CurrentDetected->m_iPKID_Device,
-//                  PRIORITY_NORMAL,MESSAGETYPE_COMMAND,ACTION_LINK_WITH_MOBILE_ORBITER_CONST,2,C_ACTIONPARAMETER_ID_CONST,pMobileOrbiter->m_sID.c_str(),
-//                  C_ACTIONPARAMETER_ON_OFF_CONST,"0"));
-
     }
 
     DeviceData_Router *pDevice_PriorDetected = pOH_Orbiter->m_pDevice_CurrentDetected;
