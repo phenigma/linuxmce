@@ -305,7 +305,7 @@ bool Socket::SendData( int iSize, const char *pcData )
 #endif
 #endif
 #if (defined(LL_DEBUG) || defined(LL_DEBUG_FILE))
-	delete[] tmp;
+	delete[] pcTmp;
 #endif
 
 	int iBytesLeft = iSize;
@@ -572,7 +572,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 			}
 			else
 			{
-				fprintf( file, "%d-%s-%s\tReceiving Binary (%d bytes): %s\n\n", m_Socket,Module, c,m_iSockBufBytesLeft , pcTmp );
+				fprintf( file, "%d-%s-%s\tReceiving Binary (%d bytes): %s\n\n", m_Socket,Module, ac,m_iSockBufBytesLeft , pcTmp );
 				fclose( file );
 			}
 			ll3.Release();

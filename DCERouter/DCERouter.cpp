@@ -1074,7 +1074,7 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
                     bResult ? 1 : 0,MessageType,ID,pDeviceConnection->m_Socket,&pDeviceConnection->m_ConnectionMutex,(int) (*(*pSafetyMessage))->m_eExpectedResponse);
 #endif
 */
-#ifdef
+#ifdef DEBUG
 g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %d %s on socket %d using lock: %p",
 	(bResult ? 1 : 0),
     (*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID,pDeviceConnection->m_dwPK_Device,

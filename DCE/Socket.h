@@ -35,8 +35,8 @@ namespace DCE
 		
 		int m_iSocketCounter; /** < counts the sockets actually created */
 
-		char *m_pcm_pcSockLogFile; /** < name of log file for the socket */
-		char *m_pcm_pcSockLogErrorFile; /** < name of error log file for the socket */	
+		char *m_pcSockLogFile; /** < name of log file for the socket */
+		char *m_pcSockLogErrorFile; /** < name of error log file for the socket */	
 		pluto_pthread_mutex_t m_SocketMutex; /** < for synchronisation between threads @todo ask */
 		pthread_mutexattr_t m_SocketMutexAttr;  /** < for synchronisation between threads @todo ask */
 
