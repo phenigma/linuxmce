@@ -253,7 +253,7 @@ bool Table_@table_name@::GetRows(string where_statement,vector<class Row_@table_
 		
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query" << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return false;
 	}	
 
@@ -349,7 +349,7 @@ Row_@table_name@* Table_@table_name@::FetchRow(Table_@table_name@::Key &key)
 
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
-		cerr << "Cannot perform query" << endl;
+		cerr << "Cannot perform query: [" << query << "]" << endl;
 		return NULL;
 	}	
 
