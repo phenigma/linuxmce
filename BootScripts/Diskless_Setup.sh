@@ -161,10 +161,17 @@ for Client in $R; do
 	MoonNumber=$((MoonNumber+1))
 done
 
+DYNAMIC_IP_RANGE=
 if [ "${DHCPsetting%,*}" != "$DHCPsetting" ]; then
 	DHCPRange="${DHCPsetting#*,}"
 	Range1="${DHCPsetting%-*}"
 	Range2="${DHCPsetting#*-}"
+
+	DYNAMIC_IP_RANGE="
+	pool {
+		allow unknown-clients;
+		range $Range1 $Range2;
+	}"
 fi
 
 ReplaceVars /etc/dhcp3/dhcpd.conf.$$
@@ -236,7 +243,7 @@ for Client in $DisklessR; do
 	done
 	sed '/^Type=/ s/^.*$/Type="diskless"/' /usr/pluto/install/Initial_Config.sh >$DlPath/usr/pluto/install/Initial_Config.sh
 	chmod +x $DlPath/usr/pluto/install/Initial_Config.sh
-	mkdir $DlPath/usr/pluto/install/deb-cache
+	mkdir -p $DlPath/usr/pluto/deb-cache
 
 	echo -n " Timezone"
 	cp /etc/timezone $DlPath/etc

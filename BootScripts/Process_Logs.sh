@@ -14,6 +14,7 @@ UploadLogs()
 			echo "$(date) Done" >>/var/log/pluto/ftp-upload.log
 		else
 			echo "$(date) Failed. Retrying" >>/var/log/pluto/ftp-upload.log
+			sleep 3600
 		fi
 	done
 }
