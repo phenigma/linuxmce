@@ -204,6 +204,63 @@ string FileUtils::FindExtension( string sFileName )
     return sResult;
 }
 
+void FileUtils::MakeDir(string sDirectory)
+{
+    // Windows understands both
+    sDirectory = StringUtils::Replace( sDirectory, "\\", "/" );
+
+    // Run it on each Directory in the path just to be sure
+	string::size_type pos = 0; // string::size_type is UNSIGNED
+
+    while( (pos = sDirectory.find( '/', pos+1 )) != string::npos )
+	{
+#ifdef WIN32
+	#ifdef WINCE
+
+		wchar_t pDirectoryW[256];
+		mbstowcs(pDirectoryW, sDirectory.c_str(), 256);
+		::CreateDirectory(pDirectoryW, NULL);
+
+	#else
+		mkdir( sDirectory.substr(0,pos).c_str() );
+		mkdir( sDirectory.c_str() );
+	#endif
+#else
+    mkdir( sDirectory.substr(0,pos).c_str(),0777 );
+    mkdir( sDirectory.c_str(),0777 );
+#endif
+	}
+}
+
+bool FileUtils::DirExists( string sFile )
+{
+    int iResult = 0;
+
+#ifndef WINCE    
+	struct stat buf;
+
+    if( sFile.length() && sFile[sFile.length()-1]=='/' )
+        iResult = stat( sFile.substr(0, sFile.length()-1).c_str(), &buf );
+    else
+        iResult = stat( sFile.c_str(), &buf );
+#else
+
+	wchar_t pDirectoryW[256];
+	mbstowcs(pDirectoryW, sFile.c_str(), 256);
+
+	WIN32_FIND_DATA find_data;
+	HANDLE hFindFile = FindFirstFile(pDirectoryW, &find_data);
+
+	if(hFindFile == INVALID_HANDLE_VALUE)
+		return false;
+
+	FindClose(hFindFile);
+	return true;
+#endif
+
+    return iResult == 0;
+}
+
 
 #ifndef WINCE
 
@@ -311,19 +368,6 @@ string FileUtils::ValidCPPName(string sInput)
     return sInput;
 }
 
-bool FileUtils::DirExists( string sFile )
-{
-    struct stat buf;
-    int iResult;
-
-    if( sFile.length() && sFile[sFile.length()-1]=='/' )
-        iResult = stat( sFile.substr(0, sFile.length()-1).c_str(), &buf );
-    else
-        iResult = stat( sFile.c_str(), &buf );
-
-    return iResult == 0;
-}
-
 time_t FileUtils::FileDate(string sFile)
 {
     struct stat buf;
@@ -337,25 +381,6 @@ time_t FileUtils::FileDate(string sFile)
         return buf.st_mtime;
 
 }
-
-void FileUtils::MakeDir(string sDirectory)
-{
-    // Windows understands both
-    sDirectory = StringUtils::Replace( sDirectory, "\\", "/" );
-
-    // Run it on each Directory in the path just to be sure
-	string::size_type pos = 0; // string::size_type is UNSIGNED
-
-    while( (pos = sDirectory.find( '/', pos+1 )) != string::npos )
-#ifdef WIN32
-    mkdir( sDirectory.substr(0,pos).c_str() );
-    mkdir( sDirectory.c_str() );
-#else
-    mkdir( sDirectory.substr(0,pos).c_str(),0777 );
-    mkdir( sDirectory.c_str(),0777 );
-#endif
-}
-
 
 #include <iostream>
 using namespace std;
