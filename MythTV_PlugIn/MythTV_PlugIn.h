@@ -35,8 +35,8 @@ namespace DCE
     public:
         class MythTV_PlugIn *m_pMythTV_PlugIn;
 
-        MythTvStream(class MythTV_PlugIn *pMythTV_PlugIn,class MediaPluginInfo *pMediaPluginInfo, int PK_DesignObj_Remote, int PK_Users, enum SourceType sourceType, int StreamID)
-            : MediaStream(pMediaPluginInfo,PK_DesignObj_Remote,PK_Users,sourceType,StreamID) { m_iCurrentShow=-1; m_pMythTV_PlugIn=pMythTV_PlugIn; }
+        MythTvStream(class MythTV_PlugIn *pMythTV_PlugIn,class MediaPluginInfo *pMediaPluginInfo, MediaDevice *pMediaDevice, int PK_DesignObj_Remote, int PK_Users,enum SourceType sourceType,int iStreamID)
+            : MediaStream(pMediaPluginInfo,pMediaDevice,PK_DesignObj_Remote,PK_Users,sourceType,iStreamID) { m_iCurrentShow=-1; m_pMythTV_PlugIn=pMythTV_PlugIn; }
 
         /** Temporary hacks, just populate m_vectRow_Listing with all the shows, and make m_iCurrentShow point to the current one */
         vector<Row_Listing *> m_vectRow_Listing;

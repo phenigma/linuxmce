@@ -205,7 +205,7 @@ class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaPluginInfo *pMedi
     if ( pMediaPluginInfo == NULL )
         return NULL;
 
-    MythTvStream *pMediaStream = new MythTvStream(this, pMediaPluginInfo, pMediaPluginInfo->m_iPK_DesignObj, 0, st_RemovableMedia,StreamID);
+    MythTvStream *pMediaStream = new MythTvStream(this, pMediaPluginInfo, pMediaDevice, pMediaPluginInfo->m_iPK_DesignObj, 0, st_RemovableMedia,StreamID);
 
     pMediaStream->m_sMediaDescription = "Not available";
     pMediaStream->m_sSectionDescription = "Not available";
