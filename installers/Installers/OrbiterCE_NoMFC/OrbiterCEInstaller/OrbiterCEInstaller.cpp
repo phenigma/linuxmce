@@ -178,6 +178,9 @@ void OnInstall()
 		bResult = DownloadFileHelper(wcPath, wcServername, TEXT("/pluto-admin/fdownload.php?filepath=bin/OrbiterCE.exe"), TEXT("OrbiterCE.exe"));
 
 	if(bResult)
+		bResult = DownloadFileHelper(wcPath, wcServername, TEXT("/pluto-admin/fdownload.php?filepath=orbiter/binaries/logo.gif"), TEXT("logo.gif"));
+
+	if(bResult)
 	{
 		::SetWindowText(g_wndStatus, TEXT("Installation completed successfully!"));
 		::UpdateWindow(g_wndStatus);
