@@ -1,6 +1,7 @@
 #ifndef __Define_Event_H__
 #define __Define_Event_H__
 
+#define EVENT_Interval_Timer_CONST -1
 #define EVENT_Touch_or_click_CONST 1
 #define EVENT_Playback_Info_Changed_CONST 2
 #define EVENT_Media_Inserted_CONST 3

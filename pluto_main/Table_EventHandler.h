@@ -83,6 +83,7 @@ class DLL_EXPORT Row_EventHandler : public TableRow, public SerializeClass
 		
 		long int m_PK_EventHandler;
 long int m_FK_Event;
+long int m_TimedEvent;
 string m_Description;
 long int m_FK_Criteria;
 long int m_FK_Installation;
@@ -95,11 +96,12 @@ long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[13];
+		bool is_null[14];
 	
 	public:
 		long int PK_EventHandler_get();
 long int FK_Event_get();
+long int TimedEvent_get();
 string Description_get();
 long int FK_Criteria_get();
 long int FK_Installation_get();
@@ -115,6 +117,7 @@ string psc_mod_get();
 		
 		void PK_EventHandler_set(long int val);
 void FK_Event_set(long int val);
+void TimedEvent_set(long int val);
 void Description_set(string val);
 void FK_Criteria_set(long int val);
 void FK_Installation_set(long int val);
@@ -128,7 +131,9 @@ void psc_frozen_set(short int val);
 void psc_mod_set(string val);
 
 		
-		bool FK_Criteria_isNull();
+		bool FK_Event_isNull();
+bool TimedEvent_isNull();
+bool FK_Criteria_isNull();
 bool FK_Installation_isNull();
 bool FK_CommandGroup_isNull();
 bool FK_CannedEvents_isNull();
@@ -138,7 +143,9 @@ bool psc_user_isNull();
 bool psc_frozen_isNull();
 
 			
-		void FK_Criteria_setNull(bool val);
+		void FK_Event_setNull(bool val);
+void TimedEvent_setNull(bool val);
+void FK_Criteria_setNull(bool val);
 void FK_Installation_setNull(bool val);
 void FK_CommandGroup_setNull(bool val);
 void FK_CannedEvents_setNull(bool val);
@@ -170,13 +177,14 @@ class Row_CannedEvents* FK_CannedEvents_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_EventHandler+ m_FK_Event+ m_Description+ m_FK_Criteria+ m_FK_Installation+ m_FK_CommandGroup+ m_UserCreated+ m_FK_CannedEvents+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_EventHandler+ m_FK_Event+ m_TimedEvent+ m_Description+ m_FK_Criteria+ m_FK_Installation+ m_FK_CommandGroup+ m_UserCreated+ m_FK_CannedEvents+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string PK_EventHandler_asSQL();
 string FK_Event_asSQL();
+string TimedEvent_asSQL();
 string Description_asSQL();
 string FK_Criteria_asSQL();
 string FK_Installation_asSQL();
