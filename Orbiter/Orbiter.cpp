@@ -4319,7 +4319,9 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
 					continue;
 				}
 
-				ReplaceColorInRectangle(fpObj->pObj->m_rBackgroundPosition.X,fpObj->pObj->m_rBackgroundPosition.Y,fpObj->pObj->m_rBackgroundPosition.Width,fpObj->pObj->m_rBackgroundPosition.Height, RGB(255,255,101), Color);
+				PlutoColor Magenta(255,255,101);
+				ReplaceColorInRectangle(fpObj->pObj->m_rBackgroundPosition.X,fpObj->pObj->m_rBackgroundPosition.Y,fpObj->pObj->m_rBackgroundPosition.Width,
+					fpObj->pObj->m_rBackgroundPosition.Height, Magenta, Color);
 
 				if( fpObj->pObj->m_vectDesignObjText.size()==1 && Description!="" )
 				{
