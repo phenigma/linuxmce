@@ -496,8 +496,7 @@ bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileIn
 			if( File.find('*')!=string::npos || File.find('?')!=string::npos )
 			{
 				list<string> listFiles;
-				if( g_bInteractive )
-					cout << "Scanning: " << sDirectory;
+				cout << "Scanning: " << sDirectory;
 				FileUtils::FindFiles(listFiles,sDirectory,File,true);
 				if( g_bInteractive )
 					cout << "Found: " << listFiles.size() << " files" << endl;
@@ -627,8 +626,7 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 			{
 				list<string> listFiles;
 				
-				if( g_bInteractive )
-					cout << "Scanning: " << sInputPath;
+				cout << "Scanning: " << sInputPath;
 				FileUtils::FindFiles(listFiles,sInputPath,File,true);
 				if( g_bInteractive )
 					cout << "Found: " << listFiles.size() << " files" << endl;
@@ -985,6 +983,14 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 {
 	// Marius -- here you need to figure out how to take the package and upload it to SourceForge's CVS
 	
+	// 1.	Create a temporary directory
+	// 2.   chdir to the directory and do a cvs co .
+	// 3.   copy the files over one at a time
+	// 4.	Do a cvs add for each sub-directory
+	// 5.   Do a cvs add for each file
+	// 6.   Call FileUtils::GetDirectory(vector<strings)), and see what files are there, that are not in listFileInfo and do a delete
+	// 7.   Do a cvs ci
+
 	cout<<"\n\n SourceForgeCVS : "
 		<<pRow_Package_Source->FK_Package_getrow()->Description_get();
 	cout<<"\n Nr of files : "<<listFileInfo.size();
@@ -994,10 +1000,11 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 	for (iFileInfo = listFileInfo.begin(),i=1;iFileInfo != listFileInfo.end(); iFileInfo++,i++)
 	{
 		//cout<<"\n"<<i<<" Ading : "<<FileUtils::FilenameWithoutPath((*iFileInfo)->m_sSource);
-		chdir(FileUtils::BasePath((*iFileInfo)->m_sSource).c_str());
+		FileInfo *pFileInfo = (*iFileInfo);
+		chdir(FileUtils::BasePath(pFileInfo->m_sSource).c_str());
 		cmd = " cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/"+
-				(*iFileInfo)->m_pRow_Package_Directory->Path_get()+
-				" add "+FileUtils::FilenameWithoutPath((*iFileInfo)->m_sSource);
+				pRow_Package_Source->Repository_get() + "/" + pFileInfo->m_pRow_Package_Directory->Path_get()+
+				" add "+FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 		system(cmd.c_str());
 	}
 	iFileInfo = listFileInfo.begin();
