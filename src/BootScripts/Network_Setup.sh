@@ -2,6 +2,7 @@
 
 . /usr/pluto/bin/Network_Parameters.sh
 . /usr/pluto/bin/Config_Ops.sh
+. /usr/pluto/bin/SQL_Ops.sh
 
 if [ "$NetIfConf" -eq 0 ]; then
 	echo "Populating network settings from current system config"
@@ -154,9 +155,25 @@ fi
 Q="UPDATE Device SET IPaddress='$dcerouterIP' WHERE PK_Device='$PK_Device'"
 RunSQL "$Q"
 
+Q="SELECT IPaddress, MACaddress
+FROM Device
+JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+WHERE PK_DeviceTemplate=28 AND FK_Device_ControlledVia IS NULL AND MACaddress IS NOT NULL AND IPaddress IS NOT NULL"
+Hosts=$(RunSQL "$Q")
+
+MOON_HOSTS=""
+MoonNumber=1
+for Client in $Hosts; do
+	IP=$(Field 1 "$Client")
+	MAC=$(Field 2 "$Client")
+	MOON_HOSTS="$(printf "%s\n%s\t%s" "$MOON_HOSTS" "$IP" "moon$MoonNumber")"
+	MoonNumber=$((MoonNumber+1))
+done
+
 hosts="
 127.0.0.1       localhost.localdomain   localhost
 $dcerouterIP	dcerouter
+$MOON_HOSTS
 
 # The following lines are desirable for IPv6 capable hosts
 ::1     ip6-localhost ip6-loopback

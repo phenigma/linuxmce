@@ -13,6 +13,7 @@ DlDir="/usr/pluto/diskless"
 # MOON_ADDRESS
 # DYNAMIC_IP_RANGE
 # KERNEL_VERSION
+# MOON_HOSTS
 
 KERNEL_VERSION="$(uname -r)"
 
@@ -22,7 +23,7 @@ ReplaceVars()
 	local File Commands Vars VarValue SedCmd
 	File="$1"
 	
-	Vars="CORE_INTERNAL_ADDRESS INTERNAL_SUBNET INTERNAL_SUBNET_MASK MOON_ENTRIES MOON_ADDRESS DYNAMIC_IP_RANGE KERNEL_VERSION"
+	Vars="CORE_INTERNAL_ADDRESS INTERNAL_SUBNET INTERNAL_SUBNET_MASK MOON_ENTRIES MOON_ADDRESS DYNAMIC_IP_RANGE KERNEL_VERSION MOON_HOSTS"
 
 	for i in $Vars; do
 		eval "VarValue=\"\$$i\""
@@ -158,10 +159,14 @@ mv /etc/exports.$$ /etc/exports
 echo "Setting up /etc/dhcp3/dhcpd.conf"
 cp /usr/pluto/templates/dhcpd.conf.tmpl /etc/dhcp3/dhcpd.conf.$$
 MoonNumber=1
+MOON_ENTRIES=""
+MOON_HOSTS=""
 for Client in $R; do
 	IP=$(Field 1 "$Client")
 	MAC=$(Field 2 "$Client")
-	MOON_ENTRIES=$(printf "%s" "$MOON_ENTRIES\n\thost moon$MoonNumber { hardware ethernet $MAC; fixed-address $IP; }")
+	# verbatim escape sequences used by red in ReplaceVariables; don't replace them with the real thing!
+	MOON_ENTRIES="$MOON_ENTRIES\n\thost moon$MoonNumber { hardware ethernet $MAC; fixed-address $IP }"
+	MOON_HOSTS="$MOON_HOSTS\n$IP\tmoon$MoonNumber"
 	MoonNumber=$((MoonNumber+1))
 done
 
