@@ -59,6 +59,6 @@ for command in $CommandList; do
 		/usr/pluto/bin/$ChildCommand -d $ChildDeviceID -r $DCERouter;
 	else
 		Logging "$TYPE" "$SEVERITY_NORMAL" "Launching device $ChildDeviceID in screen session ($ChildDescription)";
-		screen -d -m -S "$ChildDescription-$ChildDeviceID" /usr/pluto/bin/Spawn_Device.sh $ChildDeviceID $DCERouter /usr/pluto/bin/$ChildCommand
+		screen -d -m -S "$ChildDescription-$ChildDeviceID" /usr/pluto/bin/Spawn_Device.sh $ChildDeviceID $DCERouter $ChildCommand
 	fi;
 done
