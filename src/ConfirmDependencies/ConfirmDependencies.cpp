@@ -436,28 +436,47 @@ makerelease isn't building all and isn't updating the versions
 		for(it=listPackageInfo.begin(); it!=listPackageInfo.end(); ++it)
 		{
 			PackageInfo *pPackageInfo = *it;
+string s=pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get();
+if( s=="Pluto Standard Plugins Source" )
+{
+int k=2;
+}
 			if( pPackageInfo->m_pRow_Package_Directory_Compiled_Output==NULL ||
 					pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->IsSource_get()==0 || (!pPackageInfo->m_bMustBuild && sCommand!="buildall")  )
 				continue;
 
-			cout << "cd " << pPackageInfo->m_pRow_Package_Directory_Compiled_Output->InputPath_get() << endl;
-
-			for(size_t s=0;s<pPackageInfo->m_vectRow_Package_Directory_File_CompiledOutput.size();++s)
+			vector<Row_Package_Directory *> vectRow_Package_Directory_Compiled;
+			pPackageInfo->m_pRow_Package_Directory_Compiled_Output->Table_Package_Directory_get()->GetRows(
+				"FK_Package=" + StringUtils::itos(pPackageInfo->m_pRow_Package_Directory_Compiled_Output->FK_Package_get()) +
+				" AND FK_Directory=" + StringUtils::itos(DIRECTORY_Compiled_Output_CONST),&vectRow_Package_Directory_Compiled);
+			for(size_t s=0;s<vectRow_Package_Directory_Compiled.size();++s)
 			{
-				Row_Package_Directory_File *pRow_Package_Directory_File = pPackageInfo->m_vectRow_Package_Directory_File_CompiledOutput[s];
+				Row_Package_Directory *pRow_Package_Directory = vectRow_Package_Directory_Compiled[s];
 
-				if( pRow_Package_Directory_File->FK_Distro_get()==pRow_Distro->PK_Distro_get() ||
-						pRow_Package_Directory_File->FK_OperatingSystem_get()==pRow_Distro->FK_OperatingSystem_get() ||
-						(pRow_Package_Directory_File->FK_Distro_isNull() && pRow_Package_Directory_File->FK_OperatingSystem_isNull()) )
+				vector<Row_Package_Directory_File *> vectRow_Package_Directory_File;
+				pRow_Package_Directory->Package_Directory_File_FK_Package_Directory_getrows(&vectRow_Package_Directory_File);
+
+				if( vectRow_Package_Directory_File.size()==0 )
+					continue;
+				cout << "cd " << pRow_Package_Directory->InputPath_get() << endl;
+
+				for(size_t s=0;s<vectRow_Package_Directory_File.size();++s)
 				{
-					cout << pRow_Package_Directory_File->MakeCommand_get() << endl;
-					cout << "if [ $? -ne 0 ]; then" << endl;
-					cout << "\techo \"** Failed to build package '" << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << "'\"" << endl;
-					cout << "\texit 1" << endl;
-					cout << "fi" << endl;
+					Row_Package_Directory_File *pRow_Package_Directory_File = vectRow_Package_Directory_File[s];
+
+					if( pRow_Package_Directory_File->FK_Distro_get()==pRow_Distro->PK_Distro_get() ||
+							pRow_Package_Directory_File->FK_OperatingSystem_get()==pRow_Distro->FK_OperatingSystem_get() ||
+							(pRow_Package_Directory_File->FK_Distro_isNull() && pRow_Package_Directory_File->FK_OperatingSystem_isNull()) )
+					{
+						cout << pRow_Package_Directory_File->MakeCommand_get() << endl;
+						cout << "if [ $? -ne 0 ]; then" << endl;
+						cout << "\techo \"** Failed to build package '" << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << "'\"" << endl;
+						cout << "\texit 1" << endl;
+						cout << "fi" << endl;
+					}
 				}
+				cout << "cd -" << endl;
 			}
-			cout << "cd -" << endl;
 		}
 	}
 	else if( sCommand=="list" )
@@ -828,7 +847,7 @@ PackageInfo *MakePackageInfo(Row_Package_Source_Compat *pRow_Package_Source_Comp
 		cout << "# Got NULL" << endl;
 		return NULL;
 	}
-if( pRow_Package_Source_Compat->FK_Package_Source_getrow()->FK_Package_get()==277 )
+if( pRow_Package_Source_Compat->FK_Package_Source_getrow()->FK_Package_get()==135 )
 {
 int k=2;
 }
