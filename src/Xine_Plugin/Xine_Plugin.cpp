@@ -312,22 +312,35 @@ bool Xine_Plugin::StopMedia( class MediaStream *pMediaStream )
 	if ( (pXineMediaStream = ConvertToXineMediaStream(pMediaStream, "Xine_Plugin::StopMedia() ")) == NULL )
 		return false;
 
+	int PK_Device = pXineMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device;
+	int StreamID = pXineMediaStream->m_iStreamID_get( );
+	int SavedPosition;
 	DCE::CMD_Stop_Media cmd(m_dwPK_Device,                          // Send from us
-							pXineMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device,  // Send to the device that is actually playing
-							pXineMediaStream->m_iStreamID_get( ),       // Send the stream ID that we want to actually stop
-							&pXineMediaStream->GetMediaPosition()->m_iSavedPosition);
+							PK_Device,  // Send to the device that is actually playing
+							StreamID,       // Send the stream ID that we want to actually stop
+							&SavedPosition);
 
+
+	mm.Release();
 	// TODO: Remove the device from the list of players also.
 	string Response;
 	if( !SendCommand( cmd, &Response ) )
 	{
 		// TODO: handle failure when sending the command. This is ignored now.
-		g_pPlutoLogger->Write( LV_CRITICAL, "The target device %d didn't respond to stop media command!", pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device );
+		g_pPlutoLogger->Write( LV_CRITICAL, "The target device %d didn't respond to stop media command!", PK_Device );
 	}
 	else
+	{
+		mm.Relock();
+		MediaStream *pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find(StreamID);
+		if( !pMediaStream || (pXineMediaStream = ConvertToXineMediaStream(pMediaStream, "Xine_Plugin::StopMedia() ")) == NULL )
+			return false; // It's ok -- the user just stopped it
+
+		pXineMediaStream->GetMediaPosition()->m_iSavedPosition=SavedPosition;
 		g_pPlutoLogger->Write( LV_STATUS, "The target device %d responded to stop media command! Stopped at position: %d",
 											pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device,
 											pXineMediaStream->GetMediaPosition()->m_iSavedPosition);
+	}
 
 	return true;
 }

@@ -232,11 +232,16 @@ bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
     PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
     g_pPlutoLogger->Write(LV_STATUS, "Stopping media stream playback--sending command, waiting for response");
 
+	map<int, int>::iterator it = m_mapDevicesToStreams.find(pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
+    if( it!=m_mapDevicesToStreams.end() )
+        m_mapDevicesToStreams.erase(it);
+
 	int i; // report the current playback position here.
     DCE::CMD_Stop_Media cmd(m_dwPK_Device,
         pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device,
         pMediaStream->m_iStreamID_get(),&i);
 
+	mm.Release();
     string Response;
     if( !SendCommand(cmd, &Response) )
     {
@@ -245,10 +250,6 @@ bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
 		// TODO: See how to handle failure here
         return false;
     }
-
-    map<int, int>::iterator it = m_mapDevicesToStreams.find(pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
-    if( it!=m_mapDevicesToStreams.end() )
-        m_mapDevicesToStreams.erase(it);
 
     g_pPlutoLogger->Write(LV_STATUS,"MythTV player responded to stop media command!");
     return true;
