@@ -570,7 +570,7 @@ function addPackageToMasterDevice($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: Edit package');			
 	$output->output();
 }
 ?>

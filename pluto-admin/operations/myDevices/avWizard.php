@@ -428,7 +428,7 @@ function avWizard($output,$dbADO) {
 	</form>
 	';
 	} else {
-		$cmd=cleanInteger($_POST['cmd']);
+		$cmd=cleanInteger(@$_POST['cmd']);
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
 		if (!$canModifyInstallation){
@@ -577,7 +577,7 @@ function avWizard($output,$dbADO) {
 	$output->setScriptCalendar('null');
 
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);
+	$output->setTitle(APPLICATION_NAME.((isset($title))?' :: '.$title:' :: '.strtoupper(str_replace('_',' ',$type))));
 	$output->output();
 }
 ?>

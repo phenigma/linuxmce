@@ -105,7 +105,7 @@ function videoLinks($output,$dbADO) {
 	$output->setNavigationMenu(array("Security - Video links"=>'index.php?section=videoLinks'));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);
+	$output->setTitle(APPLICATION_NAME.' :: Video Links');
 	$output->output();
 }
 ?>

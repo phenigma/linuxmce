@@ -53,6 +53,9 @@ if($action=='form') {
 		WHERE FK_Installation=?
 			ORDER BY Room.Description ASC';
 	$resRooms=$dbADO->Execute($queryRooms,$installationID);
+	if($resRooms->RecordCount()==0){
+		$out.='There are no rooms in this installation. Go to <a href="index.php?section=rooms">rooms</a> section to add rooms.';
+	}
 	$displayedCommandGroups=array();
 	$displayedRooms=array();
 	while($rowRooms=$resRooms->FetchRow()){
@@ -628,7 +631,7 @@ if($action=='form') {
 	$output->setNavigationMenu(array("My Scenarios"=>'index.php?section=myScenarios',"Security Scenarios"=>'index.php?section=securityScenarios'));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);
+	$output->setTitle(APPLICATION_NAME.' :: Security Scenarios');
 	$output->output();
 
 }

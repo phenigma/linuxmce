@@ -101,7 +101,7 @@ function addInfraredGroup($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: Add Infrared Group');			
 	$output->output();
 }
 ?>

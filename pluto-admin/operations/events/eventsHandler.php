@@ -147,7 +147,7 @@ function eventsHandler($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: Events handler');			
 	$output->output();
 }
 ?>

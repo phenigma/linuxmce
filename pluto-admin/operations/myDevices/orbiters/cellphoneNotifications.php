@@ -219,7 +219,7 @@ function cellphoneNotifications($output,$dbADO) {
 	$output->setNavigationMenu(array("Cellphone Notifications"=>'index.php?section=cellphoneNotifications'));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);
+	$output->setTitle(APPLICATION_NAME.' :: Cellphone notifications');
 	$output->output();
 }
 ?>

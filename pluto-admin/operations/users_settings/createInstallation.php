@@ -43,10 +43,6 @@ function createInstallation($output,$dbADO) {
 					<td><input type="checkbox" name="IsActive" value="1"></td>
 				</tr>		
 				<tr>
-					<td>Version: he can pick the version???</td>
-					<td></td>
-				</tr>		
-				<tr>
 					<td>Is Monitored:</td>
 					<td><input type="checkbox" name="IsMonitored" value="1"></td>
 				</tr>	
@@ -108,7 +104,7 @@ function createInstallation($output,$dbADO) {
 	$output->setNavigationMenu(array("Settings"=>"index.php?section=installationSettings","Create new installation"=>"index.php?section=createInstallation"));
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: Create installation');			
 	$output->output();
 }
 ?>

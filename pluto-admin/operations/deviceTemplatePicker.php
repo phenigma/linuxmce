@@ -12,7 +12,7 @@ function deviceTemplatePicker($output,$dbADO) {
 	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: Pick Device Template');			
 	$output->output();  		
 }
 ?>

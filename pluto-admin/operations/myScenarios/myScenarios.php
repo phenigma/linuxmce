@@ -42,7 +42,7 @@ $output->setNavigationMenu(array("My Scenarios"=>'index.php?section=myScenarios'
 $output->setScriptCalendar('null');
 
 $output->setBody($out);
-$output->setTitle(APPLICATION_NAME);			
+$output->setTitle(APPLICATION_NAME.' :: Scenarios');			
 $output->output(); 
 
 }

@@ -141,7 +141,7 @@ function addCommand($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: Add command');			
 	$output->output();
 }
 ?>

@@ -158,7 +158,7 @@ $resRooms = $dbADO->Execute($queryRooms,array($installationID));
 	
 	$output->setNavigationMenu(array("Rooms"=>'index.php?section=rooms',"Entertain Area"=>'index.php?section=entertainArea'));
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: Entertain area');			
 	$output->output();
 	
 }

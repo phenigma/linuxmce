@@ -258,7 +258,7 @@ function editCommandGroup($output,$dbADO) {
 				}//end if there are no commands
 				
 				if ($rowCommandGroupDetails['FK_Array']==$GLOBALS['ArrayIDForLight']) {
-						$devicesAllowed = getValidLightningObjectsArray($installationID,$dbADO);						
+						$devicesAllowed = getValidLightingObjectsArray($installationID,$dbADO);						
 				}
 				
 				if ($rowCommandGroupDetails['FK_Array']==$GLOBALS['ArrayIDForClimate']) {

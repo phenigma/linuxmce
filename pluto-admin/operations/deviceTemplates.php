@@ -18,7 +18,7 @@ function deviceTemplates($output,$dbADO) {
 
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: Device Templates');			
 	$output->output();  		
 }
 ?>

@@ -267,7 +267,7 @@ function editCommand($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: Edit Command');			
 	$output->output();
 }
 ?>

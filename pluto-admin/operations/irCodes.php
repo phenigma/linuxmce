@@ -245,7 +245,7 @@ function irCodes($output,$dbADO) {
 }
 
 $output->setBody($out);
-$output->setTitle(APPLICATION_NAME);			
+$output->setTitle(APPLICATION_NAME.' :: IR Codes');			
 $output->output();  
 
 }

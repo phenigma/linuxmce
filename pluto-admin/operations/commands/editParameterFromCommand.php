@@ -77,7 +77,7 @@ function editParameterFromCommand($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: Edit Parameter');			
 	$output->output();
 }
 ?>

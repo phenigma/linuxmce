@@ -133,7 +133,7 @@ function uploadFloorplan($output,$dbADO) {
 	
 	$output->setHelpSrc('/support/index.php?section=document&docID=35');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);
+	$output->setTitle(APPLICATION_NAME.' :: Upload Floorplan');
 	$output->output();
 }
 ?>

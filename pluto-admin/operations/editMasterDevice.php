@@ -799,7 +799,7 @@ $out='';
 	$output->setNavigationMenu(array("Device Templates"=>'index.php?section=deviceTemplates',$description=>'index.php?section=editMasterDevice&model='.$deviceID));
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: Edit Device Template');			
 	$output->output();
 	
 }

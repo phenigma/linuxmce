@@ -211,7 +211,7 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 					AccessGeneralMailbox,FirstName,
 					LastName,Nickname,Extension,ExtensionRingTimeout,ForwardEmail,
 					FK_Language,FK_Installation_Main) 
-					values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+					values(?,?,?,?,?,?,?,?,?,?,?,?,?)';
 				$query = $dbADO->Execute($insertUser,array($MasterUsersID,$_SESSION['masterUserName'],$md5Pass,0,0,'','','','','',$Email,NULL,NULL));
 				$insertUserToInstallation = "
 					INSERT INTO Installation_Users(FK_Installation,FK_Users) VALUES(?,?)
@@ -309,7 +309,7 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 	$output->setNavigationMenu(array("Settings"=>'index.php?section=installationSettings',"Users"=>'index.php?section=users'));
 	
 $output->setBody($out);
-$output->setTitle(APPLICATION_NAME);			
+$output->setTitle(APPLICATION_NAME.' :: Users');			
 $output->output();  		
 }
 ?>

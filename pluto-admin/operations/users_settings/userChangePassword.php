@@ -48,9 +48,6 @@ function userChangePassword($output,$dbADO) {
 					<tr>
 						<td colspan="2" align="center"><input type="submit" name="submitX" value="Save"></td>
 					</tr>
-					<tr>
-						<td colspan="2" align="left">* Require Internet connection.</td>
-					</tr>
 			</table>
 			</form>
 			';
@@ -109,7 +106,7 @@ function userChangePassword($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: Change password');			
 	$output->output();
 }
 ?>

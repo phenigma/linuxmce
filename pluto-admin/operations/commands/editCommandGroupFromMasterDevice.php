@@ -168,7 +168,7 @@ function editCommandGroupFromMasterDevice($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: Edit Command Group');			
 	$output->output();
 }
 ?>

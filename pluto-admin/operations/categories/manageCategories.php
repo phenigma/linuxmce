@@ -244,7 +244,7 @@ $output->setNavigationMenu(array("Device Templates"=>'index.php?section=deviceTe
 $output->setScriptInBody("");
 $output->setScriptCalendar('null');
 $output->setBody($out);
-$output->setTitle(APPLICATION_NAME);			
+$output->setTitle(APPLICATION_NAME.' :: Manage categories');			
 $output->output();  		
 }
 

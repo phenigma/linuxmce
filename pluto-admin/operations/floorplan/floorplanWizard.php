@@ -233,7 +233,7 @@ function floorplanWizard($output,$dbADO) {
 
 	$output->setScriptInHead($scriptInHead);
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);
+	$output->setTitle(APPLICATION_NAME.' :: Floorplan Wizard');
 	$output->output();
 }
 

@@ -48,7 +48,7 @@ function addManufacturer($output,$dbADO) {
 	}
 	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: Add manufacturer');			
 	$output->output();
 }
 ?>

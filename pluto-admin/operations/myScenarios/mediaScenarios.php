@@ -394,7 +394,7 @@ function mediaScenarios($output,$dbADO) {
 	
 	$output->setNavigationMenu(array("My Scenarios"=>'index.php?section=myScenarios',"Media Scenarios"=>'index.php?section=mediaScenarios'));	
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);			
+	$output->setTitle(APPLICATION_NAME.' :: Media Scenarios');			
 	$output->output();
 }
 ?>

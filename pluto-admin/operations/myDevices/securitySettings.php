@@ -132,7 +132,7 @@ function securitySettings($output,$dbADO,$securitydbADO) {
 	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);
+	$output->setTitle(APPLICATION_NAME.' :: Security settings');
 	$output->output();
 }
 ?>

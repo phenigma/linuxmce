@@ -98,7 +98,7 @@ $modelSelected = (int)$_REQUEST['model'];
 	}
 				
 $output->setBody($out);
-$output->setTitle(APPLICATION_NAME);			
+$output->setTitle(APPLICATION_NAME.' :: Edit Device Category');			
 $output->output();  		
 }
 

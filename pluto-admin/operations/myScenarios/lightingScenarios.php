@@ -36,6 +36,9 @@ if($action=='form') {
 		WHERE FK_Installation=?
 			ORDER BY Room.Description ASC';
 	$resRooms=$dbADO->Execute($queryRooms,$installationID);
+	if($resRooms->RecordCount()==0){
+		$out.='There are no rooms in this installation. Go to <a href="index.php?section=rooms">rooms</a> section to add rooms.';
+	}
 	$displayedCommandGroups=array();
 	while($rowRooms=$resRooms->FetchRow()){
 		$out.='
@@ -263,7 +266,7 @@ if($action=='form') {
 	$output->setNavigationMenu(array("My Scenarios"=>'index.php?section=myScenarios',"Lighting Scenarios"=>'index.php?section=lightingScenarios'));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME);
+	$output->setTitle(APPLICATION_NAME.' :: Lighting Scenarios');
 	$output->output();
 
 }
