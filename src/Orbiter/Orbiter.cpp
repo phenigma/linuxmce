@@ -876,7 +876,7 @@ void Orbiter::RenderDataGrid( DesignObj_DataGrid *pObj )
 #endif
 
 	//clear the background for the grid
-    SolidRectangle( pObj->m_rPosition.X, pObj->m_rPosition.Y, pObj->m_rPosition.Width, pObj->m_rPosition.Height, PlutoColor( 0, 0, 0 ) );
+	SolidRectangle( pObj->m_rPosition.X, pObj->m_rPosition.Y, pObj->m_rPosition.Width, pObj->m_rPosition.Height, PlutoColor( 0, 0, 0 ) ); 
 
     if( !pObj->m_pDataGridTable )
         return;
@@ -1243,7 +1243,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
 				{
 					SaveBackgroundForDeselect( pObj );  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
 					if(  !pObj->m_bDontResetState  )
-						CallMaintenanceInMiliseconds( 500, &Orbiter::DeselectObjects, ( void * ) pObj, true );
+						CallMaintenanceInMiliseconds( 500, &Orbiter::DeselectObjects, ( void * ) pObj, false );
 				}
 			}
 
@@ -1255,7 +1255,27 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
                     DesignObj_Orbiter *pObj_Sel = m_vectObjs_Selected[s];
                     if(  pObj_Sel->m_GraphicToDisplay==GRAPHIC_SELECTED  )
                     {
-                        pObj_Sel->m_GraphicToDisplay=GRAPHIC_NORMAL;
+						g_pPlutoLogger->Write(LV_STATUS, "About to reset state for object with id %s", 
+							pObj_Sel->m_ObjectID.c_str());
+
+						//if it is playing, cancel this
+						pObj_Sel->m_pvectCurrentPlayingGraphic = NULL;
+						pObj_Sel->m_iCurrentFrame = 0;
+
+						vector<PlutoGraphic*> *pVectorPlutoGraphic = &(pObj_Sel->m_vectSelectedGraphic);
+						if(pObj_Sel->m_vectSelectedGraphic.size())
+						{
+							size_t size = (*pVectorPlutoGraphic).size();
+							for(int i = 0; i < size; i++)
+								(*pVectorPlutoGraphic)[i]->Clear();
+						}
+
+						//reset the state
+                        pObj_Sel->m_GraphicToDisplay = GRAPHIC_NORMAL;
+
+						g_pPlutoLogger->Write(LV_STATUS, "State reseted for object with id %s", 
+							pObj_Sel->m_ObjectID.c_str());
+
                         m_vectObjs_NeedRedraw.push_back( pObj_Sel );
                     }
                 }
@@ -3380,7 +3400,13 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 					continue;
 				}
                 ReceivedMessage( pThisMessage );
-                pThisMessage->m_dwPK_Device_To = DEVICEID_HANDLED_INTERNALLY;
+                
+				//do we need this anymore?
+				//pThisMessage->m_dwPK_Device_To = DEVICEID_HANDLED_INTERNALLY;
+
+				//chris added this (2005.02.09) : we're not using this anymore and it goes out of scope
+				delete pThisMessage;
+				pThisMessage = NULL;
 
                 // Don't bother sending grid movements either
                 if(  PK_Command==COMMAND_Simulate_Keypress_CONST ||
@@ -3390,10 +3416,11 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
                     continue;
                 }
             }
-            else if(  pMessage==NULL  )
-                pMessage=pThisMessage;
-            else
-                pMessage->m_vectExtraMessages.push_back( pThisMessage );
+            else 
+				if(  pMessage==NULL  )
+					pMessage=pThisMessage;
+				else
+					pMessage->m_vectExtraMessages.push_back( pThisMessage );
         }
     }
     if(  pMessage && !m_bLocalMode  )
@@ -3867,6 +3894,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Maint thread exited");
 void Orbiter::CallMaintenanceInMiliseconds( clock_t milliseconds, OrbiterCallBack fnCallBack, void *data, bool bPurgeExisting )
 {
     PLUTO_SAFETY_LOCK( cm, m_CallbackMutex );
+
 	if( bPurgeExisting )
 	{
 		for(map<int,CallBackInfo *>::iterator it=mapPendingCallbacks.begin();it!=mapPendingCallbacks.end();++it)
@@ -5576,6 +5604,13 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 {
 	DesignObj_Orbiter* pObj = (DesignObj_Orbiter*)data;
 
+	if(NULL == pObj->m_pvectCurrentPlayingGraphic)
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "MNG playing was canceled for object with id %s", 
+			pObj->m_ObjectID.c_str());
+		return; //playing was canceled
+	}
+
 	vector<PlutoGraphic*> *pVectorPlutoGraphic = pObj->m_pvectCurrentPlayingGraphic;
 
 	if(pVectorPlutoGraphic->size() == 0) //we have nothing to render
@@ -5604,10 +5639,16 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 		for(int i = 0; i < size; i++)
 			(*pVectorPlutoGraphic)[i]->Clear();
 
+		pObj->m_pvectCurrentPlayingGraphic = NULL;
+		g_pPlutoLogger->Write(LV_STATUS, "MNG playing was completed for object with id %s", 
+			pObj->m_ObjectID.c_str());
+
 		CallMaintenanceInMiliseconds( iDelay, &Orbiter::DeselectObjects, ( void * ) pObj, false );
 	}
     else
+	{
 		CallMaintenanceInMiliseconds( iDelay, &Orbiter::PlayMNG_CallBack, pObj , false );
+	}
 }
 
 //<-dceag-c260-b->

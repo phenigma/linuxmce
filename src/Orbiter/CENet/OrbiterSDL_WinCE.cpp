@@ -254,14 +254,16 @@ void OrbiterSDL_WinCE::RenderText(DesignObjText *Text,TextStyle *pTextStyle)
 	 // Set up our memory DC with the font and bitmap
 	 SelectObject(m_hdc, fontInfo.bitmap);
 
-	 //SetBkColor(m_hdc, RGB(0, 0, 0));
-	 //SetTextColor(m_hdc, RGB(255, 0, 255));
-
-	::SetTextColor(m_hdc, RGB(pTextStyle->m_ForeColor.R(), pTextStyle->m_ForeColor.G(), pTextStyle->m_ForeColor.B()));
+	::SetTextColor(m_hdc, RGB(color.r, color.g, color.b));
 	::SetBkMode(m_hdc, TRANSPARENT);
 
+	bool bFontColorIsBlack = color.r == 0 && color.g == 0 && color.b == 0;
+
 	 // Output text to our memory DC (the bits end up in our DIB section)
-	 PatBlt(m_hdc, 0, 0, fontInfo.bmpWidth, fontInfo.bmpHeight, BLACKNESS);
+	if(bFontColorIsBlack)
+		PatBlt(m_hdc, 0, 0, fontInfo.bmpWidth, fontInfo.bmpHeight, WHITENESS);
+	else
+		PatBlt(m_hdc, 0, 0, fontInfo.bmpWidth, fontInfo.bmpHeight, BLACKNESS);
 
 	 RECT rect = { 0, 0, fontInfo.bmpWidth, fontInfo.bmpHeight };
 
@@ -289,23 +291,35 @@ void OrbiterSDL_WinCE::RenderText(DesignObjText *Text,TextStyle *pTextStyle)
 	 SDL_Surface * surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
 			   fontInfo.bmpWidth, fontInfo.bmpHeight, 32,
 			   RMASK, GMASK, BMASK, AMASK);
+	 
 	 if (SDL_MUSTLOCK(surface)) {
 		 SDL_LockSurface(surface);
 	 }
+
 	 Uint32 * destPixels = (Uint32 *) surface->pixels;
 
 	 LPSTR lpsrc = fontInfo.bmpBits;
 	 for (int ii = 0; ii < fontInfo.bmpHeight; ii++) {
-		 for (int jj = 0; jj < fontInfo.bmpWidth; jj++) {
-			 // If lpsrc[j] is 0, then it's a black pixel (opaque)
-			 // otherwise it's white (transparent)
-			 if (lpsrc[jj]) {
-				 destPixels[jj] = ::SDL_MapRGBA(surface->format,
-						 color.r, color.g, color.b, 0xff);
-			 } else {
-				 destPixels[jj] = ::SDL_MapRGBA(surface->format,
-												0, 0, 0, 0);
-			 }
+		 for (int jj = 0; jj < fontInfo.bmpWidth; jj++) 
+		 {
+			if(!bFontColorIsBlack)
+			{
+				// If lpsrc[j] is 0, then it's a black pixel (opaque)
+				// otherwise it's white (transparent)
+				if (lpsrc[jj]) 
+					destPixels[jj] = ::SDL_MapRGBA(surface->format, color.r, color.g, color.b, 0xff);
+				else 
+					destPixels[jj] = ::SDL_MapRGBA(surface->format, 0, 0, 0, 0);
+			}
+			else
+			{
+				// If lpsrc[j] is 1, then it's a white pixel (opaque)
+				// otherwise it's black (transparent)
+				if (!lpsrc[jj]) 
+					destPixels[jj] = ::SDL_MapRGBA(surface->format, color.r, color.g, color.b, 0xff);
+				else 
+					destPixels[jj] = ::SDL_MapRGBA(surface->format, 0xff, 0xff, 0xff, 0);
+			}
 		 }
 		 lpsrc += WIDTHBYTES(fontInfo.bmpWidth * 8);
 		 destPixels += fontInfo.bmpWidth;

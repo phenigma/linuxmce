@@ -74,7 +74,7 @@ bool Run(OrbiterSDL_Win32* pOrbiter, bool bLocalMode)
 		return true;
 
 	if(pOrbiter->m_bReload)
-		return false;
+		return true;
 
     if (!bLocalMode)
         pOrbiter->CreateChildren();

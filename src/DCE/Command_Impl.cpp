@@ -540,8 +540,15 @@ bool Command_Impl::InternalSendCommand( PreformedCommand &pPreformedCommand, int
 	pPreformedCommand.m_pMessage->m_eExpectedResponse = ER_ReplyMessage;
 	Message *pResponse = m_pcRequestSocket->SendReceiveMessage( pPreformedCommand.m_pMessage );
 	if( !pResponse || pResponse->m_dwID != 0 )
+	{
+		if(pResponse)
+			delete pResponse;
+
 		return false;
+	}
+
 	pPreformedCommand.ParseResponse( pResponse );
+	delete pResponse;
 	return true;
 }
 
