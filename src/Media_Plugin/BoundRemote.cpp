@@ -40,6 +40,12 @@ void BoundRemote::UpdateOrbiter( MediaStream *pMediaStream )
         return;
     }
 
+	g_pPlutoLogger->Write(LV_WARNING,
+			"BoundRemote::UpdateOrbiter(): Updating object: %s on device %d with size of %d",
+				m_sPK_DesignObj_GraphicImage.c_str(),
+				m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+				pMediaStream->m_iPictureSize );
+
     // TODO -- Figure out the media information, like track, timecode, picture, etc. For now just update the text object. Also need to update the pictures
 //  size_t size; char *pPic = FileUtils::ReadFileIntoBuffer( "/image.jpg", size );
     DCE::CMD_Update_Object_Image CMD_Update_Object_Image( 0, m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, m_sPK_DesignObj_GraphicImage, "png", pMediaStream->m_pPictureData, pMediaStream->m_iPictureSize, "0" );

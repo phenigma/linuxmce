@@ -961,7 +961,12 @@ void Media_Plugin::CMD_MH_Send_Me_To_Remote(bool bNot_Full_Screen,string &sCMD_R
 void Media_Plugin::CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,string sOnOff,string sPK_DesignObj_CurrentScreen,int iPK_Text,string sOptions,string sPK_EntertainArea,int iPK_Text_Timecode,int iPK_Text_SectionDesc,int iPK_Text_Synopsis,string &sCMD_Result,Message *pMessage)
 //<-dceag-c74-e->
 {
-g_pPlutoLogger->Write(LV_STATUS,"%d bind to remote %s",iPK_Device,sOnOff.c_str());
+
+g_pPlutoLogger->Write(LV_STATUS, "Media_Plugin::CMD_Bind_to_Media_Remote(). Binding (%s) orbiter %d to device %d with cover art on the object: %s",
+			sOnOff.c_str(),
+			pMessage->m_dwPK_Device_From,
+			iPK_Device, sPK_DesignObj.c_str());
+
 	int iPK_EntertainArea = atoi(sPK_EntertainArea.c_str());
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     // Only an Orbiter will send this
