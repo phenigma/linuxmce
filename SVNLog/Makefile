@@ -8,8 +8,8 @@ CXX = g++
 APPNAME = SVNLog
 VERSION = 2.0.0
 
-sources = 
-SVNLog = $(sources) SVNLog.cpp
+sources = SVNLog.cpp
+SVNLog = $(sources) 
 
 all: SVNLog
 

@@ -228,7 +228,8 @@ string z = Line.substr(stop_pipe+10);
 			int LinesPlus = first!=string::npos ? atoi(File.substr(first+1).c_str()) : 0;
 
 			File = vectFiles[s2-1].substr(7);
-			if( StringUtils::StartsWith(File,"Libraries") || StringUtils::StartsWith(File,"pluto_main") || StringUtils::StartsWith(File,"Gen_Devices") )
+			if( StringUtils::StartsWith(File,"Libraries") || StringUtils::StartsWith(File,"pluto_main") || 
+					StringUtils::StartsWith(File,"Gen_Devices") || StringUtils::StartsWith(File,"pluto_media") )
 			{
 				cout << "Skipping: " << File << endl;
 				continue;
@@ -249,7 +250,6 @@ string z = Line.substr(stop_pipe+10);
 		int LinesSoFar = mapUsersWeeks[psi];
 		LinesSoFar += LinesChanged;
 		mapUsersWeeks[psi] = LinesChanged;
-		break;
 	}
 
 	cout << "\t";
