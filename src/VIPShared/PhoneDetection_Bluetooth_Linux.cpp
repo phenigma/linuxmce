@@ -256,9 +256,13 @@ if( sLine.find(StringUtils::ToUpper(pDNew->m_sMacAddress))!=string::npos )
 {
 g_pPlutoLogger->Write(LV_WARNING, "line %s matched %d",sLine.c_str(),(int) sLine.size());
 size_t s = vectstr[s].length()-15;
+g_pPlutoLogger->Write(LV_WARNING, "s1 %d",(int) s);
 if( s<0 )
 s=0;
-pDNew->m_sID = vectstr[s].substr(s);
+g_pPlutoLogger->Write(LV_WARNING, "s2 %d",(int) s);
+string sub = vectstr[s].substr(s);
+g_pPlutoLogger->Write(LV_WARNING, "sub %s",sub.c_str());
+pDNew->m_sID = sub;
 g_pPlutoLogger->Write(LV_WARNING, "set name to %d %s",(int) s,pDNew->m_sID.c_str());
 }
 }
