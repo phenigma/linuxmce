@@ -2,9 +2,7 @@
 #include "MythTV_PlugIn.h"
 #include "DCE/Logger.h"
 #include "PlutoUtils/FileUtils.h"
-#include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
-#include "PlutoUtils/Other.h"
 #include "PlutoUtils/Other.h"
 
 #include <iostream>
@@ -317,8 +315,17 @@ void MythTV_PlugIn::CMD_Schedule_Recording(string sProgramID,string &sCMD_Result
     if( !pMediaStream )
         return;  // Can't do anything
 
-    if ( m_pMythWrapper->ProcessAddRecordingRequest(sProgramID) == ScheduleRecordTVResult_Success)
-        return;
-
-    sProgramID = "Error";
+    switch( m_pMythWrapper->ProcessAddRecordingRequest(sProgramID) )
+    {
+        case ScheduleRecordTVResult_Failed:
+            EVENT_Error_Occured("The Recording of the event failed");
+            sCMD_Result = "Failure";
+            break;
+        case ScheduleRecordTVResult_WithConflicts:
+            EVENT_PVR_Rec_Sched_Conflict();
+            sCMD_Result = "Conflicts";
+            break;
+        default:
+            break;
+    }
 }

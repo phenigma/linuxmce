@@ -12,6 +12,7 @@
 #include <mythtv/mythdialogs.h>
 #include <programinfo.h>
 
+#include <remoteutil.h>
 
 using namespace DCE;
 
@@ -442,6 +443,29 @@ ScheduleRecordTvResult MythTvWrapper::ProcessAddRecordingRequest(int channelId, 
 
     programInfo->ApplyRecordStateChange(QSqlDatabase::database(), kSingleRecord);
 
+    vector<ProgramInfo *> *conflictsWith = RemoteGetConflictList(programInfo);
+
+    if ( conflictsWith == NULL )
+    {
+//         m_pDCEDeviceWrapper->EVENT_Error_Occured("The connection to master server was broken!");
+        return ScheduleRecordTVResult_Failed;
+    }
+
+    if ( conflictsWith->size() != 0 )
+    {
+//         m_pDCEDeviceWrapper->EVENT_PVR_Rec_Sched_Conflict();
+
+        vector<ProgramInfo*>::iterator itPrograms;
+
+        for ( itPrograms = conflictsWith->begin(); itPrograms != conflictsWith->end(); itPrograms++ )
+            delete *itPrograms;
+
+        delete conflictsWith;
+        return ScheduleRecordTVResult_WithConflicts;
+    }
+
+    delete conflictsWith;
     return ScheduleRecordTVResult_Success;
 }
+
 

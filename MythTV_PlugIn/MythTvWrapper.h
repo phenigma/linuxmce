@@ -25,7 +25,8 @@ typedef enum {
 
 typedef enum {
     ScheduleRecordTVResult_Success,
-    ScheduleRecordTVResult_Failed
+    ScheduleRecordTVResult_Failed,
+    ScheduleRecordTVResult_WithConflicts,
 } ScheduleRecordTvResult;
 
 class MythTvWrapper

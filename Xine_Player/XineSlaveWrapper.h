@@ -4,7 +4,7 @@
  * @brief header file for XineSlaveWrapper class
  *
  */
- 
+
  /**
  *
  * Copyright:  See COPYING file that comes with this distribution
@@ -60,19 +60,19 @@ class XineSlaveWrapper
         xine_stream_t       *m_pstream;
         xine_event_queue_t  *m_pstreamEventQueue;
 
-        XineSlaveWrapper    *m_pOwner;  /**< the Owner */
+        XineSlaveWrapper    *m_pOwner;  /** < the Owner */
 
-	/**
-	 * @brief destructor 
-	 */ 
-	        
-	void setPlaybackSpeed(int speed);
+    /**
+     * @brief destructor
+     */
+
+    void setPlaybackSpeed(int speed);
         friend class XineSlaveWrapper;
     };
 
     friend class DCE::Xine_Player;
 
-    Xine_Player *m_pAggregatorObject;  /**< points to the Xine Player */
+    Xine_Player *m_pAggregatorObject;  /** < points the Xine Player */
 
     string m_sWindowTitle;
     string m_sConfigFile;
@@ -98,47 +98,47 @@ class XineSlaveWrapper
     /** @warning HACK: */
     XineStream *m_pSameStream;
 
-    
-    double  m_dPixelAspect; /**<  Image related data for a stream */
 
-	/**
-	 * @brief destructor 
-	 */    
-    
+    double  m_dPixelAspect; /** <  Image related data for a stream */
+
+    /**
+     * @brief destructor
+     */
+
     static void *eventProcessingLoop(void *arguments);
 
-	/**
-	 * @brief destructor 
-	 */
-    
+    /**
+     * @brief destructor
+     */
+
     int translate_point(int gui_x, int gui_y, int *video_x, int *video_y);
-    
-	/**
-	 * @brief destructor 
-	 */
-    
+
+    /**
+     * @brief destructor
+     */
+
     bool closeWindow();
 
-	/**
-	 * @brief destructor 
-	 */
-    
+    /**
+     * @brief destructor
+     */
+
     void resume();
-    
-	/**
-	 * @brief destructor 
-	 */
-    
+
+    /**
+     * @brief destructor
+     */
+
     static void destinationSizeCallback(void *data,
                                         int video_width, int video_height,
                                         double video_pixel_aspect,
                                         int *dest_width, int *dest_height,
                                         double *dest_pixel_aspect);
 
-	/**
-	 * @brief destructor 
-	 */
-    
+    /**
+     * @brief destructor
+     */
+
     static void frameOutputCallback(void *data,
                                     int video_width, int video_height,
                                     double video_pixel_aspect,
@@ -147,142 +147,142 @@ class XineSlaveWrapper
                                     double *dest_pixel_aspect,
                                     int *win_x, int *win_y);
 
-	/**
-	 * @brief destructor 
-	 */
-    
+    /**
+     * @brief destructor
+     */
+
     int XServerEventProcessor(XineStream *stream, XEvent &event);
-    
-	/**
-	 * @brief destructor 
-	 */
-    
+
+    /**
+     * @brief destructor
+     */
+
     XineStream *getStreamForId(int iStreamID, string strMessageInvalid);
 
-	/**
-	 * @brief destructor 
-	 */
-    
+    /**
+     * @brief destructor
+     */
+
     void     yuy2toyv12 (uint8_t *y, uint8_t *u, uint8_t *v, uint8_t *input, int width, int height);
-    
-	/**
-	 * @brief destructor 
-	 */
-    
+
+    /**
+     * @brief destructor
+     */
+
     uint8_t *yv12torgb (uint8_t *src_y, uint8_t *src_u, uint8_t *src_v, int width, int height);
 
-	/**
-	 * @brief destructor 
-	 */
-    
+    /**
+     * @brief This should be complted:
+     */
+
     void make_snapshot(xine_stream_t *stream, string sFormat, int iWidth, int iHeight, bool bKeepAspect, char*&pData, int &iDataSize);
 
 public:
-	/**
-	 * @brief destructor 
-	 */    
+    /**
+     * @brief destructor
+     */
     XineSlaveWrapper();
 
-	/**
-	 * @brief destructor 
-	 */
-    
+    /**
+     * @brief destructor
+     */
+
     ~XineSlaveWrapper();
-    
-	/**
-	 * @brief destructor 
-	 */
-    
+
+    /**
+     * @brief destructor
+     */
+
     bool createWindow();
 
-	/**
-	 * @brief destructor 
-	 */
-    
+    /**
+     * @brief destructor
+     */
+
     bool createXineLibConnection();
-    
-	/**
-	 * @brief destructor 
-	 */
-    
+
+    /**
+     * @brief destructor
+     */
+
     bool setXineStreamDebugging(int streamID, bool newValue);
-    
-	/**
-	 * @brief destructor 
-	 */
-    
+
+    /**
+     * @brief destructor
+     */
+
     void playStream(string fileName, int streamID, int mediaPosition, int requestingObject);
-    
-	/**
-	 * @brief destructor 
-	 */
-    
+
+    /**
+     * @brief destructor
+     */
+
     static void xineEventListener(void *streamObject, const xine_event_t *event);
-    
-	/**
-	 * @brief destructor 
-	 */
-    
+
+    /**
+     * @brief destructor
+     */
+
     void changePlaybackSpeed(int iStreamID, int iMediaPlaybackSpeed);
-    
-	/**
-	 * @brief destructor 
-	 */
-    
+
+    /**
+     * @brief destructor
+     */
+
     void stopMedia(int iStreamID);
-    
-	/**
-	 * @brief destructor 
-	 */
-    
+
+    /**
+     * @brief destructor
+     */
+
     void restartMediaStream(int iStreamID);
-    
-	/**
-	 * @brief destructor 
-	 */
-    
+
+    /**
+     * @brief destructor
+     */
+
     void pauseMediaStream(int iStreamID);
 
-	/**
-	 * @brief destructor 
-	 */
-    
+    /**
+     * @brief destructor
+     */
+
     void selectNextButton(int iStreamID);
-    
-	/**
-	 * @brief destructor 
-	 */
-    
+
+    /**
+     * @brief destructor
+     */
+
     void selectPrevButton(int iStreamID);
-    
-	/**
-	 * @brief destructor 
-	 */
-    
+
+    /**
+     * @brief destructor
+     */
+
     void pushCurrentButton(int iStreamID);
 
-	/**
-	 * @brief destructor 
-	 */
-    
+    /**
+     * @brief destructor
+     */
+
     string getRenderingWindowName();
 
-	/**
-	 * @brief destructor 
-	 */
-    
+    /**
+     * @brief destructor
+     */
+
     void setXinePlayerObject(Xine_Player *object);
 
-	/**
-	 * @brief destructor 
-	 */
-    
+    /**
+     * @brief destructor
+     */
+
     void getScreenShot(int iStreamID, int iWidth, int iHeight, char *&pData, int &iDataSize, string &sFormat, string &sCMD_Result);
-    
-	/**
-	 * @brief destructor 
-	 */
-    
+
+    /**
+     * @brief destructor
+     */
+
     void selectMenu(int iStreamID, int iMenuType);
 };
 

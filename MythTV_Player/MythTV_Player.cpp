@@ -74,6 +74,7 @@ bool MythTV_Player::InitMythTvStuff()
 
     m_pMythTV = new TV();
     m_pMythTV->Init();
+
 }
 //<-dceag-dest-b->
 MythTV_Player::~MythTV_Player()

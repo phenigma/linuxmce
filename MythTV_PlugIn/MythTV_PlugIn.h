@@ -85,6 +85,8 @@ public:
 			*****DATA***** accessors inherited from base class
 
 			*****EVENT***** accessors inherited from base class
+	void EVENT_Error_Occured(string sError_Message);
+	void EVENT_PVR_Rec_Sched_Conflict();
 
 			*****COMMANDS***** we need to implement
 	*/
