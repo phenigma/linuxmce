@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;../DCE/;&quot;../Libraries/pthreads-win32/include&quot;;/mysql/include;../VIPShared/;../pluto_dce;&quot;..\CrossPlatform-Libs\sge030809-w32&quot;;&quot;..\CrossPlatform-Libs\SDL_ttf-2.0.6&quot;;&quot;..\CrossPlatform-Libs\SDL_image-1.2.3&quot;;&quot;..\CrossPlatform-Libs\SDL-1.2.7\include&quot;;..\Orbiter;&quot;../CrossPlatform-Libs/lpng127&quot;;&quot;../CrossPlatform-Libs/zlib&quot;;&quot;../CrossPlatform-Libs/sge030809-w32/src&quot;"
+				AdditionalIncludeDirectories="..;../DCE/;&quot;../Libraries/pthreads-win32/include&quot;;/mysql/include;../VIPShared/;../pluto_dce;&quot;..\CrossPlatform-Libs\sge030809-w32&quot;;&quot;..\CrossPlatform-Libs\SDL_ttf-2.0.6&quot;;&quot;..\CrossPlatform-Libs\SDL_image-1.2.3&quot;;&quot;..\CrossPlatform-Libs\SDL-1.2.7\include&quot;;..\Orbiter;&quot;../CrossPlatform-Libs/lpng127&quot;;&quot;../CrossPlatform-Libs/zlib&quot;;&quot;../CrossPlatform-Libs/sge030809-w32/src&quot;;../BD"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;ORBITER;BLUETOOTH_DONGLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -219,7 +219,7 @@
 				RelativePath="..\VIPShared\PhoneDetectionEngine.cpp">
 			</File>
 			<File
-				RelativePath="..\VIPShared\PhoneDevice.cpp">
+				RelativePath="..\Bd\PhoneDevice.cpp">
 			</File>
 			<File
 				RelativePath="..\VIPShared\PlutoPhoneCommands.cpp">
