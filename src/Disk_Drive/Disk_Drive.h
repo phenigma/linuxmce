@@ -76,7 +76,8 @@ public:
 
     int cdrom_has_dir (int fd, const char *directory);
     string getTracks (string mrl, string &genre);
-    string startServer(string fileName);
+	bool mountDVD(string fileName, string &strMediaUrl);
+
 public:
     // Public member variables
 

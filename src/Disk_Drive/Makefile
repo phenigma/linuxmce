@@ -24,7 +24,7 @@ XTRALDLIBS = -lcddb
 Gen_Dev_Files +=
 sources +=
 
-#<-dceag-mf-b->
+#<-dceag-mf-b->!
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
 
 whattodo:

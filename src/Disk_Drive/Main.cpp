@@ -7,13 +7,13 @@
 
  Phone: +1 (877) 758-8648
 
- This program is free software; you can redistribute it 
+ This program is free software; you can redistribute it
  and/or modify it under the terms of the GNU General Public License.
- 
- This program is distributed in the hope that it will be useful, 
- but WITHOUT ANY WARRANTY; without even the implied warranty 
- of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
- 
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty
+ of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
  See the GNU General Public License for more details.
 */
 
@@ -97,7 +97,7 @@ extern "C" {
 				cerr << "Failed to create server logger.  Reverting to stdout instead." << endl;
 			}
 		}
-		
+
 		if( sLogger=="null" )
 			g_pPlutoLogger = new NullLogger();
 		else if( sLogger=="stdout" )
@@ -136,8 +136,8 @@ int main(int argc, char* argv[])
 		<< " This program is distributed in the hope that it will be useful, " << endl
 		<< " but WITHOUT ANY WARRANTY; without even the implied warranty " <<endl
 		<< " of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. " <<endl
-		<< " See the GNU General Public License for more details. "<< endl << endl<< endl << endl << endl;	
-	    
+		<< " See the GNU General Public License for more details. "<< endl << endl<< endl << endl << endl;
+
     string sRouter_IP="dcerouter";
     int PK_Device=0;
     string sLogger="stdout";
@@ -172,8 +172,8 @@ int main(int argc, char* argv[])
 
     if (bError)
     {
-        
-//                      123456789012345678901234567890123456789012345678901234567890			
+
+//                      123456789012345678901234567890123456789012345678901234567890
 		cout << "Disk_Drive, v." << VERSION << endl
 			<< "A Pluto DCE Device. See www.plutohome.com/dce for details." << endl
 			<< "Usage: MythTV_Player [-r Router's IP] [-d My Device ID] " << endl

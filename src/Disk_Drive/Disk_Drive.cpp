@@ -7,12 +7,12 @@
 
  Phone: +1 (877) 758-8648
 
- This program is free software; you can redistribute it 
+ This program is free software; you can redistribute it
  and/or modify it under the terms of the GNU General Public License.
- 
- This program is distributed in the hope that it will be useful, 
- but WITHOUT ANY WARRANTY; without even the implied warranty 
- of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty
+ of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
  See the GNU General Public License for more details.
 */
@@ -61,12 +61,12 @@ enum DiscTypes {
     DISCTYPE_DVD_AUDIO  =  9
 };
 
-#define DVDCSS_SERVER_PORT 5150
+#define SERVER_PORT 5150
 
 //<-dceag-const-b->! custom
 Disk_Drive::Disk_Drive(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
     : Disk_Drive_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter),
-        m_monitorEnabled(true), m_mediaInserted(false), m_mediaDiskStatus(DISCTYPE_NONE), m_serverPid(-1), m_serverPort(DVDCSS_SERVER_PORT)
+        m_monitorEnabled(true), m_mediaInserted(false), m_mediaDiskStatus(DISCTYPE_NONE), m_serverPid(-1), m_serverPort(SERVER_PORT)
 //<-dceag-const-e->
 {
 }
@@ -90,9 +90,9 @@ bool Disk_Drive::Register()
 /*
 	When you receive commands that are destined to one of your children,
 	then if that child implements DCE then there will already be a separate class
-	created for the child that will get the message.  If the child does not, then you will 
-	get all	commands for your children in ReceivedCommandForChild, where 
-	pDeviceData_Base is the child device.  If you handle the message, you 
+	created for the child that will get the message.  If the child does not, then you will
+	get all	commands for your children in ReceivedCommandForChild, where
+	pDeviceData_Base is the child device.  If you handle the message, you
 	should change the sCMD_Result to OK
 */
 //<-dceag-cmdch-b->
@@ -104,7 +104,7 @@ void Disk_Drive::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,strin
 
 /*
 	When you received a valid command, but it wasn't for one of your children,
-	then ReceivedUnknownCommand gets called.  If you handle the message, you 
+	then ReceivedUnknownCommand gets called.  If you handle the message, you
 	should change the sCMD_Result to OK
 */
 //<-dceag-cmduk-b->
@@ -241,15 +241,17 @@ void Disk_Drive::CMD_Mount_Disk_Image(string sFilename,string *sMediaURL,string 
 {
     g_pPlutoLogger->Write(LV_STATUS, "Got a mount media request %s", sFilename.c_str());
     string stringMRL;
-    stringMRL = startServer(sFilename);
-    if ( stringMRL.compare("") == 0 )
-    {
-        g_pPlutoLogger->Write(LV_STATUS, "Failed to launch the server to mount files!");
-        return;
-    }
 
+	if ( ! mountDVD(sFilename, stringMRL) )
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Error executing the dvd mounting script (message: %s). Returning error.", stringMRL.c_str());
+		sCMD_Result = "NOT_OK";
+		*sMediaURL = stringMRL;
+		return;
+	}
+
+	g_pPlutoLogger->Write(LV_STATUS, "Returning new media URL: %s", sMediaURL->c_str());
     *sMediaURL = stringMRL;
-    g_pPlutoLogger->Write(LV_STATUS, "Returning new media URL: %s", sMediaURL->c_str());
 }
 
 //<-dceag-c55-b->
@@ -919,7 +921,7 @@ string Disk_Drive::dvd_read_name(const int fd)
       return title.str();
 }
 
-string Disk_Drive::startServer(string fileName)
+bool Disk_Drive::mountDVD(string fileName, string &strMediaUrl)
 {
 	// In the future we may want to support running the disk drive on one machine and Xine on another machine
 	// but for now we'll always assume the media directors are running their own copy
@@ -928,96 +930,37 @@ string Disk_Drive::startServer(string fileName)
     if ( fileName.compare(this->DATA_Get_Drive() + ".dvd") == 0 )
         fileName = DATA_Get_Drive();
 
-    if ( m_serverPid != -1 )
-    {
-        g_pPlutoLogger->Write(LV_STATUS, "Killing process %d", m_serverPid);
-        kill( m_serverPid, SIGTERM );
-        sleep(1);
-        kill( m_serverPid, SIGKILL );
-        waitpid( m_serverPid, NULL, 0 );
-        m_serverPid = -1;
-    }
+	m_serverPort++;
 
-    m_serverPort++;
+	string commandLine = "/usr/pluto/bin/mountDVDCommand.sh ";
+	commandLine += StringUtils::itos(m_serverPort) + " \"" + fileName + "\"";
+	int result;
+	switch ( (result = system(commandLine.c_str())) )
+	{
+		case 0:
+			strMediaUrl = "dvd://" + m_sIPAddress + ":" + StringUtils::itos(m_serverPort) + "/";
+			return true;
 
-    if ( (m_serverPid = fork()) == -1 )
-    {
-        g_pPlutoLogger->Write (LV_BURNER, ( string("fork error: ") + string( strerror (errno))).c_str() );
-        return "";
-    }
-#pragma warning("move this")
-    if ( m_serverPid == 0 )
-    {
-        string convertedPort = StringUtils::itos(m_serverPort);
+		case -1:
+			strMediaUrl = "Error launching the mount DVD script";
+			return false;
 
-        char *args[] =
-        {
-            "dvdcss_server",
-            (char*)fileName.c_str(),
-            (char*)(convertedPort.c_str()),
-            0
-        };
+		case 100:
+			strMediaUrl = "Invalid parameters for the mount DVD script!";
+			return false;
 
-        g_pPlutoLogger->Write (LV_BURNER, "Launching %s %s %s %s", args[0], args[1], args[2], args[3]);
-        if ( execvp( (const char *) args[0], args ) == -1 )
-        {
-            g_pPlutoLogger->Write(LV_BURNER, (string("exec error: ") + string(strerror(errno))).c_str());
-            exit(1);
-        }
-    }
+		case 101:
+			strMediaUrl = "The DVD mounting software is not installed!";
+			return false;
 
-    bool socketNotOpen  = true;
-    int clientSocket;
-    struct sockaddr_in serverSocket;
-    struct hostent *host;
+		case 102:
+			strMediaUrl = "The software was found, it was called but it said it could not test itself.";
+			return false;
 
-    clientSocket = socket(PF_INET, SOCK_STREAM, 0);
-    if ( clientSocket == -1 )
-    {
-        g_pPlutoLogger->Write(LV_WARNING, "Could create client test socket. This should not happend here. Returning empty mrl.");
-        return "";
-    }
-
-    if( (host = gethostbyname(m_sIPAddress.c_str())) == NULL )
-    {
-        g_pPlutoLogger->Write(LV_WARNING, "Could not resolve ip address: %s. Returning empty mrl.", m_sIPAddress.c_str());
-        return "";
-    }
-
-    serverSocket.sin_family = AF_INET;
-    memcpy((char *) &serverSocket.sin_addr.s_addr, host->h_addr_list[0], host->h_length);
-    serverSocket.sin_port = htons(m_serverPort);
-
-    long timeSpent;
-    struct timeval startTime, currentTime;
-
-    gettimeofday(&startTime, NULL);
-    while ( socketNotOpen )
-    {
-        gettimeofday(&currentTime, NULL);
-        timeSpent = (currentTime.tv_sec - startTime.tv_sec) * 1000000 + (currentTime.tv_usec - startTime.tv_usec);
-
-        if ( connect(clientSocket, (struct sockaddr*)&serverSocket, sizeof(serverSocket)) == 0 )
-        {
-            g_pPlutoLogger->Write(LV_STATUS, "We have made a succesfull connection to the dvdcss server on %s:%d. Life is good.", m_sIPAddress.c_str(), m_serverPort);
-            shutdown(clientSocket, SHUT_RDWR);
-            close(clientSocket);
-            socketNotOpen = false;
-        }
-        else
-        {
-            g_pPlutoLogger->Write(LV_STATUS, "We can't connect yet to the server. Waiting!");
-            usleep(500000); // sleep half a second
-        }
-
-        if ( timeSpent >= 3 * 1000000 ) // wait at most three seconds;
-        {
-            g_pPlutoLogger->Write(LV_WARNING, "Couldn't contact the dvdcss server for the past 3 seconds. Returning empty mrl.");
-            return "";
-        }
-    }
-
-    return string("dvd://" + m_sIPAddress + ":" + StringUtils::itos(m_serverPort) + "/");
+		default:
+			strMediaUrl = "Unknown error code: " + StringUtils::itos(result);
+			return false;
+	}
 }
 
 int Disk_Drive::cdrom_has_dir (int fd, const char *directory)
