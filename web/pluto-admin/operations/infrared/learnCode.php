@@ -42,6 +42,7 @@ function learnCode($output,$dbADO) {
 	} else {
 		if(isset($_POST['cancel'])){
 			$commandToSend='/usr/pluto/bin/MessageSend localhost 0 '.$deviceID.' 1 245 8 0';
+			system($commandToSend);
 			$out.='<script>
 					self.close();
 				</script>

@@ -64,6 +64,7 @@
 	
 	$GLOBALS['rootDCERouter'] = 1; 				// DCE Router
 	$GLOBALS['rootCoreID'] = 7; 				// Core
+	$GLOBALS['OrbiterPlugIn'] = 12; 			// Orbiter Plug In
 	$GLOBALS['rootMediaDirectorsID'] = 28; 		// Media Directors
 	$GLOBALS['rootMediaPlugin']=2;				// Media Plug-in
 	$GLOBALS['deviceTemplateOrbiter']=8;		// Orbiter
