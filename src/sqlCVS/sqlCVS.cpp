@@ -314,7 +314,8 @@ int main( int argc, char *argv[] )
 		{
 			cerr << "***ERROR*** Cannot connect to database." << endl;
 			cout << "Please modify the configuration settings and restart sqlCVS." << endl;
-            ChangeLoginUsers();
+			if( !g_GlobalConfig.m_bNoPrompts )
+	            ChangeLoginUsers();
 			exit(1);
 		}
 		g_GlobalConfig.m_pDatabase=&database;
