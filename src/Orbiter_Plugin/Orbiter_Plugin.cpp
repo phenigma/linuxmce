@@ -64,6 +64,7 @@ using namespace DCE;
 #include <algorithm>
 
 #define VERSION "<=version=>"
+string g_sLatestMobilePhoneVersion="2005.03.04";
 
 #include "../Media_Plugin/EntertainArea.h"
 #include "../Media_Plugin/Media_Plugin.h"
@@ -531,9 +532,10 @@ bool Orbiter_Plugin::MobileOrbiterLinked(class Socket *pSocket,class Message *pM
     string sVersion = pMessage->m_mapParameters[EVENTPARAMETER_Version_CONST];
 
     Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
-    if( pRow_Device->NeedConfigure_get() == 1 || sVersion != VERSION )
+    if( (pRow_Device->NeedConfigure_get() == 1 || sVersion != g_sLatestMobilePhoneVersion) && pOH_Orbiter->m_sVersion != g_sLatestMobilePhoneVersion )
     {
-g_pPlutoLogger->Write(LV_STATUS,"Phone needs file - nc: %d version: %s / %s",(int) pRow_Device->NeedConfigure_get(),sVersion.c_str(),VERSION);
+g_pPlutoLogger->Write(LV_STATUS,"Phone needs file - nc: %d version: %s / %s / %s",(int) pRow_Device->NeedConfigure_get(),sVersion.c_str(),g_sLatestMobilePhoneVersion,pOH_Orbiter->m_sVersion.c_str());
+		pOH_Orbiter->m_sVersion = g_sLatestMobilePhoneVersion;
         pRow_Device->NeedConfigure_set(0);
         pRow_Device->Table_Device_get()->Commit();
 

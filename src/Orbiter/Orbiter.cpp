@@ -4317,10 +4317,6 @@ void Orbiter::CMD_Goto_Screen(int iPK_Device,string sPK_DesignObj,string sID,str
 {
 g_pPlutoLogger->Write(LV_STATUS,"CMD_Goto_Screen: %s",sPK_DesignObj.c_str());
 
-	//hack! if the simulator is running, we won't go to pluto admin screen
-	if(Simulator::GetInstance()->IsRunning() && sPK_DesignObj == "2022.0.0")
-		return;
-
     PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );  // Nothing more can happen
 
 	if( !TestCurrentScreen(sPK_DesignObj_CurrentScreen) )
@@ -4350,6 +4346,12 @@ g_pPlutoLogger->Write(LV_STATUS,"CMD_Goto_Screen: %s",sPK_DesignObj.c_str());
         return;
     }
 	*/
+
+	//hack! if the simulator is running, we won't go to pluto admin screen
+	if(Simulator::GetInstance()->IsRunning() && (pObj_New->m_iBaseObjectID==DESIGNOBJ_mnuAdvancedOptions_CONST || pObj_New->m_iBaseObjectID==DESIGNOBJ_mnuDisplayPower_CONST) )
+		return;
+
+
 
     // We're going to change screens,  create the new ScreenHistory object
     ScreenHistory *pScreenHistory_New = new ScreenHistory( pObj_New, m_pScreenHistory_Current );
