@@ -13,7 +13,7 @@
 
 #include "BD_PC_ReportMyVersion.h"
 
-_LIT(KPlutoMODir,"c:\\system\\Apps\\PlutoMO\\");
+_LIT(KPlutoMODirCurrConnection,"c:\\system\\Apps\\PlutoMO\\0000.vmc");
 //----------------------------------------------------------------------------------------------
 BDCommandProcessor_Symbian_Base::BDCommandProcessor_Symbian_Base
 	(
@@ -331,9 +331,26 @@ void BDCommandProcessor_Symbian_Base::AdvertiseThePlutoService()
 //----------------------------------------------------------------------------------------------
 void  BDCommandProcessor_Symbian_Base::RunL() 
 {
+	LOGN("*");
+
 	if (iStatus != KErrNone || iState == EConnectionLost)
 	{
-		//LOG("Disconnected! [iStatus != KErrNone || iState == EConnectionLost]\n");
+		LOG("Disconnected!\n");
+		//iSocket.CancelAll();
+		iSocket.Close();
+
+		/*
+		LOG("About to delete timer\n");
+		if (iCommandTimer->IsActive())
+		{
+			iCommandTimer->Cancel();
+
+			delete iCommandTimer;
+			iCommandTimer = NULL;
+
+			LOG("timed deleted\n");
+		}
+		*/
 
 		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bMakeVisibleAllowed = false;
 		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->ResetViewer();
@@ -341,17 +358,15 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 		MYSTL_CLEAR_LIST(m_listCommands);
 
 		iConnected = false;
-
-		iSocket.Close();
-		
 		User::LeaveIfError( iSocket.Open( iSocketServ ) );
 		iListeningSocket.Accept( iSocket, iStatus );
 		iState = EAccepting;
 		SetActive();
 
+		LOG("About to hide\n");
 		iListener->Hide();
 
-		//LOG("Waiting for new connections...\n");
+		LOG("Waiting for new connections...\n");
 		//TODO: delete "connection.vmc"
 
 		RFile file;
@@ -359,33 +374,44 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 		aFs.Connect();
 		CFileMan* fileMan = CFileMan::NewL(aFs);
 		CleanupStack::PushL(fileMan); 
-		string FilesPath(KPlutoMODir);
-		FilesPath += "!current connection.vmc";
+		string FilesPath(KPlutoMODirCurrConnection);
 		fileMan->Delete(FilesPath.Des());
 		CleanupStack::PopAndDestroy();
 		aFs.Close();
-
-
-
 		return;
 	}
 
+	
+	if(iState == EIdle)
+		LOG("IDLE\n"); 
+
+	if(iPendingKey)
+		LOG("KEYPENDING\n");
+
 	if(
-		iPendingKey					&& 
-		iState == ERecvCommand_End 
+		iPendingKey							&& 
+		(
+			iState == ERecvCommand_End  ||
+			iState == EIdle				||
+			iState == ESendingCommand
+		)
 	)
 	{
+		LOG("PENDINGKEY-OVER");
 		iPendingKey = false;
 		iState = ESendingCommand;
 	}
 
-	m_iTimedOut = 0; //no timed-out
-	m_bStatusOk = true;
+	LOGN("-");
+	LOGN(iState);
+	LOGN(",");
 
 	switch (iState)
 	{
 	case EAccepting:
 		{
+			m_iTimedOut = 0; //no timed-out
+			m_bStatusOk = true;
 			//LOG("EAccepting\n");
 			iConnected = true;
 
@@ -410,8 +436,7 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 			RFile file;
 			RFs   aFs;
 			aFs.Connect();
-			string FilesPath(KPlutoMODir);
-			FilesPath += "!current connection.vmc";
+			string FilesPath(KPlutoMODirCurrConnection);
 			if(KErrNotFound == file.Open(aFs, FilesPath.Des(), EFileStream | EFileWrite))
 			{
 				file.Create(aFs, FilesPath.Des(), EFileStream | EFileWrite);
@@ -428,9 +453,15 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 			m_bImmediateCallback = false;
 
   			if( MYSTL_SIZEOF_LIST(m_listCommands)==0 )
+			{
+				LOG("LIST IS EMPTY\n");
 				m_pCommand_Sent = new BD_WhatDoYouHave();
+			}
 			else
 			{
+				LOG("LIST IS NOT EMPTY\n");
+				int size = MYSTL_SIZEOF_LIST(m_listCommands);
+				LOG(size);
 				MYSTL_EXTRACT_FIRST(m_listCommands, BDCommand, pC);
 				m_pCommand_Sent = pC;
 			}
@@ -650,7 +681,15 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case ERecvCommand_End:
 		{
-			//LOG("ERecvCommand_End\n");
+			LOG("<<<ERecvCommand_End>>>\n");
+
+			if(m_iTimedOut)
+			{
+				LOG("Reseting timeout... state :");
+				m_iTimedOut = 0; //no timed-out
+				m_bStatusOk = true;
+			}
+
 			long *lType = (long *) m_ReceiveAckHeader;
 
 			if( *lType != BD_CP_HAVE_NOTHING )
@@ -784,6 +823,12 @@ void  BDCommandProcessor_Symbian_Base::Close()
 {
 }
 //----------------------------------------------------------------------------------------------
+void BDCommandProcessor_Symbian_Base::Disconnect()
+{
+	iSocket.CancelAll();
+	iState = EConnectionLost;
+}
+//---------------------------------------------------------------------------------------------
 void BDCommandProcessor_Symbian_Base::ProcessCommands(bool bCriticalRequest /*=true*/)
 {
 	if(iConnected)
@@ -801,6 +846,7 @@ void BDCommandProcessor_Symbian_Base::ProcessCommands(bool bCriticalRequest /*=t
 
 		if(bCriticalRequest && IsActive()) //the object is already active.
 		{
+			LOG("ACTIVE-KEY\n"); 
 			//LOG("Key was press, but the object is still active. Will just set a flag\n"); 
 			//GotoStage(ESendingCommand); //don't force object activation
 			iPendingKey = true;
@@ -809,7 +855,9 @@ void BDCommandProcessor_Symbian_Base::ProcessCommands(bool bCriticalRequest /*=t
 
 		if(iState == EIdle || bCriticalRequest)
 		{
-			//LOG("The state is idle. Force object to go to ESendingCommand stage directly.\n"); 
+			if(bCriticalRequest)
+				LOG("KEY\n");
+
 			GotoStage(ESendingCommand);
 			SetActive();
 			return;
@@ -822,7 +870,7 @@ void BDCommandProcessor_Symbian_Base::ProcessCommands(bool bCriticalRequest /*=t
 		LOGN(m_iTimedOut);
 		LOGN(" \n");
 
-		if(m_iTimedOut >= 5)
+		if(m_iTimedOut >= 2)
 		{
 			m_bStatusOk = false;
 			return;
@@ -832,6 +880,8 @@ void BDCommandProcessor_Symbian_Base::ProcessCommands(bool bCriticalRequest /*=t
 //----------------------------------------------------------------------------------------------
 TInt BDCommandProcessor_Symbian_Base::CommandTimerCallBack(TAny* aBluetoothHandler)
 {
+	LOG("$$$\n");
+
 	BDCommandProcessor_Symbian_Base* pProcessor = 
 		(BDCommandProcessor_Symbian_Base*)aBluetoothHandler;
 

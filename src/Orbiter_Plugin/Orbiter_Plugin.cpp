@@ -482,6 +482,12 @@ bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *
                 g_pPlutoLogger->Write(LV_STATUS,"Mobile Orbiter %s told to link with %d", sMacAddress.c_str(),
                     pDeviceFrom->m_dwPK_Device);
 
+				DCE::CMD_Disconnect_From_Mobile_Orbiter cmd_Disconnect_From_Mobile_Orbiter(
+					-1, 
+					pOH_Orbiter->m_pDevice_CurrentDetected->m_dwPK_Device,
+					sMacAddress);
+				SendCommand(cmd_Disconnect_From_Mobile_Orbiter);
+
                 DCE::CMD_Link_with_mobile_orbiter CMD_Link_with_mobile_orbiter(
                     -1,
                     pDeviceFrom->m_dwPK_Device,

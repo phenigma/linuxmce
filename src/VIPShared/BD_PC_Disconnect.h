@@ -11,7 +11,7 @@ public:
 
 	// *** PURE VIRTUAL FUNCTIONS
 	virtual unsigned long ID() { return BD_PC_DISCONNECT; }
-	virtual bool ProcessCommand(class BDCommandProcessor *pProcessor) { return true; }
+	virtual bool ProcessCommand(class BDCommandProcessor *pProcessor);
 	virtual const char *Description() { return "Disconnect"; };
 };
 

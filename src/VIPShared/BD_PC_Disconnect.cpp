@@ -16,6 +16,21 @@
  */
 
 #ifndef SYMBIAN
-#include "PlutoUtils/CommonIncludes.h"
+	#include "PlutoUtils/CommonIncludes.h"
+#else
+	#include "VIPShared/VIPIncludes.h"
+	#include "PlutoMOAppUi.h"
+	#include "Logger.h"
 #endif
+
 #include "BD_PC_Disconnect.h"
+
+bool BD_PC_Disconnect::ProcessCommand(BDCommandProcessor *pProcessor)
+{
+#ifdef SYMBIAN
+	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->Disconnect();
+#endif //SYMBIAN
+
+	return true;
+}
+

@@ -56,6 +56,7 @@ using namespace DCE;
 
 #include "../VIPShared/BD_CP_SendMeKeystrokes.h"
 #include "../VIPShared/BD_CP_SendFile.h"
+#include "../VIPShared/BD_PC_Disconnect.h"
 #include "../VIPShared/BDCommandProcessor_BluetoothDongle.h"
 
 #include "BD/PhoneDevice.h"
@@ -233,6 +234,8 @@ bool Bluetooth_Dongle::Connect(int iPK_DeviceTemplate)
 	SendCommand(CMD_Get_EntAreas_For_Device_Cat);
 	m_dwPK_EntertainArea = atoi(sPK_EntertainArea.c_str());
 g_pPlutoLogger->Write(LV_CRITICAL,"Set EA to %d",m_dwPK_EntertainArea);
+
+	return true;
 }
 /*
 	When you receive commands that are destined to one of your children,
@@ -687,4 +690,23 @@ void Bluetooth_Dongle::CMD_Ignore_MAC_Address(string sMac_address,string &sCMD_R
 	PhoneDevice p("",sMac_address,0); // Just need a numeric mac
 	m_mapIgnoreMacs[p.m_iMacAddress]=true;
 	g_pPlutoLogger->Write(LV_WARNING,"Ignoring MAC: %s",sMac_address.c_str());
+}
+//<-dceag-c333-b->
+
+	/** @brief COMMAND: #333 - Disconnect From Mobile Orbiter */
+	/** Disconnects Mobile Orbiter from this BluetoothDongle. */
+		/** @param #47 Mac address */
+			/** The mac address of the phone */
+
+void Bluetooth_Dongle::CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,string &sCMD_Result,Message *pMessage)
+//<-dceag-c333-e->
+{
+	PLUTO_SAFETY_LOCK( bm, m_BTMutex );
+	g_pPlutoLogger->Write( LV_WARNING, "Have to disconnect from MO with mac %s", sMac_address.c_str() );
+	
+	// Lookup the mobile orbiter entry
+	BD_Orbiter *pBD_Orbiter = m_mapOrbiterSockets_Find( sMac_address );
+	
+	BD_PC_Disconnect *pBD_CP_Disconnect = new BD_PC_Disconnect( );
+	pBD_Orbiter->m_pBDCommandProcessor->AddCommand( pBD_CP_Disconnect );
 }

@@ -99,7 +99,7 @@ void CPlutoMOEngine::GetPlutoMOItems(CDesCArray* aItems)
 		pFilename[index] = '\0';
 		string sFileName(pFilename);
 
-		if(-1 != sFileName.find("!current connection.vmc")) 
+		if(-1 != sFileName.find("0000.vmc")) 
 		{
 			char pCurrConnection[] = "1_Orbiter_current connection";
 			pCurrConnection[1] = 9;
@@ -157,7 +157,7 @@ void CPlutoMOEngine::LaunchCurrent(TInt aPosition)
 		pFilename[index] = '\0';
 		string sFileName(pFilename);
 
-		if(-1 == sFileName.find("!current connection.vmc")) 
+		if(-1 == sFileName.find("0000.vmc")) 
 			((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->OpenVMC(false, descr, NULL);
 		else
 			((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->MakeViewerVisible(true);

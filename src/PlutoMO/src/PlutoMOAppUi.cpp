@@ -47,6 +47,7 @@
 
 #include "PlutoEventView.h"
 #include "PlutoEventContainer.h"
+
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::ConstructL()
 {
@@ -67,7 +68,6 @@ void CPlutoMOAppUi::ConstructL()
 	m_bSendKeyStrokes = false;
 	m_bMakeVisibleAllowed = false;
 
-//#ifndef __WINS__ 
 	m_pBDCommandProcessor_Symbian_Bluetooth = 
 		new BDCommandProcessor_Symbian_Bluetooth("", this);
 	m_pBDCommandProcessor = m_pBDCommandProcessor_Symbian_Bluetooth;
@@ -75,7 +75,6 @@ void CPlutoMOAppUi::ConstructL()
 	m_pBDCommandProcessor_Symbian_Bluetooth->Listen();
 	m_pBDCommandProcessor_Symbian_Bluetooth->SetupSecurityManager();
 	m_pBDCommandProcessor_Symbian_Bluetooth->AdvertiseThePlutoService();
-//#endif
 
 	m_bPlutoEventVisible = false;
 
@@ -105,6 +104,8 @@ void CPlutoMOAppUi::Cleanup()
 
 	if(NULL != m_pBDCommandProcessor_Symbian_Bluetooth)
 	{
+		m_pBDCommandProcessor_Symbian_Bluetooth->Disconnect();
+
 		delete m_pBDCommandProcessor_Symbian_Bluetooth;
 		m_pBDCommandProcessor_Symbian_Bluetooth = NULL;
 	}
@@ -238,12 +239,9 @@ void CPlutoMOAppUi::HandleCommandL(TInt aCommand)
         {
         case EEikCmdExit:
             {
-			if(!m_bVMCViewerVisible)
-			{
 				Cleanup();
 				Exit();
-			}
-            break;
+	            break;
             }
 
 		// Have to change what it does currently
@@ -301,7 +299,7 @@ void CPlutoMOAppUi::MakeViewerVisible(bool Value)
 {
 	if(Value)
 	{
-		m_pVMCView->iContainer->MakeVisible(true);
+		m_pVMCView->iContainer->MakeVisible(Value);
 	}
 
 	if(!m_iCapturedKeyId)
@@ -469,18 +467,22 @@ void CPlutoMOAppUi::UpdateScreen(bool bParsed, const TDes8& aVmc, unsigned int u
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::Hide()
 {
+	LOG("In hide method\n");
+
 	TApaTask task(CEikonEnv::Static()->WsSession());
 	task.SetWgId(CEikonEnv::Static()->RootWin().Identifier());
 	task.SendToBackground();
 
 	m_bVMCViewerVisible = false;
-	MakeViewerVisible(false);
+	//MakeViewerVisible(false);
 
 	if(m_iCapturedKeyId)
 	{
 		CEikonEnv::Static()->RootWin().CancelCaptureKeyUpAndDowns(m_iCapturedKeyId);	
 		m_iCapturedKeyId = 0;
 	}
+
+	LOG("Existing hide method\n");
 }
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::Show()
@@ -729,7 +731,12 @@ void CPlutoMOAppUi::SimulateEvent(long eventType, long key)
 	m_pVMCView->iContainer->SimulateEvent(eventType, key);
 }
 //----------------------------------------------------------------------------------------------
-
+void CPlutoMOAppUi::Disconnect()
+{
+	 LOG("Need to disconnect\n");
+	m_pBDCommandProcessor_Symbian_Bluetooth->Disconnect();
+}
+//----------------------------------------------------------------------------------------------
 
 // End of File  
 

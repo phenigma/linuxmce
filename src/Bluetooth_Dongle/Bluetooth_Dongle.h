@@ -255,6 +255,15 @@ public:
 	virtual void CMD_Ignore_MAC_Address(string sMac_address,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #333 - Disconnect From Mobile Orbiter */
+	/** Disconnects Mobile Orbiter from this BluetoothDongle. */
+		/** @param #47 Mac address */
+			/** The mac address of the phone */
+
+	virtual void CMD_Disconnect_From_Mobile_Orbiter(string sMac_address) { string sCMD_Result; CMD_Disconnect_From_Mobile_Orbiter(sMac_address.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 	};
 	

@@ -50,41 +50,42 @@ public:
 
 	enum TBluetoothState 
 	{
-		EError,
-		EIdle,
-		EAccepting,
+		EError, //0
+		EIdle, //1
+		EAccepting,//2
 
-		ESendingCommand,
+		ESendingCommand,//3
 
-		ESendingCommandId,
-		ESendingCommandOrAckSize,
-		ESendingCommandOrAckData,
-		ESendingCommandOrAckDataAndFinish,
+		ESendingCommandId,//4
+		ESendingCommandOrAckSize,//5
+		ESendingCommandOrAckData,//6
+		ESendingCommandOrAckDataAndFinish,//7
 
-		EReceivingAckHeader,
-		EReceivingAckData_Loop,
-		EReceivingAckData,
+		EReceivingAckHeader,//8
+		EReceivingAckData_Loop,//9
+		EReceivingAckData,//10
 
-		EReceivingCommand,
+		EReceivingCommand,//11
 
-		ERecvCommand_ReadyToSendAck,
-		ERecvCommand_SendingCommandOrAckSize,
-		ERecvCommand_SendingCommandOrAckData,
+		ERecvCommand_ReadyToSendAck,//12
+		ERecvCommand_SendingCommandOrAckSize,//13
+		ERecvCommand_SendingCommandOrAckData,//14
 
-		EReceivingCmdHeader,
-		EReceivingCmdData,
+		EReceivingCmdHeader,//15
+		EReceivingCmdData,//16
 
-		EReceivingCommand_BuildCommand,
+		EReceivingCommand_BuildCommand,//17
 
-		ERecvCommand_SendingCommandOrAckSize_Step2,
-		ERecvCommand_SendingCommandOrAckData_Step2,
+		ERecvCommand_SendingCommandOrAckSize_Step2,//18
+		ERecvCommand_SendingCommandOrAckData_Step2,//19
 
-		ERecvCommand_End,
+		ERecvCommand_End,//20
 
-		EConnectionLost
+		EConnectionLost//21
 	};
 
 	virtual void Connect();
+	virtual void Disconnect();
 
 private: // Inherited from CActive.
 	

@@ -64,8 +64,8 @@ void SymbianLogger::Write(string log, bool bAddTime /*= true*/)
 
 	if(bAddTime)
 	{
-		string time = string::IntegerToString(User::TickCount() % 1000);
-		log = time + string(": \t") + log;
+		//string time = string::IntegerToString(User::TickCount());
+		//log = time + string(": \t") + log;
 	}
 
 #ifdef __WINS__

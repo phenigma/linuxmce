@@ -242,13 +242,10 @@ bool CPlutoVMCContainer::HandleDataGridKeys(const TKeyEvent& aKeyEvent, TEventCo
 {
 	CPlutoVMCUtil *pVMCUtil = (CPlutoVMCUtil *)CCoeEnv::Static(KCPlutoVMCUtilId);
 	
-	LOG("$H ");
-
 	if(pVMCUtil->GridExists() && aType == EEventKeyDown)
 	{
 		if(aKeyEvent.iScanCode == EStdKeyUpArrow)
 		{
-			LOG("UP ");
 			if(pVMCUtil->ScrollListUp())
 				m_bNeedRefresh = true;
 			
@@ -257,7 +254,6 @@ bool CPlutoVMCContainer::HandleDataGridKeys(const TKeyEvent& aKeyEvent, TEventCo
 
 		if(aKeyEvent.iScanCode == EStdKeyDownArrow)
 		{
-			LOG("DOWN ");
 			if(pVMCUtil->ScrollListDown())
 				m_bNeedRefresh = true; 
 
@@ -272,26 +268,6 @@ bool CPlutoVMCContainer::HandleDataGridKeys(const TKeyEvent& aKeyEvent, TEventCo
 			return true;
 		}
 	}
-
-	if(pVMCUtil->GridExists() && aType == EEventKeyUp)
-	{
-		LOGN("KeyUp");
-	}
-	
-	if(pVMCUtil->GridExists() && aType == EEventKeyDown)
-	{
-		LOGN("KeyDown");
-	}
-
-	if(aKeyEvent.iScanCode == EStdKeyEnter)
-	{
-		LOGN("Enter");
-	}
-
-	LOGN("code: ");
-	LOGN(aKeyEvent.iScanCode);
-
-	LOGN(" $\n");
 
 	return false;
 }
@@ -574,8 +550,6 @@ TKeyResponse CPlutoVMCContainer::OfferKeyEventL(const TKeyEvent& aKeyEvent, TEve
 //------------------------------------------------------------------------------------------------------------------
 TKeyResponse CPlutoVMCContainer::OfferKeyEvent(const TKeyEvent& aKeyEvent, TEventCode aType)
 {
-	LOG("CPlutoVMCContainer::OfferKeyEvent");
-
 	//if the viewer is not visible on the screen, ignore the key pressed
 	if(!((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bVMCViewerVisible)
 		return EKeyWasNotConsumed;
@@ -641,8 +615,6 @@ void CPlutoVMCContainer::HandleControlEventL(
 //------------------------------------------------------------------------------------------------------------------
 int CPlutoVMCContainer::GetSymbianKeyEventFromKeyCode(TKeyEvent& aKeyEvent, TEventCode& aType, long key)
 {
-	LOG("CPlutoVMCContainer::GetSymbianKeyEventFromKeyCode");
-
 	aKeyEvent.iRepeats = 0;
 	aType = EEventKeyDown;
 	
@@ -688,8 +660,6 @@ void CPlutoVMCContainer::SimulateEvent(long eventType, long key)
 
 	TKeyEvent aKeyEvent;
 	TEventCode aType;
-
-	LOG("CPlutoVMCContainer::SimulateEvent");
 
 	GetSymbianKeyEventFromKeyCode(aKeyEvent, aType, key);
 	OfferKeyEvent(aKeyEvent, aType);

@@ -129,6 +129,7 @@ public:
 	void SetupIncomingCallNotifier();
 	void LaunchBrowser();
 	void MakeViewerVisible(bool Value);
+	void Disconnect();
 
 	CGetCallerId *iGetCallerId;
 	CIncomingCallWatcher *iIncomingCallWatcher;
