@@ -183,23 +183,23 @@ size_t RendererMNG::count() const
 	return m_vectMNGframes.size();
 }
 
-RendererImage RendererMNG::GetFrame(size_t number) const
+RendererImage *RendererMNG::GetFrame(size_t number) const
 {
 	if (number >= count())
-		return RendererImage();
+		return NULL;
 
 	return m_vectMNGframes[number];
 }
 
-void RendererMNG::ReplaceFrame(size_t number, const RendererImage & frame)
+void RendererMNG::ReplaceFrame(size_t number, RendererImage & frame)
 {
 	if (number >= count())
 		return;
 
-	m_vectMNGframes[number] = frame;
+	m_vectMNGframes[number] = &frame;
 }
 
-void RendererMNG::InsertFrame(size_t number, const RendererImage & frame)
+void RendererMNG::InsertFrame(size_t number, RendererImage & frame)
 {
 	if (number >= count())
 		return;
@@ -209,12 +209,12 @@ void RendererMNG::InsertFrame(size_t number, const RendererImage & frame)
 
 	// Linux G++ 3.3.4 doesn't like this one
 	// m_vectMNGframes.insert(&m_vectMNGframes[number], frame);
-	m_vectMNGframes.insert(m_vectMNGframes.begin() + number, frame);
+	m_vectMNGframes.insert(m_vectMNGframes.begin() + number, &frame);
 }
 
-void RendererMNG::AppendFrame(const RendererImage & frame)
+void RendererMNG::AppendFrame(RendererImage & frame)
 {
-	m_vectMNGframes.insert(m_vectMNGframes.end(), frame);
+	m_vectMNGframes.insert(m_vectMNGframes.end(), &frame);
 }
 
 void RendererMNG::DeleteFrame(size_t number)

@@ -68,7 +68,7 @@ class PNGCatChunks
 class RendererMNG
 {
 	private:
-		vector<RendererImage> m_vectMNGframes;
+		vector<RendererImage *> m_vectMNGframes;
 		MNGHeader m_MNGHeader;
 
 	public:
@@ -76,11 +76,11 @@ class RendererMNG
 		~RendererMNG();
 
 		size_t count() const;
-		RendererImage GetFrame(size_t number) const;
+		RendererImage *GetFrame(size_t number) const;
 
-		void ReplaceFrame(size_t number, const RendererImage & frame);
-		void InsertFrame(size_t number, const RendererImage & frame);
-		void AppendFrame(const RendererImage & frame);
+		void ReplaceFrame(size_t number, RendererImage & frame);
+		void InsertFrame(size_t number, RendererImage & frame);
+		void AppendFrame(RendererImage & frame);
 		void DeleteFrame(size_t number);
 
 		const MNGHeader & GetHeader() const;

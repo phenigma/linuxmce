@@ -301,7 +301,9 @@ int OrbiterGenerator::DoIt()
 	// Get the no effects flag
 	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_No_Effects_CONST);
 	if( pRow_Device_DeviceData )
-		m_bNoEffects = atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str())!=1;
+		m_bNoEffects = atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str())==1;
+	else
+		m_bNoEffects = false;
 
 	// See if there's a default entertainment area for this orbiter
 	Row_EntertainArea *pRow_EntertainArea_Default = NULL;
@@ -770,6 +772,7 @@ int OrbiterGenerator::DoIt()
 				cout << "Rendering screen " << oco->m_ObjectID << " in orbiter: " << m_pRow_Device->PK_Device_get() << endl;
 				try
 				{
+//if( oco->m_ObjectID.find("1389")!=string::npos )
 					DoRender(m_sFontPath,m_sOutputPath,m_Width,m_Height,m_pRow_Size->PreserveAspectRatio_get()==1,oco);
 				}
 				catch(string s)

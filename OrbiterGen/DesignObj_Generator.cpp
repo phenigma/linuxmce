@@ -11,6 +11,7 @@
 #include "PlutoUtils/Other.h"
 #include "OrbiterGen.h"
 #include "SerializeClass/ShapesColors.h"
+#include "Renderer.h"
 
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_Text_LS.h"
@@ -87,7 +88,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==3275 )//2821 && bAddToGenerated )
+if( m_pRow_DesignObj->PK_DesignObj_get()==1399 )//2821 && bAddToGenerated )
 {
     int k=2;
 }
@@ -213,10 +214,10 @@ int k=2;
         string sGraphicFile = o;
 
         // Todo -- temporarily disable MNG's while we try the new thing
-        if( sGraphicFile.length()>0 && StringUtils::ToUpper(sGraphicFile).find(".MNG")==sGraphicFile.length()-4 )
-        {
-            sGraphicFile="";
-        }
+//        if( sGraphicFile.length()>0 && StringUtils::ToUpper(sGraphicFile).find(".MNG")==sGraphicFile.length()-4 )
+  //      {
+    //        sGraphicFile="";
+//        }
 
         if( sGraphicFile.length()>0 )
         {
@@ -280,44 +281,44 @@ Table_Image *p = m_mds->Image_get();
 //                  time_t t2 = FileUtils::FileDate(sGraphicFile);
                     if( !drImage || drImage->Date_isNull() || StringUtils::SQLDateTime(drImage->Date_get())!=FileUtils::FileDate(sGraphicFile) )
                     {
-
-                        if( StringUtils::ToUpper(sGraphicFile).find(".MNG")==sGraphicFile.length()-4 )
-                        {
-                            if( !drImage )
-                            {
-                                drImage = m_mds->Image_get()->AddRow();
-                                drImage->PK_Image_set(sGraphicFile);
-                                drImage->Width_set(0);
-                                drImage->Height_set(0);
-                                m_mds->Image_get()->Commit();
-                            }
-                            cout << "New MNG: " << sGraphicFile << " need to add size";
-                            break;
-                        }
-
                         // Calculate the width and height.  Brute force so we don't have to link another library
                         unsigned char buf[200];
-                        FILE *file = fopen(sGraphicFile.c_str(),"rb");
-						if( !file )
-						{
-							cerr << "File: " << sGraphicFile << " exists, but is not readable" << endl;
-							throw "Error reading file";
-						}
-                        size_t s_read = fread(buf,1,200,file);
-                        size_t i;
-                        for(i=0;i<s_read-15;++i)
+
+                        unsigned long Width=0;
+                        unsigned long Height=0;
+						if( StringUtils::ToUpper(FileUtils::FindExtension(sGraphicFile))=="MNG" )
                         {
-                            if( strncmp((const char *)&buf[i],"IHDR",4)==0 )
-                                break;
-                        }
+break; // TODO - RADU needs to fix this
+							RendererMNG *pRendererMNG = Renderer::CreateMNGFromFile(sGraphicFile, PlutoSize(0,0));
+							RendererImage *pRendererImage = pRendererMNG->GetFrame(0);
+							Width=pRendererImage->m_pSDL_Surface->w;
+							Height=pRendererImage->m_pSDL_Surface->h;
 
-                        if( i>=s_read-15 )
-                            throw "Cannot get width and height of " + sGraphicFile;
+							delete pRendererMNG;
+						}
+						else
+						{
+							FILE *file = fopen(sGraphicFile.c_str(),"rb");
+							if( !file )
+							{
+								cerr << "File: " << sGraphicFile << " exists, but is not readable" << endl;
+								throw "Error reading file";
+							}
+							size_t s_read = fread(buf,1,200,file);
+							size_t i;
+							for(i=0;i<s_read-15;++i)
+							{
+								if( strncmp((const char *)&buf[i],"IHDR",4)==0 )
+									break;
+							}
 
-                        unsigned long Width=buf[i+6]*256+buf[i+7];
-                        unsigned long Height=buf[i+10]*256+buf[i+11];
-                        fclose(file);
+							if( i>=s_read-15 )
+								throw "Cannot get width and height of " + sGraphicFile;
 
+							Width=buf[i+6]*256+buf[i+7];
+							Height=buf[i+10]*256+buf[i+11];
+							fclose(file);
+						}
                         if( !drImage )
                         {
                             drImage = m_mds->Image_get()->AddRow();

@@ -13,9 +13,18 @@ using namespace DCE;
 //<-dceag-d-e->
 
 //<-dceag-const-b->
+// The primary constructor when the class is created as a stand-alone device
 DCE_Template::DCE_Template(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: DCE_Template_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
+{
+}
+
+//<-dceag-const2-b->
+// The constructor when the class is created as an embedded instance within another stand-alone device
+DCE_Template::DCE_Template(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter)
+	: DCE_Template_Command(pPrimaryDeviceCommand, pData, pEvent, pRouter)
+//<-dceag-const2-e->
 {
 }
 

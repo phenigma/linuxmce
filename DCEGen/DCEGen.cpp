@@ -189,8 +189,8 @@ int main(int argc, char *argv[])
 		{
 			Row_DeviceTemplate *pRow_DeviceTemplate = vectRow_DeviceTemplate[s];
 			cout << "Recreating headers for " << pRow_DeviceTemplate->PK_DeviceTemplate_get() << " " << pRow_DeviceTemplate->Description_get() << endl;
-			map<int,Row_DeviceTemplate *> mapRow_MasterDevice_Children; // We don't actually need this
-			gen.CreateDeviceFile(pRow_DeviceTemplate,&mapRow_MasterDevice_Children,bTemplates);
+			gen.m_mapGeneratedDevices.clear(); // Clear this since we're doing each device new
+			gen.GenerateDevice(pRow_DeviceTemplate->PK_DeviceTemplate_get(),bTemplates);
 		}
 	}
 	else
@@ -248,7 +248,8 @@ void DCEGen::GenerateDevice(int PK_DeviceTemplate,bool bTemplates)
 	for(size_t s=0;s<vectChildDevices.size();++s)
 	{
 		Row_DeviceTemplate_DeviceTemplate_ControlledVia *pChild = vectChildDevices[s];
-		mapRow_MasterDevice_Children[pChild->FK_DeviceTemplate_get()]=pChild->FK_DeviceTemplate_getrow();
+		if( pChild->FK_DeviceTemplate_getrow()->ImplementsDCE_get() && pChild->FK_DeviceTemplate_getrow()->IsEmbedded_get() )
+			mapRow_MasterDevice_Children[pChild->FK_DeviceTemplate_get()]=pChild->FK_DeviceTemplate_getrow();
 
 	}
 
@@ -257,13 +258,12 @@ void DCEGen::GenerateDevice(int PK_DeviceTemplate,bool bTemplates)
 	// our direct category, but the parent's category as well
 	AddChildrenByCategory(p_Row_DeviceTemplate->FK_DeviceCategory_getrow(),&mapRow_MasterDevice_Children);
 
-	// Now the map is fully populated, so we can create our device.
-	CreateDeviceFile(p_Row_DeviceTemplate,&mapRow_MasterDevice_Children,bTemplates);
+	m_sTemplateOutput = "../" + FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get()) + "/";  // They're going to be output within out directory
 
-	// Be sure we also re-generate any files for our children too
+	// We put our master device in this map already, and the embedded children too
 	map<int,Row_DeviceTemplate *>::iterator it;
 	for(it=mapRow_MasterDevice_Children.begin();it!=mapRow_MasterDevice_Children.end();++it)
-		GenerateDevice( (*it).second->PK_DeviceTemplate_get(), bTemplates );
+		CreateDeviceFile((*it).second,&mapRow_MasterDevice_Children,bTemplates);
 }
 
 void DCEGen::AddChildrenByCategory(class Row_DeviceCategory *p_Row_DeviceCategory,map<int,class Row_DeviceTemplate *> *p_mapRow_MasterDevice_Children)
@@ -336,7 +336,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t" << Name << "_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};" << endl;
 
 	fstr_DeviceCommand << "\t//Events" << endl;
-	fstr_DeviceCommand << "\tclass Event_Impl *CreateEvent(int PK_DeviceTemplate, ClientSocket *pOCClientSocket, int DeviceID);"<< endl;
+	fstr_DeviceCommand << "\tclass Event_Impl *CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice );"<< endl;
 
 	vector<Row_DeviceTemplate_Event *> vectRow_DeviceTemplate_Event;
 	p_Row_DeviceTemplate->DeviceTemplate_Event_FK_DeviceTemplate_getrows(&vectRow_DeviceTemplate_Event);
@@ -632,7 +632,7 @@ int k=2;
 	fstr_DeviceCommand << "\t\t\t{" << endl;
 	fstr_DeviceCommand << "\t\t\t\tDeviceData_Base *pDeviceData_Base = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pMessage->m_dwPK_Device_To);" << endl;
 	fstr_DeviceCommand << "\t\t\t\tstring sCMD_Result=\"UNHANDLED\";" << endl;
-	fstr_DeviceCommand << "\t\t\t\tif( pDeviceData_Base->IsChildOf(m_pData) )" << endl;
+	fstr_DeviceCommand << "\t\t\t\tif( pDeviceData_Base && pDeviceData_Base->IsChildOf(m_pData) )" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\tReceivedCommandForChild(pDeviceData_Base,sCMD_Result,pMessage);" << endl;
 	fstr_DeviceCommand << "\t\t\t\telse" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\tReceivedUnknownCommand(sCMD_Result,pMessage);" << endl;
@@ -661,7 +661,6 @@ int k=2;
 
 	fstr_DeviceCommand << "#include \"" + Name + "Base.h\"" << endl;
 	fstr_DeviceCommand << "#include \"DeviceData_Impl.h\"" << endl;
-#include "SerializeClass/SerializeClass.h"
 	fstr_DeviceCommand << "#include \"Logger.h\"" << endl << endl;
 	fstr_DeviceCommand << "using namespace DCE;" << endl;
 	
@@ -670,9 +669,8 @@ int k=2;
 	{
 		Row_DeviceTemplate *p_Row_DeviceTemplate = (*itMDL).second;
 
-		fstr_DeviceCommand << "#include \"" + FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get()) + "Base.h\"" << endl;
+		fstr_DeviceCommand << "#include \"" + m_sTemplateOutput + FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get()) + ".h\"" << endl;
 	}
-
 
 	fstr_DeviceCommand << "DeviceData_Impl *" + Name + "_Data::CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition)" << endl;
 	fstr_DeviceCommand << "{" << endl;
@@ -701,20 +699,20 @@ int k=2;
 	fstr_DeviceCommand << "\treturn NULL;" << endl;
 	fstr_DeviceCommand << "}" << endl << endl;
 
-	fstr_DeviceCommand << "Event_Impl *" + Name + "_Event::CreateEvent(int PK_DeviceTemplate, ClientSocket *pOCClientSocket, int DeviceID)" << endl << "{"<< endl;
+	fstr_DeviceCommand << "Event_Impl *" + Name + "_Event::CreateEvent( unsigned long dwPK_DeviceTemplate, ClientSocket *pOCClientSocket, unsigned long dwDevice )" << endl << "{"<< endl;
 	if( p_mapRow_MasterDevice_Children->size() )
 	{
-		fstr_DeviceCommand << "\tswitch(PK_DeviceTemplate) {"<< endl;
+		fstr_DeviceCommand << "\tswitch(dwPK_DeviceTemplate) {"<< endl;
 
 		for(itMDL=p_mapRow_MasterDevice_Children->begin();itMDL!=p_mapRow_MasterDevice_Children->end();++itMDL)
 		{
 			Row_DeviceTemplate *p_Row_DeviceTemplate = (*itMDL).second;
 			fstr_DeviceCommand << "\t\tcase " + StringUtils::itos(p_Row_DeviceTemplate->PK_DeviceTemplate_get()) + ":"<< endl;
-			fstr_DeviceCommand << "\t\t\treturn (Event_Impl *) new " + FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get()) + "_Event(pOCClientSocket, DeviceID);"<< endl;
+			fstr_DeviceCommand << "\t\t\treturn (Event_Impl *) new " + FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get()) + "_Event(pOCClientSocket, dwDevice);"<< endl;
 		}
 		fstr_DeviceCommand << "\t};"<< endl;
 	}
-	fstr_DeviceCommand << "\tg_pPlutoLogger->Write(LV_STATUS, \"Got CreateEvent for unknown type %d.\", PK_DeviceTemplate);"<< endl;
+	fstr_DeviceCommand << "\tg_pPlutoLogger->Write(LV_STATUS, \"Got CreateEvent for unknown type %d.\", dwPK_DeviceTemplate);"<< endl;
 	fstr_DeviceCommand << "\treturn NULL;"<< endl;
 	fstr_DeviceCommand << "}"<< endl;
 
@@ -730,7 +728,7 @@ int k=2;
 			Row_DeviceTemplate *p_Row_DeviceTemplate = (*itMDL).second;
 
 			fstr_DeviceCommand << "\t\tcase " << StringUtils::itos(p_Row_DeviceTemplate->PK_DeviceTemplate_get()) << ":" << endl;
-			fstr_DeviceCommand << "\t\t\treturn (Command_Impl *) new " << FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get()) << "_Command(pPrimaryDeviceCommand, pData, pEvent, m_pRouter);" << endl;
+			fstr_DeviceCommand << "\t\t\treturn (Command_Impl *) new " << FileUtils::ValidCPPName(p_Row_DeviceTemplate->Description_get()) << "(pPrimaryDeviceCommand, pData, pEvent, m_pRouter);" << endl;
 		}
 		fstr_DeviceCommand << "\t};" << endl;
 	}
@@ -746,7 +744,7 @@ int k=2;
 
 	string sTemplateOutput=m_sTemplateOutput;
 	// If a template was specified, and we're generating the main device, build the template
-	if( m_sTemplateInput.length() && (m_dwPK_DeviceTemplate==0 || m_dwPK_DeviceTemplate==p_Row_DeviceTemplate->PK_DeviceTemplate_get()))
+	if( m_sTemplateInput.length() && (m_dwPK_DeviceTemplate==p_Row_DeviceTemplate->PK_DeviceTemplate_get()) )
 	{
 		if( sTemplateOutput=="" )
 			sTemplateOutput="../" + Name + "/";
@@ -798,6 +796,40 @@ int k=2;
 		SearchAndReplace(m_sTemplateInput + "Package.Info", sTemplateOutput + "Package.Info", Name, &deviceInfo,sMergeTo,sDescription);
 		SearchAndReplace(m_sTemplateInput + "make_package.sh", sTemplateOutput + "make_package.sh", Name, &deviceInfo,sMergeTo,sDescription);
 		SearchAndReplace(m_sTemplateInput + "post_make.sh", sTemplateOutput + "post_make.sh", Name, &deviceInfo,sMergeTo,sDescription);
+	}
+	else if( m_sTemplateInput.length() )
+	{
+		if( FileUtils::FileExists(sTemplateOutput + Name + ".cpp") )  // We already built, 
+		{
+			cout << "The embedded device " << Name << " already exists in " << sTemplateOutput << endl
+				<< "If you have not already started to implement this devices, you" << endl
+				<< "could choose to overwrite those files.  NOTE: This would wipe out" << endl
+				<< "anything you've done so far.  Or I can leave them in a temporary directory" << endl
+				<< sTemplateOutput + "_temp/ for you to merge manually." << endl
+				<< "The normal selection is to merge in automatically.  I will" << endl
+				<< "go through your source files and replace the function declarations" << endl
+				<< "without touching your code.";
+			char c = AskMCQuestion("What would you like to do?  Merge, Overwrite, Leave in temp directory, Abort","Mola");
+			if( c=='m' || c=='l' )
+			{
+				if( c=='m' )
+					sMergeTo = sTemplateOutput;
+				string NoSlash = sTemplateOutput.substr(0, sTemplateOutput.length()-1);
+				sTemplateOutput = NoSlash + "_temp/";
+			}
+			else if( c=='a' )
+				return;
+
+			// No matter what we need to clear the directory so we can output the files
+			FileUtils::MakeDir(sTemplateOutput);
+			cout << "Outputing to directory: " << sTemplateOutput << endl;
+		}
+
+		FileUtils::MakeDir(sTemplateOutput);
+
+		string sDescription = "DCE Implemenation for #" + StringUtils::itos(p_Row_DeviceTemplate->PK_DeviceTemplate_get()) + " " + p_Row_DeviceTemplate->Description_get();
+		SearchAndReplace(m_sTemplateInput + "DCE_Template.cpp", sTemplateOutput + Name + ".cpp", Name, &deviceInfo,sMergeTo,sDescription);
+		SearchAndReplace(m_sTemplateInput + "DCE_Template.h", sTemplateOutput + Name + ".h", Name, &deviceInfo,sMergeTo,sDescription);
 	}
 }
 

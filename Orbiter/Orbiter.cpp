@@ -5054,6 +5054,7 @@ void Orbiter::CMD_Set_Now_Playing(string sValue_To_Assign,string &sCMD_Result,Me
 //<-dceag-c242-e->
 {
 	m_sNowPlaying = sValue_To_Assign;
+	CMD_Refresh("");
 }
 
 bool Orbiter::TestCurrentScreen(string &sPK_DesignObj_CurrentScreen)

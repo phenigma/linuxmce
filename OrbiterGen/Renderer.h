@@ -39,13 +39,13 @@ public:
     Renderer(string FontPath,string OutputDirectory,int Width,int Height,bool bDisableVideo=false);
     ~Renderer();
 
-    RendererImage * CreateBlankCanvas(PlutoSize size = PlutoSize(0,0));
+    static RendererImage * CreateBlankCanvas(PlutoSize size);
     PlutoSize RealRenderText(RendererImage * pRenderImage, DesignObjText *pDesignObjText, TextStyle *pTextStyle, PlutoPoint pos);
 
 #ifndef ORBITER
     void RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,
-        PlutoPoint Position,int iRenderStandard,bool bPreserveAspectRatio);
-    void RenderObjectsChildren(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint pos,bool bPreserveAspectRatio);
+        PlutoPoint Position,int iRenderStandard,bool bPreserveAspectRatio,int iOnlyVersion=-999);
+	void RenderObjectsChildren(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint pos,bool bPreserveAspectRatio,int iOnlyVersion);
     void RenderObjectsText(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint pos,int iIteration);
     void SaveImageToFile(RendererImage * pRendererImage, string sSaveToFile);
 	void SaveImageToPNGFile(RendererImage * pRendererImage, FILE * File, bool Signature = true);
@@ -57,7 +57,7 @@ public:
     void RenderText(RendererImage *pRenderImage, DesignObjText *pDesignObjText, TextStyle *pTextStyle, DesignObj_Generator *pDesignObj_Generator, PlutoPoint pos);
 #endif
 
-	RendererMNG * CreateMNGFromFile(string FileName, PlutoSize Size);
+	static RendererMNG * CreateMNGFromFile(string FileName, PlutoSize Size);
 	void SaveMNGToFile(string FileName, RendererMNG * MNG);
 
 protected:

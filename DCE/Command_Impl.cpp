@@ -413,17 +413,7 @@ bool Command_Impl::ReceivedMessage( Message *pMessage )
 			}
 			return true;
 		}
-		else
-		{
-			MapCommand_Impl::iterator i;
-	
-			for( i=m_mapCommandImpl_Children.begin(); i != m_mapCommandImpl_Children.end(); ++i )
-			{
-				if ((*i).second->ReceivedMessage( pMessage ))
-					return true;
-			}
-		}
-	
+
 	return false;
 }
 

@@ -89,10 +89,14 @@ Renderer::~Renderer()
 // This takes an incoming pRenderImage of what's been rendered so far, and will add this new object and it's
 // children to it, or save them separately if set to can hide, or if rendering a selected, highlighted or alt versions
 // If iRenderStandard==1, render the standard version only, if ==0, everything but the standard, if -1, do all
-void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint Position,int iRenderStandard,bool bPreserveAspectRatio)
+
+// When we start rendering a non-standard version (selected, highlighted, etc.), we will render all of it's children
+// in the same state.  Therefore we also have an "OnlyVersion" version flag.  This means only render the given version.
+// A standard version that has non-standard variations, will also want all of it's children to render only the standard version
+void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint Position,int iRenderStandard,bool bPreserveAspectRatio,int iOnlyVersion)
 {
     //  cout << "Rendering " << pDesignObj_Generator->m_ObjectID << endl;
-    if( pDesignObj_Generator->m_ObjectID.find("3275")!=string::npos )
+    if( pDesignObj_Generator->m_ObjectID.find("1399")!=string::npos )
 //  //  ) //|| pDesignObj_Generator->m_ObjectID.find("2689.0.0.2790")!=string::npos )
         //if( pDesignObj_Generator->m_ObjectID== )
     {
@@ -106,6 +110,9 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
     // The others are all output as separate files.  The first time RenderObject is called, pRenderImage
     int StartingValue = iRenderStandard!=1 ? (int) pDesignObj_Generator->m_vectAltGraphicFilename.size() : -2;
     int EndingValue = iRenderStandard!=0 ? -2 : -1;
+	if( iOnlyVersion!=-999 )
+		StartingValue=EndingValue=iOnlyVersion;
+
     for(int iIteration=StartingValue;iIteration>=EndingValue;--iIteration)
     {
         // Normally we don't create output files for selected/highlighted/alt versions unless there is a corresponding graphic.  There's really nothing
@@ -154,14 +161,17 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
         }
 
         bool bIsMenu=false;
-        if( iIteration!=-2 || pDesignObj_Generator->m_bCanBeHidden || !pRenderImage || pDesignObj_Generator->m_vectAltGraphicFilename.size() || pDesignObj_Generator->m_sHighlightGraphicFilename.size() || pDesignObj_Generator->m_sSelectedFile.size() )
+		// If iOnlyVersion is -999, then we've already hit an object with non-standard versions, so we're not 
+		// going to write out children as separate objects anymore
+        if( iOnlyVersion==-999 && (iIteration!=-2 || pDesignObj_Generator->m_bCanBeHidden || !pRenderImage || 
+			pDesignObj_Generator->m_vectAltGraphicFilename.size() || pDesignObj_Generator->m_sHighlightGraphicFilename.size() || pDesignObj_Generator->m_sSelectedFile.size()) )
         {
             // We're going to save this out as a separate file
             sSaveToFile=pDesignObj_Generator->m_ObjectID;
             if( !pRenderImage )
             {
                 // This is a new screen, start with a clean canvas
-                pRenderImage = CreateBlankCanvas(); // TROUBLE nr 1: this pointer is lost each time the for loop starts
+                pRenderImage = CreateBlankCanvas(PlutoSize(m_Width,m_Height)); // TROUBLE nr 1: this pointer is lost each time the for loop starts
                 bIsMenu=true;
             }
             else
@@ -181,57 +191,77 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
                 sSaveToFile += "_A" + StringUtils::itos(iIteration);
         }
 
-        // We will use these only if we're doing an MNG
-        int NumFrames=1;  // We will change this if we're dealing with an MNG
-
         RendererImage *pRenderImage_Child=NULL; // The new image to be pasted on top
+		RendererMNG *pRendererMNG=NULL;
         if( sInputFile.length()>0 )
         {
-            pRenderImage_Child = CreateFromFile(sInputFile,pDesignObj_Generator->m_rBackgroundPosition.Size(),bPreserveAspectRatio,bIsMenu);
+			if( StringUtils::ToUpper(FileUtils::FindExtension(sInputFile))=="MNG" )
+return;//TODO - Radu needs to fix this
+//				pRendererMNG = CreateMNGFromFile(sInputFile,pDesignObj_Generator->m_rBackgroundPosition.Size());
+			else
+		        pRenderImage_Child = CreateFromFile(sInputFile,pDesignObj_Generator->m_rBackgroundPosition.Size(),bPreserveAspectRatio,bIsMenu);
 
-            if( !pRenderImage_Child )
+            if( !pRenderImage_Child && !pRendererMNG )
             {
                 throw "Failed to open " + sInputFile + " abandoning creation of object " + pDesignObj_Generator->m_ObjectID;
             }
         }
 
-        // If this is multi-frame, we have to repeat, so we'll need a copy of the image
-        RendererImage *pRenderImageClone = pRenderImage;
-        RendererImage *pRenderImageClone_Child = pRenderImage_Child;
+		int iOnlyVersion_Children=-999;  // By default render all of our children
+		if( iOnlyVersion!=-999 )
+			iOnlyVersion_Children = iOnlyVersion;
+		else if( iIteration!=-2 || pDesignObj_Generator->m_sHighlightGraphicFilename.size() || 
+			pDesignObj_Generator->m_sSelectedFile.size() || pDesignObj_Generator->m_vectAltGraphicFilename.size() )
+		{
+			iOnlyVersion_Children = iIteration;
+		}
 
-        // See if we're supposed to render our children first
-        if( pDesignObj_Generator->m_bChildrenBehind )
-        {
-            RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position,bPreserveAspectRatio);
-            if(pRenderImageClone_Child )
-                CompositeImage(pRenderImageClone,pRenderImageClone_Child,pDesignObj_Generator->m_rPosition.Location() + Position);
-            RenderObjectsText(pRenderImageClone,pDesignObj_Generator,Position,iIteration);
-        }
-        else // Render our own first
-        {
-            if(pRenderImageClone_Child )
-            {
-                CompositeImage(pRenderImageClone,pRenderImageClone_Child,pDesignObj_Generator->m_rPosition.Location() + Position);
-            }
-            if( pDesignObj_Generator->m_bChildrenBeforeText )
-            {
-                RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position,bPreserveAspectRatio);
-                RenderObjectsText(pRenderImageClone,pDesignObj_Generator,Position,iIteration);
-            }
-            else
-            {
-                RenderObjectsText(pRenderImageClone,pDesignObj_Generator,Position,iIteration);
-                RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position,bPreserveAspectRatio);
-            }
-        }
+		for(int iFrame=0;iFrame< (pRendererMNG ? pRendererMNG->count() : 1);iFrame++)
+		{
+			// If this is multi-frame, we have to repeat, so we'll need a copy of the image
+			RendererImage *pRenderImageClone = pRenderImage;
+			RendererImage *pRenderImageClone_Child = pRenderImage_Child;
+			if( pRendererMNG )
+				pRenderImageClone_Child = (RendererImage *) pRendererMNG->GetFrame(iFrame);
 
+			// See if we're supposed to render our children first
+			if( pDesignObj_Generator->m_bChildrenBehind )
+			{
+				RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position,bPreserveAspectRatio,iOnlyVersion_Children);
+				if(pRenderImageClone_Child )
+					CompositeImage(pRenderImageClone,pRenderImageClone_Child,pDesignObj_Generator->m_rPosition.Location() + Position);
+				RenderObjectsText(pRenderImageClone,pDesignObj_Generator,Position,iIteration);
+			}
+			else // Render our own first
+			{
+				if(pRenderImageClone_Child )
+				{
+					CompositeImage(pRenderImageClone,pRenderImageClone_Child,pDesignObj_Generator->m_rPosition.Location() + Position);
+				}
+				if( pDesignObj_Generator->m_bChildrenBeforeText )
+				{
+					RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position,bPreserveAspectRatio,iOnlyVersion_Children);
+					RenderObjectsText(pRenderImageClone,pDesignObj_Generator,Position,iIteration);
+				}
+				else
+				{
+					RenderObjectsText(pRenderImageClone,pDesignObj_Generator,Position,iIteration);
+					RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position,bPreserveAspectRatio,iOnlyVersion_Children);
+				}
+			}
+			if( pRendererMNG )
+				pRendererMNG->ReplaceFrame(iFrame,*pRenderImageClone);
+		}
         // If this is a screen (ie top level object) then we should always save something even
         // if there was no input file.
         if( sInputFile.length() || pRenderImageOriginal==NULL || pDesignObj_Generator->m_bCanBeHidden || bForceOutput )
         {
             if( sSaveToFile.length()>0 )
             {
-                SaveImageToFile(pRenderImage,m_sOutputDirectory + sSaveToFile);
+				if( pRendererMNG )
+					SaveMNGToFile(m_sOutputDirectory + sSaveToFile,pRendererMNG);
+				else
+	                SaveImageToFile(pRenderImage,m_sOutputDirectory + sSaveToFile);
 #ifdef OUTPUT_BMP
                 sSaveToFile+=".bmp";
 #else
@@ -249,13 +279,14 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
                 pDesignObj_Generator->m_vectAltGraphicFilename[iIteration-1] = sSaveToFile;
         }
         delete pRenderImage_Child;
+        delete pRendererMNG;
         if( pRenderImageOriginal!=pRenderImage )
             delete pRenderImage;
     }
     //  cout << "Finished Rendering " << pDesignObj_Generator->m_ObjectID << endl;
 }
 
-void Renderer::RenderObjectsChildren(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint pos,bool bPreserveAspectRatio)
+void Renderer::RenderObjectsChildren(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint pos,bool bPreserveAspectRatio,int iOnlyVersion)
 {
     // We don't support layering.  This isn't normally a problem for pre-rendered graphics.  However, for objects that are rendered
     // seperately, like the selected and highlighted versions, if they have transparency, it's possible that other child objects
@@ -265,7 +296,12 @@ void Renderer::RenderObjectsChildren(RendererImage *pRenderImage,DesignObj_Gener
     for(it=pDesignObj_Generator->m_ChildObjects.begin();it!=pDesignObj_Generator->m_ChildObjects.end();++it)
     {
         DesignObj_Generator *pObj = (DesignObj_Generator *) *it;
-if( pObj->m_ObjectID.find("3107")!=string::npos || pObj->m_ObjectID.find("3111")!=string::npos || pObj->m_ObjectID.find("3109")!=string::npos )
+		if( iOnlyVersion!=-999 )
+		{
+	        RenderObject(pRenderImage,(DesignObj_Generator *) pObj,pos,0,bPreserveAspectRatio,iOnlyVersion);  // Standard only
+		    continue;
+		}
+if( pObj->m_ObjectID.find("1399")!=string::npos )
 //  //  ) //|| pObj->m_ObjectID.find("2689.0.0.2790")!=string::npos )
     //if( pObj->m_ObjectID== )
 {
@@ -277,10 +313,17 @@ if( pObj->m_ObjectID.find("3107")!=string::npos || pObj->m_ObjectID.find("3111")
         pObj->m_bRendered=true;
     }
 
+	if( iOnlyVersion!=-999 )
+		return; // We already rendered all the children
+
     // Now do the others
     for(it=pDesignObj_Generator->m_ChildObjects.begin();it!=pDesignObj_Generator->m_ChildObjects.end();++it)
     {
         DesignObj_Generator *pObj = (DesignObj_Generator *) *it;
+if( pObj->m_ObjectID.find("1399")!=string::npos )
+{
+    int k=2;
+}
         RenderObject(pRenderImage,(DesignObj_Generator *) pObj,pos,pObj->m_bRendered ? 0 : -1,bPreserveAspectRatio);
     }
 }
@@ -514,7 +557,7 @@ RendererMNG * Renderer::CreateMNGFromFile(string FileName, PlutoSize Size)
 {
 	FILE * File;
 
-	File = fopen(FileName.c_str(), "r");
+	File = fopen(FileName.c_str(), "rb");
 	if (! File)
 		return NULL;
 
@@ -626,7 +669,7 @@ void Renderer::SaveMNGToFile(string FileName, RendererMNG * MNG)
 
 	for (size_t i = 0; i < MNG->count() ; i++)
 	{
-		SaveImageToPNGFile(& MNG->GetFrame(i), File, false);
+		SaveImageToPNGFile(MNG->GetFrame(i), File, false);
 	}
 
 	const char * MEND = "\x00\x00\x00\x00MEND\x21\x20\xF7\xD5";
@@ -779,8 +822,8 @@ RendererImage * Renderer::CreateBlankCanvas(PlutoSize size)
     rmask = 0x000000ff; gmask = 0x0000ff00; bmask = 0x00ff0000; amask = 0xff000000;
 #endif
 
-    int Width = (size.Width == 0 ? m_Width : size.Width);
-    int Height = (size.Height == 0 ? m_Height : size.Height);
+    int Width = size.Width;
+    int Height = size.Height;
 
     Canvas->m_sFilename = "(new surface)";
     Canvas->m_pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE, Width, Height, 32, rmask, gmask, bmask, amask);
