@@ -69,6 +69,6 @@ rm "$CUsh.$$"
 
 chmod +x "$CUsh"
 bash -x "$CUsh" &> >(tee /var/log/pluto/Config_Device_Changes.newlog)
-rm "$CUsh"
+#rm "$CUsh"
 
 Unset_NeedConfigure_Children "$PK_Device"
