@@ -38,7 +38,7 @@
 
 using namespace DCE;
 
-void *BeginWapClientThread( void *SvSock )
+void *ServerSocket::BeginWapClientThread( void *SvSock )
 {	
 	ServerSocket *pCS = (ServerSocket *)SvSock;
 	if( !pCS->m_bThreadRunning )
@@ -46,7 +46,7 @@ void *BeginWapClientThread( void *SvSock )
 //		delete pCS;  // TODO: HACK -- we've got a socket leak here
 		return NULL; // Should have been set in the constructor
 	}
-	pCS->Run();
+	pCS->_Run();
 //	delete pCS;  // TODO: HACK -- we've got a socket leak here
 	return NULL;
 }
@@ -60,26 +60,29 @@ ServerSocket::ServerSocket( SocketListener *pListener, SOCKET Sock, string sName
 	m_bThreadRunning=true;
 	
 	m_ConnectionMutex.Init( NULL );
-	
-	int iResult = pthread_create( &m_ClientThreadID, NULL, BeginWapClientThread, (void *)this );
-	if ( iResult != 0 )
-	{
-		m_bThreadRunning=false;
-		g_pPlutoLogger->Write( LV_CRITICAL, "Pthread create returned %d %s dev %d ptr %p", (int)iResult, m_sName.c_str(), m_dwPK_Device,this );
-	}
-	else
-		pthread_detach( m_ClientThreadID );
 }
 
 ServerSocket::~ServerSocket()
 {
-	m_pListener->m_bTerminate = true;
+//	m_pListener->m_bTerminate = true;
 
-	if( m_Socket != INVALID_SOCKET )
+#ifdef DEBUG
+	g_pPlutoLogger->Write( LV_STATUS, "Deleting socket %p...", this );
+#endif
+	g_pPlutoLogger->Write( LV_STATUS, "Deleting socket %p...", this );
+	
+
+	if( m_Socket != INVALID_SOCKET ) {
+		close(m_Socket);
 		closesocket( m_Socket );
+	}
+	
 
 	while( m_bThreadRunning )
 		Sleep(10);
+		
+		
+	m_pListener->RemoveSocket(this);
 
 	// Shutdown of client sockets is either performed by their loops,
 	// or is triggered by the shutdown of the socket listener.
@@ -96,8 +99,25 @@ ServerSocket::~ServerSocket()
 	pthread_mutex_destroy( &m_ConnectionMutex.mutex );
 }
 
-void ServerSocket::Run()
+
+void ServerSocket::Run() {
+	int iResult = pthread_create( &m_ClientThreadID, NULL, BeginWapClientThread, (void *)this );
+	if ( iResult != 0 )
+	{
+		m_bThreadRunning=false;
+		g_pPlutoLogger->Write( LV_CRITICAL, "Pthread create returned %d %s dev %d ptr %p", (int)iResult, m_sName.c_str(), m_dwPK_Device,this );
+	}
+	else
+		pthread_detach( m_ClientThreadID );    
+}
+
+void ServerSocket::_Run()
 {
+#ifdef DEBUG
+	g_pPlutoLogger->Write( LV_STATUS, "Running socket %p...", this );
+#endif
+	g_pPlutoLogger->Write( LV_STATUS, "Running socket %p...", this );
+	
 	string sMessage;
 	while( !m_pListener->m_bTerminate )
 	{
@@ -105,7 +125,7 @@ void ServerSocket::Run()
 		{
 			break;
 		}
-		if ( sMessage.substr(0,4) == "TIME" )
+		if ( sMessage.length() >= 4 && sMessage.substr(0,4) == "TIME" )
 		{
 			time_t t;
 			time(&t);
@@ -127,7 +147,7 @@ void ServerSocket::Run()
 		/** @todo check comment */
 		//g_pDCELogger->Write(LV_SOCKET, "TCPIP: Received %s", msg.c_str());
 
-		if (sMessage.substr(0,5) == "HELLO")
+		if ( sMessage.length() >= 5 && sMessage.substr(0,5) == "HELLO")
 		{
 			m_dwPK_Device = atoi( sMessage.substr(6).c_str() );
 			if( m_dwPK_Device==DEVICEID_MESSAGESEND )
@@ -175,7 +195,7 @@ void ServerSocket::Run()
 			continue;
 		}
 		
-		if ( sMessage.substr(0,14) == "REQUESTHANDLER" )
+		if (  sMessage.length() >= 14 && sMessage.substr(0,14) == "REQUESTHANDLER" )
 		{
 			SendString( "OK" );
 			m_dwPK_Device = atoi( sMessage.substr(14).c_str() );

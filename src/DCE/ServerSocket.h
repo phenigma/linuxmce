@@ -47,11 +47,18 @@ namespace DCE
 		 * @brief destructor, kills the tread
 		 */
 		virtual ~ServerSocket();
+			
+		void Run();
 
+	private:
 		/**
 		 * @brief runs a loop that handles the client
 		 */
-		void Run();
+		void _Run();
+		
+		static void *BeginWapClientThread(void*);
+		
+		
 	};
 }
 

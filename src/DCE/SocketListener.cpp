@@ -214,7 +214,8 @@ void SocketListener::Run()
 
 Socket *SocketListener::CreateSocket( SOCKET newsock, string sName, string sIPAddress )
 {
-	Socket *pSocket = new ServerSocket( this, newsock, sName, sIPAddress );
+	ServerSocket *pSocket = new ServerSocket( this, newsock, sName, sIPAddress );
+	pSocket->Run();
 	return pSocket;
 }				
 

@@ -99,7 +99,7 @@ Socket::Socket(string Name,string sIPAddress) : m_SocketMutex("socket mutex " + 
 	time_t ts;
 	time( &ts );
 	struct tm *t = localtime( &ts );
-	char c[50];
+	char c[256];
 	snprintf( c, sizeof(c), "%02d-%02d-%02d %d-%02d-%02d %d", (int)t->tm_mon + 1, (int)t->tm_mday, (int)t->tm_year-100, (int)t->tm_hour, (int)t->tm_min, (int)t->tm_sec, m_iSocketCounter );
 #  endif
 
@@ -144,7 +144,7 @@ Socket::Socket(string Name,string sIPAddress) : m_SocketMutex("socket mutex " + 
 Socket::~Socket()
 {
 #ifdef DEBUG
-	//g_pPlutoLogger->Write( LV_SOCKET, "deleting socket %p %s", this, m_sName.c_str() );
+	g_pPlutoLogger->Write( LV_SOCKET, "deleting socket %p %s", this, m_sName.c_str() );
 #endif
 
 	if ( m_Socket != INVALID_SOCKET )
@@ -323,7 +323,7 @@ bool Socket::SendData( int iSize, const char *pcData )
 	}
 #endif
 
-	PLUTO_SAFETY_LOCK_ERRORSONLY(sSM,m_SocketMutex);  // don't log anything but failures
+//	PLUTO_SAFETY_LOCK_ERRORSONLY(sSM,m_SocketMutex);  // don't log anything but failures
 #ifdef LOG_ALL_CONTROLLER_ACTIVITY
 	if( m_sName.substr(0,6) != "Logger" )
 		LACA_B4_4( "Sending after lock: (%d) %s %p %s", iSize, pcData, pthread_self(), m_sName.c_str() );
@@ -346,7 +346,7 @@ bool Socket::SendData( int iSize, const char *pcData )
 	time_t ts;
 	time( &ts );
 	struct tm *t = localtime( &ts );
-	char ac[50];
+	char ac[256];
 	snprintf( ac, sizeof(ac), "%02d/%02d/%02d %d:%02d:%02d", (int)t->tm_mon + 1, (int)t->tm_mday, (int)t->tm_year - 100, (int)t->tm_hour, (int)t->tm_min, (int)t->tm_sec );
 #  endif
 #endif
@@ -429,20 +429,28 @@ bool Socket::SendData( int iSize, const char *pcData )
 			return false;
 		}
 
-		FD_ZERO( &wrfds );
-		FD_SET( m_Socket, &wrfds );
 		int iRet;
 		do
-		{
+    		{
+			FD_ZERO( &wrfds );
+			FD_SET( m_Socket, &wrfds );
+		
 			tv.tv_sec = SOCKET_TIMEOUT;
 			tv.tv_usec = 0;
 			/** @todo check comment */
 			//time_t end, start = time(NULL);
-			iRet = select( (int)(m_Socket+1), NULL, &wrfds, NULL, &tv );
+			
+			//iRet = select( (int)(m_Socket+1), NULL, &wrfds, NULL, &tv );
+			
 			// without timeout
 			iRet = select( (int)(m_Socket+1), NULL, &wrfds, NULL, NULL );
-
+			
+			if(iRet <= 0 || iRet > 1) { // error
+			    break;
+			}
+			
 		} while( iRet != -1 && iRet != 1 );
+		
 		int iSendBytes = ( iBytesLeft > 16192 ) ? 16192 : iBytesLeft;
 		iSendBytes = send( m_Socket, pcData+( iSize-iBytesLeft ), iSendBytes, 0 );
 
@@ -548,8 +556,6 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 			fd_set rfds;
 			struct timeval tv;
 
-			FD_ZERO(&rfds);
-			FD_SET(m_Socket, &rfds);
 			int iRet;
 #ifndef DISABLE_SOCKET_TIMEOUTS
 			if( m_iReceiveTimeout > 0 )
@@ -557,11 +563,14 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 			if ( false )
 #endif
 			{
+			
 				tv.tv_sec = m_iReceiveTimeout;
 				tv.tv_usec = 0;
 				start = time(NULL);
 				do	//select might return early because of a signal
 				{
+					FD_ZERO(&rfds);
+					FD_SET(m_Socket, &rfds);
 #ifdef DEBUG
 					clk_select1 = clock();
 #endif
@@ -575,7 +584,10 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 			else
 			{
 				while(1)
-				{
+    				{
+					FD_ZERO(&rfds);
+					FD_SET(m_Socket, &rfds);
+				
 #ifdef DEBUG
 					clk_select2 = clock();
 #endif
@@ -598,6 +610,10 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 					if( iRet == -1 && errno != EINTR )
 #endif
 						break;
+						
+					if(iRet <= 0 || iRet > 1) { // error
+					    break;
+					}
 				}
 			}
 
