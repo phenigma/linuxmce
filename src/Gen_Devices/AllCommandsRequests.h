@@ -583,35 +583,35 @@ namespace DCE
 	};
 	class CMD_Create_Media : public PreformedCommand {
 	public:
-		CMD_Create_Media(long DeviceIDFrom, long DeviceIDTo,string sFilename,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,36,2,13,sFilename.c_str(),41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_Create_Media(long DeviceIDFrom, long DeviceIDTo,string sFilename,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,36,2,13,sFilename.c_str(),41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Create_Media_DL : public PreformedCommand {
 	public:
-		CMD_Create_Media_DL(long DeviceIDFrom, string DeviceIDTo,string sFilename,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,36,2,13,sFilename.c_str(),41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_Create_Media_DL(long DeviceIDFrom, string DeviceIDTo,string sFilename,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,36,2,13,sFilename.c_str(),41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Create_Media_DT : public PreformedCommand {
 	public:
-		CMD_Create_Media_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sFilename,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,36,2,13,sFilename.c_str(),41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_Create_Media_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sFilename,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,36,2,13,sFilename.c_str(),41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Create_Media_Cat : public PreformedCommand {
 	public:
-		CMD_Create_Media_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sFilename,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,36,2,13,sFilename.c_str(),41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_Create_Media_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sFilename,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,36,2,13,sFilename.c_str(),41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Play_Media : public PreformedCommand {
 	public:
-		CMD_Play_Media(long DeviceIDFrom, long DeviceIDTo,string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,37,4,13,sFilename.c_str(),29,StringUtils::itos(iPK_MediaType).c_str(),41,StringUtils::itos(iStreamID).c_str(),42,StringUtils::itos(iMediaPosition).c_str()); }
+		CMD_Play_Media(long DeviceIDFrom, long DeviceIDTo,string sFilename,int iPK_MediaType,int iCameraID,int iMediaPosition) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,37,4,13,sFilename.c_str(),29,StringUtils::itos(iPK_MediaType).c_str(),41,StringUtils::itos(iCameraID).c_str(),42,StringUtils::itos(iMediaPosition).c_str()); }
 	};
 	class CMD_Play_Media_DL : public PreformedCommand {
 	public:
-		CMD_Play_Media_DL(long DeviceIDFrom, string DeviceIDTo,string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,37,4,13,sFilename.c_str(),29,StringUtils::itos(iPK_MediaType).c_str(),41,StringUtils::itos(iStreamID).c_str(),42,StringUtils::itos(iMediaPosition).c_str()); }
+		CMD_Play_Media_DL(long DeviceIDFrom, string DeviceIDTo,string sFilename,int iPK_MediaType,int iCameraID,int iMediaPosition) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,37,4,13,sFilename.c_str(),29,StringUtils::itos(iPK_MediaType).c_str(),41,StringUtils::itos(iCameraID).c_str(),42,StringUtils::itos(iMediaPosition).c_str()); }
 	};
 	class CMD_Play_Media_DT : public PreformedCommand {
 	public:
-		CMD_Play_Media_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,37,4,13,sFilename.c_str(),29,StringUtils::itos(iPK_MediaType).c_str(),41,StringUtils::itos(iStreamID).c_str(),42,StringUtils::itos(iMediaPosition).c_str()); }
+		CMD_Play_Media_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sFilename,int iPK_MediaType,int iCameraID,int iMediaPosition) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,37,4,13,sFilename.c_str(),29,StringUtils::itos(iPK_MediaType).c_str(),41,StringUtils::itos(iCameraID).c_str(),42,StringUtils::itos(iMediaPosition).c_str()); }
 	};
 	class CMD_Play_Media_Cat : public PreformedCommand {
 	public:
-		CMD_Play_Media_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,37,4,13,sFilename.c_str(),29,StringUtils::itos(iPK_MediaType).c_str(),41,StringUtils::itos(iStreamID).c_str(),42,StringUtils::itos(iMediaPosition).c_str()); }
+		CMD_Play_Media_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sFilename,int iPK_MediaType,int iCameraID,int iMediaPosition) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,37,4,13,sFilename.c_str(),29,StringUtils::itos(iPK_MediaType).c_str(),41,StringUtils::itos(iCameraID).c_str(),42,StringUtils::itos(iMediaPosition).c_str()); }
 	};
 	class RESP_Stop_Media : public PreformedCommandResponse {
 		int *m_iMediaPosition;
@@ -623,83 +623,83 @@ namespace DCE
 	};
 	class CMD_Stop_Media : public PreformedCommand {
 	public:
-		CMD_Stop_Media(long DeviceIDFrom, long DeviceIDTo,int iStreamID,int *iMediaPosition) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,38,2,41,StringUtils::itos(iStreamID).c_str(),42,StringUtils::itos(*iMediaPosition).c_str());		m_pcResponse = new RESP_Stop_Media(iMediaPosition); }
+		CMD_Stop_Media(long DeviceIDFrom, long DeviceIDTo,int iCameraID,int *iMediaPosition) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,38,2,41,StringUtils::itos(iCameraID).c_str(),42,StringUtils::itos(*iMediaPosition).c_str());		m_pcResponse = new RESP_Stop_Media(iMediaPosition); }
 	};
 	class CMD_Stop_Media_DL : public PreformedCommand {
 	public:
-		CMD_Stop_Media_DL(long DeviceIDFrom, string DeviceIDTo,int iStreamID,int *iMediaPosition) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,38,2,41,StringUtils::itos(iStreamID).c_str(),42,StringUtils::itos(*iMediaPosition).c_str());		m_pcResponse = new RESP_Stop_Media(iMediaPosition); }
+		CMD_Stop_Media_DL(long DeviceIDFrom, string DeviceIDTo,int iCameraID,int *iMediaPosition) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,38,2,41,StringUtils::itos(iCameraID).c_str(),42,StringUtils::itos(*iMediaPosition).c_str());		m_pcResponse = new RESP_Stop_Media(iMediaPosition); }
 	};
 	class CMD_Stop_Media_DT : public PreformedCommand {
 	public:
-		CMD_Stop_Media_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iStreamID,int *iMediaPosition) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,38,2,41,StringUtils::itos(iStreamID).c_str(),42,StringUtils::itos(*iMediaPosition).c_str());		m_pcResponse = new RESP_Stop_Media(iMediaPosition); }
+		CMD_Stop_Media_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iCameraID,int *iMediaPosition) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,38,2,41,StringUtils::itos(iCameraID).c_str(),42,StringUtils::itos(*iMediaPosition).c_str());		m_pcResponse = new RESP_Stop_Media(iMediaPosition); }
 	};
 	class CMD_Stop_Media_Cat : public PreformedCommand {
 	public:
-		CMD_Stop_Media_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iStreamID,int *iMediaPosition) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,38,2,41,StringUtils::itos(iStreamID).c_str(),42,StringUtils::itos(*iMediaPosition).c_str());		m_pcResponse = new RESP_Stop_Media(iMediaPosition); }
+		CMD_Stop_Media_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iCameraID,int *iMediaPosition) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,38,2,41,StringUtils::itos(iCameraID).c_str(),42,StringUtils::itos(*iMediaPosition).c_str());		m_pcResponse = new RESP_Stop_Media(iMediaPosition); }
 	};
 	class CMD_NOREP_Stop_Media : public PreformedCommand {
 	public:
-		CMD_NOREP_Stop_Media(long DeviceIDFrom, long DeviceIDTo,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,38,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_NOREP_Stop_Media(long DeviceIDFrom, long DeviceIDTo,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,38,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_NOREP_Stop_Media_DL : public PreformedCommand {
 	public:
-		CMD_NOREP_Stop_Media_DL(long DeviceIDFrom, string DeviceIDTo,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,38,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_NOREP_Stop_Media_DL(long DeviceIDFrom, string DeviceIDTo,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,38,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_NOREP_Stop_Media_DT : public PreformedCommand {
 	public:
-		CMD_NOREP_Stop_Media_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,38,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_NOREP_Stop_Media_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,38,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_NOREP_Stop_Media_Cat : public PreformedCommand {
 	public:
-		CMD_NOREP_Stop_Media_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,38,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_NOREP_Stop_Media_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,38,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Pause_Media : public PreformedCommand {
 	public:
-		CMD_Pause_Media(long DeviceIDFrom, long DeviceIDTo,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,39,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_Pause_Media(long DeviceIDFrom, long DeviceIDTo,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,39,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Pause_Media_DL : public PreformedCommand {
 	public:
-		CMD_Pause_Media_DL(long DeviceIDFrom, string DeviceIDTo,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,39,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_Pause_Media_DL(long DeviceIDFrom, string DeviceIDTo,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,39,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Pause_Media_DT : public PreformedCommand {
 	public:
-		CMD_Pause_Media_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,39,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_Pause_Media_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,39,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Pause_Media_Cat : public PreformedCommand {
 	public:
-		CMD_Pause_Media_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,39,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_Pause_Media_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,39,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Restart_Media : public PreformedCommand {
 	public:
-		CMD_Restart_Media(long DeviceIDFrom, long DeviceIDTo,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,40,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_Restart_Media(long DeviceIDFrom, long DeviceIDTo,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,40,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Restart_Media_DL : public PreformedCommand {
 	public:
-		CMD_Restart_Media_DL(long DeviceIDFrom, string DeviceIDTo,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,40,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_Restart_Media_DL(long DeviceIDFrom, string DeviceIDTo,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,40,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Restart_Media_DT : public PreformedCommand {
 	public:
-		CMD_Restart_Media_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,40,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_Restart_Media_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,40,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Restart_Media_Cat : public PreformedCommand {
 	public:
-		CMD_Restart_Media_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,40,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_Restart_Media_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,40,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Change_Playback_Speed : public PreformedCommand {
 	public:
-		CMD_Change_Playback_Speed(long DeviceIDFrom, long DeviceIDTo,int iStreamID,int iMediaPlaybackSpeed) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,41,2,41,StringUtils::itos(iStreamID).c_str(),43,StringUtils::itos(iMediaPlaybackSpeed).c_str()); }
+		CMD_Change_Playback_Speed(long DeviceIDFrom, long DeviceIDTo,int iCameraID,int iMediaPlaybackSpeed) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,41,2,41,StringUtils::itos(iCameraID).c_str(),43,StringUtils::itos(iMediaPlaybackSpeed).c_str()); }
 	};
 	class CMD_Change_Playback_Speed_DL : public PreformedCommand {
 	public:
-		CMD_Change_Playback_Speed_DL(long DeviceIDFrom, string DeviceIDTo,int iStreamID,int iMediaPlaybackSpeed) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,41,2,41,StringUtils::itos(iStreamID).c_str(),43,StringUtils::itos(iMediaPlaybackSpeed).c_str()); }
+		CMD_Change_Playback_Speed_DL(long DeviceIDFrom, string DeviceIDTo,int iCameraID,int iMediaPlaybackSpeed) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,41,2,41,StringUtils::itos(iCameraID).c_str(),43,StringUtils::itos(iMediaPlaybackSpeed).c_str()); }
 	};
 	class CMD_Change_Playback_Speed_DT : public PreformedCommand {
 	public:
-		CMD_Change_Playback_Speed_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iStreamID,int iMediaPlaybackSpeed) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,41,2,41,StringUtils::itos(iStreamID).c_str(),43,StringUtils::itos(iMediaPlaybackSpeed).c_str()); }
+		CMD_Change_Playback_Speed_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iCameraID,int iMediaPlaybackSpeed) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,41,2,41,StringUtils::itos(iCameraID).c_str(),43,StringUtils::itos(iMediaPlaybackSpeed).c_str()); }
 	};
 	class CMD_Change_Playback_Speed_Cat : public PreformedCommand {
 	public:
-		CMD_Change_Playback_Speed_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iStreamID,int iMediaPlaybackSpeed) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,41,2,41,StringUtils::itos(iStreamID).c_str(),43,StringUtils::itos(iMediaPlaybackSpeed).c_str()); }
+		CMD_Change_Playback_Speed_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iCameraID,int iMediaPlaybackSpeed) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,41,2,41,StringUtils::itos(iCameraID).c_str(),43,StringUtils::itos(iMediaPlaybackSpeed).c_str()); }
 	};
 	class CMD_Rewind_Playback : public PreformedCommand {
 	public:
@@ -1423,91 +1423,91 @@ namespace DCE
 	};
 	class CMD_Navigate_Next : public PreformedCommand {
 	public:
-		CMD_Navigate_Next(long DeviceIDFrom, long DeviceIDTo,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,81,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_Navigate_Next(long DeviceIDFrom, long DeviceIDTo,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,81,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Navigate_Next_DL : public PreformedCommand {
 	public:
-		CMD_Navigate_Next_DL(long DeviceIDFrom, string DeviceIDTo,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,81,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_Navigate_Next_DL(long DeviceIDFrom, string DeviceIDTo,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,81,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Navigate_Next_DT : public PreformedCommand {
 	public:
-		CMD_Navigate_Next_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,81,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_Navigate_Next_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,81,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Navigate_Next_Cat : public PreformedCommand {
 	public:
-		CMD_Navigate_Next_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,81,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_Navigate_Next_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,81,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Navigate_Prev : public PreformedCommand {
 	public:
-		CMD_Navigate_Prev(long DeviceIDFrom, long DeviceIDTo,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,82,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_Navigate_Prev(long DeviceIDFrom, long DeviceIDTo,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,82,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Navigate_Prev_DL : public PreformedCommand {
 	public:
-		CMD_Navigate_Prev_DL(long DeviceIDFrom, string DeviceIDTo,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,82,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_Navigate_Prev_DL(long DeviceIDFrom, string DeviceIDTo,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,82,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Navigate_Prev_DT : public PreformedCommand {
 	public:
-		CMD_Navigate_Prev_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,82,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_Navigate_Prev_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,82,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Navigate_Prev_Cat : public PreformedCommand {
 	public:
-		CMD_Navigate_Prev_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,82,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_Navigate_Prev_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,82,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Select_Current_Navigable_Area : public PreformedCommand {
 	public:
-		CMD_Select_Current_Navigable_Area(long DeviceIDFrom, long DeviceIDTo,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,83,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_Select_Current_Navigable_Area(long DeviceIDFrom, long DeviceIDTo,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,83,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Select_Current_Navigable_Area_DL : public PreformedCommand {
 	public:
-		CMD_Select_Current_Navigable_Area_DL(long DeviceIDFrom, string DeviceIDTo,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,83,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_Select_Current_Navigable_Area_DL(long DeviceIDFrom, string DeviceIDTo,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,83,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Select_Current_Navigable_Area_DT : public PreformedCommand {
 	public:
-		CMD_Select_Current_Navigable_Area_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,83,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_Select_Current_Navigable_Area_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,83,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Select_Current_Navigable_Area_Cat : public PreformedCommand {
 	public:
-		CMD_Select_Current_Navigable_Area_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,83,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_Select_Current_Navigable_Area_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,83,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class RESP_Get_Video_Frame : public PreformedCommandResponse {
-		char **m_pData;int *m_iData_Size;string *m_sFormat;
+		char **m_pData;int *m_iData_Size;
 	public:
-		RESP_Get_Video_Frame(char **pData,int *iData_Size,string *sFormat) { 
-		m_pData=pData; m_iData_Size=iData_Size; m_sFormat=sFormat; }
+		RESP_Get_Video_Frame(char **pData,int *iData_Size) { 
+		m_pData=pData; m_iData_Size=iData_Size; }
 		void ParseResponse(Message *pMessage) {
-			*m_pData=pMessage->m_mapData_Parameters[19]; *m_iData_Size=pMessage->m_mapData_Lengths[19]; *m_sFormat=pMessage->m_mapParameters[20]; };
+			*m_pData=pMessage->m_mapData_Parameters[19]; *m_iData_Size=pMessage->m_mapData_Lengths[19]; };
 	};
 	class CMD_Get_Video_Frame : public PreformedCommand {
 	public:
-		CMD_Get_Video_Frame(long DeviceIDFrom, long DeviceIDTo,string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,84,6,23,sDisable_Aspect_Lock.c_str(),41,StringUtils::itos(iStreamID).c_str(),60,StringUtils::itos(iWidth).c_str(),61,StringUtils::itos(iHeight).c_str(),-19,*pData,*iData_Size,20,(*sFormat).c_str());		m_pcResponse = new RESP_Get_Video_Frame(pData,iData_Size,sFormat); }
+		CMD_Get_Video_Frame(long DeviceIDFrom, long DeviceIDTo,int iCameraID,char **pData,int *iData_Size) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,84,2,41,StringUtils::itos(iCameraID).c_str(),-19,*pData,*iData_Size);		m_pcResponse = new RESP_Get_Video_Frame(pData,iData_Size); }
 	};
 	class CMD_Get_Video_Frame_DL : public PreformedCommand {
 	public:
-		CMD_Get_Video_Frame_DL(long DeviceIDFrom, string DeviceIDTo,string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,84,6,23,sDisable_Aspect_Lock.c_str(),41,StringUtils::itos(iStreamID).c_str(),60,StringUtils::itos(iWidth).c_str(),61,StringUtils::itos(iHeight).c_str(),-19,*pData,*iData_Size,20,(*sFormat).c_str());		m_pcResponse = new RESP_Get_Video_Frame(pData,iData_Size,sFormat); }
+		CMD_Get_Video_Frame_DL(long DeviceIDFrom, string DeviceIDTo,int iCameraID,char **pData,int *iData_Size) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,84,2,41,StringUtils::itos(iCameraID).c_str(),-19,*pData,*iData_Size);		m_pcResponse = new RESP_Get_Video_Frame(pData,iData_Size); }
 	};
 	class CMD_Get_Video_Frame_DT : public PreformedCommand {
 	public:
-		CMD_Get_Video_Frame_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,84,6,23,sDisable_Aspect_Lock.c_str(),41,StringUtils::itos(iStreamID).c_str(),60,StringUtils::itos(iWidth).c_str(),61,StringUtils::itos(iHeight).c_str(),-19,*pData,*iData_Size,20,(*sFormat).c_str());		m_pcResponse = new RESP_Get_Video_Frame(pData,iData_Size,sFormat); }
+		CMD_Get_Video_Frame_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iCameraID,char **pData,int *iData_Size) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,84,2,41,StringUtils::itos(iCameraID).c_str(),-19,*pData,*iData_Size);		m_pcResponse = new RESP_Get_Video_Frame(pData,iData_Size); }
 	};
 	class CMD_Get_Video_Frame_Cat : public PreformedCommand {
 	public:
-		CMD_Get_Video_Frame_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,84,6,23,sDisable_Aspect_Lock.c_str(),41,StringUtils::itos(iStreamID).c_str(),60,StringUtils::itos(iWidth).c_str(),61,StringUtils::itos(iHeight).c_str(),-19,*pData,*iData_Size,20,(*sFormat).c_str());		m_pcResponse = new RESP_Get_Video_Frame(pData,iData_Size,sFormat); }
+		CMD_Get_Video_Frame_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iCameraID,char **pData,int *iData_Size) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,84,2,41,StringUtils::itos(iCameraID).c_str(),-19,*pData,*iData_Size);		m_pcResponse = new RESP_Get_Video_Frame(pData,iData_Size); }
 	};
 	class CMD_NOREP_Get_Video_Frame : public PreformedCommand {
 	public:
-		CMD_NOREP_Get_Video_Frame(long DeviceIDFrom, long DeviceIDTo,string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,84,4,23,sDisable_Aspect_Lock.c_str(),41,StringUtils::itos(iStreamID).c_str(),60,StringUtils::itos(iWidth).c_str(),61,StringUtils::itos(iHeight).c_str()); }
+		CMD_NOREP_Get_Video_Frame(long DeviceIDFrom, long DeviceIDTo,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,84,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_NOREP_Get_Video_Frame_DL : public PreformedCommand {
 	public:
-		CMD_NOREP_Get_Video_Frame_DL(long DeviceIDFrom, string DeviceIDTo,string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,84,4,23,sDisable_Aspect_Lock.c_str(),41,StringUtils::itos(iStreamID).c_str(),60,StringUtils::itos(iWidth).c_str(),61,StringUtils::itos(iHeight).c_str()); }
+		CMD_NOREP_Get_Video_Frame_DL(long DeviceIDFrom, string DeviceIDTo,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,84,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_NOREP_Get_Video_Frame_DT : public PreformedCommand {
 	public:
-		CMD_NOREP_Get_Video_Frame_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,84,4,23,sDisable_Aspect_Lock.c_str(),41,StringUtils::itos(iStreamID).c_str(),60,StringUtils::itos(iWidth).c_str(),61,StringUtils::itos(iHeight).c_str()); }
+		CMD_NOREP_Get_Video_Frame_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,84,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_NOREP_Get_Video_Frame_Cat : public PreformedCommand {
 	public:
-		CMD_NOREP_Get_Video_Frame_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,84,4,23,sDisable_Aspect_Lock.c_str(),41,StringUtils::itos(iStreamID).c_str(),60,StringUtils::itos(iWidth).c_str(),61,StringUtils::itos(iHeight).c_str()); }
+		CMD_NOREP_Get_Video_Frame_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,84,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Reset_Highlight : public PreformedCommand {
 	public:
@@ -1543,19 +1543,19 @@ namespace DCE
 	};
 	class CMD_Goto_Media_Menu : public PreformedCommand {
 	public:
-		CMD_Goto_Media_Menu(long DeviceIDFrom, long DeviceIDTo,int iStreamID,int iMenuType) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,87,2,41,StringUtils::itos(iStreamID).c_str(),64,StringUtils::itos(iMenuType).c_str()); }
+		CMD_Goto_Media_Menu(long DeviceIDFrom, long DeviceIDTo,int iCameraID,int iMenuType) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,87,2,41,StringUtils::itos(iCameraID).c_str(),64,StringUtils::itos(iMenuType).c_str()); }
 	};
 	class CMD_Goto_Media_Menu_DL : public PreformedCommand {
 	public:
-		CMD_Goto_Media_Menu_DL(long DeviceIDFrom, string DeviceIDTo,int iStreamID,int iMenuType) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,87,2,41,StringUtils::itos(iStreamID).c_str(),64,StringUtils::itos(iMenuType).c_str()); }
+		CMD_Goto_Media_Menu_DL(long DeviceIDFrom, string DeviceIDTo,int iCameraID,int iMenuType) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,87,2,41,StringUtils::itos(iCameraID).c_str(),64,StringUtils::itos(iMenuType).c_str()); }
 	};
 	class CMD_Goto_Media_Menu_DT : public PreformedCommand {
 	public:
-		CMD_Goto_Media_Menu_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iStreamID,int iMenuType) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,87,2,41,StringUtils::itos(iStreamID).c_str(),64,StringUtils::itos(iMenuType).c_str()); }
+		CMD_Goto_Media_Menu_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iCameraID,int iMenuType) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,87,2,41,StringUtils::itos(iCameraID).c_str(),64,StringUtils::itos(iMenuType).c_str()); }
 	};
 	class CMD_Goto_Media_Menu_Cat : public PreformedCommand {
 	public:
-		CMD_Goto_Media_Menu_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iStreamID,int iMenuType) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,87,2,41,StringUtils::itos(iStreamID).c_str(),64,StringUtils::itos(iMenuType).c_str()); }
+		CMD_Goto_Media_Menu_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iCameraID,int iMenuType) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,87,2,41,StringUtils::itos(iCameraID).c_str(),64,StringUtils::itos(iMenuType).c_str()); }
 	};
 	class CMD_Set_Current_Location : public PreformedCommand {
 	public:
@@ -4087,19 +4087,19 @@ namespace DCE
 	};
 	class CMD_MH_Move_Media : public PreformedCommand {
 	public:
-		CMD_MH_Move_Media(long DeviceIDFrom, long DeviceIDTo,int iStreamID,string sPK_EntertainArea) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,241,2,41,StringUtils::itos(iStreamID).c_str(),45,sPK_EntertainArea.c_str()); }
+		CMD_MH_Move_Media(long DeviceIDFrom, long DeviceIDTo,int iCameraID,string sPK_EntertainArea) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,241,2,41,StringUtils::itos(iCameraID).c_str(),45,sPK_EntertainArea.c_str()); }
 	};
 	class CMD_MH_Move_Media_DL : public PreformedCommand {
 	public:
-		CMD_MH_Move_Media_DL(long DeviceIDFrom, string DeviceIDTo,int iStreamID,string sPK_EntertainArea) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,241,2,41,StringUtils::itos(iStreamID).c_str(),45,sPK_EntertainArea.c_str()); }
+		CMD_MH_Move_Media_DL(long DeviceIDFrom, string DeviceIDTo,int iCameraID,string sPK_EntertainArea) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,241,2,41,StringUtils::itos(iCameraID).c_str(),45,sPK_EntertainArea.c_str()); }
 	};
 	class CMD_MH_Move_Media_DT : public PreformedCommand {
 	public:
-		CMD_MH_Move_Media_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iStreamID,string sPK_EntertainArea) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,241,2,41,StringUtils::itos(iStreamID).c_str(),45,sPK_EntertainArea.c_str()); }
+		CMD_MH_Move_Media_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iCameraID,string sPK_EntertainArea) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,241,2,41,StringUtils::itos(iCameraID).c_str(),45,sPK_EntertainArea.c_str()); }
 	};
 	class CMD_MH_Move_Media_Cat : public PreformedCommand {
 	public:
-		CMD_MH_Move_Media_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iStreamID,string sPK_EntertainArea) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,241,2,41,StringUtils::itos(iStreamID).c_str(),45,sPK_EntertainArea.c_str()); }
+		CMD_MH_Move_Media_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iCameraID,string sPK_EntertainArea) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,241,2,41,StringUtils::itos(iCameraID).c_str(),45,sPK_EntertainArea.c_str()); }
 	};
 	class CMD_Set_Now_Playing : public PreformedCommand {
 	public:
@@ -4127,35 +4127,35 @@ namespace DCE
 	};
 	class CMD_Enable_Broadcasting : public PreformedCommand {
 	public:
-		CMD_Enable_Broadcasting(long DeviceIDFrom, long DeviceIDTo,int iStreamID,string *sMediaURL) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,243,2,41,StringUtils::itos(iStreamID).c_str(),59,(*sMediaURL).c_str());		m_pcResponse = new RESP_Enable_Broadcasting(sMediaURL); }
+		CMD_Enable_Broadcasting(long DeviceIDFrom, long DeviceIDTo,int iCameraID,string *sMediaURL) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,243,2,41,StringUtils::itos(iCameraID).c_str(),59,(*sMediaURL).c_str());		m_pcResponse = new RESP_Enable_Broadcasting(sMediaURL); }
 	};
 	class CMD_Enable_Broadcasting_DL : public PreformedCommand {
 	public:
-		CMD_Enable_Broadcasting_DL(long DeviceIDFrom, string DeviceIDTo,int iStreamID,string *sMediaURL) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,243,2,41,StringUtils::itos(iStreamID).c_str(),59,(*sMediaURL).c_str());		m_pcResponse = new RESP_Enable_Broadcasting(sMediaURL); }
+		CMD_Enable_Broadcasting_DL(long DeviceIDFrom, string DeviceIDTo,int iCameraID,string *sMediaURL) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,243,2,41,StringUtils::itos(iCameraID).c_str(),59,(*sMediaURL).c_str());		m_pcResponse = new RESP_Enable_Broadcasting(sMediaURL); }
 	};
 	class CMD_Enable_Broadcasting_DT : public PreformedCommand {
 	public:
-		CMD_Enable_Broadcasting_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iStreamID,string *sMediaURL) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,243,2,41,StringUtils::itos(iStreamID).c_str(),59,(*sMediaURL).c_str());		m_pcResponse = new RESP_Enable_Broadcasting(sMediaURL); }
+		CMD_Enable_Broadcasting_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iCameraID,string *sMediaURL) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,243,2,41,StringUtils::itos(iCameraID).c_str(),59,(*sMediaURL).c_str());		m_pcResponse = new RESP_Enable_Broadcasting(sMediaURL); }
 	};
 	class CMD_Enable_Broadcasting_Cat : public PreformedCommand {
 	public:
-		CMD_Enable_Broadcasting_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iStreamID,string *sMediaURL) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,243,2,41,StringUtils::itos(iStreamID).c_str(),59,(*sMediaURL).c_str());		m_pcResponse = new RESP_Enable_Broadcasting(sMediaURL); }
+		CMD_Enable_Broadcasting_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iCameraID,string *sMediaURL) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,243,2,41,StringUtils::itos(iCameraID).c_str(),59,(*sMediaURL).c_str());		m_pcResponse = new RESP_Enable_Broadcasting(sMediaURL); }
 	};
 	class CMD_NOREP_Enable_Broadcasting : public PreformedCommand {
 	public:
-		CMD_NOREP_Enable_Broadcasting(long DeviceIDFrom, long DeviceIDTo,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,243,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_NOREP_Enable_Broadcasting(long DeviceIDFrom, long DeviceIDTo,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,243,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_NOREP_Enable_Broadcasting_DL : public PreformedCommand {
 	public:
-		CMD_NOREP_Enable_Broadcasting_DL(long DeviceIDFrom, string DeviceIDTo,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,243,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_NOREP_Enable_Broadcasting_DL(long DeviceIDFrom, string DeviceIDTo,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,243,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_NOREP_Enable_Broadcasting_DT : public PreformedCommand {
 	public:
-		CMD_NOREP_Enable_Broadcasting_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,243,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_NOREP_Enable_Broadcasting_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,243,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_NOREP_Enable_Broadcasting_Cat : public PreformedCommand {
 	public:
-		CMD_NOREP_Enable_Broadcasting_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,243,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_NOREP_Enable_Broadcasting_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,243,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Output_Select : public PreformedCommand {
 	public:
@@ -4247,35 +4247,35 @@ namespace DCE
 	};
 	class CMD_Start_Streaming : public PreformedCommand {
 	public:
-		CMD_Start_Streaming(long DeviceIDFrom, long DeviceIDTo,int iStreamID,string sStreamingTargets,string *sMediaURL) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,249,3,41,StringUtils::itos(iStreamID).c_str(),105,sStreamingTargets.c_str(),59,(*sMediaURL).c_str());		m_pcResponse = new RESP_Start_Streaming(sMediaURL); }
+		CMD_Start_Streaming(long DeviceIDFrom, long DeviceIDTo,int iCameraID,string sStreamingTargets,string *sMediaURL) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,249,3,41,StringUtils::itos(iCameraID).c_str(),105,sStreamingTargets.c_str(),59,(*sMediaURL).c_str());		m_pcResponse = new RESP_Start_Streaming(sMediaURL); }
 	};
 	class CMD_Start_Streaming_DL : public PreformedCommand {
 	public:
-		CMD_Start_Streaming_DL(long DeviceIDFrom, string DeviceIDTo,int iStreamID,string sStreamingTargets,string *sMediaURL) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,249,3,41,StringUtils::itos(iStreamID).c_str(),105,sStreamingTargets.c_str(),59,(*sMediaURL).c_str());		m_pcResponse = new RESP_Start_Streaming(sMediaURL); }
+		CMD_Start_Streaming_DL(long DeviceIDFrom, string DeviceIDTo,int iCameraID,string sStreamingTargets,string *sMediaURL) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,249,3,41,StringUtils::itos(iCameraID).c_str(),105,sStreamingTargets.c_str(),59,(*sMediaURL).c_str());		m_pcResponse = new RESP_Start_Streaming(sMediaURL); }
 	};
 	class CMD_Start_Streaming_DT : public PreformedCommand {
 	public:
-		CMD_Start_Streaming_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iStreamID,string sStreamingTargets,string *sMediaURL) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,249,3,41,StringUtils::itos(iStreamID).c_str(),105,sStreamingTargets.c_str(),59,(*sMediaURL).c_str());		m_pcResponse = new RESP_Start_Streaming(sMediaURL); }
+		CMD_Start_Streaming_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iCameraID,string sStreamingTargets,string *sMediaURL) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,249,3,41,StringUtils::itos(iCameraID).c_str(),105,sStreamingTargets.c_str(),59,(*sMediaURL).c_str());		m_pcResponse = new RESP_Start_Streaming(sMediaURL); }
 	};
 	class CMD_Start_Streaming_Cat : public PreformedCommand {
 	public:
-		CMD_Start_Streaming_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iStreamID,string sStreamingTargets,string *sMediaURL) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,249,3,41,StringUtils::itos(iStreamID).c_str(),105,sStreamingTargets.c_str(),59,(*sMediaURL).c_str());		m_pcResponse = new RESP_Start_Streaming(sMediaURL); }
+		CMD_Start_Streaming_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iCameraID,string sStreamingTargets,string *sMediaURL) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,249,3,41,StringUtils::itos(iCameraID).c_str(),105,sStreamingTargets.c_str(),59,(*sMediaURL).c_str());		m_pcResponse = new RESP_Start_Streaming(sMediaURL); }
 	};
 	class CMD_NOREP_Start_Streaming : public PreformedCommand {
 	public:
-		CMD_NOREP_Start_Streaming(long DeviceIDFrom, long DeviceIDTo,int iStreamID,string sStreamingTargets) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,249,2,41,StringUtils::itos(iStreamID).c_str(),105,sStreamingTargets.c_str()); }
+		CMD_NOREP_Start_Streaming(long DeviceIDFrom, long DeviceIDTo,int iCameraID,string sStreamingTargets) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,249,2,41,StringUtils::itos(iCameraID).c_str(),105,sStreamingTargets.c_str()); }
 	};
 	class CMD_NOREP_Start_Streaming_DL : public PreformedCommand {
 	public:
-		CMD_NOREP_Start_Streaming_DL(long DeviceIDFrom, string DeviceIDTo,int iStreamID,string sStreamingTargets) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,249,2,41,StringUtils::itos(iStreamID).c_str(),105,sStreamingTargets.c_str()); }
+		CMD_NOREP_Start_Streaming_DL(long DeviceIDFrom, string DeviceIDTo,int iCameraID,string sStreamingTargets) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,249,2,41,StringUtils::itos(iCameraID).c_str(),105,sStreamingTargets.c_str()); }
 	};
 	class CMD_NOREP_Start_Streaming_DT : public PreformedCommand {
 	public:
-		CMD_NOREP_Start_Streaming_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iStreamID,string sStreamingTargets) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,249,2,41,StringUtils::itos(iStreamID).c_str(),105,sStreamingTargets.c_str()); }
+		CMD_NOREP_Start_Streaming_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iCameraID,string sStreamingTargets) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,249,2,41,StringUtils::itos(iCameraID).c_str(),105,sStreamingTargets.c_str()); }
 	};
 	class CMD_NOREP_Start_Streaming_Cat : public PreformedCommand {
 	public:
-		CMD_NOREP_Start_Streaming_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iStreamID,string sStreamingTargets) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,249,2,41,StringUtils::itos(iStreamID).c_str(),105,sStreamingTargets.c_str()); }
+		CMD_NOREP_Start_Streaming_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iCameraID,string sStreamingTargets) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,249,2,41,StringUtils::itos(iCameraID).c_str(),105,sStreamingTargets.c_str()); }
 	};
 	class CMD_Store_Infrared_Code : public PreformedCommand {
 	public:
@@ -4463,35 +4463,35 @@ namespace DCE
 	};
 	class CMD_Report_Playback_Position : public PreformedCommand {
 	public:
-		CMD_Report_Playback_Position(long DeviceIDFrom, long DeviceIDTo,int iStreamID,string *sOptions,int *iMediaPosition,int *iMedia_Length) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,259,4,41,StringUtils::itos(iStreamID).c_str(),39,(*sOptions).c_str(),42,StringUtils::itos(*iMediaPosition).c_str(),106,StringUtils::itos(*iMedia_Length).c_str());		m_pcResponse = new RESP_Report_Playback_Position(sOptions,iMediaPosition,iMedia_Length); }
+		CMD_Report_Playback_Position(long DeviceIDFrom, long DeviceIDTo,int iCameraID,string *sOptions,int *iMediaPosition,int *iMedia_Length) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,259,4,41,StringUtils::itos(iCameraID).c_str(),39,(*sOptions).c_str(),42,StringUtils::itos(*iMediaPosition).c_str(),106,StringUtils::itos(*iMedia_Length).c_str());		m_pcResponse = new RESP_Report_Playback_Position(sOptions,iMediaPosition,iMedia_Length); }
 	};
 	class CMD_Report_Playback_Position_DL : public PreformedCommand {
 	public:
-		CMD_Report_Playback_Position_DL(long DeviceIDFrom, string DeviceIDTo,int iStreamID,string *sOptions,int *iMediaPosition,int *iMedia_Length) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,259,4,41,StringUtils::itos(iStreamID).c_str(),39,(*sOptions).c_str(),42,StringUtils::itos(*iMediaPosition).c_str(),106,StringUtils::itos(*iMedia_Length).c_str());		m_pcResponse = new RESP_Report_Playback_Position(sOptions,iMediaPosition,iMedia_Length); }
+		CMD_Report_Playback_Position_DL(long DeviceIDFrom, string DeviceIDTo,int iCameraID,string *sOptions,int *iMediaPosition,int *iMedia_Length) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,259,4,41,StringUtils::itos(iCameraID).c_str(),39,(*sOptions).c_str(),42,StringUtils::itos(*iMediaPosition).c_str(),106,StringUtils::itos(*iMedia_Length).c_str());		m_pcResponse = new RESP_Report_Playback_Position(sOptions,iMediaPosition,iMedia_Length); }
 	};
 	class CMD_Report_Playback_Position_DT : public PreformedCommand {
 	public:
-		CMD_Report_Playback_Position_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iStreamID,string *sOptions,int *iMediaPosition,int *iMedia_Length) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,259,4,41,StringUtils::itos(iStreamID).c_str(),39,(*sOptions).c_str(),42,StringUtils::itos(*iMediaPosition).c_str(),106,StringUtils::itos(*iMedia_Length).c_str());		m_pcResponse = new RESP_Report_Playback_Position(sOptions,iMediaPosition,iMedia_Length); }
+		CMD_Report_Playback_Position_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iCameraID,string *sOptions,int *iMediaPosition,int *iMedia_Length) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,259,4,41,StringUtils::itos(iCameraID).c_str(),39,(*sOptions).c_str(),42,StringUtils::itos(*iMediaPosition).c_str(),106,StringUtils::itos(*iMedia_Length).c_str());		m_pcResponse = new RESP_Report_Playback_Position(sOptions,iMediaPosition,iMedia_Length); }
 	};
 	class CMD_Report_Playback_Position_Cat : public PreformedCommand {
 	public:
-		CMD_Report_Playback_Position_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iStreamID,string *sOptions,int *iMediaPosition,int *iMedia_Length) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,259,4,41,StringUtils::itos(iStreamID).c_str(),39,(*sOptions).c_str(),42,StringUtils::itos(*iMediaPosition).c_str(),106,StringUtils::itos(*iMedia_Length).c_str());		m_pcResponse = new RESP_Report_Playback_Position(sOptions,iMediaPosition,iMedia_Length); }
+		CMD_Report_Playback_Position_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iCameraID,string *sOptions,int *iMediaPosition,int *iMedia_Length) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,259,4,41,StringUtils::itos(iCameraID).c_str(),39,(*sOptions).c_str(),42,StringUtils::itos(*iMediaPosition).c_str(),106,StringUtils::itos(*iMedia_Length).c_str());		m_pcResponse = new RESP_Report_Playback_Position(sOptions,iMediaPosition,iMedia_Length); }
 	};
 	class CMD_NOREP_Report_Playback_Position : public PreformedCommand {
 	public:
-		CMD_NOREP_Report_Playback_Position(long DeviceIDFrom, long DeviceIDTo,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,259,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_NOREP_Report_Playback_Position(long DeviceIDFrom, long DeviceIDTo,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,259,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_NOREP_Report_Playback_Position_DL : public PreformedCommand {
 	public:
-		CMD_NOREP_Report_Playback_Position_DL(long DeviceIDFrom, string DeviceIDTo,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,259,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_NOREP_Report_Playback_Position_DL(long DeviceIDFrom, string DeviceIDTo,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,259,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_NOREP_Report_Playback_Position_DT : public PreformedCommand {
 	public:
-		CMD_NOREP_Report_Playback_Position_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,259,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_NOREP_Report_Playback_Position_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,259,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_NOREP_Report_Playback_Position_Cat : public PreformedCommand {
 	public:
-		CMD_NOREP_Report_Playback_Position_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,259,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_NOREP_Report_Playback_Position_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,259,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Set_Main_Menu : public PreformedCommand {
 	public:
@@ -4527,19 +4527,19 @@ namespace DCE
 	};
 	class CMD_Stop_Streaming : public PreformedCommand {
 	public:
-		CMD_Stop_Streaming(long DeviceIDFrom, long DeviceIDTo,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,262,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_Stop_Streaming(long DeviceIDFrom, long DeviceIDTo,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,262,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Stop_Streaming_DL : public PreformedCommand {
 	public:
-		CMD_Stop_Streaming_DL(long DeviceIDFrom, string DeviceIDTo,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,262,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_Stop_Streaming_DL(long DeviceIDFrom, string DeviceIDTo,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,262,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Stop_Streaming_DT : public PreformedCommand {
 	public:
-		CMD_Stop_Streaming_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,262,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_Stop_Streaming_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,262,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Stop_Streaming_Cat : public PreformedCommand {
 	public:
-		CMD_Stop_Streaming_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iStreamID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,262,1,41,StringUtils::itos(iStreamID).c_str()); }
+		CMD_Stop_Streaming_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,262,1,41,StringUtils::itos(iCameraID).c_str()); }
 	};
 	class CMD_Toggle_Event_Handler : public PreformedCommand {
 	public:
