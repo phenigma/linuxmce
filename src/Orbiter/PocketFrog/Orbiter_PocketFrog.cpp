@@ -29,6 +29,8 @@ const int ciSpaceHeight = 5;
 #define RED_MASK_16		(0x1F << 11)
 #define GREEN_MASK_16	(0x3F << 5)
 #define BLUE_MASK_16	0x1F
+
+#define MAX_STRING_LEN 1024
 //-----------------------------------------------------------------------------------------------------
 using namespace Frog;
 CComModule _Module;
@@ -547,6 +549,7 @@ clock_t ccc=clock();
 /*virtual*/ void Orbiter_PocketFrog::RenderText(class DesignObjText *Text,class TextStyle *pTextStyle)
 {
 	string TextToDisplay = SubstituteVariables(Text->m_sText, NULL, 0, 0).c_str();
+	TextToDisplay = StringUtils::Replace(TextToDisplay, "\n", "\n\r");
 
 	//temp
 #ifdef WINCE
@@ -598,18 +601,85 @@ clock_t ccc=clock();
 
 
 #else //winxp/2000
-/*
+
 	HDC hdc = GetDisplay()->GetBackBuffer()->GetDC(false);
 	
-	SetBkMode(hdc,TRANSPARENT);// for drawtext
+	LOGFONT lf;
+	HFONT hFontNew, hFontOld;
 
-	TextToDisplay = "baaau bau";
-	RECT rect = {100, 100, 200, 200};
-	::DrawText(hdc, TextToDisplay.c_str(), TextToDisplay.length(), &rect, 
-		DT_WORDBREAK | DT_NOPREFIX); 
+//	wchar_t wTextBuffer[MAX_STRING_LEN];
+//	mbstowcs(wTextBuffer, TextToDisplay.c_str(), MAX_STRING_LEN);
+
+	//SDL_Color color;
+	//color.r = pTextStyle->m_ForeColor.R();
+	//color.g = pTextStyle->m_ForeColor.G();
+	//color.b = pTextStyle->m_ForeColor.B();
+
+	// Clear out the lf structure to use when creating the font.
+	memset(&lf, 0, sizeof(LOGFONT));
+
+	lf.lfHeight		= pTextStyle->m_iPixelHeight;
+	lf.lfQuality	= DRAFT_QUALITY;
+	lf.lfWeight		= pTextStyle->m_bBold ? FW_EXTRABOLD : FW_NORMAL;
+	lf.lfItalic		= pTextStyle->m_bItalic;
+	lf.lfUnderline	= pTextStyle->m_bUnderline;
+
+	//wchar_t wFontName[MAX_STRING_LEN];
+	//mbstowcs(wFontName, pTextStyle->m_sFont.c_str(), MAX_STRING_LEN);
+	//lstrcpy(lf.lfFaceName, wFontName);   
+	strcpy(lf.lfFaceName, pTextStyle->m_sFont.c_str());
+
+	hFontNew = ::CreateFontIndirect(&lf);
+	hFontOld = (HFONT) ::SelectObject(hdc, hFontNew);
+	
+	RECT rectLocation;
+	rectLocation.left   = Text->m_rPosition.X;
+	rectLocation.top    = Text->m_rPosition.Y;
+	rectLocation.right  = Text->m_rPosition.X + Text->m_rPosition.Width;
+	rectLocation.bottom = Text->m_rPosition.Y + Text->m_rPosition.Height;
+
+	int iOldHeight = rectLocation.bottom - rectLocation.top;
+
+	RECT rectOld = 
+	{
+		rectLocation.left,
+		rectLocation.top,
+		rectLocation.right,
+		rectLocation.bottom
+	};
+
+	//calculate rect first
+	::DrawText(hdc, TextToDisplay.c_str(), int(TextToDisplay.length()), &rectLocation, 
+		DT_WORDBREAK | DT_NOPREFIX | DT_CALCRECT); 
+
+	int iRealHeight = rectLocation.bottom - rectLocation.top;
+
+	rectLocation.top    = rectOld.top + (iOldHeight - iRealHeight) / 2;
+	rectLocation.bottom = rectOld.bottom;
+	rectLocation.left   = rectOld.left;
+	rectLocation.right  = rectOld.right;
+
+	::SetTextColor(hdc, RGB(pTextStyle->m_ForeColor.R(), pTextStyle->m_ForeColor.G(), pTextStyle->m_ForeColor.B()));
+	::SetBkMode(hdc, TRANSPARENT);
+
+	switch (pTextStyle->m_iPK_HorizAlignment)
+	{
+		case HORIZALIGNMENT_Center_CONST: 
+			::DrawText(hdc, TextToDisplay.c_str(), int(TextToDisplay.length()), &rectLocation, 
+				DT_WORDBREAK | DT_CENTER | DT_NOPREFIX); 
+		break;
+		
+		case HORIZALIGNMENT_Left_CONST: 
+			::DrawText(hdc, TextToDisplay.c_str(), int(TextToDisplay.length()), &rectLocation, 
+				DT_WORDBREAK | DT_NOPREFIX); 
+		break;
+	}
+
+	::SelectObject(hdc, hFontOld);
+	::DeleteObject(hFontNew);
 
 	GetDisplay()->GetBackBuffer()->ReleaseDC(hdc);
-*/
+
 #endif
 }
 //-----------------------------------------------------------------------------------------------------
