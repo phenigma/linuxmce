@@ -1680,7 +1680,7 @@ function wizard($output,$dbADO) {
 						{
 							$out .= '
 							<tr class="normaltext">
-								<td valign="top" colspan="2">Here are your options for installing the software on this computer: <a href="#" onClick="javascript:windowOpen(\'checkDependancies.php?device='.$rowMediaDirectors['PK_Device'].'\',\'width=1024,height=768,toolbars=true,scrollbars=1\');">List of all the software this device will need.</a></td>
+								<td valign="top" colspan="2">Here are your options for installing the software on this computer: <a href="#" onClick="javascript:windowOpen(\'checkDependancies.php?device='.$rowOrbiters['PK_Device'].'\',\'width=1024,height=768,toolbars=true,scrollbars=1\');">List of all the software this device will need.</a></td>
 							</tr>
 							<tr class="normaltext">
 								<td valign="top" colspan="2"><table width="75%" align="center">
