@@ -55,7 +55,7 @@ for Device in $R; do
 		PhoneNumber="$(Field 1 "$D")";
 
 		Q="insert into sip_buddies (name, accountcode, callerid, canreinvite, context, host, disallow, type) values ('${PhoneNumber}', '${PhoneNumber}', 'device${PhoneNumber} <${PhoneNumber}>', 'N', 'trusted', 'dynamic', 'h263', 'friend');"
-		echo "$Q;" | mysql asterisk   
+		echo "$Q;" | mysql -N asterisk -h $MySqlHost -u $MySqlUser $Pass  
 	fi
 done
 							
@@ -63,7 +63,18 @@ done
 #echo "$PhoneCategories"
 
 #reboot asterisk
-asterisk -rx "restart gracefully" || true
+#asterisk -rx "restart gracefully" || true
+
+echo "Action: Login
+Username: admin
+Secret: adminsecret
+
+
+Action: Command
+Command: restart gracefully
+
+
+" | tr '\n' '.' | sed 's/\./\r\n/g' | nc -t localhost 5038 > /dev/null || true
 
 echo "End of Syncronization."
 
