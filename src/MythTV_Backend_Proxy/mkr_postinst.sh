@@ -14,6 +14,9 @@ function addEntries
 	fi;
 }
 
+# Force the backend to actually create the database on startup
+/etc/init.d/mythtv-backend force-reload
+
 isSetup=`echo "$query" | $mysql_command`;
 
 if [ "$isSetup" != 0  ]; then
