@@ -16,7 +16,7 @@
 
 #ifndef SYMBIAN
 #include "PlutoUtils/CommonIncludes.h"	
-#include "PlutoUtils/ShapesColors.h"
+#include "SerializeClass/ShapesColors.h"
 #endif
 
 #include "SerializeClass/SerializeClass.h"

@@ -20,7 +20,7 @@
 #include "PlutoUtils/MultiThreadIncludes.h"
 #include "DCE/Logger.h"
 #include "OrbiterSDLBluetooth.h"
-#include "PlutoUtils/ShapesColors.h"
+#include "SerializeClass/ShapesColors.h"
 #include "BD/BDCommandProcessor.h"
 #include "VIPShared/BD_CP_ShowImage.h"
 #include "VIPShared/BD_CP_ShowList.h"

@@ -9,7 +9,7 @@
 #include "PlutoUtils/Other.h"
 #include "PlutoUtils/Other.h"
 #include "OrbiterGen.h"
-#include "PlutoUtils/ShapesColors.h"
+#include "SerializeClass/ShapesColors.h"
 
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_Text_LS.h"

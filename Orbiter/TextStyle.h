@@ -2,7 +2,7 @@
 #define TextStyle_h
 
 #include "SerializeClass/SerializeClass.h"
-#include "PlutoUtils/ShapesColors.h"
+#include "SerializeClass/ShapesColors.h"
 
 // Encapsulate a text style
 class TextStyle : public SerializeClass

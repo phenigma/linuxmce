@@ -19,7 +19,7 @@
 #include "PlutoUtils/MultiThreadIncludes.h"
 #include "DCE/Logger.h"
 #include "OrbiterSDL.h"
-#include "PlutoUtils/ShapesColors.h"
+#include "SerializeClass/ShapesColors.h"
 
 #include "pluto_main/Define_DeviceCategory.h"
 #include "Gen_Devices/AllCommandsRequests.h"
