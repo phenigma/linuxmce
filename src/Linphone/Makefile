@@ -46,6 +46,7 @@ Linphone: $(sources:.cpp=.o)
 	LD_LIBRARY_PATH=/usr/pluto/lib $(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	cp Linphone ../bin
+	cp Linphone_Wrapper.sh ../bin
 	./post_make.sh $@
 
 clean: clean-recursive
