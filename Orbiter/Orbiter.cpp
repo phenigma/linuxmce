@@ -3498,18 +3498,18 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
             Output += StringUtils::itos( Y );
         else if(  Variable=="XS"  )
         {
-            if(pObj->m_vectGraphic.size() && pObj->m_vectGraphic[pObj->m_iFrame_Background]->Width > 0)
+            if(pObj->m_vectGraphic.size() && pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Width > 0)
             {
                 int ClickX = X - pObj->m_rPosition.X;
-                Output+=StringUtils::itos( pObj->m_vectGraphic[pObj->m_iFrame_Background]->Width * ClickX / pObj->m_rPosition.Width );
+                Output+=StringUtils::itos( pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Width * ClickX / pObj->m_rPosition.Width );
             }
         }
         else if(  Variable=="YS"  )
         {
-            if(pObj->m_vectGraphic.size() && pObj->m_vectGraphic[pObj->m_iFrame_Background]->Height > 0)
+            if(pObj->m_vectGraphic.size() && pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Height > 0)
             {
                 int ClickY = Y - pObj->m_rPosition.Y;
-                Output += StringUtils::itos( pObj->m_vectGraphic[pObj->m_iFrame_Background]->Height * ClickY / pObj->m_rPosition.Height );
+                Output += StringUtils::itos( pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Height * ClickY / pObj->m_rPosition.Height );
             }
         }
         else if(  Variable=="S"  )
@@ -4581,8 +4581,8 @@ void Orbiter::CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pD
             pObj->m_pvectCurrentGraphic = NULL;
         if ( pObj->m_vectGraphic.size() )
         {
-            PriorWidth = pObj->m_vectGraphic[pObj->m_iFrame_Background]->Width;
-            PriorHeight = pObj->m_vectGraphic[pObj->m_iFrame_Background]->Height;
+            PriorWidth = pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Width;
+            PriorHeight = pObj->m_vectGraphic[pObj->m_iCurrentFrame]->Height;
         }
 
 		for(int i = 0; i < pObj->m_vectGraphic.size(); i++)
@@ -4590,7 +4590,7 @@ void Orbiter::CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pD
 			delete pObj->m_vectGraphic[i];
 		}
 		pObj->m_vectGraphic.clear();
-		pObj->m_iFrame_Background = 0;
+		pObj->m_iCurrentFrame = 0;
 
         if(  iData_Size==0  )
         {
@@ -5280,15 +5280,11 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 	if(pVectorPlutoGraphic->size() == 0) //we have nothing to render
 		return;
 
-	int iCurrentFrame = 0;
-	switch(pObj->m_GraphicToDisplay)
-	{
-		case GRAPHIC_HIGHLIGHTED: iCurrentFrame = pObj->m_iFrame_Highlighted; break;
-		case GRAPHIC_SELECTED: iCurrentFrame = pObj->m_iFrame_Selected; break;
-		case GRAPHIC_NORMAL: iCurrentFrame = pObj->m_iFrame_Background; break;
-		//todo alternate graphics ?
-	}
+	int iCurrentFrame = pObj->m_iCurrentFrame;
 
+	if(pVectorPlutoGraphic->size() <= iCurrentFrame)
+		return;
+	
 	PlutoGraphic *pPlutoGraphic = (*pVectorPlutoGraphic)[iCurrentFrame];
 
 	bIsMNG = pPlutoGraphic->m_GraphicFormat == GR_MNG;
@@ -5359,20 +5355,19 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 						case GRAPHIC_HIGHLIGHTED:	
 							pObj->m_iTime_Highlighted = iTime;	
 							pObj->m_bLoop_Highlighted = bLoop;
-							pObj->m_iFrame_Highlighted = 12;
 							break;
 						case GRAPHIC_SELECTED:		
 							pObj->m_iTime_Selected = iTime;		
 							pObj->m_bLoop_Selected = bLoop;	
-							pObj->m_iFrame_Selected = 1;
 							break;
 						case GRAPHIC_NORMAL:		
 							pObj->m_iTime_Background = iTime;	
 							pObj->m_bLoop_Background = bLoop;	
-							pObj->m_iFrame_Background = 1;
 							break;
 							//todo alternate graphics ?
 					}
+
+					pObj->m_iCurrentFrame = 1;
 
 					delete pInMemoryMNG;
 					pInMemoryMNG = NULL;
@@ -5436,24 +5431,9 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 	if(pVectorPlutoGraphic->size() == 0) //we have nothing to render
 		return;
 
-	int* piCurrentFrame = NULL;
 	int iFrameNum = pVectorPlutoGraphic->size();
-	switch(pObj->m_GraphicToPlay)
-	{
-		case GRAPHIC_HIGHLIGHTED: 
-			piCurrentFrame = &(pObj->m_iFrame_Highlighted); 
-			break;
-		case GRAPHIC_SELECTED: 
-			piCurrentFrame = &(pObj->m_iFrame_Selected);
-			break;
-		case GRAPHIC_NORMAL: 
-			piCurrentFrame = &(pObj->m_iFrame_Background); 
-			break;
 
-			//todo alternate graphics ?
-	}
-
-	PlutoGraphic *pPlutoGraphic = (*pVectorPlutoGraphic)[*piCurrentFrame];
+	PlutoGraphic *pPlutoGraphic = (*pVectorPlutoGraphic)[pObj->m_iCurrentFrame];
 
 	if(!pPlutoGraphic->IsEmpty())
 	{
@@ -5462,13 +5442,13 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 		EndPaint();
 	}
 
-	(*piCurrentFrame)++;
+	pObj->m_iCurrentFrame++;
 	
 	const iDelay = 15; //temp
 
-	if(*piCurrentFrame >= iFrameNum) //this is the last one
+	if(pObj->m_iCurrentFrame >= iFrameNum) //this is the last one
 	{
-		*piCurrentFrame = 0;
+		pObj->m_iCurrentFrame = 0;
 
 		size_t size = (*pVectorPlutoGraphic).size();
 		for(int i = 0; i < size; i++)

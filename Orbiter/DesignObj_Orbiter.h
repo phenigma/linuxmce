@@ -118,8 +118,8 @@ public:
 	vector<int> m_ivectTime_Alt;
 	bool m_bLoop_Background,m_bLoop_Selected,m_bLoop_Highlighted;
 	vector<bool> m_bvectLoop_Alt;
-	int m_iFrame_Background,m_iFrame_Selected,m_iFrame_Highlighted;
-	vector<int> m_ivectFrame_Alt;
+	int m_iCurrentFrame;
+
 
 	class Orbiter_CriteriaList *m_pCriteria;
 	ProntoCCF *m_pCCF;

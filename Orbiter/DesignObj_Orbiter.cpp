@@ -84,9 +84,7 @@ DesignObj_Orbiter::DesignObj_Orbiter(Orbiter *pCore)
 	m_pGraphicToUndoSelect = NULL;
 	m_pvectCurrentPlayingGraphic = NULL;
 
-	m_iFrame_Background = 0;
-	m_iFrame_Selected = 0;
-	m_iFrame_Highlighted = 0;
+	m_iCurrentFrame = 0;
 
 	m_pCriteria=NULL;
 	m_GraphicToDisplay=GRAPHIC_NORMAL;
