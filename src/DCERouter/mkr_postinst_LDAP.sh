@@ -49,7 +49,7 @@ dn: uid=$UserName, ou=users, dc=plutohome, dc=org
 uid: $UserName
 sn: $UserName
 cn: $UserName
-userPassword: {MD5}$UserPassword
+userPassword: $UserName
 objectClass: top
 objectClass: person
 objectClass: organizationalPerson
