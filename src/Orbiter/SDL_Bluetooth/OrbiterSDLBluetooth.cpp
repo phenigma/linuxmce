@@ -260,6 +260,9 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
 		if(pObj->m_pDataGridTable->m_ColumnCount == 1)
 			bUsePhoneGrid = true;
 
+		if(pObj->m_sExtraInfo.find( 'F' ) != string::npos) //force rendering on the orbiter
+			bUsePhoneGrid = false;
+
         if(!bUsePhoneGrid)
         {
             g_pPlutoLogger->Write(LV_WARNING,
