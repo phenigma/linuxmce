@@ -26,7 +26,6 @@ protected: // (mtoader) I want access to them in the OrbiterLinuxDesktop
 
 public:
 
-	DisplayDevice* m_display;
 	DisplayDevice* GetOrbiterDisplay() { return GetDisplay(); }
 
 	Orbiter_PocketFrog(int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
@@ -82,16 +81,6 @@ public:
 	void WriteStatusOutput(const char* pMessage);
 
 	bool m_bConnectionLost;
-
-
-protected:
-
-	// Protected abstract methods
-
-	// Protected virtual methods
-
-	Surface *Screen;
-	bool m_bNeedToUpdate;
 };
 
 }

@@ -40,13 +40,11 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ bool Orbiter_PocketFrog::GameInit()
 {
-	m_display = GetDisplay();
-
 	Surface* pLogoSurface;
-	pLogoSurface = LoadImage( m_display, TEXT("\\Storage Card\\logo.gif") );
-	m_display->Blit( 0, 0, pLogoSurface );
+	pLogoSurface = LoadImage( GetDisplay(), TEXT("\\Storage Card\\logo.gif") );
+	GetDisplay()->Blit( 0, 0, pLogoSurface );
 	delete pLogoSurface;
-    m_display->Update();
+    GetDisplay()->Update();
 
 	Initialize(gtPocketFrogGraphic);
 
@@ -64,16 +62,15 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::GameEnd()
 {
-
+	
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::GameLoop()
 {
-	PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
-//	if(m_bNeedToUpdate)
+	if(m_bNeedToUpdate)
 	{
-//		m_bNeedToUpdate = false;
-		m_display->Update();
+		m_bNeedToUpdate = false;
+		GetDisplay()->Update();
 	}
 }
 //-----------------------------------------------------------------------------------------------------
@@ -376,7 +373,7 @@ clock_t ccc=clock();
 /*virtual*/ void Orbiter_PocketFrog::SolidRectangle(int x, int y, int width, int height, PlutoColor color, int Opacity)
 {
 	g_pPlutoLogger->Write(LV_STATUS, "Solid rectangle, %d, %d, %d, %d", x, y, width, height);
-	m_display->FillRect(x, y, width, height, GetColor16(color));
+	//GetDisplay()->FillRect(x, y, width, height, GetColor16(color));
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::HollowRectangle(int X, int Y, int Width, int Height, PlutoColor color)
@@ -433,7 +430,7 @@ clock_t ccc=clock();
 
 	PocketFrogGraphic *pPocketFrogGraphic = (PocketFrogGraphic *) pPlutoGraphic;
 	Surface *pSurface = pPocketFrogGraphic->m_pSurface;
-	m_display->Blit( rectTotal.X, rectTotal.Y, pSurface );
+	GetDisplay()->Blit( rectTotal.X, rectTotal.Y, pSurface );
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::BeginPaint()
