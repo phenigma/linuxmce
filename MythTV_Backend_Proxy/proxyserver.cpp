@@ -26,19 +26,17 @@
 
 #include <iostream>
 
+#include "DCE/Logger.h"
+
 #define SOCK_WAITQUEUE_LENGTH 	10
 
 using namespace std;
+using namespace DCE;
 
 namespace MYTHTV {
 
 ProxyServer::ProxyServer()
-	: port_(0) {
-}
-
-ProxyServer::ProxyServer(const char* host, unsigned port) {
-	setHost(host);
-	setPort(port);
+	: port_(0), peerport_(0) {
 }
 
 ProxyServer::~ProxyServer() {
@@ -47,13 +45,13 @@ ProxyServer::~ProxyServer() {
 bool 
 ProxyServer::handleStartup() {
 	if((sockfd_ = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-		cout << "Can't open stream socket.\n" << endl;
+		g_pPlutoLogger->Write(LV_CRITICAL, "Can't open socket.");
 		return false;
 	}
 	
 	struct hostent *hent;
 	if ((hent = gethostbyname(host_.c_str())) == 0) {
-		cout << "Error resolving host name: " << host_ << endl;
+		g_pPlutoLogger->Write(LV_CRITICAL, "Error resolving host name: %s", host_.c_str());
 		return false;
 	}		
 	
@@ -64,12 +62,11 @@ ProxyServer::handleStartup() {
 	serv_addr.sin_port = htons(port_);
 	
 	if(bind(sockfd_, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
-		cout << "Can't bind local address." << endl;
+		g_pPlutoLogger->Write(LV_CRITICAL, "Can't bind local address.");
 		return 0;
 	}
 
-	cout << "Listening on interface: " <<  host_ << " port: " << port_ << endl;
-	
+	g_pPlutoLogger->Write(LV_STATUS, "Listening on interface: %s, port: %d", host_.c_str(), port_);
 	listen(sockfd_, SOCK_WAITQUEUE_LENGTH);
 	return true;
 }
@@ -105,8 +102,34 @@ ProxyServer::_Run() {
 			int client_sockfd = 
 				accept(sockfd_, (struct sockaddr *) &client_addr, (socklen_t*)&len_client_addr);
 		
-			cout << "Connection accepted." << endl;
-			handleAccept(client_sockfd);
+			g_pPlutoLogger->Write(LV_STATUS, "Connection accepted.");
+			
+			/*open peer connection to backend*/
+			struct hostent *hent;
+			if ((hent = gethostbyname(peerhost_.c_str())) == 0) {
+				g_pPlutoLogger->Write(LV_CRITICAL, "Error resolving host name: %s", peerhost_.c_str());
+		//		cout << "Error resolving host name: " << peerhost_ << endl;
+				continue;
+			}		
+			
+		//	cout << "Connecting to Backend server." << endl;
+			
+			int backend_sockfd = 
+				socket(AF_INET, SOCK_STREAM, 0);
+			
+			sockaddr_in backend_addr;
+			backend_addr.sin_family = AF_INET;
+			backend_addr.sin_port = htons(peerport_);
+			backend_addr.sin_addr = *((in_addr *)hent->h_addr);
+			memset(&(backend_addr.sin_zero), 0, 8); 
+		
+			if (::connect(backend_sockfd, (sockaddr *) &backend_addr, sizeof(sockaddr))) {
+		//		cout << "Error connecting to Backend server: " << peerhost_ << "on port: " << peerport_ << endl;
+				g_pPlutoLogger->Write(LV_CRITICAL, "Error connecting to server %s on port %d", peerhost_.c_str(), peerport_);
+				continue;
+			}		
+			
+			handleAccept(client_sockfd, backend_sockfd);
 		} 
 	}
 	

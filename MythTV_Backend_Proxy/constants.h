@@ -1,7 +1,7 @@
 #ifndef __CONSTANTS_H_
 #define __CONSTANTS_H_
 
-#define MASTER_BACKEND_HOST		"10.0.0.109"
+#define MASTER_BACKEND_HOST		"localhost"
 #define MASTER_BACKEND_PORT		6143
 
 #define FOO_MASTER_BACKEND_PORT		6543

@@ -37,21 +37,8 @@ public:
 	BackendProxyServer();
 	~BackendProxyServer();
 
-public:
-	void setPeerHost(const char* peerhost) {
-		peerhost_ = peerhost;
-	}
-	
-	void setPeerPort(unsigned peerport) {
-		peerport_ = peerport;
-	}
-
 protected:
-	virtual void handleAccept(int sockfd);
-
-private:
-	std::string peerhost_;
-	unsigned peerport_;
+	virtual void handleAccept(int sockfd, int peersockfd);
 };
 
 };

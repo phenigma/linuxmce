@@ -23,8 +23,11 @@
 #include <string>
 
 #include "thread.h"
+#include "proxyeventhandler.h"
 
 namespace MYTHTV {
+
+class ProxyEventHandler;
 
 /**
 @author igor
@@ -34,9 +37,17 @@ class ProxyServer : public Thread
 {
 public:
     ProxyServer();
-    ProxyServer(const char* host, unsigned port);
     ~ProxyServer();
 
+public:
+	void setHandler(ProxyEventHandler* phandler = NULL) {
+		phandler_ = phandler;
+	}
+	ProxyEventHandler* getHandler() {
+		return phandler_;
+	}
+
+public:
 	void setHost(const char* host) {
 		host_ = host;
 	}
@@ -51,6 +62,20 @@ public:
 		return port_;
 	}
 	
+	void setPeerHost(const char* peerhost) {
+		peerhost_ = peerhost;
+	}
+	const char*  getPeerHost() {
+		return peerhost_.c_str();
+	}
+	
+	void setPeerPort(unsigned peerport) {
+		peerport_ = peerport;
+	}
+	unsigned getPeerPort() {
+		return peerport_;
+	}
+	
 protected:
 	virtual void* _Run();
 
@@ -58,11 +83,16 @@ protected:
 	virtual bool handleStartup();
 	virtual void handleTerminate();
 	
-	virtual void handleAccept(int sockfd) = 0;
+protected:
+	virtual void handleAccept(int sockfd, int peersockfd) = 0;
 
 private:
+	ProxyEventHandler* phandler_;	
+	
 	std::string host_;
 	unsigned port_;
+	std::string peerhost_;
+	unsigned peerport_;
 
 private:
 	int sockfd_;

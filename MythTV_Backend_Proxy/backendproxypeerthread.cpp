@@ -19,43 +19,95 @@
  ***************************************************************************/
 #include "backendproxypeerthread.h"
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+
 #include <iostream>
 
 #include "token.h"
+#include "proxyeventhandler.h"
 
 using namespace std;
 
 namespace MYTHTV {
 
-BackendProxyPeerThread::BackendProxyPeerThread(const char* proxyhost, int srcsockfd, int destsockfd)
-	: ProxyPeerThread(proxyhost, srcsockfd, destsockfd) 
+BackendProxyPeerThread::BackendProxyPeerThread(ProxyServer* pserver, int srcsockfd, int destsockfd)
+	: StatefullProxyPeerThread(pserver, srcsockfd, destsockfd), channel_(0)
 {
-	cout << "Backend peer thread Created." << endl;
-	registerInterceptor(this);
+//	cout << "Backend peer thread Created." << endl;
 };
 
 BackendProxyPeerThread::~BackendProxyPeerThread() 
 {
-	unregisterInterceptor(this);
-	cout << "Backend peer thread Destroyed." << endl;
+//	cout << "Backend peer thread Destroyed." << endl;
 }
 
 bool 
-BackendProxyPeerThread::processData(ProxyPeerThread* thread, const char* data, bool fromsrc) {
-	if(!fromsrc) {
+BackendProxyPeerThread::processData(const char* data, bool fromsrc) {
+	ProxyEventHandler *phandler = getServer()->getHandler();
+	if(phandler == NULL) {
 		return false;
 	}
-
+	
 	Token tok(data);
-	int index;
-	if((index = tok.findValue("CHANGE_CHANNEL")) >= 0 && tok.getValuesNum() > index + 1) {
-		cout << "Change channel Request received." << endl;
-		sleep(5);
-		int direction = atoi(tok.getValue(index + 1).c_str());
-	} else 
-	if((index = tok.findValue("SET_CHANNEL")) >= 0 /*&& tok.getValuesNum() > index + 1*/) {
-		cout << "Set channel Request received." << endl;
-		sleep(5);
+	int index = 0;
+	
+	if(fromsrc) {
+		if((index = tok.findValue("GET_PROGRAM_INFO")) >= 0) {
+			setState(PEER_STATE_GETPROGRAMINFO);
+		} /*else 
+		if((index = tok.findValue("CHANGE_CHANNEL")) >= 0 && tok.getValuesNum() > index + 1) {
+			direction_ = atoi(tok.getValue(index + 1).c_str());
+			setState(PEER_STATE_CHANGECHANNEL);
+		} else 
+		if((index = tok.findValue("SET_CHANNEL")) >= 0 && tok.getValuesNum() > index + 1) {
+			pendingchannel_ = atoi(tok.getValue(index + 1).c_str());
+			setState(PEER_STATE_SETCHANNEL);
+		} else {
+			setState(PEER_STATE_NONE);
+		}*/
+	} else {
+		unsigned int newchannel = channel_;
+		switch(getState()) {
+			case PEER_STATE_GETPROGRAMINFO: {
+				if(tok.getValuesNum() > 8) {
+					newchannel = atoi(tok.getValue(8).c_str());
+				} 	
+			} break; /*
+			case PEER_STATE_CHANGECHANNEL: {
+				if(tok.findValue("ok") >= 0) {
+					newchannel += ((direction_) ? -1 : 1);
+				}
+			} break;
+			case PEER_STATE_SETCHANNEL: {
+				if(tok.findValue("ok") >= 0) {
+					newchannel = pendingchannel_;
+				}
+			}*/
+		}
+		
+		setState(PEER_STATE_NONE);
+		
+		if(newchannel != channel_) {
+//			cout << "Channel changed from  " << channel_ << " to " << newchannel << endl;
+			channel_ = newchannel;
+			
+			/*format channel id*/
+			char channelbuf[13];
+			sprintf(channelbuf, "%d", channel_);
+			
+			/*get frontend ip adress*/
+			sockaddr_in peer;
+			socklen_t peerlen = sizeof(peer);
+			char host[NI_MAXHOST];
+			
+			getpeername(getSrcSock(), (struct sockaddr*)&peer, &peerlen);
+			getnameinfo((struct sockaddr*)&peer, peerlen, host, sizeof(host), NULL, 0, NI_NUMERICHOST);
+		
+			phandler->ChannelChanged(host, channelbuf);
+		}
 	}
 	
 	return false;

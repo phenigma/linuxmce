@@ -30,22 +30,21 @@ namespace MYTHTV {
 unsigned 
 MasterProxyPeerThread::s_port_ = FOO_MIN_BACKENDPORT;
 
-MasterProxyPeerThread::MasterProxyPeerThread(const char* proxyhost, int srcsockfd, int destsockfd)
-	: ProxyPeerThread(proxyhost, srcsockfd, destsockfd), backrequested_(false)
+MasterProxyPeerThread::MasterProxyPeerThread(ProxyServer* pserver, int srcsockfd, int destsockfd)
+	: ProxyPeerThread(pserver, srcsockfd, destsockfd), backrequested_(false)
 {
-	cout << "Master peer thread Created." << endl;
-	registerInterceptor(this);
+//	cout << "Master peer thread Created." << endl;
+	server_.setHandler(getServer()->getHandler());
 }
 
 
 MasterProxyPeerThread::~MasterProxyPeerThread()
 {
-	unregisterInterceptor(this);
-	cout << "Master peer thread Destroyed." << endl;
+//	cout << "Master peer thread Destroyed." << endl;
 }
 
 bool 
-MasterProxyPeerThread::processData(ProxyPeerThread* thread, const char* data, bool fromsrc)
+MasterProxyPeerThread::processData(const char* data, bool fromsrc)
 {
 	Token tok(data);
 	if(fromsrc && tok.findValue("GET_NEXT_FREE_RECORDER") >= 0) {
@@ -54,13 +53,13 @@ MasterProxyPeerThread::processData(ProxyPeerThread* thread, const char* data, bo
 	} else 
 	if(!fromsrc && backrequested_) {
 		backrequested_ = false;
-		cout << "(!)This must be a reply with adress/port for backend server: " << data << endl;
+//		cout << "(!)This must be a reply with adress/port for backend server: " << data << endl;
 		if(tok.getValuesNum() >= 3) {
 			/*open proxy server*/
 			string host = tok.getValue(1);
 			
 			if(host == "nohost") {
-				cout << "No host available. " << endl;
+//				cout << "No host available. " << endl;
 				sleep(5);
 				return false;
 			} else {
@@ -70,7 +69,7 @@ MasterProxyPeerThread::processData(ProxyPeerThread* thread, const char* data, bo
 				server_.Wait(true);
 				
 				/*reconfigure new instance*/
-				server_.setHost(getProxyHost());
+				server_.setHost(getServer()->getHost());
 				
 				mp.Lock();
 				server_.setPort(s_port_);
@@ -86,11 +85,16 @@ MasterProxyPeerThread::processData(ProxyPeerThread* thread, const char* data, bo
 				server_.setPeerPort(port);
 				
 				/*run new instance*/
-				cout << "Starting FOO Backend server for Host: " << host << ", Port: " << port << endl;
+//				cout << "Starting FOO Backend server for Host: " << host << ", Port: " << port << endl;
 				
 				server_.Run(false);
+
+				/*populate token*/				
+				tok.setValue(1, getServer()->getHost());
 				
-				populateFooToken(tok);
+				char portbuff[13];
+				sprintf(portbuff, "%d", server_.getPort());
+				tok.setValue(2, portbuff);
 				
 				writeData(getSrcSock(), tok.Serialize().c_str());
 				return true;
@@ -99,15 +103,6 @@ MasterProxyPeerThread::processData(ProxyPeerThread* thread, const char* data, bo
 	}
 	
 	return false;
-}
-
-void 
-MasterProxyPeerThread::populateFooToken(Token &tok) {
-	tok.setValue(1, getProxyHost());
-	
-	char portbuff[13];
-	sprintf(portbuff, "%d", server_.getPort());
-	tok.setValue(2, portbuff);
 }
 
 };

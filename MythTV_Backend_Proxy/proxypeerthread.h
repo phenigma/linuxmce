@@ -25,11 +25,9 @@
 
 #include "proxypeer.h"
 #include "thread.h"
-
-#include "proxypeerinterceptor.h"
+#include "proxyserver.h"
 
 namespace MYTHTV {
-
 
 /**
 @author igor
@@ -37,12 +35,17 @@ namespace MYTHTV {
 class ProxyPeerThread : public ProxyPeer, public Thread
 {
 public:
-    ProxyPeerThread(const char* proxyhost, int srcsockfd, int destsockfd);
+    ProxyPeerThread(ProxyServer *pserver, int srcsockfd, int destsockfd);
     virtual ~ProxyPeerThread();
 
 protected:
 	virtual void* _Run();
 
+public:
+	ProxyServer* getServer() {
+		return pserver_;
+	};
+	
 public:
 	inline int writeDataToSrc(const std::string& data) {
 		return writeData(getSrcSock(), data);
@@ -57,20 +60,20 @@ public:
 		return readData(getDestSock(), data);
 	}
 
-	void registerInterceptor(ProxyPeerInterceptor* pintor);
-	void unregisterInterceptor(ProxyPeerInterceptor* pintor);
+protected:
+	virtual bool processData(const char* data, bool fromsrc) = 0;
 
+protected:
+	virtual void handleTerminate();
+	
 protected:
 	int readData(int sockfd, std::string& data);
 	int writeData(int sockfd, const std::string& data);
 
-private:
 	int replData(bool fromsrc);
-	virtual void handleTerminate();
 
 private:
-	typedef std::list<ProxyPeerInterceptor*> PEERINTERCEPTORLIST;
-	PEERINTERCEPTORLIST interceptors_;
+	ProxyServer* pserver_;
 };
 
 };

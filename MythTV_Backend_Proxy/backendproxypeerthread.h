@@ -20,22 +20,35 @@
 #ifndef MYTHTVBACKENDPROXYPEERTHREAD_H
 #define MYTHTVBACKENDPROXYPEERTHREAD_H
 
-#include "proxypeerthread.h"
+#include "statefullproxypeerthread.h"
 
 namespace MYTHTV {
+
+#define BACKEND_STATES				(0x100)
+
+#define PEER_STATE_GETPROGRAMINFO	BACKEND_STATES + 1
+#define PEER_STATE_CHANGECHANNEL	BACKEND_STATES + 2
+#define PEER_STATE_SETCHANNEL		BACKEND_STATES + 3
 
 /**
 @author igor
 */
-class BackendProxyPeerThread : public ProxyPeerThread, public ProxyPeerInterceptor
+class BackendProxyPeerThread : public StatefullProxyPeerThread
 {
 public:
-    BackendProxyPeerThread(const char* proxyhost, int srcsockfd, int destsockfd);
+    BackendProxyPeerThread(ProxyServer* pserver, int srcsockfd, int destsockfd);
 	~BackendProxyPeerThread();
 
 protected:
-	virtual bool processData(ProxyPeerThread* thread, const char* data, bool fromsrc);
-	
+	virtual bool processData(const char* data, bool fromsrc);
+
+private:
+	unsigned int channel_;
+
+private:
+	/*states temporary data*/
+	//int direction_;
+	//int pendingchannel_;
 };
 
 };

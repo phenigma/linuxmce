@@ -31,11 +31,11 @@ namespace MYTHTV {
 class MasterProxyServer : public ProxyServer
 {
 public:
-	MasterProxyServer(const char* host, unsigned port);
+	MasterProxyServer();
 	~MasterProxyServer();
 	
 protected:
-	void handleAccept(int sockfd);
+	virtual void handleAccept(int sockfd, int peersockfd);
 };
 
 };

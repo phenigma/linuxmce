@@ -30,16 +30,10 @@ namespace MYTHTV {
 class ProxyPeer {
 public:
     ProxyPeer();
-    ProxyPeer(const char* proxyhost, int srcsockfd, int destsockfd);
+    ProxyPeer(int srcsockfd, int destsockfd);
     ~ProxyPeer();
 
 public:
-	inline void setProxyHost(const char* proxyhost)	{
-		proxyhost_ = proxyhost;
-	}
-	inline const char* getProxyHost()	{
-		return proxyhost_.c_str();
-	}
 	
 	inline void setSrcSock(int srcsockfd) {
 		srcsockfd_ = srcsockfd;
@@ -56,7 +50,6 @@ public:
 	}
 
 public:
-	std::string proxyhost_;
 	int srcsockfd_;
 	int destsockfd_;
 	

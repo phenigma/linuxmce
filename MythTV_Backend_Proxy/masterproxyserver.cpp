@@ -29,46 +29,28 @@
 
 #include "masterproxypeerthread.h"
 
+#include "DCE/Logger.h"
+
 using namespace std;
+using namespace DCE;
 
 namespace MYTHTV {
 
-MasterProxyServer::MasterProxyServer(const char* host, unsigned port)
-	: ProxyServer(host, port) {
-	cout << "Master proxy Created." << endl;
+MasterProxyServer::MasterProxyServer()
+{
+//	cout << "Master proxy Created." << endl;
+	setPeerHost(MASTER_BACKEND_HOST);
+	setPeerPort(MASTER_BACKEND_PORT);
 };
 
 MasterProxyServer::~MasterProxyServer() {
-	cout << "Master proxy Destroyed." << endl;
+//	cout << "Master proxy Destroyed." << endl;
 }
 void 
-MasterProxyServer::handleAccept(int sockfd) {
-	/*open peer connection to backend*/
-	struct hostent *hent;
-	if ((hent = gethostbyname(MASTER_BACKEND_HOST)) == 0) {
-		cout << "Error resolving host name: " << MASTER_BACKEND_HOST << endl;
-		return;
-	}		
-	
-	cout << "Connecting to Master server." << endl;
-	
-	int backend_sockfd = 
-		socket(AF_INET, SOCK_STREAM, 0);
-	
-	sockaddr_in backend_addr;
-	backend_addr.sin_family = AF_INET;
-	backend_addr.sin_port = htons(MASTER_BACKEND_PORT);
-	backend_addr.sin_addr = *((in_addr *)hent->h_addr);
-	memset(&(backend_addr.sin_zero), 0, 8); 
-
-	if (::connect(backend_sockfd, (sockaddr *) &backend_addr, sizeof(sockaddr))) {
-		cout << "Error connecting to Backend server: " << MASTER_BACKEND_HOST  << "on port: " << MASTER_BACKEND_PORT << endl;
-		return;
-	}		
-	
+MasterProxyServer::handleAccept(int sockfd, int peersockfd) {
 	/*instantiate peer handler*/
 	ProxyPeerThread *ppeerthr = 
-			new MasterProxyPeerThread(getHost(), sockfd, backend_sockfd);
+			new MasterProxyPeerThread(this, sockfd, peersockfd);
 	ppeerthr->Run(false);
 }
 

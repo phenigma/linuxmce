@@ -29,48 +29,27 @@
 #include "constants.h"
 #include "backendproxypeerthread.h"
 
+#include "DCE/Logger.h"
+
 using namespace std;
+using namespace DCE;
 
 namespace MYTHTV {
 
 BackendProxyServer::BackendProxyServer()
-	: peerport_(0)
 {
-	cout << "Backend proxy Created." << endl;
+//	cout << "Backend proxy Created." << endl;
 };
 
 BackendProxyServer::~BackendProxyServer() {
-	cout << "Backend proxy Destroyed." << endl;
+//	cout << "Backend proxy Destroyed." << endl;
 }
 
 void 
-BackendProxyServer::handleAccept(int sockfd) {
-	/*open peer connection to backend*/
-	struct hostent *hent;
-	if ((hent = gethostbyname(peerhost_.c_str())) == 0) {
-		cout << "Error resolving host name: " << peerhost_ << endl;
-		return;
-	}		
-	
-	cout << "Connecting to Backend server." << endl;
-	
-	int backend_sockfd = 
-		socket(AF_INET, SOCK_STREAM, 0);
-	
-	sockaddr_in backend_addr;
-	backend_addr.sin_family = AF_INET;
-	backend_addr.sin_port = htons(peerport_);
-	backend_addr.sin_addr = *((in_addr *)hent->h_addr);
-	memset(&(backend_addr.sin_zero), 0, 8); 
-
-	if (::connect(backend_sockfd, (sockaddr *) &backend_addr, sizeof(sockaddr))) {
-		cout << "Error connecting to Backend server: " << peerhost_ << "on port: " << peerport_ << endl;
-		return;
-	}		
-	
+BackendProxyServer::handleAccept(int sockfd, int peersockfd) {
 	/*instantiate peer handler*/
 	ProxyPeerThread *ppeerthr = 
-			new BackendProxyPeerThread(getHost(), sockfd, backend_sockfd);
+			new BackendProxyPeerThread(this, sockfd, peersockfd);
 	ppeerthr->Run(false);
 }
 

@@ -22,15 +22,17 @@
 #include <iostream>
 #include <sys/socket.h>
 
+#include "DCE/Logger.h"
+
 using namespace std;
+using namespace DCE;
 
 namespace MYTHTV {
 
-ProxyPeerThread::ProxyPeerThread(const char* proxyhost, int srcsockfd, int destsockfd)
-	: ProxyPeer(proxyhost, srcsockfd, destsockfd)
+ProxyPeerThread::ProxyPeerThread(ProxyServer *pserver, int srcsockfd, int destsockfd)
+	: pserver_(pserver), ProxyPeer(srcsockfd, destsockfd)
 {
 }
-
 
 ProxyPeerThread::~ProxyPeerThread() {
 }
@@ -39,22 +41,6 @@ void
 ProxyPeerThread::handleTerminate() {
 	close(getSrcSock()); close(getDestSock());
 	delete this;
-}
-
-void 
-ProxyPeerThread::registerInterceptor(ProxyPeerInterceptor* pintor) {
-	interceptors_.push_back(pintor);
-}
-
-void 
-ProxyPeerThread::unregisterInterceptor(ProxyPeerInterceptor* pintor) {
-	PEERINTERCEPTORLIST::iterator it = interceptors_.begin();
-	while(it != interceptors_.end()) {
-		if(*it == pintor) {
-			interceptors_.erase(it);
-			break;
-		}
-	}
 }
 
 void* 
@@ -76,22 +62,24 @@ ProxyPeerThread::_Run() {
 		int retval = select(maxfd, &rfds, NULL, NULL, &tv);
 					
 		if(retval <= 0) {
-			cout << "No Traffic on Peers. Waiting..." << endl;
+//			cout << "No Traffic on Peers. Waiting..." << endl;
 			continue;
 		}
 		
 		if(FD_ISSET(getSrcSock(), &rfds)) {
-			cout << "Performing Source --> Destination." << endl;
+//			cout << "Performing Source --> Destination." << endl;
 			if(replData(true) < 0) {
-				cout << "Source disconnected" << endl;
+				// cout << "Source disconnected" << endl;
+				g_pPlutoLogger->Write(LV_STATUS, "Source disconnected");
 				break;
 			}
 		} 
 		
 		if(FD_ISSET(getDestSock(), &rfds)) {
-			cout << "Performing Destination --> Source." << endl;
+//			cout << "Performing Destination --> Source." << endl;
 			if(replData(false) < 0) {
-				cout << "Destination disconnected" << endl;
+//				cout << "Destination disconnected" << endl;
+				g_pPlutoLogger->Write(LV_STATUS, "Destination disconnected");
 				break;
 			}
 		} 
@@ -115,23 +103,18 @@ ProxyPeerThread::replData(bool fromsrc) {
 		return -1;
 	}
 	
-	cout << "Received data: " << endl << datastr << endl;
+//	cout << "Received data: " << endl << datastr << endl;
+	g_pPlutoLogger->Write(LV_STATUS, "Received data: %s", datastr.c_str());
 
 	/*process data with interceptors*/
 	bool processed = false;
-	
-	PEERINTERCEPTORLIST::iterator it = interceptors_.begin();
-	while(it != interceptors_.end()) {
-		if((*it)->processData(this, datastr.c_str(), fromsrc)) {
-			processed = true;
-		}
-		it++;
+	if(processData(datastr.c_str(), fromsrc)) {
+		processed = true;
 	}
 
 	if(!processed) {
 		/* sending data */
-		cout << "Redirecting." << endl ;
-		
+//		cout << "Redirecting." << endl ;
 		if(writeData(tosockfd, datastr) < 0) {
 			return -1;
 		}
@@ -151,11 +134,11 @@ ProxyPeerThread::readData(int sockfd, std::string& data) {
 	}
 	
 	string sizestr(sizebuff, recvsize);
-	cout << "Received size: " << sizestr << endl;
+//	cout << "Received size: " << sizestr << endl;
 	
 	/*TO DO: place trimming here*/
 	int size = atoi(sizestr.c_str());
-	cout << "Expecting to read a string of " << size << " bytes" << endl;
+//	cout << "Expecting to read a string of " << size << " bytes" << endl;
 
 	/* read data */
 	
@@ -172,13 +155,13 @@ ProxyPeerThread::readData(int sockfd, std::string& data) {
         if (recvsize == 0)
         {
             if (++zerocnt >= 100) {
-				cout << "Abandon waiting data." << endl;
+//				cout << "Abandon waiting data." << endl;
                 break;
             }
             usleep(50);
 
             if (zerocnt == 5) {
-				cout << "Waiting for data: " << read << " " << size << endl;
+//				cout << "Waiting for data: " << read << " " << size << endl;
             }
         } else {
 			data.append(databuff, recvsize);
@@ -197,9 +180,9 @@ ProxyPeerThread::writeData(int sockfd, const std::string& data) {
 	sizestr.resize(SIZEBUFF_SIZE, '\t');
 	
 	string outstr = sizestr + data;
-	cout << "Sending data: " << outstr << endl;
+//	cout << "Sending data: " << outstr << endl;
 	if((send(sockfd, outstr.c_str(), outstr.length(), 0) <= 0)) {
-		cout << "Error sending data to destination." << endl;
+	//	cout << "Error sending data to destination." << endl;
 		return -1;
 	}
 	

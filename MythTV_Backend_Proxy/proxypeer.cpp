@@ -26,8 +26,8 @@ ProxyPeer::ProxyPeer()
 {
 }
 
-ProxyPeer::ProxyPeer(const char* proxyhost, int srcsockfd, int destsockfd)
-	: proxyhost_(proxyhost), srcsockfd_(srcsockfd), destsockfd_(destsockfd) 
+ProxyPeer::ProxyPeer(int srcsockfd, int destsockfd)
+	: srcsockfd_(srcsockfd), destsockfd_(destsockfd) 
 {
 }
 

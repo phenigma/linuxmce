@@ -12,12 +12,22 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#define PROXY_LISTEN_PORT	6543
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 MythTV_Backend_Proxy::MythTV_Backend_Proxy(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: MythTV_Backend_Proxy_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
+	/*Initialize proxy server*/	
+	cout << "!!![" << m_pData->GetIPAddress().c_str() << "]!!!!" << endl;
+//	cout << "!!![" << m_pData->m_sIPAddress << "]!!!!" << endl;
+//	proxy_.setHost(m_pData->GetIPAddress().c_str());
+	proxy_.setHost("10.0.0.109");
+	proxy_.setPort(PROXY_LISTEN_PORT);
+	
+	proxy_.setHandler(this);
 }
 
 //<-dceag-const2-b->
@@ -50,6 +60,20 @@ bool MythTV_Backend_Proxy::Register()
 	pDeviceData_Base is the child device.  If you handle the message, you 
 	should change the sCMD_Result to OK
 */
+
+bool MythTV_Backend_Proxy::Connect() {
+	if(!MythTV_Backend_Proxy_Command::Connect()) {
+		return false;
+	}
+
+	cout << "!!![" << m_pData->m_sIPAddress << "]!!!!" << endl;
+	
+	/*Start proxy server*/	
+	proxy_.Run(false);
+	return true;
+}
+
+
 //<-dceag-cmdch-b->
 void MythTV_Backend_Proxy::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
@@ -68,6 +92,11 @@ void MythTV_Backend_Proxy::ReceivedUnknownCommand(string &sCMD_Result,Message *p
 {
 	sCMD_Result = "UNKNOWN DEVICE";
 }
+
+void MythTV_Backend_Proxy::ChannelChanged(const char *host, const char* channelid) {
+	EVENT_MythTV_Channel_Changed(host, channelid);
+}
+
 
 //<-dceag-sample-b->
 /*		**** SAMPLE ILLUSTRATING HOW TO USE THE BASE CLASSES ****

@@ -29,18 +29,15 @@ namespace MYTHTV {
 /**
 @author igor
 */
-class MasterProxyPeerThread : public ProxyPeerThread, public ProxyPeerInterceptor
+class MasterProxyPeerThread : public ProxyPeerThread
 {
 public:
-    MasterProxyPeerThread(const char* proxyhost, int srcsockfd, int destsockfd);
+    MasterProxyPeerThread(ProxyServer* pserver, int srcsockfd, int destsockfd);
     ~MasterProxyPeerThread();
 
 protected:
-	virtual bool processData(ProxyPeerThread* thread, const char* data, bool fromsrc);
+	virtual bool processData(const char* data, bool fromsrc);
 
-private:
-	void populateFooToken(Token &tok);
-	
 private:
 	bool backrequested_;
 	BackendProxyServer server_;
