@@ -2,6 +2,8 @@
 
 . /usr/pluto/bin/Config_Ops.sh
 
+Param="$1"
+
 UploadLogs()
 {
 	local ok
@@ -19,6 +21,17 @@ UploadLogs()
 	done
 }
 
+ArchiveCoreDumps()
+{
+	tar -czf "$Output/$Filename.tar.gz" "$Critical" /usr/pluto/coredump.archive 2>/dev/null
+	rm -rf /usr/pluto/coredump.archive
+	rm -rf "$Critical"
+
+	if [ "$1" != "0" ]; then
+		UploadLogs &
+	fi
+}
+
 Filename="${PK_Device}_$(date +%F_%H-%M-%S)"
 Critical="/var/log/pluto/critical"
 Output="/var/log/pluto/archive"
@@ -30,14 +43,9 @@ for i in /var/log/pluto/*.{,new}log; do
 	grep "^01" "$i" >"$Critical/$(basename $i)"
 done
 
-tar -czf "$Output/$Filename.critical.tar.gz" "$Critical" /usr/pluto/coredump 2>/dev/null
-rm -f /usr/pluto/coredump/*
-
-if [ "$1" != "0" ]; then
-	UploadLogs &
-fi
-
-rm -rf "$Critical"
+mkdir -p /usr/pluto/coredump.archive
+mv /usr/pluto/coredump/* /usr/pluto/coredump.archive/
+ArchiveCoreDumps "$Param" &
 
 tar -czf "$Output/log-$Filename.tar.gz" /var/log/pluto/*.{,new}log 2>/dev/null
 rm -f /var/log/pluto/*.log
