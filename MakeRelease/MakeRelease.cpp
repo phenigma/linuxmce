@@ -45,7 +45,7 @@
 #include "pluto_main/Table_Package_Directory.h"
 #include "pluto_main/Table_Package_Directory_File.h"
 
-#define MakeRelease_VERSION "0.1"
+#define  VERSION "<=version=>"
 
 using namespace std;
 using namespace DCE;
@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
 
 	if ( bError)
 	{
-		cout << "MakeRelease, v." << MakeRelease_VERSION << endl
+		cout << "MakeRelease, v." << VERSION << endl
 			<< "Usage: MakeRelease [-h hostname] [-u username] [-p password] [-D database] [-P mysql port] [-k Packages] [-m Manufacturers] [-o Distro]" << endl
 			<< "hostname    -- address or DNS of database host, default is `dce_router`" << endl
 			<< "username    -- username for database connection" << endl

@@ -25,7 +25,7 @@
 #include "PlutoUtils/Other.h"
 #include "PlutoUtils/Other.h"
 
-#define  Generic_Input_Ouput_VERSION "testing"
+#define  VERSION "<=version=>"
 
 namespace DCE
 {
@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
 
 	if (bError)
 	{
-		cout << "Generic_Input_Ouput, v." << Generic_Input_Ouput_VERSION << endl
+		cout << "Generic_Input_Ouput, v." << VERSION << endl
 			<< "A Pluto DCE Device.  See www.plutohome.com/dce for details." << endl
 			<< "Usage: Generic_Input_Ouput [-r Router's IP] [-d My Device ID] [-l dce_router|stdout|null|filename]" << endl
 			<< "-r -- the IP address of the DCE Router  Defaults to 'dce_router'." << endl

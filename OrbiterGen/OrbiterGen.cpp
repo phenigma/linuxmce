@@ -59,7 +59,7 @@
 #include "pluto_main/Table_CommandGroup_Command_CommandParameter.h"
 #include "pluto_main/Table_CommandGroup_Command.h"
 
-#define ORBITERGEN_VERSION "2.0 devel"
+#define  VERSION "<=version=>"
 
 namespace DCE
 {
@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
 
 	if (bError || GraphicsFiles.length()==0 || FontFiles.length()==0 || OutputFiles.length()==0 || !PK_Orbiter)
 	{
-		cout << "OrbiterGen, v." << ORBITERGEN_VERSION << endl
+		cout << "OrbiterGen, v." << VERSION << endl
 			<< "Usage: OrbiterGen -d Orbiter -r [-g graphics files] [-f font files]" << endl
 				<< "[-o output path] [-h hostname] [-u username] [-p password] [-D database]" << endl
 				<< "[-P mysql port]" << endl

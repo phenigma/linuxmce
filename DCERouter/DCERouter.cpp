@@ -102,6 +102,18 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
         g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
     }
 
+    if( !m_dwPK_Installation && g_DCEConfig.m_iPK_Installation )
+		m_dwPK_Installation = g_DCEConfig.m_iPK_Installation;
+
+	if( !m_dwPK_Device && g_DCEConfig.m_iPK_Device_Computer )
+	{
+        vector<Row_Device *> vectRow_Device;
+        m_pDatabase_pluto_main->Device_get()->GetRows( string(DEVICE_FK_DEVICETEMPLATE_FIELD) + "=" + StringUtils::itos(DEVICETEMPLATE_DCERouter_CONST)
+			+ " AND " + , &vectRow_Device);
+        if( vectRow_Device.size()!=1 )
+
+			m_dwPK_Device = g_DCEConfig.m_iPK_Installation;
+	}
 
     if( !m_dwPK_Installation && !m_dwPK_Device )
     {

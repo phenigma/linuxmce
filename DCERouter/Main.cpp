@@ -42,6 +42,8 @@ namespace DCE
 	class Router *g_pRouter;
 }
 
+DCEConfig g_DCEConfig;
+
 void sig_int(int sig)
 {
 	g_pRouter->Quit();

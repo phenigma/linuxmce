@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
 
 	if (bError)
 	{
-		cout << "Floorplan_Plugin, v." << Floorplan_Plugin_VERSION << endl
+		cout << "Floorplan_Plugin, v." << VERSION << endl
 			<< "A Pluto DCE Device.  See www.plutohome.com/dce for details." << endl
 			<< "Usage: Floorplan_Plugin [-r Router's IP] [-d My Device ID] [-l dce_router|stdout|null|filename]" << endl
 			<< "-r -- the IP address of the DCE Router  Defaults to 'dce_router'." << endl
