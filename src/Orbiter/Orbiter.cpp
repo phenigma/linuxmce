@@ -1799,6 +1799,9 @@ bool Orbiter::SelectedGrid( int DGRow )
 
     DataGridCell *pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData( iSelectedColumn,  DGRow );
 
+	pDesignObj_DataGrid->m_iHighlightedColumn=iSelectedColumn;
+	pDesignObj_DataGrid->m_iHighlightedRow=DGRow;
+
     return SelectedGrid( pDesignObj_DataGrid,  pCell );
 }
 void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbiter)
