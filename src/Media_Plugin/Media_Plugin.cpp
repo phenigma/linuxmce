@@ -1245,7 +1245,7 @@ class DataGridTable *Media_Plugin::MediaAttrFiles( string GridID, string Parms, 
     string SQL="select DISTINCT Dest.FK_File, Attribute.Name, Attribute.FirstName, AttributeType.Description "\
         "FROM File_Attribute As Source "\
         "JOIN File_Attribute As Dest "\
-        "ON Source.FK_File=Dest.FK_File AND Source.FK_Attribute=" + PK_Attribute +
+		"ON Source.FK_File=Dest.FK_File AND Source.FK_Attribute=" + StringUtils::itos(atoi(PK_Attribute.c_str())) +
         " JOIN File ON Dest.FK_File=PK_File "\
         "JOIN Attribute ON Dest.FK_Attribute=PK_Attribute "\
         "JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "\
@@ -1297,7 +1297,7 @@ class DataGridTable *Media_Plugin::MediaAttrCollections( string GridID, string P
     string SQL="select DISTINCT Dest.FK_Attribute, Attribute.Name, Attribute.FirstName, AttributeType.Description "\
         "FROM File_Attribute As Source "\
         "JOIN File_Attribute As Dest "\
-        "ON Source.FK_File=Dest.FK_File AND Source.FK_Attribute='" + PK_Attribute +
+        "ON Source.FK_File=Dest.FK_File AND Source.FK_Attribute='" + StringUtils::itos(atoi(PK_Attribute.c_str())) +
         "' JOIN File ON Dest.FK_File=PK_File "\
         "JOIN Attribute ON Dest.FK_Attribute=PK_Attribute "\
         "JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "\
@@ -1405,7 +1405,7 @@ class DataGridTable *Media_Plugin::MediaItemAttr( string GridID, string Parms, v
                 "JOIN File ON Dest.FK_File=PK_File "\
                 "JOIN C_Type_C_AttributeType ON C_Type_C_AttributeType.FK_C_Type=File.FK_C_Type "\
                 "AND C_Type_C_AttributeType.FK_C_AttributeType=Attribute.FK_C_AttributeType "\
-                "WHERE Identifier>2 AND Source.FK_Attribute=" + PK_Attribute + " ORDER BY Description";
+                "WHERE Identifier>2 AND Source.FK_Attribute=" + StringUtils::itos(atoi(PK_Attribute.c_str())) + " ORDER BY Description";
         }
     }
 
