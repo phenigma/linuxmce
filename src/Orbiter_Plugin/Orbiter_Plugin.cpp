@@ -29,6 +29,8 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#include <sstream>
+
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_Device.h"
 #include "pluto_main/Table_DeviceTemplate.h"
@@ -48,8 +50,11 @@ using namespace DCE;
 #include "pluto_main/Table_FloorplanObjectType.h"
 #include "pluto_main/Table_FloorplanObjectType_Color.h"
 #include "pluto_main/Table_Orbiter.h"
+#include "pluto_main/Table_DHCPDevice.h"
+#include "pluto_main/Table_Manufacturer.h"
 #include "DCERouter.h"
 #include "CreateDevice/CreateDevice.h"
+#include "BD/PhoneDevice.h"
 
 #include "PopulateListsInVMC.h"
 
@@ -319,7 +324,7 @@ g_pPlutoLogger->Write(LV_STATUS,"in process");
 	PhoneDevice pd("",sMacAddress,0);
 	vector<Row_DHCPDevice *> vectRow_DHCPDevice;
 	ostringstream sql;
-	sql << "Mac_Range_Low<=" pd.m_iMacAddress << " AND Mac_Range_High>=" << pd.m_iMacAddress;
+	sql << "Mac_Range_Low<=" << pd.m_iMacAddress << " AND Mac_Range_High>=" << pd.m_iMacAddress;
 	m_pDatabase_pluto_main->DHCPDevice_get()->GetRows(sql.str(),&vectRow_DHCPDevice);
     g_pPlutoLogger->Write(LV_WARNING, "search %s returned %d rows", sql.str().c_str(), (int) vectRow_DHCPDevice.size() );
 
@@ -354,7 +359,7 @@ g_pPlutoLogger->Write(LV_STATUS,"in process");
 	if( pRow_DHCPDevice && pRow_DHCPDevice->FK_Manufacturer_get() )
 		Description += "  Manufacturer: " + pRow_DHCPDevice->FK_Manufacturer_getrow()->Description_get();
 	if( pRow_DHCPDevice && pRow_DHCPDevice->FK_DeviceCategory_get() )
-		Description += "  Category: " + pRow_DHCPDevice->FK_DeviceCategory_get()->Description_get();
+		Description += "  Category: " + pRow_DHCPDevice->FK_DeviceCategory_getrow()->Description_get();
 	if( pUnknownDeviceInfos->m_sID.length() )
 		Description += "  Bluetooth ID: " + pUnknownDeviceInfos->m_sID;
 
@@ -1275,7 +1280,7 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(iPK_Device);
 	if( !pOH_Orbiter )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Regenerate finished with unknown orbiter");
+		g_pPlutoLogger->Write(LV_CRITICAL,"Regenerate finished with unknown orbiter %d",iPK_Device);
 		return;
 	}
 	pOH_Orbiter->m_tRegenTime = 0;
