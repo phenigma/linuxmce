@@ -1,14 +1,27 @@
+/*
+ sqlCVS
+ 
+ Copyright (C) 2004 Pluto, Inc., a Florida Corporation
+ 
+ www.plutohome.com		
+ 
+ Phone: +1 (877) 758-8648
+ 
+ This program is distributed according to the terms of the Pluto Public License, available at: 
+ http://plutohome.com/index.php?section=public_license 
+ 
+ This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
+ 
+ */
+
+
 /**
  * @file sqlCVS.cpp
  * @ brief  the main class for the sqlCVS
  *
 */
 
-/**
-  *
-  * Copyright information goes here
-  *
-  */
 
 //#define C99_FORMAT_SPECIFIERS
 #include "PlutoUtils/CommonIncludes.h"	
@@ -48,7 +61,7 @@
 #include "DCE/Logger.h"
 #include "RA/RAServer.h"
 
-#define sqlCVS_VERSION "0.1"
+#define VERSION "0.1"
 
 using namespace std;
 using namespace sqlCVS;
@@ -132,6 +145,16 @@ string GetCommand( )
 
 int main( int argc, char *argv[] )
 {
+
+		cout<<"	Copyright (C) 2004 Pluto, Inc., a Florida Corporation"<<endl
+		    <<"	www.plutohome.com"<<endl
+		    <<"	Phone: +1 (877) 758-8648"<<endl
+		    <<"	This program is distributed according to the terms of the Pluto Public License, available at: "<<endl
+		    <<"	http://plutohome.com/index.php?section=public_license "<<endl
+		    <<"	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; "<<endl
+		    <<"	without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. "<<endl
+		    <<"	See the Pluto Public License for more details."<<endl;	
+	
 	bool bError=false; /** An error parsing the command line */
 
 	string sUsers;
@@ -182,15 +205,25 @@ int main( int argc, char *argv[] )
 
 	if ( bError )
 	{
-		cout << "sqlCVS, v." << sqlCVS_VERSION << endl
-			<< "Usage: sqlCVS [-h hostname] [-u username] [-p password] [-D database] [-P mysql port] [-r Repository( -ies )] [-t Table( s )] [-U Users( s )]" << endl
-			<< "hostname  -- address or DNS of database host, default is `dce_router`" << endl
-			<< "username  -- username for database connection" << endl
-			<< "password  -- password for database connection, default is `` ( empty )" << endl
-			<< "database  -- database name. default is pluto_main" << endl
-			<< "port    -- port for database connection, default is 3306" << endl
-			<< "output path -- Where to put the output files. Default is ../[database name]" << endl
-			<< "input path -- Where to find the template files. Default is . then ../sqlCVS" << endl;
+		
+//                123456789012345678901234567890123456789012345678901234567890	
+		cout << "sqlCVS, v." << VERSION << endl
+			<< "Usage: sqlCVS [-h hostname] [-u username] [-p password]" << endl
+			<< "[-D database] [-P mysql port] [-r Repository( -ies )]" << endl
+			<< "[-t Table( s )] [-U Users( s )]" << endl
+			<< "-h hostname    -- address or DNS of database host," << endl
+			<< "			default is `dce_router`" << endl
+			<< "-u username    -- username for database connection" << endl
+			<< "-p password    -- password for database connection, "<< endl
+			<< "			default is `` ( empty )" << endl
+			<< "-D database    -- database name. default is pluto_main" << endl
+			<< "-P port    	   -- port for database connection, " << endl
+			<< "			default is 3306" << endl
+			<< "-r output path -- Where to put the output files. "<< endl
+			<< "			Default is ../[database name]" << endl
+			<< "-t input path  -- Where to find the template files. " << endl
+			<< "			Default is . then ../sqlCVS" << endl
+			<< "-U users	   -- the users who are logged in " << endl;
 
 		exit( 0 );
 	}
