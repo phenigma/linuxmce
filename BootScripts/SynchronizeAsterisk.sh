@@ -68,7 +68,7 @@ for Device in $R; do
 done
 
 # update internal lines for incoming cals
-Q="update extensions_table set appdata='INTERNALLINES=${InternalChannels}' where id=27"
+Q="update extensions_table set appdata='INTERNALCHANNELS=${InternalChannels}' where id=27"
 echo "$Q;" | mysql -N asterisk -h $MySqlHost -u $MySqlUser $Pass
 
 #echo "$PhoneCategories"
