@@ -12,7 +12,11 @@
 #include <vector>
 #include <map>
 #include <list>
+
+#ifdef WIN32
 #include <conio.h>
+#endif
+
 
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_Device.h"
@@ -100,7 +104,11 @@ string GetCommand()
 		<< "5.	Output a script that will build all packages, even if they were available as source. (buildall)" << endl
 		<< endl << "Q.  Quit" << endl;
 
+#ifdef WIN32
 	char c=(char) getch();
+#else
+	char c = getchar();
+#endif
 
 	switch(c)
 	{
@@ -241,23 +249,26 @@ int main(int argc, char *argv[])
 
 	if( sCommand=="install" )
 	{
+		cout << "#!/bin/sh" << endl;
 		list<PackageInfo *>::iterator it;
 		for(it=listPackageInfo.begin(); it!=listPackageInfo.end(); ++it)
 		{
 			PackageInfo *pPackageInfo = *it;
 
-			cout << endl << "-----------------------------------------------------" << endl;
-			cout << "# Package: " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get()
+//			cout << endl << "-----------------------------------------------------" << endl;
+			cout << endl << "# Package: " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get()
 				<< " Type: " << pPackageInfo->m_pRow_Package_Source->FK_RepositoryType_getrow()->Description_get() << endl;
 			InstallPackage(pPackageInfo);
 
 			for(size_t s=0;s<pPackageInfo->m_vectPackageInfo.size();++s)
 			{
 				PackageInfo *pPackageInfoAlt = pPackageInfo->m_vectPackageInfo[s];
-				cout << "else";
+				cout << "el"; // prefix for InstallPackage's if, creating an elif this way
 				InstallPackage(pPackageInfo);
 			}
-			cout << "else echo **ERROR** Unable to get package " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << endl;
+			cout << "else" << endl;
+			cout << "\techo '**ERROR** Unable to get package " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << "'" << endl;
+			cout << "fi" << endl;
 		}
 		for(it=listPackageInfo.begin(); it!=listPackageInfo.end(); ++it)
 		{
@@ -314,7 +325,11 @@ int main(int argc, char *argv[])
 		}
 	}
 */
+#ifdef WIN32
 	getch();
+#else
+	getchar();
+#endif
 	return 0;
 }
 
@@ -601,7 +616,7 @@ Row_Package_Directory *GetDirectory(Row_Package *pRow_Package,int PK_Directory)
 
 void InstallPackage(PackageInfo *pPackageInfo)
 {
-	cout << "if ! ./" << pRow_Distro->Installer_get()
+	cout << "if ! /usr/pluto/bin/" << pRow_Distro->Installer_get()
 		<< " \"" << pPackageInfo->m_pRow_Package_Source->Name_get() << "\""
 		<< " \"" << pPackageInfo->m_pRow_RepositorySource_URL->URL_get() << "\""
 		<< " \"" << pPackageInfo->m_pRow_Package_Source->Repository_get() << "\""
@@ -611,5 +626,8 @@ void InstallPackage(PackageInfo *pPackageInfo)
 		<< " \"" << pPackageInfo->m_sSourceIncludesPath << "\"" 
 		<< " \"" << pPackageInfo->m_sSourceImplementationPath << "\"" 
 		<< " \"" << pPackageInfo->m_sBinaryLibraryPath << "\"" 
-		<< " \"" << pPackageInfo->m_sConfiguration << "\"" << endl;
+		<< " \"" << pPackageInfo->m_sConfiguration << "\""
+		<< "; then"
+		<< endl;
+	cout << "\techo \"Something went wrong confirming package '" << pPackageInfo->m_pRow_Package_Source->Name_get() << "'\"" << endl;
 }

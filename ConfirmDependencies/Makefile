@@ -7,3 +7,6 @@ LDFLAGS=-L$(ROOT)/lib
 LDLIBS=-lpluto_main -lPlutoUtils -lSerializeClass -lDCECommon -lmysqlclient_r -lDCECommon
 
 all: ConfirmDependencies
+
+clean:
+	rm -f ConfirmDependencies
