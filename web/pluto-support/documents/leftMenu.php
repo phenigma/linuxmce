@@ -17,7 +17,7 @@
 	if($docID!=0){
 		getDocumentParentsArray($docID,$dbADO);
 		$docParentsArray=cleanArray($GLOBALS['parentsArray']);
-		$parentID=$docParentsArray[0];
+		$parentID=@$docParentsArray[0];
 		$docParentsArray=array_reverse($docParentsArray);
 		unset($GLOBALS['parentsArray']);
 
@@ -49,7 +49,7 @@
 				}
 			}
 		}
-		$parentID=$elem;
+		$parentID=@$elem;
 
 		// display the siblings 
 		if($parentID!=0)
@@ -104,7 +104,7 @@
 			<script>
 	
 			USETEXTLINKS = 1
-			STARTALLOPEN = 1
+			STARTALLOPEN = 0
 			USEFRAMES = 1
 			USEICONS = 1
 			WRAPTEXT = 1
