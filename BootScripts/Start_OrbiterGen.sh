@@ -32,7 +32,7 @@ export SDL_VIDEODEVICE=dummy
 
 for OrbiterDev in $Orbiters; do
 	Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Generating stand-alone Orbiter nr. $OrbiterDev"
-	/usr/pluto/bin/OrbiterGen -d "$OrbiterDev" -g "$SkinDir" -f "$FontDir" -o "$OutDir" -h localhost || Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Failed to generate Orbiter nr. $OrbiterDev"
+	/usr/pluto/bin/OrbiterGen -d "$OrbiterDev" -g "$SkinDir" -f "$FontDir" -o "$OutDir" -h "$MySqlHost" || Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Failed to generate Orbiter nr. $OrbiterDev"
 done
 
 fi
@@ -55,6 +55,6 @@ export SDL_VIDEODEVICE=dummy
 
 for OrbiterDev in $Orbiters; do
 	Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Generating our on-screen Orbiter nr. $OrbiterDev"
-	/usr/pluto/bin/OrbiterGen -d "$OrbiterDev" -g "$SkinDir" -f "$FontDir" -o "$OutDir" -h $MySqlHost || Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Failed to generate Orbiter nr. $OrbiterDev"
+	/usr/pluto/bin/OrbiterGen -d "$OrbiterDev" -g "$SkinDir" -f "$FontDir" -o "$OutDir" -h "$MySqlHost" || Logging "$TYPE" "$SEVERITY_CRITICAL" "$0" "Failed to generate Orbiter nr. $OrbiterDev"
 done
 
