@@ -673,10 +673,10 @@ string TableInfo_Generator::get_build_query_for_key()
 					sCode = sCode + int2string(1+2*(*i)->m_iLength) + "];\n";
 
 					if( m_eKnownPkTypes==PKTYPES_SINGLE_STRING )
-						sCode = sCode + "mysql_real_escape_string(database->db_handle,tmp_" + (*i)->m_pcFieldName 
+						sCode = sCode + "mysql_real_escape_string(database->m_pMySQL,tmp_" + (*i)->m_pcFieldName 
 								+ ", key.pk.c_str(), (unsigned long) key.pk.size());\n\n";
 					else
-						sCode = sCode + "mysql_real_escape_string(database->db_handle,tmp_" + (*i)->m_pcFieldName 
+						sCode = sCode + "mysql_real_escape_string(database->m_pMySQL,tmp_" + (*i)->m_pcFieldName 
 								+ ", key.pk_" + (*i)->m_pcFieldName + ".c_str(), (unsigned long) key.pk_" + (*i)->m_pcFieldName + ".size());\n\n";
 					sCondition = sCondition + " + \"\\\"\" + tmp_" + (*i)->m_pcFieldName + "+ \"\\\"\"";
 				}
@@ -838,7 +838,7 @@ string TableInfo_Generator::get_fields_sql_getters_definition()
 				iSize=5000000;  // Don't allow runaway fields with big text.  Assume 5MB is the maximum we would need to use
 
 			sCode = sCode + "char *buf = new char[" + int2string(iSize) + "];\n";		
-			sCode = sCode + "mysql_real_escape_string(table->database->db_handle, buf, m_" + (*i)->m_pcFieldName + ".c_str(), (unsigned long) m_" + (*i)->m_pcFieldName + ".size());\n";
+			sCode = sCode + "mysql_real_escape_string(table->database->m_pMySQL, buf, m_" + (*i)->m_pcFieldName + ".c_str(), (unsigned long) m_" + (*i)->m_pcFieldName + ".size());\n";
 
 			sCode = sCode + "string s=string("")+\"\\\"\"+buf+\"\\\"\";\n";
 			sCode = sCode + "delete buf;\n";

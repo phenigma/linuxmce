@@ -324,7 +324,7 @@ int main( int argc, char *argv[] )
 	db_h_out << "class DLL_EXPORT Database_" << sDBName << ": public MySqlHelper" << endl;
 	db_h_out << "{" << endl;
 	db_h_out << "public:" << endl;
-	db_h_out << "MYSQL *db_handle;" <<  endl;
+	db_h_out << "MYSQL *m_pMySQL;" <<  endl;
 	db_h_out << "Database_" << sDBName << "();" << endl;
 	db_h_out << "~Database_" << sDBName << "();" << endl;
 	db_h_out << "void DeleteAllTables();" << endl;
@@ -407,12 +407,12 @@ int main( int argc, char *argv[] )
 
 	db_cpp_out << "bool Database_" << sDBName << "::Connect(string host, string user, string pass, string sDBName, int port)" << endl;
 	db_cpp_out << "{" << endl;
-	db_cpp_out << "db_handle = mysql_init(NULL);" << endl;
+	db_cpp_out << "m_pMySQL = mysql_init(NULL);" << endl;
 
-	db_cpp_out << "if (mysql_real_connect(db_handle, host.c_str(), user.c_str(), pass.c_str(), sDBName.c_str(), port, NULL, 0) == NULL)" << endl;
+	db_cpp_out << "if (mysql_real_connect(m_pMySQL, host.c_str(), user.c_str(), pass.c_str(), sDBName.c_str(), port, NULL, 0) == NULL)" << endl;
 	db_cpp_out << "{return false;}" << endl;
 	db_cpp_out << "else" << endl;
-	db_cpp_out << "{SetConnection(db_handle); return true;}" << endl;
+	db_cpp_out << "{SetConnection(m_pMySQL); return true;}" << endl;
 
 	db_cpp_out << "}" << endl << endl;
 

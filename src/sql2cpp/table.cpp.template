@@ -162,18 +162,18 @@ bool Table_@table_name@::Commit()
 		string query = "insert into @table_name@ (@fields_list_comma_separated@) values ("+
 			values_list_comma_separated+")";
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
-		if (mysql_affected_rows(database->db_handle)!=0)
+		if (mysql_affected_rows(database->m_pMySQL)!=0)
 		{
 			@ifdef_have_primary_keys@
 			
-			long int id	= (long int) mysql_insert_id(database->db_handle);
+			long int id	= (long int) mysql_insert_id(database->m_pMySQL);
 		
 			@primary_autoinc_key_init@	
 			
@@ -204,7 +204,7 @@ bool Table_@table_name@::Commit()
 	
 		string query = "update @table_name@ set " + update_values_list + " where " + condition;
 			
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
@@ -238,7 +238,7 @@ bool Table_@table_name@::Commit()
 	
 		string query = "delete from @table_name@ where " + condition;
 		
-		if (mysql_query(database->db_handle, query.c_str()))
+		if (mysql_query(database->m_pMySQL, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
 			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
@@ -265,14 +265,14 @@ bool Table_@table_name@::GetRows(string where_statement,vector<class Row_@table_
 	else
 		query = "select * from @table_name@ where " + where_statement;
 		
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{
@@ -363,14 +363,14 @@ Row_@table_name@* Table_@table_name@::FetchRow(@table_key@ &key)
 
 	string query = "select * from @table_name@ where " + condition;		
 
-	if (mysql_query(database->db_handle, query.c_str()))
+	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
 		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
-	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	MYSQL_RES *res = mysql_store_result(database->m_pMySQL);
 	
 	if (!res)
 	{
