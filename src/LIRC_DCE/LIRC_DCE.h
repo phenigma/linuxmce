@@ -21,7 +21,7 @@ namespace DCE
 		// Private methods
 public:
 		// Public member variables
-		int lirc_leech(void);
+		int lirc_leech(int DeviceID);
 
 //<-dceag-const-b->
 public:

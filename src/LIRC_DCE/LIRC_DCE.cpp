@@ -76,7 +76,7 @@ LIRC_DCE::LIRC_DCE(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 	fclose(fp);
 	system("/etc/init.d/lirc restart");
 // Check if it started
-	lirc_leech();	
+	lirc_leech(DeviceID);	
 }
 
 //<-dceag-const2-b->
@@ -227,7 +227,7 @@ void LIRC_DCE::SomeFunction()
 
 */
 
-int LIRC_DCE::lirc_leech(void) {
+int LIRC_DCE::lirc_leech(int DeviceID) {
 	if(lirc_init("irexec",1)==-1) return 1;
 
 	char *code;
@@ -270,8 +270,9 @@ int LIRC_DCE::lirc_leech(void) {
 				int msgFrom, msgTo, msgType, msgID;
 				iPos4 = 0;
 				
-				sMsg = StringUtils::Tokenize(sMesg, sToken4, iPos4);
-				msgFrom = atoi(sMsg.c_str());
+//				sMsg = StringUtils::Tokenize(sMesg, sToken4, iPos4);
+//				msgFrom = atoi(sMsg.c_str());
+				msgFrom = DeviceID;
 				sMsg = StringUtils::Tokenize(sMesg, sToken4, iPos4);
 				msgTo = atoi(sMsg.c_str());
 				sMsg = StringUtils::Tokenize(sMesg, sToken4, iPos4);

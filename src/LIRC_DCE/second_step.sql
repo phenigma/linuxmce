@@ -31,11 +31,3 @@ SELECT EK_DeviceTemplate,59,Configuration FROM
 LIRC_Remote_Controls.LIRC_Remote_Controls
 LEFT JOIN DeviceTemplate_DeviceData ON FK_DeviceTemplate=EK_DeviceTemplate AND FK_DeviceData=59
 WHERE FK_DeviceTemplate IS NULL;
-##mine
-INSERT INTO pluto_dan.DeviceTemplate_DeviceData(FK_DeviceTemplate,FK_DeviceData,IK_DeviceData,AllowedToModify,ShowInWizard)
-SELECT FK_DeviceTemplate,62,'1',1,1 FROM
-pluto_dan.DeviceTemplate_DeviceData WHERE FK_DeviceData=59 AND IK_DeviceData<>'';
-
-INSERT INTO pluto_dan.DeviceTemplate_DeviceData(FK_DeviceTemplate,FK_DeviceData,IK_DeviceData,AllowedToModify,ShowInWizard)
-SELECT FK_DeviceTemplate,63,'default',1,1 FROM
-pluto_dan.DeviceTemplate_DeviceData WHERE FK_DeviceData=59 AND IK_DeviceData<>'';

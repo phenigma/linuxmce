@@ -10,9 +10,15 @@
 
 use DBI;
 
-if($ARGV[0] ne "") {
-	direct($ARGV[0]);
+if($ARGV[0] eq "") {
+	print "sync-remote-list <data-base>\n";
+	exit(1);
 }
+if($ARGV[0] eq "x") {
+	secret_step("pluto_dan");
+	exit(1);
+}
+$DBASE = $ARGV[0];
 
 print "Clearing Databses ";
 system("cat first_step.sql | mysql -h 10.0.0.150");
@@ -49,6 +55,10 @@ $db->disconnect();
 
 print "Making Final Step ";
 system("cat second_step.sql | mysql -h 10.0.0.150");
+print "[Done]\n";
+
+print "Adding other data for Device Templates ";
+secret_step($DBASE);
 print "[Done]\n";
 
 sub grab_dir {
@@ -98,4 +108,35 @@ sub add_remote {
 	$st = $db->prepare($sql);
 	$st->execute();
 	$st->finish();
+}
+
+sub secret_step() {
+	$dbname = shift;
+	$dbb = DBI->connect("dbi:mysql:database=$dbname;host=10.0.0.150;user=root;password=") or die "Couldn't connect to database: $DBI::errstr\n";
+	$sql = "Select FK_DeviceTemplate FROM DeviceTemplate_DeviceData WHERE FK_DeviceData=59 AND IK_DeviceData<>''";
+	$st = $dbb->prepare($sql);
+	$st->execute();
+	while($row = $st->fetchrow_hashref()) {
+		$id_temp = $row->{'FK_DeviceTemplate'};
+		$sql = "Select FK_DeviceTemplate FROM DeviceTemplate_DeviceData WHERE FK_DeviceData=62 AND IK_DeviceData<>'' AND FK_DeviceTemplate='$id_temp'";
+		$st2 = $dbb->prepare($sql);
+		$st2->execute();
+		if($r = $st2->fetchrow_hashref()) {
+			print "DeviceTemplate $id_temp have allready SerialPort\n";
+		} else {
+			$dbb->do("INSERT INTO DeviceTemplate_DeviceData(FK_DeviceTemplate,FK_DeviceData,IK_DeviceData,AllowedToModify,ShowInWizard) Values('$id_temp','62','1','1','1')");
+		}
+		$st2->finish();
+		
+		$sql = "Select FK_DeviceTemplate FROM DeviceTemplate_DeviceData WHERE FK_DeviceData=63 AND IK_DeviceData<>'' AND FK_DeviceTemplate='$id_temp'";
+		$st2 = $dbb->prepare($sql);
+		$st2->execute();
+		if($r = $st2->fetchrow_hashref()) {
+			print "DeviceTemplate $id_temp have allready LIRC Driver\n";
+		} else {
+			$dbb->do("INSERT INTO DeviceTemplate_DeviceData(FK_DeviceTemplate,FK_DeviceData,IK_DeviceData,AllowedToModify,ShowInWizard) Values('$id_temp','63','default','1','1')");
+		}
+		$st2->finish();
+	}
+	$dbb->disconnect();
 }
