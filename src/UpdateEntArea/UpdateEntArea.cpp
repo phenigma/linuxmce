@@ -267,47 +267,47 @@ void UpdateEntArea::DeleteEntertainArea(Row_EntertainArea *pRow_EntertainArea)
 	m_pDatabase_pluto_main->Device_EntertainArea_get()->Commit();
 }
 
-void UpdateEntArea::AddDefaultCommandsToEntArea(Row_EntertainArea *pRow_EntertainArea)
+void UpdateEntArea::AddDefaultCommandsToEntArea(Row_EntertainArea *pRow_EntertainArea,int iPK_Template)
 {
 	int PK_CommandGroup;
-	if( (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_TV_CONST,"TV"))!=0 )
+	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_TV_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_TV_CONST,"TV"))!=0 )
 	{
 		AddCommand(PK_CommandGroup,m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,"1");
 	}
-	if( (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_TV_CONST,"Play Disc"))!=0 )
+	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_Disc_CDDVD_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_Disc_CDDVD_CONST,"Play Disc"))!=0 )
 	{
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,"1696");
 		AddCommand(PK_CommandGroup,m_dwPK_Device_MediaPlugIn,COMMAND_MH_Play_Media_CONST,0);
 	}
-	if( (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_playlists_CONST,"Playlists"))!=0 )
+	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_playlists_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_playlists_CONST,"Playlists"))!=0 )
 	{
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,"3226");
 	}
-	if( (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_music_CONST,"Music"))!=0 )
+	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_music_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_music_CONST,"Music"))!=0 )
 	{
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,"2",COMMANDPARAMETER_Value_To_Assign_CONST,"music");
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,"14",COMMANDPARAMETER_Value_To_Assign_CONST,"4");
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,"2071");
 	}
-	if( (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_movies_CONST,"Movies"))!=0 )
+	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_movies_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_movies_CONST,"Movies"))!=0 )
 	{
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,"2",COMMANDPARAMETER_Value_To_Assign_CONST,"movies");
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,"14",COMMANDPARAMETER_Value_To_Assign_CONST,"3");
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,"2071");
 	}
-	if( (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_videos_CONST,"Videos"))!=0 )
+	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_videos_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_videos_CONST,"Videos"))!=0 )
 	{
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,"2",COMMANDPARAMETER_Value_To_Assign_CONST,"videos");
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,"14",COMMANDPARAMETER_Value_To_Assign_CONST,"5");
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,"2071");
 	}
-	if( (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_pictures_CONST,"Pictures"))!=0 )
+	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_pictures_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_pictures_CONST,"Pictures"))!=0 )
 	{
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,"2",COMMANDPARAMETER_Value_To_Assign_CONST,"pictures");
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,"14",COMMANDPARAMETER_Value_To_Assign_CONST,"7");
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,"3282");
 	}
-	if( (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_pictures_CONST,"Docs"))!=0 )
+	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_pictures_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_pictures_CONST,"Docs"))!=0 )
 	{
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,"2",COMMANDPARAMETER_Value_To_Assign_CONST,"docs");
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,"3282");
