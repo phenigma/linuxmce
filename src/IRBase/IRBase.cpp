@@ -115,14 +115,14 @@ void IRBase::ParseDevices()
 void IRBase::AddIRToQueue(string Port, string IRCode, unsigned long Delay, long DeviceNum, long CommandNum, long Count, long ChannelSequenceNumber)
 {
 	g_pPlutoLogger->Write(LV_STATUS, "AddIRToQueue (1) (Port=%s, IRCode=%s, Delay=%d, DeviceNum=%d, CommandNum=%d, Count=%d, ChannelSequenceNumber=%d)",
-			Port, IRCode, Delay, DeviceNum, CommandNum, Count, ChannelSequenceNumber);
+			Port.c_str(), IRCode.c_str(), Delay, DeviceNum, CommandNum, Count, ChannelSequenceNumber);
 	AddIRToQueue(Port, IRCode, ms_to_timespec(Delay), DeviceNum, CommandNum, Count, ChannelSequenceNumber);
 }
 
 void IRBase::AddIRToQueue(string Port, string IRCode, timespec Delay, long DeviceNum, long CommandNum, long Count, long ChannelSequenceNumber)
 {
 	g_pPlutoLogger->Write(LV_STATUS, "AddIRToQueue (2) (Port=%s, IRCode=%s, Delay=%d, DeviceNum=%d, CommandNum=%d, Count=%d, ChannelSequenceNumber=%d)",
-			Port, IRCode, Delay, DeviceNum, CommandNum, Count, ChannelSequenceNumber);
+			Port.c_str(), IRCode.c_str(), Delay, DeviceNum, CommandNum, Count, ChannelSequenceNumber);
 	pthread_mutex_lock(&m_IRMutex.mutex);
 
 	// If this is a volume command, check the outgoing queue and erase other volume requests.
@@ -297,8 +297,8 @@ bool IRBase::ProcessMessage(Message *pMessage)
 			DeviceNum=TargetDevice;
 		}
 		g_pPlutoLogger->Write(LV_STATUS, "Add IR to queue: Channel: %s, Tokens: %s, Device: %d, Command: %d",
-				pMessage->m_mapParameters[COMMANDPARAMETER_Absolute_Channel_CONST],
-				pMessage->m_mapParameters[COMMANDPARAMETER_Tokens_CONST], DeviceNum, CommandNum);
+				pMessage->m_mapParameters[COMMANDPARAMETER_Absolute_Channel_CONST].c_str(),
+				pMessage->m_mapParameters[COMMANDPARAMETER_Tokens_CONST].c_str(), DeviceNum, CommandNum);
 		AddIRToQueue(pMessage->m_mapParameters[COMMANDPARAMETER_Absolute_Channel_CONST],
 				pMessage->m_mapParameters[COMMANDPARAMETER_Tokens_CONST], 0, DeviceNum, CommandNum);
 		return true;
