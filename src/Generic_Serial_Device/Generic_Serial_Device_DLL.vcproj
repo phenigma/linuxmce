@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="DCE_Template"
+	Name="Generic_Serial_Device"
 	ProjectGUID="{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}"
 	Keyword="Win32Proj">
 	<Platforms>
@@ -33,12 +33,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib"
-				OutputFile="../bin/DCE_Template.dll"
+				OutputFile="../bin/Generic_Serial_Device.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
-				ModuleDefinitionFile="DCE_Template.def"
+				ModuleDefinitionFile="Generic_Serial_Device.def"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/DCE_Template.pdb"
+				ProgramDatabaseFile="$(OutDir)/Generic_Serial_Device.pdb"
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
@@ -85,9 +85,9 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/DCE_Template.dll"
+				OutputFile="$(OutDir)/Generic_Serial_Device.dll"
 				LinkIncremental="1"
-				ModuleDefinitionFile="DCE_Template.def"
+				ModuleDefinitionFile="Generic_Serial_Device.def"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -125,13 +125,13 @@
 				RelativePath="Main.cpp">
 			</File>
 			<File
-				RelativePath="DCE_Template.cpp">
+				RelativePath="Generic_Serial_Device.cpp">
 			</File>
 			<File
-				RelativePath="DCE_Template.def">
+				RelativePath="Generic_Serial_Device.def">
 			</File>
 			<File
-				RelativePath="..\Gen_Devices\DCE_TemplateBase.cpp">
+				RelativePath="..\Gen_Devices\Generic_Serial_DeviceBase.cpp">
 			</File>
 		</Filter>
 		<Filter
@@ -141,7 +141,7 @@
 				RelativePath="..\DCE\DCEDeviceData_Impl.h">
 			</File>
 			<File
-				RelativePath="DCE_Template.h">
+				RelativePath="Generic_Serial_Device.h">
 			</File>
 		</Filter>
 		<Filter

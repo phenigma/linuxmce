@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="DCE_Template"
+	Name="Generic_Serial_Device"
 	ProjectGUID="{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}"
 	Keyword="Win32Proj">
 	<Platforms>
@@ -14,7 +14,7 @@
 			Name="Debug|Win32"
 			OutputDirectory="Debug"
 			IntermediateDirectory="Debug"
-			ConfigurationType="2"
+			ConfigurationType="1"
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
@@ -33,12 +33,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib"
-				OutputFile="../bin/DCE_Template.dll"
+				OutputFile="../bin/Generic_Serial_Device.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
-				ModuleDefinitionFile="DCE_Template.def"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/DCE_Template.pdb"
+				ProgramDatabaseFile="$(OutDir)/Generic_Serial_Device.pdb"
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
@@ -85,9 +84,8 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/DCE_Template.dll"
+				OutputFile="$(OutDir)/Generic_Serial_Device.exe"
 				LinkIncremental="1"
-				ModuleDefinitionFile="DCE_Template.def"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -122,16 +120,16 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
+				RelativePath="Generic_Serial_Device.cpp">
+			</File>
+			<File
+				RelativePath="..\Gen_Devices\Generic_Serial_DeviceBase.cpp">
+			</File>
+			<File
+				RelativePath="..\Serial\GenericIODevice.cpp">
+			</File>
+			<File
 				RelativePath="Main.cpp">
-			</File>
-			<File
-				RelativePath="DCE_Template.cpp">
-			</File>
-			<File
-				RelativePath="DCE_Template.def">
-			</File>
-			<File
-				RelativePath="..\Gen_Devices\DCE_TemplateBase.cpp">
 			</File>
 		</Filter>
 		<Filter
@@ -141,7 +139,7 @@
 				RelativePath="..\DCE\DCEDeviceData_Impl.h">
 			</File>
 			<File
-				RelativePath="DCE_Template.h">
+				RelativePath="Generic_Serial_Device.h">
 			</File>
 		</Filter>
 		<Filter
