@@ -27,7 +27,7 @@ BDCommandProcessor_Linux_Bluetooth::BDCommandProcessor_Linux_Bluetooth(string sM
 	
 {
 printf("start of constructor %p\n",g_pPlutoLogger);
-g_pPlutoLogger->Write(LV_STATUS,"start of const");
+g_pPlutoLogger->Write(LV_STATUS,"start of const %s",sMacAddressPhone.c_str());
 	m_pDevice=pDevice;
 	if( !m_pDevice )
 		cerr << "temporary hack -- m_pDevice is NULL. " << sMacAddressPhone << endl;
@@ -59,7 +59,7 @@ g_pPlutoLogger->Write(LV_STATUS,"start of const");
 
 	if (bind(m_CommHandle, (struct sockaddr *)&laddr, sizeof(laddr)) < 0) 
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Can't bind RFCOMM socket");
+		g_pPlutoLogger->Write(LV_WARNING,"Can't bind RFCOMM socket %s",sMacAddressPhone.c_str());
 		close(m_CommHandle);
 		m_bDead=true;
 		return;
@@ -69,7 +69,7 @@ g_pPlutoLogger->Write(LV_STATUS,"start of const");
 	int err_code = 0;
 	if ((err_code = connect(m_CommHandle, (struct sockaddr *)&raddr, sizeof(raddr))) < 0) 
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Can't connect RFCOMM socket. (The symbian app is not started or it's dead)");
+		g_pPlutoLogger->Write(LV_WARNING,"Can't connect RFCOMM socket %s. (The symbian app is not started or it's dead)",sMacAddressPhone.c_str());
 		printf("# error code: %d\n", err_code);
 		close(m_CommHandle);
 		m_bDead=true;
@@ -79,13 +79,13 @@ g_pPlutoLogger->Write(LV_STATUS,"start of const");
 	alen = sizeof(laddr);
 	if (getsockname(m_CommHandle, (struct sockaddr *)&laddr, &alen) < 0) 
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Can't get RFCOMM socket name");
+		g_pPlutoLogger->Write(LV_WARNING,"Can't get RFCOMM socket name %s",sMacAddressPhone.c_str());
 		close(m_CommHandle);
 		m_bDead=true;
 		return;
 	}
 
-	g_pPlutoLogger->Write(LV_WARNING,"Successfully connected to the symbian application");
+	g_pPlutoLogger->Write(LV_WARNING,"Successfully connected to the symbian application %s",sMacAddressPhone.c_str());
 }
 
 BDCommandProcessor_Linux_Bluetooth::~BDCommandProcessor_Linux_Bluetooth()
