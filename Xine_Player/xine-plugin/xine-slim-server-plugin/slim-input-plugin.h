@@ -1,8 +1,9 @@
 #ifndef SLIM_INPUT_PLUGIN_H
 #define SLIM_INPUT_PLUGIN_H
 
-#define LOG_MODULE "SlimServer 5.4.0+ Input Plugin: "
-#define LOG_VERBOSE 1
+#include "local_defines.h"
+
+#include "slim-stream.h"
 
 #include "xine_internal.h"
 #include "xineutils.h"
@@ -37,9 +38,11 @@ struct slim_input_plugin_s
 	char            *mrl;
 	char            *slim_server_specification;	
 
+
 	// the stream we are playing 
 	xine_stream_t	*stream;
 
+	struct slim_stream source_stream;
 	// data preview	buffer
 	char             preview_buffer[MAX_PREVIEW_SIZE];
 	off_t            preview_size;

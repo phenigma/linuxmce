@@ -1,8 +1,7 @@
 #ifndef SLIM_PROTOCOL_HANDLER_H
 #define SLIM_PROTOCOL_HANDLER_H
 
-#define LOG_MODULE "SlimServer 5.4.0+ Input Plugin (protocol decoder): "
-#define LOG_VERBOSE 1
+#include "local_defines.h"
 
 #include "xine_internal.h"
 // #include "xineutils.h"
@@ -27,6 +26,23 @@ typedef enum _CommandType
 	COMMAND_DISPLAY		= 4
 } CommandType;
 
+typedef enum _StreamManagementCommandType
+{
+	STREAM_NO_COMMAND,
+	STREAM_START, 
+	STREAM_PAUSE,
+	STREAM_UNPAUSE, 
+	STREAM_QUIT
+} StreamManagementCommandType;
+
+typedef enum _StreamFormatType
+{
+	STREAM_FORMAT_MP3,
+	STREAM_FORMAT_FLAC, 
+	STREAM_FORMAT_PCM,
+	STREAM_FORMAT_UNKNOWN	
+} StreamFormatType;
+
 struct slimCommand 
 {
 	CommandType commandType;
@@ -47,7 +63,9 @@ struct slimCommand
 		} vfDisplay;
 
 		struct _streamCommand {
-		 	char code;
+		 	StreamManagementCommandType command;
+			StreamFormatType			format;
+			char						autoStart;
 		} stream;
 
 		struct _i2cCommand {

@@ -127,16 +127,25 @@
 			<File
 				RelativePath=".\slim-protocol-handler.c">
 			</File>
+			<File
+				RelativePath=".\slim-stream.c">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
+				RelativePath=".\local_defines.h">
+			</File>
+			<File
 				RelativePath=".\slim-input-plugin.h">
 			</File>
 			<File
 				RelativePath=".\slim-protocol-handler.h">
+			</File>
+			<File
+				RelativePath=".\slim-stream.h">
 			</File>
 		</Filter>
 		<Filter

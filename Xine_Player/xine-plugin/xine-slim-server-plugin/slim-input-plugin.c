@@ -1,5 +1,6 @@
 #include "slim-input-plugin.h"
 #include "slim-protocol-handler.h"
+#include "slim-stream.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,6 +10,8 @@
 #include <netinet/in.h>
 
 #define MAX_READ_BUFFER_SIZE 1024
+
+struct slim_stream audio_stream; 
 
 static char commandNames[][4] = {
 	"VERS", 
@@ -99,7 +102,22 @@ static int read_and_decode_command(slim_input_plugin_t *plugin, xine_t *xine_han
 
 int process_command_from_server(slim_input_plugin_t *plugin, slim_input_class_t *plugin_class, struct slimCommand *command)
 {	
-	// TODO: put the logic to process the command in here
+	if ( command->commandType == COMMAND_STREAM ) // it is a related command stream
+	{
+		switch(command->commandData.stream.command )
+		{
+			case STREAM_QUIT:
+				stream_close(&plugin->source_stream);
+				break;
+			case STREAM_START:				
+				stream_open(&plugin->source_stream);
+				break;
+			case STREAM_PAUSE:
+			case STREAM_UNPAUSE:			
+			case STREAM_NO_COMMAND: default: break; 				
+				// ignore this command
+		}
+	}
 	return 1;
 }
 
@@ -125,7 +143,7 @@ int fill_preview_buffer(slim_input_plugin_t *plugin, slim_input_class_t *plugin_
 			continue;			
 		}
 
-		slim_protocol_make_ack(&outBuffer, &outBufferLength, commandNames[command.commandType], 0, /* */ 0, 1, 0, 0, 0, 0);
+		slim_protocol_make_ack(&outBuffer, &outBufferLength, commandNames[command.commandType], 0, /* */ 0, 1, 262144, 0, 0, 1000);
 		send_command(plugin, plugin_class->xine, outBuffer, outBufferLength);
 	}
 	return 1;

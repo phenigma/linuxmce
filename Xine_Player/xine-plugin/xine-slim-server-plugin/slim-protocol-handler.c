@@ -60,7 +60,7 @@ int slim_protocol_make_ack(char **outBuffer, int *len,
 	buffer[pos++] = (char)(bytesRX >> 0x00) & 0xFF;
 	buffer[pos++] = 0;
 
-	buffer[pos++] = 0;
+	buffer[pos++] = 0xFF;
 	buffer[pos++] = 0xFF;
 
 	buffer[pos++] = (jiffies >> 0x18) & 0xFF;
@@ -83,7 +83,7 @@ int slim_protocol_make_helo(char **outBuffer, int *len, unsigned char deviceID, 
 	buffer[4] = 0;
 	buffer[5] = 0;
 	buffer[6] = 0;
-	buffer[7] = 8;
+	buffer[7] = *len - 8;
  
 	buffer[8] = deviceID;
 	buffer[9] = deviceRevision;
@@ -93,8 +93,47 @@ int slim_protocol_make_helo(char **outBuffer, int *len, unsigned char deviceID, 
 	buffer[13] = mac[3];
 	buffer[14] = mac[4];
 	buffer[15] = mac[5];
-	buffer[16] = 0x80;
-	buffer[17] = 0;
+	buffer[16] = 0x00;
+	buffer[17] = 0x00;
+
+	return 1;
+}
+
+int slim_protocol_decode_strm_command(unsigned char *buffer, unsigned int bufferLength, xine_t *xine_session, struct slimCommand *decodedCommand)
+{	
+	decodedCommand->commandType = COMMAND_STREAM;
+
+	// get the primary command;
+	if ( buffer[0] == 's' )
+		decodedCommand->commandData.stream.command = STREAM_START; 
+	else if ( buffer[0] == 'u' )
+		decodedCommand->commandData.stream.command = STREAM_UNPAUSE; 
+	else if ( buffer[0] == 'p' )
+		decodedCommand->commandData.stream.command = STREAM_PAUSE; 
+	else if ( buffer[0] == 'q' )
+		decodedCommand->commandData.stream.command = STREAM_QUIT; 
+	else
+	{
+		xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Invalid stream control command %c. Ignoring!\n"), buffer[0]);
+		decodedCommand->commandData.stream.command = STREAM_NO_COMMAND; 
+		return 0;
+	}
+	
+	if ( buffer[2] == 'm' )
+		decodedCommand->commandData.stream.format = STREAM_FORMAT_MP3;
+	else if ( buffer[2] == 'f' )
+		decodedCommand->commandData.stream.format = STREAM_FORMAT_FLAC;
+	else if ( buffer[2] == 'p' )
+		decodedCommand->commandData.stream.format = STREAM_FORMAT_PCM;
+	else
+	{
+		decodedCommand->commandData.stream.format = STREAM_FORMAT_UNKNOWN;
+		xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Unknown streaming format: %c. Ignoring!\n"), buffer[2]);
+		return 0;
+	}
+
+	decodedCommand->commandData.stream.autoStart = buffer[1];
+	decodedCommand->commandData.stream.
 
 	return 1;
 }
@@ -106,13 +145,12 @@ int slim_protocol_decode(unsigned char *buffer, unsigned int bufferLength, xine_
 	unsigned int pBufferPos;
 
 	if ( strncmp(buffer, "strm", 4) == 0 )
-	{
-		decodedCommand->commandType = COMMAND_STREAM;
-		// decodedCommand->commandData.stream.
-	}
-	else if ( strncmp(buffer, "grfd", 4) == 0 )
+		return slim_protocol_decode_strm_command(buffer + 4, bufferLength - 4, xine_session, decodedCommand);
+
+	if ( strncmp(buffer, "grfd", 4) == 0 )
 	{
 		decodedCommand->commandType = COMMAND_DISPLAY;
+		xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Grfd command received!\n"));
 	}	
 	else if ( strncmp(buffer, "vfdc", 4) == 0 )
 	{
@@ -186,6 +224,7 @@ int slim_protocol_decode(unsigned char *buffer, unsigned int bufferLength, xine_
 	}
 	else if ( strncmp(buffer, "i2cc", 4) == 0 )
 	{
+		xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "i2cc command received!\n"));	
 		decodedCommand->commandType = COMMAND_I2C;
 	}
 	else if ( strncmp(buffer, "vers", 4) == 0 )
