@@ -826,6 +826,10 @@ cout << "Still rows in server's vect - pos: " << pos << " size: " << r_GetAll_ps
 
 bool Table::CheckIn( int psc_user, RA_Processor &ra_Processor, DCE::Socket *pSocket, enum TypeOfChange toc )
 {
+if( m_sName=="CommandCategory" )
+{
+int k=2;
+}
 	vector<string> vectFields;
 	for( MapField::iterator it=m_mapField.begin( );it!=m_mapField.end( );++it )
 	{

@@ -629,25 +629,6 @@ bool Repository::CheckIn( )
 		}
 	}
 
-	// We may have updated some records because we added new records, which caused new primary keys to be 
-	// created and propagated, altering records we had already submitted.  We'll need to resubmit them again.
-	for( map<int,MapTable *>::iterator it=g_GlobalConfig.m_mapUsersTables.begin( );it!=g_GlobalConfig.m_mapUsersTables.end( );++it )
-	{
-		int psc_user = ( *it ).first;
-		MapTable *pMapTable = ( *it ).second;
-		for( MapTable::iterator itT=pMapTable->begin( );itT!=pMapTable->end( );++itT )
-		{
-			Table *pTable = ( *itT ).second;
-			pTable->m_mapUsers2ChangedRowList.clear(); // Clear it out
-			pTable->GetChanges( ); // Get the changes again, and resend any of them
-			if( pTable->Repository_get( )==this && !pTable->CheckIn( psc_user, ra_Processor, pSocket, toc_Modify ) )
-			{
-				delete pSocket;
-				return false;
-			}
-		}
-	}
-
 	R_CloseTransaction r_CloseTransaction;
 	ra_Processor.AddRequest(&r_CloseTransaction);
 	while( ra_Processor.SendRequests( g_GlobalConfig.m_sSqlCVSHost + ":" + StringUtils::itos(g_GlobalConfig.m_iSqlCVSPort), &pSocket ) );
@@ -671,7 +652,11 @@ bool Repository::CheckIn( )
 		}
 	}
 	else
+	{
 		cerr << "Failed to close transaction.  Transaction will be rolled back!" << endl;
+		return false;
+	}
+
 	return true;
 }
 

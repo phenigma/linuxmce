@@ -365,6 +365,9 @@ int main( int argc, char *argv[] )
 					throw "Bad Arguments";
 				}
 				database.CheckIn( );
+				// We may have updated some records because we added new records, which caused new primary keys to be 
+				// created and propagated, altering records we had already submitted.  We'll need to resubmit them again.
+				database.CheckIn( );
 			}
 			else if( g_GlobalConfig.m_sCommand=="update" )
 			{
@@ -384,6 +387,9 @@ int main( int argc, char *argv[] )
 					cerr << "Repository: " << g_GlobalConfig.m_sRepository << "is invalid";
 					throw "Bad Arguments";
 				}
+				database.CheckIn( );
+				// We may have updated some records because we added new records, which caused new primary keys to be 
+				// created and propagated, altering records we had already submitted.  We'll need to resubmit them again.
 				database.CheckIn( );
 				database.Update( );
 			}
