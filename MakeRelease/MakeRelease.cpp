@@ -1023,7 +1023,8 @@ cout << "Making CVS Checkout to temporary\n";
 	system(cmd.c_str());
 
 cout << "Reading files from temporary ";
-	FileUtils::FindFiles(MyList, pRow_Package_Source->Name_get().c_str(), "*", true, "");
+	getcwd(cmd, 255);
+	FileUtils::FindFiles(MyList, cmd, "*", true, "");
 	cout << MyList.size();
 cout << " [Done]\n";
 
