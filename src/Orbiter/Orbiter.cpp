@@ -1693,8 +1693,11 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
     // WAS: selection on "click to select cell,  set variable,  click play button,  play what in the just set var" interface
     // Side-effect on single select interface: the clicked row was redrawn after drawing the new grid
     if ( !pDesignObj_DataGrid->m_iPK_Variable || !pCell->m_bSelectable )
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "No datagrid variable was updated");
         return true;
-
+	}
+	
     int PK_Variable = pDesignObj_DataGrid->m_iPK_Variable;
     /* hack -- todo -- handle multi select
     if ( pDesignObj_DataGrid->m_bIsMultiSelect )
@@ -1749,8 +1752,12 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
     }
     hack -- need this      }
     */
+
+	g_pPlutoLogger->Write(LV_WARNING, "Need to update variable %d of the datagrid with value %d", 
+		pDesignObj_DataGrid->m_iPK_Variable, NewValue);
+
     PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
-        m_mapVariable[PK_Variable] = NewValue;
+    m_mapVariable[PK_Variable] = NewValue;
     /* hack todo
     bFoundSelection = true;
     vm.Release(  );
