@@ -47,8 +47,14 @@ private:
 		bool processTelegram(const EIBBUS::TelegramMessage *pt, DeviceData_Impl *pDevData);
 
 		/*helper methods*/		
+		/*
 		static bool getParamsFromChannel(const std::string& sChannel, 
 							unsigned int index, std::string& param);
+		*/
+		static int getParamsFromChannel(const std::string& sChannel, 
+							std::vector<std::string>& params);
+		static float getFloatFromUShort(unsigned short tempr);
+		static unsigned short getUShortFromFloat( float tempr );
 private:
 	enum DATATYPE {
 		DT_UNKNOWN				= 0,

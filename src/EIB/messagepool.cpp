@@ -31,6 +31,12 @@
 using namespace std;
 using namespace DCE;
 
+#ifndef _WINDOWS
+	#define DEFAULT_EIB_SER_PORT 	"ttyS0"
+#else
+	#define DEFAULT_EIB_SER_PORT 	"COM1"
+#endif
+
 #define SLEEP_IO_ERROR			5000
 #define SLEEP_WAIT_MESSAGES		10
 #define SLEEP_WAIT_ACKNOWLEDGE	500
@@ -54,6 +60,7 @@ MessagePool::MessagePool(bool monitormode)
 		sendstate_(this),
 		readystate_(this)
 {
+	serport_ = DEFAULT_EIB_SER_PORT;
 	pbusconn_ = BusConnector::getInstance();
 }
 
@@ -89,7 +96,7 @@ MessagePool::_Run() {
 	while(!isStopRequested()) {
 		/*check if we are connected*/
 		if(!pbusconn_->isOpened()) {
-			if(pbusconn_->Open()) {
+			if(pbusconn_->Open(serport_.c_str())) {
 				g_pPlutoLogger->Write(LV_STATUS, "Could not connect to EIB Bus. Sleeping for %d second...", SLEEP_IO_ERROR);
 				sleep(SLEEP_IO_ERROR / 1000);
 				continue;

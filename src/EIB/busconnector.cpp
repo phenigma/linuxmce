@@ -23,7 +23,6 @@
 
 #include "DCE/Logger.h"
 
-#define EIB_SER_PORT 		"ttyS0"
 #define EIB_BPS 			19200
 
 #define FOO_BUFF_SIZE		256
@@ -60,9 +59,9 @@ BusConnector::getInstance() {
 }
 
 int 
-BusConnector::Open() {
+BusConnector::Open(const char* serport) {
 	try {
-		psp_ = new ExtendedSerialPort(EIB_SER_PORT, EIB_BPS, epbsN81);
+		psp_ = new ExtendedSerialPort(serport, EIB_BPS, epbsN81);
 		int hserial = psp_->getHandle();
 
 		struct termios terminal;
@@ -97,7 +96,7 @@ BusConnector::Open() {
 		}
    	
 	} catch(...) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "Failed Opening EIB serial port: %s", EIB_SER_PORT);
+		g_pPlutoLogger->Write(LV_CRITICAL, "Failed Opening EIB serial port: %s", serport);
 		return -1;
 	}
 	

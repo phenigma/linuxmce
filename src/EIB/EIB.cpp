@@ -17,6 +17,10 @@ using namespace DCE;
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
+#include "pluto_main/Define_Event.h"
+#include "pluto_main/Define_EventParameter.h"
+
+#define MAX_TEMPSTR_LENGTH	15
 
 using namespace EIBBUS;
 
@@ -110,7 +114,7 @@ void EIB::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD
 		
 	VectDeviceData_Impl& vDeviceData = m_pData->m_vectDeviceData_Impl_Children;
     for(VectDeviceData_Impl::size_type i = 0; i < vDeviceData.size(); i++) {
-        if(vDeviceData[i]->m_dwPK_Device == pMessage->m_dwPK_Device_To) {
+        if(vDeviceData[i]->m_dwPK_Device == (unsigned)pMessage->m_dwPK_Device_To) {
             pDeviceData_Impl = vDeviceData[i];
             break;
         }
@@ -123,6 +127,7 @@ void EIB::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD
 
 	TelegramMessage tlmsg;
 	switch(pMessage->m_dwID) {
+		/***Toggle Power*********************************************************************/
 		case COMMAND_Toggle_Power_CONST: {
 			switch(pDeviceData_Impl->m_dwPK_DeviceTemplate) {
 				case DEVICETEMPLATE_Generic_Input_Ouput_CONST: {
@@ -141,6 +146,7 @@ void EIB::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD
 			}
 		} break;
 		
+		/***On*******************************************************************************/
 		case COMMAND_Generic_On_CONST: {
 			/***all devices ***/
 			switch(pDeviceData_Impl->m_dwPK_DeviceTemplate) {
@@ -148,13 +154,15 @@ void EIB::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD
 				case DEVICETEMPLATE_Light_Switch_onoff_CONST:
 				case DEVICETEMPLATE_Light_Switch_dimmable_CONST: {
 					/***default***/
-					string onoffaddr;
+					vector<string> addrs;
 					string sChannel = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_Channel_CONST);
-					if(getParamsFromChannel(sChannel, 0, onoffaddr)) {
-						tlmsg.setGroupAddress(onoffaddr.c_str());
+					if(getParamsFromChannel(sChannel, addrs) >= 1) {
+						tlmsg.setGroupAddress(addrs[0].c_str());
 						tlmsg.setShortUserData(1);
 						g_pPlutoLogger->Write(LV_STATUS, "Turning ON");
 						m_msgPool.sendTelegram(&tlmsg);
+					} else {
+						g_pPlutoLogger->Write(LV_WARNING, "Channel format is incorrect.");
 					}
 				} break;
 				default: {
@@ -163,6 +171,7 @@ void EIB::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD
 			}
 			
 			} break;
+	/***Off*****************************************************************************/
 		case COMMAND_Generic_Off_CONST: {
 			/***all devices ***/
 			switch(pDeviceData_Impl->m_dwPK_DeviceTemplate) {
@@ -170,13 +179,15 @@ void EIB::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD
 				case DEVICETEMPLATE_Light_Switch_onoff_CONST:
 				case DEVICETEMPLATE_Light_Switch_dimmable_CONST: {
 					/***default***/
-					string onoffaddr;
+					vector<string> addrs;
 					string sChannel = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_Channel_CONST);
-					if(getParamsFromChannel(sChannel, 0, onoffaddr)) {
-						tlmsg.setGroupAddress(onoffaddr.c_str());
+					if(getParamsFromChannel(sChannel, addrs) >= 1) {
+						tlmsg.setGroupAddress(addrs[0].c_str());
 						tlmsg.setShortUserData(0);
 						g_pPlutoLogger->Write(LV_STATUS, "Turning OFF");
 						m_msgPool.sendTelegram(&tlmsg);
+					} else {
+						g_pPlutoLogger->Write(LV_WARNING, "Channel format is incorrect.");
 					}
 				} break;
 				default: {
@@ -184,12 +195,15 @@ void EIB::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD
 				} break;
 			}
 			} break;
+		/***Set Level*************************************************************************/
 		case COMMAND_Set_Level_CONST: {
 			switch(pDeviceData_Impl->m_dwPK_DeviceTemplate) {
 				case DEVICETEMPLATE_Light_Switch_dimmable_CONST: {
-					string dimaddr;
+					vector<string> addrs;
 					string sChannel = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_Channel_CONST);
-					if(getParamsFromChannel(sChannel, 1, dimaddr)) {
+					if(getParamsFromChannel(sChannel, addrs) >= 2) {
+						tlmsg.setGroupAddress(addrs[1].c_str());
+						
 						int dimmval = 
 								(unsigned int)atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST].c_str());
 						unsigned char dimm 
@@ -197,15 +211,17 @@ void EIB::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD
 						tlmsg.setUserData(&dimm, 1);
 						g_pPlutoLogger->Write(LV_STATUS, "Dimming to %d%%.", dimmval);
 						m_msgPool.sendTelegram(&tlmsg);
+					} else {
+						g_pPlutoLogger->Write(LV_WARNING, "Channel format is incorrect.");
 					}
 				} break;
 				
 				case DEVICETEMPLATE_Drapes_Switch_CONST: {
 					/***drapes switch***/
-					string dimaddr;
+					vector<string> addrs;
 					string sChannel = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_Channel_CONST);
-					if(getParamsFromChannel(sChannel, 1, dimaddr)) {
-						tlmsg.setGroupAddress(dimaddr.c_str());
+					if(getParamsFromChannel(sChannel, addrs) >= 2) {
+						tlmsg.setGroupAddress(addrs[1].c_str());
 						int dimmval = 
 								(unsigned int)atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Level_CONST].c_str());
 						bool stepfwrd = 
@@ -222,6 +238,32 @@ void EIB::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD
 							m_msgPool.sendTelegram(&tlmsg);
 							usleep(500*1000); // sleep 10 sec
 						}
+					} else {
+						g_pPlutoLogger->Write(LV_WARNING, "Channel format is incorrect.");
+					}
+				} break;
+				default: {
+					g_pPlutoLogger->Write(LV_WARNING, "Device type NOT Supported.");
+				} break;
+			}
+			} break;
+
+		/***Set Temperature*****************************************************************************/
+		case COMMAND_Set_Temperature_CONST: {
+			switch(pDeviceData_Impl->m_dwPK_DeviceTemplate) {
+				case DEVICETEMPLATE_Standard_Thermostat_CONST: {
+					vector<string> addrs;
+					string sChannel = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_Channel_CONST);
+					if(getParamsFromChannel(sChannel, addrs) >= 1) {
+						tlmsg.setGroupAddress(addrs[0].c_str());
+						float tempval = 
+								atof(pMessage->m_mapParameters[COMMANDPARAMETER_Value_To_Assign_CONST].c_str());
+						unsigned short stempr = getUShortFromFloat(tempval);
+						tlmsg.setUserData((unsigned char*)&stempr, sizeof(stempr));
+						g_pPlutoLogger->Write(LV_STATUS, "Setting temperature to %.2f (%.2f).", getFloatFromUShort(stempr), tempval);
+						m_msgPool.sendTelegram(&tlmsg);
+					} else {
+						g_pPlutoLogger->Write(LV_WARNING, "Channel format is incorrect.");
 					}
 				} break;
 				default: {
@@ -270,9 +312,48 @@ bool EIB::processTelegram(const EIBBUS::TelegramMessage *pt, DeviceData_Impl *pD
 				if(sPort == pt->getGroupAddress()) {
 					g_pPlutoLogger->Write(LV_STATUS, "Sensor triggered. Sending Event."); 
 					pMessage = new Message(pDevData->m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
-																	9, 1, 25, StringUtils::itos(pt->getShortUserData()).c_str());
+									EVENT_Sensor_Tripped_CONST, 1, 25, StringUtils::itos(pt->getShortUserData()).c_str());
 				}
 			}
+		} break;
+		case DEVICETEMPLATE_Standard_Thermostat_CONST: {
+			string sChannel = pDevData->mapParameters_Find(DEVICEDATA_Channel_CONST);
+			
+			vector<string> addrs;
+			if(getParamsFromChannel(sChannel, addrs) >= 2) {
+				if(addrs[0] == pt->getGroupAddress()) {
+					g_pPlutoLogger->Write(LV_STATUS, "SetPoint Temperature changed. Sending Event."); 
+					
+					unsigned short stempr;
+					if(pt->getUserData((unsigned char*)&stempr, sizeof(stempr)) == sizeof(stempr)) {
+						char tempstr[MAX_TEMPSTR_LENGTH];
+						sprintf(tempstr, "%.1f", (float)getFloatFromUShort(stempr));
+						pMessage = new Message(pDevData->m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
+								EVENT_Thermostat_Set_Point_Chan_CONST, 1, 
+								EVENTPARAMETER_Value_CONST, tempstr);
+					} else {
+						g_pPlutoLogger->Write(LV_WARNING, "The received data length is incorrect. Possible wrong group adress..");
+					}
+				} else 
+				if(addrs[1] == pt->getGroupAddress()) {
+					g_pPlutoLogger->Write(LV_STATUS, "Actual Temperature changed. Sending Event."); 
+					
+					unsigned short stempr;
+					if(pt->getUserData((unsigned char*)&stempr, sizeof(stempr)) == sizeof(stempr)) {
+						char tempstr[MAX_TEMPSTR_LENGTH];
+						sprintf(tempstr, "%.1f", (float)getFloatFromUShort(stempr));
+						pMessage = new Message(pDevData->m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
+								EVENT_Temperature_Changed_CONST, 1, 
+								EVENTPARAMETER_Value_CONST, tempstr);
+					} else {
+						g_pPlutoLogger->Write(LV_WARNING, "The received data length is incorrect. Possible wrong group adress..");
+					}
+				}
+			} else {
+				g_pPlutoLogger->Write(LV_WARNING, "Channel format is incorrect for device %d.", pDevData->m_dwPK_Device);
+			}
+		} break;
+		default: {
 		} break;
 	}
 
@@ -285,6 +366,7 @@ bool EIB::processTelegram(const EIBBUS::TelegramMessage *pt, DeviceData_Impl *pD
 	return false;
 }
 
+/*
 bool EIB::getParamsFromChannel(const std::string& sChannel, 
 							unsigned int index, std::string& param)
 {
@@ -313,6 +395,79 @@ bool EIB::getParamsFromChannel(const std::string& sChannel,
 	}
 	param = sChannel.substr(bindex, length);
 	return true;
+}
+*/
+int EIB::getParamsFromChannel(const std::string& sChannel, 
+						std::vector<std::string>& params) {
+	params.clear();
+	
+	int bindex = 0, length = 0;
+	while(bindex >= 0) {
+		length = sChannel.find('|', bindex);
+		if(length < 0) {
+			params.push_back(sChannel.substr(bindex, sChannel.length() - bindex));
+			break;
+		} else {
+			params.push_back(sChannel.substr(bindex, length - bindex));
+		}
+		bindex = length + 1;
+	}
+	return params.size();
+}
+
+float EIB::getFloatFromUShort(unsigned short tempr) {
+	// change bytes
+	unsigned short byte0 = tempr & 0x00ff, byte1 = (tempr & 0xff00 ) >> 8;
+	tempr = (byte0 << 8)+ byte1;
+	
+	int sign = ((tempr & 0x8000) != 0) ? 1 : 0;  // last bit
+	int exponent = (tempr & 0x7800) >> 11;
+	
+	int pow = 1;
+	for( int i = 0; i < exponent; i++ )
+		pow *= 2;
+	
+	int mantissa = tempr & 0x07ff;
+	if( sign == 1 ) // two's complement
+	{
+		mantissa ^= 0x7ff;
+		mantissa += 1;
+		mantissa &= 0x07ff;
+	}
+	
+	int result = pow * mantissa;
+	if( sign == 1 ) {
+		result = (-result);
+	}
+	
+	return (1.0) * result / 100;
+}
+
+unsigned short EIB::getUShortFromFloat( float tempr ) {
+	int sign = 0;
+	if(tempr < 0) {
+		sign = 1;
+		tempr = -tempr;
+	}
+	
+	/*calculate mantisa*/
+	float fmantissa = tempr * 100;
+	int exponent = 0;
+	while(fmantissa > 2047) {
+		fmantissa /=  2;
+		exponent += 1;
+	}
+	int mantissa = (int)fmantissa;
+	if( sign ) { // two's complement
+		mantissa -= 1;
+		mantissa ^= 0x7ff;
+	}
+	
+	unsigned short ret = mantissa + (exponent << 11) + (sign << 15);
+	
+	// change bytes
+	unsigned short byte0 = ret & 0x00ff, byte1 = (ret & 0xff00 ) >> 8;
+	return ((byte0 << 8) + byte1);
 }
 
 //<-dceag-sample-b->

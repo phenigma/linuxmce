@@ -77,8 +77,13 @@ public:
 		memcpy(usrdata_, usrdata, length);
 		length_ = length;
 	}
-	inline const unsigned char* getUserData() const {
-		return usrdata_;
+	inline unsigned int getUserData(unsigned char* usrdata, unsigned int length) const {
+		if(length >= length_) {
+			memcpy(usrdata, usrdata_, length_);
+			return length_;
+		} else {
+			return 0;
+		}
 	};
 
 private:

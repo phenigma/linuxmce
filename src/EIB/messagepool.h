@@ -44,6 +44,13 @@ public:
     ~MessagePool();
 	
 public:
+	inline void setSerialPort(const char* serport) {
+		serport_ = serport;
+	}
+	inline const char* getSerialPort() {
+		return serport_.c_str();
+	}
+	
 	int regInterceptor(MessagePoolInterceptor *pi);
 	void unregInterceptor(MessagePoolInterceptor *pi);
 
@@ -59,6 +66,7 @@ protected:
 	virtual void handleNewState();
 
 private:
+	std::string serport_;
 	BusConnector* pbusconn_;
 
 private:

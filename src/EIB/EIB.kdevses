@@ -3,44 +3,28 @@
 <KDevPrjSession>
  <DocsAndViews NumberOfDocuments="8" >
   <Doc0 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/EIB/EIB.cpp" >
-   <View0 line="141" Type="???" >
-    <AdditionalSettings Top="2" Width="1219" Attach="1" Height="769" Left="2" MinMaxMode="0" />
-   </View0>
+   <View0 line="240" Type="Source" />
   </Doc0>
   <Doc1 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/EIB/messagepool.h" >
-   <View0 line="40" Type="???" >
-    <AdditionalSettings Top="2" Width="1219" Attach="1" Height="769" Left="2" MinMaxMode="0" />
-   </View0>
+   <View0 line="0" Type="Source" />
   </Doc1>
   <Doc2 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/EIB/messagepool.cpp" >
-   <View0 line="99" Type="???" >
-    <AdditionalSettings Top="2" Width="1219" Attach="1" Height="769" Left="2" MinMaxMode="0" />
-   </View0>
+   <View0 line="0" Type="Source" />
   </Doc2>
   <Doc3 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/EIB/EIB.h" >
-   <View0 line="15" Type="???" >
-    <AdditionalSettings Top="2" Width="1219" Attach="1" Height="769" Left="2" MinMaxMode="0" />
-   </View0>
+   <View0 line="15" Type="Source" />
   </Doc3>
   <Doc4 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/EIB/event.h" >
-   <View0 line="16" Type="???" >
-    <AdditionalSettings Top="2" Width="1219" Attach="1" Height="769" Left="2" MinMaxMode="0" />
-   </View0>
+   <View0 line="0" Type="Source" />
   </Doc4>
   <Doc5 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/EIB/event.cpp" >
-   <View0 line="50" Type="???" >
-    <AdditionalSettings Top="2" Width="1219" Attach="1" Height="769" Left="2" MinMaxMode="0" />
-   </View0>
+   <View0 line="0" Type="Source" />
   </Doc5>
   <Doc6 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/EIB/message.h" >
-   <View0 line="28" Type="???" >
-    <AdditionalSettings Top="2" Width="1219" Attach="1" Height="769" Left="2" MinMaxMode="0" />
-   </View0>
+   <View0 line="0" Type="Source" />
   </Doc6>
   <Doc7 NumberOfViews="1" URL="file:/home/igor/work/pluto/trunk/src/EIB/message.cpp" >
-   <View0 line="174" Type="???" >
-    <AdditionalSettings Top="2" Width="1219" Attach="1" Height="769" Left="2" MinMaxMode="0" />
-   </View0>
+   <View0 line="201" Type="Source" />
   </Doc7>
  </DocsAndViews>
  <pluginList>
@@ -53,6 +37,8 @@
   <kdevvalgrind>
    <executable path="" params="" />
    <valgrind path="" params="" />
+   <calltree path="" params="" />
+   <kcachegrind path="" />
   </kdevvalgrind>
   <kdevdebugger>
    <breakpointList/>

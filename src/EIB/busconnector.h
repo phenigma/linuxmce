@@ -32,7 +32,7 @@ public:
 
 public:
 	/*connection methods*/
-	int Open();
+	int Open(const char* serport);
 	void Close();
 	bool isOpened();
 
