@@ -158,6 +158,19 @@ public:
 						iHandled++;
 				}
 			}
+			if( iHandled==0 && !pMessage->m_bRespondedToMessage &&
+			(pMessage->m_eExpectedResponse==ER_ReplyMessage || pMessage->m_eExpectedResponse==ER_ReplyString) )
+			{
+				pMessage->m_bRespondedToMessage=true;
+				if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+				{
+					Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+					pMessageOut->m_mapParameters[0]="UNHANDLED";
+					SendMessage(pMessageOut);
+				}
+				else
+					SendString("UNHANDLED");
+			}
 		}
 		return iHandled!=0;
 	}

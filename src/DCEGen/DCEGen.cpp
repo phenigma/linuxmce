@@ -673,6 +673,21 @@ int k=2;
 	fstr_DeviceCommand << "\t\t\t\t\t\tiHandled++;" << endl;
 	fstr_DeviceCommand << "\t\t\t\t}" << endl;
 	fstr_DeviceCommand << "\t\t\t}" << endl;
+
+	fstr_DeviceCommand << "\t\t\tif( iHandled==0 && !pMessage->m_bRespondedToMessage &&" << endl;
+	fstr_DeviceCommand << "\t\t\t(pMessage->m_eExpectedResponse==ER_ReplyMessage || pMessage->m_eExpectedResponse==ER_ReplyString) )" << endl;
+	fstr_DeviceCommand << "\t\t\t{" << endl;
+	fstr_DeviceCommand << "\t\t\t\tpMessage->m_bRespondedToMessage=true;" << endl;
+	fstr_DeviceCommand << "\t\t\t\tif( pMessage->m_eExpectedResponse==ER_ReplyMessage )" << endl;
+	fstr_DeviceCommand << "\t\t\t\t{" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\tMessage *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\tpMessageOut->m_mapParameters[0]=\"UNHANDLED\";" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\tSendMessage(pMessageOut);" << endl;
+	fstr_DeviceCommand << "\t\t\t\t}" << endl;
+	fstr_DeviceCommand << "\t\t\t\telse" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\tSendString(\"UNHANDLED\");" << endl;
+	fstr_DeviceCommand << "\t\t\t}" << endl;
+
 	fstr_DeviceCommand << "\t\t}" << endl;
 	fstr_DeviceCommand << "\t\treturn iHandled!=0;" << endl;
 	fstr_DeviceCommand << "\t}" << endl;
