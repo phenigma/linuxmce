@@ -1001,7 +1001,7 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 
 	MyPath = "cvs_temp";
 	//Building Temporary Directory
-	mkdir(MyPath.c_str());
+	mkdir(MyPath.c_str(), 0777);
 	//ChDir to Temporary Directory
 	chdir(MyPath.c_str());
 
@@ -1023,14 +1023,16 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 		if(FileUtils::BasePath(WorkPath).compare(pRow_Package_Source->Name_get()) == 0) {
 			cmd = "cp -f " + WorkPath + " " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 		} else {
-			if(FileUtils::DirExists(FileUtils::BasePath(WorkPath)) != TRUE) {
+			if(FileUtils::DirExists(FileUtils::BasePath(WorkPath)) != true) {
 				cmd = FileUtils::BasePath(WorkPath);
-				mkdir(cmd.c_str());
+				mkdir(cmd.c_str(), 0777);
 				cmd = "cp -f " + WorkPath + " " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 			} else {
 				cmd = "cp -f " + WorkPath + " " + FileUtils::BasePath(WorkPath) + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource); 
 			}
 		}
+		printf("%s\n", cmd.c_str());
+		system(cmd.c_str());
 	}
 
 	//Making CVS add for each file and subdirectory
@@ -1044,7 +1046,7 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 	list <string> MyList;
 	list <string>::iterator iMyList;
 	//reading actual directory list
-	FileUtils::FindFiles(MyList, "", "*", TRUE, "");
+	FileUtils::FindFiles(MyList, "", "*", true, "");
 
 	//for every file from the temporary directory list ...
 	for(iMyList = MyList.begin();iMyList != MyList.end(); iMyList++) {
