@@ -69,6 +69,8 @@ public:
 	//Event accessors
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_PL_Originate(int iPK_Device,string sPhoneExtension,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_PL_TransferConferenceDevice(int iPK_Device,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_PL_Hangup(string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -87,6 +89,35 @@ public:
 					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
 					string sPhoneExtension=pMessage->m_mapParameters[83];
 						CMD_PL_Originate(iPK_Device,sPhoneExtension.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 234:
+					{
+						string sCMD_Result="OK";
+					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
+						CMD_PL_TransferConferenceDevice(iPK_Device,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 236:
+					{
+						string sCMD_Result="OK";
+						CMD_PL_Hangup(sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);

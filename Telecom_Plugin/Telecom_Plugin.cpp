@@ -161,3 +161,19 @@ void Telecom_Plugin::CMD_PL_Originate(int iPK_Device,string sPhoneExtension,stri
 //<-dceag-c232-e->
 {
 }
+//<-dceag-c234-b->
+
+	/** @brief COMMAND: #234 - PL_TransferConferenceDevice */
+	/** Transfers a call to other phone */
+		/** @param #2 PK_Device */
+			/** Device ID to transfer call to */
+
+void Telecom_Plugin::CMD_PL_TransferConferenceDevice(int iPK_Device,string &sCMD_Result,Message *pMessage)
+//<-dceag-c234-e->
+//<-dceag-c236-b->
+
+	/** @brief COMMAND: #236 - PL_Hangup */
+	/** Hangs up a call */
+
+void Telecom_Plugin::CMD_PL_Hangup(string &sCMD_Result,Message *pMessage)
+//<-dceag-c236-e->

@@ -18,7 +18,7 @@ sources = Main.cpp MythTV_PlugIn.cpp $(Gen_Dev_Files)
 
 CXXFLAGS +=
 CPPFLAGS += -I/usr/include/qt3 -I$(ROOT)/Libraries
-LDLIBS += -lpluto_media -lpluto_main -lqt-mt -lmyth-0.16 -lmythtv-0.16 
+XTRALDLIBS += -lpluto_main -lqt-mt -lmyth-0.16 -lmythtv-0.16 
 
 Gen_Dev_Files += $(GENDEV)/Media_PluginBase.cpp $(GENDEV)/Datagrid_PluginBase.cpp
 sources += \

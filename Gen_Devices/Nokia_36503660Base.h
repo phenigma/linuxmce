@@ -99,7 +99,7 @@ public:
 	virtual void CMD_Set_Text(string sPK_DesignObj,string sText,int iPK_Text,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_User_Mode(string sValue_To_Assign,int iPK_Users,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Variable(int iPK_Variable,string sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Simulate_Keypress(int iPK_Button,string sName,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Stop_Sound(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Store_Variables(string &sCMD_Result,class Message *pMessage) {};
@@ -536,9 +536,9 @@ public:
 				case 28:
 					{
 						string sCMD_Result="OK";
-					int iPK_Button=atoi(pMessage->m_mapParameters[26].c_str());
+					string sPK_Button=pMessage->m_mapParameters[26];
 					string sName=pMessage->m_mapParameters[50];
-						CMD_Simulate_Keypress(iPK_Button,sName.c_str(),sCMD_Result,pMessage);
+						CMD_Simulate_Keypress(sPK_Button.c_str(),sName.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);

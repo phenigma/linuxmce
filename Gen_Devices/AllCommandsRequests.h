@@ -407,19 +407,19 @@ namespace DCE
 	};
 	class CMD_Simulate_Keypress : public PreformedCommand {
 	public:
-		CMD_Simulate_Keypress(long DeviceIDFrom, long DeviceIDTo,int iPK_Button,string sName) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,28,2,26,StringUtils::itos(iPK_Button).c_str(),50,sName.c_str()); }
+		CMD_Simulate_Keypress(long DeviceIDFrom, long DeviceIDTo,string sPK_Button,string sName) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,28,2,26,sPK_Button.c_str(),50,sName.c_str()); }
 	};
 	class CMD_Simulate_Keypress_DL : public PreformedCommand {
 	public:
-		CMD_Simulate_Keypress_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Button,string sName) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,28,2,26,StringUtils::itos(iPK_Button).c_str(),50,sName.c_str()); }
+		CMD_Simulate_Keypress_DL(long DeviceIDFrom, string DeviceIDTo,string sPK_Button,string sName) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,28,2,26,sPK_Button.c_str(),50,sName.c_str()); }
 	};
 	class CMD_Simulate_Keypress_DT : public PreformedCommand {
 	public:
-		CMD_Simulate_Keypress_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Button,string sName) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,28,2,26,StringUtils::itos(iPK_Button).c_str(),50,sName.c_str()); }
+		CMD_Simulate_Keypress_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sPK_Button,string sName) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,28,2,26,sPK_Button.c_str(),50,sName.c_str()); }
 	};
 	class CMD_Simulate_Keypress_Cat : public PreformedCommand {
 	public:
-		CMD_Simulate_Keypress_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Button,string sName) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,28,2,26,StringUtils::itos(iPK_Button).c_str(),50,sName.c_str()); }
+		CMD_Simulate_Keypress_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sPK_Button,string sName) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,28,2,26,sPK_Button.c_str(),50,sName.c_str()); }
 	};
 	class CMD_Simulate_Mouse_Click : public PreformedCommand {
 	public:

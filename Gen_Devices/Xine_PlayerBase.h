@@ -43,6 +43,7 @@ public:
 	class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition);
 	virtual int GetPK_DeviceList() { return 5; } ;
 	virtual const char *GetDeviceDescription() { return "Xine_Player"; } ;
+	string Get_Floorplan_Info() { return m_mapParameters[10];}
 };
 
 
@@ -81,6 +82,7 @@ public:
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
+	string DATA_Get_Floorplan_Info() { return GetData()->Get_Floorplan_Info(); }
 	//Event accessors
 	void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription) { GetEvents()->Playback_Info_Changed(sMediaDescription.c_str(),sSectionDescription.c_str(),sSynposisDescription.c_str()); }
 	void EVENT_Menu_Onscreen(int iStream_ID,bool bOnOff) { GetEvents()->Menu_Onscreen(iStream_ID,bOnOff); }
