@@ -78,11 +78,11 @@ public:
 protected:
 
 	// This will also add the phone to the map
-	void Intern_NewDeviceDetected(class PhoneDevice *pDevice);
+	virtual void Intern_NewDeviceDetected(class PhoneDevice *pDevice);
 
 	// This will also remove the phone from the map
-	void Intern_LostDevice(class PhoneDevice *pDevice);
-	void Intern_SignalStrengthChanged(class PhoneDevice *pDevice);
+	virtual void Intern_LostDevice(class PhoneDevice *pDevice);
+	virtual void Intern_SignalStrengthChanged(class PhoneDevice *pDevice);
 };
 #endif
 

@@ -248,22 +248,20 @@ g_pPlutoLogger->Write(LV_WARNING, "Executing /tmp/hciscan hack");
 system("hcitool scan > /tmp/hciscan");
 vector<string> vectstr;
 FileUtils::ReadFileIntoVector( "/tmp/hciscan", vectstr );
-g_pPlutoLogger->Write(LV_WARNING, "got %d lines",(int) vectstr.size());
 for(size_t s=0;s<vectstr.size();++s)
 {
-g_pPlutoLogger->Write(LV_WARNING, "comparing %s and %s",vectstr[s].c_str(),pDNew->m_sMacAddress.c_str());
 string sLine = StringUtils::ToUpper(vectstr[s]);
 if( sLine.find(StringUtils::ToUpper(pDNew->m_sMacAddress))!=string::npos )
 {
-g_pPlutoLogger->Write(LV_WARNING, "line %s matched %d",sLine.c_str(),(int) sLine.size());
-size_t s2 = vectstr[s].length()-15;
+size_t s2 = vectstr[s].find('\t',10);
 g_pPlutoLogger->Write(LV_WARNING, "s1 %d",(int) s2);
-if( ((int) s2)<0 )
+if( ((int) s2)<0 || s2==string::npos || s2+2 > vectstr[s].length() )
 s2=0;
+else
+s2+=1;
 g_pPlutoLogger->Write(LV_WARNING, "s2 %d",(int) s2);
-string sub = vectstr[s].substr(s2);
-g_pPlutoLogger->Write(LV_WARNING, "sub %s",sub.c_str());
-pDNew->m_sID = sub;
+
+pDNew->m_sID = vectstr[s].substr(s2);
 g_pPlutoLogger->Write(LV_WARNING, "set name to %d %s",(int) s2,pDNew->m_sID.c_str());
 }
 }
@@ -347,18 +345,22 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 3 m_mapPhoneDevice_Detected size: %d",(int
 					{
 						class PhoneDevice *pD = (*itDevice).second;
 						map<u_int64_t,class PhoneDevice *>::iterator itDeviceNew = m_mapDevicesDetectedThisScan.find(pD->m_iMacAddress);
-						if( /*itDeviceNew==m_mapDevicesDetectedThisScan.end() ||*/ !pD->m_bIsConnected)
+if( itDeviceNew==m_mapDevicesDetectedThisScan.end() )
+{
+g_pPlutoLogger->Write(LV_STATUS,"we think we lost: %lf %s",(double) (*itDevice).first,(pD->m_sID.c_str()));
+for(map<u_int64_t,class PhoneDevice *>::iterator i2 = m_mapDevicesDetectedThisScan.begin();i2 != m_mapDevicesDetectedThisScan.end();++i2)
+{
+PhoneDevice *ppp = (*i2).second;
+g_pPlutoLogger->Write(LV_STATUS,"we found: %ls %s",(double) (*i2).first,ppp->m_sID.c_str());
+}
+}
+
+						if( itDeviceNew==m_mapDevicesDetectedThisScan.end() )
 						{
 							listDevicesLost.push_back( (*itDevice).second );
 							m_mapPhoneDevice_Detected.erase(itDevice++);
 g_pPlutoLogger->Write(LV_STATUS,"devices detected this scan: %d",(int) m_mapDevicesDetectedThisScan.size());
-PhoneDevice *pD2 = (*itDevice).second;
-if( itDeviceNew==m_mapDevicesDetectedThisScan.end() )
-g_pPlutoLogger->Write(LV_STATUS,"device was found");
-else
-g_pPlutoLogger->Write(LV_STATUS,"device was not found");
-
-g_pPlutoLogger->Write(LV_STATUS,"lost device size is now: %d",(int) m_mapPhoneDevice_Detected.size());
+g_pPlutoLogger->Write(LV_STATUS,"lost device size is now: %d",(int) listDevicesLost.size());
 						}
 						else
 							itDevice++;

@@ -136,6 +136,10 @@ public:
 		 */
 		virtual void LostDevice( class PhoneDevice *pDevice );
 		
+// todo - temporary hacks -- see comments in cpp file
+virtual void Intern_NewDeviceDetected(class PhoneDevice *pDevice);
+virtual void Intern_LostDevice(class PhoneDevice *pDevice);
+
 		/**
 		 * @brief called if the signal strength varies by moe then 10 to refresh the connection
 		 * @todo ask
