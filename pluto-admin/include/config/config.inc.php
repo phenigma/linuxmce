@@ -5,14 +5,16 @@
   	if($GLOBALS['inDebug']!=1){
   		// production settings
   		error_reporting(E_ALL ^ E_NOTICE);
-  		include_once('/var/www/globalconfig/globalconfig.inc.php');
+  		$GLOBALS['globalConfigPath']='/var/www/globalconfig/';
   		$GLOBALS['floorplansPath']='/var/www/pluto-admin/floorplans';
   	}else{
   		error_reporting(E_ALL);
-  		include_once('/var/www/test/globalconfig/globalconfig.inc.php');
+  		$GLOBALS['globalConfigPath']='/var/www/test/globalconfig/';
   		$GLOBALS['floorplansPath']='/var/www/test/pluto-admin/floorplans';
   	}
-	
+
+  	include_once($GLOBALS['globalConfigPath'].'globalconfig.inc.php');
+  	
 	$GLOBALS['sendErrorsTo']='support@plutohome.com';
 	
 	$directory="/pluto-admin/";

@@ -881,9 +881,11 @@ switch ($section) {
 	    include_once('operations/security/viewCameras.php');
 	    viewCameras($output,$dbADO);
 	break;
+	
 	case 'phoneLines';
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
+		@include($GLOBALS['globalConfigPath'].'asteriskDB.inc.php');
 	    include_once('operations/phones/phoneLines.php');
 	    phoneLines($output,$asteriskADO);
 	break;
@@ -896,6 +898,7 @@ switch ($section) {
 	case 'callRouting';
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');
+		@include($GLOBALS['globalConfigPath'].'asteriskDB.inc.php');
 	    include_once('operations/phones/callRouting.php');
 	    callRouting($output,$asteriskADO);
 	break;

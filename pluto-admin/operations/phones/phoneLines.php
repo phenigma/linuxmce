@@ -5,7 +5,15 @@ function phoneLines($output,$dbADO) {
 	$out='';
 	$action = (isset($_REQUEST['action']) && $_REQUEST['action']!='')?cleanString($_REQUEST['action']):'form';
 	$installationID = (int)@$_SESSION['installationID'];
-	
+		
+	$queryDefaultLine="SELECT id,appdata FROM extensions_table	WHERE exten='_.' AND appdata LIKE 'DIALLINE=%'";
+	$resDefaultLine=$dbADO->Execute($queryDefaultLine);
+	if($resDefaultLine->RecordCount()>0){
+		$rowDefaultLine=$resDefaultLine->FetchRow();
+		$defaultLineName=str_replace('DIALLINE=','',$rowDefaultLine['appdata']);
+		$defaultLineID=$rowDefaultLine['id'];
+	}
+		
 	if($action=='form'){
 		
 		$out.='
@@ -17,14 +25,17 @@ function phoneLines($output,$dbADO) {
 			<input type="hidden" name="action" value="update">
 		<table align="center" cellpadding="3">
 			<tr bgcolor="lightblue">
-				<td><B>Username</B></td>
-				<td><B>Registrar IP</B></td>
-				<td><B>Registrar Port</B></td>
-				<td><B>Registration timeout</B></td>
+				<td align="center"><B>Username</B></td>
+				<td align="center"><B>Name</B></td>
+				<td align="center"><B>Registrar IP</B></td>
+				<td align="center"><B>Registrar Port</B></td>
+				<td align="center"><B>Registration timeout</B></td>
+				<td align="center"><B>Default</B></td>
 				<td>&nbsp;</td>
 			</tr>
 		';
-		$resLines=$dbADO->Execute("SELECT * FROM sip_buddies WHERE type='peer'");
+		
+		$resLines=$dbADO->Execute("SELECT * FROM sip_buddies WHERE type='peer' ORDER BY name ASC");
 		$pos=0;
 		$linesArray=array();
 		while($row=$resLines->FetchRow()){
@@ -33,10 +44,12 @@ function phoneLines($output,$dbADO) {
 			$out.='
 			<tr bgcolor="'.(($pos%2==0)?'#EEEEEE':'#E5E5E5').'">
 				<td><input type="text" name="username_'.$row['uniqueid'].'" value="'.$row['username'].'"></td>
+				<td><input type="text" name="name_'.$row['uniqueid'].'" value="'.$row['name'].'"></td>
 				<td><input type="text" name="ipaddr_'.$row['uniqueid'].'" value="'.$row['ipaddr'].'"></td>
 				<td align="center"><input type="text" name="port_'.$row['uniqueid'].'" value="'.$row['port'].'"></td>
 				<td align="center"><input type="text" name="rtptimeout_'.$row['uniqueid'].'" value="'.$row['rtptimeout'].'"></td>
-				<td align="center"><a href="#" onClick="if(confirm(\'Are you sure you want to delete this phone line?\'))self.location=\'index.php?section=phoneLines&dID='.$row['uniqueid'].'&action=del\'">Delete</a></td>
+				<td align="center"><input type="radio" name="newDefaultLine" value="'.$row['name'].'" '.(($defaultLineName==$row['name'])?'checked':'').'></td>
+				<td align="center"><a href="#" onClick="if(confirm(\'Are you sure you want to delete this phone line?\'))self.location=\'index.php?section=phoneLines&dID='.$row['uniqueid'].'&name='.urlencode($row['name']).'&action=del\'">Delete</a></td>
 			</tr>
 			';
 		}
@@ -66,6 +79,10 @@ function phoneLines($output,$dbADO) {
 			<tr>
 				<td><B>Password</B></td>
 				<td><input type="password" name="secret" value=""></td>
+			</tr>
+			<tr>
+				<td><B>Name</B></td>
+				<td><input type="text" name="name" value=""></td>
 			</tr>
 			<tr>
 				<td><B>Registrar IP</B></td>
@@ -106,14 +123,29 @@ function phoneLines($output,$dbADO) {
 		if(isset($_POST['add'])){
 			$username=$_POST['username'];
 			$secret=$_POST['secret'];
+			$name=$_POST['name'];
 			$ipaddr=$_POST['ipaddr'];
 			$port=$_POST['port'];
 			$phoneNumber=$_POST['phoneNumber'];
 			$rtptimeout=$_POST['rtptimeout'];
+			$isDefault=(isset($_POST['defaultLine']))?1:0;
 			
-			// TODO: default processing
-			$insertPhoneLine='INSERT INTO sip_buddies (username, secret, ipaddr, port, rtptimeout, type) VALUES (?,?,?,?,?,?)';
-			$dbADO->Execute($insertPhoneLine,array($username,$secret,$ipaddr,$port,$rtptimeout,'peer'));
+			$resNameExist=$dbADO->Execute('SELECT * FROM sip_buddies WHERE name=?',$name);
+			if($resNameExist->RecordCount()>0){
+				header('Location: index.php?section=phoneLines&error=A phone line called '.$name.' exist.');
+				exit();
+			}
+			
+			$insertPhoneLine='INSERT INTO sip_buddies (username, secret, name, ipaddr, port, rtptimeout, type) VALUES (?,?,?,?,?,?,?)';
+			$dbADO->Execute($insertPhoneLine,array($username,$secret,$name,$ipaddr,$port,$rtptimeout,'peer'));
+			
+			if(!isset($defaultLineID)){
+				$dbADO->Execute('INSERT INTO extensions_table (`context`, `exten`, `priority`, `app`, `appdata`) VALUES (?,?,?,?,?)',array('outgoing-extern-selectline','_.',1,'SetVar','DIALLINE='.$name));
+			}else{
+				if($isDefault==1){
+					$dbADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINE='.$name,$defaultLineID));
+				}
+			}
 			
 			header('Location: index.php?section=phoneLines&msg=The phone line was added.');
 			exit();
@@ -121,7 +153,17 @@ function phoneLines($output,$dbADO) {
 
 		if(isset($_REQUEST['dID'])){
 			$uniqueID=$_REQUEST['dID'];
+			$name=$_REQUEST['name'];
+			if($name==$defaultLineName){
+				$resFirstOtherLine=$dbADO->Execute('SELECT name FROM sip_buddies WHERE name!=? AND type=? LIMIT 0,1',array($name,'peer'));
+				if($resFirstOtherLine->RecordCount()!=0){
+					$rowFirstOtherLine=$resFirstOtherLine->FetchRow();
+					$dbADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINE='.$rowFirstOtherLine['name'],$defaultLineID));
+				}
+			}
+			
 			$dbADO->Execute('DELETE FROM sip_buddies WHERE uniqueid=?',$uniqueID);
+			$dbADO->Execute('DELETE FROM extensions_table WHERE appdata=?','DIALLINE='.$name);						
 			
 			header('Location: index.php?section=phoneLines&msg=The phone line was deleted.');
 			exit();
@@ -131,15 +173,20 @@ function phoneLines($output,$dbADO) {
 			$linesArray=explode(',',$_POST['linesArray']);
 			foreach($linesArray AS $lineID){
 				$username=@$_POST['username_'.$lineID];
+				$name=@$_POST['name_'.$lineID];
 				$ipaddr=@$_POST['ipaddr_'.$lineID];
 				$port=@$_POST['port_'.$lineID];
 				$rtptimeout=@$_POST['rtptimeout_'.$lineID];
 				
-				$dbADO->Execute('UPDATE sip_buddies SET username=?, ipaddr=?, port=?, rtptimeout=? WHERE uniqueid=?',array($username,$ipaddr,$port,$rtptimeout,$lineID));
-
-				header('Location: index.php?section=phoneLines&msg=The phone lines was updated.');
-				exit();
+				$dbADO->Execute('UPDATE sip_buddies SET username=?, name=?, ipaddr=?, port=?, rtptimeout=? WHERE uniqueid=?',array($username,$name,$ipaddr,$port,$rtptimeout,$lineID));
 			}
+			$newDefaultLine=$_POST['newDefaultLine'];
+			if($defaultLineName!=$newDefaultLine){
+				$dbADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINE='.$newDefaultLine,$defaultLineID));
+			}
+			
+			header('Location: index.php?section=phoneLines&msg=The phone lines was updated.');
+			exit();
 		}
 		
 		

@@ -19,9 +19,6 @@
   $securityDSN = $dbPlutoSecurityType.'://'.urlencode($dbPlutoSecurityUser).':'.urlencode($dbPlutoSecurityPass).'@'.$dbPlutoSecurityServer.'/'.urlencode($dbPlutoSecurityDatabase); 
   $securityADO = &ADONewConnection($securityDSN);
 
-  $asteriskDSN = $dbPlutoAsteriskType.'://'.urlencode($dbPlutoAsteriskUser).':'.urlencode($dbPlutoAsteriskPass).'@'.$dbPlutoAsteriskServer.'/'.urlencode($dbPlutoAsteriskDatabase); 
-  $asteriskADO = &ADONewConnection($asteriskDSN);
-
   //for sqlite
   //$db = &ADONewConnection('sqlite');
   //$db->NConnect($GLOBALS['appRoot'].'sqlite.db'); # sqlite will create if does not exist
