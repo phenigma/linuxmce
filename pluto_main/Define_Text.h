@@ -416,6 +416,7 @@
 #define TEXT_House_Mode_Time_CONST 1091
 #define TEXT_Alerts_since_last_change_CONST 1092
 #define TEXT_Alerts_Placeholder_CONST 1093
+#define TEXT_Manage_Playlist_CONST 1094
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

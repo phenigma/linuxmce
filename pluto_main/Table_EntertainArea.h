@@ -86,13 +86,15 @@ long int m_FK_Room;
 short int m_Only1Stream;
 string m_Description;
 short int m_Private;
+long int m_FK_FloorplanObjectType;
+string m_FloorplanInfo;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[10];
+		bool is_null[12];
 	
 	public:
 		long int PK_EntertainArea_get();
@@ -100,6 +102,8 @@ long int FK_Room_get();
 short int Only1Stream_get();
 string Description_get();
 short int Private_get();
+long int FK_FloorplanObjectType_get();
+string FloorplanInfo_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -112,6 +116,8 @@ void FK_Room_set(long int val);
 void Only1Stream_set(short int val);
 void Description_set(string val);
 void Private_set(short int val);
+void FK_FloorplanObjectType_set(long int val);
+void FloorplanInfo_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -119,13 +125,17 @@ void psc_frozen_set(short int val);
 void psc_mod_set(string val);
 
 		
-		bool psc_id_isNull();
+		bool FK_FloorplanObjectType_isNull();
+bool FloorplanInfo_isNull();
+bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
 bool psc_frozen_isNull();
 
 			
-		void psc_id_setNull(bool val);
+		void FK_FloorplanObjectType_setNull(bool val);
+void FloorplanInfo_setNull(bool val);
+void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
 void psc_frozen_setNull(bool val);
@@ -142,6 +152,7 @@ void psc_frozen_setNull(bool val);
 
 		// Return the rows for foreign keys 
 		class Row_Room* FK_Room_getrow();
+class Row_FloorplanObjectType* FK_FloorplanObjectType_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
@@ -151,7 +162,7 @@ void Device_EntertainArea_FK_EntertainArea_getrows(vector <class Row_Device_Ente
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_EntertainArea+ m_FK_Room+ m_Only1Stream+ m_Description+ m_Private+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_EntertainArea+ m_FK_Room+ m_Only1Stream+ m_Description+ m_Private+ m_FK_FloorplanObjectType+ m_FloorplanInfo+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -161,6 +172,8 @@ string FK_Room_asSQL();
 string Only1Stream_asSQL();
 string Description_asSQL();
 string Private_asSQL();
+string FK_FloorplanObjectType_asSQL();
+string FloorplanInfo_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

@@ -221,7 +221,7 @@
 #define DESIGNOBJ_objGotoNamePlaylist_CONST 1601
 #define DESIGNOBJ_mnuPlaylistSave_CONST 1602
 #define DESIGNOBJ_objSavePublic_CONST 1603
-#define DESIGNOBJ_mnuPlaylist_CONST 1606
+#define DESIGNOBJ_mnuManagePlaylist_CONST 1606
 #define DESIGNOBJ_mnuDriveBusy_CONST 1607
 #define DESIGNOBJ_objCancelBurnRip_CONST 1608
 #define DESIGNOBJ_mnuBroadcast_CONST 1610
@@ -1003,7 +1003,7 @@
 #define DESIGNOBJ_no_CONST 3152
 #define DESIGNOBJ_go_to_new_device_CONST 3153
 #define DESIGNOBJ_navmode_CONST 3154
-#define DESIGNOBJ_pvr_CONST 3155
+#define DESIGNOBJ_generic_app_desktop_CONST 3155
 #define DESIGNOBJ_pvr_full_screen_CONST 3156
 #define DESIGNOBJ_go_to_main_menu_CONST 3159
 #define DESIGNOBJ_go_to_pluto_tv_CONST 3160
@@ -1058,11 +1058,11 @@
 #define DESIGNOBJ_grpSeekFileList_CONST 3223
 #define DESIGNOBJ_mnuNoMedia_CONST 3224
 #define DESIGNOBJ_grpPhoneSearchKeyboardlarge_CONST 3225
-#define DESIGNOBJ_mnuMediaFileList2_CONST 3226
+#define DESIGNOBJ_mnuPlayList_CONST 3226
 #define DESIGNOBJ_dgFileList2_CONST 3227
-#define DESIGNOBJ_LoadPlaylist_CONST 3228
+#define DESIGNOBJ_butLoadPlaylist_CONST 3228
 #define DESIGNOBJ_go_to_dvd_CONST 3229
-#define DESIGNOBJ_screen_app_desktop_CONST 3231
+#define DESIGNOBJ_myth_tv_setup_CONST 3231
 #define DESIGNOBJ_go_to_app_desktop_CONST 3232
 #define DESIGNOBJ_grpNumberPad2_CONST 3233
 #define DESIGNOBJ_num0_CONST 3234
@@ -1082,7 +1082,7 @@
 #define DESIGNOBJ_F2X2_CONST 3248
 #define DESIGNOBJ_R1X2_CONST 3249
 #define DESIGNOBJ_butMythTVSetup_CONST 3250
-#define DESIGNOBJ_screen_app_desktop_2_CONST 3251
+#define DESIGNOBJ_myth_tv_setup_2_CONST 3251
 #define DESIGNOBJ_go_to_phone_book_CONST 3252
 #define DESIGNOBJ_go_to_dial_phone_number_CONST 3253
 #define DESIGNOBJ_go_to_dial_pluto_user_CONST 3254
@@ -1107,9 +1107,18 @@
 #define DESIGNOBJ_arrFloorsTelecom_CONST 3276
 #define DESIGNOBJ_butFloorsTelecom_CONST 3277
 #define DESIGNOBJ_pvr_full_screen_with_options_o_CONST 3279
-#define DESIGNOBJ_go_to_pvr_full_screen_with_opt_CONST 3281
-#define DESIGNOBJ_mnuMediaFileList3_CONST 3282
+#define DESIGNOBJ_mnuPicturesDocumentsList_CONST 3282
 #define DESIGNOBJ_butView_CONST 3283
+#define DESIGNOBJ_butManagePlaylist_CONST 3285
+#define DESIGNOBJ_go_to_advanced_CONST 3286
+#define DESIGNOBJ_mnuGenericTwoButtonQuestion_CONST 3287
+#define DESIGNOBJ_dvd_full_screen_CONST 3288
+#define DESIGNOBJ_dvd_full_screen_with_options_CONST 3289
+#define DESIGNOBJ_storedvideos_full_screen_CONST 3290
+#define DESIGNOBJ_storedvideos_full_screen_with_CONST 3291
+#define DESIGNOBJ_generic_full_screen_CONST 3292
+#define DESIGNOBJ_grpSeekPlaylist_CONST 3293
+#define DESIGNOBJ_dgCommands_CONST 3294
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

@@ -76,7 +76,6 @@ namespace DCE
 		class CommandGroup *m_pagLightsOff,*m_pagLightsOn,*m_pagClimateOff,*m_pagClimateOn;
 		int PK_CommandGroup_LightsOff,PK_CommandGroup_LightsOn,PK_CommandGroup_ClimateOff,PK_CommandGroup_ClimateOn;
 		int m_iTemperature;
-		vector<class OCController *> m_vectController;
 		vector<class CommandGroup *> m_vectCommandGroups;
 		list<class DeviceData_Router *> m_listDevices;
 

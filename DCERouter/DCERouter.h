@@ -163,6 +163,7 @@ namespace DCE
         Room *m_mapRoom_Find(int PK_Room) { map<int,class Room *>::iterator it = m_mapRoom.find(PK_Room); return it==m_mapRoom.end() ? NULL : (*it).second; }
         const map<int,class DeviceData_Router *> *m_mapDeviceData_Router_get() { return &m_mapDeviceData_Router; };
         const map<int,class DeviceGroup *> *m_mapDeviceGroup_get() { return &m_mapDeviceGroup; };
+		const map<int,class Room *> *m_mapRoom_get() { return &m_mapRoom; }
 
         int iPK_Installation_get() { return m_dwPK_Installation; }
         string sBasePath_get() { return m_sBasePath; }

@@ -41,6 +41,9 @@ using namespace DCE;
 #include "pluto_main/Table_MediaType.h"
 #include "pluto_main/Define_DataGrid.h"
 #include "pluto_main/Define_Variable.h"
+#include "pluto_main/Table_Command.h"
+#include "pluto_main/Table_DeviceTemplate_AV.h"
+#include "pluto_main/Table_DeviceTemplate_Input.h"
 
 #include "FileListOps.h"
 
@@ -82,11 +85,15 @@ bool File_Grids_Plugin::Register()
 	}
 
 	m_pDatagrid_Plugin=(Datagrid_Plugin *) pListCommand_Impl->front();
-/*
+
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
-		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&File_Grids_Plugin::DevicesCommands)),
-		DGTYPE_DEVICES_ACTIONS);
-*/
+		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&File_Grids_Plugin::DevicesGrid)),
+		DATAGRID_Devices_by_Room_CONST);
+
+	m_pDatagrid_Plugin->RegisterDatagridGenerator(
+		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&File_Grids_Plugin::CommandsGrid)),
+		DATAGRID_Commmands_By_Device_CONST);
+
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&File_Grids_Plugin::FileList))
 		,DATAGRID_Directory_Listing_CONST);
@@ -122,267 +129,149 @@ void File_Grids_Plugin::ReceivedUnknownCommand(string &sCMD_Result,Message *pMes
 	sCMD_Result = "UNKNOWN DEVICE";
 }
 
-class DataGridTable *File_Grids_Plugin::DevicesCommands(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
+class DataGridTable *File_Grids_Plugin::DevicesGrid(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
 
-
-	// temp
-
-	pCell = new DataGridCell("row1","");
-	pDataGrid->SetData(0,0,pCell);
-	pCell = new DataGridCell("row2","");
-	pDataGrid->SetData(0,1,pCell);
-
-/*
-	string::size_type posParms=0;
-	int Type = atoi(StringUtils::Tokenize(Parms,",",posParms).c_str()); // 1=lights, 2=a/v equipment, 3=all others, 4=everything
-	int PK_Controller = atoi(StringUtils::Tokenize(Parms,",",posParms).c_str());
-	int PK_Device = atoi(StringUtils::Tokenize(Parms,",",posParms).c_str()); // The device to list all the actions for
-	PlutoOrbiter *ptrController = m_mapPlutoOrbiter_Find(PK_Controller);
-*/
+	int Type = atoi(Parms.c_str());
 	int iRow=0;
-/*
 
-	if( PK_Device!=0 )
-	{
-		DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
-		if( !pDevice )
-			return NULL;
+    for(map<int,Room *>::const_iterator it=m_pRouter->m_mapRoom_get()->begin();it!=m_pRouter->m_mapRoom_get()->end();++it)
+    {
+		Room *pRoom = (*it).second;
+		bool bFirst=true;
 
-		// Help the controller out since we could only attach 1 message to the datagrid
-		// we weren't able to set it's device variable
-		if( ptrController )
-			ptrController->SetVariable(VARIABLE_PK_DEVICE_CONST,StringUtils::itos(PK_Device).c_str());
-
-		IRInformation *pIRInformation = m_mapIRInformation_Find(pDevice->m_dwPK_Device);
-		for(size_t i=0;i<=pDevice->m_iNumberCommands;++i)
+		for(list<class DeviceData_Router *>::iterator itD=pRoom->m_listDevices.begin();itD!=pRoom->m_listDevices.end();++itD)
 		{
-			Command *pCommand = m_pRouter->mapCommand_Find(pDevice->m_piCommands[i]);
-			if( !pCommand )
-			{
-				g_pPlutoLogger->Write(LV_CRITICAL,"There's a null in the pDevice->m_mapCommand");
-				continue;
-			}
-
-			if( pCommand->m_iPK_Command==COMMAND_AV_INPUT_SELECT_CONST && pIRInformation  && pIRInformation ->m_listToggleInputs.size()==0 )
-				continue;
-			if( pCommand->m_iPK_Command==COMMAND_AV_DSP_MODE_CONST && pIRInformation && pIRInformation->m_listToggleDSPModes.size()==0 )
-				continue;
-			if( (pCommand->m_iPK_Command==COMMAND_GEN_OFF_CONST || pCommand->m_iPK_Command==COMMAND_GEN_ON_CONST) && pIRInformation && pIRInformation->m_bTogglePower )
+			class DeviceData_Router *pDeviceData_Router = *itD;
+			if( Type==1 && !pDeviceData_Router->WithinCategory(DEVICECATEGORY_AV_CONST) )
 				continue;
 
-			int PK_Command = pCommand->m_iPK_Command;
-			string Description = pCommand->m_sDescription;
+			pCell = new DataGridCell( (bFirst ? pRoom->m_sDescription + "\n  " : "  ") + pDeviceData_Router->m_sDescription,
+				StringUtils::itos(pDeviceData_Router->m_dwPK_Device) );
+			pDataGrid->SetData(0,iRow++,pCell);
+			bFirst=false;
 
-			pCell = new DataGridCell(Description,"");
-			pCell->m_Colspan = 7;
-			pCell->m_pMessage = new Message(PK_Controller,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND, PK_Command, 0);
-			pDataGrid->SetData(0,iRow,pCell);
-
-			pCell = new DataGridCell("Learn","");
-			pCell->m_Colspan = 2;
-			pCell->m_pMessage = new Message(PK_Controller,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND, COMMAND_LEARN_IR_CONST, 1, COMMANDPARAMETER_ID_CONST, StringUtils::itos(PK_Command).c_str());
-			pDataGrid->SetData(7,iRow,pCell);
-
-			++iRow;
-		}
-
-		map<int,int>::iterator itIODSP;
-		for(itIODSP=pDevice->m_mapInputs.begin();itIODSP!=pDevice->m_mapInputs.end();++itIODSP)
-		{
-			Command *pCommand = m_pRouter->m_mapCommand[(*itIODSP).second];
-			if( !pCommand )
-				g_pPlutoLogger->Write(LV_CRITICAL,"There's a null in the pDevice->m_mapInput for non-existant action: %d (%d)",(*itIODSP).second,(*itIODSP).first);
-			else
-			{
-				if( pIRInformation && pIRInformation->m_listToggleInputs.size()!=0 ) 
-				{
-					bool bToggleInput=false;
-					list<int>::iterator it;
-					for(it=pIRInformation->m_listToggleInputs.begin();it!=pIRInformation->m_listToggleInputs.end();++it)
-					{
-						if( (*it)==(*itIODSP).first )
-						{
-							bToggleInput=true;
-							break;
-						}
-					}
-					if( bToggleInput )
-						continue;
-				}
-				pCell = new DataGridCell("Input: " + pCommand->m_sDescription,"");
-				pCell->m_Colspan = 7;
-				pCell->m_pMessage = new Message(PK_Controller,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND, pCommand->m_iPK_Command, 0);
-				pDataGrid->SetData(0,iRow,pCell);
-
-				pCell = new DataGridCell("Learn","");
-				pCell->m_Colspan = 2;
-				pCell->m_pMessage = new Message(PK_Controller,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND, COMMAND_LEARN_IR_CONST, 1, COMMANDPARAMETER_ID_CONST, StringUtils::itos(pCommand->m_iPK_Command).c_str());
-				pDataGrid->SetData(7,iRow,pCell);
-
-				++iRow;
-			}
-		}
-
-		for(itIODSP=pDevice->m_mapOutputs.begin();itIODSP!=pDevice->m_mapOutputs.end();++itIODSP)
-		{
-			Command *pCommand = m_pRouter->m_mapCommand[(*itIODSP).second];
-			if( !pCommand )
-				g_pPlutoLogger->Write(LV_CRITICAL,"There's a null in the pDevice->m_mapOutput for non-existant action: %d (%d)",(*itIODSP).second,(*itIODSP).first);
-			else
-			{
-				pCell = new DataGridCell("Output: " + pCommand->m_sDescription,"");
-				pCell->m_Colspan = 8;
-				pCell->m_pMessage = new Message(PK_Controller,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND, pCommand->m_iPK_Command, 0);
-				pDataGrid->SetData(0,iRow,pCell);
-
-				pCell = new DataGridCell("Learn","");
-				pCell->m_Colspan = 2;
-				pCell->m_pMessage = new Message(PK_Controller,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND, COMMAND_LEARN_IR_CONST, 1, COMMANDPARAMETER_ID_CONST, StringUtils::itos(pCommand->m_iPK_Command).c_str());
-				pDataGrid->SetData(7,iRow,pCell);
-
-				++iRow;
-			}
-		}
-
-		for(itIODSP=pDevice->m_mapDSPModes.begin();itIODSP!=pDevice->m_mapDSPModes.end();++itIODSP)
-		{
-			Command *pCommand = m_pRouter->m_mapCommand[(*itIODSP).second];
-			if( !pCommand )
-				g_pPlutoLogger->Write(LV_CRITICAL,"There's a null in the pDevice->m_mapDSPMode for non-existant action: %d (%d)",(*itIODSP).second,(*itIODSP).first);
-			else
-			{
-				if( pIRInformation && pIRInformation->m_listToggleDSPModes.size()!=0 ) 
-				{
-					list<int>::iterator it;
-					for(it=pIRInformation->m_listToggleDSPModes.begin();it!=pIRInformation->m_listToggleDSPModes.end();++it)
-					{
-						if( (*it)==(*itIODSP).second )
-							continue;  // This is a toggle input
-					}
-				}
-
-				pCell = new DataGridCell("DSPMode: " + pCommand->m_sDescription,"");
-				pCell->m_Colspan = 8;
-				pCell->m_pMessage = new Message(PK_Controller,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND, pCommand->m_iPK_Command, 0);
-				pDataGrid->SetData(0,iRow,pCell);
-
-				pCell = new DataGridCell("Learn","");
-				pCell->m_Colspan = 2;
-				pCell->m_pMessage = new Message(PK_Controller,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND, COMMAND_LEARN_IR_CONST, 1, COMMANDPARAMETER_ID_CONST, StringUtils::itos(pCommand->m_iPK_Command).c_str());
-				pDataGrid->SetData(7,iRow,pCell);
-
-				++iRow;
-			}
-		}
-		return pDataGrid;
-	}
-	string query;
-
-	if( Type==1 )
-		query = "SELECT PK_Device, FK_Room, S_Device.Description AS Device, S_DeviceTemplate.Description AS MasterDevice, Value AS ID "
-			"FROM S_Device "
-			"INNER  JOIN S_DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate "
-			"LEFT  JOIN S_Device_DeviceData ON FK_Device = PK_Device "
-			"WHERE FK_DeviceCategory = 6 AND ( FK_DeviceData IS  NULL  OR FK_DeviceData = 28 )";
-	else
-		query = "SELECT PK_Device, FK_Room, S_Device.Description AS Device, S_DeviceTemplate.Description AS MasterDevice "
-			"FROM S_Device "
-			"INNER  JOIN S_DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate ";
-
-	query += " ORDER BY FK_Room";
-	PlutoSqlResult result;
-	MYSQL_ROW row=NULL;
-	int LastRoom = -1;
-
-	if( (result.r=mysql_query_result(query)) )
-	{
-		while( (row=mysql_fetch_row(result.r)) )
-		{
-			int PK_Device = atoi(row[0]);
-			string Description="";
-			int PK_Room = atoi(row[1]);
-			DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
-			IRInformation *pIRInformation = m_mapIRInformation_Find(pDevice->m_dwPK_Device);
-
-			if( Type==2 && !pIRInformation )
-				continue;
-			else if( Type==3 && (pIRInformation || pDevice->m_dwPK_DeviceCategory==DEVICECATEGORY_LIGHTS_CONST) )
-				continue;
-
-			if( PK_Room!=LastRoom )
-			{
-				LastRoom = PK_Room; 
-				// I added a check to see if the room is actually there.  This bombed
-				// here while testing the controller.
-				int oldsize = (int) m_pRouter->m_mapDCERoom.size();
-				
-				map<int,DCERoom *>::iterator iRoom = m_pRouter->m_mapDCERoom.find(PK_Room);
-				if (iRoom != m_pRouter->m_mapDCERoom.end())
-				{
-					DCERoom *pRoom = (*iRoom).second; // Split to inspect pRoom
-					if(pRoom)
-						Description = pRoom->m_Description + "\n";
-					else
-					{
-						int newsize = (int) m_pRouter->m_mapDCERoom.size();
-						g_pPlutoLogger->Write(LV_WARNING, "Description not set due to invalid room desc ptr, os = %d, ns = %d",oldsize,newsize);
-					}
-				}
-			}
-			Description += row[2];
-			if( row[3] )
-				Description += string("(") + row[3] + ")";
-			pCell = new DataGridCell(Description,"");
-	        pCell->m_Colspan = 6;
-			pDataGrid->SetData(0,iRow,pCell);
-
-			if( Type==1 )
-			{
-				pCell = new DataGridCell("ON","");
-				pCell->m_pMessage = new Message(0,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_GEN_ON_CONST,0);
-				pDataGrid->SetData(6,iRow,pCell);
-
-				pCell = new DataGridCell("OFF","");
-				pCell->m_pMessage = new Message(0,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_GEN_OFF_CONST,0);
-				pDataGrid->SetData(7,iRow,pCell);
-
-				pCell = new DataGridCell("50%","");
-				pCell->m_pMessage = new Message(0,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_LIT_DIM_CONST,1,
-					C_COMMANDPARAMETER_ABS_LEVEL_CONST,"50");
-				pDataGrid->SetData(8,iRow,pCell);
-			}
-			else if( pDevice )
-			{
-				if( pDevice->SupportsCommand(COMMAND_GEN_ON_CONST) )
-				{
-					pCell = new DataGridCell("ON","");
-					pCell->m_pMessage = new Message(0,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_GEN_ON_CONST,0);
-					pDataGrid->SetData(6,iRow,pCell);
-				}
-				if( pDevice->SupportsCommand(COMMAND_GEN_OFF_CONST) )
-				{
-					pCell = new DataGridCell("OFF","");
-					pCell->m_pMessage = new Message(0,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_GEN_OFF_CONST,0);
-					pDataGrid->SetData(7,iRow,pCell);
-				}
-
-				pCell = new DataGridCell("...",StringUtils::itos(PK_Device));
-				DERC::CMD_Populate_Datagrid msg(PK_Controller,DEVICECATEGORY_DATAGRID,"",GridID,X,"0," + StringUtils::itos(PK_Controller) + "," + StringUtils::itos(PK_Device)).c_str()));
-				pCell->m_pMessage = msg.m_pMessage;
-				pDataGrid->SetData(8,iRow,pCell);
-			}
-
-			iRow++;
 		}
 	}
-	else
-		g_pPlutoLogger->Write(LV_CRITICAL,"Query: %s failed",query.c_str());
-*/
+
+
 	return pDataGrid;
 }
+
+class DataGridTable *File_Grids_Plugin::CommandsGrid(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
+{
+	DataGridTable *pDataGrid = new DataGridTable();
+	DataGridCell *pCell;
+
+	string::size_type pos=0;
+	int PK_Device = atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
+	if( !PK_Device )
+		return pDataGrid;
+
+	int PK_Orbiter = atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
+	int PK_Text = atoi(StringUtils::Tokenize(Parms,",",pos).c_str());
+
+	int iRow=0;
+	DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
+
+	vector<Row_DeviceTemplate_AV *> vectRow_DeviceTemplate_AV;
+	pDevice->m_pRow_Device->FK_DeviceTemplate_getrow()->DeviceTemplate_AV_FK_DeviceTemplate_getrows(&vectRow_DeviceTemplate_AV);
+	Row_DeviceTemplate_AV *pRow_DeviceTemplate_AV = vectRow_DeviceTemplate_AV.size() ? vectRow_DeviceTemplate_AV[0] : NULL;
+	bool bUsesIR = pRow_DeviceTemplate_AV && pRow_DeviceTemplate_AV->UsesIR_get()==1;
+
+	for(map<int,string>::iterator it=pDevice->m_mapCommands.begin();it!=pDevice->m_mapCommands.end();++it)
+	{
+		// Handle some special cases
+		if( (*it).first == COMMAND_Power_CONST && bUsesIR && pRow_DeviceTemplate_AV->TogglePower_get()==0 )
+		{
+			// We don't toggle power, we have discrete on and off's
+			pCell = new DataGridCell( "ON",	StringUtils::itos(COMMAND_Generic_On_CONST) );
+			pCell->m_Colspan = 4;
+			pCell->m_pMessage = new Message(PK_Orbiter,pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_On_CONST,0);
+			pDataGrid->SetData(0,iRow,pCell);
+
+			pCell = new DataGridCell( "learn","" );
+			DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,pDevice->m_dwPK_Device,"1",PK_Text,COMMAND_Generic_On_CONST);
+			pCell->m_pMessage = CMD_Learn_IR.m_pMessage;
+			pDataGrid->SetData(4,iRow++,pCell);
+
+			pCell = new DataGridCell( "OFF",	StringUtils::itos(COMMAND_Generic_Off_CONST) );
+			pCell->m_Colspan = 4;
+			pCell->m_pMessage = new Message(PK_Orbiter,pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_Off_CONST,0);
+			pDataGrid->SetData(0,iRow,pCell);
+
+			pCell = new DataGridCell( "learn","" );
+			DCE::CMD_Learn_IR CMD_Learn_IR2(PK_Orbiter,pDevice->m_dwPK_Device,"1",PK_Text,COMMAND_Generic_Off_CONST);
+			pCell->m_pMessage = CMD_Learn_IR2.m_pMessage;
+			pDataGrid->SetData(4,iRow++,pCell);
+		}
+		else if( (*it).first == COMMAND_Jump_Position_In_Playlist_CONST && bUsesIR )
+		{
+			for(int i=0;i<=9;++i)
+			{
+				pCell = new DataGridCell( StringUtils::itos(i),	StringUtils::itos(COMMAND_0_CONST + i) );
+				pCell->m_Colspan = 4;
+				pCell->m_pMessage = new Message(PK_Orbiter,pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_0_CONST + i,0);
+				pDataGrid->SetData(0,iRow,pCell);
+
+				pCell = new DataGridCell( "learn","" );
+				DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,pDevice->m_dwPK_Device,"1",PK_Text,COMMAND_0_CONST + i);
+				pCell->m_pMessage = CMD_Learn_IR.m_pMessage;
+				pDataGrid->SetData(4,iRow++,pCell);
+			}
+			pCell = new DataGridCell( StringUtils::itos(i),	StringUtils::itos(COMMAND_Send_Generic_EnterGo_CONST) );
+			pCell->m_Colspan = 4;
+			pCell->m_pMessage = new Message(PK_Orbiter,pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Send_Generic_EnterGo_CONST,0);
+			pDataGrid->SetData(0,iRow,pCell);
+
+			pCell = new DataGridCell( "learn","" );
+			DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,pDevice->m_dwPK_Device,"1",PK_Text,COMMAND_Send_Generic_EnterGo_CONST);
+			pCell->m_pMessage = CMD_Learn_IR.m_pMessage;
+			pDataGrid->SetData(4,iRow++,pCell);
+		}
+		else
+		{
+			pCell = new DataGridCell( (*it).second,	StringUtils::itos((*it).first) );
+			pCell->m_Colspan = 4;
+			pCell->m_pMessage = new Message(PK_Orbiter,pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,(*it).first,0);
+			pDataGrid->SetData(0,iRow,pCell);
+
+			pCell = new DataGridCell( "learn","" );
+			DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,pDevice->m_dwPK_Device,"1",PK_Text,(*it).first);
+			pCell->m_pMessage = CMD_Learn_IR.m_pMessage;
+			pDataGrid->SetData(4,iRow++,pCell);
+		}
+	}
+
+	// Add the inputs
+	vector<Row_DeviceTemplate_Input *> vectRow_DeviceTemplate_Input;
+	pDevice->m_pRow_Device->FK_DeviceTemplate_getrow()->DeviceTemplate_Input_FK_DeviceTemplate_getrows(&vectRow_DeviceTemplate_Input);
+	for(size_t s=0;s<vectRow_DeviceTemplate_Input.size();++s)
+	{
+		Row_DeviceTemplate_Input *pRow_DeviceTemplate_Input = vectRow_DeviceTemplate_Input[s];
+
+		pCell = new DataGridCell( pRow_DeviceTemplate_Input->FK_Command_getrow()->Description_get(), StringUtils::itos(pRow_DeviceTemplate_Input->FK_Command_get()) );
+		pCell->m_Colspan = 4;
+		pCell->m_pMessage = new Message(PK_Orbiter,pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,pRow_DeviceTemplate_Input->FK_Command_get(),0);
+		pDataGrid->SetData(0,iRow,pCell);
+
+		if( pRow_DeviceTemplate_AV && pRow_DeviceTemplate_AV->ToggleInput_get()==0 )
+		{
+			pCell = new DataGridCell( "learn","" );
+			DCE::CMD_Learn_IR CMD_Learn_IR(PK_Orbiter,pDevice->m_dwPK_Device,"1",PK_Text,pRow_DeviceTemplate_Input->FK_Command_get());
+			pCell->m_pMessage = CMD_Learn_IR.m_pMessage;
+		}
+		else
+			pCell = new DataGridCell( "TOAD","" );
+
+		pDataGrid->SetData(4,iRow++,pCell);
+	}
+
+	return pDataGrid;
+}
+
 
 class DataGridTable * File_Grids_Plugin::FileList(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
@@ -623,3 +512,142 @@ g_pPlutoLogger->Write(LV_STATUS,"End File list");
 
 
 //<-dceag-sample-b->!
+
+
+/*
+if( PK_Device!=0 )
+	{
+		DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
+		if( !pDevice )
+			return NULL;
+
+		// Help the controller out since we could only attach 1 message to the datagrid
+		// we weren't able to set it's device variable
+		if( ptrController )
+			ptrController->SetVariable(VARIABLE_PK_DEVICE_CONST,StringUtils::itos(PK_Device).c_str());
+
+		IRInformation *pIRInformation = m_mapIRInformation_Find(pDevice->m_dwPK_Device);
+		for(size_t i=0;i<=pDevice->m_iNumberCommands;++i)
+		{
+			Command *pCommand = m_pRouter->mapCommand_Find(pDevice->m_piCommands[i]);
+			if( !pCommand )
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"There's a null in the pDevice->m_mapCommand");
+				continue;
+			}
+
+			if( pCommand->m_iPK_Command==COMMAND_AV_INPUT_SELECT_CONST && pIRInformation  && pIRInformation ->m_listToggleInputs.size()==0 )
+				continue;
+			if( pCommand->m_iPK_Command==COMMAND_AV_DSP_MODE_CONST && pIRInformation && pIRInformation->m_listToggleDSPModes.size()==0 )
+				continue;
+			if( (pCommand->m_iPK_Command==COMMAND_GEN_OFF_CONST || pCommand->m_iPK_Command==COMMAND_GEN_ON_CONST) && pIRInformation && pIRInformation->m_bTogglePower )
+				continue;
+
+			int PK_Command = pCommand->m_iPK_Command;
+			string Description = pCommand->m_sDescription;
+
+			pCell = new DataGridCell(Description,"");
+			pCell->m_Colspan = 7;
+			pCell->m_pMessage = new Message(PK_Controller,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND, PK_Command, 0);
+			pDataGrid->SetData(0,iRow,pCell);
+
+			pCell = new DataGridCell("Learn","");
+			pCell->m_Colspan = 2;
+			pCell->m_pMessage = new Message(PK_Controller,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND, COMMAND_LEARN_IR_CONST, 1, COMMANDPARAMETER_ID_CONST, StringUtils::itos(PK_Command).c_str());
+			pDataGrid->SetData(7,iRow,pCell);
+
+			++iRow;
+		}
+
+		map<int,int>::iterator itIODSP;
+		for(itIODSP=pDevice->m_mapInputs.begin();itIODSP!=pDevice->m_mapInputs.end();++itIODSP)
+		{
+			Command *pCommand = m_pRouter->m_mapCommand[(*itIODSP).second];
+			if( !pCommand )
+				g_pPlutoLogger->Write(LV_CRITICAL,"There's a null in the pDevice->m_mapInput for non-existant action: %d (%d)",(*itIODSP).second,(*itIODSP).first);
+			else
+			{
+				if( pIRInformation && pIRInformation->m_listToggleInputs.size()!=0 ) 
+				{
+					bool bToggleInput=false;
+					list<int>::iterator it;
+					for(it=pIRInformation->m_listToggleInputs.begin();it!=pIRInformation->m_listToggleInputs.end();++it)
+					{
+						if( (*it)==(*itIODSP).first )
+						{
+							bToggleInput=true;
+							break;
+						}
+					}
+					if( bToggleInput )
+						continue;
+				}
+				pCell = new DataGridCell("Input: " + pCommand->m_sDescription,"");
+				pCell->m_Colspan = 7;
+				pCell->m_pMessage = new Message(PK_Controller,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND, pCommand->m_iPK_Command, 0);
+				pDataGrid->SetData(0,iRow,pCell);
+
+				pCell = new DataGridCell("Learn","");
+				pCell->m_Colspan = 2;
+				pCell->m_pMessage = new Message(PK_Controller,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND, COMMAND_LEARN_IR_CONST, 1, COMMANDPARAMETER_ID_CONST, StringUtils::itos(pCommand->m_iPK_Command).c_str());
+				pDataGrid->SetData(7,iRow,pCell);
+
+				++iRow;
+			}
+		}
+
+		for(itIODSP=pDevice->m_mapOutputs.begin();itIODSP!=pDevice->m_mapOutputs.end();++itIODSP)
+		{
+			Command *pCommand = m_pRouter->m_mapCommand[(*itIODSP).second];
+			if( !pCommand )
+				g_pPlutoLogger->Write(LV_CRITICAL,"There's a null in the pDevice->m_mapOutput for non-existant action: %d (%d)",(*itIODSP).second,(*itIODSP).first);
+			else
+			{
+				pCell = new DataGridCell("Output: " + pCommand->m_sDescription,"");
+				pCell->m_Colspan = 8;
+				pCell->m_pMessage = new Message(PK_Controller,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND, pCommand->m_iPK_Command, 0);
+				pDataGrid->SetData(0,iRow,pCell);
+
+				pCell = new DataGridCell("Learn","");
+				pCell->m_Colspan = 2;
+				pCell->m_pMessage = new Message(PK_Controller,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND, COMMAND_LEARN_IR_CONST, 1, COMMANDPARAMETER_ID_CONST, StringUtils::itos(pCommand->m_iPK_Command).c_str());
+				pDataGrid->SetData(7,iRow,pCell);
+
+				++iRow;
+			}
+		}
+
+		for(itIODSP=pDevice->m_mapDSPModes.begin();itIODSP!=pDevice->m_mapDSPModes.end();++itIODSP)
+		{
+			Command *pCommand = m_pRouter->m_mapCommand[(*itIODSP).second];
+			if( !pCommand )
+				g_pPlutoLogger->Write(LV_CRITICAL,"There's a null in the pDevice->m_mapDSPMode for non-existant action: %d (%d)",(*itIODSP).second,(*itIODSP).first);
+			else
+			{
+				if( pIRInformation && pIRInformation->m_listToggleDSPModes.size()!=0 ) 
+				{
+					list<int>::iterator it;
+					for(it=pIRInformation->m_listToggleDSPModes.begin();it!=pIRInformation->m_listToggleDSPModes.end();++it)
+					{
+						if( (*it)==(*itIODSP).second )
+							continue;  // This is a toggle input
+					}
+				}
+
+				pCell = new DataGridCell("DSPMode: " + pCommand->m_sDescription,"");
+				pCell->m_Colspan = 8;
+				pCell->m_pMessage = new Message(PK_Controller,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND, pCommand->m_iPK_Command, 0);
+				pDataGrid->SetData(0,iRow,pCell);
+
+				pCell = new DataGridCell("Learn","");
+				pCell->m_Colspan = 2;
+				pCell->m_pMessage = new Message(PK_Controller,PK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND, COMMAND_LEARN_IR_CONST, 1, COMMANDPARAMETER_ID_CONST, StringUtils::itos(pCommand->m_iPK_Command).c_str());
+				pDataGrid->SetData(7,iRow,pCell);
+
+				++iRow;
+			}
+		}
+		return pDataGrid;
+	}
+
+	*/

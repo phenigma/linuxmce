@@ -41,6 +41,8 @@
 #define DEVICEDATA_Delay_CONST 39
 #define DEVICEDATA_Name_CONST 40
 #define DEVICEDATA_Update_Name_CONST 41
+#define DEVICEDATA_File_Name_and_Path_CONST 42
+#define DEVICEDATA_Communication_file_CONST 43
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

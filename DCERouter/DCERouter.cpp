@@ -1560,6 +1560,10 @@ void Router::Configure()
 
         m_mapDeviceData_Router[pDevice->m_dwPK_Device]=pDevice;
 
+		Room *pRoom = m_mapRoom_Find(pDevice->m_dwPK_Room);
+		if( pRoom )
+			pRoom->m_listDevices.push_back(pDevice);
+
         vector<Row_Device_Device_Pipe *> vectRow_Device_Device_Pipe;
         pRow_Device->Device_Device_Pipe_FK_Device_From_getrows(&vectRow_Device_Device_Pipe);
         for(size_t sp=0;sp<vectRow_Device_Device_Pipe.size();++sp)

@@ -20,6 +20,7 @@ using namespace std;
 #include "Table_FloorplanType.h"
 #include "Table_DesignObj.h"
 
+#include "Table_EntertainArea.h"
 #include "Table_FloorplanObjectType_Color.h"
 
 
@@ -1081,6 +1082,13 @@ return pTable->GetRow(m_FK_DesignObj_Control);
 }
 
 
+void Row_FloorplanObjectType::EntertainArea_FK_FloorplanObjectType_getrows(vector <class Row_EntertainArea*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_EntertainArea *pTable = table->database->EntertainArea_get();
+pTable->GetRows("FK_FloorplanObjectType=" + StringUtils::itos(m_PK_FloorplanObjectType),rows);
+}
 void Row_FloorplanObjectType::FloorplanObjectType_Color_FK_FloorplanObjectType_getrows(vector <class Row_FloorplanObjectType_Color*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);

@@ -162,7 +162,8 @@ class Row_DesignObj* FK_DesignObj_Control_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
-		void FloorplanObjectType_Color_FK_FloorplanObjectType_getrows(vector <class Row_FloorplanObjectType_Color*> *rows);
+		void EntertainArea_FK_FloorplanObjectType_getrows(vector <class Row_EntertainArea*> *rows);
+void FloorplanObjectType_Color_FK_FloorplanObjectType_getrows(vector <class Row_FloorplanObjectType_Color*> *rows);
 
 
 		// Setup binary serialization

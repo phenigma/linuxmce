@@ -56,6 +56,7 @@
 #define DEVICECATEGORY_Event_Plugins_CONST 99
 #define DEVICECATEGORY_Media_Streamers_CONST 100
 #define DEVICECATEGORY_Text_To_Speech_CONST 101
+#define DEVICECATEGORY_Speech_CONST 102
 
 #define DEVICECATEGORY_TABLE "DeviceCategory"
 #define DEVICECATEGORY_PK_DEVICECATEGORY_FIELD "PK_DeviceCategory"
