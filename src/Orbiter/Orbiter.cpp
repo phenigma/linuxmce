@@ -94,7 +94,7 @@ public:
 		m_pCallbackMutex=pCallbackMutex; 
 		m_bPurgeTaskWhenScreenIsChanged = bPurgeTaskWhenScreenIsChanged; 
 	}
-    Orbiter *m_pOrbiter;
+	Orbiter *m_pOrbiter;
     OrbiterCallBack m_fnCallBack;
 	timespec m_abstime;
     void *m_pData;
@@ -1073,6 +1073,7 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable is now %p",pObj-
 		CallBackInfo *pCallBackInfo = (*itCallBackInfo).second;
 		if(pCallBackInfo->m_bPurgeTaskWhenScreenIsChanged)
 		{
+			g_pPlutoLogger->Write( LV_STATUS, "$$$ NeedToChangeScreens::deleting callback %p with id %d", pCallBackInfo, pCallBackInfo->m_iCounter );
 			mapPendingCallbacks.erase(itCallBackInfo++);
 			delete pCallBackInfo;
 		}
@@ -1106,6 +1107,9 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable is now %p",pObj-
 	if( !m_bBypassScreenSaver && pScreenHistory->m_pObj == m_pDesignObj_Orbiter_ScreenSaveMenu && m_iTimeoutBlank )
 	{
 		m_tTimeoutTime = time(NULL) + m_iTimeoutBlank;
+
+g_pPlutoLogger->Write( LV_STATUS, "@@@ About to call maint for display off with timeout: %d ms", m_iTimeoutBlank * 1000);
+
 		CallMaintenanceInMiliseconds( m_iTimeoutBlank * 1000, &Orbiter::ScreenSaver, NULL, true );
 	}
 	else if( !m_bBypassScreenSaver && pScreenHistory->m_pObj != m_pDesignObj_Orbiter_ScreenSaveMenu && m_iTimeoutScreenSaver )
@@ -3975,7 +3979,7 @@ void *MaintThread(void *p)
 {
 	bMaintThreadIsRunning = true;
 	Orbiter* pOrbiter = (Orbiter *)p;
-
+	
 	while(!pOrbiter->m_bQuit) //
 	{
 		PLUTO_SAFETY_LOCK( pm, pOrbiter->m_CallbackMutex );
@@ -3984,91 +3988,63 @@ void *MaintThread(void *p)
 		{
 			pm.Release();
 
+			//nothing to process. let's sleep...
 			pthread_mutex_lock(&pOrbiter->m_MaintThreadMutex.mutex);
 			pthread_cond_wait(&pOrbiter->m_MaintThreadCond,&pOrbiter->m_MaintThreadMutex.mutex);
 			pthread_mutex_unlock(&pOrbiter->m_MaintThreadMutex.mutex);
-g_pPlutoLogger->Write( LV_CONTROLLER, "### maint thread awake - the queue size is %d", mapPendingCallbacks.size());
 		}
 		else
 		{
-			int Index = (*mapPendingCallbacks.begin()).second->m_iCounter;
-			timespec ts_NextCallBack = (*mapPendingCallbacks.begin()).second->m_abstime;
+			CallBackInfo *pCallBackInfoGood = mapPendingCallbacks.begin()->second;
+			timespec ts_NextCallBack = pCallBackInfoGood->m_abstime;
 
-			//g_pPlutoLogger->Write( LV_CONTROLLER, "### The queue size is %d", mapPendingCallbacks.size());
-
-			//let's choose the one which must be rendered first
+			//let's choose the one which must be processed first
 			for(map<int,CallBackInfo *>::iterator it=mapPendingCallbacks.begin();it!=mapPendingCallbacks.end();++it)
 			{
 				CallBackInfo *pCallBackInfo = (*it).second;
 
 				if(pCallBackInfo->m_abstime < ts_NextCallBack)
 				{
-g_pPlutoLogger->Write( LV_CONTROLLER, "found one to call");
-					ts_NextCallBack = pCallBackInfo->m_abstime;
-					Index = pCallBackInfo->m_iCounter;
+					if( ! pCallBackInfo->m_bStop ) //let's process this one, is ready to go
+					{
+						pCallBackInfoGood = pCallBackInfo; 
+						ts_NextCallBack = pCallBackInfo->m_abstime;
+					}
 				}
 			}
 
-			CallBackInfo *pCallBackInfo = mapPendingCallbacks[Index];
-			pm.Release();
-
-			//g_pPlutoLogger->Write( LV_CONTROLLER, "### Now is %d, Callback candidate to be processed id = %d, time = %d msec = %d",
-			//	clock_t(), pCallBackInfo->m_iCounter, (int)pCallBackInfo->m_abstime.tv_sec,(int)pCallBackInfo->m_abstime.tv_nsec);
+			OrbiterCallBack fnCallBackGood = NULL;
+			Orbiter *pOrbiterGood = NULL;
+			void *pDataGood = NULL;
 
 			timespec ts_Current;
 			gettimeofday(&ts_Current,NULL);
-
-			if(pCallBackInfo->m_abstime <= ts_Current)
+			if(pCallBackInfoGood->m_abstime <= ts_Current)
 			{
-				if( ! pCallBackInfo->m_bStop ) //let's process this one, is ready to go
-					CALL_MEMBER_FN( *pCallBackInfo->m_pOrbiter, pCallBackInfo->m_fnCallBack )( pCallBackInfo->m_pData );
+				//this one need to be processed right away
+				//we'll save the callback informations and delete the entry from the map
+				fnCallBackGood = pCallBackInfoGood->m_fnCallBack;
+				pOrbiterGood = pCallBackInfoGood->m_pOrbiter;
+				pDataGood = pCallBackInfoGood->m_pData;
 
-				PLUTO_SAFETY_LOCK( pm2, pOrbiter->m_CallbackMutex );
-
-				//let's be sure that meantime nobody clear the map
-				if(mapPendingCallbacks.size() && mapPendingCallbacks.end() != mapPendingCallbacks.find(pCallBackInfo->m_iCounter))
-				{
-					mapPendingCallbacks.erase(pCallBackInfo->m_iCounter); //processed
-					delete pCallBackInfo;
-					pCallBackInfo = NULL;
-				}
-
-				pm2.Release();
+				mapPendingCallbacks.erase(pCallBackInfoGood->m_iCounter); //processed
+				delete pCallBackInfoGood;
+				pCallBackInfoGood = NULL;
 			}
-			else
+			pm.Release();
+
+			//execute the callback
+			if(NULL != fnCallBackGood)
 			{
-				//g_pPlutoLogger->Write( LV_CONTROLLER, "### 2. Now is %d. Waiting to process callback id = %d, time = %d msec = %d",
-				//	time(NULL), pCallBackInfo->m_iCounter, (int)pCallBackInfo->m_abstime.tv_sec,(int)pCallBackInfo->m_abstime.tv_nsec);
-
-				pthread_mutex_lock(&pOrbiter->m_MaintThreadMutex.mutex);
-
-				//g_pPlutoLogger->Write( LV_CONTROLLER, "@@@ %d, %d", abstime.tv_sec, abstime.tv_nsec);
-
-				if(ETIMEDOUT == pthread_cond_timedwait(&pOrbiter->m_MaintThreadCond,
-					&pOrbiter->m_MaintThreadMutex.mutex, &ts_NextCallBack)
-				)
-				{
-					//no new events while waiting.. so let's render this one
-					if( ! pCallBackInfo->m_bStop ) //let's process this one, is ready to go
-						CALL_MEMBER_FN( *pCallBackInfo->m_pOrbiter, pCallBackInfo->m_fnCallBack )( pCallBackInfo->m_pData );
-
-					PLUTO_SAFETY_LOCK( pm2, pOrbiter->m_CallbackMutex );
-
-					//let's be sure that meantime nobody clear the map
-					if(mapPendingCallbacks.size() && mapPendingCallbacks.end() != mapPendingCallbacks.find(pCallBackInfo->m_iCounter))
-					{
-						mapPendingCallbacks.erase(pCallBackInfo->m_iCounter); //processed
-						delete pCallBackInfo;
-						pCallBackInfo = NULL;
-					}
-					pm2.Release();
-				}
-				//else
-					//g_pPlutoLogger->Write( LV_CONTROLLER, "### 2. Now is %d. Something is changed, let's review the map",
-					//	(int)clock());
-
-				pthread_mutex_unlock(&pOrbiter->m_MaintThreadMutex.mutex);
+				CALL_MEMBER_FN(*pOrbiterGood, fnCallBackGood)(pDataGood);
+				continue;
 			}
+
+			//if we are here, this means that the callback must be executed after a time
+			//let's sleep until then or until another callback is inserted into the map
+			pthread_mutex_lock(&pOrbiter->m_MaintThreadMutex.mutex);
+			pthread_cond_timedwait(&pOrbiter->m_MaintThreadCond, &pOrbiter->m_MaintThreadMutex.mutex, &ts_NextCallBack);
+			pthread_mutex_unlock(&pOrbiter->m_MaintThreadMutex.mutex);
 		}
 	}
 
@@ -4109,6 +4085,7 @@ void Orbiter::CallMaintenanceInMiliseconds( clock_t milliseconds, OrbiterCallBac
 g_pPlutoLogger->Write( LV_CONTROLLER, "### Added callback id = %d, size is now: %d", pCallBack->m_iCounter, (int) mapPendingCallbacks.size());
 
 	cm.Release();
+
 	pthread_cond_broadcast(&m_MaintThreadCond);
 }
 
@@ -6045,3 +6022,49 @@ void Orbiter::CMD_Keep_Screen_On(string sOnOff,string &sCMD_Result,Message *pMes
 {
 	m_bBypassScreenSaver = sOnOff!="0";
 }
+//<-dceag-c192-b->
+
+	/** @brief COMMAND: #192 - On */
+	/** Turn the device on */
+		/** @param #97 PK_Pipe */
+			/** Normally when a device is turned on all the inputs and outputs are selected automatically.  If this parameter is specified, only the settings along this pipe will be set. */
+		/** @param #98 PK_Device_Pipes */
+			/** Normally when a device is turned on the corresponding "pipes" are enabled by default. if this parameter is blank.  If this parameter is 0, no pipes will be enabled.  This can also be a comma seperated list of devices, meaning only the pipes to those devic */
+
+void Orbiter::CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Message *pMessage)
+{
+/*
+	BeginPaint();
+	PlutoColor color(200, 200, 200, 100);
+	SolidRectangle(5, m_iImageHeight - 30, 200, 25, color, 50);
+	PlutoRectangle rect(5, m_iImageHeight - 30, 200, 25);
+	DesignObjText text(m_pScreenHistory_Current->m_pObj);
+	text.m_sText = "Display is ON";
+	text.m_rPosition = rect;
+	TextStyle *pTextStyle = m_mapTextStyle_Find( 1 );
+	RenderText(&text, pTextStyle);
+	EndPaint();
+*/
+}
+//<-dceag-c192-e->
+//<-dceag-c193-b->
+
+	/** @brief COMMAND: #193 - Off */
+	/** Turn the device off */
+		/** @param #97 PK_Pipe */
+			/** Normally when a device is turned on all the inputs and outputs are selected automatically.  If this parameter is specified, only the settings along this pipe will be set. */
+
+void Orbiter::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
+{
+	BeginPaint();
+	PlutoColor color(200, 200, 200, 100);
+	SolidRectangle(5, m_iImageHeight - 30, 200, 25, color, 50);
+	PlutoRectangle rect(5, m_iImageHeight - 30, 200, 25);
+	DesignObjText text(m_pScreenHistory_Current->m_pObj);
+	text.m_sText = "Display is OFF";
+	text.m_rPosition = rect;
+	TextStyle *pTextStyle = m_mapTextStyle_Find( 1 );
+	RenderText(&text, pTextStyle);
+	EndPaint();
+}
+//<-dceag-c193-e->

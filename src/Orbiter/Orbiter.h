@@ -1151,6 +1151,26 @@ public:
 	virtual void CMD_Set_Current_Location(int iLocationID,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #192 - On */
+	/** Turn the device on */
+		/** @param #97 PK_Pipe */
+			/** Normally when a device is turned on all the inputs and outputs are selected automatically.  If this parameter is specified, only the settings along this pipe will be set. */
+		/** @param #98 PK_Device_Pipes */
+			/** Normally when a device is turned on the corresponding "pipes" are enabled by default. if this parameter is blank.  If this parameter is 0, no pipes will be enabled.  This can also be a comma seperated list of devices, meaning only the pipes to those devic */
+
+	virtual void CMD_On(int iPK_Pipe,string sPK_Device_Pipes) { string sCMD_Result; CMD_On(iPK_Pipe,sPK_Device_Pipes.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_On(int iPK_Pipe,string sPK_Device_Pipes,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #193 - Off */
+	/** Turn the device off */
+		/** @param #97 PK_Pipe */
+			/** Normally when a device is turned on all the inputs and outputs are selected automatically.  If this parameter is specified, only the settings along this pipe will be set. */
+
+	virtual void CMD_Off(int iPK_Pipe) { string sCMD_Result; CMD_Off(iPK_Pipe,sCMD_Result,NULL);};
+	virtual void CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #238 - Continuous Refresh */
 	/** Continuously refresh the current page.  Used when the page contains constantly changing data. */
 		/** @param #102 Time */
