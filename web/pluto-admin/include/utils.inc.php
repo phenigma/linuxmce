@@ -1068,7 +1068,7 @@ function getChilds($parentID,$dbADO) {
 	return $jsTree;
 }
 
-function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDeviceTemplate,$returnValue,$defaultAll,$section,$firstColText,$dbADO,$useframes=0)
+function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDeviceTemplate,$returnValue,$defaultAll,$section,$firstColText,$dbADO,$useframes=0,$genericSerialDevicesOnly=0)
 {
 	global $dbPlutoMainDatabase;
 	$out='
@@ -1150,6 +1150,8 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 			$where.=" and DeviceCategory.PK_DeviceCategory in ($childArray)";
 		}
 
+		$where.=(($genericSerialDevicesOnly==1)?' AND CommandLine=\''.$GLOBALS['GenericSerialDeviceCommandLine'].'\'':'');
+		
 		if ($manufOrDevice || $defaultAll==1)	{
 		
 			$queryModels = "SELECT DeviceTemplate.*,DeviceCategory.Description as deviceDescription,

@@ -246,6 +246,8 @@
 	
 	// date format
 	$GLOBALS['defaultDateFormat']='Y-m-d h:i:s';
+
+	$GLOBALS['GenericSerialDeviceCommandLine']='Generic_Serial_Device';		// the command line used to identify generic serial devices
 	
 	// do not change the following lines
 	$addMasterUserUrl=$MasterUsersHost."index.php?section=add_master_user";
