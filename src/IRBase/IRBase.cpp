@@ -230,6 +230,9 @@ void IRBase::AddIRToQueue(string Port, string IRCode, timespec Delay, long Devic
 
 bool IRBase::AddChannelChangeToQueue(long ChannelNumber, long Device)
 {
+	const int DigitCmd[10] = { COMMAND_0_CONST, COMMAND_1_CONST, COMMAND_2_CONST, COMMAND_3_CONST, COMMAND_4_CONST,
+		COMMAND_5_CONST, COMMAND_6_CONST, COMMAND_7_CONST, COMMAND_8_CONST, COMMAND_9_CONST };
+	
 	if (m_pCommand_Impl->m_mapCommandImpl_Children.count(Device) == 0)
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot send channel change to non-existent device %d!", Device);
@@ -271,7 +274,7 @@ bool IRBase::AddChannelChangeToQueue(long ChannelNumber, long Device)
 	{
 		unsigned char digit = (ChannelNumber % (long) pow((double) 10, (double) i)) / (long) pow((double) 10, (double) (i-1));
 		g_pPlutoLogger->Write(LV_STATUS, "Sending digit %d...",digit);
-		AddIRToQueue("", "", DigitDelay, Device, digit + 80, 1, m_CurrentChannelSequenceNumber);
+		AddIRToQueue("", "", DigitDelay, Device, /*digit + 80*/ DigitCmd[digit], 1, m_CurrentChannelSequenceNumber);
 	}
 	if (bSendEnter)
 	{
