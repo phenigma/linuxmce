@@ -135,10 +135,7 @@ int slim_protocol_decode_strm_command(unsigned char *buffer, unsigned int buffer
 	decodedCommand->data.stream.autoStart = buffer[1];
 	decodedCommand->data.stream.hostPort = (buffer[18] << 0x08) | buffer[19];
 	
-	decodedCommand->data.stream.hostIpAddr[0] = buffer[20];
-	decodedCommand->data.stream.hostIpAddr[1] = buffer[21];
-	decodedCommand->data.stream.hostIpAddr[2] = buffer[22];
-	decodedCommand->data.stream.hostIpAddr[3] = buffer[23];
+	decodedCommand->data.stream.hostAddr.s_addr = (buffer[20] << 0x18) | (buffer[21] << 0x10) | (buffer[22] << 0x08) | buffer[23];
 
 	decodedCommand->data.stream.urlAddress = buffer + 24;	
 	decodedCommand->data.stream.urlSize = 0;

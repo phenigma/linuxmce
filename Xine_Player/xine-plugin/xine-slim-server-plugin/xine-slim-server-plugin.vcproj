@@ -130,6 +130,9 @@
 			<File
 				RelativePath=".\slim-stream.c">
 			</File>
+			<File
+				RelativePath=".\socket-utils.c">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -146,6 +149,9 @@
 			</File>
 			<File
 				RelativePath=".\slim-stream.h">
+			</File>
+			<File
+				RelativePath=".\socket-utils.h">
 			</File>
 		</Filter>
 		<Filter

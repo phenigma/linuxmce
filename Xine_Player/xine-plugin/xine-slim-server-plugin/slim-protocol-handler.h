@@ -67,7 +67,7 @@ struct slimCommand
 			StreamFormatType			format;
 			char						autoStart;
 
-			unsigned char				hostAddr[4];
+			struct in_addr				hostAddr;
 			unsigned int				hostPort;
 			
 			unsigned int				urlSize;

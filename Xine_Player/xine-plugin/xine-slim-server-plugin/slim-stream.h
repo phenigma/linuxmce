@@ -10,6 +10,12 @@
 
 #define BUFFER_SIZE 262144
 
+typedef enum _ThreadControlCommandType
+{
+	THREAD_CONTROL_STOP,
+	THREAD_CONTROL_START
+} ThreadControlCommandType;
+
 struct slim_stream
 {
 	char buffer[BUFFER_SIZE];
@@ -22,15 +28,17 @@ struct slim_stream
 
 	unsigned int isConnecting;
 
-	unsigned SOCKET connection;
-
-	unsigned char *uri;
-	unsigned char hostAddr[4];
+	SOCKET connection;
+	
+	struct in_addr hostAddr;
 	unsigned int  hostPort;
+	unsigned char *uri;
 
-	unsigned int	readerThreadControl;
+	ThreadControlCommandType readerThreadControl;
 	pthread_t		readerThread;
-	pthread_mutex_t bufferMutex;;
+	pthread_attr_t	readerThreadAttr;
+
+	pthread_mutex_t bufferMutex;
 };
 
 int stream_get_data_size(struct slim_stream *pstream);

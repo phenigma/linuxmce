@@ -37,7 +37,9 @@ struct slim_input_plugin_s
 	SOCKET			 comm_socket;
 	char            *mrl;
 	char            *slim_server_specification;	
-
+	
+	unsigned char	*hostAddr;
+	unsigned int	hostPort;
 
 	// the stream we are playing 
 	xine_stream_t	*stream;

@@ -1,7 +1,14 @@
+#include <string.h>
 #include <pthread.h>
 #include "slim-stream.h"
 
 #include <Windows.h>
+#include "socket-utils.h"
+
+#define TMP_BUFFER_SIZE 1024
+
+char buffer[TMP_BUFFER_SIZE];
+
 int stream_get_data_size(struct slim_stream *pStream)
 {
 	int availableData;
@@ -28,29 +35,177 @@ int stream_get_free_space(struct slim_stream *pStream)
 	return (unsigned int)freeSpace;
 }
 
+void *stream_reader_function(void*pData)
+{	
+	struct slim_stream *pStream = (struct slim_stream*)pData;	
+
+	xine_stream_t *xine_stream = NULL;
+
+	unsigned int done, len, linenum, contentlength, writeBufferSize;
+
+	writeBufferSize = 0;	
+	_snprintf(buffer, BUFFER_SIZE - writeBufferSize, 
+			"GET %s HTTP/1.0\015\012"
+			"User-Agent: xine/xine\015\012"
+			"Accept: */*\015\012"
+			"\015\012", pStream->uri);		
+
+	writeBufferSize = (unsigned int)strlen(buffer);
+	if ( _x_io_tcp_write(xine_stream, (int)pStream->connection, buffer, writeBufferSize) != writeBufferSize )
+		return NULL;
+	
+	contentlength = 0;
+	linenum = 0;
+	done = 0;
+	len = 0;
+
+	while (!done) 
+	{
+		if ( _x_io_tcp_read (xine_stream, (int)pStream->connection, buffer + len, 1) <= 0)
+			return NULL;
+
+		if (buffer[len] == '\012') 
+		{
+			buffer[len] = '\0';
+			len--;
+
+			if (len >= 0 && buffer[len] == '\015') 
+			{
+				buffer[len] = '\0';
+				len--;
+			}
+
+			linenum++;
+			if (linenum == 1) 
+			{
+				int httpver, httpsub, httpcode;
+				char httpstatus[51];
+
+				if (sscanf(buffer, "HTTP/%d.%d %d %50[^\015\012]", &httpver, &httpsub, &httpcode, httpstatus) != 4)
+				{					
+					if (sscanf(buffer, "ICY %d %50[^\015\012]", &httpcode, httpstatus) != 2)	
+					{
+						_x_message(xine_stream, XINE_MSG_CONNECTION_REFUSED, "invalid http answer", NULL);
+						xine_log (NULL, XINE_LOG_MSG, _("input_http: invalid http answer\n"));
+						return 0;
+					} 
+					else 
+					{
+						// shoutcast = 1;
+						done = 1;
+					}
+				}
+
+				//if (httpcode >= 300 && httpcode < 400) 
+				//{	
+				//	xine_log (this->stream->xine, XINE_LOG_MSG, _("input_http: 3xx redirection: >%d %s<\n"), httpcode, httpstatus);
+				//} 
+				//else if (httpcode == 404) 
+				//{
+				//	_x_message(this->stream, XINE_MSG_FILE_NOT_FOUND, this->mrl, NULL);
+				//	xine_log (this->stream->xine, XINE_LOG_MSG, _("input_http: http status not 2xx: >%d %s<\n"), httpcode, httpstatus);
+				//	return 0;
+					//} else if (httpcode == 403) {
+					//	_x_message(this->stream, XINE_MSG_PERMISSION_ERROR, this->mrl, NULL);
+					//	xine_log (this->stream->xine, XINE_LOG_MSG,
+					//		_("input_http: http status not 2xx: >%d %s<\n"),
+					//		httpcode, httpstatus);
+					//	return 0;
+					//} else if (httpcode < 200 || httpcode >= 300) {
+					//	_x_message(this->stream, XINE_MSG_CONNECTION_REFUSED, "http status not 2xx: ",
+					//		httpstatus, NULL);
+					//	xine_log (this->stream->xine, XINE_LOG_MSG,
+					//		_("input_http: http status not 2xx: >%d %s<\n"),
+					//		httpcode, httpstatus);
+					//	return 0;
+					//}
+			} 
+			else 
+			{
+				if (contentlength == 0) 
+				{
+					intmax_t parsedLength;
+
+					if (sscanf(buffer, "Content-Length: %" SCNdMAX , &parsedLength) == 1) {
+						xine_log (NULL, XINE_LOG_MSG,  _("input_http: content length = %" PRIiMAX " bytes\n"), parsedLength);
+						contentlength = (off_t)parsedLength;
+					}
+				}
+				
+				if (!strncmp(buffer, "Location: ", 10)) 
+				{
+					//char *href = (buffer + 10);
+
+					//lprintf ("trying to open target of redirection: >%s<\n", href);
+
+					//href = _x_canonicalise_url (this->mrl, href);
+					//free(this->mrl);
+					//this->mrl = href;
+					//return http_plugin_open(this_gen);
+				}
+			}
+
+			if (len == -1) done = 1;
+			else		   len = 0;
+		} else 
+			len ++;
+	}
+
+	
+	while ( pStream->readerThreadControl != THREAD_CONTROL_STOP )
+	{
+		len = _x_io_tcp_read(xine_stream, (int)pStream->connection, buffer, 1024);
+	}
+	
+	return NULL;
+}
+
+void stream_close(struct slim_stream *stream)
+{
+	stream->isEndOfStream = 1;
+
+	stream->readerThreadControl = THREAD_CONTROL_STOP;
+
+	if ( stream->readerThread )
+	{
+		pthread_join(stream->readerThread, NULL);
+		pthread_attr_destroy(&stream->readerThreadAttr);
+	}
+
+	close((int)stream->connection);
+	stream->connection = -1;
+}
+
 void stream_open(struct slim_stream *pStream)
 {
 	pStream->writePtr = 0;
 	pStream->readPtr = 0;
 	pStream->isEndOfStream = 0;
 	pStream->isStreaming = 1;
-}
-
-void stream_close(struct slim_stream *stream)
-{
-	stream->isEndOfStream = 1;
 	
-	stream->readerThreadControl = THREAD_CONTROL_STOP;
-	pthread_join(stream->readerThread);
+	pStream->connection = connect_to_host_with_addr(pStream->hostAddr, pStream->hostPort, NULL);
 
-	close(stream->connection);
-	stream->connection = 0;
+	if ( pthread_attr_init(&pStream->readerThreadAttr) != 0 )
+	{
+		stream_close(pStream);
+		return;
+	}
+	
+	pStream->readerThreadControl = THREAD_CONTROL_START;
+	if ( pthread_create(&pStream->readerThread, &pStream->readerThreadAttr, stream_reader_function, pStream) != 0 ) 
+	{
+		pthread_attr_destroy(&pStream->readerThreadAttr);
+		stream_close(pStream);
+		return;
+	}
 }
+
+
 
 int stream_write(char *pBuffer, int off, int len, struct slim_stream *pStream)
 {
-	pthread_mutex_lock(&pStream->stateMutex);
-	pthread_mutex_unlock(&pStream->stateMutex);
+	pthread_mutex_lock(&pStream->bufferMutex);
+	pthread_mutex_unlock(&pStream->bufferMutex);
 	return 0;
 }
 
@@ -58,15 +213,15 @@ int stream_read(char *pBuffer, int off, int len, struct slim_stream *pStream)
 {
 	int copiedCount;
 
-	pthread_mutex_lock(&pStream->stateMutex);
+	pthread_mutex_lock(&pStream->bufferMutex);
 	while ( stream_get_data_size(pStream) <= len )
 	{
 		if ( pStream->isEndOfStream )
 			return -1; 
 
-		pthread_mutex_unlock(&pStream->stateMutex);
+		pthread_mutex_unlock(&pStream->bufferMutex);
 		Sleep(50); // sleep for 0.05 seconds and release the lock
-		pthread_mutex_lock(&pStream->stateMutex);
+		pthread_mutex_lock(&pStream->bufferMutex);
 	}
 
 		//if ( pStream->isStreaming && pStream->writePtr == pStream->readPtr )
@@ -122,7 +277,7 @@ int stream_read(char *pBuffer, int off, int len, struct slim_stream *pStream)
 		copiedCount += count;
 	}
 
-	pthread_mutex_unlock(&pStream->stateMutex);
+	pthread_mutex_unlock(&pStream->bufferMutex);
 	return copiedCount;
 }
 

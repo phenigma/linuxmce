@@ -1,13 +1,13 @@
 #include "slim-input-plugin.h"
 #include "slim-protocol-handler.h"
 #include "slim-stream.h"
+#include "socket-utils.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
 #include <string.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
+
 
 #define MAX_READ_BUFFER_SIZE 1024
 
@@ -102,8 +102,22 @@ static int read_and_decode_command(slim_input_plugin_t *plugin, xine_t *xine_han
 
 int process_command_stream(slim_input_plugin_t *plugin, slim_input_class_t *plugin_class, struct slimCommand *command)
 {
+	struct sockaddr_in peerAddress;	
+	int peerAddressLen;
+
+	if ( command->data.stream.hostAddr.s_addr == 0 )
+	{
+		peerAddressLen = sizeof(peerAddress);
+		getpeername(plugin->comm_socket, (struct sockaddr*)&peerAddress, &peerAddressLen);
+		command->data.stream.hostAddr = peerAddress.sin_addr;		
+	}	
+	
 	plugin->source_stream.hostAddr = command->data.stream.hostAddr;
 	plugin->source_stream.hostPort = command->data.stream.hostPort;
+
+	if ( plugin->source_stream.uri)
+		free(plugin->source_stream.uri);	
+
 	plugin->source_stream.uri = (unsigned char*)xine_xmalloc(command->data.stream.urlSize + 1);
 
 	strncpy(plugin->source_stream.uri, command->data.stream.urlAddress, command->data.stream.urlSize);
@@ -132,9 +146,11 @@ int process_command_from_server(slim_input_plugin_t *plugin, slim_input_class_t 
 	{
 	case COMMAND_STREAM:
 		return process_command_stream(plugin, plugin_class, command);
+	//case COMMAND_I2C:
+		//return process_command_
 
 	default:
-		xine_log(plugin_class->xine, XINE_LOG_PLUGIN, _(LOG_MODULE " Unknown command from server %d unprocessed!"), command->type);
+		xine_log(plugin_class->xine, XINE_LOG_PLUGIN, _(LOG_MODULE "Command type %d from server not processed!\n"), command->type);
 		return 0;
 	}
 }
@@ -165,74 +181,6 @@ int fill_preview_buffer(slim_input_plugin_t *plugin, slim_input_class_t *plugin_
 		send_command(plugin, plugin_class->xine, outBuffer, outBufferLength);
 	}
 	return 1;
-}
-
-//int read_preview_data(slim_input_plugin_t *this_plugin)
-//{
-//	struct slimCommand command;
-//
-//	while ( this_plugin->preview_size == 0 )
-//	{					
-//		//if ( slim_protocol_decode(readBuffer, len, this_plugin->stream->xine, &command) != 0 )
-//		//	process_command_from_server(this_plugin, command);
-//	}
-//}
-
-
-static SOCKET attempt_connect_to_inaddr(struct in_addr ia, int port, xine_t *xine) 
-{
-	SOCKET s;
-	struct sockaddr_in sin;
-
-	s = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if ( s == -1 ) 
-	{
-		xine_log(xine, XINE_LOG_PLUGIN, _(LOG_MODULE "Error while trying to create socket: %s\n"), strerror(errno));		
-		return -1;
-	}
-
-	sin.sin_family = AF_INET;	
-	sin.sin_addr   = ia;
-	sin.sin_port   = htons(port);
-
-#ifndef WIN32
-	if (connect(s, (struct sockaddr *)&sin, sizeof(sin)) == -1 && errno != EINPROGRESS) 
-#else
-	if (connect(s, (struct sockaddr *)&sin, sizeof(sin)) == -1 && WSAGetLastError() != WSAEINPROGRESS) 
-#endif
-	{
-		xine_log(xine, XINE_LOG_PLUGIN, _(LOG_MODULE "Error while trying to connect the socket: %s\n"), strerror(errno));
-		close((int)s);
-		return -1;
-	}	
-
-	return s;
-}
-
-static SOCKET connect_to_host(const char *host, int port, xine_t *xine) 
-{
-	struct hostent *h;
-	int             i;
-	SOCKET			s;
-
-	h = gethostbyname(host);
-	if ( h == NULL ) 
-	{
-		xine_log(xine, XINE_LOG_PLUGIN, _(LOG_MODULE "Unable to resolve '%s'.\n"), host);
-		return 0;
-	}
-
-	for ( i=0; h->h_addr_list[i]; i++) 
-	{
-		struct in_addr ia;
-		memcpy (&ia, h->h_addr_list[i],4);
-		s = attempt_connect_to_inaddr(ia, port, xine);
-		if (s != -1)
-			return s;
-	}
-
-	xine_log(xine, XINE_LOG_PLUGIN, _(LOG_MODULE "Unable to connect to '%s'.\n"), host);
-	return -1;
 }
 
 int parse_server_address(const char *address, char **hostname, int *port, xine_t *xine)
@@ -275,10 +223,10 @@ int parse_server_address(const char *address, char **hostname, int *port, xine_t
 
 	return 1;
 }
-static int slim_plugin_open (input_plugin_t *this_plugin_generic )
+static int slim_plugin_open (input_plugin_t *plugin_generic )
 {
-	slim_input_plugin_t *this_plugin = (slim_input_plugin_t*) this_plugin_generic;
-	slim_input_class_t  *this_plugin_class = (slim_input_class_t*)this_plugin->input_plugin.input_class;
+	slim_input_plugin_t *plugin = (slim_input_plugin_t*) plugin_generic;
+	slim_input_class_t  *plugin_class = (slim_input_class_t*)plugin->input_plugin.input_class;
 
 	char  macAddress[6] = {11, 11, 11, 11, 11, 11 };
 	char *buffer = NULL;
@@ -286,38 +234,35 @@ static int slim_plugin_open (input_plugin_t *this_plugin_generic )
 
 	struct slimCommand command;
 
-	// the data used to connect (we need to first parse the URL to fill it.
-	char *slimHostname;
-	int   slimPortNumber;
-	
-	xine_log(this_plugin_class->xine, XINE_LOG_PLUGIN, _(LOG_MODULE "Plug-in open called!\n"));
+	xine_log(plugin_class->xine, XINE_LOG_PLUGIN, _(LOG_MODULE "Plug-in open called!\n"));
 
-	if ( parse_server_address(this_plugin->slim_server_specification, &slimHostname, &slimPortNumber, this_plugin_class->xine) == 0 )
+	if ( parse_server_address(plugin->slim_server_specification, &plugin->hostAddr, &plugin->hostPort, plugin_class->xine) == 0 )
 		return 0;
 
-	xine_log(this_plugin_class->xine, XINE_LOG_PLUGIN, _(LOG_MODULE "Connecting to host: %s port: %d\n"), slimHostname, slimPortNumber);
-	if ( (this_plugin->comm_socket = connect_to_host(slimHostname, slimPortNumber, this_plugin_class->xine)) == -1)
+	xine_log(plugin_class->xine, XINE_LOG_PLUGIN, _(LOG_MODULE "Connecting to host: %s port: %d\n"), plugin->hostAddr, plugin->hostPort);
+	if ( (plugin->comm_socket = connect_to_host_with_name(plugin->hostAddr, plugin->hostPort, plugin_class->xine)) == -1)
 	{
-		free(slimHostname);	
+		free(plugin->hostAddr);	
+		plugin->hostAddr = NULL;
 		return 0;
 	}
+	xine_log(plugin_class->xine, XINE_LOG_PLUGIN, _(LOG_MODULE "Connected to host: %s port: %d\n"), plugin->hostAddr, plugin->hostPort);
 
-	xine_log(this_plugin_class->xine, XINE_LOG_PLUGIN, _(LOG_MODULE "Connected to host: %s port: %d\n"), slimHostname, slimPortNumber);
-
+	
 	slim_protocol_make_helo(&buffer, &bufferLength, 3, 0, macAddress);
-	send_command(this_plugin, this_plugin_class->xine, buffer, bufferLength);
+	send_command(plugin, plugin_class->xine, buffer, bufferLength);
 	free(buffer);
 
-	if ( read_and_decode_command(this_plugin, this_plugin_class->xine, &command) == 0 ||
+	if ( read_and_decode_command(plugin, plugin_class->xine, &command) == 0 ||
 		 command.type != COMMAND_VERSION )
 	{
-		xine_log(this_plugin_class->xine, XINE_LOG_PLUGIN, _(LOG_MODULE "The server didn't reply to HELO or the replay was invalid (not a version)! Closing connection!\n"));
-		close((int)this_plugin->comm_socket);
-		this_plugin->comm_socket = -1;
+		xine_log(plugin_class->xine, XINE_LOG_PLUGIN, _(LOG_MODULE "The server didn't reply to HELO or the replay was invalid (not a version)! Closing connection!\n"));
+		close((int)plugin->comm_socket);
+		plugin->comm_socket = -1;
 		return 0;
 	}
 
-	xine_log(this_plugin_class->xine, XINE_LOG_PLUGIN, _(LOG_MODULE "Server replayed with version: %s\n"), command.data.version.versionData);
+	xine_log(plugin_class->xine, XINE_LOG_PLUGIN, _(LOG_MODULE "Server replayed with version: %s\n"), command.data.version.versionData);
 	return 1;
 }
 
