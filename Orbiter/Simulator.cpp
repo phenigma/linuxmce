@@ -84,8 +84,14 @@ void *GeneratorThread( void *p)
 
 	while(true)
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Simulator: generating new event");
+		g_pPlutoLogger->Write(LV_STATUS, "Simulator: generating new event (orbiter : %p)", pOrbiter);
 		
+		if(!pOrbiter)
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "Orbiter is NULL!");
+			return NULL;
+		}
+
 		if(pSimulator->m_bStopGeneratorThread)
 			return NULL;
 
