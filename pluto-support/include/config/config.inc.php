@@ -1,6 +1,7 @@
 <?PHP
+  	$GLOBALS['inDebug']=0;
   	
-  	if($GLOBALS['inDebug']!=0){
+  	if($GLOBALS['inDebug']!=1){
   		// production settings
   		error_reporting(E_ALL ^ E_NOTICE);
   		include_once('/var/www/globalconfig/globalconfig.inc.php');

@@ -345,7 +345,7 @@ function builtTopMenu($website,$dbADO)
 		$menuPages.='menuObject.item'.$pos.' = "'.ReplaceTokens($rowSelectMenu['Description']).'"
 		';
 		if($rowSelectMenu['pageURL']!='')
-			$menuPages.='menuObject.url'.$pos.' = "'.str_replace('\'','\\\\\'',$rowSelectMenu['pageURL']).'"
+			$menuPages.='menuObject.url'.$pos.' = "'.str_replace('\'','\\\\\'',ReplaceTokens($rowSelectMenu['pageURL'])).'"
 		';
 		$menuPages.=getSubmenu($website,$pos.'_',$rowSelectMenu['PK_PageSetup'],$dbADO);
 		$pos++;
@@ -367,7 +367,7 @@ function getSubmenu($website,$level,$parentID,$dbADO)
 			menuObject.item'.$level.$pos.' = "'.ReplaceTokens($rowSelectMenu['Description']).'"
 		';
 		if($rowSelectMenu['pageURL']!='')
-			$menuPages.='menuObject.url'.$level.$pos.' = "'.str_replace('\'','\\\\\'',$rowSelectMenu['pageURL']).'"
+			$menuPages.='menuObject.url'.$level.$pos.' = "'.str_replace('\'','\\\\\'',ReplaceTokens($rowSelectMenu['pageURL'])).'"
 		';
 		$menuPages.=getSubmenu($website,$level.$pos.'_',$rowSelectMenu['PK_PageSetup'],$dbADO);
 		$pos++;

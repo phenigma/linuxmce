@@ -39,8 +39,110 @@ else
 
 {ScriptInHead}
 
-<script language='javascript' src='Config.js'></script>
-<script language='javascript' src='Menu.js'></script>
+<script>
+function menuSettings(menuObject)
+{
+	//////////////////////////Start Menu Data/////////////////////////////////
+
+    //Unique Menu Id
+	menuObject.uid = 499627
+
+
+/**********************************************************************************************
+
+                               Icon Images
+
+**********************************************************************************************/
+
+
+    //Inline positioned icon images (flow with the item text)
+
+	menuObject.rel_icon_image0 = "scripts/menu/squares_0.gif"
+	menuObject.rel_icon_rollover0 = "scripts/menu/squares_0_hl.gif"
+	menuObject.rel_icon_image_wh0 = "13,8"
+
+/**********************************************************************************************
+
+                              Global - Menu Container Settings
+
+**********************************************************************************************/
+
+
+	menuObject.menu_background_color = "#dde4ef"
+	menuObject.menu_border_color = "#000000"
+	menuObject.menu_border_width = 1
+	menuObject.menu_padding = "0,0,0,0"
+	menuObject.menu_border_style = "solid"
+	menuObject.divider_caps = false
+	menuObject.divider_width = 1
+	menuObject.divider_height = 1
+	menuObject.divider_background_color = "#000000"
+	menuObject.divider_border_style = "none"
+	menuObject.divider_border_width = 0
+	menuObject.divider_border_color = "#000000"
+	menuObject.menu_is_horizontal = false
+	menuObject.menu_width = "175"
+	menuObject.menu_xy = "-100,-2"
+	menuObject.menu_scroll_direction = 0
+	menuObject.menu_scroll_reverse_on_hide = true
+	menuObject.menu_scroll_delay = 0
+	menuObject.menu_scroll_step = 5
+
+
+
+
+/**********************************************************************************************
+
+                              Global - Menu Item Settings
+
+**********************************************************************************************/
+
+
+	menuObject.icon_rel = 0
+	menuObject.menu_items_background_color_roll = "#c9c8c7"
+	menuObject.menu_items_text_color = "#333333"
+	menuObject.menu_items_text_decoration = "none"
+	menuObject.menu_items_font_family = "Arial"
+	menuObject.menu_items_font_size = "11px"
+	menuObject.menu_items_font_style = "normal"
+	menuObject.menu_items_font_weight = "normal"
+	menuObject.menu_items_text_align = "left"
+	menuObject.menu_items_padding = "4,5,4,5"
+	menuObject.menu_items_border_style = "solid"
+	menuObject.menu_items_border_color = "#000000"
+	menuObject.menu_items_border_width = 0
+	menuObject.menu_items_width = 110
+
+	
+/**********************************************************************************************
+
+                              Main Menu Settings
+
+**********************************************************************************************/
+
+        menuObject.menu_background_color_main = "#c0c0c0"
+        menuObject.menu_items_background_color_main = "#4e6ca6"
+        menuObject.menu_items_text_color_main = "#ffffff"
+        menuObject.menu_items_text_color_roll_main = "#000000"
+        menuObject.menu_border_color_main = "#000000"
+        menuObject.menu_items_font_family_main = "Arial"
+        menuObject.menu_items_font_family_roll_main = "Arial"
+        menuObject.menu_items_font_weight_main = "bold"
+        menuObject.menu_items_font_weight_roll_main = "bold"
+        menuObject.menu_items_font_style_main = "normal"
+        menuObject.menu_items_font_style_roll_main = "normal"
+        menuObject.menu_items_font_size_main = "11px"
+        menuObject.menu_items_font_size_roll_main = "11px"
+        menuObject.menu_items_text_decoration_roll_main = "none"
+        menuObject.menu_padding_main = "0,0,0,0"
+        menuObject.menu_is_horizontal_main = true
+
+        {TopMenu}
+        
+}///////////////////////// END Menu Data /////////////////////////////////////////
+
+</script>	
+
 	
 </HEAD>
 <BODY {ScriptInBody}>
@@ -76,9 +178,29 @@ else
     </table></td>
   </tr>
   <tr>
-    <td style="background-image:url(include/images/back_on.jpg);" valign="top" align="left" height="30"><table width="100%" cellpadding="0" cellspacing="0"><tr><td><span style="position:relative;">&nbsp;{TopMenu}</span></td><td align="right"><a href="{HelpSrc}"><img src="include/images/help.jpg" border="0"></a></td></tr></table>
-  </tr>
-  <tr>
+  	<td><table width="100%" style="background-color:#4e6ca6;z-index:100;" cellpadding="0" cellspacing="0">
+		<td height="25">
+<!---------------------------------NavStudio Menu Tags-----------------------------------------
+
+   *** The tags directly below these comments are responsible for generating the menu system.
+   *** Position the menu by adding the tags anywhere within the body of your document, the menu will
+   *** position itself as an inline block level element, similar to using <TABLE> and <DIV> tags.-->
+
+
+<!--** START NAVSTUDIO MENU TAGS (499627) **-->
+<div id="vqp_about" style="position:absolute;visibility:hidden;">****JavaScript based drop down DHTML menu generated by NavStudio. (OpenCube Inc. - http://www.opencube.com)****</div>
+<script language="JavaScript" vqptag="doc_level_settings" is_vqp_html=1 vqp_uid0=499627>cdd__codebase = "scripts/menu/";cdd__codebase499627 = "";</script>
+<script language="JavaScript" vqptag="datafile" src="scripts/menu/topMenu.js"></script><script vqptag="placement" vqp_menuid="499627" language="JavaScript">create_menu(499627)</script>
+<!--** END NAVSTUDIO MENU TAGS **-->
+
+<!-----------------------------------End Menu Tags-------------------------------------------->
+		</td>
+		<td width="60" align="right"><a href="{HelpSrc}" target="_top"><img src="include/images/help.jpg" border="0"></a></td>
+	  <tr>
+	  </table>
+	  </td>
+	</tr>
+	<tr>
     <td class="maintable" height="100%" valign="top" align="left"><br>
     <!-- content area-->	
 {Body}

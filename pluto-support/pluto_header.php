@@ -48,22 +48,115 @@ $logout='<table width="214" border="0" cellpadding="0" cellspacing="0">
 
 $package=(isset($_SESSION['package']))?$_SESSION['package']:0;
 if($package!=0)
-	$menuPages = getHeaderTopMenu(2,$dbADO);
+	$menuPages = buildHeaderTopMenu(2,$dbADO);
 else
-	$menuPages = getHeaderTopMenu(3,$dbADO);
-$topMenu='
-	<SCRIPT LANGUAGE="JavaScript">
-		    <!--
-			'.
-			$menuPages
-			.'		    
-		    Build();
-		    --> 
-	</script>';
+	$menuPages = buildHeaderTopMenu(3,$dbADO);
 ?>
+
 <link rel='stylesheet' type='text/css' href='<?=$serverPath?>include/styles/plutoSupport.css'>
-<script language='javascript' src='<?=$serverPath?>Config.js'></script>
-<script language='javascript' src='<?=$serverPath?>Menu.js'></script>
+<script>
+function menuSettings(menuObject)
+{
+	//////////////////////////Start Menu Data/////////////////////////////////
+
+    //Unique Menu Id
+	menuObject.uid = 499627
+
+
+/**********************************************************************************************
+
+                               Icon Images
+
+**********************************************************************************************/
+
+
+    //Inline positioned icon images (flow with the item text)
+
+	menuObject.rel_icon_image0 = "<?=$relativePath?>scripts/menu/squares_0.gif"
+	menuObject.rel_icon_rollover0 = "<?=$relativePath?>scripts/menu/squares_0_hl.gif"
+	menuObject.rel_icon_image_wh0 = "13,8"
+
+/**********************************************************************************************
+
+                              Global - Menu Container Settings
+
+**********************************************************************************************/
+
+
+	menuObject.menu_background_color = "#dde4ef"
+	menuObject.menu_border_color = "#000000"
+	menuObject.menu_border_width = 1
+	menuObject.menu_padding = "0,0,0,0"
+	menuObject.menu_border_style = "solid"
+	menuObject.divider_caps = false
+	menuObject.divider_width = 1
+	menuObject.divider_height = 1
+	menuObject.divider_background_color = "#000000"
+	menuObject.divider_border_style = "none"
+	menuObject.divider_border_width = 0
+	menuObject.divider_border_color = "#000000"
+	menuObject.menu_is_horizontal = false
+	menuObject.menu_width = "175"
+	menuObject.menu_xy = "-100,-2"
+	menuObject.menu_scroll_direction = 1
+	menuObject.menu_scroll_reverse_on_hide = true
+	menuObject.menu_scroll_delay = 0
+	menuObject.menu_scroll_step = 5
+
+
+
+
+/**********************************************************************************************
+
+                              Global - Menu Item Settings
+
+**********************************************************************************************/
+
+
+	menuObject.icon_rel = 0
+	menuObject.menu_items_background_color_roll = "#c9c8c7"
+	menuObject.menu_items_text_color = "#333333"
+	menuObject.menu_items_text_decoration = "none"
+	menuObject.menu_items_font_family = "Arial"
+	menuObject.menu_items_font_size = "11px"
+	menuObject.menu_items_font_style = "normal"
+	menuObject.menu_items_font_weight = "normal"
+	menuObject.menu_items_text_align = "left"
+	menuObject.menu_items_padding = "4,5,4,5"
+	menuObject.menu_items_border_style = "solid"
+	menuObject.menu_items_border_color = "#000000"
+	menuObject.menu_items_border_width = 0
+	menuObject.menu_items_width = 110
+
+	
+/**********************************************************************************************
+
+                              Main Menu Settings
+
+**********************************************************************************************/
+
+        menuObject.menu_background_color_main = "#c0c0c0"
+        menuObject.menu_items_background_color_main = "#4e6ca6"
+        menuObject.menu_items_text_color_main = "#ffffff"
+        menuObject.menu_items_text_color_roll_main = "#000000"
+        menuObject.menu_border_color_main = "#000000"
+        menuObject.menu_items_font_family_main = "Arial"
+        menuObject.menu_items_font_family_roll_main = "Arial"
+        menuObject.menu_items_font_weight_main = "bold"
+        menuObject.menu_items_font_weight_roll_main = "bold"
+        menuObject.menu_items_font_style_main = "normal"
+        menuObject.menu_items_font_style_roll_main = "normal"
+        menuObject.menu_items_font_size_main = "11px"
+        menuObject.menu_items_font_size_roll_main = "11px"
+        menuObject.menu_items_text_decoration_roll_main = "none"
+        menuObject.menu_padding_main = "0,0,0,0"
+        menuObject.menu_is_horizontal_main = true
+
+        <?=$menuPages?>
+
+}///////////////////////// END Menu Data /////////////////////////////////////////
+
+</script>
 
 <html>
 <HEAD></HEAD>
@@ -106,12 +199,32 @@ $topMenu='
     </table></td>
   </tr>
   <tr>
-    <td style="background-image:url(<?=$imagesPath?>back_on.jpg);" valign="top" align="left" height="30"><table width="100%" cellpadding="0" cellspacing="0"><tr><td><span style="position:relative;">&nbsp;<?=$topMenu?></span></td><td align="right"><img src="<?=$imagesPath?>help.jpg" border="0"></td></tr></table>
-  </tr>  
+  	<td><table width="100%" style="background-color:#4e6ca6;z-index:100;" cellpadding="0" cellspacing="0">
+		<td height="25">
+<!---------------------------------NavStudio Menu Tags-----------------------------------------
+
+   *** The tags directly below these comments are responsible for generating the menu system.
+   *** Position the menu by adding the tags anywhere within the body of your document, the menu will
+   *** position itself as an inline block level element, similar to using <TABLE> and <DIV> tags.-->
+
+
+<!--** START NAVSTUDIO MENU TAGS (499627) **-->
+<div id="vqp_about" style="position:absolute;visibility:hidden;">****JavaScript based drop down DHTML menu generated by NavStudio. (OpenCube Inc. - http://www.opencube.com)****</div>
+<script language="JavaScript" vqptag="doc_level_settings" is_vqp_html=1 vqp_uid0=499627>cdd__codebase = "<?=$relativePath?>scripts/menu/";cdd__codebase499627 = "";</script>
+<script language="JavaScript" vqptag="datafile" src="<?=$relativePath?>scripts/menu/topMenu.js"></script><script vqptag="placement" vqp_menuid="499627" language="JavaScript">create_menu(499627)</script>
+<!--** END NAVSTUDIO MENU TAGS **-->
+
+<!-----------------------------------End Menu Tags-------------------------------------------->
+		</td>
+		<td width="60" align="right">&nbsp;</td>
+	  <tr>
+	  </table>
+	  </td>
+	</tr>  
  </table>
  <?
  
- function getHeaderTopMenu($website,$dbADO,$package=0) {
+ function getHeaderTopMenuOld($website,$dbADO,$package=0) {
  	global $relativePath;
 	$dbADO->debug=false;
 	$package=(isset($_SESSION['package']))?$_SESSION['package']:0;
@@ -163,4 +276,49 @@ $topMenu='
 return $menuPages;
 }
 
- ?>
+// the main difference between the menu generator from util.inc.php is that this one could set absolute links
+function buildHeaderTopMenu($website,$dbADO)
+{
+	global $relativePath;
+	$selectMenu = "SELECT * FROM PageSetup WHERE FK_PageSetup_Parent IS NULL AND showInTopMenu = 1 AND Website='$website'";
+	$resSelectMenu = $dbADO->Execute($selectMenu);
+	$menuPages='';
+	$pos=0;	
+	while ($rowSelectMenu = $resSelectMenu->FetchRow()) {
+		$menuPages.='menuObject.item'.$pos.' = "'.ReplaceTokens($rowSelectMenu['Description']).'"
+		';
+		if($rowSelectMenu['pageURL']!=''){
+			$itemUrl=(strpos($rowSelectMenu['pageURL'],'http://')===false)?$relativePath.ReplaceTokens($rowSelectMenu['pageURL']):ReplaceTokens($rowSelectMenu['pageURL']);
+			$menuPages.='menuObject.url'.$pos.' = "'.str_replace('\'','\\\\\'',$itemUrl).'"
+		';
+		}
+		$menuPages.=getHeaderSubmenu($website,$pos.'_',$rowSelectMenu['PK_PageSetup'],$dbADO);
+		$pos++;
+	}
+	return $menuPages;
+}
+
+function getHeaderSubmenu($website,$level,$parentID,$dbADO)
+{
+	global $relativePath;
+	$selectMenu = "SELECT * FROM PageSetup WHERE FK_PageSetup_Parent =? AND showInTopMenu = 1 AND Website=?";
+	$resSelectMenu = $dbADO->Execute($selectMenu,array($parentID,$website));
+	$menuPages='';
+	$pos=0;	
+	while ($rowSelectMenu = $resSelectMenu->FetchRow()) {
+		$menuPages.='
+			menuObject.item'.$level.$pos.' = "'.ReplaceTokens($rowSelectMenu['Description']).'"
+		';
+		if($rowSelectMenu['pageURL']!=''){
+			$itemUrl=(strpos($rowSelectMenu['pageURL'],'http://')===false)?$relativePath.ReplaceTokens($rowSelectMenu['pageURL']):ReplaceTokens($rowSelectMenu['pageURL']);
+			$menuPages.='menuObject.url'.$level.$pos.' = "'.str_replace('\'','\\\\\'',$itemUrl).'"
+		';
+		}
+		$menuPages.=getHeaderSubmenu($website,$level.$pos.'_',$rowSelectMenu['PK_PageSetup'],$dbADO);
+		$pos++;
+		
+	}
+	return $menuPages;
+}
+
+?>
