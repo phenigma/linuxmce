@@ -2,7 +2,8 @@
 function outsideAccess($output,$dbADO) {
 	/* @var $dbADO ADOConnection */
 	/* @var $res ADORecordSet */
-	
+
+	// TODO: change file address to real one
 	$accessFile='/etc/pluto.conf';
 	exec('cat '.$accessFile.' | grep -v -E "^#|^$" ',$retArray);	
 	foreach ($retArray as $comf){
@@ -15,16 +16,26 @@ function outsideAccess($output,$dbADO) {
 	$installationID = cleanInteger($_SESSION['installationID']);
 	
 	$queryDSS='
-		SELECT Device_StartupScript.Enabled, FK_Device,Parameter
-		FROM Device_StartupScript
-		INNER JOIN Device ON FK_Device=PK_Device
-		WHERE FK_DeviceTemplate=? AND FK_Installation=? AND FK_StartupScript=?';
-	$resDSS=$dbADO->Execute($queryDSS,array($GLOBALS['rootCoreID'],$installationID,$GLOBALS['ProcessLogs']));
+		SELECT Device_StartupScript.Enabled, PK_Device, Parameter,FK_Device 
+		FROM Device 
+		LEFT JOIN Device_StartupScript ON FK_Device=PK_Device AND FK_StartupScript=?
+		WHERE FK_DeviceTemplate=? AND FK_Installation=?';
+
+	$resDSS=$dbADO->Execute($queryDSS,array($GLOBALS['ProcessLogs'],$GLOBALS['rootCoreID'],$installationID));
 	if($resDSS->RecordCount()>0){
 		$rowDSS=$resDSS->FetchRow();
 		$sendErrorsToPluto=($rowDSS['Enabled']==1 && $rowDSS['Parameter']!='0')?1:0;
-		$coreID=$rowDSS['FK_Device'];
+		$coreID=$rowDSS['PK_Device'];
 	}
+	
+	$resAllow80=$dbADO->Execute('SELECT * FROM Firewall WHERE RuleType=? AND SourcePort=80','core_input');
+	$allowAccessOn80=($resAllow80->RecordCount()>0)?1:0;
+		
+	$resAllowPort=$dbADO->Execute('SELECT * FROM Firewall WHERE RuleType=? AND DestinationPort=80 AND DestinationIP=?',array('port_forward','127.0.0.1'));
+	$allowAccessOnPort=($resAllowPort->RecordCount()>0)?1:0;
+	$rowAccessOnPort=$resAllowPort->FetchRow();
+	$port=$rowAccessOnPort['SourcePort'];
+	
 	$out.='<div align="left"><h3>Outside Access</h3></div>';
 	
 	if ($action=='form') {
@@ -35,15 +46,33 @@ function outsideAccess($output,$dbADO) {
 		}
 		$out.='<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>';
 		$out.='
+	<script>
+	function validateInput()
+	{
+		portValue=parseInt(document.outsideAccess.port.value);
+		if(document.outsideAccess.allowOnPort.checked && (isNaN(portValue) || portValue==80 || portValue<=0)){
+			alert("Please type the port, other value than 80.");
+			document.outsideAccess.port.focus();
+			return false;
+		}
+		return true;
+	}
+	</script>	
+		
 	<div class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
-	<form action="index.php" method="post" name="outsideAccess">
+	<form action="index.php" method="post" name="outsideAccess" onSubmit="return validateInput();">
 	<input type="hidden" name="section" value="outsideAccess">
 	<input type="hidden" name="action" value="add">
 	<table width="500">
 		<tr>
-			<td><input type="checkbox" name="allowOnPort" value="1" '.(isset($Website)?'checked':'').'></td>
-			<td>Allow outside to tthe website on port</td>
-			<td><input type="text" name="port" value="'.(isset($Website)?$Website:'80').'"></td>
+			<td><input type="checkbox" name="allow80" value="1" '.(($allowAccessOn80==1)?'checked':'').'></td>
+			<td>Allow outside to the website on port 80</td>
+			<td>&nbsp;</td>
+		</tr>		
+		<tr>
+			<td><input type="checkbox" name="allowOnPort" value="1" '.(($allowAccessOnPort==1)?'checked':'').'></td>
+			<td>Allow outside to the website on port</td>
+			<td><input type="text" name="port" value="'.@$port.'"></td>
 		</tr>
 		<tr>
 			<td><input type="checkbox" name="allowOnPassword" value="1" '.(isset($remote)?'checked':'').'></td>
@@ -63,6 +92,9 @@ function outsideAccess($output,$dbADO) {
 			<td colspan="3" align="center"><input type="submit" class="button" name="save" value="Update"></td>
 		</tr>
 	</table>
+		<input type="hidden" name="oldAllow80" value="'.$allowAccessOn80.'">
+		<input type="hidden" name="oldAllowOnPort" value="'.$allowAccessOnPort.'">
+		<input type="hidden" name="oldPort" value="'.@$port.'">
 	</form>
 		';
 	} else {
@@ -78,7 +110,7 @@ function outsideAccess($output,$dbADO) {
 			$newSendErrorsToPluto=(int)@$_POST['sendErrorsToPluto'];
 			if($oldSendErrorsToPluto==0){
 				if($newSendErrorsToPluto==1){
-					if(isset($coreID)){
+					if($rowDSS['FK_Device']!=''){
 						$dbADO->Execute('UPDATE Device_StartupScript SET Enabled=1, Parameter=? WHERE FK_Device=? AND FK_StartupScript=?',array('',$coreID,$GLOBALS['ProcessLogs']));
 					}else{
 						$dbADO->Execute('INSERT INTO Device_StartupScript (FK_Device, FK_StartupScript,Enabled,Parameter) VALUES (?,?,1,?)',array($coreID,$GLOBALS['ProcessLogs'],''));
@@ -93,32 +125,49 @@ function outsideAccess($output,$dbADO) {
 			}
 		
 			
-			if(isset($_POST['allowOnPort'])){
-				$port=(int)$_POST['port'];
-				writeToFile($accessFile, 'Website', @$Website,$port);
-				
-				if(!isset($Website))
-					$dbADO->Execute('INSERT INTO Firewall (Protocol,SourcePort,RuleType) VALUES (?,?,?)',array('tcp',$port,'core_input'));
-				else 
-					$dbADO->Execute('UPDATE Firewall SET SourcePort=? WHERE RuleType=? AND SourcePort=?',array($port, 'core_input',$Website));
-			}else {
-				removeFromFile('Website',$accessFile);
-				$dbADO->Execute('DELETE FROM Firewall WHERE RuleType=? AND SourcePort=?',array('core_input',$Website));
+
+			$allow80=(int)@$_POST['allow80'];
+			$oldAllow80=(int)@$_POST['oldAllow80'];
+
+			$oldAllowOnPort=@(int)$_POST['oldAllowOnPort'];
+			$allowOnPort=@(int)$_POST['allowOnPort'];
+			$oldPort=(int)@$_POST['oldPort'];
+			$port=(int)@$_POST['port'];
+
+			if($oldAllow80==0){
+				if($allow80==1){
+					$dbADO->Execute('INSERT INTO Firewall (Protocol,SourcePort,RuleType) VALUES (?,?,?)',array('tcp','80','core_input'));
+				}
+			}else{
+				if($allow80==0){
+					$dbADO->Execute('DELETE FROM Firewall WHERE RuleType=? AND SourcePort=?',array('core_input','80'));
+				}
 			}
-			
+			if($oldAllowOnPort==0){
+				if($allowOnPort==1){
+					$dbADO->Execute('INSERT INTO Firewall (Protocol,DestinationPort,RuleType,SourcePort,DestinationIP) VALUES (?,?,?,?,?)',array('tcp','80','port_forward',$port,'127.0.0.1'));
+				}
+			}else{
+				if($allowOnPort==0){
+					$dbADO->Execute('DELETE FROM Firewall WHERE RuleType=? AND SourcePort=? AND DestinationPort=? AND DestinationIP=?',array('port_forward','80',$oldPort,'127.0.0.1'));
+				}elseif($port!=$oldPort){
+					$dbADO->Execute('UPDATE Firewall SET SourcePort=? WHERE RuleType=? AND SourcePort=? AND DestinationIP=?',array($port,'port_forward','80','127.0.0.1'));
+				}
+			}
+			exec('sudo -u root /usr/pluto/bin/Network_Firewall.sh');
+
 			if(isset($_POST['allowOnPassword'])){
 				$password=$_POST['password'];
 				writeToFile($accessFile, 'remote',@$remote,$password);
 			}else {
 				removeFromFile('remote',$accessFile);
-				$dbADO->Execute('DELETE FROM Firewall WHERE RuleType=?','Website');
 			}
 
 			exec('sudo -u root /usr/pluto/bin/SetupRemoteAccess.sh');
 			header("Location: index.php?section=outsideAccess&msg=Remote access was updated.");
 			exit();
 		}
-		
+
 		header("Location: index.php?section=outsideAccess");
 	}
 	

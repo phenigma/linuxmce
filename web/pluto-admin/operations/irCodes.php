@@ -271,7 +271,7 @@ function irCodes($output,$dbADO) {
 
 function showCodes($commandsToShow,$infraredGroupID,$deviceID,$dtID,$dbADO)
 {
-//	$dbADO->debug=true;
+	$dbADO->debug=true;
 	$installationID=(int)$_SESSION['installationID'];
 	$out='';
 	if(count($commandsToShow)==0)

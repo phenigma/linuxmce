@@ -91,6 +91,7 @@
 	$GLOBALS['ArrayIDForMedia'] = 5;				// Media Scenarios
 	$GLOBALS['EventsHandlerArray']=20;				// Events Handler
 	$GLOBALS['ArrayIDForMobileOrbiterScenarios']=23;// Mobile Orbiter Scenarios	
+	$GLOBALS['ArrayIDSleepingScenarios']=21;		// Sleeping Scenarios
 	
 	// PK_Command from Command table
 	

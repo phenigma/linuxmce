@@ -20,6 +20,9 @@ function dceEvents($output,$dbADO) {
 			<input type="hidden" name="section" value="dceEvents">
 			<input type="hidden" name="action" value="update">
 		<table cellpadding="3" align="center">
+			<tr>
+				<td colspan="3"><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createEventCategory&from=dceCommands\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');"><B>Add Event Category</B></a></td>
+			</tr>		
 			<tr bgcolor="lightblue">
 				<td align="center" width="120"><B>Event category</B></td>
 				<td align="center"><B>Event description</b></td>

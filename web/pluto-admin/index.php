@@ -971,6 +971,12 @@ switch ($section) {
 	    include_once('operations/myScenarios/mobileScenarios.php');
 	    mobileScenarios($output,$dbADO);
 	break;	
+	case 'sleepingScenarios';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/myScenarios/sleepingScenarios.php');
+	    sleepingScenarios($output,$dbADO);
+	break;	
 	case 'editDHCP';
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('small');

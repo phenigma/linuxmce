@@ -106,6 +106,7 @@ function firewall($output,$dbADO) {
 			$dbADO->Execute('DELETE FROM Firewall WHERE PK_Firewall=?',$delid);
 		}
 		
+		exec('sudo -u root /usr/pluto/bin/Network_Firewall.sh');
 		
 		header("Location: index.php?section=firewall&msg=Firewall rules updated.");
 	}

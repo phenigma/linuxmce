@@ -29,7 +29,7 @@ function learnCode($output,$dbADO) {
 		<table width="100%">
 			<tr>
 				<td height="200" align="center">Please transmit the I/R Code.   Waiting for code.....<br><br>
-				<input type="submit" name="cancel" value="Cancel">
+				<input type="submit" class="button" name="cancel" value="Cancel">
 				</td>
 			</tr>
 		</table>			
