@@ -70,6 +70,7 @@ case "$URL_TYPE" in
 
 		if ! dpkg --get-selections "$PKG_NAME" | grep -q install; then
 			keep_sending_enters | apt-get -t "$REPOS" -y install "$PKG_NAME" || exit $ERR_APT
+			apt-get clean
 		fi
 	;;
 	
