@@ -88,6 +88,11 @@ void Logger::SetName( const char* pcName )
 
 void Logger::Write( int iLevel, const char *pcFormat, ... )
 {
+#ifdef ERROR_LOGGING_ONLY
+	if( iLevel != LV_CRITICAL && iLevel != LV_WARNING )
+		return;
+#endif
+
     timeval tv;
 #ifdef WIN32
     SYSTEMTIME lt;
@@ -206,11 +211,6 @@ void FileLogger::ClearConsole()
 
 void FileLogger::WriteEntry( Entry& Entry )
 {
-#ifdef ERROR_LOGGING_ONLY
-	if( Entry.m_iLevel != LV_CRITICAL && Entry.m_iLevel != LV_WARNING )
-		return;
-#endif
-
     PLUTO_SAFETY_LOCK_LOGGER( sSM, m_Lock );  // Don't log anything but failures
 
     struct tm *t = localtime((time_t *)&Entry.m_TimeStamp.tv_sec);
