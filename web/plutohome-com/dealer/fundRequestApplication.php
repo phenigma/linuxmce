@@ -14,36 +14,43 @@ if($action=='form'){
 	<form action="index.php" method="POST" name="fundRequestApplication">
   		<input type="hidden" name="section" value="fundRequestApplication">
 		<input type="hidden" name="action" value="add">
-	<table>
-		<tr>
-			<td align="center" class="titletable"><B>Pluto Marketing Funds Request Form</B></td>
+<table width="100%"  border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td align="center" class="insidetable"><table width="563"  border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <td align="left"><img src="images/titles/dealer.gif"></td>
+      </tr>
+    </table></td>
+  </tr>
+	<tr class="insidetable2">
+			<td align="center" class="title"><B>Pluto Marketing Funds Request Form</B></td>
 		</tr>
 		<tr>
-			<td class="insidetable">
+			<td class="insidetable2">
 				<I>Complete this form and submit with supporting documentation at least 4 weeks prior to the marketing activity to the Pluto Home Marketing Manager</I>
 			</td>
 		</tr>
 		<tr>
-			<td align="center" class="insidetable">
+			<td align="center" class="insidetable2">
 			<table>
 				<tr bgcolor="#DADDE4">
 					<td colspan="6" align="center" class="normaltext"><B>Company Information</B></td>
 				</tr>
 				<tr>
 					<td align="right" class="normaltext"><B>Dealer Company Name:</B></td>
-					<td colspan="5" align="left" class="normaltext"><input type="text" name="companyName" value=""></td>
+					<td colspan="5" align="left" class="normaltext"><input type="text" class="textfield" name="companyName" value=""></td>
 				</tr>
 				<tr>
 					<td align="right" class="normaltext"><B>Your name:</B></td>
-					<td colspan="5" align="left" class="normaltext"><input type="text" name="individualName" value=""></td>
+					<td colspan="5" align="left" class="normaltext"><input type="text" class="textfield" name="individualName" value=""></td>
 				</tr>
 				<tr>
 					<td align="right" class="normaltext"><B>Phone:</B></td>
-					<td align="left" class="normaltext"><input type="text" name="phone" value=""></td>
+					<td align="left" class="normaltext"><input type="text" class="textfield" name="phone" value=""></td>
 					<td align="right" class="normaltext"><B>Fax:</B></td>
-					<td align="left" class="normaltext"><input type="text" name="fax" value=""></td>
+					<td align="left" class="normaltext"><input type="text" class="textfield" name="fax" value=""></td>
 					<td align="right" class="normaltext"><B>Email:</B></td>
-					<td align="left" class="normaltext"><input type="text" name="email" value=""></td>
+					<td align="left" class="normaltext"><input type="text" class="textfield" name="email" value=""></td>
 				</tr>
 				<tr bgcolor="#DADDE4">
 					<td colspan="6" align="center" class="normaltext"><B>Promotional  Information</B></td>
@@ -52,10 +59,10 @@ if($action=='form'){
 					<td align="right" class="normaltext"><B>Check item below:</B></td>
 					<td colspan="5" align="left" class="normaltext">';
 				foreach($promoInfoArray AS $key=>$label){
-					$out.='<input type="checkbox" name="promoInfo_'.$key.'" value="'.$key.'"> '.$label.(($label=='Other')?' <input type="text" name="otherBusiness" value="">':'').'<br>';
+					$out.='<input type="checkbox" name="promoInfo_'.$key.'" value="'.$key.'"> '.$label.(($label=='Other')?' <input type="text" class="textfield" name="otherBusiness" value="">':'').'<br>';
 				}
 				$out.='
-						Other: (please specify) <input type="text" name="otherPromoInformation" value="">
+						Other: (please specify) <input type="text" class="textfield" name="otherPromoInformation" value="">
 					</td>
 				</tr>	
 				<tr>
@@ -66,8 +73,8 @@ if($action=='form'){
 					<td colspan="5" align="left" class="normaltext"><B>Briefly Describe the object of your Marketing activity:</B><br><textarea rows="2" style="width: 380;" name="marketingActivity"></textarea></td>
 				</tr>
 				<tr>
-					<td colspan="3" align="right" class="normaltext"><B>Dates For Activity:</B> <input type="text" name="activityDates" value=""></td>
-					<td colspan="3" align="left" class="normaltext"><B>Target Audience:</B> <input type="text" name="targetAudience" value=""></td>
+					<td colspan="3" align="right" class="normaltext"><B>Dates For Activity:</B> <input type="text" class="textfield" name="activityDates" value=""></td>
+					<td colspan="3" align="left" class="normaltext"><B>Target Audience:</B> <input type="text" class="textfield" name="targetAudience" value=""></td>
 				</tr>
 				<tr>
 					<td align="right" class="normaltext">&nbsp;</td>
@@ -85,15 +92,15 @@ if($action=='form'){
 				</tr>				
 				<tr>
 					<td colspan="2" align="right" class="normaltext"><B>Please list all costs for Activity:</B></td>
-					<td colspan="4" align="left" class="normaltext"><input type="text" name="listAllCosts" value=""></td>
+					<td colspan="4" align="left" class="normaltext"><input type="text" class="textfield" name="listAllCosts" value=""></td>
 				</tr>				
 				<tr>
 					<td colspan="2" align="right" class="normaltext"><B>Total of all cost for Activity:</B></td>
-					<td colspan="4" align="left" class="normaltext"><input type="text" name="totalAllCosts" value=""></td>
+					<td colspan="4" align="left" class="normaltext"><input type="text" class="textfield" name="totalAllCosts" value=""></td>
 				</tr>				
 				<tr>
 					<td colspan="2" align="right" class="normaltext"><B>Total Amount Requested for Reimbursement from Pluto Home:</B></td>
-					<td colspan="4" align="left" class="normaltext"><input type="text" name="totalFromPluto" value=""></td>
+					<td colspan="4" align="left" class="normaltext"><input type="text" class="textfield" name="totalFromPluto" value=""></td>
 				</tr>				
 				<tr>
 					<td colspan="6" align="center" class="normaltext"><hr><I>Based on the information in this proposal and pending appropriate documentation for reimbursement, this request for Pluto Home Marketing Support or Marketing Development Funds is approved.</I></td>
@@ -259,7 +266,7 @@ if($action=='form'){
 	$out='
 	<table align="center">
 		<tr>
-			<td class="insidetable" height="250">
+			<td class="insidetable2" height="250">
 				<p class="normaltext"><B>Thank you.</B>
 				<p class="normaltext">Based on the information in this proposal and pending appropriate documentation for reimbursement, this request for Pluto Home Marketing Support or Marketing Development Funds is approved.
 			</td>
@@ -267,9 +274,8 @@ if($action=='form'){
 	</table>';
 }
 
-
-	$output->setScriptCalendar('null');
-	$output->setScriptTRColor('null');
+	$output->setPressedButton(5);
+	$output->setNavigationMenu(array('Get Pluto'=>'index.php?section=get_pluto','I\'m a dealer'=>'index.php?section=dealer','Dealer Program'=>'index.php?section=dealerProgram','Fund Request Form'=>'index.php?section=fundRequestApplication'));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME."::Client");
 	$output->output();

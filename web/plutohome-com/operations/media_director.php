@@ -4,126 +4,77 @@
 		
 $out.=<<<TEXT
 
-   <table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable">
+<table width="100%"  border="0" cellspacing="0" cellpadding="0">
   <tr>
-    <td class="titletable"><img src="images/submenus/pluto_system_txt.gif" width="96" height="13"></td>
+    <td align="left" class="insidetable"><table width="438"  border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <td width="155"><a href="index.php?section=pluto_system_overview"><img src="images/buttons/pluto_system_overview_on.gif" width="155" height="11" border="0" /></a></td>
+        <td width="155"><a href="index.php?section=how_the_system_works"><img src="images/buttons/how_the_system_works_off.gif" width="155" height="11" border="0" /></a></td>
+        <td width="128"><a href="index.php?section=learn_how_to_use_it"><img src="images/buttons/learn_how_to_use_it_off.gif" width="128" height="11" border="0" /></a></td>
+        </tr>
+    </table></td>
   </tr>
   <tr>
-    <td class="insidetable"><table border="0" align="left" cellpadding="0" cellspacing="0">
+    <td valign="top" background="images/back_insidetable.jpg" class="insidetable"><table width="100%"  border="0" cellpadding="0" cellspacing="0">
       <tr>
-        <td><a href="index.php?section=equipment_overview"><img src="images/submenus/Pluto%20system/equipment_overview_off.gif" width="154" height="17" border="0"></a></td>
-        <td width="20">&nbsp;</td>
+        <td width="89" valign="top"><img src="images/thumbs/img_overview.jpg" width="89" height="89" /></td>
+        <td width="10"><img src="images/spacer.gif" width="10" height="10" /></td>
+        <td valign="top"><table width="100%"  border="0" cellspacing="0" cellpadding="0">
+            <tr>
+              <td><img src="images/titles/pluto_system_overview.gif" width="200" height="13" /></td>
+            </tr>
+            <tr>
+              <td><br />
+            A Pluto system consists of 4 pieces of equipment: Pluto Core, Pluto Media Director, Pluto Orbiter, Pluto Mobile Orbiter.In addition to the 4 main components, there exist many accessories such as cameras, interface modules to control your existing A/V, lighting, etc.<br /></td>
+            </tr>
+            <tr>
+              <td align="right">&nbsp;</td>
+            </tr>
+        </table></td>
       </tr>
-      <tr>
-        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
-      </tr>
-      <tr>
-        <td><a href="index.php?section=core"><img src="images/submenus/Pluto%20system/core_off.gif" width="154" height="17" border="0"></a></td>
-        <td width="20">&nbsp;</td>
-      </tr>
-      <tr>
-        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
-      </tr>
-      <tr>
-        <td><a href="index.php?section=media_director"><img src="images/submenus/Pluto%20system/media_director_on.gif" width="154" height="17" border="0"></a></td>
-        <td width="20">&nbsp;</td>
-      </tr>
-      <tr>
-        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
-      </tr>
-      <tr>
-        <td><a href="index.php?section=orbiter"><img src="images/submenus/Pluto%20system/orbiter_off.gif" width="154" height="17" border="0"></a></td>
-        <td>&nbsp;</td>
-      </tr>
-      <tr>
-        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
-      </tr>
-      <tr>
-        <td><a href="index.php?section=mobile_orbiter"><img src="images/submenus/Pluto%20system/mobile_orbiter_off.gif" width="154" height="17" border="0"></a></td>
-        <td>&nbsp;</td>
-      </tr>
-      <tr>
-        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
-      </tr>
-      <tr>
-        <td><a href="index.php?section=accesories"><img src="images/submenus/Pluto%20system/accessories_off.gif" width="154" height="17" border="0"></a></td>
-        <td>&nbsp;</td>
-      </tr>
-      <tr>
-        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
-      </tr>
-      <tr>
-        <td><a href="index.php?section=software"><img src="images/submenus/Pluto%20system/software_off.gif" width="154" height="17" border="0"></a></td>
-        <td>&nbsp;</td>
-      </tr>
-      <tr>
-        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
-      </tr>
-      <tr>
-        <td><a href="index.php?section=special_offer"><img src="images/submenus/Pluto%20system/special_offer_off.gif" width="154" height="17" border="0"></a></td>
-        <td>&nbsp;</td>
-      </tr>
-      <tr>
-        <td>&nbsp;</td>
-        <td>&nbsp;</td>
-      </tr>
-    </table>
-    <p><img src="images/submenus/media_director_txt.gif" width="110" height="13"><br><br>
-      Form and function go hand in hand.  The Pluto Media Director looks like it functions--simple, elegant.</p>
-      <p>The 1/2&quot; thick, solid brushed aluminum face will last a lifetime. There are only 2 buttons--power and tray open/close. And 1 light--an ice blue power indicator.</p>
-      <p>Open the door on the left to reveal the connectors for your digital camcorder (firewire), slots for all 6 types of digital film, and extra headphone and audio jacks.</p>
-      <p>The connections in back are similarly straightforward. In addition to the usual analog connects and SPDIF digital audio is a DVI connector for the latest high-end televisions and projectors.</p>
-      <p>Further, the Media Director supports 2 TV sources, so you can have satellite and cable or over-the-air. All your tv choices are merged together on one on-screen program guide, and your Media Director handles all the switching.<br>
-      <br></p>
-      <p>How many Media Directors do you want?<br><br>
-The Media Director renders the media on your TV/stereo.  In addition to all the standard analog in/out connections and SPDIF digital 
-audio, it supports the latest digital video connection: DVI.  If you have a high def TV, you can enjoy perfect DVD movies, 100% digital 
-from the Core, through the Media Director to the TV without ever converting to analog or losing 1 pixel. The Media Director up-samples 
-the video to high-definition, and even beyond high-definition for the latest super-high resolution plasma tv's or projectors for the ardent 
-audio/video-phile.
-
-The Media Director includes a built-in CD/DVD/DVD-RW/DVD+RW Player and Recorder, ports for digital camcorders (firewire) plus 6 types 
-of digital film, an interface module to control your a/v equipment, and a pc computer with a wireless keyboard + mouse.  It also includes 
-Pluto's patent-pending 'follow-me' detection system so that it can detect who is in each room.  Allow 1 Pluto Media Director for each tv 
-or entertainment area, although we also offer a stand-alone interface module for under $200 to control your existing a/v equipment, just 
-like a home automation system does, for those areas where you do not want to invest in a Media Director.  The Pluto Core works with 
-popular multi-zone audio systems and digital audio players, providing an inexpensive solution for  whole-house audio.
-</p>
-      <p><center><a href="javascript:open_popup('operations/poza27.html','532','465')"><img src="images/img%20system/media_director/md_01_m.jpg" width="141" height="112" border="0"></a> <a href="javascript:open_popup('operations/poza28.html','532','465')"><img src="images/img%20system/media_director/md_02_m.jpg" width="141" height="112" border="0"></a> <a href="javascript:open_popup('operations/poza29.html','532','465')"><img src="images/img%20system/media_director/md_03_m.jpg" width="141" height="112" border="0"></a>
-      </center> </p>
-      <blockquote>
-        <p><strong>Technical Specifications:</strong> <br>
-          Dimensions/Mounting:<br>
-          12.2&quot; x 3.3&quot; x 13.5&quot; (W x H x D)<br>
-          310mm x 84mm x 345mm (W x H X D)</p>
-        <p><strong>Capacities/Configuration:</strong><br>
-          Gigabit Ethernet<br>
-          CD/DVD -R/-RW and +R/+RW<br>
-          6x USB 2.0 (4 front), 2x 1394 Firewire (1 front)<br>
-          Audio: SPDIF Digital + analog<br>
-          Video: DVI (Digital), VGA, S-Video, Composite, Component with an adapter <br>
-          Pluto applications: diskless configuration with distributed processing throughout the network<br>
-          Windows applications: 120GB Hard Drive, Intel Pentium Processor, 512MB RAM</p>
-        <p><strong>Installation considerations:</strong><br>
-          Worldwide electrical standard: 110-230 volts, 50/60 Hz<br>
-          Similar to a PVR or Media PC, the Pluto Media Director should not be placed in enclosed cabinet with no ventilation--it will overheat. An open shelf is recommended.</p>
-    </blockquote></td>
+    </table></td>
+  </tr>
+  <tr>
+    <td valign="top" class="insidetable2"><p><img src="images/bullet_1.gif" width="11" height="11" align="absmiddle" /> <span class="title">Pluto Media Director </span> </p>
+    <p>The MEDIA DIRECTOR renders the media on your TV/stereo. In addition to all the standard analog in/out connections and SPDIF digital audio, it supports the latest digital video connection: DVI. If you have a high def TV, you can enjoy perfect DVD movies, 100% digital from the Core, through the Media Director to the TV without ever converting to analog or losing 1 pixel. The Media Director up-samples the video to high-definition, and even beyond high-definition for the latest super-high resolution plasma TVs or projectors for the ardent audio/video-phile. The Media Director includes a built-in CD/DVD/DVD-RW/DVD+RW Player and Recorder, ports for digital camcorders (firewire) plus 6 types of digital film, an interface module to control your A/V equipment, and a PC computer with a wireless keyboard and mouse. It also includes Pluto's patent-pending 'follow-me' detection system so that it can detect who is in each room. Allow 1 Pluto Media Director for each TV or entertainment area. The Pluto Core works with popular multi-zone audio systems and digital audio players, providing an inexpensive solution for whole-house audio.</p>
+    <p>
+      <!--images media director--><table>
+		<tr>
+			<td><a href="javascript:open_popup('operations/image.php?img=md','width=530,height=430,scrollbars=0,toolbar=0,resizable=0');"><img src="images/thumbs/media_director_1.jpg" border="0" alt="Click to see larger image"></a></td>
+			<td><a href="javascript:open_popup('operations/image.php?img=md&alt=1','width=530,height=430,scrollbars=0,toolbar=0,resizable=0');"><img src="images/thumbs/media_director_2.jpg" border="0" alt="Click to see larger image"></a></td>
+		</tr>
+	</table>
+    </p>
+    <p><strong>Technical specifications:<br />
+      </strong><br />
+        <strong>Dimensions/Mounting:</strong><br />
+12.2&quot; x 3.3&quot; x 13.5&quot; (W x H x D)<br />
+310mm x 84mm x 345mm (W x H X D)</p>
+    <p> <strong>Capacities/Configuration:</strong><br />
+  Gigabit Ethernet<br />
+  CD/DVD -R/-RW and +R/+RW<br />
+  6x USB 2.0 (4 front), 2x 1394 Firewire (1 front)<br />
+  <strong>Audio: </strong>SPDIF Digital + analog<br />
+  <strong>Video:</strong> DVI (Digital), VGA, S-Video, Composite, Component with an adapter<br />
+  <strong>Pluto applications:</strong> diskless configuration with distributed processing throughout the network<br />
+  <strong>Windows applications:</strong> 120GB Hard Drive, Intel Pentium Processor, 512MB RAM</p>
+    <p> <strong>Installation considerations:</strong><br />
+  Worldwide electrical standard: 110-230 volts, 50/60 Hz<br />
+  Similar to a PVR or Media PC, the Pluto Media Director should not be placed in enclosed cabinet with no ventilation - it will overheat. An open shelf is recommended.</p></td>
+  </tr>
+  <tr>
+    <td valign="top">&nbsp;</td>
   </tr>
 </table>
 	
 TEXT;
 		
-		$output->setImgName("support.jpg"); //img that needs to be changed
-        $output->setPageID(1); //butonul selectat
- 		$output->setNavigationMenu(array("Sample page"=>"index.php?section=samplePage")); //not used yet
- 		$output->setTitle(APPLICATION_NAME."::Media Director");			//page title
- 		
- 		
- 		
- 		//don't touch them 		
-		$output->setScriptCalendar('null');
-		$output->setScriptTRColor('null');		
-		$output->setBody($out);		
-  		$output->output(); 
+	$output->setPressedButton(3);
+	$output->setNavigationMenu(array('How Pluto works'=>'index.php?section=how_pluto_works','How Pluto works'=>'index.php?section=how_pluto_works','Pluto System Overview'=>'index.php?section=pluto_system_overview','Media Director'=>'index.php?section=media_director'));
+	$output->setTitle(APPLICATION_NAME." :: Media Director");			//page title
+	$output->setScriptCalendar('null');
+	$output->setScriptTRColor('null');
+	$output->setBody($out);
+	$output->output();
  }
 ?>

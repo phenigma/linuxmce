@@ -2,39 +2,24 @@
  function dealerTerms($output) {
 
 		$out='
-		<table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable">
-		<tr>
-			<td class="titletable" align="center"><B>Pluto Authorized Dealer Program Terms</B></td>
+<table width="100%"  border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td align="center" class="insidetable"><table width="563"  border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <td align="left"><img src="images/titles/dealer.gif"></td>
+      </tr>
+    </table></td>
+  </tr>
+		<tr class="insidetable">
+			<td class="title" align="center"><B>Pluto Authorized Dealer Program Terms</B></td>
 		</tr>
 		<tr>
 		  <td width="100%" class="insidetable" align="left">
 			<div style="position:relative; top=0px; float:left; width=250px;">
-			<table width="230" border="0" cellpadding="0" cellspacing="0">
-				<tr>
-			    	<td valign="top" class="normaltext"><a href="index.php?section=dealerProgram">Overview</a></td>
-			  	</tr>
-				<tr>
-			    	<td valign="top" class="normaltext"><a href="index.php?section=programGuidelines">Program Guidelines</a></td>
-			  	</tr>
-				<tr>
-			    	<td valign="top" class="normaltext"><a href="index.php?section=schedule&sch=1">Schedule 1</a></td>
-			  	</tr>
-				<tr>
-			    	<td valign="top" class="normaltext"><a href="index.php?section=schedule&sch=2">Schedule 2</a></td>
-			  	</tr>
-				<tr>
-			    	<td valign="top" class="normaltext"><a href="index.php?section=schedule&sch=3">Schedule 3</a></td>
-			  	</tr>
-				<tr>
-			    	<td valign="top" class="normaltext"><a href="index.php?section=dealerTerms">Terms and conditions</a></td>
-			  	</tr>
-				<tr>
-			    	<td valign="top" class="normaltext"><a href="index.php?section=dealerApplication">Application form</a></td>
-			  	</tr>
-			    <tr>
-			        <td class="normaltext" height="10">&nbsp;</td>
-			    </tr>
-			</table>
+				';
+		include('dealer/dealerMenu.php');
+		$out.=dealerMenu();
+		$out.='
 			</div>		
 			<p>By submitting the Pluto Authorized Dealer Application to Pluto Home Co. (“Pluto Home”) and by purchasing, and continuing to purchase, the Pluto System, and related accessories, the applicant (“Dealer”) acknowledges and agrees that they will comply with each of the following terms ("Terms"), which will be effective upon approval as a Pluto Authorized Dealer (a “Authorized Dealer”).
 
@@ -59,12 +44,8 @@
 	';
 
 	$output->setTitle(APPLICATION_NAME."::Pluto Authorized Dealer Program Terms");			//page title
-
-
-
-	//don't touch them
-	$output->setScriptCalendar('null');
-	$output->setScriptTRColor('null');
+	$output->setPressedButton(5);
+	$output->setNavigationMenu(array('Get Pluto'=>'index.php?section=get_pluto','I\'m a dealer'=>'index.php?section=dealer','Dealer Program'=>'index.php?section=dealerProgram','Program Terms'=>'index.php?section=dealerTerms'));
 	$output->setBody($out);
 	$output->output();
  }

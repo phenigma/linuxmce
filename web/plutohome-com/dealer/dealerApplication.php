@@ -16,71 +16,78 @@ if($action=='form'){
 	<form action="index.php" method="POST" name="dealerApplication">
   		<input type="hidden" name="section" value="dealerApplication">
 		<input type="hidden" name="action" value="add">
-	<table>
-		<tr>
-			<td align="center" class="titletable"><B>Pluto Authorized Dealer Program Application</B></td>
+	<table width="100%"  border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td align="left" class="insidetable"><table width="563"  border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <td align="left"><img src="images/titles/dealer.gif"></td>
+      </tr>
+    </table></td>
+  </tr>
+		<tr class="insidetable2">
+			<td align="center" class="title"><B>Pluto Authorized Dealer Program Application</B></td>
 		</tr>
 		<tr>
-			<td class="insidetable">
+			<td class="insidetable2">
 				Pluto Home accepts applicants as Pluto Authorized Dealers in its sole discretion.  Applications will not be processed or considered unless all questions are answered.
 <br><br>
 Pluto Home will use reasonable efforts to review your application and contact you within 10 days regarding the status of your membership into the Pluto Authorized Dealer Program. Pluto Home reserves the right to make changes to, make exceptions to, or terminate the Pluto Authorized Dealer Program and/or any benefits, policies and procedures there under at any time at its sole discretion. Dealer’s membership in the Pluto Authorized Dealer Program may be terminated as set forth in the Pluto Authorized Dealer Program Terms.
 			</td>
 		</tr>
 		<tr>
-			<td align="center" class="insidetable">
+			<td align="center" class="insidetable2">
 			<table>
 				<tr bgcolor="#DADDE4">
 					<td colspan="6" align="center" class="normaltext"><B>Company Information</B></td>
 				</tr>
 				<tr>
 					<td align="right" class="normaltext"><B>Company Name:</B></td>
-					<td colspan="5" align="left" class="normaltext"><input type="text" name="companyName" value=""></td>
+					<td colspan="5" align="left" class="normaltext"><input type="text" class="textfield" name="companyName" value=""></td>
 				</tr>
 				<tr>
 					<td align="right" class="normaltext"><B>Current Address:</B></td>
-					<td colspan="5" align="left" class="normaltext"><input type="text" name="currentAddress" value=""></td>
+					<td colspan="5" align="left" class="normaltext"><input type="text" class="textfield" name="currentAddress" value=""></td>
 				</tr>
 				<tr>
 					<td align="right" class="normaltext"><B>City:</B></td>
-					<td align="left" class="normaltext"><input type="text" name="city" value=""></td>
+					<td align="left" class="normaltext"><input type="text" class="textfield" name="city" value=""></td>
 					<td align="right" class="normaltext"><B>State:</B></td>
-					<td align="left" class="normaltext"><input type="text" name="state" value=""></td>
+					<td align="left" class="normaltext"><input type="text" class="textfield" name="state" value=""></td>
 					<td align="right" class="normaltext"><B>Postal/ZIP:</B></td>
-					<td align="left" class="normaltext"><input type="text" name="zip" value=""></td>
+					<td align="left" class="normaltext"><input type="text" class="textfield" name="zip" value=""></td>
 				</tr>
 				<tr>
 					<td align="right" class="normaltext"><B>Phone:</B></td>
-					<td align="left" class="normaltext"><input type="text" name="phone" value=""></td>
+					<td align="left" class="normaltext"><input type="text" class="textfield" name="phone" value=""></td>
 					<td align="right" class="normaltext"><B>Fax:</B></td>
-					<td align="left" class="normaltext"><input type="text" name="fax" value=""></td>
+					<td align="left" class="normaltext"><input type="text" class="textfield" name="fax" value=""></td>
 					<td align="right" class="normaltext"><B>Country:</B></td>
-					<td align="left" class="normaltext"><input type="text" name="country" value=""></td>
+					<td align="left" class="normaltext"><input type="text" class="textfield" name="country" value=""></td>
 				</tr>
 				<tr>
 					<td align="right" class="normaltext"><B>Number of Employees:</B></td>
-					<td align="left" class="normaltext"><input type="text" name="employees" value=""></td>
-					<td align="right" class="normaltext"><B>Store Front or Showroom:</B></td>
-					<td align="left" class="normaltext" colspan="3"><input type="checkbox" name="storeFront" value="1"></td>
+					<td align="left" class="normaltext"><input type="text" class="textfield" name="employees" value=""></td>
+					<td align="right" class="normaltext" colspan="3"><B>Store Front or Showroom:</B></td>
+					<td align="left" class="normaltext"><input type="checkbox" name="storeFront" value="1"></td>
 				</tr>
 				<tr bgcolor="#DADDE4">
 					<td colspan="6" align="center" class="normaltext"><B>Individual Applicant Information</B></td>
 				</tr>
 				<tr>
 					<td align="right" class="normaltext"><B>Your Name:</B></td>
-					<td colspan="5" align="left" class="normaltext"><input type="text" name="individualName" value=""></td>
+					<td colspan="5" align="left" class="normaltext"><input type="text" class="textfield" name="individualName" value=""></td>
 				</tr>
 				<tr>
 					<td align="right" class="normaltext"><B>Title:</B></td>
-					<td colspan="5" align="left" class="normaltext"><input type="text" name="title" value=""></td>
+					<td colspan="5" align="left" class="normaltext"><input type="text" class="textfield" name="title" value=""></td>
 				</tr>
 				<tr>
 					<td align="right" class="normaltext"><B>Phone:</B></td>
-					<td align="left" class="normaltext"><input type="text" name="individualPhone" value=""></td>
+					<td align="left" class="normaltext"><input type="text" class="textfield" name="individualPhone" value=""></td>
 					<td align="right" class="normaltext"><B>Email:</B></td>
-					<td align="left" class="normaltext"><input type="text" name="individualEmail" value=""></td>
+					<td align="left" class="normaltext"><input type="text" class="textfield" name="individualEmail" value=""></td>
 					<td align="right" class="normaltext"><B>Fax:</B></td>
-					<td align="left" class="normaltext"><input type="text" name="individualFax" value=""></td>
+					<td align="left" class="normaltext"><input type="text" class="textfield" name="individualFax" value=""></td>
 				</tr>
 				<tr bgcolor="#DADDE4">
 					<td colspan="6" align="center" class="normaltext"><B>Business Information</B></td>
@@ -89,14 +96,14 @@ Pluto Home will use reasonable efforts to review your application and contact yo
 					<td align="right" class="normaltext"><B>Existing Core Business:</B></td>
 					<td colspan="2" align="left" class="normaltext">';
 				foreach($businessArray AS $key=>$label){
-					$out.='<input type="checkbox" name="existingBusiness_'.$key.'" value="'.$key.'"> '.$label.(($label=='Other')?' <input type="text" name="otherBusiness" value="">':'').'<br>';
+					$out.='<input type="checkbox" name="existingBusiness_'.$key.'" value="'.$key.'"> '.$label.(($label=='Other')?' <input type="text" class="textfield" name="otherBusiness" value="">':'').'<br>';
 				}
 				$out.='
 					</td>
 					<td align="right" class="normaltext"><B>Market Focus:</B></td>
 					<td align="left" class="normaltext" colspan="2">';
 				foreach($marketFocusArray AS $key=>$label){
-					$out.='<input type="checkbox" name="marketFocus_'.$key.'" value="'.$key.'"> '.$label.(($label=='Other')?' <input type="text" name="otherMarketFocus" value="">':'').'<br>';
+					$out.='<input type="checkbox" name="marketFocus_'.$key.'" value="'.$key.'"> '.$label.(($label=='Other')?' <input type="text" class="textfield" name="otherMarketFocus" value="">':'').'<br>';
 				}
 				$out.='
 				</td>
@@ -106,7 +113,7 @@ Pluto Home will use reasonable efforts to review your application and contact yo
 				</tr>
 				<tr>
 					<td colspan="2" align="right" class="normaltext"><B>Other Products Your Company Represents:</B></td>
-					<td colspan="4" align="left" class="normaltext"><input type="text" name="otherProducts" value=""></td>
+					<td colspan="4" align="left" class="normaltext"><input type="text" class="textfield" name="otherProducts" value=""></td>
 				</tr>
 				<tr>
 					<td colspan="6" align="left" class="normaltext"><B>Estimated Current Annual Revenue in smart home products:</B></td>
@@ -132,19 +139,19 @@ Pluto Home will use reasonable efforts to review your application and contact yo
 					<td colspan="2" align="center" class="normaltext"><B>Phone:</B></td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center" class="normaltext"><input type="text" name="referenceName_1" value=""></td>
-					<td colspan="2" align="center" class="normaltext"><input type="text" name="referenceAddress_1" value=""></td>
-					<td colspan="2" align="center" class="normaltext"><input type="text" name="referencePhone_1" value=""></td>
+					<td colspan="2" align="center" class="normaltext"><input type="text" class="textfield" name="referenceName_1" value=""></td>
+					<td colspan="2" align="center" class="normaltext"><input type="text" class="textfield" name="referenceAddress_1" value=""></td>
+					<td colspan="2" align="center" class="normaltext"><input type="text" class="textfield" name="referencePhone_1" value=""></td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center" class="normaltext"><input type="text" name="referenceName_2" value=""></td>
-					<td colspan="2" align="center" class="normaltext"><input type="text" name="referenceAddress_2" value=""></td>
-					<td colspan="2" align="center" class="normaltext"><input type="text" name="referencePhone_2" value=""></td>
+					<td colspan="2" align="center" class="normaltext"><input type="text" class="textfield" name="referenceName_2" value=""></td>
+					<td colspan="2" align="center" class="normaltext"><input type="text" class="textfield" name="referenceAddress_2" value=""></td>
+					<td colspan="2" align="center" class="normaltext"><input type="text" class="textfield" name="referencePhone_2" value=""></td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center" class="normaltext"><input type="text" name="referenceName_3" value=""></td>
-					<td colspan="2" align="center" class="normaltext"><input type="text" name="referenceAddress_3" value=""></td>
-					<td colspan="2" align="center" class="normaltext"><input type="text" name="referencePhone_3" value=""></td>
+					<td colspan="2" align="center" class="normaltext"><input type="text" class="textfield" name="referenceName_3" value=""></td>
+					<td colspan="2" align="center" class="normaltext"><input type="text" class="textfield" name="referenceAddress_3" value=""></td>
+					<td colspan="2" align="center" class="normaltext"><input type="text" class="textfield" name="referencePhone_3" value=""></td>
 				</tr>
 				<tr bgcolor="#DADDE4">
 					<td colspan="6" align="left" class="normaltext"><B>Support & Return Policies:</B></td>
@@ -160,7 +167,7 @@ Pluto Home will use reasonable efforts to review your application and contact yo
 					<td colspan="6" align="left" class="normaltext"><input type="checkbox" name="agreedTerms" value="1"> I have read and agree to the terms and conditions <a href="index.php?section=dealerTerms" target="_blank">listed here</a>.  Should any of the information change, I will inform Pluto Home promptly in within 20 days.</td>
 				</tr>							
 				<tr>
-					<td colspan="6" align="center" class="normaltext">Please sign this application by typing your name here: <input type="text" name="sign" value=""> <input type="submit" name="submitDealer" value="Submit"></td>
+					<td colspan="6" align="center" class="normaltext">Please sign this application by typing your name here: <input type="text" class="textfield" name="sign" value=""> <input type="submit" name="submitDealer" value="Submit"></td>
 				</tr>							
 				
 			</table>
@@ -350,7 +357,7 @@ Pluto Home will use reasonable efforts to review your application and contact yo
 	$out='
 	<table align="center">
 		<tr>
-			<td class="insidetable" height="250">
+			<td class="insidetable2" height="250">
 				<p class="normaltext"><B>Thank you for your application.</B>
 				<p class="normaltext">Pluto Home will use reasonable efforts to review your application and contact you within 10 days regarding the status of your membership into the Pluto Authorized Dealer Program. Pluto Home reserves the right to make changes to, make exceptions to, or terminate the Pluto Authorized Dealer Program and/or any benefits, policies and procedures there under at any time at its sole discretion. Dealer’s membership in the Pluto Authorized Dealer Program may be terminated as set forth in the Pluto Authorized Dealer Program Terms.
 	
@@ -360,8 +367,8 @@ Pluto Home will use reasonable efforts to review your application and contact yo
 }
 
 
-	$output->setScriptCalendar('null');
-	$output->setScriptTRColor('null');
+	$output->setPressedButton(5);
+	$output->setNavigationMenu(array('Get Pluto'=>'index.php?section=get_pluto','I\'m a dealer'=>'index.php?section=dealer','Dealer Program'=>'index.php?section=dealerProgram','Application form'=>'index.php?section=dealerApplication'));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME."::Client");
 	$output->output();

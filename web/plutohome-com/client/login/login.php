@@ -57,7 +57,7 @@ if (isset($_POST['submitX'])) {
 			header("Location: index.php?section=myPluto");
 		} else {
 			$out.=$messages;
-			header("Location: index.php?section=clientLoginForm&error=$messages");
+			header("Location: index.php?section=login&error=$messages");
 		}
 	}
 }
@@ -65,31 +65,27 @@ if (isset($_POST['submitX'])) {
 	<script>
 	var setFocus=0
 	</script>
-	<table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable">
-		<td  valign="top" align="center" class="insidetable">
-		
-	
-	<b>Log - In</b>
-	<div align="center"></div>
 	<form name="login" id="login" method="post" action="index.php">
-	<input type="hidden" name="section" value="clientLoginForm">
-		<span class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</span>
-	  <table border="0" align="center" cellpadding="5" cellspacing="0" class="insidetable">
-	    <tr> 
-	      <td width="50%" align="right">Username</td>
+	<input type="hidden" name="section" value="login">
+		<table width="100%">
+     		<tr>
+				<td align="left" colspan="2" class="insidetable"><img src="images/titles/login.gif" border="0"> <span class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</span></td>
+			</tr>
+	    <tr class="insidetable"> 
+	      <td width="50%" align="right"><B>Username</B></td>
 	      <td>&nbsp;<input type="text" name="username" value="'.@$_SESSION['username'].'" /></td></tr>
-	    <tr> 
-	      <td align="right">Password</td>
+	    <tr class="insidetable"> 
+	      <td align="right"><B>Password</B></td>
 	      <td>&nbsp;<input type="password" name="password" value="" onkeypress="assignVal(1)"/></td>
 	    </tr>
-        <tr>
-        	<td height="20" align="right">Remember my password</td>
+        <tr class="insidetable">
+        	<td height="20" align="right"><B>Remember my password</B></td>
             <td align="left"><input type="checkbox" name="autologin" value="1"></td>
 		</tr>	
-	    <tr>
+	    <tr class="insidetable">
 	      <td colspan="2" align="center"><input type="submit" name="submitX" value="Log-in" /></td>
 	    </tr>
-		<tr>
+		<tr class="insidetable">
 			<td colspan="2"><div align="center">If you already registered on <a href="http://www.plutovip.com">Plutovip.com</a>, your username and password are linked and will work on this site too.
 						<br> 
 						<br>
@@ -98,8 +94,8 @@ if (isset($_POST['submitX'])) {
 <br><br>
  
 
-If you ever have a question, click Live chat to get instant support.
-</td>
+If you ever have a question, click "Live Support" button from top left corner to get instant assistance.
+			</td>
 		</tr>
 	  </table>
 	</form>
@@ -113,18 +109,13 @@ If you ever have a question, click Live chat to get instant support.
  		frmvalidator.addValidation("username","req","Please enter an username.");			
 	 	frmvalidator.addValidation("password","req","Please enter your password.");			
 	</script>
-	
-	
-	</td></table>';
+';
 
 
 
 
-
+	$output->setNavigationMenu(array("Login"=>"index.php?section=login"));
 	$output->setScriptInBody("onload=\"if(setFocus==0);document.login.username.focus();\"");
-	//$output->setLeftMenu($leftMenu);
-	$output->setScriptCalendar('null');
-	$output->setScriptTRColor('null');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);
 	$output->output();

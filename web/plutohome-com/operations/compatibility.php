@@ -6,67 +6,16 @@ $out.=<<<TEXT
 
 <table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable">
   <tr>
-    <td class="titletable"><img src="images/submenus/support_txt.gif" width="60" height="13"></td>
+    <td align="center" class="insidetable"><table width="563"  border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <td align="left"><img src="images/titles/support.gif"></td>
+      </tr>
+    </table></td>
   </tr>
   <tr>
-    <td class="insidetable"><table border="0" align="left" cellpadding="0" cellspacing="0">
-      <tr>
-        <td width="154"><a href="index.php?section=installation"><img src="images/submenus/Support/installation_information_of.gif" width="207" height="17" border="0"></a></td>
-        <td width="20">&nbsp;</td>
-      </tr>
-      <tr>
-        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
-      </tr>
-      <tr>
-        <td><a href="index.php?section=project"><img src="images/submenus/Support/project_management_off.gif" width="207" height="17" border="0"></a></td>
-        <td width="20">&nbsp;</td>
-      </tr>
-      <tr>
-        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
-      </tr>
-      <tr>
-        <td><a href="index.php?section=warranty"><img src="images/submenus/Support/warranty_off.gif" width="207" height="17" border="0"></a></td>
-        <td width="20">&nbsp;</td>
-      </tr>
-      <tr>
-        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
-      </tr>
-      <tr>
-        <td><a href="index.php?section=download"><img src="images/submenus/Support/download_off.gif" width="207" height="17" border="0"></a></td>
-        <td>&nbsp;</td>
-      </tr>
-      <tr>
-        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
-      </tr>
-      <tr>
-        <td><a href="index.php?section=compatibility"><img src="images/submenus/Support/compatibility_on.gif" width="207" height="17" border="0"></a></td>
-        <td>&nbsp;</td>
-      </tr>
-      <tr>
-        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
-      </tr>
-      <tr>
-        <td><a href="index.php?section=technical_support"><img src="images/submenus/Support/technical_support_off.gif" width="207" height="17" border="0"></a></td>
-        <td>&nbsp;</td>
-      </tr>
-      <tr>
-        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
-      </tr>
-      <tr>
-        <td><a href="index.php?section=faq_presentation"><img src="images/submenus/Support/faqs_off.gif" width="207" height="17" border="0"></a></td>
-        <td>&nbsp;</td>
-      </tr>
-      <tr>
-        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
-      </tr>
-      <tr>
-        <td>&nbsp;</td>
-        <td>&nbsp;</td>
-      </tr>
-    </table>
-    <p><img src="images/submenus/compatibility_txt.gif" width="99" height="13"><br>
+    <td align="left" class="insidetable2">
         Pluto can work with nearly everything that provides a means for external control. Pluto supports all standard interfaces: Ethernet, infrared, RS232, RS485, USB, and relay control.</p>
-        <p>If you have a device that you think should be controllable, please tell us about it using our <a href="index.php?section=technical_support">tech support form</a>.</p>
+        <p>If you have a device that you think should be controllable, please tell us about it using our <a href="index.php?section=support">support form</a>.</p>
         <p>If you are a programmer, you can easily make your own DCE Devices to do almost anything.  We even have a wizard for programmers that will build the whole project for you automatically.  <a href="/support/index.php?section=document&docID=15">Introduction for programmers and developers</a>
          The following are the devices known to be compatible at this time, although most of them have not yet been ported to our series 2 platform.</p>
       <blockquote>
@@ -115,23 +64,19 @@ $out.=<<<TEXT
         <p><strong>Miscellaneous devices and sensors</strong>: <br>
           Applied Digital (light, temperature, humidity)<br>
           JDS</p>
-      </blockquote></td>
+      </blockquote>	</td>
   </tr>
 </table>
+
 	
 TEXT;
 		
-		$output->setImgName("support.jpg"); //img that needs to be changed
-        $output->setPageID(4); //butonul selectat
- 		$output->setNavigationMenu(array("Sample page"=>"index.php?section=samplePage")); //not used yet
- 		$output->setTitle(APPLICATION_NAME."::Compatibility");			//page title
- 		
- 		
- 		
- 		//don't touch them 		
-		$output->setScriptCalendar('null');
-		$output->setScriptTRColor('null');		
-		$output->setBody($out);		
-  		$output->output(); 
+	$output->setPressedButton(4);
+	$output->setNavigationMenu(array('Support'=>'index.php?section=support','Compatibility'=>'index.php?section=compatibility'));
+	$output->setTitle(APPLICATION_NAME."::Compatibility");			//page title
+	$output->setScriptCalendar('null');
+	$output->setScriptTRColor('null');
+	$output->setBody($out);
+	$output->output();
  }
 ?>

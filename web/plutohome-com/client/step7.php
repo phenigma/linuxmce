@@ -58,21 +58,20 @@ if($action=='form'){
 				}
 				</script>';
 	$out.='
-					<br>
 				   <form action="index.php" method="POST" name="wizard">
 					<input type="hidden" name="section" value="wizard">
 					<input type="hidden" name="step" value="'.$step.'">
 					<input type="hidden" name="action" value="update">	
 			      		<table align="center" width="100%">
 							 <tr>
-								<td align="left" class="normaltext"><img src="images/install_wizard.gif"></td>
-								<td align="right" class="normaltext"><a href="index.php?section=wizard&step=6">&lt;&lt; Previous</a> <a href="#" onClick="javascript:document.wizard.action.value=\'update\';document.wizard.submit();">Next &gt;&gt;</a></td>
+								<td align="left" class="insidetable"><img src="images/titles/installation_wizzard.gif"></td>
+								<td align="right" class="insidetable"><a href="index.php?section=wizard&step=6">&lt;&lt; Previous</a> <a href="#" onClick="javascript:document.wizard.action.value=\'update\';document.wizard.submit();">Next &gt;&gt;</a></td>
 							</tr>				
 							<tr>
 								<td colspan="2" align="center" bgcolor="#DADDE4"><B>Step 7 of 8: Orbiter</B></td>
 							</tr>
 							<tr>
-								<td colspan="2" align="left" class="insidetable">Here are your orbiters.  The Media Directors will have an Orbiter on the screen already to control the system.  Also any compatible Bluetooth mobile phones will be detected automatically--you don\'t need to add them here.  But you can add additional Orbiters for other desktop PC\'s, Web Pads, PDAs, etc.  For the type just choose "Orbiter" unless you see another type that more closely describes your hardware.</td>
+								<td colspan="2" align="left" class="insidetable2">Here are your orbiters.  The Media Directors will have an Orbiter on the screen already to control the system.  Also any compatible Bluetooth mobile phones will be detected automatically--you don\'t need to add them here.  But you can add additional Orbiters for other desktop PC\'s, Web Pads, PDAs, etc.  For the type just choose "Orbiter" unless you see another type that more closely describes your hardware.</td>
 							</tr>
 							<tr>
 								<td colspan="2">

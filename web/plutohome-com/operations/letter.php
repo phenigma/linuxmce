@@ -4,14 +4,22 @@
 		
 $out.=<<<TEXT
 
-<table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable">
-
+<table width="100%"  border="0" cellspacing="0" cellpadding="0">
   <tr>
-    <td class="insidetable">
+    <td align="left" class="insidetable"><table width="438"  border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <td width="155"><a href="index.php?section=pluto_system_overview"><img src="images/buttons/pluto_system_overview_on.gif" width="155" height="11" border="0" /></a></td>
+        <td width="155"><a href="index.php?section=how_the_system_works"><img src="images/buttons/how_the_system_works_off.gif" width="155" height="11" border="0" /></a></td>
+        <td width="128"><a href="index.php?section=learn_how_to_use_it"><img src="images/buttons/learn_how_to_use_it_off.gif" width="128" height="11" border="0" /></a></td>
+        </tr>
+    </table></td>
+  </tr>
+  <tr>
+    <td class="insidetable2">
 <p>We're very busy working on an entirely new Pluto system, built from the ground up to be a flexible, extensible platform for open source development.</p>
 <p>What? Give away a successful product for free as open source?  That seems an odd strategy for a profit-minded company.  True.  However the benefits are too compelling for the company, our paying customers, the open source community, and the general public.</p>
 <p><b>For the company:</b>  Our customers fall into 2 categories.  First, those who don't want to mess with technology.  They buy Pluto as a turnkey appliance they take out of the box, plug in, and hit 'on'.  Or, they get professional installation from high-end dealers.  Second, the more tech-oriented who get their own equipment and install software.</p>
-<p>Our existing customers belong to the first group.  To sell Pluto as a software-only solution to the second group we would have to do what software companies do: Set in place obstacles, like software keys, copy protection, and the constant threat of legal action to combat those who would violate the copyright and pirate the software.  At Pluto, we decided a wiser strategy was to focus on the first group of customers, and as for the software-only customer, we'll reward their enthusiasm in our product by making them partners, rather than pirates.  They can download the software for free and see how amazing the product is firsthand.  When they tell others about it, we offer generous referral fees every time they recommend Pluto to someone who buys a turnkey system, and even a cut of any licensing deals they refer.  <a href="index.php?section=special_offer">details</a>  We view those who download Pluto's software as potential allies, not criminals.  That is more sensible, and more inline with our Brilliant Living motto.</p>
+<p>Our existing customers belong to the first group.  To sell Pluto as a software-only solution to the second group we would have to do what software companies do: Set in place obstacles, like software keys, copy protection, and the constant threat of legal action to combat those who would violate the copyright and pirate the software.  At Pluto, we decided a wiser strategy was to focus on the first group of customers, and as for the software-only customer, we'll reward their enthusiasm in our product by making them partners, rather than pirates.  They can download the software for free and see how amazing the product is firsthand.  When they tell others about it, we offer generous referral fees every time they recommend Pluto to someone who buys a turnkey system, and even a cut of any licensing deals they refer. We view those who download Pluto's software as potential allies, not criminals.  That is more sensible, and more inline with our Brilliant Living motto.</p>
 <p><b>For our paying customers:</b> The open source model has proven itself to be the best way to engineer a superior product.  Mainstream consumers are not aware of open source.  It is free software, and thus not marketed.  Anyone can contribute enhancements or fixes to open source projects.  The only restriction is that any improvements must be redistributed for everyone else to benefit.  This peer-review process has proven so successful, we all use open source software every day, even though we're not aware of it.  Because it can be sold under a different name without licensing, a wide variety of consumer devices, from appliances to automobiles, have smart embedded computers running open source software.  It is the brains behind many of the products we use everyday.  And it is the backbone of mission critical systems, like the Internet, telecommunications, finance, and transportation industries.  Most of the world's largest corporations use open source software, like Linux or Apache, to power their servers.  Pluto's new open source strategy ensures our customers that their Pluto system will always be the pinnacle of innovation and reliability, with thousands of brilliant engineers from all over the world being able to contribute their talents to make it even better.  Also, once our customers taste Brilliant Living, they want to control everything in their house with the same ease and simplicity.  We constantly get requests to develop an interface for a special pool system sold in South Africa, for example, or a new lighting system in Europe.  Or a dealer in Thailand wants all the Orbiters in their native language.  It is not practical for Pluto's engineering team of 30 or so to spread over the world and satisfy all these requests.  So rather than keeping our code a secret, and trying to do it all ourselves like software companies do, this new strategy allows anyone anywhere to enhance Pluto with their own plug-ins and improvements.  This will lead to greater support for a variety of devices and more language choices.  Also, the open source programmers are the best in the world, so we welcome the peer review process as they inspect our wares, and look forward to their input.</p>
 <p><b>For the open source community:</b> Pluto has enjoyed a great relationship with the community.  In fact, out of the myriads of consumer products that use open source software, Pluto appears to be virtually the only one that hired the original developers as consultants, and even gave them stock in the company so their contributions would be rewarded.  Now our new strategy benefits the open source community in an even more substantial way.  Firstly, there is the recognition.  Virtually none of the products built upon open source even acknowledge these roots.  The manufacturers market the products exclusively under their own name, preferring to lead customers to believe that they developed everything in house.  Pluto will be the first appliance of its kind that proudly promotes the fact that it is based on open source, and recognizes the contributions of the community.  Also, all the other appliances in this genre, like Pluto series 1, are completely closed systems.  So the consumer never learns of the wealth of open source software that is out there for the taking.  Now, customers who buy a Pluto system or a device with Pluto embedded, like a TV or a car, can effortlessly add all the open source software they want, without even touching a mouse or a keyboard.  For the first time, it will actually be easier for the mass market to obtain and use open source software than the normal proprietary kind.  We are even expanding our support and quality assurance teams so that we will be able to provide support to the free users and open source programmers, putting any of their contributed improvements through our exhaustive testing process before making them available in the retail version.</p>
 <p><b>For the general public:</b>  Your life becomes a lot simpler when the myriad of devices we rely upon work together as a seamless whole, with a consistent interface.  Our DCE protocol has proven itself to be the most elegant solution.  With a DCE-aware TV, for example, you can take it out of the box, plug 1 cable in the wall, and immediately your mobile phone displays the remote control.the exact same remote control you already use for the other TV's in the house, regardless of brand.  There's nothing new to learn.  No extra remote to clutter the coffee table.  Just press 'on', and the new TV even knows to turn on your favorite show automatically.  And it can play your entire collection of media and music, stored on any media server.  Even non-electronic devices work much better with DCE.  For example, a DCE-enabled doorbell can tell all the media devices in the house to lower their volume and play a chime when someone rings.  Of, if you indicate that you are hearing impaired, everything in the house automatically responds appropriately, including the doorbell which blinks the lights instead.</p>
@@ -28,17 +36,13 @@ $out.=<<<TEXT
 	
 TEXT;
 		
-		$output->setImgName("support.jpg"); //img that needs to be changed
-        $output->setPageID(9); //butonul selectat
- 		$output->setNavigationMenu(array("Sample page"=>"index.php?section=samplePage")); //not used yet
- 		$output->setTitle(APPLICATION_NAME."::I'm a Open Source Developer");			//page title
- 		
- 		
- 		
- 		//don't touch them 		
-		$output->setScriptCalendar('null');
-		$output->setScriptTRColor('null');		
-		$output->setBody($out);		
-  		$output->output(); 
- }
+
+	$output->setPressedButton(3);
+	$output->setNavigationMenu(array('How Pluto works'=>'index.php?section=how_pluto_works','Pluto System Overview'=>'index.php?section=pluto_system_overview',"Pluto's open source strategy"=>"index.php?section=letter")); //not used yet
+	$output->setTitle(APPLICATION_NAME);			//page title
+	$output->setScriptCalendar('null');
+	$output->setScriptTRColor('null');
+	$output->setBody($out);
+	$output->output();
+}
 ?>

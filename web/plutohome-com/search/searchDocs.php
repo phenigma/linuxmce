@@ -8,20 +8,23 @@ function searchDocs($output,$dbADO,$conn){
 	$out='
 	<table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable">
 		<tr>
-			<td class="insidetable">';
+			<td align="left" class="insidetable"><img src="images/titles/search.gif"></td>
+		</tr>	
+		<tr>
+			<td class="insidetable2">';
 	$rs=$dbADO->Execute('SELECT * FROM Document WHERE Title LIKE ? OR Contents LIKE ?',array('%'.$searchString.'%','%'.$searchString.'%'));
 	$docsFound=$rs->RecordCount();
 	$out.='
 		<table>
 		<tr>
-			<td colspan="2"><h3>Searching for: '.$searchString.'</h3></td>
+			<td colspan="2"><span class="title">Searching for: '.$searchString.'</span></td>
 		</tr>	
 		<tr>
-			<td colspan="2"><h4>Results found in DOCUMENTS: '.$docsFound.'</h4></td>
+			<td colspan="2"><span class="title">Results found in DOCUMENTS: '.$docsFound.'</span></td>
 		</tr>
 		<tr>
 			<td width="20"></td>
-			<td class="insidetable">';
+			<td class="insidetable2">';
 	// search in documents
 	$pos=0;
 	while($rowDocs=$rs->FetchRow()){

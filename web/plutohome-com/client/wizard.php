@@ -43,10 +43,7 @@ function wizard($output,$dbADO) {
 	
 
 
-	$output->setNavigationMenu(array("Client home"=>"index.php?section=userHome"));
-
-	$output->setScriptCalendar('null');
-	$output->setScriptTRColor('null');
+	$output->setNavigationMenu(array("Installation wizard"=>"index.php?section=wizard&step=1"));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME."::Installation wizard step ".$step);
 	$output->output();

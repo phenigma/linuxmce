@@ -5,45 +5,24 @@ function dealerProgram($output) {
 
 		
 	$out = '
-	<table>
-		<tr>
-			<td align="center" class="titletable"><B>Welcome to the Pluto Authorized Dealer Program</B></td>
-		</tr>
-		<tr>
-			<td class="insidetable">
+<table width="100%"  border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td align="center" class="insidetable"><table width="563"  border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <td align="left"><img src="images/titles/dealer.gif"></td>
+      </tr>
+    </table></td>
+  </tr>
+	<tr class="insidetable2">
+		<td align="center" class="title"><B>Welcome to the Pluto Authorized Dealer Program</B></td>
+	</tr>
+	<tr>
+		<td class="insidetable2">
 			<div style="position:relative; top=0px; float:left; width=200px;">
-			<table width="180" border="0" cellpadding="0" cellspacing="0">
-				<tr>
-			    	<td valign="top" class="normaltext"><a href="index.php?section=dealerProgram">Overview</a></td>
-			  	</tr>
-				<tr>
-			    	<td valign="top" class="normaltext"><a href="index.php?section=programGuidelines">Program Guidelines</a></td>
-			  	</tr>
-				<tr>
-			    	<td valign="top" class="normaltext"><a href="index.php?section=schedule&sch=1">Schedule 1</a></td>
-			  	</tr>
-				<tr>
-			    	<td valign="top" class="normaltext"><a href="index.php?section=schedule&sch=2">Schedule 2</a></td>
-			  	</tr>
-				<tr>
-			    	<td valign="top" class="normaltext"><a href="index.php?section=schedule&sch=3">Schedule 3</a></td>
-			  	</tr>
-				<tr>
-			    	<td valign="top" class="normaltext"><a href="index.php?section=fundRequestApplication">Funds Request Form</a></td>
-			  	</tr>
-				<tr>
-			    	<td valign="top" class="normaltext"><a href="index.php?section=reimbursementClaimForm">Reimbursement Claim Form</a></td>
-			  	</tr>	
-				<tr>
-			    	<td valign="top" class="normaltext"><a href="index.php?section=dealerTerms">Terms and conditions</a></td>
-			  	</tr>
-				<tr>
-			    	<td valign="top" class="normaltext"><a href="index.php?section=dealerApplication">Application form</a></td>
-			  	</tr>
-			    <tr>
-			        <td class="normaltext" height="10">&nbsp;</td>
-			    </tr>
-			</table>
+			';
+		include('dealer/dealerMenu.php');
+		$out.=dealerMenu();
+		$out.='
 			</div>
 	
 				<p>Pluto Home is extending the opportunity to apply to become an Authorized Dealer. As part of the qualification process, Pluto Home requires all potential Dealers to submit an <a href="index.php?section=dealerApplication">online application</a> and accept its Program Terms and Guidelines.
@@ -69,8 +48,8 @@ function dealerProgram($output) {
 
 
 
-	$output->setScriptCalendar('null');
-	$output->setScriptTRColor('null');
+	$output->setPressedButton(5);
+	$output->setNavigationMenu(array('Get Pluto'=>'index.php?section=get_pluto','I\'m a dealer'=>'index.php?section=dealer','Dealer Program'=>'index.php?section=dealerProgram'));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME."::Client");
 	$output->output();

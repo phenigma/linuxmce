@@ -3,17 +3,17 @@ if($_SESSION['sollutionType']==3){
 		$out='
 			<table align="center" border="0" width="100%">
 				 <tr>
-					<td align="left" class="normaltext"><img src="images/install_wizard.gif"></td>
-					<td align="right" class="normaltext"><a href="index.php?section=wizard&step=5">&lt;&lt; Previous</a> <a href="index.php?section=wizard&step=7">Next &gt;&gt;</a></td>
+					<td align="left" class="insidetable"><img src="images/titles/installation_wizzard.gif"></td>
+					<td align="right" class="insidetable"><a href="index.php?section=wizard&step=5">&lt;&lt; Previous</a> <a href="index.php?section=wizard&step=7">Next &gt;&gt;</a></td>
 				</tr>				
 				<tr>
 					<td colspan="2" align="center" bgcolor="#DADDE4"><B>Step 6 of 8: Media Directors</B></td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center" class="insidetable" height="150">You have selected the single PC solution, so you can skip this step by clicking NEXT.  </td>
+					<td colspan="2" align="center" class="insidetable2" height="150">You have selected the single PC solution, so you can skip this step by clicking NEXT.  </td>
 				</tr>
 				<tr>
-					<td colspan="2" class="insidetable" align="center"><input type="button" name="next" value="Next" onClick="self.location=\'index.php?section=wizard&step=7\'"></td>
+					<td colspan="2" class="insidetable2" align="center"><input type="button" name="next" value="Next" onClick="self.location=\'index.php?section=wizard&step=7\'"></td>
 				</tr>		
 		</table>
 	';
@@ -72,27 +72,26 @@ if($_SESSION['sollutionType']==3){
 					}';
 		$out.='				
 					</script>
-						<br>
 					   <form action="index.php" method="POST" name="wizard">
 						<input type="hidden" name="section" value="wizard">
 						<input type="hidden" name="step" value="'.$step.'">
 						<input type="hidden" name="action" value="'.$action.'">	
 				      		<table align="center" width="100%">
 								 <tr>
-									<td align="left" class="normaltext"><img src="images/install_wizard.gif"></td>
-									<td align="right" class="normaltext"><a href="index.php?section=wizard&step=5">&lt;&lt; Previous</a> <a href="#" onClick="javascript:document.wizard.action.value=\'update\';document.wizard.submit();">Next &gt;&gt;</a></td>
+									<td align="left" class="insidetable"><img src="images/titles/installation_wizzard.gif"></td>
+									<td align="right" class="insidetable"><a href="index.php?section=wizard&step=5">&lt;&lt; Previous</a> <a href="#" onClick="javascript:document.wizard.action.value=\'update\';document.wizard.submit();">Next &gt;&gt;</a></td>
 								</tr>				
 								<tr>
 									<td colspan="2" align="center" bgcolor="#DADDE4"><B>Step 6 of 8: Media Directors</B></td>
 								</tr>
 								<tr>
-									<td colspan="2" align="left" class="insidetable">Here you will add the media directors that will connect to your '.$_SESSION['coreName'].'.  You can add more by filling in the \'Add a Media Director\' section.  Be sure to give them descriptive names like \'Master Bedroom\'.
+									<td colspan="2" align="left" class="insidetable2">Here you will add the media directors that will connect to your '.$_SESSION['coreName'].'.  You can add more by filling in the \'Add a Media Director\' section.  Be sure to give them descriptive names like \'Master Bedroom\'.
 									If you bought a Pluto Media Director from a dealer you don\'t need to add it--it\'s plug and play so just plug it in.<br><br>
 									The simplest way to have a Media Director is with Network Boot.  If you use a Network Boot then you won\'t need to install any software on the Media Director.  <a href="support/index.php?section=document&docID=144" target="_blank">Explain this</a><br><br>
 									<b>If you want to use your Mobile Phone as a remote control or use follow-me features</b> be sure to check the "Bluetooth Dongle" option!</td>
 								</tr>
 								<tr>
-									<td colspan="2" class="insidetable">
+									<td colspan="2" class="insidetable2">
 									<table align="center">
 										<tr bgcolor="#DADDE4" class="normaltext">
 											<td align="center"><B>Name</B></td>
@@ -393,7 +392,7 @@ function updateMediaDirectors($displayedDevicesArray,$dbADO)
 							(Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia,FK_Room) 
 						VALUES (?,?,?,?,?)';
 				if($oldDevice==''){
-					$dbADO->Execute($insertDevice,array($OptionalDeviceName,$elem,$installationID,$orbiterMDChild,$oldRoomID));
+					$dbADO->Execute($insertDevice,array($OptionalDeviceName,$elem,$_SESSION['installationID'],$orbiterMDChild,$oldRoomID));
 					$optionInsertId=$dbADO->Insert_ID();
 				}
 			}else{

@@ -1,101 +1,68 @@
 <?php
- function media_entertainment($output) {
-		$out = '';
-		
-$out.=<<<TEXT
-
-<table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable">
+function media_entertainment($output) {
+	$out = '
+<table width="100%"  border="0" cellspacing="0" cellpadding="0">
   <tr>
-    <td class="titletable"><img src="images/submenus/pluto_benefits_txt.gif" width="106" height="13"></td>
+    <td align="center" class="insidetable"><table width="563"  border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <td width="72"><a href="index.php?section=security"><img src="images/buttons/security_off.gif" width="72" height="11" border="0" /></a></td>
+        <td width="70"><a href="index.php?section=telecom"><img src="images/buttons/telecom_off.gif" width="70" height="11" border="0" /></a></td>
+        <td width="124"><a href="index.php?section=home_automation"><img src="images/buttons/home_automation_off.gif" width="124" height="11" border="0" /></a></td>
+        <td width="155"><a href="index.php?section=media_entertainment"><img src="images/buttons/media_entertainment_on.gif" width="155" height="11" border="0" /></a></td>
+        <td width="132"><a href="index.php?section=personal_computing"><img src="images/buttons/personal_computing_off.gif" width="132" height="11" border="0" /></a></td>
+      </tr>
+    </table></td>
   </tr>
   <tr>
-    <td class="insidetable"><table width="186" border="0" align="left" cellpadding="0" cellspacing="0">
+    <td valign="top" background="images/back_insidetable.jpg" class="insidetable"><table width="100%"  border="0" cellspacing="0" cellpadding="0">
       <tr>
-        <td><a href="index.php?section=security"><img src="images/submenus/Pluto%20benefits/security_off.gif" width="166" height="17" border="0"></a></td>
-        <td width="20">&nbsp;</td>
+        <td width="89" valign="top"><img src="images/thumbs/img_media.jpg" width="89" height="89" /></td>
+        <td width="10"><img src="images/spacer.gif" width="10" height="10" /></td>
+        <td valign="top"><table width="100%"  border="0" cellspacing="0" cellpadding="0">
+            <tr>
+              <td><img src="images/titles/media_entertainment.gif" width="200" height="13" /></td>
+            </tr>
+            <tr>
+              <td><br />
+            Your media follows you around the house<br />
+            Each family member can have both public and private media<br />
+            Live video of favorite shows &amp; channel history<br /></td>
+            </tr>
+            <tr>
+              <td align="right">&nbsp;</td>
+            </tr>
+        </table></td>
       </tr>
-      <tr>
-        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
-      </tr>
-      <tr>
-        <td><a href="index.php?section=telecom"><img src="images/submenus/Pluto%20benefits/telecom_off.gif" width="166" height="17" border="0"></a></td>
-        <td width="20">&nbsp;</td>
-      </tr>
-      <tr>
-        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
-      </tr>
-      <tr>
-        <td><a href="index.php?section=home_automation"><img src="images/submenus/Pluto%20benefits/home_automation_off.gif" width="166" height="17" border="0"></a></td>
-        <td width="20">&nbsp;</td>
-      </tr>
-      <tr>
-        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
-      </tr>
-      <tr>
-        <td><a href="index.php?section=media_entertainment"><img src="images/submenus/Pluto%20benefits/media_entertainment_on.gif" width="166" height="17" border="0"></a></td>
-        <td>&nbsp;</td>
-      </tr>
-      <tr>
-        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
-      </tr>
-      <tr>
-        <td><a href="index.php?section=personal_computing"><img src="images/submenus/Pluto%20benefits/personal_computing_off.gif" width="166" height="17" border="0"></a></td>
-        <td>&nbsp;</td>
-      </tr>
-      <tr>
-        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
-      </tr>
-      <tr>
-        <td><a href="index.php?section=benefits_comparison"><img src="images/submenus/Pluto%20benefits/benefits_comparison_off.gif" width="166" height="17" border="0"></a></td>
-        <td>&nbsp;</td>
-      </tr>
-      <tr>
-        <td>&nbsp;</td>
-        <td>&nbsp;</td>
-      </tr>
-    </table>
-    <p><img src="images/submenus/media_entertainment_txt.gif" width="169" height="13"><br>
-      Store and control all media in your home</p>
-    <p>&bull;<strong> <a href="#your">Your media (music, movies, etc.) follows you around the house (patent pending)</a><br>
-      &bull; <strong><a href="#all">All media (even tv shows) are stored on a crash-proof central RAID array</a></strong> <br>
-      &bull; <strong><a href="#live">Live video of favorite shows+channel history on the Orbiter, 1-touch tuning</a><br>
-      &bull;<strong> <a href="#each">Each family member can have both public and private media</a></strong> <br>
-      &bull;<strong> <a href="#distributes">Distributes all media digitally. Play any media anywhere with no loss of quality</a></strong></strong></strong></p>
-    <p>&bull;<strong> <a name="your"></a>Your media (music, movies, etc.) follows you around the house (patent pending)</strong><br>
-      Pluto always knows what room each family member is in. how? And Pluto learns each family members favorite media (tv shows, etc.). The advantage is that most of the time you press only 1 button. For example, from anywhere in the house just press the 'TV' button on your mobile phone. The nearest TV--no matter what brand--will automatically come on to your favorite show. 90% of the time you will never need to use the program guide, never need to channel surf. It's that easy.</p>
-      <p>If you want to move around the house, all you do is hold down the media button on your mobile phone for 1 second, and a red &quot;F&quot;, for 'follow me' appears. Now just wander around the house and whatever media you were enjoying--tv, dvd movie, music, radio, etc.--will follow you as you move from room to room. This works individually for each family member, so everyone can enjoy their favorite media without disturbing others in the house. This is the ultimate convenience, and only Pluto has it. Not even the big six-figure smart home products offer this level of comfort. To date only a handful of super-rich individuals have spent millions for this luxury.</p>
-      <p>We're always asked 'What happens if 2 people are in the same room?' In that case, Pluto sets up the room for whoever entered first. If that person leaves the room, then Pluto sets it up for the next person who is still in the room.</p>
-      <p>&bull; <strong><a name="all" id="all"></a>All media (even tv shows) are stored on a crash-proof central RAID array</strong><br>
-      We love our PVR's (personal video recorders)! Whether a stand-alone system, or a media-style pc, it's great to watch what we want when we want. But there's one problem...</p>
-      <p>Most of us have more than 1 tv in the house. The PVR or media pc stores all tv shows on a local hard drive. That means you have to watch it where you recorded it. It also means you can't record 2 things at once. And if that hard drive crashes, you've lost all your tv shows.</p>
-      <p>Pluto took a totally different approach. All media--music, movies, tv shows, home videos--etc. are stored on the Pluto Core--the central server. The Core is powerful enough to handle dozens of simultaneous media streams. And it has a massive RAID hard drive array. That means you'll never have to worry about a hard drive crash and losing your media. Plus, you have virtually unlimited capacity. Consider that the high-end PVR's and media pc's typically have around 80GB or storage, or roughly 80 hours. The Pluto Core has up to 10,000 GB of storage, for up to 10,000 hours of tv shows, up to 1,400 DVD's, and if you like music, you've got 173,000 hours of mp3's--that's 20 years of non-stop 24/7 music!</p>
-      <p>With Pluto, everyone in the family can enjoy any media anywhere, anytime. </p>
-      <p>&bull; <strong><a name="live" id="live"></a></strong><strong>Live video of favorite shows+channel history on the Orbiter, 1-touch tuning</strong><br>
-      Because Pluto learns each family member's favorite shows, when anybody presses the 'tv' button Pluto turns on the nearest tv, scans the current running programs, and automatically tunes to that person's most favorite show. If you're using an Orbiter, the Orbiter will automatically show you live previews of your other favorite shows and channels. And as you channel surf, the Orbiter shows live previews of your channel history. Just touch the video to change to that channel. Of course, there's a full EPG too, but this is far more comfortable and convenient. Plus it's much better than picture-in-picture because the video is on the Orbiter--not the tv blocking part of your picture.</p>
-      <p>This ease of use has never been possible before because no other product has taken Pluto's approach of using a massively powerful server that can handle all the media for the whole house.</p>
-      <p>&bull;<strong> <a name="each" id="each"></a>Each family member can have both public and private media</strong><br>
-      Whenever you choose to record or save any media--tv shows, dvd movies, music, etc.--you are given the option of making it public, so the whole family can enjoy it, or private, so only you access it.</p>
-      <p>When you first get your Pluto system, just be sure to tell Pluto who are the head(s) of the house. These people can view everybody's private media.</p>
-      <p>&bull;<strong> <a name="distributes" id="distributes"></a>Distributes all media digitally. Play any media anywhere with no loss of quality</strong><br>
-      Nearly all the high-end whole-house audio or video systems still use analog cables. This means you have to tear open your walls to run extra cables, plus there is a substantial loss of quality. Further, the audio or video is only point to point--from one end of the cable to the other--and each cable can only handle 1 media at a time.</p>
-      <p>The Pluto Core, on the other hand, distributes all the media digitally. You don't need any extra cables, plus the media can go from anywhere to anywhere with absolutely no loss of quality.</p>
-      <p><a href="javascript:open_popup('operations/media_entertainment.html#features','500','400')">Full list</a> of media features</p></td>
+    </table></td>
+  </tr>
+  <tr>
+    <td valign="top" class="insidetable2">
+      <p><img src="images/bullet_1.gif" width="11" height="11" align="absmiddle" /> Pluto always knows what room each family member is in, and learns his favorite media (TV shows, music, etc.). Press the \'TV\' button on your mobile phone. The nearest TV - no matter what brand - will automatically come on to your favorite show. 90% of the time you will not need to use the program guide or channel surf.<br />
+        <br />
+        <img src="images/bullet_1.gif" width="11" height="11" align="absmiddle" /> When you move around the house, all you do is hold down the media button on your mobile phone for 1 second, and a red &quot;F&quot; for \'follow me\' appears. Now just wander around the house and whatever media you were enjoying - TV, DVD movie, music, radio, etc. - will follow you. It works individually for each family member. This is the ultimate convenience, and only Pluto has it. To date, only a handful of super-rich individuals have spent millions for this luxury.<br />
+        <br />
+        <img src="images/bullet_1.gif" width="11" height="11" align="absmiddle" /> In case there are two people in the same room, Pluto sets up the room for whoever entered first. If that person leaves the room, then Pluto sets it up for the next person who is still in the room.<br />
+        <br />
+        <img src="images/bullet_1.gif" width="11" height="11" align="absmiddle" /> Whenever you choose to record or save any media - TV shows, DVD movies, music, etc. - you are given the option of making it public, so the whole family can enjoy it, or private, so only you can access it. When you first get your Pluto system, just be sure to tell Pluto who are the heads of the house. These people can view everybody\'s private media.<br />
+        <br />
+        <img src="images/bullet_1.gif" width="11" height="11" align="absmiddle" /> Pluto learns each family member\'s favorite shows; when anybody presses the \'TV\' button, Pluto turns on the nearest TV, scans the current running programs, and automatically tunes to that person\'s favorite show. There\'s a full EPG too, but this is far more comfortable and convenient.<br />
+        <br />
+        <img src="images/bullet_1.gif" width="11" height="11" align="absmiddle" /> All media - music, movies, TV shows, home videos, etc. are stored on the Pluto Core - the central server. The Core is powerful enough to handle dozens of simultaneous media streams. You\'ll never have to worry about a hard drive crash and losing your media. You have virtually unlimited capacity, and everyone in the family can enjoy any media anywhere, anytime.<br />
+        <br />
+        <img src="images/bullet_1.gif" width="11" height="11" align="absmiddle" /> The Pluto Core distributes all the media digitally. This means you have to tear open your walls to run extra cables, plus the media can go from anywhere to anywhere with absolutely no loss of quality.</p>
+      </td>
   </tr>
 </table>
-		
-TEXT;
-		
-		$output->setImgName("support.jpg"); //img that needs to be changed
-        $output->setPageID(0); //butonul selectat
- 		$output->setNavigationMenu(array("Sample page"=>"index.php?section=samplePage")); //not used yet
- 		$output->setTitle(APPLICATION_NAME."::Media and Entertainment");			//page title
- 		
- 		
- 		
- 		//don't touch them 		
-		$output->setScriptCalendar('null');
-		$output->setScriptTRColor('null');		
-		$output->setBody($out);		
-  		$output->output(); 
- }
+';
+
+	$output->setPressedButton(1);
+	$output->setNavigationMenu(array('What is Pluto'=>'index.php?section=what_is_pluto','Media & entertainment'=>'index.php?section=media_entertainment'));
+
+	$output->setTitle(APPLICATION_NAME."::Media and Entertainment");			//page title
+	//don't touch them
+	$output->setScriptCalendar('null');
+	$output->setScriptTRColor('null');
+	$output->setBody($out);
+	$output->output();
+}
 ?>

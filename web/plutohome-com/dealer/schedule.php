@@ -4,50 +4,30 @@
 
 	$leftMenu='
 		<div style="position:relative; top=0px; float:left; width=250px;">
-			<table width="230" border="0" cellpadding="0" cellspacing="0">
-				<tr>
-			    	<td valign="top" class="normaltext"><a href="index.php?section=dealerProgram">Overview</a></td>
-			  	</tr>
-				<tr>
-			    	<td valign="top" class="normaltext"><a href="index.php?section=programGuidelines">Program Guidelines</a></td>
-			  	</tr>
-				<tr>
-			    	<td valign="top" class="normaltext"><a href="index.php?section=schedule&sch=1">Schedule 1</a></td>
-			  	</tr>
-				<tr>
-			    	<td valign="top" class="normaltext"><a href="index.php?section=schedule&sch=2">Schedule 2</a></td>
-			  	</tr>
-				<tr>
-			    	<td valign="top" class="normaltext"><a href="index.php?section=schedule&sch=3">Schedule 3</a></td>
-			  	</tr>
-				<tr>
-			    	<td valign="top" class="normaltext"><a href="index.php?section=fundRequestApplication">Funds Request Form</a></td>
-			  	</tr>
-				<tr>
-			    	<td valign="top" class="normaltext"><a href="index.php?section=reimbursementClaimForm">Reimbursement Claim Form</a></td>
-			  	</tr>	
-				<tr>
-			    	<td valign="top" class="normaltext"><a href="index.php?section=dealerTerms">Terms and conditions</a></td>
-			  	</tr>
-				<tr>
-			    	<td valign="top" class="normaltext"><a href="index.php?section=dealerApplication">Application form</a></td>
-			  	</tr>
-			    <tr>
-			        <td class="normaltext" height="10">&nbsp;</td>
-			    </tr>
-			</table>
-			</div>';
+		';
+		include('dealer/dealerMenu.php');
+		$leftMenu.=dealerMenu();
+		$leftMenu.='
+		</div>';
 	
 	
 	switch ($sch){
 		case 1:
+			$output->setNavigationMenu(array('Get Pluto'=>'index.php?section=get_pluto','I\'m a dealer'=>'index.php?section=dealer','Dealer Program'=>'index.php?section=dealerProgram','Schedule 1'=>'index.php?section=schedule&sch=1'));
 		$out='
-		<table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable">
-		<tr>
-			<td class="titletable" align="center"><B>SCHEDULE 1 – Pluto Program Requirements</B></td>
+<table width="100%"  border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td align="center" class="insidetable"><table width="563"  border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <td align="left"><img src="images/titles/dealer.gif"></td>
+      </tr>
+    </table></td>
+  </tr>
+		<tr class="insidetable2">
+			<td class="title" align="center"><B>SCHEDULE 1 – Pluto Program Requirements</B></td>
 		</tr>
 		<tr>
-		  <td width="100%" class="insidetable" align="left">
+		  <td width="100%" class="insidetable2" align="left">
 			'.$leftMenu.'
 			<p>Dealer is expected to meet, at a minimum, the following program requirements in order to be considered for authorization by Pluto Home as a Dealer of Pluto Products:
 			<ul>
@@ -82,13 +62,14 @@
 	';
 		break;
 		case 2:
+			$output->setNavigationMenu(array('Get Pluto'=>'index.php?section=get_pluto','I\'m a dealer'=>'index.php?section=dealer','Dealer Program'=>'index.php?section=dealerProgram','Schedule 2'=>'index.php?section=schedule&sch=2'));
 		$out='
 		<table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable">
-		<tr>
-			<td class="titletable" align="center"><B>SCHEDULE 2 – Pluto Platform Marketing Program</B></td>
+		<tr class="insidetable2">
+			<td class="title" align="center"><B>SCHEDULE 2 – Pluto Platform Marketing Program</B></td>
 		</tr>
 		<tr>
-		  <td width="100%" class="insidetable" align="left">
+		  <td width="100%" class="insidetable2" align="left">
 		'.$leftMenu.'		
 		
 			<p>The Pluto Platform Marketing Program provides marketing support to Dealers on a case-by-case basis and at the sole discretion of Pluto Home. 
@@ -163,13 +144,14 @@
 		
 		break;
 		case 3:
+			$output->setNavigationMenu(array('Get Pluto'=>'index.php?section=get_pluto','I\'m a dealer'=>'index.php?section=dealer','Dealer Program'=>'index.php?section=dealerProgram','Schedule 3'=>'index.php?section=schedule&sch=3'));
 		$out='
 		<table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable">
-		<tr>
-			<td class="titletable" align="center"><B>SCHEDULE 3 - Dealer Support Services Roles & Responsibilities – <I>Pluto Pro Only</I></B></td>
+		<tr class="insidetable2">
+			<td class="title" align="center"><B>SCHEDULE 3 - Dealer Support Services Roles & Responsibilities – <I>Pluto Pro Only</I></B></td>
 		</tr>
 		<tr>
-		  <td width="100%" class="insidetable" align="left">
+		  <td width="100%" class="insidetable2" align="left">
 			'.$leftMenu.'		
 			<p>The Pluto Platform Marketing Program provides marketing support to Dealers on a case-by-case basis and at the sole discretion of Pluto Home. 
 			<p><B>Support Roles and Responsibilities</B>
@@ -205,14 +187,8 @@
 		break;
 		
 	}
-
+	$output->setPressedButton(5);
 	$output->setTitle(APPLICATION_NAME."::Dealer Program Guidelines");			//page title
-
-
-
-	//don't touch them
-	$output->setScriptCalendar('null');
-	$output->setScriptTRColor('null');
 	$output->setBody($out);
 	$output->output();
  }

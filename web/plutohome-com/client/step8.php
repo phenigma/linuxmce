@@ -242,7 +242,6 @@ if($action=='form'){
 			window.open(locationA,\'\',attributes);
 		}
 	</script>
-	<br>
 	<form action="index.php" method="POST" name="wizard">
 	<input type="hidden" name="section" value="wizard">
 	<input type="hidden" name="step" value="'.$step.'">

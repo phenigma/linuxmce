@@ -24,21 +24,20 @@ if($action=='form'){
 		unset($_SESSION['deviceID']);
 	}
 	// display form
-	$out = '<br>
-		   <form action="index.php" method="POST" name="wizard">
+	$out = '<form action="index.php" method="POST" name="wizard">
 			<input type="hidden" name="section" value="wizard">
 			<input type="hidden" name="step" value="'.$step.'">
 			<input type="hidden" name="action" value="add">	
 	      		<table align="center">
 					<tr>
-						<td align="left" class="normaltext"><img src="images/install_wizard.gif"></td>
-	      				<td align="right" class="normaltext"><a href="#" onClick="javascript:document.wizard.submit();">Next &gt;&gt;</a></td>
+						<td align="left" class="insidetable"><img src="images/titles/installation_wizzard.gif"></td>
+	      				<td align="right" class="insidetable"><a href="#" onClick="javascript:document.wizard.submit();">Next &gt;&gt;</a></td>
 	      			</tr>
 	      			<tr>
 	      				<td align="center" colspan="2" bgcolor="#DADDE4"><b>Step 1 of 8: Whole house solution or stand-alone pc</b></td>
 	      			</tr>
 					<tr>
-						<td colspan="2" align="left" class="insidetable"><p>Before proceeding you may want to read about <a href="http://plutohome.com/support/index.php?section=document&docID=177">recommended hardware</a>.</p>
+						<td colspan="2" align="left" class="insidetable2"><p>Before proceeding you may want to read about <a href="http://plutohome.com/support/index.php?section=document&docID=177">recommended hardware</a>.</p>
 						<p>A Pluto whole-house solution consists of 1 computer that becomes the server--we call it the Core.  The Core is the "brains" which coordinates all the activities in the house.  It also stores all your media.</p>
 
 						<p>At each TV where you want to watch media stored on the Core you need another computer, which we call a media director, to hook up to the TV.  The media director is also used as a general purpose PC for computing.  All the media directors in the house connect to the Core over the network.  There are also low-cost audio directors (under $200) that you can add in any room where you only want music.</p>
@@ -63,11 +62,11 @@ if($action=='form'){
 	      			<tr>
 	      				<td align="left" colspan="2" class="normaltext" style="padding-left: 20px;padding-right: 20px;"><input type="radio" name="sollutionType" value="3" '.((@$_SESSION['sollutionType']==3)?'checked':'').'>  
 	      				I just want to install Pluto software on a stand-alone PC. I don\'t have other pc\'s that I want to be media directors.  You can still use this pc to control your home automation sub-systems 
-	      				(lighting, climate, etc.) and a/v equipment, and it works with both tablet and mobile phone Orbiters.  Also it can stream music to other rooms using audio directors, 
+	      				(lighting, climate, etc.) and A/V equipment, and it works with both tablet and mobile phone Orbiters.  Also it can stream music to other rooms using audio directors, 
 	      				but you will not be distributing movies and tv to other rooms, since that would require media directors in those rooms.</td>
 	      			</tr>	
 					<tr>
-						<td colspan="2" align="center" class="insidetable"><input type="submit" name="continue" value="Next"></td>
+						<td colspan="2" align="center" class="insidetable2"><input type="submit" name="continue" value="Next"></td>
 					</tr>				
 	      		</table>
 			</form>

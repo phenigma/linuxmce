@@ -12,35 +12,33 @@ function register($output,$conn){
 	
   	$out.='
 
-<table width="100%" border="0" align="right" cellpadding="0" cellspacing="0" class="maintable">
-  <tr>
-    <td width="5%"></td>
-    <td width="100%" rowspan="2" valign="top" align="left">
    <form action="index.php?section=register" method="POST" name="register">	
-  <br><center><b>Register</b></center><br>	
-<table cellspacing="0" cellpadding="3" align="center"  class="insidetable">
+<table cellspacing="0" cellpadding="3" align="center"  class="insidetable2">
+     		<tr>
+				<td align="left" colspan="3" class="insidetable"><img src="images/titles/register.gif" border="0"> <span class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</span></td>
+			</tr>
 			<tr>
-				<td align="right">E-mail</td>
+				<td align="right"><B>E-mail</B> </td>
 				<td><input type="text" name="email" value="" /></td>
 				<td class="formextrainfo">Your email address is not verified.  However we would prefer a valid email address--we never share it, our database is secure, and we don\'t send newsletters unless you subscribe.</td>
 			</tr>
 			<tr>
-				<td align="right">Username</td>
+				<td align="right"><B>Username</B> </td>
 				<td><input type="text" name="username" value="" /></td>
 				<td class="formextrainfo">If you get a PlutoHome system, this will also be your username for messaging, VOIP and video phone calls<br/></td>
 			</tr>
 			<tr>
-				<td align="right">Referrer</td>
+				<td align="right"><B>Referrer</B> </td>
 				<td><input type="text" name="referrer" value="'.$referrer.'" /></td>
 				<td class="formextrainfo">Type the username of the person who let you know about Pluto.  We offer generous bonuses and rewards to those who refer both retail and open source users, as well as dealers and manufacturers.</td>
 			</tr>
   			<tr>
-				<td align="right">Password</td>
+				<td align="right"><B>Password</B> </td>
 				<td><input type="password" name="password" /></td>
 				<td class="formextrainfo">&nbsp;</td>
 			</tr>
 			<tr>
-				<td align="right">Confirm</td>
+				<td align="right"><B>Confirm</B> </td>
 				<td><input type="password" name="password2" /></td>
 				<td class="formextrainfo">Please confirm the password</td>
 			</tr>
@@ -48,7 +46,7 @@ function register($output,$conn){
 				<td colspan="3" align="center"><input type="submit" name="register" value="Sign up" onsubmit="validateEmail(this);"/></th>
 			</tr>
          <tr>
-         <td colspan="3" align="center"><a href="index.php?section=clientLoginForm">I am an Existing User</a></td>
+         <td colspan="3" align="center"><a href="index.php?section=login">I am an Existing User</a></td>
        </tr>
 		</table>
 		
@@ -122,12 +120,8 @@ function register($output,$conn){
   		}
   	}
 
-  	$out.='</td>
-	  </tr>
-	  </table>';
-  	$output->setScriptCalendar('null');
-  	$output->setScriptTRColor('null');
-  	$output->setBody($out);
+	$output->setNavigationMenu(array("Register"=>"index.php?section=register"));  	
+	$output->setBody($out);
   	$output->setTitle(APPLICATION_NAME."::Register");
   	$output->output();
 }

@@ -864,5 +864,4 @@ function addScenariosToRoom($roomID, $installationID, $dbADO)
 	}
 	$dbADO->Execute($insertCG_Room,array($sosCG,$roomID,$sosCG));
 }
-
 ?>

@@ -2,43 +2,43 @@
 function contactForm($section,$conn)
 {
 $out='
-<table height="285" class="insidetable">
+<table height="285" class="insidetable2">
   <form action="index.php" method="POST">
   <input type="hidden" name="section" value="'.$section.'">
 	<tr>
 		<td height="22">Name:</td>
-		<td height="22"><input type="text" name="Name" size="25"></td>
+		<td height="22"><input type="text" class="textfield" name="Name" size="25"></td>
       <td height="22">Phone:</td>
-		<td height="22"><input type="text" name="Phone" size="25"></td>
+		<td height="22"><input type="text" class="textfield" name="Phone" size="25"></td>
 	</tr>
 	<tr>
 		<td height="22">Address:</td>
-		<td height="22"><input type="text" name="Address1" size="25"></td>
+		<td height="22"><input type="text" class="textfield" name="Address1" size="25"></td>
 		<td height="22">Email:</td>
-		<td height="22"><input type="text" name="Email" size="25"></td>
+		<td height="22"><input type="text" class="textfield" name="Email" size="25"></td>
     </tr>
 	<tr>
 		<td height="22"></td>
-		<td height="22"><input type="text" name="Address2" size="25"></td>
+		<td height="22"><input type="text" class="textfield" name="Address2" size="25"></td>
 		<td height="22">Fax:</td>
-		<td height="22"><input type="text" name="Fax" size="25"></td>
+		<td height="22"><input type="text" class="textfield" name="Fax" size="25"></td>
 	</tr>
 	<tr>
 		<td height="22">City:</td>
-		<td height="22"><input type="text" name="City" size="25"></td>
+		<td height="22"><input type="text" class="textfield" name="City" size="25"></td>
       <td height="22">Website:</td>
-		<td height="22"><input type="text" name="Website" size="25"></td>
+		<td height="22"><input type="text" class="textfield" name="Website" size="25"></td>
 	</tr>
 	<tr>
 		<td>State:</td>
-		<td><input type="text" name="State" size="10"> Zip: <input type="text" name="Postal_Code" size="10"></td>
+		<td><input type="text" class="textfield" name="State" size="10"> Zip: <input type="text" class="textfield" name="Postal_Code" size="10"></td>
 		<td>Interest:</td>
 		<td>
   			<select size="1" name="FKID_LeadType">
   <option value="5" selected>(select one)</option>';
         include("include/config/contactdatabase.inc.php");
         $sql1="select PKID_LeadType,Description from LeadType";
-        $r1=mysql_query($sql1,$conn);
+        $r1=mysql_query($sql1,$connLeads);
         while($row=mysql_fetch_object($r1))
           {
   				
@@ -49,8 +49,8 @@ $out='
 	</tr>
 	<tr>
 		<td height="22">Country:</td>
-		<td height="22"><input type="text" name="Country" size="25"></td>
-		<td colspan="2"><input type="submit" name="send" value="send message via secure site"></td>
+		<td height="22"><input type="text" class="textfield" name="Country" size="25"></td>
+		<td colspan="2"><input type="image" name="send" src="images/buttons/buton_send_message.gif"></td>
 	</tr>
 	<tr>
 		<td height="19">Your message:</td>
@@ -61,7 +61,7 @@ $out='
 		</td>
 	</tr>
 </table>
-</form></td></table>'; 
+</form>'; 
 	if(isset($_POST['send'])){
     
 		$leadTypeDescr=explode('-',$_POST['FKID_LeadType']);
@@ -73,7 +73,7 @@ $out='
 	  		INSERT INTO Lead
 	  			(Name,CustomerID,Address1,Address2,City,State,Postal_Code,Country,Phone,Fax,Email,website,FKID_LeadType,Comments)
 	  	 	VALUES('".$_POST['Name']."','".@$_POST['CustomerID']."','".$_POST['Address1']."','".$_POST['Address2']."','".$_POST['City']."','".$_POST['State']."','".$_POST['Postal_Code']."','".$_POST['Country']."','".$_POST['Phone']."','".$_POST['Fax']."','".$_POST['Email']."','".$_POST['Website']."','".$leadType."','".$_POST['Comments']."')";
-		$r=mysql_query($sql,$conn) or die("Can not insert into database". mysql_error());
+		$r=mysql_query($sql,$connLeads) or die("Can not insert into database". mysql_error());
 	  	
 		$message='
 	  		Name: <B>'.$_POST['Name'].'</B><br>
@@ -108,11 +108,11 @@ $out='
 	  	
 		$out='';
 	  	$out.='
-	  		<table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable">
+	  		<table width="100%" border="0" cellpadding="0" cellspacing="0" class="insidetable2">
 	  			<tr>
 	  				<td width="20" height="200"></td>
 	  				<td><br><p> 
-	  			Your message was sent through our secure server.<br>
+	  			<B>Your message was sent through our secure server.</B><br>
 	  		<a href="index.php">Click here</a> to go back to home page. </p>
 	  				</td>
 	  			</tr>

@@ -2,7 +2,7 @@
 if($action=='form'){
 	$PK_Installation=(isset($_REQUEST['instid']))?(int)$_REQUEST['instid']:$installationID;
 	// display form
-	$out = '<br>
+	$out = '
 		<script>
 		function enableDistro()
 		{
@@ -35,14 +35,14 @@ if($action=='form'){
 			<input type="hidden" name="action" value="add">	
 	      		<table align="center">
 					<tr>
-						<td align="left" class="normaltext"><img src="images/install_wizard.gif"></td>
-	      				<td align="right" class="normaltext"><a href="index.php?section=wizard&step=1">&lt;&lt; Previous</a> <a href="#" onClick="javascript:document.wizard.submit();">Next &gt;&gt;</a></td>
+						<td align="left" class="insidetable"><img src="images/titles/installation_wizzard.gif"></td>
+	      				<td align="right" class="insidetable"><a href="index.php?section=wizard&step=1">&lt;&lt; Previous</a> <a href="#" onClick="javascript:document.wizard.submit();">Next &gt;&gt;</a></td>
 	      			</tr>
 	      			<tr>
 	      				<td align="center" colspan="2" bgcolor="#DADDE4"><b>Step 2 of 8: Dedicated or non-dedicated</b></td>
 	      			</tr>
 					<tr>
-						<td colspan="2" align="left" class="insidetable">';
+						<td colspan="2" align="left" class="insidetable2">';
 	switch(@$_SESSION['sollutionType']){
 		case 1:
 		case 2:
@@ -101,7 +101,7 @@ if($action=='form'){
 						</td>
 					</tr>
 					<tr>
-						<td colspan="2" align="left" class="insidetable">
+						<td colspan="2" align="left" class="insidetable2">
 							<p><input type="radio" name="dedicated" value="1" '.((@$_SESSION['dedicated']==1)?'checked':((!isset($_SESSION['dedicated']))?'checked':'')).' onClick="enableDistro();"> 
 							Yes, I want a dedicated '.$_SESSION['coreName'].'.  I have an extra PC so I will use the Kick-start CD and let it clean out the hard drive.  <b>Recommended</b>
 							<p><input type="radio" name="dedicated" value="2" '.((@$_SESSION['dedicated']==2)?'checked':'').' onClick="enableDistro();"> I don\'t want a dedicated '.$_SESSION['coreName'].'.  Install the software on my existing <b>Windows PC</b>.  You can still use the Orbiter and Mobile Orbiter software, but most of Pluto\'s advanced functionality will not be available, including network boot and streaming video.  
@@ -111,7 +111,7 @@ if($action=='form'){
 						</td>
 					</tr>	
 					<tr>
-						<td colspan="2" align="center" class="insidetable"><input type="submit" name="continue" value="Next"></td>
+						<td colspan="2" align="center" class="insidetable2"><input type="submit" name="continue" value="Next"></td>
 					</tr>				
 	      		</table>
 			</form>

@@ -4,8 +4,8 @@
 $out .= '
 <table align="center" width="100%" border="0">
 	<tr>
-		<td align="left" class="normaltext"><img src="images/install_wizard.gif"></td>
-		<td align="right" class="normaltext"><a href="index.php?section=wizard&step=7">&lt;&lt; Previous</a></td>
+		<td align="left" class="insidetable"><img src="images/titles/installation_wizzard.gif"></td>
+		<td align="right" class="insidetable"><a href="index.php?section=wizard&step=7">&lt;&lt; Previous</a></td>
 	</tr>
 	<tr>
 		<td align="center" colspan="2" bgcolor="#DADDE4"><b>Step 8 of 8: Download</b></td>

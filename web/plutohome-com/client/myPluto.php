@@ -1,4 +1,8 @@
 <?
+if(!isset($_SESSION['userIsLogged'])){
+	header('Location: index.php?section=login');
+	exit();
+}
 function myPluto($output,$dbADO,$conn) {
 	global $forumHost,$MantisHost;
 	/* @var $dbADO ADOConnection */
@@ -54,17 +58,22 @@ function myPluto($output,$dbADO,$conn) {
 
 
 		
-	$out = '<br>
+	$out = '
       		<table width="100%">
 	      		<tr>
-      				<td align="left" width="33%" class="normaltext"><img src="images/my_pluto.gif" border="0"><br>You are logged in as <b>'.$_SESSION['username'].'</b></td>
-      				<td align="center" width="33%" class="normaltext"></td>
-      				<td align="right" width="34%" class="normaltext"><a href="index.php?section=myPluto&redirect=forum"><img src="images/forum.gif" border="0"></a>'. /*<a href="index.php?section=myPluto&redirect=mantis"><img src="images/mantis.gif" border="0"></a>*/'&nbsp;&nbsp;&nbsp;&nbsp;<a href="support/index.php"><img src="images/support.gif" border="0"></a></td>
+      				<td align="left" colspan="2" class="insidetable"><img src="images/titles/my_pluto.gif" border="0"></td>
+				</tr>
+				<tr>
+					<td class="normaltext">You are logged in as <b>'.$_SESSION['username'].'</b></td>
+					<td class="normaltext" align="right"><img src="images/bullet_1.gif" width="11" height="11" align="absmiddle" /> <strong><a href="index.php?section=myPluto&redirect=forum">Forum </a></strong>  <img src="images/bullet_1.gif" width="11" height="11" align="middle" /> <strong><a href="support/index.php">Support site</a></strong>&nbsp;</td>
       			</tr>
+				<tr>
+					<td class="normaltext">&nbsp;</td>
+					<td class="normaltext" align="right">&nbsp;</td>
+      			</tr>	
       			<tr bgcolor="#DADDE4">
       				<td align="center" width="33%" class="normaltext"><b>Installations</b></td>
       				<td align="center" width="33%" class="normaltext"><b>Referrals</b></td>
-      				<td align="center" width="34%" class="normaltext"><b>'.((@$isDealer==1)?'Dealer’s corner':'Developer\'s corner').'</b></td>
       			</tr>
       	      	<tr>
       				<td align="left" valign="top" class="normaltext">'.$installationsText.'<br>					
@@ -78,26 +87,30 @@ function myPluto($output,$dbADO,$conn) {
 							</tr>
 						</table>
 					</td>
-      				<td align="left" valign="top" class="normaltext">'.((@$isDealer==1)?'<a href="index.php?section=updateProfile"><B>Update profile</B></a><br>
-					<a href="index.php?section=requestInstallationAssistance"><B>Request Installation Assistance</B></a><br>':'Pluto 2 has been written from the ground up to be a very comfortable development platform for open source programmers.<br><br>
-      				We have developed class generators that will build a fully complete, ready-to-compile <a href="support/index.php?section=document&docID=51">DCE Devices</a> in minutes.
-	     			They\'re standard C++, run on both Linux & Windows, ready talk to any other DCE Device on any platform.  See our <a href="http://plutohome.com/support/index.php?section=document&docID=15">Programmer\'s guide</a> for a quick intro.<br><br>').'
-					
-      				</td>
       			</tr>
 	      		<tr>
       				<td align="center" width="33%" class="normaltext" colspan="3">&nbsp;</td>
       			</tr>	
 	      		<tr bgcolor="#DADDE4">
+					<td align="center" width="34%" class="normaltext"><b>'.((@$isDealer==1)?'Dealer’s corner':'Developer\'s corner').'</b></td>
       				<td align="center" width="33%" class="normaltext"><b>Status</b></td>
-      				<td align="center" width="33%" class="normaltext"><b>Support Site</b></td>
-      				<td align="center" width="34%" class="normaltext"><b>Tools for developers</b></td>
       			</tr>
 	      		<tr>
+      				<td align="left" valign="top" class="normaltext">'.((@$isDealer==1)?'<a href="index.php?section=updateProfile"><B>Update profile</B></a><br>
+					<a href="index.php?section=requestInstallationAssistance"><B>Request Installation Assistance</B></a><br>':'Pluto 2 has been written from the ground up to be a very comfortable development platform for open source programmers.<br><br>
+      				We have developed class generators that will build a fully complete, ready-to-compile <a href="support/index.php?section=document&docID=51">DCE Devices</a> in minutes.
+	     			They\'re standard C++, run on both Linux & Windows, ready talk to any other DCE Device on any platform.  See our <a href="http://plutohome.com/support/index.php?section=document&docID=15">Programmer\'s guide</a> for a quick intro.<br><br>').'
+      				</td>
       				<td align="left" width="33%" class="normaltext" valign="top">
       				Pluto has made available a preview release of the new Pluto.  This is targeted mainly for developers, since it is not yet ready for end users.
       				Click "New Installation" above to get a Kick-Start CD, or download the installer.
       				</td>
+      			</tr>
+				<tr bgcolor="#DADDE4">
+      				<td align="center" width="33%" class="normaltext"><b>Support Site</b></td>
+      				<td align="center" width="34%" class="normaltext"><b>Tools for developers</b></td>
+				</tr>
+				<tr>
       				<td align="left" width="33%" class="normaltext"  valign="top">
       				With the launch of this preview version, Pluto has put up it\'s new support web site at <a href="http://plutohome.com/support/index.php?section=home">www.plutohome.com/support</a>.<br><br>
       				There is online documentation, support forums, bug tracking and mailing lists.  Plus we have a live chat system so you can talk directly to one of our tech support team, or a developer.
@@ -110,19 +123,18 @@ function myPluto($output,$dbADO,$conn) {
       				<a href="http://plutohome.com/support/index.php?section=document&docID=109">sql2cpp</a> class generator,
       				<a href="http://plutohome.com/support/index.php?section=document&docID=41">Request/Action</a> client-server library</a>, 
       				<a href="http://plutohome.com/support/index.php?section=document&docID=39">Bi-Directional communications library</a>.  They\'re all GPL.<br><br>
-      				
-      				</td>
-      			</tr>
+        			</td>
+				</tr>
       		</table>
       	';
 
 
-	$output->setNavigationMenu(array("Client home"=>"index.php?section=userHome"));
+	$output->setNavigationMenu(array("MyPluto"=>"index.php?section=myPluto"));
 
 	$output->setScriptCalendar('null');
 	$output->setScriptTRColor('null');
 	$output->setBody($out);
-	$output->setTitle(APPLICATION_NAME."::Client");
+	$output->setTitle(APPLICATION_NAME."::My Pluto");
 	$output->output();
 }
 ?>

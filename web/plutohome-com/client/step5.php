@@ -138,15 +138,15 @@ if($action=='form'){
 		$filterRestrictions=($rowRestrictions['FK_Distro']!='')?" AND PK_Distro='".$rowRestrictions['FK_Distro']."'":$filterRestrictions;
 	}
 
-	$out .= '<br>
+	$out .= '
 				   <form action="index.php" method="POST" name="wizard">
 					<input type="hidden" name="section" value="wizard">
 					<input type="hidden" name="step" value="'.$step.'">
 					<input type="hidden" name="action" value="'.((isset($_SESSION['deviceID']))?'update':'addDevice').'">	
 			      		<table align="left" border="0" width="100%">
 							 <tr>
-								<td align="left" class="normaltext"><img src="images/install_wizard.gif"></td>
-								<td align="right" class="normaltext"><a href="index.php?section=wizard&step=4">&lt;&lt; Previous</a> '.((isset($_SESSION['deviceID']))?'<a href="#" onClick="javascript:document.wizard.submit();">Next &gt;&gt;</a>':'').'</td>
+								<td align="left" class="insidetable"><img src="images/titles/installation_wizzard.gif"></td>
+								<td align="right" class="insidetable"><a href="index.php?section=wizard&step=4">&lt;&lt; Previous</a> '.((isset($_SESSION['deviceID']))?'<a href="#" onClick="javascript:document.wizard.submit();">Next &gt;&gt;</a>':'').'</td>
 							</tr>				
 							<tr>
 								<td colspan="2" align="center" bgcolor="#DADDE4"><B>Step 5 of 8: Pluto Core</B></td>

@@ -1,120 +1,80 @@
 <?php
- function newsPresentation($output,$conn) {
- 		
+function newsPresentation($output,$conn) {
+
+	$sql="SELECT newsID,newsTitle,newsContent,UNIX_TIMESTAMP(newsDate) AS timestamp FROM News WHERE markedDeleted!=1 ORDER BY newsDate DESC";
+	$r=mysql_query($sql,$conn) or die("Can not grab from database" .mysql_error());
+	$id=array();
+	$title=array();
+	$text=array();
+	while($row=mysql_fetch_object($r)){
+		$id[]=$row->newsID;
+		$title[]=date('d.m.Y',$row->timestamp).'<br>'.$row->newsTitle;
+		$text[]=$row->newsContent;
+	}
+	$from=(isset($_GET['page']))?((int)$_GET['page']-1):0;
+	$itemsPerPage=5;
+	$pages=ceil(mysql_num_rows($r)/$itemsPerPage);
+	
+	$out='
+<table width="100%"  border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td align="center" class="insidetable"><table width="563"  border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <td align="left"><img src="images/titles/pluto_news.gif"></td>
+      </tr>
+    </table></td>
+  </tr>
+  <tr>
+    <td valign="top" class="insidetable2"><table>';
+	for($i=$from*$itemsPerPage;$i<$from+$itemsPerPage;$i++){
+		if(isset($id[$i])){
+			preg_match("/^(.*)\n/i",$text[$i],$matches);
 		
- 		$out='<table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable"><td  valign="top" align="center" >
-     <table border="0" align="left" cellpadding="0" cellspacing="0">
-     <tr>
-    <td class="titletable"><img src="images/submenus/company_txt.gif" width="66" height="13"></td>
-    </tr>
-       </table></td>
-      <tr><td  valign="top" align="center" class="insidetable">
-     <table border="0" align="left" cellpadding="0" cellspacing="0">
-      <tr>
-        <td width="139"><a href="index.php?section=company"><img src="images/submenus/Company/company_overview_off.gif" width="139" height="17" border="0"></a></td>
-        <td width="20">&nbsp;</td>
-      </tr>
-      <tr>
-        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
-        </tr>
-      <tr>
-        <td><a href="index.php?section=contact"><img src="images/submenus/Company/contact_off.gif" width="139" height="17" border="0"></a></td>
-        <td width="20">&nbsp;</td>
-      </tr>
-      <tr>
-        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
-        </tr>
-      <tr>
-        <td><a href="index.php?section=newsPresentation"><img src="images/submenus/Company/news_on.gif" width="139" height="17" border="0"></a></td>
-        <td width="20">&nbsp;</td>
-      </tr>
-      <tr>
-        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
-        </tr>
-      <tr>
-        <td><a href="index.php?section=privacy_policy"><img src="images/submenus/Company/privacy_policy_off.gif" width="139" height="17" border="0"></a></td>
-        <td width="20">&nbsp;</td>
-      </tr>
-      <tr>
-        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
-        </tr>
-      <tr>
-        <td><a href="index.php?section=site_map"><img src="images/submenus/Company/site_map_off.gif" width="139" height="17" border="0"></a></td>
-        <td width="20">&nbsp;</td>
-      </tr>
-      <tr>
-        <td>&nbsp;</td>
-        <td>&nbsp;</td>
-      </tr>
-    </table>
-       </tr>
-      </td><td width="100%" class="insidetable"><table width="95%" class="newstable"> <tr>
-    <br><img src="images/submenus/news_txt.gif" width="40" height="13">
-  </tr>';
-      $sql="select * from News where markedDeleted!=1 order by newsDate desc";
-   $r=mysql_query($sql,$conn) or die("Can not grab from database" .mysql_error());
-   $nr_news=5;
-   $l=0;
-   while($row=mysql_fetch_object($r))
-  {  
-     $id[$l]=$row->newsID;
-     $title[$l]=$row->newsTitle;
-     $text[$l]=$row->newsContent;
-     $str[$l]=substr($text[$l],0,390);
-     $take=substr($text[$l],390,400);
-     $t=explode(" ",$take);
-     $str[$l]=$str[$l].$t[0];
-     $date[$l]=substr($row->newsDate,0,10);
-     $l++;
-  }
-  //$out.=$l;
-  $max_page=($l/$nr_news)+1;
-  //$out.='<br>'.$max_page;
-  if($l>$nr_news&& $l!=0 && !isset($_GET['page'])) 
-      {
-      
-       for($i=0;$i<$nr_news;$i++){
-         $out.='
-         	<tr>
-         		<td><a href="index.php?section=full_story&id='.$id[$i].'" class="newstitle">'.$date[$i].' - <b>'.$title[$i].'</a></b><br>'.$str[$i].'...</td></tr><br>';
-       }
-           $out.='<tr><td align="center" valign="bottom"> 1 ';
-           for($i=2;$i<=$max_page;$i++) $out.='<a href="index.php?section=newsPresentation&page='.$i.'&l='.$l.'"> ' .$i. ' </a>';
-           $out.='</td></tr>';
-      }
- if($l<=$nr_news && !isset($_GET['page'])){
-    for($i=0;$i<$l;$i++){
-         $out.='<tr><a href="index.php?section=full_story&id='.$id[$i].'" class="newstitle">'.$date[$i].' - <b>'.$title[$i].'</a></b><br>'.$str[$i].'...</tr><br>';
-    }
+			$firstParagraph='';
+			if(isset($matches[0])){
+				$firstParagraph=$matches[0];
+			}			
+		$out.='
+		<tr>
+			<td width="15"><img src="images/bullet_1.gif" width="11" height="11" align="absmiddle" /></td>
+			<td class="title2"><b>'.$title[$i].'</b><br /></td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td>'.(($firstParagraph!='')?$firstParagraph.'<br><a href="index.php?section=full_story&id='.$id[$i].'">More details</a>':nl2br($text[$i])).'</td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>	
+		';
+		}
+	}
+	if($pages>1){
+		$pageLinks=array();
+		for($i=0;$i<$pages;$i++){
+			$pageLinks[]=($i==$from)?($i+1):'<a href="index.php?section=newsPresentation&page='.($i+1).'">'.($i+1).'</a>';
+		}
+		$out.='
+		<tr>
+			<td colspan="2" class="insidetable">&nbsp;</td>
+		</tr>	
+		<tr>
+			<td>&nbsp;</td>
+			<td>'.join(' | ',$pageLinks).'</td>
+		</tr>		
+';
+	}
+	$out.='
+	</table>
+    </td>
+  </tr>
+</table>	
+';
+
+	$output->setNavigationMenu(array("News"=>"index.php?section=newsPresentation"));
+	$output->setBody($out);
+	$output->setTitle(APPLICATION_NAME."::News");
+	$output->output();
 }
-    if(isset($_GET['page']))
-  {   
-      $j=$_GET['page'];
-      $l=$_GET['l'];
-      $nr=$nr_news*$j;
-      $max_page=($l/$nr_news)+1;
-     // $out='';
-     // $out.='<table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable"><td width="20"></td><td class="insidetable">';
-      for($i=$nr_news*($j-1);$i<min($nr,$l);$i++) 
-      {
-        $out.='<tr><a href="index.php?section=full_story&id='.$id[$i].'" class="newstitle">'.$date[$i].' - <b>'.$title[$i].'</a></b><br>'.$str[$i].'...</tr><br>';
-      }
-       $out.='<tr><td align="center">';
-           for($i=1;$i<$j;$i++) $out.='<a href="index.php?section=newsPresentation&page='.$i.'&l='.$l.'"> ' .$i. ' </a>';
-           $out.=$j;
-           for($i=$j+1;$i<$max_page;$i++) $out.='<a href="index.php?section=newsPresentation&page='.$i.'&l='.$l.'"> ' .$i. ' </a>';
-           $out.='</td></tr>';
-  }
-  $out.='</table></td></table>';
- 		
- 		$output->setNavigationMenu(array("News"=>"index.php?section=newsPresentation"));
- 		
-		$output->setImgName('img.jpg');
-        $output->setPageID(6);
-		$output->setScriptCalendar('null');
-		$output->setScriptTRColor('null');		
-		$output->setBody($out);
-		$output->setTitle(APPLICATION_NAME."::News");			
-  		$output->output(); 
- }
 ?>

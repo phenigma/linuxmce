@@ -3,45 +3,24 @@
 		$out = '';
 		
 $out.='
-<table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable">
-<tr>
-	<td class="titletable" align="center"><B>Pluto Home Pluto Authorized Dealer Program Guidelines</B></td>
+<table width="100%"  border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td align="center" class="insidetable"><table width="563"  border="0" cellpadding="0" cellspacing="0">
+      <tr>
+        <td align="left"><img src="images/titles/dealer.gif"></td>
+      </tr>
+    </table></td>
+  </tr>
+<tr class="insidetable2">
+	<td class="title" align="center"><B>Pluto Home Pluto Authorized Dealer Program Guidelines</B></td>
 </tr>
 <tr>
-  <td width="100%" class="insidetable" align="left">
+  <td width="100%" class="insidetable2" align="left">
 	<div style="position:relative; top=0px; float:left; width=250px;">
-	<table width="230" border="0" cellpadding="0" cellspacing="0">
-		<tr>
-	    	<td valign="top" class="normaltext"><a href="index.php?section=dealerProgram">Overview</a></td>
-	  	</tr>
-		<tr>
-	    	<td valign="top" class="normaltext"><a href="index.php?section=programGuidelines">Program Guidelines</a></td>
-	  	</tr>
-		<tr>
-	    	<td valign="top" class="normaltext"><a href="index.php?section=schedule&sch=1">Schedule 1</a></td>
-	  	</tr>
-		<tr>
-	    	<td valign="top" class="normaltext"><a href="index.php?section=schedule&sch=2">Schedule 2</a></td>
-	  	</tr>
-		<tr>
-	    	<td valign="top" class="normaltext"><a href="index.php?section=schedule&sch=3">Schedule 3</a></td>
-	  	</tr>
-		<tr>
-	    	<td valign="top" class="normaltext"><a href="index.php?section=fundRequestApplication">Funds Request Form</a></td>
-	  	</tr>
-		<tr>
-	    	<td valign="top" class="normaltext"><a href="index.php?section=reimbursementClaimForm">Reimbursement Claim Form</a></td>
-	  	</tr>
-		<tr>
-	    	<td valign="top" class="normaltext"><a href="index.php?section=dealerTerms">Terms and conditions</a></td>
-	  	</tr>
-		<tr>
-	    	<td valign="top" class="normaltext"><a href="index.php?section=dealerApplication">Application form</a></td>
-	  	</tr>
-	    <tr>
-	        <td class="normaltext" height="10">&nbsp;</td>
-	    </tr>
-	</table>
+	';
+		include('dealer/dealerMenu.php');
+		$out.=dealerMenu();
+		$out.='
 	</div>
 
 The requirements and benefits associated with the Pluto Home Pluto Authorized Dealer Program Guidelines (the “Guidelines”) are detailed herein. Pluto Home has the right to change, modify or discontinue these Guidelines in whole or in part at any time without notice. These Guidelines include Schedules 1-3 attached hereto, and are subject to the Pluto Home Pluto Authorized Dealer Program Terms (<a href="index.php?section=dealerTerms">the “Terms”</a>).
@@ -59,14 +38,9 @@ These Guidelines include the following Schedules, each of which is incorporated 
 
      
 ';
-
-	$output->setTitle(APPLICATION_NAME."::Dealer Program Guidelines");			//page title
-
-
-
-	//don't touch them
-	$output->setScriptCalendar('null');
-	$output->setScriptTRColor('null');
+	$output->setPressedButton(5);
+	$output->setNavigationMenu(array('Get Pluto'=>'index.php?section=get_pluto','I\'m a dealer'=>'index.php?section=dealer','Dealer Program'=>'index.php?section=dealerProgram','Program Guidelines'=>'index.php?section=programGuidelines'));
+	$output->setTitle(APPLICATION_NAME." :: Dealer Program Guidelines");			
 	$output->setBody($out);
 	$output->output();
  }

@@ -8,20 +8,23 @@ function search($output,$dbADO,$conn){
 	$out='
 	<table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable">
 		<tr>
-			<td class="insidetable">';
+			<td align="left" class="insidetable"><img src="images/titles/search.gif"></td>
+		</tr>	
+		<tr>
+			<td class="insidetable2">';
 	$rs=$dbADO->Execute('SELECT * FROM Document WHERE Title LIKE ? OR Contents LIKE ?',array('%'.$searchString.'%','%'.$searchString.'%'));
 	$docsFound=$rs->RecordCount();
 	$out.='
 		<table>
 		<tr>
-			<td colspan="2"><h3>Searching for: '.$searchString.'</h3></td>
+			<td colspan="2"><span class="title">Searching for: '.$searchString.'</span></td>
 		</tr>	
 		<tr>
-			<td colspan="2"><h4>Results found in DOCUMENTS: '.$docsFound.'</h4></td>
+			<td colspan="2"><span class="title">Results found in DOCUMENTS: '.$docsFound.'</span></td>
 		</tr>
 		<tr>
 			<td width="20"></td>
-			<td class="insidetable">';
+			<td class="insidetable2">';
 	// search in documents
 	$pos=0;
 	while($rowDocs=$rs->FetchRow()){
@@ -36,11 +39,11 @@ function search($output,$dbADO,$conn){
 	if($docsFound>5){
 		$out.='
 		<tr>
-			<td colspan="2"><div align="center" style="background:#CCCCCC;"><a href="index.php?section=searchDocs&searchString='.$searchString.'"><B>More results in documents ...</B></a></div>
+			<td colspan="2"><div align="left"><a href="index.php?section=searchDocs&searchString='.$searchString.'">More results in documents ...</a></div>
 			</td>
 		</tr>';
 	}
-
+/*
 	// search in Web pages content
 	$sql="SELECT PageContentID,PageContenttext,PageName FROM PageContent WHERE PageContenttext LIKE '%".$searchString."%'";
   	$resPages=mysql_query($sql,$conn) or die("Can not grab from database"  .mysql_error());
@@ -70,7 +73,7 @@ function search($output,$dbADO,$conn){
 			<td colspan="2"><div align="center" style="background:#CCCCCC;"><a href="index.php?section=searchWeb&searchString='.$searchString.'"><B>More Results in website ...</B></a></div></td>
 		</tr>';
 	}
-
+*/
 	// search in phpbb
 	global $dbphpBBServer,$dbphpBBUser,$dbphpBBPass,$dbphpBBDatabase;
 	$connphpBB=mysql_connect($dbphpBBServer,$dbphpBBUser,$dbphpBBPass,true) or die('could not connect to database');
@@ -99,11 +102,11 @@ function search($output,$dbADO,$conn){
 	$forumFound=mysql_num_rows($resForum);
 	$out.='
 			<tr>
-				<td colspan="2"><h4>Results found in FORUM: '.$forumFound.'</h4></td>
+				<td colspan="2" class="insidetable2"><span class="title">Results found in FORUM: '.$forumFound.'</span></td>
 			</tr>	
 			<tr>
 				<td width="20"></td>
-				<td class="insidetable">';
+				<td class="insidetable2">';
 	$pos=0;
 	while($rowForum=mysql_fetch_assoc($resForum)){
   		$pos++;
@@ -117,7 +120,7 @@ function search($output,$dbADO,$conn){
 	if($forumFound>5){
 		$out.='
 		<tr>
-			<td colspan="2"><div align="center" style="background:#CCCCCC;"><a href="support/phpbb2/search.php?search_keywords='.$searchString.'&show_results=topics&search_fields=all"><B>More Results in forum ...</B></a></div></td>
+			<td colspan="2"><div align="left"><a href="support/phpbb2/search.php?search_keywords='.$searchString.'&show_results=topics&search_fields=all">More Results in forum ...</a></div></td>
 		</tr>';
 	}
 	
@@ -138,11 +141,11 @@ function search($output,$dbADO,$conn){
 	$mantisFound=mysql_num_rows($resMantis);
 	$out.='
 			<tr>
-				<td colspan="2"><h4>Results found in bugtracking application: '.$mantisFound.'</h4></td>
+				<td colspan="2" class="insidetable2"><span class="title">Results found in bugtracking application: '.$mantisFound.'</span></td>
 			</tr>	
 			<tr>
 				<td width="20"></td>
-				<td class="insidetable">';
+				<td class="insidetable2">';
 	$pos=0;
 	while($rowMantis=mysql_fetch_assoc($resMantis)){
   		$pos++;
@@ -156,7 +159,7 @@ function search($output,$dbADO,$conn){
 	if($mantisFound>5){
 		$out.='
 		<tr>
-			<td colspan="2"><div align="center" style="background:#CCCCCC;"><a href="support/mantis/view_all_set.php?search='.$searchString.'&type=1"><B>More Results in bugtracking application ...</B></a></div></td>
+			<td colspan="2"><div align="left"><a href="support/mantis/view_all_set.php?search='.$searchString.'&type=1">More Results in bugtracking application ...</a></div></td>
 		</tr>';
 	}
 	

@@ -1,25 +1,25 @@
 <?
 if($action=='form'){
 	// display form
-	$out = '<br>
+	$out = '
 		   <form action="index.php" method="POST" name="wizard">
 			<input type="hidden" name="section" value="wizard">
 			<input type="hidden" name="step" value="'.$step.'">
 			<input type="hidden" name="action" value="add">	
 	      		<table align="center">
 					<tr>
-						<td align="left" class="normaltext"><img src="images/install_wizard.gif"></td>
-	      				<td align="right" class="normaltext"><a href="index.php?section=wizard&step=2">&lt;&lt; Previous</a> <a href="#" onClick="javascript:document.wizard.submit();">Next &gt;&gt;</a></td>
+						<td align="left" class="insidetable"><img src="images/titles/installation_wizzard.gif"></td>
+	      				<td align="right" class="insidetable"><a href="index.php?section=wizard&step=2">&lt;&lt; Previous</a> <a href="#" onClick="javascript:document.wizard.submit();">Next &gt;&gt;</a></td>
 	      			</tr>
 	      			<tr>
 	      				<td align="center" colspan="2" bgcolor="#DADDE4"><b>Step 3 of 8: '.((!isset($_SESSION['installationDescription']))?'New Installation':'Update Installation').'</b></td>
 	      			</tr>
 					<tr>
-						<td colspan="2" class="insidetable">Please pick a name for your new installation, like "123 Main Street" or "Beach House".  If you have multiple homes, you should create an installation for each home and then "join" them together later.</td>
+						<td colspan="2" class="insidetable2">Please pick a name for your new installation, like "123 Main Street" or "Beach House".  If you have multiple homes, you should create an installation for each home and then "join" them together later.</td>
 					</tr>
 	      	      	<tr>
 	      				<td align="right" class="normaltext"><B>Name</B></td>
-						<td align="left" class="insidetable"><input type="text" name="Description" value="'.@stripslashes($_SESSION['installationDescription']).'"> <input type="submit" name="submitBtn" value="Next"></td>
+						<td align="left" class="insidetable2"><input type="text" name="Description" value="'.@stripslashes($_SESSION['installationDescription']).'"> <input type="submit" name="submitBtn" value="Next"></td>
 	      			</tr>
 	      		</table>
 			</form>
