@@ -346,10 +346,13 @@ int main(int argc, char *argv[])
 	}
 	
 	FILE * f = fopen("/home/tmp/pluto-build/debian-packages.list", "wb");
-	fprintf(f, "%s\n", sDebPkg.c_str());
-	fclose(f);
-	
-	cout << "Done!" << endl;
+	if(f)
+	{
+		fprintf(f, "%s\n", sDebPkg.c_str());
+		fclose(f);
+	}
+
+	cout << "Done!" << endl << endl;
 }
 
 bool PackageIsCompatible(Row_Package *pRow_Package)
@@ -495,7 +498,7 @@ bool CreateSource(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &list
 bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileInfo)
 {
 	vector<Row_Package_Directory *> vectRow_Package_Directory;
-	cout <<"\nsearch for package number: "<<pRow_Package->PK_Package_get();
+	cout <<"\nSearch for package number: " << pRow_Package->PK_Package_get() << endl;
 	pRow_Package->Package_Directory_FK_Package_getrows(&vectRow_Package_Directory);
 	for(size_t s=0;s<vectRow_Package_Directory.size();++s)
 	{
