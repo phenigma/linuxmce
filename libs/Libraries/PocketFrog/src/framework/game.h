@@ -109,7 +109,7 @@ protected:
 				unsigned    frameRate;        // The maximum frame rate the app will run at
     } m_config;
 
-	bool m_bNeedToUpdate;
+	bool m_bUpdating;
 
 private:
 

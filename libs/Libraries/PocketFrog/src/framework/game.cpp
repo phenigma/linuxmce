@@ -420,8 +420,17 @@ LRESULT Game::OnActivate( UINT msg, WPARAM wparam, LPARAM lparam, BOOL& bHandled
         {
             PocketPC::Resume();
             m_bSuspended = false;
-						Game::GameResume(); // Added 6/10/2003 by Frank W. Zammetti
-			m_bNeedToUpdate = true;
+			Game::GameResume(); // Added 6/10/2003 by Frank W. Zammetti
+
+			while(m_bUpdating)
+				Sleep(1);
+
+			if(!m_bUpdating)
+			{
+				m_bUpdating = true;
+				GetDisplay()->Update();
+				m_bUpdating = false;
+			}
         }
     }
     
@@ -452,7 +461,17 @@ LRESULT Game::OnPaint( UINT msg, WPARAM wparam, LPARAM lparam, BOOL& bHandled )
     PAINTSTRUCT ps;
     
     BeginPaint( &ps );
-	m_bNeedToUpdate = true;
+
+	while(m_bUpdating)
+		Sleep(1);
+
+	if(!m_bUpdating)
+	{
+		m_bUpdating = true;
+		GetDisplay()->Update();
+		m_bUpdating = false;
+	}
+
     EndPaint( &ps );
 	
 	return 0;
