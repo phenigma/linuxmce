@@ -343,6 +343,17 @@ void OrbiterSDLBluetooth::CMD_Capture_Keyboard_To_Variable(string sPK_DesignObj,
         )
     )
     {
+		g_pPlutoLogger->Write(LV_WARNING, "Sending BD_CP_CaptureKeyboard command with parameters: \n"
+			"On: %d, \n"
+			"Reset: %d, \n"
+			"PinType: %d, \n"
+			"DataGrid: %d, \n"
+			"PK_Variable: %d, \n"
+			"Text: %s",
+			m_bCaptureKeyboard_OnOff, m_bCaptureKeyboard_Reset, m_bCaptureKeyboard_TypePin,
+			m_iCaptureKeyboard_PK_Variable, m_sCaptureKeyboard_Text.c_str()
+		);
+
 		BD_CP_CaptureKeyboard *pBD_CP_CaptureKeyboard = new BD_CP_CaptureKeyboard(
 				m_bCaptureKeyboard_OnOff,
 				m_bCaptureKeyboard_Reset,
