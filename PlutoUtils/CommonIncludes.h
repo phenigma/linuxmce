@@ -8,7 +8,6 @@
 #include <fstream>
 
 #include <stdarg.h>
-#include "DCE/DCEConfig.h"
 
 using namespace std;
 
