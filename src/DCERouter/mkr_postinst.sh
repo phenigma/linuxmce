@@ -4,8 +4,18 @@ sed -i 's/^skip-networking/#skip-networking/' /etc/mysql/my.cnf
 echo "GRANT ALL PRIVILEGES ON pluto_main.* to 'root'@'127.0.0.1';" | mysql
 /etc/init.d/mysql restart
 
+. /usr/pluto/bin/Config_Ops.sh
+
+Q="SELECT PK_Installation FROM Installation LIMIT 1"
+R=$(echo "$Q" | /usr/bin/mysql pluto_main -N)
+ConfSet PK_Installation "$R"
+Q="SELECT PK_Users FROM Users LIMIT 1"
+R=$(echo "$Q" | /usr/bin/mysql pluto_main -N)
+ConfSet PK_Users "$R"
+
+chmod 700 /usr/pluto/keys/id_dsa_remoteassistance
 echo "setting up dce router2"
-hasRecords=`echo 'SELECT count(PK_Installation) FROM Installation' | mysql pluto_main | tail -n 1`;
+hasRecords=`echo 'SELECT count(PK_Installation) FROM Installation' | mysql -N pluto_main`;
 if [ $hasRecords -ne 0 ]; then 
 	echo "Database already setup";
 	exit 0
@@ -16,7 +26,26 @@ fi
 device="$PK_Device"
 code="$Activation_Code"
 
-wget -O /usr/pluto/install/database_initial_data.sql "http://plutohome.com/initialdata.php?code=$code&device=$device" 2>/dev/null
+DIDsql="/usr/pluto/install/database_initial_data.sql"
+wget -O "$DIDsql" "http://plutohome.com/initialdata.php?code=$code&device=$device" 2>/dev/null
+if [ "$?" -ne 0 ]; then
+	echo "Failed to get initial data. Wget returned $?"
+	exit 1
+else
+	Header="$(head -1 "$DIDsql")"
+	Tail="$(tail -1 "$DIDsql")"
+	if ! echo "$Header" | grep -q "^-- OK."; then
+		echo "Failed to get initial data. Server answer was:"
+		echo "$Header"
+		exit 1
+	fi
+	if [ "$Tail" != "-- EOF" ]; then
+		echo "Failed to get initial data. Incomplete download."
+		exit 1
+	fi
+
+	echo "Initial data download complete."
+fi
 
 size=$(stat -c "%s" /usr/pluto/install/database_initial_data.sql)
 if [ "$size" -lt 100 ]; then
@@ -76,13 +105,3 @@ JOIN Users;"
 mkdir -p /tftpboot/pxelinux.cfg
 cp /usr/lib/syslinux/pxelinux.0 /tftpboot
 
-. /usr/pluto/bin/Config_Ops.sh
-
-Q="SELECT PK_Installation FROM Installation LIMIT 1"
-R=$(echo "$Q" | /usr/bin/mysql pluto_main -N)
-ConfSet PK_Installation "$R"
-Q="SELECT PK_Users FROM Users LIMIT 1"
-R=$(echo "$Q" | /usr/bin/mysql pluto_main -N)
-ConfSet PK_Users "$R"
-
-chmod 700 /usr/pluto/keys/id_dsa_remoteassistance
