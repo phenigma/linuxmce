@@ -401,7 +401,7 @@ class DataGridTable *MythTV_PlugIn::AllShowsForMobiles(string GridID, string Par
     if ( ! m_pMythWrapper )
     {
         g_pPlutoLogger->Write(LV_STATUS, "The myth wrapper object wasn't constructed at MythTV_PlugIn contructor time. Ignoring datagrid request!");
-        return NULL;
+        return new DataGridTable();
     }
 
     return m_pMythWrapper->createShowsForMobiles(GridID, QDateTime::currentDateTime());

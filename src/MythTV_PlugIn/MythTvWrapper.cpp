@@ -201,6 +201,7 @@ void MythTvWrapper::MythTvEpgGrid::readDataGridBlock(int rowStart, int rowCount,
 
         pDataGridCell->m_Colspan = colCount;
         SetData(colStart, 0, pDataGridCell);
+		return;
     }
 
     strQuery.sprintf("SELECT c.channum, p.title, p.starttime, p.endtime"
@@ -246,15 +247,26 @@ void MythTvWrapper::MythTvEpgGrid::readDataGridBlock(int rowStart, int rowCount,
         colStart++;
     }
 
+	g_pPlutoLogger->Write(LV_STATUS, "RowStart: %d -> RowCount %d", rowStart, rowCount);
+	g_pPlutoLogger->Write(LV_STATUS, "ColStart: %d -> ColCount %d", colStart, colCount);
+
     if ( query.numRowsAffected() > 0 )
     {
         int currentChannelId = 0, nextChannelId = 0;
+
+		// if they requested a Row Header we will start the actual data from the first row.
+		// the initial size is -1 usually because the first channelid will always be different then the prev one (aka the null one)
+		// and we will increment it.
         int channelPos = (m_bKeepRowHeader) ? 0 : -1;
+
         int programColumnSpan = 0;
         int programStartColumn = 0;
 
         QString programName;
         QDateTime dateStart, dateEnd;
+
+		g_pPlutoLogger->Write(LV_STATUS, "Date start %s, Date End: %s", periodStart.toString().latin1(), periodEnd.toString().latin1());
+
         while ( query.next() )
         {
             nextChannelId = query.value(0).toInt();
@@ -268,7 +280,9 @@ void MythTvWrapper::MythTvEpgGrid::readDataGridBlock(int rowStart, int rowCount,
                 currentChannelId = nextChannelId;
             }
 
-            programColumnSpan = dateStart.secsTo(dateEnd) / m_iQuantInSecs;
+			g_pPlutoLogger->Write(LV_STATUS, "\t\tEntry - start %s, End: %s", dateStart.toString().latin1(), dateEnd.toString().latin1());
+
+			programColumnSpan = dateStart.secsTo(dateEnd) / m_iQuantInSecs;
             programStartColumn = periodStart.secsTo(dateStart) / m_iQuantInSecs;
 
 
@@ -293,7 +307,9 @@ void MythTvWrapper::MythTvEpgGrid::readDataGridBlock(int rowStart, int rowCount,
                         .append(QString::number(dateStart.time().minute())).ascii());
 
             pCell->m_Colspan = programColumnSpan;
-            SetData(programStartColumn  + colStart, channelPos + rowStart, pCell);
+			g_pPlutoLogger->Write(LV_STATUS, "Hannibal: %d (+%d), %d, %s, %s", programStartColumn  + colStart, pCell->m_Colspan, channelPos + rowStart, pCell->GetText(), pCell->GetValue());
+			SetData(programStartColumn  + colStart, channelPos + rowStart, pCell);
+
         }
     }
     else
@@ -304,8 +320,10 @@ void MythTvWrapper::MythTvEpgGrid::readDataGridBlock(int rowStart, int rowCount,
 
 void MythTvWrapper::MythTvEpgGrid::MakeChannelColumn(int RowStart, int RowCount)
 {
-    while ( RowCount != 0 )
+	g_pPlutoLogger->Write(LV_STATUS, "Trying to make a channel column");
+	while ( RowCount != 0 )
     {
+		g_pPlutoLogger->Write(LV_STATUS, "Setting cell (%d, %d), to channel id: %d", 0, RowStart, RowStart );
         SetData(0, RowStart, new DataGridCell(QString::number(RowStart).ascii(), "") );
         RowStart++;
         RowCount--;
@@ -373,6 +391,8 @@ DataGridTable *MythTvWrapper::createShowsForMobiles(string GridID, QDateTime cur
                         currentTime.toString(strTimeFormat).ascii());
 
     QSqlQuery query;
+	g_pPlutoLogger->Write(LV_STATUS, "Running query: %s", strQuery.latin1());
+
     query.exec(strQuery);
 
     if ( ! query.isActive() )
@@ -393,6 +413,7 @@ DataGridTable *MythTvWrapper::createShowsForMobiles(string GridID, QDateTime cur
 
         int channelId;
 
+		g_pPlutoLogger->Write(LV_STATUS, "We have %d rows!", query.numRowsAffected());
         DataGridTable *pDataGridTable = new DataGridTable();
         while ( query.next() )
         {
@@ -420,6 +441,7 @@ DataGridTable *MythTvWrapper::createShowsForMobiles(string GridID, QDateTime cur
                         .arg(dateStart.time().minute())
                         .ascii());
 
+			g_pPlutoLogger->Write(LV_STATUS, "Setting data in grid [%d, %d] -> %s!", 0, query.at(), pCell->GetText());
             pDataGridTable->SetData(0, query.at(), pCell);
         }
 
