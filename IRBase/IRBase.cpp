@@ -68,7 +68,10 @@ void IRBase::ParseDevices()
 		size_t pos = 0;
 
 		count = atoi(StringUtils::Tokenize(codes, "\t", pos).c_str());
-		for(long i=0;i<count;i++)
+		g_pPlutoLogger->Write(LV_STATUS, "Requested IR cored for device: %lu", DeviceID);
+		g_pPlutoLogger->Write(LV_STATUS, "IR Code request got this reply: %s", codes.c_str());
+		g_pPlutoLogger->Write(LV_STATUS, "IR Code count: %d", count);
+		for(long i = 0; i < count; i++)
 		{
 			iPK_Command = atoi(StringUtils::Tokenize(codes, "\t", pos).c_str());
 			code = StringUtils::Tokenize(codes, "\t", pos);
