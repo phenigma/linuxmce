@@ -207,7 +207,6 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
             for( itDevice = pEntertainArea->m_mapMediaDevice.begin( ); ! bFound && itDevice != pEntertainArea->m_mapMediaDevice.end( ); ++itDevice )
             {
                 class MediaDevice *pMediaDevice = ( *itDevice ).second;
-                g_pPlutoLogger->Write(LV_STATUS, "Here %d", pMediaDevice->m_pDeviceData_Router->m_dwPK_Device);
 
                 if( pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceCategory==DEVICECATEGORY_Disc_Drives_CONST )
                 {
@@ -300,78 +299,83 @@ bool Xine_Plugin::BroadcastMedia( class MediaStream *pMediaStream )
 bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, class DeviceData_Router *pDeviceFrom, class DeviceData_Router *pDeviceTo )
 {
     PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
-  /** Confirm this is from one of ours */
-  if( !pDeviceFrom || pDeviceFrom->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_Xine_Player_CONST )
-    return false; /** Some other media player. We only know xine's menu handling */
 
-  int StreamID = atoi( pMessage->m_mapParameters[EVENTPARAMETER_Stream_ID_CONST].c_str( ) );
-  bool bOnOff = pMessage->m_mapParameters[EVENTPARAMETER_OnOff_CONST]=="1";
+    g_pPlutoLogger->Write(LV_STATUS, "Hannibal is here");
+    /** Confirm this is from one of ours */
+    if( !pDeviceFrom || pDeviceFrom->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_Xine_Player_CONST )
+        return false; /** Some other media player. We only know xine's menu handling */
 
-  /** Find the stream */
-  MediaStream *pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find( StreamID );
-  if( !pMediaStream )
-  {
-    g_pPlutoLogger->Write( LV_CRITICAL, "DVD Menu appeared for stream %d, but I can't find it", StreamID );
-    return false; /** Maybe somebody else knows what to do with it */
-  }
+    int StreamID = atoi( pMessage->m_mapParameters[EVENTPARAMETER_Stream_ID_CONST].c_str( ) );
+    bool bOnOff = pMessage->m_mapParameters[EVENTPARAMETER_OnOff_CONST]=="1";
 
-  string sOnScreenOrbiters="", sOtherOrbiters="";
-  map<int, OH_Orbiter *> mapOH_Orbiter; /** Use a map so we don't have duplicates */
-
-g_pPlutoLogger->Write( LV_STATUS, "Mediastream %p on menu id: %d type %d", pMediaStream, pMediaStream->m_iStreamID_get( ), pMediaStream->m_iPK_MediaType );
-g_pPlutoLogger->Write( LV_STATUS, "Mediastream mapea size %d", pMediaStream->m_mapEntertainArea.size( ) );
-  /** We're going to send a message to all the orbiters that are bound to remotes in any of the entertainment areas */
-  for( MapEntertainArea::iterator itEA = pMediaStream->m_mapEntertainArea.begin( );itEA != pMediaStream->m_mapEntertainArea.end( );++itEA )
-  {
-    EntertainArea *pEntertainArea = ( *itEA ).second;
-g_pPlutoLogger->Write( LV_STATUS, "Mediastream ea %p %d", pEntertainArea, pEntertainArea->m_iPK_EntertainArea );
-    for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
+      /** Find the stream */
+    MediaStream *pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find( StreamID );
+    if( !pMediaStream )
     {
-      BoundRemote *pBoundRemote = ( *itBR ).second;
-      mapOH_Orbiter[pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device] = pBoundRemote->m_pOH_Orbiter;
+        g_pPlutoLogger->Write( LV_CRITICAL, "DVD Menu appeared for stream %d, but I can't find it", StreamID );
+        return false; /** Maybe somebody else knows what to do with it */
     }
-  }
 
-  for( map<int, OH_Orbiter *>::iterator itOH=mapOH_Orbiter.begin( );itOH!=mapOH_Orbiter.end( );++itOH )
-  {
-    OH_Orbiter *pOH_Orbiter = ( *itOH ).second;
-    if( pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia && pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_DeviceCategory==DEVICECATEGORY_Media_Director_CONST )
-      sOnScreenOrbiters += StringUtils::itos( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device ) + ", ";
-    else
-      sOtherOrbiters += StringUtils::itos( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device ) + ", ";
-  }
+    string sOnScreenOrbiters="", sOtherOrbiters="";
+    map<int, OH_Orbiter *> mapOH_Orbiter; /** Use a map so we don't have duplicates */
 
-  if( sOnScreenOrbiters.size( )==0 && sOtherOrbiters.size( )==0 )
-  {
-    g_pPlutoLogger->Write( LV_WARNING, "Got a menu goto, but there are no related orbiters" );
-    return false;
-  }
+    g_pPlutoLogger->Write( LV_STATUS, "Mediastream %p on menu id: %d type %d", pMediaStream, pMediaStream->m_iStreamID_get( ), pMediaStream->m_iPK_MediaType );
+    g_pPlutoLogger->Write( LV_STATUS, "Mediastream mapea size %d", pMediaStream->m_mapEntertainArea.size( ) );
 
-  if( bOnOff )
-  {
-    if( sOtherOrbiters.size( ) )
+    /** We're going to send a message to all the orbiters that are bound to remotes in any of the entertainment areas */
+    for( MapEntertainArea::iterator itEA = pMediaStream->m_mapEntertainArea.begin( );itEA != pMediaStream->m_mapEntertainArea.end( );++itEA )
     {
-      /** Send all the orbiters to the dvd menu */
-      DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL( m_dwPK_Device, sOtherOrbiters, 0, StringUtils::itos( /*DESIGNOBJ_dvd_menu_CONST HACK -- todo*/1 ), "", "", false );
-      DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL( m_dwPK_Device, sOtherOrbiters, VARIABLE_PK_Device_CONST, StringUtils::itos( pMessage->m_dwPK_Device_From ) );
+        EntertainArea *pEntertainArea = ( *itEA ).second;
+        g_pPlutoLogger->Write( LV_STATUS, "Mediastream ea %p %d", pEntertainArea, pEntertainArea->m_iPK_EntertainArea );
+        for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
+        {
+            BoundRemote *pBoundRemote = ( *itBR ).second;
+            mapOH_Orbiter[pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device] = pBoundRemote->m_pOH_Orbiter;
+        }
+    }
 
-      CMD_Set_Variable_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Goto_Screen_DL.m_pMessage );
-      QueueMessage( CMD_Set_Variable_DL.m_pMessage );
-    }
-    if( sOnScreenOrbiters.size( ) )
+    for( map<int, OH_Orbiter *>::iterator itOH=mapOH_Orbiter.begin( );itOH!=mapOH_Orbiter.end( );++itOH )
     {
-      /** If it's an on-screen orbiter, just send it to the full screen menu */
-int DESIGNOBJ_full_screen_CONST=1; /** @todo - hack */
-      DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL( m_dwPK_Device, sOnScreenOrbiters, 0, StringUtils::itos( DESIGNOBJ_full_screen_CONST ), "", "", false );
-      SendCommand( CMD_Goto_Screen_DL );
+        OH_Orbiter *pOH_Orbiter = ( *itOH ).second;
+        if( pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia && pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_DeviceCategory==DEVICECATEGORY_Media_Director_CONST )
+            sOnScreenOrbiters += StringUtils::itos( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device ) + ", ";
+        else
+            sOtherOrbiters += StringUtils::itos( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device ) + ", ";
     }
-  }
-  else if( sOtherOrbiters.size( ) )
-  {
-int DESIGNOBJ_dvd_menu_CONST; /** @todo - hack  */
-    DCE::CMD_Go_back_DL CMD_Go_back_DL( m_dwPK_Device, sOtherOrbiters, StringUtils::itos( DESIGNOBJ_dvd_menu_CONST ), "" );
-    SendCommand( CMD_Go_back_DL );
-  }
+
+    if( sOnScreenOrbiters.size( )==0 && sOtherOrbiters.size( )==0 )
+    {
+        g_pPlutoLogger->Write( LV_WARNING, "Got a menu goto, but there are no related orbiters" );
+        return false;
+    }
+
+    if( bOnOff )
+    {
+        if( sOtherOrbiters.size( ) )
+        {
+            /** Send all the orbiters to the dvd menu */
+            // DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL( m_dwPK_Device, sOtherOrbiters, 0, StringUtils::itos( /*DESIGNOBJ_dvd_menu_CONST HACK -- todo*/1 ), "", "", false );
+            DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL( m_dwPK_Device, sOtherOrbiters, 0, StringUtils::itos( DESIGNOBJ_mnuDVDMenu_CONST ), "", "", false );
+            DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL( m_dwPK_Device, sOtherOrbiters, VARIABLE_PK_Device_CONST, StringUtils::itos( pMessage->m_dwPK_Device_From ) );
+
+            CMD_Set_Variable_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Goto_Screen_DL.m_pMessage );
+            QueueMessage( CMD_Set_Variable_DL.m_pMessage );
+        }
+
+        if( sOnScreenOrbiters.size( ) )
+        {
+            /** If it's an on-screen orbiter, just send it to the full screen menu */
+//            int DESIGNOBJ_full_screen_CONST=1; /** @todo - hack */
+//             DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL( m_dwPK_Device, sOnScreenOrbiters, 0, StringUtils::itos( DESIGNOBJ_full_screen_CONST ), "", "", false );
+            DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL( m_dwPK_Device, sOnScreenOrbiters, 0, StringUtils::itos( DESIGNOBJ_mnuDVDMenu_CONST ), "", "", false );
+            SendCommand( CMD_Goto_Screen_DL );
+        }
+    }
+    else if( sOtherOrbiters.size( ) )
+    {
+        DCE::CMD_Go_back_DL CMD_Go_back_DL( m_dwPK_Device, sOtherOrbiters, StringUtils::itos( DESIGNOBJ_mnuDVDMenu_CONST ), "" );
+        SendCommand( CMD_Go_back_DL );
+    }
   return true;
 }
 

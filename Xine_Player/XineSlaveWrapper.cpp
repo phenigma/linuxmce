@@ -609,7 +609,6 @@ int XineSlaveWrapper::XServerEventProcessor(XineStream *pStream, XEvent &event)
 {
     Atom  XA_DELETE_WINDOW;
 
-    g_pPlutoLogger->Write(LV_STATUS, "Got event");
     switch(event.type)
     {
         case ClientMessage:
