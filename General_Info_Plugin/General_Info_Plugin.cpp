@@ -254,6 +254,9 @@ void General_Info_Plugin::CMD_Request_File_And_Checksum(string sFilename,char **
 
 void General_Info_Plugin::CMD_Set_Device_Data(int iPK_Device,string sValue_To_Assign,int iPK_DeviceData,string &sCMD_Result,Message *pMessage)
 //<-dceag-c246-e->
+{
+}
+
 //<-dceag-c247-b->
 
 	/** @brief COMMAND: #247 - Get Device State */
@@ -261,6 +264,9 @@ void General_Info_Plugin::CMD_Set_Device_Data(int iPK_Device,string sValue_To_As
 
 void General_Info_Plugin::CMD_Get_Device_State(string &sCMD_Result,Message *pMessage)
 //<-dceag-c247-e->
+{
+}
+
 //<-dceag-c248-b->
 
 	/** @brief COMMAND: #248 - Get Device Status */
@@ -268,3 +274,5 @@ void General_Info_Plugin::CMD_Get_Device_State(string &sCMD_Result,Message *pMes
 
 void General_Info_Plugin::CMD_Get_Device_Status(string &sCMD_Result,Message *pMessage)
 //<-dceag-c248-e->
+{
+}
