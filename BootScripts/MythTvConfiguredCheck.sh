@@ -6,13 +6,14 @@ MysqlCommand="mysql -D mythconverg";
 
 QueryResult=`echo $QueryIsConfigured | $MysqlCommand | tail -n 1`;
 
-if [ ! $QueryResult ]; then
+export DISPLAY=:0;
+if [ $QueryResult -eq 0 ]; then
         echo "Need to launch the setup";
         echo -e "\n\n" | mythtv-setup;
         chvt 1;
         echo "Please wait until MythTv backend server completes updating the channel database";
         /etc/cron.daily/mythtv-backend;
-        echo "Completed";
+        echo "MythTV Channel list update is complete.";
 fi;
 
 /etc/init.d/mythtv-backend force-reload;
