@@ -200,7 +200,6 @@ int main(int argc, char *argv[])
 #ifdef _WIN32
 	WSACleanup();
 #endif
-	delete g_pPlutoLogger;
 	if( m_mapLockMutex )
 	{
 		pthread_mutex_destroy(&m_mapLockMutex->mutex);
@@ -214,6 +213,7 @@ int main(int argc, char *argv[])
 	}
 #endif
 	g_pPlutoLogger->Write(LV_STATUS, "PlutoServer: terminating now with %d",(int) bStartRouter);
+	delete g_pPlutoLogger;
 	if( bStartRouter )
 		return 2;
 	else

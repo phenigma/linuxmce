@@ -69,8 +69,8 @@ void* MessageQueueThread_DCER(void* param) // renamed to cancel link-time name c
 
 #define ALARM_DELAYED_COMMAND_EXECUTION		1
 
-class DelayedCommandInfo { 
-	public: 
+class DelayedCommandInfo {
+	public:
 		int m_PK_CommandGroup,m_iStartingCommand;
 };
 
@@ -408,7 +408,7 @@ Command_Impl *Router::CreatePlugIn(int PK_Device, int PK_DeviceTemplate, string 
 	{
 		pCommand_Impl = RegisterAsPlugin(this, PK_Device, "dcerouter"); // hack!!!
 	}
-	catch(...) 
+	catch(...)
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Plugin %d threw an exception",PK_Device);
 	}
@@ -685,8 +685,8 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
                     PLUTO_SAFETY_LOCK(slCore,m_CoreMutex);
 					slCore.m_bReleased=true; // So it never gets released
 				}
-				break;			
-			
+				break;
+
 			}
             return;
         }
@@ -1516,8 +1516,7 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
 								{
 									g_pPlutoLogger->Write(LV_CRITICAL,"Sent message, got response but it's not a real message: %s",sResponse.c_str());
 								}
-
-								if ( pSocket->SendMessage(pMessage) == false )
+								else if ( pSocket->SendMessage(pMessage) == false )
 								{
 									g_pPlutoLogger->Write(LV_WARNING, "Failed to forward response message properly" );
 								}
