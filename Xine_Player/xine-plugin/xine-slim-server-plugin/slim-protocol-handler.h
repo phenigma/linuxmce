@@ -40,10 +40,10 @@ typedef enum _StreamManagementCommandType
 
 typedef enum _StreamFormatType
 {
-	STREAM_FORMAT_MP3,
-	STREAM_FORMAT_FLAC,
-	STREAM_FORMAT_PCM,
-	STREAM_FORMAT_UNKNOWN
+	STREAM_FORMAT_UNKNOWN = 0,
+	STREAM_FORMAT_MP3 = 1,
+	STREAM_FORMAT_FLAC = 2,
+	STREAM_FORMAT_PCM = 3
 } StreamFormatType;
 
 struct slimCommand

@@ -132,6 +132,8 @@ int slim_protocol_decode_strm_command(unsigned char *buffer, unsigned int buffer
 		return 0;
 	}
 
+	xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Detected streaming format: %d!\n"), decodedCommand->data.stream.format);
+
 	decodedCommand->data.stream.autoStart = buffer[1];
 	decodedCommand->data.stream.hostPort = (buffer[18] << 0x08) | buffer[19];
 

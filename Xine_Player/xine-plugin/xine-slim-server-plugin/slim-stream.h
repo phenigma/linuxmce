@@ -44,9 +44,11 @@ int stream_get_free_space(struct slim_stream *pstream);
 
 int stream_write(char *pBuffer, int off, int len, struct slim_stream *pStream);
 int stream_read(char *pBuffer, int off, int len, struct slim_stream *pStream);
+int stream_peek(char *pBuffer, int off, int len, struct slim_stream *pStream);
 
 void stream_open(struct slim_stream *pStream, xine_t *xine);
 void stream_close(struct slim_stream *pstream, xine_t *xine);
 void stream_flush(struct slim_stream *pstream);
 
 #endif // SLIM_STREAM_H
+

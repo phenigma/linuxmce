@@ -270,6 +270,63 @@ int stream_write(char *pBuffer, int off, int len, struct slim_stream *pStream)
 	return 0;
 }
 
+int stream_peek(char *pBuffer, int off, int len, struct slim_stream *pStream)
+{
+	int oldReadPtr;
+	int requestedReadSize;
+	int copiedCount;
+
+	oldReadPtr = pStream->readPtr;
+	requestedReadSize = len;
+
+	while ( stream_get_data_size(pStream) <= len )
+	{
+		if ( pStream->isEndOfStream )
+			return -1;
+
+		printf("Peek thread sleeping!\n");
+		Sleep(50); // sleep for 0.05 seconds and release the lock
+		printf("Peek thread sleep completed!\n");
+	}
+
+	pthread_mutex_lock(&pStream->bufferMutex);
+
+	copiedCount = 0;
+
+	int newReadPtr = pStream->readPtr;
+
+	if ( pStream->writePtr < pStream->readPtr )
+	{
+		int count = BUFFER_SIZE - pStream->readPtr;
+
+		if ( count > len )
+			count = len;
+
+		memcpy(pBuffer + off, pStream->buffer + pStream->readPtr, count);
+		copiedCount += count;
+		newReadPtr += copiedCount;
+	}
+
+	if ( copiedCount < len )
+	{
+		if ( newReadPtr = BUFFER_SIZE )
+			newReadPtr = 0;
+
+		memcpy(pBuffer + off + copiedCount, pStream->buffer + newReadPtr, len - copiedCount);
+
+		copiedCount += len - copiedCount;
+	}
+
+/*
+	printf("<---Buffer (%d) reading %d: [ %d->%d, %d->%d ].\n",
+				BUFFER_SIZE, requestedReadSize,
+				oldReadPtr, pStream->readPtr,
+				pStream->writePtr, pStream->writePtr);
+*/
+	pthread_mutex_unlock(&pStream->bufferMutex);
+	return copiedCount;
+}
+
 int stream_read(char *pBuffer, int off, int len, struct slim_stream *pStream)
 {
 	int oldReadPtr;
