@@ -257,8 +257,8 @@ for Client in $DisklessR; do
 
 	echo -n " Install"
 	mkdir -p $DlPath/usr/pluto/install
-	for Script in ConfirmDependencies_Debian.sh Common.sh Download_CVS.sh Download_Direct.sh Download_SVN.sh Initial_Config_Real.sh; do
-		cp /usr/pluto/install/$Script $DlPath/usr/pluto/install
+	for Stuff in ConfirmDependencies_Debian.sh Common.sh Download_CVS.sh Download_Direct.sh Download_SVN.sh Initial_Config_Real.sh ramdisk.tar.bz2; do
+		cp /usr/pluto/install/$Stuff $DlPath/usr/pluto/install
 	done
 	sed '/^Type=/ s/^.*$/Type="diskless"/' /usr/pluto/install/Initial_Config.sh >$DlPath/usr/pluto/install/Initial_Config.sh
 	chmod +x $DlPath/usr/pluto/install/Initial_Config.sh

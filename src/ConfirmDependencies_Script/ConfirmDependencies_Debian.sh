@@ -65,10 +65,7 @@ case "$URL_TYPE" in
 #		echo "Repository test string: '$FilteredRepos.+$REPOS.+$SECTIONS'"
 		results=$(cat /etc/apt/sources.list | sed "$SPACE_SED" | egrep -v "^#" | egrep -c -- "$FilteredRepos.+$REPOS.+$SECTIONS" 2>/dev/null)
 		if [ "$results" -eq 0 ]; then
-			echo "deb http://dcerouter:9999/$FilteredRepos $REPOS $SECTIONS" >>/etc/apt/sources.list
-			if PackageIsInstalled apt-proxy; then
-				echo "add_backend /$FilteredRepos \$APT_PROXY_CACHE/$FilteredRepos $EndSlashRepos" >>/etc/apt-proxy/backends.sh
-			fi
+			echo "deb $FilteredRepos $REPOS $SECTIONS" >>/etc/apt/sources.list
 			apt-get update
 #			[ "$Type" == "router" ] && apt-proxy-import-simple /usr/pluto/install/deb-cache
 		fi

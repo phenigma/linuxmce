@@ -57,10 +57,53 @@ RestoreCoreConf()
 }
 
 if [ "$Type" == "router" ]; then
+	# /etc/polipo/config
+	polipo_conf='# Pluto config for polipo
+proxyAddress = "::"
+proxyPort = 8123
+allowedClients = 127.0.0.1
+logFile = /var/log/polipo.log
+'
+	# /etc/frox.conf
+	frox_conf='# Pluto config for frox
+Port 8124
+User frox
+Group frox
+WorkingDir /var/cache/frox
+DontChroot yes
+LogLevel 20
+LogFile /var/log/frox.log
+PidFile /var/cache/frox/frox.pid
+BounceDefend yes
+CacheModule local
+CacheSize 500
+CacheAll no
+DoNTP yes
+MaxForks 50
+MaxForksPerHost 4
+ACL Allow * - *
+'
+	# /etc/apt/apt.conf.d/30pluto
+	pluto_apt_conf='// Pluto apt conf add-on
+Acquire::http::Proxy "http://127.0.0.1:8123";
+Acquire::ftp::Proxy "ftp://127.0.0.1:8124";
+Acquire::ftp::ProxyLogin { "USER $(SITE_USER)@$(SITE):$(SITE_PORT)"; "PASS $(SITE_PASS)"; };
+Acquire::http::Proxy::dcerouter "DIRECT";
+Apt::Cache-Limit "12582912";
+'
+
 	if dpkg -i /usr/pluto/install/deb-critical/*; then
-		sed -i 's/^BACKEND_FREQ=.*$/BACKEND_FREQ=0/' /etc/apt-proxy/apt-proxy.conf
+		echo -n "$pluto_apt_conf" >/etc/apt/apt.conf.d/30pluto
+		echo -n "$polipo_conf" >/etc/polipo/config
+		echo -n "$frox_conf" >/etc/frox.conf
+		/usr/sbin/adduser --system --group --home /var/cache/frox --disabled-login --disabled-password frox
+		echo "RUN_DAEMON=yes" >/etc/default/frox
+		/etc/init.d/frox restart
+		/etc/init.d/polipo restart
 	else
-		echo "* ERROR * No APT proxy will be available."
+		echo "* ERROR * Complete proxy combination is not available. Installation can't continue"
+		read
+		exit 1
 	fi
 	RestoreCoreConf
 	WhereCode="in pluto.conf backup"
@@ -68,9 +111,9 @@ else
 	WhereCode="in diskless.conf"
 fi
 
-echo "deb file:/usr/pluto/deb-cache/ sarge main" >/etc/apt/sources.list.2
-grep ':9999' /etc/apt/sources.list >>/etc/apt/sources.list.2
+echo "deb file:/usr/pluto/deb-cache/ sarge main" | cat - /etc/apt/sources.list >/etc/apt/sources.list.2
 mv /etc/apt/sources.list.2 /etc/apt/sources.list
+apt-get update &>/dev/null
 
 # Format: OK-Device-Code
 ok=0
