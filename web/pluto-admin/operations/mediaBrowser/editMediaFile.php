@@ -260,7 +260,7 @@ function editMediaFile($output,$mediadbADO) {
 			$newPicName=$insertID.'.'.$picExtension;
 			
 			$error='';
-			if(($_FILES['newPic']['type']!="image/png") && ($_FILES['newPic']['type']!="image/pjpeg") && ($_FILES['newPic']['type']!="image/jpeg")){
+			if(($_FILES['newPic']['type']!="image/png") && ($_FILES['newPic']['type']!="image/x-png")){
 				$error='The file is not a png file';
 			}
 			elseif(move_uploaded_file($_FILES['newPic']['tmp_name'],$GLOBALS['mediaPicsPath'].$newPicName)){

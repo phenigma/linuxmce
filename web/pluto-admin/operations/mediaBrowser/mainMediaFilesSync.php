@@ -136,7 +136,7 @@ function mainMediaFilesSync($output,$mediadbADO) {
 	// process area
 		$notInDBArray=explode(',',$_POST['notInDBArray']);
 		foreach($notInDBArray AS $physicalkey){
-			$filename=$_POST['filename_'.$physicalkey];
+			$filename=stripslashes($_POST['filename_'.$physicalkey]);
 			$type=(int)$_POST['type_'.$physicalkey];
 			if($type!=0)
 				$mediadbADO->Execute('INSERT INTO File (FK_Type, Path, Filename) VALUES (?,?,?)',array($type,stripslashes($path),$filename));

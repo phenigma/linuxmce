@@ -16,6 +16,64 @@ function connectionWizard($output,$dbADO) {
 	$_SESSION['AVentertainArea']=(isset($_REQUEST['entertainArea']) && (int)$_REQUEST['entertainArea']!=0)?(int)$_REQUEST['entertainArea']:@$_SESSION['AVentertainArea'];
 	$entertainArea=@$_SESSION['AVentertainArea'];
 
+	// read existing coordinates from cookie 
+	if(isset($_COOKIE['PlutoAdminConnectionWizard_'.$_SESSION['installationID']])){
+		$cookieArray=unserialize(stripslashes($_COOKIE['PlutoAdminConnectionWizard_'.$_SESSION['installationID']]));
+		
+		// coords for current entertain area
+		if(isset($cookieArray[$entertainArea])){
+			// grab coordinates for devices and pipes
+			$positionsArray=explode(';',substr($cookieArray[$entertainArea],1));
+			$oldDevice=array();
+			$jsDrawPipes='';
+			for($i=0;$i<count($positionsArray);$i=$i+7){
+				$oldDevice[$positionsArray[$i]]['deviceX']=$positionsArray[$i+1];
+				$oldDevice[$positionsArray[$i]]['deviceY']=$positionsArray[$i+2];
+				if($positionsArray[$i+3]!='none'){
+					$parts=explode(':',$positionsArray[$i+3]);
+					$jsDrawPipes.='
+						audioPipe['.$positionsArray[$i].']=new Array();
+						audioPipe['.$positionsArray[$i].'][\'to\']='.$parts[0].';
+						audioPipe['.$positionsArray[$i].'][\'coords\']=\''.$parts[1].'\';
+						drawPipe(\''.$positionsArray[$i].'\',\'audio\','.$parts[1].');
+					';
+				}
+				if($positionsArray[$i+4]!='none'){
+					$parts=explode(':',$positionsArray[$i+4]);
+					$jsDrawPipes.='
+						videoPipe['.$positionsArray[$i].']=new Array();
+						videoPipe['.$positionsArray[$i].'][\'to\']='.$parts[0].';
+						videoPipe['.$positionsArray[$i].'][\'coords\']=\''.$parts[1].'\';
+						drawPipe(\''.$positionsArray[$i].'\',\'video\','.$parts[1].');
+					';
+				}
+				
+				if($positionsArray[$i+5]!='none'){
+					$parts=explode(':',$positionsArray[$i+5]);
+					$jsDrawPipes.='
+						audioLivePipe['.$positionsArray[$i].']=new Array();
+						audioLivePipe['.$positionsArray[$i].'][\'to\']='.$parts[0].';
+						audioLivePipe['.$positionsArray[$i].'][\'coords\']=\''.$parts[1].'\';
+						drawPipe(\''.$positionsArray[$i].'\',\'audioLive\','.$parts[1].');
+					';
+				}
+				if($positionsArray[$i+6]!='none'){
+					$parts=explode(':',$positionsArray[$i+6]);
+					$jsDrawPipes.='
+						videoLivePipe['.$positionsArray[$i].']=new Array();
+						videoLivePipe['.$positionsArray[$i].'][\'to\']='.$parts[0].';
+						videoLivePipe['.$positionsArray[$i].'][\'coords\']=\''.$parts[1].'\';
+						drawPipe(\''.$positionsArray[$i].'\',\'videoLive\','.$parts[1].');
+					';
+				}
+				
+				// TODO: check if pipes from database match those from cookie
+				
+			}
+		}
+	}
+
+	
 	$connectorsArray=array(0=>'other.gif',1=>'composite.gif',2=>'svideo.gif',3=>'component.gif',4=>'dvi.gif',5=>'vga.gif',6=>'scart.gif');
 	
 if ($action == 'form') {
@@ -33,9 +91,13 @@ if ($action == 'form') {
 	<input type="hidden" name="section" value="connectionWizard">
 	<input type="hidden" name="type" value="'.$type.'">
 	<input type="hidden" name="action" value="add">
-	<div style="position:absolute;top:25px;Z-INDEX:2;"><br><br><a href="index.php?section=avWizard">Advanced mode</a></div>
+	<input type="hidden" name="devicesCoords" value="">
+	<input type="hidden" name="oldEntertainArea" value="'.$entertainArea.'">
+	
+	<div style="position:absolute;top:25px;Z-INDEX:2;"><br><br><a href="index.php?section=avWizard">Advanced mode</a>
+	<br>	<a href="javascript:savePositions();">Save</a></div>
 	<div align="center"><h3>A/V equipment connection wizard</h3></div>
-	Edit devices in:'.generatePullDown('entertainArea','EntertainArea','PK_EntertainArea','Description',$_SESSION['AVentertainArea'],$dbADO,' INNER JOIN Room ON FK_Room=PK_Room WHERE FK_Installation='.(int)$_SESSION['installationID'],'onChange="document.connectionWizard.action.value=\'setCookie\';document.connectionWizard.submit();"').'<br>';
+	Edit devices in:'.generatePullDown('entertainArea','EntertainArea','PK_EntertainArea','Description',$_SESSION['AVentertainArea'],$dbADO,' INNER JOIN Room ON FK_Room=PK_Room WHERE FK_Installation='.(int)$_SESSION['installationID'],'onChange="savePositions();"').'<br>';
 	$devicesList=array();
 	if($entertainArea!=0){		
 		$out.='
@@ -123,7 +185,7 @@ if ($action == 'form') {
 	var audioLive_'.$rowD['PK_Device'].' = new jsGraphics("device_'.$rowD['PK_Device'].'_pipe_3");
 	var videoLive_'.$rowD['PK_Device'].' = new jsGraphics("device_'.$rowD['PK_Device'].'_pipe_4");
 </script>
-<DIV id="device_'.$rowD['PK_Device'].'" style="BORDER-RIGHT: 2px outset; BORDER-TOP: 2px outset; DISPLAY: ; Z-INDEX: 1; LEFT: 100px; BORDER-LEFT: 2px outset; WIDTH: 250px; BORDER-BOTTOM: 2px outset; POSITION: absolute; TOP: '.$topPos.'px; HEIGHT: '.$height.'px" onclick="bring_to_front(\'device_'.$rowD['PK_Device'].'\')" onmousedown="bring_to_front(\'device_'.$rowD['PK_Device'].'\')">
+<DIV id="device_'.$rowD['PK_Device'].'" style="BORDER-RIGHT: 2px outset; BORDER-TOP: 2px outset; DISPLAY: ; Z-INDEX: 1; BORDER-LEFT: 2px outset; WIDTH: 250px; BORDER-BOTTOM: 2px outset; POSITION: absolute; '.((isset($oldDevice[$rowD['PK_Device']])?'LEFT: '.$oldDevice[$rowD['PK_Device']]['deviceX'].'; TOP: '.$oldDevice[$rowD['PK_Device']]['deviceY'].';':'LEFT: 100px; TOP: '.$topPos.'px;')).' HEIGHT: '.$height.'px" onclick="bring_to_front(\'device_'.$rowD['PK_Device'].'\')" onmousedown="bring_to_front(\'device_'.$rowD['PK_Device'].'\')">
   <TABLE height="100%" cellSpacing=0 cellPadding=0 width="100%" bgColor=#EEEEEE border=0>
       <TBODY>
         <TR onmouseup="end_drag(\'device_'.$rowD['PK_Device'].'\')" onmousedown="start_drag(\'device_'.$rowD['PK_Device'].'\')" id="head_'.$rowD['PK_Device'].'"> 
@@ -133,7 +195,7 @@ if ($action == 'form') {
           <TD align=middle><table width="100%" border="0">
 			<tr>
 				<td align="center" width="40"><div position:relative;>'.join('',$inputsForDevice).'</div></td>
-				<td align="center" width="100%">Device <br>'.$rowD['PK_Device'].'<br>'.$topPos.'</td>
+				<td align="center" width="100%">Device <br>'.$rowD['PK_Device'].'</td>
 				<td align="center" width="40"><div position:relative;>'.join('',$outputsForDevice).'</div></td>
 			</tr>	
 		</table></TD>
@@ -158,7 +220,9 @@ if ($action == 'form') {
 		$out.='	
 		</script>';
 	}
-	
+	$out.='<script>
+	'.@$jsDrawPipes.'
+	</script>';
 
 	$output->SetScriptInBody('onmousemove="drag_layer();"');
 } else {
@@ -169,11 +233,16 @@ if ($action == 'form') {
 			exit();
 		}
 		$entertainArea=(int)$_REQUEST['entertainArea'];
-		
-		setcookie('Pluto admin connection wizard','testing',31536000,'/',false);
+		$oldEntertainArea=(int)$_REQUEST['oldEntertainArea'];
 
-		
-		//header("Location: index.php?section=connectionWizard&msg=The devices was updated&entertainArea=$entertainArea");		
+
+		if($entertainArea!=0){
+			$cookieArray[$oldEntertainArea]=$_REQUEST['devicesCoords'];
+			$cookieData=serialize($cookieArray);
+			setcookie("PlutoAdminConnectionWizard_".$_SESSION['installationID'],$cookieData,time()+31536000,'/',false);
+		}
+				
+		header("Location: index.php?section=connectionWizard&msg=The devices was updated&entertainArea=$entertainArea");		
 	}
 
 	$output->setBody($out);

@@ -270,3 +270,21 @@ function setPipeType()
 		}
 	}
 }
+
+// save all positions and pipes
+function savePositions()
+{
+	toSave='';
+	for(key in layersArray){
+		eval("xCoord=document.getElementById('device_"+layersArray[key]+"').style.left");
+		eval("yCoord=document.getElementById('device_"+layersArray[key]+"').style.top");
+		audioCoords=(audioPipe[layersArray[key]])?audioPipe[layersArray[key]]['to']+':'+audioPipe[layersArray[key]]['coords']:'none';
+		videoCoords=(videoPipe[layersArray[key]])?videoPipe[layersArray[key]]['to']+':'+videoPipe[layersArray[key]]['coords']:'none';
+		audioLiveCoords=(audioLivePipe[layersArray[key]])?audioLivePipe[layersArray[key]]['to']+':'+audioLivePipe[layersArray[key]]['coords']:'none';
+		videoLiveCoords=(videoLivePipe[layersArray[key]])?videoLivePipe[layersArray[key]]['to']+':'+videoLivePipe[layersArray[key]]['coords']:'none';
+		toSave+=';'+layersArray[key]+';'+xCoord+';'+yCoord+';'+audioCoords+';'+videoCoords+';'+audioLiveCoords+';'+videoLiveCoords;
+	}
+	document.forms[0].devicesCoords.value=toSave;
+	document.connectionWizard.action.value='setCookie';
+	document.connectionWizard.submit();
+}
