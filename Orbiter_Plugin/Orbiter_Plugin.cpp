@@ -84,19 +84,16 @@ bool Orbiter_Plugin::Register()
         DeviceData_Router *pDeviceData_Router=(*it).second;
         if( pDeviceData_Router->WithinCategory(DEVICECATEGORY_Orbiter_CONST) )
         {
+            OH_Orbiter *pOH_Orbiter = new OH_Orbiter(pDeviceData_Router);
+            m_mapOH_Orbiter[pDeviceData_Router->m_dwPK_Device] = pOH_Orbiter;
             if( pDeviceData_Router->m_sMacAddress.size()==0 )
             {
-                g_pPlutoLogger->Write(LV_WARNING,"Mobile Orbiter: %d %s doesn't have a mac address.  Skipping",
+                g_pPlutoLogger->Write(LV_STATUS,"Mobile Orbiter: %d %s doesn't have a mac address.",
                     pDeviceData_Router->m_dwPK_Device,pDeviceData_Router->m_sDescription.c_str());
 
             }
             else
-            {
-                OH_Orbiter *pOH_Orbiter = new OH_Orbiter(pDeviceData_Router);
-                m_mapOH_Orbiter[pDeviceData_Router->m_dwPK_Device] = pOH_Orbiter;
-
                 m_mapOH_Orbiter_Mac[StringUtils::ToUpper(pDeviceData_Router->m_sMacAddress)] = pOH_Orbiter;
-            }
         }
     }
 
