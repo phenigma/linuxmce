@@ -1,0 +1,27 @@
+#ifndef __Define_DHCPDevice_H__
+#define __Define_DHCPDevice_H__
+
+
+#define DHCPDEVICE_TABLE "DHCPDevice"
+#define DHCPDEVICE_PK_DHCPDEVICE_FIELD "PK_DHCPDevice"
+#define DHCPDEVICE_PK_DHCPDEVICE_TABLE_FIELD "DHCPDevice.PK_DHCPDevice"
+#define DHCPDEVICE_FK_DEVICETEMPLATE_FIELD "FK_DeviceTemplate"
+#define DHCPDEVICE_FK_DEVICETEMPLATE_TABLE_FIELD "DHCPDevice.FK_DeviceTemplate"
+#define DHCPDEVICE_MAC_RANGE_LOW_FIELD "Mac_Range_Low"
+#define DHCPDEVICE_MAC_RANGE_LOW_TABLE_FIELD "DHCPDevice.Mac_Range_Low"
+#define DHCPDEVICE_MAC_RANGE_HIGH_FIELD "Mac_Range_High"
+#define DHCPDEVICE_MAC_RANGE_HIGH_TABLE_FIELD "DHCPDevice.Mac_Range_High"
+#define DHCPDEVICE_PSC_ID_FIELD "psc_id"
+#define DHCPDEVICE_PSC_ID_TABLE_FIELD "DHCPDevice.psc_id"
+#define DHCPDEVICE_PSC_BATCH_FIELD "psc_batch"
+#define DHCPDEVICE_PSC_BATCH_TABLE_FIELD "DHCPDevice.psc_batch"
+#define DHCPDEVICE_PSC_USER_FIELD "psc_user"
+#define DHCPDEVICE_PSC_USER_TABLE_FIELD "DHCPDevice.psc_user"
+#define DHCPDEVICE_PSC_FROZEN_FIELD "psc_frozen"
+#define DHCPDEVICE_PSC_FROZEN_TABLE_FIELD "DHCPDevice.psc_frozen"
+#define DHCPDEVICE_PSC_MOD_FIELD "psc_mod"
+#define DHCPDEVICE_PSC_MOD_TABLE_FIELD "DHCPDevice.psc_mod"
+
+
+#endif
+
