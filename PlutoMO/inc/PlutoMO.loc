@@ -10,14 +10,6 @@
 
 #define qtn_app_short_caption_string "PlutoMO"
 
-#define GAMES_GRID_ITEM1_TEXT "0\tSnap"
-#define GAMES_GRID_ITEM2_TEXT "1\tGolf"
-#define GAMES_GRID_ITEM3_TEXT "2\tClock"
-#define GAMES_GRID_ITEM4_TEXT "3\tAces"
-#define GAMES_GRID_ITEM5_TEXT "4\tHearts"
-#define GAMES_GRID_ITEM6_TEXT "5\tRummy"
-#define GAMES_GRID_ITEM7_TEXT "6\tPoker"
-
 #define ICON_FILE_NAME "\\system\\apps\\PlutoMO\\PlutoMO.mbm"
 
 

@@ -41,17 +41,12 @@ SOURCE  StringUtils.cpp
 SOURCEPATH ..\..\SerializeClass
 SOURCE  SerializeClass.cpp
 
-SOURCEPATH ..\..\..\..\Symbian\7.0s\Series60_v21\Series60Ex\helperfunctions
-SOURCE  BitmapMethods.cpp
-
 SOURCEPATH ..\src
 SOURCE  PlutoMOApp.cpp 
 SOURCE  PlutoMOAppUi.cpp
 SOURCE  PlutoMODocument.cpp
 SOURCE  PlutoMOContainer.cpp
 SOURCE  PlutoMOEngine.cpp
-SOURCE  PlutoMOGridEngine.cpp
-SOURCE  PlutoMOGridContainer.cpp
 SOURCE  PlutoVMCContainer.cpp
 SOURCE  PlutoVMCUtil.cpp
 SOURCE  PlutoVMCView.cpp
@@ -81,7 +76,7 @@ LIBRARY euser.lib
 LIBRARY apparc.lib 
 LIBRARY cone.lib 
 LIBRARY eikcore.lib 
-LIBRARY commonengine.lib
+//LIBRARY commonengine.lib
 LIBRARY eikcoctl.lib 
 LIBRARY avkon.lib 
 LIBRARY bafl.lib 
@@ -97,29 +92,12 @@ LIBRARY gdi.lib
 LIBRARY mediaclientimage.lib
 LIBRARY fbscli.lib
 LIBRARY ws32.lib
-LIBRARY bitgdi.lib
+//LIBRARY bitgdi.lib
 LIBRARY etel.lib
 LIBRARY logcli.lib
-LIBRARY aknnotify.lib
-
-
-LIBRARY http.lib
-LIBRARY InetProtUtil.lib 
-
-// Creates Mbm file.
-START BITMAP    PlutoMO.mbm
-HEADER
-TARGETPATH      \system\apps\PlutoMO
-SOURCEPATH      ..\bitmaps
-SOURCE          C12 Snap.bmp
-SOURCE          C12 Golf.bmp
-SOURCE          C12 Clock.bmp
-SOURCE          C12 Card_mask.bmp
-SOURCE          C12 Aces.bmp
-SOURCE          C12 Hearts.bmp
-SOURCE          C12 Rummy.bmp
-SOURCE          C12 Poker.bmp
-END
+//LIBRARY aknnotify.lib
+//LIBRARY http.lib
+//LIBRARY InetProtUtil.lib 
 
 AIF PlutoMO.aif ..\aif PlutoMOaif.rss c8 context_pane_icon.bmp context_pane_icon_mask.bmp list_icon.bmp list_icon_mask.bmp
 

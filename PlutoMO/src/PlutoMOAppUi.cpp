@@ -17,7 +17,7 @@
 
 #include "PlutoMOAppUi.h"
 #include "PlutoMOContainer.h" 
-#include <PlutoMO.rsg>
+//#include <PlutoMO.rsg>
 #include "PlutoMO.hrh"
 
 #include <avkon.hrh>
@@ -83,7 +83,7 @@ void CPlutoMOAppUi::ConstructL()
 	ReadConfigurationFile();
 
 	LOG("Setup incoming call notifier\n");
-	SetupIncomingCallNotifier(); // ARMI only (it is crashing in WINS)
+	SetupIncomingCallNotifier(); // ARM only (it is crashing in WINS)
 	
 	iCurType = 0;
 }

@@ -19,7 +19,7 @@
 #include <aknnotewrappers.h> 
 #include <aknutils.h>  // for Fonts. 
 
-#include "bitmapmethods.h"
+//#include "bitmapmethods.h"
 #include "palbimageviewerbasic.h"
 
 #include "PlutoUtils/MyString.h"

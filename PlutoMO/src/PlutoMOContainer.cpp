@@ -25,7 +25,7 @@
 #include <PlutoMO.rsg> // R_PlutoMO_GAMES_GRID, R_ICON_FILE_NAME
 
 
-#include "PlutoMOGridEngine.h"//CPlutoMOGridEngine
+//#include "PlutoMOGridEngine.h"//CPlutoMOGridEngine
 
 void CPlutoMOContainer::ConstructL(const TRect& aRect)
     {
