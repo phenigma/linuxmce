@@ -16,6 +16,8 @@ using namespace DCE;
 	#include <unistd.h>
 #endif
 
+#include "Orbiter_Plugin/Orbiter_Plugin.h" 
+
 #include "DCE/DataGrid.h"
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_Device.h"
@@ -93,6 +95,15 @@ bool Infrared_Plugin::Register()
 	m_pDatagrid_Plugin->RegisterDatagridGenerator(
 		new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&Infrared_Plugin::InfraredCodes)),
 		DATAGRID_Infrared_Codes_CONST);
+
+    ListCommand_Impl *pListCommand_Impl_2nd = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Orbiter_Plugin_CONST );
+    if( !pListCommand_Impl_2nd || pListCommand_Impl_2nd->size( )!=1 )
+    {
+        g_pPlutoLogger->Write( LV_CRITICAL, "Infrared plug in cannot find orbiter handler %s", ( pListCommand_Impl_2nd ? "There were more than 1" : "" ) );
+        return false;
+    }
+
+    m_pOrbiter_Plugin=( Orbiter_Plugin * ) pListCommand_Impl_2nd->front( );
 
 	return Connect(PK_DeviceTemplate_get()); 
 }
@@ -536,10 +547,8 @@ g_pPlutoLogger->Write(LV_STATUS,"it's already in the preferred table for %d",pRo
 
 	/** @brief COMMAND: #276 - Add GC100 */
 	/** Add a GC100 Device */
-		/** @param #2 PK_Device */
-			/** Device from where the message comes */
 
-void Infrared_Plugin::CMD_Add_GC100(int iPK_Device,string &sCMD_Result,Message *pMessage)
+void Infrared_Plugin::CMD_Add_GC100(string &sCMD_Result,Message *pMessage)
 //<-dceag-c276-e->
 {
 #ifndef WIN32
@@ -549,7 +558,7 @@ void Infrared_Plugin::CMD_Add_GC100(int iPK_Device,string &sCMD_Result,Message *
   FILE *fp;
 
   Command = "/usr/pluto/bin/gc100-conf.pl";
-
+  int iPK_Device_Orbiter = pMessage->m_dwPK_Device_From;
   pid_t pid = fork();
   switch (pid)
   {
@@ -583,7 +592,7 @@ void Infrared_Plugin::CMD_Add_GC100(int iPK_Device,string &sCMD_Result,Message *
 					g_pPlutoLogger->Write(LV_STATUS, "GC100 Configure script did not generate any log's");
 				}
 				g_pPlutoLogger->Write(LV_STATUS, "The configure script returned with success");
-//				DisplayMessageOnOrbiter(iPK_Device,"GC100 added with success");
+				m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 added with success");
 			} else {
 				fp = fopen("/var/log/pluto/gc100-conf.log","rt");
 				if(fp != NULL) {
@@ -603,7 +612,7 @@ void Infrared_Plugin::CMD_Add_GC100(int iPK_Device,string &sCMD_Result,Message *
 					g_pPlutoLogger->Write(LV_STATUS, "GC100 Configure script did not generate any log's");
 				}
 				g_pPlutoLogger->Write(LV_STATUS, "The configure script failed to configure gc100");
-//				DisplayMessageOnOrbiter(iPK_Device,"GC100 failed to be added");
+				m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 failed to be added");
 			}
 			break;
         }
