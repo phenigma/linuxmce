@@ -17,13 +17,13 @@
 
 #include "BD/BDCommandProcessor.h"
 #include "VIPShared/BDCommandProcessor_BluetoothDongle.h"
-//#include "Bluetooth_Dongle/Bluetooth_Dongle.h"
+#include "Bluetooth_Dongle/Bluetooth_Dongle.h"
 
 using namespace DCE;
 
 //-----------------------------------------------------------------------------------------------------
 BDCommandProcessor_BluetoothDongle::BDCommandProcessor_BluetoothDongle(
-	class Bluetooth_Dongle *pBluetooth_Dongle, 
+	Bluetooth_Dongle *pBluetooth_Dongle, 
 	string sMacAddressPhone,
 	class PhoneDevice *pPhoneDevice
 #ifdef BT_SOCKET
@@ -34,9 +34,9 @@ BDCommandProcessor_BluetoothDongle::BDCommandProcessor_BluetoothDongle(
 		BDCommandProcessor_Windows_Socket(sMacAddressPhone, pSocket)
 #else
 	#ifdef WIN32
-		BDCommandProcessor_Windows_Bluetooth(sMacAddressPhone, sMacAddressPhone/*pBluetooth_Dongle->MacAddress()*/)
+		BDCommandProcessor_Windows_Bluetooth(sMacAddressPhone, pBluetooth_Dongle->MacAddress())
 	#else
-		BDCommandProcessor_Linux_Bluetooth(sMacAddressPhone,sMacAddressPhone/*pBluetooth_Dongle->MacAddress()*/,pPhoneDevice)
+		BDCommandProcessor_Linux_Bluetooth(sMacAddressPhone,pBluetooth_Dongle->MacAddress(),pPhoneDevice)
 	#endif //WIN32
 #endif //BT_SOCKET
 {
