@@ -144,8 +144,8 @@ void EIB::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD
 				case DEVICETEMPLATE_Generic_Input_Ouput_CONST: {
 					string sInputOrOutput = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_InputOrOutput_CONST);
 					if(sInputOrOutput == "0" || sInputOrOutput == "2") { /* check if input */
-						string sPort = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_Port_CONST);
-						tlmsg.setGroupAddress(sPort.c_str());
+						string sChannel = pDeviceData_Impl->mapParameters_Find(DEVICEDATA_Channel_CONST);
+						tlmsg.setGroupAddress(sChannel.c_str());
 						tlmsg.setShortUserData((unsigned int)atoi(pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST].c_str()));
 						g_pPlutoLogger->Write(LV_STATUS, "Turning ON");
 						m_msgPool.sendTelegram(&tlmsg);
@@ -316,11 +316,17 @@ void EIB::handleTelegram(const TelegramMessage *pt) {
 bool EIB::processTelegram(const EIBBUS::TelegramMessage *pt, DeviceData_Impl *pDevData) {
 	Message* pMessage = NULL;
 	switch(pDevData->m_dwPK_DeviceTemplate) {
-		case DEVICETEMPLATE_Generic_Input_Ouput_CONST: {
+		case DEVICETEMPLATE_Generic_Input_Ouput_CONST: 
+		case DEVICETEMPLATE_Air_Quality_Sensor_CONST: 
+		case DEVICETEMPLATE_Door_Sensor_CONST: 
+		case DEVICETEMPLATE_Glass_Break_Sensor_CONST: 
+		case DEVICETEMPLATE_Motion_Detector_CONST: 
+		case DEVICETEMPLATE_Siren_CONST: 
+		case DEVICETEMPLATE_Smoke_Detector_CONST: {
 			string sInputOrOutput = pDevData->mapParameters_Find(DEVICEDATA_InputOrOutput_CONST);
 			if(sInputOrOutput == "1" || sInputOrOutput == "2") { /* check if output */
-				string sPort = pDevData->mapParameters_Find(DEVICEDATA_Port_CONST);
-				if(sPort == pt->getGroupAddress()) {
+				string sChannel = pDevData->mapParameters_Find(DEVICEDATA_Channel_CONST);
+				if(sChannel == pt->getGroupAddress()) {
 					g_pPlutoLogger->Write(LV_STATUS, "Sensor triggered. Sending Event."); 
 					pMessage = new Message(pDevData->m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
 									EVENT_Sensor_Tripped_CONST, 1, 25, StringUtils::itos(pt->getShortUserData()).c_str());
