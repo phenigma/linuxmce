@@ -246,11 +246,12 @@ int main(int argc, char *argv[])
 	// Get a list of all the packages that we are going to build based on the package and manufacturer data passed in
 	vector<Row_Package *> vectPackages_Main;
 	g_pDatabase_pluto_main->Package_get()->GetRows( sWhere.length()>0 ? sWhere : "1=1", &vectPackages_Main );
+	cout << sWhere << endl;
 	cout << "Found the following " << vectPackages_Main.size() << " packages:" << endl;
 	for(size_t s=0;s<vectPackages_Main.size();++s)
 	{
 		g_mapPackagesToBuild[vectPackages_Main[s]->PK_Package_get()]=false;
-		cout << vectPackages_Main[s]->Description_get() << " ";
+		cout << vectPackages_Main[s]->PK_Package_get() << " " << vectPackages_Main[s]->Description_get() << " ";
 //		if( (s+1) % 3==0 )
 			cout << endl;
 	}
@@ -472,6 +473,9 @@ cout << "sources: " << vectRow_Package_Source.size() << endl;
 bool CreateSource(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo)
 {
     // Update the version record
+	cout << "Setting version for package " << pRow_Package_Source->FK_Package_get() << " " << pRow_Package_Source->FK_Package_getrow()->Description_get() << 
+		" Source " << pRow_Package_Source->PK_Package_Source_get() << " " << pRow_Package_Source->FK_RepositorySource_getrow()->Description_get() << endl;
+
 	pRow_Package_Source->Version_set(g_pRow_Version->VersionName_get());
 
 	// Also update the SVN/CVS record
