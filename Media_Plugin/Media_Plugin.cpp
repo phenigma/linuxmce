@@ -1353,10 +1353,12 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
 
     SQL = "select PK_Attribute, Name, FirstName, Description FROM SearchToken "\
         "JOIN SearchToken_Attribute ON PK_SearchToken=FK_SearchToken "\
-        "JOIN Attribute ON FK_Attribute=PK_Attribute "\
-        "JOIN AttributeType ON FK_AttributeType=PK_AttributeType "\
+        "JOIN Attribute ON SearchToken_Attribute.FK_Attribute=PK_Attribute "\
+        "JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "\
+        "JOIN Type_AttributeType ON Type_AttributeType.FK_AttributeType=PK_AttributeType "\
         "WHERE Token like '" + AC + "%' " +
 		(AttributesFirstSearch.length() ? "AND PK_Attribute NOT IN (" + AttributesFirstSearch + ") " : "") +
+		(sPK_Type.length() ? " AND FK_Type IN (" + sPK_Type + ") " : "") +
 		" ORDER BY Name "\
         "limit 30;";
 
