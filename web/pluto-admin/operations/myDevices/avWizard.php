@@ -495,18 +495,20 @@ function avWizard($output,$dbADO) {
 					if($orbiterMDChild){
 						$out.='
 						<tr>
-							<td colspan="8">'.getInstallWizardDeviceTemplates(6,$dbADO,$orbiterMDChild,$mdDistro,1).'</td>
+							<td colspan="8">'.getInstallWizardDeviceTemplates(6,$dbADO,$orbiterMDChild,$mdDistro,1).'<hr></td>
 						</tr>';
 					}
+				}else {
+					$out.='
+						<tr>
+							<td colspan="8"><hr></td>
+						</tr>';					
 				}
 			}
 			$out.='
 				<input type="hidden" name="DeviceDataToDisplay" value="'.join(',',$DeviceDataToDisplay).'">
 				<input type="hidden" name="displayedDevices" value="'.join(',',array_keys($displayedDevices)).'">';
-			$out.='
-				<tr>
-					<td colspan="8"><hr></td>
-				</tr>';
+
 			if($resDevice->RecordCount()!=0){
 				$out.='
 				<tr>
