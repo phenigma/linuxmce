@@ -370,6 +370,17 @@ int main( int argc, char *argv[] )
 				}
 				database.Update( );
 			}
+			else if( g_GlobalConfig.m_sCommand=="sync" )
+			{
+				if( g_GlobalConfig.m_sRepository.length( ) )
+				{  
+					/** If it was a valid repository, GetRepositoriesTables would have replaced it with a pointer to the repository in mapRepository */
+					cerr << "Repository: " << g_GlobalConfig.m_sRepository << "is invalid";
+					throw "Bad Arguments";
+				}
+				database.CheckIn( );
+				database.Update( );
+			}
 			else if( g_GlobalConfig.m_sCommand=="listen" )
 			{
 				RAServer *pServer = new RAServer( );
