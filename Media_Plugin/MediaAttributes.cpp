@@ -49,7 +49,7 @@ void MediaAttributes::TransformFilenameToDeque(string sFilename,deque<MediaFile 
 
 	if( sFilename[0] != '#' || sFilename.length()<3 )
 	{
-		dequeFilenames.push_back(new MediaFile(sFilename));  // Just a normal file
+		dequeFilenames.push_back(new MediaFile(this,sFilename));  // Just a normal file
 		return;
 	}
 
@@ -74,7 +74,7 @@ void MediaAttributes::TransformFilenameToDeque(string sFilename,deque<MediaFile 
 		dequeFilenames.push_back(new MediaFile(atoi(sFilename.substr(2).c_str()),GetFilePathFromFileID(atoi(sFilename.substr(2).c_str()))));
 	else
 	{
-		dequeFilenames.push_back(new MediaFile(sFilename));  // Just a normal file
+		dequeFilenames.push_back(new MediaFile(this,sFilename));  // Just a normal file
 	}
 }
 
@@ -687,7 +687,12 @@ int MediaAttributes::GetFileIDFromFilePath( string File )
         File.replace( s, 3, "/home/public/data/" );
     while( ( s=File.find( '\\' ) )!=string::npos )
         File.replace( s, 1, "/" );
-    string SQL = "SELECT PK_File FROM File WHERE Path='" + StringUtils::SQLEscape( File ) + "'";
+
+	string Path = FileUtils::BasePath(File);
+	if( Path.length() && Path[ Path.length()-1 ]=='/' )
+		Path = Path.substr(0,Path.length()-1);
+	string SQL = "SELECT PK_File FROM File WHERE Path='" + StringUtils::SQLEscape( Path ) + 
+		"' AND Filename='" + StringUtils::SQLEscape( FileUtils::FilenameWithoutPath(File) ) + "'";
     if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
         return atoi( row[0] );
 

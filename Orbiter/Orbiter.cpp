@@ -760,7 +760,7 @@ void Orbiter::RenderDataGrid( DesignObj_DataGrid *pObj )
 
     bool bAddedUpButton=false, bAddedDownButton=false;
     // If we're not capturing the scrolling,  we'll add butttons the user can touch
-    if(  pObj->m_sExtraInfo.find( 'C' )==string::npos  )
+    if(  pObj->m_sExtraInfo.find( 'S' )!=string::npos  )
     {
         ArrRows = pObj->CanGoDown(  ) + ( pObj->CanGoUp(  ) && pObj->CanGoDown(  ) );
         if ( pObj->CanGoUp(  ) )
@@ -1242,7 +1242,7 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  int X,  in
                 {
                     if ( bFoundSelection )
                     {
-                        if ( RenderCell( ( DesignObj_DataGrid * )pDesignObj_DataGrid,  pT,  pCell,  j,  i ,  false ) )
+                        if ( RenderCell( ( DesignObj_DataGrid * )pDesignObj_DataGrid,  pT,  pCell,  j,  i ,  GRAPHIC_NORMAL ) )
                             m_vectObjs_NeedRedraw.push_back( pDesignObj_DataGrid );
                         bFinishLoop = true;
                     }
@@ -1259,7 +1259,6 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  int X,  in
                     SelectedGrid( pDesignObj_DataGrid,  pCell );
                     bFinishLoop = true;
                     bFoundSelection = true; // Is this correct????  Hacked in this time
-                    break;
                 }
 
                 if ( pLastCell != pCell )
@@ -1504,7 +1503,8 @@ bool Orbiter::ClickedButton( DesignObj_Orbiter *pObj, int PK_Button )
     DesignObj_DataList::iterator iHao;
     for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
     {
-        bool bResult=ClickedButton( ( DesignObj_Orbiter * )( *iHao ), PK_Button );
+		DesignObj_Orbiter *pDesignObj_Orbiter = (DesignObj_Orbiter *)( *iHao );
+        bool bResult=ClickedButton( pDesignObj_Orbiter, PK_Button );
         if(  !bFoundHandler && bResult  )
             bFoundHandler=true;
     }
@@ -3182,6 +3182,8 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
             Output += StringUtils::itos( m_dwPK_Device );
         else if(  Variable=="E" && m_pScreenHistory_Current && m_pScreenHistory_Current->m_pLocationInfo  )
             Output += StringUtils::itos( m_pScreenHistory_Current->m_pLocationInfo->PK_EntertainArea );
+        else if(  Variable=="L" && m_pScreenHistory_Current && m_pScreenHistory_Current->m_pLocationInfo  )
+            Output += m_pScreenHistory_Current->m_pLocationInfo->Description;
         else if(  Variable=="V" )
             Output += string(VERSION);
         else if(  Variable=="NP" )
@@ -3737,7 +3739,7 @@ void Orbiter::CMD_Goto_Screen(int iPK_Device,string sPK_DesignObj,string sID,str
 
     DesignObj_Orbiter *pObj_New=m_ScreenMap_Find( sDestScreen );
     if(  !pObj_New  )
-        pObj_New=m_ScreenMap_Find( sDestScreen + ".0.0" );
+		pObj_New=m_ScreenMap_Find( StringUtils::itos(atoi(sDestScreen.c_str())) + ".0.0" );
     if(  !pObj_New  )
     {
         g_pPlutoLogger->Write( LV_CRITICAL, "cannot find screen %s in goto", sPK_DesignObj.c_str(  ) );

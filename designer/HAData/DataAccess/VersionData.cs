@@ -15,14 +15,12 @@ namespace HAData.DataAccess {
 		public const String VERSIONNAME_FIELD = "VersionName";
 		public const String DATE_FIELD = "Date";
 		public const String DESCRIPTION_FIELD = "Description";
-		public const String DEFINE_FIELD = "Define";
 		public const String REPOSITORY_FIELD = "Repository";
 		// table+field constants
 		public const String PK_VERSION_TABLE_FIELD = "Version.PK_Version";
 		public const String VERSIONNAME_TABLE_FIELD = "Version.VersionName";
 		public const String DATE_TABLE_FIELD = "Version.Date";
 		public const String DESCRIPTION_TABLE_FIELD = "Version.Description";
-		public const String DEFINE_TABLE_FIELD = "Version.Define";
 		public const String REPOSITORY_TABLE_FIELD = "Version.Repository";
 		// DataSetCommand object
 		protected OdbcDataAdapter m_DSCommand;
@@ -32,7 +30,6 @@ namespace HAData.DataAccess {
 		protected const String VERSIONNAME_PARM = "@VersionName";
 		protected const String DATE_PARM = "@Date";
 		protected const String DESCRIPTION_PARM = "@Description";
-		protected const String DEFINE_PARM = "@Define";
 		protected const String REPOSITORY_PARM = "@Repository";
 		protected const String USERID_PARM = "@UserID";
 
@@ -102,7 +99,6 @@ namespace HAData.DataAccess {
 			Columns.Add(VERSIONNAME_FIELD, typeof(System.String));
 			Columns.Add(DATE_FIELD, typeof(System.DateTime));
 			Columns.Add(DESCRIPTION_FIELD, typeof(System.String));
-			Columns.Add(DEFINE_FIELD, typeof(System.String));
 			Columns.Add(REPOSITORY_FIELD, typeof(System.Int32));
 			Table.PrimaryKey = PKColumns;
 
@@ -113,7 +109,6 @@ namespace HAData.DataAccess {
 			Params.Add(new OdbcParameter(VERSIONNAME_PARM, OdbcType.VarChar, 13));
 			Params.Add(new OdbcParameter(DATE_PARM, OdbcType.DateTime,4));
 			Params.Add(new OdbcParameter(DESCRIPTION_PARM, OdbcType.VarChar, 30));
-			Params.Add(new OdbcParameter(DEFINE_PARM, OdbcType.VarChar, 30));
 			Params.Add(new OdbcParameter(REPOSITORY_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(USERID_PARM, OdbcType.Int));
 
@@ -127,7 +122,6 @@ namespace HAData.DataAccess {
 			Params[VERSIONNAME_PARM].SourceColumn = VersionData.VERSIONNAME_FIELD;
 			Params[DATE_PARM].SourceColumn = VersionData.DATE_FIELD;
 			Params[DESCRIPTION_PARM].SourceColumn = VersionData.DESCRIPTION_FIELD;
-			Params[DEFINE_PARM].SourceColumn = VersionData.DEFINE_FIELD;
 			Params[REPOSITORY_PARM].SourceColumn = VersionData.REPOSITORY_FIELD;
 		}
 
@@ -176,7 +170,7 @@ namespace HAData.DataAccess {
 		}
 
 		protected static void CreateCommands(OdbcDataAdapter odbcda,OdbcConnection Conn, OdbcTransaction Trans, ref OdbcCommand LoadCommand, ref OdbcCommand InsertCommand, ref OdbcCommand UpdateCommand, ref OdbcCommand DeleteCommand) {
-				LoadCommand = new OdbcCommand("SELECT PK_Version,VersionName,Date,Description,Define,Repository FROM Version", Conn);
+				LoadCommand = new OdbcCommand("SELECT PK_Version,VersionName,Date,Description,Repository FROM Version", Conn);
 				LoadCommand.Transaction = Trans;
 
 				LoadCommand.Parameters.Add(new OdbcParameter(PK_VERSION_PARM, OdbcType.Int,4));
@@ -220,7 +214,7 @@ namespace HAData.DataAccess {
 				conn = HADataConfiguration.GetOdbcConnection();
 			
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			string sSQL = "SELECT PK_Version, VersionName, Date, Description, Define, Repository FROM Version WHERE " + WhereClause;
+			string sSQL = "SELECT PK_Version, VersionName, Date, Description, Repository FROM Version WHERE " + WhereClause;
 			
 			OdbcCommand LoadCommand = new OdbcCommand(sSQL,conn);
 			
@@ -516,49 +510,27 @@ namespace HAData.DataAccess {
 		{
 			dr[3]=DBNull.Value;
 		}
-		public System.String fDefine
+		public System.Int32 fRepository
 		{
 			get
 			{
-				return Convert.ToString(dr[4]);
+				return Convert.ToInt32(dr[4]);
 			}
 			set
 			{
 				dr[4]=value;
 			}
 		}
-		public bool fDefineIsNull
+		public bool fRepositoryIsNull
 		{
 			get
 			{
 				return dr[4]==DBNull.Value;
 			}
 		}
-		public void fDefineSetNull()
-		{
-			dr[4]=DBNull.Value;
-		}
-		public System.Int32 fRepository
-		{
-			get
-			{
-				return Convert.ToInt32(dr[5]);
-			}
-			set
-			{
-				dr[5]=value;
-			}
-		}
-		public bool fRepositoryIsNull
-		{
-			get
-			{
-				return dr[5]==DBNull.Value;
-			}
-		}
 		public void fRepositorySetNull()
 		{
-			dr[5]=DBNull.Value;
+			dr[4]=DBNull.Value;
 		}
 	} // public class VersionDataRow
 	public class VersionDataReader
@@ -642,8 +614,8 @@ namespace HAData.DataAccess {
 			while( dr.Read() )
 			{
 				iNumRecords++;
-				object[] objs = new object[6];
-				for(int i=0;i<6;i++)
+				object[] objs = new object[5];
+				for(int i=0;i<5;i++)
 					objs[i]=dr[i];
 				al.Add(objs);
 			}
@@ -737,34 +709,14 @@ namespace HAData.DataAccess {
 					return dr[3]==DBNull.Value;
 			}
 		}
-		public System.String fDefine
-		{
-			get
-			{
-				if( bCache )
-					return Convert.ToString(((object[]) al[iRecord])[4]);
-				else
-					return Convert.ToString(dr[4]);
-			}
-		}
-		public bool fDefineIsNull
-		{
-			get
-			{
-				if( bCache )
-					return ((object[]) al[iRecord])[4]==DBNull.Value;
-				else
-					return dr[4]==DBNull.Value;
-			}
-		}
 		public System.Int32 fRepository
 		{
 			get
 			{
 				if( bCache )
-					return Convert.ToInt32(((object[]) al[iRecord])[5]);
+					return Convert.ToInt32(((object[]) al[iRecord])[4]);
 				else
-					return Convert.ToInt32(dr[5]);
+					return Convert.ToInt32(dr[4]);
 			}
 		}
 		public bool fRepositoryIsNull
@@ -772,9 +724,9 @@ namespace HAData.DataAccess {
 			get
 			{
 				if( bCache )
-					return ((object[]) al[iRecord])[5]==DBNull.Value;
+					return ((object[]) al[iRecord])[4]==DBNull.Value;
 				else
-					return dr[5]==DBNull.Value;
+					return dr[4]==DBNull.Value;
 			}
 		}
 	} // public class VersionDataReader
@@ -807,7 +759,7 @@ namespace HAData.DataAccess {
 		public DataRowCollection LoadAll(OdbcConnection conn, OdbcTransaction trans)
 		{
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			OdbcCommand LoadCommand = new OdbcCommand("SELECT PK_Version,VersionName,Date,Description,Define,Repository FROM Version", conn);
+			OdbcCommand LoadCommand = new OdbcCommand("SELECT PK_Version,VersionName,Date,Description,Repository FROM Version", conn);
 			LoadCommand.CommandType = CommandType.Text;
 			if( trans!=null )
 				LoadCommand.Transaction = trans;
@@ -857,18 +809,11 @@ namespace HAData.DataAccess {
 				return Columns[3];
 			}
 		}
-		public DataColumn cDefine
-		{
-			get
-			{
-				return Columns[4];
-			}
-		}
 		public DataColumn cRepository
 		{
 			get
 			{
-				return Columns[5];
+				return Columns[4];
 			}
 		}
 	}

@@ -187,6 +187,14 @@ string FileUtils::FindExtension( string sFileName )
     return sResult;
 }
 
+string FileUtils::FileWithoutExtension ( string sFileName )
+{
+	string sExtension = FindExtension(sFileName);
+	if( sExtension.length() )
+		return sFileName.substr(0, sFileName.length()-sExtension.length()-1);
+	return sFileName;
+}
+
 string FileUtils::BasePath( string sInput )
 {
     while ( sInput.length() > 0 && sInput[sInput.length() - 1] == '/')

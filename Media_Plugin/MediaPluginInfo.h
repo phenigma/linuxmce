@@ -139,7 +139,7 @@ namespace DCE
         int             m_iStoppedAtPosition;
 
         char *m_pPictureData;
-        int m_iPictureSize;
+        size_t m_iPictureSize;
         MediaDevice *m_pMediaDevice;      /** The source device */
         int m_iPK_MediaType;        /** The type of media */
         int m_iPK_DesignObj_Remote; /** What screen to use as the remote control */

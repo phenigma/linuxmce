@@ -79,10 +79,13 @@ void GetDirContents(list<FileDetails *> &listFileNames,string Path, bool bSortBy
 				for (;;)
 				{
 					string s = StringUtils::Tokenize(sValidExtensions_CSV, ",", pos);
+					if( s.length()==0 )
+						break;
 					if (s.substr(0,1) == "*")
 						s = s.substr(1);
 					if (s == ".*" || s.length()==0 || strstr(finddata.name, s.c_str()) != NULL)
 					{
+g_pPlutoLogger->Write(LV_WARNING, "Adding '%s' to datagrid", finddata.name);
 						FileDetails *fi = new FileDetails(BasePath, finddata.name, false, time(NULL));
 						listFileNames.push_back(fi);
 						break;

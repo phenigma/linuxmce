@@ -53,6 +53,8 @@ using namespace DCE;
 #include "pluto_media/Table_Attribute.h"
 #include "pluto_media/Table_File_Attribute.h"
 #include "pluto_media/Table_File.h"
+#include "pluto_media/Table_Picture_File.h"
+#include "pluto_media/Table_Picture_Attribute.h"
 
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
 #include "pluto_main/Define_DataGrid.h"
@@ -345,7 +347,7 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
         if( pMediaPluginInfo->m_bUsesRemovableMedia ) // todo - hack --- this should be a list of removable media devices
         {
             deque<MediaFile *> dequeMediaFile;
-            dequeMediaFile.push_back(new MediaFile(MRL));
+            dequeMediaFile.push_back(new MediaFile(m_pMediaAttributes,MRL));
             StartMedia(pMediaPluginInfo,0,pEntertainArea,pDeviceFrom->m_dwPK_Device,0,&dequeMediaFile);
             return true;
         }
@@ -403,12 +405,12 @@ bool Media_Plugin::StartMedia( MediaPluginInfo *pMediaPluginInfo, int PK_Device_
     // file to play is a mounted dvd, then we can't add to the queue, and will need to create a new media stream
     if( pEntertainArea->m_pMediaStream )
     {
-        if( (pEntertainArea->m_pMediaStream->m_iPK_MediaType!=MEDIATYPE_pluto_StoredAudio_CONST && pEntertainArea->m_pMediaStream->m_iPK_MediaType!=MEDIATYPE_pluto_StoredVideo_CONST) ||
-            pMediaPluginInfo!=pEntertainArea->m_pMediaStream->m_pMediaPluginInfo )
+        if( pEntertainArea->m_pMediaStream->m_pMediaPluginInfo!=pMediaPluginInfo )
         {
             // We can't queue this.
-            delete pEntertainArea->m_pMediaStream;
-            pEntertainArea->m_pMediaStream=NULL;
+			pEntertainArea->m_pMediaStream->m_pMediaPluginInfo->m_pMediaPluginBase->StopMedia( pEntertainArea->m_pMediaStream );
+			delete pEntertainArea->m_pMediaStream;
+			pEntertainArea->m_pMediaStream=NULL;
         }
     }
 
@@ -562,6 +564,50 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
 
 void Media_Plugin::MediaInfoChanged( MediaStream *pMediaStream )
 {
+	delete pMediaStream->m_pPictureData;
+	pMediaStream->m_iPictureSize=0;
+
+	if( pMediaStream->m_dequeMediaFile.size() )
+	{
+		MediaFile *pMediaFile = pMediaStream->m_dequeMediaFile[pMediaStream->m_iDequeMediaFile_Pos];
+		pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer(pMediaFile->m_sPath + "/" +
+			FileUtils::FileWithoutExtension(pMediaFile->m_sFilename) + ".jpg", pMediaStream->m_iPictureSize);
+
+		if( !pMediaStream->m_pPictureData )
+		{
+			pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer(pMediaFile->m_sPath + "/cover.jpg", pMediaStream->m_iPictureSize);
+			if( !pMediaStream->m_pPictureData && pMediaFile->m_dwPK_File )
+			{
+				int PK_Picture=0;
+				Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(pMediaFile->m_dwPK_File);
+				vector<Row_Picture_File *> vectRow_Picture_File;
+				if( pRow_File )
+				{
+					pRow_File->Picture_File_FK_File_getrows(&vectRow_Picture_File);
+					if( vectRow_Picture_File.size() )
+						PK_Picture = vectRow_Picture_File[0]->FK_Picture_get();
+					else
+					{
+						vector<Row_File_Attribute *> vectRow_File_Attribute;
+						pRow_File->File_Attribute_FK_File_getrows(&vectRow_File_Attribute);
+						for(size_t s=0;s<vectRow_File_Attribute.size();++s)
+						{
+							vector<Row_Picture_Attribute *> vectRow_Picture_Attribute;
+							vectRow_File_Attribute[s]->FK_Attribute_getrow()->Picture_Attribute_FK_Attribute_getrows(&vectRow_Picture_Attribute);
+							if( vectRow_Picture_Attribute.size() )
+							{
+								PK_Picture = vectRow_Picture_Attribute[0]->FK_Picture_get();
+								break;
+							}
+						}
+					}
+				}
+				if( PK_Picture )
+					pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + ".jpg", pMediaStream->m_iPictureSize);
+			}
+		}
+	}
+
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     for( MapEntertainArea::iterator it=pMediaStream->m_mapEntertainArea.begin( );it!=pMediaStream->m_mapEntertainArea.end( );++it )
     {
@@ -610,6 +656,18 @@ void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_De
 
     g_pPlutoLogger->Write( LV_STATUS, "Got MH_stop media" );
     pEntertainArea->m_pMediaStream->m_pMediaPluginInfo->m_pMediaPluginBase->StopMedia( pEntertainArea->m_pMediaStream );
+
+    for( MapEntertainArea::iterator it=pEntertainArea->m_pMediaStream->m_mapEntertainArea.begin( );it!=pEntertainArea->m_pMediaStream->m_mapEntertainArea.end( );++it )
+    {
+        EntertainArea *pEntertainArea = ( *it ).second;
+		for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
+		{
+			OH_Orbiter *pOH_Orbiter = (*it).second;
+			if( pOH_Orbiter->m_pEntertainArea==pEntertainArea )
+				m_pOrbiter_Plugin->SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, "" );
+		}
+    }
+
     delete pEntertainArea->m_pMediaStream;
     pEntertainArea->m_pMediaStream=NULL;
 }
@@ -1232,7 +1290,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string 
         List_MediaPluginInfo *pList_MediaPluginInfo = pEntertainArea->m_mapMediaPluginInfo_MediaType_Find(iPK_MediaType);
         if( !pList_MediaPluginInfo || pList_MediaPluginInfo->size()==0 )
         {
-            g_pPlutoLogger->Write(LV_WARNING,"Play media type %d in entertain area %d but nothing to handle it",iPK_MediaType,iPK_EntertainArea);
+            g_pPlutoLogger->Write(LV_WARNING,"Play media type %d in entertain area %d but nothing to handle it",iPK_MediaType,pEntertainArea->m_iPK_EntertainArea);
         }
         else
         {

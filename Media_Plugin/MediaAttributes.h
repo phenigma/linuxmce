@@ -19,33 +19,7 @@ using namespace std;
  * @brief Contains a media file
  */
 
-class MediaFile
-{
-public:
-	MediaFile(int dwPK_File,string sFullyQualifiedFile)	{
-g_pPlutoLogger->Write(LV_STATUS,"MediaFile::MediaFile %p",this);
-		m_dwPK_File=dwPK_File; m_sPath=FileUtils::BasePath(sFullyQualifiedFile); m_sFilename=FileUtils::FilenameWithoutPath(sFullyQualifiedFile);
-	}
-
-	MediaFile(string sFullyQualifiedFile)	{
-		m_dwPK_File=0; m_sPath=FileUtils::BasePath(sFullyQualifiedFile); m_sFilename=FileUtils::FilenameWithoutPath(sFullyQualifiedFile);
-	}
-
-	MediaFile(Row_PlaylistEntry *pRow_PlaylistEntry) {
-		m_dwPK_File=pRow_PlaylistEntry->FK_File_get(); 
-		m_sPath=pRow_PlaylistEntry->Path_get();
-		m_sFilename=pRow_PlaylistEntry->Filename_get();
-	}
-
-	~MediaFile() {
-	}
-
-	int m_dwPK_File;
-	string m_sPath,m_sFilename;
-	string FullyQualifiedFile() {
-		return m_sPath + "/" + m_sFilename; 
-	}
-};
+class MediaFile;  // Class declared at the end of the file since it references MediaAttributes
 
 /**
  * @brief the attributes of the media
@@ -127,6 +101,34 @@ public:
 
     static listMediaPicture *PicturesFromString(string Input);
     static string PicturesToString(listMediaPicture *plistMediaPicture);
+};
+
+class MediaFile
+{
+public:
+	MediaFile(int dwPK_File,string sFullyQualifiedFile)	{
+		m_dwPK_File=dwPK_File; m_sPath=FileUtils::BasePath(sFullyQualifiedFile); m_sFilename=FileUtils::FilenameWithoutPath(sFullyQualifiedFile);
+	}
+
+	MediaFile(MediaAttributes *pMediaAttributes, string sFullyQualifiedFile)	{
+		m_sPath=FileUtils::BasePath(sFullyQualifiedFile); m_sFilename=FileUtils::FilenameWithoutPath(sFullyQualifiedFile);
+		m_dwPK_File=pMediaAttributes->GetFileIDFromFilePath(sFullyQualifiedFile);
+	}
+
+	MediaFile(Row_PlaylistEntry *pRow_PlaylistEntry) {
+		m_dwPK_File=pRow_PlaylistEntry->FK_File_get(); 
+		m_sPath=pRow_PlaylistEntry->Path_get();
+		m_sFilename=pRow_PlaylistEntry->Filename_get();
+	}
+
+	~MediaFile() {
+	}
+
+	int m_dwPK_File;
+	string m_sPath,m_sFilename;
+	string FullyQualifiedFile() {
+		return m_sPath + "/" + m_sFilename; 
+	}
 };
 
 #endif

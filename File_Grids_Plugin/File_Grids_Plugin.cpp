@@ -419,39 +419,18 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 	int iDirNumber = atoi(StringUtils::Tokenize(Parms, "|", pos).c_str());
 	string sSubDirectory = StringUtils::Tokenize(Parms, "|", pos);
 
-
-	/*
-	bool bIncludeParent=true;
-
-	if( TypeOfRequest.substr(0,2)=="MT" )  // come up with a more elegant protocol
+	if( Extensions.length()>3 && Extensions.substr(0,3)=="~MT" )
 	{
-		*iPK_Variable=VARIABLE_Path_CONST;
-		int PK_MediaType = atoi(TypeOfRequest.substr(2).c_str());
+		int PK_MediaType = atoi(Extensions.substr(3).c_str());
 		Row_MediaType *pRow_MediaType=m_pDatabase_pluto_main->MediaType_get()->GetRow(PK_MediaType);
 		if( !pRow_MediaType )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find Media Type: %d",PK_MediaType);
 			return NULL;
 		}
-// todo -- just show all files for now			Extensions = pRow_MediaType->Extensions_get();
-		string sSubDirectory = pRow_MediaType->Subdirectory_get();
-		if( sSubDirectory.length() )
-			sSubDirectory += "/";
-		string sUserPath = "/home/user_" + sPK_User + "/data/" + sSubDirectory;
-		string sPublicPath = "/home/public/data/" + sSubDirectory;
-		if( Path.length()==0 || Path==sUserPath || Path==sPublicPath )
-		{
-			Path = sUserPath + "," + sPublicPath;
-			*sValue_To_Assign = sSubDirectory;
-			bIncludeParent=false;
-		}
-		else
-			*sValue_To_Assign = Path;
+		Extensions = pRow_MediaType->Extensions_get();
 	}
-	string Actions = StringUtils::Tokenize(Parms, ",", pos);
-	string FileList="";
-Path="music";
-*/
+
 
 	string PathsToScan;
 	if( sSubDirectory.length() )
@@ -487,9 +466,9 @@ g_pPlutoLogger->Write(LV_WARNING, "Build grid, actions %s GOT %d entries ", Acti
 		FileDetails *pFileDetails = *i;
 		pCell = new DataGridCell(pFileDetails->m_sFileName + " " + pFileDetails->m_sDescription, pFileDetails->m_sBaseName + pFileDetails->m_sFileName);
 		pCell->m_Colspan = 6;
+g_pPlutoLogger->Write(LV_WARNING, "Added '%s' to datagrid", pFileDetails->m_sFileName.c_str());
 		if (pFileDetails->m_bIsDir)
 		{
-g_pPlutoLogger->Write(LV_WARNING, "Added dir '%s' to datagrid", pFileDetails->m_sFileName.c_str());
 			string newParams = Paths + "|" + Extensions + "|" + Actions + "|" + (bSortByDate ? "1" : "0") 
 				+ "|" + StringUtils::itos(iDirNumber)+ "|" + sSubDirectory + pFileDetails->m_sFileName + "/";
 			DCE::CMD_NOREP_Populate_Datagrid_DT CMDPDG(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse,

@@ -274,25 +274,11 @@ g_pPlutoLogger->Write(LV_STATUS,"in process");
     // A list of all the orbiters we will notify of this device's presence
     list<int> listOrbiter;
 
-    // First see if we can find orbiters in the same room
-    if( pUnknownDeviceInfos->m_pDeviceFrom )
+    // We didn't find any Orbiters.  Use them all
+    for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
     {
-        for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
-        {
-            OH_Orbiter *pOH_Orbiter = (*it).second;
-            if( pOH_Orbiter->m_dwPK_Room == pUnknownDeviceInfos->m_pDeviceFrom->m_dwPK_Room )
-                listOrbiter.push_back(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
-        }
-    }
-
-    if( !listOrbiter.size() )
-    {
-        // We didn't find any Orbiters.  Use them all
-        for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
-        {
-            OH_Orbiter *pOH_Orbiter = (*it).second;
-            listOrbiter.push_back(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
-        }
+        OH_Orbiter *pOH_Orbiter = (*it).second;
+        listOrbiter.push_back(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
     }
 
     string sOrbiterIDList;
