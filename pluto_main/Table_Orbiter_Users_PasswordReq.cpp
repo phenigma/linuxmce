@@ -413,7 +413,7 @@ update_values_list = update_values_list + "FK_Orbiter="+pRow->FK_Orbiter_asSQL()
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_Orbiter_Users_PasswordReq *pRow = (Row_Orbiter_Users_PasswordReq *)(*i);
+		Row_Orbiter_Users_PasswordReq* pRow = (Row_Orbiter_Users_PasswordReq*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -426,7 +426,7 @@ update_values_list = update_values_list + "FK_Orbiter="+pRow->FK_Orbiter_asSQL()
 		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		DoubleLongKey key = (*i).first;
-		Row_Orbiter_Users_PasswordReq* pRow = (Row_Orbiter_Users_PasswordReq*) (*i).second;
+		Row_Orbiter_Users_PasswordReq* pRow = (Row_Orbiter_Users_PasswordReq*) (*i).second;	
 
 		char tmp_FK_Orbiter[32];
 sprintf(tmp_FK_Orbiter, "%li", key.pk1);
@@ -447,6 +447,7 @@ condition = condition + "FK_Orbiter=" + tmp_FK_Orbiter+" AND "+"FK_Users=" + tmp
 			return false;
 		}	
 		
+		pRow = (Row_Orbiter_Users_PasswordReq*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

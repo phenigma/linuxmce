@@ -471,7 +471,7 @@ update_values_list = update_values_list + "PK_FloorplanObjectType_Color="+pRow->
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_FloorplanObjectType_Color *pRow = (Row_FloorplanObjectType_Color *)(*i);
+		Row_FloorplanObjectType_Color* pRow = (Row_FloorplanObjectType_Color*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -484,7 +484,7 @@ update_values_list = update_values_list + "PK_FloorplanObjectType_Color="+pRow->
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_FloorplanObjectType_Color* pRow = (Row_FloorplanObjectType_Color*) (*i).second;
+		Row_FloorplanObjectType_Color* pRow = (Row_FloorplanObjectType_Color*) (*i).second;	
 
 		char tmp_PK_FloorplanObjectType_Color[32];
 sprintf(tmp_PK_FloorplanObjectType_Color, "%li", key.pk);
@@ -502,6 +502,7 @@ condition = condition + "PK_FloorplanObjectType_Color=" + tmp_PK_FloorplanObject
 			return false;
 		}	
 		
+		pRow = (Row_FloorplanObjectType_Color*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

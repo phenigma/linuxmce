@@ -37,6 +37,7 @@
 #include "RA/RA_Processor.h"
 #include "R_CommitChanges.h"
 #include "R_UpdateRepository.h"
+#include "R_CloseTransaction.h"
 #include "ChangedRow.h"
 
 #include <iomanip>
@@ -489,6 +490,8 @@ bool Repository::DetermineDeletions( )
 	int ClientID=1, SoftwareVersion=1; /** @warning HACK!!!  */
 	RA_Processor ra_Processor( ClientID, SoftwareVersion );
 
+	// Don't need to create a transaction since we're not changing anything.
+
 	DCE::Socket *pSocket=NULL;
 
 	for( MapTable::iterator it=g_GlobalConfig.m_mapTable.begin( );it!=g_GlobalConfig.m_mapTable.end( );++it )
@@ -504,6 +507,9 @@ bool Repository::DetermineDeletions( )
 		if( pTable->Repository_get( )==this && !pTable->DetermineDeletions( ra_Processor, "localhost:3485", &pSocket ) )
 			return false;
 	}
+
+	// Don't need to close since we didn't change anything
+
 	return true; /**< We succeeded */
 }
 
@@ -516,6 +522,9 @@ bool Repository::CheckIn( )
 
 	int ClientID=1, SoftwareVersion=1; /** @warning HACK!!! */
 	RA_Processor ra_Processor( ClientID, SoftwareVersion );
+
+	/** An exception will be thrown and a roll back called if this falls out of scope and hasn't been committed or rolled back */
+	SafetyTransaction st( m_pDatabase );
 
 	R_CommitChanges r_CommitChanges( m_sName, g_GlobalConfig.m_sDefaultUser );
 	for(map<string,string>::iterator it=g_GlobalConfig.m_mapUsersPasswords.begin();it!=g_GlobalConfig.m_mapUsersPasswords.end();++it)
@@ -586,6 +595,14 @@ bool Repository::CheckIn( )
 				return false;
 		}
 	}
+	R_CloseTransaction r_CloseTransaction;
+	ra_Processor.AddRequest(&r_CloseTransaction);
+	while( ra_Processor.SendRequests( "localhost:3485", &pSocket ) );
+
+	if( r_CloseTransaction.m_cProcessOutcome==SUCCESSFULLY_PROCESSED )
+		st.Commit();
+	else
+		cerr << "Failed to close transaction.  Transaction will be rolled back!" << endl;
 	return true;
 }
 
@@ -593,6 +610,9 @@ bool Repository::Update( )
 {
 	int ClientID=1, SoftwareVersion=1; /** @warning HACK!!! */
 	RA_Processor ra_Processor( ClientID, SoftwareVersion );
+
+	/** An exception will be thrown and a roll back called if this falls out of scope and hasn't been committed or rolled back */
+	SafetyTransaction st( m_pDatabase ); 
 
 	R_UpdateRepository r_UpdateRepository( m_sName );
 	ra_Processor.AddRequest( &r_UpdateRepository );
@@ -615,6 +635,15 @@ bool Repository::Update( )
 		if( pTable->Repository_get( )==this && !pTable->Update( ra_Processor, pSocket ) )
 			return false;
 	}
+
+	R_CloseTransaction r_CloseTransaction;
+	ra_Processor.AddRequest(&r_CloseTransaction);
+	while( ra_Processor.SendRequests( "localhost:3485", &pSocket ) );
+
+	if( r_CloseTransaction.m_cProcessOutcome==SUCCESSFULLY_PROCESSED )
+		st.Commit();
+	else
+		cerr << "Failed to close transaction.  Transaction will be rolled back!" << endl;
 	return true;
 }
 

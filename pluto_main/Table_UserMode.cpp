@@ -428,7 +428,7 @@ update_values_list = update_values_list + "PK_UserMode="+pRow->PK_UserMode_asSQL
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_UserMode *pRow = (Row_UserMode *)(*i);
+		Row_UserMode* pRow = (Row_UserMode*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -441,7 +441,7 @@ update_values_list = update_values_list + "PK_UserMode="+pRow->PK_UserMode_asSQL
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_UserMode* pRow = (Row_UserMode*) (*i).second;
+		Row_UserMode* pRow = (Row_UserMode*) (*i).second;	
 
 		char tmp_PK_UserMode[32];
 sprintf(tmp_PK_UserMode, "%li", key.pk);
@@ -459,6 +459,7 @@ condition = condition + "PK_UserMode=" + tmp_PK_UserMode;
 			return false;
 		}	
 		
+		pRow = (Row_UserMode*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

@@ -553,7 +553,7 @@ update_values_list = update_values_list + "PK_PageSetup="+pRow->PK_PageSetup_asS
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_PageSetup *pRow = (Row_PageSetup *)(*i);
+		Row_PageSetup* pRow = (Row_PageSetup*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -566,7 +566,7 @@ update_values_list = update_values_list + "PK_PageSetup="+pRow->PK_PageSetup_asS
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_PageSetup* pRow = (Row_PageSetup*) (*i).second;
+		Row_PageSetup* pRow = (Row_PageSetup*) (*i).second;	
 
 		char tmp_PK_PageSetup[32];
 sprintf(tmp_PK_PageSetup, "%li", key.pk);
@@ -584,6 +584,7 @@ condition = condition + "PK_PageSetup=" + tmp_PK_PageSetup;
 			return false;
 		}	
 		
+		pRow = (Row_PageSetup*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

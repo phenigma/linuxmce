@@ -497,7 +497,7 @@ update_values_list = update_values_list + "FK_Device_From="+pRow->FK_Device_From
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_Device_Device_Pipe *pRow = (Row_Device_Device_Pipe *)(*i);
+		Row_Device_Device_Pipe* pRow = (Row_Device_Device_Pipe*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -510,7 +510,7 @@ update_values_list = update_values_list + "FK_Device_From="+pRow->FK_Device_From
 		map<TripleLongKey, class TableRow*, TripleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		TripleLongKey key = (*i).first;
-		Row_Device_Device_Pipe* pRow = (Row_Device_Device_Pipe*) (*i).second;
+		Row_Device_Device_Pipe* pRow = (Row_Device_Device_Pipe*) (*i).second;	
 
 		char tmp_FK_Device_From[32];
 sprintf(tmp_FK_Device_From, "%li", key.pk1);
@@ -534,6 +534,7 @@ condition = condition + "FK_Device_From=" + tmp_FK_Device_From+" AND "+"FK_Devic
 			return false;
 		}	
 		
+		pRow = (Row_Device_Device_Pipe*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

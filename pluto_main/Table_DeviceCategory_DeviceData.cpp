@@ -341,7 +341,7 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[6])
 return "NULL";
 
-char *buf = new char[101];
+char *buf = new char[131071];
 mysql_real_escape_string(table->database->db_handle, buf, m_Description.c_str(), (unsigned long) m_Description.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
@@ -530,7 +530,7 @@ update_values_list = update_values_list + "FK_DeviceCategory="+pRow->FK_DeviceCa
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_DeviceCategory_DeviceData *pRow = (Row_DeviceCategory_DeviceData *)(*i);
+		Row_DeviceCategory_DeviceData* pRow = (Row_DeviceCategory_DeviceData*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -543,7 +543,7 @@ update_values_list = update_values_list + "FK_DeviceCategory="+pRow->FK_DeviceCa
 		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		DoubleLongKey key = (*i).first;
-		Row_DeviceCategory_DeviceData* pRow = (Row_DeviceCategory_DeviceData*) (*i).second;
+		Row_DeviceCategory_DeviceData* pRow = (Row_DeviceCategory_DeviceData*) (*i).second;	
 
 		char tmp_FK_DeviceCategory[32];
 sprintf(tmp_FK_DeviceCategory, "%li", key.pk1);
@@ -564,6 +564,7 @@ condition = condition + "FK_DeviceCategory=" + tmp_FK_DeviceCategory+" AND "+"FK
 			return false;
 		}	
 		
+		pRow = (Row_DeviceCategory_DeviceData*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

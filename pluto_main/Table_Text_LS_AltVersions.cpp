@@ -464,7 +464,7 @@ update_values_list = update_values_list + "FK_Text="+pRow->FK_Text_asSQL()+", FK
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_Text_LS_AltVersions *pRow = (Row_Text_LS_AltVersions *)(*i);
+		Row_Text_LS_AltVersions* pRow = (Row_Text_LS_AltVersions*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -477,7 +477,7 @@ update_values_list = update_values_list + "FK_Text="+pRow->FK_Text_asSQL()+", FK
 		map<TripleLongKey, class TableRow*, TripleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		TripleLongKey key = (*i).first;
-		Row_Text_LS_AltVersions* pRow = (Row_Text_LS_AltVersions*) (*i).second;
+		Row_Text_LS_AltVersions* pRow = (Row_Text_LS_AltVersions*) (*i).second;	
 
 		char tmp_FK_Text[32];
 sprintf(tmp_FK_Text, "%li", key.pk1);
@@ -501,6 +501,7 @@ condition = condition + "FK_Text=" + tmp_FK_Text+" AND "+"FK_Language=" + tmp_FK
 			return false;
 		}	
 		
+		pRow = (Row_Text_LS_AltVersions*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

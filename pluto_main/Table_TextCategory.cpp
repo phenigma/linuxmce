@@ -440,7 +440,7 @@ update_values_list = update_values_list + "PK_TextCategory="+pRow->PK_TextCatego
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_TextCategory *pRow = (Row_TextCategory *)(*i);
+		Row_TextCategory* pRow = (Row_TextCategory*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -453,7 +453,7 @@ update_values_list = update_values_list + "PK_TextCategory="+pRow->PK_TextCatego
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_TextCategory* pRow = (Row_TextCategory*) (*i).second;
+		Row_TextCategory* pRow = (Row_TextCategory*) (*i).second;	
 
 		char tmp_PK_TextCategory[32];
 sprintf(tmp_PK_TextCategory, "%li", key.pk);
@@ -471,6 +471,7 @@ condition = condition + "PK_TextCategory=" + tmp_PK_TextCategory;
 			return false;
 		}	
 		
+		pRow = (Row_TextCategory*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

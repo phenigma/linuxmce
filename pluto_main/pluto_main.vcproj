@@ -613,6 +613,9 @@
 				RelativePath=".\Table_psc_constants_bathdr.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_psc_constants_batuser.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_psc_constants_repset.cpp">
 			</File>
 			<File
@@ -626,6 +629,9 @@
 			</File>
 			<File
 				RelativePath=".\Table_psc_dce_bathdr.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_dce_batuser.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_psc_dce_repset.cpp">
@@ -643,6 +649,9 @@
 				RelativePath=".\Table_psc_designer_bathdr.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_psc_designer_batuser.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_psc_designer_repset.cpp">
 			</File>
 			<File
@@ -656,6 +665,9 @@
 			</File>
 			<File
 				RelativePath=".\Table_psc_document_bathdr.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_document_batuser.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_psc_document_repset.cpp">
@@ -673,6 +685,9 @@
 				RelativePath=".\Table_psc_ir_bathdr.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_psc_ir_batuser.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_psc_ir_repset.cpp">
 			</File>
 			<File
@@ -688,6 +703,9 @@
 				RelativePath=".\Table_psc_local_bathdr.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_psc_local_batuser.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_psc_local_repset.cpp">
 			</File>
 			<File
@@ -701,6 +719,9 @@
 			</File>
 			<File
 				RelativePath=".\Table_psc_website_bathdr.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_psc_website_batuser.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_psc_website_repset.cpp">

@@ -681,7 +681,7 @@ update_values_list = update_values_list + "PK_Distro="+pRow->PK_Distro_asSQL()+"
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_Distro *pRow = (Row_Distro *)(*i);
+		Row_Distro* pRow = (Row_Distro*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -694,7 +694,7 @@ update_values_list = update_values_list + "PK_Distro="+pRow->PK_Distro_asSQL()+"
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_Distro* pRow = (Row_Distro*) (*i).second;
+		Row_Distro* pRow = (Row_Distro*) (*i).second;	
 
 		char tmp_PK_Distro[32];
 sprintf(tmp_PK_Distro, "%li", key.pk);
@@ -712,6 +712,7 @@ condition = condition + "PK_Distro=" + tmp_PK_Distro;
 			return false;
 		}	
 		
+		pRow = (Row_Distro*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

@@ -456,7 +456,7 @@ update_values_list = update_values_list + "PK_CriteriaParmNesting="+pRow->PK_Cri
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_CriteriaParmNesting *pRow = (Row_CriteriaParmNesting *)(*i);
+		Row_CriteriaParmNesting* pRow = (Row_CriteriaParmNesting*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -469,7 +469,7 @@ update_values_list = update_values_list + "PK_CriteriaParmNesting="+pRow->PK_Cri
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_CriteriaParmNesting* pRow = (Row_CriteriaParmNesting*) (*i).second;
+		Row_CriteriaParmNesting* pRow = (Row_CriteriaParmNesting*) (*i).second;	
 
 		char tmp_PK_CriteriaParmNesting[32];
 sprintf(tmp_PK_CriteriaParmNesting, "%li", key.pk);
@@ -487,6 +487,7 @@ condition = condition + "PK_CriteriaParmNesting=" + tmp_PK_CriteriaParmNesting;
 			return false;
 		}	
 		
+		pRow = (Row_CriteriaParmNesting*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

@@ -476,7 +476,7 @@ update_values_list = update_values_list + "PK_Criteria="+pRow->PK_Criteria_asSQL
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_Criteria *pRow = (Row_Criteria *)(*i);
+		Row_Criteria* pRow = (Row_Criteria*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -489,7 +489,7 @@ update_values_list = update_values_list + "PK_Criteria="+pRow->PK_Criteria_asSQL
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_Criteria* pRow = (Row_Criteria*) (*i).second;
+		Row_Criteria* pRow = (Row_Criteria*) (*i).second;	
 
 		char tmp_PK_Criteria[32];
 sprintf(tmp_PK_Criteria, "%li", key.pk);
@@ -507,6 +507,7 @@ condition = condition + "PK_Criteria=" + tmp_PK_Criteria;
 			return false;
 		}	
 		
+		pRow = (Row_Criteria*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

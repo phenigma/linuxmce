@@ -413,7 +413,7 @@ update_values_list = update_values_list + "FK_MediaType="+pRow->FK_MediaType_asS
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_MediaType_Broadcast *pRow = (Row_MediaType_Broadcast *)(*i);
+		Row_MediaType_Broadcast* pRow = (Row_MediaType_Broadcast*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -426,7 +426,7 @@ update_values_list = update_values_list + "FK_MediaType="+pRow->FK_MediaType_asS
 		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		DoubleLongKey key = (*i).first;
-		Row_MediaType_Broadcast* pRow = (Row_MediaType_Broadcast*) (*i).second;
+		Row_MediaType_Broadcast* pRow = (Row_MediaType_Broadcast*) (*i).second;	
 
 		char tmp_FK_MediaType[32];
 sprintf(tmp_FK_MediaType, "%li", key.pk1);
@@ -447,6 +447,7 @@ condition = condition + "FK_MediaType=" + tmp_FK_MediaType+" AND "+"FK_Broadcast
 			return false;
 		}	
 		
+		pRow = (Row_MediaType_Broadcast*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

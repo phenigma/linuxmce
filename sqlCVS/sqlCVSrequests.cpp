@@ -31,6 +31,7 @@
 #include "R_GetAll_psc_id.h"
 #include "R_UpdateRepository.h"
 #include "R_UpdateTable.h"
+#include "R_CloseTransaction.h"
 
 #include "A_UpdateRow.h"
 
@@ -64,6 +65,10 @@ RA_Request *RA_Processor::BuildRequestFromData( long dwSize, const char *pcData,
 		return pRequest;
 	case R_UPDATE_TABLE:
 		pRequest=new R_UpdateTable( );
+		pRequest->CreateRequest( dwSize, pcData );
+		return pRequest;
+	case R_CLOSE_TRANSACTION:
+		pRequest=new R_CloseTransaction( );
 		pRequest->CreateRequest( dwSize, pcData );
 		return pRequest;
 	};

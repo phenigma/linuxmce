@@ -435,7 +435,7 @@ update_values_list = update_values_list + "PK_Manufacturer="+pRow->PK_Manufactur
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_Manufacturer *pRow = (Row_Manufacturer *)(*i);
+		Row_Manufacturer* pRow = (Row_Manufacturer*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -448,7 +448,7 @@ update_values_list = update_values_list + "PK_Manufacturer="+pRow->PK_Manufactur
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_Manufacturer* pRow = (Row_Manufacturer*) (*i).second;
+		Row_Manufacturer* pRow = (Row_Manufacturer*) (*i).second;	
 
 		char tmp_PK_Manufacturer[32];
 sprintf(tmp_PK_Manufacturer, "%li", key.pk);
@@ -466,6 +466,7 @@ condition = condition + "PK_Manufacturer=" + tmp_PK_Manufacturer;
 			return false;
 		}	
 		
+		pRow = (Row_Manufacturer*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

@@ -13,6 +13,7 @@
 #define EVENT_Learned_IR_code_CONST 10
 #define EVENT_PVR_Rec_Sched_Conflict_CONST 11
 #define EVENT_Playback_Completed_CONST 12
+#define EVENT_Ring_CONST 13
 
 #define EVENT_TABLE "Event"
 #define EVENT_PK_EVENT_FIELD "PK_Event"

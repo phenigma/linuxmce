@@ -593,7 +593,7 @@ update_values_list = update_values_list + "PK_DesignObjVariation_Zone="+pRow->PK
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_DesignObjVariation_Zone *pRow = (Row_DesignObjVariation_Zone *)(*i);
+		Row_DesignObjVariation_Zone* pRow = (Row_DesignObjVariation_Zone*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -606,7 +606,7 @@ update_values_list = update_values_list + "PK_DesignObjVariation_Zone="+pRow->PK
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_DesignObjVariation_Zone* pRow = (Row_DesignObjVariation_Zone*) (*i).second;
+		Row_DesignObjVariation_Zone* pRow = (Row_DesignObjVariation_Zone*) (*i).second;	
 
 		char tmp_PK_DesignObjVariation_Zone[32];
 sprintf(tmp_PK_DesignObjVariation_Zone, "%li", key.pk);
@@ -624,6 +624,7 @@ condition = condition + "PK_DesignObjVariation_Zone=" + tmp_PK_DesignObjVariatio
 			return false;
 		}	
 		
+		pRow = (Row_DesignObjVariation_Zone*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

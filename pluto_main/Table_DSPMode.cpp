@@ -457,7 +457,7 @@ update_values_list = update_values_list + "PK_DSPMode="+pRow->PK_DSPMode_asSQL()
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_DSPMode *pRow = (Row_DSPMode *)(*i);
+		Row_DSPMode* pRow = (Row_DSPMode*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -470,7 +470,7 @@ update_values_list = update_values_list + "PK_DSPMode="+pRow->PK_DSPMode_asSQL()
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_DSPMode* pRow = (Row_DSPMode*) (*i).second;
+		Row_DSPMode* pRow = (Row_DSPMode*) (*i).second;	
 
 		char tmp_PK_DSPMode[32];
 sprintf(tmp_PK_DSPMode, "%li", key.pk);
@@ -488,6 +488,7 @@ condition = condition + "PK_DSPMode=" + tmp_PK_DSPMode;
 			return false;
 		}	
 		
+		pRow = (Row_DSPMode*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

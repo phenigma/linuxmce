@@ -16,79 +16,35 @@
 
 #include "DCEConfig.h"
 #include "PlutoUtils/StringUtils.h"
+#include "PlutoUtils/FileUtils.h"
 //------------------------------------------------------------------------------------------------------
 DCEConfig::DCEConfig(string sFilename) : RA_Config()
 {
+	m_sConfigFile=sFilename;
     m_sDBHost="dce_router"; m_sDBUser="root"; m_sDBPassword=""; m_sDBName="pluto_main"; m_sDCERouter="dce_router";
     m_iPK_Device_Computer=0; m_iDBPort=3306; m_iDCERouterPort=3450;
     m_iPK_Distro=m_iPK_Installation=-1;
 
-    FILE *file = fopen(sFilename.c_str(),"rb");
-    if( !file )
-        return;
-    fseek(file, 0L, SEEK_END);
-    int Size = ftell(file);
-    fseek(file, 0L, SEEK_SET);
+	vector<string> vectString;
+	FileUtils::ReadFileIntoVector( m_sConfigFile, vectString );
 
-    if( !Size )
-    {
-        fclose(file);
-        return;
-    }
-
-    char *buffer = new char[Size+1];
-    buffer[Size]=0;
-    fread(buffer,Size,1,file);
-    fclose(file);
-
-    char *Line = buffer;
-    while(Line)
-    {
-        while(Line[0]=='\r' || Line[0]=='\n')
-            Line++;
-        char *NextLF = strchr(Line,'\n');
-        char *NextCR = strchr(Line,'\r');
-        char *NextLine;
-        if( NextLF && NextCR )
-            NextLine = min(NextLF,NextCR);
-        else if( NextCR )
-            NextLine = NextCR;
-        else
-            NextLine = NextLF;
-
-        // Skip over any lines that start with # or /
-        if( Line[0]=='#' || Line[0]=='/' )
-        {
-            Line=NextLine;
+	for(size_t s=0;s<vectString.size();++s)
+	{
+		string::size_type pos_Equal;
+        // Skip over any lines that start with # or /, or don't have an =
+		if( vectString[s][0]=='#' || vectString[s][0]=='/' || (pos_Equal=vectString[s].find('='))==string::npos )
             continue;
-        }
 
-        // Skip any lines that don't have an = in them
-        char *Equal = strchr(Line,'=');
-        if( !Equal || (NextLine && Equal>NextLine) )
-        {
-            Line=NextLine;
-            continue;
-        }
+		string::size_type pos_Slash = vectString[s].find("//");
 
-        // We've got a valid Line with an =
-        char *DoubleSlash = strstr(Equal,"//");
-        if( DoubleSlash && (!NextLine || DoubleSlash<NextLine) )
-            *DoubleSlash=0;  // Ignore anything past a double // if it's in this line
+		string Token=StringUtils::TrimSpaces(vectString[s].substr(0,pos_Equal));
+        string Value;
+		if( pos_Slash==string::npos )
+			Value = vectString[s].substr(pos_Equal+1);
+		else
+			Value = vectString[s].substr(pos_Equal+1,pos_Slash-pos_Equal-1);
 
-        *Equal=0;
-        if( NextLine )
-            *NextLine=0;
-        string Token=Line;
-        string Value=(Equal+1);
-        StringUtils::TrimSpaces(Token);
-        StringUtils::TrimSpaces(Value);
-        m_mapParameters[Token]=Value;
-
-        if( NextLine )
-            Line=NextLine+1;
-        else
-            break;
+		m_mapParameters[Token]=StringUtils::TrimSpaces(Value);
     }
 
     m_sDBHost               = ReadString("MySqlHost",m_sDBHost);
@@ -138,3 +94,54 @@ DCEConfig::DCEConfig(string sFilename) : RA_Config()
     return sValue;
 }
 //------------------------------------------------------------------------------------------------------
+bool DCEConfig::WriteSettings()
+{
+	vector<string> vectString;
+	FileUtils::ReadFileIntoVector( m_sConfigFile, vectString );
+
+	// Make a copy of the parameters.  We'll go through the existing file and modify any changed values
+	map<string,string> mapParameters_Copy = m_mapParameters;
+
+
+	for(size_t s=0;s<vectString.size();++s)
+	{
+		string::size_type pos_Equal;
+        // Skip over any lines that start with # or /, or don't have an =
+		if( vectString[s][0]=='#' || vectString[s][0]=='/' || (pos_Equal=vectString[s].find('='))==string::npos )
+            continue;
+
+		string::size_type pos_Slash = vectString[s].find("//");
+
+		string Token=StringUtils::TrimSpaces(vectString[s].substr(0,pos_Equal));
+        string Value;
+
+		if( pos_Slash==string::npos )
+			Value = vectString[s].substr(pos_Equal+1);
+		else
+			Value = vectString[s].substr(pos_Equal+1,pos_Slash-pos_Equal-1);
+
+		if( mapParameters_Copy.find(Token)==mapParameters_Copy.end() )
+			continue; // This token exists in the file but not our map.  We won't touch it
+
+		if( StringUtils::TrimSpaces(mapParameters_Copy[Token])==StringUtils::TrimSpaces(Value) )
+		{
+			mapParameters_Copy.erase(Token); // We're taking care of this one here since the token exists
+			continue; // The value is the same as what's in the file.  Skip it
+		}
+
+		// We need to update what's in the file to reflect this value
+		if( pos_Slash==string::npos )
+			vectString[s].replace(pos_Equal+1, vectString[s].length()-pos_Equal-1, mapParameters_Copy[Token]);
+		else // Preserve the // and anything after it
+			vectString[s].replace(pos_Equal+1, pos_Slash-pos_Equal-2, mapParameters_Copy[Token]);
+
+		mapParameters_Copy.erase(Token); // We're taking care of this one here since the token exists
+    }
+
+	// Add the new ones
+	for(map<string,string>::iterator it=mapParameters_Copy.begin();it!=mapParameters_Copy.end();++it)
+		vectString.push_back((*it).first + "=" + (*it).second);
+
+	// Rewrite the config file
+	return FileUtils::WriteVectorToFile(m_sConfigFile, vectString);
+}

@@ -279,7 +279,7 @@ update_values_list = update_values_list + "PK_psc_local_schema="+pRow->PK_psc_lo
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_psc_local_schema *pRow = (Row_psc_local_schema *)(*i);
+		Row_psc_local_schema* pRow = (Row_psc_local_schema*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -292,7 +292,7 @@ update_values_list = update_values_list + "PK_psc_local_schema="+pRow->PK_psc_lo
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_psc_local_schema* pRow = (Row_psc_local_schema*) (*i).second;
+		Row_psc_local_schema* pRow = (Row_psc_local_schema*) (*i).second;	
 
 		char tmp_PK_psc_local_schema[32];
 sprintf(tmp_PK_psc_local_schema, "%li", key.pk);
@@ -310,6 +310,7 @@ condition = condition + "PK_psc_local_schema=" + tmp_PK_psc_local_schema;
 			return false;
 		}	
 		
+		pRow = (Row_psc_local_schema*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

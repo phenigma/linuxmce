@@ -434,7 +434,7 @@ update_values_list = update_values_list + "FK_CommandGroup="+pRow->FK_CommandGro
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_CommandGroup_EntertainArea *pRow = (Row_CommandGroup_EntertainArea *)(*i);
+		Row_CommandGroup_EntertainArea* pRow = (Row_CommandGroup_EntertainArea*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -447,7 +447,7 @@ update_values_list = update_values_list + "FK_CommandGroup="+pRow->FK_CommandGro
 		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		DoubleLongKey key = (*i).first;
-		Row_CommandGroup_EntertainArea* pRow = (Row_CommandGroup_EntertainArea*) (*i).second;
+		Row_CommandGroup_EntertainArea* pRow = (Row_CommandGroup_EntertainArea*) (*i).second;	
 
 		char tmp_FK_CommandGroup[32];
 sprintf(tmp_FK_CommandGroup, "%li", key.pk1);
@@ -468,6 +468,7 @@ condition = condition + "FK_CommandGroup=" + tmp_FK_CommandGroup+" AND "+"FK_Ent
 			return false;
 		}	
 		
+		pRow = (Row_CommandGroup_EntertainArea*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

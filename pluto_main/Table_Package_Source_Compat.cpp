@@ -514,7 +514,7 @@ update_values_list = update_values_list + "PK_Package_Source_Compat="+pRow->PK_P
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_Package_Source_Compat *pRow = (Row_Package_Source_Compat *)(*i);
+		Row_Package_Source_Compat* pRow = (Row_Package_Source_Compat*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -527,7 +527,7 @@ update_values_list = update_values_list + "PK_Package_Source_Compat="+pRow->PK_P
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_Package_Source_Compat* pRow = (Row_Package_Source_Compat*) (*i).second;
+		Row_Package_Source_Compat* pRow = (Row_Package_Source_Compat*) (*i).second;	
 
 		char tmp_PK_Package_Source_Compat[32];
 sprintf(tmp_PK_Package_Source_Compat, "%li", key.pk);
@@ -545,6 +545,7 @@ condition = condition + "PK_Package_Source_Compat=" + tmp_PK_Package_Source_Comp
 			return false;
 		}	
 		
+		pRow = (Row_Package_Source_Compat*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

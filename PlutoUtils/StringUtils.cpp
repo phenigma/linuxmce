@@ -143,8 +143,13 @@ void StringUtils::Tokenize(string &Input, string Tokens, vector<string> &vect_st
 {
     string::size_type pos=0;
     string sToken;
-    while( (sToken=StringUtils::Tokenize(Input,Tokens,pos)).length() )
+    while( true )
+	{
+		sToken=StringUtils::Tokenize(Input,Tokens,pos);
         vect_strings.push_back(sToken);
+		if( pos>=Input.length() )
+			return;
+	}
 }
 
 void StringUtils::Tokenize(string &Input, string Tokens, deque<string> &deque_strings, bool bPushToFront)

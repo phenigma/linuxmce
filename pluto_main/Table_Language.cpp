@@ -438,7 +438,7 @@ update_values_list = update_values_list + "PK_Language="+pRow->PK_Language_asSQL
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_Language *pRow = (Row_Language *)(*i);
+		Row_Language* pRow = (Row_Language*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -451,7 +451,7 @@ update_values_list = update_values_list + "PK_Language="+pRow->PK_Language_asSQL
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_Language* pRow = (Row_Language*) (*i).second;
+		Row_Language* pRow = (Row_Language*) (*i).second;	
 
 		char tmp_PK_Language[32];
 sprintf(tmp_PK_Language, "%li", key.pk);
@@ -469,6 +469,7 @@ condition = condition + "PK_Language=" + tmp_PK_Language;
 			return false;
 		}	
 		
+		pRow = (Row_Language*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

@@ -153,12 +153,12 @@ namespace sqlCVS
 		 */
 		void Update_psc();
 
-		/** Implement all these */
-		void Lock( ) {}
-		void Unlock( ) {}
-		void StartTransaction( ) {}
-		void Commit( ) {}
-		void Rollback( ) {}
+		/**
+		 *  @brief MySql's transaction handling.  This only works with the InnoDB engine
+		 */
+		void StartTransaction( );
+		void Commit( );
+		void Rollback( );
 
 		void CheckIn( );
 		void Update( );
@@ -173,25 +173,6 @@ namespace sqlCVS
 
 		string Name_get( ) { return m_sMySQLDBName; }
 		bool bIsInvalid( ) { return m_bInvalid; }
-	};
-
-	/**
-	 *  @brief This will manage the locking/unlocking of the database
-	 */
-		 	
-	class SafetyDBLock
-	{
-		bool m_bIsLocked;	/**< This will say whether the database is locked or not */
-		Database *m_pDatabase;  /**< Points to the database */
-	public:
-		/** @brief constructor */
-		SafetyDBLock( class Database *pDatabase ) { m_pDatabase=pDatabase; m_pDatabase->Lock( ); m_bIsLocked=true; }
-		
-		/** @brief destructor */
-		~SafetyDBLock( ) { if( m_bIsLocked ) Unlock( ); }
-		
-		/** @brief This will unlock the database */
-		void Unlock( ) { m_pDatabase->Unlock( ); m_bIsLocked=false; }
 	};
 
 	/**
@@ -226,6 +207,11 @@ namespace sqlCVS
 		  * @brief  This will commit the transaction
 		  */
 		 void Commit( ) { m_pDatabase->Commit( ); m_bIsOpen=false; }
+
+		 /**
+		  * @brief  True if the transaction is open or pending and has not been rolledback or committed
+		  */
+		 bool m_bIsOpen_get() { return m_bIsOpen; }
 	};
 }
 #endif

@@ -32,6 +32,8 @@ namespace FileUtils
 {
 #ifndef SYMBIAN
     char *ReadFileIntoBuffer( string sFileName, size_t &Size ); /** < reads file into buffer; buffer must be freed by caller */
+    void ReadFileIntoVector( string sFileName, vector<string> &vectString ); /** < reads file into a vector of strings for each line */
+    bool WriteVectorToFile( string sFileName, vector<string> &vectString ); /** < writes a file where the vector of strings are the lines */
     bool FileExists( string sFileName ); /** < checks if the specified file exists */
     long FileSize(string sFileName); /** < returns the file size or zero if error */
 

@@ -82,17 +82,38 @@ class DLL_EXPORT Row_psc_constants_batdet : public TableRow, public SerializeCla
 		Table_psc_constants_batdet *table;
 		
 		long int m_PK_psc_constants_batdet;
-string m_Value;
+long int m_FK_psc_constants_bathdr;
+string m_Tablename;
+long int m_New;
+long int m_Deleted;
+long int m_Modified;
+long int m_FK_psc_constants_bathdr_orig;
+long int m_FK_psc_constants_bathdr_auth;
+long int m_FK_psc_constants_bathdr_unauth;
 
-		bool is_null[2];
+		bool is_null[9];
 	
 	public:
 		long int PK_psc_constants_batdet_get();
-string Value_get();
+long int FK_psc_constants_bathdr_get();
+string Tablename_get();
+long int New_get();
+long int Deleted_get();
+long int Modified_get();
+long int FK_psc_constants_bathdr_orig_get();
+long int FK_psc_constants_bathdr_auth_get();
+long int FK_psc_constants_bathdr_unauth_get();
 
 		
 		void PK_psc_constants_batdet_set(long int val);
-void Value_set(string val);
+void FK_psc_constants_bathdr_set(long int val);
+void Tablename_set(string val);
+void New_set(long int val);
+void Deleted_set(long int val);
+void Modified_set(long int val);
+void FK_psc_constants_bathdr_orig_set(long int val);
+void FK_psc_constants_bathdr_auth_set(long int val);
+void FK_psc_constants_bathdr_unauth_set(long int val);
 
 		
 		
@@ -109,20 +130,31 @@ void Value_set(string val);
 		class Table_psc_constants_batdet *Table_psc_constants_batdet_get() { return table; };
 
 		// Return the rows for foreign keys 
-		
+		class Row_psc_constants_bathdr* FK_psc_constants_bathdr_getrow();
+class Row_psc_constants_bathdr* FK_psc_constants_bathdr_orig_getrow();
+class Row_psc_constants_bathdr* FK_psc_constants_bathdr_auth_getrow();
+class Row_psc_constants_bathdr* FK_psc_constants_bathdr_unauth_getrow();
+
 
 		// Return the rows in other tables with foreign keys pointing here
 		
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_psc_constants_batdet+ m_Value;
+			StartSerializeList() + m_PK_psc_constants_batdet+ m_FK_psc_constants_bathdr+ m_Tablename+ m_New+ m_Deleted+ m_Modified+ m_FK_psc_constants_bathdr_orig+ m_FK_psc_constants_bathdr_auth+ m_FK_psc_constants_bathdr_unauth;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string PK_psc_constants_batdet_asSQL();
-string Value_asSQL();
+string FK_psc_constants_bathdr_asSQL();
+string Tablename_asSQL();
+string New_asSQL();
+string Deleted_asSQL();
+string Modified_asSQL();
+string FK_psc_constants_bathdr_orig_asSQL();
+string FK_psc_constants_bathdr_auth_asSQL();
+string FK_psc_constants_bathdr_unauth_asSQL();
 
 	};
 

@@ -10,12 +10,16 @@
 #define sqlCVSprocessor_h
 
 #include "RA/RA_Processor.h"
+#include "CommonFunctions.h"
+#include "Database.h"
 
 namespace sqlCVS
 {
 	class Table;
 	class Repository;
 }
+
+using namespace sqlCVS;
 
 /**
  * @brief request action processor class
@@ -31,14 +35,17 @@ public:
 	bool m_bSupervisor;
 	int m_iNew,m_iMod,m_iDel;
 
-	 int m_psc_bathdr_orig,m_psc_bathdr_auth,m_psc_bathdr_unauth;
+	int m_psc_bathdr_orig,m_psc_bathdr_auth,m_psc_bathdr_unauth;
+	
+	/**< This will create a transaction for every processor that will rollback automatically if the processor goes away with an R_CloseTransaction */
+	SafetyTransaction st;
 
 	/** @brief constructor assigning null to all the pointers */
-	sqlCVSprocessor( ) : RA_Processor( 0, 1 ) { 
+	sqlCVSprocessor( ) : RA_Processor( 0, 1 ), st(g_GlobalConfig.m_pDatabase) { 
 		m_pTable=NULL; m_pvectFields=NULL; m_i_psc_batch=1; m_pRepository=NULL; m_bSupervisor=false; m_iNew=m_iMod=m_iDel=0; 
 		m_psc_bathdr_orig=m_psc_bathdr_auth=m_psc_bathdr_unauth=0;
 	}
-	virtual ~sqlCVSprocessor( ) { RecordChangesToTable(); }
+	virtual ~sqlCVSprocessor( ) { if( st.m_bIsOpen_get() ) st.Rollback(); }
 	bool UserIsValidated(int psc_user)
 	{
 		return m_mapValidatedUsers.find(psc_user)!=m_mapValidatedUsers.end();

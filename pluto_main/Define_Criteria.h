@@ -1,6 +1,12 @@
 #ifndef __Define_Criteria_H__
 #define __Define_Criteria_H__
 
+#define CRITERIA_EVENT_CONST 1
+#define CRITERIA_4_3_PDA_CONST 3
+#define CRITERIA_NOT_4_3_PDA_CONST 4
+#define CRITERIA_3_4_CONST 5
+#define CRITERIA_16_9_CONST 6
+#define CRITERIA_CONTROLLER_CONST 76
 
 #define CRITERIA_TABLE "Criteria"
 #define CRITERIA_PK_CRITERIA_FIELD "PK_Criteria"

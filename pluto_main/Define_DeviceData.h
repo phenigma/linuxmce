@@ -28,6 +28,7 @@
 #define DEVICEDATA_PK_Size_CONST 25
 #define DEVICEDATA_PK_Language_CONST 26
 #define DEVICEDATA_FK_EntertainArea_CONST 27
+#define DEVICEDATA_DHCP_CONST 28
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

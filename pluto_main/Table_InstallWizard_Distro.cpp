@@ -487,7 +487,7 @@ update_values_list = update_values_list + "PK_InstallWizard_Distro="+pRow->PK_In
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_InstallWizard_Distro *pRow = (Row_InstallWizard_Distro *)(*i);
+		Row_InstallWizard_Distro* pRow = (Row_InstallWizard_Distro*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -500,7 +500,7 @@ update_values_list = update_values_list + "PK_InstallWizard_Distro="+pRow->PK_In
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_InstallWizard_Distro* pRow = (Row_InstallWizard_Distro*) (*i).second;
+		Row_InstallWizard_Distro* pRow = (Row_InstallWizard_Distro*) (*i).second;	
 
 		char tmp_PK_InstallWizard_Distro[32];
 sprintf(tmp_PK_InstallWizard_Distro, "%li", key.pk);
@@ -518,6 +518,7 @@ condition = condition + "PK_InstallWizard_Distro=" + tmp_PK_InstallWizard_Distro
 			return false;
 		}	
 		
+		pRow = (Row_InstallWizard_Distro*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

@@ -428,7 +428,7 @@ update_values_list = update_values_list + "PK_PhoneLineType="+pRow->PK_PhoneLine
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_PhoneLineType *pRow = (Row_PhoneLineType *)(*i);
+		Row_PhoneLineType* pRow = (Row_PhoneLineType*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -441,7 +441,7 @@ update_values_list = update_values_list + "PK_PhoneLineType="+pRow->PK_PhoneLine
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_PhoneLineType* pRow = (Row_PhoneLineType*) (*i).second;
+		Row_PhoneLineType* pRow = (Row_PhoneLineType*) (*i).second;	
 
 		char tmp_PK_PhoneLineType[32];
 sprintf(tmp_PK_PhoneLineType, "%li", key.pk);
@@ -459,6 +459,7 @@ condition = condition + "PK_PhoneLineType=" + tmp_PK_PhoneLineType;
 			return false;
 		}	
 		
+		pRow = (Row_PhoneLineType*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

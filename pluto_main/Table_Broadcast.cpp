@@ -434,7 +434,7 @@ update_values_list = update_values_list + "PK_Broadcast="+pRow->PK_Broadcast_asS
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_Broadcast *pRow = (Row_Broadcast *)(*i);
+		Row_Broadcast* pRow = (Row_Broadcast*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -447,7 +447,7 @@ update_values_list = update_values_list + "PK_Broadcast="+pRow->PK_Broadcast_asS
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_Broadcast* pRow = (Row_Broadcast*) (*i).second;
+		Row_Broadcast* pRow = (Row_Broadcast*) (*i).second;	
 
 		char tmp_PK_Broadcast[32];
 sprintf(tmp_PK_Broadcast, "%li", key.pk);
@@ -465,6 +465,7 @@ condition = condition + "PK_Broadcast=" + tmp_PK_Broadcast;
 			return false;
 		}	
 		
+		pRow = (Row_Broadcast*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

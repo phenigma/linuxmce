@@ -518,8 +518,6 @@ void Database::CheckIn( )
 		return;
 	}
 
-	SafetyDBLock sl( this );	/**< The DB will unlock when this falls out of scope   */
-
 	for( MapTable::iterator it=g_GlobalConfig.m_mapTable.begin( );it!=g_GlobalConfig.m_mapTable.end( );++it )
 	{
 		Table *pTable = ( *it ).second;
@@ -601,9 +599,6 @@ void Database::CheckIn( )
 	if( !ConfirmRecordsToCheckIn( ) )
 		return;
 
-	 /** An exception will be thrown and a roll back called if this falls out of scope and hasn't been committed or rolled back */
-	SafetyTransaction st( this );
-
 	try
 	{
 		for( MapRepository::iterator it=g_GlobalConfig.m_mapRepository.begin( );it!=g_GlobalConfig.m_mapRepository.end( );++it )
@@ -612,7 +607,6 @@ void Database::CheckIn( )
 			if( !pRepository->CheckIn( ) )
 			{
 				cerr << "Checkin failed" << endl;
-				st.Rollback( );
 				throw "Checkin failed";
 				return;
 			}
@@ -621,11 +615,9 @@ void Database::CheckIn( )
 	catch( const char *pException )
 	{
 		cerr << "Checkin threw exception: " << pException << endl;
-		st.Rollback( );
 		return;
 	}
 #pragma warning( "Repeat the process with the same tables any rows that are now again set to modified since modifying other rows may have modified rows that weren't already in the list" )
-	st.Commit( ); /** @todo - have a confirmation */
 }
 
 void Database::Update( )
@@ -638,17 +630,12 @@ void Database::Update( )
 		return;
 	}
 
-	SafetyDBLock sl( this ); /**< The DB will unlock when this falls out of scope  */
-
 
 #pragma warning( "Allow users to be on the command line so this can be non-interactive" )
 
 	/** Now mapTable has all the tables we need to check in. Confirm the users if none were passed in on the command line */
 	if( g_GlobalConfig.m_mapUsersPasswords.size( )==0 && ConfirmUsersToCheckIn( )<1 )
 		return;
-
-	/** An exception will be thrown and a roll back called if this falls out of scope and hasn't been committed or rolled back */
-	SafetyTransaction st( this ); 
 
 	try
 	{
@@ -658,7 +645,6 @@ void Database::Update( )
 			if( !pRepository->Update( ) )
 			{
 				cerr << "ERROR: Update returned false" << endl;
-				st.Rollback( );
 				return; 
 			}
 		}
@@ -666,11 +652,9 @@ void Database::Update( )
 	catch( const char *pException )
 	{
 		cerr << "Update threw exception: " << pException << endl;
-		st.Rollback( );
 		return;
 	}
 #pragma warning( "Repeat the process with the same tables any rows that are now again set to modified since modifying other rows may have modified rows that weren't already in the list" )
-	st.Commit( ); /** @todo - have a confirmation */
 }
 
 void Database::GetTablesToCheckIn( )
@@ -1427,5 +1411,32 @@ void Database::Update_psc()
 				}
 			}
 		}
+	}
+}
+
+void Database::StartTransaction( ) 
+{
+	if( threaded_mysql_query("START TRANSACTION")!=0 )
+	{
+		cerr << "Could not start transaction" << endl;
+		throw "Database error";
+	}
+}
+
+void Database::Commit( )
+{
+	if( threaded_mysql_query("COMMIT")!=0 )
+	{
+		cerr << "Could not commit transaction" << endl;
+		throw "Database error";
+	}
+}
+
+void Database::Rollback( )
+{
+	if( threaded_mysql_query("ROLLBACK")!=0 )
+	{
+		cerr << "Could not rollback transaction" << endl;
+		throw "Database error";
 	}
 }

@@ -689,7 +689,7 @@ update_values_list = update_values_list + "PK_CommandGroup="+pRow->PK_CommandGro
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_CommandGroup *pRow = (Row_CommandGroup *)(*i);
+		Row_CommandGroup* pRow = (Row_CommandGroup*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -702,7 +702,7 @@ update_values_list = update_values_list + "PK_CommandGroup="+pRow->PK_CommandGro
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_CommandGroup* pRow = (Row_CommandGroup*) (*i).second;
+		Row_CommandGroup* pRow = (Row_CommandGroup*) (*i).second;	
 
 		char tmp_PK_CommandGroup[32];
 sprintf(tmp_PK_CommandGroup, "%li", key.pk);
@@ -720,6 +720,7 @@ condition = condition + "PK_CommandGroup=" + tmp_PK_CommandGroup;
 			return false;
 		}	
 		
+		pRow = (Row_CommandGroup*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

@@ -532,7 +532,7 @@ update_values_list = update_values_list + "PK_RepositorySource_URL="+pRow->PK_Re
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_RepositorySource_URL *pRow = (Row_RepositorySource_URL *)(*i);
+		Row_RepositorySource_URL* pRow = (Row_RepositorySource_URL*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -545,7 +545,7 @@ update_values_list = update_values_list + "PK_RepositorySource_URL="+pRow->PK_Re
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_RepositorySource_URL* pRow = (Row_RepositorySource_URL*) (*i).second;
+		Row_RepositorySource_URL* pRow = (Row_RepositorySource_URL*) (*i).second;	
 
 		char tmp_PK_RepositorySource_URL[32];
 sprintf(tmp_PK_RepositorySource_URL, "%li", key.pk);
@@ -563,6 +563,7 @@ condition = condition + "PK_RepositorySource_URL=" + tmp_PK_RepositorySource_URL
 			return false;
 		}	
 		
+		pRow = (Row_RepositorySource_URL*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

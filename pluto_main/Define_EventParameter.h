@@ -18,6 +18,7 @@
 #define EVENTPARAMETER_MediaDescription_CONST 15
 #define EVENTPARAMETER_SectionDescription_CONST 16
 #define EVENTPARAMETER_SynposisDescription_CONST 17
+#define EVENTPARAMETER_PhoneNumber_CONST 18
 
 #define EVENTPARAMETER_TABLE "EventParameter"
 #define EVENTPARAMETER_PK_EVENTPARAMETER_FIELD "PK_EventParameter"

@@ -559,7 +559,7 @@ update_values_list = update_values_list + "PK_SetupStep="+pRow->PK_SetupStep_asS
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_SetupStep *pRow = (Row_SetupStep *)(*i);
+		Row_SetupStep* pRow = (Row_SetupStep*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -572,7 +572,7 @@ update_values_list = update_values_list + "PK_SetupStep="+pRow->PK_SetupStep_asS
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_SetupStep* pRow = (Row_SetupStep*) (*i).second;
+		Row_SetupStep* pRow = (Row_SetupStep*) (*i).second;	
 
 		char tmp_PK_SetupStep[32];
 sprintf(tmp_PK_SetupStep, "%li", key.pk);
@@ -590,6 +590,7 @@ condition = condition + "PK_SetupStep=" + tmp_PK_SetupStep;
 			return false;
 		}	
 		
+		pRow = (Row_SetupStep*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

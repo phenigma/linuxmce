@@ -432,7 +432,7 @@ update_values_list = update_values_list + "PK_StabilityStatus="+pRow->PK_Stabili
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_StabilityStatus *pRow = (Row_StabilityStatus *)(*i);
+		Row_StabilityStatus* pRow = (Row_StabilityStatus*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -445,7 +445,7 @@ update_values_list = update_values_list + "PK_StabilityStatus="+pRow->PK_Stabili
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_StabilityStatus* pRow = (Row_StabilityStatus*) (*i).second;
+		Row_StabilityStatus* pRow = (Row_StabilityStatus*) (*i).second;	
 
 		char tmp_PK_StabilityStatus[32];
 sprintf(tmp_PK_StabilityStatus, "%li", key.pk);
@@ -463,6 +463,7 @@ condition = condition + "PK_StabilityStatus=" + tmp_PK_StabilityStatus;
 			return false;
 		}	
 		
+		pRow = (Row_StabilityStatus*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

@@ -440,7 +440,7 @@ update_values_list = update_values_list + "FK_DesignObjVariation="+pRow->FK_Desi
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_DesignObjVariation_DesignObjParameter *pRow = (Row_DesignObjVariation_DesignObjParameter *)(*i);
+		Row_DesignObjVariation_DesignObjParameter* pRow = (Row_DesignObjVariation_DesignObjParameter*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -453,7 +453,7 @@ update_values_list = update_values_list + "FK_DesignObjVariation="+pRow->FK_Desi
 		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		DoubleLongKey key = (*i).first;
-		Row_DesignObjVariation_DesignObjParameter* pRow = (Row_DesignObjVariation_DesignObjParameter*) (*i).second;
+		Row_DesignObjVariation_DesignObjParameter* pRow = (Row_DesignObjVariation_DesignObjParameter*) (*i).second;	
 
 		char tmp_FK_DesignObjVariation[32];
 sprintf(tmp_FK_DesignObjVariation, "%li", key.pk1);
@@ -474,6 +474,7 @@ condition = condition + "FK_DesignObjVariation=" + tmp_FK_DesignObjVariation+" A
 			return false;
 		}	
 		
+		pRow = (Row_DesignObjVariation_DesignObjParameter*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

@@ -575,7 +575,7 @@ update_values_list = update_values_list + "PK_CannedEvents_CriteriaParmList="+pR
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_CannedEvents_CriteriaParmList *pRow = (Row_CannedEvents_CriteriaParmList *)(*i);
+		Row_CannedEvents_CriteriaParmList* pRow = (Row_CannedEvents_CriteriaParmList*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -588,7 +588,7 @@ update_values_list = update_values_list + "PK_CannedEvents_CriteriaParmList="+pR
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_CannedEvents_CriteriaParmList* pRow = (Row_CannedEvents_CriteriaParmList*) (*i).second;
+		Row_CannedEvents_CriteriaParmList* pRow = (Row_CannedEvents_CriteriaParmList*) (*i).second;	
 
 		char tmp_PK_CannedEvents_CriteriaParmList[32];
 sprintf(tmp_PK_CannedEvents_CriteriaParmList, "%li", key.pk);
@@ -606,6 +606,7 @@ condition = condition + "PK_CannedEvents_CriteriaParmList=" + tmp_PK_CannedEvent
 			return false;
 		}	
 		
+		pRow = (Row_CannedEvents_CriteriaParmList*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

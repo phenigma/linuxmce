@@ -453,7 +453,7 @@ update_values_list = update_values_list + "PK_DeviceData="+pRow->PK_DeviceData_a
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_DeviceData *pRow = (Row_DeviceData *)(*i);
+		Row_DeviceData* pRow = (Row_DeviceData*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -466,7 +466,7 @@ update_values_list = update_values_list + "PK_DeviceData="+pRow->PK_DeviceData_a
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_DeviceData* pRow = (Row_DeviceData*) (*i).second;
+		Row_DeviceData* pRow = (Row_DeviceData*) (*i).second;	
 
 		char tmp_PK_DeviceData[32];
 sprintf(tmp_PK_DeviceData, "%li", key.pk);
@@ -484,6 +484,7 @@ condition = condition + "PK_DeviceData=" + tmp_PK_DeviceData;
 			return false;
 		}	
 		
+		pRow = (Row_DeviceData*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

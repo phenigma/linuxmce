@@ -472,7 +472,7 @@ update_values_list = update_values_list + "PK_ConfigType_File="+pRow->PK_ConfigT
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_ConfigType_File *pRow = (Row_ConfigType_File *)(*i);
+		Row_ConfigType_File* pRow = (Row_ConfigType_File*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -485,7 +485,7 @@ update_values_list = update_values_list + "PK_ConfigType_File="+pRow->PK_ConfigT
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_ConfigType_File* pRow = (Row_ConfigType_File*) (*i).second;
+		Row_ConfigType_File* pRow = (Row_ConfigType_File*) (*i).second;	
 
 		char tmp_PK_ConfigType_File[32];
 sprintf(tmp_PK_ConfigType_File, "%li", key.pk);
@@ -503,6 +503,7 @@ condition = condition + "PK_ConfigType_File=" + tmp_PK_ConfigType_File;
 			return false;
 		}	
 		
+		pRow = (Row_ConfigType_File*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

@@ -478,7 +478,7 @@ update_values_list = update_values_list + "PK_EventParameter="+pRow->PK_EventPar
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_EventParameter *pRow = (Row_EventParameter *)(*i);
+		Row_EventParameter* pRow = (Row_EventParameter*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -491,7 +491,7 @@ update_values_list = update_values_list + "PK_EventParameter="+pRow->PK_EventPar
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_EventParameter* pRow = (Row_EventParameter*) (*i).second;
+		Row_EventParameter* pRow = (Row_EventParameter*) (*i).second;	
 
 		char tmp_PK_EventParameter[32];
 sprintf(tmp_PK_EventParameter, "%li", key.pk);
@@ -509,6 +509,7 @@ condition = condition + "PK_EventParameter=" + tmp_PK_EventParameter;
 			return false;
 		}	
 		
+		pRow = (Row_EventParameter*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

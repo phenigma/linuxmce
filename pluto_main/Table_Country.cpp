@@ -430,7 +430,7 @@ update_values_list = update_values_list + "PK_Country="+pRow->PK_Country_asSQL()
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_Country *pRow = (Row_Country *)(*i);
+		Row_Country* pRow = (Row_Country*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -443,7 +443,7 @@ update_values_list = update_values_list + "PK_Country="+pRow->PK_Country_asSQL()
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_Country* pRow = (Row_Country*) (*i).second;
+		Row_Country* pRow = (Row_Country*) (*i).second;	
 
 		char tmp_PK_Country[32];
 sprintf(tmp_PK_Country, "%li", key.pk);
@@ -461,6 +461,7 @@ condition = condition + "PK_Country=" + tmp_PK_Country;
 			return false;
 		}	
 		
+		pRow = (Row_Country*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

@@ -385,7 +385,7 @@ update_values_list = update_values_list + "PK_Household="+pRow->PK_Household_asS
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_Household *pRow = (Row_Household *)(*i);
+		Row_Household* pRow = (Row_Household*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -398,7 +398,7 @@ update_values_list = update_values_list + "PK_Household="+pRow->PK_Household_asS
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_Household* pRow = (Row_Household*) (*i).second;
+		Row_Household* pRow = (Row_Household*) (*i).second;	
 
 		char tmp_PK_Household[32];
 sprintf(tmp_PK_Household, "%li", key.pk);
@@ -416,6 +416,7 @@ condition = condition + "PK_Household=" + tmp_PK_Household;
 			return false;
 		}	
 		
+		pRow = (Row_Household*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

@@ -536,7 +536,7 @@ update_values_list = update_values_list + "PK_Package_Directory_File="+pRow->PK_
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_Package_Directory_File *pRow = (Row_Package_Directory_File *)(*i);
+		Row_Package_Directory_File* pRow = (Row_Package_Directory_File*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -549,7 +549,7 @@ update_values_list = update_values_list + "PK_Package_Directory_File="+pRow->PK_
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_Package_Directory_File* pRow = (Row_Package_Directory_File*) (*i).second;
+		Row_Package_Directory_File* pRow = (Row_Package_Directory_File*) (*i).second;	
 
 		char tmp_PK_Package_Directory_File[32];
 sprintf(tmp_PK_Package_Directory_File, "%li", key.pk);
@@ -567,6 +567,7 @@ condition = condition + "PK_Package_Directory_File=" + tmp_PK_Package_Directory_
 			return false;
 		}	
 		
+		pRow = (Row_Package_Directory_File*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

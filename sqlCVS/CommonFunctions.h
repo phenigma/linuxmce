@@ -14,6 +14,7 @@
 #include <map>
 #include <string>
 #include "SerializeClass/SerializeClass.h"
+#include "DCE/DCEConfig.h"
 
 #define NULL_TOKEN	"**( NULL )**"
 
@@ -32,6 +33,7 @@ namespace sqlCVS
 	class GlobalConfig
 	{
 	public:
+		DCEConfig dceConfig;
 		string m_sTableType;	/**< the table type */
 		
 		string m_sDBHost;	/**< MySQL information: the host */
@@ -51,6 +53,8 @@ namespace sqlCVS
 		MapRepository m_mapRepository;  /**< The repositories we're currently operating on */
 		
 		MapTable m_mapTable;  /**< The tables we're currently operating on */
+
+		string m_sUsers;  /**< The users specified on the command line */
 		
 		map<int,MapTable *> m_mapUsersTables; 	/**< This will have all the users who have made changes,
 							 * pointing to a list of the tables they modified
@@ -70,11 +74,12 @@ namespace sqlCVS
 		GlobalConfig()
 		{
 			m_sTableType="InnoDB";
-			m_sDBHost="localhost";
-			m_sDBUser="root";
-			m_sDBName="pluto_main";
-			m_iDBPort=3306;
-			m_iSqlCVSPort=3485;
+			m_sDBHost=dceConfig.ReadString("sqlCVS_MySqlHost","localhost");
+			m_sDBUser=dceConfig.ReadString("sqlCVS_MySqlUser","root");
+			m_sDBName=dceConfig.ReadString("sqlCVS_MySqlDatabase","pluto_main");
+			m_iDBPort=dceConfig.ReadInteger("sqlCVS_MySqlPort",3306);
+			m_iSqlCVSPort=dceConfig.ReadInteger("sqlCVS_Port",3485);
+			m_sUsers=dceConfig.ReadString("sqlCVS_Users","");
 			m_pDatabase=NULL;
 			m_pRepository=NULL;
 			m_bNewDatabase=false;

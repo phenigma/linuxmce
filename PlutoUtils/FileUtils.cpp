@@ -74,6 +74,38 @@ char *FileUtils::ReadFileIntoBuffer( string sFileName, size_t &Size )
     return pChr;
 }
 
+void FileUtils::ReadFileIntoVector( string sFileName, vector<string> &vectString )
+{
+	size_t s;
+	char *Buffer = ReadFileIntoBuffer( sFileName, s );
+	if( Buffer )
+	{
+		string sBuffer(Buffer);
+		StringUtils::Tokenize(sBuffer,"\n",vectString);
+	}
+	// Strip any \r that will be in a Windows file
+	for(size_t s=0;s<vectString.size();++s)
+		vectString[s] = StringUtils::Replace(vectString[s],"\r","");
+}
+
+bool FileUtils::WriteVectorToFile( string sFileName, vector<string> &vectString )
+{
+	FILE *file = fopen(sFileName.c_str(),"wb");
+	if( !file )
+		return false;
+
+	for(size_t s=0;s<vectString.size();++s)
+	{
+		fputs(vectString[s].c_str(),file);
+#ifdef WIN32
+		fputc('\r',file);
+#endif
+		fputc('\n',file);
+	}
+	fclose(file);
+	return true;
+}
+
 bool FileUtils::FileExists( string sFile )
 {
 #ifndef WINCE

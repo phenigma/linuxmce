@@ -429,7 +429,7 @@ update_values_list = update_values_list + "PK_ConnectorType="+pRow->PK_Connector
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_ConnectorType *pRow = (Row_ConnectorType *)(*i);
+		Row_ConnectorType* pRow = (Row_ConnectorType*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -442,7 +442,7 @@ update_values_list = update_values_list + "PK_ConnectorType="+pRow->PK_Connector
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_ConnectorType* pRow = (Row_ConnectorType*) (*i).second;
+		Row_ConnectorType* pRow = (Row_ConnectorType*) (*i).second;	
 
 		char tmp_PK_ConnectorType[32];
 sprintf(tmp_PK_ConnectorType, "%li", key.pk);
@@ -460,6 +460,7 @@ condition = condition + "PK_ConnectorType=" + tmp_PK_ConnectorType;
 			return false;
 		}	
 		
+		pRow = (Row_ConnectorType*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

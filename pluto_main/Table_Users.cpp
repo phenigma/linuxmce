@@ -139,8 +139,7 @@ m_ExtensionRingTimeout = 0;
 is_null[10] = false;
 is_null[11] = true;
 is_null[12] = true;
-m_FK_Installation_Main = 0;
-is_null[13] = false;
+is_null[13] = true;
 is_null[14] = true;
 is_null[15] = true;
 is_null[16] = true;
@@ -787,7 +786,7 @@ update_values_list = update_values_list + "PK_Users="+pRow->PK_Users_asSQL()+", 
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_Users *pRow = (Row_Users *)(*i);
+		Row_Users* pRow = (Row_Users*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -800,7 +799,7 @@ update_values_list = update_values_list + "PK_Users="+pRow->PK_Users_asSQL()+", 
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_Users* pRow = (Row_Users*) (*i).second;
+		Row_Users* pRow = (Row_Users*) (*i).second;	
 
 		char tmp_PK_Users[32];
 sprintf(tmp_PK_Users, "%li", key.pk);
@@ -818,6 +817,7 @@ condition = condition + "PK_Users=" + tmp_PK_Users;
 			return false;
 		}	
 		
+		pRow = (Row_Users*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

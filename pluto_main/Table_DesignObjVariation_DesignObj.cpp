@@ -889,7 +889,7 @@ update_values_list = update_values_list + "PK_DesignObjVariation_DesignObj="+pRo
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_DesignObjVariation_DesignObj *pRow = (Row_DesignObjVariation_DesignObj *)(*i);
+		Row_DesignObjVariation_DesignObj* pRow = (Row_DesignObjVariation_DesignObj*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -902,7 +902,7 @@ update_values_list = update_values_list + "PK_DesignObjVariation_DesignObj="+pRo
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_DesignObjVariation_DesignObj* pRow = (Row_DesignObjVariation_DesignObj*) (*i).second;
+		Row_DesignObjVariation_DesignObj* pRow = (Row_DesignObjVariation_DesignObj*) (*i).second;	
 
 		char tmp_PK_DesignObjVariation_DesignObj[32];
 sprintf(tmp_PK_DesignObjVariation_DesignObj, "%li", key.pk);
@@ -920,6 +920,7 @@ condition = condition + "PK_DesignObjVariation_DesignObj=" + tmp_PK_DesignObjVar
 			return false;
 		}	
 		
+		pRow = (Row_DesignObjVariation_DesignObj*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

@@ -387,7 +387,7 @@ update_values_list = update_values_list + "PK_psc_constants_tables="+pRow->PK_ps
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_psc_constants_tables *pRow = (Row_psc_constants_tables *)(*i);
+		Row_psc_constants_tables* pRow = (Row_psc_constants_tables*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -400,7 +400,7 @@ update_values_list = update_values_list + "PK_psc_constants_tables="+pRow->PK_ps
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_psc_constants_tables* pRow = (Row_psc_constants_tables*) (*i).second;
+		Row_psc_constants_tables* pRow = (Row_psc_constants_tables*) (*i).second;	
 
 		char tmp_PK_psc_constants_tables[32];
 sprintf(tmp_PK_psc_constants_tables, "%li", key.pk);
@@ -418,6 +418,7 @@ condition = condition + "PK_psc_constants_tables=" + tmp_PK_psc_constants_tables
 			return false;
 		}	
 		
+		pRow = (Row_psc_constants_tables*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

@@ -306,7 +306,7 @@ update_values_list = update_values_list + "PK_psc_designer_repset="+pRow->PK_psc
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_psc_designer_repset *pRow = (Row_psc_designer_repset *)(*i);
+		Row_psc_designer_repset* pRow = (Row_psc_designer_repset*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -319,7 +319,7 @@ update_values_list = update_values_list + "PK_psc_designer_repset="+pRow->PK_psc
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_psc_designer_repset* pRow = (Row_psc_designer_repset*) (*i).second;
+		Row_psc_designer_repset* pRow = (Row_psc_designer_repset*) (*i).second;	
 
 		char tmp_PK_psc_designer_repset[32];
 sprintf(tmp_PK_psc_designer_repset, "%li", key.pk);
@@ -337,6 +337,7 @@ condition = condition + "PK_psc_designer_repset=" + tmp_PK_psc_designer_repset;
 			return false;
 		}	
 		
+		pRow = (Row_psc_designer_repset*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

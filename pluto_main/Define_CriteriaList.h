@@ -2,6 +2,7 @@
 #define __Define_CriteriaList_H__
 
 #define CRITERIALIST_Criteria_List_CONST 1
+#define CRITERIALIST_Events_CONST 2
 
 #define CRITERIALIST_TABLE "CriteriaList"
 #define CRITERIALIST_PK_CRITERIALIST_FIELD "PK_CriteriaList"

@@ -452,7 +452,7 @@ update_values_list = update_values_list + "PK_Image="+pRow->PK_Image_asSQL()+", 
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_Image *pRow = (Row_Image *)(*i);
+		Row_Image* pRow = (Row_Image*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -465,7 +465,7 @@ update_values_list = update_values_list + "PK_Image="+pRow->PK_Image_asSQL()+", 
 		map<Table_Image::Key, class TableRow*, Table_Image::Key_Less>::iterator i = deleted_cachedRows.begin();
 	
 		Table_Image::Key key = (*i).first;
-		Row_Image* pRow = (Row_Image*) (*i).second;
+		Row_Image* pRow = (Row_Image*) (*i).second;	
 
 		char tmp_PK_Image[201];
 mysql_real_escape_string(database->db_handle,tmp_PK_Image, key.pk_PK_Image.c_str(), (unsigned long) key.pk_PK_Image.size());
@@ -483,6 +483,7 @@ condition = condition + "PK_Image=" + "\"" + tmp_PK_Image+ "\"";
 			return false;
 		}	
 		
+		pRow = (Row_Image*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

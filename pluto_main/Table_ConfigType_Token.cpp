@@ -465,7 +465,7 @@ update_values_list = update_values_list + "FK_ConfigType_Setting="+pRow->FK_Conf
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_ConfigType_Token *pRow = (Row_ConfigType_Token *)(*i);
+		Row_ConfigType_Token* pRow = (Row_ConfigType_Token*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -478,7 +478,7 @@ update_values_list = update_values_list + "FK_ConfigType_Setting="+pRow->FK_Conf
 		map<Table_ConfigType_Token::Key, class TableRow*, Table_ConfigType_Token::Key_Less>::iterator i = deleted_cachedRows.begin();
 	
 		Table_ConfigType_Token::Key key = (*i).first;
-		Row_ConfigType_Token* pRow = (Row_ConfigType_Token*) (*i).second;
+		Row_ConfigType_Token* pRow = (Row_ConfigType_Token*) (*i).second;	
 
 		char tmp_FK_ConfigType_Setting[32];
 sprintf(tmp_FK_ConfigType_Setting, "%li", key.pk_FK_ConfigType_Setting);
@@ -502,6 +502,7 @@ condition = condition + "FK_ConfigType_Setting=" + tmp_FK_ConfigType_Setting+" A
 			return false;
 		}	
 		
+		pRow = (Row_ConfigType_Token*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

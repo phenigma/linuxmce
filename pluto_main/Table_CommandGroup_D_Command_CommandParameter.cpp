@@ -440,7 +440,7 @@ update_values_list = update_values_list + "FK_CommandGroup_D_Command="+pRow->FK_
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_CommandGroup_D_Command_CommandParameter *pRow = (Row_CommandGroup_D_Command_CommandParameter *)(*i);
+		Row_CommandGroup_D_Command_CommandParameter* pRow = (Row_CommandGroup_D_Command_CommandParameter*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -453,7 +453,7 @@ update_values_list = update_values_list + "FK_CommandGroup_D_Command="+pRow->FK_
 		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		DoubleLongKey key = (*i).first;
-		Row_CommandGroup_D_Command_CommandParameter* pRow = (Row_CommandGroup_D_Command_CommandParameter*) (*i).second;
+		Row_CommandGroup_D_Command_CommandParameter* pRow = (Row_CommandGroup_D_Command_CommandParameter*) (*i).second;	
 
 		char tmp_FK_CommandGroup_D_Command[32];
 sprintf(tmp_FK_CommandGroup_D_Command, "%li", key.pk1);
@@ -474,6 +474,7 @@ condition = condition + "FK_CommandGroup_D_Command=" + tmp_FK_CommandGroup_D_Com
 			return false;
 		}	
 		
+		pRow = (Row_CommandGroup_D_Command_CommandParameter*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

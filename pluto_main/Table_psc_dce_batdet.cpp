@@ -17,6 +17,10 @@
 using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_psc_dce_batdet.h"
+#include "Table_psc_dce_bathdr.h"
+#include "Table_psc_dce_bathdr.h"
+#include "Table_psc_dce_bathdr.h"
+#include "Table_psc_dce_bathdr.h"
 
 
 
@@ -113,8 +117,22 @@ void Row_psc_dce_batdet::SetDefaultValues()
 {
 	m_PK_psc_dce_batdet = 0;
 is_null[0] = false;
-m_Value = "";
+m_FK_psc_dce_bathdr = 0;
 is_null[1] = false;
+m_Tablename = "";
+is_null[2] = false;
+m_New = 0;
+is_null[3] = false;
+m_Deleted = 0;
+is_null[4] = false;
+m_Modified = 0;
+is_null[5] = false;
+m_FK_psc_dce_bathdr_orig = 0;
+is_null[6] = false;
+m_FK_psc_dce_bathdr_auth = 0;
+is_null[7] = false;
+m_FK_psc_dce_bathdr_unauth = 0;
+is_null[8] = false;
 
 
 	is_added=false;
@@ -125,17 +143,59 @@ is_null[1] = false;
 long int Row_psc_dce_batdet::PK_psc_dce_batdet_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_PK_psc_dce_batdet;}
-string Row_psc_dce_batdet::Value_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_psc_dce_batdet::FK_psc_dce_bathdr_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_Value;}
+return m_FK_psc_dce_bathdr;}
+string Row_psc_dce_batdet::Tablename_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Tablename;}
+long int Row_psc_dce_batdet::New_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_New;}
+long int Row_psc_dce_batdet::Deleted_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Deleted;}
+long int Row_psc_dce_batdet::Modified_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Modified;}
+long int Row_psc_dce_batdet::FK_psc_dce_bathdr_orig_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FK_psc_dce_bathdr_orig;}
+long int Row_psc_dce_batdet::FK_psc_dce_bathdr_auth_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FK_psc_dce_bathdr_auth;}
+long int Row_psc_dce_batdet::FK_psc_dce_bathdr_unauth_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FK_psc_dce_bathdr_unauth;}
 
 		
 void Row_psc_dce_batdet::PK_psc_dce_batdet_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_PK_psc_dce_batdet = val; is_modified=true; is_null[0]=false;}
-void Row_psc_dce_batdet::Value_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_dce_batdet::FK_psc_dce_bathdr_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Value = val; is_modified=true; is_null[1]=false;}
+m_FK_psc_dce_bathdr = val; is_modified=true; is_null[1]=false;}
+void Row_psc_dce_batdet::Tablename_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Tablename = val; is_modified=true; is_null[2]=false;}
+void Row_psc_dce_batdet::New_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_New = val; is_modified=true; is_null[3]=false;}
+void Row_psc_dce_batdet::Deleted_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Deleted = val; is_modified=true; is_null[4]=false;}
+void Row_psc_dce_batdet::Modified_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Modified = val; is_modified=true; is_null[5]=false;}
+void Row_psc_dce_batdet::FK_psc_dce_bathdr_orig_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_psc_dce_bathdr_orig = val; is_modified=true; is_null[6]=false;}
+void Row_psc_dce_batdet::FK_psc_dce_bathdr_auth_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_psc_dce_bathdr_auth = val; is_modified=true; is_null[7]=false;}
+void Row_psc_dce_batdet::FK_psc_dce_bathdr_unauth_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_psc_dce_bathdr_unauth = val; is_modified=true; is_null[8]=false;}
 
 		
 
@@ -155,18 +215,109 @@ sprintf(buf, "%li", m_PK_psc_dce_batdet);
 return buf;
 }
 
-string Row_psc_dce_batdet::Value_asSQL()
+string Row_psc_dce_batdet::FK_psc_dce_bathdr_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[1])
 return "NULL";
 
-char *buf = new char[61];
-mysql_real_escape_string(table->database->db_handle, buf, m_Value.c_str(), (unsigned long) m_Value.size());
+char buf[32];
+sprintf(buf, "%li", m_FK_psc_dce_bathdr);
+
+return buf;
+}
+
+string Row_psc_dce_batdet::Tablename_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[2])
+return "NULL";
+
+char *buf = new char[121];
+mysql_real_escape_string(table->database->db_handle, buf, m_Tablename.c_str(), (unsigned long) m_Tablename.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
+}
+
+string Row_psc_dce_batdet::New_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[3])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_New);
+
+return buf;
+}
+
+string Row_psc_dce_batdet::Deleted_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[4])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_Deleted);
+
+return buf;
+}
+
+string Row_psc_dce_batdet::Modified_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[5])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_Modified);
+
+return buf;
+}
+
+string Row_psc_dce_batdet::FK_psc_dce_bathdr_orig_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[6])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_psc_dce_bathdr_orig);
+
+return buf;
+}
+
+string Row_psc_dce_batdet::FK_psc_dce_bathdr_auth_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[7])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_psc_dce_bathdr_auth);
+
+return buf;
+}
+
+string Row_psc_dce_batdet::FK_psc_dce_bathdr_unauth_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[8])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_psc_dce_bathdr_unauth);
+
+return buf;
 }
 
 
@@ -207,10 +358,10 @@ bool Table_psc_dce_batdet::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_dce_batdet_asSQL()+", "+pRow->Value_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_dce_batdet_asSQL()+", "+pRow->FK_psc_dce_bathdr_asSQL()+", "+pRow->Tablename_asSQL()+", "+pRow->New_asSQL()+", "+pRow->Deleted_asSQL()+", "+pRow->Modified_asSQL()+", "+pRow->FK_psc_dce_bathdr_orig_asSQL()+", "+pRow->FK_psc_dce_bathdr_auth_asSQL()+", "+pRow->FK_psc_dce_bathdr_unauth_asSQL();
 
 	
-		string query = "insert into psc_dce_batdet (PK_psc_dce_batdet, Value) values ("+
+		string query = "insert into psc_dce_batdet (PK_psc_dce_batdet, FK_psc_dce_bathdr, Tablename, New, Deleted, Modified, FK_psc_dce_bathdr_orig, FK_psc_dce_bathdr_auth, FK_psc_dce_bathdr_unauth) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -260,7 +411,7 @@ condition = condition + "PK_psc_dce_batdet=" + tmp_PK_psc_dce_batdet;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_psc_dce_batdet="+pRow->PK_psc_dce_batdet_asSQL()+", Value="+pRow->Value_asSQL();
+update_values_list = update_values_list + "PK_psc_dce_batdet="+pRow->PK_psc_dce_batdet_asSQL()+", FK_psc_dce_bathdr="+pRow->FK_psc_dce_bathdr_asSQL()+", Tablename="+pRow->Tablename_asSQL()+", New="+pRow->New_asSQL()+", Deleted="+pRow->Deleted_asSQL()+", Modified="+pRow->Modified_asSQL()+", FK_psc_dce_bathdr_orig="+pRow->FK_psc_dce_bathdr_orig_asSQL()+", FK_psc_dce_bathdr_auth="+pRow->FK_psc_dce_bathdr_auth_asSQL()+", FK_psc_dce_bathdr_unauth="+pRow->FK_psc_dce_bathdr_unauth_asSQL();
 
 	
 		string query = "update psc_dce_batdet set " + update_values_list + " where " + condition;
@@ -279,7 +430,7 @@ update_values_list = update_values_list + "PK_psc_dce_batdet="+pRow->PK_psc_dce_
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_psc_dce_batdet *pRow = (Row_psc_dce_batdet *)(*i);
+		Row_psc_dce_batdet* pRow = (Row_psc_dce_batdet*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -292,7 +443,7 @@ update_values_list = update_values_list + "PK_psc_dce_batdet="+pRow->PK_psc_dce_
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_psc_dce_batdet* pRow = (Row_psc_dce_batdet*) (*i).second;
+		Row_psc_dce_batdet* pRow = (Row_psc_dce_batdet*) (*i).second;	
 
 		char tmp_PK_psc_dce_batdet[32];
 sprintf(tmp_PK_psc_dce_batdet, "%li", key.pk);
@@ -310,6 +461,7 @@ condition = condition + "PK_psc_dce_batdet=" + tmp_PK_psc_dce_batdet;
 			return false;
 		}	
 		
+		pRow = (Row_psc_dce_batdet*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
@@ -366,12 +518,89 @@ sscanf(row[0], "%li", &(pRow->m_PK_psc_dce_batdet));
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_Value = "";
+pRow->m_FK_psc_dce_bathdr = 0;
 }
 else
 {
 pRow->is_null[1]=false;
-pRow->m_Value = string(row[1],lengths[1]);
+sscanf(row[1], "%li", &(pRow->m_FK_psc_dce_bathdr));
+}
+
+if (row[2] == NULL)
+{
+pRow->is_null[2]=true;
+pRow->m_Tablename = "";
+}
+else
+{
+pRow->is_null[2]=false;
+pRow->m_Tablename = string(row[2],lengths[2]);
+}
+
+if (row[3] == NULL)
+{
+pRow->is_null[3]=true;
+pRow->m_New = 0;
+}
+else
+{
+pRow->is_null[3]=false;
+sscanf(row[3], "%li", &(pRow->m_New));
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_Deleted = 0;
+}
+else
+{
+pRow->is_null[4]=false;
+sscanf(row[4], "%li", &(pRow->m_Deleted));
+}
+
+if (row[5] == NULL)
+{
+pRow->is_null[5]=true;
+pRow->m_Modified = 0;
+}
+else
+{
+pRow->is_null[5]=false;
+sscanf(row[5], "%li", &(pRow->m_Modified));
+}
+
+if (row[6] == NULL)
+{
+pRow->is_null[6]=true;
+pRow->m_FK_psc_dce_bathdr_orig = 0;
+}
+else
+{
+pRow->is_null[6]=false;
+sscanf(row[6], "%li", &(pRow->m_FK_psc_dce_bathdr_orig));
+}
+
+if (row[7] == NULL)
+{
+pRow->is_null[7]=true;
+pRow->m_FK_psc_dce_bathdr_auth = 0;
+}
+else
+{
+pRow->is_null[7]=false;
+sscanf(row[7], "%li", &(pRow->m_FK_psc_dce_bathdr_auth));
+}
+
+if (row[8] == NULL)
+{
+pRow->is_null[8]=true;
+pRow->m_FK_psc_dce_bathdr_unauth = 0;
+}
+else
+{
+pRow->is_null[8]=false;
+sscanf(row[8], "%li", &(pRow->m_FK_psc_dce_bathdr_unauth));
 }
 
 
@@ -494,12 +723,89 @@ sscanf(row[0], "%li", &(pRow->m_PK_psc_dce_batdet));
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_Value = "";
+pRow->m_FK_psc_dce_bathdr = 0;
 }
 else
 {
 pRow->is_null[1]=false;
-pRow->m_Value = string(row[1],lengths[1]);
+sscanf(row[1], "%li", &(pRow->m_FK_psc_dce_bathdr));
+}
+
+if (row[2] == NULL)
+{
+pRow->is_null[2]=true;
+pRow->m_Tablename = "";
+}
+else
+{
+pRow->is_null[2]=false;
+pRow->m_Tablename = string(row[2],lengths[2]);
+}
+
+if (row[3] == NULL)
+{
+pRow->is_null[3]=true;
+pRow->m_New = 0;
+}
+else
+{
+pRow->is_null[3]=false;
+sscanf(row[3], "%li", &(pRow->m_New));
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_Deleted = 0;
+}
+else
+{
+pRow->is_null[4]=false;
+sscanf(row[4], "%li", &(pRow->m_Deleted));
+}
+
+if (row[5] == NULL)
+{
+pRow->is_null[5]=true;
+pRow->m_Modified = 0;
+}
+else
+{
+pRow->is_null[5]=false;
+sscanf(row[5], "%li", &(pRow->m_Modified));
+}
+
+if (row[6] == NULL)
+{
+pRow->is_null[6]=true;
+pRow->m_FK_psc_dce_bathdr_orig = 0;
+}
+else
+{
+pRow->is_null[6]=false;
+sscanf(row[6], "%li", &(pRow->m_FK_psc_dce_bathdr_orig));
+}
+
+if (row[7] == NULL)
+{
+pRow->is_null[7]=true;
+pRow->m_FK_psc_dce_bathdr_auth = 0;
+}
+else
+{
+pRow->is_null[7]=false;
+sscanf(row[7], "%li", &(pRow->m_FK_psc_dce_bathdr_auth));
+}
+
+if (row[8] == NULL)
+{
+pRow->is_null[8]=true;
+pRow->m_FK_psc_dce_bathdr_unauth = 0;
+}
+else
+{
+pRow->is_null[8]=false;
+sscanf(row[8], "%li", &(pRow->m_FK_psc_dce_bathdr_unauth));
 }
 
 
@@ -510,6 +816,34 @@ pRow->m_Value = string(row[1],lengths[1]);
 }
 
 
+class Row_psc_dce_bathdr* Row_psc_dce_batdet::FK_psc_dce_bathdr_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_psc_dce_bathdr *pTable = table->database->psc_dce_bathdr_get();
+return pTable->GetRow(m_FK_psc_dce_bathdr);
+}
+class Row_psc_dce_bathdr* Row_psc_dce_batdet::FK_psc_dce_bathdr_orig_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_psc_dce_bathdr *pTable = table->database->psc_dce_bathdr_get();
+return pTable->GetRow(m_FK_psc_dce_bathdr_orig);
+}
+class Row_psc_dce_bathdr* Row_psc_dce_batdet::FK_psc_dce_bathdr_auth_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_psc_dce_bathdr *pTable = table->database->psc_dce_bathdr_get();
+return pTable->GetRow(m_FK_psc_dce_bathdr_auth);
+}
+class Row_psc_dce_bathdr* Row_psc_dce_batdet::FK_psc_dce_bathdr_unauth_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_psc_dce_bathdr *pTable = table->database->psc_dce_bathdr_get();
+return pTable->GetRow(m_FK_psc_dce_bathdr_unauth);
+}
 
 
 

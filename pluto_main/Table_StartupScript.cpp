@@ -727,7 +727,7 @@ update_values_list = update_values_list + "PK_StartupScript="+pRow->PK_StartupSc
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_StartupScript *pRow = (Row_StartupScript *)(*i);
+		Row_StartupScript* pRow = (Row_StartupScript*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -740,7 +740,7 @@ update_values_list = update_values_list + "PK_StartupScript="+pRow->PK_StartupSc
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_StartupScript* pRow = (Row_StartupScript*) (*i).second;
+		Row_StartupScript* pRow = (Row_StartupScript*) (*i).second;	
 
 		char tmp_PK_StartupScript[32];
 sprintf(tmp_PK_StartupScript, "%li", key.pk);
@@ -758,6 +758,7 @@ condition = condition + "PK_StartupScript=" + tmp_PK_StartupScript;
 			return false;
 		}	
 		
+		pRow = (Row_StartupScript*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

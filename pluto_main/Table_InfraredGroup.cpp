@@ -459,7 +459,7 @@ update_values_list = update_values_list + "PK_InfraredGroup="+pRow->PK_InfraredG
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_InfraredGroup *pRow = (Row_InfraredGroup *)(*i);
+		Row_InfraredGroup* pRow = (Row_InfraredGroup*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -472,7 +472,7 @@ update_values_list = update_values_list + "PK_InfraredGroup="+pRow->PK_InfraredG
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_InfraredGroup* pRow = (Row_InfraredGroup*) (*i).second;
+		Row_InfraredGroup* pRow = (Row_InfraredGroup*) (*i).second;	
 
 		char tmp_PK_InfraredGroup[32];
 sprintf(tmp_PK_InfraredGroup, "%li", key.pk);
@@ -490,6 +490,7 @@ condition = condition + "PK_InfraredGroup=" + tmp_PK_InfraredGroup;
 			return false;
 		}	
 		
+		pRow = (Row_InfraredGroup*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

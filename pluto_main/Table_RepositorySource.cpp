@@ -538,7 +538,7 @@ update_values_list = update_values_list + "PK_RepositorySource="+pRow->PK_Reposi
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_RepositorySource *pRow = (Row_RepositorySource *)(*i);
+		Row_RepositorySource* pRow = (Row_RepositorySource*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -551,7 +551,7 @@ update_values_list = update_values_list + "PK_RepositorySource="+pRow->PK_Reposi
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_RepositorySource* pRow = (Row_RepositorySource*) (*i).second;
+		Row_RepositorySource* pRow = (Row_RepositorySource*) (*i).second;	
 
 		char tmp_PK_RepositorySource[32];
 sprintf(tmp_PK_RepositorySource, "%li", key.pk);
@@ -569,6 +569,7 @@ condition = condition + "PK_RepositorySource=" + tmp_PK_RepositorySource;
 			return false;
 		}	
 		
+		pRow = (Row_RepositorySource*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

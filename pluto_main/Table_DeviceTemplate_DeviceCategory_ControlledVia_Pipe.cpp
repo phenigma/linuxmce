@@ -494,7 +494,7 @@ update_values_list = update_values_list + "FK_DeviceTemplate_DeviceCategory_Cont
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_DeviceTemplate_DeviceCategory_ControlledVia_Pipe *pRow = (Row_DeviceTemplate_DeviceCategory_ControlledVia_Pipe *)(*i);
+		Row_DeviceTemplate_DeviceCategory_ControlledVia_Pipe* pRow = (Row_DeviceTemplate_DeviceCategory_ControlledVia_Pipe*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -507,7 +507,7 @@ update_values_list = update_values_list + "FK_DeviceTemplate_DeviceCategory_Cont
 		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		DoubleLongKey key = (*i).first;
-		Row_DeviceTemplate_DeviceCategory_ControlledVia_Pipe* pRow = (Row_DeviceTemplate_DeviceCategory_ControlledVia_Pipe*) (*i).second;
+		Row_DeviceTemplate_DeviceCategory_ControlledVia_Pipe* pRow = (Row_DeviceTemplate_DeviceCategory_ControlledVia_Pipe*) (*i).second;	
 
 		char tmp_FK_DeviceTemplate_DeviceCategory_ControlledVia[32];
 sprintf(tmp_FK_DeviceTemplate_DeviceCategory_ControlledVia, "%li", key.pk1);
@@ -528,6 +528,7 @@ condition = condition + "FK_DeviceTemplate_DeviceCategory_ControlledVia=" + tmp_
 			return false;
 		}	
 		
+		pRow = (Row_DeviceTemplate_DeviceCategory_ControlledVia_Pipe*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

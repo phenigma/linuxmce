@@ -560,7 +560,7 @@ update_values_list = update_values_list + "PK_Icon="+pRow->PK_Icon_asSQL()+", De
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_Icon *pRow = (Row_Icon *)(*i);
+		Row_Icon* pRow = (Row_Icon*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -573,7 +573,7 @@ update_values_list = update_values_list + "PK_Icon="+pRow->PK_Icon_asSQL()+", De
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_Icon* pRow = (Row_Icon*) (*i).second;
+		Row_Icon* pRow = (Row_Icon*) (*i).second;	
 
 		char tmp_PK_Icon[32];
 sprintf(tmp_PK_Icon, "%li", key.pk);
@@ -591,6 +591,7 @@ condition = condition + "PK_Icon=" + tmp_PK_Icon;
 			return false;
 		}	
 		
+		pRow = (Row_Icon*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

@@ -413,7 +413,7 @@ update_values_list = update_values_list + "FK_CriteriaList="+pRow->FK_CriteriaLi
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_CriteriaList_CriteriaParmList *pRow = (Row_CriteriaList_CriteriaParmList *)(*i);
+		Row_CriteriaList_CriteriaParmList* pRow = (Row_CriteriaList_CriteriaParmList*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -426,7 +426,7 @@ update_values_list = update_values_list + "FK_CriteriaList="+pRow->FK_CriteriaLi
 		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		DoubleLongKey key = (*i).first;
-		Row_CriteriaList_CriteriaParmList* pRow = (Row_CriteriaList_CriteriaParmList*) (*i).second;
+		Row_CriteriaList_CriteriaParmList* pRow = (Row_CriteriaList_CriteriaParmList*) (*i).second;	
 
 		char tmp_FK_CriteriaList[32];
 sprintf(tmp_FK_CriteriaList, "%li", key.pk1);
@@ -447,6 +447,7 @@ condition = condition + "FK_CriteriaList=" + tmp_FK_CriteriaList+" AND "+"FK_Cri
 			return false;
 		}	
 		
+		pRow = (Row_CriteriaList_CriteriaParmList*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

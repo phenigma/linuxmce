@@ -472,7 +472,7 @@ update_values_list = update_values_list + "PK_CannedEvents="+pRow->PK_CannedEven
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_CannedEvents *pRow = (Row_CannedEvents *)(*i);
+		Row_CannedEvents* pRow = (Row_CannedEvents*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -485,7 +485,7 @@ update_values_list = update_values_list + "PK_CannedEvents="+pRow->PK_CannedEven
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_CannedEvents* pRow = (Row_CannedEvents*) (*i).second;
+		Row_CannedEvents* pRow = (Row_CannedEvents*) (*i).second;	
 
 		char tmp_PK_CannedEvents[32];
 sprintf(tmp_PK_CannedEvents, "%li", key.pk);
@@ -503,6 +503,7 @@ condition = condition + "PK_CannedEvents=" + tmp_PK_CannedEvents;
 			return false;
 		}	
 		
+		pRow = (Row_CannedEvents*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

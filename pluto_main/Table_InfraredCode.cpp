@@ -521,7 +521,7 @@ update_values_list = update_values_list + "FK_InfraredGroup="+pRow->FK_InfraredG
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_InfraredCode *pRow = (Row_InfraredCode *)(*i);
+		Row_InfraredCode* pRow = (Row_InfraredCode*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -534,7 +534,7 @@ update_values_list = update_values_list + "FK_InfraredGroup="+pRow->FK_InfraredG
 		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		DoubleLongKey key = (*i).first;
-		Row_InfraredCode* pRow = (Row_InfraredCode*) (*i).second;
+		Row_InfraredCode* pRow = (Row_InfraredCode*) (*i).second;	
 
 		char tmp_FK_InfraredGroup[32];
 sprintf(tmp_FK_InfraredGroup, "%li", key.pk1);
@@ -555,6 +555,7 @@ condition = condition + "FK_InfraredGroup=" + tmp_FK_InfraredGroup+" AND "+"FK_C
 			return false;
 		}	
 		
+		pRow = (Row_InfraredCode*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

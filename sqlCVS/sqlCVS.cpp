@@ -80,6 +80,8 @@ namespace sqlCVS
 using namespace DCE;
 using namespace sqlCVS;
 
+void ChangeLoginUsers();
+
 string GetCommand( )
 {
 	cout << "What would you like to do?" << endl
@@ -104,7 +106,10 @@ string GetCommand( )
 		<< "C.	Update my local copy with changes from the server ( update )" << endl
 		<< "D.	Synchronize my database with the server. Same as checkin+update ( sync )" << endl
 		<< "E.	View my local changes ( diff )" << endl
-		<< endl << "Q. Quit" << endl;
+		<< endl
+		<< "Z.	Change login or users" << endl
+		<< endl 
+		<< "Q. Quit" << endl;
 
 	string s;
 	cin >> s;
@@ -143,8 +148,10 @@ string GetCommand( )
 		return "sync";
 	else if( s=="e" || s=="E" )
 		return "diff";
+	else if( s=="z" || s=="Z" )
+		ChangeLoginUsers();  // This will loop back to the same menu
 	else if( s=="q" || s=="Q" )
-		exit( 1 );
+		exit( 0 );
 
 	return "";
 }
@@ -164,7 +171,6 @@ int main( int argc, char *argv[] )
 
 	bool bError=false; /** An error parsing the command line */
 
-	string sUsers;
 	char c;
 	for( int optnum=1;optnum<argc;++optnum )
 	{
@@ -204,7 +210,7 @@ int main( int argc, char *argv[] )
 			g_GlobalConfig.m_sDefaultUser = argv[++optnum];
 			break;
 		case 'U':
-			sUsers = argv[++optnum];
+			g_GlobalConfig.m_sUsers = argv[++optnum];
 			break;
 		default:
 			bError=true;
@@ -253,10 +259,16 @@ int main( int argc, char *argv[] )
 		WSADATA wsaData;
 		err = WSAStartup( MAKEWORD( 1, 1 ), ( LPWSADATA ) &wsaData );
 #endif
+		cout << "Database host:" << g_GlobalConfig.m_sDBHost << " user:" << g_GlobalConfig.m_sDBUser 
+			<< " pass:" << g_GlobalConfig.m_sDBPassword << " name:" << g_GlobalConfig.m_sDBName << " port:" << g_GlobalConfig.m_iDBPort << endl
+			<< "Users:" << g_GlobalConfig.m_sUsers << endl;
+
 		Database database( g_GlobalConfig.m_sDBHost, g_GlobalConfig.m_sDBUser, g_GlobalConfig.m_sDBPassword, g_GlobalConfig.m_sDBName, g_GlobalConfig.m_iDBPort );
 		if( !database.m_bConnected )
 		{
-			cerr << "Cannot connect to database" << endl;
+			cerr << "***ERROR*** Cannot connect to database." << endl;
+			cout << "Please modify the configuration settings and restart sqlCVS." << endl;
+            ChangeLoginUsers();
 			exit(1);
 		}
 		g_GlobalConfig.m_pDatabase=&database;
@@ -266,7 +278,7 @@ int main( int argc, char *argv[] )
 
 		string::size_type pos=0;
 		string Token;
-		while( ( Token=StringUtils::Tokenize( sUsers, ",", pos ) ).length( ) )
+		while( ( Token=StringUtils::Tokenize( g_GlobalConfig.m_sUsers, ",", pos ) ).length( ) )
 		{
 			string::size_type pos2=0;
 			string Username = StringUtils::Tokenize( Token, "~", pos2 );
@@ -276,7 +288,7 @@ int main( int argc, char *argv[] )
 
 		while( true ) /** An endless loop processing commands */
 		{
-			if( g_GlobalConfig.m_sCommand.length( )==0 )
+			while( g_GlobalConfig.m_sCommand.length( )==0 )
 			{
 				g_GlobalConfig.m_sCommand=GetCommand( );
 				database.m_bInteractiveMode=true;
@@ -382,7 +394,7 @@ int main( int argc, char *argv[] )
 						cout << (g_GlobalConfig.m_sTable.size() || it!=g_GlobalConfig.m_mapTable.begin() ? "," : "") << (*it).first;
 				}
 				
-				cout << "\" -U \"" << sUsers
+				cout << "\" -U \"" << g_GlobalConfig.m_sUsers
 					<< "\" " << g_GlobalConfig.m_sCommand << endl;
 			}
 /** @test
@@ -396,6 +408,7 @@ int main( int argc, char *argv[] )
 				database.DumpTables( sRepository, &listCommandParms );
 
 */
+getch();
 return 0;
 		};
 	}
@@ -431,4 +444,107 @@ getch();
 #endif
 	cout << "Everything okay";
 	return 0;
+}
+
+void ChangeLoginUsers()
+{
+	while(true)
+	{
+		cout << "MySql Database Login Info:" << endl
+			<< "A.  Host: " << g_GlobalConfig.m_sDBHost << endl
+			<< "B.  User: " << g_GlobalConfig.m_sDBUser << endl
+			<< "C.  Password: " << g_GlobalConfig.m_sDBPassword << endl
+			<< "D.  Database: " << g_GlobalConfig.m_sDBName << endl
+			<< "E.  Port: " << g_GlobalConfig.m_iDBPort << endl
+			<< endl
+			<< "Automatically login users (username~password,...):" << endl
+			<< g_GlobalConfig.m_sUsers << endl;
+
+		cout << endl << endl
+			<< "Q.  Quit" << endl
+			<< "S.  Save changes to config file" << endl
+			<< "Enter A-E,Q,S or a user name to add/remove a user for auto-login:";
+
+		string Selection;
+		cin >> Selection;
+		cout << endl;
+
+		if( Selection=="A" || Selection=="a" )
+		{
+			cout << "Enter the new MySql host: ";
+			cin >> g_GlobalConfig.m_sDBHost;
+			cout << endl;
+		}
+		else if( Selection=="B" || Selection=="b" )
+		{
+			cout << "Enter the MySql user: ";
+			cin >> g_GlobalConfig.m_sDBUser;
+			cout << endl;
+		}
+		else if( Selection=="C" || Selection=="c" )
+		{
+			cout << "Enter the MySql password: ";
+			cin >> g_GlobalConfig.m_sDBPassword;
+			cout << endl;
+		}
+		else if( Selection=="D" || Selection=="d" )
+		{
+			cout << "Enter the MySql database: ";
+			cin >> g_GlobalConfig.m_sDBName;
+			cout << endl;
+		}
+		else if( Selection=="E" || Selection=="e" )
+		{
+			cout << "Enter the MySql port: ";
+			cin >> g_GlobalConfig.m_iDBPort;
+			cout << endl;
+		}
+		else if( Selection=="Q" || Selection=="q" )
+		{
+			return;
+		}
+		else if( Selection=="S" || Selection=="s" )
+		{
+			g_GlobalConfig.dceConfig.AddString("sqlCVS_MySqlHost",g_GlobalConfig.m_sDBHost);
+			g_GlobalConfig.dceConfig.AddString("sqlCVS_MySqlUser",g_GlobalConfig.m_sDBUser);
+			g_GlobalConfig.dceConfig.AddString("sqlCVS_MySqlDatabase",g_GlobalConfig.m_sDBName);
+			g_GlobalConfig.dceConfig.AddInteger("sqlCVS_MySqlPort",g_GlobalConfig.m_iDBPort);
+			g_GlobalConfig.dceConfig.AddInteger("sqlCVS_Port",g_GlobalConfig.m_iSqlCVSPort);
+			g_GlobalConfig.dceConfig.AddString("sqlCVS_Users",g_GlobalConfig.m_sUsers);
+			g_GlobalConfig.dceConfig.WriteSettings();
+			return;
+		}
+		else
+		{
+			// It must be a user
+			vector<string> vectUsers;
+			StringUtils::Tokenize(g_GlobalConfig.m_sUsers,",",vectUsers);
+			int iRemoveUser=-1; // This will be >=0 if the user typed in an existing user name
+			for(size_t s=0;s<vectUsers.size();s++)
+			{
+				// The vector may have a ~ password
+				string::size_type pos=0;
+				string Username = StringUtils::Tokenize(vectUsers[s],"~",pos);
+				if( Username=="Selection" )
+				{
+					iRemoveUser=s;
+					break;
+				}
+			}
+			if( iRemoveUser==-1 )
+			{
+				cout << "Enter the password for '" << Selection << "' or 0 to prompt for it each time: ";
+				string Password;
+				cin >> Password;
+				if( Password=="0" )
+					vectUsers.push_back(Selection);
+				else
+					vectUsers.push_back(Selection + "~" + Password);
+			}
+			g_GlobalConfig.m_sUsers="";
+			for(size_t s=0;s<vectUsers.size();++s)
+				if( s!=iRemoveUser )
+					g_GlobalConfig.m_sUsers += (g_GlobalConfig.m_sUsers.length() ? "," : "") + vectUsers[s];
+		}
+	}
 }

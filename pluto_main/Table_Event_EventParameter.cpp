@@ -440,7 +440,7 @@ update_values_list = update_values_list + "FK_Event="+pRow->FK_Event_asSQL()+", 
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_Event_EventParameter *pRow = (Row_Event_EventParameter *)(*i);
+		Row_Event_EventParameter* pRow = (Row_Event_EventParameter*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -453,7 +453,7 @@ update_values_list = update_values_list + "FK_Event="+pRow->FK_Event_asSQL()+", 
 		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		DoubleLongKey key = (*i).first;
-		Row_Event_EventParameter* pRow = (Row_Event_EventParameter*) (*i).second;
+		Row_Event_EventParameter* pRow = (Row_Event_EventParameter*) (*i).second;	
 
 		char tmp_FK_Event[32];
 sprintf(tmp_FK_Event, "%li", key.pk1);
@@ -474,6 +474,7 @@ condition = condition + "FK_Event=" + tmp_FK_Event+" AND "+"FK_EventParameter=" 
 			return false;
 		}	
 		
+		pRow = (Row_Event_EventParameter*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

@@ -429,7 +429,7 @@ update_values_list = update_values_list + "PK_FloorplanType="+pRow->PK_Floorplan
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_FloorplanType *pRow = (Row_FloorplanType *)(*i);
+		Row_FloorplanType* pRow = (Row_FloorplanType*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -442,7 +442,7 @@ update_values_list = update_values_list + "PK_FloorplanType="+pRow->PK_Floorplan
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_FloorplanType* pRow = (Row_FloorplanType*) (*i).second;
+		Row_FloorplanType* pRow = (Row_FloorplanType*) (*i).second;	
 
 		char tmp_PK_FloorplanType[32];
 sprintf(tmp_PK_FloorplanType, "%li", key.pk);
@@ -460,6 +460,7 @@ condition = condition + "PK_FloorplanType=" + tmp_PK_FloorplanType;
 			return false;
 		}	
 		
+		pRow = (Row_FloorplanType*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

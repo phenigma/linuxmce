@@ -430,7 +430,7 @@ update_values_list = update_values_list + "PK_Button="+pRow->PK_Button_asSQL()+"
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_Button *pRow = (Row_Button *)(*i);
+		Row_Button* pRow = (Row_Button*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -443,7 +443,7 @@ update_values_list = update_values_list + "PK_Button="+pRow->PK_Button_asSQL()+"
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_Button* pRow = (Row_Button*) (*i).second;
+		Row_Button* pRow = (Row_Button*) (*i).second;	
 
 		char tmp_PK_Button[32];
 sprintf(tmp_PK_Button, "%li", key.pk);
@@ -461,6 +461,7 @@ condition = condition + "PK_Button=" + tmp_PK_Button;
 			return false;
 		}	
 		
+		pRow = (Row_Button*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

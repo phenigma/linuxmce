@@ -82,22 +82,24 @@ class DLL_EXPORT Row_psc_designer_bathdr : public TableRow, public SerializeClas
 		Table_psc_designer_bathdr *table;
 		
 		long int m_PK_psc_designer_bathdr;
-string m_Value;
+string m_date;
 
 		bool is_null[2];
 	
 	public:
 		long int PK_psc_designer_bathdr_get();
-string Value_get();
+string date_get();
 
 		
 		void PK_psc_designer_bathdr_set(long int val);
-void Value_set(string val);
+void date_set(string val);
 
 		
-		
+		bool date_isNull();
+
 			
-			
+		void date_setNull(bool val);
+	
 	
 		void Delete();
 		void Reload();		
@@ -112,17 +114,22 @@ void Value_set(string val);
 		
 
 		// Return the rows in other tables with foreign keys pointing here
-		
+		void psc_designer_batdet_FK_psc_designer_bathdr_getrows(vector <class Row_psc_designer_batdet*> *rows);
+void psc_designer_batdet_FK_psc_designer_bathdr_orig_getrows(vector <class Row_psc_designer_batdet*> *rows);
+void psc_designer_batdet_FK_psc_designer_bathdr_auth_getrows(vector <class Row_psc_designer_batdet*> *rows);
+void psc_designer_batdet_FK_psc_designer_bathdr_unauth_getrows(vector <class Row_psc_designer_batdet*> *rows);
+void psc_designer_batuser_FK_psc_designer_bathdr_getrows(vector <class Row_psc_designer_batuser*> *rows);
+
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_psc_designer_bathdr+ m_Value;
+			StartSerializeList() + m_PK_psc_designer_bathdr+ m_date;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string PK_psc_designer_bathdr_asSQL();
-string Value_asSQL();
+string date_asSQL();
 
 	};
 

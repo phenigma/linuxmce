@@ -552,7 +552,7 @@ update_values_list = update_values_list + "PK_DeviceTemplate_DeviceCategory_Cont
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_DeviceTemplate_DeviceCategory_ControlledVia *pRow = (Row_DeviceTemplate_DeviceCategory_ControlledVia *)(*i);
+		Row_DeviceTemplate_DeviceCategory_ControlledVia* pRow = (Row_DeviceTemplate_DeviceCategory_ControlledVia*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -565,7 +565,7 @@ update_values_list = update_values_list + "PK_DeviceTemplate_DeviceCategory_Cont
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_DeviceTemplate_DeviceCategory_ControlledVia* pRow = (Row_DeviceTemplate_DeviceCategory_ControlledVia*) (*i).second;
+		Row_DeviceTemplate_DeviceCategory_ControlledVia* pRow = (Row_DeviceTemplate_DeviceCategory_ControlledVia*) (*i).second;	
 
 		char tmp_PK_DeviceTemplate_DeviceCategory_ControlledVia[32];
 sprintf(tmp_PK_DeviceTemplate_DeviceCategory_ControlledVia, "%li", key.pk);
@@ -583,6 +583,7 @@ condition = condition + "PK_DeviceTemplate_DeviceCategory_ControlledVia=" + tmp_
 			return false;
 		}	
 		
+		pRow = (Row_DeviceTemplate_DeviceCategory_ControlledVia*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

@@ -464,7 +464,7 @@ update_values_list = update_values_list + "FK_Orbiter="+pRow->FK_Orbiter_asSQL()
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_CachedScreens *pRow = (Row_CachedScreens *)(*i);
+		Row_CachedScreens* pRow = (Row_CachedScreens*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -477,7 +477,7 @@ update_values_list = update_values_list + "FK_Orbiter="+pRow->FK_Orbiter_asSQL()
 		map<TripleLongKey, class TableRow*, TripleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		TripleLongKey key = (*i).first;
-		Row_CachedScreens* pRow = (Row_CachedScreens*) (*i).second;
+		Row_CachedScreens* pRow = (Row_CachedScreens*) (*i).second;	
 
 		char tmp_FK_Orbiter[32];
 sprintf(tmp_FK_Orbiter, "%li", key.pk1);
@@ -501,6 +501,7 @@ condition = condition + "FK_Orbiter=" + tmp_FK_Orbiter+" AND "+"FK_DesignObj=" +
 			return false;
 		}	
 		
+		pRow = (Row_CachedScreens*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

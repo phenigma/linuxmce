@@ -18,6 +18,11 @@ using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_psc_document_bathdr.h"
 
+#include "Table_psc_document_batdet.h"
+#include "Table_psc_document_batdet.h"
+#include "Table_psc_document_batdet.h"
+#include "Table_psc_document_batdet.h"
+#include "Table_psc_document_batuser.h"
 
 
 void Database_pluto_main::CreateTable_psc_document_bathdr()
@@ -113,8 +118,7 @@ void Row_psc_document_bathdr::SetDefaultValues()
 {
 	m_PK_psc_document_bathdr = 0;
 is_null[0] = false;
-m_Value = "";
-is_null[1] = false;
+is_null[1] = true;
 
 
 	is_added=false;
@@ -125,21 +129,27 @@ is_null[1] = false;
 long int Row_psc_document_bathdr::PK_psc_document_bathdr_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_PK_psc_document_bathdr;}
-string Row_psc_document_bathdr::Value_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_psc_document_bathdr::date_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_Value;}
+return m_date;}
 
 		
 void Row_psc_document_bathdr::PK_psc_document_bathdr_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_PK_psc_document_bathdr = val; is_modified=true; is_null[0]=false;}
-void Row_psc_document_bathdr::Value_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_document_bathdr::date_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Value = val; is_modified=true; is_null[1]=false;}
+m_date = val; is_modified=true; is_null[1]=false;}
 
 		
+bool Row_psc_document_bathdr::date_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[1];}
 
 			
+void Row_psc_document_bathdr::date_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[1]=val;}
 	
 
 string Row_psc_document_bathdr::PK_psc_document_bathdr_asSQL()
@@ -155,15 +165,15 @@ sprintf(buf, "%li", m_PK_psc_document_bathdr);
 return buf;
 }
 
-string Row_psc_document_bathdr::Value_asSQL()
+string Row_psc_document_bathdr::date_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[1])
 return "NULL";
 
-char *buf = new char[61];
-mysql_real_escape_string(table->database->db_handle, buf, m_Value.c_str(), (unsigned long) m_Value.size());
+char *buf = new char[39];
+mysql_real_escape_string(table->database->db_handle, buf, m_date.c_str(), (unsigned long) m_date.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -207,10 +217,10 @@ bool Table_psc_document_bathdr::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_document_bathdr_asSQL()+", "+pRow->Value_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_document_bathdr_asSQL()+", "+pRow->date_asSQL();
 
 	
-		string query = "insert into psc_document_bathdr (PK_psc_document_bathdr, Value) values ("+
+		string query = "insert into psc_document_bathdr (PK_psc_document_bathdr, date) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -260,7 +270,7 @@ condition = condition + "PK_psc_document_bathdr=" + tmp_PK_psc_document_bathdr;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_psc_document_bathdr="+pRow->PK_psc_document_bathdr_asSQL()+", Value="+pRow->Value_asSQL();
+update_values_list = update_values_list + "PK_psc_document_bathdr="+pRow->PK_psc_document_bathdr_asSQL()+", date="+pRow->date_asSQL();
 
 	
 		string query = "update psc_document_bathdr set " + update_values_list + " where " + condition;
@@ -279,7 +289,7 @@ update_values_list = update_values_list + "PK_psc_document_bathdr="+pRow->PK_psc
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_psc_document_bathdr *pRow = (Row_psc_document_bathdr *)(*i);
+		Row_psc_document_bathdr* pRow = (Row_psc_document_bathdr*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -292,7 +302,7 @@ update_values_list = update_values_list + "PK_psc_document_bathdr="+pRow->PK_psc
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_psc_document_bathdr* pRow = (Row_psc_document_bathdr*) (*i).second;
+		Row_psc_document_bathdr* pRow = (Row_psc_document_bathdr*) (*i).second;	
 
 		char tmp_PK_psc_document_bathdr[32];
 sprintf(tmp_PK_psc_document_bathdr, "%li", key.pk);
@@ -310,6 +320,7 @@ condition = condition + "PK_psc_document_bathdr=" + tmp_PK_psc_document_bathdr;
 			return false;
 		}	
 		
+		pRow = (Row_psc_document_bathdr*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
@@ -366,12 +377,12 @@ sscanf(row[0], "%li", &(pRow->m_PK_psc_document_bathdr));
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_Value = "";
+pRow->m_date = "";
 }
 else
 {
 pRow->is_null[1]=false;
-pRow->m_Value = string(row[1],lengths[1]);
+pRow->m_date = string(row[1],lengths[1]);
 }
 
 
@@ -494,12 +505,12 @@ sscanf(row[0], "%li", &(pRow->m_PK_psc_document_bathdr));
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_Value = "";
+pRow->m_date = "";
 }
 else
 {
 pRow->is_null[1]=false;
-pRow->m_Value = string(row[1],lengths[1]);
+pRow->m_date = string(row[1],lengths[1]);
 }
 
 
@@ -512,6 +523,41 @@ pRow->m_Value = string(row[1],lengths[1]);
 
 
 
+void Row_psc_document_bathdr::psc_document_batdet_FK_psc_document_bathdr_getrows(vector <class Row_psc_document_batdet*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_psc_document_batdet *pTable = table->database->psc_document_batdet_get();
+pTable->GetRows("FK_psc_document_bathdr=" + StringUtils::itos(m_PK_psc_document_bathdr),rows);
+}
+void Row_psc_document_bathdr::psc_document_batdet_FK_psc_document_bathdr_orig_getrows(vector <class Row_psc_document_batdet*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_psc_document_batdet *pTable = table->database->psc_document_batdet_get();
+pTable->GetRows("FK_psc_document_bathdr_orig=" + StringUtils::itos(m_PK_psc_document_bathdr),rows);
+}
+void Row_psc_document_bathdr::psc_document_batdet_FK_psc_document_bathdr_auth_getrows(vector <class Row_psc_document_batdet*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_psc_document_batdet *pTable = table->database->psc_document_batdet_get();
+pTable->GetRows("FK_psc_document_bathdr_auth=" + StringUtils::itos(m_PK_psc_document_bathdr),rows);
+}
+void Row_psc_document_bathdr::psc_document_batdet_FK_psc_document_bathdr_unauth_getrows(vector <class Row_psc_document_batdet*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_psc_document_batdet *pTable = table->database->psc_document_batdet_get();
+pTable->GetRows("FK_psc_document_bathdr_unauth=" + StringUtils::itos(m_PK_psc_document_bathdr),rows);
+}
+void Row_psc_document_bathdr::psc_document_batuser_FK_psc_document_bathdr_getrows(vector <class Row_psc_document_batuser*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_psc_document_batuser *pTable = table->database->psc_document_batuser_get();
+pTable->GetRows("FK_psc_document_bathdr=" + StringUtils::itos(m_PK_psc_document_bathdr),rows);
+}
 
 
 

@@ -480,7 +480,7 @@ update_values_list = update_values_list + "PK_CommandParameter="+pRow->PK_Comman
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_CommandParameter *pRow = (Row_CommandParameter *)(*i);
+		Row_CommandParameter* pRow = (Row_CommandParameter*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -493,7 +493,7 @@ update_values_list = update_values_list + "PK_CommandParameter="+pRow->PK_Comman
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_CommandParameter* pRow = (Row_CommandParameter*) (*i).second;
+		Row_CommandParameter* pRow = (Row_CommandParameter*) (*i).second;	
 
 		char tmp_PK_CommandParameter[32];
 sprintf(tmp_PK_CommandParameter, "%li", key.pk);
@@ -511,6 +511,7 @@ condition = condition + "PK_CommandParameter=" + tmp_PK_CommandParameter;
 			return false;
 		}	
 		
+		pRow = (Row_CommandParameter*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

@@ -434,7 +434,7 @@ update_values_list = update_values_list + "FK_Package="+pRow->FK_Package_asSQL()
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_Package_Package *pRow = (Row_Package_Package *)(*i);
+		Row_Package_Package* pRow = (Row_Package_Package*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -447,7 +447,7 @@ update_values_list = update_values_list + "FK_Package="+pRow->FK_Package_asSQL()
 		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		DoubleLongKey key = (*i).first;
-		Row_Package_Package* pRow = (Row_Package_Package*) (*i).second;
+		Row_Package_Package* pRow = (Row_Package_Package*) (*i).second;	
 
 		char tmp_FK_Package[32];
 sprintf(tmp_FK_Package, "%li", key.pk1);
@@ -468,6 +468,7 @@ condition = condition + "FK_Package=" + tmp_FK_Package+" AND "+"FK_Package_Depen
 			return false;
 		}	
 		
+		pRow = (Row_Package_Package*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}

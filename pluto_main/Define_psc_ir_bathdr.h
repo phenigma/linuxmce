@@ -5,8 +5,8 @@
 #define PSC_IR_BATHDR_TABLE "psc_ir_bathdr"
 #define PSC_IR_BATHDR_PK_PSC_IR_BATHDR_FIELD "PK_psc_ir_bathdr"
 #define PSC_IR_BATHDR_PK_PSC_IR_BATHDR_TABLE_FIELD "psc_ir_bathdr.PK_psc_ir_bathdr"
-#define PSC_IR_BATHDR_VALUE_FIELD "Value"
-#define PSC_IR_BATHDR_VALUE_TABLE_FIELD "psc_ir_bathdr.Value"
+#define PSC_IR_BATHDR_DATE_FIELD "date"
+#define PSC_IR_BATHDR_DATE_TABLE_FIELD "psc_ir_bathdr.date"
 
 
 #endif

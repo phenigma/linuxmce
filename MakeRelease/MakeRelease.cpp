@@ -101,6 +101,7 @@ bool CreateSource(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &list
 // These are the specific output functions that need to be implemented and expanded upon
 bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo);
 bool CreateSource_FTPHTTP(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo);
+bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo);
 
 // This will figure out what files need to be moved into the output
 bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileInfo);
@@ -446,6 +447,9 @@ bool CreateSource(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &list
 		{
 		case REPOSITORYSOURCE_Pluto_Debian_CONST:
 			CreateSource_PlutoDebian(pRow_Package_Source,listFileInfo);
+			break;
+		case REPOSITORYSOURCE_SourceForge_CVS_CONST:
+			CreateSource_SourceForgeCVS(pRow_Package_Source,listFileInfo);
 			break;
 		default:
 			cout << "***ERROR*** Don't know how to create this source." << endl;
@@ -971,6 +975,13 @@ AsksSourceQuests:
 	return true;
 }
 
+bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo)
+{
+	// Marius -- here you need to figure out how to take the package and upload it to SourceForge's CVS
+
+	return true;
+}
+
 /* CreateSource_Pluto<type> Create specified type of package using given files */
 
 // list<FileInfo *> listFileInfo: files that go into the package
@@ -1165,7 +1176,11 @@ string Makefile = "none:\n"
 
 bool CreateSource_FTPHTTP(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo)
 {
-	string ArchiveFileName = "/var/www/download/" + pRow_Package_Source->Repository_get() + "/";
+	string ArchiveFileName;
+	if( pRow_Package_Source->FK_RepositorySource_get()==REPOSITORYSOURCE_SourceForge_Archives_CONST )
+		ArchiveFileName = "/home/sfarch/" + pRow_Package_Source->Repository_get() + "/";
+	else
+		ArchiveFileName = "/var/www/download/" + pRow_Package_Source->Repository_get() + "/";
 	system(("mkdir -p " + ArchiveFileName).c_str());
 	
 	ArchiveFileName += pRow_Package_Source->Name_get() + "_" + pRow_Package_Source->Version_get() + pRow_Package_Source->Parms_get();
@@ -1210,6 +1225,11 @@ bool CreateSource_FTPHTTP(Row_Package_Source *pRow_Package_Source,list<FileInfo 
 	{
 		cout << "***ERROR*** Unknown archive type (" << pRow_Package_Source->PK_Package_Source_get() << "/" << pRow_Package_Source->FK_Package_get() << "): " << pRow_Package_Source->Parms_get() << endl;
 		return false;
+	}
+
+	if( pRow_Package_Source->FK_RepositorySource_get()==REPOSITORYSOURCE_SourceForge_Archives_CONST )
+	{
+		// Marius -- ArchiveFileName will be the name of the archive.  Add code here to actually upload it to sourceforge
 	}
 	system(("ls -l " + ArchiveFileName + " >> ../dirlist").c_str());
 	chdir("/");

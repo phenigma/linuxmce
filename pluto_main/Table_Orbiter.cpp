@@ -469,7 +469,7 @@ update_values_list = update_values_list + "PK_Orbiter="+pRow->PK_Orbiter_asSQL()
 	while (!deleted_addedRows.empty())
 	{	
 		vector<TableRow*>::iterator i = deleted_addedRows.begin();
-		Row_Orbiter *pRow = (Row_Orbiter *)(*i);
+		Row_Orbiter* pRow = (Row_Orbiter*) (*i);
 		delete pRow;
 		deleted_addedRows.erase(i);
 	}	
@@ -482,7 +482,7 @@ update_values_list = update_values_list + "PK_Orbiter="+pRow->PK_Orbiter_asSQL()
 		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
 		SingleLongKey key = (*i).first;
-		Row_Orbiter* pRow = (Row_Orbiter*) (*i).second;
+		Row_Orbiter* pRow = (Row_Orbiter*) (*i).second;	
 
 		char tmp_PK_Orbiter[32];
 sprintf(tmp_PK_Orbiter, "%li", key.pk);
@@ -500,6 +500,7 @@ condition = condition + "PK_Orbiter=" + tmp_PK_Orbiter;
 			return false;
 		}	
 		
+		pRow = (Row_Orbiter*) (*i).second;;
 		delete pRow;
 		deleted_cachedRows.erase(key);
 	}
