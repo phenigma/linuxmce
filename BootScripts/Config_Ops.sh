@@ -38,5 +38,9 @@ ConfGet()
 ConfEval
 VGcmd=""
 if [ -n "$Valgrind" ]; then
-	VGcmd="valgrind --tool=memcheck --leak-check=yes " # trailing space is mandatory
+	if which valgrind &>/dev/null; then
+		VGcmd="valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=15 " # trailing space is mandatory
+	else
+		echo "*** WARNING *** Valgrind not installed. Running programs the normal way ***"
+	fi
 fi

@@ -59,7 +59,7 @@ for i in $(seq 1 10); do
 	echo $(date) Starting > "$new_log"
 
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Found $Path$cmd_line"
-	if [ "${cmd_line/Spawn_Device}" == "$cmd_line" ]; then
+	if [ "${cmd_line/Spawn_Device}" == "$cmd_line" ] && [ "${Valgrind/$cmd_line}" != "$Valgrind" ]; then
 		/usr/pluto/bin/Spawn_Wrapper.sh $(echo "$VGcmd")"$Path$cmd_line" -d "$device_id" -r "$ip_of_router" | tee "$new_log"
 	else
 		/usr/pluto/bin/Spawn_Wrapper.sh "$Path$cmd_line" -d "$device_id" -r "$ip_of_router" | tee "$new_log" &

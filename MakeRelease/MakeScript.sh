@@ -1,5 +1,5 @@
 #!/bin/bash
-version=1
+version=6
 if [ $version -eq 1 ]; then
 	O1="UPDATE Version SET VersionName='$(date +%g%m%d%H)' WHERE PK_Version=$version;"
 	echo $O1 | mysql pluto_main
@@ -29,6 +29,10 @@ else
 	cd /home/tmp/pluto-build/
 	./propagate.sh
 	if [ $version -ne 1 ]; then
+		if ! MakeRelease -o 1 -r 12 -m 1 -s /home/MakeRelease/trunk -n / -b -v $version > /home/MakeRelease/MakeRelease.log ; then
+			echo "MakeRelease to source forge CVS Failed.  Press any key"
+		    read
+		fi
 		cd /home
 	
 		rm debian.tar.gz

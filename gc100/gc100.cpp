@@ -243,11 +243,14 @@ void gc100::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 	
 	if (pMessage->m_dwID == COMMAND_Learn_IR_CONST)
 	{
-		cout << "Cmd: Learn IR" << endl;
+		cout << "Cmd: Learn IR '" << pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST] << "' == '" << atoi(pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST].c_str()) << "'" << endl;
+		cout << "C: " << (atoi(pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST].c_str()) != 0) << endl;
 		if (atoi(pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST].c_str()) != 0)
 			LEARN_IR(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST], pMessage->m_mapParameters[COMMANDPARAMETER_PK_Command_Input_CONST], pMessage->m_dwPK_Device_From);
 		else
 			LEARN_IR_CANCEL();
+		sCMD_Result = "OK";
+		return;
 	}
 
 	sCMD_Result = "UNKNOWN DEVICE";
@@ -602,7 +605,7 @@ void gc100::Start_seriald()
 	int global_slot;
 	char command[512];
 
-	sprintf(command,"killall gc_seriald");
+	sprintf(command,"killall socat");
 	system(command);
 
 	PLUTO_SAFETY_LOCK(sl, gc100_mutex);
@@ -611,7 +614,8 @@ void gc100::Start_seriald()
 		{
 			global_slot=serial_iter->second.global_slot;
 
-			sprintf(command,"/usr/pluto/bin/gc_seriald %s %d /dev/gcsd%d &",ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, global_slot-1);
+//			sprintf(command,"/usr/pluto/bin/gc_seriald %s %d /dev/gcsd%d &",ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, global_slot-1);
+			sprintf(command, "socat TCP4:%s:%d PTY,link=/dev/gcs%d,echo=false,raw &", ip_addr.c_str(), global_slot+GC100_COMMAND_PORT, global_slot - 1);
 			g_pPlutoLogger->Write(LV_STATUS,"seriald cmd: %s",command);
 			system(command);
 		}
@@ -1137,6 +1141,7 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 	int retval;
 	bool learning_error = false;
 	bool receiving_data = false;
+	int ErrNo;
 
 	g_pPlutoLogger->Write(LV_STATUS, "Learning thread started");
 	timeval StartTime;
@@ -1148,12 +1153,13 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 	retval = 0;
 
 	PLUTO_SAFETY_LOCK(sl, gc100_mutex);
-	m_bLearning = false;
+	m_bLearning = true;
 	if (is_open_for_learning)
 	{
 		retval = read(learn_fd, learn_buffer, 511);
+		ErrNo = errno;
 		cout << "retval: " << retval << ", learning_error: " << learning_error << ", StopLearning:" << m_bStopLearning
-			<< ", learn_fd: " << learn_fd << ", errno: " << errno << ", " << strerror(errno) << endl;
+			<< ", learn_fd: " << learn_fd << ", errno: " << ErrNo << ", " << strerror(ErrNo) << endl;
 
 		timeval CurTime;
 		gettimeofday(&CurTime, NULL);
@@ -1165,24 +1171,31 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 		cout << "ST: " << tsStartTime.tv_sec << ", " << tsStartTime.tv_nsec << endl;
 		cout << "LT: " << LEARNING_TIMEOUT.tv_sec << ", " << LEARNING_TIMEOUT.tv_nsec << endl;
 		cout << "R : " << R.tv_sec << ", " << R.tv_nsec << endl;
+		cout << "C : " << (tsCurTime < tsStartTime) << ", " << (tsCurTime < tsStartTime + LEARNING_TIMEOUT) << ", " << (tsCurTime < (tsStartTime + LEARNING_TIMEOUT)) << endl;
 		
-		while (tsCurTime < tsStartTime + LEARNING_TIMEOUT && (retval > 0) && !learning_error && !m_bStopLearning)
+		learning_error = ErrNo == EAGAIN ? 0 : retval <= 0;
+		while (tsCurTime < tsStartTime + LEARNING_TIMEOUT && !learning_error && !m_bStopLearning)
 		{
-			string new_string;
-			learn_buffer[retval]='\0';
-			if (strstr(learn_buffer, "X")!=NULL)
-			{ // X from GC-IRL indicates error, probably "code too long"
-				learning_error = true;
-				g_pPlutoLogger->Write(LV_STATUS, "learning error detected");
+			if (retval > 0)
+			{
+				string new_string;
+				learn_buffer[retval]='\0';
+				if (strstr(learn_buffer, "X")!=NULL)
+				{ // X from GC-IRL indicates error, probably "code too long"
+					learning_error = true;
+					g_pPlutoLogger->Write(LV_STATUS, "learning error detected");
+				}
+
+				new_string = std::string(learn_buffer);
+				g_pPlutoLogger->Write(LV_STATUS, "IR %d Data received: %s", retval, new_string.c_str());
+				learn_input_string += new_string;
+				receiving_data = true;
+				learning_timeout_count = 0;
 			}
 
-			new_string = std::string(learn_buffer);
-			g_pPlutoLogger->Write(LV_STATUS, "IR %d Data received: %s", retval, new_string.c_str());
-			learn_input_string += new_string;
-			receiving_data = true;
-			learning_timeout_count = 0;
-
 			retval = read(learn_fd, learn_buffer, 511);
+			ErrNo = errno;
+			learning_error |= ErrNo == EAGAIN ? 0 : retval <= 0;
 		}
 
 		if (receiving_data)
@@ -1210,9 +1223,9 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 			{
 				g_pPlutoLogger->Write(LV_WARNING, "Learn event not sent because GC-IRL indicated error, possibly code was too long to be learned");
 			}
-			m_bLearning=false;
 		}
 	} // end if is_open_for_learning
+	m_bLearning=false;
 
 #pragma warning("TODO: generate screens, complete this function call")
 	//if (pLearningInfo->m_PK_Device_Orbiter)
@@ -1239,7 +1252,7 @@ void gc100::CreateChildren()
 	    device_data = read_from_gc100();
 	} while (device_data != "endlistdevices");
 	Start_seriald(); // Start gc_seriald processes according to serial port inventory
-	Sleep(2000);
+	Sleep(1000);
 	is_open_for_learning = open_for_learning();
 
 	if (pthread_create(&m_EventThread, NULL, StartEventThread, (void *) this))
@@ -1260,6 +1273,7 @@ void gc100::EventThread()
 
 void gc100::LEARN_IR_CANCEL()
 {
+	g_pPlutoLogger->Write(LV_STATUS, "Telling learning thread to stop: %d", m_bLearning);
 	if (m_bLearning)
 	{
 		m_bStopLearning = true;
