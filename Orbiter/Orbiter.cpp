@@ -3904,7 +3904,7 @@ void Orbiter::CMD_Set_Variable(int iPK_Variable,string sValue_To_Assign,string &
 	/** @brief COMMAND: #28 - Simulate Keypress */
 	/** Simulates that a key has been touched.  Touchable keys on screen can use this command to allow for simultaneous operation with keyboard or mouse.  Also works with the "Capture Keyboard to Variable" command. */
 		/** @param #26 PK_Button */
-			/** What key to simulate being pressed */
+			/** What key to simulate being pressed.  -1 means shift key, -2 means caps lock */
 		/** @param #50 Name */
 			/** The application to send the keypress to. If not specified, it goes to the DCE device. */
 

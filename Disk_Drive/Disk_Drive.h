@@ -193,6 +193,7 @@ public:
 	virtual void CMD_Close_Tray() { string sCMD_Result; CMD_Close_Tray(sCMD_Result,NULL);};
 	virtual void CMD_Close_Tray(string &sCMD_Result,Message *pMessage);
 
+
 //<-dceag-h-e->
 };
 

@@ -50,7 +50,7 @@ public:
 	/** @brief COMMAND: #28 - Simulate Keypress */
 	/** Send a keypress event to an application */
 		/** @param #26 PK_Button */
-			/** What key to simulate being pressed */
+			/** What key to simulate being pressed.  -1 means shift key, -2 means caps lock */
 		/** @param #50 Name */
 			/** The application to send the keypress to. If not specified, it goes to the DCE device. */
 
@@ -87,6 +87,7 @@ public:
 
 	virtual void CMD_Hide_Application(string sName) { string sCMD_Result; CMD_Hide_Application(sName.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Hide_Application(string sName,string &sCMD_Result,Message *pMessage);
+
 
 //<-dceag-h-e->
 };

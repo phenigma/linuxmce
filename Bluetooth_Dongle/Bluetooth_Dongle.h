@@ -215,6 +215,7 @@ public:
 	virtual void CMD_Send_File_To_Device(string sFilename,string sMac_address,string sIP_Address) { string sCMD_Result; CMD_Send_File_To_Device(sFilename.c_str(),sMac_address.c_str(),sIP_Address.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Send_File_To_Device(string sFilename,string sMac_address,string sIP_Address,string &sCMD_Result,Message *pMessage);
 
+
 //<-dceag-h-e->
 	};
 	

@@ -154,6 +154,7 @@ public:
 	virtual void CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int iPK_DataGrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful) { string sCMD_Result; CMD_Populate_Datagrid(sID.c_str(),sDataGrid_ID.c_str(),iPK_DataGrid,sOptions.c_str(),iPK_Variable,sValue_To_Assign,bIsSuccessful,sCMD_Result,NULL);};
 	virtual void CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int iPK_DataGrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful,string &sCMD_Result,Message *pMessage);
 
+
 //<-dceag-h-e->
 };
 

@@ -224,6 +224,7 @@ public:
 	virtual void CMD_Get_Current_Floorplan(int iPK_FloorplanType,string *sValue_To_Assign) { string sCMD_Result; CMD_Get_Current_Floorplan(iPK_FloorplanType,sValue_To_Assign,sCMD_Result,NULL);};
 	virtual void CMD_Get_Current_Floorplan(int iPK_FloorplanType,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);
 
+
 //<-dceag-h-e->
 };
 

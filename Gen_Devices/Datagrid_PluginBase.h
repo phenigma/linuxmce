@@ -95,9 +95,7 @@ public:
 					bool bAdd_UpDown_Arrows=(pMessage->m_mapParameters[49]=="1" ? true : false);
 					string sSeek=pMessage->m_mapParameters[73];
 					int iOffset=atoi(pMessage->m_mapParameters[74].c_str());
-					char *pData=pMessage->m_mapData_Parameters[19];
-					int iData_Size=pMessage->m_mapData_Lengths[19];
-					int iRow=atoi(pMessage->m_mapParameters[32].c_str());
+						char *pData;int iData_Size;int iRow;
 						CMD_Request_Datagrid_Contents(sID.c_str(),sDataGrid_ID.c_str(),iColumn,iRow_count,iColumn_count,bKeep_Row_Header,bKeep_Column_Header,bAdd_UpDown_Arrows,sSeek.c_str(),iOffset,&pData,&iData_Size,&iRow,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
@@ -118,9 +116,7 @@ public:
 					string sDataGrid_ID=pMessage->m_mapParameters[15];
 					int iPK_DataGrid=atoi(pMessage->m_mapParameters[38].c_str());
 					string sOptions=pMessage->m_mapParameters[39];
-					int iPK_Variable=atoi(pMessage->m_mapParameters[4].c_str());
-					string sValue_To_Assign=pMessage->m_mapParameters[5];
-					bool bIsSuccessful=(pMessage->m_mapParameters[40]=="1" ? true : false);
+						int iPK_Variable;string sValue_To_Assign;bool bIsSuccessful;
 						CMD_Populate_Datagrid(sID.c_str(),sDataGrid_ID.c_str(),iPK_DataGrid,sOptions.c_str(),&iPK_Variable,&sValue_To_Assign,&bIsSuccessful,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{

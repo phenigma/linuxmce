@@ -161,12 +161,16 @@ int main( int argc, char *argv[] )
 
 	chdir("/home/Work");
 	unlink("output");
+	cout << "About to execute command" << endl;
 	system("svn log -q | grep '^r' > output");
-
+	cout << "About to sleep" << endl;
+	sleep(1);
+	cout << "Slept" << endl;
+	
 	vector<string> vectLines;
 	size_t size;
 	string Lines = FileUtils::ReadFileIntoBuffer("output",size);
-	cout << "File is: " << Lines.size() << " bytes." << endl;
+//	cout << "File is: " << Lines.size() << " bytes." << endl;
 	StringUtils::Tokenize(Lines,"\r\n",vectLines);
 	cout << "File is: " << vectLines.size() << " lines" << endl;
 
@@ -174,12 +178,11 @@ int main( int argc, char *argv[] )
 
 	for(size_t s=0;s<vectLines.size();++s)
 	{
-		cout << "Line: " << s << " of " << vectLines.size() << endl;
 		string Line = vectLines[s];
 		int Revision = atoi(Line.substr(1).c_str());
 		if( Revision==1 )
 			continue;
-
+//s+=20; // temp
 		string::size_type start_pipe = Line.find('|');
 		string::size_type stop_pipe = Line.find('|',start_pipe+1);
 		string User = Line.substr(start_pipe+2,stop_pipe-start_pipe-3);
@@ -205,19 +208,65 @@ string z = Line.substr(stop_pipe+10);
 		if( Week < LowestWeek || LowestWeek==0 )
 			LowestWeek=Week;
 
+		int RetryCount=0;
+
+retry:
+		cout << "Line: " << s << " of " << vectLines.size() << " REV: " << Revision << " WEEK: " << Week << endl;
 		string Cmd = "svn diff --revision " + StringUtils::itos(Revision-1) + ":" + StringUtils::itos(Revision) + " | grep '^Index:\\|^\\@\\@' > output";
+		cout << "cmd: " << Cmd << endl;
 		system(Cmd.c_str());
+		sleep(1);
 		vector<string> vectFiles;
 		Lines = FileUtils::ReadFileIntoBuffer("output",size);
 		cout << "File is: " << Lines.size() << " bytes." << endl;
 		StringUtils::Tokenize(Lines,"\r\n",vectFiles);
 		cout << "File is: " << vectFiles.size() << " lines" << endl;
+if( size==0 )
+{
+	Cmd = "svn diff --revision " + StringUtils::itos(Revision-1) + ":" + StringUtils::itos(Revision) + " > output";
+	cout << "testing for death - cmd: " << Cmd << endl;
+	system(Cmd.c_str());
+	sleep(1);
+	Lines = FileUtils::ReadFileIntoBuffer("output",size);
+	
+	if( size==0 )
+	{
+		if( RetryCount>2 )
+		{
+			cout << "Tried restarting already.  Maybe there are no diffs?" << endl;
+		}
+		else
+		{
+			RetryCount++;
+			cout << "SVN died again.  Retrying...." << endl;
+			sleep(1);
+			system("/etc/init.d/inetd restart");
+			sleep(1);
+			goto retry;
+		}
+	}
+	else
+		cout << "SVN still alive.  Just nothing to report: size: " << size << endl;
+}
 		int LinesChanged=0;
+		string Filename;
 		for(size_t s2=0;s2<vectFiles.size();++s2)
 		{
 			string File = vectFiles[s2];
+			cout << "line: " << File << endl;
 			if( File.substr(0,2)!="@@" )
+			{
+				Filename = vectFiles[s2].substr(7);
+				cout << "new file: " << File << "=" << Filename << endl;
 				continue;
+			}
+
+	        if( StringUtils::StartsWith(Filename,"Libraries") || StringUtils::StartsWith(Filename,"pluto_main") ||
+                   StringUtils::StartsWith(Filename,"Gen_Devices") || StringUtils::StartsWith(Filename,"pluto_media") )
+   			{
+		       cout << "Skipping: " << Filename << endl;
+          	   continue;
+    		}
 
 			string::size_type first = File.find('-');
 			first = File.find(',',first+1);
@@ -227,14 +276,7 @@ string z = Line.substr(stop_pipe+10);
 			first = File.find(',',first+1);
 			int LinesPlus = first!=string::npos ? atoi(File.substr(first+1).c_str()) : 0;
 
-			File = vectFiles[s2-1].substr(7);
-			if( StringUtils::StartsWith(File,"Libraries") || StringUtils::StartsWith(File,"pluto_main") || 
-					StringUtils::StartsWith(File,"Gen_Devices") || StringUtils::StartsWith(File,"pluto_media") )
-			{
-				cout << "Skipping: " << File << endl;
-				continue;
-			}
-			cout << "Logging: " << File << " Lines: " << LinesChanged << endl;
+			cout << "Logging: " << Filename << " Lines: " << LinesChanged << endl;
 			LinesChanged += LinesMinus + LinesPlus;
 		}
 
@@ -249,7 +291,8 @@ string z = Line.substr(stop_pipe+10);
 		PAIR_SI psi(User,Week);
 		int LinesSoFar = mapUsersWeeks[psi];
 		LinesSoFar += LinesChanged;
-		mapUsersWeeks[psi] = LinesChanged;
+		mapUsersWeeks[psi] = LinesSoFar;
+//cout << "pair: " << User << " week: " << Week << " lines: " << LinesSoFar << "  map: " << mapUsersWeeks.size() << endl;			
 	}
 
 	cout << "\t";
@@ -262,7 +305,9 @@ string z = Line.substr(stop_pipe+10);
 		for(map<string,Commit *>::iterator it=mapUser.begin();it!=mapUser.end();++it)
 		{
 			PAIR_SI psi( (*it).first,i);
+bool bFound = mapUsersWeeks.find(psi)!=mapUsersWeeks.end();
 			int Lines = mapUsersWeeks[psi];
+//cout << "found: " << bFound << " pair: " << (*it).first << " week: " << i << " lines: " << Lines << endl;			
 			cout << Lines << "\t";
 		}
 		cout << endl;

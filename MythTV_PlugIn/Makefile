@@ -6,7 +6,7 @@ CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -DDEBUG
 LDFLAGS = -L$(ROOT)/lib
-LDLIBS =  -lpthread -lSerializeClass -lPlutoUtils -lDCECommon -lmysqlclient_r
+BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
 MYNAME = MythTV_PlugIn
 VERSION = 2.0.0
@@ -18,7 +18,7 @@ sources = Main.cpp MythTV_PlugIn.cpp $(Gen_Dev_Files)
 
 CXXFLAGS +=
 CPPFLAGS += -I/usr/include/qt3 -I$(ROOT)/Libraries
-LDLIBS += -lpluto_media -lpluto_main -lPlutoUtils -lSerializeClass -lqt-mt -lmyth-0.16 -lmythtv-0.16 
+LDLIBS += -lpluto_media -lpluto_main -lqt-mt -lmyth-0.16 -lmythtv-0.16 
 
 Gen_Dev_Files += $(GENDEV)/Media_PluginBase.cpp $(GENDEV)/Datagrid_PluginBase.cpp
 sources += \
@@ -30,6 +30,8 @@ sources += \
 	MythTvWrapper.cpp 
 
 #<-dceag-mf-b->
+LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
+
 whattodo:
 	@echo "type 'make bin', 'make so' or 'make all'"
 

@@ -6,7 +6,7 @@ CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -DDEBUG
 LDFLAGS = -L$(ROOT)/lib
-LDLIBS = -lpthread -lSerializeClass -lPlutoUtils -lDCECommon -lmysqlclient_r
+BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
 MYNAME = Xine_Plugin
 VERSION = 2.0.0
@@ -30,6 +30,8 @@ sources += \
 	../File_Grids_Plugin/FileListGrid.cpp
 
 #<-dceag-mf-b->
+LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
+
 whattodo:
 	@echo "type 'make bin', 'make so' or 'make all'"
 

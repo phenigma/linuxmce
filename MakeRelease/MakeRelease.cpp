@@ -952,6 +952,7 @@ AsksSourceQuests:
 					return false;
 			}
 			fstr_compile << pRow_Package_Directory_File->MakeCommand_get() << endl;
+			cout << "Executing: " << pRow_Package_Directory_File->MakeCommand_get() << endl;
 			if( !g_bSimulate && system(pRow_Package_Directory_File->MakeCommand_get().c_str()) )
 			{
 				cout << pRow_Package_Directory_File->MakeCommand_get() << " ***FAILED***" << endl;

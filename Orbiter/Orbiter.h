@@ -14,13 +14,6 @@
 #ifndef Orbiter_h
 #define Orbiter_h
 
-#ifdef WINCE
-	#ifndef _CLOCK_T_DEFINED
-	typedef unsigned long clock_t;
-	#define _CLOCK_T_DEFINED
-	#endif 
-#endif
-
 //	DCE Implemenation for #8 Orbiter
 
 #include "Gen_Devices/OrbiterBase.h"
@@ -975,7 +968,7 @@ public:
 	/** @brief COMMAND: #28 - Simulate Keypress */
 	/** Simulates that a key has been touched.  Touchable keys on screen can use this command to allow for simultaneous operation with keyboard or mouse.  Also works with the "Capture Keyboard to Variable" command. */
 		/** @param #26 PK_Button */
-			/** What key to simulate being pressed */
+			/** What key to simulate being pressed.  -1 means shift key, -2 means caps lock */
 		/** @param #50 Name */
 			/** The application to send the keypress to. If not specified, it goes to the DCE device. */
 
@@ -1066,6 +1059,7 @@ public:
 
 	virtual void CMD_Set_Current_Location(int iLocationID) { string sCMD_Result; CMD_Set_Current_Location(iLocationID,sCMD_Result,NULL);};
 	virtual void CMD_Set_Current_Location(int iLocationID,string &sCMD_Result,Message *pMessage);
+
 
 //<-dceag-h-e->
 

@@ -6,7 +6,7 @@ CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -DDEBUG
 LDFLAGS = -L$(ROOT)/lib
-LDLIBS =  -lpthread -lSerializeClass -lPlutoUtils -lDCECommon 
+BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
 MYNAME = Orbiter
 VERSION = 2.0.0
@@ -30,6 +30,8 @@ sources +=  DesignObj_Data.cpp DesignObj_Orbiter.cpp \
 			$(ROOT)/OrbiterGen/Renderer.cpp
 
 #<-dceag-mf-b->
+LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
+
 whattodo:
 	@echo "type 'make bin', 'make so' or 'make all'"
 

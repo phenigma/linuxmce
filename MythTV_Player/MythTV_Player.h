@@ -137,6 +137,7 @@ public:
 	virtual void CMD_Tune_to_channel(string sProgramID) { string sCMD_Result; CMD_Tune_to_channel(sProgramID.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Tune_to_channel(string sProgramID,string &sCMD_Result,Message *pMessage);
 
+
 //<-dceag-h-e->
 };
 

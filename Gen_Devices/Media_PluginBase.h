@@ -74,7 +74,7 @@ public:
 	virtual void CMD_MH_Send_Me_To_Remote(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,string sOnOff,string sPK_DesignObj_CurrentScreen,int iPK_Text,string sOptions,int iPK_EntertainArea,int iPK_Text_Timecode,int iPK_Text_SectionDesc,int iPK_Text_Synopsis,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Save_playlist(int iPK_Users,int iPK_EntertainArea,string sName,bool bSave_as_new,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Load_Playlist(int iPK_EntertainArea,int iPK_Playlist,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Load_Playlist(int iPK_EntertainArea,int iEK_Playlist,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -200,8 +200,8 @@ public:
 					{
 						string sCMD_Result="OK";
 					int iPK_EntertainArea=atoi(pMessage->m_mapParameters[45].c_str());
-					int iPK_Playlist=atoi(pMessage->m_mapParameters[78].c_str());
-						CMD_Load_Playlist(iPK_EntertainArea,iPK_Playlist,sCMD_Result,pMessage);
+					int iEK_Playlist=atoi(pMessage->m_mapParameters[78].c_str());
+						CMD_Load_Playlist(iPK_EntertainArea,iEK_Playlist,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);

@@ -541,10 +541,6 @@ public:
 					continue;
 				case 28:
 					{
-long x = pMessage->m_mapParameters.size();
-string s1 = pMessage->m_mapParameters[26];
-string s2 = pMessage->m_mapParameters[50];
-long x2 = pMessage->m_mapParameters.size();
 						string sCMD_Result="OK";
 					int iPK_Button=atoi(pMessage->m_mapParameters[26].c_str());
 					string sName=pMessage->m_mapParameters[50];

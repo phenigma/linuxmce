@@ -87,7 +87,7 @@ void App_Server::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 	/** @brief COMMAND: #28 - Simulate Keypress */
 	/** Send a keypress event to an application */
 		/** @param #26 PK_Button */
-			/** What key to simulate being pressed */
+			/** What key to simulate being pressed.  -1 means shift key, -2 means caps lock */
 		/** @param #50 Name */
 			/** The application to send the keypress to. If not specified, it goes to the DCE device. */
 

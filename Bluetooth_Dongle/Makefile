@@ -6,7 +6,7 @@ CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -DDEBUG
 LDFLAGS = -L$(ROOT)/lib
-LDLIBS = -lpthread -lSerializeClass -lPlutoUtils -lDCECommon -lmysqlclient_r
+BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
 MYNAME = Bluetooth_Dongle
 VERSION = 2.0.0
@@ -35,7 +35,8 @@ sources += \
 	../VIPShared/PlutoPhoneCommands.cpp
 
 #<-dceag-mf-b->
-LDLIBS = $(XTRALDLIBS) $(LDLIBS)
+LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
+
 whattodo:
 	@echo "type 'make bin', 'make so' or 'make all'"
 

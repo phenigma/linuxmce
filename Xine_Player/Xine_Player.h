@@ -93,9 +93,11 @@ public:
 	/** This will instruct the media player to stop the playback of a media started with the "Play Media" Command */
 		/** @param #41 StreamID */
 			/** The media needing to be stopped. */
+		/** @param #42 MediaPosition */
+			/** The position at which this stream was last played. */
 
-	virtual void CMD_Stop_Media(int iStreamID) { string sCMD_Result; CMD_Stop_Media(iStreamID,sCMD_Result,NULL);};
-	virtual void CMD_Stop_Media(int iStreamID,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Stop_Media(int iStreamID,int *iMediaPosition) { string sCMD_Result; CMD_Stop_Media(iStreamID,iMediaPosition,sCMD_Result,NULL);};
+	virtual void CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #39 - Pause Media */
@@ -200,6 +202,7 @@ public:
 
 	virtual void CMD_Goto_Media_Menu(int iStreamID,int iMenuType) { string sCMD_Result; CMD_Goto_Media_Menu(iStreamID,iMenuType,sCMD_Result,NULL);};
 	virtual void CMD_Goto_Media_Menu(int iStreamID,int iMenuType,string &sCMD_Result,Message *pMessage);
+
 
 //<-dceag-h-e->
 

@@ -60,6 +60,7 @@ public:
 	virtual void CMD_Get_Infrared_Codes(int iPK_Device,string *sValue_To_Assign) { string sCMD_Result; CMD_Get_Infrared_Codes(iPK_Device,sValue_To_Assign,sCMD_Result,NULL);};
 	virtual void CMD_Get_Infrared_Codes(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);
 
+
 //<-dceag-h-e->
 	};
 

@@ -87,7 +87,7 @@ public:
 	void EVENT_Playback_Completed(int iStream_ID) { GetEvents()->Playback_Completed(iStream_ID); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Stop_Media(int iStreamID,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Pause_Media(int iStreamID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Restart_Media(int iStreamID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string &sCMD_Result,class Message *pMessage) {};
@@ -132,10 +132,12 @@ public:
 					{
 						string sCMD_Result="OK";
 					int iStreamID=atoi(pMessage->m_mapParameters[41].c_str());
-						CMD_Stop_Media(iStreamID,sCMD_Result,pMessage);
+						int iMediaPosition;
+						CMD_Stop_Media(iStreamID,&iMediaPosition,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[42]=StringUtils::itos(iMediaPosition);
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
@@ -269,9 +271,7 @@ public:
 					int iStreamID=atoi(pMessage->m_mapParameters[41].c_str());
 					int iWidth=atoi(pMessage->m_mapParameters[60].c_str());
 					int iHeight=atoi(pMessage->m_mapParameters[61].c_str());
-					char *pData=pMessage->m_mapData_Parameters[19];
-					int iData_Size=pMessage->m_mapData_Lengths[19];
-					string sFormat=pMessage->m_mapParameters[20];
+						char *pData;int iData_Size;string sFormat;
 						CMD_Get_Video_Frame(sDisable_Aspect_Lock.c_str(),iStreamID,iWidth,iHeight,&pData,&iData_Size,&sFormat,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
