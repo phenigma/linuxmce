@@ -7,6 +7,7 @@
 #include "Gen_Devices/Telecom_PluginBase.h"
 //<-dceag-d-e->
 
+#include "DCE/DeviceData_Router.h"
 class Database_pluto_main;
 
 //<-dceag-decl-b->
@@ -84,11 +85,11 @@ public:
 
 private:
 	 bool CommandResult( class Socket *pSocket, class Message *pMessage, 
-					 			class DeviceData_Router *pDeviceFrom, class DeviceData_Router *pDeviceTo );
+					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 	 void ProcessResult(int iCommandID, int iResult, std::string sMessage);
 	 
 	 bool Ring( class Socket *pSocket, class Message *pMessage, 
-					 			class DeviceData_Router *pDeviceFrom, class DeviceData_Router *pDeviceTo );
+					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 	 void ProcessRing(std::string sPhoneExtension, std::string sPhoneCallerID, std::string sPhoneCallID);
 
 private:

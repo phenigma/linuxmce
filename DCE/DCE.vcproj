@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;..\Libraries\pthreads-win32\include&quot;;.."
+				AdditionalIncludeDirectories="&quot;..\Libraries\pthreads-win32\include&quot;;..;/mysql/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"

@@ -109,10 +109,16 @@ public:
 	virtual void CMD_Surrender_to_OS(string sOnOff,bool bFully_release_keyboard,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Rest_Highlight(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Current_Location(int iLocationID,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Set_Now_Playing(string sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
 	{
+		if( pMessageOriginal->m_dwMessage_Type == MESSAGETYPE_MESSAGE_INTERCEPTED )
+		{
+			InterceptedMessage(pMessageOriginal);
+			return true;
+		}
 		int iHandled=0;
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{
@@ -687,13 +693,28 @@ public:
 					};
 					iHandled++;
 					continue;
+				case 242:
+					{
+						string sCMD_Result="OK";
+					string sValue_To_Assign=pMessage->m_mapParameters[5];
+						CMD_Set_Now_Playing(sValue_To_Assign.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
 				}
 				iHandled += Command_Impl::ReceivedMessage(pMessage);
 			}
 			else if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND )
 			{
 				MapCommand_Impl::iterator it = m_mapCommandImpl_Children.find(pMessage->m_dwPK_Device_To);
-				if( it!=m_mapCommandImpl_Children.end() )
+				if( it!=m_mapCommandImpl_Children.end() && !(*it).second->m_bGeneric )
 				{
 					Command_Impl *pCommand_Impl = (*it).second;
 					iHandled += pCommand_Impl->ReceivedMessage(pMessage);

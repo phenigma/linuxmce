@@ -295,12 +295,12 @@ public:
     /**
      * @brief EVENT_Media_Inserted event interceptor. A removable device should fire this event when it detected a new media inserted.
      */
-    bool MediaInserted(class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo);
+    bool MediaInserted(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
 
     /**
      * @brief EVENT_Playback_Completed event interceptor. Called when the router finds an event of this type in the queue.
      */
-    bool PlaybackCompleted( class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo);
+    bool PlaybackCompleted( class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
 //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION

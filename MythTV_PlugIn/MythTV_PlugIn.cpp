@@ -83,10 +83,7 @@ bool MythTV_PlugIn::Register()
     m_pDatagrid_Plugin->RegisterDatagridGenerator( new DataGridGeneratorCallBack(this,(DCEDataGridGeneratorFn)(&MythTV_PlugIn::AllShowsForMobiles))
                                                 ,DATAGRID_EPG_All_Shows_Mobile_CONST);
 
-    m_pRouter->RegisterInterceptor(
-        new MessageInterceptorCallBack( this, ( MessageInterceptorFn )( &MythTV_PlugIn::MediaInfoChanged) ),
-        0, 0, 0, 0,
-        MESSAGETYPE_EVENT, EVENT_Playback_Info_Changed_CONST );
+    RegisterMsgInterceptor( ( MessageInterceptorFn )( &MythTV_PlugIn::MediaInfoChanged), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Info_Changed_CONST );
 
     return Connect();
 }

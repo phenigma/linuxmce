@@ -98,10 +98,16 @@ public:
 	virtual void CMD_Select_Current_Navigable_Area(int iStreamID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Goto_Media_Menu(int iStreamID,int iMenuType,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Enable_Broadcasting(int iStreamID,string *sMediaURL,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
 	{
+		if( pMessageOriginal->m_dwMessage_Type == MESSAGETYPE_MESSAGE_INTERCEPTED )
+		{
+			InterceptedMessage(pMessageOriginal);
+			return true;
+		}
 		int iHandled=0;
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{
@@ -303,13 +309,30 @@ public:
 					};
 					iHandled++;
 					continue;
+				case 243:
+					{
+						string sCMD_Result="OK";
+					int iStreamID=atoi(pMessage->m_mapParameters[41].c_str());
+					string sMediaURL=pMessage->m_mapParameters[59];
+						CMD_Enable_Broadcasting(iStreamID,&sMediaURL,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[59]=sMediaURL;
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
 				}
 				iHandled += Command_Impl::ReceivedMessage(pMessage);
 			}
 			else if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND )
 			{
 				MapCommand_Impl::iterator it = m_mapCommandImpl_Children.find(pMessage->m_dwPK_Device_To);
-				if( it!=m_mapCommandImpl_Children.end() )
+				if( it!=m_mapCommandImpl_Children.end() && !(*it).second->m_bGeneric )
 				{
 					Command_Impl *pCommand_Impl = (*it).second;
 					iHandled += pCommand_Impl->ReceivedMessage(pMessage);

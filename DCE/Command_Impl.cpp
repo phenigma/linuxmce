@@ -26,6 +26,7 @@
 
 #include "PlutoUtils/CommonIncludes.h"	
 #include "DCE/Logger.h"
+#include "DCERouter/DCERouter.h"
 #include "DeviceData_Impl.h"
 #include "Command_Impl.h"
 #include "Event_Impl.h"
@@ -105,6 +106,7 @@ Command_Impl::Command_Impl( int DeviceID, string ServerAddress, bool bLocalMode,
 	m_bKillSpawnedDevicesOnExit = false;
 	m_bGeneric = false;
 	pthread_cond_init( &m_listMessageQueueCond, NULL );
+	m_dwMessageInterceptorCounter=0;
 	if(pthread_create( &m_pthread_queue_id, NULL, MessageQueueThread_DCECI, (void*)this) )
 	{
 		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot create message processing queue" );
@@ -127,6 +129,7 @@ Command_Impl::Command_Impl( Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl
 	m_bKillSpawnedDevicesOnExit = false;
 	m_bGeneric = false;
 	pthread_cond_init( &m_listMessageQueueCond, NULL );
+	m_dwMessageInterceptorCounter=0;
 	if(pthread_create( &m_pthread_queue_id, NULL, MessageQueueThread_DCECI, (void*)this) )
 	{
 		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot create message processing queue" );
@@ -503,3 +506,38 @@ void Command_Impl::StopWatchDog()
         m_pThread = 0;
     }
 }
+
+void Command_Impl::RegisterMsgInterceptor(MessageInterceptorFn pMessageInterceptorFn,int PK_Device_From,int PK_Device_To,int PK_DeviceTemplate,int PK_DeviceCategory,int MessageType,int MessageID)
+{
+	if( m_pRouter )
+	{
+		m_pRouter->RegisterMsgInterceptor(
+			new MessageInterceptorCallBack(this, pMessageInterceptorFn), PK_Device_From, PK_Device_To, PK_DeviceTemplate, PK_DeviceCategory, MessageType, MessageID );
+	}
+	else
+	{
+		m_mapMessageInterceptorFn[m_dwMessageInterceptorCounter] = pMessageInterceptorFn;
+		Message *pMessage = new Message(m_dwPK_Device,0,PRIORITY_NORMAL,MESSAGETYPE_REGISTER_INTERCEPTOR,m_dwMessageInterceptorCounter,6,
+			PARM_FROM, StringUtils::itos(PK_Device_From).c_str(), PARM_TO, StringUtils::itos(PK_Device_To).c_str(),PARM_TEMPLATE, StringUtils::itos(PK_DeviceTemplate).c_str(),
+			PARM_CATEGORY, StringUtils::itos(PK_DeviceCategory).c_str(), PARM_MESSAGE_TYPE, StringUtils::itos(MessageType).c_str(), PARM_MESSAGE_ID, StringUtils::itos(MessageID).c_str());
+		SendMessageToRouter(pMessage);
+		m_dwMessageInterceptorCounter++;
+	}
+}
+
+void Command_Impl::InterceptedMessage(Message *pMessage)
+{
+	MessageInterceptorFn pMessageInterceptorFn = m_mapMessageInterceptorFn_Find(pMessage->m_dwID);
+	if( !pMessageInterceptorFn || pMessage->m_vectExtraMessages.size()!=1)
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Got intercepted message, but there is no corresponding callback");
+		return;
+	}
+
+
+	Message *pMessageOriginal = pMessage->m_vectExtraMessages[0];
+	CALL_MEMBER_FN(*this,pMessageInterceptorFn) (NULL, pMessageOriginal,
+		m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pMessageOriginal->m_dwPK_Device_From),
+		m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pMessageOriginal->m_dwPK_Device_To));
+}
+

@@ -159,7 +159,7 @@ bool Socket::SendMessage( Message *pMessage, bool bDeleteMessage )
 	unsigned long dwSize;
 	pMessage->ToData( dwSize, pcData, true ); // converts the message to data
 	bool bReturnValue = SendData( dwSize, pcData ); // and sends it
-	delete[] pcData; // free heap
+	free(pcData); // free heap
 
 	if ( bDeleteMessage ) delete pMessage; // clear pMessage if requested
 

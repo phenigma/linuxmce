@@ -313,9 +313,29 @@ Command_Impl *Router::CreatePlugIn(int PK_Device, int PK_DeviceTemplate, string 
     return RegisterAsPlugin(this, PK_Device, "dce_router"); // hack!!!
 }
 
+void Router::RegisterMsgInterceptor(Message *pMessage)
+{
+	int PK_Device_From = atoi( pMessage->m_mapParameters[PARM_FROM].c_str() );
+	int PK_Device_To = atoi( pMessage->m_mapParameters[PARM_TO].c_str() );
+	int PK_DeviceTemplate = atoi( pMessage->m_mapParameters[PARM_TEMPLATE].c_str() );
+	int PK_DeviceCategory = atoi( pMessage->m_mapParameters[PARM_CATEGORY].c_str() );
+	int MessageType = atoi( pMessage->m_mapParameters[PARM_MESSAGE_TYPE].c_str() );
+	int MessageID = atoi( pMessage->m_mapParameters[PARM_MESSAGE_ID].c_str() );
+	
+	RegisterMsgInterceptor(
+			new MessageInterceptorCallBack(pMessage->m_dwPK_Device_From, pMessage->m_dwID),
+			PK_Device_From,PK_Device_To,PK_DeviceTemplate,PK_DeviceCategory,MessageType,MessageID );
+}
+
 void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 {
     SafetyMessage SafetyMessage(pMessageWillBeDeleted);
+
+	if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_REGISTER_INTERCEPTOR )
+	{
+		RegisterMsgInterceptor( (*SafetyMessage) );
+		return;
+	}
 
     if( (*SafetyMessage)->m_dwPK_Device_To==DEVICEID_MASTERDEVICE || (*SafetyMessage)->m_dwPK_Device_To==DEVICEID_CATEGORY || (*SafetyMessage)->m_dwPK_Device_To==DEVICEID_GROUP )
     {

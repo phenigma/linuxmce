@@ -74,10 +74,8 @@ bool Xine_Plugin::Register()
 
   m_pMedia_Plugin->RegisterMediaPlugin( this, this, DEVICETEMPLATE_Xine_Player_CONST, true );
 
-  m_pRouter->RegisterInterceptor(
-    new MessageInterceptorCallBack( this, ( MessageInterceptorFn )( &Xine_Plugin::MenuOnScreen ) )
-    , 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Menu_Onscreen_CONST );
-
+  RegisterMsgInterceptor(( MessageInterceptorFn )( &Xine_Plugin::MenuOnScreen ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Menu_Onscreen_CONST );
+   
   /**
   // The constructor for this class registers itself, so we don't worry about deleting it or doing anything with it
 
@@ -262,7 +260,7 @@ bool Xine_Plugin::BroadcastMedia( class MediaStream *pMediaStream )
 }
 
 
-bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, class DeviceData_Router *pDeviceFrom, class DeviceData_Router *pDeviceTo )
+bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
     PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 

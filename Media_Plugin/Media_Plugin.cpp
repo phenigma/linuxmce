@@ -191,14 +191,8 @@ bool Media_Plugin::Register()
 
     m_pOrbiter_Plugin=( Orbiter_Plugin * ) pListCommand_Impl->front( );
 
-    m_pRouter->RegisterInterceptor(
-        new MessageInterceptorCallBack( this, ( MessageInterceptorFn )( &Media_Plugin::MediaInserted ) )
-        , 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Media_Inserted_CONST );
-
-
-    m_pRouter->RegisterInterceptor(
-        new MessageInterceptorCallBack( this, ( MessageInterceptorFn )( &Media_Plugin::PlaybackCompleted ) )
-        , 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Completed_CONST );
+    RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::MediaInserted ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Media_Inserted_CONST );
+    RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::PlaybackCompleted ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Completed_CONST );
 
     // And the datagrid plug-in
     m_pDatagrid_Plugin=NULL;
@@ -307,7 +301,7 @@ void Media_Plugin::AddDeviceToEntertainArea( EntertainArea *pEntertainArea, Row_
 }
 
 // Our message interceptor
-bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage, class DeviceData_Router *pDeviceFrom, class DeviceData_Router *pDeviceTo )
+bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     int PK_MediaType = atoi( pMessage->m_mapParameters[EVENTPARAMETER_FK_MediaType_CONST].c_str( ) );
@@ -358,7 +352,7 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
 
 }
 
-bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo)
+bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 

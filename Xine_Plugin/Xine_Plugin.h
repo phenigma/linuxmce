@@ -81,7 +81,7 @@ public:
     * @brief We need to see all media inserted events so we can start the appropriate media devices
     */
 
-    bool MenuOnScreen( class Socket *pSocket, class Message *pMessage, class DeviceData_Router *pDeviceFrom, class DeviceData_Router *pDeviceTo );
+    bool MenuOnScreen( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
 //<-dceag-h-b->
 	/*

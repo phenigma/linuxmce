@@ -95,6 +95,11 @@ public:
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
 	{
+		if( pMessageOriginal->m_dwMessage_Type == MESSAGETYPE_MESSAGE_INTERCEPTED )
+		{
+			InterceptedMessage(pMessageOriginal);
+			return true;
+		}
 		int iHandled=0;
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{
@@ -294,7 +299,7 @@ public:
 			else if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND )
 			{
 				MapCommand_Impl::iterator it = m_mapCommandImpl_Children.find(pMessage->m_dwPK_Device_To);
-				if( it!=m_mapCommandImpl_Children.end() )
+				if( it!=m_mapCommandImpl_Children.end() && !(*it).second->m_bGeneric )
 				{
 					Command_Impl *pCommand_Impl = (*it).second;
 					iHandled += pCommand_Impl->ReceivedMessage(pMessage);

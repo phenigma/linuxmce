@@ -102,17 +102,9 @@ bool Telecom_Plugin::Register()
 	
 	*/
 
-    m_pRouter->RegisterInterceptor(
-        new MessageInterceptorCallBack( this, ( MessageInterceptorFn )( &Telecom_Plugin::CommandResult ) )
-        , 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PBX_CommandResult_CONST );
-    
-	m_pRouter->RegisterInterceptor(
-        new MessageInterceptorCallBack( this, ( MessageInterceptorFn )( &Telecom_Plugin::Ring ) )
-        , 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PBX_Ring_CONST );
+	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::CommandResult ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PBX_CommandResult_CONST );
+	RegisterMsgInterceptor( ( MessageInterceptorFn )( &Telecom_Plugin::Ring ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_PBX_Ring_CONST );
 
-		
-
-	
 	return Connect(); 
 }
 
@@ -167,7 +159,7 @@ class DataGridTable *Telecom_Plugin::TelecomScenariosGrid(string GridID,string P
 
 bool 
 Telecom_Plugin::CommandResult( class Socket *pSocket, class Message *pMessage,
-		                                class DeviceData_Router *pDeviceFrom, class DeviceData_Router *pDeviceTo ) {
+		                                class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo ) {
 		
 	g_pPlutoLogger->Write(LV_STATUS, "Command Result received from PBX.");
 	int iCommandID = atoi(pMessage->m_mapParameters[EVENTPARAMETER_CommandID_CONST].c_str());
@@ -223,7 +215,7 @@ Telecom_Plugin::ProcessResult(int iCommandID, int iResult, std::string sMessage)
 
 bool 
 Telecom_Plugin::Ring( class Socket *pSocket, class Message *pMessage, 
-					 			class DeviceData_Router *pDeviceFrom, class DeviceData_Router *pDeviceTo ) {
+					 			class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo ) {
 	g_pPlutoLogger->Write(LV_STATUS, "Ring event received from PBX.");
 	
 	string sPhoneExtension = pMessage->m_mapParameters[EVENTPARAMETER_PhoneExtension_CONST];

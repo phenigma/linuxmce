@@ -11,17 +11,17 @@ DeviceData_Impl *gc100_Data::CreateData(DeviceData_Impl *Parent,char *pDataBlock
 	int iPK_Device = b.Read_unsigned_long();
 	int iPK_Installation = b.Read_unsigned_long();
 	int iPK_DeviceTemplate = b.Read_unsigned_long();
-	g_pPlutoLogger->Write(LV_CRITICAL, "Got CreateData for unknown type %d.", iPK_DeviceTemplate);
+	g_pPlutoLogger->Write(LV_STATUS, "Got CreateData for unknown type %d.", iPK_DeviceTemplate);
 	return NULL;
 }
 
 Event_Impl *gc100_Event::CreateEvent(int PK_DeviceTemplate, ClientSocket *pOCClientSocket, int DeviceID)
 {
-	g_pPlutoLogger->Write(LV_CRITICAL, "Got CreateEvent for unknown type %d.", PK_DeviceTemplate);
+	g_pPlutoLogger->Write(LV_STATUS, "Got CreateEvent for unknown type %d.", PK_DeviceTemplate);
 	return NULL;
 }
 Command_Impl  *gc100_Command::CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent)
 {
-	g_pPlutoLogger->Write(LV_CRITICAL, "Got CreateCommand for unknown type %d.", PK_DeviceTemplate);
+	g_pPlutoLogger->Write(LV_STATUS, "Got CreateCommand for unknown type %d.", PK_DeviceTemplate);
 	return NULL;
 }

@@ -94,9 +94,7 @@ bool Lighting_Plugin::Register()
 		new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Lighting_Plugin::LightingScenariosGrid ) )
 		, DATAGRID_Lighting_Scenarios_CONST );
 
-    m_pRouter->RegisterInterceptor(
-		new MessageInterceptorCallBack( this, ( MessageInterceptorFn )( &Lighting_Plugin::LightingCommand ) )
-		, 0, 0, 0, DEVICECATEGORY_Lighting_CONST, MESSAGETYPE_COMMAND, 0 );
+    RegisterMsgInterceptor(( MessageInterceptorFn )( &Lighting_Plugin::LightingCommand ), 0, 0, 0, DEVICECATEGORY_Lighting_CONST, MESSAGETYPE_COMMAND, 0 );
 
 	return Connect( ); 
 }
@@ -146,14 +144,16 @@ class DataGridTable *Lighting_Plugin::LightingScenariosGrid( string GridID, stri
 	return pDataGrid;
 }
 
-bool Lighting_Plugin::LightingCommand( class Socket *pSocket, class Message *pMessage, class DeviceData_Router *pDeviceFrom, class DeviceData_Router *pDeviceTo )
+bool Lighting_Plugin::LightingCommand( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
-	if( pDeviceTo )
+	// This only runs as a plug-in so we can safely cast it
+	class DeviceData_Router *pDevice_RouterTo = (class DeviceData_Router *) pDevice_RouterTo;
+	if( pDevice_RouterTo )
 	{
 		if( pMessage->m_dwID==COMMAND_Generic_On_CONST )
-			pDeviceTo->m_iLastState=100;
+			pDevice_RouterTo->m_iLastState=100;
 		else if( pMessage->m_dwID==COMMAND_Generic_Off_CONST )
-			pDeviceTo->m_iLastState=0;
+			pDevice_RouterTo->m_iLastState=0;
 	}
 	if( pMessage->m_sPK_Device_List_To.length() ) 
 	{

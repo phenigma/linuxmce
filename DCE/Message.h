@@ -35,7 +35,15 @@ namespace DCE
     /**
      * @brief enum containing values associated with message types
      */
-    enum { MESSAGETYPE_COMMAND=1, MESSAGETYPE_EVENT=2, MESSAGETYPE_DATAPARM_CHANGE=3, MESSAGETYPE_REPLY=4, MESSAGETYPE_DATAPARM_REQUEST=6, MESSAGETYPE_LOG=6, MESSAGETYPE_SYSCOMMAND=7 };
+    enum { MESSAGETYPE_COMMAND=1, MESSAGETYPE_EVENT=2, MESSAGETYPE_DATAPARM_CHANGE=3, MESSAGETYPE_REPLY=4, 
+		MESSAGETYPE_DATAPARM_REQUEST=6, MESSAGETYPE_LOG=6, MESSAGETYPE_SYSCOMMAND=7, 
+		MESSAGETYPE_REGISTER_INTERCEPTOR=8, MESSAGETYPE_MESSAGE_INTERCEPTED=9 };
+
+    /**
+     * @brief enum containing values for the criteria used in a message interceptor
+     */
+	enum { PARM_FROM=1, PARM_TO, PARM_TEMPLATE, PARM_CATEGORY, PARM_MESSAGE_TYPE, PARM_MESSAGE_ID };
+
 
     /**
      * @brief enum containing values associated with log entry params

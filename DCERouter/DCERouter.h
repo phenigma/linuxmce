@@ -32,14 +32,23 @@ namespace DCE
 	{
 	public:
 		class Command_Impl *m_pPlugIn;
+		int m_dwPK_Device;
+		int m_dwID;
 		MessageInterceptorFn m_pMessageInterceptorFn;
 
 		MessageInterceptorCallBack(class Command_Impl *pPlugIn,MessageInterceptorFn pMessageInterceptorFn)
 		{
+			m_dwPK_Device=0;
 			m_pPlugIn=pPlugIn;
 			m_pMessageInterceptorFn=pMessageInterceptorFn;
 		}
-
+		MessageInterceptorCallBack(int PK_Device,int ID)
+		{
+			m_dwPK_Device=PK_Device;
+			m_dwID=ID;
+			m_pPlugIn=NULL;
+			m_pMessageInterceptorFn=NULL;
+		}
 	};
 
 
@@ -171,8 +180,10 @@ namespace DCE
 		// Plug-In's
 		void RegisterAllPlugins(); // Iterates through all plug-ins, calling the register method
 
+		void RegisterMsgInterceptor(Message *pMessage);
+
 		// HACK -- We need to do this inline since a lot of plug-ins will be calling this method and we don't have a way for dcerouter to export it's classes and we don't want to add dcerouter.cpp to the plug-ins
-		void RegisterInterceptor(class MessageInterceptorCallBack *pCallBack,int PK_Device_From,int PK_Device_To,int PK_DeviceTemplate,int PK_DeviceCategory,int MessageType,int MessageID)
+		void RegisterMsgInterceptor(class MessageInterceptorCallBack *pCallBack,int PK_Device_From,int PK_Device_To,int PK_DeviceTemplate,int PK_DeviceCategory,int MessageType,int MessageID)
 		{
 			if( PK_Device_From==0 && PK_Device_To==0 && PK_DeviceTemplate==0 && PK_DeviceCategory==0 && MessageType==0 && MessageID==0 )
 			{
@@ -404,8 +415,16 @@ namespace DCE
 				class Command_Impl *pPlugIn = pMessageInterceptorCallBack->m_pPlugIn;
 				MessageInterceptorFn pMessageInterceptorFn = pMessageInterceptorCallBack->m_pMessageInterceptorFn;
 
-				CALL_MEMBER_FN(*pPlugIn,pMessageInterceptorFn) (pSocket, pMessage, pDeviceFrom, pDeviceTo);
-
+				if( pMessageInterceptorFn )  // It's a plug-in
+					CALL_MEMBER_FN(*pPlugIn,pMessageInterceptorFn) (pSocket, pMessage, pDeviceFrom, pDeviceTo);
+				else
+				{
+					Message *pMessageOriginator = new Message(pMessage);
+					Message *pMessageInterceptor = new Message(0,pMessageInterceptorCallBack->m_dwPK_Device,PRIORITY_NORMAL,
+						MESSAGETYPE_MESSAGE_INTERCEPTED,pMessageInterceptorCallBack->m_dwID,0);
+					pMessageInterceptor->m_vectExtraMessages.push_back( pMessageOriginator );
+					ReceivedMessage(NULL,pMessageInterceptor);
+				}
 			}
 		}
 	};

@@ -245,6 +245,7 @@ Orbiter::~Orbiter()
 }
 
 //<-dceag-reg-b->
+#include "pluto_main/Define_Event.h"
 // This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in.  Otherwise Connect() will be called from the main()
 bool Orbiter::Register()
 //<-dceag-reg-e->

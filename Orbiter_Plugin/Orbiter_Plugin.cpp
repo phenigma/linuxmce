@@ -155,27 +155,12 @@ bool Orbiter_Plugin::Register()
         }
     }
 
-    m_pRouter->RegisterInterceptor(
-        new MessageInterceptorCallBack(this,(MessageInterceptorFn)(&Orbiter_Plugin::MobileOrbiterDetected))
-        ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_Mobile_orbiter_detected_CONST);
-
-    m_pRouter->RegisterInterceptor(
-        new MessageInterceptorCallBack(this,(MessageInterceptorFn)(&Orbiter_Plugin::MobileOrbiterLinked))
-        ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_Mobile_orbiter_linked_CONST);
-
-    m_pRouter->RegisterInterceptor(
-        new MessageInterceptorCallBack(this,(MessageInterceptorFn)(&Orbiter_Plugin::MobileOrbiterLost))
-        ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_Mobile_orbiter_lost_CONST);
-
-    m_pRouter->RegisterInterceptor(
-        new MessageInterceptorCallBack(this,(MessageInterceptorFn)(&Orbiter_Plugin::RouteToOrbitersInRoom))
-        ,0,DEVICETEMPLATE_Standard_Orbiters_in_my_room_CONST,0,0,0,0);
-    m_pRouter->RegisterInterceptor(
-        new MessageInterceptorCallBack(this,(MessageInterceptorFn)(&Orbiter_Plugin::RouteToOrbitersInRoom))
-        ,0,DEVICETEMPLATE_Mobile_Orbiters_in_my_room_CONST,0,0,0,0);
-    m_pRouter->RegisterInterceptor(
-        new MessageInterceptorCallBack(this,(MessageInterceptorFn)(&Orbiter_Plugin::RouteToOrbitersInRoom))
-        ,0,DEVICETEMPLATE_Orbiters_in_my_room_CONST,0,0,0,0);
+    RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::MobileOrbiterDetected) ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_Mobile_orbiter_detected_CONST);
+    RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::MobileOrbiterLinked) ,0,0,0,0,MESSAGETYPE_EVENT,EVENT_Mobile_orbiter_linked_CONST);
+    RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::MobileOrbiterLost),0,0,0,0,MESSAGETYPE_EVENT,EVENT_Mobile_orbiter_lost_CONST);
+    RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::RouteToOrbitersInRoom),0,DEVICETEMPLATE_Standard_Orbiters_in_my_room_CONST,0,0,0,0);
+    RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::RouteToOrbitersInRoom),0,DEVICETEMPLATE_Mobile_Orbiters_in_my_room_CONST,0,0,0,0);
+    RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::RouteToOrbitersInRoom),0,DEVICETEMPLATE_Orbiters_in_my_room_CONST,0,0,0,0);
 
     return Connect();
 
@@ -209,7 +194,7 @@ void Orbiter_Plugin::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessag
 }
 
 // Our message interceptor
-bool Orbiter_Plugin::RouteToOrbitersInRoom(class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo)
+bool Orbiter_Plugin::RouteToOrbitersInRoom(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
     if (!pDeviceFrom)
     {
@@ -317,7 +302,7 @@ g_pPlutoLogger->Write(LV_STATUS,"in process");
     listOrbiter.clear();
 }
 
-bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo)
+bool Orbiter_Plugin::MobileOrbiterDetected(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
 printf("Mobile orbiter detected\n");
 
@@ -338,7 +323,7 @@ printf("Mobile orbiter detected\n");
         PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
 
         if(NULL == m_mapUnknownDevices_Find(sMacAddress))
-            m_mapUnknownDevices[sMacAddress] = new UnknownDeviceInfos(pDeviceFrom, pMessage->m_dwPK_Device_From, sID);  // We need to remember who detected this device
+            m_mapUnknownDevices[sMacAddress] = new UnknownDeviceInfos((DeviceData_Router *) pDeviceFrom, pMessage->m_dwPK_Device_From, sID);  // We need to remember who detected this device
 
         mm.Release();
 
@@ -427,7 +412,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Need to process.  Bit flag is: %d",(int) m_bNoU
     return true;
 }
 
-bool Orbiter_Plugin::MobileOrbiterLinked(class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo)
+bool Orbiter_Plugin::MobileOrbiterLinked(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
     if (!pDeviceFrom)
     {
@@ -486,7 +471,7 @@ bool Orbiter_Plugin::MobileOrbiterLinked(class Socket *pSocket,class Message *pM
         DeviceData_Router *pDevice_PriorDetected = pOH_Orbiter->m_pDevice_CurrentDetected;
 
         // Associated with a new media director.  Show the corresponding menu
-        pOH_Orbiter->m_pDevice_CurrentDetected = pDeviceFrom;
+        pOH_Orbiter->m_pDevice_CurrentDetected = (DeviceData_Router *) pDeviceFrom;
 
         DCE::CMD_Create_Mobile_Orbiter CMD_Create_Mobile_Orbiter(-1/*m_Device*/,pDeviceFrom->m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,sMacAddress);
         SendCommand(CMD_Create_Mobile_Orbiter);
@@ -552,7 +537,7 @@ bool Orbiter_Plugin::MobileOrbiterLinked(class Socket *pSocket,class Message *pM
     */
     return false;
 }
-bool Orbiter_Plugin::MobileOrbiterLost(class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo)
+bool Orbiter_Plugin::MobileOrbiterLost(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
     if (!pDeviceFrom)
     {

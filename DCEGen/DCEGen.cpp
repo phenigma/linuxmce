@@ -500,6 +500,13 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t//This distributes a received message to your handler." << endl;
 	fstr_DeviceCommand << "\tvirtual bool ReceivedMessage(class Message *pMessageOriginal)" << endl;
 	fstr_DeviceCommand << "\t{" << endl;
+
+	fstr_DeviceCommand << "\t\tif( pMessageOriginal->m_dwMessage_Type == MESSAGETYPE_MESSAGE_INTERCEPTED )" << endl;
+	fstr_DeviceCommand << "\t\t{" << endl;
+	fstr_DeviceCommand << "\t\t\tInterceptedMessage(pMessageOriginal);" << endl;
+	fstr_DeviceCommand << "\t\t\treturn true;" << endl;
+	fstr_DeviceCommand << "\t\t}" << endl;
+
 	fstr_DeviceCommand << "\t\tint iHandled=0;" << endl;
 	fstr_DeviceCommand << "\t\tfor(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)" << endl;
 	fstr_DeviceCommand << "\t\t{" << endl;

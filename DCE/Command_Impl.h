@@ -27,7 +27,7 @@ namespace DCE
 	/**
 	 * @brief return false if DCE should stop processing the message
 	 */
-	typedef  bool ( Command_Impl::*MessageInterceptorFn )( class Socket *pSocket, class Message *pMessage, class DeviceData_Router *pDeviceFrom, class DeviceData_Router *pDeviceTo );
+	typedef  bool ( Command_Impl::*MessageInterceptorFn )( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
 	
 	/**
@@ -49,7 +49,7 @@ namespace DCE
 		pthread_t m_pthread_queue_id; /** < the thread id for the tread that's treating the messages from the message queue */
 		pthread_cond_t m_listMessageQueueCond; /** < condition for the messages in the queue */
 		bool m_bKillSpawnedDevicesOnExit;  /** < a derived class will set this to true if we should kill the devices when we die */
-		class Router *m_pRouter; /** < this will be NULL if this is a plug-in being loaded in the same memory space, otherwise it will point to the router that can see the shared mamory space */
+		class Router *m_pRouter; /** < this will be NULL if this is not a plug-in being loaded in the same memory space, otherwise it will point to the router that can see the shared mamory space */
 		
 		Command_Impl *m_pPrimaryDeviceCommand; /** < pointer to the command for the primary device (if this one was spawned by it) */
 		DeviceData_Impl *m_pData; /** < a pointer to a device data implementation class (one derived from it) */
@@ -61,6 +61,11 @@ namespace DCE
 		bool m_bWatchdogRunning; /** < specifies if the watchdog is running */
 		bool m_bStopWatchdog; /** < specifies if the watchdog is stoped @todo ask is it used? */
 		pthread_t m_pThread; /** < the wachdog thread */
+
+		/** < If this is a plug-in, the message interceptors will be registered directly.  Otherwise there will be 'callbacks' stored in this map */
+		int m_dwMessageInterceptorCounter;
+		map<int, MessageInterceptorFn> m_mapMessageInterceptorFn;
+        MessageInterceptorFn m_mapMessageInterceptorFn_Find(int dwMessageInterceptorCounter) { map<int,MessageInterceptorFn>::iterator it = m_mapMessageInterceptorFn.find(dwMessageInterceptorCounter); return it==m_mapMessageInterceptorFn.end() ? NULL : (*it).second; }
 
 		/** flags */
 		
@@ -231,6 +236,17 @@ namespace DCE
 		 */
 		bool SendCommandNoResponse( class PreformedCommand &pPreformedCommand ) { return InternalSendCommand( pPreformedCommand,0,NULL ); }
 		bool InternalSendCommand( class PreformedCommand &pPreformedCommand, int iConfirmation, string *p_sResponse );
+
+		/**
+		 * @brief Register a function that we want to get called back when a message matching a given criteria is received.
+		 * Any of the criteria may be 0, indicating all messages will be a match.
+		 */
+		void RegisterMsgInterceptor(MessageInterceptorFn pMessageInterceptorFn,int PK_Device_From,int PK_Device_To,int PK_DeviceTemplate,int PK_DeviceCategory,int MessageType,int MessageID);
+
+		/**
+		 * @brief If this is not a plugin loaded into the Router's memory space, the callback will be in the form of a message to this function
+		 */
+		void InterceptedMessage(Message *pMessage);
 
 		/** Re-route the primitives through the primary device command. */
 		
