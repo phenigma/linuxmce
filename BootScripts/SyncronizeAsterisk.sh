@@ -63,7 +63,7 @@ done
 #echo "$PhoneCategories"
 
 #reboot asterisk
-asterisk -rx "restart gracefully"
+asterisk -rx "restart gracefully" || true
 
 echo "End of Syncronization."
 
