@@ -65,8 +65,8 @@ MessagePool::MessagePool(bool monitormode)
 }
 
 
-MessagePool::~MessagePool()
-{
+MessagePool::~MessagePool() {
+	Wait(true);
 }
 
 int 
