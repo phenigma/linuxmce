@@ -175,10 +175,11 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
     ImageSize = (unsigned int)*pImageSize;
 */
 
-    SaveImageToFile(pScreenImage, "TmpScreen.png"); // "/Image.png"
+	const string csTempFileName = "TmpScreen.png";
+    SaveImageToFile(pScreenImage, csTempFileName);
 
     FILE* file;
-    file = fopen("TmpScreen.png", "rb"); // "C:\Image.png"
+    file = fopen(csTempFileName.c_str(), "rb");
     fseek(file, 0, SEEK_END);
     ImageSize = ftell(file);
     fseek(file, 0, SEEK_SET);
