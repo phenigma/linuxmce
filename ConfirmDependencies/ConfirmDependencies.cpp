@@ -93,7 +93,7 @@ void AddAlternateSources(vector<Row_Package_Source_Compat *> &vectRow_Package_So
 string sCommand;
 int iPK_Distro=-1;
 Row_Installation *pRow_Installation;
-bool bSummary=false;
+bool bSummary=false,bInteractive=true;;
 list<PackageInfo *> listPackageInfo;  // We need a list so we can keep them in the right order
 DCEConfig dceConfig;
 Row_Distro *pRow_Distro=NULL;
@@ -234,6 +234,9 @@ int main(int argc, char *argv[])
 		case 'i':
 			bIncludeDisklessMD = false;
 			break;
+		case 'n':
+			bInteractive = false;
+			break;
 		case 's':
 			bSummary = true;
 			break;
@@ -251,7 +254,7 @@ int main(int argc, char *argv[])
 	{
 		PrintCmd(argc, argv);
 		cout << "ConfirmDependencies, v." << VERSION << endl
-			<< "Usage: ConfirmDependencies [-h hostname] [-u username] [-p password] [-D database] [-P mysql port] [-r Repository(-ies)] [-t Table(s)] [-U Users(s)] [-d DeviceID]" << endl
+			<< "Usage: ConfirmDependencies [-h hostname] [-u username] [-p password] [-D database] [-P mysql port] [-r Repository(-ies)] [-t Table(s)] [-U Users(s)] [-d DeviceID] [-n]" << endl
 			<< "hostname    -- address or DNS of database host, default is `dcerouter`" << endl
 			<< "username    -- username for database connection" << endl
 			<< "password    -- password for database connection, default is `` (empty)" << endl
@@ -259,7 +262,8 @@ int main(int argc, char *argv[])
 			<< "port        -- port for database connection, default is 3306" << endl
 			<< "output path -- Where to put the output files.  Default is ../[database name]" << endl
 			<< "input path  -- Where to find the template files.  Default is . then ../ConfirmDependencies" << endl
-		    << "device id   -- the device id" << endl;
+		    << "device id   -- the device id" << endl
+		    << "-n no prompts -- errors will be sent to a log file without asking the user to continue" << endl;
 
 		exit(0);
 	}
@@ -343,6 +347,7 @@ int main(int argc, char *argv[])
 			cout << "\telse" << endl;
 //			cout << "\techo '**ERROR** Unable to get package " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << "'" << endl;
 
+
 #define EOL "\n"
 			cout <<
 "\t\techo \"***************************************************\"" EOL
@@ -351,9 +356,14 @@ int main(int argc, char *argv[])
 //"\t\tYou will need\"" EOL
 //"\t\techo \"to get it manually.  Press any key to continue.\"" EOL
 "\t\techo \"***************************************************\"" EOL
-"\t\techo -n 'Do you want to try again? [Y/n]: '" EOL
-"\t\tread answer" EOL
-"\t\tif [ \"$answer\" == n -o \"$answer\" == N ]; then" EOL
+"\t\techo -n 'Do you want to try again? [Y/n]: '" EOL;
+
+if( bInteractive )
+	cout << "\t\tread answer" EOL;
+else
+	cout << "echo 01 Error processing package " + pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() + " >> /var/log/pluto/ConfirmDependencies.log" EOL;
+
+cout << "\t\tif [ \"$answer\" == n -o \"$answer\" == N ]; then" EOL
 "\t\t\techo '*** Leaving package uninstalled'" EOL
 "\t\t\tok=1" EOL
 "\t\tfi" EOL
