@@ -77,7 +77,9 @@ public:
 	virtual void SignalStrengthChanged(class PhoneDevice *pDevice)=0;
 
 	//this method should not be overrided in derived classes
-	void DetectionLogic(); 
+	virtual void DetectionLogic(); 
+	
+	virtual void RemovePhoneFromList(class PhoneDevice *pDevice);
 
 	// Since the scanning routine can be sensitive, rather than handling everything on the 
 	// same thread, we'll just span a new thread to handle the events.  These Intern_

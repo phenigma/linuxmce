@@ -91,8 +91,8 @@ void PhoneDetectionEngine::DetectionLogic()
 	//TODO: put here the logic of detection; use:
 	//map<u_int64_t,class PhoneDevice *> m_mapPhoneDevice_Detected;
 	//map<u_int64_t,class PhoneDevice *> m_mapDevicesDetectedThisScan;
-
-	g_pPlutoLogger->Write(LV_STATUS, "Devices detected so far: %d", m_mapPhoneDevice_Detected.size());
+	PLUTO_SAFETY_LOCK(mm,m_MapMutex);
+	g_pPlutoLogger->Write(LV_STATUS, "Devices detected last loop: %d", m_mapPhoneDevice_Detected.size());
 	g_pPlutoLogger->Write(LV_STATUS, "Devices detected this loop: %d", m_mapDevicesDetectedThisScan.size());
 
 	//new devices
@@ -150,6 +150,7 @@ void PhoneDetectionEngine::DetectionLogic()
 		else
 			itDevice++;
 	}
+	mm.Release();
 
 	list<PhoneDevice *>::iterator itLost;
 	for(itLost = listDevicesLost.begin();itLost != listDevicesLost.end();++itLost)
@@ -213,3 +214,19 @@ g_pPlutoLogger->Write(LV_STATUS,"ssc1 m_mapPhoneDevice_Detected size: %d",(int) 
 g_pPlutoLogger->Write(LV_STATUS,"ssc 2 m_mapPhoneDevice_Detected size: %d",(int) m_mapPhoneDevice_Detected.size());
 }
 
+void PhoneDetectionEngine::RemovePhoneFromList(class PhoneDevice *pDevice)
+{
+	PLUTO_SAFETY_LOCK(mm,m_MapMutex);
+	map<u_int64_t,class PhoneDevice *>::iterator itDevice = m_mapDevicesDetectedThisScan.find(pDevice->m_iMacAddress);
+
+	if(itDevice != m_mapDevicesDetectedThisScan.end())
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Need to remove device (mac %s, %s) from the detection list",
+			pDevice->m_sMacAddress.c_str(), pDevice->m_sID.c_str());
+
+		m_mapDevicesDetectedThisScan.erase(itDevice);
+	}
+	else
+		g_pPlutoLogger->Write(LV_WARNING, "Cannot remove device (mac %s, %s) from the detection list",
+			pDevice->m_sMacAddress.c_str(), pDevice->m_sID.c_str());
+}

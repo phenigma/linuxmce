@@ -133,10 +133,11 @@ void *HandleBDCommandProcessorThread( void *p )
 	*/
 	/******************************************/
 
-	while( pBD_Orbiter->m_pBDCommandProcessor->ReceiveCommand( 0, 0, NULL ) && !pBD_Orbiter->m_pBDCommandProcessor->m_bDead ); // loop for receiving commands
+	while( pBD_Orbiter->m_pBDCommandProcessor->ReceiveCommand( 0, 0, NULL ) && NULL != pBD_Orbiter->m_pBDCommandProcessor && !pBD_Orbiter->m_pBDCommandProcessor->m_bDead ); // loop for receiving commands
 
-	g_pPlutoLogger->Write( LV_STATUS, "Exiting command processor: m_bDead: %d", ( int ) pBD_Orbiter->m_pBDCommandProcessor->m_bDead );
+	g_pPlutoLogger->Write( LV_STATUS, "Exiting command processor");//: m_bDead: %d", ( int ) pBD_Orbiter->m_pBDCommandProcessor->m_bDead );
 	pBluetooth_Dongle->GetEvents()->Mobile_orbiter_lost( pBD_Orbiter->m_pPhoneDevice->m_sMacAddress.c_str(), true );
+	pBluetooth_Dongle->RemovePhoneFromList( pBD_Orbiter->m_pPhoneDevice);
 
 	/** cleaning up */
 	
