@@ -48,10 +48,8 @@ typedef list<MediaPicture *> listMediaPicture;
 class MediaAttributes
 {
 public:
-	class Media_Plugin *m_pMedia_Plugin;
-
 	/** @brief constructor */
-	MediaAttributes(class Media_Plugin *pMedia_Plugin) : m_pMedia_Plugin(pMedia_Plugin) {}
+	MediaAttributes() {}
 
 	int CreatedMedia(int PK_Type,string Path,listMediaAttribute *plistMediaAttribute,listMediaPicture *plistMediaPicture);
 	void UpdatedMedia(int PK_File,int PK_Type,string Path,listMediaAttribute *plistMediaAttribute,listMediaPicture *plistMediaPicture);

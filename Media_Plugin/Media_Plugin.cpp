@@ -769,7 +769,11 @@ void Media_Plugin::CMD_MH_Send_Me_To_Remote(string &sCMD_Result,Message *pMessag
     // Only an Orbiter will send this
     EntertainArea *pEntertainArea = DetermineEntArea( pMessage->m_dwPK_Device_From, 0, 0 );
     if( !pEntertainArea || !pEntertainArea->m_pMediaStream )
+	{
+		DCE::CMD_Goto_Screen CMD_Goto_Screen( m_dwPK_Device, pMessage->m_dwPK_Device_From, 0, StringUtils::itos( DESIGNOBJ_mnuNoMedia_CONST ), "", "", false );
+		SendCommand( CMD_Goto_Screen, 0 );
         return; // Don't know what area it should be played in, or there's no media playing there
+	}
 
     DCE::CMD_Goto_Screen CMD_Goto_Screen( m_dwPK_Device, pMessage->m_dwPK_Device_From, 0, StringUtils::itos( pEntertainArea->m_pMediaStream->m_iPK_DesignObj_Remote ), "", "", false );
     SendCommand( CMD_Goto_Screen, 0 );
