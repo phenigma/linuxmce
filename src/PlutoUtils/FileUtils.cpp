@@ -33,6 +33,7 @@
 	#include <dirent.h>
 	#include <unistd.h>
 	#include <fcntl.h>
+	#include <fnmatch.h>
 #else
 //	#include <shellapi.h>
 #endif
@@ -553,19 +554,20 @@ bool FileUtils::FindFiles(list<string> &listFiles, string sDirectory, string sFi
             {
                 string s = StringUtils::Tokenize(sFileSpec_CSV, string(","), pos);
 // g_pPlutoLogger->Write(LV_STATUS, "comparing extension %s", s.c_str());
-                if (s.substr(0,1) == "*")  // If it's a *.ext drop the *
-                    s = s.substr(1);
-                if (s == "")
-                    break;
-                if (s == ".*" || s == "*" || StringUtils::EndsWith(entry.d_name, s.c_str(),true) )
-                {
+//				if (s.substr(0,1) == "*")  // If it's a *.ext drop the *
+//					s = s.substr(1);
+				if (s == "")
+					break;
+//				if (s == ".*" || s == "*" || StringUtils::EndsWith(entry.d_name, s.c_str(),true) )
+				if (fnmatch(s.c_str(), entry.d_name, 0) == 0)
+				{
 // g_pPlutoLogger->Write(LV_STATUS, "added file %s", entry.d_name);
 					if( bFullyQualifiedPath )
-	                    listFiles.push_back(sDirectory + entry.d_name);
+						listFiles.push_back(sDirectory + entry.d_name);
 					else
-	                    listFiles.push_back(PrependedPath + entry.d_name);
-                    break;
-                }
+						listFiles.push_back(PrependedPath + entry.d_name);
+					break;
+				}
             }
 
 			if ( iMaxFileCount && iMaxFileCount < listFiles.size() )
