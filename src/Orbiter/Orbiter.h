@@ -21,6 +21,7 @@
 #include "OrbiterData.h"
 #include "DesignObj_Orbiter.h"
 #include "Floorplan.h"
+#include "CacheImageManager.h"
 
 /** For brevity,  DesignObj_Orbiter will be abbreviated Obj */
 
@@ -198,6 +199,8 @@ protected:
 	pluto_pthread_mutex_t m_DatagridMutex; /** < Don't allow 2 threads to operate on datagrids at the same time */
 	pthread_t m_MaintThreadID;
 
+	CacheImageManager *m_pCacheImageManager;
+
 	/** these methods are general purpose, and will call Orbiter-specific methods to do the work */
 
 
@@ -207,6 +210,7 @@ protected:
 	virtual void RenderScreen();
 	virtual void BeginPaint() {};
 	virtual void EndPaint() {};
+	virtual void UpdateRect(PlutoRectangle rect) {};
 
 	/**
 	 * @brief These will redraw any objects in m_vectObjsToRedraw. Use this to queue objects to redraw, such as those tht
@@ -303,6 +307,12 @@ protected:
 	 * @todo ask
 	 */
 	bool SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid, class DataGridCell *pCell );
+
+	/**
+	* @brief
+	* @todo ask
+	*/
+	void RefreshListWithSelectedObjects(DesignObj_Orbiter *pObj);
 
 	/**
 	 * @brief

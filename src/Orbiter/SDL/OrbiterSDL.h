@@ -49,6 +49,7 @@ public:
 
 	virtual void BeginPaint();
 	virtual void EndPaint();
+	virtual void UpdateRect(PlutoRectangle rect);
 
 	virtual void OnQuit();
 

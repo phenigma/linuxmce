@@ -290,10 +290,12 @@ void CPlutoMOAppUi::MakeViewerVisible(bool Value)
 	if(Value)
 	{
 		m_pVMCView->iContainer->MakeVisible(true);
-
-		if(!m_iCapturedKeyId)
-			m_iCapturedKeyId = CEikonEnv::Static()->RootWin().CaptureKeyUpAndDowns(EStdKeyNo, 0, 0);
 	}
+
+//	if(!m_iCapturedKeyId)
+//		m_iCapturedKeyId = CEikonEnv::Static()->RootWin().CaptureKeyUpAndDowns(EStdKeyNo, 0, 0);
+
+	Show();
 
 	m_bVMCViewerVisible = true;
 }

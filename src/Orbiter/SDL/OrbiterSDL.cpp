@@ -121,7 +121,7 @@ g_pPlutoLogger->Write(LV_STATUS, "about to free surface");
 
     m_pScreenImage = NULL;
 
-	SDL_Quit();
+	//SDL_Quit();
 
 g_pPlutoLogger->Write(LV_STATUS, "~OrbiterSDL finished");
 }
@@ -371,7 +371,12 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::EndPaint()
 {
+	//if we are using a buffer surface to blit images and text (Bluetooth_Dongle uses this)
+	//will have to update the hole screen
+	//if not, the user will call UpdateRect function for each rectangle he must invalidate
+#ifndef USE_ONLY_SCREEN_SURFACE
 	DisplayImageOnScreen(m_pScreenImage);
+#endif
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::OnQuit()
@@ -388,3 +393,13 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
 {
 	return new SDLGraphic(this);
 }
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterSDL::UpdateRect(PlutoRectangle rect)
+{
+	PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
+
+#ifdef USE_ONLY_SCREEN_SURFACE
+	SDL_UpdateRect(Screen, rect.Left(), rect.Top(), rect.Width, rect.Height);
+#endif
+}
+//-----------------------------------------------------------------------------------------------------

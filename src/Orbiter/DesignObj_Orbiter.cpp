@@ -194,12 +194,15 @@ DesignObj_Orbiter::~DesignObj_Orbiter()
 		delete *iA; 
 	VectorDesignObjText::iterator iT;
 	for(iT=m_vectDesignObjText.begin(); iT != m_vectDesignObjText.end(); ++iT)
+	{
+		DesignObjText *pDummy = *iT;
 		delete *iT; 
+	}
 
 	//IMPORTANT!!!
 	//because all DesignObj_Orbiter objects are stored on Orbiter::m_map_ObjAll,
 	//we don't want to delete here children of the object 
-	//there children will be deleted in Orbiter destructor using map_ObjAll
+	//their children will be deleted in Orbiter destructor using map_ObjAll
 	m_ChildObjects.clear();
 
 	delete m_pDataGridTable;

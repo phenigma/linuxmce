@@ -220,6 +220,10 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
 
 	m_sCacheFolder = DATA_Get_CacheFolder();
 	m_iCacheSize = DATA_Get_CacheSize();
+	m_pCacheImageManager = NULL;
+	
+	if(m_iCacheSize > 0)
+		m_pCacheImageManager = new CacheImageManager(m_sCacheFolder, m_iCacheSize);
 
 	pthread_cond_init(&m_MaintThreadCond, NULL);
 	m_MaintThreadMutex.Init(NULL);
@@ -343,6 +347,12 @@ g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 		(*itObj_Bound).second = NULL;
 	}
 	m_mapObj_Bound.clear();
+
+	if(NULL != m_pCacheImageManager)
+	{
+		delete m_pCacheImageManager;
+		m_pCacheImageManager = NULL;
+	}
 
 	pthread_mutexattr_destroy(&m_MutexAttr);
 	pthread_mutex_destroy(&m_ScreenMutex.mutex);
@@ -513,7 +523,10 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
 		class DesignObj_Orbiter *pObj = m_vectObjs_NeedRedraw[s];
 
 		if(pObj)
+		{
 			RenderObject( pObj, m_pScreenHistory_Current->m_pObj );
+			UpdateRect(pObj->m_rPosition);
+		}
     }
 
 	//render texts
@@ -526,6 +539,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
 			SolidRectangle( pText->m_rPosition.Left(),  pText->m_rPosition.Top(),
 				pText->m_rPosition.Width,  pText->m_rPosition.Height,  pTextStyle->m_BackColor);
 			RenderText( pText, pTextStyle );
+			UpdateRect(pText->m_rPosition);
 		}
 		else
 		{
@@ -1078,7 +1092,6 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable is now %p",pObj-
 		CallBackInfo *pCallBackInfo = (*itCallBackInfo).second;
 		if(pCallBackInfo->m_bPurgeTaskWhenScreenIsChanged)
 		{
-			g_pPlutoLogger->Write( LV_STATUS, "$$$ NeedToChangeScreens::deleting callback %p with id %d", pCallBackInfo, pCallBackInfo->m_iCounter );
 			mapPendingCallbacks.erase(itCallBackInfo++);
 			delete pCallBackInfo;
 		}
@@ -1127,6 +1140,8 @@ g_pPlutoLogger->Write( LV_STATUS, "@@@ About to call maint for display off with 
 
     g_pPlutoLogger->Write( LV_STATUS, "Changing screen to %s", m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(  ) );
     ObjectOnScreenWrapper(  );
+
+	//RefreshListWithSelectedObjects(pScreenHistory->m_pObj);
 }
 //------------------------------------------------------------------------
 void Orbiter::ObjectOnScreenWrapper(  )
@@ -2343,6 +2358,13 @@ void Orbiter::Initialize( GraphicType Type )
             sSM.Release(  );
         }
 
+		if(NULL != m_pCacheImageManager)
+			if(!m_pCacheImageManager->VerifyCache(StringUtils::ltos((long)m_tGenerationTime)))
+			{
+				delete m_pCacheImageManager;
+				m_pCacheImageManager = NULL;
+			}
+
         //      PreloadObjects(  );
 
         /*
@@ -2360,7 +2382,6 @@ void Orbiter::Initialize( GraphicType Type )
         {
             GotoScreen( m_sMainMenu );
         }
-
 
         m_pLocationInfo_Initial=NULL;
         for( DequeLocationInfo::iterator itLocations=m_dequeLocation.begin(  );itLocations!=m_dequeLocation.end(  );++itLocations )
@@ -5613,11 +5634,12 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 
 /*virtual*/ void Orbiter::SimulateMouseClick(int x, int y)
 {
-        g_pPlutoLogger->Write(LV_WARNING, "Simulate mouse click at position: %d, %d", x, y);
+    g_pPlutoLogger->Write(LV_WARNING, "Simulate mouse click at position: %d, %d", x, y);
 
 	BeginPaint();
 	PlutoColor color(255, 0, 0, 100);
 	SolidRectangle(x - 5, y - 5, 10, 10, color, 50);
+	UpdateRect(PlutoRectangle(x - 5, y - 5, 10, 10));
 	EndPaint();
 
 	RegionDown(x, y);
@@ -5646,6 +5668,8 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 	text2.m_sText = "Current screen: " + this->GetCurrentScreenID();
 	text2.m_rPosition = rect2;
 	RenderText(&text2, pTextStyle);
+
+	UpdateRect(PlutoRectangle(5, m_iImageHeight - 30, 200, 25));
 
 	EndPaint();
 
@@ -5712,10 +5736,60 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 			(*pVectorPlutoGraphic)[i]->Clear();
 	}
 
-	if(pPlutoGraphic->IsEmpty() && m_sLocalDirectory.length() > 0)
+	string sFileName = "";
+	if(pPlutoGraphic->IsEmpty() && NULL != m_pCacheImageManager && 
+		m_pCacheImageManager->IsImageInCache(pPlutoGraphic->m_Filename, pObj->m_Priority)
+	) 
 	{
-		string sFileName = m_sLocalDirectory + pPlutoGraphic->m_Filename;
+		//if we have the file in cache
+		sFileName = m_pCacheImageManager->GetCacheImageFileName(pPlutoGraphic->m_Filename);		
+	}
+	else if(pPlutoGraphic->IsEmpty() && m_sLocalDirectory.length() > 0)
+	{
+		//the file is in our localdrive
+		sFileName = m_sLocalDirectory + pPlutoGraphic->m_Filename;
+	}
 
+	//if we don't have the file in cache or on our localdrive
+	if(pPlutoGraphic->IsEmpty() && sFileName.empty()) 
+	{
+		// Request our config info
+		char *pGraphicFile=NULL;
+		int iSizeGraphicFile=0;
+
+		DCE::CMD_Request_File CMD_Request_File(
+			m_dwPK_Device,m_dwPK_Device_GeneralInfoPlugIn,
+			"orbiter/C" + StringUtils::itos(m_dwPK_Device) + "/" + pPlutoGraphic->m_Filename,
+			&pGraphicFile,&iSizeGraphicFile);
+		SendCommand(CMD_Request_File);
+
+		if (!iSizeGraphicFile)
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "Unable to get file from server %s", pPlutoGraphic->m_Filename.c_str());
+			return;
+		}
+
+		//save the image in cache
+		if(NULL != m_pCacheImageManager) //cache manager is enabled ?
+		{
+			m_pCacheImageManager->CacheImage(pGraphicFile, iSizeGraphicFile, pPlutoGraphic->m_Filename, pObj->m_Priority);
+			sFileName = m_pCacheImageManager->GetCacheImageFileName(pPlutoGraphic->m_Filename);	
+		}
+
+		//TODO: same logic for in-memory data
+		if(sFileName.empty() && !pPlutoGraphic->LoadGraphic(pGraphicFile, iSizeGraphicFile))
+		{
+			delete pGraphicFile;
+			pGraphicFile = NULL;
+			return;
+		}
+
+		delete pGraphicFile;
+		pGraphicFile = NULL;
+	}
+
+	if(pPlutoGraphic->IsEmpty() && !sFileName.empty())
+	{
 		if(!FileUtils::FileExists(sFileName))
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "Unable to read file %s", (sFileName).c_str());
@@ -5777,7 +5851,11 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 
 					pPlutoGraphic = (*pVectorPlutoGraphic)[0];
 
-					int iTime = 15; //hardcoding warning! don't know from where to get the framerate yet (ask Radu, libMNG)
+					int iTime = 0; //hardcoding warning! don't know from where to get the framerate yet (ask Radu, libMNG)
+#ifndef WINCE
+					iTime = 15;
+#endif
+
 					bool bLoop = false; //hardcoding warning!  (ask Radu, libMNG)
 
 					switch(pObj->m_GraphicToDisplay)
@@ -5811,41 +5889,15 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 
 		}
 	}
-	else if(pPlutoGraphic->IsEmpty())
-	{
-		// Request our config info
-		char *pGraphicFile=NULL;
-		int iSizeGraphicFile=0;
-
-		DCE::CMD_Request_File CMD_Request_File(
-			m_dwPK_Device,m_dwPK_Device_GeneralInfoPlugIn,
-			"orbiter/C" + StringUtils::itos(m_dwPK_Device) + "/" + pPlutoGraphic->m_Filename,
-			&pGraphicFile,&iSizeGraphicFile);
-		SendCommand(CMD_Request_File);
-
-		if (!iSizeGraphicFile)
-		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Unable to get file from server %s", pPlutoGraphic->m_Filename.c_str());
-			return;
-		}
-
-		//TODO: same logic for in-memory data
-		if(!pPlutoGraphic->LoadGraphic(pGraphicFile, iSizeGraphicFile))
-		{
-			delete pGraphicFile;
-			pGraphicFile = NULL;
-			return;
-		}
-
-		delete pGraphicFile;
-		pGraphicFile = NULL;
-	}
 
 #ifdef CACHE_IMAGES
     bDeleteSurface = false;
 #endif
 
-	RenderGraphic(pPlutoGraphic, rectTotal, bDisableAspectRatio);
+	if(!pPlutoGraphic->IsEmpty())
+		RenderGraphic(pPlutoGraphic, rectTotal, bDisableAspectRatio);
+	else
+		g_pPlutoLogger->Write(LV_STATUS, "No graphic to render for object %s", pObj->m_ObjectID.c_str());
 
 	//free the surface
 	if( bDeleteSurface && !bIsMNG) //will delete the MNG at the end of playing
@@ -5876,12 +5928,16 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 	{
 		BeginPaint();
 		RenderGraphic(pPlutoGraphic, pObj->m_rBackgroundPosition, pObj->m_bDisableAspectLock);
+		UpdateRect(pObj->m_rPosition);
 		EndPaint();
 	}
 
 	pObj->m_iCurrentFrame++;
 
-	const unsigned int iDelay = 15; //temp
+	unsigned int iDelay = 0; //temp
+#ifndef WINCE
+	iDelay = 15;
+#endif
 
 	if(pObj->m_iCurrentFrame >= iFrameNum) //this is the last one
 	{
@@ -6107,7 +6163,22 @@ void Orbiter::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 	text.m_rPosition = rect;
 	TextStyle *pTextStyle = m_mapTextStyle_Find( 1 );
 	RenderText(&text, pTextStyle);
+	UpdateRect(PlutoRectangle(5, m_iImageHeight - 30, 200, 25));
 	EndPaint();
+}
+
+void Orbiter::RefreshListWithSelectedObjects(DesignObj_Orbiter *pObj)
+{
+	//refresh the list with selected objects for this screen 
+	if(pObj->m_GraphicToDisplay == GRAPHIC_SELECTED)
+		m_vectObjs_Selected.push_back(pObj);
+
+	DesignObj_DataList::iterator it;
+	for(it = pObj->m_ChildObjects.begin(  ); it != pObj->m_ChildObjects.end(); ++it )
+	{
+		DesignObj_Orbiter *pDesignObj_Orbiter = (DesignObj_Orbiter*) *it;
+		RefreshListWithSelectedObjects(pDesignObj_Orbiter);
+	}
 }
 
 //<-dceag-c330-b->
