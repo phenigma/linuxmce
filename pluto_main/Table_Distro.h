@@ -90,8 +90,11 @@ string m_KickStartCD;
 string m_Binaries;
 string m_SourceCode;
 short int m_Confirmed;
+short int m_Core;
+short int m_MediaDirector;
+short int m_Orbiter;
 
-		bool is_null[9];
+		bool is_null[12];
 	
 	public:
 		long int PK_Distro_get();
@@ -103,6 +106,9 @@ string KickStartCD_get();
 string Binaries_get();
 string SourceCode_get();
 short int Confirmed_get();
+short int Core_get();
+short int MediaDirector_get();
+short int Orbiter_get();
 
 		
 		void PK_Distro_set(long int val);
@@ -114,14 +120,23 @@ void KickStartCD_set(string val);
 void Binaries_set(string val);
 void SourceCode_set(string val);
 void Confirmed_set(short int val);
+void Core_set(short int val);
+void MediaDirector_set(short int val);
+void Orbiter_set(short int val);
 
 		
 		bool Define_isNull();
 bool Installer_isNull();
+bool KickStartCD_isNull();
+bool Binaries_isNull();
+bool SourceCode_isNull();
 
 			
 		void Define_setNull(bool val);
 void Installer_setNull(bool val);
+void KickStartCD_setNull(bool val);
+void Binaries_setNull(bool val);
+void SourceCode_setNull(bool val);
 	
 	
 		void Delete();
@@ -147,7 +162,7 @@ void RepositorySource_FK_Distro_getrows(vector <class Row_RepositorySource*> *ro
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_Distro+ m_Description+ m_Define+ m_FK_OperatingSystem+ m_Installer+ m_KickStartCD+ m_Binaries+ m_SourceCode+ m_Confirmed;
+			StartSerializeList() + m_PK_Distro+ m_Description+ m_Define+ m_FK_OperatingSystem+ m_Installer+ m_KickStartCD+ m_Binaries+ m_SourceCode+ m_Confirmed+ m_Core+ m_MediaDirector+ m_Orbiter;
 		}
 	private:
 		void SetDefaultValues();
@@ -161,6 +176,9 @@ string KickStartCD_asSQL();
 string Binaries_asSQL();
 string SourceCode_asSQL();
 string Confirmed_asSQL();
+string Core_asSQL();
+string MediaDirector_asSQL();
+string Orbiter_asSQL();
 
 	};
 

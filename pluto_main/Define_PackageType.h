@@ -9,6 +9,7 @@
 #define PACKAGETYPE_3rd_Party_Plugins_CONST 6
 #define PACKAGETYPE_3rd_Party_DCE_Devices_CONST 7
 #define PACKAGETYPE_3rd_Party_Utilities_CONST 8
+#define PACKAGETYPE_Developer_Tools_CONST 9
 
 #define PACKAGETYPE_TABLE "PackageType"
 #define PACKAGETYPE_PK_PACKAGETYPE_FIELD "PK_PackageType"

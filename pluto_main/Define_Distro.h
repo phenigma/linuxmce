@@ -3,6 +3,15 @@
 
 #define DISTRO_Debian_Woody_CONST 1
 #define DISTRO_Slackware_CONST 2
+#define DISTRO_RedHat_CONST 3
+#define DISTRO_Fedora_CONST 4
+#define DISTRO_Mandrake_CONST 5
+#define DISTRO_Gentoo_CONST 6
+#define DISTRO_2000,_XP_CONST 7
+#define DISTRO_Series_60_CONST 8
+#define DISTRO_Series_70_CONST 9
+#define DISTRO_Series_80_CONST 10
+#define DISTRO_UIQ_CONST 11
 
 #define DISTRO_TABLE "Distro"
 #define DISTRO_PK_DISTRO_FIELD "PK_Distro"
@@ -23,6 +32,12 @@
 #define DISTRO_SOURCECODE_TABLE_FIELD "Distro.SourceCode"
 #define DISTRO_CONFIRMED_FIELD "Confirmed"
 #define DISTRO_CONFIRMED_TABLE_FIELD "Distro.Confirmed"
+#define DISTRO_CORE_FIELD "Core"
+#define DISTRO_CORE_TABLE_FIELD "Distro.Core"
+#define DISTRO_MEDIADIRECTOR_FIELD "MediaDirector"
+#define DISTRO_MEDIADIRECTOR_TABLE_FIELD "Distro.MediaDirector"
+#define DISTRO_ORBITER_FIELD "Orbiter"
+#define DISTRO_ORBITER_TABLE_FIELD "Distro.Orbiter"
 
 
 #endif

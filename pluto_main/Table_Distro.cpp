@@ -125,14 +125,17 @@ is_null[2] = true;
 m_FK_OperatingSystem = 0;
 is_null[3] = false;
 is_null[4] = true;
-m_KickStartCD = "0";
-is_null[5] = false;
-m_Binaries = "0";
-is_null[6] = false;
-m_SourceCode = "0";
-is_null[7] = false;
+is_null[5] = true;
+is_null[6] = true;
+is_null[7] = true;
 m_Confirmed = 0;
 is_null[8] = false;
+m_Core = 0;
+is_null[9] = false;
+m_MediaDirector = 0;
+is_null[10] = false;
+m_Orbiter = 0;
+is_null[11] = false;
 
 
 	is_added=false;
@@ -167,6 +170,15 @@ return m_SourceCode;}
 short int Row_Distro::Confirmed_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Confirmed;}
+short int Row_Distro::Core_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Core;}
+short int Row_Distro::MediaDirector_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_MediaDirector;}
+short int Row_Distro::Orbiter_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Orbiter;}
 
 		
 void Row_Distro::PK_Distro_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -196,6 +208,15 @@ m_SourceCode = val; is_modified=true; is_null[7]=false;}
 void Row_Distro::Confirmed_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Confirmed = val; is_modified=true; is_null[8]=false;}
+void Row_Distro::Core_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Core = val; is_modified=true; is_null[9]=false;}
+void Row_Distro::MediaDirector_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_MediaDirector = val; is_modified=true; is_null[10]=false;}
+void Row_Distro::Orbiter_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Orbiter = val; is_modified=true; is_null[11]=false;}
 
 		
 bool Row_Distro::Define_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -204,6 +225,15 @@ return is_null[2];}
 bool Row_Distro::Installer_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[4];}
+bool Row_Distro::KickStartCD_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[5];}
+bool Row_Distro::Binaries_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[6];}
+bool Row_Distro::SourceCode_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[7];}
 
 			
 void Row_Distro::Define_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -212,6 +242,15 @@ is_null[2]=val;}
 void Row_Distro::Installer_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[4]=val;}
+void Row_Distro::KickStartCD_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[5]=val;}
+void Row_Distro::Binaries_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[6]=val;}
+void Row_Distro::SourceCode_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[7]=val;}
 	
 
 string Row_Distro::PK_Distro_asSQL()
@@ -325,6 +364,45 @@ sprintf(buf, "%hi", m_Confirmed);
 return buf;
 }
 
+string Row_Distro::Core_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[9])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_Core);
+
+return buf;
+}
+
+string Row_Distro::MediaDirector_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[10])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_MediaDirector);
+
+return buf;
+}
+
+string Row_Distro::Orbiter_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[11])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_Orbiter);
+
+return buf;
+}
+
 
 
 
@@ -363,10 +441,10 @@ void Table_Distro::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Distro_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->Installer_asSQL()+", "+pRow->KickStartCD_asSQL()+", "+pRow->Binaries_asSQL()+", "+pRow->SourceCode_asSQL()+", "+pRow->Confirmed_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Distro_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->Installer_asSQL()+", "+pRow->KickStartCD_asSQL()+", "+pRow->Binaries_asSQL()+", "+pRow->SourceCode_asSQL()+", "+pRow->Confirmed_asSQL()+", "+pRow->Core_asSQL()+", "+pRow->MediaDirector_asSQL()+", "+pRow->Orbiter_asSQL();
 
 	
-		string query = "insert into Distro (PK_Distro, Description, Define, FK_OperatingSystem, Installer, KickStartCD, Binaries, SourceCode, Confirmed) values ("+
+		string query = "insert into Distro (PK_Distro, Description, Define, FK_OperatingSystem, Installer, KickStartCD, Binaries, SourceCode, Confirmed, Core, MediaDirector, Orbiter) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -415,7 +493,7 @@ condition = condition + "PK_Distro=" + tmp_PK_Distro;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Distro="+pRow->PK_Distro_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", Installer="+pRow->Installer_asSQL()+", KickStartCD="+pRow->KickStartCD_asSQL()+", Binaries="+pRow->Binaries_asSQL()+", SourceCode="+pRow->SourceCode_asSQL()+", Confirmed="+pRow->Confirmed_asSQL();
+update_values_list = update_values_list + "PK_Distro="+pRow->PK_Distro_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", Installer="+pRow->Installer_asSQL()+", KickStartCD="+pRow->KickStartCD_asSQL()+", Binaries="+pRow->Binaries_asSQL()+", SourceCode="+pRow->SourceCode_asSQL()+", Confirmed="+pRow->Confirmed_asSQL()+", Core="+pRow->Core_asSQL()+", MediaDirector="+pRow->MediaDirector_asSQL()+", Orbiter="+pRow->Orbiter_asSQL();
 
 	
 		string query = "update Distro set " + update_values_list + " where " + condition;
@@ -600,6 +678,39 @@ else
 {
 pRow->is_null[8]=false;
 sscanf(row[8], "%hi", &(pRow->m_Confirmed));
+}
+
+if (row[9] == NULL)
+{
+pRow->is_null[9]=true;
+pRow->m_Core = 0;
+}
+else
+{
+pRow->is_null[9]=false;
+sscanf(row[9], "%hi", &(pRow->m_Core));
+}
+
+if (row[10] == NULL)
+{
+pRow->is_null[10]=true;
+pRow->m_MediaDirector = 0;
+}
+else
+{
+pRow->is_null[10]=false;
+sscanf(row[10], "%hi", &(pRow->m_MediaDirector));
+}
+
+if (row[11] == NULL)
+{
+pRow->is_null[11]=true;
+pRow->m_Orbiter = 0;
+}
+else
+{
+pRow->is_null[11]=false;
+sscanf(row[11], "%hi", &(pRow->m_Orbiter));
 }
 
 
@@ -805,6 +916,39 @@ else
 {
 pRow->is_null[8]=false;
 sscanf(row[8], "%hi", &(pRow->m_Confirmed));
+}
+
+if (row[9] == NULL)
+{
+pRow->is_null[9]=true;
+pRow->m_Core = 0;
+}
+else
+{
+pRow->is_null[9]=false;
+sscanf(row[9], "%hi", &(pRow->m_Core));
+}
+
+if (row[10] == NULL)
+{
+pRow->is_null[10]=true;
+pRow->m_MediaDirector = 0;
+}
+else
+{
+pRow->is_null[10]=false;
+sscanf(row[10], "%hi", &(pRow->m_MediaDirector));
+}
+
+if (row[11] == NULL)
+{
+pRow->is_null[11]=true;
+pRow->m_Orbiter = 0;
+}
+else
+{
+pRow->is_null[11]=false;
+sscanf(row[11], "%hi", &(pRow->m_Orbiter));
 }
 
 
