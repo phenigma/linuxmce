@@ -115,10 +115,6 @@ void ServerSocket::Run()
 			m_dwPK_Device = atoi( sMessage.substr(6).c_str() );
 			m_sName += sMessage;
 
-#ifdef LL_DEBUG_FILE
-			strcat( m_pcSockLogFile,sMessage.c_str() );
-			strcat( m_pcSockLogErrorFile,sMessage.c_str() );
-#endif
 #ifdef TEST_DISCONNECT	
 			if ( m_dwPK_Device == TEST_DISCONNECT )
 				m_pListener->m_pTestDisconnectEvent = this;

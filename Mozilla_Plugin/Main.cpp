@@ -71,6 +71,9 @@ extern "C" {
 //<-dceag-main-b->
 int main(int argc, char* argv[]) 
 {
+	g_sBinary = FileUtils::FilenameWithoutPath(argv[0]);
+	g_sBinaryPath = FileUtils::BasePath(argv[0]);
+
 	cout << "Mozilla_Plugin, v." << VERSION << endl
 		<< "Visit www.plutohome.com for source code and license information" << endl << endl;
 

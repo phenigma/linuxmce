@@ -2219,11 +2219,11 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
     GetEvents()->SendMessage(pMessage);
     }
 */
-    string sResult;
+	string sResult;
     DCE::CMD_Get_Floorplan_Layout CMD_Get_Floorplan_Layout(m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, &sResult);
     SendCommand(CMD_Get_Floorplan_Layout);
 
-    string::size_type pos=0;
+      string::size_type pos=0;
     int NumPages = atoi(StringUtils::Tokenize(sResult, "|", pos).c_str());
     for(int PageCount=0;PageCount<NumPages;++PageCount)
     {

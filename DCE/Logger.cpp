@@ -57,6 +57,8 @@ using namespace DCE;
 	#include "wince.h"
 #endif
 
+string DCE::g_sBinary,DCE::g_sBinaryPath;
+
 Logger::Logger( const char* pcName ) : m_Lock( "logger" )
 {
 	if( pcName ) m_Name = pcName;

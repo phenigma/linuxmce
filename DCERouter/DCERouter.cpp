@@ -1305,6 +1305,10 @@ g_pPlutoLogger->Write(LV_SOCKET, "Got response: %d to message type %d id %d to %
                         return;
                     }
                     string sResponse;
+if ( (*(*pSafetyMessage))->m_dwID==183 )
+{
+int k=2;
+}
                     if (pDeviceConnection->ReceiveString(sResponse))
                     {
 

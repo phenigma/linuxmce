@@ -45,7 +45,7 @@ ServerLogger::ServerLogger(int DeviceID, string server) :ClientSocket(DeviceID, 
 	m_bConnected = false;
 	m_bQuit = false;
 	m_Name = "*DEV* " + StringUtils::itos(DeviceID);
-	Connect();
+	Connect("serv log" + m_Name);
 
 	// Start a thread that will attempt to reconnect to the server every 5 seconds if the log ever has a problem
 	Start();

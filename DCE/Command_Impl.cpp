@@ -115,6 +115,11 @@ Command_Impl::Command_Impl( int DeviceID, string ServerAddress, bool bLocalMode,
 	{
 		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot create message processing queue" );
 	}
+#ifdef LL_DEBUG
+	SendString("COMMENT COMMAND " + StringUtils::itos(DeviceID));
+	m_pEvent->SendString("COMMENT EVENT " + StringUtils::itos(DeviceID));
+	m_pRequestHandler->SendString("COMMENT REQHAND " + StringUtils::itos(DeviceID));
+#endif
 }
 
 Command_Impl::Command_Impl( Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, class Router *pRouter )

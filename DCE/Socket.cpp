@@ -100,11 +100,11 @@ Socket::Socket(string Name) : m_SocketMutex("socket mutex " + Name)
 
 
 #ifdef WIN32
-	sprintf( m_pcSockLogFile, "\\socklog-%s-%s-%s.txt", c, Module, m_sName.c_str() );
-	sprintf( m_pcSockLogErrorFile, "\\socklog_error-%s-%s-%s.txt", c, Module, m_sName.c_str() );
+	sprintf( m_pcSockLogFile, "\\socklog-%s-%s-%s-%s.txt", g_sBinary.c_str(), c, Module, m_sName.c_str() );
+	sprintf( m_pcSockLogErrorFile, "\\socklog_error-%s-%s-%s-%s.txt", g_sBinary.c_str(), c, Module, m_sName.c_str() );
 #else
-	sprintf( m_pcSockLogFile, "/tmp/socklog-%p-%d-%s-%s-%s", this, m_iSocketCounter, c, Module, m_sName.c_str() );
-	sprintf( m_pcSockLogErrorFile, "/tmp/socklog_error-%p-%d-%s-%s-%s", this, m_iSocketCounter, c, Module, m_sName.c_str() );
+	sprintf( m_pcSockLogFile, "/tmp/socklog-%s-%p-%d-%s-%s-%s", g_sBinary.c_str(), this, m_iSocketCounter, c, Module, m_sName.c_str() );
+	sprintf( m_pcSockLogErrorFile, "/tmp/socklog_error-%s-%p-%d-%s-%s-%s", g_sBinary.c_str(), this, m_iSocketCounter, c, Module, m_sName.c_str() );
 #endif
 
 	FILE *f = fopen( m_pcSockLogFile, "a" );
@@ -486,7 +486,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 #ifdef DEBUG
 					clk_select1b = clock();
 #endif
-				}while( iRet!=-1 && (end-start) < m_iReceiveTimeout );
+				}while( iRet!=-1 && iRet!=1 && (end-start) < m_iReceiveTimeout );
 			}
 			else
 			{
@@ -537,12 +537,12 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 		file = fopen( m_pcSockLogErrorFile, "a" );
 		// Don't check -- if this still fails just throw an exception something is very wrong!
 		fprintf( file, "Cannot write to regular sock log\n" );
-		fprintf( file, "%d-%s-%s\tClosing socket at line 540\n\n", m_Socket, Module, ac );
+		fprintf( file, "%d-%s\tClosing socket at line 540\n\n", m_Socket, Module);
 		fclose( file );
 	}
 	else
 	{
-		fprintf( file, "%d-%s-%s\tClosing socket at line 540\n\n", m_Socket, Module, ac);
+		fprintf( file, "%d-%s\tClosing socket at line 540\n\n", m_Socket, Module);
 		fclose( file );
 	}
 	ll.Release();
@@ -589,14 +589,14 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 		file = fopen( m_pcSockLogErrorFile, "a" );
 		// Don't check -- if this still fails just throw an exception something is very wrong!
 		fprintf( file, "Cannot write to regular sock log\n" );
-		fprintf( file, "%d-%s-%s\tClosing socket at line 592\n\n", m_Socket, Module, ac );
+		fprintf( file, "%d-%s\tClosing socket at line 592\n\n", m_Socket, Module );
 		fprintf( file, "Socket::ReceiveData failed, bytes left %d start: %d 1: %d 1b: %d 2: %d 2b: %d socket %d %s",
 				m_iSockBufBytesLeft, (int) clk_start, (int) clk_select1, (int) clk_select1b, (int) clk_select2, (int) clk_select2b, m_Socket, m_sName.c_str() );
 		fclose( file );
 	}
 	else
 	{
-		fprintf( file, "%d-%s-%s\tClosing socket at line 592\n\n", m_Socket, Module, ac);
+		fprintf( file, "%d-%s\tClosing socket at line 592\n\n", m_Socket, Module);
 		fprintf( file, "Socket::ReceiveData failed, bytes left %d start: %d 1: %d 1b: %d 2: %d 2b: %d socket %d %s",
 				m_iSockBufBytesLeft, (int) clk_start, (int) clk_select1, (int) clk_select1b, (int) clk_select2, (int) clk_select2b, m_Socket, m_sName.c_str() );
 		fclose( file );

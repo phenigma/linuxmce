@@ -70,9 +70,12 @@ namespace DCE
 	* While global variables aren't recommended, every object within the same memory space
 	* will be using the same logger anyway.  This is cleaner than passing a pointer to a
 	* the logger around.  Each program that uses this will have to create the actual
-	* instance of g_pDCELogger, using whatever derived class is appropriate
+	* instance of g_pDCELogger, using whatever derived class is appropriate.  Also, we'll put
+	* 2 strings that the main() function can use to store the currently executing binary and path
+	* which may be useful for logging
 	*/ 
 	extern class Logger *g_pPlutoLogger;
+	extern string g_sBinary,g_sBinaryPath;
 
 	/**
 	* @brief logger for the data command and events

@@ -140,8 +140,6 @@ namespace DCE
 		 */		 
 		virtual bool Connect();
 		
-		
-		
 		/** events */
 		
 		/**

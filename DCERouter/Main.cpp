@@ -70,6 +70,8 @@ int _tmain(int argc, _TCHAR* argv[])
 int main(int argc, char *argv[])
 {
 #endif
+	g_sBinary = FileUtils::FilenameWithoutPath(argv[0]);
+	g_sBinaryPath = FileUtils::BasePath(argv[0]);
    		
 		cout<<"Copyright (C) 2004 Pluto, Inc., a Florida Corporation"<<endl
 		    <<"www.plutohome.com"<<endl

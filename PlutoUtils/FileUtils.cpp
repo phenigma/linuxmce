@@ -197,7 +197,13 @@ string FileUtils::FileWithoutExtension ( string sFileName )
 
 string FileUtils::BasePath( string sInput )
 {
-    while ( sInput.length() > 0 && sInput[sInput.length() - 1] == '/')
+#ifdef WIN32
+    string::size_type s;
+    while( ( s = sInput.find('\\') ) != string::npos ) // replacing all the \ in a windows path with /
+        sInput.replace( s, 1, "/" );
+#endif
+
+	while ( sInput.length() > 0 && sInput[sInput.length() - 1] == '/')
         sInput = sInput.substr( 0, sInput.length() - 1 );
 
     string::size_type pos = sInput.rfind("/");

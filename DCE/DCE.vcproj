@@ -20,7 +20,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;..\Libraries\pthreads-win32\include&quot;;..;/mysql/include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;LL_DEBUG_FILE"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;LL_DEBUG_FILE;DEBUG"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -181,6 +181,12 @@
 			</File>
 			<File
 				RelativePath=".\BinarySerialize.h">
+			</File>
+			<File
+				RelativePath=".\ClientSocket.h">
+			</File>
+			<File
+				RelativePath=".\Command_Impl.h">
 			</File>
 			<File
 				RelativePath=".\CommonIncludes.h">
