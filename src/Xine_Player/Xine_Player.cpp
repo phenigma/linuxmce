@@ -77,7 +77,7 @@ Xine_Player::~Xine_Player()
 //<-dceag-dest-e->
 {
     delete m_pXineSlaveControl;
-	
+
 }
 
 //<-dceag-reg-b->
@@ -175,6 +175,12 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 void Xine_Player::CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c38-e->
 {
+    if ( ! m_pXineSlaveControl )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "I don't have a slave to make it play. The slave proabbly failed to initialize properly.");
+        return;
+    }
+
     int currentTime, totalTime;
 
     g_pPlutoLogger->Write(LV_STATUS, "Got a stop media for stream ID %d", iStreamID);
@@ -194,7 +200,13 @@ void Xine_Player::CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_
 void Xine_Player::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c39-e->
 {
-    m_pXineSlaveControl->pauseMediaStream(iStreamID);
+    if ( ! m_pXineSlaveControl )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "I don't have a slave to make it play. The slave proabbly failed to initialize properly.");
+        return;
+    }
+
+	m_pXineSlaveControl->pauseMediaStream(iStreamID);
 }
 
 //<-dceag-c40-b->
@@ -222,7 +234,13 @@ void Xine_Player::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message *p
 void Xine_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string &sCMD_Result,Message *pMessage)
 //<-dceag-c41-e->
 {
-    m_pXineSlaveControl->changePlaybackSpeed(iStreamID, (XineSlaveWrapper::PlayBackSpeedType)iMediaPlaybackSpeed);
+    if ( ! m_pXineSlaveControl )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "I don't have a slave to make it play. The slave proabbly failed to initialize properly.");
+        return;
+    }
+
+	m_pXineSlaveControl->changePlaybackSpeed(iStreamID, (XineSlaveWrapper::PlayBackSpeedType)iMediaPlaybackSpeed);
 }
 
 //<-dceag-c63-b->
@@ -250,7 +268,13 @@ void Xine_Player::CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Message *
 
 Display *Xine_Player::getDisplay()
 {
-    return m_pXineSlaveControl->XServerDisplay;
+    if ( ! m_pXineSlaveControl )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "I don't have a slave to make it play. The slave proabbly failed to initialize properly.");
+        return NULL;
+    }
+
+	return m_pXineSlaveControl->XServerDisplay;
 }
 //<-dceag-c81-b->
 
@@ -262,6 +286,12 @@ Display *Xine_Player::getDisplay()
 void Xine_Player::CMD_Navigate_Next(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c81-e->
 {
+    if ( ! m_pXineSlaveControl )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "I don't have a slave to make it play. The slave proabbly failed to initialize properly.");
+        return;
+    }
+
     m_pXineSlaveControl->selectNextButton(iStreamID);
 }
 
@@ -275,7 +305,13 @@ void Xine_Player::CMD_Navigate_Next(int iStreamID,string &sCMD_Result,Message *p
 void Xine_Player::CMD_Navigate_Prev(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c82-e->
 {
-    m_pXineSlaveControl->selectPrevButton(iStreamID);
+    if ( ! m_pXineSlaveControl )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "I don't have a slave to make it play. The slave proabbly failed to initialize properly.");
+        return;
+    }
+
+	m_pXineSlaveControl->selectPrevButton(iStreamID);
 }
 
 
@@ -299,7 +335,13 @@ void Xine_Player::CMD_Navigate_Prev(int iStreamID,string &sCMD_Result,Message *p
 void Xine_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat,string &sCMD_Result,Message *pMessage)
 //<-dceag-c84-e->
 {
-    *pData = NULL;
+    if ( ! m_pXineSlaveControl )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "I don't have a slave to make it play. The slave proabbly failed to initialize properly.");
+        return;
+    }
+
+	*pData = NULL;
     *iData_Size = 0;
 
     m_pXineSlaveControl->getScreenShot(iStreamID, iWidth, iHeight, *pData, *iData_Size, *sFormat, sCMD_Result);
@@ -314,13 +356,19 @@ void Xine_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,
 		/** @param #64 MenuType */
 			/** The type of menu that the user want to jump to.
 (For DVD handlers usually this applies)
-0 - Root menu 
+0 - Root menu
 1 - Title menu
 2 - Media menu */
 
 void Xine_Player::CMD_Goto_Media_Menu(int iStreamID,int iMenuType,string &sCMD_Result,Message *pMessage)
 //<-dceag-c87-e->
 {
+	if ( ! m_pXineSlaveControl )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "I don't have a slave to make it play. The slave proabbly failed to initialize properly.");
+        return;
+    }
+
 	if  ( iMenuType != 0 && iMenuType != 1 && iMenuType != 2 )
 		iMenuType = 0;
 
@@ -346,7 +394,13 @@ void Xine_Player::FireMenuOnScreen(int iDestinationDevice, int iStreamID, bool b
 void Xine_Player::CMD_Enable_Broadcasting(int iStreamID,string *sMediaURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c243-e->
 {
-    int iBroadcastPort;
+    if ( ! m_pXineSlaveControl )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "I don't have a slave to make it play. The slave proabbly failed to initialize properly.");
+        return;
+    }
+
+	int iBroadcastPort;
 
     if ( (iBroadcastPort = m_pXineSlaveControl->enableBroadcast(iStreamID)) == 0 )
     {
@@ -372,7 +426,13 @@ void Xine_Player::CMD_Enable_Broadcasting(int iStreamID,string *sMediaURL,string
 void Xine_Player::CMD_Report_Playback_Position(int iStreamID,string *sOptions,int *iMediaPosition,int *iMedia_Length,string &sCMD_Result,Message *pMessage)
 //<-dceag-c259-e->
 {
-    m_pXineSlaveControl->getStreamPlaybackPosition(iStreamID, *iMediaPosition, *iMedia_Length);
+    if ( ! m_pXineSlaveControl )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "I don't have a slave to make it play. The slave proabbly failed to initialize properly.");
+        return;
+    }
+
+	m_pXineSlaveControl->getStreamPlaybackPosition(iStreamID, *iMediaPosition, *iMedia_Length);
 }
 
 string Xine_Player::GetMacAddress()
@@ -400,7 +460,13 @@ string Xine_Player::GetMacAddress()
 void Xine_Player::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage)
 //<-dceag-c29-e->
 {
-    makeActive(m_pXineSlaveControl->getRenderingWindowName());
+	if ( ! m_pXineSlaveControl )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "I don't have a slave to make it play. The slave proabbly failed to initialize properly.");
+        return;
+    }
+
+	makeActive(m_pXineSlaveControl->getRenderingWindowName());
 	m_pXineSlaveControl->simulateMouseClick(iPosition_X, iPosition_Y);
 }
 
@@ -412,7 +478,13 @@ void Xine_Player::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,strin
 void Xine_Player::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
 //<-dceag-c190-e->
 {
-    makeActive(m_pXineSlaveControl->getRenderingWindowName());
+	if ( ! m_pXineSlaveControl )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "I don't have a slave to make it play. The slave proabbly failed to initialize properly.");
+        return;
+    }
+
+	makeActive(m_pXineSlaveControl->getRenderingWindowName());
 	m_pXineSlaveControl->simulateKeystroke(BUTTON_Enter_CONST);
 }
 
@@ -424,7 +496,13 @@ void Xine_Player::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
 //<-dceag-c200-e->
 {
-    makeActive(m_pXineSlaveControl->getRenderingWindowName());
+    if ( ! m_pXineSlaveControl )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "I don't have a slave to make it play. The slave proabbly failed to initialize properly.");
+        return;
+    }
+
+	makeActive(m_pXineSlaveControl->getRenderingWindowName());
 	m_pXineSlaveControl->simulateKeystroke(BUTTON_Up_Arrow_CONST);
 }
 
@@ -436,7 +514,13 @@ void Xine_Player::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
 //<-dceag-c201-e->
 {
-    makeActive(m_pXineSlaveControl->getRenderingWindowName());
+    if ( ! m_pXineSlaveControl )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "I don't have a slave to make it play. The slave proabbly failed to initialize properly.");
+        return;
+    }
+
+	makeActive(m_pXineSlaveControl->getRenderingWindowName());
 	m_pXineSlaveControl->simulateKeystroke(BUTTON_Down_Arrow_CONST);
 }
 
@@ -448,7 +532,13 @@ void Xine_Player::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_Move_Left(string &sCMD_Result,Message *pMessage)
 //<-dceag-c202-e->
 {
-    makeActive(m_pXineSlaveControl->getRenderingWindowName());
+    if ( ! m_pXineSlaveControl )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "I don't have a slave to make it play. The slave proabbly failed to initialize properly.");
+        return;
+    }
+
+	makeActive(m_pXineSlaveControl->getRenderingWindowName());
  	m_pXineSlaveControl->simulateKeystroke(BUTTON_Left_Arrow_CONST);
 }
 
@@ -460,6 +550,12 @@ void Xine_Player::CMD_Move_Left(string &sCMD_Result,Message *pMessage)
 void Xine_Player::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
 //<-dceag-c203-e->
 {
-    makeActive(m_pXineSlaveControl->getRenderingWindowName());
+    if ( ! m_pXineSlaveControl )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "I don't have a slave to make it play. The slave proabbly failed to initialize properly.");
+        return;
+    }
+
+	makeActive(m_pXineSlaveControl->getRenderingWindowName());
 	m_pXineSlaveControl->simulateKeystroke(BUTTON_Right_Arrow_CONST);
 }
