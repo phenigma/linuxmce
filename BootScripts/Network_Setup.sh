@@ -119,20 +119,20 @@ secure way of accessing the system, but is only for techies and Linux users.
 
 Allow SSH connections? [y/N]?"
 
-echo -n "$AskPort80"
-read Answer
+#echo -n "$AskPort80"
+#read Answer
 
-if [ "$Answer" == "y" -o "$Answer" == "Y" ]; then
-	echo "Storing your option to open port 80 (allowing web access)"
-	Q="INSERT INTO Firewall(Protocol,SourcePort,RuleType) VALUES('tcp',80,'core_input')"
-	RunSQL "$Q"
-fi
+#if [ "$Answer" == "y" -o "$Answer" == "Y" ]; then
+#	echo "Storing your option to open port 80 (allowing web access)"
+#	Q="INSERT INTO Firewall(Protocol,SourcePort,RuleType) VALUES('tcp',80,'core_input')"
+#	RunSQL "$Q"
+#fi
 
-echo -n "$AskPort22"
-read Answer
+#echo -n "$AskPort22"
+#read Answer
 
-if [ "$Answer" == "y" -o "$Answer" == "Y" ]; then
-	echo "Storing your option to open port 22 (allowing SSH access)"
-	Q="INSERT INTO Firewall(Protocol,SourcePort,RuleType) VALUES('tcp',22,'core_input')"
-	RunSQL "$Q"
-fi
+#if [ "$Answer" == "y" -o "$Answer" == "Y" ]; then
+#	echo "Storing your option to open port 22 (allowing SSH access)"
+#	Q="INSERT INTO Firewall(Protocol,SourcePort,RuleType) VALUES('tcp',22,'core_input')"
+#	RunSQL "$Q"
+#fi

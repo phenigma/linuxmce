@@ -2,4 +2,4 @@
 
 echo "Performing system update"
 apt-get update
-apt-get dist-upgrade
+apt-get -y dist-upgrade
