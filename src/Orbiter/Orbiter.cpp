@@ -1785,7 +1785,6 @@ bool Orbiter::SelectedGrid( int DGRow )
 
     vector<class DesignObj_DataGrid *>::iterator it = m_vectObjs_GridsOnScreen.begin(  );
     DesignObj_DataGrid *pDesignObj_DataGrid = *it;
-	pDesignObj_DataGrid->m_GridCurRow = DGRow;
 
 	int iSelectedColumn = pDesignObj_DataGrid->m_iInitialColNum;
 	//if 'c' - column  extraoption is specified, we'll send to phone the specified column
