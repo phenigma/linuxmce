@@ -319,7 +319,7 @@ function mainMediaBrowser($output,$mediadbADO) {
 		
 	}
 	
-	
+	$output->setReloadLeftFrame(false);
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);

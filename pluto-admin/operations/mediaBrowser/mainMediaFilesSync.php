@@ -143,7 +143,8 @@ function mainMediaFilesSync($output,$mediadbADO) {
 		}
 		header('Location: index.php?section=mainMediaFilesSync&path='.$path.'&msg=File added to database.');
 	}
-		
+	
+	$output->setReloadLeftFrame(false);	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);

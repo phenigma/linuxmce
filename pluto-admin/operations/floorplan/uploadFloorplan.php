@@ -10,8 +10,10 @@ function uploadFloorplan($output,$dbADO) {
 	$path=$GLOBALS['floorplansPath'].'/inst'.$installationID;
 	$floorplanImage='floorplans/image_not_found.gif';
 	
-	if(file_exists($path.'/'.$page.'.png'))
-		$floorplanImage='floorplans/inst'.$installationID.'/'.$page.'.png';
+	if(file_exists($path.'/'.$page.'.png')){
+		$randNumber=rand(0,99999);
+		$floorplanImage='operations/floorplan/image.php?imagepath='.$GLOBALS['floorplansPath'].'/inst'.$installationID.'/'.$page.'.png&rand='.$randNumber;
+	}
 
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$installationID = (int)@$_SESSION['installationID'];

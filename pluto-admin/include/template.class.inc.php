@@ -62,8 +62,10 @@
   var $HelpSrc= "/support/index.php?section=document&docID=35";
   var $body = "";
   
-  var $leftFrameSrc = 'index.php?section=menu';
+  var $leftFrameSrc = 'index.php?section=leftMenu';
   var $rightFrameSrc = 'index.php?section=deviceTemplates';
+
+  var $reloadLeftFrame=true;
   
   var $dbADO;
   function Template($myDbADO) {
@@ -214,10 +216,22 @@ function setTemplateFileType($type) {
   	$this->bottomMenu = $myBottomMenu;
   }
       
-
+  function setReloadLeftFrame($reloadLeftFrame) {
+  	$this->reloadLeftFrame = $reloadLeftFrame;
+  }
   
   function setBody($myBody) {
   	$this->body = $myBody;
+  	if($this->reloadLeftFrame==true && $this->templateType=='large'){
+  		$this->body.='<script>
+
+  			var queryStr=top.treeframe.location.search.substring(9,top.treeframe.location.search.length);
+  			if(queryStr.substr(0,8)!=\'leftMenu\')
+  				top.treeframe.location=\'index.php?section=leftMenu\';
+  			
+  			</script>';
+  	}
+
   }
   
   //display functions
