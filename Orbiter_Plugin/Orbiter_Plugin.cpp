@@ -31,6 +31,7 @@ using namespace DCE;
 
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_Device.h"
+#include "pluto_main/Table_DeviceTemplate.h"
 #include "pluto_main/Table_UnknownDevices.h"
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_Variable.h"
@@ -384,15 +385,20 @@ bool Orbiter_Plugin::MobileOrbiterLinked(class Socket *pSocket,class Message *pM
 			pRow_Device->NeedConfigure_set(0);
 			pRow_Device->Table_Device_get()->Commit();
 
-	        DCE::CMD_Send_File_To_Device CMD_Send_File_To_Device(
+			Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(pRow_Device->FK_DeviceTemplate_get());
+			string PlutoMOInstaller = pRow_DeviceTemplate->CommandLine_get();
+
+			DCE::CMD_Send_File_To_Device CMD_Send_File_To_Device(
 				m_dwPK_Device, 
 				pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, 
-				"PlutoMO.sis", 
+				PlutoMOInstaller,  
 				sMacAddress, 
 				""
 			);
 
-		    SendCommand(CMD_Send_File_To_Device);
+			SendCommand(CMD_Send_File_To_Device);
+
+			g_pPlutoLogger->Write(LV_WARNING, "Sending command CMD_Send_File_To_Device... PlutoMO file: %s, mac: %s", PlutoMOInstaller.c_str(), sMacAddress.c_str());
 		}
 
         pOH_Orbiter->m_iFailedToConnectCount = 0;//reset tries count
@@ -694,20 +700,20 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_DeviceTemplate,string sMac_a
 	if( !iPK_DeviceTemplate )
 		iPK_DeviceTemplate = DEVICETEMPLATE_Nokia_36503660_CONST;  // hack - todo fix this
 
-	int iFK_Room = 1; 
+	printf("CMD_New_Mobile_Orbiter\n");
 
+	int iFK_Room = 1; 
 	UnknownDeviceInfos *pUnknownDeviceInfos = m_mapUnknownDevices[sMac_address];
 
-	printf("CMD_New_Mobile_Orbiter\n");
-	//temporary hardcoding
-    //if( pUnknownDeviceInfos->m_iDeviceIDFrom )
-	//	iFK_Room = pUnknownDeviceInfos->m_pDeviceFrom->m_pRoom->m_PK_Room;
+    if( pUnknownDeviceInfos->m_iDeviceIDFrom && pUnknownDeviceInfos->m_pDeviceFrom->m_pRoom)
+		iFK_Room = pUnknownDeviceInfos->m_pDeviceFrom->m_pRoom->m_PK_Room;
 
     Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->AddRow();
     pRow_Device->FK_DeviceTemplate_set(iPK_DeviceTemplate);
     pRow_Device->MACaddress_set(sMac_address);
 	pRow_Device->FK_Installation_set(m_pRouter->iPK_Installation_get()); 
 	pRow_Device->FK_Room_set(iFK_Room);
+	pRow_Device->Description_set("Mobile orbiter");
     m_pDatabase_pluto_main->Device_get()->Commit();
 
     g_pPlutoLogger->Write(
@@ -722,8 +728,20 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_DeviceTemplate,string sMac_a
         g_pPlutoLogger->Write(LV_CRITICAL,"Got New Mobile Orbiter but can't find device!");
     else
     {
-        DCE::CMD_Send_File_To_Device CMD_Send_File_To_Device(m_dwPK_Device, pUnknownDeviceInfos->m_iDeviceIDFrom, "PlutoMO.sis", sMac_address, "");
+		Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(pRow_Device->FK_DeviceTemplate_get());
+		string PlutoMOInstaller = pRow_DeviceTemplate->CommandLine_get();
+
+        DCE::CMD_Send_File_To_Device CMD_Send_File_To_Device(
+			m_dwPK_Device, 
+			pUnknownDeviceInfos->m_iDeviceIDFrom, 
+			PlutoMOInstaller,  
+			sMac_address, 
+			""
+		);
+
         SendCommand(CMD_Send_File_To_Device);
+
+		g_pPlutoLogger->Write(LV_WARNING, "Sending command CMD_Send_File_To_Device... PlutoMO file: %s, mac: %s", PlutoMOInstaller.c_str(), sMac_address.c_str());
     }
 
     m_bNoUnknownDeviceIsProcessing = false;

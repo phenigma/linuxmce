@@ -520,7 +520,7 @@ void Bluetooth_Dongle::CMD_Send_File_To_Device(string sFilename,string sMac_addr
 	g_pPlutoLogger->Write( LV_STATUS, "Send File: %s to %s", sFilename.c_str(), sMac_address.c_str() );
 	
 #ifndef _WIN32
-	sleep( 10 );
+	//sleep( 10 );
 	
 	string ObexPushScriptPath = "/usr/pluto/bin/";//TODO
 	string Command = ObexPushScriptPath + "PhoneInstall.sh ";
