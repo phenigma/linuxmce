@@ -420,4 +420,125 @@ void General_Info_Plugin::CMD_Wake_Device(int iPK_Device,string &sCMD_Result,Mes
 void General_Info_Plugin::CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Result,Message *pMessage)
 //<-dceag-c323-e->
 {
+	DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(iPK_Device);
+	if( !pDevice )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot halt unknown device %d",iPK_Device);
+		return;
+	}
+
+	DeviceData_Router *pDevice_AppServer=NULL;
+	if( pDevice->m_pDevice_Core )
+		pDevice_AppServer = (DeviceData_Router *) ((DeviceData_Impl *) (pDevice->m_pDevice_Core))->FindSelfOrChildWithinCategory( DEVICECATEGORY_App_Server_CONST );
+
+	if( !pDevice_AppServer && pDevice->m_pDevice_MD )
+		pDevice_AppServer = (DeviceData_Router *) ((DeviceData_Impl *) (pDevice->m_pDevice_MD))->FindSelfOrChildWithinCategory( DEVICECATEGORY_App_Server_CONST );
+
+	if( !pDevice_AppServer )
+		pDevice_AppServer = (DeviceData_Router *) pDevice->FindSelfOrChildWithinCategory( DEVICECATEGORY_App_Server_CONST );
+
+	if( !pDevice_AppServer )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot halt unknown device %d without an app server",iPK_Device);
+		return;
+	}
+
+	if( sForce=="V" || sForce=="N" )
+	{
+		SetNetBoot(pDevice,sForce=="N");
+		DCE::CMD_Halt_Device CMD_Halt_Device(m_dwPK_Device,pDevice_AppServer->m_dwPK_Device,pDevice->m_dwPK_Device,"R");
+		SendCommand(CMD_Halt_Device);
+	}
+	else
+	{
+		Message *pMessage_Out = new Message(pMessage);
+		pMessage_Out->m_dwPK_Device_To = pDevice_AppServer->m_dwPK_Device;
+		SendMessageToRouter(pMessage_Out);
+	}
+}
+
+void General_Info_Plugin::SetNetBoot(DeviceData_Router *pDevice,bool bNetBoot)
+{
+	/*
+	if( pDevice->m_sIPAddress.length()<7 )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot set boot on device %d with no IP",pDevice->m_dwPK_Device);
+		return;
+	}
+	unsigned int IPAddress=0;
+	string::size_type pos=0;
+	for(int i=3;i>=0;--i)
+	{
+		int num = atoi(StringUtils::Tokenize(pDevice->m_sIPAddress,".",pos).c_str());
+		int factor = (int) pow(256,i);
+		int x=factor*num;
+		IPAddress += x;
+
+	}
+	char Hex[100];
+	sprintf(Hex,"%X",IPAddress);
+	string sHex;
+	if( strlen(Hex)==7 )
+		sHex = string("0") + Hex;
+	else
+		sHex=Hex;
+
+	char *data_block=NULL;
+	int total_size=0;
+
+	FILE *file = fopen(("/usr/local/tftpd/pxelinux.cfg/" + sHex).c_str(),"rb");
+
+	if( file )
+	{
+		fseek(file, 0L, SEEK_END);
+		total_size=ftell(file);
+		if( total_size==0 )
+		{
+			m_pOCLogger->Write(LV_CRITICAL,"Cannot open empty boot file: %s",
+				sHex.c_str());
+		}
+		else
+		{
+			fseek(file, 0L, SEEK_SET);
+			data_block=(char *)malloc(total_size+1);
+			*data_block=0;  // NULL terminate it in case we don't read in anything
+			size_t bytesread=fread(data_block,1,total_size,file);
+			data_block[bytesread]=0;
+		}
+		fclose(file);
+	}
+	if( total_size && data_block )
+	{
+		if( Windows )
+		{
+			char *p = strstr(data_block,"KERNEL ");
+			if( p )
+				*p = '#';
+			p = strstr(data_block,"#OCALBOOT ");
+			if( p )
+				*p = 'L';
+		}
+		else
+		{
+			char *p = strstr(data_block,"#ERNEL ");
+			if( p )
+				*p = 'K';
+			p = strstr(data_block,"LOCALBOOT ");
+			if( p )
+				*p = '#';
+		}
+		file = fopen(("/usr/local/tftpd/pxelinux.cfg/" + sHex).c_str(),"wb");
+		if( file )
+		{
+			fwrite(data_block,1,total_size,file);
+			fclose(file);
+		}
+		if( Windows )
+		{
+			// Send a reboot also
+			ReceivedOCMessage(NULL,new OCMessage(DEVICEID_SERVER,pDevice->m_iPKID_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,
+				ACTION_REBOOT_CONST,1,C_ACTIONPARAMETER_RESET_CONST,"0"));  // Don't set it back to Linux
+		}
+	}
+	*/
 }

@@ -1800,8 +1800,8 @@ int k=2;
     for(itDevice=m_mapDeviceData_Router.begin();itDevice!=m_mapDeviceData_Router.end();++itDevice)
     {
         DeviceData_Router *pDevice = (*itDevice).second;
-		pDevice->m_pDevice_Core = pDevice->FindDeviceWithinCategory(DEVICECATEGORY_Core_CONST);
-		pDevice->m_pDevice_MD = pDevice->FindDeviceWithinCategory(DEVICECATEGORY_Media_Director_CONST);
+		pDevice->m_pDevice_Core = pDevice->FindSelfOrParentWithinCategory(DEVICECATEGORY_Core_CONST);
+		pDevice->m_pDevice_MD = pDevice->FindSelfOrParentWithinCategory(DEVICECATEGORY_Media_Director_CONST);
         DeviceData_Base *pDevice_AL = allDevices.m_mapDeviceData_Base_Find(pDevice->m_dwPK_Device);
 		
 		if( pDevice->m_pDevice_Core )

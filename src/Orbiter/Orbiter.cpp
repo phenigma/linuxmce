@@ -1775,15 +1775,14 @@ void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbite
 
 	if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_mnuDisplayPower_CONST)
 	{
-		// We're going to hide all the on/off buttons in the 'controlling' area if this is an osd and we're controlling ourselves, or if there is no m/d in this area
-		if( (m_pScreenHistory_Current->m_pLocationInfo == m_pLocationInfo_Initial && m_pData->m_dwPK_DeviceTemplate==DEVICETEMPLATE_OnScreen_Orbiter_CONST) ||
-			m_pScreenHistory_Current->m_pLocationInfo->m_dwPK_Device_MediaDirector==-1 )
+		if( !m_pScreenHistory_Current->m_pLocationInfo->m_dwPK_Device_MediaDirector || m_pScreenHistory_Current->m_pLocationInfo->m_dwPK_Device_MediaDirector==DEVICEID_NULL )
 		{
 			CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayON_OtherControlling_CONST), 0, "", "",  "0" );
-
 			CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_CurrentMedia_CONST), 0, "", "",  "0" );
 			CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_Display_CONST), 0, "", "",  "0" );
 			CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_halt_CONST), 0, "", "",  "0" );
+			CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_mnuBootHD_CONST), 0, "", "",  "0" );
+			CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_mnuBootNet_CONST), 0, "", "",  "0" );
 		}
 		else
 		{
@@ -1791,46 +1790,34 @@ void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbite
 			string sState = GetState(m_pScreenHistory_Current->m_pLocationInfo->m_dwPK_Device_MediaDirector);
 			string sStatus = GetStatus(m_pScreenHistory_Current->m_pLocationInfo->m_dwPK_Device_MediaDirector);
 
-			if( sStatus == "MD_ON" || sStatus == "MD_BLACK" )
+			if( sStatus.length()>1 && sStatus.substr(0,2)=="MD" )
 			{
-				CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_halt_CONST), 0, "", "",  "1" );
-				if( sStatus == "MD_BLACK" )
-				{
-					// We can turn it on -- that just means a wakeup
-					CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayON_OtherControlling_CONST), 0, "", "",  "0" );
-					CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_Display_CONST), 0, "", "",  "0" );
-				}
+				CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_mnuBootHD_CONST), 0, "", "",  "1" );
+				CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_mnuBootNet_CONST), 0, "", "",  "0" );
+				// See if we've got media playing
+				if( m_sNowPlaying.length() )
+					CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_CurrentMedia_CONST), 0, "", "",  "1" );
 				else
-				{
-					// It's already on
-					CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayON_OtherControlling_CONST), 0, "", "",  "0" );
-					CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_Display_CONST), 0, "", "",  "1" );
-				}
+					CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_CurrentMedia_CONST), 0, "", "",  "0" );
 			}
 			else
 			{
-				if( sStatus == "PC_ON" || sStatus == "PC_BLACK" )
-					CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayON_OtherControlling_CONST), 0, "", "",  "0" );
-				else
-					CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayON_OtherControlling_CONST), 0, "", "",  "1" );
-
-				CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_Display_CONST), 0, "", "",  "0" );
-				CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_halt_CONST), 0, "", "",  "0" );
+				CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_mnuBootHD_CONST), 0, "", "",  "0" );
+				CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_mnuBootNet_CONST), 0, "", "",  "1" );
+				CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_CurrentMedia_CONST), 0, "", "",  "0" );
 			}
-		}
 
-		// If we're not an OSD hide all the buttons to halt our own m/d too
-		if( m_pLocationInfo_Initial->m_dwPK_Device_MediaDirector==-1 )
-		{
-			CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_mnuMyMedia_OFF_CONST), 0, "", "",  "0" );
-			CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_mnuMyDisplay_Off_CONST), 0, "", "",  "0" );
-			CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_mnuMyMD_Halt_CONST), 0, "", "",  "0" );
-		}
-		else
-		{
-// TODO: Show Now playing??			CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_mnuMyMedia_OFF_CONST), 0, "", "",  "0" );
-			CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_mnuMyDisplay_Off_CONST), 0, "", "",  "1" );
-			CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_mnuMyMD_Halt_CONST), 0, "", "",  "1" );
+			// See if it's on.  If so, enable the halt and displayoff buttons
+			if( sStatus.length()>3 && (sStatus.substr(3) == "ON" || sStatus.substr(3) == "BLACK") )
+			{
+				CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_halt_CONST), 0, "", "",  "1" );
+				CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_Display_CONST), 0, "", "",  "1" );
+			}
+			else
+			{
+				CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_halt_CONST), 0, "", "",  "0" );
+				CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_Display_CONST), 0, "", "",  "0" );
+			}
 		}
 	}
 	else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_mnuScreenSaver_CONST )
@@ -4411,7 +4398,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Object: %s visible: %d", pObj->m_ObjectID.c_s
 void Orbiter::CMD_Terminate_Orbiter(string &sCMD_Result,Message *pMessage)
 //<-dceag-c7-e->
 {
-    cout << "Need to implement command #7 - Terminate Orbiter" << endl;
+    m_bQuit = true;
 }
 
 //<-dceag-c8-b->

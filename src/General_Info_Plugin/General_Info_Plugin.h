@@ -8,10 +8,10 @@
 //<-dceag-d-e->
 
 class Database_pluto_main;
-
 //<-dceag-decl-b->
 namespace DCE
 {
+	class DeviceData_Router;
 	class General_Info_Plugin : public General_Info_Plugin_Command
 	{
 //<-dceag-decl-e->
@@ -29,6 +29,7 @@ public:
 	Database_pluto_main *m_pDatabase_pluto_main;
 
 	// Private methods
+	void SetNetBoot(DeviceData_Router *pDevice,bool bNetBoot);
 public:
 	// Public member variables
 
