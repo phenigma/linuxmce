@@ -6,10 +6,10 @@
 
 #include "Gen_Devices/SpeechBase.h"
 #ifndef WIN32
-	#include <s2types.h>
-	#include <ad.h>
-	#include <cont_ad.h>
-	#include <err.h>
+	#include <sphinx2/s2types.h>
+	#include <sphinx2/ad.h>
+	#include <sphinx2/cont_ad.h>
+	#include <sphinx2/err.h>
 #endif
 //<-dceag-d-e->
 
