@@ -20,7 +20,7 @@ public:
 	bool LoadGraphic(char *pData, size_t iSize);
 	void Clear(); 
 
-	struct Surface *m_pSurface;
+	class Surface *m_pSurface;
 };
 //-------------------------------------------------------------------------------------------------------
 #endif //__POCKETFROG_GRAPHIC_H__

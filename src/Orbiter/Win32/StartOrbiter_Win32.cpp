@@ -89,7 +89,7 @@ bool Run(OrbiterSDL_Win32* pOrbiter, bool bLocalMode)
 		return true;
 
     if (!bLocalMode)
-        pOrbiter->CreateChildren();
+       pOrbiter->CreateChildren();
 
     g_pPlutoLogger->Write(LV_STATUS, "Starting processing events");
 

@@ -47,7 +47,7 @@ using namespace DCE;
 #include "pluto_main/Define_FloorplanType.h"
 #include "pluto_main/Define_Text.h"
 
-#include "../OrbiterGen/Renderer.h"
+#include "../Orbiter/RendererMNG.h"
 
 #include "GraphicBuilder.h"
 #include "Simulator.h"
@@ -1087,6 +1087,9 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable is now %p",pObj-
 //-----------------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter::NeedToChangeScreens( ScreenHistory *pScreenHistory, bool bAddToHistory )
 {
+	if(m_bQuit)
+		return;
+
 g_pPlutoLogger->Write(LV_STATUS,"Need to change screens executed to %s",pScreenHistory->m_pObj->m_ObjectID.c_str());
     PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
     m_vectObjs_GridsOnScreen.clear(  );
@@ -5462,6 +5465,9 @@ void Orbiter::CMD_Reset_Highlight(string &sCMD_Result,Message *pMessage)
 
 bool Orbiter::ReceivedMessage( class Message *pMessageOriginal )
 {
+	if(m_bQuit)
+		return false;
+
 	string strMessage = string("ReceivedMessage: ") + StringUtils::itos(pMessageOriginal->m_dwID);
     NeedToRender render( this, strMessage.c_str() );  // Redraw anything that was changed by this command
     bool bResult = Orbiter_Command::ReceivedMessage( pMessageOriginal );
@@ -5983,7 +5989,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 						delete (*pVectorPlutoGraphic)[iIndex];
 					(*pVectorPlutoGraphic).clear();
 
-					InMemoryMNG *pInMemoryMNG = Renderer::CreateInMemoryMNGFromFile(sFileName, rectTotal.Size());
+					InMemoryMNG *pInMemoryMNG = InMemoryMNG::CreateInMemoryMNGFromFile(sFileName, rectTotal.Size());
 					size_t framesCount = pInMemoryMNG->m_vectMNGframes.size();
 					for(size_t i = 0; i < framesCount; i++)
 					{

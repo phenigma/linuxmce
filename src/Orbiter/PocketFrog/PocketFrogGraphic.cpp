@@ -40,10 +40,8 @@ bool PocketFrogGraphic::LoadGraphic(char *pData, size_t iSize)
 	}
 	else
 	{
-		//temp hack
-		FileUtils::WriteBufferIntoFile("\\Storage Card\\Image.tmp", pData, iSize);
-		m_pSurface = LoadImage( Orbiter_PocketFrog::GetInstance()->GetOrbiterDisplay(), 
-			TEXT("\\Storage Card\\Image.tmp"));
+		m_pSurface = LoadImage(Orbiter_PocketFrog::GetInstance()->GetOrbiterDisplay(), (uint8_t*)pData, 
+			(uint8_t*)(pData + iSize));
 	}
 
 	if( !m_pSurface )

@@ -88,6 +88,39 @@ OrbiterSDL_Win32::OrbiterSDL_Win32(int DeviceID, string ServerAddress, string sL
 	m_bCapsLock = false;
     m_cKeyDown=0;
 	m_bConnectionLost = false;
+
+	/*
+	if(m_bFullScreen)
+	{
+		DEVMODE dmSettings;                          // Device Mode variable - Needed to change modes
+		memset(&dmSettings,0,sizeof(dmSettings));    // Makes Sure Memory's Cleared
+
+		// Get current settings -- This function fills our the settings
+		// This makes sure NT and Win98 machines change correctly
+		if(!EnumDisplaySettings(NULL,ENUM_CURRENT_SETTINGS,&dmSettings))
+		{
+			return;
+		}
+
+		dmSettings.dmPelsWidth = 800;                        // Set the desired Screen Width
+		dmSettings.dmPelsHeight = 600;                      // Set the desired Screen Height
+		dmSettings.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;    // Set the flags saying we're changing the Screen Width and Height
+
+		// This function actually changes the screen to full screen
+		// CDS_FULLSCREEN Gets Rid Of Start Bar.
+		// We always want to get a result from this function to check if we failed
+		int result = ChangeDisplaySettings(&dmSettings,CDS_FULLSCREEN); 
+		// Check if we didn't recieved a good return message From the function
+		if(result != DISP_CHANGE_SUCCESSFUL)
+		{
+			// Display the error message and quit the program
+			PostQuitMessage(0);
+		}
+
+		SetWindowPos(hSDLWindow, HWND_TOPMOST, 0, 0, 800, 600, SWP_SHOWWINDOW);
+		SetForegroundWindow(hSDLWindow);
+	}
+	*/
 }
 //-----------------------------------------------------------------------------------------------------
 OrbiterSDL_Win32::~OrbiterSDL_Win32()

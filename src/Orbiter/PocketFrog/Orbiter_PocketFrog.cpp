@@ -125,6 +125,10 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 	if (!m_bLocalMode)
 		CreateChildren();
 
+#ifndef WINCE
+#define IDR_VGAROM IDR_FONT1
+#endif
+
 	HRSRC hResInfo	  = NULL;
 	HGLOBAL hResource = NULL;
 	hResInfo = FindResource(_Module.GetModuleInstance(), MAKEINTRESOURCE(IDR_VGAROM), TEXT("FONTS"));
@@ -492,6 +496,9 @@ clock_t ccc=clock();
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::RenderText(class DesignObjText *Text,class TextStyle *pTextStyle)
 {
+	//temp
+#ifdef WINCE
+
 #if ( defined( PROFILING ) )
     clock_t clkStart = clock(  );
 #endif
@@ -529,8 +536,7 @@ clock_t ccc=clock();
 	for(int i = 0; i < vectStrings.size(); i++)
 	{
 		mbstowcs(TextW, vectStrings[i].c_str(), 4096);	
-		GetDisplay()->DrawVGAText(VGAROMFont, TextW, DVT_NONE, 
-			Text->m_rPosition.X, Y + i * (ciCharHeight + ciSpaceHeight), color);
+		GetDisplay()->DrawVGAText(VGAROMFont, TextW, DVT_NONE, Text->m_rPosition.X, Y + i * (ciCharHeight + ciSpaceHeight), color);
 	}
 	vectStrings.clear();
 
@@ -538,6 +544,8 @@ clock_t ccc=clock();
     clock_t clkFinished = clock(  );
     g_pPlutoLogger->Write( LV_CONTROLLER, "RenderText_PocketFrog: %s took %d ms",
 	    TextToDisplay.c_str(), clkFinished-clkStart );
+#endif
+
 #endif
 }
 //-----------------------------------------------------------------------------------------------------
@@ -570,7 +578,6 @@ clock_t ccc=clock();
     }
 
     Orbiter::RenderScreen();
-
 
 	while(m_bUpdating)
 		Sleep(1);

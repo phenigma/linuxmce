@@ -158,7 +158,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
-# ADD LINK32 commctrl.lib coredll.lib aygshell.lib PthreadsCE.lib winsock.lib sdl.lib sdl_image_wince.lib sdl_ttf_wince.lib freetype_wince.lib zlib_wince.lib ccrtrtti.lib sge_wince.lib lpng_wince.lib sdlrotozoom-wince-pluto-d.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /out:"../../bin/OrbiterPFCE.exe" /libpath:"../CENET/Ritti/ArmV4" /libpath:"../../../libs/CrossPlatform/zlib/zlib_wince/ARMV4Dbg" /libpath:"../../../libs/CrossPlatform/sge030809-w32/sge_wince/ARMV4Dbg" /libpath:"../../../libs/CrossPlatform/lpng127/lpng_wince/ARMV4Dbg\\" /libpath:"../../../libs/CrossPlatform/SDL_rotozoom-1.6/WinCE/ARMV4Dbg" /libpath:"../../../libs/CrossPlatform/SDL-1.2.7/VisualCE/SDL/ARMV4Dbg" /libpath:"../../../libs/CrossPlatform/SDL_image-1.2.3/WINCE/ARMV4Dbg" /libpath:"../../../libs/CrossPlatform/lpng127/lpng_wince/ARMV4Dbg" /libpath:"../../../libs/Libraries/pthreads-snap-2002-11-04/PthreadsCE/ARMDbg" /libpath:"../../../libs/CrossPlatform/SDL_ttf-2.0.6/WinCE/ARMV4Dbg" /libpath:"../../../libs/CrossPlatform/freetype-2.1.9/freetype_wince/ARMV4Dbg" /libpath:"../../../libs/Libraries/PocketFrog/make/ARMV4Dbg" /libpath:""../../CrossPlatform-Libs/SDL_image-1.2.3/WINCE/ARMV4Dbg"" /libpath:""../../CrossPlatform-Libs/SDL_ttf-2.0.6/WinCE/ARMV4Dbg"" /libpath:""c:\pluto\trunk\CrossPlatform-Libs\freetype-2.1.9\freetype_wince\ARMV4Dbg\"" /libpath:""../../CrossPlatform-Libs/SDL-1.2.7/VisualCE/SDL/ARMV4Dbg"" /libpath:""../../Libraries/pthreads-snap-2002-11-04/PthreadsCE/ARMDbg"" /libpath:""C:\Program /libpath:""../../CrossPlatform-Libs/SDL-1.2.7/VisualC7/SDL/Debug"" /libpath:""../../CrossPlatform-Libs/SDL_image-1.2.3/VisualC/Debug"" /libpath:""../../CrossPlatform-Libs/SDL_ttf-2.0.6/VisualC/Debug"" /libpath:""../../CrossPlatform-Libs/sge030809-w32/sge-msvc/sge/VisualC/Debug"" /libpath:""../../CrossPlatform-Libs/lpng127/projects/visualc6/Win32_DLL_Debug"" /libpath:""../../CrossPlatform-Libs/zlib/projects/visualc6/Win32_DLL_Debug"" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:THUMB
+# ADD LINK32 commctrl.lib coredll.lib aygshell.lib PthreadsCE.lib winsock.lib ccrtrtti.lib  zlib_wince.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /out:"../../bin/OrbiterPFCE.exe" /libpath:"../CENET/Ritti/ArmV4" /libpath:"../../../libs/CrossPlatform/zlib/zlib_wince/ARMV4Dbg" /libpath:"../../../libs/CrossPlatform/sge030809-w32/sge_wince/ARMV4Dbg" /libpath:"../../../libs/CrossPlatform/lpng127/lpng_wince/ARMV4Dbg\\" /libpath:"../../../libs/CrossPlatform/SDL_rotozoom-1.6/WinCE/ARMV4Dbg" /libpath:"../../../libs/CrossPlatform/SDL-1.2.7/VisualCE/SDL/ARMV4Dbg" /libpath:"../../../libs/CrossPlatform/SDL_image-1.2.3/WINCE/ARMV4Dbg" /libpath:"../../../libs/CrossPlatform/lpng127/lpng_wince/ARMV4Dbg" /libpath:"../../../libs/Libraries/pthreads-snap-2002-11-04/PthreadsCE/ARMDbg" /libpath:"../../../libs/CrossPlatform/SDL_ttf-2.0.6/WinCE/ARMV4Dbg" /libpath:"../../../libs/CrossPlatform/freetype-2.1.9/freetype_wince/ARMV4Dbg" /libpath:"../../../libs/Libraries/PocketFrog/make/ARMV4Dbg" /libpath:""../../CrossPlatform-Libs/SDL_image-1.2.3/WINCE/ARMV4Dbg"" /libpath:""../../CrossPlatform-Libs/SDL_ttf-2.0.6/WinCE/ARMV4Dbg"" /libpath:""c:\pluto\trunk\CrossPlatform-Libs\freetype-2.1.9\freetype_wince\ARMV4Dbg\"" /libpath:""../../CrossPlatform-Libs/SDL-1.2.7/VisualCE/SDL/ARMV4Dbg"" /libpath:""../../Libraries/pthreads-snap-2002-11-04/PthreadsCE/ARMDbg"" /libpath:""C:\Program /libpath:""../../CrossPlatform-Libs/SDL-1.2.7/VisualC7/SDL/Debug"" /libpath:""../../CrossPlatform-Libs/SDL_image-1.2.3/VisualC/Debug"" /libpath:""../../CrossPlatform-Libs/SDL_ttf-2.0.6/VisualC/Debug"" /libpath:""../../CrossPlatform-Libs/sge030809-w32/sge-msvc/sge/VisualC/Debug"" /libpath:""../../CrossPlatform-Libs/lpng127/projects/visualc6/Win32_DLL_Debug"" /libpath:""../../CrossPlatform-Libs/zlib/projects/visualc6/Win32_DLL_Debug"" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:THUMB
 # SUBTRACT LINK32 /pdb:none
 
 !ENDIF 
@@ -1945,6 +1945,20 @@ DEP_CPP_ORBIT=\
 	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_types.h"\
 	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_version.h"\
 	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_video.h"\
+	"..\..\..\libs\Libraries\PocketFrog\PocketFrog.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\config.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\defs.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\display.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_array.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_ptr.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\utility.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\framework\game.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\image.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\input.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\pocketpc.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rasterizer.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rect.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\surface.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
@@ -1963,7 +1977,6 @@ DEP_CPP_ORBIT=\
 	"..\..\DCE\Socket.h"\
 	"..\..\Gen_Devices\AllCommandsRequests.h"\
 	"..\..\Gen_Devices\OrbiterBase.h"\
-	"..\..\OrbiterGen\Renderer.h"\
 	"..\..\pluto_main\Define_Button.h"\
 	"..\..\pluto_main\Define_Command.h"\
 	"..\..\pluto_main\Define_CommandParameter.h"\
@@ -2606,88 +2619,32 @@ DEP_CPP_POCKET=\
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\OrbiterGen\Renderer.cpp
+SOURCE=..\RendererMNG.cpp
 
 !IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
 
 DEP_CPP_RENDE=\
-	"..\..\OrbiterGen\DesignObj_Generator.h"\
-	"..\..\OrbiterGen\OGText.h"\
-	"..\..\OrbiterGen\Renderer.h"\
-	
-NODEP_CPP_RENDE=\
-	"..\..\OrbiterGen\Orbiter\DesignObj_Data.h"\
-	"..\..\OrbiterGen\Orbiter\RendererImage.h"\
-	"..\..\OrbiterGen\Orbiter\TextStyle.h"\
-	"..\..\OrbiterGen\pluto_main\Define_HorizAlignment.h"\
-	"..\..\OrbiterGen\pluto_main\Define_VertAlignment.h"\
-	"..\..\OrbiterGen\pluto_main\Table_DesignObjVariation_Text_Skin_Language.h"\
-	"..\..\OrbiterGen\PlutoUtils\CommonIncludes.h"\
-	"..\..\OrbiterGen\PlutoUtils\FileUtils.h"\
-	"..\..\OrbiterGen\PlutoUtils\Other.h"\
-	"..\..\OrbiterGen\PlutoUtils\StringUtils.h"\
-	"..\..\OrbiterGen\png.h"\
-	"..\..\OrbiterGen\SDL.h"\
-	"..\..\OrbiterGen\SDL_image.h"\
-	"..\..\OrbiterGen\SDL_ttf.h"\
-	"..\..\OrbiterGen\sge.h"\
+	"..\RendererImage.h"\
+	"..\RendererMNG.h"\
 	
 
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Debug"
 
 DEP_CPP_RENDE=\
-	"..\..\OrbiterGen\DesignObj_Generator.h"\
-	"..\..\OrbiterGen\OGText.h"\
-	"..\..\OrbiterGen\Renderer.h"\
-	
-NODEP_CPP_RENDE=\
-	"..\..\OrbiterGen\Orbiter\DesignObj_Data.h"\
-	"..\..\OrbiterGen\Orbiter\RendererImage.h"\
-	"..\..\OrbiterGen\Orbiter\TextStyle.h"\
-	"..\..\OrbiterGen\pluto_main\Define_HorizAlignment.h"\
-	"..\..\OrbiterGen\pluto_main\Define_VertAlignment.h"\
-	"..\..\OrbiterGen\pluto_main\Table_DesignObjVariation_Text_Skin_Language.h"\
-	"..\..\OrbiterGen\PlutoUtils\CommonIncludes.h"\
-	"..\..\OrbiterGen\PlutoUtils\FileUtils.h"\
-	"..\..\OrbiterGen\PlutoUtils\Other.h"\
-	"..\..\OrbiterGen\PlutoUtils\StringUtils.h"\
-	"..\..\OrbiterGen\png.h"\
-	"..\..\OrbiterGen\SDL.h"\
-	"..\..\OrbiterGen\SDL_image.h"\
-	"..\..\OrbiterGen\SDL_ttf.h"\
-	"..\..\OrbiterGen\sge.h"\
+	"..\RendererImage.h"\
+	"..\RendererMNG.h"\
 	
 
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Release"
 
 DEP_CPP_RENDE=\
-	"..\..\OrbiterGen\DesignObj_Generator.h"\
-	"..\..\OrbiterGen\OGText.h"\
-	"..\..\OrbiterGen\Renderer.h"\
-	
-NODEP_CPP_RENDE=\
-	"..\..\OrbiterGen\Orbiter\DesignObj_Data.h"\
-	"..\..\OrbiterGen\Orbiter\RendererImage.h"\
-	"..\..\OrbiterGen\Orbiter\TextStyle.h"\
-	"..\..\OrbiterGen\pluto_main\Define_HorizAlignment.h"\
-	"..\..\OrbiterGen\pluto_main\Define_VertAlignment.h"\
-	"..\..\OrbiterGen\pluto_main\Table_DesignObjVariation_Text_Skin_Language.h"\
-	"..\..\OrbiterGen\PlutoUtils\CommonIncludes.h"\
-	"..\..\OrbiterGen\PlutoUtils\FileUtils.h"\
-	"..\..\OrbiterGen\PlutoUtils\Other.h"\
-	"..\..\OrbiterGen\PlutoUtils\StringUtils.h"\
-	"..\..\OrbiterGen\png.h"\
-	"..\..\OrbiterGen\SDL.h"\
-	"..\..\OrbiterGen\SDL_image.h"\
-	"..\..\OrbiterGen\SDL_ttf.h"\
-	"..\..\OrbiterGen\sge.h"\
+	"..\RendererImage.h"\
+	"..\RendererMNG.h"\
 	
 
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_RENDE=\
-	"..\..\..\libs\CrossPlatform\lpng127\png.h"\
-	"..\..\..\libs\CrossPlatform\lpng127\pngconf.h"\
 	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\begin_code.h"\
 	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\close_code.h"\
 	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL.h"\
@@ -2710,159 +2667,37 @@ DEP_CPP_RENDE=\
 	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_types.h"\
 	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_version.h"\
 	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_video.h"\
-	"..\..\..\libs\CrossPlatform\SDL_image-1.2.3\SDL_image.h"\
-	"..\..\..\libs\CrossPlatform\SDL_ttf-2.0.6\SDL_ttf.h"\
-	"..\..\..\libs\CrossPlatform\sge030809-w32\src\sge.h"\
-	"..\..\..\libs\CrossPlatform\sge030809-w32\src\sge_blib.h"\
-	"..\..\..\libs\CrossPlatform\sge030809-w32\src\sge_bm_text.h"\
-	"..\..\..\libs\CrossPlatform\sge030809-w32\src\sge_collision.h"\
-	"..\..\..\libs\CrossPlatform\sge030809-w32\src\sge_config.h"\
-	"..\..\..\libs\CrossPlatform\sge030809-w32\src\sge_internal.h"\
-	"..\..\..\libs\CrossPlatform\sge030809-w32\src\sge_misc.h"\
-	"..\..\..\libs\CrossPlatform\sge030809-w32\src\sge_primitives.h"\
-	"..\..\..\libs\CrossPlatform\sge030809-w32\src\sge_rotation.h"\
-	"..\..\..\libs\CrossPlatform\sge030809-w32\src\sge_shape.h"\
-	"..\..\..\libs\CrossPlatform\sge030809-w32\src\sge_surface.h"\
-	"..\..\..\libs\CrossPlatform\sge030809-w32\src\sge_textpp.h"\
-	"..\..\..\libs\CrossPlatform\sge030809-w32\src\sge_tt_text.h"\
 	"..\..\..\libs\CrossPlatform\zlib\zconf.h"\
 	"..\..\..\libs\CrossPlatform\zlib\zlib.h"\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\_epilog.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\_msvc_warnings_off.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\_prolog.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_apcc.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_apple.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_as400.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_bc.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_como.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_confix.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_dec.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_dec_vms.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_fujitsu.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_gcc.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_hpacc.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_ibm.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_intel.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_kai.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_msvc.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_mwerks.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_mycomp.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_sco.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_select_lib.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_sgi.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_solaris.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_sunpro.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_symantec.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_watcom.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stl_wince.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\stlcomp.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\config\vc_select_lib.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\mem.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\stl\_abbrevs.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\stl\_config.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\stl\_config_compat.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\stl\_config_compat_post.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\stl\_epilog.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\stl\_prolog.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\stl\_site_config.h"\
-	"..\..\..\libs\Libraries\STLport-4.5.3\stlport\stl_user_config.h"\
-	"..\..\DCE\Logger.h"\
-	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\OrbiterGen\DesignObj_Generator.h"\
-	"..\..\OrbiterGen\OGText.h"\
-	"..\..\OrbiterGen\Renderer.h"\
-	"..\..\pluto_main\Database_pluto_main.h"\
-	"..\..\pluto_main\Define_DesignObjVariation_Text_Skin_Language.h"\
-	"..\..\pluto_main\Define_HorizAlignment.h"\
-	"..\..\pluto_main\Define_VertAlignment.h"\
-	"..\..\pluto_main\Table_DesignObjVariation_Text_Skin_Language.h"\
-	"..\..\pluto_main\TableRow.h"\
+	"..\..\..\libs\Libraries\PocketFrog\PocketFrog.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\config.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\defs.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\display.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_array.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\scoped_ptr.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\foreign\boost\utility.hpp"\
+	"..\..\..\libs\Libraries\PocketFrog\src\framework\game.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\image.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\input.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\pocketpc.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rasterizer.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\rect.h"\
+	"..\..\..\libs\Libraries\PocketFrog\src\surface.h"\
 	"..\..\PlutoUtils\CommonIncludes.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\getch.h"\
-	"..\..\PlutoUtils\MultiThreadIncludes.h"\
 	"..\..\PlutoUtils\MyMap.h"\
-	"..\..\PlutoUtils\MySQLHelper.h"\
 	"..\..\PlutoUtils\MyStl.h"\
 	"..\..\PlutoUtils\MyString.h"\
 	"..\..\PlutoUtils\Other.h"\
 	"..\..\PlutoUtils\StringUtils.h"\
 	"..\..\SerializeClass\SerializeClass.h"\
 	"..\..\SerializeClass\ShapesColors.h"\
-	"..\CENet\wince.h"\
-	"..\DesignObj_Data.h"\
 	"..\RendererImage.h"\
 	"..\RendererMNG.h"\
-	"..\RendererOCG.h"\
-	"..\SDL\SDLRendererOCGHelper.h"\
-	"..\TextStyle.h"\
 	
 NODEP_CPP_RENDE=\
-	"..\..\..\libs\CrossPlatform\lpng127\pngusr.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\RendererMNG.cpp
-
-!IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
-
-DEP_CPP_RENDER=\
-	"..\RendererImage.h"\
-	"..\RendererMNG.h"\
-	
-
-!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Debug"
-
-DEP_CPP_RENDER=\
-	"..\RendererImage.h"\
-	"..\RendererMNG.h"\
-	
-
-!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Release"
-
-DEP_CPP_RENDER=\
-	"..\RendererImage.h"\
-	"..\RendererMNG.h"\
-	
-
-!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
-
-DEP_CPP_RENDER=\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\begin_code.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\close_code.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_active.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_audio.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_byteorder.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_cdrom.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_error.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_events.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_getenv.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_joystick.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_keyboard.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_keysym.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_main.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_mouse.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_mutex.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_quit.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_rwops.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_timer.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_types.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_version.h"\
-	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_video.h"\
-	"..\..\..\libs\CrossPlatform\zlib\zconf.h"\
-	"..\..\..\libs\CrossPlatform\zlib\zlib.h"\
-	"..\RendererImage.h"\
-	"..\RendererMNG.h"\
 	
 
 !ENDIF 
@@ -2874,10 +2709,10 @@ SOURCE=..\RendererOCG.cpp
 
 !IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
 
-DEP_CPP_RENDERE=\
+DEP_CPP_RENDER=\
 	"..\RendererOCG.h"\
 	
-NODEP_CPP_RENDERE=\
+NODEP_CPP_RENDER=\
 	"..\PlutoUtils\FileUtils.h"\
 	"..\PlutoUtils\minilzo.h"\
 	"..\PlutoUtils\PlutoDefs.h"\
@@ -2885,10 +2720,10 @@ NODEP_CPP_RENDERE=\
 
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Debug"
 
-DEP_CPP_RENDERE=\
+DEP_CPP_RENDER=\
 	"..\RendererOCG.h"\
 	
-NODEP_CPP_RENDERE=\
+NODEP_CPP_RENDER=\
 	"..\PlutoUtils\FileUtils.h"\
 	"..\PlutoUtils\minilzo.h"\
 	"..\PlutoUtils\PlutoDefs.h"\
@@ -2896,10 +2731,10 @@ NODEP_CPP_RENDERE=\
 
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Release"
 
-DEP_CPP_RENDERE=\
+DEP_CPP_RENDER=\
 	"..\RendererOCG.h"\
 	
-NODEP_CPP_RENDERE=\
+NODEP_CPP_RENDER=\
 	"..\PlutoUtils\FileUtils.h"\
 	"..\PlutoUtils\minilzo.h"\
 	"..\PlutoUtils\PlutoDefs.h"\
@@ -2907,7 +2742,7 @@ NODEP_CPP_RENDERE=\
 
 !ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
 
-DEP_CPP_RENDERE=\
+DEP_CPP_RENDER=\
 	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
 	"..\..\PlutoUtils\FileUtils.h"\
 	"..\..\PlutoUtils\lzoconf.h"\
@@ -3803,80 +3638,6 @@ DEP_CPP_TEXTST=\
 	"..\TextStyle.h"\
 	
 NODEP_CPP_TEXTST=\
-	"..\..\PlutoUtils\PKFUNCS.H"\
-	
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Splitter\TextWrapper.cpp
-
-!IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
-
-DEP_CPP_TEXTW=\
-	"..\..\Splitter\TextSplitter.h"\
-	"..\..\Splitter\TextWrapper.h"\
-	
-NODEP_CPP_TEXTW=\
-	"..\..\Splitter\Orbiter\TextStyle.h"\
-	"..\..\Splitter\pluto_main\Define_HorizAlignment.h"\
-	"..\..\Splitter\pluto_main\Define_VertAlignment.h"\
-	
-
-!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Debug"
-
-DEP_CPP_TEXTW=\
-	"..\..\Splitter\TextSplitter.h"\
-	"..\..\Splitter\TextWrapper.h"\
-	
-NODEP_CPP_TEXTW=\
-	"..\..\Splitter\Orbiter\TextStyle.h"\
-	"..\..\Splitter\pluto_main\Define_HorizAlignment.h"\
-	"..\..\Splitter\pluto_main\Define_VertAlignment.h"\
-	
-
-!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Release"
-
-DEP_CPP_TEXTW=\
-	"..\..\Splitter\TextSplitter.h"\
-	"..\..\Splitter\TextWrapper.h"\
-	
-NODEP_CPP_TEXTW=\
-	"..\..\Splitter\Orbiter\TextStyle.h"\
-	"..\..\Splitter\pluto_main\Define_HorizAlignment.h"\
-	"..\..\Splitter\pluto_main\Define_VertAlignment.h"\
-	
-
-!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
-
-DEP_CPP_TEXTW=\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
-	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
-	"..\..\DCE\Logger.h"\
-	"..\..\DCE\PlutoLockLogger.h"\
-	"..\..\pluto_main\Define_HorizAlignment.h"\
-	"..\..\pluto_main\Define_VertAlignment.h"\
-	"..\..\PlutoUtils\CommonIncludes.h"\
-	"..\..\PlutoUtils\FileUtils.h"\
-	"..\..\PlutoUtils\getch.h"\
-	"..\..\PlutoUtils\MultiThreadIncludes.h"\
-	"..\..\PlutoUtils\MyMap.h"\
-	"..\..\PlutoUtils\MyStl.h"\
-	"..\..\PlutoUtils\MyString.h"\
-	"..\..\PlutoUtils\Other.h"\
-	"..\..\PlutoUtils\StringUtils.h"\
-	"..\..\SerializeClass\SerializeClass.h"\
-	"..\..\SerializeClass\ShapesColors.h"\
-	"..\..\Splitter\TextSplitter.h"\
-	"..\..\Splitter\TextWrapper.h"\
-	"..\CENet\wince.h"\
-	"..\TextStyle.h"\
-	
-NODEP_CPP_TEXTW=\
 	"..\..\PlutoUtils\PKFUNCS.H"\
 	
 

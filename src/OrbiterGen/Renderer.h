@@ -42,8 +42,6 @@ public:
 	static RendererImage * CreateBlankCanvas(PlutoSize size);
 	PlutoSize RealRenderText(RendererImage * pRenderImage, DesignObjText *pDesignObjText, TextStyle *pTextStyle, PlutoPoint pos);
 
-	static InMemoryMNG *CreateInMemoryMNGFromFile(string sFileName, PlutoSize Size);
-
 #ifndef ORBITER
 	void RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,
 	PlutoPoint Position,int iRenderStandard,bool bPreserveAspectRatio,int iOnlyVersion=-999);

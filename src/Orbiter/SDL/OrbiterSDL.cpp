@@ -77,8 +77,10 @@ OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirector
 #ifndef BLUETOOTH_DONGLE
 	Uint32 uVideoModeFlags = SDL_SWSURFACE;
 
+#if !defined(WIN32) || defined(WINCE)
 	if(m_bFullScreen)
 		uVideoModeFlags |= SDL_FULLSCREEN;
+#endif
 
 	if ((Screen = SDL_SetVideoMode(m_nImageWidth, m_nImageHeight, 0, uVideoModeFlags)) == NULL)
     {

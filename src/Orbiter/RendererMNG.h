@@ -2,6 +2,7 @@
 #define RENDERERMNG_H
 
 #include "RendererImage.h"
+#include "../SerializeClass/ShapesColors.h"
 
 #include <vector>
 using namespace std;
@@ -78,6 +79,8 @@ public:
 	InMemoryMNG();
 	~InMemoryMNG();
 	size_t GetFrame(int iIndex, char *&pData);
+
+	static InMemoryMNG *CreateInMemoryMNGFromFile(string sFileName, PlutoSize Size);
 };
 
 class RendererMNG
