@@ -92,11 +92,15 @@ bool CreateSource(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &list
 
 // These are the specific output functions that need to be implemented and expanded upon
 bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo);
-bool CreateSource_PlutoFTP(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo);
+bool CreateSource_FTPHTTP(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo);
 
 // This will figure out what files need to be moved into the output
 bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileInfo);
 bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileInfo);
+
+// Create archives
+bool TarFiles(string sArchiveFileName,string sDirectory);
+bool ZipFiles(string sArchiveFileName,string sDirectory);
 
 fstream fstr_compile,fstr_make_release;
 
@@ -377,14 +381,20 @@ bool CreateSource(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &list
 	cout << "\tCreating source: " << pRow_Package_Source->FK_RepositorySource_getrow()->Description_get() << endl;
 	cout << "\t--------------------------" << endl;
 
-	switch(pRow_Package_Source->FK_RepositorySource_get())
+	if( pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get()==REPOSITORYTYPE_FTP_download_CONST ||
+		pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get()==REPOSITORYTYPE_HTTP_Download_CONST ||
+		pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get()==REPOSITORYTYPE_FTP_or_HTTP_Download_CONST )
 	{
-	case REPOSITORYSOURCE_Pluto_Debian_CONST:
-		CreateSource_PlutoDebian(pRow_Package_Source,listFileInfo);
-		break;
-	case REPOSITORYSOURCE_Pluto_FTP_CONST:
-		CreateSource_PlutoFTP(pRow_Package_Source,listFileInfo);
-		break;
+		CreateSource_FTPHTTP(pRow_Package_Source,listFileInfo);
+	}
+	else
+	{
+		switch(pRow_Package_Source->FK_RepositorySource_get())
+		{
+		case REPOSITORYSOURCE_Pluto_Debian_CONST:
+			CreateSource_PlutoDebian(pRow_Package_Source,listFileInfo);
+			break;
+		}
 	}
 
 	return true;
@@ -1006,10 +1016,7 @@ string Makefile = "none:\n"
 			string sDestination = Dir + "/root/" + thePrefix + (*iFileInfo)->m_sDestination;
 		
 			cout << "COPY: " << sSource << " --> " + sDestination << endl;
-#ifndef WIN32
-			system(("mkdir -p " + FileUtils::BasePath(sDestination)).c_str());
 			FileUtils::PUCopyFile(sSource, sDestination);
-#endif
 		}
 	}
 
@@ -1058,11 +1065,69 @@ string Makefile = "none:\n"
 	return true;
 }
 
-bool CreateSource_PlutoFTP(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo)
+bool CreateSource_FTPHTTP(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo)
 {
-	cout << "------------PLUTO FTP OUTPUT" << endl;
-	cout << " rep: " << pRow_Package_Source->Repository_get() << " ver: " << pRow_Package_Source->Version_get() << " parm: " << pRow_Package_Source->Parms_get() << endl;
-	cout << "Press any key to continue..." << endl;
-	char c = getch();
+	string sPreface;
+	if( pRow_Package_Source->FK_Package_getrow()->IsSource_get()==1 )
+		sPreface = g_sSourcecodePrefix;
+	else
+		sPreface = g_sNonSourcecodePrefix;
+
+	string ArchiveFileName = pRow_Package_Source->Name_get() + "_" + pRow_Package_Source->Version_get() + pRow_Package_Source->Parms_get();
+	string TempDir = _mktemp("/home/tmp/mra_XXXXXX");
+cout << "TempDir: " << TempDir << endl;
+	for(list<FileInfo *>::iterator it=listFileInfo.begin();it!=listFileInfo.end();++it)
+	{
+		FileInfo *pFileInfo = *it;
+cout << "copy file " << sPreface << "/" <<  pFileInfo->m_sSource << " -> tmp/" <<  pFileInfo->m_sDestination << endl;
+		if( !FileUtils::PUCopyFile(sPreface + "/" + pFileInfo->m_sSource,"/home/tmp/" + pFileInfo->m_sDestination) )
+		{
+			cout << "**Error: Unable to copy file " << sPreface << "/" <<  pFileInfo->m_sSource << " -> tmp/" <<  pFileInfo->m_sDestination << endl;
+			return false;
+		}
+	}
+	// See what type it is
+	if( pRow_Package_Source->Parms_get()==".tar.gz" )
+	{
+		if( !TarFiles(ArchiveFileName,TempDir) )
+		{
+			cout << "**ERROR:** Tar " << ArchiveFileName << endl;
+			return false;
+		}
+	}
+	else if( pRow_Package_Source->Parms_get()==".zip" )
+	{
+		if( !ZipFiles(ArchiveFileName,TempDir) )
+		{
+			cout << "**ERROR:** Zip " << ArchiveFileName << endl;
+			return false;
+		}
+	}
+	else
+	{
+		cout << "**ERROR:** Unknown archive type: " << pRow_Package_Source->Parms_get() << endl;
+		return false;
+	}
+
+#ifndef WIN32
+	system(("rm -rf " + TempDir).c_str());
+#endif
+	
 	return true;
+}
+
+bool TarFiles(string sArchiveFileName,string sDirectory)
+{
+	string SystemCall = "tar -zcvf " + sArchiveFileName + " " + sDirectory;
+	cout << "Tar: executing: " << SystemCall << endl;
+	getch();
+	return system(SystemCall.c_str())==0;
+}
+
+bool ZipFiles(string sArchiveFileName,string sDirectory)
+{
+	string SystemCall = "tar -zcvf " + sArchiveFileName + " " + sDirectory;
+	cout << "Tar: executing: " << SystemCall << endl;
+	getch();
+	return system(SystemCall.c_str())==0;
 }
