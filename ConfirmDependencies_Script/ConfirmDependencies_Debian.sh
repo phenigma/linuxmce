@@ -56,13 +56,15 @@ case "$URL_TYPE" in
 			SECTIONS="$TMP_SECT"
 			REPOS=$(echo -n "$REPOS" | cut -d' ' -f1)
 		fi
-		FilteredRepos=$(echo "$REPOS_SRC" | sed 's/[^A-Za-z0-9_./+=:-]/-/g; s!/*$!/!')
+		SingleEndSlash='s!//*!/!g; s!/*$!/!g; s!^http:/!http://!g; s!^ftp:/!ftp://!g'
+		FilteredRepos=$(echo "$REPOS_SRC" | sed 's/[^A-Za-z0-9_./+=:-]/-/g; '"$SingleEndSlash")
+		EndSlashRepos=$(echo "$REPOS_SRC" | sed "$SingleEndSlash")
 #		echo "Repository test string: '$FilteredRepos.+$REPOS.+$SECTIONS'"
 		results=$(cat /etc/apt/sources.list | sed "$SPACE_SED" | egrep -v "^#" | egrep -c -- "$FilteredRepos.+$REPOS.+$SECTIONS" 2>/dev/null)
 		if [ "$results" -eq 0 ]; then
 			echo "deb http://dcerouter:9999/$FilteredRepos $REPOS $SECTIONS" >>/etc/apt/sources.list
 			if dpkg --get-selections apt-proxy 2>/dev/null | grep -q install; then
-				echo "add_backend /$FilteredRepos \$APT_PROXY_CACHE/$FilteredRepos ${REPOS_SRC%%/*}/" >>/etc/apt-proxy/backends.sh
+				echo "add_backend /$FilteredRepos \$APT_PROXY_CACHE/$FilteredRepos $EndSlashRepos" >>/etc/apt-proxy/backends.sh
 			fi
 			apt-get update
 			[ "$Type" == "router" ] && apt-proxy-import-simple /usr/pluto/install/deb-cache
@@ -75,7 +77,7 @@ case "$URL_TYPE" in
 	;;
 	
 	direct)
-		if [ "$REPOS_TYPE" -eq 1 ] && dpkg -l "${PKG_NAME/_*}" &>/dev/null; then
+		if [ "$REPOS_TYPE" -eq 1 ] && dpkg --get-selections "${PKG_NAME/_*}" | grep -q install &>/dev/null; then
 			true
 		else
 			mkdir -p /usr/pluto/download
