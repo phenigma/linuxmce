@@ -10,7 +10,6 @@ Device="$PK_Device"
 
 rm /var/log/pluto/running.pids
 rm -rf /tmp/* # I doubt that this is safe to do here
-chown mythtv.mythtv /etc/mythtv/mysql.txt &>/dev/null
 
 # remove all ttyS_* (created by gc100s) entries from /dev
 rm -f /dev/ttyS_*

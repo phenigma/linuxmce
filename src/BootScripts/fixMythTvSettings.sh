@@ -65,3 +65,5 @@ chown mythtv 	/home/mythtv/cache/$hostip
 chmod 766 	 	/home/mythtv/cache/$hostip
 
 echo done.
+
+/etc/init.d/mythtv-backend force-reload
