@@ -17,7 +17,7 @@ using namespace DCE;
 #include "../pluto_main/Define_Command.h"
 #include "../pluto_main/Define_DeviceCategory.h"
 #include "../pluto_main/Define_DeviceData.h"
-#include "../VIPShared/PhoneDevice.h"
+#include "BD/PhoneDevice.h"
 #include "../DCE/DeviceData_Base.h"
 
 #include "../Orbiter/Orbiter.h"

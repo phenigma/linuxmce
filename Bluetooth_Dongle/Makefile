@@ -18,7 +18,7 @@ sources = Main.cpp Bluetooth_Dongle.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS += -I/usr/include/SDL -DORBITER -DBLUETOOTH_DONGLE
 LDFLAGS +=
-LDLIBS += -lVIPCommon -lSerializeClass -lBDCommon -lBDSymbian -lBDBluetooth -lbluetooth -lpluto_main -lSDL -lSDL_ttf -lSDL_image -lSGE
+LDLIBS += -lVIPCommon -lBDCommon -lVIPCommon -lPlutoUtils -lSerializeClass -lbluetooth -lpluto_main -lSDL -lSDL_ttf -lSDL_image -lSGE
 
 Gen_Dev_Files += $(GENDEV)/OrbiterBase.cpp
 sources += ../Orbiter/SDL_Bluetooth/OrbiterSDLBluetooth.cpp ../Orbiter/SDL_Bluetooth/StartOrbiterSDLBluetooth.cpp \
