@@ -2,9 +2,11 @@
 
 if [ ! -e /etc/mythtv/mysql.txt ]; then 
 	echo "Mythtv doesn't seem to be installed here";
-	echo 0;
+	exit 0;
 fi;
 
+chown mythtv /etc/mythtv/mysql.txt
+chmod 660 /etc/mythtv/mysql.txt
 
 eval `cat /etc/mythtv/mysql.txt | grep -v "^#" | grep -v "^$"`;
 
