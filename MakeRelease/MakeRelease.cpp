@@ -1003,6 +1003,7 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 	string::size_type length;
 	list <string> MyList;
 	list <string>::iterator iMyList;
+	char direct[255];
 	
 	cout << "\nCreting temporary directory\n";
 	MyPath = "cvs_temp";
@@ -1023,8 +1024,8 @@ cout << "Making CVS Checkout to temporary\n";
 	system(cmd.c_str());
 
 cout << "Reading files from temporary ";
-	getcwd(cmd, 255);
-	FileUtils::FindFiles(MyList, cmd, "*", true, "");
+	getcwd(direct, 255);
+	FileUtils::FindFiles(MyList, direct, "*", true, "");
 	cout << MyList.size();
 cout << " [Done]\n";
 
