@@ -143,9 +143,3 @@ fi
 mkdir -p /tftpboot/pxelinux.cfg
 cp /usr/lib/syslinux/pxelinux.0 /tftpboot
 
-Q="SELECT PK_Installation FROM Installation LIMIT 1"
-R=$(echo "$Q;" | /usr/bin/mysql pluto_main -N)
-ConfSet PK_Installation "$R"
-Q="SELECT PK_Users FROM Users LIMIT 1"
-R=$(echo "$Q;" | /usr/bin/mysql pluto_main -N)
-ConfSet PK_Users "$R"

@@ -44,7 +44,8 @@ for i in /var/log/pluto/*.{,new}log; do
 done
 
 mkdir -p /usr/pluto/coredump.archive
-mv /usr/pluto/coredump/* /usr/pluto/coredump.archive/
+CoreFiles=$(echo /usr/pluto/coredump/*)
+[ -n "$CoreFiles" ] && mv /usr/pluto/coredump/* /usr/pluto/coredump.archive/
 ArchiveCoreDumps "$Param" &
 
 tar -czf "$Output/log-$Filename.tar.gz" /var/log/pluto/*.{,new}log 2>/dev/null

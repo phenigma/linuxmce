@@ -19,6 +19,14 @@ rm -f /dev/ttyS_*
 mkdir -p /usr/pluto/locks
 rm -f /usr/pluto/locks/*
 
+# assure some settings
+Q="SELECT FK_Installation FROM Device WHERE PK_Device='$PK_Device'"
+R=$(echo "$Q;" | /usr/bin/mysql pluto_main -N)
+ConfSet PK_Installation "$R"
+Q="SELECT PK_Users FROM Users LIMIT 1"
+R=$(echo "$Q;" | /usr/bin/mysql pluto_main -N)
+ConfSet PK_Users "$R"
+
 if [ "$Parameter" != "start" -a "$Parameter" != "script" -a "$Parameter" != "stop" ]; then
 	echo "Usage: $0 start|script|stop"
 	exit 1
@@ -106,3 +114,4 @@ while read line; do
 		Logging "$TYPE" "$SEVERITY_WARNING" "$0" "Boot Script: Command '$script' not found"
 	fi
 done
+
