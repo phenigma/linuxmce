@@ -25,8 +25,8 @@ function phoneLines($output,$dbADO) {
 			<input type="hidden" name="action" value="update">
 		<table align="center" cellpadding="3">
 			<tr bgcolor="lightblue">
-				<td align="center"><B>Username</B></td>
 				<td align="center"><B>Name</B></td>
+				<td align="center"><B>Username</B></td>
 				<td align="center"><B>Registrar IP</B></td>
 				<td align="center"><B>Registrar Port</B></td>
 				<td align="center"><B>Registration timeout</B></td>
@@ -44,8 +44,8 @@ function phoneLines($output,$dbADO) {
 			$out.='
 			<input type="hidden" name="oldName_'.$row['uniqueid'].'" value="'.$row['name'].'">
 			<tr bgcolor="'.(($pos%2==0)?'#EEEEEE':'#E5E5E5').'">
-				<td><input type="text" name="username_'.$row['uniqueid'].'" value="'.$row['username'].'"></td>
 				<td><input type="text" name="name_'.$row['uniqueid'].'" value="'.$row['name'].'"></td>
+				<td><input type="text" name="username_'.$row['uniqueid'].'" value="'.$row['username'].'"></td>
 				<td><input type="text" name="ipaddr_'.$row['uniqueid'].'" value="'.$row['ipaddr'].'"></td>
 				<td align="center"><input type="text" name="port_'.$row['uniqueid'].'" value="'.$row['port'].'"></td>
 				<td align="center"><input type="text" name="rtptimeout_'.$row['uniqueid'].'" value="'.$row['rtptimeout'].'"></td>
