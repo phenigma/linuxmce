@@ -373,7 +373,7 @@ bool CreateSources(Row_Package *pRow_Package)
 	for(size_t s=0;s<vectRow_Package_Source_All.size();++s)
 	{
 		Row_Package_Source *pRow_Package_Source = vectRow_Package_Source_All[s];
-		cout << pRow_Package_Source->FK_RepositorySource_getrow()->Description_get() << ":" << pRow_Package_Source->Repository_get();
+		cout << pRow_Package_Source->FK_RepositorySource_getrow()->Description_get() << ":" << pRow_Package_Source->Repository_get()<<"  ";
 		if( (s+1) % 3==0 )
 			cout << endl;
 	}
@@ -463,6 +463,7 @@ bool CreateSource(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &list
 bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileInfo)
 {
 	vector<Row_Package_Directory *> vectRow_Package_Directory;
+	cout <<"\nsearch for package number: "<<pRow_Package->PK_Package_get();
 	pRow_Package->Package_Directory_FK_Package_getrows(&vectRow_Package_Directory);
 	for(size_t s=0;s<vectRow_Package_Directory.size();++s)
 	{
@@ -483,7 +484,7 @@ bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileIn
 			if( pRow_Package_Directory->Path_get()[0]=='/' )
 				sDirectory = pRow_Package_Directory->Path_get();
 			else
-				sDirectory += g_sSourcecodePrefix + "/" + pRow_Package_Directory->Path_get();
+				sDirectory += g_sSourcecodePrefix + pRow_Package_Directory->Path_get();
 		}
 
 		vector<Row_Package_Directory_File *> vectPackage_Directory_File;
@@ -502,6 +503,7 @@ bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileIn
 					cout << "Found: " << listFiles.size() << " files" << endl;
 				for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
 				{
+					//cout<<"\ncreate source sD: "<<sDirectory<<' '<<*it;
 					FileInfo *pFileInfo = new FileInfo(sDirectory + "/" + *it,
 						pRow_Package_Directory->Path_get() + "/" + *it,
 						pRow_Package_Directory);
@@ -516,6 +518,7 @@ bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileIn
 					if( !AskYNQuestion("Continue?",false) )
 						return false;
 				}
+					//cout<<"\ncreate source SD: "<<sDirectory<<' '<<File;
 				FileInfo *pFileInfo = new FileInfo(sDirectory + "/" + File,
 					pRow_Package_Directory->Path_get() + "/" + File,
 					pRow_Package_Directory);
@@ -639,7 +642,8 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 				}
 				for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
 				{
-					FileInfo *pFileInfo = new FileInfo(sInputPath + "/" + *it,
+					//cout<<"\ncreate source : "<<sInputPath<<' '<<*it;
+					FileInfo *pFileInfo = new FileInfo(sInputPath +"/" + *it,
 						pRow_Package_Directory->Path_get() + "/" + *it,
 						pRow_Package_Directory);
 					listFileInfo.push_back(pFileInfo);
@@ -653,6 +657,7 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 					if( !AskYNQuestion("Continue?",false) )
 						return false;
 				}
+				//cout<<"\ncreate source : "<<sInputPath<<' '<<File;
 				FileInfo *pFileInfo = new FileInfo(sInputPath + "/" + File,
 					pRow_Package_Directory->Path_get() + "/" + File,
 					pRow_Package_Directory);
@@ -979,7 +984,19 @@ AsksSourceQuests:
 bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo)
 {
 	// Marius -- here you need to figure out how to take the package and upload it to SourceForge's CVS
-
+	
+	cout<<"\n\n SourceForgeCVS : "
+		<<pRow_Package_Source->FK_Package_getrow()->Description_get();
+	cout<<"\n Nr of files : "<<listFileInfo.size();
+	list<FileInfo *>::iterator iFileInfo; int i;
+	for (iFileInfo = listFileInfo.begin(),i=0;iFileInfo != listFileInfo.end(); iFileInfo++,i++)
+	{
+		cout<<endl<<i<<"\n\t"<<(*iFileInfo)->m_pRow_Package_Directory->Path_get();
+		cout<<endl<<"\t"<<(*iFileInfo)->m_sDestination;
+		cout<<endl<<"\t"<<(*iFileInfo)->m_sSource;
+	}
+	//system();
+	cout<<endl;
 	return true;
 }
 
