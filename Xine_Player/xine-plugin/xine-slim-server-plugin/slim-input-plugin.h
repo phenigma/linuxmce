@@ -19,8 +19,18 @@
 #endif
 #endif
 
-struct slim_input_plugin_s {
-	input_plugin_t input_plugin;
+struct slim_input_class_s {
+	input_class_t     input_class;
+
+	xine_t           *xine;
+	config_values_t  *config;
+};
+
+typedef struct slim_input_class_s slim_input_class_t;
+
+struct slim_input_plugin_s 
+{
+	input_plugin_t input_plugin; // the base plugin data	
 
 	// network connection data
 	SOCKET			 comm_socket;
@@ -40,13 +50,5 @@ struct slim_input_plugin_s {
 
 typedef struct slim_input_plugin_s slim_input_plugin_t;
 
-struct slim_input_class_s {
-	input_class_t     input_class;
-
-	xine_t           *xine;
-	config_values_t  *config;
-};
-
-typedef struct slim_input_class_s slim_input_class_t;
 
 #endif // SLIM_INPUT_PLUGIN_H

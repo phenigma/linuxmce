@@ -8,11 +8,20 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-unsigned char readBuffer[1024];
+#define MAX_READ_BUFFER_SIZE 1024
 
+static char commandNames[][4] = {
+	"VERS", 
+	"strm",
+	"ircc",
+	"vfdc", 
+	"grdf"
+};
+/** 
+ * This will send a buffer back to the SlimServer.
+ */
 int	send_command(slim_input_plugin_t *plugin, xine_t *xine_handler, unsigned char *buffer, int bufferLength)
 {
-
 #ifndef WIN32
 	if ( write (plugin->comm_socket, buffer, bufferLength) != bufferLength )
 #else	
@@ -28,72 +37,114 @@ int	send_command(slim_input_plugin_t *plugin, xine_t *xine_handler, unsigned cha
 	return 1;
 }
 
-static int read_and_process_command(slim_input_plugin_t *plugin, xine_t *xine_handler)
-{
-	unsigned int len;
-	struct slimCommand command; 
-	// unsigned int readResult;
+/************************************************************************/
+/* This will read a command buffer from the server.                     */
+/************************************************************************/
+static int read_slim_server_command(SOCKET *socket, unsigned char *buffer, unsigned int *len, xine_t *xine_handler)
+{		
+	unsigned int frameLength;
 
 #ifndef WIN32
-	if ( read (plugin->comm_socket, readBuffer, 2) != 2 )
+	if ( read (*socket, buffer, 2) != 2 )
 #else	
-	if ( recv (plugin->comm_socket, readBuffer, 2, 0) != 2 ) 
+	if ( recv (*socket, buffer, 2, 0) != 2 ) 
 #endif
 	{
 		xine_log(xine_handler, XINE_LOG_PLUGIN, _(LOG_MODULE "Error while reading frame length from network: %s. Closing connection!\n"), strerror(errno));
-		close((int)plugin->comm_socket);
-		plugin->comm_socket = -1;
+		close((int)*socket);
+		*socket = -1;
 		return 0;
 	}
 	
-	len = readBuffer[0] << 8 | readBuffer[1];
-	
+	frameLength = buffer[0] << 8 | buffer[1];
+
+	if ( frameLength >= *len)
+	{
+		xine_log(xine_handler, XINE_LOG_PLUGIN, _(LOG_MODULE "The frame length was bigger than expected. Dropping connection! \n"));
+		close((int)*socket);
+		*socket = -1;
+		return 0;			
+	}
+
 #ifndef WIN32
-	if ( read (plugin->comm_socket, readBuffer, len) != len )
+	if ( read (*socket, buffer, frameLength) != frameLength)
 #else
-	if ( recv (plugin->comm_socket, readBuffer, len, 0) != len ) 
-#endif
-//	if ( read((int)plugin->comm_socket, &readBuffer, len) != len)
+	if ( recv (*socket, buffer, frameLength, 0) != frameLength) 
+#endif		
 	{
 		xine_log(xine_handler, XINE_LOG_PLUGIN, _(LOG_MODULE "Error while reading frame data from network: %s. Closing connection!\n"), strerror(errno));
-		close((int)plugin->comm_socket);
-		plugin->comm_socket = -1;
+		close((int)*socket);
+		*socket = -1;
 		return 0;
 	}
-	
-	if ( slim_protocol_decode(readBuffer, len, xine_handler, &command) == 0 )
+
+	return 1;
+}
+
+static int read_and_decode_command(slim_input_plugin_t *plugin, xine_t *xine_handler, struct slimCommand *parsedCommand)
+{			
+	static char			buffer[MAX_READ_BUFFER_SIZE];
+	static unsigned int bufferLen = MAX_READ_BUFFER_SIZE;
+
+	// unsigned int readResult;
+
+	if ( read_slim_server_command(&plugin->comm_socket, buffer, &bufferLen, xine_handler) == 0 )
 		return 0;
 
-	if ( command.commandType != COMMAND_VERSION )
-	{
-		xine_log(xine_handler, XINE_LOG_PLUGIN, _(LOG_MODULE "I was expecting a version packet. This should be reported!"));
-	}
-	else
-	{
-		xine_log(xine_handler, XINE_LOG_PLUGIN, _(LOG_MODULE "Server version string: %s\n"), command.commandData.version.versionData);
-	}
-	
-	return 1;	
+	if ( slim_protocol_decode(buffer, bufferLen, xine_handler, parsedCommand) == 0 )
+		return 0;
+
+	return 1;
 }
 
-int process_command_from_server(slim_input_plugin_t *plugin, struct slimCommand *command)
-{
-
+int process_command_from_server(slim_input_plugin_t *plugin, slim_input_class_t *plugin_class, struct slimCommand *command)
+{	
+	// TODO: put the logic to process the command in here
+	return 1;
 }
 
-int read_preview_data(slim_input_plugin_t *this_plugin)
+int fill_preview_buffer(slim_input_plugin_t *plugin, slim_input_class_t *plugin_class)
 {
 	struct slimCommand command;
+	char		 *outBuffer;
+	unsigned int  outBufferLength;
 
-	while ( this_plugin->preview_size == 0 )
-	{			
-		if ( slim_protocol_decode(readBuffer, len, this_plugin->stream->xine, &command) != 0 )
-			process_command_from_server(this_plugin, command);
+	while ( plugin->preview_size == 0 )
+	{
+		if ( read_and_decode_command(plugin, plugin_class->xine, &command) == 0 )
+		{
+			xine_log(plugin_class->xine, XINE_LOG_PLUGIN, _(LOG_MODULE "Error reading frame from server and decoding it. Closing connection!\n"));
+			close((int)plugin->comm_socket);
+			plugin->comm_socket = -1;
+			return 0;
+		}
+
+		if ( process_command_from_server(plugin, plugin_class, &command) == 0 )
+		{
+			xine_log(plugin_class->xine, XINE_LOG_PLUGIN, _(LOG_MODULE "Error processing command from server. Skipping command!\n"));
+			continue;			
+		}
+
+		slim_protocol_make_ack(&outBuffer, &outBufferLength, commandNames[command.commandType], 0, /* */ 0, 1, 0, 0, 0, 0);
+		send_command(plugin, plugin_class->xine, outBuffer, outBufferLength);
 	}
+	return 1;
 }
 
-static SOCKET attempt_connect_to_inaddr(struct in_addr ia, int port, xine_t *xine) {
+//int read_preview_data(slim_input_plugin_t *this_plugin)
+//{
+//	struct slimCommand command;
+//
+//	while ( this_plugin->preview_size == 0 )
+//	{					
+//		//if ( slim_protocol_decode(readBuffer, len, this_plugin->stream->xine, &command) != 0 )
+//		//	process_command_from_server(this_plugin, command);
+//	}
+//}
 
+
+static SOCKET attempt_connect_to_inaddr(struct in_addr ia, int port, xine_t *xine) 
+{
 	SOCKET s;
 	struct sockaddr_in sin;
 
@@ -122,7 +173,8 @@ static SOCKET attempt_connect_to_inaddr(struct in_addr ia, int port, xine_t *xin
 	return s;
 }
 
-static SOCKET connect_to_host(const char *host, int port, xine_t *xine) {
+static SOCKET connect_to_host(const char *host, int port, xine_t *xine) 
+{
 	struct hostent *h;
 	int             i;
 	SOCKET			s;
@@ -146,7 +198,6 @@ static SOCKET connect_to_host(const char *host, int port, xine_t *xine) {
 	xine_log(xine, XINE_LOG_PLUGIN, _(LOG_MODULE "Unable to connect to '%s'.\n"), host);
 	return -1;
 }
-
 
 int parse_server_address(const char *address, char **hostname, int *port, xine_t *xine)
 {
@@ -193,9 +244,11 @@ static int slim_plugin_open (input_plugin_t *this_plugin_generic )
 	slim_input_plugin_t *this_plugin = (slim_input_plugin_t*) this_plugin_generic;
 	slim_input_class_t  *this_plugin_class = (slim_input_class_t*)this_plugin->input_plugin.input_class;
 
-	char macAddress[6] = {11, 11, 11, 11, 11, 11 };
+	char  macAddress[6] = {11, 11, 11, 11, 11, 11 };
 	char *buffer = NULL;
 	int   bufferLength = 0;
+
+	struct slimCommand command;
 
 	// the data used to connect (we need to first parse the URL to fill it.
 	char *slimHostname;
@@ -215,30 +268,20 @@ static int slim_plugin_open (input_plugin_t *this_plugin_generic )
 
 	xine_log(this_plugin_class->xine, XINE_LOG_PLUGIN, _(LOG_MODULE "Connected to host: %s port: %d\n"), slimHostname, slimPortNumber);
 
-//	byte args[] = new byte[10];
-//	args[0] = (byte) deviceID;
-//	args[1] = (byte) revision;
-//	System.arraycopy(macaddress, 0, args, 2, 6);
-//
-//	int channelList = 0;
-//	if (isGraphics)
-//		channelList |= 0x8000;
-//	packN2(args, 8, channelList);
-//
-//	sendCommand("HELO", args);
-//	helosent = true;
-//} catch (IOException e) {
-//	logger.debug("Exception in sendHelo", e);
-//}
-
-	//deviceID = 3
-	//revision = 0
-	//macaddress = {11,11,11,11,11,11}	
 	slim_protocol_make_helo(&buffer, &bufferLength, 3, 0, macAddress);
-	send_command(this_plugin, this_plugin_class->xine, buffer, bufferLength );
+	send_command(this_plugin, this_plugin_class->xine, buffer, bufferLength);
+	free(buffer);
 
-	while ( read_and_process_command(this_plugin, this_plugin_class->xine) == 0 ); 
+	if ( read_and_decode_command(this_plugin, this_plugin_class->xine, &command) == 0 ||
+		 command.commandType != COMMAND_VERSION )
+	{
+		xine_log(this_plugin_class->xine, XINE_LOG_PLUGIN, _(LOG_MODULE "The server didn't reply to HELO or the replay was invalid (not a version)! Closing connection!\n"));
+		close((int)this_plugin->comm_socket);
+		this_plugin->comm_socket = -1;
+		return 0;
+	}
 
+	xine_log(this_plugin_class->xine, XINE_LOG_PLUGIN, _(LOG_MODULE "Server replayed with version: %s\n"), command.commandData.version.versionData);
 	return 1;
 }
 
@@ -302,17 +345,18 @@ static char* slim_plugin_get_mrl (input_plugin_t *this_gen) {
   return this_plugin->mrl;
 }
 
-static int slim_plugin_get_optional_data (input_plugin_t *this_gen, void *data, int data_type) 
+static int slim_plugin_get_optional_data (input_plugin_t *general_plugin, void *data, int data_type) 
 {
-	slim_input_plugin_t *this_plugin = (slim_input_plugin_t *) this_gen;
+	slim_input_plugin_t *plugin = (slim_input_plugin_t *) general_plugin;
+	slim_input_class_t  *plugin_class = (slim_input_class_t *) plugin->input_plugin.input_class;
 
-	read_preview_data(this_plugin);
+	fill_preview_buffer(plugin, plugin_class);
 
 	switch (data_type) 
 	{
 		case INPUT_OPTIONAL_DATA_PREVIEW:
-			memcpy (data, this_plugin->preview_buffer, this_plugin->preview_size);
-			return this_plugin->preview_size;
+			memcpy (data, plugin->preview_buffer, plugin->preview_size);
+			return plugin->preview_size;
 			break;
 	}
 
