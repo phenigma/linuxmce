@@ -30,7 +30,6 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(int DeviceID, string Se
 	: Generic_Analog_Capture_Card_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
-	char *filename, buf[5];
 	int i;
 	FILE *fp;
 	string sLine, sLine2;
@@ -47,6 +46,11 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(int DeviceID, string Se
 	g_pPlutoLogger->Write(LV_STATUS, "Using Generic Analog Capture Card with parameters: VideoStandard=%s Number_of_Ports=%s",sVideoStandard.c_str(),sNumberOfPorts.c_str());
 	
 	g_pPlutoLogger->Write(LV_STATUS, "Writing configuration to motion.conf");
+
+	if(FileUtils::FileExists("/etc/motion/motion.conf") == true) {
+		system("rm -f /etc/motion/motion.conf");
+	}
+
 	fp = fopen("/etc/motion/motion.conf","wt");
 	//main config
 	fprintf(fp,"videodevice /dev/video0\n");
@@ -69,19 +73,15 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(int DeviceID, string Se
 		FileUtils::MakeDir("/var/www/cam");
 	}
 	fprintf(fp,"target_dir /var/www/cam\n");
-/*
+
 	for(i = 1 ; i < atoi(sNumberOfPorts.c_str())+1 ; i++) {
-		itoa(i,buf,10);
-		filename = "#thread /etc/motion/thread";
-		strcpy(filename,buf);
-		strcpy(filename,".config");
+		sLine = "#thread /etc/motion/thread" + StringUtils::itos(i) + ".conf";
 		fprintf(fp,"%s\n",sLine.c_str());
 	}
-*/
+
 	fclose(fp);
 	g_pPlutoLogger->Write(LV_STATUS, "Starting motion server");
-	filename="/usr/bin/motion";
-	system(filename);
+	system("/usr/bin/motion");
 }
 
 //<-dceag-const2-b->
@@ -130,9 +130,9 @@ void Generic_Analog_Capture_Card::ReceivedCommandForChild(DeviceData_Base *pDevi
 {
 	FILE *fp;
 	char pid[10];
-	char *Command;
+	string Command;
 	string FilePath;
-	unsigned long int size;
+	unsigned long int size, iPID;
 
 	g_pPlutoLogger->Write(LV_STATUS, "Command %d received for child.", pMessage->m_dwID);
 	
@@ -169,7 +169,7 @@ void Generic_Analog_Capture_Card::ReceivedCommandForChild(DeviceData_Base *pDevi
 
 				g_pPlutoLogger->Write(LV_STATUS, "Geting PID of motion server");
 				Command = "ps -e | grep motion | awk '{print $1}' > camera_card.temp";
-				system(Command);
+				system(Command.c_str());
 				fp = fopen("camera_card.temp","rt");
 				if(fp == NULL) {
 					g_pPlutoLogger->Write(LV_STATUS, "Cannot get PID for the motion server, exiting...");
@@ -184,9 +184,9 @@ void Generic_Analog_Capture_Card::ReceivedCommandForChild(DeviceData_Base *pDevi
 
 				g_pPlutoLogger->Write(LV_STATUS, "Taking Snapshot");
 
-				Command = "kill -s SIGALRM ";
-				strcat(Command,pid);
-				system(Command);
+				iPID = atoi(pid);
+				Command = "kill -s SIGALRM " + StringUtils::itos(iPID);		
+				system(Command.c_str());
 
 				g_pPlutoLogger->Write(LV_STATUS, "Reading and sending snapshot picture");
 
