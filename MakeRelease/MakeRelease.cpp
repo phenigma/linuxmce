@@ -1022,7 +1022,7 @@ cout << "Making CVS Checkout to temporary\n";
 			" checkout " + pRow_Package_Source->Name_get();
 	system(cmd.c_str());
 	cmd = "cd " + pRow_Package_Source->Name_get();
-	chdir(cmd.c_str());
+	system(cmd.c_str());
 
 	//reading actual directory list
 cout << "Reading files from temporary";
