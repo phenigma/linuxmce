@@ -84,6 +84,7 @@ int _tmain(int argc, _TCHAR* argv[])
 int main(int argc, char *argv[])
 {
 #endif
+	setenv("SDL_VIDEODRIVER", "dummy", 1); // force SDL to use its dummy video driver (removed a dependency on the X server)
 	g_pPlutoLogger=new FileLogger(stdout);
 
 	string DBHost="dce_router",DBUser="root",DBPassword="",DBName="pluto_main";
