@@ -72,11 +72,11 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 
 	string ConfigureScript;
 	int iPK_DeviceCategory;
-	string SQL = "SELECT FK_DeviceCategory,Description,ConfigureScript FROM DeviceTemplate WHERE PK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
+	string SQL = "SELECT FK_DeviceCategory,Description,ConfigureScript,IsPlugAndPlay FROM DeviceTemplate WHERE PK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
 	if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
 	{
 		iPK_DeviceCategory = atoi(row[0]);
-		if( row[2] )
+		if( row[2] && row[3] && string(row[3])!="1" )
 			ConfigureScript = row[2];
 	}
 	else
