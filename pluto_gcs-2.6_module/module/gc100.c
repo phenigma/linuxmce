@@ -245,8 +245,6 @@ static int /*__init*/ gc100_init(void)
 	gc100_s_to_d_flag = kmalloc(N_DEVS * sizeof(int), GFP_KERNEL);
 	gc100_d_to_s_flag = kmalloc(N_DEVS * sizeof(int), GFP_KERNEL);
 
-	printk("<1> Vals: %p %p %p\n", gc100_devices, gc100_s_to_d_flag, gc100_d_to_s_flag);
-	
 	memset(gc100_devices, 0, N_DEVS * sizeof(struct gc100_dev));
 	memset(gc100_s_to_d_flag, 0, N_DEVS * sizeof(int));
 	memset(gc100_d_to_s_flag, 0, N_DEVS * sizeof(int));
