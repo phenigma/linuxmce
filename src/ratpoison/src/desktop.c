@@ -10,6 +10,7 @@
 *
 */
 
+#include <string.h>
 #include "ratpoison.h"
 
 rp_window *desktop_window = NULL;
@@ -199,7 +200,7 @@ void make_desktop_application(rp_window *window)
     }
 */
 
-void
+int
 move_window_as_desktop(rp_window *win)
 {
     rp_frame *frame;
@@ -208,7 +209,7 @@ move_window_as_desktop(rp_window *win)
     if (win->frame_number == EMPTY)
     {
         PRINT_DEBUG(("Empty frame!! ?? \n"));
-        return;
+        return 0;
     }
 
     frame = win_get_frame (win);
@@ -217,6 +218,8 @@ move_window_as_desktop(rp_window *win)
     win->x = win->y = 0;
     win->width = screen->width;
     win->height = screen->height;
+
+	return 1;
 }
 
 int
