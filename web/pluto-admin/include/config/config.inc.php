@@ -125,6 +125,13 @@
 	$GLOBALS['commandMHPlayMedia']=43;				// MH Play Media
 	$GLOBALS['commandPL_Originate']=232;			// PL_Originate
 	$GLOBALS['outputSelectCommand']=244;			// Output select
+	$GLOBALS['tuner_1']=166;						// Tuner 1
+	$GLOBALS['tuner_2']=175;						// Tuner 2
+	$GLOBALS['tuner_3']=326;						// Tuner 3
+	$GLOBALS['AM_Command']=169;						// AM
+	$GLOBALS['AM_Command']=169;						// AM
+	$GLOBALS['AM_Command']=169;						// AM
+	$GLOBALS['AM_Command']=169;						// AM
 	
 	// PK_CommandParameters from table CommandParameters
 	

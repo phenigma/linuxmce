@@ -1442,6 +1442,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 						}else
 							$openTunerConfig='';
 			 			
+						/*
 			 			if($categoryID==$GLOBALS['rootAVEquipment']){
 			 				$templateID=$dbADO->Insert_ID();
 							$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$templateID.' -i '.$_SESSION['installationID']);	
@@ -1453,12 +1454,14 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 									self.close();
 								</script>';
 			 			}else{
-			 				$out.='
-								<script>
-									'.$openTunerConfig.'
-									self.location="index.php?section='.$section.'&manufacturers='.$manufacturerSelected.'&deviceCategSelected='.$selectedDeviceCateg.'&deviceSelected='.$selectedDevice.'&model='.$selectedModel.'&allowAdd='.$boolDeviceTemplate.'&justAddedNode='.$justAddedNode.'";
-								</script>';
 			 			}
+			 			*/
+		 				$out.='
+							<script>
+								'.$openTunerConfig.'
+								self.location="index.php?section='.$section.'&manufacturers='.$manufacturerSelected.'&deviceCategSelected='.$selectedDeviceCateg.'&deviceSelected='.$selectedDevice.'&model='.$selectedModel.'&allowAdd='.$boolDeviceTemplate.'&justAddedNode='.$justAddedNode.'";
+							</script>';
+		 			
 			 		}	 			 		
 			 	}
 			 }

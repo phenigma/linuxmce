@@ -160,7 +160,7 @@ function phoneLines($output,$dbADO) {
 		}
 
 		if(isset($_REQUEST['dID'])){
-			$uniqueID=$_REQUEST['dID'];
+			$uniqueID=(int)$_REQUEST['dID'];
 			$name=$_REQUEST['name'];
 			if($name==$defaultLineName){
 				$resFirstOtherLine=$dbADO->Execute('SELECT name FROM sip_buddies WHERE name!=? AND type=? LIMIT 0,1',array($name,'peer'));
@@ -168,6 +168,13 @@ function phoneLines($output,$dbADO) {
 					$rowFirstOtherLine=$resFirstOtherLine->FetchRow();
 					$dbADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINE='.$rowFirstOtherLine['name'],$defaultLineID));
 				}
+			}
+			
+			$resPL=$dbADO->Execute('SELECT * FROM sip_buddies WHERE uniqueid=?',$uniqueID);
+			if($resPL->RecordCount()>0){
+				$rowPL=$resPL->FetchRow();
+				$var_val=$rowPL['username'].':'.$rowPL['secret'].'@'.$rowPL['host'].'/'.$rowPL['fromuser'];
+				$dbADO->Execute('DELETE FROM ast_config WHERE var_val=? AND filename=? AND var_name=? AND category=?',array($var_val,'sip.conf', 'register','general'));
 			}
 			
 			$dbADO->Execute('DELETE FROM sip_buddies WHERE uniqueid=?',$uniqueID);

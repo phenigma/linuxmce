@@ -187,7 +187,7 @@ function avWizard($output,$dbADO) {
 			while($rowD=$resDevice->FetchRow()){
 				$pos++;
 				
-				$deviceName='<input type="text" name="description_'.$rowD['PK_Device'].'" value="'.$rowD['Description'].'">';
+				$deviceName=(@$childOf[$rowD['PK_Device']]=='')?'<input type="text" name="description_'.$rowD['PK_Device'].'" value="'.$rowD['Description'].'">':'<input type="hidden" name="description_'.$rowD['PK_Device'].'" value="'.$rowD['Description'].'"><B>'.$rowD['Description'].'</B>';
 				$roomPulldown='<select name="room_'.$rowD['PK_Device'].'">
 						<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Select room -&nbsp;&nbsp;&nbsp;&nbsp;</option>';
 				foreach($roomIDArray as $key => $value){
@@ -408,7 +408,7 @@ function avWizard($output,$dbADO) {
 					
 				if($childOf[$rowD['PK_Device']]==''){	
 					$out.='
-				<tr bgcolor="'.(($pos%2==0)?'#EFF2F9':'').'">
+				<tr>
 					<td align="center"><a name="deviceLink_'.$rowD['PK_Device'].'"></a>'.$deviceName.'</td>
 					<td>'.$roomPulldown.'</td>
 					<td>A: '.$audioOutputPulldown.'</td>
@@ -417,8 +417,8 @@ function avWizard($output,$dbADO) {
 					<td rowspan="2" valign="top" align="right">'.$deviceDataBox.'</td>
 					<td align="center" rowspan="2" valign="top">'.$buttons.'</td>
 				</tr>
-				<tr bgcolor="'.(($pos%2==0)?'#EFF2F9':'').'">			
-					<td align="center" title="Category: '.$rowD['CategoryName'].', manufacturer: '.$rowD['ManufacturerName'].'">'.$rowD['TemplateName'].'</td>
+				<tr>			
+					<td align="center" title="Category: '.$rowD['CategoryName'].', manufacturer: '.$rowD['ManufacturerName'].'">DT: '.$rowD['TemplateName'].'</td>
 					<td>'.$controlledByPulldown.'</td>
 					<td>V: '.$videoOutputPulldown.'</td>
 					<td>'.$videoConnectToPulldown.'</td>
@@ -429,9 +429,13 @@ function avWizard($output,$dbADO) {
 							$out.=$tuner;
 						}
 					}
+					$out.='
+					<tr>
+						<td colspan="7"><hr></td>
+					</tr>';
 				}else{
 					$embededRows[$rowD['FK_Device_ControlledVia']][]='
-				<tr bgcolor="'.(($pos%2==0)?'#EFF2F9':'').'">
+				<tr>
 					<td align="center"><a name="deviceLink_'.$rowD['PK_Device'].'"></a>'.$deviceName.'</td>
 					<td>- Embeded device -</td>
 					<td>A: '.$audioOutputPulldown.'</td>
@@ -585,12 +589,14 @@ function avWizard($output,$dbADO) {
 						$anchor=($cmd==1)?'#AudioPipe_'.$value.'':'';
 					}
 	
-					$oldVideoPipeArray=explode(',',$_POST['oldVideoPipe_'.$value]);
-					$oldTo=$oldVideoPipeArray[0];
-					$oldInput=$oldVideoPipeArray[1];
-					$oldOutput=$oldVideoPipeArray[2];
-					
+
 					if(isset($_POST['videoOutput_'.$value])){
+						
+						$oldVideoPipeArray=explode(',',$_POST['oldVideoPipe_'.$value]);
+						$oldTo=$oldVideoPipeArray[0];
+						$oldInput=$oldVideoPipeArray[1];
+						$oldOutput=$oldVideoPipeArray[2];
+
 						$videoOutput=(isset($_POST['videoOutput_'.$value]) && $_POST['videoOutput_'.$value]!='0')?cleanInteger($_POST['videoOutput_'.$value]):NULL;
 						$videoInput=(isset($_POST['videoInput_'.$value]) && $_POST['videoInput_'.$value]!='0')?cleanInteger($_POST['videoInput_'.$value]):NULL;
 						$videoConnectTo=(isset($_POST['videoConnectTo_'.$value]) && $_POST['videoConnectTo_'.$value]!='0')?cleanInteger($_POST['videoConnectTo_'.$value]):NULL;
