@@ -644,7 +644,8 @@ int k=2;
 	fstr_DeviceCommand << "\t\t\t\t\t}" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\telse if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\t\tSendString(sCMD_Result);" << endl;
-
+	fstr_DeviceCommand << "\t\t\t\t\tif( sCMD_Result!=\"UNHANDLED\" )" << endl;
+	fstr_DeviceCommand << "\t\t\t\t\t\tiHandled++;" << endl;
 	fstr_DeviceCommand << "\t\t\t\t}" << endl;
 	fstr_DeviceCommand << "\t\t\t}" << endl;
 	fstr_DeviceCommand << "\t\t}" << endl;

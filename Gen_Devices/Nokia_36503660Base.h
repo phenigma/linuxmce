@@ -90,7 +90,7 @@ public:
 	virtual void CMD_Requires_Special_Handling(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Seek_Data_Grid(string sText,int iPosition_X,int iPosition_Y,string sDataGrid_ID,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Graphic_To_Display(string sPK_DesignObj,string sID,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Set_House_Mode(string sValue_To_Assign,string sErrors,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,int iPK_DeviceGroup,string sHandling_Instructions,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Object_Parameter(string sPK_DesignObj,string sValue_To_Assign,int iPK_DesignObjParameter,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Object_Position(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Object_Size(string sPK_DesignObj,int iPosition_X,int iPosition_Y,string &sCMD_Result,class Message *pMessage) {};
@@ -393,8 +393,12 @@ public:
 					{
 						string sCMD_Result="OK";
 					string sValue_To_Assign=pMessage->m_mapParameters[5];
+					int iPK_Users=atoi(pMessage->m_mapParameters[17].c_str());
 					string sErrors=pMessage->m_mapParameters[18];
-						CMD_Set_House_Mode(sValue_To_Assign.c_str(),sErrors.c_str(),sCMD_Result,pMessage);
+					string sPassword=pMessage->m_mapParameters[99];
+					int iPK_DeviceGroup=atoi(pMessage->m_mapParameters[100].c_str());
+					string sHandling_Instructions=pMessage->m_mapParameters[101];
+						CMD_Set_House_Mode(sValue_To_Assign.c_str(),iPK_Users,sErrors.c_str(),sPassword.c_str(),iPK_DeviceGroup,sHandling_Instructions.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
@@ -734,6 +738,8 @@ public:
 					}
 					else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
 						SendString(sCMD_Result);
+					if( sCMD_Result!="UNHANDLED" )
+						iHandled++;
 				}
 			}
 		}

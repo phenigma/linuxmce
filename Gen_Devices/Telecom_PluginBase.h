@@ -159,6 +159,8 @@ public:
 					}
 					else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
 						SendString(sCMD_Result);
+					if( sCMD_Result!="UNHANDLED" )
+						iHandled++;
 				}
 			}
 		}

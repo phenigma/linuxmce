@@ -16,6 +16,21 @@ public:
 	Security_Plugin_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent(int PK_DeviceTemplate, ClientSocket *pOCClientSocket, int DeviceID);
+	virtual void Security_Breach(int iPK_Device)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 16,1,26,StringUtils::itos(iPK_Device).c_str()));
+	}
+
+	virtual void Fire_Alarm(int iPK_Device)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 17,1,26,StringUtils::itos(iPK_Device).c_str()));
+	}
+
+	virtual void Reset_Alarm()
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 18,0));
+	}
+
 };
 
 
@@ -71,6 +86,9 @@ public:
 	int DATA_Get_PK_HouseMode() { return GetData()->Get_PK_HouseMode(); }
 	void DATA_Set_PK_HouseMode(int Value) { GetData()->Set_PK_HouseMode(Value); }
 	//Event accessors
+	void EVENT_Security_Breach(int iPK_Device) { GetEvents()->Security_Breach(iPK_Device); }
+	void EVENT_Fire_Alarm(int iPK_Device) { GetEvents()->Fire_Alarm(iPK_Device); }
+	void EVENT_Reset_Alarm() { GetEvents()->Reset_Alarm(); }
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,int iPK_DeviceGroup,string sHandling_Instructions,string &sCMD_Result,class Message *pMessage) {};
 
@@ -136,6 +154,8 @@ public:
 					}
 					else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
 						SendString(sCMD_Result);
+					if( sCMD_Result!="UNHANDLED" )
+						iHandled++;
 				}
 			}
 		}

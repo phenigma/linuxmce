@@ -36,10 +36,6 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
-#define SECURITY_BREACH	1
-#define FIRE_ALARM		2
-#define ANNOUNCEMENT	3
-
 #include <sstream>
 
 #include "DCERouter/DCERouter.h"
@@ -57,10 +53,18 @@ using namespace DCE;
 #include "pluto_main/Define_EventParameter.h"
 #include "pluto_main/Define_DesignObj.h"
 
+#include "pluto_security/Table_Alert.h"
+#include "pluto_security/Table_AlertType.h"
+#include "pluto_security/Table_ModeChange.h"
+
+// Alarm Types
+#define PROCESS_ALERT		1
+
 //<-dceag-const-b->
 Security_Plugin::Security_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-	: Security_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter), m_SecurityMutex("security")
+	: Security_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
+	, m_SecurityMutex("security")
 {
 	m_SecurityMutex.Init(NULL);
 
@@ -72,7 +76,19 @@ Security_Plugin::Security_Plugin(int DeviceID, string ServerAddress,bool bConnec
 		return;
 	}
 
+	m_pDatabase_pluto_security = new Database_pluto_security( );
+	if( !m_pDatabase_pluto_security->Connect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), "pluto_security", m_pRouter->iDBPort_get( ) ) )
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot connect to database!" );
+		m_bQuit=true;
+		return;
+	}
+
 	m_pDeviceData_Router_this = m_pRouter->m_mapDeviceData_Router_Find(m_dwPK_Device);
+	m_pRow_ModeChange_Last=NULL;
+
+	m_pAlarmManager = new AlarmManager();
+    m_pAlarmManager->Start(4);      //4 = number of worker threads
 }
 
 //<-dceag-dest-b->
@@ -218,6 +234,7 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 	}
 
 	bool bFailed=false; // Will be set to true if any of the devices fail to get set
+	map<int,DeviceData_Router *> mapResetDevices; // Keep track of the devices we change so we can reset any pending alarms that are affected
 
 	if( iPK_DeviceGroup )
 	{
@@ -231,7 +248,8 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 		for(size_t s=0;s<pDeviceGroup->m_vectDeviceData_Base.size();++s)
 		{
 			DeviceData_Router *pDevice = (DeviceData_Router *) pDeviceGroup->m_vectDeviceData_Base[s];  // it's coming from the router, so it's safe to cast it
-			if( !SetHouseMode(pDevice,PK_HouseMode,sHandling_Instructions) )
+			mapResetDevices[pDevice->m_dwPK_Device] = pDevice;
+			if( !SetHouseMode(pDevice,iPK_Users,PK_HouseMode,sHandling_Instructions) )
 			{
 				bFailed=true;
 				break;
@@ -248,7 +266,8 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 			for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
 			{
 				DeviceData_Router *pDevice = *it;
-				if( !SetHouseMode(pDevice,PK_HouseMode,sHandling_Instructions) )
+				mapResetDevices[pDevice->m_dwPK_Device] = pDevice;
+				if( !SetHouseMode(pDevice,iPK_Users,PK_HouseMode,sHandling_Instructions) )
 				{
 					bFailed=true;
 					break;
@@ -261,9 +280,21 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 		DCE::CMD_Goto_Screen CMD_Goto_Screen( 0, pMessage->m_dwPK_Device_From, 0, StringUtils::itos(DESIGNOBJ_mnuMain_CONST), "", "", false );
 		SendCommand( CMD_Goto_Screen );
 	}
+	for(vector<Row_Alert *>::iterator it=m_vectPendingAlerts.begin();it!=m_vectPendingAlerts.end();++it)
+	{
+		Row_Alert *pRow_Alert = *it;
+		if( mapResetDevices.find(pRow_Alert->EK_Device_get())!=mapResetDevices.end() )
+		{
+			// We've reset this device
+			pRow_Alert->ResetTime_set(StringUtils::SQLDateTime(time(NULL)));
+			pRow_Alert->Table_Alert_get()->Commit();
+			m_vectPendingAlerts.erase(it);
+		}
+	}
+	EVENT_Reset_Alarm();
 }
 
-bool Security_Plugin::SetHouseMode(DeviceData_Router *pDevice,int PK_HouseMode,string sHandlingInstructions) 
+bool Security_Plugin::SetHouseMode(DeviceData_Router *pDevice,int iPK_Users,int PK_HouseMode,string sHandlingInstructions) 
 {
 	string NewMode = GetModeString(PK_HouseMode);
 
@@ -296,6 +327,14 @@ bool Security_Plugin::SetHouseMode(DeviceData_Router *pDevice,int PK_HouseMode,s
 	pDevice->m_sState_set(NewMode + "," + Bypass);
 
 	m_pDeviceData_Router_this->m_sState_set("NewMode");
+
+	Row_ModeChange *pRow_ModeChange = m_pDatabase_pluto_security->ModeChange_get()->AddRow();
+	pRow_ModeChange->EK_HouseMode_set(PK_HouseMode);
+	pRow_ModeChange->ChangeTime_set(StringUtils::SQLDateTime(time(NULL)));
+	pRow_ModeChange->EK_Users_set(iPK_Users);
+	pRow_ModeChange->Table_ModeChange_get()->Commit();
+	m_pRow_ModeChange_Last=pRow_ModeChange;
+
 	return true;
 }
 
@@ -304,8 +343,8 @@ bool Security_Plugin::SensorIsTripped(int PK_HouseMode,DeviceData_Router *pDevic
 	if( pDevice->m_sState_get()!="TRIPPED" )
 		return false;
 
-	int Reaction = GetReaction(PK_HouseMode,pDevice);
-	return Reaction==SECURITY_BREACH || Reaction==FIRE_ALARM;
+	int PK_AlertType = GetAlertType(PK_HouseMode,pDevice);
+	return PK_AlertType==ALERTTYPE_Security_CONST || PK_AlertType==ALERTTYPE_Fire_CONST;
 }
 
 
@@ -336,28 +375,45 @@ bool Security_Plugin::SensorTrippedEvent(class Socket *pSocket,class Message *pM
 		return true;
 	}
 
+	int PK_AlertType = GetAlertType(PK_HouseMode,pDevice);
+	Row_AlertType *pRow_AlertType = m_pDatabase_pluto_security->AlertType_get()->GetRow(PK_AlertType);
+	if( m_pRow_ModeChange_Last && pRow_AlertType && StringUtils::SQLDateTime(m_pRow_ModeChange_Last->ChangeTime_get()) + pRow_AlertType->ExitDelay_get() > time(NULL) )
+	{
+		g_pPlutoLogger->Write(LV_STATUS,"Still in exit delay");
+		return true;
+	}
+
 	if( m_bTripped && Bypass!="BYPASS" && Bypass!="PERMBYPASS" && SensorIsTripped(PK_HouseMode,pDevice) )
 	{
-		int Reaction = GetReaction(PK_HouseMode,pDevice);
-		if( Reaction==SECURITY_BREACH )
-			SecurityBreach(pDevice);
-		else if( Reaction==FIRE_ALARM )
-			FireAlarm(pDevice);
+		Row_Alert *pRow_Alert = m_pDatabase_pluto_security->Alert_get()->AddRow();
+		pRow_Alert->FK_AlertType_set(PK_AlertType);
+		pRow_Alert->EK_Device_set(pDevice->m_dwPK_Device);
+		pRow_Alert->DetectionTime_set(StringUtils::SQLDateTime(time(NULL)));
+		pRow_Alert->ExpirationTime_set(StringUtils::SQLDateTime(time(NULL) + pRow_AlertType ? pRow_AlertType->ExitDelay_get() : 0 ));
+		pRow_Alert->Table_Alert_get()->Commit();
+		m_vectPendingAlerts.push_back(pRow_Alert);
+		m_pAlarmManager->AddAbsoluteAlarm(StringUtils::SQLDateTime(pRow_Alert->ExpirationTime_get()),this,PROCESS_ALERT,&pRow_Alert);
 	}
 
 	return true;
 }
 
-int Security_Plugin::GetReaction(int PK_HouseMode,DeviceData_Router *pDevice)
+int Security_Plugin::GetAlertType(int PK_HouseMode,DeviceData_Router *pDevice)
 {
-	return SECURITY_BREACH;
+	return ALERTTYPE_Security_CONST;
 }
 
 void Security_Plugin::SecurityBreach(DeviceData_Router *pDevice)
 {
+	EVENT_Security_Breach(pDevice->m_dwPK_Device);
 }
 
 void Security_Plugin::FireAlarm(DeviceData_Router *pDevice)
+{
+	EVENT_Fire_Alarm(pDevice->m_dwPK_Device);
+}
+
+void Security_Plugin::AlarmCallback(int id, void* param)
 {
 }
 

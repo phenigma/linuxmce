@@ -15,18 +15,26 @@
 //<-dceag-d-e->
 
 class Database_pluto_main;
+class Database_pluto_security;
+class Row_Alert;
+class Row_ModeChange;
 #include "DeviceData_Router.h"
+#include "AlarmManager.h"
+#include "Datagrid_Plugin/Datagrid_Plugin.h"
 
-//<-dceag-decl-b->
+//<-dceag-decl-b->!
 namespace DCE
 {
-	class Security_Plugin : public Security_Plugin_Command
+	class Security_Plugin : public Security_Plugin_Command, public DataGridGeneratorPlugIn, public AlarmEvent
 	{
 //<-dceag-decl-e->
 	// Private member variables 
     pluto_pthread_mutex_t m_SecurityMutex;
     class Orbiter_Plugin *m_pOrbiter_Plugin;
 	DeviceData_Router *m_pDeviceData_Router_this;
+	class AlarmManager *m_pAlarmManager;
+	vector<Row_Alert *> m_vectPendingAlerts;
+	Row_ModeChange *m_pRow_ModeChange_Last;
 
 	// Private methods
 public:
@@ -44,22 +52,26 @@ public:
 
 	class Datagrid_Plugin *m_pDatagrid_Plugin;
 	Database_pluto_main *m_pDatabase_pluto_main;
+	Database_pluto_security *m_pDatabase_pluto_security;
 
 	/** Datagrids */
 	class DataGridTable *SecurityScenariosGrid( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign
 							, class Message *pMessage );
 
-	bool SetHouseMode(DeviceData_Router *pDevice,int PK_HouseMode,string sHandlingInstructions);
+	bool SetHouseMode(DeviceData_Router *pDevice,int iPK_Users,int PK_HouseMode,string sHandlingInstructions);
 	void HandleSetModeFailure(Message *pMessage);
 	bool SensorIsTripped(int PK_HouseMode,DeviceData_Router *pDevice);
-	string GetModeString(int PK_HouseMode);
-	int GetModeID(string Mode);
-	int GetReaction(int PK_HouseMode,DeviceData_Router *pDevice);
+	string GetModeString(int PK_HouseMode) {return "foo";};
+	int GetModeID(string Mode) {return 0;}
+	int GetAlertType(int PK_HouseMode,DeviceData_Router *pDevice);
 	void SecurityBreach(DeviceData_Router *pDevice);
 	void FireAlarm(DeviceData_Router *pDevice);
 
 	/** Interceptors */
     bool SensorTrippedEvent(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
+
+	// Alarm callback
+	virtual void AlarmCallback(int id, void* param);
 
 //<-dceag-h-b->
 	/*
@@ -73,6 +85,9 @@ public:
 	void DATA_Set_PK_HouseMode(int Value);
 
 			*****EVENT***** accessors inherited from base class
+	void EVENT_Security_Breach(int iPK_Device);
+	void EVENT_Fire_Alarm(int iPK_Device);
+	void EVENT_Reset_Alarm();
 
 			*****COMMANDS***** we need to implement
 	*/
