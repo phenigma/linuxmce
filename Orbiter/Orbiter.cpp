@@ -5087,7 +5087,7 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 	text.m_sText = "Key code pressed: " + StringUtils::ltos(key);
 	text.m_rPosition = rect;
 	
-	TextStyle *pTextStyle = m_mapTextStyle_Find( 0 );
+	TextStyle *pTextStyle = m_mapTextStyle_Find( 1 );
 	RenderText(&text, pTextStyle);
 
 	EndPaint();
