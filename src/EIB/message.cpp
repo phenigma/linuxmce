@@ -20,6 +20,7 @@
 #include "message.h"
 #include <string.h>
 #include "busconnector.h"
+#include "timetracker.h"
 
 #include "DCE/Logger.h"
 
@@ -52,7 +53,7 @@
 #define EIB_SENT_APCI_BYTE 13
 #define EIB_SENT_MESSAGE_CODE_VALUE 0x11
 #define EIB_SENT_FIRST_SOURCE_ADDRESS_BYTE 7
-#define EIB_SENT_SOURCE_ADDRESS_BYTE_VALUE 0x00
+#define EIB_SENT_SOURCE_ADDRESS_SHORT_VALUE 0x0000
 
 
 using namespace DCE;
@@ -63,7 +64,14 @@ int
 Message::SendBuffer(BusConnector *pbusconn, 
 		const unsigned char* msg, unsigned int length)
 {
+	TimeTracker tk;
+
+	tk.Start();
 	pbusconn->Send((unsigned char*)msg, length);
+	tk.Stop();
+	
+	g_pPlutoLogger->Write(LV_STATUS, "Buffer sent in %.5f seconds", tk.getPeriodInSecs());
+		
 	pbusconn->incFrameBit();
 	return 0;
 }
@@ -129,6 +137,8 @@ ServerMessage::SendServerBuffer(BusConnector *pbusconn,
 	peibuff[EIB_FIRST_LENGTH_BYTE] =
 	peibuff[EIB_SECOND_LENGTH_BYTE] =
 		length + 2;
+		
+	*((unsigned short*)&peibuff[EIB_SENT_FIRST_SOURCE_ADDRESS_BYTE]) = EIB_SENT_SOURCE_ADDRESS_SHORT_VALUE;
 
 	memcpy(&peibuff[EIB_STATUS_BYTE], msg, length);
 		
@@ -153,7 +163,6 @@ ServerMessage::SendServerBuffer(BusConnector *pbusconn,
 	// Set Stop Byte
 	peibuff[laenge + 1] = EIB_STOP_BYTE_VALUE;
 	
-	ReceiveServerBuffer(pbusconn, (unsigned char*)msg, length);
 	return SendBuffer(pbusconn, peibuff, sizeof(peibuff));
 }
 
@@ -219,7 +228,7 @@ ServerMessage::ReceiveServerBuffer(BusConnector *pbusconn,
 	
 	/* We are only interested in busmonitor messages */
 	if ( EIB_RECEIVED_MESSAGE_CODE_VALUE != peibuff[EIB_MESSAGE_CODE_BYTE]) {
-// 		return 1;
+ 		return 1;
 	}
 
 	/*check if repetition*/

@@ -16,6 +16,8 @@
 
 #include <string>
 
+#define MAX_STRING_DATA_LEN		23
+
 namespace EIBBUS {
 
 /**
@@ -32,37 +34,13 @@ public:
 	enum ACTIONTYPE {
 		READ,
 		ANSWER,
-		WRITE,
+		WRITE/*,
 		SUBSCRIBE,
 		UNSUBSCRIBE,
-		UNKNOWN
-	};
-	
-	enum DATATYPE {
-		DT_SWITCH 				= 1, 		/*1 bit*/
-		DT_DIMMING_CONTROL 		= 2,		/*4 bit*/
-		DT_TIME			 		= 3,		/*3 Bytes*/
-		DT_DATE			 		= 4,		/*3 Bytes*/
-		DT_VALUE		 		= 5,		/*2 Bytes*/
-		DT_SCALING		 		= 6,		/*1 Byte*/
-		DT_DRIVE_CONTROL		= 7,		/*1 bit*/
-		DT_FLOAT				= 9,		/*4 Bytes*/
-		DT_COUNTER16			= 10,		/*2 Bytes*/
-		DT_COUNTER32			= 11,		/*4 Bytes*/
-		DT_ASCIICHAR			= 13,		/*1 Byte*/
-		DT_COUNTER8				= 14,		/*1 Byte*/
-		DT_STRING				= 15		/*23 Bytes*/
+		UNKNOWN*/
 	};
 
 public:
-	
-	inline void setEisType(int eistype) {
-		eistype_ = eistype;
-	}
-	inline int getEisType() const {
-		return eistype_;
-	}
-	
 	inline void setActionType(ACTIONTYPE acttype) {
 		acttype_ = acttype;
 	}
@@ -77,19 +55,34 @@ public:
 		return gaddr_.c_str();
 	};
 	
-	inline void setUserData(const char* usrdata) {
-		usrdata_ = usrdata;
-	}
-	inline const char* getUserData() const {
-		return usrdata_.c_str();
-	};
 	
+	inline unsigned int getDataLength() {
+		return length_;
+	}
+	
+	inline void setShortUserData(unsigned char usrdata) {
+		shortusrdata_ = usrdata;
+		length_ = 0;
+	}
+	inline unsigned char getShortUserData() const {
+		return shortusrdata_;
+	}
+		
+	inline void setUserData(const unsigned char* usrdata, unsigned int length) { /*in string format, which is then converted to apropriate format*/
+		memcpy(usrdata_, usrdata, length);
+		length_ = length;
+	}
+	inline const unsigned char* getUserData() const {
+		return usrdata_;
+	};
 
 private:
-	int eistype_;
 	ACTIONTYPE acttype_;
 	std::string gaddr_;
-	std::string usrdata_;
+	
+	unsigned int length_;
+	unsigned char shortusrdata_;
+	unsigned char usrdata_[MAX_STRING_DATA_LEN];
 	
 protected:
 	virtual int Send(BusConnector *pbusconn);

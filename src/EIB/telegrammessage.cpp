@@ -13,20 +13,20 @@
 #include "busconnector.h"
 
 /* helper functions */
-static unsigned getunsignedfromint( int value );
-static int getintfromeis5( unsigned eis5 );
+/*static unsigned getunsignedfromint( int value );
+static int getintfromeis5( unsigned eis5 );*/
 static unsigned short getgroupaddrfromstr(const char *gadstr);
 static bool getstrfromgroupaddr(unsigned short gaddr, char *gadstr, int length);
 static unsigned short swapushort(unsigned short toswap);
 
 #define MAX_GROUPADDR_STR_LEN	11
-#define MAX_STRING_DATA_LEN		23
 
 /* TelegramMessage */
 
 namespace EIBBUS {
 
 TelegramMessage::TelegramMessage()
+	: acttype_(WRITE), length_(0), shortusrdata_(0)
 {
 }
 
@@ -42,7 +42,7 @@ TelegramMessage::Recv(BusConnector *pbusconn) {
 	if((ret = ReceiveServerBuffer(pbusconn, inmsg, userlength)) != 0) {
 		return ret;
 	}
-	unsigned int length = userlength - 8;
+	length_ = userlength - 8;
 
 	/*get destination grou[ address*/
 	unsigned short groupaddr = *((unsigned short*)&inmsg[3]);
@@ -53,35 +53,15 @@ TelegramMessage::Recv(BusConnector *pbusconn) {
 	
 	setGroupAddress(gaddrstr);
 	
-	//int      		dataI;
-	unsigned 		dataU;
-	unsigned char 	dataC;
+	unsigned char acpishortuserdata = inmsg[7];
+	setActionType((ACTIONTYPE)(acpishortuserdata >> 6));
 	
-	switch(length) {
+	switch(length_) {
 	case 0:
-		setEisType(DT_SWITCH);
-		dataC = inmsg[7] & 0x3F;
-		break;
-	case 1:
-		setEisType(DT_ASCIICHAR);
-		dataC = *((unsigned char*)&inmsg[8]);
-		break;
-	case 2:
-		setEisType(DT_VALUE);
-		dataU = *((unsigned short*)&inmsg[8]);
-		break;
-	case 3:
-		setEisType(DT_TIME);
-		dataU = *((unsigned int*)&inmsg[8]) >> 8;
-		break;
-	case 4:
-		setEisType(DT_FLOAT);
-		dataU = *((unsigned int*)&inmsg[8]);
+		shortusrdata_ = acpishortuserdata & 0x3F;
 		break;
 	default:
-		setEisType(DT_STRING);
-		unsigned char buff[MAX_STRING_DATA_LEN];
-		memcpy(buff, &inmsg[8], length);
+		memcpy(usrdata_, &inmsg[8], length_);
 		break;
 	}
 	
@@ -90,100 +70,14 @@ TelegramMessage::Recv(BusConnector *pbusconn) {
 
 int 
 TelegramMessage::Send(BusConnector *pbusconn) {
-	unsigned char length;
-	
-	switch(getEisType()) {
-	case 0:
-		length = 0; break;
-		
-	case 1:
-	case 2:
-	case 7:
-	case 8:
-		length = 0; break;
-		
-	case 6:
-	case 13:
-	case 14:
-		length = 1; break;
-		
-	case 3:
-	case 4:
-		length = 3; break;
-	
-	case 5:
-	case 10:
-		length = 2; break;
-	
-	case 9:
-	case 11:
-	case 12:
-		length = 4; break;
-	
-	case 15:
-		length = 14; break;
-	
-	default:
-		length = 0; 
-		break;
+	if(getActionType() != WRITE) {
+		shortusrdata_ = 0;
+		length_ = 0;
 	}
-	
-	unsigned char routingcounterlength = (unsigned short)(length + 1) + 0xE0;
-	
-	/*final data buffer*/
-	unsigned char data[MAX_USERDATA_LENGTH];
-	unsigned char acpishortuserdata = 0;
-	
-	if(length != 0) {
-		/*temporary conversion data*/
-		int      		dataI;
-		unsigned 		dataU;
-		unsigned char 	dataC;
-        
-		acpishortuserdata = (unsigned char)(getActionType() << 6);
 		
-		switch( getEisType() )
-        {
-            // length = 1
-            case 6:  // scaling
-            case 13: // ASCI Character
-            case 14: // 8-Bit counter value
-				dataU = (unsigned)atoi( usrdata_.c_str() );
-                if( dataU > 255 )
-                    dataC = 255;
-                else
-                    dataC = (unsigned char)dataU;
-				*data = dataC;
-                break;
-            // length = 2 , 3 or 4
-            case 3:  // time - 3 Bytes
-            case 4:  // date - 3 Bytes
-            case 5:  // value - 2 Bytes
-            case 9:  // float - 4 Bytes
-            case 10: // counter value - 2 Bytes
-            case 11: // 32-bit counter value - 4 Bytes
-            case 12: // access - 4 bytes
-				dataI = atoi( usrdata_.c_str() );
-				dataU = getunsignedfromint( dataI );
-				if( getEisType() == 5 )
-				{
-					dataU = getintfromeis5( dataU );
-				}
-				
-				memcpy(data, &dataU, length);
-                break;
-            
-			case 15:  // Character String, length = 14
-				memcpy(data, usrdata_.c_str(), length);
-                break;
-
-            default:
-                break;
-        }
-	} else         // short data
-    {
-		acpishortuserdata = ((unsigned char)(getActionType()) << 6) + (unsigned char)atoi( usrdata_.c_str() );
-    }
+	unsigned char routingcounterlength = (unsigned short)(length_ + 1) + 0xE0;
+	unsigned char acpishortuserdata = (unsigned char)(getActionType() << 6) 
+											+ ((length_ == 0) ? shortusrdata_ : 0);
 	
 	/*control field*/
 	int controlfield = 0x9C;
@@ -204,7 +98,7 @@ TelegramMessage::Send(BusConnector *pbusconn) {
 	
 	unsigned char userlength = routingcounterlength & 0x0F; 
 	if(userlength > 1) {
-		memcpy(&outmsg[8], data, userlength - 1);
+		memcpy(&outmsg[8], usrdata_, userlength - 1);
 	}
 	outmsglength = 8 + userlength - 1;
 	
@@ -214,7 +108,7 @@ TelegramMessage::Send(BusConnector *pbusconn) {
 };
 
 /* helper functions */
-unsigned getunsignedfromint( int value )
+/*unsigned getunsignedfromint( int value )
 {
     if( value >= 0 )
         return value;
@@ -249,6 +143,7 @@ int getintfromeis5( unsigned eis5 )
     else
         return result;
 }
+*/
 
 unsigned short 
 getgroupaddrfromstr(const char *gadstr)

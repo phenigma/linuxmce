@@ -43,6 +43,23 @@ protected:
 
 
 private:
+	enum DATATYPE {
+		DT_UNKNOWN				= 0,
+		DT_SWITCH 				= 1, 		/*1 bit*/
+		DT_DIMMING_CONTROL 		= 2,		/*4 bit*/
+		DT_TIME			 		= 3,		/*3 Bytes*/
+		DT_DATE			 		= 4,		/*3 Bytes*/
+		DT_VALUE		 		= 5,		/*2 Bytes*/
+		DT_SCALING		 		= 6,		/*1 Byte*/
+		DT_DRIVE_CONTROL		= 7,		/*1 bit*/
+		DT_FLOAT				= 9,		/*4 Bytes*/
+		DT_COUNTER16			= 10,		/*2 Bytes*/
+		DT_COUNTER32			= 11,		/*4 Bytes*/
+		DT_ASCIICHAR			= 13,		/*1 Byte*/
+		DT_COUNTER8				= 14,		/*1 Byte*/
+		DT_STRING				= 15		/*23 Bytes*/
+	};
+	
 	EIBBUS::MessagePool m_msgPool;
 
 //<-dceag-h-b->
@@ -58,6 +75,32 @@ private:
 
 			*****COMMANDS***** we need to implement
 	*/
+
+
+	/** @brief COMMAND: #273 - EIB_Write */
+	/** Peforms a WRITE request on the bus */
+		/** @param #108 Address */
+			/** EIB Group Address */
+		/** @param #109 Data */
+			/** EIB Data */
+		/** @param #110 DataType */
+			/** EIB Data Type:
+[1]-switch (1b)
+[2]-dimming-control (4b)
+[3]-time (3B)
+[4]-date (4B)
+[5]-value (2B)
+[6]-scaling (1B)
+[7]-drive control
+[9]-float
+[10]-16bit counter
+[11]-32bit counter
+[13]-ASCII character
+[14]-8bit counter
+[15]-character string */
+
+	virtual void CMD_EIB_Write(string sAddress,string sData,int iDataType) { string sCMD_Result; CMD_EIB_Write(sAddress.c_str(),sData.c_str(),iDataType,sCMD_Result,NULL);};
+	virtual void CMD_EIB_Write(string sAddress,string sData,int iDataType,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

@@ -19,6 +19,7 @@
  ***************************************************************************/
 #include "messagepool.h"
 #include "busconnector.h"
+#include "timetracker.h"
 
 #include "DCE/Logger.h"
 
@@ -132,12 +133,16 @@ MessagePool::handleState() {
 				if(sendqueue_.size() > 0) {
 					TelegramMessage& tlmsg = *sendqueue_.begin();
 					
-					g_pPlutoLogger->Write(LV_STATUS, "Sending telegram.");
+					g_pPlutoLogger->Write(LV_STATUS, "Sending telegram...");
+					
+					TimeTracker tk;
+					tk.Start();
 					if(tlmsg.Send(pbusconn_)) {
 						g_pPlutoLogger->Write(LV_WARNING, "Error sending telegram.");
 						return;
 					}
-					g_pPlutoLogger->Write(LV_STATUS, "Telegram sent.");
+					tk.Stop();
+					g_pPlutoLogger->Write(LV_STATUS, "Telegram sent in %.04f seconds", tk.getPeriodInSecs());
 					
 					sendqueue_.pop_front();
 				}
