@@ -1,0 +1,24 @@
+diff -ur kernel-source-2.6.8.orig/drivers/misc/Kconfig kernel-source-2.6.8/drivers/misc/Kconfig
+--- kernel-source-2.6.8.orig/drivers/misc/Kconfig	2004-08-14 08:36:32.000000000 +0300
++++ kernel-source-2.6.8/drivers/misc/Kconfig	2004-12-16 18:23:51.000000000 +0200
+@@ -29,5 +29,12 @@
+ 
+ 	  If unsure, say N.
+ 
++config GC100
++	tristate "GC100 Serial Port Driver"
++	depends on X86
++	default m
++	---help---
++	  GC100 Serial Port Driver
++
+ endmenu
+ 
+diff -ur kernel-source-2.6.8.orig/drivers/misc/Makefile kernel-source-2.6.8/drivers/misc/Makefile
+--- kernel-source-2.6.8.orig/drivers/misc/Makefile	2004-08-14 08:38:04.000000000 +0300
++++ kernel-source-2.6.8/drivers/misc/Makefile	2004-12-16 18:23:58.000000000 +0200
+@@ -4,3 +4,4 @@
+ obj- := misc.o	# Dummy rule to force built-in.o to be made
+ 
+ obj-$(CONFIG_IBM_ASM)	+= ibmasm/
++obj-$(CONFIG_GC100) += gc100/
