@@ -67,7 +67,7 @@ function editPlaylist($output,$mediadbADO) {
 		while($rowPlaylistEntry=$resPlaylistEntry->FetchRow()){
 			$pos++;
 			$out.='
-				<tr>
+				<tr bgcolor="'.(($pos%2==0)?'#EEEEEE':'#EBEFF9').'">
 					<td>'.$pos.'</td>
 					<td>'.(($rowPlaylistEntry['Filename']!='')?$rowPlaylistEntry['Filename']:$rowPlaylistEntry['FileFilename']).'</td>
 					<td>'.(($rowPlaylistEntry['Path']!='')?$rowPlaylistEntry['Path']:$rowPlaylistEntry['FilePath']).'</td>
@@ -113,7 +113,7 @@ function editPlaylist($output,$mediadbADO) {
 		}
 		$out.='			
 			<table>
-			<input type="hidden" name="oldOrderArray" value="'.str_replace('"','\'',serialize($oldOrderArray)).'">
+			<input type="hidden" name="oldOrderArray" value="'.str_replace('"','\'',urlencode(serialize($oldOrderArray))).'">
 		</form>';
 	}else{
 	// process area
@@ -164,17 +164,29 @@ function editPlaylist($output,$mediadbADO) {
 		}
 
 		if(isset($_POST['jumpFromTo']) && $_POST['jumpFromTo']!=''){
-			$oldOrderArray=unserialize(stripslashes(str_replace('\'','"',$_POST['oldOrderArray'])));
-			//echo $oldOrderArray;
-//			print_r($oldOrderArray);
+			$oldOrderArray=unserialize(urldecode($_POST['oldOrderArray']));
 			$tmpArray=explode(',',$_POST['jumpFromTo']);
 			$fromPos=$tmpArray[0];
 			$toPos=$tmpArray[1];
 			if(in_array($toPos,array_keys($oldOrderArray))){
-			
+				if($fromPos!=$toPos){
+					$updatePlaylistEntry='UPDATE PlaylistEntry SET `Order`=? WHERE PK_PlaylistEntry=?';
+					$mediadbADO->Execute($updatePlaylistEntry,array($oldOrderArray[$toPos]['order'],$oldOrderArray[$fromPos]['entryID']));
+				
+					if($fromPos>$toPos){
+						for($i=$toPos;$i<$fromPos;$i++){
+							$mediadbADO->Execute($updatePlaylistEntry,array($oldOrderArray[$i+1]['order'],$oldOrderArray[$i]['entryID']));
+						}
+					}else{
+						//$mediadbADO->debug=true;
+						for($i=$fromPos;$i<$toPos;$i++){
+							$mediadbADO->Execute($updatePlaylistEntry,array($oldOrderArray[$i]['order'],$oldOrderArray[$i+1]['entryID']));
+						}
+						
+					}
+				}
 			}else{
 				// do nothing, the position doesn't exist in the file list
-				// TODO later
 				header('Location: index.php?section=editPlaylist&plID='.$playlistID.'&error=The position you type doesn\'t exist in the list.');
 			}
 		}

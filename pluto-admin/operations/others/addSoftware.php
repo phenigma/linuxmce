@@ -13,6 +13,15 @@ function addSoftware($output,$dbADO) {
 			function windowOpen(locationA,attributes) {
 				window.open(locationA,\'\',attributes);
 			}
+			function enableRepName()
+			{
+				if(document.addSoftware.debianRepository.checked){
+					document.addSoftware.repositoryName.disabled=false;
+				}else{
+					document.addSoftware.repositoryName.disabled=true;
+					document.addSoftware.repositoryName.value=\'\';
+				}
+			}
 		</script>		
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center"><B>'.@$_REQUEST['msg'].'</B></div>
@@ -51,11 +60,11 @@ function addSoftware($output,$dbADO) {
 			</tr>
 			<tr>
 				<td><B>Debian Repository</B></td>
-				<td><input type="checkbox" name="debianRepository" value="1" '.((@$_SESSION['debianRepository']==1)?'checked':'').'> </td>
+				<td><input type="checkbox" name="debianRepository" value="1" '.((@$_SESSION['debianRepository']==1)?'checked':'').' onClick="enableRepName();"> </td>
 			</tr>		
 			<tr>
 				<td><B>Repository Name</B></td>
-				<td><input type="text" name="repositoryName" value="'.@$_SESSION['repositoryName'].'"></td>
+				<td><input type="text" name="repositoryName" value="'.@$_SESSION['repositoryName'].'" '.((@$_SESSION['debianRepository']!=1)?'disabled':'').'></td>
 			</tr>
 			<tr>
 				<td colspan="2" align="center"><input type="submit" name="add" value="Add software"></td>
@@ -76,7 +85,7 @@ function addSoftware($output,$dbADO) {
 			$deviceIP=$deviceParts[1];
 			$packageName=$_POST['packageName'];
 			$url=((isset($_POST['debianRepository']) && (int)$_POST['debianRepository']==1)?'deb ':'').$_POST['url'];
-			$repositoryName=$_POST['repositoryName'];
+			$repositoryName=@$_POST['repositoryName'];
 
 			$msg=exec("/usr/pluto/bin/InstallSoftware.sh '$deviceIP' '$packageName' '$url' '$repositoryName'");
 			$_SESSION['deviceIP']=$deviceParts[0].':'.$deviceIP;
