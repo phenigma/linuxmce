@@ -103,6 +103,7 @@ Command_Impl::Command_Impl( int DeviceID, string ServerAddress, bool bLocalMode,
 	m_pParent = NULL;
 	m_listMessageQueueMutex.Init( NULL );
 	m_bKillSpawnedDevicesOnExit = false;
+	m_bGeneric = false;
 	pthread_cond_init( &m_listMessageQueueCond, NULL );
 	if(pthread_create( &m_pthread_queue_id, NULL, MessageQueueThread_DCECI, (void*)this) )
 	{
@@ -124,6 +125,7 @@ Command_Impl::Command_Impl( Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl
 	m_bHandleChildren = false;
 	m_listMessageQueueMutex.Init(NULL);
 	m_bKillSpawnedDevicesOnExit = false;
+	m_bGeneric = false;
 	pthread_cond_init( &m_listMessageQueueCond, NULL );
 	if(pthread_create( &m_pthread_queue_id, NULL, MessageQueueThread_DCECI, (void*)this) )
 	{
@@ -180,6 +182,7 @@ void Command_Impl::CreateChildren()
 		if ( !pCommand )
 		{
 			pCommand = new Command_Impl(m_pPrimaryDeviceCommand, pDeviceData_Impl_Child, pEvent, m_pRouter);
+			pCommand->m_bGeneric=true;
 			g_pPlutoLogger->Write(LV_WARNING, "Note: Device manager has attached a device of type %d that this has no custom handler for.  This is normal for IR.", pDeviceData_Impl_Child->m_dwPK_DeviceTemplate);
 		}
 		pCommand->m_pParent = this;

@@ -617,7 +617,7 @@ int k=2;
 	fstr_DeviceCommand << "\t\t\t" << (deviceInfo.m_mapCommandInfo.size()>0 ? "else" : "") << " if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND )" << endl;
 	fstr_DeviceCommand << "\t\t\t{" << endl;
 	fstr_DeviceCommand << "\t\t\t\tMapCommand_Impl::iterator it = m_mapCommandImpl_Children.find(pMessage->m_dwPK_Device_To);" << endl;
-	fstr_DeviceCommand << "\t\t\t\tif( it!=m_mapCommandImpl_Children.end() )" << endl;
+	fstr_DeviceCommand << "\t\t\t\tif( it!=m_mapCommandImpl_Children.end() && !(*it).second->m_bGeneric )" << endl;
 	fstr_DeviceCommand << "\t\t\t\t{" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\tCommand_Impl *pCommand_Impl = (*it).second;" << endl;
 	fstr_DeviceCommand << "\t\t\t\t\tiHandled += pCommand_Impl->ReceivedMessage(pMessage);" << endl;
@@ -690,7 +690,7 @@ int k=2;
 
 		fstr_DeviceCommand << "\t};" << endl;
 	}
-	fstr_DeviceCommand << "\tg_pPlutoLogger->Write(LV_CRITICAL, \"Got CreateData for unknown type %d.\", iPK_DeviceTemplate);"<< endl;
+	fstr_DeviceCommand << "\tg_pPlutoLogger->Write(LV_STATUS, \"Got CreateData for unknown type %d.\", iPK_DeviceTemplate);"<< endl;
 	fstr_DeviceCommand << "\treturn NULL;" << endl;
 	fstr_DeviceCommand << "}" << endl << endl;
 
@@ -707,7 +707,7 @@ int k=2;
 		}
 		fstr_DeviceCommand << "\t};"<< endl;
 	}
-	fstr_DeviceCommand << "\tg_pPlutoLogger->Write(LV_CRITICAL, \"Got CreateEvent for unknown type %d.\", PK_DeviceTemplate);"<< endl;
+	fstr_DeviceCommand << "\tg_pPlutoLogger->Write(LV_STATUS, \"Got CreateEvent for unknown type %d.\", PK_DeviceTemplate);"<< endl;
 	fstr_DeviceCommand << "\treturn NULL;"<< endl;
 	fstr_DeviceCommand << "}"<< endl;
 
@@ -727,7 +727,7 @@ int k=2;
 		}
 		fstr_DeviceCommand << "\t};" << endl;
 	}
-	fstr_DeviceCommand << "\tg_pPlutoLogger->Write(LV_CRITICAL, \"Got CreateCommand for unknown type %d.\", PK_DeviceTemplate);"<< endl;
+	fstr_DeviceCommand << "\tg_pPlutoLogger->Write(LV_STATUS, \"Got CreateCommand for unknown type %d.\", PK_DeviceTemplate);"<< endl;
 	fstr_DeviceCommand << "\treturn NULL;"<< endl;
 	fstr_DeviceCommand << "}"<< endl;
 	fstr_DeviceCommand.close();

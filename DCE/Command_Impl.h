@@ -68,6 +68,7 @@ namespace DCE
 		bool m_bReload;
 		bool m_bHandleChildren; /** < used by ReceivedMessage() */
 		bool m_bLocalMode; /** < no router */
+		bool m_bGeneric; /** < This is not a custom generated command handler.  Just a generic child with no handlers. */
 		
 		
 		/**
