@@ -18,3 +18,40 @@ sleep 5
 # TODO: use nc -z and a timeout
 
 /usr/pluto/bin/SetupRemoteAccess.sh
+
+# Delete old packages
+cd /usr/pluto/deb-cache/dists/sarge/main/binary-i386/
+ThisVersion="$(dpkg -s pluto-dcerouter | grep Version)"
+RemovedList="0==1"
+for File in pluto-*_*.deb; do
+	DiskVersion="$(dpkg --info "$File" | grep Version | cut -c2-)"
+	PkgName="$(dpkg --info "$File" | grep Package | cut -d' ' -f3)"
+	if [ "$ThisVersion" != "$DiskVersion" ]; then
+		rm -f $File
+		RemovedList="$RemovedList || \$0 == \"Package: $PkgName\""
+	fi
+done
+
+if [ "$RemovedList" != "0==1" ]; then
+	gunzip -c Packages.gz >Packages.orig
+	awk '
+		BEGIN { Flag = 0 }
+		'"$RemovedList"' { Flag = 1 }
+		Flag == 0 { print }
+		$0 == "" { Flag = 0 }
+	' Packages.orig >Packages.new
+	gzip -9c Packages.new >Packages.gz
+	rm Packages.new Packages.orig
+	apt-get update
+fi
+cd -
+
+# Workaround for 2.0.0.10 release mistake
+XineVer="$(dpkg -s pluto-xine-plugin | grep Version)"
+DCERouterVer="$(dpkg -s pluto-dcerouter | grep Version)"
+
+if [ "$XineVer" != "$DCERouterVer" ]; then
+	apt-get remove -y pluto-xine-plugin
+	apt-get clean
+	apt-get install -y pluto-xine-plugin
+fi
