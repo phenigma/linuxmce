@@ -10,6 +10,27 @@ function wizard($output,$dbADO) {
 	$FK_Users=(isset($_SESSION['userID']))?(int)$_SESSION['userID']:0;
 	$step=(int)$_REQUEST['step'];
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
+
+	$PK_Installation=(isset($_REQUEST['instid']))?(int)$_REQUEST['instid']:0;
+	if($PK_Installation!=0){
+		$queryInstallations='
+			SELECT * FROM Installation
+				INNER JOIN Installation_Users ON FK_Installation=PK_Installation
+			WHERE PK_Installation=? AND FK_Users=?';
+		$resInstallations=$dbADO->Execute($queryInstallations,array($PK_Installation,$FK_Users));
+		if($resInstallations){
+			$rowInstallations=$resInstallations->FetchRow();
+			$_SESSION['installationID']=$PK_Installation;
+			$_SESSION['installationDescription']=$rowInstallations['Description'];
+			$_SESSION['ActivationCode']=$rowInstallations['ActivationCode'];
+		}else{
+			unset($_SESSION['installationID']);
+			unset($_SESSION['installationDescription']);
+			unset($_SESSION['ActivationCode']);
+			header("Location: index.php?section=myPluto");
+		}
+	}
+
 	$installationID=(isset($_SESSION['installationID']))?$_SESSION['installationID']:0;
 	
 	switch($step){
@@ -457,12 +478,6 @@ function wizard($output,$dbADO) {
 						$updateDeviceDeviceData='UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?';
 						$dbADO->Execute($updateDeviceDeviceData,array($distro,$_SESSION['deviceID'],$GLOBALS['rootPK_Distro']));
 						
-						// install options - delete or insert devices
-						$installOptionsArray=explode(',',$_POST['displayedTemplatesRequired_'.$_SESSION['CoreDCERouter']]);
-						foreach($installOptionsArray AS $elem){
-							$oldDevice=$_POST['device_'.$_SESSION['CoreDCERouter'].'_requiredTemplate_'.$elem];
-							$dbADO->Execute("DELETE FROM Device WHERE PK_Device='".$oldDevice."'");
-						}
 						// the template was changed, I delete the hybrid, it will be recreated when click on "Next"
 						if(isset($_SESSION['coreHybridID'])){
 							deleteDevice($_SESSION['coreHybridID'],$dbADO);
@@ -944,8 +959,7 @@ function wizard($output,$dbADO) {
 			}
 		break;
 		case 6:
-				$installationID=(isset($_SESSION['installationID']))?$_SESSION['installationID']:0;
-				
+			
 				$validOrbiters = getValidOrbitersArray($installationID,$dbADO);
 				$queryOrbiters='SELECT * FROM DeviceTemplate WHERE PK_DeviceTemplate IN ('.join(',',$validOrbiters).')';
 				$resOrbiters=$dbADO->Execute($queryOrbiters);
@@ -1259,6 +1273,16 @@ function wizard($output,$dbADO) {
 					if($resDevice->RecordCount()!=0){
 						$rowDevice=$resDevice->FetchRow();
 						$_SESSION['deviceID']=$rowDevice['PK_Device'];
+					}else{
+						unset($_SESSION['deviceID']);
+						unset($_SESSION['isCoreFirstTime']);
+						unset($_SESSION['CoreDCERouter']);
+						unset($_SESSION['coreHybridID']);
+						unset($_SESSION['OrbiterHybridChild']);
+						unset($_SESSION['isHybridFirstTime']);
+						$FK_DeviceTemplate=0;
+						$FK_Distro=0;
+						header("Location: index.php?section=wizard&step=4");
 					}
 				}
 

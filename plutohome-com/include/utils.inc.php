@@ -552,10 +552,22 @@ function getMediaDirectorOrbiterChild($MD_PK_Device,$dbADO)
 
 function deleteDevice($PK_Device,$dbADO)
 {
-	$deleteDeviceMD='DELETE FROM Device WHERE PK_Device=?';
-	$dbADO->Execute($deleteDeviceMD,$PK_Device);
+	getDeviceChildsArray($PK_Device,$dbADO);
+	$toDelete = cleanArray($GLOBALS['childsArray']);
+	$toDelete[]=$PK_Device;
+	if (!is_array($toDelete)) {
+		$toDelete=array();
+	}
+	foreach ($toDelete as $elem) {
+	
+		$arrayFKDeviceTables=array('CommandGroup_Command','Device_Command','Device_CommandGroup','Device_DeviceData','Device_DeviceGroup','Device_Device_Related','Device_EntertainArea','Device_HouseMode','Device_Orbiter','Device_StartupScript','Device_Users','InfraredCode');
+		foreach($arrayFKDeviceTables AS $tablename){	
+			$queryDelFromTable='DELETE FROM '.$tablename.' WHERE FK_Device='.$elem;
+			$dbADO->Execute($queryDelFromTable);
+		}		
+		$queryDelDevice = 'DELETE FROM Device WHERE PK_Device = '.$elem;
+		$dbADO->_Execute($queryDelDevice);
+	}
 
-	$deleteDeviceMDDeviceData='DELETE FROM Device_DeviceData WHERE FK_Device=?';
-	$dbADO->Execute($deleteDeviceMDDeviceData,$PK_Device);
 }
 ?>

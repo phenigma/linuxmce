@@ -29,7 +29,7 @@ function myPluto($output,$dbADO,$conn) {
 		while($rowInstallations=$res->FetchRow()){
 			$installationsText.='
 				Installation no. <b>'.$rowInstallations['PK_Installation'].'</b><br>
-				Description: <a href="index.php?section=wizard&step=1&instid='.$rowInstallations['PK_Installation'].'"><b>'.stripslashes($rowInstallations['Description']).'</b></a><br>';
+				Description: <a href="index.php?section=wizard&step=7&instid='.$rowInstallations['PK_Installation'].'"><b>'.stripslashes($rowInstallations['Description']).'</b></a><br>';
 		}
 		$installationsText.='<br><a href="index.php?section=wizard&step=1&instid=0"><b>New installation</b></a><br>';
 	}
