@@ -26,6 +26,7 @@ namespace DCE
 	// Private member variables 
     pluto_pthread_mutex_t m_SecurityMutex;
     class Orbiter_Plugin *m_pOrbiter_Plugin;
+	DeviceData_Router *m_pDeviceData_Router_this;
 
 	// Private methods
 public:
@@ -50,6 +51,12 @@ public:
 
 	bool SetHouseMode(DeviceData_Router *pDevice,int PK_HouseMode,string sHandlingInstructions);
 	void HandleSetModeFailure(Message *pMessage);
+	bool SensorIsTripped(int PK_HouseMode,DeviceData_Router *pDevice);
+	string GetModeString(int PK_HouseMode);
+	int GetModeID(string Mode);
+	int GetReaction(int PK_HouseMode,DeviceData_Router *pDevice);
+	void SecurityBreach(DeviceData_Router *pDevice);
+	void FireAlarm(DeviceData_Router *pDevice);
 
 	/** Interceptors */
     bool SensorTrippedEvent(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);

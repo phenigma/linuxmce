@@ -36,6 +36,10 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#define SECURITY_BREACH	1
+#define FIRE_ALARM		2
+#define ANNOUNCEMENT	3
+
 #include <sstream>
 
 #include "DCERouter/DCERouter.h"
@@ -50,6 +54,8 @@ using namespace DCE;
 #include "pluto_main/Define_DataGrid.h"
 #include "pluto_main/Define_HouseMode.h"
 #include "pluto_main/Define_Event.h"
+#include "pluto_main/Define_EventParameter.h"
+#include "pluto_main/Define_DesignObj.h"
 
 //<-dceag-const-b->
 Security_Plugin::Security_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -65,6 +71,8 @@ Security_Plugin::Security_Plugin(int DeviceID, string ServerAddress,bool bConnec
 		m_bQuit=true;
 		return;
 	}
+
+	m_pDeviceData_Router_this = m_pRouter->m_mapDeviceData_Router_Find(m_dwPK_Device);
 }
 
 //<-dceag-dest-b->
@@ -183,7 +191,6 @@ class DataGridTable *Security_Plugin::SecurityScenariosGrid( string GridID, stri
 void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,int iPK_DeviceGroup,string sHandling_Instructions,string &sCMD_Result,Message *pMessage)
 //<-dceag-c19-e->
 {
-/*
 	PLUTO_SAFETY_LOCK(sm,m_SecurityMutex);
 	int PK_HouseMode = atoi(sValue_To_Assign.c_str());
 	if( PK_HouseMode<HOUSEMODE_Unarmed_at_home_CONST || PK_HouseMode>HOUSEMODE_Armed_Extended_away_CONST )
@@ -196,7 +203,7 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 	ostringstream sql;
 	sql << "SELECT PK_Users,Username FROM Users JOIN Installation_Users ON FK_Users=PK_Users WHERE FK_Installation="
 		<< m_pRouter->iPK_Installation_get() << " AND userCanChangeHouseMode=1 AND (Password=" << sPassword 
-		<< " OR Password=" << md5(sPassword) << " OR PINCode=" << sPassword << " OR PINCode=" << md5(sPassword) << ")";
+		<< " OR Password=" << m_pRouter->md5(sPassword) << " OR PINCode=" << sPassword << " OR PINCode=" << m_pRouter->md5(sPassword) << ")";
 	if( iPK_Users )
 		sql << " AND PK_Users=" << iPK_Users;
 
@@ -205,7 +212,8 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 	if( ( result_set.r=m_pRouter->mysql_query_result( sql.str( ) ) )==0 || ( row = mysql_fetch_row( result_set.r ) )==NULL )
 	{
 		g_pPlutoLogger->Write(LV_WARNING,"User: %d failed to set house mode: %d",iPK_Users,PK_HouseMode);
-		sendtoinvalidscreen();
+		DCE::CMD_Goto_Screen CMD_Goto_Screen( 0, pMessage->m_dwPK_Device_From, 0, StringUtils::itos(DESIGNOBJ_mnuMain_CONST), "", "", false );
+		SendCommand( CMD_Goto_Screen );
 		return;		
 	}
 
@@ -232,7 +240,7 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 	}
 	else
 	{
-		ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByCategory_Find(environment_security);
+		ListDeviceData_Router *pListDeviceData_Router = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Security_Device_CONST);
 		if( !pListDeviceData_Router )
 			g_pPlutoLogger->Write(LV_CRITICAL,"Trying to set house mode with no security devices");
 		else
@@ -250,65 +258,106 @@ void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,s
 	}
 	if( bFailed )
 	{
-		DCE::CMD_Goto_Screen CMD_Goto_Screen( 0, pMessage->m_dwPK_Device_From, 0, StringUtils::itos(DESIGNOBJ_cannot_arm_CONST), "", "", false );
+		DCE::CMD_Goto_Screen CMD_Goto_Screen( 0, pMessage->m_dwPK_Device_From, 0, StringUtils::itos(DESIGNOBJ_mnuMain_CONST), "", "", false );
 		SendCommand( CMD_Goto_Screen );
 	}
-*/
 }
 
 bool Security_Plugin::SetHouseMode(DeviceData_Router *pDevice,int PK_HouseMode,string sHandlingInstructions) 
 {
-	/*
 	string NewMode = GetModeString(PK_HouseMode);
-	string State = m_pRouter->State_get(pDevice->m_dwPK_Device);
+
+	string State = pDevice->m_sState_get();
 	string::size_type pos=0;
 	string Mode = StringUtils::Tokenize(State,",",pos);
 	string Bypass = StringUtils::Tokenize(State,",",pos);
 
 	if( Bypass=="PERMBYPASS" )
 	{
-		m_pRouter->State_Set(pDevice->m_dwPK_Device,NewMode + "," + Bypass);
+		pDevice->m_sState_set(NewMode + "," + Bypass);
 		return true; // We're bypassing this one
 	}
 
 	if( SensorIsTripped(PK_HouseMode,pDevice) )
 	{
-		if( sHandlingInstructions!='W' && sHandlingInstructions!='B' )
+		if( sHandlingInstructions!="W" && sHandlingInstructions!="B" )
 			return false;  // Sensors are tripped.  The user needs to figure out what to do
 
-		if( sHandlingInstructions=='W' )
+		if( sHandlingInstructions=="W" )
 			Bypass = "WAIT";
-		else
+		else if( sHandlingInstructions=="B" )
 			Bypass = "BYPASS";
+		else
+			Bypass = "";
 	}
 	else
 		Bypass = "";
 
-	m_pRouter->State_Set(pDevice->m_dwPK_Device,NewMode + "," + Bypass);
-	*/
+	pDevice->m_sState_set(NewMode + "," + Bypass);
+
+	m_pDeviceData_Router_this->m_sState_set("NewMode");
 	return true;
 }
-/*
-bool Security_Plugin::SensorIsTripped(int PK_HouseMode,DeviceData_Base *pDevice)
+
+bool Security_Plugin::SensorIsTripped(int PK_HouseMode,DeviceData_Router *pDevice)
 {
-	if( pDevice->GetState()!="TRIPPED" )
+	if( pDevice->m_sState_get()!="TRIPPED" )
 		return false;
 
 	int Reaction = GetReaction(PK_HouseMode,pDevice);
-	return Reaction==SECURITY_BREAK || Reaction==FIRE_ALARM;
+	return Reaction==SECURITY_BREACH || Reaction==FIRE_ALARM;
 }
-*/
+
 
 bool Security_Plugin::SensorTrippedEvent(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
-	if( !pDeviceFrom || pDeviceFrom->m_dwPK_DeviceCategory!=DEVICECATEGORY_Security_Device_CONST )
+	DeviceData_Router *pDevice = (DeviceData_Router *) pDeviceFrom;
+
+	PLUTO_SAFETY_LOCK(sm,m_SecurityMutex);
+	if( !pDevice || pDevice->m_dwPK_DeviceCategory!=DEVICECATEGORY_Security_Device_CONST )
 	{
 		g_pPlutoLogger->Write(LV_WARNING,"Receieved a sensor trip from an unrecognized device: %d",pMessage->m_dwPK_Device_From);
 		return false;
 	}
 
+	bool m_bTripped = pMessage->m_mapParameters[EVENTPARAMETER_Tripped_CONST]=="1";
+	pDevice->m_sStatus_set(m_bTripped ? "NORMAL" : "TRIPPED");
 
+	string State = pDevice->m_sState_get();
+	string::size_type pos=0;
+	string Mode = StringUtils::Tokenize(State,",",pos);
+	string Bypass = StringUtils::Tokenize(State,",",pos);
+
+	int PK_HouseMode = GetModeID(m_pDeviceData_Router_this->m_sState_get());
+
+	if( m_bTripped==false && Bypass=="WAIT" )
+	{
+		pDevice->m_sState_set(Mode);
+		return true;
+	}
+
+	if( m_bTripped && Bypass!="BYPASS" && Bypass!="PERMBYPASS" && SensorIsTripped(PK_HouseMode,pDevice) )
+	{
+		int Reaction = GetReaction(PK_HouseMode,pDevice);
+		if( Reaction==SECURITY_BREACH )
+			SecurityBreach(pDevice);
+		else if( Reaction==FIRE_ALARM )
+			FireAlarm(pDevice);
+	}
 
 	return true;
+}
+
+int Security_Plugin::GetReaction(int PK_HouseMode,DeviceData_Router *pDevice)
+{
+	return SECURITY_BREACH;
+}
+
+void Security_Plugin::SecurityBreach(DeviceData_Router *pDevice)
+{
+}
+
+void Security_Plugin::FireAlarm(DeviceData_Router *pDevice)
+{
 }
 

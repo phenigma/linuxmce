@@ -38,6 +38,7 @@
 #define DEVICEDATA_Neighbors_to_Call_CONST 36
 #define DEVICEDATA_Port_CONST 37
 #define DEVICEDATA_PK_HouseMode_CONST 38
+#define DEVICEDATA_Delay_CONST 39
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

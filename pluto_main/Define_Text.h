@@ -403,6 +403,7 @@
 #define TEXT_Dial_user_CONST 1078
 #define TEXT_Voicemail_CONST 1079
 #define TEXT_transfer_call_or_conference_CONST 1080
+#define TEXT_Choose_user_CONST 1081
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
