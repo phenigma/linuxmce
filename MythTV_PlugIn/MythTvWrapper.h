@@ -87,8 +87,7 @@ protected:
     public:
 
     /** @brief constructor */
-
-    MythTvEpgGrid();
+	    MythTvEpgGrid();
 
         virtual void setGridBoundaries(QDateTime startTime, QDateTime endTime);
         virtual int GetRows();
@@ -115,6 +114,8 @@ public:
 
     ScheduleRecordTvResult ProcessAddRecordingRequest(string showStartTimeEncoded);
     ScheduleRecordTvResult ProcessAddRecordingRequest(int channelId, int year, int month, int day, int hour, int minute);
+
+	bool GetCurrentChannelProgram(int channelID, string &channelName, string &programName, string &programComment);
 
     friend class MythTV_PlugIn;
 };

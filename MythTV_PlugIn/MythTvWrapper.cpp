@@ -170,7 +170,7 @@ QString MythTvWrapper::MythTvEpgGrid::getChannelList(int rowStart, int rowCount)
 {
     QStringList list;
 
-    while ( rowStart < m_vectChannelIds.size() && rowCount >= 0 )
+    while ( rowStart < (int)m_vectChannelIds.size() && rowCount >= 0 )
     {
         list.append(QString::number(m_vectChannelIds[rowStart++]));
         rowCount--;
@@ -502,10 +502,10 @@ WatchTVRequestResult MythTvWrapper::ProcessWatchTvRequest(int iChanId, int nYear
 {
     QDateTime programStartTime = QDateTime(QDate(nYear, nMonth, nDay), QTime(nHour, nMinute));
 
-    ProgramInfo *programInfo = ProgramInfo::GetProgramAtDateTime(
-                                                QSqlDatabase::database(),
-                                                QString::number(iChanId),
-                                                programStartTime);
+//     ProgramInfo *programInfo = ProgramInfo::GetProgramAtDateTime(
+//                                                 QSqlDatabase::database(),
+//                                                 QString::number(iChanId),
+//                                                 programStartTime);
 
     if ( QDateTime::currentDateTime() > programStartTime )
         return WatchTVResult_Tuned;
@@ -561,4 +561,44 @@ ScheduleRecordTvResult MythTvWrapper::ProcessAddRecordingRequest(int channelId, 
 
     delete conflictsWith;
     return ScheduleRecordTVResult_Success;
+}
+
+bool MythTvWrapper::GetCurrentChannelProgram(int channelID, string &channelName, string &programName, string &programComment)
+{
+	QDateTime programStartTime = QDateTime::currentDateTime();
+
+    QString strQuery = QString(
+		"SELECT program.chanid, program.starttime, program.endtime, "
+			"program.title, program.subtitle, program.description, "
+			"program.category, channel.channum, channel.callsign, "
+			"channel.name, program.previouslyshown, channel.commfree, "
+			"channel.outputfilters, program.seriesid, program.programid, "
+			"program.stars, program.originalairdate "
+		"FROM program "
+			"LEFT JOIN channel ON program.chanid = channel.chanid "
+		"WHERE channel.channum = %1 AND "
+			"starttime < %2 AND %3 < endtime "
+		"GROUP BY program.starttime, channel.channum, channel.callsign "
+		"ORDER BY program.starttime, channum + 0 LIMIT 1")
+			.arg(channelID).arg(programStartTime.toString("yyyyMMddhhmm50")).arg(programStartTime.toString("yyyyMMddhhmm50"));
+
+    QSqlQuery query;
+    query.exec(strQuery);
+
+	if ( ! query.isActive() )
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Program info for current show on channel %d was null (for date: %s)!", channelID, programStartTime.toString(Qt::ISODate).latin1());
+		return false;
+	}
+
+	if ( query.numRowsAffected() > 0 && query.next() )
+	{
+		channelName = query.value(9).toString().latin1();
+		programName = query.value(3).toString().latin1();
+		programComment = query.value(5).toString().latin1();
+		return true;
+	}
+
+	g_pPlutoLogger->Write(LV_STATUS, "There are no programs in this timeframe");
+	return false;
 }

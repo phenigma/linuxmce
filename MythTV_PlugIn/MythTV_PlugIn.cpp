@@ -384,11 +384,17 @@ bool MythTV_PlugIn::MediaInfoChanged( class Socket *pSocket, class Message *pMes
 			return false;
 		}
 
-        pMythTvStream->m_sMediaDescription = "Channel: " + pMessage->m_mapParameters[EVENTPARAMETER_ChannelID_CONST];
-        pMythTvStream->m_sSectionDescription = "Not implemented yet";
-        pMythTvStream->m_sMediaSynopsis = "Not implemented yet";
+		if ( m_pMythWrapper->GetCurrentChannelProgram(atoi(pMessage->m_mapParameters[EVENTPARAMETER_ChannelID_CONST].c_str()),
+			pMythTvStream->m_sMediaDescription,
+			pMythTvStream->m_sSectionDescription,
+			pMythTvStream->m_sMediaSynopsis) == false )
+		{
+			pMythTvStream->m_sMediaDescription = "Channel: " + pMessage->m_mapParameters[EVENTPARAMETER_ChannelID_CONST];
+			pMythTvStream->m_sSectionDescription = "Show info not available";
+			pMythTvStream->m_sMediaSynopsis = "Other info not available";
+		}
 
-        m_pMedia_Plugin->MediaInfoChanged(pMythTvStream);
+		m_pMedia_Plugin->MediaInfoChanged(pMythTvStream);
     }
 
     return true;
