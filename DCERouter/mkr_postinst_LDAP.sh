@@ -102,5 +102,5 @@ while ! nc -z localhost 389 &>/dev/null && [ "$waited" -lt "$timeout" ]; do
 	waited=$((waited + 1))
 done
 		
-ldapadd -f /tmp/data.ldap -xvc -D "cn=admin,dc=plutohome,dc=org" -w secret
+ldapadd -c -f /tmp/data.ldap -xvc -D "cn=admin,dc=plutohome,dc=org" -w secret
 
