@@ -358,12 +358,12 @@ return 0;
 	}
 	catch( char *pException )
 	{
-		cerr << "Caught exception: " << pException;
+		cerr << "Caught exception: " << pException << endl;
 		return 1;
 	}
 	catch( string sException )
 	{
-		cerr << "Caught exception: " << sException;
+		cerr << "Caught exception: " << sException << endl;
 		return 1;
 	}
 

@@ -58,6 +58,8 @@ namespace sqlCVS
 		Database *m_pDatabase;		/**< points to the database */
 		Repository *m_pRepository;	/**< points to the Repository */
 
+		bool m_bNewDatabase;
+
 		/**
 		 * @ brief constructor
 		 */
@@ -72,6 +74,7 @@ namespace sqlCVS
 			m_iSqlCVSPort=3485;
 			m_pDatabase=NULL;
 			m_pRepository=NULL;
+			m_bNewDatabase=false;
 		}
 	};
 

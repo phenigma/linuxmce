@@ -50,6 +50,7 @@ Database::Database( string db_host, string db_user, string db_pass, string db_na
 			if( !m_bConnected )
 				return;  // Nope, the connection is no good
 
+			g_GlobalConfig.m_bNewDatabase=true;
 			// Try creating the dabase
 			threaded_mysql_query("CREATE DATABASE " + db_name);
 			m_sMySQLDBName = db_name; // Set it back and try again
@@ -1057,7 +1058,7 @@ void Database::Import( string sRepository, Repository *pRepository )
 
 	if( CurrentSchema<PriorSchema )
 		throw ("Database error: CurrentSchema<PriorSchema for repository: " + pRepository->Name_get()).c_str();
-	else if( CurrentSchema>PriorSchema )
+	else if( CurrentSchema>PriorSchema && !g_GlobalConfig.m_bNewDatabase )
 	{
 		pRepository->UpdateSchema(PriorSchema);
 		// Get all the fields again since this could have changed things.  Don't worry about matching
