@@ -346,6 +346,14 @@ bool FileUtils::PUCopyFile(string sSource,string sDestination)
 		return false;
 	}
 	
+#ifndef WIN32
+	{
+		struct stat srcStat;
+		fstat(fileno(fileSource), &srcStat);
+		fchmod(fileno(fileDest), srcStat.st_mode);
+	}
+#endif
+	
 	void *Buffer = malloc(BUFFER_SIZE);
 	size_t BytesRead;
 	while((BytesRead = fread(Buffer,1,BUFFER_SIZE,fileSource)) > 0)

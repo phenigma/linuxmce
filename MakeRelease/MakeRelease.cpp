@@ -927,7 +927,13 @@ string Makefile = "none:\n"
 	for (iFileInfo = listFileInfo.begin(); iFileInfo != listFileInfo.end(); iFileInfo++)
 	{
 		string sSource = (*iFileInfo)->m_sSource;
-		string sDestination = Dir + "/root/" + Prefix + (*iFileInfo)->m_sDestination;
+
+		// no prefix for absolute paths (the ones that start with a slash)
+		string thePrefix(Prefix);
+		if ((*iFileInfo)->m_sDestination[0] == '/')
+			thePrefix = "";
+		
+		string sDestination = Dir + "/root/" + thePrefix + (*iFileInfo)->m_sDestination;
 		
 		cout << "COPY: " << sSource << " --> " + sDestination << endl;
 #ifndef WIN32
