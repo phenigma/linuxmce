@@ -103,6 +103,7 @@ public:
 
     /** @brief constructor */
     MythTvWrapper(Command_Impl *pCommandImpl);
+	~MythTvWrapper();
 
     /** Methods used by the MythTV_PlugIn */
 
