@@ -89,9 +89,28 @@ bool BDCommandProcessor::SendCommand( bool &bImmediateCallback )
 	m_pCommand_Sent->ConvertCommandToBinary();
 //	g_pPlutoLogger->Write(LV_WARNING,"# Sending %s command #", m_pCommand_Sent->Description());
 
-	SendLong( m_pCommand_Sent->ID() );
-	SendLong( m_pCommand_Sent->GetCommandOrAckSize() );
-	SendData( m_pCommand_Sent->GetCommandOrAckSize(), m_pCommand_Sent->GetCommandOrAckData() );
+	if(!SendLong( m_pCommand_Sent->ID() ))
+	{
+		delete m_pCommand_Sent;
+		m_pCommand_Sent = NULL;
+		return false;
+	}
+	
+
+	if(SendLong( m_pCommand_Sent->GetCommandOrAckSize() ))
+	{
+		delete m_pCommand_Sent;
+		m_pCommand_Sent = NULL;
+		return false;
+	}
+
+	if(SendData( m_pCommand_Sent->GetCommandOrAckSize(), m_pCommand_Sent->GetCommandOrAckData() ))
+	{
+		delete m_pCommand_Sent;
+		m_pCommand_Sent = NULL;
+		return false;
+	}
+
 	m_pCommand_Sent->FreeSerializeMemory();
 
 	//LD( f1, m_pCommand_Sent->ID(), "Sent Command", m_pCommand_Sent->Description() );
@@ -184,8 +203,21 @@ bool BDCommandProcessor::ReceiveCommand( unsigned long dwType, unsigned long dwS
 		pCommand->ParseCommand( dwSize, pcData );
 		pCommand->ProcessCommand( this ); // takes the command processor and processes it
 		pCommand->ConvertAckToBinary();
-		SendLong( pCommand->GetCommandOrAckSize() );
-		SendData( pCommand->GetCommandOrAckSize(), pCommand->GetCommandOrAckData() );
+
+		if(!SendLong( pCommand->GetCommandOrAckSize() ))
+		{
+			delete pCommand;
+			pCommand = NULL;
+			return false;
+		}
+	
+		if(!SendData( pCommand->GetCommandOrAckSize(), pCommand->GetCommandOrAckData() ))
+		{
+			delete pCommand;
+			pCommand = NULL;
+			return false;
+		}
+
 		pCommand->FreeSerializeMemory();
 
 		//LD( f1, pCommand->ID(), pCommand->ID() == BD_PC_WHAT_DO_YOU_HAVE ? "Sent command" : "OK", pCommand->Description() );
@@ -261,8 +293,20 @@ bool BDCommandProcessor::ReceiveCommand( unsigned long dwType, unsigned long dwS
 			pCommand->ParseCommand( *dwSize, m_pcReceiveCmdData );
 			pCommand->ProcessCommand( this );
 			pCommand->ConvertAckToBinary();
-			SendLong( pCommand->GetCommandOrAckSize() );
-			SendData( pCommand->GetCommandOrAckSize(), pCommand->GetCommandOrAckData() );
+			if(!SendLong( pCommand->GetCommandOrAckSize() ))
+			{
+				delete pCommand;
+				pCommand = NULL;
+				return false;
+			}
+
+			if(!SendData( pCommand->GetCommandOrAckSize(), pCommand->GetCommandOrAckData() ))
+			{
+				delete pCommand;
+				pCommand = NULL;
+				return false;
+			}
+
 			pCommand->FreeSerializeMemory();
 			//LD( f1, pCommand->ID(), pCommand->ID()==BD_PC_WHAT_DO_YOU_HAVE ? "Sent command" : "OK", pCommand->Description() );
 		}
@@ -276,9 +320,9 @@ bool BDCommandProcessor::ReceiveCommand( unsigned long dwType, unsigned long dwS
 	return false; // never get here
 }
 
-void BDCommandProcessor::SendLong(long l)
+bool BDCommandProcessor::SendLong(long l)
 {
-	SendData( 4,(const char *)&l );
+	return SendData( 4,(const char *)&l );
 }
 
 long BDCommandProcessor::ReceiveLong()

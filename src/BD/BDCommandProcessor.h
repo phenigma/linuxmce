@@ -75,7 +75,7 @@ public:
 	/**
 	 * @brief sends a long using SendData
 	 */
-	void SendLong( long l );
+	bool SendLong( long l );
 	
 	/**
 	 * @brief receives a long using ReceiveData
