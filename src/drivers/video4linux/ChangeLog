@@ -1,3 +1,15 @@
+2005-02-22 15:06  kraxel
+
+	* bttv-cards.c, bttv.h:
+
+	- Kodicom-4400R support (by William M. Brack).
+
+2005-02-22 13:28  kraxel
+
+	* cx88-input.c, ir-common.c, ir-common.h, ir-kbd-gpio.c:
+
+	- cx88: ir patches from Robert Reid.
+
 2005-02-22 10:56  kraxel
 
 	* cx88-cards.c, cx88-tvaudio.c, or51132.c, saa7134-core.c,

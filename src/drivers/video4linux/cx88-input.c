@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-input.c,v 1.7 2005/02/16 13:11:55 kraxel Exp $
+ * $Id: cx88-input.c,v 1.8 2005/02/22 12:28:40 kraxel Exp $
  *
  * Device driver for GPIO attached remote control interfaces
  * on Conexant 2388x based TV/DVB cards.
@@ -146,7 +146,7 @@ static void cx88_ir_handle_key(struct cx88_IR *ir)
 		}
 
 	} else {
-		/* can't disturgissh keydown/up :-/ */
+		/* can't distinguish keydown/up :-/ */
 		ir_input_keydown(&ir->input,&ir->ir,data,data);
 		ir_input_nokey(&ir->input,&ir->ir);
 	}
@@ -196,6 +196,13 @@ int cx88_ir_init(struct cx88_core *core, struct pci_dev *pci)
 		ir_codes         = ir_codes_hauppauge_new;
 		ir_type          = IR_TYPE_RC5;
 		ir->sampling     = 1;
+		break;
+	case CX88_BOARD_WINFAST2000XP_EXPERT:
+		ir_codes         = ir_codes_winfast;
+		ir->gpio_addr    = MO_GP0_IO;
+		ir->mask_keycode = 0x8f8; 
+		ir->mask_keyup   = 0x100;
+		ir->polling      = 1; // ms
 		break;
 	}
 	if (NULL == ir_codes) {

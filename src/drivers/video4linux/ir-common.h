@@ -1,5 +1,5 @@
 /*
- * $Id: ir-common.h,v 1.7 2005/02/16 13:11:55 kraxel Exp $
+ * $Id: ir-common.h,v 1.8 2005/02/22 12:28:40 kraxel Exp $
  *
  * some common structs and functions to handle infrared remotes via
  * input layer ...
@@ -76,6 +76,7 @@ struct ir_input_state {
 };
 
 extern IR_KEYTAB_TYPE ir_codes_rc5_tv[IR_KEYTAB_SIZE];
+extern IR_KEYTAB_TYPE ir_codes_winfast[IR_KEYTAB_SIZE];
 extern IR_KEYTAB_TYPE ir_codes_empty[IR_KEYTAB_SIZE];
 extern IR_KEYTAB_TYPE ir_codes_hauppauge_new[IR_KEYTAB_SIZE];
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-modlist="cx88_blackbird cx8802 cx8800 cx88xx"
+modlist="cx88_blackbird cx8802 cx8800 cx88xx video_buf"
 revlist=""
 for i in $modlist; do revlist="$i $revlist"; done
 

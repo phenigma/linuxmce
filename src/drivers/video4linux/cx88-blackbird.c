@@ -953,7 +953,7 @@ static int mpeg_do_ioctl(struct inode *inode, struct file *file,
 
 	if (debug > 1)
 		cx88_print_ioctl(dev->core->name,cmd);
-#if 0
+#if 1
 	cx88_print_ioctl(dev->core->name,cmd);
 	printk( KERN_INFO "IOCTL: 0x%x\n", cmd );
 	dprintk( 0, "IOCTL: 0x%x\n", cmd );
@@ -1231,8 +1231,9 @@ static int mpeg_do_ioctl(struct inode *inode, struct file *file,
 		printk( KERN_INFO "IVTV_IOC_S_CODEC\n" );
 	case IVTV_IOC_G_CODEC:
 	{
-		/*printk( KERN_INFO "IVTV_IOC_G/S_CODEC\n" );*/
 		struct ivtv_ioctl_codec *codec = arg;
+#if 0
+		printk( KERN_INFO "IVTV_IOC_G/S_CODEC\n" );
 		printk( KERN_INFO "CODEC: aspect: %d\n", codec->aspect );
 		printk( KERN_INFO "CODEC: audio : %d\n", codec->audio_bitmask );
 		printk( KERN_INFO "CODEC: bfrms : %d\n", codec->bframes );
@@ -1248,6 +1249,7 @@ static int mpeg_do_ioctl(struct inode *inode, struct file *file,
 		printk( KERN_INFO "CODEC: gop_cl: %d\n", codec->gop_closure );
 		printk( KERN_INFO "CODEC: pulldn: %d\n", codec->pulldown );
 		printk( KERN_INFO "CODEC: strtyp: %d\n\n", codec->stream_type );
+#endif
 
 		codec->aspect = 2; /* 4:3 */
 		codec->audio_bitmask = (2 << 2) | (14 << 4); /* layer II | 384kbps */
@@ -1264,6 +1266,7 @@ static int mpeg_do_ioctl(struct inode *inode, struct file *file,
 		codec->gop_closure = 0; /* open */
 		codec->pulldown = 0; /* enabled */
 		codec->stream_type = 0; /* program stream */
+#if 0
 		printk( KERN_INFO "CODEC: aspect: %d\n", codec->aspect );
 		printk( KERN_INFO "CODEC: audio : %d\n", codec->audio_bitmask );
 		printk( KERN_INFO "CODEC: bfrms : %d\n", codec->bframes );
@@ -1279,6 +1282,7 @@ static int mpeg_do_ioctl(struct inode *inode, struct file *file,
 		printk( KERN_INFO "CODEC: gop_cl: %d\n", codec->gop_closure );
 		printk( KERN_INFO "CODEC: pulldn: %d\n", codec->pulldown );
 		printk( KERN_INFO "CODEC: strtyp: %d\n", codec->stream_type );
+#endif
 		return 0;
 	}
 	case IVTV_IOC_S_VBI_MODE:
@@ -1286,7 +1290,6 @@ static int mpeg_do_ioctl(struct inode *inode, struct file *file,
 		struct ivtv_sliced_vbi_format *fmt = arg;
 		printk( KERN_INFO "IVTV_IOC_S_VBI_MODE: ss: %ld, ps: %ld, is: %ld\n",
 				fmt->service_set, fmt->packet_size, fmt->io_size );
-
 #if 0
 		fmt->service_set = 0;  /* one or more of the IVTV_SLICED_ defines */
     		fmt->packet_size = 0;  /* the size in bytes of the ivtv_sliced_data packet */
@@ -1422,6 +1425,7 @@ mpeg_read(struct file *file, char __user *data, size_t count, loff_t *ppos)
 
 	ret = videobuf_read_stream(&fh->mpegq, data, count, ppos, 0,
 				    file->f_flags & O_NONBLOCK );
+
 #if 1
 	/* why is read() choking with mythbackend while it works just fine
 	   with cat, dd and mplayer ? */
@@ -1620,3 +1624,4 @@ module_exit(blackbird_fini);
  * c-basic-offset: 8
  * End:
  */
+

@@ -1,5 +1,5 @@
 /*
- * $Id: ir-common.c,v 1.7 2005/02/16 13:11:55 kraxel Exp $
+ * $Id: ir-common.c,v 1.8 2005/02/22 12:28:40 kraxel Exp $
  *
  * some common structs and functions to handle infrared remotes via
  * input layer ...
@@ -117,6 +117,53 @@ IR_KEYTAB_TYPE ir_codes_rc5_tv[IR_KEYTAB_SIZE] = {
 #endif
 };
 EXPORT_SYMBOL_GPL(ir_codes_rc5_tv);
+
+/* Table for Leadtek Winfast Remote Controls - used by both bttv and cx88 */
+IR_KEYTAB_TYPE ir_codes_winfast[IR_KEYTAB_SIZE] = {
+	[  5 ] = KEY_KP1,
+	[  6 ] = KEY_KP2,
+	[  7 ] = KEY_KP3,
+	[  9 ] = KEY_KP4,
+	[ 10 ] = KEY_KP5,
+	[ 11 ] = KEY_KP6,
+	[ 13 ] = KEY_KP7,
+	[ 14 ] = KEY_KP8,
+	[ 15 ] = KEY_KP9,
+	[ 18 ] = KEY_KP0,
+
+	[  0 ] = KEY_POWER,
+//      [ 27 ] = MTS button
+	[  2 ] = KEY_TUNER,     // TV/FM
+	[ 30 ] = KEY_VIDEO,
+//      [ 22 ] = display button
+	[  4 ] = KEY_VOLUMEUP,
+	[  8 ] = KEY_VOLUMEDOWN,
+	[ 12 ] = KEY_CHANNELUP,
+	[ 16 ] = KEY_CHANNELDOWN,
+	[  3 ] = KEY_ZOOM,      // fullscreen
+	[ 31 ] = KEY_SUBTITLE,  // closed caption/teletext
+	[ 32 ] = KEY_SLEEP,
+//      [ 41 ] = boss key
+	[ 20 ] = KEY_MUTE,
+	[ 43 ] = KEY_RED,
+	[ 44 ] = KEY_GREEN,
+	[ 45 ] = KEY_YELLOW,
+	[ 46 ] = KEY_BLUE,
+	[ 24 ] = KEY_KPPLUS,    //fine tune +
+	[ 25 ] = KEY_KPMINUS,   //fine tune -
+//      [ 42 ] = picture in picture
+        [ 33 ] = KEY_KPDOT,
+	[ 19 ] = KEY_KPENTER,
+//      [ 17 ] = recall
+	[ 34 ] = KEY_BACK,
+	[ 35 ] = KEY_PLAYPAUSE,
+	[ 36 ] = KEY_NEXT,
+//      [ 37 ] = time shifting
+	[ 38 ] = KEY_STOP,
+	[ 39 ] = KEY_RECORD
+//      [ 40 ] = snapshot
+};
+EXPORT_SYMBOL_GPL(ir_codes_winfast);
 
 /* empty keytable, can be used as placeholder for not-yet created keytables */
 IR_KEYTAB_TYPE ir_codes_empty[IR_KEYTAB_SIZE] = {
