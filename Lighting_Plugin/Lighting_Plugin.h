@@ -1,3 +1,4 @@
+
 //<-dceag-d-b->
 #ifndef Lighting_Plugin_h
 #define Lighting_Plugin_h
@@ -24,9 +25,9 @@ public:
 //<-dceag-const-b->
 public:
 		// Constructors/Destructor
-		Lighting_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
-		virtual ~Lighting_Plugin();
-		virtual bool Register();
+		Lighting_Plugin( int DeviceID, string ServerAddress, bool bConnectEventHandler=true, bool bLocalMode=false, class Router *pRouter=NULL );
+		virtual ~Lighting_Plugin( );
+		virtual bool Register( );
 //<-dceag-const-e->
 
 	
@@ -35,7 +36,7 @@ public:
 	Database_pluto_main *m_pDatabase_pluto_main;
 
 	// Datagrids
-	class DataGridTable *LightingScenariosGrid(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
+	class DataGridTable *LightingScenariosGrid( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
 
 //<-dceag-h-b->
 	/*
