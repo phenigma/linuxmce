@@ -232,7 +232,7 @@ void OrbiterSDL::DrawRectangle(int x, int y, int width, int height, PlutoColor c
 			char *pGraphicFile=NULL;
 			int iSizeGraphicFile=0;
 
-			DCE::CMD_Request_File CMD_Request_File(m_DeviceID,m_iPK_Device_GeneralInfoPlugIn,"C" + StringUtils::itos(m_DeviceID) + "/" + pIMGraphic->m_Filename,
+			DCE::CMD_Request_File CMD_Request_File(m_dwPK_Device,m_dwPK_Device_GeneralInfoPlugIn,"C" + StringUtils::itos(m_dwPK_Device) + "/" + pIMGraphic->m_Filename,
 				&pGraphicFile,&iSizeGraphicFile);
 			SendCommand(CMD_Request_File);
 

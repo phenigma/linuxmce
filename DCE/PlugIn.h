@@ -12,10 +12,10 @@ namespace DCE
 	{
 	public:
 		class Router *m_pRouter;
-		int m_iPK_Device;
+		int m_dwPK_Device;
 
 		PlugIn(class Router *pRouter) { m_pRouter=pRouter; };  // hack -- remove this
-		PlugIn(int iPK_Device,class Router *pRouter) { m_iPK_Device=iPK_Device; m_pRouter=pRouter; };
+		PlugIn(int iPK_Device,class Router *pRouter) { m_dwPK_Device=iPK_Device; m_pRouter=pRouter; };
 
 		// Not done yet
 		//	void CreatedDevice(DeviceData_Router *pDevice) {};  // Create special, extra data for devices for overload like lighting info???

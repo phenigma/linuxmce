@@ -143,7 +143,7 @@ public:
 			return;  // Nothing we can do
 		}
 
-		g_pPlutoLogger->Write(LV_STATUS,"Registered media plug in #%d (Template %d) %s",pCommand_Impl->m_DeviceID,pRow_DeviceTemplate->PK_DeviceTemplate_get(),pRow_DeviceTemplate->Description_get().c_str());
+		g_pPlutoLogger->Write(LV_STATUS,"Registered media plug in #%d (Template %d) %s",pCommand_Impl->m_dwPK_Device,pRow_DeviceTemplate->PK_DeviceTemplate_get(),pRow_DeviceTemplate->Description_get().c_str());
 		vector<Row_DeviceTemplate_MediaType *> vectRow_DeviceTemplate_MediaType;
 		pRow_DeviceTemplate->DeviceTemplate_MediaType_FK_DeviceTemplate_getrows(&vectRow_DeviceTemplate_MediaType);
 		for(size_t mt=0;mt<vectRow_DeviceTemplate_MediaType.size();++mt)

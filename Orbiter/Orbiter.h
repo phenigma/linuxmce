@@ -21,17 +21,17 @@ class ScreenHistory
 public:
 	ScreenHistory(class DesignObj_Orbiter *pObj,class ScreenHistory *pScreenHistory_Prior) 
 	{ 
-		m_pObj=pObj; m_iPK_Device=m_iPK_Users=0; m_bCantGoBack=false; m_pLocationInfo=NULL; 
+		m_pObj=pObj; m_dwPK_Device=m_iPK_Users=0; m_bCantGoBack=false; m_pLocationInfo=NULL; 
 		if( pScreenHistory_Prior )
 		{
 			// We'll just copy the standard stuff from the prior screen
-			m_iPK_Device = pScreenHistory_Prior->m_iPK_Device;
+			m_dwPK_Device = pScreenHistory_Prior->m_dwPK_Device;
 			m_iPK_Users = pScreenHistory_Prior->m_iPK_Users;
 			m_pLocationInfo = pScreenHistory_Prior->m_pLocationInfo;
 		}
 	}
 	string m_sID; // A unique ID that can be specified in the Goto command, allowing a particular 'instance' of a screen to be removed in 'remove screen from history'
-	int m_iPK_Device;  // The device being controlled
+	int m_dwPK_Device;  // The device being controlled
 	int m_iPK_Users; // The current user
 	class LocationInfo *m_pLocationInfo; // The current location
 	int m_bCantGoBack;  // If we get a go back, skip over this screen unless "Force" is set to true

@@ -34,16 +34,16 @@ class LocationInfo : public SerializeClass
 public:
 	int PK_Room,PK_EntertainArea,iLocation;
 	// Some virtual devices within the media director
-	int m_iPK_Device_MediaDirector,m_iPK_Device_DiscDrive,m_iPK_Device_AppServer,m_iPK_Device_MediaBurner,m_iPK_Device_VideoConf,m_iPK_Device_CamcorderCapt,m_iPK_Device_Orbiter,m_iPK_Device_WebBrowser; 
+	int m_dwPK_Device_MediaDirector,m_dwPK_Device_DiscDrive,m_dwPK_Device_AppServer,m_dwPK_Device_MediaBurner,m_dwPK_Device_VideoConf,m_dwPK_Device_CamcorderCapt,m_dwPK_Device_Orbiter,m_dwPK_Device_WebBrowser; 
 	string Description;
 	class Row_Icon *drIcon; // Not serialized, just a temporary pointer for the generator
 
-	LocationInfo() { m_iPK_Device_MediaDirector = m_iPK_Device_DiscDrive = m_iPK_Device_AppServer = m_iPK_Device_MediaBurner = m_iPK_Device_VideoConf = m_iPK_Device_CamcorderCapt = m_iPK_Device_Orbiter = m_iPK_Device_WebBrowser = DEVICEID_NULL; }
+	LocationInfo() { m_dwPK_Device_MediaDirector = m_dwPK_Device_DiscDrive = m_dwPK_Device_AppServer = m_dwPK_Device_MediaBurner = m_dwPK_Device_VideoConf = m_dwPK_Device_CamcorderCapt = m_dwPK_Device_Orbiter = m_dwPK_Device_WebBrowser = DEVICEID_NULL; }
 	void SetupSerialization()
 	{
 		StartSerializeList() + PK_Room + PK_EntertainArea + iLocation + Description +
-			m_iPK_Device_MediaDirector + m_iPK_Device_DiscDrive + m_iPK_Device_AppServer + m_iPK_Device_MediaBurner + m_iPK_Device_VideoConf + 
-			m_iPK_Device_CamcorderCapt + m_iPK_Device_Orbiter + m_iPK_Device_WebBrowser;
+			m_dwPK_Device_MediaDirector + m_dwPK_Device_DiscDrive + m_dwPK_Device_AppServer + m_dwPK_Device_MediaBurner + m_dwPK_Device_VideoConf + 
+			m_dwPK_Device_CamcorderCapt + m_dwPK_Device_Orbiter + m_dwPK_Device_WebBrowser;
 	}
 	virtual string SerializeClassClassName() { return "LocationInfo"; }
 };
@@ -59,11 +59,11 @@ public:
 	ScreenMap m_ScreenMap;
 
 	// Some global devices
-	int m_iPK_Device_Router,m_iPK_Device_DatagridPlugIn,m_iPK_Device_GeneralInfoPlugIn,m_iPK_Device_OrbiterPlugIn,
-		m_iPK_Device_LightingPlugIn, m_iPK_Device_ClimatePlugIn, m_iPK_Device_MediaPlugIn, m_iPK_Device_TelecomPlugIn, m_iPK_Device_SecurityPlugIn;
+	int m_dwPK_Device_Router,m_dwPK_Device_DatagridPlugIn,m_dwPK_Device_GeneralInfoPlugIn,m_dwPK_Device_OrbiterPlugIn,
+		m_dwPK_Device_LightingPlugIn, m_dwPK_Device_ClimatePlugIn, m_dwPK_Device_MediaPlugIn, m_dwPK_Device_TelecomPlugIn, m_dwPK_Device_SecurityPlugIn;
 
-	OrbiterData() { m_iPK_Device_Router = m_iPK_Device_DatagridPlugIn = m_iPK_Device_GeneralInfoPlugIn = m_iPK_Device_OrbiterPlugIn =
-		m_iPK_Device_LightingPlugIn = m_iPK_Device_ClimatePlugIn = m_iPK_Device_MediaPlugIn = m_iPK_Device_TelecomPlugIn = m_iPK_Device_SecurityPlugIn = DEVICEID_NULL; }
+	OrbiterData() { m_dwPK_Device_Router = m_dwPK_Device_DatagridPlugIn = m_dwPK_Device_GeneralInfoPlugIn = m_dwPK_Device_OrbiterPlugIn =
+		m_dwPK_Device_LightingPlugIn = m_dwPK_Device_ClimatePlugIn = m_dwPK_Device_MediaPlugIn = m_dwPK_Device_TelecomPlugIn = m_dwPK_Device_SecurityPlugIn = DEVICEID_NULL; }
 
 #ifdef ORBITER
 	DesignObj_Orbiter *m_pDesignObj_Orbiter_MainMenu,*m_pDesignObj_Orbiter_SleepingMenu,*m_pDesignObj_Orbiter_ScreenSaveMenu;
@@ -91,8 +91,8 @@ public:
 	void SetupSerialization()
 	{
 		StartSerializeList() + m_mapVariable + m_Width + m_Height + m_AnimationStyle + m_sMainMenu + m_sSleepingMenu + m_sScreenSaveMenu + m_iPK_Users + m_iLocation_Initial
-			+ m_iPK_Device_Router + m_iPK_Device_DatagridPlugIn + m_iPK_Device_GeneralInfoPlugIn + m_iPK_Device_OrbiterPlugIn
-			+ m_iPK_Device_LightingPlugIn + m_iPK_Device_ClimatePlugIn + m_iPK_Device_MediaPlugIn + m_iPK_Device_TelecomPlugIn + m_iPK_Device_SecurityPlugIn;
+			+ m_dwPK_Device_Router + m_dwPK_Device_DatagridPlugIn + m_dwPK_Device_GeneralInfoPlugIn + m_dwPK_Device_OrbiterPlugIn
+			+ m_dwPK_Device_LightingPlugIn + m_dwPK_Device_ClimatePlugIn + m_dwPK_Device_MediaPlugIn + m_dwPK_Device_TelecomPlugIn + m_dwPK_Device_SecurityPlugIn;
 
 		(*this) + m_ScreenMap + m_mapTextStyle + m_alLocations; // this is serialized custom
 	}

@@ -74,7 +74,7 @@ void ServerLogger::WriteEntry(Logger::Entry& entry)
 	double sec = (double)(entry.m_dwMicroseconds/1E6) + entry.m_dwTime;
 	char c[32];
 	snprintf(c,sizeof(c),"%f", sec);
-	Message* msg = new Message(m_DeviceID, DEVICEID_LOGGER,PRIORITY_NORMAL, MESSAGETYPE_LOG, 0, 0);
+	Message* msg = new Message(m_dwPK_Device, DEVICEID_LOGGER,PRIORITY_NORMAL, MESSAGETYPE_LOG, 0, 0);
 	entry.SerializeWrite();
 /*
 	m_dwIDeviceStructure_Size=(unsigned long) allDevices.CurrentSize();

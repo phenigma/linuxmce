@@ -97,7 +97,7 @@ Bluetooth_Dongle::Bluetooth_Dongle(int DeviceID, string ServerAddress,bool bConn
 			}
 			else
 			{
-				g_pPlutoLogger->Write(LV_WARNING,"Mobile orbiter: %d found, with no mac address",pDeviceData_Base->m_iPK_Device);
+				g_pPlutoLogger->Write(LV_WARNING,"Mobile orbiter: %d found, with no mac address",pDeviceData_Base->m_dwPK_Device);
 			}
 		}
 	}

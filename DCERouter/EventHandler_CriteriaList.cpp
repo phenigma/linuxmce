@@ -58,18 +58,18 @@ bool EventHandler_CriteriaList::EvaluateExpression(class CriteriaParm *CriteriaP
 		iLValue = &iTmp;
 		break;
 	case CRITERIAPARMLIST_PK_DEVICE_CONST:
-		iLValue = &pEventInfo->pDevice->m_iPK_Device;
+		iLValue = &pEventInfo->pDevice->m_dwPK_Device;
 		break;
 	case CRITERIAPARMLIST_PK_DEVICETEMPLATE_CONST:
-		iLValue = &pEventInfo->pDevice->m_iPK_DeviceTemplate;
+		iLValue = &pEventInfo->pDevice->m_dwPK_DeviceTemplate;
 		break;
 	case CRITERIAPARMLIST_TIME_OF_DAY_CONST:
 		break;
 	case CRITERIAPARMLIST_PK_DEVICECATEGORY_CONST:
-		iLValue = &pEventInfo->pDevice->m_iPK_DeviceCategory;
+		iLValue = &pEventInfo->pDevice->m_dwPK_DeviceCategory;
 		break;
 	case CRITERIAPARMLIST_PK_ROOM_CONST:
-		iLValue = &pEventInfo->pDevice->m_iPK_Room;
+		iLValue = &pEventInfo->pDevice->m_dwPK_Room;
 		break;
 	case CRITERIAPARMLIST_PK_DEVICEGROUP_CONST:
 		return pEventInfo->pDevice->m_mapDeviceGroups[atoi(CriteriaParm->m_sValue.c_str())];
@@ -88,7 +88,7 @@ bool EventHandler_CriteriaList::EvaluateExpression(class CriteriaParm *CriteriaP
 	case CRITERIAPARMLIST_SPECIFIC_DATE_CONST:
 		break;
 	case CRITERIAPARMLIST_PK_C_ROOMTYPE_CONST:
-		iLValue = &pEventInfo->pDevice->m_iPK_RoomType;
+		iLValue = &pEventInfo->pDevice->m_dwPK_RoomType;
 		break;
 	case CRITERIAPARMLIST_PK_EVENT_CONST:
 		{

@@ -25,7 +25,7 @@ void *BeginWapClientThread(void *param)
 ServerSocket::ServerSocket(SocketListener *pListener, SOCKET Sock,string Name) : 
 	m_ConnectionMutex("connection " + Name), Socket(Name)
 {
-	m_DeviceID = -1;
+	m_dwPK_Device = -1;
 	m_Socket = Sock;
 	m_pListener = pListener;
 	
@@ -34,7 +34,7 @@ ServerSocket::ServerSocket(SocketListener *pListener, SOCKET Sock,string Name) :
 	if (Result != 0)
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "Pthread create returned %d %s dev %d ptr %p", 
-			(int)Result,m_sName.c_str(),m_DeviceID,this);
+			(int)Result,m_sName.c_str(),m_dwPK_Device,this);
 	}
 	else
 	{
@@ -83,7 +83,7 @@ void ServerSocket::Run()
 			sprintf(s, "TIME|%d|%d|%d|%d|%d|%d|UGMT|%lu|BIAS|%lu|%d", 
 				lt.tm_hour, lt.tm_min, lt.tm_sec, lt.tm_mon+1, lt.tm_mday, 
 				lt.tm_year+1900, (long unsigned int)t, (long unsigned int) mktime(&lt) - mktime(&gt), lt.tm_isdst);
-			g_pPlutoLogger->Write(LV_STATUS, "Device %d requested time: sending %s",m_DeviceID,s);
+			g_pPlutoLogger->Write(LV_STATUS, "Device %d requested time: sending %s",m_dwPK_Device,s);
 			SendString(s);
 			continue;
 		}
@@ -91,7 +91,7 @@ void ServerSocket::Run()
 		if (msg.substr(0,5) == "HELLO")
 		{
 			SendString("OK");
-			m_DeviceID = atoi(msg.substr(6).c_str());
+			m_dwPK_Device = atoi(msg.substr(6).c_str());
 			m_sName += msg;
 
 #ifdef LL_DEBUG_FILE
@@ -100,7 +100,7 @@ void ServerSocket::Run()
 #endif
 
 #ifdef TEST_DISCONNECT	
-			if (m_DeviceID == TEST_DISCONNECT)
+			if (m_dwPK_Device == TEST_DISCONNECT)
 			{
 				m_pListener->m_pTestDisconnectEvent = this;
 			}
@@ -112,21 +112,21 @@ void ServerSocket::Run()
 				g_pPlutoLogger->Write(LV_WARNING, "Received %s, but current file version is %d.", msg.c_str(),FILE_VERSION);
 			}
 */
-//  Don't register event handlers			m_pListener->RegisterAsDevice(this, m_DeviceID, false);
+//  Don't register event handlers			m_pListener->RegisterAsDevice(this, m_dwPK_Device, false);
 			continue;
 		}
 		if (msg.substr(0,14) == "REQUESTHANDLER")
 		{
 			SendString("OK");
-			m_DeviceID = atoi(msg.substr(14).c_str());
+			m_dwPK_Device = atoi(msg.substr(14).c_str());
 #ifdef TEST_DISCONNECT	
-			if (m_DeviceID == TEST_DISCONNECT)
+			if (m_dwPK_Device == TEST_DISCONNECT)
 			{
 				m_pListener->m_pTestDisconnectCmdHandler = this;
 			}
 #endif
 
-			m_pListener->RegisterCommandHandler(this, m_DeviceID);
+			m_pListener->RegisterCommandHandler(this, m_dwPK_Device);
 
 			// This is a request handler.  It will only be used for messages
 			// originating FROM other sources, so no thread is necessary.
@@ -139,7 +139,7 @@ void ServerSocket::Run()
 			SendString("OK");
 			break;
 		}
-		if (m_DeviceID == -1)
+		if (m_dwPK_Device == -1)
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "Received %s, but device hasn't identified itself yet.", msg.c_str());
 		}
@@ -175,10 +175,10 @@ void ServerSocket::Run()
 		closesocket(m_Socket);
 		m_Socket = INVALID_SOCKET;
 	}
-	g_pPlutoLogger->Write(LV_WARNING, "TCPIP: Closing connection to %d (%s)", m_DeviceID,m_pListener->m_sName.c_str());
+	g_pPlutoLogger->Write(LV_WARNING, "TCPIP: Closing connection to %d (%s)", m_dwPK_Device,m_pListener->m_sName.c_str());
 	
 	//jjhuff also call OnDisconnected()
-	m_pListener->OnDisconnected(m_DeviceID);
+	m_pListener->OnDisconnected(m_dwPK_Device);
 	
 	delete this;
 	return;

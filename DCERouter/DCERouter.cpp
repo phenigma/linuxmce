@@ -66,8 +66,8 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
     m_sBasePath=BasePath;
     m_bReload = false;
     m_bQuit = false;
-    m_iPK_Device=PK_Device;
-    m_iPK_Installation=PK_Installation;
+    m_dwPK_Device=PK_Device;
+    m_dwPK_Installation=PK_Installation;
     m_pDeviceStructure=NULL;
     m_pRow_Device_Me=NULL;
     m_sDBHost=DBHost;
@@ -103,7 +103,7 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
     }
 
 
-    if( !m_iPK_Installation && !m_iPK_Device )
+    if( !m_dwPK_Installation && !m_dwPK_Device )
     {
         vector<Row_Device *> vectRow_Device;
         m_pDatabase_pluto_main->Device_get()->GetRows( string(DEVICE_FK_DEVICETEMPLATE_FIELD) + "=" + StringUtils::itos(DEVICETEMPLATE_DCE_Router_CONST), &vectRow_Device);
@@ -118,32 +118,32 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
         m_pRow_Device_Me=vectRow_Device[0];
     }
 
-    if( !m_pRow_Device_Me && m_iPK_Device )
+    if( !m_pRow_Device_Me && m_dwPK_Device )
     {
-        m_pRow_Device_Me = m_pDatabase_pluto_main->Device_get()->GetRow(m_iPK_Device);
-        if( m_pRow_Device_Me && m_iPK_Installation && m_pRow_Device_Me->FK_Installation_get()!=PK_Installation )
+        m_pRow_Device_Me = m_pDatabase_pluto_main->Device_get()->GetRow(m_dwPK_Device);
+        if( m_pRow_Device_Me && m_dwPK_Installation && m_pRow_Device_Me->FK_Installation_get()!=PK_Installation )
         {
-            g_pPlutoLogger->Write(LV_WARNING,"You specified an installation ID of %d on the command line, but also a device of %d which belongs to installation %d",m_iPK_Installation,m_iPK_Device,m_pRow_Device_Me->FK_Installation_get());
+            g_pPlutoLogger->Write(LV_WARNING,"You specified an installation ID of %d on the command line, but also a device of %d which belongs to installation %d",m_dwPK_Installation,m_dwPK_Device,m_pRow_Device_Me->FK_Installation_get());
         }
     }
 
     if( !m_pRow_Device_Me )
     {
         vector<Row_Device *> vectRow_Device;
-        m_pDatabase_pluto_main->Device_get()->GetRows( string(DEVICE_FK_INSTALLATION_FIELD) + "=" + StringUtils::itos(m_iPK_Installation) + " AND " + string(DEVICE_FK_DEVICETEMPLATE_FIELD) + "=" + StringUtils::itos(DEVICETEMPLATE_DCE_Router_CONST),&vectRow_Device);
+        m_pDatabase_pluto_main->Device_get()->GetRows( string(DEVICE_FK_INSTALLATION_FIELD) + "=" + StringUtils::itos(m_dwPK_Installation) + " AND " + string(DEVICE_FK_DEVICETEMPLATE_FIELD) + "=" + StringUtils::itos(DEVICETEMPLATE_DCE_Router_CONST),&vectRow_Device);
         if( vectRow_Device.size()!=1 )
         {
             g_pPlutoLogger->Write(LV_CRITICAL,"Cannot determine my device ID automatically.  # of records in DB: %d",(int) vectRow_Device.size());
             cerr << "Sorry...   I cannot figure out what my device ID is automatically.  To do this there must be only" << endl;
-            cerr << "1 record in the database for a device with the device template type of 1 (DCE Router) in installation " << m_iPK_Installation << ".  There are " << (int) vectRow_Device.size() << endl;
+            cerr << "1 record in the database for a device with the device template type of 1 (DCE Router) in installation " << m_dwPK_Installation << ".  There are " << (int) vectRow_Device.size() << endl;
             cerr << "You will need to specify the device id on the command line." << endl;
             exit(1);
         }
         m_pRow_Device_Me=vectRow_Device[0];
     }
 
-    m_iPK_Device = m_pRow_Device_Me->PK_Device_get();
-    m_iPK_Installation = m_pRow_Device_Me->FK_Installation_get();
+    m_dwPK_Device = m_pRow_Device_Me->PK_Device_get();
+    m_dwPK_Installation = m_pRow_Device_Me->FK_Installation_get();
 
     if( m_sBasePath=="" )
     {
@@ -155,7 +155,7 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
 #endif
     }
 
-    g_pPlutoLogger->Write(LV_STATUS,"Running as device: %d installation: %d using path: %s",m_iPK_Device,m_iPK_Installation,m_sBasePath.c_str());
+    g_pPlutoLogger->Write(LV_STATUS,"Running as device: %d installation: %d using path: %s",m_dwPK_Device,m_dwPK_Installation,m_sBasePath.c_str());
 
     m_pAlarmManager = new AlarmManager();
     m_pAlarmManager->Start(4);      //4 = number of worker threads
@@ -179,7 +179,7 @@ Router::~Router()
 void Router::RegisterAllPlugins()
 {
     vector<Row_Device *> vectRow_Device;
-    m_pDatabase_pluto_main->Device_get()->GetRows( string(DEVICE_FK_DEVICE_CONTROLLEDVIA_FIELD) + "=" + StringUtils::itos(m_iPK_Device), &vectRow_Device);
+    m_pDatabase_pluto_main->Device_get()->GetRows( string(DEVICE_FK_DEVICE_CONTROLLEDVIA_FIELD) + "=" + StringUtils::itos(m_dwPK_Device), &vectRow_Device);
     for(size_t s=0;s<vectRow_Device.size();++s )
     {
         Row_Device *pRow_Device = vectRow_Device[s];
@@ -408,7 +408,7 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
     }
 
     int tempid = (*SafetyMessage)->m_dwPK_Device_To;
-    if(tempid == m_iPK_Device)
+    if(tempid == m_dwPK_Device)
         tempid = DEVICEID_DCEROUTER;
     switch(tempid)
     {
@@ -522,15 +522,15 @@ bool Router::ReceivedString(Socket *pSocket, string Line)
 
     if (Line=="CONFIG")
     {
-        class DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(pServerSocket->m_DeviceID);
+        class DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(pServerSocket->m_dwPK_Device);
         if (!pDevice)
         {
             pSocket->SendString(string("ERROR"));
-            g_pPlutoLogger->Write(LV_CRITICAL, "Device ID %d is requesting its configuration, but it does not exist.", pServerSocket->m_DeviceID);
+            g_pPlutoLogger->Write(LV_CRITICAL, "Device ID %d is requesting its configuration, but it does not exist.", pServerSocket->m_dwPK_Device);
         }
         else
         {
-            if( m_bIsLoading && (pDevice->m_iPK_Device_ControlledVia != m_iPK_Device || !pDevice->m_bImplementsDCE) )
+            if( m_bIsLoading && (pDevice->m_dwPK_Device_ControlledVia != m_dwPK_Device || !pDevice->m_bImplementsDCE) )
             {
                 pServerSocket->SendString("WAIT");  // We haven't finished loading the plugins
             }
@@ -666,7 +666,7 @@ void Router::OutputChildren(DeviceData_Impl *pDevice,string &Response)
     for(int i=0;i<(int)pDevice->m_vectDeviceData_Impl_Children.size();++i)
     {
         DeviceData_Impl *pChildDevice = pDevice->m_vectDeviceData_Impl_Children[i];
-        Response += StringUtils::itos(pChildDevice->m_iPK_Device) + "|" + StringUtils::itos(pChildDevice->m_iPK_DeviceTemplate) + "|";
+        Response += StringUtils::itos(pChildDevice->m_dwPK_Device) + "|" + StringUtils::itos(pChildDevice->m_dwPK_DeviceTemplate) + "|";
         OutputChildren(pChildDevice,Response);
     }
 }
@@ -705,7 +705,7 @@ bool Router::GetVideoFrame(int CameraDevice, void* &ImageData, int &ImageLength)
             PLUTO_SAFETY_LOCK(slConnMutex,(pDeviceConnection->m_ConnectionMutex))
             if (!pDeviceConnection->SendMessage(pMessage))
             {
-                    g_pPlutoLogger->Write(LV_CRITICAL, "Socket %p failure sending message to device %d", pDeviceConnection, pDeviceConnection->m_DeviceID);
+                    g_pPlutoLogger->Write(LV_CRITICAL, "Socket %p failure sending message to device %d", pDeviceConnection, pDeviceConnection->m_dwPK_Device);
             }
             else
             {
@@ -725,12 +725,12 @@ bool Router::GetVideoFrame(int CameraDevice, void* &ImageData, int &ImageLength)
                         }
                         else
                         {
-                            g_pPlutoLogger->Write(LV_WARNING, "%d GetVideoFrame, failed to receive message.", pDeviceConnection->m_DeviceID);
+                            g_pPlutoLogger->Write(LV_WARNING, "%d GetVideoFrame, failed to receive message.", pDeviceConnection->m_dwPK_Device);
                         }
                     }
                     else
                     {
-                        g_pPlutoLogger->Write(LV_WARNING, "%d GetVideoFrame, Destination responded with %s.", pDeviceConnection->m_DeviceID, sResponse.c_str());
+                        g_pPlutoLogger->Write(LV_WARNING, "%d GetVideoFrame, Destination responded with %s.", pDeviceConnection->m_dwPK_Device, sResponse.c_str());
                     }
                 }
             }
@@ -827,15 +827,15 @@ int Router::FindClosestRelative(int MasterDeviceType, int CurrentDevice)
     DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(CurrentDevice);
     if( pDevice )
     {
-        int DeviceID = pDevice->m_iPK_Device_ControlledVia;
+        int DeviceID = pDevice->m_dwPK_Device_ControlledVia;
         if( DeviceID && (pDevice = m_mapDeviceData_Router_Find(DeviceID)))
         {
             for(int i=0;i<(int)pDevice->m_vectDeviceData_Impl_Children.size();++i)
             {
                 DeviceData_Impl *pChildDevice = pDevice->m_vectDeviceData_Impl_Children[i];
-                if (pChildDevice->m_iPK_DeviceTemplate == MasterDeviceType)
+                if (pChildDevice->m_dwPK_DeviceTemplate == MasterDeviceType)
                 {
-                    return pChildDevice->m_iPK_Device;
+                    return pChildDevice->m_dwPK_Device;
                 }
             }
             // Not here.  Go up one.
@@ -1017,17 +1017,17 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
 //  (*(*pSafetyMessage))->m_dwPK_Device_From,(*(*pSafetyMessage))->m_dwPK_Device_To,(*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID);
 
 #ifdef DEBUG
-                DeviceData_Router *pDest = m_mapDeviceData_Router_Find(pDeviceConnection->m_DeviceID);
+                DeviceData_Router *pDest = m_mapDeviceData_Router_Find(pDeviceConnection->m_dwPK_Device);
                 if( !pDest )
                 {
-                    g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find destination device: %d",pDeviceConnection->m_DeviceID);
+                    g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find destination device: %d",pDeviceConnection->m_dwPK_Device);
                 }
                 g_pPlutoLogger->Write(LV_SOCKET, "Ready to send message type %d id %d to %d %s on socket %d using lock: %p",
-                    (*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID,pDeviceConnection->m_DeviceID,
+                    (*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID,pDeviceConnection->m_dwPK_Device,
                     (pDest ? pDest->m_sDescription.c_str() : "*UNKNOWN DEVICE*"),
                     pDeviceConnection->m_Socket,&pDeviceConnection->m_ConnectionMutex);
 
-                string Message = "Device " + StringUtils::itos(pDeviceConnection->m_DeviceID) + " " + (pDest ? pDest->m_sDescription : "*UNKNOWN DEVICE*");
+                string Message = "Device " + StringUtils::itos(pDeviceConnection->m_dwPK_Device) + " " + (pDest ? pDest->m_sDescription : "*UNKNOWN DEVICE*");
                 PLUTO_SAFETY_LOCK_MESSAGE(slConnMutex,pDeviceConnection->m_ConnectionMutex,Message)
 #else
                 PLUTO_SAFETY_LOCK(slConnMutex,pDeviceConnection->m_ConnectionMutex)
@@ -1041,7 +1041,7 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
                 clock_t clk = clock();
 #endif
     #ifdef LL_DEBUG
-                g_pPlutoLogger->Write(LV_SOCKET, "%d Sending....", pDeviceConnection->m_DeviceID);
+                g_pPlutoLogger->Write(LV_SOCKET, "%d Sending....", pDeviceConnection->m_dwPK_Device);
     #endif
                 int MessageType = (*(*pSafetyMessage))->m_dwMessage_Type;
                 int ID = (*(*pSafetyMessage))->m_dwID;
@@ -1061,7 +1061,7 @@ if ( ID == 54 )
 
                 if (!bResult)
                 {
-                    g_pPlutoLogger->Write(LV_CRITICAL, "Socket %p failure sending message to device %d", pDeviceConnection,pDeviceConnection->m_DeviceID);
+                    g_pPlutoLogger->Write(LV_CRITICAL, "Socket %p failure sending message to device %d", pDeviceConnection,pDeviceConnection->m_dwPK_Device);
                     pFailedSocket = pDeviceConnection;
                 }
                 else
@@ -1069,7 +1069,7 @@ if ( ID == 54 )
 #ifdef DEBUG
                     clock_t clk2 = clock();
                     if( clk2-clk>(CLOCKS_PER_SEC*4) )
-                        g_pPlutoLogger->Write(LV_CRITICAL,"Took %d secs (%d ticks) to send message to %d",(int) ((clk2-clk)/CLOCKS_PER_SEC),(int) (clk2-clk),pDeviceConnection->m_DeviceID);
+                        g_pPlutoLogger->Write(LV_CRITICAL,"Took %d secs (%d ticks) to send message to %d",(int) ((clk2-clk)/CLOCKS_PER_SEC),(int) (clk2-clk),pDeviceConnection->m_dwPK_Device);
 #endif
 
                     if( (*(*pSafetyMessage))->m_eExpectedResponse==ER_None )
@@ -1089,8 +1089,8 @@ if ( ID == 54 )
 /*
 #ifdef DEBUG
                         if( clock()-clk2>(CLOCKS_PER_SEC*4) )
-                            g_pPlutoLogger->Write(LV_CRITICAL,"Took %d secs (ticks: %d) to receive response from %d",(int) ((clock()-clk2)/CLOCKS_PER_SEC),(int) (clock()-clk2),pDeviceConnection->m_DeviceID);
-                        g_pPlutoLogger->Write(LV_STATUS, "%d Destination realsendmessage responded with %s.", pDeviceConnection->m_DeviceID, sResponse.c_str());
+                            g_pPlutoLogger->Write(LV_CRITICAL,"Took %d secs (ticks: %d) to receive response from %d",(int) ((clock()-clk2)/CLOCKS_PER_SEC),(int) (clock()-clk2),pDeviceConnection->m_dwPK_Device);
+                        g_pPlutoLogger->Write(LV_STATUS, "%d Destination realsendmessage responded with %s.", pDeviceConnection->m_dwPK_Device, sResponse.c_str());
 #endif
 */
                         if (sResponse.substr(0,7)  == "MESSAGE")
@@ -1123,11 +1123,11 @@ if ( pSocket->SendMessage(pMessage) == false && ID == 54)
                         {
                             // delete the other sockets
                             g_pPlutoLogger->Write(LV_STATUS, "Got BYE in response to message.  Dropping socket");
-                            DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(pDeviceConnection->m_DeviceID);
+                            DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(pDeviceConnection->m_dwPK_Device);
                             // cause the server to remove the socket
 // AB 1-4-2004 TODO -- have to fix this.  it crashed???
 //                              pFailedSocket = pDeviceConnection;
-//                              FlagForRemoval(pDeviceConnection->m_DeviceID);
+//                              FlagForRemoval(pDeviceConnection->m_dwPK_Device);
                         }
                         else
                         {
@@ -1147,7 +1147,7 @@ if ( pSocket->SendMessage(pMessage) == false && ID == 54)
                     else
                     {
                         g_pPlutoLogger->Write(LV_CRITICAL, "Socket %p failure waiting for response to message from device %d",
-                            pDeviceConnection,pDeviceConnection->m_DeviceID );
+                            pDeviceConnection,pDeviceConnection->m_dwPK_Device );
                         pFailedSocket = pDeviceConnection;
                     }
                 }
@@ -1198,30 +1198,30 @@ void Router::ErrorResponse(Socket *pSocket,Message *pMessage)
 
 void Router::ParseDevice(int MasterDeviceID, int ParentDeviceID, class DeviceData_Impl *pDevice)
 {
-//  if( pDevice->m_iPK_DeviceCategory == DEVICETEMPLATE_Pluto_Core_CONST )
-//      m_iPK_Device = pDevice->m_iPK_Device;
+//  if( pDevice->m_dwPK_DeviceCategory == DEVICETEMPLATE_Pluto_Core_CONST )
+//      m_dwPK_Device = pDevice->m_dwPK_Device;
 
     if ( !pDevice->WithinCategory( DEVICECATEGORY_Computers_CONST ) && MasterDeviceID == DEVICEID_DCEROUTER )
     {
-        MasterDeviceID = pDevice->m_iPK_Device;
+        MasterDeviceID = pDevice->m_dwPK_Device;
     }
 
     if (MasterDeviceID == DEVICEID_DCEROUTER)
     {
-        g_pPlutoLogger->Write(LV_STATUS,"Created the server device: %d %s",pDevice->m_iPK_Device,pDevice->m_sDescription.c_str());
-        m_Routing_DeviceToController[pDevice->m_iPK_Device] = pDevice->m_iPK_Device;
+        g_pPlutoLogger->Write(LV_STATUS,"Created the server device: %d %s",pDevice->m_dwPK_Device,pDevice->m_sDescription.c_str());
+        m_Routing_DeviceToController[pDevice->m_dwPK_Device] = pDevice->m_dwPK_Device;
     }
     else
     {
-        g_pPlutoLogger->Write(LV_STATUS,"Created device %d %s (mdl: %d) routed to: %d",pDevice->m_iPK_Device,
-            pDevice->m_sDescription.c_str(),pDevice->m_iPK_DeviceTemplate,MasterDeviceID);
-        m_Routing_DeviceToController[pDevice->m_iPK_Device] = MasterDeviceID;
+        g_pPlutoLogger->Write(LV_STATUS,"Created device %d %s (mdl: %d) routed to: %d",pDevice->m_dwPK_Device,
+            pDevice->m_sDescription.c_str(),pDevice->m_dwPK_DeviceTemplate,MasterDeviceID);
+        m_Routing_DeviceToController[pDevice->m_dwPK_Device] = MasterDeviceID;
     }
 
     for(size_t i=0;i<pDevice->m_vectDeviceData_Impl_Children.size();i++)
     {
         DeviceData_Impl *pChild = pDevice->m_vectDeviceData_Impl_Children[i];
-        ParseDevice(MasterDeviceID, pDevice->m_iPK_Device, pChild);
+        ParseDevice(MasterDeviceID, pDevice->m_dwPK_Device, pChild);
     }
 }
 
@@ -1238,8 +1238,8 @@ void Router::Configure()
         DeviceCategory *pDeviceCategory = new DeviceCategory(prDeviceCategory->PK_DeviceCategory_get(),
             prDeviceCategory->FK_DeviceCategory_Parent_get(),prDeviceCategory->Description_get());
 
-        m_mapDeviceCategory[pDeviceCategory->m_iPK_DeviceCategory] = pDeviceCategory;
-        allDevices.m_mapDeviceCategory[pDeviceCategory->m_iPK_DeviceCategory] = pDeviceCategory;  // All devices will want this structure too
+        m_mapDeviceCategory[pDeviceCategory->m_dwPK_DeviceCategory] = pDeviceCategory;
+        allDevices.m_mapDeviceCategory[pDeviceCategory->m_dwPK_DeviceCategory] = pDeviceCategory;  // All devices will want this structure too
     }
 
     // Map them up to the parents
@@ -1247,16 +1247,16 @@ void Router::Configure()
     for(itCat=m_mapDeviceCategory.begin();itCat!=m_mapDeviceCategory.end();++itCat)
     {
         DeviceCategory *pCat = (*itCat).second;
-        if( pCat->m_iPK_DeviceCategory_Parent )
+        if( pCat->m_dwPK_DeviceCategory_Parent )
         {
-            DeviceCategory *pParent = m_mapDeviceCategory_Find(pCat->m_iPK_DeviceCategory_Parent);
+            DeviceCategory *pParent = m_mapDeviceCategory_Find(pCat->m_dwPK_DeviceCategory_Parent);
             pCat->m_pDeviceCategory_Parent = pParent;
         }
     }
 
     vector<Row_Device *> vectDevices;
     GetDatabase()->Device_get()->GetRows(
-        string(DEVICE_FK_INSTALLATION_FIELD) + "=" + StringUtils::itos(m_iPK_Installation),&vectDevices);
+        string(DEVICE_FK_INSTALLATION_FIELD) + "=" + StringUtils::itos(m_dwPK_Installation),&vectDevices);
 
     for(size_t s=0;s<vectDevices.size();++s)
     {
@@ -1271,13 +1271,13 @@ void Router::Configure()
             prDevice->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get(),prDevice->FK_Room_get(),prDevice->FK_DeviceTemplate_getrow()->ImplementsDCE_get()==1,prDevice->FK_DeviceTemplate_getrow()->IsEmbedded_get()==1,
             CommandLine,prDevice->FK_DeviceTemplate_getrow()->IsPlugIn_get()==1,prDevice->Description_get(),prDevice->IPaddress_get(),prDevice->MACaddress_get());
 
-        m_mapDeviceData_Router[pDevice->m_iPK_Device]=pDevice;
+        m_mapDeviceData_Router[pDevice->m_dwPK_Device]=pDevice;
 
-        ListDeviceData_Router *pListDeviceData_Router = m_mapDeviceTemplate_Find(pDevice->m_iPK_DeviceTemplate);
+        ListDeviceData_Router *pListDeviceData_Router = m_mapDeviceTemplate_Find(pDevice->m_dwPK_DeviceTemplate);
         if( !pListDeviceData_Router )
         {
             pListDeviceData_Router = new ListDeviceData_Router();
-            m_mapDeviceTemplate[pDevice->m_iPK_DeviceTemplate] = pListDeviceData_Router;
+            m_mapDeviceTemplate[pDevice->m_dwPK_DeviceTemplate] = pListDeviceData_Router;
         }
         pListDeviceData_Router->push_back(pDevice);
 
@@ -1286,7 +1286,7 @@ void Router::Configure()
             prDevice->PK_Device_get(),prDevice->FK_Installation_get(),prDevice->FK_DeviceTemplate_get(),prDevice->FK_Device_ControlledVia_get(),
             prDevice->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get(),prDevice->FK_Room_get(),prDevice->FK_DeviceTemplate_getrow()->ImplementsDCE_get()==1,prDevice->FK_DeviceTemplate_getrow()->IsEmbedded_get()==1,
             prDevice->FK_DeviceTemplate_getrow()->CommandLine_get(),prDevice->FK_DeviceTemplate_getrow()->IsPlugIn_get()==1,prDevice->IPaddress_get(),prDevice->MACaddress_get());
-        allDevices.m_mapDeviceData_Base[pDevice_Base->m_iPK_Device]=pDevice_Base;
+        allDevices.m_mapDeviceData_Base[pDevice_Base->m_dwPK_Device]=pDevice_Base;
 
         // Get a list of all the commands each device supports
         vector<Row_DeviceTemplate_DeviceCommandGroup *> vectRow_DeviceTemplate_DeviceCommandGroup;
@@ -1307,11 +1307,11 @@ void Router::Configure()
 
         }
 
-        pDevice->m_pDeviceCategory=m_mapDeviceCategory_Find(pDevice->m_iPK_DeviceCategory);
+        pDevice->m_pDeviceCategory=m_mapDeviceCategory_Find(pDevice->m_dwPK_DeviceCategory);
 
         vector<Row_Device_DeviceData *> vectDeviceParms;
         GetDatabase()->Device_DeviceData_get()->GetRows(
-            string(DEVICE_DEVICEDATA_FK_DEVICE_FIELD) + "=" + StringUtils::itos(pDevice->m_iPK_Device),&vectDeviceParms);
+            string(DEVICE_DEVICEDATA_FK_DEVICE_FIELD) + "=" + StringUtils::itos(pDevice->m_dwPK_Device),&vectDeviceParms);
 
         for(size_t s2=0;s2<vectDeviceParms.size();++s2)
         {
@@ -1321,7 +1321,7 @@ void Router::Configure()
 
         vector<Row_DeviceTemplate_Input *> vectDeviceInputs;
         GetDatabase()->DeviceTemplate_Input_get()->GetRows(
-            string(DEVICETEMPLATE_INPUT_FK_DEVICETEMPLATE_FIELD) + "=" + StringUtils::itos(pDevice->m_iPK_DeviceTemplate),&vectDeviceInputs);
+            string(DEVICETEMPLATE_INPUT_FK_DEVICETEMPLATE_FIELD) + "=" + StringUtils::itos(pDevice->m_dwPK_DeviceTemplate),&vectDeviceInputs);
 
         for(size_t s2=0;s2<vectDeviceInputs.size();++s2)
         {
@@ -1329,7 +1329,7 @@ void Router::Configure()
             pDevice->m_mapInputs[prDeviceInput->FK_Input_get()]=prDeviceInput->FK_Input_getrow()->FK_Command_get();
         }
 /*
-        vector<Row_DeviceTemplate_C_Output *> vectDeviceOutputs = GetDatabase()->DeviceTemplate_C_Output_get()->GetRows("WHERE " + DeviceTemplate_C_Output_FK_MASTERDEVICE_CONST + "=" StringUtils::itos(pDevice->m_iPK_DeviceTemplate));
+        vector<Row_DeviceTemplate_C_Output *> vectDeviceOutputs = GetDatabase()->DeviceTemplate_C_Output_get()->GetRows("WHERE " + DeviceTemplate_C_Output_FK_MASTERDEVICE_CONST + "=" StringUtils::itos(pDevice->m_dwPK_DeviceTemplate));
         for(size_t s2=0;s2<vectDeviceOutputs.size();++s2)
         {
             Row_DeviceTemplate_C_Output *prDeviceOutput = vectDeviceOutputs[s2];
@@ -1338,7 +1338,7 @@ void Router::Configure()
 */
         vector<Row_DeviceTemplate_DSPMode *> vectDeviceDSPModes;
         GetDatabase()->DeviceTemplate_DSPMode_get()->GetRows(
-            string(DEVICETEMPLATE_DSPMODE_FK_DEVICETEMPLATE_FIELD) + "=" + StringUtils::itos(pDevice->m_iPK_DeviceTemplate),&vectDeviceDSPModes);
+            string(DEVICETEMPLATE_DSPMODE_FK_DEVICETEMPLATE_FIELD) + "=" + StringUtils::itos(pDevice->m_dwPK_DeviceTemplate),&vectDeviceDSPModes);
         for(size_t s2=0;s2<vectDeviceDSPModes.size();++s2)
         {
             Row_DeviceTemplate_DSPMode *prDeviceDSPMode = vectDeviceDSPModes[s2];
@@ -1351,7 +1351,7 @@ void Router::Configure()
     for(itDevice=m_mapDeviceData_Router.begin();itDevice!=m_mapDeviceData_Router.end();++itDevice)
     {
         DeviceData_Router *pDevice = (*itDevice).second;
-        DeviceData_Router *pDevice_Parent = m_mapDeviceData_Router_Find(pDevice->m_iPK_Device_ControlledVia);
+        DeviceData_Router *pDevice_Parent = m_mapDeviceData_Router_Find(pDevice->m_dwPK_Device_ControlledVia);
         if( pDevice_Parent )
         {
             pDevice->m_pDevice_ControlledVia = pDevice_Parent;
@@ -1425,11 +1425,11 @@ if( !pDevice )
 g_pPlutoLogger->Write(LV_CRITICAL,"m_mapDeviceData_Router has a NULL in it");
 continue;
 }
-        if( pDevice->m_iPK_DeviceTemplate!=PK_DeviceTemplate )
+        if( pDevice->m_dwPK_DeviceTemplate!=PK_DeviceTemplate )
             continue;
         if( Result.length() )
             Result += ",";
-        Result += StringUtils::itos(pDevice->m_iPK_Device);
+        Result += StringUtils::itos(pDevice->m_dwPK_Device);
     }
     return Result;
 }
@@ -1448,11 +1448,11 @@ if( !pDevice )
 g_pPlutoLogger->Write(LV_CRITICAL,"m_mapDeviceData_Router has a NULL in it");
 continue;
 }
-        if( pDevice->m_iPK_DeviceCategory!=PK_DeviceCategory )
+        if( pDevice->m_dwPK_DeviceCategory!=PK_DeviceCategory )
             continue;
         if( Result.length() )
             Result += ",";
-        Result += StringUtils::itos(pDevice->m_iPK_Device);
+        Result += StringUtils::itos(pDevice->m_dwPK_Device);
     }
     return Result;
 }

@@ -79,7 +79,7 @@ bool Xine_Plugin::MenuOnScreen(class Socket *pSocket,class Message *pMessage,cla
 {
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
     // Confirm this is from one of ours
-    if( !pDeviceFrom || pDeviceFrom->m_iPK_DeviceTemplate!=DEVICETEMPLATE_Xine_Player_CONST )
+    if( !pDeviceFrom || pDeviceFrom->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_Xine_Player_CONST )
         return false; // Some other media player.  We only know xine's menu handling
 
     int StreamID = atoi(pMessage->m_mapParameters[EVENTPARAMETER_Stream_ID_CONST].c_str());
@@ -106,17 +106,17 @@ g_pPlutoLogger->Write(LV_STATUS,"Mediastream  ea %p %d",pEntertainArea,pEntertai
         for(MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin();itBR!=pEntertainArea->m_mapBoundRemote.end();++itBR)
         {
             BoundRemote *pBoundRemote = (*itBR).second;
-            mapOH_Orbiter[pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_iPK_Device] = pBoundRemote->m_pOH_Orbiter;
+            mapOH_Orbiter[pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device] = pBoundRemote->m_pOH_Orbiter;
         }
     }
 
     for( map<int,OH_Orbiter *>::iterator itOH=mapOH_Orbiter.begin();itOH!=mapOH_Orbiter.end();++itOH )
     {
         OH_Orbiter *pOH_Orbiter = (*itOH).second;
-        if( pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia && pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->m_iPK_DeviceCategory==DEVICECATEGORY_Media_Director_CONST )
-            sOnScreenOrbiters += StringUtils::itos(pOH_Orbiter->m_pDeviceData_Router->m_iPK_Device) + ",";
+        if( pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia && pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_DeviceCategory==DEVICECATEGORY_Media_Director_CONST )
+            sOnScreenOrbiters += StringUtils::itos(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device) + ",";
         else
-            sOtherOrbiters += StringUtils::itos(pOH_Orbiter->m_pDeviceData_Router->m_iPK_Device) + ",";
+            sOtherOrbiters += StringUtils::itos(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device) + ",";
     }
 
     if( sOnScreenOrbiters.size()==0 && sOtherOrbiters.size()==0 )
@@ -130,8 +130,8 @@ g_pPlutoLogger->Write(LV_STATUS,"Mediastream  ea %p %d",pEntertainArea,pEntertai
         if( sOtherOrbiters.size() )
         {
             // Send all the orbiters to the dvd menu
-            DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL(m_DeviceID,sOtherOrbiters,0,StringUtils::itos(DESIGNOBJ_dvd_menu_CONST),"","",false);
-            DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL(m_DeviceID,sOtherOrbiters,VARIABLE_PK_Device_CONST,StringUtils::itos(pMessage->m_dwPK_Device_From));
+            DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL(m_dwPK_Device,sOtherOrbiters,0,StringUtils::itos(DESIGNOBJ_dvd_menu_CONST),"","",false);
+            DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL(m_dwPK_Device,sOtherOrbiters,VARIABLE_PK_Device_CONST,StringUtils::itos(pMessage->m_dwPK_Device_From));
 
             CMD_Set_Variable_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Goto_Screen_DL.m_pMessage );
             QueueMessage(CMD_Set_Variable_DL.m_pMessage);
@@ -139,13 +139,13 @@ g_pPlutoLogger->Write(LV_STATUS,"Mediastream  ea %p %d",pEntertainArea,pEntertai
         if( sOnScreenOrbiters.size() )
         {
             // If it's an on-screen orbiter, just send it to the full screen menu
-            DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL(m_DeviceID,sOnScreenOrbiters,0,StringUtils::itos(DESIGNOBJ_full_screen_CONST),"","",false);
+            DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL(m_dwPK_Device,sOnScreenOrbiters,0,StringUtils::itos(DESIGNOBJ_full_screen_CONST),"","",false);
             SendCommand(CMD_Goto_Screen_DL);
         }
     }
     else if( sOtherOrbiters.size() )
     {
-        DCE::CMD_Go_back_DL CMD_Go_back_DL(m_DeviceID,sOtherOrbiters,StringUtils::itos(DESIGNOBJ_dvd_menu_CONST),"");
+        DCE::CMD_Go_back_DL CMD_Go_back_DL(m_dwPK_Device,sOtherOrbiters,StringUtils::itos(DESIGNOBJ_dvd_menu_CONST),"");
         SendCommand(CMD_Go_back_DL);
     }
     return true;
@@ -159,17 +159,17 @@ class MediaStream *Xine_Plugin::CreateMediaStream(class MediaPluginInfo *pMediaP
     if( !PK_Device_Source && pMediaPluginInfo->m_listMediaDevice.size() )
     {
         MediaDevice *pMediaDevice = pMediaPluginInfo->m_listMediaDevice.front();
-        PK_Device_Source=pMediaDevice->m_pDeviceData_Router->m_iPK_Device;
+        PK_Device_Source=pMediaDevice->m_pDeviceData_Router->m_dwPK_Device;
     }
     DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(PK_Device_Source);
 
     bool bFoundDevice=false;
-    if( pDeviceData_Router->m_iPK_DeviceTemplate==DEVICETEMPLATE_Xine_Player_CONST )
+    if( pDeviceData_Router->m_dwPK_DeviceTemplate==DEVICETEMPLATE_Xine_Player_CONST )
     {
-        pMediaStream->m_iPK_Device = PK_Device_Source;
+        pMediaStream->m_dwPK_Device = PK_Device_Source;
         bFoundDevice=true;
     }
-    else if( pDeviceData_Router->m_iPK_DeviceCategory==DEVICECATEGORY_Disc_Drives_CONST )
+    else if( pDeviceData_Router->m_dwPK_DeviceCategory==DEVICECATEGORY_Disc_Drives_CONST )
     {
         // hack, find xine until we decide on a better solution -- todo
         DeviceData_Router *pDeviceData_Router_MediaDirector = (DeviceData_Router *) pDeviceData_Router->m_pDevice_ControlledVia;
@@ -178,9 +178,9 @@ class MediaStream *Xine_Plugin::CreateMediaStream(class MediaPluginInfo *pMediaP
             for(size_t s=0;s<pDeviceData_Router_MediaDirector->m_vectDeviceData_Impl_Children.size();++s)
             {
                 DeviceData_Router *pDeviceData_Router_Xine = (DeviceData_Router *) pDeviceData_Router_MediaDirector->m_vectDeviceData_Impl_Children[s];
-                if( pDeviceData_Router_Xine->m_iPK_DeviceTemplate==DEVICETEMPLATE_Xine_Player_CONST )
+                if( pDeviceData_Router_Xine->m_dwPK_DeviceTemplate==DEVICETEMPLATE_Xine_Player_CONST )
                 {
-                    pMediaStream->m_iPK_Device = pDeviceData_Router_Xine->m_iPK_Device;
+                    pMediaStream->m_dwPK_Device = pDeviceData_Router_Xine->m_dwPK_Device;
                     bFoundDevice=true;
                     break;
                 }
@@ -189,8 +189,8 @@ class MediaStream *Xine_Plugin::CreateMediaStream(class MediaPluginInfo *pMediaP
     }
     else
     {
-        g_pPlutoLogger->Write(LV_CRITICAL,"The device that sent the xine plug in the start has an unrecognized type: %d",pDeviceData_Router->m_iPK_DeviceCategory);
-        pMediaStream->m_iPK_Device=0;
+        g_pPlutoLogger->Write(LV_CRITICAL,"The device that sent the xine plug in the start has an unrecognized type: %d",pDeviceData_Router->m_dwPK_DeviceCategory);
+        pMediaStream->m_dwPK_Device=0;
     }
 
     if( !bFoundDevice )
@@ -214,7 +214,7 @@ bool Xine_Plugin::StartMedia(class MediaStream *pMediaStream)
     {
         pMediaStream->m_sMediaDescription = "Media Desc";
 
-		DCE::CMD_Mount_Disk_Image mountCommand(pMediaStream->m_iPK_Device, 18, pMediaStream->m_dequeFilename.size() ? pMediaStream->m_dequeFilename.front() : "", &mediaURL);// HACK: This should be changed to a lookup code
+		DCE::CMD_Mount_Disk_Image mountCommand(pMediaStream->m_dwPK_Device, 18, pMediaStream->m_dequeFilename.size() ? pMediaStream->m_dequeFilename.front() : "", &mediaURL);// HACK: This should be changed to a lookup code
 
         if ( !SendCommand(mountCommand, 1, &Response))
         {
@@ -222,7 +222,7 @@ bool Xine_Plugin::StartMedia(class MediaStream *pMediaStream)
             return false;
         }
 
-        g_pPlutoLogger->Write(LV_CRITICAL, "Media device %d got back URL: %s", pMediaStream->m_iPK_Device,mediaURL.c_str());
+        g_pPlutoLogger->Write(LV_CRITICAL, "Media device %d got back URL: %s", pMediaStream->m_dwPK_Device,mediaURL.c_str());
     }
     else
     {
@@ -230,8 +230,8 @@ bool Xine_Plugin::StartMedia(class MediaStream *pMediaStream)
         mediaURL = pMediaStream->m_dequeFilename.size() ? pMediaStream->m_dequeFilename.front() : "-no name-";  // HACK -- todo get a real description
     }
 
-    DCE::CMD_Play_Media cmd(m_DeviceID,
-                pMediaStream->m_iPK_Device,
+    DCE::CMD_Play_Media cmd(m_dwPK_Device,
+                pMediaStream->m_dwPK_Device,
                 mediaURL,
                 pMediaStream->m_iPK_MediaType,
                 pMediaStream->m_iStreamID_get(),
@@ -256,8 +256,8 @@ bool Xine_Plugin::StopMedia(class MediaStream *pMediaStream)
 	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
     g_pPlutoLogger->Write(LV_STATUS, "Stopping media stream playback--sending command, waiting for response");
 
-    DCE::CMD_Stop_Media cmd(m_DeviceID,
-                pMediaStream->m_iPK_Device,
+    DCE::CMD_Stop_Media cmd(m_dwPK_Device,
+                pMediaStream->m_dwPK_Device,
                 pMediaStream->m_iStreamID_get());
     string Response;
     if( !SendCommand(cmd, 1, &Response) )

@@ -18,7 +18,7 @@ public:
 	class Event_Impl *CreateEvent(int PK_DeviceTemplate, ClientSocket *pOCClientSocket, int DeviceID);
 	virtual void Touch_or_click(int iX_Position,int iY_Position)
 	{
-		SendMessage(new Message(m_DeviceID, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 1,2,1,StringUtils::itos(iX_Position).c_str(),2,StringUtils::itos(iY_Position).c_str()));
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 1,2,1,StringUtils::itos(iX_Position).c_str(),2,StringUtils::itos(iY_Position).c_str()));
 	}
 
 };
@@ -82,7 +82,7 @@ public:
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{
 			Message *pMessage = s>=0 ? pMessageOriginal->m_vectExtraMessages[s] : pMessageOriginal;
-			if (pMessage->m_dwPK_Device_To==m_DeviceID && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)
+			if (pMessage->m_dwPK_Device_To==m_dwPK_Device && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)
 			{
 				switch(pMessage->m_dwID)
 				{
@@ -102,7 +102,7 @@ public:
 						CMD_Request_Datagrid_Contents(sID.c_str(),sDataGrid_ID.c_str(),iRow,iColumn,iRow_count,iColumn_count,bKeep_Row_Header,bKeep_Column_Header,bAdd_UpDown_Arrows,&pData,&iData_Size,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
-							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 						pMessageOut->m_mapData_Parameters[19]=pData; pMessageOut->m_mapData_Lengths[19]=iData_Size;
 							SendMessage(pMessageOut);
 						}
@@ -122,7 +122,7 @@ public:
 						CMD_Populate_Datagrid(sID.c_str(),sDataGrid_ID.c_str(),iPK_Datagrid,sOptions.c_str(),&iPK_Variable,&sValue_To_Assign,&bIsSuccessful,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
-							Message *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 						pMessageOut->m_mapParameters[4]=StringUtils::itos(iPK_Variable);
 						pMessageOut->m_mapParameters[5]=sValue_To_Assign;
 						pMessageOut->m_mapParameters[40]=(bIsSuccessful ? "1" : "0");

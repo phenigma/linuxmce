@@ -113,12 +113,12 @@ namespace DCE
 		int m_Port;
 		string m_sBasePath;
 		pthread_t m_pthread_queue_id;
-		map<int,string> m_DeviceID_To_CommandLine;
+		map<int,string> m_dwPK_Device_To_CommandLine;
 		map<int,int> m_Routing_DeviceToController;
 		map<int,int> m_Routing_VideoDeviceToController;
 		map<int,string> m_Routing_ControllerToIP;
 		bool m_bStartup, m_bIsMaster, m_bReload, m_bQuit, m_bIsLoading;
-		int m_iPK_Device,m_iFileVersion,m_iPK_Installation;
+		int m_dwPK_Device,m_iFileVersion,m_dwPK_Installation;
 		string m_sDBHost,m_sDBUser,m_sDBPassword,m_sDBName;
 		int m_dwIDBPort;
 		Row_Device *m_pRow_Device_Me;
@@ -151,7 +151,7 @@ namespace DCE
 		DCERoom *m_mapDCERoom_Find(int PK_Room) { map<int,class DCERoom *>::iterator it = m_mapDCERoom.find(PK_Room); return it==m_mapDCERoom.end() ? NULL : (*it).second; }
 		const map<int,class DeviceData_Router *> *m_mapDeviceData_Router_get() { return &m_mapDeviceData_Router; };
 
-		int iPK_Installation_get() { return m_iPK_Installation; }
+		int iPK_Installation_get() { return m_dwPK_Installation; }
 		string sBasePath_get() { return m_sBasePath; }
 
 		string sDBHost_get() { return m_sDBHost; }
@@ -287,13 +287,13 @@ namespace DCE
 			map<int,class MessageMDLInterceptor *>::iterator itMessageMDL;
 			if( pDeviceFrom )
 			{
-				itMessageMDL = pMessageIDInterceptor->m_mapMessageMDLInterceptor.find(pDeviceFrom->m_iPK_DeviceTemplate);
+				itMessageMDL = pMessageIDInterceptor->m_mapMessageMDLInterceptor.find(pDeviceFrom->m_dwPK_DeviceTemplate);
 				if( itMessageMDL != pMessageIDInterceptor->m_mapMessageMDLInterceptor.end() )
 				{
 					CheckInterceptor( (*itMessageMDL).second, pSocket, pMessage, pDeviceFrom, pDeviceTo );
 				}
 			}
-			if( !pDeviceFrom || pDeviceFrom->m_iPK_DeviceTemplate!=0 )
+			if( !pDeviceFrom || pDeviceFrom->m_dwPK_DeviceTemplate!=0 )
 			{
 				itMessageMDL = pMessageIDInterceptor->m_mapMessageMDLInterceptor.find(0);
 				if( itMessageMDL != pMessageIDInterceptor->m_mapMessageMDLInterceptor.end() )
@@ -326,13 +326,13 @@ namespace DCE
 			map<int,class MessageToCategoryInterceptor *>::iterator itMessageToCat;
 			if( pDeviceTo )
 			{
-				itMessageToCat = pMessageToInterceptor->m_mapMessageToCategoryInterceptor.find(pDeviceTo->m_iPK_DeviceCategory);
+				itMessageToCat = pMessageToInterceptor->m_mapMessageToCategoryInterceptor.find(pDeviceTo->m_dwPK_DeviceCategory);
 				if( itMessageToCat != pMessageToInterceptor->m_mapMessageToCategoryInterceptor.end() )
 				{
 					CheckInterceptor( (*itMessageToCat).second, pSocket, pMessage, pDeviceFrom, pDeviceTo );
 				}
 			}
-			if( !pDeviceTo || pDeviceTo->m_iPK_DeviceCategory!=0 )
+			if( !pDeviceTo || pDeviceTo->m_dwPK_DeviceCategory!=0 )
 			{
 				itMessageToCat = pMessageToInterceptor->m_mapMessageToCategoryInterceptor.find(0);
 				if( itMessageToCat != pMessageToInterceptor->m_mapMessageToCategoryInterceptor.end() )

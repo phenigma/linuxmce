@@ -78,7 +78,7 @@ namespace DCE
 	protected:
 	
 		std::string m_Name; /** < name of the logger */
-		int m_iPK_Installation; /** < the installation */
+		int m_dwPK_Installation; /** < the installation */
 		pluto_pthread_mutex_t m_Lock; /** < @todo ask */
 		pthread_mutexattr_t m_MutexAttr; /** < @todo ask */
 	
@@ -97,7 +97,7 @@ namespace DCE
 		virtual ~Logger();
 		
 		/**
-		* @brief sets the value for the m_iPK_Installation member
+		* @brief sets the value for the m_dwPK_Installation member
 		*/
 		virtual void SetInstallation(int Installation);
 		
@@ -140,7 +140,7 @@ namespace DCE
 			long m_dwMicroseconds; /** < the microseconds for the entry time */
 			std::string m_sName; /** < entry name */
 			std::string m_sData; /** < entry data */
-			int m_iPK_Device; /** < the device that generated the entry */
+			int m_dwPK_Device; /** < the device that generated the entry */
 	
 			Entry() {} /** < default (empty) constructor */
 			
@@ -150,7 +150,7 @@ namespace DCE
 			Entry( int Level, int Time, int Microseconds, string sName, string sData, int iPK_Device )
 			{
 				m_iLevel = Level; m_dwTime = Time; m_dwMicroseconds = Microseconds;
-				m_sName = sName; m_sData = sData; m_iPK_Device = iPK_Device;
+				m_sName = sName; m_sData = sData; m_dwPK_Device = iPK_Device;
 			}
 			
 			/**
@@ -158,7 +158,7 @@ namespace DCE
 			*/
 			void SetupSerialization()
 			{
-				StartSerializeList() +	m_iLevel + m_dwTime + m_dwMicroseconds + m_sName + m_sData + m_iPK_Device;
+				StartSerializeList() +	m_iLevel + m_dwTime + m_dwMicroseconds + m_sName + m_sData + m_dwPK_Device;
 			}
 			
 			/**

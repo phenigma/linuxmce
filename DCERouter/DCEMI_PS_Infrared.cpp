@@ -41,7 +41,7 @@ bool DCEMI_PS_Infrared::LearnIR(class Socket *pSocket,class Message *pMessage,cl
 {
 	if( !pDeviceFrom )
 		return true;
-	m_pRouter->DispatchMessage( new Message(0,pDeviceFrom->m_iPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_NAV_HIDE_OBJECT_CONST,
+	m_pRouter->DispatchMessage( new Message(0,pDeviceFrom->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_NAV_HIDE_OBJECT_CONST,
 		2,COMMANDPARAMETER_PK_DesignObj_CONST,(StringUtils::itos(DESIGNOBJ_MNUDEVICECONTROL_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_GRPLEARNCANCELCODE_CONST)).c_str(),
 		COMMANDPARAMETER_OnOff_CONST,"0"));
 	return true;
@@ -52,7 +52,7 @@ bool DCEMI_PS_Infrared::LearnIRCancel(class Socket *pSocket,class Message *pMess
 {
 	if( !pDeviceFrom )
 		return true;
-	m_pRouter->DispatchMessage( new Message(0,pDeviceFrom->m_iPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_NAV_HIDE_OBJECT_CONST,
+	m_pRouter->DispatchMessage( new Message(0,pDeviceFrom->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_NAV_HIDE_OBJECT_CONST,
 		1,COMMANDPARAMETER_PK_DesignObj_CONST,(StringUtils::itos(DESIGNOBJ_MNUDEVICECONTROL_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_GRPLEARNCANCELCODE_CONST)).c_str()));
 	return true;
 }
@@ -72,7 +72,7 @@ bool DCEMI_PS_Infrared::LearnedCode(class Socket *pSocket,class Message *pMessag
 		return true;
 	}
 	string URL = "http://plutohome.com/utils/updateIR.php?fkid_installation=" + StringUtils::itos(m_pRouter->m_PK_Installation) + 
-		"&fkid_masterdevicelist=" + StringUtils::itos(pDevice->m_iPK_DeviceTemplate) +
+		"&fkid_masterdevicelist=" + StringUtils::itos(pDevice->m_dwPK_DeviceTemplate) +
 		"&fkid_action=" + StringUtils::itos(PK_Command);
 
 	if( Pronto!="" )
@@ -112,16 +112,16 @@ bool DCEMI_PS_Infrared::LearnedCode(class Socket *pSocket,class Message *pMessag
 		{
 			Description = string("Error: ") + buf;
 
-			m_pRouter->DispatchMessage( new Message(DEVICEID_EVENTMANAGER,pController->m_pDeviceData_Router->m_iPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_SET_TEXT_CONST,
+			m_pRouter->DispatchMessage( new Message(DEVICEID_EVENTMANAGER,pController->m_pDeviceData_Router->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_SET_TEXT_CONST,
 				3,COMMANDPARAMETER_PK_DesignObj_CONST,(StringUtils::itos(DESIGNOBJ_MNUPOPUPMESSAGE_CONST) + ".0.0").c_str(),COMMANDPARAMETER_ID_CONST,StringUtils::itos(TEXT_STATUS_CONST).c_str(),
 				COMMANDPARAMETER_Text_CONST,Description.c_str()));
 
-			m_pRouter->DispatchMessage(new Message(DEVICEID_EVENTMANAGER,pController->m_pDeviceData_Router->m_iPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,
+			m_pRouter->DispatchMessage(new Message(DEVICEID_EVENTMANAGER,pController->m_pDeviceData_Router->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,
 				COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,(StringUtils::itos(DESIGNOBJ_MNUPOPUPMESSAGE_CONST)+".0.0").c_str()));
 		}
 		else
 		{
-			m_pRouter->DispatchMessage( new Message(0,pController->m_pDeviceData_Router->m_iPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_NAV_HIDE_OBJECT_CONST,
+			m_pRouter->DispatchMessage( new Message(0,pController->m_pDeviceData_Router->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_NAV_HIDE_OBJECT_CONST,
 				1,COMMANDPARAMETER_PK_DesignObj_CONST,
 				(StringUtils::itos(DESIGNOBJ_MNUDEVICECONTROL_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_GRPLEARNCANCELCODE_CONST)).c_str()));
 		}

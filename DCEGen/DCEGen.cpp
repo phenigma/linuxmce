@@ -203,7 +203,7 @@ int main(int argc, char *argv[])
 DCEGen::DCEGen(int PK_DeviceTemplate,string GeneratedOutput,string TemplateInput,string TemplateOutput,
 				 string DBHost,string DBUser,string DBPassword,string DBName,int DBPort)
 {
-	m_iPK_DeviceTemplate=PK_DeviceTemplate;  // Keep track of the main device we're generating
+	m_dwPK_DeviceTemplate=PK_DeviceTemplate;  // Keep track of the main device we're generating
 	m_sGeneratedOutput=GeneratedOutput;
 	m_sTemplateInput=TemplateInput;
 	m_sTemplateOutput=TemplateOutput;
@@ -361,7 +361,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 		deviceInfo.m_mapRow_DeviceTemplate_Event[pRow_DeviceTemplate_Event->FK_Event_get()]=pRow_DeviceTemplate_Event;
 		deviceInfo.m_mapEventDeclarations[pRow_DeviceTemplate_Event->FK_Event_get()]=EventDeclaration;
 		deviceInfo.m_mapEventParms[pRow_DeviceTemplate_Event->FK_Event_get()]=sParmsWithNoType;
-		fstr_DeviceCommand << "\t\tSendMessage(new Message(m_DeviceID, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, "+StringUtils::itos(pRow_DeviceTemplate_Event->FK_Event_get())+",";
+		fstr_DeviceCommand << "\t\tSendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, "+StringUtils::itos(pRow_DeviceTemplate_Event->FK_Event_get())+",";
 		fstr_DeviceCommand << sPassingToMessage;
 		fstr_DeviceCommand << "));" << endl << "\t}" << endl << endl;
 	}
@@ -505,7 +505,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 
 	if (deviceInfo.m_mapCommandInfo.size()>0)
 	{
-		fstr_DeviceCommand << "\t\t\tif (pMessage->m_dwPK_Device_To==m_DeviceID && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)\n\t\t\t{" << endl;
+		fstr_DeviceCommand << "\t\t\tif (pMessage->m_dwPK_Device_To==m_dwPK_Device && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)\n\t\t\t{" << endl;
 		fstr_DeviceCommand << "\t\t\t\tswitch(pMessage->m_dwID)" << endl;
 		fstr_DeviceCommand << "\t\t\t\t{" << endl;
 
@@ -522,7 +522,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 			fstr_DeviceCommand << "\t\t\t\t\t\tCMD_" << pCommandInfo->CPPName() <<  "("  << pCommandInfo->m_sParmsWithNoType_In << (pCommandInfo->m_sParmsWithNoType_In.length() ? "," : "") << "sCMD_Result,pMessage);" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\t\tif( pMessage->m_eExpectedResponse==ER_ReplyMessage )" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\t\t{" << endl;
-			fstr_DeviceCommand << "\t\t\t\t\t\t\tMessage *pMessageOut=new Message(m_DeviceID,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);" << endl;
+			fstr_DeviceCommand << "\t\t\t\t\t\t\tMessage *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);" << endl;
 			fstr_DeviceCommand << pCommandInfo->m_sAssignLocalToParm;
 			fstr_DeviceCommand << "\t\t\t\t\t\t\tSendMessage(pMessageOut);" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\t\t}" << endl;
@@ -539,7 +539,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 /*
 	if (mapRNameParms.size()>0)
 	{
-		fstr_DeviceCommand << "\t\tif (pMessage->m_dwPK_Device_To==m_DeviceID && pMessage->m_dwMessage_Type == MESSAGETYPE_REQUEST)\n\t\t{" << endl;
+		fstr_DeviceCommand << "\t\tif (pMessage->m_dwPK_Device_To==m_dwPK_Device && pMessage->m_dwMessage_Type == MESSAGETYPE_REQUEST)\n\t\t{" << endl;
 		fstr_DeviceCommand << "\t\t\tswitch(pMessage->m_dwID)" << endl;
 		fstr_DeviceCommand << "\t\t\t{" << endl;
 
@@ -581,7 +581,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 			fstr_DeviceCommand << "\t\t\t\tbool bResult = REQ_" << (*itStringString).first <<  "("  <<  mapRNameCallParms[(*itStringString).first]  <<  ");" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\tif( bResult )" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\t{" << endl;
-			fstr_DeviceCommand << "\t\t\t\t\t\tMessage *pMessageOut = new Message(m_DeviceID,pMessage->m_dwPK_Device_From,MESSAGETYPE_REPLY,PRIORITY_NORMAL,1,0);" << endl;
+			fstr_DeviceCommand << "\t\t\t\t\t\tMessage *pMessageOut = new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,MESSAGETYPE_REPLY,PRIORITY_NORMAL,1,0);" << endl;
 
 			for(size_t i3=0;i3<vectRow_Request_RequestParameter_Out.size();++i3)
 			{
@@ -596,7 +596,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 			fstr_DeviceCommand << "\t\t\t\t\t\tSendMessage(pMessageOut);" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\t}" << endl;
 			fstr_DeviceCommand << "\t\t\t\t\telse" << endl;
-			fstr_DeviceCommand << "\t\t\t\t\t\tSendMessage(new Message(m_DeviceID,pMessage->m_dwPK_Device_From,MESSAGETYPE_REPLY,PRIORITY_NORMAL,0,0));" << endl;
+			fstr_DeviceCommand << "\t\t\t\t\t\tSendMessage(new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,MESSAGETYPE_REPLY,PRIORITY_NORMAL,0,0));" << endl;
 						
 			if ((mapRNameAssignParmToLocal[(*itStringString).first]).length() > 0)
 			{
@@ -707,7 +707,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 
 	string sTemplateOutput=m_sTemplateOutput;
 	// If a template was specified, and we're generating the main device, build the template
-	if( m_sTemplateInput.length() && (m_iPK_DeviceTemplate==0 || m_iPK_DeviceTemplate==p_Row_DeviceTemplate->PK_DeviceTemplate_get()))
+	if( m_sTemplateInput.length() && (m_dwPK_DeviceTemplate==0 || m_dwPK_DeviceTemplate==p_Row_DeviceTemplate->PK_DeviceTemplate_get()))
 	{
 		if( sTemplateOutput=="" )
 			sTemplateOutput="../" + Name + "/";

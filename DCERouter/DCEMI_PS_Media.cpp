@@ -90,7 +90,7 @@ bool DCEMI_PS_Media::StartMedia(class Socket *pSocket,class Message *pMessage,cl
 		itmh!=m_listMediaHandlerCallBack.end();++itmh)
 	{
 		MediaHandlerCallBack *p = (*itmh);
-		if( pDevice && p->m_PK_DeviceTemplate==pDevice->m_iPK_DeviceTemplate )
+		if( pDevice && p->m_PK_DeviceTemplate==pDevice->m_dwPK_DeviceTemplate )
 		{
 			pMHCB=p;
 			break;

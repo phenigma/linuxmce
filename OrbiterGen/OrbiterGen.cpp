@@ -338,31 +338,31 @@ int OrbiterGenerator::DoIt()
 		switch(pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get())
 		{
 		case DEVICECATEGORY_DCE_Router_CONST:
-			m_iPK_Device_Router = pRow_Device->PK_Device_get();
+			m_dwPK_Device_Router = pRow_Device->PK_Device_get();
 			break;
 		case DEVICECATEGORY_Lighting_Plugins_CONST:
-			m_iPK_Device_LightingPlugIn = pRow_Device->PK_Device_get();
+			m_dwPK_Device_LightingPlugIn = pRow_Device->PK_Device_get();
 			break;
 		case DEVICECATEGORY_Climate_Plugins_CONST:
-			m_iPK_Device_ClimatePlugIn = pRow_Device->PK_Device_get();
+			m_dwPK_Device_ClimatePlugIn = pRow_Device->PK_Device_get();
 			break;
 		case DEVICECATEGORY_Media_Plugins_CONST:
-			m_iPK_Device_MediaPlugIn = pRow_Device->PK_Device_get();
+			m_dwPK_Device_MediaPlugIn = pRow_Device->PK_Device_get();
 			break;
 		case DEVICECATEGORY_Telecom_Plugins_CONST:
-			m_iPK_Device_TelecomPlugIn = pRow_Device->PK_Device_get();
+			m_dwPK_Device_TelecomPlugIn = pRow_Device->PK_Device_get();
 			break;
 		case DEVICECATEGORY_Security_Plugins_CONST:
-			m_iPK_Device_SecurityPlugIn = pRow_Device->PK_Device_get();
+			m_dwPK_Device_SecurityPlugIn = pRow_Device->PK_Device_get();
 			break;
 		case DEVICECATEGORY_Datagrid_Plugins_CONST:
-			m_iPK_Device_DatagridPlugIn = pRow_Device->PK_Device_get();
+			m_dwPK_Device_DatagridPlugIn = pRow_Device->PK_Device_get();
 			break;
 		case DEVICECATEGORY_General_Info_Plugins_CONST:
-			m_iPK_Device_GeneralInfoPlugIn = pRow_Device->PK_Device_get();
+			m_dwPK_Device_GeneralInfoPlugIn = pRow_Device->PK_Device_get();
 			break;
 		case DEVICECATEGORY_Orbiter_Plugins_CONST:
-			m_iPK_Device_OrbiterPlugIn = pRow_Device->PK_Device_get();
+			m_dwPK_Device_OrbiterPlugIn = pRow_Device->PK_Device_get();
 			break;
 
 		};
@@ -420,7 +420,7 @@ int OrbiterGenerator::DoIt()
 			// There's a media director here.  Match up all the virtual devices
 			if( pRow_Device_MediaDirector )
 			{
-				li->m_iPK_Device_MediaDirector = pRow_Device_MediaDirector->PK_Device_get();
+				li->m_dwPK_Device_MediaDirector = pRow_Device_MediaDirector->PK_Device_get();
 				MatchChildDevicesToLocation(li,pRow_Device_MediaDirector);
 			}
 		}
@@ -1305,27 +1305,27 @@ void OrbiterGenerator::MatchChildDevicesToLocation(LocationInfo *li,Row_Device *
 		switch( pRow_Device_MDChild->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get() )
 		{
 		case DEVICECATEGORY_App_Server_CONST:
-			li->m_iPK_Device_AppServer = pRow_Device_MDChild->PK_Device_get();
+			li->m_dwPK_Device_AppServer = pRow_Device_MDChild->PK_Device_get();
 			MatchChildDevicesToLocation(li,pRow_Device_MDChild);  // These devices may be children of an app server also
 			break;
 		case DEVICECATEGORY_Disc_Drives_CONST:
-			li->m_iPK_Device_DiscDrive = pRow_Device_MDChild->PK_Device_get();
+			li->m_dwPK_Device_DiscDrive = pRow_Device_MDChild->PK_Device_get();
 			break;
 #pragma warning("there is not yet a web browser category")
 //todo		case DEVICECATEGORY_WebBrowser_CONST:
-//			li->m_iPK_Device_WebBrowser = pRow_Device_MDChild->PK_Device_get();
+//			li->m_dwPK_Device_WebBrowser = pRow_Device_MDChild->PK_Device_get();
 //			break;
 //todo		case DEVICECATEGORY_General_Info_CONST:
-//			li->m_iPK_Device_MediaBurner = pRow_Device_MDChild->PK_Device_get();
+//			li->m_dwPK_Device_MediaBurner = pRow_Device_MDChild->PK_Device_get();
 //			break;
 //todo		case DEVICECATEGORY_General_Info_CONST:
-//			li->m_iPK_Device_VideoConf = pRow_Device_MDChild->PK_Device_get();
+//			li->m_dwPK_Device_VideoConf = pRow_Device_MDChild->PK_Device_get();
 //			break;
 //todo		case DEVICECATEGORY_General_Info_CONST:
-//			li->m_iPK_Device_CamcorderCapt = pRow_Device_MDChild->PK_Device_get();
+//			li->m_dwPK_Device_CamcorderCapt = pRow_Device_MDChild->PK_Device_get();
 //			break;
 		case DEVICECATEGORY_Standard_Orbiter_CONST:
-			li->m_iPK_Device_Orbiter = pRow_Device_MDChild->PK_Device_get();
+			li->m_dwPK_Device_Orbiter = pRow_Device_MDChild->PK_Device_get();
 			MatchChildDevicesToLocation(li,pRow_Device_MDChild);  // These devices may be children of an orbiter also
 			break;
 

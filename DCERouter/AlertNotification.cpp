@@ -117,13 +117,13 @@ void AlertNotification::Notify(int TypeOfBreach,class Device *pDevice)
 	/*
 	static int s_AlertID=1; // Need an alert ID that's unique .. the number itself is unimportant
 	s_AlertID++;
-	g_pPlutoLogger->Write(LV_STATUS,"AlertNotify: %d %d",TypeOfBreach,pDevice->m_iPK_Device);
+	g_pPlutoLogger->Write(LV_STATUS,"AlertNotify: %d %d",TypeOfBreach,pDevice->m_dwPK_Device);
 
 	if( TypeOfBreach == WAP_EVENT_NOTIFICATION )
 	{
 		SecurityDeviceEvent sde;
 		sde.GetSnapshots(pDevice,m_pCore,s_AlertID);
-		m_pCore->m_pRouter->DispatchMessage( new Message(DEVICEID_EVENTMANAGER,m_pDevice_WAPServer->m_iPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_SET_ALERT_CONST,
+		m_pCore->m_pRouter->DispatchMessage( new Message(DEVICEID_EVENTMANAGER,m_pDevice_WAPServer->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_SET_ALERT_CONST,
 			2,COMMANDPARAMETER_Text_CONST,pDevice->m_sDescription.c_str(),
 			COMMANDPARAMETER_ID_CONST,StringUtils::itos(s_AlertID).c_str()));
 	}
@@ -131,7 +131,7 @@ void AlertNotification::Notify(int TypeOfBreach,class Device *pDevice)
 	{
 		SecurityDeviceEvent sde;
 		sde.GetSnapshots(pDevice,m_pCore,s_AlertID);
-		m_pCore->m_pRouter->DispatchMessage( new Message(DEVICEID_EVENTMANAGER,m_pDevice_WAPServer->m_iPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_SET_ALERT_CONST,
+		m_pCore->m_pRouter->DispatchMessage( new Message(DEVICEID_EVENTMANAGER,m_pDevice_WAPServer->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_SET_ALERT_CONST,
 			2,COMMANDPARAMETER_Text_CONST,pDevice->m_sDescription.c_str(),
 			COMMANDPARAMETER_ID_CONST,StringUtils::itos(s_AlertID).c_str()));
 	}
@@ -157,7 +157,7 @@ void AlertNotification::Notify(int TypeOfBreach,class Device *pDevice)
 						void *ImageData = pSecurityDeviceEvent->m_vectImages[i3];
 						int ImageLength = pSecurityDeviceEvent->m_vectLengths[i3];
                         
-						m_pCore->m_pRouter->DispatchMessage( new Message(DEVICEID_EVENTMANAGER,m_pDevice_WAPServer->m_iPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_ADD_ALERT_IMAGE_CONST,
+						m_pCore->m_pRouter->DispatchMessage( new Message(DEVICEID_EVENTMANAGER,m_pDevice_WAPServer->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_ADD_ALERT_IMAGE_CONST,
 							3,-COMMANDPARAMETER_Data_CONST, ImageData, ImageLength,
 							COMMANDPARAMETER_Text_CONST,pSecurityDeviceEvent->m_vectDescriptions[i3].c_str(),
 							COMMANDPARAMETER_ID_CONST,StringUtils::itos(s_AlertID).c_str())); 
@@ -166,14 +166,14 @@ void AlertNotification::Notify(int TypeOfBreach,class Device *pDevice)
 			}
 		}
 
-		m_pCore->m_pRouter->DispatchMessage( new Message(DEVICEID_EVENTMANAGER,m_pDevice_WAPServer->m_iPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_SET_ALERT_CONST,
+		m_pCore->m_pRouter->DispatchMessage( new Message(DEVICEID_EVENTMANAGER,m_pDevice_WAPServer->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_SET_ALERT_CONST,
 			2,COMMANDPARAMETER_Text_CONST,BreachInfo.c_str(),
 //			C_COMMANDPARAMETER_ACTIONGROUP_LIST_CONST,apAGList ? apAGList->m_sValue.c_str() : "",
 			COMMANDPARAMETER_ID_CONST,StringUtils::itos(s_AlertID).c_str()));
 	}
 	else if( TypeOfBreach == WAP_EVENT_INTERCOM )
 	{
-		m_pCore->m_pRouter->DispatchMessage( new Message(DEVICEID_EVENTMANAGER,m_pDevice_WAPServer->m_iPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_SET_ALERT_CONST,
+		m_pCore->m_pRouter->DispatchMessage( new Message(DEVICEID_EVENTMANAGER,m_pDevice_WAPServer->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_SET_ALERT_CONST,
 			2,COMMANDPARAMETER_Text_CONST,pDevice->m_sDescription.c_str(),
 			COMMANDPARAMETER_ID_CONST,StringUtils::itos(s_AlertID).c_str()));
 	}
@@ -211,7 +211,7 @@ void AlertNotification::AlarmCallback(int id, void* param)
 		if( pData->pDevice->m_WAPEventNum )
 		{
 			char CallerID[50];
-			sprintf(CallerID,"555%d%06d",pData->iTypeOfBreach,pData->pDevice->m_iPK_Device);
+			sprintf(CallerID,"555%d%06d",pData->iTypeOfBreach,pData->pDevice->m_dwPK_Device);
 			if( pData->iTypeOfBreach==WAP_EVENT_INTERCOM )
 			{
 				m_pCore->m_pRouter->DispatchMessage( new Message(DEVICEID_EVENTMANAGER, m_pCore->m_pPlutoEvents->m_TelecomServer, PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_XFER_OR_CONF_CONST,

@@ -53,7 +53,7 @@ bool DCEMI_PS_Floorplan::FloorplanStatus(class Socket *pSocket,class Message *pM
 	unsigned int iUniqueColors[] = {255,65280,16711680,4194368,32896};
 	if( Type==C_FLOORPLANTYPE_ENTERTAINMENT_ZONE_CONST )
 	{
-		string DATAGRID_ID = "streams_" + StringUtils::itos(pDeviceFrom->m_iPK_Device);
+		string DATAGRID_ID = "streams_" + StringUtils::itos(pDeviceFrom->m_dwPK_Device);
 		
 		DataGridMap::iterator dg = m_pDCEMI_PS_DataGrid->m_DataGrids.find(DATAGRID_ID);
 		if (dg != m_pDCEMI_PS_DataGrid->m_DataGrids.end())
@@ -101,7 +101,7 @@ bool DCEMI_PS_Floorplan::FloorplanStatus(class Socket *pSocket,class Message *pM
 			else
 				continue;
 /*
-			pCell = new DataGridCell(Description,StringUtils::itos(pEntZone->m_ptrDevice->m_iPK_Device));
+			pCell = new DataGridCell(Description,StringUtils::itos(pEntZone->m_ptrDevice->m_dwPK_Device));
 			pCell->m_AltColor = iRow+1;
 			pDataGrid->SetData(0,iRow++, pCell);
 */
@@ -154,7 +154,7 @@ bool DCEMI_PS_Floorplan::FloorplanStatus(class Socket *pSocket,class Message *pM
 			if( Type==C_FLOORPLANTYPE_ENTERTAINMENT_ZONE_CONST )
 			{
 				
-				class EntZone *pEntZone = m_pDCEMI_PS_Media->m_mapEntZone_Find(pDevice->m_iPK_Device);
+				class EntZone *pEntZone = m_pDCEMI_PS_Media->m_mapEntZone_Find(pDevice->m_dwPK_Device);
 				
 				if( pEntZone )
 				{
@@ -294,7 +294,7 @@ bool DCEMI_PS_Floorplan::FloorplanLayout(class Socket *pSocket,class Message *pM
 		
 		if( !pfpObjVectorMap )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"There's a null in m_mapFloorplanObjectVector with Page: %d controller: %d",Page,pController->m_pDeviceData_Router->m_iPK_Device);
+			g_pPlutoLogger->Write(LV_CRITICAL,"There's a null in m_mapFloorplanObjectVector with Page: %d controller: %d",Page,pController->m_pDeviceData_Router->m_dwPK_Device);
 			ReturnValue += StringUtils::itos(Page) + "|0|";
 			continue;
 		}
@@ -311,7 +311,7 @@ bool DCEMI_PS_Floorplan::FloorplanLayout(class Socket *pSocket,class Message *pM
 			{
 				// AB 4/8/2004 I don't fully understand why this null gets in there, but it's harmless--it just
 				// means there are no floorplan objects of this type on the given page
-				g_pPlutoLogger->Write(LV_STATUS,"There's a null in m_FloorplanObjectVector with Page: %d Type: %d Controller: %d",Page,Type,pController->m_pDeviceData_Router->m_iPK_Device);
+				g_pPlutoLogger->Write(LV_STATUS,"There's a null in m_FloorplanObjectVector with Page: %d Type: %d Controller: %d",Page,Type,pController->m_pDeviceData_Router->m_dwPK_Device);
 				ReturnValue += StringUtils::itos(Type) + "|0|";
 				continue;
 			}

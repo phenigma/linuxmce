@@ -63,13 +63,13 @@ bool Orbiter_Plugin::Register()
 			if( pDeviceData_Router->m_sMacAddress.size()==0 )
 			{
 				g_pPlutoLogger->Write(LV_WARNING,"Mobile Orbiter: %d %s doesn't have a mac address.  Skipping",
-					pDeviceData_Router->m_iPK_Device,pDeviceData_Router->m_sDescription.c_str());
+					pDeviceData_Router->m_dwPK_Device,pDeviceData_Router->m_sDescription.c_str());
 
 			}
 			else
 			{
 				OH_Orbiter *pOH_Orbiter = new OH_Orbiter(pDeviceData_Router);
-				m_mapOH_Orbiter[pDeviceData_Router->m_iPK_Device] = pOH_Orbiter;
+				m_mapOH_Orbiter[pDeviceData_Router->m_dwPK_Device] = pOH_Orbiter;
 
 				m_mapOH_Orbiter_Mac[StringUtils::ToUpper(pDeviceData_Router->m_sMacAddress)] = pOH_Orbiter;
 			}
@@ -112,21 +112,21 @@ bool Orbiter_Plugin::RouteToOrbitersInRoom(class Socket *pSocket,class Message *
 	} 
 
 	// If the sender was an orbiter, get the current room.  Otherwise the permanent room
-	OH_Orbiter *pOH_Orbiter_From = m_mapOH_Orbiter_Find(pDeviceFrom->m_iPK_Device);
-	int iPK_Room = pOH_Orbiter_From ? pOH_Orbiter_From->m_iPK_Room : pDeviceFrom->m_iPK_Room;
+	OH_Orbiter *pOH_Orbiter_From = m_mapOH_Orbiter_Find(pDeviceFrom->m_dwPK_Device);
+	int iPK_Room = pOH_Orbiter_From ? pOH_Orbiter_From->m_dwPK_Room : pDeviceFrom->m_dwPK_Room;
 
 	string sDeviceList="";
 	for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
 	{
 		OH_Orbiter *pOH_Orbiter = (*it).second;
-		if( pOH_Orbiter->m_iPK_Room != iPK_Room || pOH_Orbiter->m_pDeviceData_Router->m_iPK_Device==pDeviceFrom->m_iPK_Device )
+		if( pOH_Orbiter->m_dwPK_Room != iPK_Room || pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device==pDeviceFrom->m_dwPK_Device )
 			continue; // Don't send to the sender
-		if( (pMessage->m_dwPK_Device_To==DEVICETEMPLATE_Mobile_Orbiters_in_my_room_CONST && pOH_Orbiter->m_pDeviceData_Router->m_iPK_DeviceCategory!=DEVICECATEGORY_Mobile_Orbiter_CONST) ||
-				(pMessage->m_dwPK_Device_To==DEVICETEMPLATE_Standard_Orbiters_in_my_room_CONST && pOH_Orbiter->m_pDeviceData_Router->m_iPK_DeviceCategory!=DEVICECATEGORY_Standard_Orbiter_CONST) )
+		if( (pMessage->m_dwPK_Device_To==DEVICETEMPLATE_Mobile_Orbiters_in_my_room_CONST && pOH_Orbiter->m_pDeviceData_Router->m_dwPK_DeviceCategory!=DEVICECATEGORY_Mobile_Orbiter_CONST) ||
+				(pMessage->m_dwPK_Device_To==DEVICETEMPLATE_Standard_Orbiters_in_my_room_CONST && pOH_Orbiter->m_pDeviceData_Router->m_dwPK_DeviceCategory!=DEVICECATEGORY_Standard_Orbiter_CONST) )
 			continue;
 		if( sDeviceList.length() )
 			sDeviceList += ",";
-		sDeviceList += StringUtils::itos(pOH_Orbiter->m_pDeviceData_Router->m_iPK_Device);
+		sDeviceList += StringUtils::itos(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 	}
 	if( sDeviceList.length() )
 	{
@@ -184,8 +184,8 @@ g_pPlutoLogger->Write(LV_STATUS,"found: %d rows in unknown devices for %s",(int)
 					for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
 					{
 						OH_Orbiter *pOH_Orbiter = (*it).second;
-						if( pOH_Orbiter->m_iPK_Room == pDeviceFrom->m_iPK_Room )
-							sOrbiterList += StringUtils::itos(pOH_Orbiter->m_pDeviceData_Router->m_iPK_Device) + ",";
+						if( pOH_Orbiter->m_dwPK_Room == pDeviceFrom->m_dwPK_Room )
+							sOrbiterList += StringUtils::itos(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device) + ",";
 					}
 				}
 
@@ -195,15 +195,15 @@ g_pPlutoLogger->Write(LV_STATUS,"found: %d rows in unknown devices for %s",(int)
 					for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
 					{
 						OH_Orbiter *pOH_Orbiter = (*it).second;
-						sOrbiterList += StringUtils::itos(pOH_Orbiter->m_pDeviceData_Router->m_iPK_Device) + ",";
+						sOrbiterList += StringUtils::itos(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device) + ",";
 					}
 				}
 
 				g_pPlutoLogger->Write(LV_STATUS,"Orbiter list: %s",sOrbiterList.c_str());
 				sOrbiterList="1"; // HACK!!!
-				DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL(m_DeviceID,sOrbiterList,VARIABLE_Misc_Data_1_CONST,sMacAddress);
-				DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL2(m_DeviceID,sOrbiterList,VARIABLE_Misc_Data_2_CONST,sID);
-				DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL(m_DeviceID,sOrbiterList,0,StringUtils::itos(DESIGNOBJ_New_phone_detected_CONST),"","",true);
+				DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL(m_dwPK_Device,sOrbiterList,VARIABLE_Misc_Data_1_CONST,sMacAddress);
+				DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL2(m_dwPK_Device,sOrbiterList,VARIABLE_Misc_Data_2_CONST,sID);
+				DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL(m_dwPK_Device,sOrbiterList,0,StringUtils::itos(DESIGNOBJ_New_phone_detected_CONST),"","",true);
 
 				// Send them all 3 in one message for efficiency
 				CMD_Goto_Screen_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Variable_DL.m_pMessage );
@@ -226,8 +226,8 @@ g_pPlutoLogger->Write(LV_STATUS,"found: %d rows in unknown devices for %s",(int)
 			if( pOH_Orbiter->m_pDevice_CurrentDetected )
 			{
 				DCE::CMD_Get_Signal_Strength CMD_Get_Signal_Strength(
-					pDeviceFrom->m_iPK_Device, 
-					-1, //pDeviceTo->m_iPK_Device,
+					pDeviceFrom->m_dwPK_Device, 
+					-1, //pDeviceTo->m_dwPK_Device,
 					sMacAddress,
 					&SignalStrength);
 
@@ -250,11 +250,11 @@ g_pPlutoLogger->Write(LV_STATUS,"found: %d rows in unknown devices for %s",(int)
 			{
 				g_pPlutoLogger->Write(LV_STATUS,"Mobile Orbiter %s told to link with %d",
 					sMacAddress.c_str(),
-					pDeviceFrom->m_iPK_Device);
+					pDeviceFrom->m_dwPK_Device);
 				DCE::CMD_Link_with_mobile_orbiter CMD_Link_with_mobile_orbiter(
 					-1,
-					pDeviceFrom->m_iPK_Device,
-					//-1, //pDeviceTo->m_iPK_Device,
+					pDeviceFrom->m_dwPK_Device,
+					//-1, //pDeviceTo->m_dwPK_Device,
 					1, //iMediaPosition = On
 					sMacAddress);
 
@@ -302,7 +302,7 @@ bool Orbiter_Plugin::MobileOrbiterLinked(class Socket *pSocket,class Message *pM
 		// Associated with a new media director.  Show the corresponding menu
 		pOH_Orbiter->m_pDevice_CurrentDetected = pDeviceFrom;
 
-		DCE::CMD_Create_Mobile_Orbiter CMD_Create_Mobile_Orbiter(-1/*m_Device*/,pDeviceFrom->m_iPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_iPK_Device,sMacAddress);
+		DCE::CMD_Create_Mobile_Orbiter CMD_Create_Mobile_Orbiter(-1/*m_Device*/,pDeviceFrom->m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,sMacAddress);
 		SendCommand(CMD_Create_Mobile_Orbiter);
 
 		// See if there's an ent group involved
@@ -420,20 +420,20 @@ void Orbiter_Plugin::SomeFunction()
 	// Send Orbiters the "CMD_Simulate_Mouse_Click" command, which takes an X and Y parameter.  We'll use 55,77 for X and Y.
 
 	// Send the message to a specific orbiter, identified by OrbiterID
-	QueueMessage(new DERC::CMD_Simulate_Mouse_Click(m_DeviceID,OrbiterID,55,77);
+	QueueMessage(new DERC::CMD_Simulate_Mouse_Click(m_dwPK_Device,OrbiterID,55,77);
 
 	// Send the message to orbiters 32898 and 27283
-	QueueMessage(new DERC::CMD_Simulate_Mouse_Click(m_DeviceID,"32898,27283",55,77);
+	QueueMessage(new DERC::CMD_Simulate_Mouse_Click(m_dwPK_Device,"32898,27283",55,77);
 
 	// Send the message to all orbiters within the house, which is all devices with the category DEVICECATEGORY_Orbiter_CONST (see pluto_main/Define_DeviceCategory.h)
-	QueueMessage(new DERC::CMD_Simulate_Mouse_Click(m_DeviceID,DEVICECATEGORY_Orbiter_CONST,true,BL_SameHouse,55,77);
+	QueueMessage(new DERC::CMD_Simulate_Mouse_Click(m_dwPK_Device,DEVICECATEGORY_Orbiter_CONST,true,BL_SameHouse,55,77);
 
 	// Send the message to all "DeviceTemplate_Orbiter_CONST" devices within the room (see pluto_main/Define_DeviceTemplate.h)
-	QueueMessage(new DERC::CMD_Simulate_Mouse_Click(m_DeviceID,DeviceTemplate_Orbiter_CONST,true,BL_SameRoom,55,77);
+	QueueMessage(new DERC::CMD_Simulate_Mouse_Click(m_dwPK_Device,DeviceTemplate_Orbiter_CONST,true,BL_SameRoom,55,77);
 
 	// This time we want to wait to be sure the orbiter gets the message, and the thread will block until the orbiter receives the message
 	string sResult="";
-	bool bResult = SendMessageWithConfirm(new DERC::CMD_Simulate_Mouse_Click(m_DeviceID,OrbiterID,55,77),sResult);
+	bool bResult = SendMessageWithConfirm(new DERC::CMD_Simulate_Mouse_Click(m_dwPK_Device,OrbiterID,55,77),sResult);
 	// If bResult is true, the message was received ok.  Otherwise it failed, and sResult contains an explanation of the failure
 
 	// A request is like a command, except that it has both "in" and "out" parameters, and the 
@@ -450,7 +450,7 @@ void Orbiter_Plugin::SomeFunction()
 	PlutoDate plutoDate;
 	char *FileContents;
 	int FileSize;
-	bool bResult = SendRequest(new DERC::REQ_File_Contents(m_DeviceID,DeviceTemplate_Standard_Plug_In_CONST,true,BL_SameHouse,"some_file_name",&FileContents,&FileSize,&plutoDate);
+	bool bResult = SendRequest(new DERC::REQ_File_Contents(m_dwPK_Device,DeviceTemplate_Standard_Plug_In_CONST,true,BL_SameHouse,"some_file_name",&FileContents,&FileSize,&plutoDate);
 
 	// To access our data and events below, you can type this-> if your IDE supports auto complete to see all the data and events you can access
 
@@ -553,7 +553,7 @@ void Orbiter_Plugin::CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Messa
 		return;
 	}
 
-	pOH_Orbiter->m_iPK_Room=iPK_Room;
+	pOH_Orbiter->m_dwPK_Room=iPK_Room;
 }
 //<-dceag-c78-b->
 /* 
@@ -581,7 +581,7 @@ g_pPlutoLogger->Write(LV_STATUS,"new mobile orbiter, setting: %d to mac: %s",pRo
 		g_pPlutoLogger->Write(LV_CRITICAL,"Got New Mobile Orbiter but can't find device!");
 	else
 	{
-		DCE::CMD_Send_File_To_Device CMD_Send_File_To_Device(m_DeviceID, iPK_Device_Dongle,"PlutoMO.sis",sMac_address,"");
+		DCE::CMD_Send_File_To_Device CMD_Send_File_To_Device(m_dwPK_Device, iPK_Device_Dongle,"PlutoMO.sis",sMac_address,"");
 		SendCommand(CMD_Send_File_To_Device);
 	}
 }

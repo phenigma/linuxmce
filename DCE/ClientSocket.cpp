@@ -19,11 +19,11 @@ using namespace DCE;
 
 ClientSocket::ClientSocket( int DeviceID, string IPAddress,string Name) : Socket(Name)
 {
-	m_DeviceID = DeviceID;
+	m_dwPK_Device = DeviceID;
 	m_IPAddress = IPAddress;
 
 //	if( g_pPlutoLogger ) // This won't be created yet if this is the server logger socket
-//		g_pPlutoLogger->Write(LV_SOCKET,"Created client socket %p device: %d ip: %s",this,m_DeviceID,m_IPAddress.c_str());
+//		g_pPlutoLogger->Write(LV_SOCKET,"Created client socket %p device: %d ip: %s",this,m_dwPK_Device,m_IPAddress.c_str());
 }
 
 ClientSocket::~ClientSocket()
@@ -42,9 +42,9 @@ bool ClientSocket::Connect(string ExtraInfo)
 	{
 #ifdef DEBUG
 		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_SOCKET,"ClientSocket::Connect - disconnecting previous socket this: %p device: %d socket %d",this,m_DeviceID,m_Socket);
+			g_pPlutoLogger->Write(LV_SOCKET,"ClientSocket::Connect - disconnecting previous socket this: %p device: %d socket %d",this,m_dwPK_Device,m_Socket);
 		else
-			cerr << "ClientSocket::Connect - disconnecting previous socket this: device: " << m_DeviceID << " Socket: " << (int) m_Socket << endl;
+			cerr << "ClientSocket::Connect - disconnecting previous socket this: device: " << m_dwPK_Device << " Socket: " << (int) m_Socket << endl;
 #endif
 		Disconnect();
 	}
@@ -82,9 +82,9 @@ bool ClientSocket::Connect(string ExtraInfo)
 					int ec = h_errno;	
 #endif 
 					if( g_pPlutoLogger )
-						g_pPlutoLogger->Write(LV_CRITICAL, "gethostbyname for '%s', failed, Last Error Code %d, Device: %d", Address.c_str(), ec, m_DeviceID);
+						g_pPlutoLogger->Write(LV_CRITICAL, "gethostbyname for '%s', failed, Last Error Code %d, Device: %d", Address.c_str(), ec, m_dwPK_Device);
 					else
-						cerr << "gethostbyname for " << Address << " failed, Last Error Code " << ec << " device: " << m_DeviceID << endl;
+						cerr << "gethostbyname for " << Address << " failed, Last Error Code " << ec << " device: " << m_dwPK_Device << endl;
 
 					Disconnect();
 					break;
@@ -140,9 +140,9 @@ bool ClientSocket::Connect(string ExtraInfo)
 	else
 	{
 			if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL, "socket() failed, is the TCP stack initialized?, device: %d", m_DeviceID);
+			g_pPlutoLogger->Write(LV_CRITICAL, "socket() failed, is the TCP stack initialized?, device: %d", m_dwPK_Device);
 			else
-				cerr << "socket() failed, is the TCP stack initialized?, device: " << m_DeviceID << endl;
+				cerr << "socket() failed, is the TCP stack initialized?, device: " << m_dwPK_Device << endl;
 	}
 	if (bSuccess)
 	{
@@ -214,15 +214,15 @@ void ClientSocket::StartWatchDog(clock_t Timeout)
 
 bool ClientSocket::OnConnect(string ExtraInfo)
 {
-	SendString("HELLO "+StringUtils::itos(m_DeviceID) + "," + ExtraInfo);
+	SendString("HELLO "+StringUtils::itos(m_dwPK_Device) + "," + ExtraInfo);
 	string Response;
 	if (!ReceiveString(Response))
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Lost connection device: %d", m_DeviceID);
+		g_pPlutoLogger->Write(LV_CRITICAL, "Lost connection device: %d", m_dwPK_Device);
 	}
 	else if (Response!="OK")
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Connection for client socket reported %s, device %d", Response.c_str(), m_DeviceID);
+		g_pPlutoLogger->Write(LV_CRITICAL, "Connection for client socket reported %s, device %d", Response.c_str(), m_dwPK_Device);
 		SendString("CORRUPT SOCKET");
 		Sleep(500);
 		Disconnect();

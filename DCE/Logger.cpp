@@ -47,7 +47,7 @@ Logger::Logger( const char* pcName ) : m_Lock( "logger" )
 {
 	if( pcName ) m_Name = pcName;
 
-//	m_iPK_Installation = atoi( StringUtils::get_pluto_parameter( "INSTALLATION" ).c_str() );
+//	m_dwPK_Installation = atoi( StringUtils::get_pluto_parameter( "INSTALLATION" ).c_str() );
 
 	pthread_mutexattr_init( &m_MutexAttr );
 	pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
@@ -62,7 +62,7 @@ Logger::~Logger()
 
 void Logger::SetInstallation(int iInstallation)
 {
-	m_iPK_Installation = iInstallation;
+	m_dwPK_Installation = iInstallation;
 }
 
 void Logger::SetName( const char* pcName )
@@ -102,7 +102,7 @@ void Logger::Write( int iLevel, const char *pcFormat, ... )
 #ifdef ERRORS2PLUTOHOME
 #ifndef WIN32
 		FILE* f = popen(( string("wget -q -O - \"http://www.plutohome.com/utils/message.php?FK_Installation=")
-		 	+ StringUtils::itos( m_iPK_Installation ) + "&Severity=3&Message=" 
+		 	+ StringUtils::itos( m_dwPK_Installation ) + "&Severity=3&Message=" 
 			+ StringUtils::URLEncode(s) + "\"").c_str(), "r");
 			
 		if( f != NULL ) fclose(f);

@@ -77,7 +77,7 @@ namespace DCE
 		int m_ivectFilenames_Pos,m_iPK_MED_File_Pos;  // The current position in either of the 2 above vectors.  One or both must always be -1, since we can't be playing from both lists at the same time
 		char *m_pPictureData;
 		int m_iPictureSize;
-		int m_iPK_Device; // The source device
+		int m_dwPK_Device; // The source device
 		int m_iPK_MediaType;  // The type of media
 		int m_iPK_DesignObj_Remote;  // What screen to use as the remote control
 		bool m_bPlaying;  // True if the media is now playing

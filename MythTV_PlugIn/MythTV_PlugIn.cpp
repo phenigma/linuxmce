@@ -92,8 +92,8 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
 
     string Response;
 
-    DCE::CMD_Play_Media cmd(m_DeviceID,
-        pMythTvStream->m_iPK_Device,
+    DCE::CMD_Play_Media cmd(m_dwPK_Device,
+        pMythTvStream->m_dwPK_Device,
         "0", // todo -- the real channel
         //                 pMythTvStream->m_dequeFilename.front(),
         pMythTvStream->m_iPK_MediaType,
@@ -119,8 +119,8 @@ bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
     PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
     g_pPlutoLogger->Write(LV_STATUS, "Stopping media stream playback--sending command, waiting for response");
 
-    DCE::CMD_Stop_Media cmd(m_DeviceID,
-        pMediaStream->m_iPK_Device,
+    DCE::CMD_Stop_Media cmd(m_dwPK_Device,
+        pMediaStream->m_dwPK_Device,
         pMediaStream->m_iStreamID_get());
     string Response;
     if( !SendCommand(cmd, 1, &Response) )
@@ -151,14 +151,14 @@ class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaPluginInfo *pMedi
     if( !PK_Device_Source && pMediaPluginInfo->m_listMediaDevice.size() )
     {
         MediaDevice *pMediaDevice = pMediaPluginInfo->m_listMediaDevice.front();
-        PK_Device_Source=pMediaDevice->m_pDeviceData_Router->m_iPK_Device;
+        PK_Device_Source=pMediaDevice->m_pDeviceData_Router->m_dwPK_Device;
     }
     DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(PK_Device_Source);
 
     bool bFoundDevice=false;
-    if( pDeviceData_Router->m_iPK_DeviceTemplate==DEVICETEMPLATE_MythTV_PlugIn_CONST )
+    if( pDeviceData_Router->m_dwPK_DeviceTemplate==DEVICETEMPLATE_MythTV_PlugIn_CONST )
     {
-        pMediaStream->m_iPK_Device = PK_Device_Source;
+        pMediaStream->m_dwPK_Device = PK_Device_Source;
         bFoundDevice=true;
     }
 

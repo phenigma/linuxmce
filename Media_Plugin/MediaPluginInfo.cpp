@@ -27,9 +27,9 @@ MediaPluginInfo::MediaPluginInfo(class MediaPluginBase *pMediaPluginBase,class C
 		for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
 		{
 			DeviceData_Router *pDeviceData_Router = *it;
-			MediaDevice *pMediaDevice = m_pMediaPluginBase->m_pMedia_Plugin->m_mapMediaDevice_Find(pDeviceData_Router->m_iPK_Device);
+			MediaDevice *pMediaDevice = m_pMediaPluginBase->m_pMedia_Plugin->m_mapMediaDevice_Find(pDeviceData_Router->m_dwPK_Device);
 			if( !pMediaDevice )
-				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find a media device for %d",pDeviceData_Router->m_iPK_Device);
+				g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find a media device for %d",pDeviceData_Router->m_dwPK_Device);
 			else
 				m_listMediaDevice.push_back(pMediaDevice);
 		}
@@ -161,25 +161,25 @@ void BoundRemote::UpdateOrbiter(MediaStream *pMediaStream)
 {
 	// TODO -- Figure out the media information, like track, timecode, picture, etc.  For now just update the text object.  Also need to update the pictures
 //	size_t size; char *pPic = FileUtils::ReadFileIntoBuffer("/image.jpg",size);
-	DCE::CMD_Update_Object_Image CMD_Update_Object_Image(0,m_pOH_Orbiter->m_pDeviceData_Router->m_iPK_Device,m_sPK_DesignObj_GraphicImage,"jpg",NULL,0,"0");
+	DCE::CMD_Update_Object_Image CMD_Update_Object_Image(0,m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,m_sPK_DesignObj_GraphicImage,"jpg",NULL,0,"0");
 
 	if( m_iPK_Text_Description )
 	{
-		DCE::CMD_Set_Text CMD_Set_Text(m_pMedia_Plugin->m_DeviceID,m_pOH_Orbiter->m_pDeviceData_Router->m_iPK_Device,"",
+		DCE::CMD_Set_Text CMD_Set_Text(m_pMedia_Plugin->m_dwPK_Device,m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,"",
 			(pMediaStream ? pMediaStream->m_sMediaDescription : "*no media*"),m_iPK_Text_Description);
 		CMD_Update_Object_Image.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text.m_pMessage);
 	}
 
 	if( m_iPK_Text_Section )
 	{
-		DCE::CMD_Set_Text CMD_Set_Text(m_pMedia_Plugin->m_DeviceID,m_pOH_Orbiter->m_pDeviceData_Router->m_iPK_Device,"",
+		DCE::CMD_Set_Text CMD_Set_Text(m_pMedia_Plugin->m_dwPK_Device,m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,"",
 			(pMediaStream ? pMediaStream->m_sSectionDescription : "* no media *"),m_iPK_Text_Section);
 		CMD_Update_Object_Image.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text.m_pMessage);
 	}
 
 	if( m_iPK_Text_Synopsis )
 	{
-		DCE::CMD_Set_Text CMD_Set_Text(m_pMedia_Plugin->m_DeviceID,m_pOH_Orbiter->m_pDeviceData_Router->m_iPK_Device,"",
+		DCE::CMD_Set_Text CMD_Set_Text(m_pMedia_Plugin->m_dwPK_Device,m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,"",
 			(pMediaStream ? pMediaStream->m_sMediaSynopsis : "* no media *"),m_iPK_Text_Synopsis);
 		CMD_Update_Object_Image.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text.m_pMessage);
 	}

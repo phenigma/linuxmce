@@ -146,7 +146,7 @@ void MobileOrbiter::ShowMenu(int MenuType,Message *pOriginatingMessage)
 				m_iLastMenuType==MENUTYPE_REMOTE_MEDIA_ADVANCED ||
 				m_iLastMenuType==MENUTYPE_RESEND_IR)
 			{
-				m_pRouter->DispatchMessage(new Message(m_pPlutoOrbiter->m_pDeviceData_Router->m_iPK_Device,DEVICEID_DCEROUTER,
+				m_pRouter->DispatchMessage(new Message(m_pPlutoOrbiter->m_pDeviceData_Router->m_dwPK_Device,DEVICEID_DCEROUTER,
 						PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_LINK_MEDIA_REMOTE_CONST,2,
 						COMMANDPARAMETER_PK_Device_CONST,StringUtils::itos(m_pPlutoOrbiter->m_pEntZone->m_PK_Device).c_str(),
 						COMMANDPARAMETER_OnOff_CONST,"0"));
@@ -186,7 +186,7 @@ void MobileOrbiter::ShowMenu(int MenuType,Message *pOriginatingMessage)
 		MenuType==MENUTYPE_REMOTE_MEDIA_ADVANCED ||
 		MenuType==MENUTYPE_RESEND_IR) )
 	{
-		m_pRouter->DispatchMessage(new Message(m_pPlutoOrbiter->m_pDeviceData_Router->m_iPK_Device,DEVICEID_DCEROUTER,
+		m_pRouter->DispatchMessage(new Message(m_pPlutoOrbiter->m_pDeviceData_Router->m_dwPK_Device,DEVICEID_DCEROUTER,
 			PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_LINK_MEDIA_REMOTE_CONST,3,
 			COMMANDPARAMETER_PK_Device_CONST,StringUtils::itos(m_pPlutoOrbiter->m_pEntZone->m_PK_Device).c_str(),
 			COMMANDPARAMETER_OnOff_CONST,"1",
@@ -256,9 +256,9 @@ void MobileOrbiter::ShowMenu(int MenuType,Message *pOriginatingMessage)
 		break;
 	case MENUTYPE_REMOTE_DVD:
 		CreateDVDRemote(sText,sTokens);
-		m_pRouter->DispatchMessage(new Message(m_pPlutoOrbiter->m_pDeviceData_Router->m_iPK_Device,m_pPlutoOrbiter->m_pEntZone->m_PK_Device,
+		m_pRouter->DispatchMessage(new Message(m_pPlutoOrbiter->m_pDeviceData_Router->m_dwPK_Device,m_pPlutoOrbiter->m_pEntZone->m_PK_Device,
 				PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_SET_MENU_CAPTURE_CONST,3,
-				COMMANDPARAMETER_PK_Device_CONST,StringUtils::itos(m_pPlutoOrbiter->m_pDeviceData_Router->m_iPK_Device).c_str(),
+				COMMANDPARAMETER_PK_Device_CONST,StringUtils::itos(m_pPlutoOrbiter->m_pDeviceData_Router->m_dwPK_Device).c_str(),
 				COMMANDPARAMETER_ID_CONST,"0",
 				COMMANDPARAMETER_PK_DesignObj_CONST,(StringUtils::itos(MENUTYPE_REMOTE_DVD)+".0.0").c_str()));
 
@@ -348,14 +348,14 @@ void MobileOrbiter::ShowMenu(int MenuType,Message *pOriginatingMessage)
 				psText->replace(s,3,StringUtils::itos(m_pPlutoOrbiter->m_pEntZone->m_PK_Device));
 			}
 		}
-		string sController = StringUtils::itos(m_pPlutoOrbiter->m_pDeviceData_Router->m_iPK_Device);
+		string sController = StringUtils::itos(m_pPlutoOrbiter->m_pDeviceData_Router->m_dwPK_Device);
 		while( (s=psText->find("{c}"))!=string::npos )
 			psText->replace(s,3,sController);
 		while( (s=psText->find("{mod}"))!=string::npos )
-			psText->replace(s,5,StringUtils::itos(m_pDevice_CurrentDetected->m_iPK_Device));
+			psText->replace(s,5,StringUtils::itos(m_pDevice_CurrentDetected->m_dwPK_Device));
 	}
 
-	m_pRouter->DispatchMessage(new Message(DEVICEID_DCEROUTER,m_pDevice_CurrentDetected->m_iPK_Device,PRIORITY_NORMAL,
+	m_pRouter->DispatchMessage(new Message(DEVICEID_DCEROUTER,m_pDevice_CurrentDetected->m_dwPK_Device,PRIORITY_NORMAL,
 		MESSAGETYPE_COMMAND,COMMAND_SHOW_MENU_CONST,8,
 		C_COMMANDPARAMETER_TOKENS_CONST,sTokens.c_str(),
 		COMMANDPARAMETER_Text_CONST,sText.c_str(),
@@ -403,7 +403,7 @@ void MobileOrbiter::CreateMainMenu(string &sText,string &sTokens)
 // This is a | delimited list of the action groups for shortcuts 7,8,9,0,*,#
 	string sMainMenuShortcuts = "6441,6479,6442,6643,6478,6477";
 
-//	DeviceRelation *pDR = NULL; // TODO - 7/20/04 m_pDevice_This->m_mapDevices_Find(m_pDevice_CurrentDetected->m_iPK_Device);
+//	DeviceRelation *pDR = NULL; // TODO - 7/20/04 m_pDevice_This->m_mapDevices_Find(m_pDevice_CurrentDetected->m_dwPK_Device);
 
 	sText += "1~~~{c} {c} 1 22 6 1~2~~~{c} {c} 1 22 6 2~3~~~{c} {c} 1 22 6 3~"\
 			 "4~~~{c} {c} 1 22 6 4~5~~~{c} {c} 1 22 6 5~6~~~{c} {c} 1 22 6 6~";
@@ -497,7 +497,7 @@ void MobileOrbiter::CreateLocationsMenu(string &sText,string &sTokens,string &sM
 		for(itDevices=pRoom->m_listDevices.begin();itDevices!=pRoom->m_listDevices.end();++itDevices)
 		{
 			DeviceData_Router *pDevice = (*itDevices);
-			if( !pDevice || (pDevice->m_iPK_DeviceTemplate!=DEVICETEMPLATE_Entertain_Unit_CONST && pDevice->m_iPK_DeviceCategory!=DEVICECATEGORY_AUDIO_ZONE_CONST) )
+			if( !pDevice || (pDevice->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_Entertain_Unit_CONST && pDevice->m_dwPK_DeviceCategory!=DEVICECATEGORY_AUDIO_ZONE_CONST) )
 				continue;
 			listAudioZonesInRoom.push_back(pDevice);
 		}
@@ -513,10 +513,10 @@ void MobileOrbiter::CreateLocationsMenu(string &sText,string &sTokens,string &sM
 			{
 				DeviceData_Router *pDevice = (*itDevices);
 				if( listAudioZonesInRoom.size()==1 )
-					listLocations.push_back(new LocationInfo(pRoom->m_Description,pDevice->m_iPK_Device,pRoom->m_PK_Room));
+					listLocations.push_back(new LocationInfo(pRoom->m_Description,pDevice->m_dwPK_Device,pRoom->m_PK_Room));
 				else
 					listLocations.push_back(new LocationInfo(pRoom->m_Description + "/" + pDevice->m_sDescription,
-						pDevice->m_iPK_Device,pRoom->m_PK_Room));
+						pDevice->m_dwPK_Device,pRoom->m_PK_Room));
 			}
 		}
 	}
@@ -554,7 +554,7 @@ void MobileOrbiter::CreateArrayMenu(string &sText,string &sTokens,int PK_C_Array
 		
 		if( !m_pDevice_This->m_pRoom )
 		{
-			g_pPlutoLogger->Write(LV_WARNING,"No room for detector %d",m_pDevice_CurrentDetected->m_iPK_Device);
+			g_pPlutoLogger->Write(LV_WARNING,"No room for detector %d",m_pDevice_CurrentDetected->m_dwPK_Device);
 			return;
 		}
 		vectCommandGroups=&m_pDevice_This->m_pRoom ->m_vectCommandGroups;
@@ -562,7 +562,7 @@ void MobileOrbiter::CreateArrayMenu(string &sText,string &sTokens,int PK_C_Array
 
 	if( !vectCommandGroups )
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"No action groups for array %d device %d",PK_C_Array,m_pDevice_CurrentDetected->m_iPK_Device);
+		g_pPlutoLogger->Write(LV_WARNING,"No action groups for array %d device %d",PK_C_Array,m_pDevice_CurrentDetected->m_dwPK_Device);
 		return;
 	}
 
@@ -626,7 +626,7 @@ void MobileOrbiter::CreateSecurityMenu(string &sText,string &sTokens)
 			else
 			{
 				DeviceData_Router *pCamera = *itCameras;
-				sText += StringUtils::itos(Key) + "~~~{c} {c} 1 22 6 1405 53 " + StringUtils::itos(pCamera->m_iPK_Device) + "~";
+				sText += StringUtils::itos(Key) + "~~~{c} {c} 1 22 6 1405 53 " + StringUtils::itos(pCamera->m_dwPK_Device) + "~";
 				vector<string> vectLines;
 				StringUtils::BreakIntoLines(pCamera->m_sDescription,&vectLines,12);
 				for(int line=0;line<2;++line)
@@ -666,7 +666,7 @@ void MobileOrbiter::CreateMediaFilesMenu(string &sText,string &sTokens,string &s
 	if( !m_pPlutoOrbiter->m_pOCUser || !pMessage )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"No user/message specified for MO: %d %p %p",
-			m_pDevice_This->m_iPK_Device,m_pPlutoOrbiter->m_pOCUser,pMessage);
+			m_pDevice_This->m_dwPK_Device,m_pPlutoOrbiter->m_pOCUser,pMessage);
 		return;
 	}
 	sText += TypeAndSeek;
@@ -710,7 +710,7 @@ void MobileOrbiter::CreateMediaFilesMenu(string &sText,string &sTokens,string &s
 	}
 
 	string Parms = ID;// + "," + Path + "," + StringUtils::itos(m_pPlutoOrbiter->m_pOCUser->PK_Users);
-//  TODO	m_pCore->m_pDataGridDevice->PopulateWithFileList("FILES_" + StringUtils::itos(m_pDevice_This->m_iPK_Device),Parms,pos,NULL,listFileNames);
+//  TODO	m_pCore->m_pDataGridDevice->PopulateWithFileList("FILES_" + StringUtils::itos(m_pDevice_This->m_dwPK_Device),Parms,pos,NULL,listFileNames);
 
 	sMenuList = StringUtils::itos(MENUITEM_FILELIST) + "\t0\t";
     
@@ -822,7 +822,7 @@ void MobileOrbiter::CreateEPGRemote(string &sText,string &sTokens,string &sMenuL
 */
 
 	int CurrentRow = 1;/*TODO m_pCore->m_pDataGridDevice->PopulateWithCurrentShows("CURSH_" + StringUtils::itos(m_pPlutoOrbiter->m_pEntGroup->m_PK_EntGroup),
-		"1," + StringUtils::itos(m_pDevice_This->m_iPK_Device) + "," + 
+		"1," + StringUtils::itos(m_pDevice_This->m_dwPK_Device) + "," + 
 		StringUtils::itos(m_pPlutoOrbiter->m_pEntGroup->pProvider_Station__Schedule_CurrentlyWatching->m_PK_Schedule) + "," +
 		StringUtils::itos(m_pPlutoOrbiter->m_pEntGroup->pProvider_Station__Schedule_CurrentlyWatching->m_PK_Provider_Station),
 		pos,&vectItems);*/
@@ -904,7 +904,7 @@ void MobileOrbiter::CreatePlaylistListRemote(string &sText,string &sTokens,strin
 	sMenuList = StringUtils::itos(MENUITEM_PLAYLIST) + "\t0\t";
     vector<string> vectItems;
 	string::size_type pos=0;
-//	m_pCore->m_pDataGridDevice->PopulateWithPlaylist("",StringUtils::itos(m_pDevice_This->m_iPK_Device),pos,&vectItems);
+//	m_pCore->m_pDataGridDevice->PopulateWithPlaylist("",StringUtils::itos(m_pDevice_This->m_dwPK_Device),pos,&vectItems);
 
 	for(int i=0;i<(int) vectItems.size();++i)
 	{
@@ -1003,10 +1003,10 @@ void MobileOrbiter::CreateNonPlutoTVTuners(string &sText,string &sTokens,string 
 	for(int i=0;i<(int) m_pPlutoOrbiter->m_pEntGroup->m_vectDevice_AV.size();++i)
 	{
 		DeviceData_Router *pDevice = m_pPlutoOrbiter->m_pEntGroup->m_vectDevice_AV[i];
-		if( pDevice->m_iPK_DeviceCategory==DEVICECATEGORY_SATELLITE_CONST )
+		if( pDevice->m_dwPK_DeviceCategory==DEVICECATEGORY_SATELLITE_CONST )
 		{
 			sMenuList += /*value not important*/ /*"\t" + pDevice->m_sDescription + "\t{c} {e} 1 405 5 {e} 42 1 6 2427 36 " + 
-				StringUtils::itos(pDevice->m_iPK_Device) + "\t";
+				StringUtils::itos(pDevice->m_dwPK_Device) + "\t";
 		}
 	}
 */
@@ -1026,7 +1026,7 @@ void MobileOrbiter::CreateRemoteMediaAdvancedOptions(string &sText,string &sToke
 	if( !m_pPlutoOrbiter->m_pEntGroup->m_pWatchingStream )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"called advanced options for %d with no stream",
-			m_pDevice_This->m_iPK_Device);
+			m_pDevice_This->m_dwPK_Device);
 		return;
 	}
 
@@ -1036,7 +1036,7 @@ void MobileOrbiter::CreateRemoteMediaAdvancedOptions(string &sText,string &sToke
 	string::size_type pos=0;
 
 	m_pCore->m_pDataGridDevice->PopulateWithSpecialCommands("",
-		StringUtils::itos(m_pDevice_This->m_iPK_Device) + "," + StringUtils::itos(m_pPlutoOrbiter->m_pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo),
+		StringUtils::itos(m_pDevice_This->m_dwPK_Device) + "," + StringUtils::itos(m_pPlutoOrbiter->m_pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo),
 		pos,&listCommands);
 
 	list<class ExtraCommand *>::iterator itList;
@@ -1070,7 +1070,7 @@ void MobileOrbiter::CreateRemoteMediaResendIR(string &sText,string &sTokens,stri
 	if( !m_pPlutoOrbiter->m_pEntGroup->m_pWatchingStream )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"called advanced options for %d with no stream",
-			m_pDevice_This->m_iPK_Device);
+			m_pDevice_This->m_dwPK_Device);
 		return;
 	}
 
@@ -1080,7 +1080,7 @@ void MobileOrbiter::CreateRemoteMediaResendIR(string &sText,string &sTokens,stri
 	string::size_type pos=0;
 
 	m_pCore->m_pDataGridDevice->PopulateWithResetAV("",
-		StringUtils::itos(m_pDevice_This->m_iPK_Device) + "," + StringUtils::itos(m_pPlutoOrbiter->m_pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo),
+		StringUtils::itos(m_pDevice_This->m_dwPK_Device) + "," + StringUtils::itos(m_pPlutoOrbiter->m_pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo),
 		pos,NULL,&listCommands);
 
 	list<class ExtraCommand *>::iterator itList;
@@ -1112,7 +1112,7 @@ void MobileOrbiter::CreateCameraViewMenu(string &sText,string &sTokens,Message *
 
 	sText += "P~refresh~~{c} {c} 1 22 6 -3 53 " + StringUtils::itos(PK_Device) + "~";
 	sTokens += "CAMD|" + pDevice->m_sDescription + "|";
-	sTokens += "CAMN|" + StringUtils::itos(pDevice->m_iPK_Device) + "|";
+	sTokens += "CAMN|" + StringUtils::itos(pDevice->m_dwPK_Device) + "|";
 	*/
 }
 
@@ -1165,7 +1165,7 @@ void MobileOrbiter::Keypress(string Key)
 		if( Key=="ENTER" )
 		{
 			if( m_pPlutoOrbiter->m_pEntGroup )
-				m_pRouter->DispatchMessage(new Message(m_pPlutoOrbiter->m_pDeviceData_Router->m_iPK_Device,
+				m_pRouter->DispatchMessage(new Message(m_pPlutoOrbiter->m_pDeviceData_Router->m_dwPK_Device,
 					m_pPlutoOrbiter->m_pEntGroup->m_PK_EntGroup,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,
 					COMMAND_AV_CHANNEL_NUMBER_CONST,1,C_COMMANDPARAMETER_ABSOLUTE_CHANNEL_CONST,m_sCurrentInput.c_str()));
 			m_sCurrentInput="";
@@ -1270,7 +1270,7 @@ void MobileOrbiter::RemovingAssocation()
 			if( !bOrbitersInPriorRoom )
 			{
 				// No orbiters in the old room.  Turn off all the lights
-				m_pRouter->DispatchMessage(new Message(m_pDevice_This->m_iPK_Device,DEVICEID_DCEROUTER,
+				m_pRouter->DispatchMessage(new Message(m_pDevice_This->m_dwPK_Device,DEVICEID_DCEROUTER,
 					PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_ADJUST_LIGHTS_CONST,2,C_COMMANDPARAMETER_ROOM_CONST,
 					StringUtils::itos(m_pDevice_CurrentDetected->m_pRoom->m_PK_Room).c_str(),
 					COMMANDPARAMETER_ID_CONST,"0"));
@@ -1343,7 +1343,7 @@ void MobileOrbiter::NewAssociation(DeviceData_Router *pDevice_PriorDetected)
 	{
 		if( m_pDevice_CurrentDetected && m_pDevice_CurrentDetected->m_pRoom )
 		{
-			m_pRouter->DispatchMessage(new Message(m_pDevice_This->m_iPK_Device,DEVICEID_DCEROUTER,
+			m_pRouter->DispatchMessage(new Message(m_pDevice_This->m_dwPK_Device,DEVICEID_DCEROUTER,
 				PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_ADJUST_LIGHTS_CONST,2,C_COMMANDPARAMETER_ROOM_CONST,
 				StringUtils::itos(m_pDevice_CurrentDetected->m_pRoom->m_PK_Room).c_str(),
 				COMMANDPARAMETER_ID_CONST,"1"));

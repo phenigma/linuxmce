@@ -110,7 +110,7 @@ class DataGridTable *File_Grids_Plugin::DevicesCommands(string GridID,string Par
 		if( ptrController )
 			ptrController->SetVariable(VARIABLE_PK_DEVICE_CONST,StringUtils::itos(PK_Device).c_str());
 
-		IRInformation *pIRInformation = m_mapIRInformation_Find(pDevice->m_iPK_Device);
+		IRInformation *pIRInformation = m_mapIRInformation_Find(pDevice->m_dwPK_Device);
 		for(size_t i=0;i<=pDevice->m_iNumberCommands;++i)
 		{
 			Command *pCommand = m_pRouter->mapCommand_Find(pDevice->m_piCommands[i]);
@@ -259,11 +259,11 @@ class DataGridTable *File_Grids_Plugin::DevicesCommands(string GridID,string Par
 			string Description="";
 			int PK_Room = atoi(row[1]);
 			DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
-			IRInformation *pIRInformation = m_mapIRInformation_Find(pDevice->m_iPK_Device);
+			IRInformation *pIRInformation = m_mapIRInformation_Find(pDevice->m_dwPK_Device);
 
 			if( Type==2 && !pIRInformation )
 				continue;
-			else if( Type==3 && (pIRInformation || pDevice->m_iPK_DeviceCategory==DEVICECATEGORY_LIGHTS_CONST) )
+			else if( Type==3 && (pIRInformation || pDevice->m_dwPK_DeviceCategory==DEVICECATEGORY_LIGHTS_CONST) )
 				continue;
 
 			if( PK_Room!=LastRoom )
@@ -546,20 +546,20 @@ void File_Grids_Plugin::SomeFunction()
 	// Send Orbiters the "CMD_Simulate_Mouse_Click" command, which takes an X and Y parameter.  We'll use 55,77 for X and Y.
 
 	// Send the message to a specific orbiter, identified by OrbiterID
-	QueueMessage(new DERC::CMD_Simulate_Mouse_Click(m_DeviceID,OrbiterID,55,77);
+	QueueMessage(new DERC::CMD_Simulate_Mouse_Click(m_dwPK_Device,OrbiterID,55,77);
 
 	// Send the message to orbiters 32898 and 27283
-	QueueMessage(new DERC::CMD_Simulate_Mouse_Click(m_DeviceID,"32898,27283",55,77);
+	QueueMessage(new DERC::CMD_Simulate_Mouse_Click(m_dwPK_Device,"32898,27283",55,77);
 
 	// Send the message to all orbiters within the house, which is all devices with the category DEVICECATEGORY_Orbiter_CONST (see pluto_main/Define_DeviceCategory.h)
-	QueueMessage(new DERC::CMD_Simulate_Mouse_Click(m_DeviceID,DEVICECATEGORY_Orbiter_CONST,true,BL_SameHouse,55,77);
+	QueueMessage(new DERC::CMD_Simulate_Mouse_Click(m_dwPK_Device,DEVICECATEGORY_Orbiter_CONST,true,BL_SameHouse,55,77);
 
 	// Send the message to all "DeviceTemplate_Orbiter_CONST" devices within the room (see pluto_main/Define_DeviceTemplate.h)
-	QueueMessage(new DERC::CMD_Simulate_Mouse_Click(m_DeviceID,DeviceTemplate_Orbiter_CONST,true,BL_SameRoom,55,77);
+	QueueMessage(new DERC::CMD_Simulate_Mouse_Click(m_dwPK_Device,DeviceTemplate_Orbiter_CONST,true,BL_SameRoom,55,77);
 
 	// This time we want to wait to be sure the orbiter gets the message, and the thread will block until the orbiter receives the message
 	string sResult="";
-	bool bResult = SendMessageWithConfirm(new DERC::CMD_Simulate_Mouse_Click(m_DeviceID,OrbiterID,55,77),sResult);
+	bool bResult = SendMessageWithConfirm(new DERC::CMD_Simulate_Mouse_Click(m_dwPK_Device,OrbiterID,55,77),sResult);
 	// If bResult is true, the message was received ok.  Otherwise it failed, and sResult contains an explanation of the failure
 
 	// A request is like a command, except that it has both "in" and "out" parameters, and the 
@@ -576,7 +576,7 @@ void File_Grids_Plugin::SomeFunction()
 	PlutoDate plutoDate;
 	char *FileContents;
 	int FileSize;
-	bool bResult = SendRequest(new DERC::REQ_File_Contents(m_DeviceID,DeviceTemplate_Standard_Plug_In_CONST,true,BL_SameHouse,"some_file_name",&FileContents,&FileSize,&plutoDate);
+	bool bResult = SendRequest(new DERC::REQ_File_Contents(m_dwPK_Device,DeviceTemplate_Standard_Plug_In_CONST,true,BL_SameHouse,"some_file_name",&FileContents,&FileSize,&plutoDate);
 
 	// To access our data and events below, you can type this-> if your IDE supports auto complete to see all the data and events you can access
 
@@ -614,20 +614,20 @@ void File_Grids_Plugin::SomeFunction()
 	// Send Orbiters the "CMD_Simulate_Mouse_Click" command, which takes an X and Y parameter.  We'll use 55,77 for X and Y.
 
 	// Send the message to a specific orbiter, identified by OrbiterID
-	QueueMessage(new DERC::CMD_Simulate_Mouse_Click(m_DeviceID,OrbiterID,55,77);
+	QueueMessage(new DERC::CMD_Simulate_Mouse_Click(m_dwPK_Device,OrbiterID,55,77);
 
 	// Send the message to orbiters 32898 and 27283
-	QueueMessage(new DERC::CMD_Simulate_Mouse_Click(m_DeviceID,"32898,27283",55,77);
+	QueueMessage(new DERC::CMD_Simulate_Mouse_Click(m_dwPK_Device,"32898,27283",55,77);
 
 	// Send the message to all orbiters within the house, which is all devices with the category DEVICECATEGORY_Orbiter_CONST (see pluto_main/Define_DeviceCategory.h)
-	QueueMessage(new DERC::CMD_Simulate_Mouse_Click(m_DeviceID,DEVICECATEGORY_Orbiter_CONST,true,BL_SameHouse,55,77);
+	QueueMessage(new DERC::CMD_Simulate_Mouse_Click(m_dwPK_Device,DEVICECATEGORY_Orbiter_CONST,true,BL_SameHouse,55,77);
 
 	// Send the message to all "DeviceTemplate_Orbiter_CONST" devices within the room (see pluto_main/Define_DeviceTemplate.h)
-	QueueMessage(new DERC::CMD_Simulate_Mouse_Click(m_DeviceID,DeviceTemplate_Orbiter_CONST,true,BL_SameRoom,55,77);
+	QueueMessage(new DERC::CMD_Simulate_Mouse_Click(m_dwPK_Device,DeviceTemplate_Orbiter_CONST,true,BL_SameRoom,55,77);
 
 	// This time we want to wait to be sure the orbiter gets the message, and the thread will block until the orbiter receives the message
 	string sResult="";
-	bool bResult = SendMessageWithConfirm(new DERC::CMD_Simulate_Mouse_Click(m_DeviceID,OrbiterID,55,77),sResult);
+	bool bResult = SendMessageWithConfirm(new DERC::CMD_Simulate_Mouse_Click(m_dwPK_Device,OrbiterID,55,77),sResult);
 	// If bResult is true, the message was received ok.  Otherwise it failed, and sResult contains an explanation of the failure
 
 	// A request is like a command, except that it has both "in" and "out" parameters, and the 
@@ -644,7 +644,7 @@ void File_Grids_Plugin::SomeFunction()
 	PlutoDate plutoDate;
 	char *FileContents;
 	int FileSize;
-	bool bResult = SendRequest(new DERC::REQ_File_Contents(m_DeviceID,DeviceTemplate_Standard_Plug_In_CONST,true,BL_SameHouse,"some_file_name",&FileContents,&FileSize,&plutoDate);
+	bool bResult = SendRequest(new DERC::REQ_File_Contents(m_dwPK_Device,DeviceTemplate_Standard_Plug_In_CONST,true,BL_SameHouse,"some_file_name",&FileContents,&FileSize,&plutoDate);
 
 	// To access our data and events below, you can type this-> if your IDE supports auto complete to see all the data and events you can access
 

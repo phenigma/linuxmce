@@ -259,7 +259,7 @@ void SocketListener::RemoveSocket(Socket *Socket)
 	ServerSocket *pServerSocket = /*dynamic_cast<*/(ServerSocket *)/*>*/(Socket);
 	if (pServerSocket)
 	{
-		int DeviceID = pServerSocket->m_DeviceID;
+		int DeviceID = pServerSocket->m_dwPK_Device;
 		Socket->m_Socket = INVALID_SOCKET;
 		if(DeviceID >= 0 )
 		{
@@ -315,7 +315,7 @@ void SocketListener::FlagForRemoval(int DeviceID)
     for(std::list<Socket *>::iterator iSocketList = m_Clients.begin(); iSocketList != m_Clients.end(); ++iSocketList)
 	{
 		ServerSocket *pSocket = dynamic_cast<ServerSocket *>(*iSocketList);
-		if (pSocket && pSocket->m_DeviceID == DeviceID)
+		if (pSocket && pSocket->m_dwPK_Device == DeviceID)
 			pSocket->m_bFlaggedForClosure = true;
 	}
 */

@@ -69,7 +69,7 @@ bool DCEMI_PS_Orbiter::UpdateDesignObjImage(class Socket *pSocket,class Message 
 	PlutoOrbiter *ptrPlutoOrbiter = m_mapPlutoOrbiter_Find(pMessage->m_dwPK_Device_To);
 	if( ptrPlutoOrbiter && ptrPlutoOrbiter->m_pMobileOrbiter && ptrPlutoOrbiter->m_pMobileOrbiter->m_pDevice_CurrentDetected )
 	{
-		pMessage->m_dwPK_Device_To = ptrPlutoOrbiter->m_pMobileOrbiter->m_pDevice_CurrentDetected->m_iPK_Device;
+		pMessage->m_dwPK_Device_To = ptrPlutoOrbiter->m_pMobileOrbiter->m_pDevice_CurrentDetected->m_dwPK_Device;
 		pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST] = ptrPlutoOrbiter->m_pMobileOrbiter->m_sID + "|" + pMessage->m_mapParameters[COMMANDPARAMETER_PK_DesignObj_CONST];
 	}
 	return true;
@@ -101,7 +101,7 @@ bool DCEMI_PS_Orbiter::NavGoto(class Socket *pSocket,class Message *pMessage,cla
 				char *c = FileUtils::ReadFileIntoBuffer(Filename, Length);
 				if (c!=NULL)
 				{
-					Message *pImageMessage = new Message(0, ptrPlutoOrbiter->m_pDeviceData_Router->m_iPK_Device, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Update_Object_Image_CONST, 
+					Message *pImageMessage = new Message(0, ptrPlutoOrbiter->m_pDeviceData_Router->m_dwPK_Device, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_Update_Object_Image_CONST, 
 						2, COMMANDPARAMETER_PK_DesignObj_CONST, (ptrPlutoOrbiter->m_sCurrentScreen + "." + StringUtils::itos(DESIGNOBJ_ICOINCOMINGCALLPHOTO_CONST)).c_str(),
 							COMMANDPARAMETER_Type_CONST,"1"); 
 					pImageMessage->m_mapData_Parameters[COMMANDPARAMETER_Data_CONST]=c;
@@ -115,13 +115,13 @@ bool DCEMI_PS_Orbiter::NavGoto(class Socket *pSocket,class Message *pMessage,cla
 }
 bool DCEMI_PS_Orbiter::SimulateKeypress(class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo) 
 {
-	if( !pDeviceFrom || pDeviceFrom->m_iPK_DeviceCategory!=DEVICECATEGORY_ORBITER_CELL_CONST )
+	if( !pDeviceFrom || pDeviceFrom->m_dwPK_DeviceCategory!=DEVICECATEGORY_ORBITER_CELL_CONST )
 		return true;
 
-	MobileOrbiter *pMobileOrbiter = m_pDCEMI_PS_MobileOrbiter->m_mapMobileOrbiter_Find(pDeviceFrom->m_iPK_Device);
+	MobileOrbiter *pMobileOrbiter = m_pDCEMI_PS_MobileOrbiter->m_mapMobileOrbiter_Find(pDeviceFrom->m_dwPK_Device);
 	if( !pMobileOrbiter )
 	{
-		g_pPlutoLogger->Write(LV_STATUS,"keypress from unknown bluetooth device %d",pDeviceFrom->m_iPK_Device);
+		g_pPlutoLogger->Write(LV_STATUS,"keypress from unknown bluetooth device %d",pDeviceFrom->m_dwPK_Device);
 	}
 	else
 	{
@@ -238,9 +238,9 @@ bool DCEMI_PS_Orbiter::CurrentController(class Socket *pSocket,class Message *pM
 		PlutoOrbiter *ptrPlutoOrbiter = pDeviceFrom->GetCurrentController();
 		if( !ptrPlutoOrbiter )
 		{
-			if( pDeviceFrom->m_iPK_Device_ControlledVia )
+			if( pDeviceFrom->m_dwPK_Device_ControlledVia )
 			{
-				DeviceData_Router *pParentDevice = m_pRouter->m_mapDeviceData_Router_Find(pDeviceFrom->m_iPK_Device_ControlledVia);
+				DeviceData_Router *pParentDevice = m_pRouter->m_mapDeviceData_Router_Find(pDeviceFrom->m_dwPK_Device_ControlledVia);
 				if( pParentDevice )
 					ptrPlutoOrbiter = pParentDevice->GetCurrentController();
 			}
@@ -251,7 +251,7 @@ bool DCEMI_PS_Orbiter::CurrentController(class Socket *pSocket,class Message *pM
 			return false;
 		}
 		else
-			pMessage->m_dwPK_Device_To=ptrPlutoOrbiter->m_pDeviceData_Router->m_iPK_Device;
+			pMessage->m_dwPK_Device_To=ptrPlutoOrbiter->m_pDeviceData_Router->m_dwPK_Device;
 	}
 	*/
 	return true;

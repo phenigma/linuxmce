@@ -20,11 +20,11 @@ void *BeginHandleRequestThread(void *param)
 
 bool HandleRequestSocket::OnConnect(string ExtraInfo)
 {
-	SendString("REQUESTHANDLER "+StringUtils::itos(m_DeviceID));
+	SendString("REQUESTHANDLER "+StringUtils::itos(m_dwPK_Device));
 	string Response;
 	if (!ReceiveString(Response))
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Requesthandler %p (device: %d) lost connection. %s",this,m_DeviceID,m_sName.c_str());
+		g_pPlutoLogger->Write(LV_CRITICAL, "Requesthandler %p (device: %d) lost connection. %s",this,m_dwPK_Device,m_sName.c_str());
 		return false;
 	}
 	if (Response=="CLOSED")
@@ -34,9 +34,9 @@ bool HandleRequestSocket::OnConnect(string ExtraInfo)
 	if (Response!="OK")
 	{
 #ifdef LOG_ALL_CONTROLLER_ACTIVITY
-		LACA_B4_4("Connection for requesthandler %p (device: %d) reported %s. %s", this,m_DeviceID,Response.c_str(),m_sName.c_str());
+		LACA_B4_4("Connection for requesthandler %p (device: %d) reported %s. %s", this,m_dwPK_Device,Response.c_str(),m_sName.c_str());
 #endif
-		g_pPlutoLogger->Write(LV_CRITICAL, "Connection for requesthandler %p (device: %d) reported %s. %s", this,m_DeviceID,Response.c_str(),m_sName.c_str());
+		g_pPlutoLogger->Write(LV_CRITICAL, "Connection for requesthandler %p (device: %d) reported %s. %s", this,m_dwPK_Device,Response.c_str(),m_sName.c_str());
 		return false;
 	}
 	m_bRunning=true;
@@ -51,7 +51,7 @@ void HandleRequestSocket::Disconnect()
 	// between an explicit disconnect and an unexpected one.
 
 	g_pPlutoLogger->Write(LV_SOCKET, "RequestSocket::Disconnect %p device: %d", 
-		this,m_DeviceID);
+		this,m_dwPK_Device);
 
 	m_bTerminate=true;
 	ClientSocket::Disconnect();
@@ -77,7 +77,7 @@ HandleRequestSocket::~HandleRequestSocket()
 void HandleRequestSocket::DisconnectAndWait()
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write(LV_SOCKET,"~HandleRequestSocket %p device: %d ip: %s",this,m_DeviceID,m_IPAddress.c_str());
+	g_pPlutoLogger->Write(LV_SOCKET,"~HandleRequestSocket %p device: %d ip: %s",this,m_dwPK_Device,m_IPAddress.c_str());
 #endif
 	Disconnect();
 	if (m_RequestHandlerThread)
@@ -113,7 +113,7 @@ void HandleRequestSocket::RunThread()
 		{
 			if (msg=="CORRUPT SOCKET")
 			{
-				g_pPlutoLogger->Write(LV_STATUS, "Socket flagged as corrupted %p device: %d",this,m_DeviceID);
+				g_pPlutoLogger->Write(LV_STATUS, "Socket flagged as corrupted %p device: %d",this,m_dwPK_Device);
 				m_bTerminate = true;
 			}
 			if (msg.substr(0,4)=="PING")
@@ -121,7 +121,7 @@ void HandleRequestSocket::RunThread()
 #ifdef DEBUG
 #ifdef WINDOWS
 				LACA_B4_0("got ping, sending pong %s",m_sName.c_str());
-				g_pPlutoLogger->Write(LV_STATUS, "got ping, sending pong %p device: %d %s",this,m_DeviceID,m_sName.c_str());
+				g_pPlutoLogger->Write(LV_STATUS, "got ping, sending pong %p device: %d %s",this,m_dwPK_Device,m_sName.c_str());
 #endif
 #endif
 				SendString("PONG");
@@ -129,7 +129,7 @@ void HandleRequestSocket::RunThread()
 			else
 			{
 #ifdef DEBUG
-				g_pPlutoLogger->Write(LV_STATUS, "Received %s %p device: %d",msg.c_str(),this,m_DeviceID);
+				g_pPlutoLogger->Write(LV_STATUS, "Received %s %p device: %d",msg.c_str(),this,m_dwPK_Device);
 #endif
 				if (msg.substr(0,7)  == "MESSAGE")	
 				{
@@ -138,18 +138,18 @@ void HandleRequestSocket::RunThread()
 					{
 #ifdef DEBUG
 						g_pPlutoLogger->Write(LV_STATUS, "Received Message type %d ID %d from %d to %d (device: %d)",
-							pMessage->m_dwMessage_Type,pMessage->m_dwID,pMessage->m_dwPK_Device_From,pMessage->m_dwPK_Device_To,m_DeviceID);
+							pMessage->m_dwMessage_Type,pMessage->m_dwID,pMessage->m_dwPK_Device_From,pMessage->m_dwPK_Device_To,m_dwPK_Device);
 #endif
 						if (!ReceivedMessage(pMessage))
 						{
 							#ifdef LOG_ALL_CONTROLLER_ACTIVITY
 								LACA_B4_6("Could not find a handler for message - from %d to %d Type: %d ID: %d (device: %d) %s",
 									pMessage->m_dwPK_Device_From,pMessage->m_dwPK_Device_To,
-									pMessage->m_dwMessage_Type,pMessage->m_dwID,m_DeviceID,m_sName.c_str());
+									pMessage->m_dwMessage_Type,pMessage->m_dwID,m_dwPK_Device,m_sName.c_str());
 							#endif
 							g_pPlutoLogger->Write(LV_STATUS,"Could not find a handler for message - from %d to %d Type: %d ID: %d (device: %d) %s",
 								pMessage->m_dwPK_Device_From,pMessage->m_dwPK_Device_To,
-								pMessage->m_dwMessage_Type,pMessage->m_dwID,m_DeviceID,m_sName.c_str());
+								pMessage->m_dwMessage_Type,pMessage->m_dwID,m_dwPK_Device,m_sName.c_str());
 							SendString("UNHANDLED");
 						}					
 						delete pMessage;
@@ -157,9 +157,9 @@ void HandleRequestSocket::RunThread()
 					else
 					{
 						#ifdef LOG_ALL_CONTROLLER_ACTIVITY
-							LACA_B4_3("Incomplete message received %p (device: %d) %s",this,m_DeviceID,m_sName.c_str());
+							LACA_B4_3("Incomplete message received %p (device: %d) %s",this,m_dwPK_Device,m_sName.c_str());
 						#endif
-						g_pPlutoLogger->Write(LV_CRITICAL,"Incomplete message received %p (device: %d) %s",this,m_DeviceID,m_sName.c_str());
+						g_pPlutoLogger->Write(LV_CRITICAL,"Incomplete message received %p (device: %d) %s",this,m_dwPK_Device,m_sName.c_str());
 					}
 				}
 				else
@@ -169,7 +169,7 @@ void HandleRequestSocket::RunThread()
 	}
 	m_bRunning=false;
 	g_pPlutoLogger->Write(LV_STATUS, "Closing event handler connection %d (%d,%s), Terminate: %d %s\n", 
-		m_DeviceID,(int) m_bUnexpected,msg.c_str(),(int) m_bTerminate,m_sName.c_str());
+		m_dwPK_Device,(int) m_bUnexpected,msg.c_str(),(int) m_bTerminate,m_sName.c_str());
 	if (m_bUnexpected)
 	{
 		OnUnexpectedDisconnect();

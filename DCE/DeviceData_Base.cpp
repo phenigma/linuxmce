@@ -1,102 +1,127 @@
+/**
+ *
+ * @file DeviceData_Base.cpp
+ * @brief source file for the AllDevices class
+ * @author
+ * @todo notcommented
+ *
+ */
+
+ /**
+  *
+  * Copyright Notice goes here
+  *
+  */
+
+
 #include "PlutoUtils/CommonIncludes.h"	
 #include "DeviceData_Base.h"
 
 using namespace DCE;
 
-bool AllDevices::Serialize(bool bWriting,char *&pDataBlock,unsigned long &iAllocatedSize,char *&pCurrentPosition,void *pExtraSerializationData)
+bool AllDevices::Serialize( bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData )
 {
-	bool bResult = SerializeClass::Serialize(bWriting,pDataBlock,iAllocatedSize,pCurrentPosition,pExtraSerializationData);
+	bool bResult = SerializeClass::Serialize( bWriting, pcDataBlock, dwAllocatedSize, pcCurrentPosition, pExtraSerializationData );
 
 	if( !bWriting )
 	{
 		// Map them up to the parents
 		Map_DeviceCategory::iterator itCat;
-		for(itCat=m_mapDeviceCategory.begin();itCat!=m_mapDeviceCategory.end();++itCat)
+		for( itCat = m_mapDeviceCategory.begin(); itCat != m_mapDeviceCategory.end(); ++itCat )
 		{
 			DeviceCategory *pCat = (*itCat).second;
-			if( pCat->m_iPK_DeviceCategory_Parent )
+			if( pCat->m_dwPK_DeviceCategory_Parent ) // must make this ceck, not all cateories have a parent
 			{
-				DeviceCategory *pParent = m_mapDeviceCategory_Find(pCat->m_iPK_DeviceCategory_Parent);
+				DeviceCategory *pParent = m_mapDeviceCategory_Find( pCat->m_dwPK_DeviceCategory_Parent );
 				pCat->m_pDeviceCategory_Parent = pParent;
 			}
 		}
 
+		// Map them up to the category
 		Map_DeviceData_Base::iterator itDevice;
-		for(itDevice=m_mapDeviceData_Base.begin();itDevice!=m_mapDeviceData_Base.end();itDevice++)
+		for( itDevice = m_mapDeviceData_Base.begin(); itDevice != m_mapDeviceData_Base.end(); itDevice++ )
 		{
 			DeviceData_Base *pDeviceData_Base = (*itDevice).second;
-			pDeviceData_Base->m_pDeviceCategory = m_mapDeviceCategory_Find(pDeviceData_Base->m_iPK_DeviceCategory);
+			pDeviceData_Base->m_pDeviceCategory = m_mapDeviceCategory_Find( pDeviceData_Base->m_dwPK_DeviceCategory );
 		}
 	}
+	
 	return bResult;
 }
 
-bool AllDevices::UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char *&pDataBlock,unsigned long &iAllocatedSize,char *&pCurrentPosition)
+bool AllDevices::UnknownSerialize( ItemToSerialize *pItem, bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition )
 {
-	m_pcDataBlock=pDataBlock; m_dwAllocatedSize=iAllocatedSize; m_pcCurrentPosition=pCurrentPosition;
-	if( bWriting )
+	m_pcDataBlock = pcDataBlock; m_dwAllocatedSize = dwAllocatedSize; m_pcCurrentPosition = pcCurrentPosition;
+	
+	if( bWriting ) // writing
 	{
-		switch(pItem->m_iSerializeDataType)
+		switch( pItem->m_iSerializeDataType )
 		{
+		
 		case SERIALIZE_DATA_TYPE_MAP_DCEDEVICEDATA_BASE:
 			{
 				Map_DeviceData_Base *pMap = (Map_DeviceData_Base *) pItem->m_pItem;
-				Write_unsigned_long((unsigned long) pMap->size());
-				for(Map_DeviceData_Base::iterator it=pMap->begin();it!=pMap->end();++it)
+				Write_unsigned_long( (unsigned long) pMap->size() );
+				for( Map_DeviceData_Base::iterator it = pMap->begin(); it != pMap->end(); ++it )
 				{
-					DeviceData_Base *pDeviceData_Base = (*it).second;
-					pDeviceData_Base->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition);
+					DeviceData_Base *pDeviceData_Base = (*it).second; // we know how to serialize this
+					pDeviceData_Base->Serialize( bWriting, m_pcDataBlock, m_dwAllocatedSize, m_pcCurrentPosition );
 				}
-				return true;  // We handled it
+				return true; // We handled it
 			}
 			break;
+			
 		case SERIALIZE_DATA_TYPE_MAP_DCECATEGORY:
 			{
 				Map_DeviceCategory *pMap = (Map_DeviceCategory *) pItem->m_pItem;
 				Write_unsigned_long((unsigned long) pMap->size());
-				for(Map_DeviceCategory::iterator it=pMap->begin();it!=pMap->end();++it)
+				for( Map_DeviceCategory::iterator it = pMap->begin(); it != pMap->end(); ++it )
 				{
-					DeviceCategory *pDeviceCategory = (*it).second;
-					pDeviceCategory->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition);
+					DeviceCategory *pDeviceCategory = (*it).second; // we know how to serialize this
+					pDeviceCategory->Serialize( bWriting, m_pcDataBlock, m_dwAllocatedSize, m_pcCurrentPosition );
 				}
-				return true;  // We handled it
+				return true; // We handled it
 			}
 			break;
+			
 		};
 	}
-	else
+	else // reading
 	{
-		switch(pItem->m_iSerializeDataType)
+		switch( pItem->m_iSerializeDataType )
 		{
+		
 		case SERIALIZE_DATA_TYPE_MAP_DCEDEVICEDATA_BASE:
 			{
 				Map_DeviceData_Base *pMap = (Map_DeviceData_Base *) pItem->m_pItem;
 				unsigned long count = Read_unsigned_long();
-				for(unsigned long i=0;i<count;++i)
+				for( unsigned long i = 0; i < count; ++i )
 				{
 					DeviceData_Base *pDeviceData_Base = new DeviceData_Base();
-					pDeviceData_Base->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition);
-					(*pMap)[pDeviceData_Base->m_iPK_Device]=pDeviceData_Base;
+					pDeviceData_Base->Serialize( bWriting, m_pcDataBlock, m_dwAllocatedSize, m_pcCurrentPosition );
+					(*pMap)[pDeviceData_Base->m_dwPK_Device] = pDeviceData_Base;
 				}
 				return true;  // We handled it
 			}
 			break;
+			
 		case SERIALIZE_DATA_TYPE_MAP_DCECATEGORY:
 			{
 				Map_DeviceCategory *pMap = (Map_DeviceCategory *) pItem->m_pItem;
 				unsigned long count = Read_unsigned_long();
-				for(unsigned long i=0;i<count;++i)
+				for( unsigned long i = 0; i < count; ++i )
 				{
 					DeviceCategory *pDeviceCategory = new DeviceCategory();
-					pDeviceCategory->Serialize(bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition);
-					(*pMap)[pDeviceCategory->m_iPK_DeviceCategory]=pDeviceCategory;
+					pDeviceCategory->Serialize( bWriting, m_pcDataBlock, m_dwAllocatedSize, m_pcCurrentPosition );
+					(*pMap)[pDeviceCategory->m_dwPK_DeviceCategory] = pDeviceCategory;
 				}
 				return true;  // We handled it
 			}
 			break;
+			
 		};
 	}
 
-	pDataBlock=m_pcDataBlock; iAllocatedSize=m_dwAllocatedSize; pCurrentPosition=m_pcCurrentPosition;
+	pcDataBlock = m_pcDataBlock; dwAllocatedSize = m_dwAllocatedSize; pcCurrentPosition = m_pcCurrentPosition;
 	return true;
 }

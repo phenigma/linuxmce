@@ -61,7 +61,7 @@ bool DCEMI_PS_MobileOrbiter::ToggleFollowMe(class Socket *pSocket,class Message 
 {
 	if( !pDeviceFrom )
 		return true;
-	PlutoOrbiter *ptrController = m_pDCEMI_PS_Orbiter->m_mapPlutoOrbiter_Find(pDeviceFrom->m_iPK_Device);
+	PlutoOrbiter *ptrController = m_pDCEMI_PS_Orbiter->m_mapPlutoOrbiter_Find(pDeviceFrom->m_dwPK_Device);
 	if( ptrController )
 	{
 		MobileOrbiter *pMobileOrbiter = ptrController->m_pMobileOrbiter;
@@ -111,7 +111,7 @@ bool DCEMI_PS_MobileOrbiter::MobileOrbiterLinked(class Socket *pSocket,class Mes
 		{
 			pMobileOrbiter->RemovingAssocation();
 			
-			m_pRouter->DispatchMessage(new Message(DEVICEID_DCEROUTER,pMobileOrbiter->m_pDevice_CurrentDetected->m_iPK_Device,
+			m_pRouter->DispatchMessage(new Message(DEVICEID_DCEROUTER,pMobileOrbiter->m_pDevice_CurrentDetected->m_dwPK_Device,
 				PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_LINK_WITH_MOBILE_ORBITER_CONST,2,COMMANDPARAMETER_ID_CONST,pMobileOrbiter->m_sID.c_str(),
 				COMMANDPARAMETER_OnOff_CONST,"0"));
 		}
@@ -135,7 +135,7 @@ bool DCEMI_PS_MobileOrbiter::MobileOrbiterLinked(class Socket *pSocket,class Mes
 				DeviceData_Base *pEntGroup = m_pPlutoEvents->FindSibling(pDeviceFrom->m_pDevice_ControlledVia,DEVICETEMPLATE_Entertain_Unit_CONST);
 				if( pEntGroup )
 				{
-					pMobileOrbiter->m_pPlutoOrbiter->m_pEntGroup = m_pRouter->m_pDataGridDevice->m_mapEntGroup_Find(pEntGroup->m_iPK_Device);
+					pMobileOrbiter->m_pPlutoOrbiter->m_pEntGroup = m_pRouter->m_pDataGridDevice->m_mapEntGroup_Find(pEntGroup->m_dwPK_Device);
 				}
 */
 			}
@@ -170,7 +170,7 @@ g_pPlutoLogger->Write(LV_WARNING, "Mobile orbiter detected");
 	}
 	else
 	{
-		pMessage->m_mapParameters[C_EVENTPARAMETER_PK_DEVICE_CONST] = StringUtils::itos(pMobileOrbiter->m_pDevice_This->m_iPK_Device);
+		pMessage->m_mapParameters[C_EVENTPARAMETER_PK_DEVICE_CONST] = StringUtils::itos(pMobileOrbiter->m_pDevice_This->m_dwPK_Device);
 		int SignalStrength = atoi(pMessage->m_mapParameters[C_EVENTPARAMETER_STRENGTH_CONST].c_str());
 
 		if( pMobileOrbiter->m_pDevice_CurrentDetected==pDeviceFrom )
@@ -197,7 +197,7 @@ COMMANDPARAMETER_PK_Device_CONST,StringUtils::itos(Controller).c_str()));
 				PLUTO_SAFETY_LOCK(lm,m_ListenerMutex);
 				int RouteToDevice = DEVICEID_NULL;
 				map<int,int>::iterator iRoute;
-				iRoute = m_Routing_DeviceToController.find(pMobileOrbiter->m_pDevice_CurrentDetected->m_iPK_Device);
+				iRoute = m_Routing_DeviceToController.find(pMobileOrbiter->m_pDevice_CurrentDetected->m_dwPK_Device);
 				if (iRoute!=m_Routing_DeviceToController.end())
 				{
 					RouteToDevice = (*iRoute).second;
@@ -208,12 +208,12 @@ COMMANDPARAMETER_PK_Device_CONST,StringUtils::itos(Controller).c_str()));
 				if (iDeviceConnection != m_mapCommandHandlers.end())
 				{
 					PLUTO_SAFETY_LOCK(slConn,((*iDeviceConnection).second->m_ConnectionMutex));
-					if (!pSocket->SendMessage(new Message(0, pMobileOrbiter->m_pDevice_CurrentDetected->m_iPK_Device, 
-						PRIORITY_NORMAL, MESSAGETYPE_SIGNALSTRENGTH, pMobileOrbiter->m_pDevice_This->m_iPK_Device, 1,
+					if (!pSocket->SendMessage(new Message(0, pMobileOrbiter->m_pDevice_CurrentDetected->m_dwPK_Device, 
+						PRIORITY_NORMAL, MESSAGETYPE_SIGNALSTRENGTH, pMobileOrbiter->m_pDevice_This->m_dwPK_Device, 1,
 						COMMANDPARAMETER_ID_CONST,pMobileOrbiter->m_sID.c_str())))
 					{
 						g_pPlutoLogger->Write(LV_CRITICAL, "Socket %p failure sending signal strength request to device %d", 
-							(*iDeviceConnection).second, pMobileOrbiter->m_pDevice_CurrentDetected->m_iPK_Device);
+							(*iDeviceConnection).second, pMobileOrbiter->m_pDevice_CurrentDetected->m_dwPK_Device);
 
 						// TODO :  The socket failed, core needs to remove client socket
 
@@ -250,7 +250,7 @@ COMMANDPARAMETER_PK_Device_CONST,StringUtils::itos(Controller).c_str()));
 			}
 			else
 			{
-				m_pRouter->DispatchMessage(new Message(DEVICEID_DCEROUTER,pDeviceFrom->m_iPK_Device,
+				m_pRouter->DispatchMessage(new Message(DEVICEID_DCEROUTER,pDeviceFrom->m_dwPK_Device,
 					PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_LINK_WITH_MOBILE_ORBITER_CONST,2,COMMANDPARAMETER_ID_CONST,pMobileOrbiter->m_sID.c_str(),
 					COMMANDPARAMETER_OnOff_CONST,"1"));
 
@@ -279,7 +279,7 @@ bool DCEMI_PS_MobileOrbiter::MobileOrbiterLost(class Socket *pSocket,class Messa
 	if( pD )
 	{
 		pMobileOrbiter = pD->m_pMobileOrbiter;
-		pMessage->m_mapParameters[C_EVENTPARAMETER_PK_DEVICE_CONST] = StringUtils::itos(pD->m_iPK_Device);
+		pMessage->m_mapParameters[C_EVENTPARAMETER_PK_DEVICE_CONST] = StringUtils::itos(pD->m_dwPK_Device);
 	}
 
 	if( !pMobileOrbiter )
@@ -295,7 +295,7 @@ bool DCEMI_PS_MobileOrbiter::MobileOrbiterLost(class Socket *pSocket,class Messa
 				COMMANDPARAMETER_PK_Device_CONST,StringUtils::itos(pMobileOrbiter->m_pPlutoOrbiter->m_pEntZone->m_PK_Device).c_str(),
 				COMMANDPARAMETER_OnOff_CONST,"0"));
 		}
-		m_pRouter->DispatchMessage(new Message(DEVICEID_DCEROUTER,pMobileOrbiter->m_pDevice_CurrentDetected->m_iPK_Device,
+		m_pRouter->DispatchMessage(new Message(DEVICEID_DCEROUTER,pMobileOrbiter->m_pDevice_CurrentDetected->m_dwPK_Device,
 			PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_LINK_WITH_MOBILE_ORBITER_CONST,2,COMMANDPARAMETER_ID_CONST,pMobileOrbiter->m_sID.c_str(),
 			COMMANDPARAMETER_OnOff_CONST,"0"));
 
@@ -310,7 +310,7 @@ bool DCEMI_PS_MobileOrbiter::LockOntoLocation(class Socket *pSocket,class Messag
 {
 	if( !pDeviceFrom ) 
 		return true;
-	PlutoOrbiter *ptrController = m_pDCEMI_PS_Orbiter->m_mapPlutoOrbiter_Find(pDeviceFrom->m_iPK_Device);
+	PlutoOrbiter *ptrController = m_pDCEMI_PS_Orbiter->m_mapPlutoOrbiter_Find(pDeviceFrom->m_dwPK_Device);
 	if( !ptrController || !ptrController->m_pMobileOrbiter )
 		return true;
 
@@ -342,7 +342,7 @@ bool DCEMI_PS_MobileOrbiter::LinkMediaRemote(class Socket *pSocket,class Message
 	if( !pDeviceFrom )
 		return true;
 
-	PlutoOrbiter *ptrController = m_pDCEMI_PS_Orbiter->m_mapPlutoOrbiter_Find(pDeviceFrom->m_iPK_Device);
+	PlutoOrbiter *ptrController = m_pDCEMI_PS_Orbiter->m_mapPlutoOrbiter_Find(pDeviceFrom->m_dwPK_Device);
 	if( !ptrController )
 		return true;
 /*
@@ -370,7 +370,7 @@ bool DCEMI_PS_MobileOrbiter::LinkMediaRemote(class Socket *pSocket,class Message
 		}
 		if( !bRemoved )
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"Couldn't remove remote control %d from ent group %d",pDeviceFrom->m_iPK_Device,pEntGroup->m_PK_EntGroup);
+			g_pPlutoLogger->Write(LV_CRITICAL,"Couldn't remove remote control %d from ent group %d",pDeviceFrom->m_dwPK_Device,pEntGroup->m_PK_EntGroup);
 		}
 	}
 	else
@@ -461,7 +461,7 @@ bool DCEMI_PS_MobileOrbiter::LinkMediaRemote(class Socket *pSocket,class Message
 				if( pEntGroup->m_pWatchingStream )
 				{
 					DeviceData_Router *pDevice_Tuning=m_pPlutoEvents->m_mapDevice_Find(pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo);
-					if( pDevice_Tuning && pDevice_Tuning->m_iPK_DeviceTemplate==DEVICETEMPLATE_Entertain_Unit_CONST )
+					if( pDevice_Tuning && pDevice_Tuning->m_dwPK_DeviceTemplate==DEVICETEMPLATE_Entertain_Unit_CONST )
 					{
 						pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo=0; // This is no good anymore
 						// We're coming to here after having been watching pluto tv
@@ -483,9 +483,9 @@ g_pPlutoLogger->Write(LV_WARNING,"not watching anything, find a tuning device");
 					for(int i=0;i<(int) pEntGroup->m_vectDevice_AV.size();++i)
 					{
 						DeviceData_Router *pDevice = pEntGroup->m_vectDevice_AV[i];
-						if( pDevice->m_iPK_DeviceCategory==DEVICECATEGORY_SATELLITE_CONST )
+						if( pDevice->m_dwPK_DeviceCategory==DEVICECATEGORY_SATELLITE_CONST )
 						{
-							pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo = pDevice->m_iPK_Device;
+							pEntGroup->m_pWatchingStream->m_PK_DeviceToSendTo = pDevice->m_dwPK_Device;
 						}
 					}
 				}

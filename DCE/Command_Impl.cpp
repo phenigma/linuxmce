@@ -53,7 +53,7 @@ Command_Impl::Command_Impl( int DeviceID, string ServerAddress, bool bLocalMode,
 }
 
 Command_Impl::Command_Impl( Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, class Router *pRouter )
-	: HandleRequestSocket( pData->m_iPK_Device, "", "Command_Impl2 Dev #" ), m_listMessageQueueMutex( "MessageQueue" )
+	: HandleRequestSocket( pData->m_dwPK_Device, "", "Command_Impl2 Dev #" ), m_listMessageQueueMutex( "MessageQueue" )
 {
 	m_pRouter = pRouter;
 	m_pcRequestSocket = NULL;
@@ -108,22 +108,22 @@ void Command_Impl::CreateChildren()
 			if( SpawnChildDevice(pDeviceData_Impl_Child) )
 				continue;
 		}
-		Event_Impl *pEvent = m_pEvent->CreateEvent( pDeviceData_Impl_Child->m_iPK_DeviceTemplate, m_pPrimaryDeviceCommand->m_pEvent->m_pClientSocket, pDeviceData_Impl_Child->m_iPK_Device );
+		Event_Impl *pEvent = m_pEvent->CreateEvent( pDeviceData_Impl_Child->m_dwPK_DeviceTemplate, m_pPrimaryDeviceCommand->m_pEvent->m_pClientSocket, pDeviceData_Impl_Child->m_dwPK_Device );
 		if ( !pEvent )
 		{
-			pEvent = new Event_Impl( m_pPrimaryDeviceCommand->m_pEvent->m_pClientSocket, pDeviceData_Impl_Child->m_iPK_Device );
+			pEvent = new Event_Impl( m_pPrimaryDeviceCommand->m_pEvent->m_pClientSocket, pDeviceData_Impl_Child->m_dwPK_Device );
 			g_pPlutoLogger->Write( LV_WARNING, "Note: Device manager has attached a device of type %d that this has no custom event handler for.  It will not fire events.",
-					pDeviceData_Impl_Child->m_iPK_DeviceTemplate);
+					pDeviceData_Impl_Child->m_dwPK_DeviceTemplate);
 		}
-		Command_Impl *pCommand = m_pPrimaryDeviceCommand->CreateCommand( pDeviceData_Impl_Child->m_iPK_DeviceTemplate, m_pPrimaryDeviceCommand, pDeviceData_Impl_Child, pEvent );
+		Command_Impl *pCommand = m_pPrimaryDeviceCommand->CreateCommand( pDeviceData_Impl_Child->m_dwPK_DeviceTemplate, m_pPrimaryDeviceCommand, pDeviceData_Impl_Child, pEvent );
 		if ( !pCommand )
 		{
 			pCommand = new Command_Impl(m_pPrimaryDeviceCommand, pDeviceData_Impl_Child, pEvent, m_pRouter);
-			g_pPlutoLogger->Write(LV_WARNING, "Note: Device manager has attached a device of type %d that this has no custom handler for.  This is normal for IR.", pDeviceData_Impl_Child->m_iPK_DeviceTemplate);
+			g_pPlutoLogger->Write(LV_WARNING, "Note: Device manager has attached a device of type %d that this has no custom handler for.  This is normal for IR.", pDeviceData_Impl_Child->m_dwPK_DeviceTemplate);
 		}
 		pCommand->m_pParent = this;
 		pCommand->CreateChildren();
-		m_mapCommandImpl_Children[pDeviceData_Impl_Child->m_iPK_Device] = pCommand;
+		m_mapCommandImpl_Children[pDeviceData_Impl_Child->m_dwPK_Device] = pCommand;
 	}
 }
 
@@ -147,10 +147,10 @@ bool Command_Impl::SpawnChildDevice( class DeviceData_Impl *pDeviceData_Impl_Chi
 		}
 	}
 
-	g_pPlutoLogger->Write( LV_STATUS, "Spawning device: %d %s on display: %s ip: %s", pDeviceData_Impl_Child->m_iPK_Device, pDeviceData_Impl_Child->m_sCommandLine.c_str(), sDisplay.c_str(), m_IPAddress.c_str() );
-	system( ("screen -d -m -h 3000 -S " + StringUtils::itos( pDeviceData_Impl_Child->m_iPK_Device ) + "_" + pDeviceData_Impl_Child->m_sCommandLine +
-			" sh -x " + sPrefix + "Spawn_Device.sh " + StringUtils::itos(pDeviceData_Impl_Child->m_iPK_Device) + " " + m_IPAddress + " " + sDisplay + " " + pDeviceData_Impl_Child->m_sCommandLine).c_str() );
-	m_vectSpawnedDevices.push_back( StringUtils::itos( pDeviceData_Impl_Child->m_iPK_Device ) + "_" + pDeviceData_Impl_Child->m_sCommandLine );
+	g_pPlutoLogger->Write( LV_STATUS, "Spawning device: %d %s on display: %s ip: %s", pDeviceData_Impl_Child->m_dwPK_Device, pDeviceData_Impl_Child->m_sCommandLine.c_str(), sDisplay.c_str(), m_IPAddress.c_str() );
+	system( ("screen -d -m -h 3000 -S " + StringUtils::itos( pDeviceData_Impl_Child->m_dwPK_Device ) + "_" + pDeviceData_Impl_Child->m_sCommandLine +
+			" sh -x " + sPrefix + "Spawn_Device.sh " + StringUtils::itos(pDeviceData_Impl_Child->m_dwPK_Device) + " " + m_IPAddress + " " + sDisplay + " " + pDeviceData_Impl_Child->m_sCommandLine).c_str() );
+	m_vectSpawnedDevices.push_back( StringUtils::itos( pDeviceData_Impl_Child->m_dwPK_Device ) + "_" + pDeviceData_Impl_Child->m_sCommandLine );
 #else
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
@@ -158,7 +158,7 @@ bool Command_Impl::SpawnChildDevice( class DeviceData_Impl *pDeviceData_Impl_Chi
 	si.cb = sizeof(si);
 	ZeroMemory ( &pi, sizeof(pi) );
 	CreateProcess( "C:\\WINDOWS\\system32\\cmd.exe", "/c bogus.bat", NULL, NULL, false, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi);
-	m_vectSpawnedDevices.push_back( StringUtils::itos( pDeviceData_Impl_Child->m_iPK_Device ) + "_" + pDeviceData_Impl_Child->m_sCommandLine ); // push back the spawned device
+	m_vectSpawnedDevices.push_back( StringUtils::itos( pDeviceData_Impl_Child->m_dwPK_Device ) + "_" + pDeviceData_Impl_Child->m_sCommandLine ); // push back the spawned device
 #endif
 	return true;
 }
@@ -206,7 +206,7 @@ bool Command_Impl::Connect()
 	// Must have an event socket to proceed.
 	if (!m_pEvent)
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"No event handler for device ID: %d", this->m_DeviceID);
+		g_pPlutoLogger->Write(LV_CRITICAL,"No event handler for device ID: %d", this->m_dwPK_Device);
 		return false;
 	}
 	if (m_pEvent->m_pClientSocket->m_Socket == INVALID_SOCKET)
@@ -214,14 +214,14 @@ bool Command_Impl::Connect()
 		m_pEvent->m_pClientSocket->Connect();
 		if (m_pEvent->m_pClientSocket->m_Socket == INVALID_SOCKET)
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL,"No client socket for device ID: %d", this->m_DeviceID);
+			g_pPlutoLogger->Write(LV_CRITICAL,"No client socket for device ID: %d", this->m_dwPK_Device);
 			return false;
 		}
 	}
 	if (!ClientSocket::Connect())
 	{
 #if (!defined(UNDER_CE) || !defined(DEBUG))
-		g_pPlutoLogger->Write(LV_CRITICAL,"DeviceCommand connect failed %p, device ID: %d",this,this->m_DeviceID);
+		g_pPlutoLogger->Write(LV_CRITICAL,"DeviceCommand connect failed %p, device ID: %d",this,this->m_dwPK_Device);
 #endif
 		if (m_pEvent)
 			m_pEvent->m_pClientSocket->Disconnect();
@@ -268,7 +268,7 @@ bool Command_Impl::ReceivedMessage( Message *pMessage )
 		return true;
 	}
 	
-	if ( m_bHandleChildren && pMessage->m_dwPK_Device_To != m_DeviceID )
+	if ( m_bHandleChildren && pMessage->m_dwPK_Device_To != m_dwPK_Device )
 	{
 		// This is slightly inelegant because we don't want to change
 		// the base class implementation in order to do this.  If the target device ID is not this device
@@ -276,11 +276,11 @@ bool Command_Impl::ReceivedMessage( Message *pMessage )
 		// and run it back through ReceivedMessage so the higher level class processes it as
 		// it's own.
 		m_iTargetDeviceID  = pMessage->m_dwPK_Device_To;
-		pMessage->m_dwPK_Device_To = m_DeviceID;
+		pMessage->m_dwPK_Device_To = m_dwPK_Device;
 		return ReceivedMessage( pMessage );
 	}
 	
-	if ( pMessage->m_dwMessage_Type == MESSAGETYPE_DATAPARM_REQUEST && pMessage->m_dwPK_Device_To == m_DeviceID )
+	if ( pMessage->m_dwMessage_Type == MESSAGETYPE_DATAPARM_REQUEST && pMessage->m_dwPK_Device_To == m_dwPK_Device )
 	{
 			/** @todo:
 			p = m_pData->m_mapParameters.find(pMessage->m_dwID);
@@ -291,20 +291,20 @@ bool Command_Impl::ReceivedMessage( Message *pMessage )
 			else
 			{
 				RequestingParameter(pMessage->m_dwID);
-				SendMessage(new Message(m_DeviceID, pMessage->m_dwPK_Device_From, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, pMessage->m_dwID, (*p).second.c_str()));
+				SendMessage(new Message(m_dwPK_Device, pMessage->m_dwPK_Device_From, PRIORITY_NORMAL, MESSAGETYPE_REPLY, 0, 1, pMessage->m_dwID, (*p).second.c_str()));
 			}
 			*/
 		return true;
 	}
 	else 
-		if ( pMessage->m_dwMessage_Type == MESSAGETYPE_DATAPARM_CHANGE && pMessage->m_dwPK_Device_To == m_DeviceID )
+		if ( pMessage->m_dwMessage_Type == MESSAGETYPE_DATAPARM_CHANGE && pMessage->m_dwPK_Device_To == m_dwPK_Device )
 		{
 			p = pMessage->m_mapParameters.begin();
 			if ( p != pMessage->m_mapParameters.end() )
 			{
 				string ValueOld = m_pData->m_mapParameters[(*p).first];
 				m_pData->m_mapParameters[(*p).first] = (*p).second;
-				g_pPlutoLogger->Write( LV_STATUS, "Updating data parm %d with %s (Device %d).", (*p).first, (*p).second.c_str(), m_DeviceID );
+				g_pPlutoLogger->Write( LV_STATUS, "Updating data parm %d with %s (Device %d).", (*p).first, (*p).second.c_str(), m_dwPK_Device );
 				SendString( "OK" );
 				OnDataChange( (*p).first, ValueOld, (*p).second );
 			}

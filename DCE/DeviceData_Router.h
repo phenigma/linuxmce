@@ -21,8 +21,8 @@ namespace DCE
 	class Command
 	{
 	public:
-		Command(int PK_Command,string sDescription) { m_iPK_Command=PK_Command; m_sDescription=sDescription; }
-		int m_iPK_Command;
+		Command(int PK_Command,string sDescription) { m_dwPK_Command=PK_Command; m_sDescription=sDescription; }
+		int m_dwPK_Command;
 		string m_sDescription;
 		list<Pipe *> m_listPipe;
 	};
@@ -39,13 +39,13 @@ namespace DCE
 	class CommandGroup_Command
 	{
 	public:
-		int m_iPK_Command,m_PK_Device,m_PK_DeviceGroup,m_PK_C_Array;
+		int m_dwPK_Command,m_PK_Device,m_PK_DeviceGroup,m_PK_C_Array;
 		list<class Device_Routing *> m_listDevices;
 		map<int,class CommandParameter *> m_mapCommandParameter;
 
 		CommandGroup_Command(int PK_Command,int PK_Device,int PK_DeviceGroup,int PK_C_Array)
 		{
-			m_iPK_Command = PK_Command;
+			m_dwPK_Command = PK_Command;
 			m_PK_Device = PK_Device;
 			m_PK_DeviceGroup = PK_DeviceGroup;
 			m_PK_C_Array = PK_C_Array;
@@ -119,7 +119,7 @@ namespace DCE
 		// **** SERIALIZED VALUES FROM THE CONFIGURATION FILE ****
 
 		// General ID's for this Device
-		// These are in the base-> int m_iPK_Device,m_iPK_Installation,m_iPK_DeviceTemplate,m_iPK_DeviceCategory,m_iPK_Room,;
+		// These are in the base-> int m_dwPK_Device,m_dwPK_Installation,m_dwPK_DeviceTemplate,m_dwPK_DeviceCategory,m_dwPK_Room,;
 		// string m_sDescription;
 
 		// If the device is running on a different installation, this will point to the IP address
@@ -139,7 +139,7 @@ namespace DCE
 		// A virtual device that doesn't really exist, but serves as a placeholder will have SlaveTo set
 		// For example, a Television may have several tuners.  Each tuner must be a separate device so the user
 		// can tune on any one of them.  They are all marked as SlaveTo the television itself.
-		int m_iPK_Device_SlaveTo;  
+		int m_dwPK_Device_SlaveTo;  
 
 		// All the groups, parameters, inputs, etc.
 		map<int,class DeviceRelation *> m_mapDeviceRelation;
@@ -169,12 +169,12 @@ namespace DCE
 		class DeviceData_Router *m_pDevice_SlaveTo;
 		class DeviceData_Router *m_pDevice_Audio,*m_pDevice_Video;
 
-		DeviceData_Router(unsigned long  iPK_Device,unsigned long  iPK_Installation,unsigned long  iPK_DeviceTemplate,unsigned long  iPK_Device_ControlledVia, unsigned long m_iPK_DeviceCategory, unsigned long iPK_Room,bool bImplementsDCE,bool bIsEmbedded,
+		DeviceData_Router(unsigned long  iPK_Device,unsigned long  iPK_Installation,unsigned long  iPK_DeviceTemplate,unsigned long  iPK_Device_ControlledVia, unsigned long m_dwPK_DeviceCategory, unsigned long iPK_Room,bool bImplementsDCE,bool bIsEmbedded,
 			string sCommandLine,bool bIsPlugIn,string sDescription,string sIPAddress,string sMacAddress)
-			: DeviceData_Impl(iPK_Device,iPK_Installation,iPK_DeviceTemplate,iPK_Device_ControlledVia,m_iPK_DeviceCategory,iPK_Room,
+			: DeviceData_Impl(iPK_Device,iPK_Installation,iPK_DeviceTemplate,iPK_Device_ControlledVia,m_dwPK_DeviceCategory,iPK_Room,
 			bImplementsDCE,bIsEmbedded,sCommandLine,bIsPlugIn,sDescription,sIPAddress,sMacAddress)
 		{
-			m_iPK_Device_SlaveTo=0;
+			m_dwPK_Device_SlaveTo=0;
 			m_iLastState=0;
 			m_bForceReloadOnFirstConnect=m_bIsRegistered=m_bIsReady=m_bBusy=m_bAlert=false;
 			m_tLastused=m_tCanReceiveNextCommand=0;

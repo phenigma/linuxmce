@@ -325,7 +325,7 @@ printf("found hrow %s %d\n",Key.c_str(),pActiveData->m_MenuType);
 						if( pActiveData->m_MenuType==MENUITEM_FILELIST )
 						{
 							pMsg->m_ID=ACTION_NAV_GOTO_CONST;
-							pMsg->m_dwPK_Device_To=m_pCmd->m_DeviceID;
+							pMsg->m_dwPK_Device_To=m_pCmd->m_dwPK_Device;
 							pMsg->m_mapParameters[C_ACTIONPARAMETER_PKID_OBJECT_HEADER_CONST]="-1";
 							pMsg->m_mapParameters[C_ACTIONPARAMETER_PATH_CONST]=mi->m_sValue;
 							bAbortLoop=true;
@@ -336,7 +336,7 @@ printf("found hrow %s %d\n",Key.c_str(),pActiveData->m_MenuType);
 printf("no hrow\n");
 					pMsg->m_mapParameters[atoi(tok.c_str())] = value; 
 				}
-				if( msgTo==m_pCmd->m_DeviceID )
+				if( msgTo==m_pCmd->m_dwPK_Device )
 				{
 					// It's for us anyway
 printf("it's for us %d\n",msgID);

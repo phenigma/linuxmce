@@ -69,16 +69,16 @@ void DCEMI_PS_VirtualDevices::CheckForSpecialDevices()
 		if( !pDevice )
 			continue; 
 
-		if( pDevice->m_iPK_DeviceCategory==DEVICECATEGORY_ORBITER_CELL_CONST )
+		if( pDevice->m_dwPK_DeviceCategory==DEVICECATEGORY_ORBITER_CELL_CONST )
 		{
 			string MacAddress = pDevice->m_mapParameters[C_DEVICEDATA_ID_CONST];
 			if( MacAddress.length()>0 )
 			{
 				PlutoOrbiter *po = new PlutoOrbiter(this);
 				MobileOrbiter *pmo = new MobileOrbiter(this,po,MacAddress,pDevice);
-				m_mapMobileOrbiter[pDevice->m_iPK_Device]=pmo;
+				m_mapMobileOrbiter[pDevice->m_dwPK_Device]=pmo;
 				m_mapMobileOrbiter_Mac[MacAddress]=pmo;
-				m_mapPlutoOrbiter[pDevice->m_iPK_Device]=po;
+				m_mapPlutoOrbiter[pDevice->m_dwPK_Device]=po;
 				po->m_pDeviceData_Router = pDevice;
 				po->m_pMobileOrbiter = pmo;
 			}
@@ -86,7 +86,7 @@ void DCEMI_PS_VirtualDevices::CheckForSpecialDevices()
 		else if( pDevice->WithinCategory(DEVICECATEGORY_ORBITER_TABLET_CONST) )
 		{
 			PlutoOrbiter *po = new PlutoOrbiter(this);
-			m_mapPlutoOrbiter[pDevice->m_iPK_Device]=po;
+			m_mapPlutoOrbiter[pDevice->m_dwPK_Device]=po;
 			po->m_pDeviceData_Router = pDevice;
 		}
 	}

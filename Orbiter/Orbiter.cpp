@@ -328,7 +328,7 @@ int k=2;
                 int IRDevice = atoi(StringUtils::Tokenize(ccf, "~", pos).c_str());
                 string fn = ccf.substr(pos);
 
-                Message *pMessage=m_pcRequestSocket->SendReceiveMessage(new Message(m_DeviceID, DEVICEID_DCEROUTER, PRIORITY_NORMAL, MESSAGETYPE_FILEREQUEST, 0, 1, 1, fn.c_str()));
+                Message *pMessage=m_pcRequestSocket->SendReceiveMessage(new Message(m_dwPK_Device, DEVICEID_DCEROUTER, PRIORITY_NORMAL, MESSAGETYPE_FILEREQUEST, 0, 1, 1, fn.c_str()));
                 string sResult="";
                 if (pMessage)
                 {
@@ -374,7 +374,7 @@ int k=2;
             int PK_Device_VideoSource = atoi(pObj->GetParameterValue(C_PARAMETER_SOURCE_CONST).c_str());
             if( PK_Device_VideoSource )
             {
-                Message *pMessage = m_pcRequestSocket->SendReceiveMessage(new Message(m_DeviceID, PK_Device_VideoSource, PRIORITY_LOW, MESSAGETYPE_REQUEST, REQUESTTYPE_VIDEO_FRAME, 3,
+                Message *pMessage = m_pcRequestSocket->SendReceiveMessage(new Message(m_dwPK_Device, PK_Device_VideoSource, PRIORITY_LOW, MESSAGETYPE_REQUEST, REQUESTTYPE_VIDEO_FRAME, 3,
                     C_DEVICEDATA_DEVICELIST_CONST, pObj->GetParameterValue(C_PARAMETER_SOURCE_CONST).c_str(),
                     COMMANDPARAMETER_Position_X_CONST, StringUtils::itos(pObj->m_rPosition.Width).c_str(),
                     COMMANDPARAMETER_Position_Y_CONST, StringUtils::itos(pObj->m_rPosition.Height).c_str()));
@@ -940,7 +940,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Saving image for control: state: %d undo: %p",p
 /* todo 2.0
     if(pObj->m_bProcessActionsAtServer)
     {
-        Message *pThisMessage = new Message(m_DeviceID,DEVICEID_DCEROUTER,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_PROCESS_BUTTON_AT_SERVER_CONST,3,
+        Message *pThisMessage = new Message(m_dwPK_Device,DEVICEID_DCEROUTER,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_PROCESS_BUTTON_AT_SERVER_CONST,3,
             COMMANDPARAMETER_PK_DesignObj_CONST,StringUtils::itos(pObj->m_iBaseObjectID),
             C_COMMANDPARAMETER_ONLY_IF_ON_SCREEN_CONST,m_pVisibleScreen->m_ObjectID,
             COMMANDPARAMETER_Text_CONST, m_mapVariable[VARIABLE_USER_INPUT_CONST]);
@@ -955,9 +955,9 @@ g_pPlutoLogger->Write(LV_STATUS,"Saving image for control: state: %d undo: %p",p
     if( pButtonTouchMessage )
     {
 #ifdef DEBUG
-        g_pPlutoLogger->Write(LV_CONTROLLER, "\x1b[33;1m#%d Selected object: %s # \x1b[0m  click: %d,%d",m_DeviceID,pObj->m_ObjectID.c_str(),X,Y);
+        g_pPlutoLogger->Write(LV_CONTROLLER, "\x1b[33;1m#%d Selected object: %s # \x1b[0m  click: %d,%d",m_dwPK_Device,pObj->m_ObjectID.c_str(),X,Y);
 #endif
-        Message *pThisMessage = new Message(m_DeviceID,DEVICEID_EVENTMANAGER,PRIORITY_NORMAL,MESSAGETYPE_EVENT,EVENT_Orbiter_BUTTON_TOUCHED_CONST,4,
+        Message *pThisMessage = new Message(m_dwPK_Device,DEVICEID_EVENTMANAGER,PRIORITY_NORMAL,MESSAGETYPE_EVENT,EVENT_Orbiter_BUTTON_TOUCHED_CONST,4,
             C_EVENTPARAMETER_PK_OBJECT_CONST,pObj->m_ObjectID.c_str(),
             C_EVENTPARAMETER_ID_CONST,StringUtils::itos(CTRLCOMMAND_ACTIVATE).c_str(),
             C_EVENTPARAMETER_XPOS_CONST,StringUtils::itos(X-pObj->m_rPosition.X).c_str(),
@@ -1532,23 +1532,23 @@ void Orbiter::Initialize(GraphicType Type)
 	if (!m_bQuit)
 	{
 		Message *pMessage=NULL;
-		string Filename = "C" + StringUtils::itos(m_DeviceID) + ".info";
+		string Filename = "C" + StringUtils::itos(m_dwPK_Device) + ".info";
 		bool bFileExists;
 		if( !(bFileExists=FileUtils::FileExists(m_sLocalDirectory + Filename)) )
 		{
 			if( m_sLocalDirectory.length()==0 )
 			{
 #ifdef WIN32
-				m_sLocalDirectory = "/pluto/C" + StringUtils::itos(m_DeviceID) + "/";
+				m_sLocalDirectory = "/pluto/C" + StringUtils::itos(m_dwPK_Device) + "/";
 #else
-                m_sLocalDirectory = "/usr/pluto/C" + StringUtils::itos(m_DeviceID) + "/";
+                m_sLocalDirectory = "/usr/pluto/C" + StringUtils::itos(m_dwPK_Device) + "/";
 #endif
                 if( !(bFileExists=FileUtils::FileExists(m_sLocalDirectory + Filename)) )
                 {
-                    m_sLocalDirectory = "C" + StringUtils::itos(m_DeviceID) + "/";
+                    m_sLocalDirectory = "C" + StringUtils::itos(m_dwPK_Device) + "/";
                     if( !(bFileExists=FileUtils::FileExists(m_sLocalDirectory + Filename)) )
                     {
-                        m_sLocalDirectory = "../C" + StringUtils::itos(m_DeviceID) + "/";
+                        m_sLocalDirectory = "../C" + StringUtils::itos(m_dwPK_Device) + "/";
                         bFileExists=FileUtils::FileExists(m_sLocalDirectory + Filename);
                     }
                 }
@@ -1581,7 +1581,7 @@ void Orbiter::Initialize(GraphicType Type)
             int iSizeConfigFile=0;
 
             // We can't send it to the General Info virtual device since we won't have that until we get our config data
-            DCE::CMD_Request_File_Cat CMD_Request_File_Cat(m_DeviceID,DEVICECATEGORY_General_Info_Plugins_CONST,false, BL_SameHouse,"C" + StringUtils::itos(m_DeviceID) + "/" + Filename,
+            DCE::CMD_Request_File_Cat CMD_Request_File_Cat(m_dwPK_Device,DEVICECATEGORY_General_Info_Plugins_CONST,false, BL_SameHouse,"C" + StringUtils::itos(m_dwPK_Device) + "/" + Filename,
                 &pConfigFile,&iSizeConfigFile);
             SendCommand(CMD_Request_File_Cat);
 
@@ -1662,11 +1662,11 @@ void Orbiter::Initialize(GraphicType Type)
 
         m_pScreenHistory_Current->m_pLocationInfo = pLocationInfo_Initial;
 
-        DCE::CMD_Set_Current_User CMD_Set_Current_User(m_DeviceID,m_iPK_Device_OrbiterPlugIn,m_iPK_Users);
+        DCE::CMD_Set_Current_User CMD_Set_Current_User(m_dwPK_Device,m_dwPK_Device_OrbiterPlugIn,m_iPK_Users);
         SendCommand(CMD_Set_Current_User);
-        DCE::CMD_Set_Entertainment_Area CMD_Set_Entertainment_Area(m_DeviceID,m_iPK_Device_OrbiterPlugIn,pLocationInfo_Initial->PK_EntertainArea);
+        DCE::CMD_Set_Entertainment_Area CMD_Set_Entertainment_Area(m_dwPK_Device,m_dwPK_Device_OrbiterPlugIn,pLocationInfo_Initial->PK_EntertainArea);
         SendCommand(CMD_Set_Entertainment_Area);
-        DCE::CMD_Set_Current_Room CMD_Set_Current_Room(m_DeviceID,m_iPK_Device_OrbiterPlugIn,pLocationInfo_Initial->PK_Room);
+        DCE::CMD_Set_Current_Room CMD_Set_Current_Room(m_dwPK_Device,m_dwPK_Device_OrbiterPlugIn,pLocationInfo_Initial->PK_Room);
         SendCommand(CMD_Set_Current_Room);
 
         CMD_Display_OnOff("1");
@@ -1706,7 +1706,7 @@ void Orbiter::InitializeGrid(DesignObj_DataGrid *pObj)
 
     ++m_dwIDataGridRequestCounter;
 #ifdef DEBUG
-    g_pPlutoLogger->Write(LV_CONTROLLER,"Initializing grid: %d (%s) options: %s (# %d)",m_DeviceID,pObj->m_sGridID.c_str(),pObj->m_sOptions.c_str(),m_dwIDataGridRequestCounter);
+    g_pPlutoLogger->Write(LV_CONTROLLER,"Initializing grid: %d (%s) options: %s (# %d)",m_dwPK_Device,pObj->m_sGridID.c_str(),pObj->m_sOptions.c_str(),m_dwIDataGridRequestCounter);
 #endif
 
     // Don't populate if we're not passing in anything at this point
@@ -1716,7 +1716,7 @@ void Orbiter::InitializeGrid(DesignObj_DataGrid *pObj)
         bool bResponse;
         int iPK_Variable=0;
         string sValue_To_Assign;
-        DCE::CMD_Populate_Datagrid_MD CMD_Populate_Datagrid_MD(m_DeviceID, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse, StringUtils::itos(m_dwIDataGridRequestCounter),pObj->m_sGridID,
+        DCE::CMD_Populate_Datagrid_MD CMD_Populate_Datagrid_MD(m_dwPK_Device, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse, StringUtils::itos(m_dwIDataGridRequestCounter),pObj->m_sGridID,
             pObj->m_iPK_Datagrid,SubstituteVariables(pObj->m_sOptions,pObj,0,0),&iPK_Variable,&sValue_To_Assign,&bResponse);
         if( !SendCommand(CMD_Populate_Datagrid_MD) || !bResponse ) // wait for a response
             g_pPlutoLogger->Write(LV_CRITICAL,"Populate datagrid: %d failed",pObj->m_iPK_Datagrid);
@@ -1806,7 +1806,7 @@ bool Orbiter::ParseConfigurationData(GraphicType Type)
 
     /*
     // Send through event manager so it updates its value.  Event manager will pick a default user if this doesn't exist
-    Message *pMessage = new Message(m_DeviceID,m_DeviceID,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Set_Variable_CONST,2,
+    Message *pMessage = new Message(m_dwPK_Device,m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Set_Variable_CONST,2,
         COMMAND_Set_Variable_CONST,StringUtils::itos(VARIABLE_PK_USERS_CONST).c_str(),COMMANDPARAMETER_Value_To_Assign_CONST,Data_Get_PK_Users().c_str());
     GetEvents()->SendMessage(pMessage);
 
@@ -1814,7 +1814,7 @@ bool Orbiter::ParseConfigurationData(GraphicType Type)
 
     if( m_mapVariable[VARIABLE_EPG_GUIDE_VIEW_CONST]=="" )
     {
-        Message *pMessage = new Message(m_DeviceID,m_DeviceID,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Set_Variable_CONST,2,
+        Message *pMessage = new Message(m_dwPK_Device,m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Set_Variable_CONST,2,
             COMMAND_Set_Variable_CONST,StringUtils::itos(VARIABLE_EPG_GUIDE_VIEW_CONST).c_str(),
             COMMANDPARAMETER_Value_To_Assign_CONST,StringUtils::itos(DESIGNOBJ_MNUTVEPG1_CONST).c_str());
         GetEvents()->SendMessage(pMessage);
@@ -1823,7 +1823,7 @@ bool Orbiter::ParseConfigurationData(GraphicType Type)
     string sResult;
     string::size_type pos = 0;
 
-    pMessage = m_pcRequestSocket->SendReceiveMessage(new Message(m_DeviceID, DEVICEID_DCEROUTER, PRIORITY_NORMAL,
+    pMessage = m_pcRequestSocket->SendReceiveMessage(new Message(m_dwPK_Device, DEVICEID_DCEROUTER, PRIORITY_NORMAL,
         MESSAGETYPE_DEVICEGROUPS, 0, 0));
 
     if (pMessage)
@@ -1861,7 +1861,7 @@ bool Orbiter::ParseConfigurationData(GraphicType Type)
         }
     }
 
-    pMessage = m_pcRequestSocket->SendReceiveMessage(new Message(m_DeviceID, DEVICEID_DCEROUTER, PRIORITY_NORMAL,
+    pMessage = m_pcRequestSocket->SendReceiveMessage(new Message(m_dwPK_Device, DEVICEID_DCEROUTER, PRIORITY_NORMAL,
         MESSAGETYPE_FLOORPLAN_LAYOUT, 0, 0));
 
     if (pMessage)
@@ -1979,9 +1979,9 @@ int k=2;
     {
         string ID = pAction->m_ParameterList[COMMANDPARAMETER_ID_CONST];
         string Device = pAction->m_ParameterList[COMMANDPARAMETER_PK_Device_CONST];
-        GetEvents()->SendMessage(new Message(m_DeviceID, DEVICEID_DATAGRID, PRIORITY_NORMAL,
+        GetEvents()->SendMessage(new Message(m_dwPK_Device, DEVICEID_DATAGRID, PRIORITY_NORMAL,
             MESSAGETYPE_COMMAND, COMMAND_BIND_TO_DEVICE_STATUS_CONST, 4,
-            C_COMMANDPARAMETER_Orbiter_ID_CONST, StringUtils::itos(m_DeviceID).c_str(),
+            C_COMMANDPARAMETER_Orbiter_ID_CONST, StringUtils::itos(m_dwPK_Device).c_str(),
             COMMANDPARAMETER_PK_DesignObj_CONST, pObj->m_ObjectID.c_str(),
             COMMANDPARAMETER_ID_CONST, ID.c_str(),
             COMMANDPARAMETER_PK_Device_CONST, Device.c_str()));
@@ -2482,7 +2482,7 @@ bool Orbiter::RegionDown(int x, int y)
     if (m_pScreenHistory_Current  && m_pScreenHistory_Current->m_pObj->m_rPosition.Contains(x, y))
     {
 #ifdef LOG_MOUSE_CLICKS
-        g_pPlutoLogger->Write(LV_MOUSE_CLICKS, "./MessageSend localhost 0 %d 1 305 57 %d 58 %d",m_DeviceID,x,y);
+        g_pPlutoLogger->Write(LV_MOUSE_CLICKS, "./MessageSend localhost 0 %d 1 305 57 %d 58 %d",m_dwPK_Device,x,y);
 #endif
         DesignObj_Orbiter *pTopMostAnimatedObject=NULL;
 
@@ -2685,16 +2685,16 @@ void Orbiter::ExecuteCommandsInList(DesignObjCommandList *pDesignObjCommandList,
                 switch( pCommand->m_PK_DeviceTemplate )
                 {
                 case DEVICETEMPLATE_VirtDev_AppServer_CONST:
-                    pCommand->m_PK_Device=m_pScreenHistory_Current->m_pLocationInfo->m_iPK_Device_AppServer;
+                    pCommand->m_PK_Device=m_pScreenHistory_Current->m_pLocationInfo->m_dwPK_Device_AppServer;
                     break;
                 case DEVICETEMPLATE_VirtDev_Media_Plugin_CONST:
-                    pCommand->m_PK_Device=m_iPK_Device_MediaPlugIn;
+                    pCommand->m_PK_Device=m_dwPK_Device_MediaPlugIn;
                     break;
                 case DEVICETEMPLATE_VirtDev_Orbiter_Plugin_CONST:
-                    pCommand->m_PK_Device=m_iPK_Device_OrbiterPlugIn;
+                    pCommand->m_PK_Device=m_dwPK_Device_OrbiterPlugIn;
                     break;
                 case DEVICETEMPLATE_VirtDev_General_Info_Plugin_CONST:
-                    pCommand->m_PK_Device=m_iPK_Device_GeneralInfoPlugIn;
+                    pCommand->m_PK_Device=m_dwPK_Device_GeneralInfoPlugIn;
                     break;
                 }
                 if( pCommand->m_PK_Device==DEVICEID_NULL )
@@ -2756,7 +2756,7 @@ void Orbiter::ExecuteCommandsInList(DesignObjCommandList *pDesignObjCommandList,
                 bool bResponse;
                 int iPK_Variable=0;
                 string sValue_To_Assign;
-                DCE::CMD_Populate_Datagrid_MD CMD_Populate_Datagrid_MD(m_DeviceID, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse, StringUtils::itos(m_dwIDataGridRequestCounter),
+                DCE::CMD_Populate_Datagrid_MD CMD_Populate_Datagrid_MD(m_dwPK_Device, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse, StringUtils::itos(m_dwIDataGridRequestCounter),
                     GridID,atoi(pCommand->m_ParameterList[COMMANDPARAMETER_PK_Datagrid_CONST].c_str()),
                     SubstituteVariables(pCommand->m_ParameterList[COMMANDPARAMETER_Options_CONST],pObj,0,0),&iPK_Variable,&sValue_To_Assign,&bResponse);
                 if( !SendCommand(CMD_Populate_Datagrid_MD) || !bResponse ) // wait for a response
@@ -2767,7 +2767,7 @@ void Orbiter::ExecuteCommandsInList(DesignObjCommandList *pDesignObjCommandList,
                 continue; // processed this one ourselves
             }
 
-            Message *pThisMessage = new Message(m_DeviceID,pCommand->m_PK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,PK_Command,0);
+            Message *pThisMessage = new Message(m_dwPK_Device,pCommand->m_PK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,PK_Command,0);
             if( pCommand->m_PK_Device==DEVICEID_MASTERDEVICE )
                 pThisMessage->m_dwPK_Device_Template=pCommand->m_PK_DeviceTemplate;
             else if( pCommand->m_PK_Device==DEVICEID_CATEGORY )
@@ -2788,7 +2788,7 @@ void Orbiter::ExecuteCommandsInList(DesignObjCommandList *pDesignObjCommandList,
 
             if( pCommand->m_PK_Device==DEVICEID_HANDLED_INTERNALLY )
             {
-                pThisMessage->m_dwPK_Device_To = m_DeviceID; // So the handler will loop back to ourselves
+                pThisMessage->m_dwPK_Device_To = m_dwPK_Device; // So the handler will loop back to ourselves
                 ReceivedMessage(pThisMessage);
                 pThisMessage->m_dwPK_Device_To = DEVICEID_HANDLED_INTERNALLY;
 
@@ -2915,7 +2915,7 @@ string Orbiter::SubstituteVariables(string Input, DesignObj_Orbiter *pObj, int X
         if( Variable=="M" )
             Output += m_sMainMenu;
         else if( Variable=="!" )
-            Output += StringUtils::itos(m_DeviceID);
+            Output += StringUtils::itos(m_dwPK_Device);
         else if( Variable=="E" && m_pScreenHistory_Current && m_pScreenHistory_Current->m_pLocationInfo )
             Output += StringUtils::itos(m_pScreenHistory_Current->m_pLocationInfo->PK_EntertainArea);
         else if( Variable=="R" && m_pScreenHistory_Current && m_pScreenHistory_Current->m_pLocationInfo )
@@ -3057,7 +3057,7 @@ bool Orbiter::AcquireGrid(DesignObj_DataGrid *pObj, int GridCurCol, int GridCurR
         int size = 0;
         char *data = NULL;
 
-        DCE::CMD_Request_Datagrid_Contents_MD CMD_Request_Datagrid_Contents_MD(m_DeviceID, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse,
+        DCE::CMD_Request_Datagrid_Contents_MD CMD_Request_Datagrid_Contents_MD(m_dwPK_Device, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse,
                 StringUtils::itos(m_dwIDataGridRequestCounter),pObj->m_sGridID,GridCurRow,GridCurCol,
                 pObj->m_MaxRow,pObj->m_MaxCol,pObj->m_bKeepRowHeader,pObj->m_bKeepColHeader,true,&data,&size);
 
@@ -3165,7 +3165,7 @@ void Orbiter::GetVideoFrame(void *data)
 	if( !pObj->IsHidden() )
 	{
 		char *pBuffer=NULL;	int Size=0;  string sFormat;
-		DCE::CMD_Get_Video_Frame CMD_Get_Video_Frame(m_DeviceID, atoi(pObj->GetParameterValue(DESIGNOBJPARAMETER_Source_CONST).c_str()),"0", 0 /* stream */,pObj->m_rBackgroundPosition.Width,pObj->m_rBackgroundPosition.Height,&pBuffer,&Size,&sFormat);
+		DCE::CMD_Get_Video_Frame CMD_Get_Video_Frame(m_dwPK_Device, atoi(pObj->GetParameterValue(DESIGNOBJPARAMETER_Source_CONST).c_str()),"0", 0 /* stream */,pObj->m_rBackgroundPosition.Width,pObj->m_rBackgroundPosition.Height,&pBuffer,&Size,&sFormat);
 		if( SendCommand(CMD_Get_Video_Frame) && pBuffer )
 		{
 			CMD_Update_Object_Image(pObj->m_ObjectID, sFormat , pBuffer, Size,"");

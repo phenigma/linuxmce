@@ -42,7 +42,7 @@ class DCEGen : public MySqlHelper
 {
 	map<int,int> m_mapGeneratedDevices;  // Keep track of the devices we've already generated
 	string m_sGeneratedOutput,m_sTemplateInput,m_sTemplateOutput;
-	int m_iPK_DeviceTemplate;
+	int m_dwPK_DeviceTemplate;
 
 public:
 	Database_pluto_main m_dce;

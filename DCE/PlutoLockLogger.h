@@ -12,7 +12,7 @@ using namespace ::std;
 
 // We need a special safety lock here since we can't log to ourselves if we're in a deadlock
 #ifdef DEBUG
-	#define PLUTO_SAFETY_LOCK_LOGGER(x,y) PlutoLockLogger x(&y,m_iPK_Installation,__FILE__,__LINE__);
+	#define PLUTO_SAFETY_LOCK_LOGGER(x,y) PlutoLockLogger x(&y,m_dwPK_Installation,__FILE__,__LINE__);
 #else
 	#define PLUTO_SAFETY_LOCK_LOGGER(x,y) PlutoLockLogger x(&y);
 #endif

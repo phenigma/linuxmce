@@ -17,7 +17,7 @@ namespace DCE
 	{    
 	public:
 		string m_IPAddress;
-		int m_DeviceID;
+		int m_dwPK_Device;
 		clock_t m_clockTimeout;
 		bool m_bWatchdogRunning, m_bStopWatchdog;
 		pthread_t m_pThread;

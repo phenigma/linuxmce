@@ -167,9 +167,9 @@ void Media_Plugin::AddDeviceToEntertainArea(EntertainArea *pEntertainArea,Row_De
 	if( !pMediaDevice )
 	{
 		pMediaDevice = new MediaDevice(m_pRouter,pRow_Device);  // Nope, create it
-		m_mapMediaDevice[pMediaDevice->m_pDeviceData_Router->m_iPK_Device]=pMediaDevice;
+		m_mapMediaDevice[pMediaDevice->m_pDeviceData_Router->m_dwPK_Device]=pMediaDevice;
 	}
-	pEntertainArea->m_mapMediaDevice[pMediaDevice->m_pDeviceData_Router->m_iPK_Device]=pMediaDevice;
+	pEntertainArea->m_mapMediaDevice[pMediaDevice->m_pDeviceData_Router->m_dwPK_Device]=pMediaDevice;
 
 	// todo 2.0, go through the pipes and all parent and child devices to the ent area also
 }
@@ -183,7 +183,7 @@ bool Media_Plugin::MediaInserted(class Socket *pSocket,class Message *pMessage,c
 
 	// First figure out what entertainment area this corresponds to.  We are expecting that whatever media player is running on this pc will have
 	// added the disc drive to it's entertainment area when it registered
-	MediaDevice *pMediaDevice = m_mapMediaDevice_Find( pDeviceFrom->m_iPK_Device );
+	MediaDevice *pMediaDevice = m_mapMediaDevice_Find( pDeviceFrom->m_dwPK_Device );
 	if( !pMediaDevice )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Got a media inserted event from a drive that isn't a media device");
@@ -204,7 +204,7 @@ bool Media_Plugin::MediaInserted(class Socket *pSocket,class Message *pMessage,c
 	List_MediaPluginInfo *pList_MediaPluginInfo = pEntertainArea->m_mapMediaPluginInfo_MediaType_Find(PK_MediaType);
 	if( !pList_MediaPluginInfo || pList_MediaPluginInfo->size()==0 )
 	{
-		g_pPlutoLogger->Write(LV_WARNING,"Media inserted from device %d but nothing to handle it",pDeviceFrom->m_iPK_Device);
+		g_pPlutoLogger->Write(LV_WARNING,"Media inserted from device %d but nothing to handle it",pDeviceFrom->m_dwPK_Device);
 		return false;  // Let someone else handle it
 	}
 
@@ -214,7 +214,7 @@ bool Media_Plugin::MediaInserted(class Socket *pSocket,class Message *pMessage,c
 		MediaPluginInfo *pMediaPluginInfo = *itMPI;
 		if( pMediaPluginInfo->m_bUsesRemovableMedia )  // todo - hack --- this should be a list of removable media devices
 		{
-			StartMedia(pMediaPluginInfo,0 /* no orbiter originated this */,pEntertainArea,pDeviceFrom->m_iPK_Device,0,MRL);  // We'll let the plug-in figure out the source, and we'll use the default remote
+			StartMedia(pMediaPluginInfo,0 /* no orbiter originated this */,pEntertainArea,pDeviceFrom->m_dwPK_Device,0,MRL);  // We'll let the plug-in figure out the source, and we'll use the default remote
 			return true;
 		}
 	}
@@ -280,13 +280,13 @@ bool Media_Plugin::StartMedia(MediaPluginInfo *pMediaPluginInfo,int PK_Device_Or
 #pragma warning("implement bound to media remote")
 				if( pMediaStream->m_pOH_Orbiter==pOH_Orbiter ) //|| pOH_Orbiter->boundtomediaremote )
 				{
-					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_DeviceID,pOH_Orbiter->m_pDeviceData_Router->m_iPK_Device,0,
+					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
 						StringUtils::itos(pMediaStream->m_iPK_DesignObj_Remote),"","",false);
 					SendCommand(CMD_Goto_Screen);
 				}
 				else
 				{
-					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_DeviceID,pOH_Orbiter->m_pDeviceData_Router->m_iPK_Device,0,
+					DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
 						StringUtils::itos(pMediaStream->m_iPK_DesignObj_Remote),"","",false);
 					SendCommand(CMD_Goto_Screen);
 				}
@@ -316,7 +316,7 @@ class DataGridTable *Media_Plugin::CurrentMedia(string GridID,string Parms,void 
 	{
 		pMediaStream->UpdateDescriptions();
 		pCell = new DataGridCell("Now playing: " + pMediaStream->m_sMediaDescription,"");
-		DCE::CMD_MH_Send_Me_To_Remote CMD_MH_Send_Me_To_Remote(pMessage->m_dwPK_Device_From,m_DeviceID);
+		DCE::CMD_MH_Send_Me_To_Remote CMD_MH_Send_Me_To_Remote(pMessage->m_dwPK_Device_From,m_dwPK_Device);
 		pCell->m_pMessage = CMD_MH_Send_Me_To_Remote.m_pMessage;
 		pDataGrid->SetData(0,Row++,pCell);
 	}
@@ -362,12 +362,12 @@ bool Media_Plugin::ReceivedMessage(class Message *pMessage)
 
 		// We know it's derived from CommandImpl
 		class Command_Impl *pPlugIn = pEntertainArea->m_pMediaStream->m_pMediaPluginInfo->m_pCommand_Impl;
-		pMessage->m_dwPK_Device_To=pPlugIn->m_DeviceID;
+		pMessage->m_dwPK_Device_To=pPlugIn->m_dwPK_Device;
 		if( !pPlugIn->ReceivedMessage(pMessage) )
 		{
-g_pPlutoLogger->Write(LV_STATUS,"Media plug in did not handled message id: %d forwarding to %d",pMessage->m_dwID,pEntertainArea->m_pMediaStream->m_iPK_Device);
+g_pPlutoLogger->Write(LV_STATUS,"Media plug in did not handled message id: %d forwarding to %d",pMessage->m_dwID,pEntertainArea->m_pMediaStream->m_dwPK_Device);
 			// The plug-in doesn't know what to do with it either.  Send the message to the actual media device
-			pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_iPK_Device;
+			pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_dwPK_Device;
 #pragma warning("received dcemessage should take a bool bdon't delete in or something so we don't need to copy he message");
 Message *pNewMessage = new Message(pMessage);
 			QueueMessage(pNewMessage);
@@ -462,9 +462,9 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string 
 		for(map<int,class MediaDevice *>::iterator itDevice=pEntertainArea->m_mapMediaDevice.begin();itDevice!=pEntertainArea->m_mapMediaDevice.end();++itDevice)
 		{
 			class MediaDevice *pMediaDevice = (*itDevice).second;
-			if( pMediaDevice->m_pDeviceData_Router->m_iPK_DeviceCategory==DEVICECATEGORY_Disc_Drives_CONST )
+			if( pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceCategory==DEVICECATEGORY_Disc_Drives_CONST )
 			{
-				DCE::CMD_Reset_Disk_Drive CMD_Reset_Disk_Drive(m_DeviceID, pMediaDevice->m_pDeviceData_Router->m_iPK_Device);
+				DCE::CMD_Reset_Disk_Drive CMD_Reset_Disk_Drive(m_dwPK_Device, pMediaDevice->m_pDeviceData_Router->m_dwPK_Device);
 				SendCommand(CMD_Reset_Disk_Drive);
 			}
 		}
@@ -558,7 +558,7 @@ void Media_Plugin::CMD_MH_Send_Me_To_Remote(string &sCMD_Result,Message *pMessag
 	if( !pEntertainArea || !pEntertainArea->m_pMediaStream )
 		return;  // Don't know what area it should be played in, or there's no media playing there
 
-	DCE::CMD_Goto_Screen CMD_Goto_Screen(m_DeviceID,pMessage->m_dwPK_Device_From,0,StringUtils::itos(pEntertainArea->m_pMediaStream->m_iPK_DesignObj_Remote),"","",false);
+	DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pMessage->m_dwPK_Device_From,0,StringUtils::itos(pEntertainArea->m_pMediaStream->m_iPK_DesignObj_Remote),"","",false);
 	SendCommand(CMD_Goto_Screen,0);
 }
 //<-dceag-c74-b->
@@ -601,15 +601,15 @@ void Media_Plugin::CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,
 	}
 
 	if( !atoi(sOnOff.c_str()) ) // Off
-		pEntertainArea->m_mapBoundRemote_Remove(pOH_Orbiter->m_pDeviceData_Router->m_iPK_Device);
+		pEntertainArea->m_mapBoundRemote_Remove(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 	else
 	{
 
-		BoundRemote *pBoundRemote=pEntertainArea->m_mapBoundRemote_Find(pOH_Orbiter->m_pDeviceData_Router->m_iPK_Device);
+		BoundRemote *pBoundRemote=pEntertainArea->m_mapBoundRemote_Find(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
 		if( !pBoundRemote )
 		{
 			pBoundRemote = new BoundRemote(this);
-			pEntertainArea->m_mapBoundRemote[pOH_Orbiter->m_pDeviceData_Router->m_iPK_Device]=pBoundRemote;
+			pEntertainArea->m_mapBoundRemote[pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device]=pBoundRemote;
 		}
 		pBoundRemote->m_pOH_Orbiter = pOH_Orbiter;
 		pBoundRemote->m_pEntertainArea = pEntertainArea;

@@ -13,7 +13,7 @@ namespace DCE
 	class ServerSocket : public Socket
 	{
 	public:
-		int m_DeviceID, m_bFlaggedForClosure;
+		int m_dwPK_Device, m_bFlaggedForClosure;
 		pluto_pthread_mutex_t m_ConnectionMutex;
 		pthread_t m_ClientThreadID;
 

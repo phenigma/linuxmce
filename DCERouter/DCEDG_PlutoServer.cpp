@@ -41,7 +41,7 @@ class DataGridTable *DCEMI_PS_VirtualDevices::PopulateWithDevicesCommands(string
 		if( ptrController )
 			ptrController->SetVariable(VARIABLE_PK_DEVICE_CONST,StringUtils::itos(PK_Device).c_str());
 
-		IRInformation *pIRInformation = m_mapIRInformation_Find(pDevice->m_iPK_Device);
+		IRInformation *pIRInformation = m_mapIRInformation_Find(pDevice->m_dwPK_Device);
 
 		for(size_t i=0;i<=pDevice->m_iNumberCommands;++i)
 		{
@@ -192,11 +192,11 @@ class DataGridTable *DCEMI_PS_VirtualDevices::PopulateWithDevicesCommands(string
 			string Description="";
 			int PK_Room = atoi(row[1]);
 			DeviceData_Router *pDevice = m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
-			IRInformation *pIRInformation = m_mapIRInformation_Find(pDevice->m_iPK_Device);
+			IRInformation *pIRInformation = m_mapIRInformation_Find(pDevice->m_dwPK_Device);
 
 			if( Type==2 && !pIRInformation )
 				continue;
-			else if( Type==3 && (pIRInformation || pDevice->m_iPK_DeviceCategory==DEVICECATEGORY_LIGHTS_CONST) )
+			else if( Type==3 && (pIRInformation || pDevice->m_dwPK_DeviceCategory==DEVICECATEGORY_LIGHTS_CONST) )
 				continue;
 
 			if( PK_Room!=LastRoom )
@@ -1021,7 +1021,7 @@ class DataGridTable *DCEMI_PS_VirtualDevices::PopulateWithSpecialCommands(string
 				for(int i=0;i<(int) pResetAV->pDevice->m_vectSpecialCommands.size();++i)
 				{
 					Command *a = pResetAV->pDevice->m_vectSpecialCommands[i];
-					Message *pMessage = new Message(PK_Controller,pResetAV->pDevice->m_iPK_Device,
+					Message *pMessage = new Message(PK_Controller,pResetAV->pDevice->m_dwPK_Device,
 						PRIORITY_NORMAL,MESSAGETYPE_COMMAND,a->m_iPK_Command,0);
 					if( listCommands )
 					{
@@ -1075,7 +1075,7 @@ class DataGridTable *DCEMI_PS_VirtualDevices::PopulateWithResetAV(string GridID,
 	MediaStream *pStream=NULL;
 	bool bLiveTV=false;
 
-	if( pDevice->m_iPK_DeviceTemplate==DEVICETEMPLATE_LINPHONE_CONST )
+	if( pDevice->m_dwPK_DeviceTemplate==DEVICETEMPLATE_LINPHONE_CONST )
 	{
 		pDevice = m_pCore->m_pPlutoEvents->FindSibling(pDevice,DEVICETEMPLATE_XINE_CONST);
 	}
@@ -1119,7 +1119,7 @@ class DataGridTable *DCEMI_PS_VirtualDevices::PopulateWithResetAV(string GridID,
 			if( pStream->Getm_pEntGroup_Primary()->m_bRealtime && pProvider->m_PK_Device_TuningLive )
 			{
 				pDevice = m_pRouter->m_mapDeviceData_Router_Find(pProvider->m_PK_Device_TuningLive);
-				if( !pDevice->m_iPK_Device_Audio && !pDevice->m_iPK_Device_Video )
+				if( !pDevice->m_dwPK_Device_Audio && !pDevice->m_dwPK_Device_Video )
 				{
 					// If there are no audio/video devices, uses xine
 					pDevice = pStream->Getm_pEntGroup_Primary()->m_ptrXine;
@@ -1138,8 +1138,8 @@ class DataGridTable *DCEMI_PS_VirtualDevices::PopulateWithResetAV(string GridID,
 
 
 	// Don't reset any of the software modules
-	if( pDevice->m_iPK_DeviceCategory!=DEVICECATEGORY_SOFTWARE_MODULE_CONST )
-		(*mapResetAV)[pDevice->m_iPK_Device]=new ResetAV(pDevice,0,0,0);
+	if( pDevice->m_dwPK_DeviceCategory!=DEVICECATEGORY_SOFTWARE_MODULE_CONST )
+		(*mapResetAV)[pDevice->m_dwPK_Device]=new ResetAV(pDevice,0,0,0);
    
 	if( pStream && pStream->m_pEntGroupOption )
 	{
@@ -1157,27 +1157,27 @@ class DataGridTable *DCEMI_PS_VirtualDevices::PopulateWithResetAV(string GridID,
 	}
 
 	DeviceData_Router *pTempDevice = pDevice;
-	while( pTempDevice->m_iPK_Device_Audio )
+	while( pTempDevice->m_dwPK_Device_Audio )
 	{
 		int Input = pTempDevice->m_iPK_Input_Audio;
-		pTempDevice = m_pRouter->m_mapDeviceData_Router_Find(pTempDevice->m_iPK_Device_Audio);
+		pTempDevice = m_pRouter->m_mapDeviceData_Router_Find(pTempDevice->m_dwPK_Device_Audio);
 		g_pPlutoLogger->Write(LV_STATUS,"Adding device %s for audio",(pTempDevice ? pTempDevice->m_sDescription.c_str() : "**NOTHING**"));
-		ResetAV *pRAV = (*mapResetAV)[pTempDevice->m_iPK_Device];
+		ResetAV *pRAV = (*mapResetAV)[pTempDevice->m_dwPK_Device];
 		if( !pRAV )
-			(*mapResetAV)[pTempDevice->m_iPK_Device]=new ResetAV(pTempDevice,Input,0,0);
+			(*mapResetAV)[pTempDevice->m_dwPK_Device]=new ResetAV(pTempDevice,Input,0,0);
 		else
 			pRAV->PK_Input=Input;
 	};
 
 	pTempDevice = pDevice;
-	while( pTempDevice->m_iPK_Device_Video )
+	while( pTempDevice->m_dwPK_Device_Video )
 	{
 		int Input = pTempDevice->m_iPK_Input_Video;
-		pTempDevice = m_pRouter->m_mapDeviceData_Router_Find(pTempDevice->m_iPK_Device_Video);
+		pTempDevice = m_pRouter->m_mapDeviceData_Router_Find(pTempDevice->m_dwPK_Device_Video);
 		g_pPlutoLogger->Write(LV_STATUS,"Adding device %s for video",(pTempDevice ? pTempDevice->m_sDescription.c_str() : "**NOTHING**"));
-		ResetAV *pRAV = (*mapResetAV)[pTempDevice->m_iPK_Device];
+		ResetAV *pRAV = (*mapResetAV)[pTempDevice->m_dwPK_Device];
 		if( !pRAV )
-			(*mapResetAV)[pTempDevice->m_iPK_Device]=new ResetAV(pTempDevice,Input,0,0);
+			(*mapResetAV)[pTempDevice->m_dwPK_Device]=new ResetAV(pTempDevice,Input,0,0);
 		else
 			pRAV->PK_Input=Input;
 	};
@@ -1232,15 +1232,15 @@ class DataGridTable *DCEMI_PS_VirtualDevices::PopulateWithResetAV(string GridID,
 		ResetAV *pResetAV=(*itMap).second;
 		g_pPlutoLogger->Write(LV_STATUS,"Device %s",(pResetAV->pDevice ? pResetAV->pDevice->m_sDescription.c_str() : "*none*"));
 		if( pResetAV && pResetAV->pDevice && !pResetAV->pDevice->m_pDevice_SlaveTo &&
-			(pResetAV->pDevice->m_iPK_DeviceTemplate!=DEVICETEMPLATE_XINE_CONST &&
-			 pResetAV->pDevice->m_iPK_DeviceTemplate!=DEVICETEMPLATE_LINPHONE_CONST &&
-			 pResetAV->pDevice->m_iPK_DeviceCategory!=DEVICECATEGORY_SOFTWARE_MODULE_CONST &&
-			 pResetAV->pDevice->m_iPK_DeviceCategory!=DEVICECATEGORY_HTPC_CONST &&
-			 pResetAV->pDevice->m_iPK_DeviceCategory!=DEVICECATEGORY_SERVER_CONST
+			(pResetAV->pDevice->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_XINE_CONST &&
+			 pResetAV->pDevice->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_LINPHONE_CONST &&
+			 pResetAV->pDevice->m_dwPK_DeviceCategory!=DEVICECATEGORY_SOFTWARE_MODULE_CONST &&
+			 pResetAV->pDevice->m_dwPK_DeviceCategory!=DEVICECATEGORY_HTPC_CONST &&
+			 pResetAV->pDevice->m_dwPK_DeviceCategory!=DEVICECATEGORY_SERVER_CONST
 			)
 		  )
 		{
-			Message *pMessage=new Message(DEVICEID_EVENTMANAGER,pResetAV->pDevice->m_iPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,
+			Message *pMessage=new Message(DEVICEID_EVENTMANAGER,pResetAV->pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,
 				COMMAND_GEN_ON_CONST,2,C_COMMANDPARAMETER_RESEND_IR_CONST,"1",C_COMMANDPARAMETER_DONT_SET_INPUTS_CONST, "7");
 			if( listCommands )
 			{
@@ -1266,7 +1266,7 @@ class DataGridTable *DCEMI_PS_VirtualDevices::PopulateWithResetAV(string GridID,
 			PK_Command = pResetAV->pDevice->m_mapInputs[pResetAV->PK_Input];
 
 			string Description="";
-			Message *pMessage=m_pCore->GetCommandForInput(pResetAV->pDevice->m_iPK_Device,pResetAV->PK_Input);
+			Message *pMessage=m_pCore->GetCommandForInput(pResetAV->pDevice->m_dwPK_Device,pResetAV->PK_Input);
 			pMessage->m_mapParameters[C_COMMANDPARAMETER_RESEND_IR_CONST]="1";
 
 			if( PK_Command!=0 )
@@ -1310,13 +1310,13 @@ class DataGridTable *DCEMI_PS_VirtualDevices::PopulateWithResetAV(string GridID,
 				Command *pCommand = m_pRouter->m_mapCommand[PK_Command];
 				Description = pCommand ? pCommand->m_sDescription : "";
 
-				pMessage=new Message(DEVICEID_EVENTMANAGER,pResetAV->pDevice->m_iPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,
+				pMessage=new Message(DEVICEID_EVENTMANAGER,pResetAV->pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,
 					PK_Command,1,C_COMMANDPARAMETER_RESEND_IR_CONST,"1");
 			}
 			else
 			{
 				Description = "DSP Mode#" + StringUtils::itos(pResetAV->PK_DSPMode);
-				pMessage=new Message(DEVICEID_EVENTMANAGER,pResetAV->pDevice->m_iPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,
+				pMessage=new Message(DEVICEID_EVENTMANAGER,pResetAV->pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,
 					COMMAND_AV_DSP_MODE_CONST,2,COMMANDPARAMETER_ID_CONST, StringUtils::itos(pResetAV->PK_DSPMode).c_str(),C_COMMANDPARAMETER_RESEND_IR_CONST,"1");
 			}
 			if( listCommands )
@@ -1342,7 +1342,7 @@ class DataGridTable *DCEMI_PS_VirtualDevices::PopulateWithResetAV(string GridID,
 			Command *pCommand = m_pRouter->m_mapCommand[pResetAV->PK_Command];
 			string Description = pCommand ? pCommand->m_sDescription : "";
 
-			Message *pMessage=new Message(DEVICEID_EVENTMANAGER,pResetAV->pDevice->m_iPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,
+			Message *pMessage=new Message(DEVICEID_EVENTMANAGER,pResetAV->pDevice->m_dwPK_Device,PRIORITY_NORMAL,MESSAGETYPE_COMMAND,
 				pResetAV->PK_Command,0);
 
 			if( listCommands )

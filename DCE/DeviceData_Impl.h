@@ -1,5 +1,15 @@
-#ifndef DeviceData_Impl_h
-#define DeviceData_Impl_h
+/**
+ *
+ * @file DeviceData_Impl.h
+ * @brief header file for the DeviceData_Impl classe
+ * @author
+ * @todo notcommented
+ *
+ */
+ 
+
+#ifndef DEVICEDATA_IMPL_h
+#define DEVICEDATA_IMPL_h
 
 #include "Event_Impl.h"
 #include "Message.h"
@@ -10,115 +20,109 @@
 
 namespace DCE
 {
+
 	typedef vector<class DeviceData_Impl *> VectDeviceData_Impl;
 
+	/**
+	 * @brief containes the actual device data
+	 * from this we derive the class containing data for each specific device
+	 * @see DeviceData_Base class
+	 */
 	class DeviceData_Impl : public DeviceData_Base
 	{
+	
 	public:
-		Event_Impl *m_pEvent_Impl;
-		map<int, string> m_mapParameters;
-		string mapParameters_Find(int PK_DeviceData)
+	
+		string m_sDescription; /** < freeform description for the device */
+		Event_Impl *m_pEvent_Impl; /** < pointer to an event implementation assicieted with the current device @todo ask */
+		map<int, string> m_mapParameters; /** < integer-keyed map with the parameters this device has @todo ask - is string=paramvalue? */
+		
+		VectDeviceData_Impl m_vectDeviceData_Impl_Children; /** < vector containing the child devices  */
+
+		/**
+		 * @brief default constructor
+		 */
+		DeviceData_Impl() {}
+		
+		/**
+		 * @brief constructor, it just assigns values to the member data (and calls the base class constructor)
+		 */
+		DeviceData_Impl( unsigned long dwPK_Device, unsigned long dwPK_Installation, unsigned long dwPK_Device_Template, unsigned long  dwPK_Device_Controlled_Via, 
+			unsigned long m_dwPK_DeviceCategory, unsigned long dwPK_Room, bool bImplementsDCE, bool bIsEmbedded, string sCommandLine, bool bIsPlugIn, string sDescription,
+			string sIPAddress, string sMacAddress )
+			: DeviceData_Base( dwPK_Device, dwPK_Installation, dwPK_Device_Template, dwPK_Device_Controlled_Via, m_dwPK_DeviceCategory, dwPK_Room,
+			bImplementsDCE, bIsEmbedded, sCommandLine, bIsPlugIn, sIPAddress, sMacAddress )
 		{
-			map<int,string>::iterator it = m_mapParameters.find(PK_DeviceData);
-			return it==m_mapParameters.end() ? "" : (*it).second;
+			m_sDescription=sDescription;
+		}// TODO -- This should be pure virtual as below.  for some reason MS won't link when it's implemented in the auto-generated
+		// derived classes.  Got to figure out why.
+		//virtual class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition)=0;
+		
+		/**
+		 * @brief returnes the parameter value for the specified parameter
+		 */
+		string mapParameters_Find( int iPK_DeviceData )
+		{
+			map<int,string>::iterator it = m_mapParameters.find( iPK_DeviceData );
+			return it == m_mapParameters.end() ? "" : (*it).second;
 		}
 
-		string m_sDescription;
+		
+		/**
+		 * @brief should be overriden to return the description for the device as a char*
+		 */
 		virtual const char *GetDeviceDescription() { return NULL; };
-		VectDeviceData_Impl m_vectDeviceData_Impl_Children;  
-
+		
+		/**
+		 * @brief should be overriden to return the primary key for this device from the device list
+		 */
 		virtual int GetPK_DeviceList() { return 0; } ; 
-		DeviceData_Impl() {}
 
+		/**
+		 * @brief setups serialization for the class member data
+		 * @warning the m_vectDeviceData_Impl_Children vector is serialized custom
+		 * @see the overloads for the + operator
+		 */
 		void SetupSerialization()
 		{
 			DeviceData_Base::SetupSerialization();
 			StartSerializeList() + m_mapParameters;
 			(*this) + m_vectDeviceData_Impl_Children; // this is serialized custom
 		}
+		
+		/**
+		 * @returns "DeviceData_Impl" so that the SerializeClass knows what to serialize
+		 */		
 		virtual string SerializeClassClassName() { return "DeviceData_Impl"; }
-		// For our custom serialize types.
-		DeviceData_Impl &operator+ (VectDeviceData_Impl &i) { m_listItemToSerialize.push_back(new ItemToSerialize(SERIALIZE_DATA_TYPE_VECTOR_DEVICEDATA_IMPL,(void *) &i)); return (*this); }
+		
+		/** overloding + for our custom serialize types */
+		
+		/**
+		 * @brief adds a new ItemToSerialize to the m_listItemToSerialize list (the m_vectDeviceData_Impl_Children vector)
+		 */
+		DeviceData_Impl &operator+ ( VectDeviceData_Impl &i ) { m_listItemToSerialize.push_back( new ItemToSerialize( SERIALIZE_DATA_TYPE_VECTOR_DEVICEDATA_IMPL,(void *) &i ) ); return (*this); }
 
-		virtual bool UnknownSerialize(ItemToSerialize *pItem,bool bWriting,char *&pDataBlock,unsigned long &iAllocatedSize,char *&pCurrentPosition);
+		/**
+		 * @brief overrides the SerializeClass::UnknownSerialize method
+		 * @todo ask
+		 */
+		virtual bool UnknownSerialize( ItemToSerialize *pItem, bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition );
 
-		/*
-		DeviceData_Impl(char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition,int x)
-		: DeviceData_Base(pDataBlock,AllocatedSize,CurrentPosition,x)
+		/**
+		 * @brief should create a new DeviceData_Impl object based on the parameters
+		 * @warning this must be implemented in a derived class
+		 * @todo ask for more specific
+		 * @todo This should be pure virtual as below.  for some reason MS won't link when it's implemented in the auto-generated derived classes.  Got to figure out why.
+		 * virtual class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition)=0;
+		 */
+		virtual class DeviceData_Impl *CreateData( DeviceData_Impl *pParent, char *pcDataBlock, unsigned long dwAllocatedSize, char *pcCurrentPosition) { return NULL; }
+
+		/** 
+		 * @brief sets the specified value for the specified parameter
+		 */
+		virtual void SetParm( unsigned long dwParmNum, const char *pcParm ) 
 		{
-		Read_string(m_sDescription);
-
-		unsigned long NumParms = Read_unsigned_long();
-		for(unsigned long lP=0;lP<NumParms;++lP)
-		{
-		int ParmNum = Read_unsigned_long();
-		string Value;
-		Read_string(Value);
-		SetParm(ParmNum,Value.c_str());
-		}
-
-		unsigned long NumChildDevice = Read_unsigned_long();
-		for(unsigned long lC=0;lC<NumChildDevice;++lC)
-		{
-		DeviceData_Impl *ChildDevice = CreateData(this,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition);
-		m_vectDeviceData_Impl_Children.push_back(ChildDevice);
-		}
-		}
-		*/
-		DeviceData_Impl(unsigned long iPK_Device,unsigned long iPK_Installation,unsigned long iPK_DeviceTemplate,unsigned long  iPK_Device_ControlledVia, 
-			unsigned long m_iPK_DeviceCategory, unsigned long iPK_Room,bool bImplementsDCE,bool bIsEmbedded,string sCommandLine,bool bIsPlugIn,string sDescription,
-			string sIPAddress,string sMacAddress)
-			: DeviceData_Base(iPK_Device,iPK_Installation,iPK_DeviceTemplate,iPK_Device_ControlledVia,m_iPK_DeviceCategory,iPK_Room,
-			bImplementsDCE,bIsEmbedded,sCommandLine,bIsPlugIn,sIPAddress,sMacAddress)
-		{
-			m_sDescription=sDescription;
-		}
-
-		virtual ~DeviceData_Impl()
-		{
-		}
-		/*
-		void ConvertToBinary(char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition)
-		{
-		if( !pDataBlock )
-		{
-		StartWriting();
-		pDataBlock=m_pcDataBlock;
-		AllocatedSize=m_dwAllocatedSize;
-		CurrentPosition=m_pcCurrentPosition;
-
-		}
-
-		DeviceData_Base::ConvertToBinary(pDataBlock,AllocatedSize,CurrentPosition);
-
-		Write_string(m_sDescription);
-
-		Write_unsigned_long((unsigned long) m_mapParameters.size());
-		map<long, string>::iterator itParms;
-		for(itParms = m_mapParameters.begin();itParms != m_mapParameters.end();++itParms)
-		{
-		Write_unsigned_long( (*itParms).first );
-		Write_string( (*itParms).second );
-		}
-
-		Write_unsigned_long((unsigned long) m_vectDeviceData_Impl_Children.size());
-		for(unsigned long lC=0;lC<m_vectDeviceData_Impl_Children.size();++lC)
-		{
-		DeviceData_Impl *pChildDevice = m_vectDeviceData_Impl_Children[lC];
-		pChildDevice->ConvertToBinary(m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition);
-		m_pcCurrentPosition = pChildDevice->m_pcCurrentPosition;
-		m_dwAllocatedSize = pChildDevice->m_dwAllocatedSize;
-		}
-		}
-		*/
-		// TODO -- This should be pure virtual as below.  for some reason MS won't link when it's implemented in the auto-generated
-		// derived classes.  Got to figure out why.
-		//virtual class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition)=0;
-		virtual class DeviceData_Impl *CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition) { return NULL; }
-
-		virtual void SetParm(int ParmNum, const char *szParm) 
-		{
-			m_mapParameters[ParmNum]=szParm;
+			m_mapParameters[dwParmNum] = pcParm;
 		}
 	};
 }
