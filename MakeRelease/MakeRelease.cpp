@@ -788,6 +788,10 @@ AsksSourceQuests:
 	for(size_t s=0;s<vectRow_Package_Directory.size();++s)
 	{
 		Row_Package_Directory *pRow_Package_Directory = vectRow_Package_Directory[s];
+		if( (!pRow_Package_Directory->FK_Distro_isNull() && pRow_Package_Directory->FK_Distro_get()!=g_pRow_Distro->PK_Distro_get()) ||
+				(!pRow_Package_Directory->FK_OperatingSystem_isNull() && pRow_Package_Directory->FK_OperatingSystem_get()!=g_pRow_Distro->FK_OperatingSystem_get()) )
+			continue;
+
 		string sCompiledOutput = pRow_Package_Directory->Path_get();
 		string sSource;
 		if( pRow_Package_Directory->InputPath_get()!="" )

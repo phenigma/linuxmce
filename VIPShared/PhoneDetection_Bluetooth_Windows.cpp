@@ -67,13 +67,28 @@ bool PhoneDetection_Bluetooth_Windows::ScanningLoop()
 	for(itDevice=m_mapPhoneDevice_Detected.begin();itDevice!=m_mapPhoneDevice_Detected.end();)
 	{
 		class PhoneDevice *pD = (*itDevice).second;
-		
+/*
+lost_bluetooth 	connection_on	result
+1				0				1	
+1				1				0*  
+0				1				0	
+0				0				1	
+*/		
+
+#ifndef VIPESTABLISHMENT
+	if(!pD->m_bIsConnected)
+#else
+	map<u_int64_t,class PhoneDevice *>::iterator itDeviceNew = m_mapDevicesDetectedThisScan.find(pD->m_iMacAddress);
+	if( itDeviceNew==m_mapDevicesDetectedThisScan.end() 
+#endif
+/*
 		map<u_int64_t,class PhoneDevice *>::iterator itDeviceNew = m_mapDevicesDetectedThisScan.find(pD->m_iMacAddress);
 		if( itDeviceNew==m_mapDevicesDetectedThisScan.end() 
 #ifndef VIPESTABLISHMENT
 			|| !pD->m_bIsConnected 
 #endif
 		)
+*/
 		{
 			listDevicesLost.push_back( (*itDevice).second );
 			m_mapPhoneDevice_Detected.erase(itDevice++);

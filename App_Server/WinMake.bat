@@ -1,0 +1,1 @@
+devenv.exe /build %CONFIGURATION% App_Server.vcproj /out %LOG_PATH%\Build.log 
