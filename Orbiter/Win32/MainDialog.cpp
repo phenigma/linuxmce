@@ -5,6 +5,8 @@
 #include "Commdlg.h"
 #include "MultiThreadIncludes.h"
 
+#include "Simulator.h"
+
 #ifndef WINCE
 	#include "Commctrl.h"
 	#include "OrbiterSDL_Win32.h"
@@ -43,9 +45,6 @@ enum PageIndex
 DWORD OrbiterThreadId;
 DWORD PlayerThreadId;
 DWORD GeneratorThreadId;
-//-----------------------------------------------------------------------------------------------------
-bool g_bStopPlayerThread = false;
-bool g_bStopGeneratorThread = false;
 //-----------------------------------------------------------------------------------------------------
 // Global Variables:
 HINSTANCE			g_hInst;				// The current instance
@@ -117,9 +116,8 @@ void SetActivePage(int TabIndex);
 void RecordAction(const char* sAction);
 void RecordDelay();
 
-void PerformActionDelay(long delay);
-void PerformActionKeyPress(long key);
-void PerformActionMouseClick(int x, int y);
+void SaveUI_To_ConfigurationData();
+void LoadUI_From_ConfigurationData();
 //-----------------------------------------------------------------------------------------------------
 void OnRecord_Load();  
 void OnRecord_Save();  
@@ -130,6 +128,8 @@ void OnRandom_Generate();
 void OnRandom_Stop();
 
 void GetEditText(HWND hWndEdit, string& Text);
+
+bool g_bStopPlayerThread = false;
 //-----------------------------------------------------------------------------------------------------
 DWORD WINAPI OrbiterThread( LPVOID lpParameter);
 
@@ -181,6 +181,12 @@ DWORD WINAPI PlayerThread( LPVOID lpParameter)
 
 	int Count = (int)::SendMessage(g_hWndRecord_List, LB_GETCOUNT, 0L, 0L);
 
+#ifdef WINCE
+	OrbiterSDL_WinCE *pOrbiter = OrbiterSDL_WinCE::GetInstance();
+#else
+	OrbiterSDL_Win32 *pOrbiter = OrbiterSDL_Win32::GetInstance();
+#endif
+
 	while(Times--)
 	for(int i = 0; i < Count; i++)
 	{
@@ -210,7 +216,7 @@ DWORD WINAPI PlayerThread( LPVOID lpParameter)
 			string sDelay = StringUtils::Tokenize(sItemBuffer, " ", CurPos);
 			long delay = atoi(sDelay.c_str());
 
-			PerformActionDelay(delay);
+			Simulator::SimulateActionDelay(delay);
 		}
 		else
 			if(sAction == "button")
@@ -218,7 +224,8 @@ DWORD WINAPI PlayerThread( LPVOID lpParameter)
 				string sKey = StringUtils::Tokenize(sItemBuffer, " ", CurPos);
 				long key = atoi(sKey.c_str());
 
-				PerformActionKeyPress(key);
+				pOrbiter->SimulateKeyPress(key);
+				//PerformActionKeyPress(key);
 			}
 			else
 			{
@@ -230,110 +237,11 @@ DWORD WINAPI PlayerThread( LPVOID lpParameter)
 				string sClickY = StringUtils::Tokenize(sItemBuffer, " ", CurPos);
 				int y = atoi(sClickY.c_str());
 
-				PerformActionMouseClick(x, y);
+				pOrbiter->SimulateMouseClick(x, y);
 			}
 	}
 
 	return 0L;
-}
-//-----------------------------------------------------------------------------------------------------
-DWORD WINAPI GeneratorThread( LPVOID lpParameter)
-{
-	bool bGenerateMouseClicks = BST_CHECKED == ::SendMessage(g_hWndRandom_MouseCheckBox, BM_GETCHECK, 0, 0);
-	bool bGenerateKeyboardEvents = BST_CHECKED == ::SendMessage(g_hWndRandom_KeyboardCheckBox, BM_GETCHECK, 0, 0);
-
-	bool bOption1 = BST_CHECKED == ::SendMessage(g_hWndRandom_KeyOption1RadioBox, BM_GETCHECK, 0, 0);
-	bool bOption2 = BST_CHECKED == ::SendMessage(g_hWndRandom_KeyOption2RadioBox, BM_GETCHECK, 0, 0);
-	bool bOption3 = BST_CHECKED == ::SendMessage(g_hWndRandom_KeyOption3RadioBox, BM_GETCHECK, 0, 0);
-
-	string DelayMin;
-	GetEditText(g_hWndRandom_DelayMin, DelayMin);
-
-	string DelayMax;
-	GetEditText(g_hWndRandom_DelayMax, DelayMax);
-
-	string ButtonsPerClick;
-	GetEditText(g_hWndRandom_ButtonsPerClick, ButtonsPerClick);
-
-	string HomeScreen;
-	GetEditText(g_hWndRandom_HomeEdit, HomeScreen);
-
-	int iDelayMin = atoi(DelayMin.c_str());
-	int iDelayMax = atoi(DelayMax.c_str());
-	int iButtonsPerClick = atoi(ButtonsPerClick.c_str());
-
-	int x, y, delay;
-
-	srand( (unsigned)::GetTickCount() );
-
-	static Count = 0;
-
-	while(true)
-	{
-		if(g_bStopGeneratorThread)
-			return 0L;
-
-#ifdef WINCE
-	OrbiterSDL_WinCE *pOrbiter = OrbiterSDL_WinCE::GetInstance();
-#else
-	OrbiterSDL_Win32 *pOrbiter = OrbiterSDL_Win32::GetInstance();
-#endif
-	
-		if(clock() - pOrbiter->GetLastScreenChangedTime() > 60 * 60 * 1000) //1h
-			if(HomeScreen != "")    
-				pOrbiter->GotoScreen(HomeScreen);	
-
-		HWND hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);
-		
-		delay = iDelayMin + rand() % (iDelayMax - iDelayMin); 
-		PerformActionDelay(delay);
-
-		if(Count == iButtonsPerClick)
-		{
-			Count = 0;
-
-			x = rand() % SDL_WIDTH;
-			y = rand() % SDL_HEIGHT;			
-
-			PerformActionMouseClick(x, y);
-		}
-		else
-		{
-			Count++;
-			//generate keys events
-
-			if(bOption1)
-			{
-				int count = 0;
-				int list[128];
-
-				char c;
-				for(c = 'a'; c <= 'z'; c++)
-					list[count++] = c;
-
-				for(c = 'A'; c <= 'Z'; c++)
-					list[count++] = c;
-
-				for(c = '0'; c <= '9'; c++)
-					list[count++] = c;
-
-				int index = rand() % count;
-				PerformActionKeyPress(list[index]);
-			}
-			else if(bOption2)
-			{
-				int list[] = { VK_UP, VK_DOWN, VK_LEFT, VK_RIGHT, VK_RETURN };
-				int index = rand() % sizeof(list)/sizeof(list[0]);
-				PerformActionKeyPress(list[index]);
-			}
-			else if(bOption3)
-			{
-				int list[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '#' , 'c', 'n'};
-				int index = rand() % sizeof(list)/sizeof(list[0]);
-				PerformActionKeyPress(list[index]);
-			}
-		}
-	}
 }
 //-----------------------------------------------------------------------------------------------------
 //
@@ -585,6 +493,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				::SetWindowLong(g_hWndPage3, GWL_WNDPROC, reinterpret_cast<long>(PagesWndProc));
 
 				SetActivePage(piLogger);
+
+				LoadUI_From_ConfigurationData();
 			}
 			break;
 
@@ -908,26 +818,14 @@ void WriteStatusOutput(const char* pMessage)
 #else
 	#define MESSAGE pMessage
 #endif
-/*
-	string s = string(pMessage) + "\n";
-	FILE* f = fopen("logger.out", "a+");
-	fseek(f, 0, SEEK_END);
-	fwrite(s.c_str(), s.length(), 1, f);
-	fclose(f);*/
 
-#ifdef WINCE
-	::PostMessage(g_hWndList, LB_ADDSTRING, 0L, (LPARAM)MESSAGE);
+	const cTimeOutInterval = 50; //miliseconds
+	DWORD Count;
+	if(0 == ::SendMessageTimeout(g_hWndList, LB_ADDSTRING, 0L, (LPARAM)MESSAGE, SMTO_NORMAL, cTimeOutInterval, &Count))
+		return; //send message timed out
 
-	int Count = (int)::PostMessage(g_hWndList, LB_GETCOUNT, 0L, 0L);
-	::PostMessage(g_hWndList, LB_SETTOPINDEX, Count - 1, 0L);
-#else
-
-	::SendMessage(g_hWndList, LB_ADDSTRING, 0L, (LPARAM)MESSAGE);
-
-	int Count = (int)::SendMessage(g_hWndList, LB_GETCOUNT, 0L, 0L);
-	::SendMessage(g_hWndList, LB_SETTOPINDEX, Count - 1, 0L);
-
-#endif
+	DWORD Result;
+	::SendMessageTimeout(g_hWndList, LB_SETTOPINDEX, Count - 1, 0L, SMTO_NORMAL, cTimeOutInterval, &Result);
 }
 //-----------------------------------------------------------------------------------------------------
 void ShowMainDialog() //actually, hides the sdl window
@@ -946,13 +844,8 @@ void ShowMainDialog() //actually, hides the sdl window
 void ShowSDLWindow() 
 {
 	WriteStatusOutput("Showing SDL window...");
-
 	HWND hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);
-
 	::ShowWindow(hSDLWindow, SW_SHOWNORMAL);
-
-//	HWND hTaskBarWindow = ::FindWindow(TEXT("HHTaskBar"), NULL);
-//	::ShowWindow(hTaskBarWindow, SW_HIDE);
 }
 //-----------------------------------------------------------------------------------------------------
 void RecordAction(const char* sAction)
@@ -971,10 +864,13 @@ void RecordAction(const char* sAction)
 	#define MESSAGE_RECORD sAction
 #endif
 
-	::SendMessage(g_hWndRecord_List, LB_ADDSTRING, 0L, (LPARAM)MESSAGE_RECORD);
+	const cTimeOutInterval = 50; //miliseconds
+	DWORD Count;
+	if(0 == ::SendMessageTimeout(g_hWndRecord_List, LB_ADDSTRING, 0L, (LPARAM)MESSAGE_RECORD, SMTO_NORMAL, cTimeOutInterval, &Count))
+		return; //send message timed out
 
-	int Count = (int)::SendMessage(g_hWndRecord_List, LB_GETCOUNT, 0L, 0L);
-	::SendMessage(g_hWndRecord_List, LB_SETTOPINDEX, Count - 1, 0L);
+	DWORD Result;
+	::SendMessageTimeout(g_hWndRecord_List, LB_SETTOPINDEX, Count - 1, 0L, SMTO_NORMAL, cTimeOutInterval, &Result);
 }
 //-----------------------------------------------------------------------------------------------------
 void RecordDelay()
@@ -989,8 +885,14 @@ void RecordDelay()
 }
 //-----------------------------------------------------------------------------------------------------
 void RecordMouseAction(int x, int y)
-{
-	if(BST_CHECKED == ::SendMessage(g_hWndRecord_MouseCheckBox, BM_GETCHECK, 0, 0))
+{	
+	DWORD Result;
+	
+	if(0 == ::SendMessageTimeout(g_hWndRecord_MouseCheckBox, BM_GETCHECK, 0, 0, SMTO_NORMAL, 50, &Result))
+		return; //send message timed out
+
+
+	if(BST_CHECKED == Result)
 	{
 		if(bStartRecording)
 		{
@@ -1009,7 +911,13 @@ void RecordMouseAction(int x, int y)
 //-----------------------------------------------------------------------------------------------------
 void RecordKeyboardAction(long key)
 {
-	if(BST_CHECKED == ::SendMessage(g_hWndRecord_KeyboardCheckBox, BM_GETCHECK, 0, 0))
+	DWORD Result;
+	
+	if(0 == ::SendMessageTimeout(g_hWndRecord_KeyboardCheckBox, BM_GETCHECK, 0, 0, SMTO_NORMAL, 1000, &Result))
+		return; //send message timed out
+
+
+	if(BST_CHECKED == Result)
 	{
 		if(key == 121) //don't record key F10
 			return;
@@ -1180,23 +1088,12 @@ void OnRecord_Stop()
 	g_bStopPlayerThread = true;
 }
 //-----------------------------------------------------------------------------------------------------
-void PerformActionDelay(long delay)
-{
-	Sleep(delay);
-}
-//-----------------------------------------------------------------------------------------------------
 void PerformActionKeyPress(long key)
 {
 	HWND hSDLWindow = ::FindWindow(TEXT("SDL_app"), NULL);
 
 	::SendMessage(hSDLWindow, WM_KEYDOWN, key, 0L);
 	::SendMessage(hSDLWindow, WM_KEYUP, key, 0L);
-/*
-	INPUT Input;
-	::ZeroMemory(&Input, sizeof(Input));
-	Input.ki.wVk = key;
-	::SendInput(1, &Input, sizeof(INPUT));
-*/
 
 	RECT rc = { 5, SDL_HEIGHT - 20, 200, SDL_HEIGHT - 1};
 
@@ -1237,14 +1134,16 @@ void OnRandom_Generate()
 	WriteStatusOutput("RANDOM: GENERATE");
 	ShowSDLWindow();
 
-	g_bStopGeneratorThread = false;
-	::CreateThread(NULL, 0, GeneratorThread, 0, 0, &GeneratorThreadId);
+	SaveUI_To_ConfigurationData();
+
+	Simulator::GetInstance()->StartRandomEventGenerator();
 }
 //-----------------------------------------------------------------------------------------------------
 void OnRandom_Stop()
 {
 	WriteStatusOutput("RANDOM: STOP");
-	g_bStopGeneratorThread = true;	
+
+	Simulator::GetInstance()->StopRandomEventGenerator();
 }
 //-----------------------------------------------------------------------------------------------------
 void GetEditText(HWND hWndEdit, string& Text)
@@ -1287,6 +1186,76 @@ void GetEditText(HWND hWndEdit, string& Text)
 #else
 	Text = lpstrFile;
 #endif
+}
+//-----------------------------------------------------------------------------------------------------
+void SaveUI_To_ConfigurationData()
+{
+	bool bGenerateMouseClicks = BST_CHECKED == ::SendMessage(g_hWndRandom_MouseCheckBox, BM_GETCHECK, 0, 0);
+	bool bGenerateKeyboardEvents = BST_CHECKED == ::SendMessage(g_hWndRandom_KeyboardCheckBox, BM_GETCHECK, 0, 0);
+
+	bool bOption1 = BST_CHECKED == ::SendMessage(g_hWndRandom_KeyOption1RadioBox, BM_GETCHECK, 0, 0);
+	bool bOption2 = BST_CHECKED == ::SendMessage(g_hWndRandom_KeyOption2RadioBox, BM_GETCHECK, 0, 0);
+	bool bOption3 = BST_CHECKED == ::SendMessage(g_hWndRandom_KeyOption3RadioBox, BM_GETCHECK, 0, 0);
+
+	string DelayMin;
+	GetEditText(g_hWndRandom_DelayMin, DelayMin);
+
+	string DelayMax;
+	GetEditText(g_hWndRandom_DelayMax, DelayMax);
+
+	string ButtonsPerClick;
+	GetEditText(g_hWndRandom_ButtonsPerClick, ButtonsPerClick);
+
+	string HomeScreen;
+	GetEditText(g_hWndRandom_HomeEdit, HomeScreen);
+
+	Simulator::GetInstance()->m_dwDelayMin = atoi(DelayMin.c_str());
+	Simulator::GetInstance()->m_dwDelayMax = atoi(DelayMax.c_str());
+	Simulator::GetInstance()->m_iNumberOfButtonsPerClick = atoi(ButtonsPerClick.c_str());
+	Simulator::GetInstance()->m_bGenerateMouseClicks = bGenerateMouseClicks;
+	Simulator::GetInstance()->m_bGenerateKeyboardEvents = bGenerateKeyboardEvents;
+	Simulator::GetInstance()->m_iKeysSetToGenerate = bOption2 * 1 + bOption3 * 2;
+	Simulator::GetInstance()->m_sHomeScreen = HomeScreen;
+}
+//-----------------------------------------------------------------------------------------------------
+void LoadUI_From_ConfigurationData()
+{
+	::SendMessage(g_hWndRandom_MouseCheckBox, BM_SETCHECK, 
+		Simulator::GetInstance()->m_bGenerateMouseClicks ? BST_CHECKED : BST_UNCHECKED, 0);
+	::SendMessage(g_hWndRandom_KeyboardCheckBox, BM_SETCHECK, 
+		Simulator::GetInstance()->m_bGenerateKeyboardEvents ? BST_CHECKED : BST_UNCHECKED, 0);
+
+#ifdef WINCE
+	wchar_t wTextBuffer[MAX_STRING_LEN];
+
+	mbstowcs(wTextBuffer, StringUtils::ltos(Simulator::GetInstance()->m_dwDelayMin).c_str(), MAX_STRING_LEN);
+	::SetWindowText(g_hWndRandom_DelayMin, wTextBuffer);
+
+	mbstowcs(wTextBuffer, StringUtils::ltos(Simulator::GetInstance()->m_dwDelayMax).c_str(), MAX_STRING_LEN);
+	::SetWindowText(g_hWndRandom_DelayMax, wTextBuffer);
+
+	mbstowcs(wTextBuffer, StringUtils::ltos(Simulator::GetInstance()->m_iNumberOfButtonsPerClick).c_str(), MAX_STRING_LEN);
+	::SetWindowText(g_hWndRandom_ButtonsPerClick, wTextBuffer);
+
+	mbstowcs(wTextBuffer, Simulator::GetInstance()->m_sHomeScreen.c_str(), MAX_STRING_LEN);
+	::SetWindowText(g_hWndRandom_HomeEdit, wTextBuffer);
+#else
+	::SetWindowText(g_hWndRandom_DelayMin, 
+		StringUtils::ltos(Simulator::GetInstance()->m_dwDelayMin).c_str());
+	::SetWindowText(g_hWndRandom_DelayMax, 
+		StringUtils::ltos(Simulator::GetInstance()->m_dwDelayMax).c_str());
+	::SetWindowText(g_hWndRandom_ButtonsPerClick, 
+		StringUtils::ltos(Simulator::GetInstance()->m_iNumberOfButtonsPerClick).c_str());
+
+	::SetWindowText(g_hWndRandom_HomeEdit, Simulator::GetInstance()->m_sHomeScreen.c_str());
+#endif
+
+	switch(Simulator::GetInstance()->m_iKeysSetToGenerate)
+	{
+		case 0: ::SendMessage(g_hWndRandom_KeyOption1RadioBox, BM_SETCHECK, BST_CHECKED, 0); break;
+		case 1: ::SendMessage(g_hWndRandom_KeyOption2RadioBox, BM_SETCHECK, BST_CHECKED, 0); break;
+		case 2: ::SendMessage(g_hWndRandom_KeyOption3RadioBox, BM_SETCHECK, BST_CHECKED, 0); break;
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 #pragma warning( default : 4311 4312)

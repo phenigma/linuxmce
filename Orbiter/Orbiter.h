@@ -80,6 +80,11 @@ class Orbiter : public Orbiter_Command,  public OrbiterData
 //<-dceag-decl-e->
 	friend class BD_PC_SetVariable; /** < Needs to maniuplate our variables */
 	friend class NeedToRender; /** < Needs to maniuplate our variables */
+
+public: //data
+	int m_iImageWidth; /** < image width duh */
+	int m_iImageHeight; /** < image height */
+
 //<-dceag-const-b->!
 
 public:
@@ -103,7 +108,7 @@ public:
 	virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage);
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 
-	time_t GetLastScreenChangedTime() { return NULL != m_pScreenHistory_Current ? m_pScreenHistory_Current->m_tTime : time(NULL); }
+	time_t GetLastScreenChangedTime();
 
 	pluto_pthread_mutex_t m_CallbackMutex; /** < Don't allow 2 threads to operate on the callback map at the same time */
 	pluto_pthread_mutex_t m_MaintThreadMutex;
@@ -114,9 +119,7 @@ public:
 protected:
 
 	string m_sLocalDirectory; /** < A directory to get files from */
-	int m_iImageWidth; /** < image width duh */
-	int m_iImageHeight; /** < image height */
-	class ScreenHistory *m_pScreenHistory_Current; /** < The currently visible screen */
+	ScreenHistory *m_pScreenHistory_Current; /** < The currently visible screen */
 	class DesignObj_Orbiter *m_pObj_Highlighted; /** < The current object highlighted, changed with the scrolling functions */
 	class DesignObj_Orbiter *m_pObj_LastSelected;   // The last object we selected.  Used by floorplans to toggle states
 	int m_iLastEntryInDeviceGroup; // Used by floorplans to go through a selected device group
@@ -547,7 +550,11 @@ public:
 	 * @brief Something happened, like a touch or a button, reset any timeouts or screen saver
 	 */
 	virtual void GotActivity();
-	
+
+	virtual void SimulateMouseClick(int x, int y);
+
+	virtual void SimulateKeyPress(long key);
+
 	/**
 	 *	UTILITIES
 	 */

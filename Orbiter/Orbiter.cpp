@@ -451,7 +451,9 @@ void Orbiter::RealRedraw( void *data )
 	for( s = 0; s < m_vectObjs_NeedRedraw.size(); ++s )
     {
 		class DesignObj_Orbiter *pObj = m_vectObjs_NeedRedraw[s];
-		RenderObject( pObj, m_pScreenHistory_Current->m_pObj );
+
+		if(pObj)
+			RenderObject( pObj, m_pScreenHistory_Current->m_pObj );
     }
 
     // See if maybe we just added an object that's a tab stop that wasn't there before
@@ -5053,4 +5055,43 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 	}
 	else
 		pDesignObj_DataList->push_back(pObj);
+}
+
+/*virtual*/ void Orbiter::SimulateMouseClick(int x, int y)
+{
+	BeginPaint();
+	PlutoColor color(255, 0, 0, 100);
+	SolidRectangle(x - 5, y - 5, 10, 10, color, 50);
+	EndPaint();
+
+	RegionDown(x, y);
+}
+
+/*virtual*/ void Orbiter::SimulateKeyPress(long key)
+{
+	BeginPaint();
+	PlutoColor color(200, 200, 200, 100);
+	SolidRectangle(5, m_iImageHeight - 30, 200, 25, color, 50);
+
+	PlutoRectangle rect(5, m_iImageHeight - 30, 200, 25);
+	DesignObjText text;
+	text.m_sText = "Key code pressed: " + StringUtils::ltos(key);
+	text.m_rPosition = rect;
+	
+	TextStyle textStyle;
+	PlutoColor foreColor(255, 0, 0, 100);
+	textStyle.m_sFont = "Arial";
+	textStyle.m_iPixelHeight = 20;
+	textStyle.m_ForeColor = foreColor;
+
+	RenderText(&text, &textStyle);
+
+	EndPaint();
+
+	ButtonDown(key);
+}
+
+time_t Orbiter::GetLastScreenChangedTime() 
+{ 
+	return NULL != m_pScreenHistory_Current ? m_pScreenHistory_Current->m_tTime : time(NULL); 
 }

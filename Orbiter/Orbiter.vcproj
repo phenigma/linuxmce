@@ -155,6 +155,9 @@
 				RelativePath="..\OrbiterGen\Renderer.cpp">
 			</File>
 			<File
+				RelativePath=".\Simulator.cpp">
+			</File>
+			<File
 				RelativePath=".\Win32\StartOrbiter_Win32.cpp">
 			</File>
 			<File
@@ -184,6 +187,9 @@
 			</File>
 			<File
 				RelativePath=".\resource.h">
+			</File>
+			<File
+				RelativePath=".\Simulator.h">
 			</File>
 			<File
 				RelativePath=".\Win32\StartOrbiter_Win32.h">

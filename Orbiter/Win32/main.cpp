@@ -9,6 +9,7 @@
 #include "main.h"
 #include "MainDialog.h"
 #include "DCE/Logger.h"
+#include "Simulator.h"
 
 #define  VERSION "<=version=>"
 
@@ -134,6 +135,12 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		CmdLineParams.sLocalDirectory	= sLocalDirectory;
 		CmdLineParams.sNestedDisplay    = sNestedDisplay;
 
+#ifdef WINCE
+		Simulator::GetInstance()->LoadConfigurationFile("/InternalStorage/Orbiter.conf");
+#else
+		Simulator::GetInstance()->LoadConfigurationFile("Orbiter.conf");
+#endif
+
 		// Perform application initialization:
 		if (!InitInstance (hInstance, nCmdShow)) 
 		{
@@ -168,6 +175,12 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
+
+#ifdef WINCE
+		Simulator::GetInstance()->SaveConfigurationFile("/InternalStorage/Orbiter.conf");
+#else
+		Simulator::GetInstance()->SaveConfigurationFile("Orbiter.conf");
+#endif
 
 		return int(msg.wParam);
 	}

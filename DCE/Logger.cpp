@@ -304,16 +304,12 @@ void WinOrbiterLogger::WriteEntry( Entry& entry )
 	fwrite(s.c_str(), s.length(), 1, f);
 	fclose(f);
 
-#ifdef WINCE
-	::PostMessage(m_hWndList, LB_ADDSTRING, 0L, (LPARAM)MESSAGE);
+	const cTimeOutInterval = 50; //miliseconds
+	DWORD Count;
+	if(0 == ::SendMessageTimeout(m_hWndList, LB_ADDSTRING, 0L, (LPARAM)MESSAGE, SMTO_NORMAL, cTimeOutInterval, &Count))
+		return; //send message timed out
 
-	int Count = (int)::PostMessage(m_hWndList, LB_GETCOUNT, 0L, 0L);
-	::PostMessage(m_hWndList, LB_SETTOPINDEX, Count - 1, 0L);
-#else
-	::PostMessage(m_hWndList, LB_ADDSTRING, 0L, (LPARAM)MESSAGE);
-
-	int Count = (int)::PostMessage(m_hWndList, LB_GETCOUNT, 0L, 0L);
-	::PostMessage(m_hWndList, LB_SETTOPINDEX, Count - 1, 0L);
-#endif	
+	DWORD Result;
+	::SendMessageTimeout(m_hWndList, LB_SETTOPINDEX, Count - 1, 0L, SMTO_NORMAL, cTimeOutInterval, &Result);
 }
 #endif
