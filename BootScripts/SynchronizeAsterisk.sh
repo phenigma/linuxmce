@@ -54,11 +54,16 @@ for Device in $R; do
 	
 		PhoneNumber="$(Field 1 "$D")";
 
+		InternalChannels="${InternalChannels}&SIP/$(Field 1 "$D")"
+
 		Q="insert into sip_buddies (name, accountcode, callerid, canreinvite, context, host, disallow, type) values ('${PhoneNumber}', '${PhoneNumber}', 'device${PhoneNumber} <${PhoneNumber}>', 'N', 'trusted', 'dynamic', 'h263', 'friend');"
 		echo "$Q;" | mysql -N asterisk -h $MySqlHost -u $MySqlUser $Pass  
 	fi
 done
-							
+
+# update internal lines for incoming cals
+Q="update extensions_table set appdata='INTERNALLINES=${InternalChannels}'"
+echo "$Q;" | mysql -N asterisk -h $MySqlHost -u $MySqlUser $Pass
 
 #echo "$PhoneCategories"
 
