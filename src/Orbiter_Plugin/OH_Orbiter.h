@@ -37,6 +37,7 @@ namespace DCE
 			m_iFailedToConnectCount = 0;
 			m_bRegistered=false;
 			m_tRegenTime=0;
+			m_pOH_User=NULL;
 		}
 	};
 }

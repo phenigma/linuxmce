@@ -32,6 +32,7 @@ using namespace DCE;
 #include <sstream>
 
 #include "pluto_main/Database_pluto_main.h"
+#include "pluto_main/Table_Users.h"
 #include "pluto_main/Table_Device.h"
 #include "pluto_main/Table_DeviceTemplate.h"
 #include "pluto_main/Table_UnknownDevices.h"
@@ -82,6 +83,11 @@ Orbiter_Plugin::Orbiter_Plugin(int DeviceID, string ServerAddress,bool bConnectE
         m_bQuit=true;
         return;
     }
+
+	vector<Row_Users *> vectRow_Users;
+	m_pDatabase_pluto_main->Users_get()->GetRows("1=1",&vectRow_Users);
+	for(size_t s=0;s<vectRow_Users.size();++s)
+		m_mapOH_User[ vectRow_Users[s]->PK_Users_get() ] = new OH_User(vectRow_Users[s]->PK_Users_get());
 
     m_bFloorPlansArePrepared = false;
 	m_iThreshHold = DATA_Get_ThreshHold();
