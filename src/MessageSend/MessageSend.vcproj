@@ -75,11 +75,12 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				OmitFramePointers="TRUE"
+				AdditionalIncludeDirectories="../../libs/Libraries/pthreads-win32/include;..;/mysql/include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				StringPooling="TRUE"
-				RuntimeLibrary="4"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
-				UsePrecompiledHeader="3"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="3"/>
@@ -87,8 +88,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/MessageSend.exe"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE-r.lib"
+				OutputFile="../Release/MessageSend.exe"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"

@@ -283,7 +283,7 @@ bool OrbiterSelfUpdate::Run()
 		g_pPlutoLogger->Write( LV_CRITICAL,  "Last update failed. We won't try to update again." );
 		return false;
 	}
-	g_pPlutoLogger->Write( LV_STATUS,  "Last update didn't failed." );
+	g_pPlutoLogger->Write( LV_STATUS,  "Last update didn't fail." );
 
 	if(!UpdateAvailable())
 	{

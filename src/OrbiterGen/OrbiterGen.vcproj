@@ -75,11 +75,12 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				OmitFramePointers="TRUE"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				AdditionalIncludeDirectories="&quot;../../libs/CrossPlatform/sge030809-w32/src&quot;;&quot;../../libs/CrossPlatform/SDL_ttf-2.0.6&quot;;&quot;../../libs/CrossPlatform/SDL_image-1.2.3&quot;;&quot;../../libs/CrossPlatform/SDL-1.2.7/include&quot;;&quot;../../libs/Libraries/pthreads-win32/include&quot;;../DCE;..;/mysql/include;../../libs/CrossPlatform/lpng127;../../libs/CrossPlatform/zlib;../Orbiter/SDL;../Orbiter"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;MULTI_THREADED;OrbiterGen;ORBITER_GEN;X_CRTDBG_MAP_ALLOC;XWIN32_CRTDBG"
 				StringPooling="TRUE"
-				RuntimeLibrary="4"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
-				UsePrecompiledHeader="3"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="3"/>
@@ -87,8 +88,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/OrbiterGen.exe"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib SDL-pluto-r.lib SDL_image-pluto-r.lib SDL_ttf-pluto-r.lib SGE-pluto-r.lib libpng-pluto-r.lib zlib1-pluto-r.lib pluto_main-r.lib dce-r.lib"
+				OutputFile="../Release/OrbiterGen.exe"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="/mysql/lib/debug;../lib;&quot;../../libs/Libraries/pthreads-win32/lib&quot;;&quot;../../libs/CrossPlatform/SDL-1.2.7/VisualC7/SDL/Release&quot;;&quot;../../libs/CrossPlatform/SDL_image-1.2.3/VisualC/Release&quot;;&quot;../../libs/CrossPlatform/SDL_ttf-2.0.6/VisualC/Release&quot;;&quot;../../libs/CrossPlatform/sge030809-w32/sge-msvc/sge/VisualC/Release&quot;;../../libs/CrossPlatform/lpng127/projects/visualc6/Win32_DLL_Release;../../libs/CrossPlatform/zlib/projects/visualc6/Win32_DLL_Release"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"

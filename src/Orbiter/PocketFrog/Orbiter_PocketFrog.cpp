@@ -119,7 +119,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ Orbiter_PocketFrog::~Orbiter_PocketFrog()
 {
-
+	Shutdown();
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ bool Orbiter_PocketFrog::GameInit()
@@ -818,7 +818,7 @@ clock_t ccc=clock();
 /*virtual*/ void Orbiter_PocketFrog::OnQuit()
 {
 	Shutdown(); //just in case
-	PostMessage( WM_CLOSE, 0, 0 ); //break pocketfrog loop
+	//PostMessage( WM_CLOSE, 0, 0 ); //break pocketfrog loop
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainArea)

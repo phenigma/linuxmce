@@ -39,9 +39,16 @@ CacheImageManager::~CacheImageManager()
 //----------------------------------------------------------------------------------------
 bool CacheImageManager::VerifyCache(string sTimeStamp)
 {
+	g_pPlutoLogger->Write(LV_WARNING, "Server skins timestamp: %s. Cache skins timestamp: %s",
+		sTimeStamp.c_str(), m_sTimeStamp.c_str());
+
 	if(sTimeStamp != m_sTimeStamp)
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "New skins are avaible. We'll purge the cache");
+
 		if(!ClearCache())
 			return false;
+	}
 
 	m_sTimeStamp = sTimeStamp;
 	FileUtils::WriteBufferIntoFile(m_sCacheFolder + "/CacheTimeStamp.txt", 

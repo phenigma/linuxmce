@@ -34,8 +34,8 @@
 #include "Message.h"
 #include "HandleRequestSocket.h"
 
-#ifdef WINCE
-#include "MainDialog.h"
+#ifdef WIN32
+#include "../Orbiter/Win32/MainDialog.h"
 #include "Windows.h"
 #endif
 
@@ -121,13 +121,7 @@ void HandleRequestSocket::RunThread()
 {
 	m_bRunning = true;
 
-#ifdef UNDER_CE_X
-	__try
-	{
-#endif
-
 	string sMessage = "";
-
 	while( !m_bTerminate && !m_bQuit )
 	{
 		if ( !ReceiveString( sMessage ) )
@@ -209,27 +203,12 @@ void HandleRequestSocket::RunThread()
 g_pPlutoLogger->Write( LV_STATUS, "Closing request handler connection...");
 //	g_pPlutoLogger->Write( LV_STATUS, "Closing event handler connection %d (%d,%s), Terminate: %d %s\n",
 //		m_dwPK_Device, (int) m_bUnexpected, sMessage.c_str(), (int) m_bTerminate, m_sName.c_str() );
-#ifdef UNDER_CE_X
-	}
-	__except( EXCEPTION_EXECUTE_HANDLER )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Unknown critical error.");
-		/*
-		::PostQuitMessage( 255 );
-
-		PROCESS_INFORMATION pi;
-		TCHAR tfn[81];
-		::GetModuleFilesName( NULL, tfn, sizeof(tfn) );
-		CreateProcess( tfn, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, &pi );
-		*/
-	}
-#endif
 
 	m_bRunning = false;
 	if ( m_bUnexpected )
 	{
-#ifdef WINCE
-		//starting orbiter
+#ifdef WIN32
+		//restarting orbiter
 		PROCESS_INFORMATION pi;
 		::ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
 
@@ -238,16 +217,27 @@ g_pPlutoLogger->Write( LV_STATUS, "Closing request handler connection...");
 		si.cb = sizeof(STARTUPINFO);
 		si.lpReserved = 0;
 
+		string sCmdLine;
+	#ifdef WINCE
 		wchar_t pProcessNameW[256];
 		::GetModuleFileName(NULL, pProcessNameW, sizeof(pProcessNameW));
 
-		string sCmdLine = "-d " + StringUtils::ltos(m_dwPK_Device);
+		sCmdLine += "-d " + StringUtils::ltos(m_dwPK_Device);
 		sCmdLine += " -r " + CmdLineParams.sRouter_IP;
+		sCmdLine += " -l \"" + CmdLineParams.sLogger + "\"";
+
+		if(CmdLineParams.bFullScreen)
+			sCmdLine += " -F";
+
 		wchar_t CmdLineW[256];
 		mbstowcs(CmdLineW, sCmdLine.c_str(), 256);
 
 		::CreateProcess(pProcessNameW, CmdLineW, NULL, NULL, NULL, 0, NULL, NULL, &si, &pi);
-		
+	#else
+		sCmdLine = GetCommandLine();
+		::CreateProcess(NULL, const_cast<char *>(sCmdLine.c_str()), NULL, NULL, NULL, 0, NULL, NULL, &si, &pi);
+	#endif
+
 		exit(1); //die!!!
 #endif
 

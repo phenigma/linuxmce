@@ -1,6 +1,6 @@
 SET PATH="c:\Program Files\Microsoft eMbedded C++ 4.0\Common\EVC\Bin"
 
-CALL SET CONFIGURATION=debug
+CALL SET CONFIGURATION=release
 CALL SET INPUT_PATH=c:\pluto.makerelease\trunk
 CALL SET MAKERELEASE_PATH=C:\pluto\trunk\src
 CALL SET LOG_PATH=c:
