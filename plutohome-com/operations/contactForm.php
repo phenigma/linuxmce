@@ -102,7 +102,8 @@ $out='
 		$headers .= "bcc: "; 
 	
 		$subject = 'Website Form';
-		$to = 'info@plutohome.com';
+		//$to = 'info@plutohome.com';
+		$to = 'valentin.g@newflavorstudio.com';
 	
 		@mail($to,$subject,$message,$headers);
 	  	

@@ -576,4 +576,5 @@ function deleteDevice($PK_Device,$dbADO)
 	}
 
 }
+
 ?>

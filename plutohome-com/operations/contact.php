@@ -64,7 +64,7 @@ $out.='<table width="100%" border="0" cellpadding="0" cellspacing="0" class="mai
 
 ';
 	include('operations/contactForm.php');
-	$out.=contactForm('contact');
+	$out=contactForm('contact');
 
 	$output->setScriptCalendar('null');
 	$output->setPageID(6); //butonul selectat

@@ -188,7 +188,7 @@ function wizard($output,$dbADO) {
 							</tr>
 							<tr>
 								<td colspan="2" align="left" class="normaltext">Note: At present Linux is the only supported platform for media playback.<br><br>
-								You have chosen the <b>'.$_SESSION['version'].'</b> version of the software.  Here are the operating systems that this version supports for your Core, Media Directors and Orbiters.  Note which installation options are available for each platform, as described below.
+								You have chosen the <b>'.@$_SESSION['version'].'</b> version of the software.  Here are the operating systems that this version supports for your Core, Media Directors and Orbiters.  Note which installation options are available for each platform, as described below.
 								On the next page you will be asked to choose what operating system/distro you want to use.  If "Confirmed" is not checked, then it <b>should</b> work with minimal effort, but has not been tested:
 								</td>
 							</tr>									

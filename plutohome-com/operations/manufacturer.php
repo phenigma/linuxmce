@@ -57,7 +57,7 @@ $out.='
     <p>If you are interested in working with Pluto, please complete the following inquiry form and a sales rep will contact you promptly:</p>
 ';
 	include('operations/contactForm.php');
-	$out.=contactForm('manufacturer');	
+	$out=contactForm('manufacturer');	
 		
 	$output->setImgName("support.jpg"); //img that needs to be changed
 	$output->setPageID(5); //butonul selectat

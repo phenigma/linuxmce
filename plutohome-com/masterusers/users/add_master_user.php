@@ -1,6 +1,6 @@
 <?
 function add_master_user($conn,$connPlutoVip,$connPlutoHome,$connphpBB,$connMantis,$connMain){
-	// add to MasterUsers table 
+	// add to MasterUsers table
 	if(isset($_POST['typeUser'])){
 		$typeUser=$_POST['typeUser'];
 		$email=$_POST['email'];
@@ -70,8 +70,8 @@ function add_master_user($conn,$connPlutoVip,$connPlutoHome,$connphpBB,$connMant
                     $SambaPass=''; // we can't issue an error here, can we?
                 $LinuxSalt = '$1$Pluto$'; // should we generate this? :)
                 $LinuxPass = crypt($_POST['password'], $LinuxSalt);
-				$insertMain=mysql_query("INSERT INTO Users (PK_Users, Username, Password, samePasswordMasterUsers, ForwardEmail, FirstName, LastName, Nickname, Password_Unix, Password_Samba)
-													VALUES	('$PK_MasterUsers','$username','$password','1', '$email','$username','$username','$username','$LinuxPass','$SambaPass')",$connMain) OR die('error: '.mysql_error($connMain));
+				$insertMain=mysql_query("INSERT INTO Users (PK_Users, Username, Password, ForwardEmail, FirstName, LastName, Nickname, Password_Unix, Password_Samba)
+													VALUES	('$PK_MasterUsers','$username','$password', '$email','$username','$username','$username','$LinuxPass','$SambaPass')",$connMain) OR die('error: '.mysql_error($connMain));
 				if($insertMain)
 					$updateMasterUsers=mysql_query("UPDATE MasterUsers SET Sync_Main='1' WHERE PK_MasterUsers='$PK_MasterUsers'",$conn);
 
