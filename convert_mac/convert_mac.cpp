@@ -22,12 +22,12 @@ int main(int argc, char *argv[])
 	if( Mac.find(':')!=string::npos )
 	{
 		PhoneDevice pd("",Mac,0);
-		cout << "Mac as large integer: " << pd.m_iMacAddress << endl;
+		cout << pd.m_iMacAddress << endl;
 	}
 	else
 	{
 		PhoneDevice pd("",atof(Mac.c_str()),0);
-		cout << "Mac as standard: " << pd.m_sMacAddress << endl;
+		cout << pd.m_sMacAddress << endl;
 	}
 }
 
