@@ -47,6 +47,7 @@ function securitySettings($output,$dbADO,$securitydbADO) {
 	<input type="hidden" name="section" value="securitySettings">
 	<input type="hidden" name="action" value="add">	
 	<div align="center"><h3>Security settings</h3></div>
+	<p align="center">For each security sensor, or zone, in the house, indicate what Pluto should do when the sensor is triggered for each security mode.  If \'Monitor Mode\', aka Baby Sitter Mode, is checked, then when the house is is Monitor Mode you will be notified on your phone whenever the sensor is tripped and shown a picture.</p>
 		<table align="center">
 			<tr bgcolor="lightblue">
 				<td></td>

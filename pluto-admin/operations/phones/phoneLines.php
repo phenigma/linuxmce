@@ -66,7 +66,8 @@ function phoneLines($output,$dbADO) {
 		</table>
 		</form>
 		<br>
-		<h3 align="center">New phone line</h3>
+		<h3 align="center">New VOIP phone line</h3>
+		<p align="center">Click "help" to see what these values mean and how to get them for the most popular VOIP phone providers.</p>
 		
 		<form action="index.php" method="POST" name="addPhoneLines">
 			<input type="hidden" name="section" value="phoneLines">

@@ -84,7 +84,7 @@ if($action=='form') {
 		</tr>
 		<tr>
 			<td width="20">&nbsp;</td>
-			<td><input type="checkbox" name="armDisarm_'.$rowRooms['PK_Room'].'" value="1" '.(($resArmDisarm->RecordCount()>0)?'checked':'').'> Button to arm system, disarm system & change masks</td>
+			<td><input type="checkbox" name="armDisarm_'.$rowRooms['PK_Room'].'" value="1" '.(($resArmDisarm->RecordCount()>0)?'checked':'').'> Button to arm system, disarm system</td>
 		</tr>
 		<tr>
 			<td width="20">&nbsp;</td>

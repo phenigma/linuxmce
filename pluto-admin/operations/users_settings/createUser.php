@@ -1,7 +1,9 @@
 <?php
 function createUser($output,$dbADO) {
 	global $addMasterUserUrl;
-	$out='';
+	$out='Pick a username.  It must be unique among all Pluto users because you will have the option of using it
+	as a substitute for your phone number and for instant messaging.
+	If you specify a "Nickname", that name will appear on all the screens instead of the username.  The nickname can be anything and does not need to be unique.';
 	$action = isset($_POST['action'])?cleanString($_POST['action']):'form';
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';
 	
@@ -48,7 +50,7 @@ function createUser($output,$dbADO) {
 		
 			$out.='
 					<tr valign="top">
-						<td colspan="2"><b>'.(isset($_GET['error'])?$_GET['error']:'').'</b></td>
+						<td colspan="2"><h3>'.(isset($_GET['error'])?$_GET['error']:'').'</h3></td>
 					</tr>
 					<tr valign="top">
 						<td>Username</td>
@@ -57,13 +59,13 @@ function createUser($output,$dbADO) {
 						</td>
 					</tr>
 					<tr valign="top">
-						<td>Local password</td>
+						<td>password</td>
 						<td>
 							<input type="password" name="userPassword" value="">
 						</td>
 					</tr>
 					<tr valign="top">
-						<td>Re-Type local password</td>
+						<td>Re-Type password</td>
 						<td>
 							<input type="password" name="userPassword2" value="">
 						</td>
@@ -89,15 +91,15 @@ function createUser($output,$dbADO) {
 						<td><input type="radio" value="Users" name="typeUser" checked>Individual<input type="radio" value="Establishment" name="typeUser">Business</td>
 					</tr>			
 					<tr valign="top">
-						<td>Has Mailbox</td>
+						<td>Create a voicemail box and an email account for the user?<br>This allows the user to check his messages/email on the Orbiters.</td>
 						<td><input type="checkbox" name="userHasMailbox" value="1" '.@($_SESSION['createUser']['userHasMailbox']==1?" checked='checked'":'').'></td>
 					</tr>
 					<tr valign="top">
-						<td>Access General Mailbox</td>
+						<td>Access General Mailbox?<br>This allows the user to review messages left in the family\'s general mailbox.  Otherwise the user can only access his own private messages.</td>
 						<td><input type="checkbox" name="userAccessGeneralMailbox" value="1" '.@($_SESSION['createUser']['userAccessGeneralMailbox']==1?" checked='checked'":'').'></td>
 					</tr>
 					<tr valign="top">
-						<td>User extension</td>
+						<td>Extension for intercom<br>Dial this number from any phone in the house to quickly reach the user.  Outside callers can dial it also to be directly connected.</td>
 						<td><input type="text" name="userExtension" value="'.@$_SESSION['createUser']['userExtension'].'"></td>
 					</tr>
 					<tr valign="top">
@@ -109,15 +111,11 @@ function createUser($output,$dbADO) {
 						</td>
 					</tr>
 					<tr valign="top">
-						<td>Extension Ring Timeout</td>
-						<td><input type="text" name="userExtensionRingTimeout" value="'.@$_SESSION['createUser']['userExtensionRingTimeout'].'"></td>
-					</tr>
-					<tr valign="top">
-						<td>Forward email</td>
+						<td>Email<br>This user will get an email whenever he has new voicemail</td>
 						<td><input type="text" name="userForwardEmail" value="'.@$_SESSION['createUser']['userForwardEmail'].'"></td>
 					</tr>
 					<tr valign="top">
-						<td>Can modify installation</td>
+						<td>Can modify configuration<br>If checked, the user will be able to access this Pluto Admin site and change the configuration of Pluto</td>
 						<td><input type="checkbox" name="userCanModifyInstallation" value="1" '.(@$_SESSION['createUser']['userCanModifyInstallation']==1?" checked='checked'":'').'></td>
 					</tr>
 					
@@ -151,7 +149,7 @@ function createUser($output,$dbADO) {
 					}
 			}
 			$out.='<tr>
-						<td>Main Installation</td>
+						<td>Main Installation<br>If you have multiple homes, or installations joined, which is this user\'s primary residence?</td>
 						<td>
 							<select name="userMainInstallation">
 							<option value="0">-please select-</option>
@@ -166,9 +164,6 @@ function createUser($output,$dbADO) {
 			$out.='
 					<tr>
 						<td colspan="2" align="center"><input type="submit" name="submitX" value="Save"></td>
-					</tr>
-					<tr>
-						<td colspan="2" align="left">* Internet connection is required.</td>
 					</tr>
 			</table>
 			</form>
@@ -203,7 +198,6 @@ function createUser($output,$dbADO) {
 		$userNickname = $_SESSION['createUser']['userNickname'] = cleanString($_POST['userNickname']);
 		
 		$userExtension = $_SESSION['createUser']['userExtension'] = cleanString($_POST['userExtension']);
-		$userExtensionRingTimeout = $_SESSION['createUser']['userExtensionRingTimeout'] = cleanInteger($_POST['userExtensionRingTimeout']);
 		
 		$userForwardEmail = $_SESSION['createUser']['userForwardEmail'] = cleanString(@$_POST['userForwardEmail']);
 		$userCanModifyInstallation = $_SESSION['createUser']['userCanModifyInstallation'] = cleanInteger(@$_POST['userCanModifyInstallation']);
@@ -259,12 +253,12 @@ function createUser($output,$dbADO) {
 			$insertUser = '
 					INSERT INTO Users (PK_Users,UserName,Password, HasMailbox,
 					AccessGeneralMailbox,FirstName,
-					LastName,Nickname,Extension,ExtensionRingTimeout,ForwardEmail,
+					LastName,Nickname,Extension,ForwardEmail,
 					FK_Language,FK_Installation_Main) 
-					values(?,?,?,?,?,?,?,?,?,?,?,?,?)';
+					values(?,?,?,?,?,?,?,?,?,?,?,?)';
 			$query = $dbADO->Execute($insertUser,array($FK_MasterUsers,
 					$username,$passMd5,$hasMailbox,$userAccessGeneralMailbox,$userFirstName,
-					$userLastName,$userNickname,$userExtension,$userExtensionRingTimeout,$userForwardEmail,
+					$userLastName,$userNickname,$userExtension,$userForwardEmail,
 					$userLanguage,$userMainInstallation
 					));
 			$insertID = $dbADO->Insert_ID();

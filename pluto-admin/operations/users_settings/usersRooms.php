@@ -34,7 +34,8 @@ function usersRooms($output,$dbADO) {
 		$checkedArray[$rowUsersRooms['FK_Users']][]=$rowUsersRooms['FK_Room'];
 	}
 	
-	$out.='<h3>Privacy Settings</h3>';
+	$out.='<h3>Privacy Settings</h3>
+	<p>Normally any user can choose to control any room in the house.  If you want to prevent some userse from being able to control certain rooms, uncheck the box.</p>';
 
 	if ($action=='form') {
 		$out.='

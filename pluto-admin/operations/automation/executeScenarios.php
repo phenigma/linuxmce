@@ -17,6 +17,7 @@ function executeScenarios($output,$dbADO) {
 			<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 			<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 			<h3 align="center">Execute scenarios</h3>
+			<p align="center">Click on a scenario to execute it just like you had touched the button on the Orbiter.</p>
 			<form action="index.php" method="POST" name="executeScenarios">
 			<input type="hidden" name="section" value="executeScenarios">
 			<input type="hidden" name="action" value="update">

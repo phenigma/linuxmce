@@ -31,7 +31,7 @@ function addSoftware($output,$dbADO) {
 			<input type="hidden" name="action" value="add">
 		<table>
 			<tr>
-				<td><B>Device</B></td>
+				<td><B>Add software on which computer?</B></td>
 				<td><select name="deviceIP">';
 		$deviceCategory=$GLOBALS['rootComputerID'];
 
@@ -51,8 +51,11 @@ function addSoftware($output,$dbADO) {
 				</td>
 			</tr>
 			<tr>
-				<td><B>Package name</B></td>
+				<td><B>What is the name of the software package?</B></td>
 				<td><input type="text" name="packageName" value="'.@$_SESSION['packageName'].'"></td>
+			</tr>
+			<tr>
+				<td colspan="2"><br><br>If the software package is not maintained by Pluto, please provide the following:</td>
 			</tr>
 			<tr>
 				<td><B>Repository URL</B></td>

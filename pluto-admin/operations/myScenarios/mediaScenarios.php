@@ -12,7 +12,8 @@ function mediaScenarios($output,$dbADO) {
 	$arrayID=$GLOBALS['ArrayIDForMedia'];
 	$templateWizard=$GLOBALS['MediaScenariosTemplate'];			// from table Template, PK_Template for Media Wizard
 	
-	$out='';
+	$out='Each Media Scenario will be a button on the Orbiter.  To use Media from a Pluto Media Director, just check the box for the type of media you want.  To use Media from
+	another source, like a VCR, DVD player, etc., use the "Add Media Scenario" section.';
 	if($action=='form'){
 		$out.='
 			<script>

@@ -36,7 +36,8 @@ function usersOrbiters($output,$dbADO) {
 		$checkedArray[$rowUsersOrbiters['FK_Users']][]=$rowUsersOrbiters['FK_Device'];
 	}
 	
-	$out.='<h3>Privacy Settings</h3>';
+	$out.='<h3>Privacy Settings</h3>
+	<p>Normally any user can use any Orbiter.  If you check the box for the user/Orbiter, then the user\'s Pin code will need to be provided for that user to use that Orbiter.  If you put checks in all the users for a given Orbiter, then nobody will be able to use the Orbiter without a PIN code.</p>';
 
 	if ($action=='form') {
 		$out.='

@@ -35,6 +35,7 @@ function videoLinks($output,$dbADO) {
 	<input type="hidden" name="section" value="videoLinks">
 	<input type="hidden" name="action" value="add">	
 	<div align="center"><h3>Security - Video links</h3></div>
+	<p align="center">For each security sensor/zone indicate which surveillance camera(s) Pluto should show you when that sensor is tripped.</p>
 		<table align="center">
 			<tr bgcolor="lightblue">
 				<td><B>Intercom \ Camera</B></td>';

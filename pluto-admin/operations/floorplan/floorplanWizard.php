@@ -22,6 +22,7 @@ function floorplanWizard($output,$dbADO) {
 			<input type="hidden" name="section" value="floorplanWizard">
 			<input type="hidden" name="action" value="update">
 		<h2 align="center" title="">Floor Plan</h2>
+		<p align="center">You can add as many floorplans as you like, and Pluto can create floorplans for you as well.  Click "help" for more information and samples.</p>
 		<table bgcolor="#EEEEEE" cellpadding="0" cellspacing="0" border="0" align="center">
 			<tr>
 				<td><select name="page" onchange="submitForm();">';

@@ -4,7 +4,9 @@ function lightingScenarios($output,$dbADO) {
 /* @var $rs ADORecordSet */
 
 $action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
-$out='';
+$out='<p>Note: The first lighting scenario is the "Default ON" for that room, meaning that 
+if you tell Pluto to make your lighting follow-you, when you enter the room, that first scenario will be executed.  The second scenario is the "Default OFF" when you leave the room.
+You should make the first scenario turn on the lights to your normal level, and the second scenario turn them off.  The rest of the scenarios can be anything you want.';
 $installationID = (int)@$_SESSION['installationID'];
 $arrayID = $GLOBALS['ArrayIDForLight'];	
 

@@ -30,49 +30,33 @@ function installationSettings($output,$dbADO) {
 			<table>			
 				<tr>
 					<td>Description:</td>
-					<td><input type="text" size="15" name="Description" value="'.$rowInstallation['Description'].'"></td>
+					<td><input type="text" size="30" name="Description" value="'.$rowInstallation['Description'].'"></td>
 				</tr>
 				<tr>
 					<td>Name:</td>
-					<td><input type="text" size="15" name="Name" value="'.$rowInstallation['Name'].'"></td>
+					<td><input type="text" size="30" name="Name" value="'.$rowInstallation['Name'].'"></td>
 				</tr>
 				<tr>
 					<td>Address:</td>
-					<td><input type="text" size="15" name="Address" value="'.$rowInstallation['Address'].'"></td>
+					<td><input type="text" size="30" name="Address" value="'.$rowInstallation['Address'].'"></td>
 				</tr>
 				<tr>
 					<td>City:</td>
-					<td><input type="text" size="15" name="City" value="'.$rowInstallation['City'].'"></td>
+					<td><input type="text" size="30" name="City" value="'.$rowInstallation['City'].'"></td>
 				</tr>
 				<tr>
 					<td>State:</td>
-					<td><input type="text" size="15" name="State" value="'.$rowInstallation['State'].'"></td>
+					<td><input type="text" size="30" name="State" value="'.$rowInstallation['State'].'"></td>
 				</tr>
 				<tr>
-					<td>Zip:</td>
-					<td><input type="text" size="15" name="Zip" value="'.$rowInstallation['Zip'].'"></td>
+					<td>Zip/Postal Code:</td>
+					<td><input type="text" size="30" name="Zip" value="'.$rowInstallation['Zip'].'"></td>
 				</tr>
-				<tr>
-					<td>Is Active:</td>
-					<td><input type="checkbox" name="IsActive" value="1" '.($rowInstallation['isActive']==1?" checked='checked' ":'').'></td>
-				</tr>		
-				<tr>
-					<td>Version: '.$rowInstallation['V_Desc'].'</td>
-					<td></td>
-				</tr>		
-				<tr>
-					<td>Is Monitored:</td>
-					<td><input type="checkbox" name="IsMonitored" value="1" '.($rowInstallation['isMonitored']==1?" checked='checked' ":'').'></td>
-				</tr>	
 				<tr>
 					<td colspan="2" align="center"><input type="submit" name="submitX" value="Save"></td>
 				</tr>
 			</table>
 		</form>
-		
-		<a href="index.php?section=createInstallation">Create a new installation</a> <br />
-		
-		<a href="index.php?section=users">Users</a>
 		
 		<script>
 		 	var frmvalidator = new formValidator("installationSettings");
@@ -97,14 +81,12 @@ function installationSettings($output,$dbADO) {
 		$city = cleanString(@$_POST['City'],50);
 		$state = cleanString(@$_POST['State'],50);
 		$zip = cleanString(@$_POST['Zip'],50);
-		$isActive = cleanInteger(@$_POST['IsActive']);
-		$isMonitored = cleanInteger(@$_POST['IsMonitored']);
 		
 		if ($installationID!=0 && $description!='' && $name!='') {
 			
-			$queryUpdate = 'UPDATE Installation Set Description=?,Name=?,Address=?,City=?,State=?,Zip=?,isActive=?,isMonitored=? 
+			$queryUpdate = 'UPDATE Installation Set Description=?,Name=?,Address=?,City=?,State=?,Zip=? 
 							WHERE PK_Installation = ?';
-			$dbADO->Execute($queryUpdate,array($description,$name,$address,$city,$state,$zip,$isActive,$isMonitored,$installationID));
+			$dbADO->Execute($queryUpdate,array($description,$name,$address,$city,$state,$zip,$installationID));
 			
 			$out.="
 				<script>

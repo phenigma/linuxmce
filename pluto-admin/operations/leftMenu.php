@@ -97,7 +97,7 @@ function leftMenu($output,$dbADO) {
 					foreach ($_SESSION['installationIDs'] as $elem) {
 						$installationTxt.="<option ".($selectedInstallation==$elem?" selected ":'')." value='".$elem."'>$elem</option>";
 					}
-					
+
 					$installationTxt.='</select> <input type="submit" name="submitX" value="Go">
 				</form>
 				';
@@ -252,17 +252,17 @@ function leftMenu($output,$dbADO) {
 			</tr>
 			-->
 			';
-			
-			
-			
+
+
+
 			$output->setScriptInHead($scriptInHead);
 
 	}
-					
-		
+
+
 
 	$out.='</table>';
-	
+
 	$output->setScriptInBody('bgColor="#F0F3F8"');
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);			

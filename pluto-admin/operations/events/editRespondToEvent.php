@@ -172,7 +172,11 @@ function editRespondToEvent($output,$dbADO) {
 			<input type="hidden" name="displayedCE_CP" value="'.join(',',$displayedCE_CP).'">
 			<tr>
 				<td colspan="3" align="center"><input type="submit" name="continue" value="Update"></td>
-			</tr>';
+			</tr>
+			<tr>
+				<td colspan="3" align="center">Specify above what event you want Pluto to wait for.  Specify below what Pluto should do when the event occurs by choosing the device you want to respond, and what commands you want to send it.</td>
+			</tr>
+			';
 
 			$selectCommandsAssigned = "
 				SELECT CommandGroup_Command.* FROM 

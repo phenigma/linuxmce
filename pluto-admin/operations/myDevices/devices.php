@@ -78,7 +78,7 @@ function devices($output,$dbADO) {
 	<div align="center"><h3>'.((isset($title))?$title:strtoupper(str_replace('_',' ',$type))).'</h3></div>
 		<table align="center">
 				<tr>
-					<td align="center"><B>DeviceTemplate</B></td>
+					<td align="center"><B>Type of Device</B></td>
 					<td align="center"><B>Description</B></td>
 					<td align="center"><B>Room</B></td>
 					<td align="center"><B>Controlled by</B></td>';

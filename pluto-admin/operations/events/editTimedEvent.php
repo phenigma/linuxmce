@@ -172,6 +172,9 @@ function editTimedEvent($output,$dbADO) {
 			</tr>
 			<tr bgcolor="#E7E7E7">
 				<td colspan="3" align="center"><input type="submit" name="continue" value="Update"></td>
+			</tr>
+			<tr>
+				<td colspan="3" align="center">Specify above when you want Pluto to do something, and below what you want Pluto to do by choosing a device, and then a command to send to that device.</td>
 			</tr>';
 
 			$selectCommandsAssigned = "

@@ -20,7 +20,10 @@ function cellphoneNotifications($output,$dbADO) {
 	<input type="hidden" name="section" value="cellphoneNotifications">
 	<input type="hidden" name="action" value="add">	
 	<div align="center"><h2>Cellphone Notifications</h2>
-			<h3>Mobile Orbiter Notifications</h3>';
+	<p>How should Pluto try to contact you when there is a security alert?</p>
+			<h3>Mobile Orbiter Notifications</h3>
+			<p>List the phone numbers for any mobile orbiters (ie mobile phones running Pluto\'s software) that you want to be notified.  The phone will beep, show you a live video, and let you control the house.</p>
+			';
 			$queryDDD='SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?';
 			$resDDD=$dbADO->Execute($queryDDD,array($deviceID,$GLOBALS['MobileOrbiterNotification']));
 			$monArray=array();
@@ -60,7 +63,9 @@ function cellphoneNotifications($output,$dbADO) {
 		$out.='
 		</table>
 		<div align="center">
-		<h3>Other Phone Notifications</h3>';
+		<h3>Other Phone Notifications</h3>
+		<p>Here you can specify any phone number you want Pluto to call in the event of a security alert.  Pluto will call the number and play a recorded message.</p>
+		';
 			$queryDDD='SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?';
 			$resDDD=$dbADO->Execute($queryDDD,array($deviceID,$GLOBALS['OtherPhoneNotifications']));
 			$opnArray=array();
@@ -105,7 +110,9 @@ function cellphoneNotifications($output,$dbADO) {
 		$out.='
 		</table>
 		<div align="center">
-			<h3>Neighbors to Call<br /><font size="-1">(when call neighbors button is clicked)</font></h3>
+			<h3>Neighbors to Call</h3>
+			<p>List your neighbors and their phone numbers here.  If there is a problem at your house, you can hit the "notify neighbors" option and Pluto
+			will make a call to all these neighbors simulataneously, alert them of the problem, and patch everyone together so you can talk to them.</p>
 		</div>
 		<table align="center" cellpadding="5" cellspacing="0" border="0">
 			<tr bgcolor="lightblue">

@@ -18,6 +18,8 @@ $installationID = cleanInteger($_SESSION['installationID']);
 
 $out.='<h3>Users</h3>';
 
+$out.='<p>Add all the users, or family members, who will be using Pluto.</p>';
+
 if ($action=='form') {
 $queryUsers = 'SELECT Users.*,Installation_Users.userCanModifyInstallation as canModifyInstallation FROM Users 
 		INNER JOIN Installation_Users on FK_Users = PK_Users
@@ -41,11 +43,11 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 		";
 		
 		$usersFormValidation='';
-		$out.='<tr bgcolor="#AAAAAA"><td>Username</td><td>Has Mailbox</td><td>Access General</td><td>Extension</td>
-					<td>Name</td><td># Extension Ring No</td><td>Forward Email</td>
-					<td>Can Modify Installation</td>
+		$out.='<tr bgcolor="#AAAAAA"><td>Username</td><td>Voicemail<br>+Email</td><td>Access general<br>mailbox</td><td>Extension<br>for intercom</td>
+					<td>Name</td><td>Email</td>
+					<td>Can modify<br>configuration?</td>
 					<td>Language</td>
-					<td>Installation Main</td>
+					<td>Primary<br>Installation</td>
 				</tr>';
 		$displayedUsers=array();
 		$i=0;
@@ -79,7 +81,6 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 							NickName :<input type="text" name="userNickname_'.$rowUser['PK_Users'].'" value="'.$rowUser['Nickname'].'">
 						</td>
 						
-						<td><input type="text" name="userExtensionRingTimeout_'.$rowUser['PK_Users'].'" value="'.$rowUser['ExtensionRingTimeout'].'"></td>
 						<td><input type="text" name="userForwardEmail_'.$rowUser['PK_Users'].'" value="'.$rowUser['ForwardEmail'].'"></td>
 						<td><input type="checkbox" name="userCanModifyInstallation_'.$rowUser['PK_Users'].'" value="1" '.($rowUser['canModifyInstallation']?" checked='checked' ":'').'></td>
 			';
@@ -126,7 +127,7 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 			<tr>
 				<td colspan="5"> ';
 				if(!isset($_SESSION['masterUserData'])){
-					$out.='Add user to installation: 
+					$out.='Add an existing plutohome.com user to this installation - username: 
 					<input type="text" name="addUserToInstallation" value="" size="20">
 					<input type="submit" name="addUser" value="Add"> 
 						'.(@$_SESSION['users']['userNotValid'] == 1?'(<b>Invalid username</b>)':'').'
@@ -141,10 +142,10 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 						$usersFormValidation.='
 							frmvalidator.addValidation("masterUserPas","req","Please enter a password");';
 					}
-				$out.='
+				$out.='<p><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createUser&from=users\',\'width=600,height=650,toolbars=true\');">Create a new user/family member</a><p>
 				</td>
 			</tr>
-			<tr><td colspan="2"><input type="submit" name="submitX" value="Submit">'.(isset($_GET['msg'])?"<br/><b>".strip_tags($_GET['msg']).'</b>':'').'</td></tr>
+			<tr><td colspan="2"><input type="submit" name="submitX" value="Save">'.(isset($_GET['msg'])?"<br/><b>".strip_tags($_GET['msg']).'</b>':'').'</td></tr>
 				<input type="hidden" name="displayedUsers" value="'.join(",",$displayedUsers).'">
 			</form>
 
@@ -155,7 +156,6 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 			
 		</table>
 		<br />
-		<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createUser&from=users\',\'width=600,height=650,toolbars=true\');">Create User</a>
 		';
 	}
 } else {
@@ -207,12 +207,9 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 				$md5Pass=md5($_POST['masterUserPas']);
 				parse_str($_SESSION['masterUserData']);
 								$insertUser = '
-					INSERT INTO Users (PK_Users,UserName,Password, HasMailbox,
-					AccessGeneralMailbox,FirstName,
-					LastName,Nickname,Extension,ExtensionRingTimeout,ForwardEmail,
-					FK_Language,FK_Installation_Main) 
-					values(?,?,?,?,?,?,?,?,?,?,?,?,?)';
-				$query = $dbADO->Execute($insertUser,array($MasterUsersID,$_SESSION['masterUserName'],$md5Pass,0,0,'','','','','',$Email,NULL,NULL));
+					INSERT INTO Users (PK_Users,UserName,Password, ForwardEmail) 
+					values(?,?,?,?)';
+				$query = $dbADO->Execute($insertUser,array($MasterUsersID,$_SESSION['masterUserName'],$md5Pass,$Email));
 				$insertUserToInstallation = "
 					INSERT INTO Installation_Users(FK_Installation,FK_Users) VALUES(?,?)
 						";			
@@ -256,7 +253,6 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 
 				$userMainInstallation = ((int)($_POST['userMainInstallation_'.$user])==0?NULL:cleanInteger($_POST['userMainInstallation_'.$user]));
 
-				$userExtensionRingTimeout = cleanInteger($_POST['userExtensionRingTimeout_'.$user]);
 				$query = 'UPDATE Users set
 									UserName = ?,
 									HasMailbox =?,
@@ -265,13 +261,12 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 									FirstName=?,
 									LastName=?,
 									Nickname=?,
-									ExtensionRingTimeout=?,
 									ForwardEmail=?,
 									FK_Language=?,
 									FK_Installation_Main=?
 							WHERE PK_Users = ?';
 				$resUpdUser = $dbADO->Execute($query,array($username,$hasMailbox,$userAccessGeneralMailbox,
-				$userExtension,$userFirstName,$userLastName,$userNickname,$userExtensionRingTimeout,
+				$userExtension,$userFirstName,$userLastName,$userNickname,
 				$userForwardEmail,$userLanguage,$userMainInstallation,$user));
 
 				// check if is the last user who could modify this installation
