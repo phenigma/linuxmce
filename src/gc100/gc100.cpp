@@ -102,6 +102,7 @@ gc100::~gc100()
 //<-dceag-dest-e->
 {
 	m_bQuit = true; // should this be using a mutex? :)
+	pthread_cancel(m_MessageQueueThread);
 	pthread_join(m_MessageQueueThread, NULL);
 	pthread_join(m_EventThread, NULL);
 }

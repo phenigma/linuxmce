@@ -67,26 +67,31 @@ while [ "$i" -le 10 ]; do
 
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Found $Path$cmd_line"
 	if [ "${cmd_line/Spawn_Device}" == "$cmd_line" ] && [ "${Valgrind/$cmd_line}" != "$Valgrind" ]; then
-		(/usr/pluto/bin/Spawn_Wrapper.sh $(echo "$VGcmd")"$Path$cmd_line" -d "$device_id" -r "$ip_of_router"; echo $? >"/tmp/pluto_exitcode_$device_id") | tee "$new_log"
+#		(/usr/pluto/bin/Spawn_Wrapper.sh $(echo "$VGcmd")"$Path$cmd_line" -d "$device_id" -r "$ip_of_router"; echo $? >"/tmp/pluto_exitcode_$device_id") | tee "$new_log"
+		/usr/pluto/bin/Spawn_Wrapper.sh $(echo "$VGcmd")"$Path$cmd_line" -d "$device_id" -r "$ip_of_router" > >(tee "$new_log")
 	else
-		(/usr/pluto/bin/Spawn_Wrapper.sh "$Path$cmd_line" -d "$device_id" -r "$ip_of_router"; echo $? >"/tmp/pluto_exitcode_$device_id") | tee "$new_log" 
+#		(/usr/pluto/bin/Spawn_Wrapper.sh "$Path$cmd_line" -d "$device_id" -r "$ip_of_router"; echo $? >"/tmp/pluto_exitcode_$device_id") | tee "$new_log"
+		/usr/pluto/bin/Spawn_Wrapper.sh "$Path$cmd_line" -d "$device_id" -r "$ip_of_router" > >(tee "$new_log")
 	fi
-	
-	Ret="$(cat /tmp/pluto_exitcode_$device_id)"
+
+#	Ret="$(cat /tmp/pluto_exitcode_$device_id)"
+	Ret="$?"
 	rm -f /tmp/pluto_exitcode_$device_id
 	
-	while read line; do
-		screen -list | grep -F "$line" | cut -d. -f1 | cut -d"$Tab" -f2 | xargs kill -9
-	done < /var/log/pluto/spawned_devices_$device_id
+	if [ -f /var/log/pluto/spawned_devices_$device_id ]; then
+		while read line; do
+			screen -list | grep -F "$line" | cut -d. -f1 | cut -d"$Tab" -f2 | xargs kill -9
+		done < /var/log/pluto/spawned_devices_$device_id
+	fi
 	screen -wipe &>/dev/null
 	
 	if [ "$Ret" -eq 3 ]; then
 		# Abort
-		Logging $TYPE $SEVERITY_NORMAL "$module" "Shutting down... $i $device_name"
+		Logging $TYPE $SEVERITY_WARNING "$module" "Shutting down... $i $device_name"
 		echo $(date) Shutdown >> "$new_log"
 		exit
-	elif [ "$?" -eq 2 ]; then
-		Logging $TYPE $SEVERITY_NORMAL "$module" "Device requests restart... $i $device_name"
+	elif [ "$Ret" -eq 2 ]; then
+		Logging $TYPE $SEVERITY_WARNING "$module" "Device requests restart... $i $device_name"
 		echo $(date) Shutdown >> "$new_log"
 		sleep 10
 	else

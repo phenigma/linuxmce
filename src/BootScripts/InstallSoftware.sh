@@ -1,9 +1,14 @@
 #!/bin/bash
 
-IP="$1"
-PackageName="$2"
-RepositoryURL="$3"
-RepositoryName="$4"
+TrimSpace()
+{
+	echo "$1" | sed 's/^ *//; s/ *$//'
+}
+
+IP="$(TrimSpace "$1")"
+PackageName="$(TrimSpace "$2")"
+RepositoryURL="$(TrimSpace "$3")"
+RepositoryName="$(TrimSpace "$4")"
 
 if [ -z "$IP" ]; then
 	echo "Invalid device selected"
