@@ -307,17 +307,21 @@ void OrbiterSDLBluetooth::CMD_Capture_Keyboard_To_Variable(string sPK_DesignObj,
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDLBluetooth::SimulateMouseClick(int x, int y)
 {
-	BD_CP_SimulateEvent *pBD_CP_SimulateEvent = new BD_CP_SimulateEvent(0 /*mouse*/, x, y, 0);
+/*
+	BD_CP_SimulateEvent *pBD_CP_SimulateEvent = new BD_CP_SimulateEvent(0 /*mouse*//*, x, y, 0);
 
 	if( m_pBDCommandProcessor )
 		m_pBDCommandProcessor->AddCommand(pBD_CP_SimulateEvent);
+*/
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDLBluetooth::SimulateKeyPress(long key)
 {
-	BD_CP_SimulateEvent *pBD_CP_SimulateEvent = new BD_CP_SimulateEvent(1 /*keyboard*/, 0, 0, key);
+/*
+	BD_CP_SimulateEvent *pBD_CP_SimulateEvent = new BD_CP_SimulateEvent(1 /*keyboard*//*, 0, 0, key);
 
 	if( m_pBDCommandProcessor )
 		m_pBDCommandProcessor->AddCommand(pBD_CP_SimulateEvent);
+*/
 }
 //-----------------------------------------------------------------------------------------------------
