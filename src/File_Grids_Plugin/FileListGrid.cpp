@@ -56,7 +56,7 @@ void FileListGrid::ToData(string GridID,int &Size, char* &Data, int ColStart, in
 g_pPlutoLogger->Write(LV_STATUS,"filelistgrid::row %d",row);
 #endif
 		DataGridCell *pCell = GetData(0,row,&CurrentCellSize);
-		if( !pCell || !pCell->m_pGraphicData ) // We haven't already set a picture for this cell
+		if( (!pCell || !pCell->m_pGraphicData) && (!pCell || pCell->m_Text==NULL) ) // We haven't already set a picture for this cell.  Skip it if it's a cell with text
 		{
 			string Extension,PictureFile;
 			int PKID_MED_Picture=0;
@@ -80,7 +80,8 @@ g_pPlutoLogger->Write(LV_STATUS,"filelistgrid::row %d",row);
 			else if( flInfo->m_sPath.length()>0 )
 			{
 				g_pPlutoLogger->Write(LV_STATUS, "We are here: %s : %d", flInfo->m_sPath.c_str(), PKID_MED_Picture);
-				Extension = m_pMedia_Plugin->m_pMediaAttributes->GetAnyPictureUnderDirectory(flInfo->m_sPath,&PKID_MED_Picture,5);
+				if( !flInfo->m_bIsBack )
+					Extension = m_pMedia_Plugin->m_pMediaAttributes->GetAnyPictureUnderDirectory(flInfo->m_sPath,&PKID_MED_Picture,5);
 				g_pPlutoLogger->Write(LV_STATUS, "We are here: %s : %d... ext: %s", flInfo->m_sPath.c_str(), PKID_MED_Picture, Extension.c_str());
 			}
 

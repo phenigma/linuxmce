@@ -3391,7 +3391,7 @@ bool Orbiter::GotActivity(  )
 		(m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj==m_pDesignObj_Orbiter_ScreenSaveMenu && 
 			m_pDesignObj_Orbiter_MainMenu!=m_pDesignObj_Orbiter_ScreenSaveMenu) )
     {
-		if( m_bDisplayOn ) 
+		if( !m_bDisplayOn ) 
 	        CMD_Display_OnOff( "1" );
 		if( m_pDesignObj_Orbiter_ScreenSaveMenu && m_pScreenHistory_Current->m_pObj == m_pDesignObj_Orbiter_ScreenSaveMenu )
 		{

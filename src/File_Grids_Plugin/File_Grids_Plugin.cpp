@@ -236,14 +236,14 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 		pCell->m_Colspan = 6;
 		pDataGrid->SetData(1, iRow++, pCell);
 
-		pDataGrid->m_vectFileInfo.push_back(new FileListInfo(true,Paths));
+		pDataGrid->m_vectFileInfo.push_back(new FileListInfo(true,Paths,true));
 	}
 
 	for (list<FileDetails *>::iterator i = listFileDetails.begin(); i != listFileDetails.end(); i++)
 	{
 		FileDetails *pFileDetails = *i;
 		FileListInfo *flInfo;
-		flInfo = new FileListInfo(pFileDetails->m_bIsDir,pFileDetails->m_sBaseName + pFileDetails->m_sFileName);
+		flInfo = new FileListInfo(pFileDetails->m_bIsDir,pFileDetails->m_sBaseName + pFileDetails->m_sFileName,false);
 
 		DataGridCell *pCellPicture = new DataGridCell("", pFileDetails->m_sBaseName + pFileDetails->m_sFileName);
 		pCell = new DataGridCell(pFileDetails->m_sFileName + " " + pFileDetails->m_sDescription, pFileDetails->m_sBaseName + pFileDetails->m_sFileName);
