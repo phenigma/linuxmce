@@ -37,7 +37,7 @@ $selectBinaries='
 		LEFT JOIN PackageType ON FK_PackageType=PK_PackageType
 		LEFT JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer
 	WHERE IsSource=0 AND NonExecutable=0
-		ORDER BY ManufacturerName DESC, TypeName ASC, Package.Description ASC';
+		ORDER BY FK_Manufacturer=1 DESC,ManufacturerName DESC, TypeName ASC, Package.Description ASC';
 $resBinaries=$dbADO->Execute($selectBinaries);
 $out.=formatOutput($resBinaries,$dbADO);
 
@@ -51,7 +51,7 @@ $selectSourceCode='
 		LEFT JOIN PackageType ON FK_PackageType=PK_PackageType
 		LEFT JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer
 	WHERE IsSource=1 AND NonExecutable=0
-		ORDER BY ManufacturerName DESC, TypeName ASC, Package.Description ASC';
+		ORDER BY FK_Manufacturer=1 DESC,ManufacturerName DESC, TypeName ASC, Package.Description ASC';
 $resSourceCode=$dbADO->Execute($selectSourceCode);
 $out.=formatOutput($resSourceCode,$dbADO);
 
@@ -65,7 +65,7 @@ $selectNonExec='
 		LEFT JOIN PackageType ON FK_PackageType=PK_PackageType
 		LEFT JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer
 	WHERE IsSource=0 AND NonExecutable=1
-		ORDER BY ManufacturerName DESC, TypeName ASC, Package.Description ASC';
+		ORDER BY FK_Manufacturer=1 DESC, ManufacturerName DESC, TypeName ASC, Package.Description ASC';
 $resNonExec=$dbADO->Execute($selectNonExec);
 $out.=formatOutput($resNonExec,$dbADO);
 
