@@ -42,6 +42,7 @@ function phoneLines($output,$dbADO) {
 			$linesArray[]=$row['uniqueid'];
 			$pos++;
 			$out.='
+			<input type="hidden" name="oldName_'.$row['uniqueid'].'" value="'.$row['name'].'">
 			<tr bgcolor="'.(($pos%2==0)?'#EEEEEE':'#E5E5E5').'">
 				<td><input type="text" name="username_'.$row['uniqueid'].'" value="'.$row['username'].'"></td>
 				<td><input type="text" name="name_'.$row['uniqueid'].'" value="'.$row['name'].'"></td>
@@ -174,13 +175,17 @@ function phoneLines($output,$dbADO) {
 			foreach($linesArray AS $lineID){
 				$username=@$_POST['username_'.$lineID];
 				$name=@$_POST['name_'.$lineID];
+				$oldName=@$_POST['oldName_'.$lineID];
 				$ipaddr=@$_POST['ipaddr_'.$lineID];
 				$port=@$_POST['port_'.$lineID];
 				$rtptimeout=@$_POST['rtptimeout_'.$lineID];
-				
+								
 				$dbADO->Execute('UPDATE sip_buddies SET username=?, name=?, ipaddr=?, port=?, rtptimeout=? WHERE uniqueid=?',array($username,$name,$ipaddr,$port,$rtptimeout,$lineID));
+				if($name!=$oldName){
+					$dbADO->Execute('UPDATE extensions_table SET appdata=? WHERE appdata=?',array('DIALLINE='.$name,'DIALLINE='.$oldName));
+				}
 			}
-			$newDefaultLine=$_POST['newDefaultLine'];
+			$newDefaultLine=@$_POST['newDefaultLine'];
 			if(@$defaultLineName!=$newDefaultLine){
 				$dbADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINE='.@$newDefaultLine,$defaultLineID));
 			}
