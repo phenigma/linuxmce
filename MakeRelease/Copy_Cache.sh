@@ -8,7 +8,6 @@ fi
 Path="$1"; shift
 Cache="/home/tmp/pluto-build/package-cache"
 
-rm -rf "$Cache"
 mkdir -p "$Cache"
 
 x=""
