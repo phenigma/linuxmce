@@ -406,25 +406,32 @@ return 0;
 	{
 		cerr << "Caught exception: " << pException << endl;
 getch();
-		return 1;
+		exit(1);
 	}
 	catch( const char *pException )
 	{
 		cerr << "Caught exception: " << pException << endl;
 getch();
-		return 1;
+		exit(1);
 	}
 	catch( string sException )
 	{
 		cerr << "Caught exception: " << sException << endl;
 getch();
+		exit(1);
 		return 1;
 	}
+	catch( ... )
+	{
+		cerr << "Caught unknown exception" << endl;
 getch();
+		exit(1);
+	}
 
 	delete g_pPlutoLogger;
 #ifdef _WIN32
 		WSACleanup( );
 #endif
+	cout << "Everything okay";
 	return 0;
 }
