@@ -57,7 +57,7 @@ function editCommandGroupFromMasterDevice($output,$dbADO) {
 				<tr>
 					<td>Description:</td>
 					<td>
-						<input name="Description" value="'.stripslashes($commandGroupName).'" type="text" size="20">						
+						<input name="Description" value="'.stripslashes($commandGroupName).'" type="text" size="20"> <input type="button" class="button" name="button" value="Add/Remove commands" onClick="windowOpen(\'index.php?section=commandsPicker&dtID='.$deviceID.'&commandGroupID='.$commandGroupID.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');">
 					</td>
 				</tr>		
 				<tr>
