@@ -1,5 +1,15 @@
-#ifndef Command_Impl_H
-#define Command_Impl_H
+/**
+ *
+ * @file Command_Impl.h
+ * @brief header file for the Command_Impl class
+ * @author
+ * @todo notcommented
+ *
+ */
+
+
+#ifndef COMMAND_IMPL_H
+#define COMMAND_IMPL_H
 
 #include "HandleRequestSocket.h"
 
@@ -13,125 +23,236 @@ namespace DCE
 	typedef map<int, class Command_Impl *> MapCommand_Impl;
 	typedef list<class Command_Impl *> ListCommand_Impl;
 
-	// return false if DCE should stop processing the message
-	typedef  bool (Command_Impl::*MessageInterceptorFn)(class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo);
+	/**
+	 * @brief return false if DCE should stop processing the message
+	 */
+	typedef  bool ( Command_Impl::*MessageInterceptorFn )( class Socket *pSocket, class Message *pMessage, class DeviceData_Router *pDeviceFrom, class DeviceData_Router *pDeviceTo );
 
+	
+	/**
+	 * @brief the implementation for the command from the DCE namespace (Data Commands and Events); classes derived from this one handle commmands for specific devices
+	 */
 	class Command_Impl : public HandleRequestSocket
 	{
+	
 	private:
-		list<Message *> m_MessageQueue;  // See QueueMessage notes
-		vector<string> m_vectSpawnedDevices;  // Keep track of all the devices we spawned so we can kill them on create
+	
+		list<Message *> m_listMessageQueue;  /** < there are two ways of sending a message: realtime and queued (in a sepparted thread); this is the queue of messages */
+		vector<string> m_vectSpawnedDevices;  /** < Keep track of all the devices we spawned so we can kill them on create */
 
 	public:
-		Command_Impl *m_pParent;
-		MapCommand_Impl m_mapCommandImpl_Children;  
-		pluto_pthread_mutex_t m_MessageQueueMutex;
-		pthread_t m_pthread_queue_id;
-		pthread_cond_t m_MessageQueueCond;
-		bool m_bKillSpawnedDevicesOnExit;  // A derived class will set this to true if we should kill the devices when we die
+	
+		Command_Impl *m_pParent; /** < if the command was created as an embedded command, keep a pointer to it's parent */
+		MapCommand_Impl m_mapCommandImpl_Children; /** < map containing the commands that this command has created */
+		pluto_pthread_mutex_t m_listMessageQueueMutex; /** < for protecin the access to the MessageQueue */
+		pthread_t m_pthread_queue_id; /** < the thread id for the tread that's treating the messages from the message queue */
+		pthread_cond_t m_listMessageQueueCond; /** < condition for the messages in the queue */
+		bool m_bKillSpawnedDevicesOnExit;  /** < a derived class will set this to true if we should kill the devices when we die */
+		class Router *m_pRouter; /** < this will be NULL if this is a plug-in being loaded in the same memory space, otherwise it will point to the router that can see the shared mamory space */
+		
+		Command_Impl *m_pPrimaryDeviceCommand; /** < pointer to the command for the primary device (if this one was spawned by it) */
+		DeviceData_Impl *m_pData; /** < a pointer to a device data implementation class (one derived from it) */
+		Event_Impl *m_pEvent; /** < a pointer to the event implementation class (one derived from it) */
+		Event_Impl *m_pcRequestSocket;  /** < Create a second socket for handling requests separately */
+		
+		int m_iTargetDeviceID; /** < the device targeted by the command */
 
-		virtual bool Register() {return true; };   // returns true if successful.  This is only used by devices that are plug-ins
+		/** flags */
+		
+		bool m_bQuit; /** < set when DeviceManager wants the app to terminate */
+		bool m_bReload;
+		bool m_bHandleChildren; /** < used by ReceivedMessage() */
+		bool m_bLocalMode; /** < no router */
+		
+		
+		/**
+		 * @brief create a top-level command
+		 * will establish a connection to the server download the data, and attempt to run CreateCommand to instantiate child objects
+		 */
+		Command_Impl( int DeviceID, string ServerAddress, bool bLocalMode=false, class Router *pRouter=NULL );
 
-		class Router *m_pRouter; // This will be NULL if this is a plug-in being loaded in the same memory space
-
-		// If your implementation can handle child devices, it MUST override and process
-		// CreateCommand to instantiate your customized command processors.  
-		// If DeviceManager passes a child device and this returns NULL, your 
-		// app will terminate with an error.
-		virtual Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
-
+		/**
+		 * @brief create a child command
+		 * assumes a pre-existing connection to the server and requires that the data and event classes be already generated
+		 */
+		Command_Impl( Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, class Router *pRouter );
+		
+		/**
+		 * @brief frees memory allocated on the heap and calls KillSpawnedDevices if the flag is set
+		 * @see KillSpawnedDevices
+		 */
 		virtual ~Command_Impl();
 
+		/**
+		 * @brief  now all this used to do is done automatically; keeping it for now *just in case*
+		 * If your implementation can handle child devices, it MUST override and process
+		 * CreateCommand to instantiate your customized command processors.  
+		 * If DeviceManager passes a child device and this returns NULL, your 
+		 * app will terminate with an error.
+		 */
+		virtual Command_Impl *CreateCommand( int iPK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent );
+		
+		/**
+		 * @brief used by devices witch are plug-ins to register
+		 * @return true if successfull
+		 */
+		virtual bool Register() { return true; };
+
+		/**
+		 * @brief accessor for the m_bHandleChildren data member
+		 */
 		void HandleChildren() { m_bHandleChildren = true; };
+		
+		/**
+		 * @brief creates a new command embedded into this one
+		 */
 		virtual void CreateChildren();
-		// This will try to spawn the children as separate sessions.  Derived classes should implement this to 
-		// handle special cases, such as if the child requires the GUI interface
-		virtual bool SpawnChildDevice(class DeviceData_Impl *pDeviceData_Impl_Child,string Display="");  // Another implementation may override this, passing in the display to export -- Linux only
+		
+		/**
+		 * @brief this will try to spawn the children as separate sessions (for example different displays under Linux or different comman prompts for Windows)
+		 * derived classes should implement this to handle special cases, such as if the child requires the GUI interface
+		 * 
+		 */
+		virtual bool SpawnChildDevice( class DeviceData_Impl *pDeviceData_Impl_Child, string sDisplay="" );  // Another implementation may override this, passing in the display to export -- Linux only
+		
 		virtual void KillSpawnedDevices();
 
-		Command_Impl *m_pPrimaryDeviceCommand;
-		DeviceData_Impl *m_pData;
-		Event_Impl *m_pEvent;
-		Event_Impl *m_pcRequestSocket;  // Create a second socket for handling requests separately
+		/**
+		 * @brief replaces the values for all the parameters in m_pData with new values specified in sReplacement
+		 * @param sReplacement looks like this: param_index,param_new_value,param_index,param_new_value ...
+		 */
+		virtual void ReplaceParams( ::std::string sReplacement );
 
-		bool m_bQuit, m_bReload, m_bHandleChildren, m_bLocalMode;
-		int m_TargetDeviceID;
-
-		// Create a top-level command.  Will establish a connection to the server 
-		// download the data, and attempt to run CreateCommand to instantiate child objects
-		Command_Impl( int DeviceID, string ServerAddress, bool bLocalMode=false,class Router *pRouter=NULL);
-
-		// Create a child command.  Assumes a pre-existing connection to the server
-		// and requires that the data and event classes be already generated.
-		Command_Impl(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent,class Router *pRouter);
-
-		virtual void ReplaceParams(::std::string replacement);
-
-		// Override OnDataChange to get notified when the server has changed a data parameter
-		// Override RequestingParamter to handle specifying real-time parameter data (like running time)
+		/**
+		 * @brief tries to connect to a client socket
+		 * @return true on success, false otherwise
+		 */		 
 		virtual bool Connect();
-		virtual void OnDataChange(int ID, string ValueOld, string ValueNew) {};
-		virtual void OnQuit() { m_bQuit = true; /* 1/4/2004 - AB removed this to try to stop socket failures Disconnect(); */};  // When DeviceManager wants the app to terminate, it calls this.
-		virtual void OnReload() { m_bReload = true; m_bQuit = true; m_bTerminate=true; }// todo-test If it's a plug-in, just die and it will be reloaded /* same as above Disconnect(); */ }; // When DeviceManager wants the app to recheck its config, by default it exits.
-		virtual void RequestingParameter(int PK_DeviceData) {};
-		virtual bool ReceivedMessage(Message *pMessage);
-		virtual void ReceivedString(string s);
+		
+		
+		
+		/** events */
+		
+		/**
+		 * @brief override to get notified when the server has changed a data parameter
+		 */
+		virtual void OnDataChange( int ID, string ValueOld, string ValueNew ) {};
+		
+		/**
+		 * @brief sets the m_bQuit mb data; used when DeviceManager wants the app to terminate
+		 * @todo check: 1/4/2004 - AB removed this to try to stop socket failures Disconnect()
+		 */
+		virtual void OnQuit() { m_bQuit = true; };
+		
+		/**
+		 * @brief when DeviceManager wants the app to recheck its config, by default it exits.
+		 * sets the m_bReload, m_bQuit, m_bTerminate flags to true
+		 * @todo test if it's a plug-in, just die and it will be reloaded (same as above Disconnect());
+		 */
+		virtual void OnReload() { m_bReload = true; m_bQuit = true; m_bTerminate=true; }
+		
+		/**
+		 * @brief just calls OnQuit()
+		 * @see m_bQuit
+		 */
 		virtual void OnUnexpectedDisconnect() { OnQuit(); };
+		
+		/**
+		 * @brief called when the socket disconnects, should be overriden
+		 */
 		virtual void OnDisconnect() {};
 
-		// Most of the time when a device wants to send a message it doesn't want to block it's thread
-		// until the message is sent by using the normal SendMessageWithConfirm.  Also, SendMessageWithConfirm introduces
-		// the possibility that the receiving device may send something back in response, creating a 
-		// potential race condition if the thread sending the message is blocking the same mutex
-		// as the thread on which the new command comes in on.  To prevent this, call QueueMessage,
-		// which causes the message to be put in a queue and sent on a separate thread.  This is like
-		// the difference between SendMessage and PostMessage in Windows.
-		void QueueMessage(Message *pMessage);
-		virtual void ProcessMessageQueue();  // Do not call directly.  For internal use only
+		
+		
+		/**
+		 * @brief override to handle specifying real-time parameter data (like running time)
+		 */
+		virtual void RequestingParameter( int iPK_DeviceData ) {};
+		
+		/**
+		 * @brief when it receives a strin it sends it to all the command impl children
+		 */
+		virtual void ReceivedString( string sLine );
+		
+		/**
+		 * @brief performes a specific action bases on the message type
+		 */
+		virtual bool ReceivedMessage( Message *pMessage );
+		
+		/**
+		 * @brief adds the message to the message queue
+		 * Most of the time when a device wants to send a message it doesn't want to block it's thread
+		 * until the message is sent by using the normal SendMessageWithConfirm.  Also, SendMessageWithConfirm introduces
+		 * the possibility that the receiving device may send something back in response, creating a 
+		 * potential race condition if the thread sending the message is blocking the same mutex
+		 * as the thread on which the new command comes in on.  To prevent this, call QueueMessage,
+		 * which causes the message to be put in a queue and sent on a separate thread.  This is like
+		 * the difference between SendMessage and PostMessage in Windows.
+		 */
+		void QueueMessage( Message *pMessage );
+		
+		/**
+		 * @brief sends all the messges in the message queue
+		 * @warning Do not call directly.  For internal use only (called by the queue handler only)
+		 */
+		virtual void ProcessMessageQueue();
 
-		// This will send the message and wait for the destination device to receive it and acknowledge with an "OK".  Only
-		// then will the function return a true value.  Otherwise it returns false, and Response is whatever response
-		// the destination device or server provided
+		/**
+		 * @brief sends a message and expects for confirmation
+		 * This will send the message and wait for the destination device to receive it and acknowledge with an "OK".  Only
+		 * then will the function return a true value.  Otherwise it returns false, and Response is whatever response
+		 * the destination device or server provided
+		 */
 		bool SendMessageWithConfirm(Message *pMessage,string &Response);
 
-		// Send a regular command.  If confirmation is 0, it will go in a queue and there will be no response.  The return value is always true.
-		// If you send a command that has 'out' parametes, they will not be filled in.  If confirmation is 1, the return value is true on 
-		// success and m_pcResponse, if specified, will equal 'OK'.  On failure, the result will be false, and p_sResponse will be assigned
-		// a comment, if it was specified.  If iConfirmation is left at -1, the default, the framework will wait for a response if there
-		// are out parameters (as if iConfirmation==1), and will send without confirmation if there are no out parameters.
-		bool SendCommand(class PreformedCommand &pPreformedCommand,int iConfirmation=-1,string *p_sResponse=NULL);
+		/**
+		 * @brief
+		 * Send a regular command.  If confirmation is 0, it will go in a queue and there will be no response.  The return value is always true.
+		 * If you send a command that has 'out' parametes, they will not be filled in.  If confirmation is 1, the return value is true on 
+		 * success and m_pcResponse, if specified, will equal 'OK'.  On failure, the result will be false, and p_sResponse will be assigned
+		 * a comment, if it was specified.  If iConfirmation is left at -1, the default, the framework will wait for a response if there
+		 * are out parameters (as if iConfirmation==1), and will send without confirmation if there are no out parameters.
+		 */
+		bool SendCommand( class PreformedCommand &pPreformedCommand, int iConfirmation = -1, string *p_sResponse=NULL );
 
-		// Re-route the primitives through the primary device command.
+		
+		
+		/** Re-route the primitives through the primary device command. */
+		
+		/** @brief sending a string directly or through the parent device */
 		virtual bool SendString(string s)
 		{
-			if (this!=m_pPrimaryDeviceCommand)
-				return m_pPrimaryDeviceCommand->SendString(s);
+			if ( this != m_pPrimaryDeviceCommand )
+				return m_pPrimaryDeviceCommand->SendString( s );
 			else
-				return Socket::SendString(s);
+				return Socket::SendString( s );
 		};
 
-		virtual bool ReceiveString(string &s)
+		/** @brief recieving a string directly or through the parent device */
+		virtual bool ReceiveString( string &s )
 		{
-			if (this!=m_pPrimaryDeviceCommand)
-				return m_pPrimaryDeviceCommand->ReceiveString(s);
+			if ( this != m_pPrimaryDeviceCommand )
+				return m_pPrimaryDeviceCommand->ReceiveString( s );
 			else
-				return Socket::ReceiveString(s);
+				return Socket::ReceiveString( s );
 		}
 
-		virtual bool SendData(int size, const char *data)
+		/** @brief sending a data block directly or through the parent device */
+		virtual bool SendData( int iSize, const char *pcData )
 		{
-			if (this!=m_pPrimaryDeviceCommand)
-				return m_pPrimaryDeviceCommand->SendData(size, data);
+			if ( this != m_pPrimaryDeviceCommand )
+				return m_pPrimaryDeviceCommand->SendData( iSize, pcData );
 			else
-				return Socket::SendData(size, data);
+				return Socket::SendData( iSize, pcData );
 		}
 
-		virtual bool ReceiveData(int size, char *data)
+		/** @brief recieving a data block directly or through the parent device */
+		virtual bool ReceiveData( int iSize, char *pcData)
 		{
-			if (this!=m_pPrimaryDeviceCommand)
-				return m_pPrimaryDeviceCommand->ReceiveData(size, data);
+			if ( this != m_pPrimaryDeviceCommand )
+				return m_pPrimaryDeviceCommand->ReceiveData( iSize, pcData );
 			else
-				return Socket::ReceiveData(size, data);
+				return Socket::ReceiveData( iSize, pcData );
 		}
 	};
 }

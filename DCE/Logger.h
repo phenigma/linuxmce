@@ -1,5 +1,15 @@
-#ifndef Logger_H
-#define Logger_H
+/**
+ *
+ * @file Logger.h
+ * @brief header file for the Logger, NullLogger and FileLogger classes
+ * @author
+ * @todo notcommented
+ *
+ */
+
+
+#ifndef DCELogger_H
+#define DCELogger_H
 
 #ifndef SYMBIAN
 #include <stdio.h>
@@ -13,16 +23,19 @@
 #include <set>
 #include <queue>
 
+#include "TokenStream.h"
 #include "SerializeClass/SerializeClass.h"
 
+#include "PlutoLockLogger.h"
+
 #define LV_CRITICAL 		1
-#define LV_WARNING 			5
+#define LV_WARNING 		5
 #define LV_EVENTHANDLER 	6
-#define LV_EVENT 			7
-#define LV_ACTION 			8
+#define LV_EVENT 		7
+#define LV_ACTION 		8
 #define LV_CRITERIA 		9
-#define LV_STATUS 			10
-#define LV_EPG				11
+#define LV_STATUS 		10
+#define LV_EPG			11
 #define LV_ALARM		12
 #define LV_SOCKET		13
 #define LV_LIGHTING		14
@@ -47,101 +60,195 @@
 #define LV_EPG_UPDATE	33
 #define LV_MEDIA		34
 
-#include "PlutoLockLogger.h"
+typedef map<string, Logger*> NameLoggerMap;
+typedef map<string, string> StringStringMap;
 
-namespace DCE
+/**
+ * While global variables aren't recommended, every object within the same memory space
+ * will be using the same logger anyway.  This is cleaner than passing a pointer to a
+ * the logger around.  Each program that uses this will have to create the actual
+ * instance of g_pDCELogger, using whatever derived class is appropriate
+ */ 
+extern class Logger *g_pDCELogger;
+
+
+namespace DCE 
 {
+
+	/**
+	* @brief logger for the data command and events
+	*/
 	class Logger
 	{
+	
+	protected:
+	
+		std::string m_Name; /** < name of the logger */
+		int m_iPK_Installation; /** < the installation */
+		my_pthread_mutex_t m_Lock; /** < @todo ask */
+		pthread_mutexattr_t m_MutexAttr; /** < @todo ask */
+	
 	public:
-
+	
 		class Entry;
-
-		Logger(const char* name = NULL);
+	
+		/**
+		* @brief default constructor
+		*/
+		Logger( const char* name = NULL );
+		
+		/**
+		* @brief destructor
+		*/
 		virtual ~Logger();
-
+		
+		/**
+		* @brief sets the value for the m_iPK_Installation member
+		*/
 		virtual void SetInstallation(int Installation);
-		virtual void SetName(const char* name);
+		
+		/**
+		* @brief sets the name for logger
+		*/
+		virtual void SetName(const char* pcName);
+		
+		/**
+		* @brief should be overriden to start the logger
+		*/
 		virtual void Start() {}
-
+		
+		/**
+		* @brief should be overriden to flush the logger
+		*/
 		virtual void Flush() {}
-
-		virtual void Write(int Level, const char *Format, ...);
-
-		virtual void WriteEntry(class Logger::Entry& entry) = 0;
-
+	
+		/**
+		* @brief an entry in a specific format depending on it's level
+		* @todo ask
+		*/
+		virtual void Write( int iLevel, const char *pcFormat, ... );
+	
+		/**
+		* @brief writes an entry to the log
+		*/
+		virtual void WriteEntry( class Logger::Entry& entry ) = 0;
+	
+		/**
+		* @brief an entry to the logger
+		*/
 		class Entry : public SerializeClass
 		{
+		
 		public:
-			int m_iLevel;
-			long m_dwTime,m_dwMicroseconds;
-			::std::string m_sName;
-			::std::string m_sData;
-			int m_iPK_Device;
-
-			Entry() {}
-			Entry(int Level,int Time,int Microseconds,string sName,string sData,int iPK_Device)
+		
+			int m_iLevel; /** < this entry's level > @todo ask*/
+			long m_dwTime; /** < the time for the entry */
+			long m_dwMicroseconds; /** < the microseconds for the entry time */
+			std::string m_sName; /** < entry name */
+			std::string m_sData; /** < entry data */
+			int m_iPK_Device; /** < the device that generated the entry */
+	
+			Entry() {} /** < default (empty) constructor */
+			
+			/**
+			* @brief constructor that assignes values to the data members */
+			*/
+			Entry( int Level, int Time, int Microseconds, string sName, string sData, int iPK_Device )
 			{
-				m_iLevel = Level; m_dwTime=Time; m_dwMicroseconds=Microseconds; m_sName=sName; m_sData=sData, m_iPK_Device=iPK_Device;
+				m_iLevel = Level; m_dwTime = Time; m_dwMicroseconds = Microseconds;
+				m_sName = sName; m_sData = sData; m_iPK_Device = iPK_Device;
 			}
+			
+			/**
+			* @brief serializes the class data
+			*/
 			void SetupSerialization()
 			{
 				StartSerializeList() +	m_iLevel + m_dwTime + m_dwMicroseconds + m_sName + m_sData + m_iPK_Device;
 			}
-			virtual string SerializeClassClassName() { return "Logger::Entry"; }
+			
+			/**
+			* @brief returns the class name so that the SerializeClass will know how to serialize it
+			* @todo ask if I got it right
+			*/
+			virtual string BinarySerializeClassName() { return "Logger::Entry"; }
 		};
-
-	protected:
-		::std::string m_Name;
-		int m_iPK_Installation;
-		pluto_pthread_mutex_t m_Lock;
-		pthread_mutexattr_t m_MutexAttr;
 	};
-
-	typedef map<string, Logger*> NameLoggerMap;
-	typedef map<string, string> StringStringMap;
-
+	
+	/**
+	* @brief a null DCE logger
+	* @todo ask
+	*/
 	class NullLogger : public Logger
 	{
+	
 	public:
+	
 		NullLogger() : Logger("")
 		{}
-
+	
 		virtual ~NullLogger()
 		{}
-
-		virtual void WriteEntry(class Logger::Entry& entry)
-		{
-			if (entry.m_iLevel == 0)
-			{
-			}
-		}
+	
+		virtual void WriteEntry( class Logger::Entry& entry ) {}
 	};
-
-
+	
+	/**
+	* @brief logger thet writes entries to a file
+	* @todo ask
+	*/
 	class FileLogger : public Logger
 	{
-	public:
-
-		FileLogger(FILE* log = stderr);
-		FileLogger(const char* file);
-		virtual ~FileLogger();
-
-		virtual void SetColor(int Color);
-		virtual void ClearConsole();
-		virtual void WriteEntry(class Logger::Entry& entry);
-
+	
 	protected:
-		FILE* m_LogFile;
-		bool m_bNeedToClose;
-
+	
+		FILE* m_LogFile; /** < the file to write the log to */
+		
+		bool m_bNeedToClose; /** < set to truth if the file needs to be closed, default value false */
+	
+	public:
+	
+		/**
+		* @brief constructor, gets a FILE pointer, standard value for m_LogFile is stderr, m_bNeedToClose default is false
+		*/
+		FileLogger( FILE* log = stderr );
+		
+		/**
+		* @brief writes the log to a file specified by name
+		* open mode = append, m_bNeedToClose default is true,
+		* if error while opening the file redirect to stderr
+		*/
+		FileLogger( const char* pcFile );
+		
+		/**
+		* @brief destructor
+		* closes the m_LogFile if m_bNeedToClose is set to true
+		*/
+		virtual ~FileLogger();
+	
+		/**
+		* @brief returnes a new FileLogger to the file specified in the ts parameter
+		* @param ts the file name should be specified like this: {filename}
+		*/
+		static FileLogger* Parse( TokenStream& ts, StringStringMap& vars );
+		
+		/**
+		* @brief used to the console foreground and background color and bold attribute if in Windows
+		* @param iColor depending of it's value sets an specific scheme @see the implementation
+		*/
+		virtual void SetColor( int iColor );
+		
+		/**
+		* @brief clrscr under windows
+		*/
+		virtual void ClearConsole();
+		
+		/**
+		* @brief prints the log entry data to the log file
+		*/
+		virtual void WriteEntry( class Logger::Entry& entry );
+		
 	};
-
-	// While global variables aren't recommended, every object within the same memory space
-	// will be using the same logger anyway.  This is cleaner than passing a pointer to a
-	// the logger around.  Each program that uses this will have to create the actual
-	// instance of g_pPlutoLogger, using whatever derived class is appropriate
-	extern class DCE::Logger *g_pPlutoLogger;
 }
 
 #endif
