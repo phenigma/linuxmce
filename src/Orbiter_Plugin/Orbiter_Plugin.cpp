@@ -758,16 +758,19 @@ void Orbiter_Plugin::CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Messa
 
 	/** @brief COMMAND: #78 - New Mobile Orbiter */
 	/** After a new bluetooth device is detected, the Orbiter Handler will display a message on all the Orbiters prompting if this is a phone that should be added.  The Orbiters will fire this command to indicate that 'yes' the device is a phone and needs the sof */
+		/** @param #17 PK_Users */
+			/** The primary user of the phone. */
 		/** @param #44 PK_DeviceTemplate */
 			/** What type of phone it is. */
 		/** @param #47 Mac address */
 			/** The MAC Address of the phone. */
 
-void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_DeviceTemplate,string sMac_address,string &sCMD_Result,Message *pMessage)
+void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate,string sMac_address,string &sCMD_Result,Message *pMessage)
 //<-dceag-c78-e->
 {
     if( !iPK_DeviceTemplate )
         iPK_DeviceTemplate = DEVICETEMPLATE_Nokia_36503660_CONST;  // hack - todo fix this
+//		send orbiter to prompt for mobile phone model
 
     printf("CMD_New_Mobile_Orbiter\n");
 
@@ -782,10 +785,26 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_DeviceTemplate,string sMac_a
 
 	g_pPlutoLogger->Write(
         LV_STATUS,
-        "New mobile orbiter, setting: %d to mac: %s",
+		"New mobile orbiter, setting: %d to mac: %s user: %d",
         PK_Device,
-        sMac_address.c_str()
+        sMac_address.c_str(), iPK_Users
     );
+
+	Row_Device_DeviceData *pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->GetRow(PK_Device,DEVICEDATA_PK_Users_CONST);
+	if( !pRow_Device_DeviceData )
+	{
+		pRow_Device_DeviceData = m_pDatabase_pluto_main->Device_DeviceData_get()->AddRow();
+		pRow_Device_DeviceData->FK_Device_set(PK_Device);
+		pRow_Device_DeviceData->FK_DeviceData_set(DEVICEDATA_PK_Users_CONST);
+	}
+	pRow_Device_DeviceData->IK_DeviceData_set( StringUtils::itos(iPK_Users) );
+	pRow_Device_DeviceData->Table_Device_DeviceData_get()->Commit();
+
+	// Same thing like in regen orbiter
+	string Cmd = "/usr/pluto/bin/RegenOrbiterOnTheFly.sh " + StringUtils::itos(PK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " &";
+	g_pPlutoLogger->Write(LV_STATUS,"Executing: %s",Cmd.c_str());
+	system(Cmd.c_str());
+	g_pPlutoLogger->Write(LV_STATUS,"Execution returned: %s",Cmd.c_str());
 
     // todo -- need to restart the dce router automatically
     if( !pUnknownDeviceInfos->m_iDeviceIDFrom )
@@ -1263,7 +1282,19 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(iPK_Device);
 	if( !pOH_Orbiter )
 	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Regenerate finished with unknown orbiter %d",iPK_Device);
+		// Must be a new orbiter.  We should restart the orbiter
+		Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
+		if( !pRow_Device )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Regenerate finished with unknown orbiter %d",iPK_Device);
+			return;
+		}
+
+		DisplayMessageOnOrbiter(iPK_Device,"Your new " + pRow_Device->Description_get() + " is ready to go.  "
+			"All your devices must be reset to use it.  Press Quick Reload Router to do it now.  "
+			"It takes about 20 seconds.  Phone calls will not be affected, but your media will.  "
+			"Otherwise press the 'back' arrow and you can do it another time by choosing the option "
+			"on the 'advanced' menu.",true);
 		return;
 	}
 	pOH_Orbiter->m_tRegenTime = 0;

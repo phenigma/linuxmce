@@ -1375,19 +1375,19 @@ namespace DCE
 	};
 	class CMD_New_Mobile_Orbiter : public PreformedCommand {
 	public:
-		CMD_New_Mobile_Orbiter(long DeviceIDFrom, long DeviceIDTo,int iPK_DeviceTemplate,string sMac_address) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,78,2,44,StringUtils::itos(iPK_DeviceTemplate).c_str(),47,sMac_address.c_str()); }
+		CMD_New_Mobile_Orbiter(long DeviceIDFrom, long DeviceIDTo,int iPK_Users,int iPK_DeviceTemplate,string sMac_address) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,78,3,17,StringUtils::itos(iPK_Users).c_str(),44,StringUtils::itos(iPK_DeviceTemplate).c_str(),47,sMac_address.c_str()); }
 	};
 	class CMD_New_Mobile_Orbiter_DL : public PreformedCommand {
 	public:
-		CMD_New_Mobile_Orbiter_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_DeviceTemplate,string sMac_address) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,78,2,44,StringUtils::itos(iPK_DeviceTemplate).c_str(),47,sMac_address.c_str()); }
+		CMD_New_Mobile_Orbiter_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Users,int iPK_DeviceTemplate,string sMac_address) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,78,3,17,StringUtils::itos(iPK_Users).c_str(),44,StringUtils::itos(iPK_DeviceTemplate).c_str(),47,sMac_address.c_str()); }
 	};
 	class CMD_New_Mobile_Orbiter_DT : public PreformedCommand {
 	public:
-		CMD_New_Mobile_Orbiter_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_DeviceTemplate,string sMac_address) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,78,2,44,StringUtils::itos(iPK_DeviceTemplate).c_str(),47,sMac_address.c_str()); }
+		CMD_New_Mobile_Orbiter_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Users,int iPK_DeviceTemplate,string sMac_address) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,78,3,17,StringUtils::itos(iPK_Users).c_str(),44,StringUtils::itos(iPK_DeviceTemplate).c_str(),47,sMac_address.c_str()); }
 	};
 	class CMD_New_Mobile_Orbiter_Cat : public PreformedCommand {
 	public:
-		CMD_New_Mobile_Orbiter_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_DeviceTemplate,string sMac_address) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,78,2,44,StringUtils::itos(iPK_DeviceTemplate).c_str(),47,sMac_address.c_str()); }
+		CMD_New_Mobile_Orbiter_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Users,int iPK_DeviceTemplate,string sMac_address) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,78,3,17,StringUtils::itos(iPK_Users).c_str(),44,StringUtils::itos(iPK_DeviceTemplate).c_str(),47,sMac_address.c_str()); }
 	};
 	class CMD_Add_Unknown_Device : public PreformedCommand {
 	public:

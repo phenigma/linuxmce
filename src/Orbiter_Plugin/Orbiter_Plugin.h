@@ -109,7 +109,7 @@ public:
 	bool NewPnpDevice( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
     void ProcessUnknownDevice();
-	void DisplayMessageOnOrbiter(int dwPK_Device,string sMessage)
+	void DisplayMessageOnOrbiter(int dwPK_Device,string sMessage,bool bPromptToResetRouter=false)
 	{
 		if ( sMessage == "" )
 			sMessage = "Unable to save playlist";
@@ -118,6 +118,11 @@ public:
 
 		DCE::CMD_Goto_Screen CMD_Goto_Screen( 0, dwPK_Device, 0, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), "", "", false );
 		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text.m_pMessage);
+		if( bPromptToResetRouter )
+		{
+			DCE::CMD_Show_Object CMD_Show_Object( 0, dwPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_butRestartDCERouter_CONST), 0, "", "", "0" );
+			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Show_Object.m_pMessage);
+		}
 		SendCommand( CMD_Goto_Screen );
 	}
 
@@ -172,13 +177,15 @@ public:
 
 	/** @brief COMMAND: #78 - New Mobile Orbiter */
 	/** After a new bluetooth device is detected, the Orbiter Handler will display a message on all the Orbiters prompting if this is a phone that should be added.  The Orbiters will fire this command to indicate that 'yes' the device is a phone and needs the sof */
+		/** @param #17 PK_Users */
+			/** The primary user of the phone. */
 		/** @param #44 PK_DeviceTemplate */
 			/** What type of phone it is. */
 		/** @param #47 Mac address */
 			/** The MAC Address of the phone. */
 
-	virtual void CMD_New_Mobile_Orbiter(int iPK_DeviceTemplate,string sMac_address) { string sCMD_Result; CMD_New_Mobile_Orbiter(iPK_DeviceTemplate,sMac_address.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_New_Mobile_Orbiter(int iPK_DeviceTemplate,string sMac_address,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate,string sMac_address) { string sCMD_Result; CMD_New_Mobile_Orbiter(iPK_Users,iPK_DeviceTemplate,sMac_address.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate,string sMac_address,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #79 - Add Unknown Device */
