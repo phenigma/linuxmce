@@ -25,7 +25,7 @@ OLD_PIDS=`ps aux | grep $BINARY_NAME | cut -c 10-15`;
 
 if [ "$OLD_PIDS" != "" ]; then 
 	echo "Killing the previous instance(s): $OLD_PIDS"  >> /var/log/pluto/dvd_mounts.log;
-	kill -15 $OLD_PIDS;
+	kill -15 $OLD_PIDS || true;
 fi
 
 $SOFTWARE_BINARY "$FILE" $PORT >> /var/log/pluto/dvd_mounts.log &

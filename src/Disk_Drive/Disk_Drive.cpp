@@ -250,8 +250,9 @@ void Disk_Drive::CMD_Mount_Disk_Image(string sFilename,string *sMediaURL,string 
 		return;
 	}
 
+	*sMediaURL += stringMRL;
+	sCMD_Result = "OK";
 	g_pPlutoLogger->Write(LV_STATUS, "Returning new media URL: %s", sMediaURL->c_str());
-    *sMediaURL = stringMRL;
 }
 
 //<-dceag-c55-b->
@@ -958,7 +959,7 @@ bool Disk_Drive::mountDVD(string fileName, string &strMediaUrl)
 			return false;
 
 		default:
-			strMediaUrl = "Unknown error code: " + StringUtils::itos(result);
+			strMediaUrl = "Unknown error code: " + StringUtils::itos(WEXITSTATUS(result));
 			return false;
 	}
 }
