@@ -3,4 +3,6 @@
 state="$1"
 IP="$2"
 
-/usr/pluto/bin/LaunchRemoteCmd.sh "$IP" "dpkg --get-selections | grep -F '$state' | cut -f1"
+[ "$state" == "install" ] && state="ii"
+
+/usr/pluto/bin/LaunchRemoteCmd.sh "$IP" "dpkg -l | grep -F '$state' | awk '{print \$2\" = \"\$3}'"
