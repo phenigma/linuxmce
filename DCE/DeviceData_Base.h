@@ -6,8 +6,8 @@
  * @todo notcommented
  *
  */
- 
- 
+
+
 #ifndef DEVICEDATA_BASE_H
 #define DEVICEDATA_BASE_H
 
@@ -32,13 +32,13 @@ namespace DCE
 	 */
 	class DeviceCategory : public SerializeClass
 	{
-	
+
 	public:
-	
+
 		unsigned long m_dwPK_DeviceCategory; /** < an identifier for the device category */
 		unsigned long m_dwPK_DeviceCategory_Parent; /** < an identifier for the parent category for this device category */
 		string m_sDescription; /** < a short description of the device category */
-		
+
 		class DeviceCategory *m_pDeviceCategory_Parent; /** < pointer to the parent category */
 
 		/**
@@ -51,7 +51,7 @@ namespace DCE
 			m_sDescription = sDescription;
 			m_pDeviceCategory_Parent = NULL;
 		}
-		
+
 		/**
 		 * @brief constructor that assignes NULL to the pointer member data (for de-serializing)
 		 */
@@ -64,22 +64,22 @@ namespace DCE
 		{
 			StartSerializeList() + m_dwPK_DeviceCategory + m_dwPK_DeviceCategory_Parent + m_sDescription;
 		}
-		
+
 		/**
 		 * @brief returns "DeviceCategory" so that the SerializeClass knows what it has to serialize
 		 */
 		virtual string SerializeClassClassName() { return "DeviceCategory"; }
 	};
-	
-		
+
+
 	/**
 	 * @brief a class to contain all the devices, that can be serialized and de-serialized
 	 */
 	class AllDevices : public SerializeClass
 	{
-	
+
 	public:
-	
+
 		Map_DeviceData_Base m_mapDeviceData_Base; /** < a map with all the devices */
 		Map_DeviceCategory m_mapDeviceCategory; /** < a map with all the device categories */
 		Map_DeviceGroup m_mapDeviceGroup; /** < a map with all the device groups */
@@ -91,7 +91,7 @@ namespace DCE
 			map<int,class DeviceData_Base *>::iterator it = m_mapDeviceData_Base.find( dwPK_Device );
 			return it == m_mapDeviceData_Base.end() ? NULL : (*it).second;
 		}
-	
+
 		/**
 		 * @brief finds the DeviceData_Base item associated with the specified device
 		 */
@@ -122,7 +122,7 @@ namespace DCE
 		{
 			(*this) + m_mapDeviceData_Base + m_mapDeviceCategory + m_mapDeviceGroup; // this is serialized custom
 		}
-		
+
 		/**
 		 * @returns "AllDevices" so that the SerializeClass knows what to serialize
 		 */
@@ -135,7 +135,7 @@ namespace DCE
 		 * @brief adds a new ItemToSerialize to the m_listItemToSerialize list (the DeviceData_Base map)
 		 */
 		AllDevices &operator+ ( Map_DeviceData_Base &i ) { m_listItemToSerialize.push_back( new ItemToSerialize( SERIALIZE_DATA_TYPE_MAP_DCEDEVICEDATA_BASE, (void *) &i) ); return (*this); }
-		
+
 		/**
 		 * @brief adds a new ItemToSerialize to the m_listItemToSerialize list (the DeviceCategory map)
 		 */
@@ -192,9 +192,9 @@ namespace DCE
 	class DeviceData_Base : public SerializeClass
 	{
 	public:
-	
+
 		/** fields that corespond to primary keys */
-		
+
 		unsigned long m_dwPK_Device; /** < the ID of the device */
 		unsigned long m_dwPK_Installation; /** < the installation associated with the device @todo ask*/
 		unsigned long m_dwPK_DeviceTemplate; /** < the identifier for the template used to build the device */
@@ -203,13 +203,13 @@ namespace DCE
 		unsigned long m_dwPK_Room; /** < identifies the room where the device resides */
 
 		/** flags */
-		
+
 		bool m_bImplementsDCE; /** < @todo ask */
 		bool m_bIsEmbedded; /** < specifies if the device is embedded */
 		bool m_bIsPlugIn; /** < specifies if the device is a plugin */
-		
+
 		/** other info */
-		
+
 		string m_sCommandLine; /** < the command line for the device @todo ask */
 		string m_sIPAddress; /** < the IP address for the device */
 		string m_sMacAddress; /** < the MAC address for the device */
@@ -228,7 +228,7 @@ namespace DCE
 		 * @warning whatever creates this will need to set these pointers
 		 */
 		class DeviceData_Base *m_pDevice_ControlledVia;
-		
+
 		/** @todo check comment */
 		/*
 		// When this class is being de-serialized the following constructor will be called
@@ -237,14 +237,14 @@ namespace DCE
 			m_pDCEDeviceCategory=NULL;
 			m_pDevice_ControlledVia=NULL;
 			ResumeReadWrite(pDataBlock,AllocatedSize,CurrentPosition);
-	
+
 			m_iPK_Device = Read_unsigned_long();
 			m_iPK_Installation = Read_unsigned_long();
 			m_iPK_DeviceTemplate = Read_unsigned_long();
 			m_iPK_Device_ControlledVia = Read_unsigned_long();
 			m_iPK_DeviceCategory=Read_unsigned_long();
 			m_iPK_Room=Read_unsigned_long();
-	
+
 			m_bImplementsDCE = (Read_unsigned_char()==1);
 			m_iNumberCommands = Read_unsigned_long();
 			if( m_iNumberCommands )
@@ -257,7 +257,7 @@ namespace DCE
 				m_piCommands=NULL;
 		}
 		*/
-		
+
 		/**
 		 * @brief default constructor, assignes default values to the member data
 		 */
@@ -267,15 +267,15 @@ namespace DCE
 			m_pDevice_ControlledVia = NULL;
 			m_bIsPlugIn = false;
 		}
-		
+
 		/**
 		 * @brief assignes specified values to the member data; all parameters are required
 		 * Call this contstructor to create it dynamically
 		 */
 		DeviceData_Base( unsigned long dwPK_Device, unsigned long dwPK_Installation, unsigned long dwPK_DeviceTemplate, unsigned long dwPK_Device_ControlledVia,
-				unsigned long dwPK_DeviceCategory, unsigned long dwPK_Room, bool bImplementsDCE, bool bIsEmbedded, string sCommandLine, bool bIsPlugIn, 
-				string sDescription, string sIPAddress, string sMacAddress, bool bInheritsMacFromPC )
-		{ 
+				unsigned long dwPK_DeviceCategory, unsigned long dwPK_Room, bool bImplementsDCE, bool bIsEmbedded, string sCommandLine, bool bIsPlugIn,
+				string sDescription, string sIPAddress, string sMacAddress, bool bInheritsMacFromPC)
+		{
 			m_pDeviceCategory = NULL;
 			m_pDevice_ControlledVia = NULL;
 			m_dwPK_Device = dwPK_Device;
@@ -311,16 +311,16 @@ namespace DCE
 		{
 			if ( !pStarting ) // no device category to start with supplied
 				pStarting = m_pDeviceCategory;
-				
+
 			if ( !pStarting ) // the m_pDeviceCategory member data is not assigned
 				return false;
 
 			if ( pStarting->m_dwPK_DeviceCategory == dwPK_DeviceCategory ) // the device belongs to the specified category
 				return true;
-				
+
 			if ( !pStarting->m_pDeviceCategory_Parent ) // the current device category is top-level (has no parent)
 				return false;
-				
+
 			return WithinCategory( dwPK_DeviceCategory, pStarting->m_pDeviceCategory_Parent ); // call it recursivelly for the parent
 		}
 
@@ -333,16 +333,16 @@ namespace DCE
 		{
 			if( !pStarting ) // no device category to start with supplied
 				pStarting = m_pDeviceCategory;
-				
+
 			if( !pStarting ) // the m_pDeviceCategory member data is not assigned
 				return false;
 
 			if( pStarting->m_dwPK_DeviceCategory == pCategory->m_dwPK_DeviceCategory ) // the device belongs to the specified category
 				return true;
-				
+
 			if( !pStarting->m_pDeviceCategory_Parent ) // the current device category is top-level (has no parent)
 				return false;
-				
+
 			return WithinCategory( pCategory, pStarting->m_pDeviceCategory_Parent ); // call it recursivelly for the parent
 		}
 
@@ -353,7 +353,7 @@ namespace DCE
 			if( !m_pDevice_ControlledVia )
 				return false;
 			return m_pDevice_ControlledVia->IsChildOf(pDeviceData_Base);
-		}				
+		}
 
 
 		/**
@@ -378,6 +378,24 @@ namespace DCE
 
 			if( pParent )
 				return pParent->m_sMacAddress;
+			else
+				return "";
+		}
+
+		string GetIPAddress()
+		{
+			if( !m_bInheritsMacFromPC )
+				return m_sIPAddress;
+
+			if( WithinCategory(DEVICECATEGORY_Computers_CONST) )
+				return m_sIPAddress;
+
+			DeviceData_Base *pParent = m_pDevice_ControlledVia;
+			while( pParent && !pParent->WithinCategory(DEVICECATEGORY_Computers_CONST) )
+				pParent = pParent->m_pDevice_ControlledVia;
+
+			if( pParent )
+				return pParent->m_sIPAddress;
 			else
 				return "";
 		}
