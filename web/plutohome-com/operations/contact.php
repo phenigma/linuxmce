@@ -12,20 +12,18 @@ function contact($output,$conn){
   <tr>
     <td valign="top" class="insidetable2"><table>
 		<tr>
-			<td width="15">&nbsp;</td>
-			<td>Choose a method listed below and a member from our staff support will answer to your questions</td>
+			<td colspan="2">Choose a method listed below and a member from our staff support will answer to your questions</td>
 		</tr>
 		<tr>
-			<td>&nbsp;</td>
-			<td>&nbsp;</td>
+			<td width="15">&nbsp;</td>
+			<td width="100%">&nbsp;</td>
 		</tr>	
 		<tr>
 			<td><img src="images/bullet_1.gif" width="11" height="11" align="absmiddle" /></td>
 			<td><span class="title">Corporate office:</span></td>
 		</tr>
 		<tr>
-			<td>&nbsp;</td>
-			<td>Pluto<br>
+			<td colspan="2">Pluto<br>
                   2699 Stirling Road, Building C<br>
                   Fort Lauderdale, FL 33312<br>
                   Phone: (877) pluto-4-u<br>
@@ -48,14 +46,6 @@ function contact($output,$conn){
 			<td><img src="images/bullet_1.gif" width="11" height="11" align="absmiddle" /></td>
 			<td><span class="title">Email:</span> <a href="mailto:support@plutohome.com">support@plutohome.com</a></td>
 		</tr>
-		<tr>
-			<td>&nbsp;</td>
-			<td>&nbsp;</td>
-		</tr>	
-		<tr>
-			<td><img src="images/bullet_1.gif" width="11" height="11" align="absmiddle" /></td>
-			<td><span class="title">Forum:</span> post your questions <a href="support/phpbb2/index.php">here</a> depending on your interests and a forum administrator will answer to them.</td>
-		</tr>	
 		<tr>
 			<td>&nbsp;</td>
 			<td>&nbsp;</td>

@@ -76,10 +76,10 @@ if (isset($_POST['username']) && $_POST['username']!='') {
 			</tr>	
 	    <tr class="insidetable"> 
 	      <td width="50%" align="right"><B>Username</B></td>
-	      <td>&nbsp;<input type="text" name="username" value="'.@$_SESSION['username'].'" /></td></tr>
+	      <td>&nbsp;<input type="text" class="textfield" name="username" value="'.@$_SESSION['username'].'" /></td></tr>
 	    <tr class="insidetable"> 
 	      <td align="right"><B>Password</B></td>
-	      <td>&nbsp;<input type="password" name="password" value="" onkeypress="assignVal(1)"/></td>
+	      <td>&nbsp;<input type="password" class="textfield" name="password" value="" onkeypress="assignVal(1)"/></td>
 	    </tr>
         <tr class="insidetable">
         	<td height="20" align="right"><B>Remember my password</B></td>

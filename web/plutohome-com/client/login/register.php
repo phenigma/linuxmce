@@ -19,27 +19,27 @@ function register($output,$conn){
 			</tr>
 			<tr>
 				<td align="right"><B>E-mail</B> </td>
-				<td><input type="text" name="email" value="" /></td>
+				<td><input type="text" class="textfield" name="email" value="" /></td>
 				<td class="formextrainfo">Your email address is not verified.  However we would prefer a valid email address--we never share it, our database is secure, and we don\'t send newsletters unless you subscribe.</td>
 			</tr>
 			<tr>
 				<td align="right"><B>Username</B> </td>
-				<td><input type="text" name="username" value="" /></td>
+				<td><input type="text" class="textfield" name="username" value="" /></td>
 				<td class="formextrainfo">If you get a PlutoHome system, this will also be your username for messaging, VOIP and video phone calls<br/></td>
 			</tr>
 			<tr>
 				<td align="right"><B>Referrer</B> </td>
-				<td><input type="text" name="referrer" value="'.$referrer.'" /></td>
+				<td><input type="text" class="textfield" name="referrer" value="'.$referrer.'" /></td>
 				<td class="formextrainfo">Type the username of the person who let you know about Pluto.  We offer generous bonuses and rewards to those who refer both retail and open source users, as well as dealers and manufacturers.</td>
 			</tr>
   			<tr>
 				<td align="right"><B>Password</B> </td>
-				<td><input type="password" name="password" /></td>
+				<td><input type="password" class="textfield" name="password" /></td>
 				<td class="formextrainfo">&nbsp;</td>
 			</tr>
 			<tr>
 				<td align="right"><B>Confirm</B> </td>
-				<td><input type="password" name="password2" /></td>
+				<td><input type="password" class="textfield" name="password2" /></td>
 				<td class="formextrainfo">Please confirm the password</td>
 			</tr>
 			<tr>
