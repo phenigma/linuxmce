@@ -239,10 +239,8 @@ bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
         m_mapDevicesToStreams.erase(it);
 
 	int i; // report the current playback position here.
-    DCE::CMD_Stop_Media cmd(m_dwPK_Device,
-        pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device,
-        pMediaStream->m_iStreamID_get(),&i);
 
+    DCE::CMD_Stop_TV cmd(m_dwPK_Device, pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
 	// this is useless here because all the message processing in the Media Plugin is done with the m_MediaMutex taken and
 	// since this mutex is recursive the release here is useless and the same apply for all the media plugin processing functions.
 	mm.Release();
