@@ -378,6 +378,10 @@ function setTemplateFileType($type) {
 			
 	$topMenu='
 	<SCRIPT LANGUAGE="JavaScript">
+	function showSteps()
+	{
+		top.treeframe.location=\'index.php?section=wizard\';
+	}
 		    <!--
 			'.
 			$menuPages

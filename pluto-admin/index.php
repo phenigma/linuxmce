@@ -712,7 +712,18 @@ switch ($section) {
 	    include_once('operations/irCodes.php');
 	    irCodes($output,$dbADO);
 	break;
-
+	case 'avWizard':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/myDevices/avWizard.php');
+	    avWizard($output,$dbADO);
+	break;
+	case 'wizard';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/steps.php');
+	    steps($output,$dbADO);
+	break;
 	
 	case '';
 		$output = new Template($dbADO);	

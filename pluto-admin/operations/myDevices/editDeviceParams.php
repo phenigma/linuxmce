@@ -606,11 +606,11 @@ $installationID = (int)@$_SESSION['installationID'];
 		
 		while ($rowSelectedPipesUsed = $resSelectPipesUsed->FetchRow()) {	
 			$input=cleanInteger(@$_POST['input_'.$rowSelectedPipesUsed['FK_Device_To']]);
-			$output=cleanInteger(@$_POST['output_'.$rowSelectedPipesUsed['FK_Device_To']]);
+			$pipeOutput=cleanInteger(@$_POST['output_'.$rowSelectedPipesUsed['FK_Device_To']]);
 			$pipe=cleanInteger(@$_POST['pipe_'.$rowSelectedPipesUsed['FK_Device_To']]);
 			$deviceTo=$rowSelectedPipesUsed['FK_Device_To'];
 				$updateDevicePipe = 'UPDATE Device_Device_Pipe SET FK_Input=?,FK_Output=?,FK_Pipe=? WHERE FK_Device_From = ? AND FK_Device_To = ? ';
-				$res=$dbADO->Execute($updateDevicePipe,array($input,$output,$pipe,$deviceID,$deviceTo));
+				$res=$dbADO->Execute($updateDevicePipe,array($input,$pipeOutput,$pipe,$deviceID,$deviceTo));
 		}
 		$out.='
 		<script>
@@ -640,10 +640,10 @@ foreach ($parentsForMenuArray as $parent) {
 
 eval("\$c=array(\$navMenuString);");
 	
-$output->setNavigationMenu($c);
-$output->setBody($out);
-$output->setTitle(APPLICATION_NAME);			
-$output->output();  		
+	$output->setNavigationMenu($c);
+	$output->setBody($out);
+	$output->setTitle(APPLICATION_NAME);			
+	$output->output();  		
 }
 
 function getMyDeviceParents($childID,$dbADO) {

@@ -354,6 +354,25 @@ function mediaScenarios($output,$dbADO) {
 								$CG_C_insertID=$dbADO->Insert_ID();
 								$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_DesignObj'],$GLOBALS['mnuMediaFileListDesignObj']));
 								
+								$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandSetVar'],$GLOBALS['localOrbiter']));			
+								$CG_C_insertID=$dbADO->Insert_ID();
+
+								switch ($optionName){
+									case 'music':
+										$parmValue=4;
+									break;
+									case 'movies':
+										$parmValue=3;
+									break;
+									case 'videos':
+										$parmValue=5;
+									break;
+									case 'pictures':
+										$parmValue=7;
+									break;
+								}
+								$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParameterVariableNumber'],$parmValue));
+
 							}							
 						}else{
 							$selectOptions='

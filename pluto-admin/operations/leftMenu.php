@@ -1,8 +1,5 @@
 <?
 function leftMenu($output,$dbADO) {
-	// this should be removed before release
-
-	// end remove line
 	$out='';
 	$currentSection = @cleanString($_REQUEST['rightSection']);
 	$installationID = (int)@$_SESSION['installationID'];

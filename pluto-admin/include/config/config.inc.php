@@ -6,9 +6,11 @@
   		// production settings
   		error_reporting(E_ALL ^ E_NOTICE);
   		include_once('/var/www/globalconfig/globalconfig.inc.php');
+  		$GLOBALS['floorplansPath']='/var/www/pluto-admin/floorplans';
   	}else{
   		error_reporting(E_ALL);
   		include_once('/var/www/test/globalconfig/globalconfig.inc.php');
+  		$GLOBALS['floorplansPath']='/var/www/test/pluto-admin/floorplans';
   	}
 	
 	$GLOBALS['sendErrorsTo']='support@plutohome.com';
@@ -18,7 +20,7 @@
 	
 	// path where the media pics are uploaded
 	$GLOBALS['mediaPicsPath']=$_SERVER['DOCUMENT_ROOT'].'/pluto-admin/mediapics/';
-	$GLOBALS['floorplansPath']='/var/www/pluto-admin/floorplans';
+	
 	
 	define("VERSION","0.1");
 	define("APPLICATION_NAME","Pluto");
@@ -43,9 +45,10 @@
 	
 	$GLOBALS['rootOrbiterID'] = 5; 				// Orbiter
 	$GLOBALS['rootComputerID'] = 6; 			// Computers
+	$GLOBALS['rootMediaDirectors'] = 8; 		// Media Directors
 	$GLOBALS['rootInterfaces'] = 71; 			// Interfaces
 	$GLOBALS['rootLights'] = 73; 				// Lighting devices
-	$GLOBALS['rootAVEquipment'] = 76; 				// AV Equipment
+	$GLOBALS['rootAVEquipment'] = 76; 			// AV Equipment
 	$GLOBALS['rootClimate'] = 83; 				// Climate devices
 	$GLOBALS['rootSecurity'] = 84; 				// Security devices
 	$GLOBALS['IntercomCategory']=94;			// Intercom 
@@ -141,14 +144,24 @@
 	$GLOBALS['cameraVariable']=22;
 	
 	// options to display in Media Wizard
+	
 	$GLOBALS['mediaOptionsArray']=array('TV', 'playlists', 'music', 'movies', 'videos', 'pictures', 'documents');
 	
 	// DeviceData displayed as pulldown menu
+	
 	$GLOBALS['DeviceDataLinkedToTables']=array('PK_Distro','PK_FloorplanObjectType','PK_Skin','PK_Size','PK_Language','PK_Users');
 	
 	// PK_Device for Local Orbiter
+	
 	$GLOBALS['localOrbiter']=-300;
 	
+	// PK_Pipe from table Pipe
+	
+	$GLOBALS['AudioPipe']=1;		// Audio Pipe
+	$GLOBALS['VideoPipe']=2;		// Video Pipe
+	
+	// PK_PageSetup from table PageSetup
+	$GLOBALS['InstallationPage']=11;	// Installation Settings
 	
 	// do not change the following lines
 	$addMasterUserUrl=$MasterUsersHost."index.php?section=add_master_user";
