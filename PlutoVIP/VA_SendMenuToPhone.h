@@ -16,7 +16,7 @@ public:
 	unsigned long ID() { return ACTION_SENDMENU_TOPHONE; }
 	virtual void SetupSerialization(int iSC_Version)
 	{
-		RA_Action::SetupSerialization(int iSC_Version);
+		RA_Action::SetupSerialization(iSC_Version);
 		StartSerializeList() + m_pdbMenu + m_iMacAddress;
 	}
 

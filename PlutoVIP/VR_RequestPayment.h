@@ -19,7 +19,7 @@ public:
 
 	void SetupSerialization(int iSC_Version)
 	{
-		SerializeClass::SetupSerialization(int iSC_Version);
+		SerializeClass::SetupSerialization(iSC_Version);
 		StartSerializeList() + m_sLineID + m_sProductID + m_sDescription + m_iAmount;
 	}
 };

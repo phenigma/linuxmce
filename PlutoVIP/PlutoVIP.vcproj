@@ -200,6 +200,9 @@
 				RelativePath="..\VIPShared\BD_PC_ReportingVariables.cpp">
 			</File>
 			<File
+				RelativePath="..\VIPShared\BD_PC_ReportMyVersion.cpp">
+			</File>
+			<File
 				RelativePath="..\VIPShared\BD_PC_SelectedFromList.cpp">
 			</File>
 			<File
@@ -528,10 +531,10 @@
 				RelativePath=".\StaticPicture.h">
 			</File>
 			<File
-				RelativePath="..\VIPShared\stdafx.h">
+				RelativePath=".\StdAfx.h">
 			</File>
 			<File
-				RelativePath=".\StdAfx.h">
+				RelativePath="..\VIPShared\stdafx.h">
 			</File>
 		</Filter>
 		<Filter

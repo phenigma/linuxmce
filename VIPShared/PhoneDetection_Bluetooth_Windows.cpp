@@ -79,7 +79,7 @@ lost_bluetooth 	connection_on	result
 	if(!pD->m_bIsConnected)
 #else
 	map<u_int64_t,class PhoneDevice *>::iterator itDeviceNew = m_mapDevicesDetectedThisScan.find(pD->m_iMacAddress);
-	if( itDeviceNew==m_mapDevicesDetectedThisScan.end() 
+	if( itDeviceNew==m_mapDevicesDetectedThisScan.end())
 #endif
 /*
 		map<u_int64_t,class PhoneDevice *>::iterator itDeviceNew = m_mapDevicesDetectedThisScan.find(pD->m_iMacAddress);

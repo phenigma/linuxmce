@@ -25,7 +25,7 @@ public:
 	unsigned long ID() { return ACTION_SENDFILE_TOPHONE; }
 	virtual void SetupSerialization(int iSC_Version)
 	{
-		RA_Action::SetupSerialization(int iSC_Version);
+		RA_Action::SetupSerialization(iSC_Version);
 		StartSerializeList() + m_pdbFile + m_sFileName
 			+ m_iMacAddress;
 	}

@@ -16,7 +16,7 @@ public:
 	unsigned long ID() { return ACTION_UPDATETRANSACTION; }
 	virtual void SetupSerialization(int iSC_Version)
 	{
-		RA_Action::SetupSerialization(int iSC_Version);
+		RA_Action::SetupSerialization(iSC_Version);
 		StartSerializeList() + m_iTransNumber + m_iStatus
 			+ m_sMessage;
 	}

@@ -309,7 +309,7 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
 					{
 						class PhoneDevice *pD = (*itDevice).second;
 						map<u_int64_t,class PhoneDevice *>::iterator itDeviceNew = m_mapDevicesDetectedThisScan.find(pD->m_iMacAddress);
-						if( itDeviceNew==m_mapDevicesDetectedThisScan.end() || !pD->m_bIsConnected)
+						if( /*itDeviceNew==m_mapDevicesDetectedThisScan.end() ||*/ !pD->m_bIsConnected)
 						{
 							listDevicesLost.push_back( (*itDevice).second );
 							m_mapPhoneDevice_Detected.erase(itDevice++);
