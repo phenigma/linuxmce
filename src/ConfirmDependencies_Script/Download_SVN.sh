@@ -9,7 +9,7 @@ mkdir -p "$SRC_IMPL" || exit $ERR_DOWNLOAD
 svn_param="--non-interactive --no-auth-cache"
 [ -n "$USERNAME" ] && svn_param="$svn_param --username $USERNAME"
 [ -n "$PASSWORD" ] && svn_param="$svn_param --password $PASSWORD"
-if ! svn checkout $svn_param "$REPOS_SRC/$REPOS/$PKG_NAME" "/usr/pluto/src/$SRC_IMPL"; then
+if ! svn checkout $svn_param "$REPOS_SRC/$REPOS/$SRC_IMPL" "/usr/pluto/sources/$SRC_IMPL"; then
 	echo "SVN source download failed: $REPOS_SRC/$REPOS/$PKG_NAME"
 	exit $ERR_DOWNLOAD
 fi
