@@ -492,15 +492,6 @@ bool Table::Update( RA_Processor &ra_Processor, DCE::Socket *pSocket )
 		return false;
 	}
 
-	/**
-	 * This will have already fired back actions, that did the actual update. All we need to do is update the psc_id and psc_batch 
-	 */
-	PlutoSqlResult result_set1,result_set2;
-	if( ( result_set1.r=m_pDatabase->mysql_query_result("SELECT max( psc_id ) FROM " + m_sName) ) && ( row = mysql_fetch_row( result_set1.r ) ) )
-		m_pRepository->psc_id_last_sync_set( this, row[0] ? atoi(row[0]) : 0 );
-	if( ( result_set2.r=m_pDatabase->mysql_query_result("SELECT max( psc_batch ) FROM " + m_sName) ) && ( row = mysql_fetch_row( result_set2.r ) ) )
-		m_pRepository->psc_batch_last_sync_set( this, row[0] ? atoi(row[0]) : 0 );
-
 	// Now delete any rows in our vect that we found during the DetermineDeletions phase
 	if( m_vectRowsToDelete.size() )
 	{

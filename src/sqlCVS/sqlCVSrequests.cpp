@@ -104,7 +104,7 @@ RA_Processor *RA_Processor::CreateRA_Processor(class RAServerSocket *pRAServerSo
 	}
 
 	g_psqlCVSprocessor = new sqlCVSprocessor( pRAServerSocket );
-	printf("Setting g_psqlCVSprocessor %p",g_psqlCVSprocessor);
+	printf("Setting g_psqlCVSprocessor %p\n",g_psqlCVSprocessor);
 	return g_psqlCVSprocessor;
 }
 

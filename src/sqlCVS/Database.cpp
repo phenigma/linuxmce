@@ -139,8 +139,25 @@ void Database::LoadDatabaseStructure()
 		{
 			if( g_GlobalConfig.m_bVerify || g_GlobalConfig.m_bVerifyID )
 				pTable->VerifyIntegrity();  // Check all the psc_id's to be sure they are assigned & unique
-			pTable->m_psc_id_last_sync = ( pTable->Repository_get( )->psc_id_last_sync_get( pTable ) );
-			pTable->m_psc_batch_last_sync = ( pTable->Repository_get( )->psc_batch_last_sync_get( pTable ) );
+			
+			if( !pTable->m_bIsSystemTable )
+			{
+				pTable->m_psc_id_last_sync = ( pTable->Repository_get( )->psc_id_last_sync_get( pTable ) );
+				pTable->m_psc_batch_last_sync = ( pTable->Repository_get( )->psc_batch_last_sync_get( pTable ) );
+
+				PlutoSqlResult result_set,result_set2;
+				MYSQL_ROW row=NULL;
+				if( ( result_set.r=mysql_query_result("SELECT max( psc_id ) FROM " + pTable->Name_get()) ) && ( row = mysql_fetch_row( result_set.r ) ) && row[0] && atoi(row[0])>pTable->m_psc_id_last_sync)
+				{
+					pTable->m_psc_id_last_sync = atoi(row[0]);
+					pTable->Repository_get( )->psc_id_last_sync_set( pTable,pTable->m_psc_id_last_sync );
+				}
+				if( ( result_set2.r=mysql_query_result("SELECT max( psc_batch ) FROM " + pTable->Name_get()) ) && ( row = mysql_fetch_row( result_set2.r ) ) && row[0] && atoi(row[0])>pTable->m_psc_batch_last_sync)
+				{
+					pTable->m_psc_batch_last_sync = atoi(row[0]);
+					pTable->Repository_get( )->psc_batch_last_sync_set( pTable,pTable->m_psc_batch_last_sync );
+				}
+			}
 		}
 	}
 	

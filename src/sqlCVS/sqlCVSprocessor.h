@@ -57,7 +57,7 @@ public:
 		if( g_psqlCVSprocessor==this )
 		{
 			g_psqlCVSprocessor=NULL; 
-			printf("Clearing g_psqlCVSprocessor %p",this);
+			printf("Clearing g_psqlCVSprocessor %p\n",this);
 		}
 	}
 

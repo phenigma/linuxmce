@@ -43,7 +43,7 @@ R_CommitRow::R_CommitRow( sqlCVS::ChangedRow *pChangedRow )
 	m_psc_user = pChangedRow->m_psc_user;
 	m_iOriginalAutoIncrID = pChangedRow->m_iOriginalAutoIncrID;
 	m_eTypeOfChange = pChangedRow->m_eTypeOfChange;
-if( m_eTypeOfChange==toc_Delete )
+if( m_psc_id==333 )
 {
 int k=2;
 }
@@ -53,6 +53,10 @@ int k=2;
 
 bool R_CommitRow::ProcessRequest( class RA_Processor *pRA_Processor )
 {
+if( m_psc_id==333 )
+{
+int k=2;
+}
 	sqlCVSprocessor *psqlCVSprocessor = ( sqlCVSprocessor * ) pRA_Processor;
 	if( !psqlCVSprocessor->m_pTable || !psqlCVSprocessor->m_pTable->TrackChanges_get( ) )
 	{
