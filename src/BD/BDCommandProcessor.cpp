@@ -97,14 +97,14 @@ bool BDCommandProcessor::SendCommand( bool &bImmediateCallback )
 	}
 	
 
-	if(SendLong( m_pCommand_Sent->GetCommandOrAckSize() ))
+	if(!SendLong( m_pCommand_Sent->GetCommandOrAckSize() ))
 	{
 		delete m_pCommand_Sent;
 		m_pCommand_Sent = NULL;
 		return false;
 	}
 
-	if(SendData( m_pCommand_Sent->GetCommandOrAckSize(), m_pCommand_Sent->GetCommandOrAckData() ))
+	if(!SendData( m_pCommand_Sent->GetCommandOrAckSize(), m_pCommand_Sent->GetCommandOrAckData() ))
 	{
 		delete m_pCommand_Sent;
 		m_pCommand_Sent = NULL;
