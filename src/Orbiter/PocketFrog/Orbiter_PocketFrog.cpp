@@ -769,6 +769,21 @@ clock_t ccc=clock();
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::UpdateRect(PlutoRectangle rect)
 {
+	//clipping the rectangle 
+	if(rect.X < 0)
+		rect.X = 0;
+
+	if(rect.Y < 0)
+		rect.Y = 0;
+
+	if(rect.Right() >= m_Width)
+		rect.Width = m_Width - rect.X - 1;
+
+	if(rect.Bottom() >= m_Height)
+		rect.Height = m_Height - rect.Y - 1;
+
+	//PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
+
 	while(m_bUpdating)
 		Sleep(30);
 
@@ -796,8 +811,11 @@ clock_t ccc=clock();
 /*static*/ void Orbiter_PocketFrog::Cleanup()
 {
 	g_pPlutoLogger->Write(LV_STATUS, "Orbiter_PocketFrog: need to cleanup orbiter...");
+
 	if(NULL != m_pInstance)
 	{
+		m_pInstance->m_bQuit = true;	
+
 		Orbiter_PocketFrog *pCopy = m_pInstance;
 		m_pInstance = NULL;
 
