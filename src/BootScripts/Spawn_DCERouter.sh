@@ -19,14 +19,15 @@ while [ "$i" -le 10 ]; do
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Starting... $i"
 	echo $(date) Starting > "$new_log"
 
-	(/usr/pluto/bin/Spawn_Wrapper.sh $VGcmd/usr/pluto/bin/DCERouter -h localhost) | tee $new_log
+	/usr/pluto/bin/Spawn_Wrapper.sh $VGcmd/usr/pluto/bin/DCERouter -h localhost > >(tee $new_log)
 
-	if [ "$?" -eq 3 ]; then
+	Ret="$?"
+	if [ "$Ret" -eq 3 ]; then
 		# Abort
 		Logging $TYPE $SEVERITY_NORMAL "$module" "Shutting down... $i $device_name"
 		echo $(date) Shutdown >> "$new_log"
 		exit
-	elif [ "$?" -eq 2 ]; then
+	elif [ "$Ret" -eq 2 ]; then
 		Logging $TYPE $SEVERITY_NORMAL "$module" "Device requests restart... $i $device_name"
 		/usr/pluto/bin/Start_LocalDevices.sh
 		echo $(date) Shutdown >> "$new_log"
