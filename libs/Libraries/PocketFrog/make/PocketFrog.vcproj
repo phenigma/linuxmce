@@ -86,7 +86,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="../lib/x86/Debug/PocketFrog_x86.lib"
+				OutputFile="../lib/x86/Debug/PocketFrog_x86_Debug.lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>
