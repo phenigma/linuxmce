@@ -246,12 +246,13 @@ void MythTV_Player::waitToFireMediaChanged()
 
         QDateTime currentDateTime = QDateTime::currentDateTime();
 
-        m_pMythTV->DoInfo();
+        // m_pMythTV->DoInfo(); // This is error prone. It seems to cause crashed. Maybe a race somewhere
 
         g_pPlutoLogger->Write(LV_STATUS, "Channel:\"%s\"", currentChannelName.ascii());
         if ( currentChannelName != "" )
         {
-            ProgramInfo *programInfo = ProgramInfo::GetProgramAtDateTime(QSqlDatabase::database(),
+            ProgramInfo *programInfo = ProgramInfo::GetProgramAtDateTime(
+                QSqlDatabase::database(),
                     currentChannelName,
                     currentDateTime);
 
@@ -400,7 +401,7 @@ void MythTV_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamI
     if ( m_pMythTV == NULL || m_pMythTV->GetState() != kState_WatchingLiveTV )
     {
         g_pPlutoLogger->Write(LV_STATUS, "Invalid state.");
-        sCMD_Result = "Not playing TV at this time. Can't take a screen shot";
+        EVENT_Error_Occured("Not playing TV at this time. Can't take a screen shot");
         return;
     }
 
@@ -444,7 +445,7 @@ void MythTV_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamI
 void MythTV_Player::CMD_PIP_Channel_Up(string &sCMD_Result,Message *pMessage)
 //<-dceag-c129-e->
 {
-    if ( m_pMythTV )
+    if ( m_pMythTV && m_pMythTV->GetState() == kState_WatchingLiveTV )
     {
         m_pMythTV->ChangeChannel(CHANNEL_DIRECTION_UP);
         waitToFireMediaChanged();
@@ -459,7 +460,7 @@ void MythTV_Player::CMD_PIP_Channel_Up(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_PIP_Channel_Down(string &sCMD_Result,Message *pMessage)
 //<-dceag-c130-e->
 {
-    if ( m_pMythTV )
+    if ( m_pMythTV && m_pMythTV->GetState() == kState_WatchingLiveTV )
     {
         m_pMythTV->ChangeChannel(CHANNEL_DIRECTION_DOWN);
         waitToFireMediaChanged();
