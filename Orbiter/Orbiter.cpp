@@ -630,7 +630,7 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
         break;
 #endif
     case DESIGNOBJTYPE_Broadcast_Video_CONST:
-		CallMaintenanceInTicks( CLOCKS_PER_SEC * 6000, &Orbiter::GetVideoFrame, ( void * ) pObj, true );
+		CallMaintenanceInTicks( 6000, &Orbiter::GetVideoFrame, ( void * ) pObj, true );
         break;
 
         // Grabbing up to four video frames can take some time.  Draw the rest of the
@@ -1180,7 +1180,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
 
             SaveBackgroundForDeselect( pObj );  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
             if(  !pObj->m_bDontResetState  )
-				CallMaintenanceInTicks( CLOCKS_PER_SEC, &Orbiter::DeselectObjects, ( void * ) pObj, true );
+				CallMaintenanceInTicks( 500, &Orbiter::DeselectObjects, ( void * ) pObj, true );
 
             // Unless the screen's don't reset state is set,  we'll clear any other selected graphics
             if(  !m_pScreenHistory_Current->m_pObj->m_bDontResetState  )
@@ -3637,7 +3637,7 @@ void *RendererThread(void *p)
 }
 
 //------------------------------------------------------------------------
-void Orbiter::CallMaintenanceInTicks( clock_t c, OrbiterCallBack fnCallBack, void *data, bool bPurgeExisting )
+void Orbiter::CallMaintenanceInTicks( long miliseconds, OrbiterCallBack fnCallBack, void *data, bool bPurgeExisting )
 {
     PLUTO_SAFETY_LOCK( cm, m_CallbackMutex );
 	if( bPurgeExisting )
@@ -3651,7 +3651,7 @@ void Orbiter::CallMaintenanceInTicks( clock_t c, OrbiterCallBack fnCallBack, voi
 	}
 
     CallBackInfo *pCallBack = new CallBackInfo( &m_CallbackMutex );
-    pCallBack->m_clock = time(NULL) + c;
+    pCallBack->m_clock = time(NULL) + miliseconds;
     pCallBack->m_fnCallBack=fnCallBack;
     pCallBack->m_pData=data;
     pCallBack->m_pOrbiter=this;
@@ -3718,7 +3718,7 @@ void Orbiter::GetVideoFrame( void *data )
             return; // This will call RenderObject,  which will reset the timer
         }
     }
-    CallMaintenanceInTicks( CLOCKS_PER_SEC*6000, &Orbiter::GetVideoFrame, ( void * ) pObj, true );
+    CallMaintenanceInTicks( 6000, &Orbiter::GetVideoFrame, ( void * ) pObj, true );
 }
 
 /*
@@ -4993,7 +4993,7 @@ void Orbiter::ContinuousRefresh( void *data )
 	else
 	{
 		CMD_Refresh("");
-		CallMaintenanceInTicks( clock() + (pContinuousRefreshInfo->m_iInterval * CLOCKS_PER_SEC), &Orbiter::ContinuousRefresh, pContinuousRefreshInfo, true ); 
+		CallMaintenanceInTicks( pContinuousRefreshInfo->m_iInterval, &Orbiter::ContinuousRefresh, pContinuousRefreshInfo, true ); 
 	}
 }
 
@@ -5008,7 +5008,7 @@ void Orbiter::CMD_Continuous_Refresh(string sTime,string &sCMD_Result,Message *p
 //<-dceag-c238-e->
 {
 	ContinuousRefreshInfo *pContinuousRefreshInfo = new ContinuousRefreshInfo(m_pScreenHistory_Current->m_pObj,atoi(sTime.c_str()));
-	CallMaintenanceInTicks( clock() + (pContinuousRefreshInfo->m_iInterval * CLOCKS_PER_SEC), &Orbiter::ContinuousRefresh, pContinuousRefreshInfo, true ); 
+	CallMaintenanceInTicks( pContinuousRefreshInfo->m_iInterval, &Orbiter::ContinuousRefresh, pContinuousRefreshInfo, true ); 
 }
 
 //timingofsetnowplaying

@@ -658,7 +658,7 @@ public:
 	/**
 	 * @brief We need the maintenance function to be called in this many clock ticks
 	 */
-	void CallMaintenanceInTicks( clock_t c, OrbiterCallBack fnCallBack, void *iData, bool bPurgeExisting );
+	void CallMaintenanceInTicks( long miliseconds, OrbiterCallBack fnCallBack, void *iData, bool bPurgeExisting );
 
 	/**
 	 *	MAINTENANCE CALL BACKS
