@@ -171,6 +171,7 @@ void StartOrbiter_Win32(int PK_Device,string sRouter_IP,string sLocalDirectory,b
 		switch(stage)
 		{
 			case osConnect:
+				g_pPlutoLogger->Write(LV_STATUS, "Ready to call connect");
 				pOrbiter = Connect(PK_Device, sRouter_IP, sLocalDirectory, bLocalMode, Width, Height, bFullScreen);
 
 				if(pOrbiter != NULL)

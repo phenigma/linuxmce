@@ -808,12 +808,14 @@ void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_De
 
     g_pPlutoLogger->Write( LV_STATUS, "Got MH_stop media" );
     pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
+    g_pPlutoLogger->Write( LV_STATUS, "Called StopMedia" );
 	StreamEnded(pEntertainArea->m_pMediaStream);
 }
 
 void Media_Plugin::StreamEnded(MediaStream *pMediaStream)
 {
 	map<int,MediaDevice *> mapMediaDevice_Prior;
+    g_pPlutoLogger->Write( LV_STATUS, "Getting Render Devices" );
 	pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(pMediaStream,&mapMediaDevice_Prior);
 	// This could have been playing in lots of entertainment areas
     g_pPlutoLogger->Write( LV_STATUS, "Stream %s ended with %d ent areas", pMediaStream->m_sMediaDescription.c_str(), (int) pMediaStream->m_mapEntertainArea.size() );

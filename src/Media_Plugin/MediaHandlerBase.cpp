@@ -28,6 +28,7 @@ using namespace DCE;
 
 void MediaHandlerBase::GetRenderDevices(MediaStream *pMediaStream, map<int,MediaDevice *> *pmapMediaDevice)
 {
+    g_pPlutoLogger->Write( LV_STATUS, "Getting Render Devices with stream %p map %p",pMediaStream, pmapMediaDevice);
 	if( pMediaStream && pMediaStream->m_pDeviceData_Router_Source )
 	{
 		g_pPlutoLogger->Write(LV_STATUS, " Setting the device data source: to %d (%s)", pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device, pMediaStream->m_pDeviceData_Router_Source->m_sDescription.c_str());
