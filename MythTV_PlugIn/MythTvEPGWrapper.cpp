@@ -72,7 +72,13 @@ void MythTvEPGWrapper::getProgramData()
     QSqlQuery query;
     query.exec(strQuery);
 
-    if ( query.isActive() && query.numRowsAffected() > 0 )
+    if ( ! query.isActive() )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "The query for the channel count failed: %s!", query.lastError().text().ascii());
+        return;
+    }
+
+    if ( query.numRowsAffected() > 0 )
     {
         g_pPlutoLogger->Write(LV_STATUS, "The query for channel count was a success : %d!", query.numRowsAffected());
 
@@ -83,11 +89,12 @@ void MythTvEPGWrapper::getProgramData()
         {
             iChannelId = query.value(0).toInt();
             getChannelData(iChannelId);
-//          m_mapPrograms[iChannelId] = getChannelData(iChannelId);
         }
     }
-
-    g_pPlutoLogger->Write(LV_WARNING, "The query for the channel count failed: %s!", query.lastError().text().ascii());
+    else
+    {
+        g_pPlutoLogger->Write(LV_STATUS, "There are no channels active on this timeframe");
+    }
 }
 
 void MythTvEPGWrapper::getChannelData(int channel)
@@ -106,6 +113,7 @@ void MythTvEPGWrapper::getChannelData(int channel)
     }
     else
     {
+        g_pPlutoLogger->Write(LV_STATUS, "Making a new inner map for channel %d", channel);
         m_mapPrograms[channel] = map<int, DataGridCell*>();
     }
 

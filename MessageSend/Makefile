@@ -10,7 +10,7 @@ VERSION = 2.0.0
 sources = MessageSend.cpp ParamGet.cpp
 
 all: MessageSend 
-	cp $+ $(ROOT)/bin
+	cp $+ $(ROOT)bin
 
 MessageSend: MessageSend.o
 	$(CXX) -o $@ $+  $(LDFLAGS) $(LDLIBS)
