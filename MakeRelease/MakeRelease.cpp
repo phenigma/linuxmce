@@ -1199,8 +1199,8 @@ cout << "Copying Files\n";
 
 	cout<<"\n Commit\n";
 	//Updating files from the server to the sourceforge
-	cmd = "cvs -m 'Automatic Update' -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/" + pRow_Package_Source->Name_get() + 
-		" commit";
+	cmd = "cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/" + pRow_Package_Source->Name_get() + 
+		" commit -m 'Automatic Update'";
 	system(cmd.c_str());
 
 	//at the end we delete the temporary directory
