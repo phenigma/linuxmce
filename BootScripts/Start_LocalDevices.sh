@@ -11,6 +11,8 @@ function printHelp()
 [ $# -ne 4 -a $# -ne 2 -a $# -ne 0 ] && printHelp && exit;
 CurrentDevice=$PK_Device;
 
+export DISPLAY=:0
+
 [ $# -eq 2 -o $# -eq 4 ] && [ $1 != "-d" ] && printHelp && exit;
 [ $# -eq 2 -o $# -eq 4 ] && CurrentDevice=$2;
 

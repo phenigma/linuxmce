@@ -2,10 +2,12 @@
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/pluto.func
 
-Parameter="$1"
+Parameter="$1"; shift
 Device="$PK_Device"
 
 [ "$Parameter" == "stop" ] && exit 0
+Parameter="$1"
+[ -z "$Parameter" ] && unset Parameter
 
 Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Processing startup scripts for device $Device; parameter: $Parameter"
 if [ -e /usr/pluto/install/.notdone ]; then
