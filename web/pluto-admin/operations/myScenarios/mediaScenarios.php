@@ -280,7 +280,7 @@ function mediaScenarios($output,$dbADO) {
 	} else {
 		//check if current user canModifyInstallation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
-	
+
 		if ($canModifyInstallation) {
 			if(isset($_POST['saveChanges'])){
 				$displayedMediaScenariosArray=explode(',',$_POST['displayedMediaScenarios']);
@@ -385,7 +385,7 @@ function mediaScenarios($output,$dbADO) {
 
 									$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
 									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamID'],''));
-									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_DesignObj'],$GLOBALS['TelecomMenu']));
+									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_DesignObj'],$GLOBALS['mnuPicturesDocumentsList']));
 									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamDesignObjCurrentScreen'],''));
 									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_Device'],''));
 									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamStoreVariables'],''));
@@ -418,7 +418,7 @@ function mediaScenarios($output,$dbADO) {
 									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParameterValueToAsign'],7));
 								break;								
 								case 'Disc CD/DVD':
-									$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandMHPlayMedia'],$GLOBALS['rootMediaPlugin']));	
+									$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandMHPlayMedia'],getMediaPluginID($installationID,$dbADO)));	
 									$CG_C_insertID=$dbADO->Insert_ID();
 
 									$dbADO->Execute('INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter) SELECT '.$CG_C_insertID.',FK_CommandParameter FROM Command_CommandParameter WHERE FK_Command=?',$GLOBALS['commandMHPlayMedia']);
@@ -428,7 +428,7 @@ function mediaScenarios($output,$dbADO) {
 
 									$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
 									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamID'],''));
-									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_DesignObj'],$GLOBALS['TelecomMenu']));
+									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_DesignObj'],$GLOBALS['mnuNoMediaInDrive']));
 									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamDesignObjCurrentScreen'],''));
 									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_Device'],''));
 									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamStoreVariables'],''));

@@ -1776,4 +1776,10 @@ function addScenariosToRoom($roomID, $installationID, $dbADO)
 	$dbADO->Execute($insertCG_Room,array($sosCG,$roomID,$sosCG));
 }
 
+function getMediaPluginID($installationID,$dbADO)
+{
+	$res=$dbADO->Execute('SELECT * FROM Device WHERE FK_DeviceTemplate=? AND FK_Installation=?',array($GLOBALS['rootMediaPlugin'],$installationID));
+	$row=$res->FetchRow();
+	return $row['PK_Device'];
+}
 ?>
