@@ -1,0 +1,16 @@
+config=$(X -configure 2>&1 | grep 'Your XF86Config file' | cut -d" " -f5-)
+retcode=$?
+if [ "$retcode" -ne 0 -o -z "$config" -o ! -e "$config" ]; then
+	echo "Something went wrong while configuring X: '$config', $retcode"
+	exit 1
+fi
+
+[ -e /etc/X11/XF86Config-4 ] && mv /etc/X11/XF86Config-4 /etc/X11/XF86Config-4.orig
+awk '
+{ print }
+/Monitor.*Monitor0/ { print("\tDefaultDepth\t16") }
+/Depth.*16/ { print("\t\tModes\t\"800x600\"") }
+' "$config" >/etc/X11/XF86Config-4
+rm -f "$config"
+
+[ -e /dev/mouse ] || ln -s /dev/input/mice /dev/mouse

@@ -337,12 +337,7 @@ bool CreateSources(Row_Package *pRow_Package)
 				return false;
 			continue;
 		}
-		if( vectRow_Package_Source.size()>1 )
-		{
-			cout << "There is more than 1 record for this package and repository source " << sPK_RepositorySource << endl;
-			cout << "***ABORTING***" << endl;
-			return false;
-		}
+
 		for(size_t s=0;s<vectRow_Package_Source.size();++s)
 		{
 			Row_Package_Source *pRow_Package_Source = vectRow_Package_Source[s];

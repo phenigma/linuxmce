@@ -73,8 +73,26 @@ while [ "$ok" -eq 0 ]; do
 
 # everything went ok
 	echo "Code accepted"
-	echo "$activation_key" >/usr/pluto/install/Last_Activation_Code.txt
 	echo "$answer" | awk 'NR>1' >"$DIR/activation.sh"
+	
+	Device=$(echo "$activation_key" | cut -d- -f1)
+	Code=$(echo "$activation_key" | cut -d- -f2)
+
+	pluto_conf="# Pluto config file
+MySqlHost = dce_router
+MySqlUser = root
+MySqlPassword = 
+MySqlDBName = pluto_main
+DCERouter = dce_router
+MySqlPort = 3306
+DCERouterPort = 3450
+PK_Device = $Device
+PK_Installation = 
+PK_Distro = 
+Activation_Code = $Code
+"
+	echo "$pluto_conf" >/etc/pluto.conf
+	
 	ok=1
 done
 

@@ -526,11 +526,11 @@ void Bluetooth_Dongle::CMD_Send_File_To_Device(string sFilename,string sMac_addr
 #ifndef _WIN32
 	sleep( 10 );
 	
-	string ObexPushScriptPath = "/pluto/bin/";//TODO
+	string ObexPushScriptPath = "/usr/pluto/bin/";//TODO
 	string Command = ObexPushScriptPath + "PhoneInstall.sh ";
 		
 	Command += sMac_address + " ";
-	Command += "/pluto/bin/" + sFilename;
+	Command += "/usr/pluto/bin/" + sFilename;
 
 	//linux only
 	system( Command.c_str() );
