@@ -12,6 +12,8 @@
 
 using namespace DCE;
 
+#define RECV_TIMEDOUT 15 //seconds
+
 BDCommandProcessor_Windows_Bluetooth::BDCommandProcessor_Windows_Bluetooth(string sMacAddressPhone,string sMacAddressDongle)
 	: BDCommandProcessor(sMacAddressPhone), m_ReceiveBufferMutex("receive buffer")
 {
@@ -70,7 +72,10 @@ void BDCommandProcessor_Windows_Bluetooth::OnTranspDataReceived( BYTE* data, ULO
 	if( m_pReceiveBuffer)
 		m_pReceiveBuffer=(char *)realloc(m_pReceiveBuffer,m_iSizeReceiveBuffer+len);
 	else
+	{
 		m_pReceiveBuffer=(char *)malloc(len);
+		::ZeroMemory(m_pReceiveBuffer, len);
+	}
 
 	memcpy( m_pReceiveBuffer+m_iSizeReceiveBuffer, data, len );
 	m_iSizeReceiveBuffer+=len;
@@ -79,7 +84,18 @@ void BDCommandProcessor_Windows_Bluetooth::OnTranspDataReceived( BYTE* data, ULO
 
 bool BDCommandProcessor_Windows_Bluetooth::SendData(int size,const char *data)
 {
+	g_pPlutoLogger->Write(LV_STATUS,"Sending %d bytes of data", size);
+
 	m_ptr_rfcm->TransportWrite( (BYTE *)data, size );
+
+	if(NULL == data)
+	{
+		m_bDead = true;
+		return false;
+	}
+
+	g_pPlutoLogger->Write(LV_STATUS,"Sent %d bytes of data", size);
+
 	return true;
 }
 
@@ -89,9 +105,9 @@ char *BDCommandProcessor_Windows_Bluetooth::ReceiveData(int size)
 {
 	g_pPlutoLogger->Write(LV_STATUS,"Request for data %d bytes long buffer has %d",(int) size,(int) m_iSizeReceiveBuffer);
 	// Wait until we get that many characters in our buffer
-	PLUTO_SAFETY_LOCK(rb,m_ReceiveBufferMutex);
 	while( (int) m_iSizeReceiveBuffer<size )
 	{
+/*
 		// We might want to make this a timed wait and return NULL after a given period.
 		// For some reason there appears to be a problem with timed_conditions, and they always
 		// return immediately.  This will release the mutex.
@@ -101,6 +117,25 @@ Sleep(100);
 rb.Relock();
 //		pthread_cond_wait(&m_PollingCond,&m_PollingMutex.mutex);
 	}
+*/
+		pthread_mutex_lock(&m_PollingMutex.mutex);
+
+		timespec abstime;
+		abstime.tv_sec = time(NULL) + RECV_TIMEDOUT;
+		abstime.tv_nsec = 0;
+		if(ETIMEDOUT == pthread_cond_timedwait(&m_PollingCond,&m_PollingMutex.mutex, &abstime))
+		{
+			m_bDead = true;
+			g_pPlutoLogger->Write(LV_WARNING,"Receive data timed_out! The connection is down.");
+			pthread_mutex_unlock(&m_PollingMutex.mutex);
+
+			return NULL;
+		}
+
+		pthread_mutex_unlock(&m_PollingMutex.mutex);
+	}
+
+	PLUTO_SAFETY_LOCK(rb,m_ReceiveBufferMutex);
 
 	g_pPlutoLogger->Write(LV_STATUS,"returning %d of data",(int) size);
 	// We're holding the mutex and have the data.  The caller will have to delete the buffer

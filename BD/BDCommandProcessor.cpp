@@ -97,6 +97,8 @@ bool BDCommandProcessor::SendCommand( bool &bImmediateCallback )
 	cm.Release();
 #endif
 	m_pCommand_Sent->ConvertCommandToBinary();
+	g_pPlutoLogger->Write(LV_WARNING,"# Sending %s command #", m_pCommand_Sent->Description());
+
 	SendLong( m_pCommand_Sent->ID() );
 	SendLong( m_pCommand_Sent->GetCommandOrAckSize() );
 	SendData( m_pCommand_Sent->GetCommandOrAckSize(), m_pCommand_Sent->GetCommandOrAckData() );
@@ -179,6 +181,8 @@ bool BDCommandProcessor::ReceiveCommand( unsigned long dwType, unsigned long dwS
 	if( dwType )
 	{
 		BDCommand *pCommand = BuildCommandFromData( dwType ); // creates a new command to parse the data
+		g_pPlutoLogger->Write(LV_WARNING,"# Received %s command #", pCommand->Description());
+
 		pCommand->ParseCommand( dwSize, pcData );
 		pCommand->ProcessCommand( this ); // takes the command processor and processes it
 		pCommand->ConvertAckToBinary();
@@ -234,6 +238,9 @@ bool BDCommandProcessor::ReceiveCommand( unsigned long dwType, unsigned long dwS
 		long *dwType = (long *) m_pcReceiveCmdData;
 		dwSize = (long *)(m_pcReceiveCmdData + 4);
 		BDCommand *pCommand = BuildCommandFromData( *dwType );
+
+		g_pPlutoLogger->Write(LV_WARNING,"# Received %s command #", pCommand->Description());
+
 		if( pCommand->ID() == BD_PC_WHAT_DO_YOU_HAVE ) // received a WhatDoYouHave
 		{
 			bool bDummy;
