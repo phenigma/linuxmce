@@ -105,7 +105,7 @@ ProxyPeerThread::replData(bool fromsrc) {
 	}
 
 //	cout << "Received data: " << endl << datastr << endl;
-	g_pPlutoLogger->Write(LV_STATUS, "Received data: %s", datastr.c_str());
+// 	g_pPlutoLogger->Write(LV_STATUS, "Received data: %s", datastr.c_str());
 
 	/*process data with interceptors*/
 	bool processed = false;
@@ -181,7 +181,7 @@ ProxyPeerThread::writeData(int sockfd, const std::string& data) {
 	sizestr.resize(SIZEBUFF_SIZE, '\t');
 
 	string outstr = sizestr + data;
-	g_pPlutoLogger->Write(LV_STATUS, "Sending data: %s", outstr.c_str());
+//	g_pPlutoLogger->Write(LV_STATUS, "Sending data: %s", outstr.c_str());
 //	cout << "Sending data: " << outstr << endl;
 	if((send(sockfd, outstr.c_str(), outstr.length(), 0) <= 0)) {
 	//	cout << "Error sending data to destination." << endl;

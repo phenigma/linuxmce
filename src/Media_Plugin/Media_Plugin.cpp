@@ -2024,7 +2024,7 @@ class DataGridTable *Media_Plugin::AvailablePlaylists( string GridID, string Par
     if( (result.r=m_pDatabase_pluto_media->mysql_query_result(SQL)) )
         while( (row=mysql_fetch_row(result.r)) )
 		{
-            // g_pPlutoLogger->Write(LV_CRITICAL, "Adding this entry \"%s\" to the position %d", row[1], RowCount);
+            // 	g_pPlutoLogger->Write(LV_CRITICAL, "Adding this entry \"%s\" to the position %d", row[1], RowCount);
 			pDataGrid->SetData(0,RowCount++,new DataGridCell(row[1], row[0]));
 		}
 
