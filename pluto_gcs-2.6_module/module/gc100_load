@@ -1,0 +1,44 @@
+#!/bin/sh
+module="gc100"
+#gcs will be the client side and gcsd will be the daemon side
+device="gcs"
+mode="664"
+
+# Group: since distributions do it differently, look for wheel or use staff
+if grep '^staff:' /etc/group > /dev/null; then
+    group="staff"
+else
+    group="wheel"
+fi
+
+# invoke insmod with all arguments we got
+# and use a pathname, as newer modutils don't look in . by default
+/sbin/insmod ./$module.ko $* || exit 1
+
+major=`cat /proc/devices | awk "\\$2==\"$module\" {print \\$1}"`
+
+# Remove stale nodes and replace them, then give gid and perms
+
+rm -f /dev/${device}[0-7]
+rm -f /dev/${device}d[0-7]
+mknod /dev/${device}0 c $major 0
+mknod /dev/${device}1 c $major 2
+mknod /dev/${device}2 c $major 4
+mknod /dev/${device}3 c $major 6
+mknod /dev/${device}4 c $major 8
+mknod /dev/${device}5 c $major 10
+mknod /dev/${device}6 c $major 12
+mknod /dev/${device}7 c $major 14
+
+mknod /dev/${device}d0 c $major 1
+mknod /dev/${device}d1 c $major 3
+mknod /dev/${device}d2 c $major 5
+mknod /dev/${device}d3 c $major 7
+mknod /dev/${device}d4 c $major 9
+mknod /dev/${device}d5 c $major 11
+mknod /dev/${device}d6 c $major 13
+mknod /dev/${device}d7 c $major 15
+
+ln -sf ${device}0 /dev/${device}
+chgrp $group /dev/${device}[0-3] 
+chmod $mode  /dev/${device}[0-3]

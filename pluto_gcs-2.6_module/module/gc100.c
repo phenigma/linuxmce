@@ -8,6 +8,8 @@
 #  define SET_MODULE_OWNER(structure) /* nothing */
 #endif
 
+MODULE_LICENSE("Dual BSD/GPL");
+
 #define BUF_SIZE 511
 #define N_DEVS 16
 
@@ -201,7 +203,8 @@ static int gc100_device_open(struct inode * inode, struct file * filp)
 	}
 	dev->minor_number = MINOR(inode->i_rdev);
 	
-	try_module_get(THIS_MODULE);
+	module_get(THIS_MODULE);
+//	MOD_INC_USE_COUNT;
 	
 	return 0;
 }
@@ -209,6 +212,7 @@ static int gc100_device_open(struct inode * inode, struct file * filp)
 static int gc100_device_release(struct inode * inode, struct file * filp)
 {
 	module_put(THIS_MODULE);
+//	MOD_DEC_USE_COUNT;
 	return 0;
 }
 
@@ -254,4 +258,3 @@ fail:
 
 module_init(gc100_init);
 module_exit(gc100_exit);
-MODULE_LICENSE("Dual BSD/GPL");
