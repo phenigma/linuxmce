@@ -19,6 +19,8 @@ FILE_VERSION=19
 INTERNAL_IFACE=eth0
 EXTERNAL_IFACE=eth1
 
+ulimit -c unlimited #core dump in all scripts that use pluto.func (most of them)
+
 # Read the config and set the variables.
 ReadConfig() {
 	return # for now
@@ -112,7 +114,8 @@ RebootRemote() {
     return
   fi
   Logging $TYPE $SEVERITY_WARNING $module "Rebooting remote $host"
-  ssh $host "/sbin/init 6" &>/dev/null || 
+#  ssh $host "/sbin/init 6" &>/dev/null ||
+  ssh $host "/sbin/reboot" &>/dev/null ||
     Logging $TYPE $SEVERITY_WARNING $module "Couldn't reboot $host"
 }
 
@@ -122,7 +125,8 @@ ShutDownRemote() {
     return
   fi
   Logging $TYPE $SEVERITY_WARNING $module "Shutting down $host"
-  ssh $host "/sbin/init 0" &>/dev/null || 
+#  ssh $host "/sbin/init 0" &>/dev/null || 
+  ssh $host "/sbin/poweroff" &>/dev/null ||
     Logging $TYPE $SEVERITY_WARNING $module "Couldn't shut down $host"
 }
 

@@ -633,12 +633,12 @@ void Orbiter_Plugin::SomeFunction()
 
 //<-dceag-c26-b->
 
-    /** @brief COMMAND: #26 - Set User Mode */
-    /** Change a user's status (at home, sleeping, etc.) */
-        /** @param #5 Value To Assign */
-            /** A Value from the UserMode table */
-        /** @param #17 PK_Users */
-            /** The User to change */
+	/** @brief COMMAND: #26 - Set User Mode */
+	/** Change a user's status (at home, sleeping, etc.) */
+		/** @param #5 Value To Assign */
+			/** A Value from the UserMode table */
+		/** @param #17 PK_Users */
+			/** The User to change */
 
 void Orbiter_Plugin::CMD_Set_User_Mode(string sValue_To_Assign,int iPK_Users,string &sCMD_Result,Message *pMessage)
 //<-dceag-c26-e->
@@ -650,10 +650,10 @@ void Orbiter_Plugin::CMD_Set_User_Mode(string sValue_To_Assign,int iPK_Users,str
 
 //<-dceag-c58-b->
 
-    /** @brief COMMAND: #58 - Set Current User */
-    /** Set what user is currently using the orbiter.  The 'From' device is assumed to be the orbiter. */
-        /** @param #17 PK_Users */
-            /** The user currently using the orbiter. */
+	/** @brief COMMAND: #58 - Set Current User */
+	/** Set what user is currently using the orbiter.  The 'From' device is assumed to be the orbiter. */
+		/** @param #17 PK_Users */
+			/** The user currently using the orbiter. */
 
 void Orbiter_Plugin::CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,Message *pMessage)
 //<-dceag-c58-e->
@@ -670,10 +670,10 @@ void Orbiter_Plugin::CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,Mess
 
 //<-dceag-c59-b->
 
-    /** @brief COMMAND: #59 - Set Entertainment Area */
-    /** Set what entertainment area the orbiter (the 'from' in the message) is in. */
-        /** @param #45 PK_EntertainArea */
-            /** The current entertainment area where the orbiter is. */
+	/** @brief COMMAND: #59 - Set Entertainment Area */
+	/** Set what entertainment area the orbiter (the 'from' in the message) is in. */
+		/** @param #45 PK_EntertainArea */
+			/** The current entertainment area where the orbiter is. */
 
 void Orbiter_Plugin::CMD_Set_Entertainment_Area(int iPK_EntertainArea,string &sCMD_Result,Message *pMessage)
 //<-dceag-c59-e->
@@ -692,10 +692,10 @@ void Orbiter_Plugin::CMD_Set_Entertainment_Area(int iPK_EntertainArea,string &sC
 
 //<-dceag-c77-b->
 
-    /** @brief COMMAND: #77 - Set Current Room */
-    /** Set what room the orbiter is in. */
-        /** @param #57 PK_Room */
-            /** The room */
+	/** @brief COMMAND: #77 - Set Current Room */
+	/** Set what room the orbiter is in. */
+		/** @param #57 PK_Room */
+			/** The room */
 
 void Orbiter_Plugin::CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Message *pMessage)
 //<-dceag-c77-e->
@@ -711,12 +711,12 @@ void Orbiter_Plugin::CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,Messa
 }
 //<-dceag-c78-b->
 
-    /** @brief COMMAND: #78 - New Mobile Orbiter */
-    /** After a new bluetooth device is detected, the Orbiter Handler will display a message on all the Orbiters prompting if this is a phone that should be added.  The Orbiters will fire this command to indicate that 'yes' the device is a phone and needs the sof */
-        /** @param #44 PK_DeviceTemplate */
-            /** What type of phone it is. */
-        /** @param #47 Mac address */
-            /** The MAC Address of the phone. */
+	/** @brief COMMAND: #78 - New Mobile Orbiter */
+	/** After a new bluetooth device is detected, the Orbiter Handler will display a message on all the Orbiters prompting if this is a phone that should be added.  The Orbiters will fire this command to indicate that 'yes' the device is a phone and needs the sof */
+		/** @param #44 PK_DeviceTemplate */
+			/** What type of phone it is. */
+		/** @param #47 Mac address */
+			/** The MAC Address of the phone. */
 
 void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_DeviceTemplate,string sMac_address,string &sCMD_Result,Message *pMessage)
 //<-dceag-c78-e->
@@ -775,14 +775,14 @@ g_pPlutoLogger->Write(LV_STATUS,"setting process flag to false");
 }
 //<-dceag-c79-b->
 
-    /** @brief COMMAND: #79 - Add Unknown Device */
-    /** After a new bluetooth device is detected, the Orbiter Handler will display a message on all the Orbiters prompting if this is a phone that should be added.  The Orbiters will fire this command to indicate that the device is a phone and it should be added */
-        /** @param #9 Text */
-            /** A description of the device */
-        /** @param #10 ID */
-            /** The IP Address */
-        /** @param #47 Mac address */
-            /** The MAC address of the device */
+	/** @brief COMMAND: #79 - Add Unknown Device */
+	/** After a new bluetooth device is detected, the Orbiter Handler will display a message on all the Orbiters prompting if this is a phone that should be added.  The Orbiters will fire this command to indicate that the device is a phone and it should be added */
+		/** @param #9 Text */
+			/** A description of the device */
+		/** @param #10 ID */
+			/** The IP Address */
+		/** @param #47 Mac address */
+			/** The MAC address of the device */
 
 void Orbiter_Plugin::CMD_Add_Unknown_Device(string sText,string sID,string sMac_address,string &sCMD_Result,Message *pMessage)
 //<-dceag-c79-e->
@@ -807,10 +807,10 @@ void Orbiter_Plugin::CMD_Add_Unknown_Device(string sText,string sID,string sMac_
 
 //<-dceag-c183-b->
 
-    /** @brief COMMAND: #183 - Get Floorplan Layout */
-    /** Gets the layout of all floorplans for the orbiter. */
-        /** @param #5 Value To Assign */
-            /** A | delimited list in the format, where {} indicate a repeating value: #pages,{#Types,{#Objects,{DeviceDescription, ObjectDescription, FillX Point, FillY Point, PK_DesignObj, Page, PK_Device, Type}}} */
+	/** @brief COMMAND: #183 - Get Floorplan Layout */
+	/** Gets the layout of all floorplans for the orbiter. */
+		/** @param #5 Value To Assign */
+			/** A | delimited list in the format, where {} indicate a repeating value: #pages,{#Types,{#Objects,{DeviceDescription, ObjectDescription, FillX Point, FillY Point, PK_DesignObj, Page, PK_Device, Type}}} */
 
 void Orbiter_Plugin::CMD_Get_Floorplan_Layout(string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c183-e->
@@ -878,12 +878,12 @@ void Orbiter_Plugin::CMD_Get_Floorplan_Layout(string *sValue_To_Assign,string &s
 
 //<-dceag-c186-b->
 
-    /** @brief COMMAND: #186 - Get Current Floorplan */
-    /** Gets the current Floorplan status (ie what items are on/off, etc.) for the specified Floorplan type. */
-        /** @param #5 Value To Assign */
-            /** The status of all the devices within the floorplan. */
-        /** @param #46 PK_FloorplanType */
-            /** The type of floorplan (lights, climate, etc.) */
+	/** @brief COMMAND: #186 - Get Current Floorplan */
+	/** Gets the current Floorplan status (ie what items are on/off, etc.) for the specified Floorplan type. */
+		/** @param #5 Value To Assign */
+			/** The status of all the devices within the floorplan. */
+		/** @param #46 PK_FloorplanType */
+			/** The type of floorplan (lights, climate, etc.) */
 
 void Orbiter_Plugin::CMD_Get_Current_Floorplan(int iPK_FloorplanType,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c186-e->

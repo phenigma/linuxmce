@@ -16,9 +16,14 @@ public:
 	Asterisk_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent(int PK_DeviceTemplate, ClientSocket *pOCClientSocket, int DeviceID);
-	virtual void Ring(string sPhoneNumber)
+	virtual void PBX_CommandResult(int iCommandID,int iResult,string sMessage)
 	{
-		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 13,1,18,sPhoneNumber.c_str()));
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 14,3,19,StringUtils::itos(iCommandID).c_str(),20,StringUtils::itos(iResult).c_str(),21,sMessage.c_str()));
+	}
+
+	virtual void PBX_Ring(string sPhoneExtension,string sPhoneCallID,string sPhoneCallerID)
+	{
+		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 15,3,22,sPhoneExtension.c_str(),23,sPhoneCallID.c_str(),24,sPhoneCallerID.c_str()));
 	}
 
 };
@@ -72,10 +77,12 @@ public:
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
 	//Event accessors
-	void EVENT_Ring(string sPhoneNumber) { GetEvents()->Ring(sPhoneNumber.c_str()); }
+	void EVENT_PBX_CommandResult(int iCommandID,int iResult,string sMessage) { GetEvents()->PBX_CommandResult(iCommandID,iResult,sMessage.c_str()); }
+	void EVENT_PBX_Ring(string sPhoneExtension,string sPhoneCallID,string sPhoneCallerID) { GetEvents()->PBX_Ring(sPhoneExtension.c_str(),sPhoneCallID.c_str(),sPhoneCallerID.c_str()); }
 	//Commands - Override these to handle commands from the server
-	virtual void CMD_Dial(string sPhoneNumber,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Originate(string sPhoneNumber,string sOriginatorNumber,string sOriginatorType,string sCallerID,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_PBX_Originate(string sPhoneNumber,string sPhoneType,string sPhoneExtension,string sPhoneCallerID,int iCommandID,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_PBX_Transfer(string sPhoneExtension,int iCommandID,string sPhoneCallID,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_PBX_Hangup(int iCommandID,string sPhoneCallID,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -88,11 +95,15 @@ public:
 			{
 				switch(pMessage->m_dwID)
 				{
-				case 195:
+				case 233:
 					{
 						string sCMD_Result="OK";
 					string sPhoneNumber=pMessage->m_mapParameters[75];
-						CMD_Dial(sPhoneNumber.c_str(),sCMD_Result,pMessage);
+					string sPhoneType=pMessage->m_mapParameters[82];
+					string sPhoneExtension=pMessage->m_mapParameters[83];
+					string sPhoneCallerID=pMessage->m_mapParameters[84];
+					int iCommandID=atoi(pMessage->m_mapParameters[85].c_str());
+						CMD_PBX_Originate(sPhoneNumber.c_str(),sPhoneType.c_str(),sPhoneExtension.c_str(),sPhoneCallerID.c_str(),iCommandID,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
@@ -103,14 +114,29 @@ public:
 					};
 					iHandled++;
 					continue;
-				case 227:
+				case 235:
 					{
 						string sCMD_Result="OK";
-					string sPhoneNumber=pMessage->m_mapParameters[75];
-					string sOriginatorNumber=pMessage->m_mapParameters[79];
-					string sOriginatorType=pMessage->m_mapParameters[80];
-					string sCallerID=pMessage->m_mapParameters[81];
-						CMD_Originate(sPhoneNumber.c_str(),sOriginatorNumber.c_str(),sOriginatorType.c_str(),sCallerID.c_str(),sCMD_Result,pMessage);
+					string sPhoneExtension=pMessage->m_mapParameters[83];
+					int iCommandID=atoi(pMessage->m_mapParameters[85].c_str());
+					string sPhoneCallID=pMessage->m_mapParameters[87];
+						CMD_PBX_Transfer(sPhoneExtension.c_str(),iCommandID,sPhoneCallID.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 237:
+					{
+						string sCMD_Result="OK";
+					int iCommandID=atoi(pMessage->m_mapParameters[85].c_str());
+					string sPhoneCallID=pMessage->m_mapParameters[87];
+						CMD_PBX_Hangup(iCommandID,sPhoneCallID.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);

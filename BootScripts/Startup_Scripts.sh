@@ -5,10 +5,22 @@
 Parameter="$1"; shift
 Device="$PK_Device"
 
-[ "$Parameter" == "stop" ] && exit 0
+# TODO: script parameter is obsolete (already); remove
+
+if [ "$Parameter" != "start" -a "$Parameter" != "script" -a "$Parameter" != "stop" ]; then
+	echo "Usage: $0 start|script|stop"
+	exit 1
+fi
+
 if [ "$Parameter" == "script" ]; then
 	Script=1
 	moonIP="$1"
+fi
+
+if [ "$Parameter" == "start" -o "$Parameter" == "script" ]; then
+	When="S"
+elif [ "$Parameter" == "stop" ]; then
+	When="P"
 fi
 
 Parameter="$1"
@@ -33,7 +45,7 @@ RunSQL()
 	fi
 }
 
-if [ ! -z "$Script" ]; then
+if [ -n "$Script" ]; then
 	Q="SELECT PK_Device
 FROM Device
 WHERE IPaddress='$moonIP'
@@ -44,7 +56,7 @@ fi
 Q="SELECT Command,Enabled
 FROM Device_StartupScript
 JOIN StartupScript ON FK_StartupScript=PK_StartupScript
-WHERE FK_Device='$Device'
+WHERE FK_Device='$Device' AND When='$When'
 ORDER BY Boot_Order"
 
 if [ ! -e /etc/pluto.startup ]; then
@@ -53,11 +65,11 @@ else
 	result=$(cat /etc/pluto.startup)
 fi
 
-if [ ! -z "$Script" ]; then
+if [ -n "$Script" ]; then
 	echo "$result"
 	exit
 fi
-[ -z "$result" ] && echo "No boot scripts were configured for device $Device" && exit
+[ -z "$result" ] && echo "No boot scripts were configured for device $Device for '$When'" && exit
 
 echo "$result" |
 while read line; do
