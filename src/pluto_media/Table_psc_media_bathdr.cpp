@@ -526,7 +526,7 @@ void Row_psc_media_bathdr::psc_media_batuser_FK_psc_media_bathdr_getrows(vector 
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_media_batuser *pTable = table->database->psc_media_batuser_get();
-pTable->GetRows("`FK_psc_media_bathdr=`" + StringUtils::itos(m_PK_psc_media_bathdr),rows);
+pTable->GetRows("`FK_psc_media_bathdr`=" + StringUtils::itos(m_PK_psc_media_bathdr),rows);
 }
 
 

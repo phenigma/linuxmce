@@ -870,21 +870,21 @@ void Row_Attribute::File_Attribute_FK_Attribute_getrows(vector <class Row_File_A
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_File_Attribute *pTable = table->database->File_Attribute_get();
-pTable->GetRows("`FK_Attribute=`" + StringUtils::itos(m_PK_Attribute),rows);
+pTable->GetRows("`FK_Attribute`=" + StringUtils::itos(m_PK_Attribute),rows);
 }
 void Row_Attribute::Picture_Attribute_FK_Attribute_getrows(vector <class Row_Picture_Attribute*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Picture_Attribute *pTable = table->database->Picture_Attribute_get();
-pTable->GetRows("`FK_Attribute=`" + StringUtils::itos(m_PK_Attribute),rows);
+pTable->GetRows("`FK_Attribute`=" + StringUtils::itos(m_PK_Attribute),rows);
 }
 void Row_Attribute::SearchToken_Attribute_FK_Attribute_getrows(vector <class Row_SearchToken_Attribute*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_SearchToken_Attribute *pTable = table->database->SearchToken_Attribute_get();
-pTable->GetRows("`FK_Attribute=`" + StringUtils::itos(m_PK_Attribute),rows);
+pTable->GetRows("`FK_Attribute`=" + StringUtils::itos(m_PK_Attribute),rows);
 }
 
 

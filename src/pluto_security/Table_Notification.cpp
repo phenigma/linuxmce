@@ -410,15 +410,16 @@ bool Table_Notification::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Notification_asSQL()+", "+pRow->FK_Alert_asSQL()+", "+pRow->NotificationTime_asSQL()+", "+pRow->Info_asSQL()+", "+pRow->Result_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Notification_asSQL()+", "+pRow->FK_Alert_asSQL()+", "+pRow->NotificationTime_asSQL()+", "+pRow->Info_asSQL()+", "+pRow->Result_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Notification (PK_Notification, FK_Alert, NotificationTime, Info, Result, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into Notification (`PK_Notification`, `FK_Alert`, `NotificationTime`, `Info`, `Result`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -458,12 +459,12 @@ sprintf(tmp_PK_Notification, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Notification=" + tmp_PK_Notification;
+condition = condition + "`PK_Notification`=" + tmp_PK_Notification;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Notification="+pRow->PK_Notification_asSQL()+", FK_Alert="+pRow->FK_Alert_asSQL()+", NotificationTime="+pRow->NotificationTime_asSQL()+", Info="+pRow->Info_asSQL()+", Result="+pRow->Result_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "`PK_Notification`="+pRow->PK_Notification_asSQL()+", `FK_Alert`="+pRow->FK_Alert_asSQL()+", `NotificationTime`="+pRow->NotificationTime_asSQL()+", `Info`="+pRow->Info_asSQL()+", `Result`="+pRow->Result_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Notification set " + update_values_list + " where " + condition;
@@ -471,6 +472,7 @@ update_values_list = update_values_list + "PK_Notification="+pRow->PK_Notificati
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -502,7 +504,7 @@ sprintf(tmp_PK_Notification, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Notification=" + tmp_PK_Notification;
+condition = condition + "`PK_Notification`=" + tmp_PK_Notification;
 
 	
 		string query = "delete from Notification where " + condition;
@@ -510,6 +512,7 @@ condition = condition + "PK_Notification=" + tmp_PK_Notification;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -536,6 +539,7 @@ bool Table_Notification::GetRows(string where_statement,vector<class Row_Notific
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -544,6 +548,7 @@ bool Table_Notification::GetRows(string where_statement,vector<class Row_Notific
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -740,7 +745,7 @@ sprintf(tmp_PK_Notification, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Notification=" + tmp_PK_Notification;
+condition = condition + "`PK_Notification`=" + tmp_PK_Notification;
 
 
 	string query = "select * from Notification where " + condition;		
@@ -748,6 +753,7 @@ condition = condition + "PK_Notification=" + tmp_PK_Notification;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -756,6 +762,7 @@ condition = condition + "PK_Notification=" + tmp_PK_Notification;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

@@ -763,7 +763,7 @@ void Row_SearchToken::SearchToken_Attribute_FK_SearchToken_getrows(vector <class
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_SearchToken_Attribute *pTable = table->database->SearchToken_Attribute_get();
-pTable->GetRows("`FK_SearchToken=`" + StringUtils::itos(m_PK_SearchToken),rows);
+pTable->GetRows("`FK_SearchToken`=" + StringUtils::itos(m_PK_SearchToken),rows);
 }
 
 

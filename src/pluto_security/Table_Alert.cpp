@@ -516,15 +516,16 @@ bool Table_Alert::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Alert_asSQL()+", "+pRow->FK_AlertType_asSQL()+", "+pRow->EK_Device_asSQL()+", "+pRow->DetectionTime_asSQL()+", "+pRow->ExpirationTime_asSQL()+", "+pRow->ResetBeforeExpiration_asSQL()+", "+pRow->Benign_asSQL()+", "+pRow->ResetTime_asSQL()+", "+pRow->EK_Users_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Alert_asSQL()+", "+pRow->FK_AlertType_asSQL()+", "+pRow->EK_Device_asSQL()+", "+pRow->DetectionTime_asSQL()+", "+pRow->ExpirationTime_asSQL()+", "+pRow->ResetBeforeExpiration_asSQL()+", "+pRow->Benign_asSQL()+", "+pRow->ResetTime_asSQL()+", "+pRow->EK_Users_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Alert (PK_Alert, FK_AlertType, EK_Device, DetectionTime, ExpirationTime, ResetBeforeExpiration, Benign, ResetTime, EK_Users, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into Alert (`PK_Alert`, `FK_AlertType`, `EK_Device`, `DetectionTime`, `ExpirationTime`, `ResetBeforeExpiration`, `Benign`, `ResetTime`, `EK_Users`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -564,12 +565,12 @@ sprintf(tmp_PK_Alert, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Alert=" + tmp_PK_Alert;
+condition = condition + "`PK_Alert`=" + tmp_PK_Alert;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Alert="+pRow->PK_Alert_asSQL()+", FK_AlertType="+pRow->FK_AlertType_asSQL()+", EK_Device="+pRow->EK_Device_asSQL()+", DetectionTime="+pRow->DetectionTime_asSQL()+", ExpirationTime="+pRow->ExpirationTime_asSQL()+", ResetBeforeExpiration="+pRow->ResetBeforeExpiration_asSQL()+", Benign="+pRow->Benign_asSQL()+", ResetTime="+pRow->ResetTime_asSQL()+", EK_Users="+pRow->EK_Users_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "`PK_Alert`="+pRow->PK_Alert_asSQL()+", `FK_AlertType`="+pRow->FK_AlertType_asSQL()+", `EK_Device`="+pRow->EK_Device_asSQL()+", `DetectionTime`="+pRow->DetectionTime_asSQL()+", `ExpirationTime`="+pRow->ExpirationTime_asSQL()+", `ResetBeforeExpiration`="+pRow->ResetBeforeExpiration_asSQL()+", `Benign`="+pRow->Benign_asSQL()+", `ResetTime`="+pRow->ResetTime_asSQL()+", `EK_Users`="+pRow->EK_Users_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Alert set " + update_values_list + " where " + condition;
@@ -577,6 +578,7 @@ update_values_list = update_values_list + "PK_Alert="+pRow->PK_Alert_asSQL()+", 
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -608,7 +610,7 @@ sprintf(tmp_PK_Alert, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Alert=" + tmp_PK_Alert;
+condition = condition + "`PK_Alert`=" + tmp_PK_Alert;
 
 	
 		string query = "delete from Alert where " + condition;
@@ -616,6 +618,7 @@ condition = condition + "PK_Alert=" + tmp_PK_Alert;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -642,6 +645,7 @@ bool Table_Alert::GetRows(string where_statement,vector<class Row_Alert*> *rows)
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -650,6 +654,7 @@ bool Table_Alert::GetRows(string where_statement,vector<class Row_Alert*> *rows)
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -890,7 +895,7 @@ sprintf(tmp_PK_Alert, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Alert=" + tmp_PK_Alert;
+condition = condition + "`PK_Alert`=" + tmp_PK_Alert;
 
 
 	string query = "select * from Alert where " + condition;		
@@ -898,6 +903,7 @@ condition = condition + "PK_Alert=" + tmp_PK_Alert;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -906,6 +912,7 @@ condition = condition + "PK_Alert=" + tmp_PK_Alert;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -1098,14 +1105,14 @@ void Row_Alert::Notification_FK_Alert_getrows(vector <class Row_Notification*> *
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Notification *pTable = table->database->Notification_get();
-pTable->GetRows("FK_Alert=" + StringUtils::itos(m_PK_Alert),rows);
+pTable->GetRows("`FK_Alert`=" + StringUtils::itos(m_PK_Alert),rows);
 }
 void Row_Alert::Picture_FK_Alert_getrows(vector <class Row_Picture*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Picture *pTable = table->database->Picture_get();
-pTable->GetRows("FK_Alert=" + StringUtils::itos(m_PK_Alert),rows);
+pTable->GetRows("`FK_Alert`=" + StringUtils::itos(m_PK_Alert),rows);
 }
 
 

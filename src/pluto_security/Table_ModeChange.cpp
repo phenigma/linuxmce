@@ -1,5 +1,4 @@
 // If using the thread logger, these generated classes create lots of activity
-
 #ifdef NO_SQL_THREAD_LOG
 #undef THREAD_LOG
 #endif
@@ -403,15 +402,16 @@ bool Table_ModeChange::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_ModeChange_asSQL()+", "+pRow->EK_HouseMode_asSQL()+", "+pRow->EK_DeviceGroup_asSQL()+", "+pRow->ChangeTime_asSQL()+", "+pRow->EK_Users_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_ModeChange_asSQL()+", "+pRow->EK_HouseMode_asSQL()+", "+pRow->EK_DeviceGroup_asSQL()+", "+pRow->ChangeTime_asSQL()+", "+pRow->EK_Users_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into ModeChange (PK_ModeChange, EK_HouseMode, EK_DeviceGroup, ChangeTime, EK_Users, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into ModeChange (`PK_ModeChange`, `EK_HouseMode`, `EK_DeviceGroup`, `ChangeTime`, `EK_Users`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -451,12 +451,12 @@ sprintf(tmp_PK_ModeChange, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_ModeChange=" + tmp_PK_ModeChange;
+condition = condition + "`PK_ModeChange`=" + tmp_PK_ModeChange;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_ModeChange="+pRow->PK_ModeChange_asSQL()+", EK_HouseMode="+pRow->EK_HouseMode_asSQL()+", EK_DeviceGroup="+pRow->EK_DeviceGroup_asSQL()+", ChangeTime="+pRow->ChangeTime_asSQL()+", EK_Users="+pRow->EK_Users_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "`PK_ModeChange`="+pRow->PK_ModeChange_asSQL()+", `EK_HouseMode`="+pRow->EK_HouseMode_asSQL()+", `EK_DeviceGroup`="+pRow->EK_DeviceGroup_asSQL()+", `ChangeTime`="+pRow->ChangeTime_asSQL()+", `EK_Users`="+pRow->EK_Users_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update ModeChange set " + update_values_list + " where " + condition;
@@ -464,6 +464,7 @@ update_values_list = update_values_list + "PK_ModeChange="+pRow->PK_ModeChange_a
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -495,7 +496,7 @@ sprintf(tmp_PK_ModeChange, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_ModeChange=" + tmp_PK_ModeChange;
+condition = condition + "`PK_ModeChange`=" + tmp_PK_ModeChange;
 
 	
 		string query = "delete from ModeChange where " + condition;
@@ -503,6 +504,7 @@ condition = condition + "PK_ModeChange=" + tmp_PK_ModeChange;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -529,6 +531,7 @@ bool Table_ModeChange::GetRows(string where_statement,vector<class Row_ModeChang
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -537,6 +540,7 @@ bool Table_ModeChange::GetRows(string where_statement,vector<class Row_ModeChang
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -733,7 +737,7 @@ sprintf(tmp_PK_ModeChange, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_ModeChange=" + tmp_PK_ModeChange;
+condition = condition + "`PK_ModeChange`=" + tmp_PK_ModeChange;
 
 
 	string query = "select * from ModeChange where " + condition;		
@@ -741,6 +745,7 @@ condition = condition + "PK_ModeChange=" + tmp_PK_ModeChange;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -749,6 +754,7 @@ condition = condition + "PK_ModeChange=" + tmp_PK_ModeChange;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

@@ -812,21 +812,21 @@ void Row_Type::File_FK_Type_getrows(vector <class Row_File*> *rows)
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_File *pTable = table->database->File_get();
-pTable->GetRows("`FK_Type=`" + StringUtils::itos(m_PK_Type),rows);
+pTable->GetRows("`FK_Type`=" + StringUtils::itos(m_PK_Type),rows);
 }
 void Row_Type::Type_AttributeType_FK_Type_getrows(vector <class Row_Type_AttributeType*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Type_AttributeType *pTable = table->database->Type_AttributeType_get();
-pTable->GetRows("`FK_Type=`" + StringUtils::itos(m_PK_Type),rows);
+pTable->GetRows("`FK_Type`=" + StringUtils::itos(m_PK_Type),rows);
 }
 void Row_Type::Type_Extension_FK_Type_getrows(vector <class Row_Type_Extension*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Type_Extension *pTable = table->database->Type_Extension_get();
-pTable->GetRows("`FK_Type=`" + StringUtils::itos(m_PK_Type),rows);
+pTable->GetRows("`FK_Type`=" + StringUtils::itos(m_PK_Type),rows);
 }
 
 

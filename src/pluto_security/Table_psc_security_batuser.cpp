@@ -252,12 +252,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_security_batuser_asSQL()+", "+pRow->FK_psc_security_bathdr_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->is_sup_asSQL();
 
 	
-		string query = "insert into psc_security_batuser (PK_psc_security_batuser, FK_psc_security_bathdr, psc_user, is_sup) values ("+
+		string query = "insert into psc_security_batuser (`PK_psc_security_batuser`, `FK_psc_security_bathdr`, `psc_user`, `is_sup`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -297,12 +298,12 @@ sprintf(tmp_PK_psc_security_batuser, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_security_batuser=" + tmp_PK_psc_security_batuser;
+condition = condition + "`PK_psc_security_batuser`=" + tmp_PK_psc_security_batuser;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_psc_security_batuser="+pRow->PK_psc_security_batuser_asSQL()+", FK_psc_security_bathdr="+pRow->FK_psc_security_bathdr_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", is_sup="+pRow->is_sup_asSQL();
+update_values_list = update_values_list + "`PK_psc_security_batuser`="+pRow->PK_psc_security_batuser_asSQL()+", `FK_psc_security_bathdr`="+pRow->FK_psc_security_bathdr_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `is_sup`="+pRow->is_sup_asSQL();
 
 	
 		string query = "update psc_security_batuser set " + update_values_list + " where " + condition;
@@ -310,6 +311,7 @@ update_values_list = update_values_list + "PK_psc_security_batuser="+pRow->PK_ps
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -341,7 +343,7 @@ sprintf(tmp_PK_psc_security_batuser, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_security_batuser=" + tmp_PK_psc_security_batuser;
+condition = condition + "`PK_psc_security_batuser`=" + tmp_PK_psc_security_batuser;
 
 	
 		string query = "delete from psc_security_batuser where " + condition;
@@ -349,6 +351,7 @@ condition = condition + "PK_psc_security_batuser=" + tmp_PK_psc_security_batuser
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -375,6 +378,7 @@ bool Table_psc_security_batuser::GetRows(string where_statement,vector<class Row
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -383,6 +387,7 @@ bool Table_psc_security_batuser::GetRows(string where_statement,vector<class Row
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -513,7 +518,7 @@ sprintf(tmp_PK_psc_security_batuser, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_security_batuser=" + tmp_PK_psc_security_batuser;
+condition = condition + "`PK_psc_security_batuser`=" + tmp_PK_psc_security_batuser;
 
 
 	string query = "select * from psc_security_batuser where " + condition;		
@@ -521,6 +526,7 @@ condition = condition + "PK_psc_security_batuser=" + tmp_PK_psc_security_batuser
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -529,6 +535,7 @@ condition = condition + "PK_psc_security_batuser=" + tmp_PK_psc_security_batuser
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

@@ -903,21 +903,21 @@ void Row_File::File_Attribute_FK_File_getrows(vector <class Row_File_Attribute*>
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_File_Attribute *pTable = table->database->File_Attribute_get();
-pTable->GetRows("`FK_File=`" + StringUtils::itos(m_PK_File),rows);
+pTable->GetRows("`FK_File`=" + StringUtils::itos(m_PK_File),rows);
 }
 void Row_File::Picture_File_FK_File_getrows(vector <class Row_Picture_File*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Picture_File *pTable = table->database->Picture_File_get();
-pTable->GetRows("`FK_File=`" + StringUtils::itos(m_PK_File),rows);
+pTable->GetRows("`FK_File`=" + StringUtils::itos(m_PK_File),rows);
 }
 void Row_File::PlaylistEntry_FK_File_getrows(vector <class Row_PlaylistEntry*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_PlaylistEntry *pTable = table->database->PlaylistEntry_get();
-pTable->GetRows("`FK_File=`" + StringUtils::itos(m_PK_File),rows);
+pTable->GetRows("`FK_File`=" + StringUtils::itos(m_PK_File),rows);
 }
 
 

@@ -764,14 +764,14 @@ void Row_Picture::Picture_Attribute_FK_Picture_getrows(vector <class Row_Picture
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Picture_Attribute *pTable = table->database->Picture_Attribute_get();
-pTable->GetRows("`FK_Picture=`" + StringUtils::itos(m_PK_Picture),rows);
+pTable->GetRows("`FK_Picture`=" + StringUtils::itos(m_PK_Picture),rows);
 }
 void Row_Picture::Picture_File_FK_Picture_getrows(vector <class Row_Picture_File*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Picture_File *pTable = table->database->Picture_File_get();
-pTable->GetRows("`FK_Picture=`" + StringUtils::itos(m_PK_Picture),rows);
+pTable->GetRows("`FK_Picture`=" + StringUtils::itos(m_PK_Picture),rows);
 }
 
 

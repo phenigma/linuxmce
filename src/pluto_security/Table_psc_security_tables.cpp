@@ -318,12 +318,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_security_tables_asSQL()+", "+pRow->Tablename_asSQL()+", "+pRow->filter_asSQL()+", "+pRow->frozen_asSQL()+", "+pRow->last_psc_id_asSQL()+", "+pRow->last_psc_batch_asSQL();
 
 	
-		string query = "insert into psc_security_tables (PK_psc_security_tables, Tablename, filter, frozen, last_psc_id, last_psc_batch) values ("+
+		string query = "insert into psc_security_tables (`PK_psc_security_tables`, `Tablename`, `filter`, `frozen`, `last_psc_id`, `last_psc_batch`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -363,12 +364,12 @@ sprintf(tmp_PK_psc_security_tables, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_security_tables=" + tmp_PK_psc_security_tables;
+condition = condition + "`PK_psc_security_tables`=" + tmp_PK_psc_security_tables;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_psc_security_tables="+pRow->PK_psc_security_tables_asSQL()+", Tablename="+pRow->Tablename_asSQL()+", filter="+pRow->filter_asSQL()+", frozen="+pRow->frozen_asSQL()+", last_psc_id="+pRow->last_psc_id_asSQL()+", last_psc_batch="+pRow->last_psc_batch_asSQL();
+update_values_list = update_values_list + "`PK_psc_security_tables`="+pRow->PK_psc_security_tables_asSQL()+", `Tablename`="+pRow->Tablename_asSQL()+", `filter`="+pRow->filter_asSQL()+", `frozen`="+pRow->frozen_asSQL()+", `last_psc_id`="+pRow->last_psc_id_asSQL()+", `last_psc_batch`="+pRow->last_psc_batch_asSQL();
 
 	
 		string query = "update psc_security_tables set " + update_values_list + " where " + condition;
@@ -376,6 +377,7 @@ update_values_list = update_values_list + "PK_psc_security_tables="+pRow->PK_psc
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -407,7 +409,7 @@ sprintf(tmp_PK_psc_security_tables, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_security_tables=" + tmp_PK_psc_security_tables;
+condition = condition + "`PK_psc_security_tables`=" + tmp_PK_psc_security_tables;
 
 	
 		string query = "delete from psc_security_tables where " + condition;
@@ -415,6 +417,7 @@ condition = condition + "PK_psc_security_tables=" + tmp_PK_psc_security_tables;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -441,6 +444,7 @@ bool Table_psc_security_tables::GetRows(string where_statement,vector<class Row_
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -449,6 +453,7 @@ bool Table_psc_security_tables::GetRows(string where_statement,vector<class Row_
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -601,7 +606,7 @@ sprintf(tmp_PK_psc_security_tables, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_security_tables=" + tmp_PK_psc_security_tables;
+condition = condition + "`PK_psc_security_tables`=" + tmp_PK_psc_security_tables;
 
 
 	string query = "select * from psc_security_tables where " + condition;		
@@ -609,6 +614,7 @@ condition = condition + "PK_psc_security_tables=" + tmp_PK_psc_security_tables;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -617,6 +623,7 @@ condition = condition + "PK_psc_security_tables=" + tmp_PK_psc_security_tables;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

@@ -247,12 +247,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_security_bathdr_asSQL()+", "+pRow->date_asSQL()+", "+pRow->comments_asSQL();
 
 	
-		string query = "insert into psc_security_bathdr (PK_psc_security_bathdr, date, comments) values ("+
+		string query = "insert into psc_security_bathdr (`PK_psc_security_bathdr`, `date`, `comments`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -292,12 +293,12 @@ sprintf(tmp_PK_psc_security_bathdr, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_security_bathdr=" + tmp_PK_psc_security_bathdr;
+condition = condition + "`PK_psc_security_bathdr`=" + tmp_PK_psc_security_bathdr;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_psc_security_bathdr="+pRow->PK_psc_security_bathdr_asSQL()+", date="+pRow->date_asSQL()+", comments="+pRow->comments_asSQL();
+update_values_list = update_values_list + "`PK_psc_security_bathdr`="+pRow->PK_psc_security_bathdr_asSQL()+", `date`="+pRow->date_asSQL()+", `comments`="+pRow->comments_asSQL();
 
 	
 		string query = "update psc_security_bathdr set " + update_values_list + " where " + condition;
@@ -305,6 +306,7 @@ update_values_list = update_values_list + "PK_psc_security_bathdr="+pRow->PK_psc
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -336,7 +338,7 @@ sprintf(tmp_PK_psc_security_bathdr, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_security_bathdr=" + tmp_PK_psc_security_bathdr;
+condition = condition + "`PK_psc_security_bathdr`=" + tmp_PK_psc_security_bathdr;
 
 	
 		string query = "delete from psc_security_bathdr where " + condition;
@@ -344,6 +346,7 @@ condition = condition + "PK_psc_security_bathdr=" + tmp_PK_psc_security_bathdr;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -370,6 +373,7 @@ bool Table_psc_security_bathdr::GetRows(string where_statement,vector<class Row_
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -378,6 +382,7 @@ bool Table_psc_security_bathdr::GetRows(string where_statement,vector<class Row_
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -497,7 +502,7 @@ sprintf(tmp_PK_psc_security_bathdr, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_security_bathdr=" + tmp_PK_psc_security_bathdr;
+condition = condition + "`PK_psc_security_bathdr`=" + tmp_PK_psc_security_bathdr;
 
 
 	string query = "select * from psc_security_bathdr where " + condition;		
@@ -505,6 +510,7 @@ condition = condition + "PK_psc_security_bathdr=" + tmp_PK_psc_security_bathdr;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -513,6 +519,7 @@ condition = condition + "PK_psc_security_bathdr=" + tmp_PK_psc_security_bathdr;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -577,35 +584,35 @@ void Row_psc_security_bathdr::psc_security_batdet_FK_psc_security_bathdr_getrows
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_security_batdet *pTable = table->database->psc_security_batdet_get();
-pTable->GetRows("FK_psc_security_bathdr=" + StringUtils::itos(m_PK_psc_security_bathdr),rows);
+pTable->GetRows("`FK_psc_security_bathdr`=" + StringUtils::itos(m_PK_psc_security_bathdr),rows);
 }
 void Row_psc_security_bathdr::psc_security_batdet_FK_psc_security_bathdr_orig_getrows(vector <class Row_psc_security_batdet*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_security_batdet *pTable = table->database->psc_security_batdet_get();
-pTable->GetRows("FK_psc_security_bathdr_orig=" + StringUtils::itos(m_PK_psc_security_bathdr),rows);
+pTable->GetRows("`FK_psc_security_bathdr_orig`=" + StringUtils::itos(m_PK_psc_security_bathdr),rows);
 }
 void Row_psc_security_bathdr::psc_security_batdet_FK_psc_security_bathdr_auth_getrows(vector <class Row_psc_security_batdet*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_security_batdet *pTable = table->database->psc_security_batdet_get();
-pTable->GetRows("FK_psc_security_bathdr_auth=" + StringUtils::itos(m_PK_psc_security_bathdr),rows);
+pTable->GetRows("`FK_psc_security_bathdr_auth`=" + StringUtils::itos(m_PK_psc_security_bathdr),rows);
 }
 void Row_psc_security_bathdr::psc_security_batdet_FK_psc_security_bathdr_unauth_getrows(vector <class Row_psc_security_batdet*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_security_batdet *pTable = table->database->psc_security_batdet_get();
-pTable->GetRows("FK_psc_security_bathdr_unauth=" + StringUtils::itos(m_PK_psc_security_bathdr),rows);
+pTable->GetRows("`FK_psc_security_bathdr_unauth`=" + StringUtils::itos(m_PK_psc_security_bathdr),rows);
 }
 void Row_psc_security_bathdr::psc_security_batuser_FK_psc_security_bathdr_getrows(vector <class Row_psc_security_batuser*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_security_batuser *pTable = table->database->psc_security_batuser_get();
-pTable->GetRows("FK_psc_security_bathdr=" + StringUtils::itos(m_PK_psc_security_bathdr),rows);
+pTable->GetRows("`FK_psc_security_bathdr`=" + StringUtils::itos(m_PK_psc_security_bathdr),rows);
 }
 
 

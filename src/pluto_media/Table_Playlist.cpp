@@ -806,7 +806,7 @@ void Row_Playlist::PlaylistEntry_FK_Playlist_getrows(vector <class Row_PlaylistE
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_PlaylistEntry *pTable = table->database->PlaylistEntry_get();
-pTable->GetRows("`FK_Playlist=`" + StringUtils::itos(m_PK_Playlist),rows);
+pTable->GetRows("`FK_Playlist`=" + StringUtils::itos(m_PK_Playlist),rows);
 }
 
 

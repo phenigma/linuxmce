@@ -57,7 +57,7 @@ db_handle = mysql_init(NULL);
 if (mysql_real_connect(db_handle, host.c_str(), user.c_str(), pass.c_str(), sDBName.c_str(), port, NULL, 0) == NULL)
 {return false;}
 else
-{return true;}
+{SetConnection(db_handle); return true;}
 }
 
 bool Database_pluto_security::Connect(class DCEConfig *pDCEConfig)

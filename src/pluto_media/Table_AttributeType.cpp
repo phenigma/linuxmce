@@ -811,14 +811,14 @@ void Row_AttributeType::Attribute_FK_AttributeType_getrows(vector <class Row_Att
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Attribute *pTable = table->database->Attribute_get();
-pTable->GetRows("`FK_AttributeType=`" + StringUtils::itos(m_PK_AttributeType),rows);
+pTable->GetRows("`FK_AttributeType`=" + StringUtils::itos(m_PK_AttributeType),rows);
 }
 void Row_AttributeType::Type_AttributeType_FK_AttributeType_getrows(vector <class Row_Type_AttributeType*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Type_AttributeType *pTable = table->database->Type_AttributeType_get();
-pTable->GetRows("`FK_AttributeType=`" + StringUtils::itos(m_PK_AttributeType),rows);
+pTable->GetRows("`FK_AttributeType`=" + StringUtils::itos(m_PK_AttributeType),rows);
 }
 
 

@@ -6,7 +6,8 @@
 #else
 #define DLL_EXPORT
 #endif
-class DLL_EXPORT Database_pluto_security
+#include "PlutoUtils/MySQLHelper.h"
+class DLL_EXPORT Database_pluto_security: public MySqlHelper
 {
 public:
 MYSQL *db_handle;
@@ -37,6 +38,7 @@ class Table_psc_security_batuser* psc_security_batuser_get() { return tblpsc_sec
 class Table_psc_security_repset* psc_security_repset_get() { return tblpsc_security_repset; }
 class Table_psc_security_schema* psc_security_schema_get() { return tblpsc_security_schema; }
 class Table_psc_security_tables* psc_security_tables_get() { return tblpsc_security_tables; }
+string m_sLastMySqlError;
 bool Connect(string host, string user, string pass, string sDBName, int port);
 bool Connect(class DCEConfig *pDCEConfig);
 void Disconnect();
