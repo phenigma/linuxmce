@@ -927,36 +927,42 @@ string Disk_Drive::dvd_read_name(const int fd)
 
 bool Disk_Drive::mountDVD(string fileName, string &strMediaUrl)
 {
-	string commandLine = "/usr/pluto/bin/mountDVDCommand.sh \"" + fileName + "\"";
-	int result;
-g_pPlutoLogger->Write(LV_ACTION,"Executing %s",commandLine.c_str());
-	switch ( (result = system(commandLine.c_str())) )
+	string sDrive = DATA_Get_Drive();
+	if( sDrive.length()==0 )
+		sDrive = "/dev/cdrom";
+
+	string cmd = "ln -sf " + sDrive + " /dev/dvd";
+	g_pPlutoLogger->Write(LV_STATUS,"cmd: %s",cmd.c_str());
+	system(cmd.c_str());  // Don't care about the return.  Just making sure it's not loop 5 so we can delete it
+
+	cmd = "losetup -d /dev/loop5";
+	g_pPlutoLogger->Write(LV_STATUS,"cmd: %s",cmd.c_str());
+	system(cmd.c_str());  // Don't care about the return. 
+
+    cmd = "losetup /dev/loop5 " + fileName;
+	g_pPlutoLogger->Write(LV_STATUS,"cmd: %s",cmd.c_str());
+    int iResult2=0,iResult = system(cmd.c_str());
+
+	if( iResult==0 )
 	{
-		case 0:
-g_pPlutoLogger->Write(LV_ACTION,"Execution ok %s",commandLine.c_str());
-			strMediaUrl = "dvd:/";
-			return true;
-
-		case -1:
-			strMediaUrl = "Error launching the mount DVD script";
-			return false;
-
-		case 100:
-			strMediaUrl = "Invalid parameters for the mount DVD script!";
-			return false;
-
-		case 101:
-			strMediaUrl = "The DVD mounting software is not installed!";
-			return false;
-
-		case 102:
-			strMediaUrl = "The software was found, it was called but it said it could not test itself.";
-			return false;
-
-		default:
-			strMediaUrl = "Unknown error code: " + StringUtils::itos(WEXITSTATUS(result));
-			return false;
+		cmd = "ln -sf /dev/loop5 /dev/dvd";
+		g_pPlutoLogger->Write(LV_STATUS,"cmd: %s",cmd.c_str());
+		iResult2 = system(cmd.c_str());
 	}
+
+	if( iResult==0 && iResult2==0 )
+	{
+g_pPlutoLogger->Write(LV_ACTION,"returning mounted dvd");
+		strMediaUrl = "dvd:/";
+		return true;
+	}
+
+g_pPlutoLogger->Write(LV_CRITICAL,"Failed to mount %d %d",iResult,iResult2);
+	string cmd = "ln -sf " + sDrive + " /dev/dvd";
+	g_pPlutoLogger->Write(LV_STATUS,"cmd: %s",cmd.c_str());
+	system(cmd.c_str());  // Can't do anything if it fails
+
+	return false;
 }
 
 int Disk_Drive::cdrom_has_dir (int fd, const char *directory)
