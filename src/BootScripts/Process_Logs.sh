@@ -11,7 +11,7 @@ UploadLogs()
 	ok=0
 	while [ "$ok" -eq 0 ]; do
 		echo "$(date) Uploading critical errors" >>/var/log/pluto/ftp-upload.log
-		ftp-upload -v --ignore-quit-failure -h plutohome.com --passive -b -d upload "$Output/$Filename.critical.tar.gz" >>/var/log/pluto/ftp-upload.log 2>>/var/log/pluto/ftp-upload-err.log
+		ftp-upload -v --ignore-quit-failure -h plutohome.com --passive -b -d incoming "$Output/$Filename.critical.tar.gz" >>/var/log/pluto/ftp-upload.log 2>>/var/log/pluto/ftp-upload-err.log
 		if [ "$?" -eq 0 ]; then
 			echo "$(date) Done" >>/var/log/pluto/ftp-upload.log
 		else
