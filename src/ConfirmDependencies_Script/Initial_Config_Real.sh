@@ -197,8 +197,6 @@ DCERouter = $Host
 MySqlPort = 3306
 DCERouterPort = 3450
 PK_Device = $Device
-PK_Installation = 
-PK_Distro = 
 Activation_Code = $Code"
 	[ -f /etc/pluto.conf ] || echo "$pluto_conf" >/etc/pluto.conf
 	chmod 666 /etc/pluto.conf # that 666 is octal, and equals 438 in decimal :)

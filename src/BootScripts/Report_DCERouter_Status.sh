@@ -15,6 +15,8 @@ if [ "$ShowStatus" == "no" ]; then
 	exec /sbin/getty 38400 tty1
 fi
 
+exec </dev/tty1 >/dev/tty1 2>/dev/tty1
+
 FStart=/tmp/pluto_status_menu.start
 FNow=/tmp/pluto_status_menu.current
 touch "$FStart" "$FNow"

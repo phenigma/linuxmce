@@ -1,3 +1,5 @@
+#!/bin/bash
+
 . /usr/pluto/bin/Config_Ops.sh
 
 PrevVer="$2"
@@ -19,7 +21,11 @@ else
 { print }
 /Monitor.*Monitor0/ { print("\tDefaultDepth\t16") }
 /Depth.*16/ { print("\t\tModes\t\"800x600\"") }
-' "$config" >/etc/X11/XF86Config-4
+' "$config" >/etc/X11/XF86Config-4.new
+	echo 'Section "ServerFlags"
+	Option "AllowMouseOpenFail" "true"
+EndSection' >>/etc/X11/XF86Config-4.new
+	egrep -v 'Load.*"dri"|Load.*"glx"' /etc/X11/XF86Config-4.new >/etc/X11/XF86Config-4
 	rm -f "$config"
 
 	sed -i 's!/dev/mouse!/dev/input/mice!g' /etc/X11/XF86Config-4

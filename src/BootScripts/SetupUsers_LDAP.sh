@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. /usr/pluto/bin/SQL_Ops.sh
+
 TemplateTemp='
 dn: uid=$UserName, ou=users, dc=plutohome, dc=org
 uid: $UserName
