@@ -874,7 +874,7 @@ int k=2;
 
 	if( !pRow_RepositorySource_URL )
 	{
-		cout << pRow_Package->PK_Package_get() << "," << pRow_Package->Description_get() << ","
+		cout << "# PK_Package=" << pRow_Package->PK_Package_get() << "," << pRow_Package->Description_get() << ","
 			 << "**ERROR** Cannot find a URL for Repository Source: " 
 			 << pRow_RepositorySource->Description_get() << endl;
 		return NULL;
