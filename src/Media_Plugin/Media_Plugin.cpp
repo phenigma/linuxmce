@@ -86,7 +86,7 @@ MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 	// do stuff with this
 }
 
-//<-dceag-const-b->! custom
+//<-dceag-const-b->! custom// i get
 Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEventHandler, bool bLocalMode, class Router *pRouter )
     : Media_Plugin_Command( DeviceID, ServerAddress, bConnectEventHandler, bLocalMode, pRouter ),
     m_MediaMutex( "Media Plugin" )
@@ -185,7 +185,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Room: %d %s has no video",pRow_Room->PK_Room_ge
 				{
 					bChangedEAs=true;
 
-					pRow_EntertainArea = m_pDatabase_pluto_main->EntertainArea_get()->AddRow();
+// 					pRow_EntertainArea = m_pDatabase_pluto_main->EntertainArea_get()->AddRow();
 g_pPlutoLogger->Write(LV_STATUS,"set ent area %d %s to Room: %d %s has no video",pRow_EntertainArea->PK_EntertainArea_get(),pRow_EntertainArea->Description_get().c_str(),pRow_Room->PK_Room_get(),pRow_Room->Description_get().c_str());
 					pRow_EntertainArea->FK_Room_set(pRow_Room->PK_Room_get());
 					m_pDatabase_pluto_main->EntertainArea_get()->Commit();
@@ -239,7 +239,7 @@ g_pPlutoLogger->Write(LV_STATUS,"set ent area %d %s to Room: %d %s has no video"
         for( size_t s=0;s<vectRow_EntertainArea.size( );++s )
         {
             Row_EntertainArea *pRow_EntertainArea = vectRow_EntertainArea[s];
-            EntertainArea *pEntertainArea = new EntertainArea( pRow_EntertainArea->PK_EntertainArea_get( ), 
+            EntertainArea *pEntertainArea = new EntertainArea( pRow_EntertainArea->PK_EntertainArea_get( ),
 				( pRow_EntertainArea->Only1Stream_get( )==1 ), pRow_EntertainArea->Description_get(),
 				m_pRouter->m_mapRoom_Find(pRow_Room->PK_Room_get()) );
             m_mapEntertainAreas[pEntertainArea->m_iPK_EntertainArea]=pEntertainArea;
@@ -1746,6 +1746,7 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string 
     if( !pEntertainArea )
         return;  // Don't know what area it should be played in
 
+	// i get the media type here when it's global
     deque<MediaFile *> dequeMediaFile;
     if( sFilename.length() > 0 )
  	{
@@ -1754,9 +1755,24 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string 
 			list<string> allFilesList;
 			list<string>::const_iterator itFileName;
 
-			if ( FileUtils::FindFiles(allFilesList, sFilename.substr(0, sFilename.length()-1), "*.mp3", true, true) ) // we have hit the bottom
+			if ( iPK_MediaType == 0 )
 			{
-				m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter, "Hannibal e plecat la munte");
+				g_pPlutoLogger->Write(LV_WARNING, "When you want a recursive listing of a folder you should also provide a target media type.");
+				return;
+			}
+
+			Row_MediaType *pRow_MediaType=m_pDatabase_pluto_main->MediaType_get()->GetRow(iPK_MediaType);
+			if( !pRow_MediaType )
+			{
+				g_pPlutoLogger->Write(LV_CRITICAL,"Invalid media type PK provided: %d", iPK_MediaType);
+				return;
+			}
+
+			string Extensions = pRow_MediaType->Extensions_get();
+
+			if ( FileUtils::FindFiles(allFilesList, sFilename.substr(0, sFilename.length()-1), Extensions.c_str(), true, true) ) // we have hit the bottom
+			{
+				m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter, "You have more than 100 pictures in this folder. Only the first 100 of them have been added to the queue.");
 			}
 
 			itFileName = allFilesList.begin();
@@ -2007,7 +2023,10 @@ class DataGridTable *Media_Plugin::AvailablePlaylists( string GridID, string Par
     DataGridTable *pDataGrid = new DataGridTable();
     if( (result.r=m_pDatabase_pluto_media->mysql_query_result(SQL)) )
         while( (row=mysql_fetch_row(result.r)) )
-            pDataGrid->SetData(0,RowCount++,new DataGridCell(row[1], row[0]));
+		{
+            // g_pPlutoLogger->Write(LV_CRITICAL, "Adding this entry \"%s\" to the position %d", row[1], RowCount);
+			pDataGrid->SetData(0,RowCount++,new DataGridCell(row[1], row[0]));
+		}
 
     return pDataGrid;
 }

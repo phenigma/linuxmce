@@ -238,20 +238,18 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 					// TODO: read the response ( see if the mount was succesfull ) and continue if not.
 					if ( SendCommand( mountCommand, &Response ) )
 					{
-						g_pPlutoLogger->Write(LV_STATUS, "And again Here ");
 						bFound = true;
 						break;
 					}
-					else
-					{
-						g_pPlutoLogger->Write(LV_CRITICAL, "Failed to receive response from the disk drive device!. Response was: \"%s\"!", Response.c_str( ) );
-					}
 
-					g_pPlutoLogger->Write(LV_STATUS, "Got response from the disk drive: %s", mediaURL.c_str() );
+					g_pPlutoLogger->Write(LV_CRITICAL, "Disk drive mount command didn't complete succesfully. Error message: %s", mediaURL.c_str( ) );
 				}
 			}
 			g_pPlutoLogger->Write( LV_STATUS, "Media device %d got back URL: %s", pXineMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device, mediaURL.c_str( ) );
 		}
+
+		if ( !bFound ) // we didn;t find a disk drive which was able to mount hte images
+			return false;
 	}
 	else
 	{
@@ -277,7 +275,7 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 					pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device,
 					pMediaStream->m_pDeviceData_Router_Source->m_sDescription.c_str());
 	else
-		g_pPlutoLogger->Write( LV_STATUS, "Xine player responded to play media command!" );
+		g_pPlutoLogger->Write(LV_STATUS, "The sources device responded to play media command!" );
 
 	m_pMedia_Plugin->MediaInfoChanged( pXineMediaStream );
 	return true;
