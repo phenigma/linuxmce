@@ -5,7 +5,7 @@ echo "$(date) Spawn_Device $*" >> /var/log/pluto/Spawn_Device.log
 
 # syntax: $0 <device_id> <ip_of_router> <display> <cmd_line>
 
-. /pluto/bin/pluto.func || exit
+. /usr/pluto/bin/pluto.func || exit
 device_id="$1"
 ip_of_router="$2"
 device_name="$device_id"

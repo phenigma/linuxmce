@@ -9,7 +9,6 @@ APPNAME=DCERouter
 VERSION=2.0.0
 
 sources = CriteriaList.cpp CriteriaNesting.cpp \
-		DatabaseSchema.cpp \
 		EventHandler_CriteriaList.cpp\
 		Main.cpp DCERouter.cpp DCERouter_CreatePluginHardCoded_Impl.cpp
 
