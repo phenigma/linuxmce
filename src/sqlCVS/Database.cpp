@@ -567,6 +567,8 @@ void Database::ShowChanges()
 
 void Database::CheckIn( bool bFirstLoop )
 {
+	g_GlobalConfig.m_mapUsersTables.clear(); // Be sure we start clean, since this could be the second loop
+
 	if( bFirstLoop )
 		GetTablesToCheckIn( );
 	
@@ -579,6 +581,7 @@ void Database::CheckIn( bool bFirstLoop )
 	for( MapTable::iterator it=g_GlobalConfig.m_mapTable.begin( );it!=g_GlobalConfig.m_mapTable.end( );++it )
 	{
 		Table *pTable = ( *it ).second;
+		pTable->m_mapUsers2ChangedRowList.clear(); // Be sure we start clean, since this could be the second loop
 		pTable->GetChanges( );
 	}
 
@@ -664,6 +667,25 @@ void Database::CheckIn( bool bFirstLoop )
 			return;
 	}
 
+// Temporary hack to avoid accidental deletions while trying to sort out what sometimes goes wrong
+for( MapTable::iterator it=g_GlobalConfig.m_mapTable.begin( );it!=g_GlobalConfig.m_mapTable.end( );++it )
+{
+Table *pTable = ( *it ).second;
+if( pTable->m_vectRowsToDelete.size() )
+{
+cout << "Table: " << pTable->Name_get() <<  " has " << pTable->m_vectRowsToDelete.size() << " rows to delete" << endl;
+if( !AskYNQuestion("Continue",false) )
+	throw "Checkin aborted";
+}
+
+if( pTable->itmp_RowsToDelete )
+{
+cout << "Table: " << pTable->Name_get() <<  " has " << pTable->itmp_RowsToDelete << " rows deleted" << endl;
+if( !AskYNQuestion("Continue",false) )
+	throw "Checkin aborted";
+}
+}
+
 	try
 	{
 		for( MapRepository::iterator it=g_GlobalConfig.m_mapRepository.begin( );it!=g_GlobalConfig.m_mapRepository.end( );++it )
@@ -684,6 +706,7 @@ void Database::CheckIn( bool bFirstLoop )
 	catch( const char *pException )
 	{
 		cerr << "Checkin threw exception: " << pException << endl;
+		throw "Checkin failed";
 		return;
 	}
 

@@ -98,6 +98,7 @@ namespace sqlCVS
 		int m_psc_id_last_sync, m_psc_batch_last_sync;
 
 	public:
+int itmp_RowsToDelete;
 		/** @brief constructor */
 		
 		Table( class Database *pDatabase, string sName );

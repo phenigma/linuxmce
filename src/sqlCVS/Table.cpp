@@ -49,6 +49,7 @@ using namespace sqlCVS;
 
 Table::Table( class Database *pDatabase, string sName )
 {
+itmp_RowsToDelete=0;
 	m_pDatabase=pDatabase;
 	m_sName=sName;
 	m_pRepository=NULL;
@@ -788,6 +789,7 @@ cout << endl;
 			{
 cout << "Deleted a local row - pos: " << pos << " size: " << r_GetAll_psc_id.m_vectAll_psc_id.size( ) << 
 	" atoi: " << atoi( row[0] ) << " comp: " << r_GetAll_psc_id.m_vectAll_psc_id[pos] << endl;
+itmp_RowsToDelete++;
 				ChangedRow *pChangedRow = new ChangedRow( this, r_GetAll_psc_id.m_vectAll_psc_id[pos] );
 				AddChangedRow( pChangedRow );
 				pos++;
@@ -817,6 +819,7 @@ cout << "Deleted a server row - pos: " << pos << " size: " << r_GetAll_psc_id.m_
 				continue;
 cout << "Still rows in server's vect - pos: " << pos << " size: " << r_GetAll_psc_id.m_vectAll_psc_id.size( ) << 
 	" comp: " << r_GetAll_psc_id.m_vectAll_psc_id[pos] << endl;
+itmp_RowsToDelete++;
 			ChangedRow *pChangedRow = new ChangedRow( this, r_GetAll_psc_id.m_vectAll_psc_id[pos] );
 			AddChangedRow( pChangedRow );
 		}
