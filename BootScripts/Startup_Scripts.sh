@@ -19,8 +19,6 @@ fi
 
 if [ "$Parameter" == "start" -o "$Parameter" == "script" ]; then
 	When="S"
-	# TODO: correct link for 2.4 too
-	ln -sf /dev/input/mice /dev/mouse # for 2.6
 elif [ "$Parameter" == "stop" ]; then
 	When="P"
 fi

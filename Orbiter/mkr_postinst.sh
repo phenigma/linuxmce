@@ -21,4 +21,6 @@ else
 /Depth.*16/ { print("\t\tModes\t\"800x600\"") }
 ' "$config" >/etc/X11/XF86Config-4
 	rm -f "$config"
+
+	sed -i 's!/dev/mouse!/dev/input/mice!g' /etc/X11/XF86Config-4
 fi
