@@ -8,6 +8,7 @@ Device="$PK_Device"
 # TODO: script parameter is obsolete (already); remove
 
 rm /var/log/pluto/running.pids
+rm -rf /tmp/* # I doubt that this is safe to do here
 
 if [ "$Parameter" != "start" -a "$Parameter" != "script" -a "$Parameter" != "stop" ]; then
 	echo "Usage: $0 start|script|stop"
