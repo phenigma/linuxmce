@@ -202,3 +202,14 @@ void Infrared_Plugin::CMD_Get_Infrared_Codes(int iPK_Device,string *sValue_To_As
 	}
 	sCMD_Result = "OK";
 }
+//<-dceag-c250-b->
+
+	/** @brief COMMAND: #250 - Store Infrared Code */
+	/** Stores the infrared code into the database */
+		/** @param #2 PK_Device */
+			/** Device this code was learned for */
+		/** @param #5 Value To Assign */
+			/** IR code in Philips pronto format */
+
+void Infrared_Plugin::CMD_Store_Infrared_Code(int iPK_Device,string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+//<-dceag-c250-e->

@@ -34,12 +34,38 @@
 #include <sys/times.h>
 #endif
 
+long MS_TO_CLK(long miliseconds)
+{
+	return miliseconds * xCLOCKS_PER_SEC / 1000;
+}
+
+long CLK_TO_MS(long Clocks)
+{
+	return Clocks * 1000 / xCLOCKS_PER_SEC;
+}
+
+// MessageQueue processor (the one that does the actual IR sending and relay setting)
+void * StartMessageQueueThread(void * Arg)
+{
+	IRBase * pIRBase = (IRBase *) Arg;
+	pIRBase->MessageQueueThread();
+	return NULL;
+}
+
 void IRBase::Init(Command_Impl * pCommand_Impl)
 {
 	m_CurrentChannelSequenceNumber = 1;
 	m_pCommand_Impl = pCommand_Impl;
 	pthread_mutex_init(&m_IRMutex.mutex, 0);
+	pthread_cond_init(&m_IRCond, NULL);
 	ParseDevices();
+
+	if (pthread_create(&m_MessageQueueThread, NULL, StartMessageQueueThread, (void *) this))
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create Message Queue Thread");
+		SetQuitFlag();
+		exit(1);
+	}
 }
 
 IRBase::~IRBase()
@@ -47,7 +73,7 @@ IRBase::~IRBase()
 	pthread_mutex_destroy(&m_IRMutex.mutex);
 }
 
-// get details (IR sequences, Delays, etc.) of all child devices (it seems)
+// get details (IR sequences, Delays, etc.) of all child devices
 void IRBase::ParseDevices()
 {
 	g_pPlutoLogger->Write(LV_STATUS, "In IRBase::ParseDevices");
@@ -59,9 +85,9 @@ void IRBase::ParseDevices()
 		
 		string codes;
 		m_mapsDevicePort[DeviceID] = (*iChild).second->m_pData->m_mapParameters[DEVICEDATA_Port_CONST];
-		DCE::CMD_Get_Infrared_Codes_Cat vCMD_Get_Infrared_Codes_Cat(m_pCommand_Impl->m_dwPK_Device, DEVICECATEGORY_Infrared_Plugins_CONST,
+		DCE::CMD_Get_Infrared_Codes_Cat CMD_Get_Infrared_Codes_Cat(m_pCommand_Impl->m_dwPK_Device, DEVICECATEGORY_Infrared_Plugins_CONST,
 			false, BL_SameHouse, DeviceID, &codes);
-		m_pCommand_Impl->SendCommand(vCMD_Get_Infrared_Codes_Cat);
+		m_pCommand_Impl->SendCommand(CMD_Get_Infrared_Codes_Cat);
 	
 		long iPK_Command, count;
 		string code;
@@ -103,9 +129,8 @@ void IRBase::ParseDevices()
 
 void IRBase::AddIRToQueue(string Port, string IRCode, long Delay, long DeviceNum, long CommandNum, long Count, long ChannelSequenceNumber)
 {
-	
-	PLUTO_SAFETY_LOCK(sl, m_IRMutex);
-	
+	pthread_mutex_lock(&m_IRMutex.mutex);
+
 	// If this is a volume command, check the outgoing queue and erase other volume requests. 
 	if (CommandNum == COMMAND_Vol_Up_CONST || CommandNum == COMMAND_Vol_Down_CONST)
 	{
@@ -203,6 +228,9 @@ void IRBase::AddIRToQueue(string Port, string IRCode, long Delay, long DeviceNum
 			pLastQueued->m_Delay+=Delay;
 		}
 	}
+
+	pthread_cond_broadcast(&m_IRCond);
+	pthread_mutex_unlock(&m_IRMutex.mutex);
 }
 
 bool IRBase::AddChannelChangeToQueue(long ChannelNumber, long Device)
@@ -263,34 +291,9 @@ bool IRBase::ProcessMessage(Message *pMessage)
 {
 	long TargetDevice = pMessage->m_dwPK_Device_To;
 
-	// Is this a slave of another device?  If so, change the target
-
-	MapCommand_Impl::iterator iTD = m_pCommand_Impl->m_mapCommandImpl_Children.find(TargetDevice);
-	if (iTD != m_pCommand_Impl->m_mapCommandImpl_Children.end())
-	{
-// TODO: Aaron says something about "Autoroute children" and "changing the framework a little bit"..
-//		map<int,string>::iterator param = (*iTD).second->m_pData->m_mapParameters.find(C_DEVICEPARAMETER_DEVICE_SLAVE_TO_CONST);
-#define MSG "TODO: The following parameter is uninitialized!!! If it crashes, search here"
-#ifdef WIN32
-#define __STR2__(x) #x
-#define __STR1__(x) __STR2__(x)
-#define __LOCWRN__ __FILE__ "("__STR1__(__LINE__)")"
-#pragma message(__LOCWRN__ " : warning X1000: " MSG)
-#else
-#warning MSG
-#endif
-		//map<int,string>::iterator param = (*iTD).second->m_pData->m_mapParameters.find(DEVICEPARAMETER_DEVICE_SLAVE_TO_CONST);
-		//if (param != m_pCommand_Impl->m_mapCommandImpl_Children[TargetDevice]->m_pData->m_mapParameters.end())
-		//{
-		//	TargetDevice = atoi((*param).second.c_str());
-		//	g_pPlutoLogger->Write(LV_STATUS, "Destination is slave device, changing target ID from %d to %d.", pMessage->m_dwPK_Device_To, TargetDevice);
-		//}
-	}
-
 	if (pMessage->m_dwID == COMMAND_Send_Code_CONST)
 	{
 		long CommandNum = -1, DeviceNum = -1;
-		m_pCommand_Impl->SendString("OK");
 
 		// Is an action ID specified? 
 		if (pMessage->m_mapParameters.count(COMMANDPARAMETER_ID_CONST)>0) 
@@ -303,7 +306,6 @@ bool IRBase::ProcessMessage(Message *pMessage)
 	}
 	if( pMessage->m_dwID == COMMAND_Tune_to_channel_CONST)
 	{
-		m_pCommand_Impl->SendString("OK");
 		AddChannelChangeToQueue(atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Absolute_Channel_CONST].c_str()), TargetDevice);
 		return true;
 	}
@@ -313,7 +315,6 @@ bool IRBase::ProcessMessage(Message *pMessage)
 	//Check the device/code map to see if we have an IR code for it.
 	if (m_CodeMap.count(longPair(TargetDevice, pMessage->m_dwID))>0)
 	{
-		m_pCommand_Impl->SendString("OK");
 		long Delay=0, Count=1;
 		map<int,string>::iterator param;
 
@@ -352,43 +353,34 @@ bool IRBase::ProcessMessage(Message *pMessage)
 	return false;
 }
 
-#ifdef WIN32
-#define xCLOCKS_PER_SEC CLOCKS_PER_SEC
-#else
-#define xCLOCKS_PER_SEC sysconf(_SC_CLK_TCK)
-#endif
-
-long MS_TO_CLK(long miliseconds)
-{
-	return miliseconds * xCLOCKS_PER_SEC / 1000;
-}
-
-inline clock_t xClock()
-{
-#ifdef WIN32
-	return clock();
-#else
-	struct tms mytms;
-	return times(&mytms);
-#endif
-}
-
 bool IRBase::ProcessQueue()
 {
-	PLUTO_SAFETY_LOCK(sl, m_IRMutex);
+	bool retval = false;
+
+	pthread_mutex_lock(&m_IRMutex.mutex);
+	
+	while (m_IRQueue.size() == 0)
+	{
+		pthread_cond_wait(&m_IRCond, &m_IRMutex.mutex);
+	}
+
+	// We are holding the mutex
+
 	list<IRQueue *>::iterator ipQueue;
+	list<IRQueue *> NewIRQueue;
 	clock_t CurTime = xClock();
 
 	// printf("Clk = %d, CLK_TCK = %d\n", xClock(), CLK_TCK);
 
 //	printf("Queue length: %d\n", m_IRQueue.size());
-	for(ipQueue = m_IRQueue.begin(); ipQueue!= m_IRQueue.end(); ++ipQueue)
+	for (ipQueue = m_IRQueue.begin(); ipQueue!= m_IRQueue.end(); ipQueue++)
 	{
 		// Is the last IR on this port + this pre delay still in the future?  If so continue on to the next queued item
 		
 		if ((*ipQueue)->m_PreDelay && MS_TO_CLK((*ipQueue)->m_PreDelay) + m_PortLastIRSent[(*ipQueue)->m_Port] > CurTime)
 		{
 //			printf("Not ready yet: %d %d %d %d (1)\n", (*ipQueue)->m_PreDelay, MS_TO_CLK((*ipQueue)->m_PreDelay), m_PortLastIRSent[(*ipQueue)->m_Port], CurTime);
+			NewIRQueue.push_back(* ipQueue);
 			continue;
 		}
 
@@ -396,6 +388,7 @@ bool IRBase::ProcessQueue()
 		if ((*ipQueue)->m_DeviceNum > -1 && m_DeviceNextAvailableTime[(*ipQueue)->m_DeviceNum] > CurTime)
 		{
 //			printf("Not ready yet (2)\n");
+			NewIRQueue.push_back(* ipQueue);
 			continue;
 		}
 
@@ -438,8 +431,20 @@ bool IRBase::ProcessQueue()
 			m_DeviceNextAvailableTime[(*ipQueue)->m_DeviceNum] = CurTime + MS_TO_CLK((*ipQueue)->m_Delay);
 		}
 		m_PortLastIRSent[(*ipQueue)->m_Port] = CurTime;
-		m_IRQueue.erase(ipQueue);
-		return true;
+//		m_IRQueue.erase(ipQueue);
+		retval = true;
 	}
-	return false;
+
+	m_IRQueue = NewIRQueue;
+
+	pthread_mutex_unlock(&m_IRMutex.mutex);
+	return retval;
+}
+
+void IRBase::MessageQueueThread()
+{
+	while (true)
+	{
+		ProcessQueue();
+	}
 }

@@ -16,6 +16,7 @@ public:
 	Generic_Input_Ouput_Event(class ClientSocket *pOCClientSocket, int DeviceID) : Event_Impl(pOCClientSocket, DeviceID) {};
 	//Events
 	class Event_Impl *CreateEvent(int PK_DeviceTemplate, ClientSocket *pOCClientSocket, int DeviceID);
+	virtual bool AnotherTest() { return true; }
 	virtual void Pin_Changed(bool bOnOff)
 	{
 		SendMessage(new Message(m_dwPK_Device, DEVICEID_EVENTMANAGER, PRIORITY_NORMAL, MESSAGETYPE_EVENT, 9,1,10,(bOnOff ? "1" : "0")));
@@ -66,7 +67,10 @@ public:
 	};
 	Generic_Input_Ouput_Command(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent, Router *pRouter) : Command_Impl(pPrimaryDeviceCommand, pData, pEvent, pRouter) {};
 	virtual ~Generic_Input_Ouput_Command() {};
-	Generic_Input_Ouput_Event *GetEvents() { return (Generic_Input_Ouput_Event *) m_pEvent; };
+	Generic_Input_Ouput_Event *GetEvents() {
+		Generic_Input_Ouput_Event * x = (Generic_Input_Ouput_Event *) m_pEvent;
+		return (Generic_Input_Ouput_Event *) m_pEvent;
+	};
 	Generic_Input_Ouput_Data *GetData() { return (Generic_Input_Ouput_Data *) m_pData; };
 	const char *GetClassName() { return "Generic_Input_Ouput_Command"; };
 	int PK_DeviceTemplate_get() { return 43; };
@@ -78,7 +82,9 @@ public:
 	int DATA_Get_Default_State() { return GetData()->Get_Default_State(); }
 	string DATA_Get_Port() { return GetData()->Get_Port(); }
 	//Event accessors
-	void EVENT_Pin_Changed(bool bOnOff) { GetEvents()->Pin_Changed(bOnOff); }
+	void EVENT_Pin_Changed(bool bOnOff) {
+		GetEvents()->Pin_Changed(bOnOff);
+	}
 	//Commands - Override these to handle commands from the server
 
 	//This distributes a received message to your handler.

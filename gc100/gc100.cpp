@@ -42,62 +42,60 @@ using namespace DCE;
 #endif
 
 // Items in the 'fast' loop
-#define MONITOR_DELAY_MS 25 // number of ms to delay each time trough loop - "short" delay
-#define LEARNING_TIMEOUT (1000/MONITOR_DELAY_MS) * 1 // 1 sec. at 1ms sleep times in main
+//#define MONITOR_DELAY_MS 25 // number of ms to delay each time trough loop - "short" delay
+//#define LEARNING_TIMEOUT (1000/MONITOR_DELAY_MS) * 1 // 1 sec. at 1ms sleep times in main
+#define LEARNING_TIMEOUT 40000
 
 // Figure the poll multiplier so that the slow loop happens every 100ms
-#define POLL_MULTIPLIER 100/MONITOR_DELAY_MS
-#define READY_TIMEOUT (1000/MONITOR_DELAY_MS)/POLL_MULTIPLIER * 0.800 // 800 msec. ready timeout
+//#define POLL_MULTIPLIER 100/MONITOR_DELAY_MS
+//#define READY_TIMEOUT (1000/MONITOR_DELAY_MS)/POLL_MULTIPLIER * 0.800 // 800 msec. ready timeout
+#define READY_TIMEOUT 800
 
 #define LEARN_PREFIX "GC-IRL"
 #define GC100_COMMAND_PORT 4998
 
-void * StartMainLoop(void * Arg)
+/** pthread wrapper functions for the in-object thread functions */
+// Learning thread
+void * StartLearningThread(void * Arg)
 {
-	gc100 * p_gc100 = (gc100 *) Arg;
-	p_gc100->MainLoop();
+	LearningInfo *pLearningInfo = (LearningInfo *) Arg;
 
+	pLearningInfo->m_pgc100->LearningThread(pLearningInfo);
 	return NULL;
 }
 
-// Sleep for the specified no. of ms.
-void sleep_ms(int ms)
+// gc100 generated events processor: pin change, IR completion
+void * StartEventThread(void * Arg)
 {
-	struct timeval tmo;
-
-	tmo.tv_sec = 0;
-	tmo.tv_usec = ms * 1000;
-
-	select(0, NULL, NULL, NULL, &tmo);
-} // end sleep_ms
+	gc100 * pgc100 = (gc100 *) Arg;
+	pgc100->EventThread();
+	return NULL;
+}
 
 //<-dceag-const-b->
 gc100::gc100(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: gc100_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
-	, shared_lock("gc100")
+	, gc100_mutex("gc100")
 {
 	// TODO: figure this one out: ReplaceParams
 	//ReplaceParams(replacement);
-	recv_pos=0;
-
-	ready = false;
-	ir_cmd_id=1;
-	pending_ir_cmd=0;
-	timeout_count=0;
+	recv_pos = 0;
+	ir_cmd_id = 1;
+	is_open_for_learning = open_for_learning();
 
 	// TODO: learn_device
-	//learn_device=GetData()->Get_SERIAL_PORT();
-	learn_device="/dev/gcs0"; // DEBUG
-	shared_lock.Init(NULL);
+	//learn_device = GetData()->Get_SERIAL_PORT();
+	learn_device = "/dev/gcs0"; // DEBUG
+	gc100_mutex.Init(NULL);
+	m_bQuit = false;
+	m_bLearning = false;
 	
 	if (!Open_gc100_Socket())
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "Couldn't open socket connection to GC100");
 	    exit(1);
 	}
-
-	pthread_create(&m_MainThread, NULL, StartMainLoop, (void *) this);
 }
 
 //<-dceag-dest-b->
@@ -105,7 +103,8 @@ gc100::~gc100()
 //<-dceag-dest-e->
 {
 	m_bQuit = true; // should this be using a mutex? :)
-	pthread_join(m_MainThread, NULL);
+	pthread_join(m_MessageQueueThread, NULL);
+	pthread_join(m_EventThread, NULL);
 }
 
 //<-dceag-reg-b->
@@ -128,6 +127,104 @@ bool gc100::Register()
 void gc100::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
+	m_pThisMessage = pMessage;
+
+	cout << "Message ID: " << pMessage->m_dwID << endl;
+	cout << "From:" << pMessage->m_dwPK_Device_From << endl;
+	cout << "To: " << pMessage->m_dwPK_Device_To << endl;
+	
+	map<long, string>::iterator i;
+	for (i = pMessage->m_mapParameters.begin(); i != pMessage->m_mapParameters.end(); i++)
+	{
+		cout << "Parameter: " << i->first << " Value: " << i->second << endl;
+	}
+
+	// Let the gc100 Base class try to handle the message
+	//if (gc100_Command::ReceivedMessage(pMessage))
+	//{
+	//	printf("Message processed by base class\n");
+	//	sCMD_Result = "OK";
+	//	return;
+	//}
+
+	// Let the IR Base class try to handle the message
+	if (IRBase::ProcessMessage(pMessage))
+	{
+		printf("Message processed by IRBase class\n");
+		sCMD_Result = "OK";
+		return;
+	}
+
+	// This is a relay command
+	cout << "Processing..." << endl;
+
+	VectDeviceData_Impl vVDD = m_pData->m_vectDeviceData_Impl_Children;
+	for (VectDeviceData_Impl::size_type i = 0; i < vVDD.size(); i++)
+	{
+		if (vVDD[i]->m_dwPK_Device == pMessage->m_dwPK_Device_To && vVDD[i]->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Input_Ouput_CONST)
+		{ // this is our guy
+			SendString("OK");
+			g_pPlutoLogger->Write(LV_STATUS, "Message for %s passed to Relay", vVDD[i]->m_sDescription.c_str());
+			bool bParm = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Value_CONST].c_str()) != 0;
+			relay_power(pMessage, bParm);
+			sCMD_Result = "OK";
+			return;
+		}
+	}
+
+	// DONT: Don't delete there comments until implementation is complete
+	// I use the for inspiration... uh... I mean reference so I don't redesign the wheel (not completely anyway) :)
+	//if (pMessage->m_dwID == 350 /* ACTION_SET_FREQUENCY */)
+	//{
+	//	SendString("OK");
+	//	string IR_FREQUENCY=pMessage->m_mapParameters[106];
+	//	//SET_LEARN_FREQUENCY(IR_FREQUENCY);
+	//	return true;
+	//}
+	//if (pMessage->m_dwID == 348 /*ACTION_LEARN_IR*/)
+	//{
+	//	SendString("OK");
+	//	string ABSOLUTE_CHANNEL=pMessage->m_mapParameters[35]; // Not used
+	//	string ID=pMessage->m_mapParameters[53]; // Action ID
+	//	string IR_FREQUENCY=pMessage->m_mapParameters[106]; // Not used
+	//	LEARN_IR(StringUtils::itos(pMessage->m_dwPK_Device_To),ABSOLUTE_CHANNEL,ID,IR_FREQUENCY);
+	//	return true;
+	//}
+	//if (pMessage->m_dwID == 349 /*ACTION_LEARN_IR_CANCEL*/)
+	//{
+	//	SendString("OK");
+	//	LEARN_IR_CANCEL("");
+	//	return true;
+	//}
+	//if (pMessage->m_dwID == 402 /* send_data */)
+	//{
+	//	SendString("OK");
+	//	send_data("","");
+	//	return true;
+	//}
+	//if (pMessage->m_dwID == 403 /* recv_data */)
+	//{
+	//	SendString("OK");
+	//	recv_data("");
+	//	return true;
+	//}
+	//if (pMessage->m_dwID == 1 /* On */)
+	//{
+	//	SendString("OK");
+	//	relay_power(pMessage,true);
+	//	return true;
+	//}
+	//if (pMessage->m_dwID == 2 /* Off */)
+	//{
+	//	SendString("OK");
+	//	relay_power(pMessage,false);
+	//	return true;
+	//}
+
+	g_pPlutoLogger->Write(LV_STATUS, "Mesage Received %d completely unhandled",pMessage->m_dwID);
+	//SendString("OK"); // DEBUG
+	//return true; // DEBUG
+
 	sCMD_Result = "UNHANDLED CHILD";
 }
 
@@ -288,7 +385,7 @@ std::string gc100::IRL_to_pronto(string raw_learned_string)
 	pos=0;
 
 	// Output: 0000 format
-	result="P,0000 "; // Pronto raw pwm prefix
+	result="0000 "; // Pronto raw pwm prefix
 
 	token=StringUtils::Tokenize(learned_string,",",pos); // First token is "GC-IRL" or "receiveir" header
 	g_pPlutoLogger->Write(LV_STATUS, "IRL_to_pronto: prefix is %s",token.c_str());
@@ -370,108 +467,30 @@ std::string gc100::IRL_to_pronto(string raw_learned_string)
 	return result;
 }
 
-// Not done
-unsigned int GetPortMask(string port)
-{
-	unsigned int mask = 0xff;
-
-	/*if (port.length() > 0)
-	{
-
-	if (port[0]=='a' || port[0]=='A')
-	{
-	mask = 0x100+atoi(port.substr(1).c_str());
-	}
-	else
-	{
-	mask = (unsigned int)pow(2.0,atoi(port.c_str()));
-	}
-	}*/
-	return mask;	
-}
-
-Command_Impl *gc100::CreateCommand( int iPK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent )
-{
-	// TODO: put a pointer to the router instead of NULL
-	return new Command_Impl(pPrimaryDeviceCommand, pData, pEvent, NULL);
-}
-
-bool gc100::send_to_gc100()
+bool gc100::send_to_gc100(string Cmd)
 {
 	// returns true if it was ready to send, false if blocked because of not ready
 	char command[16384];
-	std::string next_cmd;
 	int result;
 	bool return_value;
 
-	return_value=true;
+	return_value = true;
 
-	PLUTO_SAFETY_LOCK(sl, shared_lock);
+//	PLUTO_SAFETY_LOCK(sl, gc100_mutex);
 
-	if (command_list.size()>0)
+	sprintf(command, "%s\r", Cmd.c_str()); // gc100 commands end in CR (w/o LF)
+	g_pPlutoLogger->Write(LV_STATUS, "Sending command %s", command);
+
+	result = send(gc100_socket,command,strlen(command), 0);
+	if (result < (int) strlen(command))
 	{
-		if (ready)
-		{
-			next_cmd=command_list.front();
-			command_list.pop_front();
-			sprintf(command,"%s%c",next_cmd.c_str(),'\x0d');
-			g_pPlutoLogger->Write(LV_STATUS, "Sending command %s",command);
-
-			if (strlen(command)>6)
-			{
-				if (strncmp(command,"sendir",6)==0)
-				{
-					std::string token;
-					std::string::size_type pos;
-					int id_int;
-
-					// Extract the ID from the sendir and keep it as the pending IR command
-					// s/w will indicate 'not ready' until this ID is seen again with a
-					// completeir message.  This ensures that only one IR command is being processed at a time
-					pos=0;
-
-					token=StringUtils::Tokenize(next_cmd,",",pos); // sendir
-					token=StringUtils::Tokenize(next_cmd,",",pos); // address
-					token=StringUtils::Tokenize(next_cmd,",",pos); // ID
-
-					sscanf(token.c_str(),"%d",&id_int);
-
-					if (id_int>0)
-					{
-						//g_pPlutoLogger->Write(LV_STATUS, "Send ir sets ready to false with pending ID %d",id_int);
-						pending_ir_cmd=id_int;
-						ready=false;
-					}
-				}
-			}
-
-			result = send(gc100_socket,command,strlen(command), 0);
-			if (result < (int)strlen(command))
-			{
-				string x = strerror(errno);
-				g_pPlutoLogger->Write(LV_CRITICAL, "Short write to GC100: %s\n", strerror(errno));
-			}
-			// allow packet to be sent through the network; gc100 can't distinguish between commands if they go together
-			Sleep(100);
-		}
-		else
-		{
-			g_pPlutoLogger->Write(LV_STATUS, "Not ready for another command yet, tc=%d",timeout_count);
-
-			timeout_count++;
-			if (timeout_count>READY_TIMEOUT)
-			{ // 2 sec
-				timeout_count=0;
-				ready=true;
-				g_pPlutoLogger->Write(LV_WARNING, "Timed out waiting for completeir; forcing ready=true");
-				// Do not reissue the previous command, because it may be a sendir command to an ir port
-				// that is configured as discrete input.  In that situation the command will never work
-				// and you'll be forced to retry it forever
-			}
-			return_value=false;
-		}
+		string x = strerror(errno);
+		g_pPlutoLogger->Write(LV_CRITICAL, "Short write to GC100: %s\n", strerror(errno));
+		return_value = false;
 	}
 
+	// allow packet to be sent through the network; gc100 can't distinguish between commands if they go together
+	Sleep(100);
 	return return_value;
 }
 
@@ -553,7 +572,7 @@ void gc100::parse_message_device(std::string message)
 			// Either it will return the state, or an error if it's really for IR (which we ignore)
 			if (scratch.type=="IR")
 			{
-				command_list.push_back("getstate,"+key);
+				send_to_gc100("getstate,"+key);
 			}
 			next_slot++;
 
@@ -573,7 +592,7 @@ void gc100::Start_seriald()
 	sprintf(command,"killall gc_seriald");
 	system(command);
 
-	PLUTO_SAFETY_LOCK(sl, shared_lock);
+	PLUTO_SAFETY_LOCK(sl, gc100_mutex);
 	for (serial_iter=module_map.begin(); serial_iter!=module_map.end(); ++serial_iter) {
 		if (serial_iter->second.type == "SERIAL")
 		{
@@ -583,31 +602,6 @@ void gc100::Start_seriald()
 			g_pPlutoLogger->Write(LV_STATUS,"seriald cmd: %s",command);
 			system(command);
 		}
-	}
-}
-
-void gc100::parse_message_completeir(std::string message)
-{
-	int id_int;
-	std::string token;
-	std::string::size_type pos;
-
-	//g_pPlutoLogger->Write(LV_STATUS, "completeir Reply received from GC100: %s",message.c_str());
-	// Extract the ID from the completeir
-	pos=0;
-
-	token=StringUtils::Tokenize(message,",",pos); // completeir
-	token=StringUtils::Tokenize(message,",",pos); // address
-	token=StringUtils::Tokenize(message,",",pos); // ID
-
-	sscanf(token.c_str(),"%d",&id_int);
-
-	if (id_int==pending_ir_cmd)
-	{
-		//g_pPlutoLogger->Write(LV_STATUS, "completeir: %d is finished, setting READY",id_int);
-		timeout_count=0;
-		ready=true;
-
 	}
 }
 
@@ -731,7 +725,7 @@ void gc100::parse_message_statechange(std::string message, bool change)
 		{
 			// If this was a 'statechange', reissue a state request.  At least once a statechange has been missed.
 			verify_request="getstate,"+module_address;
-			command_list.push_back(verify_request);
+			send_to_gc100(verify_request);
 		}
 	}
 	else
@@ -760,7 +754,7 @@ void gc100::parse_gc100_reply(std::string message)
 	{
 		if (message.substr(0,10)=="completeir")
 		{
-			parse_message_completeir(message);
+			m_bIRComplete = true;
 		}
 	}
 
@@ -785,18 +779,19 @@ std::string gc100::read_from_gc100()
 {
 	std::string return_value;
 
-	PLUTO_SAFETY_LOCK(sl, shared_lock);
+//	PLUTO_SAFETY_LOCK(sl, gc100_mutex);
 	return_value="";
 
 	while (recv(gc100_socket, &recv_buffer[recv_pos], 1, 0)>0)
 	{
-		if (recv_buffer[recv_pos]=='\x0d')
+		if (recv_buffer[recv_pos]=='\r')
 		{
 			recv_buffer[recv_pos]='\0';
 			if (strlen(recv_buffer)>0) {
 				parse_gc100_reply(string(recv_buffer));
-				return_value=string(recv_buffer);
 				recv_pos=0;
+				return_value = string(recv_buffer);
+				break;
 			}
 		}
 		else
@@ -816,7 +811,7 @@ bool gc100::Open_gc100_Socket()
 	struct sockaddr_in sin;
 	int res;
 
-	PLUTO_SAFETY_LOCK(sl, shared_lock);
+	PLUTO_SAFETY_LOCK(sl, gc100_mutex);
 	return_value=false;
 
 	ip_addr=GetData()->m_sIPAddress;
@@ -876,114 +871,6 @@ bool gc100::Open_gc100_Socket()
 	return return_value;
 }
 
-bool gc100::ReceivedMessage(class Message *pMessage)
-{
-	m_pThisMessage = pMessage;
-
-	cout << "Message ID: " << pMessage->m_dwID << endl;
-	cout << "From:" << pMessage->m_dwPK_Device_From << endl;
-	cout << "To: " << pMessage->m_dwPK_Device_To << endl;
-	
-	map<long, string>::iterator i;
-	for (i = pMessage->m_mapParameters.begin(); i != pMessage->m_mapParameters.end(); i++)
-	{
-		cout << "Parameter: " << i->first << " Value: " << i->second << endl;
-	}
-
-	// Let the IR Base classes try to handle the message
-	if (gc100_Command::ReceivedMessage(pMessage))
-	{
-		printf("Message processed by base class\n");
-		return true;
-	}
-	if (IRBase::ProcessMessage(pMessage))
-	{
-		printf("Message processed by IRBase class\n");
-		return true;
-	}
-
-	cout << "Processing..." << endl;
-
-	VectDeviceData_Impl vVDD = m_pData->m_vectDeviceData_Impl_Children;
-	for (VectDeviceData_Impl::size_type i = 0; i < vVDD.size(); i++)
-	{
-		if (vVDD[i]->m_dwPK_Device == pMessage->m_dwPK_Device_To && vVDD[i]->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Input_Ouput_CONST)
-		{ // this is our guy
-			SendString("OK");
-			g_pPlutoLogger->Write(LV_STATUS, "Message for %s passed to Relay", vVDD[i]->m_sDescription.c_str());
-			bool bParm = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Value_CONST].c_str());
-			relay_power(pMessage, bParm);
-			return true;
-		}
-	}
-
-	//// DONT: Don't delete there comments until implementation is complete; I use the for reference so I don't reimplement the wheel :)
-	//if (pMessage->m_dwID == 350 /* ACTION_SET_FREQUENCY */)
-	//{
-	//	SendString("OK");
-	//	string IR_FREQUENCY=pMessage->m_mapParameters[106];
-	//	//SET_LEARN_FREQUENCY(IR_FREQUENCY);
-	//	return true;
-	//}
-	//if (pMessage->m_dwID == 348 /*ACTION_LEARN_IR*/)
-	//{
-	//	SendString("OK");
-	//	string ABSOLUTE_CHANNEL=pMessage->m_mapParameters[35]; // Not used
-	//	string ID=pMessage->m_mapParameters[53]; // Action ID
-	//	string IR_FREQUENCY=pMessage->m_mapParameters[106]; // Not used
-	//	LEARN_IR(StringUtils::itos(pMessage->m_dwPK_Device_To),ABSOLUTE_CHANNEL,ID,IR_FREQUENCY);
-	//	return true;
-	//}
-	//if (pMessage->m_dwID == 349 /*ACTION_LEARN_IR_CANCEL*/)
-	//{
-	//	SendString("OK");
-	//	LEARN_IR_CANCEL("");
-	//	return true;
-	//}
-	//if (pMessage->m_dwID == 402 /* send_data */)
-	//{
-	//	SendString("OK");
-	//	send_data("","");
-	//	return true;
-	//}
-	//if (pMessage->m_dwID == 403 /* recv_data */)
-	//{
-	//	SendString("OK");
-	//	recv_data("");
-	//	return true;
-	//}
-	//if (pMessage->m_dwID == 1 /* On */)
-	//{
-	//	SendString("OK");
-	//	relay_power(pMessage,true);
-	//	return true;
-	//}
-	//if (pMessage->m_dwID == 2 /* Off */)
-	//{
-	//	SendString("OK");
-	//	relay_power(pMessage,false);
-	//	return true;
-	//}
-
-	g_pPlutoLogger->Write(LV_STATUS, "Mesage Received %d completely unhandled",pMessage->m_dwID);
-	//SendString("OK"); // DEBUG
-	//return true; // DEBUG
-
-	return false;
-}
-
-void gc100::send_data(string TEXT,string CHANNEL_NAME)
-{
-	//g_pPlutoLogger->Write(LV_STATUS,"Generic send");
-	send_to_gc100();
-}
-
-void gc100::recv_data(string CHANNEL_NAME)
-{
-	//g_pPlutoLogger->Write(LV_STATUS,"Generic recv");
-	read_from_gc100();
-}
-
 // TODO: This resembles a little (or is that a lot?) with (part of) parse_message_statechange (or it looks like it does, anyway) -- Radu
 void gc100::relay_power(class Message *pMessage, bool power_on)
 {
@@ -1021,7 +908,7 @@ void gc100::relay_power(class Message *pMessage, bool power_on)
 
 				g_pPlutoLogger->Write(LV_STATUS,"Relay Pwr.: This device is %d",this_device_id);
 
-				PLUTO_SAFETY_LOCK(sl, shared_lock);
+				PLUTO_SAFETY_LOCK(sl, gc100_mutex);
 				if (this_device_id == target_device)
 				{
 					std::string module_id;
@@ -1082,7 +969,7 @@ void gc100::relay_power(class Message *pMessage, bool power_on)
 							cmd = cmd + "0";
 						}
 
-						command_list.push_back(cmd);
+						send_to_gc100(cmd);
 					}
 				}
 			}
@@ -1097,64 +984,68 @@ void gc100::relay_power(class Message *pMessage, bool power_on)
 // Not done
 void gc100::SendIR(string Port, string IRCode)
 {
+	m_bIRComplete = false;
+
 	std::string gc_code,send_cmd;
 	std::map<std::string,class module_info>::iterator slot_iter;
 	//int timeout_count;
 
-	if (IRCode.length()>2)
+	ConvertPronto(IRCode.substr(2), gc_code);
+
+	//g_pPlutoLogger->Write(LV_STATUS, "SendIR: Result of Pronto conversion was %s",gc_code.c_str());
+
+	// Search through all the IR modules and send the code to any IR modules which either matches
+	// the 4:2 style port id or the absolute ('6') port ID or if the port string is blank
+
+	PLUTO_SAFETY_LOCK(sl, gc100_mutex);
+	for (slot_iter=module_map.begin(); slot_iter !=module_map.end(); ++slot_iter)
 	{
-		IRCode = "P," + IRCode; // force pronto
-		if (IRCode.substr(0,2)=="P," || IRCode.substr(0,2)=="p,")
+		//g_pPlutoLogger->Write(LV_STATUS, "SendIR: Examining slot %s",slot_iter->second.key.c_str());
+
+		if ( (slot_iter->second.type=="IR") &&
+			(
+				(slot_iter->second.key == Port) ||
+				(StringUtils::itos(slot_iter->second.global_slot) == Port) ||
+				(Port == "")
+			)
+		)
 		{
-			ConvertPronto(IRCode.substr(2), gc_code);
+			//g_pPlutoLogger->Write(LV_STATUS, "SendIR: Yes, this is one I should send to %s",slot_iter->second.key.c_str());
+// TODO: actual send, not queue
+			// Create header for this command: sendir,<address>,<id>,
 
-			//g_pPlutoLogger->Write(LV_STATUS, "SendIR: Result of Pronto conversion was %s",gc_code.c_str());
+			send_cmd = std::string("sendir,") + slot_iter->second.key.c_str() + std::string(",") + StringUtils::itos(ir_cmd_id)
+				+ "," + gc_code;
+			send_to_gc100(send_cmd);
+			ir_cmd_id++;
+		} // end if it's IR
+	} // end loop through devices
+	clock_t StartTime = xClock();
 
-			// Search through all the IR modules and send the code to any IR modules which either matches
-			// the 4:2 style port id or the absolute ('6') port ID or if the port string is blank
-
-			PLUTO_SAFETY_LOCK(sl, shared_lock);
-			for (slot_iter=module_map.begin(); slot_iter !=module_map.end(); ++slot_iter)
-			{
-				//g_pPlutoLogger->Write(LV_STATUS, "SendIR: Examining slot %s",slot_iter->second.key.c_str());
-
-				if ( (slot_iter->second.type=="IR") &&
-					( 
-					(slot_iter->second.key == Port) || 
-					(StringUtils::itos(slot_iter->second.global_slot) == Port) || 
-					(Port=="") 
-					) 
-					)
-				{
-					//g_pPlutoLogger->Write(LV_STATUS, "SendIR: Yes, this is one I should send to %s",slot_iter->second.key.c_str());
-
-					// Create header for this command: sendir,<address>,<id>,
-					send_cmd=std::string("sendir,")+slot_iter->second.key.c_str()+std::string(",")+StringUtils::itos(ir_cmd_id)+","+gc_code;
-					command_list.push_back(send_cmd);
-					ir_cmd_id++;
-
-				} // end if it's IR
-			} // end loop through devices
-		}
-		else
+	while (! m_bIRComplete)
+	{
+		if (xClock() > StartTime + MS_TO_CLK(READY_TIMEOUT))
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "SendIR: I don't know what to do with non-Pronto code %s.",IRCode.c_str());
+			g_pPlutoLogger->Write(LV_WARNING, "Timed out waiting for completeir");
+			// Do not reissue the previous command, because it may be a sendir command to an ir port
+			// that is configured as discrete input.  In that situation the command will never work
+			// and you'll be forced to retry it forever
+			break;
 		}
 	}
-	else
-	{
-		g_pPlutoLogger->Write(LV_WARNING, "SendIR: IRCode was too short");
-	}
+	// we get here when event thread got a completeir
+	g_pPlutoLogger->Write(LV_STATUS, "Finished sending IR");
 }
 
 // Not done
-void gc100::LEARN_IR(string PKID_Device,string ABSOLUTE_CHANNEL,string ID,string IR_FREQUENCY)
+// TODO: Create LearningInfo object and spawn new thread
+void gc100::LEARN_IR(string PKID_Device,string ID)
 {
 	g_pPlutoLogger->Write(LV_STATUS,"RECEIVED LEARN_IR");
 
-	PLUTO_SAFETY_LOCK(sl, shared_lock);
+	PLUTO_SAFETY_LOCK(sl, gc100_mutex);
 	m_IRDeviceID = atoi(PKID_Device.c_str()); // Device_To
-	m_IRActionID = atoi(ID.c_str());
+	m_IRCommandID = atoi(ID.c_str());
 	m_ControllerID = m_pThisMessage->m_dwPK_Device_From; // Device_From
 
 	learn_input_string=""; // Clear out the IR to learn the next sequence clean
@@ -1162,29 +1053,17 @@ void gc100::LEARN_IR(string PKID_Device,string ABSOLUTE_CHANNEL,string ID,string
 	if (is_open_for_learning)
 	{
 		m_bLearning = true;
+		if (pthread_create(&m_LearningThread, NULL, StartLearningThread, (void *) this))
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create Event Thread");
+			m_bQuit = 1;
+			exit(1);
+		}
 	}
 	else
 	{
 		g_pPlutoLogger->Write(LV_WARNING,"Can't learn because no learning port is open");
 	}
-}
-
-// Not done
-
-void gc100::SET_LEARN_FREQUENCY(string IR_FREQUENCY)
-{
-	std::string code;
-	ConvertPronto("blah",code);
-	g_pPlutoLogger->Write(LV_STATUS,"SET_FREQ: convert returned %s",code.c_str());
-
-	/*if (IR_FREQUENCY.length() > 0)
-	{	
-	char *dummy;
-	double freq = strtod(IR_FREQUENCY.c_str(), &dummy);
-	if (freq > 20000.0)
-	m_SlinkeBase->SetIRCarrier(freq);
-	}
-	*/
 }
 
 bool gc100::open_for_learning()
@@ -1199,12 +1078,11 @@ bool gc100::open_for_learning()
 #define open _open
 #endif
 
-	learn_fd=open(learn_device.c_str(), O_RDONLY | O_NONBLOCK);
+	learn_fd = open(learn_device.c_str(), O_RDONLY | O_NONBLOCK);
 
-
-	if (learn_fd<1)
+	if (learn_fd < 1)
 	{
-		return_value=false;
+		return_value = false;
 	}
 
 #ifdef WIN32
@@ -1216,213 +1094,116 @@ bool gc100::open_for_learning()
 	return return_value;
 }
 
-// Not done
-void gc100::MonitorIR()
+void gc100::LearningThread(LearningInfo * pLearningInfo)
 {
+	clock_t StartTime = xClock();
+	bool bLearnedCode = false;
 	char learn_buffer[512];
 	int retval;
-	bool learning_error;
-
-	learning_error=false;
-
-	//ProcessMessageQueue();
-	ProcessQueue();
+	bool learning_error = false;
+	bool receiving_data = false;
 
 	// Read any IR data present
-	retval=0;
+	retval = 0;
 
-	PLUTO_SAFETY_LOCK(sl, shared_lock);
+	PLUTO_SAFETY_LOCK(sl, gc100_mutex);
 	if (is_open_for_learning)
 	{
-		retval=read(learn_fd,learn_buffer,511);
-		//		}
+		retval = read(learn_fd, learn_buffer, 511);
 
-		if (retval==0)
+		while (xClock() < StartTime + MS_TO_CLK(LEARNING_TIMEOUT) && (retval > 0) && !learning_error)
 		{
-			learning_timeout_count++;
-		}
-
-		//if (retval>0) {
-		while ((retval>0)&&(!learning_error))
-		{
-			std::string new_string;
-
+			string new_string;
 			learn_buffer[retval]='\0';
-
-			if (strstr(learn_buffer,"X")!=NULL)
+			if (strstr(learn_buffer, "X")!=NULL)
 			{ // X from GC-IRL indicates error, probably "code too long"
-				learning_error=true;
+				learning_error = true;
 				g_pPlutoLogger->Write(LV_STATUS, "learning error detected");
 			}
 
-			new_string=std::string(learn_buffer);
-			g_pPlutoLogger->Write(LV_STATUS, "IR %d Data received: %s",retval,new_string.c_str());
-			learn_input_string+=new_string;
-			receiving_data=true;
-			learning_timeout_count=0;
+			new_string = std::string(learn_buffer);
+			g_pPlutoLogger->Write(LV_STATUS, "IR %d Data received: %s", retval, new_string.c_str());
+			learn_input_string += new_string;
+			receiving_data = true;
+			learning_timeout_count = 0;
 
-			retval=read(learn_fd,learn_buffer,511);
-		} //else 
+			retval = read(learn_fd, learn_buffer, 511);
+		}
 
-		//if ((learning_timeout_count>LEARNING_TIMEOUT)||(retval<0)||((retval>0)&&(strstr(learn_buffer,"X")!=NULL))) {
-		if ((learning_timeout_count>LEARNING_TIMEOUT)||(retval<0)|| learning_error)
+		if (receiving_data)
 		{
-			if ((m_bLearning)&&(receiving_data))
-			{
-				std::string pronto_result;
+			std::string pronto_result;
 
-
-				g_pPlutoLogger->Write(LV_STATUS, "Finished learning, IRDevice=%d, IRAction=%d, controller=%d, size=%d",m_IRDeviceID, m_IRActionID,m_ControllerID,learn_input_string.length());
+			if (!learning_error)
+			{  // Only send this if there was no error detected
+				g_pPlutoLogger->Write(LV_STATUS, "Finished learning, IRDevice=%d, IRCommandID=%d, controller=%d, size=%d",m_IRDeviceID,
+					m_IRCommandID,m_ControllerID,learn_input_string.length());
 				g_pPlutoLogger->Write(LV_STATUS, "Terminating on retval of %d err=%d, desc=%s, timeout_count of %d",retval,errno,strerror(errno),learning_timeout_count);
 				g_pPlutoLogger->Write(LV_STATUS, "Raw learn string received: %s",learn_input_string.c_str());
 
 				pronto_result=IRL_to_pronto(learn_input_string);
 				g_pPlutoLogger->Write(LV_STATUS, "Conversion to Pronto: %s",pronto_result.c_str());
 
-				m_CodeMap[IntPair(m_IRDeviceID, m_IRActionID)] = pronto_result; // Not sure about this
-
-				Message *pMessage = new Message(m_IRDeviceID, 0, 
-					PRIORITY_NORMAL, MESSAGETYPE_EVENT, 
-					EVENT_Learned_IR_code_CONST, 3, 
-					EVENTPARAMETER_PK_Orbiter_CONST, StringUtils::itos(m_ControllerID).c_str(),
-					EVENTPARAMETER_Text_CONST, pronto_result.c_str(), 
-					EVENTPARAMETER_ID_CONST, StringUtils::itos(m_IRActionID).c_str());
-
-				if (!learning_error)
-				{  // Only send this if there was no error detected
-					GetEvents()->SendMessage(pMessage);
-				}
-				else
-				{
-					g_pPlutoLogger->Write(LV_WARNING, "Learn event not sent because GC-IRL indicated error, possibly code was too long to be learned");
-				}
-				m_bLearning=false;
+				// TODO: lookup IR plugin once and send message to it directly instead of this
+				DCE::CMD_Store_Infrared_Code_Cat CMD_Store_Infrared_Code_Cat(m_dwPK_Device,
+					DEVICECATEGORY_Infrared_Plugins_CONST, false, BL_SameHouse, pLearningInfo->m_PK_Device, pronto_result);
+				m_pCommand_Impl->SendCommand(CMD_Store_Infrared_Code_Cat);
+				m_CodeMap[IntPair(m_IRDeviceID, m_IRCommandID)] = pronto_result;
+				bLearnedCode = true;
 			}
-			receiving_data=false;
-		} // end elseif retval<=0
+			else
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "Learn event not sent because GC-IRL indicated error, possibly code was too long to be learned");
+			}
+			m_bLearning=false;
+		}
 	} // end if is_open_for_learning
 
-	/*
-	m_SlinkeBase->Receive(&code);
-
-	while (code.length() > 0)
-	{
-		// look for data
-		if ((bps = code.find('[')) == string::npos) 
-			break;	
-		if ((bpe = code.find(']')) == string::npos) 
-			break;
-		// find device
-		dev = code.substr(0,bps);
-		// find data
-		data = code.substr(bps+1,bpe-bps-1);
-		raw = code.substr(0,bpe+1);
-		//			raw = StringUtils::TrimLeft(raw);
-		// remove from code
-		tmp = code.substr(bpe+1);
-		code = tmp;
-		// identify device
-		if ((p=dev.find("ir")) != string::npos) 
-		{
-			// get ir port number (Slink-e II)
-			tmp = dev.substr(p+2);
-			devnum = strtol(tmp.c_str(),&nc,10)+4;
-		}
-		else if ((p=dev.find("slb")) != string::npos) 
-		{
-			// get bit mode slink port number
-			tmp = dev.substr(p+3);
-			devnum = strtol(tmp.c_str(),&nc,10)+128;
-		}
-		else if ((p=dev.find("sl")) != string::npos) 
-		{
-			// get slink port number
-			tmp = dev.substr(p+2);
-			devnum = strtol(tmp.c_str(),&nc,10);
-		}
-		else 
-		{
-			// send it anyway in case of lowlevel
-			devnum = -1;
-		}
-
-		*/
-
-		/*	m_IRDeviceID = m_pThisMessage->m_DeviceIDFrom;
-		m_IRActionID = atoi(ID.c_str());
-		m_bLearning = true; */
-
-
-		/*
-		printf("IRCode: %f, %40.40s...\n", m_SlinkeBase->GetIRCarrier(), data.c_str());
-		if (m_bLearning)
-		{
-			printf("Learning to %d,%d\n", m_IRDeviceID, m_IRActionID);
-			string PlutoIR = StringUtils::Format("%f*", m_SlinkeBase->GetIRCarrier())+data;
-			m_CodeMap[IntPair(m_IRDeviceID, m_IRActionID)] = PlutoIR;
-			m_bLearning = false;
-			Message *pMessage = new Message(m_IRDeviceID, 0, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENTLIST_LEARNED_CODE_CONST, 3, C_EVENTPARAMETER_PKID_CONTROLLER_CONST, StringUtils::itos(m_ControllerID).c_str(),C_EVENTPARAMETER_TOKEN_CONST, PlutoIR.c_str(), C_EVENTPARAMETER_ID_CONST, StringUtils::itos(m_IRActionID).c_str());
-			GetEvents()->SendMessage(pMessage);
-		}
-	}
-	*/
-	//sleep_ms(25);
+#pragma warning("TODO: generate screens, complete this function call")
+	//if (pLearningInfo->m_PK_Device_Orbiter)
+	//{
+	//	DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device, pLearningInfo->m_PK_Device_Orbiter,
+	//		bLearnedCode ? DESIGNOBJ_learned : DESIGNOBJ_failed_to_learn);
+	//	pLearningInfo->m_pgc100->SendCommand(CMD_Goto_Screen);
+	//}
 }
 
-void gc100::MainLoop()
+void gc100::CreateChildren()
 {
-#pragma warning("")
-	while (! ready) {}
+	string device_data;
+
+	gc100_Command::CreateChildren();
 	IRBase::Init(this);
 
-	std::string device_data;
-	int time_to_poll;
+	send_to_gc100("getdevices");
 
-	{
-		PLUTO_SAFETY_LOCK(sl, shared_lock);
-		command_list.push_back("getdevices");
-	}
-
-	send_to_gc100();
 	do
 	{
 	    device_data = read_from_gc100();
 	} while (device_data != "endlistdevices");
 	Start_seriald(); // Start gc_seriald processes according to serial port inventory
 
-	time_to_poll=0;
-
-	// Open device for learning, report error if problem
-
+	if (pthread_create(&m_EventThread, NULL, StartEventThread, (void *) this))
 	{
-		PLUTO_SAFETY_LOCK(sl2, shared_lock);
-		receiving_data = false;
-		learning_timeout_count = 0;
-		is_open_for_learning = open_for_learning();
-
-		if (! is_open_for_learning)
-		{
-			g_pPlutoLogger->Write(LV_WARNING, "Couldn't open device for IR learning: %s", learn_device.c_str());
-		}
-	}
-
-	while (! m_bQuit)
-	{
-		MonitorIR();
-		time_to_poll++;
-		// Longer delay for IR-speed events
-		if (time_to_poll >= POLL_MULTIPLIER)
-		{  // Only check the GC100 IO every nth loop
-			time_to_poll=0;
-			read_from_gc100();
-			send_to_gc100();
-		}
-		sleep_ms(MONITOR_DELAY_MS); // Short delay for reading IO
+		g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create Event Thread");
+		m_bQuit = 1;
+		exit(1);
 	}
 }
 
-void gc100::CreateChildren()
+void gc100::EventThread()
 {
-	Command_Impl::CreateChildren();
-	ready = true;
+	while (true)
+	{
+		read_from_gc100();
+	}
+}
+
+void gc100::LEARN_IR_CANCEL()
+{
+}
+
+void gc100::SetQuitFlag()
+{
+	m_bQuit = true;
 }

@@ -9,6 +9,25 @@ using namespace DCE;
 #define DEFAULT_PREDELAY 100
 #define DEFAULT_POSTDELAY 0
 
+#ifdef WIN32
+#define xCLOCKS_PER_SEC CLOCKS_PER_SEC
+#else
+#define xCLOCKS_PER_SEC sysconf(_SC_CLK_TCK)
+#endif
+
+long MS_TO_CLK(long miliseconds);
+long CLK_TO_MS(long Clocks);
+
+inline clock_t xClock()
+{
+#ifdef WIN32
+	return clock();
+#else
+	struct tms mytms;
+	return times(&mytms);
+#endif
+}
+
 // IR Queue element
 class IRQueue
 {
@@ -37,7 +56,9 @@ protected:
 	list<IRQueue *> m_IRQueue;
 	long m_CurrentChannelSequenceNumber;
 
+	pthread_t m_MessageQueueThread;
 	pluto_pthread_mutex_t m_IRMutex;
+	pthread_cond_t m_IRCond;
 
 	virtual void SendIR(string Port, string IRCode) = 0;
 	
@@ -59,6 +80,8 @@ public:
 	virtual ~IRBase();
 
 	void Init(Command_Impl * pCommand_Impl);
+	virtual void SetQuitFlag() = 0;
+	void MessageQueueThread();
 };
 
 #endif

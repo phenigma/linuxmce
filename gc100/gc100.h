@@ -8,10 +8,38 @@
 //<-dceag-d-e->
 
 #include "IRBase/IRBase.h"
+#include "pluto_main/Define_DeviceCategory.h"
 #include <map>
 using namespace std;
 
 typedef pair<int, int> IntPair;
+
+namespace DCE
+{
+	class LearningInfo
+	{
+	public:
+		int m_PK_Device, m_PK_Command, m_PK_Device_Orbiter;
+		class gc100 *m_pgc100;
+		LearningInfo(int PK_Device, int PK_Command, int PK_Device_Orbiter, gc100 *pgc100)
+		{
+			m_PK_Device = PK_Device;
+			m_PK_Command = PK_Command;
+			m_PK_Device_Orbiter = PK_Device_Orbiter;
+			m_pgc100 = pgc100;
+		}
+	};
+
+	class module_info
+	{
+	public:
+		int module; 	// GC-100 module number
+		int slot; 	// within the module, 1-3
+		std::string type; // SERIAL, REALY, IR, or IRL
+		std::string key; // e.g. 4:3 - might make a good primary key
+		int global_slot; // i.e. 1-9 if there are 3 IR emitter blocks. e.g. the "1-6" IR labels on the back
+	};
+}
 
 //<-dceag-decl-b->!
 namespace DCE
@@ -29,17 +57,16 @@ protected:
 private:
 	void parse_gc100_reply(std::string message);
 	void parse_message_device(std::string message);
-	void parse_message_completeir(std::string message);
 	void parse_message_statechange(std::string message, bool change);
 
-		// Public member variables
+	pthread_t m_EventThread, m_LearningThread;
 
-	pthread_t m_MainThread;
+	// Public member variables
 
 	// Begin shared section
 	// These items may be accessed by multiple threads therefore must be locked
 	
-	pluto_pthread_mutex_t shared_lock;
+	pluto_pthread_mutex_t gc100_mutex;
 	
 	std::map<std::string, class module_info> module_map; // Keep track of the GC100's configuration // OK
 	std::map<std::string, int> slot_map;		// OK
@@ -48,15 +75,10 @@ private:
 	bool receiving_data;				// OK
 	bool is_open_for_learning;			// OK
 	int learn_fd;					// OK
-	std::list<std::string> command_list;		// OK
-	bool ready;					// OK
-	int pending_ir_cmd;				// OK
 	char recv_buffer[4096]; // Replies from the GC100 go here // OK
 	int recv_pos;					// OK
-	bool m_bLearning; 				// OK
 	std::string learn_input_string; 		// OK
-	int m_IRDeviceID, m_IRActionID, m_ControllerID; // OK
-	int timeout_count;				// OK
+	int m_IRDeviceID, m_IRCommandID, m_ControllerID; // OK
 
 	// End Shared section
 	
@@ -69,6 +91,8 @@ private:
 	int learning_timeout_count;
 
 	map<IntPair, string> m_CodeMap;
+	bool m_bIRComplete;
+	bool m_bLearning;
 
 //<-dceag-const-b->
 public:
@@ -96,42 +120,24 @@ public:
 
 
 //<-dceag-h-e->
-	virtual Command_Impl *CreateCommand(int iPK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
+		virtual void LEARN_IR(string PKID_Device, string ID);
+		virtual void LEARN_IR_CANCEL();
+
+		void LearningThread(LearningInfo * pLearningInfo);
+		void EventThread();
+
+		bool Open_gc100_Socket();
+		bool send_to_gc100(string Cmd);
+		std::string read_from_gc100();
+		bool ConvertPronto(string ProntoCode, string &gc_code);
+		std::string IRL_to_pronto(string learned_string);
 	
-	virtual bool ReceivedMessage(class Message *pMessage);
-	virtual void LEARN_IR(string PKID_Device,string ABSOLUTE_CHANNEL,string ID,string IR_FREQUENCY);
-	virtual void SEND_CODE(string ABSOLUTE_CHANNEL,string TOKENS,string TEXT) {};
-	virtual void LEARN_IR_CANCEL(string ABSOLUTE_CHANNEL) { m_bLearning = false; };
-	virtual void SET_LEARN_FREQUENCY(string IR_FREQUENCY); 
-	virtual void recv_data(string CHANNEL_NAME);
-	virtual void send_data(string TEXT,string CHANNEL_NAME);
+		void relay_power(class Message *pMessage, bool power_on);
 
-	void MainLoop();
-
-	bool Open_gc100_Socket();
-	void MonitorIR();
-	bool send_to_gc100();
-	std::string read_from_gc100();
-	bool ConvertPronto(string ProntoCode, string &gc_code);
-	std::string IRL_to_pronto(string learned_string);
-	
-	void relay_power(class Message *pMessage, bool power_on);
-
-	void Start_seriald();
-
-	virtual void CreateChildren();
-
+		void Start_seriald();
+		virtual void CreateChildren();
+		virtual void SetQuitFlag();
 	};
-
-	class module_info {
-	public:
-		int module; 	// GC-100 module number
-		int slot; 	// within the module, 1-3
-		std::string type; // SERIAL, REALY, IR, or IRL
-		std::string key; // e.g. 4:3 - might make a good primary key
-		int global_slot; // i.e. 1-9 if there are 3 IR emitter blocks. e.g. the "1-6" IR labels on the back
-	};
-
 //<-dceag-end-b->
 }
 #endif
