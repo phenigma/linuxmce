@@ -93,6 +93,7 @@ void GenericIODevice::ProcessToken(string sToken,string sParms,string sFormat,st
 	{
 		string s=FormatAndTranslate(StringUtils::itos(pMessage->m_dwID),sFormat,sTranslation);
 		Write_string(s);
+	}
 	else if( sToken=="CP" && sParms.length() )
 	{
 		int PK_CommandParameter = atoi( sParms.c_str() );
