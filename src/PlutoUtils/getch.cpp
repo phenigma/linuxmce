@@ -20,6 +20,9 @@
 #include <stdio.h>
 #include <termios.h>
 #include <sys/ioctl.h>
+#include <unistd.h>
+
+#define EOF -1
 
 #include <iostream>
 using namespace std;
@@ -40,12 +43,19 @@ int THE_getch(bool echo) // :P
 	ioctl(0, TCSETS, &new_ts);
 
 	size_t bytes;
-	do { bytes = read(0, &c, 1); } while (bytes == 0 || c == '\r');
+	do
+	{
+		bytes = read(0, &c, 1);
+	} while (/*bytes == 0 ||*/ c == '\r');
+
 //	while ((c = getchar()) == '\r') {}
 //	cin >> c;
 
 	ioctl(0, TCSETS, &ts);
 
+	if (bytes <= 0)
+		return EOF;
+	
 	return c;
 }
 
