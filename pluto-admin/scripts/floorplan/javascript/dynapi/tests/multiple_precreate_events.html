@@ -1,0 +1,61 @@
+<html>
+<head>
+<title>Secondary inheritance test</title>
+</head>
+
+<script language="Javascript" src="../src/dynapi.js"></script>
+<script language="Javascript">
+
+DynAPI.setLibraryPath('../src/lib/')
+DynAPI.include('dynapi.api.*');
+DynAPI.include('dynapi.event.*')
+DynAPI.include('dynapi.util.thread.js');
+DynAPI.include('dynapi.util.pathanim.js');
+DynAPI.include('dynapi.gui.dynimage.js');
+DynAPI.include('dynapi.gui.button.js');
+DynAPI.include('dynapi.gui.scrollbar.js');
+DynAPI.include('dynapi.gui.viewport.js');
+DynAPI.include('dynapi.gui.scrollpane.js');
+DynAPI.include('dynapi.gui.label.js');
+
+
+DynAPI.onLoad=function() {
+
+layer1=new DynLayer(null,100,180,100,100,"gold")
+layer2=new DynLayer(null,10,10,80,80,"red")
+layer3=new DynLayer(null,10,10,60,60,"yellow")
+
+
+var EListener1 = new EventListener();
+	EListener1.onprecreate = function(e) {alert("In onprecreate");};
+	EListener1.oncreate = function(e) {alert("In oncreate");};
+layer1.addEventListener(EListener1);
+
+layer1.addChild(layer2);
+layer2.addChild(layer3);
+DynAPI.document.addChild(layer1);
+
+
+}
+
+</script>
+
+
+<body bgcolor="#ffffff">
+<b>Issue:</b><br />
+This concerns a bug Dan posted to the list :
+<pre>
+There is also another major bug that should be fixed up in 2.5x.
+The precreate event gets called multiple time (an extra time for each time it's nested).
+The DynObject.flagPrecreate() method is set up incorrectly.
+The fix I did in my working copy isn't compatable with v2.5, so someone else will have to do a quick fix.
+</pre>
+<br /><br /><br /><br /><br /><br /><br /><br /><br />
+<b>More info:</b>
+The yellow layer has an eventlistener for oncreate, and for onprecreate.<br />
+Normally each should be called once, but onprecreate is being called once for each time the layer is nested.<br />
+<b>Update 5/Nov/2001 :</b><br />
+This issue has been resolved by adding a test to DynObject.flagPrecreate as suggested my Michael Pemberton, so flagPrecreate is only run the first time.<br />
+This might not be the best definite solution, but at least clears up this bug for the time-being.<br />
+</body>
+</html>

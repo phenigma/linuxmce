@@ -1,0 +1,128 @@
+<html>
+<head>
+<title>Precreation speedtest</title>
+
+<script language="Javascript" src="../src/dynapi.js"></script>
+<script language="Javascript">
+DynAPI.setLibraryPath('../src/lib/');
+DynAPI.include('dynapi.api.*');
+DynAPI.include('dynapi.event.*');
+</script>
+
+
+<script language="Javascript">
+
+// HyperString - A faster way to handle strings
+
+HyperString=function(){this.db=[]}
+HyperString.prototype.toString=function(delim){return this.db.join(delim||'');}
+HyperString.prototype.flush=function(){this.db=[];}
+HyperString.prototype.add=function(src){this.db[this.db.length]=src;}
+HyperString.prototype.getLength=function(){return this.db.join('').length;}
+
+//overwritten methods from dynlayerjs:
+
+function overwrite(){
+
+	if (is.def) {
+		DynLayer.prototype.getOuterHTML=function() {
+				hs=new HyperString()
+				var s=''
+				hs.add('<div id="'+this.id+'" style="')
+				if (this.visible==false)hs.add(' visibility:hidden;')
+				if (this.x!=null)hs.add(' left:'+this.x+'px;')
+				if (this.y!=null)hs.add(' top:'+this.y+'px;')
+				if (this.w!=null)hs.add(' width:'+this.w+'px;')
+				if (this.h!=null)hs.add(' height:'+this.h+'px;')
+				if (this.clip)hs.add(' clip:rect('+this.clip[0]+'px '+this.clip[1]+'px '+this.clip[2]+'px '+this.clip[3]+'px);')
+				else if (this.w!=null && this.h!=null)hs.add(' clip:rect(0px '+this.w+'px '+this.h+'px 0px);')
+				if (this.z)hs.add(' z-index='+this.z+';')
+				if (this.bgImage!=null)hs.add(' background-image:url('+this.bgImage+');')
+				if (this.bgColor!=null)hs.add(' background-color:'+this.bgColor+';')
+				if (is.ie55 && this.bgImage==null && this.html==null)hs.add(' background-image:url('+DynAPI.librarypath+'dynapi/images/common/transparent.gif);')
+				hs.add(' position:absolute;">')
+				if (this.html!=null)hs.add(this.html)
+				s=hs.toString()
+				for (var i=0; i<this.children.length; i++) s+=this.children[i].getOuterHTML();
+				s+='</div>';
+
+			return s;
+		};
+	} else if (is.ns4) {
+		DynLayer.prototype.getOuterHTML=function() {
+				hs=new HyperString()
+				var s=''
+
+				hs.add('\n<layer id="'+this.id+'"')
+				if (this.visible==false)hs.add(' visibility="hide"')
+				if (this.x!=null)hs.add(' left='+this.x)
+				if (this.y!=null)hs.add(' top='+this.y)
+				if (this.w!=null)hs.add(' width='+this.w)
+				if (this.h!=null)hs.add(' height='+this.h)
+				if (this.clip)hs.add(' clip="'+this.clip[3]+','+this.clip[0]+','+this.clip[1]+','+this.clip[2]+'"')
+				else if (this.w!=null && this.h!=null)hs.add(' clip="0,0,'+this.w+','+this.h+'"')
+				if (this.z)hs.add(' zIndex='+this.z)
+				if (this.bgImage!=null)hs.add(' background="'+this.bgImage+'"')
+				if (this.bgColor!=null)hs.add(' bgcolor="'+this.bgColor+'"')
+				hs.add('>')
+				if (this.html!=null)hs.add(this.html)
+				s=hs.toString()
+			for (var i=0; i<this.children.length; i++) s+=this.children[i].getOuterHTML();
+			s+='</layer>';
+			return s;
+		};
+	};
+	alert("method overwritten")
+}
+
+
+
+
+
+myHtml="test"
+
+//Creates 24 childlayers of 1 dynlayer, using precreation.
+function make25Precreate(){
+	start=new Date()
+
+	myLayers=[]
+
+	for(i=0;i<26;i++){
+		myLayers[i] = new DynLayer(null,(i+1)*100,250+(i*50),200,200,"#AA0000",null,null,null,myHtml)
+		myLayers[i].c=[]
+
+			for(j=0;j<26;j++){
+				myLayers[i].c[j] = new DynLayer(null,(j+1)*20,(j+1)*30,200,200,"#AAAA00",null,null,null,myHtml)
+				myLayers[i].addChild(myLayers[i].c[j])
+
+			}
+		DynAPI.document.addChild(myLayers[i])
+	}
+	document.forms['frm'].txthyp.value=(new Date()-start)
+	status=(i-1)+' layers with '+(j-1)+' nested layers each = total layers: '+(i-1)*(j-1)
+
+}
+
+
+</script>
+</head>
+
+<body >
+
+
+<form name=frm>
+<font face=arial size=3><b>Hyper String Test</b><br></font>
+<hr><br />
+First click "make 625 dynlayers" to test normal code's speed, then refresh the browser, and click the "overwrite..." link first before running the test.
+<br /><br />
+
+Time:<input type=text size=10 name=txthyp> milli-seconds<br />
+<input type=button onclick="make25Precreate()" value="make 625 dynlayers"><br /><br />
+2) <a href="#" onclick="overwrite();return false">Overwrite dynlayer.js' getOuterHTML methods with Hyperstring version</a><br />
+
+</font>
+</form>
+
+
+</body>
+</html>

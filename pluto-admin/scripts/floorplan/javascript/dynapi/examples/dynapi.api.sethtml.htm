@@ -1,0 +1,31 @@
+<html>
+<head>
+<title>DynAPI Distribution: SetHTML Example</title>
+
+<script language="Javascript" src="../src/dynapi.js"></script>
+<script language="Javascript">
+DynAPI.setLibraryPath('../src/lib/');
+DynAPI.include('dynapi.api.*');
+</script>
+<script language="Javascript">
+
+DynAPI.onLoad = function() {
+
+	myLayer = new DynLayer()
+	myLayer.setSize(100,100)
+	myLayer.setBgColor('#c0c0c0')
+	myLayer.moveTo(100,100)
+	this.document.addChild(myLayer)
+}
+
+</script>
+</head>
+<body bgcolor="#ffffff">
+
+
+<form name="dupdate" onsubmit="myLayer.setHTML(this.newhtml.value); return false;">
+<b>Enter HTML:</b> <input type="text" name="newhtml" size="20">
+</form>
+
+</body>
+</html>

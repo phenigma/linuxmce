@@ -1,0 +1,93 @@
+<html>
+<head>
+<title>DynAPI Distribution: MouseEvents Example</title>
+<script language="Javascript" src="../src/dynapi.js"></script>
+<script language="Javascript">
+DynAPI.setLibraryPath('../src/lib/');
+DynAPI.include('dynapi.api.*');
+DynAPI.include('dynapi.event.*')
+</script>
+<script language="Javascript">
+function updateForm(e) {
+	var f = document.forms.dupdate
+	f.x.value=e.getX()
+	f.y.value=e.getY()
+	f.pagex.value=e.getPageX()
+	f.pagey.value=e.getPageY()
+	f.type.value=e.getType()
+	f.src.value=e.getSource()
+}
+
+DynAPI.onLoad=function() {
+
+	myLayer = new DynLayer()
+	
+	myLayer.setSize(100,100)
+	myLayer.setBgColor('#c0c0c0')
+	myLayer.moveTo(400,20)
+	//myLayer.setHTML('<table border="0" width="100" height="100" cellpadding="5" cellspacing="5"><tr><td height="100%" width="100%"><table border="2" width="100%" height="100%" align="center" valign="middle"><tr><td align="center"><a href="#">Link</a></td></tr></table></td></tr></table>')
+
+	myListener = new EventListener(DynAPI.document)
+		myListener.onmouseover=function(e) {
+			updateForm(e)
+			myLayer.setBgColor('#ffc000')
+		}
+		myListener.onmousemove=function(e) {
+			updateForm(e)
+			myLayer.setBgColor('#ffc000')
+		}
+		myListener.onmouseout=function(e) {
+			updateForm(e)
+			myLayer.setBgColor('#c0c0c0')
+		}
+		myListener.onmousedown=function(e) {
+			updateForm(e)
+			myLayer.setBgColor('#0000c0')
+		}
+		myListener.onmouseup=function(e) {
+			updateForm(e)
+			myLayer.setBgColor('#ffc000')
+		}
+		myListener.onrtmouseup=function(e) {
+			updateForm(e)
+			myLayer.setBgColor('#ffcc00')
+		}
+		myListener.onrtmousedown=function(e) {
+			updateForm(e)
+			myLayer.setBgColor('#00cc00')
+		}
+		myListener.onmdmousedown=function(e) {
+			updateForm(e)
+			myLayer.setBgColor('#11cc00')
+		}
+		myListener.onmdmouseup=function(e) {
+			updateForm(e)
+			myLayer.setBgColor('#ffcc00')
+		}
+		myListener.ondblclick=function(e) {
+			updateForm(e)
+			alert('double-click')
+		}
+
+	myLayer.addEventListener(myListener)
+	DynAPI.document.addChild(myLayer)
+
+}
+
+</script>
+</head>
+
+<body bgcolor="#ffffff">
+<form name="dupdate">
+<table border="0" cellpadding="1" cellspacing="0">
+<tr><td>&nbsp;</td><td><b>Event Properties</b></td></tr>
+<tr><td valign="middle" align="right"><b>x:&nbsp;</b></td><td valign="middle"><input type="text" name="x" size="3"></td></tr>
+<tr><td valign="middle" align="right"><b>y:&nbsp;</b></td><td valign="middle"><input type="text" name="y" size="3"></td></tr>
+<tr><td valign="middle" align="right"><b>pageX:&nbsp;</b></td><td valign="middle"><input type="text" name="pagex" size="3"></td></tr>
+<tr><td valign="middle" align="right"><b>pageY:&nbsp;</b></td><td valign="middle"><input type="text" name="pagey" size="3"></td></tr>
+<tr><td valign="middle" align="right"><b>type:&nbsp;</b></td><td valign="middle"><input type="text" name="type" size="23"></td></tr>
+<tr><td valign="middle" align="right"><b>src:&nbsp;</b></td><td valign="middle"><input type="text" name="src" size="30"></td></tr>
+</table>
+</form>
+</body>
+</html>

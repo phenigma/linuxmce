@@ -1,0 +1,42 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>Untitled</title>
+<script language="Javascript" type="text/javascript" src="../src/dynapi.js"></script>
+<script language="Javascript" type="text/javascript">
+<!--
+
+DynAPI.setLibraryPath('../src/lib/');
+DynAPI.include('dynapi.api.*');
+DynAPI.include('dynapi.event.*')
+
+DynAPI.include('dynapi.util.console')
+
+//-->
+</script>
+<script language="Javascript" type="text/javascript">
+<!--
+
+DynAPI.onLoad=function() {
+	lyr = new DynLayer(null,50,50,250,200,'red');
+	lyr.setHTML('drag me <form>'+
+				'<input type="text" value="text">'+
+				'<input type="button" value="submit">'+
+				'<textarea name="ta" cols=20 rows=3>textarea textarea textarea textarea textarea textarea textarea</textarea>'+
+				'<br><img src="../src/lib/dynapi/images/common/arrowdown.gif" width=50 height=50></form>');
+
+	DynAPI.document.addChild(lyr);
+
+	DragEvent.enableDragEvents(lyr);
+	DragEvent.setDragBoundary(lyr);
+};
+
+//-->
+</script>
+</head>
+
+<body bgcolor="#ffffff">
+
+
+</body>
+</html>

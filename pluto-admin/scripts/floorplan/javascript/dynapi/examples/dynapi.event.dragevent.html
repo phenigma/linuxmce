@@ -1,0 +1,39 @@
+<html>
+<head>
+<title>DynAPI Examples - Drag Event</title>
+<script language="JavaScript" src="../src/dynapi.js"></script>
+<script language="Javascript">
+DynAPI.setLibraryPath('../src/lib/');
+DynAPI.include('dynapi.api.browser.js');
+DynAPI.include('dynapi.api.dynlayer.js');
+DynAPI.include('dynapi.api.dyndocument.js');
+DynAPI.include('dynapi.event.*');
+</script>
+<script language="Javascript">
+
+DynAPI.onLoad = function() {
+	var p=this.document.addChild(new DynLayer(null,200,200,200,200,'silver'))
+	var a=p.addChild(new DynLayer(null,10,10,20,20,'red'))
+	var a2=p.addChild(new DynLayer(null,10,40,null,null,null,null,null,null,'drag<br />text'))
+	
+	DragEvent.enableDragEvents(a)
+	DragEvent.enableDragEvents(a2)
+
+	DragEvent.setDragBoundary(a)
+	DragEvent.setDragBoundary(a2)
+
+	b=new EventListener()
+	b.ondblclick=function(e){
+		alert('Double click')
+	}
+	b.onclick=function(e){
+		alert('Click')
+	}
+	a.addEventListener(b)
+}
+
+</script>
+</head>
+<body bgcolor="#ffffff">
+</body>
+</html>

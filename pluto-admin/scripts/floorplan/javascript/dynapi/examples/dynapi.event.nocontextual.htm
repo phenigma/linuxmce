@@ -1,0 +1,58 @@
+<html>
+<head>
+<title>DynAPI Distribution: Disabling contextual menu - Example</title>
+<script language="Javascript" src="../src/dynapi.js"></script>
+<script language="Javascript">
+DynAPI.setLibraryPath('../src/lib/');
+DynAPI.include('dynapi.api.*');
+DynAPI.include('dynapi.event.*')
+</script>
+<script language="Javascript">
+
+DynAPI.onLoad=function() {
+
+	myLayer = new DynLayer()
+	myLayer.setSize(100,100)
+	myLayer.setBgColor('#c0c0c0')
+	myLayer.moveTo(200,280)
+
+	myLayer2 = new DynLayer()
+	myLayer2.setSize(100,100)
+	myLayer2.setBgColor('#c0c0c0')
+	myLayer2.moveTo(400,280)
+	
+	myListener = new EventListener()
+		myListener.onrtmouseup=function(e) {
+			e.cancelBrowserEvent()
+		}
+		myListener.onrtmousedown=function(e) {
+			e.cancelBrowserEvent()
+		}
+
+	myLayer.addEventListener(myListener)
+	DynAPI.document.addChild(myLayer)
+	DynAPI.document.addChild(myLayer2)
+
+}
+
+</script>
+</head>
+Left layer does not allow contextual menu to pop. Right one does. When a contextual menu is shown and without hiding
+it you rightclick on the layer to the left, the contextual menu shows anyway in NS4. This behaviour is to be studied but
+it may not be solvable.<p>
+<pre>
+	myListener = new EventListener()
+		myListener.onrtmouseup=function(e) {
+			e.cancelBrowserEvent()
+		}
+		myListener.onrtmousedown=function(e) {
+			e.cancelBrowserEvent()
+		}
+</pre>
+<p>
+Notice that this can easily be made into an extension with DynObject.prototype.allowContextuals(true/false) that
+would add/remove the above listener to the layer calling the method. This is some easy homework for those who want
+to starting getting their hands dirty.
+<body bgcolor="#ffffff">
+</body>
+</html>

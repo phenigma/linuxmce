@@ -1,0 +1,36 @@
+<html>
+<head>
+<title>DynAPI Examples - ButtonImage</title>
+<script language="JavaScript" src="../src/dynapi.js"></script>
+<script language="Javascript">
+
+DynAPI.setLibraryPath('../src/lib/');
+DynAPI.include('dynapi.api.*');
+DynAPI.include('dynapi.event.listeners.js');
+DynAPI.include('dynapi.event.mouse.js');
+DynAPI.include('dynapi.gui.dynimage.js');
+DynAPI.include('dynapi.gui.buttonimage.js');
+
+</script>
+
+<script language="Javascript">
+
+DynAPI.onLoad = function() {
+
+	var normal = DynImage.getImage("../src/lib/dynapi/images/common/button.gif");
+	var mouseover = DynImage.getImage("../src/lib/dynapi/images/common/button_mo.gif");
+
+	buttonobj=new ButtonImage();
+	buttonobj.moveTo(100,100);
+	buttonobj.setImages(normal,mouseover);
+
+	DynAPI.document.addChild(buttonobj)
+}
+
+//-->
+</script>
+</head>
+<body bgcolor="#ffffff">
+
+</body>
+</html>

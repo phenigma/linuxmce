@@ -1,0 +1,43 @@
+<html>
+<head>
+<title>DynAPI Examples - Key Events</title>
+<script language="Javascript" src="../src/dynapi.js"></script>
+<script language="Javascript">
+DynAPI.setLibraryPath('../src/lib/');
+DynAPI.include('dynapi.api.*');
+DynAPI.include('dynapi.event.*');
+</script>
+<script language="Javascript">
+
+DynAPI.onLoad = function() {
+	myLayer = new DynLayer()
+
+	myLayer.setSize(400,80)
+	myLayer.setBgColor('#c0c0c0')
+	myLayer.moveTo(10,80)
+	myLayer.setHTML("Press any alphabetic keys to see it's keycode. <br>\n Press \'CTRL\' to move me.<br>And try and find the secret key ;).")
+
+
+	myListener = new EventListener(DynAPI.document)
+
+		myListener.onkeyup=function(e) {
+			if (e.charKey=='s') alert('You\'ve found the secret key')
+			if ((e.charKey>='a')&&(e.charKey<='z')) alert('You pressed the key  \''+e.charKey+'\'.')
+		}
+		myListener.onkeydown=function(e) {
+			if (e.ctrlKey) { myLayer.moveBy(20,20);return true }
+			if (e.shiftKey) alert('SHIFT!')
+		}
+
+
+	DynAPI.document.addEventListener(myListener)
+
+	DynAPI.document.addChild(myLayer)}
+
+</script>
+</head>
+
+<body bgcolor="#ffffff">
+
+</body>
+</html>

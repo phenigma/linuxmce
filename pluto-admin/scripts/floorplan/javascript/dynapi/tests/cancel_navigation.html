@@ -1,0 +1,45 @@
+<html>
+<head>
+<title>Return false test</title>
+<script language="Javascript" src="../src/dynapi.js"></script>
+<script language="Javascript">
+DynAPI.setLibraryPath('../src/lib/');
+DynAPI.include('dynapi.api.*');
+DynAPI.include('dynapi.event.*');
+DynAPI.include('dynapi.util.debug');
+</script>
+<script language="Javascript">
+
+DynAPI.onLoad = function() {
+	html='<a href="http://www.cnn.com" onclick="alert(\'hi\');return false;">Return false</a><br /><a href="http://www.cnn.com" onclick="alert(\'hi\');return true;">Return true</a>'
+
+	myLayer = new DynLayer(null,50,150,150,150,'lightgrey',null,null,null,html)
+
+	DragEvent.setDragBoundary(myLayer)
+	DragEvent.enableDragEvents(myLayer)
+	DynAPI.document.addChild(myLayer)
+}
+
+</script>
+</head>
+
+<body >
+<b>Issue</b><br />
+In various browsers DynAPI's events system stopped "return false" from cancelling navigation.<br />
+The two "Return false" links should show an alert only, and not navigate to another page.<br />
+The others should show an alert, and then go to www.cnn.com<br />
+<a href="http://www.cnn.com" onclick="alert('hi');return false;">Return false</a><br /><a href="http://www.cnn.com" onclick="alert('hi');return true;">Return true</a>
+<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+<b>Update: 4/nov/2001 :</b> Test results (Only tested in win2000/Linux so far) :
+<br /><br />
+<li>IE5.5/Win <br />
+Links in the body show alert, and "true" navigates to CNN.<br />
+Links in dynlayer show alert, and "true" navigates to CNN, except after dragging dynlayer by the link.</li><br /><br />
+<li>Mozilla/NS6/Win/Linux <br />
+Links in the body show alert, and "true" navigates to CNN.<br />
+Links in dynlayer show alert, and "true" navigates to CNN, ALSO after dragging dynlayer by the link.</li><br /><br />
+<li>NS4/Win/Linux <br />
+Links in the body show alert, and "true" navigates to CNN.<br />
+Links in dynlayer nothing, and don't navigate at all.</li>
+</body>
+</html>

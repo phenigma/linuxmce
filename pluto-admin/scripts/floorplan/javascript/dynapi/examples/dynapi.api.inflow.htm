@@ -1,0 +1,72 @@
+<html>
+<head>
+<title>DynAPI Distribution: MouseEvents Example</title>
+<script language="Javascript" src="../src/dynapi.js"></script>
+<script language="Javascript">
+DynAPI.setLibraryPath('../src/lib/');
+DynAPI.include('dynapi.api.*');
+DynAPI.include('dynapi.event.*')
+</script>
+<script language="Javascript">
+	myLayer = new DynLayer()
+	
+	myLayer.moveTo(30,30)
+	myLayer.setSize(100,100)
+	myLayer.setBgColor('#c0c0c0')
+	myLayer.setHTML('<table border="0" width="100" height="100" cellpadding="5" cellspacing="5"><tr><td height="100%" width="100%"><table border="2" width="100%" height="100%" align="center" valign="middle"><tr><td align="center"><a href="#">Link</a></td></tr></table></td></tr></table>')
+	myLayer.addChild(new DynLayer(null,10,10,20,20,'red'))
+
+	myListener = new EventListener(DynAPI.document)
+		myListener.onmouseover=function(e) {
+			myLayer.setBgColor('#ffc000')
+		}
+		myListener.onmousemove=function(e) {
+			myLayer.setBgColor('#ffc000')
+		}
+		myListener.onmouseout=function(e) {
+			myLayer.setBgColor('#c0c0c0')
+		}
+		myListener.onmousedown=function(e) {
+			myLayer.setBgColor('#0000c0')
+		}
+		myListener.onmouseup=function(e) {
+			myLayer.setBgColor('#ffc000')
+		}
+		myListener.onrtmouseup=function(e) {
+			myLayer.setBgColor('#ffcc00')
+		}
+		myListener.onrtmousedown=function(e) {
+			myLayer.setBgColor('#00cc00')
+		}
+		myListener.onmdmousedown=function(e) {
+			myLayer.setBgColor('#11cc00')
+		}
+		myListener.onmdmouseup=function(e) {
+			myLayer.setBgColor('#ffcc00')
+		}
+		myListener.ondblclick=function(e) {
+			alert('double-click')
+		}
+
+	myLayer.addEventListener(myListener)
+
+	function cool() {
+		myLayer.setSize(200,200)
+	}
+</script>
+</head>
+<body bgcolor="#ffffff">
+This is a small sample of embedding DYNAPI stuff inside the HTMl flow. Notice that you can do it at load time instead
+of waiting until the unLoad event is executed. This is not as flexible as we'd all want ( at the time being NS4 fails
+to resize but, well, it is a start.).<br>
+Consider this an alpha. In any case, you can now add layers to the document before the page has finished loading, and those will behave as expected.
+
+<script>DynAPI.document.addInflowChild(myLayer)</script>
+
+<p>
+<a href='javascript:cool()'>Make it bigger</a>
+<br>
+Note: it is IMPOSSIBLE to have NS4 reflow page contents after page load. The text going down to accomodate the layer's
+new size is a cool trick but it will never work in NS4, so don't bother trying.
+</body>
+</html>
