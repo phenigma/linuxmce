@@ -501,6 +501,9 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Mobile Orbiter %s cannot get signal strength 
 					SendCommand(cmd_Disconnect_From_Mobile_Orbiter);
 				}
 
+				if( pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device->NeedConfigure_get() == 1 )
+					SendAppToPhone( pOH_Orbiter, pDeviceFrom );
+
                 DCE::CMD_Link_with_mobile_orbiter CMD_Link_with_mobile_orbiter(
                     -1,
                     pDeviceFrom->m_dwPK_Device,
@@ -528,31 +531,11 @@ bool Orbiter_Plugin::MobileOrbiterLinked(class Socket *pSocket,class Message *pM
 g_pPlutoLogger->Write(LV_STATUS,"mobile orbiter linked: %p",pOH_Orbiter);
     string sVersion = pMessage->m_mapParameters[EVENTPARAMETER_Version_CONST];
 
-    Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+    Row_Device *pRow_Device = pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device;
     if( (pRow_Device->NeedConfigure_get() == 1 || sVersion != g_sLatestMobilePhoneVersion) && pOH_Orbiter->m_sVersion != g_sLatestMobilePhoneVersion )
-    {
-g_pPlutoLogger->Write(LV_STATUS,"Phone needs file - nc: %d version: %s / %s / %s",(int) pRow_Device->NeedConfigure_get(),sVersion.c_str(),g_sLatestMobilePhoneVersion.c_str(),pOH_Orbiter->m_sVersion.c_str());
-		pOH_Orbiter->m_sVersion = g_sLatestMobilePhoneVersion;
-        pRow_Device->NeedConfigure_set(0);
-        pRow_Device->Table_Device_get()->Commit();
+		SendAppToPhone(pOH_Orbiter,pDeviceFrom);
 
-        Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(pRow_Device->FK_DeviceTemplate_get());
-        string PlutoMOInstaller = pRow_DeviceTemplate->CommandLine_get();
-
-        DCE::CMD_Send_File_To_Device CMD_Send_File_To_Device(
-            m_dwPK_Device,
-			pDeviceFrom->m_dwPK_Device,
-            PlutoMOInstaller,
-            sMacAddress,
-            ""
-        );
-
-        SendCommand(CMD_Send_File_To_Device);
-
-        g_pPlutoLogger->Write(LV_WARNING, "Sending command CMD_Send_File_To_Device... PlutoMO file: %s, mac: %s", PlutoMOInstaller.c_str(), sMacAddress.c_str());
-    }
-
-    DeviceData_Router *pDevice_PriorDetected = pOH_Orbiter->m_pDevice_CurrentDetected;
+	DeviceData_Router *pDevice_PriorDetected = pOH_Orbiter->m_pDevice_CurrentDetected;
 
     // Associated with a new media director.  Show the corresponding menu
     pOH_Orbiter->m_pDevice_CurrentDetected = (DeviceData_Router *) pDeviceFrom;
@@ -1420,3 +1403,29 @@ void Orbiter_Plugin::SetBoundIcons(int iPK_Users,bool bOnOff,string sType)
 		SendCommand(CMD_Set_Bound_Icon);
 	}
 }
+
+void Orbiter_Plugin::SendAppToPhone(OH_Orbiter *pOH_Orbiter,DeviceData_Base *pDevice_Dongle)
+{
+g_pPlutoLogger->Write(LV_STATUS,"Phone needs file - nc: %d version: / %s / %s",
+		(int) pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device->NeedConfigure_get(),g_sLatestMobilePhoneVersion.c_str(),pOH_Orbiter->m_sVersion.c_str());
+	pOH_Orbiter->m_sVersion = g_sLatestMobilePhoneVersion;
+    pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device->NeedConfigure_set(0);
+    pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device->Table_Device_get()->Commit();
+
+    Row_DeviceTemplate *pRow_DeviceTemplate = pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device->FK_DeviceTemplate_getrow();
+    string PlutoMOInstaller = pRow_DeviceTemplate->CommandLine_get();
+
+    DCE::CMD_Send_File_To_Device CMD_Send_File_To_Device(
+        m_dwPK_Device,
+		pDevice_Dongle->m_dwPK_Device,
+        PlutoMOInstaller,
+        pOH_Orbiter->m_pDeviceData_Router->m_sMacAddress,
+        ""
+    );
+
+    SendCommand(CMD_Send_File_To_Device);
+
+    g_pPlutoLogger->Write(LV_WARNING, "Sending command CMD_Send_File_To_Device... PlutoMO file: %s, mac: %s", 
+		PlutoMOInstaller.c_str(), pOH_Orbiter->m_pDeviceData_Router->m_sMacAddress.c_str());
+}
+
