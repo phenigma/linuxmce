@@ -961,6 +961,7 @@ bool Router::ReceivedString(Socket *pSocket, string Line)
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "Upon connection, the socket received an invalid response (socket %d).  Terminating.", pSocket->m_Socket);
         closesocket(pSocket->m_Socket);
+	return false;
     }
     else if( Line=="CONFIG_TIMESTAMP" )
     {
