@@ -61,7 +61,10 @@ bool BD_PC_KeyWasPressed::ProcessCommand(BDCommandProcessor *pProcessor)
 		return false;
 	}
 
-	pOrbiter->m_pOrbiter->ButtonDown(m_Key);
+	Orbiter::Event orbiterEvent;
+	orbiterEvent.type = Orbiter::Event::BUTTON_DOWN;
+	orbiterEvent.data.button.m_iPK_Button = m_Key;
+	pOrbiter->m_pOrbiter->ProcessEvent(orbiterEvent);
 
 	return true;
 }
