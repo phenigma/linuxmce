@@ -8,8 +8,11 @@ clean-recursive:
 	for dir in $(SUBDIRS); do cd $$dir; $(MAKE) clean; cd ..; done
 
 %.d: %.cpp
+	@echo -n Computing dependencies for $< 
 	@$(CXX) -M $(CPPFLAGS) $< > $@.$$$$; \
 	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
 	rm -f $@.$$$$
+	@echo " done"
 
-
+#%.o: %.cpp 
+#	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS)

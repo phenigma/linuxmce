@@ -8,11 +8,13 @@
 //<-dceag-d-e->
 
 #include <qapplication.h>
-#include <mythtv/mythcontext.h>
-#include <mythtv/mythdialogs.h>
-#include <mythtv/lcddevice.h>
+#include <libmyth/mythcontext.h>
+#include <libmyth/mythdialogs.h>
+#include <libmyth/lcddevice.h>
 
-#include <tv.h>
+#include <libmythtv/tv.h>
+#include <libmythtv/frame.h>
+#include <libmythtv/NuppelVideoPlayer.h>
 
 //<-dceag-decl-b->
 namespace DCE
@@ -69,6 +71,25 @@ public:
 
     virtual void CMD_Stop_TV() { string sCMD_Result; CMD_Stop_TV(sCMD_Result,NULL);};
     virtual void CMD_Stop_TV(string &sCMD_Result,Message *pMessage);
+
+
+    /** @brief COMMAND: #84 - Get Video Frame */
+    /** Capture a Video frame */
+        /** @param #19 Data */
+            /** The video frame */
+        /** @param #20 Format */
+            /** One of the following: "jpg", "png" */
+        /** @param #23 Disable Aspect Lock */
+            /** If true, don't worry about the aspect ratio.  Try to get the requested width and height. */
+        /** @param #41 StreamID */
+            /** Optional.  For multi stream devices, like media players, this identifies the stream. */
+        /** @param #60 Width */
+            /** The desired width of the video frame.  The sender need not respect this. */
+        /** @param #61 Height */
+            /** The desired height of the video frame.  The sender need not respect this. */
+
+    virtual void CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat) { string sCMD_Result; CMD_Get_Video_Frame(sDisable_Aspect_Lock.c_str(),iStreamID,iWidth,iHeight,pData,iData_Size,sFormat,sCMD_Result,NULL);};
+    virtual void CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat,string &sCMD_Result,Message *pMessage);
 
 
     /** @brief COMMAND: #187 - Tune to channel */

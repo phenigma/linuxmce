@@ -19,7 +19,7 @@ using namespace DCE;
 #include "DataGrid.h"
 
 #include "MythTvWrapper.h"
-
+#include <libmythtv/frame.h>
 
 //<-dceag-const-b->
 MythTV_PlugIn::MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)

@@ -17,7 +17,7 @@ sources = Main.cpp MythTV_PlugIn.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS +=
-CPPFLAGS += -I/usr/include/qt3 -I../utilities/mythtv-headers
+CPPFLAGS += -I/usr/include/qt3 -I$(ROOT)/Libraries
 LDLIBS += -lpluto_main -lPlutoUtils -lSerializeClass
 
 Gen_Dev_Files += $(GENDEV)/Media_PluginBase.cpp $(GENDEV)/Datagrid_PluginBase.cpp
@@ -44,7 +44,7 @@ MythTV_PlugIn.so: $(sources:.cpp=.o) Makefile
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
-		
+	
 MythTV_PlugIn: $(sources:.cpp=.o) Makefile
 	$(CXX) -o $(MYNAME) $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin

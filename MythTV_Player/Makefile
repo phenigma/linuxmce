@@ -17,7 +17,7 @@ sources = Main.cpp MythTV_Player.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS +=
-CPPFLAGS += -I/usr/include/qt3 -I../utilities/mythtv-headers -DQT_NO_DEBUG -DQT_THREAD_SUPPORT -DQT_SHARED
+CPPFLAGS += -I/usr/include/qt3 -I$(ROOT)/Libraries/ -DQT_NO_DEBUG -DQT_THREAD_SUPPORT -DQT_SHARED
 LDFLAGS +=
 LDLIBS += -lSerializeClass -lPlutoUtils -lqt-mt -lmyth-0.16 -lmythtv-0.16 
 

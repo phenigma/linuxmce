@@ -8,11 +8,11 @@
 #include <qsqlquery.h>
 #include <qsqlresult.h>
 
-#include <mythtv/mythcontext.h>
-#include <mythtv/mythdialogs.h>
-#include <programinfo.h>
+#include <libmyth/mythcontext.h>
+#include <libmyth/mythdialogs.h>
+#include <libmythtv/programinfo.h>
 
-#include <remoteutil.h>
+#include <libmythtv/remoteutil.h>
 
 using namespace DCE;
 
@@ -478,5 +478,3 @@ ScheduleRecordTvResult MythTvWrapper::ProcessAddRecordingRequest(int channelId, 
     delete conflictsWith;
     return ScheduleRecordTVResult_Success;
 }
-
-

@@ -474,11 +474,10 @@ string StringUtils::GetStringFromConsole()
 	while(true)
 	{
 		char c = getch();
-		// 8 and 127 are the two (known to me) backspace characters a terminal can send
-		if ((c == 8 || c == 127) && sOutput.length() > 0)
+		if (c == 8 && sOutput.length() > 0)
 		{
 			sOutput = sOutput.substr(0, sOutput.length() - 1);
-			cout << c << " " << c;
+			cout << " " << "\x08";
 			continue;
 		}
 		else if( c==3 )
