@@ -3,6 +3,7 @@
 
 echo "Starting ratpoison"
 
-DISPLAY=:0 /usr/pluto/bin/ratpoison &
+export DISPLAY=:0
+screen -d -m -S RatPoison /usr/pluto/bin/ratpoison
 sleep 1
 

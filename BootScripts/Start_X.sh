@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "Starting X server"
 
-X -ac &
-sleep 1
+screen -d -m -S XWindowSystem X -ac
+sleep 5
 
