@@ -1016,9 +1016,8 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 
 cout << "Making CVS Checkout to temporary\n";
 	//Checking Version From SourceForge
-	cmd = " cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/"+
-			" checkout " + pRow_Package_Source->Name_get();
-	cmd.
+	cmd = " cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/ checkout " +
+		pRow_Package_Source->Name_get();
 	system(cmd.c_str());
 
 	cmd = pRow_Package_Source->Name_get();
