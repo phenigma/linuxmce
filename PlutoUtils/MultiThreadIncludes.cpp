@@ -88,6 +88,7 @@ PlutoLock::PlutoLock(pluto_pthread_mutex_t *pLock,string File,int Line,bool bLog
 		m_mapLockMutex = new pluto_pthread_mutex_t("maplock");
 		m_mapLockMutex->Init(NULL);
 	}
+
 	pthread_mutex_lock(&m_mapLockMutex->mutex);
 	mapLocks[m_LockNum] = this;
 	pthread_mutex_unlock(&m_mapLockMutex->mutex);

@@ -15,13 +15,14 @@
 #define IDM_MAIN_FILE                   40004
 #define IDS_CAP_FILE                    40006
 #define IDM_MAIN_FILE_QUIT              40007
+#define IDM_MAIN_SHOW_SDLWINDOW         40008
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        107
-#define _APS_NEXT_COMMAND_VALUE         40008
+#define _APS_NEXT_COMMAND_VALUE         40009
 #define _APS_NEXT_CONTROL_VALUE         1002
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

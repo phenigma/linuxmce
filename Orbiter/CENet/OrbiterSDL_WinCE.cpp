@@ -249,6 +249,8 @@ void OrbiterSDL_WinCE::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
     else if (uMsg == WM_KEYUP)
     {
+		RecordKeyboardAction(wParam);
+
         bool bHandled=false;
         m_bRepeat = m_cKeyDown && clock() - m_cKeyDown > CLOCKS_PER_SEC/2;
         m_cKeyDown=0;
@@ -272,7 +274,7 @@ void OrbiterSDL_WinCE::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			event.type = SDL_USEREVENT;
 			SDL_PushEvent(&event); 
 		}
-		else if( wParam == VK_F1 && m_bControlDown && m_bAltDown)
+		else if( wParam == VK_F10)
 		{
 			ShowMainDialog();
 		}

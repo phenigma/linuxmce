@@ -120,7 +120,10 @@ bool SDLEventLoop(OrbiterSDL_WinCE* pOrbiter)
         }
 #else
         if (Event.type == SDL_MOUSEBUTTONDOWN)
+		{
             pOrbiter->RegionDown(Event.button.x, Event.button.y);
+			RecordMouseAction(Event.button.x, Event.button.y);
+		}
 #endif
     }  // while
 

@@ -11,10 +11,13 @@
 ATOM				MyRegisterClass	(HINSTANCE, LPTSTR);
 BOOL				InitInstance	(HINSTANCE, int);
 LRESULT CALLBACK	WndProc			(HWND, UINT, WPARAM, LPARAM);
-HWND				CreateRpCommandBar(HWND);
 
 void				WriteStatusOutput(const char* pMessage);
 void				ShowMainDialog();
+void				ShowSDLWindow();
+
+void				RecordMouseAction(int x, int y);
+void				RecordKeyboardAction(long key);
 //-----------------------------------------------------------------------------------------------------
 struct CommandLineParams
 {

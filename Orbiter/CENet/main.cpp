@@ -41,7 +41,6 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 	char pCmdLine[256];
 	wcstombs(pCmdLine, lpCmdLine, 256);
 
-	//sprintf(pCmdLine, "%S", lpCmdLine);
 	string command_line = pCmdLine;
 	string token;
 	do

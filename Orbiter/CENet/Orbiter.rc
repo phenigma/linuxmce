@@ -125,6 +125,7 @@ IDM_MENU MENU DISCARDABLE
 BEGIN
     POPUP "&File"
     BEGIN
+        MENUITEM "&Show Orbiter",               IDM_MAIN_SHOW_SDLWINDOW
         MENUITEM "&Quit",                       IDM_MAIN_FILE_QUIT
     END
 END
