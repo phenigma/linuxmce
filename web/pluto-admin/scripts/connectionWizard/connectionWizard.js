@@ -143,7 +143,6 @@ function drawPipe(device,connectionType,fromX,fromY,toX,toY)
 function bring_to_front(val)
 {
 	last_z_index++;
-	document.getElementById('head_4555').style.background="#999999";
 	eval("document.getElementById('"+val+"').style.zIndex=last_z_index;");
 	for(i=0;i<layersArray.length;i++){
 		eval("document.getElementById('head_"+layersArray[i]+"').style.background='red';");

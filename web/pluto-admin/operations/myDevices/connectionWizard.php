@@ -110,6 +110,7 @@ if ($action == 'form') {
 				$outHeight+=25;
 			}
 			$height=($inputHeight>$outHeight)?$inputHeight:$outHeight;
+			$height=(($height>150)?$height:150);
 			
 			$out.='
 <div id="device_'.$rowD['PK_Device'].'_pipe_1" style="position:absolute;Z-INDEX: 100;left:0;top:0;"></div>
@@ -122,7 +123,7 @@ if ($action == 'form') {
 	var audioLive_'.$rowD['PK_Device'].' = new jsGraphics("device_'.$rowD['PK_Device'].'_pipe_3");
 	var videoLive_'.$rowD['PK_Device'].' = new jsGraphics("device_'.$rowD['PK_Device'].'_pipe_4");
 </script>
-<DIV id="device_'.$rowD['PK_Device'].'" style="BORDER-RIGHT: 2px outset; BORDER-TOP: 2px outset; DISPLAY: ; Z-INDEX: 1; LEFT: 100px; BORDER-LEFT: 2px outset; WIDTH: 250px; BORDER-BOTTOM: 2px outset; POSITION: absolute; TOP: '.$topPos.'px; HEIGHT: '.(($height>150)?$height:150).'px" onclick="bring_to_front(\'device_'.$rowD['PK_Device'].'\')" onmousedown="bring_to_front(\'device_'.$rowD['PK_Device'].'\')">
+<DIV id="device_'.$rowD['PK_Device'].'" style="BORDER-RIGHT: 2px outset; BORDER-TOP: 2px outset; DISPLAY: ; Z-INDEX: 1; LEFT: 100px; BORDER-LEFT: 2px outset; WIDTH: 250px; BORDER-BOTTOM: 2px outset; POSITION: absolute; TOP: '.$topPos.'px; HEIGHT: '.$height.'px" onclick="bring_to_front(\'device_'.$rowD['PK_Device'].'\')" onmousedown="bring_to_front(\'device_'.$rowD['PK_Device'].'\')">
   <TABLE height="100%" cellSpacing=0 cellPadding=0 width="100%" bgColor=#EEEEEE border=0>
       <TBODY>
         <TR onmouseup="end_drag(\'device_'.$rowD['PK_Device'].'\')" onmousedown="start_drag(\'device_'.$rowD['PK_Device'].'\')" id="head_'.$rowD['PK_Device'].'"> 
@@ -132,14 +133,14 @@ if ($action == 'form') {
           <TD align=middle><table width="100%" border="0">
 			<tr>
 				<td align="center" width="40"><div position:relative;>'.join('',$inputsForDevice).'</div></td>
-				<td align="center" width="100%">Device <br>'.$rowD['PK_Device'].'</td>
+				<td align="center" width="100%">Device <br>'.$rowD['PK_Device'].'<br>'.$topPos.'</td>
 				<td align="center" width="40"><div position:relative;>'.join('',$outputsForDevice).'</div></td>
 			</tr>	
 		</table></TD>
         </TR>
   </TABLE>
 </DIV>';
-			$topPos+=15+$height;
+			$topPos+=(15+$height);
 		}
 	}
 	

@@ -17,8 +17,15 @@ function orbitersWin($output,$dbADO) {
 	<input type="hidden" name="action" value="add">	
 	<h3  align="left">Download Windows Software for Orbiters</h3>
 	<br>
-	<a href="fdownload.php?filepath=OrbiterInstaller.msi" target="_blank">Windows XP/2000</a><br><br>
-	<a href="fdownload.php?filepath=OrbiterCEInstaller.exe" target="_blank">Windows CE</a><br><br>
+	<a href="fdownload.php?filepath=installers/OrbiterInstaller.msi" target="_blank">Windows XP/2000</a><br><br>
+	<a href="fdownload.php?filepath=installers/OrbiterCEInstaller.exe" target="_blank">Windows CE</a><br><br>
+		
+<b>Orbiter CE binaries</b><br>
+<a href="fdownload.php?filepath=orbiter/binaries/AYGSHELL.DLL" target="_blank">Download AYGSHELL.DLL</a><br>
+<a href="fdownload.php?filepath=orbiter/binaries/PthreadsCE.dll" target="_blank">Download PthreadsCE.dll</a><br>
+<a href="fdownload.php?filepath=orbiter/binaries/SDL.dll" target="_blank">Download SDL.dll</a><br>
+<a href="fdownload.php?filepath=orbiter/binaries/Orbiter.MD5" target="_blank">Download Orbiter.MD5</a><br>
+<a href="fdownload.php?filepath=bin/OrbiterCE.exe" target="_blank">Download OrbiterCE.exe</a><br><br>		
 	</form>
 	';
 	} else {
