@@ -341,7 +341,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 bool Orbiter::Register()
 //<-dceag-reg-e->
 {
-    return Connect(PK_DeviceTemplate_get());
+    return Connect(0);  // Don't validate the device template, since the same binary is used for lots of devices
 }
 
 /*
