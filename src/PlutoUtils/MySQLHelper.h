@@ -22,6 +22,8 @@ public:
 // You can add this to a base class to get some helper mysql functions
 class MySqlHelper
 {
+private:
+	bool m_bConnectFromConstructor;
 
 public:
 	pluto_pthread_mutex_t m_MySqlMutex;
@@ -36,6 +38,7 @@ public:
 		m_pMySQL=NULL;
 		m_bConnected=false;
 		m_MySqlMutex.Init(NULL);
+		m_bConnectFromConstructor = false;
 	}
 
 	MySqlHelper(string host, string user, string pass, string db_name, int port=3306)
@@ -48,6 +51,7 @@ public:
 		m_sMySQLPass=pass;
 		m_sMySQLDBName=db_name;
 		m_iMySQLPort=port;
+		m_bConnectFromConstructor = true;
 		MySQLConnect();
 	}
 
@@ -65,6 +69,7 @@ public:
 		m_sMySQLPass=pass;
 		m_sMySQLDBName=db_name;
 		m_iMySQLPort=port;
+		m_bConnectFromConstructor = true;
 		return MySQLConnect(bReset);
 	}
 
@@ -81,7 +86,11 @@ public:
 			m_pMySQL = mysql_init(NULL);
 		}
 
-		g_pPlutoLogger->Write(LV_WARNING, "MysqlHelper reconnecting to failed Host: %s, Port: %d, Database: %s\n", m_sMySQLHost.c_str(), m_iMySQLPort, m_sMySQLDBName.c_str());
+		if  ( m_bConnectFromConstructor )
+			g_pPlutoLogger->Write(LV_STATUS, "MysqlHelper connecting to: %s, Port: %d, Database: %s\n", m_sMySQLHost.c_str(), m_iMySQLPort, m_sMySQLDBName.c_str());
+		else
+			g_pPlutoLogger->Write(LV_WARNING, "MysqlHelper reconnecting to failed Host: %s, Port: %d, Database: %s\n", m_sMySQLHost.c_str(), m_iMySQLPort, m_sMySQLDBName.c_str());
+
 		if (mysql_real_connect(m_pMySQL, m_sMySQLHost.c_str(), m_sMySQLUser.c_str(), m_sMySQLPass.c_str(), m_sMySQLDBName.c_str(), m_iMySQLPort, NULL, 0) == NULL)
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"Connect failed %s",mysql_error(m_pMySQL));
@@ -90,6 +99,7 @@ public:
 		else
 			m_bConnected=true;
 
+		m_bConnectFromConstructor = false;
 		return m_bConnected;
 	}
 
