@@ -3,6 +3,6 @@
 
 Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Starting X server"
 
-screen -d -m -S XWindowSystem X -ac
+screen -d -m -S XWindowSystem X -ac tty7
 sleep 5
 
