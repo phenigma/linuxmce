@@ -285,13 +285,13 @@ if($action=='form'){
 		}
 
 		if((int)@$_POST['enableDHCP']==1){
-			$IPtoDeviceDeviceData='192.168.1.129-192.168.1.254';
+			$IPtoDeviceDeviceData='192.168.80.2-192.168.80.128,192.168.80.129-192.168.80.254';
 
 			$insertDHCP='INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData,IK_DeviceData) VALUES (?,?,?)';
 			$dbADO->Execute($insertDHCP,array($_SESSION['deviceID'],$GLOBALS['DHCPDeviceData'],$IPtoDeviceDeviceData));
 
 			$updateDevice='UPDATE Device SET IPaddress=? WHERE PK_Device=?';
-			$dbADO->Execute($updateDevice,array('192.168.1.1',$_SESSION['deviceID']));
+			$dbADO->Execute($updateDevice,array('192.168.80.1',$_SESSION['deviceID']));
 			$_SESSION['EnableDHCP']=1;
 		}
 

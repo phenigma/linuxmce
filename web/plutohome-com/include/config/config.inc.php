@@ -1,7 +1,7 @@
 <?PHP
  	
   	//debuging
-  	$GLOBALS['inDebug']=0;
+  	$GLOBALS['inDebug']=1;
   	
   	if($GLOBALS['inDebug']!=1){
   		// production settings
