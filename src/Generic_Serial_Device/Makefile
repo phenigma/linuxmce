@@ -22,7 +22,7 @@ LDFLAGS +=
 XTRALDLIBS =
 
 Gen_Dev_Files +=
-sources += $(ROOT)/Serial/GenericIODevice.h
+sources += $(ROOT)/Serial/GenericIODevice.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
