@@ -184,7 +184,7 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==1326 )//2821 && bAddToGenerated )
             if( GraphicType==1 )
             {
                 m_iFloorplanPage = m_pOrbiterGenerator->m_iFloorplanPage;
-                o = "/../../floorplans/I" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Device->FK_Installation_get()) + "/" + "Page" + StringUtils::itos(m_iFloorplanPage) + ".jpg";
+                o = "/../../floorplans/inst" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Device->FK_Installation_get()) + "/" + "Page" + StringUtils::itos(m_iFloorplanPage) + ".jpg";
 /*
                 string[] sFiles = Directory.GetFiles(m_pOrbiterGenerator->m_GraphicsBasePath + "/Floorplans/I" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Device->FK_Installation_get()) + "/","Page" + StringUtils::itos(m_iFloorplanPage) + ".*");
                 if( sFiles.Length>0 )
@@ -1462,6 +1462,9 @@ int k=2;
     for(size_t s=0;s<m_alChildDesignObjs.size();++s)
     {
         DesignObj_Generator *oc = m_alChildDesignObjs[s];
+		if( oc->m_pRow_DesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Floorplan_CONST && pTopmostObject )
+            pTopmostObject->m_bContainsArrays=true; // We don't want to cache floorplans either
+
         oc->ScaleAllValues(FactorX,FactorY,pTopmostObject);
     }
 
