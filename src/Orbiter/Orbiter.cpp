@@ -1797,7 +1797,6 @@ bool Orbiter::SelectedGrid( int DGRow )
 
     DataGridCell *pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData( iSelectedColumn,  DGRow );
 	pDesignObj_DataGrid->m_iHighlightedRow = DGRow;
-	pDesignObj_DataGrid->m_iHighlightedColumn = iSelectedColumn;
 
 	g_pPlutoLogger->Write(LV_STATUS, "Selected row: %d, selected column: %d", 
 		DGRow, iSelectedColumn);
