@@ -90,13 +90,13 @@ public:
     void *m_pData;
 	int m_iCounter; // A unique ID
 	bool m_bStop; // Don't execute after all, we've decided to stop it (probably started another one of same type)
-	pluto_pthread_mutex_t *m_pCallbackMutex; 
+	pluto_pthread_mutex_t *m_pCallbackMutex;
 };
 map<int,CallBackInfo *> mapPendingCallbacks;
 
 //------------------------------------------------------------------------
 // Stuff for the delayed select object
-class DelayedSelectObjectInfo 
+class DelayedSelectObjectInfo
 {
 public:
 	DesignObj_Orbiter *m_pObj;
@@ -113,7 +113,7 @@ public:
 
 //------------------------------------------------------------------------
 // Stuff for the continuous refresh
-class ContinuousRefreshInfo 
+class ContinuousRefreshInfo
 {
 public:
 	DesignObj_Orbiter *m_pObj;
@@ -135,7 +135,7 @@ void *MaintThread(void *p);
 
 /*
 	EXTRAINFO codes for datagrids:
-	'H' means allow the user to highlight cells without selecting them.  
+	'H' means allow the user to highlight cells without selecting them.
 	'R' or 'C' means only highlight/select whole rows/columns
 	Either 'A' means arrows scroll the grid.  If 'H' is not specified, the scrolling will be selecting cells.  Otherwise it will be highlighting them
 	'As' means arrows scroll the grid 1 cell at a time
@@ -154,7 +154,7 @@ Constructors/Destructor
 //<-dceag-const-b->!
 Orbiter::Orbiter( int DeviceID,  string ServerAddress,  string sLocalDirectory,  bool bLocalMode,  int iImageWidth,  int iImageHeight )
 : Orbiter_Command( DeviceID,  ServerAddress, true, bLocalMode ),
-m_ScreenMutex( "rendering" ), m_VariableMutex( "variable" ), m_DatagridMutex( "datagrid" ), 
+m_ScreenMutex( "rendering" ), m_VariableMutex( "variable" ), m_DatagridMutex( "datagrid" ),
 m_CallbackMutex( "callback" ), m_MaintThreadMutex("MaintThread")
 //<-dceag-const-e->
 
@@ -179,7 +179,7 @@ m_CallbackMutex( "callback" ), m_MaintThreadMutex("MaintThread")
     m_ScreenMutex.Init( &m_MutexAttr );
     m_DatagridMutex.Init( &m_MutexAttr );
 	m_CallbackMutex.Init( NULL );
-	
+
     m_dwIDataGridRequestCounter=0;
 
     if(  !m_bLocalMode  )
@@ -217,7 +217,7 @@ Orbiter::~Orbiter()
 	m_vectObjs_Selected.clear();
 
 	//clearing all objects
-	
+
 	DesignObj_OrbiterMap::iterator it;
 	for(it = m_ScreenMap.begin(); it != m_ScreenMap.end(); it++)
 	{
@@ -407,7 +407,7 @@ void Orbiter::RedrawObjects(  )
     // There appears to be a problem with SDL_Flip sometimes calling _XRead to wait for an event,  causing the thread
     // to block until there's an event,  so that our loop no longer gets back to the SDL_WaitEvent in the main pump
     // So for now just do the redraw's always on a separate thread
-	CallMaintenanceInMiliseconds( 0, &Orbiter::RealRedraw, NULL, true ); 
+	CallMaintenanceInMiliseconds( 0, &Orbiter::RealRedraw, NULL, true );
 }
 
 void Orbiter::RealRedraw( void *data )
@@ -432,7 +432,7 @@ void Orbiter::RealRedraw( void *data )
         return;
     }
 
-	g_pPlutoLogger->Write( LV_CONTROLLER, "I won't render the whole screen. Objects to be rendered: %d, texts to be rendered: %d", 
+	g_pPlutoLogger->Write( LV_CONTROLLER, "I won't render the whole screen. Objects to be rendered: %d, texts to be rendered: %d",
 		m_vectObjs_NeedRedraw.size(), m_vectTexts_NeedRedraw.size()
 	);
 
@@ -453,7 +453,7 @@ void Orbiter::RealRedraw( void *data )
 		TextStyle *pTextStyle = pText->m_mapTextStyle_Find( 0 );
 		if( pTextStyle )
 		{
-			SolidRectangle( pText->m_rPosition.Left(),  pText->m_rPosition.Top(),  
+			SolidRectangle( pText->m_rPosition.Left(),  pText->m_rPosition.Top(),
 				pText->m_rPosition.Width,  pText->m_rPosition.Height,  pTextStyle->m_BackColor);
 			RenderText( pText, pTextStyle );
 		}
@@ -549,7 +549,7 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
         PlutoRectangle rectBackground = pObj->m_rBackgroundPosition;
     PlutoRectangle rectTotal = pObj->m_rPosition;
     vm.Release(  );
-    
+
 	if( (pObj == m_pObj_Highlighted || pObj->m_GraphicToDisplay == GRAPHIC_HIGHLIGHTED ) && pObj->m_vectHighlightedGraphic.size() )
 		pObj->m_pvectCurrentGraphic = &(pObj->m_vectHighlightedGraphic);
     else if(pObj->m_GraphicToDisplay == GRAPHIC_SELECTED && pObj->m_vectSelectedGraphic.size())
@@ -587,7 +587,7 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 
 		vector<PlutoGraphic*> vectGraphicToUndoSelect;
 		vectGraphicToUndoSelect.push_back(pObj->m_pGraphicToUndoSelect);
-		pObj->m_pvectCurrentGraphic = &vectGraphicToUndoSelect; 
+		pObj->m_pvectCurrentGraphic = &vectGraphicToUndoSelect;
 
 		RenderGraphic( pObj,  rectTotal );
 
@@ -763,7 +763,7 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
     if( pObj->m_pFloorplanObject && m_mapDevice_Selected.find(pObj->m_pFloorplanObject->PK_Device)!=m_mapDevice_Selected.end() )
     {
         for(int i=0;i<4;++i)
-            HollowRectangle(pObj->m_rBackgroundPosition.X-i, pObj->m_rBackgroundPosition.Y-i, pObj->m_rBackgroundPosition.Width+i+i, pObj->m_rBackgroundPosition.Height+i+i, 
+            HollowRectangle(pObj->m_rBackgroundPosition.X-i, pObj->m_rBackgroundPosition.Y-i, pObj->m_rBackgroundPosition.Width+i+i, pObj->m_rBackgroundPosition.Height+i+i,
 			(i==1 || i==2 ? PlutoColor::Black() : PlutoColor::White()));
     }
 }
@@ -814,7 +814,7 @@ bool Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *
     if ( w>4 && h >4 )
     {
         if ( !bTransparentCell )
-			SolidRectangle( x,  y,  w,  h,  pCell->m_AltColor ? pCell->m_AltColor : pTextStyle->m_BackColor); 
+			SolidRectangle( x,  y,  w,  h,  pCell->m_AltColor ? pCell->m_AltColor : pTextStyle->m_BackColor);
 
 		/*
 		if ( pObj->BorderColor2.m_Value!=pObj->BorderColor.m_Value )
@@ -893,7 +893,7 @@ void Orbiter::RenderDataGrid( DesignObj_DataGrid *pObj )
     int i,  j; //indexes
 
     bool bAddedUpButton=false, bAddedDownButton=false;
-    
+
 	// See if we should add page up/down cells -- see notes at top of file
     if(  pObj->m_sExtraInfo.find( 'P' )!=string::npos  )
     {
@@ -1227,7 +1227,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
             }
 
 			vector<PlutoGraphic*> *pVectorPlutoGraphic = pObj->m_pvectCurrentGraphic;
-			if(pObj->m_pvectCurrentGraphic->size())	
+			if(pObj->m_pvectCurrentGraphic->size())
 			{
 				PlutoGraphic *pPlutoGraphic = pObj->m_pvectCurrentGraphic->operator [](0);
 
@@ -1899,7 +1899,7 @@ int r=pDesignObj_DataGrid->m_pDataGridTable->GetRows(  );
                     break;
                 case DIRECTION_Left_CONST:
                     if(  pDesignObj_DataGrid->m_iHighlightedRow>0 || pDesignObj_DataGrid->m_GridCurRow>0  )
-                    {	
+                    {
                         pDesignObj_DataGrid->m_iHighlightedColumn--;
                         if(  pDesignObj_DataGrid->m_iHighlightedColumn<0  )
                         {
@@ -2754,7 +2754,7 @@ bool Orbiter::ButtonDown( int PK_Button )
                 if(  !pDesignObj_DataGrid->IsHidden(  ) && pDesignObj_DataGrid->m_pDataGridTable && pDesignObj_DataGrid->m_sExtraInfo.find( 'A' )!=string::npos )
                 {
                     // We've got a datagrid that allows the user to highlight cells without selecting them.  Now that enter was pressed it needs to select the cell
-                    DataGridCell *pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData(  
+                    DataGridCell *pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData(
 						pDesignObj_DataGrid->m_iHighlightedColumn!=-1 ? pDesignObj_DataGrid->m_iHighlightedColumn + pDesignObj_DataGrid->m_GridCurCol : 0,
 						pDesignObj_DataGrid->m_iHighlightedRow!=-1 ? pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow : 0);
                     if(  pCell  )
@@ -3314,7 +3314,7 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 				{
 					if( pMessage_GotoScreen )
 						delete pMessage_GotoScreen;  // Shouldn't happen, but we're only going to process the last goto anyway
-					pMessage_GotoScreen = pThisMessage;  
+					pMessage_GotoScreen = pThisMessage;
 					continue;
 				}
                 ReceivedMessage( pThisMessage );
@@ -3713,21 +3713,21 @@ void *MaintThread(void *p)
 			CallBackInfo *pCallBackInfo = mapPendingCallbacks[Index];
 			pm.Release();
 
-			//g_pPlutoLogger->Write( LV_CONTROLLER, "### Now is %d, Callback candidate to be processed id = %d, time = %d msec = %d", 
+			//g_pPlutoLogger->Write( LV_CONTROLLER, "### Now is %d, Callback candidate to be processed id = %d, time = %d msec = %d",
 			//	clock_t(), pCallBackInfo->m_iCounter, (int)pCallBackInfo->m_abstime.tv_sec,(int)pCallBackInfo->m_abstime.tv_nsec);
 
 			timespec ts_Current;
 			gettimeofday(&ts_Current,NULL);
 
-			if(pCallBackInfo->m_abstime <= ts_Current) 
+			if(pCallBackInfo->m_abstime <= ts_Current)
 			{
 				if( ! pCallBackInfo->m_bStop ) //let's process this one, is ready to go
 					CALL_MEMBER_FN( *pCallBackInfo->m_pOrbiter, pCallBackInfo->m_fnCallBack )( pCallBackInfo->m_pData );
-				
-				PLUTO_SAFETY_LOCK( pm2, pOrbiter->m_CallbackMutex ); 
+
+				PLUTO_SAFETY_LOCK( pm2, pOrbiter->m_CallbackMutex );
 				mapPendingCallbacks.erase(pCallBackInfo->m_iCounter); //processed
 
-				//g_pPlutoLogger->Write( LV_CONTROLLER, "### 1. Now is %d. Callback processed id = %d, clock = %d", 
+				//g_pPlutoLogger->Write( LV_CONTROLLER, "### 1. Now is %d. Callback processed id = %d, clock = %d",
 				//	(int)clock(), pCallBackInfo->m_iCounter, (int)pCallBackInfo->m_clock);
 
 				delete pCallBackInfo;
@@ -3737,7 +3737,7 @@ void *MaintThread(void *p)
 			}
 			else
 			{
-				//g_pPlutoLogger->Write( LV_CONTROLLER, "### 2. Now is %d. Waiting to process callback id = %d, time = %d msec = %d", 
+				//g_pPlutoLogger->Write( LV_CONTROLLER, "### 2. Now is %d. Waiting to process callback id = %d, time = %d msec = %d",
 				//	time(NULL), pCallBackInfo->m_iCounter, (int)pCallBackInfo->m_abstime.tv_sec,(int)pCallBackInfo->m_abstime.tv_nsec);
 
 				pthread_mutex_lock(&pOrbiter->m_MaintThreadMutex.mutex);
@@ -3751,11 +3751,11 @@ void *MaintThread(void *p)
 					//no new events while waiting.. so let's render this one
 					if( ! pCallBackInfo->m_bStop ) //let's process this one, is ready to go
 						CALL_MEMBER_FN( *pCallBackInfo->m_pOrbiter, pCallBackInfo->m_fnCallBack )( pCallBackInfo->m_pData );
-					
-					PLUTO_SAFETY_LOCK( pm2, pOrbiter->m_CallbackMutex ); 
+
+					PLUTO_SAFETY_LOCK( pm2, pOrbiter->m_CallbackMutex );
 					mapPendingCallbacks.erase(pCallBackInfo->m_iCounter); //processed
 
-					//g_pPlutoLogger->Write( LV_CONTROLLER, "### 2. Now is %d. Callback processed id = %d, clock = %d", 
+					//g_pPlutoLogger->Write( LV_CONTROLLER, "### 2. Now is %d. Callback processed id = %d, clock = %d",
 					//	(int)clock(), pCallBackInfo->m_iCounter, (int)pCallBackInfo->m_clock);
 
 					delete pCallBackInfo;
@@ -3764,7 +3764,7 @@ void *MaintThread(void *p)
 					pm2.Release();
 				}
 				//else
-					//g_pPlutoLogger->Write( LV_CONTROLLER, "### 2. Now is %d. Something is changed, let's review the map", 
+					//g_pPlutoLogger->Write( LV_CONTROLLER, "### 2. Now is %d. Something is changed, let's review the map",
 					//	(int)clock());
 
 				pthread_mutex_unlock(&pOrbiter->m_MaintThreadMutex.mutex);
@@ -3797,14 +3797,14 @@ void Orbiter::CallMaintenanceInMiliseconds( clock_t milliseconds, OrbiterCallBac
 	pCallBack->m_fnCallBack=fnCallBack;
     pCallBack->m_pData=data;
     pCallBack->m_pOrbiter=this;
-	
+
 	mapPendingCallbacks[pCallBack->m_iCounter]=pCallBack;
 
-	//g_pPlutoLogger->Write( LV_CONTROLLER, "### Added callback id = %d, clock = %d", 
+	//g_pPlutoLogger->Write( LV_CONTROLLER, "### Added callback id = %d, clock = %d",
 	//	pCallBack->m_iCounter, (int)pCallBack->m_clock);
 
 	cm.Release();
-	pthread_cond_broadcast(&m_MaintThreadCond); 
+	pthread_cond_broadcast(&m_MaintThreadCond);
 }
 
 /*
@@ -4223,7 +4223,7 @@ void Orbiter::CMD_Refresh(string sDataGrid_ID,string &sCMD_Result,Message *pMess
 //<-dceag-c14-e->
 {
 	if( sDataGrid_ID.length()==0 )
-	    m_bRerenderScreen = true; 
+	    m_bRerenderScreen = true;
 
 	vector<DesignObj_DataGrid*>::iterator it;
 	for(it = m_vectObjs_GridsOnScreen.begin(); it != m_vectObjs_GridsOnScreen.end(); ++it)
@@ -4730,7 +4730,7 @@ void Orbiter::CalculateGridUp( DesignObj_DataGrid *pObj,  int &CurRow,  int Cell
 		if( CurRow - CellsToSkip > 0)
 			CellsToSkip--;
 		// After doing the scroll, will we still be able to go down?  If so, reduce the cells to skip by 1
-		if( pObj->m_pDataGridTable->GetRows() > (CurRow - CellsToSkip) + pObj->m_MaxRow ) 
+		if( pObj->m_pDataGridTable->GetRows() > (CurRow - CellsToSkip) + pObj->m_MaxRow )
 			CellsToSkip--;
 	}
 
@@ -5150,7 +5150,7 @@ void Orbiter::ContinuousRefresh( void *data )
 	else
 	{
 		CMD_Refresh("");
-		CallMaintenanceInMiliseconds( pContinuousRefreshInfo->m_iInterval * 1000, &Orbiter::ContinuousRefresh, pContinuousRefreshInfo, true ); 
+		CallMaintenanceInMiliseconds( pContinuousRefreshInfo->m_iInterval * 1000, &Orbiter::ContinuousRefresh, pContinuousRefreshInfo, true );
 	}
 }
 
@@ -5165,7 +5165,7 @@ void Orbiter::CMD_Continuous_Refresh(string sTime,string &sCMD_Result,Message *p
 //<-dceag-c238-e->
 {
 	ContinuousRefreshInfo *pContinuousRefreshInfo = new ContinuousRefreshInfo(m_pScreenHistory_Current->m_pObj,atoi(sTime.c_str()));
-	CallMaintenanceInMiliseconds( pContinuousRefreshInfo->m_iInterval, &Orbiter::ContinuousRefresh, pContinuousRefreshInfo, true ); 
+	CallMaintenanceInMiliseconds( pContinuousRefreshInfo->m_iInterval, &Orbiter::ContinuousRefresh, pContinuousRefreshInfo, true );
 }
 
 //timingofsetnowplaying
@@ -5209,7 +5209,7 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 /*virtual*/ void Orbiter::SimulateMouseClick(int x, int y)
 {
         g_pPlutoLogger->Write(LV_WARNING, "Simulate mouse click at position: %d, %d", x, y);
-		
+
 	BeginPaint();
 	PlutoColor color(255, 0, 0, 100);
 	SolidRectangle(x - 5, y - 5, 10, 10, color, 50);
@@ -5239,20 +5239,20 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 	ButtonDown(key);
 }
 
-time_t Orbiter::GetLastScreenChangedTime() 
-{ 
-	return NULL != m_pScreenHistory_Current ? m_pScreenHistory_Current->m_tTime : time(NULL); 
+time_t Orbiter::GetLastScreenChangedTime()
+{
+	return NULL != m_pScreenHistory_Current ? m_pScreenHistory_Current->m_tTime : time(NULL);
 }
 
 string Orbiter::GetCurrentScreenID()
-{ 
-	return 
+{
+	return
 		(
-			NULL != m_pScreenHistory_Current				&&  
-			NULL != m_pScreenHistory_Current->m_pObj		
+			NULL != m_pScreenHistory_Current				&&
+			NULL != m_pScreenHistory_Current->m_pObj
 		)
-		? 
-			m_pScreenHistory_Current->m_pObj->m_ObjectID : 
+		?
+			m_pScreenHistory_Current->m_pObj->m_ObjectID :
 			"UNKNOWN";
 }//<-dceag-c258-b->
 
@@ -5284,7 +5284,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 
 	if(pVectorPlutoGraphic->size() <= iCurrentFrame)
 		return;
-	
+
 	PlutoGraphic *pPlutoGraphic = (*pVectorPlutoGraphic)[iCurrentFrame];
 
 	bIsMNG = pPlutoGraphic->m_GraphicFormat == GR_MNG;
@@ -5298,7 +5298,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 			g_pPlutoLogger->Write(LV_CRITICAL, "Unable to read file %s", (sFileName).c_str());
 			return;
 		}
-		
+
 		switch(pPlutoGraphic->m_GraphicFormat)
 		{
 			case GR_JPG:
@@ -5330,7 +5330,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 					{
 						size_t iFrameSize = 0;
 						char *pFrameData = NULL;
-						
+
 						iFrameSize = pInMemoryMNG->GetFrame(i, pFrameData);
 
 						if(iFrameSize)
@@ -5349,20 +5349,20 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 
 					int iTime = 15; //hardcoding warning! don't know from where the get the framerate yet (ask Radu, libMNG)
 					bool bLoop = false; //hardcoding warning!  (ask Radu, libMNG)
-					
+
 					switch(pObj->m_GraphicToDisplay)
 					{
-						case GRAPHIC_HIGHLIGHTED:	
-							pObj->m_iTime_Highlighted = iTime;	
+						case GRAPHIC_HIGHLIGHTED:
+							pObj->m_iTime_Highlighted = iTime;
 							pObj->m_bLoop_Highlighted = bLoop;
 							break;
-						case GRAPHIC_SELECTED:		
-							pObj->m_iTime_Selected = iTime;		
-							pObj->m_bLoop_Selected = bLoop;	
+						case GRAPHIC_SELECTED:
+							pObj->m_iTime_Selected = iTime;
+							pObj->m_bLoop_Selected = bLoop;
 							break;
-						case GRAPHIC_NORMAL:		
-							pObj->m_iTime_Background = iTime;	
-							pObj->m_bLoop_Background = bLoop;	
+						case GRAPHIC_NORMAL:
+							pObj->m_iTime_Background = iTime;
+							pObj->m_bLoop_Background = bLoop;
 							break;
 							//todo alternate graphics ?
 					}
@@ -5375,10 +5375,10 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 					//schedule next frame for animation
 					pObj->m_pvectCurrentPlayingGraphic = pObj->m_pvectCurrentGraphic;
 					pObj->m_GraphicToPlay = pObj->m_GraphicToDisplay;
-					CallMaintenanceInMiliseconds( iTime, &Orbiter::PlayMNG_CallBack, pObj , false ); 
+					CallMaintenanceInMiliseconds( iTime, &Orbiter::PlayMNG_CallBack, pObj , false );
 				}
 				break;
-			
+
 		}
 	}
 	else if(pPlutoGraphic->IsEmpty())
@@ -5397,7 +5397,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "Unable to get file from server %s", pPlutoGraphic->m_Filename.c_str());
 			return;
-		}	   
+		}
 
 		//TODO: same logic for in-memory data
 		if(!pPlutoGraphic->LoadGraphic(pGraphicFile, iSizeGraphicFile))
@@ -5410,7 +5410,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 		delete pGraphicFile;
 		pGraphicFile = NULL;
 	}
-	
+
 #ifdef CACHE_IMAGES
     bDeleteSurface = false;
 #endif
@@ -5419,10 +5419,10 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 
 	//free the surface
 	if( bDeleteSurface && !bIsMNG) //will delete the MNG at the end of playing
-		pPlutoGraphic->Clear();	
+		pPlutoGraphic->Clear();
 }
 
-/*virtual*/ void Orbiter::PlayMNG_CallBack(void *data) 
+/*virtual*/ void Orbiter::PlayMNG_CallBack(void *data)
 {
 	DesignObj_Orbiter* pObj = (DesignObj_Orbiter*)data;
 
@@ -5443,8 +5443,8 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 	}
 
 	pObj->m_iCurrentFrame++;
-	
-	const iDelay = 15; //temp
+
+	const unsigned int iDelay = 15; //temp
 
 	if(pObj->m_iCurrentFrame >= iFrameNum) //this is the last one
 	{
@@ -5457,7 +5457,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 		CallMaintenanceInMiliseconds( iDelay, &Orbiter::RenderUnselectedGraphic_CallBack, pObj , false );
 	}
     else
-		CallMaintenanceInMiliseconds( iDelay, &Orbiter::PlayMNG_CallBack, pObj , false ); 
+		CallMaintenanceInMiliseconds( iDelay, &Orbiter::PlayMNG_CallBack, pObj , false );
 }
 
 /*virtual*/ void Orbiter::RenderUnselectedGraphic_CallBack(void *data)

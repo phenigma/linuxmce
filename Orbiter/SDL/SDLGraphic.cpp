@@ -7,24 +7,24 @@
 #include <sge.h>
 #include <sge_surface.h>
 //-------------------------------------------------------------------------------------------------------
-SDLGraphic::SDLGraphic(string Filename, eGraphicManagement GraphicManagement, 
-					   Orbiter *pOrbiter) 
+SDLGraphic::SDLGraphic(string Filename, eGraphicManagement GraphicManagement,
+					   Orbiter *pOrbiter)
 					   : PlutoGraphic(Filename, GraphicManagement, pOrbiter)
 {
 	Initialize();
 }
 //-------------------------------------------------------------------------------------------------------
-SDLGraphic::SDLGraphic(Orbiter *pOrbiter) 
+SDLGraphic::SDLGraphic(Orbiter *pOrbiter)
 : PlutoGraphic(pOrbiter)
 {
 	Initialize();
 }
 //-------------------------------------------------------------------------------------------------------
-SDLGraphic::SDLGraphic(struct SDL_Surface *pSDL_Surface) 
-{ 
+SDLGraphic::SDLGraphic(struct SDL_Surface *pSDL_Surface)
+{
 	Initialize();
 
-	m_pSDL_Surface = pSDL_Surface; 
+	m_pSDL_Surface = pSDL_Surface;
 }
 //-------------------------------------------------------------------------------------------------------
 SDLGraphic::~SDLGraphic()
@@ -32,8 +32,8 @@ SDLGraphic::~SDLGraphic()
 	Clear();
 }
 //-------------------------------------------------------------------------------------------------------
-void SDLGraphic::Initialize() 
-{ 
+void SDLGraphic::Initialize()
+{
 	m_pSDL_Surface = NULL;
 }
 //-------------------------------------------------------------------------------------------------------
