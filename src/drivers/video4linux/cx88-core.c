@@ -128,8 +128,8 @@ void cx88_print_ioctl(char *name, unsigned int cmd)
 		       v4l2_ioctls[_IOC_NR(cmd)] : "???");
 		break;
 	default:
-		printk(KERN_DEBUG "%s: ioctl 0x%08x (???, %s, #%d)\n",
-		       name, cmd, dir, _IOC_NR(cmd));
+		printk(KERN_DEBUG "%s: ioctl 0x%08x (0x%x, %s, #%d)\n",
+		       name, cmd, _IOC_TYPE(cmd), dir, _IOC_NR(cmd));
 	}
 }
 

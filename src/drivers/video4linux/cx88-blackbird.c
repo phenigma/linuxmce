@@ -855,6 +855,8 @@ static int set_control(struct cx8802_dev *dev, struct v4l2_control *ctl)
 	if (ctl->value > c->v.maximum)
 	{
 		dprintk( 0, "set_control: 0x%x > 0x%x\n", ctl->value, c->v.maximum );
+		/* clamp the value */
+		ctl->value = c->v.maximum;
 #if 0
 		return -ERANGE;
 #endif
@@ -889,7 +891,6 @@ static int set_control(struct cx8802_dev *dev, struct v4l2_control *ctl)
 	return 0;
 }
 
-#if 0
 static void init_controls(struct cx8802_dev *dev)
 {
 	static struct v4l2_control mute = {
@@ -904,11 +905,10 @@ static void init_controls(struct cx8802_dev *dev)
 	set_control(dev,&mute);
 	set_control(dev,&volume);
 }
-#endif
 
 /* --- IVTV emulation stuff ----------------------------------------- */
 
-/* For use with IVTV_IOC_G_CODEC and IVTV_IOC_S_CODEC */
+/* For use with IVTV ioctl's */
 struct ivtv_ioctl_codec {
         uint32_t aspect;
         uint32_t audio_bitmask;
@@ -927,8 +927,18 @@ struct ivtv_ioctl_codec {
         uint32_t stream_type;
 };
 
+struct ivtv_sliced_vbi_format {
+    unsigned long service_set;  /* one or more of the IVTV_SLICED_ defines */
+    unsigned long packet_size;  /* the size in bytes of the ivtv_sliced_data packet */
+    unsigned long io_size;      /* maximum number of bytes passed by one read() call */
+    unsigned long reserved;
+};
+
 #define IVTV_IOC_G_CODEC           _IOR ('@', 48, struct ivtv_ioctl_codec)
 #define IVTV_IOC_S_CODEC           _IOW ('@', 49, struct ivtv_ioctl_codec)
+#define IVTV_IOC_S_VBI_MODE        _IOWR('@', 35, struct ivtv_sliced_vbi_format)
+#define IVTV_IOC_G_VBI_MODE        _IOR ('@', 36, struct ivtv_sliced_vbi_format)
+#define IVTV_IOC_S_VBI_EMBED       _IOW ('@', 54, int)
 
 /* ------------------------------------------------------------------ */
 
@@ -965,9 +975,9 @@ static int mpeg_do_ioctl(struct inode *inode, struct file *file,
 		cap->capabilities =
 			V4L2_CAP_VIDEO_CAPTURE |
 			V4L2_CAP_READWRITE     |
+#if 0
 			V4L2_CAP_STREAMING     |
 			V4L2_CAP_VBI_CAPTURE   |
-#if 0
 			V4L2_CAP_VIDEO_OVERLAY |
 #endif
 			0;
@@ -1217,11 +1227,27 @@ static int mpeg_do_ioctl(struct inode *inode, struct file *file,
 		return videobuf_streamoff(&fh->mpegq);
 
 	/* --- IVTV emulation layer --------------------------- */
-	case IVTV_IOC_G_CODEC:
 	case IVTV_IOC_S_CODEC:
+		printk( KERN_INFO "IVTV_IOC_S_CODEC\n" );
+	case IVTV_IOC_G_CODEC:
 	{
-		printk( KERN_INFO "IVTV_IOC_G/S_CODEC\n" );
+		/*printk( KERN_INFO "IVTV_IOC_G/S_CODEC\n" );*/
 		struct ivtv_ioctl_codec *codec = arg;
+		printk( KERN_INFO "CODEC: aspect: %d\n", codec->aspect );
+		printk( KERN_INFO "CODEC: audio : %d\n", codec->audio_bitmask );
+		printk( KERN_INFO "CODEC: bfrms : %d\n", codec->bframes );
+		printk( KERN_INFO "CODEC: br_mod: %d\n", codec->bitrate_mode );
+		printk( KERN_INFO "CODEC: btrate: %d\n", codec->bitrate );
+		printk( KERN_INFO "CODEC: btr_pk: %d\n", codec->bitrate_peak );
+		printk( KERN_INFO "CODEC: dnr_md: %d\n", codec->dnr_mode );
+		printk( KERN_INFO "CODEC: dnr_sp: %d\n", codec->dnr_spatial );
+		printk( KERN_INFO "CODEC: dnr_tp: %d\n", codec->dnr_temporal );
+		printk( KERN_INFO "CODEC: dnr_ty: %d\n", codec->dnr_type );
+		printk( KERN_INFO "CODEC: framer: %d\n", codec->framerate );
+		printk( KERN_INFO "CODEC: grmgop: %d\n", codec->framespergop );
+		printk( KERN_INFO "CODEC: gop_cl: %d\n", codec->gop_closure );
+		printk( KERN_INFO "CODEC: pulldn: %d\n", codec->pulldown );
+		printk( KERN_INFO "CODEC: strtyp: %d\n\n", codec->stream_type );
 
 		codec->aspect = 2; /* 4:3 */
 		codec->audio_bitmask = (2 << 2) | (14 << 4); /* layer II | 384kbps */
@@ -1238,14 +1264,66 @@ static int mpeg_do_ioctl(struct inode *inode, struct file *file,
 		codec->gop_closure = 0; /* open */
 		codec->pulldown = 0; /* enabled */
 		codec->stream_type = 0; /* program stream */
+		printk( KERN_INFO "CODEC: aspect: %d\n", codec->aspect );
+		printk( KERN_INFO "CODEC: audio : %d\n", codec->audio_bitmask );
+		printk( KERN_INFO "CODEC: bfrms : %d\n", codec->bframes );
+		printk( KERN_INFO "CODEC: br_mod: %d\n", codec->bitrate_mode );
+		printk( KERN_INFO "CODEC: btrate: %d\n", codec->bitrate );
+		printk( KERN_INFO "CODEC: btr_pk: %d\n", codec->bitrate_peak );
+		printk( KERN_INFO "CODEC: dnr_md: %d\n", codec->dnr_mode );
+		printk( KERN_INFO "CODEC: dnr_sp: %d\n", codec->dnr_spatial );
+		printk( KERN_INFO "CODEC: dnr_tp: %d\n", codec->dnr_temporal );
+		printk( KERN_INFO "CODEC: dnr_ty: %d\n", codec->dnr_type );
+		printk( KERN_INFO "CODEC: framer: %d\n", codec->framerate );
+		printk( KERN_INFO "CODEC: grmgop: %d\n", codec->framespergop );
+		printk( KERN_INFO "CODEC: gop_cl: %d\n", codec->gop_closure );
+		printk( KERN_INFO "CODEC: pulldn: %d\n", codec->pulldown );
+		printk( KERN_INFO "CODEC: strtyp: %d\n", codec->stream_type );
+		return 0;
+	}
+	case IVTV_IOC_S_VBI_MODE:
+	{
+		struct ivtv_sliced_vbi_format *fmt = arg;
+		printk( KERN_INFO "IVTV_IOC_S_VBI_MODE: ss: %ld, ps: %ld, is: %ld\n",
+				fmt->service_set, fmt->packet_size, fmt->io_size );
+
+#if 0
+		fmt->service_set = 0;  /* one or more of the IVTV_SLICED_ defines */
+    		fmt->packet_size = 0;  /* the size in bytes of the ivtv_sliced_data packet */
+		fmt->io_size = 0;      /* maximum number of bytes passed by one read() call */
+#endif
+		return 0;
+	}
+	case IVTV_IOC_G_VBI_MODE:
+	{
+		struct ivtv_sliced_vbi_format *fmt = arg;
+
+		fmt->service_set = 1;  /* one or more of the IVTV_SLICED_ defines */
+    		fmt->packet_size = 0;  /* the size in bytes of the ivtv_sliced_data packet */
+		fmt->io_size = 0;      /* maximum number of bytes passed by one read() call */
+		return 0;
+	}
+	case IVTV_IOC_S_VBI_EMBED:
+	{
+		int *embed = arg;
+		printk( KERN_INFO "IVTV_IOC_S_VBI_EMBED: %d\n", *embed );
 		return 0;
 	}
 
 	default:
-		printk( KERN_INFO "Unknown IOCTL: 0x%x\n", cmd );
-		return v4l_compat_translate_ioctl(inode,file,cmd,arg,
+	{
+		int err;
+		err = v4l_compat_translate_ioctl(inode,file,cmd,arg,
 						  mpeg_do_ioctl);
+		if( err < 0 )
+		{
+			printk( KERN_INFO "Unknown IOCTL: 0x%x\n", cmd );
+			cx88_print_ioctl(dev->core->name,cmd);
+		}
+		return err;
 		/*return -EINVAL;*/
+	}
+
 	}
 	return 0;
 }
@@ -1257,104 +1335,26 @@ static int mpeg_ioctl(struct inode *inode, struct file *file,
 	{
 		case 0xFFEE7703: cmd = IVTV_IOC_G_CODEC; break;
 		case 0xFFEE7704: cmd = IVTV_IOC_S_CODEC; break;
-#if 0
-		case 0xFFEE7781: cmd = IVTV_IOC_PLAY; break;
-		case 0xFFEE7782: cmd = IVTV_IOC_PAUSE; break;
-		case 0xFFEE7783: cmd = IVTV_IOC_FRAMESYNC; break;
-		case 0xFFEE7784: cmd = IVTV_IOC_GET_TIMING; break;
-		case 0xFFEE7785: cmd = IVTV_IOC_S_SLOW_FAST; break;
-		case 0xFFEE7786: cmd = IVTV_IOC_S_START_DECODE; break;
-		case 0xFFEE7787: cmd = IVTV_IOC_S_STOP_DECODE; break;
-		case 0xFFEE7789: cmd = IVTV_IOC_GET_FB; break;
-#endif
+		case 0xFFEE7781: /*cmd = IVTV_IOC_PLAY; break;*/
+		case 0xFFEE7782: /*cmd = IVTV_IOC_PAUSE; break;*/
+		case 0xFFEE7783: /*cmd = IVTV_IOC_FRAMESYNC; break;*/
+		case 0xFFEE7784: /*cmd = IVTV_IOC_GET_TIMING; break;*/
+		case 0xFFEE7785: /*cmd = IVTV_IOC_S_SLOW_FAST; break;*/
+		case 0xFFEE7786: /*cmd = IVTV_IOC_S_START_DECODE; break;*/
+		case 0xFFEE7787: /*cmd = IVTV_IOC_S_STOP_DECODE; break;*/
+		case 0xFFEE7789: /*cmd = IVTV_IOC_GET_FB; break;*/
+			printk( KERN_INFO "IVTV: 0x%x\n", cmd );
 	}
 
-	if( cmd != IVTV_IOC_G_CODEC && cmd != IVTV_IOC_S_CODEC )
+	int rez;
+	/*printk( KERN_INFO "2_IOCTL: 0x%x\n", cmd );*/
+	rez = video_usercopy(inode, file, cmd, arg, mpeg_do_ioctl);
+	if( rez < 0 )
 	{
-		return video_usercopy(inode, file, cmd, arg, mpeg_do_ioctl);
+		printk( KERN_INFO "_______: 0x%x ---> %d\n", cmd, rez );
+		cx88_print_ioctl( "_______", cmd );
 	}
-	else
-	{
-		int rez;
-		printk( KERN_INFO "2_IOCTL: 0x%x\n", cmd );
-
-#define USERCOPY_INLINE
-#ifndef USERCOPY_INLINE
-		rez = video_usercopy(inode, file, cmd, arg, mpeg_do_ioctl);
-#else
-		{
-			char    sbuf[128];
-			void    *mbuf = NULL;
-			void    *parg = NULL;
-			int err  = -EINVAL;
-
-#if 0
-			cmd = video_fix_command(cmd);
-#endif
-
-			/*  Copy arguments into temp kernel buffer  */
-			switch (_IOC_DIR(cmd))
-			{
-				case _IOC_NONE:
-					parg = NULL;
-					break;
-				case _IOC_READ:
-				case _IOC_WRITE:
-				case (_IOC_WRITE | _IOC_READ):
-					if (_IOC_SIZE(cmd) <= sizeof(sbuf))
-					{
-						parg = sbuf;
-					}
-					else
-					{
-						/* too big to allocate from stack */
-						mbuf = kmalloc(_IOC_SIZE(cmd),GFP_KERNEL);
-						if (NULL == mbuf)
-						{
-							err = -ENOMEM;
-							goto out;
-						}
-						parg = mbuf;
-					}
-
-					err = -EFAULT;
-					if (_IOC_DIR(cmd) & _IOC_WRITE)
-						if (copy_from_user(parg, (void __user *)arg, _IOC_SIZE(cmd)))
-						{
-							printk( KERN_INFO "could not copy from userspace\n" );
-							goto out;
-						}
-					break;
-			}
-
-			/* call driver */
-			printk( KERN_INFO "calling mpeg_do_ioctl\n" );
-			err = mpeg_do_ioctl(inode, file, cmd, parg);
-			if (err == -ENOIOCTLCMD)
-				err = -EINVAL;
-			if (err < 0)
-				goto out;
-
-			/*  Copy results into user buffer  */
-			switch (_IOC_DIR(cmd))
-			{
-				case _IOC_READ:
-				case (_IOC_WRITE | _IOC_READ):
-					if (copy_to_user((void __user *)arg, parg, _IOC_SIZE(cmd)))
-						err = -EFAULT;
-					break;
-			}
-
-			out:
-			if (mbuf)
-				kfree(mbuf);
-			rez = err;
-		}
-#endif
-		if( rez < 0 )
-			printk( KERN_INFO "_______: %d\n", rez );
-		return rez;
-	}
+	return rez;
 }
 
 static int mpeg_open(struct inode *inode, struct file *file)
@@ -1421,10 +1421,15 @@ mpeg_read(struct file *file, char __user *data, size_t count, loff_t *ppos)
 	struct cx8802_fh *fh = file->private_data;
 	ssize_t ret;
 
+	if( count > 51200 )
+		count = 51200;
+
 	ret = videobuf_read_stream(&fh->mpegq, data, count, ppos, 0,
-				    file->f_flags & O_NONBLOCK);
+				    file->f_flags & O_NONBLOCK );
 	if( ret < 0 )
-		printk( KERN_INFO "mpeg_read: %d\n", ret );
+		printk( KERN_INFO "mpeg_read: %d, count: %d, blocking: %d\n", ret, count, file->f_flags & O_NONBLOCK );
+	if( ret != count )
+		printk( KERN_INFO "mpeg_read: %d, count: %d, blocking: %d\n", ret, count, file->f_flags & O_NONBLOCK );
 	return ret;
 }
 
@@ -1536,7 +1541,7 @@ static int __devinit blackbird_probe(struct pci_dev *pci_dev,
 	blackbird_register_video(dev);
 
 	/* initial device configuration: needed ? */
-#if 0
+#if 1
 	down(&dev->lock);
 	init_controls(dev);
 	cx88_set_tvnorm(dev->core,tvnorms);
