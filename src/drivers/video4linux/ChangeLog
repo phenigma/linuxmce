@@ -1,3 +1,9 @@
+2005-03-01 11:22  kraxel
+
+	* tuner-simple.c, tuner.h, tvaudio.c, tveeprom.c:
+
+	- tuner update (for pvr) from Jarod Wilson.
+
 2005-02-24 14:32  kraxel
 
 	* cx88-video.c, video-buf.c:
