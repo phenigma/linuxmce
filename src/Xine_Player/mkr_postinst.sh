@@ -533,7 +533,7 @@ codec.real_codecs_path:/usr/lib/win32
 
 # priority for flacdec decoder
 # numeric, default: 0
-#decoder.flacdec_priority:0
+decoder.flacdec_priority:1
 
 # priority for gsm610 decoder
 # numeric, default: 0
