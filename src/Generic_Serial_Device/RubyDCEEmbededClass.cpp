@@ -23,8 +23,8 @@ namespace DCE {
 RubyDCEEmbededClass::RubyDCEEmbededClass() {
 }
 
-RubyDCEEmbededClass::RubyDCEEmbededClass(int dwPK_Device) 
-	: RubyEmbededClassImpl<RubyDCEEmbededClass>(NULL)
+RubyDCEEmbededClass::RubyDCEEmbededClass(RubyDCECodeSupplier* pcs, int dwPK_Device) 
+	: RubyEmbededClassImpl<RubyDCEEmbededClass>(NULL), pcs_(pcs)
 {
 	char buff[20];
 	sprintf(buff, "Device_%d", dwPK_Device);
@@ -38,14 +38,14 @@ RubyDCEEmbededClass::~RubyDCEEmbededClass()
 }
 
 void 
-RubyDCEEmbededClass::CallCmdHandler(RubyDCECodeSupplier* pcg, Message *pMessage) {
-	if(!pcg->isCmdImplemented(pMessage->m_dwID)) {
+RubyDCEEmbededClass::CallCmdHandler(Message *pMessage) {
+	if(!pcs_->isCmdImplemented(pMessage->m_dwID)) {
 		g_pPlutoLogger->Write(LV_STATUS, "Command %d not supported", pMessage->m_dwID);
 		return;
 	}
 	
 	std::list<int> paramids;
-	pcg->getParamsOrderForCmd(pMessage->m_dwID, paramids);
+	pcs_->getParamsOrderForCmd(pMessage->m_dwID, paramids);
 	
 	std::list<VALUE> params;
 	for(std::list<int>::iterator pmit = paramids.begin(); pmit != paramids.end(); pmit++) {

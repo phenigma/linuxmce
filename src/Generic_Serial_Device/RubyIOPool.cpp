@@ -9,7 +9,8 @@
 // Copyright: See COPYING file that comes with this distribution
 //
 //
-#include "RubySerialIOPool.h"
+#include "RubyIOPool.h"
+#include "RubyIOManager.h"
 
 #include "DCE/Logger.h"
 #include "DCE/Message.h"
@@ -17,6 +18,7 @@
 #include "PlutoUtils/FileUtils.h"
 
 #include "pluto_main/Define_DeviceData.h"
+#include "pluto_main/Define_Command.h"
 #include "pluto_main/Table_DeviceData.h"
 
 #include "RubyEmbeder.h"
@@ -25,27 +27,33 @@
 #include "TestRubyEmbederCodeSupplier.h"
 #include "TestEmbededClass.h"
 
-
 using namespace EMBRUBY;
 using namespace std;
 
 namespace DCE {
 
-RubySerialIOPool::RubySerialIOPool(RubyDCECodeSupplier* pcs, Database_pluto_main* pdb, DeviceData_Impl* pdevdata) 
-	: pdb_(pdb), pdevdata_(pdevdata), pcs_(pcs), pdceconn_(NULL), pembclass_(NULL)
+RubyIOPool::RubyIOPool(IOPool* ppool, bool relpool) 
+	: defstate_(this), ppool_(ppool), relpool_(relpool)
 {
 	setState(&defstate_);
 }
 
-
-RubySerialIOPool::~RubySerialIOPool()
-{
+RubyIOPool::~RubyIOPool() {
+	Cleanup();
+	if(relpool_) {
+		delete ppool_;
+	}
 }
 
 bool 
-RubySerialIOPool::handleStartup() {
+RubyIOPool::Init(RubyDCECodeSupplier* pcs, Database_pluto_main* pdb) {
 	try {
-		pembclass_ = new RubyDCEEmbededClass(pdevdata_->m_dwPK_Device);
+		if(!pdevdata_) {
+			g_pPlutoLogger->Write(LV_WARNING, "Serial IO pool was not initialized with device Data.");
+			return false;
+		}
+		
+		pembclass_ = new RubyDCEEmbededClass(pcs, pdevdata_->m_dwPK_Device);
 		VALUE value = pembclass_->getValue();
 		
 		void* data = DATA_PTR(value);
@@ -61,16 +69,10 @@ RubySerialIOPool::handleStartup() {
 			return false;
 		}
 		
-		RubySerialIOConnectionWrapper conn(getConnection());
-		pWrapper->setConn(conn);
+		pWrapper->setConn(RubySerialIOConnectionWrapper(getConnection()));
+		pWrapper->setDCEConnector(RubyIOManager::getInstance());
 		
-		pWrapper->setDCEConnector(pdceconn_);
-		
-		if(!pdevdata_) {
-			g_pPlutoLogger->Write(LV_WARNING, "Serial IO pool was not initialized with device Data.");
-		} else {
-			PopulateDevice(pdevdata_, pWrapper->getDevice());
-		}
+		PopulateDevice(pdevdata_, pdb, pWrapper->getDevice());
 	} catch(RubyException e) {
 		g_pPlutoLogger->Write(LV_CRITICAL, "Failed instantiating class: %s.", e.getMessage());
 	}
@@ -78,13 +80,19 @@ RubySerialIOPool::handleStartup() {
 }
 
 void 
-RubySerialIOPool::PopulateDevice(DeviceData_Impl* pdevdata, RubyDeviceWrapper& devwrap) {
+RubyIOPool::Cleanup() {
+	g_pPlutoLogger->Write(LV_STATUS, "Serial IO Pool for device %d terminated.", pdevdata_->m_dwPK_Device);
+	delete pembclass_;
+}
+
+void 
+RubyIOPool::PopulateDevice(DeviceData_Impl* pdevdata, Database_pluto_main* pdb, RubyDeviceWrapper& devwrap) {
 	devwrap.setDevId(pdevdata->m_dwPK_Device);
 
 	int numparams = 0;	
 	std::map<int, string>::iterator it = pdevdata->m_mapParameters.begin();
 	while(it != pdevdata->m_mapParameters.end()) {
-		Row_DeviceData *p_Row_DeviceData = pdb_->DeviceData_get()->GetRow((*it).first);
+		Row_DeviceData *p_Row_DeviceData = pdb->DeviceData_get()->GetRow((*it).first);
 		devwrap.setData(FileUtils::ValidCPPName(p_Row_DeviceData->Description_get()).c_str(), (*it).second.c_str());
 		it++; numparams++;
 	}
@@ -94,30 +102,47 @@ RubySerialIOPool::PopulateDevice(DeviceData_Impl* pdevdata, RubyDeviceWrapper& d
     VectDeviceData_Impl& vDeviceData = pdevdata->m_vectDeviceData_Impl_Children;
     for(VectDeviceData_Impl::size_type i = 0; i < vDeviceData.size(); i++) {
 		RubyDeviceWrapper& childdevwrap = childdevices[vDeviceData[i]->m_dwPK_Device];
-		PopulateDevice(vDeviceData[i], childdevwrap);
+		PopulateDevice(vDeviceData[i], pdb, childdevwrap);
     }
 	g_pPlutoLogger->Write(LV_STATUS, "Added %d wrapped child devices to device %d.", vDeviceData.size(), pdevdata->m_dwPK_Device);
 }
 
-void 
-RubySerialIOPool::handleTerminate() {
-	g_pPlutoLogger->Write(LV_STATUS, "Serial IO Pool for device %d terminated.", pdevdata_->m_dwPK_Device);
-	delete pembclass_;
-}
-
-
 int 
-RubySerialIOPool::RouteMessage(Message* pMessage) {
-	if(!pembclass_ || !pcs_) {
+RubyIOPool::RouteMessage(Message* pMessage) {
+	if(!pembclass_) {
 		return -1;
 	}
 	
-	pembclass_->CallCmdHandler(pcs_, pMessage);
+	pembclass_->CallCmdHandler(pMessage);
 	return 0;
 }
 
+bool 
+RubyIOPool::handleIteration() {
+	ppool_->handleIteration();
+	return IOPool::handleIteration();
+}
+
+
 void 
-RubySerialIOPool::Test() {
+RubyIOPool::RubyIOState::handleRead(IOConnection* pconn) {
+	static Message 	
+				datamsg(0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Process_Incoming_Data_CONST, 0);
+	RubyIOPool* psm = reinterpret_cast<RubyIOPool*>(getSM());
+	psm->RouteMessage(&datamsg);
+}
+
+void 
+RubyIOPool::RubyIOState::handleIdle() {
+	static Message 	
+				idlemsg(0, 0, 0, MESSAGETYPE_COMMAND, COMMAND_Process_IDLE_CONST, 0);
+	RubyIOPool* psm = reinterpret_cast<RubyIOPool*>(getSM());
+	psm->RouteMessage(&idlemsg);
+}
+
+/*
+void 
+RubyIOPool::Test() {
 	try {
 		TestEmbededClass* pClass = new TestEmbededClass();
 		VALUE value = pClass->getValue();
@@ -141,5 +166,6 @@ RubySerialIOPool::Test() {
 		g_pPlutoLogger->Write(LV_CRITICAL, e.getMessage());
 	}
 }
+*/
 
 };

@@ -35,11 +35,11 @@ public:
     IOPool(bool usemain = false);
     ~IOPool();
 
-protected:
+public:
 	virtual IOConnection* getConnection() = 0;
 	
 	/*pool handling*/
-protected:
+public:
 	virtual bool handleIteration();
 
 	/*states*/
@@ -47,6 +47,8 @@ protected:
 	class IOPoolState : public LoopState {
 		friend class IOPool;
 	protected:
+		IOPoolState(IOPool* psm) 
+			: LoopState(psm) {};
 		virtual void handleOpen(IOConnection* pconn)
 		{};
 		virtual void handleRead(IOConnection* pconn)

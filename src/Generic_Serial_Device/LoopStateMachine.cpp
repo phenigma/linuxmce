@@ -21,12 +21,9 @@
 
 #include <unistd.h>
 
-#define IDLE_SLEEP_TIME	50
-
 namespace DCE {
 
 LoopStateMachine::LoopStateMachine(bool usemain)
-	: IOThread(usemain)
 {
 }
 
@@ -40,10 +37,20 @@ LoopStateMachine::handleStartup() {
 	return true;
 }
 
+bool 
+LoopStateMachine::handleIteration() {
+	LoopState* pstate = reinterpret_cast<LoopState*>(getState());
+	if(pstate != NULL) {
+		pstate->handleIdle();
+	}
+	return true;
+}
+
 void 
 LoopStateMachine::handleTerminate() {
 }
 
+/*
 void* 
 LoopStateMachine::_Run() {
 	while(!isStopRequested()) {
@@ -57,5 +64,5 @@ LoopStateMachine::_Run() {
 	}	
 	return 0;
 }
-
+*/
 };

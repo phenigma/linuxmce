@@ -19,7 +19,8 @@
  ***************************************************************************/
 #include "IOPool.h"
 
-#define FAIL_SLEEP_TIME	2000
+#define FAIL_SLEEP_TIME				2000
+#define DATA_AVAILABLE_WAIT_TIME	5
 
 namespace DCE {
 
@@ -34,7 +35,7 @@ bool
 IOPool::handleIteration() {
 	IOConnection* pconn = getConnection();
 	if(!pconn) {
-		return false;
+		return LoopStateMachine::handleIteration();
 	}
 	
 	IOPoolState* pstate = reinterpret_cast<IOPoolState*>(getState());
@@ -51,14 +52,14 @@ IOPool::handleIteration() {
 			}
 		}
 		IOConnection* pconn = getConnection();
-		if(pconn && pconn->isDataAvailable(0)) {
+		if(pconn && pconn->isDataAvailable(DATA_AVAILABLE_WAIT_TIME)) {
 			if(pstate != NULL) {
 				pstate->handleRead(pconn);
 				return true;
 			}
 		}
 	}
-	return false;
+	return LoopStateMachine::handleIteration();
 }
 
 };

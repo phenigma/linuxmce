@@ -19,10 +19,12 @@
  ***************************************************************************/
 #include "SerialIOPool.h"
 
+#include "DCE/Logger.h"
+
 namespace DCE {
 
 SerialIOPool::SerialIOPool(bool usemain) 
-	: IOPool(usemain)
+	: IOPool(usemain), defstate_(this)
 {
 	setState(&defstate_);
 }
@@ -44,14 +46,17 @@ SerialIOPool::handleIteration() {
 
 void 
 SerialIOPool::SerialIOState::handleOpen(IOConnection* pconn) {
+    g_pPlutoLogger->Write(LV_STATUS, "Serial connection opened.");
 }
 
 void 
 SerialIOPool::SerialIOState::handleRead(IOConnection* pconn) {
+    g_pPlutoLogger->Write(LV_STATUS, "Ready to read from Serial Port.");
 }
 
 void 
 SerialIOPool::SerialIOState::handleClose(IOConnection* pconn) {
+    g_pPlutoLogger->Write(LV_STATUS, "Serial connection closed.");
 }
 
 };

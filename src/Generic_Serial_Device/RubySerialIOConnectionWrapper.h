@@ -39,6 +39,8 @@ public:
 	bool isDataAvailable(int timeout) {
 		return BufferedIOConnection::isDataAvailable(timeout);
 	}
+
+	bool Reconnect();
 };
 
 };

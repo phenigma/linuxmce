@@ -28,11 +28,14 @@ public:
 	DEFINE_CLASS_NAME("DCE");
 	
 	RubyDCEEmbededClass();
-    RubyDCEEmbededClass(int dwPK_Device);
+    RubyDCEEmbededClass(RubyDCECodeSupplier* pcs, int dwPK_Device);
     ~RubyDCEEmbededClass();
 
 public:
-	void CallCmdHandler(RubyDCECodeSupplier* pcg, Message *pMessage);
+	void CallCmdHandler(Message *pMessage);
+
+private:
+	RubyDCECodeSupplier* pcs_;
 };
 
 };

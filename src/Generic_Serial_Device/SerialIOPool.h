@@ -42,7 +42,10 @@ protected:
 
 protected:
 	class SerialIOState : public IOPoolState {
+		friend class SerialIOPool;
 	protected:
+		SerialIOState(SerialIOPool* psm) 
+			: IOPoolState(psm) {};
 		virtual void handleOpen(IOConnection* pconn);
 		virtual void handleRead(IOConnection* pconn);
 		virtual void handleClose(IOConnection* pconn);

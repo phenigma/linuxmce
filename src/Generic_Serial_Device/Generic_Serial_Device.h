@@ -10,8 +10,6 @@
 
 #include "Serial/GenericIODevice.h"
 
-#include "RubySerialIOManager.h"
-
 class Database_pluto_main;
 
 //<-dceag-decl-b->!
@@ -66,7 +64,6 @@ public:
 */
 
 private:
-		RubySerialIOManager sermanager_;
 		Database_pluto_main *m_pdbPlutoMain;
 	};
 

@@ -82,7 +82,6 @@ TestEmbededClass.h
 /RubyDCEEmbededClass.cpp
 /RubySerialManager.h
 /RubySerialManager.cpp
-RubySerialIOPool.cpp
 RubySerialIOManager.h
 RubySerialIOManager.cpp
 /RubyCommandWrapper.h
@@ -103,3 +102,17 @@ IOEvent.h
 /GenericSerialMessageTranslator.cpp
 /Generic_Serial_Device_MessageProcessor.h
 /Generic_Serial_Device_MessageProcessor.cpp
+/NetworkIOConnection.h
+/NetworkIOConnection.cpp
+/RubyIOPoolManager.h
+/RubyIOPoolManager.cpp
+RubyIOManager.h
+RubyIOManager.cpp
+/RubyNetworkIOPool.h
+/RubyNetworkIOPool.cpp
+RubyIOPool.cpp
+RubyIOPool.h
+/NetworkIOPool.h
+/NetworkIOPool.cpp
+/IOUtils.h
+/IOUtils.cpp

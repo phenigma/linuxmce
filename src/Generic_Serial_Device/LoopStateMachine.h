@@ -30,25 +30,30 @@ namespace DCE {
 /**
 @author Igor Spac,,,
 */
-class LoopStateMachine : public StateMachine, public IOThread {
+class LoopStateMachine : public StateMachine {
 public:
     LoopStateMachine(bool usemain = false);
     virtual ~LoopStateMachine();
 	
 protected:
-	virtual bool handleIteration() = 0;
+	virtual bool handleStartup();
+	virtual bool handleIteration();
+	virtual void handleTerminate();
 	
-	/*thread callback*/
+/*
+	//thread callback
 protected:
 	virtual bool handleStartup();
 	virtual void handleTerminate();
 	virtual void* _Run();
-
+*/
 	/*states*/	
 protected:
 	class LoopState : public State {
 		friend class LoopStateMachine;
 	protected:
+		LoopState(LoopStateMachine* psm) 
+			: State(psm) {};
 		virtual void handleIdle()
 		{};
 	};

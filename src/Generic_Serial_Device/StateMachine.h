@@ -43,8 +43,11 @@ protected:
 		friend class StateMachine;
 		friend class StateImpl;
 	protected:
-		State() : psm_(0) {};
 		State(StateMachine* psm) : psm_(psm) {};
+		
+		StateMachine* getSM() {
+			return psm_;
+		}
 
 	protected:
 		virtual void handleEnter() 
@@ -54,19 +57,7 @@ protected:
 	private:
 		StateMachine* psm_;
 	};
-
-	template <class T = StateMachine>
-	class StateImpl : public State {
-	public:
-		StateImpl(T* psm)
-		: State(psm) {};
-		
-	public:
-		T* getSM() {
-			return (T)psm_;
-		}
-	};
-		
+	
 public:
 	State* state_;
 };

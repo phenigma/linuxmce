@@ -24,8 +24,7 @@ public:
     IOThread(bool usemain = false); // set true to use main thread
     virtual ~IOThread();
 
-	virtual int Run(bool wait = true);
-	void SignalStop();
+	int Run(bool wait = true);
 	void Wait(bool requeststop = false);
 	bool isRunning();
 	
@@ -37,9 +36,9 @@ protected:
 	};
 	
 protected:
-	virtual bool handleStartup() {
-		return true;
-	};
+	virtual bool handleBeforeStartup() { return true; };
+	virtual void handleAfterTerminate() {};
+	virtual bool handleStartup() { return true; };
 	virtual void handleTerminate() {};
 	
 private:

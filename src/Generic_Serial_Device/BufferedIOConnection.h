@@ -61,6 +61,10 @@ protected:
 	int RecvCache(unsigned int size, int timeout);
 	unsigned int CacheSize();
 
+	IOConnection* getConnection() {
+		return pconn_;
+	}
+	
 public:
 	BufferedIOConnection& operator =(const BufferedIOConnection& conn) {
 		pconn_ = conn.pconn_;

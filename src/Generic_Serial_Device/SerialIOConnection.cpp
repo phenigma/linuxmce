@@ -20,6 +20,8 @@
 #include "SerialIOConnection.h"
 #include "DCE/Logger.h"
 
+#include "IOUtils.h"
+
 #define DEFAULT_SERIAL_PORT	"ttyS0"
 
 using namespace DCE;
@@ -48,8 +50,6 @@ SerialIOConnection::Open() {
 		Close();
         return false;
     }
-
-    g_pPlutoLogger->Write(LV_STATUS, "Connection opened.");
 	return true;
 }
 
@@ -65,7 +65,7 @@ int
 SerialIOConnection::Send(const char* buff, unsigned int size) {
 	if(psp_ != NULL) {
 		g_pPlutoLogger->Write(LV_STATUS, "Sending buffer to %s with size %d: <%s>.", 
-									serport_.c_str(), size, FormatHexBuffer(buff, size).c_str());
+									serport_.c_str(), size, IOUtils::FormatHexBuffer(buff, size).c_str());
 		psp_->Write((char*)buff, size);
 		g_pPlutoLogger->Write(LV_STATUS, "Buffer sent.");
 		return size;
@@ -82,7 +82,7 @@ SerialIOConnection::Recv(char* buff, unsigned int size, int timeout) {
 									serport_.c_str(), size, timeout);
 		int retsize = psp_->Read(buff, size, timeout);
 		g_pPlutoLogger->Write(LV_STATUS, "Received buffer from %s: <%s>", 
-									serport_.c_str(), FormatHexBuffer(buff, retsize).c_str());
+									serport_.c_str(), IOUtils::FormatHexBuffer(buff, retsize).c_str());
 		return retsize;
 	} else {
 		g_pPlutoLogger->Write(LV_WARNING, "Trying to receive DATA while not connected.");
@@ -108,22 +108,6 @@ SerialIOConnection::isDataAvailable(int timeout) {
 		return (!(psp_->IsReadEmpty()));
 	}
 	return false;
-}
-
-std::string 
-SerialIOConnection::FormatHexBuffer(const char* buff, unsigned int size) {
-	std::string logstr;
-	if(size <= 0) {
-		logstr = "EMPTY BUFFER";
-	} else {
-		char hxbuff[5];
-		for(unsigned int i = 0; i < size; i++) {
-			sprintf(hxbuff, "0x%0hhx", buff[i]);
-			logstr += ((i > 0) ? " " : "");
-			logstr += hxbuff;
-		}
-	}
-	return logstr;
 }
 
 };

@@ -31,16 +31,17 @@ IOThread::isRunning() {
 int 
 IOThread::Run(bool wait) {
 	int ret = 0;
+	if(!handleBeforeStartup()) {
+		return -1;
+	}
+	
 	if(!usemain_) {
 		ret = pthread_create(&threadid_, NULL, _threadproc, (void*)this);
 	} else {
 		_threadproc(this);
 	}
 	
-	if(ret == 0) {
-//		DCE::g_pPlutoLogger->Write(LV_STATUS, "IOThread %d created", threadid);
-	} else {
-//		DCE::g_pPlutoLogger->Write(LV_CRITICAL, "Error creating thread");
+	if(ret != 0) {
 		threadid_ = 0;
 	}
 	
@@ -56,17 +57,12 @@ IOThread::Wait(bool requeststop) {
 		return;
 	}
 	if(threadid_ != 0) {
-		if(requeststop) {
-			SignalStop();
-		}
+		requeststop_ = requeststop;
 		pthread_join(threadid_, 0);
 		threadid_ = 0;
 	}
-}
-
-void 
-IOThread::SignalStop() {
-	requeststop_ = true;
+	
+	handleAfterTerminate();
 }
 
 void* 

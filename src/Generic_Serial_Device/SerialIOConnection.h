@@ -71,9 +71,6 @@ public:
 	
 	virtual bool isOpened();
 	virtual bool isDataAvailable(int timeout);
-	
-private:
-	std::string FormatHexBuffer(const char* buff, unsigned int size);
 
 private:
 	CSerialPort* psp_;

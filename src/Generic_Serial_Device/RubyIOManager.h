@@ -12,9 +12,14 @@
 #ifndef DCERUBYSERIALIOMANAGER_H
 #define DCERUBYSERIALIOMANAGER_H
 
+#include <list>
+
+#include "IOThread.h"
+#include "IOMutex.h"
+#include "IOEvent.h"
 #include "RubyDCEConnector.h"
 #include "RubyDCECodeSupplier.h"
-#include "RubySerialIOPool.h"
+#include "RubyIOPool.h"
 
 class Database_pluto_main;
 
@@ -33,11 +38,15 @@ class Event_Impl;
 	manager was added because of limitation of ruby to run only in process context and not in thread context,
 	because of this we will not use each Pool's state machine, intead will use this class to manage comunication between ruby and DCE
 	*/
-class RubySerialIOManager : protected RubyDCEConnector, public IOThread {
-public:
-    RubySerialIOManager();
-    virtual ~RubySerialIOManager();
+class RubyIOManager : protected RubyDCEConnector, public IOThread {
+    RubyIOManager();
+    virtual ~RubyIOManager();
 
+	friend class RubyIOPool;
+	
+public:
+	static RubyIOManager* getInstance();
+	
 public:
 	void setDatabase(Database_pluto_main* pdb) {
 		pdb_ = pdb;
@@ -68,10 +77,19 @@ protected:
 	virtual bool handleStartup();
 	virtual void handleTerminate();
 	virtual void* _Run();
-		
+
+	enum PORTTYPE {
+		PORTTYPE_UNKNOWN = 0,
+		PORTTYPE_SERIAL,
+		PORTTYPE_NETWORK
+	};
+	static PORTTYPE PortType(const std::string& portdesc, std::string& port);
+			
 private:
-	void ProcessIdle();
 	bool DispatchMessageToDevice(Message *pmsg, unsigned deviceid);
+
+private:
+	static RubyIOManager* s_instance_;
 	
 private:
 	RubyDCECodeSupplier cs_;
@@ -83,7 +101,7 @@ private:
 	IOMutex mmsg_;
 	IOEvent emsg_;
 	
-	typedef std::map<std::string, RubySerialIOPool*> POOLMAP;
+	typedef std::map<std::string, RubyIOPool*> POOLMAP;
 	POOLMAP pools_; /*[serial port <--> pool] map*/
 };
 

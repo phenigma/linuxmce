@@ -23,10 +23,11 @@
 }
 
 %typemap(argout) (char* buff, unsigned int size) {
-   if(result < 0) {
-		result = 0;
+   if(result <= 0) {
+		$result = rb_str_new2("");
+   } else {
+	   $result = rb_str_new(arg2, result);	
    }
-   $result = rb_str_new(arg2, result);
 }
 
 %include "std_map.i"

@@ -54,7 +54,7 @@ MessageTimedQueue::PopMessage(Message *pmsg) {
 		
 		if(msg.count_ <= 0) {
 			msgqueue_.erase(it);
-		}
+			}
 		
 		msgpopped = true;
 	}

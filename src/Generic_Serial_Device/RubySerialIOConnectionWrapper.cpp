@@ -23,5 +23,12 @@ RubySerialIOConnectionWrapper::~RubySerialIOConnectionWrapper()
 {
 }
 
+bool 
+RubySerialIOConnectionWrapper::Reconnect() {
+	IOConnection* pconn = getConnection();
+	pconn->Close();
+	return pconn->Open();
+}
+
 
 };

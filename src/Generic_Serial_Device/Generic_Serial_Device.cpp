@@ -15,8 +15,9 @@ using namespace DCE;
 #include "DCE/DCEConfig.h"
 #include "pluto_main/Database_pluto_main.h"
 
-#define GSD_COMMAND_LINE	"Generic_Serial_Device"
+#include "RubyIOManager.h"
 
+#define GSD_COMMAND_LINE	"Generic_Serial_Device"
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -35,8 +36,9 @@ Generic_Serial_Device::Generic_Serial_Device(int DeviceID, string ServerAddress,
 	}
 	g_pPlutoLogger->Write(LV_STATUS, "Successfully connected to database!");
 	
-	sermanager_.setDatabase(m_pdbPlutoMain);
-	sermanager_.setEventDispatcher(GetEvents());
+	RubyIOManager* pmanager = RubyIOManager::getInstance();
+	pmanager->setDatabase(m_pdbPlutoMain);
+	pmanager->setEventDispatcher(GetEvents());
 	
 	Generic_Serial_Device_MessageProcessor::setCommandImpl(this);
 }
@@ -189,9 +191,11 @@ void Generic_Serial_Device::Transmit(const char *pData,int iSize)
 void Generic_Serial_Device::DispatchMessage(Message* pmsg) {
 	g_pPlutoLogger->Write(LV_STATUS, "Dispatching Message %d...", pmsg->m_dwID);
 
+	RubyIOManager* pmanager = RubyIOManager::getInstance();
+	
 	/*find child*/
 	DeviceData_Base *pDeviceData_Base = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pmsg->m_dwPK_Device_To);
-	while(pDeviceData_Base != NULL && !sermanager_.hasDevice(pDeviceData_Base)) {
+	while(pDeviceData_Base != NULL && !pmanager->hasDevice(pDeviceData_Base)) {
 		pDeviceData_Base =
 			m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pDeviceData_Base->m_dwPK_Device_ControlledVia);
 	}
@@ -202,7 +206,7 @@ void Generic_Serial_Device::DispatchMessage(Message* pmsg) {
 	}
 	
     g_pPlutoLogger->Write(LV_STATUS, "Routing message to child device %d.", pDeviceData_Base->m_dwPK_Device);
-	sermanager_.RouteMessageToDevice(pDeviceData_Base, pmsg);
+	pmanager->RouteMessageToDevice(pDeviceData_Base, pmsg);
 }
 
 void Generic_Serial_Device::RunThread() {
@@ -210,21 +214,22 @@ void Generic_Serial_Device::RunThread() {
 		1. method if device has Generic_Serial_Device specified as command line, then we are standalone driver, controlling a single device
 	 	2. if no command line is specfified, we control child devices (performance hit, as we run only in single thread)
 	*/
+	RubyIOManager* pmanager = RubyIOManager::getInstance();
     
 	g_pPlutoLogger->Write(LV_STATUS, "Device %d has commad line %s.", m_dwPK_Device, m_pData->m_sCommandLine.c_str());
 	if(m_pData->m_sCommandLine == GSD_COMMAND_LINE) {
 		/*we are in case 1*/
-		sermanager_.addDevice(m_pData);
+		pmanager->addDevice(m_pData);
 	} else {
 		/*we are in case 2*/
 		VectDeviceData_Impl& vDeviceData = m_pData->m_vectDeviceData_Impl_Children;
 		for(VectDeviceData_Impl::size_type i = 0; i < vDeviceData.size(); i++) {
-			sermanager_.addDevice(vDeviceData[i]);
+			pmanager->addDevice(vDeviceData[i]);
 		}
 	}
 	
-	sermanager_.Run(false);
+	pmanager->Run(false);
 	Generic_Serial_Device_Command::RunThread();
-	sermanager_.Wait(true);
+	pmanager->Wait(true);
     g_pPlutoLogger->Write(LV_STATUS, "Generic Serial Device RunThread ended.");
 }
