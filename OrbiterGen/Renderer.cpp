@@ -737,12 +737,14 @@ void DoRender(string font, string output,int width,int height,bool bAspectRatio,
 	r.RenderObject(NULL,ocDesignObj,PlutoPoint(0,0),-1,bAspectRatio);  // Render everything
 }
 
+
 // Nasty hack -- Ask Radu why the fuck he decided to reinitialize the entire font engine for every word todo
 #ifdef WIN32
 Renderer r("C:/windows/fonts/", "", 800, 600);
 #else
-Renderer r("/usr/pluto/fonts/", "", 800, 600);
+Renderer r("/usr/share/fonts/truetype/msttcorefonts", "", 800, 600);
 #endif
+
 
 // the last (void *) parameter is actually a (RendererImage *)
 // but it's made (void *) to accomodate the WORKAROUND (just do a search for WORKAROUND)

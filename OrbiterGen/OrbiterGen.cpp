@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
 #ifdef WIN32
 	string GraphicsFiles="/pluto/graphics/skins",FontFiles="/windows/fonts",OutputFiles="/pluto";
 #else
-	string GraphicsFiles="/usr/pluto/graphics/skins",FontFiles="/usr/pluto/fonts",OutputFiles="/usr/pluto";
+	string GraphicsFiles="/usr/pluto/skins",FontFiles="/usr/share/fonts/truetype/msttcorefonts",OutputFiles="/usr/pluto";
 #endif
 	int DBPort=3306,PK_Orbiter=0;
 	bool bRegen=false;
