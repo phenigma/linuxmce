@@ -312,7 +312,7 @@ int OrbiterGenerator::DoIt()
 	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_Language_CONST);
 	if( pRow_Device_DeviceData )
 		m_pRow_Language = mds.Language_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
-	else
+	if( !m_pRow_Language )
 		m_pRow_Language = mds.Language_get()->GetRow( 1 ); // English
 
 	if( !m_pRow_Language )
