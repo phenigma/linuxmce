@@ -5384,10 +5384,17 @@ bool Orbiter::BuildCaptureKeyboardParams( string sPK_DesignObj, int iPK_Variable
     }
     else
     {
+g_pPlutoLogger->Write( LV_WARNING,  "CMD_Capture_Keyboard_To_Variable: edit rectangle: %d, %d, %d, %d",
+	m_pCaptureKeyboard_Text->m_rPosition.X, m_pCaptureKeyboard_Text->m_rPosition.Y,
+	m_pCaptureKeyboard_Text->m_rPosition.Width, m_pCaptureKeyboard_Text->m_rPosition.Height
+);
+
         m_sCaptureKeyboard_Text += StringUtils::itos( m_pCaptureKeyboard_Text->m_rPosition.X ) + ", ";
         m_sCaptureKeyboard_Text += StringUtils::itos( m_pCaptureKeyboard_Text->m_rPosition.Y ) + ", ";
         m_sCaptureKeyboard_Text += StringUtils::itos( m_pCaptureKeyboard_Text->m_rPosition.Width ) + ", ";
         m_sCaptureKeyboard_Text += StringUtils::itos( m_pCaptureKeyboard_Text->m_rPosition.Height );
+
+		g_pPlutoLogger->Write( LV_WARNING,  "m_sCaptureKeyboard_Text: %s", m_sCaptureKeyboard_Text.c_str());
     }
 
     return true;
