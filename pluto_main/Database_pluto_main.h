@@ -334,6 +334,7 @@ class Table_Variable* Variable_get() { return tblVariable; }
 class Table_Version* Version_get() { return tblVersion; }
 class Table_VertAlignment* VertAlignment_get() { return tblVertAlignment; }
 bool Connect(string host, string user, string pass, string DBName, int port);
+bool Connect(class DCEConfig *pDCEConfig);
 void Disconnect();
 private:
 void CreateTable_Array();

@@ -2,8 +2,10 @@
 #define __Define_RepositoryType_H__
 
 #define REPOSITORYTYPE_Package_CONST 1
-#define REPOSITORYTYPE_FTPHTTP_download_CONST 2
+#define REPOSITORYTYPE_FTP_download_CONST 2
 #define REPOSITORYTYPE_CVS_CONST 3
+#define REPOSITORYTYPE_Subversion_SVN_CONST 4
+#define REPOSITORYTYPE_HTTP_Download_CONST 5
 
 #define REPOSITORYTYPE_TABLE "RepositoryType"
 #define REPOSITORYTYPE_PK_REPOSITORYTYPE_FIELD "PK_RepositoryType"

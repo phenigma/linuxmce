@@ -82,9 +82,10 @@ class DLL_EXPORT Row_RepositorySource : public TableRow, public SerializeClass
 		long int m_PK_RepositorySource;
 long int m_FK_OperatingSystem;
 long int m_FK_Distro;
+long int m_FK_RepositoryType;
 string m_Description;
 
-		bool is_null[4];
+		bool is_null[5];
 	
 		bool is_deleted;
 		bool is_added;
@@ -94,12 +95,14 @@ string m_Description;
 		long int PK_RepositorySource_get();
 long int FK_OperatingSystem_get();
 long int FK_Distro_get();
+long int FK_RepositoryType_get();
 string Description_get();
 
 		
 		void PK_RepositorySource_set(long int val);
 void FK_OperatingSystem_set(long int val);
 void FK_Distro_set(long int val);
+void FK_RepositoryType_set(long int val);
 void Description_set(string val);
 
 		
@@ -123,6 +126,7 @@ void FK_Distro_setNull(bool val);
 		// Return the rows for foreign keys 
 		class Row_OperatingSystem* FK_OperatingSystem_getrow();
 class Row_Distro* FK_Distro_getrow();
+class Row_RepositoryType* FK_RepositoryType_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
@@ -132,7 +136,7 @@ void RepositorySource_URL_FK_RepositorySource_getrows(vector <class Row_Reposito
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_RepositorySource+ m_FK_OperatingSystem+ m_FK_Distro+ m_Description;
+			StartSerializeList() + m_PK_RepositorySource+ m_FK_OperatingSystem+ m_FK_Distro+ m_FK_RepositoryType+ m_Description;
 		}
 	private:
 		void SetDefaultValues();
@@ -140,6 +144,7 @@ void RepositorySource_URL_FK_RepositorySource_getrows(vector <class Row_Reposito
 		string PK_RepositorySource_asSQL();
 string FK_OperatingSystem_asSQL();
 string FK_Distro_asSQL();
+string FK_RepositoryType_asSQL();
 string Description_asSQL();
 
 	};

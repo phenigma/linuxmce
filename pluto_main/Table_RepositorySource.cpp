@@ -20,6 +20,7 @@ using namespace std;
 #include "Table_RepositorySource.h"
 #include "Table_OperatingSystem.h"
 #include "Table_Distro.h"
+#include "Table_RepositoryType.h"
 
 #include "Table_Package_Source.h"
 #include "Table_RepositorySource_URL.h"
@@ -115,8 +116,10 @@ void Row_RepositorySource::SetDefaultValues()
 is_null[0] = false;
 is_null[1] = true;
 is_null[2] = true;
-m_Description = "";
+m_FK_RepositoryType = 1;
 is_null[3] = false;
+m_Description = "";
+is_null[4] = false;
 
 
 	is_added=false;
@@ -133,6 +136,9 @@ return m_FK_OperatingSystem;}
 long int Row_RepositorySource::FK_Distro_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_Distro;}
+long int Row_RepositorySource::FK_RepositoryType_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FK_RepositoryType;}
 string Row_RepositorySource::Description_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Description;}
@@ -147,9 +153,12 @@ m_FK_OperatingSystem = val; is_modified=true; is_null[1]=false;}
 void Row_RepositorySource::FK_Distro_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_Distro = val; is_modified=true; is_null[2]=false;}
+void Row_RepositorySource::FK_RepositoryType_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_RepositoryType = val; is_modified=true; is_null[3]=false;}
 void Row_RepositorySource::Description_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Description = val; is_modified=true; is_null[3]=false;}
+m_Description = val; is_modified=true; is_null[4]=false;}
 
 		
 bool Row_RepositorySource::FK_OperatingSystem_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -207,11 +216,24 @@ sprintf(buf, "%li", m_FK_Distro);
 return buf;
 }
 
-string Row_RepositorySource::Description_asSQL()
+string Row_RepositorySource::FK_RepositoryType_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[3])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_RepositoryType);
+
+return buf;
+}
+
+string Row_RepositorySource::Description_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[4])
 return "NULL";
 
 char buf[61];
@@ -257,10 +279,10 @@ void Table_RepositorySource::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_RepositorySource_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->Description_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_RepositorySource_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->FK_RepositoryType_asSQL()+", "+pRow->Description_asSQL();
 
 	
-		string query = "insert into RepositorySource (PK_RepositorySource, FK_OperatingSystem, FK_Distro, Description) values ("+
+		string query = "insert into RepositorySource (PK_RepositorySource, FK_OperatingSystem, FK_Distro, FK_RepositoryType, Description) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -309,7 +331,7 @@ condition = condition + "PK_RepositorySource=" + tmp_PK_RepositorySource;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_RepositorySource="+pRow->PK_RepositorySource_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", FK_Distro="+pRow->FK_Distro_asSQL()+", Description="+pRow->Description_asSQL();
+update_values_list = update_values_list + "PK_RepositorySource="+pRow->PK_RepositorySource_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", FK_Distro="+pRow->FK_Distro_asSQL()+", FK_RepositoryType="+pRow->FK_RepositoryType_asSQL()+", Description="+pRow->Description_asSQL();
 
 	
 		string query = "update RepositorySource set " + update_values_list + " where " + condition;
@@ -426,12 +448,23 @@ sscanf(row[2], "%li", &(pRow->m_FK_Distro));
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_Description = "";
+pRow->m_FK_RepositoryType = 0;
 }
 else
 {
 pRow->is_null[3]=false;
-pRow->m_Description = string(row[3],lengths[3]);
+sscanf(row[3], "%li", &(pRow->m_FK_RepositoryType));
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_Description = "";
+}
+else
+{
+pRow->is_null[4]=false;
+pRow->m_Description = string(row[4],lengths[4]);
 }
 
 
@@ -576,12 +609,23 @@ sscanf(row[2], "%li", &(pRow->m_FK_Distro));
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_Description = "";
+pRow->m_FK_RepositoryType = 0;
 }
 else
 {
 pRow->is_null[3]=false;
-pRow->m_Description = string(row[3],lengths[3]);
+sscanf(row[3], "%li", &(pRow->m_FK_RepositoryType));
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_Description = "";
+}
+else
+{
+pRow->is_null[4]=false;
+pRow->m_Description = string(row[4],lengths[4]);
 }
 
 
@@ -605,6 +649,13 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Distro *pTable = table->database->Distro_get();
 return pTable->GetRow(m_FK_Distro);
+}
+class Row_RepositoryType* Row_RepositorySource::FK_RepositoryType_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_RepositoryType *pTable = table->database->RepositoryType_get();
+return pTable->GetRow(m_FK_RepositoryType);
 }
 
 

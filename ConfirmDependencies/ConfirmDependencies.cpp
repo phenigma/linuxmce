@@ -77,7 +77,8 @@ public:
 	}
 };
 
-void CheckPackage(Row_Device *pRow_Device);
+void CheckDevice(Row_Device *pRow_Device,bool bSourceCode);
+void CheckDeviceLoop(Row_Device *pRow_Device,bool bDevelopment);
 void CheckPackage(Row_Package *pRow_Package,bool bDevelopment,Row_Distro *pRow_Distro,bool bMustBuildFromSource);
 PackageInfo *MakePackageInfo(Row_Package_Source_Compat *pRow_Package_Source_Compat,bool bMustBuildFromSource);
 void VerifyFiles(PackageInfo *pPackageInfo,vector<Row_Package_Directory_File *> &vectRow_Package_Directory_File,string Path);
@@ -134,7 +135,7 @@ int main(int argc, char *argv[])
 {
 	g_pPlutoLogger = new FileLogger(stdout);
 
-	bool bError=false,bIncludeDisklessMD=true; // An error parsing the command line
+	bool bError=false,bIncludeDisklessMD=true,bSourceCode=false; // An error parsing the command line
 	int iPK_Device = dceConfig.m_iPK_Device_Computer;
 	char c;
 	for(int optnum=1;optnum<argc;++optnum)
@@ -180,6 +181,9 @@ int main(int argc, char *argv[])
 		case 's':
 			bSummary = true;
 			break;
+		case 'c':
+			bSourceCode = true;
+			break;
 		default:
 			cout << "Unknown: " << argv[optnum] << endl;
 			bError=true;
@@ -222,7 +226,7 @@ int main(int argc, char *argv[])
 
 	pRow_Installation = pRow_Device->FK_Installation_getrow();
 
-	CheckPackage(pRow_Device);
+	CheckDevice(pRow_Device,bSourceCode);
 
 	if( bIncludeDisklessMD )
 	{
@@ -238,7 +242,7 @@ int main(int argc, char *argv[])
 				{
 					Row_Device_DeviceData *pRow_Device_DeviceData = database_pluto_main.Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),DEVICEDATA_Diskless_Boot_CONST);
 					if( pRow_Device_DeviceData && pRow_Device_DeviceData->Value_get()=="1" )
-						CheckPackage(pRow_Device);
+						CheckDevice(pRow_Device,bSourceCode);
 				}
 			}
 		}
@@ -257,7 +261,7 @@ int main(int argc, char *argv[])
 
 //			cout << endl << "-----------------------------------------------------" << endl;
 			cout << endl << "# Package: " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get()
-				<< " Type: " << pPackageInfo->m_pRow_Package_Source->FK_RepositoryType_getrow()->Description_get() << endl;
+				<< " Type: " << pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_getrow()->Description_get() << endl;
 			InstallPackage(pPackageInfo);
 
 			for(size_t s=0;s<pPackageInfo->m_vectPackageInfo.size();++s)
@@ -294,7 +298,7 @@ int main(int argc, char *argv[])
 				<< " \"" << pPackageInfo->m_pRow_Package_Source->Name_get() << "\""
 				<< " \"" << pPackageInfo->m_pRow_RepositorySource_URL->URL_get() << "\""
 				<< " \"" << pPackageInfo->m_pRow_Package_Source->Repository_get() << "\""
-				<< " \"" << pPackageInfo->m_pRow_Package_Source->FK_RepositoryType_get() << "\""
+				<< " \"" << pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get() << "\""
 				<< " \"" << pPackageInfo->m_pRow_Package_Source->Version_get() << "\"" << endl;
 		}
 	}
@@ -334,14 +338,18 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-void CheckPackage(Row_Device *pRow_Device)
+void CheckDevice(Row_Device *pRow_Device,bool bSourceCode)
 {
 	Database_pluto_main *pDatabase_pluto_main = pRow_Device->Table_Device_get()->Database_pluto_main_get();
-	Row_Device_DeviceData *pRow_Device_DeviceData = pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),DEVICEDATA_Development_CONST);
-	bool bDevelopment = pRow_Device_DeviceData && pRow_Device_DeviceData->Value_get()=="1";
+	bool bDevelopment = bSourceCode;
+	if( !bDevelopment )
+	{
+		Row_Device_DeviceData *pRow_Device_DeviceData = pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),DEVICEDATA_Development_CONST);
+		bDevelopment = pRow_Device_DeviceData && pRow_Device_DeviceData->Value_get()=="1";
+	}
 	if( iPK_Distro==-1 )
 	{
-		pRow_Device_DeviceData = pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),DEVICEDATA_PK_Distro_CONST);
+		Row_Device_DeviceData *pRow_Device_DeviceData = pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),DEVICEDATA_PK_Distro_CONST);
 		if( pRow_Device_DeviceData )
 			iPK_Distro = atoi(pRow_Device_DeviceData->Value_get().c_str());
 		else if( dceConfig.m_iPK_Distro )
@@ -352,6 +360,11 @@ void CheckPackage(Row_Device *pRow_Device)
 	if( !pRow_Distro )
 		pRow_Distro = pDatabase_pluto_main->Distro_get()->GetRow(1);
 
+	CheckDeviceLoop(pRow_Device,bDevelopment);
+}
+
+void CheckDeviceLoop(Row_Device *pRow_Device,bool bDevelopment)
+{
 	if( pRow_Device->FK_DeviceTemplate_getrow()->FK_Package_isNull() )
 		cout << "No package info for device: " << pRow_Device->Description_get() << " (" << pRow_Device->FK_DeviceTemplate_getrow()->Description_get() << ")" << endl;
 	else
@@ -360,11 +373,15 @@ void CheckPackage(Row_Device *pRow_Device)
 	vector<Row_Device *> vectRow_Device;
 	pRow_Device->Device_FK_Device_ControlledVia_getrows(&vectRow_Device);
 	for(size_t s=0;s<vectRow_Device.size();++s)
-		CheckPackage( vectRow_Device[s] );
+		CheckDeviceLoop( vectRow_Device[s],bDevelopment );
 }
 
 void CheckPackage(Row_Package *pRow_Package,bool bDevelopment,Row_Distro *pRow_Distro,bool bMustBuildFromSource)
 {
+if( pRow_Package->PK_Package_get()==136 || pRow_Package->PK_Package_get()==156 || pRow_Package->PK_Package_get()==117)
+{
+	int k=2;
+}
 	Database_pluto_main *pDatabase_pluto_main = pRow_Distro->Table_Distro_get()->Database_pluto_main_get();
 
 	// Start with the dependencies first, since we want the lowest dependency, and then the top one
@@ -380,7 +397,12 @@ void CheckPackage(Row_Package *pRow_Package,bool bDevelopment,Row_Distro *pRow_D
 
 		// Development = false because we only assume the first level of packages are intended to be built
 		// from source
-		CheckPackage(pRow_Package_Package->FK_Package_DependsOn_getrow(),false,pRow_Distro,false);
+		CheckPackage(pRow_Package_Package->FK_Package_DependsOn_getrow(),bDevelopment,pRow_Distro,false);
+	}
+
+	if( bDevelopment && !pRow_Package->FK_Package_Sourcecode_isNull() )
+	{
+		CheckPackage(pRow_Package->FK_Package_Sourcecode_getrow(),bDevelopment,pRow_Distro,false);
 	}
 
 	// If the command is not 'view' or 'status', we don't need to list each package over and over again within
@@ -460,10 +482,10 @@ void CheckPackage(Row_Package *pRow_Package,bool bDevelopment,Row_Distro *pRow_D
 		{
 			// We couldn't find any binary match.  We're going to have to use a package to build from source
 			// Confirm we have source code 
-			if( !pRow_Package->FK_Package_Source_isNull() )
+			if( !pRow_Package->FK_Package_Sourcecode_isNull() )
 			{
 				// We can only build this package from source.  The binaries are not available
-				CheckPackage(pRow_Package->FK_Package_Source_getrow()->FK_Package_getrow(),bDevelopment,pRow_Distro,true);
+				CheckPackage(pRow_Package->FK_Package_Sourcecode_getrow(),bDevelopment,pRow_Distro,true);
 				return;
 			}
 			else 
@@ -477,6 +499,8 @@ void CheckPackage(Row_Package *pRow_Package,bool bDevelopment,Row_Distro *pRow_D
 
 	// Get the info for the primary match
 	PackageInfo *pPackageInfo = MakePackageInfo(pRow_Package_Source_Compat_Match,bMustBuildFromSource);
+	if( !pPackageInfo  )
+		return;
 	listPackageInfo.push_back( pPackageInfo );
 
 	// See if we cand find some alternates if the primary fails
@@ -487,7 +511,8 @@ void CheckPackage(Row_Package *pRow_Package,bool bDevelopment,Row_Distro *pRow_D
 		{
 			// This isn't our primary, add this to the list of alternates
 			PackageInfo *pPackageInfo = MakePackageInfo(pRow_Package_Source_Compat,bMustBuildFromSource);
-			pPackageInfo->m_vectPackageInfo.push_back( pPackageInfo );
+			if( pPackageInfo  )
+				pPackageInfo->m_vectPackageInfo.push_back( pPackageInfo );
 		}
 	}
 }
@@ -538,6 +563,12 @@ PackageInfo *MakePackageInfo(Row_Package_Source_Compat *pRow_Package_Source_Comp
 		}
 //	}
 
+	if( !pRow_RepositorySource_URL )
+	{
+		cout << "**ERROR** Cannot find a URL for Repository Source: " << pRow_RepositorySource->Description_get() << endl;
+		return NULL;
+	}
+
 	PackageInfo *pPackageInfo = new PackageInfo(pRow_Package_Source_Compat,pRow_Package_Source,pRow_RepositorySource_URL,bMustBuildFromSource);
 
 	Row_Package_Directory *pRow_Package_Directory;
@@ -579,7 +610,7 @@ PackageInfo *MakePackageInfo(Row_Package_Source_Compat *pRow_Package_Source_Comp
 
 	if( sCommand=="view" || sCommand=="status" )
 	{
-		cout << "\tFrom: " << pRow_RepositorySource->Description_get() << "(" << pRow_Package_Source->FK_RepositoryType_getrow()->Description_get() << "\tVersion: " << pRow_Package_Source->Version_get() << endl;
+		cout << "\tFrom: " << pRow_RepositorySource->Description_get() << "(" << pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_getrow()->Description_get() << "\tVersion: " << pRow_Package_Source->Version_get() << endl;
 		cout << "\tRepository: " <<  pRow_Package_Source->Repository_get();
 		if( pRow_RepositorySource_URL )
 			cout << "\tAt: " << pRow_RepositorySource_URL->URL_get() << endl;
@@ -621,7 +652,7 @@ void InstallPackage(PackageInfo *pPackageInfo)
 		<< " \"" << pPackageInfo->m_pRow_Package_Source->Name_get() << "\""
 		<< " \"" << pPackageInfo->m_pRow_RepositorySource_URL->URL_get() << "\""
 		<< " \"" << pPackageInfo->m_pRow_Package_Source->Repository_get() << "\""
-		<< " \"" << pPackageInfo->m_pRow_Package_Source->FK_RepositoryType_get() << "\""
+		<< " \"" << pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get() << "\""
 		<< " \"" << pPackageInfo->m_pRow_Package_Source->Version_get() << "\"" 
 		<< " \"" << pPackageInfo->m_sBinaryExecutiblesPathPath << "\"" 
 		<< " \"" << pPackageInfo->m_sSourceIncludesPath << "\"" 

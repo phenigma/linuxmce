@@ -117,6 +117,9 @@ is_null[1] = false;
 m_URL = "";
 is_null[2] = false;
 is_null[3] = true;
+is_null[4] = true;
+m_Password = "";
+is_null[5] = false;
 
 
 	is_added=false;
@@ -136,6 +139,12 @@ return m_URL;}
 long int Row_RepositorySource_URL::FK_Country_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_Country;}
+string Row_RepositorySource_URL::Username_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Username;}
+string Row_RepositorySource_URL::Password_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Password;}
 
 		
 void Row_RepositorySource_URL::PK_RepositorySource_URL_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -150,16 +159,28 @@ m_URL = val; is_modified=true; is_null[2]=false;}
 void Row_RepositorySource_URL::FK_Country_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_Country = val; is_modified=true; is_null[3]=false;}
+void Row_RepositorySource_URL::Username_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Username = val; is_modified=true; is_null[4]=false;}
+void Row_RepositorySource_URL::Password_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Password = val; is_modified=true; is_null[5]=false;}
 
 		
 bool Row_RepositorySource_URL::FK_Country_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[3];}
+bool Row_RepositorySource_URL::Username_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[4];}
 
 			
 void Row_RepositorySource_URL::FK_Country_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[3]=val;}
+void Row_RepositorySource_URL::Username_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[4]=val;}
 	
 
 string Row_RepositorySource_URL::PK_RepositorySource_URL_asSQL()
@@ -213,6 +234,30 @@ sprintf(buf, "%li", m_FK_Country);
 return buf;
 }
 
+string Row_RepositorySource_URL::Username_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[4])
+return "NULL";
+
+char buf[61];
+mysql_real_escape_string(table->database->db_handle, buf, m_Username.c_str(), (unsigned long) m_Username.size());
+return string()+"\""+buf+"\"";
+}
+
+string Row_RepositorySource_URL::Password_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[5])
+return "NULL";
+
+char buf[61];
+mysql_real_escape_string(table->database->db_handle, buf, m_Password.c_str(), (unsigned long) m_Password.size());
+return string()+"\""+buf+"\"";
+}
+
 
 
 
@@ -251,10 +296,10 @@ void Table_RepositorySource_URL::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_RepositorySource_URL_asSQL()+", "+pRow->FK_RepositorySource_asSQL()+", "+pRow->URL_asSQL()+", "+pRow->FK_Country_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_RepositorySource_URL_asSQL()+", "+pRow->FK_RepositorySource_asSQL()+", "+pRow->URL_asSQL()+", "+pRow->FK_Country_asSQL()+", "+pRow->Username_asSQL()+", "+pRow->Password_asSQL();
 
 	
-		string query = "insert into RepositorySource_URL (PK_RepositorySource_URL, FK_RepositorySource, URL, FK_Country) values ("+
+		string query = "insert into RepositorySource_URL (PK_RepositorySource_URL, FK_RepositorySource, URL, FK_Country, Username, Password) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -303,7 +348,7 @@ condition = condition + "PK_RepositorySource_URL=" + tmp_PK_RepositorySource_URL
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_RepositorySource_URL="+pRow->PK_RepositorySource_URL_asSQL()+", FK_RepositorySource="+pRow->FK_RepositorySource_asSQL()+", URL="+pRow->URL_asSQL()+", FK_Country="+pRow->FK_Country_asSQL();
+update_values_list = update_values_list + "PK_RepositorySource_URL="+pRow->PK_RepositorySource_URL_asSQL()+", FK_RepositorySource="+pRow->FK_RepositorySource_asSQL()+", URL="+pRow->URL_asSQL()+", FK_Country="+pRow->FK_Country_asSQL()+", Username="+pRow->Username_asSQL()+", Password="+pRow->Password_asSQL();
 
 	
 		string query = "update RepositorySource_URL set " + update_values_list + " where " + condition;
@@ -426,6 +471,28 @@ else
 {
 pRow->is_null[3]=false;
 sscanf(row[3], "%li", &(pRow->m_FK_Country));
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_Username = "";
+}
+else
+{
+pRow->is_null[4]=false;
+pRow->m_Username = string(row[4],lengths[4]);
+}
+
+if (row[5] == NULL)
+{
+pRow->is_null[5]=true;
+pRow->m_Password = "";
+}
+else
+{
+pRow->is_null[5]=false;
+pRow->m_Password = string(row[5],lengths[5]);
 }
 
 
@@ -576,6 +643,28 @@ else
 {
 pRow->is_null[3]=false;
 sscanf(row[3], "%li", &(pRow->m_FK_Country));
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_Username = "";
+}
+else
+{
+pRow->is_null[4]=false;
+pRow->m_Username = string(row[4],lengths[4]);
+}
+
+if (row[5] == NULL)
+{
+pRow->is_null[5]=true;
+pRow->m_Password = "";
+}
+else
+{
+pRow->is_null[5]=false;
+pRow->m_Password = string(row[5],lengths[5]);
 }
 
 

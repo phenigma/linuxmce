@@ -119,7 +119,7 @@ void Define_set(string val);
 		
 
 		// Return the rows in other tables with foreign keys pointing here
-		void Package_Source_FK_RepositoryType_getrows(vector <class Row_Package_Source*> *rows);
+		void RepositorySource_FK_RepositoryType_getrows(vector <class Row_RepositorySource*> *rows);
 
 
 		// Setup binary serialization

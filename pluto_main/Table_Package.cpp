@@ -18,9 +18,10 @@
 using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_Package.h"
-#include "Table_Package_Source.h"
+#include "Table_Package.h"
 
 #include "Table_DeviceTemplate.h"
+#include "Table_Package.h"
 #include "Table_Package_Directory.h"
 #include "Table_Package_Package.h"
 #include "Table_Package_Package.h"
@@ -140,9 +141,9 @@ return m_PK_Package;}
 string Row_Package::Description_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Description;}
-long int Row_Package::FK_Package_Source_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Package::FK_Package_Sourcecode_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_FK_Package_Source;}
+return m_FK_Package_Sourcecode;}
 short int Row_Package::IsSource_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_IsSource;}
@@ -169,9 +170,9 @@ m_PK_Package = val; is_modified=true; is_null[0]=false;}
 void Row_Package::Description_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Description = val; is_modified=true; is_null[1]=false;}
-void Row_Package::FK_Package_Source_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package::FK_Package_Sourcecode_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_FK_Package_Source = val; is_modified=true; is_null[2]=false;}
+m_FK_Package_Sourcecode = val; is_modified=true; is_null[2]=false;}
 void Row_Package::IsSource_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_IsSource = val; is_modified=true; is_null[3]=false;}
@@ -192,7 +193,7 @@ void Row_Package::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 m_psc_mod = val; is_modified=true; is_null[8]=false;}
 
 		
-bool Row_Package::FK_Package_Source_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package::FK_Package_Sourcecode_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[2];}
 bool Row_Package::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -209,7 +210,7 @@ bool Row_Package::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 return is_null[7];}
 
 			
-void Row_Package::FK_Package_Source_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package::FK_Package_Sourcecode_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[2]=val;}
 void Row_Package::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -251,7 +252,7 @@ mysql_real_escape_string(table->database->db_handle, buf, m_Description.c_str(),
 return string()+"\""+buf+"\"";
 }
 
-string Row_Package::FK_Package_Source_asSQL()
+string Row_Package::FK_Package_Sourcecode_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -259,7 +260,7 @@ if (is_null[2])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_FK_Package_Source);
+sprintf(buf, "%li", m_FK_Package_Sourcecode);
 
 return buf;
 }
@@ -379,10 +380,10 @@ void Table_Package::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_Package_Source_asSQL()+", "+pRow->IsSource_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_Package_Sourcecode_asSQL()+", "+pRow->IsSource_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into Package (PK_Package, Description, FK_Package_Source, IsSource, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into Package (PK_Package, Description, FK_Package_Sourcecode, IsSource, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -431,7 +432,7 @@ condition = condition + "PK_Package=" + tmp_PK_Package;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Package="+pRow->PK_Package_asSQL()+", Description="+pRow->Description_asSQL()+", FK_Package_Source="+pRow->FK_Package_Source_asSQL()+", IsSource="+pRow->IsSource_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_Package="+pRow->PK_Package_asSQL()+", Description="+pRow->Description_asSQL()+", FK_Package_Sourcecode="+pRow->FK_Package_Sourcecode_asSQL()+", IsSource="+pRow->IsSource_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update Package set " + update_values_list + " where " + condition;
@@ -537,12 +538,12 @@ pRow->m_Description = string(row[1],lengths[1]);
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_FK_Package_Source = 0;
+pRow->m_FK_Package_Sourcecode = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-sscanf(row[2], "%li", &(pRow->m_FK_Package_Source));
+sscanf(row[2], "%li", &(pRow->m_FK_Package_Sourcecode));
 }
 
 if (row[3] == NULL)
@@ -742,12 +743,12 @@ pRow->m_Description = string(row[1],lengths[1]);
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_FK_Package_Source = 0;
+pRow->m_FK_Package_Sourcecode = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-sscanf(row[2], "%li", &(pRow->m_FK_Package_Source));
+sscanf(row[2], "%li", &(pRow->m_FK_Package_Sourcecode));
 }
 
 if (row[3] == NULL)
@@ -824,12 +825,12 @@ pRow->m_psc_mod = string(row[8],lengths[8]);
 }
 
 
-class Row_Package_Source* Row_Package::FK_Package_Source_getrow()
+class Row_Package* Row_Package::FK_Package_Sourcecode_getrow()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-class Table_Package_Source *pTable = table->database->Package_Source_get();
-return pTable->GetRow(m_FK_Package_Source);
+class Table_Package *pTable = table->database->Package_get();
+return pTable->GetRow(m_FK_Package_Sourcecode);
 }
 
 
@@ -839,6 +840,13 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate *pTable = table->database->DeviceTemplate_get();
 pTable->GetRows("FK_Package=" + StringUtils::itos(m_PK_Package),rows);
+}
+void Row_Package::Package_FK_Package_Sourcecode_getrows(vector <class Row_Package*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Package *pTable = table->database->Package_get();
+pTable->GetRows("FK_Package_Sourcecode=" + StringUtils::itos(m_PK_Package),rows);
 }
 void Row_Package::Package_Directory_FK_Package_getrows(vector <class Row_Package_Directory*> *rows)
 {

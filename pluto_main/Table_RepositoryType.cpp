@@ -19,7 +19,7 @@ using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_RepositoryType.h"
 
-#include "Table_Package_Source.h"
+#include "Table_RepositorySource.h"
 
 
 void Database_pluto_main::CreateTable_RepositoryType()
@@ -542,11 +542,11 @@ pRow->m_Define = string(row[2],lengths[2]);
 
 
 
-void Row_RepositoryType::Package_Source_FK_RepositoryType_getrows(vector <class Row_Package_Source*> *rows)
+void Row_RepositoryType::RepositorySource_FK_RepositoryType_getrows(vector <class Row_RepositorySource*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-class Table_Package_Source *pTable = table->database->Package_Source_get();
+class Table_RepositorySource *pTable = table->database->RepositorySource_get();
 pTable->GetRows("FK_RepositoryType=" + StringUtils::itos(m_PK_RepositoryType),rows);
 }
 

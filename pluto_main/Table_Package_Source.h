@@ -83,12 +83,11 @@ class DLL_EXPORT Row_Package_Source : public TableRow, public SerializeClass
 long int m_FK_Package;
 string m_Name;
 long int m_FK_RepositorySource;
-long int m_FK_RepositoryType;
 string m_Repository;
 string m_Version;
 string m_Parms;
 
-		bool is_null[8];
+		bool is_null[7];
 	
 		bool is_deleted;
 		bool is_added;
@@ -99,7 +98,6 @@ string m_Parms;
 long int FK_Package_get();
 string Name_get();
 long int FK_RepositorySource_get();
-long int FK_RepositoryType_get();
 string Repository_get();
 string Version_get();
 string Parms_get();
@@ -109,21 +107,18 @@ string Parms_get();
 void FK_Package_set(long int val);
 void Name_set(string val);
 void FK_RepositorySource_set(long int val);
-void FK_RepositoryType_set(long int val);
 void Repository_set(string val);
 void Version_set(string val);
 void Parms_set(string val);
 
 		
 		bool Name_isNull();
-bool FK_RepositoryType_isNull();
 bool Repository_isNull();
 bool Version_isNull();
 bool Parms_isNull();
 
 			
 		void Name_setNull(bool val);
-void FK_RepositoryType_setNull(bool val);
 void Repository_setNull(bool val);
 void Version_setNull(bool val);
 void Parms_setNull(bool val);
@@ -141,17 +136,15 @@ void Parms_setNull(bool val);
 		// Return the rows for foreign keys 
 		class Row_Package* FK_Package_getrow();
 class Row_RepositorySource* FK_RepositorySource_getrow();
-class Row_RepositoryType* FK_RepositoryType_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
-		void Package_FK_Package_Source_getrows(vector <class Row_Package*> *rows);
-void Package_Source_Compat_FK_Package_Source_getrows(vector <class Row_Package_Source_Compat*> *rows);
+		void Package_Source_Compat_FK_Package_Source_getrows(vector <class Row_Package_Source_Compat*> *rows);
 
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_Package_Source+ m_FK_Package+ m_Name+ m_FK_RepositorySource+ m_FK_RepositoryType+ m_Repository+ m_Version+ m_Parms;
+			StartSerializeList() + m_PK_Package_Source+ m_FK_Package+ m_Name+ m_FK_RepositorySource+ m_Repository+ m_Version+ m_Parms;
 		}
 	private:
 		void SetDefaultValues();
@@ -160,7 +153,6 @@ void Package_Source_Compat_FK_Package_Source_getrows(vector <class Row_Package_S
 string FK_Package_asSQL();
 string Name_asSQL();
 string FK_RepositorySource_asSQL();
-string FK_RepositoryType_asSQL();
 string Repository_asSQL();
 string Version_asSQL();
 string Parms_asSQL();

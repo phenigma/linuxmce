@@ -83,8 +83,10 @@ class DLL_EXPORT Row_RepositorySource_URL : public TableRow, public SerializeCla
 long int m_FK_RepositorySource;
 string m_URL;
 long int m_FK_Country;
+string m_Username;
+string m_Password;
 
-		bool is_null[4];
+		bool is_null[6];
 	
 		bool is_deleted;
 		bool is_added;
@@ -95,18 +97,24 @@ long int m_FK_Country;
 long int FK_RepositorySource_get();
 string URL_get();
 long int FK_Country_get();
+string Username_get();
+string Password_get();
 
 		
 		void PK_RepositorySource_URL_set(long int val);
 void FK_RepositorySource_set(long int val);
 void URL_set(string val);
 void FK_Country_set(long int val);
+void Username_set(string val);
+void Password_set(string val);
 
 		
 		bool FK_Country_isNull();
+bool Username_isNull();
 
 			
 		void FK_Country_setNull(bool val);
+void Username_setNull(bool val);
 	
 	
 		void Delete();
@@ -129,7 +137,7 @@ class Row_Country* FK_Country_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_RepositorySource_URL+ m_FK_RepositorySource+ m_URL+ m_FK_Country;
+			StartSerializeList() + m_PK_RepositorySource_URL+ m_FK_RepositorySource+ m_URL+ m_FK_Country+ m_Username+ m_Password;
 		}
 	private:
 		void SetDefaultValues();
@@ -138,6 +146,8 @@ class Row_Country* FK_Country_getrow();
 string FK_RepositorySource_asSQL();
 string URL_asSQL();
 string FK_Country_asSQL();
+string Username_asSQL();
+string Password_asSQL();
 
 	};
 
