@@ -243,7 +243,6 @@ bool Command_Impl::SpawnChildDevice( class DeviceData_Impl *pDeviceData_Impl_Chi
 	g_pPlutoLogger->Write( LV_STATUS, "Spawning device: %d %s on display: %s ip: %s", pDeviceData_Impl_Child->m_dwPK_Device, pDeviceData_Impl_Child->m_sCommandLine.c_str(), sDisplay.c_str(), m_sIPAddress.c_str() );
 	system( ("screen -d -m -h 3000 -S " + StringUtils::itos( pDeviceData_Impl_Child->m_dwPK_Device ) + "_" + pDeviceData_Impl_Child->m_sCommandLine +
 			" sh -x " + sPrefix + "Spawn_Device.sh " + StringUtils::itos(pDeviceData_Impl_Child->m_dwPK_Device) + " " + m_sIPAddress + " " + sDisplay + " " + pDeviceData_Impl_Child->m_sCommandLine).c_str() );
-	m_vectSpawnedDevices.push_back( StringUtils::itos( pDeviceData_Impl_Child->m_dwPK_Device ) + "_" + pDeviceData_Impl_Child->m_sCommandLine );
 #else
 	#ifndef WINCE
 		STARTUPINFO si;
@@ -252,9 +251,19 @@ bool Command_Impl::SpawnChildDevice( class DeviceData_Impl *pDeviceData_Impl_Chi
 		si.cb = sizeof(si);
 		ZeroMemory ( &pi, sizeof(pi) );
 		CreateProcess( "C:\\WINDOWS\\system32\\cmd.exe", "/c bogus.bat", NULL, NULL, false, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi);
-		m_vectSpawnedDevices.push_back( StringUtils::itos( pDeviceData_Impl_Child->m_dwPK_Device ) + "_" + pDeviceData_Impl_Child->m_sCommandLine ); // push back the spawned device
 	#endif
 #endif
+
+	string sCommand = StringUtils::itos( pDeviceData_Impl_Child->m_dwPK_Device ) + "_" + pDeviceData_Impl_Child->m_sCommandLine;
+	m_vectSpawnedDevices.push_back( sCommand ); // push back the spawned device
+
+	FILE *file = fopen( ("/var/log/pluto/spawned_devices_" + StringUtils::itos( m_dwPK_Device )).c_str(),"ab" );
+	if( file )
+	{
+		fwrite( (sCommand + "\n").c_str(), sCommand.length(), 1, file );
+		fclose(file);
+	}
+
 	return true;
 }
 
