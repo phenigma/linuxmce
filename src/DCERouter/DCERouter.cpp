@@ -679,6 +679,8 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 	for(int s=-1;s<(int) (*SafetyMessage)->m_vectExtraMessages.size(); ++s)
 	{
 		Message *pMessage = s>=0 ? (*SafetyMessage)->m_vectExtraMessages[s] : (*SafetyMessage);
+		if( !pMessage )
+			continue;
 
 		string Desc="",sCommand="";
 		Command *pCommand=NULL;

@@ -182,9 +182,20 @@ public:
             else
 			{
 				vector<Row_MediaType_DesignObj *> vectRow_MediaType_DesignObj;
-				pRow_DeviceTemplate_MediaType->FK_MediaType_getrow()->MediaType_DesignObj_FK_MediaType_getrows(&vectRow_MediaType_DesignObj);
+				Row_MediaType *pRow_MediaType = pRow_DeviceTemplate_MediaType->FK_MediaType_getrow();
+				if( !pRow_MediaType )
+				{
+					g_pPlutoLogger->Write(LV_CRITICAL,"db problem with media type: %d",pRow_DeviceTemplate_MediaType->FK_MediaType_get());
+					continue;
+				}
+				pRow_MediaType->MediaType_DesignObj_FK_MediaType_getrows(&vectRow_MediaType_DesignObj);
 	            if( vectRow_MediaType_DesignObj.size() )
-		            pMediaHandlerInfo->m_iPK_DesignObj = vectRow_MediaType_DesignObj[0]->FK_DesignObj_get();
+				{
+					Row_MediaType_DesignObj *pRow_MediaType_DesignObj = vectRow_MediaType_DesignObj[0];
+
+g_pPlutoLogger->Write(LV_STATUS,"FOUND %d records for media type %d %p",(int) vectRow_MediaType_DesignObj.size(),pRow_DeviceTemplate_MediaType->FK_MediaType_get(),pRow_MediaType_DesignObj);
+		            pMediaHandlerInfo->m_iPK_DesignObj = pRow_MediaType_DesignObj->FK_DesignObj_get();
+				}
 				else
 	                pMediaHandlerInfo->m_iPK_DesignObj = 0;
 			}
