@@ -93,7 +93,7 @@ bool MythTV_Player::LaunchMythFrontend()
     spawnApplication.m_pMessage->m_bRelativeToSender = true;
     SendCommand(spawnApplication);
 
-    g_pPlutoLogger->Write(LV_STATUS, "Vaca domnului: %d", m_pData->m_dwPK_Device_ControlledVia);
+    g_pPlutoLogger->Write(LV_STATUS, "Controlling device id: %d", m_pData->m_dwPK_Device_ControlledVia);
     sleep(5);
 
     if ( ! m_pRatWrapper )
