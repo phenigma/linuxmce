@@ -1,8 +1,13 @@
 #include "GraphicBuilder.h"
-#include "SDL/SDLGraphic.h"
 #include "RendererMNG.h"
 #include "OrbiterGen/Renderer.h"
 #include "DCE/Logger.h"
+
+#ifdef POCKETFROG
+	#include "PocketFrog/PocketFrogGraphic.h"
+#else
+	#include "SDL/SDLGraphic.h"
+#endif
 //-------------------------------------------------------------------------------------------------------
 bool IsMNG(string sFileName)
 {
@@ -25,6 +30,13 @@ bool IsOCG(string sFileName)
 	return "OCG" == sExtension || "ocg" == sExtension;
 }
 //-------------------------------------------------------------------------------------------------------
+bool IsPFG(string sFileName)
+{
+	string sExtension = FileUtils::FindExtension(sFileName);
+
+	return "PFG" == sExtension || "pfg" == sExtension;
+}
+//-------------------------------------------------------------------------------------------------------
 void CreateVectorGraphic(VectorPlutoGraphic& vectPlutoGraphic, GraphicType Type, string Filename, 
 						 eGraphicManagement GraphicManagement, Orbiter *pOrbiter)
 {
@@ -34,27 +46,25 @@ void CreateVectorGraphic(VectorPlutoGraphic& vectPlutoGraphic, GraphicType Type,
 	//TODO: set the right graphic format, instead of GR_UNKNOWN for non-MNG graphic files
 	eGraphicFormat eGF = GR_UNKNOWN;
 
-	//hack
-	//StringUtils::Replace(Filename, ".png", ".ocg");
-
 	if(IsMNG(Filename))
 		eGF = GR_MNG;
 	else if(IsPNG(Filename))
 		eGF = GR_PNG;
 	else if(IsOCG(Filename))
 		eGF = GR_OCG;
+	//else if(IsPFG(Filename))
+	//	eGF = GR_PFG;
 
-	switch(Type) 
-	{
-		case gtSDLGraphic: 
-		{
-			SDLGraphic *pSDL_Graphic = new SDLGraphic(pOrbiter); //we won't load the graphic yet
-			pSDL_Graphic->m_GraphicFormat = eGF;
-			pSDL_Graphic->m_GraphicManagement = GraphicManagement;
-			pSDL_Graphic->m_Filename = Filename;
-			vectPlutoGraphic.push_back(pSDL_Graphic);
-		}
-		break;
-	}
+
+#ifdef POCKETFROG
+	PocketFrogGraphic *pGraphic = new PocketFrogGraphic(pOrbiter);
+#else	
+	SDLGraphic *pGraphic = new SDLGraphic(pOrbiter); //we won't load the graphic yet
+#endif
+
+	pGraphic->m_GraphicFormat = eGF;
+	pGraphic->m_GraphicManagement = GraphicManagement;
+	pGraphic->m_Filename = Filename;
+	vectPlutoGraphic.push_back(pGraphic);
 }
 //-------------------------------------------------------------------------------------------------------
