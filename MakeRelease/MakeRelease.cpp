@@ -1015,10 +1015,8 @@ cout << "Making CVS Checkout to temporary\n";
 	cmd = " cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/"+
 			pRow_Package_Source->Name_get()+
 			" checkout " + pRow_Package_Source->Name_get();
-//	system(cmd.c_str());
-//	chdir(pRow_Package_Source->Name_get().c_str());
-
-	system("pwd");
+	system(cmd.c_str());
+	chdir(pRow_Package_Source->Name_get().c_str());
 
 	list <string> MyList;
 	list <string>::iterator iMyList;
@@ -1035,8 +1033,7 @@ cout << "Making CVS Checkout to temporary\n";
 /////////////-------------------- We copy the files from the project to the temporary
 	flag = false;
 
-	cout << MyList.size() << endl;
-/*	for (iFileInfo = listFileInfo.begin();iFileInfo != listFileInfo.end(); iFileInfo++)
+	for (iFileInfo = listFileInfo.begin();iFileInfo != listFileInfo.end(); iFileInfo++)
 	{
 		FileInfo *pFileInfo = (*iFileInfo);
 		for (iMyList = MyList.begin();iMyList != MyList.end(); iMyList++)
@@ -1130,7 +1127,7 @@ cout << "Making CVS Checkout to temporary\n";
 				}
 		}
 		flag = false;
-	}*/
+	}
 		return true;
 ///////////////////////////////////////////////////////////
 ////////---------------- Findinf old files and delete them
