@@ -3,6 +3,9 @@
 #nobuild="-b"
 nobuild=""
 
+fastrun=""
+#fastrun="-f -DERROR_LOGGING_ONLY"
+
 BASE_OUT_FOLDER=/home/builds/
 
 BASE_INSTALLATION_CD_FOLDER=/home/installation-cd/
@@ -132,7 +135,7 @@ fi;
 # Creating target folder.
 mkdir -p "$BASE_OUT_FOLDER/$version_name";
 
-if ! MakeRelease $nobuild -a -o 1 -r 2,9,11 -m 1 -s /home/MakeRelease/trunk -n / -R $svninfo -v $version > /home/MakeRelease/MakeRelease1.log ; then
+if ! MakeRelease $fastrun $nobuild -a -o 1 -r 2,9,11 -m 1 -s /home/MakeRelease/trunk -n / -R $svninfo -v $version > /home/MakeRelease/MakeRelease1.log ; then
 	echo "MakeRelease Failed.  Press any key"
 	reportError
 	read
@@ -141,7 +144,7 @@ fi
 
 `dirname $0`/scripts/propagate.sh "$BASE_OUT_FOLDER/$version_name/"
 pushd "$BASE_INSTALLATION_CD_FOLDER"; 
-"$BASE_INSTALLATION_CD_FOLDER/go-netinst.pl" "$BASE_OUT_FOLDER/$version_name" cache;
+#"$BASE_INSTALLATION_CD_FOLDER/go-netinst.pl" "$BASE_OUT_FOLDER/$version_name" cache;
 popd
 pushd "$BASE_INSTALLATION_2_6_10_CD_FOLDER"; 
 "$BASE_INSTALLATION_2_6_10_CD_FOLDER/go-netinst.pl" "$BASE_OUT_FOLDER/$version_name" cache;
@@ -153,7 +156,7 @@ ln -s $BASE_OUT_FOLDER/$version_name $BASE_OUT_FOLDER/current
 
 #mv /home/builds/$version_name/debian-packages.tmp /home/builds/$version_name/debian-packages.list
 
-if ! MakeRelease -a -o 7 -n / -s /home/samba/builds/Windows_Output/ -r 10 -v $version -b -k 116,119,124,126,154,159,193,203,213,226,237,242,255,277,204,118,303,128,162,191,195,280,272,363,364 > /home/MakeRelease/MakeRelease2.log ; then
+if ! MakeRelease -a -o 7 -n / -s /home/samba/builds/Windows_Output/ -r 10 -v $version -b -k 116,119,124,126,154,159,193,203,213,226,237,242,255,277,204,118,303,128,162,191,195,280,272,363,364,341 > /home/MakeRelease/MakeRelease2.log ; then
 	echo "MakeRelease Failed.  Press any key"
 	reportError
 	read
@@ -244,5 +247,12 @@ if [ $version -ne 1 ]; then
 	(echo -e "Change version back to 1\n\n") | mail -s "**change version back to 1**" mihai.t@plutohome.com -c aaron@plutohome.com
 fi
 
+if [ "x$fastrun" = "x" ]; then
+	echo "Normal debug build"
+else
+	(echo -e "Remove fastrun flag\n\n") | mail -s "**remove fastrun flag**" mihai.t@plutohome.com -c aaron@plutohome.com
+fi
+
 read
+
 
