@@ -2,7 +2,8 @@
 
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/FileUtils.h"
-#include "Pluto_Main/Define_Button.h"
+#include "pluto_main/Define_Button.h"
+#include "DCE/Logger.h"
 
 using namespace DCE;
 
@@ -28,7 +29,7 @@ using namespace DCE;
 	#endif
 
 #else //linux stuff
-
+	#include "Linux/OrbiterLinux.h"
 #endif //WIN32
 
 //------------------------------------------------------------------------------------------------------
@@ -36,9 +37,16 @@ Simulator *Simulator::m_pInstance = NULL;
 //-----------------------------------------------------------------------------------------------------
 void *GeneratorThread( void *p)
 {
+	g_pPlutoLogger->Write(LV_WARNING, "Simulator enabled");
+	
 	Simulator *pSimulator = (Simulator *)p;
 
+#ifdef WIN32
 	Sleep(pSimulator->m_dwStartGeneratorThreadDelay);
+#else //LINUX
+	sleep(pSimulator->m_dwStartGeneratorThreadDelay / 1000);
+#endif	
+	
 
 	bool bGenerateMouseClicks = pSimulator->m_bGenerateKeyboardEvents;
 	bool bGenerateKeyboardEvents = pSimulator->m_bGenerateMouseClicks;
@@ -54,8 +62,8 @@ void *GeneratorThread( void *p)
 	string HomeScreen = pSimulator->m_sHomeScreen;
 
 	int x, y, delay;
-	srand( (unsigned)::GetTickCount() );
-	static Count = 0;
+	srand( (unsigned)time(NULL) );
+	static int Count = 0;
 
 #ifdef BLUETOOTH_DONGLE
 	OrbiterSDLBluetooth *pOrbiter = (OrbiterSDLBluetooth *)pSimulator->m_pOrbiter;
@@ -73,6 +81,8 @@ void *GeneratorThread( void *p)
 
 	while(true)
 	{
+		g_pPlutoLogger->Write(LV_STATUS, "Simulator: generating new event");
+		
 		if(pSimulator->m_bStopGeneratorThread)
 			return NULL;
 
@@ -186,7 +196,11 @@ Simulator::~Simulator()
 //------------------------------------------------------------------------------------------------------
 /*static*/ void Simulator::SimulateActionDelay(long delay)
 {
+#ifdef WIN32	
 	Sleep(delay);
+#else //LINUX:
+	sleep(delay / 1000);
+#endif	
 }
 //------------------------------------------------------------------------------------------------------
 void Simulator::LoadConfigurationFile(string sConfigurationFile)

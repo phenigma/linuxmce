@@ -32,6 +32,7 @@
 
 #include "../pluto_main/Define_Button.h"
 #include "../pluto_main/Define_Direction.h"
+#include "../Simulator.h"
 
 void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLocalMode,
 				  int Width, int Height, bool bFullScreen)
@@ -57,6 +58,10 @@ void StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
             pCLinux->CreateChildren();
 
         //pCLinux->Initialize_Display();
+	g_pPlutoLogger->Write(LV_STATUS, "Creating the simulator");
+	Simulator::GetInstance()->m_pOrbiter = pCLinux;
+	Simulator::GetInstance()->LoadConfigurationFile("/etc/Orbiter.conf");
+	 
 
         g_pPlutoLogger->Write(LV_STATUS, "Starting processing events");
         SDL_Event Event;

@@ -23,6 +23,7 @@ XTRALDLIBS = -lDCECommon -lSDL -lSDL_ttf -lSDL_image -lSGE
 
 Gen_Dev_Files +=
 sources +=  DesignObj_Data.cpp DesignObj_Orbiter.cpp \
+			Simulator.cpp \
 			Linux/OrbiterLinux.cpp \
 			RendererMNG.cpp \
 			SDL/OrbiterSDL.cpp SDL/StartOrbiterSDL.cpp \
