@@ -30,7 +30,7 @@ RAServerSocket::~RAServerSocket()
 
 void RAServerSocket::Run()
 {
-	RA_Processor *pRA_Processor = RA_Processor::CreateRA_Processor();
+	RA_Processor *pRA_Processor = RA_Processor::CreateRA_Processor(new DCEConfig());
 	while( pRA_Processor->ReceiveRequests(this) );
 
 	if (!SOCKFAIL(m_Socket))

@@ -28,7 +28,7 @@ bool PhoneDetection_Bluetooth_Windows::ScanningLoop()
 		m_bWaitingForInquiry=false;
 		return true;  // This loop will get called again
 	}
-	g_pPlutoLogger->Write(LV_STATUS,"Inquiry started");
+	g_pPlutoLogger->Write(LV_STATUS,"Inquiry started");	
 	pthread_mutex_lock(&m_InquiryMutex.mutex);
 
 	timespec abstime;
@@ -71,7 +71,7 @@ bool PhoneDetection_Bluetooth_Windows::ScanningLoop()
 	}
 
 	return true;
-}
+} 
 
 void PhoneDetection_Bluetooth_Windows::OnDeviceResponded(BD_ADDR bda,
 										DEV_CLASS dev_class,
@@ -117,3 +117,21 @@ void PhoneDetection_Bluetooth_Windows::OnInquiryComplete(BOOL /*success*/, short
 	pthread_cond_broadcast(&m_InquiryCond);
 }
 
+void PhoneDetection_Bluetooth_Windows::RequestStopScanning() 
+{  
+	PhoneDetectionEngine::RequestStopScanning(); 
+
+	pthread_cond_broadcast(&m_InquiryCond); 
+	StopInquiry(); 
+};
+
+PhoneDetection_Bluetooth_Windows::~PhoneDetection_Bluetooth_Windows()
+{
+	//StopScanning() is called in the destructor base, BUT the derived
+	//class is destroyed first, and calling RequestStopScanning in
+	//virtual method StopScanning will call RequestStopScanning from
+	//based class, and we'll never call RequestStopScanning from 
+	//the derived class.
+
+	RequestStopScanning();
+}

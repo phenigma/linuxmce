@@ -3,8 +3,10 @@
 #include "VR_ManuallyMatchPhone.h"
 #include "VIPShared/PlutoConfig.h"
 #include "VIPShared/VIPMenu.h"
+#include "PlutoUtils/MySqlHelper.h"
 #include <sstream>
 #include <iostream>
+using namespace std;
 
 VR_ManuallyMatchPhone::VR_ManuallyMatchPhone(unsigned long EstablishmentID,
 		string sBluetooth,u_int64_t MacAddress,unsigned long IdentifiedPlutoId,string IdentiedPlutoIdPin) 
@@ -25,7 +27,7 @@ bool VR_ManuallyMatchPhone::ProcessRequest(class RA_Processor *pRA_Processor)
 #ifdef VIPSERVER
 	if( !m_iMacAddress )
 	{
-		UsageLog << "Request from " << m_iEstablishmentID << " had empty MAC"; }
+		cout << "Request from " << m_iEstablishmentID << " had empty MAC"; 
 		m_cProcessOutcome=INVALID_REQUEST_DATA;
 		return true;
 	}
@@ -33,15 +35,15 @@ bool VR_ManuallyMatchPhone::ProcessRequest(class RA_Processor *pRA_Processor)
 	PlutoSqlResult rsPlutoId;
 	MYSQL_ROW PlutoIdRow=NULL;
 
-	ostringstream s;
-	UsageLog << "Manual Match from " << m_iEstablishmentID << 
-		" IdentiedPlutoID: " << m_iIdentifiedPlutoId << " " << m_sIdentifiedPlutoIdPin; }
+	cout << "Manual Match from " << m_iEstablishmentID << 
+		" IdentiedPlutoID: " << m_iIdentifiedPlutoId << " " << m_sIdentifiedPlutoIdPin; 
 
+	ostringstream s;
 	s << "SELECT RecordVersion FROM PlutoId WHERE PKID_PlutoId=" << m_iIdentifiedPlutoId << " AND PIN='" << m_sIdentifiedPlutoIdPin << "'";
 	if( (rsPlutoId.r = g_pPlutoConfig->mysql_query_result(s.str())) && (PlutoIdRow=mysql_fetch_row(rsPlutoId.r)) )
 	{
-		UsageLog << "Match OK " << m_iEstablishmentID << 
-			" IdentiedPlutoID: " << m_iIdentifiedPlutoId << " " << m_sIdentifiedPlutoIdPin << " adding to database"; }
+		cout << "Match OK " << m_iEstablishmentID << 
+			" IdentiedPlutoID: " << m_iIdentifiedPlutoId << " " << m_sIdentifiedPlutoIdPin << " adding to database"; 
 		// Add it to the MacAddress table
 //		sprintf(sql,"INSERT INTO MacAddress(PKID_MacAddress,FKID_PlutoId,FKID_C_PhoneStatus) "
 //			"VALUES(%I64d,%d,%d)",m_iMacAddress,m_iIdentifiedPlutoId,C_PHONESTATUS_NEW_PHONE_CONST);

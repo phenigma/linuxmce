@@ -3,10 +3,9 @@
 #include "VR_IdentifyPhone.h"
 #include "VIPShared/PlutoConfig.h"
 #include "PlutoUtils/FileUtils.h"
-#include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
-#include "PlutoUtils/Other.h"
+#include "PlutoUtils/MySQLHelper.h"
 #include "VIPShared/VIPMenu.h"
 #include "VR_ShowMenu.h"
 #include "VA_ForwardRequestToPhone.h"
@@ -61,14 +60,14 @@ VR_IdentifyPhone::VR_IdentifyPhone(unsigned long EstablishmentID,
 bool VR_IdentifyPhone::ProcessRequest(class RA_Processor *pRA_Processor)
 {
 #ifdef VIPSERVER
-	m_iImageSize=0;
-	m_pImage=NULL;
+	m_pdbImage.m_dwSize = 0;
+	m_pdbImage.m_pBlock = NULL;
 
 	cout << "Processing request to ID Mac " << m_iMacAddress << " ID " << m_iIdentifiedPlutoId << "\n";
 
 	if( !m_iMacAddress )
 	{
-		UsageLog << "Request from " << m_iEstablishmentID << " had empty MAC"; }
+		cout << "Request from " << m_iEstablishmentID << " had empty MAC"; 
 		m_cProcessOutcome=INVALID_REQUEST_DATA;
 		return true;
 	}
@@ -99,21 +98,21 @@ bool VR_IdentifyPhone::ProcessRequest(class RA_Processor *pRA_Processor)
 		m_iPlutoId = atoi(MacAddressRow[0]);
 		PKID_C_PhoneStatus = atoi(MacAddressRow[1]);
 
-		UsageLog << "Request from " << m_iEstablishmentID << " mac: " << m_iMacAddress << 
-			" PlutoID: " << m_iPlutoId << " Status: " << PKID_C_PhoneStatus; }
+		cout << "Request from " << m_iEstablishmentID << " mac: " << m_iMacAddress << 
+			" PlutoID: " << m_iPlutoId << " Status: " << PKID_C_PhoneStatus; 
 
 		s.str("");
 		s << "SELECT RecordVersion,Email FROM PlutoId WHERE PKID_PlutoId=" << m_iPlutoId;
 		if( (rsPlutoId.r = g_pPlutoConfig->mysql_query_result(s.str())) && (PlutoIdRow=mysql_fetch_row(rsPlutoId.r)) )
 		{
 			m_iRecordVersion = atoi(PlutoIdRow[0]);
-			UsageLog << "Request from " << m_iEstablishmentID << 
-				" PlutoID: " << m_iPlutoId << " has version " << m_iCachedRecordVersion << "/" << m_iRecordVersion; }
+			cout << "Request from " << m_iEstablishmentID << 
+				" PlutoID: " << m_iPlutoId << " has version " << m_iCachedRecordVersion << "/" << m_iRecordVersion; 
 			if( m_iCachedRecordVersion == m_iRecordVersion )
 			{
 				cout << "using cached version\n";
-				UsageLog << "Request from " << m_iEstablishmentID << 
-					" PlutoID: " << m_iPlutoId << " using cache"; }
+				cout << "Request from " << m_iEstablishmentID << 
+					" PlutoID: " << m_iPlutoId << " using cache"; 
 			    m_iUseCache=1;
 				goto CheckForVMC;
 			}
@@ -125,8 +124,8 @@ bool VR_IdentifyPhone::ProcessRequest(class RA_Processor *pRA_Processor)
 	// Establishment did pass in a PlutoId that it derived from the Bluetooth ID.
 	if( !m_iPlutoId && m_iIdentifiedPlutoId )
 	{
-		UsageLog << "Request from " << m_iEstablishmentID << 
-			" IdentiedPlutoID: " << m_iIdentifiedPlutoId << " " << m_sIdentifiedPlutoIdPin; }
+		cout << "Request from " << m_iEstablishmentID << 
+			" IdentiedPlutoID: " << m_iIdentifiedPlutoId << " " << m_sIdentifiedPlutoIdPin; 
 		s.str("");
 		s << "SELECT RecordVersion,Email,FKID_PhoneModel,NoBinary,BinaryFilename FROM PlutoId "
 			<< " LEFT JOIN Users on FKID_PlutoId=PKID_PlutoId "
@@ -138,8 +137,8 @@ bool VR_IdentifyPhone::ProcessRequest(class RA_Processor *pRA_Processor)
 		if( (rsPlutoId.r = g_pPlutoConfig->mysql_query_result(s.str())) && (PlutoIdRow=mysql_fetch_row(rsPlutoId.r)) )
 		{
 			cout << "Adding to database Mac " << m_iMacAddress << " ID " << m_iIdentifiedPlutoId << "\n";
-			UsageLog << "Request from " << m_iEstablishmentID << 
-				" IdentiedPlutoID: " << m_iIdentifiedPlutoId << " " << m_sIdentifiedPlutoIdPin << " adding to database"; }
+			cout << "Request from " << m_iEstablishmentID << 
+				" IdentiedPlutoID: " << m_iIdentifiedPlutoId << " " << m_sIdentifiedPlutoIdPin << " adding to database"; 
 			// We found the record
 			m_iPlutoId = m_iIdentifiedPlutoId;
 			// Add it to the MacAddress table
@@ -166,8 +165,8 @@ bool VR_IdentifyPhone::ProcessRequest(class RA_Processor *pRA_Processor)
 	if( !m_iPlutoId )
 	{
 		cout << "No records found\n";
-		UsageLog << "Request from " << m_iEstablishmentID << 
-			" IdentiedPlutoID: " << m_iIdentifiedPlutoId << " " << m_sIdentifiedPlutoIdPin << " not one of ours"; }
+		cout << "Request from " << m_iEstablishmentID << 
+			" IdentiedPlutoID: " << m_iIdentifiedPlutoId << " " << m_sIdentifiedPlutoIdPin << " not one of ours"; 
 		m_cProcessOutcome=RECORD_NOT_FOUND;
 		return true;
 	}
@@ -263,14 +262,14 @@ bool VR_IdentifyPhone::ProcessRequest(class RA_Processor *pRA_Processor)
 				if( file )
 				{
 					fseek(file, 0L, SEEK_END);
-					m_iImageSize=ftell(file);
-					if( m_iImageSize==0 )
+					m_pdbImage.m_dwSize=ftell(file);
+					if( m_pdbImage.m_dwSize==0 )
 						fclose(file);
 					else
 					{
 						fseek(file, 0L, SEEK_SET);
-						m_pImage=(char *)malloc(m_iImageSize+1);
-						size_t bytesread=fread(m_pImage,1,m_iImageSize,file);
+						m_pdbImage.m_pBlock=(char *)malloc(m_pdbImage.m_dwSize+1);
+						size_t bytesread=fread(m_pdbImage.m_pBlock,1,m_pdbImage.m_dwSize,file);
 						fclose(file);
 					}
 				}
@@ -304,12 +303,12 @@ CheckForVMC:
 		if( AutoSendVMC )
 		{
 			cout << "Sending menu " << AutoSendVMC;
-			UsageLog << "Sending menu " << g_pPlutoConfig->m_sMenuPath << AutoSendVMC; }
+			cout << "Sending menu " << g_pPlutoConfig->m_sMenuPath << AutoSendVMC; 
 
 			VR_ShowMenu *pMenu = new VR_ShowMenu((g_pPlutoConfig->m_sMenuPath + AutoSendVMC).c_str());
 			if( !pMenu->m_pMenuCollection )
 			{
-				ErrorLog << "Couldn't send menu " << g_pPlutoConfig->m_sMenuPath << AutoSendVMC; }
+				cout << "Couldn't send menu " << g_pPlutoConfig->m_sMenuPath << AutoSendVMC; 
 				delete pMenu;   // Menu wasn't found
 			}
 			else

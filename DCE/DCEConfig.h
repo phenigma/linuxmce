@@ -1,12 +1,14 @@
 #ifndef DCEConfig_H
 #define DCEConfig_H
 
+#include "RA/RA_Config.h"
+
 #include <string>
 #include <map>
 
 using namespace std;
 
-class DCEConfig
+class DCEConfig : public RA_Config
 {
 public:
 	// serialized values

@@ -27,6 +27,8 @@ namespace DCE
  */
 class RA_Processor
 {
+public:
+	class RA_Config *m_pRA_Config;
 
 private:
 
@@ -40,9 +42,11 @@ public:
      * @param EstablishmentID ID of the establishment
      * @param SoftwareVersion version
      */
-    RA_Processor( unsigned long dwEstablishmentID, unsigned long dwSoftwareVersion )
+    RA_Processor( unsigned long dwEstablishmentID, unsigned long dwSoftwareVersion, class RA_Config *pRA_Config = NULL )
     {
-        m_dwEstablishmentID = dwEstablishmentID; m_dwSoftwareVersion = dwSoftwareVersion;
+        m_dwEstablishmentID = dwEstablishmentID; 
+		m_dwSoftwareVersion = dwSoftwareVersion;
+		m_pRA_Config        = pRA_Config;
     };
 
     /**
@@ -119,7 +123,7 @@ public:
 	 * @brief Returns a pointer to the request processor.  The implementation can just return a pointer to an instance of this class unless it needs special data, like session tracking
      * @return the new RequestProcessor to handle this connection
 	 */
-	static RA_Processor *CreateRA_Processor();
+	static RA_Processor *CreateRA_Processor(class RA_Config *pRA_Config = NULL);
 };
 
 #endif

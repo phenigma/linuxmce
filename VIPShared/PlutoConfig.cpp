@@ -130,7 +130,7 @@ string PlutoConfig::GetSetting(const char *Token,char *Buffer,char *Default)
 #ifdef USE_MYSQL
 bool PlutoConfig::MysqlConnect(bool bReset)
 {
-	DCESAFETYLOCK(ms,m_MySqlMutex);
+	PLUTO_SAFETY_LOCK(ms,m_MySqlMutex);
 
 	if( bReset )
 		mysql_close(&m_MySQL);
@@ -146,7 +146,7 @@ bool PlutoConfig::MysqlConnect(bool bReset)
 
 MYSQL_RES *PlutoConfig::mysql_query_result(string query)
 {
-	DCESAFETYLOCK(sl,m_MySqlMutex);
+	PLUTO_SAFETY_LOCK(sl,m_MySqlMutex);
 	long iresult;
 	if( (iresult=mysql_query(&m_MySQL,query.c_str()))!=0 )
 	{
@@ -161,7 +161,7 @@ MYSQL_RES *PlutoConfig::mysql_query_result(string query)
 
 long PlutoConfig::threaded_mysql_query(string query,bool bIgnoreErrors)
 {
-	DCESAFETYLOCK(sl,m_MySqlMutex);
+	PLUTO_SAFETY_LOCK(sl,m_MySqlMutex);
 	long iresult;
 	if( (iresult=mysql_query(&m_MySQL,query.c_str()))!=0 )
 	{
@@ -178,7 +178,7 @@ long PlutoConfig::threaded_mysql_query(string query,bool bIgnoreErrors)
 
 long PlutoConfig::threaded_mysql_query_withID(string query)
 {
-	DCESAFETYLOCK(sl,m_MySqlMutex);
+	PLUTO_SAFETY_LOCK(sl,m_MySqlMutex);
 	long iresult;
 	if( (iresult=mysql_query(&m_MySQL,query.c_str()))!=0 )
 	{

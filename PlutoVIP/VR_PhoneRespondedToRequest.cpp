@@ -1,14 +1,15 @@
 #include "VIPShared/VIPIncludes.h"
 #include "VIPShared/PlutoConfig.h"
 #include "PlutoUtils/FileUtils.h"
-#include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
-#include "PlutoUtils/Other.h"
+#include "PlutoUtils/MySqlHelper.h"
 #include "VR_PhoneRespondedToRequest.h"
 #include "VA_UpdateTransaction.h"
 #include "VR_ShowMenu.h"
 #include "VIPShared/VIPMenu.h"
+#include "RA/RA_Request.h"
+#include "RA/RA_Processor.h"
 #include <iostream>
 #include <sstream>
 
@@ -30,12 +31,12 @@ bool VR_PhoneRespondedToRequest::ProcessRequest(class RA_Processor *pRA_Processo
 {
 #ifdef VIPSERVER
 	RA_Request *pRequest;
-	if( m_iOriginalRequestSize )
-		pRequest = RA_Request::BuildRequestFromData(m_iOriginalRequestSize,m_pOriginalRequest);
+	if( m_pdbOriginalRequest.m_dwSize )
+		pRequest = pRA_Processor->BuildRequestFromData(m_pdbOriginalRequest.m_dwSize,m_pdbOriginalRequest.m_pBlock, m_iRequestID);
 	else
-		pRequest = RA_Request::BuildRequestFromData(0,NULL,m_iRequestID);
+		pRequest = pRA_Processor->BuildRequestFromData(0,NULL,m_iRequestID);
 
-	pRequest->ParseResponse(m_iOriginalResponseSize,m_pOriginalResponse);
+	pRequest->ParseResponse(m_pdbOriginalResponse.m_dwSize,m_pdbOriginalResponse.m_pBlock);
 	if( m_iRequestID==VRP_REQUEST_SHOW_MENU )
 	{
 		VR_ShowMenu *pShowMenu = (VR_ShowMenu *) pRequest;
@@ -69,7 +70,7 @@ bool VR_PhoneRespondedToRequest::ProcessRequest(class RA_Processor *pRA_Processo
 			if( (rsTrans.r = g_pPlutoConfig->mysql_query_result(sql.str()))==NULL || 
 				(TransRow=mysql_fetch_row(rsTrans.r))==NULL )
 			{
-				ErrorLog << "CANNOT FIND TRANSACTION: " << sql; }
+				cout << "CANNOT FIND TRANSACTION: " << sql; 
 				m_cProcessOutcome = INVALID_REQUEST_DATA;
 				return true;
 			}
@@ -100,7 +101,7 @@ bool VR_PhoneRespondedToRequest::ProcessRequest(class RA_Processor *pRA_Processo
 			int PKID_PmtTrans_Auth = g_pPlutoConfig->threaded_mysql_query_withID(sql.str());
 			if( PKID_PmtTrans_Auth==0 )
 			{
-				ErrorLog << "FAILED: " << sql; }
+				cout << "FAILED: " << sql; 
 				m_cProcessOutcome = INTERNAL_ERROR;
 				return true;
 			}

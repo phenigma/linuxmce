@@ -22,7 +22,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;../DCE;../Libraries/CXImage/CxImage/;&quot;../Libraries/pthreads-win32/include&quot;"
+				AdditionalIncludeDirectories="..;../DCE;../Libraries/CXImage/CxImage/;&quot;../Libraries/pthreads-win32/include&quot;;/mysql/Include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;MULTI_THREADED;VIPESTABLISHMENT;XBT_SOCKET"
 				RuntimeLibrary="3"
 				PrecompiledHeaderFile=".\Debug/PlutoVIP.pch"
@@ -243,6 +243,9 @@
 			</File>
 			<File
 				RelativePath=".\Customer.cpp">
+			</File>
+			<File
+				RelativePath="..\Dce\DCEConfig.cpp">
 			</File>
 			<File
 				RelativePath=".\DIB.CPP">
@@ -531,10 +534,10 @@
 				RelativePath=".\StaticPicture.h">
 			</File>
 			<File
-				RelativePath="..\VIPShared\stdafx.h">
+				RelativePath=".\StdAfx.h">
 			</File>
 			<File
-				RelativePath=".\StdAfx.h">
+				RelativePath="..\VIPShared\stdafx.h">
 			</File>
 		</Filter>
 		<Filter

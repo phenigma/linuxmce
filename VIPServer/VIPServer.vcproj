@@ -20,7 +20,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="/mysql/Include;../DCE;..;../Libraries/pthreads-win32/include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;GENERATOR"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;VIPSERVER;USE_MYSQL;MULTI_THREADED"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -32,7 +32,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib libmySQL.lib DCE.lib"
+				AdditionalDependencies="libmysql.lib pthreadVC.lib wsock32.lib libmySQL.lib DCE.lib"
 				OutputFile="../bin/VIPServer.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="/mysql/lib/Debug;../lib;../Libraries/pthreads-win32/lib"
@@ -120,6 +120,9 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
+				RelativePath="..\VIPShared\PlutoConfig.cpp">
+			</File>
+			<File
 				RelativePath="..\PlutoVIP\PlutoVIPRequests.cpp">
 			</File>
 			<File
@@ -151,6 +154,9 @@
 			</File>
 			<File
 				RelativePath="..\VIPShared\VIPIncludes.cpp">
+			</File>
+			<File
+				RelativePath="..\VIPShared\VIPMenu.cpp">
 			</File>
 			<File
 				RelativePath=".\VIPServer.cpp">

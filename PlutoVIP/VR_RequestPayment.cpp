@@ -5,7 +5,7 @@
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
-#include "PlutoUtils/Other.h"
+#include "PlutoUtils/MySQLHelper.h"
 #include "VR_RequestPayment.h"
 #include "VR_RequestSecureTransaction.h"
 #include "VR_ShowMenu.h"
@@ -41,12 +41,12 @@ bool VR_RequestPayment::ProcessRequest(class RA_Processor *pRA_Processor)
 		StringUtils::SQLEscape(m_sDescription) << "','" << StringUtils::SQLEscape(m_sCashierName) << "'," << m_iAmount << 
 		",'" << StringUtils::SQLDateTime() << "');";
 
-	UsageLog << sql; }
+	cout << sql;
 
 	int PKID_PmtTrans = g_pPlutoConfig->threaded_mysql_query_withID(sql.str());
 	if( PKID_PmtTrans==0 )
 	{
-		ErrorLog << "FAILED: " << sql; }
+		cout << "FAILED: " << sql; 
 		m_cProcessOutcome = INTERNAL_ERROR;
 		return true;
 	}
@@ -62,7 +62,7 @@ bool VR_RequestPayment::ProcessRequest(class RA_Processor *pRA_Processor)
 		int PKID_PmtTrans_Detail = g_pPlutoConfig->threaded_mysql_query_withID(sql.str());
 		if( PKID_PmtTrans_Detail==0 )
 		{
-			ErrorLog << "FAILED: " << sql; }
+			cout << "FAILED: " << sql; 
 			// Ignore it since it's not needed anyway
 		}
 	}
@@ -76,7 +76,7 @@ bool VR_RequestPayment::ProcessRequest(class RA_Processor *pRA_Processor)
 	if( (rsEstablishment.r = g_pPlutoConfig->mysql_query_result(sql.str()))==NULL || 
 		(EstablishmentRow=mysql_fetch_row(rsEstablishment.r))==NULL )
 	{
-		ErrorLog << "UNKNOWN ESTALIBSHMENT: " << sql; }
+		cout << "UNKNOWN ESTALIBSHMENT: " << sql; 
 		m_cProcessOutcome = INVALID_REQUEST_DATA;
 		return true;
 	}
@@ -86,7 +86,7 @@ bool VR_RequestPayment::ProcessRequest(class RA_Processor *pRA_Processor)
 	if( (rsPaymentMethods.r = g_pPlutoConfig->mysql_query_result(sql.str()))==NULL || 
 		(PaymentMethodsRow=mysql_fetch_row(rsPaymentMethods.r))==NULL )
 	{
-		ErrorLog << "user Cannot pay: " << sql; }
+		cout << "user Cannot pay: " << sql; 
 		m_cProcessOutcome = USER_CANNOT_PAY_ONLINE;
 		return true;
 	}
@@ -141,7 +141,7 @@ bool VR_RequestPayment::ProcessRequest(class RA_Processor *pRA_Processor)
 	pMenuCollection->AddVariable(pPinCode);
 
 	// The user can continue by pressing Y or entering a value
-	VIPMenuResolution *pGotoPaymentTypeMenu = new VIPMenuResolution("YE",-1,"",
+	VIPMenuResolution *pGotoPaymentTypeMenu = new VIPMenuResolution("YE",-1,"", "", /*program name*/
 		0 /* hide */,0 /* close */, 0 /* report*/,-1 /* goto */, -1 /* action var */,"");
 
 	// The payment menu, which also has a text input if the user wants to override the amount
@@ -156,7 +156,7 @@ bool VR_RequestPayment::ProcessRequest(class RA_Processor *pRA_Processor)
 	pMenuCollection->AddMenu(pInvoiceMenu);
 
 	// The user chooses the pmt method by pressing 1, 2, or 3
-	VIPMenuResolution *pGotoPin = new VIPMenuResolution("123",-1,"",
+	VIPMenuResolution *pGotoPin = new VIPMenuResolution("123",-1,"","",
 		0 /* hide */,0 /* close */, 0 /* report*/,-1 /* goto */, -1 /* action var */,"");
 
 	// The payment choices Menu
@@ -170,7 +170,7 @@ bool VR_RequestPayment::ProcessRequest(class RA_Processor *pRA_Processor)
 	pGotoPaymentTypeMenu->SetGotoMenu(pPaymentChoices);
 
 	// The user enters the pin and finishes with E or Y
-	VIPMenuResolution *pEnteredPinResolution = new VIPMenuResolution("EY",-1,"",
+	VIPMenuResolution *pEnteredPinResolution = new VIPMenuResolution("EY",-1,"","",
 		0 /* hide */,1 /* close */, 0 /* report*/,-1 /* goto */, -1 /* action var */,"");
 
 	// The PIN code Menu

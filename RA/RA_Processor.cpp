@@ -46,7 +46,7 @@
 
 bool RA_Processor::SendRequests( string sServerAddress, DCE::Socket **ppSocket )
 {
-	if( *ppSocket )
+	if( NULL != ppSocket && NULL != *ppSocket )
 		return SendRequests(*ppSocket);  // We were already passed in a socket
 
 	// Connecting to the server
@@ -54,7 +54,7 @@ bool RA_Processor::SendRequests( string sServerAddress, DCE::Socket **ppSocket )
     if( !pSocket->Connect() )
     {
     	/** @todo check comment */
-    	//ErrorLog << "Could not connect.\n"; }
+    	//cout << "Could not connect.\n"; }
         return false; // Connection could not be established
 	}
 
@@ -242,7 +242,7 @@ bool RA_Processor::ReceiveRequests(DCE::Socket *pSocket )
         if( !pSocket->ReceiveData( *pdwSize, acData ) )
         {
 	    /** @todo check comment */
-	    // ErrorLog << "Got bogus data: sc " << SanityCheck << " size " << Size " checksum " << CheckSum << " est " << Establishment; }
+	    // cout << "Got bogus data: sc " << SanityCheck << " size " << Size " checksum " << CheckSum << " est " << Establishment; }
             delete[] acData;
             return false;
         }
@@ -251,7 +251,7 @@ bool RA_Processor::ReceiveRequests(DCE::Socket *pSocket )
         if( !true )
         {
 	    /** @todo check comment */
-	    //ErrorLog << "Checksum does not match: sc " << SanityCheck << " size " << Size << " checksum " << CheckSum << " estab " << Establishment;
+	    //cout << "Checksum does not match: sc " << SanityCheck << " size " << Size << " checksum " << CheckSum << " estab " << Establishment;
             delete[] acData;
             return false;
         }

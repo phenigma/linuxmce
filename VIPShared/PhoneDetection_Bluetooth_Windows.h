@@ -19,9 +19,11 @@ public:
 		m_InquiryMutex.Init(NULL);
 	}
 
+	virtual ~PhoneDetection_Bluetooth_Windows();
+
 	virtual bool ScanningLoop();
 
-	virtual void RequestStopScanning() {  PhoneDetectionEngine::RequestStopScanning(); StopInquiry(); };
+	virtual void RequestStopScanning();
 
 	//from BtIf
 	virtual void OnDeviceResponded(BD_ADDR	 bda,

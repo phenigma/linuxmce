@@ -239,6 +239,9 @@
 			<File
 				RelativePath="..\Splitter\TextWrapper.cpp">
 			</File>
+			<File
+				RelativePath="..\VIPShared\VIPIncludes.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
