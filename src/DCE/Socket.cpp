@@ -131,7 +131,6 @@ Socket::Socket(string Name,string sIPAddress) : m_SocketMutex("socket mutex " + 
 	pthread_mutexattr_init( &m_SocketMutexAttr );
 	pthread_mutexattr_settype( &m_SocketMutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
 	m_SocketMutex.Init( &m_SocketMutexAttr );
-	g_pPlutoLogger->Write(LV_STATUS,"Socket constructor %p %d %s",this,m_iSocketCounter,m_sName.c_str());
 #ifdef LL_DEBUG_FILE
 
 	if( m_LL_DEBUG_Mutex == NULL )
@@ -147,8 +146,6 @@ Socket::~Socket()
 #ifdef DEBUG
 	//g_pPlutoLogger->Write( LV_SOCKET, "deleting socket %p %s", this, m_sName.c_str() );
 #endif
-
-	g_pPlutoLogger->Write(LV_STATUS,"Socket destructor %p %d %s (%d)",this,m_iSocketCounter,m_sName.c_str(),(int) m_Socket);
 
 	if ( m_Socket != INVALID_SOCKET )
 		closesocket( m_Socket );
