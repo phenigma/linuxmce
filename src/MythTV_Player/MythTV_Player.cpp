@@ -41,14 +41,14 @@ using namespace DCE;
 #include "pluto_main/Define_DesignObj.h"
 
 #include <sstream>
-#include <qsqldatabase.h>
-
-#include <libmythtv/programinfo.h>
-#include <libmythtv/remoteencoder.h>
-#include <libmythtv/remoteutil.h>
+// #include <qsqldatabase.h>
+//
+// #include <libmythtv/programinfo.h>
+// #include <libmythtv/remoteencoder.h>
+// #include <libmythtv/remoteutil.h>
 
 #include <pthread.h>
-#include "MythMainWindowResizable.h"
+// #include "MythMainWindowResizable.h"
 
 #include "utilities/linux/RatpoisonHandler.h"
 
@@ -70,7 +70,7 @@ public:
     void commandRatPoison(string command) { RatpoisonHandler<RatPoisonWrapper>::commandRatPoison(command); }
 };
 
-MythContext *gContext;
+// MythContext *gContext;
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -161,6 +161,7 @@ void MythTV_Player::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage
 }
 
 //<-dceag-sample-b->!
+/*
 void MythTV_Player::waitToFireMediaChanged()
 {
     while ( m_pMythTV->GetState() == kState_ChangingState )
@@ -199,7 +200,7 @@ void MythTV_Player::waitToFireMediaChanged()
         }
     }
 }
-
+*/
 void MythTV_Player::selectWindow()
 {
     m_pRatWrapper->commandRatPoison(":select " MYTH_WINDOW_NAME);
@@ -240,9 +241,8 @@ bool MythTV_Player::checkWindowName(long unsigned int window, string windowName)
 
 bool MythTV_Player::locateMythTvFrontendWindow(long unsigned int window)
 {
-    Window child_win, parent_win, root_win, *child_windows;
+    Window parent_win, root_win, *child_windows;
     unsigned int num_child_windows;
-    XTextProperty text;
 
     if ( checkWindowName(window, MYTH_WINDOW_NAME ) )
     {
@@ -253,7 +253,7 @@ bool MythTV_Player::locateMythTvFrontendWindow(long unsigned int window)
 
     XQueryTree(m_pRatWrapper->getDisplay(), (Window)window, &root_win, &parent_win, &child_windows, &num_child_windows);
 
-    for ( int i = 0; i < num_child_windows; i++ )
+    for ( unsigned int i = 0; i < num_child_windows; i++ )
         if ( locateMythTvFrontendWindow(child_windows[i]) )
             return true;
 
@@ -315,7 +315,7 @@ void MythTV_Player::CMD_Tune_to_channel(string sProgramID,string &sCMD_Result,Me
     StringUtils::Tokenize( sProgramID, "|", numbers );
 
     string channelNumber = numbers[0];
-    for( int i = 0; i < channelNumber.size(); i++ )
+    for( unsigned int i = 0; i < channelNumber.size(); i++ )
     {
         switch ( channelNumber[i] )
         {
@@ -355,40 +355,40 @@ void MythTV_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamI
 //<-dceag-c84-e->
 {
     g_pPlutoLogger->Write(LV_STATUS, "Method was called here");
-    if ( m_pMythTV == NULL || m_pMythTV->GetState() != kState_WatchingLiveTV )
-    {
-        g_pPlutoLogger->Write(LV_STATUS, "Invalid state.");
-        EVENT_Error_Occured("Not playing TV at this time. Can't take a screen shot");
-        return;
-    }
-
-    VideoFrame *grabbedFrame;
-    VideoFrame actualFrame;
-
-    grabbedFrame = m_pMythTV->activenvp->GetCurrentFrame(actualFrame.width, actualFrame.height);
-
-    actualFrame.bpp = grabbedFrame->bpp;
-    actualFrame.size = grabbedFrame->size;
-    actualFrame.frameNumber = grabbedFrame->frameNumber;
-    actualFrame.timecode = grabbedFrame->timecode;
-    actualFrame.codec = grabbedFrame->codec;
-    actualFrame.interlaced_frame = grabbedFrame->interlaced_frame;
-    actualFrame.top_field_first = grabbedFrame->top_field_first;
-
-    actualFrame.buf = new unsigned char[actualFrame.size];
-    memcpy(actualFrame.buf, grabbedFrame->buf, actualFrame.size);
-
-    m_pMythTV->activenvp->ReleaseCurrentFrame(grabbedFrame);
-
-    g_pPlutoLogger->Write(LV_STATUS, "Got frame size %dx%d (%d) %d)",
-                actualFrame.width, actualFrame.height,
-                actualFrame.size, actualFrame.codec);
-
-    delete actualFrame.buf;
-    int x, y, nWidth, nHeight;
-    m_pMythTV->activenvp->getVideoOutput()->GetDrawSize(x, y, nWidth, nHeight);
-
-    g_pPlutoLogger->Write(LV_STATUS, "DrawSize: %dx%d %dx%d", x, y, nWidth, nHeight);
+//     if ( m_pMythTV == NULL || m_pMythTV->GetState() != kState_WatchingLiveTV )
+//     {
+//         g_pPlutoLogger->Write(LV_STATUS, "Invalid state.");
+//         EVENT_Error_Occured("Not playing TV at this time. Can't take a screen shot");
+//         return;
+//     }
+//
+//     VideoFrame *grabbedFrame;
+//     VideoFrame actualFrame;
+//
+//     grabbedFrame = m_pMythTV->activenvp->GetCurrentFrame(actualFrame.width, actualFrame.height);
+//
+//     actualFrame.bpp = grabbedFrame->bpp;
+//     actualFrame.size = grabbedFrame->size;
+//     actualFrame.frameNumber = grabbedFrame->frameNumber;
+//     actualFrame.timecode = grabbedFrame->timecode;
+//     actualFrame.codec = grabbedFrame->codec;
+//     actualFrame.interlaced_frame = grabbedFrame->interlaced_frame;
+//     actualFrame.top_field_first = grabbedFrame->top_field_first;
+//
+//     actualFrame.buf = new unsigned char[actualFrame.size];
+//     memcpy(actualFrame.buf, grabbedFrame->buf, actualFrame.size);
+//
+//     m_pMythTV->activenvp->ReleaseCurrentFrame(grabbedFrame);
+//
+//     g_pPlutoLogger->Write(LV_STATUS, "Got frame size %dx%d (%d) %d)",
+//                 actualFrame.width, actualFrame.height,
+//                 actualFrame.size, actualFrame.codec);
+//
+//     delete actualFrame.buf;
+//     int x, y, nWidth, nHeight;
+//     m_pMythTV->activenvp->getVideoOutput()->GetDrawSize(x, y, nWidth, nHeight);
+//
+//     g_pPlutoLogger->Write(LV_STATUS, "DrawSize: %dx%d %dx%d", x, y, nWidth, nHeight);
 
 //     sCMD_Result = m_pMythTV->GetScreenFrame(sDisable_Aspect_Lock, iWidth, iHeight, pData, iData_Size, sFormat);
 }

@@ -3,7 +3,7 @@ GENDEV=../Gen_Devices
 
 ROOT = ..
 CXX = g++
-CXXFLAGS = -Wall -fPIC -ggdb3
+CXXFLAGS = -Wall -fPIC -ggdb3 -fmessage-length=0
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES
 LDFLAGS = -L$(ROOT)/lib
 EXTERNAL_LIBS_NAMES = mysqlclient_r pthread
@@ -18,14 +18,13 @@ sources = Main.cpp MythTV_Player.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS +=
-CPPFLAGS += -I/usr/include/qt3 -I$(ROOT)/../libs/Libraries/ -DQT_NO_DEBUG -DQT_THREAD_SUPPORT -DQT_SHARED
+CPPFLAGS +=
 LDFLAGS += -L/usr/X11R6/lib
 INTERNAL_LIBS_NAMES +=
-EXTERNAL_LIBS_NAMES += Xtst qt-mt myth-0.16 mythtv-0.16
+EXTERNAL_LIBS_NAMES += Xtst
 
 Gen_Dev_Files +=
 sources += \
-	MythMainWindowResizable.cpp \
 	../utilities/linux/ImageConvertor.cpp
 
 #<-dceag-mf-b->!

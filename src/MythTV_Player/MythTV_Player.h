@@ -14,16 +14,16 @@
 #include "Gen_Devices/MythTV_PlayerBase.h"
 //<-dceag-d-e->
 
-#include <qapplication.h>
-#include <libmyth/mythcontext.h>
-#include <libmyth/mythdialogs.h>
-#include <libmyth/lcddevice.h>
+// #include <qapplication.h>
+// #include <libmyth/mythcontext.h>
+// #include <libmyth/mythdialogs.h>
+// #include <libmyth/lcddevice.h>
+//
+// #include <libmythtv/tv.h>
+// #include <libmythtv/frame.h>
+// #include <libmythtv/NuppelVideoPlayer.h>
 
-#include <libmythtv/tv.h>
-#include <libmythtv/frame.h>
-#include <libmythtv/NuppelVideoPlayer.h>
-
-#include "MythMainWindowResizable.h"
+// #include "MythMainWindowResizable.h"
 
 class RatPoisonWrapper;
 
@@ -37,9 +37,9 @@ namespace DCE
         long unsigned int            m_iMythFrontendWindowId;
 
         /** Private member variables */
-        QApplication                *m_pQApplication;
-        MythMainWindowResizable     *m_pMythMainWindow;
-        TV                          *m_pMythTV;
+//        QApplication                *m_pQApplication;
+//        MythMainWindowResizable     *m_pMythMainWindow;
+//        TV                          *m_pMythTV;
         int                          m_iControllingDevice;
         pthread_t                    m_qApplicationThreadId;
         RatPoisonWrapper            *m_pRatWrapper;
@@ -48,7 +48,7 @@ namespace DCE
         bool checkWindowName(long unsigned int window, string windowName);
 
     protected:
-        void waitToFireMediaChanged();
+//        void waitToFireMediaChanged();
 
         bool LaunchMythFrontend();
 
