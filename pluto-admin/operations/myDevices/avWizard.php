@@ -131,7 +131,7 @@ function avWizard($output,$dbADO) {
 						INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
 						INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
 						INNER JOIN Manufacturer ON FK_Manufacturer=PK_Manufacturer
-					WHERE						FK_DeviceTemplate IN ('.join(',',$joinArray).') AND FK_Installation=?';	
+					WHERE FK_DeviceTemplate IN ('.join(',',$joinArray).') AND FK_Installation=?';	
 				$resDevice=$dbADO->Execute($queryDevice,$installationID);
 				while($rowD=$resDevice->FetchRow()){
 					$displayedDevices[]=$rowD['PK_Device'];
