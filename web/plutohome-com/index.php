@@ -363,6 +363,13 @@ switch ($section) {
 		include_once('client/login/login.php');
 	    login($output,$dbADO,$conn);
 	break; 
+	case 'contact':
+    	$output = new Template();
+    	$output->setConn($conn);
+       	$output->setTemplateFileType('home');
+		include_once('operations/contact.php');
+	    contact($output,$conn);
+	break; 
 	
 	
 	default:			

@@ -10,8 +10,7 @@ if(isset($_SESSION['userIsLogged']) && $_SESSION['userIsLogged']=="yes"){
 }
 
 $out='';
-if (isset($_POST['submitX'])) {	
-	
+if (isset($_POST['username']) && $_POST['username']!='') {	
 	$username = $_POST['username'];
 	$password = $_POST['password'];
 	$autologin = @$_POST['autologin'];
@@ -22,7 +21,7 @@ if (isset($_POST['submitX'])) {
 		$messages.='Please enter your username';
 	}
 	
-	if (isset($_POST['submitX']))
+	if (isset($_POST['username']) && $_POST['username']!='')
 	{
 		if ($password == '') {
 			$messages.='Please enter your password';
@@ -33,7 +32,6 @@ if (isset($_POST['submitX'])) {
 				if(!$isMasterUsers[0])
 					$messages.='Invalid username or password, try again!!!</a>';
 		}
-		
 		if ($messages=='') 
 		{
 			parse_str($isMasterUsers[1]);
@@ -55,9 +53,11 @@ if (isset($_POST['submitX'])) {
 				$_SESSION['password']=$password;
 			}
 			header("Location: index.php?section=myPluto");
+			exit();
 		} else {
 			$out.=$messages;
 			header("Location: index.php?section=login&error=$messages");
+			exit();
 		}
 	}
 }
@@ -71,6 +71,9 @@ if (isset($_POST['submitX'])) {
      		<tr>
 				<td align="left" colspan="2" class="insidetable"><img src="images/titles/login.gif" border="0"> <span class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</span></td>
 			</tr>
+     		<tr>
+				<td align="left" colspan="2" class="insidetable2">&nbsp;</td>
+			</tr>	
 	    <tr class="insidetable"> 
 	      <td width="50%" align="right"><B>Username</B></td>
 	      <td>&nbsp;<input type="text" name="username" value="'.@$_SESSION['username'].'" /></td></tr>
@@ -83,7 +86,7 @@ if (isset($_POST['submitX'])) {
             <td align="left"><input type="checkbox" name="autologin" value="1"></td>
 		</tr>	
 	    <tr class="insidetable">
-	      <td colspan="2" align="center"><input type="submit" name="submitX" value="Log-in" /></td>
+	      <td colspan="2" align="center"><input type="image" name="submitX" src="images/buttons/buton_login.gif" /></td>
 	    </tr>
 		<tr class="insidetable">
 			<td colspan="2"><div align="center">If you already registered on <a href="http://www.plutovip.com">Plutovip.com</a>, your username and password are linked and will work on this site too.

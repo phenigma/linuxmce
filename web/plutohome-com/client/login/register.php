@@ -43,7 +43,7 @@ function register($output,$conn){
 				<td class="formextrainfo">Please confirm the password</td>
 			</tr>
 			<tr>
-				<td colspan="3" align="center"><input type="submit" name="register" value="Sign up" onsubmit="validateEmail(this);"/></th>
+				<td colspan="3" align="center"><input type="image" name="register" src="images/buttons/buton_sign_up.gif" onsubmit="validateEmail(this);"/></th>
 			</tr>
          <tr>
          <td colspan="3" align="center"><a href="index.php?section=login">I am an Existing User</a></td>
@@ -62,7 +62,7 @@ function register($output,$conn){
   	';
  
 
-  	if(isset($_POST['register']))
+  	if(isset($_POST['username']))
   	{
   		$errorsCount=0;
   		$mail=$_POST['email'];
