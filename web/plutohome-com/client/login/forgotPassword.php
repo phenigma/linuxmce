@@ -17,7 +17,7 @@ function forgotPassword($output)
 				<div class="title">Forgot Password ?</div><br><br>
 				Enter your e-mail and a new password will be e-mailed to you.<br />
 				<br /><br />
-				<b>E-mail</b> <input type="text" name="Email" /> <input type="submit" name="go" value="Go" /><br /><br />
+				<b>E-mail</b> <input type="text" name="Email"/> <input type="submit" name="go" value="Go" /><br /><br />
            		</td>
 			</tr>
 		</table>
@@ -51,7 +51,7 @@ function forgotPassword($output)
 			// try to change password in MasterUsers table
 			$queryMasterUsers=updateMasterUsersPassword($MasterUsersID,$pass,$changePassMasterUserUrl);
 			if($queryMasterUsers[0]){
-				$message='Your new password is <b>'.$pass. '</b>  ! <a href="http://plutohome.com/index.php?section=login>click here</a> to login';
+				$message='Hello,<br> Your new password for Plutohome Website is <b>'.$pass. '</b>  <br><br><a href="http://plutohome.com/index.php?section=login">Click here</a> to login and after that you can change the password by using the "Change Password" feature.<br><br>Best regards, <br>PlutoHome staff.';
 				$headers = "From: PlutoHome <website@plutohome.com>\nX-Priority: 1\nContent-Type: text/html; charset=iso-8859-1\n";
 				mail($ToEmail,$subject,$message,$headers);
 				$out='';
