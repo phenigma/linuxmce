@@ -53,6 +53,7 @@ Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHa
         g_pPlutoLogger->Write(LV_WARNING, "Couldn't create the xine slave window. This plugin is useless here!");
         delete m_pXineSlaveControl;
         m_pXineSlaveControl = NULL;
+		return;
     }
 
     else if ( ! m_pXineSlaveControl->createXineLibConnection() )
@@ -61,6 +62,7 @@ Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHa
 
        delete m_pXineSlaveControl;
        m_pXineSlaveControl = NULL;
+	   return;
     }
 
     m_pXineSlaveControl->setXinePlayerObject(this);
@@ -309,7 +311,7 @@ void Xine_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,
 		/** @param #64 MenuType */
 			/** The type of menu that the user want to jump to.
 (For DVD handlers usually this applies)
-0 - Root menu 
+0 - Root menu
 1 - Title menu
 2 - Media menu */
 

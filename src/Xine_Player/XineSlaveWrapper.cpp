@@ -714,14 +714,17 @@ int XineSlaveWrapper::XServerEventProcessor(XineStream *pStream, XEvent &event)
 			rect.w = 0;
 			rect.h = 0;
 
+			xine_gui_send_vo_data (pStream->m_pStream, XINE_GUI_SEND_TRANSLATE_GUI_TO_VIDEO, (void*)&rect);
+			g_pPlutoLogger->Write(LV_STATUS, "Xine player: mouse button event after translation: mx=%d my=%d", rect.x, rect.y);
+
 			xineEvent.stream = pStream->m_pStream;
   			xineEvent.type = XINE_EVENT_INPUT_MOUSE_BUTTON;
 			xineEvent.data = &xineInputData;
     		xineEvent.data_length = sizeof(xineInputData);
 
 			xineInputData.button = bevent->button;
-    		xineInputData.x = bevent->x;
-    		xineInputData.y = bevent->y;
+    		xineInputData.x = rect.x;
+    		xineInputData.y = rect.y;
 
 			gettimeofday(&xineEvent.tv, NULL);
  			XLockDisplay(bevent->display);
