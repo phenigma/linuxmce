@@ -1155,6 +1155,7 @@ void gc100::SendIR(string Port, string IRCode)
 
 	if (IRCode.length()>2)
 	{
+		IRCode = "P," + IRCode; // force pronto
 		if (IRCode.substr(0,2)=="P," || IRCode.substr(0,2)=="p,")
 		{
 			ConvertPronto(IRCode.substr(2), gc_code);
