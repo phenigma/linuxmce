@@ -3,27 +3,17 @@
 #include "DCE/Logger.h"
 #include "XRecordExtensionHandler.h"
 
-#define XLockDisplay(pDisplay) \
-	g_pPlutoLogger->Write(LV_STATUS, "[0x%x] Locking display here %s: %d", pthread_self(), __FILE__, __LINE__); \
-	::XLockDisplay(pDisplay); \
-	g_pPlutoLogger->Write(LV_STATUS, "[0x%x] Done locking display here %s: %d", pthread_self(), __FILE__, __LINE__);
-
-#define XUnlockDisplay(pDisplay) \
-	g_pPlutoLogger->Write(LV_STATUS, "[0x%x] Unlocking display here %s: %d", pthread_self(), __FILE__, __LINE__); \
-	::XUnlockDisplay(pDisplay); \
-	g_pPlutoLogger->Write(LV_STATUS, "[0x%x] Done unlocking display here %s: %d", pthread_self(), __FILE__, __LINE__);
-
-
 using namespace DCE;
+using namespace std;
 
-XRecordExtensionHandler::XRecordExtensionHandler(Display *pDisplay)
+XRecordExtensionHandler::XRecordExtensionHandler(string displayName)
 {
 	int iMinorVersion, iMajorVersion;
 
-	m_pDisplay = pDisplay;
+	m_pDisplay = XOpenDisplay(getenv(displayName.c_str()));
 	m_bCanUseRecord = true;
 
-	XLockDisplay(pDisplay);
+	XLockDisplay(m_pDisplay);
 	XSynchronize(m_pDisplay, True);
 	if ( ! XRecordQueryVersion(m_pDisplay, &iMinorVersion, &iMajorVersion) )
 	{
@@ -71,16 +61,19 @@ XRecordExtensionHandler::XRecordExtensionHandler(Display *pDisplay)
 
 	m_RecordingContext = XRecordCreateContext(m_pDisplay, 0, &m_RecordClient, 1, &m_RecordRange, 1);
 	XSynchronize(m_pDisplay, False);
-	XUnlockDisplay(pDisplay);
+	XUnlockDisplay(m_pDisplay);
 
 	m_bShouldRecord = false;
+	m_bShouldQuit = false;
 	m_bIsRecording = false;
 	pthread_create(&m_processingThread, NULL, recordingThreadMainFunction, this);
 }
 
 XRecordExtensionHandler::~XRecordExtensionHandler()
 {
-
+	m_bShouldQuit = true;
+	enableRecording(NULL, false);
+	pthread_join(m_processingThread, NULL);
 }
 
 void *XRecordExtensionHandler::recordingThreadMainFunction(void *arguments)
@@ -89,6 +82,12 @@ void *XRecordExtensionHandler::recordingThreadMainFunction(void *arguments)
 
 	while ( true )
 	{
+		if ( pXRecordObject->m_bShouldQuit )
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "XRecord handler thread quitting\n");
+			return NULL;
+		}
+
 		if ( pXRecordObject->m_bShouldRecord )
 		{
 			g_pPlutoLogger->Write(LV_STATUS, "Enabling recording context");
@@ -100,15 +99,21 @@ void *XRecordExtensionHandler::recordingThreadMainFunction(void *arguments)
 				g_pPlutoLogger->Write(LV_STATUS, "Could not enable recording context!");
 		}
 
-		g_pPlutoLogger->Write(LV_STATUS, "Sleeping until next time");
+		if ( pXRecordObject->m_bShouldQuit )
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "XRecord handler thread quitting\n");
+			return NULL;
+		}
+
 		pthread_mutex_lock(&pXRecordObject->m_mutexCondition);
 		pthread_cond_wait(&pXRecordObject->m_condition, &pXRecordObject->m_mutexCondition);
 		pthread_mutex_unlock(&pXRecordObject->m_mutexCondition);
-		g_pPlutoLogger->Write(LV_STATUS, "I'm awake");
 	}
+
+	return NULL;
 }
 
-bool XRecordExtensionHandler::enableRecording(bool bEnable)
+bool XRecordExtensionHandler::enableRecording(Orbiter *pRecordingOrbiter, bool bEnable)
 {
 	if ( ! m_bCanUseRecord )
 		return m_bCanUseRecord;
@@ -122,11 +127,13 @@ bool XRecordExtensionHandler::enableRecording(bool bEnable)
 		XLockDisplay(m_pDisplay);
 		XRecordDisableContext(m_pDisplay, m_RecordingContext);
 		XUnlockDisplay(m_pDisplay);
-		g_pPlutoLogger->Write(LV_STATUS, "done disblinmg recording context");
+		g_pPlutoLogger->Write(LV_STATUS, "Done disabling recording context");
+		m_pOrbiter = pRecordingOrbiter;
 	}
 	else if ( ! m_bIsRecording && bEnable )
 	{
 		m_bShouldRecord = true;
+		m_pOrbiter = pRecordingOrbiter;
 		pthread_cond_signal(&m_condition);
 	}
 
@@ -140,21 +147,24 @@ void XRecordExtensionHandler::XRecordingDataCallback(XPointer pData, XRecordInte
 
 	if ( pRecordedData->category == XRecordStartOfData )
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Thread 0x%x: Recording started", pthread_self());
+		g_pPlutoLogger->Write(LV_STATUS, "Recording context enabled.", pthread_self());
 		XRecordFreeData(pRecordedData);
 		return;
 	}
 
-	// XLockDisplay(pRecordingHandler->m_pDisplay);
 	g_pPlutoLogger->Write(LV_STATUS, "Processing new event.");
-	pRecordingHandler->processXRecordEntry(pRecordedData);
-	g_pPlutoLogger->Write(LV_STATUS, "Freeing event data.");
+	pRecordingHandler->processXRecordToOrbiterEvent(pRecordedData, &pRecordingHandler->m_OrbiterEvent);
 	XRecordFreeData(pRecordedData);
-	g_pPlutoLogger->Write(LV_STATUS, "after free.");
-	// XUnlockDisplay(pRecordingHandler->m_pDisplay);
+
+	if ( pRecordingHandler->m_pOrbiter )
+	{
+		Orbiter::Event *pEvent = new Orbiter::Event;
+		*pEvent = pRecordingHandler->m_OrbiterEvent;
+		pRecordingHandler->m_pOrbiter->CallMaintenanceInMiliseconds(0, &Orbiter::QueueEventForProcessing, pEvent, false );
+	}
 }
 
-void XRecordExtensionHandler::processXRecordEntry(XRecordInterceptData *pRecordedData)
+void XRecordExtensionHandler::processXRecordToOrbiterEvent(XRecordInterceptData *pRecordedData, Orbiter::Event *orbiterEvent)
 {
 	g_pPlutoLogger->Write(LV_STATUS, "Got event.");
 
@@ -167,18 +177,19 @@ void XRecordExtensionHandler::processXRecordEntry(XRecordInterceptData *pRecorde
 
 			switch ( pxEvent->u.u.type )
 			{
-				case KeyPress:
-				case KeyRelease:
-					g_pPlutoLogger->Write(LV_STATUS, "Thread 0x%x: Processing key: %d", pthread_self(), pxEvent->u.u.detail);
+				case KeyPress: case KeyRelease: // key related events types
+					orbiterEvent->type = pxEvent->u.u.type == KeyPress ? Orbiter::Event::BUTTON_DOWN : Orbiter::Event::BUTTON_UP;
+					orbiterEvent->data.button.m_iPK_Button = pxEvent->u.u.detail;
 					break;
 
-				case ButtonPress:
-				case ButtonRelease:
-					g_pPlutoLogger->Write(LV_STATUS, "Thread 0x%x: Processing button: %d", pthread_self(), pxEvent->u.u.detail );
+				case ButtonPress:  case ButtonRelease: // mouse button related event types
+					orbiterEvent->type = pxEvent->u.u.type == ButtonPress ? Orbiter::Event::REGION_DOWN : Orbiter::Event::REGION_UP;
+					orbiterEvent->data.region.m_iX = pxEvent->u.keyButtonPointer.eventX;
+					orbiterEvent->data.region.m_iY = pxEvent->u.keyButtonPointer.eventY;
 					break;
 
 				default:
-					g_pPlutoLogger->Write(LV_STATUS, "Thread 0x%x: Don't know how to processs event: %d", pthread_self(), pxEvent->u.u.type );
+					g_pPlutoLogger->Write(LV_STATUS, "Thread 0x%x: Don't know how to processs recorded event: %d", pthread_self(), pxEvent->u.u.type );
 			}
 		}
 	}

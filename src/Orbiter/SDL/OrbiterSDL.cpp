@@ -125,11 +125,11 @@ g_pPlutoLogger->Write(LV_STATUS, "~OrbiterSDL finished");
 /*virtual*/ void OrbiterSDL::RenderScreen()
 {
 	g_pPlutoLogger->Write(LV_STATUS,"$$$ RENDER SCREEN $$$ %s",(m_pScreenHistory_Current ? m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str() : " NO SCREEN"));
-    PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
 
     if (m_pScreenHistory_Current)
     {
-        SDL_FillRect(m_pScreenImage, NULL, SDL_MapRGBA(m_pScreenImage->format, 0, 0, 0, 255));
+        PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
+		SDL_FillRect(m_pScreenImage, NULL, SDL_MapRGBA(m_pScreenImage->format, 0, 0, 0, 255));
     }
 
     Orbiter::RenderScreen();

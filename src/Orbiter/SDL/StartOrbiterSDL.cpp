@@ -293,7 +293,11 @@ bool StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
 		Orbiter::Event orbiterEvent;
 		struct keyboardState keyboardState; // keep the state of the Ctrl/Shift etc if we need it in the furter calls.
 
-        while (!pCLinux->m_bQuit)
+		keyboardState.bShiftDown = keyboardState.bControlDown = keyboardState.bAltDown;
+		keyboardState.bRepeat = keyboardState.bCapsLock;
+		keyboardState.cKeyDown = 0;
+
+		while (!pCLinux->m_bQuit)
         {
 //g_pPlutoLogger->Write(LV_STATUS,"Before wait for event");
             SDL_WaitEvent(&Event);

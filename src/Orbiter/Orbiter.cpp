@@ -214,7 +214,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter is exiting");
 	m_bQuit=true;
 	pthread_cond_broadcast(&m_MaintThreadCond);  // Wake it up, it will quit when it sees the quit
 	pthread_mutex_lock(&m_MaintThreadMutex.mutex);  // Be sure it's not executing anything--it will lock this while it's doing an execute
-	
+
 	map<int,CallBackInfo *>::iterator itCallBackInfo;
 	for(itCallBackInfo = mapPendingCallbacks.begin(); itCallBackInfo != mapPendingCallbacks.end(); itCallBackInfo++)
 		delete (*itCallBackInfo).second;
@@ -450,7 +450,7 @@ void Orbiter::RealRedraw( void *data )
 
 	BeginPaint();
 
-    PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );
+    //PLUTO_SAFETY_LOCK( sm, m_ScreenMutex );
 	size_t s;
 
 	//render objects
@@ -1670,7 +1670,7 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter)
 
     Invalidate();
     return;
-*/
+*/PLUTO_SAFETY_LOCK( vm, m_ScreenMutex );
     RedrawObjects();
 }
 //------------------------------------------------------------------------
@@ -2731,17 +2731,28 @@ bool Orbiter::RenderDesktop( class DesignObj_Orbiter *pObj,  PlutoRectangle rect
 ACCEPT OUTSIDE INPUT
 */
 
-bool Orbiter::ProcessEvent( Orbiter::Event event )
+void Orbiter::QueueEventForProcessing( void *eventData )
 {
-	// a switch would be good but kdevelop somehow doesn't like the syntax and mekes it red :-(	
-	if (event.type == Orbiter::Event::BUTTON_DOWN )
+	Orbiter::Event *pEvent = (Orbiter::Event*)eventData;
+	ProcessEvent(*pEvent);
+}
+
+bool Orbiter::ProcessEvent( Orbiter::Event &event )
+{
+	// a switch would be good but kdevelop somehow doesn't like the syntax and mekes it red :-(
+	if ( event.type != Orbiter::Event::QUIT && event.type != Orbiter::Event::NOT_PROCESSED )
+		g_pPlutoLogger->Write(LV_STATUS, "Processing event type: %d", event.type);
+
+	if ( event.type == Orbiter::Event::BUTTON_DOWN )
 		return ButtonDown(event.data.button.m_iPK_Button);
-	else if ( event.type == Orbiter::Event::BUTTON_UP )
-		//ButtonUp(event.data.button.m_iPK_Button);
+
+	if ( event.type == Orbiter::Event::BUTTON_UP )
 		return ButtonUp(event.data.button.m_iPK_Button);
-	else if ( event.type == Orbiter::Event::REGION_DOWN )
+
+	if ( event.type == Orbiter::Event::REGION_DOWN )
 		return RegionDown(event.data.region.m_iX, event.data.region.m_iY);
-	else if ( event.type == Orbiter::Event::REGION_UP )
+
+	if ( event.type == Orbiter::Event::REGION_UP )
 		return  RegionUp(event.data.region.m_iX, event.data.region.m_iY); // Shouldn't this be like the above?
 
 	return false;

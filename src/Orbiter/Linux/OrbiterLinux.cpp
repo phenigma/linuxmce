@@ -37,16 +37,19 @@ OrbiterLinux::OrbiterLinux(int DeviceID,
     desktopInScreen(0),
     XServerDisplay(NULL)
 {
-    openDisplay();
+	XInitThreads();
+	openDisplay();
 
 	SDL_WM_SetCaption(m_strWindowName.c_str(), "");
 
-	m_pRecordHandler = new XRecordExtensionHandler(getDisplay());
+	m_pRecordHandler = new XRecordExtensionHandler(m_strDisplayName);
 }
 
 OrbiterLinux::~OrbiterLinux()
 {
-    closeDisplay();
+	m_pRecordHandler->enableRecording(this, false);
+	delete m_pRecordHandler;
+	closeDisplay();
 }
 
 void OrbiterLinux::reinitGraphics()
@@ -86,7 +89,6 @@ void OrbiterLinux::setDisplayName(string strDisplayName)
 
 bool OrbiterLinux::openDisplay()
 {
-	XInitThreads();
 	XServerDisplay = XOpenDisplay(m_strDisplayName.c_str());
 
     int currentScreen;
@@ -145,7 +147,7 @@ bool OrbiterLinux::resizeMoveDesktop(int x, int y, int width, int height)
     if ( ! m_bYieldInput )
 	{
         commandRatPoison(":keystodesktop on");
-		m_pRecordHandler->enableRecording(false);
+		m_pRecordHandler->enableRecording(this, false);
 	}
     else
     {
@@ -154,7 +156,7 @@ bool OrbiterLinux::resizeMoveDesktop(int x, int y, int width, int height)
 		// patch the rectangle to match the actual resolution
         width = m_nDesktopWidth;
         height = m_nDesktopHeight;
-		m_pRecordHandler->enableRecording();
+		m_pRecordHandler->enableRecording(this);
     }
 
 

@@ -532,8 +532,7 @@ public:
 	class Event
 	{
 	public:
-		typedef enum
-		{
+		typedef enum _EventType {
 			QUIT,
 			NOT_PROCESSED,
 			BUTTON_DOWN,
@@ -556,7 +555,9 @@ public:
 		} data;
 	};
 
-	virtual bool ProcessEvent( Event event );
+	virtual bool ProcessEvent( Orbiter::Event &event );
+
+	void QueueEventForProcessing( void *eventData );
 
 protected:
 	/**
