@@ -13,7 +13,6 @@
   *
   */
 
-
 #include "FileUtils.h"
 #include "StringUtils.h"
 #include "Other.h"
@@ -72,7 +71,11 @@ string StringUtils::Tokenize( string &sInput, string sToken, string::size_type &
 string StringUtils::ToUpper(string sInput)
 {
 #ifndef SYMBIAN
-    transform( sInput.begin(), sInput.end(), sInput.begin(), toupper );
+	for (string::iterator i = sInput.begin(); i != sInput.end(); i++)
+	{
+		*i = toupper(*i);
+	}
+//	transform( sInput.begin(), sInput.end(), sInput.begin(), toupper );
     return sInput;
 #else
     string sOutput( sInput );
@@ -84,7 +87,11 @@ string StringUtils::ToUpper(string sInput)
 string StringUtils::ToLower(string sInput)
 {
 #ifndef SYMBIAN
-    transform( sInput.begin(), sInput.end(), sInput.begin(), tolower );
+	for (string::iterator i = sInput.begin(); i != sInput.end(); i++)
+	{
+		*i = tolower(*i);
+	}
+//	transform( sInput.begin(), sInput.end(), sInput.begin(), tolower );
     return sInput;
 #else
     string sOutput(sInput);
