@@ -1,6 +1,3 @@
-#include "SDLGraphic.h"
-
-
 /*
  Orbiter
 
