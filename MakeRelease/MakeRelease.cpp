@@ -1020,7 +1020,7 @@ cout << "Making CVS Checkout to temporary\n";
 	cmd = " cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/"+
 			pRow_Package_Source->Name_get()+
 			" checkout " + pRow_Package_Source->Name_get();
-//	system(cmd.c_str());
+	system(cmd.c_str());
 	cmd = pRow_Package_Source->Name_get();
 	cout << cmd << "\n";
 	chdir(cmd.c_str());
