@@ -281,6 +281,12 @@ int main(int argc, char *argv[])
 
 	sCommand=StringUtils::ToLower(sCommand);
 
+	if (sCommand == "install")
+	{
+		cout << "#!/bin/sh" << endl;
+		cout << "error=0" << endl;
+	}
+	
 	Database_pluto_main database_pluto_main;
 	if(!database_pluto_main.Connect(&dceConfig))
 	{
@@ -295,12 +301,6 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	if (sCommand == "install")
-	{
-		cout << "#!/bin/sh" << endl;
-		cout << "error=0" << endl;
-	}
-		
 	PrintCmd(argc, argv);
 	pRow_Installation = pRow_Device->FK_Installation_getrow();
 
