@@ -105,6 +105,8 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
 
 		case SDL_KEYDOWN:
 			// on key up we update the keyboard state
+			// orbiterEvent->type = Orbiter::Event::BUTTON_DOWN;
+
 			switch (sdlEvent.key.keysym.sym)
 			{
                 case SDLK_LSHIFT: case SDLK_RSHIFT:		kbdState->bShiftDown = true; 				break;
@@ -119,8 +121,10 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
 
 		case SDL_KEYUP:
 #ifdef WIN32
-				RecordKeyboardAction(Event.key.keysym.sym);
+			RecordKeyboardAction(Event.key.keysym.sym);
 #endif
+			orbiterEvent->type = Orbiter::Event::BUTTON_DOWN;
+
 			kbdState->bRepeat = (kbdState->cKeyDown && (clock() - kbdState->cKeyDown > CLOCKS_PER_SEC / 2) );
 			kbdState->cKeyDown = 0;
 			g_pPlutoLogger->Write(LV_STATUS, "key up %d  rept: %d  shif: %d ctrl: %d alt: %d caps: %d: downtime: %d",
@@ -145,15 +149,23 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
 			else
 #endif
 			if( sdlEvent.key.keysym.sym==SDLK_LSHIFT || sdlEvent.key.keysym.sym==SDLK_RSHIFT )
+			{
+				orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
 				kbdState->bShiftDown=false;
+			}
 			else if( sdlEvent.key.keysym.sym==SDLK_LCTRL || sdlEvent.key.keysym.sym==SDLK_RCTRL )
+			{
+				orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
 				kbdState->bControlDown=false;
+			}
 			else if( sdlEvent.key.keysym.sym==SDLK_LALT || sdlEvent.key.keysym.sym==SDLK_RALT )
+			{
+				orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
 				kbdState->bAltDown=false;
+			}
 			else if( ! kbdState->bShiftDown && ! kbdState->bControlDown && ! kbdState->bAltDown && ! kbdState->bRepeat )
 			{
 				// No Modifiers were down
-				orbiterEvent->type = Orbiter::Event::BUTTON_DOWN;
 				switch (sdlEvent.key.keysym.sym )
 				{
                     case SDLK_0: case SDLK_KP0: 	orbiterEvent->data.button.m_iPK_Button = BUTTON_0_CONST; break;
@@ -192,6 +204,7 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
 					case SDLK_BACKSPACE:	orbiterEvent->data.button.m_iPK_Button = BUTTON_Back_CONST;  break;
 
 					default:
+						orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
                         g_pPlutoLogger->Write(LV_STATUS, "Unknown key: %d", (int) sdlEvent.key.keysym.sym);
 				};
 			} // else if( !bShiftDown && !bControlDown && !bAltDown && !bRepeat )
@@ -216,7 +229,8 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
  					case SDLK_8: 		orbiterEvent->data.button.m_iPK_Button = BUTTON_Asterisk_CONST; break;
 // 					case SDLK_9: 		orbiterEvent->data.button.m_iPK_Button = BUTTON_9_CONST; break;
 
-					default: {}
+					default:
+						orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
 				};
 			}
             else if( kbdState->bRepeat ) // if we need to repeat the key
@@ -243,9 +257,11 @@ void translateSDLEventToOrbiterEvent(SDL_Event &sdlEvent, Orbiter::Event *orbite
 					case SDLK_ASTERISK: orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_Asterisk_CONST; break
                     case SDLK_HASH:     orbiterEvent->data.button.m_iPK_Button = BUTTON_Rept_Pound_CONST; break;
 #endif
-					default: {}
+					default:
+						orbiterEvent->type = Orbiter::Event::NOT_PROCESSED;
 				}
 			}
+
 			break; // case SDL_KEYUP
 
 		case SDL_MOUSEMOTION: // not handled
