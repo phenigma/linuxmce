@@ -113,7 +113,13 @@ function uploadFloorplan($output,$dbADO) {
 		if(!move_uploaded_file($_FILES['fileImage']['tmp_name'],$path.'/'.$newPicName)){
 			header("Location: index.php?section=uploadFloorplan&error=Upload failed. Check the rights for $path");
 			exit();
+		}else{
+			$otherExtension=($extension=='jpg')?'png':'jpg';
+			if(file_exists($path.'/'.$page.'.'.$otherExtension)){
+				unlink($path.'/'.$page.'.'.$otherExtension);
+			}
 		}
+		
 		if($page==0){
 			$insertFloorplan='INSERT INTO Floorplan (FK_Installation, Page, Description) VALUES (?,?,?)';
 			$dbADO->Execute($insertFloorplan,array($installationID,$row['newPage'],$newDescription));

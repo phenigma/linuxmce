@@ -74,7 +74,7 @@
   $GLOBALS['commandParamPK_DeviceTemplate']=44;	// PK_CommandParameter from CommandParameter table for parameter "PK_DeviceTemplate"
   $GLOBALS['commandParamPK_EntertainArea']=45;	// PK_CommandParameter from CommandParameter table for parameter "PK_EntertainArea"
   
-  $GLOBALS['commandSetVar']=27;					// PK_Command for "Set var to path"
+  $GLOBALS['commandSetVar']=27;					// PK_Command for "Set Variable"
   $GLOBALS['commandGotoScreen']=5;				// PK_Command for "Go to screen"
   $GLOBALS['commandVariableNumber']=86;			// PK_Command for Variable Number
   
@@ -100,6 +100,7 @@
   $GLOBALS['NeighborstoCall']=36;			// PK_DeviceData for Neighbors to Call from DeviceData table
   
   $GLOBALS['camerasVariableNumbersArray']=array(18,19,20,21);
+  $GLOBALS['cameraVariable']=22;
   $GLOBALS['commandParameterValueToAsign']=5;
   $GLOBALS['commandParameterObjectScreen']=87;
   $GLOBALS['mnuSecurityCamerasDesignObj']=1414;	// PK_DesignObj for Security cameras
@@ -107,6 +108,9 @@
   $GLOBALS['SecurityArmDisarmTemplate']=13;		// PK_Template for Security - Arm Disarm
   $GLOBALS['SecuritySOSTemplate']=14;			// PK_Template for Security - SOS
   $GLOBALS['SecurityViewCamerasTemplate']=15;	// PK_Template for Security - View Cameras
+  $GLOBALS['SecurityViewOneCameraTemplate']=16;	// PK_Template for Security - View Camera
+  $GLOBALS['AsignAtRuntimeCommand']=88;			// PK_Command for Asign at runtime
+  $GLOBALS['mnuSingleCameraViewOnlyDesignObj']=1405;	// PK_DesignObj for Single Camera View Only
   
   // do not change the following lines 
   $addMasterUserUrl=$MasterUsersHost."index.php?section=add_master_user";

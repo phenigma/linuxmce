@@ -15,21 +15,11 @@ if (!$canModifyInstallation){
 	exit(0);
 }
 
-getDeviceChildsArray($deviceID,$dbADO);
-$toDelete = cleanArray($GLOBALS['childsArray']);
-$toDelete[]=$deviceID;
-if (!is_array($toDelete)) {
-	$toDelete=array();
-}
-	foreach ($toDelete as $elem) {
-		$queryDelData = 'delete from Device_DeviceData  where FK_Device = '.$elem;
-		$queryDelDevice = 'delete from Device where PK_Device = '.$elem;
-		$dbADO->_Execute($queryDelData);
-		$dbADO->_Execute($queryDelDevice);
-	}
+	deleteDevice($deviceID,$dbADO);
+	
 	$out.='
 	<script>
-		alert("Device'.(count($toDelete)>1?'s':'').' deleted!");
+		alert("Device(s) deleted!");
 		top.frames["treeframe"].location="index.php?section=leftMenu";
 		document.location.href="index.php?section=myDevices&action=showBasicInfo";
 	</script>

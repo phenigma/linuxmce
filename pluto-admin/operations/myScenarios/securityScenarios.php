@@ -11,6 +11,7 @@ $arrayID = $GLOBALS['ArrayIDForSecurity'];
 $cameraDevices=getDevicesArrayFromCategory($GLOBALS['rootCameras'],$dbADO);
 $cameraIDArray=array_keys($cameraDevices);
 
+deleteCommandGroup(107,$dbADO);
 if($action=='form') {
 	
 	$queryArray = 'SELECT * FROM Array WHERE PK_Array=?';	
@@ -78,7 +79,7 @@ if($action=='form') {
 		if(count($cameraDevices)>0){
 			$cameraStr='<table><tr>';
 			foreach($cameraDevices as $cameraID=>$cameraDescription){
-				$cameraStr.='<td><input type="checkbox" name="camera_'.$cameraID.'_room_'.$rowRooms['PK_Room'].'"> '.$cameraDescription.'</td>';
+				$cameraStr.='<td><input type="checkbox" name="camera_'.$cameraID.'_room_'.$rowRooms['PK_Room'].'" value="1"> '.$cameraDescription.'</td>';
 			}
 			$cameraStr.='</tr></table>';
 			$out.='
@@ -246,6 +247,7 @@ else{
 		$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterObjectScreen'],$GLOBALS['mnuSecurityCamerasDesignObj']));
 	}
 
+	
 	if(isset($_POST['updateScenario'])){
 		$insertCG_C='
 			INSERT INTO CommandGroup_Command 
@@ -258,7 +260,6 @@ else{
 			VALUES
 				(?,?,?)';
 
-		$dbADO->debug=true;
 		$displayedRoomsArray=explode(',',$_POST['displayedRooms']);
 		
 		$selectArmDisarm='SELECT * FROM CommandGroup WHERE FK_Template=?';
@@ -372,6 +373,60 @@ else{
 		if($uncheckedSOS==count($displayedRoomsArray))
 			deleteCommandGroup($sosCG,$dbADO);
 
+			
+		// Update CommandGroups description
+		$displayedCommandGroupsArray=explode(',',$_POST['displayedCommandGroups']);
+		foreach($displayedCommandGroupsArray as $commandGroup){
+			$description=$_POST['commandGroup_'.$commandGroup];
+			$updateCommandGroup='UPDATE CommandGroup SET Description=? WHERE PK_CommandGroup=?';
+			$dbADO->Execute($updateCommandGroup,array($description,$commandGroup));
+		}
+
+		$dbADO->debug=true;
+		$selectCameraCG='
+			SELECT CommandGroup.*,IK_CommandParameter 
+			FROM CommandGroup 
+				INNER JOIN CommandGroup_Command ON FK_CommandGroup=PK_CommandGroup
+				INNER JOIN CommandGroup_Command_CommandParameter ON FK_CommandGroup_Command=PK_CommandGroup_Command
+			WHERE FK_Template=? AND FK_Installation=? AND FK_CommandParameter=?';
+		$resCameraCG=$dbADO->Execute($selectCameraCG,array($GLOBALS['SecurityViewOneCameraTemplate'],$installationID,$GLOBALS['commandParameterValueToAsign']));
+		$camerasCGArray=array();
+		while($rowCameraCG=$resCameraCG->FetchRow()){
+			$camerasCGArray[$rowCameraCG['IK_CommandParameter']]=$rowCameraCG['PK_CommandGroup'];
+		}
+		// insert in CommandGroups for each camera
+		foreach($cameraDevices AS $cameraID=>$cameraDescription){
+			foreach($displayedRoomsArray as $room){		
+				$addToRoom=(isset($_POST['camera_'.$cameraID.'_room_'.$room]))?(int)$_POST['camera_'.$cameraID.'_room_'.$room]:0;
+				if($addToRoom==1){
+					if(!isset($camerasCGArray[$cameraID])){
+						// insert command group
+						$insertCommandGroup='
+							INSERT INTO CommandGroup 
+								(FK_Array,FK_Installation,Description,CanTurnOff,AlwaysShow,CanBeHidden,FK_Template)
+							VALUES
+								(?,?,?,?,?,?,?)';
+						$dbADO->Execute($insertCommandGroup,array($GLOBALS['ArrayIDForSecurity'],$installationID,'View '.$cameraDescription,0,0,0,$GLOBALS['SecurityViewOneCameraTemplate']));
+						$cgID=$dbADO->Insert_ID();
+						$camerasCGArray[$room]=$cgID;
+						
+						$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandSetVar'],0,0));					
+						$cg_cID=$dbADO->Insert_ID();
+						
+						$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandVariableNumber'],$GLOBALS['cameraVariable']));
+						$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterValueToAsign'],$cameraID));
+						$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['AsignAtRuntimeCommand'],1));
+						
+						$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandGotoScreen'],0,1));
+						$cg_cID=$dbADO->Insert_ID();
+						$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterObjectScreen'],$GLOBALS['mnuSingleCameraViewOnlyDesignObj']));
+						
+					}
+					print_r($camerasCGArray);
+					//$dbADO->Execute($insertCG_Room,array($camerasCGArray[$room],$room,$camerasCGArray[$room]));
+				}
+			}
+		}
 	}
 	
 	header("Location: index.php?section=securityScenarios");
