@@ -1,3 +1,19 @@
+/* 
+	Main
+	
+	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
+	
+	www.plutohome.com		
+	
+	Phone: +1 (877) 758-8648
+	
+	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
+	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
+	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+	
+	See the GNU General Public License for more details.
+*/
+
 /**
  *
  * @file Main.cpp
@@ -6,11 +22,6 @@
  *
  */
 
- /**
- *
- * Copyright Notice goes here
- *
- */
 
 //<-dceag-incl-b->
 #include "Xine_Plugin.h"
@@ -22,7 +33,7 @@
 #include "PlutoUtils/Other.h"
 #include "PlutoUtils/Other.h"
 
-#define  Xine_Plugin_VERSION "testing"
+#define  VERSION "testing"
 
 namespace DCE
 {
@@ -69,6 +80,18 @@ extern "C" {
 //<-dceag-main-b->
 int main(int argc, char* argv[]) 
 {
+	
+//                123456789012345678901234567890123456789012345678901234567890
+	cout<< " Copyright (C) 2004 Pluto, Inc., a Florida Corporation " << endl
+	    	<< " www.plutohome.com " << endl
+	    	<< " Phone: +1 (877) 758-8648 " << endl
+	    	<< " This program is free software; you can redistribute it " << endl
+		<< " and/or modify it under the terms of the GNU General Public License. " << endl
+		<< " This program is distributed in the hope that it will be useful, " << endl
+		<< " but WITHOUT ANY WARRANTY; without even the implied warranty " <<endl
+		<< " of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. " <<endl
+		<< " See the GNU General Public License for more details. "<< endl;		
+			
 	string sRouter_IP="dce_router";
 	int PK_Device=0;
 	string sLogger="stdout";
@@ -103,12 +126,20 @@ int main(int argc, char* argv[])
 
 	if (bError)
 	{
-		cout << "Xine_Plugin, v." << Xine_Plugin_VERSION << endl
+		
+//                       123456789012345678901234567890123456789012345678901234567890	
+		cout << "Xine_Plugin, v." << VERSION << endl
 			<< "A Pluto DCE Device.  See www.plutohome.com/dce for details." << endl
-			<< "Usage: Xine_Plugin [-r Router's IP] [-d My Device ID] [-l dce_router|stdout|null|filename]" << endl
-			<< "-r -- the IP address of the DCE Router  Defaults to 'dce_router'." << endl
-			<< "-d -- This device's ID number.  If not specified, it will be requested from the router based on our IP address." << endl
-			<< "-l -- Where to save the log files.  Specify 'dce_router' to have the messages logged to the DCE Router.  Defaults to stdout." << endl;
+			<< "Usage: Xine_Plugin [-r Router's IP] [-d My Device ID] " << endl
+			<< "[-l dce_router|stdout|null|filename]" << endl
+			<< "-r router's IP	-- the IP address of the DCE Router. " << endl
+			<< "	   Defaults to 'dce_router'." << endl
+			<< "-d my device ID	-- This device's ID number. " <<endl
+			<< "	   If not specified, it will be requested from the router " << endl
+			<< "	   based on our IP address." << endl
+			<< "-l dce_router|stdout|null|filename -- Where to save the log files. " << endl
+			<< "	   Specify 'dce_router' to have the messages logged " <<endl
+			<< "	   to the DCE Router.  Defaults to stdout." << endl;
 		exit(0);
 	}
 
