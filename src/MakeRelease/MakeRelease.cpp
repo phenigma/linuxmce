@@ -290,6 +290,37 @@ int main(int argc, char *argv[])
 	
 	cout << "Building version: " << g_pRow_Version->Description_get() << endl;  
 
+	for(size_t s=0;s<vectPackages_Main.size();++s)
+	{
+		Row_Package *pRow_Package = vectPackages_Main[s];
+
+		vector<Row_Package_Source *> vectRow_Package_Source_All;
+		string::size_type pos=0;
+		string sPK_RepositorySource;
+	cout << g_sPK_RepositorySource << endl;	
+		while( (sPK_RepositorySource=StringUtils::Tokenize(g_sPK_RepositorySource,",",pos)).length() )
+		{
+			vector<Row_Package_Source *> vectRow_Package_Source;
+			g_pDatabase_pluto_main->Package_Source_get()->GetRows( 
+				"FK_Package=" + StringUtils::itos(pRow_Package->PK_Package_get()) + " AND " +
+				"FK_RepositorySource=" + sPK_RepositorySource,&vectRow_Package_Source);
+	cout << "sources: " << vectRow_Package_Source.size() << endl;	
+			for(size_t s=0;s<vectRow_Package_Source.size();++s)
+			{
+				Row_Package_Source *pRow_Package_Source = vectRow_Package_Source[s];
+		// Update the version record
+		cout << "Setting version for package " << pRow_Package_Source->FK_Package_get() << " " << pRow_Package_Source->FK_Package_getrow()->Description_get() << 
+			" Source " << pRow_Package_Source->PK_Package_Source_get() << " " << pRow_Package_Source->FK_RepositorySource_getrow()->Description_get() << endl;
+
+				if( pRow_Package_Source->FK_RepositorySource_get()==REPOSITORYSOURCE_Pluto_CVS_CONST || pRow_Package_Source->FK_RepositorySource_get()==REPOSITORYSOURCE_Pluto_SVN_CONST )
+					pRow_Package_Source->Version_set(g_pRow_Version->VersionName_get());
+				else
+					pRow_Package_Source->Version_set(g_pRow_Version->VersionName_get());
+			}
+		}
+	}
+	g_pDatabase_pluto_main->Package_Source_get()->Commit();
+
 	cout << "********************************************************************" << endl
 		<< "COMPILATION PHASE" << endl
 		<< "********************************************************************" << endl;
@@ -472,20 +503,6 @@ cout << "sources: " << vectRow_Package_Source.size() << endl;
 
 bool CreateSource(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo)
 {
-    // Update the version record
-	cout << "Setting version for package " << pRow_Package_Source->FK_Package_get() << " " << pRow_Package_Source->FK_Package_getrow()->Description_get() << 
-		" Source " << pRow_Package_Source->PK_Package_Source_get() << " " << pRow_Package_Source->FK_RepositorySource_getrow()->Description_get() << endl;
-
-	pRow_Package_Source->Version_set(g_pRow_Version->VersionName_get());
-
-	// Also update the SVN/CVS record
-	vector<Row_Package_Source *> vectRow_Package_Source;
-	pRow_Package_Source->Table_Package_Source_get()->GetRows("FK_Package=" + StringUtils::itos(pRow_Package_Source->FK_Package_get()) + " AND (FK_RepositorySource=" +
-		StringUtils::itos(REPOSITORYSOURCE_Pluto_CVS_CONST) + " OR FK_RepositorySource=" + StringUtils::itos(REPOSITORYSOURCE_Pluto_SVN_CONST) + ")",&vectRow_Package_Source);
-	for(size_t s=0;s<vectRow_Package_Source.size();++s)
-		vectRow_Package_Source[s]->Version_set(g_pRow_Version->VersionName_get());
-	pRow_Package_Source->Table_Package_Source_get()->Commit();
-
 	cout << "\tCreating source: " << pRow_Package_Source->FK_RepositorySource_getrow()->Description_get() << endl;
 	cout << "\t--------------------------" << endl;
 
