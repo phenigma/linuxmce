@@ -1107,6 +1107,60 @@ void Database::Reset_psc()
 		{
 			pTable->TrackChanges_set(false);
 			pTable->TrackChanges_set(true);
+
+			// We need to update all the psc_id's to have a sequential number.  First figure out the primary keys for this table
+			if( pTable->m_listField_PrimaryKey.size()==0 )
+			{
+				cout << "**Error**  Table: " << pTable->Name_get() << " has no primary key.  Can't update it." << endl;
+				throw "Database error";
+			}
+			ostringstream sql;
+			sql << "SELECT ";
+			bool bFirst=true;
+			for(ListField::iterator it=pTable->m_listField_PrimaryKey.begin();it!=pTable->m_listField_PrimaryKey.end();++it)
+			{
+				Field *pField = *it;
+				if( bFirst )
+					bFirst=false;
+				else
+					sql << ",";
+
+				sql << "`" << pField->Name_get( ) << "`";
+			}
+			
+			sql << " FROM `" << pTable->Name_get() << "`";
+			PlutoSqlResult result_set;
+			MYSQL_ROW row=NULL;
+			int RowCount=1;
+			if( ( result_set.r=mysql_query_result( sql.str( ) ) ) )
+			{
+				while ( row = mysql_fetch_row( result_set.r ) )
+				{
+					sql.str("");
+					sql << "UPDATE `" << pTable->Name_get() << "` SET psc_mod=0,psc_id=" << RowCount++ << " WHERE ";
+					int FieldCount=0;
+					bool bFirst=true;
+					for(ListField::iterator it=pTable->m_listField_PrimaryKey.begin();it!=pTable->m_listField_PrimaryKey.end();++it)
+					{
+						Field *pField = *it;
+						if( bFirst )
+							bFirst=false;
+						else
+							sql << " AND ";
+
+						sql << "`" << pField->Name_get( ) << "`='";
+						if( row[FieldCount] )
+							sql << row[FieldCount];
+						sql << "'";
+						FieldCount++;
+					}
+					if( threaded_mysql_query(sql.str())!=0 )
+					{
+						cerr << "Could not update table " << pTable->Name_get() << endl;
+						throw "Database error";
+					}
+				}
+			}
 		}
 		else
 			pTable->TrackChanges_set(false);

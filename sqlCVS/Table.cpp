@@ -59,6 +59,7 @@ void Table::GetFields( )
 	for( MapField::iterator it=m_mapField.begin( );it!=m_mapField.end( );++it )
 		delete ( *it ).second;
 	m_mapField.clear( );
+	m_listField_PrimaryKey.clear();
 
 	PlutoSqlResult res;
 	MYSQL_ROW row=NULL;

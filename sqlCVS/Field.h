@@ -48,6 +48,11 @@ namespace sqlCVS
 		 */
 		Field( class Table *pTable, MYSQL_FIELD *pMYSQL_FIELD );
 
+		~Field()
+		{
+int k=2;
+		}
+
 		/**
 		 * @brief Accessors 
 		 */
