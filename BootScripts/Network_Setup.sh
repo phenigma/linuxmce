@@ -34,13 +34,13 @@ Fwd="forwarders {"
 for i in $NS; do
 	Fwd=$(printf "%s" "$Fwd~!$i;")
 done
-Fwd=$(printf "%s" "$Fwd~}~")
-echo "$Fwd" | tr '~!' '\n\t' >/etc/bind9/named.conf.forwarders
+Fwd=$(printf "%s" "$Fwd~};~")
+echo "$Fwd" | tr '~!' '\n\t' >/etc/bind/named.conf.forwarders
 
 awk 'BEGIN { Replace = 0 }
 /\/\/ forwarders/ {
 	Replace = 3;
-	print("include \"/etc/bind9/named.conf.forwarders\";\n");
+	print("include \"/etc/bind/named.conf.forwarders\";\n");
 }
 Replace == 0 { print }
 Replace != 0 { Replace-- }

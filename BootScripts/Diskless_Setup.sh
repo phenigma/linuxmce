@@ -263,7 +263,9 @@ for Client in $DisklessR; do
 	chmod +x /usr/pluto/diskless/$IP/usr/pluto/bin/Start_LocalDevices_Static.sh
 
 	echo -n " NAT"
-	iptables -t nat -A POSTROUTING -s $IP -m mac --mac $MAC -j MASQUERADE
+	iptables -t nat -A POSTROUTING -s $IP -j MASQUERADE
+
+	# TODO: MAC-based firewall FORWARD access
 
 	echo
 	MoonNumber=$((MoonNumber+1))
