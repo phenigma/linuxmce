@@ -6,7 +6,7 @@
 #include "AlarmManager.h"
 #include "SerializeClass/SerializeClass.h"
 #include "DeviceData_Router.h"
-#include "PlutoUtils/MySqlHelper.h"
+#include "PlutoUtils/MySQLHelper.h"
 
 #include <set>
 #include <queue>
