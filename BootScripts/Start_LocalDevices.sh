@@ -53,7 +53,10 @@ for command in $CommandList; do
 		Logging "$TYPE" "$SEVERITY_WARNING" "Child device ($ChildDeviceID) was configured but the startup script ($ChildCommand) is not available in /usr/pluto/bin.";
 	elif [ ! -x /usr/pluto/bin/$ChildCommand ]; then 
 		Logging "$TYPE" "$SEVERITY_WARNING" "Child device ($ChildDeviceID) was configured but the startup script ($ChildCommand) existent in /usr/pluto/bin is not executable.";
+	elif [ `basename $0` = `basename $ChildCommand` ]; then
+		/usr/pluto/bin/$ChildCommand -d $ChildDeviceID -r $DCERouter;
 	else
-		screen -d -m -S "$ChildDescription" /bin/bash -c "(echo `date` Starting; /usr/pluto/bin/$ChildCommand -d $ChildDeviceID -r $DCERouter) | tee /var/pluto/log/$ChildDeviceID-$ChildDescription.log";
+		Logging "$TYPE" "$SEVERITY_NORMAL" "Launching device $ChildDeviceID in screen session ($ChildDescription)";
+		screen -d -m -S "$ChildDescription-$ChildDeviceID" /usr/pluto/bin/Spawn_Device.sh $ChildDeviceID $DCERouter /usr/pluto/bin/$ChildCommand
 	fi;
 done
