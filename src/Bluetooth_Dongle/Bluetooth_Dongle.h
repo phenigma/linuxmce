@@ -154,9 +154,9 @@ public:
 		 */
 		virtual void LostDevice( class PhoneDevice *pDevice );
 		
-// todo - temporary hacks -- see comments in cpp file
-virtual void Intern_NewDeviceDetected(class PhoneDevice *pDevice);
-virtual void Intern_LostDevice(class PhoneDevice *pDevice);
+		virtual void Intern_NewDeviceDetected(class PhoneDevice *pDevice);
+
+		virtual void Intern_LostDevice(class PhoneDevice *pDevice);
 
 		/**
 		 * @brief called if the signal strength varies by moe then 10 to refresh the connection
@@ -164,11 +164,6 @@ virtual void Intern_LostDevice(class PhoneDevice *pDevice);
 		 */
 		virtual void SignalStrengthChanged( class PhoneDevice *pDevice );
 		
-		/**
-		 * @brief checks the connection to the specified device
-		 */
-		virtual void CheckConnection( class PhoneDevice *pDevice );
-	
 		/**
 		 * @brief gets the private member data
 		 */

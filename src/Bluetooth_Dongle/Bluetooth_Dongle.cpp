@@ -326,7 +326,6 @@ void Bluetooth_Dongle::Intern_LostDevice(class PhoneDevice *pDevice)
 
 void Bluetooth_Dongle::NewDeviceDetected( class PhoneDevice *pDevice )
 {
-//printf("Bluetooth_Dongle::NewDeviceDetected");	
 	// We'll just handle this the same way
 	SignalStrengthChanged( pDevice );
 }
@@ -372,8 +371,6 @@ void Bluetooth_Dongle::LostDevice( class PhoneDevice *pDevice )
 
 void Bluetooth_Dongle::SignalStrengthChanged( class PhoneDevice *pDevice )
 {
-//printf("Bluetooth_Dongle::SignalStrengthChanged");
-
 	BD_Orbiter *pBD_Orbiter = m_mapOrbiterSockets_Find( pDevice->m_sMacAddress );
 
 	if( NULL != pBD_Orbiter )
@@ -381,37 +378,11 @@ void Bluetooth_Dongle::SignalStrengthChanged( class PhoneDevice *pDevice )
 
  	if ( !pDevice->m_bIsConnected )
 	{
-		//printf( "Detection event, link quality: %d", pDevice->m_iLinkQuality );
-
 		g_pPlutoLogger->Write( LV_WARNING, "Detected device mac: %s link quality: %d", 
 			pDevice->m_sMacAddress.c_str(), pDevice->m_iLinkQuality );
 
 		GetEvents()->Mobile_orbiter_detected( pDevice->m_sMacAddress, pDevice->m_iLinkQuality, pDevice->m_sID );
 	}	
-}
-
-//-----------------------------------------------------------------------------------------------------
-
-void Bluetooth_Dongle::CheckConnection( class PhoneDevice *pDevice )
-{
-//	PLUTO_SAFETY_LOCK( bm, m_BTMutex );
-
-	/*
-	BD_Orbiter *pBD_Orbiter = m_mapOrbiterSockets_Find( pDevice->m_sMacAddress );
-
-	if( NULL != pBD_Orbiter
-		&& ( ( NULL != pBD_Orbiter->m_pBDCommandProcessor && pBD_Orbiter->m_pBDCommandProcessor->m_bDead ) 
-			|| NULL == pBD_Orbiter->m_pBDCommandProcessor ) )
-	{
-		g_pPlutoLogger->Write( LV_WARNING, "No connection with app on %s device!", pDevice->m_sID.c_str() );
-	
-		//GetEvents()->Mobile_orbiter_lost( pDevice->m_sMacAddress.c_str() );
-
-		pDevice->m_iLinkQuality = 0;
-	}
-	
-	*/
-	
 }
 
 //-----------------------------------------------------------------------------------------------------

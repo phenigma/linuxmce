@@ -35,6 +35,8 @@ public:
 protected:
 	// This function needs to be overridden 
 	virtual bool ScanningLoop();
+
+	virtual int GetLinkQuality(const char *addr);
 };
 #endif
 

@@ -589,3 +589,62 @@ void PhoneDetection_Bluetooth_Linux::GetLinkQuality()
 	}
 }
 */	
+
+int PhoneDetection_Bluetooth_Linux::GetLinkQuality(const char *addr)
+{
+	/*
+	int dev_id = m_DevInfo.dev_id;
+
+	struct hci_conn_info_req *cr;
+	struct hci_request rq;
+	get_link_quality_rp rp;
+	bdaddr_t bdaddr;
+	int dd;
+
+	str2ba(addr, &bdaddr);
+
+	dd = hci_open_dev(dev_id);
+	if (dd < 0) {
+		perror("HCI device open failed");
+		exit(1);
+	}
+
+	cr = malloc(sizeof(*cr) + sizeof(struct hci_conn_info));
+	if (!cr)
+		return;
+
+	bacpy(&cr->bdaddr, &bdaddr);
+	cr->type = ACL_LINK;
+	if (ioctl(dd, HCIGETCONNINFO, (unsigned long) cr) < 0) {
+		perror("Get connection info failed");
+		exit(1);
+	}
+
+	memset(&rq, 0, sizeof(rq));
+	rq.ogf    = OGF_STATUS_PARAM;
+	rq.ocf    = OCF_GET_LINK_QUALITY;
+	rq.cparam = &cr->conn_info->handle;
+	rq.clen   = 2;
+	rq.rparam = &rp;
+	rq.rlen   = GET_LINK_QUALITY_RP_SIZE;
+
+	if (hci_send_req(dd, &rq, 100) < 0) {
+		perror("HCI get_link_quality request failed");
+		exit(1);
+	}
+
+	if (rp.status) {
+		fprintf(stderr, "HCI get_link_quality cmd failed (0x%2.2X)\n",
+			rp.status);
+		exit(1);
+	}
+	printf("Link quality: %d\n", rp.link_quality);
+
+	int link_quality = rp.link_quality;
+
+	close(dd);
+	free(cr);
+
+	return link_quality;
+	*/
+}
