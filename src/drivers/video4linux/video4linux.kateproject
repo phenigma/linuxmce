@@ -1,6 +1,6 @@
 [Dir doc]
 Dirs=blackbird
-Files=
+Files=CARDLIST.bttv/CARDLIST.saa7134/CARDLIST.tuner/Cards/not-in-cx2388x-datasheet.txt/README.bttv/README.cx88/README.ir/README.saa7134/Sound-FAQ/Tuners
 
 [Dir doc/blackbird]
 Dirs=jelle
