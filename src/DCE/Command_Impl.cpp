@@ -295,8 +295,8 @@ void Command_Impl::KillSpawnedDevices()
 //		system( sCmd.c_str() );
 	}
 	g_pPlutoLogger->Write(LV_STATUS, "Initiating kill for: %s", sSpawnedDevices.c_str());
-	string sCmd = string("/usr/pluto/bin/KillScreens.sh ") + sSpawnedDevices;
-	g_pPlutoLogger->Write(LV_STATUS, "Cmd: %s", sCmd.c_str());
+//	string sCmd = string("/usr/pluto/bin/KillScreens.sh ") + sSpawnedDevices;
+//	g_pPlutoLogger->Write(LV_STATUS, "Cmd: %s", sCmd.c_str());
 // Temporary hack - for some unexplainable reason, the KillScreens script, although it appears correct
 // is actually causing *everything* to die, including the screen session and bash that runs Orbiter, preventing them from 
 // ever restarting.  Temporarily remove this, and let the spawned devices re-spawn themselves, not being tied to Orbiter

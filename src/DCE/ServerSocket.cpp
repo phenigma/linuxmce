@@ -43,11 +43,11 @@ void *BeginWapClientThread( void *SvSock )
 	ServerSocket *pCS = (ServerSocket *)SvSock;
 	if( !pCS->m_bThreadRunning )
 	{
-		delete pCS;
+//		delete pCS;  // TODO: HACK -- we've got a socket leak here
 		return NULL; // Should have been set in the constructor
 	}
 	pCS->Run();
-	delete pCS;
+//	delete pCS;  // TODO: HACK -- we've got a socket leak here
 	return NULL;
 }
 
