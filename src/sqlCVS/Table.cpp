@@ -1796,7 +1796,7 @@ void Table::VerifyIntegrity()
 		MYSQL_ROW row=NULL;
 		int psc_id_last=0;
 
-		if( ( result_set.r=m_pDatabase->mysql_query_result( sql.str( ) ) ) )
+		if( g_GlobalConfig.m_sCommand!="update-psc" && ( result_set.r=m_pDatabase->mysql_query_result( sql.str( ) ) ) )
 		{
 			while( ( row = mysql_fetch_row( result_set.r ) ) )
 			{
@@ -1808,10 +1808,7 @@ void Table::VerifyIntegrity()
 				psc_id_last = atoi(row[0]);
 			}
 		}
-if( m_sName=="CommandGroup_Command_CommandParameter" )
-{
-int k=2;
-}
+
 		for(MapField::iterator it=m_mapField.begin();it!=m_mapField.end();++it)
 		{
 			Field *pField = (*it).second;

@@ -335,10 +335,10 @@ int main( int argc, char *argv[] )
 				g_GlobalConfig.m_sCommand=GetCommand( );
 				database.m_bInteractiveMode=true;
 			}
-			if( database.bIsInvalid( ) && g_GlobalConfig.m_sCommand!="import" )
+			if( database.bIsInvalid( ) && g_GlobalConfig.m_sCommand!="import" && g_GlobalConfig.m_sCommand!="update-psc")
 			{
 				g_GlobalConfig.m_sCommand="";
-				cerr << "Database is invalid. Import is the only available option" << endl;
+				cerr << "Database is invalid. Import and update-psc " << endl << "are the only available options" << endl;
 				continue;
 			}
 			if( g_GlobalConfig.m_sCommand=="create" )
