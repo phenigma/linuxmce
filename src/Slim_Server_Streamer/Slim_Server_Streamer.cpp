@@ -241,7 +241,7 @@ string Slim_Server_Streamer::SendReceiveCommand(string command)
                     m_dwPK_Device,                      // send from here
                     DEVICETEMPLATE_App_Server_CONST,    // to an application server
                     BL_SameComputer,                    // on the same computer
-                    "/usr/pluto/bin/LaunchSlimServer",  // launch this
+                    "/usr/pluto/bin/LaunchSlimServer.sh",  // launch this
                     "slim-server",                              // reference it with this name
                     StringUtils::itos(m_iSlimServerCliPort),    // pass it the desired port number for reconnection.
                     "",                                         // execute this serialized message on exit with failure
@@ -311,7 +311,7 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
     {
 		string macAddress, strResult;
 
-		if ( pStreamer->m_bShouldQuit ) 
+		if ( pStreamer->m_bShouldQuit )
 			return NULL;
 
         PLUTO_SAFETY_LOCK( pm, pStreamer->m_mutexDataStructureAccess);
