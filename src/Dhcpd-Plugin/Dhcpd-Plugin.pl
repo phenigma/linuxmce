@@ -23,10 +23,20 @@ while (1 eq 1) {
   $found = 0;
 
   @data = split(/ /, $inline);
-  if($data[4] eq "dhcpd:") {
-    if($data[5] eq "DHCPOFFER") {
-      $mac_found = $data[9];
-      $ip_sent = $data[7];
+  if($data[4] eq "localhost") {
+    $tag = $data[4];
+    $op = $data[5];
+    $mac_found = $data[9];
+    $ip_sent = $data[7];
+  } else {
+    $tag = $data[5];
+    $op = $data[6];
+    $mac_found = $data[10];
+    $ip_sent = $data[8];
+  }
+
+  if($tag eq "dhcpd:") {
+    if($op eq "DHCPOFFER") {
 
       system("/usr/pluto/bin/convert_mac $mac_found > dhcpd_temp.file");
       open(FILE, "dhcpd_temp.file");

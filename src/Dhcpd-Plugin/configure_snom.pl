@@ -4,10 +4,6 @@ use DBI;
 #use strict;
 use Socket;
 
-open(CONF,"/etc/pluto.conf");
-@data=<CONF>;
-close(CONF);
-
 $line;
 foreach $line (@data) {
   ($option, $eq, $value) = split(/ /,$line);
@@ -27,11 +23,19 @@ $db_handle = DBI->connect("dbi:mysql:database=pluto_main;host=$DBHOST;user=$DBUS
 $sql = "select IPaddress from Device where PK_Device=$PK_Device";
 $statement = $db_handle->prepare($sql) or die "Couldn't prepare query '$sql': $DBI::errstr\n";
 $statement->execute() or die "Couldn't execute query '$sql': $DBI::errstr\n";
-$row_ref;
 while($row_ref = $statement->fetchrow_hashref())
-  {
+{
   $DCEIP = $row_ref->{IPaddress};
-  }
+}
+
+$sql = "select IPaddress from Device where Description='CORE'";
+$st = $db_handle->prepare($sql);
+$st->execute();
+if($row = $st->fetchrow_hashref()) {
+  $shost = $row->{'IPaddress'};
+} else {
+  $shost = "192.168.1.1";
+}
   
 if($ARGV[0] ne "-d") {
   print "<USAGE-1>\n$_[0] -d <Device Template> -i <IP> -m <mac address>\n";
@@ -93,7 +97,7 @@ print FILE "<html>\n<pre>\n";
 print FILE "user_mailbox1: $ext\n";
 print FILE "user_name1: $ext\n";
 print FILE "user_realname1: $ext\n";
-print FILE "user_host1: $DBHOST\n";
+print FILE "user_host1: $shost\n";
 print FILE "</pre>\n<html>\n";
 close(FILE);
 
@@ -117,6 +121,6 @@ while($var == 1) {
 }
 close SOCKET;
                   
-system("curl -d \"update_policy=ask_for_update&setting_server=http%3A%2F%2F10.0.0.150%2Fsnom$ext.htm&dns_domain=1control.com&dns_server1=10.0.0.1&dns_server2=aaa&http_user=&http_pass=&http_proxy=&http_port=&lcserver1=&lcserver2=&vlan=&SETTINGS=Save\" http://$ip/set_net_adv_en.htm > tmp");
+system("curl -d \"update_policy=ask_for_update&setting_server=http%3A%2F%2F$shost%2Fsnom$ext.htm&dns_domain=1control.com&dns_server1=$shost&dns_server2=aaa&http_user=&http_pass=&http_proxy=&http_port=&lcserver1=&lcserver2=&vlan=&SETTINGS=Save\" http://$ip/set_net_adv_en.htm > tmp");
 system("curl http://$ip/set_base_en.htm?reboot=Reboot > tmp");
 system("rm tmp");
