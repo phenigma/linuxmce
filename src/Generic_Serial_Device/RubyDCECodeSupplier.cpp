@@ -160,9 +160,11 @@ RubyDCECodeSupplier::TranslateCommandToRuby(const std::string& cmdtxt) {
 		return cmdtxt;
 	}
 	
+	g_pPlutoLogger->Write(LV_STATUS, "Translating Command CODE (length %d): \n%s\n", cmdtxt.length(), cmdtxt.c_str());
+	
 	string ret;
 	int first = -1, last = -1;
-	while(1) {
+	while(last < cmdtxt.length()) {
 		first = cmdtxt.find("<$", last + 1);
 		if(first < 0) {	
 			ret += cmdtxt.substr(last + 1, cmdtxt.length() - last - 1);
