@@ -1651,7 +1651,8 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
                     m_mapVariable[iPK_Variable] = pMessage_Out->m_mapParameters[COMMANDPARAMETER_Value_To_Assign_CONST];
                 delete pMessage_Out;
             }
-            pDesignObj_DataGrid->m_GridCurCol=pDesignObj_DataGrid->m_GridCurRow=0;
+		    pDesignObj_DataGrid->m_GridCurCol = pDesignObj_DataGrid->m_iInitialColNum;
+	        pDesignObj_DataGrid->m_GridCurRow = pDesignObj_DataGrid->m_iInitialRowNum;
             pDesignObj_DataGrid->bReAcquire=true;
             if(  bRefreshGrids  )
                 m_vectObjs_NeedRedraw.push_back( pDesignObj_DataGrid );
@@ -1837,10 +1838,11 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter)
     CMD_Set_Variable(VARIABLE_Status_CONST,pDesignObj_Orbiter->m_pFloorplanObject->Status);
 
     // We've selected this object twice, cycle through the vector of device groups
-    if( m_pObj_LastSelected==pDesignObj_Orbiter && pDesignObj_Orbiter->m_pFloorplanObject->m_pDeviceData_Base )
+    if( m_pObj_LastSelected==pDesignObj_Orbiter )
     {
-        // We went past the end, select nothing
-        if( m_iLastEntryInDeviceGroup>=(int) pDesignObj_Orbiter->m_pFloorplanObject->m_pDeviceData_Base->m_vectDeviceGroup.size()-1 )
+        // We went past the end, select nothing.  Or this is an ent area with no device pointer, so there are no groups anyway
+        if( !pDesignObj_Orbiter->m_pFloorplanObject->m_pDeviceData_Base || 
+			m_iLastEntryInDeviceGroup>=(int) pDesignObj_Orbiter->m_pFloorplanObject->m_pDeviceData_Base->m_vectDeviceGroup.size()-1 )
         {
 			m_vectObjs_NeedRedraw.push_back((DesignObj_Orbiter *) pDesignObj_Orbiter->m_pParentObject);
             m_mapDevice_Selected.clear();
@@ -1871,7 +1873,10 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter)
     }
     else
     {
-        m_mapDevice_Selected[pDesignObj_Orbiter->m_pFloorplanObject->PK_Device] = pDesignObj_Orbiter->m_pFloorplanObject->m_pDeviceData_Base;
+		if( m_mapDevice_Selected.find(pDesignObj_Orbiter->m_pFloorplanObject->PK_Device)!=m_mapDevice_Selected.end() )
+			m_mapDevice_Selected.erase(pDesignObj_Orbiter->m_pFloorplanObject->PK_Device);
+		else
+	        m_mapDevice_Selected[pDesignObj_Orbiter->m_pFloorplanObject->PK_Device] = pDesignObj_Orbiter->m_pFloorplanObject->m_pDeviceData_Base;
         m_pObj_LastSelected=pDesignObj_Orbiter;
     }
 	m_vectObjs_NeedRedraw.push_back(pDesignObj_Orbiter);

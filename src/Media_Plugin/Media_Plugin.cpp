@@ -1962,7 +1962,11 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 	list<EntertainArea *>::iterator itList;
 
 	string output = "";
-	for ( itList = listStop.begin(); itList != listStop.end(); itList++ )  output += StringUtils::itos((*itList)->m_iPK_EntertainArea) + " ";
+	for ( itList = listStop.begin(); itList != listStop.end(); itList++ )
+	{
+		MediaInEAEnded(*itList);
+		output += StringUtils::itos((*itList)->m_iPK_EntertainArea) + " ";
+	}
 	g_pPlutoLogger->Write(LV_STATUS, "Stop list: %s", output.c_str());
 
 	output = "";

@@ -478,13 +478,13 @@ int k=2;
 	if( bUseOCG )
 	{
 		string FileName = sSaveToFile + ".ocg";
-		cout << "Saving " FileName << endl;
+		cout << "Saving " << FileName << endl;
 		SDL_SaveOCG(pRendererImage->m_pSDL_Surface, FileName);
 	}
 	else
 	{
 		string FileName = sSaveToFile + ".png";
-		cout << "Saving " FileName << endl;
+		cout << "Saving " << FileName << endl;
 		FILE * File = fopen(FileName.c_str(), "wb");
 		SaveImageToPNGFile(pRendererImage, File);
 		fclose(File);
