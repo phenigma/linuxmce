@@ -112,11 +112,14 @@ OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirector
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ OrbiterSDL::~OrbiterSDL()
 {
+g_pPlutoLogger->Write(LV_STATUS, "about to free surface");
+
 #ifndef USE_ONLY_SCREEN_SURFACE
 	SDL_FreeSurface(m_pScreenImage);
 #endif
 
     m_pScreenImage = NULL;
+g_pPlutoLogger->Write(LV_STATUS, "~OrbiterSDL finished");
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::RenderScreen()

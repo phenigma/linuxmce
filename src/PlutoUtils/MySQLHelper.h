@@ -122,7 +122,11 @@ public:
 		}
 	#endif
 
-		return mysql_store_result(m_pMySQL);
+		MYSQL_RES *pMYSQL_RES = mysql_store_result(m_pMySQL);
+#ifdef LOG_ALL_QUERIES
+		g_pPlutoLogger->Write(LV_STATUS,"Query returned %d rows: %s",pMYSQL_RES ? pMYSQL_RES->row_count : 0, query.c_str());
+#endif
+		return pMYSQL_RES;
 	}
 
 	int threaded_mysql_query(string query,bool bIgnoreErrors=false)
@@ -150,6 +154,9 @@ public:
 			g_pPlutoLogger->Write(LV_WARNING,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		}
 	#endif
+#ifdef LOG_ALL_QUERIES
+		g_pPlutoLogger->Write(LV_STATUS,"Executed query %s", query.c_str());
+#endif
 		return iresult;
 	}
 
@@ -177,6 +184,9 @@ public:
 			g_pPlutoLogger->Write(LV_WARNING,"Query: %s took %d ms",query.c_str(),(int) (cStop-cStart));
 		}
 	#endif
+#ifdef LOG_ALL_QUERIES
+		g_pPlutoLogger->Write(LV_STATUS,"Query has ID %d: %s", (int) mysql_insert_id(m_pMySQL), query.c_str());
+#endif
 		return (int) mysql_insert_id(m_pMySQL);
 	}
 };

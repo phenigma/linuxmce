@@ -441,5 +441,6 @@ bool StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
 	bool bReload = pCLinux->m_bReload;
 g_pPlutoLogger->Write(LV_STATUS, "End of SDL loop with reload: %s",(bReload ? "Y" : "N"));
     delete pCLinux;
+g_pPlutoLogger->Write(LV_STATUS, "finished deleting pcLinux");
 	return bReload;
 }

@@ -168,11 +168,15 @@ Command_Impl::~Command_Impl()
 		delete m_pData;
 	if (this==m_pPrimaryDeviceCommand && m_pEvent)
 		delete m_pEvent;
-	if( m_bKillSpawnedDevicesOnExit )
-		KillSpawnedDevices();
 	if( m_pcRequestSocket )
 		delete m_pcRequestSocket;
 	m_pcRequestSocket=NULL;
+	if( m_bKillSpawnedDevicesOnExit )
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "About to call kill spawned devices" );
+		KillSpawnedDevices();
+	}
+	g_pPlutoLogger->Write( LV_STATUS, "~Command_Impl finished" );
 }
 
 Command_Impl *Command_Impl::CreateCommand( int iPK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent )
