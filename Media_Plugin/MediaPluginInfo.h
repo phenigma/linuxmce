@@ -117,16 +117,6 @@ namespace DCE
         class MediaPluginInfo *m_pMediaPluginInfo; /** Which handler has primary responsibility for this media stream */
 
         class OH_Orbiter *m_pOH_Orbiter;    /** Which orbiter started this stream in the first place */
-<<<<<<< .mine
-=======
-        
-	map<int,class EntertainArea *> m_mapEntertainArea; /** The entertainment areas where this stream is playing */
-	
-        /** 
-		* As more 'play media' commands come in to this stream, it will add them to the queue so the user can save as a play list. 
-		* If it's a mounted media, like dvd, that won't happen
-		*/
->>>>>>> .r470
 
         map<int,class EntertainArea *> m_mapEntertainArea; /** The entertainment areas where this stream is playing */
 
@@ -135,12 +125,8 @@ namespace DCE
          * If it's a mounted media, like dvd, that won't happen
          */
         deque<string> m_dequeFilename;  /** The filenames we're playing */
-<<<<<<< .mine
         bool          m_bCanChangePlaylist;
 
-=======
-		deque<int> m_dequePK_MED_File; /** A list of media files from the Media attributes class */
->>>>>>> .r470
         deque<int> m_dequePK_MED_File; /** A list of media files from the Media attributes class */
 
         int m_ivectFilenames_Pos,m_iPK_MED_File_Pos;  /** The current position in either of the 2 above vectors.

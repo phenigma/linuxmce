@@ -53,11 +53,11 @@ cmd_keybindings(int interactive, char *data)
 char *
 cmd_keystodesktop(int interactive, char *data)
 {
-	PRINT_DEBUG(("****************   Handling keys to destop.\n"));
-	if ( data && strncmp(data, "off", 3) == 0)
+    PRINT_DEBUG(("****************   Handling keys to destop.\n"));
+    if ( data && strncmp(data, "off", 3) == 0)
     {
         PRINT_DEBUG(("****************   Removing keys from desktop.\n"));
-		isDesktopHasFocus = 0;
+        isDesktopHasFocus = 0;
         if ( current_window() != NULL )
         {
             set_rp_window_focus(current_window());
@@ -69,9 +69,9 @@ cmd_keystodesktop(int interactive, char *data)
         if ( desktop_window == NULL )
             return "There is no application set as desktop currently!";
 
-		PRINT_DEBUG(("***************** setting focus to the destkop window.\n"));
+        PRINT_DEBUG(("***************** setting focus to the destkop window.\n"));
         set_rp_window_focus(desktop_window);
-		PRINT_DEBUG(("********** Grabbing top level keys.\n"));
+        PRINT_DEBUG(("********** Grabbing top level keys.\n"));
         grab_top_level_keys(desktop_window->w);
         isDesktopHasFocus = 1;
     }
@@ -104,7 +104,10 @@ void clear_destkop_application()
 void make_desktop_application(rp_window *window)
 {
     if ( window == NULL )
+    {
+        PRINT_DEBUG(( "Can't set a null window as the desktop window"));
         return;
+    }
 
     PRINT_DEBUG (( "Setting window %d (%s) as the current desktop application!\n", window->number, window->wm_name));
     clear_destkop_application();

@@ -6,7 +6,7 @@ CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -DDEBUG
 LDFLAGS = -L$(ROOT)/lib
-LDLIBS =  -lpthread -lSerializeClass -lPlutoUtils -lDCECommon -lmysqlclient_r
+LDLIBS =  -lpthread -lSerializeClass -lPlutoUtils -lDCECommon 
 
 MYNAME = Orbiter
 VERSION = 2.0.0
@@ -19,7 +19,7 @@ sources = Main.cpp Orbiter.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS += -I/usr/include/SDL -DORBITER -DCACHE_IMAGES -DDEBUG -DxTHREAD_LOG -I$(ROOT)/Splitter -I$(ROOT)/OrbiterGen
 LDFLAGS +=
-LDLIBS += -lPlutoUtils -lSerializeClass -lDCECommon -lpluto_main -lSDL -lSDL_ttf -lSDL_image -lSGE
+LDLIBS += -lPlutoUtils -lSerializeClass -lDCECommon -lSDL -lSDL_ttf -lSDL_image -lSGE
 
 Gen_Dev_Files +=
 sources +=  DesignObj_Data.cpp DesignObj_Orbiter.cpp \

@@ -3,7 +3,7 @@
 #include <SDL_image.h>
 #endif
 
-#include "PlutoUtils/CommonIncludes.h"	
+#include "PlutoUtils/CommonIncludes.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
@@ -11,7 +11,7 @@
 #include <list>
 using namespace std;
 
-#ifdef ORBITER_GEN
+#ifdef OrbiterGen
 #include "DesignObj_Generator.h"
 #endif
 
@@ -33,35 +33,35 @@ int myCounter=0;
 Renderer::Renderer(string FontPath,string OutputDirectory,int Width,int Height,bool bDisableVideo)
 {
 #ifndef WIN32
-	if( bDisableVideo )
-		setenv("SDL_VIDEODRIVER", "dummy", 1); // force SDL to use its dummy video driver (removed a dependency on the X server)
+    if( bDisableVideo )
+        setenv("SDL_VIDEODRIVER", "dummy", 1); // force SDL to use its dummy video driver (removed a dependency on the X server)
 #endif
 
-	m_sFontPath=FontPath;
-	m_sOutputDirectory=OutputDirectory;
-	m_Width=Width;
-	m_Height=Height;
+    m_sFontPath=FontPath;
+    m_sOutputDirectory=OutputDirectory;
+    m_Width=Width;
+    m_Height=Height;
 
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == -1)
-	{
-		cerr << "Failed initializing SDL: " << SDL_GetError() << endl;
-		throw "Failed initializing SDL";
-	}
-	atexit(SDL_Quit);
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == -1)
+    {
+        cerr << "Failed initializing SDL: " << SDL_GetError() << endl;
+        throw "Failed initializing SDL";
+    }
+    atexit(SDL_Quit);
 
-	if (TTF_Init() == -1)
-	{
-		cout << "Failed to init SDL TTF: " << TTF_GetError() << "\nText won't be rendered" << endl;
-		return;
-	}
+    if (TTF_Init() == -1)
+    {
+        cout << "Failed to init SDL TTF: " << TTF_GetError() << "\nText won't be rendered" << endl;
+        return;
+    }
 
 
-//		Screen = SDL_SetVideoMode(800, 600, 0, SDL_SWSURFACE);
+//      Screen = SDL_SetVideoMode(800, 600, 0, SDL_SWSURFACE);
 }
 
 Renderer::~Renderer()
 {
-	TTF_Quit();
+    TTF_Quit();
 }
 
 #ifndef ORBITER
@@ -71,684 +71,684 @@ Renderer::~Renderer()
 // If iRenderStandard==1, render the standard version only, if ==0, everything but the standard, if -1, do all
 void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint Position,int iRenderStandard,bool bPreserveAspectRatio)
 {
-	//	cout << "Rendering " << pDesignObj_Generator->m_ObjectID << endl;
-	if( pDesignObj_Generator->m_ObjectID.find("3107")!=string::npos || pDesignObj_Generator->m_ObjectID.find("3111")!=string::npos || pDesignObj_Generator->m_ObjectID.find("3109")!=string::npos )
-//	//	) //|| pDesignObj_Generator->m_ObjectID.find("2689.0.0.2790")!=string::npos )
-		//if( pDesignObj_Generator->m_ObjectID== )
-	{
-		int k=2;
-	}
+    //  cout << "Rendering " << pDesignObj_Generator->m_ObjectID << endl;
+    if( pDesignObj_Generator->m_ObjectID.find("3107")!=string::npos || pDesignObj_Generator->m_ObjectID.find("3111")!=string::npos || pDesignObj_Generator->m_ObjectID.find("3109")!=string::npos )
+//  //  ) //|| pDesignObj_Generator->m_ObjectID.find("2689.0.0.2790")!=string::npos )
+        //if( pDesignObj_Generator->m_ObjectID== )
+    {
+        int k=2;
+    }
 
-	// We have versions for standard, highlighted, selected, and a variable number of alternate versions
-	// We'll make a loop that starts from the number of alt versions, counting down to -2, so when it's at
-	// 0, it renders the selected, -1 the highlighted, -2 the standard.  Count down because the standard 
-	// version should be rendered last, since that's the only one that will be composited on top of the background.
-	// The others are all output as separate files.  The first time RenderObject is called, pRenderImage
-	int StartingValue = iRenderStandard!=1 ? (int) pDesignObj_Generator->m_vectAltGraphicFilename.size() : -2;
-	int EndingValue = iRenderStandard!=0 ? -2 : -1;
-	for(int iIteration=StartingValue;iIteration>=EndingValue;--iIteration)
-	{
-		// Normally we don't create output files for selected/highlighted/alt versions unless there is a corresponding graphic.  There's really nothing
-		// to display otherwise.  However, if the user forced this version with the 'visible state' setting, then we should output that state anyway.  Perhaps
-		// it only contains text that should be visible in that state
-		bool bForceOutput=false; 
-		string sInputFile=""; // The graphics file we're using this pass
-		string sSaveToFile=""; // If this is set to a value, then we will save the current image to a separate file
+    // We have versions for standard, highlighted, selected, and a variable number of alternate versions
+    // We'll make a loop that starts from the number of alt versions, counting down to -2, so when it's at
+    // 0, it renders the selected, -1 the highlighted, -2 the standard.  Count down because the standard
+    // version should be rendered last, since that's the only one that will be composited on top of the background.
+    // The others are all output as separate files.  The first time RenderObject is called, pRenderImage
+    int StartingValue = iRenderStandard!=1 ? (int) pDesignObj_Generator->m_vectAltGraphicFilename.size() : -2;
+    int EndingValue = iRenderStandard!=0 ? -2 : -1;
+    for(int iIteration=StartingValue;iIteration>=EndingValue;--iIteration)
+    {
+        // Normally we don't create output files for selected/highlighted/alt versions unless there is a corresponding graphic.  There's really nothing
+        // to display otherwise.  However, if the user forced this version with the 'visible state' setting, then we should output that state anyway.  Perhaps
+        // it only contains text that should be visible in that state
+        bool bForceOutput=false;
+        string sInputFile=""; // The graphics file we're using this pass
+        string sSaveToFile=""; // If this is set to a value, then we will save the current image to a separate file
 
-		// Create another pointer to the render image, because if we create a new image to be saved
-		// in the above file, we want the pointer to return to the original one when this loop completes
-		RendererImage *pRenderImageOriginal=pRenderImage;
-		RendererImage *pRenderImage=pRenderImageOriginal; // TROUBLE nr 1: subsequent loops overwrite pRenderImage allocated in loop a few line below this
-		PlutoPoint PositionOriginal=Position; // Ditto with the position
-		PlutoPoint Position=PositionOriginal; 
+        // Create another pointer to the render image, because if we create a new image to be saved
+        // in the above file, we want the pointer to return to the original one when this loop completes
+        RendererImage *pRenderImageOriginal=pRenderImage;
+        RendererImage *pRenderImage=pRenderImageOriginal; // TROUBLE nr 1: subsequent loops overwrite pRenderImage allocated in loop a few line below this
+        PlutoPoint PositionOriginal=Position; // Ditto with the position
+        PlutoPoint Position=PositionOriginal;
 
-		if( iIteration==-2 )
-			sInputFile = pDesignObj_Generator->m_sBackgroundFile;
-		else if( iIteration==-1 )
-			sInputFile = pDesignObj_Generator->m_sSelectedFile;
-		else if( iIteration==0 )
-			sInputFile = pDesignObj_Generator->m_sHighlightGraphicFilename;
-		else
-			sInputFile = pDesignObj_Generator->m_vectAltGraphicFilename[iIteration-1];
+        if( iIteration==-2 )
+            sInputFile = pDesignObj_Generator->m_sBackgroundFile;
+        else if( iIteration==-1 )
+            sInputFile = pDesignObj_Generator->m_sSelectedFile;
+        else if( iIteration==0 )
+            sInputFile = pDesignObj_Generator->m_sHighlightGraphicFilename;
+        else
+            sInputFile = pDesignObj_Generator->m_vectAltGraphicFilename[iIteration-1];
 
-		// If the visible state is specified, skip this screen if it's not specifically in the list
-		if( pDesignObj_Generator->m_sVisibleState.length()>0 && (
-				(iIteration==-2 && pDesignObj_Generator->m_sVisibleState.find("N")==string::npos) ||
-				(iIteration==-1 && pDesignObj_Generator->m_sVisibleState.find("S")==string::npos) ||
-				(iIteration==0 && pDesignObj_Generator->m_sVisibleState.find("H")==string::npos) ||
-				(iIteration>0 && pDesignObj_Generator->m_sVisibleState.find(StringUtils::itos(iIteration))==string::npos) ) )
-			continue;
+        // If the visible state is specified, skip this screen if it's not specifically in the list
+        if( pDesignObj_Generator->m_sVisibleState.length()>0 && (
+                (iIteration==-2 && pDesignObj_Generator->m_sVisibleState.find("N")==string::npos) ||
+                (iIteration==-1 && pDesignObj_Generator->m_sVisibleState.find("S")==string::npos) ||
+                (iIteration==0 && pDesignObj_Generator->m_sVisibleState.find("H")==string::npos) ||
+                (iIteration>0 && pDesignObj_Generator->m_sVisibleState.find(StringUtils::itos(iIteration))==string::npos) ) )
+            continue;
 
-		// If we're processing the background (-2) we will still render children
-		if( sInputFile.length()==0 && iIteration!=-2 )
-		{
-			// We will render this anyway if the visible state is forced.  It may just be text, for example
-			if( pDesignObj_Generator->m_sVisibleState.length()==0 ||
-					(iIteration==-2 && pDesignObj_Generator->m_sVisibleState.find("N")==string::npos) ||
-					(iIteration==-1 && pDesignObj_Generator->m_sVisibleState.find("S")==string::npos) ||
-					(iIteration==0 && pDesignObj_Generator->m_sVisibleState.find("H")==string::npos) ||
-					(iIteration>0 && pDesignObj_Generator->m_sVisibleState.find(StringUtils::itos(iIteration))==string::npos) )
-				continue;
-			else 
-				bForceOutput=true;
-		}
+        // If we're processing the background (-2) we will still render children
+        if( sInputFile.length()==0 && iIteration!=-2 )
+        {
+            // We will render this anyway if the visible state is forced.  It may just be text, for example
+            if( pDesignObj_Generator->m_sVisibleState.length()==0 ||
+                    (iIteration==-2 && pDesignObj_Generator->m_sVisibleState.find("N")==string::npos) ||
+                    (iIteration==-1 && pDesignObj_Generator->m_sVisibleState.find("S")==string::npos) ||
+                    (iIteration==0 && pDesignObj_Generator->m_sVisibleState.find("H")==string::npos) ||
+                    (iIteration>0 && pDesignObj_Generator->m_sVisibleState.find(StringUtils::itos(iIteration))==string::npos) )
+                continue;
+            else
+                bForceOutput=true;
+        }
 
-		bool bIsMenu=false;
-		if( iIteration!=-2 || pDesignObj_Generator->m_bCanBeHidden || !pRenderImage )
-		{
-			// We're going to save this out as a separate file
-			sSaveToFile=pDesignObj_Generator->m_ObjectID;
-			if( !pRenderImage )
-			{
-				// This is a new screen, start with a clean canvas
-				pRenderImage = CreateBlankCanvas(); // TROUBLE nr 1: this pointer is lost each time the for loop starts
-				bIsMenu=true;
-			}
-			else
-			{
-				// This is going to be a "piece" of the existing background
-				pRenderImage=Subset(pRenderImage,pDesignObj_Generator->m_rPosition + Position);
-				// All the child's objects will have absolute values, so the offset position if we're outputing to a separate file is our absolute position * -1
-				Position.X=pDesignObj_Generator->m_rPosition.X*-1; Position.Y=pDesignObj_Generator->m_rPosition.Y*-1;  
-			}
+        bool bIsMenu=false;
+        if( iIteration!=-2 || pDesignObj_Generator->m_bCanBeHidden || !pRenderImage )
+        {
+            // We're going to save this out as a separate file
+            sSaveToFile=pDesignObj_Generator->m_ObjectID;
+            if( !pRenderImage )
+            {
+                // This is a new screen, start with a clean canvas
+                pRenderImage = CreateBlankCanvas(); // TROUBLE nr 1: this pointer is lost each time the for loop starts
+                bIsMenu=true;
+            }
+            else
+            {
+                // This is going to be a "piece" of the existing background
+                pRenderImage=Subset(pRenderImage,pDesignObj_Generator->m_rPosition + Position);
+                // All the child's objects will have absolute values, so the offset position if we're outputing to a separate file is our absolute position * -1
+                Position.X=pDesignObj_Generator->m_rPosition.X*-1; Position.Y=pDesignObj_Generator->m_rPosition.Y*-1;
+            }
 
-			// Append to the filename based on what graphic we're outputing
-			if( iIteration==-1 )
-				sSaveToFile += "_S";
-			else if( iIteration==0 )
-				sSaveToFile += "_H";
-			else if( iIteration>0 )
-				sSaveToFile += "_A" + StringUtils::itos(iIteration);
-		}
+            // Append to the filename based on what graphic we're outputing
+            if( iIteration==-1 )
+                sSaveToFile += "_S";
+            else if( iIteration==0 )
+                sSaveToFile += "_H";
+            else if( iIteration>0 )
+                sSaveToFile += "_A" + StringUtils::itos(iIteration);
+        }
 
-		// We will use these only if we're doing an MNG
-		int NumFrames=1;  // We will change this if we're dealing with an MNG
+        // We will use these only if we're doing an MNG
+        int NumFrames=1;  // We will change this if we're dealing with an MNG
 
-		RendererImage *pRenderImage_Child=NULL; // The new image to be pasted on top
-		if( sInputFile.length()>0 )
-		{
-			pRenderImage_Child = CreateFromFile(sInputFile,pDesignObj_Generator->m_rBackgroundPosition.Size(),bPreserveAspectRatio,bIsMenu);
+        RendererImage *pRenderImage_Child=NULL; // The new image to be pasted on top
+        if( sInputFile.length()>0 )
+        {
+            pRenderImage_Child = CreateFromFile(sInputFile,pDesignObj_Generator->m_rBackgroundPosition.Size(),bPreserveAspectRatio,bIsMenu);
 
-			if( !pRenderImage_Child )
-			{
-				throw "Failed to open " + sInputFile + " abandoning creation of object " + pDesignObj_Generator->m_ObjectID;
-			}
-		}
+            if( !pRenderImage_Child )
+            {
+                throw "Failed to open " + sInputFile + " abandoning creation of object " + pDesignObj_Generator->m_ObjectID;
+            }
+        }
 
-		// If this is multi-frame, we have to repeat, so we'll need a copy of the image
-		RendererImage *pRenderImageClone = pRenderImage;
-		RendererImage *pRenderImageClone_Child = pRenderImage_Child;
+        // If this is multi-frame, we have to repeat, so we'll need a copy of the image
+        RendererImage *pRenderImageClone = pRenderImage;
+        RendererImage *pRenderImageClone_Child = pRenderImage_Child;
 
-		// See if we're supposed to render our children first
-		if( pDesignObj_Generator->m_bChildrenBehind )
-		{
-			RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position,bPreserveAspectRatio);
-			if(pRenderImageClone_Child )
-				CompositeImage(pRenderImageClone,pRenderImageClone_Child,pDesignObj_Generator->m_rPosition.Location() + Position);
-			RenderObjectsText(pRenderImageClone,pDesignObj_Generator,Position,iIteration);
-		}
-		else // Render our own first
-		{
-			if(pRenderImageClone_Child )
-			{
-				CompositeImage(pRenderImageClone,pRenderImageClone_Child,pDesignObj_Generator->m_rPosition.Location() + Position);
-			}
-			if( pDesignObj_Generator->m_bChildrenBeforeText )
-			{
-				RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position,bPreserveAspectRatio);
-				RenderObjectsText(pRenderImageClone,pDesignObj_Generator,Position,iIteration);
-			}
-			else
-			{
-				RenderObjectsText(pRenderImageClone,pDesignObj_Generator,Position,iIteration);
-				RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position,bPreserveAspectRatio);
-			}
-		}
+        // See if we're supposed to render our children first
+        if( pDesignObj_Generator->m_bChildrenBehind )
+        {
+            RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position,bPreserveAspectRatio);
+            if(pRenderImageClone_Child )
+                CompositeImage(pRenderImageClone,pRenderImageClone_Child,pDesignObj_Generator->m_rPosition.Location() + Position);
+            RenderObjectsText(pRenderImageClone,pDesignObj_Generator,Position,iIteration);
+        }
+        else // Render our own first
+        {
+            if(pRenderImageClone_Child )
+            {
+                CompositeImage(pRenderImageClone,pRenderImageClone_Child,pDesignObj_Generator->m_rPosition.Location() + Position);
+            }
+            if( pDesignObj_Generator->m_bChildrenBeforeText )
+            {
+                RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position,bPreserveAspectRatio);
+                RenderObjectsText(pRenderImageClone,pDesignObj_Generator,Position,iIteration);
+            }
+            else
+            {
+                RenderObjectsText(pRenderImageClone,pDesignObj_Generator,Position,iIteration);
+                RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position,bPreserveAspectRatio);
+            }
+        }
 
-		// If this is a screen (ie top level object) then we should always save something even
-		// if there was no input file.
-		if( sInputFile.length() || pRenderImageOriginal==NULL || pDesignObj_Generator->m_bCanBeHidden || bForceOutput )
-		{
-			if( sSaveToFile.length()>0 )
-			{
-				SaveImageToFile(pRenderImage,m_sOutputDirectory + sSaveToFile);
+        // If this is a screen (ie top level object) then we should always save something even
+        // if there was no input file.
+        if( sInputFile.length() || pRenderImageOriginal==NULL || pDesignObj_Generator->m_bCanBeHidden || bForceOutput )
+        {
+            if( sSaveToFile.length()>0 )
+            {
+                SaveImageToFile(pRenderImage,m_sOutputDirectory + sSaveToFile);
 #ifdef OUTPUT_BMP
-				sSaveToFile+=".bmp";
+                sSaveToFile+=".bmp";
 #else
-				sSaveToFile+=".png";
+                sSaveToFile+=".png";
 #endif
-			}
+            }
 
-			if( iIteration==-2 )
-				pDesignObj_Generator->m_sBackgroundFile = sSaveToFile;
-			else if( iIteration==-1 )
-				pDesignObj_Generator->m_sSelectedFile = sSaveToFile;
-			else if( iIteration==0 )
-				pDesignObj_Generator->m_sHighlightGraphicFilename = sSaveToFile;
-			else
-				pDesignObj_Generator->m_vectAltGraphicFilename[iIteration-1] = sSaveToFile;
-		}
-		delete pRenderImage_Child;
-		if( pRenderImageOriginal!=pRenderImage )
-			delete pRenderImage;
-	}
-	//	cout << "Finished Rendering " << pDesignObj_Generator->m_ObjectID << endl;
+            if( iIteration==-2 )
+                pDesignObj_Generator->m_sBackgroundFile = sSaveToFile;
+            else if( iIteration==-1 )
+                pDesignObj_Generator->m_sSelectedFile = sSaveToFile;
+            else if( iIteration==0 )
+                pDesignObj_Generator->m_sHighlightGraphicFilename = sSaveToFile;
+            else
+                pDesignObj_Generator->m_vectAltGraphicFilename[iIteration-1] = sSaveToFile;
+        }
+        delete pRenderImage_Child;
+        if( pRenderImageOriginal!=pRenderImage )
+            delete pRenderImage;
+    }
+    //  cout << "Finished Rendering " << pDesignObj_Generator->m_ObjectID << endl;
 }
 
 void Renderer::RenderObjectsChildren(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint pos,bool bPreserveAspectRatio)
-{   
-	// We don't support layering.  This isn't normally a problem for pre-rendered graphics.  However, for objects that are rendered
-	// seperately, like the selected and highlighted versions, if they have transparency, it's possible that other child objects
-	// that should be rendered aren't rendered yet.  Rather than making layers and complicating things, we'll just do 2 passes
-	// and render all the objects standard variations without CanHide, and then do a second pass for the others.
-	DesignObj_DataList::iterator it;
-	for(it=pDesignObj_Generator->m_ChildObjects.begin();it!=pDesignObj_Generator->m_ChildObjects.end();++it)
-	{
-		DesignObj_Generator *pObj = (DesignObj_Generator *) *it;
-if( pObj->m_ObjectID.find("3107")!=string::npos || pObj->m_ObjectID.find("3111")!=string::npos || pObj->m_ObjectID.find("3109")!=string::npos )
-//	//	) //|| pObj->m_ObjectID.find("2689.0.0.2790")!=string::npos )
-	//if( pObj->m_ObjectID== )
 {
-	int k=2;
+    // We don't support layering.  This isn't normally a problem for pre-rendered graphics.  However, for objects that are rendered
+    // seperately, like the selected and highlighted versions, if they have transparency, it's possible that other child objects
+    // that should be rendered aren't rendered yet.  Rather than making layers and complicating things, we'll just do 2 passes
+    // and render all the objects standard variations without CanHide, and then do a second pass for the others.
+    DesignObj_DataList::iterator it;
+    for(it=pDesignObj_Generator->m_ChildObjects.begin();it!=pDesignObj_Generator->m_ChildObjects.end();++it)
+    {
+        DesignObj_Generator *pObj = (DesignObj_Generator *) *it;
+if( pObj->m_ObjectID.find("3107")!=string::npos || pObj->m_ObjectID.find("3111")!=string::npos || pObj->m_ObjectID.find("3109")!=string::npos )
+//  //  ) //|| pObj->m_ObjectID.find("2689.0.0.2790")!=string::npos )
+    //if( pObj->m_ObjectID== )
+{
+    int k=2;
 }
-		if( pObj->m_bCanBeHidden || (pObj->m_sVisibleState.length()>0 && pObj->m_sVisibleState.find('N')==string::npos) )
-			continue;
-		RenderObject(pRenderImage,(DesignObj_Generator *) pObj,pos,1,bPreserveAspectRatio);  // Standard only
-		pObj->m_bRendered=true;
-	}
+        if( pObj->m_bCanBeHidden || (pObj->m_sVisibleState.length()>0 && pObj->m_sVisibleState.find('N')==string::npos) )
+            continue;
+        RenderObject(pRenderImage,(DesignObj_Generator *) pObj,pos,1,bPreserveAspectRatio);  // Standard only
+        pObj->m_bRendered=true;
+    }
 
-	// Now do the others
-	for(it=pDesignObj_Generator->m_ChildObjects.begin();it!=pDesignObj_Generator->m_ChildObjects.end();++it)
-	{
-		DesignObj_Generator *pObj = (DesignObj_Generator *) *it;
-		RenderObject(pRenderImage,(DesignObj_Generator *) pObj,pos,pObj->m_bRendered ? 0 : -1,bPreserveAspectRatio);
-	}
+    // Now do the others
+    for(it=pDesignObj_Generator->m_ChildObjects.begin();it!=pDesignObj_Generator->m_ChildObjects.end();++it)
+    {
+        DesignObj_Generator *pObj = (DesignObj_Generator *) *it;
+        RenderObject(pRenderImage,(DesignObj_Generator *) pObj,pos,pObj->m_bRendered ? 0 : -1,bPreserveAspectRatio);
+    }
 }
 
 void Renderer::RenderObjectsText(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint pos,int iIteration)
 {
-	for(size_t s=0;s<pDesignObj_Generator->m_vectDesignObjText.size();++s)
-	{
-		DesignObjText *pDesignObjText = pDesignObj_Generator->m_vectDesignObjText[s];
-		if( !pDesignObjText->m_bPreRender )
-			continue;
+    for(size_t s=0;s<pDesignObj_Generator->m_vectDesignObjText.size();++s)
+    {
+        DesignObjText *pDesignObjText = pDesignObj_Generator->m_vectDesignObjText[s];
+        if( !pDesignObjText->m_bPreRender )
+            continue;
 
-		// Find the style to use
-		TextStyle *pTextStyle = pDesignObjText->m_mapTextStyle_Find(iIteration);
-		if( !pTextStyle )
-			pTextStyle = pDesignObjText->m_mapTextStyle_Find(0);  // The standard one
+        // Find the style to use
+        TextStyle *pTextStyle = pDesignObjText->m_mapTextStyle_Find(iIteration);
+        if( !pTextStyle )
+            pTextStyle = pDesignObjText->m_mapTextStyle_Find(0);  // The standard one
 
-		if( !pTextStyle )
-			throw "Cannot find a style to use for text " + StringUtils::itos(pDesignObjText->m_PK_Text);
+        if( !pTextStyle )
+            throw "Cannot find a style to use for text " + StringUtils::itos(pDesignObjText->m_PK_Text);
 
-		RenderText(pRenderImage,pDesignObjText,pTextStyle,pDesignObj_Generator,pos);
-	}
+        RenderText(pRenderImage,pDesignObjText,pTextStyle,pDesignObj_Generator,pos);
+    }
 }
 
 void Renderer::SaveImageToFile(RendererImage * pRendererImage, string sSaveToFile)
 {
-	// we can't just save NULL pointers...
-	if (pRendererImage == NULL || pRendererImage->m_pSDL_Surface == NULL)
-	{
-		throw "Save to image passed in a null pointer";
-	}
+    // we can't just save NULL pointers...
+    if (pRendererImage == NULL || pRendererImage->m_pSDL_Surface == NULL)
+    {
+        throw "Save to image passed in a null pointer";
+    }
 #ifdef OUTPUT_BMP
-	string FileName = sSaveToFile + ".bmp";
-	if (SDL_SaveBMP(pRendererImage->m_pSDL_Surface, FileName.c_str()) == -1)
-	{
-		throw "Failed to write file: " + FileName + ": " + SDL_GetError();
-	}
+    string FileName = sSaveToFile + ".bmp";
+    if (SDL_SaveBMP(pRendererImage->m_pSDL_Surface, FileName.c_str()) == -1)
+    {
+        throw "Failed to write file: " + FileName + ": " + SDL_GetError();
+    }
 #else
-	string FileName = sSaveToFile + ".png";
-	SDL_Surface * Drawing = pRendererImage->m_pSDL_Surface;
+    string FileName = sSaveToFile + ".png";
+    SDL_Surface * Drawing = pRendererImage->m_pSDL_Surface;
 
-	png_bytepp image_rows;
-	FILE * File;
-	int BitsPerColor;
+    png_bytepp image_rows;
+    FILE * File;
+    int BitsPerColor;
 
-	File = fopen(FileName.c_str(), "wb");
+    File = fopen(FileName.c_str(), "wb");
 
-	image_rows = new png_bytep[Drawing->h];
-	for (int n = 0; n < Drawing->h; n++)
-		image_rows[n] = (unsigned char *) Drawing->pixels + n * Drawing->pitch;
+    image_rows = new png_bytep[Drawing->h];
+    for (int n = 0; n < Drawing->h; n++)
+        image_rows[n] = (unsigned char *) Drawing->pixels + n * Drawing->pitch;
 
-	png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-	png_infop png_info = png_create_info_struct(png_ptr);
+    png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    png_infop png_info = png_create_info_struct(png_ptr);
 
-	png_init_io(png_ptr, File);
-	png_set_filter(png_ptr, 0, PNG_FILTER_NONE);
-	png_set_compression_level(png_ptr, Z_BEST_COMPRESSION);
+    png_init_io(png_ptr, File);
+    png_set_filter(png_ptr, 0, PNG_FILTER_NONE);
+    png_set_compression_level(png_ptr, Z_BEST_COMPRESSION);
 
-	BitsPerColor = Drawing->format->BitsPerPixel / Drawing->format->BytesPerPixel;
-	png_set_IHDR(png_ptr, png_info, Drawing->w, Drawing->h, BitsPerColor, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
-			PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-//	png_set_bgr(png_ptr); // on x86, 24bit makes colors appear right; not for 32bit (RGBA) or it mixes the colors
-	png_write_info(png_ptr, png_info);
+    BitsPerColor = Drawing->format->BitsPerPixel / Drawing->format->BytesPerPixel;
+    png_set_IHDR(png_ptr, png_info, Drawing->w, Drawing->h, BitsPerColor, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
+            PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+//  png_set_bgr(png_ptr); // on x86, 24bit makes colors appear right; not for 32bit (RGBA) or it mixes the colors
+    png_write_info(png_ptr, png_info);
 
-	png_write_image(png_ptr, image_rows);
-	png_write_end(png_ptr, png_info);
+    png_write_image(png_ptr, image_rows);
+    png_write_end(png_ptr, png_info);
 
-	delete [] image_rows;
+    delete [] image_rows;
 
-	png_destroy_write_struct(&png_ptr, &png_info);
-	fclose(File);
+    png_destroy_write_struct(&png_ptr, &png_info);
+    fclose(File);
 #endif
 }
 
 // load image from file and possibly scale/stretch it
 RendererImage * Renderer::CreateFromFile(string sFilename, PlutoSize size,bool bPreserveAspectRatio,bool bCrop)
 {
-	SDL_Surface * SurfaceFromFile=NULL;
-	//	try
-	//	{
-	SurfaceFromFile = IMG_Load(sFilename.c_str());
+    SDL_Surface * SurfaceFromFile=NULL;
+    //  try
+    //  {
+    SurfaceFromFile = IMG_Load(sFilename.c_str());
 
-	/*}
-	//	catch(...)
-	{
-	cerr << "Unhandled exception trying to open file " << sFilename << " with size " << size.Width << "x" << size.Height << endl;
-	return NULL;
-	}
-	*/
-	if (SurfaceFromFile == NULL)
-	{
-		throw "Can't create surface from file: " + sFilename  + ": " + SDL_GetError();
-	}
+    /*}
+    //  catch(...)
+    {
+    cerr << "Unhandled exception trying to open file " << sFilename << " with size " << size.Width << "x" << size.Height << endl;
+    return NULL;
+    }
+    */
+    if (SurfaceFromFile == NULL)
+    {
+        throw "Can't create surface from file: " + sFilename  + ": " + SDL_GetError();
+    }
 
-	//	cout << "Loaded: " << sFilename << endl;
-	/*
-	SDL_FillRect(Screen, NULL, SDL_MapRGB(Screen->format, 0, 0, 0));
-	SDL_BlitSurface(SurfaceFromFile, NULL, Screen, NULL);
-	SDL_Flip(Screen);
-	SDL_Event SDL_event;
-	SDL_PollEvent(&SDL_event);
-	*/
-	//Sleep(5000);
+    //  cout << "Loaded: " << sFilename << endl;
+    /*
+    SDL_FillRect(Screen, NULL, SDL_MapRGB(Screen->format, 0, 0, 0));
+    SDL_BlitSurface(SurfaceFromFile, NULL, Screen, NULL);
+    SDL_Flip(Screen);
+    SDL_Event SDL_event;
+    SDL_PollEvent(&SDL_event);
+    */
+    //Sleep(5000);
 
-	int W = size.Width == 0 ? SurfaceFromFile->w : size.Width;
-	int H = size.Height == 0 ? SurfaceFromFile->h : size.Height;
-	PlutoSize new_size(W, H);
+    int W = size.Width == 0 ? SurfaceFromFile->w : size.Width;
+    int H = size.Height == 0 ? SurfaceFromFile->h : size.Height;
+    PlutoSize new_size(W, H);
 
-	RendererImage * RIFromFile = CreateBlankCanvas(new_size);
-	if (RIFromFile == NULL)
-	{
-		delete SurfaceFromFile;
-		throw "Failed to create new image surface: " + sFilename;
-	}
+    RendererImage * RIFromFile = CreateBlankCanvas(new_size);
+    if (RIFromFile == NULL)
+    {
+        delete SurfaceFromFile;
+        throw "Failed to create new image surface: " + sFilename;
+    }
 
-	RIFromFile->m_sFilename = sFilename;
+    RIFromFile->m_sFilename = sFilename;
 
-	SDL_Surface * ScaledSurface;
-	if (W == SurfaceFromFile->w && H == SurfaceFromFile->h)
-	{
-		// no scaling/stretching needed
-		//SDL_BlitSurface(SurfaceFromFile, NULL, RIFromFile->m_pSDL_Surface, NULL);
-		//sge_transform(SurfaceFromFile, RIFromFile->m_pSDL_Surface, 0, 1, 1, 0, 0, 0, 0, SGE_TSAFE);
-		ScaledSurface = sge_transform_surface(SurfaceFromFile, SDL_MapRGBA(SurfaceFromFile->format, 0, 0, 0, 0), 0, 1, 1, SGE_TSAFE);
-	}
-	else
-	{
-		// image needs to be steched/scaled
-		// I could use SDL_SoftStretch(), but the SDL developers strongly advise against it for the moment
-		// I use the SGE extension library instead
-		float scaleX = (float) RIFromFile->m_pSDL_Surface->w / SurfaceFromFile->w;
-		float scaleY = (float) RIFromFile->m_pSDL_Surface->h / SurfaceFromFile->h;
+    SDL_Surface * ScaledSurface;
+    if (W == SurfaceFromFile->w && H == SurfaceFromFile->h)
+    {
+        // no scaling/stretching needed
+        //SDL_BlitSurface(SurfaceFromFile, NULL, RIFromFile->m_pSDL_Surface, NULL);
+        //sge_transform(SurfaceFromFile, RIFromFile->m_pSDL_Surface, 0, 1, 1, 0, 0, 0, 0, SGE_TSAFE);
+        ScaledSurface = sge_transform_surface(SurfaceFromFile, SDL_MapRGBA(SurfaceFromFile->format, 0, 0, 0, 0), 0, 1, 1, SGE_TSAFE);
+    }
+    else
+    {
+        // image needs to be steched/scaled
+        // I could use SDL_SoftStretch(), but the SDL developers strongly advise against it for the moment
+        // I use the SGE extension library instead
+        float scaleX = (float) RIFromFile->m_pSDL_Surface->w / SurfaceFromFile->w;
+        float scaleY = (float) RIFromFile->m_pSDL_Surface->h / SurfaceFromFile->h;
 
-		if( bPreserveAspectRatio && bCrop )
-		{
-			if( scaleY>scaleX )
-				scaleX=scaleY;
-			else 
-				scaleY=scaleX;
-		}
-		else if( bPreserveAspectRatio )
-		{
-			if( scaleY>scaleX )
-				scaleY=scaleX;
-			else 
-				scaleX=scaleY;
-		}
-/*	starting with the mobile phone, we have 'distorted' images because we want to re-use buttons, but the aspect ratios are different
+        if( bPreserveAspectRatio && bCrop )
+        {
+            if( scaleY>scaleX )
+                scaleX=scaleY;
+            else
+                scaleY=scaleX;
+        }
+        else if( bPreserveAspectRatio )
+        {
+            if( scaleY>scaleX )
+                scaleY=scaleX;
+            else
+                scaleX=scaleY;
+        }
+/*  starting with the mobile phone, we have 'distorted' images because we want to re-use buttons, but the aspect ratios are different
 */
 
-		//sge_transform(SurfaceFromFile, RIFromFile->m_pSDL_Surface, 0, scaleX, scaleY, 0, 0, 0, 0, SGE_TSAFE);
-		ScaledSurface = sge_transform_surface(SurfaceFromFile, SDL_MapRGBA(SurfaceFromFile->format, 0, 0, 0, 0), 0, scaleX, scaleY, SGE_TSAFE);
-	}
-	SDL_SetAlpha(ScaledSurface, 0, 0);
-	SDL_BlitSurface(ScaledSurface, NULL, RIFromFile->m_pSDL_Surface, NULL);
+        //sge_transform(SurfaceFromFile, RIFromFile->m_pSDL_Surface, 0, scaleX, scaleY, 0, 0, 0, 0, SGE_TSAFE);
+        ScaledSurface = sge_transform_surface(SurfaceFromFile, SDL_MapRGBA(SurfaceFromFile->format, 0, 0, 0, 0), 0, scaleX, scaleY, SGE_TSAFE);
+    }
+    SDL_SetAlpha(ScaledSurface, 0, 0);
+    SDL_BlitSurface(ScaledSurface, NULL, RIFromFile->m_pSDL_Surface, NULL);
 
-	SDL_FreeSurface(ScaledSurface);
-	SDL_FreeSurface(SurfaceFromFile);
+    SDL_FreeSurface(ScaledSurface);
+    SDL_FreeSurface(SurfaceFromFile);
 
-	return RIFromFile;
+    return RIFromFile;
 }
 
 void Renderer::CompositeImage(RendererImage * pRenderImage_Parent, RendererImage * pRenderImage_Child, PlutoPoint pos)
 {
-	// with no destination, function always fails
-	if (pRenderImage_Parent == NULL || pRenderImage_Parent->m_pSDL_Surface == NULL)
-		throw "Composite image passed null parent";
-	// with no source, function always succeeds (I assume that it's an empty image)
-	if (pRenderImage_Child == NULL || pRenderImage_Child->m_pSDL_Surface == NULL)
-		throw "Composite image passed null child";
+    // with no destination, function always fails
+    if (pRenderImage_Parent == NULL || pRenderImage_Parent->m_pSDL_Surface == NULL)
+        throw "Composite image passed null parent";
+    // with no source, function always succeeds (I assume that it's an empty image)
+    if (pRenderImage_Child == NULL || pRenderImage_Child->m_pSDL_Surface == NULL)
+        throw "Composite image passed null child";
 
-	//	cout << "Composing image: " << pRenderImage_Child->m_sFilename << endl;
-	/*
-	SDL_FillRect(Screen, NULL, 0);
-	SDL_BlitSurface(pRenderImage_Child->m_pSDL_Surface, NULL, Screen, NULL);
-	SDL_Flip(Screen);
-	//Sleep(5000);
-	cout << "Composing to image: " << pRenderImage_Parent->m_sFilename << endl;
-	SDL_FillRect(Screen, NULL, 0);
-	SDL_BlitSurface(pRenderImage_Parent->m_pSDL_Surface, NULL, Screen, NULL);
-	SDL_Flip(Screen);
-	*/
-	//Sleep(5000);
+    //  cout << "Composing image: " << pRenderImage_Child->m_sFilename << endl;
+    /*
+    SDL_FillRect(Screen, NULL, 0);
+    SDL_BlitSurface(pRenderImage_Child->m_pSDL_Surface, NULL, Screen, NULL);
+    SDL_Flip(Screen);
+    //Sleep(5000);
+    cout << "Composing to image: " << pRenderImage_Parent->m_sFilename << endl;
+    SDL_FillRect(Screen, NULL, 0);
+    SDL_BlitSurface(pRenderImage_Parent->m_pSDL_Surface, NULL, Screen, NULL);
+    SDL_Flip(Screen);
+    */
+    //Sleep(5000);
 
-	SDL_Rect dest_rect;
-	dest_rect.x = pos.X;
-	dest_rect.y = pos.Y;
+    SDL_Rect dest_rect;
+    dest_rect.x = pos.X;
+    dest_rect.y = pos.Y;
 
-	bool WasSrcAlpha = (pRenderImage_Child->m_pSDL_Surface->flags & SDL_SRCALPHA) != 0;
-	Uint8 WasAlpha = pRenderImage_Child->m_pSDL_Surface->format->alpha;
-	if (pRenderImage_Parent->NewSurface)
-	{
-		SDL_SetAlpha(pRenderImage_Child->m_pSDL_Surface, 0, 0);
-		pRenderImage_Parent->NewSurface = false;
-	}
+    bool WasSrcAlpha = (pRenderImage_Child->m_pSDL_Surface->flags & SDL_SRCALPHA) != 0;
+    Uint8 WasAlpha = pRenderImage_Child->m_pSDL_Surface->format->alpha;
+    if (pRenderImage_Parent->NewSurface)
+    {
+        SDL_SetAlpha(pRenderImage_Child->m_pSDL_Surface, 0, 0);
+        pRenderImage_Parent->NewSurface = false;
+    }
 
-	if (SDL_BlitSurface(pRenderImage_Child->m_pSDL_Surface, NULL, pRenderImage_Parent->m_pSDL_Surface, &dest_rect) < 0)
-		//if (my_BlitAll(pRenderImage_Child, pRenderImage_Parent, pos) == -1)
-	{
-		throw string("Failed composing image: ") + SDL_GetError();
-	}
+    if (SDL_BlitSurface(pRenderImage_Child->m_pSDL_Surface, NULL, pRenderImage_Parent->m_pSDL_Surface, &dest_rect) < 0)
+        //if (my_BlitAll(pRenderImage_Child, pRenderImage_Parent, pos) == -1)
+    {
+        throw string("Failed composing image: ") + SDL_GetError();
+    }
 
-	SDL_SetAlpha(pRenderImage_Child->m_pSDL_Surface, WasSrcAlpha, WasAlpha);
+    SDL_SetAlpha(pRenderImage_Child->m_pSDL_Surface, WasSrcAlpha, WasAlpha);
 
-//		cout << "Composed images: " << pRenderImage_Parent->m_sFilename << " <- " << pRenderImage_Child->m_sFilename
-//			<< "pos: " << pos.X << "," << pos.Y << endl;
-	/*
-	SDL_FillRect(Screen, NULL, 0);
-	SDL_BlitSurface(pRenderImage_Parent->m_pSDL_Surface, NULL, Screen, NULL);
-	SDL_Flip(Screen);
-	*/
-	//Sleep(5000);
+//      cout << "Composed images: " << pRenderImage_Parent->m_sFilename << " <- " << pRenderImage_Child->m_sFilename
+//          << "pos: " << pos.X << "," << pos.Y << endl;
+    /*
+    SDL_FillRect(Screen, NULL, 0);
+    SDL_BlitSurface(pRenderImage_Parent->m_pSDL_Surface, NULL, Screen, NULL);
+    SDL_Flip(Screen);
+    */
+    //Sleep(5000);
 }
 
 /* WORKAROUND */
 void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
-					   string FontPath, TextStyle *pTextStyle);
+                       string FontPath, TextStyle *pTextStyle);
 
 void Renderer::RenderText(RendererImage *pRenderImage, DesignObjText *pDesignObjText, TextStyle *pTextStyle, DesignObj_Generator *pDesignObj_Generator, PlutoPoint pos)
 {
-	PlutoRectangle rect = pDesignObjText->m_rPosition + pos;
+    PlutoRectangle rect = pDesignObjText->m_rPosition + pos;
 
-	WrapAndRenderText(pRenderImage->m_pSDL_Surface, pDesignObjText->m_sText, rect.X, rect.Y, rect.Width, rect.Height,
-		m_sFontPath, pTextStyle);
+    WrapAndRenderText(pRenderImage->m_pSDL_Surface, pDesignObjText->m_sText, rect.X, rect.Y, rect.Width, rect.Height,
+        m_sFontPath, pTextStyle);
 }
 
 Uint32 Renderer::getpixel(RendererImage * RIsurface, int x, int y)
 {
-	SDL_Surface * surface = RIsurface->m_pSDL_Surface;
+    SDL_Surface * surface = RIsurface->m_pSDL_Surface;
 
-	// all pixels outside the surface are black
-	if (x < 0 || x >= surface->w || y < 0 || y >= surface->h)
-		return SDL_MapRGB(surface->format, 0, 0, 0);
+    // all pixels outside the surface are black
+    if (x < 0 || x >= surface->w || y < 0 || y >= surface->h)
+        return SDL_MapRGB(surface->format, 0, 0, 0);
 
-	int bpp = surface->format->BytesPerPixel;
-	Uint8 * pixel = (Uint8 *) surface->pixels + y * surface->pitch + x * bpp;
+    int bpp = surface->format->BytesPerPixel;
+    Uint8 * pixel = (Uint8 *) surface->pixels + y * surface->pitch + x * bpp;
 
-	switch(bpp)
-	{
-	case 1:
-		return * pixel;
+    switch(bpp)
+    {
+    case 1:
+        return * pixel;
 
-	case 2:
-		return * (Uint16 *) pixel;
+    case 2:
+        return * (Uint16 *) pixel;
 
-	case 3:
-		if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
-			return pixel[0] << 16 | pixel[1] << 8 | pixel[2];
-		else
-			return pixel[0] | pixel[1] << 8 | pixel[2] << 16;
+    case 3:
+        if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
+            return pixel[0] << 16 | pixel[1] << 8 | pixel[2];
+        else
+            return pixel[0] | pixel[1] << 8 | pixel[2] << 16;
 
-	case 4:
-		return * (Uint32 *) pixel;
+    case 4:
+        return * (Uint32 *) pixel;
 
-	default:
-		return 0;       /* shouldn't happen, but avoids warnings */
-	}
+    default:
+        return 0;       /* shouldn't happen, but avoids warnings */
+    }
 }
 
 void Renderer::putpixel(RendererImage * RIsurface, int x, int y, Uint32 pixel_color)
 {
-	SDL_Surface * surface = RIsurface->m_pSDL_Surface;
+    SDL_Surface * surface = RIsurface->m_pSDL_Surface;
 
-	// don't try to put a pixel outside the surface
-	if (x < 0 || x >= surface->w || y < 0 || y >= surface->h)
-		return;
+    // don't try to put a pixel outside the surface
+    if (x < 0 || x >= surface->w || y < 0 || y >= surface->h)
+        return;
 
-	int bpp = surface->format->BytesPerPixel;
-	Uint8 * pixel = (Uint8 *) surface->pixels + y * surface->pitch + x * bpp;
+    int bpp = surface->format->BytesPerPixel;
+    Uint8 * pixel = (Uint8 *) surface->pixels + y * surface->pitch + x * bpp;
 
-	switch(bpp)
-	{
-	case 1:
-		* pixel = pixel_color;
-		break;
+    switch(bpp)
+    {
+    case 1:
+        * pixel = pixel_color;
+        break;
 
-	case 2:
-		* (Uint16 *) pixel = pixel_color;
-		break;
+    case 2:
+        * (Uint16 *) pixel = pixel_color;
+        break;
 
-	case 3:
-		if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
-		{
-			pixel[0] = (pixel_color >> 16) & 0xff;
-			pixel[1] = (pixel_color >> 8) & 0xff;
-			pixel[2] = pixel_color & 0xff;
-		}
-		else
-		{
-			pixel[0] = pixel_color & 0xff;
-			pixel[1] = (pixel_color >> 8) & 0xff;
-			pixel[2] = (pixel_color >> 16) & 0xff;
-		}
-		break;
+    case 3:
+        if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
+        {
+            pixel[0] = (pixel_color >> 16) & 0xff;
+            pixel[1] = (pixel_color >> 8) & 0xff;
+            pixel[2] = pixel_color & 0xff;
+        }
+        else
+        {
+            pixel[0] = pixel_color & 0xff;
+            pixel[1] = (pixel_color >> 8) & 0xff;
+            pixel[2] = (pixel_color >> 16) & 0xff;
+        }
+        break;
 
-	case 4:
-		* (Uint32 *) pixel = pixel_color;
-		break;
-	}
+    case 4:
+        * (Uint32 *) pixel = pixel_color;
+        break;
+    }
 }
 
 // extract a subsurface from a surface
 RendererImage * Renderer::Subset(RendererImage *pRenderImage, PlutoRectangle rect)
 {
-	//	return pRenderImage; // this is just a hack to see if it's a bug in the downstream code
+    //  return pRenderImage; // this is just a hack to see if it's a bug in the downstream code
 
-	PlutoSize size(rect.Width, rect.Height);
-	RendererImage * SubSurface = CreateBlankCanvas(size);
+    PlutoSize size(rect.Width, rect.Height);
+    RendererImage * SubSurface = CreateBlankCanvas(size);
 
-	//	cout << "SubSurface: " << pRenderImage->m_sFilename << ": "
-	//		<< rect.X << "," << rect.Y << "," << rect.Width << "," << rect.Height <<  endl;
+    //  cout << "SubSurface: " << pRenderImage->m_sFilename << ": "
+    //      << rect.X << "," << rect.Y << "," << rect.Width << "," << rect.Height <<  endl;
 
-	if (SubSurface == NULL)
-	{
-		cerr << "Failed to create sub-surface. Can't extract subset" << endl;
-	}
+    if (SubSurface == NULL)
+    {
+        cerr << "Failed to create sub-surface. Can't extract subset" << endl;
+    }
 
-	// copy pixel by pixel (this can be optimized to get line by line?)
-	for (int j = 0; j < rect.Height; j++)
-	{
-		for (int i = 0; i < rect.Width; i++)
-		{
-			// we may need locking on the two surfaces
-			putpixel(SubSurface, i, j, getpixel(pRenderImage, i + rect.X, j + rect.Y));
-		}
-	}
-	SubSurface->NewSurface = false;
-	/*
-	SDL_FillRect(Screen, NULL, SDL_MapRGB(Screen->format, 0, 0, 0));
-	SDL_BlitSurface(SubSurface->m_pSDL_Surface, NULL, Screen, NULL);
-	SDL_Flip(Screen);
-	SDL_Event SDL_event;
-	SDL_PollEvent(&SDL_event);
-	*/
-	//Sleep(5000);
+    // copy pixel by pixel (this can be optimized to get line by line?)
+    for (int j = 0; j < rect.Height; j++)
+    {
+        for (int i = 0; i < rect.Width; i++)
+        {
+            // we may need locking on the two surfaces
+            putpixel(SubSurface, i, j, getpixel(pRenderImage, i + rect.X, j + rect.Y));
+        }
+    }
+    SubSurface->NewSurface = false;
+    /*
+    SDL_FillRect(Screen, NULL, SDL_MapRGB(Screen->format, 0, 0, 0));
+    SDL_BlitSurface(SubSurface->m_pSDL_Surface, NULL, Screen, NULL);
+    SDL_Flip(Screen);
+    SDL_Event SDL_event;
+    SDL_PollEvent(&SDL_event);
+    */
+    //Sleep(5000);
 
-	return SubSurface;
+    return SubSurface;
 }
 
 void DoRender(string font, string output,int width,int height,bool bAspectRatio,class DesignObj_Generator *ocDesignObj)
 {
-	Renderer r(font,output,width,height);
-	r.RenderObject(NULL,ocDesignObj,PlutoPoint(0,0),-1,bAspectRatio);  // Render everything
+    Renderer r(font,output,width,height);
+    r.RenderObject(NULL,ocDesignObj,PlutoPoint(0,0),-1,bAspectRatio);  // Render everything
 }
 
 #endif //ifndef ORBITER
 
 RendererImage * Renderer::CreateBlankCanvas(PlutoSize size)
 {
-	RendererImage * Canvas = new RendererImage;
-	Uint32 rmask, gmask, bmask, amask;
+    RendererImage * Canvas = new RendererImage;
+    Uint32 rmask, gmask, bmask, amask;
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-	rmask = 0xff000000; gmask = 0x00ff0000; bmask = 0x0000ff00; amask = 0x000000ff;
+    rmask = 0xff000000; gmask = 0x00ff0000; bmask = 0x0000ff00; amask = 0x000000ff;
 #else
-	rmask = 0x000000ff; gmask = 0x0000ff00; bmask = 0x00ff0000; amask = 0xff000000;
+    rmask = 0x000000ff; gmask = 0x0000ff00; bmask = 0x00ff0000; amask = 0xff000000;
 #endif
 
-	int Width = (size.Width == 0 ? m_Width : size.Width);
-	int Height = (size.Height == 0 ? m_Height : size.Height);
+    int Width = (size.Width == 0 ? m_Width : size.Width);
+    int Height = (size.Height == 0 ? m_Height : size.Height);
 
-	Canvas->m_sFilename = "(new surface)";
-	Canvas->m_pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE, Width, Height, 32, rmask, gmask, bmask, amask);
+    Canvas->m_sFilename = "(new surface)";
+    Canvas->m_pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE, Width, Height, 32, rmask, gmask, bmask, amask);
 
-	if (Canvas->m_pSDL_Surface == NULL)
-	{
-		throw string("Failed to create blank canvas: ") + SDL_GetError();
-		delete Canvas;
-		Canvas = NULL;
-	}
+    if (Canvas->m_pSDL_Surface == NULL)
+    {
+        throw string("Failed to create blank canvas: ") + SDL_GetError();
+        delete Canvas;
+        Canvas = NULL;
+    }
 
-//	SDL_FillRect(Canvas->m_pSDL_Surface, NULL,SDL_MapRGBA(Canvas->m_pSDL_Surface->format, 0, 0, 0, 255));
+//  SDL_FillRect(Canvas->m_pSDL_Surface, NULL,SDL_MapRGBA(Canvas->m_pSDL_Surface->format, 0, 0, 0, 255));
 
-	Canvas->NewSurface = true;
+    Canvas->NewSurface = true;
 
-	return Canvas;
+    return Canvas;
 }
 
 // pass NULL in pRenderImage if you're interested only in the rendered text canvas size
 PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *pDesignObjText, TextStyle *pTextStyle, PlutoPoint pos)
 {
-	//	cout << "Starting to render text" << pDesignObjText->m_PK_Text << " " << pDesignObjText->m_Text << endl;
-	// hack
-	if( !pTextStyle->m_pTTF_Font )
-	{
-		if (pTextStyle->m_sFont == "")
-			pTextStyle->m_sFont = "arial";
+    //  cout << "Starting to render text" << pDesignObjText->m_PK_Text << " " << pDesignObjText->m_Text << endl;
+    // hack
+    if( !pTextStyle->m_pTTF_Font )
+    {
+        if (pTextStyle->m_sFont == "")
+            pTextStyle->m_sFont = "arial";
 
-		try
-		{
-			pTextStyle->m_pTTF_Font = TTF_OpenFont((m_sFontPath + pTextStyle->m_sFont + ".ttf").c_str(), pTextStyle->m_iPixelHeight);
-		}
-		catch(...)
-		{
-		}
+        try
+        {
+            pTextStyle->m_pTTF_Font = TTF_OpenFont((m_sFontPath + pTextStyle->m_sFont + ".ttf").c_str(), pTextStyle->m_iPixelHeight);
+        }
+        catch(...)
+        {
+        }
 
-		// Sometimes the camel case is converted to all upper or lower in Linux.
-		if( pTextStyle->m_pTTF_Font==NULL )
-		{
-			try
-			{
-				pTextStyle->m_pTTF_Font = TTF_OpenFont((m_sFontPath + StringUtils::ToUpper(pTextStyle->m_sFont) + ".TTF").c_str(), pTextStyle->m_iPixelHeight);
-			}
-			catch(...)
-			{
-			}
-		}
+        // Sometimes the camel case is converted to all upper or lower in Linux.
+        if( pTextStyle->m_pTTF_Font==NULL )
+        {
+            try
+            {
+                pTextStyle->m_pTTF_Font = TTF_OpenFont((m_sFontPath + StringUtils::ToUpper(pTextStyle->m_sFont) + ".TTF").c_str(), pTextStyle->m_iPixelHeight);
+            }
+            catch(...)
+            {
+            }
+        }
 
-		if( pTextStyle->m_pTTF_Font==NULL )
-		{
-			try
-			{
-				pTextStyle->m_pTTF_Font = TTF_OpenFont((m_sFontPath + StringUtils::ToLower(pTextStyle->m_sFont) + ".ttf").c_str(), pTextStyle->m_iPixelHeight);
-			}
-			catch(...)
-			{
-			}
-		}
+        if( pTextStyle->m_pTTF_Font==NULL )
+        {
+            try
+            {
+                pTextStyle->m_pTTF_Font = TTF_OpenFont((m_sFontPath + StringUtils::ToLower(pTextStyle->m_sFont) + ".ttf").c_str(), pTextStyle->m_iPixelHeight);
+            }
+            catch(...)
+            {
+            }
+        }
 
-		/*
-		#ifdef WIN32
-		TTF_Font * pTextStyle->m_pTTF_Font = TTF_OpenFont("C:\\Windows\\Fonts\\Arial.ttf", pDesignObjText->m_PixelHeight);
-		#else
-		TTF_Font * pTextStyle->m_pTTF_Font = TTF_OpenFont("/usr/share/pluto/fonts/arial.ttf", pDesignObjText->m_PixelHeight);
-		#endif
-		*/
-		if (pTextStyle->m_pTTF_Font == NULL)
-		{
-			TTF_Quit();
-			throw "Can't open font: " + pTextStyle->m_sFont + ": " + TTF_GetError();
-		}
-	}
-	//	cout << "opened font" << endl;
+        /*
+        #ifdef WIN32
+        TTF_Font * pTextStyle->m_pTTF_Font = TTF_OpenFont("C:\\Windows\\Fonts\\Arial.ttf", pDesignObjText->m_PixelHeight);
+        #else
+        TTF_Font * pTextStyle->m_pTTF_Font = TTF_OpenFont("/usr/share/pluto/fonts/arial.ttf", pDesignObjText->m_PixelHeight);
+        #endif
+        */
+        if (pTextStyle->m_pTTF_Font == NULL)
+        {
+            TTF_Quit();
+            throw "Can't open font: " + pTextStyle->m_sFont + ": " + TTF_GetError();
+        }
+    }
+    //  cout << "opened font" << endl;
 
-	SDL_Color SDL_color;
-	/* HACKED IN - Windows and Linux get different colors here */
-	SDL_color.r=pTextStyle->m_ForeColor.R();
-	SDL_color.g=pTextStyle->m_ForeColor.G();
-	SDL_color.b=pTextStyle->m_ForeColor.B();
-	SDL_color.unused = pTextStyle->m_ForeColor.A();
+    SDL_Color SDL_color;
+    /* HACKED IN - Windows and Linux get different colors here */
+    SDL_color.r=pTextStyle->m_ForeColor.R();
+    SDL_color.g=pTextStyle->m_ForeColor.G();
+    SDL_color.b=pTextStyle->m_ForeColor.B();
+    SDL_color.unused = pTextStyle->m_ForeColor.A();
 
-	/* Underline combined with anything crashes */
-	int style = TTF_STYLE_NORMAL;
-	if (pTextStyle->m_bUnderline)
-	{
-		style = TTF_STYLE_UNDERLINE;
-	}
-	else
-	{
-		if (pTextStyle->m_bBold)
-			style |= TTF_STYLE_BOLD;
-		if (pTextStyle->m_bItalic)
-			style |= TTF_STYLE_ITALIC;
-	}
-	TTF_SetFontStyle((TTF_Font *) pTextStyle->m_pTTF_Font, style);
+    /* Underline combined with anything crashes */
+    int style = TTF_STYLE_NORMAL;
+    if (pTextStyle->m_bUnderline)
+    {
+        style = TTF_STYLE_UNDERLINE;
+    }
+    else
+    {
+        if (pTextStyle->m_bBold)
+            style |= TTF_STYLE_BOLD;
+        if (pTextStyle->m_bItalic)
+            style |= TTF_STYLE_ITALIC;
+    }
+    TTF_SetFontStyle((TTF_Font *) pTextStyle->m_pTTF_Font, style);
 
-	SDL_Surface * RenderedText = TTF_RenderText_Blended((TTF_Font *)pTextStyle->m_pTTF_Font, pDesignObjText->m_sText.c_str(), SDL_color);
-	//	cout << "called RenderText_Solid" << endl;
-	if (RenderedText == NULL)
-	{
-		TTF_Quit();
-		throw /*cerr <<*/ "Can't render text: " + pDesignObjText->m_sText + ": " + TTF_GetError();
-	}
+    SDL_Surface * RenderedText = TTF_RenderText_Blended((TTF_Font *)pTextStyle->m_pTTF_Font, pDesignObjText->m_sText.c_str(), SDL_color);
+    //  cout << "called RenderText_Solid" << endl;
+    if (RenderedText == NULL)
+    {
+        TTF_Quit();
+        throw /*cerr <<*/ "Can't render text: " + pDesignObjText->m_sText + ": " + TTF_GetError();
+    }
 
-	PlutoSize RenderedSize(RenderedText->w, RenderedText->h);
+    PlutoSize RenderedSize(RenderedText->w, RenderedText->h);
 
-	if (pRenderImage != NULL)
-	{
-		SDL_Rect SDL_rect;
-		SDL_rect.x = pos.X;
-		SDL_rect.y = pos.Y;
-		SDL_SetAlpha(RenderedText, 0, 0);
-		pRenderImage->NewSurface = false;
-		SDL_BlitSurface(RenderedText, NULL, pRenderImage->m_pSDL_Surface, &SDL_rect);
-//		SDL_SaveBMP(pRenderImage->m_pSDL_Surface, ("blit-" + pDesignObjText->m_sText + ".bmp").c_str());
-	//			cout << "called Blit" << endl;
-	}
+    if (pRenderImage != NULL)
+    {
+        SDL_Rect SDL_rect;
+        SDL_rect.x = pos.X;
+        SDL_rect.y = pos.Y;
+        SDL_SetAlpha(RenderedText, 0, 0);
+        pRenderImage->NewSurface = false;
+        SDL_BlitSurface(RenderedText, NULL, pRenderImage->m_pSDL_Surface, &SDL_rect);
+//      SDL_SaveBMP(pRenderImage->m_pSDL_Surface, ("blit-" + pDesignObjText->m_sText + ".bmp").c_str());
+    //          cout << "called Blit" << endl;
+    }
 
-// todo - find a solution for this	TTF_CloseFont(Font);
-	SDL_FreeSurface(RenderedText);
+// todo - find a solution for this  TTF_CloseFont(Font);
+    SDL_FreeSurface(RenderedText);
 
-	return RenderedSize;
+    return RenderedSize;
 }
 
 
 
 #ifdef OrbiterGen
-#define	FLAG_DISABLE_VIDEO true
+#define FLAG_DISABLE_VIDEO true
 #else
 #define FLAG_DISABLE_VIDEO false
 #endif
@@ -757,7 +757,7 @@ PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *
 // Nasty hack -- Ask Radu why the fuck he decided to reinitialize the entire font engine for every word todo
 #ifdef WIN32
 Renderer r("C:/windows/fonts/", "", 800, 600, FLAG_DISABLE_VIDEO);
-#else 
+#else
 Renderer r("/usr/share/fonts/truetype/msttcorefonts/", "", 800, 600, FLAG_DISABLE_VIDEO);
 #endif
 
@@ -768,78 +768,78 @@ Renderer r("/usr/share/fonts/truetype/msttcorefonts/", "", 800, 600, FLAG_DISABL
 pair<int, int> GetWordWidth(string Word, string FontPath, TextStyle *pTextStyle, void * & RI, bool NewSurface = true)
 {
 // Radu was creating the render for every call
-	RendererImage * Canvas;
+    RendererImage * Canvas;
 
-	DesignObjText DOText;
-	DOText.m_sText = Word;
+    DesignObjText DOText;
+    DOText.m_sText = Word;
 
-	PlutoSize Size = r.RealRenderText(NULL, &DOText, pTextStyle, PlutoPoint(0,0));
-	if (! NewSurface)
-	{
-		Canvas = (RendererImage *) RI;
-		delete Canvas;
-	}
+    PlutoSize Size = r.RealRenderText(NULL, &DOText, pTextStyle, PlutoPoint(0,0));
+    if (! NewSurface)
+    {
+        Canvas = (RendererImage *) RI;
+        delete Canvas;
+    }
 
-	Canvas = r.CreateBlankCanvas(Size);
-	r.RealRenderText(Canvas, &DOText, pTextStyle, PlutoPoint(0,0));
+    Canvas = r.CreateBlankCanvas(Size);
+    r.RealRenderText(Canvas, &DOText, pTextStyle, PlutoPoint(0,0));
 
-	RI = Canvas;
-	return pair<int, int>(Size.Width, Size.Height);
+    RI = Canvas;
+    return pair<int, int>(Size.Width, Size.Height);
 }
 
-/* WORKAROUND: void * = SDL_Surface * */ 
+/* WORKAROUND: void * = SDL_Surface * */
 int DoRenderToSurface(void * Surface, list<void *> &RI, int posX, int posY)
 {
-	list<void *>::iterator i;
+    list<void *>::iterator i;
 
-	RendererImage * myRI;
-	for (i = RI.begin(); i != RI.end(); i++)
-	{
-		SDL_Rect dest;
-		myRI = (RendererImage *) * i;
+    RendererImage * myRI;
+    for (i = RI.begin(); i != RI.end(); i++)
+    {
+        SDL_Rect dest;
+        myRI = (RendererImage *) * i;
 
-		dest.x = posX; dest.y = posY;
+        dest.x = posX; dest.y = posY;
 
-		SDL_BlitSurface(myRI->m_pSDL_Surface, NULL, (SDL_Surface *) Surface, &dest);
-		posX += myRI->m_pSDL_Surface->w;
-	}
+        SDL_BlitSurface(myRI->m_pSDL_Surface, NULL, (SDL_Surface *) Surface, &dest);
+        posX += myRI->m_pSDL_Surface->w;
+    }
 
-	return myRI->m_pSDL_Surface->h;
+    return myRI->m_pSDL_Surface->h;
 }
 
 // (void *) / (RendererImage *) WORKAROUND
 // returns height of rendered row
 int DoRenderToScreen(list<void *> &RI, int posX, int posY)
 {
-	static SDL_Surface * Screen = NULL;
-	if (! (SDL_WasInit(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == SDL_INIT_VIDEO))
-	{
-		SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE); 
-		atexit(SDL_Quit);
-	}
+    static SDL_Surface * Screen = NULL;
+    if (! (SDL_WasInit(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == SDL_INIT_VIDEO))
+    {
+        SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE);
+        atexit(SDL_Quit);
+    }
 
-	if (Screen == NULL)
-		Screen = SDL_SetVideoMode(800, 600, 0, SDL_SWSURFACE);
+    if (Screen == NULL)
+        Screen = SDL_SetVideoMode(800, 600, 0, SDL_SWSURFACE);
 
-	int Result = DoRenderToSurface(Screen, RI, posX, posY);
-	SDL_Flip(Screen);
+    int Result = DoRenderToSurface(Screen, RI, posX, posY);
+    SDL_Flip(Screen);
 
-	return Result;
+    return Result;
 }
 
 /* WORKAROUND (void *) -> (RendererImage *) */
 void extDeleteRendererImage(void * & RI)
 {
-	delete (RendererImage *) RI;
+    delete (RendererImage *) RI;
 }
 
 void DoSDL()
 {
-	while(1)
-	{
-		SDL_Event E;
-		SDL_WaitEvent(&E);
-		if (E.type == SDL_QUIT)
-			break;
-	};
+    while(1)
+    {
+        SDL_Event E;
+        SDL_WaitEvent(&E);
+        if (E.type == SDL_QUIT)
+            break;
+    };
 }
