@@ -32,13 +32,8 @@ using namespace std;
 	#define endl '\n'
 #endif
 
-#if ( defined( PROFILING ) )
-	#ifdef WINCE
-		#include "DCE/Logger.h"
-		using namespace DCE;
-	#endif
-#endif
-
+#include "DCE/Logger.h"
+using namespace DCE;
 
 int myCounter=0;
 
@@ -958,7 +953,14 @@ PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *
     }
 
 // todo - find a solution for this  TTF_CloseFont(Font);
-    SDL_FreeSurface(RenderedText);
+	try
+	{
+	    SDL_FreeSurface(RenderedText);
+	}
+	catch(...) //if the clipping rectagle is too big, SDL_FreeSurface will crash
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Renderer::RealRenderText : SDL_FreeSurface crashed!");
+	}
 
 #if ( defined( PROFILING_TEMP ) )
 	clock_t clkFinished = clock(  );

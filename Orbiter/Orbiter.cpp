@@ -425,6 +425,11 @@ void Orbiter::RealRedraw( void *data )
         m_vectObjs_NeedRedraw.clear();
 		m_vectTexts_NeedRedraw.clear();
 
+		//also cancel all other pending tasks
+		PLUTO_SAFETY_LOCK( pm, m_CallbackMutex );
+		mapPendingCallbacks.clear();
+		pm.Release();
+
         RenderScreen(  );
 		m_bRerenderScreen = false;
         return;
@@ -1818,7 +1823,8 @@ void Orbiter::FindObjectToHighlight(
 {
     PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
 	vector<DesignObj_DataGrid *> vectObj_SelectedGrids;
-    for( size_t s=0;s<m_vectObjs_GridsOnScreen.size(  );++s )
+	size_t s;
+    for( s=0;s<m_vectObjs_GridsOnScreen.size(  );++s )
     {
         DesignObj_DataGrid *pDesignObj_DataGrid = m_vectObjs_GridsOnScreen[s];
         if(  pDesignObj_DataGrid->IsHidden(  )  )
@@ -1919,7 +1925,7 @@ int r=pDesignObj_DataGrid->m_pDataGridTable->GetRows(  );
     }
     dg.Release(  );
 
-	for(size_t s=0;s<vectObj_SelectedGrids.size();++s)
+	for(s=0;s<vectObj_SelectedGrids.size();++s)
 		SelectedObject(vectObj_SelectedGrids[s]);
     if( NULL == m_pObj_Highlighted ||
         (
@@ -5161,7 +5167,7 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 	SolidRectangle(5, m_iImageHeight - 30, 200, 25, color, 50);
 
 	PlutoRectangle rect(5, m_iImageHeight - 30, 200, 25);
-	DesignObjText text;
+	DesignObjText text(m_pScreenHistory_Current->m_pObj);
 	text.m_sText = "Key code pressed: " + StringUtils::ltos(key);
 	text.m_rPosition = rect;
 
