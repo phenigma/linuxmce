@@ -157,6 +157,7 @@ ReplaceVars /etc/exports.$$
 mv /etc/exports.$$ /etc/exports
 #/etc/init.d/nfs-kernel-server restart
 if ! /sbin/showmount -e localhost &>/dev/null; then
+	/etc/init.d/nfs-common start
 	/etc/init.d/nfs-kernel-server start
 fi
 /usr/sbin/exportfs -ra
