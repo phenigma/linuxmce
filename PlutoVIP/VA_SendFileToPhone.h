@@ -19,7 +19,7 @@ public:
 	u_int64_t m_iMacAddress;
 
 	// For an incoming menu
-	VA_SendFileToPhone(string sFileName,u_int64_t MacAddress);
+	VA_SendFileToPhone(string sPathName, string sFileName,u_int64_t MacAddress);
 	VA_SendFileToPhone() {}
 
 	unsigned long ID() { return ACTION_SENDFILE_TOPHONE; }

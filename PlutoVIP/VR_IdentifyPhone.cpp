@@ -20,7 +20,9 @@
 #include "PlutoUtils/Other.h"
 #include "PlutoUtils/MySQLHelper.h"
 #include "VIPShared/VIPMenu.h"
+
 #include "VA_SendMenuToPhone.h"
+#include "VA_SendFileToPhone.h"
 
 #include "RA/RA_Processor.h"
 #include "DCE/DCEMySqlConfig.h"
@@ -327,6 +329,17 @@ bool VR_IdentifyPhone::ProcessRequest(RA_Processor *pRA_Processor)
 	}
 
     m_iUseCache=0;
+
+	//send sis file to phone if needed
+	if(!FileName.empty())
+	{
+		cout << "Sending sis file to phone " << FileName << endl;
+		cout << "Sending file:  " << pDCEMySqlConfig->m_sSisFilesPath + "\\" + FileName << endl; 
+
+		VA_SendFileToPhone *pVA_SendFileToPhone = new VA_SendFileToPhone(pDCEMySqlConfig->m_sSisFilesPath, FileName, m_iMacAddress);
+
+		MYSTL_ADDTO_LIST(m_listActions, pVA_SendFileToPhone);
+	}
 
 CheckForVMC:
 	

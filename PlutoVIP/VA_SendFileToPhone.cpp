@@ -8,18 +8,25 @@
 #include "VIPShared/VIPMenu.h"
 #include "BD/PhoneDevice.h"
 #include "RA/RA_Request.h"
-#include "VIPShared/PlutoConfig.h"
 #include "VR_PhoneRespondedToRequest.h"
 #include "PlutoVIPRequests.h"
 
+#include "RA/RA_Processor.h"
+#include "DCE/DCEMySqlConfig.h"
+
+#include <iostream>
+#include <sstream>
+#include <assert.h>
+
+
 // todo - is there a cross platform (linux/symbian/windows) way to dynamically allocate a growable memory block?
-VA_SendFileToPhone::VA_SendFileToPhone(string sFileName,u_int64_t MacAddress) 
+VA_SendFileToPhone::VA_SendFileToPhone(string sPathName, string sFileName,u_int64_t MacAddress) 
 	: RA_Action()
 { 
 	m_sFileName=sFileName;
 	m_iMacAddress=MacAddress;
 	size_t s;
-	m_pdbFile.m_pBlock = FileUtils::ReadFileIntoBuffer(g_pPlutoConfig->m_sMenuPath + m_sFileName.c_str(), s);
+	m_pdbFile.m_pBlock = FileUtils::ReadFileIntoBuffer(sPathName + "\\" + m_sFileName.c_str(), s);
 	m_pdbFile.m_dwSize = (unsigned long) s;
 }
 
@@ -29,6 +36,9 @@ pluto_pthread_mutex_t m_FileSendMutex("FileSend");
 
 void VA_SendFileToPhone::ProcessAction(class RA_Request *pRequest,class RA_Processor *pRA_Processor)
 {
+	DCEMySqlConfig *pDCEMySqlConfig = dynamic_cast<DCEMySqlConfig *>(pRA_Processor->m_pRA_Config);
+	assert(NULL != pDCEMySqlConfig);
+
 	// Be sure 2 threads don't both try to do this at the same time
 	PLUTO_SAFETY_LOCK(fs,m_FileSendMutex);
 
@@ -36,12 +46,12 @@ void VA_SendFileToPhone::ProcessAction(class RA_Request *pRequest,class RA_Proce
 	CBtSendFile *ptrBtSendFile = new CBtSendFile( this );
 
 	PhoneDevice p("",m_iMacAddress,0);  // just to get a string
-	FILE *f = fopen((g_pPlutoConfig->m_sPicturePath + "\\" + m_sFileName).c_str(),"wb");
+	FILE *f = fopen(pDCEMySqlConfig->m_sSisFilesPath + "\\" + m_sFileName).c_str(),"wb");
 	if( f )
 	{
 		fwrite(m_pdbFile.m_pBlock,m_pdbFile.m_dwSize,1,f);
 		fclose(f);
-		ptrBtSendFile->SendFile( g_pPlutoConfig->m_sPicturePath + "\\" + m_sFileName, p.m_sMacAddress, CBtSendFile::BY_OBEX_THEN_NONE );
+		ptrBtSendFile->SendFile( pDCEMySqlConfig->m_sSisFilesPath + "\\" + m_sFileName, p.m_sMacAddress, CBtSendFile::BY_OBEX_THEN_NONE );
 	}
 }
 

@@ -15,6 +15,7 @@ public:
 	// serialized values
 	string m_sDBHost,m_sDBUser,m_sDBPassword,m_sDBName,m_sDCERouter;
 	string m_sMenuPath,m_sPicturePath;  // Used by the server to find the menus and pictures.  Picture Path may be used by the Establishment also
+	string m_sSisFilesPath;
 
 	int m_iPK_Device_Computer,m_iDBPort,m_iDCERouterPort,m_iPK_Installation;
 	int m_iPK_Distro;

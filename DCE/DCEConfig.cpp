@@ -88,6 +88,7 @@ DCEConfig::DCEConfig(string sFilename) : RA_Config()
 
 	m_sMenuPath				= ReadString("MenuPath",m_sMenuPath);
 	m_sPicturePath			= ReadString("PicturePath",m_sPicturePath);
+	m_sSisFilesPath		    = ReadString("SisFilesPath",m_sSisFilesPath);
 }
 //------------------------------------------------------------------------------------------------------
 /*virtual*/ DCEConfig::~DCEConfig()
