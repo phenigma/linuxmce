@@ -1181,10 +1181,11 @@ cout << "Copying Files\n";
 			}
 		}
 		if (flag != true) {
+				cout << "WE HAVE A TILT!!!!\n";
 				cmd = "rm -r -f " + cmd2;
 				system(cmd.c_str());
 				cout << cmd << endl;
-				cmd = "cvs remove " + cmd2;
+				cmd = "cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/" + pRow_Package_Source->Name_get() + "remove " + cmd2;
 				system(cmd.c_str());
 				cout << cmd << endl;
 		}
