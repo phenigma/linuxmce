@@ -11,10 +11,6 @@ echo "** Initial config script"
 PHURL="http://www.plutohome.com/"
 ACTIV="http://activate.plutohome.com"
 
-if [ "$Type" == "router" ]; then
-	echo "127.0.0.1 dcerouter" >>/etc/hosts # I have to do something smarter than this for the moons, or they won't work
-fi
-
 activation_url="$ACTIV/activation.php"
 
 DIR="/usr/pluto/install"
