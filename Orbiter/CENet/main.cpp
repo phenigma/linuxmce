@@ -5,6 +5,7 @@
 #include <commctrl.h>
 
 #include "main.h"
+#include "MainDialog.h"
 #include "StartOrbiterCE.h"
 #include "DCE/Logger.h"
 
@@ -133,18 +134,36 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 			return 0;
 		}
 
-		try
+		MSG msg;
+		HACCEL hAccelTable;
+
+		CmdLineParams.sRouter_IP		= sRouter_IP;
+		CmdLineParams.PK_Device			= PK_Device;
+		CmdLineParams.sLogger			= sLogger;
+		CmdLineParams.Width				= Width;
+		CmdLineParams.Height			= Height;
+		CmdLineParams.bLocalMode		= bLocalMode; 
+		CmdLineParams.bFullScreen		= bFullScreen;
+		CmdLineParams.sLocalDirectory	= sLocalDirectory;
+		CmdLineParams.sNestedDisplay    = sNestedDisplay;
+
+		// Perform application initialization:
+		if (!InitInstance (hInstance, nCmdShow)) 
 		{
-			StartOrbiterCE(PK_Device,sRouter_IP,sLocalDirectory,bLocalMode,Width,Height,bFullScreen);
+			return FALSE;
 		}
-		catch(string s)
+
+		// Main message loop:
+		while (GetMessage(&msg, NULL, 0, 0)) 
 		{
-			printf("Caught exception: %s\n", s.c_str());
+			if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg)) 
+			{
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
 		}
-		catch(const char *s)
-		{
-			printf("Caught exception: %s\n", s);
-		}
+
+		return msg.wParam;
 	}
 
 

@@ -218,32 +218,37 @@ void Command_Impl::ReplaceParams( ::std::string sReplacement ) {
 
 bool Command_Impl::Connect()
 {
+	bool bResult = true;
+
 	// Must have an event socket to proceed.
 	if (!m_pEvent)
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"No event handler for device ID: %d", this->m_dwPK_Device);
-		return false;
+		bResult = false;
 	}
-	if (m_pEvent->m_pClientSocket->m_Socket == INVALID_SOCKET)
+
+	if (bResult && m_pEvent->m_pClientSocket->m_Socket == INVALID_SOCKET)
 	{
 		m_pEvent->m_pClientSocket->Connect();
 		if (m_pEvent->m_pClientSocket->m_Socket == INVALID_SOCKET)
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"No client socket for device ID: %d", this->m_dwPK_Device);
-			return false;
+			bResult = false;
 		}
 	}
-	if (!ClientSocket::Connect())
+	if (bResult && !ClientSocket::Connect())
 	{
 #if (!defined(UNDER_CE) || !defined(DEBUG))
 		g_pPlutoLogger->Write(LV_CRITICAL,"DeviceCommand connect failed %p, device ID: %d",this,this->m_dwPK_Device);
 #endif
+	
 		if (m_pEvent)
 			m_pEvent->m_pClientSocket->Disconnect();
-		return false;
+
+		bResult = false;
 	}
 
-	return true;
+	return bResult;
 }
 
 void Command_Impl::ReceivedString( string sLine )

@@ -1,6 +1,7 @@
 #include "OrbiterSDL_WinCE.h"
 #include "StringUtils.h"
 #include "SDL_syswm.h"
+#include "MainDialog.h"
 
 #include "../pluto_main/Define_Button.h"
 #include "../pluto_main/Define_Direction.h" 
@@ -270,6 +271,10 @@ void OrbiterSDL_WinCE::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			SDL_Event event;
 			event.type = SDL_USEREVENT;
 			SDL_PushEvent(&event); 
+		}
+		else if( wParam == VK_F1 && m_bControlDown && m_bAltDown)
+		{
+			ShowMainDialog();
 		}
         else if( !m_bShiftDown && !m_bControlDown && !m_bAltDown && !m_bRepeat )
         {

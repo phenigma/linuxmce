@@ -8,16 +8,21 @@
 #define IDI_ORBITER                     101
 #define IDM_MENU                        102
 #define IDD_ABOUTBOX                    103
+#define IDD_MAINDIALOG                  105
+#define IDC_LIST                        1001
 #define IDM_FILE_EXIT                   40002
 #define IDM_HELP_ABOUT                  40003
+#define IDM_MAIN_FILE                   40004
+#define IDS_CAP_FILE                    40006
+#define IDM_MAIN_FILE_QUIT              40007
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        105
-#define _APS_NEXT_COMMAND_VALUE         40004
-#define _APS_NEXT_CONTROL_VALUE         1001
+#define _APS_NEXT_RESOURCE_VALUE        107
+#define _APS_NEXT_COMMAND_VALUE         40008
+#define _APS_NEXT_CONTROL_VALUE         1002
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
