@@ -34,6 +34,11 @@
 #include "Message.h"
 #include "HandleRequestSocket.h"
 
+#ifdef WINCE
+#include "MainDialog.h"
+#include "Windows.h"
+#endif
+
 using namespace DCE;
 
 void *BeginHandleRequestThread( void *HRqSock )
@@ -224,6 +229,30 @@ g_pPlutoLogger->Write( LV_STATUS, "Closing request handler connection...");
 	if ( m_bUnexpected )
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "OnUnexpectedDisconnect");
+
+#ifdef WINCE
+		//starting orbiter
+		PROCESS_INFORMATION pi;
+		::ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
+
+		STARTUPINFO si;
+		::ZeroMemory(&si, sizeof(STARTUPINFO));
+		si.cb = sizeof(STARTUPINFO);
+		si.lpReserved = 0;
+
+		wchar_t pProcessNameW[256];
+		::GetModuleFileName(NULL, pProcessNameW, sizeof(pProcessNameW));
+
+		string sCmdLine = "-d " + StringUtils::ltos(m_dwPK_Device);
+		sCmdLine += " -r " + CmdLineParams.sRouter_IP;
+		wchar_t CmdLineW[256];
+		mbstowcs(CmdLineW, sCmdLine.c_str(), 256);
+
+		::CreateProcess(pProcessNameW, CmdLineW, NULL, NULL, NULL, 0, NULL, NULL, &si, &pi);
+		
+		exit(1); //die!!!
+#endif
+
 		OnUnexpectedDisconnect();
 	}
 

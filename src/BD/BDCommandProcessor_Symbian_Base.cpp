@@ -991,7 +991,7 @@ void BDCommandProcessor_Symbian_Base::ProcessCommands(bool bCriticalRequest /*=t
 		LOGN(m_iTimedOut);
 		LOGN(" \n");
 
-		if(m_iTimedOut >= 10)
+		if(m_iTimedOut >= 20) //20 secs
 		{
 			m_bStatusOk = false;
 			return;

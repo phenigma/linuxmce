@@ -667,28 +667,6 @@ void OrbiterSDL_WinCE::OnQuit()
 	m_bQuit = true;
 	m_bConnectionLost = true;
 
-
-	//starting orbiter
-	PROCESS_INFORMATION pi;
-	::ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
-
-	STARTUPINFO si;
-	::ZeroMemory(&si, sizeof(STARTUPINFO));
-	si.cb = sizeof(STARTUPINFO);
-	si.lpReserved = 0;
-
-	wchar_t pProcessNameW[256];
-	::GetModuleFileName(NULL, pProcessNameW, sizeof(pProcessNameW));
-
-	string sCmdLine = "-d " + StringUtils::ltos(m_dwPK_Device);
-	sCmdLine += " -r " + CmdLineParams.sRouter_IP;
-	wchar_t CmdLineW[256];
-	mbstowcs(CmdLineW, sCmdLine.c_str(), 256);
-
-	::CreateProcess(pProcessNameW, CmdLineW, NULL, NULL, NULL, 0, NULL, NULL, &si, &pi);
-	
-	exit(1); //die!!!
-
 	//::ShowWindow(hSDLWindow, SW_HIDE);
 	g_pPlutoLogger->Write(LV_STATUS, "Minimizing orbiter");
 	ShowMainDialog();
