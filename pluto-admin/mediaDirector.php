@@ -18,7 +18,7 @@ if(isset($_POST['save'])){
 		$device=(int)@$_POST['device_'.$inputID];
 		if(isset($_POST['external_'.$inputID]) && $device!=0){
 			// TODO: the external command
-			$extCommand='/usr/pluto/bin/??? '.$device;
+			$extCommand='/usr/pluto/bin/TuneToChannel.sh '.$device;
 			$mdADO->Execute('UPDATE cardinput SET externalcommand=? WHERE cardinputid=?',array($extCommand,$inputID));
 		}else{
 			$mdADO->Execute('UPDATE cardinput SET externalcommand=? WHERE cardinputid=?',array('',$inputID));
@@ -29,12 +29,12 @@ if(isset($_POST['save'])){
 	exit();
 }
 
-
+$cssFile='<link rel="stylesheet" type="text/css" media="all" href="include/styles/customer_setup_style.css" />';
 $out='
 <html>
 <head>
 <title>Media Directors</title>
-<link rel="stylesheet" type="text/css" media="all" href="include/styles/customer_setup_style.css" />
+'.$cssFile.'
 <script>
 function enableDevice(val)
 {
@@ -44,13 +44,18 @@ function enableDevice(val)
 </head>
 <body>
 ';
-$orbiterID=(int)@$_REQUEST['orbID'];
+if(!isset($_REQUEST['orbID']) && !isset($_REQUEST['mdID'])){
+	print $cssFile.'<div class="err">No orbiter ID or media director ID specified. Call this page with <B>?orbID=X</B> or <B>?mdID=X</B></div>';
+	exit();
+}
+
+$orbiterID=(int)$_REQUEST['orbID'];
 // TODO: remove test value
-$orbiterID=594;
+//$orbiterID=594;
 if(!isset($_REQUEST['mdID'])){
 	$resOrbiter=$dbADO->Execute('SELECT FK_Installation,FK_Device_ControlledVia FROM Device WHERE PK_Device=?',$orbiterID);
 	if($resOrbiter->RecordCount()==0){
-		print '<div class="err">Cannot retrieve installation for selected orbiter.</div>';
+		print $cssFile.'<div class="err">Cannot retrieve installation for selected orbiter.</div>';
 		exit();
 	}else{
 		$rowOrbiter=$resOrbiter->FetchRow();
@@ -64,7 +69,7 @@ if(!isset($_REQUEST['mdID'])){
 
 $DTArray=getDeviceTemplatesFromCategory($GLOBALS['rootMediaDirectors'],$dbADO);
 if(count($DTArray)==0){
-	print '<div class="err">No media directors in pluto_main database.</div>';
+	print $cssFile.'<div class="err">No media directors in pluto_main database.</div>';
 	exit();
 }else{
 	$out.='
@@ -89,14 +94,17 @@ $rowMD=$resMD->FetchRow();
 $roomID=$rowMD['FK_Room'];
 
 $devicesInRoom=array();
-$resDevices=$dbADO->Execute('SELECT Device.* FROM Device WHERE FK_Room=? ORDER BY Description ASC',$roomID);
+$AV_DTArray=getDeviceTemplatesFromCategory($GLOBALS['rootAVEquipment'],$dbADO);
+if(count($AV_DTArray)==0)
+	$AV_DTArray[]=0;
+$resDevices=$dbADO->Execute('SELECT Device.* FROM Device WHERE FK_Room=? AND FK_DeviceTemplate IN ('.join(',',$AV_DTArray).') ORDER BY Description ASC',$roomID);
 while($rowDevices=$resDevices->FetchRow()){
 	$devicesInRoom[$rowDevices['PK_Device']]=$rowDevices['Description'];
 }
 
 $resHost=$mdADO->Execute('SELECT hostname FROM settings WHERE value=? AND data=?',array('BackendServerIP',$rowMD['IPaddress']));
 if($resHost->RecordCount()==0){
-	print '<div class="err">Cannot retrieve host for curent Media Director.</div>';
+	print $cssFile.'<div class="err">Cannot retrieve host for curent Media Director.</div>';
 	exit();
 }else{
 	$rowHost=$resHost->FetchRow();
@@ -109,7 +117,7 @@ $resCaptureCard=$mdADO->Execute('SELECT * FROM capturecard WHERE hostname=?',$ho
 $out.='<table>
 	<tr>
 		<td><B>Capture Card</B></td>
-		<td><B>Input</B></td>
+		<td align="center"><B>Input</B></td>
 	</tr>';
 $inputsArray=array();
 $pos=0;
