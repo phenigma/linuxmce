@@ -999,7 +999,12 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 	string cmd, cmd2;
 	bool flag;
 	list<FileInfo *>::iterator iFileInfo;
-cout << "\nCreting temporary directory\n";
+	string::size_type pos;
+	string::size_type length;
+	list <string> MyList;
+	list <string>::iterator iMyList;
+	
+	cout << "\nCreting temporary directory\n";
 	MyPath = "cvs_temp";
 	//Building Temporary Directory
 #ifdef WIN32
@@ -1018,18 +1023,14 @@ cout << "Making CVS Checkout to temporary\n";
 	system(cmd.c_str());
 	chdir(pRow_Package_Source->Name_get().c_str());
 
-	list <string> MyList;
-	list <string>::iterator iMyList;
 	//reading actual directory list
+cout << "Reading files from temporary";
 	FileUtils::FindFiles(MyList, "", "*", true, "");
-
-	string::size_type pos;
-	string::size_type length;
-
+cout << " [Done]\n";
 //	cout<<"\n\n SourceForgeCVS : "<<pRow_Package_Source->FK_Package_getrow()->Description_get();
 //	cout<<"\n Nr of files : "<<listFileInfo.size();
 	
-	cout << "Copying Files " << endl;
+cout << "Copying Files\n";
 /////////////-------------------- We copy the files from the project to the temporary
 	flag = false;
 
