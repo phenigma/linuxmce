@@ -55,9 +55,15 @@ echo Using version with id: "$version"
 if [ "x$nobuild" = "x" ]; then
 	rm /tmp/main_sqlcvs.dump
     if [ $version -eq 1 ]; then
-        O1="UPDATE Version SET VersionName='$(date +%g%m%d%H)' WHERE PK_Version=$version;"
-        echo $O1 | mysql pluto_main
+	    Q="select PK_Version from Version WHERE PK_Version<>1 ORDER BY date desc, PK_Version limit 1"
+		last_version=$(echo "$Q;" | mysql -N pluto_main)
+		
+		Q="select VersionName from Version WHERE PK_Version=$last_version"
+		last_version_name=$(echo "$Q;" | mysql -N pluto_main)
 
+		O1="UPDATE Version SET VersionName='${last_version_name}_$(date +%g%m%d%H)' WHERE PK_Version=$version;"
+        echo $O1 | mysql pluto_main
+		
 		#This is an hourly build, so we're going to dump the pluto_main database and make it our sqlCVS database
 		mysqldump --quote-names --allow-keywords --add-drop-table pluto_main > /tmp/main_sqlcvs.dump
 	else
@@ -75,7 +81,7 @@ if [ "x$nobuild" = "x" ]; then
 		read
 		exit
 	fi
-	
+
 	mysql main_sqlcvs < /tmp/main_sqlcvs.dump
     
 	if [ $version -eq 1 ]; then
