@@ -878,13 +878,16 @@ bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,list<FileI
 		Version = "2.0.0.0";
 	}
 	
-	string Dir("/home/tmp/pluto-build/" + vect_pRow_Package_Source_Package_Name[0]->Name_get() + "-" + Version);
+	string Package_Name = StringUtils::ToLower(vect_pRow_Package_Source_Package_Name[0]->Name_get());
+	string Dir("/home/tmp/pluto-build/" + Package_Name + "-" + Version);
 
 	FILE * f;
 
 #ifndef WIN32
 	system(("rm -rf " + Dir).c_str());
 	system(("mkdir -p " + Dir + "/root").c_str());
+	char CurrentDir[1024];
+	getcwd(CurrentDir, 1024);
 	chdir(Dir.c_str());
 
 string Makefile = "none:\n"
@@ -907,10 +910,10 @@ string Makefile = "none:\n"
 	list<FileInfo *>::iterator iFileInfo;
 	for (iFileInfo = listFileInfo.begin(); iFileInfo != listFileInfo.end(); iFileInfo++)
 	{
-		cout << "COPY: " << (*iFileInfo)->m_sSource << " --> " + Dir + "/root" + (*iFileInfo)->m_sDestination << endl;
+		cout << "COPY: " << (*iFileInfo)->m_sSource << " --> " + Dir + "/root/" + (*iFileInfo)->m_sDestination << endl;
 #ifndef WIN32
-		system(("mkdir -p " + FileUtils::BasePath(Dir + "/root" + (*iFileInfo)->m_sDestination)).c_str());
-		FileUtils::PUCopyFile((*iFileInfo)->m_sSource, Dir + "/root" + (*iFileInfo)->m_sDestination);
+		system(("mkdir -p " + FileUtils::BasePath(Dir + "/root/" + (*iFileInfo)->m_sDestination)).c_str());
+		FileUtils::PUCopyFile((*iFileInfo)->m_sSource, Dir + "/root/" + (*iFileInfo)->m_sDestination);
 #endif
 	}
 
@@ -945,6 +948,7 @@ string Makefile = "none:\n"
 		return false;
 	}
 
+	chdir(CurrentDir);
 	system(("rm -rf " + Dir).c_str());
 #endif
 	
