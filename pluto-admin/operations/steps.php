@@ -24,7 +24,6 @@ function steps($output,$dbADO) {
 			if(mainUrl!=\'\'){
 				if(top.basefrm.document.forms[0] && top.basefrm.document.forms[0].action){
 					top.basefrm.document.forms[0].action.value=\'externalSubmit\';
-	alert(top.basefrm.document.forms[0].name);
 					top.basefrm.document.forms[0].submit();
 				}
 				top.basefrm.location=mainUrl;
