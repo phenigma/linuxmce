@@ -1,5 +1,7 @@
 . /usr/pluto/bin/Config_Ops.sh
 
+echo "DEBUG: Last config'ed version: '$2'"
+
 if [ ! -z "$X_Was_Set" ]; then
 	echo "Configuration file says this is an upgrade. Not setting up X twice"
 	exit 0
