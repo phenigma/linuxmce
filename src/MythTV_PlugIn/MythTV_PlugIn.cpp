@@ -49,7 +49,7 @@ MythTV_PlugIn::~MythTV_PlugIn()
 //<-dceag-dest-e->
 {
 	delete m_pMythWrapper;
-	
+
 }
 
 //<-dceag-reg-b->
@@ -231,7 +231,7 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
 
 bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
 {
-    PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+    PLUTO_SAFETY_LOCK(mm, m_pMedia_Plugin->m_MediaMutex);
     g_pPlutoLogger->Write(LV_STATUS, "Stopping media stream playback--sending command, waiting for response");
 
 	map<int, int>::iterator it = m_mapDevicesToStreams.find(pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
@@ -243,18 +243,28 @@ bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
         pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device,
         pMediaStream->m_iStreamID_get(),&i);
 
+	// this is useless here because all the message processing in the Media Plugin is done with the m_MediaMutex taken and
+	// since this mutex is recursive the release here is useless and the same apply for all the media plugin processing functions.
 	mm.Release();
-    string Response;
+
+
+	/** Changing send with confirmation to a simple SendCommand because of the locking issues. We can never be sure that the
+		Target device will answer us.
+
+
+	string Response;
     if( !SendCommand(cmd, &Response) )
     {
         g_pPlutoLogger->Write(LV_CRITICAL,"MythTV player didn't respond to stop media command!");
-
 		// TODO: See how to handle failure here
         return false;
     }
 
     g_pPlutoLogger->Write(LV_STATUS,"MythTV player responded to stop media command!");
     return true;
+*/
+	SendCommand(cmd);
+	return true;
 }
 
 bool MythTV_PlugIn::BroadcastMedia(class MediaStream *pMediaStream)

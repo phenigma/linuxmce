@@ -610,9 +610,8 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 {
 	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 
-	g_pPlutoLogger->Write(LV_STATUS, "Hannibal is here");
 	/** Confirm this is from one of ours */
-	if( !pDeviceFrom || pDeviceFrom->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_Xine_Player_CONST )
+	if( !pDeviceFrom || pDeviceFrom->m_dwPK_DeviceTemplate != DEVICETEMPLATE_Xine_Player_CONST )
 		return false; /** Some other media player. We only know xine's menu handling */
 
 	int StreamID = atoi( pMessage->m_mapParameters[EVENTPARAMETER_Stream_ID_CONST].c_str( ) );
@@ -627,7 +626,7 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 	}
 
 	string sOnScreenOrbiters="", sOtherOrbiters="";
-	map<int, OH_Orbiter *> mapOH_Orbiter; /** Use a map so we don't have duplicates */
+	map<int, OH_Orbiter *> mapOH_Orbiter; 				/** Use a map so we don't have duplicates */
 
 	g_pPlutoLogger->Write( LV_STATUS, "MediaStream %p with id %d and type %d reached an OnScreen Menu.", pMediaStream, pMediaStream->m_iStreamID_get( ), pMediaStream->m_iPK_MediaType );
 	g_pPlutoLogger->Write( LV_STATUS, "MediaStream m_mapEntertainArea.size( ) %d", pMediaStream->m_mapEntertainArea.size( ) );
@@ -666,8 +665,7 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 	{
 		if( sOtherOrbiters.size( ) )
 		{
-			/** Send all the orbiters to the dvd menu */
-			// DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL( m_dwPK_Device, sOtherOrbiters, 0, StringUtils::itos( /*DESIGNOBJ_dvd_menu_CONST HACK -- todo*/1 ), "", "", false );
+			/** Send all the non onscreen orbiters to the dvd menu */
 			DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL( m_dwPK_Device, sOtherOrbiters, 0, StringUtils::itos( DESIGNOBJ_mnuDVDMenu_CONST ), "", "", false, true );
 			DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL( m_dwPK_Device, sOtherOrbiters, VARIABLE_PK_Device_CONST, StringUtils::itos( pMessage->m_dwPK_Device_From ) );
 
@@ -677,17 +675,24 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 
 		if( sOnScreenOrbiters.size( ) )
 		{
-			/** If it's an on-screen orbiter, just send it to the full screen menu */
-//            int DESIGNOBJ_full_screen_CONST=1; /** @todo - hack */
-//             DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL( m_dwPK_Device, sOnScreenOrbiters, 0, StringUtils::itos( DESIGNOBJ_full_screen_CONST ), "", "", false );
-//			DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL( m_dwPK_Device, sOnScreenOrbiters, 0, StringUtils::itos( DESIGNOBJ_mnuDVDMenu_CONST ), "", "", false );
-//			SendCommand( CMD_Goto_Screen_DL );
+			/** If it's an on-screen orbiter, just send it to the DVD menu full screen */
+			DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL( m_dwPK_Device, sOnScreenOrbiters, 0, StringUtils::itos( DESIGNOBJ_dvd_menu_full_screen_CONST ), "", "", false, true );
+			SendCommand( CMD_Goto_Screen_DL );
 		}
 	}
-	else if( sOtherOrbiters.size( ) )
+	else
 	{
-		DCE::CMD_Go_back_DL CMD_Go_back_DL( m_dwPK_Device, sOtherOrbiters, StringUtils::itos( DESIGNOBJ_mnuDVDMenu_CONST ), "" );
-		SendCommand( CMD_Go_back_DL );
+		// send them back if they were at the dvd menu screen
+		if( sOtherOrbiters.size( ) )
+		{
+			DCE::CMD_Go_back_DL CMD_Go_back_DL( m_dwPK_Device, sOtherOrbiters, StringUtils::itos( DESIGNOBJ_mnuDVDMenu_CONST ), "" );
+			SendCommand( CMD_Go_back_DL );
+		}
+		else if ( sOnScreenOrbiters.size() )
+		{
+			DCE::CMD_Go_back_DL CMD_Go_back_DL( m_dwPK_Device, sOnScreenOrbiters, StringUtils::itos( DESIGNOBJ_dvd_menu_full_screen_CONST ), "" );
+			SendCommand( CMD_Go_back_DL );
+		}
 	}
 
 	return true;

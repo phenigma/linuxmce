@@ -634,10 +634,10 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
         // int index = itFiles - pMediaStream->m_dequeMediaFile.begin();
         sCurrentFile = (*itFiles)->FullyQualifiedFile();
 
-        pDataGrid->SetData(0, currentPos++,
-                new DataGridCell((*itFiles)->m_sFilename, StringUtils::itos(itFiles - pMediaStream->m_dequeMediaFile.begin())));
+        pDataGrid->SetData(0, currentPos++,new DataGridCell((*itFiles)->m_sFilename, StringUtils::itos(itFiles - pMediaStream->m_dequeMediaFile.begin())));
 		g_pPlutoLogger->Write(LV_STATUS, "Returning data: (%d) -> %s", itFiles - pMediaStream->m_dequeMediaFile.begin(), ((*itFiles)->m_sFilename).c_str());
     }
+
     return pDataGrid;
 }
 
@@ -724,11 +724,11 @@ void Media_Plugin::MediaInfoChanged( MediaStream *pMediaStream )
     {
         MediaFile *pMediaFile = pMediaStream->m_dequeMediaFile[pMediaStream->m_iDequeMediaFile_Pos];
         pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer(pMediaFile->m_sPath + "/" +
-            FileUtils::FileWithoutExtension(pMediaFile->m_sFilename) + ".jpg", pMediaStream->m_iPictureSize);
+            FileUtils::FileWithoutExtension(pMediaFile->m_sFilename) + ".png", pMediaStream->m_iPictureSize);
 
         if( !pMediaStream->m_pPictureData )
         {
-            pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer(pMediaFile->m_sPath + "/cover.jpg", pMediaStream->m_iPictureSize);
+            pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer(pMediaFile->m_sPath + "/cover.png", pMediaStream->m_iPictureSize);
             if( !pMediaStream->m_pPictureData && pMediaFile->m_dwPK_File )
             {
                 int PK_Picture=0;
@@ -756,7 +756,7 @@ void Media_Plugin::MediaInfoChanged( MediaStream *pMediaStream )
                     }
                 }
                 if( PK_Picture )
-                    pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + ".jpg", pMediaStream->m_iPictureSize);
+                    pMediaStream->m_pPictureData = FileUtils::ReadFileIntoBuffer("/home/mediapics/" + StringUtils::itos(PK_Picture) + ".png", pMediaStream->m_iPictureSize);
             }
         }
     }

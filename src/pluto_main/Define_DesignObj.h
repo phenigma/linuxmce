@@ -1169,6 +1169,7 @@
 #define DESIGNOBJ_appDesktopMozilla_CONST 3349
 #define DESIGNOBJ_dvd_menu_CONST 3350
 #define DESIGNOBJ_mnuGenericRemote_CONST 3352
+#define DESIGNOBJ_dvd_menu_full_screen_CONST 3358
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
