@@ -302,6 +302,7 @@ void Xine_Player::CMD_Navigate_Prev(int iStreamID,string &sCMD_Result,Message *p
 //<-dceag-c82-e->
 {
 	m_pXineSlaveControl->selectPrevButton(iStreamID);
+
 }
 
 //<-dceag-c83-b->
