@@ -10,14 +10,12 @@ function devices($output,$dbADO) {
 	$installationID = (int)@$_SESSION['installationID'];
 
 	switch($type){
-		case 'lights_interfaces':
-			$deviceCategory=$GLOBALS['rootLightsInterfaces'];
+		case 'interfaces':
+			$deviceCategory=$GLOBALS['rootInterfaces'];
 		break;
-		case 'climate_interfaces':
-			$deviceCategory=$GLOBALS['rootClimateInterfaces'];
-		break;
-		case 'security_interfaces':
-			$deviceCategory=$GLOBALS['rootSecurityInterfaces'];
+		case 'avEquipment':
+			$deviceCategory=$GLOBALS['rootAVEquipment'];
+			$title='A/V Equipment';
 		break;
 		case 'lights':
 			$deviceCategory=$GLOBALS['rootLights'];
@@ -76,7 +74,7 @@ function devices($output,$dbADO) {
 	<input type="hidden" name="section" value="devices">
 	<input type="hidden" name="type" value="'.$type.'">
 	<input type="hidden" name="action" value="add">	
-	<div align="center"><h3>'.strtoupper(str_replace('_',' ',$type)).'</h3></div>
+	<div align="center"><h3>'.((isset($title))?$title:strtoupper(str_replace('_',' ',$type))).'</h3></div>
 		<table align="center">
 				<tr>
 					<td align="center"><B>DeviceTemplate</B></td>
@@ -99,7 +97,8 @@ function devices($output,$dbADO) {
 					$displayedDevices[]=$rowD['PK_Device'];
 				}
 				$joinArray=$displayedDevices;	// used only for query when there are no Devices in selected category
-				$joinArray[]=0;
+				if(count($joinArray)==0)
+					$joinArray[]=0;
 				$queryDeviceDeviceData='
 					SELECT 
 						DISTINCT DeviceData.PK_DeviceData,DeviceData.Description, ParameterType.Description AS paramName
@@ -168,7 +167,7 @@ function devices($output,$dbADO) {
 							FK_Device = ? AND FK_DeviceData=?';
 
 					$resDDforDevice=$dbADO->Execute($queryDDforDevice,array($rowD['PK_Device'],$value));
-					
+
 					if($resDDforDevice->RecordCount()>0){
 						$rowDDforDevice=$resDDforDevice->FetchRow();
 						$ddValue=$rowDDforDevice['IK_DeviceData'];
@@ -213,7 +212,10 @@ function devices($output,$dbADO) {
 					unset($ddValue);
 				}
 			$out.='	
-					<td align="center"><input type="submit" name="delete_'.$rowD['PK_Device'].'" value="Delete"></td>
+					<td align="center">';
+			if($type=='avEquipment')
+				$out.='<input type="button" name="btn" value="IR Codes" onClick="windowOpen(\'index.php?section=irCodes&from=devices&deviceID='.$rowD['FK_DeviceTemplate'].'&from='.urlencode('devices&type='.$type).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> <input type="button" name="btn" value="A/V Properties" onClick="windowOpen(\'index.php?section=editAVDevice&from=devices&deviceID='.$rowD['FK_DeviceTemplate'].'&from='.urlencode('devices&type='.$type).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> ';
+					$out.='<input type="submit" name="delete_'.$rowD['PK_Device'].'" value="Delete"></td>
 				</tr>';
 			}
 			$out.='

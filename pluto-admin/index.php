@@ -706,6 +706,12 @@ switch ($section) {
 	    include_once('operations/deviceTemplatePicker.php');
 	    deviceTemplatePicker($output,$dbADO);
 	break;
+	case 'irCodes':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/irCodes.php');
+	    irCodes($output,$dbADO);
+	break;
 
 	
 	case '';

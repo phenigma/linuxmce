@@ -47,7 +47,7 @@ $modelSelected = (int)$_REQUEST['model'];
 		$rs = $dbADO->_Execute($queryMasterDeviceCategories_parents);
 							while ($row = $rs->FetchRow()) {
 								$out.='<option '.($row['PK_DeviceCategory']==$deviceCategSelected?' selected ': ' ').' value="'.$row['PK_DeviceCategory'].'">'.$row['Description'].' #'.$row['PK_DeviceCategory'].'</option>';
-								$out.=getChilds($row['PK_DeviceCategory'],$row['Description'],$deviceCategSelected,$deviceSelected,$dbADO);								
+								$out.=getCatChilds($row['PK_DeviceCategory'],$row['Description'],$deviceCategSelected,$deviceSelected,$dbADO);								
 							}
 	
 	$out.='		    </select>					
@@ -102,14 +102,14 @@ $output->setTitle(APPLICATION_NAME);
 $output->output();  		
 }
 
-function getChilds($parentID,$parentName,$selectedDeviceCateg,$selectedDevice,$dbADO) {
+function getCatChilds($parentID,$parentName,$selectedDeviceCateg,$selectedDevice,$dbADO) {
 	$outA='';
 	$queryMasterDeviceCategories_childs = 'select * from DeviceCategory where FK_DeviceCategory_Parent = ? and PK_DeviceCategory NOT IN ('.$selectedDevice.') order by Description';
 	
 		$rs2 = $dbADO->Execute($queryMasterDeviceCategories_childs,array($parentID));
 		while ($row2=$rs2->FetchRow()) {
 			$outA.='<option '.($row2['PK_DeviceCategory']==$selectedDeviceCateg?' selected ': ' ').' value="'.$row2['PK_DeviceCategory'].'">'.$parentName.' - '.$row2['Description'].' #'.$row2['PK_DeviceCategory'].'</option>';
-			$outA.=getChilds($row2['PK_DeviceCategory'],$parentName.' - '.$row2['Description'],$selectedDeviceCateg,$selectedDevice,$dbADO);
+			$outA.=getCatChilds($row2['PK_DeviceCategory'],$parentName.' - '.$row2['Description'],$selectedDeviceCateg,$selectedDevice,$dbADO);
 		}
 	return $outA;
 }

@@ -1,6 +1,6 @@
 <?PHP
   	//debuging
-  	$GLOBALS['inDebug']=1;
+  	$GLOBALS['inDebug']=0;
   	
   	if($GLOBALS['inDebug']!=1){
   		// production settings
@@ -43,7 +43,9 @@
 	
 	$GLOBALS['rootOrbiterID'] = 5; 				// Orbiter
 	$GLOBALS['rootComputerID'] = 6; 			// Computers
+	$GLOBALS['rootInterfaces'] = 71; 			// Interfaces
 	$GLOBALS['rootLights'] = 73; 				// Lighting devices
+	$GLOBALS['rootAVEquipment'] = 76; 				// AV Equipment
 	$GLOBALS['rootClimate'] = 83; 				// Climate devices
 	$GLOBALS['rootSecurity'] = 84; 				// Security devices
 	$GLOBALS['IntercomCategory']=94;			// Intercom 

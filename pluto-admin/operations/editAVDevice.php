@@ -17,7 +17,7 @@ $deviceID = (int)$_REQUEST['deviceID'];
 	}
 	
 	
-	
+
 if ($action=='form') {
 	
 	
@@ -28,7 +28,7 @@ if ($action=='form') {
 						INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory 
 						INNER JOIN Manufacturer ON PK_Manufacturer=FK_Manufacturer 
 					WHERE PK_DeviceTemplate='$deviceID'";
-	
+
 	$rs = $dbADO->_Execute($queryModels);	
 		while ($row = $rs->FetchRow()) {			
 			$deviceTemplateName = $row['Description'];			
@@ -171,7 +171,12 @@ $out.='
 <input type="hidden" name="section" value="editAVDevice">
 <input type="hidden" name="action" value="update">
 <input type="hidden" name="deviceID" value="'.$deviceID.'">
-		
+<br>';
+if($from=='devices')
+	$out.='WARNING: the changes will affect all devices from <B>'.$deviceTemplateName.'</B> category.';
+
+$out.='
+<br>		
 <div align="center">
 		<b>'.$deviceTemplateName.'</b>
 	<br />

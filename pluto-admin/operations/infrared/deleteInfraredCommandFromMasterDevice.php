@@ -13,7 +13,7 @@ function deleteInfraredCommandFromMasterDevice($output,$dbADO) {
 			$query = $dbADO->Execute($deleteObjFromDevice,array($commandID,$infraredGroupID));
 			$out.="
 			<script>
-				alert('Parameter deleted from this command!');
+				alert('Comand deleted!');
 			    opener.document.forms.{$from}.action.value='form';
 				opener.document.forms.{$from}.submit();
 				self.close();
