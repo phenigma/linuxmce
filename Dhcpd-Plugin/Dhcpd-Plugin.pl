@@ -30,10 +30,11 @@ while (1 eq 1) {
       while($row_ref = $statement->fetchrow_hashref())
       {
           $found = 1;
+          $dhcpd_device = $row_ref->{PK_DHCPDevice};
           $dev_template = $row_ref->{FK_DeviceTemplate};
           $configure_script = $row_ref->{ConfigureScript};
           $package_name = $row_ref->{Name};
-          system("create_device -d 1 -i $ip_sent -m $mac_found\n");
+          system("CreateDevice -c $dhcpd_device -I $ip_sent -M $mac_found\n");
           if($package_name ne "") {
             system("apt-get install $package_name");
           }
