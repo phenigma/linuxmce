@@ -1,0 +1,5 @@
+Import qw ( env LIB ) ;
+
+Install $env $LIB, 'libPlutoUtils.a';
+
+Library $env 'libPlutoUtils.a', qw( CommonIncludes.cpp FileUtils.cpp MultiThreadIncludes.cpp Other.cpp StringUtils.cpp getch.cpp md5c.cpp minilzo.cpp );

@@ -1,0 +1,22 @@
+Import qw ( env LIB BIN ) ;
+
+$OLD_LIBS = $env->{LIBS};
+
+$env = $env->clone(
+	CXXFLAGS_LOCAL => '-I/usr/include/mysql',
+	LIBS => $env->{LIBS} . ' -lattr -lpluto_main -lmysqlclient_r -ldl'
+);
+
+
+# Depends $env 'DCERouter', qw( $LIB/libpluto_main.a );
+
+Install $env $BIN, 'DCERouter';
+
+Program $env 'DCERouter', qw(
+ 		CriteriaList.cpp
+		CriteriaNesting.cpp
+        EventHandler_CriteriaList.cpp
+		Main.cpp
+		DCERouter.cpp
+		DCERouter_CreatePluginHardCoded_Impl.cpp
+);

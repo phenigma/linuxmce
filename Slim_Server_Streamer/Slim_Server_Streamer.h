@@ -10,18 +10,32 @@
 #include <map>
 using namespace std;
 
+typedef enum {
+    STATE_PLAY,
+    STATE_STOP
+} StreamStateType;
+
 //<-dceag-decl-b->
 namespace DCE
 {
     class Slim_Server_Streamer : public Slim_Server_Streamer_Command
     {
 //<-dceag-decl-e->
-        map<int, list<string> > m_mapStreamsToSqueezeBoxesPlayers;
+        pthread_t               m_threadPlaybackCompletedChecker;
+        pthread_cond_t          m_condPlaybackCompletedChecker;
+        pluto_pthread_mutex_t   m_mutexDataStructureAccess;
 
+        // map<int, list<string> > m_mapStreamsToSqueezeBoxesPlayers;
         string  m_strSlimServerCliAddress;
         int m_iSlimServerCliPort;
 
-        map<int, vector<string> > m_mapRunningStreamsToMacAddresses;
+        // Semantics:
+        //   streamID ->
+        //              [
+        //                  state { playing, stopped }
+        //                  playersMacAddresses as a vector of strings. ( the addresses are already URL Encoded.)
+        //              ]
+        map<int, pair<StreamStateType, vector<string> > > m_mapRunningStreamsToMacAddresses;
         int m_iServerSocket; // the socket used to communicate with the server
         // Private member variables
 
@@ -29,10 +43,11 @@ namespace DCE
         string SendReceiveCommand(string command);
 
         // Private methods
-public:
+        static void *checkForPlaybackCompleted(void *pSlim_Server_Streamer);
+    public:
         // Public member variables
 
-//<-dceag-const-b->
+    //<-dceag-const-b->
 public:
         // Constructors/Destructor
         Slim_Server_Streamer(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
@@ -52,6 +67,7 @@ public:
             *****DATA***** accessors inherited from base class
 
             *****EVENT***** accessors inherited from base class
+    void EVENT_Playback_Completed(int iStream_ID);
 
             *****COMMANDS***** we need to implement
     */

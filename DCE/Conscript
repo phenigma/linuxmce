@@ -1,6 +1,12 @@
-Import qw( env );
+Import qw( env LIB );
 
-Library $env 'DCECommon', qw(
+$env = $env->clone(
+		'CXXFLAGS_LOCAL' => '-I/usr/include/mysql'
+	);
+
+Install $env $LIB, 'libDCECommon.a';
+
+Library $env 'libDCECommon.a', qw(
 								DataGrid.cpp ClientSocket.cpp Logger.cpp Message.cpp
 						        Socket.cpp ServerSocket.cpp SocketListener.cpp ServerLogger.cpp 
 								AlarmManager.cpp Command_Impl.cpp Event_Impl.cpp 

@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+
+<project name="Cons build system for pluto" default="run" basedir=".">
+	<target name="run">
+		<exec executable="cons"/>
+	</target>
+</project>

@@ -223,7 +223,7 @@ void MediaStream::ClearPlaylist()
 
 bool MediaStream::HaveMoreInQueue()
 {
-    return m_iDequeMediaFile_Pos < (m_dequeMediaFile.size() - 1);
+    return m_iDequeMediaFile_Pos <= (m_dequeMediaFile.size() - 1);
 }
 
 MediaStream::~MediaStream( )

@@ -1,5 +1,10 @@
 Import qw ( env LIB ) ;
 
+$env = $env->clone(
+            'CXXFLAGS_LOCAL' => '-I/usr/include/mysql',
+			'LIB_LOCAL' => '-lmysqlclient_r'
+		);
+										
 Install $env $LIB, 'libpluto_main.a';
 
 Library $env 'libpluto_main.a', <*.cpp>;

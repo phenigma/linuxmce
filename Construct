@@ -1,32 +1,48 @@
 # Where to put all our shared products.
-$EXPORT = '#export';
+$EXPORT = '#export.';
 
-$LIB = "$EXPORT/lib";
-$BIN = "$EXPORT/bin";
+# $LIB = "$EXPORT/lib";
+# $BIN = "$EXPORT/bin";
+
+$LIB="#lib";
+$BIN="#bin";
 
 $env = new cons(
 	'CC' => 'g++',
 	'CPPPATH' => '.:DCE',
+	'LIBS' => '-lpthread -lDCECommon -lPlutoUtils -lSerializeClass',
 	'LIBPATH' => $LIB,
-	'CXXFLAGS' => '-Wall -O2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DMULTI_THREADED -DNO_SQL_THREAD_LOG -DUSE_MYSQL -I/usr/include/mysql',
+	'CXXFLAGS' => '-Wall -O2 -fmessage-length=0 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DMULTI_THREADED -DNO_SQL_THREAD_LOG %CXXFLAGS_LOCAL',
 	'ENV' => {
 		'PATH' => '/usr/lib/ccache:/bin:/usr/bin',
 		'HOME' => $HOME
-	}
+	},
+
+	'GEN_DEVS' => '#Gen_Devices'
 );
 
 use Cwd;
+Conscript_chdir 1;
 
 Link 'build' => '.';
 
+Default ('.');
 
 Export qw( env LIB BIN );
 
-Conscript_chdir 1;
-
 Build qw( 
-	build/DCE/Conscript 
+	build/SerializeClass/Conscript
+	build/PlutoUtils/Conscript
+	
+	build/DCE/Conscript
+
+	build/pluto_media/Conscript
 	build/pluto_main/Conscript
 	build/pluto_security/Conscript
+
+	build/DCERouter/Conscript
+	build/Slim_Server_Streamer/Conscript
+	build/App_Server/Conscript
+	build/MessageSend/Conscript
 );
 	 

@@ -17,7 +17,7 @@ using namespace DCE;
 
 //<-dceag-const-b->
 Slim_Server_Streamer::Slim_Server_Streamer(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-    : Slim_Server_Streamer_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
+    : Slim_Server_Streamer_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter), m_mutexDataStructureAccess("internal-data-structure-access")
 //<-dceag-const-e->
 {
     // Usually the slim server and the application server that is going to spawn it are going to be on the same machine.
@@ -26,6 +26,14 @@ Slim_Server_Streamer::Slim_Server_Streamer(int DeviceID, string ServerAddress,bo
     m_iSlimServerCliPort = 7890;
 
     m_iServerSocket = -1;
+
+    pthread_mutexattr_t      mutexAttr;
+    pthread_mutexattr_init( &mutexAttr );
+    pthread_mutexattr_settype( &mutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
+    m_mutexDataStructureAccess.Init( &mutexAttr );
+
+    pthread_create(&m_threadPlaybackCompletedChecker, NULL, checkForPlaybackCompleted, this);
+    pthread_detach(m_threadPlaybackCompletedChecker); // make the thread a free man..
 }
 
 //<-dceag-dest-b->
@@ -176,9 +184,10 @@ void Slim_Server_Streamer::SomeFunction()
 void Slim_Server_Streamer::CMD_Start_Streaming(string sFilename,int iStreamID,string sStreamingDestinations,string *sMediaURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c249-e->
 {
+    PLUTO_SAFETY_LOCK( pm, m_mutexDataStructureAccess);
     if ( sStreamingDestinations == "" && m_mapRunningStreamsToMacAddresses.find(iStreamID) != m_mapRunningStreamsToMacAddresses.end() )
     {
-        string onePlayerMac = m_mapRunningStreamsToMacAddresses[iStreamID].front();
+        string onePlayerMac = m_mapRunningStreamsToMacAddresses[iStreamID].second.front();
 
         SendReceiveCommand(onePlayerMac + " playlist play " + StringUtils::URLEncode(string("file://") + sFilename).c_str());
         return;
@@ -206,7 +215,7 @@ void Slim_Server_Streamer::CMD_Start_Streaming(string sFilename,int iStreamID,st
         playerAddress = *itMacAddresses++;
     }
 
-    m_mapRunningStreamsToMacAddresses[iStreamID] = vectMacAddresses; // add this stream to the list of playing streams.
+    m_mapRunningStreamsToMacAddresses[iStreamID] = make_pair(STATE_PLAY, vectMacAddresses); // add this stream to the list of playing streams.
 
     SendReceiveCommand(playerAddress + " playlist play " + StringUtils::URLEncode(string("file://") + sFilename).c_str());
 }
@@ -347,4 +356,37 @@ string Slim_Server_Streamer::SendReceiveCommand(string command)
 
     g_pPlutoLogger->Write(LV_STATUS, "Got response: %s", result.c_str());
     return result;
+}
+
+void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streamer)
+{
+    Slim_Server_Streamer *pStreamer = (Slim_Server_Streamer*)pSlim_Server_Streamer;
+
+    while ( true )
+    {
+        PLUTO_SAFETY_LOCK( pm, pStreamer->m_mutexDataStructureAccess);
+
+        map<int, pair<StreamStateType, vector<string> > >::iterator itStreamsToMacAddresses;
+
+        itStreamsToMacAddresses = pStreamer->m_mapRunningStreamsToMacAddresses.begin();
+        while ( itStreamsToMacAddresses != pStreamer->m_mapRunningStreamsToMacAddresses.end() && (*itStreamsToMacAddresses).second.first == STATE_PLAY )
+        {
+            string strCommand = (*itStreamsToMacAddresses).second.second[0] + " mode ?";
+            string strResult = pStreamer->SendReceiveCommand(strCommand);
+
+            if (strResult == (*itStreamsToMacAddresses).second.second[0] + " mode stop")
+            {
+                (*itStreamsToMacAddresses).second.first = STATE_STOP;
+                pStreamer->EVENT_Playback_Completed((*itStreamsToMacAddresses).first);
+            }
+
+            itStreamsToMacAddresses++;
+        }
+
+        pm.Release();
+
+        usleep(500000);
+    }
+
+    return NULL;
 }

@@ -1,0 +1,5 @@
+Import qw( env BIN LIB );
+
+Install $env $BIN, 'Slim_Server_Streamer';
+
+Program $env 'Slim_Server_Streamer', qw(%GEN_DEVS/Slim_Server_StreamerBase.cpp), <*.cpp>;

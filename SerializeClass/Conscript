@@ -1,0 +1,5 @@
+Import qw ( env LIB ) ;
+
+Install $env $LIB, 'libSerializeClass.a';
+
+Library $env 'libSerializeClass.a', <*.cpp>;

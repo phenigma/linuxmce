@@ -5,7 +5,6 @@ $env = $env->clone(
 		'LIB_LOCAL' => '-lmysqlclient_r'
 	);
 
+Install $env $LIB, 'libpluto_media.a';
 
-Install $env $LIB, 'libpluto_security.a';
-
-Library $env 'libpluto_security.a', <*.cpp>;
+Library $env 'libpluto_media.a', <*.cpp>;

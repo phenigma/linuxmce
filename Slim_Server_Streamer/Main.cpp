@@ -55,6 +55,9 @@ extern "C" {
 //<-dceag-main-b->
 int main(int argc, char* argv[]) 
 {
+	g_sBinary = FileUtils::FilenameWithoutPath(argv[0]);
+	g_sBinaryPath = FileUtils::BasePath(argv[0]);
+
 	cout << "Slim_Server_Streamer, v." << VERSION << endl
 		<< "Visit www.plutohome.com for source code and license information" << endl << endl;
 
@@ -157,6 +160,7 @@ int main(int argc, char* argv[])
 	{
 		cerr << "Exception: " << s << endl;
 	}
+	g_pPlutoLogger->Write(LV_STATUS, "Device: %d ending",PK_Device);
 #ifdef WIN32
     WSACleanup();
 #endif

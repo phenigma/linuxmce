@@ -1,0 +1,5 @@
+Import qw( env BIN LIB );
+
+Install $env $BIN, 'App_Server';
+
+Program $env 'App_Server', qw(%GEN_DEVS/App_ServerBase.cpp), <*.cpp>;
