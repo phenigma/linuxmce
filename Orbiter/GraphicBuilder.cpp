@@ -1,7 +1,7 @@
 #include "GraphicBuilder.h"
 #include "SDL/SDLGraphic.h"
 #include "RendererMNG.h"
-#include "Renderer.h"
+#include "OrbiterGen/Renderer.h"
 #include "DCE/Logger.h"
 //-------------------------------------------------------------------------------------------------------
 bool IsMNG(string sFileName)
