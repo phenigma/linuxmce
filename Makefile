@@ -1,9 +1,7 @@
-LIBRARIES=pluto_main DCE PlutoUtils SerializeClass BD VIPShared 
-APPS=DCERouter MessageSend
+LIBRARIES=
+APPS=DCERouter MessageSend DCEGen sql2cpp sqlCVS ussp-push
 DCEDEVS=App_Server Disk_Drive Xine_Player MythTV_Player
-PLUGINS=Datagrid_Plugin File_Grids_Plugin Media_Plugin Orbiter_Plugin Xine_Plugin \
-	General_Info_Plugin Mozilla_Plugin Lighting_Plugin Climate_Plugin Security_Plugin Telecom_Plugin \
-	MythTV_PlugIn
+PLUGINS=
 CONFLICTING=Bluetooth_Dongle Orbiter 
 
 all: libs nolibs

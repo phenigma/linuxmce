@@ -147,7 +147,7 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
 
     m_pMedia_Plugin->MediaInfoChanged(pMythTvStream);
 
-    if( !SendCommand(cmd, 1, &Response) )
+    if( !SendCommand(cmd, &Response) )
     {
         g_pPlutoLogger->Write(LV_CRITICAL,"MythTV player didn't respond to play media command!");
 
@@ -171,7 +171,7 @@ bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
         pMediaStream->m_dwPK_Device,
         pMediaStream->m_iStreamID_get());
     string Response;
-    if( !SendCommand(cmd, 1, &Response) )
+    if( !SendCommand(cmd, &Response) )
     {
         g_pPlutoLogger->Write(LV_CRITICAL,"MythTV player didn't respond to stop media command!");
 

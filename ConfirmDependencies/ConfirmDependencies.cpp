@@ -141,7 +141,13 @@ int main(int argc, char *argv[])
 	char c;
 	cout << "#";
 	for(int optnum=0;optnum<argc;++optnum)
-		cout << " " << argv[optnum];
+	{
+		if( argv[optnum][0]=='-' && argv[optnum][1]=='p' )
+			optnum++;
+		else
+			cout << " " << argv[optnum];
+	}
+
 	cout << endl;
 
 	for(int optnum=1;optnum<argc;++optnum)

@@ -426,6 +426,10 @@ bool CreateSources(Row_Package *pRow_Package)
 
 bool CreateSource(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo)
 {
+    // Update the version record
+	pRow_Package_Source->Version_set(g_pRow_Version->VersionName_get());
+	pRow_Package_Source->Table_Package_Source_get()->Commit();
+         
 	cout << "\tCreating source: " << pRow_Package_Source->FK_RepositorySource_getrow()->Description_get() << endl;
 	cout << "\t--------------------------" << endl;
 
@@ -445,10 +449,6 @@ bool CreateSource(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &list
 			return false;
 		}
 	}
-
-	// Update the version record
-	pRow_Package_Source->Version_set(g_pRow_Version->VersionName_get());
-	pRow_Package_Source->Table_Package_Source_get()->Commit();
 
 	return true;
 }
