@@ -1007,7 +1007,7 @@ function deleteDevice($PK_Device,$dbADO)
 	}
 	foreach ($toDelete as $elem) {
 	
-		$arrayFKDeviceTables=array('CommandGroup_Command','Device_Command','Device_CommandGroup','Device_DeviceData','Device_DeviceGroup','Device_Device_Related','Device_EntertainArea','Device_HouseMode','Device_Orbiter','Device_StartupScript','Device_Users','InfraredCode');
+		$arrayFKDeviceTables=array('CommandGroup_Command','Device_Command','Device_CommandGroup','Device_DeviceData','Device_DeviceGroup','Device_Device_Related','Device_EntertainArea','Device_HouseMode','Device_Orbiter','Device_StartupScript','Device_Users','InfraredGroup_Command');
 		foreach($arrayFKDeviceTables AS $tablename){	
 			$queryDelFromTable='DELETE FROM '.$tablename.' WHERE FK_Device='.$elem;
 			$dbADO->Execute($queryDelFromTable);
