@@ -61,6 +61,20 @@ using namespace DCE;
 
 static int SocketCounter=0;
 
+void hexmemcpy( char *pDest, const char *pSource, int NumBytes )
+{
+	for(int i=0;i<NumBytes;++i)
+	{
+		char c = pSource[i];
+		if( (c>='0' && c<='9') || (c>='A' && c<='z') )
+			pDest[i]=c;
+		else
+			pDest[i]=' ';
+	}
+	pDest[i]=0;
+}
+
+
 Socket::Socket(string Name) : m_SocketMutex("socket mutex " + Name)
 {
 	m_iSocketCounter = SocketCounter++;
@@ -86,8 +100,8 @@ Socket::Socket(string Name) : m_SocketMutex("socket mutex " + Name)
 
 
 #ifdef WIN32
-	sprintf( m_pcSockLogFile, "\\socklog-%s-%s-%s", c, Module, m_sName.c_str() );
-	sprintf( m_pcSockLogErrorFile, "\\socklog_error-%s-%s-%s", c, Module, m_sName.c_str() );
+	sprintf( m_pcSockLogFile, "\\socklog-%s-%s-%s.txt", c, Module, m_sName.c_str() );
+	sprintf( m_pcSockLogErrorFile, "\\socklog_error-%s-%s-%s.txt", c, Module, m_sName.c_str() );
 #else
 	sprintf( m_pcSockLogFile, "/tmp/socklog-%p-%d-%s-%s-%s", this, m_iSocketCounter, c, Module, m_sName.c_str() );
 	sprintf( m_pcSockLogErrorFile, "/tmp/socklog_error-%p-%d-%s-%s-%s", this, m_iSocketCounter, c, Module, m_sName.c_str() );
@@ -96,7 +110,7 @@ Socket::Socket(string Name) : m_SocketMutex("socket mutex " + Name)
 	FILE *f = fopen( m_pcSockLogFile, "a" );
 	if( f )
 	{
-		fprintf( f, "Socket opened\n" );
+		fprintf( f, "Socket opened address: %p counter: %d name: %s\n",this,m_iSocketCounter,m_sName.c_str() );
 		fclose( f );
 	}
 
@@ -271,14 +285,7 @@ bool Socket::SendData( int iSize, const char *pcData )
 
 #if (defined(LL_DEBUG) || defined(LL_DEBUG_FILE))
 	char *pcTmp = new char[iSize+1]; // freeing it after writing data to the file
-	memcpy( pcTmp, pcData, iSize );
-	pcTmp[iSize] = 0;
-	char *pc = pcTmp;
-	while( ( pc < pcTmp + iSize ) && (*pc) ) // replacing \b with |
-	{
-		if ( *pc == '\b' ) *pc = '|';
-		pc++;
-	}
+	hexmemcpy( pcTmp, pcData, min(iSize,200) );
 #if (defined(LL_DEBUG) || defined(LL_DEBUG_FILE))
 #  ifdef UNDER_CE
 	char ac[50];
@@ -377,6 +384,27 @@ bool Socket::SendData( int iSize, const char *pcData )
 			/** @todo check comment */
 			// AB 1-25-2004 pthread_mutex_unlock(&m_DCESocketMutex);
 			m_Socket = INVALID_SOCKET;
+#ifdef LL_DEBUG_FILE
+
+	PLUTO_SAFETY_LOCK_ERRORSONLY( ll, (*m_LL_DEBUG_Mutex) );
+
+	FILE *file = fopen( m_pcSockLogFile, "a" );
+	if( !file ) // check
+	{
+		file = fopen( m_pcSockLogErrorFile, "a" );
+		// Don't check -- if this still fails just throw an exception something is very wrong!
+		fprintf( file, "Cannot write to regular sock log\n" );
+		fprintf( file, "%d-%s-%s\tClosing socket at line 402\n\n", m_Socket, Module, ac );
+		fclose( file );
+	}
+	else
+	{
+		fprintf( file, "%d-%s-%s\tClosing socket at line 402\n\n", m_Socket, Module, ac);
+		fclose( file );
+	}
+	ll.Release();
+
+#endif
 			return false;
 		}
 	}
@@ -458,7 +486,7 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 #ifdef DEBUG
 					clk_select1b = clock();
 #endif
-				}while( iRet!=-1 && iRet != 1 && (end-start) < m_iReceiveTimeout );
+				}while( iRet!=-1 && (end-start) < m_iReceiveTimeout );
 			}
 			else
 			{
@@ -497,6 +525,30 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 				g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveData failed, ret %d start: %d 1: %d 1b: %d 2: %d 2b: %d, %d %s",
 				iRet, (int) clk_start, (int) clk_select1, (int) clk_select1b, (int) clk_select2, (int) clk_select2b, m_Socket, m_sName.c_str() );
 				PlutoLock::DumpOutstandingLocks();
+
+
+#ifdef LL_DEBUG_FILE
+
+	PLUTO_SAFETY_LOCK_ERRORSONLY( ll, (*m_LL_DEBUG_Mutex) );
+
+	FILE *file = fopen( m_pcSockLogFile, "a" );
+	if( !file ) // check
+	{
+		file = fopen( m_pcSockLogErrorFile, "a" );
+		// Don't check -- if this still fails just throw an exception something is very wrong!
+		fprintf( file, "Cannot write to regular sock log\n" );
+		fprintf( file, "%d-%s-%s\tClosing socket at line 540\n\n", m_Socket, Module, ac );
+		fclose( file );
+	}
+	else
+	{
+		fprintf( file, "%d-%s-%s\tClosing socket at line 540\n\n", m_Socket, Module, ac);
+		fclose( file );
+	}
+	ll.Release();
+
+#endif
+
 #else
 				g_pPlutoLogger->Write( LV_CRITICAL, "Socket::ReceiveData failed, ret %d socket %d %s", iRet, m_Socket, m_sName.c_str() );
 				PlutoLock::DumpOutstandingLocks();
@@ -519,11 +571,40 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 #endif			
 			if ( m_iSockBufBytesLeft <= 0 )
 			{
+#ifdef WIN32
+				g_pPlutoLogger->Write(LV_STATUS,"Socket closure error code: %d",WSAGetLastError());
+#endif
 				closesocket( m_Socket );
 				m_Socket = INVALID_SOCKET;
 #ifdef DEBUG
 				g_pPlutoLogger->Write( LV_WARNING, "Socket::ReceiveData failed, bytes left %d start: %d 1: %d 1b: %d 2: %d 2b: %d socket %d %s",
 				m_iSockBufBytesLeft, (int) clk_start, (int) clk_select1, (int) clk_select1b, (int) clk_select2, (int) clk_select2b, m_Socket, m_sName.c_str() );
+#ifdef LL_DEBUG_FILE
+
+	PLUTO_SAFETY_LOCK_ERRORSONLY( ll, (*m_LL_DEBUG_Mutex) );
+
+	FILE *file = fopen( m_pcSockLogFile, "a" );
+	if( !file ) // check
+	{
+		file = fopen( m_pcSockLogErrorFile, "a" );
+		// Don't check -- if this still fails just throw an exception something is very wrong!
+		fprintf( file, "Cannot write to regular sock log\n" );
+		fprintf( file, "%d-%s-%s\tClosing socket at line 592\n\n", m_Socket, Module, ac );
+		fprintf( file, "Socket::ReceiveData failed, bytes left %d start: %d 1: %d 1b: %d 2: %d 2b: %d socket %d %s",
+				m_iSockBufBytesLeft, (int) clk_start, (int) clk_select1, (int) clk_select1b, (int) clk_select2, (int) clk_select2b, m_Socket, m_sName.c_str() );
+		fclose( file );
+	}
+	else
+	{
+		fprintf( file, "%d-%s-%s\tClosing socket at line 592\n\n", m_Socket, Module, ac);
+		fprintf( file, "Socket::ReceiveData failed, bytes left %d start: %d 1: %d 1b: %d 2: %d 2b: %d socket %d %s",
+				m_iSockBufBytesLeft, (int) clk_start, (int) clk_select1, (int) clk_select1b, (int) clk_select2, (int) clk_select2b, m_Socket, m_sName.c_str() );
+		fclose( file );
+	}
+	ll.Release();
+
+#endif
+
 #else
 	
 				g_pPlutoLogger->Write( LV_STATUS, "Socket::ReceiveData failed, bytes left %d socket %d %s", m_iSockBufBytesLeft, m_Socket, m_sName.c_str() );
@@ -532,40 +613,9 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 			}
 			m_pcCurInsockBuffer = m_pcInSockBuffer; // refreshing the current position
 
-#ifdef LOG_ALL_CONTROLLER_ACTIVITY
-		char *pcTmp2 = new char[m_iSockBufBytesLeft +1]; // freed after the if
-		memcpy( pcTmp2, m_pcInSockBuffer, m_iSockBufBytesLeft );
-		char *pc2 = pcTmp2;
-		while( pc2 < pcTmp2 + m_iSockBufBytesLeft ) // replacing \b with |
-		{
-			if ( *pc2=='\b')
-				*pc2='|';
-			pc2++;
-		}
-		pcTmp2[m_iSockBufBytesLeft]=0; // end
-		
-		if( m_iSockBufBytesLeft < 200 )
-		{
-			LACA_B4_2( "(%s)Received: %s\n", m_sName.c_str(), pcTmp2 );
-		}
-		else
-		{
-			LACA_B4_1( "(%s)Received: big block\n", m_sName.c_str() );
-		}
-		
-		delete[] pcTmp2;
-#endif
 #if (defined(LL_DEBUG) || defined(LL_DEBUG_FILE))
 			char *pcTmp = new char[m_iSockBufBytesLeft +1]; // freed after writing to the file
-			memcpy( pcTmp, m_pcInSockBuffer, m_iSockBufBytesLeft );
-			char *pc = pcTmp;
-			while( pc < pcTmp + m_iSockBufBytesLeft ) // replacing \b with |
-			{
-				if (*pc=='\b')
-					*pc='|';
-				pc++;
-			}
-			pcTmp[m_iSockBufBytesLeft]=0;
+			hexmemcpy( pcTmp, m_pcInSockBuffer, min(m_iSockBufBytesLeft,200) );
 #ifdef UNDER_CE
 			char ac[50];
 			SYSTEMTIME lt;

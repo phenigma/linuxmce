@@ -4,6 +4,7 @@
 #include "Message.h"
 #include "Command_Impl.h"
 
+#include "Logger.h"
 
 namespace DCE
 {
@@ -174,10 +175,13 @@ public:
 						string sCMD_Result="OK";
 					string sValue_To_Assign=pMessage->m_mapParameters[5];
 						CMD_Get_Floorplan_Layout(&sValue_To_Assign,sCMD_Result,pMessage);
+g_pPlutoLogger->Write(LV_STATUS,"Finished get floorplan layout");
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 						pMessageOut->m_mapParameters[5]=sValue_To_Assign;
+SendString("MESSAGE XXXXXX");
+						g_pPlutoLogger->Write(LV_STATUS,"Calling Send Message");
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )

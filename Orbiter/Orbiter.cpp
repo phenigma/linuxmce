@@ -167,7 +167,6 @@ m_CallbackMutex( "callback" ), m_MaintThreadMutex("MaintThread")
     if(  !m_bLocalMode  )
     {
         GetEvents(  )->m_pClientSocket->SetReceiveTimeout( 15 );
-        m_pcRequestSocket = new Orbiter_Event( DeviceID,  ServerAddress );
         m_pcRequestSocket->m_pClientSocket->SetReceiveTimeout( 15 );
     }
 

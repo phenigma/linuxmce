@@ -30,7 +30,9 @@
 #include <sge.h>
 #include <sge_surface.h>
 
+#ifndef BLUETOOTH_DONGLE 
 #define USE_ONLY_SCREEN_SURFACE
+#endif
 
 #ifdef WINCE
 	#include "wince.h"
