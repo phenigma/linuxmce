@@ -2223,8 +2223,8 @@ int Router::ConfirmDeviceTemplate( int iPK_Device, int iPK_DeviceTemplate )
 
 void Router::PingFailed( ServerSocket *pServerSocket, int dwPK_Device )
 {
-	g_pPlutoLogger->Write( LV_CRITICAL, "Router::PingFailed %p %s (socket id in destructor: %d) %d", 
-		pServerSocket, pServerSocket->m_sName.c_str(), m_Socket, m_pSocket_PingFailure, dwPK_Device );
+	g_pPlutoLogger->Write( LV_CRITICAL, "Router::PingFailed %p %s %d", 
+		pServerSocket, pServerSocket->m_sName.c_str(), dwPK_Device );
 
     PLUTO_SAFETY_LOCK(sl,m_CoreMutex);
 	DeviceData_Router *pDevice = m_mapDeviceData_Router_Find( dwPK_Device );
