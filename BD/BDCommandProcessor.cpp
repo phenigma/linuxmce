@@ -145,7 +145,13 @@ bool BDCommandProcessor::SendCommand( bool &bImmediateCallback )
 	{
 		long *pdwType = (long *)m_pcReceiveAckHeader;
 		long *pdwSize = (long *)(m_pcReceiveAckHeader + 4);
-		ReceiveCommand( *pdwType, *pdwSize, m_pcReceiveAckData );
+		if(!ReceiveCommand( *pdwType, *pdwSize, m_pcReceiveAckData ))
+		{
+			delete m_pCommand_Sent;
+			m_pCommand_Sent = NULL;
+			return false;
+		}
+		
 		if( *pdwType != BD_CP_HAVE_NOTHING )
 			bImmediateCallback = true; // that's when I set it on true
 	}
@@ -236,7 +242,8 @@ bool BDCommandProcessor::ReceiveCommand( unsigned long dwType, unsigned long dwS
 		if( pCommand->ID() == BD_PC_WHAT_DO_YOU_HAVE ) // received a WhatDoYouHave
 		{
 			bool bDummy;
-			SendCommand( bDummy ); // response to WhatDoYouHave
+			if(!SendCommand( bDummy )) // response to WhatDoYouHave
+				return false;
 		}
 		else // a normal command received
 		{

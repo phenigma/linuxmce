@@ -47,7 +47,7 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
 	//printf("Start of scan loop %p\n",g_pPlutoLogger);
 	int num_rsp, length, flags, dev_id = 0;
 
-	length  = 3 * 8;	/* ~30 seconds */
+	length  = 2 * 8;	/* ~20 seconds */
 	num_rsp = 100;
 	flags   = 0;
 	const uint8_t *lap=NULL;
@@ -335,7 +335,7 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
 	/* If we exit through a signal, cancel our current inquiry */
 	if (cancel)
 	{
-		//printf("sending cancel\n");
+		printf("# sending cancel\n");
 		hci_send_cmd(dd, OGF_LINK_CTL, OCF_INQUIRY_CANCEL, 0, NULL);
 	}
 
@@ -353,7 +353,7 @@ close:
 	/* Close the HCI device */
 	hci_close_dev(dd);
 
-	//printf("closed device\n");
+	printf("# closed device\n");
 
 	/* Set the errno value for perror() */
 	errno = err;
@@ -361,7 +361,7 @@ close:
 	/* On error, free the results and exit */
 	if (err) {
 		if (inq_list) free(inq_list);
-		g_pPlutoLogger->Write(LV_WARNING, "Error in bluetooth scan %d\n", err);
+		g_pPlutoLogger->Write(LV_WARNING, "Error in bluetooth scan: %d\n", err);
 		//cerr << "Error " << err << " in bluetooth scan" << endl;
 		Sleep(15000); // No fast looping
 		return true;

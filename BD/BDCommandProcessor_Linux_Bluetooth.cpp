@@ -99,6 +99,8 @@ BDCommandProcessor_Linux_Bluetooth::~BDCommandProcessor_Linux_Bluetooth()
 
 bool BDCommandProcessor_Linux_Bluetooth::SendData(int size, const char *data)
 {
+	g_pPlutoLogger->Write(LV_STATUS, "Ready to send %d bytes of data", size);
+	
 	int br;
 	int bytes_to_send = size;
 	int bytes_sent = 0;
@@ -119,11 +121,18 @@ bool BDCommandProcessor_Linux_Bluetooth::SendData(int size, const char *data)
 
 			g_pPlutoLogger->Write(LV_STATUS, "Sent %d bytes [total %d/%d]", br, bytes_sent, size);
 		}
+
+		if(bytes_to_send > 0)
+		{
+			printf("@need to send more data... \n");
+		}
 	}
 }
 
 char *BDCommandProcessor_Linux_Bluetooth::ReceiveData(int size)
 {
+	g_pPlutoLogger->Write(LV_STATUS, "Ready to receive %d bytes of data", size);
+		
 	char *buffer = (char *)malloc(size);
 	int br = 0;
 	int bytes_to_receive = size;
@@ -145,6 +154,11 @@ char *BDCommandProcessor_Linux_Bluetooth::ReceiveData(int size)
 			bytes_to_receive -= br;
 			
 			g_pPlutoLogger->Write(LV_STATUS, "Received %d bytes [total %d/%d]", br, bytes_received, size);
+		}
+
+		if(bytes_to_receive > 0)
+		{
+			printf("@need to receive more data.. \n");
 		}
 	}
 
