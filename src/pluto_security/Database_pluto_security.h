@@ -10,7 +10,6 @@
 class DLL_EXPORT Database_pluto_security: public MySqlHelper
 {
 public:
-MYSQL *m_pMySQL;
 Database_pluto_security();
 ~Database_pluto_security();
 void DeleteAllTables();
