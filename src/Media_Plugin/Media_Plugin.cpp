@@ -185,7 +185,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Room: %d %s has no video",pRow_Room->PK_Room_ge
 				{
 					bChangedEAs=true;
 
-// 					pRow_EntertainArea = m_pDatabase_pluto_main->EntertainArea_get()->AddRow();
+ 					pRow_EntertainArea = m_pDatabase_pluto_main->EntertainArea_get()->AddRow();
 g_pPlutoLogger->Write(LV_STATUS,"set ent area %d %s to Room: %d %s has no video",pRow_EntertainArea->PK_EntertainArea_get(),pRow_EntertainArea->Description_get().c_str(),pRow_Room->PK_Room_get(),pRow_Room->Description_get().c_str());
 					pRow_EntertainArea->FK_Room_set(pRow_Room->PK_Room_get());
 					m_pDatabase_pluto_main->EntertainArea_get()->Commit();
