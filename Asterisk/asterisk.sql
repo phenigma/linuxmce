@@ -17,7 +17,7 @@ CREATE TABLE `ast_config` (
 `category` varchar(128) NOT NULL default 'default',
 `var_name` varchar(128) NOT NULL default '',
 `var_val` varchar(128) NOT NULL default '',
- PRIMARY KEY  (`id`),
+ PRIMARY KEY (`id`),
  KEY `filename_comment` (`filename`,`commented`)
 ) TYPE=MyISAM;
 					
@@ -32,7 +32,7 @@ CREATE TABLE `extensions_table` (
   `priority` tinyint(4) NOT NULL default '0',
   `app` varchar(20) NOT NULL default '',
   `appdata` varchar(255) NOT NULL default '',
-  PRIMARY_KEY (`id`)
+  KEY (`id`)
 ) TYPE=MyISAM;
 
 --
