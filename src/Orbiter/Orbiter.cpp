@@ -6030,7 +6030,7 @@ void Orbiter::CMD_Set_Timeout(string sPK_DesignObj,string sTime,string &sCMD_Res
         return;
     }
 	pObj->m_dwTimeoutSeconds = atoi(sTime.c_str());
-	if( pObj==m_pScreenHistory_Current->m_pObj )
+	if( pObj==m_pScreenHistory_Current->m_pObj && pObj->m_dwTimeoutSeconds )
 		CallMaintenanceInMiliseconds( pObj->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) pObj, true );
 }
 //<-dceag-c325-b->
