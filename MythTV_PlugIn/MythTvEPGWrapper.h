@@ -23,7 +23,8 @@ class MythTvEPGWrapper: public DCE::DataGridTable
     int m_iQuantInSecs;
 
 protected:
-    int getChannelsCount();
+    void getProgramData();
+    void getChannelData(int channelId);
     bool initMythTVGlobalContext();
 
 public:

@@ -41,6 +41,9 @@ g_pPlutoLogger->Write(LV_STATUS,"start of const");
 	bacpy(&laddr.rc_bdaddr, &m_pDevice->m_bdaddrDongle);
 	laddr.rc_channel = 0;
 
+	printf("@adr dongle: %s\n", m_pDevice->m_bdaddrDongle);
+	printf("@mac address: %s\n", pDevice->m_sMacAddress.c_str());
+	
 	raddr.rc_family = AF_BLUETOOTH;
 	str2ba(pDevice->m_sMacAddress.c_str(), &raddr.rc_bdaddr);
 	raddr.rc_channel = 19;
@@ -60,9 +63,12 @@ g_pPlutoLogger->Write(LV_STATUS,"start of const");
 		return;
 	}
 	
-	if (connect(m_CommHandle, (struct sockaddr *)&raddr, sizeof(raddr)) < 0) 
+	printf("# try to connect\n");
+	int err_code = 0;
+	if ((err_code = connect(m_CommHandle, (struct sockaddr *)&raddr, sizeof(raddr))) < 0) 
 	{
 		g_pPlutoLogger->Write(LV_WARNING,"Can't connect RFCOMM socket. (The symbian app is not started or it's dead)");
+		printf("# error code: %d\n", err_code);
 		close(m_CommHandle);
 		m_bDead=true;
 		return;

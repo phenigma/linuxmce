@@ -1,4 +1,4 @@
-LIBRARIES=pluto_main DCE PlutoUtils SerializeClass BD VIPShared
+LIBRARIES=pluto_main DCE PlutoUtils SerializeClass BD VIPShared FakeEPG
 APPS=DCERouter MessageSend 
 DCEDEVS=App_Server Bluetooth_Dongle Disk_Drive Orbiter Xine_Player 
 PLUGINS=Datagrid_Plugin File_Grids_Plugin Media_Plugin Orbiter_Plugin Xine_Plugin Media_Grids_Plugin \

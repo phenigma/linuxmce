@@ -18,7 +18,7 @@ sources = Main.cpp Mozilla_Plugin.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS +=
 LDFLAGS +=
-LDLIBS +=
+LDLIBS += -lPlutoUtils -lSerializeClass
 
 Gen_Dev_Files += $(GENDEV)/Datagrid_PluginBase.cpp
 sources += ../Datagrid_Plugin/Datagrid_Plugin.cpp
@@ -33,14 +33,14 @@ bin: Mozilla_Plugin
 
 so: Mozilla_Plugin.so
 
-Mozilla_Plugin.so: $(sources:.cpp=.o)
-	$(CXX) -shared -o $(MYNAME).so $+ $(LDFLAGS) $(LDLIBS)
+Mozilla_Plugin.so: $(sources:.cpp=.o) Makefile
+	$(CXX) -shared -o $(MYNAME).so $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 		
-Mozilla_Plugin: $(sources:.cpp=.o)
-	$(CXX) -o $(MYNAME) $+ $(LDFLAGS) $(LDLIBS)
+Mozilla_Plugin: $(sources:.cpp=.o) Makefile
+	$(CXX) -o $(MYNAME) $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@
 

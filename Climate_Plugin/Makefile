@@ -18,7 +18,7 @@ sources = Main.cpp Climate_Plugin.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS +=
 LDFLAGS +=
-LDLIBS += -lpluto_main
+LDLIBS += -lpluto_main -lPlutoUtils -lSerializeClass
 
 Gen_Dev_Files += $(GENDEV)/Datagrid_PluginBase.cpp
 sources += ../Datagrid_Plugin/Datagrid_Plugin.cpp
@@ -33,14 +33,14 @@ bin: Climate_Plugin
 
 so: Climate_Plugin.so
 
-Climate_Plugin.so: $(sources:.cpp=.o)
-	$(CXX) -shared -o $(MYNAME).so $+ $(LDFLAGS) $(LDLIBS)
+Climate_Plugin.so: $(sources:.cpp=.o) Makefile
+	$(CXX) -shared -o $(MYNAME).so $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 		
-Climate_Plugin: $(sources:.cpp=.o)
-	$(CXX) -o $(MYNAME) $+ $(LDFLAGS) $(LDLIBS)
+Climate_Plugin: $(sources:.cpp=.o) Makefile
+	$(CXX) -o $(MYNAME) $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@
 

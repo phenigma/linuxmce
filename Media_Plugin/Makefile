@@ -18,7 +18,7 @@ sources = Main.cpp Media_Plugin.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS +=
 LDFLAGS +=
-LDLIBS += -lpluto_main
+LDLIBS += -lpluto_main -lPlutoUtils -lSerializeClass
 
 Gen_Dev_Files += $(GENDEV)/Datagrid_PluginBase.cpp
 sources += ../Datagrid_Plugin/Datagrid_Plugin.cpp MediaPluginInfo.cpp
@@ -33,14 +33,14 @@ bin: Media_Plugin
 
 so: Media_Plugin.so
 
-Media_Plugin.so: $(sources:.cpp=.o)
-	$(CXX) -shared -o $(MYNAME).so $+ $(LDFLAGS) $(LDLIBS)
+Media_Plugin.so: $(sources:.cpp=.o) Makefile
+	$(CXX) -shared -o $(MYNAME).so $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 		
-Media_Plugin: $(sources:.cpp=.o)
-	$(CXX) -o $(MYNAME) $+ $(LDFLAGS) $(LDLIBS)
+Media_Plugin: $(sources:.cpp=.o) Makefile
+	$(CXX) -o $(MYNAME) $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@
 

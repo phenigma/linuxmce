@@ -55,11 +55,11 @@ void MythTvEPGWrapper::rebuildDataGrid(QDateTime startTime, QDateTime endTime)
     m_timeStart = startTime;
     m_timeEnd = endTime;
 
-    m_iChannels = getChannelsCount();
     m_iQuantInSecs = 15 * 60; // 15 minutes;
+    getProgramData();
 }
 
-int MythTvEPGWrapper::getChannelsCount()
+void MythTvEPGWrapper::getProgramData()
 {
     QString strQuery;
 
@@ -74,18 +74,44 @@ int MythTvEPGWrapper::getChannelsCount()
 
     if ( query.isActive() && query.numRowsAffected() > 0 )
     {
-        g_pPlutoLogger->Write(LV_STATUS, "The query for channel count was succesfull: %d!", query.numRowsAffected());
+        g_pPlutoLogger->Write(LV_STATUS, "The query for channel count was a success : %d!", query.numRowsAffected());
 
         m_iChannels = query.numRowsAffected();
 
+        int iChannelId;
         while ( query.next() )
-            m_mapPrograms[query.value(0).toInt()] = map<int, DataGridCell*>();
-
-        return m_iChannels;
+        {
+            iChannelId = query.value(0).toInt();
+            getChannelData(iChannelId);
+//          m_mapPrograms[iChannelId] = getChannelData(iChannelId);
+        }
     }
 
     g_pPlutoLogger->Write(LV_WARNING, "The query for the channel count failed: %s!", query.lastError().text().ascii());
-    return 0;
+}
+
+void MythTvEPGWrapper::getChannelData(int channel)
+{
+    if ( m_mapPrograms.find(channel) != m_mapPrograms.end() )
+    {
+        map<int, DataGridCell*>::iterator it_data = m_mapPrograms[channel].begin();
+
+        while (it_data != m_mapPrograms[channel].end() )
+        {
+            delete it_data->second;
+            it_data++;
+        }
+
+        m_mapPrograms[channel].clear();
+    }
+    else
+    {
+        m_mapPrograms[channel] = map<int, DataGridCell*>();
+    }
+
+    map<int, DataGridCell*> m_mapChannelData = m_mapPrograms[channel];
+
+    g_pPlutoLogger->Write(LV_STATUS, "I should read data from the database!");
 }
 
 int MythTvEPGWrapper::GetRows()

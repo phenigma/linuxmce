@@ -18,7 +18,7 @@ sources = Main.cpp Xine_Plugin.cpp $(Gen_Dev_Files)
 CXXFLAGS += -fmessage-length=0
 CPPFLAGS +=
 LDFLAGS +=
-LDLIBS += -lpluto_main
+LDLIBS += -lpluto_main -lPlutoUtils -lSerializeClass
 
 Gen_Dev_Files += $(GENDEV)/Media_PluginBase.cpp $(GENDEV)/Datagrid_PluginBase.cpp
 sources += ../Media_Plugin/MediaPluginInfo.cpp ../Media_Plugin/Media_Plugin.cpp ../Datagrid_Plugin/Datagrid_Plugin.cpp
@@ -33,14 +33,14 @@ bin: Xine_Plugin
 
 so: Xine_Plugin.so
 
-Xine_Plugin.so: $(sources:.cpp=.o)
-	$(CXX) -shared -o $(MYNAME).so $+ $(LDFLAGS) $(LDLIBS)
+Xine_Plugin.so: $(sources:.cpp=.o) Makefile
+	$(CXX) -shared -o $(MYNAME).so $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 		
-Xine_Plugin: $(sources:.cpp=.o)
-	$(CXX) -o $(MYNAME) $+ $(LDFLAGS) $(LDLIBS)
+Xine_Plugin: $(sources:.cpp=.o) Makefile
+	$(CXX) -o $(MYNAME) $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@
 

@@ -96,7 +96,7 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, "Error opening bluetooth device");
 		hci_close_dev(dd);
-		return;
+		return false;
 	}
 	char addr[18];
 	ba2str(&m_DevInfo.bdaddr, addr);
@@ -107,7 +107,7 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
 	if (dd < 0) 
 	{
 		printf("Device open failed");
-		return;
+		return false;
 	}
 
 	//printf("opened device\n");

@@ -18,7 +18,7 @@ sources = Main.cpp Datagrid_Plugin.cpp $(Gen_Dev_Files)
 CXXFLAGS += -DDEBUG
 CPPFLAGS +=
 LDFLAGS +=
-LDLIBS +=
+LDLIBS += -lPlutoUtils -lSerializeClass
 
 Gen_Dev_Files +=
 sources +=
@@ -33,14 +33,14 @@ bin: Datagrid_Plugin
 
 so: Datagrid_Plugin.so
 
-Datagrid_Plugin.so: $(sources:.cpp=.o)
-	$(CXX) -shared -o $(MYNAME).so $+ $(LDFLAGS) $(LDLIBS)
+Datagrid_Plugin.so: $(sources:.cpp=.o) Makefile
+	$(CXX) -shared -o $(MYNAME).so $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 		
-Datagrid_Plugin: $(sources:.cpp=.o)
-	$(CXX) -o $(MYNAME) $+ $(LDFLAGS) $(LDLIBS)
+Datagrid_Plugin: $(sources:.cpp=.o) Makefile
+	$(CXX) -o $(MYNAME) $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@
 
