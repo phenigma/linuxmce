@@ -240,5 +240,9 @@ else
 	(echo -e "MakeRelease $version ok\n\nNeed to reset nobuild flag") | mail -s "**reset nobuild flag** MakeRelease $version ok" mihai.t@plutohome.com -c aaron@plutohome.com
 fi
 
+if [ $version -ne 1 ]; then
+	(echo -e "Change version back to 1\n\n") | mail -s "**change version back to 1**" mihai.t@plutohome.com -c aaron@plutohome.com
+fi
+
 read
 
