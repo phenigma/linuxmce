@@ -1,0 +1,13 @@
+#ifndef __Define_psc_security_schema_H__
+#define __Define_psc_security_schema_H__
+
+
+#define PSC_SECURITY_SCHEMA_TABLE "psc_security_schema"
+#define PSC_SECURITY_SCHEMA_PK_PSC_SECURITY_SCHEMA_FIELD "PK_psc_security_schema"
+#define PSC_SECURITY_SCHEMA_PK_PSC_SECURITY_SCHEMA_TABLE_FIELD "psc_security_schema.PK_psc_security_schema"
+#define PSC_SECURITY_SCHEMA_VALUE_FIELD "Value"
+#define PSC_SECURITY_SCHEMA_VALUE_TABLE_FIELD "psc_security_schema.Value"
+
+
+#endif
+

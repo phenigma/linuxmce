@@ -97,13 +97,13 @@ class DelayedSelectObjectInfo
 public:
 	DesignObj_Orbiter *m_pObj;
 	string m_sPK_DesignObj_CurrentScreen;
-	clock_t m_cTimeout;
+	timespec m_tsTime;
 
-	DelayedSelectObjectInfo(DesignObj_Orbiter *pObj,string sPK_DesignObj_CurrentScreen,clock_t cTimeout)
+	DelayedSelectObjectInfo(DesignObj_Orbiter *pObj,string sPK_DesignObj_CurrentScreen,timespec tsTime)
 	{
 		m_pObj=pObj;
 		m_sPK_DesignObj_CurrentScreen=sPK_DesignObj_CurrentScreen;
-		m_cTimeout=cTimeout;
+		m_tsTime=tsTime;
 	}
 };
 
@@ -3341,7 +3341,11 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
 					DelayedSelectObjectInfo *pDelayedSelectObjectInfo = (DelayedSelectObjectInfo *) pCallBackInfo->m_pData;
 					if( TestCurrentScreen(pDelayedSelectObjectInfo->m_sPK_DesignObj_CurrentScreen) )
 					{
-						Output += StringUtils::itos( (pDelayedSelectObjectInfo->m_cTimeout - clock()) / CLOCKS_PER_SEC );
+						timespec ts_Current,ts;
+						gettimeofday(&ts_Current,NULL);
+						ts = pDelayedSelectObjectInfo->m_tsTime - ts_Current;
+
+						Output += StringUtils::itos(ts.tv_sec);
 						break;
 					}
 				}
@@ -3577,10 +3581,8 @@ void *MaintThread(void *p)
 			g_pPlutoLogger->Write( LV_CONTROLLER, "### Now is %d, Callback candidate to be processed id = %d, time = %d msec = %d", 
 				clock_t(), pCallBackInfo->m_iCounter, (int)pCallBackInfo->m_abstime.tv_sec,(int)pCallBackInfo->m_abstime.tv_nsec);
 
-			timeval tv_Current;
-			gettimeofday(&tv_Current,NULL);
 			timespec ts_Current;
-			timeval_to_timespec(&tv_Current,&ts_Current);
+			gettimeofday(&ts_Current,NULL);
 
 			if(pCallBackInfo->m_abstime <= ts_Current) 
 			{
@@ -3654,12 +3656,8 @@ void Orbiter::CallMaintenanceInMiliseconds( clock_t milliseconds, OrbiterCallBac
 
     CallBackInfo *pCallBack = new CallBackInfo( &m_CallbackMutex );
 
-	timeval tv_current;
-	gettimeofday(&tv_current,NULL);
-	timeval_to_timespec(&tv_current,&pCallBack->m_abstime);
-
-	pCallBack->m_abstime.tv_sec += milliseconds / 1000;
-	pCallBack->m_abstime.tv_nsec += milliseconds % 1000 * 1000000;
+	gettimeofday(&pCallBack->m_abstime,NULL);
+	pCallBack->m_abstime += milliseconds;
 
 /*
 	pCallBack->m_abstime.tv_nsec += milliseconds * 1000000;
@@ -4097,7 +4095,8 @@ void Orbiter::CMD_Play_Sound(char *pData,int iData_Size,string sFormat,string &s
 void Orbiter::CMD_Refresh(string sDataGrid_ID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c14-e->
 {
-    //m_bRerenderScreen = true; 
+	if( sDataGrid_ID.length()==0 )
+	    m_bRerenderScreen = true; 
 
 	vector<DesignObj_DataGrid*>::iterator it;
 	for(it = m_vectObjs_GridsOnScreen.begin(); it != m_vectObjs_GridsOnScreen.end(); ++it)
@@ -4520,9 +4519,12 @@ void Orbiter::CMD_Select_Object(string sPK_DesignObj,string sPK_DesignObj_Curren
 
 	if( sTime.length()!=0 && atoi(sTime.c_str()) )
 	{
-		clock_t c = clock() + (atoi(sTime.c_str()) * CLOCKS_PER_SEC);
+		timespec ts;
+		gettimeofday(&ts,NULL);
+		long TimeInMS = atoi(sTime.c_str()) * 1000;
+		ts += TimeInMS;
 		// We don't want to purge all select objects.  Only those pending for the same object.  So we'll have to do this by hand
-		DelayedSelectObjectInfo *pDelayedSelectObjectInfo = new DelayedSelectObjectInfo(pDesignObj_Orbiter,sPK_DesignObj_CurrentScreen,c);
+		DelayedSelectObjectInfo *pDelayedSelectObjectInfo = new DelayedSelectObjectInfo(pDesignObj_Orbiter,sPK_DesignObj_CurrentScreen,ts);
 
 	    PLUTO_SAFETY_LOCK( cm, m_CallbackMutex );
 		for(map<int,CallBackInfo *>::iterator it=mapPendingCallbacks.begin();it!=mapPendingCallbacks.end();++it)
@@ -4537,7 +4539,7 @@ void Orbiter::CMD_Select_Object(string sPK_DesignObj,string sPK_DesignObj_Curren
 		}
 		cm.Release();
 
-		CallMaintenanceInMiliseconds( c, &Orbiter::DelayedSelectObject, pDelayedSelectObjectInfo, false );
+		CallMaintenanceInMiliseconds( TimeInMS, &Orbiter::DelayedSelectObject, pDelayedSelectObjectInfo, false );
 	}
 	else
 	    SelectedObject( pDesignObj_Orbiter );
@@ -4998,7 +5000,7 @@ void Orbiter::ContinuousRefresh( void *data )
 	else
 	{
 		CMD_Refresh("");
-		CallMaintenanceInMiliseconds( pContinuousRefreshInfo->m_iInterval, &Orbiter::ContinuousRefresh, pContinuousRefreshInfo, true ); 
+		CallMaintenanceInMiliseconds( pContinuousRefreshInfo->m_iInterval * 1000, &Orbiter::ContinuousRefresh, pContinuousRefreshInfo, true ); 
 	}
 }
 

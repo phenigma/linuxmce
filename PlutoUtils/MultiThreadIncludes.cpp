@@ -555,6 +555,14 @@ void PlutoLock::Release()
 		return 0;
 	 }
 #endif
+
+int gettimeofday(struct timespec *ts, struct timezone *tz)
+{
+	timeval tv_current;
+	int i=gettimeofday(&tv_current,NULL);
+	timeval_to_timespec(&tv_current,ts);
+	return i;
+}
 	
 bool operator < (const timespec & t1, const timespec & t2)
 {
@@ -575,8 +583,22 @@ timespec & operator += (timespec & t1, const timespec & t2)
 	t1.tv_sec += t2.tv_sec;
 	t1.tv_nsec += t2.tv_nsec;
 
-	t1.tv_sec += t1.tv_nsec / 1000;
-	t1.tv_nsec = t1.tv_nsec % 1000 * 1000000;
+	t1.tv_sec += t1.tv_nsec / 1000000000;
+	t1.tv_nsec = t1.tv_nsec % 1000000000;
+
+	return t1;
+}
+
+timespec & operator -= (timespec & t1, const timespec & t2)
+{
+	t1.tv_sec -= t2.tv_sec;
+	t1.tv_nsec -= t2.tv_nsec;
+
+	if( t2.tv_nsec<0 )
+	{
+		t1.tv_sec--;
+		t1.tv_nsec += 1000000000;
+	}
 
 	return t1;
 }
@@ -609,6 +631,22 @@ timespec ms_to_timespec(unsigned long ts)
 
 	result.tv_sec = ts / 1000;
 	result.tv_nsec = ts % 1000 * 1000000;
+
+	return result;
+}
+
+timespec & operator += (timespec & t1, long milliseconds)
+{
+	timespec t2 = { milliseconds / 1000, (milliseconds % 1000) * 1000000 };
+	return t1 += t2;
+}
+
+timespec operator - (const timespec & t1, const timespec & t2)
+{
+	timespec result = { 0, 0 };
+
+	result += t1;
+	result -= t2;
 
 	return result;
 }
