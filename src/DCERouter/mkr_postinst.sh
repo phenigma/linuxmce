@@ -7,10 +7,10 @@ echo "GRANT ALL PRIVILEGES ON pluto_main.* to 'root'@'127.0.0.1';" | mysql
 . /usr/pluto/bin/Config_Ops.sh
 
 Q="SELECT PK_Installation FROM Installation LIMIT 1"
-R=$(echo "$Q" | /usr/bin/mysql pluto_main -N)
+R=$(echo "$Q;" | /usr/bin/mysql pluto_main -N)
 ConfSet PK_Installation "$R"
 Q="SELECT PK_Users FROM Users LIMIT 1"
-R=$(echo "$Q" | /usr/bin/mysql pluto_main -N)
+R=$(echo "$Q;" | /usr/bin/mysql pluto_main -N)
 ConfSet PK_Users "$R"
 
 chmod 700 /usr/pluto/keys/id_dsa_remoteassistance
