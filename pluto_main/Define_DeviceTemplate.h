@@ -61,7 +61,8 @@
 #define DEVICETEMPLATE_Motion_Detector_CONST 54
 #define DEVICETEMPLATE_Smoke_Detector_CONST 55
 #define DEVICETEMPLATE_Glass_Break_Sensor_CONST 56
-#define DEVICETEMPLATE_Festival_CONST 57
+#define DEVICETEMPLATE_Text_To_Speech_CONST 57
+#define DEVICETEMPLATE_SqueezeBox_Player_CONST 58
 
 #define DEVICETEMPLATE_TABLE "DeviceTemplate"
 #define DEVICETEMPLATE_PK_DEVICETEMPLATE_FIELD "PK_DeviceTemplate"

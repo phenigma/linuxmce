@@ -1,7 +1,7 @@
 #ifndef __Define_CommandParameter_H__
 #define __Define_CommandParameter_H__
 
-#define COMMANDPARAMETER_not_used_CONST 1
+#define COMMANDPARAMETER_Relative_Level_CONST 1
 #define COMMANDPARAMETER_PK_Device_CONST 2
 #define COMMANDPARAMETER_PK_DesignObj_CONST 3
 #define COMMANDPARAMETER_PK_Variable_CONST 4

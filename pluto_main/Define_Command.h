@@ -252,6 +252,7 @@
 #define COMMAND_Send_Audio_To_Device_CONST 253
 #define COMMAND_Bind_Icon_CONST 254
 #define COMMAND_Orbiter_Registered_CONST 255
+#define COMMAND_Text_To_Wave_CONST 256
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
