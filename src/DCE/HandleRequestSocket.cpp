@@ -114,7 +114,7 @@ void HandleRequestSocket::RunThread()
 {
 	m_bRunning = true;
 
-#ifdef UNDER_CE
+#ifdef UNDER_CE_X
 	__try
 	{
 #endif
@@ -202,7 +202,7 @@ void HandleRequestSocket::RunThread()
 g_pPlutoLogger->Write( LV_STATUS, "Closing request handler connection...");
 //	g_pPlutoLogger->Write( LV_STATUS, "Closing event handler connection %d (%d,%s), Terminate: %d %s\n",
 //		m_dwPK_Device, (int) m_bUnexpected, sMessage.c_str(), (int) m_bTerminate, m_sName.c_str() );
-#ifdef UNDER_CE
+#ifdef UNDER_CE_X
 	}
 	__except( EXCEPTION_EXECUTE_HANDLER )
 	{

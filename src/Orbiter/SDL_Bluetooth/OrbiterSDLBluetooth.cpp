@@ -237,12 +237,14 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
 
 	bool bUsePhoneGrid = false;
 	int iSelectedColumn = pObj->m_iInitialColNum;
+
+	g_pPlutoLogger->Write(LV_STATUS, "Extraoptions in grid: %s", pObj->m_sExtraInfo.c_str());
+
 	//if 'c' - column  extraoption is specified, we'll send to phone the specified column
 	size_t sPos;
 	if((sPos = pObj->m_sExtraInfo.find( 'c' )) != string::npos)
 	{
 		bUsePhoneGrid=true;
-		g_pPlutoLogger->Write(LV_STATUS, "Extraoptions in grid: %s", pObj->m_sExtraInfo.c_str());
 		
 		if(sPos + 1 < pObj->m_sExtraInfo.size())
 			iSelectedColumn = pObj->m_sExtraInfo[sPos + 1] - '0';

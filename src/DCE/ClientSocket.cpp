@@ -154,9 +154,10 @@ bool ClientSocket::Connect( int PK_DeviceTemplate,string sExtraInfo )
 #else
 				int ec = errno;
 #endif
+
+#ifndef WINCE
 				if( g_pPlutoLogger )
 					g_pPlutoLogger->Write(LV_CRITICAL, "Connect() failed, Error Code %d (%s))", ec, strerror(ec));
-#ifndef WINCE
 				else // no logger
 					cerr << "Connect() failed, Error Code" << ec << strerror(ec) << endl;
 #endif
