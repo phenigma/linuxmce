@@ -1,6 +1,7 @@
 #!/bin/bash
 
 . /usr/pluto/bin/Config_Ops.sh
+. /usr/pluto/bin/Network_Parameters.sh
 
 #if ! grep "1:2345:respawn:/usr/pluto/bin/Report_DCERouter_Status.sh" /etc/inittab; then
 #	# Replace original tty1 program with our status screen
@@ -36,6 +37,7 @@ Menu()
 	touch "$FStart"
 	echo "[1mLast updated[0m: $(date -R)"
 	echo "[1mDCERouter Status[0m: $(RouterStatus)"
+	echo "$(NetworkConfig)"
 	echo
 	echo "[1mMenu:[0m"
 	echo "[1m1[0m. Tail DCERouter log"
@@ -86,6 +88,15 @@ ConfirmExit()
 		return 0
 	fi
 	return 1
+}
+
+NetworkConfig()
+{
+	if [ -z "$DHCPsetting" ]; then
+		echo "[1mIP address[0m: $ExtIP"
+	else
+		echo "[1mExternal IP address[0m: $ExtIP [1mInternal IP address[0m: $IntIP"
+	fi
 }
 
 Exit=""

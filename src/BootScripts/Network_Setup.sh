@@ -11,7 +11,6 @@ Vars="CORE_INTERNAL_ADDRESS"
 
 if [ "$NetIfConf" -eq 0 ]; then
 	echo "Populating network settings from current system config"
-	NCards=$(ip addr | grep -cF 'link/ether')
 	NetSettings=$(ParseInterfaces)
 	ExtData=$(echo "$NetSettings" | head -1)
 	ExtractData "$ExtData"

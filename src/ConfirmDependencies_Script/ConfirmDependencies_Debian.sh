@@ -71,7 +71,9 @@ case "$URL_TYPE" in
 		fi
 
 		if ! PackageIsInstalled "$PKG_NAME"; then
+			export http_proxy="http://dcerouter:8123"
 			keep_sending_enters | apt-get -t "$REPOS" -y install "$PKG_NAME" || exit $ERR_APT
+			unset http_proxy
 #			apt-get clean
 		fi
 	;;
@@ -84,7 +86,9 @@ case "$URL_TYPE" in
 			/usr/pluto/install/Download_Direct.sh "$@" || exit $ERR_DOWNLOAD
 		
 			if [ "$REPOS_TYPE" -eq 1 ]; then
+				export http_proxy="http://dcerouter:8123"
 				keep_sending_enters | dpkg -i /usr/pluto/download/"$PKG_NAME" || exit $ERR_DPKG_INSTALL
+				unset http_proxy
 			else
 				# about the finds: should be ran in the extracted package's directory
 				mkdir -p "/usr/pluto/download/${PKG_NAME}"
