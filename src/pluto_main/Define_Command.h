@@ -81,7 +81,6 @@
 #define COMMAND_Send_File_To_Device_CONST 80
 #define COMMAND_Navigate_Next_CONST 81
 #define COMMAND_Navigate_Prev_CONST 82
-#define COMMAND_Select_Current_Navigable_Area_CONST 83
 #define COMMAND_Get_Video_Frame_CONST 84
 #define COMMAND_Reset_Highlight_CONST 85
 #define COMMAND_Goto_Menu_not_used_CONST 86
@@ -319,6 +318,8 @@
 #define COMMAND_WB_CONST 327
 #define COMMAND_SW_CONST 328
 #define COMMAND_Set_Mouse_Pointer_Over_Object_CONST 330
+#define COMMAND_Get_EntAreas_For_Device_CONST 331
+#define COMMAND_Ignore_MAC_Address_CONST 332
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

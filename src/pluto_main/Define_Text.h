@@ -452,6 +452,7 @@
 #define TEXT_My_Media_CONST 1127
 #define TEXT_Yes_its_a_phone_CONST 1128
 #define TEXT_choose_room_CONST 1129
+#define TEXT_Orbiters_Regenerated_CONST 1130
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
