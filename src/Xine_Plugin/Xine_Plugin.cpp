@@ -220,10 +220,11 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 	if ( pXineMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST )
 	{
 		if( pMediaStream->m_pOH_Orbiter_OSD )
-{
-		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMediaStream->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device,"<%=T" + StringUtils::itos(TEXT_Checking_drive_CONST) + "%>",false,10,true);
-g_pPlutoLogger->Write(LV_CRITICAL,"Displaying one moment message");
-}
+		{
+			m_pOrbiter_Plugin->DisplayMessageOnOrbiter(pMediaStream->m_pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device,"<%=T" + StringUtils::itos(TEXT_Checking_drive_CONST) + "%>",false,10,true);
+			g_pPlutoLogger->Write(LV_CRITICAL,"Displaying one moment message");
+		}
+
 		pXineMediaStream->m_sMediaDescription = "Media Desc";
 
 		g_pPlutoLogger->Write(LV_STATUS, "Got pluto DVD media type");
@@ -353,10 +354,15 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
 	for ( itEntArea = listStart.begin(); itEntArea != listStart.end(); itEntArea++ )
 		if ( (pMediaDevice = FindMediaDeviceForEntertainArea(*itEntArea)) != NULL )
 		{
+			g_pPlutoLogger->Write(LV_STATUS, "Setting the playback device for target ent area to be %d", pMediaDevice->m_pDeviceData_Router->m_dwPK_Device);
 			pXineMediaStream->SetPlaybackDeviceForEntArea((*itEntArea)->m_iPK_EntertainArea, pMediaDevice);
 
 			pXineMediaStream->m_mapEntertainArea[(*itEntArea)->m_iPK_EntertainArea] = *itEntArea;
 			(*itEntArea)->m_pMediaStream = pXineMediaStream;
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "No playback device found in the target ent area %d", (*itEntArea)->m_iPK_EntertainArea);
 		}
 
 	// we will stop the media differently if we are streaming and if we have only one playing device
@@ -434,8 +440,24 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
 
 	// if not streaming then:
 	if ( ! pXineMediaStream->isStreaming() )
-		// start streaming like you would normally do.
+	{
+		// the above code doesn't update the source device when the source device is unique and the stream should not be streamed (not Squeeze box in the target devices set).
+		// so .. we fix this here.
+		map<int, MediaDevice *>::const_iterator itPlaybackDevices;
+		map<int, MediaDevice *> mapPlaybackDevices;
+
+		pXineMediaStream->GetRenderDevices(&mapPlaybackDevices);
+
+		if ( mapPlaybackDevices.size() != 1 )
+			g_pPlutoLogger->Write(LV_CRITICAL, "Programming error. We have a stream (%d) which ended up maked as non streamed but which has more than 1 render devices (%d). This is not right.", pXineMediaStream->m_iStreamID_get(), mapPlaybackDevices.size());
+		else if ( mapPlaybackDevices.size() == 0 )
+			return false;
+
+		pXineMediaStream->m_pDeviceData_Router_Source = (*mapPlaybackDevices.begin()).second->m_pDeviceData_Router;
+
+		// start playback like normal do.
 		return StartMedia(pXineMediaStream);
+	}
 
 	return StartStreaming(pXineMediaStream);
 }
