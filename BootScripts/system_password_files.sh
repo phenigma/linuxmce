@@ -10,16 +10,20 @@ RunSQL()
 	echo "$Q;" | /usr/bin/mysql pluto_main | tail +2 | tr '\t\n' ', '
 }
 
-cp /usr/pluto/templates/group.tmpl /etc/group.$$
-cp /usr/pluto/templates/passwd.tmpl /etc/passwd.$$
-cp /usr/pluto/templates/shadow.tmpl /etc/shadow.$$
-cp /usr/pluto/templates/smb.conf.tmpl /etc/samba/smb.conf.$$
-cp /usr/pluto/templates/smbpasswd.tmpl /etc/samba/smbpasswd.$$
+$TemplateDir=/usr/pluto/templates
+
+# Extract non-pluto entries
+awk '/^pluto_/' /etc/group >/etc/group.$$
+awk '/^pluto_/' /etc/passwd >/etc/passwd.$$
+awk '/^pluto_/' /etc/shadow >/etc/shadow.$$
+
+cp $TemplateDir/smb.conf.tmpl /etc/samba/smb.conf.$$
+cp $TemplateDir/smbpasswd.tmpl /etc/samba/smbpasswd.$$
 
 # get a list of all users
 Q="SELECT PK_Users,UserName,Password_Unix,Password_Samba FROM Users"
 R=$(RunSQL "$Q")
-LinuxUserID=1001
+LinuxUserID=10000
 DefaultSambaPassword=609FCABC7B0F9AEAAAD3B435B51404EE:DDFF3B733E17BE6500375694FE258864
 DefaultLinuxPassword=
 
@@ -47,9 +51,9 @@ for Users in $R; do
 "
 # TODO: replace 00000001 with a real number of seconds (never set to 00000000)
 	SambaEntry="$UserName:$LinuxUserID:$SambaPassword:[U          ]:LCT-00000001:,,,"
-	ShadowEntry="$UserName:$LinuxPassword:12221:0:99999:7:::"
-	PasswdEntry="$UserName:x:$LinuxUserID:$LinuxUserID:,,,:/home/user_$PlutoUserID:/bin/false"
-	GroupEntry="$UserName:x:$LinuxUserID:www-data"
+	ShadowEntry="pluto_$UserName:$LinuxPassword:12221:0:99999:7:::"
+	PasswdEntry="pluto_$UserName:x:$LinuxUserID:$LinuxUserID:,,,:/home/user_$PlutoUserID:/bin/false"
+	GroupEntry="pluto_$UserName:x:$LinuxUserID:www-data"
 	
 	echo "$SambaShare" >>/etc/samba/smb.conf.$$
 	echo "$SambaEntry" >>/etc/samba/smbpasswd.$$
@@ -92,6 +96,6 @@ done
 # Only now we have the copies in place of the originals so we can add users and set ownerships
 for User in $UserList; do
 	adduser $User public
-	chown --dereference -R $User.$User /home/$User/
+	chown --dereference -R pluto_$User.pluto_$User /home/$User/
 done
 

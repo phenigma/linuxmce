@@ -24,7 +24,7 @@ iptables -A INPUT -s "$IntNet/$IntBitmask" -j ACCEPT
 iptables -t nat -A POSTROUTING -s "$IntNet/$IntBitmask" -j MASQUERADE
 
 echo "Setting up forwarded ports"
-Q="SELECT Protocol,SourcePort,SourcePortEnd,DestinationPort,DestinationIP FROM Firewall WHERE Type='port_forward' ORDER BY PK_PortForward"
+Q="SELECT Protocol,SourcePort,SourcePortEnd,DestinationPort,DestinationIP FROM Firewall WHERE RuleType='port_forward' ORDER BY PK_PortForward"
 R=$(RunSQL "$Q")
 
 ForwardPort()

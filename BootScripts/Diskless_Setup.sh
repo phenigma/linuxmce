@@ -126,7 +126,7 @@ for Client in $R; do
 		continue
 	fi
 
-	if ! [ -d /usr/pluto/diskless/$IP -a -e /usr/pluto/diskless/$IP/etc/diskless.conf ]; then
+	if ! [ -d $DlPath -a -e $DlPath/etc/diskless.conf ]; then
 		echo "Creating initial filesystem for moon '$IP,$MAC'"
 		/usr/pluto/bin/Create_DisklessMD_FS.sh "$IP" "$MAC"
 	fi
@@ -138,7 +138,7 @@ cp /usr/pluto/templates/exports.tmpl /etc/exports.$$
 for Client in $R; do
 	IP=$(Field 1 "$Client")
 	MAC=$(Field 2 "$Client")
-	echo "/usr/pluto/diskless/$IP $IP/255.255.255.255(rw,no_root_squash,no_all_squash,sync)" >>/etc/exports.$$
+	echo "$DlPath $IP/255.255.255.255(rw,no_root_squash,no_all_squash,sync)" >>/etc/exports.$$
 done
 ReplaceVars /etc/exports.$$
 mv /etc/exports.$$ /etc/exports
@@ -178,41 +178,46 @@ for Client in $DisklessR; do
 	MAC=$(Field 2 "$Client")
 	echo -n "Setting moon '$IP,$MAC':"
 	
+	DlPath="/usr/pluto/diskless/$IP"
+	
 	echo -n " fstab"
-	cp /usr/pluto/templates/fstab.tmpl /usr/pluto/diskless/$IP/etc/fstab.$$
-	ReplaceVars /usr/pluto/diskless/$IP/etc/fstab.$$
-	mv /usr/pluto/diskless/$IP/etc/fstab.$$ /usr/pluto/diskless/$IP/etc/fstab
+	cp /usr/pluto/templates/fstab.tmpl $DlPath/etc/fstab.$$
+	ReplaceVars $DlPath/etc/fstab.$$
+	mv $DlPath/etc/fstab.$$ $DlPath/etc/fstab
 	
 	echo -n " hosts"
-	cp /usr/pluto/templates/hosts.tmpl /usr/pluto/diskless/$IP/etc/hosts.$$
-	ReplaceVars /usr/pluto/diskless/$IP/etc/hosts.$$
-	mv /usr/pluto/diskless/$IP/etc/hosts.$$ /usr/pluto/diskless/$IP/etc/hosts
+	cp /usr/pluto/templates/hosts.tmpl $DlPath/etc/hosts.$$
+	ReplaceVars $DlPath/etc/hosts.$$
+	mv $DlPath/etc/hosts.$$ $DlPath/etc/hosts
 
 	echo -n " hostname"
-	echo "moon$MoonNumber" >/usr/pluto/diskless/$IP/etc/hostname
+	echo "moon$MoonNumber" >$DlPath/etc/hostname
 
 	echo -n " Startup_Scripts"
-	/etc/init.d/Startup_Scripts.sh script "$IP" >/usr/pluto/diskless/$IP/etc/pluto.startup
+	/etc/init.d/Startup_Scripts.sh script "$IP" >$DlPath/etc/pluto.startup
 
 	echo -n " MythTV DB Settings"
-	mkdir -p /usr/pluto/diskless/$IP/etc/mythtv
-	cp /etc/mythtv/mysql.txt /usr/pluto/diskless/$IP/etc/mythtv/mysql.txt.$$
+	mkdir -p $DlPath/etc/mythtv
+	cp /etc/mythtv/mysql.txt $DlPath/etc/mythtv/mysql.txt.$$
 	SedCmd="s/^DBHostName.*/DBHostName=dce_router/g"
-	sed -i "$SedCmd" /usr/pluto/diskless/$IP/etc/mythtv/mysql.txt.$$
-	mv /usr/pluto/diskless/$IP/etc/mythtv/mysql.txt.$$ /usr/pluto/diskless/$IP/etc/mythtv/mysql.txt
+	sed -i "$SedCmd" $DlPath/etc/mythtv/mysql.txt.$$
+	mv $DlPath/etc/mythtv/mysql.txt.$$ $DlPath/etc/mythtv/mysql.txt
 
 	echo -n " Start_LocalDevices"
 	Q="SELECT PK_Device FROM Device WHERE IPaddress='$IP' AND MACaddress='$MAC' LIMIT 1"
 	PK_Device=$(RunSQL "$Q")
-	mkdir -p /usr/pluto/diskless/$IP/usr/pluto/bin
-	/usr/pluto/bin/Start_LocalDevices.sh script "$IP" -d "$PK_Device" >/usr/pluto/diskless/$IP/usr/pluto/bin/Start_LocalDevices_Static.sh
-	sed -i 's/localhost/dce_router/g' /usr/pluto/diskless/$IP/usr/pluto/bin/Start_LocalDevices_Static.sh
-	chmod +x /usr/pluto/diskless/$IP/usr/pluto/bin/Start_LocalDevices_Static.sh
+	mkdir -p $DlPath/usr/pluto/bin
+	/usr/pluto/bin/Start_LocalDevices.sh script "$IP" -d "$PK_Device" >$DlPath/usr/pluto/bin/Start_LocalDevices_Static.sh
+	sed -i 's/localhost/dce_router/g' $DlPath/usr/pluto/bin/Start_LocalDevices_Static.sh
+	chmod +x $DlPath/usr/pluto/bin/Start_LocalDevices_Static.sh
 
-	echo "MySQL_access"
+	echo -n " MySQL_access"
 	Q="GRANT ALL PRIVILEGES ON pluto_main.* TO 'root'@'$IP';
 	GRANT ALL PRIVILEGES ON mythconverg.* TO 'root'@'$IP';"
 	echo "$Q" | /usr/bin/mysql
+
+	echo -n " SSH"
+	mkdir -p $DlPath/root/.ssh
 
 	echo
 	MoonNumber=$((MoonNumber+1))
