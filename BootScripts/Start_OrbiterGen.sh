@@ -3,7 +3,7 @@
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/pluto.func
 
-SkinDir=/usr/pluto/skins
+SkinDir=/usr/pluto/orbiter/skins
 FontDir=/usr/share/fonts/truetype/msttcorefonts
 OutDir=/usr/pluto
 
