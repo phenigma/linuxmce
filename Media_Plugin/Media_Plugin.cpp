@@ -104,7 +104,7 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
         return;
     }
 
-    m_pMediaAttributes = new MediaAttributes( this );
+    m_pMediaAttributes = new MediaAttributes( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), "pluto_media", m_pRouter->iDBPort_get( ) );
 
     // Get all the entertainment areas and populate them with all the devices in those areas
     Row_Installation *pRow_Installation = m_pDatabase_pluto_main->Installation_get( )->GetRow( m_pRouter->iPK_Installation_get( ) );

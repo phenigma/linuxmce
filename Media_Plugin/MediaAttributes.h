@@ -8,6 +8,9 @@
 #ifndef MEDIAATTRIBUTES_H
 #define MEDIAATTRIBUTES_H
 
+#include "PlutoUtils/MySQLHelper.h"
+#include "pluto_media/Database_pluto_media.h"
+
 /**
  * @brief the attributes of the media
  * @todo ask
@@ -45,12 +48,14 @@ typedef list<MediaPicture *> listMediaPicture;
  * @todo ask
  */
  
-class MediaAttributes
+class MediaAttributes : public MySqlHelper
 {
+private:
+    Database_pluto_media *m_pDatabase_pluto_media;
+
 public:
 	/** @brief constructor */
-	MediaAttributes() {}
-
+	MediaAttributes(string host, string user, string pass, string db_name, int port);
 	int CreatedMedia(int PK_Type,string Path,listMediaAttribute *plistMediaAttribute,listMediaPicture *plistMediaPicture);
 	void UpdatedMedia(int PK_File,int PK_Type,string Path,listMediaAttribute *plistMediaAttribute,listMediaPicture *plistMediaPicture);
 	int AddAttribute(int PK_File,int PK_Attribute,int PK_AttributeType,string Name,string FirstName);
