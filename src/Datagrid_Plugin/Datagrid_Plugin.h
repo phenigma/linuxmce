@@ -104,7 +104,7 @@ public:
 
 
 	/** @brief COMMAND: #34 - Request Datagrid Contents */
-	/** The orbiters use this to request the contents of a datagrid, so they can display it for the user.  Before you can request a grid, the command Populate Datagrid must be called, passing in the information required to populate the grid as well a \"GridID\", */
+	/** The orbiters use this to request the contents of a datagrid, so they can display it for the user.  Before you can request a grid, the command Populate Datagrid must be called, passing in the information required to populate the grid as well a "GridID", */
 		/** @param #10 ID */
 			/** For debugging purposes if problems arise with a request not being filled, or a grid not populated when it should be.  If the Orbiter specified an ID when requesting the grid or populating it, the Datagrid plug-in will log the ID and status so the develope */
 		/** @param #15 DataGrid ID */
@@ -150,9 +150,13 @@ public:
 			/** The options are specific the type of grid (PK_Datagrid).  These are not pre-defined.  The grid generator and orbiter must both pass the options in the correct format for the type of grid. */
 		/** @param #40 IsSuccessful */
 			/** Returns false if the grid could not be populated.  Perhaps there was no registered datagrid generator. */
+		/** @param #60 Width */
+			/** The width of the grid, in columns, if the width is determined at populate time, such as a file grid.  If the whole size of the grid is unknown, such as the EPG grid, this should be 0. */
+		/** @param #61 Height */
+			/** The height of the grid, in rows, if the heightis determined at populate time, such as a file grid.  If the whole size of the grid is unknown, such as the EPG grid, this should be 0. */
 
-	virtual void CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int iPK_DataGrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful) { string sCMD_Result; CMD_Populate_Datagrid(sID.c_str(),sDataGrid_ID.c_str(),iPK_DataGrid,sOptions.c_str(),iPK_Variable,sValue_To_Assign,bIsSuccessful,sCMD_Result,NULL);};
-	virtual void CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int iPK_DataGrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int iPK_DataGrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful,int *iWidth,int *iHeight) { string sCMD_Result; CMD_Populate_Datagrid(sID.c_str(),sDataGrid_ID.c_str(),iPK_DataGrid,sOptions.c_str(),iPK_Variable,sValue_To_Assign,bIsSuccessful,iWidth,iHeight,sCMD_Result,NULL);};
+	virtual void CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int iPK_DataGrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful,int *iWidth,int *iHeight,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

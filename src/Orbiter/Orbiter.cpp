@@ -146,6 +146,7 @@ static bool bMaintThreadIsRunning = false;
 	'h' means that moving the highlight should de-select any selected cells so you don't have both a highlighted and selected cell.  Only meaningfull with 'H'.
 	'X' means that clear the selected cell entry whenever the user scrolls
 	'S' means that on the initial acquire it should scroll to the highlighted cell
+	'cx' means if this is a phone on Bluetooth dongle, render this grid as a single column on the phone using the column x
 */
 
 /*
@@ -162,7 +163,9 @@ m_CallbackMutex( "callback" ), m_MaintThreadMutex("MaintThread")
 //<-dceag-const-e->
 
 {
-    m_sLocalDirectory=sLocalDirectory;
+g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
+
+	m_sLocalDirectory=sLocalDirectory;
     m_iImageWidth=iImageWidth;
     m_iImageHeight=iImageHeight;
     m_bDisplayOn=true;
@@ -210,14 +213,9 @@ m_CallbackMutex( "callback" ), m_MaintThreadMutex("MaintThread")
 Orbiter::~Orbiter()
 //<-dceag-dest-e->
 {
-g_pPlutoLogger->Write(LV_STATUS,"Orbiter is exiting");
+g_pPlutoLogger->Write(LV_STATUS,"Orbiter  %p is exiting",this);
 	// Be sure we get the maint thread to cleanly exit
-	m_bQuit=true;
-	pthread_cond_broadcast(&m_MaintThreadCond);  // Wake it up, it will quit when it sees the quit
-	//pthread_mutex_lock(&m_MaintThreadMutex.mutex);  // Be sure it's not executing anything--it will lock this while it's doing an execute
-
-	while(bMaintThreadIsRunning)
-		Sleep(10);
+	KillMaintThread();
 
 	PLUTO_SAFETY_LOCK( pm, m_CallbackMutex );
 	map<int,CallBackInfo *>::iterator itCallBackInfo;
@@ -2290,7 +2288,7 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s deleting m_pDataGridTable 1",pObj
         int iPK_Variable=0;
         string sValue_To_Assign;
         DCE::CMD_Populate_Datagrid CMD_Populate_Datagrid( m_dwPK_Device,  m_dwPK_Device_DatagridPlugIn,  StringUtils::itos( m_dwIDataGridRequestCounter ), pObj->m_sGridID,
-            pObj->m_iPK_Datagrid, SubstituteVariables( pObj->m_sOptions, pObj, 0, 0 ), &iPK_Variable, &sValue_To_Assign, &bResponse );
+            pObj->m_iPK_Datagrid, SubstituteVariables( pObj->m_sOptions, pObj, 0, 0 ), &iPK_Variable, &sValue_To_Assign, &bResponse, &pObj->m_iPopulatedWidth, &pObj->m_iPopulatedHeight  );
         if(  !SendCommand( CMD_Populate_Datagrid ) || !bResponse  ) // wait for a response
             g_pPlutoLogger->Write( LV_CRITICAL, "Populate datagrid: %d failed", pObj->m_iPK_Datagrid );
         else if(  iPK_Variable  )
@@ -3415,9 +3413,10 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
                 bool bResponse;
                 int iPK_Variable=0;
                 string sValue_To_Assign;
+				int iWidth,iHeight;
                 DCE::CMD_Populate_Datagrid CMD_Populate_Datagrid( m_dwPK_Device,  m_dwPK_Device_DatagridPlugIn,  StringUtils::itos( m_dwIDataGridRequestCounter ),
                     GridID, atoi( pCommand->m_ParameterList[COMMANDPARAMETER_PK_DataGrid_CONST].c_str(  ) ),
-                    SubstituteVariables( pCommand->m_ParameterList[COMMANDPARAMETER_Options_CONST], pObj, 0, 0 ), &iPK_Variable, &sValue_To_Assign, &bResponse );
+                    SubstituteVariables( pCommand->m_ParameterList[COMMANDPARAMETER_Options_CONST], pObj, 0, 0 ), &iPK_Variable, &sValue_To_Assign, &bResponse, &iWidth, &iHeight );
                 if(  !SendCommand( CMD_Populate_Datagrid ) || !bResponse  ) // wait for a response
                     g_pPlutoLogger->Write( LV_CRITICAL, "Populate datagrid from command: %d failed", atoi( pCommand->m_ParameterList[COMMANDPARAMETER_PK_DataGrid_CONST].c_str(  ) ) );
                 else if(  iPK_Variable  )
@@ -5510,6 +5509,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 
 	int iCurrentFrame = pObj->m_iCurrentFrame;
 	PlutoGraphic *pPlutoGraphic = (*pVectorPlutoGraphic)[iCurrentFrame];
+	
 	bIsMNG = pPlutoGraphic->m_GraphicFormat == GR_MNG;
 
 	size_t size = (*pVectorPlutoGraphic).size();
@@ -5765,3 +5765,11 @@ void Orbiter::CMD_Quit(string &sCMD_Result,Message *pMessage)
 	OnQuit();
 }
 //<-dceag-createinst-b->!
+
+void Orbiter::KillMaintThread()
+{
+	m_bQuit=true;
+	pthread_cond_broadcast(&m_MaintThreadCond);  // Wake it up, it will quit when it sees the quit
+	while(bMaintThreadIsRunning)
+		Sleep(10);
+}

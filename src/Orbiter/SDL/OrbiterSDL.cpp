@@ -112,6 +112,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirector
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ OrbiterSDL::~OrbiterSDL()
 {
+	KillMaintThread(); // We need to do this before freeing the surface.  It's a repeat of what's in Orbiter's destructor
 g_pPlutoLogger->Write(LV_STATUS, "about to free surface");
 
 #ifndef USE_ONLY_SCREEN_SURFACE

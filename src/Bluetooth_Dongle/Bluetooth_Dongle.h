@@ -115,6 +115,7 @@ public:
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 	
+		pthread_mutexattr_t m_MutexAttr; /** < make it recursive */
 		pluto_pthread_mutex_t m_BTMutex; /**< to control access to the shared memory */
 		int m_iChannel; /**< specifies the channel to use */
 	

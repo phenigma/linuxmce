@@ -92,6 +92,7 @@ void *HandleBDCommandProcessorThread( void *p )
 	/** @todo -- need a mutex to protect this, right */
 	BD_Orbiter *pBD_Orbiter = pBD_Orbiter_Plus_DongleHandle->m_pBD_Orbiter; // converting it to an BD_Orbiter object
 	Bluetooth_Dongle *pBluetooth_Dongle = pBD_Orbiter_Plus_DongleHandle->m_pBluetooth_Dongle;
+	PLUTO_SAFETY_LOCK( bm, pBluetooth_Dongle->m_BTMutex );
 	string sMacAddress = pBD_Orbiter_Plus_DongleHandle->m_sMacAddress;
 	u_int64_t iMacAddress = pBD_Orbiter_Plus_DongleHandle->m_iMacAddress;
 	
@@ -136,7 +137,9 @@ void *HandleBDCommandProcessorThread( void *p )
 	*/
 	/******************************************/
 
+	bm.Release();
 	while( pBD_Orbiter->m_pBDCommandProcessor->ReceiveCommand( 0, 0, NULL ) && NULL != pBD_Orbiter->m_pBDCommandProcessor && !pBD_Orbiter->m_pBDCommandProcessor->m_bDead ); // loop for receiving commands
+	bm.Relock();
 
 	g_pPlutoLogger->Write( LV_STATUS, "Exiting command processor...");
 
@@ -176,7 +179,9 @@ Bluetooth_Dongle::Bluetooth_Dongle( int iDeviceID, string sServerAddress, bool b
 //<-dceag-const-e->
 {
 	m_iChannel = 10;
-	m_BTMutex.Init( NULL );
+    pthread_mutexattr_init( &m_MutexAttr );
+    pthread_mutexattr_settype( &m_MutexAttr,  PTHREAD_MUTEX_RECURSIVE_NP );
+	m_BTMutex.Init( &m_MutexAttr );
 
 	Map_DeviceData_Base::iterator it;
 	for( it=GetData()->m_AllDevices.m_mapDeviceData_Base.begin(); it!=GetData()->m_AllDevices.m_mapDeviceData_Base.end(); ++it )
@@ -351,6 +356,7 @@ void Bluetooth_Dongle::NewDeviceDetected( class PhoneDevice *pDevice )
 
 void Bluetooth_Dongle::LostDevice( class PhoneDevice *pDevice )
 {
+	PLUTO_SAFETY_LOCK( bm, m_BTMutex );
 	BD_Orbiter *pBD_Orbiter = m_mapOrbiterSockets_Find( pDevice->m_sMacAddress );
 
 	bool bConnectionFailed = 
@@ -506,8 +512,7 @@ void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter(int iMediaPosition,string sM
 	BDCommandProcessor *pProcessor = 
 		new BDCommandProcessor_BluetoothDongle( this, sMac_address, pD );
 #endif
- /** @test */
-	//PLUTO_SAFETY_LOCK( bm, m_BTMutex );
+	PLUTO_SAFETY_LOCK( bm, m_BTMutex );
 	BD_Orbiter *pBD_Orbiter = m_mapOrbiterSockets_Find( sMac_address );
 	pBD_Orbiter->m_pBDCommandProcessor = pProcessor;
 	

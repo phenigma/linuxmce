@@ -542,28 +542,28 @@ namespace DCE
 		CMD_NOREP_Request_Datagrid_Contents_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sID,string sDataGrid_ID,int iColumn,int iRow_count,int iColumn_count,bool bKeep_Row_Header,bool bKeep_Column_Header,bool bAdd_UpDown_Arrows,string sSeek,int iOffset) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,34,10,10,sID.c_str(),15,sDataGrid_ID.c_str(),33,StringUtils::itos(iColumn).c_str(),34,StringUtils::itos(iRow_count).c_str(),35,StringUtils::itos(iColumn_count).c_str(),36,(bKeep_Row_Header ? "1" : "0"),37,(bKeep_Column_Header ? "1" : "0"),49,(bAdd_UpDown_Arrows ? "1" : "0"),73,sSeek.c_str(),74,StringUtils::itos(iOffset).c_str()); }
 	};
 	class RESP_Populate_Datagrid : public PreformedCommandResponse {
-		int *m_iPK_Variable;string *m_sValue_To_Assign;bool *m_bIsSuccessful;
+		int *m_iPK_Variable;string *m_sValue_To_Assign;bool *m_bIsSuccessful;int *m_iWidth;int *m_iHeight;
 	public:
-		RESP_Populate_Datagrid(int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful) { 
-		m_iPK_Variable=iPK_Variable; m_sValue_To_Assign=sValue_To_Assign; m_bIsSuccessful=bIsSuccessful; }
+		RESP_Populate_Datagrid(int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful,int *iWidth,int *iHeight) { 
+		m_iPK_Variable=iPK_Variable; m_sValue_To_Assign=sValue_To_Assign; m_bIsSuccessful=bIsSuccessful; m_iWidth=iWidth; m_iHeight=iHeight; }
 		void ParseResponse(Message *pMessage) {
-			*m_iPK_Variable=atoi(pMessage->m_mapParameters[4].c_str()); *m_sValue_To_Assign=pMessage->m_mapParameters[5]; *m_bIsSuccessful=(pMessage->m_mapParameters[40]=="1" ? true : false); };
+			*m_iPK_Variable=atoi(pMessage->m_mapParameters[4].c_str()); *m_sValue_To_Assign=pMessage->m_mapParameters[5]; *m_bIsSuccessful=(pMessage->m_mapParameters[40]=="1" ? true : false); *m_iWidth=atoi(pMessage->m_mapParameters[60].c_str()); *m_iHeight=atoi(pMessage->m_mapParameters[61].c_str()); };
 	};
 	class CMD_Populate_Datagrid : public PreformedCommand {
 	public:
-		CMD_Populate_Datagrid(long DeviceIDFrom, long DeviceIDTo,string sID,string sDataGrid_ID,int iPK_DataGrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,35,7,10,sID.c_str(),15,sDataGrid_ID.c_str(),38,StringUtils::itos(iPK_DataGrid).c_str(),39,sOptions.c_str(),4,StringUtils::itos(*iPK_Variable).c_str(),5,(*sValue_To_Assign).c_str(),40,(*bIsSuccessful ? "1" : "0"));		m_pcResponse = new RESP_Populate_Datagrid(iPK_Variable,sValue_To_Assign,bIsSuccessful); }
+		CMD_Populate_Datagrid(long DeviceIDFrom, long DeviceIDTo,string sID,string sDataGrid_ID,int iPK_DataGrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful,int *iWidth,int *iHeight) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,35,9,10,sID.c_str(),15,sDataGrid_ID.c_str(),38,StringUtils::itos(iPK_DataGrid).c_str(),39,sOptions.c_str(),4,StringUtils::itos(*iPK_Variable).c_str(),5,(*sValue_To_Assign).c_str(),40,(*bIsSuccessful ? "1" : "0"),60,StringUtils::itos(*iWidth).c_str(),61,StringUtils::itos(*iHeight).c_str());		m_pcResponse = new RESP_Populate_Datagrid(iPK_Variable,sValue_To_Assign,bIsSuccessful,iWidth,iHeight); }
 	};
 	class CMD_Populate_Datagrid_DL : public PreformedCommand {
 	public:
-		CMD_Populate_Datagrid_DL(long DeviceIDFrom, string DeviceIDTo,string sID,string sDataGrid_ID,int iPK_DataGrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,35,7,10,sID.c_str(),15,sDataGrid_ID.c_str(),38,StringUtils::itos(iPK_DataGrid).c_str(),39,sOptions.c_str(),4,StringUtils::itos(*iPK_Variable).c_str(),5,(*sValue_To_Assign).c_str(),40,(*bIsSuccessful ? "1" : "0"));		m_pcResponse = new RESP_Populate_Datagrid(iPK_Variable,sValue_To_Assign,bIsSuccessful); }
+		CMD_Populate_Datagrid_DL(long DeviceIDFrom, string DeviceIDTo,string sID,string sDataGrid_ID,int iPK_DataGrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful,int *iWidth,int *iHeight) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,35,9,10,sID.c_str(),15,sDataGrid_ID.c_str(),38,StringUtils::itos(iPK_DataGrid).c_str(),39,sOptions.c_str(),4,StringUtils::itos(*iPK_Variable).c_str(),5,(*sValue_To_Assign).c_str(),40,(*bIsSuccessful ? "1" : "0"),60,StringUtils::itos(*iWidth).c_str(),61,StringUtils::itos(*iHeight).c_str());		m_pcResponse = new RESP_Populate_Datagrid(iPK_Variable,sValue_To_Assign,bIsSuccessful,iWidth,iHeight); }
 	};
 	class CMD_Populate_Datagrid_DT : public PreformedCommand {
 	public:
-		CMD_Populate_Datagrid_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sID,string sDataGrid_ID,int iPK_DataGrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,35,7,10,sID.c_str(),15,sDataGrid_ID.c_str(),38,StringUtils::itos(iPK_DataGrid).c_str(),39,sOptions.c_str(),4,StringUtils::itos(*iPK_Variable).c_str(),5,(*sValue_To_Assign).c_str(),40,(*bIsSuccessful ? "1" : "0"));		m_pcResponse = new RESP_Populate_Datagrid(iPK_Variable,sValue_To_Assign,bIsSuccessful); }
+		CMD_Populate_Datagrid_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sID,string sDataGrid_ID,int iPK_DataGrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful,int *iWidth,int *iHeight) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,35,9,10,sID.c_str(),15,sDataGrid_ID.c_str(),38,StringUtils::itos(iPK_DataGrid).c_str(),39,sOptions.c_str(),4,StringUtils::itos(*iPK_Variable).c_str(),5,(*sValue_To_Assign).c_str(),40,(*bIsSuccessful ? "1" : "0"),60,StringUtils::itos(*iWidth).c_str(),61,StringUtils::itos(*iHeight).c_str());		m_pcResponse = new RESP_Populate_Datagrid(iPK_Variable,sValue_To_Assign,bIsSuccessful,iWidth,iHeight); }
 	};
 	class CMD_Populate_Datagrid_Cat : public PreformedCommand {
 	public:
-		CMD_Populate_Datagrid_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sID,string sDataGrid_ID,int iPK_DataGrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,35,7,10,sID.c_str(),15,sDataGrid_ID.c_str(),38,StringUtils::itos(iPK_DataGrid).c_str(),39,sOptions.c_str(),4,StringUtils::itos(*iPK_Variable).c_str(),5,(*sValue_To_Assign).c_str(),40,(*bIsSuccessful ? "1" : "0"));		m_pcResponse = new RESP_Populate_Datagrid(iPK_Variable,sValue_To_Assign,bIsSuccessful); }
+		CMD_Populate_Datagrid_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sID,string sDataGrid_ID,int iPK_DataGrid,string sOptions,int *iPK_Variable,string *sValue_To_Assign,bool *bIsSuccessful,int *iWidth,int *iHeight) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,35,9,10,sID.c_str(),15,sDataGrid_ID.c_str(),38,StringUtils::itos(iPK_DataGrid).c_str(),39,sOptions.c_str(),4,StringUtils::itos(*iPK_Variable).c_str(),5,(*sValue_To_Assign).c_str(),40,(*bIsSuccessful ? "1" : "0"),60,StringUtils::itos(*iWidth).c_str(),61,StringUtils::itos(*iHeight).c_str());		m_pcResponse = new RESP_Populate_Datagrid(iPK_Variable,sValue_To_Assign,bIsSuccessful,iWidth,iHeight); }
 	};
 	class CMD_NOREP_Populate_Datagrid : public PreformedCommand {
 	public:
@@ -5284,6 +5284,46 @@ namespace DCE
 	class CMD_Set_Volume_Cat : public PreformedCommand {
 	public:
 		CMD_Set_Volume_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sLevel) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,313,1,76,sLevel.c_str()); }
+	};
+	class RESP_Identify_Media : public PreformedCommandResponse {
+		string *m_sID;
+	public:
+		RESP_Identify_Media(string *sID) { 
+		m_sID=sID; }
+		void ParseResponse(Message *pMessage) {
+			*m_sID=pMessage->m_mapParameters[10]; };
+	};
+	class CMD_Identify_Media : public PreformedCommand {
+	public:
+		CMD_Identify_Media(long DeviceIDFrom, long DeviceIDTo,string sFilename,string *sID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,314,2,13,sFilename.c_str(),10,(*sID).c_str());		m_pcResponse = new RESP_Identify_Media(sID); }
+	};
+	class CMD_Identify_Media_DL : public PreformedCommand {
+	public:
+		CMD_Identify_Media_DL(long DeviceIDFrom, string DeviceIDTo,string sFilename,string *sID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,314,2,13,sFilename.c_str(),10,(*sID).c_str());		m_pcResponse = new RESP_Identify_Media(sID); }
+	};
+	class CMD_Identify_Media_DT : public PreformedCommand {
+	public:
+		CMD_Identify_Media_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sFilename,string *sID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,314,2,13,sFilename.c_str(),10,(*sID).c_str());		m_pcResponse = new RESP_Identify_Media(sID); }
+	};
+	class CMD_Identify_Media_Cat : public PreformedCommand {
+	public:
+		CMD_Identify_Media_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sFilename,string *sID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,314,2,13,sFilename.c_str(),10,(*sID).c_str());		m_pcResponse = new RESP_Identify_Media(sID); }
+	};
+	class CMD_NOREP_Identify_Media : public PreformedCommand {
+	public:
+		CMD_NOREP_Identify_Media(long DeviceIDFrom, long DeviceIDTo,string sFilename) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,314,1,13,sFilename.c_str()); }
+	};
+	class CMD_NOREP_Identify_Media_DL : public PreformedCommand {
+	public:
+		CMD_NOREP_Identify_Media_DL(long DeviceIDFrom, string DeviceIDTo,string sFilename) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,314,1,13,sFilename.c_str()); }
+	};
+	class CMD_NOREP_Identify_Media_DT : public PreformedCommand {
+	public:
+		CMD_NOREP_Identify_Media_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sFilename) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,314,1,13,sFilename.c_str()); }
+	};
+	class CMD_NOREP_Identify_Media_Cat : public PreformedCommand {
+	public:
+		CMD_NOREP_Identify_Media_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sFilename) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,314,1,13,sFilename.c_str()); }
 	};
 }
 #endif

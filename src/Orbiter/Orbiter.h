@@ -366,6 +366,11 @@ protected:
 	 */
 	void ContinuousRefresh( void *data );
 
+	/**
+	 * @brief Kill the maintenance thread that handles tasks like redraws.  This function will block until the thread exits
+	 */
+	void KillMaintThread();
+
 /*	virtual void RenderScreen(  );	// Render the screen in m_pScreenHistory_Current
 	virtual void RedrawObjects(  );   // These will redraw any objects in m_vectObjsToRedraw.  Use this to queue objects to redraw,  such as those tht
 void RealRedraw( void *data );  // temp hack -- see comments

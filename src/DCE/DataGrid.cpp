@@ -323,6 +323,10 @@ g_pPlutoLogger->Write( LV_DATAGRID, "inside todata" );
 #endif
 
 	m_CellCount = 0;
+
+	if( !RowStart && !RowCount )
+		RowCount = GetRows();
+
 	int MaxCell = ColCount * RowCount;
 	DataGridTableCellIndex *ntIndex = new DataGridTableCellIndex[MaxCell];
 	DataGridCell **ntCells = new DataGridCell*[MaxCell];

@@ -234,24 +234,41 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
     clock_t clkStart = clock();
 #endif
 
+
+	bool bUsePhoneGrid = false;
+	int iSelectedColumn = pObj->m_iInitialColNum;
+	//if 'c' - column  extraoption is specified, we'll send to phone the specified column
+	size_t sPos;
+	if((sPos = pObj->m_sExtraInfo.find( 'c' )) != string::npos)
+	{
+		bUsePhoneGrid=true;
+		g_pPlutoLogger->Write(LV_STATUS, "Extraoptions in grid: %s", pObj->m_sExtraInfo.c_str());
+		
+		if(sPos + 1 < pObj->m_sExtraInfo.size())
+			iSelectedColumn = pObj->m_sExtraInfo[sPos + 1] - '0';
+	}
+
+	pObj->m_MaxRow = 0; //get all rows
+
     string Unused;
     Orbiter::PrepareRenderDataGrid(pObj, Unused);
 
+	if(pObj->m_pDataGridTable->m_ColumnCount == 1)
+		bUsePhoneGrid = true;
+
     if(pObj->m_pDataGridTable)
     {
-               g_pPlutoLogger->Write(LV_WARNING, "Got to render a datagrid with %d columns", pObj->m_pDataGridTable->m_ColumnCount);
-               /*
-        if(pObj->m_pDataGridTable->m_ColumnCount != 1)
+		g_pPlutoLogger->Write(LV_WARNING, "Got to render a datagrid with %d columns", pObj->m_pDataGridTable->m_ColumnCount);
+        if(!bUsePhoneGrid)
         {
             g_pPlutoLogger->Write(LV_WARNING,
-                "OrbiterSDLBluetooth: I don't know how to render grids with more then one columns, "
-				"I'll let the base to render as an image"
+                "OrbiterSDLBluetooth: I won't render this grid on the phone"
             );
 
 			OrbiterSDL::RenderDataGrid(pObj);
             return;
         }
-               */
+		pObj->m_MaxRow = pObj->m_pDataGridTable->getTotalRowCount();
 
 		//now I have a grid with one column.. I know how to render it on the phone
 
@@ -262,17 +279,6 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
 
         list<string> listGrid;
 
-		int iSelectedColumn = 0;
-		//if 'c' - column  extraoption is specified, we'll send to phone the specified column
-		if(pObj->m_pDataGridTable->m_ColumnCount > 1 && pObj->m_sExtraInfo.find( 'c' ) != string::npos)
-		{
-			g_pPlutoLogger->Write(LV_STATUS, "Extraoptions in grid: %s", pObj->m_sExtraInfo.c_str());
-			
-			int iPos = pObj->m_sExtraInfo.find( 'c' ); 
-
-			if(iPos + 1 < pObj->m_sExtraInfo.size())
-				iSelectedColumn = pObj->m_sExtraInfo[iPos + 1] - '0' - 1;
-		}
 
 		bool bSendSelectedOnMove = false; 
 		//if 'T' extraoptions is specified, then when user presses up/down buttons, PlutoMO will send a SelectedItem command
@@ -354,5 +360,13 @@ void OrbiterSDLBluetooth::CMD_Capture_Keyboard_To_Variable(string sPK_DesignObj,
 #ifndef WIN32
 	printf("OrbiterSDLBluetooth::SimulateKeyPress with key code: %d\n", key);
 #endif
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterSDLBluetooth::BeginPaint()
+{
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterSDLBluetooth::EndPaint()
+{
 }
 //-----------------------------------------------------------------------------------------------------

@@ -189,11 +189,13 @@ public:
 		m_pObjLeft=m_pObjRight=m_pObjUp=m_pObjDown=NULL;
 		bReAcquire=false;
 		m_dwIDownRow=m_iUpRow=-1;
+		m_iPopulatedWidth=m_iPopulatedHeight=0;
 	}
 	virtual ~DesignObj_DataGrid(); 
 
 	int m_dwIDownRow,m_iUpRow;  // These are the rows which have up/down arrows.  If up==-1, there is no up arrow, same for down.  Otherwise it's 0 based
 	int m_iHighlightedRow,m_iHighlightedColumn;
+	int m_iPopulatedWidth,m_iPopulatedHeight; // The last known size during populate grid
 	bool bReAcquire;
 	class DataGridTable *m_pDataGridTableCache[CACHE_SIZE];
 	class TextStyle *m_pTextStyle,*m_pTextStyle_FirstCol,*m_pTextStyle_FirstRow,*m_pTextStyle_Selected,*m_pTextStyle_Highlighted;

@@ -30,6 +30,9 @@ public:
 	virtual void DisplayImageOnScreen(struct SDL_Surface *pScreenImage);
 	virtual void RenderDataGrid(DesignObj_DataGrid *pObj);
 
+	virtual void BeginPaint();
+	virtual void EndPaint();
+
 	virtual void SimulateMouseClick(int x, int y);
 	virtual void SimulateKeyPress(long key);
 
