@@ -866,17 +866,75 @@ AsksSourceQuests:
 	return true;
 }
 
-// mapFilesToMove: files that go into the package
-// 1st: fully qualified path to the source file (ex: /usr/src/pluto/svn/Orbiter/Orbiter.cpp)
-// 2nd: relative path within the package (ex: Orbiter/Orbiter.cpp)
+/* CreateSource_Pluto<type> Create specified type of package using given files */
+
+// list<FileInfo *> listFileInfo: files that go into the package
 // assumptions for the Pluto Debian repository:
 // - the .deb file will go in dists/<pluto2 (repository name - var in package source)>/
 //   intended to be run from a directory with this dists directory under it
 // - the target destination will be /usr/pluto/<relative path>
+
+// listFileInfo is input not output!!! (we should get used to using const when a reference is for input)
+
 bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo)
 {
-	// Get a vector<Row_Package_Package *> and pass it to pRow_Package_Source->FK_Package_getrow()->Package_Package_FK_Package_getrows()
-	// 
+	// TODO: make dirname acceptable to dh_make
+	string Dir("/tmp/pluto-build");
+#ifndef WIN32
+	system(("rm -rf " + Dir).c_str());
+	mkdir(Dir.c_str());
+	mkdir((Dir + "/root").c_str());
+	chdir(Dir.c_str());
+	system("echo | dh_make -c gpl -s -n");
+
+string Makefile = "none:\
+\
+install:\
+        cp -a root/* $(DESTDIR)\
+";
+
+	FILE * f = fopen("/tmp/pluto-build/Makefile", "w");
+	fwrite(Makefile.c_str(), Makefile.length(), 1, f);
+	fclose(f);
+#endif
+
+	list<FileInfo *>::iterator iFileInfo;
+	for (iFileInfo = listFileInfo.begin(); iFileInfo != listFileInfo.end(); iFileInfo++)
+	{
+#ifndef WIN32
+		FileUtils::PUCopyFile((*iFileInfo)->m_sSource, Dir + "/root" + (*iFileInfo)->m_sDestination);
+#else
+		cout << "COPY " << (*iFileInfo)->m_sSource << " " + Dir + "/root" + (*iFileInfo)->m_sDestination << endl;
+#endif
+	}
+
+	vector<Row_Package_Package *> vect_pRow_Package_Package;
+    pRow_Package_Source->FK_Package_getrow()->Package_Package_FK_Package_getrows(&vect_pRow_Package_Package);
+
+	string sDepends = "libmysqlclient";
+
+	//vector<Row_Package_Package *>::iterator iRow_Package_Package;
+	//for (iRow_Package_Package = vect_pRow_Package_Package.begin(); iRow_Package_Package != vect_pRow_Package_Package.end(); iRow_Package_Package++)
+	//{
+	//	vector<Row_Package_Source *> pRow_Package_Source2;
+	//	Row_Package_Package *pRow_Package_Package_Dependency = *iRow_Package_Package;
+
+	//	cout << "Depends:" << pRow_Package_Package_Dependency->FK_Package_DependsOn_getrow()->Description_get() << endl;
+	//	cout << "PK_Package: " << (*iRow_Package_Package)->FK_Package_DependsOn_getrow()->PK_Package_get() << endl;
+	//	(*iRow_Package_Package)->FK_Package_DependsOn_getrow()->Package_Source_FK_Package_getrows(&pRow_Package_Source2);
+	//	vector<Row_Package_Source *>::iterator iRow_Package_Source;
+	//	for (iRow_Package_Source = pRow_Package_Source2.begin(); iRow_Package_Source != pRow_Package_Source2.begin(); iRow_Package_Source++)
+	//	{
+	//		sDepends += ", " + (*iRow_Package_Source)->Name_get();
+	//	}
+	//}
+	//cout << "Depends list: " << sDepends << endl;
+
+#ifndef WIN32
+	system("sed -i 's/^Depends:.*$/Depends: ${shlibs:Depends}, ${misc:Depends}" + sDepends + "/' " + Dir + "/debian/control");
+	system("dpkg-buildpackage");
+#endif
+
 	cout << "------------DEBIAN PACKAGE OUTPUT" << endl;
 	cout << " rep: " << pRow_Package_Source->Repository_get() << " ver: " << pRow_Package_Source->Version_get() << " parm: " << pRow_Package_Source->Parms_get() << endl;
 	cout << "Press any key to continue..." << endl;

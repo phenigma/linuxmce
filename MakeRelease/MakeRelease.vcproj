@@ -120,12 +120,30 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
+				RelativePath="..\PlutoUtils\CommonIncludes.cpp">
+			</File>
+			<File
+				RelativePath="..\PlutoUtils\FileUtils.cpp">
+			</File>
+			<File
 				RelativePath="MakeRelease.cpp">
+			</File>
+			<File
+				RelativePath="..\PlutoUtils\StringUtils.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
+			<File
+				RelativePath="..\PlutoUtils\CommonIncludes.h">
+			</File>
+			<File
+				RelativePath="..\PlutoUtils\FileUtils.h">
+			</File>
+			<File
+				RelativePath="..\PlutoUtils\StringUtils.h">
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
