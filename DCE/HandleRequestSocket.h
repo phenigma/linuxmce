@@ -71,6 +71,11 @@ namespace DCE
 		 * @brief runs a loop that handles outgoing and incoming messages and strings
 		 */
 		virtual void RunThread();
+
+		/**
+		 * @brief overrideable by the derived classes
+		 */
+		virtual void OnUnexpectedDisconnect() { };
 	};
 }
 #endif
