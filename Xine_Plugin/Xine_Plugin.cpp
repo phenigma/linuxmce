@@ -315,7 +315,7 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
 
     string resultingURL;
 
-    DCE::CMD_Start_Streaming startStreamingCommand(m_dwPK_Device, pXineMediaStream->getStreamerDeviceID(), pMediaStream->GetFilenameToPlay(), pMediaStream->m_iStreamID, &resultingURL);
+    DCE::CMD_Start_Streaming startStreamingCommand(m_dwPK_Device, pXineMediaStream->getStreamerDeviceID(), pMediaStream->GetFilenameToPlay(), pXineMediaStream->m_iStreamID_get(), &resultingURL);
     SendCommand(startStreamingCommand);
 }
 
