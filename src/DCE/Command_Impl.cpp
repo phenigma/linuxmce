@@ -38,6 +38,9 @@
 
 using namespace DCE;
 
+extern void (*g_pDeadlockHandler)(PlutoLock *pPlutoLock);
+extern void (*g_pSocketCrashHandler)(Socket *pSocket);
+
 /**
  * @brief entry point for the MessageQueue thread
  */
@@ -605,4 +608,3 @@ void Command_Impl::ExecCommandGroup(int PK_CommandGroup)
 	Message *pMessage = new Message(m_dwPK_Device,0,PRIORITY_NORMAL,MESSAGETYPE_EXEC_COMMAND_GROUP,PK_CommandGroup,0);
 	QueueMessageToRouter(pMessage);
 }
-

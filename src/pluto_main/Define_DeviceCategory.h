@@ -67,6 +67,7 @@
 #define DEVICECATEGORY_Bluetooth_Dongles_CONST 110
 #define DEVICECATEGORY_Generic_Analog_Capture_Card_CONST 111
 #define DEVICECATEGORY_Generic_Analog_Camera_CONST 113
+#define DEVICECATEGORY_Infrared_Interface_CONST 114
 
 #define DEVICECATEGORY_TABLE "DeviceCategory"
 #define DEVICECATEGORY_PK_DEVICECATEGORY_FIELD "PK_DeviceCategory"

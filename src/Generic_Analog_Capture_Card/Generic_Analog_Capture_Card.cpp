@@ -222,10 +222,18 @@ void Generic_Analog_Capture_Card::SomeFunction()
 	/** Get's a picture from a specified surveilance camera */
 		/** @param #19 Data */
 			/** The video frame */
-		/** @param #41 CameraID */
-			/** The ID (nnumber) of the camera from where to take the snapshot. */
+		/** @param #20 Format */
+			/** Format of the frame */
+		/** @param #23 Disable Aspect Lock */
+			/** Disable Aspect Ratio */
+		/** @param #41 StreamID */
+			/** The ID of the stream */
+		/** @param #60 Width */
+			/** Frame width */
+		/** @param #61 Height */
+			/** Frame height */
 
-void Generic_Analog_Capture_Card::CMD_Get_Video_Frame(int iCameraID,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage)
+void Generic_Analog_Capture_Card::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat,string &sCMD_Result,Message *pMessage)
 //<-dceag-c84-e->
 {
 	FILE *fp;

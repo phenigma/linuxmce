@@ -108,15 +108,15 @@ public:
 		/** @param #19 Data */
 			/** The video frame */
 		/** @param #20 Format */
-			/** One of the following: "jpg", "png" */
+			/** Format of the frame */
 		/** @param #23 Disable Aspect Lock */
-			/** If true, don't worry about the aspect ratio.  Try to get the requested width and height. */
+			/** Disable Aspect Ratio */
 		/** @param #41 StreamID */
-			/** Optional.  For multi stream devices, like media players, this identifies the stream. */
+			/** The ID of the stream */
 		/** @param #60 Width */
-			/** The desired width of the video frame.  The sender need not respect this. */
+			/** Frame width */
 		/** @param #61 Height */
-			/** The desired height of the video frame.  The sender need not respect this. */
+			/** Frame height */
 
 	virtual void CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat) { string sCMD_Result; CMD_Get_Video_Frame(sDisable_Aspect_Lock.c_str(),iStreamID,iWidth,iHeight,pData,iData_Size,sFormat,sCMD_Result,NULL);};
 	virtual void CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat,string &sCMD_Result,Message *pMessage);

@@ -4309,7 +4309,10 @@ void Orbiter::CMD_Refresh(string sDataGrid_ID,string &sCMD_Result,Message *pMess
 		DesignObj_DataGrid* pDesignObj = *it;
 
 		if(pDesignObj->m_sGridID == sDataGrid_ID)
+		{
+			pDesignObj->bReAcquire=true;
 			m_vectObjs_NeedRedraw.push_back(pDesignObj);
+		}
 	}
 
     NeedToRender render( this, "CMD_Refresh" );  // Redraw anything that was changed by this command

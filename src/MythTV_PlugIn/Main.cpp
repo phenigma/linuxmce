@@ -19,10 +19,9 @@
 #include "DCE/Logger.h"
 #include "ServerLogger.h"
 #include "PlutoUtils/FileUtils.h"
-#include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
-#include "PlutoUtils/Other.h"
+#include "DCERouter.h"
 
 // In source files stored in archives and packages, these 2 lines will have the release version (build)
 // and the svn revision as a global variable that can be inspected within a core dump
@@ -59,7 +58,26 @@ void SocketCrashHandler(Socket *pSocket)
 		g_pCommand_Impl->OnReload();
 	}
 }
-
+void Plugin_DeadlockHandler(PlutoLock *pPlutoLock)
+{
+	// This isn't graceful, but for the moment in the event of a deadlock we'll just kill everything and force a reload
+	if( g_pCommand_Impl && g_pCommand_Impl->m_pRouter )
+	{
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Plugin Deadlock problem.  Going to reload");
+		g_pCommand_Impl->m_pRouter->CrashWithinPlugin(g_pCommand_Impl->m_dwPK_Device);
+	}
+}
+void Plugin_SocketCrashHandler(Socket *pSocket)
+{
+	// This isn't graceful, but for the moment in the event of a socket crash we'll just kill everything and force a reload
+	if( g_pCommand_Impl && g_pCommand_Impl->m_pRouter )
+	{
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Plugin Deadlock problem.  Going to reload");
+		g_pCommand_Impl->m_pRouter->CrashWithinPlugin(g_pCommand_Impl->m_dwPK_Device);
+	}
+}
 //<-dceag-incl-e->
 
 extern "C" {
@@ -103,6 +121,12 @@ extern "C" {
 		{
 			delete pMythTV_PlugIn;
 			return NULL;
+		}
+		else
+		{
+			g_pCommand_Impl=pMythTV_PlugIn;
+			g_pDeadlockHandler=Plugin_DeadlockHandler;
+			g_pSocketCrashHandler=Plugin_SocketCrashHandler;
 		}
 		return pMythTV_PlugIn;
 	}

@@ -296,3 +296,12 @@ void EIB::CMD_EIB_Write(string sAddress,string sData,int iDataType,string &sCMD_
 	
 	m_msgPool.sendTelegram(&tlmsg);
 }
+//<-dceag-c275-b->
+
+	/** @brief COMMAND: #275 - EIB_Read */
+	/** Performs a READ request on the bus */
+		/** @param #108 Address */
+			/** EIB Group Address */
+
+void EIB::CMD_EIB_Read(string sAddress,string &sCMD_Result,Message *pMessage)
+//<-dceag-c275-e->

@@ -204,15 +204,12 @@ void PlutoLock::DumpOutstandingLocks()
 	list<pthread_t> listKilledPthreads;
 	pthread_mutex_lock(&m_mapLockMutex->mutex);
 
-	if( g_pPlutoLogger )
-		g_pPlutoLogger->Write(LV_LOCKING,"Dumping %d locks\n",mapLocks.size()); // This way it'll get in the log without doing any locks
-
+	// We can't use the logger from here on because if it's a socket logger it will need the mapLocks.  Store
+	// all messages in listMessages and log after we remove the mutex lock
 	listMessages.push_back(string("Dumping " + StringUtils::itos((int) mapLocks.size()) + " locks"));
 	for(itMapLock=mapLocks.begin();itMapLock!=mapLocks.end();)
 	{
 		PlutoLock *pSafetyLock = (*itMapLock).second;
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_LOCKING,"pSafetyLock: %p check for exceptions\n",pSafetyLock);
 
 		// Somehow, for some reason, pSafetyLock->m_pMyLock->m_sName occasionally throws an exception, 
 		// like one of the values has been deleted.  But that should be impossible.  This map is protected
@@ -232,12 +229,10 @@ void PlutoLock::DumpOutstandingLocks()
 		}
 		catch(...)
 		{
-			if( g_pPlutoLogger )
-				g_pPlutoLogger->Write(LV_LOCKING,"pSafetyLock: %p caught an exception for exceptions\n",pSafetyLock);
+			listMessages.push_back(string("caught an exception for exceptions"));
 			bThrewException=true;
 		}
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_LOCKING,"pSafetyLock: %p finished check for exceptions: %d\n",pSafetyLock,(int) bThrewException);
+		listMessages.push_back(string("finished check for exceptions"));
 
 		if( bThrewException )
 		{
@@ -246,17 +241,18 @@ void PlutoLock::DumpOutstandingLocks()
 
 			try
 			{
+				char Message[1024];
 #ifndef WIN32
-				if( g_pPlutoLogger )
-					g_pPlutoLogger->Write(LV_LOCKING,"^01\t (>%d) %s l:%d time: (%d s) thread: %ld Rel: %s Got: %s",
+				sprintf(Message,"^01\t (>%d) %s l:%d time: (%d s) thread: %ld Rel: %s Got: %s",
 						pSafetyLock->m_LockNum,pSafetyLock->m_sFileName.c_str(),pSafetyLock->m_Line,(int) (time(NULL)-pSafetyLock->m_tTime),
 						pSafetyLock->m_thread,(pSafetyLock->m_bReleased ? "Y" : "N"),(pSafetyLock->m_bGotLock ? "Y" : "N"));
 #else
-				if( g_pPlutoLogger )
-					g_pPlutoLogger->Write(LV_LOCKING,"^01\t (>%d) %s l:%d time: (%d s) thread: %p Rel: %s Got: %s",
+				sprintf(Message,"^01\t (>%d) %s l:%d time: (%d s) thread: %p Rel: %s Got: %s",
 						pSafetyLock->m_LockNum,pSafetyLock->m_sFileName.c_str(),pSafetyLock->m_Line,(int) (time(NULL)-pSafetyLock->m_tTime),
 						pSafetyLock->m_thread,(pSafetyLock->m_bReleased ? "Y" : "N"),(pSafetyLock->m_bGotLock ? "Y" : "N"));
 #endif
+				listMessages.push_back(Message);
+
 			}
 			catch(...)
 			{
@@ -291,12 +287,8 @@ void PlutoLock::DumpOutstandingLocks()
 			pSafetyLock->m_thread,(pSafetyLock->m_bReleased ? "Y" : "N"),(pSafetyLock->m_bGotLock ? "Y" : "N"));
 #endif
 
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_LOCKING,"^01\t%s\n",Message);
 		if( ((int) time(NULL)-pSafetyLock->m_tTime)>=60 && pSafetyLock->m_bGotLock && !pSafetyLock->m_bReleased )
 		{
-			if( g_pPlutoLogger )
-				g_pPlutoLogger->Write(LV_CRITICAL,"releasing %s\n",Message);
 			strcat(Message,"**RELEASING**");
 			listMessages.push_back(string(Message));
 
@@ -324,13 +316,6 @@ void PlutoLock::DumpOutstandingLocks()
 			if( !bKilledAlready )
 			{
 				listKilledPthreads.push_back(pSafetyLock->m_thread);
-#ifdef UNDER_CE
-#ifdef CENET
-				// Under Windows CE, just reboot
-				if( g_pPlutoLogger )
-					g_pPlutoLogger->Write(LV_LOCKING,"going to reboot");
-#endif
-#endif
 			}
 
 			mapLocks.erase(itMapLock++);
@@ -338,18 +323,12 @@ void PlutoLock::DumpOutstandingLocks()
 		else
 			++itMapLock;
 		listMessages.push_back(string(Message));
-#ifndef WIN32
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"--%s\n",Message);
-#endif
 	}
 
 	// If we killed threads we have to go through the whole map all over again 
 	// for each thread since there could have been other entries in the map
 	if( listKilledPthreads.size()>0 )
 	{
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_LOCKING,"killed %d threads",(int) listKilledPthreads.size());
 
 #ifdef UNDER_CE
 #ifdef CENET
@@ -367,8 +346,6 @@ void PlutoLock::DumpOutstandingLocks()
 				PlutoLock *pSafetyLock = (*itMapLock).second;
 				if( pSafetyLock->m_thread == (*itKilledThreads) )
 				{
-					if( g_pPlutoLogger )
-						g_pPlutoLogger->Write(LV_LOCKING,"already killed (>%d) threads",pSafetyLock->m_LockNum);
 					listMessages.push_back("already killed (>" + StringUtils::itos(pSafetyLock->m_LockNum) + ")");
 					mapLocks.erase(itMapLock++);
 				}
@@ -381,8 +358,6 @@ void PlutoLock::DumpOutstandingLocks()
 		for(itKilledThreads=listKilledPthreads.begin();itKilledThreads!=listKilledPthreads.end();++itKilledThreads)
 		{
 			pthread_t thread = (*itKilledThreads);
-			if( g_pPlutoLogger )
-				g_pPlutoLogger->Write(LV_LOCKING,"doing the kill: %ld",thread);
 #ifndef UNDER_CE
 			pthread_cancel(thread);
 #endif

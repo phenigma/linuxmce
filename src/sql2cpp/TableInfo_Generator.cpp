@@ -945,7 +945,7 @@ string TableInfo_Generator::fk_rows_getters_definition()
                 s = s + "void Row_" + get_table_name() + "::"+ info->get_table_name() + "_" + field->m_pcFieldName + "_getrows(vector <class Row_" + info->get_table_name() + "*> *rows)\n";
 				s = s + "{\nPLUTO_SAFETY_LOCK(M, table->m_Mutex);\n\n";
 				s = s + "class Table_"+info->get_table_name()+" *pTable = table->database->"+info->get_table_name()+"_get();\n";
-				s = s + "pTable->GetRows(\"`"+ field->m_pcFieldName + "=`\" + StringUtils::itos(m_PK_" + get_table_name() + "),rows);\n";
+				s = s + "pTable->GetRows(\"`"+ field->m_pcFieldName + "`=\" + StringUtils::itos(m_PK_" + get_table_name() + "),rows);\n";
                 s = s + "}\n";
             }
         }

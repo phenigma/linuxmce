@@ -90,10 +90,6 @@ public:
 	void EVENT_Mobile_orbiter_linked(string sMac_Address,string sVersion) { GetEvents()->Mobile_orbiter_linked(sMac_Address.c_str(),sVersion.c_str()); }
 	void EVENT_Mobile_orbiter_lost(string sMac_Address,bool bConnectionFailed) { GetEvents()->Mobile_orbiter_lost(sMac_Address.c_str(),bConnectionFailed); }
 	//Commands - Override these to handle commands from the server
-	virtual void CMD_Link_with_mobile_orbiter(int iMediaPosition,string sMac_address,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Get_Signal_Strength(string sMac_address,int *iValue,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Create_Mobile_Orbiter(int iPK_Device,string sMac_address,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Send_File_To_Device(string sFilename,string sMac_address,string sIP_Address,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -104,80 +100,7 @@ public:
 		for(int s=-1;s<(int) pMessageOriginal->m_vectExtraMessages.size(); ++s)
 		{
 			Message *pMessage = s>=0 ? pMessageOriginal->m_vectExtraMessages[s] : pMessageOriginal;
-			if (pMessage->m_dwPK_Device_To==m_dwPK_Device && pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND)
-			{
-				switch(pMessage->m_dwID)
-				{
-				case 60:
-					{
-						string sCMD_Result="OK";
-					int iMediaPosition=atoi(pMessage->m_mapParameters[42].c_str());
-					string sMac_address=pMessage->m_mapParameters[47];
-						CMD_Link_with_mobile_orbiter(iMediaPosition,sMac_address.c_str(),sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
-						{
-							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-							SendMessage(pMessageOut);
-						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
-							SendString(sCMD_Result);
-					};
-					iHandled++;
-					continue;
-				case 61:
-					{
-						string sCMD_Result="OK";
-					string sMac_address=pMessage->m_mapParameters[47];
-					int iValue=atoi(pMessage->m_mapParameters[48].c_str());
-						CMD_Get_Signal_Strength(sMac_address.c_str(),&iValue,sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
-						{
-							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-						pMessageOut->m_mapParameters[48]=StringUtils::itos(iValue);
-							SendMessage(pMessageOut);
-						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
-							SendString(sCMD_Result);
-					};
-					iHandled++;
-					continue;
-				case 62:
-					{
-						string sCMD_Result="OK";
-					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
-					string sMac_address=pMessage->m_mapParameters[47];
-						CMD_Create_Mobile_Orbiter(iPK_Device,sMac_address.c_str(),sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
-						{
-							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-							SendMessage(pMessageOut);
-						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
-							SendString(sCMD_Result);
-					};
-					iHandled++;
-					continue;
-				case 80:
-					{
-						string sCMD_Result="OK";
-					string sFilename=pMessage->m_mapParameters[13];
-					string sMac_address=pMessage->m_mapParameters[47];
-					string sIP_Address=pMessage->m_mapParameters[58];
-						CMD_Send_File_To_Device(sFilename.c_str(),sMac_address.c_str(),sIP_Address.c_str(),sCMD_Result,pMessage);
-						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
-						{
-							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
-							SendMessage(pMessageOut);
-						}
-						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
-							SendString(sCMD_Result);
-					};
-					iHandled++;
-					continue;
-				}
-				iHandled += Command_Impl::ReceivedMessage(pMessage);
-			}
-			else if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND )
+			 if( pMessage->m_dwMessage_Type == MESSAGETYPE_COMMAND )
 			{
 				MapCommand_Impl::iterator it = m_mapCommandImpl_Children.find(pMessage->m_dwPK_Device_To);
 				if( it!=m_mapCommandImpl_Children.end() && !(*it).second->m_bGeneric )

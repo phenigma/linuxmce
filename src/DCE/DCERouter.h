@@ -270,6 +270,11 @@ namespace DCE
 
         // Public
         void Die(const char *Why);
+        void CrashWithinPlugin(int iPK_Device)
+		{
+			Reload();
+			Quit();
+		}
         virtual void DispatchMessage(Message *pMessage) { ReceivedMessage(NULL,pMessage); };
         bool GetParameterWithDefinedMessage(Message *sendMessage, string &sResult);
         bool GetParameter(int ToDevice,int ParmType, string &sResult);

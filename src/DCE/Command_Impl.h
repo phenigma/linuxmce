@@ -313,7 +313,6 @@ namespace DCE
 		 * @brief stops the watchdog tread
 		 */
 		void StopWatchDog();
-
 	};
 }
 

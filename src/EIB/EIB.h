@@ -103,6 +103,15 @@ private:
 	virtual void CMD_EIB_Write(string sAddress,string sData,int iDataType,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #275 - EIB_Read */
+	/** Performs a READ request on the bus */
+		/** @param #108 Address */
+			/** EIB Group Address */
+
+	virtual void CMD_EIB_Read(string sAddress) { string sCMD_Result; CMD_EIB_Read(sAddress.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_EIB_Read(string sAddress,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 	};
 

@@ -1971,4 +1971,3 @@ bool Router::ConfirmDeviceTemplate( int iPK_Device, int iPK_DeviceTemplate )
 	DeviceData_Router *pDevice = m_mapDeviceData_Router_Find( iPK_Device );
 	return pDevice && pDevice->m_dwPK_DeviceTemplate == iPK_DeviceTemplate;
 }
-
