@@ -453,7 +453,7 @@ g_pPlutoLogger->Write(LV_WARNING, "Added dir '%s' to datagrid", i->m_sFileName.c
 			// TypeOfRequest,Path,PK_User,SortByDate(1=true)
 			string newParams = TypeOfRequest + "," + i->m_sBaseName + i->m_sFileName + "," + sPK_User + ","
 				+ (bSortByDate ? "1" : "0") + "," + Actions;
-			DCE::CMD_NOREP_Populate_Datagrid_MD CMDPDG(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse,
+			DCE::CMD_NOREP_Populate_Datagrid_DT CMDPDG(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse,
 				"DataGrid ID (Debug info only) goes here", GridID, DATAGRID_Directory_Listing_CONST, newParams);
 			pCell->m_pMessage = CMDPDG.m_pMessage;
 //			pCell->m_pMessage = new Message(DEVICEID_DATAGRID, DEVICEID_DATAGRID, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_POPULATE_DATAGRID_CONST, 2, 

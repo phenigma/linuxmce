@@ -1329,9 +1329,9 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter)
 		bool bResponse;
 		int iPK_Variable=0;
 		string sValue_To_Assign;
-		DCE::CMD_Populate_Datagrid_MD CMD_Populate_Datagrid_MD(m_dwPK_Device, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse, StringUtils::itos(m_dwIDataGridRequestCounter),"HAGA_" + StringUtils::itos(m_dwPK_Device),
+		DCE::CMD_Populate_Datagrid_DT CMD_Populate_Datagrid_DT(m_dwPK_Device, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse, StringUtils::itos(m_dwIDataGridRequestCounter),"HAGA_" + StringUtils::itos(m_dwPK_Device),
 			pObj->m_iPK_Datagrid,SubstituteVariables(pObj->m_sOptions,pObj,0,0),&iPK_Variable,&sValue_To_Assign,&bResponse);
-		if( !SendCommand(CMD_Populate_Datagrid_MD) || !bResponse ) // wait for a response
+		if( !SendCommand(CMD_Populate_Datagrid_DT) || !bResponse ) // wait for a response
 			g_pPlutoLogger->Write(LV_CRITICAL,"Populate datagrid: %d failed",pObj->m_iPK_Datagrid);
 
 		// We're on the house-at-a-glance floorplan.  These are the activies at the bottom, not the streams
@@ -1835,9 +1835,9 @@ void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
 		bool bResponse;
 		int iPK_Variable=0;
 		string sValue_To_Assign;
-		DCE::CMD_Populate_Datagrid_MD CMD_Populate_Datagrid_MD( m_dwPK_Device,  DEVICETEMPLATE_Datagrid_Plugin_CONST,  BL_SameHouse,  StringUtils::itos( m_dwIDataGridRequestCounter ), pObj->m_sGridID, 
+		DCE::CMD_Populate_Datagrid_DT CMD_Populate_Datagrid_DT( m_dwPK_Device,  DEVICETEMPLATE_Datagrid_Plugin_CONST,  BL_SameHouse,  StringUtils::itos( m_dwIDataGridRequestCounter ), pObj->m_sGridID, 
 			pObj->m_iPK_Datagrid, SubstituteVariables( pObj->m_sOptions, pObj, 0, 0 ), &iPK_Variable, &sValue_To_Assign, &bResponse );
-		if(  !SendCommand( CMD_Populate_Datagrid_MD ) || !bResponse  ) // wait for a response
+		if(  !SendCommand( CMD_Populate_Datagrid_DT ) || !bResponse  ) // wait for a response
 			g_pPlutoLogger->Write( LV_CRITICAL, "Populate datagrid: %d failed", pObj->m_iPK_Datagrid );
 		else if(  iPK_Variable  )
 			m_mapVariable[iPK_Variable] = sValue_To_Assign;
@@ -2810,10 +2810,10 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 				bool bResponse;
 				int iPK_Variable=0;
 				string sValue_To_Assign;
-				DCE::CMD_Populate_Datagrid_MD CMD_Populate_Datagrid_MD( m_dwPK_Device,  DEVICETEMPLATE_Datagrid_Plugin_CONST,  BL_SameHouse,  StringUtils::itos( m_dwIDataGridRequestCounter ), 
+				DCE::CMD_Populate_Datagrid_DT CMD_Populate_Datagrid_DT( m_dwPK_Device,  DEVICETEMPLATE_Datagrid_Plugin_CONST,  BL_SameHouse,  StringUtils::itos( m_dwIDataGridRequestCounter ), 
 					GridID, atoi( pCommand->m_ParameterList[COMMANDPARAMETER_PK_DataGrid_CONST].c_str(  ) ), 
 					SubstituteVariables( pCommand->m_ParameterList[COMMANDPARAMETER_Options_CONST], pObj, 0, 0 ), &iPK_Variable, &sValue_To_Assign, &bResponse );
-				if(  !SendCommand( CMD_Populate_Datagrid_MD ) || !bResponse  ) // wait for a response
+				if(  !SendCommand( CMD_Populate_Datagrid_DT ) || !bResponse  ) // wait for a response
 					g_pPlutoLogger->Write( LV_CRITICAL, "Populate datagrid from command: %d failed", atoi( pCommand->m_ParameterList[COMMANDPARAMETER_PK_DataGrid_CONST].c_str(  ) ) );
 				else if(  iPK_Variable  )
 					m_mapVariable[iPK_Variable] = sValue_To_Assign;
@@ -3113,11 +3113,11 @@ bool Orbiter::AcquireGrid( DesignObj_DataGrid *pObj,  int GridCurCol,  int GridC
 		int size = 0;
 		char *data = NULL;
 
-		DCE::CMD_Request_Datagrid_Contents_MD CMD_Request_Datagrid_Contents_MD( m_dwPK_Device,  DEVICETEMPLATE_Datagrid_Plugin_CONST,  BL_SameHouse, 
+		DCE::CMD_Request_Datagrid_Contents_DT CMD_Request_Datagrid_Contents_DT( m_dwPK_Device,  DEVICETEMPLATE_Datagrid_Plugin_CONST,  BL_SameHouse, 
 			StringUtils::itos( m_dwIDataGridRequestCounter ), pObj->m_sGridID, GridCurRow, GridCurCol, 
 			pObj->m_MaxRow, pObj->m_MaxCol, pObj->m_bKeepRowHeader, pObj->m_bKeepColHeader, true, &data, &size );
 
-		if(  !SendCommand( CMD_Request_Datagrid_Contents_MD )  )
+		if(  !SendCommand( CMD_Request_Datagrid_Contents_DT )  )
 			g_pPlutoLogger->Write( LV_CRITICAL, "Populate datagrid: %s failed", pObj->m_ObjectID.c_str(  ) );
 		else
 		{

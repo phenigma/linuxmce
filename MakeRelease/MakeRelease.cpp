@@ -1153,11 +1153,9 @@ bool CreateSource_FTPHTTP(Row_Package_Source *pRow_Package_Source,list<FileInfo 
 	cout << "Creating Archive: " << ArchiveFileName << endl;
 	chdir("/home/tmp");
 	
-#ifdef WIN32
-	string TempDir = mktemp("mra_XXXXXX");
-#else
 	char templ[12]="mra_XXXXXX";
 	string TempDir = mktemp(templ);
+#ifndef WIN32
 	system(("mkdir -p /home/tmp/" + TempDir).c_str());
 #endif
 	unlink( ("/home/tmp/" + ArchiveFileName).c_str() );
