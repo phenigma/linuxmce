@@ -41,6 +41,18 @@ switch => Realtime/outgoing-extern-selectline@realtime_ext
 [outgoing-place-call]
 switch => Realtime/outgoing-place-call@realtime_ext" >> /etc/asterisk/extensions.conf
 
+# update manager.conf
+: >/etc/asterisk/manager.conf
+
+echo "[general]
+enabled = yes
+port = 5038
+bindaddr = 0.0.0.0
+
+[admin]
+secret = adminsecret
+read = system,call,log,verbose,command,agent,user
+write = system,call,log,verbose,command,agent,user" >> /etc/asterisk/manager.conf
 
 
 
