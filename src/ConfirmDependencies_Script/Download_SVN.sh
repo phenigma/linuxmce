@@ -2,8 +2,9 @@
 
 . /usr/pluto/install/Common.sh
 
-[ -z "$SRC_IMPL" ] && SRC_IMPL="/usr/pluto/src/$PKG_NAME"
+[ -z "$SRC_IMPL" ] && SRC_IMPL="/usr/pluto/sources/$PKG_NAME"
 mkdir -p "$SRC_IMPL" || exit $ERR_DOWNLOAD
+mkdir -p "/usr/pluto/sources/lib" "/usr/pluto/sources/bin"
 
 #echo "$REPOS_SRC" | egrep '^svn(\+ssh)?://' &>/dev/null || REPOS_SRC="svn://$REPOS_SRC"
 svn_param="--non-interactive --no-auth-cache"
