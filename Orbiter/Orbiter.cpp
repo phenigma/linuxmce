@@ -1701,8 +1701,11 @@ bool Orbiter::ClickedRegion( DesignObj_Orbiter *pObj, int X, int Y, DesignObj_Or
 
 		if( pObj->m_dbHitTest.m_dwSize )
 		{
-			int Offset = (X - pObj->m_rPosition.Left()) * (Y - pObj->m_rPosition.Top());
-			if( Offset>pObj->m_dbHitTest.m_dwSize || pObj->m_dbHitTest.m_pBlock[Offset]==0 )
+			int LineWidth = pObj->m_rBackgroundPosition.Width / 8 + 1; // The width of each line
+			int x = X - pObj->m_rPosition.Left();
+			int y = Y - pObj->m_rPosition.Top();
+			char c = pObj->m_dbHitTest.m_pBlock[ y * LineWidth + x/8 ];
+			if( !(c & 1 << (x%8)) )
 				return false;
 		}
 

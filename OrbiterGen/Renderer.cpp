@@ -22,6 +22,7 @@ using namespace std;
 #include "SDL_ttf.h"
 #include "png.h"
 #include "Orbiter/TextStyle.h"
+#include <math.h>
 
 #ifndef ORBITER
 #include "pluto_main/Define_HorizAlignment.h"
@@ -208,26 +209,27 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 
 			if( pDesignObj_Generator->m_sVisibleState.find('T')!=string::npos )
 			{
-SaveImageToFile(pRenderImage_Child,"test");
 				int X = pDesignObj_Generator->m_rBackgroundPosition.Width;
 				int Y = pDesignObj_Generator->m_rBackgroundPosition.Height;
 				StringUtils::Replace(pDesignObj_Generator->m_sVisibleState,"T","");
-				char *pHitTest = new char[X * Y];
-				pDesignObj_Generator->m_dbHitTest.m_dwSize = X * Y;
-				pDesignObj_Generator->m_dbHitTest.m_pBlock = pHitTest;
-				memset(pHitTest,1,X * Y);
+				int LineWidth = X / 8 + 1; // The width of each line
+				unsigned char *pHitTest = new unsigned char[LineWidth * Y];
+				pDesignObj_Generator->m_dbHitTest.m_dwSize = LineWidth * Y;
+				pDesignObj_Generator->m_dbHitTest.m_pBlock = (char *) pHitTest;
+				memset(pHitTest,255,LineWidth * Y);
 				
-				for(int x=0;x<X;++x)
+				for(int y=0;y<Y;++y)
 				{
-					for(int y=0;y<Y;++y)
+					for(int x=0;x<X;++x)
 					{
 						Uint32 Pixel = getpixel(pRenderImage_Child,x,y);
 						unsigned char *pPixel = (unsigned char *) &Pixel;
 						if ( pPixel[3]<128 )
-							pHitTest[ x*y ] = 0;
-						else
-pHitTest[ x*y ] = 1;
-
+						{
+							unsigned char c = pHitTest[ y * LineWidth + x/8 ];
+							c ^= 1 << (x%8);
+							pHitTest[ y * LineWidth + x/8 ] = c;
+						}
 					}
 				}
 			}
