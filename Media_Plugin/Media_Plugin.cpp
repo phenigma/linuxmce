@@ -452,7 +452,19 @@ bool Media_Plugin::StartMedia( MediaPluginInfo *pMediaPluginInfo, int PK_Device_
     if( PK_DesignObj_Remote && PK_DesignObj_Remote!=-1 )
         pMediaStream->m_iPK_DesignObj_Remote = PK_DesignObj_Remote;
 
-    g_pPlutoLogger->Write(LV_STATUS,"Calling Plug-in's start media");
+	OH_Orbiter *pOH_Orbiter_OSD=NULL;
+    if ( pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST ||
+		pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_LiveTV_CONST ||
+		pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_StoredVideo_CONST )
+	{
+		if( pMediaStream->m_pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia &&
+			pMediaStream->m_pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Orbiter_CONST) )
+		{
+			pOH_Orbiter_OSD = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMediaStream->m_pMediaDevice->m_pDeviceData_Router->m_dwPK_Device_ControlledVia);
+		}
+	}
+
+	g_pPlutoLogger->Write(LV_STATUS,"Calling Plug-in's start media");
     if( pMediaPluginInfo->m_pMediaPluginBase->StartMedia(pMediaStream) )
     {
         g_pPlutoLogger->Write(LV_STATUS,"Plug-in started media");
@@ -466,34 +478,36 @@ bool Media_Plugin::StartMedia( MediaPluginInfo *pMediaPluginInfo, int PK_Device_
 
                 int iPK_DesignObj_Remote = pMediaStream->m_iPK_DesignObj_Remote;
 
-                DeviceData_Router *pController = m_pRouter->m_mapDeviceData_Router_Find(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device_ControlledVia);
-                if (  pController && pController->m_dwPK_DeviceCategory == DEVICECATEGORY_Media_Director_CONST &&
-                    ( pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST ||
-                      pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_LiveTV_CONST ||
-                      pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_StoredVideo_CONST ) )
-                    iPK_DesignObj_Remote = DESIGNOBJ_screen_app_desktop_CONST;
-
                 // Only send the orbiter if it's at the main menu, unless it's the orbiter that started the stream in the first place
-#pragma warning("implement bound to media remote")
-                // this IF is identical ?? Why ?
-                if( pMediaStream->m_pOH_Orbiter==pOH_Orbiter && iPK_DesignObj_Remote == DESIGNOBJ_screen_app_desktop_CONST ) //|| pOH_Orbiter->boundtomediaremote )
+				// If there's another user in the entertainment area that is in the middle of something (ie the Orbiter is not at the main menu),
+				// we don't want to forcibly 'take over' and change to the remote screen.
+                if( pOH_Orbiter!=pOH_Orbiter_OSD )
                 {
-                    DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
-                        StringUtils::itos(iPK_DesignObj_Remote),"","",false);
-                    SendCommand(CMD_Goto_Screen);
+					if( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device==PK_Device_Orbiter )
+					{
+	                    DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
+		                    StringUtils::itos(iPK_DesignObj_Remote),"","",false);
+			            SendCommand(CMD_Goto_Screen);
+					}
+					else
+					{
+	                    DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
+		                    StringUtils::itos(iPK_DesignObj_Remote),"","-1",false);
+			            SendCommand(CMD_Goto_Screen);
+					}
                 }
-/* AB 1-5-05 what was this for???
-                else
-                {
-                    DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
-                        StringUtils::itos(iPK_DesignObj_Remote),"","",false);
-                    SendCommand(CMD_Goto_Screen);
-                }
-*/
             }
         }
         else
             g_pPlutoLogger->Write(LV_CRITICAL,"Media Plug-in's call to Start Media failed.");
+
+		if( pOH_Orbiter_OSD )
+        {
+            DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device,0,
+                StringUtils::itos(DESIGNOBJ_app_desktop_CONST),"","",false);
+            SendCommand(CMD_Goto_Screen);
+        }
+
     }
     else
         g_pPlutoLogger->Write(LV_CRITICAL,"Media Plug-in's call to Start Media failed.");
