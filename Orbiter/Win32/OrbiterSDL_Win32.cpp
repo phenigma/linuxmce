@@ -148,6 +148,7 @@ void OrbiterSDL_Win32::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		RecordKeyboardAction(wParam);
 
         bool bHandled=false;
+clock_t ccc=clock();
         m_bRepeat = m_cKeyDown && clock() - m_cKeyDown > CLOCKS_PER_SEC/2;
         m_cKeyDown=0;
 

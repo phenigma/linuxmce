@@ -1593,7 +1593,7 @@ string DesignObj_Generator::SubstituteVariables(string Text,bool *bContainsRunTi
 
         string sValue="**NO~VALUE**";  // Use a special value to differentiate between a real "empty" vs. a no-match
 
-        if( sVariable[0]=='!' )
+        if( sVariable[0]=='!' && sVariable.length()==1 )
             sValue = StringUtils::itos(m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get());
         else if( sVariable.substr(0,2)=="MM" )
             sValue = StringUtils::itos(m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu->PK_DesignObj_get());

@@ -491,7 +491,7 @@ void Orbiter::RealRedraw( void *data )
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Screen )
 {
-    if(  pObj->m_ObjectID.find( "2715" )!=string::npos  )
+    if(  pObj->m_ObjectID.find( "3296" )!=string::npos  )
         //if(  pObj->m_iBaseObjectID == 2707  )
     {
         g_pPlutoLogger->Write( LV_STATUS, "Render control: state: %d undo: %p", pObj->m_GraphicToDisplay, pObj->m_pGraphicToUndoSelect );
@@ -3434,6 +3434,12 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
             Output += m_sMainMenu;
         else if(  Variable=="!"  )
             Output += StringUtils::itos( m_dwPK_Device );
+        else if(  Variable[0]=='!'  )  // It starts with ! -- that's a not followed by a variable, if the variable is 1 we return 0, anything else we return 1
+		{
+			int PK_Variable = atoi( Variable.substr(1).c_str() );
+            PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
+			Output+= (m_mapVariable[PK_Variable]!="1" ? "1" : "0");
+		}
         else if(  Variable=="E" && m_pScreenHistory_Current && m_pScreenHistory_Current->m_pLocationInfo  )
             Output += StringUtils::itos( m_pScreenHistory_Current->m_pLocationInfo->PK_EntertainArea );
         else if(  Variable=="L" && m_pScreenHistory_Current && m_pScreenHistory_Current->m_pLocationInfo  )
@@ -3444,6 +3450,8 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
             Output += m_sNowPlaying;
         else if(  Variable=="ND" )
 			Output += StringUtils::itos((int) m_mapDevice_Selected.size());
+        else if(  Variable=="GD" )
+			Output += StringUtils::itos(pObj->m_GraphicToDisplay);
         else if(  Variable=="CD" )
 		{
 			// Find if there are any selected object timeout's pending
@@ -4046,6 +4054,8 @@ void Orbiter::CMD_Show_Object(string sPK_DesignObj,int iPK_Variable,string sComp
         pObj->m_bHidden = !bShow;
 
 	    m_vectObjs_NeedRedraw.push_back( pObj );  // Redraw even if the object was already in this state,  because maybe we're hiding this and something that
+		if( pObj->m_bHidden && pObj->m_pParentObject )
+			m_vectObjs_NeedRedraw.push_back( (DesignObj_Orbiter *) pObj->m_pParentObject  );
     }
 }
 
@@ -4298,6 +4308,7 @@ void Orbiter::CMD_Set_Graphic_To_Display(string sPK_DesignObj,string sID,string 
         SaveBackgroundForDeselect( pObj );  // Whether it's automatically unselected,  or done by selecting another object,  we should hold onto this
         m_vectObjs_Selected.push_back( pObj );
     }
+	m_vectObjs_NeedRedraw.push_back(pObj);
 }
 
 //<-dceag-c20-b->
@@ -5304,4 +5315,44 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 	//free the surface
 	if( bDeleteSurface )
 		pPlutoGraphic->Clear();	
+}
+//<-dceag-c260-b->
+
+	/** @brief COMMAND: #260 - Set Main Menu */
+	/** Sets the Main Menu to 'Normal', 'Sleeping' or 'Screen Saver', optionally assigning new screens to those values. */
+		/** @param #9 Text */
+			/** Can be N, S, or V to set to the Normal, Sleeping, or Screen Saver, optionally followed by an = to assign a new screen to that menu.  e.g. N or N=1872.0.0 */
+
+void Orbiter::CMD_Set_Main_Menu(string sText,string &sCMD_Result,Message *pMessage)
+//<-dceag-c260-e->
+{
+	sText = StringUtils::ToUpper(sText); // we don't have to worry about lower case
+
+	if( sText.length()>2 && sText[1]=='=' )
+	{
+		// We're assigning a new menu
+		DesignObj_Orbiter *pObj = FindObject( sText.substr(2) );
+		if( pObj )
+		{
+			if( sText[0]=='N' )
+				m_pDesignObj_Orbiter_MainMenu=pObj;
+			else if( sText[0]=='S' )
+				m_pDesignObj_Orbiter_SleepingMenu=pObj;
+			else if( sText[0]=='V' )
+				m_pDesignObj_Orbiter_ScreenSaveMenu=pObj;
+		}
+		else
+			g_pPlutoLogger->Write(LV_CRITICAL,"Can't assign new main menu %s",sText.c_str());
+	}
+
+	if( sText.length() )  // Be sure it's not empty
+	{
+		// Just the normal N, S or V
+		if( sText[0]=='N' )
+			m_sMainMenu = m_pDesignObj_Orbiter_MainMenu->m_ObjectID;
+		else if( sText[0]=='S' )
+			m_sMainMenu = m_pDesignObj_Orbiter_SleepingMenu->m_ObjectID;
+		else if( sText[0]=='V' )
+			m_sMainMenu = m_pDesignObj_Orbiter_ScreenSaveMenu->m_ObjectID;
+	}
 }

@@ -92,7 +92,7 @@ Renderer::~Renderer()
 void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDesignObj_Generator,PlutoPoint Position,int iRenderStandard,bool bPreserveAspectRatio,int iOnlyVersion)
 {
     //  cout << "Rendering " << pDesignObj_Generator->m_ObjectID << endl;
-    if( pDesignObj_Generator->m_ObjectID.find("1395")!=string::npos )
+    if( pDesignObj_Generator->m_ObjectID.find("3296")!=string::npos )
 //  //  ) //|| pDesignObj_Generator->m_ObjectID.find("2689.0.0.2790")!=string::npos )
         //if( pDesignObj_Generator->m_ObjectID== )
     {
@@ -104,7 +104,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
     // 0, it renders the selected, -1 the highlighted, -2 the standard.  Count down because the standard
     // version should be rendered last, since that's the only one that will be composited on top of the background.
     // The others are all output as separate files.  The first time RenderObject is called, pRenderImage
-    int StartingValue = iRenderStandard!=1 ? (int) pDesignObj_Generator->m_vectAltGraphicFilename.size() : -2;
+    int StartingValue = iRenderStandard!=1 ? (int) pDesignObj_Generator->m_vectOrigAltGraphicFilename.size() : -2;
     int EndingValue = iRenderStandard!=0 ? -2 : -1;
 	if( iOnlyVersion!=-999 )
 		StartingValue=EndingValue=iOnlyVersion;
@@ -321,7 +321,14 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
             else if( iIteration==0 )
                 pDesignObj_Generator->m_sHighlightGraphicFilename = sSaveToFile;
             else
+			{
+				// Pad the vector so we can do the assignment
+					if( pDesignObj_Generator->m_vectAltGraphicFilename.size()<iIteration )
+					for(size_t s = pDesignObj_Generator->m_vectAltGraphicFilename.size(); s<iIteration; ++s)
+						pDesignObj_Generator->m_vectAltGraphicFilename.push_back("");
+
                 pDesignObj_Generator->m_vectAltGraphicFilename[iIteration-1] = sSaveToFile;
+			}
         }
         delete pRenderImage_Child;
         delete pRendererMNG;

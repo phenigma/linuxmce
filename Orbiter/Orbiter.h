@@ -1133,6 +1133,15 @@ public:
 	virtual void CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #260 - Set Main Menu */
+	/** Sets the Main Menu to 'Normal', 'Sleeping' or 'Screen Saver', optionally assigning new screens to those values. */
+		/** @param #9 Text */
+			/** Can be N, S, or V to set to the Normal, Sleeping, or Screen Saver, optionally followed by an = to assign a new screen to that menu.  e.g. N or N=1872.0.0 */
+
+	virtual void CMD_Set_Main_Menu(string sText) { string sCMD_Result; CMD_Set_Main_Menu(sText.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Set_Main_Menu(string sText,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 
 /** temporary solution only */

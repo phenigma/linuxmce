@@ -34,6 +34,8 @@ namespace DCE
         int m_iFailedToConnectCount;
 		bool m_bRegistered;
 
+		bool m_bFollowMe_Lighting,m_bFollowMe_Media,m_bFollowMe_Climate,m_bFollowMe_Telecom,m_bFollowMe_Security;
+
         OH_Orbiter(class DeviceData_Router *pDeviceData_Router)
         {
             m_pDeviceData_Router = pDeviceData_Router;
@@ -43,6 +45,7 @@ namespace DCE
             m_pDevice_CurrentDetected = NULL;
             m_iFailedToConnectCount = 0;
 			m_bRegistered=false;
+			m_bFollowMe_Lighting=m_bFollowMe_Media=m_bFollowMe_Climate=m_bFollowMe_Telecom=m_bFollowMe_Security=false;
         }
     };
 
@@ -251,6 +254,19 @@ public:
 
 	virtual void CMD_Orbiter_Registered(string sOnOff) { string sCMD_Result; CMD_Orbiter_Registered(sOnOff.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Orbiter_Registered(string sOnOff,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #261 - Set Follow-Me */
+	/** Specifies whether the orbiter has follow-me on or off for the given user. */
+		/** @param #2 PK_Device */
+			/** The Orbiter */
+		/** @param #9 Text */
+			/** Can be 'L', 'M', 'C', 'S', 'T' for Lighting, Media, Climate, Security, Telecom */
+		/** @param #17 PK_Users */
+			/** The User */
+
+	virtual void CMD_Set_FollowMe(int iPK_Device,string sText,int iPK_Users) { string sCMD_Result; CMD_Set_FollowMe(iPK_Device,sText.c_str(),iPK_Users,sCMD_Result,NULL);};
+	virtual void CMD_Set_FollowMe(int iPK_Device,string sText,int iPK_Users,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

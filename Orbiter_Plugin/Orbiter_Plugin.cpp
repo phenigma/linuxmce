@@ -1036,5 +1036,43 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,string &sCMD_Result,Me
 	}
 	else
 		pOH_Orbiter->m_bRegistered = sOnOff=="1";
+
+	if( pOH_Orbiter->m_bRegistered )
+	{
+		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_bFollowMe_Media ? "1" : "0","follow_media");
+		SendCommand(CMD_Set_Bound_Icon);
+	}
 }
 
+//<-dceag-c261-b->
+
+	/** @brief COMMAND: #261 - Set Follow-Me */
+	/** Specifies whether the orbiter has follow-me on or off for the given user. */
+		/** @param #2 PK_Device */
+			/** The Orbiter */
+		/** @param #9 Text */
+			/** Can be 'L', 'M', 'C', 'S', 'T' for Lighting, Media, Climate, Security, Telecom */
+		/** @param #17 PK_Users */
+			/** The User */
+
+void Orbiter_Plugin::CMD_Set_FollowMe(int iPK_Device,string sText,int iPK_Users,string &sCMD_Result,Message *pMessage)
+//<-dceag-c261-e->
+{
+	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find( iPK_Device );
+	if( !pOH_Orbiter || sText.length()<2 )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Invalid set follow me: %d %s",iPK_Device,sText.c_str());
+		return;
+	}
+
+	switch( sText[0] )
+	{
+	case 'M':
+		{
+			pOH_Orbiter->m_bFollowMe_Media = sText[1]!='1' ? true : false;
+			DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_bFollowMe_Media ? "1" : "0","follow_media");
+			SendCommand(CMD_Set_Bound_Icon);
+		}
+		break;
+	}
+}
