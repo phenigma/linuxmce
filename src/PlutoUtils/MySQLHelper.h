@@ -13,7 +13,7 @@ class PlutoSqlResult
 public:
 	MYSQL_RES *r;
 	PlutoSqlResult() : r(NULL) {};
-	~PlutoSqlResult() { 
+	~PlutoSqlResult() {
 		if( r )
 			mysql_free_result(r);
 	}
@@ -22,6 +22,7 @@ public:
 // You can add this to a base class to get some helper mysql functions
 class MySqlHelper
 {
+
 public:
 	pluto_pthread_mutex_t m_MySqlMutex;
 	MYSQL *m_pMySQL;
@@ -36,7 +37,7 @@ public:
 		m_bConnected=false;
 		m_MySqlMutex.Init(NULL);
 	}
-	
+
 	MySqlHelper(string host, string user, string pass, string db_name, int port=3306)
 		: m_MySqlMutex("mysql")
 	{
@@ -80,6 +81,7 @@ public:
 			m_pMySQL = mysql_init(NULL);
 		}
 
+		g_pPlutoLogger->Write(LV_WARNING, "MysqlHelper reconnecting to failed Host: %s, Port: %d, Database: %s\n", m_sMySQLHost.c_str(), m_iMySQLPort, m_sMySQLDBName.c_str());
 		if (mysql_real_connect(m_pMySQL, m_sMySQLHost.c_str(), m_sMySQLUser.c_str(), m_sMySQLPass.c_str(), m_sMySQLDBName.c_str(), m_iMySQLPort, NULL, 0) == NULL)
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL,"Connect failed %s",mysql_error(m_pMySQL));

@@ -58,13 +58,13 @@ namespace StringUtils
     string itos( int iNum );
 
 #ifndef SYMBIAN
-  
+
     /**
      * @brief breaks the Input string in tokens and putes them in the deque_strings parameter, or a vector
      */
     void Tokenize(string &Input, string Tokens, deque<string> &deque_strings, bool bPushToFront);
 	void Tokenize(string &Input, string Tokens, vector<string> &vect_strings);
-    
+
     /**
      * @brief retrns a sring containing the specified char repeated count times
      */
