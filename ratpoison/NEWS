@@ -1,0 +1,481 @@
+ratpoison NEWS --- history of user-visible changes.  -*- outline -*-
+
+* Changes since 1.3.0
+** version now displays the date and time
+
+** new command, sselect
+sselect lets you jump to an X11 screen by number.
+
+** configure script warns about missing history lib
+Rather than error out, now, ratpoison will just be built without history.
+
+* Changes since 1.3.0-rc2-beta2
+** new format option %f
+This options displays the frame number the window is in or a space if
+it is not in a window.
+
+** Super modifier changed from S to s. S is now the shift modifier
+
+** window list style is columnar by default
+
+* Changes since 1.3.0-rc2-beta1
+** New command 'set'
+set replaces the def* commands. For example 'defwinliststyle column'
+is now 'set winliststyle column'.
+
+The old def* commands now alias to their 'set' version.
+
+* Changes since 1.3.0-rc1
+** Top level keymap
+The keymap named 'top' is now a top level keymap. No prefix key need
+be pressed to access its bindings. In fact, the prefix key is now a
+binding in the 'top' keymap.
+
+** hsplit and vsplit switched
+To be compatible with emacs these command names have been
+switched. The bindings are the same but custom scripts and aliases
+will have to make the switch.
+
+** new command defframesels
+Allow you to customize the keys used to select frames with fselect.
+
+** Xinerama support
+Each xinerama screen is handled as X11 screens normally are. The only
+different is that each xinerama screen can select from all the
+managed windows.
+
+** focuslast finds the last focused frame among all screens
+
+** fselect selects from frames in all screens
+
+** new command-line option --file
+Used to specify an alternate configuration file.
+
+* Changes since 1.3.0-beta3
+** new configure option --disable-history
+
+** new commands readkey, newkmap, delkmap, definekey
+These commands operate on the new feature: keymaps. They allow you to
+have nested keymaps.
+
+* Changes since 1.3.0-beta2
+** new command gdelete
+Delete a group.
+
+** contrib/allwindows.sh script
+A script that lists all groups and the windows in each group.
+
+* Changes since 1.2.2
+** Workspace script
+rpws is an installed script that adds workspaces to ratpoison. Look at
+contrib/rpws for instructions on how to use it.
+
+** new commands addhook and remhook
+There are now hooks for various operations.
+
+** Completions
+You can now type Tab and get completions on window names, group names,
+and colon commands.
+
+** Line editing capabilities
+You can now go forward a word, backward a char, delete a word, etc.
+
+** New commands gnewbg, gselect, groups, gmove, and gmerge
+These commands allow further manipulation of window groups.
+
+** shell commands return status
+If a command the user executed (with the exec command) returns with a
+non-zero exit status, the command and exit status are reported in a
+message.
+
+** new commands gnew, gnext, gprev
+Window are now part of groups. There can be more than one group.
+
+* Changes since 1.2.0-beta4
+** new commands unmanage and clrunmanaged
+Instead of editing conf.h you can use these commands to dynamically
+add (and clear) the unmanaged window list.
+
+* Changes since 1.2.0-beta3
+** new command line argumen --screen
+Now you can specify the screen you want to manage. By default
+ratpoison manages all screens on the display.
+
+** new command line argument --display
+Now you can specify the display to connect to.
+
+* Changes since 1.2.0-beta2
+
+* Changes since 1.1.1
+** new comand 'defwinliststyle'
+when turned on, the window list is displayed in a column, not a row.
+
+** new command 'verbexec'
+prints a message when executing a shell command
+
+** new commands 'fdump' and 'frestore'
+These commands are for saving and restoring frame sets.
+
+** key presses
+All actions now occur after the user has released the key.
+
+** keybinding changes
+fselect is bound to C-t C-f and C-t f, curframe is now bound to C-t F,
+and resize is bound to C-t C-r and C-t r.
+
+** new command fselect
+select a frame by its number.
+
+** new command 'tmpwm'
+temporarily run a different window manager, then come back to
+ratpoison once it has terminated.
+
+** error and debug reporting
+The format has been changed to the more standard format used by C
+compilers.
+
+** New commands 'resize', 'shrink'
+resize resizes a frame and shrink shrinks a frame to the size of the
+window in it.
+
+** Shell command exit status
+When a shell command fails to execute then a message is reported in
+ratpoison: "Command not found."
+
+** New command 'warp'
+Toggles rat warping. By default ratpoison saves the position of the
+rat when leaving a window and when the user returns to the window the
+rat's position is restored. This can be counter-intuitive, so now you
+can toggle it.
+
+** split, vsplit, hsplit
+These commands now take a single argument. The argument can be a ratio
+which divides the frame into two frames sized based on this ratio, or
+it can be a number representing the number of pixels the existing
+frame will occupy.
+
+* Changes since 1.1.0
+** new commands "nextscreen" and "prevscreen"
+
+* Changes since 1.0.0
+** defbarloc changed to defbargravity
+
+** defbarloc
+This command take a gravity argument just like the wingravity
+commands.
+
+** new command defbarborder
+This command allows you to customize the border width of ratpoison's
+windows. These windows are the input window, the bar window, and the
+current frame indication window.
+
+** "number" command takes additional optional argument
+The second argument is used to specify a window other than the
+current.
+
+** new command "alias"
+An alias gives a name to a command sequence. For instance, you could
+alias 'emacs' to 'exec emacs'. Then you could simply type 'C-t :emacs'
+and ratpoison would boot emacs.
+
+** new command "license"
+Display ratpoison's license. This is also bound to C-t V and C-t C-V.
+
+** input history
+All input you type into ratpoison is stored as a history entry. Use
+C-p and C-n to cycle through it.
+
+** new command "defbarpadding"
+This command specifies how much ratpoison pads the bar window. See the
+documentation for usage.
+
+** new command "link"
+Call the command that a keybinding is bound to. for instance, 'link
+C-t' would call the command 'other'.
+
+** new command "focuslast"
+Switch between the current frame and the last focused frame. It is
+bound to C-t M-Tab.
+
+** Raise requests don't change frame focus if rudeness doesn't allow it
+If a window in another frame requests to be raised, a message pops up
+just like everywhere else. The old behavior was to jump focus to the
+windows frame regardless of the rudeness.
+
+** New windows formatting option %l
+Prints a last access number. The higher the number, the more recently
+the window was accessed.
+
+** Remove command line options --kill and --restart
+Use -c quit and -c restart instead.
+
+** New command restart
+Restart ratpoison.
+
+** New command lastmsg
+Display the last message.
+
+** New command info
+display information about the current window.
+
+** New command unsetenv
+Remove an environment variable from...well...the environment.
+
+** New command chdir
+Change the current directory.
+
+** Multiple commands passed to ratpoison via the command-line are now processed
+A stream of commands like, `ratpoison -c next -c prev -c next' are
+processed in order.
+
+** clock command renamed to time
+This was to improve screen compatibility.
+
+** New command setenv
+Use this to set environment variables for all programs run from
+ratpoison thereafter.
+
+** Command defbartimeout renamed to msgwait
+This was done to better mirror screen commands.
+
+** Command generate renamed to meta
+This was done to better mirror screen commands.
+
+** Comand maximize renamed to redisplay
+This was done to better mirror screen commands. It is no longer bound
+to C-t m it is now bound to C-t l.
+
+** Cursor in the input window
+There is now a cheap cursor to help you remember where you are.
+
+** conf.h compile-time customizations moved
+They are now accessible through the def* suite of commands.
+
+** Window alignment
+Windows can now be aligned so they stick to the top-left corner of the
+screen, the center of the screen, the bottom-right, etc. Use the `pos'
+command. There is a customizable default setting for each of the three
+'kinds' of windows: `defwinpos' for normal windows, `deftranspos' for
+transient windows, and `defmaxsizepos' for normal windows with
+maximimum size hints.
+
+** Window format string
+The format of the list of windows dumped by the `windows' command is
+now customizable with `defwinfmt'.
+
+** Different Window naming schemes
+Windows now have 3 resources that can be used as their default name:
+the WMNAME hint which generally contains transient information such as
+what file is currently open, the res_name from the WMCLASS hint, or
+the res_class the WMCLASS hint. This affects commands like `select'
+which search for a window by name.
+
+* Changes since 0.1.1
+
+** new conf.h customization MAXSIZE_WINDOWS_ARE_TRANSIENTS
+determines whether windows with maxsize hints are treated like
+transient windows.
+
+** The frame indicator
+The frame indicator never sticks and only appears when there is more
+than one frame (i.e. when there are splits).
+
+** Transient window handling has changed
+Transient windows now map ontop of the current window.
+
+** new command 'rudeness'
+This command allows you to fine tune what windows rp will map
+when. For instance you can ask rp not to map new windows. Instead it
+will notify you with a message: "New window #1 (emacs)".
+
+** user abort key sequence
+When typing input, hit C-g (customizable in conf.h) to abort the
+input.
+
+** new key syntax
+keys are now specified with C-, M-, A-, H-, S- which stand for the
+control, meta, alt, hyper, and super modifiers. ^ does not denote
+control. Before, control t looked like ^t now it looks like C-t.
+
+** new command 'help'
+help brings up a key binding listing. it is bound to C-t ?.
+
+** new command 'quit'
+This command quits ratpoison
+
+** windows not residing in a frame are hidden
+This gets rid of annoying flickers around the edges of active windows
+as windows in the back update.
+
+** rat cursor changes
+
+When you hit the prefix key the rat cursor changes to a square to tell
+you what it is waiting for another key. This feature can be removed in
+conf.h.
+
+** Split windows
+
+Well, the day is finally here. You can now split windows in
+ratpoison. Hit C-t s to split horizontally and C-t S to split
+vertically. Have fun!
+
+** new command-line option --command
+
+You can now send ratpoison commands (colon-commands) to ratpoison via
+the command line. for example to tell ratpoison to go to the next
+window type this:
+
+$ ratpoison --command next
+
+** window borders are configurable
+WINDOW_BORDER_WIDTH has been added to conf.h. This constant determines
+the border width for all windows.
+
+** Rodent handling
+A new command, :banish, which will move the rat pointer out of harms
+way, has been added.  It is bound to 'C-t b' by default.  No more
+slapping your rat out of the way, as fun as that was.
+
+* Changes since 0.1.0
+
+** Window list changes
+A '+' is now drawn between the window number and the window name for
+the last accessed window.
+
+** AltGr (XK_Mode_switch) support
+
+ratpoison now handles AltGr on all its input.
+
+* Changes Since 0.0.5
+** C-t e removed
+
+Since you can custo your own keystrokes, there's not much sense
+cluttering things with a binding to launch emacs.
+
+** XErrorEvents don't bring down ratpoison
+
+A friendly message pops up displaying the error message. This does
+mean that there is a problem with ratpoison and it should be
+investigated and reported. But at least your entire session doesn't go
+down.
+
+** Sorted window list
+
+The window list is now sorted by number.
+
+** Resizing input window
+
+The size of the input window can be customized in conf.h by setting
+INPUT_WINDOW_SIZE. It also dynamically resizes to accommodate the user
+input.
+
+** Pointer location
+
+The pointer location is saved on a per window basis. When ratpoison
+switches to a window it restores the pointer location to its location
+the last time that window had focus.
+
+** Auto quit ratpoison
+
+When the auto close feature is enabled, ratpoison will exit when the
+last managed window is closed. This feature can be turned on by
+uncommenting the line:
+
+/* #define AUTO_CLOSE */
+
+in conf.h
+
+** Improved shell command
+The 'exec' command now calls execl ("/bin/sh", "sh", "-c", cmd, 0)
+where cmd is your shell command.  In short, you can now make shell
+command calls with parameters.
+
+The default keybinding has been changed from C-: to C-! for the 'exec'
+command.
+
+** Command line
+An emulation of screen's colon command has been implemented.  This
+allows you to make wm commands by name.  The current command set
+includes: abort, next, prev, exec, select, colon, kill, delete, other,
+windows, title, clock, maximize, newwm, and version.  To bring up a
+command line prompt, type C-:.  See the info or man page for details
+on the command set and its usage.
+
+** Keysym reading updates
+keystrokes are now handled far better. Shifted keystrokes work. More
+uniform key event processing.
+
+You can no longer "over modify" keys.  Previously, if C-tn was bound
+to 'next', you could type C-tC-n and get the same result.  No longer.
+You need to explicity map both C-tn and C-tC-n if you want both to
+work.
+
+** XSizeHints honoured
+Windows may not maximize fully now since they use XSizeHints to figure
+out how big the window can be.
+
+** Bold color removed
+ratpoison now uses only foreground and background colors.  They
+default to black and white, respectively.  To represent the current
+window in the bar, the current window's text is reversed.
+
+** Colormap support
+ratpoison now maintains colormaps
+
+** New keystrokes
+*** C-t space and C-t enter
+Do the same as C-tn (next window)
+*** C-tA
+Shows a the time in the display bar
+*** C-tv
+Shows the version of ratpoison
+
+** Messages in the window bar
+ratpoison now outputs user error messages.
+
+** Stability
+All fixed length buffer sizes in window names that resulted in
+curious segfaults have been fixed.
+
+** Themes support
+There is still no theme support, despite what you might have heard.
+
+
+* Changes Singe 0.0.4
+** added --kill and --restart
+These command line options allow the restarting and killing of a
+running ratpoison process.
+
+** Mouse jumps to the bottom of the screen on keypresses
+This is pretty annoying if you're using anything other than keyboard
+apps. It is disabled by default.
+
+
+* Changes Since 0.0.3
+** Added --enable-debug
+This turns on debugging messages
+
+** Added --version and --help command line options
+
+
+* Changes Since 0.0.2
+** Installation
+*** Added automake and autoconf
+To build and install ratpoison, you must now do this:
+
+aclocal
+automake -a -c
+autoconf
+./configure
+make
+make install
+
+** Features
+*** Added jump to window by name Hit C-t C-' and a box will pop up
+asking you for the name of the window to jump to.
+
+*** Added rename-window 
+hit C-t C-a and a box will pop up asking you to rename the current
+window. Once it has been renamed, it will stay renamed.
+
+** Bugs and Bug fixes

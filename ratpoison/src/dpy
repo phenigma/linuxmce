@@ -1,0 +1,3 @@
+  XMoveResizeWindow (dpy, win->w, win->scr->left + win->x, win->scr->top + win->y, win->width, win->height);
+  XSetWindowBorderWidth (dpy, win->w, win->border);
+

@@ -1,0 +1,79 @@
+ratpoison (1.0.0.cvs.20020117-1) unstable; urgency=low
+
+  * CVS snapshot release on 2002-01-17:
+    + Documentation about `colon' corrected (Closes: #115158)
+    + BadWindow misbehaviour fixed (Closes: #123942, #123379, #128563)
+
+ -- Gergely Nagy <algernon@debian.org>  Thu, 17 Jan 2002 21:13:03 +0100
+
+ratpoison (1.0.0.cvs.20011208-1) unstable; urgency=low
+
+  * CVS snapshot release on 2001-12-08
+  * Recommend ratmenu (Closes: #113624)
+  * debian/control: Do not recommend xterm, but xvt, that fits better with
+    the ratpoison idea
+  * debian/control: Changed Maintainer field, and added SirDibos and
+    myself to Uploaders
+  * debian/ratpoison.examples: include most of contrib/
+
+ -- Gergely Nagy <algernon@debian.org>  Sat,  8 Dec 2001 23:40:32 +0100
+
+ratpoison (1.0.0-1) unstable; urgency=medium
+
+  * New upstream release!
+      + Contains a fixed ratpoison.texi (Closes: #107939)
+
+ -- Gergely Nagy <algernon@debian.org>  Thu,  6 Sep 2001 16:41:41 +0200
+
+ratpoison (0.2.0.cvs.20010806-1) unstable; urgency=low
+
+  * CVS snapshot release as of 2001-08-06.
+  * Bumped Standards-Version to 3.5.6
+  * Changed maintainer e-mail address
+
+ -- Gergely Nagy <algernon@debian.org>  Mon,  6 Aug 2001 13:36:57 +0200
+
+ratpoison (0.1.1-3) unstable; urgency=low
+
+  * Do not try to send C-t to the underlying window if there
+  is none (Closes: #101625)
+
+ -- Gergely Nagy <8@free.bsd.hu>  Wed, 20 Jun 2001 17:02:21 +0200
+
+ratpoison (0.1.1-2) unstable; urgency=low
+
+  * Build-Depend on x-terminal-emulator. (Closes: Bug#89272)
+
+ -- Gergely Nagy <8@free.bsd.hu>  Sun, 11 Mar 2001 18:22:21 +0100
+
+ratpoison (0.1.1-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Gergely Nagy <8@free.bsd.hu>  Tue,  6 Mar 2001 19:36:45 +0100
+
+ratpoison (0.1.0-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Gergely Nagy <8@free.bsd.hu>  Sun,  4 Mar 2001 01:09:29 +0100
+
+ratpoison (0.0.5-20001216) unstable; urgency=low
+
+  * CVS version as of 2000/12/16
+
+ -- Gergely Nagy <8@free.bsd.hu>  Sat, 16 Dec 2000 18:13:19 +0100
+
+ratpoison (0.0.5-2) unstable; urgency=low
+
+  * Does not include /usr/info anymore. Whoops...
+  * Modified menu entry (Closes: Bug#79072).
+  * Fixed debian/rules#clean, I'm terribly sorry, won't happen again.
+
+ -- Gergely Nagy <8@free.bsd.hu>  Mon, 11 Dec 2000 12:33:55 +0100
+
+ratpoison (0.0.5-1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Gergely Nagy <8@free.bsd.hu>  Mon,  4 Dec 2000 21:52:54 +0100

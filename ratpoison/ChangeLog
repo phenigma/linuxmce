@@ -1,0 +1,4515 @@
+2004-10-07  Shawn Betts  <katia_dilkina@verizon.net>
+
+	* doc/ratpoison.texi (Frame Numbering): new topic
+
+2004-07-24  Thien-Thi Nguyen  <ttn@glug.org>
+ 
+	* autogen.sh: Handle "-f" option. Add usage comment.
+
+2004-10-05  Shawn Betts  <katia_dilkina@verizon.net>
+
+	* src/actions.c (cmd_unsetenv): add an '=' to the string passed to
+	putenv.
+	(cmd_source): display an error message if no file is supplied.
+
+	* src/main.c (print_version): update copyright date.
+
+	* src/conf.h (DEFAULT_FONT): new define
+
+	* src/main.c (init_defaults): use the DEFAULT_FONT define
+
+	* src/actions.c: new command, sselect
+	(cmd_sselect): new function. added prototype.
+	(cmd_set): free 'var' at the appropriate places.
+	(cmd_version): add the build date and time.
+	(cmd_fselect): in interactive mode, return 'abort' when the user
+	aborts, the frame number when they select one, or 'No such frame'
+	when they selected a nonexistent one.
+	(cmd_version): return the version string in non-interactive mode.
+	(parse_wingravity): accept numbers for gravity.
+
+	* src/events.c (property_notify): pass the root window to
+	receive_command.
+	(receive_command): take a root window as an argument and use it to
+	listen for the command.
+
+2004-10-04  Shawn Betts  <katia_dilkina@verizon.net>
+
+	* src/screen.h (is_a_root_window): new prototype
+
+	* src/screen.c (is_a_root_window): new function
+
+	* src/events.c (property_notify): check for ratpoison commands on
+	every root window, not just the default root window.
+
+	* src/communications.c (send_command): store the root window in a
+	variable, root. and use it whenever the root window is needed.
+
+2004-09-29  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* configure.in: Warn when the history header or library is not
+	found and compile without history support.
+
+	* src/ratpoison.h: change ifdef to check for HAVE_HISTORY.
+
+	* src/manage.c (get_state): change data to an unsigned char and
+	cast data to a long* when it's used.
+
+	* src/main.c (main): change ifdef to check for HAVE_HISTORY.
+	(clean_up): likewise
+
+	* src/history.c: change ifdef to check for HAVE_HISTORY.
+
+	* src/events.c (receive_command): make prop_return an unsigned char.
+
+	* src/editor.c (editor_history_previous): change ifdef to check for HAVE_HISTORY.
+	(editor_history_next): likewise
+	(editor_enter): likewise
+
+2004-09-27  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* contrib/ratpoison.el (ratpoison-command): use call-process.
+
+2004-06-13  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* src/main.c (init_defaults): set default for window list style to
+	column.
+
+2004-06-03  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* src/number.c (numset_add_num): add debugging output to print the args.
+	(numset_release): likewise
+	(numset_request): add debugging output to print the requested number
+
+
+	* src/manage.c (withdraw_window): Print an error when withdrawing
+	a window who's number is -1.
+
+	* src/main.c (clean_up): free the global frame numset.
+	(free_screen): don't free the screen's numset, since it's a
+	pointer to the global numset.
+
+	* src/group.c (group_del_window): don't release the window number
+	here. It's already been done in group_unmap_window.
+
+	* src/events.c (configure_request): only change the stack mode for
+	non withdrawn windows.
+
+2004-05-19  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* src/input.c (rp_mask_to_x11_mask): handle the shift modifier
+	(x11_mask_to_rp_mask): likewise
+	(keysym_to_keycode_mod): Make sure lower != keysym before adding
+	the shift mask.
+	(keysym_to_string): handle the shift modifier. use 's' for super
+	instead of 'S'
+	(cook_keycode): keep the shift modifier if XLookupString didn't
+	gobble it.
+
+	* src/data.h (RP_SHIFT_MASK): new define
+
+	* src/actions.c (parse_keydesc): parse the shift modifier change
+	super to 's' from 'S'.
+
+	* src/window.c (format_window_name): add %f format option
+
+2004-05-05  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* src/input.c (grab_key): use keysym_to_keycode_mod to get the
+	keycode and modifier for the keysym.
+	(keysym_to_keycode_mod): new function
+
+2004-04-23  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* src/data.h (struct rp_defaults): new members, font_string,
+	fgcolor_string, bgcolor_string.
+
+	* src/actions.c (set_font): return defaults.font_string when data is NULL
+	(set_fgcolor): likewise for fgcolor_string
+	(set_bgcolor): likewise for bgcolor_string
+
+	* src/manage.c (ungrab_top_level_keys): properly grab capital letters.
+
+	* src/main.c (init_defaults): init fgcolor_string, bgcolor_string, and font_string
+
+	* src/input.c (grab_key): change keysym type to KeySym. convert
+	keysym to keycode. All callers updated.
+
+2004-04-18  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* src/actions.c (cmd_set): if non-interactive and no arguments are
+	specified, then output the current value of all variables.
+ 
+	* src/messages.h (MESSAGE_PROMPT_SELECT_VAR): new define
+	(MESSAGE_PROMPT_VAR_VALUE): likewise
+
+	* src/actions.h (cmd_set): new prototype
+
+	* src/actions.c (user_commands): remove all def* commands. Add 'set' command.
+	rename all cmd_def* commands to set_*. Add prototypes for set_* commands.
+	(struct set_var): new struct
+	(set_vars): new static global
+	(cmd_set): new function
+	(var_completions): new function
+	(initialize_default_keybindings): add aliases for def* commands
+	
+	* src/events.c (configure_request): only display a raise request
+	if the window isn't already focused.
+
+	* src/manage.h (ungrab_keys_all_wins): new prototype
+	(grab_keys_all_wins): likewise
+
+	* src/manage.c (grab_top_level_keys): renamed from
+	grab_prefix_key (all callers updated). Grab all keys in the top level keymap.
+	(ungrab_top_level_keys): renamed from ungrab_prefix_key (all callers updated). ungrab
+	all keys in the top level keymap.
+	(ungrab_keys_all_wins): new function
+	(grab_keys_all_wins): likewise
+
+	* src/globals.c: (rp_key_hook): rename from
+	rp_prefix_hook. Dependant code updated.
+	(set_rp_window_focus): change 'prefix' hook to 'key' hook.
+
+	* src/events.c (handle_key): handle a top level key press.
+	(handle_key): new arguments ks, and mod.
+	(key_press): pass the keysym and modifier to handle_key
+
+	* src/conf.h (TOP_KEYMAP): new define
+
+	* src/actions.c (cmd_v_split, cmd_h_split): swap names.
+	(user_commands): bind split to cmd_v_split.
+	(initialize_default_keybindings): initialize the top level keymap
+	(cmd_definekey): update the keys grabbed when changing a key on
+	the top level keymap.
+	(cmd_escape): update the escape key in the top level map.
+	(cmd_delkmap): don't allow the deletion of the top level keymap.
+
+2004-04-03  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* src/main.c (init_defaults): init frame_selectors.
+
+	* src/data.h (struct rp_defaults): new field, frame_selectors.
+
+	* src/actions.h (cmd_defframesels): new prototype
+
+	* src/actions.c (user_commands): new command defframesels
+	(frame_selector): new function
+	(frame_selector_match): likewise
+	(cmd_defframesels): likewise
+	(cmd_fselect): use default.frame_selectors to select a frame.
+
+2004-03-01  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* configure.in: fix check for Xinerama.h
+
+2004-02-27  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* src/screen.c (screen_free_nums): new function. prototype added
+	(init_screens): init rp_frame_numset
+	(init_screen): set screen's frames_numset to rp_frame_numset
+
+	* src/globals.h: new global prototype, rp_frame_numset
+
+	* src/globals.c: new global, rp_frame_numset
+
+	* src/split.c (find_last_frame): find the last from of all the
+	screens. prototype updated. Callers updated.
+	(find_frame_number): search all screens. prototype
+	updated. callers updated.
+
+	* src/actions.c (cmd_fselect): select from frames in all screens.
+
+	* src/window.c (give_window_focus): save the mouse position before
+	checking if win is NULL.
+	(give_window_focus): set rp_current_screen to xine_screen_num of
+	the window's screen.
+	(set_active_window): when using xinerama get the frame from the
+	current screen.
+
+	* src/split.c (set_frames_window): update the window's scr
+	attribute to point to the frame's screen.
+	(find_window_for_frame): when xinerama is being used search all
+	windows.
+	(set_active_frame): update rp_current_screen to point to the
+	frame's screen.
+
+	* src/screen.h (init_screens): new prototype
+	(is_rp_window_for_screen): likewise
+
+	* src/screen.c: include string.h and X11/cursorfont.h
+	(init_screens): new function
+	(is_rp_window_for_screen): new function.
+	(init_screen): fill in xine_screen_num when using xinerama.
+
+	* src/ratpoison.h: include xinerama.h
+
+	* src/manage.c (current_screen): use xine_screen_num to find the
+	current screen.
+	(scanwins): use is_rp_window_for_screen to skip over ratpoison windows.
+	(scanwins): when using xinerama only manage windows inside the viewable area.
+
+	* src/main.c (main): call init_xinerama and init_screens. Move
+	screen initing code to these functions.
+	(init_rat_cursor): move to screen.c
+	(init_screen): likewise
+	(find_screen): likewise
+	(clean_up): call free_xinerama
+
+
+	* src/group.c (group_last_window): only check windows in the
+	current screen, unless xinerama is being used in which case all
+	windows are accessible.
+	(group_next_window): likewise
+	(group_prev_window): likewise
+
+	* src/globals.h: new globals rp_have_xinerama, xine_screen_num.
+
+	* src/events.c (new_window): when using xinerama, the new window's
+	screen is the current screen.
+	(key_press): when using xinerama, use the current screen.
+
+	* src/data.h (struct rp_screen): remove root_attr and add left,
+	top, width, height. All dependant code updated. Add xine_screen_num.
+
+	* src/actions.c (cmd_remove): show the frame indicator in the new
+	current frame after removing the frame.
+
+	* src/Makefile.am (ratpoison_SOURCES): add xinerama.c and xinerama.h
+
+2004-02-26  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* src/split.c (hide_frame_indicator): unmap all 'current frame'
+	indicator windows.
+	(show_frame_indicator): hide the 'current frame' indicator before
+	showing it.
+
+2004-01-30  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* src/actions.c (cmd_tmpwm): add an XSync() call
+
+2004-01-25  Ryan Yeske  <rcyeske@vcn.bc.ca>
+
+	* src/actions.c (sync_wins): Change list_for_each_entry to
+	list_for_each_entry_safe.
+	(cmd_tmpwm): Unhide and maximize each mapped window before
+	spawning a new wm.
+
+2003-11-29  Ryan Yeske  <rcyeske@vcn.bc.ca>
+
+	* src/communications.c (receive_command_result): Rename from
+	recieve_command_result.  From paxed.
+
+	* src/events.c (handle_signals): s/recieve/receive.
+
+2003-11-24  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* src/main.c (ratpoison_longopts): add "file"
+	(ratpoison_opts): add f: option
+	(print_help): print help for --file option
+	(read_startup_files): take an alternative rc file as an argument
+	and use it if it is non-NULL.
+	(main): parse the --file option. pass alt_rcfile to
+	read_startup_files.
+
+2003-11-22  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* contrib/Makefile.am (pkgdata_DATA): add rpshowall.sh
+	(EXTRA_DIST): likewise
+
+2003-11-17  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* contrib/rpshowall.sh: store ratpoison binary location in
+	RATPOISON env var.
+
+	* src/ratpoison.h (FD_CLOEXEC): new define
+	(set_close_on_exec): new prototype
+
+	* src/main.c (ratpoison_longopts): add "interactive" option.
+	(ratpoison_opts): likewise
+	(print_help): print a help line for interactive option.
+	(set_close_on_exec): new function
+	(read_startup_files): call set_close_on_exec on file pointer
+	(main): parse interactive command line option and pass it to
+	send_command.
+
+	* src/events.c (execute_remote_command): pass the interactive bit
+	to command.
+
+	* src/communications.c (send_command): send an interactive bit at
+	the beginning of the message. Take an interactive argument. All
+	callers updated. Prototype updated.
+	
+	* src/actions.c (cmd_source): call set_close_on_exec on file pointer.
+
+2003-11-16  Ryan Yeske  <rcyeske@vcn.bc.ca>
+
+	* contrib/rpshowall.sh: Added file.  From Florian Cramer
+	<cantsin@zedat.fu-berlin.de>
+
+2003-11-02  Thien-Thi Nguyen  <ttn@glug.org>
+	
+	* AUTHORS: Add self.
+ 
+ 	* configure.in: Add "--disable-history" handling.
+ 	Conditionalize libhistory checks accordingly.
+ 
+ 	* README: Mention "--disable history".
+ 
+ 	* src/history.c: Surround most of the code with
+ 	"#ifdef HAVE_READLINE_HISTORY_H".
+ 
+ 	* src/ratpoison.h: Only #include history.h when
+ 	"#ifdef HAVE_READLINE_HISTORY_H".
+ 
+ 	* src/main.c (main, clean_up): Only load and save history,
+ 	respectively, when "#ifdef HAVE_READLINE_HISTORY_H".
+ 
+ 	* src/editor.c (editor_history_previous, editor_history_next):
+ 	Return EDIT_NO_OP when not "#ifdef HAVE_READLINE_HISTORY_H".
+ 	(editor_enter): Do not do line expansion or history add
+ 	when not "#ifdef HAVE_READLINE_HISTORY_H".
+ 
+ 	* doc/ratpoison.texi: Mention that history cycling and
+ 	processing is not available when ratpoison is configured
+ 	with the "--disable-history" option.
+ 
+2003-11-01  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* src/input.c (cook_keycode): null terminate the string.
+
+2003-10-24  Ryan Yeske  <rcyeske@vcn.bc.ca>
+
+	* contrib/ratpoison.el: Added requires.
+
+2003-10-15  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* src/globals.c (rp_hook_db): add hooks quit and restart
+	(rp_quit_hook): new global
+	(rp_restart_hook): likewise
+
+	* src/events.c (handle_signals): call the restart and quit hooks
+
+2003-09-24  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* contrib/clickframe.pl: put the patch at the end of the file and
+	make it runnable through patch.
+
+	* contrib/Makefile.am (EXTRA_DIST): add clickframe.pl
+	(pkgdata_DATA): likewise
+
+2003-09-21  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* src/bar.c (prepare_bar): move and resize the window before mapping it.
+
+2003-09-04  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* src/actions.c (initialize_default_keybindings): use ROOT_KEYMAP
+	in the bind and unbind aliases.
+
+2003-09-02  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* src/main.c (show_welcome_message): search the root keymap for
+	the help binding.
+	(clean_up): call free_keymaps and not free_keybindings.
+
+	* src/events.c (handle_key): call cmd_readkey to hand actually
+	reading a key from the keyboard.
+
+	* src/data.h (typedef rp_keymap): new typedef
+	(struct rp_keymap): new struct
+
+	* src/conf.h (ROOT_KEYMAP): new define
+
+	* src/actions.h (cmd_readkey): new prototype
+	(cmd_newkmap): likewise
+	(cmd_delkmap): likewise
+	(cmd_definekey): likewise
+	(find_keymap): likewise
+	(keymap_free): likewise
+	(free_keymaps): likewise
+
+	* src/actions.c (rp_keymaps): new global.  remove globals
+	key_actions, key_actions_last, and key_actions_table_size.
+	(user_commands): remove bind and unbind. New commands readkey,
+	newkmap, delkmap, and definekey.
+	(find_keybinding_by_action): take a rp_keymap argument and operate
+	on it. All callers updated.
+	(find_keybinding): likewise
+	(find_command_by_keydesc): likewise
+	(resolve_command_from_keydesc): likewise
+	(add_keybinding): likewise
+	(remove_keybinding): likewise
+	(cmd_definekey): new function
+	(cmd_newkmap): likewise
+	(cmd_delkmap): likewise
+	(keymap_new): likewise
+	(keymap_free): likewise
+	(find_keymap): likewise
+	(free_keymaps): likewise
+	(cmd_bind): remove function. Prototype removed.
+	(cmd_unbind): likewise
+	(initialize_default_keybindings): add aliases for unbind and bind.
+	(ungrab_rat): moved from events.c
+	(grab_rat): likewise
+
+
+2003-08-30  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* src/input.c (get_more_input): use XGrabKeyboard and XUngrabKeyboard
+	for changing focus to read key presses.
+
+	* src/events.c (handle_key): use XGrabKeyboard and XUngrabKeyboard
+	for changing focus to read key presses.
+
+	* src/actions.c (cmd_resize): use XGrabKeyboard and
+	XUngrabKeyboard for changing focus to read key presses.
+	(cmd_license): likewise
+	(cmd_help): likewise
+	(cmd_fselect): likewise
+
+2003-08-29  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* src/window.c (give_window_focus): use set_rp_window_focus.
+
+	* src/split.c (set_active_frame): use set_window_focus.
+	(blank_frame): likewise
+
+	* src/main.c (main): use set_window_focus.
+
+	* src/input.c (get_more_input): use set_window_focus
+
+	* src/globals.h (set_window_focus): new prototype
+	(set_rp_window_focus): likewise
+
+	* src/events.c (handle_key): use set_window_focus.
+
+	* src/actions.c (cmd_resize): use set_window_focus.
+	(cmd_license): likewise
+	(cmd_help): likewise
+	(cmd_tmpwm): likewise
+	(cmd_fselect): likewise
+
+	* src/globals.c (set_rp_window_focus): new function
+	(set_window_focus): likewise
+
+2003-08-24  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/window.c (goto_window): don't do anything if the window is
+	already the current window.
+	(set_active_window): don't abort if last_win and win are the same.
+
+2003-08-22  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/window.c (set_active_window): don't do anything if the
+	window is already the focused window.
+
+	* src/split.c (remove_all_splits): only hide the windows in the
+	current screen.
+
+	* src/group.h (group_delete_group): new prototype
+
+	* src/group.c (group_last_window): find the last window in the
+	current screen.
+	(group_next_window): find next window in current screen.
+	(group_prev_window): find previous window in current screen.
+
+	* src/manage.c (force_maximize): call XSync() after first resize.
+
+	* src/globals.h (GROUP_DELETE_GROUP_OK): new define
+	(GROUP_DELETE_GROUP_NONEMPTY): likewise
+
+	* src/actions.h (cmd_gdelete): new prototype
+
+	* src/actions.c (user_commands): new command gdelete
+	(cmd_gdelete): new command
+
+2003-08-10  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/editor.c (editor_enter): return EDIT_ABORT if there was an
+	error with the history retrieval.
+
+	* src/bar.c (get_mark_box): take the bar padding into account when
+	calculate the top of the highlight bar.
+	(prepare_bar): just use height for the height of the window.
+	(marked_message): add the padding to the height of the window.
+
+	* src/window.c (give_window_focus): only save the pointer position
+	when win and last_win aren't the same window.
+
+	* src/actions.h (cmd_listhook): new prototype
+
+	* src/actions.c (use_commands): new command listhook
+	(cmd_remhook): fix error messages
+	(hook_completions): new function
+	(cmd_listhook): likewise
+
+2003-08-02  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/actions.c (cmd_number): rename the window's group number
+	instead of it's internal number.
+
+2003-07-16  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/hook.c: include string.h
+
+	* src/window.c (set_active_window): run the switch window hook.
+
+	* src/split.c (set_active_frame): run the switch frame hook.
+
+	* src/ratpoison.h: include hook.h
+
+	* src/group.h (set_current_group): new prototype
+
+	* src/group.c (set_current_group): new function
+
+	* src/globals.h (rp_prefix_hook): new extern
+	(rp_switch_win_hook): likewise
+	(rp_switch_frame_hook): likewise
+	(rp_switch_group_hook): likewise
+	(rp_hook_db): likewise
+
+	* src/globals.c (rp_prefix_hook): new hook
+	(rp_switch_win_hook): likewise
+	(rp_switch_frame_hook): likewise
+	(rp_switch_group_hook): likewise
+	(rp_hook_db): new global
+
+	* src/events.c (handle_key): call the prefix hook.
+
+	* src/data.h (struct rp_hook_db_entry): new struct
+
+	* src/actions.h (cmd_addhook): new prototype
+	(cmd_remhook): likewise
+
+	* src/actions.c (user_commands): add commands addhook and remhook.
+	(cmd_windows): show the window bar no matter what if the bar
+	timeout is > 0.
+	(cmd_gnext): call set_current_group
+	(cmd_gprev): likewise
+	(cmd_gnew): likewise
+	(cmd_gselect): likewise
+	(cmd_addhook): new function
+	(cmd_remhook): likewise
+
+	* src/Makefile.am (ratpoison_SOURCES): add hook.c and hook.h
+
+2003-06-29  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/editor.c (editor_enter): return EDIT_ABORT when a history
+	expansion fails.
+
+2003-06-25  Shawn Betts  <sabetts@sfu.ca>
+
+	* contrib/rpws: only set RATPOISON if it's not already set.
+
+	* src/actions.c (cmd_gmove): prompt the user if no group is passed
+	as an argument.
+
+	* contrib/rpws: call /bin/bash
+	(rp_call): remove extraneous 'function' keyword in function declaration.
+	(ws_init_ws): likewise
+	(ws_init): likewise
+	(ws_save): likewise
+	(ws_restore): likewise
+	(ws_bindings): likewise
+
+2003-06-24  Shawn Betts  <sabetts@sfu.ca>
+
+	* contrib/rpws (rp_call): Don't print debug information.
+
+	* src/actions.c (cmd_resize): fix error message text
+	(cmd_resize): likewise
+	(cmd_defresizeunit): likewise
+	(cmd_defresizeunit): likewise
+	(cmd_chdir): likewise
+	(cmd_frestore): likewise
+	(cmd_frestore): likewise
+	(cmd_defwinliststyle): likewise
+	(cmd_defwinliststyle): likewise
+	(cmd_gmove): likewise
+	(cmd_gmove): likewise
+	(cmd_gmerge): likewise
+
+2003-06-22  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/actions.c (cmd_groups): print a * beside the current
+	group. if non-interactively called, return the string.
+	(sync_wins): rewrite.
+	(cmd_groups): always print a column in non-interactive mode.
+
+2003-06-21  Shawn Betts  <sabetts@sfu.ca>
+
+	* contrib/Makefile.am (bin_SCRIPTS): add rpws
+
+2003-06-14  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/window.c (set_active_window): remove duplicate call to
+	unhide_window, it is made in give_window_focus. Call
+	give_window_focus before calling hide_others.
+
+2003-06-02  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/group.c (groups_merge): don't merge a group with itself.
+
+	* src/bar.c (draw_mark): abort if mark_end is the beginning of the
+	line or the start and end of the mark is the same.
+
+	* src/actions.c (group_completions): use a group's number if it
+	has no name.
+
+2003-05-31  Shawn Betts  <sabetts@sfu.ca>
+
+	* configure.in: check for usleep
+
+2003-05-28  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/completions.c (completions_complete): if direction is
+	COMPLETION_PREVIOUS, then set last_match to it's previous entry.
+
+	* src/globals.h (COMPLETION_NEXT): new define
+	(COMPLETION_PREVIOUS): likewise
+
+	* src/editor.c (editor_complete): remove prototype
+	(editor_complete_prev): new prototype
+	(editor_complete_next): likewise
+	(editor_insert): make it a static function. update prototype
+	(edit_bindings): add editor_complete_prev. replace editor_complete
+	with editor_complete_next.
+	(editor_complete): call completions_complete
+	(editor_complete_next): new function
+	(editor_complete_prev): likewise
+
+	* src/completions.h (completions_next_completion): remove prototype
+	(completions_update): likewise
+	(completions_assign): likewise
+	(completions_complete): new prototype
+
+	* src/completions.c (completions_assign): make it a static
+	function
+	(completions_update): likewise
+	(completions_prev_match): new function
+	(completions_next_match): likewise
+	(completions_complete): renamed from
+	completions_next_completion. call completions_next_match and
+	completions_prev_match.
+
+2003-05-27  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/completions.c (completions_next_completion): check
+	c->last_match as a match to partial on a virgin completion.
+
+	* src/group.c (free_groups): new function
+
+	* src/group.h (free_groups): new prototype
+
+	* src/main.c (clean_up): call free_groups
+
+	* src/actions.c (cmd_fdump): free the string returned by frame_dump.
+
+	* src/completions.c (completions_update): free new_list.
+
+	* src/editor.c (input_line_free): free the completions structure
+	in line.
+
+	* configure.in: add a check for libhistory.
+
+	* src/editor.c (saved_command): new local global
+	(edit_binding): new typedef
+	(edit_binding): new struct
+	(edit_bindings): new local global
+	(input_line_new): new function
+	(input_line_free): likewise
+	(execute_edit_action): likewise
+	(editor_forward_char): likewise
+	(editor_backward_char): likewise
+	(editor_forward_word): likewise
+	(editor_backward_word): likewise
+	(editor_beginning_of_line): likewise
+	(editor_end_of_line): likewise
+	(editor_delete_char): likewise
+	(editor_backward_delete_char): likewise
+	(editor_kill_word): likewise
+	(editor_backward_kill_word): likewise
+	(editor_kill_line): likewise
+	(editor_backward_kill_line): likewise
+	(editor_history_previous): likewise
+	(editor_history_next): likewise
+	(editor_abort): likewise
+	(editor_no_action): likewise
+	(editor_insert): likewise
+	(editor_enter): likewise
+	(paste_cut_buffer): likewise
+	(paste_primary_selection): likewise
+	(editor_paste_selection): likewise
+	(editor_complete): likewise
+	(editor_forward_char): new prototype
+	(editor_backward_char): likewise
+	(editor_forward_word): likewise
+	(editor_backward_word): likewise
+	(editor_beginning_of_line): likewise
+	(editor_end_of_line): likewise
+	(editor_delete_char): likewise
+	(editor_backward_delete_char): likewise
+	(editor_kill_word): likewise
+	(editor_backward_kill_word): likewise
+	(editor_kill_line): likewise
+	(editor_paste_selection): likewise
+	(editor_abort): likewise
+	(editor_no_action): likewise
+	(editor_enter): likewise
+	(editor_history_previous): likewise
+	(editor_history_next): likewise
+	(editor_complete): likewise
+	(editor_backward_kill_line): likewise
+
+	* src/sbuf.h (sbuf): add node field.
+
+	* src/main.c (xrealloc): don't print debugger output
+	(init_defaults): init history_size
+	(main): initialize rp_selection
+	(main): load history
+	(clean_up): save history
+
+	* src/linkedlist.h (list_first): new macro
+
+	* src/input.h (free_history): remove prototype
+	(ring_bell): new function
+
+	* src/input.c: include unistd.h
+	(input_history): remove
+	(input_num_history_entries): likewise
+	(update_input_window): remove prompt, input, and input_len
+	arguments. add line argument.
+	(update_input_window): use line argument.
+	(ring_bell): new function
+	(get_input): take completion_fn argument. prototype and callers
+	updated.
+	(free_history): remove function
+	(get_more_input): take completion_fn argument. prototype and
+	callers updated. use line structure and its functionality.
+
+	* src/globals.h (MAX_FONT_WIDTH): new define
+	(rp_selection): new extern
+
+	* src/globals.c (rp_selection): new global
+
+	* src/completions.h (completions_new): new prototype
+	(completions_free): likewise
+	(completions_assign): likewise
+	(completions_update): likewise
+	(completions_next_completion): likewise
+
+
+	* src/completions.c (completions_new): new function
+	(completions_free): likewise
+	(completions_assign): likewise
+	(completions_update): likewise
+	(completions_next_completion): likewise
+
+	* src/Makefile.am (ratpoison_SOURCES): add editor.c editor.h
+	history.h and history.c
+
+	* src/data.h (rp_completions): new typedef
+	(rp_input_line): likewise
+	(completion_fn): likewise
+	(rp_defaults): new field, history_size
+	(rp_completions): new struct
+	(rp_input_line): new struct
+
+	* src/conf.h (MAX_HISTORY_SIZE): new define
+	(HISTORY_FILE): likewise
+	(VISUAL_BELL): likewise
+	(MODIFIER_PREFIX): set to RP_CONTROL_MASK
+	(INPUT_ABORT_MODIFIER): likewise
+	(INPUT_PREV_HISTORY_MODIFIER): likewise
+	(INPUT_NEXT_HISTORY_MODIFIER): likewise
+	(RESIZE_VGROW_MODIFIER): likewise
+	(RESIZE_VSHRINK_MODIFIER): likewise
+	(RESIZE_HGROW_MODIFIER): likewise
+	(RESIZE_HSHRINK_MODIFIER): likewise
+
+	* src/actions.c (trivial_completions): new function
+	(window_completions): likewise
+	(colon_completions): likewise
+	(exec_completions): likewise
+	(cmd_select): pass window_completions to get_input
+	(cmd_rename): pass trivial_completions to get_input
+	(cmd_colon): pass colon_completions to get_input and
+	get_more_input
+	(cmd_exec): pass exec_completions to get_input
+	(cmd_newwm): pass trivial_completions to get_input
+	(cmd_resize): convert the keysym modifier to something ratpoison
+	understands.
+
+2003-05-25  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/Makefile.am (ratpoison_SOURCES): add completions.c and completions.h
+
+	* src/actions.c (cmd_gmerge): show a message if the group
+	specified by the user could not be found.
+	(cmd_gselect): if the user didn't type anything then return.
+
+	* src/window.c: do not include ctype.h
+
+	* src/ratpoison.h (str_comp): new prototype
+
+	* src/messages.h (MESSAGE_PROMPT_SWITCH_TO_GROUP): new define
+
+	* src/main.c: include ctype.h
+	(str_comp): moved from window.c
+
+	* src/group.h (groups_find_group_by_name): new prototype.
+	(groups_find_group_by_number): likewise.
+	(groups_merge): likewise
+	(group_move_window): likewise
+
+	* src/group.c: include string.h
+	(group_new): new argument, name. All callers updated. prototype
+	updated.
+	(init_groups): create the first group with DEFAULT_GROUP_NAME as
+	its name.
+	(group_new): new argument, name. All callers updated. Prototype
+	updated.
+	(group_free): free the group's name.
+	(group_add_new_group): new argument, name. All callers
+	updated. Prototype updated.
+	(groups_find_group_by_name): new function
+	(groups_find_group_by_number): likewise
+	(group_move_window): likewise
+	(groups_merge): likewise
+
+	* src/conf.h (DEFAULT_GROUP_NAME): new define
+
+	* src/actions.h (cmd_gselect): new prototype
+	(cmd_groups): likewise
+	(cmd_gmove): likewise
+	(cmd_gmerge): likewise
+	(cmd_gnewbg): likewise
+
+	* src/actions.c (user_commands): new commands gselect, groups,
+	gmove, gmerge, gnewbg.
+	(cmd_gnewbg): new function
+	(find_group): likewise
+	(cmd_gselect): likewise
+	(cmd_groups): likewise
+	(cmd_gmove): likewise
+	(cmd_gmerge): likewise
+
+	* src/bar.c (reset_alarm): new function
+	(show_bar): call reset_alarm()
+	(count_lines): make function static. clean up code.
+	(max_line_length): likewise
+	(pos_in_line): likewise
+	(line_beginning): likewise
+	(draw_string): new static function
+	(correct_mark): likewise
+	(prepare_bar): likewise
+	(get_mark_box): likewise
+	(draw_inverse_box): likewise
+	(draw_mark): likewise
+	(update_last_message): likewise
+	(marked_message): Move most of the code to seperate function
+	calls. Call reset_alarm(), prepare_bar(), draw_string(),
+	correct_mark(), draw_mark(), and update_last_message().
+
+	* src/actions.c (cmd_select): fix crash bug.
+
+	* src/window.c (get_window_list): mark_end is the length of the
+	string. Don't do a special case if the window list is being
+	displayed as a column.
+
+	* src/input.c (read_key): Do not wait for the key release
+	event. Remove gobble_rel argument. Callers updated.
+
+2003-05-24  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/group.h (group_resort_window): new prototype
+
+	* src/group.c (group_find_window_by_number): return
+	rp_window_elem*. Dependant code updated.
+	(group_insert_window): new function
+	(group_in_list): likewise
+	(group_resort_window): likewise
+	(group_map_window): insert the window and sort the list.
+
+	* src/actions.c (cmd_number): Change the group number of the
+	window.
+	(cmd_resize): print an error message if the command was called
+	interactively with <2 arguments.
+
+2003-05-21  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/actions.c (cmd_resize): fail if data == NULL when called
+	non-interactively.
+
+2003-05-20  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/linkedlist.h: Move all C function to linkedlist.c
+
+2003-05-19  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/window.c (find_window): add debugging output describing
+	which window list the window was found in.
+
+	* src/group.c (group_new): assign the group's number the number
+	passed as an argument.
+
+	* src/events.c (destroy_window): withdraw iconified and normal
+	windows before unmanaging them.
+	(handle_signals): delete the node from the list before freeing it.
+
+	* src/bar.h (message): remove define.
+	(marked_wrapped_message): remove prototype
+	(message): new prototype
+
+	* src/bar.c (message): new function
+	(marked_wrapped_message): renamed to marked_message. remove
+	marked_message.
+
+2003-05-18  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/bar.c (marked_wrapped_message): Free the GC's created with
+	XCreateGC.
+
+2003-05-17  Shawn Betts  <sabetts@sfu.ca>
+
+	* configure.in: version bump to 1.3.0-cvs
+
+	* src/main.c (chld_handler): Variable declaration placed in proper
+	location.
+
+	* src/actions.c (spawn): always put the DISPLAY string in the
+	environment.
+
+2003-05-16  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/window.c (add_to_window_list): add the window to the current
+	group.
+	(find_window_name): search the current group for a matching
+	window.
+	(find_window_other): likewise.
+	(format_window_name): take a rp_window_elem as an argument, not an
+	rp_window. Print the group window's number, not the window's
+	internal number.
+	(get_window_list): loop through the current group.
+
+	* src/split.c (find_window_for_frame): search the current group
+	for a window to fit in the frame.
+
+	* src/ratpoison.h: include globals.h and group.h
+
+	* src/manage.c (unmanage): remove the window from any groups it
+	was in.
+	(map_window): map the window in any groups it is in.
+	(withdraw_window): unmap the window in any groups it is in.
+
+	* src/main.c: Move all globals to globals.h
+	(main): initialize the group functions.
+
+	* src/data.h: Move all defines and extern globals to globals.h
+	(struct rp_window_elem): new struct
+	(struct rp_group): likewise
+
+	* src/actions.h (cmd_gnext): new prototype
+	(cmd_gprev): likewise
+	(cmd_gnew): likewise
+
+	* src/actions.c (user_commands): new commands gnext, gprev, and gnew
+	(cmd_prev): fix to work with new group code.
+	(cmd_next): likewise
+	(cmd_gnext): new function
+	(cmd_gprev): likewise
+	(cmd_gnew): likewise
+
+	* src/Makefile.am (ratpoison_SOURCES): add files globals.h,
+	globals.c, group.h and group.c
+
+2003-05-15  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/data.h (struct rp_frame): renamed from rp_window_frame. All
+	dependant code updated.
+
+	* src/main.c: remove child_info global. Add rp_children global.
+	(chld_handler): update the terminated and status fields of any
+	terminated children.
+
+	* src/events.c (handle_signals): loop through each child process
+	and remove them from the list. Print a message for any child that
+	doesn't return a 0 status.
+
+	* src/data.h (rp_child_info): new fields, terminated and node.
+	remove child_info global. Add rp_children global.
+
+	* src/actions.c (spawn): Add the command to the list of children.
+
+2003-05-14  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/data.h (struct rp_screen): rename from
+	screen_info. Dependant code updated.
+
+2003-05-09  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/manage.h (clear_unmanaged_list): new prototype
+	(list_unmanaged_windows): likewise
+	(add_unmanaged_window): likewise
+
+	* src/manage.c (unmanaged_window_list): no longer a const.
+	(num_unmanaged_windows): new static global
+	(clear_unmanaged_list): new function
+	(list_unmanaged_windows): likewise
+	(add_unmanaged_window): likewise
+	(unmanaged_window): use num_unmanaged_windows to tell how many
+	elements are in the unmanaged list.
+	
+	* src/actions.h (cmd_unmanage): new prototype
+	(cmd_clrunmanaged): likewise
+
+	* src/actions.c (user_commands): new commands unmanage,
+	clrunmanaged.
+	(cmd_unmanage): new function
+	(cmd_clrunmanaged): likewise
+
+	* src/split.c (split_frame): call update_bar() instead of
+	update_window_names().
+	(set_active_frame): likewise
+	(blank_frame): likewise
+
+	* src/bar.h (update_bar): new prototype.
+
+	* src/bar.c (BAR_IS_HIDDEN): new define.
+	(update_bar): new function. 
+
+	* src/actions.c (cmd_frestore): call update_bar() instead of
+	update_window_names().
+
+	* src/split.c (set_active_frame): update the window list after
+	switching frames.
+	(blank_frame): update the window list after blanking the screen.
+
+	* src/actions.c (cmd_frestore): update the window list after
+	restoring the frames.
+
+	* src/split.c (split_frame): update the window list after the
+	split.
+
+2003-04-13  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/main.c (main): if the screen was specified on the
+	command-line, send the command to the correct screen.
+
+	* src/communications.c (send_command): new argument,
+	screen_num. Get the root window for the specified
+	screen. prototype updated.
+
+	* src/main.c (init_screen): print the display string for
+	debugging.
+	(ratpoison_opts): fix -c option by adding a : after it.
+
+	* src/manage.c (current_screen): search for the current screen
+	using rp_current_screen.
+
+	* src/main.c (main): add switch case for the display command line
+	option.
+	(print_help): add --display option. Add text to demonstrate
+	--display and --command take an argument.
+	(ratpoison_longopts): add display.
+	(ratpoison_longopts): add screen.
+	(ratpoison_opts): add 'd'
+	(ratpoison_opts): add 's'
+	(main): parse the screen argument and process it.
+	(print_help): add --screen
+
+	* src/manage.c (get_wmname): add debugging output to print
+	returned elements from X11 call.
+
+2003-04-11  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/manage.c (get_wmname): add a debug line to print the
+	property returned.
+	(get_wmname): add newline in debug print out.
+	(get_wmname): fail if n is 0.
+
+	* src/window.c (window_name): use WIN_NAME_* defines for possible
+	defaults.win_name values.
+	(window_name): remove case WIN_NAME_TITLE and glob it with the
+	default switch.
+
+	* src/main.c (init_defaults): use WIN_NAME_* defines for
+	possible defaults.win_name values.
+
+	* src/actions.c (cmd_defwinname): use WIN_NAME_* defines for
+	possible defaults.win_name values.
+	(cmd_defwinname): likewise
+
+	* src/data.h (WIN_NAME_TITLE): new define
+	(WIN_NAME_RES_CLASS): new define
+	(WIN_NAME_RES_NAME): new define
+
+	* src/window.c (add_to_window_list): use xstrdup to create the
+	default value for user_name.
+	
+2003-04-10  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/events.c (unmap_notify): fix crash bug in NormalState case.
+
+2003-04-09  Shawn Betts  <sabetts@sfu.ca>
+
+	* configure.in (TERM_PROG): Add doc string
+
+	* src/events.c (receive_command): handle the case when more than
+	one client requests a command (fix infinite loop bug).
+
+2003-04-08  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/main.c (WAIT_ANY): define it if it isn't already define.
+
+2003-04-07  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/input.c (read_key): remove the local variable, key_presses.
+
+	* src/Makefile.am (ratpoison_SOURCES): add linkedlist.h
+
+	* src/bar.c (marked_message): pass correct arguments to bar_y.
+
+	* src/actions.c (cmd_defwinliststyle): error messages print the
+	correct command name.
+
+2003-04-06  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/actions.h: All cmd_* functions take char* instead of
+	void*. All callers updated.
+
+	* src/bar.c (marked_wrapped_message): make the marked line span
+	the whole line.
+
+	* src/actions.c (cmd_number): update any frames pointing to the
+	windows that have changed.
+
+2003-04-05  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/window.c (get_window_list): if window_list_style is STYLE_COLUMN then
+	the end of the mark is the length of the buffer minus the start of
+	the mark.
+
+	* src/main.c (init_defaults): init window_list_style to STYLE_ROW.
+
+	* src/input.c (update_input_window): store the height in a
+	variable.
+
+	* src/data.h (struct rp_defaults): new member, window_list_style.
+
+	* src/bar.h [message]: wrap msg arg in parens.
+	(marked_wrapped_message): new prototype
+
+	* src/bar.c (bar_y): new argument, height. All callers updated.
+	(bar_y): use height in calculations.
+	(update_window_names): print a column of windows if
+	defaults.window_list_style is in column mode.
+	(count_lines): new function
+	(max_line_length): likewise
+	(pos_in_line): likewise
+	(line_beginning): likewise
+	(marked_wrapped_message): likewise
+
+	* src/actions.c (user_commands): new commands 'verbexec' and
+	'defwinliststyle'. Move @end take to after the def* commands.
+	(cmd_verbexec): new function. Added prototype.
+	(cmd_defwinliststyle): likewise
+
+2003-04-04  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/split.c (set_active_frame): fix NULL pointer crash bug.
+
+	* src/actions.c (cmd_setenv): properly parse the environment name
+	and value using strtok.
+
+	* src/window.c (add_to_window_list): init the window's frame_number to EMPTY.
+
+	* src/number.h (numset_clear): new prototype
+
+	* src/manage.c (unmanage)[AUTO_CLOSE]: code update for new globals.
+
+	* src/frame.c (frame_new): init f->last_access to 0.
+	(frame_dump): dump the X11 window ID, not the window number.
+	(frame_read): new function
+
+	* src/events.c (destroy_window): just unmanage the window.
+
+	* src/actions.h (cmd_fdump): new prototype
+	(cmd_frestore): likewise
+
+	* src/actions.c (user_commands): new commands "fdump" and "frestore".
+	(cmd_fdump): new function
+	(cmd_frestore): likewise
+
+	* src/number.c (numset_clear): new function.
+
+2003-03-31  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/window.c (set_current_window): use current_frame()
+
+	* src/split.h (current_frame): new prototype
+
+	* src/split.c (current_frame): new function
+	(current_window): use current_frame()
+	(split_frame): likewise
+	(remove_all_splits): likewise
+	(set_active_frame): likewise
+	(show_frame_message): likewise
+	(remove_all_splits): use current_screen()
+
+	* src/actions.c (cmd_prev_frame): use current_frame()
+	(cmd_next_frame): likewise
+	(cmd_select): likewise
+	(cmd_h_split): likewise
+	(cmd_v_split): likewise
+	(cmd_remove): likewise
+	(cmd_shrink): likewise
+	(cmd_resize): likewise
+	(cmd_focusup): likewise
+	(cmd_focusdown): likewise
+	(cmd_focusleft): likewise
+	(cmd_focusright): likewise
+
+2003-03-30  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/split.c (current_window): call screen_get_frame.
+	(split_frame): call screen_get_frame to get appropriate structure.
+	(split_frame): call find_window_number to get appropriate
+	structure.
+	(remove_all_splits): call screen_get_frame to get appropriate
+	structure.
+	(resize_frame): make sure all frames that will be resized are big
+	enough for the resize.
+	(resize_frame): return int
+	(resize_shrink_to_window): call find_window_number to get the
+	appropriate structure.
+	(resize_frame_right): return int
+	(resize_frame_left): likewise
+	(resize_frame_top): likewise
+	(resize_frame_bottom): likewise
+	(resize_frame_horizontally): backup the frameset and restore it if
+	the resize fails. Do not allow a frame to be resized too small or
+	too big.
+	(resize_frame_vertically): likewise
+	(remove_frame): call find_window_number to get the appropriate
+	structure.
+	(set_active_frame): likewise
+	(blank_frame): likewise
+	(show_frame_message): call screen_get_frame to get the appropriate
+	structure.
+
+	* src/screen.c (screen_width): new function (and prototype)
+	(screen_height): likewise
+	(screen_left): likewise
+	(screen_right): likewise
+	(screen_top): likewise
+	(screen_bottom): likewise
+	(screen_copy_frameset): likewise
+	(screen_restore_frameset): likewise
+	(frameset_free): likewise
+	(screen_get_frame): likewise
+
+	* src/split.c (maximize_frame): call screen_width and
+	screen_height to get the size for the frame.
+
+	* src/ratpoison.h: include screen.h
+
+	* src/manage.c (move_window): 
+
+	* src/frame.h (frame_copy): new prototype
+	(frame_dump): likewise
+
+	* src/frame.c (frame_copy): new function
+	(frame_dump): likewise
+
+	* src/events.c (unmap_notify): compare frame numbers, not
+	pointers.
+	(client_msg): call screen_get_frame when blanking the frame.
+
+	* src/data.h (EMPTY): new define
+	(struct rp_window_frame): replace the win field with
+	win_number. Dependant code updated.
+	(struct rp_window): replace frame with frame_number. Dependant
+	code updated.
+	(struct screen_info): replace rp_current_frame with current_frame
+	and change type to int. Dependant code updated.
+
+	* src/Makefile.am (ratpoison_SOURCES): added screen.h and screen.c
+
+2003-03-25  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/split.h (show_frame_message): new prototype
+
+	* src/split.c (show_frame_message): new function
+
+	* src/main.c (init_screen): listen for key release events in the
+	key_window and input_window.
+
+	* src/input.c (read_key): new argument, gobble_rel. All callers
+	updated.
+
+	* src/actions.c (cmd_remove): only remove the current frame if it
+	isn't the ONLY one.
+	(cmd_remove): display a message informing the user if the frame
+	cannot be removed.
+	(cmd_resize): clean up resize loop.
+	(cmd_resize): display a window indicating which frame is being
+	resized.
+
+2003-03-23  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/split.c (resize_frame_vertically): fix typo error (frame_top
+	not frame_left).
+
+2003-03-17  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/split.c (resize_frame_horizontally): only resize to the left
+	if the frame isn't against the left side of the screen.
+	(resize_frame_vertically): only resize to the left
+	if the frame isn't against the top of the screen.
+
+	* src/actions.c (initialize_default_keybindings): add keybindings
+	for fselect and resize. Move keybinding for curframe.
+
+	* src/split.c (create_initial_frame): call frame_new to allocate a frame.
+	(split_frame): likewise
+
+	* src/main.c (free_screen): call frame_free to free the screen
+	frames.
+
+	* src/frame.h (frame_new): new prototype
+	(frame_free): likewise
+
+	* src/frame.c (frame_new): new function.
+	(frame_free): likewise
+
+2003-03-07  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/Makefile.am (ratpoison_SOURCES): add frame.c and frame.h
+
+	* src/frame.h (frame_left): new prototype
+	(frame_top): likewise
+	(frame_right): likewise
+	(frame_bottom): likewise
+	(frame_width): likewise
+	(frame_height): likewise
+	(frame_resize_left): likewise
+	(frame_resize_right): likewise
+	(frame_resize_up): likewise
+	(frame_resize_down): likewise
+	(frame_move_left): likewise
+	(frame_move_right): likewise
+	(frame_move_up): likewise
+	(frame_move_down): likewise
+
+	* src/frame.c (frame_left): new function
+	(frame_top): likewise
+	(frame_right): likewise
+	(frame_bottom): likewise
+	(frame_width): likewise
+	(frame_height): likewise
+	(frame_resize_left): likewise
+	(frame_resize_right): likewise
+	(frame_resize_up): likewise
+	(frame_resize_down): likewise
+	(frame_move_left): likewise
+	(frame_move_right): likewise
+	(frame_move_up): likewise
+	(frame_move_down): likewise
+
+	* src/split.c (resize_frame): new function
+	(resize_frame_right): likewise
+	(resize_frame_left): likewise
+	(resize_frame_top): likewise
+	(resize_frame_bottom): likewise
+	(resize_frame_horizontally): use resize_frame_right and
+	resize_frame_left to do the resizing.
+	(resize_frame_vertically):  use resize_frame_top and
+	resize_frame_bottom to do the resizing.
+
+	* src/ratpoison.h (PRINT_ERROR): flush stdout
+	(PRINT_DEBUG): likewise
+	include frame.h
+
+2003-03-06  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/split.h (find_frame_number): new prototype
+
+	* src/split.c (create_initial_frame): give a number to the
+	initial frame
+	(split_frame): give the new frame a unique number 
+	(split_frame): add the new frame after the current frame
+	(remove_all_splits): return the frame's number when deleting it.
+	(remove_frame): likewise
+	(find_frame_number): new function
+	
+	* src/main.c (init_screen): initialize the frames_numset member
+	(free_screen): free the frames_numset member
+
+	* src/data.h (struct screen_info): new member, frames_numset
+
+	* src/actions.h (cmd_fselect): new prototype
+
+	* src/actions.c (user_commands): new command "fselect"
+	(cmd_fselect): new function
+
+	* src/Makefile.am (ratpoison_SOURCES): remove list.h and list.c,
+	add window.c and window.h
+
+	* src/ratpoison.h: include window.h instead of list.h
+
+	* src/main.c (main): call init_window_stuff(). Remove call to init_numbers().
+	(clean_up): call free_window_stuff(). Remove call to free_numbers().
+
+	* src/list.h (free_window_stuff): new prototype
+	(init_window_stuff): likewise
+
+	* src/list.c (rp_window_numset): new global
+	(init_window_stuff): new function
+	(free_window_stuff): new function
+
+	* src/data.h (rp_window_numset): new extern
+
+	* src/number.c (numset_init): new function
+	(number_is_taken): rename to numset_num_is_taken, callers updated.
+	(find_empty_cell): rename to numset_find_empty_cell, callers updated.
+	(add_window_number): rename to numset_add_num, callers updated.
+	(return_window_number): rename to numset_release, callers updated.
+	(init_numbers): remove function
+	(free_numbers): rename to numset_free, callers updated.
+	(numset_num_is_taken): take struct numset* as an argument.
+	(numset_find_empty_cell): likewise
+	(numset_add_num): likewise
+	(numset_request): likewise
+	(numset_release): likewise
+	(numset_free): likewise
+	(numset_new): new function
+
+2003-02-27  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/main.c (free_screen): new function
+	(clean_up): call free_screen on each screen. free the screen
+	array. free defaults.window_fmt.
+
+	* src/number.h (free_numbers): new prototype
+
+	* src/number.c (free_numbers): new function
+
+	* src/manage.c (get_wmname): use XGetWindowProperty to get the
+	window name.
+	(unmanaged_window): free wname after using it.
+
+	* src/main.c (wm_name): new global
+	(main): internalize WM_NAME atom.
+	(clean_up): free data structures for keybindings, aliases, the
+	bar, window numbers, and input history.
+
+	* src/input.h (free_history): new prototype
+
+	* src/input.c (free_history): new function
+
+	* src/events.c (execute_remote_command): free properties returned
+	by XGetWindowProperty().
+
+	* src/data.h (wm_name): new extern
+
+	* src/communications.c (recieve_command_result): free properties
+	returned by XGetWindowProperty().
+
+	* src/bar.h (free_bar): new prototype
+
+	* src/bar.c (update_window_names): bar_buffer is not static.
+	(update_window_names): free bar_buffer after using it.
+	(marked_message): free the GC after using it.
+	(free_bar): new function.
+
+	* src/actions.h (free_keybindings): new prototype
+	(free_aliases): likewise
+
+	* src/actions.c (free_keybindings): new function
+	(free_aliases): likewise
+	(cmd_tmpwm): unmap the key window before calling the new wm, and
+	remap it afterwards.
+
+2003-02-24  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/actions.c (cmd_tmpwm): unmap the key window before spawning
+	the wm and map it afterwards.
+
+2003-02-23  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/split.c (remove_all_splits): fix bug hiding windows not in
+	the current frame.
+
+	* src/split.h (cleanup_frame): new protoype
+
+	* src/manage.c (scanwins): added better debugging output
+
+	* src/events.c (cleanup_frame): move to split.c
+	(handle_key): ungrab the rat right after we read the key.
+
+	* src/actions.h (cmd_tmpwm): new prototype.
+
+	* src/actions.c (spawn): return the pid of the child
+	process. prototype updated.
+	(cmd_tmpwm): new function
+	(user_commands): new command, tmp_wm.
+
+2003-02-22  Shawn Betts  <sabetts@sfu.ca>
+
+	* configure.in: don't check for variable argument support in
+	preprocessor.
+
+	* src/ratpoison.h (PRINT_LINE): new macro.
+	(PRE_PRINT_LOCATION): remove macro
+	(PRINT_ERROR): takes one argument which is the argument list
+	,parens and all, to be passed to printf. Callers updated.
+
+	* src/linkedlist.h (list_direction_entry): no longer returns NULL
+	if there is only one element in the list. Instead, returns the
+	same element again and again.
+
+	* src/actions.c (cmd_number): use list delete entry macro
+	(cmd_number): likewise
+	(cmd_escape): use list looping macro
+	(cmd_escape): likewise
+	(cmd_defpadding): likewise
+	(cmd_defborder): likewise
+
+	* src/data.h: include linkedlist.h
+	(struct rp_window_frame): use struct list_head instead of next,
+	prev pointers.
+	(struct rp_window): likewise
+	(struct screen_info): rename rp_window_frame_sentinel to
+	rp_window_frames and change it's type to list_head.
+
+	* src/events.c (mapping_notify): use list looping macro
+	(mapping_notify): likewise
+
+	* src/list.c: rename rp_unmapped_window_sentinel to
+	rp_unmapped_window and rp_mapped_window_sentinel to
+	rp_mapped_window. Use LIST_HEAD to create them. externs updated.
+	(add_to_window_list): use list add entry macro.
+	(find_window_in_list): list head is of type list_head. Prototype
+	and callers updated.
+	(find_window_in_list): use list looping macro
+	(init_window_list): remove function
+	(find_window_number): use list looping macro
+	(find_window_name): likewise
+	(find_window_prev): use list previous entry macro
+	(find_window_next): use list next entry macro
+	(find_window_other): use list looping macro
+	(append_to_list): remove function
+	(insert_into_list): use list looping macro
+	(insert_into_list): use list add entry macro
+	(remove_from_list): remove function
+	(get_window_list): use list looping macro
+
+	* src/main.c (main): do not call init_window_list()
+
+	* src/manage.c (unmanage): use list delete macro
+	(map_window): likewise
+	(withdraw_window): use list moving macro to move entry to
+	another list.
+	(hide_others): use list looping macro
+
+	* src/split.c (num_frames): use list looping macro
+	(frames_screen): likewise
+	(maximize_all_windows_in_frame): likewise
+	(delete_frame_from_list): remove function
+	(create_initial_frame): remove list init code. Add current frame
+	to screen's frame list.
+	(init_frame_list): use list init macro
+	(find_last_frame): use list looping macro
+	(find_windows_frame): likewise
+	(find_frame_next): use list next entry macro
+	(find_frame_prev): use list previous entry macro
+	(find_window_for_frame): use list looping macro
+	(split_frame): use list add entry macro
+	(remove_all_splits): use list looping macro
+	(resize_frame_vertically): likewise
+	(resize_frame_horizontally): likewise
+	(total_frame_area): likewise
+	(frame_overlaps): likewise
+	(remove_frame): likewise
+	(find_frame_up): likewise
+	(find_frame_down): likewise
+	(find_frame_left): likewise
+	(find_frame_right): likewise
+
+2003-02-10  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/split.h (num_frames): new prototype
+	(resize_shrink_to_window): likewise
+	(resize_frame_vertically): likewise
+	(resize_frame_horizontally): likewise
+
+	* src/split.c (num_frames): no longer a static function
+	(resize_shrink_to_window): new function
+	(resize_frame_vertically): likewise
+	(resize_frame_horizontally): likewise
+
+	* src/main.c (init_defaults): init frame_resize_unit.
+
+	* src/data.h (struct rp_defaults): new member frame_resize_unit.
+
+	* src/conf.h (RESIZE_VGROW_KEY): new define
+	(RESIZE_VGROW_MODIFIER): likewise
+	(RESIZE_VSHRINK_KEY): likewise
+	(RESIZE_VSHRINK_MODIFIER): likewise
+	(RESIZE_HGROW_KEY): likewise
+	(RESIZE_HGROW_MODIFIER): likewise
+	(RESIZE_HSHRINK_KEY): likewise
+	(RESIZE_HSHRINK_MODIFIER): likewise
+	(RESIZE_SHRINK_TO_WINDOW_KEY): likewise
+	(RESIZE_SHRINK_TO_WINDOW_MODIFIER): likewise
+	(RESIZE_END_KEY): likewise
+	(RESIZE_END_MODIFIER): likewise
+
+	* src/actions.h (cmd_shrink): new prototype
+	(cmd_resize): likewise
+	(cmd_defresizeunit): likewise
+
+	* src/actions.c (user_commands): add commands cmd_resize and
+	cmd_shrink, and cmd_defresizeunit.
+	(cmd_shrink): new function
+	(cmd_resize): likewise
+	(cmd_defresizeunit): likewise
+
+2003-01-30  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/actions.c (cmd_bind): more informative error messages
+	(cmd_unbind): likewise
+	(cmd_source): likewise
+	(cmd_select): likewise
+	(cmd_number): likewise
+	(cmd_escape): likewise
+	(cmd_h_split): likewise
+	(cmd_v_split): likewise
+	(cmd_rudeness): likewise
+	(cmd_gravity): likewise
+	(cmd_defwingravity): likewise
+	(cmd_deftransgravity): likewise
+	(cmd_defmaxsizegravity): likewise
+	(cmd_msgwait): likewise
+	(cmd_defbargravity): likewise
+	(cmd_defbargravity): likewise
+	(cmd_defborder): likewise
+	(cmd_defbarborder): likewise
+	(cmd_definputwidth): likewise
+	(cmd_definputwidth): only accept input widths >=0
+	(cmd_chdir): add error message if HOME environment variable is not
+	set.
+	(cmd_chdir): add error message if chdir fails.
+	(cmd_rudeness): only accept rudeness numbers between 0 and 15
+	(cmd_msgwait): only accept waiting times >=0
+
+2003-01-25  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/actions.c (cmd_help): Print key binding when called
+	non-interactively.
+	(cmd_defwaitcursor): error message correctly shows what command
+	the error occurred in.
+	(cmd_rudeness): rudeness data correctly stored in rudeness
+	variables.
+
+2002-12-11  Shawn  <sabetts@sfu.ca>
+
+	* configure.in (AC_CHECK_FUNCS): Add check for putenv, remove
+	check for setenv and unsetenv.
+
+	* src/actions.c (setenv): remove function
+	(unsetenv): likewise
+	(cmd_setenv): use putenv instead of setenv.
+	(cmd_unsetenv): likewise
+
+2002-12-09  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/actions.c (spawn): only add DISPLAY to the environment if it
+	isn't already there.
+
+2002-11-24  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/main.c: include sys/wait.h
+	(chld_handler): new function
+
+	* src/events.c: include sys/wait.h
+	(handle_signals): Print an error message in the case of a child
+	signal.
+
+	* src/data.h (struct rp_child_info): New struct.
+	(child_info): New global.
+	(chld_signalled): likewise
+
+	* src/actions.c (spawn): Let the SIGCHLD handler handle process
+	completion instead of doing an ugly dance.
+
+2002-11-20  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/ratpoison.h[!HAVE_VARARG_MACROS]: PRINT_ERROR and
+	PRINT_DEBUG are defined as void macros.
+
+	* src/events.c (client_msg): Add semicolon to the end of a
+	PRINT_DEBUG line.
+
+	* src/actions.c (cmd_bind): typecast data as a (char *) before
+	using it in (char *) pointer arithmetic.
+
+	* configure.in: Add check to see if the preprocessor has variable
+	argument macro capabilities.
+
+	* src/main.c (init_defaults): set pointer warping to on by
+	default.
+
+	* src/list.c (give_window_focus): only warp the pointer if the
+	warp setting is turned on.
+
+	* src/data.h (struct rp_defaults): new member, warp.
+
+	* src/actions.h (cmd_ward): new prototype
+
+	* src/actions.c (user_command): new command "warp"
+	(cmd_warp): new function
+
+2002-10-18  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/actions.c (read_split): a negative number means subtract the
+	pixels from the frame's current size to get the new frame's size.
+
+	* src/split.c (VERTICALLY): new define
+	(VERTICALLY): likewise
+	(split_frame): new argument 'pixels'. The current frame is split
+	and resized to 'pixels' pixels.
+	(v_split_frame): new argument 'pixels'. prototype updated.
+	(h_split_frame): likewise
+
+	* src/actions.c (user_commands): hsplit, vsplit, and split take a
+	string argument.
+	(read_split): new function
+	(cmd_h_split): takes a ratio or number to determine how big the
+	frame split will be.
+	(cmd_v_split): likewise
+
+2002-08-31  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* src/actions.c (cmd_bind): malloc the correct amount of memory for keydesc 
+	(cmd_unbind): likewise
+
+2002-07-28  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* src/main.c (handler): do not report badwindow errors if
+	IGNORE_BADWINDOW is define.
+
+	* src/conf.h (IGNORE_BADWINDOW): new define
+
+2002-07-06  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* src/actions.c (cmd_help): key descriptions don't run off the
+	bottom of the screen.
+
+2002-03-23  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* src/actions.c (command): look for the command in the aliases
+	before looking in the command list.
+
+	* src/actions.h (cmd_unalias): new prototype
+
+	* src/actions.c (user_commands): new command unalias
+	(cmd_unalias): new function
+
+2002-04-25  Gergely Nagy  <algernon@debian.org>
+
+	* src/actions.c: include <strings.h>
+	include setenv implementation if HAVE_SETENV is not set,
+	OR setenv is not defined (removes a compiler warning on
+	AIX)
+	* src/events.c: include <strings.h>
+	* src/getopt.c: include <strings.h>
+
+2002-03-13  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* src/actions.c (cmd_nextscreen): An error message is displayed
+	when there is only 1 screen.
+	(cmd_prevscreen): likewise
+
+	* src/split.c (set_active_frame): fix to operate properly with
+	multiple screens.
+
+	* src/data.h (struct rp_window_frame): new data member 'number'.
+
+	* src/actions.h (cmd_prevscreen): new prototype
+	(cmd_nextscreen): likewise
+
+	* src/actions.c (user_commands): new commands "nextscreen" and
+	"prevscreen"
+	(cmd_nextscreen): new function
+	(cmd_prevscreen): likewise
+
+2002-02-19  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* src/split.c: include string.h
+
+	* src/sbuf.c: likewise
+
+	* src/events.c: likewise
+
+	* src/communications.c: likewise
+
+2002-02-17  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* src/manage.c (update_normal_hints): fix debugging output to be
+	more readable.
+
+	* src/events.c (configure_request): call XSync after granting
+	configure request.
+	(property_notify): maximize the window on receiving a normal hints
+	property change.
+
+2002-02-16  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* src/manage.c (maximize): remove calls to XSelectInput.
+	(force_maximize): likewise
+	(unhide_window): likewise
+	(unhide_window_below): likewise
+
+	* src/events.c (configure_notify): remove function.
+	(configure_request): grant the request, then immediately maximize
+	the window.
+	(delegate_event): ignore ConfigureNotify events.
+	(configure_request): grant the request if ratpoison isn't managing
+	the window.
+
+2002-02-14  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* src/actions.c (cmd_license): redraw the bar if it was visible.
+	(cmd_help): likewise
+
+	* configure.in: fix the --enable-debug help string.
+
+	* src/events.c (configure_request): Ignore the configure notify
+	event caused by the geometry change if the window is not mapped.
+
+	* src/manage.c (maximize_transient): correctly detect when the
+	window is bigger than its frame.
+	(maximize): ignore the structure events generated by the maximize
+	(force_maximize): likewise
+	(unhide_window): likewise
+	(unhide_window_below): likewise
+
+	* src/events.c (configure_notify): Clear up ambiguous debugging
+	output.
+	(configure_request): initialize the changes structure to the
+	window's current attributes.
+
+2002-02-07  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* src/split.h (find_last_frame): prototype now correctly reflects
+	the actual function.
+
+	* src/events.c (configure_notify): ignore substructurenotify
+	events. Add more debugging statements.
+
+	* src/actions.c (cmd_focuslast): pass the current screen to the
+	call to find_last_frame.
+
+2002-02-02  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* src/actions.c (cmd_defbarpadding): print an error message if
+	defbarpadding is called interactively without arguments.
+
+	* src/events.c (handle_signals): only hide the bar if it times
+	out.
+
+	* src/bar.c (marked_message): Fix text marking bug.
+
+2002-02-01  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* src/actions.c (command): bail out if alias recursion gets too deep.
+
+	* src/conf.h (MAX_ALIAS_RECURSIVE_DEPTH): new define
+
+	* src/bar.c (bar_x): update to work with all X11 gravity values.
+	(bar_y): likewise
+
+	* src/actions.c (cmd_defbargravity): Rename from
+	cmd_defbarloc. Dependant code updated.
+	(cmd_defbargravity): accept all gravity arguments.
+
+2002-01-26  shawn  <sabetts@vcn.bc.ca>
+
+	* configure.in: check for the vsnprintf function and stdarg.h
+	header.
+
+	* src/main.c (xvsprintf): Cleaned up to call vsnprintf only in one
+	place. wrap the vsnprintf call with va_copy (or __va_copy) and
+	va_end.
+
+	* src/list.c (format_window_name): If res_class or res_name are
+	NULL use "None" instead.
+
+	* src/actions.c (alias_t): rename data structure from cmd_alias to
+	avoid a name clash with the function cmd_alias. Dependant code
+	updated.
+
+	* src/list.c (set_active_window): Corrected a bug in determining
+	what a maxsize window is. Only one of width or height must be less
+	than the screen width or height for a window to qualify as a
+	maxsize window.
+
+2002-01-24  shawn  <sabetts@vcn.bc.ca>
+
+	* src/actions.c (cmd_defbarloc): Read the location argument as a
+	gravity argument using parse_wingravity.
+	(cmd_defbgcolor): don't set the background color for key_window.
+	(cmd_deffgcolor): don't set the foreground color for key_window.
+
+	* src/messages.h (MESSAGE_FRAME_STRING): Pad the string with
+	spaces on both sides.
+
+	* src/main.c (init_screen): Create the frame, input, and bar
+	windows with a border width of defaults.bar_border_width.
+	(init_defaults): initialize defaults.bar_border_width
+
+	* src/bar.c (bar_x): Incorporate defaults.bar_border_width into
+	calculations.
+	(bar_y): likewise
+
+	* src/actions.h (cmd_defbarborder): new prototype
+
+	* src/actions.c (user_commands): new command "defbarborder"
+	(cmd_defbarborder): new function
+
+	* src/main.c (init_screen): create the help window with a 0 border
+	width.
+
+	* src/actions.c (find_alias_index): new function
+	(cmd_alias): When an alias is already in the alias list, replace
+	it with the new alias.
+	(command): Append to the end of alias command the arguments passed
+	in before evaluating the alias.
+
+	* src/events.c (configure_request): do not send a synthetic
+	configure notify event.
+
+	* src/actions.c (wingravity_to_string): Fix the north gravity
+	string to return "n" not "ng".
+	(cmd_defborder): return NULL when no (or a bad) argument is passed
+	in.
+
+2002-01-23  Shawn  <sabetts@vcn.bc.ca>
+
+	* src/manage.c (send_configure): Change parameters to X11 window,
+	x, y, width, height and border. Prototype updated. All callers
+	updated.
+
+	* src/events.c (configure_request): For the changes variable, fill
+	in geometry parameters not part of the request with the
+	window's geometry.
+
+	* src/manage.c (update_normal_hints): improve debugging output.
+
+2002-01-17  Gergely Nagy  <algernon@debian.org>
+
+	* debian/changelog: update for a new snapshot
+
+	* doc/ratpoison.1, doc/ratpoison.texi (Keystrokes): removed
+	false statement that C-t C-: is bound to colon.
+
+2002-01-15  Shawn Betts  <sabetts@sfu.ca>
+
+	* src/input.c (keysym_to_string): handle the case when
+	XKeysymToString returns NULL.
+
+2002-01-11  shawn  <sabetts@vcn.bc.ca>
+
+	* src/main.c (handler): store the error text at the beginning of
+	the string instead of 7 bytes in.
+
+2002-01-10  shawn  <sabetts@vcn.bc.ca>
+
+	* src/events.c (delegate_event): ignore the CirculateRequest event.
+
+	* src/actions.c (cmd_rename): Allows the user to specify a second
+	argument which is the number of the window whose number will be
+	set to the first argument.
+ 
+2002-01-09  Gergely Nagy  <algernon@debian.org>
+
+	* src/actions.c (setenv, unsetenv): new functions, used when
+	the system libc does not have them.
+
+	* configure.in: check for the presence of setenv and unsetenv.
+
+2002-01-02  shawn  <sabetts@vcn.bc.ca>
+
+	* src/main.c (init_screen): do not select on any events for the
+	bar_window and the frame_window.
+
+	* src/events.h (listen_for_events): new prototype
+
+	* src/events.c (configure_notify): If the event dimensions don't
+	match the windows, then re-maximize the window.
+	(configure_request): always grant the requests.
+	(delegate_event): Changes to the debugging output.
+	(delegate_event): Don't print debugging messages for events that
+	ratpoison doesn't need to handle.
+	(handle_signals): new function
+	(listen_for_events): new function
+	(handle_events): remove function. Dependant code uses
+	listen_for_events.
+	(get_event): likewise
+
+	* src/manage.h (get_state): new prototype
+
+	* src/manage.c (update_normal_hints): print only the hints that
+	are set as debugging output.
+	(scanwins): collect mapped and iconized windows.
+	(get_state): new function
+
+	* src/main.c (clean_up): don't map iconized windows.
+
+2001-12-21  shawn  <sabetts@vcn.bc.ca>
+
+	* src/actions.h (cmd_alias): new prototype
+
+	* src/actions.c (user_commands): remove "license" from the
+	unimplemented section.
+	(user_commands): new command "alias"
+	(cmd_alias): new function
+	(command): handle aliases
+	(initialize_default_keybindings): initialize the alias list
+	(struct cmd_alias): new struct
+	(alias_list): new static global
+	(alias_list_size): likewise
+	(alias_list_last): likewise
+
+	* src/actions.h (cmd_license): new prototype
+
+	* src/actions.c (cmd_license): new function
+	(user_commands): new command "license"
+	(initialize_default_keybindings): bind "license" to V and C-V
+
+	* src/list.c (format_window_name): print unrecognized formatting
+	options.
+
+	* src/manage.c (unmanage): set the kill_signalled variable.
+
+	* src/actions.c (wingravity_to_string): new function
+	(cmd_gravity): return the current value when data is NULL
+	(cmd_defwingravity): likewise
+	(cmd_deftransgravity): likewise
+	(cmd_defmaxsizegravity): likewise
+	(cmd_msgwait): likewise
+	(cmd_defbarloc): likewise
+	(cmd_defpadding): likewise
+	(cmd_defborder): likewise
+	(cmd_definputwidth): likewise
+	(cmd_defwaitcursor): likewise
+	(cmd_defwinfmt): likewise
+	(cmd_defwinname): likewise
+	(cmd_defbarpadding): likewise
+	(cmd_startup_message): likewise
+	(cmd_rudeness): likewise
+
+	* src/sbuf.h (sbuf_printf_concat): new prototype
+	(sbuf_printf): likewise
+
+	* src/sbuf.c (sbuf_printf_concat): new function
+	(sbuf_printf): likewise
+
+	* src/ratpoison.h: include stdarg.h
+	(xvsprintf): new prototype
+	(xsprintf): likewise
+
+	* src/main.c (xvsprintf): new function
+	(xsprintf): likewise
+
+	* src/bar.c: remove include of stdarg.h
+	(marked_message_printf): call xvsprintf.
+
+	* src/input.c (input_history): new static global
+	(input_num_history_entries): likewise
+	(get_more_input): cycle through the input history.
+
+	* src/conf.h (INPUT_PREV_HISTORY_KEY): new define
+	(INPUT_PREV_HISTORY_MODIFIER): likewise
+	(INPUT_NEXT_HISTORY_KEY): likewise
+	(INPUT_NEXT_HISTORY_MODIFIER): likewise
+	(INPUT_MAX_HISTORY): likewise
+
+	* src/input.c (update_input_window): Draw the cursor in the right place.
+
+	* src/actions.h (cmd_defbarpadding): new prototype
+
+	* src/actions.c (user_commands): new command entry "defbarpadding"
+	(cmd_defbarpadding): new function
+
+	* src/data.h (rp_error_msg): new global extern
+
+	* src/main.c (rp_error_msg): new global variable
+
+	* src/events.c (get_event): If there is an X11 error message to
+	print, print it.
+
+	* src/main.c (handler): record the error in rp_error_msg
+
+2001-12-20  shawn  <sabetts@vcn.bc.ca>
+
+	* src/manage.c (maximize_transient): always honour the current
+	size of the window.
+
+	* src/actions.c (cmd_info): print "Transient" if the window is a
+	transient window.
+
+2001-12-18  shawn  <sabetts@vcn.bc.ca>
+
+	* src/manage.c (maximize_transient): Fit the transient window
+	inside its frame.
+
+2001-12-11  shawn  <sabetts@vcn.bc.ca>
+
+	* src/actions.c (parse_keydesc): Don't mangle the key description
+	argument.
+
+2001-12-11  Ryan C Yeske  <rcyeske@sfu.ca>
+
+	* contrib/genrpbindings: Add ruby bindings.  From Doug Kearns
+	<djkea2@mugc.its.monash.edu.au>.
+
+2001-12-08  shawn  <sabetts@vcn.bc.ca>
+
+	* src/events.c (handle_key): revert the focus immediately after
+	reading the key.
+
+	* src/list.c (give_window_focus): update rp_current_frame when
+	setting the window focus.
+
+	* src/main.c (main): scan for windows in a seperate pass after
+	initializing the screen structures.
+	(init_screen): build a display string for each screen.
+	(init_screen): remove the call to scanwins.
+
+	* src/manage.c (current_screen): return the current screen using
+	rp_current_screen.
+
+	* src/split.h (init_frame_lists): new function
+
+	* src/split.c (rp_window_frame_sentinel): remove.
+	(rp_current_frame): remove.
+	(frames_screen): new function
+	(maximize_frame): use the frame's screen to find out the width and
+	height of the display.
+	(create_initial_frame): take a pointer to a screen_info as an
+	argument.
+	(init_frame_lists): new function
+	(init_frame_list): take a pointer to a screen_info as an argument.
+	(find_last_frame): take a pointer to a screen_info as an argument.
+
+	* src/actions.c (spawn): Set the DISPLAY environment variable to
+	point to the current screen.
+
+	* src/data.h (struct screen_info): add display_string,
+	rp_window_frame_sentinel, rp_current_frame.
+	(rp_current_screen): new global
+	(rp_current_frame): Remove. Dependant code uses
+	screen_info.rp_current_frame.
+
+2001-12-09  Gergely Nagy  <algernon@debian.org>
+
+	* debian/changelog: Lets have a snapshot release
+	* debian/control: Changed Maintainer, and added an Uploaders field
+	* debian/ratpoison.examples: added the files in contrib/
+	* doc/Makefile.am (EXTRA_DIST): removed ratpoisonrc-mode.el
+	* contrib/Makefile.am (EXTRA_DIST, pkgdata_DATA): added genrpbindigs
+
+2001-12-05  Ryan C Yeske  <rcyeske@sfu.ca>
+
+	* contrib/genrpbindings: Fix perl typos.  From Doug Kearns
+	<djkea2@mugc.its.monash.edu.au>.
+
+2001-12-04  Ryan C Yeske  <rcyeske@sfu.ca>
+
+	* contrib/genrpbindings: New file.
+
+	* src/actions.c (user_commands): Add markup for genrpbindings.
+	(cmd_getenv): New function.
+
+2001-10-18  shawn  <sabetts@vcn.bc.ca>
+
+	* src/split.c (show_frame_indicator): call XSync after clearing the window.
+
+	* src/input.c (get_more_input): clear the window after it is
+	raised. Call XSync aftwards.
+
+	* src/conf.h (MAX_LINK_DEPTH): new define
+
+	* src/bar.c (marked_message): clear the window after it is
+	raised. Call XSync aftwards.
+
+	* src/actions.h (cmd_link): new prototype
+
+	* src/actions.c (user_command): new command 'link'
+	(find_command_by_keydesc): new function
+	(resolve_command_from_keydesc): likewise
+	(cmd_link): likewise
+
+	* src/split.h (find_last_frame): new prototype
+
+	* src/split.c (update_last_access): new function
+	(find_last_frame): likewise
+	(split_frame): update the new frame's last_access field
+	(set_active_frame): update the new current frame's last_access field
+
+	* src/input.h (x11_mask_to_rp_mask): new prototype
+	(rp_mask_to_x11_mask): likewise
+
+	* src/input.c (x11_mask_to_rp_mask): new function
+	(rp_mask_to_x11_mask): likewise
+
+	* src/events.c (handle_key): convert X11 modifier masks to rp
+	modifier masks where appropriate.
+
+	* src/actions.h (cmd_focuslast): new prototype
+
+	* src/actions.c (initialize_default_keybindings): new keybinding
+	for "focuslast"
+	(cmd_focuslast): new function
+	(user_command): new command "focuslast"
+
+	* src/data.h (struct rp_window_frame): new field 'last_access'
+	(RP_CONTROL_MASK): new define. All code depending on the X11
+	modifier mask equivalent has been changed to use this where
+	appropriate.
+	(RP_META_MASK): likewise
+	(RP_ALT_MASK): likewise
+	(RP_SUPER_MASK): likewise
+	(RP_HYPER_MASK): likewise
+
+2001-10-11  shawn  <sabetts@vcn.bc.ca>
+
+	* src/bar.c (show_last_message): abort if there was no last
+	message.
+
+	* src/events.c (configure_request): Always check the rudeness
+	level before honouring a raise request.
+
+2001-10-09  shawn  <sabetts@vcn.bc.ca>
+
+	* src/split.c (remove_frame): Make sure the frame attempting to
+	take up the space of the deleted frame overlaps the deleted frame
+	after the size change.
+	(remove_frame): More debug messages
+
+	* src/list.c (format_window_name): add formatting option '%l' to
+	grab the last_access field from the window.
+
+2001-10-05  Gergely Nagy  <algernon@debian.org>
+
+	* contrib/ratpoisonrc-mode.el: superceded by..
+	* contrib/ratpoison.el: ..this one, now with AllYou'llEverNeed(tm)
+
+2001-10-01  shawn  <sabetts@vcn.bc.ca>
+
+	* src/bar.c (marked_message_printf): Handle a return value from
+	vsnprintf of -1 properly.
+
+2001-09-27  shawn  <sabetts@vcn.bc.ca>
+
+	* src/main.c[ratpoison_opts]: remove 'r' and 'k'.
+
+2001-09-23  shawn  <sabetts@vcn.bc.ca>
+
+	* src/actions.c (initialize_default_keybindings): Change C-t a and
+	C-t C-a binding to "time".
+
+2001-09-21  shawn  <sabetts@vcn.bc.ca>
+
+	* src/split.h (find_frame_up): new prototype
+	(find_frame_down): likewise
+	(find_frame_left): likewise
+	(find_frame_right): likewise
+
+	* src/split.c (find_frame_up): new function
+	(find_frame_down): likewise
+	(find_frame_left): likewise
+	(find_frame_right): likewise
+
+	* src/manage.c (move_window): use x11 gravity constants to denote
+	gravity.
+
+	* src/main.c (ratpoison_longopts): remove --kill and
+	--restart. Dependant code updated.
+	(init_defaults): use x11 gravity constants to denote gravity.
+	(main): only display the startup message if
+	defaults.startup_message is on.
+
+	* src/list.c (update_window_gravity): rename from
+	update_window_position. dependant code updated
+
+	* src/events.c (client_msg): don't test for restart or kill client
+	messages.
+	(client_msg): properly handle iconify requests.
+	(get_event): kill and restart the process here.
+
+	* src/data.h (TOP_LEFT): remove define
+	(TOP_CENTER): likewise
+	(TOP_RIGHT): likewise
+	(CENTER_LEFT): likewise
+	(CENTER_CENTER): likewise
+	(CENTER_RIGHT): likewise
+	(BOTTOM_LEFT): likewise
+	(BOTTOM_CENTER): likewise
+	(BOTTOM_RIGHT): likewise
+	(struct rp_window): rename field to position to gravity.
+	(struct rp_defaults): rename win_pos to win_gravity, trans_pos to
+	trans_gravity and maxsize_pos to maxsize_gravity.
+	(rp_restart): remove global variable
+	(rp_kill): likewise
+
+	* src/communications.h (send_kill): remove prototype
+	(send_restart): likewise
+
+	* src/communications.c (send_restart): remove function. obsolete.
+	(send_kill): likewise
+
+	* src/bar.c (bar_x): Use X11 gravity constants to denote location.
+	(bar_y): likewise
+
+	* src/actions.h (cmd_focusup): new prototype
+	(cmd_focusdown): likewise
+	(cmd_focusleft): likewise
+	(cmd_focusright): likewise
+	(cmd_startup_message): likewise
+	(cmd_restart): likewise
+
+	* src/actions.c (cmd_quit): just set the kill_signalled variable.
+	(parse_wingravity): use compass directions to describe the gravity
+	(parse_wingravity): renamed from parse_winpos. dependant code
+	updated.
+	(cmd_gravity): renamed from cmd_pos. dependant code updated.
+	(cmd_defwingravity): renamed from cmd_defwinpos. dependant code
+	updated.
+	(cmd_deftransgravity): renamed from cmd_deftranspos. dependant
+	code updated.
+	(cmd_defmaxsizegravity): renamed from cmd_defmaxsizepos. dependant
+	code updated.
+	(cmd_focusup): new function
+	(cmd_focusdown): likewise
+	(cmd_focusleft): likewise
+	(cmd_focusright): likewise
+	(cmd_restart): likewise
+	(cmd_startup_message): likewise
+	(user_commands): new commands "focusup" "focusdown" "focusright"
+	"focusleft" "startup_message" "restart".
+
+2001-09-18  shawn  <sabetts@vcn.bc.ca>
+
+	* src/list.c (window_name): make sure the default window name is
+	not NULL. In this case return win's user_name field which is never
+	NULL.
+
+2001-09-18  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/actions.c(user_commands)[0]: remove "lastmsg" from the list.
+	(cmd_defwinpos): abort if data is NULL
+	(cmd_deftranspos): likewise
+	(cmd_defmaxsizepos): likewise
+	(cmd_defmaxsizepos): Use the correct command name in call to message.
+	(cmd_deftranspos): likewise
+	(cmd_defwinpos): likewise
+
+	* src/actions.h (cmd_info): new prototype
+	(cmd_lastmsg): likewise
+
+	* src/bar.h (show_last_message): new prototype
+
+	* src/bar.c: new static globals last_msg, lash_mark_start, and last_mark_end.
+	(marked_message): Store the message in last_msg.
+	(show_last_message): new function
+
+	* src/actions.c (cmd_info): new function
+	(cmd_lastmsg): likewise
+	(user_commands): new commands "info" and "lastmsg"
+	(initialize_default_keybindings): Add key bindings for "info" and
+	"lastmsg".
+
+2001-09-17  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/actions.h (cmd_unsetenv): new prototype
+
+	* src/actions.c (cmd_unsetenv): new function
+	(user_commands): new "unsetenv" command
+
+	* src/ratpoison.h (xstrdup): new prototype
+
+	* src/main.c (xstrdup): new function. All calls to strdup replaced
+	with calls to xstrdup.
+	(main): Keep a list of all commands pasted in through the -c command-line option.
+	(main): execute all commands pasted in through the -c command-line option.
+
+	* src/actions.h (cmd_chdir): new prototype
+
+	* src/actions.c (cmd_clock): rename to cmd_time. Dependant code
+	updated.
+	(user_commands): rename "clock" command to "time".
+	(cmd_chdir): new function
+	(user_commands): new command "chdir".
+
+2001-09-16  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/actions.c (update_all_gcs): new function
+	(cmd_deffont): update the graphics contexts.
+
+	* src/list.c (format_window_name): Use 2 character escape codes,
+	like printf. Dependant code updated.
+
+	* configure.in: check for setpgrp.
+
+	* src/actions.c (spawn): Only call setsid if it exists.
+	(spawn): Only call setpgid if it exists.
+	(spawn): if setpgid doesn't exist, try setpgrp.
+
+	* configure.in: check for setsid and setpgid functions. Add
+	contrib/Makefile to AC_OUTPUT.
+
+	* Makefile.am (SUBDIRS): add contrib
+
+2001-09-14  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/actions.c (spawn): set the process group ID and session ID
+	for the spawned process.
+
+2001-09-13  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/actions.c (command): Gobble the whitespace between the
+	command and the argument list. Code that did this in specific
+	commands has been removed.
+	(cmd_setenv): new function
+	(cmd_meta): rename from cmd_generate. All dependant code updated.
+	(cmd_redisplay): rename from cmd_maximize. All dependant code
+	updated.
+	(initialize_default_keybindings): bind "redisplay" to C-t l and
+	C-t c-l.
+	(cmd_msgwait): rename from cmd_defbartimeout. All dependant code
+	updated.
+
+	* src/input.c (update_input_window): Draw a cheap-o cursor
+
+2001-09-12  Gergely Nagy  <algernon@debian.org>
+
+	* src/actions.c (cmd_bind): binding an empty string to a key will
+	unbind the key.
+	
+2001-09-09  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/conf.h (MAXSIZE_WINDOWS_ARE_TRANSIENTS): defined
+
+	* src/split.c (set_active_frame): give the key_window focus when
+	no window has focus.
+	(blank_frame): give the key_window focus.
+
+	* src/main.c (init_screen): don't listen for keystrokes on the
+	root window.
+	(main): give the key_window focus in the case that no window has
+	focus.
+
+	* src/bar.c (marked_message): use the screen_info fg_color and
+	bg_color to create the inverse GC.
+
+	* src/actions.h (cmd_deffgcolor): new prototype
+	(cmd_defbgcolor): new prototype
+
+	* src/actions.c (cmd_defbartimeout): merge the 2 ifs.
+	(cmd_defbartimeout): verify that the number is positive.
+	(cmd_defborder): likewise
+	(cmd_defwinname): gobble leading whitespace. Use strings as
+	arguments, not numbers.
+	(cmd_windows): Use the argument as a window format string in
+	non-interactive mode.
+	(cmd_windows): if data is NULL use the default format string.
+	(user_commands): new commands deffgcolor, defbgcolor.
+	(update_gc): new function
+	(cmd_deffgcolor): likewise
+	(cmd_defbgcolor): likewise
+
+2001-09-08  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/list.h (update_window_position): new prototype
+	(window_name): new prototype
+	(get_window_list): update prototype
+
+	* src/events.c (grab_rat): Don't wrap in an #ifdef
+	(ungrab_rat): likewise
+	(handle_key): record if the rat is grabbed and only ungrab it at
+	the end if it was first grabbed.
+
+	* src/actions.h (cmd_pos): new prototype
+	(cmd_defwinpos): new prototype
+	(cmd_deftranspos): new prototype
+	(cmd_defmaxsizepos): new prototype
+	(cmd_defbartimeout): new prototype
+	(cmd_defbarloc): new prototype
+	(cmd_deffont): new prototype
+	(cmd_defpadding): new prototype
+	(cmd_defborder): new prototype
+	(cmd_definputwidth): new prototype
+	(cmd_defwaitcursor): new prototype
+	(cmd_defwinfmt): new prototype
+	(cmd_defwinname): new prototype
+
+	* src/messages.h (MESSAGE_FRAME_STRING): new message
+
+	* src/manage.c (get_wmname): renamed from get_window_name
+	(get_class_hints): new function
+	(get_res_name): likewise
+	(get_res_class): likewise
+	(update_window_name): update the window's wm_name, res_name, and
+	res_class fields.
+	(update_window_name): calls functions get_wmname, get_res_name,
+	get_res_class.
+	(update_window_name): Don't crop the window name.
+	(update_window_information): call update_window_position.
+	(move_window): new function
+	(maximize_transient): only set the window's width and height
+	fields.
+	(maximize_normal): likewise
+	(maximize): call move_window
+	(force_maximize): likewise
+	(force_maximize): if the window has resize hints, resize it 1
+	resize unit.
+
+	* src/main.c: new global variable, defaults.  remove static
+	variable, font, and move to defaults. Dependant code updated.
+	(init_defaults): new function
+	(main): call init_defaults.
+	(init_screen): initialize the screen's fg_color to black and
+	bg_color to white.
+
+	* src/list.c (free_window): free the fields user_name, res_name,
+	res_class, and wm_name.
+	(update_window_position): new function
+	(window_name): new function. Code accessing a window's name uses
+	this function. All code updated.
+	(add_to_window_list): call update_window_position
+	(add_to_window_list): initialize wm_name, res_name, and res_class
+	for the new window.
+	(format_window_name): new function
+	(get_window_list): Add parameter fmt. All callers updated.
+	(get_window_list): call format_window_name.
+
+	* src/conf.h: move Configuration variables to the global variable,
+	defaults. Dependant code updated.
+
+	* src/data.h (TOP_LEFT): new define
+	(TOP_CENTER): likewise
+	(TOP_RIGHT): likewise
+	(CENTER_LEFT): likewise
+	(CENTER_CENTER): likewise
+	(CENTER_RIGHT): likewise
+	(BOTTOM_LEFT): likewise
+	(BOTTOM_CENTER): likewise
+	(BOTTOM_RIGHT): likewise
+	(struct rp_window): new fields user_name, wm_name, res_name,
+	res_class, position.
+	(struct rp_window): remove field name. Replaced with
+	user_name. Dependant code updated.
+	(struct screen_info): remove field font. dependant code updated.
+	(struct screen_info): new fields fg_color, bg_color.
+	(struct rp_defaults): new struct
+	(defaults): new global
+
+	* src/actions.c (parse_winpos): new function
+	(cmd_pos): likewise
+	(cmd_defwinpos): likewise
+	(cmd_deftranspos): likewise
+	(cmd_defmaxsizepos): likewise
+	(cmd_defbartimeout): likewise
+	(cmd_defbarloc): likewise
+	(cmd_deffont): likewise
+	(cmd_defpadding): likewise
+	(cmd_defborder): likewise
+	(cmd_definputwidth): likewise
+	(cmd_defwaitcursor): likewise
+	(cmd_defwinfmt): likewise
+	(cmd_defwinname): likewise
+	(user_commands): New commands defbarloc, defbartimeout, defborder,
+	deffont, defintputwidth, defmaxsizepos, defpadding, deftranspos,
+	defwaitcursor, defwinfmt, defwinname, defwinpos.
+
+2001-09-06  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* configure.in: Use AC_CHECK_FUNCS to check for getopt and
+	getopt_long.
+
+2001-09-06  Gergely Nagy  <algernon@debian.org>
+
+	* doc/ratpoison-mode.el: major mode for editing .ratpoisonrc files
+	* doc/Makefile.am (EXTRA_DIST): added ratpoison-mode.el
+
+	* debian/changelog: Updated to version 1.0.0
+
+	* doc/sample.ratpoisonrc: change escape ^a to escape C-a, to
+	reflect	the new key naming scheme
+
+	* ratpoison.spec: bring it up to date, and add %doc stuff
+
+2001-09-06  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/manage.c (grab_prefix_key): call grab_key.
+	(ungrab_prefix_key): use AnyModifier as the modifier mask param to
+	XUngrabKey.
+
+	* src/input.h (grab_key): new protoype
+
+	* src/input.c (update_modifier_map): find the numlock and scroll
+	lock modifiers.
+	(grab_key): new function
+	(cook_keycode): new param ignore_mad_mods. protoype updated. all
+	callers updated.
+	(cook_keycode): ignore caps lock, numlock and scroll lock
+	modifiers when ignore_bad_mods param is non-zero.
+
+	* src/events.c (key_press): ignore numlock, scroll lock, and caps
+	lock modifiers when cooking the prefix key.
+
+	* src/data.h (struct modifier_info): new fields num_lock_mask,
+	scroll_lock_mask.
+
+2001-09-05  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/main.c (show_welcome_message): If the help key is bound to ?
+	then print ? instead of `question'.
+
+	* configure.in: check for getopt and getopt_long.
+
+	* src/getopt.c: wrap the whole file in an #ifndef HAVE_GETOPT_LONG
+
+	* src/getopt1.c: wrap the whole file in an #ifndef HAVE_GETOPT_LONG
+
+	* src/messages.h (MESSAGE_WELCOME): The help keystroke is not
+	hardcoded.
+
+	* src/main.c (show_welcome_message): new function
+	(main): call show_welcome_message to show the welcome message.
+
+	* src/actions.h (find_keybinding_by_action): new prototype
+
+	* src/actions.c (key_actions): change to a static variable.
+	(key_actions_last): likewise
+	(key_actions_table_size): likewise
+	(find_keybinding_by_action): new function
+
+2001-09-04  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/actions.h (cmd_unbind): new prototype
+
+	* src/actions.c (find_keybinding): Change the first parameter's
+	type to KeySym. Prototype updated.
+	(add_keybinding): likewise
+	(remove_keybinding): new function.
+	(key_actions): new command 'unbind'.
+	(key_actions): #if out the unimplemented bindings.
+	(cmd_bind): Error messages are more accurate.
+	(cmd_unbind): new function.
+	(cmd_escape): update the "other" command before the "generate"
+	command.
+	(cmd_escape): When searching for the "other" and "generate"
+	commands' keystrokes, verify that the located action is the right
+	command.
+
+2001-08-31  Shawn  <sabetts@hotdog>
+
+	* src/split.c (set_active_frame): Only show the frame indicator
+	when switching to a new frame and when there is more than 1 frame.
+
+	* src/actions.c (cmd_next_frame): display MESSAGE_NO_OTHER_FRAME
+	when there is only 1 frame.
+
+	* src/messages.h (MESSAGE_NO_OTHER_FRAME): new message
+
+	* src/split.c (hide_frame_indicator): always hide the frame
+	indicator.
+	(blank_frame): don't show the frame indicator.
+	
+	* src/manage.c (maximize_normal)[MAXSIZE_WINDOWS_ARE_TRANSIENTS]:
+	win are centered properly in the frame.
+
+2001-08-29  Shawn  <sabetts@hotdog>
+
+	* src/manage.c (unhide_window): always raise the window.
+
+2001-08-27  Shawn  <sabetts@hotdog>
+
+	* src/actions.c (cmd_clock): pad the time with spaces on either
+	side.
+
+	* src/manage.c (maximize_normal)[MAXSIZE_WINDOWS_ARE_TRANSIENTS]:
+	use maxx, maxy not the window's width and height.
+
+	* src/events.c (handle_key): use marked_message_printf to notify
+	user of an unbound key.
+
+	* src/messages.h (MESSAGE_RAISE_TRANSIENT): new message
+	(MESSAGE_RAISE_WINDOW): likewise
+	(MESSAGE_MAP_TRANSIENT): likewise
+	(MESSAGE_MAP_WINDOW): likewise
+
+	* src/manage.c (update_window_information): update the
+	transient-ness of the window.
+	(maximize_normal)[MAXSIZE_WINDOWS_ARE_TRANSIENTS]: center the
+	window.
+	(map_window): use the appropriate define in messages.h to notify
+	the user about the new window.
+
+	* src/list.h: remove prototypes unhide_transient_for,
+	is_transient_ancestor, hide_transient_for,
+	hide_transient_for_between from compilation.
+
+	* src/list.c (unhide_transient_for): remove from compilation
+	(hide_transient_for_between): likewise
+	(hide_transient_for): likewise
+	(is_transient_ancestor): likewise
+	(set_active_window)[[MAXSIZE_WINDOWS_ARE_TRANSIENTS]: Don't hide the
+	other windows if the window has a max size hint.
+	(print_window_information): use marked_message_printf
+
+	* src/events.c (cleanup_frame): restructure
+	(cleanup_frame)[MAXSIZE_WINDOWS_ARE_TRANSIENTS]: Don't hide the
+	other windows if the window has a max size hint.
+	(unmap_notify): don't try to locate the event's screen.
+	(unmap_notify): if the window wasn't found, return immediately.
+	(map_request): restructure. reword debugging output
+	(map_request): use the appropriate define in messages.h to notify
+	the user about window raise requests.
+	(configure_request): likewise
+	(property_notify): Handle the transient_for notify.
+
+	* src/conf.h (MAXSIZE_WINDOWS_ARE_TRANSIENTS): new customization
+
+	* src/bar.c (show_bar): map and raise the window
+	(marked_message): likewise
+	(marked_message): crop the mark_end and mark_start to the
+	boundaries of the message.
+	(marked_message): calculate the end of the marked part of the
+	message correctly.
+
+	* src/actions.c (cmd_delete): use PRINT_DEBUG for debug messages.
+	(command): use marked_message_printf
+	(cmd_echo): likewise
+	(cmd_rudeness): pad messages with spaces.
+
+2001-08-26  Shawn  <sabetts@hotdog>
+
+	* src/events.c (configure_request): make sure the window is iconic
+	before notifying a raise request.
+
+	* src/split.c (num_frames): uncomment.
+	(set_active_frame): only show the frame indicator if, in addition,
+	there are more than 1 frames.
+	(set_active_frame): give the root window focus if there is no
+	current window.
+	(blank_frame): only show the frame indicator if, in addition,
+	there are more than 1 frames.
+
+2001-08-24  Shawn  <sabetts@hotdog>
+
+	* src/input.c (get_more_input): detect and handle a user abort key
+	sequence.
+
+	* src/conf.h (INPUT_ABORT_KEY): new define
+	(INPUT_ABORT_MODIFIER): likewise
+
+	* src/actions.c (cmd_select): handle a user abort.
+	(cmd_rename): likewise
+	(cmd_colon): likewise
+	(cmd_exec): likewise
+	(cmd_newwm): likewise
+
+2001-08-23  Shawn  <sabetts@hotlunch>
+
+	* src/manage.c (maximize_normal): In the new height on windows
+	with increment hints code, reorder the steps.
+	(map_window): conditionally map the window based on the rudeness
+	level.
+
+	* src/main.c (rp_honour_transient_raise): new global declaration
+	(rp_honour_transient_map): likewise
+	(rp_honour_normal_raise): likewise
+	(rp_honour_normal_map): likewise
+
+	* src/events.c (map_request): conditionally map the window based
+	on the rudeness level.
+	(configure_request): conditionally raise the window based on the
+	rudeness level.
+	(configure_request): only maximize the window if the height,
+	width, border, or position was changed.
+
+	* src/data.h (rp_honour_transient_raise): new global
+	(rp_honour_normal_raise): likewise
+	(rp_honour_transient_map): likewise
+	(rp_honour_normal_map): likewise
+
+	* src/bar.h (marked_message_printf): new prototype
+
+	* src/bar.c: include stdarg.h
+	(marked_message_printf): new function
+
+	* src/actions.h (cmd_rudeness): new prototype
+
+	* src/actions.c (user_commands): new command 'rudeness'
+	(cmd_rudeness): new function
+
+2001-08-22  Shawn  <sabetts@hotdog>
+
+	* src/split.h (set_frames_window): new prototype
+	(maximize_all_windows_in_frame): likewise
+
+	* src/split.c (set_frames_window): new function. all code setting
+	a frame's window updated to use this function.
+	(maximize_all_windows_in_frame): new function
+	(find_window_for_frame): don't include windows that are mapped in
+	another frame (not necessarily the frames active window).
+	(split_frame): maximize all windows in the existing frame, not
+	just the active one.
+	(split_frame): comment out unhiding transient window code.
+	(remove_all_splits): hide all mapped windows not in the current
+	frame.
+	(remove_all_splits): maximize all windows mapped in the current
+	frame.
+	(remove_all_splits): comment out hiding transient window code.
+	(remove_frame): when a frame's size has been changed, maximize all
+	windows in that frame.
+	(remove_frame): hide all windows in the frame being removed.
+
+	* src/manage.h (hide_others): new prototype
+
+	* src/manage.c (hide_window): set win's frame to NULL.
+	(unhide_window_below): renamed frame unhide_below_window. All
+	callers updated.
+	(hide_others): new function
+
+	* src/list.c (set_active_window): comment out hiding transient
+	window code.
+
+	* src/events.c (cleanup_frame): comment out hiding transient
+	window code.
+
+	* src/data.h (struct rp_window): new field 'frame'.
+
+	* src/actions.c (cmd_help): initialize old_i to 0
+
+	* src/list.c (set_active_window): Don't hide last_win's transient_for
+	windows if last_win and win share the same transient_for window.
+
+	* src/events.c (cleanup_frame): Don't hide last_win's transient_for
+	windows if last_win and win share the same transient_for window.
+
+2001-08-20  Shawn  <sabetts@hotdog>
+
+	* src/events.c (cleanup_frame): set the new window's frame before
+	maximizing it.
+
+2001-08-19  Shawn  <sabetts@hotdog>
+
+	* src/events.c (cleanup_frame): unhide the new active window
+	before hiding the last window
+
+	* src/list.c (set_active_window): unhide the new active window
+	before hiding the last window.
+
+2001-08-18  Shawn  <sabetts@hotdog>
+
+	* src/actions.c (cmd_bind): Gobble whitespace between keystroke and command.
+	(cmd_help): keystrokes and commands no longer overlap.
+
+	* src/events.c (configure_request): grant Iconized and Withdrawn
+	windows any geometry they like.
+
+	* src/list.c (is_transient_ancestor): make sure tmp is a valid
+	pointer before testing if it is a transient.
+
+	* src/main.c (read_rc_file): free the command's result string.
+
+	* src/list.h (get_window_list): new prototype
+
+	* src/list.c (get_window_list): new function
+
+	* src/events.c (handle_key): free the command's result string.
+	(receive_command): send the command's result string if there is
+	one, otherwise send NULL.
+
+	* src/communications.c (recieve_command_result): only print the
+	result if the string is not empty.
+
+	* src/bar.c (update_window_names): calls get_window_list.
+
+	* src/actions.c (cmd_windows): return a list of the windows when
+	called non-interactively.
+	(cmd_colon): free the command result.
+
+	* src/actions.c: command functions have been changed to return a
+	result string and take a parameter that tells the function if it
+	was called interactively or not. All callers updated.
+	
+	* src/split.c (split_frame): unhide transient_for windows as well
+	as the active window.
+	(remove_all_splits): hide transient_for windows as well as the
+	frame's active window.
+
+	* src/manage.c (unhide_below_window): always lower the window
+
+	* src/list.h (hide_transient_for_between): new prototype
+	(is_transient_ancestor): likewise
+
+	* src/list.c (hide_transient_for_between): new function
+	(hide_transient_for): calls hide_transient_for_between
+	(is_transient_ancestor): new function
+	(set_active_window): don't temporarily hide windows that the newly
+	active window is a transient for (removes unnecessary flicker).
+
+	* src/events.c (cleanup_frame): don't temporarily hide windows that the new
+	window is a transient for (removes unnecessary flicker).
+
+2001-08-07  Ryan Yeske  <rcyeske@vcn.bc.ca>
+
+	* doc/ratpoison.texi: Fix spelling and grammar.
+
+2001-06-29  Gergely Nagy <8@free.bsd.hu>
+
+	* Makefile.am: do not include debian/ in the tarball
+	* configure.in: better xterm checking, fixes #430631
+
+2001-06-11  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/events.c (grab_rat): wrap in ifdef
+	(ungrab_rat): likewise
+	(handle_key): only change the mouse icon if USE_WAITFORKEY_CURSOR is
+	defined.
+
+	* src/conf.h (USE_WAITFORKEY_CURSOR): new define
+
+2001-06-10  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/actions.c (cmd_generate): return if there is no current
+	window.
+
+	* src/split.c (split_frame): empty frames can be split.
+
+	* src/main.c (rp_rat_bits): remove
+	(rp_rat_mask_bits): remove include <X11/cursorfont.h>
+	(sighandler): only increment kill_signalled
+	(hup_handler): only increment hup_signalled
+	(alrm_handler): only increment alarm_signalled
+	(read_startup_files): use PRINT_ERROR for error messages.
+	(init_rat_cursor): Use a standard X cursor for the screen's rat.
+
+	* src/events.h (unmap_notify): remove prototype
+	(delegate_event): likewise
+	(key_press): likewise
+	(keymapstate): likewise
+	(map_request): likewise
+
+	* src/events.c: includes <signal.h> <sys/time.h> and <error.h>
+	(new_window): static function
+	(unmap_notify): likewise
+	(map_request): likewise
+	(destroy_window): likewise
+	(configure_notify): likewise
+	(configure_request): likewise
+	(key_press): likewise
+	(property_notify): likewise
+	(colormap_notify): likewise
+	(delegate_event): likewise
+	(get_event): new function
+	(more_destroy_events): remove function
+	(handle_events): call get_event.
+
+	* src/data.h: rp_current_event is an XEvent dependant code
+	updated. new globals alarm_signalled, kill_signalled,
+	hup_signalled.
+
+	* src/actions.c (initialize_default_keybindings): new bindings for
+	"split" and "vsplit".
+
+2001-06-06  Shawn Betts  <sabetts@van.gobasis.com>
+
+	* src/list.c (unhide_transient_for): abort if the transient_for
+	window can't be found.
+	(hide_transient_for): likewise
+
+2001-06-01  Shawn Betts  <sabetts@van.gobasis.com>
+
+	* src/events.c (map_request): If the window is iconified call
+	set_active_window on it.
+
+2001-06-05  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/list.c (set_active_window): calls give_window_focus which
+	was accidentally removed.
+
+	* src/actions.c (parse_keydesc): return NULL if the keydesc is a
+	'-'.
+
+	* src/manage.c (hide_window): ignore only StructureNotify events.
+
+	* src/data.h (WIN_EVENTS): Add StructureNotifyMask.
+
+	* src/events.c (unmap_notify): ignore SubstructureNotify unmaps.
+
+2001-06-02  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/split.c (blank_frame): hide transient's transient_for.
+
+	* src/manage.c (unhide_below_window): new function
+
+	* src/manage.h (unhide_below_window): new prototype
+
+	* src/list.h (unhide_transient_for): new prototype
+	(hide_transient_for): likewise
+
+	* src/list.c (unhide_transient_for): new function
+	(hide_transient_for): likewise
+	(set_active_window): print the name of the last and new windows.
+	(set_active_window): unhide new window's transient_for. hide old
+	window's transient_for.
+
+	* src/events.c (cleanup_frame): hide any transients for the old
+	window and unhide any transients for the new one.
+
+	* src/manage.c (hide_window): ignore unmap_notify events when
+	unmapping the window.
+
+	* src/list.c (add_to_window_list): use WIN_EVENTS in XSelectInput.
+
+	* src/data.h (struct rp_window): remove iconizing field. remove
+	code using iconizing.
+	(WIN_EVENTS): new define
+
+2001-06-01  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/events.c (cleanup_frame): hide the frame's window's
+	transient_for windows.
+
+2001-05-24  Shawn Betts  <sabetts@van.gobasis.com>
+
+	* src/events.c (colormap_notify): ignore badwindows when
+	retrieving and installing the colormap.
+
+	* src/manage.c (withdraw_window): ignore badwindows during all
+	Xlib calls.
+
+2001-05-22  Shawn Betts  <sabetts@van.gobasis.com>
+
+	* src/actions.c (cmd_generate): only generate the event if there
+	is a current window.
+
+2001-05-18  Shawn Betts  <sabetts@van.gobasis.com>
+
+	* src/input.c (update_modifier_map): rename from
+	init_modifier_map. all callers updated. prototype updated.
+
+	* src/events.c (mapping_notify): new function
+	(delegate_event): handle MappingNotify events.
+
+2001-05-09  Gergely Nagy  <8@free.bsd.hu>
+
+	* ratpoison.spec: spec file for rpm-based systems
+
+2001-05-03  Gergely Nagy  <8@free.bsd.hu>
+
+	* debian/control: adjust build-depends to potato
+	* debian/rules: fixed, so it works under both potato
+	and woody/sid
+
+2001-04-19  Shawn Betts  <sabetts@van.gobasis.com>
+
+	* src/manage.c (unhide_window): map and raise the window.
+
+2001-04-18  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/input.c (keysym_to_string): handles control, meta, alt,
+	hyper, and super modifiers. Returns full keysym names.
+
+	* src/actions.c (parse_keydesc): parses control, meta, alt, hyper,
+	and super modifiers.
+	(cmd_clock): sets the last character in msg to 0.
+
+2001-04-15  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/split.c (show_frame_indicator): contents of
+	update_frame_indicator merged into here.
+	(update_frame_indicator): remove function
+
+	* src/number.h (add_window_number): new prototype
+
+	* src/number.c (add_window_number): renamed from
+	add_to_list. Dependant code updated.
+
+	* src/messages.h (MESSAGE_WINDOW_INFORMATION): new define
+
+	* src/list.h (print_window_information): new prototype
+
+	* src/list.c (print_window_information): new function
+
+	* src/actions.h (cmd_number): new prototype
+
+	* src/actions.c (cmd_clock): remove newline from date string.
+	(cmd_rename): passes current_screen() to update_window_names.
+	(cmd_number): new function
+
+	* src/messages.h (MESSAGE_WELCOME): new define
+
+	* src/manage.c (scanwins): ignore the help window
+	(hide_window): increment window's iconizing variable
+
+	* src/main.c (main): display welcoming message
+	(init_screen): create the help window
+	(init_screen): don't map the frame indicator window
+	(clean_up): destroy the help window
+
+	* src/list.c (add_to_window_list): initialize iconizing to 0
+
+	* src/events.c (new_window): skip help_window
+	(unmap_notify): skip normal processing if the event is from
+	iconizing the window.
+	(unmap_notify): clean up the window's frame if it is being
+	withdrawn.
+
+	* src/data.h (struct screen_info): new variable help_window
+
+	* src/bar.c (update_window_names): only print the window list if
+	the bar is already displaying the window list.
+
+	* src/actions.h (cmd_help): new prototype
+	(cmd_quit): likewise
+
+	* src/actions.c (initialize_default_keybindings): new keybinding for "help"
+	(cmd_quit): new function
+	(cmd_help): likewise
+
+2001-04-13  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/actions.c (cmd_clock): doesn't allocate memory. displays the
+	date.
+
+	* src/split.h (blank_frame): new prototype
+
+	* src/split.c (split_frame): calls unhide_window after maximizing
+	the new frame's window.
+	(remove_all_splits): hide all windows but the current one
+	(remove_all_splits): maximize the current window in its newly
+	resized frame.
+	(remove_frame): hide the frame's window after removing it from the
+	list.
+	(blank_frame): new function
+
+	* src/manage.h (withdraw_window): new prototype
+	(hide_window): likewise
+	(unhide_window): likewise
+
+	* src/manage.c (scanwins): glob ignored windows into 1 if
+	statement.
+	(scanwins): set the window's state to NormalState before calling
+	map_window.
+	(set_state): sets win->state
+	(map_window): calls set_state
+	(hide_window): new function
+	(unhide_window): likewise
+	(withdraw_window): new function
+
+	* src/main.c (main): setup error handlers after --command,
+	--restart, and --kill commands have been processed.
+	(main): doesn't call set_active_window
+	(init_screen): XSync's after selecting ewents on the root window.
+	(clean_up): map iconized windows
+
+	* src/list.h (give_window_focus): prototype updated
+
+	* src/list.c (give_window_focus): takes a second argument,
+	last_win.
+	(give_window_focus): calls unhide_window
+	(give_window_focus): uses last_win instead of current_window()
+	(set_active_window): hides the last window and unhides the new
+	window.
+	(set_active_window): calls give_window_focus
+
+	* src/events.c (cleanup_frame): maximizes the frame's new window
+	(unmap_notify): do nothing if the window is in the iconic
+	state. Withdraw the window if it is in the normal state.
+	(map_request): calls unhide_window if the window is iconized. Do
+	nothing if it is already mapped.
+	(destroy_window): tightened up
+	(client_msg): detects iconize requests from clients.
+
+	* src/data.h (STATE_UNMAPPED): remove. Dependant code uses
+	WithdawnState in its stead.
+	(STATE_MAPPED): likewise. Dependant code uses NormalState in its
+	stead
+
+	* src/actions.c (initialize_default_keybindings): new keybinding -
+	bound to "select -"
+	(cmd_select): the string "-" selects a blank window
+
+2001-04-12  shawn  <sabetts@badbox.secure.basis.org>
+
+	* src/main.c (main): calls XCloseDisplay before exitting after
+	sending a kill, restart, or command message.
+
+2001-04-10  Gergely Nagy  <algernon@debian.org>
+
+	* src/main.c (main): initialize command to NULL, silences an
+	annoying warning
+
+	* debian/rules: sync it up a bit, so it works with both
+	the current CVS ratpoison
+
+	* debian/ratpoison.examples: new file listing examples installed
+	to /usr/share/doc/ratpoison/examples
+
+2001-04-08  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/main.c (clean_up): destroys resources stored in screens
+	(init_rat_cursor): frees the pixmaps
+
+2001-04-06  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/split.h (hide_frame_indicator): new prototype
+	(show_frame_indicator): likewise
+
+	* src/split.c: include <unistd.h>
+	(split_frame): set the new_frame's window to NULL
+	(split_frame): calls show_frame_indicator once the split is done.
+	(set_active_frame): only call show_frame_indicator if the frame
+	has no window or if we switched to a different frame.
+	(update_frame_indicator): prints FRAME_STRING in the frame
+	indicator window.
+	(hide_frame_indicator): new function
+	(show_frame_indicator): likewise
+
+	* src/main.c (rp_rat_bits): new variable
+	(rp_rat_mask_bits): likewise
+	(alrm_handler): calls hide_frame_indicator
+	(init_rat_cursor): new function
+	(init_screen): calls init_rat_cursor
+
+	* src/events.c (unmap_notify): calls set_active_frame if the
+	window being unmapped was in the current frame
+	(destroy_window): calls set_active_frame if the
+	window being destroyed was in the current frame
+	(grab_rat): new function
+	(grab_rat): likewise
+	(handle_key): calls grab_rat and ungrab_rat
+
+	* src/data.h (struct screen_info): new variable rat
+
+	* src/conf.h (FRAME_INDICATOR_TIMEOUT): new #define
+	(FRAME_STRING): likewise
+	(RAT_HEIGHT): likewise
+	(RAT_WIDTH): likewise
+	(RAT_HOT_X): likewise
+	(RAT_HOT_Y): likewise
+
+	* src/actions.h (cmd_curframe): new prototype
+
+	* src/actions.c (initialize_default_keybindings): new key binds
+	for "curframe"
+	(user_commands): new command "curframe"
+	(cmd_curframe): new function
+
+	* src/split.c (remove_all_splits): only maximize the current
+	window if there is one.
+	(maximize_frame): remove unused code to retrieve the current
+	screen_info.
+
+	* src/actions.c (cmd_h_split): calls h_split_frame on the current
+	frame.
+	(cmd_v_split): likewise
+	(cmd_only): even if the current frame is empty, call
+	remove_all_splits.
+
+	* src/split.c (maximize_frame): new function
+	(create_initial_frame): calls maximize_frame to fill in the
+	initial frame's fields.
+	(num_frames): comment out
+	(remove_frame): remove special case when there is only 1 frame
+	left.
+
+	* src/split.h (h_split_frame): renamed frome h_split_window
+	(v_split_frame): renamed frome v_split_window
+	(split_frame): renamed frome split_window
+	(remove_all_splits): renamed frome remove_all_frames
+	(find_windows_frame): new prototype
+	(find_frame_next): likewise
+	(find_frame_prev): likewise
+	(current_window): likewise
+	(init_frame_list): likewise
+	(set_active_frame): likewise
+	
+	* src/split.c (create_initial_frame): new function
+	(init_frame_list): likewise
+	(find_windows_frame): likewise
+	(find_frame_next): likewise
+	(find_frame_prev): likewise
+	(current_window): likewise
+	(update_frame_indicator): likewise
+	(set_active_frame): likewise
+	(split_frame): rename from split_window
+	(v_split_frame): rename from v_split_window
+	(h_split_frame): rename from h_split_window
+	(remove_all_splits): renamed frome remove_all_frames
+	(total_frame_area): traverses rp_window_frame list
+	(num_frames): likewise
+	(frame_overlaps): likewise
+	(remove_frame): likewise
+	(remove_frame): calls delete_frame_from_list
+
+	* src/manage.c (scanwins): skips the frame_window
+	(maximize_transient): finds the window's frame
+	(maximize_normal): likewise
+
+	* src/main.c (main): calls init_frame_list
+	(init_screen): create and map the frame_window
+
+	* src/list.c (give_window_focus): new function
+	(goto_window): likewise
+	(set_active_window): calls give_window_focus
+
+	* src/list.h (give_window_focus): new prototype
+	(goto_window): likewise
+
+	* src/events.c (new_window): the screen's frame_window is not
+	managed
+	(cleanup_frame): new function
+	(unmap_notify): calls cleanup_frame if window exists in a frame
+	(destroy_window): likewise
+
+	* src/data.h (struct screen_info): remove frame field
+	(struct rp_window_frame): new fields win, prev, next
+	(rp_window_frame_sentinel): new global
+
+	* src/actions.c (cmd_prev): jumps to last accessed window if
+	current frame is empty.
+	(cmd_next): likewise
+	(cmd_remove): nothing is done if only 1 frame exists
+
+	* src/data.h (struct screen_info): new field frame_window
+	(rp_current_frame): new global
+	(rp_current_window): removed. All dependant code updated.
+
+2001-04-04  Ryan Yeske  <rcyeske@cut.hotdog.tmp>
+
+	* src/actions.c: add :banish to user_commands.
+	(initialize_default_keybindings): Add keybinding for :banish.
+	(cmd_banish): New function.
+
+2001-04-01  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/manage.c (maximize_normal): fixed maximizing problems for
+	windows with resize hints.
+	(maximize_transient): likewise
+
+2001-03-31  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/split.h (find_window_for_frame): new function prototype
+	(find_window_for_frame): likewise
+	(find_window_for_frame): likewise
+	(find_window_for_frame): likewise
+	(find_window_for_frame): likewise
+
+	* src/split.c (window_fits_in_frame): new function
+	(find_window_for_frame): likewise
+	(split_window): likewise
+	(v_split_window): likewise
+	(h_split_window): likewise
+	(remove_all_frames): likewise
+	(frame_is_below): likewise
+	(frame_is_above): likewise
+	(frame_is_left): likewise
+	(frame_is_right): likewise
+	(total_frame_area): likewise
+	(num_frames): likewise
+	(frames_overlap): likewise
+	(frame_overlaps): likewise
+	(remove_frame): likewise
+
+	* src/ratpoison.h: includes "split.h"
+
+	* src/manage.c (unmanage): calls free_window
+	(maximize_transient): takes the window's frame into account
+	(maximize_normal): likewise
+
+	* src/list.h (find_window_prev_with_frame): new function prototype
+	(find_window_next_with_frame): likewise
+	(free_window): likewise
+
+	* src/list.c (free_window): new function
+	(add_to_window_list): initialize new window's frame to NULL.
+	(find_window_prev): skips windows with frames
+	(find_window_next): likewise
+	(find_window_other): likewise
+	(find_window_prev_with_frame): new function
+	(find_window_next_with_frame): new function
+	(set_active_window): returns if the specified window is already
+	the current window.
+	(set_active_window): If the new window has no frame it inherits
+	the current window's frame.
+	(set_active_window): maximize and raise the newly active window.
+
+	* src/events.c (unmap_notify): handles window frames.
+	(destroy_window): simplified
+
+	* src/data.h (struct rp_window_frame): new struct
+	(struct rp_window): add frame variable
+
+	* src/conf.h (WINDOW_BORDER_WIDTH): set to 1
+
+	* src/actions.h (cmd_next_frame): new function prototype
+	(cmd_prev_frame): likewise
+	(cmd_h_split): likewise
+	(cmd_v_split): likewise
+	(cmd_only): likewise
+	(cmd_remove): likewise
+
+	* src/actions.c (initialize_default_keybindings): new default
+	bindings for "split", "vsplit", "focus", "only", "remove"
+	(user_commands): new user commands "split", "vsplit", "focus",
+	"only", "remove"
+	(cmd_prev_frame): new function
+	(cmd_next_frame): likewise
+	(cmd_h_split): likewise
+	(cmd_v_split): likewise
+	(cmd_only): likewise
+	(cmd_remove): likewise
+
+	* src/Makefile.am (ratpoison_SOURCES): new files split.c split.h
+
+2001-03-31  Ryan Yeske  <rcyeske@cut.hotdog.tmp>
+
+	* doc/ipaq.ratpoisonrc: Use keysym names.
+
+2001-03-28  Shawn  <sabetts@vcn.bc.ca>
+
+	* src/main.c (main): initialize rp_command_request and
+	rp_command_result.
+
+	* src/data.h (rp_command_request): new global
+	(rp_command_result): new global
+
+	* src/events.c (execute_remote_command): new function
+	(receive_command): loops through the list of command requests
+	calling execute_remote_command on each one.
+	(property_notify): better detection of command requests.
+
+	* src/communications.c (recieve_command_result): new function
+	(send_command): creates a new window to attach the command
+	to. Waits for confirmation that the command has been executed.
+
+	* src/actions.h (cmd_echo): new prototype
+
+	* src/actions.c (cmd_echo): new function
+	(user_commands): update "echo" entry
+
+2001-03-22  Gergely Nagy  <8@free.bsd.hu>
+
+	* debian/control: removed build-dependency on x-terminal-emulator,
+	downgraded xterm | x-terminal-emulator dependency to a recommends
+	only
+
+2001-03-19  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/main.c (ratpoison_longopts): add --command to recognized
+	command-line options.
+
+	* src/communications.h (send_command): new function prototype
+
+	* src/data.h (rp_command): new global variable
+
+	* src/events.c (receive_command): new function
+	(property_notify): handles rp_command Atoms
+
+	* src/communications.c (send_command): new function
+
+	* src/main.c (print_help): prints help for --command
+	(main): handles --command command-line option
+
+2001-03-14  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/events.c (delegate_event): calls focus_change on FocusOut
+	and FocusIn events.
+	(focus_change): new function
+
+	* src/list.c (add_to_window_list): add FocusChangeMask to the
+	window's event mask.
+
+2001-03-13  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* configure.in: warn the user if the x terminal emulator cannot be
+	found.
+
+	* src/conf.h: replaced the silly c++ style comment around
+	HIDE_MOUSE with a REAL comment.
+
+	* src/manage.c (update_window_information): updates the window's
+	border width.
+
+	* src/conf.h (WINDOW_BORDER_WIDTH): new constant
+
+	* src/manage.c (maximize_normal): Set the border width to
+	WINDOW_BORDER_WIDTH. takes the border width into account when
+	calculating the position, width, and height.
+	(maximize_transient): likewise
+	(maximize): calls XSetWindowBorderWidth to set the window's border
+	width.
+	(force_maximize): likewise
+
+2001-03-07  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* doc/Makefile.am (EXTRA_DIST): Added sample.ratpoisonrc and
+	ipaq.ratpoisonrc
+
+2001-03-07  Ryan Yeske  <rcyeske@cut.hotdog.tmp>
+
+	* doc/ipaq.ratpoisonrc: New file.
+
+2001-03-07  Ryan Yeske  <rcyeske@cut.hotdog.tmp>
+
+	* src/actions.c (string_to_keysym): New function.
+	(parse_keydesc): Call string_to_keysym.
+
+	* src/main.c (read_startup_files): Use PRINT_DEBUG to report failure
+	to load rc files.
+
+	* src/main.c (read_rc_file): Check for comment character '#' in first
+	column.
+	(read_rc_file): Fix typo that was resulting in exhausting virtual
+	memory when parsing rc files.
+
+2001-03-06  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/input.c (init_modifier_map): rp_modifier_info masks are or'd
+	with existing value.
+	(init_modifier_map): Resolves alt-meta conficts just like emacs.
+	(cook_keycode): returns a KeySym string. Updated Dependant code.
+	(read_key): likewise
+	(get_more_input): copies the KeySym string passed back from
+	read_key into the input buffer.
+
+	* src/data.h (struct modifier_info): commented out
+	mode_switch_mask. Dependant code commented out.
+
+	* src/actions.c (cmd_select): the search is not carried out on empty
+	strings.
+
+	* src/events.c (configure_request): Handles restacking requests.
+
+	* src/main.c: removed rp_mode_switch and rp_numlock. Added
+	rp_modifier_info global.
+	(main): calls init_modifier_map.
+	(init_screen): windows no longer select on KeyRelease and
+	KeymapState events.
+
+	* src/input.h (init_modifier_map): new prototype
+
+	* src/input.c (init_modifier_map): new function
+	(cook_keycode): uses rp_modifier_info to get Mode_switch modifier
+	mask.
+	(read_key): only listens for key presses.
+
+	* src/events.c (keymap_state): removed function
+	(key_release): likewise
+	(delegate_event): removed case for KeymapNotify.
+
+	* src/data.h (struct modifier_info): added mode_switch_mask, removed
+	shift_lock_mask.  removed rp_mode_switch, and
+	rp_numlock. dependant code updated.
+
+2001-03-05  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* configure.in: bumped version to 0.1.1-cvs
+
+2001-03-05  Ryan Yeske  <rcyeske@cut.hotdog.tmp>
+
+	* src/actions.c: remove silly C,M,A,S,H #defines and propagate
+	changes.
+
+	* src/bar.c (update_window_names): Print a '+' for the last accessed
+	window.
+	
+2001-03-05  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/events.c (key_press): set rp_mode_switch to 0 before processing
+	the key.
+
+	* src/main.c: new globals rp_mode_switch, rp_numlock.
+	(init_screen): selects on KeyRelease events for the root window,
+	input_window, and key_window.
+	(init_screen): selects on KeymapState events for input_window and
+	key_window.
+
+	* src/input.c (cook_keycode): Handles Mode_switch (aka AltGr).
+	(read_key): listens for KeyRelease and KeymapState events.
+	(read_key): updates rp_mode_switch status
+
+	* src/events.h (keymap_state): new prototype
+
+	* src/events.c (keymap_state): new function
+	(key_release): new function
+	(key_press): uses cook_keycode to get the event's keysym.
+	(key_press): updates rp_mode_switch status
+	(delegate_event): handles KeymapNotify events.
+
+	* src/data.h (struct modifier_info): new struct
+	new globals rp_mode_switch and rp_numlock.
+
+2001-03-04  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* configure.in: bumbped version number to 0.1.0
+
+2001-03-04  Gergely Nagy <8@free.bsd.hu>
+
+	* debian/changelog: bumped version number to 0.1.0
+
+	* debian/rules: fixed clean target, it failed when there
+	was no Makefile
+
+	* doc/ratpoison.1: some indentitation fixes, removed the note
+	that upstream doesn't have a manpage, because it has
+
+2001-03-03  Ryan Yeske  <rcyeske@cut.hotdog.tmp>
+
+	* src/actions.c (cmd_bind): Do not pollute the message bar with
+	chatter about the keybinding.
+
+2001-03-03  shawn  <sabetts@livingston>
+
+	* src/manage.c (maximize_normal): windows with resize increments
+	resize properly when their original size is > the screen size.
+	(maximize_transient): likewise
+
+2001-03-02  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* configure.in: adds -g to CFLAGS when debugging is turned on.
+
+	* doc/Makefile.am (EXTRA_DIST): man page comes with the distro.
+
+	* Makefile.am (SUBDIRS): removed man/
+
+	* configure.in (AC_OUTPUT): removed man/Makefile
+	removed references to emacs.
+
+	* doc/Makefile.am (man_MANS): ratpoison.1 moved to doc/
+
+	* doc/ratpoison.texi: minor updates.
+
+	* man/ratpoison.1: added changes from texinfo docs.
+
+2001-03-02  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/main.c (print_version): updated copyright notice.
+
+	* src/actions.c (initialize_default_keybindings): removed emacs
+	binding.
+
+2001-03-01  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* doc/ratpoison.texi (Commands): filled in remaining commands and
+	keys.
+
+2001-03-01  Ryan Yeske  <rcyeske@cut.hotdog.tmp>
+
+	* src/ratpoison.h (xmalloc, xrealloc, fatal): Prototype.
+
+	* src/main.c (xmalloc): Move here from sbuf.c.
+	(xrealloc): Likewise.
+	(fatal): Likewise.
+
+	* src/number.c (find_empty_cell): Use xrealloc, remove error check.
+	(init_numbers): Likewise.
+
+	* src/manage.c (get_window_name): Likewise.
+
+	* src/main.c (main): Likewise.
+
+	* src/list.c (add_to_window_list): Likewise.
+	(add_to_window_list): Likewise.
+
+	* src/events.c (handle_key): Likewise.
+
+	* src/input.c (keysym_to_string): Likewise.
+	(get_more_input): Use xrealloc, remove error check.
+
+	* src/actions.c (cmd_source): Open the file.  Error report as
+	appropriate.
+	(cmd_windows): Call current_screen() to find the current screen.
+	(cmd_clock): Show the clock even if no windows are open.
+	(cmd_clock): Use xmalloc, remove error check.
+	(initialize_default_keybindings): Use xmalloc.
+	(cmd_bind): Use xmalloc.
+	(cmd_rename): Use xmalloc, remove error check.
+	(add_keybinding): Use xrealloc.
+	(replace_keybinding): Use xrealloc.
+
+	* src/main.c (read_rc_file): Take a file pointer rather than a
+	filename.
+	(read_startup_files): If ~/.ratpoisonrc is not readable try
+	/etc/ratpoisonrc.
+
+	* src/actions.c: Use PRINT_DEBUG instead of fprintf.  Put useful error
+	text in calls to message().
+	(cmd_select): Show the window list if there is no such window
+	number.
+
+2001-02-28  shawn  <sabetts@badbox.secure.basis.org>
+
+	* src/manage.c (map_window): calls update_window_information.
+
+	* src/manage.h (map_window): new prototype.
+
+	* src/events.c (new_window): calls update_window_information on new windows.
+	(map_request): calls map_window on managed unmapped windows.
+	(configure_request): removed commented out old crusty
+	code. Updates window's structure based on what bits are set in the
+	event's value_mask. Doesn't honour resize request. Windows are
+	always maximized.
+	(property_notify): doesn't call maximize when WM_NORMAL_HINTS are
+	updated.
+
+	* src/manage.c (manage): no longer maps the window, this code is in
+	map_window.
+	(map_window): new function
+	(maximize): no longer sends a synthetic configure event.
+	(scanwins): calls map_window on viewable windows.
+	(update_window_information): renamed from manage. dependant code
+	updated.
+
+2001-02-27  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* doc/ratpoison.texi (Commands): added escape command
+
+2001-02-27  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/actions.c (cmd_escape): updates the "other" command keybinding
+
+	* src/manage.h (ungrab_prefix_key): new prototype
+	(grab_prefix_key): likewise
+
+	* src/manage.c (ungrab_prefix_key): new function
+
+	* src/main.c (main): calls initialize_default_keybindings after
+	init_window_list.
+	
+	* src/data.h (struct rp_action): key is of type KeySym. state is
+	unsigned int.
+
+	* src/conf.h (KEY_PREFIX): set to XK_t
+
+	* src/actions.h (cmd_escape): new prototype
+
+	* src/actions.c (cmd_escape): new function
+
+	* src/data.h (struct key): move from actions.h
+	(struct rp_key): rename from struct key. dependant code updated.
+	(prefix_key): new global variable. code dependant on KEY_PREFIX
+	and MODIFIER_PREFIX updated to use this.
+
+	* src/actions.c: "maximize" user command calls cmd_maximize
+	(initialize_default_keybindings): initializes prefix_key.
+	Added "escape" command.
+
+	* src/manage.c (force_maximize): moved from actions.c
+	(maximize): likewise
+	(maximize_normal): likewise
+	(maximize_transient): likewise
+
+	* src/actions.c (cmd_maximize): New function
+
+	* src/main.c (handler): Prepends error message with "ERROR: ".
+	Displays error in message bar. Returns 0.
+
+	* src/events.c (destroy_window): sets rp_current_window to NULL when
+	there are no more mapped windows.
+	(destroy_window): calls set_current_window and find_window_other
+	directly instead of cmd_other.
+ 
+2001-02-26  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/list.c (save_mouse_position): stores the mouse position relative
+	to the root window.
+	(set_active_window): warps the mouse relative to the root window.
+
+	* src/actions.h: prototype for force_maximize added
+
+	* src/actions.c: the user command "maximize" calls force_maximize
+	(force_maximize): New function 
+
+2001-02-25  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* configure.in (AC_OUTPUT): added man/Makefile 
+
+	* Makefile.am (SUBDIRS): added man dir
+
+2001-02-25  Ryan Yeske  <rcyeske@cut.hotdog.tmp>
+
+	* src/main.c (read_rc_file): rename from load_rc_file.  Remove static
+	keyword.
+	(read_startup_files): rename from read_initialization_files.
+
+	* src/actions.c (cmd_prev): Handle situation when there is no other
+	window.
+	(cmd_next): Likewise.
+	(cmd_other): Likewise.
+	(cmd_source): New function.
+
+2001-02-24  Ryan Yeske  <rcyeske@cut.hotdog.tmp>
+
+	* src/main.c (load_rc_file): new function
+	(read_initialization_files): new function
+	(main): read the initialization files
+
+	* src/conf.h: remove themes support
+	
+	* src/themes.h: remove file
+
+	* src/actions.c (replace_keybinding): add function
+	(cmd_bind): handle binding of previously bound key
+
+2001-02-23  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/main.c (main): passes return value of find_window_other() to
+	set_active_window().
+
+	* src/list.h (remove_from_window_list): removed prototype
+	(find_window_in_list): new prototype
+	(append_to_list): likewise
+	(insert_into_list): likewise
+	(remove_from_list): likewise
+
+	* src/list.c: propogated use of rp_unmapped_window_sentinel and
+	rp_mapped_window_sentinel.
+	(find_window_in_list): new function
+	(find_window): calls find_window_in_list to search mapped and
+	unmapped window lists.
+	(remove_from_window_list): removed function
+	(init_window_list): initialized sentinels
+	(find_window_prev): searches only the mapped window list.
+	(find_window_next): likewise
+	(find_window_other): likewise
+	(append_to_list): new function
+	(insert_into_list): new function
+	(remove_from_list): new function
+
+	* src/events.c (unmap_notify): Searches only the mapped window
+	list. moves the window from the unmapped window list to the mapped
+	window list.
+
+	* src/data.h: removed rp_window_head and rp_window_tail, updated
+	dependant files.  Added rp_mapped_window_sentinel and
+	rp_unmapped_window_sentinel globals.
+
+	* src/bar.c (update_window_names): loops only through mapped window
+	list.
+
+2001-02-21  Ryan Yeske  <rcyeske@cut.hotdog.tmp>
+
+	* configure.in: change version to 0.0.6-cvs
+
+2001-02-21  Ryan Yeske  <rcyeske@cut.hotdog.tmp>
+
+	* src/manage.c (manage): comment out broken sort_window_list_by_number
+	call
+
+	* src/actions.h (key): new structure
+
+	* src/actions.c (find_keybinding): return an rp_action*, not a char*
+	(user_commands): add bind command
+	(parse_keydesc): new function
+	(cmd_bind): new function
+
+	* src/actions.h: update find_keybinding prototype
+
+	* src/events.c (handle_key): handle new return value of
+	find_keybinding
+
+	* src/actions.c (cmd_generate): Send the modifier prefix state as well
+	as the keycode.
+	(find_keybinding): Do not strdup the key action data.
+	(add_keybinding): Strdup the key action data.
+
+2001-02-19  Ryan Yeske  <rcyeske@cut.hotdog.tmp>
+
+	* autogen.sh: Run aclocal before autoheader.
+
+2001-02-19  Ryan Yeske  <rcyeske@cut.hotdog.tmp>
+
+	* src/events.c (handle_key): Call find_keybinding() instead of looping
+	through keytable here.
+
+	* src/main.c (main): Call initialize_default_keybindings.
+
+	* src/actions.c (find_keybinding): Added.
+	(add_keybinding): Added.
+	(initialize_default_keybindings): Added.  Do not use static table
+	of keybindings.  Instead call add_keybinding() for each key.
+
+	* src/Makefile.am (ratpoison_SOURCES): add themes.h
+
+	* src/main.c (FONT_NAME): Rename to FONT
+	(BAR_BG_COLOR): Rename to BACKGROUND
+	(BAR_FG_COLOR): Rename to FOREGROUND
+
+	* src/list.c (find_window_by_number): Rename to find_window_number.
+	(find_window_by_name): Rename to find_window_name.
+	(goto_window_name): Remove.
+	(find_window_prev): Clean up.
+	(find_window_next): Clean up.
+
+	* src/list.h: Update prototypes.
+
+	* src/conf.h: Include "themes.h".
+
+	* src/actions.c (cmd_generate): Fix typo.
+	(prev_window): Remove.
+	(next_window): Remove.
+	(last_window): Remove.
+	(cmd_prev): Add.
+	(cmd_next): Add.
+	(cmd_other): Add.
+	(string_to_window_number): Add.
+	(cmd_select): Add.
+	(cmd_rename): Add.
+	(delete_window): Remove.
+	(cmd_delete): Add.
+	(cmd_delete): Remove.
+	(cmd_kill): Add.
+	(show_version): Remove.
+	(cmd_version): Add.
+	(command): Remove.
+	(command): Remove.
+	(cmd_colon): Deal with partial input.
+	(cmd_exec): Add.
+	(cmd_newwm): Remove.
+	(cmd_newwm): Add.
+	(cmd_clock): Remove.
+	(cmd_clock): Add.
+	(cmd_clock): Remove.
+	(cmd_windows): Add.
+	(goto_window_number): Remove.
+	(abort_keypress): Remove.
+	(cmd_abort): Add.
+
+	* src/actions.c: Make :select command handle numbers.
+	(cmd_unimplemented): new function.
+
+	Commands are all cmd_ prefixed.  Major changes within this file.
+	* src/input.c (get_more_input): New function.  Used to collect input
+	on top of some existing input.
+	(get_input): Calls get_more_input to do work.
+
+	* src/conf.h (THEME): added themes support.
+
+	* src/bar.h (message): New macro.  Calls marked_message with (0, 0)
+	highlight parameters.
+
+	* src/bar.c (marked_message): New function
+
+	* src/actions.h: Update prototypes.
+
+2001-02-19  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/manage.c (manage): calls sort_window_list_by_number
+
+	* src/list.h (sort_window_list_by_number): Added prototype
+
+	* src/list.c (swap_list_elements): Added
+	(sort_window_list_by_number): Added
+
+	* src/input.c (update_input_window): Added
+	(get_input): calls update_input_window in place of xlib calls. 
+	(get_input): exits if realloc fails
+
+	* src/conf.h: Added INPUT_WINDOW_SIZE
+
+	* src/bar.c (update_window_names): loops through window list from head
+	to tail.
+
+2001-02-18  Gergely Nagy  <8@free.bsd.hu>
+
+	* NEWS: mention that ALL of the fixed size buffers are fixed.
+
+2001-02-18  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/conf.h: restructured comments. Added #define for AUTO_CLOSE.
+
+	* src/manage.c (unmanage): kills ratpoison when there are no more
+	windows.
+
+2001-02-17  Ryan Yeske  <rcyeske@cut.hotdog.tmp>
+
+	* Makefile.am (SUBDIRS): Source dir before documentation dirs.
+
+	* autogen.sh: Do not continue if a step fails.
+
+2001-02-17  Gergely Nagy  <8@free.bsd.hu>
+
+	* man/ratpoison.1,
+	* doc/ratpoison.texi: removed reference to :center
+	and :resize
+
+2001-02-17  Ryan Yeske  <rcyeske@cut.hotdog.tmp>
+
+	* src/actions.c (generate_key_event): Send KEY_PREFIX.
+	
+2001-02-17  Ryan Yeske  <rcyeske@cut.hotdog.tmp>
+
+	* src/manage.c (current_screen): Rename get_screen() and move to this
+	file.
+	
+	* src/input.c (get_input): Remove screen_info as paramater.  Call
+	current_screen() to get screen_info.
+
+	* src/actions.c (get_screen): Remove.
+
+2001-02-17  Gergely Nagy  <8@free.bsd.hu>
+
+	* src/actions.c (goto_window_by_name, rename_current_window, command)
+	(shell_command, switch_to, xterm_command): changed static char[100]s
+	to dynamic char *s, as get_input() now supports this
+	* src/input.h: reflect get_input change
+	* src/input.c (get_input): use dynamically allocated strings
+
+2001-02-15  Gergely Nagy  <8@free.bsd.hu>
+
+	* autogen.sh: added autoheader call
+
+	* debian/control: bumped Standards-Version
+	* debian/copyright: changed URL
+	* debian/patches/00list: removed 01-xterm
+	* debian/patches/01-xterm.dpatch: removed, useless with 0.0.6
+	* debian/rules: rewritten using a newer version of my
+	build system
+
+	* man/Makefile.am: new file
+	* Makefile.am (SUBDIRS): added man
+	(debian_FILES): new variable, added to EXTRA_DIST
+
+	* debian/ratpoison.1: moved...
+	* man/ratpoison.1: ...here, and updated to include all
+	the new keystrokes
+	* doc/ratpoison.texi: updated
+	* doc/ratpoison.info: regenerated
+
+	* configure.in: fixed --enable-debug, added --with-emacs,
+	added man/Makefile to AC_OUTPUT
+
+2001-02-15  Gergely Nagy  <8@free.bsd.hu>
+
+	* src/getopt.c: fixed a warning
+
+	* src/events.c (handle_key): use dynamically allocated strings
+
+	* src/bar.c (display_msg_in_bar),
+	* src/sbuf.c (xrealloc): changed an fprintf to PRINT_DEBUG
+
+2001-02-15  Ryan Yeske  <rcyeske@cut.hotdog.tmp>
+
+	* src/list.c (save_mouse_position): changed declaration of mask to
+	unsigned int
+	(get_mouse_root_position): changed declaration of mask to unsigned
+	int
+
+	* src/actions.c (xterm_command): added new function.  Thanks to Ben
+	Leslie <benno@sesgroup.net>
+	(user_commands): added "xterm"
+	(key_actions): added C-t C-! binding for "xterm"
+
+	* src/messages.h (MESSAGE_PROMPT_XTERM_COMMAND): new message
+
+2001-02-14  Ryan Yeske  <rcyeske@cut.hotdog.tmp>
+
+	* src/actions.h (generate_key_event): added prototype
+
+	* src/actions.c (key_actions): added additional keybindings to include
+	C- versions for all keys.
+	(generate_key_event): added command
+
+2001-02-13  Ryan Yeske  <rcyeske@cut.hotdog.tmp>
+
+	* src/bar.c (update_window_names): get indexes around current window
+	text to pass to display_msg_in_bar
+	(display_msg_in_bar): xor a rectangle around the text represented
+	by mark_start and mark_end arguments
+
+	* src/conf.h (BAR_FG_COLOR): changed to black
+	(BAR_BG_COLOR): changed to white 
+	(FONT_NAME): changed to 9x15bold
+	(BAR_Y_PADDING): changed to zero
+	(BAR_X_PADDING): changed to zero
+
+	* src/data.h (struct screen_info): removed bold_gc
+
+	* src/events.c (handle_key): can no longer over modify keystrokes
+	(handle_key): updated call to display_msg_in_bar to take extra
+	highlighting parameters.
+
+	* src/main.c (init_screen): removed bold_color
+	(XGCValues gv): made global
+
+	* src/actions.h (user_command): new struct
+	(argtype): new enumeration
+
+	* src/actions.h: many updated prototypes
+
+	* src/actions.c (key_actions): every command is now executed by
+	calling command() with a string version of the command, rewrote
+	this table to reflect that.
+	(user_commands): new symbol table added, a mapping between strings
+	and functions and arguments.
+	(spawn): now handles commands with arguments by calling them
+	through "/bin/sh -c"
+	(get_screen): new function.
+
+	* src/actions.c: all calls to display_msg_in_bar updated to call with
+	2 additional highlight parameters.
+
+	* src/actions.c (goto_win_by_name, rename_current_window, ...): most
+	all user functions that need arguments will prompt the user for
+	them, unless they are supplied.  Allows the same function to be
+	used interactively or internally.
+	
+	* src/bar.h (display_msg_in_bar): updated prototype
+
+	* src/bar.c (display_msg_in_bar): takes two additional int arguments
+	which are offsets into the string describing which part of the
+	text to draw highlighted.
+	(update_window_names): highlight current window
+
+2001-02-12  Ryan Yeske  <rcyeske@cut.hotdog.tmp>
+
+	* src/actions.c (spawn): will now execute commands with arguments by
+	execl'ing through /bin/sh -c
+
+2001-02-11  Ryan Yeske  <rcyeske@cut.hotdog.tmp>
+
+	* autogen.sh: added to repository
+
+2001-02-11  Ryan Yeske  <rcyeske@cut.hotdog.tmp>
+
+	* src/ratpoison.h: #include "sbuf.h"
+	removed duplicate #include "messages.h"
+
+	* src/Makefile.am (ratpoison_SOURCES): added sbuf.c sbuf.h
+
+	* src/bar.c (calc_bar_width): removed function
+	(update_window_names): now builds up the entire window list string
+	in dynamic storage before printing the window list.  No longer
+	displays the current window in a different colour.
+
+2001-02-11  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/main.c (set_sig_handler): Added
+	(main): Uses set_sig_handler() instead of signal()
+
+	* src/manage.h (set_state): Added prototype
+
+	* src/manage.c (send_configure): Now sends the window's x,y,width,height
+	coordinates.
+	(set_state): Added
+
+	* src/events.c (map_request): Calls set_state when mapping an unmapped
+	window.
+
+	* src/actions.c (maximize_transient): takes an rp_window as the
+	argument. Removed code to handle void *data. Incremental resizing
+	only happens if the maximum size isn't set. Removed actual X
+	maximization code.
+	(maximize): Moved meat to maximize_normal().
+
+2001-02-10  Ryan Yeske  <rcyeske@cut.hotdog.tmp>
+
+	* src/ratpoison.h: #include "messages.h"
+
+	* src/list.h (goto_window_number): moved prototype to actions.h
+
+	* src/actions.h (goto_window_number): added prototype
+	(goto_window): removed prototype
+	
+	* src/Makefile.am (ratpoison_SOURCES): added messages.h
+
+	* src/actions.c (prev_window): display correct message when there is
+	no other window or there are no windows at all.
+	(next_window): display correct message when there is no other
+	window or there are no windows at all.
+	(key_actions): all number keys call goto_window_number with an
+	argument instead of a dedicated function.
+	(key_actions): XK_exclam now runs execute_command
+
+	* src/actions.c: replaced all user message strings with #define'd
+	messages.
+
+	* src/actions.h (goto_window): removed
+	(goto_window_0): removed
+	(goto_window_1): removed
+	(goto_window_2): removed
+	(goto_window_3): removed
+	(goto_window_4): removed
+	(goto_window_5): removed
+	(goto_window_6): removed
+	(goto_window_7): removed
+	(goto_window_8): removed
+
+2001-02-10  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/communications.c (send_restart, send_kill): Added
+
+	* src/ratpoison.h: includes communications.h
+
+	* src/main.c (send_restart, send_kill): Moved to communications.c
+
+	* src/list.c (get_mouse_root_position): Added
+	(add_to_window_list): Initialize new rp_window fields
+	(save_mouse_position): Added
+	(set_active_window): Added code to save and restore the position
+	of the mouse
+
+	* src/events.c (property_notify): Added code to listen for a
+	WM_TRANSIENT_FOR property change.
+
+	* src/data.h (struct rp_window): Added transient, transient_for, mouse_x, mouse_y.
+
+	* src/actions.c (maximize_transient): Added
+	(maximize): Added code to handle transient windows differently
+
+	* src/Makefile.am (ratpoison_SOURCES): Added communications.h and communications.c
+
+2001-02-04  Ryan Yeske  <rcyeske@cut.hotdog.tmp>
+
+	* doc/ratpoison.texi: added keystroke for `Show current time.'
+
+	* debian/ratpoison.1: added keystroke for `Show current time.'
+	
+2001-01-02  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/communications.c (send_restart): moved from main.c
+	(send_kill): moved from main.c
+
+	* src/main.c: Removed send_kill, send_restart
+
+	* src/input.h: Added copyright notice.
+
+	* src/input.c: Added copyright notice.
+
+	* src/actions.c: Added copyright notice.
+
+2001-02-04  Ryan Yeske  <rcyeske@cut.hotdog.tmp>
+
+	* src/actions.c (prev_window): do not set active window when
+	recursing.
+	(next_window): do not set active window when recursing.
+
+2001-01-28  Ryan Yeske  <rcyeske@soya.hotdog.tmp>
+
+	* src/actions.c: changed rename_current_window key to `A', bound `a'
+	to show_clock
+
+2001-01-02  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/actions.h (show_clock): added prototype
+
+	* src/actions.c (show_clock): added
+
+2000-12-15  shawn  <sabetts@badbox.secure.basis.org>
+
+	* src/actions.c (maximize): increment size in hints->width_inc and
+	hints->height_inc intervals
+
+	* src/manage.c (manage): set the dimension members of the rp_window struct
+
+2000-12-15  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/manage.c (manage): added ColormapChangeMask and
+	StructureNotifyMask to events listened for on managed windows.
+
+	* src/main.c (main): propagated changes to set_active_window usage
+
+	* src/events.c: propagated changes to set_active_window usage
+
+	* src/data.h (struct rp_window): Added colormap member
+
+	* src/list.c (set_active_window): Installs colormap
+	(set_active_window): sets rp_current_window to window passed in as
+	parameter
+
+	* src/actions.c (prev_window): No longer uses rp_current_window to
+	keep track of state
+	(next_window): No longer uses rp_current_window to keep track of
+	state
+
+	* src/list.c (add_to_window_list): sets member colormap to the
+	DefaultColormap
+
+	* src/manage.c (update_window_name): fixed memory leak. Not freeing
+	the win->name before updating it.
+	(manage): Gets the colormap now.
+
+	* src/list.c (add_to_window_list): Added init code for `hints'
+
+	* src/events.c (property_notify): Added handler for XA_WM_NORMAL_HINTS.
+
+	* src/data.h (struct rp_window): Added XSizeHints member
+
+	* src/actions.c (maximize): Adhere to the window's Size Hints
+
+2000-12-14  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/manage.h (update_normal_hints): added prototype
+
+	* src/manage.c (update_normal_hints): added
+
+	* src/list.c (add_to_window_list): added comment describing function
+
+2000-12-13  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/actions.c: removed gross tabs from key_actions definition. Add
+	C-t space to go to next window.
+
+2000-12-09  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/data.h (struct rp_window): added x, y, width, height, border;
+
+	* src/events.c (configure_request): Now honours request, but then
+	maximizes it afterwards.
+	(configure_request): updates the rp_window's geometry fields
+
+	* src/manage.c (manage): commented out XMoveResizeWindow call
+	(send_configure): added
+
+	* src/actions.h (maximize): added prototype
+
+	* src/actions.c (maximize): added
+
+	* src/input.c (cook_keycode): properly handle LockMask
+	(cook_keycode): updated comments
+
+	* src/input.h: added prototype for keysym_to_string
+
+	* src/input.c (keysym_to_string): added
+
+	* src/bar.c (show_bar): update_window_names(s) is called whether the
+	bar is raised or not.
+
+	* src/conf.h: Added BAR_Y_PADDING BAR_X_PADDING
+
+	* src/list.c (goto_window_name): return success or failure
+
+	* src/list.h: updated prototype for goto_window_name
+
+	* src/events.c (handle_key): Added a message indicating an unbound
+	key.
+
+	* src/bar.c (display_msg_in_bar): added
+	(update_window_names): uses BAR_X_PADDING instead of `5'
+	(update_window_names): Updated BAR_PADDING to BAR_Y_PADDING
+
+	* src/input.c (cook_keycode): mod is now an usigned int
+	(read_key): Ignores modifier keys. Now returns keysym and
+	modifiers.
+	(get_input): Updated BAR_PADDING to BAR_Y_PADDING and
+	BAR_X_PADDING.
+
+	* src/events.c (handle_key): uses read_key instead of XMaskEvent to
+	read a key.
+
+	* src/actions.c (goto_window_number): window list is displayed on failure.
+	(bye): added
+	(switch_to): added
+	(execute_command): no longer seg faults when no windows exist.
+
+2000-12-03  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/input.h (cook_keycode): added prototype
+
+	* src/actions.c: key_actions now uses the #define'd keysyms from X11/keysym.h
+
+	* src/events.c (handle_key): calls cook_keycode() before processing the keysym.
+
+	* src/input.c (read_key): calls cook_keycode() before returning the keysym
+	(cook_keycode): added.
+
+2000-12-01  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/list.c (find_window_by_name): added check to make sure the
+	window's state is not STATE_UNMAPPED.
+
+2000-11-27  shawn  <sabetts@diggin.lamenet.tmp>
+
+	* src/events.c (handle_key): Code to generate the prefix event has
+	been moved to generate_prefix().
+
+	* src/actions.h (toggle_bar): added prefixes for generate_prefix, and
+	abort_keypress.
+
+	* src/actions.c (generate_prefix): added.
+	(abort_keypress): added.
+
+2000-11-04  Ryan Yeske  <rcyeske@vcn.bc.ca>
+
+	* src/Makefile.am (ratpoison_SOURCES): added getopt.c, getopt1.c and
+	getopt.h
+
+2000-10-30  Ryan Yeske  <rcyeske@vcn.bc.ca>
+
+	* src/actions.h (execute_command): added prototype
+
+	* src/actions.c (rename_current_window): added test to skip renaming
+	if user entered an empty string
+	(execute_command): added command
+	(key_actions): execute_command is called by pressing ':' 
+
+2000-10-30  shawn  <sabetts@badbox.secure.basis.org>
+
+	* src/conf.h: added HIDE_MOUSE
+
+2000-10-24  Ryan Yeske  <rcyeske@vcn.bc.ca>
+
+	* src/bar.c (bar_x): rightmost border is no longer off screen
+
+2000-10-20  shawn  <sabetts@badbox.secure.basis.org>
+
+	* src/events.c (key_press): fixed MODIFIER_PREFIX bug
+
+2000-10-19  Ryan yeske  <rcyeske@van.gobasis.com>
+
+	* src/manage.c (unmanaged_window): added.
+
+	* src/conf.h (PADDING_LEFT, PADDING_TOP, PADDING_RIGHT,
+	PADDING_BOTTOM, UNMANAGED_WINDOW_LIST): added.  Windows listed in
+	UNMANAGED_WINDOW_LIST will not be managed.  Space reserved for
+	unmanaged windows can be defined with PADDING_*
+
+2000-10-19  shawn  <sabetts@badbox.secure.basis.org>
+
+	* src/manage.c (get_window_name): added
+
+2000-10-17  shawn  <sabetts@vcn.bc.ca>
+
+	* src/events.c (configure_request): resize windows to the max-1. Call
+	XConfigureWindow as well as XSendEvent.
+
+	* src/manage.c (scanwins): Now only maps visible windows
+
+	* src/conf.h: Removed keystroke related defines
+
+	* src/actions.c: Moved all key activated functions here. Added
+	key_actions array.
+
+	* src/events.c (unmap_notify): now properly unmaps windows
+
+	* src/data.h: added ignore_badwindow
+
+	* src/main.c (handler): added ability to ignore BadWindow errors
+
+2000-10-15  shawn  <sabetts@vcn.bc.ca>
+
+	* src/main.c, src/data.h, src/events.c: Added ability to kill and
+	hup running ratpoison processes.

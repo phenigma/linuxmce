@@ -1,0 +1,14 @@
+This package was debianized by Gergely Nagy <algernon@debian.org>
+
+It was downloaded from
+	ftp://ratpoison.sourceforge.net/pub/ratpoison/
+
+Upstream Authors: Shawn Betts <sabetts@users.sourceforge.net>
+		  Ryan Yeske <rcyeske@vcn.bc.ca>
+
+Copyright:
+
+ratpoison is covered by the GNU GPL v2. The complete text can be found in
+/usr/share/common-licenses/GPL
+
+Modifications for Debian are also covered by the GNU GPL.
