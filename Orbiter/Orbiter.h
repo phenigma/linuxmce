@@ -42,6 +42,7 @@ public:
 	 */
 	ScreenHistory( class DesignObj_Orbiter *pObj, class ScreenHistory *pScreenHistory_Prior ) 
 	{ 
+		m_tTime = time(NULL);
 		m_pObj=pObj; m_dwPK_Device=m_dwPK_Users=0; m_bCantGoBack=false; m_pLocationInfo=NULL; 
 		if(  pScreenHistory_Prior  )
 		{
@@ -58,7 +59,7 @@ public:
 	 * of a screen to be removed in 'remove screen from history'
 	 */	
 	string m_sID;
-	
+	time_t m_tTime;
 	int m_dwPK_Device; /** < The device being controlled */
 	int m_dwPK_Users; /** < The current user */
 	class LocationInfo *m_pLocationInfo; /** < The current location */
