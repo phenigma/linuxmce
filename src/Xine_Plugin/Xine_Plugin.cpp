@@ -298,13 +298,15 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 							pXineMediaStream->m_iStreamID_get( ),
 							pXineMediaStream->GetMediaPosition()->m_iSavedPosition);
 
-	// TODO: Handle error more gracefully.
-	if( !SendCommand( cmd, &Response ) )
-		g_pPlutoLogger->Write( LV_CRITICAL, "The player %d (%s) didn't respond to play media command!",
-					pXineMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device,
-					pXineMediaStream->m_pDeviceData_Router_Source->m_sDescription.c_str());
-	else
-		g_pPlutoLogger->Write(LV_STATUS, "The sources device responded to play media command!" );
+	// No handling of errors (it will in some cases deadlock the router.)
+	SendCommand(cmd);
+
+// 	if( !SendCommand( cmd, &Response ) )
+// 		g_pPlutoLogger->Write( LV_CRITICAL, "The player %d (%s) didn't respond to play media command!",
+// 					pXineMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device,
+// 					pXineMediaStream->m_pDeviceData_Router_Source->m_sDescription.c_str());
+// 	else
+// 		g_pPlutoLogger->Write(LV_STATUS, "The sources device responded to play media command!" );
 
 	m_pMedia_Plugin->MediaInfoChanged( pXineMediaStream );
 	return true;
