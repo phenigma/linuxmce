@@ -55,6 +55,10 @@ OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirector
     m_nImageHeight=nImageHeight;
 	m_bFullScreen=bFullScreen;
 
+//#ifdef WINCE
+//	putenv ("SDL_VIDEODRIVER=windib"); 
+//#endif
+
 	Uint32 uSDLInitFlags = SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE;
 
 	if(m_bFullScreen)
@@ -127,24 +131,6 @@ g_pPlutoLogger->Write(LV_STATUS, "~OrbiterSDL finished");
     }
 
     Orbiter::RenderScreen();
-
-/*
-#if ( defined( PROFILING ) )
-	clock_t clkStart = clock();
-#endif
-	PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
-
-	SDL_Surface *pMySurface = SDL_LoadOCG("bubu.ocg");
-	SDL_BlitSurface(pMySurface, NULL, m_pScreenImage, NULL);
-
-#if ( defined( PROFILING ) )
-	clock_t clkFinished = clock();
-	g_pPlutoLogger->Write( LV_CONTROLLER, "~~~~~ LoadOCG took %d ms ~~~~~", clkFinished - clkStart);
-#endif
-
-	SDL_FreeSurface(pMySurface);
-*/
-
     DisplayImageOnScreen(m_pScreenImage);
 }
 //-----------------------------------------------------------------------------------------------------

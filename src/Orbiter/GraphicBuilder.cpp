@@ -18,6 +18,13 @@ bool IsPNG(string sFileName)
 	return "PNG" == sExtension || "png" == sExtension;
 }
 //-------------------------------------------------------------------------------------------------------
+bool IsOCG(string sFileName)
+{
+	string sExtension = FileUtils::FindExtension(sFileName);
+
+	return "OCG" == sExtension || "ocg" == sExtension;
+}
+//-------------------------------------------------------------------------------------------------------
 void CreateVectorGraphic(VectorPlutoGraphic& vectPlutoGraphic, GraphicType Type, string Filename, 
 						 eGraphicManagement GraphicManagement, Orbiter *pOrbiter)
 {
@@ -27,10 +34,15 @@ void CreateVectorGraphic(VectorPlutoGraphic& vectPlutoGraphic, GraphicType Type,
 	//TODO: set the right graphic format, instead of GR_UNKNOWN for non-MNG graphic files
 	eGraphicFormat eGF = GR_UNKNOWN;
 
+	//hack
+	//StringUtils::Replace(Filename, ".png", ".ocg");
+
 	if(IsMNG(Filename))
 		eGF = GR_MNG;
 	else if(IsPNG(Filename))
 		eGF = GR_PNG;
+	else if(IsOCG(Filename))
+		eGF = GR_OCG;
 
 	switch(Type) 
 	{

@@ -5719,6 +5719,10 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 
 /*virtual*/ void Orbiter::RenderGraphic(DesignObj_Orbiter *pObj, PlutoRectangle rectTotal, bool bDisableAspectRatio)
 {
+#if ( defined( PROFILING ) )
+	clock_t clkStart = clock();
+#endif
+
 	bool bIsMNG = false;
     bool bDeleteSurface=true;  // Will set to false if we're going to cache
 
@@ -5812,7 +5816,13 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 			case GR_TIF:
 			case GR_PNG:
 			case GR_BMP:
+			case GR_OCG:
 				{
+
+#if ( defined( PROFILING ) )
+					clock_t clkStart1 = clock();
+#endif
+
 					size_t size = 0;
 					char *pData = FileUtils::ReadFileIntoBuffer(sFileName.c_str(), size);
 
@@ -5823,6 +5833,12 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 						return;
 
 					delete [] pData;
+
+#if ( defined( PROFILING ) )
+					clock_t clkFinished1 = clock();
+					g_pPlutoLogger->Write( LV_CONTROLLER, "~~~~~~~~~~~ File -> SDL_Surface %s took %d ms ~~~~~~~", 
+						pObj->m_ObjectID.c_str(), clkFinished1 - clkStart1);
+#endif
 				}
 				break;
 
@@ -5903,14 +5919,33 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
     bDeleteSurface = false;
 #endif
 
+#if ( defined( PROFILING ) )
+	clock_t clkStart2 = clock();
+#endif
+
 	if(!pPlutoGraphic->IsEmpty())
 		RenderGraphic(pPlutoGraphic, rectTotal, bDisableAspectRatio);
 	else
 		g_pPlutoLogger->Write(LV_STATUS, "No graphic to render for object %s", pObj->m_ObjectID.c_str());
 
+#if ( defined( PROFILING ) )
+	clock_t clkFinished2 = clock();
+	g_pPlutoLogger->Write( LV_CONTROLLER, "********** Surface bliting %s took %d ms *********", 
+		pObj->m_ObjectID.c_str(), clkFinished2 - clkStart2);
+#endif
+
+
 	//free the surface
-	if( bDeleteSurface && !bIsMNG) //will delete the MNG at the end of playing
+	if( bDeleteSurface && !bIsMNG) //we'll delete the MNG at the end of playing
 		pPlutoGraphic->Clear();
+
+
+#if ( defined( PROFILING ) )
+	clock_t clkFinished = clock();
+	g_pPlutoLogger->Write( LV_CONTROLLER, "=========== RenderGraphic for obj %s took %d ms ========", 
+		pObj->m_ObjectID.c_str(), clkFinished - clkStart);
+#endif
+
 }
 
 /*virtual*/ void Orbiter::PlayMNG_CallBack(void *data)

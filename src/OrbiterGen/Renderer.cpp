@@ -16,6 +16,8 @@ using namespace std;
 #endif
 
 #include "Renderer.h"
+#include "SDLRendererOCGHelper.h"
+#include "../Orbiter/RendererOCG.h"
 
 #include "sge.h"
 #include "SDL_image.h"
@@ -321,6 +323,8 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 #else
 				if( pRendererMNG )
 	                sSaveToFile+=".mng";
+				else if( pDesignObj_Generator->m_bUseOCG )
+					sSaveToFile+=".ocg";
 				else
 	                sSaveToFile+=".png";
 #endif
@@ -473,6 +477,8 @@ int k=2;
 #else
 	if( bUseOCG )
 	{
+		string FileName = sSaveToFile + ".ocg";
+		SDL_SaveOCG(pRendererImage->m_pSDL_Surface, FileName);
 	}
 	else
 	{

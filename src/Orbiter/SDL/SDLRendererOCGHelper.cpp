@@ -1,11 +1,14 @@
 #include "SDLRendererOCGHelper.h"
 #include "../RendererOCG.h"
 #include "PlutoUtils/PlutoDefs.h"
+#include "PlutoUtils/FileUtils.h"
 #include "PlutoSDLDefs.h"
+
 //----------------------------------------------------------------------------------------------------------------
-SDL_Surface* SDL_LoadOCG(string sFilename)
+SDL_Surface* SDL_LoadOCG(char *pOCGData, size_t iOCGDataSize)
 {
-	RendererOCG *pRendererOCG = new RendererOCG(sFilename);
+	RendererOCG *pRendererOCG = new RendererOCG();
+	pRendererOCG->SetOCGData(pOCGData, iOCGDataSize);
 	SDL_Surface *pSurface = NULL;
 
 	char *pPixelsData;
@@ -29,6 +32,20 @@ SDL_Surface* SDL_LoadOCG(string sFilename)
 	}
 
 	PLUTO_SAFE_DELETE(pRendererOCG);
+	return pSurface;
+}
+//----------------------------------------------------------------------------------------------------------------
+SDL_Surface* SDL_LoadOCG(string sFilename)
+{
+	size_t iSize;
+	char *pData = FileUtils::ReadFileIntoBuffer(sFilename, iSize);
+
+	if(!pData)
+		return NULL;
+
+	SDL_Surface *pSurface = SDL_LoadOCG(pData, iSize);
+
+	PLUTO_SAFE_DELETE_ARRAY(pData);
 	return pSurface;
 }
 //----------------------------------------------------------------------------------------------------------------

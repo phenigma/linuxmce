@@ -6,6 +6,8 @@
 #include <SDL_image.h>
 #include <sge.h>
 #include <sge_surface.h>
+
+#include "SDLRendererOCGHelper.h"
 //-------------------------------------------------------------------------------------------------------
 SDLGraphic::SDLGraphic(string Filename, eGraphicManagement GraphicManagement,
 					   Orbiter *pOrbiter)
@@ -39,8 +41,15 @@ void SDLGraphic::Initialize()
 //-------------------------------------------------------------------------------------------------------
 bool SDLGraphic::LoadGraphic(char *pData, size_t iSize)
 {
-	SDL_RWops * rw = SDL_RWFromMem(pData, int(iSize));
-	m_pSDL_Surface = IMG_Load_RW(rw, 1); // rw is freed here
+	if(m_GraphicFormat == GR_OCG)
+	{
+		m_pSDL_Surface = SDL_LoadOCG(pData, iSize);
+	}
+	else
+	{
+		SDL_RWops * rw = SDL_RWFromMem(pData, int(iSize));
+		m_pSDL_Surface = IMG_Load_RW(rw, 1); // rw is freed here
+	}
 
 	if( !m_pSDL_Surface )
 	{

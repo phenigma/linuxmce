@@ -38,7 +38,7 @@ void RendererOCG::Cleanup()
 {
 	m_sFilename = "";
 
-	PLUTO_SAFE_DELETE_ARRAY(m_pOCGData);
+	PLUTO_SAFE_DELETE_ARRAY(m_pOCGData);  
 	m_iOCGSize = 0;
 	PLUTO_SAFE_DELETE_ARRAY(m_pPixelsData);
 	m_iPixelsDataSize = 0;
@@ -70,61 +70,15 @@ bool RendererOCG::LoadOCG(string sOCGFilename)
 {
 	Cleanup();
 
-	m_pOCGData = FileUtils::ReadFileIntoBuffer(sOCGFilename, m_iOCGSize);
+	size_t iOCGSize;
+	char *pOCGData = FileUtils::ReadFileIntoBuffer(sOCGFilename, iOCGSize);
 
-	if(!m_pOCGData)
+	if(!pOCGData)
 		return false;
 
-	//deserialize OCG data
-	size_t iOffset = 0;
-	
-	//magic start
-	long iMagicStart = *(long *)(m_pOCGData + iOffset);
-	iOffset += sizeof(iMagicStart);
-	if(iMagicStart != ciOCGMagicStart)
-		return false;
+	return SetOCGData(pOCGData, iOCGSize);
 
-	//width
-	m_iWidth = *(long *)(m_pOCGData + iOffset);
-	iOffset += sizeof(m_iWidth);
-	//height
-	m_iHeight = *(long *)(m_pOCGData + iOffset);
-	iOffset += sizeof(m_iHeight);
-
-	//pixel format data size
-	m_iPixelFormatDataSize = *(long *)(m_pOCGData + iOffset);
-	iOffset += sizeof(m_iPixelFormatDataSize);
-	//pixel format data
-	m_pPixelFormatData = new char[m_iPixelFormatDataSize];
-	memcpy(m_pPixelFormatData, m_pOCGData + iOffset, m_iPixelFormatDataSize);
-	iOffset += m_iPixelFormatDataSize;
-
-	//compressed data size
-	size_t iCompressedDataSize = *(long *)(m_pOCGData + iOffset);
-	iOffset += sizeof(iCompressedDataSize);
-	//compressed data
-	char *pCompressedData = new char[iCompressedDataSize];
-	memcpy(pCompressedData, m_pOCGData + iOffset, iCompressedDataSize);
-	iOffset += iCompressedDataSize;
-
-	//uncompressed data size
-	int iUncompressedSize = *(long *)(m_pOCGData + iOffset);
-	iOffset += sizeof(iUncompressedSize);
-
-	//magic end
-	long iMagicEnd = *(long *)(m_pOCGData + iOffset);
-	iOffset += sizeof(iMagicEnd);
-	if(iMagicEnd != ciOCGMagicEnd || iOffset != m_iOCGSize)
-	{
-		PLUTO_SAFE_DELETE_ARRAY(pCompressedData);
-		return false;
-	}
-
-	m_pPixelsData = new char[iUncompressedSize];
-	lzo1x_decompress((lzo_byte *)pCompressedData, (lzo_uint)iCompressedDataSize, (lzo_byte *)m_pPixelsData, (lzo_uint *)(&m_iPixelsDataSize), wrkmem);
-
-	PLUTO_SAFE_DELETE_ARRAY(pCompressedData);
-	return true;
+	PLUTO_SAFE_DELETE_ARRAY(pOCGData);
 }
 //----------------------------------------------------------------------------------------------------------------
 bool RendererOCG::SetSurface(char *pPixelsData, size_t iPixelsDataSize, 
@@ -185,8 +139,85 @@ bool RendererOCG::SetSurface(char *pPixelsData, size_t iPixelsDataSize,
 	return true;
 }
 //----------------------------------------------------------------------------------------------------------------
-bool RendererOCG::SetOCGData(char *pOCGData, size_t iOCGSize)
+bool RendererOCG::SetOCGData(char *pOCGData, size_t iOCGSize)//it's user responsability to delete pOCGData!!!
 {
+	Cleanup();
+
+	m_iOCGSize = iOCGSize;
+	m_pOCGData = new char[iOCGSize];
+	memcpy(m_pOCGData, pOCGData, iOCGSize);
+
+	//deserialize OCG data
+	size_t iOffset = 0;
+
+	//magic start
+	long iMagicStart = *(long *)(m_pOCGData + iOffset);
+	iOffset += sizeof(iMagicStart);
+	if(iMagicStart != ciOCGMagicStart)
+		return false;
+
+	//width
+	m_iWidth = *(long *)(m_pOCGData + iOffset);
+	iOffset += sizeof(m_iWidth);
+	//height
+	m_iHeight = *(long *)(m_pOCGData + iOffset);
+	iOffset += sizeof(m_iHeight);
+
+	//pixel format data size
+	m_iPixelFormatDataSize = *(long *)(m_pOCGData + iOffset);
+	iOffset += sizeof(m_iPixelFormatDataSize);
+	//pixel format data
+	m_pPixelFormatData = new char[m_iPixelFormatDataSize];
+	memcpy(m_pPixelFormatData, m_pOCGData + iOffset, m_iPixelFormatDataSize);
+	iOffset += m_iPixelFormatDataSize;
+
+	//compressed data size
+	size_t iCompressedDataSize = *(long *)(m_pOCGData + iOffset);
+	iOffset += sizeof(iCompressedDataSize);
+	//compressed data
+	char *pCompressedData = new char[iCompressedDataSize];
+	memcpy(pCompressedData, m_pOCGData + iOffset, iCompressedDataSize);
+	iOffset += iCompressedDataSize;
+
+	//uncompressed data size
+	//int iUncompressedSize = *(long *)(m_pOCGData + iOffset);
+
+
+		//WinCE issue :(
+		unsigned char v1 = ((unsigned char *)(m_pOCGData + iOffset))[0];
+		unsigned char v2 = ((unsigned char *)(m_pOCGData + iOffset))[1];
+		unsigned char v3 = ((unsigned char *)(m_pOCGData + iOffset))[2];
+		unsigned char v4 = ((unsigned char *)(m_pOCGData + iOffset))[3];
+
+		int iUncompressedSize = (v4 << 24) + (v3 << 16) + (v2 << 8) + v1;
+
+
+
+	iOffset += sizeof(iUncompressedSize);
+
+	//magic end
+	//long iMagicEnd = *(long *)(m_pOCGData + iOffset);
+
+		//WinCE issue :(
+		v1 = ((unsigned char *)(m_pOCGData + iOffset))[0];
+		v2 = ((unsigned char *)(m_pOCGData + iOffset))[1];
+		v3 = ((unsigned char *)(m_pOCGData + iOffset))[2];
+		v4 = ((unsigned char *)(m_pOCGData + iOffset))[3];
+
+		int iMagicEnd = (v4 << 24) + (v3 << 16) + (v2 << 8) + v1;
+
+
+	iOffset += sizeof(iMagicEnd);
+	if(iMagicEnd != ciOCGMagicEnd || iOffset != m_iOCGSize)
+	{
+		PLUTO_SAFE_DELETE_ARRAY(pCompressedData);
+		return false;
+	}
+
+	m_pPixelsData = new char[iUncompressedSize];
+	lzo1x_decompress((lzo_byte *)pCompressedData, (lzo_uint)iCompressedDataSize, (lzo_byte *)m_pPixelsData, (lzo_uint *)(&m_iPixelsDataSize), wrkmem);
+
+	PLUTO_SAFE_DELETE_ARRAY(pCompressedData);
 	return true;
 }
 //----------------------------------------------------------------------------------------------------------------
@@ -207,6 +238,8 @@ bool RendererOCG::GetSurface(char *& pPixelsData, size_t& iPixelsDataSize,
 //----------------------------------------------------------------------------------------------------------------
 bool RendererOCG::GetOCGData(char *& pOCGData, size_t& iOCGSize)
 {
+	//TODO: not implemented
+
 	return true;
 }
 //----------------------------------------------------------------------------------------------------------------
