@@ -178,6 +178,7 @@ int main(int argc, char* argv[])
 	{
 		cerr << "Exception: " << s << endl;
 	}
+	g_pPlutoLogger->Write(LV_STATUS, "Device: %d ending",PK_Device);
 #ifdef WIN32
     WSACleanup();
 #endif

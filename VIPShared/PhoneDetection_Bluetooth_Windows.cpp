@@ -90,8 +90,8 @@ lost_bluetooth 	connection_on	result
 		)
 */
 		{
-			//listDevicesLost.push_back( (*itDevice).second );
-			//m_mapPhoneDevice_Detected.erase(itDevice++);
+			listDevicesLost.push_back( (*itDevice).second );
+			m_mapPhoneDevice_Detected.erase(itDevice++);
 		}
 		else
 			itDevice++;

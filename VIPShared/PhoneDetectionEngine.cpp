@@ -91,6 +91,7 @@ void PhoneDetectionEngine::StartScanning()
 
 void PhoneDetectionEngine::StopScanning()
 {
+	g_pPlutoLogger->Write(LV_STATUS, "Stopping scan loop...");
 	m_bAbortScanLoop=true;
 	RequestStopScanning();
 
@@ -98,6 +99,7 @@ void PhoneDetectionEngine::StopScanning()
 
 	while( m_bInScanLoop )
 		Sleep(100);  // Just wait until the thread exits
+	g_pPlutoLogger->Write(LV_STATUS, "Scan loop ended");
 }
 
 

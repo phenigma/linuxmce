@@ -2,6 +2,9 @@
 #define PhoneDetectionEngine_h
 
 #include "PlutoUtils/MultiThreadIncludes.h"
+#include "Logger.h"
+
+using namespace DCE;
 
 class PhoneDetectionEngine
 {
@@ -19,19 +22,28 @@ public:
 	
 
 	pluto_pthread_mutex_t m_MapMutex,m_StartStopMutex;
+	pthread_mutexattr_t m_MutexAttr;
 
 	PhoneDetectionEngine() 
 		: 	m_MapMutex("detect map mutex"),m_StartStopMutex("detect ss mutex")	{ 
-		m_MapMutex.Init(NULL);
+
+		pthread_mutexattr_init( &m_MutexAttr );
+		pthread_mutexattr_settype( &m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP );
+		m_MapMutex.Init(&m_MutexAttr);
 		m_StartStopMutex.Init(NULL);
 		m_bInScanLoop=false;
 		m_bAbortScanLoop=false;
 		m_ThreadID=NULL;
 	}
-	virtual ~PhoneDetectionEngine() {  StopScanning(); }
+	virtual ~PhoneDetectionEngine() 
+	{ 
+		g_pPlutoLogger->Write(LV_STATUS,"Phone Detection Engine terminating");
+		StopScanning(); 
+	}
 
 	PhoneDevice *m_mapPhoneDevice_Detected_Find(u_int64_t MacAddress)
 	{
+		PLUTO_SAFETY_LOCK(mm,m_MapMutex);
 		map<u_int64_t,class PhoneDevice *>::iterator it = m_mapPhoneDevice_Detected.find(MacAddress);
 		return it==m_mapPhoneDevice_Detected.end() ? NULL : (*it).second;
 	}
