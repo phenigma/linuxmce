@@ -19,7 +19,7 @@ sources = Main.cpp Infrared_Plugin.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS +=
 LDFLAGS +=
-LDLIBS +=
+LDLIBS += -lpluto_main
 
 Gen_Dev_Files +=
 sources +=
