@@ -196,7 +196,7 @@ if [ "$Type" == "diskless" ]; then
 		/^#1:2345:respawn/ { print substr($0, 2); next }
 		{ print }' /etc/inittab >/etc/inittab.new
 	mv -f /etc/inittab.new /etc/inittab
+	reboot
 fi
-reboot
 #init q
 exit 0
