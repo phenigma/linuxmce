@@ -39,8 +39,6 @@ OrbiterSDL_WinCE* Connect(int PK_Device,string sRouter_IP,string sLocalDirectory
 	
 		g_pPlutoLogger->Write(LV_STATUS, "Orbiter cleanup finished");
 
-		int bubu = 1;
-
 		OrbiterSDL_WinCE::BuildOrbiterSDL_WinCE(
 			PK_Device, sRouter_IP,
 			sLocalDirectory, bLocalMode, 

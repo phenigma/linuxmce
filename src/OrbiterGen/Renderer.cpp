@@ -1040,8 +1040,8 @@ PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *
     {
         TTF_Quit();
         //throw /*cerr <<*/ "Can't render text: " + pDesignObjText->m_sText + ": " + TTF_GetError();
-		g_pPlutoLogger->Write(LV_WARNING, "Renderer::RealRenderText: Can't render text: %s, error: %s", pDesignObjText->m_sText.c_str(),
-			TTF_GetError());
+ 		g_pPlutoLogger->Write(LV_WARNING, "Renderer::RealRenderText: Can't render text: %s", pDesignObjText->m_sText.c_str());
+			
 
 		return PlutoSize(1, 1);
     }
