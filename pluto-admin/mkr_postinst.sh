@@ -23,3 +23,12 @@ mkdir -p /usr/pluto/orbiter/users
 ln -sf /usr/pluto/orbiter/floorplans/ /var/www/floorplans
 ln -sf /usr/pluto/orbiter/users/ /var/www/users
 
+Index=$(grep DirectoryIndex /etc/apache/httpd.conf | sed 's/DirectoryIndex//g; s/^ *//g; s/ *$//g')
+[ -n "$Index" ] || exit 0
+
+for File in $Index; do
+	[ -e "$File" ] && exit 0
+done
+
+Redirect="<?php header('Location: pluto-support/index.php?section=pluto'); ?>"
+echo "$Redirect" >/var/www/index.php
