@@ -170,7 +170,7 @@ RunSQL "$Q"
 
 hosts="
 127.0.0.1       localhost.localdomain   localhost
-$dcerouterIP	dcerouter
+$dcerouterIP	dcerouter $(/bin/hostname)
 #%MOON_HOSTS%
 
 # The following lines are desirable for IPv6 capable hosts
