@@ -69,6 +69,8 @@ package:
 	./make_package.sh $(MYNAME) $(VERSION) $(MYDEVTEMPLATEID)
 
 include $(ROOT)/PlutoUtils/make.rules
+ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 -include $(sources:.cpp=.d)
+endif
 #<-dceag-mf-e->
 

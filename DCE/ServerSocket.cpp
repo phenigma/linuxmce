@@ -134,10 +134,10 @@ void ServerSocket::Run()
 
 			if( !m_dwPK_Device )
 				SendString( "BAD DEVICE" );
-			else if( PK_DeviceTemplate && !m_pListener->ConfirmDeviceTemplate( m_dwPK_Device, PK_DeviceTemplate ) )
-				SendString( "WRONG TYPE" );
 			else
 			{
+				if( PK_DeviceTemplate && !m_pListener->ConfirmDeviceTemplate( m_dwPK_Device, PK_DeviceTemplate ) )
+					g_pPlutoLogger->Write(LV_STATUS,"Device %d connected as foreign template %d",m_dwPK_Device, PK_DeviceTemplate);
 				SendString( "OK " + StringUtils::itos(m_dwPK_Device) );
 				m_sName += sMessage;
 			}
