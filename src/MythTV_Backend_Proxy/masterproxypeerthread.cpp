@@ -39,6 +39,7 @@ MasterProxyPeerThread::MasterProxyPeerThread(ProxyServer* pserver, int srcsockfd
 
 MasterProxyPeerThread::~MasterProxyPeerThread()
 {
+	Wait(true);
 }
 
 bool

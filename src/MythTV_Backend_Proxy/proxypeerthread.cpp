@@ -34,8 +34,9 @@ ProxyPeerThread::ProxyPeerThread(ProxyServer *pserver, int srcsockfd, int destso
 {
 }
 
-ProxyPeerThread::~ProxyPeerThread() {
-	Wait(true);
+ProxyPeerThread::~ProxyPeerThread()
+{
+
 }
 
 void ProxyPeerThread::handleTerminate()
