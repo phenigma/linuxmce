@@ -318,26 +318,40 @@ function mediaScenarios($output,$dbADO) {
 							$insertDeviceCommandGroup='INSERT INTO CommandGroup_EntertainArea (FK_EntertainArea, FK_CommandGroup,Sort) VALUES (?,?,?)';
 							$dbADO->Execute($insertDeviceCommandGroup,array($FK_EntertainArea,$insertID,$insertID));
 							$CG_C_insertID=$dbADO->Insert_ID();
-							
-							$queryInsertCommandGroup_Command = "INSERT INTO CommandGroup_Command (FK_CommandGroup,FK_Command,FK_Device) values(?,?,?)";			
-							$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandSetVar'],$GLOBALS['localOrbiter']));			
-							$CG_C_insertID=$dbADO->Insert_ID();
-							$queryInsertCommandGroup_Command_CParamater = "
-								INSERT INTO CommandGroup_Command_CommandParameter 
-									(FK_CommandGroup_Command,FK_CommandParameter)
-								SELECT 
-									".$CG_C_insertID.",FK_CommandParameter FROM Command_CommandParameter WHERE FK_Command=?";		
-							$dbADO->Execute($queryInsertCommandGroup_Command_CParamater,$GLOBALS['commandSetVar']);
-							
-							$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandGotoScreen'],$GLOBALS['localOrbiter']));	
-							$CG_C_insertID=$dbADO->Insert_ID();
-							$queryInsertCommandGroup_Command_CParamater = "
-								INSERT INTO CommandGroup_Command_CommandParameter 
-									(FK_CommandGroup_Command,FK_CommandParameter) 
-								SELECT ".$CG_C_insertID.",FK_CommandParameter FROM Command_CommandParameter
-									WHERE FK_Command=?";		
-							$dbADO->Execute($queryInsertCommandGroup_Command_CParamater,$GLOBALS['commandGotoScreen']);
-							
+							$queryInsertCommandGroup_Command = "
+								INSERT INTO CommandGroup_Command 
+									(FK_CommandGroup,FK_Command,FK_Device) 
+								VALUES(?,?,?)";								
+							if($optionName=='TV'){
+								$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandMHPlayMedia'],$GLOBALS['localOrbiter']));			
+								$CG_C_insertID=$dbADO->Insert_ID();
+								$queryInsertCommandGroup_Command_CParamater = "
+									INSERT INTO CommandGroup_Command_CommandParameter 
+										(FK_CommandGroup_Command,FK_CommandParameter)
+									SELECT 
+										".$CG_C_insertID.",FK_CommandParameter FROM Command_CommandParameter WHERE FK_Command=?";		
+								$dbADO->Execute($queryInsertCommandGroup_Command_CParamater,$GLOBALS['commandMHPlayMedia']);
+								
+							}else{
+								
+								$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandSetVar'],$GLOBALS['localOrbiter']));			
+								$CG_C_insertID=$dbADO->Insert_ID();
+								$queryInsertCommandGroup_Command_CParamater = "
+									INSERT INTO CommandGroup_Command_CommandParameter 
+										(FK_CommandGroup_Command,FK_CommandParameter)
+									SELECT 
+										".$CG_C_insertID.",FK_CommandParameter FROM Command_CommandParameter WHERE FK_Command=?";		
+								$dbADO->Execute($queryInsertCommandGroup_Command_CParamater,$GLOBALS['commandSetVar']);
+								
+								$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandGotoScreen'],$GLOBALS['localOrbiter']));	
+								$CG_C_insertID=$dbADO->Insert_ID();
+								$queryInsertCommandGroup_Command_CParamater = "
+									INSERT INTO CommandGroup_Command_CommandParameter 
+										(FK_CommandGroup_Command,FK_CommandParameter) 
+									SELECT ".$CG_C_insertID.",FK_CommandParameter FROM Command_CommandParameter
+										WHERE FK_Command=?";		
+								$dbADO->Execute($queryInsertCommandGroup_Command_CParamater,$GLOBALS['commandGotoScreen']);
+							}							
 						}else{
 							$selectOptions='
 								SELECT PK_CommandGroup FROM CommandGroup

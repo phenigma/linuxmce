@@ -31,7 +31,7 @@ if ($actionX=='form') {
 	$rs = $dbADO->_Execute($selectDeviceCategories);
 		while ($row = $rs->FetchRow()) {		
 			$jsTree.='
-			auxS'.$row['PK_DeviceCategory'].' = insFld(foldersTree, gFld("'.$row['Description'].'", "javascript:parent.frames[1].document.forms[0].deviceCategSelected.value=0;parent.frames[1].document.forms[0].deviceSelected.value='.$row['PK_DeviceCategory'].';parent.frames[1].document.forms[0].actionX.value=null;parent.frames[1].document.forms[0].submit();"));
+			auxS'.$row['PK_DeviceCategory'].' = insFld(foldersTree, gFld("'.$row['Description'].' #'.$row['PK_DeviceCategory'].'", "javascript:parent.frames[1].document.forms[0].deviceCategSelected.value=0;parent.frames[1].document.forms[0].deviceSelected.value='.$row['PK_DeviceCategory'].';parent.frames[1].document.forms[0].actionX.value=null;parent.frames[1].document.forms[0].submit();"));
 			auxS'.$row['PK_DeviceCategory'].'.xID = '.$row['PK_DeviceCategory'].';
 			';
 			$jsTree.=getChilds($row['PK_DeviceCategory'],$dbADO);
@@ -361,7 +361,7 @@ function getChilds($parentID,$dbADO) {
 		$jsTree='';
 			while ($row2 = $rs2->FetchRow()) {		
 				$jsTree.= '
-					auxS'.$row2['PK_DeviceCategory'].' = insFld(auxS'.$parentID.', gFld("'.$row2['Description'].'", "javascript:parent.frames[1].document.forms[0].deviceCategSelected.value='.$parentID.';parent.frames[1].document.forms[0].deviceSelected.value='.$row2['PK_DeviceCategory'].';parent.frames[1].document.forms[0].actionX.value=null;parent.frames[1].document.forms[0].submit();"))
+					auxS'.$row2['PK_DeviceCategory'].' = insFld(auxS'.$parentID.', gFld("'.$row2['Description'].' #'.$row2['PK_DeviceCategory'].'", "javascript:parent.frames[1].document.forms[0].deviceCategSelected.value='.$parentID.';parent.frames[1].document.forms[0].deviceSelected.value='.$row2['PK_DeviceCategory'].';parent.frames[1].document.forms[0].actionX.value=null;parent.frames[1].document.forms[0].submit();"))
 					auxS'.$row2['PK_DeviceCategory'].'.xID = '.$row2['PK_DeviceCategory'].';
 				';
 				$jsTree.=getChilds($row2['PK_DeviceCategory'],$dbADO);

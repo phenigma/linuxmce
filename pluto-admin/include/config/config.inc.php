@@ -1,16 +1,16 @@
 <?PHP
-	include_once($_SERVER['DOCUMENT_ROOT'].'/PlutoAdminConfig/config.inc.php');   
-      
-  	error_reporting(E_ALL);
-    
-  	$GLOBALS['sendErrorsTo']='support@plutohome.com';
- 	
+	include_once($_SERVER['DOCUMENT_ROOT'].'/PlutoAdminConfig/config.inc.php');
+	
+	error_reporting(E_ALL);
+	
+	$GLOBALS['sendErrorsTo']='support@plutohome.com';
+	
 	$directory="/pluto-admin/";
 	$domain="http://localhost";
-
-//	$MasterUsersHost="https://plutohome.com/masterusers/";
+	
+	//	$MasterUsersHost="https://plutohome.com/masterusers/";
 	$MasterUsersHost="http://plutohome.com/masterusers/";
-  	
+	
 	// path where the media pics are uploaded
 	$GLOBALS['mediaPicsPath']=$_SERVER['DOCUMENT_ROOT'].'/pluto-admin/mediapics/';
 	$GLOBALS['floorplansPath']='/var/www/test/floorplans';
@@ -18,106 +18,134 @@
 	define("VERSION","0.1");
 	define("APPLICATION_NAME","Pluto");
 	
-	define("APPROOT",$_SERVER['DOCUMENT_ROOT']."".$directory."/"); 
+	define("APPROOT",$_SERVER['DOCUMENT_ROOT']."".$directory."/");
 	define("APPURL",$domain.$directory);
 	define("APPDOMAIN",$domain);
 	
 	define("APPDIRECTORY",$directory);
-	define("UPLOADDIR",'upload');		
-
-    define("LANG","ro-RO");
-  
-  
-    setlocale(LC_ALL, LANG);
-    
-  //database 
-  require_once("database.inc.php");
-      
+	define("UPLOADDIR",'upload');
 	
-  $GLOBALS['rootOrbiterID'] = 5; //the PK_DeviceCategory from DeviceCategory table for the root orbiter
-  $GLOBALS['rootComputerID'] = 6; //the PK_DeviceCategory from DeviceCategory table for the root Computers
-  
-  $GLOBALS['rootDCERouter'] = 1; //the PK_DeviceTemplate from DeviceTemplate table for the root DCE Router
-  $GLOBALS['rootCoreID'] = 7; //the PK_DeviceTemplate from DeviceTemplate table for the root Core
-  $GLOBALS['rootMediaDirectorsID'] = 28; //the PK_DeviceTemplate from DeviceTemplate table for the root Media Directors
-  $GLOBALS['rootMediaPlugin']=2;		// the PK_DeviceTemplate for device template "Media Plug-in"
-  
-  $GLOBALS['LightingScenariosTemplate']=9;	// PK_Template for Lighting Scenarios
-  $GLOBALS['rootLights'] = 73; //the PK_DeviceCategory from DeviceCategory table for the root Lighting devices
-  $GLOBALS['ArrayIDForLight'] = 1;
-  $GLOBALS['genericONCommand']=192;	// PK_Command for "Generic On", "Generic OFF", "Set Level"
-  $GLOBALS['genericOFFCommand']=193;
-  $GLOBALS['genericSetLevelCommand']=184;
-  $GLOBALS['commandParamAbsoluteLevel']=76;	// PK_CommandType for "Absolute Level"
-  
-  
-  $GLOBALS['ClimateScenariosTemplate']=10;	// PK_Template for Climate Scenarios
-  $GLOBALS['rootClimate'] = 83; //the PK_DeviceCategory from DeviceCategory table for the root Climate devices
-  $GLOBALS['ArrayIDForClimate'] = 2;
-  $GLOBALS['genericHeatCommand']=197;
-  $GLOBALS['genericCoolCommand']=196;
-    
-  $GLOBALS['rootSecurity'] = 84; //the PK_DeviceCategory from DeviceCategory table for the root Security devices
-  $GLOBALS['ArrayIDForSecurity'] = 3;
-  $GLOBALS['ArrayIDForMedia'] = 5;
-  $GLOBALS['securityScenariosTemplate']=12;
-  
-  $GLOBALS['rootLightsInterfaces'] = 75;
-  $GLOBALS['rootClimateInterfaces'] = 78;
-  $GLOBALS['rootSecurityInterfaces'] = 80;
-  
-  $GLOBALS['MediaScenariosTemplate']=1;			// PK_Template for the template "Media Scenarios"
-  $GLOBALS['MediaScenariosCommand']=43;			// the PK_Command for the command "MH Play Media" used in Media Scenarios
-  $GLOBALS['commandParamPK_Device']=2;			// PK_CommandParameter from CommandParameter table for parameter "PK_Device"
-  $GLOBALS['commandParamPK_DesignObj']=3;		// PK_CommandParameter from CommandParameter table for parameter "PK_DesignObj"
-  $GLOBALS['commandParamFilename']=13;			// PK_CommandParameter from CommandParameter table for parameter "Filename"
-  $GLOBALS['commandParamPK_MediaType']=29;		// PK_CommandParameter from CommandParameter table for parameter "PK_MediaType"
-  $GLOBALS['commandParamPK_DeviceTemplate']=44;	// PK_CommandParameter from CommandParameter table for parameter "PK_DeviceTemplate"
-  $GLOBALS['commandParamPK_EntertainArea']=45;	// PK_CommandParameter from CommandParameter table for parameter "PK_EntertainArea"
-  
-  $GLOBALS['commandSetVar']=27;					// PK_Command for "Set Variable"
-  $GLOBALS['commandGotoScreen']=5;				// PK_Command for "Go to screen"
-  $GLOBALS['commandVariableNumber']=86;			// PK_Command for Variable Number
-  
-  $GLOBALS['mediaOptionsArray']=array('TV', 'playlists', 'music', 'movies', 'videos', 'pictures', 'documents');
-  
-  
-  $GLOBALS['DeviceDataLinkedToTables']=array('PK_Distro','PK_FloorplanObjectType','PK_Skin','PK_Size','PK_Language','PK_Users');
-  $GLOBALS['deviceTemplateOrbiter']=8;		// the PK_DeviceTemplate for 'Orbiter'
+	define("LANG","ro-RO");
+	
+	
+	setlocale(LC_ALL, LANG);
+	
+	//database
+	require_once("database.inc.php");
+	
+	// hard-coded values
+	// PK_DeviceCategory from table DeviceCategory
+	
+	$GLOBALS['rootOrbiterID'] = 5; 				// Orbiter
+	$GLOBALS['rootComputerID'] = 6; 			// Computers
+	$GLOBALS['rootLights'] = 73; 				// Lighting devices
+	$GLOBALS['rootClimate'] = 83; 				// Climate devices
+	$GLOBALS['rootSecurity'] = 84; 				// Security devices
+	$GLOBALS['IntercomCategory']=94;			// Intercom 
+	$GLOBALS['rootCameras']=93;					// Surveillance Cameras
+	$GLOBALS['rootLightsInterfaces'] = 81;		// Light Interfaces
+	$GLOBALS['rootClimateInterfaces'] = 82;		// Climate Interfaces
+	$GLOBALS['rootSecurityInterfaces'] = 80;	// Security Interfaces
+	
+	// PK_DeviceTemplate from table DeviceTemplate
+	
+	$GLOBALS['rootDCERouter'] = 1; 				// DCE Router
+	$GLOBALS['rootCoreID'] = 7; 				// Core
+	$GLOBALS['rootMediaDirectorsID'] = 28; 		// Media Directors
+	$GLOBALS['rootMediaPlugin']=2;				// Media Plug-in
+	$GLOBALS['deviceTemplateOrbiter']=8;		// Orbiter
+	
+	// PK_Template from table Template
+	
+	$GLOBALS['LightingScenariosTemplate']=9;		// Lighting Scenarios
+	$GLOBALS['ClimateScenariosTemplate']=10;		// Climate Scenarios
+	$GLOBALS['securityScenariosTemplate']=12;		// Security Scenarios
+	$GLOBALS['MediaScenariosTemplate']=1;			// Media Scenarios
+	$GLOBALS['EventsHandlerTemplate']=11;			// Events Handler
+	$GLOBALS['SecurityArmDisarmTemplate']=13;		// Security - Arm Disarm
+	$GLOBALS['SecuritySOSTemplate']=14;				// Security - SOS
+	$GLOBALS['SecurityViewCamerasTemplate']=15;		// Security - View Cameras
+	$GLOBALS['SecurityViewOneCameraTemplate']=16;	// Security - View Camera
 
-  $GLOBALS['FloorplanObjectType']=11;		// PK_DeviceData for FloorplanObjectType from DeviceData
-  $GLOBALS['FloorplanInfo']=10;				// PK_DeviceData for FloorplanInfo (coordinates) from DeviceData
+	// PK_Array from table Array
+	
+	$GLOBALS['ArrayIDForLight'] = 1;		// Lighting Scenarios
+	$GLOBALS['ArrayIDForClimate'] = 2;		// Climate Scenarios
+	$GLOBALS['ArrayIDForSecurity'] = 3;		// Security scenarios
+	$GLOBALS['ArrayIDForMedia'] = 5;		// Media Scenarios
+	$GLOBALS['EventsHandlerArray']=20;		// Events Handler
+	
+	// PK_Command from Command table
+	
+	$GLOBALS['genericONCommand']=192;				// Generic On
+	$GLOBALS['genericOFFCommand']=193;				// Generic OFF
+	$GLOBALS['genericSetLevelCommand']=184;			// Set Level
+	$GLOBALS['genericHeatCommand']=197;				// Generic Heat
+	$GLOBALS['genericCoolCommand']=196;				// Generic Cool
+	$GLOBALS['MediaScenariosCommand']=43;			// MH Play Media	
+	$GLOBALS['commandSetVar']=27;					// Set Variable
+	$GLOBALS['commandGotoScreen']=5;				// Go to screen
+	$GLOBALS['commandMHPlayMedia']=43;				// MH Play Media
+	
+	// PK_CommandParameters from table CommandParameters
+	
+	$GLOBALS['commandParamPK_Device']=2;			// PK_Device
+	$GLOBALS['commandParamPK_DesignObj']=3;			// PK_DesignObj
+	$GLOBALS['commandParamFilename']=13;			// Filename
+	$GLOBALS['commandParamPK_MediaType']=29;		// PK_MediaType
+	$GLOBALS['commandParamPK_DeviceTemplate']=44;	// PK_DeviceTemplate
+	$GLOBALS['commandParamPK_EntertainArea']=45;	// PK_EntertainArea
+	$GLOBALS['commandParamAbsoluteLevel']=76;		// Absolute Level
+	$GLOBALS['commandParameterVariableNumber']=4;	// Variable Number (PK_Variable)
+	$GLOBALS['commandParameterValueToAsign']=5;		// Value to assign
+	$GLOBALS['commandParameterObjectScreen']=16;	// Object(Screen)
+	
+	// PK_DeviceData from table DeviceData
+	$GLOBALS['FloorplanInfo']=10;				// FloorplanInfo (coordinates)
+	$GLOBALS['FloorplanObjectType']=11;			// FloorplanObjectType
+	$GLOBALS['securityAlert']=33;				// Alert 
+	$GLOBALS['MobileOrbiterNotification']=34;	// Mobile Orbiter Notification
+	$GLOBALS['OtherPhoneNotifications']=35;		// Other Phone Notifications 
+	$GLOBALS['NeighborstoCall']=36;				// Neighbors to Call 
+	
+	
+	
 
-  $GLOBALS['EventCriteriaList']=2;			// PK_CriteriaList for 'Events'
-  $GLOBALS['EventsHandlerArray']=20;		// PK_Array for Events Handler
-  $GLOBALS['EventsHandlerTemplate']=11;		// PK_Template for Events Handler
-  
-  $GLOBALS['rootCameras']=93;				// PK_DeviceCategory for Surveillance Cameras
-  $GLOBALS['securityAlert']=33;				// PK_DeviceData for Alert from DeviceData table
-  $GLOBALS['IntercomCategory']=94;			// PK_DeviceCategory for Intercom from DeviceCategory table
-  
-  $GLOBALS['MobileOrbiterNotification']=34;	// PK_DeviceData for Mobile Orbiter Notification from DeviceData table
-  $GLOBALS['OtherPhoneNotifications']=35;	// PK_DeviceData for Other Phone Notifications from DeviceData table
-  $GLOBALS['NeighborstoCall']=36;			// PK_DeviceData for Neighbors to Call from DeviceData table
-  
-  $GLOBALS['camerasVariableNumbersArray']=array(18,19,20,21);
-  $GLOBALS['cameraVariable']=22;
-  $GLOBALS['commandParameterValueToAsign']=5;
-  $GLOBALS['commandParameterObjectScreen']=87;
-  $GLOBALS['mnuSecurityCamerasDesignObj']=1414;	// PK_DesignObj for Security cameras
-  
-  $GLOBALS['SecurityArmDisarmTemplate']=13;		// PK_Template for Security - Arm Disarm
-  $GLOBALS['SecuritySOSTemplate']=14;			// PK_Template for Security - SOS
-  $GLOBALS['SecurityViewCamerasTemplate']=15;	// PK_Template for Security - View Cameras
-  $GLOBALS['SecurityViewOneCameraTemplate']=16;	// PK_Template for Security - View Camera
-  $GLOBALS['AsignAtRuntimeCommand']=88;			// PK_Command for Asign at runtime
-  $GLOBALS['mnuSingleCameraViewOnlyDesignObj']=1405;	// PK_DesignObj for Single Camera View Only
-  $GLOBALS['localOrbiter']=-300;
-  
-  // do not change the following lines 
-  $addMasterUserUrl=$MasterUsersHost."index.php?section=add_master_user";
-  $checkMasterUserUrl=$MasterUsersHost."index.php?section=check_master_user";
-  $changePassMasterUserUrl=$MasterUsersHost."index.php?section=change_password";
-  $updateMasterUserUrl=$MasterUsersHost."index.php?section=update_master_users";
+	// PK_FloorplanType from table FloorplanType 
+
+	$GLOBALS['SecurityFoorplanType']=1;		// Security Zone
+	$GLOBALS['LightingFoorplanType']=2;		// Lighting Zone
+	$GLOBALS['ClimateFoorplanType']=3;		// Climate Zone
+	$GLOBALS['CameraFoorplanType']=4;		// Camera Zone
+
+	// PK_DesignObj from table DesignObj
+	
+	$GLOBALS['mnuSecurityCamerasDesignObj']=1414;		// Security cameras
+	$GLOBALS['mnuSingleCameraViewOnlyDesignObj']=1405;	// Single Camera View Only
+	
+	// PK_CriteriaList from table CriteriaList
+	
+	$GLOBALS['EventCriteriaList']=2;			// Events
+
+	// PK_Variable from table Variable
+	
+	$GLOBALS['camerasVariableNumbersArray']=array(18,19,20,21);
+	$GLOBALS['cameraVariable']=22;
+	
+	// options to display in Media Wizard
+	$GLOBALS['mediaOptionsArray']=array('TV', 'playlists', 'music', 'movies', 'videos', 'pictures', 'documents');
+	
+	// DeviceData displayed as pulldown menu
+	$GLOBALS['DeviceDataLinkedToTables']=array('PK_Distro','PK_FloorplanObjectType','PK_Skin','PK_Size','PK_Language','PK_Users');
+	
+	// PK_Device for Local Orbiter
+	$GLOBALS['localOrbiter']=-300;
+	
+	
+	// do not change the following lines
+	$addMasterUserUrl=$MasterUsersHost."index.php?section=add_master_user";
+	$checkMasterUserUrl=$MasterUsersHost."index.php?section=check_master_user";
+	$changePassMasterUserUrl=$MasterUsersHost."index.php?section=change_password";
+	$updateMasterUserUrl=$MasterUsersHost."index.php?section=update_master_users";
 
 ?>

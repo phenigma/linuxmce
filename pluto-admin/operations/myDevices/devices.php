@@ -21,15 +21,19 @@ function devices($output,$dbADO) {
 		break;
 		case 'lights':
 			$deviceCategory=$GLOBALS['rootLights'];
+			$specificFloorplanType=$GLOBALS['LightingFoorplanType'];
 		break;
 		case 'climate':
 			$deviceCategory=$GLOBALS['rootClimate'];
+			$specificFloorplanType=$GLOBALS['ClimateFoorplanType'];
 		break;
 		case 'security':
 			$deviceCategory=$GLOBALS['rootSecurity'];
+			$specificFloorplanType=$GLOBALS['SecurityFoorplanType'];
 		break;
 		case 'surveillance_cameras':
 			$deviceCategory=$GLOBALS['rootCameras'];
+			$specificFloorplanType=$GLOBALS['CameraFoorplanType'];
 		break;
 		default:
 			$deviceCategory=$GLOBALS['rootLightsInterfaces'];
@@ -173,7 +177,15 @@ function devices($output,$dbADO) {
 							if(in_array($DeviceDataDescriptionToDisplay[$key],$GLOBALS['DeviceDataLinkedToTables']))
 							{
 								$tableName=str_replace('PK_','',$DeviceDataDescriptionToDisplay[$key]);
-								$filterQuery=($tableName=='Device')?" WHERE FK_Installation='".$installationID."'":'';
+								$filterQuery='';
+								switch($tableName){
+									case 'Device':
+										$filterQuery=" WHERE FK_Installation='".$installationID."'";
+									break;
+									case 'FloorplanObjectType':
+										$filterQuery=" WHERE FK_FloorplanType='".$specificFloorplanType."'";
+								}
+								
 								$queryTable="SELECT * FROM $tableName $filterQuery ORDER BY Description ASC";
 								$resTable=$dbADO->Execute($queryTable);
 								$out.='<select name="deviceData_'.$rowD['PK_Device'].'_'.$value.'">
@@ -262,7 +274,7 @@ function devices($output,$dbADO) {
 
 				foreach($DeviceDataToDisplayArray as $ddValue){
 					$deviceData=(isset($_POST['deviceData_'.$value.'_'.$ddValue]))?$_POST['deviceData_'.$value.'_'.$ddValue]:0;
-					$oldDeviceData=$_POST['oldDeviceData_'.$value.'_'.$ddValue];
+					$oldDeviceData=@$_POST['oldDeviceData_'.$value.'_'.$ddValue];
 					if($oldDeviceData!=$deviceData){
 						if($oldDeviceData=='NULL'){
 							$insertDDD='

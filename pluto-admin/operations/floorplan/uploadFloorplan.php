@@ -108,7 +108,8 @@ function uploadFloorplan($output,$dbADO) {
 			$selectPage='SELECT (MAX(Page)+1) AS newPage FROM Floorplan WHERE FK_Installation=?';
 			$res=$dbADO->Execute($selectPage,$installationID);
 			$row=$res->FetchRow();
-			$newPicName=$row['newPage'].'.'.$extension;
+			$newPage=(isset($row['newPage']))?$row['newPage']:1;
+			$newPicName=$newPage.'.'.$extension;
 		}else
 			$newPicName=$page.'.'.$extension;
 		
@@ -123,7 +124,6 @@ function uploadFloorplan($output,$dbADO) {
 		}
 		
 		if($page==0){
-			$newPage=(isset($row['newPage']) && $row['newPage']==0)?1:$row['newPage'];
 			$insertFloorplan='INSERT INTO Floorplan (FK_Installation, Page, Description) VALUES (?,?,?)';
 			$dbADO->Execute($insertFloorplan,array($installationID,$newPage,$newDescription));
 			$page=$newPage;

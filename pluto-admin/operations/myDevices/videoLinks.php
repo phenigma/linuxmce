@@ -13,16 +13,20 @@ function videoLinks($output,$dbADO) {
 	$cameraIDArray=array_keys($displayedCols);
 	$intercomIDArray=array_keys($displayedRows);
 	
-	$selectOldValues="
-		SELECT * 
-			FROM Device_Device_Related 
-		WHERE (FK_Device IN (".(join(',',$intercomIDArray)).")) AND (FK_Device_Related IN (".join(',',$cameraIDArray)."))";
-	$resOldValues=$dbADO->Execute($selectOldValues);
 	$oldValuesArray=array();
-	while($rowOldValues=$resOldValues->FetchRow()){
-		$oldValuesArray[$rowOldValues['FK_Device']][$rowOldValues['FK_Device_Related']]=1;
+	if(count($cameraIDArray)!=0 && count($intercomIDArray)!=0){
+		$selectOldValues="
+			SELECT * 
+				FROM Device_Device_Related 
+			WHERE (FK_Device IN (".(join(',',$intercomIDArray)).")) AND (FK_Device_Related IN (".join(',',$cameraIDArray)."))";
+		$resOldValues=$dbADO->Execute($selectOldValues);
+		$oldValuesArray=array();
+		while($rowOldValues=$resOldValues->FetchRow()){
+			$oldValuesArray[$rowOldValues['FK_Device']][$rowOldValues['FK_Device_Related']]=1;
+		}
 	}
-	
+		
+		
 	if ($action == 'form') {
 		$out.='
 	<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
