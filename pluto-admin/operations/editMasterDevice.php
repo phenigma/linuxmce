@@ -42,6 +42,8 @@ $out='';
 				window.open(locationA,\'\',attributes);
 			}
 		</script>
+		<div class="err">'.@$_GET['error'].'</div>
+		<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 		<form action="index.php" method="post" name="editMasterDevice">
 			<input type="hidden" name="section" value="editMasterDevice">
 			<input type="hidden" name="action" value="modify">
@@ -542,10 +544,26 @@ $out='';
 							</tr>
 						</table>
 					</fieldset>
-					</td></tr>
-					
-					
-					<tr>
+					</td>
+				</tr>';
+			$queryDT_DO='
+				SELECT DesignObj.Description, PK_DesignObj 
+				FROM DeviceTemplate_DesignObj 
+				INNER JOIN DesignObj ON FK_DesignObj=PK_DesignObj
+				WHERE FK_DeviceTemplate=? ORDER BY Description ASC';
+			$resDT_DO=$dbADO->Execute($queryDT_DO,$deviceID);
+			$linksArray=array();
+			while($rowDT_DO=$resDT_DO->FetchRow()){
+				$linksArray[]='<a href="index.php?section=editMasterDevice&model='.$deviceID.'&action=removescreen&doID='.$rowDT_DO['PK_DesignObj'].'" title="Click to remove screen">'.$rowDT_DO['Description'].'</a>';
+			}
+			$out.='		
+				<tr>
+					<td valign="top" colspan="2">This device requries the following screens: '.join(', ',$linksArray).'</td>
+				</tr>
+				<tr>
+					<td valign="top" colspan="2"><input type="text" name="newScreen" value=""> <input type="submit" class="button" name="addScreen" value="Add screen"></td>
+				</tr>
+				<tr>
 					<td valign="top" colspan="2"><hr /></td>
 				</tr>
 					';
@@ -601,6 +619,12 @@ $out='';
 		</script>
 		';
 	} else {
+		if(isset($_REQUEST['doID'])){
+			$doID=(int)$_REQUEST['doID'];
+			$dbADO->Execute('DELETE FROM DeviceTemplate_DesignObj WHERE FK_DeviceTemplate=? AND FK_DesignObj=?',array($deviceID,$doID));
+			header("Location: index.php?section=editMasterDevice&model=$deviceID&msg=Screen removed from device template.");
+			exit();			
+		}
 		
 		$description=cleanString($_POST['description'],30);
 		
@@ -618,6 +642,23 @@ $out='';
 		$isIPBased= cleanInteger(@$_POST['isIPBased']);
 		$oldIsIPBased= cleanInteger(@$_POST['oldIsIPBased']);
 		$comments=cleanString($_POST['comments']);
+		$newScreen=(int)$_POST['newScreen'];
+		
+		if($newScreen!=0){
+			$newScreenExist=$dbADO->Execute('SELECT * FROM DesignObj WHERE PK_DesignObj=?',$newScreen);
+			if($newScreenExist->RecordCount()>0){
+				$screenDT=$dbADO->Execute('SELECT * FROM DeviceTemplate_DesignObj WHERE FK_DeviceTemplate=? AND FK_DesignObj=?',array($deviceID,$newScreen));
+				if($screenDT->RecordCount()>0){
+					header("Location: index.php?section=editMasterDevice&model=$deviceID&error=Screen already exist!");
+					exit();
+				}else{
+					$dbADO->Execute('INSERT INTO DeviceTemplate_DesignObj (FK_DeviceTemplate,FK_DesignObj) VALUES (?,?)',array($deviceID,$newScreen));
+				}
+			}else{
+				header("Location: index.php?section=editMasterDevice&model=$deviceID&error=Screen does not exist!");
+				exit();			
+			}
+		}
 		
 		$locationGoTo=''; 
 
