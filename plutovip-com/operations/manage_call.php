@@ -1,0 +1,101 @@
+<?php
+ function manage_call($output) {
+		$out = '';
+		
+$out.=<<<TEXT
+
+<table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable">
+  <tr>
+    <td class="titletable"><img src="images/submenus/how_pluto_works_txt.gif" width="127" height="13"></td>
+  </tr>
+  <tr>
+    <td class="insidetable"><table border="0" align="left" cellpadding="0" cellspacing="0">
+      <tr>
+        <td width="154"><a href="index.php?section="><img src="images/submenus/How%20Pluto%20works/follow-me_works_off.gif" width="230" height="17" border="0"></a></td>
+        <td width="20">&nbsp;</td>
+      </tr>
+      <tr>
+        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+      </tr>
+      <tr>
+        <td><a href="index.php?section=use_mobile_phone"><img src="images/submenus/How%20Pluto%20works/mobile_phone_off.gif" width="230" height="17" border="0"></a></td>
+        <td width="20">&nbsp;</td>
+      </tr>
+      <tr>
+        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+      </tr>
+      <tr>
+        <td><a href="index.php?section=search_media"><img src="images/submenus/How%20Pluto%20works/search_media_off.gif" width="230" height="17" border="0"></a></td>
+        <td width="20">&nbsp;</td>
+      </tr>
+      <tr>
+        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+      </tr>
+      <tr>
+        <td><a href="index.php?section=dvd_remote"><img src="images/submenus/How%20Pluto%20works/dvd_remote_off.gif" width="230" height="17" border="0"></a></td>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+      </tr>
+      <tr>
+        <td><a href="index.php?section=tv_remote"><img src="images/submenus/How%20Pluto%20works/tv_remote_off.gif" width="230" height="17" border="0"></a></td>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+      </tr>
+      <tr>
+        <td><a href="index.php?section=manage_house"><img src="images/submenus/How%20Pluto%20works/manage_your_house_off.gif" width="230" height="17" border="0"></a></td>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+      </tr>
+      <tr>
+        <td><a href="index.php?section=handle_security"><img src="images/submenus/How%20Pluto%20works/handle_security_event_off.gif" width="230" height="17" border="0"></a></td>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+      </tr>
+      <tr>
+        <td><a href="index.php?section=manage_call"><img src="images/submenus/How%20Pluto%20works/manage_call_progress_on.gif" width="230" height="17" border="0"></a></td>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+      </tr>
+      <tr>
+        <td><a href="index.php?section=maps"><img src="images/submenus/How%20Pluto%20works/maps_off.gif" width="230" height="17" border="0"></a></td>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+      </tr>
+    </table>
+    <p><img src="images/submenus/manage_call_progress_txt.gif" width="250" height="13"><br>
+        <br>
+      Whenever you pick up the phone to answer or dial, this call in progress screen (click on the thumbnail to see a larger picture) automatically appears on the nearest orbiter. Finally transfer and conference calling are a breeze! Just touch 'transfer' or 'conference' and the picture of the family member. Or you can transfer to any extension in any of your homes worldwide, or to any outside number. Because Pluto uses voice-over-ip, you can conference in a dozen of your friends, even if you only have 1 phone line.</p>
+    <p><center><a href="javascript:open_popup('operations/poza18.html','532','465')"><img src="images/img%20how%20to/08/08_callinprogress_m.jpg" width="141" height="112" border="0"></a>
+    </center></p></td>
+  </tr>
+</table>
+	
+TEXT;
+		
+		$output->setImgName("support.jpg"); //img that needs to be changed
+        $output->setPageID(2); //butonul selectat
+ 		$output->setNavigationMenu(array("Sample page"=>"index.php?section=samplePage")); //not used yet
+ 		$output->setTitle(APPLICATION_NAME."::How to Manage a Call in Progress");			//page title
+ 		
+ 		
+ 		
+ 		//don't touch them 		
+		$output->setScriptCalendar('null');
+		$output->setScriptTRColor('null');		
+		$output->setBody($out);		
+  		$output->output(); 
+ }
+?>

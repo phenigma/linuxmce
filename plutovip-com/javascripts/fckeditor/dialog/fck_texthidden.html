@@ -1,0 +1,131 @@
+<!--
+ * FCKeditor - The text editor for internet
+ * Copyright (C) 2003-2004 Frederico Caldeira Knabben
+ *
+ * Licensed under the terms of the GNU Lesser General Public License
+ * (http://www.opensource.org/licenses/lgpl-license.php)
+ *
+ * For further information go to http://www.fredck.com/FCKeditor/
+ * or contact fckeditor@fredck.com.
+ *
+ * fck_texthidden.html: Hidden Field dialog box.
+ *
+ * Authors:
+ *		G.Meijer
+ *		Frederico Caldeira Knabben (fckeditor@fredck.com)
+-->
+<html>
+	<head>
+		<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+		<link rel="stylesheet" type="text/css" href="../css/fck_dialog.css">
+		<script language="JavaScript">
+		
+var oDOM = dialogArguments.objContent.DOM ;
+
+var oActiveElement ;
+
+var textName	= '' ;
+var textValue	= '' ;
+
+if ( oDOM.selection.type == "Control" )
+{
+	var oControlRange = oDOM.selection.createRange();
+	var e = oControlRange(0) ;
+	
+	if ( e.tagName.toUpperCase() == "INPUT" && e.type == "hidden" ) 
+	{
+		textName	= e.name ;
+		textValue	= e.value ;
+		
+		oActiveElement = e ;
+	}
+}
+
+document.write("<TITLE>" + dialogArguments.AvailableLangs.GetEntry( "HiddenFieldProperties", "Hidden Field Properties" ) + "</TITLE>");
+
+function getFormHtml(){
+	return '<INPUT '
+				+ attr("type", "hidden")
+				+ attr("name", txtName.value)
+				+ attr("value", txtValue.value)
+				+ '/>' ;
+}
+
+function attr(name, value)
+{
+	if (!value || value == "") return "" ;
+	return ' ' + name + '="' + value + '"' ;
+}
+
+function SetElementAttribute( e, attributeName, value )
+{
+	if ( value.length > 0 ) 
+		e.setAttribute( attributeName, value, 0 ) ;
+	else 
+		e.removeAttribute( attributeName, 0 ) ;
+}
+
+function UpdateElement( e )
+{
+	SetElementAttribute( e, 'name'		, txtName.value ) ;
+	SetElementAttribute( e, 'value'		, txtValue.value ) ;
+}
+
+function ok()
+{
+	if ( oActiveElement )
+	{
+		UpdateElement( oActiveElement ) ;
+		window.returnValue = null;
+	}
+	else
+		window.returnValue = getFormHtml();
+
+	window.close();
+}
+
+function cancel()
+{
+	window.returnValue = null ;
+	window.close() ;
+}
+
+function setDefaults()
+{
+	dialogArguments.AvailableLangs.TranslatePage(document) ;
+
+	txtName.value = textName;
+	txtValue.value = textValue;
+}
+
+document.onkeydown = function () 
+{
+	switch ( event.keyCode )
+	{
+		case 13 : ok() ;		break ;	// ENTER
+		case 27 : cancel() ;	break ;	// ESC
+	}
+}
+		</script>
+	</head>
+	<body bottommargin="0" leftmargin="0" topmargin="0" rightmargin="0" onload="setDefaults()">
+		<table height="100%" width="100%" ID="Table1">
+			<tr>
+				<td align="center">
+					<table border="0" class="inhoud" cellpadding="0" cellspacing="0" width="95%">
+						<tr>
+							<td><span fckLang="DlgHiddenName">Name</span>&nbsp;</td>
+							<td width="100%"><input type="text" size="20" name="txtName" style="WIDTH: 100%"></td>
+						</tr>
+						<tr>
+							<td><span fckLang="DlgHiddenValue">Value</span>&nbsp;</td>
+							<td><input type="text" size="30" name="txtValue" style="WIDTH: 100%"></td>
+						</tr>
+					</table>
+					<div align="center"><input type="button" style="WIDTH: 100px" fckLang="DlgBtnOK" value="OK" onclick="ok();">
+						<input type="button" style="WIDTH: 100px" fckLang="DlgBtnCancel" value="Cancel" onclick="cancel();"></div>
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

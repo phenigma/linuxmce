@@ -1,0 +1,255 @@
+<?
+function settings_b($output){
+	global $updateMasterUserUrl;
+  $out='';
+  $out.='<table width="100%" border="0" align="right" cellpadding="0" cellspacing="0" class="maintable">
+  <tr>
+   
+    <td width="100%" rowspan="2" valign="top" align="left" class="insidetable">
+    <form action="index.php?section=settings_b" method="POST" name="form1">	
+  		<input type="hidden" name="action" value="">
+    <table>
+      <tr><td align="left"><img src="images/submenu_txt/info_businesses_txt.gif" width="253" height="14"></td></tr><form action="index.php?section=settitngs_b" method="POST" name="form1">		
+      <tr><td width="340"></td><td align="center"><br><b >My Settings</b><br>
+		<br><b>Click on <a href="index.php?section=binstructions">Instructions</a> if you have any questions</b></td></tr></table>
+		<table align="left" border="0" cellpadding="4" width="100%" cellspacing="0">
+			<tr>
+  				<td align="right" width="50%"><b>Pluto ID</b><br>Pluto ID is a unique combination and represents your identity for PlutoVIP phone application. You need to provide this ID when you\'ll install the software on your phone.</td>
+  				<td width="50%">'.(($_SESSION['categ']==0)?'PV':'PE').$_SESSION['PlutoId'].$_SESSION['Pin'].'</td>
+  			</tr>
+			<tr bgcolor="#EEEEEE"><th align="right">Username</th><td><input type="text" name="MasterUsers_Username" value="'.$_SESSION['username'].'" /></td></tr>
+			<tr><th align="right">E-mail</th><td>'.$_SESSION['Email'].'<style type="text/css">
+		.email 
+		{
+			color:#00A;
+		}
+		</style>
+		<input type="hidden" name="verify_email" value="'.$_SESSION['Email'].'" />';
+      $sql1="SELECT * FROM EmailConfirmationLog WHERE FK_MasterUsers='".$_SESSION['userID']."'";
+      $r1=mysql_query($sql1) or die("Can not grab from database ".mysql_error());
+      $row1=mysql_fetch_object($r1);
+      if(mysql_num_rows($r1)==0 or $row1->Accepted!=1)
+  {
+			$out.='<br />(unverified) 
+			<br /><a href="index.php?section=settings_b&action=verification&email='.$_SESSION['Email'].'" >send verification e-mail</a>';
+  }
+       $sql2="SELECT PKID_EstablishmentCategory,Description  FROM EstablishmentCategory ORDER BY PKID_EstablishmentCategory asc";
+       $r2=mysql_query($sql2) or die("Can not grab from database ".mysql_error());
+       $sql2_e="select * from Establishment where FK_MasterUsers='".$_SESSION['userID']."'";
+       $r2_e=mysql_query($sql2_e) or die("Can not grab from database ".mysql_error());
+       $row2_e=mysql_fetch_object($r2_e);
+			$out.='</td></tr>
+			<tr bgcolor="#EEEEEE">
+				<th align="right">Category</th>
+				<td>
+				<br /><select name="FKID_EstablishmentCategory">';
+         while($row2=mysql_fetch_object($r2))
+  {
+         $out.='<option value="'.$row2->PKID_EstablishmentCategory.'" ';if($row2->PKID_EstablishmentCategory==$row2_e->FKID_EstablishmentCategory) $out.='selected="selected"';$out.=' >'.$row2->Description.'
+         </option>';
+  }
+			$out.=' </select><input type="text" name="CategoryOther" value="'.$row2_e->CategoryOther.'" />				</td></tr>
+			<tr><th align="right">Business Name</th><td><input type="text" name="Name" value="'.$row2_e->Name.'" /></td></tr>
+			<tr bgcolor="#EEEEEE"><th align="right">Contact Name</th><td><input type="text" name="Contact" value="'.$row2_e->Contact.'" /></td></tr>
+			<tr><th align="right">Website</th><td><input type="text" name="Website" value="'.$row2_e->Website.'" /></td></tr>
+			<tr><td colspan="2"><hr /></td></tr>
+			<tr bgcolor="#EEEEEE">';
+         $sql3="select * from Address where FK_MasterUsers='".$_SESSION['userID']."'";
+         $r3=mysql_query($sql3);
+         $row3=mysql_fetch_object($r3);
+				$out.='<th align="right">Address</th>
+				<td><input type="text" name="Address" value="'.$row3->Address.'" /></td>
+			</tr>
+			<tr>';
+            $sql4="select * from City where PKID_City='".$row3->FKID_City."'";
+            $r4=mysql_query($sql4);
+            $row4=mysql_fetch_object($r4);
+				$out.='<th align="right">City, State, Zip</th>
+				<td width="100%"><input type="text" name="City_Name" value="'.$row4->Name.'" maxlength="50" size="15" />,';
+            $sql5="select * from C_State";
+            $r5=mysql_query($sql5);
+            
+            $out.='<select name="City_FKID_C_State"><option value="">(select)</option>';
+            while($row5=mysql_fetch_object($r5))
+  {
+            $out.='<option value="'.$row5->PKID_C_State.'"'; if($row5->PKID_C_State==$row4->FKID_C_State) $out.='selected="selected"';$out.='>'.$row5->Name.'</option>';
+  }
+          $out.='</select><input type="text" name="Address_ZipCode" value="'.$row3->ZipCode.'" maxlength="9" size="9" /></td>
+			</tr>
+			<tr><td colspan="2"><hr /></td></tr>
+			<tr>
+          		<th colspan="2" align="center">Phone Numbers</th>
+         	</tr>
+			<tr><td colspan="2" align="center">
+          		<table>
+          		<tr>
+          			<td>
+				<select name="PhoneNumber_NEW_FKID_PhoneNumberCategory"><option value=""></option>';
+
+			$queryPhoneNumberCategories=dbQuery("select * from PhoneNumberCategory");
+            $PhoneCategoriesPK=array();
+            $PhoneCategoriesDescription=array();
+            while($pnCategories=mysql_fetch_object($queryPhoneNumberCategories))
+  			{
+  				$PhoneCategoriesPK[]=$pnCategories->PKID_PhoneNumberCategory;
+            	$PhoneCategoriesDescription[]=$pnCategories->Description;
+              	$out.='<option value="'.$pnCategories->PKID_PhoneNumberCategory.'"';$out.='>'.$pnCategories->Description.'</option>';
+  			}
+              $out.='  </select> ( <input type="text" name="PhoneNumber_NEW_AreaCode" value="" maxlength="3" size="3" /> ) <input type="text" name="PhoneNumber_NEW_Number" value="" maxlength="9" size="9" /> ext.<input type="text" name="PhoneNumber_NEW_Extension" value="" size="4" />						</td>
+					<td>&nbsp;</td>
+              </tr>';
+              $reqPhoneNumbers=mysql_query("SELECT PhoneNumber.*, PhoneNumberCategory.Description from PhoneNumber 
+              		INNER JOIN PhoneNumberCategory ON PKID_PhoneNumberCategory = FKID_PhoneNumberCategory 
+              		WHERE FK_MasterUsers='".$_SESSION['userID']."'");
+            while($resPhoneNumbers=mysql_fetch_object($reqPhoneNumbers)){
+ 				$out.='
+	 				<tr bgcolor="#DDDDDD">
+	 					<td align="center">
+						<select name="PhoneNumber_'.$resPhoneNumbers->PKID_PhoneNumber.'"><option value=""></option>';
+	                  	for($i=0;$i<count($PhoneCategoriesPK);$i++){
+	              			$out.='<option value="'.$PhoneCategoriesPK[$i].'"';if($PhoneCategoriesPK[$i]==$resPhoneNumbers->FKID_PhoneNumberCategory) $out.='selected="selected"';$out.='>'.$PhoneCategoriesDescription[$i].'</option>';
+	  					} 
+              			
+	                $out.=' </select> ( <input type="text" name="AreaCode_'.$resPhoneNumbers->PKID_PhoneNumber.'" value="'.$resPhoneNumbers->AreaCode.'" maxlength="3" size="3" /> ) <input type="text" name="Number_'.$resPhoneNumbers->PKID_PhoneNumber.'" value="'.$resPhoneNumbers->Number.'" maxlength="9" size="9" /> ext.<input type="text" name="Extension_'.$resPhoneNumbers->PKID_PhoneNumber.'" value="'.$resPhoneNumbers->Extension.'" size="4" />
+	                 	</td>
+						<td width="100"><input type="submit" value="Delete"  name="deletephone_'.$resPhoneNumbers->PKID_PhoneNumber.'"onclick="if(confirm(\'Are you sure you want to delete this phone number ?\')){this.form.action.value=\'deletephone_'.$resPhoneNumbers->PKID_PhoneNumber.'\';this.form.submit();}" /></td>
+					</tr> ';       
+            }
+          
+          
+          /*<br /><select name="PhoneNumberCategory"><option value=""></option>';
+         $sql6="select * from PhoneNumberCategory";
+         $r6=mysql_query($sql6);
+         $sql7="select * from PhoneNumber where FK_MasterUsers='".$_SESSION['userID']."'";
+         $r7=mysql_query($sql7) or die("Can not grab from PhoneNumber ".mysql_error());
+         $row7=mysql_fetch_object($r7);
+         while($row6=mysql_fetch_object($r6))
+  {
+         $out.='<option value="'.$row6->PKID_PhoneNumberCategory.'" ';if($row6->PKID_PhoneNumberCategory==$row7->FKID_PhoneNumberCategory ) $out.='selected="selected"'; $out.='>'.$row6->Description.'</option>';
+  }
+        $out.=' </select> (<input type="text" name="PhoneNumber_NEW_AreaCode" value="'.$row7->AreaCode.'" maxlength="3" size="3" />) <input type="text" name="PhoneNumber_NEW_Number" value="'.$row7->Number.'" maxlength="9" size="9" /> ext.<input type="text" name="PhoneNumber_NEW_Extension" value="'.$row7->Extension.'" size="4" />			
+*/
+        $out.='</table></td>
+        	</tr>
+				<tr>
+        			<td colspan="2" align="center"><input type="submit" name="update" value="update" /></td>
+        		</tr>
+		</table>
+		</td></tr></table></form>';
+         if(isset($_GET['action'])&&$_GET['action']=="verify")
+  {
+           session_start();
+           $_SESSION['userID']=$_GET['id'];
+           $sql="insert into EmailConfirmationLog (FK_MasterUsers ,Email,CodeNew,Accepted) values('".$_SESSION['userID']."','".$_GET['email']."','".$_GET['code']."','1')";
+           mysql_query($sql) or die("Can not insert into EmailConfirmationLog ".mysql_error());
+           header("Location: index.php?section=settings_b");
+
+  }
+
+       if(isset($_GET['action'])&& $_GET['action']=="verification")
+  {
+         $emailD=$_GET['email'];
+         $subject=" PlutoVip E-mail verification ";
+         $id=$_SESSION['userID'];
+         $code=md5($_SESSION['userID']);
+         $message='For validate your email click on the link: http://10.0.0.150/pluto_vip/index.php?section=settings_b&id='.$id.'&action=verify&code='.$code.'&email='.$emailD;
+         mail($emailD,$subject,$message,"From:webmaster@plutovip.com");
+         $sql="insert into EmailConfirmation(FK_MasterUsers ,Email ,CodeNew) values('".$id."','".$emailD."','".$code."')";
+         mysql_query($sql) or die("Can not insert into EmailConfirmation ".mysql_error());
+         $out='';
+         $out.='<table width="100%" border="0" align="right" cellpadding="0" cellspacing="0" class="maintable">
+         <tr>
+       <td width="100%" rowspan="2" valign="top" align="center" class="insidetable"><br>The validate link has been sent to: '.$emailD.'</td></tr></table>';
+  }
+      if(isset($_POST['update']))
+  {
+        $sql="update Establishment set FKID_EstablishmentCategory='".$_POST['FKID_EstablishmentCategory']."',CategoryOther='".$_POST['CategoryOther']."',Name='".$_POST['Name']."',Contact='".$_POST['Contact']."',Website='".$_POST['Website']."' where FK_MasterUsers='".$_SESSION['userID']."'";
+        mysql_query($sql) or die("Can not update Establishment table".mysql_error());
+        $sql1="select * from Address where FK_MasterUsers='".$_SESSION['userID']."'";
+        $r1=mysql_query($sql1) or die("Can not grab from database ".mysql_error());
+        if(mysql_num_rows($r1)==0)
+    {
+          $sql_c="select * from City where Name='".$_POST['City_Name']."'";
+          $r_c=mysql_query($sql_c) or die("Can not grab from City".mysql_error());
+          if(mysql_num_rows($r_c)==0)
+      {
+          $sql_c="insert into City(Name,FKID_C_State ) values('".$_POST['City_Name']."','".$_POST['City_FKID_C_State']."')";
+          mysql_query($sql_c) or die("Can not insert into City ".mysql_error());
+      }
+          $sql_c="select * from City where Name='".$_POST['City_Name']."'";
+          $r_c=mysql_query($sql_c) or die("Can not grab from City".mysql_error());
+          $row_c=mysql_fetch_object($r_c);
+          $sql_a="insert into Address(FK_MasterUsers,Address,FKID_City,ZipCode) values('".$_SESSION['userID']."','".$_POST['Address']."','".$row_c->PKID_City."','".$_POST['Address_ZipCode']."')";
+          mysql_query($sql_a) or die("CAn not insert into Address ".mysql_error());
+    }
+    else 
+    {
+          $sql_c="select * from City where Name='".$_POST['City_Name']."'";
+          $r_c=mysql_query($sql_c) or die("Can not grab from City".mysql_error());
+          if(mysql_num_rows($r_c)==0)
+      {
+          $sql_c="insert into City(Name,FKID_C_State ) values('".$_POST['City_Name']."','".$_POST['City_FKID_C_State']."')";
+          mysql_query($sql_c) or die("Can not insert into City ".mysql_error());
+      }
+          $sql_c="select * from City where Name='".$_POST['City_Name']."'";
+          $r_c=mysql_query($sql_c) or die("Can not grab from City".mysql_error());
+          $row_c=mysql_fetch_object($r_c);
+          $sql_a="update Address set Address='".$_POST['Address']."', FKID_City='".$row_c->PKID_City."',ZipCode='".$_POST['Address_ZipCode']."' where FK_MasterUsers='".$_SESSION['userID']."'";
+          mysql_query($sql_a) or die("Can not update Address".mysql_error());
+    }
+    $sql_p="select * from PhoneNumber where FK_MasterUsers='".$_SESSION['userID']."'";
+    $r_p=mysql_query($sql_p) or die("Can not grab from PhoneNumber ".mysql_error());
+    if(mysql_num_rows($r_p)==0)
+    {
+      $sql_ph="insert into PhoneNumber(FK_MasterUsers,FKID_PhoneNumberCategory ,AreaCode,Number,Extension) values('".$_SESSION['userID']."','".$_POST['PhoneNumberCategory']."','".$_POST['PhoneNumber_NEW_AreaCode']."','".$_POST['PhoneNumber_NEW_Number']."','".$_POST['PhoneNumber_NEW_Extension']."')";
+      mysql_query($sql_ph) or die("Can not Insert into PhoneNumber ".mysql_error());
+    }
+    else
+    {
+      $sql_ph="update PhoneNumber set FKID_PhoneNumberCategory='".$_POST['PhoneNumberCategory']."', AreaCode='".$_POST['PhoneNumber_NEW_AreaCode']."', Number='".$_POST['PhoneNumber_NEW_Number']."',Extension='".$_POST['PhoneNumber_NEW_Extension']."' where FK_MasterUsers='".$_SESSION['userID']."'";
+      mysql_query($sql_ph) or die("Can not update PhoneNumber ".mysql_error());
+    }
+
+    // update MasterUser username if posible
+    $updMasterUsers=updateMasterUsers($_SESSION['userID'],'&username='.$_POST['MasterUsers_Username'],$updateMasterUserUrl);
+	if($updMasterUsers)
+		$_SESSION['username']=$_POST['MasterUsers_Username'];
+		
+    // update existing phone numbers
+    $reqPhoneNumbers=mysql_query("SELECT * FROM PhoneNumber WHERE FK_MasterUsers='".$_SESSION['userID']."'");
+    while($resPhoneNumbers=mysql_fetch_object($reqPhoneNumbers)){
+    	$sql="UPDATE PhoneNumber SET FKID_PhoneNumberCategory='".$_POST['PhoneNumber_'.$resPhoneNumbers->PKID_PhoneNumber]."', AreaCode='".$_POST['AreaCode_'.$resPhoneNumbers->PKID_PhoneNumber]."',Number='".$_POST['Number_'.$resPhoneNumbers->PKID_PhoneNumber]."', Extension='".$_POST['Extension_'.$resPhoneNumbers->PKID_PhoneNumber]."' WHERE FK_MasterUsers='".$_SESSION['userID']."' AND PKID_PhoneNumber ='".$resPhoneNumbers->PKID_PhoneNumber."'";
+    	mysql_query($sql) or die("Can not update PhoneNumber ".mysql_error());
+   	}
+   
+
+    // insert new phone number
+    if($_POST['PhoneNumber_NEW_FKID_PhoneNumberCategory']!=''){
+    	$sql="insert into PhoneNumber (FK_MasterUsers,FKID_PhoneNumberCategory,AreaCode,Number,Extension) values('".(int)$_SESSION['userID']."','".(int)$_POST['PhoneNumber_NEW_FKID_PhoneNumberCategory']."','".(int)$_POST['PhoneNumber_NEW_AreaCode']."','".(int)$_POST['PhoneNumber_NEW_Number']."','".(int)$_POST['PhoneNumber_NEW_Extension']."')";
+      	mysql_query($sql) or die("Can not insert into PhoneNumber ".mysql_error());
+    }
+    header("Location: index.php?section=settings_b");
+
+  }
+// delete phone numbers and their related entries from ShareWithVip and ShareWithEstablishment
+if(isset($_POST['action']) && ereg("deletephone_",$_POST['action'])){
+	$numberToDelete=substr($_POST['action'],12);
+	
+	$sql="delete from PhoneNumber where FK_MasterUsers='".$_SESSION['userID']."' AND PKID_PhoneNumber ='".$numberToDelete."'";
+	mysql_query($sql) or die("Can not delete from Phone Number".mysql_error());
+	
+	header("Location: index.php?section=settings_b");
+}
+
+      $output->setScriptCalendar('null');
+		$output->setScriptTRColor('null');		
+      $output->settingsIMG = 'images/home%20page%20img/a_my_settings_on.gif';
+      
+		$output->setBody($out);
+		$output->setImgName("img.jpg");
+		$output->setTitle(APPLICATION_NAME."::Settings");			
+      $output->setPageID(1); //butonul selectat
+      
+  		$output->output();
+}
+?>

@@ -1,0 +1,20 @@
+SPAW Editor PHP Edition
+version 1.0.6
+Release Notes
+
+Thanks to everyone who downloaded, tried and supported SPAW Editor!
+
+This release fixes an issue important to many users: now you can use
+square brackets in control names (like spaw3[]). Subscript and superscript
+features where added too. Plus some language file updates, new Thai
+language file and some more bugfixes.
+
+Check out ChangeLog.txt for the list of new features and bugfixes.
+
+If you are fluent in any of languages that are now included and 
+see any typos or mistakes please report to spaw@solmetra.com
+
+Happy editing,
+Alan Mendelevich a.k.a. ailon
+alan@solmetra.com
+

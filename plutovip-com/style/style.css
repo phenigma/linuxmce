@@ -1,0 +1,112 @@
+body {
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-size: 12px;
+	color: #36456E;
+}			 
+a {
+	text-decoration: none;
+	color: #009934;
+}
+
+a:hover {
+	text-decoration: underline;
+	color: #009934;
+}
+
+.maintable {
+   font-family: Arial, Verdana, Helvetica, sans-serif;
+   font-size: 12px;
+   color: #36456E;
+}
+
+.insidetable {
+   font-family: Arial, Verdana, Helvetica, sans-serif;
+   font-size: 12px;
+   color: #36456E;
+   padding-top: 20px;
+   padding-bottom: 20px;
+   padding-left: 20px;
+   padding-right: 20px;  
+}
+
+.titletable {
+   font-family: Arial, Verdana, Helvetica, sans-serif;
+   font-size: 12px;
+   color: #36456E;
+   padding-top: 20px;
+   padding-left: 20px;
+   padding-top: 20px;
+   padding-left: 20px;
+}
+
+.ftable {
+   font-family: Arial, Verdana, Helvetica, sans-serif;
+   font-size: 12px;
+   color: #6E7B9B;
+   font-weight: bold;
+}
+
+.text {
+   font-family: Arial, Verdana, Helvetica, sans-serif;
+   font-size: 12px;
+   color: #36456E;
+}
+
+.news {
+   font-family: Arial, Verdana, Helvetica, sans-serif;
+   font-size: 12px;
+   color: #000000;
+   padding-top: 10px;
+   padding-left: 10px;
+   padding-top: 10px;
+   padding-left: 10px;
+}
+
+.newstitle {
+   font-family: Arial, Verdana, Helvetica, sans-serif;
+   font-size: 12px;
+   color: #19386E;
+}
+
+.newstitle:link {
+   font-family: Arial, Verdana, Helvetica, sans-serif;
+   font-size: 12px;
+   color: #19386E;
+}
+
+.newstitle:hover {
+   font-family: Arial, Verdana, Helvetica, sans-serif;
+   font-size: 12px;
+   color: #000000;
+}
+
+.table_small {
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-size: 12px;
+	color: #36456E;
+	padding-left: 10px;
+	padding-right: 10px;  
+	border-left: 1px solid #424F79;
+    border-right: 1px solid #424F79;
+}
+
+.td_main {
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-size: 12px;
+	color: #000000;
+	padding-left: 10px;
+	padding-right: 10px;  
+	padding-top: 10px;
+	padding-bottom: 10px;  
+}
+
+.inputlogin {
+font: 11px Arial, sans-serif; 
+color: #000000;
+background: #FFFFFF;
+border-bottom : 1px solid #5F6C94; 
+border-top : 1px solid #5F6C94;  
+border-left : 1px solid #5F6C94;  
+border-right : 1px solid #5F6C94;
+height: 16px;
+}	

@@ -1,0 +1,69 @@
+<?php
+ function individual($output) {
+		$out = '';
+		
+$out.='
+
+<table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable"><td width="10%" valign="top" align="left" >
+   <table border="0" align="left" cellpadding="0" cellspacing="0">
+     <tr>
+    <td class="titletable"><img src="images/meniuri/how_get_plutovip_txt.gif" width="148" height="13"></td>
+    </tr>
+       </table></td>
+  <tr>
+    <td class="insidetable" valign="top"><table border="0" align="left" cellpadding="0" cellspacing="0">
+      <tr>
+        <td width="154"><a href="index.php?section=individual"><img src="images/submeniuri/im_an_individual_on.jpg" width="144" height="17" border="0"></a></td>
+        
+      </tr>
+      <tr>
+        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+      </tr>
+      <tr>
+        <td><a href="index.php?section=business"><img src="images/submeniuri/im_a_business_off.jpg" width="144" height="17" border="0"></a></td>
+      </tr>
+      <tr>
+        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+      </tr>
+      <tr>
+        <tr>
+        <td><a href="index.php?section=im_manufacturer"><img src="images/submeniuri/im_a_manufacturer_off.jpg" width="144" height="17" border="0"></a></td>
+      </tr>
+      </tr>
+    </table>
+  </tr>
+  </td>
+   <td width="100%" class="insidetable" align="left">
+    <p><img src="images/submeniuri/im_an_individual_txt.gif" width="124" height="13"><br>
+      <p><strong>If you are an individual</strong></p>
+       <p>
+				All the PlutoVIP recognition features work on every bluetooth phone without any special software.&nbsp; These 
+				phones are offered by all the major cell phone manufacturers and all the cell 
+				phone carriers.  The only national carrier that does not have a plethora of bluetooth phones yet is Sprint.  
+				Their only bluetooth phone now is the Sony Ericsson T608.
+			</p>
+			<p>
+				To do secure transactions, such as payment processing, requires a special piece of software which at the moment runs on mobile 
+				phones that use the Symbian operating system.&nbsp; However, fear not, we can install this software on your phone automatically when you sign up!  
+				You don\'t need to do anything.  Also, Symbian is the most popular system for mobile phones, and is used by Nokia, Sony Ericsson, Motorola, 
+				Samsung, Panasonic and others.&nbsp; PlutoVIP is working continuously on testing compatibility with the hundreds of phones on the market, 
+				and adding more all the time.&nbsp; Remember, you can start enjoying all the VIP recognition features immediately, 
+				no matter what bluetooth phone you have.&nbsp; 
+				If your bluetooth mobile does not run Symbian, or is not already compatibility tested, don\'t worry.  
+				It will be soon, and we\'ll send you an email as soon as it is.
+			</p><br />
+   
+ </td></table>'; 
+ $output->setImgName("benefits.jpg"); //img that needs to be changed
+        $output->setPageID(4); //butonul selectat
+ 		$output->setNavigationMenu(array("Sample page"=>"index.php?section=samplePage")); //not used yet
+ 		$output->setTitle(APPLICATION_NAME."::For Individuals");			//page title
+ 		
+ 		
+ 		
+ 		//don't touch them 		
+		$output->setScriptCalendar('null');
+		$output->setScriptTRColor('null');		
+		$output->setBody($out);		
+  		$output->output(); 
+}

@@ -1,0 +1,206 @@
+<!--
+ * FCKeditor - The text editor for internet
+ * Copyright (C) 2003-2004 Frederico Caldeira Knabben
+ *
+ * Licensed under the terms of the GNU Lesser General Public License
+ * (http://www.opensource.org/licenses/lgpl-license.php)
+ *
+ * For further information go to http://www.fredck.com/FCKeditor/ 
+ * or contact fckeditor@fredck.com.
+ *
+ * fck_list.html: Bulleted List Dialog.
+ *
+ * Authors:
+ *		Alexandros Lezos
+ *		Frederico Caldeira Knabben (fckeditor@fredck.com)
+-->
+<html>
+	<head>
+		<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+		<link rel="stylesheet" type="text/css" href="../css/fck_dialog.css">
+		<script language="javascript" src="../js/dhtmled.js"></script>
+		<script language="javascript" src="../js/fck_events.js"></script>
+		<script language="javascript" src="../js/fck_toolbar.js"></script>
+
+		<script language="javascript">
+<!--
+
+// Gets the document DOM
+var oDOM = dialogArguments.objContent.DOM ;
+
+document.write("<TITLE>" + dialogArguments.AvailableLangs.GetEntry( "DlgLstWindowTitle", "Bulleted List Properties" ) + "</TITLE>");
+
+function setDefaults()
+{
+	// First of all, translate the dialog box texts
+	dialogArguments.AvailableLangs.TranslatePage(document) ;
+	var oList = getSelectionList() ;
+	
+	if (oList)
+	{
+		cmbFontStyle.value	= oList.className;
+		selType.value	= oList.getAttribute("type").toLowerCase();
+	}
+
+}
+
+function getSelectionList()
+{
+	var oParent ;
+	var oRange ;
+	
+	if (oDOM.selection.type == "Control")
+	{
+		oRange = oDOM.selection.createRange() ;
+		for ( i = 0 ; i < oRange.length ; i++ )
+		{
+			if (oRange(i).parentNode)
+			{
+				oParent = oRange(i).parentNode ;
+				break ;
+			}
+		}
+	}
+	else
+	{
+		oRange  = oDOM.selection.createRange() ;
+		oParent = oRange.parentElement() ;
+	}
+
+	while (oParent && oParent.nodeName != "UL")
+	{
+		oParent = oParent.parentNode ;
+	}
+
+	if (oParent && oParent.nodeName == "UL")
+	{
+		oDOM.selection.empty() ;
+		oRange = oDOM.selection.createRange() ;
+		oRange.moveToElementText( oParent ) ;
+		oRange.select() ;
+		
+		return oParent ;
+	}
+	else
+		return null ;
+}
+
+function ok()
+{
+	var oList = getSelectionList() ;
+	if (cmbFontStyle.value	!= "") oList.className	= cmbFontStyle.value		; else oList.removeAttribute("className") ;
+	if (selType.value		!= "") oList.setAttribute("type", selType.value	)	; else oList.removeAttribute("type") ;
+	cancel() ;
+
+}
+
+// Fired when the user press the CANCEL button.
+function cancel() 
+{
+	window.returnValue = null ;
+	window.close() ;
+}
+
+function setImage(sImageURL)
+{
+	txtURL.value = sImageURL ;
+}
+
+document.onkeydown = function ()
+{
+	switch ( event.keyCode )
+	{
+		case 13 : ok() ;		break ;	// ENTER
+		case 27 : cancel() ;	break ;	// ESC
+	}
+}
+//-->
+		</script>
+	</head>
+	<body bottommargin="5" leftmargin="5" topmargin="5" rightmargin="5" onload="setDefaults()">
+		<table cellspacing="1" cellpadding="1" border="0" width="100%" class="dlg" height="100%">
+			<tr>
+				<td>
+					<table cellspacing="0" cellpadding="0" width="100%" border="0">
+						<tr>
+							<td>
+								<table cellspacing="0" cellpadding="0" width="100%" border="0">
+									<tr>
+										<td id="tdType"><span fckLang="DlgLstType">Type</span>:</td><td align="right"><select id="selType" name="selType">
+												<option value="" fckLang="DlgLstTypeNotSet" selected>&lt;Not set&gt;</option>
+												<option value="circle" fckLang="DlgLstTypeCircle">Circle</option>
+												<option value="disk" fckLang="DlgLstTypeDisk">Disk</option>
+												<option value="square" fckLang="DlgLstTypeSquare">Square</option>
+											</select>
+										</td>
+									</tr>
+									<tr>
+										<td colspan="2">&nbsp;</td>
+									</tr>
+									<tr>
+										<td>
+											<span fckLang="DlgClassName">Class Name</span>:</td><td align="right"><script language="javascript">
+												var tbstyles = new TBCombo( "FontStyle"		, "null"			, "", dialogArguments.config.StyleNames, dialogArguments.config.StyleValues, 'CheckStyle("cmbFontStyle")');
+												document.write(tbstyles.GetHTML());
+											</script></td>
+									</tr>
+								</table>
+							</td>
+							<td width="10">&nbsp;&nbsp;&nbsp;</td>
+							<td valign="top" width="100">
+								<input style="WIDTH: 100%" onclick="ok();" type="button" fckLang="DlgBtnOK" value="Ok" id="Button1" name="Button1">
+								<br>
+								<input type="button" style="WIDTH: 100%" fckLang="DlgBtnCancel" value="Cancel" onclick="cancel();" id="Button2" name="Button2">&nbsp;
+								<br>
+							</td>
+
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+		<script language="javascript">
+
+/*if ( bCanTarget && sTargets.length > 0 )
+{
+	tdTarget.style.display = "block" ;
+
+	// Load the configured targets
+	var asTargets = sTargets.split( ';' ) ;
+	
+	for ( var i = 0 ; i < asTargets.length ; i++ )
+	{
+		var oOption = document.createElement("OPTION") ;
+
+		selTarget.options.add(oOption) ;
+		
+		var sText ;
+		
+		switch ( asTargets[i] )
+		{
+			case "_blank" :
+				sText = dialogArguments.lang[ "DlgLnkTargetBlank" ] ;
+				break ;
+			case "_parent" :
+				sText = dialogArguments.lang[ "DlgLnkTargetParent" ] ;
+				break ;
+			case "_self" :
+				sText = dialogArguments.lang[ "DlgLnkTargetSelf" ] ;
+				break ;
+			case "_top" :
+				sText = dialogArguments.lang[ "DlgLnkTargetTop" ] ;
+				break ;
+			default :
+				sText = asTargets[i] ;
+				break ;
+		}
+
+		oOption.innerText = sText ;
+		oOption.value     = asTargets[i] ;
+	}
+	
+	selTarget.value = sDefaultTarget ;
+}*/
+</script>
+	</body>
+</html>

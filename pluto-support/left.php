@@ -1,0 +1,16 @@
+<?php
+	session_start('Pluto');
+	
+	require('include/config/config.inc.php');
+	require('include/utils.inc.php');
+	require('include/masterusers.inc.php');
+	require('include/template.class.inc.php');
+	require('include/package.inc.php');
+	
+	$section=$_REQUEST['section'];
+	$output = new Template($dbADO);
+	$output->setTemplateFileType('small');
+	include_once($section.'.php');
+
+
+?>

@@ -1,0 +1,102 @@
+<?php
+ function letter($output) {
+		$out = '';
+		
+$out.=<<<TEXT
+
+<table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable">
+
+  <tr>
+    <td class="insidetable">
+<b>Letter from the Pluto Team</b><br>
+<p>The electronic devices we rely on every day, from our phone to our VCR, are combinations of
+hardware and software. Since pc computers are so widespread, reliable and inexpensive,
+more and more devices are using standard pc components inside. Nearly all high end
+entertainment products, like personal video recorders, whole-house music solutions, and so
+on, are essentially modified pc-computers inside a custom enclosure. With Pluto as well, the
+Core, the Media Directors and the Orbiters, are all customized pc-computers.</p>
+<p>Open source has undeniably become the software platform of choice for these products. Open
+source refers to software that the owner basically gives away for free, including all the source
+code, which is needed for someone to enhance it, modify it, or fix it. The stipulation is that
+any improvements must be contributed back to the project so everyone benefits.</p>
+<p>Mainstream consumers do not hear much about open source software because it is free, and
+so there is no company marketing it. Most still use proprietary, closed-source software, like
+Windows, on their personal computers. However, we all use open source every day even if
+we’re not aware of it. Open source has proven to be such a superior approach to deliver
+powerful and stable solutions that it has taken over the behind the scenes, mission critical
+applications. The infrastructure of the internet is based on open source. It powers all the
+major industries, like Banking and Telecommunications. And it is the platform of choice for all
+the small embedded computers inside everything from our cars to our appliances.</p>
+<p>These products use open source software, like the Linux operating system, as a base, add their
+own, proprietary software, and deliver their own branded product. This method, which Pluto
+used for its 1s t generation pro duct, has proven very successful. Many popular household
+products do the same thing.</p>
+<p>However, starting with our series 2, Pluto is doing something quite unconventional. We are
+releasing all our patent-pending proprietary software as open source too, and have re-written
+it so that it can run not only on our own customized hardware, but on standard PC’s as well.
+Why would we do this since the proprietary software is usually a company’s most carefully
+guarded trade secret? Giving the software away for free sounds like an odd way for a profitminded
+company to succeed.</p>
+<p>Actually not. Pluto’s typical customers do not want to mess with technology. They want a box
+that they can plug in, push ‘on’ and that will work immediately, simplifying their lives. We
+know our customer base and are confident they will continue to buy our pre-packaged Pluto
+systems, as opposed to getting PC computers, adding some specialized components, then
+downloading and installing the free software.</p>
+<p>However we also know another big item on our customers’ wish lists. Once they start using
+Pluto, they want everything in the home to work like Pluto does. We constantly get requests
+to add an interface module to control, say, a type of pool control popular in South Africa. Or a
+dealer in Thailand wants a Thai-version of the Orbiter. This is one way that making Pluto open
+source will benefit our customers—now anyone, anywhere in the world can add such plug-ins
+to expand the functionality of Pluto, and it will become available for everyone.</p>
+<p>Pluto’s DCE protocol has proven to be the most efficient and practical way to allow everything
+in the home to work together seamlessly. Our biggest obstacle promoting DC E as a universal
+standard is that no manufacturer likes to be tied to a closed, proprietary standard they cannot
+control. That’s why manufacturers tend to use their own proprietary standards, and competing
+products never work together even though that is high on a customer’s wish list. Has anyone
+ever seen a DVD player from Brand X that automatically adjusts the settings on a TV from
+Brand Y, like all DCE devices do? Making DCE a free, open standard will encourage more
+manufacturers to support it. Then our customers will enjoy more products that seamlessly
+blend into the home, working exactly as expected without a user’s manual.
+Of course this new approach is great for those who would like to enjoy Brilliant Living without
+the expense, and are willing to build their own Pluto systems.</p>
+<p>Finally we hope this will be a great asset to the open source community, with whom Pluto has
+always had an excellent relationship. While most companies try to hide the “secret” that their
+products are based on open source and they didn’t develop everything in house, Pluto actively
+promoted this arrangement. In fact, Pluto is virtually the only company that sought out the
+core developers of the major open source projects we built our product upon, brought them to
+Florida to work side by side with our own staff, giving them nice condos, new cars, good
+compensation, and even stock in the company so they would enjoy the benefits of Pluto’s
+success. Even though their open source projects are embedded in myriads of other products,
+no other company even acknowledged their contributions.</p>
+<p>Since Pluto is now becoming an embedded platform that will be integrated in a variety of
+consumer products, from cars to televisions, Pluto is an easy way for the scores of developers
+who have already made fantastic, high-quality open source projects to offer them to the
+general public. Once they make their project a DCE-compatible plug-in, any Pluto user, even a
+total technophobe, can press a couple buttons on the mobile phone and start using it.
+Of course our customers can rest assured that any contributions submitted by the open source
+community will only make their way into our retail product only after passing our exhaustive
+testing and quality assurance process. Stability and easy of use will continue to be trademarks
+of the Pluto product.</p>
+<p>Whether you’re a customer, an open source developer, or one who builds your own Pluto
+system, we hope you enjoy Brilliant Living.</p>
+The Pluto Team
+</td>
+  </tr>
+</table>
+	
+TEXT;
+		
+		$output->setImgName("support.jpg"); //img that needs to be changed
+        $output->setPageID(5); //butonul selectat
+ 		$output->setNavigationMenu(array("Sample page"=>"index.php?section=samplePage")); //not used yet
+ 		$output->setTitle(APPLICATION_NAME."::I'm a Open Source Developer");			//page title
+ 		
+ 		
+ 		
+ 		//don't touch them 		
+		$output->setScriptCalendar('null');
+		$output->setScriptTRColor('null');		
+		$output->setBody($out);		
+  		$output->output(); 
+ }
+?>

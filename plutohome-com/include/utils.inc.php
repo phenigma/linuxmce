@@ -1,0 +1,503 @@
+<?php 
+
+function eval_buffer($string) {
+   ob_start();
+   eval("$string[2];");
+   $return = ob_get_contents();
+   ob_end_clean();
+   return $return;
+}
+
+function eval_print_buffer($string) {
+   ob_start();
+   eval("print $string[2];");
+   $return = ob_get_contents();
+   ob_end_clean();
+   return $return;
+}
+
+function showSectionContentWithPhp($string) {
+	
+   $string = preg_replace_callback("/(<\?=)(.*?)\?>/si",
+                                   "eval_print_buffer",$content);
+   $string=preg_replace_callback("/(<\?php|<\?)(.*?)\?>/si",
+                                 "eval_buffer",$string);
+   return stripslashes($string);                                 	
+} 
+
+//---------------------------------------------------------------------------------------
+//customized data format
+//---------------------------------------------------------------------------------------
+function formatDate($strData)
+{
+  $result = trim( $strData);
+  $result = str_replace( "  ", " ", $result );
+  //list( $aMonth, $aDay, $aYear, $theRest ) = explode( " ", $result, 4 );
+  $result = date( "j M, Y",strtotime($result));
+  return $result;
+}
+function formatTime($strData)
+{
+  $result = trim( $strData);
+  $result = str_replace( "  ", " ", $result );
+  //list( $aMonth, $aDay, $aYear, $theRest ) = explode(" ", $result, 4);
+  $result = date( "G:i:s A", strtotime($result));
+  return $result;
+}
+function formatNumber($nr) {return number_format($nr,0,',','.');}
+//---------------------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------------------
+//listing functions
+//---------------------------------------------------------------------------------------
+function getPagesMenu($query,$start,$items,$orderBy,$orderType,$url)
+{
+ $pages_menu = '';
+ $urlStr = $GLOBALS['vRoot'].$url;
+ $_SESSION['itemsPerPage'] = $items;
+
+ if(($orderBy!='')&&(($orderType!=''))) {
+   $_SESSION['sortOrder'] = $orderBy;
+   $_SESSION['sortType']  = $orderType;
+ }
+ 
+ $res = @mysql_query($query);
+ $rows = @(int)mysql_num_rows($res);
+ if( ($rows>0) && ($rows>$items) ){
+   
+     $pages = $rows/$items;
+     
+     $prev = $start - $items;
+     $crt_page = $start / $items;
+     $first_page = $crt_page - $GLOBALS["prevNo"] + 1;
+     $last_page  = $crt_page + $GLOBALS["nextNo"];
+     
+     //initialize if necessary
+     if ($prev < 0) {$prev = 0;}
+     if ($first_page < 1) {$first_page= 1;}
+     if ($last_page > $pages) {$last_page = $pages;}
+     
+     if ($start!=0) {$pages_menu .= '<a class="smallb" href="'.$urlStr.'start='.$prev.'&orderBy='.$orderBy.'&orderType='.$orderType.'">&#171;</a>';}
+     for ($i=$first_page; $i<=(int)$last_page; $i++)
+     {
+      if (($i-1)*$items==$start) {//crt page
+       $crt_pos = $i;
+       $pages_menu.= ' [<a class="smallnote" href="'.$urlStr.'start='.$items*($i-1).'&orderBy='.$orderBy.'&orderType='.$orderType.'"><b>'.$i.'</b></a>]';
+      } 
+      else {$pages_menu.= ' [<a class="small" href="'.$urlStr.'start='.$items*($i-1).'&orderBy='.$orderBy.'&orderType='.$orderType.'">'.$i.'</a>]';}
+     }
+     //last items page
+     if (($items*($i-1)) != $rows)
+      {
+       if (($i-1)*$items==$start){
+          $pages_menu.= ' [<a class="smallnote" href="'.$urlStr.'start='.$items*($i-1).'&orderBy='.$orderBy.'&orderType='.$orderType.'"><b>'.$i.'</b></a>]';
+       }else{
+          $pages_menu.= ' [<a class="small" href="'.$urlStr.'start='.$items*($i-1).'&orderBy='.$orderBy.'&orderType='.$orderType.'">'.$i.'</a>]';
+       }
+      }
+     
+    if (((@$crt_pos * $items) != $rows) && ($start!=($items*($i-1)))) {
+      $pages_menu.= ' <a class="smallb" href="'.$urlStr.'start='.$items*(@$crt_pos).'&orderBy='.$orderBy.'&orderType='.$orderType.'">&#187;</a>';}
+      
+    $pages_menu = '<table cellpadding="3" cellspacing="0" border="0"><tr><td class="small">
+                  '.$pages_menu.'</td></tr></table>';
+ } 
+ 
+ return $pages_menu;
+}
+
+//---------------------------------------------------------------------------------------
+
+function die_admin($output,$message,$sourceScript,$query) {
+$out=$message."<br />"."query:".$query;
+$output->set_title(ApplicationName."::Error");
+$output->set_body($out);
+$output->do_output();
+die();
+}
+
+function die_mesg_public($output,$message,$sourceScript,$query) {
+	
+	
+	if ($GLOBALS["inDebug"]==1) {
+		$queryTemp=explode("::",$query);
+		if (count($queryTemp)==2) {
+				$out="<h2>".$message."</h2><h3>Source:$sourceScript</h3><h4>SQL Error:".$queryTemp[0]."</h4><h4>".$queryTemp[1]."</h4>";
+		}else{
+				$out="<h2>".$message."</h2><h3>Source: $sourceScript</h3><h4>Error:".$query."</h4>";
+		}		
+		$output->setBody($out);
+		$output->output();
+	} else {
+		$queryTemp=explode("::",$query);
+		if (count($queryTemp)==2) {
+				$mailBody=$message."\n\n Source:$sourceScript \n\n SQL Error:".$queryTemp[0]." \n\n ".$queryTemp[1]."";
+		}else{
+				$mailBody=$message." \n\n Source: $sourceScript \n\n ".$query;
+		}	
+		if (strlen($GLOBALS['sendErrorsTo'])>2) {
+			mail($GLOBALS['sendErrorsTo'],"Error on site:".$GLOBALS['vRoot'],$mailBody);
+		}
+		$out="An error occured and an email about it was sent to the webadmin.<br />Sorry for the incovenience!";
+		$output->setBody($out);
+		$output->output();
+	}
+//$output->do_output();
+die();
+}
+
+
+function getPagesNextPrev($pagesNumber,$currentPage) {
+$output = "";
+        if ($pagesNumber > 1) {
+            $output.= "<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"> ";
+            $output.= "<tr>";
+            $output.= "<td class=\"small\" width=\"25%\" nowrap>";
+            if ($currentPage-5>1) {
+             $startShowPrevNext  = $currentPage - 5;
+            } else {
+             $startShowPrevNext  = 1;
+            }
+            if ($currentPage+5<=$pagesNumber) {
+             $endShowPrevNext = $currentPage+5;
+            } else {
+             $endShowPrevNext = $pagesNumber;
+            }
+
+            for ($jk=$startShowPrevNext;$jk<=$endShowPrevNext;$jk++) {
+                if ($currentPage==$jk) {
+                    $output.="[<b>" + $jk + "</b>]";
+                } else {
+                    $output .= "[<a class=\"small\" href=\"javascript:changePage(".$jk.");\">".$jk."</a>]";
+                }
+                $output .= "&nbsp;";
+            }
+            $output .= "</td>";
+            $output .= "<td width=\"19%\" class=\"small\" align=\"right\" nowrap>Go to page:
+                    <input class=\"small\" type=\"text\" name=\"gotoPageNo\" maxlength=\"3\" size=\"2\">&nbsp;<input type=\"button\" class=\"small\" value=\"Go\" onClick=\"javascript:formSubmit(this.form);\" id=button1 name=button1>
+                    </td>
+                    <td class=\"small\" align=\"right\" width=\"1%\"><img src=\"images/spacer.gif\" width=\"29\" height=\"8\"></td>
+                    </tr>
+                    </table>";
+        } else {
+            $output = "&nbsp;";
+        }
+        return $output;
+} 
+
+function cleanString($string,$len=1000) {
+	return substr(mysql_escape_string(strip_tags(trim($string))),0,$len);
+}
+
+function cleanStringWithTags2Show($string,$len=1000) {
+	return trim($string);
+}
+
+function cleanStringWithTags4DB($string,$len=1000) {
+	return mysql_escape_string(trim($string));
+}
+
+function cleanInteger($number) {
+	return (int)$number;
+}
+
+function cleanFloat($number) {
+	return (float)$number;
+}
+
+function cleanArray($array2Parse) {
+	$resultArray = array();
+	foreach ($array2Parse as $elem) {
+		if (cleanString((trim($elem)))!="") {
+			$resultArray[]=$elem;			
+		}
+	}
+	return $resultArray;
+}
+
+$GLOBALS['childsArray'] = array();
+
+function getDeviceChildsArray($parentID,$dbADO) {
+	$queryGP = "select * from Device where FK_Device_ControlledVia = $parentID";
+	$resGP = $dbADO->Execute($queryGP);
+	
+	if ($resGP) {
+		while ($row=$resGP->FetchRow()) {
+				$GLOBALS['childsArray'][]=$row['PK_Device'];
+				$GLOBALS['childsArray'][]=getDeviceChildsArray($row['PK_Device'],$dbADO);
+		}
+	}
+	//return $childsArray;
+}
+
+
+$GLOBALS['childsDeviceCategoryNo']=0;
+function getDeviceCategoryChildsNo($parentID,$dbADO) {
+	$queryGP = "select * from DeviceCategory where FK_DeviceCategory_Parent = $parentID";
+	$resGP = $dbADO->Execute($queryGP);
+	
+	if ($resGP) {
+		while ($row=$resGP->FetchRow()) {
+				$GLOBALS['childsDeviceCategoryNo']++;
+				$GLOBALS['childsDeviceCategoryNo']+=getDeviceCategoryChildsNo($row['PK_DeviceCategory'],$dbADO);
+		}
+	}	
+}
+
+$GLOBALS['childsDeviceCategoryArray'] = array();
+
+function getDeviceCategoryChildsArray($parentID,$dbADO) {
+	$queryGP = "select * from DeviceCategory where FK_DeviceCategory_Parent = $parentID";
+	$resGP = $dbADO->Execute($queryGP);
+	
+	if ($resGP) {
+		while ($row=$resGP->FetchRow()) {
+				$GLOBALS['childsDeviceCategoryArray'][]=$row['PK_DeviceCategory'];				
+				$GLOBALS['childsDeviceCategoryArray'][]=getDeviceCategoryChildsArray($row['PK_DeviceCategory'],$dbADO);
+		}
+	}
+}
+
+function getDeviceCategoryChildsOptions($parentID,$parentName,$selectedValue,$notIn,$dbADO) {
+	$whereNotIn = '';
+	if (strlen($notIn)!='') {
+		$whereNotIn=' and PK_DeviceCategory not in ('.$notIn.')';
+	}
+	$queryGP = "select * from DeviceCategory where FK_DeviceCategory_Parent = $parentID $whereNotIn order by Description Asc";
+	$resGP = $dbADO->Execute($queryGP);
+	$options='';
+	if ($resGP) {
+		while ($row=$resGP->FetchRow()) {
+				$options.= '<option '.($selectedValue==$row['PK_DeviceCategory']?' selected="selected" ':'').' value="'.$row['PK_DeviceCategory'].'">'.$parentName.' - '.$row['Description'].'</option>';
+				$options.= getDeviceCategoryChildsOptions($row['PK_DeviceCategory'],$parentName.' - '.$row['Description'],$selectedValue,$notIn,$dbADO);
+		}
+		$resGP->Close();
+	}
+	return $options;
+}
+
+
+function getEventCategoryChildsArray($parentID,$parentName,$selectedValue,$dbADO) {
+	$queryGP = "select PK_EventCategory,Description from EventCategory where  FK_EventCategory_Parent = $parentID order by Description Asc";
+	$resGP = $dbADO->Execute($queryGP);
+	$EventCategoryOptions = '';
+	if ($resGP) {
+		while ($row=$resGP->FetchRow()) {				
+				$EventCategoryOptions.= '<option '.($selectedValue==$row['PK_EventCategory']?' selected="selected" ':'').' value="'.$row['PK_EventCategory'].'">'.$parentName.' - '.$row['Description'].'</option>';
+				$EventCategoryOptions.= getEventCategoryChildsArray($row['PK_EventCategory'],$parentName.' - '.$row['Description'],$selectedValue,$dbADO);
+		}
+	}	
+	return $EventCategoryOptions;
+}
+
+function getValidOrbitersArray($installationID,$dbADO) {
+		$orbiterID = $GLOBALS['rootOrbiterID'];
+		$GLOBALS['childsDeviceCategoryArray'] = array();
+		getDeviceCategoryChildsArray($orbiterID,$dbADO);
+		$validDeviceCategoryOrbiters=cleanArray($GLOBALS['childsDeviceCategoryArray']);
+		$validDeviceCategoryOrbiters[]=$orbiterID; //add orbiter root id to array
+		
+		$getOrbitersFromMasterDeviceList = 'SELECT PK_DeviceTemplate FROM DeviceTemplate WHERE FK_DeviceCategory IN ('.join(",",$validDeviceCategoryOrbiters).')';
+		$resOrbitersFromMasterDeviceList = $dbADO->_Execute($getOrbitersFromMasterDeviceList);
+		$arrayOrbitersFromMasterDeviceList = array();
+		 if ($resOrbitersFromMasterDeviceList) {
+		 	while ($rowOrbitersFromMasterDeviceList = $resOrbitersFromMasterDeviceList->FetchRow()) {
+		 		$arrayOrbitersFromMasterDeviceList[]=$rowOrbitersFromMasterDeviceList['PK_DeviceTemplate'];
+		 	}
+		 }
+		
+		 
+		$arrayOrbitersFromMasterDeviceList=cleanArray($arrayOrbitersFromMasterDeviceList);
+		$queryOrbitersFromDevices = 'SELECT PK_Device FROM Device WHERE FK_DeviceTemplate in ('.join(",",$arrayOrbitersFromMasterDeviceList).') and FK_Installation = '.$installationID;
+		$resOrbitersFromDevices = $dbADO->_Execute($queryOrbitersFromDevices);
+		
+		$orbitersFromDevicesArray = array();
+		if ($resOrbitersFromDevices) {
+			while ($rowOrbitersFromDevices = $resOrbitersFromDevices->FetchRow()) {
+				$orbitersFromDevicesArray[] = $rowOrbitersFromDevices['PK_Device'];
+			}
+		}
+		
+		return $arrayOrbitersFromMasterDeviceList;
+}
+
+
+function InheritDeviceData($masterDeviceID,$insertID,$dbADO)
+{
+	$selectDeviceDatafromTemplate = 'SELECT FK_DeviceData, DefaultValue FROM DeviceTemplate_DeviceData WHERE FK_DeviceTemplate = ?';
+	$resDeviceDatafromTemplate = $dbADO->Execute($selectDeviceDatafromTemplate,array($masterDeviceID));
+	if ($resDeviceDatafromTemplate) {
+		while($rowSelectDeviceDatafromTemplate = $resDeviceDatafromTemplate->FetchRow()){
+			$queryInsertDevice = "INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData,Value)
+									VALUES(?,?,?)";
+			$dbADO->Execute($queryInsertDevice,array($insertID,$rowSelectDeviceDatafromTemplate['FK_DeviceData'],$rowSelectDeviceDatafromTemplate['DefaultValue']));
+		}
+	}
+}
+
+function createChildsForDeviceTemplate($masterDeviceID,$installationID,$insertID,$dbADO)
+{
+	$queryDeviceTemplate='SELECT Description FROM DeviceTemplate WHERE PK_DeviceTemplate=?';
+	$resDeviceTemplate=$dbADO->Execute($queryDeviceTemplate,$masterDeviceID);
+	$rowDeviceTemplate=$resDeviceTemplate->FetchRow();
+	$queryInsertDevice = "INSERT INTO Device(FK_Installation, Description, FK_Device_ControlledVia, FK_DeviceTemplate)
+									values(?,?,?,?)";
+	$dbADO->Execute($queryInsertDevice,array($installationID,$rowDeviceTemplate['Description'],$insertID,$masterDeviceID));
+	$insertChildID = $dbADO->Insert_ID();
+	InheritDeviceData($masterDeviceID,$insertChildID,$dbADO);
+	createChildsForControledViaDeviceTemplate($masterDeviceID,$installationID,$insertChildID,$dbADO);
+}
+
+function createChildsForControledViaDeviceTemplate($masterDeviceID,$installationID,$insertID,$dbADO)
+{
+	// check if DeviceTemplate controll anything
+	$queryDeviceTemplate_DeviceTemplate_ControlledVia='SELECT * FROM DeviceTemplate_DeviceTemplate_ControlledVia
+				WHERE FK_DeviceTemplate_ControlledVia = ? AND AutoCreateChildren = 1';
+	$resDeviceTemplate_DeviceTemplate_ControlledVia=$dbADO->Execute($queryDeviceTemplate_DeviceTemplate_ControlledVia,$masterDeviceID);
+	if($resDeviceTemplate_DeviceTemplate_ControlledVia->RecordCount()>0){
+		// insert the children
+		while($row=$resDeviceTemplate_DeviceTemplate_ControlledVia->FetchRow()){
+			createChildsForDeviceTemplate($row['FK_DeviceTemplate'],$installationID,$insertID,$dbADO);
+		}
+	}
+}
+
+function createChildsForControledViaDeviceCategory($masterDeviceID,$installationID,$insertID,$dbADO)
+{
+	$getTemplateGategory='SELECT * FROM DeviceTemplate WHERE PK_DeviceTemplate=?';
+	$resTemplateGategory=$dbADO->Execute($getTemplateGategory,$masterDeviceID);
+	$rowCateg=$resTemplateGategory->FetchRow();
+	$parentCateg=$rowCateg['FK_DeviceCategory'];
+	
+	// get Device Template from controlling Category
+	$deviceTemplateArray=array();
+	$queryDeviceTemplate_DeviceCategory_ControlledVia='SELECT FK_DeviceTemplate FROM DeviceTemplate_DeviceCategory_ControlledVia
+				WHERE FK_DeviceCategory = ? AND AutoCreateChildren = 1';
+	$res=$dbADO->Execute($queryDeviceTemplate_DeviceCategory_ControlledVia,$parentCateg);
+	if($res->RecordCount()>0){
+		while($row=$res->FetchRow()){
+			// get all DeviceTemplates from category and create childs for them if necessary
+			$deviceTemplateArray[]=$row['FK_DeviceTemplate'];
+		}
+	}
+	foreach($deviceTemplateArray as $value)
+		createChildsForDeviceTemplate($value,$installationID,$insertID,$dbADO);
+}
+
+function getInstallWizardDeviceTemplates($step,$dbADO,$sufix='',$distro=0,$operatingSystem=0)
+{
+	if($distro!=0){
+		$queryDistro='SELECT * FROM Distro WHERE PK_Distro=?';
+		$resDistro=$dbADO->Execute($queryDistro,$distro);
+		if($resDistro->RecordCount()>0){
+			$rowDistro=$resDistro->FetchRow();
+			$distroName=$rowDistro['Description'];
+			$operatingSystem=$rowDistro['FK_OperatingSystem'];
+		}else
+			$distroName='';
+	}
+	
+	if($operatingSystem!=0){
+		$queryOperatingSystem='SELECT * FROM OperatingSystem WHERE PK_OperatingSystem=?';
+		$resOperatingSystem=$dbADO->Execute($queryOperatingSystem,$operatingSystem);
+		if($resOperatingSystem->RecordCount()>0){
+			$rowOperatingSystem=$resOperatingSystem->FetchRow();
+			$operatingSystemName=$rowOperatingSystem['Description'];
+		}else
+			$operatingSystemName='';
+	}
+			
+	$out='<table>';
+	$queryInstallWizard='
+		SELECT InstallWizard.*,
+			DeviceCategory.Description AS Category,
+			DeviceTemplate.Description AS Template
+		FROM InstallWizard
+			INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+			INNER JOIN DeviceCategory ON FK_DeviceCategory=PK_DeviceCategory
+		WHERE step=?';
+	$resInstallWizard=$dbADO->Execute($queryInstallWizard,$step);
+	if($resInstallWizard->RecordCount()==0){
+		$out.='
+			<tr>
+				<td>&nbsp;</td>
+			</tr>';
+	}else{
+		$out.='
+			<tr class="normaltext">
+				<td colspan="5"><b>What software modules do you want on this media director?</b></td>
+			</tr>';
+	}
+	$oldCategory='';
+	$displayedInstallWizard=array();
+	while($row=$resInstallWizard->FetchRow()){
+		if($row['Category']!=$oldCategory){
+			$oldCategory=$row['Category'];
+			$displayCategory=$row['Category'];
+		}else 
+			$displayCategory='-';
+		$out.='
+			<tr class="normaltext">
+				<td align="center"><b>'.$displayCategory.'</b></td>
+				<td>&nbsp;&nbsp;&nbsp;&nbsp;'.$row['Template'].'</td>';
+		$query='
+			SELECT 
+				InstallWizard_Distro.*,
+				InstallWizard.Default
+			FROM InstallWizard_Distro
+				INNER JOIN InstallWizard ON FK_InstallWizard=PK_InstallWizard
+			WHERE (FK_Distro IS NULL OR FK_Distro=?) AND (FK_OperatingSystem=? OR FK_OperatingSystem IS NULL) AND FK_InstallWizard=?';
+		$res=$dbADO->Execute($query,array($distro,$operatingSystem,$row['PK_InstallWizard']));
+		$rowIWD=$res->FetchRow();
+		$out.='<td><input type="checkbox" '.(($res->RecordCount()==0)?'disabled':'').' '.(($rowIWD['Default']==1)?'checked':'').' name="requiredTemplate_'.$row['PK_InstallWizard'].$sufix.'" value="1"> ';
+		if($res->RecordCount()==0)
+			$out.='Not available for '.(($distro!=0)?$distroName:'').(($operatingSystem!=0)?' / '.$operatingSystemName:'');
+		else{
+			$displayedInstallWizard[]=$row['FK_DeviceTemplate'];
+			$res->MoveFirst();
+			$out.=$rowIWD['Comments'];
+		}
+		$out.='</td>
+			</tr>
+		<input type="hidden" name="displayedInstallWizard" value="'.(join(',',$displayedInstallWizard)).'">
+		';
+	}
+	$out.='</table>';
+	return $out;
+}
+
+function CheckValidCode($code,$dbADO)
+{
+	list($device, $pin) = explode("-", $code);
+	$sql = "SELECT ActivationCode
+			FROM Device
+	 			JOIN Installation ON Device.FK_Installation = Installation.PK_Installation
+			WHERE Device.PK_Device = '$device' LIMIT 1";
+	$res = $dbADO->Execute($sql);
+	if ($res->RecordCount() == 0)
+		return false;
+	$row = $res->FetchRow();
+	if ($row['ActivationCode'] !== $pin)
+		return false;
+	return true;
+}
+
+// return an array of packages
+function GetActivationSh($code)
+{
+	list($device, $pin) = explode("-", $code);
+	exec("/usr/pluto/bin/ConfirmDependencies -d $device install", $result);
+	// || die("ERROR. Can't generate answer: $device:$pin");
+
+	return $result;
+}
+
+function GetInitialData($installation,$user)
+{
+	exec("/usr/pluto/bin/GetInitialData.sh " . $installation . " " . $user, $result);
+//		|| die("ERROR. Can't generate: $installation:$user");
+
+	return $result;
+}
+
+?>

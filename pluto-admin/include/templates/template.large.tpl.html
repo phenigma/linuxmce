@@ -1,0 +1,65 @@
+<HTML>
+<HEAD>
+
+<meta http-equiv="Content-Language" content="en">        
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <meta http-equiv="Pragma" content="no-cache" />
+        <meta http-equiv="Cache-Control" content="no-cache" />
+        <meta http-equiv="Expires" content="Mon, 03 Jan 2000 00:00:01 GMT" />
+        <meta name="keywords" content="">
+		<meta name="description" content="">
+        <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+        {MetaTags}
+		
+<title>{Title}</title>		
+ {CssFile}
+ {JavaScripts}
+ {ScriptValidateSrc}
+ 
+
+
+<script type="text/javascript">
+function submitEnter(myfield,e)
+{
+var keycode;
+if (window.event) keycode = window.event.keyCode;
+else if (e) keycode = e.which;
+else return true;
+
+if (keycode == 13)
+   {
+   myfield.form.submit();
+   //javascript:document.forms[\'loginForm\'].submit();
+   return false;
+   }
+else
+   return true;
+}
+</script>
+
+{ScriptInHead}
+
+<script language='javascript' src='Config.js'></script>
+<script language='javascript' src='Menu.js'></script>
+	
+</HEAD>
+
+<BODY {ScriptInBody}>
+<table width="100%" cellpadding="0" cellspacing="0" style="background-image:url(include/images/back_on.jpg);"><tr><td><span style="position:relative;">&nbsp;{TopMenu}</span></td><td align="right"><a href="{HelpSrc}" target="_top"><img src="include/images/help.jpg" border="0"></a></td></tr></table>
+<br />
+<TABLE BORDER=0 CELLPADDING=0 CELLSPACING=0 WIDTH="100%" HEIGHT="100%">
+<TR>
+<TD ROWSPAN=1 COLSPAN=2 WIDTH="100%" HEIGHT=47 valign="top">
+&nbsp;&nbsp;&nbsp;<span>{NavigationMenu} 
+</TD>
+</TR>
+<TR>
+<TD ROWSPAN=1 COLSPAN=1 WIDTH="100%" HEIGHT="100%" valign="top">
+<!-- content area-->	
+{Body}
+<!-- end content area-->
+</TD>
+</TR>
+</TABLE>
+</BODY>
+</HTML>

@@ -1,0 +1,604 @@
+<?
+function editDeviceParams($output,$dbADO) {
+/* @var $dbADO ADOConnection */
+/* @var $rs ADORecordSet */
+
+$out='';
+$dbADO->debug=false;
+$deviceID = (int)$_REQUEST['deviceID'];
+$installationID = (int)@$_SESSION['installationID'];
+
+	if (!isset($_SESSION['userLoggedIn']) || $_SESSION['userLoggedIn']!=true) {
+		header("Location: index.php?section=login&last=editDeviceParams&deviceID=$deviceID");
+		exit();
+	}
+	$query = "select 
+				FK_DeviceTemplate,FK_Device_ControlledVia,Device.Description,IPaddress,MACaddress,IgnoreOnOff ,
+				DeviceTemplate.Description as MDL_description
+					from Device 
+						Inner JOIN DeviceTemplate on FK_DeviceTemplate = PK_DeviceTemplate
+						where PK_Device = ?";
+	$res = $dbADO->Execute($query,array($deviceID));
+	
+	
+	if ($res) {
+		$row = $res->FetchRow();
+		$DeviceTemplate = $row['FK_DeviceTemplate'];	
+		$controlledVia = $row['FK_Device_ControlledVia'];
+		$description = stripslashes($row['Description']);
+		$mdlDescription = stripslashes($row['MDL_description']);
+		$ipAddress = stripslashes($row['IPaddress']);
+		$macAddress = stripslashes($row['MACaddress']);
+		$ignoreOnOff= $row['IgnoreOnOff'];
+	}
+	
+	if ($DeviceTemplate==0) {
+		header("Location: index.php?error=invalid_Device_id");
+	}
+	
+	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
+
+	if ($action == 'form') {
+	$deviceDataFromMasterDevice = "
+	SELECT 						
+						DeviceTemplate_DeviceData.FK_DeviceData
+						 FROM 
+						DeviceTemplate_DeviceData
+							WHERE (FK_DeviceTemplate='$DeviceTemplate')
+	";	
+	
+	$resDatafromMasterDevice = $dbADO->Execute($deviceDataFromMasterDevice);
+	$deviceDataToShow=array();
+	$deviceDataToShow[]=0;
+	
+	if ($resDatafromMasterDevice) {
+		while($row=$resDatafromMasterDevice->FetchRow())
+			$deviceDataToShow[]=$row['FK_DeviceData'];
+	}
+
+	$deviceData="SELECT
+						Distinct 
+						DeviceData.Description as DD_desc,
+						DeviceData.PK_DeviceData as PK_DD,
+						ParameterType.Description as PT_Desc,
+						Device_DeviceData.IK_DeviceData as IK_DeviceData
+						 FROM 
+								DeviceData 
+								INNER JOIN ParameterType on FK_ParameterType = PK_ParameterType
+								LEFT JOIN Device_DeviceData on Device_DeviceData.FK_DeviceData = DeviceData.PK_DeviceData							
+						 WHERE FK_Device = $deviceID";
+	$resDeviceData = $dbADO->_Execute($deviceData);
+	$childsNo = getChildsNo($deviceID,$dbADO);
+	$out.='
+	<script>
+			function windowOpen(locationA,attributes) {
+				window.open(locationA,\'\',attributes);
+			}
+	</script>
+	
+	
+		<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
+	
+	
+	
+		<a href="index.php?section=addMyDevice&parentID='.$deviceID.'">Create '.($deviceID==0?' Top Level ':'').'Child Device</a> &nbsp; &nbsp; &nbsp;
+
+	<a href="javascript: if (confirm(\'Are you sure you want to delete this device? '.($childsNo>0?'It has '.$childsNo.' child'.($childsNo>1?'s':''):'').'!\')) {document.location.href=\'index.php?section=deleteMyDevice&deviceID='.$deviceID.'&from=editDeviceParams\';}">Delete This Device</a>
+	<form method="post" action="index.php" name="editDeviceParams">
+	<fieldset>
+	<legend>Device Info #'.$deviceID.'</legend>
+	<table>
+	<tr><td>Description</td><td><input type="text" name="DeviceDescription" value="'.$description.'" size="40"></td></tr>
+	<tr><td>Device Template</td><td>
+	<select name="DeviceTemplate">
+	';
+	
+	$queryDeviceTemplate = "select PK_DeviceTemplate ,Description from DeviceTemplate order by Description asc";
+	$resDeviceTemplate = $dbADO->_Execute($queryDeviceTemplate);
+	$out.= '<option value="0">-please select-</option>';
+	if($resDeviceTemplate) {
+		while ($row=$resDeviceTemplate->FetchRow()) {
+			$out.='<option '.($row['PK_DeviceTemplate']==$DeviceTemplate?" selected ":'').' value="'.$row['PK_DeviceTemplate'].'">'.$row['Description'].' #'.$row['PK_DeviceTemplate'].'</option>';
+		}
+	}
+	
+	$out.='		    </select>
+					<input value="View" type="button" name="controlGoToMDL" onClick="windowOpen(\'index.php?section=editMasterDevice&model=\'+this.form.DeviceTemplate[this.form.DeviceTemplate.selectedIndex].value+\'&from=editDeviceParams\',\'width=600,height=800,toolbars=true,scrollbars=1,resizable=1\');">
+					</td>
+				</tr>
+	
+				<tr>
+					<td valign="top">This device is controlled via:</td>
+					<td>
+					';
+					$whereClause='';
+					if ($deviceID!=0) {
+						$selectMasterDeviceForParent = 'SELECT FK_DeviceTemplate FROM Device WHERE PK_Device = ? AND FK_Installation=?';
+						$resSelectMasterDeviceForParent = $dbADO->Execute($selectMasterDeviceForParent,array($deviceID,$installationID));
+						 if ($resSelectMasterDeviceForParent) {
+						 	$rowSelectMasterDeviceForParent = $resSelectMasterDeviceForParent->FetchRow();
+						 	$DeviceTemplateForParent = $rowSelectMasterDeviceForParent['FK_DeviceTemplate']; 	
+						 	
+						 	$querySelectControlledViaCategory ='SELECT FK_DeviceCategory FROM DeviceTemplate_DeviceCategory_ControlledVia where FK_DeviceTemplate = ?';
+							$resSelectControlledViaCategory = $dbADO->Execute($querySelectControlledViaCategory,array($DeviceTemplateForParent));
+						
+							$GLOBALS['childsDeviceCategoryArray'] = array();
+								if ($resSelectControlledViaCategory) {
+									while ($rowSelectControlledVia = $resSelectControlledViaCategory->FetchRow()) {
+										$GLOBALS['childsDeviceCategoryArray'][]=$rowSelectControlledVia['FK_DeviceCategory'];
+										getDeviceCategoryChildsArray($rowSelectControlledVia['FK_DeviceCategory'],$dbADO);			
+									}
+								}
+							$controlledViaCategoryArray = cleanArray($GLOBALS['childsDeviceCategoryArray']);
+							
+							$querySelectControlledViaDeviceTemplate ='SELECT  FK_DeviceTemplate_ControlledVia FROM DeviceTemplate_DeviceTemplate_ControlledVia WHERE FK_DeviceTemplate = ?';
+							$resSelectControlledViaDeviceTemplate= $dbADO->Execute($querySelectControlledViaDeviceTemplate,array($DeviceTemplateForParent));
+						
+							$childsDeviceTemplateArray = array();
+								if ($resSelectControlledViaDeviceTemplate) {
+									while ($rowSelectControlledVia = $resSelectControlledViaDeviceTemplate->FetchRow()) {
+										$childsDeviceTemplateArray[]=$rowSelectControlledVia['FK_DeviceTemplate_ControlledVia'];				
+									}
+								}
+							
+							
+							
+							if (count($controlledViaCategoryArray)>0) {
+								$whereClause.=' and (FK_DeviceCategory in ('.join(",",$controlledViaCategoryArray).')';
+								if (count($childsDeviceTemplateArray)) {
+									$whereClause.=' OR PK_DeviceTemplate in ('.join(",",$childsDeviceTemplateArray).')';
+								}
+								$whereClause.=')';
+							} else {
+								if (count($childsDeviceTemplateArray)) {
+									$whereClause.=' AND PK_DeviceTemplate in ('.join(",",$childsDeviceTemplateArray).')';
+								}
+							}
+							
+						 }						 
+					}
+						
+					$queryDeviceTemplate = "
+						SELECT DISTINCT Device.Description,Device.PK_Device
+							FROM Device 
+						INNER JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate
+							WHERE FK_Installation=? $whereClause order by Device.Description asc";
+					$resDeviceTemplate = $dbADO->Execute($queryDeviceTemplate,$installationID);
+					$DeviceTemplateTxt = '';
+					if($resDeviceTemplate) {
+						while ($row=$resDeviceTemplate->FetchRow()) {
+							$DeviceTemplateTxt.='<option value="'.$row['PK_Device'].'" '.($row['PK_Device']==$controlledVia?' selected="selected" ':'').'>'.$row['Description'].'</option>';
+						}
+					}
+
+					$out.='<select name="controlledVia">
+					<option value="0"></option>'.$DeviceTemplateTxt.'</select>';
+					
+					$out.='		
+					</td>
+				</tr>
+					
+				<tr>
+					<td>IP Address:</td>
+					<td><input name="ipAddress" value="'.$ipAddress.'"></td>
+				</tr>
+				<tr>
+					<td>Parameters:</td>
+					<td><input name="macAddress" value="'.$macAddress.'"></td>
+				</tr>
+				<tr>
+					<td>Ignore On/Off:</td>
+					<td>On:<input type="radio" value="1" name="IgnoreOnOff" '.($ignoreOnOff==1?' checked="checked" ':'').'> &nbsp; 
+						Off:<input type="radio" value="0" name="IgnoreOnOff" '.($ignoreOnOff==0?' checked="checked" ':'').'></td>
+				</tr>
+				<tr>
+					<td colspan="2" align="center"><input type="submit" name="submitX" value="Save"></td>
+				</tr>
+	</table>
+	</fieldset>
+					<br />
+	<fieldset>				
+	<legend>Device Pipes Used</legend>
+	<table>
+		<tr>
+			<td>
+				<table>
+					';
+	
+	$selectInputs = 'SELECT * FROM Input Order By Description ASC';
+	$resSelectInputs = $dbADO->Execute($selectInputs);
+	
+	$selectOutputs = 'SELECT * FROM Output Order By Description ASC';
+	$resSelectOutputs = $dbADO->Execute($selectOutputs);
+	
+	$selectPipes = 'SELECT * FROM Pipe Order By Description ASC';
+	$resSelectPipes = $dbADO->Execute($selectPipes);
+	
+	$selectPipesUsed = 'SELECT Device_Device_Pipe.*,D1.Description as Desc_From,D2.Description as Desc_To
+							 FROM Device_Device_Pipe 
+								INNER JOIN Device D1 ON D1.PK_Device = FK_Device_From
+								INNER JOIN Device D2 ON D2.PK_Device = FK_Device_To
+						WHERE FK_Device_From = ?';
+	$resSelectPipesUsed = $dbADO->Execute($selectPipesUsed,array($deviceID));
+	if ($resSelectPipesUsed) {
+		while ($rowSelectedPipesUsed = $resSelectPipesUsed->FetchRow()) {
+			$out.='<tr><td>'.$rowSelectedPipesUsed['Desc_To']." <input type='hidden' name='deviceTo_{$rowSelectedPipesUsed['FK_Device_To']}'> &nbsp;&nbsp;&nbsp;&nbsp;</td>";
+			
+			$resSelectInputs->MoveFirst();			
+			$selectInputsTxt='';
+			while ($rowSelInputs = $resSelectInputs->FetchRow()) {
+				$selectInputsTxt.= '<option '.($rowSelInputs['PK_Input']==$rowSelectedPipesUsed['FK_Input']?" selected='selected' ":"").' value="'.$rowSelInputs['PK_Input'].'">'.$rowSelInputs['Description'].'</option>';
+			}
+			
+			$out.='<td> Input on '.$rowSelectedPipesUsed['Desc_To'].' <select name="input_'.$rowSelectedPipesUsed['FK_Device_To'].'"><option value="0">-please select-</option>'.$selectInputsTxt.'</select></td>';
+			
+			$resSelectOutputs->MoveFirst();			
+			$selectOutputsTxt='';
+			while ($rowSelOutputs = $resSelectOutputs->FetchRow()) {
+				$selectOutputsTxt.= '<option '.($rowSelOutputs['PK_Output']==$rowSelectedPipesUsed['FK_Output']?" selected='selected' ":"").' value="'.$rowSelOutputs['PK_Output'].'">'.$rowSelOutputs['Description'].'</option>';
+			}
+			
+			$out.='<td> Output on '.$rowSelectedPipesUsed['Desc_From'].' <select name="output_'.$rowSelectedPipesUsed['FK_Device_To'].'"><option value="0">-please select-</option>'.$selectOutputsTxt.'</select></td>';
+			
+
+			$resSelectPipes->MoveFirst();			
+			$selectPipesTxt='';
+			while ($rowSelPipes = $resSelectPipes->FetchRow()) {
+				$selectPipesTxt.= '<option '.($rowSelPipes['PK_Pipe']==$rowSelectedPipesUsed['FK_Pipe']?" selected='selected' ":"").' value="'.$rowSelPipes['PK_Pipe'].'">'.$rowSelPipes['Description'].'</option>';
+			}
+			
+			$out.='<td> Pipe <select name="pipe_'.$rowSelectedPipesUsed['FK_Device_To'].'"><option value="0">-please select-</option>'.$selectPipesTxt.'</select></td>';
+			$out.='<td><input value="Delete" type="button" onClick="if (confirm(\'Are you sure you want to delete this pipe?\')) {windowOpen(\'index.php?section=deleteDevicePipeFromDevice&deviceFromID='.$rowSelectedPipesUsed['FK_Device_From'].'&deviceToID='.$rowSelectedPipesUsed['FK_Device_To'].'&from=editDeviceParams\',\'width=100,height=100,toolbars=true,scrollbars=1,resizable=1\');}"></td>';
+			
+			$out.='</tr>';
+		}
+	}
+	
+	$out.='
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<select name="addDeviceForPiping">
+					<option value="0">-please select-</option>
+					';
+			
+				$querySelectDevice = "SELECT Description,PK_Device FROM Device Where FK_Installation = ? Order By Description ASC";
+				$resSelectDevice = $dbADO->Execute($querySelectDevice,array($installationID));
+				 if ($resSelectDevice) {
+				 	while ($rowSelectDevice = $resSelectDevice->FetchRow()) {
+				 		$out.='<option value="'.$rowSelectDevice['PK_Device'].'">'.$rowSelectDevice['Description'].'</option>'."\n";
+				 	}
+				 }
+			$out.='
+				</select> <input type="submit" name="submitX" value="Add">
+			</td>
+		</tr>
+	    <tr><td><input type="submit" name="submitX" value="Save"></td></tr>
+	</table>
+	</fieldset>
+
+	<br />
+	<fieldset>				
+	<legend>Member Of Group</legend>
+	
+	<table>				';
+
+	$selectDeviceGroups = 'SELECT DeviceGroup.Description,Device.PK_Device,DeviceGroup.PK_DeviceGroup FROM 
+		Device_DeviceGroup			
+			INNER JOIN Device ON FK_Device = PK_Device
+			INNER JOIN DeviceGroup ON FK_DeviceGroup = PK_DeviceGroup
+		WHERE Device_DeviceGroup.FK_Device = ?
+	';
+	$resDevicesGroups = $dbADO->Execute($selectDeviceGroups,array($deviceID));
+	
+	$deviceGroups = array();
+	
+	$deviceGroups[]=0;
+	if ($resDevicesGroups) {	
+		if ($resDevicesGroups->RecordCount()==0){
+			$out.='<tr><td colspan="2">No groups for device</a></td></tr>';
+		} 
+			
+		while ($rowDevicesGroup = $resDevicesGroups->FetchRow()) {
+			$out.="<tr>
+					<td>".$rowDevicesGroup['Description']."</td>					
+					<td>
+						<input value='Delete' type='button' onClick=\"if (confirm('Are you sure you want to delete this device from the group?')) {windowOpen('index.php?section=deleteDeviceFromDeviceGroup&deviceID=$deviceID&deviceGroupID=".$rowDevicesGroup['PK_DeviceGroup']."&from=editDeviceParams','width=200,height=200,toolbars=true,scrollbars=1,resizable=1');}\">
+					</td>
+				  </tr>";
+			$deviceGroups[]=$rowDevicesGroup['PK_DeviceGroup'];
+		}
+	}
+					
+	$selectRemainingGroups = "SELECT Description,PK_DeviceGroup from DeviceGroup where FK_Installation = ? and PK_DeviceGroup not in (".join(",",$deviceGroups).") order by Description ASC";
+	$resRemainingGroups = $dbADO->Execute($selectRemainingGroups,array($installationID));
+	
+	$remainingGroups = '<option value="0">-please select-</option>';
+	if ($resRemainingGroups) {
+		while ($rowRemainingGroups = $resRemainingGroups->FetchRow()) {
+			$remainingGroups.='<option value="'.$rowRemainingGroups['PK_DeviceGroup'].'">'.$rowRemainingGroups['Description'].'</option>';
+		}
+	}
+	$out.='
+	
+	<tr><td><select name="addNewGroup">'.$remainingGroups.'</select></td><td><input type="submit" name="submitX" value="Add"></td></tr>		
+	<tr><td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createDeviceGroup&deviceID='.$deviceID.'&from=editDeviceParams\',\'width=400,height=400,toolbars=true,scrollbars=1,resizable=1\');">Create new device group</a></td></tr>
+	
+		<tr><td colspan="2"><input type="submit" name="submitX" value="Save"></td></tr>
+	</table>
+	</fieldset>
+	<fieldset>
+	<br />
+	<legend>Related Devices</legend>
+					
+	<table>
+	';
+	$selectRelatedDevices = 'SELECT Device_Device_Related.Value,FK_Device_Related,Device.Description,DeviceTemplate.Description as  DT_Desc FROM 
+		Device_Device_Related 			
+			INNER JOIN Device ON FK_Device_Related = PK_Device
+			INNER JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate
+		WHERE FK_Device = ?
+	';
+	$resRelatedDevices = $dbADO->Execute($selectRelatedDevices,array($deviceID));
+	
+	$deviceRelatedData = array();
+	$deviceRelatedData[]=0;
+	if ($resRelatedDevices) {	
+		if ($resRelatedDevices->RecordCount()==0){
+			$out.='<tr><td colspan="2">No related devices</a></td></tr>';
+		} 
+			
+		while ($rowRelatedDevice = $resRelatedDevices->FetchRow()) {
+			$out.="<tr>
+					<td>".$rowRelatedDevice['Description']." ({$rowRelatedDevice['DT_Desc']}) #".$rowRelatedDevice['FK_Device_Related']."</td><td>
+						<input type=\"text\" name=\"relatedDeviceValue_".$rowRelatedDevice['FK_Device_Related']."\" value=\"".stripslashes($rowRelatedDevice['Value'])."\">
+					</td>
+					<td>
+						<input value='Delete' type='button' onClick=\"if (confirm('Are you sure you want to delete this device?')) {windowOpen('index.php?section=deleteDeviceRelatedFromDeviceParams&deviceID=$deviceID&relatedID=".$rowRelatedDevice['FK_Device_Related']."&from=editDeviceParams','width=200,height=200,toolbars=true,scrollbars=1,resizable=1');}\">
+					</td>
+				  </tr>";
+			$deviceRelatedData[]=$rowRelatedDevice['FK_Device_Related'];
+		}
+	}
+	
+	$selectAddNewRelatedDevices = "SELECT Device.Description,PK_Device,DeviceTemplate.Description as DT_Desc FROM Device 
+		INNER JOIN DeviceTemplate ON FK_DeviceTemplate = PK_DeviceTemplate
+		WHERE FK_Installation = ? and PK_Device != ? 
+		AND PK_Device NOT IN (".join(",",$deviceRelatedData).") ORDER BY Description ASC";
+	
+	$resAddNewRelatedDevices = $dbADO->Execute($selectAddNewRelatedDevices,array($installationID,$deviceID));
+	$newDeviceRelated='<option value="0">-please select-</option>';
+	if ($resAddNewRelatedDevices) {
+		while ($rowAddNewRelatedDevices = $resAddNewRelatedDevices->FetchRow()) {
+			$newDeviceRelated.='<option value="'.$rowAddNewRelatedDevices['PK_Device'].'">'.$rowAddNewRelatedDevices['Description'].'('.$rowAddNewRelatedDevices['DT_Desc'].')</option>';
+		}
+	}
+	$out.='
+		
+		<tr><td><select name="addNewDeviceRelated">'.$newDeviceRelated.'</select></td><td><input type="submit" name="submitX" value="Add"></td></tr>
+	
+		<input type="hidden" name="selectedRelatedDevice" value="'.(join(",",$deviceRelatedData)).'">
+		<tr><td colspan="2"><input type="submit" name="submitX" value="Save"></td></tr>
+	</table>	
+	</fieldset>
+	
+	<br />
+	<fieldset>
+		<legend>Device Data</legend>
+	
+		
+			<input type="hidden" value="editDeviceParams" name="section">
+			<input type="hidden" value="add" name="action">
+			<input type="hidden" value="'.$deviceID.'" name="deviceID">			
+	<table>
+	';
+	$deviceData = array();
+	$deviceData[]=0;
+	if ($resDeviceData) {	
+		if ($resDeviceData->RecordCount()==0){
+			$out.='<tr><td colspan="2">No device data</a></td></tr>';
+		} 
+			
+		while ($rowDevicedata = $resDeviceData->FetchRow()) {
+			$out.="<tr><td>{$rowDevicedata['DD_desc']}({$rowDevicedata['PT_Desc']})</td><td><input type=\"text\" name=\"deviceData_".$rowDevicedata['PK_DD']."\" value=\"".stripslashes($rowDevicedata['IK_DeviceData'])."\"></td></tr>";
+			$deviceData[]=$rowDevicedata['PK_DD'];
+		}
+	}
+	
+		$validOrbiters=getValidOrbitersArray($installationID,$dbADO);
+		$validComputers=getValidComputersArray($installationID,$dbADO);
+	
+	$out.=(($resDeviceData && $resDeviceData->RecordCount()>0)?'
+		<input type="hidden" name="selectedData" value="'.(join(",",$deviceData)).'">
+		<tr><td><input type="submit" name="submitX" value="Save"></td></tr>
+	':'').'	
+	</table>
+	</fieldset>
+	</form>
+	<script>
+		 	var frmvalidator = new formValidator("editDeviceParams");
+ 			frmvalidator.addValidation("DeviceDescription","req","Please enter a description");
+			frmvalidator.addValidation("DeviceTemplate","dontselect=0","Please select a master device!");			
+		</script>
+	
+	<br />
+	'.(in_array($deviceID,$validOrbiters)?'<a href="index.php?section=orbiters&deviceID='.$deviceID.'">Go to Orbiters</a>':'').'
+	'.((in_array($deviceID,$validOrbiters)|| in_array($deviceID,$validComputers))?'<a href="index.php?section=configureStartupSequence&deviceID='.$deviceID.'">Configure Startup Sequence</a> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=confirmPackages&deviceID='.$deviceID.'&from=editDeviceParams&DeviceTemplate='.$DeviceTemplate.'\',\'width=800,height=500,toolbars=true,scrollbars=1,resizable=1\');">Confirm packages</a>':'');
+	
+	
+	} else {
+		
+		//check if current user canModifyInstallation
+		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
+	
+	if ($canModifyInstallation) {
+		
+		$description = cleanString($_POST['DeviceDescription']);
+		$ipAddress = cleanString($_POST['ipAddress']);
+		$macAddress = cleanString($_POST['macAddress']);
+		$ignoreOnOff = cleanInteger($_POST['IgnoreOnOff']);
+		$DeviceTemplate = cleanInteger($_POST['DeviceTemplate']);
+		$controlledVia = cleanInteger($_POST['controlledVia']);
+		
+		$addNewDeviceRelated = (int)$_POST['addNewDeviceRelated'];
+		if ($addNewDeviceRelated!=0) {
+			$queryInsertDeviceRelated = 'INSERT INTO Device_Device_Related 
+			(FK_Device,FK_Device_Related)
+		values(?,?)
+			';
+			$res=$dbADO->Execute($queryInsertDeviceRelated,array($deviceID,$addNewDeviceRelated));			
+		}
+		
+		$addNewGroup = (int)$_POST['addNewGroup'];
+		if ($addNewGroup!=0) {
+			$queryInsertDeviceGroup = 'INSERT INTO Device_DeviceGroup
+			(FK_Device,FK_DeviceGroup)
+		values(?,?)
+			';
+			$res=$dbADO->Execute($queryInsertDeviceGroup,array($deviceID,$addNewGroup));			
+		}
+		
+		
+		$selectedRelatedDevices = $_POST['selectedRelatedDevice'];
+		$selectedRelatedDevicesArray = explode(",",$selectedRelatedDevices);
+		foreach ($selectedRelatedDevicesArray as $selectedRelatedDev) {
+			$selectOldValueQuery = "SELECT IK_DeviceData From Device_Device_Related WHERE FK_Device = ? AND  FK_Device_Related = ?";
+			$selectOldValueRes = $dbADO->Execute($selectOldValueQuery,array($deviceID,$selectedRelatedDev));
+			$selectOldValueRow = array();
+			 if ($selectOldValueRes) {
+			 	$selectOldValueRow = $selectOldValueRes->FetchRow();			 	
+			 }
+			$valueRelatedDevice = cleanString(@$_POST["relatedDeviceValue_".$selectedRelatedDev]);
+			if ($valueRelatedDevice!=$selectOldValueRow) {
+				$updateQuery = 'UPDATE Device_Device_Related SET IK_DeviceData = ? WHERE FK_Device = ? AND FK_Device_Related = ?';
+				$resUpdate = $dbADO->Execute($updateQuery,array($valueRelatedDevice,$deviceID,$selectedRelatedDev));
+			}
+		}
+
+		// save the Device Data values
+		$selectedDate = cleanString(@$_POST['selectedData']);
+		$selectedDateArray = explode(",",$selectedDate);
+		if (!is_array($selectedDateArray)) {$selectedDateArray=array();$selectedDateArray[]=0;}
+
+		foreach ($selectedDateArray as $elem) {
+			$value = cleanString(@$_POST['deviceData_'.$elem]);
+			if ($value!='') {
+				$checkIfExists = "select IK_DeviceData from Device_DeviceData where FK_Device = ? and FK_DeviceData = ?";
+				$res = $dbADO->Execute($checkIfExists,array($deviceID,$elem));
+				if ($res && $res->RecordCount()==1) {
+					
+					$query = "update Device_DeviceData set IK_DeviceData = ? where  FK_Device = ? and FK_DeviceData = ?";
+					$rs=$dbADO->Execute($query,array($value,$deviceID,$elem));	
+				} else {
+					if ($elem!=0) {
+						$query = "insert into Device_DeviceData  (IK_DeviceData,FK_Device,FK_DeviceData) values(?,?,?)";
+						$rs=$dbADO->Execute($query,array($value,$deviceID,$elem));
+						
+					}
+				}				
+			}
+		}		
+		if (trim($description)!='' && $DeviceTemplate!=0) {		
+			$selectOldValues = 'SELECT * FROM Device where PK_Device = ?';	
+			$resOldValues = $dbADO->Execute($selectOldValues,array($deviceID));
+				if ($resOldValues) {
+					$rowOldValues = $resOldValues->FetchRow();
+					$old_description = cleanString($rowOldValues['Description']);
+					$old_DeviceTemplate = cleanInteger($rowOldValues['FK_DeviceTemplate']);
+						//check if master device list ischanged. if yes, delete the data values
+						if ($old_DeviceTemplate!=$DeviceTemplate) {
+							$queryDelete = "DELETE FROM Device_DeviceData WHERE FK_Device = ?";
+							$res = $dbADO->Execute($queryDelete,array($deviceID));
+							
+							$selectDeviceDatafromTemplate = 'SELECT FK_DeviceData, IK_DeviceData FROM DeviceTemplate_DeviceData WHERE FK_DeviceTemplate = ?';
+							$resDeviceDatafromTemplate = $dbADO->Execute($selectDeviceDatafromTemplate,array($DeviceTemplate));
+							if ($resDeviceDatafromTemplate) {
+								while($rowSelectDeviceDatafromTemplate = $resDeviceDatafromTemplate->FetchRow()){
+									$queryInsertDevice = "insert into Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData)
+															values(?,?,?)";
+									$dbADO->Execute($queryInsertDevice,array($deviceID,$rowSelectDeviceDatafromTemplate['FK_DeviceData'],$rowSelectDeviceDatafromTemplate['IK_DeviceData']));
+								}
+							}
+						}
+				}
+				
+			$query = "UPDATE Device SET Description=?,IPaddress=?,MACaddress=?,IgnoreOnOff=?,FK_DeviceTemplate=?,FK_Device_ControlledVia=? WHERE PK_Device = ?";
+			$dbADO->Execute($query,array($description,$ipAddress,$macAddress,$ignoreOnOff,$DeviceTemplate,$controlledVia,$deviceID));
+		}
+		
+			
+		//pipes
+		$addDeviceForPiping = cleanInteger(@$_POST['addDeviceForPiping']);
+		if ($addDeviceForPiping!=0) {
+			$insertDevicePipe  = "INSERT INTO Device_Device_Pipe (FK_Device_From,FK_Device_To) VALUES(?,?)";
+			$res=$dbADO->Execute($insertDevicePipe,array($deviceID,$addDeviceForPiping));
+		}
+		
+		$selectPipesUsed = 'SELECT Device_Device_Pipe.*,D1.Description as Desc_From,D2.Description as Desc_To
+							 FROM Device_Device_Pipe 
+								INNER JOIN Device D1 ON D1.PK_Device = FK_Device_From
+								INNER JOIN Device D2 ON D2.PK_Device = FK_Device_To
+						WHERE FK_Device_From = ?';
+		$resSelectPipesUsed = $dbADO->Execute($selectPipesUsed,array($deviceID));
+		
+		while ($rowSelectedPipesUsed = $resSelectPipesUsed->FetchRow()) {	
+			$input=cleanInteger(@$_POST['input_'.$rowSelectedPipesUsed['FK_Device_To']]);
+			$output=cleanInteger(@$_POST['output_'.$rowSelectedPipesUsed['FK_Device_To']]);
+			$pipe=cleanInteger(@$_POST['pipe_'.$rowSelectedPipesUsed['FK_Device_To']]);
+			$deviceTo=$rowSelectedPipesUsed['FK_Device_To'];
+				$updateDevicePipe = 'UPDATE Device_Device_Pipe SET FK_Input=?,FK_Output=?,FK_Pipe=? WHERE FK_Device_From = ? AND FK_Device_To = ? ';
+				$res=$dbADO->Execute($updateDevicePipe,array($input,$output,$pipe,$deviceID,$deviceTo));
+		}
+	
+		header("Location: index.php?section=editDeviceParams&deviceID=$deviceID&data=saved");
+	} else {
+			$out = 'You are not allowed to do that!<a href="javascript:window.close();">Close</a>';
+	}
+}
+
+
+$parentsForMenu = getMyDeviceParents($deviceID,$dbADO);
+$parentsForMenuArray = explode("**&&**",$parentsForMenu);
+$parentsForMenuArray=array_reverse($parentsForMenuArray);
+$navMenuString = array();
+
+$navMenuString[]=('My Devices:!:index.php?section=myDevices');
+
+
+foreach ($parentsForMenuArray as $parent) {
+	$parentArray = explode("||&&||",$parent);
+	if (count($parentArray)==2)
+		$navMenuString[]=($parentArray[1].':!:index.php?section=editDeviceParams&deviceID='.$parentArray[0]);	
+}
+
+
+eval("\$c=array(\$navMenuString);");
+	
+$output->setNavigationMenu($c);
+$output->setBody($out);
+$output->setTitle(APPLICATION_NAME);			
+$output->output();  		
+}
+
+function getMyDeviceParents($childID,$dbADO) {
+	//$dbADO->debug=true;
+	$stringResult = '';
+	
+	if ($childID!=0) {
+		$queryGP = "select FK_Device_ControlledVia,Description,PK_Device from Device where PK_Device = $childID order by Description Asc";
+		$resGP = $dbADO->Execute($queryGP);
+		
+		if ($resGP) {
+			while ($row=$resGP->FetchRow()) {				
+					$stringResult.= $row['PK_Device'].'||&&||'.$row['Description'].'**&&**';
+					$stringResult.= getMyDeviceParents($row['FK_Device_ControlledVia'],$dbADO);
+			}
+		}	
+	}
+	
+	return $stringResult;
+}
+
+?>

@@ -1,0 +1,110 @@
+<!--
+ * FCKeditor - The text editor for internet
+ * Copyright (C) 2003 Frederico Caldeira Knabben
+ *
+ * Licensed under the terms of the GNU Lesser General Public License
+ * (http://www.opensource.org/licenses/lgpl-license.php)
+ *
+ * For further information go to http://www.fredck.com/FCKeditor/ 
+ * or contact fckeditor@fredck.com.
+ *
+ * fck_universalkey.html: Unicode Keyboard dialog box.
+ *
+ * Authors:
+ *   Abdul-Aziz Al-Oraij (top7up@hotmail.com)
+ *   Michel STAELENS
+ *   Bernadette CIERZNIAK
+-->
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<link rel="stylesheet" type="text/css" href="../css/fck_dialog.css" />
+		<style>
+BODY,TEXTAREA,INPUT,TD,SELECT {
+	FONT-FAMILY: Tahoma,verdana,arial,sans-serif
+}
+DIV {
+	POSITION: absolute
+}
+.simple {
+	FONT-SIZE: 11pt
+}
+.double {
+	FONT-SIZE: 9pt
+}
+.simpledia {
+	COLOR: red; FONT-SIZE: 11pt
+}
+.doubledia {
+	COLOR: red; FONT-SIZE: 9pt
+}
+.action {
+	COLOR: white; FONT-SIZE: 7pt
+}
+.clavier {
+	COLOR: blue; FONT-SIZE: 7pt
+}
+.sign {
+	COLOR: gray; FONT-SIZE: 7pt
+}
+		</style>
+		<script language="javascript">
+<!--
+document.write("<title>" + dialogArguments.AvailableLangs.GetEntry( "DlgUniversalKeyTitle", "Universal Keyboard" ) + "</title>") ;
+
+var oSample ;
+
+function CloseWindow()
+{
+	window.returnValue = null ;
+	window.close() ;
+}
+
+function insertValue(code) {
+		//opener.doc.focus();
+		//var sel = opener.document.selection.createRange();
+		//sel.pasteHTML(code);
+		window.returnValue=code;
+		window.close();
+	}
+
+function cancel(){
+	CloseWindow()
+}
+
+function ok(){
+	var obj = MM_findObj('uni_area');	if (obj) insertValue(obj.value)
+}
+
+function setDefaults()
+{
+//	var obj = MM_findObj('uni_area'); if (obj) obj.dir = dialogArguments.lang["ltr"];
+
+	// First of all, translate the dialog box texts
+	dialogArguments.AvailableLangs.TranslatePage(document) ;
+}
+function MM_findObj(n, d) { //v4.0
+  var p,i,x;  if(!d) d=document; if((p=n.indexOf("?"))>0&&parent.frames.length) {
+    d=parent.frames[n.substring(p+1)].document; n=n.substring(0,p);}
+  if(!(x=d[n])&&d.all) x=d.all[n]; for (i=0;!x&&i<d.forms.length;i++) x=d.forms[i][n];
+  for(i=0;!x&&d.layers&&i<d.layers.length;i++) x=MM_findObj(n,d.layers[i].document);
+  if(!x && document.getElementById) x=document.getElementById(n); return x;
+}
+
+document.onkeydown = function ()
+{
+	switch ( event.keyCode )
+	{
+		case 27 : cancel() ;	break ;	// ESC
+	}
+}
+//-->
+		</script>
+	</head>
+	<body bottommargin="0" leftmargin="0" topmargin="0" rightmargin="0" onload="setDefaults()">
+		<script language="javascript" src="fck_universalkey/data.js"></script>
+		<script language="javascript" src="fck_universalkey/diacritic.js"></script>
+		<script language="javascript" src="fck_universalkey/dialogue.js"></script>
+		<script language="javascript" src="fck_universalkey/multihexa.js"></script>
+	</body>
+</html>

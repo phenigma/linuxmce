@@ -1,0 +1,45 @@
+<pluto>
+<menu name="PLUTO VIP BENEFITS" address="#">
+	<content label="Security" address="index.php?section=security" />
+	<content label="Telecom" address="index.php?section=telecom" />
+	<content label="Home Automation" address="index.php?section=home_automation" />
+	<content label="Media &amp; Entertainment" address="index.php?section=media_entertainment" />
+	<content label="Personal Computing" address="index.php?section=personal_computing" />
+	<content label="Benefits Comparison" address="index.php?section=benefits_comparison" />
+</menu>
+<menu name="HOW PLUTO VIP WORKS" address="#">
+	<content label="How Pluto's ''follow-me'' works" address="index.php?section=follow_me_works" />
+	<content label="How to use the Mobile Phone" address="index.php?section=use_mobile_phone" />
+	<content label="How to search for media" address="index.php?section=search_media" />
+	<content label="How to use the DVD remote" address="index.php?section=dvd_remote" />
+	<content label="How to use the TV remote" address="index.php?section=tv_remote" />
+	<content label="How to manage your house" address="index.php?section=manage_house" />
+	<content label="How to handle a security event" address="index.php?section=handle_security" />
+	<content label="How to manage a call in progress" address="index.php?section=manage_call" />
+	<content label="What house maps look like" address="index.php?section=maps" />
+</menu>
+<menu name="PLUTO VIP SUPPORT" address="#">
+	<content label="Equipment Overview" address="index.php?section=equipment_overview" />
+	<content label="Core" address="index.php?section=core" />
+	<content label="Media Director" address="index.php?section=media_director" />
+	<content label="Orbiter" address="index.php?section=orbiter" />
+	<content label="Mobile orbiter" address="index.php?section=mobile_orbiter" />
+	<content label="Accessories" address="index.php?section=accesories" />
+	<content label="Software" address="index.php?section=software" />
+	<content label="Special offer" address="index.php?section=special_offer" />
+</menu>
+<menu name="HOW TO GET PLUTO VIP" address="#">
+	<content label="Simplicity and Easy to Use" address="index.php?section=simplicity" />
+	<content label="Benefits not possible without Pluto" address="index.php?section=benefits" />
+	<content label="Reliability" address="index.php?section=reliability" />
+	<content label="Cost" address="index.php?section=cost" />
+	<content label="Future Proof: Updateable, open standards" address="index.php?section=future" />
+</menu>
+<menu name="COMPANY" address="#">
+	<content label="Company Overview" address="index.php?section=company" />
+	<content label="Contact Us" address="index.php?section=contact" />
+	<content label="News" address="index.php?section=newsPresentation" />
+    <content label="Privacy Policy" address="index.php?section=privacy_policy" />
+	<content label="Site Map" address="index.php?section=site_map" />
+</menu>
+</pluto>

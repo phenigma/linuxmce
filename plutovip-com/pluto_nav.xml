@@ -1,0 +1,25 @@
+<pluto>
+<menu name="PLUTO VIP BENEFITS" address="#">
+	<content label="For Individuals" address="index.php?section=individuals" />
+	<content label="For Businesses" address="index.php?section=businesses" />
+</menu>
+<menu name="HOW PLUTO VIP WORKS" address="index.php?section=how_pluto_vip_works">
+</menu>
+<menu name="PLUTO VIP SUPPORT" address="#">
+	<content label="Download" address="index.php?section=download" />
+	<content label="Compatibility" address="index.php?section=compatibility" />
+	<content label="Technical Support" address="index.php?section=technical_support" />
+	<content label="Faqs" address="index.php?section=faq_presentation" />
+</menu>
+<menu name="HOW TO GET PLUTO VIP" address="#">
+	<content label="I'm an Individual" address="index.php?section=individual" />
+	<content label="I'm a Business" address="index.php?section=business" />
+	<content label="I'm a Manufacturer" address="index.php?section=im_manufacturer" />
+</menu>
+<menu name="COMPANY" address="#">
+	<content label="Company Overview" address="index.php?section=company" />
+	<content label="Contact Us" address="index.php?section=contact" />
+	<content label="News" address="index.php?section=newsPresentation" />
+    <content label="Privacy Policy" address="index.php?section=privacy_policy" />
+</menu>
+</pluto>

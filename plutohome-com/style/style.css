@@ -1,0 +1,113 @@
+body {
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-size: 12px;
+	color: #36456E;
+}
+.err {
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-size: 12px;
+	color: red;
+}			 
+a {
+	text-decoration: none;
+	color: #009934;
+}
+
+a:hover {
+	text-decoration: underline;
+	color: #009934;
+}
+
+.maintable {
+   font-family: Arial, Verdana, Helvetica, sans-serif;
+   font-size: 12px;
+   color: #36456E;
+
+   border-top: 1px solid #808EA8;
+   border-left: 1px solid #808EA8;
+   border-right: 1px solid #808EA8;
+}
+
+.insidetable {
+   font-family: Arial, Verdana, Helvetica, sans-serif;
+   font-size: 12px;
+   color: #36456E;
+   padding-top: 20px;
+   padding-bottom: 20px;
+   padding-left: 20px;
+   padding-right: 20px;  
+}
+
+.normaltext {
+   font-family: Arial, Verdana, Helvetica, sans-serif;
+   font-size: 12px;
+   color: #36456E;
+}
+.titletable {
+   font-family: Arial, Verdana, Helvetica, sans-serif;
+   font-size: 12px;
+   color: #36456E;
+   padding-top: 20px;
+   padding-left: 20px;
+   padding-top: 20px;
+   padding-left: 20px;
+}
+
+.ftable {
+   font-family: Arial, Verdana, Helvetica, sans-serif;
+   font-size: 12px;
+   color: #6E7B9B;
+   font-weight: bold;
+}
+
+.text {
+   font-family: Arial, Verdana, Helvetica, sans-serif;
+   font-size: 12px;
+   color: #36456E;
+}
+
+.news {
+   font-family: Arial, Verdana, Helvetica, sans-serif;
+   font-size: 12px;
+   color: #000000;
+   padding-top: 10px;
+   padding-left: 10px;
+   padding-top: 10px;
+   padding-left: 10px;
+}
+
+.newstitle {
+   font-family: Arial, Verdana, Helvetica, sans-serif;
+   font-size: 12px;
+   color: #19386E;
+}
+
+.newstitle:link {
+   font-family: Arial, Verdana, Helvetica, sans-serif;
+   font-size: 12px;
+   color: #19386E;
+}
+
+.newstitle:hover {
+   font-family: Arial, Verdana, Helvetica, sans-serif;
+   font-size: 12px;
+   color: #000000;
+}
+
+.counter {
+   font-family: Arial, Verdana, Helvetica, sans-serif;
+   font-size: 12px;
+   color: #36456E;
+   padding-bottom: 5px;
+   padding-left: 10px;
+   padding-right: 10px;
+}
+.search {
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-size: 11px;
+	color: #36456E;
+	background: #F2F3F7;
+	border: 1px solid #005F1F;
+	height: 15px;
+	background-image: url(images/backgound_search.jpg);
+}

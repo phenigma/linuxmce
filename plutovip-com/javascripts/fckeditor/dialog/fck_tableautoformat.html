@@ -1,0 +1,395 @@
+<!--
+ * FCKeditor - The text editor for internet
+ * Copyright (C) 2003-2004 Frederico Caldeira Knabben
+ *
+ * Licensed under the terms of the GNU Lesser General Public License
+ * (http://www.opensource.org/licenses/lgpl-license.php)
+ *
+ * For further information go to http://www.fredck.com/FCKeditor/ 
+ * or contact fckeditor@fredck.com.
+ *
+ * fck_tableautoformat.html: Table Auto Format dialog box.
+ *
+ * Authors:
+ *		Alexandros Lezos
+ *		Frederico Caldeira Knabben (fckeditor@fredck.com)
+-->
+<html>
+	<head>
+		<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+		<link rel="stylesheet" type="text/css" href="../css/fck_dialog.css">
+		<script language="javascript" src="../js/dhtmled.js"></script>
+		<script language="javascript" src="../js/fck_events.js"></script>
+		<script language="javascript" src="../js/fck_toolbar.js"></script>
+
+		<script language="javascript">
+<!--
+
+// Gets the document DOM
+var oDOM = dialogArguments.objContent.DOM ;
+
+// Gets the table if there is one selected.
+var table ;
+var firstrow ;
+var lastrow ;
+var firstcolumn ;
+var lastcolumn ;
+var tablecell;
+
+
+var sel = oDOM.selection.createRange();
+if (oDOM.selection.type != 'Text') 
+{
+	if (sel.length == 1) 
+	{
+		if (sel.item(0).tagName == "TABLE") 
+			table = sel.item(0);
+	}
+}
+
+document.write("<TITLE>" + dialogArguments.AvailableLangs.GetEntry( "DlgAutoFormatWindowTitle", "Table Auto Format" ) + "</TITLE>");
+
+function setDefaults()
+{
+	// First of all, translate the dialog box texts
+	dialogArguments.AvailableLangs.TranslatePage(document) ;
+	
+	if (table)
+	{
+		cmbTableStyle.value	= table.className;
+//		cmbFirstRowStyle.value	= table.className;
+//		cmbFirstColumnStyle.value	= table.className;
+//		cmbLastRowStyle.value	= table.className;
+//		cmbLastColumnStyle.value	= table.className;
+	}
+}
+
+function getSelectionList()
+{
+	var oParent ;
+	var oRange ;
+	
+	if (oDOM.selection.type == "Control")
+	{
+		oRange = oDOM.selection.createRange() ;
+		for ( i = 0 ; i < oRange.length ; i++ )
+		{
+			if (oRange(i).parentNode)
+			{
+				oParent = oRange(i).parentNode ;
+				break ;
+			}
+		}
+	}
+	else
+	{
+		oRange  = oDOM.selection.createRange() ;
+		oParent = oRange.parentElement() ;
+	}
+
+	while (oParent && oParent.nodeName != "UL")
+	{
+		oParent = oParent.parentNode ;
+	}
+
+	if (oParent && oParent.nodeName == "UL")
+	{
+		oDOM.selection.empty() ;
+		oRange = oDOM.selection.createRange() ;
+		oRange.moveToElementText( oParent ) ;
+		oRange.select() ;
+		
+		return oParent ;
+	}
+	else
+		return null ;
+}
+
+function ok()
+{
+	table.removeAttribute("style");
+	table.setAttribute("cellPadding", "2");
+	table.setAttribute("cellSpacing", "1");
+	table.setAttribute("border", "0");
+	if (cmbTableStyle.value	!= "") table.className	= cmbTableStyle.value		; else table.removeAttribute("className") ;
+	formatRows(table);
+	cancel() ;
+}
+
+function formatRows(table)
+{
+	var rows=table.rows;
+	for(var i=0 ; i < rows.length ; i++ )
+	{
+		rows[i].removeAttribute("className");
+		rows[i].removeAttribute("style");
+		rows[i].className = cmbTableStyle.value + (((i % 2) == 0) ? "odd" : "even" );
+
+		//	first row in the table
+		if( i == 0 )
+		{
+			formatCells(rows[i], i);
+			continue;
+		}
+		
+		// last row in the table
+		if( i == (rows.length - 1))
+		{
+			formatCells(rows[i], -1);
+			continue;
+		}
+
+		formatCells(rows[i], i);
+	}
+	rows = null;
+}
+
+function formatCells(row, rowIndex)
+{
+	var cells = row.cells;
+	for(var j=0 ; j < cells.length ; j++ )
+	{
+		//	top - left corner
+		if( (j == 0) && (rowIndex == 0) )
+		{
+			if ( cmbTableStyle.value	!= "" )
+			{
+				cells[j].className	= cmbTableStyle.value + "topleft" ;
+//				cells[j].innerText = cmbTableStyle.value + "topleft" ;
+			
+			}
+			else
+			{
+				cells[j].removeAttribute("className") ;
+	//			cells[j].innerText = "";
+			}
+			continue;
+		}
+
+		//	top - right corner
+		if( (j == (cells.length - 1)) && (rowIndex == 0) )
+		{
+			if ( cmbTableStyle.value	!= "" )
+			{
+				cells[j].className	= cmbTableStyle.value + "topright" ;
+//				cells[j].innerText = cmbTableStyle.value + "topright" ;
+			}
+			else
+			{
+				cells[j].removeAttribute("className") ;
+	//			cells[j].innerText = "";
+			}
+			continue;
+		}
+
+		//	first row exept corners
+		if( rowIndex == 0 )
+		{
+			if (cmbTableStyle.value	!= "")
+			{
+				cells[j].className	= cmbTableStyle.value + "topcenter";
+//				cells[j].innerText = cmbTableStyle.value + "topcenter" ;
+			}
+			else
+			{
+				cells[j].removeAttribute("className") ;
+	//			cells[j].innerText = "";
+			}
+			continue;
+		}
+
+		//	bottom - left corner
+		if( (j == 0) && (rowIndex == -1) )
+		{
+			if ( cmbTableStyle.value	!= "" )
+			{
+				cells[j].className	= cmbTableStyle.value + "bottomleft" ;
+//				cells[j].innerText = cmbTableStyle.value + "bottomleft" ;
+			}
+			else
+			{
+				cells[j].removeAttribute("className") ;
+	//			cells[j].innerText = "";
+			}
+			continue;
+		}
+
+		//	bottom - right corner
+		if( (j == (cells.length - 1)) && (rowIndex == -1) )
+		{
+			if ( cmbTableStyle.value	!= "" )
+			{
+				cells[j].className	= cmbTableStyle.value + "bottomright" ;
+//				cells[j].innerText = cmbTableStyle.value + "bottomright" ;
+			}
+			else
+			{
+				cells[j].removeAttribute("className") ;
+	//			cells[j].innerText = "";
+			}
+			continue;
+		}
+
+		//	last row exept corners
+		if( rowIndex == -1 )
+		{
+			if (cmbTableStyle.value	!= "")
+			{
+				cells[j].className	= cmbTableStyle.value + "bottomcenter";
+//				cells[j].innerText = cmbTableStyle.value + "bottomcenter" ;
+			}
+			else
+			{
+				cells[j].removeAttribute("className") ;
+//	//			cells[j].innerText = "";
+			}
+			continue;
+		}
+
+		//	middle - left
+		if( j == 0)
+		{
+			if ( cmbTableStyle.value	!= "" )
+			{
+				cells[j].className	= cmbTableStyle.value + "middleleft" ;
+//				cells[j].innerText = cmbTableStyle.value + "middleleft" ;
+			}
+			else
+			{
+				cells[j].removeAttribute("className") ;
+	//			cells[j].innerText = "";
+			}
+			continue;
+		}
+
+		//	middle - right
+		if( j == (cells.length - 1))
+		{
+			if ( cmbTableStyle.value	!= "" )
+			{
+				cells[j].className	= cmbTableStyle.value + "middleright" ;
+//				cells[j].innerText = cmbTableStyle.value + "middleright" ;
+			}
+			else
+			{
+				cells[j].removeAttribute("className") ;
+	//			cells[j].innerText = "";
+			}
+			continue;
+		}
+
+		if (cmbTableStyle.value	!= "")
+		{
+			cells[j].className	= cmbTableStyle.value + "middlecenter" ;
+//			cells[j].innerText = cmbTableStyle.value + "middlecenter" ;
+		}
+		else
+		{
+			cells[j].removeAttribute("className") ;
+//			cells[j].innerText = "";
+		}
+	}
+	cells = null;
+}
+
+// Fired when the user press the CANCEL button.
+function cancel() 
+{
+	window.returnValue = null ;
+	window.close() ;
+}
+
+function setImage(sImageURL)
+{
+	txtURL.value = sImageURL ;
+}
+
+document.onkeydown = function ()
+{
+	switch ( event.keyCode )
+	{
+		case 13 : ok() ;		break ;	// ENTER
+		case 27 : cancel() ;	break ;	// ESC
+	}
+}
+//-->
+		</script>
+	</head>
+	<body bottommargin="5" leftmargin="5" topmargin="5" rightmargin="5" onload="setDefaults()">
+		<table cellspacing="1" cellpadding="1" border="0" width="100%" class="dlg" height="100%">
+			<tr>
+				<td>
+					<table cellspacing="0" cellpadding="0" width="100%" border="0">
+						<tr>
+							<td>
+								<table cellspacing="0" cellpadding="0" width="100%" border="0">
+									<tr>
+										<td>
+											<span fckLang="DlgAutoFormatTableStyle">Table Style:</span></td><td align="right"><script language="javascript">
+												var TableStyle = new TBCombo( "TableStyle"		, "null"			, "", dialogArguments.config.TableStyleNames, dialogArguments.config.TableStyleValues, 'CheckStyle("cmbTableStyle")');
+												document.write(TableStyle.GetHTML());
+											</script></td>
+									</tr>
+									<tr>
+										<td height="3" colspan="2"><br><span fckLang="DlgAutoFormatTableAlert">Select a style and click the " Ok " button. Please note that all current formating of the table will be removed!</span></td>
+									</tr>
+								</table>
+							</td>
+							<td width="10">&nbsp;&nbsp;&nbsp;</td>
+							<td valign="top" width="100">
+								<input style="WIDTH: 100%" onclick="ok();" type="button" fckLang="DlgBtnOK" value="Ok" id="Button1" name="Button1">
+								<br>
+								<input type="button" style="WIDTH: 100%" fckLang="DlgBtnCancel" value="Cancel" onclick="cancel();" id="Button2" name="Button2">&nbsp;
+								<br>
+							</td>
+
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+		<script language="javascript">
+
+/*if ( bCanTarget && sTargets.length > 0 )
+{
+	tdTarget.style.display = "block" ;
+
+	// Load the configured targets
+	var asTargets = sTargets.split( ';' ) ;
+	
+	for ( var i = 0 ; i < asTargets.length ; i++ )
+	{
+		var oOption = document.createElement("OPTION") ;
+
+		selTarget.options.add(oOption) ;
+		
+		var sText ;
+		
+		switch ( asTargets[i] )
+		{
+			case "_blank" :
+				sText = dialogArguments.lang[ "DlgLnkTargetBlank" ] ;
+				break ;
+			case "_parent" :
+				sText = dialogArguments.lang[ "DlgLnkTargetParent" ] ;
+				break ;
+			case "_self" :
+				sText = dialogArguments.lang[ "DlgLnkTargetSelf" ] ;
+				break ;
+			case "_top" :
+				sText = dialogArguments.lang[ "DlgLnkTargetTop" ] ;
+				break ;
+			default :
+				sText = asTargets[i] ;
+				break ;
+		}
+
+		oOption.innerText = sText ;
+		oOption.value     = asTargets[i] ;
+	}
+	
+	selTarget.value = sDefaultTarget ;
+}*/
+</script>
+	</body>
+</html>

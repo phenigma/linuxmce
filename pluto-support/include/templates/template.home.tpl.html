@@ -1,0 +1,69 @@
+<HTML>
+<HEAD>
+
+<meta http-equiv="Content-Language" content="en">        
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <meta http-equiv="Pragma" content="no-cache" />
+        <meta http-equiv="Cache-Control" content="no-cache" />
+        <meta http-equiv="Expires" content="Mon, 03 Jan 2000 00:00:01 GMT" />
+        <meta name="keywords" content="">
+		<meta name="description" content="">
+        <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+        {MetaTags}
+<title>{Title}</title>		
+ {CssFile}
+ {JavaScripts}
+ {ScriptValidateSrc}
+ {ScriptCalendar}
+ {ScriptTRColor} 		
+
+
+<script type="text/javascript">
+function submitEnter(myfield,e)
+{
+var keycode;
+if (window.event) keycode = window.event.keyCode;
+else if (e) keycode = e.which;
+else return true;
+
+if (keycode == 13)
+   {
+   myfield.form.submit();
+   //javascript:document.forms[\'loginForm\'].submit();
+   return false;
+   }
+else
+   return true;
+}
+</script>
+
+{ScriptInHead}
+<link rel="stylesheet" type="text/css" href="styles/pluto_cs.css">
+</HEAD>
+
+<BODY {ScriptInBody}>
+
+<TABLE BORDER=0 CELLPADDING=0 CELLSPACING=0 WIDTH="100%" HEIGHT="95%">
+<TR>
+<TD ROWSPAN=3 COLSPAN=1 align="center" valign="top">
+<!--log on area-->
+{LoginForm}
+{Logout}
+<!-- end log on area-->
+</TD>
+<TD ROWSPAN=1 COLSPAN=2 WIDTH="100%" HEIGHT=39>&nbsp;</TD>
+</TR>
+{NavigationMenu} 
+<TR>
+<TD ROWSPAN=1 COLSPAN=1 HEIGHT="100%" valign="top">
+{LeftMenu}
+</TD>
+<TD ROWSPAN=1 COLSPAN=1 WIDTH="100%" HEIGHT="100%" class="content" valign="top">
+<!-- content area-->	
+{Body}
+<!-- end content area-->
+</TD>
+</TR>
+</TABLE>
+</BODY>
+</HTML>

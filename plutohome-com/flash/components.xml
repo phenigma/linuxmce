@@ -1,0 +1,6 @@
+<components>
+	<comp name="core01.swf" size="Pluto Core" />
+	<comp name="mdir01.swf" size="Media Director"/>
+	<comp name="orbiter01.swf" size="Pluto Orbiter"/>
+	<comp name="phone01.swf" size="Mobile Orbiter"/>
+</components>

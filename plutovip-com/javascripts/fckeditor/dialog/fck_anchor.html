@@ -1,0 +1,111 @@
+<!--
+ * FCKeditor - The text editor for internet
+ * Copyright (C) 2003-2004 Frederico Caldeira Knabben
+ *
+ * Licensed under the terms of the GNU Lesser General Public License
+ * (http://www.opensource.org/licenses/lgpl-license.php)
+ *
+ * For further information go to http://www.fredck.com/FCKeditor/
+ * or contact fckeditor@fredck.com.
+ *
+ * fck_anchor.html: Insert Anchor.
+ *
+ * Authors:
+ *   G.Meijer
+-->
+<html>
+	<head>
+		<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+		<link rel="stylesheet" type="text/css" href="../css/fck_dialog.css">
+		<script language="JavaScript">
+			var oDOM = dialogArguments.objContent.DOM ;
+			var error;
+			var oParent;
+			var oRange;
+
+			if (oDOM.selection.type == "Control"){
+				oRange = oDOM.selection.createRange();
+				for ( i = 0 ; i < oRange.length ; i++ ){
+					if (oRange(i).parentNode){
+						var textName = oDOM.selection.createRange()(0).name
+					}
+				}
+				selectedTextField = oDOM.selection.createRange()(0);
+			}else{
+				var textmeth = "nieuw";
+				var textName = "";
+			}
+
+			document.write("<TITLE>" + dialogArguments.AvailableLangs.GetEntry( "DlgAnchorTitle", "Anchor Properties" ) + "</TITLE>");
+
+			function getFormHtml(){
+				return '<a '
+						+ attr("name", txtName.value)
+						+ '/></a>';
+			}
+
+			function attr(name, value){
+				if (!value || value == "") return "" ;
+				return ' ' + name + '="' + value + '"' ;
+			}
+
+			function ok(){
+				error = 0;
+				if (txtName.value.length == 0){
+					cancel();
+					return;
+				}
+
+				if(error != 1){
+					if (textmeth == "nieuw"){
+						window.returnValue = getFormHtml();
+					}else{
+						HTMLTextField = '<a name="' + txtName.value + '">'
+						window.selectedTextField.outerHTML = HTMLTextField;
+						window.returnValue = null;
+					}
+					window.close();
+				}
+			}
+
+			function cancel(){
+				window.returnValue = null ;
+				window.close() ;
+			}
+
+			function setDefaults(){
+				dialogArguments.AvailableLangs.TranslatePage(document);
+
+				if(textName){
+					txtName.value = textName;
+				}
+			}
+
+			document.onkeydown = function () {
+				if (event.keyCode == 13) {	// ENTER
+					ok()
+				}
+				if (event.keyCode == 27) {	// ESC
+					cancel()
+				}
+			}
+		</script>
+	</head>
+	<body bottommargin="0" leftmargin="0" topmargin="0" rightmargin="0" onload="setDefaults()">
+		<table height="100%" width="100%" ID="Table1">
+			<tr>
+				<td align="center">
+					<table border="0" summary="" class="inhoud" cellpadding="0" cellspacing="0" width="80%">
+						<tr>
+							<td><span fckLang="DlgAnchorName">Anchor Name</span><BR>
+								<INPUT style="WIDTH: 100%" type="text" size="20" name="txtName"></td>
+						</tr>
+					</table>
+					<div align="center"><BR>
+						<input type="button" style="WIDTH: 100px" fckLang="DlgBtnOK" value="OK" onclick="ok();">
+						<input type="button" style="WIDTH: 100px" fckLang="DlgBtnCancel" value="Cancel" onclick="cancel();"></div>
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

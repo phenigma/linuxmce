@@ -1,0 +1,1140 @@
+<?php
+	# Mantis - a php based bugtracking system
+	# Copyright (C) 2000 - 2002  Kenzaburo Ito - kenito@300baud.org
+	# Copyright (C) 2002 - 2004  Mantis Team   - mantisbt-dev@lists.sourceforge.net
+	# This program is distributed under the terms and conditions of the GPL
+	# See the README and LICENSE files for details
+
+	# Polish: Adam Bienias <adam@fireworks.atomnet.pl>
+	# Polish: Jaroslaw Lewandowski <jotel@jotel.net>
+	# Polish: Kacper Kruszewski <kacper@netcetera.pl>
+	# -------------------------------------------------
+	# $Revision: 1.77 $
+	# $Author: bigbadger $
+	# $Date: 2004/10/15 07:07:09 $
+	#
+	# $Id: strings_polish.txt,v 1.77 2004/10/15 07:07:09 bigbadger Exp $
+	###########################################################################
+?>
+<?php
+# Charset
+$s_charset = 'iso-8859-2';
+
+# Group commands menuitems
+$s_actiongroup_menu_move = 'Przenie¶';
+$s_actiongroup_menu_copy = 'Copy';
+$s_actiongroup_menu_assign = 'Przypisz';
+$s_actiongroup_menu_close = 'Zamknij';
+$s_actiongroup_menu_delete = 'Usuñ';
+$s_actiongroup_menu_resolve = 'Rozwi±¿';
+$s_actiongroup_menu_update_priority = 'Aktualizuj priorytet';
+$s_actiongroup_menu_update_status = 'Aktualizuj status';
+$s_actiongroup_menu_update_view_status = 'Update View Status';
+$s_actiongroup_bugs = 'Selected Issues';
+
+# new strings:
+$s_all_projects = 'Wszystkie projekty';
+$s_move_bugs = 'Przenie¶ Zagadnienia';
+$s_operation_successful = 'Operacja zosta³a zakoñczona pomy¶lnie.';
+$s_date_order = 'Sortowanie wg daty';
+$s_print_all_bug_page_link = 'Drukuj zg³oszenia';
+$s_csv_export = 'Eksport CSV';
+$s_login_anonymously = 'Logowanie Anonimowe';
+$s_anonymous = 'Anonimowy';
+$s_jump_to_bugnotes = 'Przejd¼ do Komentarzy';
+$s_public_project_msg = 'Ten projekt jest PUBLICZNY. Wszyscy u¿ytkownicy posiadaj± do niego dostêp.';
+$s_private_project_msg = 'Ten projekt jest PRYWATNY.  Jedynie administratorzy i rêcznie dodani u¿ytkownicy maj± do niego dostêp.';
+$s_access_level_project = 'Poziom dostêpu';
+$s_view_submitted_bug_link = 'Zobacz zg³oszone Zagadnienie';
+$s_assigned_projects = 'Projekty Przypisane';
+$s_unassigned_projects = 'Projekty Nieprzypisane';
+$s_print = 'Drukuj';
+$s_jump = 'Skocz do';
+$s_copy_users = 'Kopiuj U¿ytkowników';
+$s_copy_categories_from = 'Kopiuj kategorie z';
+$s_copy_categories_to = 'Kopiuj kategorie do';
+$s_bug_history = 'Historia Zagadnienia';
+$s_field = 'Pole';
+$s_old_value = 'Stara warto¶æ';
+$s_new_value = 'Nowa warto¶æ';
+$s_date_modified = 'Data modyfikacji';
+$s_bugnote = 'Komentarz';
+$s_change = 'Zmiana';
+$s_bugnote_view_state = 'Stan Widzialno¶ci Komentarza';
+$s_bug_monitor = 'Zagadnienie monitorowane przez';
+$s_bug_end_monitor = 'Zakoñczenie Monitorowania przez';
+$s_announcement = 'Og³oszenie';
+$s_stays_on_top = 'Pozostaje pierwsze na li¶cie';
+$s_delete_bugnote_button = 'Usuñ Komentarz';
+$s_delete_bugnote_sure_msg = 'Czy jeste¶ pewien, ¿e chcesz usun±æ ten komentarz?';
+$s_bug_relationships = 'Powi±zania';
+$s_empty_password_sure_msg = 'U¿ytkownik ma puste has³o. Czy jeste¶ pewny, ¿e tego chcia³e¶?';
+$s_empty_password_button = 'U¿yj pustego has³a';
+
+$s_duplicate_of = 'duplikat %id';
+$s_has_duplicate = 'posiada duplikat %id';
+$s_related_to = 'zwi±zany z %id';
+$s_dependant_on = 'zale¿ny od %id';
+$s_blocks = 'blokuje %id';
+
+$s_new_bug = 'Nowe Zagadnienie';
+$s_bugnote_added = 'Dodano Komentarz';
+$s_bugnote_edited = 'Edycja Komentarza';
+$s_bugnote_deleted = 'Usuniêto Komentarz';
+$s_summary_updated = 'Zaktualizowano Podsumowanie';
+$s_description_updated = 'Zaktualizowano Opis';
+$s_additional_information_updated = 'Zaktualizowano Informacje dodatkowe';
+$s_steps_to_reproduce_updated = 'Zaktualizowano Kroki, by powtórzyæ';
+$s_file_added = 'Dodano plik ';
+$s_file_deleted = 'Usuniêto plik: ';
+$s_bug_deleted = 'Usuniêto Zagadnienie';
+
+$s_make_private = 'Zmieñ Status na prywatny';
+$s_make_public = 'Zmieñ Status na publiczny';
+
+$s_create_new_project_link = 'Stwórz Nowy Projekt';
+
+$s_login_link = 'Zaloguj siê';
+
+# bug_actiongroup_page.php : mass treatment
+$s_bug_actiongroup_failed = 'Nie masz wystarczaj±cych uprawnieñ by wykonaæ t± akcjê na poni¿szych Zagadnieniach: ';
+$s_bug_actiongroup_access = 'You did not have appropriate permissions to perform that action.';
+$s_bug_actiongroup_status = 'This issue cannot be changed to the requested status';
+$s_close_bugs_conf_msg = 'Czy jeste¶ pewny, ¿e chcesz Zamkn±æ te Zagadnienia?';
+$s_delete_bugs_conf_msg = 'Czy jeste¶ pewny, ¿e chesz Usun±æ te Zagadnienia?';
+$s_move_bugs_conf_msg = 'Przenie¶ Zagadnienia do';
+$s_copy_bugs_conf_msg = 'Copy issues to';
+$s_assign_bugs_conf_msg = 'Przypisz Zagadnienia do';
+$s_resolve_bugs_conf_msg = 'Wybierz rozwi±zanie Zagadnieñ';
+$s_priority_bugs_conf_msg = 'Wybierz priorytet Zagadnieñ';
+$s_status_bugs_conf_msg = 'Wybierz status Zagadnieñ';
+$s_view_status_bugs_conf_msg = 'Choose issues view status';
+$s_close_group_bugs_button = 'Zamknij Zagadnienia' ;
+$s_delete_group_bugs_button = 'Usuñ Zagadnienia' ;
+$s_move_group_bugs_button = 'Przenie¶ Zagadnienia' ;
+$s_copy_group_bugs_button = 'Copy Issues' ;
+$s_assign_group_bugs_button = 'Przypisz Zagadnienia' ;
+$s_resolve_group_bugs_button = 'Rozwi±¿ Zagadnienia' ;
+$s_priority_group_bugs_button = 'Aktualizuj Priorytet' ;
+$s_status_group_bugs_button = 'Aktualizuj Status' ;
+$s_view_status_group_bugs_button = 'Update View Status';
+
+# improved JPgraphs strings
+$s_graph_imp_status_title = 'Wykres podsumowuj±cy wg statusu' ;
+$s_graph_imp_priority_title = 'Wykres podsumowuj±cy wg priorytetu' ;
+$s_graph_imp_severity_title = 'Wykres podsumowuj±cy wg wa¿no¶ci';
+$s_graph_imp_category_title = 'Wykres podsumowuj±cy wg kategorii';
+$s_graph_imp_resolution_title = 'Wykres podsumowuj±cy wg rozwi±zania';
+$s_by_status_pct = 'wg statusu procentowo';
+$s_by_priority_pct = 'wg priorytetu procentowo';
+$s_by_severity_pct = 'wg wa¿no¶ci procentowo';
+$s_by_category_pct = 'wg kategorii procentowo';
+$s_by_resolution_pct = 'wg rozwi±zania procentowo';
+$s_by_severity_mix = 'wg wa¿no¶ci i statusu';
+$s_by_priority_mix = 'wg priorytetu i statusu';
+$s_by_resolution_mix = 'wg rozwi±zania i statusu';
+$s_synthesis_link = 'Podsumowanie';
+$s_status_link = 'Wg stanu';
+$s_priority_link = 'Wg priorytetu';
+$s_severity_link = 'Wg wa¿no¶ci';
+$s_category_link = 'Wg kategorii';
+$s_resolution_link = 'Wg rozwi±zania';
+$s_legend_still_open = 'Still Open';
+$s_legend_resolved = 'Resolved';
+$s_legend_assigned = 'Assigned';
+$s_legend_total = 'Total';
+$s_legend_opened = 'Opened';
+$s_legend_closed = 'Closed';
+$s_legend_reported = 'Reported';
+$s_cumulative = 'Cumulative';
+$s_not_enough_data = 'Not enough data to create graph';
+
+# print_all_bug_page.php : display selected bugs
+$s_hide_button = 'Wy¶wietl tylko zaznaczone';
+
+# print_all_bug_options.php : printing preferences
+$s_printing_preferences_title = 'Wybierz pola do wydruku';
+$s_printing_options_link = 'Opcje drukowania';
+
+# word and excel export
+$s_bugnote_title = 'Handler Zagadnienia' ;
+$s_bugnote_date = 'Data komentarza';
+$s_bugnote_description = 'Opis Zagadnienia';
+
+$s_error_no_proceed = 'Proszê u¿yæ przycisku "Powrót" w przegl±darce by powróciæ do poprzedniej strony.  Tam mo¿na poprawiæ to co spowodowa³o ten b³±d lub wybraæ inn± operacjê.  Mo¿na równie¿ klikn±æ opcjê w górnym menu, aby przej¶æ bezpo¶rednio do innej sekcji.';
+
+# ERROR strings
+$MANTIS_ERROR[ERROR_GENERIC] = 'B£¡D: Wyst±pi³ b³±d podczas wykonywanej operacji.  Mo¿esz zg³osciæ ten b³±d Twojemu administratorowi.';
+$MANTIS_ERROR[ERROR_SQL] = 'B£¡D: Wykryto b³±d SQL. Proszê o zg³oszenie b³êdu do ';
+$MANTIS_ERROR[ERROR_REPORT] = 'B£¡D: Wyst±pi³ b³±d w twoim zg³oszeniu.';
+$MANTIS_ERROR[ERROR_NO_FILE_SPECIFIED] = 'B£¡D: Nie zosta³ podany ¿aden plik.';
+$MANTIS_ERROR[ERROR_FILE_DISALLOWED]    = 'B£¡D: Typ przesy³anego pliku nie jest dozwolony.';
+$MANTIS_ERROR[ERROR_NO_DIRECTORY] = 'B£¡D: Podany katalog nie istnieje. Sprawd¼ ustawienia projektu.';
+$MANTIS_ERROR[ERROR_DUPLICATE_FILE] = 'B£¡D: Plik o podanej nazwie ju¿ istnieje. Usuñ najpierw istniej±cy plik.';
+$MANTIS_ERROR[ERROR_DUPLICATE_PROJECT]  = 'B£¡D: Istnieje ju¿ projekt o takiej nazwie.';
+$MANTIS_ERROR[ERROR_EMPTY_FIELD] = 'B£¡D: Wymagane pole nie jest wype³nione. Sprawd¼ wprowadzone dane.';
+$MANTIS_ERROR[ERROR_PROTECTED_ACCOUNT] = 'B£¡D: To konto jest zabezpieczone. Nie masz praw dostêpu do tego konta póki zabezpieczenie jest aktywne.';
+$MANTIS_ERROR[ERROR_ACCESS_DENIED]      = 'B£¡D: Brak dostêpu.';
+$MANTIS_ERROR[ERROR_UPLOAD_FAILURE]     = 'B£¡D: Przesy³anie pliku nie powiod³o siê.  Mo¿liwo¶æ publikowania plików mo¿e byæ wy³±czona w PHP.  Nale¿y poprosiæ administratora, aby uruchomi³ skrypt sprawdzaj±cy konfiguracjê serwera.';
+$MANTIS_ERROR[ERROR_FILE_TOO_BIG]       = 'B£¡D: Przesy³anie pliku nie powiod³o siê.  Prawdopodobnie jest to spowodowane rozmiarem pliku przekraczaj±cym maksymalny dozwolony na tym serwerze.';
+$MANTIS_ERROR[ERROR_GPC_VAR_NOT_FOUND]  = 'B£¡D: Nie znaleziono parametru wymaganego przez t± stronê.';
+$MANTIS_ERROR[ERROR_USER_NAME_NOT_UNIQUE] = 'That username is already being used.  Please go back and select another one.';
+$MANTIS_ERROR[ERROR_CONFIG_OPT_NOT_FOUND] = 'Configuration option \'%s\' not found.';
+$MANTIS_ERROR[ERROR_LANG_STRING_NOT_FOUND] = 'String \'%s\' not found.';
+$MANTIS_ERROR[ERROR_BUGNOTE_NOT_FOUND]  = 'B£¡D: Nie znaleziono komentarza.';
+$MANTIS_ERROR[ERROR_PROJECT_NOT_FOUND]  = 'B£¡D: Nie znaleziono projektu.';
+$MANTIS_ERROR[ERROR_DB_FIELD_NOT_FOUND] = 'B£¡D: Nie znaleziono pola \'%s\' w bazie danych.';
+$MANTIS_ERROR[ERROR_FTP_CONNECT_ERROR]	= 'B£¡D: Nie mo¿na nawi±zaæ po³±czenia z serwerem FTP.';
+$MANTIS_ERROR[ERROR_HANDLER_ACCESS_TOO_LOW]	 = 'Issue handler does not have sufficient access rights to handle issue at this status.';
+$MANTIS_ERROR[ERROR_PROJECT_NAME_NOT_UNIQUE] = 'B£¡D: Projekt o tej nazwie ju¿ istnieje.  Proszê wróciæ i podaæ inn± nazwê.';
+$MANTIS_ERROR[ERROR_PROJECT_NAME_INVALID] = 'Invalid project name specified.  Project names cannot be blank.';
+$MANTIS_ERROR[ERROR_USER_NOT_FOUND]	= 'B£¡D: Nie znaleziono u¿ytkownika.';
+$MANTIS_ERROR[ERROR_AUTH_INVALID_COOKIE] = 'The login information stored by your browser is invalid.  Perhaps your account was deleted?';
+$MANTIS_ERROR[ERROR_USER_PREFS_NOT_FOUND] = 'Preferences could not be found for this user.';
+$MANTIS_ERROR[ERROR_NEWS_NOT_FOUND]	= 'B£¡D: Nie znaleziono wiadomo¶ci.';
+$MANTIS_ERROR[ERROR_USER_CREATE_PASSWORD_MISMATCH] = 'Password does not match verification.';
+$MANTIS_ERROR[ERROR_GPC_ARRAY_EXPECTED]	= 'B£¡D: Ci±g zamiast tablicy.';
+$MANTIS_ERROR[ERROR_GPC_ARRAY_UNEXPECTED] = 'A string was expected but an array was received.';
+$MANTIS_ERROR[ERROR_BUG_NOT_FOUND]	= 'B£¡D: Nie znaleziono Zagadnienia.';
+$MANTIS_ERROR[ERROR_EMAIL_INVALID]	= 'B£¡D: Nieprawid³owy email.';
+$MANTIS_ERROR[ERROR_USER_PROFILE_NOT_FOUND] = 'Profile not found.';
+$MANTIS_ERROR[ERROR_FILE_NOT_ALLOWED]	= 'B£¡D: Pliki tego typu nie mog± byæ przesy³ane.';
+$MANTIS_ERROR[ERROR_FILE_DUPLICATE]	= 'B£¡D: Plik o tej nazwie ju¿ istnieje, proszê usun± najpierw plik oryginalny.';
+$MANTIS_ERROR[ERROR_FILE_INVALID_UPLOAD_PATH] = 'B£¡D: B³êdny katalog na pliki.  Katalog nie istnieje lub serwer www nie ma uprawnieñ by do niego zapisywaæ';
+$MANTIS_ERROR[ERROR_BUG_DUPLICATE_SELF]	= 'B£¡D: Nie mo¿na wskazaæ jako duplikat Zagadnienia tego samego Zagadnienia.';
+$MANTIS_ERROR[ERROR_CUSTOM_FIELD_NOT_FOUND] = 'Custom field not found';
+$MANTIS_ERROR[ERROR_CUSTOM_FIELD_NAME_NOT_UNIQUE] = 'This is a duplicate name.';
+$MANTIS_ERROR[ERROR_CUSTOM_FIELD_IN_USE] = 'At least one project still uses this field.';
+$MANTIS_ERROR[ERROR_CUSTOM_FIELD_INVALID_VALUE] = 'B£¡D: B³êdna warto¶æ dla pola';
+$MANTIS_ERROR[ERROR_CUSTOM_FIELD_INVALID_DEFINITION] = 'B³êdna definicja pola dodatkowego';
+$MANTIS_ERROR[ERROR_LDAP_AUTH_FAILED]	= 'B£¡D: Autentykacja LDAP nie powiod³a siê.';
+$MANTIS_ERROR[ERROR_LDAP_SERVER_CONNECT_FAILED] = 'LDAP Server Connection Failed';
+$MANTIS_ERROR[ERROR_LDAP_UPDATE_FAILED]	= 'B£¡D: Nie uda³o siê uaktualniæ rekordu LDAP .';
+$MANTIS_ERROR[ERROR_LDAP_USER_NOT_FOUND] = 'LDAP User Record Not Found.';
+$MANTIS_ERROR[ERROR_DB_CONNECT_FAILED]	= 'B£¡D: B³±d po³±czenia z baz± danych: #%d: %s';
+$MANTIS_ERROR[ERROR_DB_QUERY_FAILED]	= 'B£¡D: B³±d bazy danych #%d: %s dla zapytania %s.';
+$MANTIS_ERROR[ERROR_DB_SELECT_FAILED]	= 'B£¡D: B³±d bazy danych: #%d: %s';
+$MANTIS_ERROR[ERROR_CATEGORY_DUPLICATE] = 'B£¡D: Podana kategoria ju¿ istnieje.';
+$MANTIS_ERROR[ERROR_CATEGORY_NO_ACTION] = 'B£¡D: Nie zdefiniowano mo¿liwo¶ci kopiowania.';
+$MANTIS_ERROR[ERROR_CATEGORY_NOT_FOUND] = 'B£¡D: Nie znaleziono kategorii.';
+$MANTIS_ERROR[ERROR_VERSION_DUPLICATE] = 'B£¡D: Podana wersja ju¿ istnieje.';
+$MANTIS_ERROR[ERROR_VERSION_NOT_FOUND]  = 'B£¡D: Nie znaleziono wersji.';
+$MANTIS_ERROR[ERROR_USER_NAME_INVALID]  = 'B£¡D: Nieprawid³owa nazwa u¿ytkownika.';
+$MANTIS_ERROR[ERROR_USER_DOES_NOT_HAVE_REQ_ACCESS] = 'B£¡D: U¿ytkownik nie posiada wymaganego poziomu dostêpu';
+$MANTIS_ERROR[ERROR_USER_REAL_MATCH_USER] = 'The "Real Name" chosen matches another user\'s login name. Please choose another.';
+$MANTIS_ERROR[ERROR_SPONSORSHIP_NOT_ENABLED] = 'Sponsorship support not enabled.';
+$MANTIS_ERROR[ERROR_SPONSORSHIP_NOT_FOUND] = 'Sponsorship %d not found.';
+$MANTIS_ERROR[ERROR_SPONSORSHIP_AMOUNT_TOO_LOW] = 'Sponsorship (%s) is below minimum amount (%s).';
+$MANTIS_ERROR[ERROR_SPONSORSHIP_HANDLER_ACCESS_LEVEL_TOO_LOW] = 'Handler does not have the required access level to handle sponsored issues.';
+$MANTIS_ERROR[ERROR_SPONSORSHIP_ASSIGNER_ACCESS_LEVEL_TOO_LOW] = 'Access Denied: Assigning sponsored issues requires higher access level.';
+$MANTIS_ERROR[ERROR_SPONSORSHIP_SPONSOR_NO_EMAIL] = 'Sponsor has not provided an email address. Please update your profile.';
+$MANTIS_ERROR[ERROR_CONFIG_OPT_INVALID] = 'Configuration option \'%s\' has invalid value \'%s\'';
+$MANTIS_ERROR[ERROR_BUG_READ_ONLY_ACTION_DENIED] = 'The action cannot be performed because issue \'%d\' is read-only';
+$MANTIS_ERROR[ERROR_RELATIONSHIP_ALREADY_EXISTS] = "ERROR: There is already a relationship between these two issues.";
+$MANTIS_ERROR[ERROR_RELATIONSHIP_NOT_FOUND] = "ERROR: Relationship not found.";
+$MANTIS_ERROR[ERROR_RELATIONSHIP_ACCESS_LEVEL_TO_DEST_BUG_TOO_LOW] = "Access denied: The issue %d requires higher access level.";
+$MANTIS_ERROR[ERROR_RELATIONSHIP_SAME_BUG] = "An issue can't be related to itself.";
+$MANTIS_ERROR[ERROR_SIGNUP_NOT_MATCHING_CAPTCHA] = 'Confirmation hash does not match. Please retry.';
+$MANTIS_ERROR[ERROR_LOST_PASSWORD_NOT_ENABLED] = 'The \'lost your password\' feature is not available.';
+$MANTIS_ERROR[ERROR_LOST_PASSWORD_NO_EMAIL_SPECIFIED] = 'You must provide an e-mail address in order to reset the password';
+$MANTIS_ERROR[ERROR_LOST_PASSWORD_NOT_MATCHING_DATA] = 'The provided information doesn\'t match any registered account!';
+$MANTIS_ERROR[ERROR_LOST_PASSWORD_CONFIRM_HASH_INVALID] = 'The confirmation URL is invalid or has already been used. Please signup again.';
+$MANTIS_ERROR[ERROR_LOST_PASSWORD_MAX_IN_PROGRESS_ATTEMPTS_REACHED] = 'Max. number of in-progress requests reached. Please contact the system administrator';
+
+#$s_login_error = 'Your account may be disabled or blocked (due to too many failed login attempts) or the username/password you entered is incorrect.';
+$s_login_error = 'B£¡D: Twoje konto mo¿e byæ wy³±czone lub nazwa u¿ytkownika/has³o nie s± poprawne.';
+$s_login_cookies_disabled = 'B£¡D: Twoja przegl±darka nie obs³uguje cookies lub ich obs³uga zosta³a wy³±czona.';
+
+# General Strings
+$s_go_back = 'Powrót';
+$s_proceed = 'Kliknij by kontynuowaæ';
+
+$s_switch = 'Prze³±cz';
+$s_logged_in_as = 'Zalogowano jako';
+
+$s_prefix_for_deleted_users = 'user';
+
+$s_administrator = 'administrator';
+$s_myself = "Ja";
+$s_default_access_level = 'Default access level';
+
+# Enum Strings
+$s_access_levels_enum_string      = '10:obserwator,25:zg³aszaj±cy,40:aktualizuj±cy,55:wykonawca,70:zarz±dca,90:administrator';
+$s_project_status_enum_string     = '10:tworzony,30:ukoñczony,50:stabilny,70:zarzucony';
+$s_project_view_state_enum_string = '10:publiczny,50:prywatny';
+$s_view_state_enum_string         = '10:publiczny,50:prywatny';
+
+$s_priority_enum_string           = '10:¿aden,20:niski,30:normalny,40:wysoki,50:pilny,60:natychmiastowy';
+$s_severity_enum_string           = '10:propozycja,20:b³ahy,30:tekst,40:poprawka,50:drobny,60:wa¿ny,70:upadek,80:blokada';
+$s_reproducibility_enum_string    = '10:zawsze,30:czasami,50:losowo,70:nie próbowano,90:nie do powtórzenia,100:niedostêpny';
+$s_status_enum_string             = '10:nowy,20:zwrócony,30:uznany,40:potwierdzony,50:przypisany,80:rozwi±zany,90:zamkniêty';
+$s_resolution_enum_string         = '10:otwarty,20:poprawiony,30:ponownie otwarty,40:nie do powtórzenia,50:nie naprawialny,60:duplikat,70:to nie Zagadnienie,80:zawieszony,90:nie zostanie naprawiony';
+$s_projection_enum_string         = '10:brak,30:poprawka,50:wiêksza poprawka,70:du¿y nak³ad pracy,90:przeprojektowanie';
+$s_eta_enum_string                = '10:¿aden,20:< 1 dzieñ,30:2-3 dni,40:< 1 tydzieñ,50:< 1 miesi±c,60:> 1 miesi±c';
+
+# Email Strings
+$s_new_account_subject = 'Account registration';
+$s_new_account_greeting = 'Thank you for registering. You have account with username \'';
+$s_new_account_greeting2 = '\'. In order to complete your registration, visit the following URL (make sure it is entered as the single line) and set your own access password:';
+$s_new_account_username = 'Nazwa u¿ytkownika: ';
+$s_new_account_message = 'If you didn\'t request any registraion, ignore this message and nothing will happen.' . "\n\n";
+$s_new_account_do_not_reply = 'DO NOT REPLY TO THIS MESSAGE';
+$s_new_account_email = 'E-mail: ';
+$s_new_account_IP = 'Remote IP address: ';
+$s_new_account_signup_msg = 'The following account has been created:';
+
+$s_reset_request_msg = 'Someone (presumably you) requested a password change through email verification. If this was not you, ignore this message and nothing will happen.' . "\n\n" . 'If you requested this verification, visit the following URL to change your password:';
+$s_reset_request_in_progress_msg = 'If you supplied the correct username and email address for your account, we will now have sent a confirmation message to that email address. Once the message has been received, follow the instructions provided to change the password on your account.';
+
+$s_email_notification_title_for_status_bug_new = 'The following issue is now in status NEW (again)';
+$s_email_notification_title_for_status_bug_feedback = 'Nastêpuj±ce Zagadnienie zosta³o ZWRÓCONE.';
+$s_email_notification_title_for_status_bug_acknowledged = 'Nastêpuj±ce Zagadnienie zosta³o UZNANE.';
+$s_email_notification_title_for_status_bug_confirmed = 'Nastêpuj±ce Zagadnienie zosta³o POTWIERDZONE.';
+$s_email_notification_title_for_status_bug_assigned = 'Nastêpuj±ce Zagadnienie zosta³o PRZYPISANE.';
+$s_email_notification_title_for_status_bug_resolved = 'Nastêpuj±ce Zagadnienie zosta³o ROZWI¡ZANE.';
+$s_email_notification_title_for_status_bug_closed = 'Nastêpuj±ce Zagadnienie zosta³o ZAMKNIÊTE.';
+
+$s_email_notification_title_for_action_bug_submitted = 'Nastêpuj±ce Zagadnienie zosta³o DODANE.';
+$s_email_notification_title_for_action_bug_assigned = 'Nastêpuj±ce Zagadnienie zosta³o PRZYPISANE.';
+$s_email_notification_title_for_action_bug_reopened = 'Nastêpuj±ce Zagadnienie zosta³o PONOWNIE OTWARTE.';
+$s_email_notification_title_for_action_bug_deleted = 'Nastêpuj±ce Zagadnienie zosta³o SKASOWANE.';
+$s_email_notification_title_for_action_bug_updated = 'The following issue has been UPDATED.';
+$s_email_notification_title_for_action_sponsorship_added = 'The following issue has been SPONSORED.';
+$s_email_notification_title_for_action_sponsorship_updated = 'A sponsorship of the following issue was modified.';
+$s_email_notification_title_for_action_sponsorship_deleted = 'A sponsorship of the following issue was withdrawn.';
+
+$s_email_notification_title_for_action_bugnote_submitted = 'Do nastêpuj±cego Zagadnienia DODANO KOMENTARZ.';
+$s_email_notification_title_for_action_duplicate_of_relationship_added = "The following issue has been set as DUPLICATE OF issue %s.";
+$s_email_notification_title_for_action_has_duplicate_relationship_added = "The issue %s has been set as DUPLICATE OF the following issue.";
+$s_email_notification_title_for_action_related_to_relationship_added = "The following issue has been set as RELATED TO issue %s.";
+$s_email_notification_title_for_action_dependant_on_relationship_added = "The following issue has been set PARENT OF issue %s.";
+$s_email_notification_title_for_action_blocks_relationship_added = "The following issue has been set CHILD OF issue %s.";
+$s_email_notification_title_for_action_duplicate_of_relationship_deleted = "The following issue has been UNset as DUPLICATE OF issue %s.";
+$s_email_notification_title_for_action_has_duplicate_relationship_deleted = "The issue %s has been UNset as DUPLICATE OF the following issue.";
+$s_email_notification_title_for_action_related_to_relationship_deleted = "The following issue has been UNset as RELATED TO issue %s.";
+$s_email_notification_title_for_action_dependant_on_relationship_deleted = "The following issue has been UNset PARENT OF issue %s.";
+$s_email_notification_title_for_action_blocks_relationship_deleted = "The following issue has been UNset CHILD OF issue %s.";
+$s_email_notification_title_for_action_relationship_child_resolved = "The RELATED issue %s has been RESOLVED.";
+$s_email_notification_title_for_action_relationship_child_closed = "The RELATED issue %s has been CLOSED.";
+
+$s_email_reporter = 'Zg³aszaj±cy';
+$s_email_handler = 'Operator';
+$s_email_project = 'Projekt';
+$s_email_bug = 'Indentyfikator Zagadnienia';
+$s_email_category = 'Kategoria';
+$s_email_reproducibility = 'Powtarzalno¶æ';
+$s_email_severity = 'Wa¿no¶æ';
+$s_email_priority = 'Priorytet';
+$s_email_status = 'Status';
+$s_email_resolution = 'Rozwi±zanie';
+$s_email_duplicate = 'Duplikat Zagadnienia';
+$s_email_fixed_in_version = 'Fixed in Version';
+$s_email_date_submitted = 'Data zg³oszenia';
+$s_email_last_modified = 'Data modyfikacji';
+$s_email_summary =  'Podsumowanie';
+$s_email_description = 'Opis';
+
+# account_delete.php
+$s_account_protected_msg = 'Konto jest zabezpieczone. Nie mo¿na zmieniæ ustawieñ...';
+$s_account_removed_msg = 'Twoje konto zosta³o usuniête...';
+
+# account_delete_page.php
+$s_confirm_delete_msg = 'Czy na pewno chcesz usun±æ swoje konto ?';
+$s_delete_account_button = 'Usuñ Konto';
+
+# account_page.php
+$s_manage_profiles_link = 'Profile';
+$s_change_preferences_link = 'Preferencje';
+$s_edit_account_title = 'Edytycja konta';
+$s_username = 'Nazwa u¿ytkownika';
+$s_realname = 'Real Name';
+$s_email = 'Email';
+$s_password = 'Has³o';
+$s_no_password_change = 'The password is controlled by another system, hence cannot be edited here.';
+$s_confirm_password  = 'Potwierd¼ has³o';
+$s_access_level = 'Poziom dostêpu';
+$s_update_user_button = 'Aktualizuj';
+
+# account_prefs_page.php
+$s_default_account_preferences_title = 'Preferencje konta';
+$s_default_project = 'Domy¶lny Projekt';
+$s_advanced_report = 'Zg³oszenie zaawansowane';
+$s_advanced_view = 'Widok zaawansowany';
+$s_advanced_update = 'Aktualizacja zaawansowana';
+$s_refresh_delay = 'Opóznienie od¶wie¿ania';
+$s_redirect_delay = 'Opóznienie przekierowania';
+$s_with_minimum_severity = 'Z minimaln± wa¿no¶ci± ';
+$s_bugnote_order = 'Bugnotes Sort Order';
+$s_bugnote_order_asc = 'Ascending';
+$s_bugnote_order_desc = 'Descending';
+$s_email_on_new = 'List gdy NOWE';
+$s_email_on_assigned = 'List gdy PRZYPISANE';
+$s_email_on_feedback = 'List gdy ZWRÓCONE';
+$s_email_on_resolved = 'List gdy ROZWI¡ZANE';
+$s_email_on_closed = 'List gdy ZAMKNIÊTE';
+$s_email_on_reopened = 'List gdy PONOWNIE OTWARTE';
+$s_email_on_bugnote_added = 'List gdy DODANO KOMENTARZ';
+$s_email_on_status_change = 'List gdy ZMIENIONO STATUS';
+$s_email_on_priority_change = 'List gdy ZMIENIONO PRIORYTET';
+$s_email_bugnote_limit = 'Email Bugnotes Limit';
+$s_language = 'Jêzyk';
+$s_update_prefs_button = 'Aktualizuj';
+$s_reset_prefs_button = 'Przywróæ ustawienia';
+
+# account_prefs_reset.php
+$s_prefs_reset_msg = 'Preferencje zosta³y przywrócone...';
+
+# account_prefs_update.php
+$s_prefs_updated_msg = 'Preferencje zosta³y zaktualizowane...';
+
+# account_profile_add.php
+$s_profile_added_msg = 'Profil zosta³ dodany...';
+
+# account_profile_delete.php
+$s_profile_deleted_msg = 'Profil zosta³ usuniêty...';
+
+# account_profile_edit_page.php
+$s_edit_profile_title = 'Edycja profilu';
+$s_platform = 'Platforma';
+$s_operating_system = 'System operacyjny';
+$s_additional_description = 'Dodatkowy opis';
+$s_update_profile_button = 'Zaktualizuj';
+
+# account_profile_make_default.php
+$s_profile_defaulted_msg = 'Standardowy profil zosta³ zaktualizowany...';
+
+# account_profile_manage_page.php
+$s_add_profile_title = 'Dodawanie profilu';
+$s_add_profile_button = 'Dodaj profil';
+$s_edit_or_delete_profiles_title = 'Edycja lub usuniêcie profilu';
+$s_edit_profile = 'Edytuj profil';
+$s_make_default = 'Ustaw jako domy¶lny';
+$s_delete_profile = 'Usuñ profil';
+$s_select_profile = 'Wybierz profil';
+$s_submit_button = 'Wy¶lij';
+
+# account_profile_update.php
+$s_profile_updated_msg = 'Profil zosta³ zaktualizowany...';
+
+# account_update.php
+$s_account_updated_msg = 'Twoje konto zosta³o zaktualizowane...';
+$s_email_updated = 'Adres email zosta³ zaktualizowany';
+$s_realname_duplicated = 'Real name is used by another user';
+$s_realname_updated = 'Real name successfully updated';
+$s_password_updated = 'Has³o zosta³o zaktualizowane';
+
+# bug_assign.php
+$s_bug_assign_msg       = 'Zagadnienie zosta³o pomy¶lnie przypisane...';
+
+# bug_change_status_page.php
+$s_new_bug_title = 'New Issue';
+$s_feedback_bug_title = 'Provide Feedback to Issue';
+$s_acknowledged_bug_title = 'Acknowledge Issue';
+$s_confirmed_bug_title = 'Confirm Issue';
+$s_assigned_bug_title = 'Assign Issue';
+$s_new_bug_button = 'New Issue';
+$s_feedback_bug_button = 'Provide Feedback';
+$s_acknowledged_bug_button = 'Acknowledge Issue';
+$s_confirmed_bug_button = 'Confirm Issue';
+$s_assigned_bug_button = 'Assign Issue';
+
+# bug_close.php
+$s_bug_close_msg       = 'Zagadnienie zosta³o zamkniête...';
+$s_close_immediately   = 'Zamknij natychmiast:';
+
+# bug_close_page.php
+$s_closed_bug_title = 'Zamykanie Zagadnienia';
+
+# bug_delete.php
+$s_bug_deleted_msg = 'Zagadnienie zosta³o usuniête...';
+
+# bug_delete_page.php
+$s_delete_bug_sure_msg = 'Czy na pewno chcesz usun±æ to Zagadnienie?';
+$s_delete_bug_button = 'Usuñ Zagadnienie';
+
+# bug_monitor.php
+$s_monitor_bug_button = 'Monitoruj Zagadnienie';
+$s_unmonitor_bug_button = 'Zakoñcz monitorowanie Zagadnienia';
+
+# bug_file_add.php
+$s_file_upload_msg = 'Plik zosta³ pomy¶lnie przes³any';
+
+# bug_file_upload_inc.php
+$s_upload_file = 'Prze¶lij plik';
+$s_select_file = 'Wybierz plik';
+$s_upload_file_button = 'Prze¶lij plik';
+$s_max_file_size = 'Maksymalny rozmiar';
+
+# bug_reopen.php
+$s_bug_reopened_msg = 'Zagadnienie zosta³o ponownie otwarte...';
+$s_reopen_add_bugnote_title = 'Dodaj komentarz z wyja¶nieniem powodu, dla którego ponownie otwierasz Zagadnienie';
+$s_bugnote_add_reopen_button = 'Dodaj komentarz i ponownie otwórz Zagadnienie';
+
+# bug_resolve_page.php
+$s_resolved_bug_title = 'Rozwi±zanie Zagadnienia';
+$s_resolved_bug_button = 'Rozwi±¿ Zagadnienie';
+
+# bug_resolve_page2.php
+$s_bug_resolved_msg = 'Zagadnienie zosta³o rozwi±zane. Poni¿ej wprowad¼ komentarz...';
+$s_resolve_add_bugnote_title = 'Dodawanie komentarza z wyja¶nieniem rozwi±zania Zagadnienia';
+$s_bugnote_add_resolve_button = 'Dodaj komentarz';
+
+# bug_reminder_page.php
+$s_from = 'Od';
+$s_to = 'Do';
+$s_on = 'Dnia';
+$s_sent_you_this_reminder_about = 'wys³a³ Ci przypomnienie o';
+$s_bug_reminder = 'Wy¶lij przypomnienie';
+$s_reminder_sent_to = 'Przypomnienie wys³ane do';
+$s_bug_send_button = 'Wy¶lij';
+$s_reminder = 'Przypomnienie';
+$s_reminder_explain = 'This note will be sent to the recipients listed requesting feedback on this issue.';
+$s_reminder_monitor = 'These recipients will also begin monitoring the issue. They can unsubscribe using the Unmonitor button.';
+$s_reminder_store = 'This note will be stored with the issue.';
+
+# bug_update.php
+$s_bug_updated_msg = 'Zagadnienie zosta³o pomy¶lnie zaktualizowane...';
+
+# bug_update_advanced_page.php
+$s_back_to_bug_link = 'Powrót do Zagadnienia';
+$s_update_simple_link = 'Aktualizacja prosta';
+$s_updating_bug_advanced_title = 'Aktualizacja informacji o Zagadnieniu';
+$s_id = 'Identyfikator';
+$s_category = 'Kategoria';
+$s_severity = 'Wa¿no¶æ';
+$s_reproducibility = 'Powtarzalno¶æ';
+$s_date_submitted = 'Data zg³oszenia';
+$s_last_update = 'Data modyfikacji';
+$s_reporter = 'Zg³aszaj±cy';
+$s_assigned_to = 'Przypisany do';
+$s_priority = 'Priorytet';
+$s_resolution = 'Rozwi±zanie';
+$s_status = 'Status';
+$s_duplicate_id = 'Identyfikator duplikatu';
+$s_os = 'System operacyjny';
+$s_projection = 'Przewidywana trudno¶æ';
+$s_os_version = 'Wersja systemu';
+$s_eta = 'Szacowany termin rozwi±zania';
+$s_product_version = 'Wersja produktu';
+$s_build = 'Kompilacja';
+$s_fixed_in_version = 'Fixed in Version';
+$s_votes = 'G³osy';
+$s_summary = 'Podsumowanie';
+$s_description = 'Opis';
+$s_steps_to_reproduce = 'Kroki, by powtórzyæ';
+$s_update_information_button = 'Aktualizuj informacjê';
+
+# bug_update_page.php
+$s_update_advanced_link = 'Aktualizacja Zaawansowana';
+$s_updating_bug_simple_title = 'Aktualizacja Informacji o Zagadnieniu';
+
+# bug_vote_add.php
+$s_vote_added_msg = 'G³os zosta³ dodany..';
+
+# bugnote_add.php
+$s_bugnote_added_msg = 'Komentarz zosta³ dodany...';
+
+# bugnote_delete.php
+$s_bugnote_deleted_msg = 'Komentarz zosta³ pomy¶lnie usuniêty...';
+$s_bug_notes_title = 'Komentarze';
+
+# bugnote_edit_page.php
+$s_edit_bugnote_title = 'Edytuj Komentarz';
+
+# bugnote_inc.php
+$s_no_bugnotes_msg = 'Brak komentarzy do tego Zagadnienia.';
+$s_delete_link = 'Usuñ';
+$s_add_bugnote_title = 'Dodawanie komentarza';
+$s_add_bugnote_button = 'Dodaj komentarz';
+$s_bugnote_edit_link = 'Edytuj';
+$s_closed_bug_button = 'Zamknij Zagadnienie';
+
+# bugnote_update.php
+$s_bugnote_updated_msg = 'Komentarz zosta³ pomy¶lnie zaktualizowany...';
+$s_edited_on = 'edytowano: ';
+
+# index.php
+$s_click_to_login = 'Kilknij tutaj, aby siê zalogowaæ';
+
+# login.php
+
+# login_page.php
+#@@@ should the following string be related to $g_window_title?
+$s_login_page_info = 'Witaj w programie do zarz±dzania i rozwi±zywania Zagadnieñ.';
+$s_login_title = 'Logowanie';
+$s_save_login = 'Zapamiêtaj has³o';
+$s_choose_project = 'Wybierz projekt';
+$s_login_button = 'Zaloguj siê';
+$s_signup_link = 'Za³ó¿ nowe konto';
+$s_lost_password_link = 'Lost your password?';
+
+# login_select_proj_page.php
+$s_select_project_button = 'Wybierz projekt';
+
+# logout_page.php
+$s_logged_out_title = 'Wylogowany...';
+$s_redirecting = '...Przekierowujê';
+$s_here = 'Tutaj';
+# lost_pwd_page.php
+$s_lost_password_title = "Password Reset";
+$s_lost_password_done_title = "Password Message Sent";
+$s_lost_password_subject = "Password Reset";
+$s_lost_password_info = "To reinstate your lost password, please supply the name and email address for the account.<br/><br/>If the data corresponds to a valid account, you will be sent a special URL via email that contains a validation code for your account. Please follow this link to change your password.";
+$s_lost_password_confirm_hash_OK = "Your confirmation has been accepted. Please update your password.";
+
+# main_page.php
+$s_open_and_assigned_to_me = 'Otwarte i przypisane do mnie';
+$s_open_and_reported_to_me = 'Otwarte i zg³oszone przeze mnie';
+$s_newer_news_link = 'Nowsze wiadomo¶ci';
+$s_older_news_link = 'Starsze wiadomo¶ci';
+$s_archives = 'Archiwum';
+$s_rss = 'RSS';
+
+# manage_create_new_user.php
+$s_created_user_part1 = 'Stworzono u¿ytkownika u¿ytkownika';
+$s_created_user_part2 = 'z poziomem dostêpu';
+
+# manage_create_user_page.php
+$s_create_new_account_title = 'Tworzenie nowego konta';
+$s_verify_password = 'Potwierd¼ has³o';
+$s_enabled = 'W³±czone';
+$s_protected = 'Zabezpieczone';
+$s_create_user_button = 'Stwórz U¿ytkownika';
+
+# manage_page.php
+$s_hide_disabled = 'Ukryj wy³±czone';
+$s_filter_button = 'Filtruj';
+$s_manage_users_link = 'Zarz±dzanie U¿ytkownikami';
+$s_manage_projects_link = 'Zarz±dzanie Projektami';
+$s_manage_custom_field_link = 'Zarz±dzanie Polami Dodatkowymi';
+$s_permissions_summary_report = 'Permissions Report';
+$s_create_new_account_link = 'Stwórz konto';
+$s_projects_link = 'Projekty';
+$s_documentation_link = 'Dokumentacja';
+$s_new_accounts_title = 'Nowe konta';
+$s_1_week_title = '1 tydzieñ';
+$s_never_logged_in_title = 'Nigdy nie zalogowani';
+$s_prune_accounts = 'Usuñ konta';
+$s_hide_inactive = 'Ukryj nieaktywne';
+$s_manage_accounts_title = 'Zarz±dzanie kontami';
+$s_p = 'z';
+$s_date_created = 'Stworzone';
+$s_last_visit = 'Ostatnia wizyta';
+$s_edit_user_link = 'Edytuj dane';
+
+# manage_proj_add.php
+$s_project_added_msg = 'Projekt zosta³ pomy¶lnie dodany...';
+
+# manage_proj_category_add.php
+$s_category_added_msg = 'Kategoria zosta³a pomy¶lnie dodana...';
+
+# manage_proj_category_delete.php
+$s_category_deleted_msg = 'Kategoria zosta³a pomy¶lnie usuniêta...';
+
+# manage_proj_category_delete_page.php
+$s_category_delete_sure_msg = 'Czy napewno chcesz usun±æ t± kategoriê ? Wszystkie przypisane do niej Zagadnienia zostan± usuniête.';
+$s_delete_category_button = 'Usuñ kategoriê';
+
+# manage_proj_category_edit_page.php
+$s_edit_project_category_title = 'Edycja kategorii';
+$s_update_category_button = 'Aktualizuj Kategoriê';
+
+# manage_proj_category_update.php
+$s_category_updated_msg = 'Kategoria zosta³a pomy¶lnie zaktualizowana...';
+
+# manage_proj_delete.php
+$s_project_deleted_msg = 'Projekt zosta³ usuniêty...';
+
+# manage_proj_delete_page.php
+$s_project_delete_msg = 'Czy na pewno chcesz usun±æ ten projekt i wszystkie zg³oszone do tego projektu zagadnienia?';
+$s_project_delete_button = 'Usuñ projekt';
+
+# manage_proj_edit_page.php
+$s_edit_project_title = 'Edycja projektu';
+$s_project_name = 'Nazwa projektu';
+$s_view_status = 'Status';
+$s_public = 'publiczny';
+$s_private = 'prywatny';;
+$s_update_project_button = 'Aktualizuj Projekt';
+$s_delete_project_button = 'Usuñ projekt';
+$s_categories_and_version_title = 'Kategorie i wersje';
+$s_categories = 'Kategorie';
+$s_add_category_button = 'Dodaj kategoriê';
+$s_versions = 'Wersje';
+$s_add_version_button = 'Dodaj wersjê';
+$s_add_and_edit_version_button = 'Add and Edit Version';
+$s_edit_link = 'edytuj';
+$s_actions = 'Akcje';
+$s_version = 'Wersja/Kompilacja';
+$s_timestamp = 'Data/Godzina';
+$s_update = 'Aktualizuj';
+
+# manage_proj_menu_page.php
+$s_add_project_title = 'Dodawanie projektu';
+$s_upload_file_path = 'Katalog dla przesy³anych plików';
+$s_add_project_button = 'Dodaj projekt';
+$s_projects_title = 'Projekty';
+$s_name = 'Nazwa';
+
+# manage_proj_update.php
+$s_project_updated_msg = 'Projekt zosta³ zaktualizowany...';
+
+# manage_proj_version_add.php
+$s_version_added_msg = 'Nowa wersja zosta³a pomy¶lnie dodana...';
+
+# manage_proj_version_delete.php
+$s_version_deleted_msg = 'Wersja zosta³a pomy¶lnie usuniêta...';
+
+# manage_proj_version_delete_page.php
+$s_version_delete_sure = 'Czy na pewno chcesz usun±æ t± wersjê ? Wszystkie zg³oszone do tej wersji Zagadnienia zostan± usuniête.';
+$s_delete_version_button = 'Usuñ wersjê';
+
+# manage_proj_version_edit_page.php
+$s_edit_project_version_title = 'Edycja wersji projektu';
+$s_update_version_button = 'Aktualizuj wersjê';
+$s_released = 'Released';
+
+# manage_proj_version_update.php
+$s_version_updated_msg = 'Wersja zosta³a pomy¶lnie zaktualizowana...';
+
+# manage_user_delete.php
+$s_account_delete_protected_msg = 'Konto jest zabezpieczone. Nie mo¿na usun±æ tego konta.';
+$s_account_deleted_msg = 'Konto zosta³o usuniête...';
+
+# manage_user_delete_page.php
+$s_delete_account_sure_msg = 'Czy na pewno chcesz usun±æ to konto ?';
+
+# manage_user_prune.php
+$s_accounts_pruned_msg = 'Wszystkie konta na które nikt siê nie logowa³ i starsze ni¿ tydzieñ zosta³y usuniête.';
+$s_prune_accounts_button = 'Usuñ';
+$s_confirm_account_pruning = 'Czy jeste¶ pewien, ¿e chcesz usun±æ stare konta na które nikt nigdy siê nie logowa³?';
+
+# manage_user_page.php
+$s_edit_user_title = 'Edycja U¿ytkownika';
+$s_reset_password_button = 'Nowe has³o';
+$s_delete_user_button = 'Usuñ U¿ytkownika';
+$s_reset_password_msg = 'Reset Password sends the confirmation URL via email.';
+$s_reset_password_msg2 = 'Po operacji \'Nowe has³o\' u¿ytkownik nie bêdzie musia³ podawaæ has³a przy logowaniu.';
+$s_show_all_users = 'WSZYSCY';
+
+# manage_user_reset.php
+$s_account_reset_protected_msg = 'Konto jest zabezpieczone. Nie mo¿na przypisaæ nowego has³a.';
+$s_account_reset_msg = 'Confirmation message has been sent to your email address...';
+$s_account_reset_msg2 = 'Konto nie wymaga podawania has³a...';
+
+# manage_user_update.php
+$s_manage_user_protected_msg = 'Konto jest zabezpieczone. Za wyj±tkiem Poziomu dostêpu i W³±czenia dane zosta³y zatualizowane...';
+$s_manage_user_updated_msg = 'Konto zosta³o zaktualizowane...';
+
+# menu_inc.php
+$s_main_link = 'G³ówna';
+$s_view_bugs_link = 'Zobacz';
+$s_report_bug_link = 'Dodaj';
+$s_changelog_link = 'Change Log';
+$s_summary_link = 'Statystyki';
+$s_account_link = 'Twoje konto';
+$s_users_link = 'U¿ytkownicy';
+$s_manage_link = 'Zarz±dzanie';
+$s_edit_news_link = 'Wiadomo¶ci';
+$s_docs_link = 'Dokumentacja';
+$s_logout_link = 'Wyloguj';
+$s_my_view_link = 'My View';
+
+# meta_inc.php
+
+# my_view_page.php
+$s_my_view_title_unassigned = 'Unassigned';
+$s_my_view_title_recent_mod = 'Recently Modified';
+$s_my_view_title_reported = 'Reported by Me';
+$s_my_view_title_assigned = 'Assigned to Me (Unresolved)';
+$s_my_view_title_resolved = 'Resolved';
+$s_my_view_title_monitored = 'Monitored by Me';
+
+# news_add.php
+$s_news_added_msg = 'Nowa wiadomo¶æ zosta³a dodana...';
+
+# news_delete.php
+$s_news_deleted_msg = 'Wiadomo¶æ zosta³a usuniêta...';
+
+# news_delete_page.php
+$s_delete_news_sure_msg = 'Czy na pewno chcesz usun±æ wiadomo¶æ ?';
+$s_delete_news_item_button = 'Usuñ wiadomo¶æ';
+
+# news_edit_page.php
+$s_edit_news_title = 'Edycja wiadomo¶ci';
+$s_headline = 'Nag³ówek';
+$s_body = 'Tre¶æ';
+$s_update_news_button = 'Aktualizuj Wiadomo¶æ';
+
+# news_menu_page.php
+$s_add_news_title = 'Dodawanie wiadomo¶ci';
+$s_post_to = 'Wy¶lij do';
+$s_post_news_button = 'Wy¶lij wiadomo¶æ';
+$s_edit_or_delete_news_title = 'Edycja lub usuwanie wiadomo¶ci';
+$s_edit_post = 'Edytuj wiadomo¶æ';
+$s_delete_post = 'Usuñ wiadomo¶æ';
+$s_select_post = 'Wybierz wiadomo¶æ';
+
+# news_update.php
+$s_news_updated_msg = 'Wiadomo¶æ zosta³a zaktualizowana...';
+
+# news_view_page.php
+$s_back_link = 'Powrót';
+
+# proj_doc_add.php
+$s_file_uploaded_msg = 'Plik zosta³ pomy¶lnie przes³any';
+
+# proj_doc_add_page.php
+$s_upload_file_title = 'Przesy³anie pliku';
+$s_title = 'Tytu³';
+
+# proj_doc_delete.php
+$s_project_file_deleted_msg = 'Plik projektu zosta³ usuniêty';
+
+# proj_doc_delete_page.php
+$s_confirm_file_delete_msg = 'Czy na pewno chcesz usun±æ ten plik?';
+
+# proj_doc_edit_page.php
+$s_filename = 'Nazwa pliku';
+$s_file_update_button = 'Aktualizuj plik';
+$s_file_delete_button = 'Usuñ plik';
+
+# proj_doc_page.php
+$s_project_documentation_title = 'Dokumentacja projektu';
+$s_user_documentation = 'Dokumentacja u¿ytkownika';
+$s_project_documentation = 'Dokumentacja projektu';
+$s_add_file = 'Dodaj plik';
+
+# proj_doc_update.php
+$s_project_document_updated = 'Projekt zosta³ pomy¶lnie zaktualizowany';
+
+# proj_user_add.php
+$s_project_user_added_msg = 'U¿ytkownik zosta³ pomy¶lnie dodany do projektu';
+
+# proj_user_delete.php
+$s_project_removed_user_msg = 'U¿ytkownik zosta³ pomy¶lnie usuniêty z projektu';
+
+# proj_user_delete_page.php
+$s_remove_user_sure_msg = 'Czy na pewno chcesz usun±æ tego u¿ytkownika?';
+
+# proj_user_menu_page.php
+$s_add_user_title = 'Dodawanie u¿ytkownika do projektu';
+$s_add_user_button = 'Dodaj u¿ytkownika';
+$s_project_selection_title = 'Wybór projektu';
+$s_remove_link = 'Usuñ';
+$s_remove_all_link = 'Remove all';
+
+# proj_user_update.php
+$s_updated_user_msg = 'U¿ytkownik zosta³ pomy¶lnie zaktualizowany';
+
+# report_add.php
+$s_must_enter_category = 'Nale¿y wybraæ kategoriê';
+$s_must_enter_severity = 'Nale¿y wybraæ wa¿no¶æ Zagadnienia';
+$s_must_enter_reproducibility = 'Nale¿y wybraæ powtarzalno¶æ Zagadnienia';
+$s_must_enter_summary = 'Nale¿y wpisaæ podsumowanie Zagadnienia';
+$s_must_enter_description = 'Nale¿y wpisaæ opis Zagadnienia';
+$s_report_more_bugs = 'Kontynuuj zg³aszanie';
+$s_submission_thanks_msg = 'Dziêkujemy za zg³oszenie Zagadnienia';
+
+# report_bug_advanced_page.php
+$s_simple_report_link = 'Zg³oszenie proste';
+$s_enter_report_details_title = 'Wprowadzanie szczegó³ów zg³oszenia';
+$s_required = 'wymagane';
+$s_select_category = 'Wybierz kategoriê';
+$s_select_reproducibility = 'Wybierz powtarzalno¶æ Zagadnienia';
+$s_select_severity = 'Wybierz wa¿no¶æ Zagadnienia';
+$s_or_fill_in = 'Lub wype³nij';
+$s_assign_to = 'Przypisz do';
+$s_additional_information = 'Dodatkowe informacje';
+$s_submit_report_button = 'Wy¶lij zg³oszenie';
+$s_check_report_more_bugs = 'Kontynuuj zg³aszanie';
+
+# report_bug_page.php
+$s_advanced_report_link = 'Zg³oszenie zaawansowane';
+$s_report_stay = 'Pozostañ w zg³oszeniu';
+
+# set_project.php
+$s_selected_project = 'Wybrany projekt';
+$s_valid_project_msg = 'Musisz wybraæ prawid³owy projekt';
+
+# signup.php
+$s_signup_done_title = 'Account registration processed';
+$s_password_emailed_msg = 'Congratulations. You have registered successfully. You are now being sent a confirmation email to verify your email address. Visiting the link sent to you in this email will activate your account.';
+$s_no_reponse_msg = 'You will have seven days to complete the account confirmation process; if you fail to complete account confirmation within seven days, this newly-registered account may be purged.';
+
+# signup_page.php
+$s_signup_captcha_request = 'Enter the code as it is shown in the box on the right';
+$s_signup_info = 'On completion of this form and verification of your answers, you will be sent a confirmation email to the email address you specified.<br/>Using the confirmation email, you will be able activate your account. If you fail to activate your account within seven days, it will be purged.<br/>You must specify a valid email address in order to receive the account confirmation email.';
+$s_signup_title = 'Zapisywanie siê';
+$s_signup_button = 'Zapisz siê';
+$s_no_password_request = 'Your password is managed by another system. Please contact your system administrator.';
+
+# site_settings_edit_page.php
+$s_edit_site_settings_title = 'Edycja ustawieñ strony';
+$s_save_settings_button = 'Zapisz ustawienia';
+
+# site_settings_page.php
+$s_site_settings_title = 'Ustawienia strony';
+$s_system_info_link = 'Informacja o systemie';
+$s_site_settings_link = 'Ustawienia strony';
+
+# site_settings_update.php
+$s_site_settings_updated_msg = 'Ustawienia strony zosta³y zaktualizowane';
+
+# summary_page.php
+$s_summary_title = 'Statystyki';
+$s_summary_jpgraph_link = 'Zaawansowane statystyki';
+$s_by_project = 'wg projektu';
+$s_by_status = 'wg statusu';
+$s_by_date = 'wg daty (dni)';
+$s_by_severity = 'wg wa¿no¶ci';
+$s_by_resolution = 'wg rozwi±zania';
+$s_by_category = 'wg kategorii';
+$s_by_priority = 'wg priorytetu';
+$s_by_developer = 'wg wykonawcy';
+$s_by_reporter ='wg zg³aszaj±cego';
+$s_reporter_by_resolution = 'zg³aszaj±cy wg rozwi±zania';
+$s_reporter_effectiveness = 'efaktywno¶æ zg³aszaj±cego';
+$s_developer_by_resolution = 'efektywno¶æ rozwi±zuj±cego';
+$s_percentage_fixed = '% Naprawionych';
+$s_percentage_errors = '% B³êdnych';
+$s_errors = 'B³êdne';
+$s_total = '£±cznie';
+$s_time_stats = 'statystyki rozwi±zanych Zagadnieñ (w dniach)';
+$s_longest_open_bug = 'najd³u¿ej otwarte Zagadnienie';
+$s_longest_open = 'czas najd³u¿szego otwarcia';
+$s_average_time = 'przeciêtna d³ugo¶æ';
+$s_total_time = 'ogólna d³ugo¶æ';
+$s_developer_stats = 'statystyki wykonawców';
+$s_reporter_stats = 'statystyki zg³aszaj±cych';
+$s_orct = '(otwarty/rozwi±zany/zamkniêty/³±cznie)';
+
+# view_all_bug_page.php
+$s_any = 'dowolny';
+$s_show = 'Poka¿';
+$s_changed = 'Zmienione (w godzinach)';
+$s_viewing_bugs_title = 'Przegl±danie Zagadnieñ';
+$s_updated = 'Aktualizacja';
+
+# view_all_inc.php
+$s_none = '¿adne';
+$s_search ='Szukaj';
+$s_view_prev_link = 'Poprzednie';
+$s_view_next_link = 'Nastêpne';
+$s_prev = 'Poprzednie';
+$s_next = 'Nastêpne';
+$s_first = 'Pierwsze';
+$s_last = 'Ostatnie';
+$s_start_date = 'Data pocz±tkowa';
+$s_end_date = 'Data koñcowa';
+$s_use_date_filters = 'U¿ywaj filtrów daty';
+$s_yes = 'Tak';
+$s_no = 'Nie';
+$s_open_filters = 'Zmieñ filtr';
+$s_or_unassigned = 'lub nieprzypisane';
+$s_ok = 'OK';
+$s_select_all = 'Select All';
+
+# stored query strings
+$s_use_query = 'U¿yj filtru';
+$s_delete_query = 'Skasuj filtr';
+$s_query_deleted = 'Filtr skasowany';
+$s_save_query = 'Zachowaj aktualny filtr';
+$s_reset_query = 'Wyczy¶æ filtr';
+$s_query_name = 'Nazwa filtru';
+$s_query_exists = 'Taki filtr prawdopodobnie ju¿ istnieje.';
+$s_query_dupe_name = 'Inny filtr o tej samej nazwie ju¿ istnieje. Proszê wybraæ inn± nazwê.';
+$s_query_blank_name = 'Nie mo¿na zapisaæ filtru z pust± nazw±. Pros¿ê podac nazwê filtru przed jego zapisaniem.';
+$s_query_store_error = 'Wyst±pi³ b³±d w trakcie zachowywania filtru.';
+$s_open_queries = 'Zarz±dzaj filtrami';
+$s_query_delete_msg = 'Czy napewno chcesz usun±æ ten filtr?';
+
+# view_bug_advanced_page.php
+$s_view_simple_link = 'Widok prosty';
+$s_viewing_bug_advanced_details_title = 'Widok zaawansowany';
+$s_product_build = 'Kompilacja produktu';
+$s_system_profile = 'Opis systemu';
+$s_update_bug_button = 'Aktualizuj Zagadnienie';
+$s_bug_assign_to_button = 'Przypisz do:';
+$s_bug_status_to_button = 'Change Status To:';
+$s_reopen_bug_button = 'Otwórz Ponownie Zagadnienie';
+$s_move_bug_button = 'Move Issue';
+$s_attached_files = 'Do³±czone Pliki';
+$s_publish = 'Opublikuj';
+$s_cached = 'Przechowywany';
+
+# view_bug_inc.php
+
+# view_bug_page.php
+$s_view_advanced_link = 'Widok zaawansowany';
+$s_viewing_bug_simple_details_title = 'Widok prosty';
+
+# bug_monitor_list_view_inc.php
+$s_no_users_monitoring_bug = '.¯aden u¿ytkownik nie monitoruje tego Zagadnienia.';
+$s_users_monitoring_bug = 'U¿ytkownicy monitoruj±cy to Zagadnienie';
+$s_monitoring_user_list = 'Lista u¿ytkowników';
+
+# bug_sponsorship_list_view_inc.php
+$s_no_users_sponsoring_bug = 'There are no users sponsoring this issue.';
+$s_users_sponsoring_bug = 'Users sponsoring this issue';
+$s_sponsors_list = 'Sponsors List';
+$s_total_sponsorship_amount = 'Total Sponsorship = %s';
+$s_sponsor_issue = 'Sponsor Issue';
+
+# custom field strings
+$s_add_custom_field_button = 'Nowe \'Dodatkowe pole\'';
+$s_delete_custom_field_button = 'Usuñ \'Dodatkowe pole\'';
+$s_delete_custom_field_everywhere = 'Usuñ \'Dodatkowe pole\' wszêdzie';
+$s_update_custom_field_button = 'Aktualizuj \'Dodatkowe pole\'';
+$s_add_existing_custom_field = 'Dodaj istniej±ce \'Dodatkowe pole\'';
+$s_edit_custom_field_title = 'Edytuj \'Dodatkowe pole\'';
+$s_custom_field = 'Pole';
+$s_custom_fields_setup = 'Dodatkowe pola';
+$s_custom_field_name = 'Nazwa';
+$s_custom_field_project_count = 'Liczba projektów';
+$s_custom_field_type = 'Typ';
+$s_custom_field_possible_values = 'Mo¿liwe warto¶ci';
+$s_custom_field_default_value = 'Warto¶æ domy¶lna';
+$s_custom_field_valid_regexp = 'Wyra¿enie regularne';
+$s_custom_field_access_level_r = 'Prawo odczytu';
+$s_custom_field_access_level_rw = 'Prawo zapisu';
+$s_custom_field_length_min = 'Min. d³ugo¶æ';
+$s_custom_field_length_max = 'Maks. d³ugo¶æ';
+$s_custom_field_advanced = 'Zaawansowane';
+$s_custom_field_display_report = 'Display When Reporting Issues';
+$s_custom_field_display_update = 'Display When Updating Issues';
+$s_custom_field_display_resolved = 'Display When Resolving Issues';
+$s_custom_field_display_closed = 'Display When Closing Issues';
+$s_custom_field_require_report = 'Required On Report';
+$s_custom_field_require_update = 'Required On Update';
+$s_custom_field_require_resolved = 'Required On Resolve';
+$s_custom_field_require_closed = 'Required On Close';
+
+$s_custom_field_sequence = 'Sekwencja';
+$s_custom_field_type_enum_string = '0:£añcuch znaków,1:Liczba ca³kowita,2:Liczba zmiennoprzecinkowa,3:Wyliczenie,4:Email,5:Checkbox,6:List,7:Multiselection list';
+
+$s_confirm_used_custom_field_deletion = 'To pole jest aktualnie po³±czone z co najmniej jednym projektem.  Je¿eli je usuniesz, wszystkie warto¶ci zostan± skasowane. Nie bêdzie te¿ mo¿liwo¶ci odzyskania danych.  Je¿eli nie chcesz usun±æ tego pola, kliknij Wstecz w przegl±darce.  By kontynuowaæ, kliknij przycik poni¿ej';
+$s_confirm_custom_field_deletion = 'Czy jeste¶ pewien, ¿e chcesz usun±æ to dodatkowe pole i wszystkie powi±zane z nim wartoci?';
+$s_field_delete_button = 'Usuñ pole';
+
+$s_hide_status = 'Ukryj status';
+$s_filter_closed = "Zamkniête";
+$s_filter_resolved = "Rozwi±zane";
+$s_hide_closed = "Ukryj Zamkniête";
+$s_hide_resolved = "Ukryj Rozwi±zane";
+$s_and_above = 'And Above';
+$s_advanced_filters = 'Advanced Filters';
+$s_simple_filters = 'Simple Filters';
+$s_monitored_by = 'Monitored By';
+
+$s_attachments = "za³±cznik (-i)";
+$s_attachment_alt = "A";
+
+# PHPMailer
+$s_phpmailer_language = 'en';
+
+# Sponsorship Strings
+$s_sponsors = '%d sponsor(s)';
+$s_sponsorship_added = 'Sponsorship Added';
+$s_sponsorship_updated = 'Sponsorship Updated';
+$s_sponsorship_deleted = 'Sponsorship Deleted';
+$s_sponsorship_more_info = 'More information about sponsorship';
+
+# URL explaining the process of sponsoring an issue.  This is defined here rather than
+# in the config to allow for a URL per language.  This can be set to an empty string if there
+# is not need to provide such process information.
+$s_sponsorship_process_url = '';
+
+# Changelog
+$s_changelog = 'Change Log';
+
+# Http auth
+$s_http_auth_realm = "Mantis Login";
+
+$s_bug = "issue";
+$s_add_new_relationship = "New relationship";
+$s_add_new_relationship_button = "Add";
+$s_this_bug = "Current issue";
+$s_relationship_added = "Relationship added";
+$s_relationship_deleted = "Relationship deleted";
+$s_no_relationship = "no relationship";
+$s_relationship_replaced = "Relationship replaced";
+$s_replace_relationship_button = "Replace";
+$s_replace_relationship_sure_msg = "There is already a relationship between the two issues. Are you sure you want to replace it?";
+$s_relationship_with_parent = "Relationship with the parent issue";
+$s_delete_relationship_button = "Delete";
+$s_delete_relationship_sure_msg = "Are you sure you wish to delete this relationship?";
+$s_relationship_warning_blocking_bugs_not_resolved = "Not all the children of this issue are yet resolved or closed.";
+$s_relationship_warning_blocking_bugs_not_resolved_2 = "<b>ATTENTION</b>. Not all the children of this issue are yet resolved or closed.<br>Before <b>resolving/closing</b> a parent issue, all the issues related as child with this one should be resolved or closed.";
+$s_create_child_bug_button = "Create Clone";
+$s_bug_cloned_to = "Issue cloned";
+$s_bug_created_from = "Issue generated from";
+# Relationship Graphs
+$s_viewing_bug_relationship_graph_title = "Relationship Graph";
+$s_relation_graph = "Relation Graph";
+$s_dependency_graph = "Dependency Graph";
+$s_vertical = "Vertical";
+$s_horizontal = "Horizontal";
+$s_view_issue = "View Issue";
+
+# Source Control Integration
+$s_checkin = 'Checkin';
+# Pemissions report
+$s_perm_rpt_capability = 'Capability';
+$s_view = 'View';
+$s_issues = 'ISSUES';
+$s_report_issue = 'Report an issue';
+$s_update_issue = 'Update an issue';
+$s_monitor_issue = 'Monitor an issue';
+$s_handle_issue = 'Handle an issue';
+$s_move_issue = 'Move an issue';
+$s_delete_issue = 'Delete an issue';
+$s_reopen_issue = 'Reopen an issue';
+$s_view_private_issues = 'View private issues';
+$s_update_readonly_issues = 'Update readonly issues';
+$s_update_issue_status = 'Update issue status';
+$s_set_view_status = 'Set view status (public vs private)';
+$s_update_view_status = 'Update view status (public vs private)';
+$s_show_list_of_users_monitoring_issue = 'Show list of users monitoring issue';
+$s_notes = 'NOTES';
+$s_add_notes = 'Add notes';
+$s_update_notes = 'Update notes';
+$s_delete_note = 'Delete note';
+$s_view_private_notes = 'View private notes';
+$s_news = 'NEWS';
+$s_view_private_news = 'View private news';
+$s_manage_news = 'Manage news';
+$s_view_list_of_attachments = 'View list of attachments';
+$s_download_attachments = 'Download attachments';
+$s_delete_attachments = 'Delete attachments';
+$s_upload_issue_attachments = 'Upload issue attachments';
+$s_filters = 'filters';
+$s_save_filters = 'Save filters';
+$s_save_filters_as_shared = 'Save filters as shared';
+$s_use_saved_filters = 'Use saved filters';
+$s_create_project = 'Create project';
+$s_delete_project = 'Delete project';
+$s_manage_project = 'Manage project';
+$s_manage_user_access_to_project = 'Manage user access to a project';
+$s_automatically_included_in_private_projects = 'Automatically included in private projects';
+$s_project_documents = 'PROJECT DOCUMENTS';
+$s_view_project_documents = 'View project documents';
+$s_upload_project_documents = 'Upload project documents';
+$s_link_custom_fields_to_projects = 'Link custom fields to projects';
+$s_sponsorships = 'SPONSORSHIPS';
+$s_view_sponsorship_details = 'View sponsorship details';
+$s_view_sponsorship_total = 'View sponsorship total';
+$s_sponsor_issue = 'Sponsor issue';
+$s_assign_sponsored_issue = 'Assign sponsored issue';
+$s_handle_sponsored_issue = 'Handle sponsored issue';
+$s_others = 'OTHERS';
+$s_see_email_addresses_of_other_users = 'See email addresses of other users';
+$s_send_reminders = 'Send reminders';
+$s_add_profiles = 'Add profiles';
+$s_notify_of_new_user_created = 'Notify of new user created';
+$s_email_notification = 'EMAIL NOTIFICATION';
+$s_status_changed_to = 'Status changes to';
+$s_email_on_deleted = 'Email on Deleted';
+$s_email_on_sponsorship_changed = 'Email on Sponsorship changed';
+$s_email_on_relationship_changed = 'Email on Relationship changed';
+?>

@@ -1,0 +1,38 @@
+Pluto servers configuration:
+MasterUsers
+It's independent of other servers
+and require connection to 5 databases: 
+  MasterUsers (his own database),
+  pluto_website (Pluto Home database),
+  pluto_vip (Pluto VIP database),
+  phpbb2 (PHP BB database),
+  mantis (Mantis database).
+This should be set first as long as the Admin and Support local websites will connect to it.
+The host should be set somewhere (eventually as subdomain of plutohome): http://www.plutohome.com/masterusers/
+
+PHPlive
+There are the categories who need to be completed.
+PHPLive MUST be installed on server (for example http://www.plutohome.com/phplive/) before the installation package is done, as long he require modification of the pages:
+- PlutoHome/include/templates/template.home.tpl.html
+- Support /include/templates/template.large.tpl.html
+- Support /pluto_header.php
+
+
+Pluto Admin (the former Customer Setup)
+
+- the database "pluto_main";
+- in the table "Users", one entry with the same username, password and email the user provided when he register in PlutoHome (from the database MasterUsers table MasterUsers); the Users.PK_User must be MasterUsers.PK_MasterUser;
+- copy the entries from Installation_Users and Installation who belong to the user (Installation_Users.FK_Users);
+- copy the devices who belong to user's Installations;
+
+Install in Web server root (ex.: /var/www/html/admin/ where /var/www/html is docroot /admin/ is the directory of Admin site)
+Set the Web host as http://localhost/admin/
+Set the general configuration file, /admin/include/config/config.inc.php
+Set the database configuration file, /admin/include/config/database.inc.php
+
+
+Pluto Support
+Install in Web server root (ex.: /var/www/html/support/ where /support/ is the directory of Support site)
+Set the Web host as http://localhost/support/
+Set the general configuration file, /admin/include/config/config.inc.php 
+Set the database configuration file, /admin/include/config/database.inc.php 
