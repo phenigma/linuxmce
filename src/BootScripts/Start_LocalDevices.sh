@@ -65,7 +65,6 @@ PerlCommand="
 ";
 
 CommandList=$(echo "$QUERY" | $MySQLCommand | tail +2 | perl -n -e "$PerlCommand");
-AlreadyRunning="/tmp/pluto_spawned_local_devices.txt"
 for command in $CommandList; do
 	ChildDeviceID=`echo $command | cut -f 1 -d '|'`;
 	ChildCommand=`echo $command | cut -f 2 -d '|'`;
