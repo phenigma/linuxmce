@@ -40,6 +40,7 @@ using namespace DCE;
 
 extern void (*g_pDeadlockHandler)(PlutoLock *pPlutoLock);
 extern void (*g_pSocketCrashHandler)(Socket *pSocket);
+extern Command_Impl *g_pCommand_Impl;
 
 /**
  * @brief entry point for the MessageQueue thread
@@ -158,6 +159,7 @@ Command_Impl::Command_Impl( Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl
 
 Command_Impl::~Command_Impl()
 {
+	g_pCommand_Impl = NULL;
 	g_pPlutoLogger->Write( LV_STATUS, "Waiting for message queue thread to quit" );
 	m_bQuit=true;
 	while( m_bMessageQueueThreadRunning )

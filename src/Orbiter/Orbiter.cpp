@@ -208,7 +208,6 @@ m_CallbackMutex( "callback" ), m_MaintThreadMutex("MaintThread")
 Orbiter::~Orbiter()
 //<-dceag-dest-e->
 {
-
 g_pPlutoLogger->Write(LV_STATUS,"Orbiter is exiting");
 	// Be sure we get the maint thread to cleanly exit
 	m_bQuit=true;

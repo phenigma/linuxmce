@@ -33,8 +33,6 @@ void DeadlockHandler(PlutoLock *pPlutoLock)
 void SocketCrashHandler(Socket *pSocket)
 {
 	// This isn't graceful, but for the moment in the event of a socket crash we'll just kill everything and force a reload
-	g_pCommand_Impl = OrbiterSDL_Win32::GetInstance(); //it is possible that orbiter to be deleted and then 
-													   //SocketCrashHandler to be called (so let's verify this)
 	if( g_pCommand_Impl )
 	{
 		if( g_pPlutoLogger )

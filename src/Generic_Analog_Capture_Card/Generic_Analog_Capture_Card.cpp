@@ -76,8 +76,7 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(int DeviceID, string Se
 	fprintf(fp,"target_dir %s\n",sLine.c_str());
 
 	for(i = 1 ; i < atoi(sNumberOfPorts.c_str())+1 ; i++) {
-		sLine = "#thread /etc/motion/thread" + StringUtils::itos(i) + ".conf";
-		fprintf(fp,"%s\n",sLine.c_str());
+		fprintf(fp,"#thread /etc/motion/thread%d.conf",i);
 	}
 	sLine = "snapshot_filename %Y/%m/%d/%H/%M_%S";
 	fprintf(fp,"%s\n",sLine.c_str());
