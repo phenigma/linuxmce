@@ -1,9 +1,9 @@
 . /usr/pluto/bin/Config_Ops.sh
 
-echo "DEBUG: Last config'ed version: '$2'"
+PrevVer="$2"
 
-if [ ! -z "$X_Was_Set" ]; then
-	echo "Configuration file says this is an upgrade. Not setting up X twice"
+if [ ! -z "$PrevVer" ]; then
+	echo "Upgrading from version '$PrevVer'. Not setting up X twice"
 	exit 0
 fi
 
@@ -14,7 +14,7 @@ if [ "$retcode" -ne 0 -o -z "$config" -o ! -e "$config" ]; then
 	echo "Something went wrong while configuring X."
 	exit 1
 fi
-ConfSet X_Was_Set true
+#ConfSet X_Was_Set true
 
 [ -e /etc/X11/XF86Config-4 ] && mv /etc/X11/XF86Config-4 /etc/X11/XF86Config-4.orig
 awk '
