@@ -470,7 +470,7 @@ if($action=='form') {
 			
 			$dbADO->Execute($insertCG_C,array($armDisarmCG,$GLOBALS['commandGotoScreen'],0,0,$GLOBALS['localOrbiter']));
 			$cg_cID=$dbADO->Insert_ID();
-			$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterObjectScreen'],$GLOBALS['mnuSecurityPanel']));
+			$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParamPK_DesignObj'],$GLOBALS['mnuSecurityPanel']));
 		}
 
 		$selectViewAll='SELECT * FROM CommandGroup WHERE FK_Template=?  AND FK_Installation=?';
@@ -491,7 +491,7 @@ if($action=='form') {
 			
 			$dbADO->Execute($insertCG_C,array($viewAllCG,$GLOBALS['commandGotoScreen'],0,0,$GLOBALS['localOrbiter']));
 			$cg_cID=$dbADO->Insert_ID();
-			$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterObjectScreen'],$GLOBALS['mnuSecurityCamerasDesignObj']));
+			$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParamPK_DesignObj'],$GLOBALS['mnuSecurityCamerasDesignObj']));
 		}
 
 		$selectSOS='SELECT * FROM CommandGroup WHERE FK_Template=? AND FK_Installation=?';
@@ -512,7 +512,7 @@ if($action=='form') {
 
 			$dbADO->Execute($insertCG_C,array($sosCG,$GLOBALS['commandGotoScreen'],0,0,$GLOBALS['localOrbiter']));
 			$cg_cID=$dbADO->Insert_ID();
-			$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterObjectScreen'],$GLOBALS['mnuSecurityCamerasDesignObj']));
+			$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParamPK_DesignObj'],$GLOBALS['mnuSecurityCamerasDesignObj']));
 		}
 
 		$insertCG_Room='
