@@ -23,7 +23,7 @@ using namespace DCE;
 #define CM11A_NOREQUES_SLEEP		100 
 
 #define CM11A_SEND_RETRY			10 
-#define CM11A_READ_TIMEOUT			1000 
+#define CM11A_READ_TIMEOUT			15000 
 
 #define CM11A_MAX_DIM_LEVEL			22
 
@@ -83,7 +83,7 @@ DevicePoll::SendPacket(CSerialPort* pport,
 	sendbuff[0] = CM11A_ACK;
 	pport->Write((char*)sendbuff, 1);
 	if(pport->Read((char*)&resp, 1, CM11A_READ_TIMEOUT) == 0) {
-		g_pPlutoLogger->Write(LV_STATUS, "No response from CM11A device.");
+		g_pPlutoLogger->Write(LV_CRITICAL, "No response from CM11A device.");
 		return -1;
 	} else {
 		g_pPlutoLogger->Write(LV_STATUS, "Got response: %x from CM11A.", resp);
@@ -112,6 +112,10 @@ DevicePoll::SendFunction(CSerialPort* pport, const Message* pMesg) {
 												pMesg->getFunctionCode());
 
 	unsigned char dim = pMesg->getDimmLevel() * CM11A_MAX_DIM_LEVEL * 1.0 / 100;
+	if(dim > 0) {
+		g_pPlutoLogger->Write(LV_STATUS, "Using Dim Level: %d.", dim);
+	}
+	
 	return SendPacket(pport,
 						/*high*/(dim << 3) | CM11A_STANDARD_FUNCTION, 
 						/*low*/pMesg->getHouseCode() << 4 | pMesg->getFunctionCode());
@@ -143,7 +147,7 @@ void* DevicePoll::_Run() {
 				if(sendretry < CM11A_SEND_RETRY) { // adress sent seccessfully
 					g_pPlutoLogger->Write(LV_STATUS, "Address sent successfully.");
 				} else  {
-					g_pPlutoLogger->Write(LV_STATUS, "Failed sending address.");
+					g_pPlutoLogger->Write(LV_CRITICAL, "Failed sending address.");
 				}
 				
 				sendretry = 0;
@@ -157,7 +161,7 @@ void* DevicePoll::_Run() {
 				if(sendretry < CM11A_SEND_RETRY) { // adress sent seccessfully
 					g_pPlutoLogger->Write(LV_STATUS, "Function sent successfully.");
 				} else  {
-					g_pPlutoLogger->Write(LV_STATUS, "Failed sending function.");
+					g_pPlutoLogger->Write(LV_CRITICAL, "Failed sending function.");
 				}
 			} else {
 				mq.Unlock();
