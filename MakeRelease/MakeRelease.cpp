@@ -466,7 +466,7 @@ bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileIn
 		for(size_t s2=0;s2<vectPackage_Directory_File.size();++s2)
 		{
 			Row_Package_Directory_File *pRow_Package_Directory_File = vectPackage_Directory_File[s2];
-			if( !pRow_Package_Directory_File->MakeCommand_isNull() )
+			if( pRow_Package_Directory_File->MakeCommand_get()!="" )
 				continue; // Don't add this to the list of source code.  This is something we make
 
 			FileInfo *pFileInfo = new FileInfo(sDirectory + "/" + pRow_Package_Directory_File->File_get(),pRow_Package_Directory->Path_get() + "/" + pRow_Package_Directory_File->File_get(),pRow_Package_Directory_File->FK_Package_Directory_getrow());
@@ -496,6 +496,21 @@ bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileIn
 
 bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileInfo)
 {
+	/*
+		For non-source files, the following directory structure is assumed:
+		The path is always the output path on the target machine.  It is assumed
+		to be in the input path on the build machine too unless an alternate
+		input path is specified.
+
+		The input path will be prefixed with the -direcoty n unless
+		directory type is Source Implementation, in which case we'll look in -s.
+		If FlipSource is 1, that behavior is inverted.
+
+		If a directory entry exists for 'compiled output', then for all binary
+		executibles and binary libraries the prefix is assumed to be the -s
+		source + the compiled output directory.
+	*/
+
 	// First is there a directory specified for finding the compiled output?
 	// If so, we'll grab the binaries from there, since the build process put them in that directory
 	Row_Package_Directory *pRow_Package_Directory_CompiledOutput=NULL;
@@ -506,20 +521,8 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 	if( vectRow_Package_Directory.size() )
 		pRow_Package_Directory_CompiledOutput = vectRow_Package_Directory[0];
 
-	// Is there a directory for the destination?  If so, we'll prepend our destination with it
-	Row_Package_Directory *pRow_Package_Directory_Destination=NULL;
-	vectRow_Package_Directory.clear();
-	g_pDatabase_pluto_main->Package_Directory_get()->GetRows( 
-		"FK_Package=" + StringUtils::itos(pRow_Package->PK_Package_get()) + " AND FK_Directory=" + StringUtils::itos(DIRECTORY_Destination_CONST),
-		&vectRow_Package_Directory);
-	if( vectRow_Package_Directory.size() )
-		pRow_Package_Directory_Destination = vectRow_Package_Directory[0];
-
 	// What are the files for this?
-	g_pDatabase_pluto_main->Package_Directory_get()->GetRows( 
-		"FK_Package=" + StringUtils::itos(pRow_Package->PK_Package_get()) + " AND (FK_Directory=" + StringUtils::itos(DIRECTORY_Binary_Executables_CONST) + 
-		" OR FK_Directory=" + StringUtils::itos(DIRECTORY_Binary_Library_CONST) + " OR FK_Directory=" + StringUtils::itos(DIRECTORY_Configuration_CONST) + 
-		" OR FK_Directory=" + StringUtils::itos(DIRECTORY_Miscellaneous_Files_CONST) + ")",&vectRow_Package_Directory);
+	pRow_Package->Package_Directory_FK_Package_getrows(&vectRow_Package_Directory);
 
 	for(size_t s=0;s<vectRow_Package_Directory.size();++s)
 	{
@@ -527,26 +530,35 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 		if( (!pRow_Package_Directory->FK_Distro_isNull() && pRow_Package_Directory->FK_Distro_get()!=g_pRow_Distro->PK_Distro_get()) ||
 				(!pRow_Package_Directory->FK_OperatingSystem_isNull() && pRow_Package_Directory->FK_OperatingSystem_get()!=g_pRow_Distro->FK_OperatingSystem_get()) )
 			continue;
-		string sDirectory;
+		string sInputPath,sOutputPath;
 
 		// If there's a compiled output directory, use that
 		if( pRow_Package_Directory_CompiledOutput && 
 			(pRow_Package_Directory->FK_Directory_get()==DIRECTORY_Binary_Executables_CONST ||
 			pRow_Package_Directory->FK_Directory_get()==DIRECTORY_Binary_Library_CONST) )
 		{
-			sDirectory = g_sSourcecodePrefix + pRow_Package_Directory_CompiledOutput->Path_get();
+			sInputPath = g_sSourcecodePrefix + pRow_Package_Directory_CompiledOutput->Path_get();
 		}
-		else if( pRow_Package_Directory->FK_Directory_get()==DIRECTORY_Source_Implementation_CONST )
-			sDirectory = g_sSourcecodePrefix + pRow_Package_Directory->Path_get();
-		else
-			sDirectory = g_sNonSourcecodePrefix + pRow_Package_Directory->Path_get();
+		else 
+		{
+			if( (pRow_Package_Directory->FK_Directory_get()==DIRECTORY_Source_Implementation_CONST && pRow_Package_Directory->FlipSource_get()==0) ||
+					(pRow_Package_Directory->FK_Directory_get()!=DIRECTORY_Source_Implementation_CONST && pRow_Package_Directory->FlipSource_get()==1) )
+				sInputPath = g_sSourcecodePrefix;
+			else
+				sInputPath = g_sNonSourcecodePrefix;
 
-		if( sDirectory.length()==0 )
+			if( pRow_Package_Directory->InputPath_get()!="" )
+				sInputPath += pRow_Package_Directory->InputPath_get();
+			else
+				sInputPath += pRow_Package_Directory->Path_get();
+		}
+
+		if( sInputPath.length()==0 )
 		{
 			if( !AskYNQuestion("**WARNING** Directory is empty.  Continue?",false) )
 				return false;
 
-			sDirectory = g_sNonSourcecodePrefix;
+			sInputPath = g_sNonSourcecodePrefix;
 		}
 //		else if( sDirectory[0]!='/' && sDirectory.substr(1,2) != ":\\" && sDirectory.substr(1,2) != ":/")
 // put the prefix above			sDirectory =  + sDirectory;
@@ -561,15 +573,15 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 				continue;
 
 			string File = pRow_Package_Directory_File->File_get();
-			if( !pRow_Package_Directory_File->MakeCommand_isNull() )
+			if( pRow_Package_Directory_File->MakeCommand_get()!="" )
 			{
 				if( g_bInteractive && !AskYNQuestion("About to execute: " + pRow_Package_Directory_File->MakeCommand_get() + " Continue?",false) )
 					return false;
 #ifndef WIN32
 				system(("mkdir -p " + sDirectory).c_str());
 #endif
-				chdir(sDirectory.c_str());
-				cout << "Executing: " << pRow_Package_Directory_File->MakeCommand_get() << " from dir: " << sDirectory << endl;
+				chdir(sInputPath.c_str());
+				cout << "Executing: " << pRow_Package_Directory_File->MakeCommand_get() << " from dir: " << sInputPath << endl;
 				if( !g_bSimulate && system(pRow_Package_Directory_File->MakeCommand_get().c_str()) )
 				{
 					cout << pRow_Package_Directory_File->MakeCommand_get() << " ****FAILED****" << endl;
@@ -580,31 +592,31 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 			if( File.find('*')!=string::npos || File.find('?')!=string::npos )
 			{
 				list<string> listFiles;
-				FileUtils::FindFiles(listFiles,sDirectory,File,true);
+				FileUtils::FindFiles(listFiles,sInputPath,File,true);
 				if( listFiles.size()==0 )
 				{
-					cout << "**WARNING** No files found in " << sDirectory << endl;
+					cout << "**WARNING** No files found in " << sInputPath << endl;
 					if( g_bInteractive )
 						return AskYNQuestion("Continue anyway?",false);
 					return true;
 				}
 				for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
 				{
-					FileInfo *pFileInfo = new FileInfo(sDirectory + "/" + *it,
-						(pRow_Package_Directory_Destination ? pRow_Package_Directory_Destination->Path_get() + "/" : "") + pRow_Package_Directory->Path_get() + "/" + *it,
+					FileInfo *pFileInfo = new FileInfo(sInputPath + "/" + *it,
+						pRow_Package_Directory->Path_get() + "/" + *it,
 						pRow_Package_Directory);
 					listFileInfo.push_back(pFileInfo);
 				}
 			}
 			else
 			{
-				if( !FileUtils::FileExists(sDirectory + "/" + File) )
+				if( !FileUtils::FileExists(sInputPath + "/" + File) )
 				{
-					cout << "**WARNING** " << sDirectory << "/" << File << " not found" <<  endl;
+					cout << "**WARNING** " << sInputPath << "/" << File << " not found" <<  endl;
 					if( !AskYNQuestion("Continue?",false) )
 						return false;
 				}
-				FileInfo *pFileInfo = new FileInfo(sDirectory + "/" + File,
+				FileInfo *pFileInfo = new FileInfo(sInputPath + "/" + File,
 					pRow_Package_Directory->Path_get() + "/" + File,
 					pRow_Package_Directory);
 				listFileInfo.push_back(pFileInfo);
