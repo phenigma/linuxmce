@@ -66,6 +66,35 @@ function genericSerialDevices($output,$dbADO) {
 
 	
 	if ($action == 'form') {
+		$queryDevice='
+			SELECT Device.* 
+			FROM Device
+			WHERE FK_DeviceTemplate=? AND Device.FK_Installation=?';
+		$resDevice=$dbADO->Execute($queryDevice,array($GLOBALS['rootCoreID'],$installationID));
+		if($resDevice->RecordCount()!=0){
+			$rowDevice=$resDevice->FetchRow();
+			$coreID=$rowDevice['PK_Device'];
+		}
+		if(isset($coreID)){
+			$resDevice_StartupScript=$dbADO->Execute('SELECT * FROM Device_StartupScript WHERE FK_Device=? AND FK_StartupScript=?',array($coreID,$GLOBALS['ShareIRCodes']));
+			$rowShare=$resDevice_StartupScript->FetchRow();
+			$sharedWithOthers=($rowShare['Enabled']==1)?1:0;
+
+			$portsArray=array();
+			$resPorts=$dbADO->Execute('SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?',array($coreID,$GLOBALS['Port']));
+			if($resPorts->RecordCount()>0){
+				$rowPorts=$resPorts->FetchRow();
+				$partsArray=explode(';',$rowPorts['IK_DeviceData']);
+				foreach($partsArray AS $part){
+					$secondParts=explode('|',$part);
+					if(count($secondParts)==2)
+					$portsArray[$secondParts[0]]=$secondParts[1];
+					else
+					$portsArray[$part]=$part;
+				}
+			}
+		}
+		
 		$out.=setLeftMenu($dbADO).'
 	<script>
 			function windowOpen(locationA,attributes) {
@@ -78,7 +107,6 @@ function genericSerialDevices($output,$dbADO) {
 	<input type="hidden" name="section" value="genericSerialDevices">
 	<input type="hidden" name="action" value="add">
 	<input type="hidden" name="cmd" value="0">			
-	<a href="index.php?section=connectionWizard">Connection Wizard</a>
 	<div align="center"><h3>Generic Serial Devices</h3></div>';
 			
 		$out.='

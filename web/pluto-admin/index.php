@@ -1063,6 +1063,12 @@ switch ($section) {
 	    include_once('operations/myDevices/orbiters/orbitersWin.php');
 	    orbitersWin($output,$dbADO);
 	break;
+	case 'newRubyCode';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/infrared/newRubyCode.php');
+	    newRubyCode($output,$dbADO);
+	break;	
 	
 	case '';
 		$output = new Template($dbADO);	

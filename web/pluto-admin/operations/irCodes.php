@@ -8,6 +8,7 @@ function irCodes($output,$dbADO) {
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';
 	$label=(isset($_REQUEST['label']))?$_REQUEST['label']:'infrared';
+	$GLOBALS['label']=$label;
 	
 	$dtID = (int)$_REQUEST['dtID'];
 	$deviceID = (isset($_REQUEST['deviceID']) && (int)@$_REQUEST['deviceID']!=0)?(int)$_REQUEST['deviceID']:NULL;
@@ -64,7 +65,7 @@ function irCodes($output,$dbADO) {
 			<input type="hidden" name="deviceID" value="'.$deviceID.'">
 			<input type="hidden" name="infraredGroupID" value="'.$infraredGroupID.'">
 			<input type="hidden" name="irgroup_command" value="">
-			<input type="hidden" name="mode" value="'.$label.'">';
+			<input type="hidden" name="label" value="'.$label.'">';
 		$selectDTData='
 			SELECT DeviceTemplate.Description AS Template, DeviceCategory.Description AS Category,Manufacturer.Description AS Manufacturer, FK_Manufacturer,FK_DeviceCategory
 			FROM DeviceTemplate
@@ -311,7 +312,7 @@ function irCodes($output,$dbADO) {
 			$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=?',array($irCode,$ig_c));
 			$commandToTest='/usr/pluto/bin/MessageSend localhost 0 '.$deviceID.' 1 191 70 "'.$irCode.'"';
 			system($commandToTest);
-			header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=The command was sent.");
+			header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=The command was sent.&label=".$GLOBALS['label']);
 			exit();
 		}
 
@@ -323,7 +324,7 @@ function irCodes($output,$dbADO) {
 				if(!is_null($newIRGroup))
 					$dbADO->Execute('INSERT INTO DeviceTemplate_InfraredGroup (FK_DeviceTemplate, FK_InfraredGroup) VALUES (?,?)',array($dtID,$newIRGroup));
 				$dbADO->Execute('UPDATE InfraredGroup_Command SET FK_InfraredGroup=? WHERE FK_DeviceTemplate=? AND FK_InfraredGroup IS NOT NULL',array($newIRGroup,$dtID));
-				header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$newIRGroup&msg=IR Group changed for selected device template.");
+				header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$newIRGroup&msg=IR Group changed for selected device template.&label=".$GLOBALS['label']);
 				exit();
 			}
 		}
@@ -333,7 +334,7 @@ function irCodes($output,$dbADO) {
 			if($action!='delete'){
 				$dbADO->Execute('INSERT INTO InfraredGroup_Command (FK_InfraredGroup,FK_Command,FK_Device,FK_DeviceTemplate,IRData,FK_Users) SELECT FK_InfraredGroup,FK_Command,'.$deviceID.','.$dtID.',IRData,'.$_SESSION['userID'].' FROM InfraredGroup_Command WHERE PK_InfraredGroup_Command=?',$irg_c);
 
-				header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=Custom code added.");
+				header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=Custom code added.&label=".$GLOBALS['label']);
 				exit();
 			}else{
 				$dbADO->Execute('
@@ -343,7 +344,7 @@ function irCodes($output,$dbADO) {
 					WHERE PK_InfraredGroup_Command=?',$irg_c);
 				
 				$dbADO->Execute('DELETE FROM InfraredGroup_Command WHERE PK_InfraredGroup_Command=?',$irg_c);
-				header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=Custom code deleted.");
+				header("Location: index.php?section=irCodes&from=$from&dtID=$dtID&deviceID=$deviceID&infraredGroupID=$infraredGroupID&msg=Custom code deleted.&label=".$GLOBALS['label']);
 				exit();
 			}
 		}
@@ -405,7 +406,7 @@ function irCodes($output,$dbADO) {
 				$dbADO->Execute('UPDATE InfraredGroup_Command SET IRData=? WHERE PK_InfraredGroup_Command=?',array($irData,$ig_c));
 			}
 
-			header("Location: index.php?section=irCodes&from=$from&deviceID=$deviceID&dtID=$dtID&infraredGroupID=$infraredGroupID&msg=IR codes updated.");
+			header("Location: index.php?section=irCodes&from=$from&deviceID=$deviceID&dtID=$dtID&infraredGroupID=$infraredGroupID&msg=IR codes updated.&label=".$GLOBALS['label']);
 			exit();
 		}
 
@@ -469,7 +470,7 @@ function showCodes($commandsToShow,$infraredGroupID,$deviceID,$dtID,$dbADO)
 			}
 			$out.='
 				<tr bgcolor="lightblue">
-					<td align="center" width="100"><B>'.$rowStandardCode['Description'].'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section=learnCode&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$rowStandardCode['PK_Command'].'&action=sendCommand\',\'width=600,height=250,toolbars=true,scrollbars=1,resizable=1\');"></td>
+					<td align="center" width="100"><B>'.$rowStandardCode['Description'].'</B> <br><input type="button" class="button" name="learnCode" value="New code" onClick="windowOpen(\'index.php?section='.(($GLOBALS['label']=='infrared')?'learnCode':'newRubyCode').'&deviceID='.$deviceID.'&dtID='.$dtID.'&infraredGroupID='.$infraredGroupID.'&commandID='.$rowStandardCode['PK_Command'].'&action=sendCommand\',\''.(($GLOBALS['label']=='infrared')?'width=600,height=250':'width=600,height=650').',toolbars=true,scrollbars=1,resizable=1\');"></td>
 					<td>'.((!is_null($rowStandardCode['PK_InfraredGroup_Command']))?'<input type="radio" name="prefered_'.$rowStandardCode['FK_Command'].'_'.$rowStandardCode['FK_InfraredGroup'].'" value="'.$rowStandardCode['PK_InfraredGroup_Command'].'" '.(($existingCodes==1 || in_array($rowStandardCode['PK_InfraredGroup_Command'],$GLOBALS['igcPrefered']))?'checked':'').'>':'&nbsp;').'</td>
 					<td>'.((is_null($rowStandardCode['PK_InfraredGroup_Command']))?'<B> Not in database</B>':'<textarea name="irData_'.$rowStandardCode['PK_InfraredGroup_Command'].'" rows="2" cols="100" '.((is_null($deviceID)?'':'disabled')).'>'.$rowStandardCode['IRData'].'</textarea>').'</td>
 					<td align="center">';
