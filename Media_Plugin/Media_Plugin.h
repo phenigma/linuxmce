@@ -33,6 +33,7 @@
 
 class Database_pluto_main;
 class Database_pluto_media;
+class Row_EntertainArea;
 class MediaFile;
 
 /**
@@ -186,6 +187,16 @@ public:
     }
 
     int DetermineUserOnOrbiter(int iPK_Device_Orbiter);
+
+    /**
+     * @brief Helper functions for the process of auto-creating entertainment areas
+     */
+	void DeleteEntertainArea(Row_EntertainArea *pRow_EntertainArea);
+	void AddDefaultCommandsToEntArea(Row_EntertainArea *pRow_EntertainArea);
+	void AddDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea);
+	// Returns 0 if a command group exists for this entarea/template.  Otherwise creates one and returns the id
+	int FindCommandGroupByTemplate(Row_EntertainArea *pRow_EntertainArea,int PK_Template,string sDescription);  
+	void AddCommand(int PK_CommandGroup,int PK_Device,int PK_Command,int NumParms,...);
 
     /**
      * @brief Required for plug-ins that render floorplans

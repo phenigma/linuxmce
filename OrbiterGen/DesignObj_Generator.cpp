@@ -1343,7 +1343,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
                     PK_DeviceCategory = DEVICECATEGORY_Video_Soft_Phones_CONST;
                     break;
                 case ARRAY_Media_Directors_CONST:
-//                    PK_DeviceCategory = DEVICECATEGORY_HTPC_CONST;
+                    PK_DeviceCategory = DEVICECATEGORY_Media_Director_CONST;
                     break;
             }
 

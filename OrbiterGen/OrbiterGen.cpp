@@ -944,6 +944,12 @@ int k=2;
 	// no dumping leaks now	WSACleanup();
 #endif
 
+	if( !bNewOrbiter )
+	{
+		m_pRow_Device->NeedConfigure_set(0);
+		m_pRow_Device->Table_Device_get()->Commit();
+	}
+
 	return 0;
 }
 

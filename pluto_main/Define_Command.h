@@ -264,6 +264,7 @@
 #define COMMAND_Quit_CONST 265
 #define COMMAND_Regen_Orbiter_CONST 266
 #define COMMAND_Regen_Orbiter_Finished_CONST 267
+#define COMMAND_Reboot_CONST 268
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

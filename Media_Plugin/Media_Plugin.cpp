@@ -41,9 +41,14 @@ using namespace DCE;
 #include "pluto_main/Define_Command.h"
 #include "pluto_main/Define_CommandParameter.h"
 #include "pluto_main/Define_DesignObj.h"
+#include "pluto_main/Define_Template.h"
+#include "pluto_main/Define_FloorplanObjectType.h"
 #include "pluto_main/Table_Event.h"
 #include "pluto_main/Table_EntertainArea.h"
 #include "pluto_main/Table_CommandGroup.h"
+#include "pluto_main/Table_CommandGroup_Command.h"
+#include "pluto_main/Table_CommandGroup_EntertainArea.h"
+#include "pluto_main/Table_CommandGroup_Command_CommandParameter.h"
 #include "pluto_main/Table_Device.h"
 #include "pluto_main/Table_Device_EntertainArea.h"
 #include "pluto_main/Table_DeviceCategory.h"
@@ -117,7 +122,59 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
     for( size_t iRoom=0;iRoom<vectRow_Room.size( );++iRoom )
     {
         Row_Room *pRow_Room=vectRow_Room[iRoom];
+		if( pRow_Room->ManuallyConfigureEA_get()!=1 )
+		{
+			// We'll want to configure this room's entertainment area automatically.  See if there's a media director in the room
+			ListDeviceData_Router *pListMediaDirectors = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Media_Director_CONST);
+			bool bContainsMD = pListMediaDirectors->size()!=0;
+			bool bContainsOtherVideo=false,bContainsAudio=false;
+			if( !bContainsMD )
+			{
+				// See if there is some other video device
+				pListMediaDirectors = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_TVs_CONST);
+				bContainsOtherVideo = pListMediaDirectors->size()!=0;
+				if( !bContainsOtherVideo )
+				{
+					pListMediaDirectors = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_AV_CONST);
+					bContainsAudio = pListMediaDirectors->size()!=0;
+				}
+			}
 
+			vector<Row_EntertainArea *> vectEntertainArea;
+			pRow_Room->EntertainArea_FK_Room_getrows(&vectEntertainArea);
+			if( !bContainsMD && !bContainsOtherVideo && !bContainsAudio )
+			{
+				// There's no media in here.  Be sure there is no record in the EntArea database
+				for(size_t s=0;s<vectEntertainArea.size();++s)
+					DeleteEntertainArea(vectEntertainArea[s]);
+			}
+			else
+			{
+				// There is media in this room.  Add an entertainment area and any a/v equipment to it
+				// First, see if there are already too many ent areas (maybe the user changed from advanced to manual)
+				for(size_t s=1;s<vectEntertainArea.size();++s)
+					DeleteEntertainArea(vectEntertainArea[s]);
+
+				Row_EntertainArea *pRow_EntertainArea = vectEntertainArea.size() ? vectEntertainArea[0] : NULL;
+				if( !pRow_EntertainArea )
+				{
+					pRow_EntertainArea = m_pDatabase_pluto_main->EntertainArea_get()->AddRow();
+					pRow_EntertainArea->FK_Room_set(pRow_Room->PK_Room_get());
+					AddDefaultCommandsToEntArea(pRow_EntertainArea);
+				}
+
+				pRow_EntertainArea->Description_set(pRow_Room->Description_get());
+				if( bContainsMD )
+                    pRow_EntertainArea->FK_FloorplanObjectType_set(FLOORPLANOBJECTTYPE_ENTERTAINMENT_PLUTO_MEDIA_DIR_CONST);
+				else if( bContainsOtherVideo )
+                    pRow_EntertainArea->FK_FloorplanObjectType_set(FLOORPLANOBJECTTYPE_ENTERTAINMENT_NONPLUTO_TV_CONST);
+				else if( bContainsAudio )
+                    pRow_EntertainArea->FK_FloorplanObjectType_set(FLOORPLANOBJECTTYPE_ENTERTAINMENT_AUDIO_ZONE_CONST);
+
+				AddDevicesToEntArea(pRow_EntertainArea);
+			}
+		}
+        
         vector<Row_EntertainArea *> vectRow_EntertainArea;
         pRow_Room->EntertainArea_FK_Room_getrows( &vectRow_EntertainArea );
         for( size_t s=0;s<vectRow_EntertainArea.size( );++s )
@@ -157,6 +214,130 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
             pMediaDevice->m_listEntertainArea.push_back( pEntertainArea );
         }
     }
+}
+
+void Media_Plugin::DeleteEntertainArea(Row_EntertainArea *pRow_EntertainArea)
+{
+	vector<Row_CommandGroup_EntertainArea *> vectRow_CommandGroup_EntertainArea;
+	pRow_EntertainArea->CommandGroup_EntertainArea_FK_EntertainArea_getrows(&vectRow_CommandGroup_EntertainArea);
+	for(size_t s=0;s<vectRow_CommandGroup_EntertainArea.size();++s)
+	{
+		Row_CommandGroup_EntertainArea *pRow_CommandGroup_EntertainArea = vectRow_CommandGroup_EntertainArea[s];
+		pRow_CommandGroup_EntertainArea->Delete();
+	}
+
+	vector<Row_Device_EntertainArea *> vectRow_Device_EntertainArea;
+	pRow_EntertainArea->Device_EntertainArea_FK_EntertainArea_getrows(&vectRow_Device_EntertainArea);
+	for(size_t s=0;s<vectRow_Device_EntertainArea.size();++s)
+	{
+		Row_Device_EntertainArea *pRow_Device_EntertainArea = vectRow_Device_EntertainArea[s];
+		pRow_Device_EntertainArea->Delete();
+	}
+
+	pRow_EntertainArea->Delete();
+
+	m_pDatabase_pluto_main->EntertainArea_get()->Commit();
+	m_pDatabase_pluto_main->CommandGroup_EntertainArea_get()->Commit();
+	m_pDatabase_pluto_main->Device_EntertainArea_get()->Commit();
+}
+
+void Media_Plugin::AddDefaultCommandsToEntArea(Row_EntertainArea *pRow_EntertainArea)
+{
+	int PK_CommandGroup;
+	if( (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_TV_CONST,"tv"))!=0 )
+	{
+		AddCommand(PK_CommandGroup,m_dwPK_Device,COMMAND_MH_Play_Media_CONST,1,COMMANDPARAMETER_PK_MediaType_CONST,"1");
+	}
+	if( (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_playlists_CONST,"playlists"))!=0 )
+	{
+		AddCommand(PK_CommandGroup,DEVICEID_HANDLED_INTERNALLY,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,"3226");
+	}
+	if( (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_music_CONST,"music"))!=0 )
+	{
+		AddCommand(PK_CommandGroup,DEVICEID_HANDLED_INTERNALLY,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,"2",COMMANDPARAMETER_Value_To_Assign_CONST,"music");
+		AddCommand(PK_CommandGroup,DEVICEID_HANDLED_INTERNALLY,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,"14",COMMANDPARAMETER_Value_To_Assign_CONST,"4");
+		AddCommand(PK_CommandGroup,DEVICEID_HANDLED_INTERNALLY,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,"2071");
+	}
+	if( (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_movies_CONST,"movies"))!=0 )
+	{
+		AddCommand(PK_CommandGroup,DEVICEID_HANDLED_INTERNALLY,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,"2",COMMANDPARAMETER_Value_To_Assign_CONST,"movies");
+		AddCommand(PK_CommandGroup,DEVICEID_HANDLED_INTERNALLY,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,"14",COMMANDPARAMETER_Value_To_Assign_CONST,"3");
+		AddCommand(PK_CommandGroup,DEVICEID_HANDLED_INTERNALLY,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,"2071");
+	}
+	if( (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_videos_CONST,"videos"))!=0 )
+	{
+		AddCommand(PK_CommandGroup,DEVICEID_HANDLED_INTERNALLY,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,"2",COMMANDPARAMETER_Value_To_Assign_CONST,"videos");
+		AddCommand(PK_CommandGroup,DEVICEID_HANDLED_INTERNALLY,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,"14",COMMANDPARAMETER_Value_To_Assign_CONST,"5");
+		AddCommand(PK_CommandGroup,DEVICEID_HANDLED_INTERNALLY,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,"2071");
+	}
+	if( (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_pictures_CONST,"pictures"))!=0 )
+	{
+		AddCommand(PK_CommandGroup,DEVICEID_HANDLED_INTERNALLY,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,"2",COMMANDPARAMETER_Value_To_Assign_CONST,"pictures");
+		AddCommand(PK_CommandGroup,DEVICEID_HANDLED_INTERNALLY,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,"14",COMMANDPARAMETER_Value_To_Assign_CONST,"7");
+		AddCommand(PK_CommandGroup,DEVICEID_HANDLED_INTERNALLY,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,"2071");
+	}
+}
+
+int Media_Plugin::FindCommandGroupByTemplate(Row_EntertainArea *pRow_EntertainArea,int PK_Template,string sDescription)
+{
+	string SQL = "JOIN CommandGroup_EntertainArea ON FK_CommandGroup=PK_CommandGroup WHERE FK_EntertainArea=" + StringUtils::itos(pRow_EntertainArea->PK_EntertainArea_get()) + " AND FK_Template=" + StringUtils::itos(PK_Template);
+	vector<Row_CommandGroup *> vectRow_CommandGroup;
+	m_pDatabase_pluto_main->CommandGroup_get()->GetRows(SQL,&vectRow_CommandGroup);
+	if( vectRow_CommandGroup.size() )
+		return 0;
+
+	Row_CommandGroup *pRow_CommandGroup = m_pDatabase_pluto_main->CommandGroup_get()->AddRow();
+	pRow_CommandGroup->FK_Template_set(PK_Template);
+	pRow_CommandGroup->Description_set(sDescription);
+	m_pDatabase_pluto_main->CommandGroup_get()->Commit();
+
+	Row_CommandGroup_EntertainArea *pRow_CommandGroup_EntertainArea = m_pDatabase_pluto_main->CommandGroup_EntertainArea_get()->AddRow();
+	pRow_CommandGroup_EntertainArea->FK_CommandGroup_set(pRow_CommandGroup->PK_CommandGroup_get());
+	pRow_CommandGroup_EntertainArea->FK_EntertainArea_set(pRow_EntertainArea->PK_EntertainArea_get());
+	m_pDatabase_pluto_main->CommandGroup_EntertainArea_get()->Commit();
+
+	return pRow_CommandGroup->PK_CommandGroup_get();
+}
+
+void Media_Plugin::AddCommand(int PK_CommandGroup,int PK_Device,int PK_Command,int NumParms,...)
+{
+	Row_CommandGroup_Command *pRow_CommandGroup_Command = m_pDatabase_pluto_main->CommandGroup_Command_get()->AddRow();
+	pRow_CommandGroup_Command->FK_CommandGroup_set(PK_CommandGroup);
+	pRow_CommandGroup_Command->FK_Command_set(PK_Command);
+	pRow_CommandGroup_Command->FK_Device_set(PK_Device);
+	m_pDatabase_pluto_main->CommandGroup_Command_get()->Commit();
+
+    va_list marker;
+    va_start( marker, NumParms );
+    for( unsigned long i=0; i < NumParms; i++ )
+    {
+		Row_CommandGroup_Command_CommandParameter *pRow_CommandGroup_Command_CommandParameter = m_pDatabase_pluto_main->CommandGroup_Command_CommandParameter_get()->AddRow();
+		pRow_CommandGroup_Command_CommandParameter->FK_CommandGroup_Command_set(pRow_CommandGroup_Command->PK_CommandGroup_Command_get());
+		pRow_CommandGroup_Command_CommandParameter->FK_CommandParameter_set(va_arg( marker, unsigned long ));
+		pRow_CommandGroup_Command_CommandParameter->IK_CommandParameter_set(va_arg( marker, char* ));
+		m_pDatabase_pluto_main->CommandGroup_Command_CommandParameter_get()->Commit();
+    }
+    va_end( marker );
+}
+
+void Media_Plugin::AddDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea)
+{
+	ListDeviceData_Router *pListMediaDirectors = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_AV_CONST);
+	for(ListDeviceData_Router::iterator it=pListMediaDirectors->begin();it!=pListMediaDirectors->end();++it)
+	{
+		DeviceData_Router *pDeviceData_Router = *it;
+		if( pDeviceData_Router->m_dwPK_Room == pRow_EntertainArea->FK_Room_get() )
+		{
+			Row_Device_EntertainArea *pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->GetRow(pDeviceData_Router->m_dwPK_Device,pRow_EntertainArea->PK_EntertainArea_get());
+			if( !pRow_Device_EntertainArea )
+			{
+				pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->AddRow();
+				pRow_Device_EntertainArea->FK_Device_set(pDeviceData_Router->m_dwPK_Device);
+				pRow_Device_EntertainArea->FK_EntertainArea_set(pRow_EntertainArea->PK_EntertainArea_get());
+				m_pDatabase_pluto_main->Device_EntertainArea_get()->Commit();
+			}
+		}
+	}
 }
 
 //<-dceag-const2-b->!
