@@ -122,7 +122,7 @@ BOOL CRfCommExp::hexPair(const TCHAR *text, BYTE *val)
 }
 
 
-bool CRfCommExp::RfPortOpen( const CString& device )
+bool CRfCommExp::RfPortOpen( const /*CString&*/ char *device )
 {
 	const CSdpDiscoveryRec* service;
 	LinkStatus ls;

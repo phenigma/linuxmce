@@ -87,11 +87,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="../../level4/,../../level4/DCE/,CXImage/CxImage/,../../level1/Libraries/pthreads-win32/include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;MULTI_THREADED;VIPESTABLISHMENT;BT_SOCKET"
+				AdditionalIncludeDirectories="..;../DCE;../Libraries/CXImage/CxImage/;&quot;../Libraries/pthreads-win32/include&quot;;/mysql/Include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;MULTI_THREADED;VIPESTABLISHMENT"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="TRUE"
+				EnableFunctionLevelLinking="FALSE"
 				PrecompiledHeaderFile=".\Release/PlutoVIP.pch"
 				AssemblerListingLocation=".\Release/"
 				ObjectFile=".\Release/"
@@ -104,10 +104,13 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="CXImage/bin/cximage.lib ..\..\level1\Libraries\pthreads-win32\lib\pthreadVC.lib"
-				OutputFile="Release/PlutoVIP.exe"
+				AdditionalDependencies="tiff.lib cximage.lib jpeg.lib pthreadVC.lib stddll.lib"
+				OutputFile="../Release/PlutoVIP.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="../Libraries/CXImage/tiff/Release;../Libraries/CXImage/jpeg/Release/;../Libraries/CXImage/CXImage/Release/;&quot;../Libraries/pthreads-win32/lib/&quot;;../winbluetooth/lib/Release"
+				IgnoreAllDefaultLibraries="FALSE"
+				IgnoreDefaultLibraryNames=""
 				ProgramDatabaseFile=".\Release/PlutoVIP.pdb"
 				SubSystem="2"/>
 			<Tool
@@ -525,10 +528,10 @@
 				RelativePath=".\StaticPicture.h">
 			</File>
 			<File
-				RelativePath=".\StdAfx.h">
+				RelativePath="..\VIPShared\stdafx.h">
 			</File>
 			<File
-				RelativePath="..\VIPShared\stdafx.h">
+				RelativePath=".\StdAfx.h">
 			</File>
 		</Filter>
 		<Filter
@@ -566,9 +569,6 @@
 			</File>
 			<File
 				RelativePath=".\res\State.bmp">
-			</File>
-			<File
-				RelativePath=".\res\TaskBar.ico">
 			</File>
 		</Filter>
 		<File

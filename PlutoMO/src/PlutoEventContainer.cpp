@@ -1,0 +1,114 @@
+/* Copyright (c) 2003, Nokia. All rights reserved */
+
+#include "PlutoEventContainer.h"
+#include "ImageLoader.h"
+#include "MyString.h"
+#include "PlutoMOAppUi.h"
+#include <coecobs.h>
+
+#define SCREEN_WIDTH  176
+#define SCREEN_HEIGHT 300
+
+CPlutoEventContainer* CPlutoEventContainer::NewL(const TRect& aRect)
+    {
+    CPlutoEventContainer* self = CPlutoEventContainer::NewLC(aRect);
+    CleanupStack::Pop(self);
+    return self;
+    }
+
+CPlutoEventContainer* CPlutoEventContainer::NewLC(const TRect& aRect)
+    {
+    CPlutoEventContainer* self = new (ELeave) CPlutoEventContainer;
+    CleanupStack::PushL(self);
+    self->ConstructL(aRect);
+    return self;
+    }
+
+void CPlutoEventContainer::ConstructL(const TRect& aRect)
+    {
+    CreateWindowL();
+    SetRect(aRect);
+    ActivateL();
+    }
+
+TInt CPlutoEventContainer::CountComponentControls() const
+    {
+    return 0;
+    }
+
+void CPlutoEventContainer::Draw(const TRect& aRect) const
+{    
+	CWindowGc& gc = SystemGc();
+
+	TRect rect(0, 0, -1, -1);
+	CFbsBitmap *pBitmap = CImageLoader::LoadBitmap(string("PlutoEvent.png").Des());
+	gc.BitBlt(rect.iTl, pBitmap);
+
+	CGraphicsDevice* screenDevice = CCoeEnv::Static()->ScreenDevice();
+	CFont *pCurrentFont;
+	
+	TFontSpec myFontSpec(string("Arial").Des(), 10); 
+	pCurrentFont = CCoeEnv::Static()->CreateScreenFontL(myFontSpec); 
+
+	TRgb color(0, 0, 0);
+	gc.SetPenColor(color);
+	gc.UseFont(pCurrentFont);
+
+	CPlutoMOAppUi* pApp = (CPlutoMOAppUi*)(CCoeEnv::Static()->AppUi());
+
+	TPoint point(30, 40);
+    gc.DrawText(pApp->iPlutoEventTypes[pApp->iPhoneTypes[pApp->iCurType].iWAP_EventType - 1], point);
+
+	TPoint point2(30, 60);
+    gc.DrawText(pApp->iPhoneTypes[pApp->iCurType].iMessage, point2);
+
+	gc.DiscardFont();
+	CCoeEnv::Static()->ReleaseScreenFont(pCurrentFont);
+
+	pApp->m_bPlutoEventVisible = true;
+}
+
+CCoeControl* CPlutoEventContainer::ComponentControl(TInt /*aIndex*/) const
+    {
+    return NULL;
+    }
+
+TKeyResponse CPlutoEventContainer::OfferKeyEvent(const TKeyEvent& aKeyEvent, TEventCode aType)
+{
+	CPlutoMOAppUi* pApp = (CPlutoMOAppUi*)(CCoeEnv::Static()->AppUi());
+	
+	if(aType == EEventKeyDown)
+	{
+		switch(aKeyEvent.iScanCode)		
+		{
+			case 0x31:	
+			{
+				pApp->LaunchBrowser();
+				pApp->m_bPlutoEventVisible = false;
+				MakeVisible(false);
+				break;
+			}
+			
+			case 0x32:	
+			{
+				TFileName file_name;
+				file_name.Append(KPlutoVMCFile);
+				pApp->OpenVMC(false, file_name, NULL);
+				pApp->m_bPlutoEventVisible = false;
+				MakeVisible(false);
+				break;
+			}
+
+			case 0x33:
+			{
+				MakeVisible(false);
+				pApp->m_bPlutoEventVisible = false;
+				MakeVisible(false);
+				break;
+			} 
+		}
+	}
+
+	return EKeyWasNotConsumed;
+}
+

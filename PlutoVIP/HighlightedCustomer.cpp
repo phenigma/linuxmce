@@ -321,7 +321,7 @@ void CHighlightedCustomer::OnTaskSendImage()
 	if(!m_pCustomer->GetCommandProcessor()) //not connected
 		return;
 
-	unsigned char ImageType;
+	unsigned char ImageType = 0;
 	unsigned long ImageSize;
 	char *pImage;
 

@@ -1,0 +1,21 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "PlutoVIP", "PlutoVIP.vdproj", "{725B8000-FB52-4EB5-81F2-F144B5C9FE45}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{725B8000-FB52-4EB5-81F2-F144B5C9FE45}.Debug.ActiveCfg = Debug
+		{725B8000-FB52-4EB5-81F2-F144B5C9FE45}.Debug.Build.0 = Debug
+		{725B8000-FB52-4EB5-81F2-F144B5C9FE45}.Release.ActiveCfg = Release
+		{725B8000-FB52-4EB5-81F2-F144B5C9FE45}.Release.Build.0 = Release
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

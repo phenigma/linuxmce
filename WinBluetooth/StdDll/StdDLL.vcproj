@@ -43,10 +43,10 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
 				AdditionalDependencies="WidcommSdk.lib"
-				OutputFile=".\Release/StdDLL.dll"
+				OutputFile="../../Release/StdDLL.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="$(BTWSDK)\Release"
+				AdditionalLibraryDirectories="&quot;$(BTWSDK)\Release&quot;;C:\pluto\trunk\WinBluetooth\lib"
 				ModuleDefinitionFile=".\StdDLL.def"
 				ProgramDatabaseFile=".\Release/StdDLL.pdb"
 				SubSystem="2"
@@ -59,8 +59,7 @@
 				TargetEnvironment="1"
 				TypeLibraryName=".\Release/StdDLL.tlb"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-				CommandLine="copy .\debug\stddll.dll F:\work\Pluto\PlutoSuite\PlutoSuite\RfCommIf\CallerMfc\release\*.*"/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
