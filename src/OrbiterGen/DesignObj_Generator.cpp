@@ -107,6 +107,20 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==1687 )//2821 && bAddToGenerated )
         return;
     }
 
+	// If this is the main menu, there will be an array of them
+    if( m_pRow_DesignObj->PK_DesignObj_get()==m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu->PK_DesignObj_get() ||
+		m_pRow_DesignObj->PK_DesignObj_get()==m_pOrbiterGenerator->m_pRow_DesignObj_Sleeping->PK_DesignObj_get() ||
+		m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_mnuLights_CONST ||
+		m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_mnuMedia_CONST ||
+		m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_mnuClimate_CONST ||
+		m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_mnuSecurity_CONST ||
+		m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_mnuTelephony_CONST )
+    {
+		bAddToGenerated = true;
+		m_bDontShare = true;
+        m_iVersion = m_pOrbiterGenerator->m_iLocation;
+    }
+
     if( bAddToGenerated )
     {
 		cout << "Generating screen: " << drDesignObj->PK_DesignObj_get() << " in orbiter: " << pGenerator->m_pRow_Device->PK_Device_get() << endl;
@@ -122,17 +136,6 @@ if( !m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu )
 {
 int k=2;
 }
-        // If this is the main menu, there will be an array of them
-        if( m_pRow_DesignObj->PK_DesignObj_get()==m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu->PK_DesignObj_get() ||
-			m_pRow_DesignObj->PK_DesignObj_get()==m_pOrbiterGenerator->m_pRow_DesignObj_Sleeping->PK_DesignObj_get() ||
-			m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_mnuLights_CONST ||
-			m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_mnuMedia_CONST ||
-			m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_mnuClimate_CONST ||
-			m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_mnuSecurity_CONST ||
-			m_pRow_DesignObj->PK_DesignObj_get()==DESIGNOBJ_mnuTelephony_CONST )
-        {
-            m_iVersion = m_pOrbiterGenerator->m_iLocation;
-        }
         if( m_pOrbiterGenerator->m_bOrbiterChanged==false || m_pOrbiterGenerator->m_iPK_DesignObj_SoleScreenToGen )
         {
             // Let's see if we can just use a cached version
@@ -140,7 +143,7 @@ int k=2;
             if( pdrCachedScreen && pdrCachedScreen->Schema_get()==ORBITER_SCHEMA &&
 				(!m_pOrbiterGenerator->m_iPK_DesignObj_SoleScreenToGen || m_pOrbiterGenerator->m_iPK_DesignObj_SoleScreenToGen!=m_pRow_DesignObj->PK_DesignObj_get()) )
             {
-				if( pdrCachedScreen->ContainsArrays_get()==0 || m_pOrbiterGenerator->m_bDontAutoRegenArrays || m_pOrbiterGenerator->m_iPK_DesignObj_SoleScreenToGen )
+				if( !m_bDontShare && (pdrCachedScreen->ContainsArrays_get()==0 || m_pOrbiterGenerator->m_bDontAutoRegenArrays || m_pOrbiterGenerator->m_iPK_DesignObj_SoleScreenToGen) )
 				{
 					time_t lModDate1 = StringUtils::SQLDateTime(pdrCachedScreen->Modification_LastGen_get());
 					time_t lModDate2 = StringUtils::SQLDateTime(m_pRow_DesignObj->psc_mod_get());
@@ -1019,8 +1022,14 @@ void DesignObj_Generator::HandleGoto(int PK_DesignObj_Goto)
     }
 
     // Does this exist already?
-    if( pListScreens->size()==1 && !m_bDontShare )
+    if( pListScreens->size()==1 && !(*pListScreens)[0]->m_bDontShare )
+{
         m_DesignObj_GeneratorGoto = (*pListScreens)[0];
+if( m_DesignObj_GeneratorGoto->m_pRow_DesignObj->PK_DesignObj_get()==1270 )
+{
+int k=2;
+}
+}
     else
     {
         // We need to generate the screen

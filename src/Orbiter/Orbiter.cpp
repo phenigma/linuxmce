@@ -565,7 +565,7 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 {
 g_pPlutoLogger->Write( LV_STATUS, "Rendering: %s hidden: %d", pObj->m_ObjectID.c_str(), (int) pObj->m_bHidden );
 
-    if(  pObj->m_ObjectID.find( "2607" )!=string::npos  )
+    if(  pObj->m_ObjectID.find( "2038.1261" )!=string::npos  )
         //if(  pObj->m_iBaseObjectID == 2707  )
     {
 g_pPlutoLogger->Write( LV_STATUS, "Object: %s visible: %d", pObj->m_ObjectID.c_str(), (int) pObj->m_bHidden );
@@ -3831,7 +3831,7 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
             Output += StringUtils::itos( m_pScreenHistory_Current->m_pLocationInfo->m_dwPK_Device_MediaDirector );
         else if(  Variable=="MDH"  )
             Output += StringUtils::itos( m_pLocationInfo_Initial->m_dwPK_Device_MediaDirector );
-        else if(  Variable=="L" && m_pScreenHistory_Current && m_pScreenHistory_Current->m_pLocationInfo  )
+        else if(  Variable=="LD" && m_pScreenHistory_Current && m_pScreenHistory_Current->m_pLocationInfo  )
             Output += m_pScreenHistory_Current->m_pLocationInfo->Description;
         else if(  Variable=="V" )
 			Output += string(VERSION) + "(" + g_szCompile_Date + ")";

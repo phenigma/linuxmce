@@ -132,11 +132,10 @@ public:
 
 		DCE::CMD_Goto_Screen_DL CMD_Goto_Screen( m_dwPK_Device, sPK_Device, 0, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), "", "", false, bCantGoBack );
 		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text.m_pMessage);
-		if( bPromptToResetRouter )
-		{
-			DCE::CMD_Show_Object_DL CMD_Show_Object( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_butRestartDCERouter_CONST), 0, "", "", "1" );
-			CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Show_Object.m_pMessage);
-		}
+
+		DCE::CMD_Show_Object_DL CMD_Show_Object( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST) + ".0.0." + StringUtils::itos(DESIGNOBJ_butRestartDCERouter_CONST), 0, "", "", bPromptToResetRouter ? "1" : "0" );
+		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Show_Object.m_pMessage);
+
 		DCE::CMD_Set_Timeout_DL CMD_Set_Timeout( m_dwPK_Device, sPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), StringUtils::itos(iTimeout) );
 		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Timeout.m_pMessage);
 		SendCommand( CMD_Goto_Screen );

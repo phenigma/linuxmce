@@ -17,7 +17,7 @@
 
 CGText::CGText(class DesignObj_Generator *Parent,class Row_DesignObjVariation_Text_Skin_Language *drOVTSL,class Row_Orbiter *drOrbiter) 
 {
-if( drOVTSL->FK_DesignObjVariation_Text_getrow()->FK_Text_get()==924 )
+if( drOVTSL->FK_DesignObjVariation_Text_getrow()->FK_Text_get()==400 )
 {
 int k=2;
 }
