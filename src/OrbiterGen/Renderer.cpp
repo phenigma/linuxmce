@@ -50,16 +50,19 @@ Renderer::Renderer(string FontPath,string OutputDirectory,int Width,int Height,b
     m_Width=Width;
     m_Height=Height;
 
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == -1)
+	if (! (SDL_WasInit(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == SDL_INIT_VIDEO))
 	{
+		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == -1)
+		{
 #ifndef WINCE
-		cerr << "Failed initializing SDL: " << SDL_GetError() << endl;
+			cerr << "Failed initializing SDL: " << SDL_GetError() << endl;
 #else
-		printf("Failed to initialize SDL %s\n", SDL_GetError());
+			printf("Failed to initialize SDL %s\n", SDL_GetError());
 #endif //WINCE
-		throw "Failed initializing SDL";
+			throw "Failed initializing SDL";
+		}
+		atexit(SDL_Quit);
 	}
-	atexit(SDL_Quit);
 
 	if (TTF_Init() == -1)
 	{
