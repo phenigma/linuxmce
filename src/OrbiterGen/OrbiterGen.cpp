@@ -335,9 +335,6 @@ int OrbiterGenerator::DoIt()
 	else
 		m_bUseOCG = false;
 
-	//temp hack: disable ocgs until we'll find out the problem with database and this flag 
-	m_bUseOCG = false;
-
 	// See if there's a default entertainment area for this orbiter
 	Row_EntertainArea *pRow_EntertainArea_Default = NULL;
 	vector<Row_Device_EntertainArea *> vectRow_Device_EntertainArea;

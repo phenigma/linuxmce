@@ -33,7 +33,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="pthreadVC.lib wsock32.lib dce.lib zlib1-pluto-d.lib PocketFrog_x86_Debug.lib libpng-pluto-d.lib"
-				OutputFile="../../bin/Orbiter_PocketFrog.exe"
+				OutputFile="../../bin/Orbiter.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;../../../libs/Libraries/pthreads-win32/lib&quot;;../../lib;../../../libs/CrossPlatform/zlib/projects/visualc6/Win32_DLL_Debug;../../../libs\Libraries\PocketFrog\lib;../../../libs/CrossPlatform/lpng127/projects/visualc6/Win32_DLL_Debug"
 				IgnoreDefaultLibraryNames="LIBCD"
@@ -120,9 +120,6 @@
 		</Configuration>
 	</Configurations>
 	<References>
-		<ProjectReference
-			ReferencedProjectIdentifier="{E1D4EBB1-9E34-4187-A12F-DF2D127DAC7E}"
-			Name="PocketFrog"/>
 	</References>
 	<Files>
 		<Filter
