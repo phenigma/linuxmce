@@ -127,6 +127,7 @@ PK_Distro =
 Activation_Code = $Code
 "
 	echo "$pluto_conf" >/etc/pluto.conf
+	chmod 666 /etc/pluto.conf # that 666 is octal, and equals 438 in decimal :)
 	
 	ok=1
 done
