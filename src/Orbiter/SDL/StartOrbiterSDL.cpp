@@ -40,21 +40,12 @@ Orbiter *g_pOrbiter=NULL;
 void DeadlockSocketHandler()
 {
 	// This isn't graceful, but for the moment in the event of a deadlock we'll just kill everything and force a reload
-	if( g_pRouter )
+	if( g_pOrbiter )
 	{
-		int Delay = atoi(g_DCEConfig.ReadString("DelayReloadOnDeadlock").c_str());
 		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Deadlock detected.  Orbiter will die and reload in %d seconds",Delay);
+			g_pPlutoLogger->Write(LV_CRITICAL,"Deadlock detected.  Orbiter will die and reload");
 
-		time_t tTimeout = time(NULL) + Delay;
-		if( Delay )
-			while( tTimeout > time(NULL) )
-				Sleep(10);
-
-		if( g_pPlutoLogger )
-			g_pPlutoLogger->Write(LV_CRITICAL,"Orbiter to reload and quit");
 		g_pOrbiter->OnReload();
-		g_pOrbiter->OnQuit();
 	}
 }
 
