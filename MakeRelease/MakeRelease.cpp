@@ -17,6 +17,9 @@
 #include <direct.h>
 #include <conio.h>
 #define chdir _chdir  // Why, Microsoft, why?
+#define mkdir _mkdir  // Why, Microsoft, why?
+#else
+
 #endif
 
 #include "pluto_main/Database_pluto_main.h"
@@ -99,8 +102,8 @@ bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileIn
 bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileInfo);
 
 // Create archives
-bool TarFiles(string sArchiveFileName,string sDirectory);
-bool ZipFiles(string sArchiveFileName,string sDirectory);
+bool TarFiles(string sArchiveFileName);
+bool ZipFiles(string sArchiveFileName);
 
 fstream fstr_compile,fstr_make_release;
 
@@ -516,6 +519,10 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 					(!pRow_Package_Directory_File->FK_OperatingSystem_isNull() && pRow_Package_Directory_File->FK_OperatingSystem_get()!=g_pRow_Distro->FK_OperatingSystem_get()) )
 				continue;
 
+	cout << "Checking file: " << pRow_Package_Directory_File->PK_Package_Directory_File_get() << " " << pRow_Package_Directory_File->File_get() << endl;
+	cout << "Distro: " << g_pRow_Distro->PK_Distro_get() << endl;
+   cout << "x:" << pRow_Package_Directory_File->FK_Distro_get() << " " << pRow_Package_Directory_File->FK_Distro_isNull() << endl;
+
 			string File = pRow_Package_Directory_File->File_get();
 			if( File.find('*')!=string::npos || File.find('?')!=string::npos )
 			{
@@ -908,7 +915,19 @@ bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,list<FileI
 	{
 		Version = "2.0.0.0";
 	}
-	
+
+/*	string VCopy(Version);
+	string sV[4];
+	string::size_type pos = 0;
+	for (int i = 0; i < 4; i++)
+	{
+		sV[i] = StringUtils::Tokenize(VCopy, ".", pos);
+	}
+	int x;
+	sscanf(sV[3].c_str(), "%d", &x);
+	Version = sV[0] + "." + sV[1] + "." + sV[2] + "." + StringUtils::itos(x + 1);
+	pRow_Package_Source->Version_set(Version);
+*/	
 	string Package_Name = StringUtils::ToLower(pRow_Package_Source->Name_get());
 	string Dir("/home/tmp/pluto-build/" + Package_Name + "-" + Version);
 	string Prefix("/usr/");
@@ -1067,29 +1086,32 @@ string Makefile = "none:\n"
 
 bool CreateSource_FTPHTTP(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo)
 {
-	string sPreface;
-	if( pRow_Package_Source->FK_Package_getrow()->IsSource_get()==1 )
-		sPreface = g_sSourcecodePrefix;
-	else
-		sPreface = g_sNonSourcecodePrefix;
-
 	string ArchiveFileName = pRow_Package_Source->Name_get() + "_" + pRow_Package_Source->Version_get() + pRow_Package_Source->Parms_get();
-	string TempDir = _mktemp("/home/tmp/mra_XXXXXX");
+	chdir("/home/tmp");
+	
+#ifdef WIN32
+	string TempDir = mktemp("mra_XXXXXX");
+#else
+	string TempDir = tempnam(".","mra_");
+#endif
+	unlink( ("/home/tmp/" + ArchiveFileName).c_str() );
+	chdir(("/home/tmp/" + TempDir).c_str());
+	
 cout << "TempDir: " << TempDir << endl;
 	for(list<FileInfo *>::iterator it=listFileInfo.begin();it!=listFileInfo.end();++it)
 	{
 		FileInfo *pFileInfo = *it;
-cout << "copy file " << sPreface << "/" <<  pFileInfo->m_sSource << " -> tmp/" <<  pFileInfo->m_sDestination << endl;
-		if( !FileUtils::PUCopyFile(sPreface + "/" + pFileInfo->m_sSource,"/home/tmp/" + pFileInfo->m_sDestination) )
+cout << "copy file " << pFileInfo->m_sSource << " -> tmp/" <<  pFileInfo->m_sDestination << endl;
+		if( !FileUtils::PUCopyFile(pFileInfo->m_sSource,TempDir + "/" + pFileInfo->m_sDestination) )
 		{
-			cout << "**Error: Unable to copy file " << sPreface << "/" <<  pFileInfo->m_sSource << " -> tmp/" <<  pFileInfo->m_sDestination << endl;
+			cout << "**Error: Unable to copy file " <<  pFileInfo->m_sSource << " -> " << TempDir << "/" <<  pFileInfo->m_sDestination << endl;
 			return false;
 		}
 	}
 	// See what type it is
 	if( pRow_Package_Source->Parms_get()==".tar.gz" )
 	{
-		if( !TarFiles(ArchiveFileName,TempDir) )
+		if( !TarFiles("../" + ArchiveFileName) )
 		{
 			cout << "**ERROR:** Tar " << ArchiveFileName << endl;
 			return false;
@@ -1097,7 +1119,7 @@ cout << "copy file " << sPreface << "/" <<  pFileInfo->m_sSource << " -> tmp/" <
 	}
 	else if( pRow_Package_Source->Parms_get()==".zip" )
 	{
-		if( !ZipFiles(ArchiveFileName,TempDir) )
+		if( !ZipFiles("../" + ArchiveFileName) )
 		{
 			cout << "**ERROR:** Zip " << ArchiveFileName << endl;
 			return false;
@@ -1116,17 +1138,17 @@ cout << "copy file " << sPreface << "/" <<  pFileInfo->m_sSource << " -> tmp/" <
 	return true;
 }
 
-bool TarFiles(string sArchiveFileName,string sDirectory)
+bool TarFiles(string sArchiveFileName)
 {
-	string SystemCall = "tar -zcvf " + sArchiveFileName + " " + sDirectory;
+	string SystemCall = "tar -zcvf " + sArchiveFileName + " *";
 	cout << "Tar: executing: " << SystemCall << endl;
 	getch();
 	return system(SystemCall.c_str())==0;
 }
 
-bool ZipFiles(string sArchiveFileName,string sDirectory)
+bool ZipFiles(string sArchiveFileName)
 {
-	string SystemCall = "tar -zcvf " + sArchiveFileName + " " + sDirectory;
+	string SystemCall = "tar -zcvf " + sArchiveFileName + " *";
 	cout << "Tar: executing: " << SystemCall << endl;
 	getch();
 	return system(SystemCall.c_str())==0;
