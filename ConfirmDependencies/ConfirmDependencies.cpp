@@ -105,9 +105,10 @@ string GetCommand()
 		<< "1.  View required packages for a device, grouped by child devices. (view)" << endl
 		<< "2.  Status, shows the same information as view, but also physically scans the disk for the files to see whether the packages are installed. (status)" << endl
 		<< "3.  Just list all the packages in a single list (list)" << endl
-		<< "3.	Output an install script for the packages (install)" << endl
-		<< "4.	Output a script that will build any packages that were not available as binaries. (build)" << endl
-		<< "5.	Output a script that will build all packages, even if they were available as source. (buildall)" << endl
+		<< "4.  List all the packages in a single list with full information (listall)" << endl
+		<< "5.	Output an install script for the packages (install)" << endl
+		<< "6.	Output a script that will build any packages that were not available as binaries. (build)" << endl
+		<< "7.	Output a script that will build all packages, even if they were available as source. (buildall)" << endl
 		<< endl << "Q.  Quit" << endl;
 
 	char c=(char) getch();
@@ -121,8 +122,10 @@ string GetCommand()
 	case '3':
 		return "list";
 	case '4':
-		return "build";
+		return "listall";
 	case '5':
+		return "build";
+	case '6':
 		return "buildall";
 	case 'Q':
 	case 'q':
@@ -247,14 +250,15 @@ int main(int argc, char *argv[])
 	{
 		PrintCmd(argc, argv);
 		cout << "ConfirmDependencies, v." << VERSION << endl
-			<< "Usage: ConfirmDependencies [-h hostname] [-u username] [-p password] [-D database] [-P mysql port] [-r Repository(-ies)] [-t Table(s)] [-U Users(s)]" << endl
+			<< "Usage: ConfirmDependencies [-h hostname] [-u username] [-p password] [-D database] [-P mysql port] [-r Repository(-ies)] [-t Table(s)] [-U Users(s)] [-d DeviceID]" << endl
 			<< "hostname    -- address or DNS of database host, default is `dcerouter`" << endl
 			<< "username    -- username for database connection" << endl
 			<< "password    -- password for database connection, default is `` (empty)" << endl
 			<< "database    -- database name.  default is pluto_main" << endl
 			<< "port        -- port for database connection, default is 3306" << endl
 			<< "output path -- Where to put the output files.  Default is ../[database name]" << endl
-			<< "input path  -- Where to find the template files.  Default is . then ../ConfirmDependencies" << endl;
+			<< "input path  -- Where to find the template files.  Default is . then ../ConfirmDependencies" << endl
+		    << "device id   -- the device id" << endl;
 
 		exit(0);
 	}
@@ -400,6 +404,31 @@ int main(int argc, char *argv[])
 		{
 			PackageInfo *pPackageInfo = *it;
 			cout << pPackageInfo->m_pRow_Package_Source->FK_Package_get() << "|" << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << endl;
+		}
+	}
+	else if(sCommand == "listall")
+	{
+		list<PackageInfo *>::iterator it;
+		for(it=listPackageInfo.begin(); it!=listPackageInfo.end(); ++it)
+		{
+			PackageInfo *pPackageInfo = *it;
+			cout << 
+				pPackageInfo->m_pRow_Package_Source->FK_Package_get() << "|" << 
+				pPackageInfo->m_pRow_Package_Source->Name_get() << "|" <<
+				pPackageInfo->m_pRow_RepositorySource_URL->URL_get() << "|" <<
+				pPackageInfo->m_pRow_RepositorySource_URL->Comments_get() << "|" <<
+				pPackageInfo->m_pRow_Package_Source->Repository_get() << "|" <<
+				pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get() << "|" <<
+				pPackageInfo->m_pRow_Package_Source->Version_get() << "|" <<
+				pPackageInfo->m_sBinaryExecutiblesPathPath << "|" <<
+				pPackageInfo->m_sSourceIncludesPath << "|" <<
+				pPackageInfo->m_sSourceImplementationPath << "|" <<
+				pPackageInfo->m_sBinaryLibraryPath << "|" <<
+				pPackageInfo->m_sConfiguration << "|" <<
+				pPackageInfo->m_pRow_RepositorySource_URL->Username_get() << "|" <<
+				pPackageInfo->m_pRow_RepositorySource_URL->Password_get() << "|" <<
+				pPackageInfo->m_pRow_Package_Source->Parms_get() << "|" <<
+				pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << endl;
 		}
 	}
 	// The ConfirmDependencies program specific to this distro will be given the following parameters:
