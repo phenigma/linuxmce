@@ -153,7 +153,7 @@ public:
 
 	virtual void SetupSerialization(int iSC_Version)
 	{
-		SerializeClass::SetupSerialization(int iSC_Version);
+		SerializeClass::SetupSerialization(iSC_Version);
 		StartSerializeList() + m_iVariableID + m_iFormat + m_iPhoneSetsValue
 			+ m_sInitialValue + m_sCurrentValue + m_sDescription;
 	}
