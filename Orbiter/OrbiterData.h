@@ -74,6 +74,9 @@ public:
 	DesignObj_Orbiter *m_ScreenMap_Find(string sPK_DesignObj)
 	{
 		ScreenMap::iterator it = m_ScreenMap.find(sPK_DesignObj);
+		if( it==m_ScreenMap.end() )
+			it = m_ScreenMap.find(sPK_DesignObj + ".0.0");
+
 		return it==m_ScreenMap.end() ? NULL : (*it).second;
 	}
 #endif

@@ -1722,7 +1722,7 @@ void Orbiter::Initialize( GraphicType Type )
 			int iSizeConfigFile=0;
 
 			// We can't send it to the General Info virtual device since we won't have that until we get our config data
-			DCE::CMD_Request_File_Cat CMD_Request_File_Cat( m_dwPK_Device, DEVICECATEGORY_General_Info_Plugins_CONST, false,  BL_SameHouse, "C" + StringUtils::itos( m_dwPK_Device ) + "/" + Filename, 
+			DCE::CMD_Request_File_Cat CMD_Request_File_Cat( m_dwPK_Device, DEVICECATEGORY_General_Info_Plugins_CONST, false,  BL_SameHouse, "orbiter/C" + StringUtils::itos( m_dwPK_Device ) + "/" + Filename, 
 				&pConfigFile, &iSizeConfigFile );
 			SendCommand( CMD_Request_File_Cat );
 
@@ -1895,6 +1895,11 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 	for( ScreenMap::iterator it=m_ScreenMap.begin(  );it!=m_ScreenMap.end(  );++it )
 	{
 		DesignObj_Orbiter *pObj = ( DesignObj_Orbiter * ) ( *it ).second;
+string x = ( *it ).first;
+if( pObj->m_ObjectID.find("3221")!=string::npos )
+{
+int k=2;
+}
 		ParseObject( pObj, pObj, pObj, Type, 0 );
 	}
 
