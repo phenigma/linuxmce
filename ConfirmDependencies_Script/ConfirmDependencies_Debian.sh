@@ -4,7 +4,7 @@ ERR_OK=0
 ERR_UNKNOWN_REP_TYPE=1
 ERR_UNKNOWN_REPOS_SRC_FORM=2
 ERR_APT=3
-ERR_WGET=4
+ERR_DOWNLOAD=4
 ERR_DPKG_INSTALL=5
 
 SPACE_SED='s/  */ /g; s/^ *//g; s/ *$//g'
@@ -19,6 +19,8 @@ SRC_INCLUDES=$(echo "$7" | sed "$SPACE_SED") # source includes
 SRC_IMPL=$(echo "$8" | sed "$SPACE_SED") # source implementation
 BIN_LIB=$(echo "$9" | sed "$SPACE_SED") # binary library
 CONFIG=$(echo "${10}" | sed "$SPACE_SED") # configuration
+USERNAME=$(echo "${11}" | sed "$SPACE_SED") # CVS/SVN username
+PASSWORD=$(echo "${12}" | sed "$SPACE_SED") # CVS/SVN password
 
 SECTIONS="main non-free contrib"
 
@@ -29,7 +31,16 @@ if [ "$status" == "ii" ]; then
 fi
 
 case "$REPOS_TYPE" in
+	# Package
 	1) ;;
+	
+	# CVS (Concurrent Versioning System)
+	3) URL_TYPE=cvs ;;
+	
+	# SVN (SubVersioN)
+	4) URL_TYPE=svn ;;
+	
+	# Other (not supported)
 	*)
 		echo "TODO: implement repository type $REPOS_TYPE handling"
 		exit $ERR_UNKNOWN_REP_TYPE
@@ -39,7 +50,7 @@ esac
 case "$REPOS_SRC" in
 	deb*) URL_TYPE=apt; REPOS_SRC="$(echo $REPOS_SRC | sed "$SPACE_SED")" ;;
 	http://*|ftp://*) URL_TYPE=direct ;;
-	*) echo "Unknown URL form in '$REPOS_SRC'"; exit $ERR_UNKNOWN_REPOS_SRC_FORM ;;
+	*) [ -z "$URL_TYPE" ] && echo "Unknown URL form in '$REPOS_SRC'"; exit $ERR_UNKNOWN_REPOS_SRC_FORM ;;
 esac
 
 keep_sending_enters()
@@ -62,8 +73,30 @@ case "$URL_TYPE" in
 		fi
 		keep_sending_enters | apt-get -t "$REPOS" -y install "$PKG_NAME" || exit $ERR_APT
 	;;
+	
 	direct)
-		wget -t 0 -c -P /var/cache/apt/archives "$REPOS_SRC/$PKG_NAME" || exit $ERR_WGET
+		wget -t 0 -c -P /var/cache/apt/archives "$REPOS_SRC/$PKG_NAME" || exit $ERR_DOWNLOAD
 		keep_sending_enters | dpkg -i /var/cache/apt/archives/"$PKG_NAME" || exit $ERR_DPKG_INSTALL
+	;;
+
+	svn|svn)
+		[ -z "$SRC_IMPL" ] && SRC_IMPL="/usr/pluto/src/$PKG_NAME"
+		mkdir -p "$SRC_IMPL" || exit $ERR_DOWNLOAD
+
+		if [ "$URL_TYPE" == "svn" ]; then
+			echo "$REPOS_SRC" | egrep '^svn(\+ssh)?://' &>/dev/null || REPOS_SRC="svn://$REPOS_SRC"
+			svn_param="--non-interactive --no-auth-cache"
+			[ -n "$USERNAME" ] && svn_param="$svn_param --username $USERNAME"
+			[ -n "$PASSWORD" ] && svn_param="$svn_param --password $PASSWORD"
+			svn checkout $svn_param "$REPOS_SRC/$REPOS/$PKG_NAME" "$SRC_IMPL"
+		elif [ "$URL_TYPE" == "cvs" ]; then
+			# TODO: CVS pserver login
+			cvs -d "$REPOS_SRC" checkout -d "$SRC_IMPL"
+			# TODO: CVS pserver logout
+		fi
+
+		pushd "$REPOS_SRC" &>/dev/null
+		make
+		popd &>/dev/null
 	;;
 esac
