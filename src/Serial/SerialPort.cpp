@@ -63,7 +63,7 @@ CSerialPort::CSerialPort(string Port, unsigned BPS, eParityBitStop ParityBitStop
     t.c_iflag = IGNBRK | INPCK;
     t.c_oflag = 0;
     // TODO: Implement paritybitstop
-    t.c_cflag = CS8 | CREAD | CLOCAL | CSTOPB;
+    t.c_cflag = CS8 | CREAD | CLOCAL/* | CSTOPB*/;
 	if (FlowControl)
 		t.c_cflag |= CRTSCTS;
     t.c_lflag = 0;
@@ -141,7 +141,7 @@ size_t CSerialPort::Read(char *Buf, size_t MaxLen, int Timeout)
 
     FD_ZERO(&rfds);
     FD_SET(m_fdSerial, &rfds);
-    int ret;
+	int ret;
     
     tv.tv_sec = Timeout/1000 ;
     tv.tv_usec = (Timeout % 1000) * 1000;
