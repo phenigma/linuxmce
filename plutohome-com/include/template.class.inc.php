@@ -357,7 +357,7 @@ function setTemplateFileType($type) {
   function displayLogout() {
   	 $login='<table width="239"  border="0" cellpadding="0" cellspacing="0">
               <tr>
-                <td width="73"><a href="'.$PlutoHomeHost.'"><img src="images/buton_home.jpg" width="73" height="36" border="0"/></a></td>
+                <td width="73"><a href="'.$PlutoHomeHost.'index.php"><img src="images/buton_home.jpg" width="73" height="36" border="0"/></a></td>
                 <td width="31"><img src="images/header_colt_1.jpg" width="31" height="36" /></td>
                 <td width="135"><a href="'.$PlutoHomeHost.'index.php?section=clientLoginForm" target="_top"><img src="images/buton_login_register.jpg" width="135" height="36" border="0"/></a></td>
               </tr>

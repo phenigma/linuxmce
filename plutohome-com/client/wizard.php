@@ -52,13 +52,13 @@ function wizard($output,$dbADO) {
 							</tr>
 			      	      	<tr>
 			      				<td align="right" valign="top" class="normaltext"><B>Name</B></td>
-								<td align="left" valign="top" class="normaltext"><input type="text" name="Description" value="'.@$_SESSION['installationDescription'].'"> <input type="submit" name="submitBtn" value="Next"></td>
+								<td align="left" valign="top" class="normaltext"><input type="text" name="Description" value="'.@stripslashes($_SESSION['installationDescription']).'"> <input type="submit" name="submitBtn" value="Next"></td>
 			      			</tr>
 							<tr>
 								<td colspan="2" align="left" class="normaltext"><br>Following are the 3 pieces of computer equipment in a Pluto system which need software.  Please decide now what equipment you will use, since this wizard will need some information about your equipment.  The minimum is 1 computer that you can use as both your Core and Media Director.  However, Pluto is easier to use if you have Orbiters too.<br><br>
 									<B>1. The Core</B>, or server, which is the main brains of the system.  This is where all the data and configuration for your home are stored.<br><br>
 									<B>2. Any number of media directors</B>.  These are media pc’s hook up to your tv and stereo to provide media in a location.<br><br>
-									NOTE:   You need only 1 computer since the core can also be a media director, which we call a ‘hybrid’.  However, for a big installation with lots of media directors and orbiters, you really should have a dedicated, fail-safe core with lots of storage for the whole house.<br>
+									NOTE:   You need only 1 computer since the core can also be a media director, which we call a ‘hybrid’.  However, for a big installation with lots of media directors and orbiters, you really should have a dedicated, fail-safe core with lots of storage for the whole house.<br><br>
 									<B>3. Orbiters</B> are the devices you carry around to control the system—Pluto’s version of a remote control.  You don’t actually need any Orbiters since you can just use the media director’s on-screen menu to control everything with a mouse and keyboard.  But it’s more comfortable to use Orbiters.  The Orbiters can be PDA’s, tablet-pc’s, or web pad’s that you carry around the house.  The most comfortable orbiter is a Bluetooth mobile phone, which works even when you’re not in the house.
 								</td>
 							</tr>
@@ -72,7 +72,7 @@ function wizard($output,$dbADO) {
 				
 			}else{
 				// process form
-				$description=cleanString($_POST['Description']);
+				$description=@$_POST['Description'];
 				
 				if(isset($_POST['submitBtn']) || $action=='add'){
 					if($installationID==0){
@@ -278,6 +278,11 @@ function wizard($output,$dbADO) {
 					$_SESSION['deviceID']=$rowDevice['PK_Device'];
 				}else{
 					unset($_SESSION['deviceID']);
+					unset($_SESSION['isCoreFirstTime']);
+					unset($_SESSION['CoreDCERouter']);
+					unset($_SESSION['coreHybridID']);
+					unset($_SESSION['OrbiterHybridChild']);
+					unset($_SESSION['isHybridFirstTime']);
 					$FK_DeviceTemplate=0;
 					$FK_Distro=0;
 				}
@@ -319,6 +324,7 @@ function wizard($output,$dbADO) {
 					$filterRestrictions=($rowRestrictions['FK_OperatingSystem']!='')?" AND FK_Operatingsystem='".$rowRestrictions['FK_OperatingSystem']."'":'';
 					$filterRestrictions=($rowRestrictions['FK_Distro']!='')?" AND PK_Distro='".$rowRestrictions['FK_Distro']."'":$filterRestrictions;
 				}
+
 				$out .= '<br>
 				   <form action="index.php" method="POST" name="wizard">
 					<input type="hidden" name="section" value="wizard">
@@ -336,7 +342,7 @@ function wizard($output,$dbADO) {
 								<td colspan="2" align="left">Tell me about the computer you’ll use as the core.  Just choose "Generic PC" if we don’t yet have your specific model listed.  Pluto’s in-house developers and testers use Linux/Debian Sarge.  <b>Don\'t forget to check the \'Hybrid\' box if you will use this to play back media too!</b><br>&nbsp;<br></td>
 							</tr>
 							<tr class="normaltext">
-								<td>&nbsp;&nbsp;&nbsp;&nbsp;First, what type of computer is it?</td>
+								<td width="350">&nbsp;&nbsp;&nbsp;&nbsp;First, what type of computer is it?</td>
 								<td><select name="computerType" onChange="showPlatforms()">
 									<option value="0">- Please select -</option>';
 							$queryCoreDeviceTemplates='SELECT * FROM DeviceTemplate WHERE FK_DeviceCategory=?';
@@ -373,7 +379,7 @@ function wizard($output,$dbADO) {
 								<td colspan="2" valign="top"><input type="checkbox" name="hybridCore" value="1" '.((!isset($_SESSION['deviceID']))?'disabled':'').' '.((isset($_SESSION['coreHybridID']))?'checked':'').'><span style="color:'.((!isset($_SESSION['deviceID']))?'#CCCCCC':'').'"> <b>Hybrid:</b>  My core will also be a media director (ie a "hybrid").  If checked, the media playback modules will be installed on the core so you can hook it up directly to your tv/stereo and don’t need a separate computer for your media playback.</span></td>
 							</tr>
 							<tr>	
-								<td colspan="2" class="normaltext">'.((!isset($_SESSION['deviceID']))?'&nbsp;':getInstallWizardDeviceTemplates($step,$dbADO,'',$FK_Distro,$CoreOS)).'</td>
+								<td colspan="2" class="normaltext">'.((!isset($_SESSION['deviceID']))?'&nbsp;':getInstallWizardDeviceTemplates($step,$dbADO,$_SESSION['CoreDCERouter'],$FK_Distro,$CoreOS)).'</td>
 							</tr>	
 							<tr>
 								<td colspan="2" align="center"><input type="submit" name="continue" value="Next" '.((!isset($_SESSION['deviceID']))?'disabled':'').'></td>
@@ -381,7 +387,6 @@ function wizard($output,$dbADO) {
 			      		</table>
 					</form>
 			      	';
-				
 			}else{
 				// process form step 4 subsection 1
 				$deviceTemplate=$_POST['computerType'];
@@ -393,6 +398,30 @@ function wizard($output,$dbADO) {
 						$dbADO->Execute($updateDevice,array($deviceTemplate,$_SESSION['deviceID']));
 						$updateDeviceDeviceData='UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?';
 						$dbADO->Execute($updateDeviceDeviceData,array($distro,$_SESSION['deviceID'],$GLOBALS['rootPK_Distro']));
+						
+						// install options - delete or insert devices
+						$installOptionsArray=explode(',',$_POST['displayedTemplatesRequired_'.$_SESSION['CoreDCERouter']]);
+						foreach($installOptionsArray AS $elem){
+							$optionalDevice=(isset($_POST['device_'.$_SESSION['CoreDCERouter'].'_requiredTemplate_'.$elem]))?$_POST['device_'.$_SESSION['CoreDCERouter'].'_requiredTemplate_'.$elem]:0;
+							if($optionalDevice!=0){
+								$OptionalDeviceName=cleanString(@$_POST['templateName_'.$elem]);
+								$insertDevice='
+									INSERT INTO Device 
+										(Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia) 
+									VALUES (?,?,?,?)';
+								$dbADO->Execute($insertDevice,array($OptionalDeviceName,$elem,$installationID,$_SESSION['CoreDCERouter']));
+							}else{
+								$oldDevice=$_POST['device_'.$_SESSION['CoreDCERouter'].'_requiredTemplate_'.$elem];
+								$dbADO->Execute("DELETE FROM Device WHERE PK_Device='".$oldDevice."'");
+							}
+						}
+						// the template was changed, I delete the hybrid, it will be recreated when click on "Next"
+						if(isset($_SESSION['coreHybridID'])){
+							deleteDevice($_SESSION['coreHybridID'],$dbADO);
+							//unset($_SESSION['coreHybridID']);
+							unset($_SESSION['isHybridFirstTime']);
+							unset($_SESSION['OrbiterHybridChild']);
+						}
 					}else{
 						$insertDevice='INSERT INTO Device (Description, FK_DeviceTemplate, FK_Installation) VALUES (?,?,?)';
 						$dbADO->Execute($insertDevice,array('CORE',$deviceTemplate,$installationID));
@@ -400,9 +429,18 @@ function wizard($output,$dbADO) {
 						createChildsForControledViaDeviceTemplate($deviceTemplate,$installationID,$deviceID,$dbADO);
 						createChildsForControledViaDeviceCategory($deviceTemplate,$installationID,$deviceID,$dbADO);
 						
+						$getDCERouter='SELECT * FROM Device WHERE FK_DeviceTemplate=? AND FK_Device_ControlledVia=?';
+						$resDCERouter=$dbADO->Execute($getDCERouter,array($GLOBALS['rootDCERouter'],$deviceID));
+						if($resDCERouter->RecordCount()!=0){
+							$rowDCERouter=$resDCERouter->FetchRow();
+							$_SESSION['CoreDCERouter']=$rowDCERouter['PK_Device'];
+						}
+						
 						$insertDeviceDeviceData='INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData,IK_DeviceData) VALUES (?,?,?)';
 						$dbADO->Execute($insertDeviceDeviceData,array($deviceID,$GLOBALS['rootPK_Distro'],$distro));
 						$_SESSION['deviceID']=$deviceID;
+						$_SESSION['isCoreFirstTime']=1;
+			
 					}
 					header("Location: index.php?section=wizard&step=4");
 				}else{
@@ -421,33 +459,62 @@ function wizard($output,$dbADO) {
 					}
 					
 					$oldHybridCore=(isset($_SESSION['coreHybridID'])?1:0);
-					$hybridCore=(isset($_POST['hybridCore'])?$_POST['hybridCore']:0);
+					$hybridCore=(isset($_POST['hybridCore'])?1:0);
 					$coreHybridID=$_SESSION['coreHybridID'];
-					if($hybridCore!=$oldHybridCore){
-						if($hybridCore!=0){
+					if($hybridCore!=$oldHybridCore || !isset($_SESSION['OrbiterHybridChild'])){
+						if($hybridCore!=0 || !isset($_SESSION['OrbiterHybridChild'])){
 							$insertDeviceMD='INSERT INTO Device (Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia) VALUES (?,?,?,?)';
 							$dbADO->Execute($insertDeviceMD,array('The core/hybrid',$GLOBALS['rootGenericMediaDirector'],$installationID,$_SESSION['deviceID']));
 							$_SESSION['coreHybridID']=$dbADO->Insert_ID();
+							
+							// inherit DeviceData for hybrid MD
+							InheritDeviceData($FK_DeviceTemplate,$insertID,$dbADO);
+							createChildsForControledViaDeviceTemplate($GLOBALS['rootGenericMediaDirector'],$_SESSION['installationID'],$_SESSION['coreHybridID'],$dbADO);
+							createChildsForControledViaDeviceCategory($GLOBALS['rootGenericMediaDirector'],$_SESSION['installationID'],$_SESSION['coreHybridID'],$dbADO);
 
+							// get PK_Device for Orbiter child to Hybrid
+							$getOrbiterHybridChild='SELECT * FROM Device WHERE FK_DeviceTemplate=? AND FK_Device_ControlledVia=?';
+							$resOrbiterHybridChild=$dbADO->Execute($getOrbiterHybridChild,array($GLOBALS['deviceTemplateOrbiter'],$_SESSION['coreHybridID']));
+							if($resOrbiterHybridChild->RecordCount()!=0){
+								$rowOrbiterHybridChild=$resOrbiterHybridChild->FetchRow();
+								$_SESSION['OrbiterHybridChild']=$rowOrbiterHybridChild['PK_Device'];
+							}
+							
 							$insertDeviceMDDeviceData='INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData,IK_DeviceData) VALUES (?,?,?)';
 							$dbADO->Execute($insertDeviceMDDeviceData,array($_SESSION['coreHybridID'],$GLOBALS['rootPK_Distro'],$distro));
+							$_SESSION['isHybridFirstTime']=1;
 						}else{
-							$deleteDeviceMD='DELETE FROM Device WHERE PK_Device=?';
-							$dbADO->Execute($deleteDeviceMD,$coreHybridID);
-							
-							$deleteDeviceMDDeviceData='DELETE FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?';
-							$dbADO->Execute($deleteDeviceMDDeviceData,array($coreHybridID,$GLOBALS['rootPK_Distro']));
+							deleteDevice($coreHybridID,$dbADO);
 
 							unset($_SESSION['coreHybridID']);
+							unset($_SESSION['isHybridFirstTime']);
+							unset($_SESSION['OrbiterHybridChild']);
 						}
 					}
+
+					// install options - delete or insert devices
+					$installOptionsArray=explode(',',$_POST['displayedTemplatesRequired_'.$_SESSION['CoreDCERouter']]);
+					foreach($installOptionsArray AS $elem){
+						$optionalDevice=(isset($_POST['device_'.$_SESSION['CoreDCERouter'].'_requiredTemplate_'.$elem]))?$_POST['device_'.$_SESSION['CoreDCERouter'].'_requiredTemplate_'.$elem]:0;
+						$oldDevice=$_POST['oldDevice_'.$_SESSION['CoreDCERouter'].'_requiredTemplate_'.$elem];
+						if($optionalDevice!=0){
+							$OptionalDeviceName=cleanString(@$_POST['templateName_'.$elem]);
+							$insertDevice='
+									INSERT INTO Device 
+										(Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia) 
+									VALUES (?,?,?,?)';
+							if($oldDevice=='')
+								$dbADO->Execute($insertDevice,array($OptionalDeviceName,$elem,$installationID,$_SESSION['CoreDCERouter']));
+						}else{
+							$dbADO->Execute("DELETE FROM Device WHERE PK_Device='".$oldDevice."'");
+						}
+					}
+					
 					header("Location: index.php?section=wizard&step=5");
 				}
 			}
 		break;
 		case 5:
-				$installationID=(isset($_SESSION['installationID']))?$_SESSION['installationID']:0;
-				
 				$queryCoreDeviceTemplates='SELECT * FROM DeviceTemplate WHERE FK_DeviceCategory=?';
 				$resCoreDeviceTemplates=$dbADO->Execute($queryCoreDeviceTemplates,$GLOBALS['rootMediaDirectorID']);
 				$deviceTemplateIdArray=array();
@@ -600,16 +667,30 @@ function wizard($output,$dbADO) {
 									</tr>';
 							}
 							else {
-								$out .='<td colspan="5" class="normaltext">This is your hybrid--the media director software will be running on the same computer as the core.  Choose the media director-related software modules you want on this hybrid.  To change the core-related software modules or other options, return to the <a href="index.php?section=wizard&step=4">Core page</a>.  You can add more stand-alone media directors below that will connect to this hybrid.</td>';
+								$out .='<input type="hidden" name="platform_'.$rowMediaDirectors['PK_Device'].'" value="'.@$selectedDistro.'">
+										<input type="hidden" name="deviceTemplate_'.$rowMediaDirectors['PK_Device'].'" value="'.$GLOBALS['rootGenericMediaDirector'].'">
+									<td colspan="5" class="normaltext">This is your hybrid--the media director software will be running on the same computer as the core.  Choose the media director-related software modules you want on this hybrid.  To change the core-related software modules or other options, return to the <a href="index.php?section=wizard&step=4">Core page</a>.  You can add more stand-alone media directors below that will connect to this hybrid.</td>
+								</tr>';
 							}
-							$out .='<tr '.$rowcolor.'>	
-										<td colspan="6">'.getInstallWizardDeviceTemplates($step,$dbADO,'_'.$rowMediaDirectors['PK_Device'],$selectedDistro).'</td>
+							$orbiterMDChild=getMediaDirectorOrbiterChild($rowMediaDirectors['PK_Device'],$dbADO);
+							if($orbiterMDChild){
+								$out.='
+									<tr '.$rowcolor.'>	
+										<td colspan="6">'.getInstallWizardDeviceTemplates($step,$dbADO,$orbiterMDChild,$selectedDistro).'</td>
 									</tr>';
+							}
 					}
 					$out.='<input type="hidden" name="displayedDevices" value="'.join(',',$displayedDevices).'">';
 					$out.='		</table>
 								</td>
-							</tr>
+							</tr>';
+					if(count($displayedDevices)>0){
+						$out.='
+							<tr class="normaltext">
+								<td colspan="2" align="center"><input type="button" name="continue" value="Save changes" onClick="javascript:document.wizard.action.value=\'updateOnly\';document.wizard.submit();"></td>
+							</tr>';
+					}
+					$out.='
 							<tr class="normaltext">
 								<td colspan="2"><B>Add a Media Director</B></td>
 							</tr>
@@ -644,13 +725,16 @@ function wizard($output,$dbADO) {
 							<tr class="normaltext">
 								<td>Diskless boot</td>
 								<td><input type="checkbox" name="disklessBoot" value="1" '.((@$_POST['disklessBoot']==1)?'checked':'').'></td>
+							</tr>
+							<tr class="normaltext">
+								<td colspan="2">Diskless, or network boot, means the media director does not need a hard drive.  It will boot off an image stored on the core.  You can have a hard drive in it anyway and use it to boot another operating system.  You can press a button on the Pluto Orbiter to switch a media director between a network boot as a Pluto system, and a normal boot on the hard drive.</td>
 							</tr>';
 					if(isset($_POST['newPlatform']))
 						$out.='<tr class="normaltext">
 								<td colspan="2">'.getInstallWizardDeviceTemplates($step,$dbADO,'',@$_POST['newPlatform']).'</td>
 							</tr>';
 					$out.='	<tr>
-								<td colspan="2" align="center">'.((isset($_POST['newPlatform']) && $_POST['newPlatform']!='0')?'<input type="submit" name="continue" value="Add&Continue">':'').' '.((isset($_POST['newPlatform']))?'<input type="button" name="next" value="Cancel" onClick="self.location=\'index.php?section=wizard&step=5\'">':'').' <input type="button" name="next" value="Next" onClick="javascript:document.wizard.action.value=\'update\';document.wizard.submit();"></td>
+								<td colspan="2" align="center">'.((isset($_POST['newPlatform']) && $_POST['newPlatform']!='0')?'<input type="submit" name="continue" value="Add&Continue">':'').' '.((isset($_POST['newPlatform']) && $_POST['newPlatform']!='0')?'<input type="button" name="next" value="Cancel" onClick="self.location=\'index.php?section=wizard&step=5\'">':'').' <input type="button" name="next" value="Next" onClick="javascript:document.wizard.action.value=\'update\';document.wizard.submit();"></td>
 							</tr>
 			      		</table>
 					</form>';
@@ -678,12 +762,21 @@ function wizard($output,$dbADO) {
 					createChildsForControledViaDeviceTemplate($FK_DeviceTemplate,$_SESSION['installationID'],$insertID,$dbADO);
 					createChildsForControledViaDeviceCategory($FK_DeviceTemplate,$_SESSION['installationID'],$insertID,$dbADO);
 					
-					$displayedInstallWizardArray=explode(',',$_POST['displayedInstallWizard']);
-					foreach($displayedInstallWizardArray as $value){
-						$insertChildDevice='INSERT INTO Device (Description, FK_DeviceTemplate, FK_Installation,FK_Device_ControlledVia) VALUES (?,?,?,?)';
-						$dbADO->Execute($insertChildDevice,array($description." Child",$value,$_SESSION['installationID'],$insertID));
+					// install options 
+					$orbiterMDChild=getMediaDirectorOrbiterChild($insertID,$dbADO);
+					$installOptionsArray=explode(',',$_POST['displayedTemplatesRequired_']);
+					foreach($installOptionsArray AS $elem){
+						$optionalDevice=(isset($_POST['device__requiredTemplate_'.$elem]))?$_POST['device__requiredTemplate_'.$elem]:0;
+						if($optionalDevice!=0){
+							$OptionalDeviceName=cleanString(@$_POST['templateName_'.$elem]);
+							$insertDevice='
+									INSERT INTO Device 
+										(Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia) 
+									VALUES (?,?,?,?)';
+							$dbADO->Execute($insertDevice,array($OptionalDeviceName,$elem,$installationID,$orbiterMDChild));
+						}
 					}
-					
+										
 					$insertDeviceDeviceData='INSERT INTO Device_DeviceData (FK_Device,FK_DeviceData,IK_DeviceData) VALUES (?,?,?)';
 					$dbADO->Execute($insertDeviceDeviceData,array($insertID,$GLOBALS['rootPK_Distro'],$FK_Distro));
 					
@@ -734,8 +827,27 @@ function wizard($output,$dbADO) {
 							$dbADO->Execute($deleteDeviceDeviceData,array($value,$GLOBALS['rootDisklessBoot']));
 						}
 					}
+					
+					// install options - delete or insert devices
+					$orbiterMDChild=getMediaDirectorOrbiterChild($value,$dbADO);
+					$installOptionsArray=explode(',',$_POST['displayedTemplatesRequired_'.$orbiterMDChild]);
+					foreach($installOptionsArray AS $elem){
+						$oldDevice=$_POST['oldDevice_'.$orbiterMDChild.'_requiredTemplate_'.$elem];
+						$optionalDevice=(isset($_POST['device_'.$orbiterMDChild.'_requiredTemplate_'.$elem]))?$_POST['device_'.$orbiterMDChild.'_requiredTemplate_'.$elem]:0;
+						if($optionalDevice!=0){
+							$OptionalDeviceName=cleanString(@$_POST['templateName_'.$elem]);
+							$insertDevice='
+									INSERT INTO Device 
+										(Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia) 
+									VALUES (?,?,?,?)';
+							if($oldDevice=='')
+								$dbADO->Execute($insertDevice,array($OptionalDeviceName,$elem,$installationID,$orbiterMDChild));
+						}else{
+							$dbADO->Execute("DELETE FROM Device WHERE PK_Device='".$oldDevice."'");
+						}
+					}
 				}
-			header("Location: index.php?section=wizard&step=6");
+			header("Location: index.php?section=wizard&step=".(($action=='updateOnly')?'5':'6'));
 			}
 		break;
 		case 6:
@@ -840,7 +952,7 @@ function wizard($output,$dbADO) {
 										<td>&nbsp;</td>
 									</tr>';
 					$queryOrbiters='
-						SELECT * FROM Device WHERE FK_DeviceTemplate IN ('.join(',',$validOrbiters).') AND FK_Installation=?';
+						SELECT * FROM Device WHERE FK_DeviceTemplate IN ('.join(',',$validOrbiters).') AND FK_Installation=?  AND FK_Device_ControlledVia IS NULL';
 					$resOrbiters=$dbADO->Execute($queryOrbiters,$installationID);
 					$displayedDevices=array();
 					if($resOrbiters->RecordCount()==0){
@@ -883,7 +995,7 @@ function wizard($output,$dbADO) {
 										<td><input type="submit" name="delete_'.$rowOrbiters['PK_Device'].'" value="Delete"></td>
 									</tr>
 									<tr>	
-										<td colspan="6">'.getInstallWizardDeviceTemplates($step,$dbADO,'_'.$rowOrbiters['PK_Device'],$selectedDistro).'</td>
+										<td colspan="6">'.getInstallWizardDeviceTemplates($step,$dbADO,$rowOrbiters['PK_Device'],$selectedDistro).'</td>
 									</tr>';
 					}
 					$out.='<input type="hidden" name="displayedDevices" value="'.join(',',$displayedDevices).'">';
@@ -955,10 +1067,18 @@ function wizard($output,$dbADO) {
 					createChildsForControledViaDeviceTemplate($FK_DeviceTemplate,$_SESSION['installationID'],$insertID,$dbADO);
 					createChildsForControledViaDeviceCategory($FK_DeviceTemplate,$_SESSION['installationID'],$insertID,$dbADO);
 
-					$displayedInstallWizardArray=explode(',',$_POST['displayedInstallWizard']);
-					foreach($displayedInstallWizardArray as $value){
-						$insertChildDevice='INSERT INTO Device (Description, FK_DeviceTemplate, FK_Installation,FK_Device_ControlledVia) VALUES (?,?,?,?)';
-						$dbADO->Execute($insertChildDevice,array($description." Child",$value,$_SESSION['installationID'],$insertID));
+					// install options
+					$installOptionsArray=explode(',',$_POST['displayedTemplatesRequired_']);
+					foreach($installOptionsArray AS $elem){
+						$optionalDevice=(isset($_POST['requiredTemplate_'.$elem]))?$_POST['requiredTemplate_'.$elem]:0;
+						if($optionalDevice!=0){
+							$OptionalDeviceName=cleanString(@$_POST['templateName_'.$elem]);
+							$insertDevice='
+								INSERT INTO Device 
+									(Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia) 
+								VALUES (?,?,?,?)';
+							$dbADO->Execute($insertDevice,array($OptionalDeviceName,$elem,$installationID,$insertID));
+						}
 					}
 
 					$insertDeviceDeviceData='INSERT INTO Device_DeviceData (FK_Device,FK_DeviceData,IK_DeviceData) VALUES (?,?,?)';
@@ -1009,7 +1129,26 @@ function wizard($output,$dbADO) {
 							$dbADO->Execute($deleteDeviceDeviceData,array($value,$GLOBALS['rootDisklessBoot']));
 						}
 					}
+					
+					// install options - delete or insert devices
+					$installOptionsArray=explode(',',$_POST['displayedTemplatesRequired_'.$value]);
+					foreach($installOptionsArray AS $elem){
+						$oldDevice=$_POST['oldDevice_'.$value.'_requiredTemplate_'.$elem];
+						$optionalDevice=(isset($_POST['device_'.$value.'_requiredTemplate_'.$elem]))?$_POST['device_'.$value.'_requiredTemplate_'.$elem]:0;
+						if($optionalDevice!=0){
+							$OptionalDeviceName=cleanString(@$_POST['templateName_'.$elem]);
+							$insertDevice='
+									INSERT INTO Device 
+										(Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia) 
+									VALUES (?,?,?,?)';
+							if($oldDevice=='')
+								$dbADO->Execute($insertDevice,array($OptionalDeviceName,$elem,$installationID,$value));
+						}else{
+							$dbADO->Execute("DELETE FROM Device WHERE PK_Device='".$oldDevice."'");
+						}
+					}
 			}
+			
 			header("Location: index.php?section=wizard&step=7");
 		}
 		
@@ -1098,10 +1237,10 @@ function wizard($output,$dbADO) {
 								</tr>
 								<tr class="normaltext" bgcolor="DADDE4">
 									<td align="center">
-										<input type="radio" name="method" value="6" '.(($selectedRepositoryType==6)?'checked':'').' onChange="document.wizard.submit();"> Download and uncompress an archive (tar, zip, etc.)&nbsp;&nbsp;&nbsp
-										<input type="radio" name="method" value="1" '.(($selectedRepositoryType==1)?'checked':'').' onChange="document.wizard.submit();"> a package (deb, rpm, etc.)&nbsp;&nbsp;&nbsp
-										<input type="radio" name="method" value="3" '.(($selectedRepositoryType==3)?'checked':'').' onChange="document.wizard.submit();"> cvs&nbsp;&nbsp;&nbsp
-										<input type="radio" name="method" value="4" '.(($selectedRepositoryType==4)?'checked':'').' onChange="document.wizard.submit();"> svn&nbsp;&nbsp;&nbsp
+										<input type="radio" name="method" value="6" '.(($selectedRepositoryType==6)?'checked':'').' onClick="document.wizard.submit();"> Download and uncompress an archive (tar, zip, etc.)&nbsp;&nbsp;&nbsp
+										<input type="radio" name="method" value="1" '.(($selectedRepositoryType==1)?'checked':'').' onClick="document.wizard.submit();"> a package (deb, rpm, etc.)&nbsp;&nbsp;&nbsp
+										<input type="radio" name="method" value="3" '.(($selectedRepositoryType==3)?'checked':'').' onClick="document.wizard.submit();"> cvs&nbsp;&nbsp;&nbsp
+										<input type="radio" name="method" value="4" '.(($selectedRepositoryType==4)?'checked':'').' onClick="document.wizard.submit();"> svn&nbsp;&nbsp;&nbsp
 									</td>
 								</tr>
 								</tr>
@@ -1115,20 +1254,20 @@ function wizard($output,$dbADO) {
 								<td>Device #: <b>'.$_SESSION['deviceID'].'</b></td>
 							</tr>
 							<tr class="normaltext">
-								<td valign="top" colspan="2">Here are your options for installing the software on this computer: <a href="#" onClick="javascript:windowOpen(\'checkDependancies.php?device='.$rowDevice['PK_Device'].'\',\'width=1024,height=768,toolbars=true\');">List of all the software this computer will need.</a></td>
+								<td valign="top" colspan="2">Here are your options for installing the software on this computer: <a href="#" onClick="javascript:windowOpen(\'checkDependancies.php?device='.$rowDevice['PK_Device'].'\',\'width=1024,height=768,toolbars=true,scrollbars=1\');">List of all the software this device will need.</a></td>
 							</tr>
 							<tr class="normaltext">
 								<td valign="top" colspan="2"><table width="75%" align="center">
-									<tr class="normaltext">
-										<td width="30%" align="left"><span style="color:'.(($distroKickStartCD=='')?'#CCCCCC':'').'">- '.(($distroKickStartCD!='')?'<a href="'.$distroKickStartCD.'" target="_blank">':'').'Kick-start CD'.(($distroKickStartCD!='')?'</a>':'').(($distroKickStartCD=='')?'<br>Not available for '.$DistroNameOS:'').'</span></td>
-										<td> An ISO image you can burn to a CD.  It is a self-booting CD for '.$DistroNameOS.'</td>
+									<tr class="normaltext" bgcolor="#DADDE4">
+										<td width="30%" align="left">'.(($distroKickStartCD=='')?'<span style="color:#999999;">- Kick-start CD</span>':'- <a href="'.$distroKickStartCD.'" target="_blank">Kick-start CD</a>').'</td>
+										<td>'.(($distroKickStartCD=='')?'<span style="color:#999999;">Not available for '.$DistroNameOS.'</span>':' An ISO image you can burn to a CD.  It is a self-booting CD for '.$DistroNameOS).'</td>
 									</tr>
 									<tr class="normaltext" bgcolor="#DADDE4">
-										<td width="30%" align="left">- <a href="#" onClick="javascript:windowOpen(\'autoInstall.php?code='.$autoInstallScript.'&distro='.$distroInstaller.'&name='.urlencode($rowDevice['Description']).'\',\'width=640,height=480,toolbars=true\');">Auto install script</a></td>
+										<td width="30%" align="left">- <a href="#" onClick="javascript:windowOpen(\'autoInstall.php?code='.$autoInstallScript.'&distro='.$distroInstaller.'&name='.urlencode($rowDevice['Description']).'\',\'width=640,height=480,toolbars=true,scrollbars=1\');">Auto install script</a></td>
 										<td>A script for '.$DistroNameOS.' that will install all the software automatically.</td>
 									</tr>
-									<tr class="normaltext">
-										<td width="30%" align="left">- <a href="#" onClick="javascript:windowOpen(\'installWraper.php?code='.$autoInstallScript.'\',\'width=1024,height=768,toolbars=true\');">Custom Wrapper for '.$rowDevice['Description'].'</a></td>
+									<tr class="normaltext" bgcolor="#DADDE4">
+										<td width="30%" align="left">- <a href="#" onClick="javascript:windowOpen(\'installWraper.php?code='.$autoInstallScript.'\',\'width=1024,height=768,toolbars=true,scrollbars=1\');">Custom Wrapper for '.$rowDevice['Description'].'</a></td>
 										<td>For you to write your own install script for '.$DistroNameOS.'.  You can use our 50-line Debian bash script as a template.</td>
 									</tr>
 									<tr class="normaltext" bgcolor="#DADDE4">
@@ -1157,7 +1296,7 @@ function wizard($output,$dbADO) {
 							DeviceTemplate.Description AS Type
 						FROM Device 
 							INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
-						WHERE FK_DeviceTemplate=? AND FK_Installation=?';
+						WHERE FK_Device_ControlledVia IS NULL AND FK_DeviceTemplate=? AND FK_Installation=?';
 					$resMediaDirectors=$dbADO->Execute($queryMediaDirectors,array($GLOBALS['rootGenericMediaDirector'],$installationID));
 					if($resMediaDirectors->RecordCount()==0){
 						$out.='		<tr class="normaltext">
@@ -1165,7 +1304,6 @@ function wizard($output,$dbADO) {
 									</tr>';
 					}
 					while($rowMediaDirectors=$resMediaDirectors->FetchRow()){
-					
 						$queryDeviceDeviceData='
 							SELECT 
 								IK_DeviceData,
@@ -1179,6 +1317,11 @@ function wizard($output,$dbADO) {
 						$resDeviceDeviceData=$dbADO->Execute($queryDeviceDeviceData,array($rowMediaDirectors['PK_Device'],$GLOBALS['rootPK_Distro']));
 						$rowDDD=$resDeviceDeviceData->FetchRow();
 						
+						$queryDiskless='SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?';
+						$resDiskless=$dbADO->Execute($queryDiskless,array($rowMediaDirectors['PK_Device'],$GLOBALS['rootDisklessBoot']));
+
+						$DistroNameOS=$rowDDD['Description'].' / '.$rowDDD['OS'];
+						$distroKickStartCD=$rowDDD['KickStartCD'];
 						$autoInstallScript=$rowMediaDirectors['PK_Device'].'-'.$_SESSION['ActivationCode'];
 						$distroInstaller=$rowDDD['Installer'];
 						
@@ -1186,23 +1329,25 @@ function wizard($output,$dbADO) {
 							<tr class="normaltext" bgcolor="lightblue">
 								<td valign="top"><b>Name: '.$rowMediaDirectors['Description'].' Type: '.$rowMediaDirectors['Type'].' Platform: '.$rowDDD['Platform'].' '.$rowDDD['OS'].'</b></td>
 								<td>Device #: <b>'.$rowMediaDirectors['PK_Device'].'</b></td>
-							</tr>
+							</tr>';
+					if(($resDiskless->RecordCount()==0)){
+						$out.='
 							<tr class="normaltext">
-								<td valign="top" colspan="2">Here are your options for installing the software on this computer: <a href="#" onClick="javascript:windowOpen(\'checkDependancies.php?device='.$rowMediaDirectors['PK_Device'].'\',\'width=1024,height=768,toolbars=true\');">List of all the software this computer will need.</a></td>
+								<td valign="top" colspan="2">Here are your options for installing the software on this computer: <a href="#" onClick="javascript:windowOpen(\'checkDependancies.php?device='.$rowMediaDirectors['PK_Device'].'\',\'width=1024,height=768,toolbars=true,scrollbars=1\');">List of all the software this device will need.</a></td>
 							</tr>
 							<tr class="normaltext">
 								<td valign="top" colspan="2"><table width="75%" align="center">
-									<tr class="normaltext">
-										<td width="30%" align="left"><span style="color:'.(($rowDDD['distroKickStartCD']=='')?'#CCCCCC':'').'">- '.(($rowDDD['distroKickStartCD']!='')?'<a href="'.$rowDDD['distroKickStartCD'].'" target="_blank">':'').'Kick-start CD'.(($rowDDD['distroKickStartCD']!='')?'</a>':'').(($rowDDD['distroKickStartCD']=='')?'<br>Autoinstall script: Not available for '.$rowDDD['Platform']:'').'</span></td>
-										<td> An ISO image you can burn to a CD.  It is a self-booting CD for '.$DistroNameOS.'</td>
+									<tr class="normaltext" bgcolor="#DADDE4">
+										<td width="30%" align="left">'.(($rowDDD['KickStartCD']=='')?'<span style="color:#999999;">- Kick-start CD</span>':'- <a href="'.$rowDDD['KickStartCD'].'" target="_blank">Kick-start CD</a>').'</td>
+										<td>'.(($rowDDD['KickStartCD']=='')?'<span style="color:#999999;">Not available for '.$DistroNameOS.'</span>':'An ISO image you can burn to a CD.  It is a self-booting CD for '.$DistroNameOS).'</td>
 									</tr>
 									<tr class="normaltext" bgcolor="#DADDE4">
-										<td width="30%" align="left">- '.(($rowDDD['Installer']!='')?'<a href="#" onClick="javascript:windowOpen(\'autoInstall.php?code='.$autoInstallScript.'&distro='.$distroInstaller.'&name='.urlencode($rowMediaDirectors['Description']).'\',\'width=640,height=480,toolbars=true\');">Auto install script</a>':'<span  style="color:#CCCCCC">Not available for '.$rowDDD['Platform'].'</span>').'</td>
-										<td>A script for '.$DistroNameOS.' that will install all the software automatically.</td>
+										<td width="30%" align="left">'.(($rowDDD['Installer']=='')?'<span style="color:#999999;">- Auto install script</span>':'- <a href="#" onClick="javascript:windowOpen(\'autoInstall.php?code='.$autoInstallScript.'&distro='.$distroInstaller.'&name='.urlencode($rowMediaDirectors['Description']).'\',\'width=640,height=480,toolbars=true,scrollbars=1\');">Auto install script</a>').'</td>
+										<td>'.(($rowDDD['Installer']=='')?'<span style="color:#999999;">Not available for '.$rowDDD['Platform'].'</span>':'A script for '.$DistroNameOS.' that will install all the software automatically.').'</td>
 									</tr>
-									<tr class="normaltext">
-										<td width="30%" align="left">- <a href="#" onClick="javascript:windowOpen(\'installWraper.php?code='.$autoInstallScript.'\',\'width=1024,height=768,toolbars=true\');">Custom Wrapper for '.$rowMediaDirectors['Description'].'</a></td>
-										<td></td>
+									<tr class="normaltext" bgcolor="#DADDE4">
+										<td width="30%" align="left">- <a href="#" onClick="javascript:windowOpen(\'installWraper.php?code='.$autoInstallScript.'\',\'width=1024,height=768,toolbars=true,scrollbars=1\');">Custom Wrapper for '.$rowMediaDirectors['Description'].'</a></td>
+										<td>For you to write your own install script for '.$DistroNameOS.'.  You can use our 50-line Debian bash script as a template.</td>
 									</tr>
 									<tr class="normaltext" bgcolor="#DADDE4">
 										<td width="30%" align="left">- <a href="support/index.php?section=mainDownload" target="_blank">Download page</a></td>
@@ -1215,18 +1360,17 @@ function wizard($output,$dbADO) {
 								</table>
 				 				</td>
 							</tr>
-
 						';
+						}else{
+						$out.='							
+							<tr class="normaltext">
+								<td valign="top" colspan="2">The software will be installed on the Core automatically for this diskless media director.</td>
+							</tr>';
+						}
 					}
 					$out.='
 							<tr class="normaltext">
-								<td valign="top" colspan="2">For each media director you have the same options as for the Core.  Refer to the Core’s download options above for a more detailed explanation.  No software is required for diskless media directors.  It will be installed on the Core automatically.</td>
-							</tr>
-							<tr>
-								<td valign="top">&nbsp;</td>
-							</tr>
-							<tr class="normaltext">
-								<td valign="top"><b>Orbiters:</b></td>
+								<td valign="top"><br><b>Orbiters:</b></td>
 								<td></td>
 							<tr>';
 					$validOrbiters = getValidOrbitersArray($installationID,$dbADO);
@@ -1236,7 +1380,7 @@ function wizard($output,$dbADO) {
 							DeviceTemplate.Description AS Type
 					 	FROM Device
 							INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
-					 	WHERE FK_DeviceTemplate IN ('.join(',',$validOrbiters).') AND FK_Installation=?';
+					 	WHERE FK_DeviceTemplate IN ('.join(',',$validOrbiters).') AND FK_Installation=? AND FK_Device_ControlledVia IS NULL';
 					$resOrbiters=$dbADO->Execute($queryOrbiters,$installationID);
 					if($resOrbiters->RecordCount()==0){
 						$out.='		<tr class="normaltext">
@@ -1250,38 +1394,49 @@ function wizard($output,$dbADO) {
 								IK_DeviceData,
 								Distro.Description AS Platform,
 								OperatingSystem.Description AS OS,
-								Distro.*
+								Distro.*,FK_DeviceCategory
 							FROM Device_DeviceData 
+								INNER JOIN Device ON FK_Device=PK_Device
+								INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
 								INNER JOIN Distro ON PK_Distro=IK_DeviceData
-								INNER JOIN OperatingSystem ON FK_OperatingSystem=PK_OperatingSystem
+								INNER JOIN OperatingSystem ON Distro.FK_OperatingSystem=PK_OperatingSystem
 							WHERE FK_Device=? AND FK_DeviceData=?';
 						$resDeviceDeviceData=$dbADO->Execute($queryDeviceDeviceData,array($rowOrbiters['PK_Device'],$GLOBALS['rootPK_Distro']));
 						$rowDDD=$resDeviceDeviceData->FetchRow();
 						
 						$autoInstallScript=$rowOrbiters['PK_Device'].'-'.$_SESSION['ActivationCode'];
 						$distroInstaller=$rowDDD['Installer'];
+						$DistroNameOS=$rowDDD['Description'].' / '.$rowDDD['OS'];
+						$distroKickStartCD=$rowDDD['KickStartCD'];
 
 						$out.='
 							<tr class="normaltext" bgcolor="lightblue">
 								<td valign="top"><b>Name: '.$rowOrbiters['Description'].' Type: '.$rowOrbiters['Type'].' Platform: '.$rowDDD['Platform'].' '.$rowDDD['OS'].'</b></td>
 								<td>Device #: <b>'.$rowOrbiters['PK_Device'].'</b></td>
-							</tr>
+							</tr>';
+						if( $rowDDD['FK_DeviceCategory']==2 )
+						{
+							$out .= '<tr><td>The software for the mobile orbiters is installed automatically.</td></tr>';
+						}
+						else
+						{
+							$out .= '
 							<tr class="normaltext">
-								<td valign="top" colspan="2">Here are your options for installing the software on this computer: <a href="#" onClick="javascript:windowOpen(\'checkDependancies.php?device='.$rowOrbiters['PK_Device'].'\',\'width=1024,height=768,toolbars=true\');">List of all the software this computer will need.</a></td>
+								<td valign="top" colspan="2">Here are your options for installing the software on this computer: <a href="#" onClick="javascript:windowOpen(\'checkDependancies.php?device='.$rowMediaDirectors['PK_Device'].'\',\'width=1024,height=768,toolbars=true,scrollbars=1\');">List of all the software this device will need.</a></td>
 							</tr>
 							<tr class="normaltext">
 								<td valign="top" colspan="2"><table width="75%" align="center">
-									<tr class="normaltext">
-										<td width="30%" align="left"><span style="color:'.(($rowDDD['distroKickStartCD']=='')?'#CCCCCC':'').'">- '.(($rowDDD['distroKickStartCD']!='')?'<a href="'.$rowDDD['distroKickStartCD'].'" target="_blank">':'').'Kick-start CD'.(($rowDDD['distroKickStartCD']!='')?'</a>':'').(($rowDDD['distroKickStartCD']=='')?'<br>Autoinstall script: Not available for '.$rowDDD['Platform']:'').'</span></td>
-										<td> An ISO image you can burn to a CD.  It is a self-booting CD for '.$DistroNameOS.'</td>
+									<tr class="normaltext" bgcolor="#DADDE4">
+										<td width="30%" align="left">'.(($rowDDD['KickStartCD']=='')?'<span style="color:#999999;">- Kick-start CD</span>':'- <a href="'.$rowDDD['KickStartCD'].'" target="_blank">Kick-start CD</a>').'</td>
+										<td>'.(($rowDDD['KickStartCD']=='')?'<span style="color:#999999;">Not available for '.$DistroNameOS.'</span>':'An ISO image you can burn to a CD.  It is a self-booting CD for '.$DistroNameOS).'</td>
 									</tr>
 									<tr class="normaltext" bgcolor="#DADDE4">
-										<td width="30%" align="left">- '.(($rowDDD['Installer']!='')?'<a href="#" onClick="javascript:windowOpen(\'autoInstall.php?code='.$autoInstallScript.'&distro='.$distroInstaller.'&name='.urlencode($rowOrbiters['Description']).'\',\'width=640,height=480,toolbars=true\');">Auto install script</a>':'<span  style="color:#CCCCCC">Not available for '.$rowDDD['Platform'].'</span>').'</td>
-										<td>A script for '.$DistroNameOS.' that will install all the software automatically.</td>
+										<td width="30%" align="left">'.(($rowDDD['Installer']=='')?'<span style="color:#999999;">- Auto install script</span>':'- <a href="#" onClick="javascript:windowOpen(\'autoInstall.php?code='.$autoInstallScript.'&distro='.$distroInstaller.'&name='.urlencode($rowMediaDirectors['Description']).'\',\'width=640,height=480,toolbars=true,scrollbars=1\');">Auto install script</a>').'</td>
+										<td>'.(($rowDDD['Installer']=='')?'<span style="color:#999999;">Not available for '.$rowDDD['Platform'].'</span>':'A script for '.$DistroNameOS.' that will install all the software automatically.').'</td>
 									</tr>
-									<tr class="normaltext">
-										<td width="30%" align="left">- <a href="#" onClick="javascript:windowOpen(\'installWraper.php?code='.$autoInstallScript.'\',\'width=1024,height=768,toolbars=true\');">Custom Wrapper for '.$rowOrbiters['Description'].'</a></td>
-										<td></td>
+									<tr class="normaltext" bgcolor="#DADDE4">
+										<td width="30%" align="left">- <a href="#" onClick="javascript:windowOpen(\'installWraper.php?code='.$autoInstallScript.'\',\'width=1024,height=768,toolbars=true,scrollbars=1\');">Custom Wrapper for '.$rowMediaDirectors['Description'].'</a></td>
+										<td>For you to write your own install script for '.$DistroNameOS.'.  You can use our 50-line Debian bash script as a template.</td>
 									</tr>
 									<tr class="normaltext" bgcolor="#DADDE4">
 										<td width="30%" align="left">- <a href="support/index.php?section=mainDownload" target="_blank">Download page</a></td>
@@ -1294,7 +1449,8 @@ function wizard($output,$dbADO) {
 								</table>
 				 				</td>
 							</tr>
-';
+								';
+						}
 					}
 					$out.='
 							

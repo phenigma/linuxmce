@@ -10,7 +10,7 @@ switch ($section) {
 	// master users area
 	case 'add_master_user':
 	    include_once('users/add_master_user.php');
-	    add_master_user($conn,$connPlutoVip,$connPlutoHome,$connphpBB,$connMantis);
+	    add_master_user($conn,$connPlutoVip,$connPlutoHome,$connphpBB,$connMantis,$connMain);
 	break;
 	case 'change_password':
 	    include_once('users/change_password.php');
@@ -22,7 +22,7 @@ switch ($section) {
 	break;
 	case 'update_master_users':
 	    include_once('users/update_master_users.php');
-	    update_master_users($conn,$connPlutoVip,$connPlutoHome,$connphpBB,$connMantis);
+	    update_master_users($conn,$connPlutoVip,$connPlutoHome,$connphpBB,$connMantis,$connMain);
 	break;
 	
 	// referrer area

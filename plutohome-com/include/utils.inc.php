@@ -384,7 +384,8 @@ function createChildsForControledViaDeviceCategory($masterDeviceID,$installation
 		createChildsForDeviceTemplate($value,$installationID,$insertID,$dbADO);
 }
 
-function getInstallWizardDeviceTemplates($step,$dbADO,$sufix='',$distro=0,$operatingSystem=0)
+// $device is the PK_Device of the device who has current options, if '' use default options
+function getInstallWizardDeviceTemplates($step,$dbADO,$device='',$distro=0,$operatingSystem=0)
 {
 	if($distro!=0){
 		$queryDistro='SELECT * FROM Distro WHERE PK_Distro=?';
@@ -425,17 +426,37 @@ function getInstallWizardDeviceTemplates($step,$dbADO,$sufix='',$distro=0,$opera
 	}else{
 		$out.='
 			<tr class="normaltext">
-				<td colspan="5"><b>What software modules do you want on this media director?</b></td>
+				<td colspan="5"><b>What software modules do you want on this device?</b></td>
 			</tr>';
 	}
 	$oldCategory='';
-	$displayedInstallWizard=array();
+	$displayedTemplatesRequired=array();
 	while($row=$resInstallWizard->FetchRow()){
 		if($row['Category']!=$oldCategory){
 			$oldCategory=$row['Category'];
 			$displayCategory=$row['Category'];
 		}else 
 			$displayCategory='-';
+		// check if the device actually exist to display actual entries
+		if($device!=''){
+			$queryDevice='SELECT * FROM Device WHERE FK_DeviceTemplate=? AND FK_Device_ControlledVia=?';
+			$resDevice=$dbADO->Execute($queryDevice,array($row['FK_DeviceTemplate'],$device));
+			$deviceTemplateChecked=($resDevice->RecordCount()==0)?'':'checked';
+			$rowDevice=$resDevice->FetchRow();
+			$oldDevice=$rowDevice['PK_Device'];
+		}
+
+		if($device==$_SESSION['CoreDCERouter'] && @$_SESSION['isCoreFirstTime']==1){
+			$isCoreFirstTime=1;
+			unset($_SESSION['isCoreFirstTime']);
+		}
+
+		if($device==$_SESSION['OrbiterHybridChild'] && @$_SESSION['isHybridFirstTime']==1){
+			$isHybridFirstTime=1;
+			unset($_SESSION['isHybridFirstTime']);
+		}
+
+		
 		$out.='
 			<tr class="normaltext">
 				<td align="center"><b>'.$displayCategory.'</b></td>
@@ -449,20 +470,32 @@ function getInstallWizardDeviceTemplates($step,$dbADO,$sufix='',$distro=0,$opera
 			WHERE (FK_Distro IS NULL OR FK_Distro=?) AND (FK_OperatingSystem=? OR FK_OperatingSystem IS NULL) AND FK_InstallWizard=?';
 		$res=$dbADO->Execute($query,array($distro,$operatingSystem,$row['PK_InstallWizard']));
 		$rowIWD=$res->FetchRow();
-		$out.='<td><input type="checkbox" '.(($res->RecordCount()==0)?'disabled':'').' '.(($rowIWD['Default']==1)?'checked':'').' name="requiredTemplate_'.$row['PK_InstallWizard'].$sufix.'" value="1"> ';
+		$templateIsChecked=((isset($deviceTemplateChecked) && @$isCoreFirstTime!=1 && $isHybridFirstTime!=1)?$deviceTemplateChecked:(($rowIWD['Default']==1)?'checked':''));
+		$out.='<td><input type="checkbox" '.(($res->RecordCount()==0)?'disabled':'').' '.$templateIsChecked.' name="device_'.$device.'_requiredTemplate_'.$row['FK_DeviceTemplate'].'" value="1"> 
+			<input type="hidden" name="templateName_'.$row['FK_DeviceTemplate'].'" value="'.$row['Template'].'">
+			<input type="hidden" name="oldDevice_'.$device.'_requiredTemplate_'.$row['FK_DeviceTemplate'].'" value="'.@$oldDevice.'">				
+		';
 		if($res->RecordCount()==0)
 			$out.='Not available for '.(($distro!=0)?$distroName:'').(($operatingSystem!=0)?' / '.$operatingSystemName:'');
 		else{
-			$displayedInstallWizard[]=$row['FK_DeviceTemplate'];
+			$displayedTemplatesRequired[]=$row['FK_DeviceTemplate'];
+			if(@$isHybridFirstTime==1){
+				$insertDevice='
+					INSERT INTO Device 
+						(Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia) 
+					VALUES (?,?,?,?)';
+				$dbADO->Execute($insertDevice,array($row['Template'],$row['FK_DeviceTemplate'],$_SESSION['installationID'],$_SESSION['OrbiterHybridChild']));
+			}
 			$res->MoveFirst();
 			$out.=$rowIWD['Comments'];
 		}
 		$out.='</td>
 			</tr>
-		<input type="hidden" name="displayedInstallWizard" value="'.(join(',',$displayedInstallWizard)).'">
 		';
 	}
-	$out.='</table>';
+
+	$out.='	<input type="hidden" name="displayedTemplatesRequired_'.$device.'" value="'.(join(',',$displayedTemplatesRequired)).'">
+	</table>';
 	return $out;
 }
 
@@ -471,7 +504,7 @@ function CheckValidCode($code,$dbADO)
 	list($device, $pin) = explode("-", $code);
 	$sql = "SELECT ActivationCode
 			FROM Device
-	 			JOIN Installation ON Device.FK_Installation = Installation.PK_Installation
+	 			INNER JOIN Installation ON Device.FK_Installation = Installation.PK_Installation
 			WHERE Device.PK_Device = '$device' LIMIT 1";
 	$res = $dbADO->Execute($sql);
 	if ($res->RecordCount() == 0)
@@ -500,4 +533,23 @@ function GetInitialData($installation,$user)
 	return $result;
 }
 
+function getMediaDirectorOrbiterChild($MD_PK_Device,$dbADO)
+{
+	$getOrbiterChild='SELECT * FROM Device WHERE FK_DeviceTemplate=? AND FK_Device_ControlledVia=?';
+	$resOrbiterChild=$dbADO->Execute($getOrbiterChild,array($GLOBALS['deviceTemplateOrbiter'],$MD_PK_Device));
+	if($resOrbiterChild->RecordCount()!=0){
+		$rowOrbiterChild=$resOrbiterChild->FetchRow();
+		return $rowOrbiterChild['PK_Device'];
+	}
+	return null;
+}
+
+function deleteDevice($PK_Device,$dbADO)
+{
+	$deleteDeviceMD='DELETE FROM Device WHERE PK_Device=?';
+	$dbADO->Execute($deleteDeviceMD,$PK_Device);
+
+	$deleteDeviceMDDeviceData='DELETE FROM Device_DeviceData WHERE FK_Device=?';
+	$dbADO->Execute($deleteDeviceMDDeviceData,$PK_Device);
+}
 ?>

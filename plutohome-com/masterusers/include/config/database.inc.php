@@ -1,35 +1,41 @@
 <?PHP
 
 
-  $dbUser = 'root';
-  $dbPass = '';
+  $dbUser = 'plutovip';
+  $dbPass = 'bogata41';
   $dbDatabase = 'MasterUsers';
   $dbServer = 'localhost';
   $dbType = 'mysql';
 
-  $dbPlutoVipUser = 'root';
-  $dbPlutoVipPass = '';
+  $dbPlutoVipUser = 'plutovip';
+  $dbPlutoVipPass = 'bogata41';
   $dbPlutoVipDatabase = 'plutovip';
   $dbPlutoVipServer = 'localhost';
   $dbPlutoVipType = 'mysql';
 
-  $dbPlutoHomeUser = 'root';
-  $dbPlutoHomePass = '';
+  $dbPlutoHomeUser = 'plutovip';
+  $dbPlutoHomePass = 'bogata41';
   $dbPlutoHomeDatabase = 'pluto_website';
   $dbPlutoHomeServer = 'localhost';
   $dbPlutoHomeType = 'mysql'; 
   
-  $dbphpBBUser = 'root';
-  $dbphpBBPass = '';
+  $dbphpBBUser = 'plutovip';
+  $dbphpBBPass = 'bogata41';
   $dbphpBBDatabase = 'phpbb2';
   $dbphpBBServer = 'localhost';
   $dbphpBBType = 'mysql';
   
-  $dbMantisUser = 'root';
-  $dbMantisPass = '';
+  $dbMantisUser = 'plutovip';
+  $dbMantisPass = 'bogata41';
   $dbMantisDatabase = 'mantis';
   $dbMantisServer = 'localhost';
   $dbMantisType = 'mysql';
+  
+  $dbMainUser = 'plutovip';
+  $dbMainPass = 'bogata41';
+  $dbMainDatabase = 'pluto_main';
+  $dbMainServer = 'localhost';
+  $dbMainType = 'mysql';
 /*
  include('include/adodb/adodb-errorhandler.inc.php');
  require('include/adodb/adodb.inc.php');
@@ -72,5 +78,8 @@
 
   $connMantis=mysql_connect($dbMantisServer,$dbMantisUser,$dbMantisPass,true) or die('could not connect to database');
   $dbMantis=mysql_select_db($dbMantisDatabase,$connMantis) or die("could not select $dbMantisDatabase");
+
+  $connMain=mysql_connect($dbMainServer,$dbMainUser,$dbMainPass,true) or die('could not connect to database');
+  $dbMain=mysql_select_db($dbMainDatabase,$connMain) or die("could not select $dbMainDatabase");
 
 ?>

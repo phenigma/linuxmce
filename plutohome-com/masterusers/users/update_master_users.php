@@ -1,5 +1,5 @@
 <?
-function update_master_users($conn,$connPlutoVip,$connPlutoHome,$connphpBB){
+function update_master_users($conn,$connPlutoVip,$connPlutoHome,$connphpBB,$connMain){
 	if(isset($_POST['MasterUsersID'])){
 		$PK_MasterUsers=$_POST['MasterUsersID'];
 		// update a MasterUsers

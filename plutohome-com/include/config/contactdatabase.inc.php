@@ -1,8 +1,8 @@
 <?PHP
 
 
-  $dbUser = 'leads';
-  $dbPass = 'iasi';
+  $dbUser = 'root';
+  $dbPass = '';
   $dbDatabase = 'leads';
   $dbServer = 'localhost';
   $dbType = 'mysql';

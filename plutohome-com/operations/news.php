@@ -13,11 +13,11 @@ $out.='
   </tr>
      <tr>
      <td align="left">
-       <embed src="flash/default1.swf" quality="high" pluginspage="http://www.macromedia.com/go/getflashplayer" type="application/x-shockwave-flash" width="100%" height="90" align="center"></embed>
+       <a href="support/index.php?section=document&docID=1"><img src="images/24-nov.jpg" border="0"></a>
         </td>
         </tr>
   <tr>
-    <td class="counter">On November 22, 2004, Pluto will post a preview beta release of series 2 for download.</td>
+    <td class="counter">&nbsp;</td>
   </tr>
       <tr>
         <td><img src="images/m_news.gif" width="251" height="23"></td>

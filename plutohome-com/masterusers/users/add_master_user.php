@@ -1,5 +1,5 @@
 <?
-function add_master_user($conn,$connPlutoVip,$connPlutoHome,$connphpBB,$connMantis){
+function add_master_user($conn,$connPlutoVip,$connPlutoHome,$connphpBB,$connMantis,$connMain){
 	// add to MasterUsers table 
 	if(isset($_POST['typeUser'])){
 		$typeUser=$_POST['typeUser'];
@@ -61,7 +61,14 @@ function add_master_user($conn,$connPlutoVip,$connPlutoHome,$connphpBB,$connMant
 													VALUES	('$PK_MasterUsers','$username','$random_passwordMD5','$email','NOW()','$PK_MasterUsers')",$connMantis);
 				if($insertMantis && $insertExtPassword)
 					$updateMasterUsers=mysql_query("UPDATE MasterUsers SET Sync_Mantis='1' WHERE PK_MasterUsers='$PK_MasterUsers'",$conn);
-					
+
+				
+				// sync with Main
+				$insertMain=mysql_query("INSERT INTO Users (PK_Users, Username, Password, samePasswordMasterUsers, ForwardEmail, FirstName, LastName, Nickname)
+													VALUES	('$PK_MasterUsers','$username','$password','1', '$email','$username','$username','$username')",$connMain) OR die('error: '.mysql_error($connMain));
+				if($insertMain)
+					$updateMasterUsers=mysql_query("UPDATE MasterUsers SET Sync_Main='1' WHERE PK_MasterUsers='$PK_MasterUsers'",$conn);
+
 			}
 			if($insertMasterUsers){
 				$out="MasterUsersID=$PK_MasterUsers";

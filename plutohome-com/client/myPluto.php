@@ -16,13 +16,13 @@ function myPluto($output,$dbADO,$conn) {
 	$res=$dbADO->Execute($queryInstallations,$FK_Users);
 	if($res->RecordCount()==0)
 		$installationsText='No Pluto installations.<br><br>
-		To get Pluto, choose <a href="index.php?section=wizard&step=1&instid=0">New Installation</a>.';
+		<b>To get Pluto</b>, choose <a href="index.php?section=wizard&step=1&instid=0">New Installation</a>.';
 	else {
 		$installationsText='You have the following installations:<br>';
 		while($rowInstallations=$res->FetchRow()){
 			$installationsText.='
 				Installation no. <b>'.$rowInstallations['PK_Installation'].'</b><br>
-				Description: <a href="index.php?section=wizard&step=1&instid='.$rowInstallations['PK_Installation'].'"><b>'.$rowInstallations['Description'].'</b></a><br>';
+				Description: <a href="index.php?section=wizard&step=1&instid='.$rowInstallations['PK_Installation'].'"><b>'.stripslashes($rowInstallations['Description']).'</b></a><br>';
 		}
 		$installationsText.='<br><a href="index.php?section=wizard&step=1&instid=0"><b>New installation</b></a><br>';
 	}
@@ -31,8 +31,14 @@ function myPluto($output,$dbADO,$conn) {
 		if($_GET['redirect']=='forum'){
 			header("Location: ".$forumHost."login.php?username=".$_SESSION['username']."&password=".$_SESSION['extPassword']."&login=1");
 		}
-		else
-			header("Location: ".$MantisHost."login.php?username=".$_SESSION['username']."&password=".$_SESSION['extPassword']."&login=1");
+		else{
+			//header("Location: ".$MantisHost."login.php?username=".$_SESSION['username']."&password=".$_SESSION['extPassword']."&login=1");
+			echo "
+			<script>
+				window.open('".$MantisHost."login.php?username=".$_SESSION['username']."&password=".$_SESSION['extPassword']."&login=1','_blank','');
+				self.location='index.php?section=myPluto'
+			</script>";
+		}
 	}
 		
 	$out = '<br>
@@ -84,23 +90,38 @@ function myPluto($output,$dbADO,$conn) {
 							</tr>	
 						</table>
 					</td>
-      				<td align="left" valign="top" class="normaltext">An introduction to Pluto’s software architecture.  Start <a href="index.php?section=developer">here</a> for a quick overview, and links to all the documentation.<br><br>
-Write your own Pluto Plug-in or DCE Device in 5 minutes.<br><br>
-The Pluto software map lists all the various projects and devices that make up a Pluto system, with links to the source code.
-					</td>
+      				<td align="left" valign="top" class="normaltext">Pluto 2 has been written from the ground up to be a very comfortable development platform for open source programmers.<br><br>
+      				We have developed class generators that will build a fully complete, ready-to-compile <a href="http://plutohome.com/support/index.php?section=document&docID=15">DCE Devices</a> in minutes.
+      				They\'re standard C++, run on both Linux & Windows, ready talk to any other DCE Device on any platform.  See our <a href="http://plutohome.com/support/index.php?section=document&docID=15">Programmer\'s guide</a> for a quick intro.<br><br>
+      				</td>
       			</tr>
 	      		<tr>
       				<td align="center" width="33%" class="normaltext" colspan="3">&nbsp;</td>
       			</tr>	
 	      		<tr bgcolor="#DADDE4">
-      				<td align="center" width="33%" class="normaltext"><b>Title</b></td>
-      				<td align="center" width="33%" class="normaltext"><b>Title</b></td>
-      				<td align="center" width="34%" class="normaltext"><b>Title</b></td>
+      				<td align="center" width="33%" class="normaltext"><b>Status</b></td>
+      				<td align="center" width="33%" class="normaltext"><b>Support Site</b></td>
+      				<td align="center" width="34%" class="normaltext"><b>Tools for developers</b></td>
       			</tr>
 	      		<tr>
-      				<td align="left" width="33%" class="normaltext" valign="top">Text text text text text text text text text text text text text</td>
-      				<td align="left" width="33%" class="normaltext"  valign="top">Text  text text text text text text text text text text text text text text</td>
-      				<td align="left" width="34%" class="normaltext"  valign="top">Text text text text text text text text text text text text text</td>
+      				<td align="left" width="33%" class="normaltext" valign="top">
+      				Pluto has made available a preview release of the new Pluto.  This is targeted mainly for developers, since it is not yet ready for end users.
+      				Click "New Installation" above to get a Kick-Start CD, or download the installer.
+      				</td>
+      				<td align="left" width="33%" class="normaltext"  valign="top">
+      				With the launch of this preview version, Pluto has put up it\'s new support web site at <a href="http://plutohome.com/support/index.php?section=home">www.plutohome.com/support</a>.<br><br>
+      				There is online documentation, support forums, bug tracking and mailing lists.  Plus we have a live chat system so you can talk directly to one of our tech support team, or a developer.
+      				</td>
+      				<td align="left" width="34%" class="normaltext"  valign="top">
+      				Pluto has released several general purpose classes that you may find interesting, such as <a href="http://plutohome.com/support/index.php?section=document&docID=42">sqlCVS</a>, which is basically a CVS for databases.  
+      				It\'s what allows different programmers to all work on local copies of Pluto\'s master database and handles check-ins, updates, and remembers who owns each record.<br><br>
+      				
+      				There are many other libraries too, such as our <a href="http://plutohome.com/support/index.php?section=document&docID=108">Serialize Class</a>, 
+      				<a href="http://plutohome.com/support/index.php?section=document&docID=109">sql2cpp</a> class generator,
+      				<a href="http://plutohome.com/support/index.php?section=document&docID=41">Request/Action</a> client-server library</a>, 
+      				<a href="http://plutohome.com/support/index.php?section=document&docID=39">Bi-Directional communications library</a>.  They\'re all GPL.<br><br>
+      				
+      				</td>
       			</tr>
       		</table>
       	';

@@ -2,13 +2,13 @@
 
 
   $dbUser = 'root';
-  $dbPass = '';
+  $dbPass = 'moscow70bogata';
   $dbDatabase = 'pluto_website';
   $dbServer = 'localhost';
   $dbType = 'mysql';
 
   $dbPlutoMainUser = 'plutovip';
-  $dbPlutoMainPass = 'plutovip';
+  $dbPlutoMainPass = 'bogata41';
   $dbPlutoMainDatabase = 'pluto_main';
   $dbPlutoMainServer = 'localhost';
   $dbPlutoMainType = 'mysql';
