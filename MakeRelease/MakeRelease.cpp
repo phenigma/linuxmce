@@ -647,7 +647,8 @@ bool CompileSourceInOrder(Row_Package *pRow_Package)
 	for(size_t s=0;s<vectRow_Package_Package.size();++s)
 	{
 		Row_Package_Package *pRow_Package_Package = vectRow_Package_Package[s];
-		CompileSourceInOrder(pRow_Package_Package->FK_Package_DependsOn_getrow());
+		if( !CompileSourceInOrder(pRow_Package_Package->FK_Package_DependsOn_getrow()) )
+			return false;
 	}
 
 	if( !pRow_Package->FK_Package_Sourcecode_isNull() && !CompileSourceInOrder(pRow_Package->FK_Package_Sourcecode_getrow()) )
