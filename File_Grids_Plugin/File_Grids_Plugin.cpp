@@ -385,15 +385,6 @@ class DataGridTable * File_Grids_Plugin::FileList(string GridID,string Parms,voi
 g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
-/*
-	pCell = new DataGridCell("row1","");
-	pDataGrid->SetData(0,0,pCell);
-	pCell = new DataGridCell("row2","");
-	pDataGrid->SetData(0,1,pCell);
-
-	return pDataGrid;
-*/
-//	clock_t c = clock();
 
 	string::size_type pos2 = 0;
 	StringUtils::Tokenize(GridID, "_", pos2);
@@ -401,11 +392,33 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 
 	// extract individual parameters
 	string::size_type pos=0;
-	string TypeOfRequest = StringUtils::Tokenize(Parms, ",", pos);
-	string Path = StringUtils::Tokenize(Parms, ",", pos);  // this can be in the format path | parent for easy use of an 'up'
-	string sPK_User = StringUtils::Tokenize(Parms, ",", pos);
-	bool bSortByDate = StringUtils::Tokenize(Parms, ",", pos)=="1";
-	string Extensions=".*"; // Default get all files
+
+	// Paths can be a comma separated list of Paths.  The grid will be the contents
+	// of all paths merged into 1 grid
+	string Paths = StringUtils::Tokenize(Parms, "|", pos);
+
+	// A comma separated list of file extensions.  Blank means all files
+	string Extensions = StringUtils::Tokenize(Parms, "|", pos);
+
+	// Because the orbiter cannot execute different actions for files than directories, it will pass an "Actions" 
+	// parameter that will tell the file grid generator what type of command to attach to file entries.
+	// Q = "queue this file", which is a start media with the queue flag set
+	// P = "play this file", which is a normal start media command
+	string Actions = StringUtils::Tokenize(Parms, "|", pos);
+
+	bool bSortByDate = StringUtils::Tokenize(Parms, "|", pos)=="1";
+
+	// This grid is initially called by the orbiter without the iDirNumber and sSubDirectory
+	// When the grid creates cells for sub-directories, it will create an action that re-populates,
+	// like a recursive function, and indicate which of the directories it recursed and what path
+	// here.  When it repopulates itself again, it will this time populate only the contents of the 
+	// Path[iDirNumber] + sSubDirectory.  It will also add a 'parent' button that that drops
+	// 1 path off the sSubDirectory and repopulates itself
+	int iDirNumber = atoi(StringUtils::Tokenize(Parms, "|", pos).c_str());
+	string sSubDirectory = StringUtils::Tokenize(Parms, "|", pos);
+
+
+	/*
 	bool bIncludeParent=true;
 
 	if( TypeOfRequest.substr(0,2)=="MT" )  // come up with a more elegant protocol
@@ -433,42 +446,58 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 		else
 			*sValue_To_Assign = Path;
 	}
-	// Because the orbiter cannot execute different actions for files than directories, it will pass an "Actions" 
-	// parameter that will tell the file grid generator what type of command to attach to file entries.
-	// Q = "queue this file", which is a start media with the queue flag set
-	// P = "play this file", which is a normal start media command
 	string Actions = StringUtils::Tokenize(Parms, ",", pos);
 	string FileList="";
+Path="music";
+*/
 
-	list<FileDetails> listFileDetails = GetDirContents(Path, sPK_User, bSortByDate,Extensions,bIncludeParent);
+	string PathsToScan;
+	if( sSubDirectory.length() )
+		for(int i=0;i<iDirNumber;++i)
+			PathsToScan = StringUtils::Tokenize(Parms, ",", pos);
+	else 
+		PathsToScan = Paths;
+
+	list<FileDetails *> listFileDetails;
+	GetDirContents(listFileDetails,PathsToScan,bSortByDate,Extensions);
 g_pPlutoLogger->Write(LV_WARNING, "Build grid, actions %s GOT %d entries ", Actions.c_str(),(int) listFileDetails.size());
 
-	int row = 0;
-	for (list<FileDetails>::iterator i = listFileDetails.begin(); i != listFileDetails.end(); i++, row++)
+	int iRow=0;
+	if( sSubDirectory.length() )
 	{
-		pCell = new DataGridCell(i->m_sFileName + " " + i->m_sDescription, i->m_sBaseName + i->m_sFileName);
-		if (i->m_bIsDir)
+		string sParent = FileUtils::BasePath(sSubDirectory);
+		pCell = new DataGridCell("Go to parent", "");
+		string newParams = Paths + "|" + Extensions + "|" + Actions + "|" + (bSortByDate ? "1" : "0") 
+			+ "|" + StringUtils::itos(iDirNumber)+ "|" + sParent;
+		DCE::CMD_NOREP_Populate_Datagrid_DT CMDPDG(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse,
+			"DataGrid ID (Debug info only) goes here", GridID, DATAGRID_Directory_Listing_CONST, newParams);
+		pCell->m_pMessage = CMDPDG.m_pMessage;
+		pDataGrid->SetData(0, iRow++, pCell);
+	}
+
+	for (list<FileDetails *>::iterator i = listFileDetails.begin(); i != listFileDetails.end(); i++)
+	{
+		FileDetails *pFileDetails = *i;
+		pCell = new DataGridCell(pFileDetails->m_sFileName + " " + pFileDetails->m_sDescription, pFileDetails->m_sBaseName + pFileDetails->m_sFileName);
+		if (pFileDetails->m_bIsDir)
 		{
-g_pPlutoLogger->Write(LV_WARNING, "Added dir '%s' to datagrid", i->m_sFileName.c_str());
-			// TypeOfRequest,Path,PK_User,SortByDate(1=true)
-			string newParams = TypeOfRequest + "," + i->m_sBaseName + i->m_sFileName + "," + sPK_User + ","
-				+ (bSortByDate ? "1" : "0") + "," + Actions;
+g_pPlutoLogger->Write(LV_WARNING, "Added dir '%s' to datagrid", pFileDetails->m_sFileName.c_str());
+			string newParams = Paths + "|" + Extensions + "|" + Actions + "|" + (bSortByDate ? "1" : "0") 
+				+ "|" + StringUtils::itos(iDirNumber)+ "|" + sSubDirectory + pFileDetails->m_sFileName + "/";
 			DCE::CMD_NOREP_Populate_Datagrid_DT CMDPDG(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse,
 				"DataGrid ID (Debug info only) goes here", GridID, DATAGRID_Directory_Listing_CONST, newParams);
 			pCell->m_pMessage = CMDPDG.m_pMessage;
-//			pCell->m_pMessage = new Message(DEVICEID_DATAGRID, DEVICEID_DATAGRID, PRIORITY_NORMAL, MESSAGETYPE_COMMAND, COMMAND_POPULATE_DATAGRID_CONST, 2, 
-//				COMMANDPARAMETER_DataGrid_ID_CONST, GridID.c_str(),
-//				COMMANDPARAMETER_Type_CONST, ("1," + StringUtils::itos(TypeOfRequest) + "," + fi->m_sPath + fi->m_sRealFileName + "/," + sPK_User).c_str());
 		}
 		else if( Actions.length() )
 		{
-g_pPlutoLogger->Write(LV_WARNING, "Added file %s with actions to datagrid", i->m_sFileName.c_str());
+g_pPlutoLogger->Write(LV_WARNING, "Added file %s with actions to datagrid", pFileDetails->m_sFileName.c_str());
 			// The Orbiter wants us to attach an action to files too
 			DCE::CMD_MH_Play_Media_Cat cmd(PK_Controller, DEVICECATEGORY_Media_Plugins_CONST, false, BL_SameHouse,
-				0 /* any device */,"" /* default remote */,i->m_sBaseName + i->m_sFileName,0 /* whatever media type the file is */,0 /* any master device */,0 /* current entertain area */);
+				0 /* any device */,"" /* default remote */,pFileDetails->m_sBaseName + pFileDetails->m_sFileName,0 /* whatever media type the file is */,0 /* any master device */,0 /* current entertain area */);
 			pCell->m_pMessage = cmd.m_pMessage;
 		}
-		pDataGrid->SetData(0, row, pCell);
+		delete pFileDetails; // We won't need it anymore and it was allocated on the heap
+		pDataGrid->SetData(0, iRow++, pCell);
 	}
 
 	return pDataGrid;

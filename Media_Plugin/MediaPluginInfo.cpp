@@ -46,7 +46,7 @@ MediaPluginInfo::MediaPluginInfo( class MediaPluginBase *pMediaPluginBase, class
 			DeviceData_Router *pDeviceData_Router = *it;
 			MediaDevice *pMediaDevice = m_pMediaPluginBase->m_pMedia_Plugin->m_mapMediaDevice_Find( pDeviceData_Router->m_dwPK_Device );
 			if( !pMediaDevice )
-				g_pPlutoLogger->Write( LV_CRITICAL, "Cannot find a media device for %d", pDeviceData_Router->m_dwPK_Device );
+				g_pPlutoLogger->Write( LV_CRITICAL, "Device %d (%s) isn't in an entertainment area", pDeviceData_Router->m_dwPK_Device, pDeviceData_Router->m_sDescription );
 			else
 				m_listMediaDevice.push_back( pMediaDevice );
 		}

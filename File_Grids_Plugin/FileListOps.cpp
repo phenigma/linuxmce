@@ -45,12 +45,11 @@ bool PathEq(string Path1, string Path2)
 	return Path1 == Path2;
 }
 
-list <FileDetails> GetDirContents(string Path, string sPK_User, bool bSortByDate, string sValidExtensions_CSV, bool bIncludeParent)
+void GetDirContents(list<FileDetails *> &listFileNames,string Path, bool bSortByDate, string sValidExtensions_CSV)
 {
 	string BasePath;
-	list<FileDetails> listFileNames;
 
-	g_pPlutoLogger->Write(LV_STATUS, "get dir contents sPK_User = '%s' Base Path: %s", sPK_User.c_str(),Path.c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "get dir contents Base Path: %s",Path.c_str());
 
 	string::size_type pos=0;
 	while( (BasePath=StringUtils::Tokenize(Path,",",pos)).length() )
@@ -70,13 +69,7 @@ list <FileDetails> GetDirContents(string Path, string sPK_User, bool bSortByDate
 			{
 				if (finddata.name[0] != '.')
 				{
-					FileDetails fi(BasePath, finddata.name, true, time(NULL));
-					listFileNames.push_back(fi);
-				}
-				else if (finddata.name == string("..") && bIncludeParent )
-				{
-					string ParentDir = FileUtils::BasePath(BasePath);
-					FileDetails fi(ParentDir, "", true, time(NULL), "<Go to parent directory>");
+					FileDetails *fi = new FileDetails(BasePath, finddata.name, true, time(NULL));
 					listFileNames.push_back(fi);
 				}
 			}
@@ -88,11 +81,9 @@ list <FileDetails> GetDirContents(string Path, string sPK_User, bool bSortByDate
 					string s = StringUtils::Tokenize(sValidExtensions_CSV, ",", pos);
 					if (s.substr(0,1) == "*")
 						s = s.substr(1);
-					if (s == "")
-						break;
-					if (s == ".*" || strstr(finddata.name, s.c_str()) != NULL)
+					if (s == ".*" || s.length()==0 || strstr(finddata.name, s.c_str()) != NULL)
 					{
-						FileDetails fi(BasePath, finddata.name, false, time(NULL));
+						FileDetails *fi = new FileDetails(BasePath, finddata.name, false, time(NULL));
 						listFileNames.push_back(fi);
 						break;
 					}
@@ -124,14 +115,14 @@ g_pPlutoLogger->Write(LV_STATUS, "opened dir %s", BasePath.c_str());
 g_pPlutoLogger->Write(LV_STATUS, "found dir entry %s", entry.d_name);
 				if (entry.d_name[0] != '.')
 				{
-					FileDetails fi(BasePath, entry.d_name, true, time(NULL));
+					FileDetails *fi = new FileDetails(BasePath, entry.d_name, true, time(NULL));
 g_pPlutoLogger->Write(LV_STATUS, "adding dir");
 					listFileNames.push_back(fi);
 				}
 				else if (entry.d_name == string("..") && bIncludeParent ) 
 				{
 					string ParentDir = FileUtils::BasePath(BasePath);
-					FileDetails fi(ParentDir, "", true, time(NULL), "<Go to parent directory>");
+					FileDetails *fi = new FileDetails(ParentDir, "", true, time(NULL), "<Go to parent directory>");
 					listFileNames.push_back(fi);
 				}
 			}
@@ -149,7 +140,7 @@ g_pPlutoLogger->Write(LV_STATUS, "comparing extension %s", s.c_str());
 						break;
 					if (s == ".*" || strstr(entry.d_name, s.c_str()) != NULL)
 					{
-						FileDetails fi(BasePath, entry.d_name, false, time(NULL));
+						FileDetails *fi = new FileDetails(BasePath, entry.d_name, false, time(NULL));
 g_pPlutoLogger->Write(LV_STATUS, "added file %s", entry.d_name);
 						listFileNames.push_back(fi);
 						break;
@@ -162,5 +153,4 @@ g_pPlutoLogger->Write(LV_STATUS, "added file %s", entry.d_name);
 	}
 
 	g_pPlutoLogger->Write(LV_STATUS, "get dir contents returning: %d records",(int) listFileNames.size());
-	return listFileNames;
 }

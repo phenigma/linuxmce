@@ -19,6 +19,6 @@ class FileDetails
 			: m_sBaseName(sBaseName), m_sFileName(sFileName), m_sDescription(sDesc), m_bIsDir(bIsDir), m_tDate(tDate) {}
 };
 
-list <FileDetails> GetDirContents(string Path, string sPK_User, bool bSortByDate, string sValidExtensions_CSV = ".*", bool bIncludeParent=true);
+void GetDirContents(list<FileDetails *> &listFileName,string Path, bool bSortByDate, string sValidExtensions_CSV);
 
 #endif /* FileListOps_h */
