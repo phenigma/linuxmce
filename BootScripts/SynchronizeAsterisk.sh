@@ -76,7 +76,5 @@ Command: restart gracefully
 
 " | tr '\n' '.' | sed 's/\./\r\n/g' | nc -t localhost 5038 > /dev/null || true
 
-asterisk || true
-
 echo "End of Syncronization."
 
