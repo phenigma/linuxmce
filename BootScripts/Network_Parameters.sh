@@ -90,6 +90,7 @@ BEGIN { ParsingInterface = 0; OFS = ","; }
 	}
 	else if (setting == "dhcp")
 	{
+		ParsingInterface = 1;
 		address = "dhcp";
 	}
 }
