@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;../DCE/;../Libraries/pthreads-win32/include;/mysql/include"
+				AdditionalIncludeDirectories="..;../DCE/;../../libs/Libraries/pthreads-win32/include;/mysql/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -35,7 +35,7 @@
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib"
 				OutputFile="../bin/CM11A.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="../Libraries/pthreads-win32/lib;../lib"
+				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/CM11A.pdb"
 				SubSystem="1"
@@ -126,7 +126,19 @@
 				RelativePath="..\Gen_Devices\CM11ABase.cpp">
 			</File>
 			<File
+				RelativePath=".\devicepoll.cpp">
+			</File>
+			<File
 				RelativePath="Main.cpp">
+			</File>
+			<File
+				RelativePath=".\message.cpp">
+			</File>
+			<File
+				RelativePath=".\mutex.cpp">
+			</File>
+			<File
+				RelativePath=".\thread.cpp">
 			</File>
 		</Filter>
 		<Filter

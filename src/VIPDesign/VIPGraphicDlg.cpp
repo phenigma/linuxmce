@@ -78,6 +78,8 @@ BOOL CVIPGraphicDlg::OnInitDialog()
 void CVIPGraphicDlg::OnBnClickedOk()
 {
 	OnOK();
+	DynamicChange();
+/*
 	m_pGraphic->m_iX = atoi(m_X);
 	m_pGraphic->m_iY = atoi(m_Y);
 	m_pGraphic->m_iWidth = atoi(m_W);
@@ -102,6 +104,7 @@ void CVIPGraphicDlg::OnBnClickedOk()
 				m_pGraphic->m_iHeight=pic.GetOriginalHeight();
 		}
 	}
+*/
 }
 
 void CVIPGraphicDlg::OnBnClickedGraphicFind()
@@ -129,8 +132,8 @@ void CVIPGraphicDlg::DynamicChange()
 	// If x,y,w,h are 0, leave it and we'll use the menu defaults
 	// but if either x or y are not 0, this is a child object, and if the
 	// width or height is 0 we should calculate the size automatically
-	if( (m_pGraphic->m_iWidth==0 || m_pGraphic->m_iHeight==0) &&
-		(!m_pGraphic->m_iX==0 || !m_pGraphic->m_iY==0) )
+	//if( (m_pGraphic->m_iWidth==0 || m_pGraphic->m_iHeight==0) &&
+	//	(!m_pGraphic->m_iX==0 || !m_pGraphic->m_iY==0) )
 	{
 		CPicture pic;
 		if( pic.Load(m_pGraphic->m_sFileName.c_str()) )
@@ -139,6 +142,13 @@ void CVIPGraphicDlg::DynamicChange()
 				m_pGraphic->m_iWidth=pic.GetOriginalWidth();
 			if( m_pGraphic->m_iHeight==0 )
 				m_pGraphic->m_iHeight=pic.GetOriginalHeight();
+
+			size_t iFileSize = 0;
+			char *pFileData = FileUtils::ReadFileIntoBuffer(m_pGraphic->m_sFileName, iFileSize);
+
+			delete m_pGraphic->m_pGraphicData;
+			m_pGraphic->m_pGraphicData = pFileData;
+			m_pGraphic->m_iGraphicSize = iFileSize;
 		}
 	}
 	m_pDoc->UpdateAllViews(NULL);

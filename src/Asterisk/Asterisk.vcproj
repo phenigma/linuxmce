@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..;../DCE/;../Libraries/pthreads-win32/include;/mysql/include"
+				AdditionalIncludeDirectories="..;../DCE/;../../libs/Libraries/pthreads-win32/include;/mysql/include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -35,7 +35,7 @@
 				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE.lib"
 				OutputFile="../bin/Asterisk.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="../Libraries/pthreads-win32/lib;../lib"
+				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/Asterisk.pdb"
 				SubSystem="1"
@@ -120,23 +120,68 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
-				RelativePath="Main.cpp">
-			</File>
-			<File
 				RelativePath="Asterisk.cpp">
 			</File>
 			<File
 				RelativePath="..\Gen_Devices\AsteriskBase.cpp">
+			</File>
+			<File
+				RelativePath=".\asteriskmanager.cpp">
+			</File>
+			<File
+				RelativePath=".\condition.cpp">
+			</File>
+			<File
+				RelativePath=".\hangupcommand.cpp">
+			</File>
+			<File
+				RelativePath=".\logincommand.cpp">
+			</File>
+			<File
+				RelativePath="Main.cpp">
+			</File>
+			<File
+				RelativePath=".\mutex.cpp">
+			</File>
+			<File
+				RelativePath=".\originatecommand.cpp">
+			</File>
+			<File
+				RelativePath=".\ringdetecthandler.cpp">
+			</File>
+			<File
+				RelativePath=".\runtimeconfig.cpp">
+			</File>
+			<File
+				RelativePath=".\socket.cpp">
+			</File>
+			<File
+				RelativePath=".\thread.cpp">
+			</File>
+			<File
+				RelativePath=".\threadsafeobj.cpp">
+			</File>
+			<File
+				RelativePath=".\token.cpp">
+			</File>
+			<File
+				RelativePath=".\tokenpool.cpp">
+			</File>
+			<File
+				RelativePath=".\transfercommand.cpp">
+			</File>
+			<File
+				RelativePath=".\utils.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
-				RelativePath="..\DCE\DCEDeviceData_Impl.h">
+				RelativePath="Asterisk.h">
 			</File>
 			<File
-				RelativePath="Asterisk.h">
+				RelativePath="..\DCE\DCEDeviceData_Impl.h">
 			</File>
 		</Filter>
 		<Filter
