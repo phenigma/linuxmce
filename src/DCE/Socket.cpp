@@ -79,7 +79,9 @@ void hexmemcpy( char *pDest, const char *pSource, int NumBytes )
 Socket::Socket(string Name,string sIPAddress) : m_SocketMutex("socket mutex " + Name)
 {
 #ifndef WINCE
+#ifdef THREAD_LOG
 	printf("start const %p\n",this);
+#endif
 #endif
 	m_pcSockLogFile=m_pcSockLogErrorFile=NULL;
 	m_sIPAddress = sIPAddress;
@@ -143,14 +145,18 @@ Socket::Socket(string Name,string sIPAddress) : m_SocketMutex("socket mutex " + 
 #endif
 
 #ifndef WINCE
+#ifdef THREAD_LOG
 	printf("stop const %p\n",this);
+#endif
 #endif
 }
 
 Socket::~Socket()
 {
 #ifndef WINCE
+#ifdef THREAD_LOG
 	printf("start dest %p\n",this);
+#endif
 #endif
 
 #ifdef DEBUG
@@ -191,7 +197,12 @@ Socket::~Socket()
 	delete[] m_pcSockLogFile;
 	delete[] m_pcSockLogErrorFile;
 #endif
+
+#ifndef WINCE
+#ifdef THREAD_LOG
 	printf("stop dest %p\n",this);
+#endif
+#endif
 }
 
 bool Socket::SendMessage( Message *pMessage, bool bDeleteMessage )

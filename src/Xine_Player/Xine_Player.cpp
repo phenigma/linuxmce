@@ -190,7 +190,9 @@ void Xine_Player::CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_
 
     g_pPlutoLogger->Write(LV_STATUS, "Got a stop media for stream ID %d", iStreamID);
     m_pXineSlaveControl->pauseMediaStream(iStreamID);
+    g_pPlutoLogger->Write(LV_STATUS, "After pause media %d", iStreamID);
     *iMediaPosition = m_pXineSlaveControl->getStreamPlaybackPosition(iStreamID, currentTime, totalTime);
+    g_pPlutoLogger->Write(LV_STATUS, "position %d", *iMediaPosition);
     m_pXineSlaveControl->stopMedia(iStreamID);
     g_pPlutoLogger->Write(LV_STATUS, "The stream playback should be stopped at this moment and the resources should be freed!");
 }

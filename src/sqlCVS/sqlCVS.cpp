@@ -485,26 +485,22 @@ return 0;
 	catch( char *pException )
 	{
 		cerr << "Caught exception: " << pException << endl;
-getch();
 		exit(1);
 	}
 	catch( const char *pException )
 	{
 		cerr << "Caught exception: " << pException << endl;
-getch();
 		exit(1);
 	}
 	catch( string sException )
 	{
 		cerr << "Caught exception: " << sException << endl;
-getch();
 		exit(1);
 		return 1;
 	}
 	catch( ... )
 	{
 		cerr << "Caught unknown exception" << endl;
-getch();
 		exit(1);
 	}
 
