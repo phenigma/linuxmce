@@ -47,6 +47,13 @@ class PlutoColor;
 class PlutoPoint;
 class PlutoSize;
 class PlutoRectangle;
+class PlutoDataBlock
+{
+public:
+	unsigned long m_dwSize;  char *m_pBlock;
+	PlutoDataBlock(unsigned long dwSize, char *pBlock) { m_dwSize=dwSize; m_pBlock=pBlock; }
+	PlutoDataBlock() { m_dwSize=0; m_pBlock=NULL; }
+};
 
 #define BLOCK_SIZE 50000
 
@@ -66,6 +73,7 @@ class PlutoRectangle;
 #define SERIALIZE_DATA_TYPE_POINT			51
 #define SERIALIZE_DATA_TYPE_SIZE			52
 #define SERIALIZE_DATA_TYPE_RECTANGLE		53
+#define SERIALIZE_DATA_TYPE_BLOCK			54
 
 /**
  * @brief class containing info about the item to serialize
@@ -210,7 +218,7 @@ public:
 	SerializeClass &operator+ (PlutoPoint &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_POINT,(void *) &i)); return (*this); } /** < @brief overloading + to take a PlutoPoint object */
 	SerializeClass &operator+ (PlutoSize &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_SIZE,(void *) &i)); return (*this); } /** < @brief overloading + to take an PlutoSize object */
 	SerializeClass &operator+ (PlutoRectangle &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_RECTANGLE,(void *) &i)); return (*this); } /** < @brief overloading + to take a PlutoRectangle object*/
-
+	SerializeClass &operator+ (PlutoDataBlock &i) { MYSTL_ADDTO_LIST(m_listItemToSerialize, new  ItemToSerialize(SERIALIZE_DATA_TYPE_BLOCK,(void *) &i)); return (*this); } /** < @brief overloading + to take a PlutoDataBlock object*/
 	
 	/**
 	 * @brief serializes data to be written

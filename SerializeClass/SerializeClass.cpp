@@ -96,6 +96,14 @@ bool SerializeClass::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 					}
 				}
 				break;
+			case SERIALIZE_DATA_TYPE_BLOCK:
+				{
+					PlutoDataBlock *pBlock = (PlutoDataBlock *) pItem->m_pItem;
+					Write_unsigned_long(pBlock->m_dwSize);
+					Write_block(pBlock->m_pBlock,pBlock->m_dwSize);
+				}
+				break;
+
 			case SERIALIZE_DATA_TYPE_VECT_INT:
 				{
 					vector<int> *pVect = (vector<int> *) pItem->m_pItem;
@@ -222,6 +230,13 @@ bool SerializeClass::Serialize( bool bWriting, char *&pcDataBlock, unsigned long
 				}
 				break;
 #endif
+			case SERIALIZE_DATA_TYPE_BLOCK:
+				{
+					PlutoDataBlock *pBlock = (PlutoDataBlock *) pItem->m_pItem;
+					pBlock->m_dwSize = Read_unsigned_long();
+					pBlock->m_pBlock=Read_block(pBlock->m_dwSize);
+				}
+				break;
 			default:
 				{
 					if( !UnknownSerialize(pItem,bWriting,m_pcDataBlock,m_dwAllocatedSize,m_pcCurrentPosition) )

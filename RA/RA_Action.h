@@ -12,11 +12,6 @@
 
 #include "SerializeClass/SerializeClass.h"
 
-// Request Types
-#define ACTION_FORWARDREQUEST_TOPHONE   1
-#define ACTION_UPDATETRANSACTION        2
-#define ACTION_SENDFILE_TOPHONE         3
-
 class RA_Action : public SerializeClass
 {
 protected:

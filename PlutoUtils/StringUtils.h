@@ -82,12 +82,12 @@ namespace StringUtils
 	/**
      * @brief returns true if sFirst starts with sSecond
      */
-    bool StartsWith( string sFirst, string sSecond );
+    bool StartsWith( string sFirst, string sSecond, bool bIgnoreCase=false );
 
 	/**
      * @brief returns true if sFirst ends with sSecond
      */
-    bool EndsWith( string sFirst, string sSecond );
+    bool EndsWith( string sFirst, string sSecond, bool bIgnoreCase=false );
 
 	/**
      * @brief replaces the sSearch string with the sReplace string in the sInput string

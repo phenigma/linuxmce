@@ -442,14 +442,20 @@ string StringUtils::SQLEscape( string sInput )
     return sOutput;
 }
 
-bool StringUtils::StartsWith( string sFirst, string sSecond )
+bool StringUtils::StartsWith( string sFirst, string sSecond, bool bIgnoreCase )
 {
-	return sFirst.length()>=sSecond.length() && sFirst.substr(0,sSecond.length())==sSecond;
+	if( bIgnoreCase )
+		return sFirst.length()>=sSecond.length() && StringUtils::ToLower(sFirst.substr(0,sSecond.length()))==StringUtils::ToLower(sSecond);
+	else
+		return sFirst.length()>=sSecond.length() && sFirst.substr(0,sSecond.length())==sSecond;
 }
 
-bool StringUtils::EndsWith( string sFirst, string sSecond )
+bool StringUtils::EndsWith( string sFirst, string sSecond, bool bIgnoreCase )
 {
-	return sFirst.length()>=sSecond.length() && sFirst.substr(sFirst.length()-sSecond.length())==sSecond;
+	if( bIgnoreCase )
+		return sFirst.length()>=sSecond.length() && StringUtils::ToLower(sFirst.substr(sFirst.length()-sSecond.length()))==StringUtils::ToLower(sSecond);
+	else
+		return sFirst.length()>=sSecond.length() && sFirst.substr(sFirst.length()-sSecond.length())==sSecond;
 }
 
 #endif //#ifndef SYMBIAN

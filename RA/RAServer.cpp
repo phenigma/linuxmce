@@ -28,7 +28,6 @@ void RAServer::Initialize()
 
 void RAServer::Run()
 {
-	cout << "Listening for incomming connections on port: " << m_ListenPort << endl;
 	if (m_ListenerThreadID)
 		pthread_join(m_ListenerThreadID, NULL);
 }
