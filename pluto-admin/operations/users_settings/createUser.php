@@ -180,9 +180,9 @@ function createUser($output,$dbADO) {
 					frmvalidator.addValidation("userUserName","req","Please enter a user name");
 					frmvalidator.addValidation("userPassword","req","Please enter a password");
 					frmvalidator.addValidation("userPassword2","req","Please retype the password");
-					frmvalidator.addValidation("userFirstName","req","Please enter a user first name");
-					frmvalidator.addValidation("userLastName","req","Please enter a user last name");
-					frmvalidator.addValidation("userForwardEmail","req","Please enter an email address");
+					//frmvalidator.addValidation("userFirstName","req","Please enter a user first name");
+					//frmvalidator.addValidation("userLastName","req","Please enter a user last name");
+					//frmvalidator.addValidation("userForwardEmail","req","Please enter an email address");
 				</script>
 			';
 		
@@ -257,13 +257,13 @@ function createUser($output,$dbADO) {
 			$FK_MasterUsers=$MasterUsersID;
 			
 			$insertUser = '
-					INSERT INTO Users (PK_Users,UserName,Password,samePasswordMasterUsers, HasMailbox,
+					INSERT INTO Users (PK_Users,UserName,Password, HasMailbox,
 					AccessGeneralMailbox,FirstName,
 					LastName,Nickname,Extension,ExtensionRingTimeout,ForwardEmail,
 					FK_Language,FK_Installation_Main) 
-					values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+					values(?,?,?,?,?,?,?,?,?,?,?,?,?)';
 			$query = $dbADO->Execute($insertUser,array($FK_MasterUsers,
-					$username,$passMd5,$theSamePassword,$hasMailbox,$userAccessGeneralMailbox,$userFirstName,
+					$username,$passMd5,$hasMailbox,$userAccessGeneralMailbox,$userFirstName,
 					$userLastName,$userNickname,$userExtension,$userExtensionRingTimeout,$userForwardEmail,
 					$userLanguage,$userMainInstallation
 					));

@@ -7,7 +7,7 @@ function userChangePassword($output,$dbADO) {
 	$userID = isset($_REQUEST['userID'])?cleanInteger($_REQUEST['userID']):0;
 	
 	$installationID = cleanInteger($_SESSION['installationID']);
-	$selectTheSamePassword ='SELECT samePasswordMasterUsers,PK_Users FROM Users WHERE PK_Users =?';
+	$selectTheSamePassword ='SELECT PK_Users FROM Users WHERE PK_Users =?';
 	$resTheSamePassword = $dbADO->Execute($selectTheSamePassword,array($userID));
 	$rowTheSamePassword = $resTheSamePassword->FetchRow();
 	$FK_MasterUsers=$rowTheSamePassword['PK_Users'];
@@ -80,19 +80,6 @@ function userChangePassword($output,$dbADO) {
 
 			$passMd5=md5($userPassword);
 		
-			if($rowTheSamePassword['samePasswordMasterUsers']==0){
-				$userMasterPassword = cleanString($_POST['userMasterPassword']);
-				$userMasterPassword2 = cleanString($_POST['userMasterPassword2']);
-
-				if ($userMasterPassword!=$userMasterPassword2) {
-					header("Location: index.php?section=userChangePassword&error=Master Passwords do not match.&userID=$userID&from=$from");
-					exit();
-				}
-
-				$masterPassMd5=md5($userMasterPassword);
-			}else
-				$masterPassMd5=$passMd5;
-
 			//check if is allowed to change password!if  is within that installation 
 
 			$selectUserInst = 'SELECT * FROM Users WHERE PK_Users=?';
@@ -100,7 +87,6 @@ function userChangePassword($output,$dbADO) {
 			
 			if ($userPassword!='' && (($queryUserInst && $queryUserInst->RecordCount()==1) || $_SESSION['userID']==$userID)) {
 				//(only the creator and the owner can change the password
-				// attempt to change MasterUsers password
 				$insertUser = '
 						UPDATE Users set Password = ? WHERE PK_Users = ?';
 				$query = $dbADO->Execute($insertUser,array(md5($userPassword),$userID));

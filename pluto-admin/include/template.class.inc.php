@@ -374,22 +374,8 @@ function setTemplateFileType($type) {
 	if (@$_SESSION['userLoggedIn']==true) {
 	
 	if($this->templateType!='index')
-		$menuPages = getTopMenu(1,$this->dbADO);
-			
-	$topMenu='
-	<SCRIPT LANGUAGE="JavaScript">
-	function showSteps()
-	{
-		top.treeframe.location=\'index.php?section=wizard\';
-	}
-		    <!--
-			'.
-			$menuPages
-			.'		    
-		    Build();
-		    --> 
-	</script>';
-			
+		$topMenu = builtTopMenu(1,$this->dbADO);
+
 	} else {
 		$topMenu='';
 	}

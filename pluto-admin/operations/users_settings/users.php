@@ -207,12 +207,12 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 				$md5Pass=md5($_POST['masterUserPas']);
 				parse_str($_SESSION['masterUserData']);
 								$insertUser = '
-					INSERT INTO Users (PK_Users,UserName,Password,samePasswordMasterUsers, HasMailbox,
+					INSERT INTO Users (PK_Users,UserName,Password, HasMailbox,
 					AccessGeneralMailbox,FirstName,
 					LastName,Nickname,Extension,ExtensionRingTimeout,ForwardEmail,
 					FK_Language,FK_Installation_Main) 
 					values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
-				$query = $dbADO->Execute($insertUser,array($MasterUsersID,$_SESSION['masterUserName'],$md5Pass,2,0,0,'','','','','',$Email,NULL,NULL));
+				$query = $dbADO->Execute($insertUser,array($MasterUsersID,$_SESSION['masterUserName'],$md5Pass,0,0,'','','','','',$Email,NULL,NULL));
 				$insertUserToInstallation = "
 					INSERT INTO Installation_Users(FK_Installation,FK_Users) VALUES(?,?)
 						";			
