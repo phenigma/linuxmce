@@ -1,19 +1,6 @@
 #!/bin/bash
 
-RunSQL()
-{
-	local Q
-	Q="$*"
-	[ -z "$Q" ] || echo "$Q;" | mysql pluto_main | tail +2 | tr '\n\t ' ' ,~'
-}
-
-Field()
-{
-	local Row FieldNumber
-	FieldNumber="$1"; shift
-	Row="$*"
-	echo "$Row" | cut -d, -f"$FieldNumber" | tr '~' ' '
-}
+. /usr/pluto/bin/Network_Parameters.sh
 
 # vars:
 # CORE_INTERNAL_ADDRESS
@@ -32,30 +19,11 @@ ReplaceVars()
 	for i in $Vars; do
 		eval "VarValue=\"\$$i\""
 		VarValue=${VarValue//\//\\\/}
+		VarValue=$(echo "$VarValue" | sed 's/^ *//g; s/ *$//g')
 		SedCmd="s/%$i%/$VarValue/g"
 		[ -z "$Commands" ] && Commands="$SedCmd" || Commands="$Commands; s/%$i%/$VarValue/g"
 	done
 	sed -i "$Commands" $File
-}
-
-InRange()
-{
-	local Static Dynamic StaticDigit1 StaticDigit2 DynamicDigit1 DynamicDigit2
-	local Digit DHCPsetting
-
-	Digit="$1"
-	DHCPsetting="$2"
-
-	Static=$(Field 1 "$DHCPsetting")
-	Dynamic=$(Field 2 "$DHCPsetting")
-
-	StaticDigit1=$(echo "$Static" | cut -d- -f1 | cut -d. -f4)
-	StaticDigit2=$(echo "$Static" | cut -d- -f2 | cut -d. -f4)
-	DynamicDigit1=$(echo "$Dynamic" | cut -d- -f1 | cut -d. -f4)
-	DynamicDigit2=$(echo "$Dynamic" | cut -d- -f2 | cut -d. -f4)
-
-	[ "$Digit" -ge "$StaticDigit1" -a "$Digit" -le "$StaticDigit2" ]
-	return "$?"
 }
 
 GetFreeDigit()
@@ -92,41 +60,18 @@ ORDER BY IPaddress"
 	fi
 }
 
-# TODO: Core configuration in database; currently using eth0:0 as the internal card
-CORE_INTERNAL_INTERFACE="eth0:0"
-
-echo "Setting up Core internal network if necessary: "
-Q="SELECT IPaddress
-FROM Device
-WHERE FK_DeviceTemplate=7"
-CORE_INTERNAL_ADDRESS=$(RunSQL "$Q")
-if [ -z "$CORE_INTERNAL_ADDRESS" ]; then
-	echo "** ERROR ** Empty internal IP address. Will not setup any diskless MD devices until this is fixed **"
-	exit 1
-fi
-
-/usr/pluto/bin/Network_Setup.sh "$CORE_INTERNAL_INTERFACE" "$CORE_INTERNAL_ADDRESS"
+CORE_INTERNAL_INTERFACE="$IntIf"
 
 # Create Server-side files
 
-ServerConf=$(ifconfig "$CORE_INTERNAL_INTERFACE" | awk 'NR==2' | perl -ne 's/^.*inet addr:(\S+)\s+Bcast:(\S+)\s+Mask:(\S+).*$/\1,\2,\3/g; print')
-CORE_INTERNAL_ADDRESS=$(Field 1 "$ServerConf")
-INTERNAL_SUBNET_MASK=$(Field 3 "$ServerConf")
+CORE_INTERNAL_ADDRESS="$IntIP"
+INTERNAL_SUBNET_MASK="$IntNetmask"
 for i in 1 2 3 4; do
 	IPDigit=$(echo $CORE_INTERNAL_ADDRESS | cut -d. -f$i)
 	MaskDigit=$(echo $INTERNAL_SUBNET_MASK | cut -d. -f$i)
 	NetDigit=$(($IPDigit & $MaskDigit))
 	INTERNAL_SUBNET="$INTERNAL_SUBNET$Dot$NetDigit" && Dot="."
 done
-
-echo "Getting DHCP setting for Core"
-Q="SELECT IK_DeviceData
-FROM Device_DeviceData
-JOIN Device ON PK_Device=FK_Device
-JOIN DeviceTemplate ON PK_DeviceTemplate=FK_DeviceTemplate
-WHERE FK_DeviceTemplate=7 AND FK_DeviceData=28"
-DHCPsetting=$(RunSQL "$Q")
-echo "DHCP setting: $DHCPsetting"
 
 # TODO: filter by installation too (currently only one installation is present, so it works :P)
 echo "Getting list of Media Directors"
@@ -228,7 +173,6 @@ done
 
 # Create Client-side files
 MoonNumber=1
-iptables -t nat -F POSTROUTING
 for Client in $DisklessR; do
 	IP=$(Field 1 "$Client")
 	MAC=$(Field 2 "$Client")
@@ -264,11 +208,6 @@ for Client in $DisklessR; do
 	/usr/pluto/bin/Start_LocalDevices.sh script "$IP" -d "$PK_Device" >/usr/pluto/diskless/$IP/usr/pluto/bin/Start_LocalDevices_Static.sh
 	sed -i 's/localhost/dce_router/g' /usr/pluto/diskless/$IP/usr/pluto/bin/Start_LocalDevices_Static.sh
 	chmod +x /usr/pluto/diskless/$IP/usr/pluto/bin/Start_LocalDevices_Static.sh
-
-	echo -n " NAT"
-	iptables -t nat -A POSTROUTING -s $IP -j MASQUERADE
-
-	# TODO: MAC-based firewall FORWARD access
 
 	echo
 	MoonNumber=$((MoonNumber+1))

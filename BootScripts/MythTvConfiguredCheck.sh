@@ -2,7 +2,7 @@
 
 . /usr/pluto/bin/Config_Ops.sh
 
-QueryIsConfigured="SELECT count(data) as a FROM settings WHERE value like '%MasterServer%'";
+QueryIsConfigured="SELECT count(data) as a FROM settings WHERE value like '%BackendServerIP%' AND hostname='$(hostname)'";
 #MysqlCommand="mysql -D mythconverg -u mythtv -pArkhNKpr";
 MythPass=$(cat /etc/mythtv/mysql.txt |grep ^DBPassword|cut -d= -f2)
 MysqlCommand="mysql -D mythconverg -h $MySqlHost -u mythtv -p$MythPass";
