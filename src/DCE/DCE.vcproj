@@ -213,9 +213,6 @@
 				RelativePath=".\minilzo.h">
 			</File>
 			<File
-				RelativePath=".\MultiThreadIncludes.h">
-			</File>
-			<File
 				RelativePath=".\MySQLHelper.h">
 			</File>
 			<File
@@ -228,6 +225,9 @@
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
+			<File
+				RelativePath=".\MultiThreadIncludes.h">
+			</File>
 		</Filter>
 		<File
 			RelativePath="ReadMe.txt">

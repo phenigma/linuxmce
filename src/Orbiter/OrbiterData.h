@@ -78,6 +78,10 @@ public:
 			delete (*it).second; //TextStyle *
 		}
 		m_mapTextStyle.clear();
+
+		for(int iIndex = 0; iIndex < m_dequeLocation.size(); iIndex++)
+			delete m_dequeLocation[iIndex];
+		m_dequeLocation.clear();
 	}
 
 #ifdef ORBITER

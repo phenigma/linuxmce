@@ -2250,7 +2250,7 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s deleting m_pDataGridTable 1",pObj
     // Don't populate if we're not passing in anything at this point
 
     if(  pObj->m_iPK_Datagrid  )
-    {
+    { 
         bool bResponse;
         int iPK_Variable=0;
         string sValue_To_Assign;
@@ -5393,8 +5393,8 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 	RenderText(&text, pTextStyle);
 
 	//render current screen id
-	SolidRectangle( m_iImageWidth - 200, m_iImageHeight - 30, 200, 25, color, 50);
-	PlutoRectangle rect2(m_iImageWidth - 200, m_iImageHeight - 30, 200, 25);
+	SolidRectangle( m_iImageWidth - 250, m_iImageHeight - 30, 250, 25, color, 50);
+	PlutoRectangle rect2(m_iImageWidth - 250, m_iImageHeight - 30, 250, 25);
 	DesignObjText text2(m_pScreenHistory_Current->m_pObj);
 	text2.m_sText = "Current screen: " + this->GetCurrentScreenID();
 	text2.m_rPosition = rect2;

@@ -9,6 +9,8 @@ using namespace DCE;
 
 #ifdef WIN32
 
+	#include "Win32/MainDialog.h"
+
 	#ifdef WINCE
 		#include "stdafx.h"
 		#include <commctrl.h>
@@ -261,6 +263,10 @@ void Simulator::LoadConfigurationFile(string sConfigurationFile)
 
 	if(m_dwDelayMax <= m_dwDelayMin)
 		m_dwDelayMax = m_dwDelayMin + 500;
+
+#ifdef WIN32
+	LoadUI_From_ConfigurationData();
+#endif
 
 	if(m_bEnableGenerator)
 	{

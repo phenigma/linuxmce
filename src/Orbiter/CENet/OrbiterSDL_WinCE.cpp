@@ -6,6 +6,9 @@
 #include "../pluto_main/Define_Button.h"
 #include "../pluto_main/Define_Direction.h" 
 
+#include "../pluto_main/Define_HorizAlignment.h"
+#include "../pluto_main/Define_VertAlignment.h"
+
 #include "SelfUpdate.h"
 
 //#define PROFILING_CE
@@ -205,9 +208,13 @@ void OrbiterSDL_WinCE::RenderText(DesignObjText *Text,TextStyle *pTextStyle)
 
 	lf.lfHeight		= pTextStyle->m_iPixelHeight;
     lf.lfQuality	= DRAFT_QUALITY;
-	lf.lfWeight		= pTextStyle->m_bBold ? FW_BOLD : FW_NORMAL;
+	lf.lfWeight		= pTextStyle->m_bBold ? FW_MEDIUM : FW_NORMAL;
 	lf.lfItalic		= pTextStyle->m_bItalic;
 	lf.lfUnderline	= pTextStyle->m_bUnderline;
+
+	wchar_t wFontName[MAX_STRING_LEN];
+	mbstowcs(wFontName, pTextStyle->m_sFont.c_str(), MAX_STRING_LEN);
+	lstrcpy(lf.lfFaceName, wFontName);   
 
     hFontNew = ::CreateFontIndirect(&lf);
     hFontOld = (HFONT) ::SelectObject(m_hdc, hFontNew);
@@ -300,9 +307,21 @@ void OrbiterSDL_WinCE::RenderText(DesignObjText *Text,TextStyle *pTextStyle)
 	 RECT rect = { 0, 0, fontInfo.bmpWidth, fontInfo.bmpHeight };
 
 	//real render
-	::DrawText(m_hdc, wTextBuffer, TextToDisplay.length(), &rect /*&(pTextWinCEObject->m_rectLocation)*/, 
-		DT_WORDBREAK | DT_CENTER | DT_NOPREFIX); 
+	
+	 switch (pTextStyle->m_iPK_HorizAlignment)
+	 {
+		case HORIZALIGNMENT_Center_CONST: 
+				::DrawText(m_hdc, wTextBuffer, TextToDisplay.length(), &rect /*&(pTextWinCEObject->m_rectLocation)*/, 
+					DT_WORDBREAK | DT_CENTER | DT_NOPREFIX); 
 
+				break;
+		case HORIZALIGNMENT_Left_CONST: 
+				::DrawText(m_hdc, wTextBuffer, TextToDisplay.length(), &rect /*&(pTextWinCEObject->m_rectLocation)*/, 
+					DT_WORDBREAK | DT_NOPREFIX); 
+
+				break;
+	 }
+			
 	::SelectObject(m_hdc, hFontOld);
 	::DeleteObject(hFontNew);
 

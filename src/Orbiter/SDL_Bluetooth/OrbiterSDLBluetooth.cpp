@@ -260,6 +260,7 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
         list<string> listGrid;
 
 		int iSelectedColumn = 0;
+		//if 'c' - column  extraoption is specified, we'll send to phone the specified column
 		if(pObj->m_sExtraInfo.find( 'c' ) != string::npos)
 		{
 			g_pPlutoLogger->Write(LV_STATUS, "Extraoptions in grid: %s", pObj->m_sExtraInfo.c_str());
@@ -270,7 +271,8 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
 				iSelectedColumn = pObj->m_sExtraInfo[iPos + 1] - '0' - 1;
 		}
 
-		bool bSendSelectedOnMove = false; //when use press up/down buttons, PlutoMO will send a SelectedItem command
+		bool bSendSelectedOnMove = false; 
+		//if 'T' extraoptions is specified, then when user presses up/down buttons, PlutoMO will send a SelectedItem command
 		if(pObj->m_sExtraInfo.find( 'T' ) != string::npos)
 		{
 			bSendSelectedOnMove = true;
@@ -335,7 +337,7 @@ void OrbiterSDLBluetooth::CMD_Capture_Keyboard_To_Variable(string sPK_DesignObj,
 {
 	//do nothing
 #ifndef WIN32
-	printf("OrbiterSDLBluetooth::SimulateMouseClick. The event will be ignored (we don't have mouse on the phone :P");
+	printf("OrbiterSDLBluetooth::SimulateMouseClick. The event will be ignored (we don't have mouse on the phone)\n");
 #endif	
 }
 //-----------------------------------------------------------------------------------------------------
@@ -347,7 +349,7 @@ void OrbiterSDLBluetooth::CMD_Capture_Keyboard_To_Variable(string sPK_DesignObj,
 		m_pBDCommandProcessor->AddCommand(pBD_CP_SimulateEvent);
 
 #ifndef WIN32
-	printf("OrbiterSDLBluetooth::SimulateKeyPress with key code: %d", key);
+	printf("OrbiterSDLBluetooth::SimulateKeyPress with key code: %d\n", key);
 #endif
 }
 //-----------------------------------------------------------------------------------------------------

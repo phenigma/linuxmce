@@ -29,6 +29,7 @@ void				RecordMouseAction(int x, int y);
 void				RecordKeyboardAction(long key);
 //-----------------------------------------------------------------------------------------------------
 void				StartOrbiterThread();
+void				LoadUI_From_ConfigurationData();
 //-----------------------------------------------------------------------------------------------------
 struct CommandLineParams
 {
