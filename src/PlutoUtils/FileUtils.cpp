@@ -559,7 +559,7 @@ bool FileUtils::FindFiles(list<string> &listFiles, string sDirectory, string sFi
 				if (s == "")
 					break;
 //				if (s == ".*" || s == "*" || StringUtils::EndsWith(entry.d_name, s.c_str(),true) )
-				if (fnmatch(s.c_str(), entry.d_name, 0) == 0)
+				if (fnmatch(s.c_str(), entry.d_name, 0) == 0 || StringUtils::EndsWith(entry.d_name, s.c_str(),true))
 				{
 // g_pPlutoLogger->Write(LV_STATUS, "added file %s", entry.d_name);
 					if( bFullyQualifiedPath )
