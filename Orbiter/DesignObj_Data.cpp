@@ -58,7 +58,7 @@ DesignObj_Data::~DesignObj_Data()
 	for(itZones=m_ZoneList.begin();itZones!=m_ZoneList.end();++itZones)
 	{
 		DesignObjZone *pZone = *itZones;
-		delete pZone;
+		//delete pZone; //this is crasing
 	}
 	m_ZoneList.clear();
 

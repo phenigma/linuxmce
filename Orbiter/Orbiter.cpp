@@ -345,7 +345,7 @@ void Orbiter::RenderScreen(  )
     g_pPlutoLogger->Write( LV_STATUS, "Render screen: %s", m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(  ) );
 
 #if ( defined( PROFILING ) )
-    clock_t clkStart = clock(  );
+    clock_t clkStart = xClock();
 #endif
     PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
 
@@ -356,7 +356,7 @@ void Orbiter::RenderScreen(  )
 
     cm.Release(  );
 #if ( defined( PROFILING ) )
-    clock_t clkFinished = clock(  );
+    clock_t clkFinished = xClock();
     if(  m_pScreenHistory_Current   )
     {
         g_pPlutoLogger->Write( LV_CONTROLLER, "Render screen: %s took %d ms",
@@ -597,7 +597,7 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
             }
             else
             {
-                m_AutoInvalidateTime = clock(  );
+                m_AutoInvalidateTime = xClock();
             }
         }
         if ( pObj->m_pCCF )
@@ -806,13 +806,13 @@ void Orbiter::RenderDataGrid( DesignObj_DataGrid *pObj )
     }
 
 #if ( defined( PROFILING_GRID ) )
-    clock_t clkStart = clock(  );
+    clock_t clkStart = xClock(  );
 #endif
 
     PrepareRenderDataGrid( pObj,  delSelections );
 
 #if ( defined( PROFILING_GRID ) )
-    clock_t clkAcquired = clock(  );
+    clock_t clkAcquired = xClock(  );
 #endif
 
 	//clear the background for the grid
@@ -892,7 +892,7 @@ void Orbiter::RenderDataGrid( DesignObj_DataGrid *pObj )
     pObj->m_pDataGridTable->m_RowCount = i + ArrRows;
 
 #if ( defined( PROFILING_GRID ) )
-    clock_t clkFinished = clock(  );
+    clock_t clkFinished = xClock(  );
 
     g_pPlutoLogger->Write( LV_CONTROLLER, "Grid: %s took %d ms to acquire and %d ms to render",
         pObj->m_sGridID.c_str(), int(clkAcquired-clkStart), int(clkFinished-clkAcquired));
@@ -2816,13 +2816,13 @@ bool Orbiter::RegionDown( int x,  int y )
 
         //LACA_B4_0( "contains it,  calling clicked region" )
 #if ( defined( PROFILING ) )
-    clock_t clkStart = clock(  );
+    clock_t clkStart = xClock(  );
 #endif
 
        bHandled=ClickedRegion( m_pScreenHistory_Current->m_pObj, x, y, pTopMostAnimatedObject );
 
 #if ( defined( PROFILING ) )
-    clock_t clkFinished = clock(  );
+    clock_t clkFinished = xClock(  );
     if(  m_pScreenHistory_Current   )
     {
         g_pPlutoLogger->Write( LV_CONTROLLER, "$$$$$$$$$$$$$ SelectedObject took %d ms $$$$$$$$$$$$$$", clkFinished - clkStart );
@@ -3553,7 +3553,7 @@ void *RendererThread(void *p)
 			//g_pPlutoLogger->Write( LV_CONTROLLER, "### Now is %d, Callback candidate to be processed id = %d, clock = %d", 
 			//	(int)clock(), pCallBackInfo->m_iCounter, (int)pCallBackInfo->m_clock);
 
-			if(pCallBackInfo->m_clock <= clock()) 
+			if(pCallBackInfo->m_clock <= xClock()) 
 			{
 				if( ! pCallBackInfo->m_bStop ) //let's process this one, is ready to go
 					CALL_MEMBER_FN( *pCallBackInfo->m_pOrbiter, pCallBackInfo->m_fnCallBack )( pCallBackInfo->m_pData );
@@ -3579,7 +3579,7 @@ void *RendererThread(void *p)
 
 
 				timespec abstime;
-				abstime.tv_sec = time(NULL) + (pCallBackInfo->m_clock - clock()) / 1000;
+				abstime.tv_sec = time(NULL) + (pCallBackInfo->m_clock - xClock()) / 1000;
 				abstime.tv_nsec = (pCallBackInfo->m_clock - clock()) * 1000000;
 
 				//g_pPlutoLogger->Write( LV_CONTROLLER, "@@@ %d, %d", abstime.tv_sec, abstime.tv_nsec);
@@ -3630,7 +3630,7 @@ void Orbiter::CallMaintenanceInTicks( clock_t c, OrbiterCallBack fnCallBack, voi
 	}
 
     CallBackInfo *pCallBack = new CallBackInfo( &m_CallbackMutex );
-    pCallBack->m_clock = clock() + c;
+    pCallBack->m_clock = xClock() + c;
     pCallBack->m_fnCallBack=fnCallBack;
     pCallBack->m_pData=data;
     pCallBack->m_pOrbiter=this;
@@ -4694,7 +4694,7 @@ bool Orbiter::BuildCaptureKeyboardParams( string sPK_DesignObj, int iPK_Variable
     //find the text object
     m_pCaptureKeyboard_Text = FindText( pObj,  iPK_Text );
 
-    if( iPK_Variable && NULL != m_pCaptureKeyboard_Text && && m_bCaptureKeyboard_Reset )
+    if( iPK_Variable && NULL != m_pCaptureKeyboard_Text && m_bCaptureKeyboard_Reset )
         m_pCaptureKeyboard_Text->m_sText = m_mapVariable[iPK_Variable];
 
     //build the text string
@@ -4924,14 +4924,14 @@ PlutoColor p2(0,128,128);
 
 NeedToRender::NeedToRender( class Orbiter *pOrbiter, const char *pWhere )
 {
-    if ( g_cLastTime && ( clock() - g_cLastTime ) > CLOCKS_PER_SEC * 3 && g_iDontRender )
+    if ( g_cLastTime && ( xClock() - g_cLastTime ) > CLOCKS_PER_SEC * 3 && g_iDontRender )
     {
         g_pPlutoLogger->Write( LV_CRITICAL, "Need to render has blocked!!!" );
         g_iDontRender=0;
     }
     m_pWhere = pWhere;
     m_pOrbiter = pOrbiter;
-    g_cLastTime = clock();
+    g_cLastTime = xClock();
     g_iDontRender++;
 }
 //<-dceag-c242-b->

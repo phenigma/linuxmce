@@ -15,7 +15,7 @@
 #define Orbiter_h
 
 //	DCE Implemenation for #8 Orbiter
-
+#include "PlutoUtils/Other.h"
 #include "Gen_Devices/OrbiterBase.h"
 //<-dceag-d-e->
 
@@ -42,7 +42,7 @@ public:
 	 */
 	ScreenHistory( class DesignObj_Orbiter *pObj, class ScreenHistory *pScreenHistory_Prior ) 
 	{ 
-		m_tTime = clock();
+		m_tTime = CLK_TO_MS(xClock());
 		m_pObj=pObj; m_dwPK_Device=m_dwPK_Users=0; m_bCantGoBack=false; m_pLocationInfo=NULL; 
 		if(  pScreenHistory_Prior  )
 		{
