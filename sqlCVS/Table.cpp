@@ -488,9 +488,9 @@ bool Table::Update( RA_Processor &ra_Processor, DCE::Socket *pSocket )
 	 */
 	PlutoSqlResult result_set1,result_set2;
 	if( ( result_set1.r=m_pDatabase->mysql_query_result("SELECT max( psc_id ) FROM " + m_sName) ) && ( row = mysql_fetch_row( result_set1.r ) ) )
-		m_pRepository->psc_id_last_sync_set( this, atoi(row[0])  );
+		m_pRepository->psc_id_last_sync_set( this, row[0] ? atoi(row[0]) : 0 );
 	if( ( result_set2.r=m_pDatabase->mysql_query_result("SELECT max( psc_batch ) FROM " + m_sName) ) && ( row = mysql_fetch_row( result_set2.r ) ) )
-		m_pRepository->psc_batch_last_sync_set( this, atoi(row[0]) );
+		m_pRepository->psc_batch_last_sync_set( this, row[0] ? atoi(row[0]) : 0 );
 
 	// Now delete any rows in our vect that we found during the DetermineDeletions phase
 	if( m_vectRowsToDelete.size() )
@@ -518,16 +518,30 @@ void Table::GetChanges( R_UpdateTable *pR_UpdateTable )
 	ostringstream sSql;
 	sSql << "SELECT ";
 	for( size_t s=0;s<pR_UpdateTable->m_pvectFields->size( );++s )
-		sSql << "`" << ( *pR_UpdateTable->m_pvectFields )[s] << "`, ";
+		sSql << "`" << m_sName << "`.`" <<  ( *pR_UpdateTable->m_pvectFields )[s] << "`, ";
 
-	sSql << "psc_id, psc_batch, psc_user FROM " << m_sName << " WHERE psc_batch>" << pR_UpdateTable->m_psc_batch_last_sync;
+	sSql << "`" << m_sName << "`.`psc_id`, `" << m_sName << "`.`psc_batch`,"
+		<< "`" << m_sName << "`.`psc_user` FROM " << m_sName;
+
+	if( m_sFilter.length() )
+	{
+		if( StringUtils::ToUpper(m_sFilter).find("WHERE")==string::npos )
+			sSql << " WHERE";
+		StringUtils::Replace(m_sFilter,"<%=U%>",g_GlobalConfig.csvUserID());
+		sSql << " " << m_sFilter << " AND ";
+	}
+	else
+		sSql << " WHERE ";
+
+	sSql << "`" << m_sName << "`.`psc_batch`>" << pR_UpdateTable->m_psc_batch_last_sync;
 	if( pR_UpdateTable->m_vect_psc_batch.size() )
 	{
-		sSql << " AND psc_batch NOT IN (";
+		sSql << " AND `" << m_sName << "`.`psc_batch` NOT IN (";
 		for(size_t s=0;s<pR_UpdateTable->m_vect_psc_batch.size();++s)
 			sSql << (s>0 ? "," : "") << pR_UpdateTable->m_vect_psc_batch[s];
 		sSql << ")";
 	}
+
 
 	int i_psc_id_field = ( int ) pR_UpdateTable->m_pvectFields->size( );
 	int i_psc_batch_field = i_psc_id_field+1;
@@ -1097,7 +1111,7 @@ void Table::DeleteRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 				bFrozen=false;
 
 			int i = row[0] ? atoi(row[0]) : 0;
-			if( i && psqlCVSprocessor->m_mapValidatedUsers.find(i)==psqlCVSprocessor->m_mapValidatedUsers.end() )
+			if( i && g_GlobalConfig.m_mapValidatedUsers.find(i)==g_GlobalConfig.m_mapValidatedUsers.end() )
 				psc_user = i;
 			else
 				psc_user = 0;
@@ -1141,7 +1155,7 @@ void Table::UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 				bFrozen=false;
 
 			int i = row[0] ? atoi(row[0]) : 0;
-			if( i && psqlCVSprocessor->m_mapValidatedUsers.find(i)==psqlCVSprocessor->m_mapValidatedUsers.end() )
+			if( i && g_GlobalConfig.m_mapValidatedUsers.find(i)==g_GlobalConfig.m_mapValidatedUsers.end() )
 				psc_user = i;
 			else
 				psc_user = 0;
@@ -1463,7 +1477,7 @@ bool Table::Dump( SerializeableStrings &str )
 		if( sFieldList.length( ) )
 			sFieldList += ", ";
 
-		sFieldList += string( "`" ) + row[0] + "`";
+		sFieldList += "`" + m_sName + "`.`" + row[0] + "`";
 
 		if( strcmp(row[0],"psc_id")==0 )
 			num_psc_id = FieldCount;
@@ -1477,8 +1491,9 @@ bool Table::Dump( SerializeableStrings &str )
 			str.m_vectString.push_back( row[s] ? row[s] : NULL_TOKEN );
 	}
 
+	StringUtils::Replace(m_sFilter,"<%=U%>",g_GlobalConfig.csvUserID());
 	sSQL.str( "" );
-	sSQL << "SELECT " << sFieldList << " FROM " << m_sName << " " << m_sFilter;
+	sSQL << "SELECT " << sFieldList << " FROM " << m_sName << (m_sFilter.length() && StringUtils::ToUpper(m_sFilter).find("WHERE")==string::npos ? " WHERE " : " " ) << m_sFilter;
 	PlutoSqlResult result_set;
 	if( !( result_set.r=m_pDatabase->mysql_query_result( sSQL.str( ) ) ) )
 		return false;

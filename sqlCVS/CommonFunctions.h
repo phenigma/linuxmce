@@ -19,6 +19,7 @@
 #define NULL_TOKEN	"**( NULL )**"
 
 typedef map<string,string> MapStringString;
+extern int ValidateUser(string Username,string Password,bool &bSupervisor);
 
 namespace sqlCVS
 {
@@ -69,6 +70,8 @@ namespace sqlCVS
 		Database *m_pDatabase;		/**< points to the database */
 		Repository *m_pRepository;	/**< points to the Repository */
 
+		map<int,bool> m_mapValidatedUsers; /**< Map of user id's to bool's if the user is a supervisor */
+
 		bool m_bNewDatabase;
 
 		/**
@@ -88,6 +91,43 @@ namespace sqlCVS
 			m_pRepository=NULL;
 			m_bNewDatabase=false;
 			m_psc_batch=0;
+		}
+
+		/**
+		 * @ brief return all the validated user id's in a comma delimited string
+		 */
+		string csvUserID();
+
+		/**
+		 * @ brief returns true if the user has been validated
+		 */
+		bool UserIsValidated(int psc_user)
+		{
+			return m_mapValidatedUsers.find(psc_user)!=m_mapValidatedUsers.end();
+		}
+
+		/**
+		 * @ brief validates all the users who logged in
+		 */
+		bool ValidateUsers(bool &bSupervisor,bool bExpectAtLeastOne=true)
+		{
+			bSupervisor=false;
+			bool bValidatedUser=false;  // Be sure there is at least 1 user that was validated, and the map isn't empty
+			for(MapStringString::iterator it=m_mapUsersPasswords.begin();it!=m_mapUsersPasswords.end();++it)
+			{
+				bool bSupervisor;
+				int psc_user = ValidateUser( (*it).first, (*it).second, bSupervisor );
+				if( !psc_user )
+				{
+					return false;
+				}
+				cout << "Validated user: " << psc_user << " Is sup: " << bSupervisor << endl;
+				bValidatedUser=true;
+				m_mapValidatedUsers[psc_user]=bSupervisor;
+				if( bSupervisor )
+					bSupervisor=true;
+			}
+			return bExpectAtLeastOne==false || bValidatedUser;
 		}
 	};
 

@@ -36,6 +36,8 @@ namespace sqlCVS
 	}
 }
 
+using namespace sqlCVS;
+
 string int2string(int i)
 {
 	char s[1000];
@@ -83,4 +85,15 @@ string getTableFromForeignKey(string field,map<string,class TableInfo_Generator 
 
 	/** @test cout << "**ERROR** Cannot determine referenced table in field: " << field << endl; */
 	return "";
+}
+
+string GlobalConfig::csvUserID()
+{
+	string sResponse="0";  // The anonymous user is always valid
+	bool bFirst=true;
+	for(map<int,bool>::iterator it=m_mapValidatedUsers.begin();it!=m_mapValidatedUsers.end();++it)
+	{
+		sResponse += "," + StringUtils::itos( (*it).first );
+	}
+	return sResponse;
 }

@@ -264,6 +264,7 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==2239 )//2821 && bAddToGenerated )
 
                 if( sGraphicFile.length()>0 )
                 {
+Table_Image *p = m_mds->Image_get();
                     drImage = m_mds->Image_get()->GetRow(sGraphicFile);
                     if( drImage && (drImage->Width_get()==0 || drImage->Height_get()==0) )
                     {

@@ -171,6 +171,7 @@ namespace sqlCVS
 		int PromptForSqlCvsFiles( );
 		void GetTablesToCheckIn( );
 		int ConfirmUsersToCheckIn( );
+		int ConfirmUsersToUpdate( );
 		bool ConfirmRecordsToCheckIn( );
 
 		string Name_get( ) { return m_sMySQLDBName; }
@@ -194,9 +195,8 @@ namespace sqlCVS
 		{ 
 			if( m_bIsOpen )
 			{
-				cerr << "System error: Rolling back an incomplete transaction";
+				cerr << "System error: Rolling back an incomplete transaction" << endl;
 				m_pDatabase->Rollback( );
-				throw "Transaction error";
 			}
 		}
 		

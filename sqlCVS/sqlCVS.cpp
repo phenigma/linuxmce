@@ -535,9 +535,9 @@ void ChangeLoginUsers()
 				// The vector may have a ~ password
 				string::size_type pos=0;
 				string Username = StringUtils::Tokenize(vectUsers[s],"~",pos);
-				if( Username=="Selection" )
+				if( Username==Selection )
 				{
-					iRemoveUser=s;
+					iRemoveUser=(int) s;
 					break;
 				}
 			}

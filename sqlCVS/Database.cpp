@@ -658,7 +658,7 @@ void Database::Update( )
 	}
 
 	/** Now mapTable has all the tables we need to check in. Confirm the users if none were passed in on the command line */
-	if( g_GlobalConfig.m_mapUsersPasswords.size( )==0 && ConfirmUsersToCheckIn( )<1 )
+	if( g_GlobalConfig.m_mapUsersPasswords.size( )==0 && ConfirmUsersToUpdate( )<1 )
 		return;
 
 	try
@@ -942,6 +942,12 @@ bool Database::ConfirmRecordsToCheckIn( )
 
 void Database::Dump( )
 {
+	bool bSupervisor;
+	if( !g_GlobalConfig.ValidateUsers(bSupervisor,false) )
+	{
+		cerr << "Failed to validate any users" << endl;
+		throw "No Users";
+	}
 	if( g_GlobalConfig.m_mapRepository.size( )==0 )
 		if( PromptForRepositories( )<1 )
 			return; /**< abort*/
@@ -1306,3 +1312,35 @@ void Database::Approve( )
 	if( g_GlobalConfig.m_mapUsersPasswords.size( )==0 && ConfirmUsersToCheckIn( )<1 )
 		return;
 }
+
+int Database::ConfirmUsersToUpdate()
+{
+	while(true)
+	{
+		cout << "The following users will be logged in: " << endl;
+		for(MapStringString::iterator it=g_GlobalConfig.m_mapUsersPasswords.begin();it!=g_GlobalConfig.m_mapUsersPasswords.end();++it)
+		{
+			cout << (*it).first << endl;
+		}
+
+		cout << endl << "Enter a username to add to or remove from the list or 'd' for done, 'q' to quit: ";
+		string sUser;
+		cin >> sUser;
+
+		if( sUser=="d" || sUser=="D" )
+			return (int) g_GlobalConfig.m_mapUsersPasswords.size();
+		else if( sUser=="u" || sUser=="U" )
+			exit(1);
+
+		if( g_GlobalConfig.m_mapUsersPasswords.find(sUser)!=g_GlobalConfig.m_mapUsersPasswords.end() )
+			g_GlobalConfig.m_mapUsersPasswords.erase(sUser);
+		else
+		{
+			cout << "Enter the password for " << sUser << ":";
+			string sPassword;
+			cin >> sPassword;
+			g_GlobalConfig.m_mapUsersPasswords[sUser]=sPassword;
+		}
+	}
+}
+

@@ -420,7 +420,7 @@ class Table *Repository::CreateTablesTable( )
 	sql	<< "CREATE TABLE `" << Tablename << "`( " << endl
 		<< "`PK_" << Tablename << "` int( 11 ) NOT NULL auto_increment, " << endl
 		<< "`Tablename` varchar( 60 ) NOT NULL default '', " << endl
-		<< "`filter` varchar( 100 ), " << endl
+		<< "`filter` varchar( 255 ), " << endl
 		<< "`frozen` TINYINT( 1 ) DEFAULT '0', " << endl
 		<< "`last_psc_id` INT( 11 ) DEFAULT '0', " << endl
 		<< "`last_psc_batch` INT( 11 ) DEFAULT '0', " << endl
@@ -794,7 +794,7 @@ void Repository::Dump( )
 		(m_pTable_Tables && !m_pTable_Tables->Dump( str )) ||
 		(m_pTable_Schema && !m_pTable_Schema->Dump( str )) )
 	{
-		cerr << "Failed to output table data!" << endl;
+		cerr << "Failed to output system table data for dump!" << endl;
 		return; /**< Just return without doing anything */
 	}
 
@@ -804,7 +804,7 @@ void Repository::Dump( )
 		Table *pTable = ( *it ).second;
 		if( !pTable->Dump( str ) )
 		{
-			cerr << "Failed to output table data!" << endl;
+			cerr << "Failed to output table data for dump!" << endl;
 			return; /**< Just return without doing anything */
 		}
 	}
@@ -1192,7 +1192,7 @@ bool Repository::ApproveBatch(R_ApproveBatch *pR_ApproveBatch,sqlCVSprocessor *p
 						}
 
 						int i = row[0] ? atoi(row[0]) : 0;
-						if( i && psqlCVSprocessor->m_mapValidatedUsers.find(i)==psqlCVSprocessor->m_mapValidatedUsers.end() )
+						if( i && g_GlobalConfig.m_mapValidatedUsers.find(i)==g_GlobalConfig.m_mapValidatedUsers.end() )
 						{
 							pR_ApproveBatch->m_sMessage = "Not authorized to commit this batch";
 							return false;

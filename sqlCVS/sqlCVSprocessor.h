@@ -30,7 +30,6 @@ public:
 	sqlCVS::Table *m_pTable;	/**< The table we are currently committing */
 	vector<string> *m_pvectFields;	/**< The fields of the table @todo ask */
 	int m_i_psc_batch;
-	map<int,bool> m_mapValidatedUsers; /**< Map of user id's to bool's if the user is a supervisor */
 	sqlCVS::Repository *m_pRepository; /**< The repository we're currently committing */
 	bool m_bSupervisor;
 	int m_iNew,m_iMod,m_iDel;
@@ -46,10 +45,6 @@ public:
 		m_psc_bathdr_orig=m_psc_bathdr_auth=m_psc_bathdr_unauth=0;
 	}
 	virtual ~sqlCVSprocessor( ) { if( st.m_bIsOpen_get() ) st.Rollback(); }
-	bool UserIsValidated(int psc_user)
-	{
-		return m_mapValidatedUsers.find(psc_user)!=m_mapValidatedUsers.end();
-	}
 
 	/** @brief Creates a batch for holding unauthorized transactions */
 	int UnauthorizedBatch(int psc_user_needs_to_authorize);

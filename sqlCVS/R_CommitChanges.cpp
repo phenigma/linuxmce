@@ -38,8 +38,6 @@
 
 using namespace sqlCVS;
 
-extern int ValidateUser(string Username,string Password,bool &bSupervisor);
-
 R_CommitChanges::R_CommitChanges( string sRepository, string sDefaultUser )
 {
 	m_sRepository=sRepository;
@@ -58,30 +56,14 @@ bool R_CommitChanges::ProcessRequest( class RA_Processor *pRA_Processor )
 	}
 	else
 	{
-		bool bValidatedUser=false;  // Be sure there is at least 1 user that was validated, and the map isn't empty
-		for(MapStringString::iterator it=m_mapUsersPasswords.begin();it!=m_mapUsersPasswords.end();++it)
-		{
-			bool bSupervisor;
-			int psc_user = ValidateUser( (*it).first, (*it).second, bSupervisor );
-			if( !psc_user )
-			{
-				m_cProcessOutcome=LOGIN_FAILED;
-				return true;
-			}
-			cout << "Validated user: " << psc_user << " Is sup: " << bSupervisor << endl;
-			bValidatedUser=true;
-			psqlCVSprocessor->m_mapValidatedUsers[psc_user]=bSupervisor;
-			if( bSupervisor )
-				psqlCVSprocessor->m_bSupervisor=true;
-		}
-		if( !bValidatedUser )
+		if( !g_GlobalConfig.ValidateUsers(psqlCVSprocessor->m_bSupervisor) )
 		{
 			m_cProcessOutcome=LOGIN_FAILED;
 			return true;
 		}
 
 		psqlCVSprocessor->m_pRepository = pRepository;
-		m_psc_batch = psqlCVSprocessor->m_psc_bathdr_orig = psqlCVSprocessor->m_i_psc_batch = pRepository->CreateBatch( &psqlCVSprocessor->m_mapValidatedUsers );
+		m_psc_batch = psqlCVSprocessor->m_psc_bathdr_orig = psqlCVSprocessor->m_i_psc_batch = pRepository->CreateBatch( &g_GlobalConfig.m_mapValidatedUsers );
 
 		if( !psqlCVSprocessor->m_i_psc_batch )
 			m_cProcessOutcome=INTERNAL_ERROR;
