@@ -44,6 +44,7 @@ function wizardOrbiters($output,$dbADO) {
 			}
 	</script>
 	<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
+	<div class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg']):'').'</B></div>
 	<form action="index.php" method="POST" name="devices">
 	<input type="hidden" name="section" value="wizardOrbiters">
 	<input type="hidden" name="action" value="add">	
@@ -247,11 +248,13 @@ function wizardOrbiters($output,$dbADO) {
 			if(isset($_POST['quickRegen_'.$value])){
 				$updateOrbiter='UPDATE Orbiter SET Regen=1 WHERE PK_Orbiter=?';
 				$dbADO->Execute($updateOrbiter,$value); 
+				$dbADO->Execute('UPDATE Device SET NeedConfigure=1 WHERE PK_Device=?',$value);
 				$updateOrbiters=true;
 			}
 			if(isset($_POST['fullRegen_'.$value])){
 				$updateOrbiter='UPDATE Orbiter SET Modification_LastGen=0 WHERE PK_Orbiter=?';
 				$dbADO->Execute($updateOrbiter,$value); 
+				$dbADO->Execute('UPDATE Device SET NeedConfigure=1 WHERE PK_Device=?',$value);
 				$updateOrbiters=true;
 			}
 		}
@@ -301,7 +304,7 @@ function wizardOrbiters($output,$dbADO) {
 				$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID);				
 			}
 		}
-		header("Location: index.php?section=wizardOrbiters");		
+		header("Location: index.php?section=wizardOrbiters&msg=Orbiters updated.");		
 	}
 
 	$output->setScriptCalendar('null');

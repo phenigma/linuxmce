@@ -121,11 +121,11 @@ if ($action == 'form') {
 	
 
 	if ($masterDeviceID!=0 && $descriptionMyDevice!='') {
-		
-		$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$masterDeviceID.' -i '.$installationID.(($IPaddressMyDevice!='')?' -I '.$IPaddressMyDevice:'').(($MACaddressMyDevice!='')?' -M '.$MACaddressMyDevice:''));
+		echo '/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$masterDeviceID.' -i '.$installationID.(($IPaddressMyDevice!='')?' -I '.$IPaddressMyDevice:'').(($MACaddressMyDevice!='')?' -M '.$MACaddressMyDevice:'').(($parentID!=0)?' -C '.$parentID:'');
+		$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$masterDeviceID.' -i '.$installationID.(($IPaddressMyDevice!='')?' -I '.$IPaddressMyDevice:'').(($MACaddressMyDevice!='')?' -M '.$MACaddressMyDevice:'').(($parentID!=0)?' -C '.$parentID:''));
 		$dbADO->Execute('UPDATE Device SET Description=?, IgnoreOnOff=? WHERE PK_Device=?',array($descriptionMyDevice,$ignoreOnOff,$insertID));
 		setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
-		
+		exit();
 		$out.="<script>
 			top.frames['treeframe'].location='index.php?section=leftMenu';
 			self.location.href=\"index.php?section=editDeviceParams&deviceID=$insertID&parentID=$parentID\";
