@@ -73,7 +73,11 @@ DevicePoll::SendPacket(CSerialPort* pport,
 		return -1;
 	} else {
 		g_pPlutoLogger->Write(LV_STATUS, "Got response: %x from CM11A.", resp);
-		
+		if(resp == CM11A_CLOCK_REQ) {
+			g_pPlutoLogger->Write(LV_STATUS, "CM11A requested clock SET UP", resp);
+			SendClock(pport);
+			return -1;
+		} else
 		if(resp != chksum) {
 			g_pPlutoLogger->Write(LV_CRITICAL, "Bad checksum received (send:%x, recieved:%x).", chksum, resp);
 			return -1;
@@ -90,12 +94,7 @@ DevicePoll::SendPacket(CSerialPort* pport,
 		return -1;
 	} else {
 		g_pPlutoLogger->Write(LV_STATUS, "Got response: %x from CM11A.", resp);
-		
-		if(resp == CM11A_CLOCK_REQ) {
-			g_pPlutoLogger->Write(LV_STATUS, "CM11A requested clock SET UP", resp);
-			SendClock(pport);
-			return -1;
-		} else
+	
 		if(resp != CM11A_INTERFACE_READY) {
 			g_pPlutoLogger->Write(LV_STATUS, "Acknowledge of adress failed.");
 			return -1;
