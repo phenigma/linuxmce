@@ -25,6 +25,7 @@
 #include <sys/socket.h>
 #include <list>
 using namespace std;
+using namespace DCE;
 
 bdaddr_t bdaddr;
 

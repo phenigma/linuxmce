@@ -1,10 +1,10 @@
 #ifndef PlutoConfig_H
 #define PlutoConfig_H
 
-#include "MyStl.h"
+#include "PlutoUtils/MyStl.h"
 
 #ifdef MULTI_THREADED
-#include "MultiThreadIncludes.h"
+#include "PlutoUtils/MultiThreadIncludes.h"
 #endif //MULTI_THREADED
 
 #ifndef SYMBIAN
