@@ -5342,7 +5342,7 @@ bool Orbiter::BuildCaptureKeyboardParams( string sPK_DesignObj, int iPK_Variable
     m_bCaptureKeyboard_OnOff = sOnOff == "0" ? false : true;
 
     //normal/pin paramter
-    m_bCaptureKeyboard_TypePin = sType != "2";
+    m_bCaptureKeyboard_TypePin = sType == "2";
 
     //reset parameter
     m_bCaptureKeyboard_Reset = sReset != "0";
