@@ -15,7 +15,8 @@ clean-recursive:
 	@echo " done"
 
 #cpath = $(notdir $(1))
-cpath = $(subst /,_,$(1))
+#cpath = $(subst /,_,$(1))
+cpath = $(1)
 
 %.o: %.cpp
 #	@echo $(call cpath,$@)
