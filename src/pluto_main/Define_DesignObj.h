@@ -517,7 +517,7 @@
 #define DESIGNOBJ_objBroadcastToLinPhone_CONST 2035
 #define DESIGNOBJ_mnuMakingLinPhoneBroadcast_CONST 2036
 #define DESIGNOBJ_objEndBroadcastToLin_CONST 2037
-#define DESIGNOBJ_objControLights_CONST 2038
+#define DESIGNOBJ_butRestartDCERouter_CONST 2038
 #define DESIGNOBJ_objControlAV_CONST 2039
 #define DESIGNOBJ_objControlOther_CONST 2040
 #define DESIGNOBJ_objControlAll_CONST 2041
@@ -1147,6 +1147,8 @@
 #define DESIGNOBJ_Info_CONST 3321
 #define DESIGNOBJ_butRegenOrbiter_CONST 3322
 #define DESIGNOBJ_noconfirmationdelete_CONST 3323
+#define DESIGNOBJ_objAddGC100_CONST 3325
+#define DESIGNOBJ_mnuNewPlugAndPlayDevice_CONST 3326
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

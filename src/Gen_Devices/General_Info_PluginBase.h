@@ -72,6 +72,7 @@ public:
 	//Data accessors
 	//Event accessors
 	//Commands - Override these to handle commands from the server
+	virtual void CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Get_Device_Data(int iPK_Device,int iPK_DeviceData,bool bUseDefault,string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Request_File(string sFilename,char **pData,int *iData_Size,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Add_Unknown_Device(string sText,string sID,string sMac_address,string &sCMD_Result,class Message *pMessage) {};
@@ -81,6 +82,7 @@ public:
 	virtual void CMD_Get_Device_Status(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Reboot(int iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Restart_DCERouter(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Set_Room_For_Device(int iPK_Device,int iPK_Room,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -95,6 +97,25 @@ public:
 			{
 				switch(pMessage->m_dwID)
 				{
+				case 67:
+					{
+						string sCMD_Result="OK";
+					string sFilename=pMessage->m_mapParameters[13];
+					string sName=pMessage->m_mapParameters[50];
+					string sArguments=pMessage->m_mapParameters[51];
+					string sSendOnFailure=pMessage->m_mapParameters[94];
+					string sSendOnSuccess=pMessage->m_mapParameters[95];
+						CMD_Spawn_Application(sFilename.c_str(),sName.c_str(),sArguments.c_str(),sSendOnFailure.c_str(),sSendOnSuccess.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
 				case 68:
 					{
 						string sCMD_Result="OK";
@@ -235,6 +256,22 @@ public:
 					{
 						string sCMD_Result="OK";
 						CMD_Restart_DCERouter(sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 274:
+					{
+						string sCMD_Result="OK";
+					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
+					int iPK_Room=atoi(pMessage->m_mapParameters[57].c_str());
+						CMD_Set_Room_For_Device(iPK_Device,iPK_Room,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);

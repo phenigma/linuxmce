@@ -34,7 +34,8 @@ using namespace DCE;
 #include "DCERouter.h"
 #include "DCE/DeviceData_Router.h"
 #include "pluto_main/Database_pluto_main.h"
-#include "../pluto_main/Table_UnknownDevices.h"
+#include "pluto_main/Table_UnknownDevices.h"
+#include "pluto_main/Table_Room.h"
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -323,7 +324,9 @@ void General_Info_Plugin::CMD_Restart_DCERouter(string &sCMD_Result,Message *pMe
 		/** @param #95 SendOnSuccess */
 			/** Send this messages if the process exited with success error code. */
 
-void General_Info_Plugin::CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,string &sCMD_Result,Message *pMessage) {
+void General_Info_Plugin::CMD_Spawn_Application(string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess,string &sCMD_Result,Message *pMessage)
+//<-dceag-c67-e->
+{
     if ( sName == "" )
         sName = "not named";
 
@@ -395,4 +398,26 @@ void General_Info_Plugin::CMD_Spawn_Application(string sFilename,string sName,st
 	return;
 #endif
 }
-//<-dceag-c67-e->
+//<-dceag-c274-b->
+
+	/** @brief COMMAND: #274 - Set Room For Device */
+	/** Updates the record in the database for a given device putting in a certain room. */
+		/** @param #2 PK_Device */
+			/** The device */
+		/** @param #57 PK_Room */
+			/** The room */
+
+void General_Info_Plugin::CMD_Set_Room_For_Device(int iPK_Device,int iPK_Room,string &sCMD_Result,Message *pMessage)
+//<-dceag-c274-e->
+{
+	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(iPK_Device);
+	Row_Room *pRow_Room = m_pDatabase_pluto_main->Room_get()->GetRow(iPK_Room);
+	if( !pRow_Device || !pRow_Room )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot set device %d to room %d",iPK_Device,iPK_Room);
+		return;
+	}
+g_pPlutoLogger->Write(LV_STATUS,"Setting device %d to room %d",iPK_Device,iPK_Room);
+	pRow_Device->FK_Room_set( pRow_Room->PK_Room_get() );
+	pRow_Device->Table_Device_get()->Commit();
+}

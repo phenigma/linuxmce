@@ -231,7 +231,7 @@
 #define TEXT_PICK_A_USER_CONST 607
 #define TEXT_BROADCAST_LINPHONE_CONST 608
 #define TEXT_END_LINPHONE_BROADCAST_CONST 609
-#define TEXT_Reload_Devices_CONST 610
+#define TEXT_Restart_Router_CONST 610
 #define TEXT_CONTROL_AV_CONST 611
 #define TEXT_CONTROL_MISC_CONST 612
 #define TEXT_CONTROL_ALL_DEV_CONST 613
@@ -438,6 +438,8 @@
 #define TEXT_Regen_Orbiter_CONST 1113
 #define TEXT_Delete_entry_CONST 1114
 #define TEXT_Delete_Playlist_CONST 1115
+#define TEXT_Addgc_CONST 1116
+#define TEXT_New_PnP_CONST 1117
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

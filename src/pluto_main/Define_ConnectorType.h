@@ -1,6 +1,12 @@
 #ifndef __Define_ConnectorType_H__
 #define __Define_ConnectorType_H__
 
+#define CONNECTORTYPE_Composite_CONST 1
+#define CONNECTORTYPE_SVideo_CONST 2
+#define CONNECTORTYPE_Component_CONST 3
+#define CONNECTORTYPE_DVI_CONST 4
+#define CONNECTORTYPE_VGA_CONST 5
+#define CONNECTORTYPE_SCART_CONST 6
 
 #define CONNECTORTYPE_TABLE "ConnectorType"
 #define CONNECTORTYPE_PK_CONNECTORTYPE_FIELD "PK_ConnectorType"

@@ -222,6 +222,7 @@ bool Orbiter_Plugin::Register()
     RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::RouteToOrbitersInRoom),0,DEVICETEMPLATE_Standard_Orbiters_in_my_room_CONST,0,0,0,0);
     RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::RouteToOrbitersInRoom),0,DEVICETEMPLATE_Mobile_Orbiters_in_my_room_CONST,0,0,0,0);
     RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::RouteToOrbitersInRoom),0,DEVICETEMPLATE_Orbiters_in_my_room_CONST,0,0,0,0);
+	RegisterMsgInterceptor((MessageInterceptorFn)(&Orbiter_Plugin::NewPnpDevice ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_New_PNP_Device_Detected_CONST );
 
     return Connect(PK_DeviceTemplate_get());
 
@@ -1260,3 +1261,17 @@ void Orbiter_Plugin::CMD_Regen_Orbiter_Finished(int iPK_Device,string &sCMD_Resu
 	SendMessageToRouter(pMessageOut);
 }
 //<-dceag-createinst-b->!
+
+
+bool Orbiter_Plugin::NewPnpDevice( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo ) 
+{
+    for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
+    {
+        OH_Orbiter *pOH_Orbiter = (*it).second;
+
+		DCE::CMD_Goto_Screen CMD_Goto_Screen( m_dwPK_Device, pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, 0, StringUtils::itos(DESIGNOBJ_mnuNewPlugAndPlayDevice_CONST), "", "", false );
+		SendCommand( CMD_Goto_Screen );
+	}
+
+	return false;  // Let anybody else have this who wants it
+}

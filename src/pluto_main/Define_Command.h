@@ -191,7 +191,7 @@
 #define COMMAND_Send_Code_CONST 191
 #define COMMAND_Generic_On_CONST 192
 #define COMMAND_Generic_Off_CONST 193
-#define COMMAND_Power_CONST 194
+#define COMMAND_Toggle_Power_CONST 194
 #define COMMAND_Dial_CONST 195
 #define COMMAND_Cool_CONST 196
 #define COMMAND_Heat_CONST 197
@@ -269,6 +269,7 @@
 #define COMMAND_Move_Playlist_entry_Down_CONST 270
 #define COMMAND_Remove_playlist_entry_CONST 271
 #define COMMAND_Restart_DCERouter_CONST 272
+#define COMMAND_EIB_Write_CONST 273
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

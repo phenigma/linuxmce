@@ -1403,6 +1403,17 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
                 }
             }
             break;
+        case ARRAY_Rooms_CONST:
+            {
+				vector<Row_Room *> vectRow_Room;
+				m_mds->Room_get()->GetRows("FK_Installation=" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Device->FK_Installation_get()),&vectRow_Room);
+				for(size_t s=0;s<vectRow_Room.size();++s)
+				{
+					Row_Room *pRow_Room = vectRow_Room[s];
+                    alArray->push_back(new ArrayValue(StringUtils::itos(pRow_Room->PK_Room_get()),pRow_Room->Description_get(),NULL,0,0,0,0,drOVO->CanBeHidden_get()==1,drOVO->HideByDefault_get()==1,false));
+                }
+            }
+            break;
         case ARRAY_Floorplans_CONST:
             {
                 vector<class Row_Floorplan *> vectFs;

@@ -107,6 +107,7 @@ public:
     bool MobileOrbiterDetected(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
     bool MobileOrbiterLinked(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
     bool MobileOrbiterLost(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
+	bool NewPnpDevice( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
     void ProcessUnknownDevice();
 	void DisplayMessageOnOrbiter(int dwPK_Device,string sMessage)
@@ -114,7 +115,7 @@ public:
 		if ( sMessage == "" )
 			sMessage = "Unable to save playlist";
 
-		DCE::CMD_Set_Text CMD_Set_Text( 0, dwPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), sMessage, TEXT_STATUS_CONST);
+		DCE::CMD_Set_Text CMD_Set_Text( m_dwPK_Device, dwPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), sMessage, TEXT_STATUS_CONST);
 
 		DCE::CMD_Goto_Screen CMD_Goto_Screen( 0, dwPK_Device, 0, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), "", "", false );
 		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text.m_pMessage);

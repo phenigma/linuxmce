@@ -24,6 +24,7 @@ public:
 		virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage);
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
+	
 	// Private member variables
 	Database_pluto_main *m_pDatabase_pluto_main;
 
@@ -158,6 +159,17 @@ public:
 
 	virtual void CMD_Restart_DCERouter() { string sCMD_Result; CMD_Restart_DCERouter(sCMD_Result,NULL);};
 	virtual void CMD_Restart_DCERouter(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #274 - Set Room For Device */
+	/** Updates the record in the database for a given device putting in a certain room. */
+		/** @param #2 PK_Device */
+			/** The device */
+		/** @param #57 PK_Room */
+			/** The room */
+
+	virtual void CMD_Set_Room_For_Device(int iPK_Device,int iPK_Room) { string sCMD_Result; CMD_Set_Room_For_Device(iPK_Device,iPK_Room,sCMD_Result,NULL);};
+	virtual void CMD_Set_Room_For_Device(int iPK_Device,int iPK_Room,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->
