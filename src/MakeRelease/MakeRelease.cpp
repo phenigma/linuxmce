@@ -19,7 +19,7 @@
 #define chdir _chdir  // Why, Microsoft, why?
 #define mkdir _mkdir  // Why, Microsoft, why?
 #else
-
+#include <sys/wait.h>
 #endif
 
 #include "pluto_main/Database_pluto_main.h"
@@ -526,10 +526,10 @@ bool CreateSource(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &list
 		switch(pRow_Package_Source->FK_RepositorySource_get())
 		{
 		case REPOSITORYSOURCE_Pluto_Debian_CONST:
-			CreateSource_PlutoDebian(pRow_Package_Source,listFileInfo);
+			return CreateSource_PlutoDebian(pRow_Package_Source,listFileInfo);
 			break;
 		case REPOSITORYSOURCE_SourceForge_CVS_CONST:
-			CreateSource_SourceForgeCVS(pRow_Package_Source,listFileInfo);
+			return CreateSource_SourceForgeCVS(pRow_Package_Source,listFileInfo);
 			break;
 		default:
 			cout << "***ERROR*** Don't know how to create this source. " ;
@@ -1490,10 +1490,17 @@ string Makefile = "none:\n"
 	cout << string(("sed -i 's/^Depends:.*$/Depends: ${shlibs:Depends}, ${misc:Depends}" + sDepends + "/' " + Dir + "/debian/control")) << endl;
 	cout << string(("dpkg-buildpackage -b -rfakeroot")) << endl;
 	system(("sed -i 's/^Depends:.*$/Depends: ${shlibs:Depends}, ${misc:Depends}" + sDepends + "/' " + Dir + "/debian/control").c_str());
-	if( !g_bSimulate && system("dpkg-buildpackage -b -rfakeroot") )
+
+	if (!g_bSimulate)
 	{
-		cout << "dpkg-buildpackage -b failed.  Aborting." << endl;
-		return false;
+		// in C++, the headers do a "*(int *) &(status)" - where C uses the "status" parameter verbatim
+		int status = system("dpkg-buildpackage -b -rfakeroot");
+		printf("dpkg-buildpackage returned %d\n", WEXITSTATUS(status));
+		if (WEXITSTATUS(status))
+		{
+			cout << "dpkg-buildpackage -b failed.  Aborting." << endl;
+			return false;
+		}
 	}
 #endif
 	
