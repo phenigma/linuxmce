@@ -1,3 +1,11 @@
+/**
+ *
+ * @file Xine_Player.h
+ * @brief header file for the Xine_Player class
+ * @author
+ *
+ */
+ 
 //<-dceag-d-b->
 #ifndef Xine_Player_h
 #define Xine_Player_h
@@ -11,22 +19,49 @@
 #include "utilities/linux/RatpoisonHandler.h"
 
 //<-dceag-decl-b->! custom
+
 namespace DCE
 {
 	
+/**
+ * @brief
+ */
+
 class Xine_Player : public Xine_Player_Command, public RatpoisonHandler<Xine_Player>
 {
 //<-dceag-decl-e->
 //<-dceag-const-b->
 public:
-		// Constructors/Destructor
+		/** 
+		 * @brief constructor 
+		 */
+		
 		Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
+		
+		/**
+		 * @brief destructor 
+		 */
+		
 		virtual ~Xine_Player();
+		
+		/**
+		 * @brief destructor 
+		 */
+		
 		virtual bool Register();
 //<-dceag-const-e->
-    // Private member variables
-    XineSlaveWrapper *m_pXineSlaveControl;
+    /** Private member variables */
+    
+	/**
+	 * @brief destructor 
+	 */
+    
+    XineSlaveWrapper *m_pXineSlaveControl; /**< points to the XineSlaveWrapper object */
 
+	/**
+	 * @brief destructor 
+	 */
+	 
     Display *getDisplay();
     // Private methods
 public:
@@ -190,7 +225,11 @@ public:
 
 //<-dceag-h-e->
 
-    virtual void FireMenuOnScreen(int iDestinationDevice, int iStream_ID, bool bOnOff);
+	/**
+	 * @brief destructor 
+	 */
+	
+	virtual void FireMenuOnScreen(int iDestinationDevice, int iStream_ID, bool bOnOff);
 };
 
 //<-dceag-end-b->

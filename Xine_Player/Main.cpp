@@ -1,3 +1,17 @@
+/**
+ *
+ * @file Main.cpp
+ * @brief entry point for the Xine_Player 
+ * @author
+ *
+ */
+
+ /**
+ *
+ * Copyright Notice goes here
+ *
+ */
+
 //<-dceag-incl-b->
 #include "Xine_Player.h"
 #include "DCE/Logger.h"

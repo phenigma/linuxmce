@@ -1,4 +1,17 @@
-//<-dceag-d-b->
+/**
+ *
+ * @file Xine_Player.cpp
+ * @brief source file for the Xine_Player class
+ * @author
+ *
+ */
+
+ /**
+  *
+  * Copyright Notice goes here
+  *
+  */
+ //<-dceag-d-b->
 #include "Xine_Player.h"
 #include "DCE/Logger.h"
 #include "PlutoUtils/FileUtils.h"
@@ -19,41 +32,42 @@ Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHa
 	: Xine_Player_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
-    m_pXineSlaveControl = new XineSlaveWrapper();
+	m_pXineSlaveControl = new XineSlaveWrapper();
 
-    if ( ! m_pXineSlaveControl->createWindow() )
-    {
-        g_pPlutoLogger->Write(LV_WARNING, "Couldn't create the xine slave window. This plugin is useless here!");
-        delete m_pXineSlaveControl;
-        m_pXineSlaveControl = NULL;
-    }
-    else if ( ! m_pXineSlaveControl->createXineLibConnection() )
-    {
-        g_pPlutoLogger->Write(LV_WARNING, "Couldn't create the Xine Object.");
+	if ( ! m_pXineSlaveControl->createWindow() )
+	{
+	g_pPlutoLogger->Write(LV_WARNING, "Couldn't create the xine slave window. This plugin is useless here!");
+	delete m_pXineSlaveControl;
+	m_pXineSlaveControl = NULL;
+	}
+	
+	else if ( ! m_pXineSlaveControl->createXineLibConnection() )
+	{
+	g_pPlutoLogger->Write(LV_WARNING, "Couldn't create the Xine Object.");
 
-        delete m_pXineSlaveControl;
-        m_pXineSlaveControl = NULL;
-    }
+	delete m_pXineSlaveControl;
+	m_pXineSlaveControl = NULL;
+	}
 
-    m_pXineSlaveControl->setXinePlayerObject(this);
+	m_pXineSlaveControl->setXinePlayerObject(this);
 }
 
 //<-dceag-dest-b->
 Xine_Player::~Xine_Player()
 //<-dceag-dest-e->
 {
-    delete m_pXineSlaveControl;
+	delete m_pXineSlaveControl;
 }
 
 //<-dceag-reg-b->
-// This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in.  Otherwise Connect() will be called from the main()
+/** @brief This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in.  Otherwise Connect() will be called from the main()*/
 bool Xine_Player::Register()
 //<-dceag-reg-e->
 {
-    return Connect();
+	return Connect();
 }
 
-/*      **** SAMPLE ILLUSTRATING HOW TO USE THE BASE CLASSES ****
+/** @example   **** SAMPLE ILLUSTRATING HOW TO USE THE BASE CLASSES ****
 
 void Xine_Player::SomeFunction()
 {
@@ -135,14 +149,14 @@ void Xine_Player::SomeFunction()
 void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
-    if ( ! m_pXineSlaveControl )
-    {
-        g_pPlutoLogger->Write(LV_WARNING, "I don't have a slave to make it play. The slave proabbly failed to initialize properly.");
-        return;
-    }
+	if ( ! m_pXineSlaveControl )
+	{
+	g_pPlutoLogger->Write(LV_WARNING, "I don't have a slave to make it play. The slave proabbly failed to initialize properly.");
+	return;
+	}
 
-    makeActive(m_pXineSlaveControl->getRenderingWindowName());
-    m_pXineSlaveControl->playStream(sFilename, iStreamID, iMediaPosition, pMessage->m_dwPK_Device_From);
+	makeActive(m_pXineSlaveControl->getRenderingWindowName());
+	m_pXineSlaveControl->playStream(sFilename, iStreamID, iMediaPosition, pMessage->m_dwPK_Device_From);
 }
 
 //<-dceag-c38-b->
@@ -156,9 +170,9 @@ void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamI
 void Xine_Player::CMD_Stop_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c38-e->
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Got a stop media for stream ID %d", iStreamID);
-    m_pXineSlaveControl->stopMedia(iStreamID);
-    g_pPlutoLogger->Write(LV_STATUS, "The stream playback should be stopped at this moment and the resources should be freed!");
+	g_pPlutoLogger->Write(LV_STATUS, "Got a stop media for stream ID %d", iStreamID);
+	m_pXineSlaveControl->stopMedia(iStreamID);
+	g_pPlutoLogger->Write(LV_STATUS, "The stream playback should be stopped at this moment and the resources should be freed!");
 }
 
 //<-dceag-c39-b->
@@ -172,7 +186,7 @@ void Xine_Player::CMD_Stop_Media(int iStreamID,string &sCMD_Result,Message *pMes
 void Xine_Player::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c39-e->
 {
-    m_pXineSlaveControl->pauseMediaStream(iStreamID);
+	m_pXineSlaveControl->pauseMediaStream(iStreamID);
 }
 
 //<-dceag-c40-b->
@@ -186,7 +200,7 @@ void Xine_Player::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMe
 void Xine_Player::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c40-e->
 {
-    m_pXineSlaveControl->restartMediaStream(iStreamID);
+	m_pXineSlaveControl->restartMediaStream(iStreamID);
 }
 
 //<-dceag-c41-b->
@@ -202,7 +216,7 @@ void Xine_Player::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message *p
 void Xine_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string &sCMD_Result,Message *pMessage)
 //<-dceag-c41-e->
 {
-    m_pXineSlaveControl->changePlaybackSpeed(iStreamID, iMediaPlaybackSpeed);
+	m_pXineSlaveControl->changePlaybackSpeed(iStreamID, iMediaPlaybackSpeed);
 }
 
 //<-dceag-c63-b->
@@ -232,7 +246,7 @@ void Xine_Player::CMD_Skip_Back(string &sCMD_Result,Message *pMessage)
 
 Display *Xine_Player::getDisplay()
 {
-    return m_pXineSlaveControl->XServerDisplay;
+	return m_pXineSlaveControl->XServerDisplay;
 }
 //<-dceag-c81-b->
 /* 
@@ -245,7 +259,7 @@ Display *Xine_Player::getDisplay()
 void Xine_Player::CMD_Navigate_Next(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c81-e->
 {
-    m_pXineSlaveControl->selectNextButton(iStreamID);
+	m_pXineSlaveControl->selectNextButton(iStreamID);
 }
 
 //<-dceag-c82-b->
@@ -259,7 +273,7 @@ void Xine_Player::CMD_Navigate_Next(int iStreamID,string &sCMD_Result,Message *p
 void Xine_Player::CMD_Navigate_Prev(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c82-e->
 {
-    m_pXineSlaveControl->selectPrevButton(iStreamID);
+	m_pXineSlaveControl->selectPrevButton(iStreamID);
 }
 
 //<-dceag-c83-b->
@@ -273,25 +287,9 @@ void Xine_Player::CMD_Navigate_Prev(int iStreamID,string &sCMD_Result,Message *p
 void Xine_Player::CMD_Select_Current_Navigable_Area(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c83-e->
 {
-    m_pXineSlaveControl->pushCurrentButton(iStreamID);
+	m_pXineSlaveControl->pushCurrentButton(iStreamID);
 }
 
-void Xine_Player::FireMenuOnScreen(int iDestinationDevice, int iStreamID, bool bOnOff)
-{
-    g_pPlutoLogger->Write(LV_STATUS, "Sending Menu on screen event %s for stream %d", bOnOff ? "on" : "off", iStreamID);
-
-    EVENT_Menu_Onscreen(iStreamID, bOnOff);
-/*    SendMessage(
-        new Message(
-            m_dwPK_Device,
-            iDestinationDevice,
-            PRIORITY_NORMAL,
-            MESSAGETYPE_EVENT,
-            7,                                        // the event ID
-            2,
-            9, StringUtils::itos(iStream_ID).c_str(), // the stream ID
-            10,(bOnOff ? "1" : "0")));                // the On/Off state of the Menu*/
-}
 
 //<-dceag-c84-b->
 /* 
@@ -314,12 +312,12 @@ void Xine_Player::FireMenuOnScreen(int iDestinationDevice, int iStreamID, bool b
 void Xine_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat,string &sCMD_Result,Message *pMessage)
 //<-dceag-c84-e->
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Getting the frame!");
-    *pData = NULL;
-    *iData_Size = 0;
+	g_pPlutoLogger->Write(LV_STATUS, "Getting the frame!");
+	*pData = NULL;
+	*iData_Size = 0;
 
-    m_pXineSlaveControl->getScreenShot(iStreamID, iWidth, iHeight, *pData, *iData_Size, *sFormat, sCMD_Result);
-    g_pPlutoLogger->Write(LV_STATUS, "Done!");
+	m_pXineSlaveControl->getScreenShot(iStreamID, iWidth, iHeight, *pData, *iData_Size, *sFormat, sCMD_Result);
+	g_pPlutoLogger->Write(LV_STATUS, "Done!");
 }
 
 //<-dceag-c87-b->
@@ -339,5 +337,22 @@ void Xine_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,
 void Xine_Player::CMD_Goto_Media_Menu(int iStreamID,int iMenuType,string &sCMD_Result,Message *pMessage)
 //<-dceag-c87-e->
 {
-    m_pXineSlaveControl->selectMenu(iStreamID, iMenuType);
+	m_pXineSlaveControl->selectMenu(iStreamID, iMenuType);
+}
+
+void Xine_Player::FireMenuOnScreen(int iDestinationDevice, int iStreamID, bool bOnOff)
+{
+	g_pPlutoLogger->Write(LV_STATUS, "Sending Menu on screen event %s for stream %d", bOnOff ? "on" : "off", iStreamID);
+
+	EVENT_Menu_Onscreen(iStreamID, bOnOff);
+/*    SendMessage(
+        new Message(
+            m_dwPK_Device,
+            iDestinationDevice,
+            PRIORITY_NORMAL,
+            MESSAGETYPE_EVENT,
+            7,                                        // the event ID
+            2,
+            9, StringUtils::itos(iStream_ID).c_str(), // the stream ID
+            10,(bOnOff ? "1" : "0")));                // the On/Off state of the Menu*/
 }
