@@ -55,5 +55,7 @@ read = system,call,log,verbose,command,agent,user
 write = system,call,log,verbose,command,agent,user" >> /etc/asterisk/manager.conf
 
 
+# restart asterisk
+asterisk -rx "restart gracefully" || true
 
 
