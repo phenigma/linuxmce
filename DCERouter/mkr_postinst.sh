@@ -1,5 +1,5 @@
 #enable MySQL networking
-sed -i 's/^skip-netwoking/#skip-networking/' /etc/mysql/my.cnf
+sed -i 's/^skip-networking/#skip-networking/' /etc/mysql/my.cnf
 /etc/init.d/mysql restart
 
 echo "setting up dce router"
