@@ -184,7 +184,7 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==1326 )//2821 && bAddToGenerated )
             if( GraphicType==1 )
             {
                 m_iFloorplanPage = m_pOrbiterGenerator->m_iFloorplanPage;
-                o = "/../../floorplans/inst" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Device->FK_Installation_get()) + "/" + "Page" + StringUtils::itos(m_iFloorplanPage) + ".jpg";
+                o = "/../../floorplans/inst" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Device->FK_Installation_get()) + "/" + "Page" + StringUtils::itos(m_iFloorplanPage) + ".png";
 /*
                 string[] sFiles = Directory.GetFiles(m_pOrbiterGenerator->m_GraphicsBasePath + "/Floorplans/I" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Device->FK_Installation_get()) + "/","Page" + StringUtils::itos(m_iFloorplanPage) + ".*");
                 if( sFiles.Length>0 )
