@@ -555,9 +555,9 @@ public:
 
 	void Read_string(string &str)
 	{
-		str.SetLength(0);
+		str.clear();
 		while ( m_pcCurrentPosition < m_pcDataBlock + m_dwAllocatedSize && *m_pcCurrentPosition) {
-			 str.Append(*m_pcCurrentPosition++);
+			 str.append(1, *m_pcCurrentPosition++);
 		}
 
 		m_pcCurrentPosition++; //also skip '\0'
