@@ -1170,8 +1170,6 @@ g_pPlutoLogger->Write( LV_STATUS, "@@@ About to call maint for screen saver with
 
     g_pPlutoLogger->Write( LV_STATUS, "Changing screen to %s", m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(  ) );
     ObjectOnScreenWrapper(  );
-
-	//RefreshListWithSelectedObjects(pScreenHistory->m_pObj);
 }
 //------------------------------------------------------------------------
 void Orbiter::ObjectOnScreenWrapper(  )
@@ -2699,6 +2697,8 @@ bool Orbiter::ParseConfigurationData( GraphicType Type )
 //------------------------------------------------------------------------
 void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Screen, DesignObj_Orbiter *pObj_Parent, GraphicType Type,  int Lev )
 {
+	ShowProgress();
+
     if(  pObj->m_ObjectID.find( "2211.0.0.2233" )!=string::npos  )
     {
         int k=2;
@@ -6362,21 +6362,6 @@ void Orbiter::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 	UpdateRect(PlutoRectangle(5, m_iImageHeight - 30, 200, 25));
 	EndPaint();
 }
-
-void Orbiter::RefreshListWithSelectedObjects(DesignObj_Orbiter *pObj)
-{
-	//refresh the list with selected objects for this screen
-	if(pObj->m_GraphicToDisplay == GRAPHIC_SELECTED)
-		m_vectObjs_Selected.push_back(pObj);
-
-	DesignObj_DataList::iterator it;
-	for(it = pObj->m_ChildObjects.begin(  ); it != pObj->m_ChildObjects.end(); ++it )
-	{
-		DesignObj_Orbiter *pDesignObj_Orbiter = (DesignObj_Orbiter*) *it;
-		RefreshListWithSelectedObjects(pDesignObj_Orbiter);
-	}
-}
-
 //<-dceag-c330-b->
 
 	/** @brief COMMAND: #330 - Set Mouse Pointer Over Object */

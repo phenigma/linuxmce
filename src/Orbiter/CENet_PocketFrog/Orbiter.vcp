@@ -1230,14 +1230,13 @@ DEP_CPP_HANDL=\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\StartOrbiter.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_HANDL=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	"..\Win32\StartOrbiter_Win32.h"\
-	".\inuserm.h"\
-	".\ipapi.h"\
-	".\ygshell.h"\
 	
 
 !ENDIF 
@@ -1461,14 +1460,13 @@ DEP_CPP_MAIN_=\
 	"..\Win32\OrbiterSDL_Win32.h"\
 	"..\Win32\StartOrbiter.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_MAIN_=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	"..\Win32\StartOrbiter_Win32.h"\
-	".\inuserm.h"\
-	".\ipapi.h"\
-	".\ygshell.h"\
 	
 
 !ENDIF 
@@ -1616,14 +1614,13 @@ DEP_CPP_MAIND=\
 	"..\Win32\OrbiterSDL_Win32.h"\
 	"..\Win32\StartOrbiter.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_MAIND=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	"..\Win32\StartOrbiter_Win32.h"\
-	".\inuserm.h"\
-	".\ipapi.h"\
-	".\ygshell.h"\
 	
 
 !ENDIF 
@@ -2162,14 +2159,13 @@ DEP_CPP_ORBITE=\
 	"..\Win32\MainDialog.h"\
 	"..\Win32\StartOrbiter.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_ORBITE=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	"..\Win32\StartOrbiter_Win32.h"\
-	".\inuserm.h"\
-	".\ipapi.h"\
-	".\ygshell.h"\
 	
 
 !ENDIF 
@@ -2565,6 +2561,7 @@ DEP_CPP_POCKE=\
 	"..\OrbiterData.h"\
 	"..\PocketFrog\Orbiter_PocketFrog.h"\
 	"..\PocketFrog\PFGHelper.h"\
+	"..\PocketFrog\PNGWrapper.h"\
 	"..\PocketFrog\PocketFrogGraphic.h"\
 	"..\PocketFrog\PocketFrogWrapper.h"\
 	"..\TextStyle.h"\
@@ -2933,14 +2930,13 @@ DEP_CPP_SELFU=\
 	"..\Win32\OrbiterSDL_Win32.h"\
 	"..\Win32\StartOrbiter.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_SELFU=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	"..\Win32\StartOrbiter_Win32.h"\
-	".\inuserm.h"\
-	".\ipapi.h"\
-	".\ygshell.h"\
 	
 
 !ENDIF 
@@ -3171,14 +3167,13 @@ DEP_CPP_SIMUL=\
 	"..\Win32\OrbiterSDL_Win32.h"\
 	"..\Win32\StartOrbiter.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_SIMUL=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	"..\Win32\StartOrbiter_Win32.h"\
-	".\inuserm.h"\
-	".\ipapi.h"\
-	".\ygshell.h"\
 	
 
 !ENDIF 
@@ -3423,16 +3418,16 @@ DEP_CPP_START=\
 	"..\SDL\OrbiterSDL.h"\
 	"..\TextStyle.h"\
 	"..\Win32\MainDialog.h"\
+	"..\Win32\OrbiterSDL_Win32.h"\
 	"..\Win32\StartOrbiter.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_START=\
 	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
 	"..\..\PlutoUtils\PKFUNCS.H"\
-	"..\Win32\StartOrbiter_Win32.h"\
-	".\inuserm.h"\
-	".\ipapi.h"\
-	".\ygshell.h"\
 	
 
 !ENDIF 

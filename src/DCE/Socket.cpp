@@ -78,7 +78,9 @@ void hexmemcpy( char *pDest, const char *pSource, int NumBytes )
 
 Socket::Socket(string Name,string sIPAddress) : m_SocketMutex("socket mutex " + Name)
 {
+#ifndef WINCE
 	printf("start const %p\n",this);
+#endif
 	m_pcSockLogFile=m_pcSockLogErrorFile=NULL;
 	m_sIPAddress = sIPAddress;
 	m_iSocketCounter = SocketCounter++;
@@ -91,8 +93,7 @@ Socket::Socket(string Name,string sIPAddress) : m_SocketMutex("socket mutex " + 
 	m_pcSockLogErrorFile = new char[200];
 
 #  ifdef UNDER_CE
-	char c[50]{
-;
+	char c[50];
 	SYSTEMTIME lt;
 	::GetLocalTime(&lt);
 	sprintf( c, "%d-%d-%d %d-%d-%d %d", lt.wDay, lt.wMonth, lt.wYear, lt.wHour, lt.wMinute, lt.wSecond, m_iSocketCounter );
@@ -140,12 +141,18 @@ Socket::Socket(string Name,string sIPAddress) : m_SocketMutex("socket mutex " + 
 		m_LL_DEBUG_Mutex->Init( NULL );
 	}
 #endif
+
+#ifndef WINCE
 	printf("stop const %p\n",this);
+#endif
 }
 
 Socket::~Socket()
 {
+#ifndef WINCE
 	printf("start dest %p\n",this);
+#endif
+
 #ifdef DEBUG
 	g_pPlutoLogger->Write( LV_SOCKET, "Socket::~Socket(): deleting socket @%p %s (socket id in destructor: %d)", this, m_sName.c_str(), m_Socket );
 #endif

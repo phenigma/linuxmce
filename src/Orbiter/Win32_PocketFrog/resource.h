@@ -11,6 +11,7 @@
 #define IDI_SMALL                       108
 #define IDC_ORBITER                     109
 #define IDR_MAINFRAME                   128
+#define IDR_IMAGE1                      138
 #define IDM_MAIN_SHOW_SDLWINDOW         32772
 #define IDM_MAIN_FILE_QUIT              32773
 #define IDC_STATIC                      -1
@@ -20,7 +21,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        135
+#define _APS_NEXT_RESOURCE_VALUE        139
 #define _APS_NEXT_COMMAND_VALUE         32774
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           110

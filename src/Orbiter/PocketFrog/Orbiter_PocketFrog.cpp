@@ -109,6 +109,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 	m_bAltDown = false;
 	m_bRepeat = false;
 	m_bCapsLock = false;
+	m_bQuit = false;
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ Orbiter_PocketFrog::~Orbiter_PocketFrog()
@@ -118,8 +119,13 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ bool Orbiter_PocketFrog::GameInit()
 {
-	Surface* pLogoSurface;
+	Surface* pLogoSurface = NULL;
+
+#ifdef WINCE
 	pLogoSurface = LoadImage( GetDisplay(), TEXT("\\Storage Card\\logo.gif") );
+#else
+	pLogoSurface = LoadImage( GetDisplay(), TEXT("logo.gif")); 
+#endif
 
 	if(pLogoSurface)
 	{
@@ -264,7 +270,7 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 				break;
         }
     }
-    else if (uMsg == WM_KEYUP)
+    else if (uMsg == WM_KEYUP)	
     {
 		RecordKeyboardAction(long(wParam));
 
@@ -276,14 +282,13 @@ clock_t ccc=clock();
         g_pPlutoLogger->Write(LV_STATUS, "key up %d  rept: %d  shif: %d",(int) wParam, (int) m_bRepeat, (int) m_bShiftDown);
 
 #ifndef PHONEKEYS
-        if(wParam >= VK_A && wParam <= VK_Z) // A-Z keys
+        if(wParam >= VK_A && wParam <= VK_Z && !m_bControlDown && !m_bAltDown) // A-Z keys
         {
             if((!m_bCapsLock && !m_bShiftDown) || (m_bCapsLock && m_bShiftDown))
                 bHandled = Orbiter::ButtonDown(BUTTON_a_CONST + int(wParam) - VK_A);
             else
                 bHandled = Orbiter::ButtonDown(BUTTON_A_CONST + int(wParam) - VK_Z);
         }
-        else
 #endif 
         if( wParam == VK_SHIFT)
             m_bShiftDown=false;
@@ -291,11 +296,15 @@ clock_t ccc=clock();
             m_bControlDown=false;
         else if( wParam == VK_MENU )
             m_bAltDown=false;
-		else if( wParam == VK_ESCAPE && m_bControlDown && m_bAltDown)
+		else if( wParam == VK_F12) 
 		{
 			OnQuit();
 		}
-		else if( wParam == VK_F10)
+#ifdef WINCE
+		else if( wParam == VK_F10) //A && m_bControlDown)
+#else
+		else if( wParam == VK_A && m_bControlDown)
+#endif
 		{
 			ShowMainDialog();
 		}
@@ -875,6 +884,23 @@ void Orbiter_PocketFrog::WriteStatusOutput(const char* pMessage)
 		m_bUpdating = true;
 		GetDisplay()->Update();
 		m_bUpdating = false;
+	}
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void Orbiter_PocketFrog::ShowProgress()
+{
+	static int Counter = 0;
+	static PlutoColor green(0, 200, 0);
+	static PlutoColor white(255, 255, 255);
+
+	Counter++;
+
+	if(!(Counter % 50))
+	{
+		SolidRectangle(300, m_iImageHeight - 50, 200, 3, white);
+		SolidRectangle(300, m_iImageHeight - 50, Counter / 9, 3, green);
+		PlutoRectangle rect(300, m_iImageHeight - 50, 200, 3);
+		UpdateRect(rect);
 	}
 }
 //-----------------------------------------------------------------------------------------------------

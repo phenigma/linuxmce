@@ -310,11 +310,7 @@ public: // temp - remove this
 	 */
 	bool SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid, class DataGridCell *pCell );
 
-	/**
-	* @brief
-	* @todo ask
-	*/
-	void RefreshListWithSelectedObjects(DesignObj_Orbiter *pObj);
+	virtual void ShowProgress() {}
 
 	/**
 	 * @brief

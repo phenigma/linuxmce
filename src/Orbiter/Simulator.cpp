@@ -296,6 +296,8 @@ void Simulator::LoadConfigurationFile(string sConfigurationFile)
 		m_mapParameters[Token]=StringUtils::TrimSpaces(Value);
 	}
 
+	string bubu = m_mapParameters["EnableGenerator"];
+
 	m_bEnableGenerator = ReadInteger("EnableGenerator", m_bEnableGenerator) != 0;
 	m_dwDelayMin = ReadInteger("DelayMin", m_dwDelayMin);
 	m_dwDelayMax = ReadInteger("DelayMax", m_dwDelayMin);

@@ -51,8 +51,8 @@ bool PocketFrogGraphic::LoadGraphic(char *pData, size_t iSize)
 #ifndef WINCE
 	if( !m_pSurface ) //maybe it's a png ?
 	{
-		FileUtils::WriteBufferIntoFile("/tmp", pData, iSize); //hack :(
-		m_pSurface = PocketFrog_LoadPNG(Orbiter_PocketFrog::GetInstance()->GetOrbiterDisplay(), "/tmp");
+		FileUtils::WriteBufferIntoFile("tmp.img", pData, iSize); //hack :(
+		m_pSurface = PocketFrog_LoadPNG(Orbiter_PocketFrog::GetInstance()->GetOrbiterDisplay(), "tmp.img");
 	}
 #endif
 

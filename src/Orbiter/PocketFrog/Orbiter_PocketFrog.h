@@ -65,6 +65,7 @@ public:
 	virtual void EndPaint();
 	virtual void UpdateRect(PlutoRectangle rect);
 
+	virtual void ShowProgress();
 	virtual void OnQuit();
 
 	// Other
