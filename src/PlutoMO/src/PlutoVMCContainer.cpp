@@ -243,10 +243,13 @@ bool CPlutoVMCContainer::HandleDataGridKeys(const TKeyEvent& aKeyEvent, TEventCo
 {
 	CPlutoVMCUtil *pVMCUtil = (CPlutoVMCUtil *)CCoeEnv::Static(KCPlutoVMCUtilId);
 	
+	LOG("$H ");
+
 	if(pVMCUtil->GridExists() && aType == EEventKeyDown)
 	{
 		if(aKeyEvent.iScanCode == EStdKeyUpArrow)
 		{
+			LOG("UP ");
 			if(pVMCUtil->ScrollListUp())
 				m_bNeedRefresh = true;
 			
@@ -255,13 +258,14 @@ bool CPlutoVMCContainer::HandleDataGridKeys(const TKeyEvent& aKeyEvent, TEventCo
 
 		if(aKeyEvent.iScanCode == EStdKeyDownArrow)
 		{
+			LOG("DOWN ");
 			if(pVMCUtil->ScrollListDown())
 				m_bNeedRefresh = true; 
 
 			return true;
 		}
 
-		if(aKeyEvent.iScanCode == EStdKeyEnter)
+		if(aKeyEvent.iScanCode == /*EStdKeyEnter*/ 167)
 		{
 			if(pVMCUtil->SelectCurrentItem())
 				m_bNeedRefresh = true; 
@@ -269,6 +273,26 @@ bool CPlutoVMCContainer::HandleDataGridKeys(const TKeyEvent& aKeyEvent, TEventCo
 			return true;
 		}
 	}
+
+	if(pVMCUtil->GridExists() && aType == EEventKeyUp)
+	{
+		LOGN("KeyUp");
+	}
+	
+	if(pVMCUtil->GridExists() && aType == EEventKeyDown)
+	{
+		LOGN("KeyDown");
+	}
+
+	if(aKeyEvent.iScanCode == EStdKeyEnter)
+	{
+		LOGN("Enter");
+	}
+
+	LOGN("code: ");
+	LOGN(aKeyEvent.iScanCode);
+
+	LOGN(" $\n");
 
 	return false;
 }

@@ -169,6 +169,8 @@ void CPlutoVMCUtil::SetList(
 			m_GridList.Append(List[i]);
 		}
 	}
+	else
+		m_uGridSelectedItem = 0;
 }
 //------------------------------------------------------------------------------------------------------------------
 void CPlutoVMCUtil::SetCaptureKeyboardCommand(
