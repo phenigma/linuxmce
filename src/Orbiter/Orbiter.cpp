@@ -2748,6 +2748,7 @@ void Orbiter::QueueEventForProcessing( void *eventData )
 bool Orbiter::PreprocessEvent(Orbiter::Event &event)
 {
 	// nothing. This is here because i need a prepropcessing phase in key translation ( the XRecord callback doesn't allow XLib calls inside it so i need to make in another thread );
+	return true;
 }
 
 bool Orbiter::ProcessEvent( Orbiter::Event &event )

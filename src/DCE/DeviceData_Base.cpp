@@ -34,14 +34,14 @@ AllDevices::~AllDevices()
 	if( m_bDontDeleteData )
 		return;
 
-	for(Map_DeviceData_Base::iterator it=m_mapDeviceData_Base.begin();it!=m_mapDeviceData_Base.end();++it)
-		delete (*it).second;
+	for(Map_DeviceData_Base::iterator itData_Base=m_mapDeviceData_Base.begin();itData_Base!=m_mapDeviceData_Base.end();++itData_Base)
+		delete (*itData_Base).second;
 
-	for(Map_DeviceCategory::iterator it=m_mapDeviceCategory.begin();it!=m_mapDeviceCategory.end();++it)
-		delete (*it).second;
+	for(Map_DeviceCategory::iterator itCategory=m_mapDeviceCategory.begin();itCategory!=m_mapDeviceCategory.end();++itCategory)
+		delete (*itCategory).second;
 
-	for(Map_DeviceGroup::iterator it=m_mapDeviceGroup.begin();it!=m_mapDeviceGroup.end();++it)
-		delete (*it).second;
+	for(Map_DeviceGroup::iterator itGroup=m_mapDeviceGroup.begin();itGroup!=m_mapDeviceGroup.end();++itGroup)
+		delete (*itGroup).second;
 }
 
 bool AllDevices::Serialize( bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData )

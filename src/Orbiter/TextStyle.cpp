@@ -21,6 +21,7 @@
 	#include "pluto_main/Table_StyleVariation.h"
 #endif
 
+#include "DCE/Logger.h"
 #include "TextStyle.h"
 #include <SDL_ttf.h>
 
@@ -58,5 +59,13 @@ TextStyle::TextStyle(class Row_StyleVariation *pRow_StyleVariation)
 TextStyle::~TextStyle()
 {
 	if( m_pTTF_Font )  
-		TTF_CloseFont((TTF_Font *)m_pTTF_Font);
+	{
+		try
+		{
+			TTF_CloseFont((TTF_Font *)m_pTTF_Font);
+		}
+		catch(...)
+		{
+		}
+	}
 }

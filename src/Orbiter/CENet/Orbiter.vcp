@@ -3335,6 +3335,109 @@ DEP_CPP_TEXTS=\
 # End Source File
 # Begin Source File
 
+SOURCE=..\TextStyle.cpp
+
+!IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
+
+DEP_CPP_TEXTST=\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_TEXTST=\
+	"..\pluto_main\Table_Style.h"\
+	"..\pluto_main\Table_StyleVariation.h"\
+	"..\PlutoUtils\CommonIncludes.h"\
+	"..\SerializeClass\SerializeClass.h"\
+	"..\SerializeClass\ShapesColors.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Debug"
+
+DEP_CPP_TEXTST=\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_TEXTST=\
+	"..\pluto_main\Table_Style.h"\
+	"..\pluto_main\Table_StyleVariation.h"\
+	"..\PlutoUtils\CommonIncludes.h"\
+	"..\SerializeClass\SerializeClass.h"\
+	"..\SerializeClass\ShapesColors.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_TEXTST=\
+	"..\TextStyle.h"\
+	
+NODEP_CPP_TEXTST=\
+	"..\pluto_main\Table_Style.h"\
+	"..\pluto_main\Table_StyleVariation.h"\
+	"..\PlutoUtils\CommonIncludes.h"\
+	"..\SerializeClass\SerializeClass.h"\
+	"..\SerializeClass\ShapesColors.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Orbiter - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_TEXTST=\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\begin_code.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\close_code.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_active.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_audio.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_byteorder.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_cdrom.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_error.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_events.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_getenv.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_joystick.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_keyboard.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_keysym.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_main.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_mouse.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_mutex.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_quit.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_rwops.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_timer.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_types.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_version.h"\
+	"..\..\..\libs\CrossPlatform\SDL-1.2.7\include\SDL_video.h"\
+	"..\..\..\libs\CrossPlatform\SDL_ttf-2.0.6\SDL_ttf.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\config.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\need_errno.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\pthread.h"\
+	"..\..\..\libs\Libraries\pthreads-snap-2002-11-04\sched.h"\
+	"..\..\DCE\Logger.h"\
+	"..\..\DCE\PlutoLockLogger.h"\
+	"..\..\pluto_main\Database_pluto_main.h"\
+	"..\..\pluto_main\Define_Style.h"\
+	"..\..\pluto_main\Define_StyleVariation.h"\
+	"..\..\pluto_main\Table_Style.h"\
+	"..\..\pluto_main\Table_StyleVariation.h"\
+	"..\..\pluto_main\TableRow.h"\
+	"..\..\PlutoUtils\CommonIncludes.h"\
+	"..\..\PlutoUtils\FileUtils.h"\
+	"..\..\PlutoUtils\getch.h"\
+	"..\..\PlutoUtils\MultiThreadIncludes.h"\
+	"..\..\PlutoUtils\MyMap.h"\
+	"..\..\PlutoUtils\MySQLHelper.h"\
+	"..\..\PlutoUtils\MyStl.h"\
+	"..\..\PlutoUtils\MyString.h"\
+	"..\..\PlutoUtils\Other.h"\
+	"..\..\PlutoUtils\StringUtils.h"\
+	"..\..\SerializeClass\SerializeClass.h"\
+	"..\..\SerializeClass\ShapesColors.h"\
+	"..\TextStyle.h"\
+	".\wince.h"\
+	
+NODEP_CPP_TEXTST=\
+	"..\..\PlutoUtils\PKFUNCS.H"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\Splitter\TextWrapper.cpp
 
 !IF  "$(CFG)" == "Orbiter - Win32 (WCE emulator) Release"
