@@ -8,7 +8,7 @@ class CGText : public DesignObjText
 {
 public:
 	class Row_Text_LS *m_pdrText_LS;
-	class Row_DesignObjVariation_Text_Skin_Language *m_pdrDesignObjVariation_Text_Skin_Language;
+	class Row_DesignObjVariation_Text_Skin_Language *m_pRow_DesignObjVariation_Text_Skin_Language;
 	class Row_Orbiter *m_pdrOrbiter;
 	class DesignObj_Generator *m_pParent;
 

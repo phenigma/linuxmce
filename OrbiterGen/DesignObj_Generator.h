@@ -10,12 +10,12 @@ class DesignObj_Generator : public DesignObj_Data
 {
 public:
 	class Database_pluto_main * m_mds;
-	class Row_DesignObj * m_drDesignObj;
+	class Row_DesignObj * m_pRow_DesignObj;
 	DesignObj_Generator * m_ocoParent;
 	class OrbiterGenerator *m_pOrbiterGenerator;
 	map<int,string> m_VariableMap;
 
-	class Row_DesignObjVariation * m_drDesignObjVariation,*m_drStandardVariation;
+	class Row_DesignObjVariation * m_pRow_DesignObjVariation,*m_pRow_DesignObjVariation_Standard;
 	vector<class Row_DesignObjVariation *> m_alDesignObjVariations;
 //	vector<class CGZone *> m_alZones;
 //	vector<class CGCommand *> m_alLoadCommands,m_alUnloadCommands,m_alTimeoutCommands,m_alStartupCommands;
@@ -33,7 +33,7 @@ public:
 	int m_iVersion;
 	int m_iFloorplanPage,m_iFloorplanDevice; // Only used for floorplan objects
 	int m_iPK_CommandGroup_Touch_Extra;  // An extra action group to execute, used when this object is a button in an action group array.  
-	class Row_Device * m_drDevice_Goto;
+	class Row_Device * m_pRow_Device_Goto;
 
 	DesignObj_Generator() { m_bRendered=false; } // when we're serializing from disk
 	DesignObj_Generator(class OrbiterGenerator *pOrbiterGenerator,class Row_DesignObj * drDesignObj,class PlutoRectangle rPosition,class DesignObj_Generator *ocoParent,bool bAddToGenerated,bool bDontShare);

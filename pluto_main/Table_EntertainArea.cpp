@@ -21,7 +21,6 @@ using namespace std;
 
 #include "Table_CommandGroup_EntertainArea.h"
 #include "Table_Device_EntertainArea.h"
-#include "Table_Orbiter.h"
 
 
 void Database_pluto_main::CreateTable_EntertainArea()
@@ -849,13 +848,6 @@ void Row_EntertainArea::Device_EntertainArea_FK_EntertainArea_getrows(vector <cl
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device_EntertainArea *pTable = table->database->Device_EntertainArea_get();
-pTable->GetRows("FK_EntertainArea=" + StringUtils::itos(m_PK_EntertainArea),rows);
-}
-void Row_EntertainArea::Orbiter_FK_EntertainArea_getrows(vector <class Row_Orbiter*> *rows)
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-class Table_Orbiter *pTable = table->database->Orbiter_get();
 pTable->GetRows("FK_EntertainArea=" + StringUtils::itos(m_PK_EntertainArea),rows);
 }
 

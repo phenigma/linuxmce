@@ -23,7 +23,6 @@ using namespace std;
 #include "Table_ConfigType.h"
 #include "Table_DeviceCategory.h"
 #include "Table_DeviceCategory_DeviceData.h"
-#include "Table_DeviceCategory_DeviceObj.h"
 #include "Table_DeviceCategory_Event.h"
 #include "Table_DeviceCommandGroup.h"
 #include "Table_DeviceTemplate.h"
@@ -927,13 +926,6 @@ void Row_DeviceCategory::DeviceCategory_DeviceData_FK_DeviceCategory_getrows(vec
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceCategory_DeviceData *pTable = table->database->DeviceCategory_DeviceData_get();
-pTable->GetRows("FK_DeviceCategory=" + StringUtils::itos(m_PK_DeviceCategory),rows);
-}
-void Row_DeviceCategory::DeviceCategory_DeviceObj_FK_DeviceCategory_getrows(vector <class Row_DeviceCategory_DeviceObj*> *rows)
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-class Table_DeviceCategory_DeviceObj *pTable = table->database->DeviceCategory_DeviceObj_get();
 pTable->GetRows("FK_DeviceCategory=" + StringUtils::itos(m_PK_DeviceCategory),rows);
 }
 void Row_DeviceCategory::DeviceCategory_Event_FK_DeviceCategory_getrows(vector <class Row_DeviceCategory_Event*> *rows)

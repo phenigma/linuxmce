@@ -18,7 +18,6 @@ using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_Size.h"
 
-#include "Table_Orbiter.h"
 
 
 void Database_pluto_main::CreateTable_Size()
@@ -956,13 +955,6 @@ pRow->m_psc_mod = string(row[11],lengths[11]);
 
 
 
-void Row_Size::Orbiter_FK_Size_getrows(vector <class Row_Orbiter*> *rows)
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-class Table_Orbiter *pTable = table->database->Orbiter_get();
-pTable->GetRows("FK_Size=" + StringUtils::itos(m_PK_Size),rows);
-}
 
 
 

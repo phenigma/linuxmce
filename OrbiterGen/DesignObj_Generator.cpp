@@ -31,6 +31,7 @@
 #include "pluto_main/Table_EntertainArea.h"
 #include "pluto_main/Table_Room.h"
 #include "pluto_main/Table_Size.h"
+#include "pluto_main/Table_Language.h"
 #include "pluto_main/Table_Skin.h"
 #include "pluto_main/Table_Style.h"
 #include "pluto_main/Table_StyleVariation.h"
@@ -58,8 +59,8 @@
 
 DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_DesignObj * drDesignObj,class PlutoRectangle rPosition,class DesignObj_Generator *ocoParent,bool bAddToGenerated,bool bDontShare)
 {
-	m_drDesignObjVariation=NULL;
-	m_drStandardVariation=NULL;
+	m_pRow_DesignObjVariation=NULL;
+	m_pRow_DesignObjVariation_Standard=NULL;
 	m_bContainsArrays=false;
 	m_bDontShare=false;
 	m_bCanBeHidden=false;
@@ -72,20 +73,20 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
 	m_iFloorplanPage=0;
 	m_iFloorplanDevice=0; // Only used for floorplan objects
 	m_iPK_CommandGroup_Touch_Extra=0;  // An extra action group to execute, used when this object is a button in an action group array
-	m_drDevice_Goto=NULL;
+	m_pRow_Device_Goto=NULL;
 	m_DesignObj_GeneratorGoto=NULL;
 	m_pOrbiterGenerator=pGenerator;
 	m_bRendered=false;
 
 	m_mds=drDesignObj->Table_DesignObj_get()->Database_pluto_main_get();
 	m_VariableMap = m_pOrbiterGenerator->m_mapVariable;
-	m_drDesignObj=drDesignObj;
+	m_pRow_DesignObj=drDesignObj;
 	m_rPosition=rPosition;
 	m_ocoParent=ocoParent;
 	m_bDontShare=bDontShare;
 	m_bUsingCache=false;
 
-if( m_drDesignObj->PK_DesignObj_get()==2239 )//2821 && bAddToGenerated )
+if( m_pRow_DesignObj->PK_DesignObj_get()==2239 )//2821 && bAddToGenerated )
 {
 	int k=2;
 }
@@ -93,11 +94,11 @@ if( m_drDesignObj->PK_DesignObj_get()==2239 )//2821 && bAddToGenerated )
 	vector<Row_DesignObjVariation_DesignObj *> alArrays;
 
 	// Pick the standard variation, the specialized variation we will use for parameters, and all matching variations for including child objects
-	PickVariation(m_pOrbiterGenerator,m_drDesignObj,&m_drDesignObjVariation,&m_drStandardVariation,&m_alDesignObjVariations);
+	PickVariation(m_pOrbiterGenerator,m_pRow_DesignObj,&m_pRow_DesignObjVariation,&m_pRow_DesignObjVariation_Standard,&m_alDesignObjVariations);
 
-	if( !m_drStandardVariation )
+	if( !m_pRow_DesignObjVariation_Standard )
 	{
-		cerr << "Aborting building of: " << m_drDesignObj->PK_DesignObj_get() << " because there were no variations." << endl << "Attempts to use will fail at runtime." << endl;
+		cerr << "Aborting building of: " << m_pRow_DesignObj->PK_DesignObj_get() << " because there were no variations." << endl << "Attempts to use will fail at runtime." << endl;
 		return;
 	}
 
@@ -113,28 +114,28 @@ if( m_drDesignObj->PK_DesignObj_get()==2239 )//2821 && bAddToGenerated )
 		al->push_back(this);
 
 		// If this is the main menu, there will be an array of them
-		if( m_drDesignObj->PK_DesignObj_get()==m_pOrbiterGenerator->m_pRow_Orbiter->FK_DesignObj_MainMenu_get() )
+		if( m_pRow_DesignObj->PK_DesignObj_get()==m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu->PK_DesignObj_get() )
 		{
 			m_iVersion = m_pOrbiterGenerator->m_iLocation;
 		}
 		else if( m_pOrbiterGenerator->m_bOrbiterChanged==false )
 		{
 			// Let's see if we can just use a cached version
-			Row_CachedScreens *pdrCachedScreen = m_mds->CachedScreens_get()->GetRow(m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get(),m_drDesignObj->PK_DesignObj_get(),m_iVersion);
+			Row_CachedScreens *pdrCachedScreen = m_mds->CachedScreens_get()->GetRow(m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get(),m_pRow_DesignObj->PK_DesignObj_get(),m_iVersion);
 			if( pdrCachedScreen  )
 			{
 				time_t lModDate1 = StringUtils::SQLDateTime(pdrCachedScreen->Modification_LastGen_get());
-				time_t lModDate2 = StringUtils::SQLDateTime(m_drDesignObj->psc_mod_get());
+				time_t lModDate2 = StringUtils::SQLDateTime(m_pRow_DesignObj->psc_mod_get());
 				if( lModDate1==lModDate2 )
 				{
 					string Filename = m_pOrbiterGenerator->m_sOutputPath + "screen " + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get()) + "." + 
-						StringUtils::itos(m_drDesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion) + "." + StringUtils::itos((int) lModDate1) + ".cache";
+						StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion) + "." + StringUtils::itos((int) lModDate1) + ".cache";
 					if( FileUtils::FileExists(Filename) )
 					{
 						if( SerializeRead(Filename) )
 						{
 							m_bUsingCache=true;
-							cout << "Not building screen " << StringUtils::itos(m_drDesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion) << " found valid cache" << endl;
+							cout << "Not building screen " << StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(m_iVersion) << " found valid cache" << endl;
 							return;
 						}
 					}
@@ -142,8 +143,8 @@ if( m_drDesignObj->PK_DesignObj_get()==2239 )//2821 && bAddToGenerated )
 			}
 		}
 		string Filespec = m_pOrbiterGenerator->m_sOutputPath + "*" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get()) + "." + 
-			StringUtils::itos(m_drDesignObj->PK_DesignObj_get()) + ".*";
-		string Filespec2 = m_pOrbiterGenerator->m_sOutputPath + StringUtils::itos(m_drDesignObj->PK_DesignObj_get()) + ".*";
+			StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + ".*";
+		string Filespec2 = m_pOrbiterGenerator->m_sOutputPath + StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + ".*";
 #ifdef WIN32
 		// Remove any old cached files
 		string::size_type s;
@@ -163,8 +164,8 @@ if( m_drDesignObj->PK_DesignObj_get()==2239 )//2821 && bAddToGenerated )
 #endif
 	}
 
-	if( !m_drDesignObjVariation->FK_Criteria_Orbiter_isNull() )
-		m_pOrbiterGenerator->m_mapUsedOrbiterCriteria[m_drDesignObjVariation->FK_Criteria_Orbiter_get()]=true;
+	if( !m_pRow_DesignObjVariation->FK_Criteria_Orbiter_isNull() )
+		m_pOrbiterGenerator->m_mapUsedOrbiterCriteria[m_pRow_DesignObjVariation->FK_Criteria_Orbiter_get()]=true;
 
 	// This is an object that is part of an array, and this button will execute the designated action group
 	if( m_pOrbiterGenerator->m_iPK_CommandGroup!=0 )
@@ -177,7 +178,7 @@ if( m_drDesignObj->PK_DesignObj_get()==2239 )//2821 && bAddToGenerated )
 		// Handle the background image
 		string o;
 		
-		if( m_drDesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Floorplan_CONST )
+		if( m_pRow_DesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Floorplan_CONST )
 		{
 			if( GraphicType==1 )
 			{
@@ -214,7 +215,7 @@ if( m_drDesignObj->PK_DesignObj_get()==2239 )//2821 && bAddToGenerated )
 
 		if( sGraphicFile.length()>0 )
 		{
-			if( m_pOrbiterGenerator->m_pRow_Orbiter->NoEffects_get() )
+			if( m_pOrbiterGenerator->m_bNoEffects )
 			{
 				sGraphicFile = StringUtils::Replace(sGraphicFile,".MNG",".PNG");
 			}
@@ -247,7 +248,7 @@ if( m_drDesignObj->PK_DesignObj_get()==2239 )//2821 && bAddToGenerated )
 				if( sGraphicFile[0]=='/' )
 					sGraphicFile = m_pOrbiterGenerator->m_GraphicsBasePath + sGraphicFile;
 				else
-					sGraphicFile = m_pOrbiterGenerator->m_GraphicsBasePath + "/" + m_pOrbiterGenerator->m_pRow_Orbiter->FK_Skin_getrow()->DataSubdirectory_get() + "/" + sGraphicFile;
+					sGraphicFile = m_pOrbiterGenerator->m_GraphicsBasePath + "/" + m_pOrbiterGenerator->m_pRow_Skin->DataSubdirectory_get() + "/" + sGraphicFile;
 				
 				if( !FileUtils::FileExists(sGraphicFile) )
 				{
@@ -255,7 +256,7 @@ if( m_drDesignObj->PK_DesignObj_get()==2239 )//2821 && bAddToGenerated )
 					sGraphicFile = m_pOrbiterGenerator->m_GraphicsBasePath + "/" + m_mds->Skin_get()->GetRow(1)->DataSubdirectory_get() + "/" + sOriginalFile;  // hack in skin 1
 					if( !FileUtils::FileExists(sGraphicFile) )
 					{
-						cout << "Error reading graphic: " << sGraphicFile << " DesignObj: " << m_drDesignObjVariation->FK_DesignObj_get() << endl;
+						cout << "Error reading graphic: " << sGraphicFile << " DesignObj: " << m_pRow_DesignObjVariation->FK_DesignObj_get() << endl;
 						sGraphicFile = "";
 					}
 				}
@@ -326,13 +327,13 @@ if( m_drDesignObj->PK_DesignObj_get()==2239 )//2821 && bAddToGenerated )
 					if( GraphicType==1 )
 					{
 						int X=m_rPosition.X,Y=m_rPosition.Y;
-						Row_DesignObjVariation_DesignObjParameter * drOVCP_C_X = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_drDesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_X_Position_CONST);
-						if( drOVCP_C_X==NULL && m_drDesignObjVariation->PK_DesignObjVariation_get()!=m_drStandardVariation->PK_DesignObjVariation_get() )
-							drOVCP_C_X = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_drDesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_X_Position_CONST);
+						Row_DesignObjVariation_DesignObjParameter * drOVCP_C_X = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_pRow_DesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_X_Position_CONST);
+						if( drOVCP_C_X==NULL && m_pRow_DesignObjVariation->PK_DesignObjVariation_get()!=m_pRow_DesignObjVariation_Standard->PK_DesignObjVariation_get() )
+							drOVCP_C_X = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_pRow_DesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_X_Position_CONST);
 
-						Row_DesignObjVariation_DesignObjParameter * drOVCP_C_Y = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_drDesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_Y_Position_CONST);
-						if( drOVCP_C_Y==NULL && m_drDesignObjVariation->PK_DesignObjVariation_get()!=m_drStandardVariation->PK_DesignObjVariation_get() )
-							drOVCP_C_Y = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_drDesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_Y_Position_CONST);
+						Row_DesignObjVariation_DesignObjParameter * drOVCP_C_Y = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_pRow_DesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_Y_Position_CONST);
+						if( drOVCP_C_Y==NULL && m_pRow_DesignObjVariation->PK_DesignObjVariation_get()!=m_pRow_DesignObjVariation_Standard->PK_DesignObjVariation_get() )
+							drOVCP_C_Y = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_pRow_DesignObjVariation->PK_DesignObjVariation_get(),DESIGNOBJPARAMETER_Y_Position_CONST);
 
 						if( drOVCP_C_X && !drOVCP_C_X->Value_isNull() && drOVCP_C_X->Value_get()!="" )
 							X+=atoi(drOVCP_C_X->Value_get().c_str());
@@ -408,19 +409,19 @@ if( m_drDesignObj->PK_DesignObj_get()==2239 )//2821 && bAddToGenerated )
 			for(size_t s2=0;s2<vectovtsr.size();++s2)
 			{
 				Row_DesignObjVariation_Text_Skin_Language * drOVTSL = vectovtsr[s2];
-				if( !drOVTSL->FK_Skin_isNull() && drOVTSL->FK_Skin_get()==m_pOrbiterGenerator->m_pRow_Orbiter->FK_Skin_get() && 
-					!drOVTSL->FK_Language_isNull() && drOVTSL->FK_Language_get()==m_pOrbiterGenerator->m_pRow_Orbiter->FK_Language_get() )
+				if( !drOVTSL->FK_Skin_isNull() && drOVTSL->FK_Skin_get()==m_pOrbiterGenerator->m_pRow_Skin->PK_Skin_get() && 
+					!drOVTSL->FK_Language_isNull() && drOVTSL->FK_Language_get()==m_pOrbiterGenerator->m_pRow_Language->PK_Language_get() )
 				{
 					drOVTSL_match = drOVTSL;
 					break;
 				}
-				else if( !drOVTSL->FK_Skin_isNull() && drOVTSL->FK_Skin_get()==m_pOrbiterGenerator->m_pRow_Orbiter->FK_Skin_get() && 
+				else if( !drOVTSL->FK_Skin_isNull() && drOVTSL->FK_Skin_get()==m_pOrbiterGenerator->m_pRow_Skin->PK_Skin_get() && 
 					drOVTSL->FK_Language_isNull() )
 				{
 					drOVTSL_match = drOVTSL;
 					bMatchSkin=true;
 				}
-				else if( !drOVTSL->FK_Language_isNull() && drOVTSL->FK_Language_get()==m_pOrbiterGenerator->m_pRow_Orbiter->FK_Language_get() && 
+				else if( !drOVTSL->FK_Language_isNull() && drOVTSL->FK_Language_get()==m_pOrbiterGenerator->m_pRow_Language->PK_Language_get() && 
 					drOVTSL->FK_Skin_isNull() && !bMatchSkin )
 				{
 					drOVTSL_match = drOVTSL;
@@ -439,7 +440,7 @@ if( m_drDesignObj->PK_DesignObj_get()==2239 )//2821 && bAddToGenerated )
 				if( !drOVTSL_match->FK_Style_isNull() )
 					drStyle = drOVTSL_match->FK_Style_getrow();
 				else
-					drStyle = m_pOrbiterGenerator->m_pRow_Orbiter->FK_Skin_getrow()->FK_Style_getrow();
+					drStyle = m_pOrbiterGenerator->m_pRow_Skin->FK_Style_getrow();
 
 				if( !drStyle )
 				{
@@ -540,21 +541,21 @@ if( m_drDesignObj->PK_DesignObj_get()==2239 )//2821 && bAddToGenerated )
 		m_ZoneList.push_back(oczone);
 	}	
 
-	if( m_drDesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Floorplan_CONST && m_sOriginalSize.Width>0 && m_sOriginalSize.Height>0 )
+	if( m_pRow_DesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Floorplan_CONST && m_sOriginalSize.Width>0 && m_sOriginalSize.Height>0 )
 	{
 		// This is a floorplan object, first we're going to have to scale this ourselves
 		// since the background is of an unknown size, and then
 		// add all the children for this page and type
 		PlutoSize cgs = m_rBackgroundPosition.Size();
 		PlutoPoint cgp(cgs.Width,cgs.Height);
-		PlutoSize szTargetSize(ScaleValue(&cgp,m_pOrbiterGenerator->m_drSize->ScaleX_get(),m_pOrbiterGenerator->m_drSize->ScaleY_get()));
+		PlutoSize szTargetSize(ScaleValue(&cgp,m_pOrbiterGenerator->m_pRow_Size->ScaleX_get(),m_pOrbiterGenerator->m_pRow_Size->ScaleY_get()));
 		int ScaleWidth = szTargetSize.Width * 1000 / m_sOriginalSize.Width;
 		int ScaleHeight = szTargetSize.Height * 1000 / m_sOriginalSize.Height;
 		int ScaleFactor = min(ScaleWidth,ScaleHeight);
 
 		// Adjust the width and the height so that we don't mess up the aspect ratio
-		m_rBackgroundPosition.Width = m_sOriginalSize.Width * ScaleFactor / m_pOrbiterGenerator->m_drSize->ScaleX_get();
-		m_rBackgroundPosition.Height = m_sOriginalSize.Height * ScaleFactor / m_pOrbiterGenerator->m_drSize->ScaleY_get();
+		m_rBackgroundPosition.Width = m_sOriginalSize.Width * ScaleFactor / m_pOrbiterGenerator->m_pRow_Size->ScaleX_get();
+		m_rBackgroundPosition.Height = m_sOriginalSize.Height * ScaleFactor / m_pOrbiterGenerator->m_pRow_Size->ScaleY_get();
 		m_rPosition.Width = m_rBackgroundPosition.Width;
 		m_rPosition.Height = m_rBackgroundPosition.Height;
 
@@ -609,7 +610,7 @@ if( m_drDesignObj->PK_DesignObj_get()==2239 )//2821 && bAddToGenerated )
 						pDesignObj_Generator->m_iFloorplanDevice = pRow_Device_DeviceData_FPInfo->FK_Device_get();
 
 						// Scale these here because we need to reset all the x/y positions since we may have used a different scale factor
-						pDesignObj_Generator->ScaleAllValues(m_pOrbiterGenerator->m_drSize->ScaleX_get(),m_pOrbiterGenerator->m_drSize->ScaleY_get(),NULL);
+						pDesignObj_Generator->ScaleAllValues(m_pOrbiterGenerator->m_pRow_Size->ScaleX_get(),m_pOrbiterGenerator->m_pRow_Size->ScaleY_get(),NULL);
 						m_alChildDesignObjs.push_back(pDesignObj_Generator);
 						pDesignObj_Generator->m_rBackgroundPosition.X=X;
 						pDesignObj_Generator->m_rBackgroundPosition.Y=Y;
@@ -622,7 +623,7 @@ if( m_drDesignObj->PK_DesignObj_get()==2239 )//2821 && bAddToGenerated )
 			}
 		}
 	}
-	if( m_drDesignObj->PK_DesignObj_get()==1683 || m_drDesignObj->PK_DesignObj_get()==1677 )
+	if( m_pRow_DesignObj->PK_DesignObj_get()==1683 || m_pRow_DesignObj->PK_DesignObj_get()==1677 )
 	{
 int k=2;
 	}
@@ -671,7 +672,7 @@ if( drOVO->PK_DesignObjVariation_DesignObj_get()==6312 )
 					else
 					{
 						DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,drOVO->FK_DesignObj_Child_getrow(),PlutoRectangle(m_rPosition.X+drOVO->X_get(),m_rPosition.Y+drOVO->Y_get(),drOVO->Width_get(),drOVO->Height_get()),this,false,false);
-						if( !pDesignObj_Generator->m_drDesignObjVariation )
+						if( !pDesignObj_Generator->m_pRow_DesignObjVariation )
 						{
 							cout << "Not adding object: " << drOVO->FK_DesignObj_Child_get() << " to object: " << drOVO->FK_DesignObjVariation_Parent_getrow()->FK_DesignObj_get() << " because there are no qualifying variations." << endl;
 							delete pDesignObj_Generator; // Abort adding this object as a child, there were no variations 
@@ -702,7 +703,7 @@ if( drOVO->PK_DesignObjVariation_DesignObj_get()==6312 )
 	}
 
 	// Don't stretch out the floorplan objects
-	if( m_drDesignObj->FK_DesignObjType_get()!=DESIGNOBJTYPE_Floorplan_CONST )
+	if( m_pRow_DesignObj->FK_DesignObjType_get()!=DESIGNOBJTYPE_Floorplan_CONST )
 	{
 		// First go through all of the arrays and set the appropriate bounds so we can calculate the size of this object
 		for(size_t s=0;s<m_alChildDesignObjs.size();++s)
@@ -765,7 +766,7 @@ if( drOVO->PK_DesignObjVariation_DesignObj_get()==6312 )
 		if( tmpDesignObj_Goto!=0 )
 		{
 			if( PK_DesignObj_Goto!=0 )
-				throw "DesignObj " + StringUtils::itos(m_drDesignObj->PK_DesignObj_get()) + " " + m_drDesignObj->Description_get() + " has more than 1 goto";
+				throw "DesignObj " + StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + " " + m_pRow_DesignObj->Description_get() + " has more than 1 goto";
 			else
 				PK_DesignObj_Goto = tmpDesignObj_Goto;
 		}
@@ -779,7 +780,7 @@ if( drOVO->PK_DesignObjVariation_DesignObj_get()==6312 )
 		else if( tmpDesignObj_Goto!=0 )
 		{
 			if( PK_DesignObj_Goto!=0 )
-				throw "DesignObj " + StringUtils::itos(m_drDesignObj->PK_DesignObj_get()) + " " + m_drDesignObj->Description_get() + " has more than 1 goto";
+				throw "DesignObj " + StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + " " + m_pRow_DesignObj->Description_get() + " has more than 1 goto";
 			else
 				PK_DesignObj_Goto = tmpDesignObj_Goto;
 		}
@@ -796,15 +797,15 @@ if( drOVO->PK_DesignObjVariation_DesignObj_get()==6312 )
 	Hashtable htGotos = new Hashtable();
 	if( PK_DesignObj_Goto!=0 )
 		htGotos.Add(PK_DesignObj_Goto,1);
-	if( m_drDevice_Goto!=NULL )
+	if( m_pRow_Device_Goto!=NULL )
 	{
-		m_pOrbiterGenerator->m_htUsedDevices.Add(m_drDevice_Goto,1);
-		foreach(DataRow drobj in m_drDevice_Goto->FK_DeviceTemplate_getrow().dr.GetChildRows(Database_pluto_main.MyRelations.DeviceTemplate_DesignObj_FK_DeviceTemplate))
+		m_pOrbiterGenerator->m_htUsedDevices.Add(m_pRow_Device_Goto,1);
+		foreach(DataRow drobj in m_pRow_Device_Goto->FK_DeviceTemplate_getrow().dr.GetChildRows(Database_pluto_main.MyRelations.DeviceTemplate_DesignObj_FK_DeviceTemplate))
 		{
 			Row_DeviceTemplate_DesignObj * drMDL = new Row_DeviceTemplate_DesignObj *(drobj);
 			htGotos.Add(drMDL->FK_DesignObj_get(),1);
 		}
-		foreach(DataRow drobj in m_drDevice_Goto->FK_DeviceTemplate_getrow()->FK_Device_get()Category_DataRow.dr.GetChildRows(Database_pluto_main.MyRelations.DeviceCategory_DesignObj_FK_DeviceCategory))
+		foreach(DataRow drobj in m_pRow_Device_Goto->FK_DeviceTemplate_getrow()->FK_Device_get()Category_DataRow.dr.GetChildRows(Database_pluto_main.MyRelations.DeviceCategory_DesignObj_FK_DeviceCategory))
 		{
 			Row_DeviceCategory_DesignObj * drDCO = new Row_DeviceCategory_DesignObj *(drobj);
 			htGotos.Add(drDCO->FK_DesignObj_get(),1);
@@ -845,7 +846,7 @@ int DesignObj_Generator::LookForGoto(DesignObjCommandList *alCommands)
 				if( (*itParm).first == COMMANDPARAMETER_PK_DesignObj_CONST )
 				{
 					if(PK_DesignObj_Goto!=0)
-						throw "Multiple goto's in object " + StringUtils::itos(m_drDesignObj->PK_DesignObj_get()) + " " + m_drDesignObj->Description_get();
+						throw "Multiple goto's in object " + StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + " " + m_pRow_DesignObj->Description_get();
 
 					bool b;
 					size_t pos;
@@ -863,7 +864,7 @@ int DesignObj_Generator::LookForGoto(DesignObjCommandList *alCommands)
 						}
 						catch(...)
 						{
-							throw "Cannot go to screen: " + (*itParm).second + " from object: " + StringUtils::itos(m_drDesignObj->PK_DesignObj_get());
+							throw "Cannot go to screen: " + (*itParm).second + " from object: " + StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get());
 						}
 					}
 				}
@@ -900,7 +901,7 @@ int DesignObj_Generator::LookForGoto(DesignObjCommandList *alCommands)
 					// temporarily change to the 'goto controller'
 					m_pOrbiterGenerator->m_pRow_Orbiter=m_mds->Orbiter_get()->GetRow(PK_Orbiter);
 					m_bDontShare=true;
-					int MainMenu = m_pOrbiterGenerator->m_pRow_Orbiter->FK_DesignObj_MainMenu_get();
+					int MainMenu = m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu->PK_DesignObj_get();
 					HandleGoto(MainMenu);
 					ArrayList al = (ArrayList) m_pOrbiterGenerator->m_htGeneratedScreens[MainMenu];
 					int Version = al.Count-1;
@@ -932,7 +933,7 @@ int DesignObj_Generator::LookForGoto(DesignObjCommandList *alCommands)
 void DesignObj_Generator::HandleGoto(int PK_DesignObj_Goto)
 {
 	listDesignObj_Generator *pListScreens = m_pOrbiterGenerator->m_htGeneratedScreens[PK_DesignObj_Goto];
-	if( PK_DesignObj_Goto==m_pOrbiterGenerator->m_pRow_Orbiter->FK_DesignObj_MainMenu_get() )
+	if( PK_DesignObj_Goto==m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu->PK_DesignObj_get() )
 	{
 		return; // All the main menu's are automatically included.  The system will figure out which one at runtime
 	}
@@ -991,7 +992,7 @@ void DesignObj_Generator::HandleGoto(int PK_DesignObj_Goto)
 
 		Row_DesignObj * drDesignObj_new = m_mds->DesignObj_get()->GetRow(PK_DesignObj_Goto);
 		if( !drDesignObj_new )
-			throw "Illegal attempt to goto screen: " + StringUtils::itos(PK_DesignObj_Goto) + " from: " + StringUtils::itos(m_drDesignObj->PK_DesignObj_get()) + " screen: " + StringUtils::itos(m_pOrbiterGenerator->m_iPK_DesignObj_Screen);
+			throw "Illegal attempt to goto screen: " + StringUtils::itos(PK_DesignObj_Goto) + " from: " + StringUtils::itos(m_pRow_DesignObj->PK_DesignObj_get()) + " screen: " + StringUtils::itos(m_pOrbiterGenerator->m_iPK_DesignObj_Screen);
 
 		map<int,string> *htPriorVariables = &m_pOrbiterGenerator->m_mapVariable;
 		m_pOrbiterGenerator->m_mapVariable = htNewVariables;
@@ -1020,14 +1021,14 @@ void DesignObj_Generator::PickVariation(OrbiterGenerator *pGenerator,class Row_D
 		// see if a specific criteria was specified for this skin
 		Row_Device *pDevice = pGenerator->mds.Device_get()->GetRow(pGenerator->m_pRow_Orbiter->PK_Orbiter_get());
 
-		if( !pGenerator->m_pRow_Orbiter->FK_Skin_getrow()->FK_Criteria_D_isNull() )
+		if( !pGenerator->m_pRow_Skin->FK_Criteria_D_isNull() )
 		{
-			if( drOV->FK_Criteria_D_isNull() && pGenerator->m_pRow_Orbiter->FK_Skin_getrow()->MergeStandardVariation_get()==1 )
+			if( drOV->FK_Criteria_D_isNull() && pGenerator->m_pRow_Skin->MergeStandardVariation_get()==1 )
 			{
 				*drStandardVariation = drOV;
 				alDesignObjVariations->push_back(drOV);
 			}
-			else if( drOV->FK_Criteria_D_get() == pGenerator->m_pRow_Orbiter->FK_Skin_getrow()->FK_Criteria_D_get() )
+			else if( drOV->FK_Criteria_D_get() == pGenerator->m_pRow_Skin->FK_Criteria_D_get() )
 			{
 				*drDesignObjVariation = drOV;
 				alDesignObjVariations->push_back(drOV);
@@ -1053,8 +1054,8 @@ void DesignObj_Generator::PickVariation(OrbiterGenerator *pGenerator,class Row_D
 			*drStandardVariation = drOV;
 			alDesignObjVariations->push_back(drOV);
 		}  // criteria: 3=pda, 4=non pda, 5=vga
-		else if( drOV->FK_Criteria_D_isNull() || (pGenerator->m_drSize->PK_Size_get()==1 && drOV->FK_Criteria_D_get()==3) || 
-			(pGenerator->m_drSize->PK_Size_get()!=1 && (drOV->FK_Criteria_D_get()==4 || drOV->FK_Criteria_D_get()==5)) )
+		else if( drOV->FK_Criteria_D_isNull() || (pGenerator->m_pRow_Size->PK_Size_get()==1 && drOV->FK_Criteria_D_get()==3) || 
+			(pGenerator->m_pRow_Size->PK_Size_get()!=1 && (drOV->FK_Criteria_D_get()==4 || drOV->FK_Criteria_D_get()==5)) )
 		{
 			*drDesignObjVariation = drOV;
 			alDesignObjVariations->push_back(drOV);
@@ -1109,12 +1110,12 @@ TextStyle *DesignObj_Generator::PickStyleVariation(vector<Row_StyleVariation *> 
 	for(size_t s=0;s<vectrsv.size();++s)
 	{
 		Row_StyleVariation * drStyleVariation = vectrsv[s];
-		if( !drStyleVariation->FK_Skin_isNull() && drStyleVariation->FK_Skin_get()!=pGenerator->m_pRow_Orbiter->FK_Skin_get() )
+		if( !drStyleVariation->FK_Skin_isNull() && drStyleVariation->FK_Skin_get()!=pGenerator->m_pRow_Skin->PK_Skin_get() )
 			continue;
 
 		if( !drStyleVariation->FK_Criteria_D_isNull() && (
-			(drStyleVariation->FK_Criteria_D_get()==3 && pGenerator->m_drSize->PK_Size_get()!=1) ||
-			(drStyleVariation->FK_Criteria_D_get()!=3 && pGenerator->m_drSize->PK_Size_get()==1) ) )
+			(drStyleVariation->FK_Criteria_D_get()==3 && pGenerator->m_pRow_Size->PK_Size_get()!=1) ||
+			(drStyleVariation->FK_Criteria_D_get()!=3 && pGenerator->m_pRow_Size->PK_Size_get()==1) ) )
 				continue;
 
 		// We don't have a confirmed non-match
@@ -1145,7 +1146,7 @@ TextStyle *DesignObj_Generator::PickStyleVariation(vector<Row_StyleVariation *> 
 	if( !pTextStyle )
 	{
 		pTextStyle = new TextStyle(drCorrectMatch);
-		pTextStyle->m_iPixelHeight = drCorrectMatch->PixelHeight_get() * pGenerator->m_pRow_Orbiter->FK_Size_getrow()->ScaleY_get() / 1000;
+		pTextStyle->m_iPixelHeight = drCorrectMatch->PixelHeight_get() * pGenerator->m_pRow_Size->ScaleY_get() / 1000;
 		pGenerator->m_mapTextStyle[drCorrectMatch->FK_Style_get()]=pTextStyle;
 	}
 	return pTextStyle;
@@ -1176,7 +1177,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 				int PriorSort=-1;
 				vector<class Row_CommandGroup_Room *> vectAGs;
 				string sql = string(COMMANDGROUP_ROOM_FK_ROOM_FIELD) + "=" +
-					StringUtils::itos(m_pOrbiterGenerator->m_drRoom->PK_Room_get()) + " ORDER BY " + COMMANDGROUP_ROOM_SORT_FIELD;
+					StringUtils::itos(m_pOrbiterGenerator->m_pRow_Room->PK_Room_get()) + " ORDER BY " + COMMANDGROUP_ROOM_SORT_FIELD;
 				m_mds->CommandGroup_Room_get()->GetRows(sql,&vectAGs);
 
 				for(size_t s=0;s<vectAGs.size();++s)
@@ -1406,7 +1407,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 
 void DesignObj_Generator::ScaleAllValues(int FactorX,int FactorY,class DesignObj_Generator *pTopmostObject)
 {
-if( this->m_drDesignObj->PK_DesignObj_get()==2634 )
+if( this->m_pRow_DesignObj->PK_DesignObj_get()==2634 )
 {
 int k=2;
 }
@@ -1444,7 +1445,7 @@ int k=2;
 	for(size_t s=0;s<m_alChildDesignObjs.size();++s)
 	{
 		DesignObj_Generator *oc = m_alChildDesignObjs[s];
-		if( oc->m_drDesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Array_CONST )
+		if( oc->m_pRow_DesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Array_CONST )
 			oc->m_bContainsArrays=true;
 
 		oc->ScaleAllValues(FactorX,FactorY,pTopmostObject);
@@ -1481,11 +1482,11 @@ PlutoPoint *DesignObj_Generator::ScaleValue(PlutoPoint *pt,int FactorX,int Facto
 
 string DesignObj_Generator::GetParm(int PK_DesignObjParameter)
 {
-	return GetParm(PK_DesignObjParameter,m_drDesignObjVariation,false);
+	return GetParm(PK_DesignObjParameter,m_pRow_DesignObjVariation,false);
 }
 string DesignObj_Generator::GetParm(int PK_DesignObjParameter,bool bReplaceNulls)
 {
-	return GetParm(PK_DesignObjParameter,m_drDesignObjVariation,bReplaceNulls);
+	return GetParm(PK_DesignObjParameter,m_pRow_DesignObjVariation,bReplaceNulls);
 }
 
 string DesignObj_Generator::GetParm(int PK_DesignObjParameter,Row_DesignObjVariation * drDesignObjVariation)
@@ -1500,10 +1501,10 @@ string DesignObj_Generator::GetParm(int PK_DesignObjParameter,Row_DesignObjVaria
 	{
 		Row_DesignObjVariation_DesignObjParameter * drODP = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(drDesignObjVariation->PK_DesignObjVariation_get(),PK_DesignObjParameter);
 
-		if( drDesignObjVariation->PK_DesignObjVariation_get()!=m_drStandardVariation->PK_DesignObjVariation_get() &&
+		if( drDesignObjVariation->PK_DesignObjVariation_get()!=m_pRow_DesignObjVariation_Standard->PK_DesignObjVariation_get() &&
 			(!drODP || (drODP->Value_isNull() && bReplaceNulls)) )
 		{
-			drODP = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_drStandardVariation->PK_DesignObjVariation_get(),PK_DesignObjParameter);
+			drODP = m_mds->DesignObjVariation_DesignObjParameter_get()->GetRow(m_pRow_DesignObjVariation_Standard->PK_DesignObjVariation_get(),PK_DesignObjParameter);
 		}
 
 		if( !drODP )
@@ -1535,13 +1536,13 @@ string DesignObj_Generator::SubstituteVariables(string Text,bool *bContainsRunTi
 		if( sVariable[0]=='!' )
 			sValue = StringUtils::itos(m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get());
 		else if( sVariable.substr(0,2)=="MM" )
-			sValue = StringUtils::itos(m_pOrbiterGenerator->m_pRow_Orbiter->FK_DesignObj_MainMenu_get());
+			sValue = StringUtils::itos(m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu->PK_DesignObj_get());
 		else if( sVariable.substr(0,2)=="MS" )
 		{
-			if( !m_pOrbiterGenerator->m_pRow_Orbiter->FK_DesignObj_Sleeping_isNull() )
-				sValue = StringUtils::itos(m_pOrbiterGenerator->m_pRow_Orbiter->FK_DesignObj_Sleeping_get());
+			if( m_pOrbiterGenerator->m_pRow_DesignObj_Sleeping )
+				sValue = StringUtils::itos(m_pOrbiterGenerator->m_pRow_DesignObj_Sleeping->PK_DesignObj_get());
 			else
-				sValue = StringUtils::itos(m_pOrbiterGenerator->m_pRow_Orbiter->FK_DesignObj_MainMenu_get());
+				sValue = StringUtils::itos(m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu->PK_DesignObj_get());
 		}
 		else if( sVariable[0]=='U' && sVariable.length()>1 )  // <%=U592%> means user 592.  <%=U%> means current user, and is evaluated at runtime
 		{
@@ -1578,22 +1579,22 @@ string DesignObj_Generator::SubstituteVariables(string Text,bool *bContainsRunTi
 		}
 		else if( sVariable.substr(0,2)=="IM" )
 		{
-			if( m_pOrbiterGenerator->m_drIcon!=NULL )
-				sValue = m_pOrbiterGenerator->m_drIcon->MainFileName_get();
+			if( m_pOrbiterGenerator->m_pRow_Icon!=NULL )
+				sValue = m_pOrbiterGenerator->m_pRow_Icon->MainFileName_get();
 			else
 				sValue = "";
 		}
 		else if( sVariable.substr(0,2)=="IS" )
 		{
-			if( m_pOrbiterGenerator->m_drIcon!=NULL && !m_pOrbiterGenerator->m_drIcon->SelectedFileName_isNull() )
-				sValue = m_pOrbiterGenerator->m_drIcon->SelectedFileName_get();
+			if( m_pOrbiterGenerator->m_pRow_Icon!=NULL && !m_pOrbiterGenerator->m_pRow_Icon->SelectedFileName_isNull() )
+				sValue = m_pOrbiterGenerator->m_pRow_Icon->SelectedFileName_get();
 			else
 				sValue = "";
 		}
 		else if( sVariable.substr(0,2)=="IA" )
 		{
-			if( m_pOrbiterGenerator->m_drIcon!=NULL && !m_pOrbiterGenerator->m_drIcon->AltFileNames_isNull() )
-				sValue = m_pOrbiterGenerator->m_drIcon->AltFileNames_get();
+			if( m_pOrbiterGenerator->m_pRow_Icon!=NULL && !m_pOrbiterGenerator->m_pRow_Icon->AltFileNames_isNull() )
+				sValue = m_pOrbiterGenerator->m_pRow_Icon->AltFileNames_get();
 			else
 				sValue = "";
 		}

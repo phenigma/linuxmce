@@ -19,7 +19,6 @@ using namespace std;
 #include "Table_Version.h"
 
 #include "Table_Installation.h"
-#include "Table_Orbiter.h"
 #include "Table_Package_Version.h"
 #include "Table_Schema.h"
 
@@ -1075,13 +1074,6 @@ void Row_Version::Installation_FK_Version_getrows(vector <class Row_Installation
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Installation *pTable = table->database->Installation_get();
-pTable->GetRows("FK_Version=" + StringUtils::itos(m_PK_Version),rows);
-}
-void Row_Version::Orbiter_FK_Version_getrows(vector <class Row_Orbiter*> *rows)
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-class Table_Orbiter *pTable = table->database->Orbiter_get();
 pTable->GetRows("FK_Version=" + StringUtils::itos(m_PK_Version),rows);
 }
 void Row_Version::Package_Version_FK_Version_getrows(vector <class Row_Package_Version*> *rows)

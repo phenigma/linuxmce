@@ -36,14 +36,10 @@ using namespace std;
 #include "Table_DesignObjVariation_DesignObj.h"
 #include "Table_DesignObjVariation_Zone.h"
 #include "Table_Device.h"
-#include "Table_DeviceCategory_DeviceObj.h"
 #include "Table_DeviceTemplate_DesignObj.h"
 #include "Table_DeviceTemplate_MediaType_DesignObj.h"
 #include "Table_FloorplanObjectType.h"
 #include "Table_MediaType.h"
-#include "Table_Orbiter.h"
-#include "Table_Orbiter.h"
-#include "Table_Orbiter.h"
 
 
 void Database_pluto_main::CreateTable_DesignObj()
@@ -1384,13 +1380,6 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 class Table_Device *pTable = table->database->Device_get();
 pTable->GetRows("FK_DesignObj=" + StringUtils::itos(m_PK_DesignObj),rows);
 }
-void Row_DesignObj::DeviceCategory_DeviceObj_FK_DesignObj_getrows(vector <class Row_DeviceCategory_DeviceObj*> *rows)
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-class Table_DeviceCategory_DeviceObj *pTable = table->database->DeviceCategory_DeviceObj_get();
-pTable->GetRows("FK_DesignObj=" + StringUtils::itos(m_PK_DesignObj),rows);
-}
 void Row_DesignObj::DeviceTemplate_DesignObj_FK_DesignObj_getrows(vector <class Row_DeviceTemplate_DesignObj*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -1418,27 +1407,6 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_MediaType *pTable = table->database->MediaType_get();
 pTable->GetRows("FK_DesignObj=" + StringUtils::itos(m_PK_DesignObj),rows);
-}
-void Row_DesignObj::Orbiter_FK_DesignObj_MainMenu_getrows(vector <class Row_Orbiter*> *rows)
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-class Table_Orbiter *pTable = table->database->Orbiter_get();
-pTable->GetRows("FK_DesignObj_MainMenu=" + StringUtils::itos(m_PK_DesignObj),rows);
-}
-void Row_DesignObj::Orbiter_FK_DesignObj_Sleeping_getrows(vector <class Row_Orbiter*> *rows)
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-class Table_Orbiter *pTable = table->database->Orbiter_get();
-pTable->GetRows("FK_DesignObj_Sleeping=" + StringUtils::itos(m_PK_DesignObj),rows);
-}
-void Row_DesignObj::Orbiter_FK_DesignObj_ScreenSaver_getrows(vector <class Row_Orbiter*> *rows)
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-class Table_Orbiter *pTable = table->database->Orbiter_get();
-pTable->GetRows("FK_DesignObj_ScreenSaver=" + StringUtils::itos(m_PK_DesignObj),rows);
 }
 
 

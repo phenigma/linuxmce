@@ -8,7 +8,7 @@ class ArrayValue
 public:
 	string m_ID;
 	string m_sDescription;
-	class Row_Icon * m_drIcon;
+	class Row_Icon * m_pRow_Icon;
 	int m_iPK_CommandGroup;
 	int m_iPK_Variable;
 	bool m_bCanHide;
@@ -19,7 +19,7 @@ public:
 
 	ArrayValue(string ID,string Description,class Row_Icon * drIcon,int PK_Criteria_Orbiter,int PK_DesignObjID_Substitute,int PK_CommandGroup,int PK_Variable,bool bCanHide,bool bHideByDefault,bool bSamePosition)
 	{ 
-		m_ID=ID; m_sDescription=Description; m_drIcon=drIcon; m_PK_Criteria_Orbiter=PK_Criteria_Orbiter;
+		m_ID=ID; m_sDescription=Description; m_pRow_Icon=drIcon; m_PK_Criteria_Orbiter=PK_Criteria_Orbiter;
 		m_iPK_CommandGroup=PK_CommandGroup; m_iPK_Variable=PK_Variable; m_bCanHide=bCanHide; m_bSamePosition=bSamePosition; m_bHideByDefault=bHideByDefault;
 		m_PK_DesignObjID_Substitute=PK_DesignObjID_Substitute;
 	}

@@ -169,7 +169,6 @@ class Row_StabilityStatus* FK_StabilityStatus_getrow();
 
 		// Return the rows in other tables with foreign keys pointing here
 		void DesignObjVariation_Text_Skin_Language_FK_Skin_getrows(vector <class Row_DesignObjVariation_Text_Skin_Language*> *rows);
-void Orbiter_FK_Skin_getrows(vector <class Row_Orbiter*> *rows);
 void Skin_FK_Skin_TextPlacement_getrows(vector <class Row_Skin*> *rows);
 void StyleVariation_FK_Skin_getrows(vector <class Row_StyleVariation*> *rows);
 

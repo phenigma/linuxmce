@@ -15,8 +15,13 @@ public:
 
 	class Row_Orbiter * m_pRow_Orbiter;
 	class Row_Device * m_pRow_Device;
-	class Row_Room * m_drRoom;
+	class Row_Room * m_pRow_Room;
 	class Row_EntertainArea * m_pRow_EntertainArea;
+	class Row_DesignObj *m_pRow_DesignObj_MainMenu,*m_pRow_DesignObj_Sleeping;
+	class Row_Skin *m_pRow_Skin;
+	class Row_Language *m_pRow_Language;
+	bool m_bNoEffects;
+
 	int m_iLocation;
 	map<int,int> m_htUsedStyleVariation;
 	map<int,int> m_mapUsedOrbiterCriteria;
@@ -31,9 +36,9 @@ public:
 	int m_iPK_CommandGroup; // If this is an array and we are supposed to execute an action group, this will be non-zero.  Arrays are always customer created command groups
 	int m_iFloorplanPage;
 	string m_sDesc_Array;
-	class Row_Icon * m_drIcon;
+	class Row_Icon * m_pRow_Icon;
 	class PlutoSize *m_sizeScreen;
-	class Row_Size * m_drSize;
+	class Row_Size * m_pRow_Size;
 //	string m_sMySQLHost,m_sMySQLUser,m_sMySQLPass,m_sMySQLDBName;
 	string m_sOutputPath,m_sGraphicsBasePath,m_sFontPath;
 //	int m_iMySQLPort;
@@ -60,7 +65,7 @@ public:
 		m_iPK_DesignObj_Screen=0;
 		m_iPK_CommandGroup=0; // If this is an array and we are supposed to execute an action group, this will be non-zero
 		m_iFloorplanPage=0;
-		m_drIcon=NULL;
+		m_pRow_Icon=NULL;
 	}
 	int DoIt();
 

@@ -56,7 +56,6 @@ Table_DesignObjVariation_Zone.cpp \
 Table_Device.cpp \
 Table_DeviceCategory.cpp \
 Table_DeviceCategory_DeviceData.cpp \
-Table_DeviceCategory_DeviceObj.cpp \
 Table_DeviceCategory_Event.cpp \
 Table_DeviceCommandGroup.cpp \
 Table_DeviceCommandGroup_Command.cpp \

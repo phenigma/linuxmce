@@ -169,7 +169,6 @@ void psc_frozen_setNull(bool val);
 
 		// Return the rows in other tables with foreign keys pointing here
 		void Installation_FK_Version_getrows(vector <class Row_Installation*> *rows);
-void Orbiter_FK_Version_getrows(vector <class Row_Orbiter*> *rows);
 void Package_Version_FK_Version_getrows(vector <class Row_Package_Version*> *rows);
 void Schema_FK_Version_getrows(vector <class Row_Schema*> *rows);
 

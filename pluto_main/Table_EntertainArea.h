@@ -144,7 +144,6 @@ void psc_frozen_setNull(bool val);
 		// Return the rows in other tables with foreign keys pointing here
 		void CommandGroup_EntertainArea_FK_EntertainArea_getrows(vector <class Row_CommandGroup_EntertainArea*> *rows);
 void Device_EntertainArea_FK_EntertainArea_getrows(vector <class Row_Device_EntertainArea*> *rows);
-void Orbiter_FK_EntertainArea_getrows(vector <class Row_Orbiter*> *rows);
 
 
 		// Setup binary serialization

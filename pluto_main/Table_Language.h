@@ -143,7 +143,6 @@ void psc_frozen_setNull(bool val);
 		// Return the rows in other tables with foreign keys pointing here
 		void DesignObjVariation_Text_Skin_Language_FK_Language_getrows(vector <class Row_DesignObjVariation_Text_Skin_Language*> *rows);
 void Language_FK_Language_TextPlacement_getrows(vector <class Row_Language*> *rows);
-void Orbiter_FK_Language_getrows(vector <class Row_Orbiter*> *rows);
 void Text_LS_FK_Language_getrows(vector <class Row_Text_LS*> *rows);
 void Text_LS_AltVersions_FK_Language_getrows(vector <class Row_Text_LS_AltVersions*> *rows);
 void Users_FK_Language_getrows(vector <class Row_Users*> *rows);

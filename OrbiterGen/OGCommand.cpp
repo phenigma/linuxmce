@@ -134,7 +134,7 @@ void CGCommand::SharedConstructor(DesignObj_Generator *Parent)
 */
 		}
 		if( m_PK_Device<0 )
-			throw "No Sip Phone associated with controller " + StringUtils::itos(Parent->m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get()) + " as requested in object: " + StringUtils::itos(Parent->m_drDesignObj->PK_DesignObj_get());
+			throw "No Sip Phone associated with controller " + StringUtils::itos(Parent->m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get()) + " as requested in object: " + StringUtils::itos(Parent->m_pRow_DesignObj->PK_DesignObj_get());
 	}
 	else if( m_PK_Device==-17 )	// DEVICEID_VIDEOPHONE
 	{
@@ -152,7 +152,7 @@ void CGCommand::SharedConstructor(DesignObj_Generator *Parent)
 */
 		}
 		if( m_PK_Device<0 )
-			throw "No video phone associated with controller " + StringUtils::itos(Parent->m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get()) + " as requested in object: " + StringUtils::itos(Parent->m_drDesignObj->PK_DesignObj_get());
+			throw "No video phone associated with controller " + StringUtils::itos(Parent->m_pOrbiterGenerator->m_pRow_Orbiter->PK_Orbiter_get()) + " as requested in object: " + StringUtils::itos(Parent->m_pRow_DesignObj->PK_DesignObj_get());
 	}
 }
 

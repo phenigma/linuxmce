@@ -135,8 +135,7 @@ void psc_frozen_setNull(bool val);
 		
 
 		// Return the rows in other tables with foreign keys pointing here
-		void Orbiter_FK_System_getrows(vector <class Row_Orbiter*> *rows);
-
+		
 
 		// Setup binary serialization
 		void SetupSerialization() {

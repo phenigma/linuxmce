@@ -64,7 +64,6 @@ class Table_DesignObjVariation_Zone* tblDesignObjVariation_Zone;
 class Table_Device* tblDevice;
 class Table_DeviceCategory* tblDeviceCategory;
 class Table_DeviceCategory_DeviceData* tblDeviceCategory_DeviceData;
-class Table_DeviceCategory_DeviceObj* tblDeviceCategory_DeviceObj;
 class Table_DeviceCategory_Event* tblDeviceCategory_Event;
 class Table_DeviceCommandGroup* tblDeviceCommandGroup;
 class Table_DeviceCommandGroup_Command* tblDeviceCommandGroup_Command;
@@ -266,7 +265,6 @@ class Table_DesignObjVariation_Zone* DesignObjVariation_Zone_get() { return tblD
 class Table_Device* Device_get() { return tblDevice; }
 class Table_DeviceCategory* DeviceCategory_get() { return tblDeviceCategory; }
 class Table_DeviceCategory_DeviceData* DeviceCategory_DeviceData_get() { return tblDeviceCategory_DeviceData; }
-class Table_DeviceCategory_DeviceObj* DeviceCategory_DeviceObj_get() { return tblDeviceCategory_DeviceObj; }
 class Table_DeviceCategory_Event* DeviceCategory_Event_get() { return tblDeviceCategory_Event; }
 class Table_DeviceCommandGroup* DeviceCommandGroup_get() { return tblDeviceCommandGroup; }
 class Table_DeviceCommandGroup_Command* DeviceCommandGroup_Command_get() { return tblDeviceCommandGroup_Command; }
@@ -471,7 +469,6 @@ void CreateTable_DesignObjVariation_Zone();
 void CreateTable_Device();
 void CreateTable_DeviceCategory();
 void CreateTable_DeviceCategory_DeviceData();
-void CreateTable_DeviceCategory_DeviceObj();
 void CreateTable_DeviceCategory_Event();
 void CreateTable_DeviceCommandGroup();
 void CreateTable_DeviceCommandGroup_Command();
@@ -672,7 +669,6 @@ void DeleteTable_DesignObjVariation_Zone();
 void DeleteTable_Device();
 void DeleteTable_DeviceCategory();
 void DeleteTable_DeviceCategory_DeviceData();
-void DeleteTable_DeviceCategory_DeviceObj();
 void DeleteTable_DeviceCategory_Event();
 void DeleteTable_DeviceCommandGroup();
 void DeleteTable_DeviceCommandGroup_Command();

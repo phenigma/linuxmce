@@ -194,14 +194,10 @@ void DesignObjVariation_DesignObj_FK_DesignObj_Left_getrows(vector <class Row_De
 void DesignObjVariation_DesignObj_FK_DesignObj_Right_getrows(vector <class Row_DesignObjVariation_DesignObj*> *rows);
 void DesignObjVariation_Zone_FK_DesignObj_Goto_getrows(vector <class Row_DesignObjVariation_Zone*> *rows);
 void Device_FK_DesignObj_getrows(vector <class Row_Device*> *rows);
-void DeviceCategory_DeviceObj_FK_DesignObj_getrows(vector <class Row_DeviceCategory_DeviceObj*> *rows);
 void DeviceTemplate_DesignObj_FK_DesignObj_getrows(vector <class Row_DeviceTemplate_DesignObj*> *rows);
 void DeviceTemplate_MediaType_DesignObj_FK_DesignObj_getrows(vector <class Row_DeviceTemplate_MediaType_DesignObj*> *rows);
 void FloorplanObjectType_FK_DesignObj_Control_getrows(vector <class Row_FloorplanObjectType*> *rows);
 void MediaType_FK_DesignObj_getrows(vector <class Row_MediaType*> *rows);
-void Orbiter_FK_DesignObj_MainMenu_getrows(vector <class Row_Orbiter*> *rows);
-void Orbiter_FK_DesignObj_Sleeping_getrows(vector <class Row_Orbiter*> *rows);
-void Orbiter_FK_DesignObj_ScreenSaver_getrows(vector <class Row_Orbiter*> *rows);
 
 
 		// Setup binary serialization

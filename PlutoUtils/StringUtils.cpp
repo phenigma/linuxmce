@@ -444,7 +444,7 @@ string StringUtils::SQLEscape( string sInput )
         {
             case '\'':  sOutput += "\\\'";  break;
             case '\"':  sOutput += "\\\"";  break;
-            case '%':   sOutput += "\\%";   break;
+//            case '%':   sOutput += "\\%";   break;  11/19/2004 Aaron -- This is breaking MySQL which doesn't seem to like escaped %'s in the select/update strings
             case '\\':  sOutput += "\\\\";  break;
             default:    sOutput += *pcPtr;
         }

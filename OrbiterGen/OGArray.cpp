@@ -159,7 +159,7 @@ CGArray::CGArray(class DesignObj_Generator *DesignObj_Generator_Parent,class Row
 
 		m_DesignObj_Generator_Parent->m_pOrbiterGenerator->m_iID_Array=av->m_ID;
 		m_DesignObj_Generator_Parent->m_pOrbiterGenerator->m_sDesc_Array=av->m_sDescription;
-		m_DesignObj_Generator_Parent->m_pOrbiterGenerator->m_drIcon=av->m_drIcon;
+		m_DesignObj_Generator_Parent->m_pOrbiterGenerator->m_pRow_Icon=av->m_pRow_Icon;
 		m_DesignObj_Generator_Parent->m_pOrbiterGenerator->m_iPK_CommandGroup = av->m_iPK_CommandGroup;
 	
 		DesignObj_Generator *ocNextDesignObj;
@@ -210,7 +210,7 @@ CGArray::CGArray(class DesignObj_Generator *DesignObj_Generator_Parent,class Row
 		m_alChildDesignObjs.push_back(ocNextDesignObj);
 
 		m_DesignObj_Generator_Parent->m_pOrbiterGenerator->m_iID_Array="0";
-		m_DesignObj_Generator_Parent->m_pOrbiterGenerator->m_drIcon=NULL;
+		m_DesignObj_Generator_Parent->m_pOrbiterGenerator->m_pRow_Icon=NULL;
 	}
 }
 

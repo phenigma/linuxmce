@@ -155,7 +155,6 @@ void psc_frozen_setNull(bool val);
 void ConfigType_FK_DeviceCategory_getrows(vector <class Row_ConfigType*> *rows);
 void DeviceCategory_FK_DeviceCategory_Parent_getrows(vector <class Row_DeviceCategory*> *rows);
 void DeviceCategory_DeviceData_FK_DeviceCategory_getrows(vector <class Row_DeviceCategory_DeviceData*> *rows);
-void DeviceCategory_DeviceObj_FK_DeviceCategory_getrows(vector <class Row_DeviceCategory_DeviceObj*> *rows);
 void DeviceCategory_Event_FK_DeviceCategory_getrows(vector <class Row_DeviceCategory_Event*> *rows);
 void DeviceCommandGroup_FK_DeviceCategory_getrows(vector <class Row_DeviceCommandGroup*> *rows);
 void DeviceTemplate_FK_DeviceCategory_getrows(vector <class Row_DeviceTemplate*> *rows);

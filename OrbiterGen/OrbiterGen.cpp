@@ -29,6 +29,7 @@
 #include "pluto_main/Table_DesignObjVariation_DesignObjParameter.h"
 #include "pluto_main/Table_Size.h"
 #include "pluto_main/Table_Skin.h"
+#include "pluto_main/Table_Language.h"
 #include "pluto_main/Table_Style.h"
 #include "pluto_main/Table_Variable.h"
 #include "pluto_main/Table_StyleVariation.h"
@@ -148,17 +149,19 @@ int main(int argc, char *argv[])
 	if (bError || GraphicsFiles.length()==0 || FontFiles.length()==0 || OutputFiles.length()==0 || !PK_Orbiter)
 	{
 		cout << "OrbiterGen, v." << ORBITERGEN_VERSION << endl
-			<< "Usage: OrbiterGen -d Orbiter -r [-g graphics files] [-f font files] [-o output path] [-h hostname] [-u username] [-p password] [-D database] [-P mysql port]" << endl
-			<< "orbiter   -- the ID of the orbiter to generate" << endl
-			<< "regen     -- Regenerate all screens--ignore cache" << endl
-			<< "graphics  -- path to find the input (source) graphics files" << endl
-			<< "fonts     -- path to find the font files" << endl
-			<< "output    -- path to put all output files" << endl
-			<< "hostname  -- address or DNS of database host, default is `localhost`" << endl
-			<< "username  -- username for database connection" << endl
-			<< "password  -- password for database connection, default is `` (empty)" << endl
-			<< "database  -- database name" << endl
-			<< "port      -- port for database connection, default is 3306" << endl;
+			<< "Usage: OrbiterGen -d Orbiter -r [-g graphics files] [-f font files]" << endl
+				<< "[-o output path] [-h hostname] [-u username] [-p password] [-D database]" << endl
+				<< "[-P mysql port]" << endl
+			<< "-d orbiter   -- the ID of the orbiter to generate" << endl
+			<< "-r           -- Regenerate all screens--ignore cache" << endl
+			<< "-g graphics  -- path to find the input (source) graphics files" << endl
+			<< "-f fonts     -- path to find the font files" << endl
+			<< "-o output    -- path to put all output files" << endl
+			<< "-h hostname  -- address or DNS of database host, default is `localhost`" << endl
+			<< "-u username  -- username for database connection" << endl
+			<< "-p password  -- password for database connection, default is `` (empty)" << endl
+			<< "-D database  -- database name" << endl
+			<< "-P port      -- port for database connection, default is 3306" << endl;
 		exit(0);
 	}
 
@@ -233,9 +236,7 @@ int OrbiterGenerator::DoIt()
 	m_sOutputPath += "C" + StringUtils::itos(m_iPK_Orbiter) + "/";
 	FileUtils::MakeDir(m_sOutputPath);
 
-	Row_Device *drDevice = mds.Device_get()->GetRow(m_iPK_Orbiter);
-
-	cout << "Building orbiter: " << m_iPK_Orbiter << " installation " << drDevice->FK_Installation_get() << endl;
+	cout << "Building orbiter: " << m_iPK_Orbiter << " installation " << m_pRow_Device->FK_Installation_get() << endl;
 
 #ifdef WIN32
 	system(("mkdir \"" + m_sOutputPath + "\" 2> null").c_str());
@@ -243,12 +244,63 @@ int OrbiterGenerator::DoIt()
 	system(("mkdir -p " + m_sOutputPath + " 2>/dev/null").c_str());
 #endif
 
-	Row_DesignObj *drDesignObj = m_pRow_Orbiter->FK_DesignObj_MainMenu_getrow();
-	if( !drDesignObj )
+	m_pRow_DesignObj_MainMenu = NULL;
+	Row_Device_DeviceData *pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_DesignObj_MainMenu_CONST);
+	if( pRow_Device_DeviceData )
+		m_pRow_DesignObj_MainMenu = mds.DesignObj_get()->GetRow( atoi(pRow_Device_DeviceData->Value_get().c_str()) );
+
+	if( !m_pRow_DesignObj_MainMenu )
+		m_pRow_DesignObj_MainMenu = mds.DesignObj_get()->GetRow(DESIGNOBJ_mnuMain_CONST);
+
+	if( !m_pRow_DesignObj_MainMenu )
 	{
-		cerr << "Cannot find Orbiter's Main Menu: " << m_pRow_Orbiter->FK_DesignObj_MainMenu_get() << endl;
+		cerr << "Cannot find Orbiter's Main Menu: " << endl;
 		exit(1);
 	}
+
+	m_pRow_DesignObj_Sleeping = NULL;
+	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_DesignObj_Sleeping_CONST);
+	if( pRow_Device_DeviceData )
+		m_pRow_DesignObj_Sleeping = mds.DesignObj_get()->GetRow( atoi(pRow_Device_DeviceData->Value_get().c_str()) );
+
+	if( !m_pRow_DesignObj_Sleeping )
+		m_pRow_DesignObj_Sleeping = m_pRow_DesignObj_MainMenu;
+
+	m_pRow_Skin = NULL;
+	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_Skin_CONST);
+	if( pRow_Device_DeviceData )
+		m_pRow_Skin = mds.Skin_get()->GetRow( atoi(pRow_Device_DeviceData->Value_get().c_str()) );
+
+	if( !m_pRow_Skin )
+	{
+		cerr << "Cannot find Orbiter's Skin" << endl;
+		exit(1);
+	}
+
+	// Get the language
+	m_pRow_Language = NULL;
+	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_Language_CONST);
+	if( pRow_Device_DeviceData )
+		m_pRow_Language = mds.Language_get()->GetRow( atoi(pRow_Device_DeviceData->Value_get().c_str()) );
+
+	if( !m_pRow_Language )
+	{
+		cerr << "Cannot find Orbiter's Language" << endl;
+		exit(1);
+	}
+
+	// Get the no effects flag
+	m_pRow_Language = NULL;
+	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_No_Effects_CONST);
+	if( pRow_Device_DeviceData )
+		m_bNoEffects = atoi(pRow_Device_DeviceData->Value_get().c_str())!=1;
+
+	// See if there's a default entertainment area for this orbiter
+	Row_EntertainArea *pRow_EntertainArea_Default = NULL;
+	vector<Row_Device_EntertainArea *> vectRow_Device_EntertainArea;
+	m_pRow_Device->Device_EntertainArea_FK_Device_getrows(&vectRow_Device_EntertainArea);
+	if( vectRow_Device_EntertainArea.size() )
+		pRow_EntertainArea_Default = vectRow_Device_EntertainArea[0]->FK_EntertainArea_getrow();
 
 	vector<Row_Variable *> vectrv;
 	mds.Variable_get()->GetRows("1=1",&vectrv);
@@ -271,7 +323,7 @@ int OrbiterGenerator::DoIt()
 
 	Row_Users *drUsers_Default = NULL;
 
-	Row_Installation_Users *pRow_Installation_Users=mds.Installation_Users_get()->GetRow(drDevice->FK_Installation_get(),atoi(drD_C_DP_DefaultUser->Value_get().c_str()));
+	Row_Installation_Users *pRow_Installation_Users=mds.Installation_Users_get()->GetRow(m_pRow_Device->FK_Installation_get(),atoi(drD_C_DP_DefaultUser->Value_get().c_str()));
 	if( pRow_Installation_Users )
 		drUsers_Default = pRow_Installation_Users->FK_Users_getrow();
 	if( !drUsers_Default)
@@ -281,8 +333,8 @@ int OrbiterGenerator::DoIt()
 
 	m_dwPK_Users = drUsers_Default->PK_Users_get();
 
-	if( drDevice->FK_Room_isNull() )
-		throw "no room for orbiter: " + StringUtils::itos(drDevice->PK_Device_get());
+	if( m_pRow_Device->FK_Room_isNull() )
+		throw "no room for orbiter: " + StringUtils::itos(m_pRow_Device->PK_Device_get());
 
 	//	map<int,listDesignObj_Generator *> htGeneratedScreens;
 	//	map<int,string> htUsedDevices;
@@ -301,9 +353,17 @@ int OrbiterGenerator::DoIt()
 		time_t lModDate_LastGen = StringUtils::SQLDateTime(m_pRow_Orbiter->Modification_LastGen_get());
 		m_bOrbiterChanged = (lModDate!=lModDate_LastGen);
 	}
-	m_drSize = m_pRow_Orbiter->FK_Size_getrow();
-	m_sizeScreen = new PlutoSize(m_pRow_Orbiter->FK_Size_getrow()->Width_get() * 1000 / m_pRow_Orbiter->FK_Size_getrow()->ScaleX_get(),m_pRow_Orbiter->FK_Size_getrow()->Height_get() * 1000 / m_pRow_Orbiter->FK_Size_getrow()->ScaleY_get());
-	m_iPK_DesignObj_Screen = drDesignObj->PK_DesignObj_get();
+
+	m_pRow_Size = NULL;
+	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_Size_CONST);
+	if( pRow_Device_DeviceData )
+		m_pRow_Size = mds.Size_get()->GetRow( atoi(pRow_Device_DeviceData->Value_get().c_str()) );
+
+	if( !m_pRow_Size )
+		throw "Cannot determine the size";
+
+	m_sizeScreen = new PlutoSize(m_pRow_Size->Width_get() * 1000 / m_pRow_Size->ScaleX_get(),m_pRow_Size->Height_get() * 1000 / m_pRow_Size->ScaleY_get());
+	m_iPK_DesignObj_Screen = m_pRow_DesignObj_MainMenu->PK_DesignObj_get();
 
 	int i=0;
 
@@ -470,17 +530,17 @@ int OrbiterGenerator::DoIt()
 	for(itd=m_dequeLocation.begin();itd!=m_dequeLocation.end();++itd)
 	{
 		LocationInfo *li = (*itd);
-		if( (!m_pRow_Orbiter->FK_EntertainArea_isNull() && li->PK_EntertainArea==m_pRow_Orbiter->FK_EntertainArea_get()) ||
-			(m_pRow_Orbiter->FK_EntertainArea_isNull() && li->PK_Room==drDevice->FK_Room_get()) || m_dequeLocation.size()==1 )
+		if( (pRow_EntertainArea_Default && li->PK_EntertainArea==pRow_EntertainArea_Default->PK_EntertainArea_get()) ||
+			(!pRow_EntertainArea_Default && li->PK_Room==m_pRow_Device->FK_Room_get()) || m_dequeLocation.size()==1 )
 		{
-			m_sMainMenu = StringUtils::itos(m_pRow_Orbiter->FK_DesignObj_MainMenu_get()) + "." + StringUtils::itos(li->iLocation) + ".0";
+			m_sMainMenu = StringUtils::itos(m_pRow_DesignObj_MainMenu->PK_DesignObj_get()) + "." + StringUtils::itos(li->iLocation) + ".0";
 			m_iLocation_Initial = li->iLocation;
 		}
 
-		m_drRoom = mds.Room_get()->GetRow(li->PK_Room);
+		m_pRow_Room = mds.Room_get()->GetRow(li->PK_Room);
 		m_pRow_EntertainArea = li->PK_EntertainArea>0 ? mds.EntertainArea_get()->GetRow(li->PK_EntertainArea) : NULL;
 		m_iLocation = li->iLocation;
-		DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,drDesignObj,PlutoRectangle(0,0,0,0),NULL,true,false);
+		DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,m_pRow_DesignObj_MainMenu,PlutoRectangle(0,0,0,0),NULL,true,false);
 
 		map<int,class Row_StyleVariation *> htStylesUsedInOrbiterText;
 	}
@@ -491,7 +551,7 @@ int OrbiterGenerator::DoIt()
 				<< "Using the first entry as the main menu." << endl;
 		
 		LocationInfo *li = m_dequeLocation.front();
-		m_sMainMenu = StringUtils::itos(m_pRow_Orbiter->FK_DesignObj_MainMenu_get()) + "." + StringUtils::itos(li->iLocation) + ".0";
+		m_sMainMenu = StringUtils::itos(m_pRow_DesignObj_MainMenu->PK_DesignObj_get()) + "." + StringUtils::itos(li->iLocation) + ".0";
 		m_iLocation_Initial = li->iLocation;
 	}
 
@@ -501,7 +561,7 @@ int OrbiterGenerator::DoIt()
 	for(itgs=m_htGeneratedScreens.begin();itgs!=m_htGeneratedScreens.end();++itgs)
 	{
 		listDesignObj_Generator *o = (*itgs).second;
-		drDesignObj=NULL;
+		m_pRow_DesignObj_MainMenu=NULL;
 
 		if( o->size()>0 )
 		{
@@ -510,21 +570,21 @@ int OrbiterGenerator::DoIt()
 			{
 				// We're going to have to lookup the Row_DesignObj manually, and we're going to need to search for goto's in all the children
 				// since this was built from cache, and so the children were not created when the object was created
-				drDesignObj = mds.DesignObj_get()->GetRow(atoi(oco->m_ObjectID.c_str()));
+				m_pRow_DesignObj_MainMenu = mds.DesignObj_get()->GetRow(atoi(oco->m_ObjectID.c_str()));
 				SearchForGotos(oco);
 			}
 			else
-				drDesignObj = oco->m_drDesignObj;
+				m_pRow_DesignObj_MainMenu = oco->m_pRow_DesignObj;
 		}
 
-		if( drDesignObj!=NULL)
+		if( m_pRow_DesignObj_MainMenu!=NULL)
 		{
 			vector<Row_DesignObj *> vectros;
-			drDesignObj->DesignObj_FK_DesignObj_IncludeIfOtherIncluded_getrows(&vectros);
+			m_pRow_DesignObj_MainMenu->DesignObj_FK_DesignObj_IncludeIfOtherIncluded_getrows(&vectros);
 			for(size_t s=0;s<vectros.size();++s)
 			{
-				Row_DesignObj *drDesignObjDependancy = vectros[s];
-				alNewDesignObjsToGenerate.push_back(drDesignObjDependancy);
+				Row_DesignObj *m_pRow_DesignObjDependancy = vectros[s];
+				alNewDesignObjsToGenerate.push_back(m_pRow_DesignObjDependancy);
 			}
 		}
 	}
@@ -593,11 +653,11 @@ int OrbiterGenerator::DoIt()
 	list<Row_DesignObj *>::iterator itno;
 	for(itno=alNewDesignObjsToGenerate.begin();itno!=alNewDesignObjsToGenerate.end();++itno)
 	{
-		Row_DesignObj *drDesignObjDependancy = *itno;
-		if( m_htGeneratedScreens.find(drDesignObjDependancy->PK_DesignObj_get())==m_htGeneratedScreens.end() )
+		Row_DesignObj *m_pRow_DesignObjDependancy = *itno;
+		if( m_htGeneratedScreens.find(m_pRow_DesignObjDependancy->PK_DesignObj_get())==m_htGeneratedScreens.end() )
 		{
-			m_iPK_DesignObj_Screen = drDesignObjDependancy->PK_DesignObj_get();
-			DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,drDesignObjDependancy,PlutoRectangle(0,0,0,0),NULL,true,false);
+			m_iPK_DesignObj_Screen = m_pRow_DesignObjDependancy->PK_DesignObj_get();
+			DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,m_pRow_DesignObjDependancy,PlutoRectangle(0,0,0,0),NULL,true,false);
 		}
 	}
 	int NumScreens=0;
@@ -612,7 +672,7 @@ int OrbiterGenerator::DoIt()
 			{
 				// The scaling process will also let us know if we have any arrays within our child objects.  If so
 				// we know we cannot cache this screen.  So we pass in the top-most object throughout
-				oco->ScaleAllValues(m_pRow_Orbiter->FK_Size_getrow()->ScaleX_get(),m_pRow_Orbiter->FK_Size_getrow()->ScaleY_get(),oco);
+				oco->ScaleAllValues(m_pRow_Size->ScaleX_get(),m_pRow_Size->ScaleY_get(),oco);
 			}
 			if( oco->m_alMPArray.size()<=1 )
 				NumScreens++;
@@ -621,8 +681,8 @@ int OrbiterGenerator::DoIt()
 		}
 	}
 
-	m_Width = m_pRow_Orbiter->FK_Size_getrow()->Width_get();
-	m_Height = m_pRow_Orbiter->FK_Size_getrow()->Height_get();
+	m_Width = m_pRow_Size->Width_get();
+	m_Height = m_pRow_Size->Height_get();
 	m_AnimationStyle = 1; // TODO -- is this used anymore? m_pRow_Orbiter->FK_Skin_getrow()->FK_AnimationStyle_get();
 
 
@@ -671,7 +731,7 @@ int OrbiterGenerator::DoIt()
 				cout << "Rendering screen " << oco->m_ObjectID << endl;
 				try
 				{
-					DoRender(m_sFontPath,m_sOutputPath,m_Width,m_Height,m_pRow_Orbiter->FK_Size_getrow()->PreserveAspectRatio_get()==1,oco);
+					DoRender(m_sFontPath,m_sOutputPath,m_Width,m_Height,m_pRow_Size->PreserveAspectRatio_get()==1,oco);
 				}
 				catch(string s)
 				{
@@ -680,21 +740,21 @@ int OrbiterGenerator::DoIt()
 				if( !oco->m_bContainsArrays )
 				{
 					// We can cache this the next time
-					Row_CachedScreens *pdrCachedScreen = mds.CachedScreens_get()->GetRow(m_pRow_Orbiter->PK_Orbiter_get(),oco->m_drDesignObj->PK_DesignObj_get(),oco->m_iVersion);
+					Row_CachedScreens *pdrCachedScreen = mds.CachedScreens_get()->GetRow(m_pRow_Orbiter->PK_Orbiter_get(),oco->m_pRow_DesignObj->PK_DesignObj_get(),oco->m_iVersion);
 					if( !pdrCachedScreen )
 					{
 						pdrCachedScreen = mds.CachedScreens_get()->AddRow();
 						pdrCachedScreen->FK_Orbiter_set(m_pRow_Orbiter->PK_Orbiter_get());
-						pdrCachedScreen->FK_DesignObj_set(oco->m_drDesignObj->PK_DesignObj_get());
+						pdrCachedScreen->FK_DesignObj_set(oco->m_pRow_DesignObj->PK_DesignObj_get());
 						pdrCachedScreen->Version_set(oco->m_iVersion);
 
 					}
 					string Filename = m_sOutputPath + "screen " + StringUtils::itos(m_pRow_Orbiter->PK_Orbiter_get()) + "." + 
-						StringUtils::itos(oco->m_drDesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(oco->m_iVersion) + "." + 
-						StringUtils::itos((int) StringUtils::SQLDateTime(oco->m_drDesignObj->psc_mod_get())) + ".cache";
+						StringUtils::itos(oco->m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(oco->m_iVersion) + "." + 
+						StringUtils::itos((int) StringUtils::SQLDateTime(oco->m_pRow_DesignObj->psc_mod_get())) + ".cache";
 
 					oco->SerializeWrite(Filename);
-					pdrCachedScreen->Modification_LastGen_set(oco->m_drDesignObj->psc_mod_get());
+					pdrCachedScreen->Modification_LastGen_set(oco->m_pRow_DesignObj->psc_mod_get());
 					mds.CachedScreens_get()->Commit();
 				}
 			}
@@ -747,7 +807,7 @@ int OrbiterGenerator::DoIt()
 		Row_StyleVariation * drStyleVariation = (*itsuic).second;
 		DesignObjStyle *pDesignObjStyle = new DesignObjStyle();
 		pDesignObjStyle->m_iPK_Style = drStyleVariation->FK_Style_get();
-		pDesignObjStyle->m_iPixelHeight = drStyleVariation->PixelHeight_get() * m_pRow_Orbiter->FK_Size_getrow()->Scale_get() / 1000;
+		pDesignObjStyle->m_iPixelHeight = drStyleVariation->PixelHeight_get() * m_pRow_Size->Scale_get() / 1000;
 		pDesignObjStyle->m_iShadowX = drStyleVariation->ShadowX_get();
 		pDesignObjStyle->m_iShadowY = drStyleVariation->ShadowY_get();
 		pDesignObjStyle->m_sFont = drStyleVariation->Font_get();
@@ -814,11 +874,11 @@ void OrbiterGenerator::SearchForGotos(DesignObj_Data *pDesignObj_Data,DesignObjC
 			{
 				if( (*itParm).first == COMMANDPARAMETER_PK_DesignObj_CONST )
 				{
-					Row_DesignObj *p_drDesignObj = mds.DesignObj_get()->GetRow(atoi((*itParm).second.c_str()));
-					if( p_drDesignObj && m_htGeneratedScreens.find(p_drDesignObj->PK_DesignObj_get())==m_htGeneratedScreens.end() )
+					Row_DesignObj *p_m_pRow_DesignObj = mds.DesignObj_get()->GetRow(atoi((*itParm).second.c_str()));
+					if( p_m_pRow_DesignObj && m_htGeneratedScreens.find(p_m_pRow_DesignObj->PK_DesignObj_get())==m_htGeneratedScreens.end() )
 					{
-						m_iPK_DesignObj_Screen = p_drDesignObj->PK_DesignObj_get();
-						DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,p_drDesignObj,PlutoRectangle(0,0,0,0),NULL,true,false);
+						m_iPK_DesignObj_Screen = p_m_pRow_DesignObj->PK_DesignObj_get();
+						DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,p_m_pRow_DesignObj,PlutoRectangle(0,0,0,0),NULL,true,false);
 						SearchForGotos(ocDesignObj);
 					}
 				}
@@ -832,7 +892,7 @@ void OrbiterGenerator::OutputScreen(DesignObj_Generator *ocDesignObj)
 	// Always output the first page, even if there's no other
 	for(size_t i=0;i<ocDesignObj->m_alMPArray.size() || i==0;++i)
 	{
-		string ParentScreen = StringUtils::itos(ocDesignObj->m_drDesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(ocDesignObj->m_iVersion) + "." + StringUtils::itos((int) i);
+		string ParentScreen = StringUtils::itos(ocDesignObj->m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(ocDesignObj->m_iVersion) + "." + StringUtils::itos((int) i);
 		OutputDesignObjs(ocDesignObj,(int) i,false,ParentScreen);
 	}
 }
@@ -846,16 +906,16 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 
 	if( ocDesignObj->m_bChild )
 	{
-		if( ocDesignObj->m_drDesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Floorplan_CONST )
+		if( ocDesignObj->m_pRow_DesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Floorplan_CONST )
 		{
 			size_t FirstDot = ParentScreen.find('.');
 			size_t SecondDot = ParentScreen.find('.',FirstDot+1);
 			string NewParent = ParentScreen.substr(0,SecondDot) + "." + StringUtils::itos(ocDesignObj->m_iFloorplanPage) + ".";
-			ocDesignObj->m_ObjectID = NewParent + StringUtils::itos(ocDesignObj->m_drDesignObjVariation->FK_DesignObj_get()) + "." + StringUtils::itos(Counter++);
+			ocDesignObj->m_ObjectID = NewParent + StringUtils::itos(ocDesignObj->m_pRow_DesignObjVariation->FK_DesignObj_get()) + "." + StringUtils::itos(Counter++);
 		}
 		else
 		{
-			ocDesignObj->m_ObjectID = ParentScreen + "." + StringUtils::itos(ocDesignObj->m_drDesignObjVariation->FK_DesignObj_get()) + "." + StringUtils::itos(Counter++);
+			ocDesignObj->m_ObjectID = ParentScreen + "." + StringUtils::itos(ocDesignObj->m_pRow_DesignObjVariation->FK_DesignObj_get()) + "." + StringUtils::itos(Counter++);
 		}
 	}
 	else
@@ -885,25 +945,25 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 		m_iNumFloorplanItems++;
 	}
 
-	ocDesignObj->m_ObjectType=ocDesignObj->m_drDesignObj->FK_DesignObjType_get();
+	ocDesignObj->m_ObjectType=ocDesignObj->m_pRow_DesignObj->FK_DesignObjType_get();
 	ocDesignObj->m_bCanBeHidden = bIsChild && ocDesignObj->m_bCanBeHidden;
 	//	ocDesignObj->m_bDontMergeBackground =  
 	//		(ocDesignObj->m_bHideByDefault ? "1" : "0") << "|" <<
-	ocDesignObj->m_bDontResetState = ocDesignObj->m_drDesignObjVariation->DontResetSelectedState_get()==1;
-	ocDesignObj->m_bCantGoBack = ocDesignObj->m_drDesignObj->CantGoBack_get()==1;
+	ocDesignObj->m_bDontResetState = ocDesignObj->m_pRow_DesignObjVariation->DontResetSelectedState_get()==1;
+	ocDesignObj->m_bCantGoBack = ocDesignObj->m_pRow_DesignObj->CantGoBack_get()==1;
 
 	//		StringUtils::itos(ocDesignObj->m_bChildrenBeforeText) << "|" << 
 	//StringUtils::itos(ocDesignObj->m_bChildrenBehind) << "|" << 
-	ocDesignObj->m_bProcessActionsAtServer = ocDesignObj->m_drDesignObj->CommandsProcessedAtServer_get()==1;
-	ocDesignObj->m_dwTimeoutSeconds = ocDesignObj->m_drDesignObj->TimeoutSeconds_isNull() ? 0 : ocDesignObj->m_drDesignObj->TimeoutSeconds_get();
-	ocDesignObj->m_Priority=ocDesignObj->m_drDesignObj->Priority_get();
+	ocDesignObj->m_bProcessActionsAtServer = ocDesignObj->m_pRow_DesignObj->CommandsProcessedAtServer_get()==1;
+	ocDesignObj->m_dwTimeoutSeconds = ocDesignObj->m_pRow_DesignObj->TimeoutSeconds_isNull() ? 0 : ocDesignObj->m_pRow_DesignObj->TimeoutSeconds_get();
+	ocDesignObj->m_Priority=ocDesignObj->m_pRow_DesignObj->Priority_get();
 
-	if( !ocDesignObj->m_drDesignObjVariation->FK_Criteria_Orbiter_isNull() )
-		ocDesignObj->m_iPK_Criteria = ocDesignObj->m_drDesignObjVariation->FK_Criteria_Orbiter_get();
+	if( !ocDesignObj->m_pRow_DesignObjVariation->FK_Criteria_Orbiter_isNull() )
+		ocDesignObj->m_iPK_Criteria = ocDesignObj->m_pRow_DesignObjVariation->FK_Criteria_Orbiter_get();
 	else
 		ocDesignObj->m_iPK_Criteria = 0;
 
-	ocDesignObj->m_bAnimate = ocDesignObj->m_drDesignObj->Animate_get()==1;
+	ocDesignObj->m_bAnimate = ocDesignObj->m_pRow_DesignObj->Animate_get()==1;
 	ocDesignObj->m_bTabStop = ocDesignObj->m_bTabStop;
 
 	/*
@@ -933,7 +993,7 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 	int NumParms=0;
 
 	vector<Row_DesignObjVariation_DesignObjParameter *> vectovp;
-	ocDesignObj->m_drDesignObjVariation->DesignObjVariation_DesignObjParameter_FK_DesignObjVariation_getrows(&vectovp);
+	ocDesignObj->m_pRow_DesignObjVariation->DesignObjVariation_DesignObjParameter_FK_DesignObjVariation_getrows(&vectovp);
 	for(size_t s=0;s<vectovp.size();++s)
 	{
 		Row_DesignObjVariation_DesignObjParameter * drOVCP = vectovp[s];
@@ -944,10 +1004,10 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 			NumParms++;
 	}
 
-	if( ocDesignObj->m_drDesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Floorplan_CONST )
+	if( ocDesignObj->m_pRow_DesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Floorplan_CONST )
 		NumParms++;
 
-	if( ocDesignObj->m_drDesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Floorplan_CONST )
+	if( ocDesignObj->m_pRow_DesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Floorplan_CONST )
 	{
 		ocDesignObj->m_mapObjParms[DESIGNOBJPARAMETER_Page_CONST]=ocDesignObj->m_iFloorplanPage;
 	}
@@ -963,7 +1023,7 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 			string Value="";
 			if( drOVCP->Value_isNull() || drOVCP->Value_get()=="" )
 			{
-				Row_DesignObjVariation_DesignObjParameter * drOVCP2 = mds.DesignObjVariation_DesignObjParameter_get()->GetRow(ocDesignObj->m_drStandardVariation->PK_DesignObjVariation_get(),drOVCP->FK_DesignObjParameter_get());
+				Row_DesignObjVariation_DesignObjParameter * drOVCP2 = mds.DesignObjVariation_DesignObjParameter_get()->GetRow(ocDesignObj->m_pRow_DesignObjVariation_Standard->PK_DesignObjVariation_get(),drOVCP->FK_DesignObjParameter_get());
 				if( drOVCP2 )
 					Value = drOVCP2->Value_get();
 			}
@@ -979,7 +1039,7 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 					ocDesignObj->m_mapObjParms[drOVCP->FK_DesignObjParameter_get()]="";
 				else
 				{
-					ocDesignObj->m_mapObjParms[drOVCP->FK_DesignObjParameter_get()]=StringUtils::itos((atoi(Value.c_str()) * ocDesignObj->m_pOrbiterGenerator->m_pRow_Orbiter->FK_Size_getrow()->ScaleX_get() / 1000));
+					ocDesignObj->m_mapObjParms[drOVCP->FK_DesignObjParameter_get()]=StringUtils::itos((atoi(Value.c_str()) * ocDesignObj->m_pOrbiterGenerator->m_pRow_Size->ScaleX_get() / 1000));
 				}
 			}
 			if( drOVCP->FK_DesignObjParameter_get()==DESIGNOBJPARAMETER_Fixed_Row_Height_CONST || 
@@ -990,7 +1050,7 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 					ocDesignObj->m_mapObjParms[drOVCP->FK_DesignObjParameter_get()]="";
 				else
 				{
-					ocDesignObj->m_mapObjParms[drOVCP->FK_DesignObjParameter_get()]=StringUtils::itos((atoi(Value.c_str()) * ocDesignObj->m_pOrbiterGenerator->m_pRow_Orbiter->FK_Size_getrow()->ScaleY_get() / 1000));
+					ocDesignObj->m_mapObjParms[drOVCP->FK_DesignObjParameter_get()]=StringUtils::itos((atoi(Value.c_str()) * ocDesignObj->m_pOrbiterGenerator->m_pRow_Size->ScaleY_get() / 1000));
 				}
 			}
 /*  use plutocolor all the time
@@ -1045,10 +1105,10 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 		}
 	}
 
-	if( !ocDesignObj->m_drDesignObjVariation->FK_Button_isNull() )
-		ocDesignObj->m_iPK_Button = ocDesignObj->m_drDesignObjVariation->FK_Button_get();
-	else if( !ocDesignObj->m_drStandardVariation->FK_Button_isNull() )
-		ocDesignObj->m_iPK_Button = ocDesignObj->m_drStandardVariation->FK_Button_get();
+	if( !ocDesignObj->m_pRow_DesignObjVariation->FK_Button_isNull() )
+		ocDesignObj->m_iPK_Button = ocDesignObj->m_pRow_DesignObjVariation->FK_Button_get();
+	else if( !ocDesignObj->m_pRow_DesignObjVariation_Standard->FK_Button_isNull() )
+		ocDesignObj->m_iPK_Button = ocDesignObj->m_pRow_DesignObjVariation_Standard->FK_Button_get();
 	else
 		ocDesignObj->m_iPK_Button = 0;
 
@@ -1090,7 +1150,7 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 						if( ocDesignObj->m_sDesignObjGoto.length()>0 )  // This must be going to another page in an array
 							Value = ocDesignObj->m_sDesignObjGoto;
 						else if( ocDesignObj->m_DesignObj_GeneratorGoto!=NULL )
-							Value = StringUtils::itos(ocDesignObj->m_DesignObj_GeneratorGoto->m_drDesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(ocDesignObj->m_DesignObj_GeneratorGoto->m_iVersion) + ".0";
+							Value = StringUtils::itos(ocDesignObj->m_DesignObj_GeneratorGoto->m_pRow_DesignObj->PK_DesignObj_get()) + "." + StringUtils::itos(ocDesignObj->m_DesignObj_GeneratorGoto->m_iVersion) + ".0";
 //						else if( (*itParm).second.find("<%=")!=string::npos ) // ?? todo -- this means that screens, like the main menu that got skipped in handle goto were ignored
 						else
 							Value = (*itParm).second;
@@ -1114,19 +1174,19 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 	// The basic action applied to this button
 	/*
 	Row_Command * drCommand=null;
-	if( !ocDesignObj->m_drDesignObjVariation->FK_Command_isNull() || !ocDesignObj->m_drStandardVariation->FK_Command_isNull())
+	if( !ocDesignObj->m_pRow_DesignObjVariation->FK_Command_isNull() || !ocDesignObj->m_pRow_DesignObjVariation_Standard->FK_Command_isNull())
 	{
 	DataRow[] drAPs;
 
-	if( !ocDesignObj->m_drDesignObjVariation->FK_Command_isNull() )
+	if( !ocDesignObj->m_pRow_DesignObjVariation->FK_Command_isNull() )
 	{
-	drCommand = ocDesignObj->m_drDesignObjVariation->FK_Command_getrow();
-	drAPs = ocDesignObj->m_drDesignObjVariation.dr.GetChildRows(MyDataSet.MyRelations.DesignObjVariation_CommandParameter_FK_DesignObjVariation);
+	drCommand = ocDesignObj->m_pRow_DesignObjVariation->FK_Command_getrow();
+	drAPs = ocDesignObj->m_pRow_DesignObjVariation.dr.GetChildRows(MyDataSet.MyRelations.DesignObjVariation_CommandParameter_FK_DesignObjVariation);
 	}
 	else
 	{
-	drCommand = ocDesignObj->m_drDesignObjVariation->FK_Command_getrow();
-	drAPs = ocDesignObj->m_drStandardVariation.dr.GetChildRows(MyDataSet.MyRelations.DesignObjVariation_CommandParameter_FK_DesignObjVariation);
+	drCommand = ocDesignObj->m_pRow_DesignObjVariation->FK_Command_getrow();
+	drAPs = ocDesignObj->m_pRow_DesignObjVariation_Standard.dr.GetChildRows(MyDataSet.MyRelations.DesignObjVariation_CommandParameter_FK_DesignObjVariation);
 	}
 
 	// If this action is handled locally, we won't put it here, we put it in the local actions later
@@ -1157,7 +1217,7 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 	if( ocDesignObj->m_sDesignObjGoto!=null )
 	sDesignObjGoto=ocDesignObj->m_sDesignObjGoto;
 	else if( ocDesignObj->m_DesignObj_GeneratorGoto!=null )
-	sDesignObjGoto = ocDesignObj->m_DesignObj_GeneratorGoto->m_drDesignObj->PK_DesignObj_get() + "." + ocDesignObj->m_DesignObj_GeneratorGoto->m_iVersion + ".0";
+	sDesignObjGoto = ocDesignObj->m_DesignObj_GeneratorGoto->m_pRow_DesignObj->PK_DesignObj_get() + "." + ocDesignObj->m_DesignObj_GeneratorGoto->m_iVersion + ".0";
 
 	// We're pointing to a valid action group, look if there are any variable assign actions in there
 	if( drAG!=null )
@@ -1220,14 +1280,14 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 
 	if( drCommand!=null && drCommand->HandledByOrbiter_get() )
 	{
-	if( !ocDesignObj->m_drDesignObjVariation->FK_Command_isNull() )
+	if( !ocDesignObj->m_pRow_DesignObjVariation->FK_Command_isNull() )
 	{
-	CGCommand oa = new CGCommand(ocDesignObj->m_drDesignObjVariation,ocDesignObj);
+	CGCommand oa = new CGCommand(ocDesignObj->m_pRow_DesignObjVariation,ocDesignObj);
 	alLocalCommands.Add(oa);
 	}
 	else
 	{
-	CGCommand oa = new CGCommand(ocDesignObj->m_drStandardVariation,ocDesignObj);
+	CGCommand oa = new CGCommand(ocDesignObj->m_pRow_DesignObjVariation_Standard,ocDesignObj);
 	alLocalCommands.Add(oa);
 	}
 	}
@@ -1306,30 +1366,30 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 void OrbiterGenerator::OutputText(DesignObj_Generator *ocDesignObj,CGText *p_DesignObjText,bool bPrerender)
 {
 	p_DesignObjText->m_PK_Text = p_DesignObjText->m_pdrText_LS->FK_Text_get();
-	if( !p_DesignObjText->m_pdrDesignObjVariation_Text_Skin_Language->FK_HorizAlignment_isNull() )
+	if( !p_DesignObjText->m_pRow_DesignObjVariation_Text_Skin_Language->FK_HorizAlignment_isNull() )
 	{
 		for(MapTextStyle::iterator it=p_DesignObjText->m_mapTextStyle.begin();it!=p_DesignObjText->m_mapTextStyle.end();++it)
 		{
 			TextStyle *pTextStyle = (*it).second;;
-			pTextStyle->m_iPK_HorizAlignment = p_DesignObjText->m_pdrDesignObjVariation_Text_Skin_Language->FK_HorizAlignment_get();
+			pTextStyle->m_iPK_HorizAlignment = p_DesignObjText->m_pRow_DesignObjVariation_Text_Skin_Language->FK_HorizAlignment_get();
 		}
 	}
 
-	if( !p_DesignObjText->m_pdrDesignObjVariation_Text_Skin_Language->FK_VertAlignment_isNull() )
+	if( !p_DesignObjText->m_pRow_DesignObjVariation_Text_Skin_Language->FK_VertAlignment_isNull() )
 	{
 		for(MapTextStyle::iterator it=p_DesignObjText->m_mapTextStyle.begin();it!=p_DesignObjText->m_mapTextStyle.end();++it)
 		{
 			TextStyle *pTextStyle = (*it).second;;
-			pTextStyle->m_iPK_VertAlignment = p_DesignObjText->m_pdrDesignObjVariation_Text_Skin_Language->FK_VertAlignment_get();
+			pTextStyle->m_iPK_VertAlignment = p_DesignObjText->m_pRow_DesignObjVariation_Text_Skin_Language->FK_VertAlignment_get();
 		}
 	}
 
-//	p_DesignObjText->m_Rotate = p_DesignObjText->m_pdrDesignObjVariation_Text_Skin_Language->Rotate_get();
-//	p_DesignObjText->m_Opacity = p_DesignObjText->m_pdrDesignObjVariation_Text_Skin_Language->Opacity_get();
+//	p_DesignObjText->m_Rotate = p_DesignObjText->m_pRow_DesignObjVariation_Text_Skin_Language->Rotate_get();
+//	p_DesignObjText->m_Opacity = p_DesignObjText->m_pRow_DesignObjVariation_Text_Skin_Language->Opacity_get();
 	// If we force a background color, put it in the default style
-	if( !p_DesignObjText->m_pdrDesignObjVariation_Text_Skin_Language->PlainBackgroundColor_isNull() )
+	if( !p_DesignObjText->m_pRow_DesignObjVariation_Text_Skin_Language->PlainBackgroundColor_isNull() )
 	{
-		PlutoColor cBackground(p_DesignObjText->m_pdrDesignObjVariation_Text_Skin_Language->PlainBackgroundColor_get());
+		PlutoColor cBackground(p_DesignObjText->m_pRow_DesignObjVariation_Text_Skin_Language->PlainBackgroundColor_get());
 		TextStyle *pTextStyle = p_DesignObjText->m_mapTextStyle_Find(0);
 		pTextStyle->m_BackColor=cBackground;
 	}

@@ -18,7 +18,6 @@ using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_System.h"
 
-#include "Table_Orbiter.h"
 
 
 void Database_pluto_main::CreateTable_System()
@@ -741,13 +740,6 @@ pRow->m_psc_mod = string(row[6],lengths[6]);
 
 
 
-void Row_System::Orbiter_FK_System_getrows(vector <class Row_Orbiter*> *rows)
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-class Table_Orbiter *pTable = table->database->Orbiter_get();
-pTable->GetRows("FK_System=" + StringUtils::itos(m_PK_System),rows);
-}
 
 
 

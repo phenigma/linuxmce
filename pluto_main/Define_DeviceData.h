@@ -20,7 +20,13 @@
 #define DEVICEDATA_IR_Mode_Delay_CONST 17
 #define DEVICEDATA_InputOrOutput_CONST 18
 #define DEVICEDATA_Default_State_CONST 19
-#define DEVICEDATA_IP_Address_CONST 20
+#define DEVICEDATA_No_Effects_CONST 20
+#define DEVICEDATA_PK_DesignObj_MainMenu_CONST 21
+#define DEVICEDATA_PK_DesignObj_Sleeping_CONST 22
+#define DEVICEDATA_PK_DesignObj_ScreenSaver_CONST 23
+#define DEVICEDATA_PK_Skin_CONST 24
+#define DEVICEDATA_PK_Size_CONST 25
+#define DEVICEDATA_PK_Language_CONST 26
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

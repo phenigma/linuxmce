@@ -21,7 +21,6 @@ using namespace std;
 
 #include "Table_DesignObjVariation_Text_Skin_Language.h"
 #include "Table_Language.h"
-#include "Table_Orbiter.h"
 #include "Table_Text_LS.h"
 #include "Table_Text_LS_AltVersions.h"
 #include "Table_Users.h"
@@ -815,13 +814,6 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Language *pTable = table->database->Language_get();
 pTable->GetRows("FK_Language_TextPlacement=" + StringUtils::itos(m_PK_Language),rows);
-}
-void Row_Language::Orbiter_FK_Language_getrows(vector <class Row_Orbiter*> *rows)
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-class Table_Orbiter *pTable = table->database->Orbiter_get();
-pTable->GetRows("FK_Language=" + StringUtils::itos(m_PK_Language),rows);
 }
 void Row_Language::Text_LS_FK_Language_getrows(vector <class Row_Text_LS*> *rows)
 {

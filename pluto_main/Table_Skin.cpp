@@ -23,7 +23,6 @@ using namespace std;
 #include "Table_StabilityStatus.h"
 
 #include "Table_DesignObjVariation_Text_Skin_Language.h"
-#include "Table_Orbiter.h"
 #include "Table_Skin.h"
 #include "Table_StyleVariation.h"
 
@@ -1101,13 +1100,6 @@ void Row_Skin::DesignObjVariation_Text_Skin_Language_FK_Skin_getrows(vector <cla
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_Text_Skin_Language *pTable = table->database->DesignObjVariation_Text_Skin_Language_get();
-pTable->GetRows("FK_Skin=" + StringUtils::itos(m_PK_Skin),rows);
-}
-void Row_Skin::Orbiter_FK_Skin_getrows(vector <class Row_Orbiter*> *rows)
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-class Table_Orbiter *pTable = table->database->Orbiter_get();
 pTable->GetRows("FK_Skin=" + StringUtils::itos(m_PK_Skin),rows);
 }
 void Row_Skin::Skin_FK_Skin_TextPlacement_getrows(vector <class Row_Skin*> *rows)

@@ -259,9 +259,6 @@
 				RelativePath=".\Table_DeviceCategory_DeviceData.cpp">
 			</File>
 			<File
-				RelativePath=".\Table_DeviceCategory_DeviceObj.cpp">
-			</File>
-			<File
 				RelativePath=".\Table_DeviceCategory_Event.cpp">
 			</File>
 			<File
