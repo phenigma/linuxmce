@@ -83,6 +83,13 @@ public:
 	virtual void CMD_Store_Infrared_Code(int iPK_Device,string sValue_To_Assign,int iPK_Command_Input,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #276 - Add GC100 */
+	/** Add a GC100 Device */
+
+	virtual void CMD_Add_GC100() { string sCMD_Result; CMD_Add_GC100(sCMD_Result,NULL);};
+	virtual void CMD_Add_GC100(string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 	};
 

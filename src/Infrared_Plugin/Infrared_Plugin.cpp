@@ -12,6 +12,10 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#ifndef WIN32
+	#include <unistd.h>
+#endif
+
 #include "DCE/DataGrid.h"
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_Device.h"
@@ -528,3 +532,46 @@ g_pPlutoLogger->Write(LV_STATUS,"it's already in the preferred table for %d",pRo
 	sCMD_Result = "OK";
 }
 //<-dceag-createinst-b->!
+//<-dceag-c276-b->
+
+	/** @brief COMMAND: #276 - Add GC100 */
+	/** Add a GC100 Device */
+
+void Infrared_Plugin::CMD_Add_GC100(string &sCMD_Result,Message *pMessage)
+//<-dceag-c276-e->
+{
+#ifndef WIN32
+  char *Command;
+  int returned;
+
+  Command = "/usr/pluto/bin/gc100-conf.pl";
+
+  pid_t pid = fork();
+  switch (pid)
+  {
+        case 0: //child
+        {
+            g_pPlutoLogger->Write(LV_STATUS, "Waiting two seconds (in the forked process).");
+            sleep(2); // sleep so that the signal doesn't get in until later.
+
+            //now, exec the process
+            g_pPlutoLogger->Write(LV_STATUS, "Spawning");
+
+			returned = system(Command);
+			if ( returned == -1) {
+                g_pPlutoLogger->Write(LV_STATUS, "Failed Spawning configure script");
+			} else if( returned == 0) {
+				g_pPlutoLogger->Write(LV_STATUS, "The configure script returned with success");
+			} else {
+				g_pPlutoLogger->Write(LV_STATUS, "The configure script failed to configure gc100");
+			}
+			break;
+        }
+        case -1:
+            g_pPlutoLogger->Write(LV_CRITICAL, "Error starting %s, err: %s", Command, strerror(errno));
+            break;
+        default:
+			break;
+  }
+#endif
+}
