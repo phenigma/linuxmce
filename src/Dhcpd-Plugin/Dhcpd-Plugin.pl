@@ -52,7 +52,7 @@ while (1 eq 1) {
       $st = $db_handle->prepare($sql);
       $st->execute();
       if($row = $st->fetchrow_hashref()) {
-	  print "allready\n";
+	  $found = 0;
       } else {
           $sql = "select PK_DHCPDevice,FK_DeviceTemplate,ConfigureScript,Package_Source.Name FROM DHCPDevice JOIN DeviceTemplate ON DHCPDevice.FK_DeviceTemplate=DeviceTemplate.PK_DeviceTemplate LEFT JOIN Package ON DeviceTemplate.FK_Package=PK_Package LEFT JOIN Package_Source ON Package_Source.FK_Package=Package.PK_Package WHERE Mac_Range_Low<=$mac_2_nr AND Mac_Range_High>=$mac_2_nr";
 	  $statement = $db_handle->prepare($sql) or die "Couldn't prepare query '$sql': $DBI::errstr\n";
@@ -86,6 +86,7 @@ while (1 eq 1) {
 	        $Device_ID = $tmp;
               }
 	      chomp($Device_ID);
+	      print "/usr/pluto/bin/$configure_script\n";
               system("/usr/pluto/bin/$configure_script -d $Device_ID -i $ip_sent -m $mac_found");
           }
           if($found == 0) {

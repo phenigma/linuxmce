@@ -113,7 +113,6 @@ while($var == 1) {
   }
 }
 close SOCKET;
-                  
-system("curl -d \"update_policy=ask_for_update&setting_server=http%3A%2F%2F$shost%2Fsnom$ext.htm&dns_domain=1control.com&dns_server1=$shost&dns_server2=aaa&http_user=&http_pass=&http_proxy=&http_port=&lcserver1=&lcserver2=&vlan=&SETTINGS=Save\" http://$ip/set_net_adv_en.htm > tmp");
-system("curl http://$ip/set_base_en.htm?reboot=Reboot > tmp");
-system("rm tmp");
+
+system("curl -d \"update_policy=ask_for_update&setting_server=http%3A%2F%2F$shost%2Fsnom$ext.htm&dns_domain=1control.com&dns_server1=$shost&dns_server2=aaa&http_user=&http_pass=&http_proxy=&http_port=&lcserver1=&lcserver2=&vlan=&SETTINGS=Save\" http://$ip/set_net_adv_en.htm > /dev/null");
+system("curl http://$ip/set_base_en.htm?reboot=Reboot > /dev/null");
