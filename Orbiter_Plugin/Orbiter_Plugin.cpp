@@ -694,9 +694,17 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_DeviceTemplate,string sMac_a
 	if( !iPK_DeviceTemplate )
 		iPK_DeviceTemplate = DEVICETEMPLATE_Nokia_36503660_CONST;  // hack - todo fix this
 
+	int iFK_Room = 1; 
+
+	UnknownDeviceInfos *pUnknownDeviceInfos = m_mapUnknownDevices[sMac_address];
+    if( pUnknownDeviceInfos->m_iDeviceIDFrom )
+		iFK_Room = pUnknownDeviceInfos->m_pDeviceFrom->m_pRoom->m_PK_Room;
+
     Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->AddRow();
     pRow_Device->FK_DeviceTemplate_set(iPK_DeviceTemplate);
     pRow_Device->MACaddress_set(sMac_address);
+	pRow_Device->FK_Installation_set(m_pRouter->iPK_Installation_get()); 
+	pRow_Device->FK_Room_set(iFK_Room);
     m_pDatabase_pluto_main->Device_get()->Commit();
 
     g_pPlutoLogger->Write(
@@ -707,7 +715,6 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_DeviceTemplate,string sMac_a
     );
 
     // todo -- need to restart the dce router automatically
-    UnknownDeviceInfos *pUnknownDeviceInfos = m_mapUnknownDevices[sMac_address];
     if( !pUnknownDeviceInfos->m_iDeviceIDFrom )
         g_pPlutoLogger->Write(LV_CRITICAL,"Got New Mobile Orbiter but can't find device!");
     else

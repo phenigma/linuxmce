@@ -126,9 +126,6 @@
 				RelativePath=".\CriteriaNesting.cpp">
 			</File>
 			<File
-				RelativePath=".\DatabaseSchema.cpp">
-			</File>
-			<File
 				RelativePath=".\DCERouter.cpp">
 			</File>
 			<File
