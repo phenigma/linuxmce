@@ -66,7 +66,22 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
 	/* Check for unlimited responses */
 	if (num_rsp <= 0)
 		num_rsp = 255;
-
+/*  this code would be needed if we wanted to support multiple dongles and specify the correct one by mac address
+	dev_id = hci_devid(m_sDongleMacAddress.c_str());
+	if (dev_id < 0) 
+	{
+		dev_id = hci_get_route(NULL);
+		if (dev_id < 0)
+		{
+			printf("Can't get an ID for bluetooth dongle.");
+			return;
+		}
+		else
+		{
+			printf("Bluetooth dongle %s not found, using hci0.", m_sDongleMacAddress.c_str());
+		}
+	}
+*/
 	/* Open the HCI device */
 	dd = hci_open_dev(dev_id);
 	if (dd < 0)
@@ -74,6 +89,25 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
 		//printf("Error opening bluetooth device");
 		g_pPlutoLogger->Write(LV_CRITICAL, "Error opening bluetooth device");
 		Sleep(15000);  // Don't get in a vicous loop, wait 15 seconds
+	}
+
+	m_DevInfo.dev_id = dev_id;
+	if (ioctl(dd, HCIGETDEVINFO, (void*) &m_DevInfo))
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Error opening bluetooth device");
+		hci_close_dev(dd);
+		return;
+	}
+	char addr[18];
+	ba2str(&m_DevInfo.bdaddr, addr);
+	g_pPlutoLogger->Write(LV_STATUS,"Attached to BT adapter: %s\t%s\n", m_DevInfo.name, addr);
+	hci_close_dev(dd);
+  	
+	dd = hci_open_dev(dev_id); // Todo: figure out why I need to keep opening and closing the device
+	if (dd < 0) 
+	{
+		printf("Device open failed");
+		return;
 	}
 
 	//printf("opened device\n");
@@ -167,6 +201,7 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
 					ba2str(&(info+i)->bdaddr, addr);
 
 					PhoneDevice *pDNew = new PhoneDevice("",addr,result.rssi);
+					bacpy(&pDNew->m_bdaddrDongle, &m_DevInfo.bdaddr);
 					g_pPlutoLogger->Write(LV_STATUS, "Device %s responded.", pDNew->m_sMacAddress.c_str());
 					
 					PLUTO_SAFETY_LOCK(mm,m_MapMutex);
@@ -211,6 +246,7 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
 					ba2str(&result.bdaddr, addr);
 
 					PhoneDevice *pDNew = new PhoneDevice("",addr,result.rssi);
+					bacpy(&pDNew->m_bdaddrDongle, &m_DevInfo.bdaddr);
 					PLUTO_SAFETY_LOCK(mm,m_MapMutex);
 					m_mapDevicesDetectedThisScan[pDNew->m_iMacAddress] = pDNew;
 
