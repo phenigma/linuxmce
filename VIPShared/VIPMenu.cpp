@@ -214,7 +214,7 @@ VIPMenuCollection::VIPMenuCollection(long size, const char *data)
 
 bool VIPMenuCollection::ConvertToBinary()
 {
-#ifndef SYMBIAN
+#ifdef VIPDESIGN
 	StartWriting();
 
 	Write_unsigned_short(m_iMenuCollectionID);

@@ -6,6 +6,7 @@
 #ifndef SYMBIAN
 #include "PlutoUtils/CommonIncludes.h"	
 #include "PlutoUtils/MultiThreadIncludes.h"
+#include "SerializeClass/SerializeClass.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -36,7 +37,7 @@ public:
 };
 
 
-class BasketOption
+class BasketOption : public SerializeClass
 {
 public:
 	string m_sID,m_sDescription;
@@ -44,9 +45,12 @@ public:
 
 	BasketOption() {};
 	BasketOption (string ID,string Description,long Qty, long Cost) { m_sID=ID; m_sDescription=Description; m_iQty=Qty; m_iCost=Cost; }
+
+	// We will need to serialize this manually because it needs to work under Symbian, and I don't think Symbian supports the usual overloaded + operator
+	virtual bool Serialize(bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData=NULL);
 };
 
-class BasketItem
+class BasketItem : public SerializeClass
 {
 public:
 	string m_sID,m_sDescription;
@@ -57,12 +61,16 @@ public:
 	BasketItem() {};
 	BasketItem (string ID,string Description,long Qty, long Cost) { m_sID=ID; m_sDescription=Description; m_iQty=Qty; m_iCost=Cost; }
 
-	~BasketItem() {
+	~BasketItem() 
+	{
 		MYSTL_ITERATE_LIST(m_listBasketOptions,BasketOption,pBO,it)
 		{
 			delete pBO;
 		}
 	}
+
+	// We will need to serialize this manually because it needs to work under Symbian, and I don't think Symbian supports the usual overloaded + operator
+	virtual bool Serialize(bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData=NULL);
 };
 
 #ifndef SYMBIAN

@@ -109,7 +109,7 @@ public:
 	// Internal for VIPServer
 #ifdef USE_MYSQL
 	string m_sMysqlHost,m_sMysqlUser,m_sMysqlPass,m_sMysqlDatabase;
-	my_pthread_mutex_t m_MySqlMutex;
+	pluto_pthread_mutex_t m_MySqlMutex;
 	MYSQL m_MySQL;
 	
 	bool MysqlConnect(bool bReset);

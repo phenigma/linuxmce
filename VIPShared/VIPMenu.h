@@ -122,15 +122,15 @@ public:
 #define MENU_VARFORMAT_TEXT			3
 #define MENU_VARFORMAT_NUMERIC_PIN	4
 
-class VIPVariable
+class VIPVariable : public SerializeClass
 {
 public:
 	bool m_bEncryptBeforeSending;
 	// Format means when the variable is evaluated for displaying to the user in 
 	// a text object, format according to this method
 	long m_iVariableID;
-	unsigned short m_iFormat;
-	unsigned char m_iPhoneSetsValue;
+	unsigned long m_iFormat;
+	char m_iPhoneSetsValue;
 	string m_sInitialValue,m_sCurrentValue;
 	string m_sDescription;
 	class VIPMenuCollection *m_pCollection;
@@ -147,6 +147,14 @@ public:
 		m_iPhoneSetsValue=PhoneSetsValue;  m_sInitialValue=sInitialValue;
 		m_sCurrentValue = m_sInitialValue;
 		m_pCollection=NULL;
+	}
+	VIPVariable() {};
+
+	virtual void SetupSerialization()
+	{
+		SerializeClass::SetupSerialization();
+		StartSerializeList() + m_iVariableID + m_iFormat + m_iPhoneSetsValue
+			+ m_sInitialValue + m_sCurrentValue + m_sDescription;
 	}
 };
 
