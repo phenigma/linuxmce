@@ -1753,7 +1753,7 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
     hack -- need this      }
     */
 
-	g_pPlutoLogger->Write(LV_WARNING, "Need to update variable %d of the datagrid with value %d", 
+	g_pPlutoLogger->Write(LV_WARNING, "Need to update variable %d of the datagrid with value %s", 
 		pDesignObj_DataGrid->m_iPK_Variable, NewValue);
 
     PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
