@@ -1,5 +1,5 @@
 <?php
- function get_pluto($output) {
+ function get_pluto($output,$conn) {
 		$out = '';
 		
 $out.='
@@ -54,7 +54,7 @@ $out.='
       <p>If you wish to be contacted by a dealer in your area, you can complete the form below.  We will forward all inquiries to dealers in February.</p>
 ';
 	include('operations/contactForm.php');
-	$out.=contactForm('locator');
+	$out.=contactForm('locator',$conn);
 
 
 	$output->setImgName("support.jpg"); //img that needs to be changed

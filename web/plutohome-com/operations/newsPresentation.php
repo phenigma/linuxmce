@@ -1,5 +1,5 @@
 <?php
- function newsPresentation($output) {
+ function newsPresentation($output,$conn) {
  		
 		
  		$out='<table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable"><td  valign="top" align="center" >
@@ -48,11 +48,11 @@
       </tr>
     </table>
        </tr>
-      </td><td width="100%" class="newstitle"><table width="95%" class="newstable"> <tr>
+      </td><td width="100%" class="insidetable"><table width="95%" class="newstable"> <tr>
     <br><img src="images/submenus/news_txt.gif" width="40" height="13">
-  </tr><br>';
+  </tr>';
       $sql="select * from News where markedDeleted!=1 order by newsDate desc";
-   $r=mysql_query($sql) or die("Can not grab from database" .mysql_error());
+   $r=mysql_query($sql,$conn) or die("Can not grab from database" .mysql_error());
    $nr_news=5;
    $l=0;
    while($row=mysql_fetch_object($r))
@@ -74,8 +74,10 @@
       {
       
        for($i=0;$i<$nr_news;$i++){
-         $out.='<tr><td><a href="index.php?section=full_story&id='.$id[$i].'" class="newstitle">'.$date[$i].' - <b>'.$title[$i].'</a></b><br>'.$str[$i].'...</td></tr><br>';
-           }
+         $out.='
+         	<tr>
+         		<td><a href="index.php?section=full_story&id='.$id[$i].'" class="newstitle">'.$date[$i].' - <b>'.$title[$i].'</a></b><br>'.$str[$i].'...</td></tr><br>';
+       }
            $out.='<tr><td align="center" valign="bottom"> 1 ';
            for($i=2;$i<=$max_page;$i++) $out.='<a href="index.php?section=newsPresentation&page='.$i.'&l='.$l.'"> ' .$i. ' </a>';
            $out.='</td></tr>';

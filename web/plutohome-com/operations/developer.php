@@ -1,5 +1,5 @@
 <?php
- function developer($output) {
+ function developer($output,$conn) {
 		$out = '';
 		
 $out.='
@@ -70,7 +70,7 @@ INNER JOIN License ON FK_License = PK_License
 INNER JOIN ProjectLevel ON FK_ProjectLevel = PK_ProjectLevel
   where FK_ProjectLevel=1
 ORDER BY FK_ProjectLevel, Description";
-$r=mysql_query($sql) or die("Can not grab from database ".mysql_error());
+$r=mysql_query($sql,$conn) or die("Can not grab from database ".mysql_error());
  while($row=mysql_fetch_object($r))
   {
 $out.='<TABLE width=100% border=1 cellPadding=2 
@@ -90,7 +90,7 @@ INNER JOIN License ON FK_License = PK_License
 INNER JOIN ProjectLevel ON FK_ProjectLevel = PK_ProjectLevel
   where FK_ProjectLevel=2
 ORDER BY FK_ProjectLevel, Description";
-$r=mysql_query($sql) or die("Can not grab from database ".mysql_error());
+$r=mysql_query($sql,$conn) or die("Can not grab from database ".mysql_error());
  while($row=mysql_fetch_object($r))
   {
 $out.='<TABLE width=100% border=1 cellPadding=2 
@@ -109,7 +109,7 @@ INNER JOIN License ON FK_License = PK_License
 INNER JOIN ProjectLevel ON FK_ProjectLevel = PK_ProjectLevel
   where FK_ProjectLevel=3
 ORDER BY FK_ProjectLevel, Description";
-$r=mysql_query($sql) or die("Can not grab from database ".mysql_error());
+$r=mysql_query($sql,$conn) or die("Can not grab from database ".mysql_error());
  while($row=mysql_fetch_object($r))
   {
 $out.='<TABLE width=100% border=1 cellPadding=2 
@@ -129,7 +129,7 @@ INNER JOIN License ON FK_License = PK_License
 INNER JOIN ProjectLevel ON FK_ProjectLevel = PK_ProjectLevel
   where FK_ProjectLevel=4
 ORDER BY FK_ProjectLevel, Description";
-$r=mysql_query($sql) or die("Can not grab from database ".mysql_error());
+$r=mysql_query($sql,$conn) or die("Can not grab from database ".mysql_error());
  while($row=mysql_fetch_object($r))
   {
 $out.='<TABLE width=100% border=1 cellPadding=2 

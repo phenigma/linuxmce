@@ -1,5 +1,5 @@
 <?php
- function get_pluto($output) {
+ function get_pluto($output,$conn) {
 		$out = '';
 		
 $out.='
@@ -55,7 +55,7 @@ $out.='
       </p>
  ';
 	include('operations/contactForm.php');
-	$out.=contactForm('get_pluto');	
+	$out.=contactForm('get_pluto',$conn);	
 
 		
 	$output->setImgName("support.jpg"); //img that needs to be changed

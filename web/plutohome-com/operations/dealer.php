@@ -1,5 +1,5 @@
 <?php
- function dealer($output) {
+ function dealer($output,$conn) {
 		$out = '';
 		
 $out.='
@@ -70,7 +70,7 @@ $out.='
      
 ';
 	include('operations/contactForm.php');
-	$out.=contactForm('dealer');
+	$out.=contactForm('dealer',$conn);
 
 	$output->setImgName("support.jpg"); //img that needs to be changed
 	$output->setPageID(5); //butonul selectat

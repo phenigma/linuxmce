@@ -141,7 +141,7 @@ switch ($section) {
 		$output = new Template();
 		$output->setTemplateFileType('home');
 	    include_once('operations/newsPresentation.php');
-	    newsPresentation($output);
+	    newsPresentation($output,$conn);
 	break;
 	case 'samplePage':
 		$output = new Template();
@@ -363,7 +363,7 @@ switch ($section) {
 		$output = new Template();
 		$output->setTemplateFileType('home');
 	    include_once('operations/get_pluto.php');
-	    get_pluto($output);
+	    get_pluto($output,$conn);
     break;
         case 'locator':
 		$output = new Template();
@@ -375,19 +375,19 @@ switch ($section) {
 		$output = new Template();
 		$output->setTemplateFileType('home');
 	    include_once('operations/dealer.php');
-	    dealer($output);
+	    dealer($output,$conn);
     break;
         case 'manufacturer':
 		$output = new Template();
 		$output->setTemplateFileType('home');
 	    include_once('operations/manufacturer.php');
-	    manufacturer($output);
+	    manufacturer($output,$conn);
     break;
         case 'developer':
 		$output = new Template();
 		$output->setTemplateFileType('home');
 	    include_once('operations/developer.php');
-	    developer($output);
+	    developer($output,$conn);
     break;
         case 'privacy_policy':
 		$output = new Template();
@@ -411,13 +411,13 @@ switch ($section) {
 		$output = new Template();
 		$output->setTemplateFileType('home');
 	    include_once('operations/contact.php');
-	    contact($output);
+	    contact($output,$conn);
     break;
     case 'technical_support':
 		$output = new Template();
 		$output->setTemplateFileType('home');
 	    include_once('operations/technical_support.php');
-	    technical_support($output);
+	    technical_support($output,$conn);
        break;
     case 'full_story':
 		$output = new Template();

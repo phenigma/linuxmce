@@ -1,5 +1,5 @@
 <?
-function contact($output)
+function contact($output,$conn)
 {
 $out='';
 $out.='<table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable"><td  valign="top" align="center" >
@@ -64,7 +64,7 @@ $out.='<table width="100%" border="0" cellpadding="0" cellspacing="0" class="mai
 
 ';
 	include('operations/contactForm.php');
-	$out.=contactForm('contact');
+	$out.=contactForm('contact',$conn);
 
 	$output->setScriptCalendar('null');
 	$output->setPageID(6); //butonul selectat

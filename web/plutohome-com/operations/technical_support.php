@@ -1,5 +1,5 @@
 <?
-function technical_support($output)
+function technical_support($output,$conn)
 {
  
 $out='';
@@ -82,7 +82,7 @@ For sales or general inquiries, <a href="index.php?section=contact">click here</
 <br><br>
 ';
 	include('operations/contactForm.php');
-	$out.=contactForm('technical_support');  
+	$out.=contactForm('technical_support',$conn);  
 	
 	$output->setNavigationMenu(array("Sample page"=>"index.php?section=samplePage"));
 	$output->setScriptCalendar('null');

@@ -1,10 +1,10 @@
 <?
-function contactForm($section)
+function contactForm($section,$conn)
 {
 $out='
 <table height="285" class="insidetable">
-  <form action="index.php?section='.$section.'" method="POST">
-  <input type="hidden" name="section" value="contact">
+  <form action="index.php" method="POST">
+  <input type="hidden" name="section" value="'.$section.'">
 	<tr>
 		<td height="22">Name:</td>
 		<td height="22"><input type="text" name="Name" size="25"></td>
@@ -38,7 +38,7 @@ $out='
   <option value="5" selected>(select one)</option>';
         include("include/config/contactdatabase.inc.php");
         $sql1="select PKID_LeadType,Description from LeadType";
-        $r1=mysql_query($sql1);
+        $r1=mysql_query($sql1,$conn);
         while($row=mysql_fetch_object($r1))
           {
   				
@@ -73,7 +73,7 @@ $out='
 	  		INSERT INTO Lead
 	  			(Name,CustomerID,Address1,Address2,City,State,Postal_Code,Country,Phone,Fax,Email,website,FKID_LeadType,Comments)
 	  	 	VALUES('".$_POST['Name']."','".@$_POST['CustomerID']."','".$_POST['Address1']."','".$_POST['Address2']."','".$_POST['City']."','".$_POST['State']."','".$_POST['Postal_Code']."','".$_POST['Country']."','".$_POST['Phone']."','".$_POST['Fax']."','".$_POST['Email']."','".$_POST['Website']."','".$leadType."','".$_POST['Comments']."')";
-		$r=mysql_query($sql) or die("Can not insert into database". mysql_error());
+		$r=mysql_query($sql,$conn) or die("Can not insert into database". mysql_error());
 	  	
 		$message='
 	  		Name: <B>'.$_POST['Name'].'</B><br>
