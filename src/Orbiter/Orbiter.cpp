@@ -5384,9 +5384,9 @@ bool Orbiter::BuildCaptureKeyboardParams( string sPK_DesignObj, int iPK_Variable
     }
     else
     {
-	    m_sCaptureKeyboard_Text += StringUtils::itos( m_pCaptureKeyboard_Text->m_rPosition.X ) + ", ";
-        m_sCaptureKeyboard_Text += StringUtils::itos( m_pCaptureKeyboard_Text->m_rPosition.Y ) + ", ";
-        m_sCaptureKeyboard_Text += StringUtils::itos( m_pCaptureKeyboard_Text->m_rPosition.Width ) + ", ";
+	    m_sCaptureKeyboard_Text += StringUtils::itos( m_pCaptureKeyboard_Text->m_rPosition.X ) + ",";
+        m_sCaptureKeyboard_Text += StringUtils::itos( m_pCaptureKeyboard_Text->m_rPosition.Y ) + ",";
+        m_sCaptureKeyboard_Text += StringUtils::itos( m_pCaptureKeyboard_Text->m_rPosition.Width ) + ",";
         m_sCaptureKeyboard_Text += StringUtils::itos( m_pCaptureKeyboard_Text->m_rPosition.Height );
     }
 
