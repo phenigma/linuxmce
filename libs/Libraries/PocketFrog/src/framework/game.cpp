@@ -39,6 +39,8 @@ Game::Game()
 #else
     m_config.splashScreenTime = 0;     // Disabled on debug builds
 #endif
+
+	m_bUpdating = false;
 }
 
 
@@ -126,11 +128,15 @@ bool Game::Init()
 		}	else {
 			width = 240; height = 320;
 		}
-    
-    
+
     if (m_config.orientation == ORIENTATION_WEST || m_config.orientation == ORIENTATION_EAST)
         std::swap( width, height );
-    
+
+#ifndef WINCE
+	width = 800;
+	height = 600;
+#endif
+
     ResizeClient( width, height );
 #endif
 
@@ -197,12 +203,10 @@ bool Game::Run()
     {
         MSG msg;
 
-        if (::PeekMessage( &msg, m_hWnd, 0, 0, PM_REMOVE ))
+        if (::PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ))
         {
             if (msg.message == WM_QUIT)
                 break;
-
-
 
             ::TranslateMessage( &msg );
             ::DispatchMessage( &msg );

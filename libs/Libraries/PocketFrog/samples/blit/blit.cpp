@@ -38,9 +38,6 @@ CComModule _Module;
 
 BlitSample::BlitSample()
 {
-    m_config.szWindowName     = _T("Blit Sample");
-    m_config.orientation      = ORIENTATION_WEST;
-    //m_config.splashScreenTime = 2000;
 }
 
 
@@ -57,32 +54,47 @@ bool BlitSample::GameInit()
     m_images[1] = LoadImage( display, IDB_BITMAP2 );
     m_images[2] = LoadImage( display, IDB_BITMAP3 );
     m_images[3] = LoadImage( display, IDB_BITMAP4 );
-    //m_background = LoadImage( display, IDR_IMAGE1 );
-    
-	/*
-    for (int i = 0; i < 4; ++i)
-    {
-        // Set color mask
-        m_images[i]->SetColorMask( Color( 255, 0, 255) );
-        
-        // Set initial position
-        m_position[i].Set( 0, 0, m_images[i]->GetWidth(), m_images[i]->GetHeight() );
-        
-        int x = rand() % (display->GetWidth() - m_images[i]->GetWidth());
-        int y = rand() % (display->GetHeight() - m_images[i]->GetHeight());
-        
-        m_position[i].Move( x, y );
-    }
-	*/
-    
+    m_background = LoadImage( display, "/bubu.bmp" );
     
     m_numbers = LoadImage( display, IDB_NUMBERS );
     m_FPSCounter = 0;
 
     m_dragImage = -1;   // Not dragging any image
 
-    return true;
+#ifndef WINCE
+	DEVMODE dmSettings;                          // Device Mode variable - Needed to change modes
+	memset(&dmSettings,0,sizeof(dmSettings));    // Makes Sure Memory's Cleared
 
+	// Get current settings -- This function fills our the settings
+	// This makes sure NT and Win98 machines change correctly
+	if(!EnumDisplaySettings(NULL,ENUM_CURRENT_SETTINGS,&dmSettings))
+	{
+		// Display error message if we couldn't get display settings
+		return false;
+	}
+
+	dmSettings.dmPelsWidth = 800;                        // Set the desired Screen Width
+	dmSettings.dmPelsHeight = 600;                      // Set the desired Screen Height
+	dmSettings.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;    // Set the flags saying we're changing the Screen Width and Height
+
+	// This function actually changes the screen to full screen
+	// CDS_FULLSCREEN Gets Rid Of Start Bar.
+	// We always want to get a result from this function to check if we failed
+	int result = ChangeDisplaySettings(&dmSettings,CDS_FULLSCREEN); 
+	// Check if we didn't recieved a good return message From the function
+	if(result != DISP_CHANGE_SUCCESSFUL)
+	{
+		// Display the error message and quit the program
+		PostQuitMessage(0);
+		return false;
+	}
+
+	ModifyStyle(WS_TILEDWINDOW , 0);
+	SetWindowPos(HWND_TOPMOST, 0, 0, 800, 600, SWP_SHOWWINDOW);
+	SetForegroundWindow(m_hWnd);
+#endif
+
+    return true;
 }
 
 
@@ -95,7 +107,7 @@ void BlitSample::GameEnd()
         delete m_images[i];
     }
     
-    //delete m_background;
+	delete m_background;
     delete m_numbers;
 
 }
@@ -184,48 +196,7 @@ void BlitSample::GameLoop()
 {
 
     DisplayDevice* display = GetDisplay();
-
-	Surface* m_background ;
-		//m_background = LoadImage( display, TEXT("bubu.bmp") );
-	m_background = PocketFrog_LoadOCG(display, "/stone16.ocg");///1255.0.0.ocg
 	display->Blit( rand() % 300, rand() % 300, m_background );
-	delete m_background;
-    
-	/*
-#if defined(FROG_HPC)
-    display->Blit( 320, 0, m_background );
-#endif
-	*/
-    
-	/*
-    for (int i = 0; i < 4; ++i)
-    {
-        Rect& pos = m_position[i];
-        
-        // Display image
-        display->Blit( pos.left, pos.top, m_images[i] );
-        
-        if (i != m_dragImage)
-        {
-            // Move image (horizontal)
-            switch (rand() % 3)
-            {
-            case 0: break;  // Don't move
-            case 1: if (pos.left > 0) pos.Translate( -1, 0 ); break;
-            case 2: if (pos.right < display->GetWidth()) pos.Translate( 1, 0 ); break;
-            }
-            
-            // Move image (vertical)
-            switch (rand() % 3)
-            {
-            case 0: break;  // Don't move
-            case 1: if (pos.top > 0) pos.Translate( 0, -1 ); break;
-            case 2: if (pos.bottom < display->GetHeight()) pos.Translate( 0, 1 ); break;
-            }
-        }
-    }
-	*/
-
     
     // Update FPS
     m_FPSTicks[ m_FPSCounter & 15 ] = PocketPC::GetTickCount();
@@ -247,9 +218,7 @@ void BlitSample::GameLoop()
     }
     ++m_FPSCounter;
 
-    // Update screen
     display->Update();
-
 }
 
 

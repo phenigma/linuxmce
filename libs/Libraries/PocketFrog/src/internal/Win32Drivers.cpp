@@ -103,8 +103,10 @@ void Win32Display::EndScene( const Rect& rect )
 			::StretchBlt( hDestDC, 0, 0, GetWidth() * m_desktopZoom, GetHeight() * m_desktopZoom,
                     hSrcDC,  0, 0, GetWidth(),                 GetHeight(), SRCCOPY );
     } else {
-      ::BitBlt( hDestDC, 0, 0, GetWidth(), GetHeight(),
-                hSrcDC,  0, 0, SRCCOPY );
+//      ::BitBlt( hDestDC, 0, 0, GetWidth(), GetHeight(),
+//                hSrcDC,  0, 0, SRCCOPY );
+		::BitBlt( hDestDC, rect.left, rect.top, rect.GetWidth(), rect.GetHeight(),
+			hSrcDC, rect.left, rect.top, SRCCOPY);
 		}
 
     m_buffer->ReleaseDC( hSrcDC );
