@@ -122,9 +122,9 @@ namespace DCE
     public:
         class MediaPluginInfo *m_pMediaPluginInfo; /** Which handler has primary responsibility for this media stream */
 
-        class OH_Orbiter *m_pOH_Orbiter;    /** Which orbiter started this stream in the first place */
+		class OH_Orbiter *m_pOH_Orbiter;    	   /** Which orbiter started this stream in the first place */
 
-        map<int,class EntertainArea *> m_mapEntertainArea; /** The entertainment areas where this stream is playing */
+        map<int, class EntertainArea *> m_mapEntertainArea; /** The entertainment areas where this stream is playing */
 
         /**
          * As more 'play media' commands come in to this stream, it will add them to the queue so the user can save as a play list.
@@ -133,37 +133,32 @@ namespace DCE
         deque<MediaFile *>  m_dequeMediaFile;        /** The filenames we're playing */
         unsigned int		m_iDequeMediaFile_Pos;   /** The play position in the m_dequeFilename deque. */
         int					m_iPK_Playlist;          /** the ID of the playlist. nonZero if the playlist was loaded from database, zero otherwise. */
-        string				m_sPlaylistName;       /** the name of the playlist which was loaded from the database. */
+        string				m_sPlaylistName;       	 /** the name of the playlist which was loaded from the database. */
 
-		// data related to stream position. I'm not sure we even need it here because we can always ask the device
-		// for it. If a device crashes then we might need to keep the data here.
-        int             	m_iSavedPosition;
-		int					m_iTotalStreamTime;
-		string 				m_sSavedPosition;
+		MediaDevice 	*m_pMediaSourceDevice;      /** The device which is the source of this media stream. */
+		int 			 m_iPK_MediaType;        	/** The type of media in this stream. */
 
-        char *m_pPictureData;
-        size_t m_iPictureSize;
-        MediaDevice *m_pMediaDevice;      /** The source device */
-        int m_iPK_MediaType;        /** The type of media */
-        int m_iPK_DesignObj_Remote; /** What screen to use as the remote control */
-        bool m_bPlaying;        /** True if the media is now playing */
-        int m_iPK_Users;        /** Who started the media */
-        bool m_bFollowMe;       /** True if the media is supposed to follow the above user */
-        int m_iOrder;  /** This is used for the floorplans to order and color code the streams */
+		// TODO: Ask why do i need to put class in front here ?
+		class MediaPosition 	*m_pMediaPosition; 			/** Where we are in the media stream */
+
+		char 		*m_pPictureData;
+        size_t 		 m_iPictureSize;
+
+        int m_iPK_DesignObj_Remote; 		/** What screen to use as the remote control */
+        bool m_bPlaying;        			/** True if the media is now playing */
+        int m_iPK_Users;        			/** Who started the media */
+        bool m_bFollowMe;       			/** True if the media is supposed to follow the above user */
+        int m_iOrder;  						/** This is used for the floorplans to order and color code the streams */
 
         enum SourceType m_eSourceType;  /** Where the media is coming from */
 
         string m_sMediaDescription;     /** Some text the plug-in populates to describe the media.  "The Patriot", "Beatles Anthology" are examples.
-                        For TV or radio this is the channel */
-
+												For TV or radio this is the channel */
         string m_sSectionDescription;   /** Describe where we are in the media, such as a song title, chapter, track, etc.
-                        For TV or radio this is the name of the show */
+                        						For TV or radio this is the name of the show */
+        string m_sMediaSynopsis;    	/** A description of what's playing, such as the tv show description */
+        string m_sTimecode;    			/** The handler may populate this with a timecode */
 
-        string m_sMediaSynopsis;    /** A description of what's playing, such as the tv show description */
-
-        string m_sTimecode;     /** The handler may populate this with a timecode */
-
-        class MediaPosition *m_pMediaPosition; /** Where we are in the media stream */
 
         /** @brief constructor*/
         MediaStream(class MediaPluginInfo *pMediaPluginInfo, MediaDevice *pMediaDevice, int PK_DesignObj_Remote, int PK_Users,enum SourceType sourceType,int iStreamID);

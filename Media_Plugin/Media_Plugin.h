@@ -121,7 +121,15 @@ typedef map<int,class EntertainArea *> MapEntertainArea;
 class MediaPosition
 {
 public:
-    virtual string GetID()=0;
+	/**
+	 * @brief A Media position should be able to be reset.
+	 */
+	virtual void Reset() = 0;
+
+	/**
+	 * @brief A media position should be identified.
+	 */
+	virtual string GetID() = 0;
 };
 
 /** All media plugins must implement this class */
@@ -280,7 +288,7 @@ public:
      */
     virtual void GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD);
 
-    bool StartMedia(MediaPluginInfo *pMediaPluginInfo,int PK_Device_Orbiter,EntertainArea *pEntertainArea,int PK_Device_Source,int PK_DesignObj_Remote,deque<MediaFile *> *dequeMediaFile);
+    bool StartMedia(MediaPluginInfo *pMediaPluginInfo, unsigned int PK_Device_Orbiter,EntertainArea *pEntertainArea,int PK_Device_Source,int PK_DesignObj_Remote,deque<MediaFile *> *dequeMediaFile);
 
     /**
      * @brief More capable StartMedia. Does not need an actual device since it will search for it at the play time.

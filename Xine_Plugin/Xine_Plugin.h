@@ -38,7 +38,7 @@ public:
   // Private member variables
 
 protected:
-        virtual void StartStreaming(class XineMediaStream *m_pMediaStream, string strTargetDevices);
+        virtual bool StartStreaming(class XineMediaStream *m_pMediaStream, string strTargetDevices);
 
   // Private methods
 public:
@@ -86,6 +86,7 @@ public:
 
     bool MenuOnScreen( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo );
 
+	XineMediaStream *ConvertToXineMediaStream(MediaStream *pMediaStream, string callerIdMessage = "");
 //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION
@@ -109,18 +110,44 @@ public:
 class XineMediaStream : public MediaStream
 {
     private:
-        int      m_dwStreamer;
+        map<int, MediaDevice *> m_mapEntertainmentAreasToDevices;
+		bool					m_bIsStreaming;
 
     public:
         class Xine_Plugin *m_pXinePlugin;
 
         XineMediaStream(class Xine_Plugin *pXinePlugin, class MediaPluginInfo *pMediaPluginInfo, MediaDevice *pMediaDevice, int PK_DesignObj_Remote, int PK_Users,enum SourceType sourceType,int iStreamID)
-            : MediaStream(pMediaPluginInfo, pMediaDevice, PK_DesignObj_Remote, PK_Users,sourceType, iStreamID) { m_pXinePlugin = pXinePlugin; m_dwStreamer = 0; }
+            : MediaStream(pMediaPluginInfo, pMediaDevice, PK_DesignObj_Remote, PK_Users,sourceType, iStreamID) { m_pXinePlugin = pXinePlugin; m_bIsStreaming = 0; }
 
+		virtual ~XineMediaStream();
         virtual int GetType() { return MEDIASTREAM_TYPE_XINE; }
 
-        int getStreamerDeviceID();
-        void setStreamerDeviceID(int deviceID);
+		bool ShouldUseStreaming();
+		bool isStreaming();
+		void setIsStreaming(bool isStreaming = true);
+
+		MediaDevice *GetPlaybackDeviceForEntArea(int entAreaId);
+		void SetPlaybackDeviceForEntArea(int entAreaId, MediaDevice *pMediaDevice);
+
+		class XineMediaPosition : public MediaPosition
+		{
+			public:
+				// data related to stream position. I'm not sure we even need it here because we can always ask the device
+				// for it. If a device crashes then we might need to keep the data here.
+        		int             	m_iSavedPosition;
+				int					m_iTotalStreamTime;
+				string 				m_sSavedPosition;
+
+				XineMediaPosition();
+
+				virtual ~XineMediaPosition();
+
+				virtual void Reset();
+
+				virtual string GetID();
+		};
+
+		XineMediaPosition *GetMediaPosition();
 };
 
 //<-dceag-end-b->
