@@ -42,7 +42,7 @@ try_again()
 }
 
 if [ "$Type" == "router" ] && ! dpkg -i /usr/pluto/install/deb-critical/*; then
-	echo "* ERROR * No APT proxy will be available. Chances are the installation will fail"
+	echo "* ERROR * No APT proxy will be available."
 fi
 
 echo "deb file:/usr/pluto/deb-cache/ sarge main" >/etc/apt/sources.list.2
@@ -166,6 +166,7 @@ if [ "$Type" == "diskless" ]; then
 		/^#1:2345:respawn/ { print substr($0, 2); next }
 		{ print }' /etc/inittab >/etc/inittab.new
 	mv -f /etc/inittab.new /etc/inittab
-	init q
+	reboot
+#	init q
 fi
 exit 0
