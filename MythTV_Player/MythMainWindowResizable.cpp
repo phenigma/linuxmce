@@ -30,9 +30,7 @@ MythMainWindowResizable::MythMainWindowResizable(QWidget *parent, const char *na
     : MythMainWindow(parent, name, modal), m_pNuppelVideoPlayer(NULL) //m_pLayout(NULL)
 {
     m_pLayout = new QGridLayout(this, 1, 1, 0, 0, "Layout");
-
 //     new QFrame(this, "tv playback");
-
     g_pPlutoLogger->Write(LV_STATUS, "constructing");
 }
 
