@@ -41,14 +41,8 @@ using namespace DCE;
 #define strcasecmp _stricmp
 #endif
 
-// Items in the 'fast' loop
-//#define MONITOR_DELAY_MS 25 // number of ms to delay each time trough loop - "short" delay
-//#define LEARNING_TIMEOUT (1000/MONITOR_DELAY_MS) * 1 // 1 sec. at 1ms sleep times in main
 const timespec LEARNING_TIMEOUT = {40, 0}; // 40 s
 
-// Figure the poll multiplier so that the slow loop happens every 100ms
-//#define POLL_MULTIPLIER 100/MONITOR_DELAY_MS
-//#define READY_TIMEOUT (1000/MONITOR_DELAY_MS)/POLL_MULTIPLIER * 0.800 // 800 msec. ready timeout
 const timespec READY_TIMEOUT = {0, 800000000}; // 800 ms
 
 #define LEARN_PREFIX "GC-IRL"
@@ -1212,7 +1206,8 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 
 					// TODO: lookup IR plugin once and send message to it directly instead of this
 					DCE::CMD_Store_Infrared_Code_Cat CMD_Store_Infrared_Code_Cat(m_dwPK_Device,
-						DEVICECATEGORY_Infrared_Plugins_CONST, false, BL_SameHouse, pLearningInfo->m_PK_Device, pronto_result);
+						DEVICECATEGORY_Infrared_Plugins_CONST, false, BL_SameHouse,
+						pLearningInfo->m_PK_Device, pronto_result, pLearningInfo->m_PK_Command);
 					m_pCommand_Impl->SendCommand(CMD_Store_Infrared_Code_Cat);
 					m_CodeMap[IntPair(m_IRDeviceID, m_IRCommandID)] = pronto_result;
 					bLearnedCode = true;
