@@ -74,7 +74,7 @@ public:
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Get_Infrared_Codes(int iPK_Device,string *sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Store_Infrared_Code(int iPK_Device,string sValue_To_Assign,int iPK_Command_Input,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Add_GC100(string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Add_GC100(int iPK_Device,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -126,7 +126,8 @@ public:
 				case 276:
 					{
 						string sCMD_Result="OK";
-						CMD_Add_GC100(sCMD_Result,pMessage);
+					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
+						CMD_Add_GC100(iPK_Device,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
