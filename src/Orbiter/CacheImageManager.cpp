@@ -112,11 +112,7 @@ string CacheImageManager::GetCacheImageFileName(string sFileName)
 bool CacheImageManager::ClearCache()
 {
 	if(FileUtils::DirExists(m_sCacheFolder))
-	{
-		//remove directory recurs
-		//::RemoveDirectory(m_sCacheFolder.c_str());
-		//TODO: create a crossplatform function in FileUtils
-	}
+		FileUtils::DelDir(m_sCacheFolder);
 
 	FileUtils::MakeDir(m_sCacheFolder);
 	if(!FileUtils::DirExists(m_sCacheFolder))
@@ -145,9 +141,7 @@ void CacheImageManager::AdjustCacheSize()
 		CacheImageData* pCacheImageData = m_vectCacheInfo.front();
         m_vectCacheInfo.erase(m_vectCacheInfo.begin());
 
-		//TODO: create a crossplatform function in FileUtils
-		//::DeleteFile(GetCacheImageFileName(pCacheImageData->m_sFileName).c_str());
-
+		FileUtils::DelFile(GetCacheImageFileName(pCacheImageData->m_sFileName));
 		if(NULL != pCacheImageData)
 		{
 			delete pCacheImageData;
