@@ -1058,11 +1058,16 @@ cout << "Copying Files\n";
 			pos = cmd2.rfind("/");
 			length = cmd2.length();
 			cmd2 = cmd2.substr(pos+1,length-pos-1);
-			cmd2 = FileUtils::FilenameWithoutPath(*iMyList);
+			if(cmd2 != "") {
+				cmd2 = cmd2 + "/" + FileUtils::FilenameWithoutPath(*iMyList);
+			} else {
+				cmd2 = FileUtils::FilenameWithoutPath(*iMyList);
+			}
 
 			cout << cmd.c_str() << "=" << cmd2.c_str() << endl;
 			if(cmd.compare (cmd2) == 0) {
 				//if the file exist we overwrite it
+				cout << "WE GOT A HIT ------\n";
 				cmd = FileUtils::BasePath(pFileInfo->m_sSource);
 				pos = cmd.rfind("/");
 				length = cmd.length();
