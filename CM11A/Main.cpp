@@ -151,8 +151,9 @@ int main(int argc, char* argv[])
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "Connect() Failed");
 		}
-
+g_pPlutoLogger->Write(LV_STATUS,"about to delete cm11a");
 		delete pCM11A;
+g_pPlutoLogger->Write(LV_STATUS,"deleted cm11a");
 	}
 	catch(string s)
 	{

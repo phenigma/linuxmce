@@ -32,6 +32,7 @@ CM11A::CM11A(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool b
 CM11A::~CM11A()
 //<-dceag-dest-e->
 {
+	g_pPlutoLogger->Write(LV_STATUS,"Destroying CM11A");
 }
 
 //<-dceag-reg-b->

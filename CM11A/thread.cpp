@@ -21,7 +21,9 @@ Thread::Thread()
 
 
 Thread::~Thread() {
+g_pPlutoLogger->Write(LV_STATUS,"Destroying Thread - before Wait");
 	Wait();
+g_pPlutoLogger->Write(LV_STATUS,"Destroying Thread - After Wait");
 }
 
 bool
