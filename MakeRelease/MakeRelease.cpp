@@ -1012,7 +1012,7 @@ string Makefile = "none:\n"
 	f = fopen((Dir + "/Makefile").c_str(), "w");
 	if (!f)
 	{
-		cout << "Error: cannot open Makefile" << endl;
+		cout << "Error: cannot open Makefile:" << Dir << "/Makefile" << endl;
 		return false;
 	}
 	fprintf(f, "%s", Makefile.c_str(), Makefile.length());
@@ -1203,7 +1203,7 @@ bool CreateSource_FTPHTTP(Row_Package_Source *pRow_Package_Source,list<FileInfo 
 
 bool TarFiles(string sArchiveFileName)
 {
-	string SystemCall = "tar -zcvf " + sArchiveFileName + " *";
+	string SystemCall = "tar -zcvf \"" + sArchiveFileName + "\" *";
 	system("ls -lR >> ../dirlist");
 	cout << "Executing: " << SystemCall << endl;
 	if( g_bSimulate )
@@ -1213,7 +1213,7 @@ bool TarFiles(string sArchiveFileName)
 
 bool ZipFiles(string sArchiveFileName)
 {
-	string SystemCall = "zip -r " + sArchiveFileName + " *";
+	string SystemCall = "zip -r \"" + sArchiveFileName + "\" *";
 	system("ls -lR >> ../dirlist");
 	cout << "executing: " << SystemCall << endl;
 	if( g_bSimulate )
