@@ -4249,6 +4249,7 @@ void Orbiter::CMD_Display_OnOff(string sOnOff,string &sCMD_Result,Message *pMess
 void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,string &sCMD_Result,Message *pMessage)
 //<-dceag-c4-e->
 {
+g_pPlutoLogger->Write(LV_STATUS,"Go Back currently: %s  cs: %s",this->m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(),sPK_DesignObj_CurrentScreen.c_str());
 	if( !TestCurrentScreen(sPK_DesignObj_CurrentScreen) )
 		return;
 
@@ -4309,6 +4310,8 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 void Orbiter::CMD_Goto_Screen(int iPK_Device,string sPK_DesignObj,string sID,string sPK_DesignObj_CurrentScreen,bool bStore_Variables,bool bCant_Go_Back,string &sCMD_Result,Message *pMessage)
 //<-dceag-c5-e->
 {
+g_pPlutoLogger->Write(LV_STATUS,"CMD_Goto_Screen: %s",sPK_DesignObj.c_str());
+
 	//hack! if the simulator is running, we won't go to pluto admin screen
 	if(Simulator::GetInstance()->IsRunning() && sPK_DesignObj == "2022.0.0")
 		return;

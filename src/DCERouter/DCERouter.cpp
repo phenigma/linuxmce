@@ -739,6 +739,7 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
                 break;
             case SYSCOMMAND_RELOAD:
 				{
+					system( (string("lsof >> /var/log/pluto/lsof_RELOAD_") + StringUtils::itos((int) time(NULL)) + ".newlog").c_str() );
 					map<int,class Command_Impl *>::iterator it;
 					for(it=m_mapPlugIn.begin();it!=m_mapPlugIn.end();++it)
 					{

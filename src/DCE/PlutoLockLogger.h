@@ -131,6 +131,8 @@ namespace DCE
 					fflush(file);
 					fclose(file);
 				}
+				else
+					system( (string("lsof >> /var/log/pluto/lsof_") + StringUtils::itos((int) time(NULL)) + ".newlog").c_str() );
 				pthread_mutex_lock(&m_pLock->mutex);
 			}
 			else
@@ -159,6 +161,8 @@ namespace DCE
 					fflush(file);
 					fclose(file);
 				}
+				else
+					system( (string("lsof >> /var/log/pluto/lsof_") + StringUtils::itos((int) time(NULL)) + ".newlog").c_str() );
 	#endif
 			}
 			m_pLock->m_Line=m_Line;
@@ -216,6 +220,8 @@ namespace DCE
 					fflush(file);
 					fclose(file);
 				}
+				else
+					system( (string("lsof >> /var/log/pluto/lsof_") + StringUtils::itos((int) time(NULL)) + ".newlog").c_str() );
 	#endif
 				pthread_mutex_unlock(&m_pLock->mutex);
 			}
