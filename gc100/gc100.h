@@ -34,6 +34,8 @@ private:
 
 		// Public member variables
 
+	pthread_t m_MainThread;
+
 	// Begin shared section
 	// These items may be accessed by multiple threads therefore must be locked
 	
@@ -104,6 +106,8 @@ public:
 	virtual void recv_data(string CHANNEL_NAME);
 	virtual void send_data(string TEXT,string CHANNEL_NAME);
 
+	void MainLoop();
+
 	bool Open_gc100_Socket();
 	void MonitorIR();
 	bool send_to_gc100();
@@ -114,8 +118,8 @@ public:
 	void relay_power(class Message *pMessage, bool power_on);
 
 	void Start_seriald();
+
 	virtual void CreateChildren();
-	void MainLoop();
 
 	};
 

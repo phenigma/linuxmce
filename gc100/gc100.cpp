@@ -31,7 +31,7 @@ using namespace DCE;
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
-#include "Gen_Devices/Generic_Input_OuputBase.h"
+#include "pluto_main/Define_DeviceData.h"
 
 #include <fcntl.h>
 
@@ -49,6 +49,14 @@ using namespace DCE;
 
 #define LEARN_PREFIX "GC-IRL"
 #define GC100_COMMAND_PORT 4998
+
+void * StartMainLoop(void * Arg)
+{
+	gc100 * p_gc100 = (gc100 *) Arg;
+	p_gc100->MainLoop();
+
+	return NULL;
+}
 
 // Sleep for the specified no. of ms.
 void sleep_ms(int ms)
@@ -71,7 +79,7 @@ gc100::gc100(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool b
 	//ReplaceParams(replacement);
 	recv_pos=0;
 
-	ready=true;
+	ready = false;
 	ir_cmd_id=1;
 	pending_ir_cmd=0;
 	timeout_count=0;
@@ -80,14 +88,22 @@ gc100::gc100(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool b
 	//learn_device=GetData()->Get_SERIAL_PORT();
 	learn_device="/dev/gcs0"; // DEBUG
 	shared_lock.Init(NULL);
+	
+	if (!Open_gc100_Socket())
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Couldn't open socket connection to GC100");
+	    exit(1);
+	}
+
+	pthread_create(&m_MainThread, NULL, StartMainLoop, (void *) this);
 }
 
 //<-dceag-dest-b->
 gc100::~gc100()
 //<-dceag-dest-e->
 {
-	//delete m_SlinkeBase;
-	//delete m_SerialPort;
+	m_bQuit = true; // should this be using a mutex? :)
+	pthread_join(m_MainThread, NULL);
 }
 
 //<-dceag-reg-b->
@@ -125,88 +141,7 @@ void gc100::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 	sCMD_Result = "UNKNOWN DEVICE";
 }
 
-//<-dceag-sample-b->
-/*		**** SAMPLE ILLUSTRATING HOW TO USE THE BASE CLASSES ****
-
-**** IF YOU DON'T WANT DCEGENERATOR TO KEEP PUTTING THIS AUTO-GENERATED SECTION ****
-**** ADD AN ! AFTER THE BEGINNING OF THE AUTO-GENERATE TAG, LIKE //<=dceag-sample-b->! ****
-Without the !, everything between <=dceag-sometag-b-> and <=dceag-sometag-e->
-will be replaced by DCEGenerator each time it is run with the normal merge selection.
-The above blocks are actually <- not <=.  We don't want a substitution here
-
-void gc100::SomeFunction()
-{
-	// If this is going to be loaded into the router as a plug-in, you can implement: 	virtual bool Register();
-	// to do all your registration, such as creating message interceptors
-
-	// If you use an IDE with auto-complete, after you type DCE:: it should give you a list of all
-	// commands and requests, including the parameters.  See "AllCommandsRequests.h"
-
-	// Examples:
-	
-	// Send a specific the "CMD_Simulate_Mouse_Click" command, which takes an X and Y parameter.  We'll use 55,77 for X and Y.
-	DCE::CMD_Simulate_Mouse_Click CMD_Simulate_Mouse_Click(m_dwPK_Device,OrbiterID,55,77);
-	SendCommand(CMD_Simulate_Mouse_Click);
-
-	// Send the message to orbiters 32898 and 27283 (ie a device list, hence the _DL)
-	// And we want a response, which will be "OK" if the command was successfull
-	string sResponse;
-	DCE::CMD_Simulate_Mouse_Click_DL CMD_Simulate_Mouse_Click_DL(m_dwPK_Device,"32898,27283",55,77)
-	SendCommand(CMD_Simulate_Mouse_Click_DL,&sResponse);
-
-	// Send the message to all orbiters within the house, which is all devices with the category DEVICECATEGORY_Orbiter_CONST (see pluto_main/Define_DeviceCategory.h)
-	// Note the _Cat for category
-	DCE::CMD_Simulate_Mouse_Click_Cat CMD_Simulate_Mouse_Click_Cat(m_dwPK_Device,DEVICECATEGORY_Orbiter_CONST,true,BL_SameHouse,55,77)
-    SendCommand(CMD_Simulate_Mouse_Click_Cat);
-
-	// Send the message to all "DeviceTemplate_Orbiter_CONST" devices within the room (see pluto_main/Define_DeviceTemplate.h)
-	// Note the _DT.
-	DCE::CMD_Simulate_Mouse_Click_DT CMD_Simulate_Mouse_Click_DT(m_dwPK_Device,DeviceTemplate_Orbiter_CONST,true,BL_SameRoom,55,77);
-	SendCommand(CMD_Simulate_Mouse_Click_DT);
-
-	// This command has a normal string parameter, but also an int as an out parameter
-	int iValue;
-	DCE::CMD_Get_Signal_Strength CMD_Get_Signal_Strength(m_dwDeviceID, DestDevice, sMac_address,&iValue);
-	// This send command will wait for the destination device to respond since there is
-	// an out parameter
-	SendCommand(CMD_Get_Signal_Strength);  
-
-	// This time we don't care about the out parameter.  We just want the command to 
-	// get through, and don't want to wait for the round trip.  The out parameter, iValue,
-	// will not get set
-	SendCommandNoResponse(CMD_Get_Signal_Strength);  
-
-	// This command has an out parameter of a data block.  Any parameter that is a binary
-	// data block is a pair of int and char *
-	// We'll also want to see the response, so we'll pass a string for that too
-
-	int iFileSize;
-	char *pFileContents
-	string sResponse;
-	DCE::CMD_Request_File CMD_Request_File(m_dwDeviceID, DestDevice, "filename",&pFileContents,&iFileSize,&sResponse);
-	SendCommand(CMD_Request_File);
-
-	// If the device processed the command (in this case retrieved the file),
-	// sResponse will be "OK", and iFileSize will be the size of the file
-	// and pFileContents will be the file contents.  **NOTE**  We are responsible
-	// free deleting pFileContents.
-
-
-	// To access our data and events below, you can type this-> if your IDE supports auto complete to see all the data and events you can access
-
-	// Get our IP address from our data
-	string sIP = DATA_Get_IP_Address();
-
-	// Set our data "Filename" to "myfile"
-	DATA_Set_Filename("myfile");
-
-	// Fire the "Finished with file" event, which takes no parameters
-	EVENT_Finished_with_file();
-	// Fire the "Touch or click" which takes an X and Y parameter
-	EVENT_Touch_or_click(10,150);
-}
-*/
-//<-dceag-sample-e->
+//<-dceag-sample-b->!
 
 /*
 
@@ -532,6 +467,8 @@ bool gc100::send_to_gc100()
 				string x = strerror(errno);
 				g_pPlutoLogger->Write(LV_CRITICAL, "Short write to GC100: %s\n", strerror(errno));
 			}
+			// allow packet to be sent through the network; gc100 can't distinguish between commands if they go together
+			Sleep(100);
 		}
 		else
 		{
@@ -697,8 +634,8 @@ void gc100::parse_message_statechange(std::string message, bool change)
 	std::string module_address; // probably in 4:3 format
 	int input_state;
 	MapCommand_Impl::iterator child_iter;
-	Generic_Input_Ouput_Command *nomination;
-	Generic_Input_Ouput_Command *result;
+	Command_Impl *nomination = NULL;
+	Command_Impl *result;
 	int global_pin_target;
 	std::map<std::string, class module_info>::iterator map_iter;
 	Command_Impl *pChildDeviceCommand;
@@ -756,14 +693,15 @@ void gc100::parse_message_statechange(std::string message, bool change)
 			std::string this_pin;
 			std::string io_direction;
 
-			Generic_Input_Ouput_Command * child = (Generic_Input_Ouput_Command *) pChildDeviceCommand;
+//			if (pChildDeviceCommand->PK_DeviceTemplate_get() == DEVICETEMPLATE_Generic_Input_Ouput_CONST)
+				Command_Impl * child = pChildDeviceCommand;
 
 			const char * directions[] = {"IN", "OUT", "BOTH"};
 			io_direction = "** UNKNOWN **";
-			int InOrOut = child->DATA_Get_InputOrOutput();
+			int InOrOut = atoi(child->m_pData->m_mapParameters[DEVICEDATA_InputOrOutput_CONST].c_str());
 			if (InOrOut >= 0 && InOrOut <= 2)
-				io_direction = directions[child->DATA_Get_InputOrOutput()];
-			this_pin = child->DATA_Get_Port();
+				io_direction = directions[InOrOut];
+			this_pin = child->m_pData->m_mapParameters[DEVICEDATA_Port_CONST];
 			g_pPlutoLogger->Write(LV_STATUS, "statechange Reply: testing %s", child->m_sName.c_str());
 
 			//g_pPlutoLogger->Write(LV_STATUS, "statechange Reply: found a child pin number of %s, direction is %s",this_pin.c_str(),io_direction.c_str());
@@ -771,7 +709,6 @@ void gc100::parse_message_statechange(std::string message, bool change)
 			if (((target_type == "IR") && (strcasecmp(io_direction.c_str(), "IN") == 0)) ||
 				((target_type == "RELAY") && (strcasecmp(io_direction.c_str(), "OUT") == 0)))
 			{
-
 				// See if it matches exactly
 				if (this_pin == module_address)
 				{
@@ -800,9 +737,11 @@ void gc100::parse_message_statechange(std::string message, bool change)
 
 	if (result!=NULL)
 	{
+		Message *pMessage = new Message(result->m_dwPK_Device, 0, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Pin_Changed_CONST,
+			1, EVENTPARAMETER_OnOff_CONST, StringUtils::itos(input_state).c_str());
+		QueueMessage(pMessage);
+
 		std::string verify_request;
-		result->EVENT_Pin_Changed(input_state);
-//		result->GetEvents()->Pin_Changed(input_state); 
 
 		if (change)
 		{
@@ -1069,13 +1008,14 @@ void gc100::relay_power(class Message *pMessage, bool power_on)
 			std::string io_direction;
 			int this_device_id;
 
-			Generic_Input_Ouput_Command * child = (Generic_Input_Ouput_Command *) pChildDeviceCommand;
+			Command_Impl * child = pChildDeviceCommand;
 
 			const char * directions[] = {"IN", "OUT", "BOTH"};
 			io_direction = "** UNKNOWN **";
-			if (child->DATA_Get_InputOrOutput() >= 1 && child->DATA_Get_InputOrOutput() <= 3)
-				io_direction = directions[child->DATA_Get_InputOrOutput()];
-			this_pin = child->DATA_Get_Port();
+			int InOrOut = atoi(child->m_pData->m_mapParameters[DEVICEDATA_InputOrOutput_CONST].c_str());
+			if (InOrOut >= 0 && InOrOut <= 2)
+				io_direction = directions[InOrOut];
+			this_pin = child->m_pData->m_mapParameters[DEVICEDATA_Port_CONST];
 
 			if (strcasecmp(io_direction.c_str(),"OUT")==0)
 			{
@@ -1432,21 +1372,11 @@ void gc100::MonitorIR()
 	//sleep_ms(25);
 }
 
-void gc100::CreateChildren()
-{
-	Command_Impl::CreateChildren();
-	IRBase::Init(this);
-	if (!Open_gc100_Socket())
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "Couldn't open socket connection to GC100");
-	    exit(1);
-	}
-
-	MainLoop(); // I can't put this in main without getting it overwritten next time devices are regenerated from templates
-}
-
 void gc100::MainLoop()
 {
+	while (! ready) {}
+	IRBase::Init(this);
+
 	std::string device_data;
 	int time_to_poll;
 
@@ -1472,13 +1402,13 @@ void gc100::MainLoop()
 		learning_timeout_count = 0;
 		is_open_for_learning = open_for_learning();
 
-		if (!is_open_for_learning)
+		if (! is_open_for_learning)
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "Couldn't open device for IR learning: %s", learn_device.c_str());
 		}
 	}
 
-	while (!m_bQuit)
+	while (! m_bQuit)
 	{
 		MonitorIR();
 		time_to_poll++;
@@ -1491,4 +1421,10 @@ void gc100::MainLoop()
 		}
 		sleep_ms(MONITOR_DELAY_MS); // Short delay for reading IO
 	}
+}
+
+void gc100::CreateChildren()
+{
+	Command_Impl::CreateChildren();
+	ready = true;
 }

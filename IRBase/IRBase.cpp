@@ -58,7 +58,7 @@ void IRBase::ParseDevices()
 		long DeviceID = (*iChild).first;
 		
 		string codes;
-		m_mapsDevicePort[DeviceID] = (*iChild).second->m_pData->m_mapParameters[DEVICEDATA_Channel_CONST];
+		m_mapsDevicePort[DeviceID] = (*iChild).second->m_pData->m_mapParameters[DEVICEDATA_Port_CONST];
 		DCE::CMD_Get_Infrared_Codes_Cat vCMD_Get_Infrared_Codes_Cat(m_pCommand_Impl->m_dwPK_Device, DEVICECATEGORY_Infrared_Plugins_CONST,
 			false, BL_SameHouse, DeviceID, &codes);
 		m_pCommand_Impl->SendCommand(vCMD_Get_Infrared_Codes_Cat);
@@ -73,7 +73,7 @@ void IRBase::ParseDevices()
 			iPK_Command = atoi(StringUtils::Tokenize(codes, "\t", pos).c_str());
 			code = StringUtils::Tokenize(codes, "\t", pos);
 			m_CodeMap[longPair(DeviceID, iPK_Command)] = code;	
-			g_pPlutoLogger->Write(LV_STATUS, "Loaded IR code for Device %d, Action %d", DeviceID, iPK_Command);
+			g_pPlutoLogger->Write(LV_STATUS, "Loaded IR code for Device %ld, Action %ld", DeviceID, iPK_Command);
 		}
 		m_DevicePreDelays[DeviceID] = DEFAULT_PREDELAY;
 		m_DeviceDefaultDelays[DeviceID] = DEFAULT_POSTDELAY;
