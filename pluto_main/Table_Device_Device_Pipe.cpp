@@ -421,10 +421,10 @@ bool Table_Device_Device_Pipe::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->FK_Device_From_asSQL()+", "+pRow->FK_Device_To_asSQL()+", "+pRow->FK_Pipe_asSQL()+", "+pRow->FK_Command_Input_asSQL()+", "+pRow->FK_Command_Output_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->FK_Device_From_asSQL()+", "+pRow->FK_Device_To_asSQL()+", "+pRow->FK_Pipe_asSQL()+", "+pRow->FK_Command_Input_asSQL()+", "+pRow->FK_Command_Output_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Device_Device_Pipe (FK_Device_From, FK_Device_To, FK_Pipe, FK_Command_Input, FK_Command_Output, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into Device_Device_Pipe (FK_Device_From, FK_Device_To, FK_Pipe, FK_Command_Input, FK_Command_Output, psc_id, psc_batch, psc_user, psc_frozen) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -478,7 +478,7 @@ condition = condition + "FK_Device_From=" + tmp_FK_Device_From+" AND "+"FK_Devic
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_Device_From="+pRow->FK_Device_From_asSQL()+", FK_Device_To="+pRow->FK_Device_To_asSQL()+", FK_Pipe="+pRow->FK_Pipe_asSQL()+", FK_Command_Input="+pRow->FK_Command_Input_asSQL()+", FK_Command_Output="+pRow->FK_Command_Output_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "FK_Device_From="+pRow->FK_Device_From_asSQL()+", FK_Device_To="+pRow->FK_Device_To_asSQL()+", FK_Pipe="+pRow->FK_Pipe_asSQL()+", FK_Command_Input="+pRow->FK_Command_Input_asSQL()+", FK_Command_Output="+pRow->FK_Command_Output_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Device_Device_Pipe set " + update_values_list + " where " + condition;

@@ -442,10 +442,10 @@ bool Table_Package_Source_Compat::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_Source_Compat_asSQL()+", "+pRow->FK_Package_Source_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->MustBuildFromSource_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_Source_Compat_asSQL()+", "+pRow->FK_Package_Source_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->MustBuildFromSource_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Package_Source_Compat (PK_Package_Source_Compat, FK_Package_Source, FK_OperatingSystem, FK_Distro, MustBuildFromSource, Comments, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into Package_Source_Compat (PK_Package_Source_Compat, FK_Package_Source, FK_OperatingSystem, FK_Distro, MustBuildFromSource, Comments, psc_id, psc_batch, psc_user, psc_frozen) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -495,7 +495,7 @@ condition = condition + "PK_Package_Source_Compat=" + tmp_PK_Package_Source_Comp
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Package_Source_Compat="+pRow->PK_Package_Source_Compat_asSQL()+", FK_Package_Source="+pRow->FK_Package_Source_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", FK_Distro="+pRow->FK_Distro_asSQL()+", MustBuildFromSource="+pRow->MustBuildFromSource_asSQL()+", Comments="+pRow->Comments_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_Package_Source_Compat="+pRow->PK_Package_Source_Compat_asSQL()+", FK_Package_Source="+pRow->FK_Package_Source_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", FK_Distro="+pRow->FK_Distro_asSQL()+", MustBuildFromSource="+pRow->MustBuildFromSource_asSQL()+", Comments="+pRow->Comments_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Package_Source_Compat set " + update_values_list + " where " + condition;

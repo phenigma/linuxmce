@@ -701,6 +701,9 @@ string TableInfo_Generator::get_generate_insert_query()
 		
 	for (vector<FieldInfo*>::iterator i=m_Fields.begin(); i!=m_Fields.end(); i++, iIndex++)
 	{
+		if( strcmp((*i)->m_pcFieldName,"psc_mod")==0 )
+			continue;
+
 		if (values_list!="")
 			values_list = values_list + "+\", \"+";
 		
@@ -721,6 +724,9 @@ string TableInfo_Generator::get_generate_update_query()
 		
 	for (vector<FieldInfo*>::iterator i=m_Fields.begin(); i!=m_Fields.end(); i++, iIndex++)
 	{
+		if( strcmp((*i)->m_pcFieldName,"psc_mod")==0 )
+			continue;
+
 		if (values_list!="")
 			values_list = values_list + "+\", " + (*i)->m_pcFieldName + "=\"+";
 		else
@@ -783,6 +789,9 @@ string TableInfo_Generator::get_fields_list_comma_separated()
 	
 	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++ )
 	{
+		if( strcmp((*i)->m_pcFieldName,"psc_mod")==0 )
+			continue;
+
 		if (s != "")
 			s = s + ", ";	
 		s = s + (*i)->m_pcFieldName;

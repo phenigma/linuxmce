@@ -423,10 +423,10 @@ bool Table_DeviceCategory::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_DeviceCategory_asSQL()+", "+pRow->FK_DeviceCategory_Parent_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->IsAV_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_DeviceCategory_asSQL()+", "+pRow->FK_DeviceCategory_Parent_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->IsAV_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into DeviceCategory (PK_DeviceCategory, FK_DeviceCategory_Parent, Description, Define, IsAV, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into DeviceCategory (PK_DeviceCategory, FK_DeviceCategory_Parent, Description, Define, IsAV, psc_id, psc_batch, psc_user, psc_frozen) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -476,7 +476,7 @@ condition = condition + "PK_DeviceCategory=" + tmp_PK_DeviceCategory;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_DeviceCategory="+pRow->PK_DeviceCategory_asSQL()+", FK_DeviceCategory_Parent="+pRow->FK_DeviceCategory_Parent_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", IsAV="+pRow->IsAV_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_DeviceCategory="+pRow->PK_DeviceCategory_asSQL()+", FK_DeviceCategory_Parent="+pRow->FK_DeviceCategory_Parent_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", IsAV="+pRow->IsAV_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update DeviceCategory set " + update_values_list + " where " + condition;

@@ -64,10 +64,6 @@ public:
 	FileInfo(string sSource,string sDestination,Row_Package_Directory *pRow_Package_Directory)
 	{
 		m_sSource=sSource;
-		if( m_sSource.find("*")!=string::npos )
-		{
-int k=2;
-		}
 		m_sDestination=sDestination;
 		m_pRow_Package_Directory=pRow_Package_Directory;
 	}
@@ -260,9 +256,12 @@ int main(int argc, char *argv[])
 	}
 
 	// If the user specified the version on the command line, he probably doesn't want any prompts.  It's an automated build
-	if( iVersion==-1 && (g_bSupressPrompts || !AskYNQuestion("Continue?",false)) )
+	if( iVersion==-1 )
 	{
-		return 1;
+		vector<Row_Version *> vectRow_Version;
+		g_pDatabase_pluto_main->Version_get()->GetRows("1=1 ORDER BY date desc limit 1",&vectRow_Version);
+		Row_Version *pRow_Version = vectRow_Version[0];
+		iVersion = pRow_Version->PK_Version_get();
 	}
 
 	g_pRow_Distro = g_pDatabase_pluto_main->Distro_get()->GetRow(g_iPK_Distro);

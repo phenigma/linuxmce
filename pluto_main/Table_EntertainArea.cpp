@@ -454,10 +454,10 @@ bool Table_EntertainArea::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_EntertainArea_asSQL()+", "+pRow->FK_Room_asSQL()+", "+pRow->Only1Stream_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Private_asSQL()+", "+pRow->FK_FloorplanObjectType_asSQL()+", "+pRow->FloorplanInfo_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_EntertainArea_asSQL()+", "+pRow->FK_Room_asSQL()+", "+pRow->Only1Stream_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Private_asSQL()+", "+pRow->FK_FloorplanObjectType_asSQL()+", "+pRow->FloorplanInfo_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into EntertainArea (PK_EntertainArea, FK_Room, Only1Stream, Description, Private, FK_FloorplanObjectType, FloorplanInfo, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into EntertainArea (PK_EntertainArea, FK_Room, Only1Stream, Description, Private, FK_FloorplanObjectType, FloorplanInfo, psc_id, psc_batch, psc_user, psc_frozen) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -507,7 +507,7 @@ condition = condition + "PK_EntertainArea=" + tmp_PK_EntertainArea;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_EntertainArea="+pRow->PK_EntertainArea_asSQL()+", FK_Room="+pRow->FK_Room_asSQL()+", Only1Stream="+pRow->Only1Stream_asSQL()+", Description="+pRow->Description_asSQL()+", Private="+pRow->Private_asSQL()+", FK_FloorplanObjectType="+pRow->FK_FloorplanObjectType_asSQL()+", FloorplanInfo="+pRow->FloorplanInfo_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_EntertainArea="+pRow->PK_EntertainArea_asSQL()+", FK_Room="+pRow->FK_Room_asSQL()+", Only1Stream="+pRow->Only1Stream_asSQL()+", Description="+pRow->Description_asSQL()+", Private="+pRow->Private_asSQL()+", FK_FloorplanObjectType="+pRow->FK_FloorplanObjectType_asSQL()+", FloorplanInfo="+pRow->FloorplanInfo_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update EntertainArea set " + update_values_list + " where " + condition;

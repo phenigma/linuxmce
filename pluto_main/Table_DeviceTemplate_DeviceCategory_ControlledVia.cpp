@@ -426,10 +426,10 @@ bool Table_DeviceTemplate_DeviceCategory_ControlledVia::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_DeviceTemplate_DeviceCategory_ControlledVia_asSQL()+", "+pRow->FK_DeviceTemplate_asSQL()+", "+pRow->FK_DeviceCategory_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->RerouteMessagesToParent_asSQL()+", "+pRow->AutoCreateChildren_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_DeviceTemplate_DeviceCategory_ControlledVia_asSQL()+", "+pRow->FK_DeviceTemplate_asSQL()+", "+pRow->FK_DeviceCategory_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->RerouteMessagesToParent_asSQL()+", "+pRow->AutoCreateChildren_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into DeviceTemplate_DeviceCategory_ControlledVia (PK_DeviceTemplate_DeviceCategory_ControlledVia, FK_DeviceTemplate, FK_DeviceCategory, Description, RerouteMessagesToParent, AutoCreateChildren, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into DeviceTemplate_DeviceCategory_ControlledVia (PK_DeviceTemplate_DeviceCategory_ControlledVia, FK_DeviceTemplate, FK_DeviceCategory, Description, RerouteMessagesToParent, AutoCreateChildren, psc_id, psc_batch, psc_user, psc_frozen) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -479,7 +479,7 @@ condition = condition + "PK_DeviceTemplate_DeviceCategory_ControlledVia=" + tmp_
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_DeviceTemplate_DeviceCategory_ControlledVia="+pRow->PK_DeviceTemplate_DeviceCategory_ControlledVia_asSQL()+", FK_DeviceTemplate="+pRow->FK_DeviceTemplate_asSQL()+", FK_DeviceCategory="+pRow->FK_DeviceCategory_asSQL()+", Description="+pRow->Description_asSQL()+", RerouteMessagesToParent="+pRow->RerouteMessagesToParent_asSQL()+", AutoCreateChildren="+pRow->AutoCreateChildren_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_DeviceTemplate_DeviceCategory_ControlledVia="+pRow->PK_DeviceTemplate_DeviceCategory_ControlledVia_asSQL()+", FK_DeviceTemplate="+pRow->FK_DeviceTemplate_asSQL()+", FK_DeviceCategory="+pRow->FK_DeviceCategory_asSQL()+", Description="+pRow->Description_asSQL()+", RerouteMessagesToParent="+pRow->RerouteMessagesToParent_asSQL()+", AutoCreateChildren="+pRow->AutoCreateChildren_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update DeviceTemplate_DeviceCategory_ControlledVia set " + update_values_list + " where " + condition;

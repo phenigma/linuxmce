@@ -281,6 +281,14 @@ int OrbiterGenerator::DoIt()
 	if( !m_pRow_DesignObj_Sleeping )
 		m_pRow_DesignObj_Sleeping = m_pRow_DesignObj_MainMenu;
 
+	m_pRow_DesignObj_ScreenSaver = NULL;
+	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_DesignObj_ScreenSaver_CONST);
+	if( pRow_Device_DeviceData )
+		m_pRow_DesignObj_ScreenSaver = mds.DesignObj_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
+
+	if( !m_pRow_DesignObj_ScreenSaver )
+		m_pRow_DesignObj_ScreenSaver = m_pRow_DesignObj_MainMenu;
+
 	m_pRow_Skin = NULL;
 	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_Skin_CONST);
 	if( pRow_Device_DeviceData )
@@ -568,6 +576,8 @@ int OrbiterGenerator::DoIt()
 			(!pRow_EntertainArea_Default && li->PK_Room==m_pRow_Device->FK_Room_get()) || m_dequeLocation.size()==1 )
 		{
 			m_sMainMenu = StringUtils::itos(m_pRow_DesignObj_MainMenu->PK_DesignObj_get()) + "." + StringUtils::itos(li->iLocation) + ".0";
+			m_sSleepingMenu = StringUtils::itos(m_pRow_DesignObj_Sleeping->PK_DesignObj_get()) + "." + StringUtils::itos(li->iLocation) + ".0";
+			m_sScreenSaveMenu = StringUtils::itos(m_pRow_DesignObj_ScreenSaver->PK_DesignObj_get()) + "." + StringUtils::itos(li->iLocation) + ".0";
 			m_iLocation_Initial = li->iLocation;
 		}
 
@@ -575,8 +585,10 @@ int OrbiterGenerator::DoIt()
 		m_pRow_EntertainArea = li->PK_EntertainArea>0 ? mds.EntertainArea_get()->GetRow(li->PK_EntertainArea) : NULL;
 		m_iLocation = li->iLocation;
 		DesignObj_Generator *ocDesignObj = new DesignObj_Generator(this,m_pRow_DesignObj_MainMenu,PlutoRectangle(0,0,0,0),NULL,true,false);
-
-		map<int,class Row_StyleVariation *> htStylesUsedInOrbiterText;
+		if( m_pRow_DesignObj_Sleeping!=m_pRow_DesignObj_MainMenu )
+			DesignObj_Generator *ocDesignObj2 = new DesignObj_Generator(this,m_pRow_DesignObj_Sleeping,PlutoRectangle(0,0,0,0),NULL,true,false);
+		if( m_pRow_DesignObj_ScreenSaver!=m_pRow_DesignObj_MainMenu )
+			DesignObj_Generator *ocDesignObj3 = new DesignObj_Generator(this,m_pRow_DesignObj_ScreenSaver,PlutoRectangle(0,0,0,0),NULL,true,false);
 	}
 
 	if( m_sMainMenu=="" )
@@ -586,6 +598,8 @@ int OrbiterGenerator::DoIt()
 		
 		LocationInfo *li = m_dequeLocation.front();
 		m_sMainMenu = StringUtils::itos(m_pRow_DesignObj_MainMenu->PK_DesignObj_get()) + "." + StringUtils::itos(li->iLocation) + ".0";
+		m_sSleepingMenu = StringUtils::itos(m_pRow_DesignObj_Sleeping->PK_DesignObj_get()) + "." + StringUtils::itos(li->iLocation) + ".0";
+		m_sScreenSaveMenu = StringUtils::itos(m_pRow_DesignObj_ScreenSaver->PK_DesignObj_get()) + "." + StringUtils::itos(li->iLocation) + ".0";
 		m_iLocation_Initial = li->iLocation;
 	}
 

@@ -415,10 +415,10 @@ bool Table_InstallWizard_Distro::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_InstallWizard_Distro_asSQL()+", "+pRow->FK_InstallWizard_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_InstallWizard_Distro_asSQL()+", "+pRow->FK_InstallWizard_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into InstallWizard_Distro (PK_InstallWizard_Distro, FK_InstallWizard, FK_OperatingSystem, FK_Distro, Comments, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into InstallWizard_Distro (PK_InstallWizard_Distro, FK_InstallWizard, FK_OperatingSystem, FK_Distro, Comments, psc_id, psc_batch, psc_user, psc_frozen) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -468,7 +468,7 @@ condition = condition + "PK_InstallWizard_Distro=" + tmp_PK_InstallWizard_Distro
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_InstallWizard_Distro="+pRow->PK_InstallWizard_Distro_asSQL()+", FK_InstallWizard="+pRow->FK_InstallWizard_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", FK_Distro="+pRow->FK_Distro_asSQL()+", Comments="+pRow->Comments_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_InstallWizard_Distro="+pRow->PK_InstallWizard_Distro_asSQL()+", FK_InstallWizard="+pRow->FK_InstallWizard_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", FK_Distro="+pRow->FK_Distro_asSQL()+", Comments="+pRow->Comments_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update InstallWizard_Distro set " + update_values_list + " where " + condition;

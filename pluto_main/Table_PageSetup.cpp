@@ -482,10 +482,10 @@ bool Table_PageSetup::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_PageSetup_asSQL()+", "+pRow->FK_PageSetup_Parent_asSQL()+", "+pRow->Website_asSQL()+", "+pRow->OrderNum_asSQL()+", "+pRow->FK_Package_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->pageURL_asSQL()+", "+pRow->showInTopMenu_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_PageSetup_asSQL()+", "+pRow->FK_PageSetup_Parent_asSQL()+", "+pRow->Website_asSQL()+", "+pRow->OrderNum_asSQL()+", "+pRow->FK_Package_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->pageURL_asSQL()+", "+pRow->showInTopMenu_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into PageSetup (PK_PageSetup, FK_PageSetup_Parent, Website, OrderNum, FK_Package, Description, pageURL, showInTopMenu, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into PageSetup (PK_PageSetup, FK_PageSetup_Parent, Website, OrderNum, FK_Package, Description, pageURL, showInTopMenu, psc_id, psc_batch, psc_user, psc_frozen) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -535,7 +535,7 @@ condition = condition + "PK_PageSetup=" + tmp_PK_PageSetup;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_PageSetup="+pRow->PK_PageSetup_asSQL()+", FK_PageSetup_Parent="+pRow->FK_PageSetup_Parent_asSQL()+", Website="+pRow->Website_asSQL()+", OrderNum="+pRow->OrderNum_asSQL()+", FK_Package="+pRow->FK_Package_asSQL()+", Description="+pRow->Description_asSQL()+", pageURL="+pRow->pageURL_asSQL()+", showInTopMenu="+pRow->showInTopMenu_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_PageSetup="+pRow->PK_PageSetup_asSQL()+", FK_PageSetup_Parent="+pRow->FK_PageSetup_Parent_asSQL()+", Website="+pRow->Website_asSQL()+", OrderNum="+pRow->OrderNum_asSQL()+", FK_Package="+pRow->FK_Package_asSQL()+", Description="+pRow->Description_asSQL()+", pageURL="+pRow->pageURL_asSQL()+", showInTopMenu="+pRow->showInTopMenu_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update PageSetup set " + update_values_list + " where " + condition;

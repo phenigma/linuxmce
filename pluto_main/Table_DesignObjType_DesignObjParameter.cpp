@@ -367,10 +367,10 @@ bool Table_DesignObjType_DesignObjParameter::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->FK_DesignObjType_asSQL()+", "+pRow->FK_DesignObjParameter_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->FK_DesignObjType_asSQL()+", "+pRow->FK_DesignObjParameter_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into DesignObjType_DesignObjParameter (FK_DesignObjType, FK_DesignObjParameter, Comments, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into DesignObjType_DesignObjParameter (FK_DesignObjType, FK_DesignObjParameter, Comments, psc_id, psc_batch, psc_user, psc_frozen) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -421,7 +421,7 @@ condition = condition + "FK_DesignObjType=" + tmp_FK_DesignObjType+" AND "+"FK_D
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_DesignObjType="+pRow->FK_DesignObjType_asSQL()+", FK_DesignObjParameter="+pRow->FK_DesignObjParameter_asSQL()+", Comments="+pRow->Comments_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "FK_DesignObjType="+pRow->FK_DesignObjType_asSQL()+", FK_DesignObjParameter="+pRow->FK_DesignObjParameter_asSQL()+", Comments="+pRow->Comments_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update DesignObjType_DesignObjParameter set " + update_values_list + " where " + condition;

@@ -420,6 +420,18 @@
 #define TEXT_Version_CONST 1095
 #define TEXT_Try_other_codes_CONST 1096
 #define TEXT_Device_Info_CONST 1097
+#define TEXT_Computing_CONST 1098
+#define TEXT_Sleeping_menu_CONST 1099
+#define TEXT_Time_CONST 1100
+#define TEXT_Date_CONST 1101
+#define TEXT_Temp_outside_CONST 1102
+#define TEXT_Temp_inside_CONST 1103
+#define TEXT_Wake_Up_CONST 1104
+#define TEXT_Email_Contacts_CONST 1105
+#define TEXT_KDE_desktop_CONST 1106
+#define TEXT_Installed_Programs_CONST 1107
+#define TEXT_Recent_files_CONST 1108
+#define TEXT_Go_to_Pluto_Admin_web_site_CONST 1109
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"

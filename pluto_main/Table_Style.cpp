@@ -447,10 +447,10 @@ bool Table_Style::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Style_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_Style_Selected_asSQL()+", "+pRow->FK_Style_Highlighted_asSQL()+", "+pRow->FK_Style_Alt_asSQL()+", "+pRow->AlwaysIncludeOnOrbiter_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Style_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_Style_Selected_asSQL()+", "+pRow->FK_Style_Highlighted_asSQL()+", "+pRow->FK_Style_Alt_asSQL()+", "+pRow->AlwaysIncludeOnOrbiter_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Style (PK_Style, Description, FK_Style_Selected, FK_Style_Highlighted, FK_Style_Alt, AlwaysIncludeOnOrbiter, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into Style (PK_Style, Description, FK_Style_Selected, FK_Style_Highlighted, FK_Style_Alt, AlwaysIncludeOnOrbiter, psc_id, psc_batch, psc_user, psc_frozen) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -500,7 +500,7 @@ condition = condition + "PK_Style=" + tmp_PK_Style;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Style="+pRow->PK_Style_asSQL()+", Description="+pRow->Description_asSQL()+", FK_Style_Selected="+pRow->FK_Style_Selected_asSQL()+", FK_Style_Highlighted="+pRow->FK_Style_Highlighted_asSQL()+", FK_Style_Alt="+pRow->FK_Style_Alt_asSQL()+", AlwaysIncludeOnOrbiter="+pRow->AlwaysIncludeOnOrbiter_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_Style="+pRow->PK_Style_asSQL()+", Description="+pRow->Description_asSQL()+", FK_Style_Selected="+pRow->FK_Style_Selected_asSQL()+", FK_Style_Highlighted="+pRow->FK_Style_Highlighted_asSQL()+", FK_Style_Alt="+pRow->FK_Style_Alt_asSQL()+", AlwaysIncludeOnOrbiter="+pRow->AlwaysIncludeOnOrbiter_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Style set " + update_values_list + " where " + condition;

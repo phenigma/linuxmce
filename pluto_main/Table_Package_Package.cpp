@@ -361,10 +361,10 @@ bool Table_Package_Package::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->FK_Package_asSQL()+", "+pRow->FK_Package_DependsOn_asSQL()+", "+pRow->OnlyToBuild_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->FK_Package_asSQL()+", "+pRow->FK_Package_DependsOn_asSQL()+", "+pRow->OnlyToBuild_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Package_Package (FK_Package, FK_Package_DependsOn, OnlyToBuild, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into Package_Package (FK_Package, FK_Package_DependsOn, OnlyToBuild, psc_id, psc_batch, psc_user, psc_frozen) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -415,7 +415,7 @@ condition = condition + "FK_Package=" + tmp_FK_Package+" AND "+"FK_Package_Depen
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_Package="+pRow->FK_Package_asSQL()+", FK_Package_DependsOn="+pRow->FK_Package_DependsOn_asSQL()+", OnlyToBuild="+pRow->OnlyToBuild_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "FK_Package="+pRow->FK_Package_asSQL()+", FK_Package_DependsOn="+pRow->FK_Package_DependsOn_asSQL()+", OnlyToBuild="+pRow->OnlyToBuild_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Package_Package set " + update_values_list + " where " + condition;

@@ -415,10 +415,10 @@ bool Table_CachedScreens::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->FK_Orbiter_asSQL()+", "+pRow->FK_DesignObj_asSQL()+", "+pRow->Version_asSQL()+", "+pRow->Modification_LastGen_asSQL()+", "+pRow->ContainsArrays_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->FK_Orbiter_asSQL()+", "+pRow->FK_DesignObj_asSQL()+", "+pRow->Version_asSQL()+", "+pRow->Modification_LastGen_asSQL()+", "+pRow->ContainsArrays_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into CachedScreens (FK_Orbiter, FK_DesignObj, Version, Modification_LastGen, ContainsArrays, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into CachedScreens (FK_Orbiter, FK_DesignObj, Version, Modification_LastGen, ContainsArrays, psc_id, psc_batch, psc_user, psc_frozen) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -472,7 +472,7 @@ condition = condition + "FK_Orbiter=" + tmp_FK_Orbiter+" AND "+"FK_DesignObj=" +
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_Orbiter="+pRow->FK_Orbiter_asSQL()+", FK_DesignObj="+pRow->FK_DesignObj_asSQL()+", Version="+pRow->Version_asSQL()+", Modification_LastGen="+pRow->Modification_LastGen_asSQL()+", ContainsArrays="+pRow->ContainsArrays_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "FK_Orbiter="+pRow->FK_Orbiter_asSQL()+", FK_DesignObj="+pRow->FK_DesignObj_asSQL()+", Version="+pRow->Version_asSQL()+", Modification_LastGen="+pRow->Modification_LastGen_asSQL()+", ContainsArrays="+pRow->ContainsArrays_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update CachedScreens set " + update_values_list + " where " + condition;

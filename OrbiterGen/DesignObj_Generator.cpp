@@ -120,7 +120,9 @@ if( !m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu )
 int k=2;
 }
         // If this is the main menu, there will be an array of them
-        if( m_pRow_DesignObj->PK_DesignObj_get()==m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu->PK_DesignObj_get() )
+        if( m_pRow_DesignObj->PK_DesignObj_get()==m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu->PK_DesignObj_get() ||
+			m_pRow_DesignObj->PK_DesignObj_get()==m_pOrbiterGenerator->m_pRow_DesignObj_Sleeping->PK_DesignObj_get() ||
+			m_pRow_DesignObj->PK_DesignObj_get()==m_pOrbiterGenerator->m_pRow_DesignObj_ScreenSaver->PK_DesignObj_get() )
         {
             m_iVersion = m_pOrbiterGenerator->m_iLocation;
         }
@@ -1222,6 +1224,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
         case ARRAY_Security_Scenarios_CONST:
         case ARRAY_Communication_Scenarios_CONST:
         case ARRAY_Misc_Scenarios_CONST:
+        case ARRAY_Sleeping_Scenarios_CONST:
             if( m_pOrbiterGenerator->m_pRow_Room )
             {
                 int PriorSort=-1;
@@ -1636,10 +1639,6 @@ string DesignObj_Generator::SubstituteVariables(string Text,bool *bContainsRunTi
             }
         }
 */
-        else if( sVariable[0]=='V' )
-        {
-            sValue = StringUtils::itos(m_iVersion);
-        }
         else if( sVariable.substr(0,2)=="IM" )
         {
             if( m_pOrbiterGenerator->m_pRow_Icon!=NULL )

@@ -430,10 +430,10 @@ bool Table_Device_StartupScript::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->FK_Device_asSQL()+", "+pRow->FK_StartupScript_asSQL()+", "+pRow->Boot_Order_asSQL()+", "+pRow->Background_asSQL()+", "+pRow->Enabled_asSQL()+", "+pRow->Parameter_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->FK_Device_asSQL()+", "+pRow->FK_StartupScript_asSQL()+", "+pRow->Boot_Order_asSQL()+", "+pRow->Background_asSQL()+", "+pRow->Enabled_asSQL()+", "+pRow->Parameter_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Device_StartupScript (FK_Device, FK_StartupScript, Boot_Order, Background, Enabled, Parameter, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into Device_StartupScript (FK_Device, FK_StartupScript, Boot_Order, Background, Enabled, Parameter, psc_id, psc_batch, psc_user, psc_frozen) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -484,7 +484,7 @@ condition = condition + "FK_Device=" + tmp_FK_Device+" AND "+"FK_StartupScript="
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_Device="+pRow->FK_Device_asSQL()+", FK_StartupScript="+pRow->FK_StartupScript_asSQL()+", Boot_Order="+pRow->Boot_Order_asSQL()+", Background="+pRow->Background_asSQL()+", Enabled="+pRow->Enabled_asSQL()+", Parameter="+pRow->Parameter_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "FK_Device="+pRow->FK_Device_asSQL()+", FK_StartupScript="+pRow->FK_StartupScript_asSQL()+", Boot_Order="+pRow->Boot_Order_asSQL()+", Background="+pRow->Background_asSQL()+", Enabled="+pRow->Enabled_asSQL()+", Parameter="+pRow->Parameter_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Device_StartupScript set " + update_values_list + " where " + condition;

@@ -400,10 +400,10 @@ bool Table_Document_Comment::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Document_Comment_asSQL()+", "+pRow->FK_Document_asSQL()+", "+pRow->FK_Users_asSQL()+", "+pRow->Comment_asSQL()+", "+pRow->Date_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Document_Comment_asSQL()+", "+pRow->FK_Document_asSQL()+", "+pRow->FK_Users_asSQL()+", "+pRow->Comment_asSQL()+", "+pRow->Date_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Document_Comment (PK_Document_Comment, FK_Document, FK_Users, Comment, Date, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into Document_Comment (PK_Document_Comment, FK_Document, FK_Users, Comment, Date, psc_id, psc_batch, psc_user, psc_frozen) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -451,7 +451,7 @@ condition = condition + "PK_Document_Comment=" + tmp_PK_Document_Comment;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Document_Comment="+pRow->PK_Document_Comment_asSQL()+", FK_Document="+pRow->FK_Document_asSQL()+", FK_Users="+pRow->FK_Users_asSQL()+", Comment="+pRow->Comment_asSQL()+", Date="+pRow->Date_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_Document_Comment="+pRow->PK_Document_Comment_asSQL()+", FK_Document="+pRow->FK_Document_asSQL()+", FK_Users="+pRow->FK_Users_asSQL()+", Comment="+pRow->Comment_asSQL()+", Date="+pRow->Date_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Document_Comment set " + update_values_list + " where " + condition;

@@ -631,10 +631,10 @@ bool Table_DesignObjVariation_Text_Skin_Language::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_DesignObjVariation_Text_Skin_Language_asSQL()+", "+pRow->FK_DesignObjVariation_Text_asSQL()+", "+pRow->FK_Skin_asSQL()+", "+pRow->FK_Language_asSQL()+", "+pRow->X_asSQL()+", "+pRow->Y_asSQL()+", "+pRow->Width_asSQL()+", "+pRow->Height_asSQL()+", "+pRow->Rotate_asSQL()+", "+pRow->Opacity_asSQL()+", "+pRow->FK_HorizAlignment_asSQL()+", "+pRow->FK_VertAlignment_asSQL()+", "+pRow->FK_Style_asSQL()+", "+pRow->PlainBackgroundColor_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_DesignObjVariation_Text_Skin_Language_asSQL()+", "+pRow->FK_DesignObjVariation_Text_asSQL()+", "+pRow->FK_Skin_asSQL()+", "+pRow->FK_Language_asSQL()+", "+pRow->X_asSQL()+", "+pRow->Y_asSQL()+", "+pRow->Width_asSQL()+", "+pRow->Height_asSQL()+", "+pRow->Rotate_asSQL()+", "+pRow->Opacity_asSQL()+", "+pRow->FK_HorizAlignment_asSQL()+", "+pRow->FK_VertAlignment_asSQL()+", "+pRow->FK_Style_asSQL()+", "+pRow->PlainBackgroundColor_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into DesignObjVariation_Text_Skin_Language (PK_DesignObjVariation_Text_Skin_Language, FK_DesignObjVariation_Text, FK_Skin, FK_Language, X, Y, Width, Height, Rotate, Opacity, FK_HorizAlignment, FK_VertAlignment, FK_Style, PlainBackgroundColor, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into DesignObjVariation_Text_Skin_Language (PK_DesignObjVariation_Text_Skin_Language, FK_DesignObjVariation_Text, FK_Skin, FK_Language, X, Y, Width, Height, Rotate, Opacity, FK_HorizAlignment, FK_VertAlignment, FK_Style, PlainBackgroundColor, psc_id, psc_batch, psc_user, psc_frozen) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -684,7 +684,7 @@ condition = condition + "PK_DesignObjVariation_Text_Skin_Language=" + tmp_PK_Des
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_DesignObjVariation_Text_Skin_Language="+pRow->PK_DesignObjVariation_Text_Skin_Language_asSQL()+", FK_DesignObjVariation_Text="+pRow->FK_DesignObjVariation_Text_asSQL()+", FK_Skin="+pRow->FK_Skin_asSQL()+", FK_Language="+pRow->FK_Language_asSQL()+", X="+pRow->X_asSQL()+", Y="+pRow->Y_asSQL()+", Width="+pRow->Width_asSQL()+", Height="+pRow->Height_asSQL()+", Rotate="+pRow->Rotate_asSQL()+", Opacity="+pRow->Opacity_asSQL()+", FK_HorizAlignment="+pRow->FK_HorizAlignment_asSQL()+", FK_VertAlignment="+pRow->FK_VertAlignment_asSQL()+", FK_Style="+pRow->FK_Style_asSQL()+", PlainBackgroundColor="+pRow->PlainBackgroundColor_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_DesignObjVariation_Text_Skin_Language="+pRow->PK_DesignObjVariation_Text_Skin_Language_asSQL()+", FK_DesignObjVariation_Text="+pRow->FK_DesignObjVariation_Text_asSQL()+", FK_Skin="+pRow->FK_Skin_asSQL()+", FK_Language="+pRow->FK_Language_asSQL()+", X="+pRow->X_asSQL()+", Y="+pRow->Y_asSQL()+", Width="+pRow->Width_asSQL()+", Height="+pRow->Height_asSQL()+", Rotate="+pRow->Rotate_asSQL()+", Opacity="+pRow->Opacity_asSQL()+", FK_HorizAlignment="+pRow->FK_HorizAlignment_asSQL()+", FK_VertAlignment="+pRow->FK_VertAlignment_asSQL()+", FK_Style="+pRow->FK_Style_asSQL()+", PlainBackgroundColor="+pRow->PlainBackgroundColor_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update DesignObjVariation_Text_Skin_Language set " + update_values_list + " where " + condition;

@@ -444,10 +444,10 @@ bool Table_RepositoryType::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_RepositoryType_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->SourceOnly_asSQL()+", "+pRow->PathToFile_asSQL()+", "+pRow->Instructions_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_RepositoryType_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->SourceOnly_asSQL()+", "+pRow->PathToFile_asSQL()+", "+pRow->Instructions_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into RepositoryType (PK_RepositoryType, Description, Define, SourceOnly, PathToFile, Instructions, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into RepositoryType (PK_RepositoryType, Description, Define, SourceOnly, PathToFile, Instructions, psc_id, psc_batch, psc_user, psc_frozen) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -497,7 +497,7 @@ condition = condition + "PK_RepositoryType=" + tmp_PK_RepositoryType;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_RepositoryType="+pRow->PK_RepositoryType_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", SourceOnly="+pRow->SourceOnly_asSQL()+", PathToFile="+pRow->PathToFile_asSQL()+", Instructions="+pRow->Instructions_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_RepositoryType="+pRow->PK_RepositoryType_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", SourceOnly="+pRow->SourceOnly_asSQL()+", PathToFile="+pRow->PathToFile_asSQL()+", Instructions="+pRow->Instructions_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update RepositoryType set " + update_values_list + " where " + condition;

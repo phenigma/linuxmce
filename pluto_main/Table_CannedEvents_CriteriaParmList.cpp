@@ -530,10 +530,10 @@ bool Table_CannedEvents_CriteriaParmList::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_CannedEvents_CriteriaParmList_asSQL()+", "+pRow->FK_CannedEvents_asSQL()+", "+pRow->FK_CriteriaParmList_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->Operator_asSQL()+", "+pRow->Parm_asSQL()+", "+pRow->DefaultValue_asSQL()+", "+pRow->ExtraInfo_asSQL()+", "+pRow->Required_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_CannedEvents_CriteriaParmList_asSQL()+", "+pRow->FK_CannedEvents_asSQL()+", "+pRow->FK_CriteriaParmList_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->Operator_asSQL()+", "+pRow->Parm_asSQL()+", "+pRow->DefaultValue_asSQL()+", "+pRow->ExtraInfo_asSQL()+", "+pRow->Required_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into CannedEvents_CriteriaParmList (PK_CannedEvents_CriteriaParmList, FK_CannedEvents, FK_CriteriaParmList, Description, Comments, Operator, Parm, DefaultValue, ExtraInfo, Required, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into CannedEvents_CriteriaParmList (PK_CannedEvents_CriteriaParmList, FK_CannedEvents, FK_CriteriaParmList, Description, Comments, Operator, Parm, DefaultValue, ExtraInfo, Required, psc_id, psc_batch, psc_user, psc_frozen) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -583,7 +583,7 @@ condition = condition + "PK_CannedEvents_CriteriaParmList=" + tmp_PK_CannedEvent
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_CannedEvents_CriteriaParmList="+pRow->PK_CannedEvents_CriteriaParmList_asSQL()+", FK_CannedEvents="+pRow->FK_CannedEvents_asSQL()+", FK_CriteriaParmList="+pRow->FK_CriteriaParmList_asSQL()+", Description="+pRow->Description_asSQL()+", Comments="+pRow->Comments_asSQL()+", Operator="+pRow->Operator_asSQL()+", Parm="+pRow->Parm_asSQL()+", DefaultValue="+pRow->DefaultValue_asSQL()+", ExtraInfo="+pRow->ExtraInfo_asSQL()+", Required="+pRow->Required_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_CannedEvents_CriteriaParmList="+pRow->PK_CannedEvents_CriteriaParmList_asSQL()+", FK_CannedEvents="+pRow->FK_CannedEvents_asSQL()+", FK_CriteriaParmList="+pRow->FK_CriteriaParmList_asSQL()+", Description="+pRow->Description_asSQL()+", Comments="+pRow->Comments_asSQL()+", Operator="+pRow->Operator_asSQL()+", Parm="+pRow->Parm_asSQL()+", DefaultValue="+pRow->DefaultValue_asSQL()+", ExtraInfo="+pRow->ExtraInfo_asSQL()+", Required="+pRow->Required_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update CannedEvents_CriteriaParmList set " + update_values_list + " where " + condition;

@@ -488,10 +488,10 @@ bool Table_Icon::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Icon_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->TransparentColor_asSQL()+", "+pRow->MainFileName_asSQL()+", "+pRow->SelectedFileName_asSQL()+", "+pRow->AltFileNames_asSQL()+", "+pRow->BackgroundFileName_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Icon_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->TransparentColor_asSQL()+", "+pRow->MainFileName_asSQL()+", "+pRow->SelectedFileName_asSQL()+", "+pRow->AltFileNames_asSQL()+", "+pRow->BackgroundFileName_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Icon (PK_Icon, Define, Description, TransparentColor, MainFileName, SelectedFileName, AltFileNames, BackgroundFileName, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into Icon (PK_Icon, Define, Description, TransparentColor, MainFileName, SelectedFileName, AltFileNames, BackgroundFileName, psc_id, psc_batch, psc_user, psc_frozen) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -541,7 +541,7 @@ condition = condition + "PK_Icon=" + tmp_PK_Icon;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Icon="+pRow->PK_Icon_asSQL()+", Define="+pRow->Define_asSQL()+", Description="+pRow->Description_asSQL()+", TransparentColor="+pRow->TransparentColor_asSQL()+", MainFileName="+pRow->MainFileName_asSQL()+", SelectedFileName="+pRow->SelectedFileName_asSQL()+", AltFileNames="+pRow->AltFileNames_asSQL()+", BackgroundFileName="+pRow->BackgroundFileName_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_Icon="+pRow->PK_Icon_asSQL()+", Define="+pRow->Define_asSQL()+", Description="+pRow->Description_asSQL()+", TransparentColor="+pRow->TransparentColor_asSQL()+", MainFileName="+pRow->MainFileName_asSQL()+", SelectedFileName="+pRow->SelectedFileName_asSQL()+", AltFileNames="+pRow->AltFileNames_asSQL()+", BackgroundFileName="+pRow->BackgroundFileName_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Icon set " + update_values_list + " where " + condition;

@@ -636,10 +636,10 @@ bool Table_Package::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_PackageType_asSQL()+", "+pRow->FK_Package_Sourcecode_asSQL()+", "+pRow->IsSource_asSQL()+", "+pRow->NonExecutable_asSQL()+", "+pRow->HomePage_asSQL()+", "+pRow->FK_License_asSQL()+", "+pRow->FK_Manufacturer_asSQL()+", "+pRow->FK_Document_asSQL()+", "+pRow->FK_Document_UsersManual_asSQL()+", "+pRow->FK_Document_ProgrammersGuide_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_PackageType_asSQL()+", "+pRow->FK_Package_Sourcecode_asSQL()+", "+pRow->IsSource_asSQL()+", "+pRow->NonExecutable_asSQL()+", "+pRow->HomePage_asSQL()+", "+pRow->FK_License_asSQL()+", "+pRow->FK_Manufacturer_asSQL()+", "+pRow->FK_Document_asSQL()+", "+pRow->FK_Document_UsersManual_asSQL()+", "+pRow->FK_Document_ProgrammersGuide_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Package (PK_Package, Description, FK_PackageType, FK_Package_Sourcecode, IsSource, NonExecutable, HomePage, FK_License, FK_Manufacturer, FK_Document, FK_Document_UsersManual, FK_Document_ProgrammersGuide, Comments, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into Package (PK_Package, Description, FK_PackageType, FK_Package_Sourcecode, IsSource, NonExecutable, HomePage, FK_License, FK_Manufacturer, FK_Document, FK_Document_UsersManual, FK_Document_ProgrammersGuide, Comments, psc_id, psc_batch, psc_user, psc_frozen) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -689,7 +689,7 @@ condition = condition + "PK_Package=" + tmp_PK_Package;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Package="+pRow->PK_Package_asSQL()+", Description="+pRow->Description_asSQL()+", FK_PackageType="+pRow->FK_PackageType_asSQL()+", FK_Package_Sourcecode="+pRow->FK_Package_Sourcecode_asSQL()+", IsSource="+pRow->IsSource_asSQL()+", NonExecutable="+pRow->NonExecutable_asSQL()+", HomePage="+pRow->HomePage_asSQL()+", FK_License="+pRow->FK_License_asSQL()+", FK_Manufacturer="+pRow->FK_Manufacturer_asSQL()+", FK_Document="+pRow->FK_Document_asSQL()+", FK_Document_UsersManual="+pRow->FK_Document_UsersManual_asSQL()+", FK_Document_ProgrammersGuide="+pRow->FK_Document_ProgrammersGuide_asSQL()+", Comments="+pRow->Comments_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_Package="+pRow->PK_Package_asSQL()+", Description="+pRow->Description_asSQL()+", FK_PackageType="+pRow->FK_PackageType_asSQL()+", FK_Package_Sourcecode="+pRow->FK_Package_Sourcecode_asSQL()+", IsSource="+pRow->IsSource_asSQL()+", NonExecutable="+pRow->NonExecutable_asSQL()+", HomePage="+pRow->HomePage_asSQL()+", FK_License="+pRow->FK_License_asSQL()+", FK_Manufacturer="+pRow->FK_Manufacturer_asSQL()+", FK_Document="+pRow->FK_Document_asSQL()+", FK_Document_UsersManual="+pRow->FK_Document_UsersManual_asSQL()+", FK_Document_ProgrammersGuide="+pRow->FK_Document_ProgrammersGuide_asSQL()+", Comments="+pRow->Comments_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Package set " + update_values_list + " where " + condition;

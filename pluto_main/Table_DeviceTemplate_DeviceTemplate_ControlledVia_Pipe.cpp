@@ -421,10 +421,10 @@ bool Table_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->FK_DeviceTemplate_DeviceTemplate_ControlledVia_asSQL()+", "+pRow->FK_Pipe_asSQL()+", "+pRow->FK_Command_Input_asSQL()+", "+pRow->FK_Command_Output_asSQL()+", "+pRow->ToChild_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->FK_DeviceTemplate_DeviceTemplate_ControlledVia_asSQL()+", "+pRow->FK_Pipe_asSQL()+", "+pRow->FK_Command_Input_asSQL()+", "+pRow->FK_Command_Output_asSQL()+", "+pRow->ToChild_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into DeviceTemplate_DeviceTemplate_ControlledVia_Pipe (FK_DeviceTemplate_DeviceTemplate_ControlledVia, FK_Pipe, FK_Command_Input, FK_Command_Output, ToChild, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into DeviceTemplate_DeviceTemplate_ControlledVia_Pipe (FK_DeviceTemplate_DeviceTemplate_ControlledVia, FK_Pipe, FK_Command_Input, FK_Command_Output, ToChild, psc_id, psc_batch, psc_user, psc_frozen) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -475,7 +475,7 @@ condition = condition + "FK_DeviceTemplate_DeviceTemplate_ControlledVia=" + tmp_
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_DeviceTemplate_DeviceTemplate_ControlledVia="+pRow->FK_DeviceTemplate_DeviceTemplate_ControlledVia_asSQL()+", FK_Pipe="+pRow->FK_Pipe_asSQL()+", FK_Command_Input="+pRow->FK_Command_Input_asSQL()+", FK_Command_Output="+pRow->FK_Command_Output_asSQL()+", ToChild="+pRow->ToChild_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "FK_DeviceTemplate_DeviceTemplate_ControlledVia="+pRow->FK_DeviceTemplate_DeviceTemplate_ControlledVia_asSQL()+", FK_Pipe="+pRow->FK_Pipe_asSQL()+", FK_Command_Input="+pRow->FK_Command_Input_asSQL()+", FK_Command_Output="+pRow->FK_Command_Output_asSQL()+", ToChild="+pRow->ToChild_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update DeviceTemplate_DeviceTemplate_ControlledVia_Pipe set " + update_values_list + " where " + condition;

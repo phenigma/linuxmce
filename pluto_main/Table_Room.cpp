@@ -414,10 +414,10 @@ bool Table_Room::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Room_asSQL()+", "+pRow->FK_Installation_asSQL()+", "+pRow->FK_RoomType_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_Icon_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Room_asSQL()+", "+pRow->FK_Installation_asSQL()+", "+pRow->FK_RoomType_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_Icon_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Room (PK_Room, FK_Installation, FK_RoomType, Description, FK_Icon, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into Room (PK_Room, FK_Installation, FK_RoomType, Description, FK_Icon, psc_id, psc_batch, psc_user, psc_frozen) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -467,7 +467,7 @@ condition = condition + "PK_Room=" + tmp_PK_Room;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Room="+pRow->PK_Room_asSQL()+", FK_Installation="+pRow->FK_Installation_asSQL()+", FK_RoomType="+pRow->FK_RoomType_asSQL()+", Description="+pRow->Description_asSQL()+", FK_Icon="+pRow->FK_Icon_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_Room="+pRow->PK_Room_asSQL()+", FK_Installation="+pRow->FK_Installation_asSQL()+", FK_RoomType="+pRow->FK_RoomType_asSQL()+", Description="+pRow->Description_asSQL()+", FK_Icon="+pRow->FK_Icon_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Room set " + update_values_list + " where " + condition;

@@ -498,10 +498,10 @@ bool Table_FloorplanObjectType::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_FloorplanObjectType_asSQL()+", "+pRow->FK_FloorplanType_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->Direction_asSQL()+", "+pRow->FK_DesignObj_Control_asSQL()+", "+pRow->Filename_asSQL()+", "+pRow->FillX_asSQL()+", "+pRow->FillY_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_FloorplanObjectType_asSQL()+", "+pRow->FK_FloorplanType_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->Direction_asSQL()+", "+pRow->FK_DesignObj_Control_asSQL()+", "+pRow->Filename_asSQL()+", "+pRow->FillX_asSQL()+", "+pRow->FillY_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into FloorplanObjectType (PK_FloorplanObjectType, FK_FloorplanType, Description, Define, Direction, FK_DesignObj_Control, Filename, FillX, FillY, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into FloorplanObjectType (PK_FloorplanObjectType, FK_FloorplanType, Description, Define, Direction, FK_DesignObj_Control, Filename, FillX, FillY, psc_id, psc_batch, psc_user, psc_frozen) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -551,7 +551,7 @@ condition = condition + "PK_FloorplanObjectType=" + tmp_PK_FloorplanObjectType;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_FloorplanObjectType="+pRow->PK_FloorplanObjectType_asSQL()+", FK_FloorplanType="+pRow->FK_FloorplanType_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", Direction="+pRow->Direction_asSQL()+", FK_DesignObj_Control="+pRow->FK_DesignObj_Control_asSQL()+", Filename="+pRow->Filename_asSQL()+", FillX="+pRow->FillX_asSQL()+", FillY="+pRow->FillY_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_FloorplanObjectType="+pRow->PK_FloorplanObjectType_asSQL()+", FK_FloorplanType="+pRow->FK_FloorplanType_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", Direction="+pRow->Direction_asSQL()+", FK_DesignObj_Control="+pRow->FK_DesignObj_Control_asSQL()+", Filename="+pRow->Filename_asSQL()+", FillX="+pRow->FillX_asSQL()+", FillY="+pRow->FillY_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update FloorplanObjectType set " + update_values_list + " where " + condition;

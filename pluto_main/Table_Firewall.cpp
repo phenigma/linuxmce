@@ -441,10 +441,10 @@ bool Table_Firewall::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Firewall_asSQL()+", "+pRow->Protocol_asSQL()+", "+pRow->SourcePort_asSQL()+", "+pRow->SourcePortEnd_asSQL()+", "+pRow->DestinationPort_asSQL()+", "+pRow->DestinationIP_asSQL()+", "+pRow->RuleType_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Firewall_asSQL()+", "+pRow->Protocol_asSQL()+", "+pRow->SourcePort_asSQL()+", "+pRow->SourcePortEnd_asSQL()+", "+pRow->DestinationPort_asSQL()+", "+pRow->DestinationIP_asSQL()+", "+pRow->RuleType_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Firewall (PK_Firewall, Protocol, SourcePort, SourcePortEnd, DestinationPort, DestinationIP, RuleType, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into Firewall (PK_Firewall, Protocol, SourcePort, SourcePortEnd, DestinationPort, DestinationIP, RuleType, psc_id, psc_batch, psc_user, psc_frozen) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -494,7 +494,7 @@ condition = condition + "PK_Firewall=" + tmp_PK_Firewall;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Firewall="+pRow->PK_Firewall_asSQL()+", Protocol="+pRow->Protocol_asSQL()+", SourcePort="+pRow->SourcePort_asSQL()+", SourcePortEnd="+pRow->SourcePortEnd_asSQL()+", DestinationPort="+pRow->DestinationPort_asSQL()+", DestinationIP="+pRow->DestinationIP_asSQL()+", RuleType="+pRow->RuleType_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_Firewall="+pRow->PK_Firewall_asSQL()+", Protocol="+pRow->Protocol_asSQL()+", SourcePort="+pRow->SourcePort_asSQL()+", SourcePortEnd="+pRow->SourcePortEnd_asSQL()+", DestinationPort="+pRow->DestinationPort_asSQL()+", DestinationIP="+pRow->DestinationIP_asSQL()+", RuleType="+pRow->RuleType_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Firewall set " + update_values_list + " where " + condition;

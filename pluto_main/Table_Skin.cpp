@@ -509,10 +509,10 @@ bool Table_Skin::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Skin_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_Criteria_D_asSQL()+", "+pRow->MergeStandardVariation_asSQL()+", "+pRow->DataSubdirectory_asSQL()+", "+pRow->FK_Style_asSQL()+", "+pRow->FK_Skin_TextPlacement_asSQL()+", "+pRow->DrawTextBeforeChildren_asSQL()+", "+pRow->FK_StabilityStatus_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Skin_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_Criteria_D_asSQL()+", "+pRow->MergeStandardVariation_asSQL()+", "+pRow->DataSubdirectory_asSQL()+", "+pRow->FK_Style_asSQL()+", "+pRow->FK_Skin_TextPlacement_asSQL()+", "+pRow->DrawTextBeforeChildren_asSQL()+", "+pRow->FK_StabilityStatus_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Skin (PK_Skin, Description, FK_Criteria_D, MergeStandardVariation, DataSubdirectory, FK_Style, FK_Skin_TextPlacement, DrawTextBeforeChildren, FK_StabilityStatus, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into Skin (PK_Skin, Description, FK_Criteria_D, MergeStandardVariation, DataSubdirectory, FK_Style, FK_Skin_TextPlacement, DrawTextBeforeChildren, FK_StabilityStatus, psc_id, psc_batch, psc_user, psc_frozen) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -562,7 +562,7 @@ condition = condition + "PK_Skin=" + tmp_PK_Skin;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Skin="+pRow->PK_Skin_asSQL()+", Description="+pRow->Description_asSQL()+", FK_Criteria_D="+pRow->FK_Criteria_D_asSQL()+", MergeStandardVariation="+pRow->MergeStandardVariation_asSQL()+", DataSubdirectory="+pRow->DataSubdirectory_asSQL()+", FK_Style="+pRow->FK_Style_asSQL()+", FK_Skin_TextPlacement="+pRow->FK_Skin_TextPlacement_asSQL()+", DrawTextBeforeChildren="+pRow->DrawTextBeforeChildren_asSQL()+", FK_StabilityStatus="+pRow->FK_StabilityStatus_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_Skin="+pRow->PK_Skin_asSQL()+", Description="+pRow->Description_asSQL()+", FK_Criteria_D="+pRow->FK_Criteria_D_asSQL()+", MergeStandardVariation="+pRow->MergeStandardVariation_asSQL()+", DataSubdirectory="+pRow->DataSubdirectory_asSQL()+", FK_Style="+pRow->FK_Style_asSQL()+", FK_Skin_TextPlacement="+pRow->FK_Skin_TextPlacement_asSQL()+", DrawTextBeforeChildren="+pRow->DrawTextBeforeChildren_asSQL()+", FK_StabilityStatus="+pRow->FK_StabilityStatus_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Skin set " + update_values_list + " where " + condition;

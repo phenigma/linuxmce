@@ -943,7 +943,7 @@
 #define DESIGNOBJ_butSprinkler30min_CONST 2594
 #define DESIGNOBJ_butSprinkler45min_CONST 2595
 #define DESIGNOBJ_butSprinkler1hour_CONST 2596
-#define DESIGNOBJ_butStopComputing_CONST 2597
+#define DESIGNOBJ_butEmailContacts_CONST 2597
 #define DESIGNOBJ_DVDOptions_CONST 2598
 #define DESIGNOBJ_Mmenu_CONST 2599
 #define DESIGNOBJ_iconLights_CONST 2600
@@ -1054,7 +1054,7 @@
 #define DESIGNOBJ_go_to_myth_setup_CONST 3218
 #define DESIGNOBJ_go_to_pvr_full_screen_CONST 3219
 #define DESIGNOBJ_mnuFirstTime_CONST 3221
-#define DESIGNOBJ_butPlutoAdminSite_CONST 3222
+#define DESIGNOBJ_butGoToMainMenu_CONST 3222
 #define DESIGNOBJ_grpSeekFileList_CONST 3223
 #define DESIGNOBJ_mnuNoMedia_CONST 3224
 #define DESIGNOBJ_grpPhoneSearchKeyboardlarge_CONST 3225
@@ -1132,6 +1132,16 @@
 #define DESIGNOBJ_Follow_Me_Security_CONST 3305
 #define DESIGNOBJ_dgIRTypes_CONST 3306
 #define DESIGNOBJ_dgIRCodes_CONST 3307
+#define DESIGNOBJ_go_to_sleeping_menu_CONST 3309
+#define DESIGNOBJ_arrSleeping_CONST 3310
+#define DESIGNOBJ_dgAlarmsSleeping_CONST 3311
+#define DESIGNOBJ_go_to_main_menu_from_sleeping_CONST 3312
+#define DESIGNOBJ_butArrSleeping_CONST 3313
+#define DESIGNOBJ_dgRecentFiles_CONST 3314
+#define DESIGNOBJ_dgInstalledPrograms_CONST 3315
+#define DESIGNOBJ_objKDE_CONST 3316
+#define DESIGNOBJ_butPlutoAdminSite_CONST 3317
+#define DESIGNOBJ_butPlutoAdminSite2_CONST 3318
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"
