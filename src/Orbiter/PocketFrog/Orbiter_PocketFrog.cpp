@@ -1,4 +1,6 @@
 #include "Orbiter_PocketFrog.h"
+
+#include "Wingdi.h"
 #include "MainDialog.h"
 #include "Resource.h"
 #include "SelfUpdate.h"
@@ -119,8 +121,8 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ Orbiter_PocketFrog::~Orbiter_PocketFrog()
 {
-	Shutdown();
 }
+
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ bool Orbiter_PocketFrog::GameInit()
 {
@@ -192,20 +194,17 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 			return false;
 		}
 
-		/*
-		HWND hWnd_TaskBar = ::FindWindow("Shell_TrayWnd", NULL);
+		ModifyStyle(WS_TILEDWINDOW , 0);
+		MoveWindow(0, 0, m_iImageWidth, m_iImageHeight + 100, FALSE);
+		BringWindowToTop();
+		SetForegroundWindow(m_hWnd);
 
+		HWND hWnd_TaskBar = ::FindWindow("Shell_TrayWnd", NULL);
 		if(hWnd_TaskBar)
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "### I found the taskbar window! I will hide it! ###");
-			::ShowWindow(hWnd_TaskBar, SW_HIDE);
+			g_pPlutoLogger->Write(LV_CRITICAL, "### I found the taskbar window! I will send it to back! ###");
+			::SetWindowPos(hWnd_TaskBar, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE); 
 		}
-		*/
-
-		BringWindowToTop();
-		ModifyStyle(WS_TILEDWINDOW , 0);
-		SetWindowPos(HWND_TOPMOST, 0, 0, m_iImageWidth, m_iImageHeight, SWP_SHOWWINDOW);
-		SetForegroundWindow(m_hWnd);
 	}
 #endif
 
@@ -324,6 +323,23 @@ clock_t ccc=clock();
 		{
 			ShowMainDialog();
 		}
+/*
+		else if( wParam == VK_P && m_bControlDown)
+		{
+			SolidRectangle(0, 500, 800, 100, PlutoColor(255, 0, 0));
+			TryToUpdate();
+		}
+		else if( wParam == VK_L && m_bControlDown)
+		{
+			HDC hdc = GetDisplay()->GetBackBuffer()->GetDC(false);
+
+			RECT rect = {0, 500, 800, 600};
+			::FillRect(hdc, &rect, (HBRUSH)GetStockObject(GRAY_BRUSH));
+
+			GetDisplay()->GetBackBuffer()->ReleaseDC(hdc);
+			TryToUpdate();
+		}
+*/
         else if( !m_bShiftDown && !m_bControlDown && !m_bAltDown && !m_bRepeat )
         {
             switch (wParam)
@@ -819,8 +835,8 @@ clock_t ccc=clock();
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::OnQuit()
 {
-	Shutdown(); //just in case
-	//PostMessage( WM_CLOSE, 0, 0 ); //break pocketfrog loop
+	PostMessage( WM_CLOSE, 0, 0 );
+	//Shutdown(); //just in case
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::Initialize(GraphicType Type, int iPK_Room, int iPK_EntertainArea)
@@ -834,6 +850,9 @@ clock_t ccc=clock();
 
 	if(NULL != m_pInstance)
 	{
+		if(::IsWindow(m_pInstance->m_hWnd))
+			::DestroyWindow(m_pInstance->m_hWnd);
+		
 		m_pInstance->m_bQuit = true;	
 
 		Orbiter_PocketFrog *pCopy = m_pInstance;
@@ -947,5 +966,15 @@ bool Orbiter_PocketFrog::SelfUpdate()
 	OrbiterSelfUpdate orbiterSelfUpdate(this);
 
 	return orbiterSelfUpdate.Run();
+}
+//-----------------------------------------------------------------------------------------------------
+void Orbiter_PocketFrog::GameSuspend()
+{
+	Game::GameSuspend();
+}
+//-----------------------------------------------------------------------------------------------------
+void Orbiter_PocketFrog::GameResume()
+{
+	Game::GameResume();
 }
 //-----------------------------------------------------------------------------------------------------

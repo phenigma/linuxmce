@@ -33,6 +33,9 @@ public:
 	virtual ~Orbiter_PocketFrog();
 
 	// Public virtual methods (from Game)
+	virtual void GameSuspend(); 
+	virtual void GameResume(); 
+
     virtual bool GameInit();
     virtual void GameEnd();
     virtual void GameLoop();
