@@ -17,7 +17,12 @@ using namespace DCE;
 		#include <aygshell.h>
 		#include <sipapi.h>
 		#include "StartOrbiterCE.h"
-		#include "OrbiterSDL_WinCE.h"
+
+		#ifdef POCKETFROG
+			#include "Orbiter_PocketFrog.h"
+		#else
+			#include "OrbiterSDL_WinCE.h"
+		#endif
 	#else
 		#include "windows.h"
 
@@ -57,8 +62,8 @@ void *GeneratorThread( void *p)
 	bool bOption2 = pSimulator->m_iKeysSetToGenerate == 1;
 	bool bOption3 = pSimulator->m_iKeysSetToGenerate == 2;
 
-	int iDelayMin = pSimulator->m_dwDelayMin;
-	int iDelayMax = pSimulator->m_dwDelayMax;
+	int iDelayMin = max(pSimulator->m_dwDelayMin, 1000);//if the interval is smaller then this, TTF_RenderText_Blended will crash
+	int iDelayMax = max(pSimulator->m_dwDelayMax, 1500);
 	
 	int iButtonsPerClick = pSimulator->m_iNumberOfButtonsPerClick;
 
@@ -73,7 +78,11 @@ void *GeneratorThread( void *p)
 #else
 	#ifdef WIN32
 		#ifdef WINCE
-			OrbiterSDL_WinCE *pOrbiter = OrbiterSDL_WinCE::GetInstance();
+			#ifdef POCKETFROG
+				Orbiter_PocketFrog *pOrbiter = Orbiter_PocketFrog::GetInstance();
+			#else
+				OrbiterSDL_WinCE *pOrbiter = OrbiterSDL_WinCE::GetInstance();
+			#endif
 		#else
 			OrbiterSDL_Win32 *pOrbiter = OrbiterSDL_Win32::GetInstance();
 		#endif

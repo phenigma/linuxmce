@@ -146,7 +146,7 @@ g_pPlutoLogger->Write(LV_STATUS, "~OrbiterSDL finished");
 
 	SDL_UpdateRect(Screen, 0, 0, 0, 0);
 
-//g_pPlutoLogger->Write(LV_STATUS,"Exit display image on screen");
+	//g_pPlutoLogger->Write(LV_STATUS,"Exit display image on screen");
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::RedrawObjects()

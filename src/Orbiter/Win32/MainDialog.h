@@ -9,6 +9,7 @@
 	#include <sipapi.h>
 
 	#include "StartOrbiterCE.h"
+
 #else
 	#include "windows.h"
 	#include <string>

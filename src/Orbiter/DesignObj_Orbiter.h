@@ -35,7 +35,8 @@ enum eGraphicManagement { GR_KEEPUNCOMPRESSED, GR_KEEPCOMPRESSED, GR_DISCARDONCH
 //-------------------------------------------------------------------------------------------------------
 enum GraphicType
 {
-	gtSDLGraphic
+	gtSDLGraphic,
+	gtPocketFrogGraphic
 };
 //-------------------------------------------------------------------------------------------------------
 class PlutoGraphic;

@@ -67,7 +67,7 @@ public:
 	void HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	static void Cleanup();
-	static void BuildOrbiterSDL_WinCE(int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
+	static void BuildOrbiter(int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
 		int nImageWidth, int nImageHeight, bool bFullScreen = false);
 	static OrbiterSDL_WinCE *GetInstance();
 

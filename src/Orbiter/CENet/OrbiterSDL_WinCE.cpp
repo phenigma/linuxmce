@@ -124,7 +124,7 @@ OrbiterSDL_WinCE::~OrbiterSDL_WinCE()
 	::SetWindowLong(hSDLWindow, GWL_WNDPROC, reinterpret_cast<long>(OldSDLWindowProc));	
 }
 //-----------------------------------------------------------------------------------------------------
-/*static*/ void OrbiterSDL_WinCE::BuildOrbiterSDL_WinCE(
+/*static*/ void OrbiterSDL_WinCE::BuildOrbiter(
 	int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
 	int nImageWidth, int nImageHeight, bool bFullScreen
 )

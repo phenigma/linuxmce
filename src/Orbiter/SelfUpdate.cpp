@@ -18,13 +18,21 @@ using namespace std;
 using namespace DCE;
 
 #ifdef WINCE
-	const string csOrbiter_Update("/usr/pluto/bin/Orbiter_WinCE.dat");
+	#ifdef POCKETFROG
+		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_PocketFrog.dat");
+	#else
+		const string csOrbiter_Update("/usr/pluto/bin/Orbiter_WinCE.dat");
+	#endif
 #else
 	const string csOrbiter_Update("/usr/pluto/bin/Orbiter_Win32.dat");
 #endif
 
 #ifdef WINCE
-#include "OrbiterSDL_WinCE.h"
+	#ifdef POCKETFROG
+		#include "Orbiter_PocketFrog.h"
+	#else
+		#include "OrbiterSDL_WinCE.h"
+	#endif
 #else
 #include "OrbiterSDL_Win32.h"
 #endif 
@@ -269,7 +277,11 @@ bool OrbiterSelfUpdate::LastUpdateFailed()
 bool OrbiterSelfUpdate::Run()
 {
 #ifdef WINCE
-	((OrbiterSDL_WinCE *)m_pOrbiter)->WriteStatusOutput("Updating orbiter...");
+	#ifdef POCKETFROG
+		((Orbiter_PocketFrog *)m_pOrbiter)->WriteStatusOutput("Updating orbiter...");
+	#else
+		((OrbiterSDL_WinCE *)m_pOrbiter)->WriteStatusOutput("Updating orbiter...");
+	#endif
 #else
 	((OrbiterSDL_Win32 *)m_pOrbiter)->WriteStatusOutput("Updating orbiter...");
 #endif 

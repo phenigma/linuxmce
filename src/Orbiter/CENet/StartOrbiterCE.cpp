@@ -1,7 +1,24 @@
 #include "StartOrbiterCE.h"
 
 #include "PlutoUtils/CommonIncludes.h"	
-#include "OrbiterSDL_WinCE.h"
+
+#ifdef POCKETFROG
+	#include "Orbiter_PocketFrog.h"
+
+	#ifdef ORBITER
+	#undef ORBITER
+	#define ORBITER Orbiter_PocketFrog
+	#endif
+
+#else
+	#include "OrbiterSDL_WinCE.h"
+
+	#ifdef ORBITER
+	#undef ORBITER
+	#define ORBITER OrbiterSDL_WinCE
+	#endif
+
+#endif
 
 using namespace DCE;
 using namespace std;
@@ -23,10 +40,10 @@ enum OrbiterStages
 	osQuit
 };
 //-----------------------------------------------------------------------------------------------------
-bool SDLEventLoop(OrbiterSDL_WinCE* pOrbiter);
+bool EventLoop(ORBITER* pOrbiter);
 //-----------------------------------------------------------------------------------------------------
-OrbiterSDL_WinCE* Connect(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLocalMode,
-					int Width,int Height, bool bFullScreen)
+
+ORBITER *Connect(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLocalMode, int Width,int Height, bool bFullScreen)
 {
 	if(!bLocalMode)
 		WriteStatusOutput("Connecting to DCERouter...");
@@ -35,11 +52,11 @@ OrbiterSDL_WinCE* Connect(int PK_Device,string sRouter_IP,string sLocalDirectory
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "About to cleanup Orbiter");
 		
-		OrbiterSDL_WinCE::Cleanup();
+		ORBITER::Cleanup();
 	
 		g_pPlutoLogger->Write(LV_STATUS, "Orbiter cleanup finished");
 
-		OrbiterSDL_WinCE::BuildOrbiterSDL_WinCE(
+		ORBITER::BuildOrbiter(
 			PK_Device, sRouter_IP,
 			sLocalDirectory, bLocalMode, 
 			Width, Height, bFullScreen
@@ -62,7 +79,7 @@ OrbiterSDL_WinCE* Connect(int PK_Device,string sRouter_IP,string sLocalDirectory
 		return NULL;
 	}
 
-	OrbiterSDL_WinCE *pOrbiter = OrbiterSDL_WinCE::GetInstance();
+	ORBITER *pOrbiter = ORBITER::GetInstance();
 
 	if(!bLocalMode)
 	{
@@ -80,11 +97,12 @@ OrbiterSDL_WinCE* Connect(int PK_Device,string sRouter_IP,string sLocalDirectory
 	return pOrbiter;
 }
 //-----------------------------------------------------------------------------------------------------
-bool Run(OrbiterSDL_WinCE* pOrbiter, bool bLocalMode)
+bool Run(ORBITER* pOrbiter, bool bLocalMode)
 {
 	WriteStatusOutput("Parsing configuration data...");
 	pOrbiter->WriteStatusOutput("Parsing configuration data...");
 
+#ifndef POCKETFROG
     pOrbiter->Initialize(gtSDLGraphic);
 
 	if(pOrbiter->m_bQuit)
@@ -100,12 +118,16 @@ bool Run(OrbiterSDL_WinCE* pOrbiter, bool bLocalMode)
 
 	WriteStatusOutput("Starting processing events...");
 	pOrbiter->WriteStatusOutput("Starting processing events...");
+#endif
 
-	return SDLEventLoop(pOrbiter);
+	return EventLoop(pOrbiter);
 }
 //-----------------------------------------------------------------------------------------------------
-bool SDLEventLoop(OrbiterSDL_WinCE* pOrbiter)
+bool EventLoop(ORBITER* pOrbiter)
 {
+#ifdef POCKETFROG
+	pOrbiter->Run();
+#else
     SDL_Event Event;
 
     // temporary hack --
@@ -161,13 +183,15 @@ bool SDLEventLoop(OrbiterSDL_WinCE* pOrbiter)
 #endif
     }  // while
 
+#endif //POCKETFROG vs. SDL
+
 	return !pOrbiter->m_bConnectionLost;
 }
 //-----------------------------------------------------------------------------------------------------
 void StartOrbiterCE(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bLocalMode,
 					int Width,int Height, bool bFullScreen)
 {
-	OrbiterSDL_WinCE *pOrbiter = NULL;
+	ORBITER *pOrbiter = NULL;
 	OrbiterStages stage = osConnect;
 
 	while(stage != osQuit)
@@ -208,7 +232,7 @@ void StartOrbiterCE(int PK_Device,string sRouter_IP,string sLocalDirectory,bool 
 		}
 	}
     
-	OrbiterSDL_WinCE::Cleanup();
+	ORBITER::Cleanup();
 
 	pOrbiter = NULL;
 }

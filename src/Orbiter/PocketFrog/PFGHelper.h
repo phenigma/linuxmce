@@ -1,13 +1,15 @@
 #ifndef __SDL_RENDERER_OCG_HELPER_H__
 #define __SDL_RENDERER_OCG_HELPER_H__
 
-#include <SDL.h>
+#include <PocketFrog.h>
+using namespace Frog;
+
 #include <string>
 using namespace std;
 //----------------------------------------------------------------------------------------------------------------
-SDL_Surface* SDL_LoadOCG(string sFilename);
-SDL_Surface* SDL_LoadOCG(char *pOCGData, size_t iOCGDataSize);
+Surface* PocketFrog_LoadPFG(string sFilename);
+Surface* PocketFrog_LoadPFG(char *pOCGData, size_t iOCGDataSize);
 //----------------------------------------------------------------------------------------------------------------
-bool SDL_SaveOCG(SDL_Surface *pSurface, string sFilename, bool bPocket = true);
+bool PocketFrog_SavePFG(Surface *pSurface, string sFilename);
 //----------------------------------------------------------------------------------------------------------------
 #endif

@@ -18,7 +18,11 @@ const char *g_szCompile_Date="<=compile_date=>";
 extern HWND	g_hWndList; //maindialog logger list
 
 #ifdef WINCE
-#include "OrbiterSDL_WinCE.h"
+	#ifdef POCKETFROG
+		#include "Orbiter_PocketFrog.h"
+	#else
+		#include "OrbiterSDL_WinCE.h"
+	#endif
 #else
 #include "OrbiterSDL_Win32.h"
 #endif
@@ -205,7 +209,12 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		Simulator::GetInstance()->SaveConfigurationFile("/Storage Card/Orbiter.conf");
 		Simulator::Cleanup();
 
-		OrbiterSDL_WinCE::Cleanup();
+		#ifdef POCKETFROG
+				Orbiter_PocketFrog::Cleanup();
+		#else
+				OrbiterSDL_WinCE::Cleanup();
+		#endif
+
 #else
 		Simulator::GetInstance()->SaveConfigurationFile("Orbiter.conf");
 		Simulator::Cleanup();

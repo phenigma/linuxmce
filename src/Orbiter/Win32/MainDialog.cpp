@@ -11,7 +11,11 @@
 	#include "Commctrl.h"
 	#include "OrbiterSDL_Win32.h"
 #else
-	#include "OrbiterSDL_WinCE.h"
+	#ifdef POCKETFROG
+		#include "Orbiter_PocketFrog.h"
+	#else
+		#include "OrbiterSDL_WinCE.h"
+	#endif
 #endif
 
 #pragma warning(disable : 4311 4312)
@@ -143,6 +147,11 @@ DWORD WINAPI OrbiterThread( LPVOID lpParameter)
 	try
 	{
 #ifdef WINCE
+
+#ifdef POCKETFROG
+    _Module.Init( 0, g_hInst );
+#endif
+
 	#define START_ORBITER StartOrbiterCE
 #else
 	#define	START_ORBITER StartOrbiter_Win32
@@ -184,7 +193,11 @@ DWORD WINAPI PlayerThread( LPVOID lpParameter)
 	int Count = (int)::SendMessage(g_hWndRecord_List, LB_GETCOUNT, 0L, 0L);
 
 #ifdef WINCE
-	OrbiterSDL_WinCE *pOrbiter = OrbiterSDL_WinCE::GetInstance();
+	#ifdef POCKETFROG
+		Orbiter_PocketFrog *pOrbiter = Orbiter_PocketFrog::GetInstance();
+	#else
+		OrbiterSDL_WinCE *pOrbiter = OrbiterSDL_WinCE::GetInstance();
+	#endif
 #else
 	OrbiterSDL_Win32 *pOrbiter = OrbiterSDL_Win32::GetInstance();
 #endif
