@@ -75,21 +75,21 @@ if (isset($_POST['username']) && $_POST['username']!='') {
 				<td align="left" colspan="2" class="insidetable2">&nbsp;</td>
 			</tr>	
 	    <tr class="insidetable"> 
-	      <td width="50%" align="right"><B>Username</B></td>
+	      <td width="30%" align="left"><B>Username</B></td>
 	      <td>&nbsp;<input type="text" class="textfield" name="username" value="'.@$_SESSION['username'].'" /></td></tr>
 	    <tr class="insidetable"> 
-	      <td align="right"><B>Password</B></td>
+	      <td align="left"><B>Password</B></td>
 	      <td>&nbsp;<input type="password" class="textfield" name="password" value="" onkeypress="assignVal(1)"/></td>
 	    </tr>
         <tr class="insidetable">
-        	<td height="20" align="right"><B>Remember my password</B></td>
+        	<td height="20" align="left"><B>Remember my password</B></td>
             <td align="left"><input type="checkbox" name="autologin" value="1"></td>
 		</tr>	
 	    <tr class="insidetable">
-	      <td colspan="2" align="center"><input type="image" name="submitX" src="images/buttons/buton_login.gif" /></td>
+	      <td colspan="2" align="left"><input type="image" name="submitX" src="images/buttons/buton_login.gif" /></td>
 	    </tr>
 		<tr class="insidetable">
-			<td colspan="2"><div align="center">If you already registered on <a href="http://www.plutovip.com">Plutovip.com</a>, your username and password are linked and will work on this site too.
+			<td colspan="2"><div align="left">If you already registered on <a href="http://www.plutovip.com">Plutovip.com</a>, your username and password are linked and will work on this site too.
 						<br> 
 						<br>
 						Not already registered? <a href="index.php?section=register">Click here</a> to register.<br><br></div>
