@@ -196,12 +196,18 @@ void CreateDevice::CreateChildrenByCategory(int iPK_Device,int iPK_DeviceCategor
 	PlutoSqlResult result,result2;
 	MYSQL_ROW row;
 
-	string SQL = "SELECT FK_DeviceTemplate FROM DeviceTemplate_DeviceCategory_ControlledVia WHERE AutoCreateChildren=1 AND FK_DeviceCategory=" + StringUtils::itos(iPK_DeviceCategory);
+	string SQL = "SELECT FK_DeviceTemplate,RerouteMessagesToParent, FROM DeviceTemplate_DeviceCategory_ControlledVia WHERE AutoCreateChildren=1 AND FK_DeviceCategory=" + StringUtils::itos(iPK_DeviceCategory);
 	if( ( result.r=mysql_query_result( SQL ) ) )
 	{
 		while( row=mysql_fetch_row( result.r ) )
 		{
-			DoIt(0,atoi(row[0]),"","",iPK_Device);
+			int PK_Device = DoIt(0,atoi(row[0]),"","",iPK_Device);
+			if( row[1] && atoi(row[1]) )
+			{
+				// Need to reroute messages to parent
+				SQL = "UPDATE Device SET FK_Device_RouteTo=" + StringUtils::itos(iPK_Device) + " WHERE PK_Device=" + StringUtils::itos(PK_Device);
+				threaded_mysql_query(SQL.c_str());
+			}
 		}
 	}
 
@@ -215,12 +221,18 @@ void CreateDevice::CreateChildrenByTemplate(int iPK_Device,int iPK_DeviceTemplat
 	PlutoSqlResult result;
 	MYSQL_ROW row;
 
-	string SQL = "SELECT FK_DeviceTemplate FROM DeviceTemplate_DeviceTemplate_ControlledVia WHERE AutoCreateChildren=1 AND FK_DeviceTemplate_ControlledVia=" + StringUtils::itos(iPK_DeviceTemplate);
+	string SQL = "SELECT FK_DeviceTemplate,RerouteMessagesToParent,PK_DeviceTemplate_DeviceTemplate_ControlledVia FROM DeviceTemplate_DeviceTemplate_ControlledVia WHERE AutoCreateChildren=1 AND FK_DeviceTemplate_ControlledVia=" + StringUtils::itos(iPK_DeviceTemplate);
 	if( ( result.r=mysql_query_result( SQL ) ) )
 	{
 		while( row=mysql_fetch_row( result.r ) )
 		{
 			DoIt(0,atoi(row[0]),"","",iPK_Device);
+			if( row[1] && atoi(row[1]) )
+			{
+				// Need to reroute messages to parent
+				SQL = "UPDATE Device SET FK_Device_RouteTo=" + StringUtils::itos(iPK_Device) + " WHERE PK_Device=" + StringUtils::itos(PK_Device);
+				threaded_mysql_query(SQL.c_str());
+			}
 		}
 	}
 }

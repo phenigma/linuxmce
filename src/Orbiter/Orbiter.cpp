@@ -45,6 +45,7 @@ using namespace DCE;
 #include "Floorplan.h"
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_FloorplanType.h"
+#include "pluto_main/Define_Text.h"
 
 #include "../OrbiterGen/Renderer.h"
 
@@ -210,6 +211,11 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter %p constructor",this);
     m_sCaptureKeyboard_Text = "";
     m_sCaptureKeyboard_InternalBuffer = "";
     m_pCaptureKeyboard_Text = NULL;
+	m_bBypassScreenSaver = false;
+
+	string::size_type pos=0;
+	m_iTimeoutScreenSaver = atoi(StringUtils::Tokenize(DATA_Get_Timeout(),",",pos).c_str());
+	m_iTimeoutBlank = atoi(StringUtils::Tokenize(DATA_Get_Timeout(),",",pos).c_str());
 
 	pthread_cond_init(&m_MaintThreadCond, NULL);
 	m_MaintThreadMutex.Init(NULL);
@@ -428,6 +434,19 @@ void Orbiter::RedrawObjects(  )
     // to block until there's an event,  so that our loop no longer gets back to the SDL_WaitEvent in the main pump
     // So for now just do the redraw's always on a separate thread
 	CallMaintenanceInMiliseconds( 0, &Orbiter::RealRedraw, NULL, true );
+}
+
+void Orbiter::ScreenSaver( void *data )
+{
+	if( m_pScreenHistory_Current->m_pObj == m_pDesignObj_Orbiter_ScreenSaveMenu )
+	{
+		CMD_Display_OnOff("0");
+	}
+	else
+	{
+		CMD_Set_Main_Menu("V");
+		GotoScreen(m_sMainMenu);
+	}
 }
 
 void Orbiter::Timeout( void *data )
@@ -1082,6 +1101,14 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable is now %p",pObj-
     }
 
     // todo 2.0 SelectFirstObject(  );
+
+	if( !m_bBypassScreenSaver && pScreenHistory->m_pObj == m_pDesignObj_Orbiter_ScreenSaveMenu && m_iTimeoutBlank )
+	{
+		m_tTimeoutTime = time(NULL) + m_iTimeoutBlank;
+		CallMaintenanceInMiliseconds( m_iTimeoutBlank * 1000, &Orbiter::ScreenSaver, NULL, true );
+	}
+	else if( !m_bBypassScreenSaver && pScreenHistory->m_pObj != m_pDesignObj_Orbiter_ScreenSaveMenu && m_iTimeoutScreenSaver )
+		CallMaintenanceInMiliseconds( m_iTimeoutScreenSaver * 1000, &Orbiter::ScreenSaver, NULL, true );
 
     m_pScreenHistory_Current=pScreenHistory;
     m_pScreenHistory_Current->m_pObj->m_bActive=true;
@@ -1779,6 +1806,11 @@ void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbite
 			CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_mnuMyDisplay_Off_CONST), 0, "", "",  "1" );
 			CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_mnuMyMD_Halt_CONST), 0, "", "",  "1" );
 		}
+	}
+	else if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_mnuScreenSaver_CONST )
+	{
+		CMD_Set_Text(pDesignObj_Orbiter->m_ObjectID, StringUtils::itos(	m_tTimeoutTime - time(NULL) ) + " seconds",TEXT_USR_ENTRY_CONST);
+		CMD_Continuous_Refresh("1");
 	}
 }
 
@@ -2970,7 +3002,9 @@ bool Orbiter::ButtonDown( int PK_Button )
     class ScreenHistory *pScreenHistory = m_pScreenHistory_Current;
 
     bool bHandled=false;
-    this->GotActivity(  );
+    if( !GotActivity(  ) )
+		return true;
+
     if(  PK_Button == BUTTON_Enter_CONST  )
     {
         if(  m_pObj_Highlighted && !m_pObj_Highlighted->IsHidden(  )  )
@@ -3186,7 +3220,10 @@ bool Orbiter::ButtonUp( int iPK_Button )
 //------------------------------------------------------------------------
 bool Orbiter::RegionDown( int x,  int y )
 {
-    NeedToRender render( this, "Region Down" );  // Redraw anything that was changed by this command
+    if( !GotActivity(  ) )
+		return true;
+
+	NeedToRender render( this, "Region Down" );  // Redraw anything that was changed by this command
 
     class ScreenHistory *pScreenHistory = m_pScreenHistory_Current;
 
@@ -3251,17 +3288,31 @@ bool Orbiter::RegionDown( int x,  int y )
     return bHandled;
 }
 //------------------------------------------------------------------------
-void Orbiter::GotActivity(  )
+bool Orbiter::GotActivity(  )
 {
     m_LastActivityTime=time( NULL );
     if(  !m_bDisplayOn  )
     {
         CMD_Display_OnOff( "1" );
-        return;  // Ignore this first touch
+		if( m_pScreenHistory_Current->m_pObj == m_pDesignObj_Orbiter_ScreenSaveMenu )
+		{
+			CMD_Set_Main_Menu("N");
+			GotoScreen(m_sMainMenu);
+		}
+		return false; // Don't do anything with this
     }
 
 	if(  m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj->m_dwTimeoutSeconds  )
 		CallMaintenanceInMiliseconds( m_pScreenHistory_Current->m_pObj->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) m_pScreenHistory_Current->m_pObj, true );
+
+	if( m_pScreenHistory_Current->m_pObj == m_pDesignObj_Orbiter_ScreenSaveMenu )
+	{
+		CMD_Set_Main_Menu("N");
+		GotoScreen(m_sMainMenu);
+	}
+	else if( !m_bBypassScreenSaver && m_pScreenHistory_Current->m_pObj != m_pDesignObj_Orbiter_ScreenSaveMenu && m_iTimeoutScreenSaver )
+		CallMaintenanceInMiliseconds( m_iTimeoutScreenSaver * 1000, &Orbiter::ScreenSaver, NULL, true );
+	return true;
 }
 
 /*
@@ -4176,8 +4227,18 @@ void Orbiter::CMD_Orbiter_Beep(string &sCMD_Result,Message *pMessage)
 void Orbiter::CMD_Display_OnOff(string sOnOff,string &sCMD_Result,Message *pMessage)
 //<-dceag-c3-e->
 {
-    cout << "Need to implement command #3 - Display On/Off" << endl;
-    cout << "Parm #8 - OnOff=" << sOnOff << endl;
+	m_bDisplayOn = sOnOff=="1";
+	if( m_bDisplayOn )
+	{
+		DCE::CMD_On CMD_On(m_dwPK_Device,m_dwPK_Device,0,"");
+		SendCommand(CMD_On);
+	}
+	else
+	{
+		DCE::CMD_Off CMD_Off(m_dwPK_Device,m_dwPK_Device,0);
+		SendCommand(CMD_Off);
+	}
+
 }
 
 //<-dceag-c4-b->
@@ -5460,6 +5521,22 @@ void Orbiter::ContinuousRefresh( void *data )
 		delete pContinuousRefreshInfo;
 	else
 	{
+		if( m_pScreenHistory_Current->m_pObj->m_iBaseObjectID==DESIGNOBJ_mnuScreenSaver_CONST )
+		{
+			if( !m_bDisplayOn )
+				return; // Nothing more to do
+
+			DesignObjText *pText = FindText( m_pScreenHistory_Current->m_pObj, TEXT_USR_ENTRY_CONST );
+			if( pText  )
+			{
+				pText->m_sText = StringUtils::itos(	m_tTimeoutTime - time(NULL) ) + " seconds";
+				pText->m_rPosition.X = rand() * m_iImageWidth * .5 / RAND_MAX;
+				pText->m_rPosition.Y = rand() * m_iImageHeight *.9 / RAND_MAX;
+			}
+
+			CMD_Set_Text(m_pScreenHistory_Current->m_pObj->m_ObjectID, StringUtils::itos( m_tTimeoutTime - time(NULL) ) + " seconds",TEXT_USR_ENTRY_CONST);
+		}
+
 		CMD_Refresh("");
 		CallMaintenanceInMiliseconds( pContinuousRefreshInfo->m_iInterval * 1000, &Orbiter::ContinuousRefresh, pContinuousRefreshInfo, true );
 	}
@@ -5929,7 +6006,7 @@ int Orbiter::TranslateVirtualDevice(int PK_DeviceTemplate)
 //<-dceag-c324-b->
 
 	/** @brief COMMAND: #324 - Set Timeout */
-	/**  */
+	/** Specifies when a given screen will timeout, executing the timeout actions.  This will also reset a pending timeout */
 		/** @param #3 PK_DesignObj */
 			/** The screen to set the timeout on.  If blank the current screen. */
 		/** @param #102 Time */
@@ -5954,4 +6031,16 @@ void Orbiter::CMD_Set_Timeout(string sPK_DesignObj,string sTime,string &sCMD_Res
 	pObj->m_dwTimeoutSeconds = atoi(sTime.c_str());
 	if( pObj==m_pScreenHistory_Current->m_pObj )
 		CallMaintenanceInMiliseconds( pObj->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) pObj, true );
+}
+//<-dceag-c325-b->
+
+	/** @brief COMMAND: #325 - Keep Screen On */
+	/** Allow or don't allow the screen to blank with the screen saver. */
+		/** @param #8 On/Off */
+			/** If other than "0", the screen saver will be disabled. */
+
+void Orbiter::CMD_Keep_Screen_On(string sOnOff,string &sCMD_Result,Message *pMessage)
+//<-dceag-c325-e->
+{
+	m_bBypassScreenSaver = sOnOff!="0";
 }

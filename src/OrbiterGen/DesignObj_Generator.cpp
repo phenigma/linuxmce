@@ -122,8 +122,7 @@ int k=2;
 }
         // If this is the main menu, there will be an array of them
         if( m_pRow_DesignObj->PK_DesignObj_get()==m_pOrbiterGenerator->m_pRow_DesignObj_MainMenu->PK_DesignObj_get() ||
-			m_pRow_DesignObj->PK_DesignObj_get()==m_pOrbiterGenerator->m_pRow_DesignObj_Sleeping->PK_DesignObj_get() ||
-			m_pRow_DesignObj->PK_DesignObj_get()==m_pOrbiterGenerator->m_pRow_DesignObj_ScreenSaver->PK_DesignObj_get() )
+			m_pRow_DesignObj->PK_DesignObj_get()==m_pOrbiterGenerator->m_pRow_DesignObj_Sleeping->PK_DesignObj_get() )
         {
             m_iVersion = m_pOrbiterGenerator->m_iLocation;
         }

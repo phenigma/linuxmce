@@ -141,6 +141,8 @@ protected:
 	string m_sCaptureKeyboard_Text; /** < text for capture keyboard @todo ask */
 	string m_sCaptureKeyboard_InternalBuffer; /** < capture keyboard internal buffer */
 	string m_sNowPlaying; /** < set by the media engine, this is whatever media is currently playing */
+	int m_iTimeoutScreenSaver,m_iTimeoutBlank;  /** < When we're not on the screen saver screen how long to timeout before going to it, and when we are, how long before blacking the screen */
+	time_t m_tTimeoutTime;  /** < On the screen saver screen, this is the time when the display will go blank */
 
 	DesignObjText *m_pCaptureKeyboard_Text; /** < @todo ask */
 	map<int,  vector<PlutoGraphic*> *> m_mapUserIcons; /** < user icons */
@@ -151,6 +153,7 @@ protected:
 	bool m_bDisplayOn; /** < False if the screen has blanked for the screen saver */
 	bool m_bYieldScreen; /** < True if the orbiter should make the application desktop full screen ( hide itself ) */
 	bool m_bYieldInput; /** < True if the orbiter should yield all input, like keyboard and mouse. This is useful when running the Orbiter as Linux desktop */
+	bool m_bBypassScreenSaver; /** < True if we don't want the screen to blank */
 
 	bool m_bRerenderScreen; /** <  */ // Set to true means ignore the objects to redraw, and just redraw the whole screen
 
@@ -218,6 +221,11 @@ protected:
 	 * @brief Timeout the object, which is data
 	 */
 	void Timeout( void *data );
+
+	/**
+	 * @brief Handle the screen saver
+	 */
+	void ScreenSaver( void *data );
 
 	/**
 	 * @brief renders an object on the screen
@@ -602,9 +610,9 @@ protected:
 
 public:
 	/**
-	 * @brief Something happened, like a touch or a button, reset any timeouts or screen saver
+	 * @brief Something happened, like a touch or a button, reset any timeouts or screen saver.  Returns false if it should be ignored
 	 */
-	virtual void GotActivity();
+	virtual bool GotActivity(  );
 
 	virtual void SimulateMouseClick(int x, int y);
 
@@ -748,6 +756,7 @@ public:
 	void DATA_Set_Current_Screen(string Value);
 	string DATA_Get_Update_Name();
 	string DATA_Get_Communication_file();
+	string DATA_Get_Timeout();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position);
@@ -1199,7 +1208,7 @@ public:
 
 
 	/** @brief COMMAND: #324 - Set Timeout */
-	/**  */
+	/** Specifies when a given screen will timeout, executing the timeout actions.  This will also reset a pending timeout */
 		/** @param #3 PK_DesignObj */
 			/** The screen to set the timeout on.  If blank the current screen. */
 		/** @param #102 Time */
@@ -1207,6 +1216,15 @@ public:
 
 	virtual void CMD_Set_Timeout(string sPK_DesignObj,string sTime) { string sCMD_Result; CMD_Set_Timeout(sPK_DesignObj.c_str(),sTime.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Set_Timeout(string sPK_DesignObj,string sTime,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #325 - Keep Screen On */
+	/** Allow or don't allow the screen to blank with the screen saver. */
+		/** @param #8 On/Off */
+			/** If other than "0", the screen saver will be disabled. */
+
+	virtual void CMD_Keep_Screen_On(string sOnOff) { string sCMD_Result; CMD_Keep_Screen_On(sOnOff.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Keep_Screen_On(string sOnOff,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

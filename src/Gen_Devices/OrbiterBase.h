@@ -39,6 +39,7 @@ public:
 	void Set_Current_Screen(string Value) { SetParm(4,Value.c_str()); }
 	string Get_Update_Name() { return m_mapParameters[41];}
 	string Get_Communication_file() { return m_mapParameters[43];}
+	string Get_Timeout() { return m_mapParameters[56];}
 };
 
 
@@ -87,6 +88,7 @@ public:
 	void DATA_Set_Current_Screen(string Value) { GetData()->Set_Current_Screen(Value); }
 	string DATA_Get_Update_Name() { return GetData()->Get_Update_Name(); }
 	string DATA_Get_Communication_file() { return GetData()->Get_Communication_file(); }
+	string DATA_Get_Timeout() { return GetData()->Get_Timeout(); }
 	//Event accessors
 	void EVENT_Touch_or_click(int iX_Position,int iY_Position) { GetEvents()->Touch_or_click(iX_Position,iY_Position); }
 	//Commands - Override these to handle commands from the server
@@ -131,6 +133,7 @@ public:
 	virtual void CMD_Set_Main_Menu(string sText,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Quit(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Timeout(string sPK_DesignObj,string sTime,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Keep_Screen_On(string sOnOff,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -834,6 +837,22 @@ public:
 					string sPK_DesignObj=pMessage->m_mapParameters[3];
 					string sTime=pMessage->m_mapParameters[102];
 						CMD_Set_Timeout(sPK_DesignObj.c_str(),sTime.c_str(),sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							pMessageOut->m_mapParameters[0]=sCMD_Result;
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 325:
+					{
+						string sCMD_Result="OK";
+					string sOnOff=pMessage->m_mapParameters[8];
+						CMD_Keep_Screen_On(sOnOff.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);

@@ -5485,5 +5485,21 @@ namespace DCE
 	public:
 		CMD_Set_Timeout_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sPK_DesignObj,string sTime) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,324,2,3,sPK_DesignObj.c_str(),102,sTime.c_str()); }
 	};
+	class CMD_Keep_Screen_On : public PreformedCommand {
+	public:
+		CMD_Keep_Screen_On(long DeviceIDFrom, long DeviceIDTo,string sOnOff) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,325,1,8,sOnOff.c_str()); }
+	};
+	class CMD_Keep_Screen_On_DL : public PreformedCommand {
+	public:
+		CMD_Keep_Screen_On_DL(long DeviceIDFrom, string DeviceIDTo,string sOnOff) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,325,1,8,sOnOff.c_str()); }
+	};
+	class CMD_Keep_Screen_On_DT : public PreformedCommand {
+	public:
+		CMD_Keep_Screen_On_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sOnOff) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,325,1,8,sOnOff.c_str()); }
+	};
+	class CMD_Keep_Screen_On_Cat : public PreformedCommand {
+	public:
+		CMD_Keep_Screen_On_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sOnOff) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,325,1,8,sOnOff.c_str()); }
+	};
 }
 #endif
