@@ -1,20 +1,20 @@
 /*
  OrbiterLinux
- 
+
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
- 
- www.plutohome.com		
- 
+
+ www.plutohome.com
+
  Phone: +1 (877) 758-8648
- 
- This program is distributed according to the terms of the Pluto Public License, available at: 
- http://plutohome.com/index.php?section=public_license 
- 
- This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+
+ This program is distributed according to the terms of the Pluto Public License, available at:
+ http://plutohome.com/index.php?section=public_license
+
+ This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
- 
+
  */
- 
+
 #include "DCE/Logger.h"
 #include "OrbiterLinux.h"
 
@@ -66,7 +66,9 @@ void OrbiterLinux::reinitGraphics()
 
 void OrbiterLinux::setInputFocusToMe(void *)
 {
-    commandRatPoison(":keystodesktop on");
+    if ( ! m_bYieldInput )
+        commandRatPoison(":keystodesktop on");
+
     CallMaintenanceInTicks( 7000, (OrbiterCallBack)&OrbiterLinux::setInputFocusToMe, NULL ); // do this every 7 seconds
 }
 
@@ -116,12 +118,8 @@ Display *OrbiterLinux::getDisplay()
 
 bool OrbiterLinux::RenderDesktop(DesignObj_Orbiter *pObj, PlutoRectangle rectTotal)
 {
-	vector<int> vectButtonMaps;
-	GetButtonsInObject(pObj,vectButtonMaps);
-
-    g_pPlutoLogger->Write(LV_WARNING, "Need to resize in here [%d, %d, %dx%d]!",
-            rectTotal.Top(), rectTotal.Left(),
-            rectTotal.Bottom(), rectTotal.Right());
+    vector<int> vectButtonMaps;
+    GetButtonsInObject(pObj,vectButtonMaps);
 
     resizeMoveDesktop(rectTotal.Left(), rectTotal.Top(),
             rectTotal.Right() - rectTotal.Left(),
@@ -134,6 +132,16 @@ bool OrbiterLinux::RenderDesktop(DesignObj_Orbiter *pObj, PlutoRectangle rectTot
 // public interface implementations below
 bool OrbiterLinux::resizeMoveDesktop(int x, int y, int width, int height)
 {
+    if ( ! m_bYieldInput )
+        commandRatPoison(":keystodesktop on");
+    else
+    {
+        commandRatPoison(":keystodesktop off");
+        // patch the rectangle to match the actual resolution
+        width = m_nDesktopWidth;
+        height = m_nDesktopHeight;
+    }
+
     g_pPlutoLogger->Write(LV_STATUS, "Resizing desktop to (%d, %d) and dimensions [%dx%d]", x, y, width, height);
 
     stringstream commandLine;
@@ -143,9 +151,11 @@ bool OrbiterLinux::resizeMoveDesktop(int x, int y, int width, int height)
 
     commandRatPoison(commandLine.str());
 
+/*
     commandLine.str("");
     commandLine << ":redisplay";
     commandRatPoison(commandLine.str());
+*/
     return true;
 }
 
@@ -300,44 +310,3 @@ void OrbiterLinux::fixNestedDisplayName()
 
     g_pPlutoLogger->Write(LV_STATUS, "Using %s as the DISPLAY var for the nested server!", m_strDesktopDisplayName.c_str());
 
-    closeDisplay();
-}*/
-
-/*
-bool OrbiterLinux::forkAndWait(char *const args[], int waitTime)
-{
-    switch ( fork() )
-    {
-        case -1:
-            g_pPlutoLogger->Write(LV_WARNING, "There was an error trying to fork.");
-            break;
-        case 0:
-        {
-            g_pPlutoLogger->Write(LV_STATUS, "In Child process");
-            stringstream commandLine;
-
-            int arg = 0;
-            while ( args[arg] != 0 )
-                commandLine << " " << args[arg++] << "";
-
-            g_pPlutoLogger->Write(LV_STATUS, "Spawning process: %s", commandLine.str().c_str());
-
-            int result;
-            if ( (result = execv(args[0], args)) == -1 )
-            {
-
-                g_pPlutoLogger->Write(LV_WARNING, "Exec failed %d", errno);
-                perror("Execve error: ");
-                execl("/bin/false", NULL); // Cause the image to owerwritten so that an exit will not close the XServerDisplay
-            }
-        }
-//             break; // it doesn't reach here anyway.
-        default:
-            // i'm in the parent here
-            g_pPlutoLogger->Write(LV_STATUS, "Fork was succesfull. Waiting %d", waitTime);
-            usleep(waitTime * 1000 * 1000);
-    }
-
-    return true;
-}
-*/
