@@ -28,7 +28,7 @@ if($ARGV[0] eq "") {
 	  $db->disconnect();
 	  exit(0);
 	}
-	system("/usr/pluto/bin/CreateDevice -i $install -d $dev_templ -I $ip -M $mac\n");
+	system("/usr/pluto/bin/CreateDevice -i $install -d $dev_templ -I $ip -M $mac -n\n");
     } else {
         loggc("Gc100 as default not found\n");
 	exit(0);
