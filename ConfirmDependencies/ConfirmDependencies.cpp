@@ -267,7 +267,8 @@ int main(int argc, char *argv[])
 				InstallPackage(pPackageInfo);
 			}
 			cout << "else" << endl;
-			cout << "\techo '**ERROR** Unable to get package " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << "'" << endl;
+//			cout << "\techo '**ERROR** Unable to get package " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << "'" << endl;
+			cout << "\techo \"Processing of package '" << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << "' went ok\"" << endl;
 			cout << "fi" << endl;
 		}
 		for(it=listPackageInfo.begin(); it!=listPackageInfo.end(); ++it)
@@ -616,7 +617,7 @@ Row_Package_Directory *GetDirectory(Row_Package *pRow_Package,int PK_Directory)
 
 void InstallPackage(PackageInfo *pPackageInfo)
 {
-	cout << "if ! /usr/pluto/bin/" << pRow_Distro->Installer_get()
+	cout << "if ! /usr/pluto/install/" << pRow_Distro->Installer_get()
 		<< " \"" << pPackageInfo->m_pRow_Package_Source->Name_get() << "\""
 		<< " \"" << pPackageInfo->m_pRow_RepositorySource_URL->URL_get() << "\""
 		<< " \"" << pPackageInfo->m_pRow_Package_Source->Repository_get() << "\""
@@ -630,4 +631,5 @@ void InstallPackage(PackageInfo *pPackageInfo)
 		<< "; then"
 		<< endl;
 	cout << "\techo \"Something went wrong confirming package '" << pPackageInfo->m_pRow_Package_Source->Name_get() << "'\"" << endl;
+	cout << "\tread" << endl;
 }
