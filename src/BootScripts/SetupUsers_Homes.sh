@@ -103,3 +103,6 @@ for User in $UserList; do
 	chown --dereference -R pluto_$User.pluto_$User /home/$User/
 done
 
+chmod -R 2770 /home/user_*
+chmod -R 2775 /home/public
+chgrp -R public /home/public

@@ -1,0 +1,11 @@
+$TTL	86400
+$ORIGIN activate.plutohome.com.
+@			1D IN SOA	@ root (
+					45		; serial
+					3H		; refresh
+					15M		; retry
+					1W		; expiry
+					1D )		; minimum
+
+				1D IN NS	@
+				1D IN A		%DCEROUTER%

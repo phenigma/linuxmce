@@ -1,18 +1,32 @@
 #!/bin/bash
 #enable MySQL networking
-sed -i 's/^skip-networking/#skip-networking/' /etc/mysql/my.cnf
+MyCnf=/etc/mysql/my.cnf
+DefTableType=innodb
+sed -i "s/^skip-networking/#skip-networking/; s/^skip-innodb/#skip-innodb/; s/^default-table-type=.*$/default-table-type=$DefTableType/" "$MyCnf"
+grep '^default-table-type=' "$MyCnf" || echo "default-table-type=$DefTableType" >>"$MyCnf"
 echo "GRANT ALL PRIVILEGES ON pluto_main.* to 'root'@'127.0.0.1';" | mysql
 /etc/init.d/mysql restart
 
 . /usr/pluto/bin/Config_Ops.sh
 . /usr/pluto/bin/SQL_Ops.sh
 
+echo "Converting all tables except mysql to InnoDB (this may take a while)"
+DBs=$(RunSQL 'SHOW DATABASES')
+for DB in $DBs; do
+	[[ "$DB" == mysql ]] && continue
+	Tables=$(RunSQL "SHOW TABLES FROM $DB")
+	for Table in $Tables; do
+		RunSQL "ALTER TABLE \`$DB\`.\`$Table\` TYPE=$DefTableType"
+	done
+done
+echo "Finished converting tables to InnoDB"
+
 device="$PK_Device"
 code="$Activation_Code"
 
 chmod 700 /usr/pluto/keys/id_dsa_remoteassistance
 echo "setting up dce router2"
-hasRecords=`echo 'SELECT count(PK_Installation) FROM Installation' | mysql -N pluto_main`;
+hasRecords=$(RunSQL "SELECT count(PK_Installation) FROM Installation")
 if [ $hasRecords -ne 0 ]; then
 	echo "Database already setup";
 	SkipDatabase="yes"

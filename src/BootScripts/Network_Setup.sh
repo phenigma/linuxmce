@@ -104,6 +104,12 @@ Replace == 0 { print }
 Replace != 0 { Replace-- }
 ' /etc/bind/named.conf.options >/etc/bind/named.conf.options.$$
 mv /etc/bind/named.conf.options.$$ /etc/bind/named.conf.options
+
+if ! grep -F 'zone "activate.plutohome.com"' /etc/bind/named.conf.local; then
+	cat /usr/pluto/templates/named.zone.pluto.activate.local.conf.tmpl >>/etc/bind/named.conf.local
+fi
+cat /usr/pluto/templates/named.zone.pluto.activate.data.tmpl >"/etc/bind/named.zone.pluto.activate"
+
 rndc reload
 
 AskPort80="
