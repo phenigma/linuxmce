@@ -222,6 +222,7 @@ bool CPlutoVMCContainer::HandleCommonKeys(const TKeyEvent& aKeyEvent, TEventCode
 	//build keypressed command
 	if(KeyCode != 0) //known or unknown key
 	{
+		/*
 		if(KeyCode==BUTTON_Rept_Phone_C_CONST)
 		{
 			((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->CloseVMC();
@@ -230,6 +231,7 @@ bool CPlutoVMCContainer::HandleCommonKeys(const TKeyEvent& aKeyEvent, TEventCode
 
 			return true;
 		}
+		*/
 
 		pVMCUtil->LocalKeyPressed(KeyCode);
 
