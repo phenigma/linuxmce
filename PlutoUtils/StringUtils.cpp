@@ -146,7 +146,8 @@ void StringUtils::Tokenize(string &Input, string Tokens, vector<string> &vect_st
     while( true )
 	{
 		sToken=StringUtils::Tokenize(Input,Tokens,pos);
-        vect_strings.push_back(sToken);
+		if( sToken.length() )
+	        vect_strings.push_back(sToken);
 		if( pos>=Input.length() )
 			return;
 	}

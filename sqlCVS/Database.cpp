@@ -332,7 +332,7 @@ int Database::PromptForTablesInRepository( Repository *pRepository, MapTable &ma
 				cout << StringUtils::RepeatChar( ' ', iColumnWidth - ( int )pTable->Name_get( ).length( ) );
 		}
 
-		cout << "Tables marked with * are to be included in the repository: " << pRepository->Name_get( ) << endl
+		cout << endl << "Tables marked with * are to be included in the repository: " << pRepository->Name_get( ) << endl
 			<< "Enter the table numbers, separated by commas, to toggle the * flag." << endl
 			<< "XXX means the table is already in another repository, and cannot be added" << endl
 			<< "Tables with an H in front will have history tracking." << endl

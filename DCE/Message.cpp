@@ -271,6 +271,7 @@ void Message::Clear()
 
 void Message::ToData( unsigned long &dwSize, char* &pcData, bool bWithHeader )
 {
+	// See comments at end of this message to see why we don't delete the memory allocated in SerializeClass
 	StartWriting();
 	unsigned long dwHeaderPosition=0, dwStartOfMessagePosition=0;
 
@@ -365,6 +366,8 @@ void Message::ToData( unsigned long &dwSize, char* &pcData, bool bWithHeader )
 		m_pcCurrentPosition = pcFreezePosition;
 	}
 
+	// Normally we would want to delete the memory in serialize class.  But here we assign the 'out' data pointer pcData
+	// to the memory block.  Socket::SendMessage needs the data block since that's what it sends, and it will delete it there.
 	pcData = m_pcDataBlock;
 	dwSize = ( m_pcCurrentPosition - m_pcDataBlock );
 
