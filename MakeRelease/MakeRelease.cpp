@@ -476,12 +476,14 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 			(pRow_Package_Directory->FK_Directory_get()==DIRECTORY_Binary_Executables_CONST ||
 			pRow_Package_Directory->FK_Directory_get()==DIRECTORY_Binary_Library_CONST) )
 		{
-			sDirectory = pRow_Package_Directory_CompiledOutput->Path_get();
+			sDirectory = g_sSourcecodePrefix + pRow_Package_Directory_CompiledOutput->Path_get();
 		}
 		else
 		{
-			sDirectory = pRow_Package_Directory->Path_get();
+			sDirectory = g_sNonSourcecodePrefix + pRow_Package_Directory->Path_get();
 		}
+
+
 		if( sDirectory.length()==0 )
 		{
 			if( !AskYNQuestion("**WARNING** Directory is empty.  Continue?",false) )
@@ -489,8 +491,8 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 
 			sDirectory = g_sNonSourcecodePrefix;
 		}
-		else if( sDirectory[0]!='/' && sDirectory.substr(1,2) != ":\\" && sDirectory.substr(1,2) != ":/")
-			sDirectory = g_sNonSourcecodePrefix + sDirectory;
+//		else if( sDirectory[0]!='/' && sDirectory.substr(1,2) != ":\\" && sDirectory.substr(1,2) != ":/")
+// put the prefix above			sDirectory =  + sDirectory;
 	
 		vector<Row_Package_Directory_File *> vectPackage_Directory_File;
 		pRow_Package_Directory->Package_Directory_File_FK_Package_Directory_getrows(&vectPackage_Directory_File);
