@@ -104,8 +104,6 @@ Replace != 0 { Replace-- }
 mv /etc/bind/named.conf.options.$$ /etc/bind/named.conf.options
 rndc reload
 
-clear
-
 AskPort80="
 Right now your Pluto Core will only allow you to access from within the local
 network in your home. (Technical: All incoming ports are blocked).  
@@ -123,6 +121,8 @@ Do you want to allow incoming SSH connections by opening port 22?  This is a
 secure way of accessing the system, but is only for techies and Linux users.
 
 Allow SSH connections? [y/N]?"
+
+#clear
 
 #echo -n "$AskPort80"
 #read Answer

@@ -4,9 +4,12 @@
 
 echo "Enabling packet forwarding"
 echo 1 >/proc/sys/net/ipv4/ip_forward
-modprobe ip_conntrack
-modprobe ip_conntrack_ftp
-modprobe ip_conntrack_irc
+
+modules="ip_conntrack ip_conntrack_ftp ip_conntrack_irc ip_nat_ftp ip_nat_irc"
+
+for module in $modules; do
+	modprobe $module
+done
 
 echo "Setting up firewall"
 iptables -P INPUT DROP
@@ -21,7 +24,12 @@ iptables -A INPUT -i lo -j ACCEPT
 iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 iptables -A INPUT -p udp --dport 67 -j ACCEPT # BOOTP/DHCP
 iptables -A INPUT -s "$IntNet/$IntBitmask" -j ACCEPT
-iptables -t nat -A POSTROUTING -s "$IntNet/$IntBitmask" -j MASQUERADE
+
+if [ "$ExtIP" != "dhcp" ]; then
+	iptables -t nat -A POSTROUTING -s "$IntNet/$IntBitmask" -d \! "$IntNet/$IntBitmask" -o $ExtIf -j SNAT --to-source $ExtIP
+else
+	iptables -t nat -A POSTROUTING -s "$IntNet/$IntBitmask" -d \! "$IntNet/$IntBitmask" -o $ExtIf -j MASQUERADE
+fi
 
 echo "Setting up forwarded ports"
 Q="SELECT Protocol,SourcePort,SourcePortEnd,DestinationPort,DestinationIP FROM Firewall WHERE RuleType='port_forward' ORDER BY PK_Firewall"
