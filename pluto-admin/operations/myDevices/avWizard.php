@@ -1,5 +1,6 @@
 <?
 function avWizard($output,$dbADO) {
+	global $dbPlutoMainDatabase;
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 //	$dbADO->debug=true;
@@ -561,13 +562,7 @@ function avWizard($output,$dbADO) {
 			unset($_SESSION['from']);
 			$deviceTemplate=(int)$_REQUEST['deviceTemplate'];
 			if($deviceTemplate!=0){
-				$insertDevice='
-					INSERT INTO Device
-						(Description,FK_DeviceTemplate,FK_Installation)
-					SELECT Description, '.$deviceTemplate.','.$installationID.' FROM DeviceTemplate WHERE PK_DeviceTemplate=?';
-				$dbADO->Execute($insertDevice,$deviceTemplate);
-				$insertID=$dbADO->Insert_ID();
-				InheritDeviceData($deviceTemplate,$insertID,$dbADO);
+				$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID);	
 				setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
 			}
 		}

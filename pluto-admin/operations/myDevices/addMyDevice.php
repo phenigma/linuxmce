@@ -121,25 +121,8 @@ if ($action == 'form') {
 	
 
 	if ($masterDeviceID!=0 && $descriptionMyDevice!='') {
-		/*
-		if ($parentID==0) {
-			$queryInsertDevice = "INSERT INTO Device(FK_Installation,Description,IPaddress,MACaddress,IgnoreOnOff, FK_Device_ControlledVia, FK_DeviceTemplate )
-								values(?,?,?,?,?,NULL,?)";
-			$dbADO->Execute($queryInsertDevice,array($_SESSION['installationID'],$descriptionMyDevice,$IPaddressMyDevice,$MACaddressMyDevice,$ignoreOnOff,$masterDeviceID));
-		} else {
-			$queryInsertDevice = "INSERT INTO Device(FK_Installation,Description,IPaddress,MACaddress,IgnoreOnOff, FK_Device_ControlledVia, FK_DeviceTemplate)
-									values(?,?,?,?,?,?,?)";
-			$dbADO->Execute($queryInsertDevice,array($_SESSION['installationID'],$descriptionMyDevice,$IPaddressMyDevice,$MACaddressMyDevice,$ignoreOnOff,$parentID,$masterDeviceID));
-		}
 		
-		$insertID = $dbADO->Insert_ID();
-		
-		InheritDeviceData($masterDeviceID,$insertID,$dbADO);
-		createChildsForControledViaDeviceTemplate($masterDeviceID,$_SESSION['installationID'],$insertID,$dbADO);
-		createChildsForControledViaDeviceCategory($masterDeviceID,$_SESSION['installationID'],$insertID,$dbADO);
-	*/
-		
-		$insertID=exec('CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$masterDeviceID.' -i '.$installationID.' -I '.$IPaddressMyDevice.' -M '.$MACaddressMyDevice);
+		$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$masterDeviceID.' -i '.$installationID.(($IPaddressMyDevice!='')?' -I '.$IPaddressMyDevice:'').(($MACaddressMyDevice!='')?' -M '.$MACaddressMyDevice:''));
 		$dbADO->Execute('UPDATE Device SET Description=?, IgnoreOnOff=? WHERE PK_Device=?',array($descriptionMyDevice,$ignoreOnOff,$insertID));
 		setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
 		

@@ -1,5 +1,6 @@
 <?
 function wizardOrbiters($output,$dbADO) {
+	global $dbPlutoMainDatabase;
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 //	$dbADO->debug=true;
@@ -277,14 +278,7 @@ function wizardOrbiters($output,$dbADO) {
 		if(isset($_POST['add'])){
 			$deviceTemplate=(int)$_POST['deviceTemplate'];
 			if($deviceTemplate!=0){
-				$insertDevice='
-					INSERT INTO Device
-						(Description,FK_DeviceTemplate,FK_Installation)
-					VALUES
-						(?,?,?)';
-				$dbADO->Execute($insertDevice,array('New',$deviceTemplate,$installationID));
-				$insertID=$dbADO->Insert_ID();
-				InheritDeviceData($deviceTemplate,$insertID,$dbADO);
+				$insertID=exec('/usr/pluto/bin/CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$deviceTemplate.' -i '.$installationID);				
 			}
 		}
 		header("Location: index.php?section=wizardOrbiters");		
