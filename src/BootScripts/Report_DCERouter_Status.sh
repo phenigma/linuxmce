@@ -2,16 +2,16 @@
 
 . /usr/pluto/bin/Config_Ops.sh
 
-if ! grep "1:2345:respawn:/usr/pluto/bin/Report_DCERouter_Status.sh" /etc/inittab; then
-	# Replace original tty1 program with our status screen
-	awk '
-		/1:2345:respawn:/ { print "1:2345:respawn:/usr/pluto/bin/Report_DCERouter_Status.sh" }
-		{ print }
-	' /etc/inittab >/etc/inittab.new
-	mv -f /etc/inittab.new /etc/inittab
-fi
+#if ! grep "1:2345:respawn:/usr/pluto/bin/Report_DCERouter_Status.sh" /etc/inittab; then
+#	# Replace original tty1 program with our status screen
+#	awk '
+#		/1:2345:respawn:/ { print "1:2345:respawn:/usr/pluto/bin/Report_DCERouter_Status.sh" }
+#		{ print }
+#	' /etc/inittab >/etc/inittab.new
+#	mv -f /etc/inittab.new /etc/inittab
+#fi
 
-if [ -z "$ShowStatus" -o "$ShowStatus" == "no" ]; then
+if [ "$ShowStatus" == "no" ]; then
 	exec /sbin/getty 38400 tty1
 fi
 

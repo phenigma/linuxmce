@@ -11,6 +11,7 @@ DlDir="/usr/pluto/diskless"
 # INTERNAL_SUBNET_MASK
 # MOON_ENTRIES
 # MOON_ADDRESS
+# MOON_IP
 # DYNAMIC_IP_RANGE
 # KERNEL_VERSION
 # MOON_HOSTS
@@ -23,7 +24,7 @@ ReplaceVars()
 	local File Commands Vars VarValue SedCmd
 	File="$1"
 	
-	Vars="CORE_INTERNAL_ADDRESS INTERNAL_SUBNET INTERNAL_SUBNET_MASK MOON_ENTRIES MOON_ADDRESS DYNAMIC_IP_RANGE KERNEL_VERSION MOON_HOSTS"
+	Vars="CORE_INTERNAL_ADDRESS INTERNAL_SUBNET INTERNAL_SUBNET_MASK MOON_ENTRIES MOON_ADDRESS DYNAMIC_IP_RANGE KERNEL_VERSION MOON_HOSTS MOON_IP"
 
 	for i in $Vars; do
 		eval "VarValue=\"\$$i\""
@@ -202,6 +203,7 @@ for Client in $DisklessR; do
 	IP=$(Field 1 "$Client")
 	MAC=$(Field 2 "$Client")
 	MOON_ADDRESS="$IP moon$MoonNumber"
+	MOON_IP="$IP"
 	echo -n "Setting moon '$IP,$MAC':"
 	
 	DlPath="$DlDir/$IP"
