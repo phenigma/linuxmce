@@ -68,7 +68,7 @@ bool MythTV_PlugIn::Register()
 
     m_pMedia_Plugin->RegisterMediaPlugin(this, this, DEVICETEMPLATE_MythTV_Player_CONST, true);
 
-
+/*
 	string SQL = "SELECT FK_Device,IK_DeviceData FROM Device_DeviceData JOIN Device ON PK_Device=FK_Device WHERE FK_Installation="
 		+ StringUtils::itos(m_pRouter->m_Installation_get()) + " AND FK_DeviceData=" + StringUtils::itos(DEVICEDATA_MythTV_PVR_Input_CONST);
 
@@ -84,7 +84,7 @@ bool MythTV_PlugIn::Register()
 
 		}
 	}
-
+*/
 
     /** And the datagrid plug-in */
     m_pDatagrid_Plugin=NULL;
