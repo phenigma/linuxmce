@@ -82,7 +82,7 @@ class DLL_EXPORT Row_UnknownDevices : public TableRow, public SerializeClass
 		long int m_PK_UnknownDevices;
 string m_Description;
 string m_MacAddress;
-string m_sIPAddress;
+string m_IPAddress;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -153,7 +153,7 @@ void psc_frozen_setNull(bool val);
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_UnknownDevices+ m_Description+ m_MacAddress+ m_sIPAddress+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_UnknownDevices+ m_Description+ m_MacAddress+ m_IPAddress+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();

@@ -1,0 +1,21 @@
+#ifndef __Define_Package_Source_Compat_H__
+#define __Define_Package_Source_Compat_H__
+
+
+#define PACKAGE_SOURCE_COMPAT_TABLE "Package_Source_Compat"
+#define PACKAGE_SOURCE_COMPAT_PK_PACKAGE_SOURCE_COMPAT_FIELD "PK_Package_Source_Compat"
+#define PACKAGE_SOURCE_COMPAT_PK_PACKAGE_SOURCE_COMPAT_TABLE_FIELD "Package_Source_Compat.PK_Package_Source_Compat"
+#define PACKAGE_SOURCE_COMPAT_FK_PACKAGE_SOURCE_FIELD "FK_Package_Source"
+#define PACKAGE_SOURCE_COMPAT_FK_PACKAGE_SOURCE_TABLE_FIELD "Package_Source_Compat.FK_Package_Source"
+#define PACKAGE_SOURCE_COMPAT_FK_OPERATINGSYSTEM_FIELD "FK_OperatingSystem"
+#define PACKAGE_SOURCE_COMPAT_FK_OPERATINGSYSTEM_TABLE_FIELD "Package_Source_Compat.FK_OperatingSystem"
+#define PACKAGE_SOURCE_COMPAT_FK_DISTRO_FIELD "FK_Distro"
+#define PACKAGE_SOURCE_COMPAT_FK_DISTRO_TABLE_FIELD "Package_Source_Compat.FK_Distro"
+#define PACKAGE_SOURCE_COMPAT_MUSTBUILDFROMSOURCE_FIELD "MustBuildFromSource"
+#define PACKAGE_SOURCE_COMPAT_MUSTBUILDFROMSOURCE_TABLE_FIELD "Package_Source_Compat.MustBuildFromSource"
+#define PACKAGE_SOURCE_COMPAT_COMMENTS_FIELD "Comments"
+#define PACKAGE_SOURCE_COMPAT_COMMENTS_TABLE_FIELD "Package_Source_Compat.Comments"
+
+
+#endif
+

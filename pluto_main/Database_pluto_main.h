@@ -72,6 +72,7 @@ class Table_DeviceCommandGroup_DeviceCommandGroup_Parent* tblDeviceCommandGroup_
 class Table_DeviceData* tblDeviceData;
 class Table_DeviceGroup* tblDeviceGroup;
 class Table_DeviceTemplate* tblDeviceTemplate;
+class Table_DeviceTemplate_AV* tblDeviceTemplate_AV;
 class Table_DeviceTemplate_DSPMode* tblDeviceTemplate_DSPMode;
 class Table_DeviceTemplate_DesignObj* tblDeviceTemplate_DesignObj;
 class Table_DeviceTemplate_DeviceCategory_ControlledVia* tblDeviceTemplate_DeviceCategory_ControlledVia;
@@ -87,7 +88,6 @@ class Table_DeviceTemplate_Input* tblDeviceTemplate_Input;
 class Table_DeviceTemplate_MediaType* tblDeviceTemplate_MediaType;
 class Table_DeviceTemplate_MediaType_DesignObj* tblDeviceTemplate_MediaType_DesignObj;
 class Table_DeviceTemplate_Output* tblDeviceTemplate_Output;
-class Table_DeviceTemplate_Package* tblDeviceTemplate_Package;
 class Table_DeviceTemplate_PageSetup* tblDeviceTemplate_PageSetup;
 class Table_Device_Command* tblDevice_Command;
 class Table_Device_CommandGroup* tblDevice_CommandGroup;
@@ -135,7 +135,6 @@ class Table_MediaType* tblMediaType;
 class Table_MediaType_Broadcast* tblMediaType_Broadcast;
 class Table_MobilePhoneVersion* tblMobilePhoneVersion;
 class Table_OperatingSystem* tblOperatingSystem;
-class Table_OperatingSystem_Directory* tblOperatingSystem_Directory;
 class Table_Orbiter* tblOrbiter;
 class Table_Orbiter_Users_PasswordReq* tblOrbiter_Users_PasswordReq;
 class Table_Orbiter_Variable* tblOrbiter_Variable;
@@ -143,7 +142,9 @@ class Table_Output* tblOutput;
 class Table_Package* tblPackage;
 class Table_Package_Directory* tblPackage_Directory;
 class Table_Package_Directory_File* tblPackage_Directory_File;
-class Table_Package_Distro* tblPackage_Distro;
+class Table_Package_Package* tblPackage_Package;
+class Table_Package_Source* tblPackage_Source;
+class Table_Package_Source_Compat* tblPackage_Source_Compat;
 class Table_PageSetup* tblPageSetup;
 class Table_ParameterType* tblParameterType;
 class Table_PhoneLineType* tblPhoneLineType;
@@ -161,6 +162,7 @@ class Table_StartupScript* tblStartupScript;
 class Table_Style* tblStyle;
 class Table_StyleVariation* tblStyleVariation;
 class Table_System* tblSystem;
+class Table_Template* tblTemplate;
 class Table_Text* tblText;
 class Table_TextCategory* tblTextCategory;
 class Table_Text_LS* tblText_LS;
@@ -230,6 +232,7 @@ class Table_DeviceCommandGroup_DeviceCommandGroup_Parent* DeviceCommandGroup_Dev
 class Table_DeviceData* DeviceData_get() { return tblDeviceData; }
 class Table_DeviceGroup* DeviceGroup_get() { return tblDeviceGroup; }
 class Table_DeviceTemplate* DeviceTemplate_get() { return tblDeviceTemplate; }
+class Table_DeviceTemplate_AV* DeviceTemplate_AV_get() { return tblDeviceTemplate_AV; }
 class Table_DeviceTemplate_DSPMode* DeviceTemplate_DSPMode_get() { return tblDeviceTemplate_DSPMode; }
 class Table_DeviceTemplate_DesignObj* DeviceTemplate_DesignObj_get() { return tblDeviceTemplate_DesignObj; }
 class Table_DeviceTemplate_DeviceCategory_ControlledVia* DeviceTemplate_DeviceCategory_ControlledVia_get() { return tblDeviceTemplate_DeviceCategory_ControlledVia; }
@@ -245,7 +248,6 @@ class Table_DeviceTemplate_Input* DeviceTemplate_Input_get() { return tblDeviceT
 class Table_DeviceTemplate_MediaType* DeviceTemplate_MediaType_get() { return tblDeviceTemplate_MediaType; }
 class Table_DeviceTemplate_MediaType_DesignObj* DeviceTemplate_MediaType_DesignObj_get() { return tblDeviceTemplate_MediaType_DesignObj; }
 class Table_DeviceTemplate_Output* DeviceTemplate_Output_get() { return tblDeviceTemplate_Output; }
-class Table_DeviceTemplate_Package* DeviceTemplate_Package_get() { return tblDeviceTemplate_Package; }
 class Table_DeviceTemplate_PageSetup* DeviceTemplate_PageSetup_get() { return tblDeviceTemplate_PageSetup; }
 class Table_Device_Command* Device_Command_get() { return tblDevice_Command; }
 class Table_Device_CommandGroup* Device_CommandGroup_get() { return tblDevice_CommandGroup; }
@@ -293,7 +295,6 @@ class Table_MediaType* MediaType_get() { return tblMediaType; }
 class Table_MediaType_Broadcast* MediaType_Broadcast_get() { return tblMediaType_Broadcast; }
 class Table_MobilePhoneVersion* MobilePhoneVersion_get() { return tblMobilePhoneVersion; }
 class Table_OperatingSystem* OperatingSystem_get() { return tblOperatingSystem; }
-class Table_OperatingSystem_Directory* OperatingSystem_Directory_get() { return tblOperatingSystem_Directory; }
 class Table_Orbiter* Orbiter_get() { return tblOrbiter; }
 class Table_Orbiter_Users_PasswordReq* Orbiter_Users_PasswordReq_get() { return tblOrbiter_Users_PasswordReq; }
 class Table_Orbiter_Variable* Orbiter_Variable_get() { return tblOrbiter_Variable; }
@@ -301,7 +302,9 @@ class Table_Output* Output_get() { return tblOutput; }
 class Table_Package* Package_get() { return tblPackage; }
 class Table_Package_Directory* Package_Directory_get() { return tblPackage_Directory; }
 class Table_Package_Directory_File* Package_Directory_File_get() { return tblPackage_Directory_File; }
-class Table_Package_Distro* Package_Distro_get() { return tblPackage_Distro; }
+class Table_Package_Package* Package_Package_get() { return tblPackage_Package; }
+class Table_Package_Source* Package_Source_get() { return tblPackage_Source; }
+class Table_Package_Source_Compat* Package_Source_Compat_get() { return tblPackage_Source_Compat; }
 class Table_PageSetup* PageSetup_get() { return tblPageSetup; }
 class Table_ParameterType* ParameterType_get() { return tblParameterType; }
 class Table_PhoneLineType* PhoneLineType_get() { return tblPhoneLineType; }
@@ -319,6 +322,7 @@ class Table_StartupScript* StartupScript_get() { return tblStartupScript; }
 class Table_Style* Style_get() { return tblStyle; }
 class Table_StyleVariation* StyleVariation_get() { return tblStyleVariation; }
 class Table_System* System_get() { return tblSystem; }
+class Table_Template* Template_get() { return tblTemplate; }
 class Table_Text* Text_get() { return tblText; }
 class Table_TextCategory* TextCategory_get() { return tblTextCategory; }
 class Table_Text_LS* Text_LS_get() { return tblText_LS; }
@@ -391,6 +395,7 @@ void CreateTable_DeviceCommandGroup_DeviceCommandGroup_Parent();
 void CreateTable_DeviceData();
 void CreateTable_DeviceGroup();
 void CreateTable_DeviceTemplate();
+void CreateTable_DeviceTemplate_AV();
 void CreateTable_DeviceTemplate_DSPMode();
 void CreateTable_DeviceTemplate_DesignObj();
 void CreateTable_DeviceTemplate_DeviceCategory_ControlledVia();
@@ -406,7 +411,6 @@ void CreateTable_DeviceTemplate_Input();
 void CreateTable_DeviceTemplate_MediaType();
 void CreateTable_DeviceTemplate_MediaType_DesignObj();
 void CreateTable_DeviceTemplate_Output();
-void CreateTable_DeviceTemplate_Package();
 void CreateTable_DeviceTemplate_PageSetup();
 void CreateTable_Device_Command();
 void CreateTable_Device_CommandGroup();
@@ -454,7 +458,6 @@ void CreateTable_MediaType();
 void CreateTable_MediaType_Broadcast();
 void CreateTable_MobilePhoneVersion();
 void CreateTable_OperatingSystem();
-void CreateTable_OperatingSystem_Directory();
 void CreateTable_Orbiter();
 void CreateTable_Orbiter_Users_PasswordReq();
 void CreateTable_Orbiter_Variable();
@@ -462,7 +465,9 @@ void CreateTable_Output();
 void CreateTable_Package();
 void CreateTable_Package_Directory();
 void CreateTable_Package_Directory_File();
-void CreateTable_Package_Distro();
+void CreateTable_Package_Package();
+void CreateTable_Package_Source();
+void CreateTable_Package_Source_Compat();
 void CreateTable_PageSetup();
 void CreateTable_ParameterType();
 void CreateTable_PhoneLineType();
@@ -480,6 +485,7 @@ void CreateTable_StartupScript();
 void CreateTable_Style();
 void CreateTable_StyleVariation();
 void CreateTable_System();
+void CreateTable_Template();
 void CreateTable_Text();
 void CreateTable_TextCategory();
 void CreateTable_Text_LS();
@@ -548,6 +554,7 @@ void DeleteTable_DeviceCommandGroup_DeviceCommandGroup_Parent();
 void DeleteTable_DeviceData();
 void DeleteTable_DeviceGroup();
 void DeleteTable_DeviceTemplate();
+void DeleteTable_DeviceTemplate_AV();
 void DeleteTable_DeviceTemplate_DSPMode();
 void DeleteTable_DeviceTemplate_DesignObj();
 void DeleteTable_DeviceTemplate_DeviceCategory_ControlledVia();
@@ -563,7 +570,6 @@ void DeleteTable_DeviceTemplate_Input();
 void DeleteTable_DeviceTemplate_MediaType();
 void DeleteTable_DeviceTemplate_MediaType_DesignObj();
 void DeleteTable_DeviceTemplate_Output();
-void DeleteTable_DeviceTemplate_Package();
 void DeleteTable_DeviceTemplate_PageSetup();
 void DeleteTable_Device_Command();
 void DeleteTable_Device_CommandGroup();
@@ -611,7 +617,6 @@ void DeleteTable_MediaType();
 void DeleteTable_MediaType_Broadcast();
 void DeleteTable_MobilePhoneVersion();
 void DeleteTable_OperatingSystem();
-void DeleteTable_OperatingSystem_Directory();
 void DeleteTable_Orbiter();
 void DeleteTable_Orbiter_Users_PasswordReq();
 void DeleteTable_Orbiter_Variable();
@@ -619,7 +624,9 @@ void DeleteTable_Output();
 void DeleteTable_Package();
 void DeleteTable_Package_Directory();
 void DeleteTable_Package_Directory_File();
-void DeleteTable_Package_Distro();
+void DeleteTable_Package_Package();
+void DeleteTable_Package_Source();
+void DeleteTable_Package_Source_Compat();
 void DeleteTable_PageSetup();
 void DeleteTable_ParameterType();
 void DeleteTable_PhoneLineType();
@@ -637,6 +644,7 @@ void DeleteTable_StartupScript();
 void DeleteTable_Style();
 void DeleteTable_StyleVariation();
 void DeleteTable_System();
+void DeleteTable_Template();
 void DeleteTable_Text();
 void DeleteTable_TextCategory();
 void DeleteTable_Text_LS();

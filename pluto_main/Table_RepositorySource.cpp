@@ -21,7 +21,7 @@ using namespace std;
 #include "Table_OperatingSystem.h"
 #include "Table_Distro.h"
 
-#include "Table_Package_Distro.h"
+#include "Table_Package_Source.h"
 #include "Table_RepositorySource_URL.h"
 
 
@@ -608,11 +608,11 @@ return pTable->GetRow(m_FK_Distro);
 }
 
 
-void Row_RepositorySource::Package_Distro_FK_RepositorySource_getrows(vector <class Row_Package_Distro*> *rows)
+void Row_RepositorySource::Package_Source_FK_RepositorySource_getrows(vector <class Row_Package_Source*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-class Table_Package_Distro *pTable = table->database->Package_Distro_get();
+class Table_Package_Source *pTable = table->database->Package_Source_get();
 pTable->GetRows("FK_RepositorySource=" + StringUtils::itos(m_PK_RepositorySource),rows);
 }
 void Row_RepositorySource::RepositorySource_URL_FK_RepositorySource_getrows(vector <class Row_RepositorySource_URL*> *rows)

@@ -89,7 +89,7 @@ short int m_AlwaysShow;
 short int m_CanBeHidden;
 long int m_FK_Criteria_Orbiter;
 long int m_FK_DesignObj;
-long int m_TemplateID;
+long int m_FK_Template;
 long int m_AltID;
 long int m_FK_Icon;
 long int m_psc_id;
@@ -115,7 +115,7 @@ short int AlwaysShow_get();
 short int CanBeHidden_get();
 long int FK_Criteria_Orbiter_get();
 long int FK_DesignObj_get();
-long int TemplateID_get();
+long int FK_Template_get();
 long int AltID_get();
 long int FK_Icon_get();
 long int psc_id_get();
@@ -135,7 +135,7 @@ void AlwaysShow_set(short int val);
 void CanBeHidden_set(short int val);
 void FK_Criteria_Orbiter_set(long int val);
 void FK_DesignObj_set(long int val);
-void TemplateID_set(long int val);
+void FK_Template_set(long int val);
 void AltID_set(long int val);
 void FK_Icon_set(long int val);
 void psc_id_set(long int val);
@@ -150,7 +150,7 @@ bool FK_Installation_isNull();
 bool Hint_isNull();
 bool FK_Criteria_Orbiter_isNull();
 bool FK_DesignObj_isNull();
-bool TemplateID_isNull();
+bool FK_Template_isNull();
 bool AltID_isNull();
 bool FK_Icon_isNull();
 bool psc_id_isNull();
@@ -164,7 +164,7 @@ void FK_Installation_setNull(bool val);
 void Hint_setNull(bool val);
 void FK_Criteria_Orbiter_setNull(bool val);
 void FK_DesignObj_setNull(bool val);
-void TemplateID_setNull(bool val);
+void FK_Template_setNull(bool val);
 void AltID_setNull(bool val);
 void FK_Icon_setNull(bool val);
 void psc_id_setNull(bool val);
@@ -187,6 +187,7 @@ void psc_frozen_setNull(bool val);
 class Row_Installation* FK_Installation_getrow();
 class Row_Criteria* FK_Criteria_Orbiter_getrow();
 class Row_DesignObj* FK_DesignObj_getrow();
+class Row_Template* FK_Template_getrow();
 class Row_Icon* FK_Icon_getrow();
 
 
@@ -200,7 +201,7 @@ void EventHandler_FK_CommandGroup_getrows(vector <class Row_EventHandler*> *rows
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_CommandGroup+ m_FK_Array+ m_FK_Installation+ m_Description+ m_Hint+ m_CanTurnOff+ m_AlwaysShow+ m_CanBeHidden+ m_FK_Criteria_Orbiter+ m_FK_DesignObj+ m_TemplateID+ m_AltID+ m_FK_Icon+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_CommandGroup+ m_FK_Array+ m_FK_Installation+ m_Description+ m_Hint+ m_CanTurnOff+ m_AlwaysShow+ m_CanBeHidden+ m_FK_Criteria_Orbiter+ m_FK_DesignObj+ m_FK_Template+ m_AltID+ m_FK_Icon+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -215,7 +216,7 @@ string AlwaysShow_asSQL();
 string CanBeHidden_asSQL();
 string FK_Criteria_Orbiter_asSQL();
 string FK_DesignObj_asSQL();
-string TemplateID_asSQL();
+string FK_Template_asSQL();
 string AltID_asSQL();
 string FK_Icon_asSQL();
 string psc_id_asSQL();

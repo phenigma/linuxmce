@@ -22,6 +22,7 @@ using namespace std;
 #include "Table_Installation.h"
 #include "Table_Criteria.h"
 #include "Table_DesignObj.h"
+#include "Table_Template.h"
 #include "Table_Icon.h"
 
 #include "Table_CommandGroup_Command.h"
@@ -179,9 +180,9 @@ return m_FK_Criteria_Orbiter;}
 long int Row_CommandGroup::FK_DesignObj_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_DesignObj;}
-long int Row_CommandGroup::TemplateID_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_CommandGroup::FK_Template_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_TemplateID;}
+return m_FK_Template;}
 long int Row_CommandGroup::AltID_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_AltID;}
@@ -235,9 +236,9 @@ m_FK_Criteria_Orbiter = val; is_modified=true; is_null[8]=false;}
 void Row_CommandGroup::FK_DesignObj_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_DesignObj = val; is_modified=true; is_null[9]=false;}
-void Row_CommandGroup::TemplateID_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::FK_Template_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_TemplateID = val; is_modified=true; is_null[10]=false;}
+m_FK_Template = val; is_modified=true; is_null[10]=false;}
 void Row_CommandGroup::AltID_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_AltID = val; is_modified=true; is_null[11]=false;}
@@ -276,7 +277,7 @@ return is_null[8];}
 bool Row_CommandGroup::FK_DesignObj_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[9];}
-bool Row_CommandGroup::TemplateID_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_CommandGroup::FK_Template_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[10];}
 bool Row_CommandGroup::AltID_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -314,7 +315,7 @@ is_null[8]=val;}
 void Row_CommandGroup::FK_DesignObj_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[9]=val;}
-void Row_CommandGroup::TemplateID_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::FK_Template_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[10]=val;}
 void Row_CommandGroup::AltID_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -465,7 +466,7 @@ sprintf(buf, "%li", m_FK_DesignObj);
 return buf;
 }
 
-string Row_CommandGroup::TemplateID_asSQL()
+string Row_CommandGroup::FK_Template_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -473,7 +474,7 @@ if (is_null[10])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_TemplateID);
+sprintf(buf, "%li", m_FK_Template);
 
 return buf;
 }
@@ -606,10 +607,10 @@ void Table_CommandGroup::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_CommandGroup_asSQL()+", "+pRow->FK_Array_asSQL()+", "+pRow->FK_Installation_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Hint_asSQL()+", "+pRow->CanTurnOff_asSQL()+", "+pRow->AlwaysShow_asSQL()+", "+pRow->CanBeHidden_asSQL()+", "+pRow->FK_Criteria_Orbiter_asSQL()+", "+pRow->FK_DesignObj_asSQL()+", "+pRow->TemplateID_asSQL()+", "+pRow->AltID_asSQL()+", "+pRow->FK_Icon_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_CommandGroup_asSQL()+", "+pRow->FK_Array_asSQL()+", "+pRow->FK_Installation_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Hint_asSQL()+", "+pRow->CanTurnOff_asSQL()+", "+pRow->AlwaysShow_asSQL()+", "+pRow->CanBeHidden_asSQL()+", "+pRow->FK_Criteria_Orbiter_asSQL()+", "+pRow->FK_DesignObj_asSQL()+", "+pRow->FK_Template_asSQL()+", "+pRow->AltID_asSQL()+", "+pRow->FK_Icon_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into CommandGroup (PK_CommandGroup, FK_Array, FK_Installation, Description, Hint, CanTurnOff, AlwaysShow, CanBeHidden, FK_Criteria_Orbiter, FK_DesignObj, TemplateID, AltID, FK_Icon, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into CommandGroup (PK_CommandGroup, FK_Array, FK_Installation, Description, Hint, CanTurnOff, AlwaysShow, CanBeHidden, FK_Criteria_Orbiter, FK_DesignObj, FK_Template, AltID, FK_Icon, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -658,7 +659,7 @@ condition = condition + "PK_CommandGroup=" + tmp_PK_CommandGroup;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_CommandGroup="+pRow->PK_CommandGroup_asSQL()+", FK_Array="+pRow->FK_Array_asSQL()+", FK_Installation="+pRow->FK_Installation_asSQL()+", Description="+pRow->Description_asSQL()+", Hint="+pRow->Hint_asSQL()+", CanTurnOff="+pRow->CanTurnOff_asSQL()+", AlwaysShow="+pRow->AlwaysShow_asSQL()+", CanBeHidden="+pRow->CanBeHidden_asSQL()+", FK_Criteria_Orbiter="+pRow->FK_Criteria_Orbiter_asSQL()+", FK_DesignObj="+pRow->FK_DesignObj_asSQL()+", TemplateID="+pRow->TemplateID_asSQL()+", AltID="+pRow->AltID_asSQL()+", FK_Icon="+pRow->FK_Icon_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_CommandGroup="+pRow->PK_CommandGroup_asSQL()+", FK_Array="+pRow->FK_Array_asSQL()+", FK_Installation="+pRow->FK_Installation_asSQL()+", Description="+pRow->Description_asSQL()+", Hint="+pRow->Hint_asSQL()+", CanTurnOff="+pRow->CanTurnOff_asSQL()+", AlwaysShow="+pRow->AlwaysShow_asSQL()+", CanBeHidden="+pRow->CanBeHidden_asSQL()+", FK_Criteria_Orbiter="+pRow->FK_Criteria_Orbiter_asSQL()+", FK_DesignObj="+pRow->FK_DesignObj_asSQL()+", FK_Template="+pRow->FK_Template_asSQL()+", AltID="+pRow->AltID_asSQL()+", FK_Icon="+pRow->FK_Icon_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update CommandGroup set " + update_values_list + " where " + condition;
@@ -852,12 +853,12 @@ sscanf(row[9], "%li", &(pRow->m_FK_DesignObj));
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_TemplateID = 0;
+pRow->m_FK_Template = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_TemplateID));
+sscanf(row[10], "%li", &(pRow->m_FK_Template));
 }
 
 if (row[11] == NULL)
@@ -1156,12 +1157,12 @@ sscanf(row[9], "%li", &(pRow->m_FK_DesignObj));
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_TemplateID = 0;
+pRow->m_FK_Template = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_TemplateID));
+sscanf(row[10], "%li", &(pRow->m_FK_Template));
 }
 
 if (row[11] == NULL)
@@ -1276,6 +1277,13 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObj *pTable = table->database->DesignObj_get();
 return pTable->GetRow(m_FK_DesignObj);
+}
+class Row_Template* Row_CommandGroup::FK_Template_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Template *pTable = table->database->Template_get();
+return pTable->GetRow(m_FK_Template);
 }
 class Row_Icon* Row_CommandGroup::FK_Icon_getrow()
 {

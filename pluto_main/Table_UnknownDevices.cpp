@@ -137,7 +137,7 @@ string Row_UnknownDevices::MacAddress_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex)
 return m_MacAddress;}
 string Row_UnknownDevices::IPAddress_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_sIPAddress;}
+return m_IPAddress;}
 long int Row_UnknownDevices::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_id;}
@@ -166,7 +166,7 @@ void Row_UnknownDevices::MacAddress_set(string val){PLUTO_SAFETY_LOCK(M, table->
 m_MacAddress = val; is_modified=true; is_null[2]=false;}
 void Row_UnknownDevices::IPAddress_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_sIPAddress = val; is_modified=true; is_null[3]=false;}
+m_IPAddress = val; is_modified=true; is_null[3]=false;}
 void Row_UnknownDevices::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_id = val; is_modified=true; is_null[4]=false;}
@@ -275,7 +275,7 @@ if (is_null[3])
 return "NULL";
 
 char buf[25];
-mysql_real_escape_string(table->database->db_handle, buf, m_sIPAddress.c_str(), (unsigned long) m_sIPAddress.size());
+mysql_real_escape_string(table->database->db_handle, buf, m_IPAddress.c_str(), (unsigned long) m_IPAddress.size());
 return string()+"\""+buf+"\"";
 }
 
@@ -548,12 +548,12 @@ pRow->m_MacAddress = string(row[2],lengths[2]);
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_sIPAddress = "";
+pRow->m_IPAddress = "";
 }
 else
 {
 pRow->is_null[3]=false;
-pRow->m_sIPAddress = string(row[3],lengths[3]);
+pRow->m_IPAddress = string(row[3],lengths[3]);
 }
 
 if (row[4] == NULL)
@@ -753,12 +753,12 @@ pRow->m_MacAddress = string(row[2],lengths[2]);
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_sIPAddress = "";
+pRow->m_IPAddress = "";
 }
 else
 {
 pRow->is_null[3]=false;
-pRow->m_sIPAddress = string(row[3],lengths[3]);
+pRow->m_IPAddress = string(row[3],lengths[3]);
 }
 
 if (row[4] == NULL)

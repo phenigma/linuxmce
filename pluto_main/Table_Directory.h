@@ -119,8 +119,7 @@ void Define_set(string val);
 		
 
 		// Return the rows in other tables with foreign keys pointing here
-		void OperatingSystem_Directory_FK_Directory_getrows(vector <class Row_OperatingSystem_Directory*> *rows);
-void Package_Directory_FK_Directory_getrows(vector <class Row_Package_Directory*> *rows);
+		void Package_Directory_FK_Directory_getrows(vector <class Row_Package_Directory*> *rows);
 
 
 		// Setup binary serialization

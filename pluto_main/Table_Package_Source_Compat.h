@@ -1,0 +1,159 @@
+#ifndef __Table_Package_Source_Compat_H__
+#define __Table_Package_Source_Compat_H__
+
+#ifdef SQL2CPP_DLLEXPORT
+#define DLL_EXPORT __declspec(dllexport)
+#else
+#define DLL_EXPORT
+#endif
+
+#include "TableRow.h"
+#include "Database_pluto_main.h"
+#include "PlutoUtils/MultiThreadIncludes.h"
+#include "Define_Package_Source_Compat.h"
+#include "SerializeClass/SerializeClass.h"
+
+class DLL_EXPORT Table_Package_Source_Compat
+{
+private:
+	Database_pluto_main *database;
+	struct Key;	//forward declaration
+	
+public:
+    pluto_pthread_mutex_t m_Mutex;
+	pthread_mutexattr_t m_MutexAttr;
+		
+	Table_Package_Source_Compat(Database_pluto_main *pDatabase):database(pDatabase), m_Mutex("Package_Source_Compat")
+	{
+		pthread_mutexattr_init(&m_MutexAttr);
+		pthread_mutexattr_settype(&m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP);
+		m_Mutex.Init(&m_MutexAttr); 
+	};
+	~Table_Package_Source_Compat();
+
+private:		
+	friend class Row_Package_Source_Compat;
+	struct Key
+	{
+		friend class Row_Package_Source_Compat;
+		long int pk_PK_Package_Source_Compat;
+
+		
+		Key(long int in_PK_Package_Source_Compat);
+	
+		Key(class Row_Package_Source_Compat *pRow);
+	};
+	struct Key_Less
+	{			
+		bool operator()(const Table_Package_Source_Compat::Key &key1, const Table_Package_Source_Compat::Key &key2) const;
+	};	
+
+	map<Table_Package_Source_Compat::Key, class Row_Package_Source_Compat*, Table_Package_Source_Compat::Key_Less> cachedRows;
+	map<Table_Package_Source_Compat::Key, class Row_Package_Source_Compat*, Table_Package_Source_Compat::Key_Less> deleted_cachedRows;
+	vector<class Row_Package_Source_Compat*> addedRows;
+	vector<class Row_Package_Source_Compat*> deleted_addedRows;	
+		
+
+public:				
+	void Commit();
+	bool GetRows(string where_statement,vector<class Row_Package_Source_Compat*> *rows);
+	class Row_Package_Source_Compat* AddRow();
+	Database_pluto_main *Database_pluto_main_get() { return database; }
+	
+		
+	class Row_Package_Source_Compat* GetRow(long int in_PK_Package_Source_Compat);
+	
+
+private:	
+	
+		
+	class Row_Package_Source_Compat* FetchRow(Key &key);
+		
+			
+};
+
+class DLL_EXPORT Row_Package_Source_Compat : public TableRow, public SerializeClass
+	{
+		friend struct Table_Package_Source_Compat::Key;
+		friend class Table_Package_Source_Compat;
+	private:
+		Table_Package_Source_Compat *table;
+		
+		long int m_PK_Package_Source_Compat;
+long int m_FK_Package_Source;
+long int m_FK_OperatingSystem;
+long int m_FK_Distro;
+short int m_MustBuildFromSource;
+string m_Comments;
+
+		bool is_null[6];
+	
+		bool is_deleted;
+		bool is_added;
+		bool is_modified;					
+	
+	public:
+		long int PK_Package_Source_Compat_get();
+long int FK_Package_Source_get();
+long int FK_OperatingSystem_get();
+long int FK_Distro_get();
+short int MustBuildFromSource_get();
+string Comments_get();
+
+		
+		void PK_Package_Source_Compat_set(long int val);
+void FK_Package_Source_set(long int val);
+void FK_OperatingSystem_set(long int val);
+void FK_Distro_set(long int val);
+void MustBuildFromSource_set(short int val);
+void Comments_set(string val);
+
+		
+		bool FK_OperatingSystem_isNull();
+bool FK_Distro_isNull();
+bool MustBuildFromSource_isNull();
+bool Comments_isNull();
+
+			
+		void FK_OperatingSystem_setNull(bool val);
+void FK_Distro_setNull(bool val);
+void MustBuildFromSource_setNull(bool val);
+void Comments_setNull(bool val);
+	
+	
+		void Delete();
+		void Reload();		
+	
+		Row_Package_Source_Compat(Table_Package_Source_Compat *pTable);
+	
+		bool IsDeleted(){return is_deleted;};
+		bool IsModified(){return is_modified;};			
+		class Table_Package_Source_Compat *Table_Package_Source_Compat_get() { return table; };
+
+		// Return the rows for foreign keys 
+		class Row_Package_Source* FK_Package_Source_getrow();
+class Row_OperatingSystem* FK_OperatingSystem_getrow();
+class Row_Distro* FK_Distro_getrow();
+
+
+		// Return the rows in other tables with foreign keys pointing here
+		
+
+		// Setup binary serialization
+		void SetupSerialization() {
+			StartSerializeList() + m_PK_Package_Source_Compat+ m_FK_Package_Source+ m_FK_OperatingSystem+ m_FK_Distro+ m_MustBuildFromSource+ m_Comments;
+		}
+	private:
+		void SetDefaultValues();
+		
+		string PK_Package_Source_Compat_asSQL();
+string FK_Package_Source_asSQL();
+string FK_OperatingSystem_asSQL();
+string FK_Distro_asSQL();
+string MustBuildFromSource_asSQL();
+string Comments_asSQL();
+
+	};
+
+#endif
+

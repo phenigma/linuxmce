@@ -66,6 +66,7 @@ Table_DeviceCommandGroup_DeviceCommandGroup_Parent.cpp \
 Table_DeviceData.cpp \
 Table_DeviceGroup.cpp \
 Table_DeviceTemplate.cpp \
+Table_DeviceTemplate_AV.cpp \
 Table_DeviceTemplate_DSPMode.cpp \
 Table_DeviceTemplate_DesignObj.cpp \
 Table_DeviceTemplate_DeviceCategory_ControlledVia.cpp \
@@ -81,7 +82,6 @@ Table_DeviceTemplate_Input.cpp \
 Table_DeviceTemplate_MediaType.cpp \
 Table_DeviceTemplate_MediaType_DesignObj.cpp \
 Table_DeviceTemplate_Output.cpp \
-Table_DeviceTemplate_Package.cpp \
 Table_DeviceTemplate_PageSetup.cpp \
 Table_Device_Command.cpp \
 Table_Device_CommandGroup.cpp \
@@ -129,7 +129,6 @@ Table_MediaType.cpp \
 Table_MediaType_Broadcast.cpp \
 Table_MobilePhoneVersion.cpp \
 Table_OperatingSystem.cpp \
-Table_OperatingSystem_Directory.cpp \
 Table_Orbiter.cpp \
 Table_Orbiter_Users_PasswordReq.cpp \
 Table_Orbiter_Variable.cpp \
@@ -137,7 +136,9 @@ Table_Output.cpp \
 Table_Package.cpp \
 Table_Package_Directory.cpp \
 Table_Package_Directory_File.cpp \
-Table_Package_Distro.cpp \
+Table_Package_Package.cpp \
+Table_Package_Source.cpp \
+Table_Package_Source_Compat.cpp \
 Table_PageSetup.cpp \
 Table_ParameterType.cpp \
 Table_PhoneLineType.cpp \
@@ -155,6 +156,7 @@ Table_StartupScript.cpp \
 Table_Style.cpp \
 Table_StyleVariation.cpp \
 Table_System.cpp \
+Table_Template.cpp \
 Table_Text.cpp \
 Table_TextCategory.cpp \
 Table_Text_LS.cpp \

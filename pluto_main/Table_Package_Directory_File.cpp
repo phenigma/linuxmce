@@ -19,6 +19,8 @@ using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_Package_Directory_File.h"
 #include "Table_Package_Directory.h"
+#include "Table_OperatingSystem.h"
+#include "Table_Distro.h"
 
 
 
@@ -110,9 +112,11 @@ void Row_Package_Directory_File::SetDefaultValues()
 {
 	m_FK_Package_Directory = 0;
 is_null[0] = false;
-m_File = "";
-is_null[1] = false;
+is_null[1] = true;
 is_null[2] = true;
+m_File = "";
+is_null[3] = false;
+is_null[4] = true;
 
 
 	is_added=false;
@@ -123,6 +127,12 @@ is_null[2] = true;
 long int Row_Package_Directory_File::FK_Package_Directory_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_Package_Directory;}
+long int Row_Package_Directory_File::FK_OperatingSystem_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FK_OperatingSystem;}
+long int Row_Package_Directory_File::FK_Distro_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FK_Distro;}
 string Row_Package_Directory_File::File_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_File;}
@@ -134,22 +144,40 @@ return m_Search;}
 void Row_Package_Directory_File::FK_Package_Directory_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_Package_Directory = val; is_modified=true; is_null[0]=false;}
+void Row_Package_Directory_File::FK_OperatingSystem_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_OperatingSystem = val; is_modified=true; is_null[1]=false;}
+void Row_Package_Directory_File::FK_Distro_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_Distro = val; is_modified=true; is_null[2]=false;}
 void Row_Package_Directory_File::File_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_File = val; is_modified=true; is_null[1]=false;}
+m_File = val; is_modified=true; is_null[3]=false;}
 void Row_Package_Directory_File::Search_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Search = val; is_modified=true; is_null[2]=false;}
+m_Search = val; is_modified=true; is_null[4]=false;}
 
 		
-bool Row_Package_Directory_File::Search_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package_Directory_File::FK_OperatingSystem_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[1];}
+bool Row_Package_Directory_File::FK_Distro_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[2];}
+bool Row_Package_Directory_File::Search_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[4];}
 
 			
-void Row_Package_Directory_File::Search_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package_Directory_File::FK_OperatingSystem_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[1]=val;}
+void Row_Package_Directory_File::FK_Distro_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[2]=val;}
+void Row_Package_Directory_File::Search_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[4]=val;}
 	
 
 string Row_Package_Directory_File::FK_Package_Directory_asSQL()
@@ -165,11 +193,37 @@ sprintf(buf, "%li", m_FK_Package_Directory);
 return buf;
 }
 
-string Row_Package_Directory_File::File_asSQL()
+string Row_Package_Directory_File::FK_OperatingSystem_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[1])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_OperatingSystem);
+
+return buf;
+}
+
+string Row_Package_Directory_File::FK_Distro_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[2])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_Distro);
+
+return buf;
+}
+
+string Row_Package_Directory_File::File_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[3])
 return "NULL";
 
 char buf[61];
@@ -181,7 +235,7 @@ string Row_Package_Directory_File::Search_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[2])
+if (is_null[4])
 return "NULL";
 
 char buf[33554431];
@@ -232,10 +286,10 @@ void Table_Package_Directory_File::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->FK_Package_Directory_asSQL()+", "+pRow->File_asSQL()+", "+pRow->Search_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->FK_Package_Directory_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->File_asSQL()+", "+pRow->Search_asSQL();
 
 	
-		string query = "insert into Package_Directory_File (FK_Package_Directory, File, Search) values ("+
+		string query = "insert into Package_Directory_File (FK_Package_Directory, FK_OperatingSystem, FK_Distro, File, Search) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -285,7 +339,7 @@ condition = condition + "FK_Package_Directory=" + tmp_FK_Package_Directory+" AND
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_Package_Directory="+pRow->FK_Package_Directory_asSQL()+", File="+pRow->File_asSQL()+", Search="+pRow->Search_asSQL();
+update_values_list = update_values_list + "FK_Package_Directory="+pRow->FK_Package_Directory_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", FK_Distro="+pRow->FK_Distro_asSQL()+", File="+pRow->File_asSQL()+", Search="+pRow->Search_asSQL();
 
 	
 		string query = "update Package_Directory_File set " + update_values_list + " where " + condition;
@@ -383,23 +437,45 @@ sscanf(row[0], "%li", &(pRow->m_FK_Package_Directory));
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_File = "";
+pRow->m_FK_OperatingSystem = 0;
 }
 else
 {
 pRow->is_null[1]=false;
-pRow->m_File = string(row[1],lengths[1]);
+sscanf(row[1], "%li", &(pRow->m_FK_OperatingSystem));
 }
 
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_Search = "";
+pRow->m_FK_Distro = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-pRow->m_Search = string(row[2],lengths[2]);
+sscanf(row[2], "%li", &(pRow->m_FK_Distro));
+}
+
+if (row[3] == NULL)
+{
+pRow->is_null[3]=true;
+pRow->m_File = "";
+}
+else
+{
+pRow->is_null[3]=false;
+pRow->m_File = string(row[3],lengths[3]);
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_Search = "";
+}
+else
+{
+pRow->is_null[4]=false;
+pRow->m_Search = string(row[4],lengths[4]);
 }
 
 
@@ -525,23 +601,45 @@ sscanf(row[0], "%li", &(pRow->m_FK_Package_Directory));
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_File = "";
+pRow->m_FK_OperatingSystem = 0;
 }
 else
 {
 pRow->is_null[1]=false;
-pRow->m_File = string(row[1],lengths[1]);
+sscanf(row[1], "%li", &(pRow->m_FK_OperatingSystem));
 }
 
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_Search = "";
+pRow->m_FK_Distro = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-pRow->m_Search = string(row[2],lengths[2]);
+sscanf(row[2], "%li", &(pRow->m_FK_Distro));
+}
+
+if (row[3] == NULL)
+{
+pRow->is_null[3]=true;
+pRow->m_File = "";
+}
+else
+{
+pRow->is_null[3]=false;
+pRow->m_File = string(row[3],lengths[3]);
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_Search = "";
+}
+else
+{
+pRow->is_null[4]=false;
+pRow->m_Search = string(row[4],lengths[4]);
 }
 
 
@@ -558,6 +656,20 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Directory *pTable = table->database->Package_Directory_get();
 return pTable->GetRow(m_FK_Package_Directory);
+}
+class Row_OperatingSystem* Row_Package_Directory_File::FK_OperatingSystem_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_OperatingSystem *pTable = table->database->OperatingSystem_get();
+return pTable->GetRow(m_FK_OperatingSystem);
+}
+class Row_Distro* Row_Package_Directory_File::FK_Distro_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Distro *pTable = table->database->Distro_get();
+return pTable->GetRow(m_FK_Distro);
 }
 
 

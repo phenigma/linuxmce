@@ -1,0 +1,819 @@
+// If using the thread logger, these generated classes create lots of activity
+#ifdef NO_SQL_THREAD_LOG
+#undef THREAD_LOG
+#endif
+
+#ifdef WIN32
+#include <winsock.h>
+#endif
+
+#include <iostream>
+#include <string>
+#include <vector>
+#include <map>
+#include <list>
+
+#include <mysql.h>
+
+using namespace std;
+#include "PlutoUtils/StringUtils.h"
+#include "Table_Package_Source.h"
+#include "Table_Package.h"
+#include "Table_RepositorySource.h"
+#include "Table_RepositoryType.h"
+
+#include "Table_Package.h"
+#include "Table_Package_Source_Compat.h"
+
+
+void Database_pluto_main::CreateTable_Package_Source()
+{
+	tblPackage_Source = new Table_Package_Source(this);
+}
+
+void Database_pluto_main::DeleteTable_Package_Source()
+{
+	delete tblPackage_Source;
+}
+
+Table_Package_Source::~Table_Package_Source()
+{
+	map<Table_Package_Source::Key, class Row_Package_Source*, Table_Package_Source::Key_Less>::iterator it;
+	for(it=cachedRows.begin();it!=cachedRows.end();++it)
+	{
+		delete (*it).second;
+	}
+
+	for(it=deleted_cachedRows.begin();it!=deleted_cachedRows.end();++it)
+	{
+		delete (*it).second;
+	}
+
+	size_t i;
+	for(i=0;i<addedRows.size();++i)
+		delete addedRows[i];
+	for(i=0;i<deleted_addedRows.size();++i)
+		delete deleted_addedRows[i];
+}
+
+
+void Row_Package_Source::Delete()
+{
+	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	
+	if (!is_deleted)
+		if (is_added)	
+		{	
+			vector<Row_Package_Source*>::iterator i;	
+			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
+			
+			if (i!=	table->addedRows.end())
+				table->addedRows.erase(i);
+		
+			table->deleted_addedRows.push_back(this);
+			is_deleted = true;	
+		}
+		else
+		{
+			Table_Package_Source::Key key(this);					
+			map<Table_Package_Source::Key, Row_Package_Source*, Table_Package_Source::Key_Less>::iterator i = table->cachedRows.find(key);
+			if (i!=table->cachedRows.end())
+				table->cachedRows.erase(i);
+						
+			table->deleted_cachedRows[key] = this;
+			is_deleted = true;	
+		}	
+}
+
+void Row_Package_Source::Reload()
+{
+	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+	
+	
+	if (!is_added)
+	{
+		Table_Package_Source::Key key(this);		
+		Row_Package_Source *pRow = table->FetchRow(key);
+		
+		if (pRow!=NULL)
+		{
+			*this = *pRow;	
+			
+			delete pRow;		
+		}	
+	}	
+	
+}
+
+Row_Package_Source::Row_Package_Source(Table_Package_Source *pTable):table(pTable)
+{
+	SetDefaultValues();
+}
+
+void Row_Package_Source::SetDefaultValues()
+{
+	m_PK_Package_Source = 0;
+is_null[0] = false;
+m_FK_Package = 0;
+is_null[1] = false;
+is_null[2] = true;
+m_FK_RepositorySource = 0;
+is_null[3] = false;
+is_null[4] = true;
+is_null[5] = true;
+is_null[6] = true;
+is_null[7] = true;
+
+
+	is_added=false;
+	is_deleted=false;
+	is_modified=false;
+}
+
+long int Row_Package_Source::PK_Package_Source_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_PK_Package_Source;}
+long int Row_Package_Source::FK_Package_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FK_Package;}
+string Row_Package_Source::Name_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Name;}
+long int Row_Package_Source::FK_RepositorySource_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FK_RepositorySource;}
+long int Row_Package_Source::FK_RepositoryType_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FK_RepositoryType;}
+string Row_Package_Source::Repository_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Repository;}
+string Row_Package_Source::Version_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Version;}
+string Row_Package_Source::Parms_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Parms;}
+
+		
+void Row_Package_Source::PK_Package_Source_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_PK_Package_Source = val; is_modified=true; is_null[0]=false;}
+void Row_Package_Source::FK_Package_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_Package = val; is_modified=true; is_null[1]=false;}
+void Row_Package_Source::Name_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Name = val; is_modified=true; is_null[2]=false;}
+void Row_Package_Source::FK_RepositorySource_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_RepositorySource = val; is_modified=true; is_null[3]=false;}
+void Row_Package_Source::FK_RepositoryType_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_RepositoryType = val; is_modified=true; is_null[4]=false;}
+void Row_Package_Source::Repository_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Repository = val; is_modified=true; is_null[5]=false;}
+void Row_Package_Source::Version_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Version = val; is_modified=true; is_null[6]=false;}
+void Row_Package_Source::Parms_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Parms = val; is_modified=true; is_null[7]=false;}
+
+		
+bool Row_Package_Source::Name_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[2];}
+bool Row_Package_Source::FK_RepositoryType_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[4];}
+bool Row_Package_Source::Repository_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[5];}
+bool Row_Package_Source::Version_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[6];}
+bool Row_Package_Source::Parms_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[7];}
+
+			
+void Row_Package_Source::Name_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[2]=val;}
+void Row_Package_Source::FK_RepositoryType_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[4]=val;}
+void Row_Package_Source::Repository_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[5]=val;}
+void Row_Package_Source::Version_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[6]=val;}
+void Row_Package_Source::Parms_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[7]=val;}
+	
+
+string Row_Package_Source::PK_Package_Source_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[0])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_PK_Package_Source);
+
+return buf;
+}
+
+string Row_Package_Source::FK_Package_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[1])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_Package);
+
+return buf;
+}
+
+string Row_Package_Source::Name_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[2])
+return "NULL";
+
+char buf[61];
+mysql_real_escape_string(table->database->db_handle, buf, m_Name.c_str(), (unsigned long) m_Name.size());
+return string()+"\""+buf+"\"";
+}
+
+string Row_Package_Source::FK_RepositorySource_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[3])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_RepositorySource);
+
+return buf;
+}
+
+string Row_Package_Source::FK_RepositoryType_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[4])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_RepositoryType);
+
+return buf;
+}
+
+string Row_Package_Source::Repository_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[5])
+return "NULL";
+
+char buf[61];
+mysql_real_escape_string(table->database->db_handle, buf, m_Repository.c_str(), (unsigned long) m_Repository.size());
+return string()+"\""+buf+"\"";
+}
+
+string Row_Package_Source::Version_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[6])
+return "NULL";
+
+char buf[61];
+mysql_real_escape_string(table->database->db_handle, buf, m_Version.c_str(), (unsigned long) m_Version.size());
+return string()+"\""+buf+"\"";
+}
+
+string Row_Package_Source::Parms_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[7])
+return "NULL";
+
+char buf[61];
+mysql_real_escape_string(table->database->db_handle, buf, m_Parms.c_str(), (unsigned long) m_Parms.size());
+return string()+"\""+buf+"\"";
+}
+
+
+
+
+Table_Package_Source::Key::Key(long int in_PK_Package_Source)
+{
+			pk_PK_Package_Source = in_PK_Package_Source;
+	
+}
+
+Table_Package_Source::Key::Key(Row_Package_Source *pRow)
+{
+			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
+
+			pk_PK_Package_Source = pRow->m_PK_Package_Source;
+	
+}		
+
+bool Table_Package_Source::Key_Less::operator()(const Table_Package_Source::Key &key1, const Table_Package_Source::Key &key2) const
+{
+			if (key1.pk_PK_Package_Source!=key2.pk_PK_Package_Source)
+return key1.pk_PK_Package_Source<key2.pk_PK_Package_Source;
+else
+return false;	
+}	
+
+void Table_Package_Source::Commit()
+{
+	PLUTO_SAFETY_LOCK(M, m_Mutex);
+
+//insert added
+	while (!addedRows.empty())
+	{
+		vector<Row_Package_Source*>::iterator i = addedRows.begin();
+	
+		Row_Package_Source *pRow = *i;
+	
+		
+string values_list_comma_separated;
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_Source_asSQL()+", "+pRow->FK_Package_asSQL()+", "+pRow->Name_asSQL()+", "+pRow->FK_RepositorySource_asSQL()+", "+pRow->FK_RepositoryType_asSQL()+", "+pRow->Repository_asSQL()+", "+pRow->Version_asSQL()+", "+pRow->Parms_asSQL();
+
+	
+		string query = "insert into Package_Source (PK_Package_Source, FK_Package, Name, FK_RepositorySource, FK_RepositoryType, Repository, Version, Parms) values ("+
+			values_list_comma_separated+")";
+			
+		if (mysql_query(database->db_handle, query.c_str()))
+		{	
+			cerr << "Cannot perform query: [" << query << "]" << endl;
+		}
+	
+		if (mysql_affected_rows(database->db_handle)!=0)
+		{
+			
+			
+			long int id	= (long int) mysql_insert_id(database->db_handle);
+		
+			if (id!=0)
+pRow->m_PK_Package_Source=id;
+	
+			
+			addedRows.erase(i);
+			Key key(pRow);	
+			cachedRows[key] = pRow;
+					
+			
+			pRow->is_added = false;	
+			pRow->is_modified = false;	
+		}	
+				
+	}	
+
+
+//update modified
+	
+
+	for (map<Key, Row_Package_Source*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+		if	(((*i).second)->is_modified)
+	{
+		Row_Package_Source* pRow = (*i).second;	
+		Key key(pRow);	
+
+		char tmp_PK_Package_Source[32];
+sprintf(tmp_PK_Package_Source, "%li", key.pk_PK_Package_Source);
+
+
+string condition;
+condition = condition + "PK_Package_Source=" + tmp_PK_Package_Source;
+	
+			
+		
+string update_values_list;
+update_values_list = update_values_list + "PK_Package_Source="+pRow->PK_Package_Source_asSQL()+", FK_Package="+pRow->FK_Package_asSQL()+", Name="+pRow->Name_asSQL()+", FK_RepositorySource="+pRow->FK_RepositorySource_asSQL()+", FK_RepositoryType="+pRow->FK_RepositoryType_asSQL()+", Repository="+pRow->Repository_asSQL()+", Version="+pRow->Version_asSQL()+", Parms="+pRow->Parms_asSQL();
+
+	
+		string query = "update Package_Source set " + update_values_list + " where " + condition;
+			
+		if (mysql_query(database->db_handle, query.c_str()))
+		{	
+			cerr << "Cannot perform query: [" << query << "]" << endl;
+		}
+	
+		pRow->is_modified = false;	
+	}	
+	
+
+//delete deleted added
+	while (!deleted_addedRows.empty())
+	{	
+		vector<Row_Package_Source*>::iterator i = deleted_addedRows.begin();
+		delete (*i);
+		deleted_addedRows.erase(i);
+	}	
+
+
+//delete deleted cached
+	
+	while (!deleted_cachedRows.empty())
+	{	
+		map<Key, Row_Package_Source*, Key_Less>::iterator i = deleted_cachedRows.begin();
+	
+		Key key = (*i).first;
+	
+		char tmp_PK_Package_Source[32];
+sprintf(tmp_PK_Package_Source, "%li", key.pk_PK_Package_Source);
+
+
+string condition;
+condition = condition + "PK_Package_Source=" + tmp_PK_Package_Source;
+
+	
+		string query = "delete from Package_Source where " + condition;
+		
+		if (mysql_query(database->db_handle, query.c_str()))
+		{	
+			cerr << "Cannot perform query: [" << query << "]" << endl;
+		}	
+		
+		delete (*i).second;
+		deleted_cachedRows.erase(key);
+	}
+	
+}
+
+bool Table_Package_Source::GetRows(string where_statement,vector<class Row_Package_Source*> *rows)
+{
+	PLUTO_SAFETY_LOCK(M, m_Mutex);
+
+	string query = "select * from Package_Source where " + where_statement;
+		
+	if (mysql_query(database->db_handle, query.c_str()))
+	{	
+		cerr << "Cannot perform query" << endl;
+		return false;
+	}	
+
+	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	
+	if (!res)
+	{
+		cerr << "mysql_store_result returned NULL handler" << endl;
+		return false;
+	}	
+	
+	MYSQL_ROW row;
+						
+		
+	while ((row = mysql_fetch_row(res)) != NULL)
+	{	
+		unsigned long *lengths = mysql_fetch_lengths(res);
+
+		Row_Package_Source *pRow = new Row_Package_Source(this);
+		
+		if (row[0] == NULL)
+{
+pRow->is_null[0]=true;
+pRow->m_PK_Package_Source = 0;
+}
+else
+{
+pRow->is_null[0]=false;
+sscanf(row[0], "%li", &(pRow->m_PK_Package_Source));
+}
+
+if (row[1] == NULL)
+{
+pRow->is_null[1]=true;
+pRow->m_FK_Package = 0;
+}
+else
+{
+pRow->is_null[1]=false;
+sscanf(row[1], "%li", &(pRow->m_FK_Package));
+}
+
+if (row[2] == NULL)
+{
+pRow->is_null[2]=true;
+pRow->m_Name = "";
+}
+else
+{
+pRow->is_null[2]=false;
+pRow->m_Name = string(row[2],lengths[2]);
+}
+
+if (row[3] == NULL)
+{
+pRow->is_null[3]=true;
+pRow->m_FK_RepositorySource = 0;
+}
+else
+{
+pRow->is_null[3]=false;
+sscanf(row[3], "%li", &(pRow->m_FK_RepositorySource));
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_FK_RepositoryType = 0;
+}
+else
+{
+pRow->is_null[4]=false;
+sscanf(row[4], "%li", &(pRow->m_FK_RepositoryType));
+}
+
+if (row[5] == NULL)
+{
+pRow->is_null[5]=true;
+pRow->m_Repository = "";
+}
+else
+{
+pRow->is_null[5]=false;
+pRow->m_Repository = string(row[5],lengths[5]);
+}
+
+if (row[6] == NULL)
+{
+pRow->is_null[6]=true;
+pRow->m_Version = "";
+}
+else
+{
+pRow->is_null[6]=false;
+pRow->m_Version = string(row[6],lengths[6]);
+}
+
+if (row[7] == NULL)
+{
+pRow->is_null[7]=true;
+pRow->m_Parms = "";
+}
+else
+{
+pRow->is_null[7]=false;
+pRow->m_Parms = string(row[7],lengths[7]);
+}
+
+
+
+		//checking for duplicates
+
+		Key key(pRow);
+		
+                map<Table_Package_Source::Key, Row_Package_Source*, Table_Package_Source::Key_Less>::iterator i = cachedRows.find(key);
+			
+		if (i!=cachedRows.end())
+		{
+			delete pRow;
+			pRow = (*i).second;
+		}
+
+		rows->push_back(pRow);
+		
+		cachedRows[key] = pRow;
+	}
+
+	mysql_free_result(res);			
+		
+	return true;					
+}
+
+Row_Package_Source* Table_Package_Source::AddRow()
+{
+	PLUTO_SAFETY_LOCK(M, m_Mutex);
+
+	Row_Package_Source *pRow = new Row_Package_Source(this);
+	pRow->is_added=true;
+	addedRows.push_back(pRow);
+	return pRow;		
+}
+
+
+
+Row_Package_Source* Table_Package_Source::GetRow(long int in_PK_Package_Source)
+{
+	PLUTO_SAFETY_LOCK(M, m_Mutex);
+
+	Key row_key(in_PK_Package_Source);
+
+	map<Key, Row_Package_Source*, Key_Less>::iterator i;
+	i = deleted_cachedRows.find(row_key);	
+		
+	//row was deleted	
+	if (i!=deleted_cachedRows.end())
+		return NULL;
+	
+	i = cachedRows.find(row_key);
+	
+	//row is cached
+	if (i!=cachedRows.end())
+		return (*i).second;
+	//we have to fetch row
+	Row_Package_Source* pRow = FetchRow(row_key);
+
+	if (pRow!=NULL)
+		cachedRows[row_key] = pRow;
+	return pRow;	
+}
+
+
+
+Row_Package_Source* Table_Package_Source::FetchRow(Table_Package_Source::Key &key)
+{
+	PLUTO_SAFETY_LOCK(M, m_Mutex);
+
+	//defines the string query for the value of key
+	char tmp_PK_Package_Source[32];
+sprintf(tmp_PK_Package_Source, "%li", key.pk_PK_Package_Source);
+
+
+string condition;
+condition = condition + "PK_Package_Source=" + tmp_PK_Package_Source;
+
+
+	string query = "select * from Package_Source where " + condition;		
+
+	if (mysql_query(database->db_handle, query.c_str()))
+	{	
+		cerr << "Cannot perform query" << endl;
+		return NULL;
+	}	
+
+	MYSQL_RES *res = mysql_store_result(database->db_handle);
+	
+	if (!res)
+	{
+		cerr << "mysql_store_result returned NULL handler" << endl;
+		return NULL;
+	}	
+	
+	MYSQL_ROW row = mysql_fetch_row(res);
+	
+	if (!row)
+	{
+		//dataset is empty
+		mysql_free_result(res);			
+		return NULL;		
+	}	
+						
+	unsigned long *lengths = mysql_fetch_lengths(res);
+
+	Row_Package_Source *pRow = new Row_Package_Source(this);
+		
+	if (row[0] == NULL)
+{
+pRow->is_null[0]=true;
+pRow->m_PK_Package_Source = 0;
+}
+else
+{
+pRow->is_null[0]=false;
+sscanf(row[0], "%li", &(pRow->m_PK_Package_Source));
+}
+
+if (row[1] == NULL)
+{
+pRow->is_null[1]=true;
+pRow->m_FK_Package = 0;
+}
+else
+{
+pRow->is_null[1]=false;
+sscanf(row[1], "%li", &(pRow->m_FK_Package));
+}
+
+if (row[2] == NULL)
+{
+pRow->is_null[2]=true;
+pRow->m_Name = "";
+}
+else
+{
+pRow->is_null[2]=false;
+pRow->m_Name = string(row[2],lengths[2]);
+}
+
+if (row[3] == NULL)
+{
+pRow->is_null[3]=true;
+pRow->m_FK_RepositorySource = 0;
+}
+else
+{
+pRow->is_null[3]=false;
+sscanf(row[3], "%li", &(pRow->m_FK_RepositorySource));
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_FK_RepositoryType = 0;
+}
+else
+{
+pRow->is_null[4]=false;
+sscanf(row[4], "%li", &(pRow->m_FK_RepositoryType));
+}
+
+if (row[5] == NULL)
+{
+pRow->is_null[5]=true;
+pRow->m_Repository = "";
+}
+else
+{
+pRow->is_null[5]=false;
+pRow->m_Repository = string(row[5],lengths[5]);
+}
+
+if (row[6] == NULL)
+{
+pRow->is_null[6]=true;
+pRow->m_Version = "";
+}
+else
+{
+pRow->is_null[6]=false;
+pRow->m_Version = string(row[6],lengths[6]);
+}
+
+if (row[7] == NULL)
+{
+pRow->is_null[7]=true;
+pRow->m_Parms = "";
+}
+else
+{
+pRow->is_null[7]=false;
+pRow->m_Parms = string(row[7],lengths[7]);
+}
+
+
+
+	mysql_free_result(res);			
+	
+	return pRow;						
+}
+
+
+class Row_Package* Row_Package_Source::FK_Package_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Package *pTable = table->database->Package_get();
+return pTable->GetRow(m_FK_Package);
+}
+class Row_RepositorySource* Row_Package_Source::FK_RepositorySource_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_RepositorySource *pTable = table->database->RepositorySource_get();
+return pTable->GetRow(m_FK_RepositorySource);
+}
+class Row_RepositoryType* Row_Package_Source::FK_RepositoryType_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_RepositoryType *pTable = table->database->RepositoryType_get();
+return pTable->GetRow(m_FK_RepositoryType);
+}
+
+
+void Row_Package_Source::Package_FK_Package_Source_getrows(vector <class Row_Package*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Package *pTable = table->database->Package_get();
+pTable->GetRows("FK_Package_Source=" + StringUtils::itos(m_PK_Package_Source),rows);
+}
+void Row_Package_Source::Package_Source_Compat_FK_Package_Source_getrows(vector <class Row_Package_Source_Compat*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Package_Source_Compat *pTable = table->database->Package_Source_Compat_get();
+pTable->GetRows("FK_Package_Source=" + StringUtils::itos(m_PK_Package_Source),rows);
+}
+
+
+

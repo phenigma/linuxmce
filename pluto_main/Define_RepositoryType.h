@@ -2,8 +2,8 @@
 #define __Define_RepositoryType_H__
 
 #define REPOSITORYTYPE_Package_CONST 1
-#define REPOSITORYTYPE_Link_to_source_CONST 2
-#define REPOSITORYTYPE_Archive_CONST 3
+#define REPOSITORYTYPE_FTPHTTP_download_CONST 2
+#define REPOSITORYTYPE_CVS_CONST 3
 
 #define REPOSITORYTYPE_TABLE "RepositoryType"
 #define REPOSITORYTYPE_PK_REPOSITORYTYPE_FIELD "PK_RepositoryType"

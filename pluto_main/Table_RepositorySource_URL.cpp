@@ -114,7 +114,7 @@ void Row_RepositorySource_URL::SetDefaultValues()
 is_null[0] = false;
 m_FK_RepositorySource = 0;
 is_null[1] = false;
-m_URL = 0;
+m_URL = "";
 is_null[2] = false;
 is_null[3] = true;
 
@@ -130,7 +130,7 @@ return m_PK_RepositorySource_URL;}
 long int Row_RepositorySource_URL::FK_RepositorySource_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_RepositorySource;}
-long int Row_RepositorySource_URL::URL_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_RepositorySource_URL::URL_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_URL;}
 long int Row_RepositorySource_URL::FK_Country_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -144,7 +144,7 @@ m_PK_RepositorySource_URL = val; is_modified=true; is_null[0]=false;}
 void Row_RepositorySource_URL::FK_RepositorySource_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_RepositorySource = val; is_modified=true; is_null[1]=false;}
-void Row_RepositorySource_URL::URL_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_RepositorySource_URL::URL_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_URL = val; is_modified=true; is_null[2]=false;}
 void Row_RepositorySource_URL::FK_Country_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -195,10 +195,9 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 if (is_null[2])
 return "NULL";
 
-char buf[32];
-sprintf(buf, "%li", m_URL);
-
-return buf;
+char buf[511];
+mysql_real_escape_string(table->database->db_handle, buf, m_URL.c_str(), (unsigned long) m_URL.size());
+return string()+"\""+buf+"\"";
 }
 
 string Row_RepositorySource_URL::FK_Country_asSQL()
@@ -410,12 +409,12 @@ sscanf(row[1], "%li", &(pRow->m_FK_RepositorySource));
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_URL = 0;
+pRow->m_URL = "";
 }
 else
 {
 pRow->is_null[2]=false;
-sscanf(row[2], "%li", &(pRow->m_URL));
+pRow->m_URL = string(row[2],lengths[2]);
 }
 
 if (row[3] == NULL)
@@ -560,12 +559,12 @@ sscanf(row[1], "%li", &(pRow->m_FK_RepositorySource));
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_URL = 0;
+pRow->m_URL = "";
 }
 else
 {
 pRow->is_null[2]=false;
-sscanf(row[2], "%li", &(pRow->m_URL));
+pRow->m_URL = string(row[2],lengths[2]);
 }
 
 if (row[3] == NULL)

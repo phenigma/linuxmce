@@ -17,24 +17,24 @@
 
 using namespace std;
 #include "PlutoUtils/StringUtils.h"
-#include "Table_Directory.h"
+#include "Table_Template.h"
 
-#include "Table_Package_Directory.h"
+#include "Table_CommandGroup.h"
 
 
-void Database_pluto_main::CreateTable_Directory()
+void Database_pluto_main::CreateTable_Template()
 {
-	tblDirectory = new Table_Directory(this);
+	tblTemplate = new Table_Template(this);
 }
 
-void Database_pluto_main::DeleteTable_Directory()
+void Database_pluto_main::DeleteTable_Template()
 {
-	delete tblDirectory;
+	delete tblTemplate;
 }
 
-Table_Directory::~Table_Directory()
+Table_Template::~Table_Template()
 {
-	map<Table_Directory::Key, class Row_Directory*, Table_Directory::Key_Less>::iterator it;
+	map<Table_Template::Key, class Row_Template*, Table_Template::Key_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
 		delete (*it).second;
@@ -53,14 +53,14 @@ Table_Directory::~Table_Directory()
 }
 
 
-void Row_Directory::Delete()
+void Row_Template::Delete()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	if (!is_deleted)
 		if (is_added)	
 		{	
-			vector<Row_Directory*>::iterator i;	
+			vector<Row_Template*>::iterator i;	
 			for (i = table->addedRows.begin(); (i!=table->addedRows.end()) && (*i != this); i++);
 			
 			if (i!=	table->addedRows.end())
@@ -71,8 +71,8 @@ void Row_Directory::Delete()
 		}
 		else
 		{
-			Table_Directory::Key key(this);					
-			map<Table_Directory::Key, Row_Directory*, Table_Directory::Key_Less>::iterator i = table->cachedRows.find(key);
+			Table_Template::Key key(this);					
+			map<Table_Template::Key, Row_Template*, Table_Template::Key_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -81,15 +81,15 @@ void Row_Directory::Delete()
 		}	
 }
 
-void Row_Directory::Reload()
+void Row_Template::Reload()
 {
 	PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 	
 	
 	if (!is_added)
 	{
-		Table_Directory::Key key(this);		
-		Row_Directory *pRow = table->FetchRow(key);
+		Table_Template::Key key(this);		
+		Row_Template *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
 		{
@@ -101,18 +101,17 @@ void Row_Directory::Reload()
 	
 }
 
-Row_Directory::Row_Directory(Table_Directory *pTable):table(pTable)
+Row_Template::Row_Template(Table_Template *pTable):table(pTable)
 {
 	SetDefaultValues();
 }
 
-void Row_Directory::SetDefaultValues()
+void Row_Template::SetDefaultValues()
 {
-	m_PK_Directory = 0;
+	m_PK_Template = 0;
 is_null[0] = false;
 m_Description = "";
 is_null[1] = false;
-is_null[2] = true;
 
 
 	is_added=false;
@@ -120,39 +119,27 @@ is_null[2] = true;
 	is_modified=false;
 }
 
-long int Row_Directory::PK_Directory_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Template::PK_Template_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_PK_Directory;}
-string Row_Directory::Description_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_PK_Template;}
+string Row_Template::Description_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Description;}
-string Row_Directory::Define_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return m_Define;}
 
 		
-void Row_Directory::PK_Directory_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Template::PK_Template_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_PK_Directory = val; is_modified=true; is_null[0]=false;}
-void Row_Directory::Description_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_PK_Template = val; is_modified=true; is_null[0]=false;}
+void Row_Template::Description_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Description = val; is_modified=true; is_null[1]=false;}
-void Row_Directory::Define_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-m_Define = val; is_modified=true; is_null[2]=false;}
 
 		
-bool Row_Directory::Define_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return is_null[2];}
 
 			
-void Row_Directory::Define_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[2]=val;}
 	
 
-string Row_Directory::PK_Directory_asSQL()
+string Row_Template::PK_Template_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -160,77 +147,65 @@ if (is_null[0])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_PK_Directory);
+sprintf(buf, "%li", m_PK_Template);
 
 return buf;
 }
 
-string Row_Directory::Description_asSQL()
+string Row_Template::Description_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[1])
 return "NULL";
 
-char buf[61];
+char buf[511];
 mysql_real_escape_string(table->database->db_handle, buf, m_Description.c_str(), (unsigned long) m_Description.size());
 return string()+"\""+buf+"\"";
 }
 
-string Row_Directory::Define_asSQL()
+
+
+
+Table_Template::Key::Key(long int in_PK_Template)
 {
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-if (is_null[2])
-return "NULL";
-
-char buf[51];
-mysql_real_escape_string(table->database->db_handle, buf, m_Define.c_str(), (unsigned long) m_Define.size());
-return string()+"\""+buf+"\"";
-}
-
-
-
-
-Table_Directory::Key::Key(long int in_PK_Directory)
-{
-			pk_PK_Directory = in_PK_Directory;
+			pk_PK_Template = in_PK_Template;
 	
 }
 
-Table_Directory::Key::Key(Row_Directory *pRow)
+Table_Template::Key::Key(Row_Template *pRow)
 {
 			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
 
-			pk_PK_Directory = pRow->m_PK_Directory;
+			pk_PK_Template = pRow->m_PK_Template;
 	
 }		
 
-bool Table_Directory::Key_Less::operator()(const Table_Directory::Key &key1, const Table_Directory::Key &key2) const
+bool Table_Template::Key_Less::operator()(const Table_Template::Key &key1, const Table_Template::Key &key2) const
 {
-			if (key1.pk_PK_Directory!=key2.pk_PK_Directory)
-return key1.pk_PK_Directory<key2.pk_PK_Directory;
+			if (key1.pk_PK_Template!=key2.pk_PK_Template)
+return key1.pk_PK_Template<key2.pk_PK_Template;
 else
 return false;	
 }	
 
-void Table_Directory::Commit()
+void Table_Template::Commit()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 //insert added
 	while (!addedRows.empty())
 	{
-		vector<Row_Directory*>::iterator i = addedRows.begin();
+		vector<Row_Template*>::iterator i = addedRows.begin();
 	
-		Row_Directory *pRow = *i;
+		Row_Template *pRow = *i;
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Directory_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Template_asSQL()+", "+pRow->Description_asSQL();
 
 	
-		string query = "insert into Directory (PK_Directory, Description, Define) values ("+
+		string query = "insert into Template (PK_Template, Description) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -245,7 +220,7 @@ values_list_comma_separated = values_list_comma_separated + pRow->PK_Directory_a
 			long int id	= (long int) mysql_insert_id(database->db_handle);
 		
 			if (id!=0)
-pRow->m_PK_Directory=id;
+pRow->m_PK_Template=id;
 	
 			
 			addedRows.erase(i);
@@ -263,26 +238,26 @@ pRow->m_PK_Directory=id;
 //update modified
 	
 
-	for (map<Key, Row_Directory*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+	for (map<Key, Row_Template*, Key_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
 		if	(((*i).second)->is_modified)
 	{
-		Row_Directory* pRow = (*i).second;	
+		Row_Template* pRow = (*i).second;	
 		Key key(pRow);	
 
-		char tmp_PK_Directory[32];
-sprintf(tmp_PK_Directory, "%li", key.pk_PK_Directory);
+		char tmp_PK_Template[32];
+sprintf(tmp_PK_Template, "%li", key.pk_PK_Template);
 
 
 string condition;
-condition = condition + "PK_Directory=" + tmp_PK_Directory;
+condition = condition + "PK_Template=" + tmp_PK_Template;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Directory="+pRow->PK_Directory_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL();
+update_values_list = update_values_list + "PK_Template="+pRow->PK_Template_asSQL()+", Description="+pRow->Description_asSQL();
 
 	
-		string query = "update Directory set " + update_values_list + " where " + condition;
+		string query = "update Template set " + update_values_list + " where " + condition;
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
@@ -296,7 +271,7 @@ update_values_list = update_values_list + "PK_Directory="+pRow->PK_Directory_asS
 //delete deleted added
 	while (!deleted_addedRows.empty())
 	{	
-		vector<Row_Directory*>::iterator i = deleted_addedRows.begin();
+		vector<Row_Template*>::iterator i = deleted_addedRows.begin();
 		delete (*i);
 		deleted_addedRows.erase(i);
 	}	
@@ -306,19 +281,19 @@ update_values_list = update_values_list + "PK_Directory="+pRow->PK_Directory_asS
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<Key, Row_Directory*, Key_Less>::iterator i = deleted_cachedRows.begin();
+		map<Key, Row_Template*, Key_Less>::iterator i = deleted_cachedRows.begin();
 	
 		Key key = (*i).first;
 	
-		char tmp_PK_Directory[32];
-sprintf(tmp_PK_Directory, "%li", key.pk_PK_Directory);
+		char tmp_PK_Template[32];
+sprintf(tmp_PK_Template, "%li", key.pk_PK_Template);
 
 
 string condition;
-condition = condition + "PK_Directory=" + tmp_PK_Directory;
+condition = condition + "PK_Template=" + tmp_PK_Template;
 
 	
-		string query = "delete from Directory where " + condition;
+		string query = "delete from Template where " + condition;
 		
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
@@ -331,11 +306,11 @@ condition = condition + "PK_Directory=" + tmp_PK_Directory;
 	
 }
 
-bool Table_Directory::GetRows(string where_statement,vector<class Row_Directory*> *rows)
+bool Table_Template::GetRows(string where_statement,vector<class Row_Template*> *rows)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	string query = "select * from Directory where " + where_statement;
+	string query = "select * from Template where " + where_statement;
 		
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
@@ -358,17 +333,17 @@ bool Table_Directory::GetRows(string where_statement,vector<class Row_Directory*
 	{	
 		unsigned long *lengths = mysql_fetch_lengths(res);
 
-		Row_Directory *pRow = new Row_Directory(this);
+		Row_Template *pRow = new Row_Template(this);
 		
 		if (row[0] == NULL)
 {
 pRow->is_null[0]=true;
-pRow->m_PK_Directory = 0;
+pRow->m_PK_Template = 0;
 }
 else
 {
 pRow->is_null[0]=false;
-sscanf(row[0], "%li", &(pRow->m_PK_Directory));
+sscanf(row[0], "%li", &(pRow->m_PK_Template));
 }
 
 if (row[1] == NULL)
@@ -382,24 +357,13 @@ pRow->is_null[1]=false;
 pRow->m_Description = string(row[1],lengths[1]);
 }
 
-if (row[2] == NULL)
-{
-pRow->is_null[2]=true;
-pRow->m_Define = "";
-}
-else
-{
-pRow->is_null[2]=false;
-pRow->m_Define = string(row[2],lengths[2]);
-}
-
 
 
 		//checking for duplicates
 
 		Key key(pRow);
 		
-                map<Table_Directory::Key, Row_Directory*, Table_Directory::Key_Less>::iterator i = cachedRows.find(key);
+                map<Table_Template::Key, Row_Template*, Table_Template::Key_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
@@ -417,11 +381,11 @@ pRow->m_Define = string(row[2],lengths[2]);
 	return true;					
 }
 
-Row_Directory* Table_Directory::AddRow()
+Row_Template* Table_Template::AddRow()
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Row_Directory *pRow = new Row_Directory(this);
+	Row_Template *pRow = new Row_Template(this);
 	pRow->is_added=true;
 	addedRows.push_back(pRow);
 	return pRow;		
@@ -429,13 +393,13 @@ Row_Directory* Table_Directory::AddRow()
 
 
 
-Row_Directory* Table_Directory::GetRow(long int in_PK_Directory)
+Row_Template* Table_Template::GetRow(long int in_PK_Template)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_PK_Directory);
+	Key row_key(in_PK_Template);
 
-	map<Key, Row_Directory*, Key_Less>::iterator i;
+	map<Key, Row_Template*, Key_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -448,7 +412,7 @@ Row_Directory* Table_Directory::GetRow(long int in_PK_Directory)
 	if (i!=cachedRows.end())
 		return (*i).second;
 	//we have to fetch row
-	Row_Directory* pRow = FetchRow(row_key);
+	Row_Template* pRow = FetchRow(row_key);
 
 	if (pRow!=NULL)
 		cachedRows[row_key] = pRow;
@@ -457,20 +421,20 @@ Row_Directory* Table_Directory::GetRow(long int in_PK_Directory)
 
 
 
-Row_Directory* Table_Directory::FetchRow(Table_Directory::Key &key)
+Row_Template* Table_Template::FetchRow(Table_Template::Key &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
-	char tmp_PK_Directory[32];
-sprintf(tmp_PK_Directory, "%li", key.pk_PK_Directory);
+	char tmp_PK_Template[32];
+sprintf(tmp_PK_Template, "%li", key.pk_PK_Template);
 
 
 string condition;
-condition = condition + "PK_Directory=" + tmp_PK_Directory;
+condition = condition + "PK_Template=" + tmp_PK_Template;
 
 
-	string query = "select * from Directory where " + condition;		
+	string query = "select * from Template where " + condition;		
 
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
@@ -497,17 +461,17 @@ condition = condition + "PK_Directory=" + tmp_PK_Directory;
 						
 	unsigned long *lengths = mysql_fetch_lengths(res);
 
-	Row_Directory *pRow = new Row_Directory(this);
+	Row_Template *pRow = new Row_Template(this);
 		
 	if (row[0] == NULL)
 {
 pRow->is_null[0]=true;
-pRow->m_PK_Directory = 0;
+pRow->m_PK_Template = 0;
 }
 else
 {
 pRow->is_null[0]=false;
-sscanf(row[0], "%li", &(pRow->m_PK_Directory));
+sscanf(row[0], "%li", &(pRow->m_PK_Template));
 }
 
 if (row[1] == NULL)
@@ -521,17 +485,6 @@ pRow->is_null[1]=false;
 pRow->m_Description = string(row[1],lengths[1]);
 }
 
-if (row[2] == NULL)
-{
-pRow->is_null[2]=true;
-pRow->m_Define = "";
-}
-else
-{
-pRow->is_null[2]=false;
-pRow->m_Define = string(row[2],lengths[2]);
-}
-
 
 
 	mysql_free_result(res);			
@@ -542,12 +495,12 @@ pRow->m_Define = string(row[2],lengths[2]);
 
 
 
-void Row_Directory::Package_Directory_FK_Directory_getrows(vector <class Row_Package_Directory*> *rows)
+void Row_Template::CommandGroup_FK_Template_getrows(vector <class Row_CommandGroup*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-class Table_Package_Directory *pTable = table->database->Package_Directory_get();
-pTable->GetRows("FK_Directory=" + StringUtils::itos(m_PK_Directory),rows);
+class Table_CommandGroup *pTable = table->database->CommandGroup_get();
+pTable->GetRows("FK_Template=" + StringUtils::itos(m_PK_Template),rows);
 }
 
 

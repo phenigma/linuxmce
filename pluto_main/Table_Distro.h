@@ -83,9 +83,13 @@ class DLL_EXPORT Row_Distro : public TableRow, public SerializeClass
 string m_Description;
 string m_Define;
 long int m_FK_OperatingSystem;
-string m_ConfirmDependencyProgram;
+string m_Installer;
+string m_KickStartCD;
+string m_Binaries;
+string m_SourceCode;
+short int m_Confirmed;
 
-		bool is_null[5];
+		bool is_null[9];
 	
 		bool is_deleted;
 		bool is_added;
@@ -96,22 +100,30 @@ string m_ConfirmDependencyProgram;
 string Description_get();
 string Define_get();
 long int FK_OperatingSystem_get();
-string ConfirmDependencyProgram_get();
+string Installer_get();
+string KickStartCD_get();
+string Binaries_get();
+string SourceCode_get();
+short int Confirmed_get();
 
 		
 		void PK_Distro_set(long int val);
 void Description_set(string val);
 void Define_set(string val);
 void FK_OperatingSystem_set(long int val);
-void ConfirmDependencyProgram_set(string val);
+void Installer_set(string val);
+void KickStartCD_set(string val);
+void Binaries_set(string val);
+void SourceCode_set(string val);
+void Confirmed_set(short int val);
 
 		
 		bool Define_isNull();
-bool ConfirmDependencyProgram_isNull();
+bool Installer_isNull();
 
 			
 		void Define_setNull(bool val);
-void ConfirmDependencyProgram_setNull(bool val);
+void Installer_setNull(bool val);
 	
 	
 		void Delete();
@@ -128,14 +140,15 @@ void ConfirmDependencyProgram_setNull(bool val);
 
 
 		// Return the rows in other tables with foreign keys pointing here
-		void DeviceTemplate_Package_FK_Distro_getrows(vector <class Row_DeviceTemplate_Package*> *rows);
-void Package_Distro_FK_Distro_getrows(vector <class Row_Package_Distro*> *rows);
+		void Package_Directory_FK_Distro_getrows(vector <class Row_Package_Directory*> *rows);
+void Package_Directory_File_FK_Distro_getrows(vector <class Row_Package_Directory_File*> *rows);
+void Package_Source_Compat_FK_Distro_getrows(vector <class Row_Package_Source_Compat*> *rows);
 void RepositorySource_FK_Distro_getrows(vector <class Row_RepositorySource*> *rows);
 
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_Distro+ m_Description+ m_Define+ m_FK_OperatingSystem+ m_ConfirmDependencyProgram;
+			StartSerializeList() + m_PK_Distro+ m_Description+ m_Define+ m_FK_OperatingSystem+ m_Installer+ m_KickStartCD+ m_Binaries+ m_SourceCode+ m_Confirmed;
 		}
 	private:
 		void SetDefaultValues();
@@ -144,7 +157,11 @@ void RepositorySource_FK_Distro_getrows(vector <class Row_RepositorySource*> *ro
 string Description_asSQL();
 string Define_asSQL();
 string FK_OperatingSystem_asSQL();
-string ConfirmDependencyProgram_asSQL();
+string Installer_asSQL();
+string KickStartCD_asSQL();
+string Binaries_asSQL();
+string SourceCode_asSQL();
+string Confirmed_asSQL();
 
 	};
 

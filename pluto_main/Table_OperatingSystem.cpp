@@ -19,9 +19,10 @@ using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_OperatingSystem.h"
 
-#include "Table_DeviceTemplate_Package.h"
 #include "Table_Distro.h"
-#include "Table_OperatingSystem_Directory.h"
+#include "Table_Package_Directory.h"
+#include "Table_Package_Directory_File.h"
+#include "Table_Package_Source_Compat.h"
 #include "Table_RepositorySource.h"
 
 
@@ -545,13 +546,6 @@ pRow->m_Define = string(row[2],lengths[2]);
 
 
 
-void Row_OperatingSystem::DeviceTemplate_Package_FK_OperatingSystem_getrows(vector <class Row_DeviceTemplate_Package*> *rows)
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-class Table_DeviceTemplate_Package *pTable = table->database->DeviceTemplate_Package_get();
-pTable->GetRows("FK_OperatingSystem=" + StringUtils::itos(m_PK_OperatingSystem),rows);
-}
 void Row_OperatingSystem::Distro_FK_OperatingSystem_getrows(vector <class Row_Distro*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -559,11 +553,25 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 class Table_Distro *pTable = table->database->Distro_get();
 pTable->GetRows("FK_OperatingSystem=" + StringUtils::itos(m_PK_OperatingSystem),rows);
 }
-void Row_OperatingSystem::OperatingSystem_Directory_FK_OperatingSystem_getrows(vector <class Row_OperatingSystem_Directory*> *rows)
+void Row_OperatingSystem::Package_Directory_FK_OperatingSystem_getrows(vector <class Row_Package_Directory*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-class Table_OperatingSystem_Directory *pTable = table->database->OperatingSystem_Directory_get();
+class Table_Package_Directory *pTable = table->database->Package_Directory_get();
+pTable->GetRows("FK_OperatingSystem=" + StringUtils::itos(m_PK_OperatingSystem),rows);
+}
+void Row_OperatingSystem::Package_Directory_File_FK_OperatingSystem_getrows(vector <class Row_Package_Directory_File*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Package_Directory_File *pTable = table->database->Package_Directory_File_get();
+pTable->GetRows("FK_OperatingSystem=" + StringUtils::itos(m_PK_OperatingSystem),rows);
+}
+void Row_OperatingSystem::Package_Source_Compat_FK_OperatingSystem_getrows(vector <class Row_Package_Source_Compat*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Package_Source_Compat *pTable = table->database->Package_Source_Compat_get();
 pTable->GetRows("FK_OperatingSystem=" + StringUtils::itos(m_PK_OperatingSystem),rows);
 }
 void Row_OperatingSystem::RepositorySource_FK_OperatingSystem_getrows(vector <class Row_RepositorySource*> *rows)

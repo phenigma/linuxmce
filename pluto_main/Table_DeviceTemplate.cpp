@@ -21,11 +21,13 @@ using namespace std;
 #include "Table_DeviceCategory.h"
 #include "Table_Manufacturer.h"
 #include "Table_StabilityStatus.h"
+#include "Table_Package.h"
 #include "Table_Users.h"
 
 #include "Table_CommandGroup_D_Command.h"
 #include "Table_ConfigType.h"
 #include "Table_Device.h"
+#include "Table_DeviceTemplate_AV.h"
 #include "Table_DeviceTemplate_DSPMode.h"
 #include "Table_DeviceTemplate_DesignObj.h"
 #include "Table_DeviceTemplate_DeviceCategory_ControlledVia.h"
@@ -40,7 +42,6 @@ using namespace std;
 #include "Table_DeviceTemplate_Input.h"
 #include "Table_DeviceTemplate_MediaType.h"
 #include "Table_DeviceTemplate_Output.h"
-#include "Table_DeviceTemplate_Package.h"
 #include "Table_DeviceTemplate_PageSetup.h"
 #include "Table_InfraredCode.h"
 
@@ -214,9 +215,9 @@ return m_IRFrequency;}
 long int Row_DeviceTemplate::FK_StabilityStatus_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_StabilityStatus;}
-string Row_DeviceTemplate::DestinationPackage_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_DeviceTemplate::FK_Package_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_DestinationPackage;}
+return m_FK_Package;}
 string Row_DeviceTemplate::DestinationDir_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_DestinationDir;}
@@ -282,9 +283,9 @@ m_IRFrequency = val; is_modified=true; is_null[12]=false;}
 void Row_DeviceTemplate::FK_StabilityStatus_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_StabilityStatus = val; is_modified=true; is_null[13]=false;}
-void Row_DeviceTemplate::DestinationPackage_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::FK_Package_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_DestinationPackage = val; is_modified=true; is_null[14]=false;}
+m_FK_Package = val; is_modified=true; is_null[14]=false;}
 void Row_DeviceTemplate::DestinationDir_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_DestinationDir = val; is_modified=true; is_null[15]=false;}
@@ -329,7 +330,7 @@ return is_null[12];}
 bool Row_DeviceTemplate::FK_StabilityStatus_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[13];}
-bool Row_DeviceTemplate::DestinationPackage_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DeviceTemplate::FK_Package_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[14];}
 bool Row_DeviceTemplate::DestinationDir_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -370,7 +371,7 @@ is_null[12]=val;}
 void Row_DeviceTemplate::FK_StabilityStatus_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[13]=val;}
-void Row_DeviceTemplate::DestinationPackage_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::FK_Package_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[14]=val;}
 void Row_DeviceTemplate::DestinationDir_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -568,16 +569,17 @@ sprintf(buf, "%li", m_FK_StabilityStatus);
 return buf;
 }
 
-string Row_DeviceTemplate::DestinationPackage_asSQL()
+string Row_DeviceTemplate::FK_Package_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[14])
 return "NULL";
 
-char buf[61];
-mysql_real_escape_string(table->database->db_handle, buf, m_DestinationPackage.c_str(), (unsigned long) m_DestinationPackage.size());
-return string()+"\""+buf+"\"";
+char buf[32];
+sprintf(buf, "%li", m_FK_Package);
+
+return buf;
 }
 
 string Row_DeviceTemplate::DestinationDir_asSQL()
@@ -707,10 +709,10 @@ void Table_DeviceTemplate::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_DeviceTemplate_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->FK_DeviceCategory_asSQL()+", "+pRow->FK_Manufacturer_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->ImplementsDCE_asSQL()+", "+pRow->IsEmbedded_asSQL()+", "+pRow->CommandLine_asSQL()+", "+pRow->RequiresGUI_asSQL()+", "+pRow->IsAVDevice_asSQL()+", "+pRow->IsPlugIn_asSQL()+", "+pRow->IRFrequency_asSQL()+", "+pRow->FK_StabilityStatus_asSQL()+", "+pRow->DestinationPackage_asSQL()+", "+pRow->DestinationDir_asSQL()+", "+pRow->FK_Users_Maintainer_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_DeviceTemplate_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->FK_DeviceCategory_asSQL()+", "+pRow->FK_Manufacturer_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->ImplementsDCE_asSQL()+", "+pRow->IsEmbedded_asSQL()+", "+pRow->CommandLine_asSQL()+", "+pRow->RequiresGUI_asSQL()+", "+pRow->IsAVDevice_asSQL()+", "+pRow->IsPlugIn_asSQL()+", "+pRow->IRFrequency_asSQL()+", "+pRow->FK_StabilityStatus_asSQL()+", "+pRow->FK_Package_asSQL()+", "+pRow->DestinationDir_asSQL()+", "+pRow->FK_Users_Maintainer_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into DeviceTemplate (PK_DeviceTemplate, Description, Comments, FK_DeviceCategory, FK_Manufacturer, Define, ImplementsDCE, IsEmbedded, CommandLine, RequiresGUI, IsAVDevice, IsPlugIn, IRFrequency, FK_StabilityStatus, DestinationPackage, DestinationDir, FK_Users_Maintainer, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into DeviceTemplate (PK_DeviceTemplate, Description, Comments, FK_DeviceCategory, FK_Manufacturer, Define, ImplementsDCE, IsEmbedded, CommandLine, RequiresGUI, IsAVDevice, IsPlugIn, IRFrequency, FK_StabilityStatus, FK_Package, DestinationDir, FK_Users_Maintainer, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -759,7 +761,7 @@ condition = condition + "PK_DeviceTemplate=" + tmp_PK_DeviceTemplate;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_DeviceTemplate="+pRow->PK_DeviceTemplate_asSQL()+", Description="+pRow->Description_asSQL()+", Comments="+pRow->Comments_asSQL()+", FK_DeviceCategory="+pRow->FK_DeviceCategory_asSQL()+", FK_Manufacturer="+pRow->FK_Manufacturer_asSQL()+", Define="+pRow->Define_asSQL()+", ImplementsDCE="+pRow->ImplementsDCE_asSQL()+", IsEmbedded="+pRow->IsEmbedded_asSQL()+", CommandLine="+pRow->CommandLine_asSQL()+", RequiresGUI="+pRow->RequiresGUI_asSQL()+", IsAVDevice="+pRow->IsAVDevice_asSQL()+", IsPlugIn="+pRow->IsPlugIn_asSQL()+", IRFrequency="+pRow->IRFrequency_asSQL()+", FK_StabilityStatus="+pRow->FK_StabilityStatus_asSQL()+", DestinationPackage="+pRow->DestinationPackage_asSQL()+", DestinationDir="+pRow->DestinationDir_asSQL()+", FK_Users_Maintainer="+pRow->FK_Users_Maintainer_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_DeviceTemplate="+pRow->PK_DeviceTemplate_asSQL()+", Description="+pRow->Description_asSQL()+", Comments="+pRow->Comments_asSQL()+", FK_DeviceCategory="+pRow->FK_DeviceCategory_asSQL()+", FK_Manufacturer="+pRow->FK_Manufacturer_asSQL()+", Define="+pRow->Define_asSQL()+", ImplementsDCE="+pRow->ImplementsDCE_asSQL()+", IsEmbedded="+pRow->IsEmbedded_asSQL()+", CommandLine="+pRow->CommandLine_asSQL()+", RequiresGUI="+pRow->RequiresGUI_asSQL()+", IsAVDevice="+pRow->IsAVDevice_asSQL()+", IsPlugIn="+pRow->IsPlugIn_asSQL()+", IRFrequency="+pRow->IRFrequency_asSQL()+", FK_StabilityStatus="+pRow->FK_StabilityStatus_asSQL()+", FK_Package="+pRow->FK_Package_asSQL()+", DestinationDir="+pRow->DestinationDir_asSQL()+", FK_Users_Maintainer="+pRow->FK_Users_Maintainer_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update DeviceTemplate set " + update_values_list + " where " + condition;
@@ -997,12 +999,12 @@ sscanf(row[13], "%li", &(pRow->m_FK_StabilityStatus));
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_DestinationPackage = "";
+pRow->m_FK_Package = 0;
 }
 else
 {
 pRow->is_null[14]=false;
-pRow->m_DestinationPackage = string(row[14],lengths[14]);
+sscanf(row[14], "%li", &(pRow->m_FK_Package));
 }
 
 if (row[15] == NULL)
@@ -1345,12 +1347,12 @@ sscanf(row[13], "%li", &(pRow->m_FK_StabilityStatus));
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_DestinationPackage = "";
+pRow->m_FK_Package = 0;
 }
 else
 {
 pRow->is_null[14]=false;
-pRow->m_DestinationPackage = string(row[14],lengths[14]);
+sscanf(row[14], "%li", &(pRow->m_FK_Package));
 }
 
 if (row[15] == NULL)
@@ -1459,6 +1461,13 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 class Table_StabilityStatus *pTable = table->database->StabilityStatus_get();
 return pTable->GetRow(m_FK_StabilityStatus);
 }
+class Row_Package* Row_DeviceTemplate::FK_Package_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Package *pTable = table->database->Package_get();
+return pTable->GetRow(m_FK_Package);
+}
 class Row_Users* Row_DeviceTemplate::FK_Users_Maintainer_getrow()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -1487,6 +1496,13 @@ void Row_DeviceTemplate::Device_FK_DeviceTemplate_getrows(vector <class Row_Devi
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device *pTable = table->database->Device_get();
+pTable->GetRows("FK_DeviceTemplate=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
+}
+void Row_DeviceTemplate::DeviceTemplate_AV_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_AV*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_DeviceTemplate_AV *pTable = table->database->DeviceTemplate_AV_get();
 pTable->GetRows("FK_DeviceTemplate=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_DSPMode_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_DSPMode*> *rows)
@@ -1585,13 +1601,6 @@ void Row_DeviceTemplate::DeviceTemplate_Output_FK_DeviceTemplate_getrows(vector 
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_Output *pTable = table->database->DeviceTemplate_Output_get();
-pTable->GetRows("FK_DeviceTemplate=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
-}
-void Row_DeviceTemplate::DeviceTemplate_Package_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_Package*> *rows)
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-class Table_DeviceTemplate_Package *pTable = table->database->DeviceTemplate_Package_get();
 pTable->GetRows("FK_DeviceTemplate=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_PageSetup_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_PageSetup*> *rows)

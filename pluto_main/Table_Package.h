@@ -81,13 +81,15 @@ class DLL_EXPORT Row_Package : public TableRow, public SerializeClass
 		
 		long int m_PK_Package;
 string m_Description;
+long int m_FK_Package_Source;
+short int m_IsSource;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[7];
+		bool is_null[9];
 	
 		bool is_deleted;
 		bool is_added;
@@ -96,6 +98,8 @@ string m_psc_mod;
 	public:
 		long int PK_Package_get();
 string Description_get();
+long int FK_Package_Source_get();
+short int IsSource_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -105,6 +109,8 @@ string psc_mod_get();
 		
 		void PK_Package_set(long int val);
 void Description_set(string val);
+void FK_Package_Source_set(long int val);
+void IsSource_set(short int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -112,13 +118,15 @@ void psc_frozen_set(short int val);
 void psc_mod_set(string val);
 
 		
-		bool psc_id_isNull();
+		bool FK_Package_Source_isNull();
+bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
 bool psc_frozen_isNull();
 
 			
-		void psc_id_setNull(bool val);
+		void FK_Package_Source_setNull(bool val);
+void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
 void psc_frozen_setNull(bool val);
@@ -134,23 +142,28 @@ void psc_frozen_setNull(bool val);
 		class Table_Package *Table_Package_get() { return table; };
 
 		// Return the rows for foreign keys 
-		
+		class Row_Package_Source* FK_Package_Source_getrow();
+
 
 		// Return the rows in other tables with foreign keys pointing here
-		void DeviceTemplate_Package_FK_Package_getrows(vector <class Row_DeviceTemplate_Package*> *rows);
+		void DeviceTemplate_FK_Package_getrows(vector <class Row_DeviceTemplate*> *rows);
 void Package_Directory_FK_Package_getrows(vector <class Row_Package_Directory*> *rows);
-void Package_Distro_FK_Package_getrows(vector <class Row_Package_Distro*> *rows);
+void Package_Package_FK_Package_getrows(vector <class Row_Package_Package*> *rows);
+void Package_Package_FK_Package_DependsOn_getrows(vector <class Row_Package_Package*> *rows);
+void Package_Source_FK_Package_getrows(vector <class Row_Package_Source*> *rows);
 
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_Package+ m_Description+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_Package+ m_Description+ m_FK_Package_Source+ m_IsSource+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string PK_Package_asSQL();
 string Description_asSQL();
+string FK_Package_Source_asSQL();
+string IsSource_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

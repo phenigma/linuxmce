@@ -81,10 +81,12 @@ class DLL_EXPORT Row_Package_Directory_File : public TableRow, public SerializeC
 		Table_Package_Directory_File *table;
 		
 		long int m_FK_Package_Directory;
+long int m_FK_OperatingSystem;
+long int m_FK_Distro;
 string m_File;
 string m_Search;
 
-		bool is_null[3];
+		bool is_null[5];
 	
 		bool is_deleted;
 		bool is_added;
@@ -92,19 +94,27 @@ string m_Search;
 	
 	public:
 		long int FK_Package_Directory_get();
+long int FK_OperatingSystem_get();
+long int FK_Distro_get();
 string File_get();
 string Search_get();
 
 		
 		void FK_Package_Directory_set(long int val);
+void FK_OperatingSystem_set(long int val);
+void FK_Distro_set(long int val);
 void File_set(string val);
 void Search_set(string val);
 
 		
-		bool Search_isNull();
+		bool FK_OperatingSystem_isNull();
+bool FK_Distro_isNull();
+bool Search_isNull();
 
 			
-		void Search_setNull(bool val);
+		void FK_OperatingSystem_setNull(bool val);
+void FK_Distro_setNull(bool val);
+void Search_setNull(bool val);
 	
 	
 		void Delete();
@@ -118,6 +128,8 @@ void Search_set(string val);
 
 		// Return the rows for foreign keys 
 		class Row_Package_Directory* FK_Package_Directory_getrow();
+class Row_OperatingSystem* FK_OperatingSystem_getrow();
+class Row_Distro* FK_Distro_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
@@ -125,12 +137,14 @@ void Search_set(string val);
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_FK_Package_Directory+ m_File+ m_Search;
+			StartSerializeList() + m_FK_Package_Directory+ m_FK_OperatingSystem+ m_FK_Distro+ m_File+ m_Search;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string FK_Package_Directory_asSQL();
+string FK_OperatingSystem_asSQL();
+string FK_Distro_asSQL();
 string File_asSQL();
 string Search_asSQL();
 

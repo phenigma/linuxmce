@@ -82,8 +82,11 @@ class DLL_EXPORT Row_Package_Directory : public TableRow, public SerializeClass
 		long int m_PK_Package_Directory;
 long int m_FK_Package;
 long int m_FK_Directory;
+long int m_FK_OperatingSystem;
+long int m_FK_Distro;
+string m_Path;
 
-		bool is_null[3];
+		bool is_null[6];
 	
 		bool is_deleted;
 		bool is_added;
@@ -93,16 +96,26 @@ long int m_FK_Directory;
 		long int PK_Package_Directory_get();
 long int FK_Package_get();
 long int FK_Directory_get();
+long int FK_OperatingSystem_get();
+long int FK_Distro_get();
+string Path_get();
 
 		
 		void PK_Package_Directory_set(long int val);
 void FK_Package_set(long int val);
 void FK_Directory_set(long int val);
+void FK_OperatingSystem_set(long int val);
+void FK_Distro_set(long int val);
+void Path_set(string val);
 
 		
-		
+		bool FK_OperatingSystem_isNull();
+bool FK_Distro_isNull();
+
 			
-			
+		void FK_OperatingSystem_setNull(bool val);
+void FK_Distro_setNull(bool val);
+	
 	
 		void Delete();
 		void Reload();		
@@ -116,6 +129,8 @@ void FK_Directory_set(long int val);
 		// Return the rows for foreign keys 
 		class Row_Package* FK_Package_getrow();
 class Row_Directory* FK_Directory_getrow();
+class Row_OperatingSystem* FK_OperatingSystem_getrow();
+class Row_Distro* FK_Distro_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
@@ -125,7 +140,7 @@ void Package_Directory_File_FK_Package_Directory_getrows(vector <class Row_Packa
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_Package_Directory+ m_FK_Package+ m_FK_Directory;
+			StartSerializeList() + m_PK_Package_Directory+ m_FK_Package+ m_FK_Directory+ m_FK_OperatingSystem+ m_FK_Distro+ m_Path;
 		}
 	private:
 		void SetDefaultValues();
@@ -133,6 +148,9 @@ void Package_Directory_File_FK_Package_Directory_getrows(vector <class Row_Packa
 		string PK_Package_Directory_asSQL();
 string FK_Package_asSQL();
 string FK_Directory_asSQL();
+string FK_OperatingSystem_asSQL();
+string FK_Distro_asSQL();
+string Path_asSQL();
 
 	};
 

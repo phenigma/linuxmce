@@ -81,7 +81,7 @@ class DLL_EXPORT Row_RepositorySource_URL : public TableRow, public SerializeCla
 		
 		long int m_PK_RepositorySource_URL;
 long int m_FK_RepositorySource;
-long int m_URL;
+string m_URL;
 long int m_FK_Country;
 
 		bool is_null[4];
@@ -93,13 +93,13 @@ long int m_FK_Country;
 	public:
 		long int PK_RepositorySource_URL_get();
 long int FK_RepositorySource_get();
-long int URL_get();
+string URL_get();
 long int FK_Country_get();
 
 		
 		void PK_RepositorySource_URL_set(long int val);
 void FK_RepositorySource_set(long int val);
-void URL_set(long int val);
+void URL_set(string val);
 void FK_Country_set(long int val);
 
 		

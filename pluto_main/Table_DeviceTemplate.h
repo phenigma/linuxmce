@@ -93,7 +93,7 @@ short int m_IsAVDevice;
 short int m_IsPlugIn;
 long int m_IRFrequency;
 long int m_FK_StabilityStatus;
-string m_DestinationPackage;
+long int m_FK_Package;
 string m_DestinationDir;
 long int m_FK_Users_Maintainer;
 long int m_psc_id;
@@ -123,7 +123,7 @@ short int IsAVDevice_get();
 short int IsPlugIn_get();
 long int IRFrequency_get();
 long int FK_StabilityStatus_get();
-string DestinationPackage_get();
+long int FK_Package_get();
 string DestinationDir_get();
 long int FK_Users_Maintainer_get();
 long int psc_id_get();
@@ -147,7 +147,7 @@ void IsAVDevice_set(short int val);
 void IsPlugIn_set(short int val);
 void IRFrequency_set(long int val);
 void FK_StabilityStatus_set(long int val);
-void DestinationPackage_set(string val);
+void FK_Package_set(long int val);
 void DestinationDir_set(string val);
 void FK_Users_Maintainer_set(long int val);
 void psc_id_set(long int val);
@@ -164,7 +164,7 @@ bool CommandLine_isNull();
 bool IsPlugIn_isNull();
 bool IRFrequency_isNull();
 bool FK_StabilityStatus_isNull();
-bool DestinationPackage_isNull();
+bool FK_Package_isNull();
 bool DestinationDir_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
@@ -179,7 +179,7 @@ void CommandLine_setNull(bool val);
 void IsPlugIn_setNull(bool val);
 void IRFrequency_setNull(bool val);
 void FK_StabilityStatus_setNull(bool val);
-void DestinationPackage_setNull(bool val);
+void FK_Package_setNull(bool val);
 void DestinationDir_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
@@ -200,6 +200,7 @@ void psc_frozen_setNull(bool val);
 		class Row_DeviceCategory* FK_DeviceCategory_getrow();
 class Row_Manufacturer* FK_Manufacturer_getrow();
 class Row_StabilityStatus* FK_StabilityStatus_getrow();
+class Row_Package* FK_Package_getrow();
 class Row_Users* FK_Users_Maintainer_getrow();
 
 
@@ -207,6 +208,7 @@ class Row_Users* FK_Users_Maintainer_getrow();
 		void CommandGroup_D_Command_FK_DeviceTemplate_getrows(vector <class Row_CommandGroup_D_Command*> *rows);
 void ConfigType_FK_DeviceTemplate_getrows(vector <class Row_ConfigType*> *rows);
 void Device_FK_DeviceTemplate_getrows(vector <class Row_Device*> *rows);
+void DeviceTemplate_AV_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_AV*> *rows);
 void DeviceTemplate_DSPMode_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_DSPMode*> *rows);
 void DeviceTemplate_DesignObj_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_DesignObj*> *rows);
 void DeviceTemplate_DeviceCategory_ControlledVia_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_DeviceCategory_ControlledVia*> *rows);
@@ -221,14 +223,13 @@ void DeviceTemplate_InfraredGroup_FK_DeviceTemplate_getrows(vector <class Row_De
 void DeviceTemplate_Input_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_Input*> *rows);
 void DeviceTemplate_MediaType_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_MediaType*> *rows);
 void DeviceTemplate_Output_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_Output*> *rows);
-void DeviceTemplate_Package_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_Package*> *rows);
 void DeviceTemplate_PageSetup_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_PageSetup*> *rows);
 void InfraredCode_FK_DeviceTemplate_getrows(vector <class Row_InfraredCode*> *rows);
 
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_DeviceTemplate+ m_Description+ m_Comments+ m_FK_DeviceCategory+ m_FK_Manufacturer+ m_Define+ m_ImplementsDCE+ m_IsEmbedded+ m_CommandLine+ m_RequiresGUI+ m_IsAVDevice+ m_IsPlugIn+ m_IRFrequency+ m_FK_StabilityStatus+ m_DestinationPackage+ m_DestinationDir+ m_FK_Users_Maintainer+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_DeviceTemplate+ m_Description+ m_Comments+ m_FK_DeviceCategory+ m_FK_Manufacturer+ m_Define+ m_ImplementsDCE+ m_IsEmbedded+ m_CommandLine+ m_RequiresGUI+ m_IsAVDevice+ m_IsPlugIn+ m_IRFrequency+ m_FK_StabilityStatus+ m_FK_Package+ m_DestinationDir+ m_FK_Users_Maintainer+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -247,7 +248,7 @@ string IsAVDevice_asSQL();
 string IsPlugIn_asSQL();
 string IRFrequency_asSQL();
 string FK_StabilityStatus_asSQL();
-string DestinationPackage_asSQL();
+string FK_Package_asSQL();
 string DestinationDir_asSQL();
 string FK_Users_Maintainer_asSQL();
 string psc_id_asSQL();

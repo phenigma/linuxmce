@@ -20,8 +20,9 @@ using namespace std;
 #include "Table_Distro.h"
 #include "Table_OperatingSystem.h"
 
-#include "Table_DeviceTemplate_Package.h"
-#include "Table_Package_Distro.h"
+#include "Table_Package_Directory.h"
+#include "Table_Package_Directory_File.h"
+#include "Table_Package_Source_Compat.h"
 #include "Table_RepositorySource.h"
 
 
@@ -119,6 +120,14 @@ is_null[2] = true;
 m_FK_OperatingSystem = 0;
 is_null[3] = false;
 is_null[4] = true;
+m_KickStartCD = "0";
+is_null[5] = false;
+m_Binaries = "0";
+is_null[6] = false;
+m_SourceCode = "0";
+is_null[7] = false;
+m_Confirmed = 0;
+is_null[8] = false;
 
 
 	is_added=false;
@@ -138,9 +147,21 @@ return m_Define;}
 long int Row_Distro::FK_OperatingSystem_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_OperatingSystem;}
-string Row_Distro::ConfirmDependencyProgram_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_Distro::Installer_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_ConfirmDependencyProgram;}
+return m_Installer;}
+string Row_Distro::KickStartCD_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_KickStartCD;}
+string Row_Distro::Binaries_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Binaries;}
+string Row_Distro::SourceCode_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_SourceCode;}
+short int Row_Distro::Confirmed_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Confirmed;}
 
 		
 void Row_Distro::PK_Distro_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -155,15 +176,27 @@ m_Define = val; is_modified=true; is_null[2]=false;}
 void Row_Distro::FK_OperatingSystem_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_OperatingSystem = val; is_modified=true; is_null[3]=false;}
-void Row_Distro::ConfirmDependencyProgram_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Distro::Installer_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_ConfirmDependencyProgram = val; is_modified=true; is_null[4]=false;}
+m_Installer = val; is_modified=true; is_null[4]=false;}
+void Row_Distro::KickStartCD_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_KickStartCD = val; is_modified=true; is_null[5]=false;}
+void Row_Distro::Binaries_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Binaries = val; is_modified=true; is_null[6]=false;}
+void Row_Distro::SourceCode_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_SourceCode = val; is_modified=true; is_null[7]=false;}
+void Row_Distro::Confirmed_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Confirmed = val; is_modified=true; is_null[8]=false;}
 
 		
 bool Row_Distro::Define_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[2];}
-bool Row_Distro::ConfirmDependencyProgram_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Distro::Installer_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[4];}
 
@@ -171,7 +204,7 @@ return is_null[4];}
 void Row_Distro::Define_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[2]=val;}
-void Row_Distro::ConfirmDependencyProgram_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Distro::Installer_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[4]=val;}
 	
@@ -226,16 +259,65 @@ sprintf(buf, "%li", m_FK_OperatingSystem);
 return buf;
 }
 
-string Row_Distro::ConfirmDependencyProgram_asSQL()
+string Row_Distro::Installer_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[4])
 return "NULL";
 
-char buf[81];
-mysql_real_escape_string(table->database->db_handle, buf, m_ConfirmDependencyProgram.c_str(), (unsigned long) m_ConfirmDependencyProgram.size());
+char buf[121];
+mysql_real_escape_string(table->database->db_handle, buf, m_Installer.c_str(), (unsigned long) m_Installer.size());
 return string()+"\""+buf+"\"";
+}
+
+string Row_Distro::KickStartCD_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[5])
+return "NULL";
+
+char buf[121];
+mysql_real_escape_string(table->database->db_handle, buf, m_KickStartCD.c_str(), (unsigned long) m_KickStartCD.size());
+return string()+"\""+buf+"\"";
+}
+
+string Row_Distro::Binaries_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[6])
+return "NULL";
+
+char buf[121];
+mysql_real_escape_string(table->database->db_handle, buf, m_Binaries.c_str(), (unsigned long) m_Binaries.size());
+return string()+"\""+buf+"\"";
+}
+
+string Row_Distro::SourceCode_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[7])
+return "NULL";
+
+char buf[121];
+mysql_real_escape_string(table->database->db_handle, buf, m_SourceCode.c_str(), (unsigned long) m_SourceCode.size());
+return string()+"\""+buf+"\"";
+}
+
+string Row_Distro::Confirmed_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[8])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_Confirmed);
+
+return buf;
 }
 
 
@@ -276,10 +358,10 @@ void Table_Distro::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Distro_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->ConfirmDependencyProgram_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Distro_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->Installer_asSQL()+", "+pRow->KickStartCD_asSQL()+", "+pRow->Binaries_asSQL()+", "+pRow->SourceCode_asSQL()+", "+pRow->Confirmed_asSQL();
 
 	
-		string query = "insert into Distro (PK_Distro, Description, Define, FK_OperatingSystem, ConfirmDependencyProgram) values ("+
+		string query = "insert into Distro (PK_Distro, Description, Define, FK_OperatingSystem, Installer, KickStartCD, Binaries, SourceCode, Confirmed) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -328,7 +410,7 @@ condition = condition + "PK_Distro=" + tmp_PK_Distro;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Distro="+pRow->PK_Distro_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", ConfirmDependencyProgram="+pRow->ConfirmDependencyProgram_asSQL();
+update_values_list = update_values_list + "PK_Distro="+pRow->PK_Distro_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", Installer="+pRow->Installer_asSQL()+", KickStartCD="+pRow->KickStartCD_asSQL()+", Binaries="+pRow->Binaries_asSQL()+", SourceCode="+pRow->SourceCode_asSQL()+", Confirmed="+pRow->Confirmed_asSQL();
 
 	
 		string query = "update Distro set " + update_values_list + " where " + condition;
@@ -456,12 +538,56 @@ sscanf(row[3], "%li", &(pRow->m_FK_OperatingSystem));
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_ConfirmDependencyProgram = "";
+pRow->m_Installer = "";
 }
 else
 {
 pRow->is_null[4]=false;
-pRow->m_ConfirmDependencyProgram = string(row[4],lengths[4]);
+pRow->m_Installer = string(row[4],lengths[4]);
+}
+
+if (row[5] == NULL)
+{
+pRow->is_null[5]=true;
+pRow->m_KickStartCD = "";
+}
+else
+{
+pRow->is_null[5]=false;
+pRow->m_KickStartCD = string(row[5],lengths[5]);
+}
+
+if (row[6] == NULL)
+{
+pRow->is_null[6]=true;
+pRow->m_Binaries = "";
+}
+else
+{
+pRow->is_null[6]=false;
+pRow->m_Binaries = string(row[6],lengths[6]);
+}
+
+if (row[7] == NULL)
+{
+pRow->is_null[7]=true;
+pRow->m_SourceCode = "";
+}
+else
+{
+pRow->is_null[7]=false;
+pRow->m_SourceCode = string(row[7],lengths[7]);
+}
+
+if (row[8] == NULL)
+{
+pRow->is_null[8]=true;
+pRow->m_Confirmed = 0;
+}
+else
+{
+pRow->is_null[8]=false;
+sscanf(row[8], "%hi", &(pRow->m_Confirmed));
 }
 
 
@@ -617,12 +743,56 @@ sscanf(row[3], "%li", &(pRow->m_FK_OperatingSystem));
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_ConfirmDependencyProgram = "";
+pRow->m_Installer = "";
 }
 else
 {
 pRow->is_null[4]=false;
-pRow->m_ConfirmDependencyProgram = string(row[4],lengths[4]);
+pRow->m_Installer = string(row[4],lengths[4]);
+}
+
+if (row[5] == NULL)
+{
+pRow->is_null[5]=true;
+pRow->m_KickStartCD = "";
+}
+else
+{
+pRow->is_null[5]=false;
+pRow->m_KickStartCD = string(row[5],lengths[5]);
+}
+
+if (row[6] == NULL)
+{
+pRow->is_null[6]=true;
+pRow->m_Binaries = "";
+}
+else
+{
+pRow->is_null[6]=false;
+pRow->m_Binaries = string(row[6],lengths[6]);
+}
+
+if (row[7] == NULL)
+{
+pRow->is_null[7]=true;
+pRow->m_SourceCode = "";
+}
+else
+{
+pRow->is_null[7]=false;
+pRow->m_SourceCode = string(row[7],lengths[7]);
+}
+
+if (row[8] == NULL)
+{
+pRow->is_null[8]=true;
+pRow->m_Confirmed = 0;
+}
+else
+{
+pRow->is_null[8]=false;
+sscanf(row[8], "%hi", &(pRow->m_Confirmed));
 }
 
 
@@ -642,18 +812,25 @@ return pTable->GetRow(m_FK_OperatingSystem);
 }
 
 
-void Row_Distro::DeviceTemplate_Package_FK_Distro_getrows(vector <class Row_DeviceTemplate_Package*> *rows)
+void Row_Distro::Package_Directory_FK_Distro_getrows(vector <class Row_Package_Directory*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-class Table_DeviceTemplate_Package *pTable = table->database->DeviceTemplate_Package_get();
+class Table_Package_Directory *pTable = table->database->Package_Directory_get();
 pTable->GetRows("FK_Distro=" + StringUtils::itos(m_PK_Distro),rows);
 }
-void Row_Distro::Package_Distro_FK_Distro_getrows(vector <class Row_Package_Distro*> *rows)
+void Row_Distro::Package_Directory_File_FK_Distro_getrows(vector <class Row_Package_Directory_File*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-class Table_Package_Distro *pTable = table->database->Package_Distro_get();
+class Table_Package_Directory_File *pTable = table->database->Package_Directory_File_get();
+pTable->GetRows("FK_Distro=" + StringUtils::itos(m_PK_Distro),rows);
+}
+void Row_Distro::Package_Source_Compat_FK_Distro_getrows(vector <class Row_Package_Source_Compat*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Package_Source_Compat *pTable = table->database->Package_Source_Compat_get();
 pTable->GetRows("FK_Distro=" + StringUtils::itos(m_PK_Distro),rows);
 }
 void Row_Distro::RepositorySource_FK_Distro_getrows(vector <class Row_RepositorySource*> *rows)

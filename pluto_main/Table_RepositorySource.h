@@ -126,7 +126,7 @@ class Row_Distro* FK_Distro_getrow();
 
 
 		// Return the rows in other tables with foreign keys pointing here
-		void Package_Distro_FK_RepositorySource_getrows(vector <class Row_Package_Distro*> *rows);
+		void Package_Source_FK_RepositorySource_getrows(vector <class Row_Package_Source*> *rows);
 void RepositorySource_URL_FK_RepositorySource_getrows(vector <class Row_RepositorySource_URL*> *rows);
 
 

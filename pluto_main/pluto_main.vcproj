@@ -280,6 +280,9 @@
 				RelativePath=".\Table_DeviceTemplate.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_DeviceTemplate_AV.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_DeviceTemplate_DSPMode.cpp">
 			</File>
 			<File
@@ -323,9 +326,6 @@
 			</File>
 			<File
 				RelativePath=".\Table_DeviceTemplate_Output.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_DeviceTemplate_Package.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_DeviceTemplate_PageSetup.cpp">
@@ -469,9 +469,6 @@
 				RelativePath=".\Table_OperatingSystem.cpp">
 			</File>
 			<File
-				RelativePath=".\Table_OperatingSystem_Directory.cpp">
-			</File>
-			<File
 				RelativePath=".\Table_Orbiter.cpp">
 			</File>
 			<File
@@ -493,7 +490,13 @@
 				RelativePath=".\Table_Package_Directory_File.cpp">
 			</File>
 			<File
-				RelativePath=".\Table_Package_Distro.cpp">
+				RelativePath=".\Table_Package_Package.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Package_Source.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Package_Source_Compat.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_PageSetup.cpp">
@@ -545,6 +548,9 @@
 			</File>
 			<File
 				RelativePath=".\Table_System.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Template.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_Text.cpp">
