@@ -378,7 +378,7 @@ void General_Info_Plugin::CMD_Spawn_Application(string sFilename,string sName,st
         }
 
         case -1:
-            g_pPlutoLogger->Write(LV_CRITICAL, "Error starting %s, err: %s", CmdExecutable.c_str(), strerror(errno));
+            g_pPlutoLogger->Write(LV_CRITICAL, "Error starting %s, err: %s", sFilename.c_str(), strerror(errno));
             return false;
             break;
 
@@ -389,7 +389,7 @@ void General_Info_Plugin::CMD_Spawn_Application(string sFilename,string sName,st
                 m_mapAppPids[sName] = map<int, pair<string, string> >();
 
             m_mapAppPids[sName][pid] = make_pair(sCommandsOnSuccess, sCommandsOnFailure);
-            return true;
+            return;
     }
 #else
     STARTUPINFO si;
