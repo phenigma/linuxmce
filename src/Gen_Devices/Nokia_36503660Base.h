@@ -29,8 +29,17 @@ public:
 	virtual int GetPK_DeviceList() { return 24; } ;
 	virtual const char *GetDeviceDescription() { return "Nokia_36503660"; } ;
 	int Get_PK_Users() { return atoi(m_mapParameters[3].c_str());}
+	int Get_PK_Distro() { return atoi(m_mapParameters[7].c_str());}
+	bool Get_Development() { return (m_mapParameters[8]=="1" ? true : false);}
+	bool Get_No_Effects() { return (m_mapParameters[20]=="1" ? true : false);}
 	int Get_PK_Skin() { return atoi(m_mapParameters[24].c_str());}
 	int Get_PK_Size() { return atoi(m_mapParameters[25].c_str());}
+	int Get_PK_Language() { return atoi(m_mapParameters[26].c_str());}
+	string Get_FK_EntertainArea() { return m_mapParameters[27];}
+	string Get_Timeout() { return m_mapParameters[56];}
+	string Get_CacheFolder() { return m_mapParameters[57];}
+	int Get_CacheSize() { return atoi(m_mapParameters[58].c_str());}
+	bool Get_Use_OCG_Format() { return (m_mapParameters[64]=="1" ? true : false);}
 };
 
 
@@ -58,7 +67,7 @@ public:
 		delete[] pConfig;
 		pConfig = m_pEvent->GetDeviceList(Size);
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
-		delete pConfig;
+		delete[] pConfig;
 		m_pData->m_pEvent_Impl = m_pEvent;
 		m_pcRequestSocket = new Event_Impl(DeviceID, 24,ServerAddress);
 	};
@@ -74,8 +83,17 @@ public:
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
 	int DATA_Get_PK_Users() { return GetData()->Get_PK_Users(); }
+	int DATA_Get_PK_Distro() { return GetData()->Get_PK_Distro(); }
+	bool DATA_Get_Development() { return GetData()->Get_Development(); }
+	bool DATA_Get_No_Effects() { return GetData()->Get_No_Effects(); }
 	int DATA_Get_PK_Skin() { return GetData()->Get_PK_Skin(); }
 	int DATA_Get_PK_Size() { return GetData()->Get_PK_Size(); }
+	int DATA_Get_PK_Language() { return GetData()->Get_PK_Language(); }
+	string DATA_Get_FK_EntertainArea() { return GetData()->Get_FK_EntertainArea(); }
+	string DATA_Get_Timeout() { return GetData()->Get_Timeout(); }
+	string DATA_Get_CacheFolder() { return GetData()->Get_CacheFolder(); }
+	int DATA_Get_CacheSize() { return GetData()->Get_CacheSize(); }
+	bool DATA_Get_Use_OCG_Format() { return GetData()->Get_Use_OCG_Format(); }
 	//Event accessors
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Capture_Keyboard_To_Variable(string sPK_DesignObj,int iPK_Variable,string sOnOff,string sType,string sReset,int iPK_Text,bool bDataGrid,string &sCMD_Result,class Message *pMessage) {};

@@ -459,7 +459,7 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t\tdelete[] pConfig;" << endl;
 	fstr_DeviceCommand << "\t\tpConfig = m_pEvent->GetDeviceList(Size);" << endl;
 	fstr_DeviceCommand << "\t\tm_pData->m_AllDevices.SerializeRead(Size,pConfig);" << endl;
-	fstr_DeviceCommand << "\t\tdelete pConfig;" << endl;
+	fstr_DeviceCommand << "\t\tdelete[] pConfig;" << endl;
 	fstr_DeviceCommand << "\t\tm_pData->m_pEvent_Impl = m_pEvent;" << endl;
 	fstr_DeviceCommand << "\t\tm_pcRequestSocket = new Event_Impl(DeviceID, " << p_Row_DeviceTemplate->PK_DeviceTemplate_get() << ",ServerAddress);" << endl;
 	fstr_DeviceCommand << "\t};" << endl;
