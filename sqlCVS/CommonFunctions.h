@@ -65,7 +65,7 @@ namespace sqlCVS
 		GlobalConfig()
 		{
 			m_sTableType="InnoDB";
-			m_sDBHost="10.0.0.150";
+			m_sDBHost="localhost";
 			m_sDBUser="root";
 			m_sDBName="pluto_main";
 			m_iDBPort=3306;
