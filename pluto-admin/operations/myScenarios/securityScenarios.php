@@ -20,11 +20,12 @@ if($action=='form') {
 	if(isset($_GET['cgDelID']) && (int)$_GET['cgDelID']!=0){
 		$cgToDelete=(int)$_GET['cgDelID'];
 		deleteCommandGroup($cgToDelete,$dbADO);
-		header("Location: index.php?section=securityScenarios");
+		header("Location: index.php?section=securityScenarios&msg=The security scenario was deleted.");
 	}
 
 	
-	$out.='<h2>'.$rowArray['Description'].'</h2>';
+	$out.='<div align="center" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg'].'<br>'):'').'</B></div>
+	<h2 align="center">'.$rowArray['Description'].'</h2>';
 
 	$out.='
 	<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
@@ -58,21 +59,24 @@ if($action=='form') {
 	}
 	$displayedCommandGroups=array();
 	$displayedRooms=array();
+	$displayedRoomNames=array();
 	while($rowRooms=$resRooms->FetchRow()){
 		$queryCG_T='
-			SELECT * 
+			SELECT CommandGroup.*, CommandGroup_Room.*, Room.Description AS RoomName
 			FROM CommandGroup_Room
 				INNER JOIN CommandGroup ON FK_CommandGroup=PK_CommandGroup
+				INNER JOIN Room ON FK_Room=PK_Room
 			WHERE
-				FK_Room=? AND FK_Template=?';
-		$resArmDisarm=$dbADO->Execute($queryCG_T,array($rowRooms['PK_Room'],$GLOBALS['SecurityArmDisarmTemplate']));
-		$resViewAll=$dbADO->Execute($queryCG_T,array($rowRooms['PK_Room'],$GLOBALS['SecurityViewCamerasTemplate']));
-		$resSOS=$dbADO->Execute($queryCG_T,array($rowRooms['PK_Room'],$GLOBALS['SecuritySOSTemplate']));
+				FK_Room=? AND FK_Template=? AND CommandGroup.FK_Installation=?';
+		$resArmDisarm=$dbADO->Execute($queryCG_T,array($rowRooms['PK_Room'],$GLOBALS['SecurityArmDisarmTemplate'],$installationID));
+		$resViewAll=$dbADO->Execute($queryCG_T,array($rowRooms['PK_Room'],$GLOBALS['SecurityViewCamerasTemplate'],$installationID));
+		$resSOS=$dbADO->Execute($queryCG_T,array($rowRooms['PK_Room'],$GLOBALS['SecuritySOSTemplate'],$installationID));
 		$out.='
 			<input type="hidden" name="oldArmDisarm_'.$rowRooms['PK_Room'].'" value="'.(($resArmDisarm->RecordCount()>0)?'1':'0').'">
 			<input type="hidden" name="oldViewAll_'.$rowRooms['PK_Room'].'" value="'.(($resViewAll->RecordCount()>0)?'1':'0').'">
 			<input type="hidden" name="oldSOS_'.$rowRooms['PK_Room'].'" value="'.(($resSOS->RecordCount()>0)?'1':'0').'">';
 		$displayedRooms[]=$rowRooms['PK_Room'];
+		$displayedRoomNames[]=$rowRooms['RoomName'];
 		$out.='
 		<tr bgcolor="#D1D9EA">
 			<td colspan="2"><B>'.$rowRooms['RoomName'].'</B></td>
@@ -94,8 +98,8 @@ if($action=='form') {
 			$cameraStr='<table><tr>';
 			foreach($cameraDevices as $cameraID=>$cameraDescription){
 				if(isset($camerasCGArray[$cameraID])){
-					$queryCG_R='SELECT * FROM CommandGroup_Room WHERE FK_CommandGroup=? AND FK_Room=?';
-					$resCG_R=$dbADO->Execute($queryCG_R,array($camerasCGArray[$cameraID],$rowRooms['PK_Room']));
+					$queryCG_R='SELECT * FROM CommandGroup_Room WHERE FK_CommandGroup=? AND FK_Room=? AND FK_Installation=?';
+					$resCG_R=$dbADO->Execute($queryCG_R,array($camerasCGArray[$cameraID],$rowRooms['PK_Room'],$installationID));
 					$cg_room_checked=($resCG_R->RecordCount()>0)?'checked':'';
 				}else 
 					$cg_room_checked='';
@@ -140,7 +144,7 @@ if($action=='form') {
 			</tr>
 			';
 		}
-		$out.='</table><input type="button" name="newScenario" value="New quad camera security scenario" onClick="self.location=\'index.php?section=securityScenarios&roomID='.$rowRooms['PK_Room'].'&action=addScenario\'">';
+		$out.='</table><input type="button" name="newScenario" value="New quad camera security scenario" onClick="self.location=\'index.php?section=securityScenarios&roomID='.$rowRooms['PK_Room'].'&RoomName='.$rowRooms['RoomName'].'&action=addScenario\'">';
 	}
 	$out.='		</td>
 			</tr>';
@@ -152,7 +156,8 @@ if($action=='form') {
 		}
 			$out.='
 		</table>
-	<input type="hidden" name="displayedRooms" value="'.join(',',$displayedRooms).'">	
+	<input type="hidden" name="displayedRooms" value="'.join(',',$displayedRooms).'">
+	<input type="hidden" name="displayedRoomNames" value="'.join(',',$displayedRoomNames).'">	
 	<input type="hidden" name="displayedCommandGroups" value="'.join(',',$displayedCommandGroups).'">	
 	</form>
 	';
@@ -164,6 +169,7 @@ if($action=='form') {
 		<input type="hidden" name="section" value="securityScenarios">
 		<input type="hidden" name="action" value="add">	
 		<input type="hidden" name="roomID" value="'.$roomID.'">	
+		<input type="hidden" name="RoomName" value="'.$_REQUEST['RoomName'].'">	
 		<table cellpadding="4" cellspacing="0" border="0">
 			<tr>
 				<td colspan="2"><h3>New quad camera security scenario</h3></td>
@@ -171,10 +177,6 @@ if($action=='form') {
 			<tr>
 				<td><B>Description: </B></td>
 				<td><input type="text" name="description" value=""></td>
-			</tr>
-			<tr>
-				<td><B>Hint: </B></td>
-				<td><input type="text" name="hint" value=""></td>
 			</tr>
 			<tr>
 				<td><B>Icon: </B></td>
@@ -325,8 +327,8 @@ if($action=='form') {
 	}
 	if(isset($_POST['addScenario'])){
 		$roomID=(int)$_REQUEST['roomID'];
+		$roomName=$_REQUEST['RoomName'];
 		$description=cleanString($_POST['description']);
-		$hint=cleanString($_POST['hint']);
 		$icon=((int)$_POST['icon']!=0)?(int)$_POST['icon']:NULL;
 		
 		$insertCommandGroup='
@@ -334,7 +336,7 @@ if($action=='form') {
 				(FK_Array,FK_Installation,Description,Hint,CanTurnOff,AlwaysShow,CanBeHidden,FK_Template,FK_Icon)
 			VALUES
 				(?,?,?,?,?,?,?,?,?)';
-		$dbADO->Execute($insertCommandGroup,array($arrayID,$installationID,$description,$hint,0,0,0,$GLOBALS['securityScenariosTemplate'],$icon));
+		$dbADO->Execute($insertCommandGroup,array($arrayID,$installationID,$description,$roomName,0,0,0,$GLOBALS['securityScenariosTemplate'],$icon));
 		$cgID=$dbADO->Insert_ID();
 		
 		$insertCG_Room='
@@ -368,6 +370,7 @@ if($action=='form') {
 		$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandGotoScreen'],0,4));
 		$cg_cID=$dbADO->Insert_ID();
 		$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterObjectScreen'],$GLOBALS['mnuSecurityCamerasDesignObj']));
+		$msg="New security scenario was added.";
 	}
 
 	
@@ -429,6 +432,7 @@ if($action=='form') {
 				}
 			}
 		}
+		$msg="The security scenario was edited.";
 	}
 	
 	
@@ -445,12 +449,14 @@ if($action=='form') {
 				(?,?,?)';
 
 		$displayedRoomsArray=explode(',',$_POST['displayedRooms']);
+		$displayedRoomNamesArray=explode(',',$_POST['displayedRoomNames']);
 		
 		$selectArmDisarm='SELECT * FROM CommandGroup WHERE FK_Template=?';
 		$resArmDisarm=$dbADO->Execute($selectArmDisarm,$GLOBALS['SecurityArmDisarmTemplate']);
 		if($resArmDisarm->RecordCount()){
 			$rowArmDisarm=$resArmDisarm->FetchRow();
 			$armDisarmCG=$rowArmDisarm['PK_CommandGroup'];
+			$newDisarmCG=0;
 		}else{
 			$insertCommandGroup='
 				INSERT INTO CommandGroup 
@@ -459,6 +465,7 @@ if($action=='form') {
 					(?,?,?,?,?,?,?)';
 			$dbADO->Execute($insertCommandGroup,array($GLOBALS['ArrayIDForSecurity'],$installationID,'Arm Disarm',0,0,0,$GLOBALS['SecurityArmDisarmTemplate']));
 			$armDisarmCG=$dbADO->Insert_ID();
+			$newDisarmCG=1;
 			
 			$dbADO->Execute($insertCG_C,array($armDisarmCG,$GLOBALS['commandGotoScreen'],0,0));
 			$cg_cID=$dbADO->Insert_ID();
@@ -470,6 +477,7 @@ if($action=='form') {
 		if($resViewAll->RecordCount()){
 			$rowViewAll=$resViewAll->FetchRow();
 			$viewAllCG=$rowViewAll['PK_CommandGroup'];
+			$newAllCG=0;
 		}else{
 			$insertCommandGroup='
 				INSERT INTO CommandGroup 
@@ -478,6 +486,7 @@ if($action=='form') {
 					(?,?,?,?,?,?,?)';
 			$dbADO->Execute($insertCommandGroup,array($GLOBALS['ArrayIDForSecurity'],$installationID,'View All Cameras',0,0,0,$GLOBALS['SecurityViewCamerasTemplate']));
 			$viewAllCG=$dbADO->Insert_ID();
+			$newAllCG=1;
 			
 			$dbADO->Execute($insertCG_C,array($viewAllCG,$GLOBALS['commandGotoScreen'],0,0));
 			$cg_cID=$dbADO->Insert_ID();
@@ -489,6 +498,7 @@ if($action=='form') {
 		if($resSOS->RecordCount()){
 			$rowSOS=$resSOS->FetchRow();
 			$sosCG=$rowSOS['PK_CommandGroup'];
+			$newSosCG=0;
 		}else{
 			$insertCommandGroup='
 				INSERT INTO CommandGroup 
@@ -497,6 +507,7 @@ if($action=='form') {
 					(?,?,?,?,?,?,?)';
 			$dbADO->Execute($insertCommandGroup,array($GLOBALS['ArrayIDForSecurity'],$installationID,'*SOS*',0,0,0,$GLOBALS['SecuritySOSTemplate']));
 			$sosCG=$dbADO->Insert_ID();
+			$newSosCG=1;
 
 			$dbADO->Execute($insertCG_C,array($sosCG,$GLOBALS['commandGotoScreen'],0,0));
 			$cg_cID=$dbADO->Insert_ID();
@@ -512,11 +523,13 @@ if($action=='form') {
 		$uncheckedArmDisarm=0;
 		$uncheckedViewAll=0;
 		$uncheckedSOS=0;
-		foreach($displayedRoomsArray as $room){
+		foreach($displayedRoomsArray as $key=>$room){
 			$armDisarm=(int)@$_POST['armDisarm_'.$room];
 			$oldArmDisarm=(int)@$_POST['oldArmDisarm_'.$room];
 			if($oldArmDisarm==0){
 				if($armDisarm==1){
+					if($newDisarmCG==1)
+						$dbADO->Execute('UPDATE CommandGroup SET Hint=? WHERE PK_CommandGroup=?',array($displayedRoomNamesArray[$key],$armDisarmCG));
 					$dbADO->Execute($insertCG_Room,array($armDisarmCG,$room,$armDisarmCG));
 				}else 
 					$uncheckedArmDisarm++;
@@ -530,6 +543,8 @@ if($action=='form') {
 			$oldViewAll=(int)@$_POST['oldViewAll_'.$room];
 			if($oldViewAll==0){
 				if($viewAll==1){
+					if($newAllCG==1)
+						$dbADO->Execute('UPDATE CommandGroup SET Hint=? WHERE PK_CommandGroup=?',array($displayedRoomNamesArray[$key],$viewAllCG));
 					$dbADO->Execute($insertCG_Room,array($viewAllCG,$room,$viewAllCG));
 				}else 
 					$uncheckedViewAll++;
@@ -542,6 +557,8 @@ if($action=='form') {
 			$oldSos=(int)@$_POST['oldSOS_'.$room];
 			if($oldSos==0){
 				if($sos==1){
+					if($newSosCG==1)
+						$dbADO->Execute('UPDATE CommandGroup SET Hint=? WHERE PK_CommandGroup=?',array($displayedRoomNamesArray[$key],$sosCG));
 					$dbADO->Execute($insertCG_Room,array($sosCG,$room,$sosCG));
 				}else
 					$uncheckedSOS++;
@@ -622,12 +639,13 @@ if($action=='form') {
 					deleteCommandGroup($camerasCGArray[$cameraID],$dbADO);
 			}
 		}
+		$msg="The security scenario was updated.";
 	}
 	
-	header("Location: index.php?section=securityScenarios");
+	header("Location: index.php?section=securityScenarios&msg=$msg");
 }
 
-
+	$output->setScriptInBody("onLoad=\"javascript:top.treeframe.location.reload();\"");
 	$output->setNavigationMenu(array("My Scenarios"=>'index.php?section=myScenarios',"Security Scenarios"=>'index.php?section=securityScenarios'));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

@@ -468,8 +468,8 @@ $out='';
 					
 					$queryEventsList = 'SELECT Description,PK_Event
 							FROM Event
-							WHERE 
-							PK_Event NOT IN ('.join(",",$eventsSelectedArray).')
+							WHERE PK_Event NOT IN ('.join(",",$eventsSelectedArray).')
+							ORDER BY Description ASC
 					';
 					
 					$resEventsList = $dbADO->_Execute($queryEventsList);
@@ -486,13 +486,13 @@ $out='';
 					$out.='
 							
 							<tr>
-									<td>Add new event list: <select name="newEventToMasterDevice">'.$eventsTxt.'</select></td><td><input type="Submit" name="submitX" value="Add" '.(@(int)$_SESSION['userID']!=$userID?' mdisabled="mdisabled" ':'').'>
+									<td>Add new event: <select name="newEventToMasterDevice">'.$eventsTxt.'</select></td><td><input type="Submit" name="submitX" value="Add" '.(@(int)$_SESSION['userID']!=$userID?' mdisabled="mdisabled" ':'').'>
 										<input type="hidden" name="eventsListDisplayed" value="'.join(",",$eventsSelectedArray).'">
 									</td>
 							</tr>
 							<tr>
 								<td colspan="2">
-									<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createEvent&from=editMasterDevice&deviceID='.$deviceID.'\',\'status=1,resizable=1,width=500,height=250,toolbars=true\');">Create an Event List</a>
+									<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createEvent&from=editMasterDevice&deviceID='.$deviceID.'\',\'status=1,resizable=1,width=500,height=250,toolbars=true\');">Create an Event</a>
 								</td>
 							</tr>
 						</table>

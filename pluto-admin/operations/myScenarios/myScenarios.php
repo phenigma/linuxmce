@@ -7,9 +7,9 @@ $action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'showBasic
 $out='';
 $installationID = (int)@$_SESSION['installationID'];
 
-
+$out.='<div align="left" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div><br><br>';
 if ($action == 'showBasicInfo') {
-	$out='
+	$out.='
 		All the scenarios in your installation are shown in the tree to the left.  The scenarios correspond to buttons on your Orbiters.
 		It is usually faster to use the wizard to create basic scenarios, like lighting, climate, etc.  This section allows you to 
 		select a scenario and manually edit the commands that it will fire.
@@ -37,13 +37,13 @@ if ($action == 'showBasicInfo') {
 
 
 
-$output->setNavigationMenu(array("My Scenarios"=>'index.php?section=myScenarios'));
-
-$output->setScriptCalendar('null');
-
-$output->setBody($out);
-$output->setTitle(APPLICATION_NAME.' :: Scenarios');			
-$output->output(); 
-
+	$output->setNavigationMenu(array("My Scenarios"=>'index.php?section=myScenarios'));
+	if(isset($_REQUEST['msg']))
+		$output->setScriptInBody("onLoad=\"javascript:top.treeframe.location.reload();\"");
+	$output->setScriptCalendar('null');
+	
+	$output->setBody($out);
+	$output->setTitle(APPLICATION_NAME.' :: Scenarios');			
+	$output->output(); 
 }
 ?>

@@ -26,7 +26,10 @@ function mediaScenarios($output,$dbADO) {
 				<input type="hidden" name="delCG" value="">	
 				<input type="hidden" name="optionEntArea" value="">	
 				<input type="hidden" name="optionName" value="">	
-				<input type="hidden" name="actionType" value="">	
+				<input type="hidden" name="actionType" value="">
+				<input type="hidden" name="EntAreaDescription" value="'.@$_POST['newEntArea'].'">
+				<input type="hidden" name="GoTo" value="">	
+			<div align="center" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg'].'<br>'):'').'</B></div>
 			<div align="center"><h2>Media scenarios</h2></div>
 			<table width="100%" border="0">';
 		$queryEntAreas='
@@ -49,7 +52,7 @@ function mediaScenarios($output,$dbADO) {
 					WHERE Template.Description=? AND FK_EntertainArea=?';
 				$resOptions=$dbADO->Execute($selectOptions,array('Media Wiz - '.$value,$rowEntAreas['PK_EntertainArea']));
 				
-				$checkBoxes.='<input type="checkbox" name="checkbox" value="1" '.(($resOptions->RecordCount()>0)?'checked':'').' onClick="javascript:document.mediaScenarios.optionEntArea.value=\''.$rowEntAreas['PK_EntertainArea'].'\';document.mediaScenarios.actionType.value=\''.(($resOptions->RecordCount()>0)?'deleteOption':'addOption').'\';document.mediaScenarios.optionName.value=\''.$value.'\';document.mediaScenarios.submit()"> '.$value.'<br>';
+				$checkBoxes.='<input type="checkbox" name="checkbox" value="1" '.(($resOptions->RecordCount()>0)?'checked':'').' onClick="javascript:document.mediaScenarios.optionEntArea.value=\''.$rowEntAreas['PK_EntertainArea'].'\';document.mediaScenarios.actionType.value=\''.(($resOptions->RecordCount()>0)?'deleteOption':'addOption').'\';document.mediaScenarios.optionName.value=\''.$value.'\';document.mediaScenarios.EntAreaDescription.value=\''.$rowEntAreas['Description'].'\';document.mediaScenarios.submit()"> '.$value.'<br>';
 			}
 
 			$out.='
@@ -147,7 +150,7 @@ function mediaScenarios($output,$dbADO) {
 			</table>	
 			<table>
 				<tr>
-					<td colspan="2"><B>Add Media Scenario</B></td>
+					<td colspan="2"><B>Add Media Scenario</B><a name="addMS"></a></td>
 				</tr>
 				<tr>
 					<td>Description</td>
@@ -155,7 +158,7 @@ function mediaScenarios($output,$dbADO) {
 				</tr>
 				<tr>
 					<td>Entertain Area</td>
-					<td><select name="newEntArea" onChange="document.mediaScenarios.action.value=\'form\';document.mediaScenarios.submit()">
+					<td><select name="newEntArea" onChange="document.mediaScenarios.action.value=\'form\';document.mediaScenarios.GoTo.value=\'addMS\';document.mediaScenarios.submit()">
 						<option value="0">please select</option>';
 			$resEntAreas->MoveFirst();
 			while($rowEntAreas=$resEntAreas->FetchRow()){
@@ -175,7 +178,7 @@ function mediaScenarios($output,$dbADO) {
 				$out.='
 					<tr>
 						<td>Device</td>
-						<td><select name="MSDevice" onChange="document.mediaScenarios.action.value=\'form\';document.mediaScenarios.submit()">
+						<td><select name="MSDevice" onChange="document.mediaScenarios.action.value=\'form\';document.mediaScenarios.GoTo.value=\'addMS\';document.mediaScenarios.submit()">
 							<option value="0">Please select</option>';
 				$resDevices=$dbADO->Execute($queryDevices,array($_POST['newEntArea']));
 				while($rowDevices=$resDevices->FetchRow()){
@@ -190,7 +193,7 @@ function mediaScenarios($output,$dbADO) {
 					$out.='
 					<tr>
 						<td>Type</td>
-						<td><select name="newType" onChange="document.mediaScenarios.action.value=\'form\';document.mediaScenarios.submit()">
+						<td><select name="newType" onChange="document.mediaScenarios.action.value=\'form\';document.mediaScenarios.GoTo.value=\'addMS\';document.mediaScenarios.submit()">
 							<option value="0">Please select</option>';
 					$getMediaTypes='
 						SELECT * FROM MediaType 
@@ -217,7 +220,7 @@ function mediaScenarios($output,$dbADO) {
 						$out.='
 						<tr>
 							<td>Remote</td>
-							<td><select name="newRemote" onChange="document.mediaScenarios.action.value=\'form\';document.mediaScenarios.submit()">
+							<td><select name="newRemote" onChange="document.mediaScenarios.action.value=\'form\';document.mediaScenarios.GoTo.value=\'addMS\';document.mediaScenarios.submit()">
 								<option value="0">Please select</option>
 						';
 						while($rowRemotes=$resRemotes->FetchRow()){
@@ -271,10 +274,10 @@ function mediaScenarios($output,$dbADO) {
 						$newRemote=$_POST['newRemote'];
 						$newEntArea=$_POST['newEntArea'];
 						$newType=$_POST['newType'];
-		
+						$EntAreaDescription=$_POST['EntAreaDescription'];
 						
-						$insertMediaScenario='INSERT INTO CommandGroup (FK_Array, FK_Installation, Description,FK_Template) VALUES (?,?,?,?)';
-						$dbADO->Execute($insertMediaScenario,array($arrayID,$installationID,$newDescription,$templateWizard));
+						$insertMediaScenario='INSERT INTO CommandGroup (FK_Array, FK_Installation, Description,FK_Template,Hint) VALUES (?,?,?,?,?)';
+						$dbADO->Execute($insertMediaScenario,array($arrayID,$installationID,$newDescription,$templateWizard,$EntAreaDescription));
 						$insertID=$dbADO->Insert_ID();
 						
 						$insertDeviceCommandGroup='INSERT INTO CommandGroup_EntertainArea (FK_EntertainArea, FK_CommandGroup,Sort) VALUES (?,?,?)';
@@ -299,6 +302,7 @@ function mediaScenarios($output,$dbADO) {
 							$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_DeviceTemplate'],$newFKDeviceTemplate));
 							$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_EntertainArea'],$newEntArea));
 						}
+						$msg="New Media Scenario was added.";
 					}
 
 					if(isset($_POST['optionEntArea']) && $_POST['optionEntArea']!=''){
@@ -311,9 +315,10 @@ function mediaScenarios($output,$dbADO) {
 							$resTemplateID=$dbADO->Execute($getTemplateID,'Media Wiz - '.$optionName);
 							$rowTemplateID=$resTemplateID->FetchRow();
 							$FK_Template=$rowTemplateID['PK_Template'];
+							$EntAreaDescription=$_POST['EntAreaDescription'];
 												
-							$insertScenario='INSERT INTO CommandGroup (FK_Array, FK_Installation, Description,FK_Template) VALUES (?,?,?,?)';
-							$dbADO->Execute($insertScenario,array($arrayID,$installationID,$optionName,$FK_Template));
+							$insertScenario='INSERT INTO CommandGroup (FK_Array, FK_Installation, Description,FK_Template,Hint) VALUES (?,?,?,?,?)';
+							$dbADO->Execute($insertScenario,array($arrayID,$installationID,$optionName,$FK_Template,$EntAreaDescription));
 							$insertID=$dbADO->Insert_ID();
 							
 							$insertDeviceCommandGroup='INSERT INTO CommandGroup_EntertainArea (FK_EntertainArea, FK_CommandGroup,Sort) VALUES (?,?,?)';
@@ -374,6 +379,7 @@ function mediaScenarios($output,$dbADO) {
 								$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParameterVariableNumber'],14));
 								$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParameterValueToAsign'],$parmValue));
 							}							
+							$msg="New Media Scenario was added.";
 						}else{
 							$selectOptions='
 								SELECT PK_CommandGroup FROM CommandGroup
@@ -383,15 +389,19 @@ function mediaScenarios($output,$dbADO) {
 							$resOptions=$dbADO->Execute($selectOptions,array('Media Wiz - '.$optionName,$FK_EntertainArea));
 							$rowOption=$resOptions->FetchRow();
 							deleteCommandGroup($rowOption['PK_CommandGroup'],$dbADO);
+							$msg="Media Scenario was deleted.";
 						}						
 					}
 				}
 			}
 		}
 	 
-		header("Location: index.php?section=mediaScenarios");
+		header("Location: index.php?section=mediaScenarios&msg=".@$msg);
 	}
-	
+	if(@$_REQUEST['GoTo']=='addMS')
+		$jumpTo=';self.location=\'#addMS\'';
+	$output->setScriptInBody("onLoad=\"javascript:top.treeframe.location.reload();".@$jumpTo."\"");
+
 	$output->setNavigationMenu(array("My Scenarios"=>'index.php?section=myScenarios',"Media Scenarios"=>'index.php?section=mediaScenarios'));	
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: Media Scenarios');			

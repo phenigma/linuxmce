@@ -99,7 +99,7 @@ function editEventHandler($output,$dbADO) {
 					$out.='<select name="CriteriaParmValue_'.$rowCriteria['PK_CannedEvents_CriteriaParmList'].'">
 						<option value="0" ></option>';
 					$tableName=substr($rowCriteria['PK_Table'],3);
-					$filterTable=($tableName=='Device')?" WHERE FK_Installation='".$installationID."' ":'';
+					$filterTable=($tableName=='Device' || $tableName=='Room')?" WHERE FK_Installation='".$installationID."' ":'';
 					$queryTable="SELECT * FROM $tableName $filterTable ORDER BY Description ASC";
 					$resTable=$dbADO->Execute($queryTable);
 					while($rowTable=$resTable->FetchRow()){

@@ -66,7 +66,7 @@ function editInfraredGroupFromMasterDevice($output,$dbADO) {
 							<legend>Commands:</legend>							
 							<table>
 							';
-							$query = "SELECT InfraredGroup_Command.*, Command.Description as C_Description						
+							$query = "SELECT InfraredGroup_Command.*, Command.Description						
 											FROM InfraredGroup_Command 
 												INNER JOIN Command on FK_Command = PK_Command
 									  WHERE FK_InfraredGroup = $infraredGroupID
@@ -76,7 +76,7 @@ function editInfraredGroupFromMasterDevice($output,$dbADO) {
 							$commandsDisplayed[]=0;
 								if ($res) {
 									while ($row=$res->FetchRow()) {
-										$out.="<tr ".(strlen(trim($row['Description']))==0?" bgColor='green' ":"")."><td>#{$row['C_Description']}<br />#{$row['FK_Command']}</td><td><textarea cols=\"40\" rows=\"5\" name=\"CommandDescription_{$row['FK_Command']}\">".stripslashes($row['Description']).'</textarea></td><td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editCommand&from=editInfraredGroupFromMasterDevice&commandID='.$row['FK_Command'].'\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">Edit</a> ';
+										$out.='<tr><td>#'.$row['Description'].' #'.$row['FK_Command'].'</td><td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editCommand&from=editInfraredGroupFromMasterDevice&commandID='.$row['FK_Command'].'\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">Edit</a> ';
 										$out.='<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=deleteInfraredCommandFromMasterDevice&from=editInfraredGroupFromMasterDevice&infraredGroupID='.$infraredGroupID.'&commandID='.$row['FK_Command'].'\',\'width=100,height=100,toolbars=true,resizable=1,scrollbars=1\');">Delete</a>';
 										$out.='</td></tr>';
 										$commandsDisplayed[]=$row['FK_Command'];
@@ -119,26 +119,6 @@ function editInfraredGroupFromMasterDevice($output,$dbADO) {
 		$deviceID = isset($_POST['deviceID'])?cleanString($_POST['deviceID']):'0';				
 		$description = cleanString($_POST['Description'],25);
 		$infraredGroupID = cleanInteger($_POST['infraredGroupID']);
-		
-		$displayedCommands = explode(",",@$_POST['displayedCommands']);
-		if (!is_array($displayedCommands)) {$displayedCommands=array();}
-		foreach ($displayedCommands as $elem) {
-			$elem = (int)$elem;
-			$commandAssocDescription = cleanString(@$_POST['CommandDescription_'.$elem]);
-			if ($commandAssocDescription!='') {
-				//get old value
-				$query = "select Description from InfraredGroup_Command where FK_InfraredGroup = ? and FK_Command = ?";
-				$resD = $dbADO->Execute($query,array($infraredGroupID,$elem));
-				if ($resD && $resD->RecordCount()==1) {
-					$rowD = $resD->FetchRow();
-					if ($commandAssocDescription!=$rowD['Description']) {
-						$lastAction='CommandDescription_'.$elem;
-					}
-				}
-				$query = "UPDATE InfraredGroup_Command SET Description = ? WHERE FK_InfraredGroup = ? AND FK_Command = ?";
-				$dbADO->Execute($query,array(stripslashes($commandAssocDescription),$infraredGroupID,$elem));
-			}
-		}
 		
 		$addNewCommandToThisCommandGroup = (int)$_POST['addNewCommandToDeviceCommandGroup'];
 		if ($addNewCommandToThisCommandGroup!=0) {

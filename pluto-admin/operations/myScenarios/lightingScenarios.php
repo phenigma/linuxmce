@@ -17,17 +17,20 @@ if($action=='form') {
 	if(isset($_GET['cgDelID']) && (int)$_GET['cgDelID']!=0){
 		$cgToDelete=(int)$_GET['cgDelID'];
 		deleteCommandGroup($cgToDelete,$dbADO);
-		header("Location: index.php?section=lightingScenarios");
+		header("Location: index.php?section=lightingScenarios&msg=Lighting scenario deleted.");
 	}
 
 	
-	$out.='<h2>'.$rowArray['Description'].'</h2>';
+	$out.='
+	<div align="center" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg'].'<br>'):'').'</B></div>
+	<h2 align="center">'.$rowArray['Description'].'</h2>';
 
 	$out.='
 	<form action="index.php" method="POST" name="lightingScenarios">
 		<input type="hidden" name="section" value="lightingScenarios">
 		<input type="hidden" name="action" value="add">	
 		<input type="hidden" name="roomID" value="">	
+		<input type="hidden" name="roomName" value="">
 	
 	<table width="100%" cellpadding="4" cellspacing="0" border="0">';
 	$queryRooms='
@@ -45,7 +48,7 @@ if($action=='form') {
 		<tr bgcolor="#D1D9EA">
 			<td><B>'.$rowRooms['RoomName'].'</B></td>
 			<td>&nbsp;</td>
-			<td align="right"><input type="button" name="add" value="Add scenario" onClick="javascript:document.lightingScenarios.action.value=\'add\';document.lightingScenarios.roomID.value='.$rowRooms['PK_Room'].';document.lightingScenarios.submit();"></td>
+			<td align="right"><input type="button" name="add" value="Add scenario" onClick="javascript:document.lightingScenarios.action.value=\'add\';document.lightingScenarios.roomID.value='.$rowRooms['PK_Room'].';document.lightingScenarios.roomName.value=\''.$rowRooms['RoomName'].'\';document.lightingScenarios.submit();"></td>
 		</tr>';
 		$selectCommandGroups='
 			SELECT * 
@@ -63,7 +66,7 @@ if($action=='form') {
 			$displayedCommandGroups[]=$rowCG['PK_CommandGroup'];
 			$out.='
 			<tr>
-				<td><input type="text" name="commandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Description'].'"></td>
+				<td>Description: '.(($rowCG['Hint']==$rowRooms['RoomName'])?'<input type="text" name="commandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Description'].'"> Hint: <input type="text" name="hintCommandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Hint'].'">':'<b>'.$rowCG['Description'].': </b>Hint: <b>'.$rowCG['Hint'].'</b>').'</td>
 				<td><a href="index.php?section=lightingScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=edit&roomID='.$rowRooms['PK_Room'].'">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=lightingScenarios&cgDelID='.$rowCG['PK_CommandGroup'].'\';">Delete</a></td>
 				<td>&nbsp;</td>
 			</tr>
@@ -194,20 +197,24 @@ if($action=='form') {
 	// insert command group in specified room
 	if(isset($_POST['roomID']) && (int)$_POST['roomID']!=0 && !isset($_POST['updateDevices'])){
 		$roomID=(int)$_POST['roomID'];
-		$insertCommandGroup='INSERT INTO CommandGroup (Description,FK_Array,FK_Installation,FK_Template) VALUES (?,?,?,?)';
-		$dbADO->Execute($insertCommandGroup,array('New Lighting Scenario',$arrayID,$installationID,$GLOBALS['LightingScenariosTemplate']));
+		$roomName=$_POST['roomName'];
+		$insertCommandGroup='INSERT INTO CommandGroup (Description,FK_Array,FK_Installation,FK_Template,Hint) VALUES (?,?,?,?,?)';
+		$dbADO->Execute($insertCommandGroup,array('New Lighting Scenario',$arrayID,$installationID,$GLOBALS['LightingScenariosTemplate'],$roomName));
 		$insertID=$dbADO->Insert_ID();
 		$insertCG_Room='INSERT INTO CommandGroup_Room (FK_CommandGroup,FK_Room,Sort) VALUES (?,?,?)';
 		$dbADO->Execute($insertCG_Room,array($insertID,$roomID,$insertID));
+		$msg="New Lighting Scenario added";
 	}
 	
 	if(isset($_POST['updateCG'])){
 		$displayedCommandGroupsArray=explode(',',$_POST['displayedCommandGroups']);
 		foreach($displayedCommandGroupsArray as $elem){
 			$cgDescription=cleanString($_POST['commandGroup_'.$elem]);
-			$updateCG='UPDATE CommandGroup SET Description=? WHERE PK_CommandGroup=?';
-			$dbADO->Execute($updateCG,array($cgDescription,$elem));
+			$cgHint=cleanString($_POST['hintCommandGroup_'.$elem]);
+			$updateCG='UPDATE CommandGroup SET Description=?, Hint=? WHERE PK_CommandGroup=?';
+			$dbADO->Execute($updateCG,array($cgDescription,$cgHint,$elem));
 		}
+		$msg="Lighting Scenario updated";
 	}
 	
 	if(isset($_POST['updateDevices'])){
@@ -259,10 +266,10 @@ if($action=='form') {
 		exit();
 	}
 	
-	header("Location: index.php?section=lightingScenarios");
+	header("Location: index.php?section=lightingScenarios&msg={$msg}");
 }
 
-
+	$output->setScriptInBody("onLoad=\"javascript:top.treeframe.location.reload();\"");
 	$output->setNavigationMenu(array("My Scenarios"=>'index.php?section=myScenarios',"Lighting Scenarios"=>'index.php?section=lightingScenarios'));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

@@ -61,7 +61,7 @@ function leftMenu($output,$dbADO) {
 							
 							while ($rowGetCommands = $resGetCommands->FetchRow()) {
 								$jsTree.='				    
-									auxSa'.$rowGetCommands['PK_CommandGroup'].' = insFld(auxS'.$row1['PK_Array'].', gFld("'.$rowGetCommands['Description'].'", "index.php?section=editCommandGroup&cgID='.$rowGetCommands['PK_CommandGroup'].'"));
+									auxSa'.$rowGetCommands['PK_CommandGroup'].' = insFld(auxS'.$row1['PK_Array'].', gFld("'.$rowGetCommands['Description'].(($rowGetCommands['Hint']!='')?': '.$rowGetCommands['Hint']:'').'", "index.php?section=editCommandGroup&cgID='.$rowGetCommands['PK_CommandGroup'].'"));
 									auxSa'.$rowGetCommands['PK_CommandGroup'].'.xID = '.$rowGetCommands['PK_CommandGroup'].';
 								';
 							}

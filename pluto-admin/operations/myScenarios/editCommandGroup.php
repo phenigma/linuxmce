@@ -8,10 +8,21 @@ function editCommandGroup($output,$dbADO) {
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$out='';
 	$installationID = (int)@$_SESSION['installationID'];
-	$commandGroupID = (int)$_REQUEST['cgID'];
+	$commandGroupID = @(int)$_REQUEST['cgID'];
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';
 	
-	//use wizard mode
+	if(isset($_REQUEST['dcgID'])){
+		$commandGroupID = (int)$_REQUEST['dcgID'];
+		
+		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
+		if (!$canModifyInstallation) {
+			header("Location: index.php?section=editCommandGroup&cgID=$commandGroupID&error=You are not authorised to modifiy installation.");
+			exit();
+		}
+		
+		deleteCommandGroup($commandGroupID,$dbADO);
+		header("Location: index.php?section=myScenarios&msg=The scenario was deleted.");
+	}
 	
 		
 	if ($action=='form') {
@@ -37,7 +48,14 @@ function editCommandGroup($output,$dbADO) {
 				<input type="hidden" name="cgID" value="'.$commandGroupID.'">
 				<h2>Edit My Scenario</h2>
 				<table>
-						<tr><td>Description</td><td><input type="text" size="20" name="description" value="'.$rowCommandGroupDetails['Description'].'"></td></tr>
+						<tr>
+							<td>Description</td>
+							<td><input type="text" size="20" name="description" value="'.$rowCommandGroupDetails['Description'].'"></td>
+						</tr>
+						<tr>
+							<td>Hint</td>
+							<td><input type="text" size="20" name="hint" value="'.$rowCommandGroupDetails['Hint'].'"></td>
+						</tr>
 						<tr><td>Array Type</td><td>
 								<select name="arrayType">';
 			
@@ -335,6 +353,8 @@ function editCommandGroup($output,$dbADO) {
 					</td>
 				</tr>
 				</table>	
+				<br><br><br>
+				<input type="button" name="deleteCG" value="Delete this scenario" onClick="if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=editCommandGroup&dcgID='.$commandGroupID.'\'">
 			</form>
 			<script>
 		 		var frmvalidator = new formValidator("editCommandGroup");
@@ -480,15 +500,16 @@ function editCommandGroup($output,$dbADO) {
 			//die();
 			
 			$description = cleanString($_POST['description']);
+			$hint = cleanString($_POST['hint']);
 			$arrayID = cleanInteger($_POST['arrayType']);
 			$designObjID = $_SESSION['editCommandGroup']['designObjID'];
 			$iconID = cleanInteger((isset($_POST['icon'])?$_POST['icon']:0));
 			$templateID = (isset($_POST['template']) && $_POST['template']!=0)?cleanInteger($_POST['template']):NULL;
 			
-			$updateCommandGroup = "UPDATE CommandGroup SET Description = ?,FK_Array=?,FK_DesignObj =?,FK_Icon=?,FK_Template=?
+			$updateCommandGroup = "UPDATE CommandGroup SET Description = ?,FK_Array=?,FK_DesignObj =?,FK_Icon=?,FK_Template=?, Hint=?
 			WHERE PK_CommandGroup = ?
 			";
-			$res=$dbADO->Execute($updateCommandGroup,array($description,$arrayID,$designObjID,$iconID,$templateID,$commandGroupID));
+			$res=$dbADO->Execute($updateCommandGroup,array($description,$arrayID,$designObjID,$iconID,$templateID,$hint,$commandGroupID));
 			
 			
 			if ((@$_POST['addNewDevice']!=0) && cleanInteger(@$_POST['addNewDeviceCommand'])==0) {
@@ -557,7 +578,7 @@ function editCommandGroup($output,$dbADO) {
 			    //opener.document.forms.{$from}.action.value='form';
 				//opener.document.forms.{$from}.submit();
 				//self.close();
-				document.location.href='index.php?section=editCommandGroup&from=$from&cgID=$commandGroupID';
+				document.location.href='index.php?section=editCommandGroup&from=$from&cgID=$commandGroupID&saved=1';
 			</script>
 			";
 			$_SESSION['editCommandGroup']=array();
@@ -567,10 +588,11 @@ function editCommandGroup($output,$dbADO) {
 		 
 		
 	}
-	
-	
-$output->setBody($out);
-$output->setTitle(APPLICATION_NAME);			
-$output->output();
+
+	if(@$_REQUEST['saved']==1)
+		$output->setScriptInBody("onLoad=\"javascript:top.treeframe.location.reload();\"");
+	$output->setBody($out);
+	$output->setTitle(APPLICATION_NAME);			
+	$output->output();
 }
 ?>

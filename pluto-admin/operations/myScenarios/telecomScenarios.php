@@ -44,12 +44,13 @@ function telecomScenarios($output,$dbADO) {
 		$out.='<h2>Telecom Scenarios</h2>';
 
 		$out.='
-	<div align="center"><B>'.@$_REQUEST['msg'].'</B></div>	
+	<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>	
 	<form action="index.php" method="POST" name="telecomScenarios">
 		<input type="hidden" name="section" value="telecomScenarios">
 		<input type="hidden" name="action" value="add">	
 		<input type="hidden" name="roomID" value="">	
-	
+		<input type="hidden" name="roomName" value="">	
+		
 	<table width="100%" cellpadding="4" cellspacing="0" border="0">';
 		$queryUsers='
 		SELECT * FROM Users
@@ -71,10 +72,12 @@ function telecomScenarios($output,$dbADO) {
 			$out.='There are no rooms in this installation. Go to <a href="index.php?section=rooms">rooms</a> section to add rooms.';
 		}
 		$displayedRooms=array();
+		$displayedRoomNames=array();
 		$oldTelecomScenarios=array();
 		$displayedSpeedDial=array();
 		while($rowRooms=$resRooms->FetchRow()){
 			$displayedRooms[]=$rowRooms['PK_Room'];
+			$displayedRoomNames[]=$rowRooms['RoomName'];
 			$queryCG='
 				SELECT PK_CommandGroup FROM CommandGroup
 					INNER JOIN CommandGroup_Room on CommandGroup_Room.FK_CommandGroup=PK_CommandGroup
@@ -87,11 +90,11 @@ function telecomScenarios($output,$dbADO) {
 		<tr bgcolor="#D1D9EA">
 			<td align="right" width="20">&nbsp;</td>
 			<td><B>'.$rowRooms['RoomName'].'</B></td>
-			<td align="center"><input type="button" name="addSpeedDial" value="Add speed dial" onClick="self.location=\'index.php?section=telecomScenarios&action=addSpeedDial&roomID='.$rowRooms['PK_Room'].'\'"></td>
+			<td align="center"><input type="button" name="addSpeedDial" value="Add speed dial" onClick="self.location=\'index.php?section=telecomScenarios&action=addSpeedDial&roomID='.$rowRooms['PK_Room'].'\'&roomName='.$rowRooms['RoomName'].'\'"></td>
 		</tr>
 		<tr>
 			<td align="right" width="20">&nbsp;</td>
-			<td><input type="checkbox" name="phoneSystem_'.$rowRooms['PK_Room'].'" value="1" '.(($resCG->RecordCount()>0)?'checked':'').' onClick="document.telecomScenarios.submit();"> Click to acces phone system from this room.</td>
+			<td><input type="checkbox" name="phoneSystem_'.$rowRooms['PK_Room'].'" value="1" '.(($resCG->RecordCount()>0)?'checked':'').' onClick="document.telecomScenarios.roomName.value=\''.$rowRooms['RoomName'].'\';document.telecomScenarios.submit();"> Click to acces phone system from this room.</td>
 			<td>&nbsp;</td>
 		</tr>
 		<tr>
@@ -203,6 +206,7 @@ function telecomScenarios($output,$dbADO) {
 		<input type="hidden" name="displayedSpeedDial" value="'.join(',',$displayedSpeedDial).'">
 		<input type="hidden" name="displayedUsers" value="'.join(',',array_keys($usersArray)).'">
 		<input type="hidden" name="displayedRooms" value="'.join(',',$displayedRooms).'">
+		<input type="hidden" name="displayedRoomNames" value="'.join(',',$displayedRoomNames).'">
 		<input type="hidden" name="oldTelecomScenarios" value="'.join(',',$oldTelecomScenarios).'">
 	</form>
 	';
@@ -274,9 +278,10 @@ function telecomScenarios($output,$dbADO) {
 			$number=$_POST['number'];
 			$phone=(isset($_POST['phone']) && $_POST['phone']!='0')?$_POST['phone']:NULL;
 			$roomID=$_REQUEST['roomID'];
+			$roomName=$_REQUEST['roomName'];
 			
-			$insertTelecomScenario='INSERT INTO CommandGroup (FK_Array, FK_Installation, Description,FK_Template) VALUES (?,?,?,?)';
-			$dbADO->Execute($insertTelecomScenario,array($arrayID,$installationID,$description,$templateWizard));
+			$insertTelecomScenario='INSERT INTO CommandGroup (FK_Array, FK_Installation, Description,FK_Template,Hint) VALUES (?,?,?,?,?)';
+			$dbADO->Execute($insertTelecomScenario,array($arrayID,$installationID,$description,$templateWizard,$roomName));
 			$cgID=$dbADO->Insert_ID();
 					
 			$insertCG_R='INSERT INTO CommandGroup_Room (FK_Room, FK_CommandGroup,Sort) VALUES (?,?,?)';
@@ -330,14 +335,15 @@ function telecomScenarios($output,$dbADO) {
 		}
 		
 		$displayedRoomsArray=explode(',',$_POST['displayedRooms']);
+		$displayedRoomNamesArray=explode(',',$_POST['displayedRoomNames']);
 		$oldTelecomScenariosArray=explode(',',$_POST['oldTelecomScenarios']);
 		foreach($displayedRoomsArray as $key=>$roomID){
 			$newScenario=(isset($_POST['phoneSystem_'.$roomID]) && $_POST['phoneSystem_'.$roomID]==1)?1:0;
 			if($oldTelecomScenariosArray[$key]==0){
 				if($newScenario==1){
 					// insert new CG
-					$insertTelecomScenario='INSERT INTO CommandGroup (FK_Array, FK_Installation, Description,FK_Template) VALUES (?,?,?,?)';
-					$dbADO->Execute($insertTelecomScenario,array($arrayID,$installationID,'Telecom Scenario',$templateWizard));
+					$insertTelecomScenario='INSERT INTO CommandGroup (FK_Array, FK_Installation, Description,FK_Template,Hint) VALUES (?,?,?,?,?)';
+					$dbADO->Execute($insertTelecomScenario,array($arrayID,$installationID,'Telecom Scenario',$templateWizard,$displayedRoomNamesArray[$key]));
 					$cgID=$dbADO->Insert_ID();
 					
 					$insertCG_R='INSERT INTO CommandGroup_Room (FK_Room, FK_CommandGroup,Sort) VALUES (?,?,?)';
@@ -394,7 +400,7 @@ function telecomScenarios($output,$dbADO) {
 		header("Location: index.php?section=telecomScenarios&msg=Telecom scenario updated.");
 	}
 
-
+	$output->setScriptInBody("onLoad=\"javascript:top.treeframe.location.reload();\"");
 	$output->setNavigationMenu(array("My Scenarios"=>'index.php?section=myScenarios',"Telecom Scenarios"=>'index.php?section=telecomScenarios'));
 	$output->setScriptCalendar('null');
 	$output->setBody($out);
