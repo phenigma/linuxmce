@@ -371,8 +371,8 @@ function mediaScenarios($output,$dbADO) {
 										$parmValue=7;
 									break;
 								}
-								$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParameterVariableNumber'],$parmValue));
-
+								$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParameterVariableNumber'],14));
+								$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParameterValueToAsign'],$parmValue));
 							}							
 						}else{
 							$selectOptions='
