@@ -62,7 +62,7 @@ bool EIB::Connect(int iPK_DeviceTemplate) {
 	m_msgPool.regInterceptor(this);
 	
 	string sPort = m_pData->mapParameters_Find(DEVICEDATA_Port_CONST);
-	if(sPort.find("/dev") != 0) {
+	if(sPort.find("/dev") == 0) {
 		sPort.erase(0, strlen("/dev"));
 	}
 	
