@@ -529,7 +529,7 @@ void CheckPackage(Row_Package *pRow_Package,Row_Device *pRow_Device,bool bDevelo
 
 	if( !bFound )
 	{
-		cout << "Skipping package " << PkgName << " because it is not compatible with this distro" << endl;
+		cout << "# Skipping package " << PkgName << " because it is not compatible with this distro" << endl;
 		return;
 	}
 
