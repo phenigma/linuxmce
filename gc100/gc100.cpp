@@ -32,6 +32,8 @@ using namespace DCE;
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
 #include "pluto_main/Define_DeviceData.h"
+#include "pluto_main/Define_Command.h"
+#include "pluto_main/Define_CommandParameter.h"
 
 #include <fcntl.h>
 
@@ -148,24 +150,6 @@ void gc100::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 	COMMANDS TO IMPLEMENT
 
 */
-
-///*virtual*/ bool gc100::ReceivedMessage(class Message *pMessage)
-//{
-//	if (gc100_Command::ReceivedMessage(pMessage))
-//		return true; // message handled by parent
-//	// we handle unknown messages
-//	cout << "Message ID: " << pMessage->m_dwID << endl;
-//	cout << "From:" << pMessage->m_dwPK_Device_From << endl;
-//	cout << "To: " << pMessage->m_dwPK_Device_To << endl;
-//	
-//	map<long, string>::iterator i;
-//	for (i = pMessage->m_mapParameters.begin(); i != pMessage->m_mapParameters.end(); i++)
-//	{
-//		cout << "Parameter: " << i->first << " Value: " << i->second << endl;
-//	}
-//	// TODO: not handled until I see what I should be handling :)
-//	return false;
-//}
 
 // Returns string starting with freq.  The "sendir,<address>,<id>," are prepended elsewhere
 bool gc100::ConvertPronto(string ProntoCode, string &gc_code)
@@ -919,54 +903,67 @@ bool gc100::ReceivedMessage(class Message *pMessage)
 	}
 
 	cout << "Processing..." << endl;
-	
-	// TODO: use mnemonics instead of numbers
-	if (pMessage->m_dwID == 350 /* ACTION_SET_FREQUENCY */)
+
+	VectDeviceData_Impl vVDD = m_pData->m_vectDeviceData_Impl_Children;
+	for (VectDeviceData_Impl::size_type i = 0; i < vVDD.size(); i++)
 	{
-		SendString("OK");
-		string IR_FREQUENCY=pMessage->m_mapParameters[106];
-		//SET_LEARN_FREQUENCY(IR_FREQUENCY);
-		return true;
+		if (vVDD[i]->m_dwPK_Device == pMessage->m_dwPK_Device_To && vVDD[i]->m_dwPK_DeviceTemplate == DEVICETEMPLATE_Generic_Input_Ouput_CONST)
+		{ // this is our guy
+			SendString("OK");
+			g_pPlutoLogger->Write(LV_STATUS, "Message for %s passed to Relay", vVDD[i]->m_sDescription.c_str());
+			bool bParm = atoi(pMessage->m_mapParameters[COMMANDPARAMETER_Value_CONST].c_str());
+			relay_power(pMessage, bParm);
+			return true;
+		}
 	}
-	if (pMessage->m_dwID == 348 /*ACTION_LEARN_IR*/)
-	{
-		SendString("OK");
-		string ABSOLUTE_CHANNEL=pMessage->m_mapParameters[35]; // Not used
-		string ID=pMessage->m_mapParameters[53]; // Action ID
-		string IR_FREQUENCY=pMessage->m_mapParameters[106]; // Not used
-		LEARN_IR(StringUtils::itos(pMessage->m_dwPK_Device_To),ABSOLUTE_CHANNEL,ID,IR_FREQUENCY);
-		return true;
-	}
-	if (pMessage->m_dwID == 349 /*ACTION_LEARN_IR_CANCEL*/)
-	{
-		SendString("OK");
-		LEARN_IR_CANCEL("");
-		return true;
-	}
-	if (pMessage->m_dwID == 402 /* send_data */)
-	{
-		SendString("OK");
-		send_data("","");
-		return true;
-	}
-	if (pMessage->m_dwID == 403 /* recv_data */)
-	{
-		SendString("OK");
-		recv_data("");
-		return true;
-	}
-	if (pMessage->m_dwID == 1 /* On */)
-	{
-		SendString("OK");
-		relay_power(pMessage,true);
-		return true;
-	}
-	if (pMessage->m_dwID == 2 /* Off */)
-	{
-		SendString("OK");
-		relay_power(pMessage,false);
-		return true;
-	}
+
+	//// DONT: Don't delete there comments until implementation is complete; I use the for reference so I don't reimplement the wheel :)
+	//if (pMessage->m_dwID == 350 /* ACTION_SET_FREQUENCY */)
+	//{
+	//	SendString("OK");
+	//	string IR_FREQUENCY=pMessage->m_mapParameters[106];
+	//	//SET_LEARN_FREQUENCY(IR_FREQUENCY);
+	//	return true;
+	//}
+	//if (pMessage->m_dwID == 348 /*ACTION_LEARN_IR*/)
+	//{
+	//	SendString("OK");
+	//	string ABSOLUTE_CHANNEL=pMessage->m_mapParameters[35]; // Not used
+	//	string ID=pMessage->m_mapParameters[53]; // Action ID
+	//	string IR_FREQUENCY=pMessage->m_mapParameters[106]; // Not used
+	//	LEARN_IR(StringUtils::itos(pMessage->m_dwPK_Device_To),ABSOLUTE_CHANNEL,ID,IR_FREQUENCY);
+	//	return true;
+	//}
+	//if (pMessage->m_dwID == 349 /*ACTION_LEARN_IR_CANCEL*/)
+	//{
+	//	SendString("OK");
+	//	LEARN_IR_CANCEL("");
+	//	return true;
+	//}
+	//if (pMessage->m_dwID == 402 /* send_data */)
+	//{
+	//	SendString("OK");
+	//	send_data("","");
+	//	return true;
+	//}
+	//if (pMessage->m_dwID == 403 /* recv_data */)
+	//{
+	//	SendString("OK");
+	//	recv_data("");
+	//	return true;
+	//}
+	//if (pMessage->m_dwID == 1 /* On */)
+	//{
+	//	SendString("OK");
+	//	relay_power(pMessage,true);
+	//	return true;
+	//}
+	//if (pMessage->m_dwID == 2 /* Off */)
+	//{
+	//	SendString("OK");
+	//	relay_power(pMessage,false);
+	//	return true;
+	//}
 
 	g_pPlutoLogger->Write(LV_STATUS, "Mesage Received %d completely unhandled",pMessage->m_dwID);
 	//SendString("OK"); // DEBUG
@@ -1374,6 +1371,7 @@ void gc100::MonitorIR()
 
 void gc100::MainLoop()
 {
+#pragma warning("")
 	while (! ready) {}
 	IRBase::Init(this);
 
