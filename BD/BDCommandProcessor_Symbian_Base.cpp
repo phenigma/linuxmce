@@ -310,10 +310,12 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bMakeVisibleAllowed = false;
 		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->ResetViewer();
 
+		MYSTL_CLEAR_LIST(m_listCommands);
+
 		iConnected = false;
 		//iSocket.CancelAll();
 		iSocket.Close();
-
+		
 		User::LeaveIfError( iSocket.Open( iSocketServ ) );
 		iListeningSocket.Accept( iSocket, iStatus );
 		iState = EAccepting;
@@ -325,7 +327,7 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 		return;
 	}
 
-	if(iPendingKey)
+	if(iPendingKey && iState != ESendingCommandOrAckData)
 	{
 		iPendingKey = false;
 		iState = ESendingCommand;
@@ -797,6 +799,8 @@ void BDCommandProcessor_Symbian_Base::ProcessCommands(bool bCriticalRequest /*=t
 		{
 			//it's seems that in last x seconds, we had only EIdle state
 			//connection lost!
+			LOG("Time's up!\n");
+
 			iSocket.CancelAll();
 			iState = EConnectionLost;
 			return;

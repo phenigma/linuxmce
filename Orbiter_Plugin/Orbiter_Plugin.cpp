@@ -238,7 +238,7 @@ int DESIGNOBJ_New_phone_detected_CONST=0;  // TODO -- HACK
 					pOH_Orbiter->m_iLastSignalStrength = 0;
 			}
 
-			if( pOH_Orbiter->m_pDevice_CurrentDetected && pOH_Orbiter->m_iLastSignalStrength > SignalStrength )
+			if( pOH_Orbiter->m_pDevice_CurrentDetected && pOH_Orbiter->m_iLastSignalStrength >= SignalStrength )
 			{
 				g_pPlutoLogger->Write(LV_STATUS,"Mobile Orbiter %s already has a strong association with %d (%d/%d)",
 					sMacAddress.c_str(),
