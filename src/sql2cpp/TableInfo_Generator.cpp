@@ -323,7 +323,7 @@ string TableInfo_Generator::get_null_setters_definition()
 	
 	for ( vector<FieldInfo*>::iterator i = m_Fields.begin(); i != m_Fields.end(); i++, iIndex++ )
 		if (!((*i)->m_iFlags & NOT_NULL_FLAG))
-			s = s + "void " +  "Row_"+m_sTableName+"::"+(*i)->m_pcFieldName + "_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);\n\nis_null["+int2string(iIndex)+"]=val;}" + "\n";
+			s = s + "void " +  "Row_"+m_sTableName+"::"+(*i)->m_pcFieldName + "_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);\nis_null["+int2string(iIndex)+"]=val;\nis_modified=true;\n}\n";
 
 	return s;	
 }
