@@ -1,3 +1,11 @@
+/**
+ *
+ * @file MediaPluginInfo.h
+ * @brief documentation
+ * @todo ask
+ *
+ */
+ 
 #ifndef MediaPluginInfo_h
 #define MediaPluginInfo_h
 
@@ -7,10 +15,10 @@
 namespace DCE
 {
 
-    enum SourceType {   st_RemovableMedia,  // The media is coming from a removable disc
-        st_Storage,         // The media is stored on the core
-        st_Broadcast,       // Transmission from one DCE to another
-        st_Transmission     // The media is coming from an external transmission, like Radio or Internet Radio
+    enum SourceType {   st_RemovableMedia,  /** The media is coming from a removable disc */
+        st_Storage,         /** The media is stored on the core */
+        st_Broadcast,       /** Transmission from one DCE to another */
+        st_Transmission     /** The media is coming from an external transmission, like Radio or Internet Radio */
     };
 
 #define MEDIASTREAM_TYPE_GENERIC        0
@@ -20,78 +28,140 @@ namespace DCE
     // Specific to plugins
 #define MEDIASTREAM_TYPE_MYTHTV         100
 
-    // A Media Handler is derived from the Media Handler abstract class.  When it registers, it passes
-    // in a MediaPluginInfo pointer indicating what type of media it can play.  It may register several times
-    // with different types of media and different capabilities.
+	/** @brief
+	 *
+	 * A Media Handler is derived from the Media Handler abstract class.  When it registers, it passes in a MediaPluginInfo pointer 
+	 * indicating what type of media it can play.  It may register several times with different types of media and different capabilities.
+         *
+	 */
+    
     class MediaPluginInfo
     {
     public:
         int m_PK_MediaType;
 
-        bool    m_bUsesRemovableMedia,  // True means it can play from a removable drive.  For example with MediaType DVD, true means it can play a DVD disc.
-            m_bCanStoreOnServer,  // True means it can play stored media from the server
-            m_bCanBroadcastInHouse, // Means it can be broadcast within the house, using one of the protocols in the send/receive lists below
-            m_bIsExternalTransmission, // True means it is an external transmissions, like Radio.  Not related to internal broadcasting between devices
-            m_bCanJumpPosition; // True means the device can save its position, and return to it, or have another device continue the stream where this left off
-        int m_iPK_DesignObj;        // What remote control to use for this type of media
-        list<class MediaDevice *> m_listMediaDevice; // Which Media Devices it is representing.  This can be empty.  Then the media handler will give preference to a plug-in that specifically represents a device
-        list<class EntertainArea *> m_listEntertainArea;  // Which entertainment areas it can play this media on.  Normally this would be all the entertainment areas corresponding to m_listMediaDevice.  But in whole house audio it can be more complex.
-        list<string> m_listExtensions;  // What file extensions it can play for this type of media (ie mp3, wav, vob, etc.)
-        list<int> m_PK_Broadcast_Send;  // What broadcast formats it supports to send
-        list<int> m_PK_Broadcast_Receive;   // What broadcast formats it supports to receive
-        bool m_bUsesDevices;            // If the devices it represents are DCE, or 'dumb' devices, like infrared a/v gear
-        class MediaPluginBase *m_pMediaPluginBase;  // The actual handler
-        class Command_Impl *m_pCommand_Impl;  // The same handler, but we need the v-table for the Command_Impl so we can pass messages into it's received dcemessage
+        bool    m_bUsesRemovableMedia,		/** True means it can play from a removable drive.  
+					    	    For example with MediaType DVD, true means it can play a DVD disc. */
+            
+	    m_bCanStoreOnServer,		/** True means it can play stored media from the server */
+            
+	    m_bCanBroadcastInHouse,		/** Means it can be broadcast within the house, using one of the protocols 
+	    					    in the send/receive lists below  */
+            
+	    m_bIsExternalTransmission,		/** True means it is an external transmissions, like Radio.  
+	    				   	    Not related to internal broadcasting between devices */
+            
+	    m_bCanJumpPosition;			/** True means the device can save its position, and return to it, or have another device 
+	    			    		    continue the stream where this left off  */
+        
+	int m_iPK_DesignObj;			/** What remote control to use for this type of media */
+        
+	list<class MediaDevice *> m_listMediaDevice;	/** Which Media Devices it is representing.  This can be empty.  
+							    Then the media handler will give preference to a plug-in that specifically represents a device */
+        
+	list<class EntertainArea *> m_listEntertainArea;	/** Which entertainment areas it can play this media on.  
+								   Normally this would be all the entertainment areas corresponding to m_listMediaDevice.
+								   But in whole house audio it can be more complex. */
+        
+	list<string> m_listExtensions;  /** What file extensions it can play for this type of media (ie mp3, wav, vob, etc.) */
+        
+	list<int> m_PK_Broadcast_Send;  /** What broadcast formats it supports to send */
+        
+	list<int> m_PK_Broadcast_Receive;   /** What broadcast formats it supports to receive */
+        
+	bool m_bUsesDevices;            /** If the devices it represents are DCE, or 'dumb' devices, like infrared a/v gear */
+        
+	class MediaPluginBase *m_pMediaPluginBase;  /** The actual handler */
+        
+	class Command_Impl *m_pCommand_Impl;  /** The same handler, but we need the v-table for the Command_Impl so we can pass messages 
+						  into it's received dcemessage */
 
-        MediaPluginInfo(class MediaPluginBase *pMediaPluginBase,class Command_Impl *pCommand_Impl) { m_pMediaPluginBase=pMediaPluginBase; m_pCommand_Impl=pCommand_Impl; m_iPK_DesignObj=0; };  // A constructor for a plug-in that wants to specify all this stuff manually
+        /** @brief A constructor for a plug-in that wants to specify all this stuff manually */
+	
+	MediaPluginInfo(class MediaPluginBase *pMediaPluginBase,class Command_Impl *pCommand_Impl) 
+	{ m_pMediaPluginBase=pMediaPluginBase; m_pCommand_Impl=pCommand_Impl; m_iPK_DesignObj=0; };  
 
-        // This will perform some standard tasks commonly needed to setup a plug-in.  First, if PK_DeviceTemplate is specified,
-        // it will add all devices of that type to this plug-in.  If the media type has associated extensions, and none were already added, it will add the ones from the database.
-        // It assigns all the default values for bUsesRemovableMedia, m_bCanStoreOnServer, m_bCanBroadcastInHouse, m_bIsExternalTransmission.
-        // If the plug-in isn't associated with any entertainment areas, it will add itself to all entertainment areas where it's devices are located.  Then it registers
-        // The calling plug-in can change values after the fact if it deviates from the defaults (ie doesn't support something, or uses different file extensions)
-        // If the plug-in wants to change the the entertainment areas, it should set bDontRegister to true, change these values, then register.  At registration
-        // the media handler associates all the plug-ins with their media types.  Broadcast formats can be set after registration.
+        /** @brief
+	 * This will perform some standard tasks commonly needed to setup a plug-in.  First, if PK_DeviceTemplate is specified,
+         * it will add all devices of that type to this plug-in.  If the media type has associated extensions, and none were already added, 
+	 * it will add the ones from the database.
+         * It assigns all the default values for bUsesRemovableMedia, m_bCanStoreOnServer, m_bCanBroadcastInHouse, m_bIsExternalTransmission.
+         * If the plug-in isn't associated with any entertainment areas, it will add itself to all entertainment areas where it's devices 
+	 * are located.  Then it registers
+         * The calling plug-in can change values after the fact if it deviates from the defaults (ie doesn't support something, or uses different 
+	 * file extensions)
+         * If the plug-in wants to change the the entertainment areas, it should set bDontRegister to true, change these values, then register.  
+	 * At registration the media handler associates all the plug-ins with their media types.  Broadcast formats can be set after registration.
+	*/
+	
         MediaPluginInfo(class MediaPluginBase *pMediaPluginBase,class Command_Impl *pCommand_Impl,int PK_MediaType,int PK_DeviceTemplate,bool bCanJumpPosition,bool bUsesDevices,bool bDontRegister=false);
     };
 
     typedef list<MediaPluginInfo *> List_MediaPluginInfo;
 
-    // An instance of media, such as a DVD or a CD.  If 2 people start watching the same DVD individually, that will be 2 media streams, because they are independent.
-    // However, if 1 person starts watching and another joins in, or the media is broadcast, it becomes a single stream with multiple destinations.  In this case, all
-    // the destinations are seeing the same thing, and the appropriate plug-in must concern itself with proper audio/video sync, and ensure that if 1 person changes
-    // the stream, they all stay in sync.  It is possible to do this even with non-stored media, like Broadcast TV.
+    
+    /** @brief
+     * An instance of media, such as a DVD or a CD.  If 2 people start watching the same DVD individually, that will be 2 media streams, 
+     * because they are independent.
+     * However, if 1 person starts watching and another joins in, or the media is broadcast, it becomes a single stream with multiple destinations.  In this case, all
+     * the destinations are seeing the same thing, and the appropriate plug-in must concern itself with proper audio/video sync, 
+     * and ensure that if 1 person changes the stream, they all stay in sync.  
+     * It is possible to do this even with non-stored media, like Broadcast TV.
+    */
+    
     class MediaStream
     {
-        int m_iStreamID; // A unique number to identify this stream -- cannot change this
+        int m_iStreamID; /** A unique number to identify this stream -- cannot change this */
 
     public:
-        class MediaPluginInfo *m_pMediaPluginInfo; // Which handler has primary responsibility for this media stream
-        class OH_Orbiter *m_pOH_Orbiter;    // Which orbiter started this stream in the first place
-        map<int,class EntertainArea *> m_mapEntertainArea; // The entertainment areas where this stream is playing
-        // As more 'play media' commands come in to this stream, it will add them to the queue so the user can save as a play list.  If it's a mounted media, like dvd, that won't happen
+        class MediaPluginInfo *m_pMediaPluginInfo; /** Which handler has primary responsibility for this media stream */
+	
+        class OH_Orbiter *m_pOH_Orbiter;    /** Which orbiter started this stream in the first place */
+        
+	map<int,class EntertainArea *> m_mapEntertainArea; /** The entertainment areas where this stream is playing */
+	
+        /** 
+	 * As more 'play media' commands come in to this stream, it will add them to the queue so the user can save as a play list. 
+	 * If it's a mounted media, like dvd, that won't happen
+	 */
 
-        deque<string> m_dequeFilename;  // The filenames we're playing
-        deque<int> m_dequePK_MED_File; // A list of media files from the Media attributes class
+        deque<string> m_dequeFilename;  /** The filenames we're playing */
+        
+	deque<int> m_dequePK_MED_File; /** A list of media files from the Media attributes class */
 
-        int m_ivectFilenames_Pos,m_iPK_MED_File_Pos;  // The current position in either of the 2 above vectors.  One or both must always be -1, since we can't be playing from both lists at the same time
-        char *m_pPictureData;
+        int m_ivectFilenames_Pos,m_iPK_MED_File_Pos;  /** The current position in either of the 2 above vectors.  
+							One or both must always be -1, since we can't be playing from both lists at the same time */
+        
+	char *m_pPictureData;
         int m_iPictureSize;
-        int m_dwPK_Device; // The source device
-        int m_iPK_MediaType;  // The type of media
-        int m_iPK_DesignObj_Remote;  // What screen to use as the remote control
-        bool m_bPlaying;  // True if the media is now playing
-        int m_iPK_Users; // Who started the media
-        bool m_bFollowMe; // True if the media is supposed to follow the above user
-        enum SourceType m_eSourceType; // Where the media is coming from
-        string m_sMediaDescription; // Some text the plug-in populates to describe the media.  "The Patriot", "Beatles Anthology" are examples.  For TV or radio this is the channel
-        string m_sSectionDescription;   // Describe where we are in the media, such as a song title, chapter, track, etc.  For TV or radio this is the name of the show
-        string m_sMediaSynopsis;  // A description of what's playing, such as the tv show description
-        string m_sTimecode;         // The handler may populate this with a timecode
-        class MediaPosition *m_pMediaPosition; // Where we are in the media stream
+        int m_dwPK_Device;		/** The source device */
+        int m_iPK_MediaType;		/** The type of media */
+        int m_iPK_DesignObj_Remote;	/** What screen to use as the remote control */
+        bool m_bPlaying;		/** True if the media is now playing */
+        int m_iPK_Users;		/** Who started the media */
+        bool m_bFollowMe;		/** True if the media is supposed to follow the above user */
+        
+	enum SourceType m_eSourceType; 	/** Where the media is coming from */
+        
+	string m_sMediaDescription; 	/** Some text the plug-in populates to describe the media.  "The Patriot", "Beatles Anthology" are examples.  
+						For TV or radio this is the channel */
+        
+	string m_sSectionDescription;	/** Describe where we are in the media, such as a song title, chapter, track, etc.  
+						For TV or radio this is the name of the show */
+        
+	string m_sMediaSynopsis;	/** A description of what's playing, such as the tv show description */
+        
+	string m_sTimecode;		/** The handler may populate this with a timecode */
+        
+	class MediaPosition *m_pMediaPosition; /** Where we are in the media stream */
 
-        MediaStream(class MediaPluginInfo *pMediaPluginInfo, int PK_DesignObj_Remote, int PK_Users,enum SourceType sourceType,int iStreamID);
-        virtual ~MediaStream();
+        /** @brief constructor*/
+	
+	MediaStream(class MediaPluginInfo *pMediaPluginInfo, int PK_DesignObj_Remote, int PK_Users,enum SourceType sourceType,int iStreamID);
+        
+	/** @biref virtual destructor */
+	
+	virtual ~MediaStream();
 
         virtual int GetType() { return MEDIASTREAM_TYPE_GENERIC; }
         virtual void UpdateDescriptions() { m_sMediaDescription="Generic Media"; m_sSectionDescription=""; m_sMediaSynopsis=""; m_sTimecode=""; }

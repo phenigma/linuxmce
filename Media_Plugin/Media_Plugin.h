@@ -1,3 +1,9 @@
+/**
+ *
+ * @file Media_Plugin.h
+ * @brief header file for the  Media_Plugin, MediaPosition, EntertainArea, MediaDevice, MediaPluginBase classes
+ */
+ 
 //<-dceag-d-b->
 #ifndef Media_Plugin_h
 #define Media_Plugin_h
@@ -20,11 +26,13 @@
 
 class Database_pluto_main;
 
-// A Media Handler is derived from the Media Handler abstract class.  When it registers, it passes
-// in a MediaPluginInfo pointer indicating what type of media it can play.  It may register several times
-// with different types of media and different capabilities.
+/**
+ * A Media Handler is derived from the Media Handler abstract class.  When it registers, it passes in a MediaPluginInfo pointer indicating 
+ * what type of media it can play.  It may register several times with different types of media and different capabilities.
+ */
+ 
+/** All media plugins must implement this class */
 
-// All media plugins must implement this class
 namespace DCE
 {
 
@@ -32,6 +40,8 @@ class MediaPluginBase
 {
 public:
     class Media_Plugin *m_pMedia_Plugin;
+    
+    /** @brief constructor */
     MediaPluginBase() {}
 
     virtual class MediaStream *CreateMediaStream(class MediaPluginInfo *pMediaPluginInfo,int PK_Device_Source,string Filename,int StreamID)=0;
@@ -40,38 +50,65 @@ public:
     virtual bool BroadcastMedia(class MediaStream *pMediaStream)=0;
 };
 
-// This adds media specific information for a device, extending the DeviceData_Router
+/** @brief This adds media specific information for a device, extending the DeviceData_Router */
+
 class MediaDevice
 {
 public:
-    MediaDevice(class Router *pRouter,class Row_Device *pRow_Device);       // This will store extra information about itself
-    class DeviceData_Router *m_pDeviceData_Router;  // The device in the router
-    map<int,int> m_mapMediaType_DesignObj; // A map of all the remotes for the various screens
+    
+    /** @brief constructor */
+    MediaDevice(class Router *pRouter,class Row_Device *pRow_Device);	/** This will store extra information about itself */
+    class DeviceData_Router *m_pDeviceData_Router;			/**< The device in the router */
+    map<int,int> m_mapMediaType_DesignObj;				/** A map of all the remotes for the various screens */
     list<class EntertainArea *> m_listEntertainArea;
 };
 
 
 
-// An entertainment area is a cluster of devices.  Only 1
+/** @brief An entertainment area is a cluster of devices.  Only 1 */
+
 class EntertainArea
 {
 public:
-    EntertainArea(int iPK_EntertainArea,bool bOnly1Stream) { m_iPK_EntertainArea=iPK_EntertainArea; m_bOnly1Stream=bOnly1Stream; m_pMediaStream=NULL; }
+    
+    /** @brief constructor*/
+    
+    EntertainArea(int iPK_EntertainArea,bool bOnly1Stream) 
+    { m_iPK_EntertainArea=iPK_EntertainArea; m_bOnly1Stream=bOnly1Stream; m_pMediaStream=NULL; }
+    
     int m_iPK_EntertainArea;
-    class MediaStream *m_pMediaStream;   // The current media streams in this entertainment area
-    map<int,class MediaDevice *> m_mapMediaDevice;  // All the media devices in the area
-    MediaDevice *m_mapMediaDevice_Find(int PK_Device) {
+    
+    class MediaStream *m_pMediaStream;   /** The current media streams in this entertainment area */
+    
+    map<int,class MediaDevice *> m_mapMediaDevice;  /** All the media devices in the area */
+    
+    MediaDevice *m_mapMediaDevice_Find(int PK_Device) 
+    {
         map<int,class MediaDevice *>::iterator it = m_mapMediaDevice.find(PK_Device);
         return it==m_mapMediaDevice.end() ? NULL : (*it).second;
     }
+    
     MapBoundRemote m_mapBoundRemote;
-    BoundRemote *m_mapBoundRemote_Find(int iPK_Orbiter) { map<int,class BoundRemote *>::iterator it = m_mapBoundRemote.find(iPK_Orbiter);   return it==m_mapBoundRemote.end() ? NULL : (*it).second; }
-    void m_mapBoundRemote_Remove(int iPK_Orbiter) { MapBoundRemote::iterator it = m_mapBoundRemote.find(iPK_Orbiter); if( it!=m_mapBoundRemote.end() ) m_mapBoundRemote.erase(it); }
+    
+    BoundRemote *m_mapBoundRemote_Find(int iPK_Orbiter) 
+    {
+    	 map<int,class BoundRemote *>::iterator it = m_mapBoundRemote.find(iPK_Orbiter);   
+	 return it==m_mapBoundRemote.end() ? NULL : (*it).second; 
+     }
+    
+    void m_mapBoundRemote_Remove(int iPK_Orbiter) 
+    { 
+    	MapBoundRemote::iterator it = m_mapBoundRemote.find(iPK_Orbiter); 
+	if( it!=m_mapBoundRemote.end() ) m_mapBoundRemote.erase(it); 
+     }
 
-    bool m_bOnly1Stream; // If true, stop any other media streams in this area when a new one starts.  There can be only 1.  This is the default behavior
+    bool m_bOnly1Stream; 
+    /** If true, stop any other media streams in this area when a new one starts.  There can be only 1.  This is the default behavior */
 
-    map<int,List_MediaPluginInfo *> m_mapMediaPluginInfo_MediaType; // The key is the media type
-    List_MediaPluginInfo *m_mapMediaPluginInfo_MediaType_Find(int PK_MediaType) {
+    map<int,List_MediaPluginInfo *> m_mapMediaPluginInfo_MediaType; /** The key is the media type */
+    
+    List_MediaPluginInfo *m_mapMediaPluginInfo_MediaType_Find(int PK_MediaType) 
+    {
         map<int,List_MediaPluginInfo *>::iterator it = m_mapMediaPluginInfo_MediaType.find(PK_MediaType);
         return it==m_mapMediaPluginInfo_MediaType.end() ? NULL : (*it).second;
     }

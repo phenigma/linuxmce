@@ -1,28 +1,56 @@
+/**
+ *
+ * @file MediaAttributes.h
+ * @brief header file for the MediaAttribute, MediaPicture, MediaAttributes class
+ *
+ */
+
 #ifndef MEDIAATTRIBUTES_H
 #define MEDIAATTRIBUTES_H
 
+/**
+ * @brief the attributes of the media
+ * @todo ask
+ */
+ 
 class MediaAttribute
 {
 public:
-	int PK_Attribute,PK_AttributeType;
-	string Name,FirstName;
+	int PK_Attribute;
+	int PK_AttributeType;
+	string Name;
+	string FirstName;
 };
 
+/**
+ * @brief documenatation
+ * @todo ask
+ */
+ 
 class MediaPicture
 {
 public:
-	int PK_Picture,PK_File,PK_Attribute;
-	string Path,Extension;
+	int PK_Picture;
+	int PK_File;
+	int PK_Attribute;
+	string Path;
+	string Extension;
 };
 
 typedef list<MediaAttribute *> listMediaAttribute;
 typedef list<MediaPicture *> listMediaPicture;
 
+/**
+ * @brief documentation
+ * @todo ask
+ */
+ 
 class MediaAttributes
 {
 public:
 	class Media_Plugin *m_pMedia_Plugin;
 
+	/** @brief constructor */
 	MediaAttributes(class Media_Plugin *pMedia_Plugin) : m_pMedia_Plugin(pMedia_Plugin) {}
 
 	int CreatedMedia(int PK_Type,string Path,listMediaAttribute *plistMediaAttribute,listMediaPicture *plistMediaPicture);
