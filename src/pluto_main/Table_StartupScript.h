@@ -99,13 +99,14 @@ long int m_Hybrid_Boot_Order;
 short int m_Hybrid_Background;
 short int m_Hybrid_Enabled;
 string m_Hybrid_Parameter;
+long int m_FK_DeviceTemplate;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[23];
+		bool is_null[24];
 	
 	public:
 		long int PK_StartupScript_get();
@@ -126,6 +127,7 @@ long int Hybrid_Boot_Order_get();
 short int Hybrid_Background_get();
 short int Hybrid_Enabled_get();
 string Hybrid_Parameter_get();
+long int FK_DeviceTemplate_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -151,6 +153,7 @@ void Hybrid_Boot_Order_set(long int val);
 void Hybrid_Background_set(short int val);
 void Hybrid_Enabled_set(short int val);
 void Hybrid_Parameter_set(string val);
+void FK_DeviceTemplate_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -159,6 +162,7 @@ void psc_mod_set(string val);
 
 		
 		bool When_isNull();
+bool FK_DeviceTemplate_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -166,6 +170,7 @@ bool psc_frozen_isNull();
 
 			
 		void When_setNull(bool val);
+void FK_DeviceTemplate_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -182,7 +187,8 @@ void psc_frozen_setNull(bool val);
 		class Table_StartupScript *Table_StartupScript_get() { return table; };
 
 		// Return the rows for foreign keys 
-		
+		class Row_DeviceTemplate* FK_DeviceTemplate_getrow();
+
 
 		// Return the rows in other tables with foreign keys pointing here
 		void Device_StartupScript_FK_StartupScript_getrows(vector <class Row_Device_StartupScript*> *rows);
@@ -190,7 +196,7 @@ void psc_frozen_setNull(bool val);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_StartupScript+ m_When+ m_Command+ m_Description+ m_ConfigureOnly+ m_Parameter_Syntax+ m_Core_Boot_Order+ m_Core_Background+ m_Core_Enabled+ m_Core_Parameter+ m_MD_Boot_Order+ m_MD_Background+ m_MD_Enabled+ m_MD_Parameter+ m_Hybrid_Boot_Order+ m_Hybrid_Background+ m_Hybrid_Enabled+ m_Hybrid_Parameter+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_StartupScript+ m_When+ m_Command+ m_Description+ m_ConfigureOnly+ m_Parameter_Syntax+ m_Core_Boot_Order+ m_Core_Background+ m_Core_Enabled+ m_Core_Parameter+ m_MD_Boot_Order+ m_MD_Background+ m_MD_Enabled+ m_MD_Parameter+ m_Hybrid_Boot_Order+ m_Hybrid_Background+ m_Hybrid_Enabled+ m_Hybrid_Parameter+ m_FK_DeviceTemplate+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -213,6 +219,7 @@ string Hybrid_Boot_Order_asSQL();
 string Hybrid_Background_asSQL();
 string Hybrid_Enabled_asSQL();
 string Hybrid_Parameter_asSQL();
+string FK_DeviceTemplate_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

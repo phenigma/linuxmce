@@ -47,6 +47,7 @@ using namespace std;
 #include "Table_DeviceTemplate_PageSetup.h"
 #include "Table_InfraredGroup_Command.h"
 #include "Table_InstallWizard.h"
+#include "Table_StartupScript.h"
 
 
 void Database_pluto_main::CreateTable_DeviceTemplate()
@@ -1969,6 +1970,13 @@ void Row_DeviceTemplate::InstallWizard_FK_DeviceTemplate_getrows(vector <class R
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_InstallWizard *pTable = table->database->InstallWizard_get();
+pTable->GetRows("`FK_DeviceTemplate`=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
+}
+void Row_DeviceTemplate::StartupScript_FK_DeviceTemplate_getrows(vector <class Row_StartupScript*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_StartupScript *pTable = table->database->StartupScript_get();
 pTable->GetRows("`FK_DeviceTemplate`=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 
