@@ -237,7 +237,22 @@ function devices($output,$dbADO) {
 								$out.='<input type="checkbox" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="1" '.((@$ddValue!=0)?'checked':'').' '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
 							break;
 							default:
-								$out.='<input type="text" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.@$ddValue.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
+								if ($rowDDforDevice['Description'] != "Port")
+								{
+									$out.='<input type="text" name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.@$ddValue.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
+								}
+								else
+								{
+									$out.='<select name="deviceData_'.$rowD['PK_Device'].'_'.$value.'" '.((isset($rowDDforDevice['AllowedToModify']) && $rowDDforDevice['AllowedToModify']==0)?'disabled':'').'>';
+									$out .= '<option value="">-- Empty --';
+									exec('sudo -u root /usr/pluto/bin/ListSerialPorts.sh', $serial_ports);
+									foreach ($serial_ports as $serial_port)
+									{
+										$selected = $ddValue === $serial_port ? " selected" : "";
+										$out .= "<option value=\"$serial_port\"$selected>".PortForHumans($serial_port);
+									}
+									$out.='</select>';
+								}
 						}
 						
 						
@@ -349,5 +364,31 @@ function devices($output,$dbADO) {
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);
 	$output->output();
+}
+
+function PortForHumans($device)
+{
+	$devname = substr(strrchr($device, '/'), 1);
+
+	if (strstr($devname, "ttyS") === $devname)
+	{
+		$devid = substr($devname, 4);
+		if ($devid{0} === "_")
+		{
+			# it's a virtual serial port
+			list($PK_Device, $number) = split("_", substr($devid, 1));
+			$number++;
+			# TODO: translate $PK_Device to actual device name
+			return "Port $number on 'device $PK_Device'";
+		}
+		else
+		{
+			# it's a hardware serial port on the Core
+			$number = $devid + 1;
+			return "$devname | COM$number";
+		}
+	}
+	
+	return "Unknown: $devname";
 }
 ?>
