@@ -1,0 +1,13 @@
+#ifndef __Define_Installation_RepositorySource_URL_H__
+#define __Define_Installation_RepositorySource_URL_H__
+
+
+#define INSTALLATION_REPOSITORYSOURCE_URL_TABLE "Installation_RepositorySource_URL"
+#define INSTALLATION_REPOSITORYSOURCE_URL_FK_INSTALLATION_FIELD "FK_Installation"
+#define INSTALLATION_REPOSITORYSOURCE_URL_FK_INSTALLATION_TABLE_FIELD "Installation_RepositorySource_URL.FK_Installation"
+#define INSTALLATION_REPOSITORYSOURCE_URL_FK_REPOSITORYSOURCE_URL_FIELD "FK_RepositorySource_URL"
+#define INSTALLATION_REPOSITORYSOURCE_URL_FK_REPOSITORYSOURCE_URL_TABLE_FIELD "Installation_RepositorySource_URL.FK_RepositorySource_URL"
+
+
+#endif
+

@@ -1,8 +1,9 @@
 #ifndef __Define_Criteria_D_H__
 #define __Define_Criteria_D_H__
 
-#define CRITERIA_D_Audi_MMI_Prototype_CONST 1
-#define CRITERIA_D_Audi_Mobile_Phone_Proto_CONST 2
+#define CRITERIA_D_Normal_VGA_CONST 1
+#define CRITERIA_D_PDA_CONST 2
+#define CRITERIA_D_Symbian_60_Mobile_Phone_CONST 3
 
 #define CRITERIA_D_TABLE "Criteria_D"
 #define CRITERIA_D_PK_CRITERIA_D_FIELD "PK_Criteria_D"

@@ -82,13 +82,14 @@ class DLL_EXPORT Row_DeviceTemplate_Output : public TableRow, public SerializeCl
 		
 		long int m_FK_DeviceTemplate;
 long int m_FK_Output;
+short int m_OrderNo;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[7];
+		bool is_null[8];
 	
 		bool is_deleted;
 		bool is_added;
@@ -97,6 +98,7 @@ string m_psc_mod;
 	public:
 		long int FK_DeviceTemplate_get();
 long int FK_Output_get();
+short int OrderNo_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -106,6 +108,7 @@ string psc_mod_get();
 		
 		void FK_DeviceTemplate_set(long int val);
 void FK_Output_set(long int val);
+void OrderNo_set(short int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -144,13 +147,14 @@ class Row_Output* FK_Output_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_FK_DeviceTemplate+ m_FK_Output+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_FK_DeviceTemplate+ m_FK_Output+ m_OrderNo+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string FK_DeviceTemplate_asSQL();
 string FK_Output_asSQL();
+string OrderNo_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

@@ -82,6 +82,7 @@ class DLL_EXPORT Row_StartupScript : public TableRow, public SerializeClass
 		long int m_PK_StartupScript;
 string m_Command;
 string m_Description;
+short int m_ConfigureOnly;
 string m_Parameter_Syntax;
 long int m_Core_Boot_Order;
 long int m_Core_Background;
@@ -101,7 +102,7 @@ long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[21];
+		bool is_null[22];
 	
 		bool is_deleted;
 		bool is_added;
@@ -111,6 +112,7 @@ string m_psc_mod;
 		long int PK_StartupScript_get();
 string Command_get();
 string Description_get();
+short int ConfigureOnly_get();
 string Parameter_Syntax_get();
 long int Core_Boot_Order_get();
 long int Core_Background_get();
@@ -134,6 +136,7 @@ string psc_mod_get();
 		void PK_StartupScript_set(long int val);
 void Command_set(string val);
 void Description_set(string val);
+void ConfigureOnly_set(short int val);
 void Parameter_Syntax_set(string val);
 void Core_Boot_Order_set(long int val);
 void Core_Background_set(long int val);
@@ -184,7 +187,7 @@ void psc_frozen_setNull(bool val);
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_StartupScript+ m_Command+ m_Description+ m_Parameter_Syntax+ m_Core_Boot_Order+ m_Core_Background+ m_Core_Enabled+ m_Core_Parameter+ m_MD_Boot_Order+ m_MD_Background+ m_MD_Enabled+ m_MD_Parameter+ m_Hybrid_Boot_Order+ m_Hybrid_Background+ m_Hybrid_Enabled+ m_Hybrid_Parameter+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_StartupScript+ m_Command+ m_Description+ m_ConfigureOnly+ m_Parameter_Syntax+ m_Core_Boot_Order+ m_Core_Background+ m_Core_Enabled+ m_Core_Parameter+ m_MD_Boot_Order+ m_MD_Background+ m_MD_Enabled+ m_MD_Parameter+ m_Hybrid_Boot_Order+ m_Hybrid_Background+ m_Hybrid_Enabled+ m_Hybrid_Parameter+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -192,6 +195,7 @@ void psc_frozen_setNull(bool val);
 		string PK_StartupScript_asSQL();
 string Command_asSQL();
 string Description_asSQL();
+string ConfigureOnly_asSQL();
 string Parameter_Syntax_asSQL();
 string Core_Boot_Order_asSQL();
 string Core_Background_asSQL();

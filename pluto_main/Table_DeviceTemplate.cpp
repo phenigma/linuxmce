@@ -41,6 +41,7 @@ using namespace std;
 #include "Table_DeviceTemplate_MediaType.h"
 #include "Table_DeviceTemplate_Output.h"
 #include "Table_DeviceTemplate_Package.h"
+#include "Table_DeviceTemplate_PageSetup.h"
 #include "Table_InfraredCode.h"
 
 
@@ -1591,6 +1592,13 @@ void Row_DeviceTemplate::DeviceTemplate_Package_FK_DeviceTemplate_getrows(vector
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_Package *pTable = table->database->DeviceTemplate_Package_get();
+pTable->GetRows("FK_DeviceTemplate=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
+}
+void Row_DeviceTemplate::DeviceTemplate_PageSetup_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_PageSetup*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_DeviceTemplate_PageSetup *pTable = table->database->DeviceTemplate_PageSetup_get();
 pTable->GetRows("FK_DeviceTemplate=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::InfraredCode_FK_DeviceTemplate_getrows(vector <class Row_InfraredCode*> *rows)

@@ -32,6 +32,7 @@ Table_ConfigType_File.cpp \
 Table_ConfigType_Setting.cpp \
 Table_ConfigType_Token.cpp \
 Table_ConnectorType.cpp \
+Table_Country.cpp \
 Table_Criteria.cpp \
 Table_CriteriaList.cpp \
 Table_CriteriaList_CriteriaParmList.cpp \
@@ -81,6 +82,7 @@ Table_DeviceTemplate_MediaType.cpp \
 Table_DeviceTemplate_MediaType_DesignObj.cpp \
 Table_DeviceTemplate_Output.cpp \
 Table_DeviceTemplate_Package.cpp \
+Table_DeviceTemplate_PageSetup.cpp \
 Table_Device_Command.cpp \
 Table_Device_CommandGroup.cpp \
 Table_Device_DeviceData.cpp \
@@ -136,6 +138,7 @@ Table_Package.cpp \
 Table_Package_Directory.cpp \
 Table_Package_Directory_File.cpp \
 Table_Package_Distro.cpp \
+Table_PageSetup.cpp \
 Table_ParameterType.cpp \
 Table_PhoneLineType.cpp \
 Table_Pipe.cpp \

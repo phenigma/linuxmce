@@ -1,0 +1,17 @@
+#ifndef __Define_OperatingSystem_Directory_H__
+#define __Define_OperatingSystem_Directory_H__
+
+
+#define OPERATINGSYSTEM_DIRECTORY_TABLE "OperatingSystem_Directory"
+#define OPERATINGSYSTEM_DIRECTORY_PK_OPERATINGSYSTEM_DIRECTORY_FIELD "PK_OperatingSystem_Directory"
+#define OPERATINGSYSTEM_DIRECTORY_PK_OPERATINGSYSTEM_DIRECTORY_TABLE_FIELD "OperatingSystem_Directory.PK_OperatingSystem_Directory"
+#define OPERATINGSYSTEM_DIRECTORY_FK_OPERATINGSYSTEM_FIELD "FK_OperatingSystem"
+#define OPERATINGSYSTEM_DIRECTORY_FK_OPERATINGSYSTEM_TABLE_FIELD "OperatingSystem_Directory.FK_OperatingSystem"
+#define OPERATINGSYSTEM_DIRECTORY_FK_DIRECTORY_FIELD "FK_Directory"
+#define OPERATINGSYSTEM_DIRECTORY_FK_DIRECTORY_TABLE_FIELD "OperatingSystem_Directory.FK_Directory"
+#define OPERATINGSYSTEM_DIRECTORY_PATH_FIELD "Path"
+#define OPERATINGSYSTEM_DIRECTORY_PATH_TABLE_FIELD "OperatingSystem_Directory.Path"
+
+
+#endif
+

@@ -82,6 +82,7 @@ class DLL_EXPORT Row_Users : public TableRow, public SerializeClass
 		long int m_PK_Users;
 string m_UserName;
 string m_Password;
+short int m_samePasswordMasterUsers;
 short int m_HasMailbox;
 short int m_AccessGeneralMailbox;
 long int m_Extension;
@@ -89,7 +90,7 @@ string m_FirstName;
 string m_LastName;
 string m_Nickname;
 long int m_ExtensionRingTimeout;
-string m_Email;
+string m_ForwardEmail;
 short int m_FK_Language;
 long int m_FK_Installation_Main;
 long int m_psc_id;
@@ -98,7 +99,7 @@ long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[18];
+		bool is_null[19];
 	
 		bool is_deleted;
 		bool is_added;
@@ -108,6 +109,7 @@ string m_psc_mod;
 		long int PK_Users_get();
 string UserName_get();
 string Password_get();
+short int samePasswordMasterUsers_get();
 short int HasMailbox_get();
 short int AccessGeneralMailbox_get();
 long int Extension_get();
@@ -115,7 +117,7 @@ string FirstName_get();
 string LastName_get();
 string Nickname_get();
 long int ExtensionRingTimeout_get();
-string Email_get();
+string ForwardEmail_get();
 short int FK_Language_get();
 long int FK_Installation_Main_get();
 long int psc_id_get();
@@ -128,6 +130,7 @@ string psc_mod_get();
 		void PK_Users_set(long int val);
 void UserName_set(string val);
 void Password_set(string val);
+void samePasswordMasterUsers_set(short int val);
 void HasMailbox_set(short int val);
 void AccessGeneralMailbox_set(short int val);
 void Extension_set(long int val);
@@ -135,7 +138,7 @@ void FirstName_set(string val);
 void LastName_set(string val);
 void Nickname_set(string val);
 void ExtensionRingTimeout_set(long int val);
-void Email_set(string val);
+void ForwardEmail_set(string val);
 void FK_Language_set(short int val);
 void FK_Installation_Main_set(long int val);
 void psc_id_set(long int val);
@@ -149,7 +152,7 @@ void psc_mod_set(string val);
 bool FirstName_isNull();
 bool LastName_isNull();
 bool Nickname_isNull();
-bool Email_isNull();
+bool ForwardEmail_isNull();
 bool FK_Installation_Main_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
@@ -161,7 +164,7 @@ bool psc_frozen_isNull();
 void FirstName_setNull(bool val);
 void LastName_setNull(bool val);
 void Nickname_setNull(bool val);
-void Email_setNull(bool val);
+void ForwardEmail_setNull(bool val);
 void FK_Installation_Main_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
@@ -192,7 +195,7 @@ void Orbiter_Users_PasswordReq_FK_Users_getrows(vector <class Row_Orbiter_Users_
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_Users+ m_UserName+ m_Password+ m_HasMailbox+ m_AccessGeneralMailbox+ m_Extension+ m_FirstName+ m_LastName+ m_Nickname+ m_ExtensionRingTimeout+ m_Email+ m_FK_Language+ m_FK_Installation_Main+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_Users+ m_UserName+ m_Password+ m_samePasswordMasterUsers+ m_HasMailbox+ m_AccessGeneralMailbox+ m_Extension+ m_FirstName+ m_LastName+ m_Nickname+ m_ExtensionRingTimeout+ m_ForwardEmail+ m_FK_Language+ m_FK_Installation_Main+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -200,6 +203,7 @@ void Orbiter_Users_PasswordReq_FK_Users_getrows(vector <class Row_Orbiter_Users_
 		string PK_Users_asSQL();
 string UserName_asSQL();
 string Password_asSQL();
+string samePasswordMasterUsers_asSQL();
 string HasMailbox_asSQL();
 string AccessGeneralMailbox_asSQL();
 string Extension_asSQL();
@@ -207,7 +211,7 @@ string FirstName_asSQL();
 string LastName_asSQL();
 string Nickname_asSQL();
 string ExtensionRingTimeout_asSQL();
-string Email_asSQL();
+string ForwardEmail_asSQL();
 string FK_Language_asSQL();
 string FK_Installation_Main_asSQL();
 string psc_id_asSQL();

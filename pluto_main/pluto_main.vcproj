@@ -178,6 +178,9 @@
 				RelativePath=".\Table_ConnectorType.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_Country.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_Criteria.cpp">
 			</File>
 			<File
@@ -323,6 +326,9 @@
 			</File>
 			<File
 				RelativePath=".\Table_DeviceTemplate_Package.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_DeviceTemplate_PageSetup.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_Device_Command.cpp">
@@ -488,6 +494,9 @@
 			</File>
 			<File
 				RelativePath=".\Table_Package_Distro.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_PageSetup.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_ParameterType.cpp">

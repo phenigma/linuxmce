@@ -1,0 +1,137 @@
+#ifndef __Table_Country_H__
+#define __Table_Country_H__
+
+#ifdef SQL2CPP_DLLEXPORT
+#define DLL_EXPORT __declspec(dllexport)
+#else
+#define DLL_EXPORT
+#endif
+
+#include "TableRow.h"
+#include "Database_pluto_main.h"
+#include "PlutoUtils/MultiThreadIncludes.h"
+#include "Define_Country.h"
+#include "SerializeClass/SerializeClass.h"
+
+class DLL_EXPORT Table_Country
+{
+private:
+	Database_pluto_main *database;
+	struct Key;	//forward declaration
+	
+public:
+    pluto_pthread_mutex_t m_Mutex;
+	pthread_mutexattr_t m_MutexAttr;
+		
+	Table_Country(Database_pluto_main *pDatabase):database(pDatabase), m_Mutex("Country")
+	{
+		pthread_mutexattr_init(&m_MutexAttr);
+		pthread_mutexattr_settype(&m_MutexAttr, PTHREAD_MUTEX_RECURSIVE_NP);
+		m_Mutex.Init(&m_MutexAttr); 
+	};
+	~Table_Country();
+
+private:		
+	friend class Row_Country;
+	struct Key
+	{
+		friend class Row_Country;
+		long int pk_PK_Country;
+
+		
+		Key(long int in_PK_Country);
+	
+		Key(class Row_Country *pRow);
+	};
+	struct Key_Less
+	{			
+		bool operator()(const Table_Country::Key &key1, const Table_Country::Key &key2) const;
+	};	
+
+	map<Table_Country::Key, class Row_Country*, Table_Country::Key_Less> cachedRows;
+	map<Table_Country::Key, class Row_Country*, Table_Country::Key_Less> deleted_cachedRows;
+	vector<class Row_Country*> addedRows;
+	vector<class Row_Country*> deleted_addedRows;	
+		
+
+public:				
+	void Commit();
+	bool GetRows(string where_statement,vector<class Row_Country*> *rows);
+	class Row_Country* AddRow();
+	Database_pluto_main *Database_pluto_main_get() { return database; }
+	
+		
+	class Row_Country* GetRow(long int in_PK_Country);
+	
+
+private:	
+	
+		
+	class Row_Country* FetchRow(Key &key);
+		
+			
+};
+
+class DLL_EXPORT Row_Country : public TableRow, public SerializeClass
+	{
+		friend struct Table_Country::Key;
+		friend class Table_Country;
+	private:
+		Table_Country *table;
+		
+		long int m_PK_Country;
+string m_Description;
+string m_Define;
+
+		bool is_null[3];
+	
+		bool is_deleted;
+		bool is_added;
+		bool is_modified;					
+	
+	public:
+		long int PK_Country_get();
+string Description_get();
+string Define_get();
+
+		
+		void PK_Country_set(long int val);
+void Description_set(string val);
+void Define_set(string val);
+
+		
+		
+			
+			
+	
+		void Delete();
+		void Reload();		
+	
+		Row_Country(Table_Country *pTable);
+	
+		bool IsDeleted(){return is_deleted;};
+		bool IsModified(){return is_modified;};			
+		class Table_Country *Table_Country_get() { return table; };
+
+		// Return the rows for foreign keys 
+		
+
+		// Return the rows in other tables with foreign keys pointing here
+		void RepositorySource_URL_FK_Country_getrows(vector <class Row_RepositorySource_URL*> *rows);
+
+
+		// Setup binary serialization
+		void SetupSerialization() {
+			StartSerializeList() + m_PK_Country+ m_Description+ m_Define;
+		}
+	private:
+		void SetDefaultValues();
+		
+		string PK_Country_asSQL();
+string Description_asSQL();
+string Define_asSQL();
+
+	};
+
+#endif
+

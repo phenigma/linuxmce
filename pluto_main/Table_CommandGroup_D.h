@@ -80,8 +80,6 @@ class DLL_EXPORT Row_CommandGroup_D : public TableRow, public SerializeClass
 		Table_CommandGroup_D *table;
 		
 		long int m_PK_CommandGroup_D;
-string m_Description;
-short int m_CanBeHidden;
 long int m_FK_Criteria_Orbiter;
 long int m_psc_id;
 long int m_psc_batch;
@@ -89,7 +87,7 @@ long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[9];
+		bool is_null[7];
 	
 		bool is_deleted;
 		bool is_added;
@@ -97,8 +95,6 @@ string m_psc_mod;
 	
 	public:
 		long int PK_CommandGroup_D_get();
-string Description_get();
-short int CanBeHidden_get();
 long int FK_Criteria_Orbiter_get();
 long int psc_id_get();
 long int psc_batch_get();
@@ -108,8 +104,6 @@ string psc_mod_get();
 
 		
 		void PK_CommandGroup_D_set(long int val);
-void Description_set(string val);
-void CanBeHidden_set(short int val);
 void FK_Criteria_Orbiter_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
@@ -157,14 +151,12 @@ void DesignObjVariation_Zone_FK_CommandGroup_D_getrows(vector <class Row_DesignO
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_CommandGroup_D+ m_Description+ m_CanBeHidden+ m_FK_Criteria_Orbiter+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_CommandGroup_D+ m_FK_Criteria_Orbiter+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string PK_CommandGroup_D_asSQL();
-string Description_asSQL();
-string CanBeHidden_asSQL();
 string FK_Criteria_Orbiter_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();

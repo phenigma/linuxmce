@@ -95,13 +95,14 @@ string m_IPaddress;
 string m_MACaddress;
 short int m_IgnoreOnOff;
 long int m_FK_Device_SlaveTo;
+short int m_NeedConfigure;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[21];
+		bool is_null[22];
 	
 		bool is_deleted;
 		bool is_added;
@@ -124,6 +125,7 @@ string IPaddress_get();
 string MACaddress_get();
 short int IgnoreOnOff_get();
 long int FK_Device_SlaveTo_get();
+short int NeedConfigure_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -147,6 +149,7 @@ void IPaddress_set(string val);
 void MACaddress_set(string val);
 void IgnoreOnOff_set(short int val);
 void FK_Device_SlaveTo_set(long int val);
+void NeedConfigure_set(short int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -166,6 +169,7 @@ bool FK_Device_ControlledVia_isNull();
 bool IPaddress_isNull();
 bool MACaddress_isNull();
 bool FK_Device_SlaveTo_isNull();
+bool NeedConfigure_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -184,6 +188,7 @@ void FK_Device_ControlledVia_setNull(bool val);
 void IPaddress_setNull(bool val);
 void MACaddress_setNull(bool val);
 void FK_Device_SlaveTo_setNull(bool val);
+void NeedConfigure_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -238,7 +243,7 @@ void InfraredCode_FK_Device_getrows(vector <class Row_InfraredCode*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_Device+ m_Disabled+ m_FK_Room+ m_FK_Installation+ m_FK_DesignObj+ m_Description+ m_FK_DeviceTemplate+ m_FK_Device_Audio+ m_FK_Input_Audio+ m_FK_Device_Video+ m_FK_Input_Video+ m_FK_Device_ControlledVia+ m_IPaddress+ m_MACaddress+ m_IgnoreOnOff+ m_FK_Device_SlaveTo+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_Device+ m_Disabled+ m_FK_Room+ m_FK_Installation+ m_FK_DesignObj+ m_Description+ m_FK_DeviceTemplate+ m_FK_Device_Audio+ m_FK_Input_Audio+ m_FK_Device_Video+ m_FK_Input_Video+ m_FK_Device_ControlledVia+ m_IPaddress+ m_MACaddress+ m_IgnoreOnOff+ m_FK_Device_SlaveTo+ m_NeedConfigure+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -259,6 +264,7 @@ string IPaddress_asSQL();
 string MACaddress_asSQL();
 string IgnoreOnOff_asSQL();
 string FK_Device_SlaveTo_asSQL();
+string NeedConfigure_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

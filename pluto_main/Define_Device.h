@@ -35,6 +35,8 @@
 #define DEVICE_IGNOREONOFF_TABLE_FIELD "Device.IgnoreOnOff"
 #define DEVICE_FK_DEVICE_SLAVETO_FIELD "FK_Device_SlaveTo"
 #define DEVICE_FK_DEVICE_SLAVETO_TABLE_FIELD "Device.FK_Device_SlaveTo"
+#define DEVICE_NEEDCONFIGURE_FIELD "NeedConfigure"
+#define DEVICE_NEEDCONFIGURE_TABLE_FIELD "Device.NeedConfigure"
 #define DEVICE_PSC_ID_FIELD "psc_id"
 #define DEVICE_PSC_ID_TABLE_FIELD "Device.psc_id"
 #define DEVICE_PSC_BATCH_FIELD "psc_batch"
