@@ -420,6 +420,8 @@ bool Media_Plugin::StartMedia( MediaPluginInfo *pMediaPluginInfo, unsigned int P
 	// We need to keep track of the devices where we were previously rendering media so that we can send on/off commands
 	map<int,MediaDevice *> mapMediaDevice_Prior;
 	int PK_MediaType_Prior=0;
+
+	bool bNoChanges=false; // We'll set this to true of we're still using the same media plug-in so we know we don't need to resend the on commands
 	
 	// Normally we'll add new files to the queue if we're playing stored audio/video.  However, if the current media is not playing files, or if it's playing a mounted dvd, or if the new
     // file to play is a mounted dvd, then we can't add to the queue, and will need to create a new media stream
@@ -434,6 +436,8 @@ bool Media_Plugin::StartMedia( MediaPluginInfo *pMediaPluginInfo, unsigned int P
             delete pEntertainArea->m_pMediaStream;
             pEntertainArea->m_pMediaStream=NULL;
         }
+		else
+			bNoChanges = true;
     }
 
     MediaDevice *pMediaDevice=NULL;
@@ -487,10 +491,13 @@ bool Media_Plugin::StartMedia( MediaPluginInfo *pMediaPluginInfo, unsigned int P
     {
         g_pPlutoLogger->Write(LV_STATUS,"Plug-in started media");
 
-		// We need to get the current rendering devices so that we can send on/off commands
-		map<int,MediaDevice *> mapMediaDevice_Current;
-		pEntertainArea->m_pMediaStream->m_pMediaPluginInfo->m_pMediaPluginBase->GetRenderDevices(pEntertainArea->m_pMediaStream,&mapMediaDevice_Current);
-		HandleOnOffs(PK_MediaType_Prior,pEntertainArea->m_pMediaStream->m_pMediaPluginInfo->m_PK_MediaType,&mapMediaDevice_Prior,&mapMediaDevice_Current);
+		if( !bNoChanges )
+		{
+			// We need to get the current rendering devices so that we can send on/off commands
+			map<int,MediaDevice *> mapMediaDevice_Current;
+			pEntertainArea->m_pMediaStream->m_pMediaPluginInfo->m_pMediaPluginBase->GetRenderDevices(pEntertainArea->m_pMediaStream,&mapMediaDevice_Current);
+			HandleOnOffs(PK_MediaType_Prior,pEntertainArea->m_pMediaStream->m_pMediaPluginInfo->m_PK_MediaType,&mapMediaDevice_Prior,&mapMediaDevice_Current);
+		}
 
         if( pMediaStream->m_iPK_DesignObj_Remote )
         {
@@ -1851,9 +1858,33 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 
 	for(map<int,MediaDevice *>::iterator it=pmapMediaDevice_Current->begin();it!=pmapMediaDevice_Current->end();++it)
 	{
-		DCE::CMD_On CMD_On(m_dwPK_Device,(*it).first,PK_Pipe_Current,"");
+		MediaDevice *pMediaDevice = (*it).second;
+
+		DCE::CMD_On CMD_On(m_dwPK_Device,pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,PK_Pipe_Current,"");
 		SendCommand(CMD_On);
+
+		int PK_Device = GetComputerForMediaDevice(pMediaDevice->m_pDeviceData_Router);
+		if( PK_Device )
+		{
+			DCE::CMD_On CMD_On(m_dwPK_Device,PK_Device,PK_Pipe_Current,"");
+			SendCommand(CMD_On);
+		}
 	}
+}
+
+int Media_Plugin::GetComputerForMediaDevice(DeviceData_Router *pDeviceData_Router)
+{
+	// If this device is a child of an on-screen orbiter which is a child of a pc, or a child of the pc itself
+	if( pDeviceData_Router->m_pDevice_ControlledVia )
+	{
+		if( pDeviceData_Router->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Orbiter_CONST) &&
+				pDeviceData_Router->m_pDevice_ControlledVia->m_pDevice_ControlledVia && 
+				pDeviceData_Router->m_pDevice_ControlledVia->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Computers_CONST) )
+			return pDeviceData_Router->m_pDevice_ControlledVia->m_pDevice_ControlledVia->m_dwPK_Device;
+        else if( pDeviceData_Router->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Computers_CONST) )
+			return pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_Device;
+	}
+	return 0;
 }
 
 void Media_Plugin::TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Router,map<int,MediaDevice *> *pmapMediaDevice_Current)
@@ -1863,6 +1894,13 @@ void Media_Plugin::TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Rout
 
 	DCE::CMD_Off CMD_Off(m_dwPK_Device,pDeviceData_Router->m_dwPK_Device,-1);  // -1 means don't propagate to any pipes
 	SendCommand(CMD_Off);
+
+	int PK_Device = GetComputerForMediaDevice(pDeviceData_Router);
+	if( PK_Device )
+	{
+		DCE::CMD_Off CMD_Off(m_dwPK_Device,PK_Device,PK_Pipe);
+		SendCommand(CMD_Off);
+	}
 
     for(map<int,Pipe *>::iterator it=pDeviceData_Router->m_mapPipe_Available.begin();it!=pDeviceData_Router->m_mapPipe_Available.end();++it)
     {

@@ -552,7 +552,7 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 
     if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_COMMAND )
     {
-        Command *pCommand = mapCommand_Find((*SafetyMessage)->m_dwID);
+        pCommand = mapCommand_Find((*SafetyMessage)->m_dwID);
         if( pCommand )
         {
             sCommand = pCommand->m_sDescription;
@@ -1162,10 +1162,9 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
     }
     else if( pCommand->m_dwPK_Command==COMMAND_Generic_On_CONST )
     {
-        bool bDontSetInputs=false;
-//        if( (*(*pSafetyMessage))->m_mapParameters.find(COMMANDPARAMETER_Dont_Set_Inputs_CONST)!=(*(*pSafetyMessage))->m_mapParameters.end() ||
-  //          (*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_Dont_Set_Inputs_CONST]=="1")
-    //            bDontSetInputs=true;
+		int PK_Pipe=0;
+        if( (*(*pSafetyMessage))->m_mapParameters.find(COMMANDPARAMETER_PK_Pipe_CONST)!=(*(*pSafetyMessage))->m_mapParameters.end() )
+			PK_Pipe = atoi((*(*pSafetyMessage))->m_mapParameters[COMMANDPARAMETER_PK_Pipe_CONST].c_str());
 
         string sPipesDevices;
         if( (*(*pSafetyMessage))->m_mapParameters.find(COMMANDPARAMETER_PK_Device_Pipes_CONST)!=(*(*pSafetyMessage))->m_mapParameters.end() )
@@ -1173,29 +1172,28 @@ void Router::HandleCommandPipes(Socket *pSocket,SafetyMessage *pSafetyMessage)
         for(map<int,Pipe *>::iterator it=pDeviceData_Router->m_mapPipe_Available.begin();it!=pDeviceData_Router->m_mapPipe_Available.end();++it)
         {
             Pipe *pPipe = (*it).second;
-            if( sPipesDevices.length()==0 || sPipesDevices.find("," + StringUtils::itos((*it).first) + ",")!=string::npos )
+			if( PK_Pipe && PK_Pipe!=pPipe->m_pRow_Device_Device_Pipe->FK_Pipe_get() )
+				continue;
+            if( sPipesDevices.length()<3 || sPipesDevices.find("," + StringUtils::itos((*it).first) + ",")!=string::npos ) // It may be 2 characters: ,,
                 pDeviceData_Router->m_mapPipe_Active[pPipe->m_pRow_Device_Device_Pipe->FK_Pipe_get()]=pPipe;
 
-            if( !bDontSetInputs )
-            {
-                if( !pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_isNull() )
-                {
-                    Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
-                        PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_On_CONST,0);
+            Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
+                PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Generic_On_CONST,0);
+            ReceivedMessage(NULL,pMessage);
 
-                    Message *pMessage2 = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
-                        PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Input_Select_CONST,1,
-                        COMMANDPARAMETER_PK_Command_Input_CONST,StringUtils::itos(pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_get()).c_str());
-                    pMessage->m_vectExtraMessages.push_back(pMessage2);
-                    ReceivedMessage(NULL,pMessage);
-                }
-                if( !pPipe->m_pRow_Device_Device_Pipe->FK_Command_Output_isNull() )
-                {
-                    Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
-                        PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Output_Select_CONST,1,
-                        COMMANDPARAMETER_PK_Command_Output_CONST,StringUtils::itos(pPipe->m_pRow_Device_Device_Pipe->FK_Command_Output_get()).c_str());
-                    ReceivedMessage(NULL,pMessage);
-                }
+			if( !pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_isNull() )
+            {
+                Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
+                    PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Input_Select_CONST,1,
+                    COMMANDPARAMETER_PK_Command_Input_CONST,StringUtils::itos(pPipe->m_pRow_Device_Device_Pipe->FK_Command_Input_get()).c_str());
+                ReceivedMessage(NULL,pMessage);
+            }
+            if( !pPipe->m_pRow_Device_Device_Pipe->FK_Command_Output_isNull() )
+            {
+                Message *pMessage = new Message( (*(*pSafetyMessage))->m_dwPK_Device_From, pPipe->m_pRow_Device_Device_Pipe->FK_Device_To_get(),
+                    PRIORITY_NORMAL,MESSAGETYPE_COMMAND,COMMAND_Output_Select_CONST,1,
+                    COMMANDPARAMETER_PK_Command_Output_CONST,StringUtils::itos(pPipe->m_pRow_Device_Device_Pipe->FK_Command_Output_get()).c_str());
+                ReceivedMessage(NULL,pMessage);
             }
         }
     }
