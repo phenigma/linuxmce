@@ -1258,9 +1258,12 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 		}
 		else
 		{
-			g_pPlutoLogger->Write(LV_WARNING, "Timeout");
-			DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Learning timed out", PK_Text);
-			SendCommand(CMD_Set_Text);
+			if (! m_bStopLearning && ! m_bQuit)
+			{
+				g_pPlutoLogger->Write(LV_WARNING, "Timeout");
+				DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Learning timed out", PK_Text);
+				SendCommand(CMD_Set_Text);
+			}
 		}
 	} // end if is_open_for_learning
 	m_bLearning = false;
