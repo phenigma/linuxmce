@@ -3949,5 +3949,69 @@ namespace DCE
 	public:
 		CMD_PBX_Originate_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sPhoneNumber,string sPhoneType,string sPhoneExtension,string sPhoneCallerID,int iCommandID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,233,5,75,sPhoneNumber.c_str(),82,sPhoneType.c_str(),83,sPhoneExtension.c_str(),84,sPhoneCallerID.c_str(),85,StringUtils::itos(iCommandID).c_str()); }
 	};
+	class CMD_PL_TransferConferenceDevice : public PreformedCommand {
+	public:
+		CMD_PL_TransferConferenceDevice(long DeviceIDFrom, long DeviceIDTo,int iPK_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,234,1,2,StringUtils::itos(iPK_Device).c_str()); }
+	};
+	class CMD_PL_TransferConferenceDevice_DL : public PreformedCommand {
+	public:
+		CMD_PL_TransferConferenceDevice_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,234,1,2,StringUtils::itos(iPK_Device).c_str()); }
+	};
+	class CMD_PL_TransferConferenceDevice_DT : public PreformedCommand {
+	public:
+		CMD_PL_TransferConferenceDevice_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Device) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,234,1,2,StringUtils::itos(iPK_Device).c_str()); }
+	};
+	class CMD_PL_TransferConferenceDevice_Cat : public PreformedCommand {
+	public:
+		CMD_PL_TransferConferenceDevice_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,234,1,2,StringUtils::itos(iPK_Device).c_str()); }
+	};
+	class CMD_PBX_Transfer : public PreformedCommand {
+	public:
+		CMD_PBX_Transfer(long DeviceIDFrom, long DeviceIDTo,string sPhoneExtension,int iCommandID,string sPhoneCallID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,235,3,83,sPhoneExtension.c_str(),85,StringUtils::itos(iCommandID).c_str(),87,sPhoneCallID.c_str()); }
+	};
+	class CMD_PBX_Transfer_DL : public PreformedCommand {
+	public:
+		CMD_PBX_Transfer_DL(long DeviceIDFrom, string DeviceIDTo,string sPhoneExtension,int iCommandID,string sPhoneCallID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,235,3,83,sPhoneExtension.c_str(),85,StringUtils::itos(iCommandID).c_str(),87,sPhoneCallID.c_str()); }
+	};
+	class CMD_PBX_Transfer_DT : public PreformedCommand {
+	public:
+		CMD_PBX_Transfer_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sPhoneExtension,int iCommandID,string sPhoneCallID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,235,3,83,sPhoneExtension.c_str(),85,StringUtils::itos(iCommandID).c_str(),87,sPhoneCallID.c_str()); }
+	};
+	class CMD_PBX_Transfer_Cat : public PreformedCommand {
+	public:
+		CMD_PBX_Transfer_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string sPhoneExtension,int iCommandID,string sPhoneCallID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,235,3,83,sPhoneExtension.c_str(),85,StringUtils::itos(iCommandID).c_str(),87,sPhoneCallID.c_str()); }
+	};
+	class CMD_PL_Hangup : public PreformedCommand {
+	public:
+		CMD_PL_Hangup(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,236,0); }
+	};
+	class CMD_PL_Hangup_DL : public PreformedCommand {
+	public:
+		CMD_PL_Hangup_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,236,0); }
+	};
+	class CMD_PL_Hangup_DT : public PreformedCommand {
+	public:
+		CMD_PL_Hangup_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,236,0); }
+	};
+	class CMD_PL_Hangup_Cat : public PreformedCommand {
+	public:
+		CMD_PL_Hangup_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,236,0); }
+	};
+	class CMD_PBX_Hangup : public PreformedCommand {
+	public:
+		CMD_PBX_Hangup(long DeviceIDFrom, long DeviceIDTo,int iCommandID,string sPhoneCallID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,237,2,85,StringUtils::itos(iCommandID).c_str(),87,sPhoneCallID.c_str()); }
+	};
+	class CMD_PBX_Hangup_DL : public PreformedCommand {
+	public:
+		CMD_PBX_Hangup_DL(long DeviceIDFrom, string DeviceIDTo,int iCommandID,string sPhoneCallID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,237,2,85,StringUtils::itos(iCommandID).c_str(),87,sPhoneCallID.c_str()); }
+	};
+	class CMD_PBX_Hangup_DT : public PreformedCommand {
+	public:
+		CMD_PBX_Hangup_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iCommandID,string sPhoneCallID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,237,2,85,StringUtils::itos(iCommandID).c_str(),87,sPhoneCallID.c_str()); }
+	};
+	class CMD_PBX_Hangup_Cat : public PreformedCommand {
+	public:
+		CMD_PBX_Hangup_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iCommandID,string sPhoneCallID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,237,2,85,StringUtils::itos(iCommandID).c_str(),87,sPhoneCallID.c_str()); }
+	};
 }
 #endif
