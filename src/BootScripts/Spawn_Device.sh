@@ -18,6 +18,7 @@ cmd_line="$3"
 AlreadyRunning="/tmp/pluto_spawned_local_devices.txt"
 if grep -qF "$ChildDeviceID" "$AlreadyRunning" 2>/dev/null; then
 	Logging "$TYPE" "$SEVERITY_NORMAL" "$0 $module" "Device $ChildDeviceID was marked as 'running'. Not starting"
+	exit
 fi
 
 Logging "$TYPE" "$SEVERITY_NORMAL" "$0 $module" "device: $device_id ip: $ip_of_router cmd_line: $cmd_line"
