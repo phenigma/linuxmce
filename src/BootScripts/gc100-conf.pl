@@ -1,82 +1,52 @@
 #!/usr/bin/perl
 
 use DBI;
+use Socket;
 
 
 $db = DBI->connect("dbi:mysql:database=pluto_main;host=localhost;user=root;password=") or die "Couldn't connect to database: $DBI::errstr\n";
-
 $gw = "";
 
-@data = sqlexec("select * from Device WHERE Description='gc100'");
-if($data[0]->{'PK_Device'} ne "") {
-  print "The device allready exist\n";
-  $db->disconnect();
-  exit(0);
-}
+if($ARGV[0] eq "") {
+    if(find_gc100() == 1) {
+	$flag = allias_up();
+	$mac = get_gc100mac();
+	if($flag == 1) {
+	    allias_down();
+	}
+	$ip = find_ip();
+	$install = get_install();
+	$dev_templ = get_template();
+	
+	@data = sqlexec("select * from Device WHERE Description='gc100'");
+	if($data[0]->{'PK_Device'} ne "") {
+	  print "The device allready exist\n";
+	  $db->disconnect();
+	  exit(0);
+	}
 
-@data = sqlexec("SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_DeviceData='28'");
-foreach $row (@data) {
-  $line = $row->{'IK_DeviceData'};
-  ($staticrange, $dinamicrange) = split(/\,/,$line);
-  $sl = length($staticrange);
-  $dl = length($dinamicrange);
-  if($staticrange ne "" && $dinamicrange ne "" && $sl > 16 && $dl > 16) {
-    ($sstart,$send) = split(/-/,$staticrange);
-    ($dstart,$dend) = split(/-/,$dinamicrange);
-    $sstart = ip_2_long($sstart);
-    $send = ip_2_long($send);
-    $dstart = ip_2_long($dstart);
-    $dend = ip_2_long($dend);
-    
-    @data2 = sqlexec("SELECT IPaddress FROM Device WHERE IPaddress<>0");
-    foreach $rowx (@data2) {
-      $fip = ip_2_long($rowx->{'IPaddress'});
-      if($fip >= $sstart && $fip <= $send) {
-        $flag=0;
-        @oldips = split(/\,/,$ips);
-        foreach $oldip (@oldips) {
-          if($oldip eq $fip) {
-            $flag=1;
-          }
-        }
-        if($flag == 0) {
-          $ips = $ips.",".$fip;
-        }
-      }
+	system("/usr/pluto/bin/CreateDevice -i $install -d $dev_templ -I $ip -M $mac\n");
+    } else {
+	exit(0);
     }
-  }
-}
-
-for($ii=$sstart;$ii<=$send;$ii=$ii+1) {
-  @oldip = split(/\,/,$ips);
-  $flag = 0;
-  foreach $line (@oldip) {
-    if($ii == $line) {
-      $flag = 1;
+} else {
+    if($ARGV[1] eq "") {
+        if(find_gc100() == 1) {
+    	    $flag = allias_up();
+	    $mac = get_gc100mac();
+	    $ip = find_ip();
+	    update_db();
+	} else {
+	    exit(0);
+	}
     }
-  }
-  if($flag == 0) {
-    $main_ip = $ii;
-    $ii = $send + 1;
-  }
+    $flag = allias_up();
+    if($flag == 1) {
+        allias_down();
+    }
+    configure_webgc();
 }
-$main_ip = long_2_ip($main_ip);
-$installation = get_install();
-print "IP=$main_ip on Installation=$installation\n";
 
-$install = get_install();
-$dev_templ = get_template();
-
-$flag = allias_up();
-$mac = get_gc100mac();
-
-system("wget -q -T 3 --read-timeout=4 -t 1 \"http://192.168.1.170/commands.cgi?2=$main_ip&3=255.255.255.0&4=$gw&7=submit\"");
-system("wget -q -T 3 --read-timeout=4 -t 1 \"http://192.168.1.101/commands.cgi?2=$main_ip&3=255.255.255.0&4=$gw&7=submit\"");
-system("/usr/pluto/bin/CreateDevice -i $install -d $dev_templ -I $main_ip -M $mac > gc100_temp.file\n");
-
-if($flag == 1) {
-    allias_down();
-}
 
 $db->disconnect();
 
@@ -211,4 +181,76 @@ sub allias_up {
 
 sub allias_down {
   system("ifconfig $local_dev:100 down");
+}
+
+sub find_gc100 {
+    socket(SOCKET, PF_INET, SOCK_STREAM, $proto) or print "socket: $!";
+    $var = 0;
+    connect(SOCKET, $paddr) or $var=1;
+    if($var == 1) {
+	return 0;
+    } else {
+        close SOCKET;
+	return 1;
+    }
+}
+
+sub find_ip {
+@data = sqlexec("SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_DeviceData='28'");
+foreach $row (@data) {
+  $line = $row->{'IK_DeviceData'};
+  ($staticrange, $dinamicrange) = split(/\,/,$line);
+  $sl = length($staticrange);
+  $dl = length($dinamicrange);
+  if($staticrange ne "" && $dinamicrange ne "" && $sl > 16 && $dl > 16) {
+    ($sstart,$send) = split(/-/,$staticrange);
+    ($dstart,$dend) = split(/-/,$dinamicrange);
+    $sstart = ip_2_long($sstart);
+    $send = ip_2_long($send);
+    $dstart = ip_2_long($dstart);
+    $dend = ip_2_long($dend);
+    
+    @data2 = sqlexec("SELECT IPaddress FROM Device WHERE IPaddress<>0");
+    foreach $rowx (@data2) {
+      $fip = ip_2_long($rowx->{'IPaddress'});
+      if($fip >= $sstart && $fip <= $send) {
+        $flag=0;
+        @oldips = split(/\,/,$ips);
+        foreach $oldip (@oldips) {
+          if($oldip eq $fip) {
+            $flag=1;
+          }
+        }
+        if($flag == 0) {
+          $ips = $ips.",".$fip;
+        }
+      }
+    }
+  }
+}
+
+for($ii=$sstart;$ii<=$send;$ii=$ii+1) {
+  @oldip = split(/\,/,$ips);
+  $flag = 0;
+  foreach $line (@oldip) {
+    if($ii == $line) {
+      $flag = 1;
+    }
+  }
+  if($flag == 0) {
+    $main_ip = $ii;
+    $ii = $send + 1;
+  }
+}
+$main_ip = long_2_ip($main_ip);
+return $main_ip;
+}
+
+sub update_db {
+    @data = sqlexec("UPDATE Devices SET IPaddress='$ip', MACaddress='$mac' WHERE PK_Device='$ARGV[0]'");
+}
+
+sub configure_webgc {
+    system("wget -q -T 3 --read-timeout=4 -t 1 \"http://192.168.1.170/commands.cgi?2=$ip&3=255.255.255.0&4=$gw&7=submit\"");
+    system("wget -q -T 3 --read-timeout=4 -t 1 \"http://192.168.1.101/commands.cgi?2=$ip&3=255.255.255.0&4=$gw&7=submit\"");
 }
