@@ -1,3 +1,21 @@
+/*
+ Main
+ 
+ Copyright (C) 2004 Pluto, Inc., a Florida Corporation
+ 
+ www.plutohome.com		
+ 
+ Phone: +1 (877) 758-8648
+ 
+ This program is distributed according to the terms of the Pluto Public License, available at: 
+ http://plutohome.com/index.php?section=public_license 
+ 
+ This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+ or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
+ 
+ */
+
+ 
 /**
  *
  * @file Main.cpp
@@ -7,12 +25,7 @@
  *
  */
 
- /**
- *
- * Copyright Notice goes here
- *
- */
-
+ 
 //<-dceag-incl-b->
 #include "Bluetooth_Dongle.h"
 #include "DCE/Logger.h"
@@ -23,7 +36,7 @@
 #include "PlutoUtils/Other.h"
 #include "PlutoUtils/Other.h"
 
-#define  Bluetooth_Dongle_VERSION "testing"
+#define  VERSION "testing"
 
 namespace DCE
 {
@@ -69,6 +82,16 @@ extern "C" {
 //<-dceag-main-b->
 int main(int argc, char* argv[]) 
 {
+
+		cout<<"	Copyright (C) 2004 Pluto, Inc., a Florida Corporation"<<endl
+		    <<"	www.plutohome.com"<<endl
+		    <<"	Phone: +1 (877) 758-8648"<<endl
+		    <<"	This program is distributed according to the terms of the Pluto Public License, available at: "<<endl
+		    <<"	http://plutohome.com/index.php?section=public_license "<<endl
+		    <<"	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; "<<endl
+		    <<"	without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. "<<endl
+		    <<"	See the Pluto Public License for more details."<<endl;	
+	
 	string sRouter_IP="dce_router";
 	int PK_Device=0;
 	string sLogger="stdout";
@@ -103,12 +126,16 @@ int main(int argc, char* argv[])
 
 	if (bError)
 	{
-		cout << "Bluetooth_Dongle, v." << Bluetooth_Dongle_VERSION << endl
+//                	 123456789012345678901234567890123456789012345678901234567890		
+		cout << "Bluetooth_Dongle, v." << VERSION << endl
 			<< "A Pluto DCE Device.  See www.plutohome.com/dce for details." << endl
-			<< "Usage: Bluetooth_Dongle [-r Router's IP] [-d My Device ID] [-l dce_router|stdout|null|filename]" << endl
+			<< "Usage: Bluetooth_Dongle [-r Router's IP] [-d My Device ID] " << endl
+			<< "[-l dce_router|stdout|null|filename]" << endl
 			<< "-r -- the IP address of the DCE Router  Defaults to 'dce_router'." << endl
-			<< "-d -- This device's ID number.  If not specified, it will be requested from the router based on our IP address." << endl
-			<< "-l -- Where to save the log files.  Specify 'dce_router' to have the messages logged to the DCE Router.  Defaults to stdout." << endl;
+			<< "-d -- This device's ID number.  If not specified, " << endl
+			<< "	  it will be requested from the router based on our IP address." << endl
+			<< "-l -- Where to save the log files.  Specify 'dce_router' " << endl
+			<< "	  to have the messages logged to the DCE Router.  Defaults to stdout." << endl;
 		exit(0);
 	}
 
