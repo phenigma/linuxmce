@@ -478,13 +478,15 @@ g_pPlutoLogger->Write(LV_WARNING, "Build grid, actions %s GOT %d entries ", Acti
 		DCE::CMD_NOREP_Populate_Datagrid_DT CMDPDG(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse,
 			"", GridID, DATAGRID_Directory_Listing_CONST, newParams);
 		pCell->m_pMessage = CMDPDG.m_pMessage;
-		pDataGrid->SetData(0, iRow++, pCell);
+		pCell->m_Colspan = 6;
+		pDataGrid->SetData(1, iRow++, pCell);
 	}
 
 	for (list<FileDetails *>::iterator i = listFileDetails.begin(); i != listFileDetails.end(); i++)
 	{
 		FileDetails *pFileDetails = *i;
 		pCell = new DataGridCell(pFileDetails->m_sFileName + " " + pFileDetails->m_sDescription, pFileDetails->m_sBaseName + pFileDetails->m_sFileName);
+		pCell->m_Colspan = 6;
 		if (pFileDetails->m_bIsDir)
 		{
 g_pPlutoLogger->Write(LV_WARNING, "Added dir '%s' to datagrid", pFileDetails->m_sFileName.c_str());
@@ -512,7 +514,7 @@ g_pPlutoLogger->Write(LV_WARNING, "Added dir '%s' to datagrid", pFileDetails->m_
 			}
 		}
 		delete pFileDetails; // We won't need it anymore and it was allocated on the heap
-		pDataGrid->SetData(0, iRow++, pCell);
+		pDataGrid->SetData(1, iRow++, pCell);
 	}
 
 	return pDataGrid;

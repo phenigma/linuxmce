@@ -579,10 +579,12 @@ public:
 	DesignObj_Orbiter *FindSingleNumberObject( int iPK_ID_Object, DesignObj_Orbiter *pObj );
 	
 	/**
-	 * @brief executes the commands in the command list
-	 * @todo ask
+	 * @brief executes the commands in the command list.  If there is a goto screen, we don't want to execute it inline--it should be executed last
+	 * after setting all the variables and such.  So, rather than executing a goto screen, if one is found, it will be set in pMessage_GotoScreen 
+	 * and the caller is expected to pass it to ReceiveMessage after execute commands in list has finished.  We don't just put it at the end of 
+	 * execute commands, because we could be calling ExecuteCommands more than 1 at a time, such as if multiple objects were selected.
 	 */
-	void ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList, DesignObj_Orbiter *pDesignObj_Orbiter, int iX = -1, int iY = -1 ); // Execute commands
+	void ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList, DesignObj_Orbiter *pDesignObj_Orbiter, Message *&pMessage_GotoScreen, int iX = -1, int iY = -1 ); // Execute commands
 	
 	/**
 	 * @brief returns the grid cell dimensions in the parameters

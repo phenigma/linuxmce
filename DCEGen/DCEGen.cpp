@@ -1319,8 +1319,12 @@ void DCEGen::WriteGlobals()
 		if( commandInfo.m_sParmsWithTypePointers_Out.length()>0 )
 			fstr_DeviceCommand << "," << commandInfo.m_sParmsWithTypePointers_Out;
 
+if( pRow_Command->PK_Command_get()==COMMAND_Request_Datagrid_Contents_CONST )
+{
+int k=2;
+}
 		fstr_DeviceCommand << ") {";
-		fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) commandInfo.m_vectRow_Command_CommandParameter_In.size() << commandInfo.m_sPassingToMessage_In << commandInfo.m_sPassingToMessage_Out << ");";
+		fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) (commandInfo.m_vectRow_Command_CommandParameter_In.size() + commandInfo.m_vectRow_Command_CommandParameter_Out.size()) << commandInfo.m_sPassingToMessage_In << commandInfo.m_sPassingToMessage_Out << ");";
 		if( commandInfo.m_vectRow_Command_CommandParameter_Out.size() )
 		{
 			fstr_DeviceCommand << "\t\tm_pcResponse = new RESP_" << Name << "(" << StringUtils::Replace(commandInfo.m_sParmsWithNoType_Out,".c_str()","") << ");";
@@ -1339,7 +1343,7 @@ void DCEGen::WriteGlobals()
 			fstr_DeviceCommand << "," << commandInfo.m_sParmsWithTypePointers_Out;
 
 		fstr_DeviceCommand << ") {";
-		fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) commandInfo.m_vectRow_Command_CommandParameter_In.size() << commandInfo.m_sPassingToMessage_In << ");";
+		fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) (commandInfo.m_vectRow_Command_CommandParameter_In.size() + commandInfo.m_vectRow_Command_CommandParameter_Out.size()) << commandInfo.m_sPassingToMessage_In << commandInfo.m_sPassingToMessage_Out << ");";
 		if( commandInfo.m_vectRow_Command_CommandParameter_Out.size() )
 		{
 			fstr_DeviceCommand << "\t\tm_pcResponse = new RESP_" << Name << "(" << StringUtils::Replace(commandInfo.m_sParmsWithNoType_Out,".c_str()","") << ");";
@@ -1358,7 +1362,7 @@ void DCEGen::WriteGlobals()
 			fstr_DeviceCommand << "," << commandInfo.m_sParmsWithTypePointers_Out;
 
 		fstr_DeviceCommand << ") {";
-		fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) commandInfo.m_vectRow_Command_CommandParameter_In.size() << commandInfo.m_sPassingToMessage_In << ");";
+		fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) (commandInfo.m_vectRow_Command_CommandParameter_In.size() + commandInfo.m_vectRow_Command_CommandParameter_Out.size()) << commandInfo.m_sPassingToMessage_In << commandInfo.m_sPassingToMessage_Out << ");";
 		if( commandInfo.m_vectRow_Command_CommandParameter_Out.size() )
 		{
 			fstr_DeviceCommand << "\t\tm_pcResponse = new RESP_" << Name << "(" << StringUtils::Replace(commandInfo.m_sParmsWithNoType_Out,".c_str()","") << ");";
@@ -1377,7 +1381,7 @@ void DCEGen::WriteGlobals()
 			fstr_DeviceCommand << "," << commandInfo.m_sParmsWithTypePointers_Out;
 
 		fstr_DeviceCommand << ") {";
-		fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) commandInfo.m_vectRow_Command_CommandParameter_In.size() << commandInfo.m_sPassingToMessage_In << ");";
+		fstr_DeviceCommand << " m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL," << pRow_Command->PK_Command_get() << "," << (int) (commandInfo.m_vectRow_Command_CommandParameter_In.size() + commandInfo.m_vectRow_Command_CommandParameter_Out.size()) << commandInfo.m_sPassingToMessage_In << commandInfo.m_sPassingToMessage_Out << ");";
 		if( commandInfo.m_vectRow_Command_CommandParameter_Out.size() )
 		{
 			fstr_DeviceCommand << "\t\tm_pcResponse = new RESP_" << Name << "(" << StringUtils::Replace(commandInfo.m_sParmsWithNoType_Out,".c_str()","") << ");";

@@ -799,15 +799,18 @@ void Orbiter::ObjectOnScreenWrapper(  )
     CheckSpecialOnScreenConditions(  );
 
     // Do the on load actions for the screen itself,  and objects on it
-    ExecuteCommandsInList( &m_pScreenHistory_Current->m_pObj->m_Action_LoadList, m_pScreenHistory_Current->m_pObj, 0, 0 );
+	Message *pMessage_GotoScreen=NULL;
+    ExecuteCommandsInList( &m_pScreenHistory_Current->m_pObj->m_Action_LoadList, m_pScreenHistory_Current->m_pObj, pMessage_GotoScreen, 0, 0 );
 
     size_t s;
     for( s=0;s<vectDesignObj_Orbiter_OnScreen.size(  );++s )
     {
         DesignObj_Orbiter *pDesignObj_Orbiter = vectDesignObj_Orbiter_OnScreen[s];
         if(  pDesignObj_Orbiter!=m_pScreenHistory_Current->m_pObj  )  // We just did the screen itself above
-            ExecuteCommandsInList( &pDesignObj_Orbiter->m_Action_LoadList, pDesignObj_Orbiter, 0, 0 );
+            ExecuteCommandsInList( &pDesignObj_Orbiter->m_Action_LoadList, pDesignObj_Orbiter, pMessage_GotoScreen, 0, 0 );
     }
+	if( pMessage_GotoScreen )
+        ReceivedMessage( pMessage_GotoScreen );
 
     for( s=0;s<vectDesignObj_Orbiter_OnScreen.size(  );++s )
     {
@@ -904,7 +907,10 @@ void Orbiter::ObjectOffScreen( DesignObj_Orbiter *pObj )
 
     pObj->m_pCurrentGraphic = NULL;
 
-    ExecuteCommandsInList( &pObj->m_Action_UnloadList, m_pScreenHistory_Current->m_pObj, 0, 0 );
+	Message *pMessage_GotoScreen=NULL;
+    ExecuteCommandsInList( &pObj->m_Action_UnloadList, m_pScreenHistory_Current->m_pObj, pMessage_GotoScreen, 0, 0 );
+	if( pMessage_GotoScreen )
+        ReceivedMessage( pMessage_GotoScreen );
 
     DesignObj_DataList::iterator iHao;
     for( iHao=pObj->m_ChildObjects.begin(  ); iHao != pObj->m_ChildObjects.end(  ); ++iHao )
@@ -932,16 +938,19 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
         // There's a problem that we draw the selected state before we show or hide other objects,  and this causes
         // the other objects to be drawn on top of the selected state.  We'll execute the commands first so that
         // show/hides are executed before setting the selected state
+		Message *pMessage_GotoScreen=NULL;
+	    ExecuteCommandsInList( &pObj->m_Action_UnloadList, m_pScreenHistory_Current->m_pObj, pMessage_GotoScreen, 0, 0 );
         DesignObjZoneList::iterator iZone;
         for( iZone=pObj->m_ZoneList.begin(  );iZone!=pObj->m_ZoneList.end(  );++iZone )
         {
             DesignObjZone *pDesignObjZone = ( *iZone );
             if(  pDesignObjZone->m_Rect.Width==0 || pDesignObjZone->m_Rect.Height==0 || pDesignObjZone->m_Rect.Contains( X, Y )  )
             {
-                ExecuteCommandsInList( &pDesignObjZone->m_Commands, pObj, X, Y );
+                ExecuteCommandsInList( &pDesignObjZone->m_Commands, pObj, pMessage_GotoScreen, X, Y );
             }
         }
-
+		if( pMessage_GotoScreen )
+			ReceivedMessage( pMessage_GotoScreen );
 
         if(  pObj->m_pSelectedGraphic!=NULL && pObj->m_GraphicToDisplay!=GRAPHIC_SELECTED ) // TODO 2.0 && m_ChangeToScreen.length(  ) == 0 )
         {
@@ -1568,9 +1577,11 @@ void Orbiter::FindObjectToHighlight(
                     }
                     break;
                 case DIRECTION_Down_CONST:
+					// See if we scrolled past the physical end of all the rows
                     if(  pDesignObj_DataGrid->m_GridCurRow+pDesignObj_DataGrid->m_iHighlightedRow+1 < pDesignObj_DataGrid->m_pDataGridTable->GetRows(  )  )  // Add 1 since the highlight is 0 based and get rows is not
                     {
                         pDesignObj_DataGrid->m_iHighlightedRow++;
+						// See if we've scrolled past the visible end, in which case we need to page
                         if(  pDesignObj_DataGrid->m_iHighlightedRow>=pDesignObj_DataGrid->m_MaxRow  )
                         {
                             int iHighlightedAbsoluteRow = pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow;
@@ -1591,9 +1602,11 @@ void Orbiter::FindObjectToHighlight(
                     }
                     break;
                 case DIRECTION_Right_CONST:
+					// See if we scrolled past the physical end of all the columns
                     if(  pDesignObj_DataGrid->m_GridCurCol+pDesignObj_DataGrid->m_iHighlightedColumn+1 < pDesignObj_DataGrid->m_pDataGridTable->GetCols(  )  ) // Add 1 since the highlight is 0 based and get cols is not
                     {
                         pDesignObj_DataGrid->m_iHighlightedColumn++;
+						// See if we've scrolled past the visible end, in which case we need to page
                         if(  pDesignObj_DataGrid->m_iHighlightedColumn>=pDesignObj_DataGrid->m_MaxCol  )
                         {
                             CMD_Scroll_Grid( "", "", PK_Direction );
@@ -1855,9 +1868,9 @@ void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
         bool bResponse;
         int iPK_Variable=0;
         string sValue_To_Assign;
-        DCE::CMD_Populate_Datagrid_DT CMD_Populate_Datagrid_DT( m_dwPK_Device,  DEVICETEMPLATE_Datagrid_Plugin_CONST,  BL_SameHouse,  StringUtils::itos( m_dwIDataGridRequestCounter ), pObj->m_sGridID,
+        DCE::CMD_Populate_Datagrid CMD_Populate_Datagrid( m_dwPK_Device,  m_dwPK_Device_DatagridPlugIn,  StringUtils::itos( m_dwIDataGridRequestCounter ), pObj->m_sGridID,
             pObj->m_iPK_Datagrid, SubstituteVariables( pObj->m_sOptions, pObj, 0, 0 ), &iPK_Variable, &sValue_To_Assign, &bResponse );
-        if(  !SendCommand( CMD_Populate_Datagrid_DT ) || !bResponse  ) // wait for a response
+        if(  !SendCommand( CMD_Populate_Datagrid ) || !bResponse  ) // wait for a response
             g_pPlutoLogger->Write( LV_CRITICAL, "Populate datagrid: %d failed", pObj->m_iPK_Datagrid );
         else if(  iPK_Variable  )
             m_mapVariable[iPK_Variable] = sValue_To_Assign;
@@ -2075,8 +2088,11 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
     COMMANDPARAMETER_PK_Device_CONST,  Device.c_str(  ) ) );
     }
     */
+	Message *pMessage_GotoScreen=NULL;
     if(  pObj->m_Action_StartupList.size(  )>0  )
-        ExecuteCommandsInList( &pObj->m_Action_StartupList, pObj );
+        ExecuteCommandsInList( &pObj->m_Action_StartupList, pObj, pMessage_GotoScreen );
+	if( pMessage_GotoScreen )
+        ReceivedMessage( pMessage_GotoScreen );
 
     // Child objects have the format screen.version.page.objectid.x where x is an arbitrary increment to insure uniqueness
     // Some commands need to send messages to an object not knowing the value of x.  So,  we create another map without the suffix
@@ -2753,7 +2769,7 @@ DesignObj_Orbiter* Orbiter::FindSingleNumberObject( int PK_Object,  DesignObj_Or
 }
 //------------------------------------------------------------------------
 void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList,
-                                    DesignObj_Orbiter *pObj,
+                                    DesignObj_Orbiter *pObj, Message *&pMessage_GotoScreen,
                                     int X,  int Y )
 {
     if(  pDesignObjCommandList->size(  )==0  )
@@ -2870,10 +2886,10 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
                 bool bResponse;
                 int iPK_Variable=0;
                 string sValue_To_Assign;
-                DCE::CMD_Populate_Datagrid_DT CMD_Populate_Datagrid_DT( m_dwPK_Device,  DEVICETEMPLATE_Datagrid_Plugin_CONST,  BL_SameHouse,  StringUtils::itos( m_dwIDataGridRequestCounter ),
+                DCE::CMD_Populate_Datagrid CMD_Populate_Datagrid( m_dwPK_Device,  m_dwPK_Device_DatagridPlugIn,  StringUtils::itos( m_dwIDataGridRequestCounter ),
                     GridID, atoi( pCommand->m_ParameterList[COMMANDPARAMETER_PK_DataGrid_CONST].c_str(  ) ),
                     SubstituteVariables( pCommand->m_ParameterList[COMMANDPARAMETER_Options_CONST], pObj, 0, 0 ), &iPK_Variable, &sValue_To_Assign, &bResponse );
-                if(  !SendCommand( CMD_Populate_Datagrid_DT ) || !bResponse  ) // wait for a response
+                if(  !SendCommand( CMD_Populate_Datagrid ) || !bResponse  ) // wait for a response
                     g_pPlutoLogger->Write( LV_CRITICAL, "Populate datagrid from command: %d failed", atoi( pCommand->m_ParameterList[COMMANDPARAMETER_PK_DataGrid_CONST].c_str(  ) ) );
                 else if(  iPK_Variable  )
                     m_mapVariable[iPK_Variable] = sValue_To_Assign;
@@ -2903,6 +2919,13 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
             if(  pCommand->m_PK_Device==DEVICEID_HANDLED_INTERNALLY  )
             {
                 pThisMessage->m_dwPK_Device_To = m_dwPK_Device; // So the handler will loop back to ourselves
+				if( PK_Command==COMMAND_Goto_Screen_CONST )
+				{
+					if( pMessage_GotoScreen )
+						delete pMessage_GotoScreen;  // Shouldn't happen, but we're only going to process the last goto anyway
+					pMessage_GotoScreen = pThisMessage;  
+					continue;
+				}
                 ReceivedMessage( pThisMessage );
                 pThisMessage->m_dwPK_Device_To = DEVICEID_HANDLED_INTERNALLY;
 
@@ -3174,11 +3197,11 @@ bool Orbiter::AcquireGrid( DesignObj_DataGrid *pObj,  int GridCurCol,  int &Grid
         int size = 0;
         char *data = NULL;
 
-        DCE::CMD_Request_Datagrid_Contents_DT CMD_Request_Datagrid_Contents_DT( m_dwPK_Device,  DEVICETEMPLATE_Datagrid_Plugin_CONST,  BL_SameHouse,
+        DCE::CMD_Request_Datagrid_Contents CMD_Request_Datagrid_Contents( m_dwPK_Device,  m_dwPK_Device_DatagridPlugIn,
             StringUtils::itos( m_dwIDataGridRequestCounter ), pObj->m_sGridID, GridCurCol,
             pObj->m_MaxRow, pObj->m_MaxCol, pObj->m_bKeepRowHeader, pObj->m_bKeepColHeader, true, pObj->m_sSeek, pObj->m_iSeekColumn, &data, &size, &GridCurRow );
 
-        if(  !SendCommand( CMD_Request_Datagrid_Contents_DT )  )
+        if(  !SendCommand( CMD_Request_Datagrid_Contents )  )
             g_pPlutoLogger->Write( LV_CRITICAL, "Populate datagrid: %s failed", pObj->m_ObjectID.c_str(  ) );
         else
         {
