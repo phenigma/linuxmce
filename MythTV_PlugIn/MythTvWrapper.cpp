@@ -309,6 +309,17 @@ void MythTvWrapper::MythTvEpgGrid::readDataGridBlock(int rowStart, int rowCount,
         g_pPlutoLogger->Write(LV_WARNING, "There are no programs in this timeframe");
     }
 }
+
+void MythTvWrapper::MythTvEpgGrid::MakeChannelRow(int RowStart, int RowCount)
+{
+    while ( RowCount != 0 )
+    {
+        SetData(0, RowStart, new DataGridCell(QString::number(RowStart).ascii(), "") );
+        RowStart++;
+        RowCount--;
+    }
+}
+
 void MythTvWrapper::MythTvEpgGrid::MakeTimeRow(int ColStart, int ColCount)
 {
     QString timeCell;

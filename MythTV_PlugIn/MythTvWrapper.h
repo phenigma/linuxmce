@@ -57,6 +57,7 @@ protected:
         void readProgramInfo(int channelId, QString programName, QDateTime startTime, QDateTime endTime);
         void readDataGridBlock(int rowStart, int rowCount, int colStart, int colCount);
         void MakeTimeRow(int ColStart, int ColCount);
+        void MakeChannelRow(int RowStart, int RowCount);
 
     public:
         MythTvEpgGrid();
