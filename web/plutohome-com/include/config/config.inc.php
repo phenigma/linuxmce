@@ -10,7 +10,7 @@
   		$GLOBALS['sendNotificationsTo']='info@plutohome.com';
   	}else{
   		error_reporting(E_ALL);
-  		include_once('/var/www/test/globalconfig/globalconfig.inc.php');
+  		include_once('/home/users/vali/work/web/globalconfig/globalconfig.inc.php');
   		$GLOBALS['sendNotificationsTo']='valentin.g@newflavorstudio.com';
   	}
   	
@@ -78,18 +78,30 @@
 	$GLOBALS['commandSetVar']=27;			// Set Variable
 	
 	// CommandParameter table
-	$GLOBALS['commandParamPK_MediaType']=29;		// PK_MediaType
+	$GLOBALS['commandParamPK_Device']=2;			// PK_Device
 	$GLOBALS['commandParamPK_DesignObj']=3;			// PK_DesignObj
 	$GLOBALS['commandParameterVariableNumber']=4;	// Variable Number (PK_Variable)
 	$GLOBALS['commandParameterValueToAsign']=5;		// Value to assign
-	$GLOBALS['commandParameterObjectScreen']=16;	// Object(Screen)
+	$GLOBALS['commandParamID']=10;					// ID
+	$GLOBALS['commandParamFilename']=13;			// Filename
+	$GLOBALS['commandParamDesignObjCurrentScreen']=16;	// PK_DesignObj_CurrentScreen
+	$GLOBALS['commandParamPKUsers']=17;				// PK_Users
+	$GLOBALS['commandParamStoreVariables']=22;		// Store Variables
+	$GLOBALS['commandParamPK_MediaType']=29;		// PK_MediaType
+	$GLOBALS['commandParamPK_DeviceTemplate']=44;	// PK_DeviceTemplate
+	$GLOBALS['commandParamPK_EntertainArea']=45;	// PK_EntertainArea
+	$GLOBALS['commandParamAbsoluteLevel']=76;		// Absolute Level
+	$GLOBALS['commandPhoneExtension']=83;			// PhoneExtension
+
+	
 	
 	// PK_DesignObj from table DesignObj
 	$GLOBALS['mnuMediaFileList2DesignObj']=3226;	// mnuMediaFileList2
 	$GLOBALS['mnuMediaFileListDesignObj']=2071;		// mnuMediaFileList
 	$GLOBALS['butViewDesignObj']=3283;				// butView
 	$GLOBALS['mnuSecurityCamerasDesignObj']=1414;	// Security cameras
-
+	$GLOBALS['TelecomMenu']=1323;					// Telecom Menu mnuMakeCallFavorites
+	
 	// PK_Device for Local Orbiter
 	$GLOBALS['localOrbiter']=-300;
 
