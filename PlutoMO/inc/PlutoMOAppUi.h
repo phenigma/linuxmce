@@ -39,7 +39,10 @@ public:
 		m_bVMCViewerVisible = false;
 		
 		if(m_iCapturedKeyId)
+		{
+			m_iCapturedKeyId = 0;
 			CEikonEnv::Static()->RootWin().CancelCaptureKeyUpAndDowns(m_iCapturedKeyId);
+		}
 	}
 
 	void ShowList(

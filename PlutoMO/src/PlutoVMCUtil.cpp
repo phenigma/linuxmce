@@ -213,10 +213,10 @@ void CPlutoVMCUtil::SetCaptureKeyboardCommand(
 
 	TRect rect(X, Y, Width, Height);
 
-#ifndef __WINS__
+//#ifndef __WINS__
 	CFbsBitmap *pBitmap = CImageLoader::LoadBitmap(string(Filename).Des());
 	m_pGC->BitBlt(rect.iTl, pBitmap);
-#endif
+//#endif
 
 	return bResult;
 }

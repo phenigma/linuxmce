@@ -63,7 +63,10 @@ void CPlutoMOAppUi::ConstructL()
 CPlutoMOAppUi::~CPlutoMOAppUi()
 {
 	if(m_iCapturedKeyId)
+	{
 		CEikonEnv::Static()->RootWin().CancelCaptureKeyUpAndDowns(m_iCapturedKeyId);	
+		m_iCapturedKeyId = 0;
+	}
 
 	delete m_pBDCommandProcessor_Symbian_Bluetooth;
 	m_pBDCommandProcessor_Symbian_Bluetooth = NULL;
@@ -286,7 +289,10 @@ void CPlutoMOAppUi::Hide()
 	m_bVMCViewerVisible = false;
 
 	if(m_iCapturedKeyId)
+	{
 		CEikonEnv::Static()->RootWin().CancelCaptureKeyUpAndDowns(m_iCapturedKeyId);	
+		m_iCapturedKeyId = 0;
+	}
 }
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::Show()
