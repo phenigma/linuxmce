@@ -124,6 +124,7 @@ void CPlutoMOAppUi::ReadConfigurationFile()
 
 	lr.ReadL(iCurrentLine, iCurrentLineOffset);
 	iURL.Copy(iCurrentLine);
+	iURLClone.Copy(iCurrentLine);
 
 	//number of events
 	lr.ReadL(iCurrentLine, iCurrentLineOffset);
@@ -664,6 +665,7 @@ void CPlutoMOAppUi::LaunchBrowser()
 	LOG("LaunchBrowser start\n");
 
 	HBufC* param = HBufC::NewLC( 128 ); 
+
 	param->Des().Copy( _L("4 "));
 	param->Des().Append( iURL ); 
 

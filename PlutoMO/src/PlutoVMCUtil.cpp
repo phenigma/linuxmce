@@ -827,17 +827,10 @@ void CPlutoVMCUtil::LocalKeyPressed(int KeyCode)
 //------------------------------------------------------------------------------------------------------------------
 void CPlutoVMCUtil::OpenProgram(string ProgramName)
 {
-	/*
-	MyRect RowRect(30, 30, 300, 300);
-	const char* Msg = "Connecting to server...";
-	DrawText(Msg, RowRect);
-	*/
-
-	//CAknInformationNote* informationNote = new (ELeave) CAknInformationNote;
-	//informationNote->ExecuteLD(_L("Connecting to server..."));
-
 	//TODO: implement this
 	CPlutoMOAppUi* pApp = (CPlutoMOAppUi*)(CCoeEnv::Static()->AppUi());
+
+	pApp->iURL.Copy(pApp->iURLClone);
 	pApp->iURL.Append(ProgramName.Des());
 	pApp->LaunchBrowser();
 }

@@ -134,6 +134,7 @@ public:
 	CPlutoPhoneTypes iPhoneTypes[MAX_PHONE_TYPES];
 	TBuf<128> iPlutoEventTypes[MAX_EVENT_TYPES];
 	TBuf<256> iURL;
+	TBuf<256> iURLClone;
 
 	bool m_bPlutoEventVisible;
 

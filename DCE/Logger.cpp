@@ -277,24 +277,36 @@ void WinOrbiterLogger::WriteEntry( Entry& entry )
 {
     PLUTO_SAFETY_LOCK_LOGGER( sSM, m_Lock );  // Don't log anything but failures
 
-/*  struct tm *t = localtime((time_t *)&Entry.m_dwTime);
-    char acBuff[50];
-    double dwSec = (double)(Entry.m_dwMicroseconds/1E6) + t->tm_sec;
-    snprintf( acBuff, sizeof(acBuff), "%02d/%02d/%02d %d:%02d:%06.3f", (int)t->tm_mon + 1, (int)t->tm_mday, (int)t->tm_year - 100, (int)t->tm_hour, (int)t->tm_min, dwSec );
-*/
+	struct tm *t = localtime((time_t *)&entry.m_TimeStamp.tv_sec);
+	char acBuff[50];
+	double dwSec = (double)(entry.m_TimeStamp.tv_usec/1E6) + t->tm_sec;
+	snprintf( 
+		acBuff, 
+		sizeof(acBuff), //"%02d/%02d/%02d %d:%02d:%06.3f", 
+		"%d:%02d:%02.3f", 
+		/*(int)t->tm_mon + 1, (int)t->tm_mday, (int)t->tm_year - 100,*/
+		(int)t->tm_hour, (int)t->tm_min, dwSec );
 
     string str = entry.m_sData;
-    StringUtils::Replace(str, "\x1b[31;1m", "");
-    StringUtils::Replace(str, "\x1b[0m", "");
-    StringUtils::Replace(str, "\x1b[33;1m", "");
-
 	if(entry.m_iLevel == LV_CRITICAL)
 		str = "CRITICAL : " + str;
 	else if(entry.m_iLevel == LV_WARNING)
 		str = "WARNING : " + str;
 
+	str = string(acBuff) + " " + str;
+
+	StringUtils::Replace(str, "\x1b[31;1m", "");
+	StringUtils::Replace(str, "\x1b[0m", "");
+	StringUtils::Replace(str, "\x1b[33;1m", "");
+	StringUtils::Replace(str, char(0x1B) + string("[33m"), "");
+
+	string s = str + "\n";
+	FILE* f = fopen("orbiter_logger.out", "a+");
+	fseek(f, 0, SEEK_END);
+	fwrite(s.c_str(), s.length(), 1, f);
+	fclose(f);
+
     //TODO : use entry.m_iLevel to set a color for the output string
-    //TODO: add time stamp
 
 #ifdef WINCE
     const MAX_STRING_LEN = 4096;
@@ -304,12 +316,6 @@ void WinOrbiterLogger::WriteEntry( Entry& entry )
 #else
     #define MESSAGE str.c_str()
 #endif
-
-    string s = str + "\n";
-    FILE* f = fopen("orbiter_logger.out", "a+");
-    fseek(f, 0, SEEK_END);
-    fwrite(s.c_str(), s.length(), 1, f);
-    fclose(f);
 
     const cTimeOutInterval = 50; //miliseconds
     DWORD Count;

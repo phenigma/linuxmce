@@ -38,6 +38,15 @@
 #include "PlutoMOAppUi.h"
 #endif
 
+bool KeyCodeInString(string str, char key)
+{
+	for(int i = 0; i < str.length(); i++)
+		if(str[i] == key)
+			return true;
+
+	return false;
+}
+
 RenderMenu::RenderMenu()
 {
 #ifndef SYMBIAN
@@ -975,7 +984,8 @@ void RenderMenu::KeyPressed(int KeyCode)
 
 		// The resolution is triggered by the key, or if we filled the input
 
-		if( strchr(pRes->m_sTerminatingKey.c_str(),KeyCode) || (bFilledInput && pRes->m_sTerminatingKey.find("F")!=string::npos) )
+		//strchr(pRes->m_sTerminatingKey.c_str(),KeyCode)
+		if( KeyCodeInString(pRes->m_sTerminatingKey, KeyCode) || (bFilledInput && pRes->m_sTerminatingKey.find("F")!=string::npos) )
 
 		{
 
@@ -995,12 +1005,14 @@ void RenderMenu::KeyPressed(int KeyCode)
 
 			//
 			//TODO: program name
-
-
-			if( pRes->m_sProgramName != "")
+			if(pRes->m_sProgramName.length())
 			{
+#ifndef SYMBIAN
+				MessageBox(pRes->m_sProgramName.c_str(), "Running program");
+#endif
 				OpenProgram(pRes->m_sProgramName);
-				bRedrawScreen = true;
+				//bRedrawScreen = true;
+				break;
 			}
 
 
@@ -1177,11 +1189,14 @@ void RenderMenu::KeyPressed(int KeyCode)
 				VIPMenu *pMenu=m_pMenuCollection->m_mapMenus_Find(pRes->m_iMenuNumber_Goto);
 
 				SwitchToMenu(pMenu);
-
+#ifdef SYMBIAN
+				bRedrawScreen = true;
+#endif
 				m_pBasketItem_First=m_pBasketItem_Last=NULL;
 
 				m_iListOffset=0;
 
+				break;
 			}
 
 			if( pRes->m_iCloseRequest || pRes->m_iReportToServer )
@@ -1444,4 +1459,3 @@ string RenderMenu::SubstituteValues(string Input)
 
 	return Input;
 }
-

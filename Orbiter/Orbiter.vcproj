@@ -36,6 +36,7 @@
 				OutputFile="../bin/Orbiter.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;../Libraries/pthreads-win32/lib&quot;;&quot;../CrossPlatform-Libs/SDL-1.2.7/VisualC7/SDL/Debug&quot;;&quot;../CrossPlatform-Libs/SDL_image-1.2.3/VisualC/Debug&quot;;&quot;../CrossPlatform-Libs/SDL_ttf-2.0.6/VisualC/Debug&quot;;&quot;../CrossPlatform-Libs/sge030809-w32/sge-msvc/sge/VisualC/Debug&quot;;../lib;&quot;../CrossPlatform-Libs/lpng127/projects/visualc6/Win32_DLL_Debug&quot;;&quot;../CrossPlatform-Libs/zlib/projects/visualc6/Win32_DLL_Debug&quot;;&quot;../CrossPlatform-Libs/SDL_rotozoom-1.6/VisualC/SDL_rotozoom/Debug&quot;"
+				IgnoreDefaultLibraryNames="LIBCD"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/Orbiter.pdb"
 				SubSystem="2"

@@ -79,6 +79,7 @@ OrbiterSDL_Win32::~OrbiterSDL_Win32()
 {
 	if(NULL == m_pInstance)
 	{
+		g_pPlutoLogger->Write(LV_STATUS, "OrbiterSDL_Win32 constructor.");
 		m_pInstance = new OrbiterSDL_Win32(DeviceID, ServerAddress, 
 				sLocalDirectory, bLocalMode, nImageWidth, 
 				nImageHeight, bFullScreen);
@@ -91,21 +92,22 @@ OrbiterSDL_Win32::~OrbiterSDL_Win32()
 //-----------------------------------------------------------------------------------------------------
 /*static*/ void OrbiterSDL_Win32::Cleanup()
 {
+	g_pPlutoLogger->Write(LV_STATUS, "OrbiterSDL_Win32: need to cleanup orbiter...");
 	if(NULL != m_pInstance)
 	{
 		delete m_pInstance;
 		m_pInstance = NULL;
+
+		g_pPlutoLogger->Write(LV_STATUS, "OrbiterSDL_Win32: orbiter deleted.");
 	}
 }
 //-----------------------------------------------------------------------------------------------------
 /*static*/ OrbiterSDL_Win32 *OrbiterSDL_Win32::GetInstance()
 {
-	if(NULL != m_pInstance)
-		return m_pInstance;
-	else
-	{
-		return NULL;
-	}
+	if(!m_pInstance)
+		g_pPlutoLogger->Write(LV_STATUS, "OrbiterSDL_Win32:GetInstance The instance to orbiter is NULL");
+
+	return m_pInstance;
 }
 //-----------------------------------------------------------------------------------------------------
 void OrbiterSDL_Win32::RenderScreen()
