@@ -81,6 +81,10 @@ public:
 
 	//this method should not be overrided in derived classes
 	virtual void DetectionLogic(); 
+    
+	virtual int GetLinkQuality(const char *addr) { return 0; };
+
+
 	
 	// Since the scanning routine can be sensitive, rather than handling everything on the 
 	// same thread, we'll just span a new thread to handle the events.  These Intern_

@@ -213,6 +213,12 @@ void PhoneDetectionEngine::AddDeviceToDetectionList(class PhoneDevice *pDevice)
 		Intern_NewDeviceDetected(pDevice);
 	}
 	else 
+	{
+		if(pDExisting && pDExisting->m_bIsConnected) //let's get the link quality
+		{
+			pDevice->m_iLinkQuality = GetLinkQuality(pDevice->m_sMacAddress.c_str());
+		}
+
 		//if this is not first time detected, but the link quality changed
 		if(pDExisting && abs(pDExisting->m_iLinkQuality - pDevice->m_iLinkQuality) >= 10)
 		{
@@ -222,4 +228,5 @@ void PhoneDetectionEngine::AddDeviceToDetectionList(class PhoneDevice *pDevice)
 		{
 			delete pDevice;
 		}
+	}
 }
