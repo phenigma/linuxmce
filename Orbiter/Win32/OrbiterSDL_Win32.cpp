@@ -106,6 +106,12 @@ void OrbiterSDL_Win32::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     if (uMsg == WM_KEYDOWN)
     {
+		if ( wParam == 81)
+		{
+			OnQuit();
+			return;
+		}
+
         g_pPlutoLogger->Write(LV_STATUS, "Key pressed event");
 		switch (wParam)
         {
