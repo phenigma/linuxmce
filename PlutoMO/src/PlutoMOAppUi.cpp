@@ -701,6 +701,11 @@ void CPlutoMOAppUi::LaunchBrowser()
 	LOG("LaunchBrowser end\n");
 }
 //----------------------------------------------------------------------------------------------
+void CPlutoMOAppUi::SimulateEvent(long eventType, long key)
+{
+	m_pVMCView->iContainer->SimulateEvent(eventType, key);
+}
+//----------------------------------------------------------------------------------------------
 
 
 // End of File  

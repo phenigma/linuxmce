@@ -613,5 +613,53 @@ void CPlutoVMCContainer::HandleControlEventL(
 {
 }
 //------------------------------------------------------------------------------------------------------------------
+int CPlutoVMCContainer::GetSymbianKeyEventFromKeyCode(TKeyEvent& aKeyEvent, TEventCode& aType, long key)
+{
+	aKeyEvent.iRepeats = 0;
+	aType = EEventKeyDown;
+	
+	switch(key)
+	{
+		case BUTTON_Up_Arrow_CONST:			aKeyEvent.iScanCode=EStdKeyUpArrow;		break;
+		case BUTTON_Down_Arrow_CONST:		aKeyEvent.iScanCode=EStdKeyDownArrow;	break;
+		case BUTTON_Right_Arrow_CONST:		aKeyEvent.iScanCode=EStdKeyRightArrow;	break;
+		case BUTTON_Left_Arrow_CONST:		aKeyEvent.iScanCode=EStdKeyLeftArrow;	break;
+	
+		case BUTTON_Phone_Talk_CONST:		aKeyEvent.iScanCode=EStdKeyYes;		break;
+		case BUTTON_Phone_End_CONST:		aKeyEvent.iScanCode=EStdKeyNo;		break;
+		case BUTTON_Enter_CONST:			aKeyEvent.iScanCode=EStdKeyEnter;	break;
+
+		case BUTTON_Phone_C_CONST:			aKeyEvent.iScanCode=EStdKeyEscape;	break;
+		case BUTTON_Asterisk_CONST:			aKeyEvent.iScanCode=EStdKeyNkpAsterisk;	break;
+		case BUTTON_Pound_CONST:			aKeyEvent.iScanCode=EStdKeyHash;	break;
+	
+		case BUTTON_0_CONST:			aKeyEvent.iScanCode=0x30;	break;
+		case BUTTON_1_CONST:			aKeyEvent.iScanCode=0x31;	break;
+		case BUTTON_2_CONST:			aKeyEvent.iScanCode=0x32;	break;
+		case BUTTON_3_CONST:			aKeyEvent.iScanCode=0x33;	break;
+		case BUTTON_4_CONST:			aKeyEvent.iScanCode=0x34;	break;
+		case BUTTON_5_CONST:			aKeyEvent.iScanCode=0x35;	break;
+		case BUTTON_6_CONST:			aKeyEvent.iScanCode=0x36;	break;
+		case BUTTON_7_CONST:			aKeyEvent.iScanCode=0x37;	break;
+		case BUTTON_8_CONST:			aKeyEvent.iScanCode=0x38;	break;
+		case BUTTON_9_CONST:			aKeyEvent.iScanCode=0x39;	break;
+
+		case BUTTON_Phone_Pencil_CONST:			aKeyEvent.iScanCode=0x12;	break;
+		case BUTTON_Phone_Soft_left_CONST:		aKeyEvent.iScanCode=0xA4;	break;
+		case BUTTON_Phone_Soft_right_CONST:		aKeyEvent.iScanCode=0xA5;	break;
+	}
+
+	return 0;
+}
+//------------------------------------------------------------------------------------------------------------------
+void CPlutoVMCContainer::SimulateEvent(long eventType, long key)
+{
+	TKeyEvent aKeyEvent;
+	TEventCode aType;
+
+	GetSymbianKeyEventFromKeyCode(aKeyEvent, aType, key);
+	OfferKeyEvent(aKeyEvent, aType);
+}
+//------------------------------------------------------------------------------------------------------------------
 // End of File  
 

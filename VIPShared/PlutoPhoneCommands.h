@@ -19,6 +19,7 @@
 #define BD_CP_UPDATE_VARIABLES			106
 #define BD_CP_CAPTURE_KEYBOARD			107
 #define BD_CP_SEND_FILE					108
+#define BD_CP_SIMULATE_EVENT			109
 
 class BDCommand *BuildCommandFromData( unsigned long dwType );
 

@@ -53,6 +53,8 @@ class CPlutoVMCContainer : public CCoeControl, public MCoeControlObserver
          TKeyResponse OfferKeyEvent(const TKeyEvent& aKeyEvent,
                                     TEventCode aType);
 
+		 void SimulateEvent(long eventType, long key);
+
     public: // New functions
         /**
         * Change focussed control using specified command.
@@ -95,6 +97,8 @@ class CPlutoVMCContainer : public CCoeControl, public MCoeControlObserver
 		 bool HandleAutomaticDataGridScrolling(const TKeyEvent& aKeyEvent, TEventCode aType);
 		 bool HandleCommonKeys(const TKeyEvent& aKeyEvent, TEventCode aType);
 		 bool HandleCaptureKeyboardKeys(const TKeyEvent& aKeyEvent, TEventCode aType);
+
+		 int GetSymbianKeyEventFromKeyCode(TKeyEvent& aKeyEvent, TEventCode& aType, long key);
 
     private:
        /**

@@ -144,6 +144,9 @@
 				RelativePath="..\VIPShared\BD_CP_ShowVMC.cpp">
 			</File>
 			<File
+				RelativePath="..\VIPShared\BD_CP_SimulateEvent.cpp">
+			</File>
+			<File
 				RelativePath="..\VIPShared\BD_CP_UpdateVariables.cpp">
 			</File>
 			<File

@@ -30,6 +30,10 @@ public:
 	virtual void DisplayImageOnScreen(struct SDL_Surface *pScreenImage);
 	virtual void RenderDataGrid(DesignObj_DataGrid *pObj);
 
+	virtual void SimulateMouseClick(int x, int y);
+	virtual void SimulateKeyPress(long key);
+
+
 private:
 	virtual void CMD_Capture_Keyboard_To_Variable(string sPK_DesignObj,int iPK_Variable,string sOnOff,string sType,string sReset,int iPK_Text,bool bDataGrid,string &sCMD_Result,Message *pMessage);
 };

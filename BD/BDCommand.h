@@ -14,9 +14,9 @@
 
 #include "SerializeClass/SerializeClass.h"
 
-#ifdef SYMBIAN
-	class BDCommandProcessor {};
-#endif
+//#ifdef SYMBIAN
+	//class BDCommandProcessor {};
+//#endif
 
 
 /**

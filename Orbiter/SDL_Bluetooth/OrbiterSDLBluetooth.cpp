@@ -25,6 +25,8 @@
 #include "VIPShared/BD_CP_ShowImage.h"
 #include "VIPShared/BD_CP_ShowList.h"
 #include "VIPShared/BD_CP_CaptureKeyboard.h"
+#include "VIPShared/BD_CP_SimulateEvent.h"
+
 #include "VIPShared/PlutoPhoneCommands.h"
 
 #include "DataGrid.h"
@@ -277,7 +279,7 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
 //-----------------------------------------------------------------------------------------------------
 void OrbiterSDLBluetooth::CMD_Capture_Keyboard_To_Variable(string sPK_DesignObj,int iPK_Variable,string sOnOff,string sType,string sReset,int iPK_Text,bool bDataGrid,string &sCMD_Result,Message *pMessage)
 {
-/*    if(
+    if(
         Orbiter::BuildCaptureKeyboardParams(
             sPK_DesignObj,
             iPK_Variable,
@@ -287,19 +289,35 @@ void OrbiterSDLBluetooth::CMD_Capture_Keyboard_To_Variable(string sPK_DesignObj,
             iPK_Text,
             bDataGrid
         )
-        )
-    {*/
-//  BD_CP_CaptureKeyboard *pBD_CP_CaptureKeyboard = new BD_CP_CaptureKeyboard(
-//          m_bCaptureKeyboard_OnOff,
-//          m_bCaptureKeyboard_Reset,
-//          m_bCaptureKeyboard_TypePin,
-//          m_bCaptureKeyboard_DataGrid,
-//          m_iCaptureKeyboard_PK_Variable,
-//          m_sCaptureKeyboard_Text
-//  );
+    )
+    {
+		BD_CP_CaptureKeyboard *pBD_CP_CaptureKeyboard = new BD_CP_CaptureKeyboard(
+				m_bCaptureKeyboard_OnOff,
+				m_bCaptureKeyboard_Reset,
+				m_bCaptureKeyboard_TypePin,
+				m_bCaptureKeyboard_DataGrid,
+				m_iCaptureKeyboard_PK_Variable,
+				m_sCaptureKeyboard_Text
+		);
 
-/*    if( m_pBDCommandProcessor )
-        m_pBDCommandProcessor->AddCommand(pBD_CP_CaptureKeyboard);
-    }*/
+		if( m_pBDCommandProcessor )
+			m_pBDCommandProcessor->AddCommand(pBD_CP_CaptureKeyboard);
+    }
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterSDLBluetooth::SimulateMouseClick(int x, int y)
+{
+	BD_CP_SimulateEvent *pBD_CP_SimulateEvent = new BD_CP_SimulateEvent(0 /*mouse*/, x, y, 0);
+
+	if( m_pBDCommandProcessor )
+		m_pBDCommandProcessor->AddCommand(pBD_CP_SimulateEvent);
+}
+//-----------------------------------------------------------------------------------------------------
+/*virtual*/ void OrbiterSDLBluetooth::SimulateKeyPress(long key)
+{
+	BD_CP_SimulateEvent *pBD_CP_SimulateEvent = new BD_CP_SimulateEvent(1 /*keyboard*/, 0, 0, key);
+
+	if( m_pBDCommandProcessor )
+		m_pBDCommandProcessor->AddCommand(pBD_CP_SimulateEvent);
 }
 //-----------------------------------------------------------------------------------------------------

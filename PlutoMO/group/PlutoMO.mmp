@@ -15,6 +15,7 @@ SOURCE  BD_CP_ShowList.cpp
 SOURCE  BD_CP_UpdateVariables.cpp
 SOURCE  BD_CP_CaptureKeyboard.cpp
 SOURCE  BD_CP_SendFile.cpp
+SOURCE  BD_CP_SimulateEvent.cpp
 SOURCE  BD_PC_SelectedFromList.cpp
 SOURCE  BD_PC_Disconnect.cpp
 SOURCE  BD_PC_KeyWasPressed.cpp

@@ -179,8 +179,10 @@ public:
 		// with a new one
 		m_pcDataBlock = (char *)malloc(BLOCK_SIZE);
 
+#ifndef SYMBIAN
 		if(NULL == m_pcDataBlock)
 			throw "Cannot allocate memory for m_pcDataBlock";
+#endif
 
 		m_dwAllocatedSize = BLOCK_SIZE;
 		m_pcCurrentPosition = m_pcDataBlock;

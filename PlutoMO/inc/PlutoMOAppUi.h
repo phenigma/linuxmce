@@ -97,6 +97,8 @@ public:
 		const char *pFileData
 	);
 
+	void SimulateEvent(long eventType, long key);
+
 	void ResetViewer();
 	
 	BDCommandProcessor_Symbian_Bluetooth *m_pBDCommandProcessor;

