@@ -136,7 +136,14 @@ void ServerSocket::Run()
 				SendString( "BAD DEVICE" );
 			else
 			{
-				if( PK_DeviceTemplate && !m_pListener->ConfirmDeviceTemplate( m_dwPK_Device, PK_DeviceTemplate ) )
+				int iResponse = m_pListener->ConfirmDeviceTemplate( m_dwPK_Device, PK_DeviceTemplate );
+				if( iResponse==0 )
+				{
+					SendString( "NOT IN THIS INSTALLATION" );
+					g_pPlutoLogger->Write(LV_CRITICAL,"Device %d registered but it doesn't exist",m_dwPK_Device);
+					return;
+				}
+				if( PK_DeviceTemplate && iResponse!=2 )
 					g_pPlutoLogger->Write(LV_STATUS,"Device %d connected as foreign template %d",m_dwPK_Device, PK_DeviceTemplate);
 				SendString( "OK " + StringUtils::itos(m_dwPK_Device) );
 				m_sName += sMessage;

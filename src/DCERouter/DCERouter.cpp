@@ -175,9 +175,10 @@ Router::Router(int PK_Device,int PK_Installation,string BasePath,string DBHost,s
     if( !m_pRow_Device_Me && m_dwPK_Device )
     {
         m_pRow_Device_Me = m_pDatabase_pluto_main->Device_get()->GetRow(m_dwPK_Device);
-        if( m_pRow_Device_Me && m_dwPK_Installation && m_pRow_Device_Me->FK_Installation_get()!=PK_Installation )
+        if( m_pRow_Device_Me && m_dwPK_Installation && m_pRow_Device_Me->FK_Installation_get()!=m_dwPK_Installation )
         {
-            g_pPlutoLogger->Write(LV_WARNING,"You specified an installation ID of %d on the command line, but also a device of %d which belongs to installation %d",m_dwPK_Installation,m_dwPK_Device,m_pRow_Device_Me->FK_Installation_get());
+            g_pPlutoLogger->Write(LV_WARNING,"You specified an installation ID of %d on the command line, but also a device of %d which belongs to installation %d",
+				m_dwPK_Installation,m_dwPK_Device,m_pRow_Device_Me->FK_Installation_get());
         }
     }
 
@@ -669,6 +670,18 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
                 m_bQuit=true;
                 break;
             case SYSCOMMAND_RELOAD:
+				{
+					map<int,class Command_Impl *>::iterator it;
+					for(it=m_mapPlugIn.begin();it!=m_mapPlugIn.end();++it)
+					{
+						Command_Impl *pPlugIn = (*it).second;
+						if( !pPlugIn->SafeToReload() )
+						{
+                            g_pPlutoLogger->Write(LV_STATUS,"Aborting reload as per %s",pPlugIn->m_sName.c_str());
+							return;
+						}
+					}
+				}
                 m_bReload=true;
                 break;
             case SYSCOMMAND_SEGFAULT:
@@ -2033,8 +2046,10 @@ int Router::GetDeviceID( int iPK_DeviceTemplate, string sIPorMacAddress )
 	return 0;
 }
 
-bool Router::ConfirmDeviceTemplate( int iPK_Device, int iPK_DeviceTemplate )
+int Router::ConfirmDeviceTemplate( int iPK_Device, int iPK_DeviceTemplate )
 {
 	DeviceData_Router *pDevice = m_mapDeviceData_Router_Find( iPK_Device );
-	return pDevice && pDevice->m_dwPK_DeviceTemplate == iPK_DeviceTemplate;
+	if( !pDevice )
+		return 0;
+	return pDevice->m_dwPK_DeviceTemplate == iPK_DeviceTemplate ? 2 : 1;
 }

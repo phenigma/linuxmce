@@ -293,7 +293,7 @@ namespace DCE
         void Quit() { m_bQuit=true; }
 
 		virtual int GetDeviceID( int iPK_DeviceTemplate, string sIPorMacAddress );
-		virtual bool ConfirmDeviceTemplate( int iPK_Device, int iPK_DeviceTemplate );
+		virtual int ConfirmDeviceTemplate( int iPK_Device, int iPK_DeviceTemplate );
 
         // declared inline since i use it from some plugins.
         int FindClosestRelative(unsigned int MasterDeviceType, int CurrentDevice)

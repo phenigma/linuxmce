@@ -288,7 +288,11 @@ bool Orbiter_Plugin::RouteToOrbitersInRoom(class Socket *pSocket,class Message *
 
 bool Orbiter_Plugin::SafeToReload()
 {
-	return !m_listRegenCommands.size();
+	if( m_listRegenCommands.size()==0 )
+		return true;
+
+	DisplayMessageOnOrbiter(0,"I'm still regenerating some Orbiter skins, and can't allow the reset until I'm finished.  You will get a message when I have finished.  Please try again then.",false,20,true);
+	return false;
 }
 
 void Orbiter_Plugin::ProcessUnknownDevice()
@@ -304,12 +308,13 @@ g_pPlutoLogger->Write(LV_STATUS,"in process");
     map<string,UnknownDeviceInfos *>::iterator itUnknownDevice;
     for(itUnknownDevice = m_mapUnknownDevices.begin(); itUnknownDevice != m_mapUnknownDevices.end(); ++itUnknownDevice)
     {
-        if(false == (*itUnknownDevice).second->m_bProcessed) //unprocessed unknown device
+		UnknownDeviceInfos *pUnknownDeviceInfos_tmp = (*itUnknownDevice).second;
+        if(false == pUnknownDeviceInfos_tmp->m_bProcessed) //unprocessed unknown device
         {
-            (*itUnknownDevice).second->m_bProcessed = true; //mark as processed
+            pUnknownDeviceInfos_tmp->m_bProcessed = true; //mark as processed
 
             sMacAddress = (*itUnknownDevice).first;
-            pUnknownDeviceInfos = (*itUnknownDevice).second;
+            pUnknownDeviceInfos = pUnknownDeviceInfos_tmp;
 
             break;
         }

@@ -566,19 +566,9 @@ void Infrared_Plugin::CMD_Add_GC100(string &sCMD_Result,Message *pMessage)
 		g_pPlutoLogger->Write(LV_STATUS, "Failed Spawning configure script");
 		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Failed, Spwning config script",false,30);
 	} else if( returned == 0) {
-		fp = fopen("/var/log/pluto/gc100-conf.log","rt");
-		if(fp != NULL) {
-			g_pPlutoLogger->Write(LV_STATUS, "Reading GC100 log file");
-			while(feof(fp) == 0) {
-				fgets(line, 45, fp);
-				size = strlen(line);
-				g_pPlutoLogger->Write(LV_STATUS, "GC100-Conf : %s",line);
-			}
-			fclose(fp);
-		} else {
-			g_pPlutoLogger->Write(LV_WARNING, "GC100 Configure script did not generate any log's");
-		}
-		g_pPlutoLogger->Write(LV_STATUS, "The configure script returned with success");
+		size_t s;
+		const char *ptr = FileUtils::ReadFileIntoBuffer("/var/log/pluto/gc100-conf.log",s);
+		g_pPlutoLogger->Write(LV_STATUS, "The configure script returned with success.  log %d bytes: %s",s,ptr ? ptr : "NULL");
 // The script will fire the new pp		m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 added with success",false,30);
 	} else if( returned == 1) {
 		g_pPlutoLogger->Write(LV_WARNING, "GC100 as default not found");

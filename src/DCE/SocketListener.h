@@ -142,9 +142,9 @@ namespace DCE
 		virtual int GetDeviceID( int iPK_DeviceTemplate, string sIPorMacAddress ) { return 0; } // Something else needs to implement this }
 
 		/**
-		 * @brief Returns false if the device isn't of the device template
+		 * @brief Returns 0 if the device doesn't exist, 1 if it does but isn't of the device template, 2 if it's a good match
 		 */
-		virtual bool ConfirmDeviceTemplate( int iPK_Device, int iPK_DeviceTemplate ) { return true; }  // Something else needs to implement this }
+		virtual int ConfirmDeviceTemplate( int iPK_Device, int iPK_DeviceTemplate ) { return true; }  // Something else needs to implement this }
 
 		/**
 		 * @brief Close any open sockets

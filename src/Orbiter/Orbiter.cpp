@@ -4425,12 +4425,15 @@ void Orbiter::CMD_Terminate_Orbiter(string &sCMD_Result,Message *pMessage)
 void Orbiter::CMD_Remove_Screen_From_History(string sPK_DesignObj,string sID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c8-e->
 {
+g_pPlutoLogger->Write(LV_STATUS,"CMD_Remove_Screen_From_History %s - %s size: %d",sPK_DesignObj.c_str(),sID.c_str(),(int) m_listScreenHistory.size());
 	PLUTO_SAFETY_LOCK_ERRORSONLY( vm, m_VariableMutex );
 	for(list < ScreenHistory * >::iterator it=m_listScreenHistory.begin();it!=m_listScreenHistory.end();)
 	{
 		ScreenHistory *pScreenHistory = *it;
+g_pPlutoLogger->Write(LV_STATUS,"Comparing %s - %s",pScreenHistory->m_pObj->m_ObjectID.c_str(),pScreenHistory->m_sID.c_str());
 		if( pScreenHistory->m_pObj->m_ObjectID.find(sPK_DesignObj+".")==0 && (sID.length()==0 || sID==pScreenHistory->m_sID) )
 		{
+g_pPlutoLogger->Write(LV_STATUS,"deleting %s - %s",pScreenHistory->m_pObj->m_ObjectID.c_str(),pScreenHistory->m_sID.c_str());
 			delete (*it);
 			it = m_listScreenHistory.erase( it );
 		}
