@@ -372,7 +372,9 @@ bool CreateSources(Row_Package *pRow_Package)
 	if( listFileInfo.size()==0 )
 	{
 		cout << "***ERROR*** No files found for this package!" << endl;
-		return false;
+		if( g_bInteractive )
+			return AskYNQuestion("Continue anyway?",false);
+		return true;
 	}
 
 	// Now go through and figure out what executible files we need to move over.
