@@ -91,7 +91,7 @@ g_pPlutoLogger->Write(LV_STATUS,"filelistgrid::row %d",row);
 //g_pPlutoLogger->Write(LV_STATUS, "Checking picture attri");
 			if( PKID_MED_Picture )
 			{
-				PictureFile = "/home/mediapics/" + StringUtils::itos(PKID_MED_Picture) + "_tn.png";
+				PictureFile = "/home/mediapics/" + StringUtils::itos(PKID_MED_Picture) + "_tn.jpg";
 //g_pPlutoLogger->Write(LV_STATUS, "Loking for file: %s", PictureFile.c_str());
 #ifdef WIN32
 				string::size_type s;
@@ -117,12 +117,12 @@ g_pPlutoLogger->Write(LV_STATUS,"filelistgrid::row %d",row);
 
 				if( posExtension!=string::npos )
 				{
-					PictureFile = PictureFile.substr(0,posExtension) + "_tn.png";
+					PictureFile = PictureFile.substr(0,posExtension) + "_tn.jpg";
 //g_pPlutoLogger->Write(LV_STATUS, "Loking for file: %s", PictureFile.c_str());
 					pIconBuffer = FileUtils::ReadFileIntoBuffer(PictureFile,stIconSize);
 					if( !pIconBuffer )
 					{
-						PictureFile = PictureFile.substr(0,posExtension) + ".png";
+						PictureFile = PictureFile.substr(0,posExtension) + ".jpg";
 //g_pPlutoLogger->Write(LV_STATUS, "Loking for file: %s", PictureFile.c_str());
 						pIconBuffer = FileUtils::ReadFileIntoBuffer(PictureFile,stIconSize);
 					}

@@ -4423,6 +4423,9 @@ g_pPlutoLogger->Write(LV_STATUS,"CMD_Goto_Screen: %s",sPK_DesignObj.c_str());
 		// Just go to the main menu since maybe we're stuck!
 		if( m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj==m_pDesignObj_Orbiter_MainMenu )
 	        return;
+		if( !m_pScreenHistory_Current )
+			return;
+
 		pObj_New = m_pScreenHistory_Current->m_pObj;
     }
 
