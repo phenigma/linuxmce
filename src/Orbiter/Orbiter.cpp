@@ -748,7 +748,7 @@ g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", pObj->m_ObjectI
 		if ( pObj->m_bOnScreen )
 		{
 			g_pPlutoLogger->Write(LV_STATUS, "Scheduling object @%p: %s", pObj, pObj->m_ObjectID.c_str());
-			CallMaintenanceInMiliseconds( 200, &Orbiter::GetVideoFrame, ( void * ) pObj, true );
+			CallMaintenanceInMiliseconds( 6000, &Orbiter::GetVideoFrame, ( void * ) pObj, true );
 		}
 		else
 		{
