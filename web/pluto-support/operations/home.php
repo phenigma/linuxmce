@@ -53,11 +53,11 @@ if($package!=0){
 			To install a complete Pluto system, we created an Installation Wizard that asks a few questions about your hardware and software environment and builds a custom installer for you.  
 			It even gets the source code, if you wish, and builds a script that will compile all the modules you chose.  
 			Just register or login, go to the "My Pluto" home page and click "New Installation".</p>
-			<p>If you already have Pluto, you can add extra modules modules in the Pluto Admin web site.</p>
-			<p><a href="http://plutohome.com/support/index.php?section=packageDownload&pkid='.$_SESSION['package'].'"><b>Download page for **package**</b></a></p>
+			<p>If you already have Pluto, you can add extra modules modules in the Pluto Admin web site.  They will be downloaded and installed automatically--you don\'t have to do anything.</p>
+			<p>If you want to download binaries or source code manually visit the <a href="http://plutohome.com/support/index.php?section=packageDownload&pkid='.$_SESSION['package'].'"><b>Download page for **package**</b></a></p>
 
-			<p>For the brave of heart, you can also visit the main <a href="index.php?section=mainDownload&packge=0">Download Page</a> to download 
-			modules by hand and see all the dependencies and compatibility for each, as well as <a href="index.php?section=document&docID=101">build from source</a>.</p>';
+			<p>For the brave of heart, you can also visit the main <a href="index.php?section=mainDownload&packge=0">Download Page</a> that lists all the modules with 
+			dependencies and compatibility.  Or you can <a href="index.php?section=document&docID=101">build from source</a>.</p>';
 	}
 }
 else {

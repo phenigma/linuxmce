@@ -59,7 +59,7 @@ if ($package == 0) {
 							<td'.$col.' colspan="2">'.$rowVers['NextSteps'].'</td>
 						</tr>
 						<tr>
-							<td bgcolor="lightblue"><center><B>Modified</B></center></td>
+							<td bgcolor="lightblue"><center><B>Change Logs</B></center></td>
 							<td'.$col.' colspan="2">'.join(', ',$modifiedLinks).'</td>
 						</tr>		
 					</table>
