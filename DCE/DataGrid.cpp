@@ -18,10 +18,9 @@
 #include "PlutoUtils/CommonIncludes.h"	
 #include "DataGrid.h"
 #include "PlutoUtils/FileUtils.h"
-#include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
-#include "PlutoUtils/Other.h"
+#include "Logger.h"
 
 #ifdef WINCE
 #include "../Orbiter/CENet/WinCE.h"
@@ -319,6 +318,10 @@ void DataGridTable::ToData(string GridID,int &Size, char* &Data)
 
 void DataGridTable::ToData(string GridID,int &Size, char* &Data, int ColStart, int RowStart, int ColCount, int RowCount)
 {
+#ifdef DEBUG
+g_pPlutoLogger->Write( LV_DATAGRID, "inside todata" );
+#endif
+
 	m_CellCount = 0;
 	int MaxCell = ColCount * RowCount;
 	DataGridTableCellIndex *ntIndex = new DataGridTableCellIndex[MaxCell];
@@ -334,6 +337,9 @@ void DataGridTable::ToData(string GridID,int &Size, char* &Data, int ColStart, i
 
 	int ActualFirstColumn = m_bKeepColumnHeader ? 1 : 0;
 	register int i;
+#ifdef DEBUG
+g_pPlutoLogger->Write( LV_DATAGRID, "rows: %d cols: %s",m_RowCount,m_ColumnCount );
+#endif
 
 	for(i=0;i<m_RowCount;++i)
 	{
@@ -379,6 +385,9 @@ void DataGridTable::ToData(string GridID,int &Size, char* &Data, int ColStart, i
 			}
 		}
 	}
+#ifdef DEBUG
+g_pPlutoLogger->Write( LV_DATAGRID, "after loop" );
+#endif
 
 	int IndexSize = sizeof(DataGridTableCellIndex) * m_CellCount;
 
@@ -394,6 +403,9 @@ void DataGridTable::ToData(string GridID,int &Size, char* &Data, int ColStart, i
 	Datap+=sizeof(DataGridTableSerializableData);
 	memcpy(Datap, ntIndex, IndexSize);
 	Datap+=IndexSize;
+#ifdef DEBUG
+g_pPlutoLogger->Write( LV_DATAGRID, "cell count %d",m_CellCount );
+#endif
     for(i=0;i<m_CellCount;++i)
 	{
 		unsigned long CellSize;
@@ -418,6 +430,10 @@ void DataGridTable::ToData(string GridID,int &Size, char* &Data, int ColStart, i
 	*((int *)Data)=UncompressedSize;
     lzo1x_1_compress((lzo_byte *)UncompressedData,UncompressedSize,(lzo_byte *)Data+4,&out_len,wrkmem);
 	Size = (int)out_len+4;
+#ifdef DEBUG
+g_pPlutoLogger->Write( LV_DATAGRID, "before delete[]" );
+#endif
+
 	// Shouldn't this have been here?
 	delete[] UncompressedData;
 

@@ -152,7 +152,12 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 		g_pPlutoLogger->Write( LV_CRITICAL, "Requesting data from unknown grid %s", sDataGrid_ID.c_str() );
 		return;
 	}
-//	try
+
+#ifdef DEBUG
+	g_pPlutoLogger->Write( LV_DATAGRID, "Found grid: %s", sDataGrid_ID.c_str() );
+#endif
+
+	//	try
 //	{
 		pDataGridTable = ( *dg ).second;
 
@@ -164,6 +169,9 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 		}
 		if( sSeek.length() )
 		{
+#ifdef DEBUG
+g_pPlutoLogger->Write( LV_DATAGRID, "it has a seek value grid: %s rows: %d", sDataGrid_ID.c_str(),(int) pDataGridTable->GetRows() );
+#endif
 			sSeek = StringUtils::ToUpper(sSeek);
 			// We need to do a seek for this value
 			int dgrow;
@@ -204,6 +212,9 @@ void Datagrid_Plugin::CMD_Request_Datagrid_Contents(string sID,string sDataGrid_
 		}
 		pDataGridTable->m_bKeepColumnHeader = bKeep_Column_Header;
 		pDataGridTable->m_bKeepRowHeader = bKeep_Row_Header;
+#ifdef DEBUG
+g_pPlutoLogger->Write( LV_DATAGRID, "ready to call todata: %s ", sDataGrid_ID.c_str() );
+#endif
 
 		pDataGridTable->ToData( sDataGrid_ID, *iData_Size, *pData, iColumn, *iRow, iColumn_count, iRow_count );
 		// hack, what the hell. If I delete the pointer, the system crashes. But it's a valid pointer. It was just allocated in the prior todata
