@@ -1798,13 +1798,18 @@ bool Orbiter::SelectedGrid( int DGRow )
 	}
 
     DataGridCell *pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData( iSelectedColumn,  DGRow );
+	pDesignObj_DataGrid->m_iHighlightedRow = DGRow;
+	pDesignObj_DataGrid->m_iHighlightedColumn = iSelectedColumn;
 
-	//pDesignObj_DataGrid->m_iHighlightedColumn=iSelectedColumn;
-	//pDesignObj_DataGrid->m_iHighlightedRow=DGRow;
-	//pDesignObj_DataGrid->m_GridCurCol = iSelectedColumn;
-	//pDesignObj_DataGrid->m_GridCurRow = DGRow;
+	if( pCell )
+	{
+		PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
+		m_mapVariable[pDesignObj_DataGrid->m_iPK_Variable] = pCell->GetValue(  );
+		vm.Release();
+		delete pCell;
+	}
 
-    return SelectedGrid( pDesignObj_DataGrid,  pCell );
+	return true;
 }
 void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbiter)
 {
