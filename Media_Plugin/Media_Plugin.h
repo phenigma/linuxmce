@@ -197,6 +197,11 @@ protected:
      * Find a media plugin info object that will play the specified file.
      */
     MediaPluginInfo *FindMediaPluginInfoForFileName(EntertainArea *pEntertainArea, string sFileToPlay);
+    /**
+     * Find a media plugin info object that will play the specified media type.
+     */
+    MediaPluginInfo *FindMediaPluginInfoForMediaType(EntertainArea *pEntertainArea, int iPK_MediaType);
+
     // Private methods
 public:
     // Public member variables

@@ -23,6 +23,8 @@
 #include "PlutoUtils/Other.h"
 
 #include <iostream>
+#include <algorithm>
+
 using namespace std;
 using namespace DCE;
 
@@ -193,6 +195,7 @@ bool Media_Plugin::Register()
         g_pPlutoLogger->Write( LV_CRITICAL, "File grids cannot find datagrid handler %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
         return false;
     }
+
     m_pDatagrid_Plugin=( Datagrid_Plugin * ) pListCommand_Impl->front( );
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
@@ -1142,6 +1145,20 @@ MediaPluginInfo *Media_Plugin::FindMediaPluginInfoForFileName(EntertainArea *pEn
     return pList_MediaPluginInfo->front( );
 }
 
+MediaPluginInfo *Media_Plugin::FindMediaPluginInfoForMediaType(EntertainArea *pEntertainArea, int iPK_MediaType)
+{
+    // See if there's a media handler for this type of media in this area
+    List_MediaPluginInfo *pList_MediaPluginInfo = pEntertainArea->m_mapMediaPluginInfo_MediaType_Find( iPK_MediaType );
+
+    if( !pList_MediaPluginInfo || pList_MediaPluginInfo->empty( ) )
+    {
+        g_pPlutoLogger->Write( LV_WARNING, "Play media type %d in entertain area %d but nothing to handle it", iPK_MediaType, pEntertainArea->m_iPK_EntertainArea );
+        return NULL;
+    }
+
+    return pList_MediaPluginInfo->front( );
+}
+
 int Media_Plugin::DetermineUserOnOrbiter(int iPK_Device_Orbiter)
 {
     if ( !m_pOrbiter_Plugin )
@@ -1231,23 +1248,17 @@ void Media_Plugin::PlayMediaByDeviceTemplate(int iPK_DeviceTemplate, int iPK_Dev
 
 void Media_Plugin::PlayMediaByMediaType(int iPK_MediaType, string sFilename, int iPK_Device, int iPK_Device_Orbiter, EntertainArea *pEntertainArea, string &sCMD_Result)
 {
-    // See if there's a media handler for this type of media in this area
-    List_MediaPluginInfo *pList_MediaPluginInfo = pEntertainArea->m_mapMediaPluginInfo_MediaType_Find( iPK_MediaType );
+    MediaPluginInfo *pMediaPluginInfo;
 
-    if( !pList_MediaPluginInfo || pList_MediaPluginInfo->empty( ) )
-    {
-        g_pPlutoLogger->Write( LV_WARNING, "Play media type %d in entertain area %d but nothing to handle it", iPK_MediaType, pEntertainArea->m_iPK_EntertainArea );
-        return;
-    }
-
-    MediaPluginInfo *pMediaPluginInfo = pList_MediaPluginInfo->front( );
-
-    // this will usually fix the media stream to match the device.
-    if ( ! EnsureCorrectMediaStreamForDevice(pMediaPluginInfo, pEntertainArea, iPK_Device ) )
+    if ( (pMediaPluginInfo = FindMediaPluginInfoForMediaType(pEntertainArea, iPK_MediaType)) == NULL ||
+         ! EnsureCorrectMediaStreamForDevice(pMediaPluginInfo, pEntertainArea, iPK_Device ) )
         return;
 
     vector<string> vectFiles;
-    StringUtils::Tokenize( sFilename, "\n\t|", vectFiles);
+    StringUtils::Tokenize( sFilename, "\n|", vectFiles);
+
+    if ( iPK_MediaType == MEDIATYPE_pluto_CD_CONST)
+        reverse(vectFiles.begin(), vectFiles.end());
 
     pEntertainArea->m_pMediaStream->m_iPK_MediaType = iPK_MediaType;
 
@@ -1365,13 +1376,24 @@ bool Media_Plugin::StartMediaByPositionInPlaylist(EntertainArea *pEntertainArea,
     pEntertainArea->m_pMediaStream->SetPlaylistPosition(position);
     sFileToPlay = pEntertainArea->m_pMediaStream->GetFilenameToPlay();
 
-    if ( m_pMediaAttributes->isFileSpecification(sFileToPlay) ) // if the file to play is a Media Attribute file specification we convert it to the actual file name
-        sFileToPlay = m_pMediaAttributes->ConvertFileSpecToFilePath(sFileToPlay);
+    if ( pEntertainArea->m_pMediaStream->m_iPK_MediaType != MEDIATYPE_pluto_StoredAudio_CONST &&
+         pEntertainArea->m_pMediaStream->m_iPK_MediaType != MEDIATYPE_pluto_StoredVideo_CONST )
+    {
+        if  ( ( pMediaPluginInfo = FindMediaPluginInfoForMediaType( pEntertainArea, pEntertainArea->m_pMediaStream->m_iPK_MediaType ) ) == NULL)
+            return false;
+    }
+    else
+    {
+        if ( m_pMediaAttributes->isFileSpecification(sFileToPlay) ) // if the file to play is a Media Attribute file specification we convert it to the actual file name
+            sFileToPlay = m_pMediaAttributes->ConvertFileSpecToFilePath(sFileToPlay);
 
-    g_pPlutoLogger->Write(LV_STATUS, "File to play (after conversion) %s", sFileToPlay.c_str());
+        g_pPlutoLogger->Write(LV_STATUS, "File to play (after conversion) %s", sFileToPlay.c_str());
 
-    if  ( ( pMediaPluginInfo = FindMediaPluginInfoForFileName( pEntertainArea, sFileToPlay ) ) == NULL  ||
-           ! EnsureCorrectMediaStreamForDevice(pMediaPluginInfo, pEntertainArea, iPK_Device))
+        if  ( ( pMediaPluginInfo = FindMediaPluginInfoForFileName( pEntertainArea, sFileToPlay ) ) == NULL)
+            return false;
+    }
+
+    if (! EnsureCorrectMediaStreamForDevice(pMediaPluginInfo, pEntertainArea, iPK_Device) )
         return false;
 
     // Todo -- get the real remote
@@ -1567,14 +1589,33 @@ void Media_Plugin::CMD_Load_Playlist(int iPK_EntertainArea,int iEK_Playlist,stri
 
 class DataGridTable *Media_Plugin::AllCommandsAppliableToEntAreas( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     g_pPlutoLogger->Write(LV_STATUS, "Media plugin called!");
     return NULL;
 }
 
 class DataGridTable *Media_Plugin::AvailablePlaylists( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+    g_pPlutoLogger->Write(LV_STATUS, "Called to populate: %s", Parms.c_str());
+
     if( Parms.length( )==0 )
         return NULL; // Nothing passed in yet
 
-    string user_ID = Parms;
+    // select PK_Playlist, Name from Playlist where EK_USER IN ( 0, 33128 ) LIMIT 30;;
+
+    int userID = atoi(Parms.c_str());
+
+    string SQL = "SELECT PK_Playlist, Name from Playlist where EK_USER IN ( 0, " + StringUtils::itos(userID) + " ) ORDER BY NAME LIMIT 30";
+
+    PlutoSqlResult result;
+    MYSQL_ROW row;
+    int RowCount=0;
+
+    DataGridTable *pDataGrid = new DataGridTable();
+    if( (result.r=m_MySqlHelper_Media.mysql_query_result(SQL)) )
+        while( (row=mysql_fetch_row(result.r)) )
+            pDataGrid->SetData(0,RowCount++,new DataGridCell(row[1], row[0]));
+
+    return pDataGrid;
 }
