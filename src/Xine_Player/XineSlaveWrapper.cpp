@@ -1433,9 +1433,7 @@ XineSlaveWrapper::XineStream *XineSlaveWrapper::setStreamForId(int iStreamID, Xi
 {
 	XineStream *pXineStream = NULL;
 
-	if ( m_pSameStream != NULL )
-		pXineStream == m_pSameStream;
-
+	pXineStream = m_pSameStream;
 	m_pSameStream = pNewStream;
 
 	return pXineStream;
@@ -1556,20 +1554,29 @@ int XineSlaveWrapper::enableBroadcast(int iStreamID)
 
 void XineSlaveWrapper::simulateMouseClick(int X, int Y)
 {
-    Window oldWindow;
-    int oldRevertBehaviour;
+	XineStream *pStream;
+	xine_input_data_t xineInputData;
+	xine_event_t xineEvent;
 
-	XLockDisplay(XServerDisplay);
-	XGetInputFocus( XServerDisplay, &oldWindow, &oldRevertBehaviour);
-    XSetInputFocus( XServerDisplay, windows[m_iCurrentWindow], RevertToParent, CurrentTime );
-	XTestFakeMotionEvent( XServerDisplay, -1, X, Y, 0);
-	XTestFakeButtonEvent( XServerDisplay, 1, True, CurrentTime );
-	XTestFakeButtonEvent( XServerDisplay, 1, False, CurrentTime );
+	x11_rectangle_t   rect;
 
-	if ( oldWindow )
-        XSetInputFocus( XServerDisplay, oldWindow, oldRevertBehaviour, CurrentTime );
+	if ( (pStream = getStreamForId(1, "XineSlaveWrapper::simulateMouseClick() getting one stream")) == NULL )
+		return;
 
-    XFlush(XServerDisplay);
+	g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::simulateMouseClick(): simulating mouse click: mx=%d my=%d", X, Y);
+
+	xineEvent.stream = pStream->m_pStream;
+	xineEvent.type = XINE_EVENT_INPUT_MOUSE_BUTTON;
+	xineEvent.data = &xineInputData;
+    xineEvent.data_length = sizeof(xineInputData);
+
+	xineInputData.button = 1;
+	xineInputData.x = X;
+    xineInputData.y = Y;
+
+	gettimeofday(&xineEvent.tv, NULL);
+ 	XLockDisplay(XServerDisplay);
+	xine_event_send(pStream->m_pStream, &xineEvent);
 	XUnlockDisplay(XServerDisplay);
 }
 
