@@ -965,7 +965,9 @@ void Orbiter::RenderDataGrid( DesignObj_DataGrid *pObj )
 void Orbiter::PrepareRenderDataGrid( DesignObj_DataGrid *pObj,  string& delSelections )
 {
     bool bAcquiredGrid = AcquireGrid( pObj,  pObj->m_GridCurCol,  pObj->m_GridCurRow,  pObj->m_pDataGridTable );
-    /* todo 2.0
+g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable is now %p",pObj->m_ObjectID.c_str(),pObj->m_pDataGridTable);
+
+	/* todo 2.0
     if(  pObj->GetParameterValue( C_PARAMETER_DATAGRID_ID_CONST ).substr( 0, 4 )=="EPG_" && pObj->m_pDataGridTable )
     {
     // Set to cache this grid,  currently disabled for anything other than the EPG
@@ -1333,7 +1335,10 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  int X,  in
 {
     PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
     if ( !pDesignObj_DataGrid->m_pDataGridTable )
+{
+g_pPlutoLogger->Write(LV_WARNING,"Selected grid %s but m_pDataGridTable is NULL",pDesignObj_DataGrid->m_ObjectID.c_str());
         return false;
+}
 
     bool bFoundSelection = false,  bFinishLoop = false;
 
@@ -2205,6 +2210,7 @@ void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
     {
         delete pObj->m_pDataGridTable;
         pObj->m_pDataGridTable = NULL;
+g_pPlutoLogger->Write(LV_WARNING,"from grid %s deleting m_pDataGridTable 1",pObj->m_ObjectID.c_str());
     }
 
     if(  !pObj->m_bPersistXY || pObj->m_GridCurCol==-1 || pObj->m_GridCurRow==-1  )
@@ -3682,6 +3688,7 @@ bool Orbiter::AcquireGrid( DesignObj_DataGrid *pObj,  int GridCurCol,  int &Grid
         if ( pDataGridTable )
         {
             delete pDataGridTable;
+g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable deleted indirectly",pObj->m_ObjectID.c_str());
             pDataGridTable = NULL;
         }
 		else if( pObj->m_sExtraInfo.find('S')!=string::npos && pObj->m_sSeek.length()==0 && !pObj->sSelVariable.empty(  ) && !pObj->bReAcquire )
@@ -3711,7 +3718,7 @@ bool Orbiter::AcquireGrid( DesignObj_DataGrid *pObj,  int GridCurCol,  int &Grid
             if ( size && data )
             {
                 pDataGridTable = new DataGridTable( size,  data );
-				g_pPlutoLogger->Write( LV_STATUS, "Got %d rows %d cols", pDataGridTable->GetRows(  ), pDataGridTable->GetCols(  ) );
+				g_pPlutoLogger->Write( LV_STATUS, "Got %d rows %d cols in new %s m_pDataGridTable ", pDataGridTable->GetRows(  ), pDataGridTable->GetCols(  ), pObj->m_ObjectID.c_str() );
                 if(  !pDataGridTable->GetRows(  ) || !pDataGridTable->GetCols(  )  )
                 {
                     // Initialize grid will set these to 0,  assuming there will be data.  If the grid is empty,  change that
@@ -4247,6 +4254,7 @@ void Orbiter::CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iP
                     CalculateGridUp( ( DesignObj_DataGrid * )pObj_Datagrid,  pObj_Datagrid->m_GridCurRow,  atoi( sRelative_Level.c_str(  ) ) );
                     ( ( DesignObj_DataGrid * )pObj_Datagrid )->m_pDataGridTableCache[DIRECTION_Up_CONST]=NULL;
                     delete pObj_Datagrid->m_pDataGridTable;
+g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable set to up cache",pObj_Datagrid->m_ObjectID.c_str());
                     pObj_Datagrid->m_pDataGridTable = ( ( DesignObj_DataGrid * )pObj_Datagrid )->m_pDataGridTableCache[DIRECTION_Up_CONST];
 					pObj_Datagrid->bReAcquire=true;
                 }
@@ -4255,6 +4263,7 @@ void Orbiter::CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iP
                     CalculateGridDown( ( DesignObj_DataGrid * )pObj_Datagrid,  pObj_Datagrid->m_GridCurRow,  atoi( sRelative_Level.c_str(  ) ) );
                     ( ( DesignObj_DataGrid * )pObj_Datagrid )->m_pDataGridTableCache[DIRECTION_Down_CONST]=NULL;
                     delete pObj_Datagrid->m_pDataGridTable;
+g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable set to down cache",pObj_Datagrid->m_ObjectID.c_str());
                     pObj_Datagrid->m_pDataGridTable = ( ( DesignObj_DataGrid * )pObj_Datagrid )->m_pDataGridTableCache[DIRECTION_Down_CONST];
 					pObj_Datagrid->bReAcquire=true;
                 }
@@ -4263,6 +4272,7 @@ void Orbiter::CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iP
                     CalculateGridLeft( ( DesignObj_DataGrid * )pObj_Datagrid,  pObj_Datagrid->m_GridCurCol,  atoi( sRelative_Level.c_str(  ) ) );
                     ( ( DesignObj_DataGrid * )pObj_Datagrid )->m_pDataGridTableCache[DIRECTION_Left_CONST]=NULL;
                     delete pObj_Datagrid->m_pDataGridTable;
+g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable set to left cache",pObj_Datagrid->m_ObjectID.c_str());
                     pObj_Datagrid->m_pDataGridTable = ( ( DesignObj_DataGrid * )pObj_Datagrid )->m_pDataGridTableCache[DIRECTION_Left_CONST];
 					pObj_Datagrid->bReAcquire=true;
                 }
@@ -4271,6 +4281,7 @@ void Orbiter::CMD_Scroll_Grid(string sRelative_Level,string sPK_DesignObj,int iP
                     CalculateGridRight( ( DesignObj_DataGrid * )pObj_Datagrid,  pObj_Datagrid->m_GridCurCol,  atoi( sRelative_Level.c_str(  ) ) );
                     ( ( DesignObj_DataGrid * )pObj_Datagrid )->m_pDataGridTableCache[DIRECTION_Right_CONST]=NULL;
                     delete pObj_Datagrid->m_pDataGridTable;
+g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable set to right cache",pObj_Datagrid->m_ObjectID.c_str());
                     pObj_Datagrid->m_pDataGridTable = ( ( DesignObj_DataGrid * )pObj_Datagrid )->m_pDataGridTableCache[DIRECTION_Right_CONST];
 					pObj_Datagrid->bReAcquire=true;
                 }

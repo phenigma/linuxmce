@@ -77,8 +77,13 @@ namespace DCE
 	 */
 	class AllDevices : public SerializeClass
 	{
-
+		// Normally this class should delete all the pointers it creates.  But if for some reason
+		// something needs the pointers to survive, it can call DontDeleteData
+		bool m_bDontDeleteData;
 	public:
+		AllDevices() { m_bDontDeleteData=false; }
+		virtual ~AllDevices();
+		void DontDeleteData() { m_bDontDeleteData=true; }
 
 		Map_DeviceData_Base m_mapDeviceData_Base; /** < a map with all the devices */
 		Map_DeviceCategory m_mapDeviceCategory; /** < a map with all the device categories */

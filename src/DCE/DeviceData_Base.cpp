@@ -29,6 +29,21 @@
 
 using namespace DCE;
 
+AllDevices::~AllDevices()
+{
+	if( m_bDontDeleteData )
+		return;
+
+	for(Map_DeviceData_Base::iterator it=m_mapDeviceData_Base.begin();it!=m_mapDeviceData_Base.end();++it)
+		delete (*it).second;
+
+	for(Map_DeviceCategory::iterator it=m_mapDeviceCategory.begin();it!=m_mapDeviceCategory.end();++it)
+		delete (*it).second;
+
+	for(Map_DeviceGroup::iterator it=m_mapDeviceGroup.begin();it!=m_mapDeviceGroup.end();++it)
+		delete (*it).second;
+}
+
 bool AllDevices::Serialize( bool bWriting, char *&pcDataBlock, unsigned long &dwAllocatedSize, char *&pcCurrentPosition, void *pExtraSerializationData )
 {
 	bool bResult = SerializeClass::Serialize( bWriting, pcDataBlock, dwAllocatedSize, pcCurrentPosition, pExtraSerializationData );

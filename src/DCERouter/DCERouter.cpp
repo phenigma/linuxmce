@@ -1861,6 +1861,7 @@ int k=2;
         m_mapEventParmNames[pRow_EventParameter->PK_EventParameter_get()]=pRow_EventParameter->Description_get();
     }
 
+	allDevices.DontDeleteData(); // We use the category and group pointers here.  Just delete the device Data
     //free device data map
     Map_DeviceData_Base::iterator iD;
     for(iD = allDevices.m_mapDeviceData_Base.begin();

@@ -1362,4 +1362,3 @@ int Database::ConfirmUsersToUpdate()
 		}
 	}
 }
-
