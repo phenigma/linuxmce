@@ -1103,9 +1103,9 @@ cout << "Making CVS Checkout to temporary\n";
 						system(cmd2.c_str());
 #else
 						mkdir(cmd.c_str(), 0777);
-						cmd2 = "cp -f " + pFileInfo->m_sSource + " " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+						cmd2 = "cp " + pFileInfo->m_sSource + " " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 						system(cmd2.c_str());
-						cout << cmd2.c_str() << endl;
+						cout << cmd.c_str() << endl;
 						cmd2 = "cvs add " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 						system(cmd2.c_str());
 						cout << cmd2.c_str() << endl;
