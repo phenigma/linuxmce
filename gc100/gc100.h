@@ -79,7 +79,6 @@ private:
 	char recv_buffer[4096]; // Replies from the GC100 go here // OK
 	int recv_pos;					// OK
 	std::string learn_input_string; 		// OK
-	int m_IRDeviceID, m_IRCommandID, m_ControllerID; // OK
 
 	// End Shared section
 	
@@ -91,7 +90,6 @@ private:
 	bool learning_timeout;
 	int learning_timeout_count;
 
-	map<IntPair, string> m_CodeMap;
 	bool m_bIRComplete;
 	bool m_bLearning;
 	bool m_bStopLearning;

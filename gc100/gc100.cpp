@@ -146,6 +146,20 @@ void gc100::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sC
 		return;
 	}
 
+	if (pMessage->m_dwID == COMMAND_Learn_IR_CONST)
+	{
+		cout << "Cmd: Learn IR '" << pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST] << "' == '" <<
+			atoi(pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST].c_str()) << "'" << endl;
+		cout << "C: " << (atoi(pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST].c_str()) != 0) << endl;
+		if (atoi(pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST].c_str()) != 0)
+			LEARN_IR(pMessage->m_dwPK_Device_To, atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Command_Input_CONST].c_str()),
+			pMessage->m_dwPK_Device_From, atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Text_CONST].c_str()));
+		else
+			LEARN_IR_CANCEL();
+		sCMD_Result = "OK";
+		return;
+	}
+
 	// This is a relay command
 	cout << "Processing..." << endl;
 
@@ -238,19 +252,6 @@ void gc100::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 		cout << "Parameter: " << i->first << " Value: " << i->second << endl;
 	}
 	
-	if (pMessage->m_dwID == COMMAND_Learn_IR_CONST)
-	{
-		cout << "Cmd: Learn IR '" << pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST] << "' == '" << atoi(pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST].c_str()) << "'" << endl;
-		cout << "C: " << (atoi(pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST].c_str()) != 0) << endl;
-		if (atoi(pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST].c_str()) != 0)
-			LEARN_IR(pMessage->m_dwPK_Device_To, atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Command_Input_CONST].c_str()),
-			pMessage->m_dwPK_Device_From, atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Text_CONST].c_str()));
-		else
-			LEARN_IR_CANCEL();
-		sCMD_Result = "OK";
-		return;
-	}
-
 	sCMD_Result = "UNKNOWN DEVICE";
 }
 
@@ -493,7 +494,7 @@ bool gc100::send_to_gc100(string Cmd)
 //	PLUTO_SAFETY_LOCK(sl, gc100_mutex);
 
 	sprintf(command, "%s\r", Cmd.c_str()); // gc100 commands end in CR (w/o LF)
-	g_pPlutoLogger->Write(LV_STATUS, "Sending command %s", command);
+	g_pPlutoLogger->Write(LV_STATUS, "Sending command %s\n", command);
 
 	result = send(gc100_socket,command,strlen(command), 0);
 	if (result < (int) strlen(command))
@@ -1064,7 +1065,7 @@ void gc100::SendIR(string Port, string IRCode)
 // TODO: Create LearningInfo object and spawn new thread
 void gc100::LEARN_IR(long PK_Device, long PK_Command, long PK_Device_Orbiter, long PK_Text)
 {
-	g_pPlutoLogger->Write(LV_STATUS,"RECEIVED LEARN_IR PKID_Device='%s' CommandID='%s'", PK_Device, PK_Command);
+	g_pPlutoLogger->Write(LV_STATUS,"RECEIVED LEARN_IR PKID_Device='%ld' CommandID='%ld'", PK_Device, PK_Command);
 
 	PLUTO_SAFETY_LOCK(sl, gc100_mutex);
 
@@ -1206,22 +1207,23 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 
 				if (!learning_error)
 				{  // Only send this if there was no error detected
-					g_pPlutoLogger->Write(LV_STATUS, "Finished learning, IRDevice=%d, IRCommandID=%d, controller=%d, size=%d",m_IRDeviceID,
-						m_IRCommandID,m_ControllerID,learn_input_string.length());
-					g_pPlutoLogger->Write(LV_STATUS, "Terminating on retval of %d err=%d, desc=%s",retval,ErrNo,strerror(errno));
-					g_pPlutoLogger->Write(LV_STATUS, "Raw learn string received: %s\n",learn_input_string.c_str());
+					g_pPlutoLogger->Write(LV_STATUS, "Finished learning, Device=%d, Command=%d, Orbiter=%d, size=%d", PK_Device,
+						PK_Command, PK_Device_Orbiter, learn_input_string.length());
+					g_pPlutoLogger->Write(LV_STATUS, "Terminating on retval of %d err=%d, desc=%s", retval, ErrNo, strerror(ErrNo));
+					g_pPlutoLogger->Write(LV_STATUS, "Raw learn string received: %s\n", learn_input_string.c_str());
 
 					pronto_result=IRL_to_pronto(learn_input_string);
-					g_pPlutoLogger->Write(LV_STATUS, "Conversion to Pronto: %s",pronto_result.c_str());
+					g_pPlutoLogger->Write(LV_STATUS, "Conversion to Pronto: %s", pronto_result.c_str());
 
 					// TODO: lookup IR plugin once and send message to it directly instead of this
 					DCE::CMD_Store_Infrared_Code_Cat CMD_Store_Infrared_Code_Cat(m_dwPK_Device,
 						DEVICECATEGORY_Infrared_Plugins_CONST, false, BL_SameHouse,
-						pLearningInfo->m_PK_Device, pronto_result, pLearningInfo->m_PK_Command);
+						PK_Device, pronto_result, PK_Command);
 					m_pCommand_Impl->SendCommand(CMD_Store_Infrared_Code_Cat);
-					m_CodeMap[IntPair(m_IRDeviceID, m_IRCommandID)] = pronto_result;
+					m_CodeMap[longPair(PK_Device, PK_Command)] = pronto_result;
+	
 					bLearnedCode = true;
-					DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Learning timed out", PK_Text);
+					DCE::CMD_Set_Text CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Code learned successfully", PK_Text);
 					SendCommand(CMD_Set_Text);
 				}
 				else
