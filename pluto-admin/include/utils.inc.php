@@ -1020,8 +1020,12 @@ function deleteDevice($PK_Device,$dbADO)
 
 function addDeviceToEntertainArea($deviceID,$entArea,$dbADO)
 {
-	$insertDeviceEntertainArea='INSERT INTO Device_EntertainArea (FK_Device, FK_EntertainArea) VALUES (?,?)';
-	$dbADO->Execute($insertDeviceEntertainArea,array($deviceID,$entArea));
+	$queryDE='SELECT * FROM Device_EntertainArea WHERE FK_Device=? AND FK_EntertainArea=?';
+	$resDE=$dbADO->Execute($queryDE,array($deviceID,$entArea));
+	if($resDE->RecordCount()==0){
+		$insertDeviceEntertainArea='INSERT INTO Device_EntertainArea (FK_Device, FK_EntertainArea) VALUES (?,?)';
+		$dbADO->Execute($insertDeviceEntertainArea,array($deviceID,$entArea));
+	}
 					
 	if(isOrbiter($deviceID,$dbADO) || isMediaDirector($deviceID,$dbADO)){
 		$queryChilds='SELECT * FROM Device WHERE FK_Device_ControlledVia=? AND FK_Installation=?';
