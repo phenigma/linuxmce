@@ -61,6 +61,24 @@ public:
 	
 };
 
+namespace DCE
+{
+	class Bluetooth_Dongle;
+}
+
+class BD_Orbiter_Plus_DongleHandle
+{
+public:
+	BD_Orbiter* m_pBD_Orbiter;
+	Bluetooth_Dongle* m_pBluetooth_Dongle;
+
+	BD_Orbiter_Plus_DongleHandle(class BD_Orbiter* pBD_Orbiter, class Bluetooth_Dongle* pBluetooth_Dongle)
+	{
+		m_pBD_Orbiter = pBD_Orbiter;
+		m_pBluetooth_Dongle = pBluetooth_Dongle;
+	}
+};
+
 //<-dceag-decl-b->! this is custom
 namespace DCE
 {

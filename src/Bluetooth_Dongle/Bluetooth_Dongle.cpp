@@ -87,8 +87,11 @@ using namespace DCE;
 
 void *HandleBDCommandProcessorThread( void *p )
 {
+	BD_Orbiter_Plus_DongleHandle *pBD_Orbiter_Plus_DongleHandle = (BD_Orbiter_Plus_DongleHandle *)p;
+
 	/** @todo -- need a mutex to protect this, right */
-	BD_Orbiter *pBD_Orbiter = ( BD_Orbiter * ) p; // converting it to an BD_Orbiter object
+	BD_Orbiter *pBD_Orbiter = pBD_Orbiter_Plus_DongleHandle->m_pBD_Orbiter; // converting it to an BD_Orbiter object
+	Bluetooth_Dongle *pBluetooth_Dongle = pBD_Orbiter_Plus_DongleHandle->m_pBluetooth_Dongle;
 	if( !pBD_Orbiter || !pBD_Orbiter->m_pBDCommandProcessor || pBD_Orbiter->m_pBDCommandProcessor->m_bDead ) // check if everything is OK first
 	{
 		if( pBD_Orbiter && pBD_Orbiter->m_pBDCommandProcessor ) // pBD_Orbiter->m_pBDCommandProcessor->m_bDead is true
@@ -133,6 +136,7 @@ void *HandleBDCommandProcessorThread( void *p )
 	while( pBD_Orbiter->m_pBDCommandProcessor->ReceiveCommand( 0, 0, NULL ) && !pBD_Orbiter->m_pBDCommandProcessor->m_bDead ); // loop for receiving commands
 
 	g_pPlutoLogger->Write( LV_STATUS, "Exiting command processor: m_bDead: %d", ( int ) pBD_Orbiter->m_pBDCommandProcessor->m_bDead );
+	pBluetooth_Dongle->GetEvents()->Mobile_orbiter_lost( pBD_Orbiter->m_pPhoneDevice->m_sMacAddress.c_str(), true );
 
 	/** cleaning up */
 	
@@ -147,6 +151,9 @@ void *HandleBDCommandProcessorThread( void *p )
 		delete pBD_Orbiter->m_pOrbiter;
 		pBD_Orbiter->m_pOrbiter = NULL;
 	}
+
+	delete pBD_Orbiter_Plus_DongleHandle;
+	pBD_Orbiter_Plus_DongleHandle = NULL;
 
 	return NULL;
 }
@@ -505,7 +512,9 @@ void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter(int iMediaPosition,string sM
 	
 	if( NULL != pProcessor && !pProcessor->m_bDead )
 	{
-	    pthread_create( &pProcessor->m_BDSockThreadID, NULL, HandleBDCommandProcessorThread, ( void* )pBD_Orbiter );
+	    pthread_create( &pProcessor->m_BDSockThreadID, NULL, HandleBDCommandProcessorThread, 
+			( void* )new BD_Orbiter_Plus_DongleHandle(pBD_Orbiter, this) );
+
 		//GetEvents()->Mobile_orbiter_linked( sMac_address, "version" ); /** @todo: Chris add this */
 	}
 }
