@@ -276,6 +276,11 @@ public:
      */
 
     void selectMenu(int iStreamID, int iMenuType);
+
+    /**
+     * @brief Fired by a xineStream object when the stream has completed playback
+     */
+    void playbackCompleted(int iStreamID);
 };
 
 #endif

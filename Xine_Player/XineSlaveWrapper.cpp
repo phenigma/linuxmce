@@ -1,17 +1,17 @@
 /*
-	XineSlaveWrapper
-	
-	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-	
-	www.plutohome.com		
-	
-	Phone: +1 (877) 758-8648
-	
-	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
-	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-	
-	See the GNU General Public License for more details.
+    XineSlaveWrapper
+
+    Copyright (C) 2004 Pluto, Inc., a Florida Corporation
+
+    www.plutohome.com
+
+    Phone: +1 (877) 758-8648
+
+    This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
+    This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+    of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+    See the GNU General Public License for more details.
 */
 
 /**
@@ -70,11 +70,13 @@ enum
 
 XineSlaveWrapper::XineSlaveWrapper()
     : m_sWindowTitle("xine-slave window (controlled by the DCE m_pXine Player device)"),
-      m_sConfigFile("/usr/local/pluto/bin/xine-slave.conf"),
+      m_sConfigFile("/usr/pluto/conf/xine-slave.conf"),
+
+      // TODO: fix the xine-slave.conf loading and parsing
 
       XServerDisplay(NULL),
       m_sXineVideoDriverName("xv"),
-      m_sXineAudioDriverName("alsa"),
+      m_sXineAudioDriverName("arts"),
 
       m_pSameStream(NULL)
 {
@@ -402,6 +404,7 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
                 send_event(XINE_SE_PLAYBACK_FINISHED, "");
         */
             g_pPlutoLogger->Write(LV_WARNING, "Playback finished for m_pstream: %d", xineStream->m_istreamID);
+            xineStream->m_pOwner->playbackCompleted(xineStream->m_istreamID);
             xineStream->m_bisRendering = false;
             break;
 
@@ -1211,3 +1214,9 @@ void XineSlaveWrapper::selectMenu(int iStreamID, int iMenuType)
     xine_event_send(xineStream->m_pstream, &xine_event);
 
 }
+
+void XineSlaveWrapper::playbackCompleted(int iStreamID)
+{
+    this->m_pAggregatorObject->EVENT_Playback_Completed(iStreamID);
+}
+

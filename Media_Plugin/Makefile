@@ -6,7 +6,7 @@ CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -DDEBUG
 LDFLAGS = -L$(ROOT)/lib
-LDLIBS = -lpthread -lSerializeClass -lPlutoUtils -lDCECommon -lmysqlclient_r
+LDLIBS =  -lpthread -lSerializeClass -lPlutoUtils -lDCECommon -lmysqlclient_r
 
 MYNAME = Media_Plugin
 VERSION = 2.0.0
@@ -19,7 +19,7 @@ sources = Main.cpp Media_Plugin.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS +=
 LDFLAGS +=
-LDLIBS += -lpluto_main -lPlutoUtils -lSerializeClass
+LDLIBS += -lpluto_main -lpluto_media -lPlutoUtils -lSerializeClass
 
 Gen_Dev_Files += $(GENDEV)/Datagrid_PluginBase.cpp
 sources += \
