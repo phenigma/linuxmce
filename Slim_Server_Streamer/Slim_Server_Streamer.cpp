@@ -232,7 +232,7 @@ void Slim_Server_Streamer::CMD_Start_Streaming(string sFilename,int iStreamID,st
         }
 
         // assume all the children are Squeeze boxes.
-        DeviceData_Base *pDevice= static_cast<DeviceData_Base*>((*itPlayer).second);
+        DeviceData_Base *pDevice=NULL; // Mihai -- this looks like a 'command' not a 'data' class  static_cast<DeviceData_Base*>((*itPlayer).second);
 
         vectDevices.push_back(pDevice);
 
@@ -396,7 +396,7 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
         PLUTO_SAFETY_LOCK( pm, pStreamer->m_mutexDataStructureAccess);
 
         map<int, pair<StreamStateType, vector<SqueezeBox_Player *> > >::iterator itStreamsToPlayers;
-
+/* mihai -- this didn't compile
         itStreamsToPlayers = pStreamer->m_mapStreamsToPlayers.begin();
         while ( itStreamsToPlayers != pStreamer->m_mapStreamsToPlayers.end() &&
                 (*itStreamsToPlayers).second.first == STATE_PLAY )
@@ -414,7 +414,7 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
 
             itStreamsToPlayers++;
         }
-
+*/
         pm.Release();
 
         Sleep(500);
