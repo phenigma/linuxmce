@@ -118,7 +118,7 @@ bool CopySourceFile(string sInput,string sOutput)
 	if( !g_bSimulate && StringUtils::EndsWith(sInput,".cpp",true) || StringUtils::EndsWith(sInput,".c",true) ||
 			StringUtils::EndsWith(sInput,".h",true) )
 	{
-		if( !StringUtils::Replace( sInput, "/mkrelease_temp_file", "/*SVN_REVISION*/", "int g_SvnRevision=" + StringUtils::itos(g_iSVNRevision)) + ";" )
+		if( !StringUtils::Replace( sInput, "/mkrelease_temp_file", "/*SVN_REVISION*/", "int g_SvnRevision=" + StringUtils::itos(g_iSVNRevision) + ";" ) )
 			return false;
 
 		return StringUtils::Replace( "/mkrelease_temp_file", sOutput, "<=version=>", g_pRow_Version->VersionName_get() );
