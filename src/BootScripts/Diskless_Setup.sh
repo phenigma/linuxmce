@@ -243,7 +243,15 @@ for Client in $DisklessR; do
 	mkdir -p $DlPath/usr/pluto/deb-cache
 
 	echo -n " Timezone"
-	cp /etc/timezone /etc/localtime $DlPath/etc
+	if [ -f /etc/timezone ]; then
+		TimeZone="$(cat /etc/timezone)"
+	else
+		TimeZone="$(readlink /etc/localtime)"
+		TimeZone="${TimeZone#/usr/share/zoneinfo/}"
+	fi
+	echo "$TimeZone" >/etc/timezone
+	[ -f "$DlPath/etc/localtime" ] && rm -f $DlPath/etc/localtime # in case it's a file from the old (wrong) way of setting this up
+	ln -sf /usr/share/zoneinfo/$TimeZone $DlPath/etc/localtime
 
 	echo
 	MoonNumber=$((MoonNumber+1))
