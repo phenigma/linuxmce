@@ -4,7 +4,7 @@ GENDEV=../Gen_Devices
 ROOT = ..
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
-CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES
+CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql 
 LDFLAGS = -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
@@ -51,6 +51,7 @@ Generic_Serial_Device: $(sources:.cpp=.o)
 
 
 Ruby_$(MYNAME).so: Ruby_$(MYNAME)_wrap.o 
+	ln -s /usr/lib/libtcl8.4.so.0 /usr/lib/libtcl8.4.so
 	$(CXX) -shared -o Ruby_$(MYNAME).so $(CPPFLAGS) Ruby_$(MYNAME)_wrap.o RubySerialIOWrapper.o RubyDeviceWrapper.o -ltcl8.4  
 	cp $@ ../bin
 	
