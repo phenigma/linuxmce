@@ -253,12 +253,13 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
     string Unused;
     Orbiter::PrepareRenderDataGrid(pObj, Unused);
 
-	if(pObj->m_pDataGridTable->m_ColumnCount == 1)
-		bUsePhoneGrid = true;
-
-    if(pObj->m_pDataGridTable)
+	if(pObj->m_pDataGridTable)
     {
 		g_pPlutoLogger->Write(LV_WARNING, "Got to render a datagrid with %d columns", pObj->m_pDataGridTable->m_ColumnCount);
+
+		if(pObj->m_pDataGridTable->m_ColumnCount == 1)
+			bUsePhoneGrid = true;
+
         if(!bUsePhoneGrid)
         {
             g_pPlutoLogger->Write(LV_WARNING,
