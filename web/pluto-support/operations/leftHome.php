@@ -9,7 +9,7 @@ if($package!=0){
 	$documentLinks='';
 	if($resParentDoc->RecordCount()>0){
 		$rowParentDoc=$resParentDoc->FetchRow();
-		$documentLinks.='<a href="right.php?section=documents/documentDisplay&docID='.$rowParentDoc['PK_Document'].'" target="basefrm">'.$rowParentDoc['Title'].'</a><br>';
+		$documentLinks.='<a href="right.php?section=documents/documentDisplay&docID='.$rowParentDoc['PK_Document'].'" target="basefrm">Documentation for '.$rowParentDoc['Title'].'</a><br>';
 		
 		$resChilds=$dbADO->Execute('SELECT PK_Document,Title FROM Document WHERE FK_Document_Parent=?',$rowParentDoc['PK_Document']);
 		while($rowChilds=$resChilds->FetchRow()){
@@ -25,7 +25,7 @@ $out='
 **package**</p>
 
 <p><a href="'.$downloadLink.'" target="_top">Download software</a></p>
-<p>'.$documentLinks.'</p>
+<p>'.@$documentLinks.'</p>
 <p><a href="index.php?section=forum" target="_top">Forum</a></p>
 <p><a href="index.php?section=faq" target="_top">FAQ</a></p>
 <p><a href="index.php?section=mail" target="_top">Mailing List</a></p>

@@ -1,7 +1,7 @@
 <?
 $out='
 <p>List of all versions.</p>
-For each version, show comments in pane on right.
+For each version, show comments in panel on right.
 ';
 
 $output->setBody($out);

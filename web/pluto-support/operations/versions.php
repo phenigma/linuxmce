@@ -27,6 +27,15 @@ if ($package == 0) {
 			case '2' : $text = 'Release'; break;
 			default : $text = ''; 
 		}
+		$modifiedLinks=array();
+		$resModified=$dbADO->Execute('
+			SELECT Package.PK_Package, Package.Description 
+			FROM Package
+			LEFT JOIN Package_Version ON FK_Package=PK_Package
+			WHERE FK_Version=?',$rowVers['PK_Version']);
+		while($rowModified=$resModified->FetchRow()){
+			$modifiedLinks[]='<a href="index.php?section=versions&package='.$rowModified['PK_Package'].'">'.$rowModified['Description'].'</a>';
+		}
 		$out.='
 			<tr>
 				<td'.$col.'><center>'.$rowVers['VersionName'].'</center></td>
@@ -42,13 +51,17 @@ if ($package == 0) {
 							<td><center>'.$text.'</center></td>
 						</tr>
 						<tr>
-							<td bgcolor="lightblue"><center>Comments</center></td>
+							<td bgcolor="lightblue"><center><B>Comments</B></center></td>
 							<td'.$col.' colspan="2">'.$rowVers['Comments'].'</td>
 						</tr>
 						<tr>
-							<td bgcolor="lightblue"><center>Next Steps</center></td>
+							<td bgcolor="lightblue"><center><B>Next Steps</B></center></td>
 							<td'.$col.' colspan="2">'.$rowVers['NextSteps'].'</td>
 						</tr>
+						<tr>
+							<td bgcolor="lightblue"><center><B>Modified</B></center></td>
+							<td'.$col.' colspan="2">'.join(', ',$modifiedLinks).'</td>
+						</tr>		
 					</table>
 				</td>
 			</tr>';
@@ -65,25 +78,21 @@ if ($package == 0) {
 			LEFT JOIN Package_Version ON FK_Version=PK_Version AND FK_Package=?
 			ORDER BY Date DESC';
 		$resVers1 = $dbADO->Execute($queryVers1,$package);
-		$out.='<center><table>';
-		$out.='<tr bgcolor="lightblue">
-				<td><center>Version Name</center></td>
-				<td><center>Date</center></td>
-				<td><center>Description</center></td>
-				<td><center>Comments</center></td>
-			</tr>';
+		$out.='<center>
+			<table cellpadding="3" cellspacing="2">';
 		$ind = 0;
 		while ($rowVers1 = $resVers1->FetchRow()) {
 			if ($ind%2 != 0) $col = ' bgcolor="lightblue"';
 				else $col = ' bgcolor="#E0E0E0"';
 			if ($rowVers1['FK_Package']=='') $star=' * ';
 				else $star='';
-			$out.='<tr'.$col.'>';
-			$out.='<td><center>'.$rowVers1['VersionName'].$star.'</center></td>';
-			$out.='<td><center>'.$rowVers1['Date'].'</center></td>';
-			$out.='<td><center>'.$rowVers1['Description'].'</center></td>';
-			$out.='<td><center>'.$rowVers1['Comments'].'</center></td>';
-			$out.='</tr>';
+			$out.='
+				<tr'.$col.'>
+					<td><B>Version Name:</B> '.$rowVers1['VersionName'].$star.' <B>Date:</B> '.$rowVers1['Date'].' <B>Description:</B> '.$rowVers1['Description'].'</td>
+				</tr>
+				<tr>
+					<td style="padding-left: 30px;">'.$rowVers1['Comments'].'</td>
+				</tr>';
 		};
 		$out.='</table></center>';		
 		$out.='

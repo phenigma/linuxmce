@@ -1,6 +1,6 @@
 <?
 $package=(isset($_SESSION['package']))?$_SESSION['package']:0;
-$package=0; // Fix this.  The query isn't working
+//$package=0; // Fix this.  The query isn't working
 	$out='<p>The easiest way to get Pluto\'s source code is to register or login, create a new installation, and specify that you want source code.  This will install the source code automatically.</p>
 		<p>You can also get all Pluto\'s source code with CVS or SVN. <a href="/support/index.php?section=document&docID=101">details</a></p>
 		<br><p><b>Doxygen class documentation</b>';
@@ -19,8 +19,11 @@ $package=0; // Fix this.  The query isn't working
 		$resPaths = $dbADO->Execute($queryPaths);
 	}
 	else {
-		$queryPaths = 'SELECT Path as InputPath FROM Package_Directory 
-				WHERE FK_Directory=3 AND GenerateDoxygen=1 AND FK_Package=? ORDER BY InputPath';
+		$queryPaths = '
+			SELECT Path as InputPath FROM Package
+			JOIN Package_Directory ON FK_Package=FK_Package_Sourcecode 
+			WHERE FK_Directory=3 AND GenerateDoxygen=1 AND PK_Package=?
+			ORDER BY InputPath';
 		$resPaths = $dbADO->Execute($queryPaths,$package);
 	}
 	$found = 0 ;
