@@ -11,7 +11,8 @@
 #ifndef BDCOMMANDPROCESSOR_H
 #define BDCOMMANDPROCESSOR_H
 
-#include "VIPShared/VIPIncludes.h"
+//#include "VIPShared/VIPIncludes.h"
+#include "PlutoUtils/MultiThreadIncludes.h"
 
 /** @todo make sure the defines names are ok in the files acctually using them */
 

@@ -12,7 +12,7 @@
 #define BDHAVENOTHINGH
 
 #include "BD/BDCommand.h"
-#include "VIPShared/PlutoPhoneCommands.h"
+//#include "VIPShared/PlutoPhoneCommands.h"
 
 #ifndef SYMBIAN
 #include "BD/BDCommandProcessor.h"
