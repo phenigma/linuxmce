@@ -43,7 +43,10 @@ R_CommitRow::R_CommitRow( sqlCVS::ChangedRow *pChangedRow )
 	m_psc_user = pChangedRow->m_psc_user;
 	m_iOriginalAutoIncrID = pChangedRow->m_iOriginalAutoIncrID;
 	m_eTypeOfChange = pChangedRow->m_eTypeOfChange;
-if( m_psc_id==333 )
+
+	cout << "Going to commit: " << pChangedRow->m_pTable->Name_get() << " psc_id: " << m_psc_id << " type: " << m_eTypeOfChange << " user: " << m_psc_user << " auto incr: " << m_iOriginalAutoIncrID << endl;
+	
+	if( m_psc_id==333 )
 {
 int k=2;
 }
@@ -64,7 +67,7 @@ int k=2;
 		m_cProcessOutcome=INTERNAL_ERROR;
 	}
 
-	cout << "Committing row table: " << psqlCVSprocessor->m_pTable->Name_get() << " type: " << m_eTypeOfChange << " psc_id: " << m_psc_id << " user: " << m_psc_user << " auto incr: " << m_iOriginalAutoIncrID << endl;
+	cout << "Committing row table: " << psqlCVSprocessor->m_pTable->Name_get() << " psc_id: " << m_psc_id << " type: " << m_eTypeOfChange << " user: " << m_psc_user << " auto incr: " << m_iOriginalAutoIncrID << endl;
 
 	m_iNewAutoIncrID=0;
 	m_cProcessOutcome=SUCCESSFULLY_PROCESSED; /** @todo -- process it */
