@@ -332,7 +332,6 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
 			deque<MediaFile *> dequeMediaFile;
 			dequeMediaFile.push_back(new MediaFile(MRL));
 			StartMedia(pMediaPluginInfo,0,pEntertainArea,pDeviceFrom->m_dwPK_Device,0,&dequeMediaFile);
-			MediaAttributes::PurgeDequeMediaFile(dequeMediaFile);
             return true;
         }
     }
@@ -1231,8 +1230,6 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string 
 			}
 		}
 	}
-
-	MediaAttributes::PurgeDequeMediaFile(dequeMediaFile);
 }
 
 //<-dceag-c65-b->
@@ -1360,7 +1357,6 @@ void Media_Plugin::CMD_Load_Playlist(int iPK_EntertainArea,int iEK_Playlist,stri
 	}
 	MediaPluginInfo *pMediaPluginInfo = pList_MediaPluginInfo->front();
 	StartMedia(pMediaPluginInfo,pMessage->m_dwPK_Device_From,pEntertainArea,0,0,&dequeMediaFile);  // We'll let the plug-in figure out the source, and we'll use the default remote
-	MediaAttributes::PurgeDequeMediaFile(dequeMediaFile);
 }
 
 class DataGridTable *Media_Plugin::AllCommandsAppliableToEntAreas( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )

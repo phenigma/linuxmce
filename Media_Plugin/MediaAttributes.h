@@ -23,6 +23,7 @@ class MediaFile
 {
 public:
 	MediaFile(int dwPK_File,string sFullyQualifiedFile)	{
+g_pPlutoLogger->Write(LV_STATUS,"MediaFile::MediaFile %p",this);
 		m_dwPK_File=dwPK_File; m_sPath=FileUtils::BasePath(sFullyQualifiedFile); m_sFilename=FileUtils::FilenameWithoutPath(sFullyQualifiedFile);
 	}
 
@@ -36,9 +37,14 @@ public:
 		m_sFilename=pRow_PlaylistEntry->Filename_get();
 	}
 
+	~MediaFile() {
+	}
+
 	int m_dwPK_File;
 	string m_sPath,m_sFilename;
-	string FullyQualifiedFile() { return m_sPath + "/" + m_sFilename; }
+	string FullyQualifiedFile() {
+		return m_sPath + "/" + m_sFilename; 
+	}
 };
 
 /**
