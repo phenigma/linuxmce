@@ -7,7 +7,9 @@
 
 #include "DCERouter.h"
 #include <iostream>
-#include <process>
+#ifndef WIN32
+#include <unistd.h>
+#endif
 using namespace std;
 using namespace DCE;
 
