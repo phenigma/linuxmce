@@ -201,6 +201,8 @@ bool XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosit
 {
     g_pPlutoLogger->Write(LV_STATUS, "Got a play media command for %s", fileName.c_str());
 
+	time_t startTime = time(NULL);
+
     bool isNewStream = false;
     XineStream *xineStream = getStreamForId(iStreamID, ""); /** @warning HACK: This should be changed to behave properly */
 
@@ -338,14 +340,14 @@ bool XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosit
         }
         if ( xine_play(xineStream->m_pStream, 0, 0) )
         {
+			g_pPlutoLogger->Write(LV_STATUS, "Playing... The command took %d seconds to complete: ", time(NULL) - startTime);
 
-            if ( ! xineStream->m_bHasVideo )
-            {
-                g_pPlutoLogger->Write(LV_STATUS, "Starting stream from position: %d", mediaPosition);
-                xine_play(xineStream->m_pStream, mediaPosition, 0);
-                xine_set_param(xineStream->m_pStream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL);
-                g_pPlutoLogger->Write(LV_STATUS, "Playing... ");
-            }
+//             if ( ! xineStream->m_bHasVideo )
+//             {
+			g_pPlutoLogger->Write(LV_STATUS, "Starting audio stream from position: %d", mediaPosition);
+			xine_play(xineStream->m_pStream, mediaPosition, 0);
+			xine_set_param(xineStream->m_pStream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL);
+//             }
         }
        else
             xineStream->m_pOwner->playbackCompleted(xineStream->m_iStreamID);
@@ -541,19 +543,17 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
 			break;
 
         case XINE_EVENT_PROGRESS:
-           /**
-            * @test
-                xine_progress_data_t *pevent = (xine_progress_data_t *) event->data;
-                send_event(XINE_SE_PROGRESS, "%s [%d%%]",  pevent->description, pevent->percent);
-            */
-            g_pPlutoLogger->Write(LV_WARNING, "Playback is running along.");
+			{
+				xine_progress_data_t *pProgressEvent = (xine_progress_data_t *) event->data;
+				g_pPlutoLogger->Write(LV_WARNING, "Playback (%s) is at %d%.", pProgressEvent->description, pProgressEvent->percent);
+			}
             break;
 
         case XINE_EVENT_UI_NUM_BUTTONS:
-            g_pPlutoLogger->Write(LV_STATUS, "Buttons");
             {
                 int iButtons = ((xine_ui_data_t *)event->data)->num_buttons;
 
+				g_pPlutoLogger->Write(LV_STATUS, "Menu with %d buttons", iButtons);
                 if ( xineStream->m_pOwner->m_pAggregatorObject )
                     xineStream->m_pOwner->m_pAggregatorObject->FireMenuOnScreen(xineStream->m_iRequestingObject, xineStream->m_iStreamID, iButtons != 0);
             }
@@ -579,9 +579,9 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
         //        } else {
           //          dvd_chapter = 0;
             //    }
-            	g_pPlutoLogger->Write(LV_STATUS, "Event ui set title");
+            	// g_pPlutoLogger->Write(LV_STATUS, "Event ");
 				// xineStream->m_pOwner->
-				g_pPlutoLogger->Write(LV_STATUS, "data: %s", data->str);
+				g_pPlutoLogger->Write(LV_STATUS, "UI set title: %s", data->str);
 /*
 				g_pPlutoLogger->Write(LV_STATUS, "Stream title: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_TITLE));
 				g_pPlutoLogger->Write(LV_STATUS, "Stream comment: %s", xine_get_meta_info(xineStream->m_pStream, XINE_META_INFO_COMMENT));
@@ -594,9 +594,38 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
 			}
 			break;
 
-        case XINE_EVENT_INPUT_MOUSE_MOVE:
-            // ignored at the moment;
-//             g_pPlutoLogger->Write(LV_STATUS, "Mouse move");
+		case XINE_EVENT_SPU_BUTTON:
+		case XINE_EVENT_INPUT_MOUSE_BUTTON:
+		case XINE_EVENT_INPUT_MOUSE_MOVE:
+		case XINE_EVENT_INPUT_MENU1:
+		case XINE_EVENT_INPUT_MENU2:
+		case XINE_EVENT_INPUT_MENU3:
+		case XINE_EVENT_INPUT_MENU4:
+		case XINE_EVENT_INPUT_MENU5:
+		case XINE_EVENT_INPUT_MENU6:
+		case XINE_EVENT_INPUT_MENU7:
+		case XINE_EVENT_INPUT_UP:
+		case XINE_EVENT_INPUT_DOWN:
+		case XINE_EVENT_INPUT_LEFT:
+		case XINE_EVENT_INPUT_RIGHT:
+		case XINE_EVENT_INPUT_SELECT:
+		case XINE_EVENT_INPUT_NEXT:
+		case XINE_EVENT_INPUT_PREVIOUS:
+		case XINE_EVENT_INPUT_ANGLE_NEXT:
+		case XINE_EVENT_INPUT_ANGLE_PREVIOUS:
+		case XINE_EVENT_INPUT_BUTTON_FORCE:
+		case XINE_EVENT_INPUT_NUMBER_0:
+		case XINE_EVENT_INPUT_NUMBER_1:
+		case XINE_EVENT_INPUT_NUMBER_2:
+		case XINE_EVENT_INPUT_NUMBER_3:
+		case XINE_EVENT_INPUT_NUMBER_4:
+		case XINE_EVENT_INPUT_NUMBER_5:
+		case XINE_EVENT_INPUT_NUMBER_6:
+		case XINE_EVENT_INPUT_NUMBER_7:
+		case XINE_EVENT_INPUT_NUMBER_8:
+		case XINE_EVENT_INPUT_NUMBER_9:
+		case XINE_EVENT_INPUT_NUMBER_10_ADD:
+		// ignored at the moment;
             break;
 
 		case XINE_EVENT_UI_CHANNELS_CHANGED:
@@ -604,7 +633,7 @@ void XineSlaveWrapper::xineEventListener(void *userData, const xine_event_t *eve
 			break;
 
         default:
-            g_pPlutoLogger->Write(LV_STATUS, "Got unprocessed m_pXine playback event: %d", event->type);
+            g_pPlutoLogger->Write(LV_STATUS, "Got unprocessed Xine playback event: %d", event->type);
             break;
     }
 }
@@ -654,24 +683,35 @@ void *XineSlaveWrapper::eventProcessingLoop(void *arguments)
 
     Bool checkResult;
 
+	Display *pDisplay = XOpenDisplay(getenv("DISPLAY"));
+
     XEvent  event;
     while ( ! pStream->m_pOwner->m_bExitThread )
     {
-        if ( ! pStream->m_bIsRendering )
-            checkResult = False;
-        else
-        {
-            XLockDisplay(pStream->m_pOwner->XServerDisplay);
-            checkResult = XCheckWindowEvent(pStream->m_pOwner->XServerDisplay, pStream->m_pOwner->windows[pStream->m_pOwner->m_iCurrentWindow], INPUT_MOTION, &event);
-            XUnlockDisplay(pStream->m_pOwner->XServerDisplay);
-        }
+        if ( pStream->m_bIsRendering )
+		{
+			do
+			{
+				XLockDisplay(pStream->m_pOwner->XServerDisplay);
+	//			g_pPlutoLogger->Write(LV_STATUS, "Locking display!");
+				//XLockDisplay(pDisplay);
+	//			g_pPlutoLogger->Write(LV_STATUS, "Getting next event!");
+				// checkResult = XWindowEvent(pDisplay, pStream->m_pOwner->windows[pStream->m_pOwner->m_iCurrentWindow], INPUT_MOTION, &event);
+				checkResult = XCheckWindowEvent(pStream->m_pOwner->XServerDisplay, pStream->m_pOwner->windows[pStream->m_pOwner->m_iCurrentWindow], INPUT_MOTION, &event);
+	//			g_pPlutoLogger->Write(LV_STATUS, "Unlocking display!");
+				//XUnlockDisplay(pDisplay);
+	//			g_pPlutoLogger->Write(LV_STATUS, "Done!");
+				XUnlockDisplay(pStream->m_pOwner->XServerDisplay);
 
-        if ( checkResult == True )
-            pStream->m_pOwner->XServerEventProcessor(pStream, event);
+				if ( checkResult == True )
+					pStream->m_pOwner->XServerEventProcessor(pStream, event);
 
-        usleep(20000);
+			} while ( checkResult == True );
+		}
+		usleep(1000);
     }
 
+	XCloseDisplay(pDisplay);
     return NULL;
 }
 
@@ -760,7 +800,7 @@ int XineSlaveWrapper::XServerEventProcessor(XineStream *pStream, XEvent &event)
             XLockDisplay(kevent.display);
             len = XLookupString(&kevent, kbuf, sizeof(kbuf), &ksym, NULL);
             XUnlockDisplay(kevent.display);
-            g_pPlutoLogger->Write(LV_STATUS, "Key (%d), %s %d", len, kbuf, ksym);
+            // g_pPlutoLogger->Write(LV_STATUS, "Key (%d), \"%s\" - %d", len, kbuf, ksym);
 
             xine_event_t       xineEvent;
             // xine_input_data_t  xineInput;
@@ -1055,6 +1095,7 @@ void XineSlaveWrapper::pauseMediaStream(int iStreamID)
  */
 void XineSlaveWrapper::sendInputEvent(int eventType)
 {
+	time_t startTime = time(NULL);
 	XineStream *pStream;
 	if ( (pStream = getStreamForId(1, "void XineSlaveWrapper::sendInputEvent(int eventType) getting one stream")) == NULL )
 		return;
@@ -1070,6 +1111,7 @@ void XineSlaveWrapper::sendInputEvent(int eventType)
     gettimeofday(&event.tv, NULL);
 
 	xine_event_send(pStream->m_pStream, &event);
+	g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::sendInputEvent() Sending input event with ID: %d took %d seconds", eventType, time(NULL) - startTime);
 }
 
 void XineSlaveWrapper::XineStream::setPlaybackSpeed(int speed)
@@ -1187,15 +1229,15 @@ void XineSlaveWrapper::make_snapshot(xine_stream_t *m_pstream, string sFormat, i
     int         imageWidth, imageHeight, imageRatio, imageFormat;
     uint8_t     *imageData;
 
-    g_pPlutoLogger->Write(LV_STATUS, "Getting frame info");
+    g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): Getting frame info");
     xine_get_current_frame(m_pstream, &imageWidth, &imageHeight, &imageRatio, &imageFormat, NULL);
-    g_pPlutoLogger->Write(LV_STATUS, "Got %d %d %d %d", imageWidth, imageHeight, imageRatio, imageFormat);
+    g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): Got %d %d %d %d", imageWidth, imageHeight, imageRatio, imageFormat);
 
     imageData = (uint8_t*)malloc ((imageWidth+8) * (imageHeight+1) * 2);
 
-    g_pPlutoLogger->Write(LV_STATUS, "Getting frame data");
+    g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): Getting frame data");
     xine_get_current_frame (m_pstream, &imageWidth, &imageHeight, &imageRatio, &imageFormat, imageData);
-    g_pPlutoLogger->Write(LV_STATUS, "Got %d %d %d %d", imageWidth, imageHeight, imageRatio, imageFormat);
+    g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): Got %d %d %d %d", imageWidth, imageHeight, imageRatio, imageFormat);
 
     // we should have the image in YV12 format aici
     // if not then we try to convert it.
@@ -1212,7 +1254,7 @@ void XineSlaveWrapper::make_snapshot(xine_stream_t *m_pstream, string sFormat, i
         free (yuy2Data);
     }
 
-    g_pPlutoLogger->Write(LV_STATUS, "Converted to YV12");
+    g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): Converted to YV12");
     // convert to RGB
     // keep the yv12Data array around to be able to delete it
     uint8_t *yv12Data = imageData;
@@ -1223,7 +1265,7 @@ void XineSlaveWrapper::make_snapshot(xine_stream_t *m_pstream, string sFormat, i
                     imageData + imageWidth * imageHeight,
                     imageData + imageWidth * imageHeight * 5 / 4,
                     imageWidth, imageHeight);
-    g_pPlutoLogger->Write(LV_STATUS, "Converted to RGB!");
+    g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): Converted to RGB!");
     free(yv12Data);
 
 
@@ -1231,7 +1273,7 @@ void XineSlaveWrapper::make_snapshot(xine_stream_t *m_pstream, string sFormat, i
     // double currentRatio;
 
 
-    g_pPlutoLogger->Write(LV_STATUS, "Temp data was freed here!");
+    g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): Temp data was freed here!");
     switch (imageRatio)
     {
         case XINE_VO_ASPECT_ANAMORPHIC:  /* anamorphic     */
@@ -1249,7 +1291,7 @@ void XineSlaveWrapper::make_snapshot(xine_stream_t *m_pstream, string sFormat, i
             break;
 
         default:
-            g_pPlutoLogger->Write(LV_WARNING, "Unknown aspect ratio for image (%d) using 4:3", imageRatio);
+            g_pPlutoLogger->Write(LV_WARNING, "XineSlaveWrapper::make_snapshot(): Unknown aspect ratio for image (%d) using 4:3", imageRatio);
 
         case XINE_VO_ASPECT_4_3:         /* 4:3             */
             outputRatio = 4.0 / 3.0;
@@ -1258,7 +1300,7 @@ void XineSlaveWrapper::make_snapshot(xine_stream_t *m_pstream, string sFormat, i
 
     double f = outputRatio / ((double) imageWidth / (double) imageHeight);
 
-    g_pPlutoLogger->Write(LV_STATUS, "The report between the current ration and the output ratio is %f", f);
+    g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): The ratio between the current ration and the output ratio is %f", f);
     double t_width, t_height;
 //     if( !bKeepAspect )
 //     {
@@ -1277,7 +1319,7 @@ void XineSlaveWrapper::make_snapshot(xine_stream_t *m_pstream, string sFormat, i
 
     FILE * file;
     file = fopen("/tmp/file.png", "wb");
-g_pPlutoLogger->Write(LV_STATUS, "tmp file %p", file);
+g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): temporary image filep %p", file);
 
     int BitsPerColor;
     png_bytepp image_rows;
@@ -1303,12 +1345,12 @@ g_pPlutoLogger->Write(LV_STATUS, "tmp file %p", file);
         PNG_COLOR_TYPE_RGB,
         PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 
-g_pPlutoLogger->Write(LV_STATUS, "before png write");
+g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): before png write");
     png_write_info(png_ptr, png_info);
     png_write_image(png_ptr, image_rows);
     png_write_end(png_ptr, png_info);
 
-g_pPlutoLogger->Write(LV_STATUS, "before delete");
+g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): before delete");
     delete [] image_rows;
     png_destroy_write_struct(&png_ptr, &png_info);
     fclose(file);
@@ -1317,7 +1359,7 @@ g_pPlutoLogger->Write(LV_STATUS, "before delete");
 
     if ( fileDescriptor == -1 )
     {
-        g_pPlutoLogger->Write(LV_WARNING, "Couldn't open the temp file /tmp/file.png. The error was: %s", strerror(errno));
+        g_pPlutoLogger->Write(LV_WARNING, "XineSlaveWrapper::make_snapshot(): Couldn't open the temp file /tmp/file.png. The error was: %s", strerror(errno));
         return;
     }
 
@@ -1329,7 +1371,7 @@ g_pPlutoLogger->Write(LV_STATUS, "before delete");
 
     read(fileDescriptor, pData, fileStat.st_size);
     close(fileDescriptor);
-g_pPlutoLogger->Write(LV_STATUS, "at end");
+g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): At the end. Returning");
 
     return;
 }
@@ -1511,7 +1553,6 @@ void XineSlaveWrapper::selectMenu(int iStreamID, int iMenuType)
     gettimeofday(&xine_event.tv, NULL);
 
     xine_event_send(xineStream->m_pStream, &xine_event);
-
 }
 
 void XineSlaveWrapper::playbackCompleted(int iStreamID)
