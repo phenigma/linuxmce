@@ -31,6 +31,7 @@ public:
         bool StartApp(string CmdExecutable, string CmdParams, string AppName, string sCommandsOnSuccess, string sCommandsOnFailure);
         void ProcessExited(int pid, int status);
 		virtual bool Connect(int iPK_DeviceTemplate );
+		virtual void KillSpawnedDevices(); // We need to change the behavior
 
 		void SendMessageList(string messageList);
 public:

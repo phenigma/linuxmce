@@ -4139,6 +4139,7 @@ void Orbiter::DeselectObjects( void *data )
 
 void Orbiter::GetVideoFrame( void *data )
 {
+    NeedToRender render( this, "GetVideoFrame" );
     PLUTO_SAFETY_LOCK( vm, m_ScreenMutex )
         DesignObj_Orbiter *pObj = ( DesignObj_Orbiter * ) data;
     if(  !pObj->m_bOnScreen  )

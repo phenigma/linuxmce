@@ -556,8 +556,6 @@ bool Command_Impl::InternalSendCommand( PreformedCommand &pPreformedCommand, int
 			p_sResponse = &sResponse;
 
 		bool bResult = m_pcRequestSocket->SendMessage( pPreformedCommand.m_pMessage, *p_sResponse );
-g_pPlutoLogger->Write(LV_STATUS,"Requesting confirmation for message id: %d result: %d %s return: %d", pPreformedCommand.m_pMessage->m_dwID,
-		  (int) bResult, (*p_sResponse).c_str(), (int) (bResult && *p_sResponse == "OK") );
 		return bResult && *p_sResponse == "OK";
 	}
 	// There are out parameters, we need to get a message back in return
@@ -565,7 +563,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Requesting confirmation for message id: %d resu
 	Message *pResponse = m_pcRequestSocket->SendReceiveMessage( pPreformedCommand.m_pMessage );
 	if( !pResponse || pResponse->m_dwID != 0 )
 	{
-g_pPlutoLogger->Write(LV_CRITICAL,"Requesting confirmation 2 for message id: %d failed %p", pPreformedCommand.m_pMessage->m_dwID, pResponse);
 		if(pResponse)
 			delete pResponse;
 
@@ -579,9 +576,6 @@ g_pPlutoLogger->Write(LV_CRITICAL,"Requesting confirmation 2 for message id: %d 
 		*p_sResponse = sResponse;
 
 	bool bResult = sResponse=="OK";
-
-g_pPlutoLogger->Write(LV_STATUS,"Requesting confirmation 3 for message id: %d result: %d %s return: %d", pPreformedCommand.m_pMessage->m_dwID,
-		  (int) bResult, sResponse.c_str(), (int) (bResult && sResponse == "OK") );
 
 	delete pResponse;
 	return bResult;

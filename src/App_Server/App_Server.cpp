@@ -436,3 +436,14 @@ void App_Server::CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Resul
 		break;
 	}
 }
+
+void App_Server::KillSpawnedDevices()
+{
+#ifndef WIN32
+	signal(SIGCHLD, SIG_IGN); 
+#endif
+	App_Server_Command::KillSpawnedDevices();
+
+	// This will only be called when we are dying, so we won't care about what happens to our spawned children.
+	// We had a problem that KillSpawnedDevices called KillPids.sh, which when exited, called the sh signal handler and hung at wait
+}

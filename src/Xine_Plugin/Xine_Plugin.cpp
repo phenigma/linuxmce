@@ -607,8 +607,8 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 			/** If it's an on-screen orbiter, just send it to the full screen menu */
 //            int DESIGNOBJ_full_screen_CONST=1; /** @todo - hack */
 //             DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL( m_dwPK_Device, sOnScreenOrbiters, 0, StringUtils::itos( DESIGNOBJ_full_screen_CONST ), "", "", false );
-			DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL( m_dwPK_Device, sOnScreenOrbiters, 0, StringUtils::itos( DESIGNOBJ_mnuDVDMenu_CONST ), "", "", false );
-			SendCommand( CMD_Goto_Screen_DL );
+//			DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL( m_dwPK_Device, sOnScreenOrbiters, 0, StringUtils::itos( DESIGNOBJ_mnuDVDMenu_CONST ), "", "", false );
+//			SendCommand( CMD_Goto_Screen_DL );
 		}
 	}
 	else if( sOtherOrbiters.size( ) )

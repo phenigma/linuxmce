@@ -487,6 +487,11 @@ void Router::ExecuteCommandGroup(int PK_CommandGroup,size_t sStartingCommand)
 	for(size_t s=sStartingCommand;s<pCommandGroup->m_vectCommandGroup_Command.size();++s)
 	{
 		CommandGroup_Command *pCommandGroup_Command = pCommandGroup->m_vectCommandGroup_Command[s];
+		if( !pCommandGroup_Command->m_pCommand )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Exec Command Group: %d has invalid command",PK_CommandGroup);
+			continue;
+		}
 		if( pCommandGroup_Command->m_pCommand->m_dwPK_Command==COMMAND_Delay_CONST )
 		{
 			int Milliseconds = atoi(pCommandGroup_Command->m_mapParameter[COMMANDPARAMETER_Time_CONST].c_str());

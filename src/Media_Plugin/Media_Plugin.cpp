@@ -324,7 +324,7 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
     MediaDevice *pMediaDevice = m_mapMediaDevice_Find( pDeviceFrom->m_dwPK_Device );
     if( !pMediaDevice )
     {
-        g_pPlutoLogger->Write( LV_CRITICAL, "Got a media inserted event from a drive that isn't a media device" );
+        g_pPlutoLogger->Write( LV_CRITICAL, "Got a media inserted event from %d -- a drive that isn't a media device", pDeviceFrom->m_dwPK_Device );
         return false; // Let someone else handle it
     }
 
@@ -462,6 +462,7 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
         pMediaStream = pEntertainArea->m_pMediaStream;
         pMediaStream->m_dequeMediaFile += *dequeMediaFile;
         pMediaStream->m_iDequeMediaFile_Pos = pMediaStream->m_dequeMediaFile.size()-1;
+	    pMediaStream->m_iPK_MediaType = pMediaHandlerInfo->m_PK_MediaType;
     }
     else
     {
@@ -475,6 +476,8 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
 			return false;
 		}
 
+		// ContainsVideo needs this too
+	    pMediaStream->m_iPK_MediaType = pMediaHandlerInfo->m_PK_MediaType;
 		if( pMediaStream->ContainsVideo() )
 			EVENT_Watching_Media(pEntertainArea->m_pRoom->m_dwPK_Room); 
 		else
@@ -486,7 +489,6 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
     }
 
     pMediaStream->m_pMediaHandlerInfo = pMediaHandlerInfo;
-    pMediaStream->m_iPK_MediaType = pMediaHandlerInfo->m_PK_MediaType;
     pMediaStream->m_mapEntertainArea[pEntertainArea->m_iPK_EntertainArea] = pEntertainArea;
 
     // HACK: get the user if the message originated from an orbiter!
@@ -556,7 +558,7 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
             }
         }
         else
-            g_pPlutoLogger->Write(LV_CRITICAL,"Media Plug-in's call to Start Media failed.");
+            g_pPlutoLogger->Write(LV_CRITICAL,"Media Plug-in -- there's no remote control for screen.");
 
 		// finally send the OnScreenDisplay orbiter (the one that is on the target media director) to the app_desktop screen.
         if( pMediaStream->m_pOH_Orbiter_OSD )
@@ -583,7 +585,7 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
 
     }
     else
-        g_pPlutoLogger->Write(LV_CRITICAL,"Media Plug-in's call to Start Media failed.");
+        g_pPlutoLogger->Write(LV_CRITICAL,"Media Plug-in's call to Start Media failed 2.");
 
     g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::StartMedia() function call completed with honors!");
 
@@ -785,20 +787,20 @@ void Media_Plugin::MediaInEAEnded(EntertainArea *pEntertainArea)
 g_pPlutoLogger->Write( LV_STATUS, "Stream in ea %s ended", pEntertainArea->m_sDescription.c_str() );
 	pEntertainArea->m_pMediaStream = NULL;
 
-	// Send all bound remotes back home
-	for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
-    {
-        BoundRemote *pBoundRemote = ( *itBR ).second;
-		DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,"<%=M%>","","",false);
-		SendCommand(CMD_Goto_Screen);
-    }
-
 	// Set all the now playing's to nothing
     for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
     {
         OH_Orbiter *pOH_Orbiter = (*it).second;
         if( pOH_Orbiter->m_pEntertainArea==pEntertainArea )
             m_pOrbiter_Plugin->SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, "" );
+    }
+
+	// Send all bound remotes back home
+	for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
+    {
+        BoundRemote *pBoundRemote = ( *itBR ).second;
+		DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,"<%=M%>","","",false);
+		SendCommand(CMD_Goto_Screen);
     }
 }
 
@@ -877,17 +879,17 @@ void Media_Plugin::CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,
         sCMD_Result="Can't find ent area/orbiter";
         return; // Don't know what area it should be played in, or there's no media playing there
     }
-    if( !pEntertainArea->m_pMediaStream )
-    {
-        sCMD_Result="No media stream";
-        g_pPlutoLogger->Write(LV_CRITICAL,"Attempt to bind to a remote in an entertainment area with no media stream");
-        return; // Don't know what area it should be played in, or there's no media playing there
-    }
 
-    if( !atoi( sOnOff.c_str( ) ) ) // Off
+	if( !atoi( sOnOff.c_str( ) ) ) // Off
         pEntertainArea->m_mapBoundRemote_Remove( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device );
     else
     {
+		if( !pEntertainArea->m_pMediaStream )
+		{
+			sCMD_Result="No media stream";
+			g_pPlutoLogger->Write(LV_CRITICAL,"Attempt to bind to a remote in an entertainment area with no media stream");
+			return; // Don't know what area it should be played in, or there's no media playing there
+		}
 
         BoundRemote *pBoundRemote=pEntertainArea->m_mapBoundRemote_Find( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device );
         if( !pBoundRemote )
@@ -1468,7 +1470,7 @@ int Media_Plugin::DetermineUserOnOrbiter(int iPK_Device_Orbiter)
 void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,string &sCMD_Result,Message *pMessage)
 //<-dceag-c43-e->
 {
-    int iPK_EntertainArea = atoi(sPK_EntertainArea.c_str()); // TODO: handle multiple entertainment areas
+	int iPK_EntertainArea = atoi(sPK_EntertainArea.c_str()); // TODO: handle multiple entertainment areas
     PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
 
 	int iPK_Device_Orbiter = pMessage->m_dwPK_Device_From;
