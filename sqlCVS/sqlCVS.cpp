@@ -165,8 +165,6 @@ int main( int argc, char *argv[] )
 	bool bError=false; /** An error parsing the command line */
 
 	string sUsers;
-g_GlobalConfig.m_sDBHost="10.0.0.150";
-g_GlobalConfig.m_sDBName="pluto_server"; // so I don't accidentally overwrite pluto_main
 	char c;
 	for( int optnum=1;optnum<argc;++optnum )
 	{
@@ -398,7 +396,6 @@ g_GlobalConfig.m_sDBName="pluto_server"; // so I don't accidentally overwrite pl
 				database.DumpTables( sRepository, &listCommandParms );
 
 */
-getch();
 return 0;
 		};
 	}
