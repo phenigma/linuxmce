@@ -82,12 +82,8 @@ class DLL_EXPORT Row_CriteriaList : public TableRow, public SerializeClass
 		long int m_PK_CriteriaList;
 string m_Description;
 string m_Define;
-string m_Modification_RecordInfo;
-short int m_IsNew_RecordInfo;
-short int m_IsDeleted_RecordInfo;
-long int m_FK_Users_RecordInfo;
 
-		bool is_null[7];
+		bool is_null[3];
 	
 		bool is_deleted;
 		bool is_added;
@@ -97,30 +93,16 @@ long int m_FK_Users_RecordInfo;
 		long int PK_CriteriaList_get();
 string Description_get();
 string Define_get();
-string Modification_RecordInfo_get();
-short int IsNew_RecordInfo_get();
-short int IsDeleted_RecordInfo_get();
-long int FK_Users_RecordInfo_get();
 
 		
 		void PK_CriteriaList_set(long int val);
 void Description_set(string val);
 void Define_set(string val);
-void Modification_RecordInfo_set(string val);
-void IsNew_RecordInfo_set(short int val);
-void IsDeleted_RecordInfo_set(short int val);
-void FK_Users_RecordInfo_set(long int val);
 
 		
-		bool IsNew_RecordInfo_isNull();
-bool IsDeleted_RecordInfo_isNull();
-bool FK_Users_RecordInfo_isNull();
-
+		
 			
-		void IsNew_RecordInfo_setNull(bool val);
-void IsDeleted_RecordInfo_setNull(bool val);
-void FK_Users_RecordInfo_setNull(bool val);
-	
+			
 	
 		void Delete();
 		void Reload();		
@@ -142,7 +124,7 @@ void Criteria_D_FK_CriteriaList_getrows(vector <class Row_Criteria_D*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_CriteriaList+ m_Description+ m_Define+ m_Modification_RecordInfo+ m_IsNew_RecordInfo+ m_IsDeleted_RecordInfo+ m_FK_Users_RecordInfo;
+			StartSerializeList() + m_PK_CriteriaList+ m_Description+ m_Define;
 		}
 	private:
 		void SetDefaultValues();
@@ -150,10 +132,6 @@ void Criteria_D_FK_CriteriaList_getrows(vector <class Row_Criteria_D*> *rows);
 		string PK_CriteriaList_asSQL();
 string Description_asSQL();
 string Define_asSQL();
-string Modification_RecordInfo_asSQL();
-string IsNew_RecordInfo_asSQL();
-string IsDeleted_RecordInfo_asSQL();
-string FK_Users_RecordInfo_asSQL();
 
 	};
 

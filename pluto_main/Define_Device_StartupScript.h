@@ -15,6 +15,16 @@
 #define DEVICE_STARTUPSCRIPT_ENABLED_TABLE_FIELD "Device_StartupScript.Enabled"
 #define DEVICE_STARTUPSCRIPT_PARAMETER_FIELD "Parameter"
 #define DEVICE_STARTUPSCRIPT_PARAMETER_TABLE_FIELD "Device_StartupScript.Parameter"
+#define DEVICE_STARTUPSCRIPT_PSC_ID_FIELD "psc_id"
+#define DEVICE_STARTUPSCRIPT_PSC_ID_TABLE_FIELD "Device_StartupScript.psc_id"
+#define DEVICE_STARTUPSCRIPT_PSC_BATCH_FIELD "psc_batch"
+#define DEVICE_STARTUPSCRIPT_PSC_BATCH_TABLE_FIELD "Device_StartupScript.psc_batch"
+#define DEVICE_STARTUPSCRIPT_PSC_USER_FIELD "psc_user"
+#define DEVICE_STARTUPSCRIPT_PSC_USER_TABLE_FIELD "Device_StartupScript.psc_user"
+#define DEVICE_STARTUPSCRIPT_PSC_FROZEN_FIELD "psc_frozen"
+#define DEVICE_STARTUPSCRIPT_PSC_FROZEN_TABLE_FIELD "Device_StartupScript.psc_frozen"
+#define DEVICE_STARTUPSCRIPT_PSC_MOD_FIELD "psc_mod"
+#define DEVICE_STARTUPSCRIPT_PSC_MOD_TABLE_FIELD "Device_StartupScript.psc_mod"
 
 
 #endif

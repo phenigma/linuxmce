@@ -20,6 +20,8 @@ using namespace std;
 #include "Table_Package.h"
 
 #include "Table_DeviceTemplate_Package.h"
+#include "Table_Package_Directory.h"
+#include "Table_Package_Distro.h"
 
 
 void Database_pluto_main::CreateTable_Package()
@@ -112,19 +114,13 @@ void Row_Package::SetDefaultValues()
 is_null[0] = false;
 m_Description = "";
 is_null[1] = false;
-m_PackageName = "";
-is_null[2] = false;
+is_null[2] = true;
 is_null[3] = true;
 is_null[4] = true;
-m_Version = "";
+m_psc_frozen = 0;
 is_null[5] = false;
-m_Modification_RecordInfo = "00000000000000";
+m_psc_mod = "00000000000000";
 is_null[6] = false;
-m_IsNew_RecordInfo = 1;
-is_null[7] = false;
-m_IsDeleted_RecordInfo = 0;
-is_null[8] = false;
-is_null[9] = true;
 
 
 	is_added=false;
@@ -138,30 +134,21 @@ return m_PK_Package;}
 string Row_Package::Description_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Description;}
-string Row_Package::PackageName_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Package::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_PackageName;}
-string Row_Package::Source_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_psc_id;}
+long int Row_Package::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_Source;}
-string Row_Package::Repository_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_psc_batch;}
+long int Row_Package::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_Repository;}
-string Row_Package::Version_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_psc_user;}
+short int Row_Package::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_Version;}
-string Row_Package::Modification_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_psc_frozen;}
+string Row_Package::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_Modification_RecordInfo;}
-short int Row_Package::IsNew_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return m_IsNew_RecordInfo;}
-short int Row_Package::IsDeleted_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return m_IsDeleted_RecordInfo;}
-long int Row_Package::FK_Users_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return m_FK_Users_RecordInfo;}
+return m_psc_mod;}
 
 		
 void Row_Package::PK_Package_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -170,64 +157,49 @@ m_PK_Package = val; is_modified=true; is_null[0]=false;}
 void Row_Package::Description_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Description = val; is_modified=true; is_null[1]=false;}
-void Row_Package::PackageName_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_PackageName = val; is_modified=true; is_null[2]=false;}
-void Row_Package::Source_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_psc_id = val; is_modified=true; is_null[2]=false;}
+void Row_Package::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Source = val; is_modified=true; is_null[3]=false;}
-void Row_Package::Repository_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_psc_batch = val; is_modified=true; is_null[3]=false;}
+void Row_Package::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Repository = val; is_modified=true; is_null[4]=false;}
-void Row_Package::Version_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_psc_user = val; is_modified=true; is_null[4]=false;}
+void Row_Package::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Version = val; is_modified=true; is_null[5]=false;}
-void Row_Package::Modification_RecordInfo_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_psc_frozen = val; is_modified=true; is_null[5]=false;}
+void Row_Package::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Modification_RecordInfo = val; is_modified=true; is_null[6]=false;}
-void Row_Package::IsNew_RecordInfo_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-m_IsNew_RecordInfo = val; is_modified=true; is_null[7]=false;}
-void Row_Package::IsDeleted_RecordInfo_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-m_IsDeleted_RecordInfo = val; is_modified=true; is_null[8]=false;}
-void Row_Package::FK_Users_RecordInfo_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-m_FK_Users_RecordInfo = val; is_modified=true; is_null[9]=false;}
+m_psc_mod = val; is_modified=true; is_null[6]=false;}
 
 		
-bool Row_Package::Source_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[2];}
+bool Row_Package::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[3];}
-bool Row_Package::Repository_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[4];}
-bool Row_Package::IsNew_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[7];}
-bool Row_Package::IsDeleted_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return is_null[8];}
-bool Row_Package::FK_Users_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return is_null[9];}
+return is_null[5];}
 
 			
-void Row_Package::Source_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[2]=val;}
+void Row_Package::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[3]=val;}
-void Row_Package::Repository_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[4]=val;}
-void Row_Package::IsNew_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[7]=val;}
-void Row_Package::IsDeleted_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[8]=val;}
-void Row_Package::FK_Users_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[9]=val;}
+is_null[5]=val;}
 	
 
 string Row_Package::PK_Package_asSQL()
@@ -255,55 +227,59 @@ mysql_real_escape_string(table->database->db_handle, buf, m_Description.c_str(),
 return string()+"\""+buf+"\"";
 }
 
-string Row_Package::PackageName_asSQL()
+string Row_Package::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[2])
 return "NULL";
 
-char buf[71];
-mysql_real_escape_string(table->database->db_handle, buf, m_PackageName.c_str(), (unsigned long) m_PackageName.size());
-return string()+"\""+buf+"\"";
+char buf[32];
+sprintf(buf, "%li", m_psc_id);
+
+return buf;
 }
 
-string Row_Package::Source_asSQL()
+string Row_Package::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[3])
 return "NULL";
 
-char buf[51];
-mysql_real_escape_string(table->database->db_handle, buf, m_Source.c_str(), (unsigned long) m_Source.size());
-return string()+"\""+buf+"\"";
+char buf[32];
+sprintf(buf, "%li", m_psc_batch);
+
+return buf;
 }
 
-string Row_Package::Repository_asSQL()
+string Row_Package::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[4])
 return "NULL";
 
-char buf[51];
-mysql_real_escape_string(table->database->db_handle, buf, m_Repository.c_str(), (unsigned long) m_Repository.size());
-return string()+"\""+buf+"\"";
+char buf[32];
+sprintf(buf, "%li", m_psc_user);
+
+return buf;
 }
 
-string Row_Package::Version_asSQL()
+string Row_Package::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[5])
 return "NULL";
 
-char buf[41];
-mysql_real_escape_string(table->database->db_handle, buf, m_Version.c_str(), (unsigned long) m_Version.size());
-return string()+"\""+buf+"\"";
+char buf[32];
+sprintf(buf, "%hi", m_psc_frozen);
+
+return buf;
 }
 
-string Row_Package::Modification_RecordInfo_asSQL()
+string Row_Package::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -311,47 +287,8 @@ if (is_null[6])
 return "NULL";
 
 char buf[29];
-mysql_real_escape_string(table->database->db_handle, buf, m_Modification_RecordInfo.c_str(), (unsigned long) m_Modification_RecordInfo.size());
+mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
 return string()+"\""+buf+"\"";
-}
-
-string Row_Package::IsNew_RecordInfo_asSQL()
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-if (is_null[7])
-return "NULL";
-
-char buf[32];
-sprintf(buf, "%hi", m_IsNew_RecordInfo);
-
-return buf;
-}
-
-string Row_Package::IsDeleted_RecordInfo_asSQL()
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-if (is_null[8])
-return "NULL";
-
-char buf[32];
-sprintf(buf, "%hi", m_IsDeleted_RecordInfo);
-
-return buf;
-}
-
-string Row_Package::FK_Users_RecordInfo_asSQL()
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-if (is_null[9])
-return "NULL";
-
-char buf[32];
-sprintf(buf, "%li", m_FK_Users_RecordInfo);
-
-return buf;
 }
 
 
@@ -392,10 +329,10 @@ void Table_Package::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->PackageName_asSQL()+", "+pRow->Source_asSQL()+", "+pRow->Repository_asSQL()+", "+pRow->Version_asSQL()+", "+pRow->Modification_RecordInfo_asSQL()+", "+pRow->IsNew_RecordInfo_asSQL()+", "+pRow->IsDeleted_RecordInfo_asSQL()+", "+pRow->FK_Users_RecordInfo_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into Package (PK_Package, Description, PackageName, Source, Repository, Version, Modification_RecordInfo, IsNew_RecordInfo, IsDeleted_RecordInfo, FK_Users_RecordInfo) values ("+
+		string query = "insert into Package (PK_Package, Description, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -444,7 +381,7 @@ condition = condition + "PK_Package=" + tmp_PK_Package;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Package="+pRow->PK_Package_asSQL()+", Description="+pRow->Description_asSQL()+", PackageName="+pRow->PackageName_asSQL()+", Source="+pRow->Source_asSQL()+", Repository="+pRow->Repository_asSQL()+", Version="+pRow->Version_asSQL()+", Modification_RecordInfo="+pRow->Modification_RecordInfo_asSQL()+", IsNew_RecordInfo="+pRow->IsNew_RecordInfo_asSQL()+", IsDeleted_RecordInfo="+pRow->IsDeleted_RecordInfo_asSQL()+", FK_Users_RecordInfo="+pRow->FK_Users_RecordInfo_asSQL();
+update_values_list = update_values_list + "PK_Package="+pRow->PK_Package_asSQL()+", Description="+pRow->Description_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update Package set " + update_values_list + " where " + condition;
@@ -550,89 +487,56 @@ pRow->m_Description = string(row[1],lengths[1]);
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_PackageName = "";
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-pRow->m_PackageName = string(row[2],lengths[2]);
+sscanf(row[2], "%li", &(pRow->m_psc_id));
 }
 
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_Source = "";
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[3]=false;
-pRow->m_Source = string(row[3],lengths[3]);
+sscanf(row[3], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_Repository = "";
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-pRow->m_Repository = string(row[4],lengths[4]);
+sscanf(row[4], "%li", &(pRow->m_psc_user));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_Version = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-pRow->m_Version = string(row[5],lengths[5]);
+sscanf(row[5], "%hi", &(pRow->m_psc_frozen));
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_Modification_RecordInfo = "";
+pRow->m_psc_mod = "";
 }
 else
 {
 pRow->is_null[6]=false;
-pRow->m_Modification_RecordInfo = string(row[6],lengths[6]);
-}
-
-if (row[7] == NULL)
-{
-pRow->is_null[7]=true;
-pRow->m_IsNew_RecordInfo = 0;
-}
-else
-{
-pRow->is_null[7]=false;
-sscanf(row[7], "%hi", &(pRow->m_IsNew_RecordInfo));
-}
-
-if (row[8] == NULL)
-{
-pRow->is_null[8]=true;
-pRow->m_IsDeleted_RecordInfo = 0;
-}
-else
-{
-pRow->is_null[8]=false;
-sscanf(row[8], "%hi", &(pRow->m_IsDeleted_RecordInfo));
-}
-
-if (row[9] == NULL)
-{
-pRow->is_null[9]=true;
-pRow->m_FK_Users_RecordInfo = 0;
-}
-else
-{
-pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_FK_Users_RecordInfo));
+pRow->m_psc_mod = string(row[6],lengths[6]);
 }
 
 
@@ -766,89 +670,56 @@ pRow->m_Description = string(row[1],lengths[1]);
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_PackageName = "";
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-pRow->m_PackageName = string(row[2],lengths[2]);
+sscanf(row[2], "%li", &(pRow->m_psc_id));
 }
 
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_Source = "";
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[3]=false;
-pRow->m_Source = string(row[3],lengths[3]);
+sscanf(row[3], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_Repository = "";
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-pRow->m_Repository = string(row[4],lengths[4]);
+sscanf(row[4], "%li", &(pRow->m_psc_user));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_Version = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-pRow->m_Version = string(row[5],lengths[5]);
+sscanf(row[5], "%hi", &(pRow->m_psc_frozen));
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_Modification_RecordInfo = "";
+pRow->m_psc_mod = "";
 }
 else
 {
 pRow->is_null[6]=false;
-pRow->m_Modification_RecordInfo = string(row[6],lengths[6]);
-}
-
-if (row[7] == NULL)
-{
-pRow->is_null[7]=true;
-pRow->m_IsNew_RecordInfo = 0;
-}
-else
-{
-pRow->is_null[7]=false;
-sscanf(row[7], "%hi", &(pRow->m_IsNew_RecordInfo));
-}
-
-if (row[8] == NULL)
-{
-pRow->is_null[8]=true;
-pRow->m_IsDeleted_RecordInfo = 0;
-}
-else
-{
-pRow->is_null[8]=false;
-sscanf(row[8], "%hi", &(pRow->m_IsDeleted_RecordInfo));
-}
-
-if (row[9] == NULL)
-{
-pRow->is_null[9]=true;
-pRow->m_FK_Users_RecordInfo = 0;
-}
-else
-{
-pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_FK_Users_RecordInfo));
+pRow->m_psc_mod = string(row[6],lengths[6]);
 }
 
 
@@ -866,6 +737,20 @@ void Row_Package::DeviceTemplate_Package_FK_Package_getrows(vector <class Row_De
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_Package *pTable = table->database->DeviceTemplate_Package_get();
+pTable->GetRows("FK_Package=" + StringUtils::itos(m_PK_Package),rows);
+}
+void Row_Package::Package_Directory_FK_Package_getrows(vector <class Row_Package_Directory*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Package_Directory *pTable = table->database->Package_Directory_get();
+pTable->GetRows("FK_Package=" + StringUtils::itos(m_PK_Package),rows);
+}
+void Row_Package::Package_Distro_FK_Package_getrows(vector <class Row_Package_Distro*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Package_Distro *pTable = table->database->Package_Distro_get();
 pTable->GetRows("FK_Package=" + StringUtils::itos(m_PK_Package),rows);
 }
 

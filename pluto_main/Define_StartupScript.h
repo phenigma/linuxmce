@@ -35,6 +35,16 @@
 #define STARTUPSCRIPT_HYBRID_ENABLED_TABLE_FIELD "StartupScript.Hybrid_Enabled"
 #define STARTUPSCRIPT_HYBRID_PARAMETER_FIELD "Hybrid_Parameter"
 #define STARTUPSCRIPT_HYBRID_PARAMETER_TABLE_FIELD "StartupScript.Hybrid_Parameter"
+#define STARTUPSCRIPT_PSC_ID_FIELD "psc_id"
+#define STARTUPSCRIPT_PSC_ID_TABLE_FIELD "StartupScript.psc_id"
+#define STARTUPSCRIPT_PSC_BATCH_FIELD "psc_batch"
+#define STARTUPSCRIPT_PSC_BATCH_TABLE_FIELD "StartupScript.psc_batch"
+#define STARTUPSCRIPT_PSC_USER_FIELD "psc_user"
+#define STARTUPSCRIPT_PSC_USER_TABLE_FIELD "StartupScript.psc_user"
+#define STARTUPSCRIPT_PSC_FROZEN_FIELD "psc_frozen"
+#define STARTUPSCRIPT_PSC_FROZEN_TABLE_FIELD "StartupScript.psc_frozen"
+#define STARTUPSCRIPT_PSC_MOD_FIELD "psc_mod"
+#define STARTUPSCRIPT_PSC_MOD_TABLE_FIELD "StartupScript.psc_mod"
 
 
 #endif

@@ -126,13 +126,13 @@ is_null[1] = false;
 m_Define = "";
 is_null[2] = false;
 is_null[3] = true;
-m_Modification_RecordInfo = "00000000000000";
-is_null[4] = false;
-m_IsNew_RecordInfo = 1;
-is_null[5] = false;
-m_IsDeleted_RecordInfo = 0;
-is_null[6] = false;
-is_null[7] = true;
+is_null[4] = true;
+is_null[5] = true;
+is_null[6] = true;
+m_psc_frozen = 0;
+is_null[7] = false;
+m_psc_mod = "00000000000000";
+is_null[8] = false;
 
 
 	is_added=false;
@@ -152,18 +152,21 @@ return m_Define;}
 long int Row_Input::FK_Command_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_Command;}
-string Row_Input::Modification_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Input::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_Modification_RecordInfo;}
-short int Row_Input::IsNew_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_psc_id;}
+long int Row_Input::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_IsNew_RecordInfo;}
-short int Row_Input::IsDeleted_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_psc_batch;}
+long int Row_Input::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_IsDeleted_RecordInfo;}
-long int Row_Input::FK_Users_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_psc_user;}
+short int Row_Input::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_FK_Users_RecordInfo;}
+return m_psc_frozen;}
+string Row_Input::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_mod;}
 
 		
 void Row_Input::PK_Input_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -178,30 +181,36 @@ m_Define = val; is_modified=true; is_null[2]=false;}
 void Row_Input::FK_Command_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_Command = val; is_modified=true; is_null[3]=false;}
-void Row_Input::Modification_RecordInfo_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Input::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Modification_RecordInfo = val; is_modified=true; is_null[4]=false;}
-void Row_Input::IsNew_RecordInfo_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_psc_id = val; is_modified=true; is_null[4]=false;}
+void Row_Input::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_IsNew_RecordInfo = val; is_modified=true; is_null[5]=false;}
-void Row_Input::IsDeleted_RecordInfo_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_psc_batch = val; is_modified=true; is_null[5]=false;}
+void Row_Input::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_IsDeleted_RecordInfo = val; is_modified=true; is_null[6]=false;}
-void Row_Input::FK_Users_RecordInfo_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_psc_user = val; is_modified=true; is_null[6]=false;}
+void Row_Input::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_FK_Users_RecordInfo = val; is_modified=true; is_null[7]=false;}
+m_psc_frozen = val; is_modified=true; is_null[7]=false;}
+void Row_Input::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_mod = val; is_modified=true; is_null[8]=false;}
 
 		
 bool Row_Input::FK_Command_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[3];}
-bool Row_Input::IsNew_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Input::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[4];}
+bool Row_Input::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[5];}
-bool Row_Input::IsDeleted_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Input::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[6];}
-bool Row_Input::FK_Users_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Input::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[7];}
 
@@ -209,13 +218,16 @@ return is_null[7];}
 void Row_Input::FK_Command_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[3]=val;}
-void Row_Input::IsNew_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Input::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[4]=val;}
+void Row_Input::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[5]=val;}
-void Row_Input::IsDeleted_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Input::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[6]=val;}
-void Row_Input::FK_Users_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Input::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[7]=val;}
 	
@@ -270,19 +282,20 @@ sprintf(buf, "%li", m_FK_Command);
 return buf;
 }
 
-string Row_Input::Modification_RecordInfo_asSQL()
+string Row_Input::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[4])
 return "NULL";
 
-char buf[29];
-mysql_real_escape_string(table->database->db_handle, buf, m_Modification_RecordInfo.c_str(), (unsigned long) m_Modification_RecordInfo.size());
-return string()+"\""+buf+"\"";
+char buf[32];
+sprintf(buf, "%li", m_psc_id);
+
+return buf;
 }
 
-string Row_Input::IsNew_RecordInfo_asSQL()
+string Row_Input::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -290,12 +303,12 @@ if (is_null[5])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%hi", m_IsNew_RecordInfo);
+sprintf(buf, "%li", m_psc_batch);
 
 return buf;
 }
 
-string Row_Input::IsDeleted_RecordInfo_asSQL()
+string Row_Input::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -303,12 +316,12 @@ if (is_null[6])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%hi", m_IsDeleted_RecordInfo);
+sprintf(buf, "%li", m_psc_user);
 
 return buf;
 }
 
-string Row_Input::FK_Users_RecordInfo_asSQL()
+string Row_Input::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -316,9 +329,21 @@ if (is_null[7])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_FK_Users_RecordInfo);
+sprintf(buf, "%hi", m_psc_frozen);
 
 return buf;
+}
+
+string Row_Input::psc_mod_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[8])
+return "NULL";
+
+char buf[29];
+mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
+return string()+"\""+buf+"\"";
 }
 
 
@@ -359,10 +384,10 @@ void Table_Input::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Input_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->FK_Command_asSQL()+", "+pRow->Modification_RecordInfo_asSQL()+", "+pRow->IsNew_RecordInfo_asSQL()+", "+pRow->IsDeleted_RecordInfo_asSQL()+", "+pRow->FK_Users_RecordInfo_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Input_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->FK_Command_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into Input (PK_Input, Description, Define, FK_Command, Modification_RecordInfo, IsNew_RecordInfo, IsDeleted_RecordInfo, FK_Users_RecordInfo) values ("+
+		string query = "insert into Input (PK_Input, Description, Define, FK_Command, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -411,7 +436,7 @@ condition = condition + "PK_Input=" + tmp_PK_Input;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Input="+pRow->PK_Input_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", FK_Command="+pRow->FK_Command_asSQL()+", Modification_RecordInfo="+pRow->Modification_RecordInfo_asSQL()+", IsNew_RecordInfo="+pRow->IsNew_RecordInfo_asSQL()+", IsDeleted_RecordInfo="+pRow->IsDeleted_RecordInfo_asSQL()+", FK_Users_RecordInfo="+pRow->FK_Users_RecordInfo_asSQL();
+update_values_list = update_values_list + "PK_Input="+pRow->PK_Input_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", FK_Command="+pRow->FK_Command_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update Input set " + update_values_list + " where " + condition;
@@ -539,45 +564,56 @@ sscanf(row[3], "%li", &(pRow->m_FK_Command));
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_Modification_RecordInfo = "";
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-pRow->m_Modification_RecordInfo = string(row[4],lengths[4]);
+sscanf(row[4], "%li", &(pRow->m_psc_id));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_IsNew_RecordInfo = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%hi", &(pRow->m_IsNew_RecordInfo));
+sscanf(row[5], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_IsDeleted_RecordInfo = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%hi", &(pRow->m_IsDeleted_RecordInfo));
+sscanf(row[6], "%li", &(pRow->m_psc_user));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_FK_Users_RecordInfo = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%li", &(pRow->m_FK_Users_RecordInfo));
+sscanf(row[7], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[8] == NULL)
+{
+pRow->is_null[8]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[8]=false;
+pRow->m_psc_mod = string(row[8],lengths[8]);
 }
 
 
@@ -733,45 +769,56 @@ sscanf(row[3], "%li", &(pRow->m_FK_Command));
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_Modification_RecordInfo = "";
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-pRow->m_Modification_RecordInfo = string(row[4],lengths[4]);
+sscanf(row[4], "%li", &(pRow->m_psc_id));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_IsNew_RecordInfo = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%hi", &(pRow->m_IsNew_RecordInfo));
+sscanf(row[5], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_IsDeleted_RecordInfo = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%hi", &(pRow->m_IsDeleted_RecordInfo));
+sscanf(row[6], "%li", &(pRow->m_psc_user));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_FK_Users_RecordInfo = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%li", &(pRow->m_FK_Users_RecordInfo));
+sscanf(row[7], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[8] == NULL)
+{
+pRow->is_null[8]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[8]=false;
+pRow->m_psc_mod = string(row[8],lengths[8]);
 }
 
 

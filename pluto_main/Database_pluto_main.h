@@ -96,16 +96,18 @@ class Table_Device_Device_Related* tblDevice_Device_Related;
 class Table_Device_EntertainArea* tblDevice_EntertainArea;
 class Table_Device_HouseMode* tblDevice_HouseMode;
 class Table_Device_Orbiter* tblDevice_Orbiter;
+class Table_Device_Package_Directory* tblDevice_Package_Directory;
 class Table_Device_StartupScript* tblDevice_StartupScript;
 class Table_Device_Users* tblDevice_Users;
 class Table_Direction* tblDirection;
+class Table_Directory* tblDirectory;
+class Table_Distro* tblDistro;
 class Table_EntertainArea* tblEntertainArea;
 class Table_Event* tblEvent;
 class Table_EventCategory* tblEventCategory;
 class Table_EventHandler* tblEventHandler;
 class Table_EventParameter* tblEventParameter;
 class Table_Event_EventParameter* tblEvent_EventParameter;
-class Table_ExecTime* tblExecTime;
 class Table_Floorplan* tblFloorplan;
 class Table_FloorplanObjectType* tblFloorplanObjectType;
 class Table_FloorplanObjectType_Color* tblFloorplanObjectType_Color;
@@ -123,22 +125,29 @@ class Table_InfraredGroup_DSPMode* tblInfraredGroup_DSPMode;
 class Table_InfraredGroup_Input* tblInfraredGroup_Input;
 class Table_Input* tblInput;
 class Table_Installation* tblInstallation;
+class Table_Installation_RepositorySource_URL* tblInstallation_RepositorySource_URL;
 class Table_Installation_Users* tblInstallation_Users;
 class Table_Language* tblLanguage;
 class Table_Manufacturer* tblManufacturer;
 class Table_MediaType* tblMediaType;
 class Table_MediaType_Broadcast* tblMediaType_Broadcast;
 class Table_MobilePhoneVersion* tblMobilePhoneVersion;
+class Table_OperatingSystem* tblOperatingSystem;
+class Table_OperatingSystem_Directory* tblOperatingSystem_Directory;
 class Table_Orbiter* tblOrbiter;
 class Table_Orbiter_Users_PasswordReq* tblOrbiter_Users_PasswordReq;
 class Table_Orbiter_Variable* tblOrbiter_Variable;
 class Table_Output* tblOutput;
 class Table_Package* tblPackage;
+class Table_Package_Directory* tblPackage_Directory;
+class Table_Package_Directory_File* tblPackage_Directory_File;
+class Table_Package_Distro* tblPackage_Distro;
 class Table_ParameterType* tblParameterType;
 class Table_PhoneLineType* tblPhoneLineType;
 class Table_Pipe* tblPipe;
+class Table_RepositorySource* tblRepositorySource;
+class Table_RepositorySource_URL* tblRepositorySource_URL;
 class Table_Room* tblRoom;
-class Table_RoomMode* tblRoomMode;
 class Table_RoomType* tblRoomType;
 class Table_SetupStep* tblSetupStep;
 class Table_Size* tblSize;
@@ -241,16 +250,18 @@ class Table_Device_Device_Related* Device_Device_Related_get() { return tblDevic
 class Table_Device_EntertainArea* Device_EntertainArea_get() { return tblDevice_EntertainArea; }
 class Table_Device_HouseMode* Device_HouseMode_get() { return tblDevice_HouseMode; }
 class Table_Device_Orbiter* Device_Orbiter_get() { return tblDevice_Orbiter; }
+class Table_Device_Package_Directory* Device_Package_Directory_get() { return tblDevice_Package_Directory; }
 class Table_Device_StartupScript* Device_StartupScript_get() { return tblDevice_StartupScript; }
 class Table_Device_Users* Device_Users_get() { return tblDevice_Users; }
 class Table_Direction* Direction_get() { return tblDirection; }
+class Table_Directory* Directory_get() { return tblDirectory; }
+class Table_Distro* Distro_get() { return tblDistro; }
 class Table_EntertainArea* EntertainArea_get() { return tblEntertainArea; }
 class Table_Event* Event_get() { return tblEvent; }
 class Table_EventCategory* EventCategory_get() { return tblEventCategory; }
 class Table_EventHandler* EventHandler_get() { return tblEventHandler; }
 class Table_EventParameter* EventParameter_get() { return tblEventParameter; }
 class Table_Event_EventParameter* Event_EventParameter_get() { return tblEvent_EventParameter; }
-class Table_ExecTime* ExecTime_get() { return tblExecTime; }
 class Table_Floorplan* Floorplan_get() { return tblFloorplan; }
 class Table_FloorplanObjectType* FloorplanObjectType_get() { return tblFloorplanObjectType; }
 class Table_FloorplanObjectType_Color* FloorplanObjectType_Color_get() { return tblFloorplanObjectType_Color; }
@@ -268,22 +279,29 @@ class Table_InfraredGroup_DSPMode* InfraredGroup_DSPMode_get() { return tblInfra
 class Table_InfraredGroup_Input* InfraredGroup_Input_get() { return tblInfraredGroup_Input; }
 class Table_Input* Input_get() { return tblInput; }
 class Table_Installation* Installation_get() { return tblInstallation; }
+class Table_Installation_RepositorySource_URL* Installation_RepositorySource_URL_get() { return tblInstallation_RepositorySource_URL; }
 class Table_Installation_Users* Installation_Users_get() { return tblInstallation_Users; }
 class Table_Language* Language_get() { return tblLanguage; }
 class Table_Manufacturer* Manufacturer_get() { return tblManufacturer; }
 class Table_MediaType* MediaType_get() { return tblMediaType; }
 class Table_MediaType_Broadcast* MediaType_Broadcast_get() { return tblMediaType_Broadcast; }
 class Table_MobilePhoneVersion* MobilePhoneVersion_get() { return tblMobilePhoneVersion; }
+class Table_OperatingSystem* OperatingSystem_get() { return tblOperatingSystem; }
+class Table_OperatingSystem_Directory* OperatingSystem_Directory_get() { return tblOperatingSystem_Directory; }
 class Table_Orbiter* Orbiter_get() { return tblOrbiter; }
 class Table_Orbiter_Users_PasswordReq* Orbiter_Users_PasswordReq_get() { return tblOrbiter_Users_PasswordReq; }
 class Table_Orbiter_Variable* Orbiter_Variable_get() { return tblOrbiter_Variable; }
 class Table_Output* Output_get() { return tblOutput; }
 class Table_Package* Package_get() { return tblPackage; }
+class Table_Package_Directory* Package_Directory_get() { return tblPackage_Directory; }
+class Table_Package_Directory_File* Package_Directory_File_get() { return tblPackage_Directory_File; }
+class Table_Package_Distro* Package_Distro_get() { return tblPackage_Distro; }
 class Table_ParameterType* ParameterType_get() { return tblParameterType; }
 class Table_PhoneLineType* PhoneLineType_get() { return tblPhoneLineType; }
 class Table_Pipe* Pipe_get() { return tblPipe; }
+class Table_RepositorySource* RepositorySource_get() { return tblRepositorySource; }
+class Table_RepositorySource_URL* RepositorySource_URL_get() { return tblRepositorySource_URL; }
 class Table_Room* Room_get() { return tblRoom; }
-class Table_RoomMode* RoomMode_get() { return tblRoomMode; }
 class Table_RoomType* RoomType_get() { return tblRoomType; }
 class Table_SetupStep* SetupStep_get() { return tblSetupStep; }
 class Table_Size* Size_get() { return tblSize; }
@@ -388,16 +406,18 @@ void CreateTable_Device_Device_Related();
 void CreateTable_Device_EntertainArea();
 void CreateTable_Device_HouseMode();
 void CreateTable_Device_Orbiter();
+void CreateTable_Device_Package_Directory();
 void CreateTable_Device_StartupScript();
 void CreateTable_Device_Users();
 void CreateTable_Direction();
+void CreateTable_Directory();
+void CreateTable_Distro();
 void CreateTable_EntertainArea();
 void CreateTable_Event();
 void CreateTable_EventCategory();
 void CreateTable_EventHandler();
 void CreateTable_EventParameter();
 void CreateTable_Event_EventParameter();
-void CreateTable_ExecTime();
 void CreateTable_Floorplan();
 void CreateTable_FloorplanObjectType();
 void CreateTable_FloorplanObjectType_Color();
@@ -415,22 +435,29 @@ void CreateTable_InfraredGroup_DSPMode();
 void CreateTable_InfraredGroup_Input();
 void CreateTable_Input();
 void CreateTable_Installation();
+void CreateTable_Installation_RepositorySource_URL();
 void CreateTable_Installation_Users();
 void CreateTable_Language();
 void CreateTable_Manufacturer();
 void CreateTable_MediaType();
 void CreateTable_MediaType_Broadcast();
 void CreateTable_MobilePhoneVersion();
+void CreateTable_OperatingSystem();
+void CreateTable_OperatingSystem_Directory();
 void CreateTable_Orbiter();
 void CreateTable_Orbiter_Users_PasswordReq();
 void CreateTable_Orbiter_Variable();
 void CreateTable_Output();
 void CreateTable_Package();
+void CreateTable_Package_Directory();
+void CreateTable_Package_Directory_File();
+void CreateTable_Package_Distro();
 void CreateTable_ParameterType();
 void CreateTable_PhoneLineType();
 void CreateTable_Pipe();
+void CreateTable_RepositorySource();
+void CreateTable_RepositorySource_URL();
 void CreateTable_Room();
-void CreateTable_RoomMode();
 void CreateTable_RoomType();
 void CreateTable_SetupStep();
 void CreateTable_Size();
@@ -532,16 +559,18 @@ void DeleteTable_Device_Device_Related();
 void DeleteTable_Device_EntertainArea();
 void DeleteTable_Device_HouseMode();
 void DeleteTable_Device_Orbiter();
+void DeleteTable_Device_Package_Directory();
 void DeleteTable_Device_StartupScript();
 void DeleteTable_Device_Users();
 void DeleteTable_Direction();
+void DeleteTable_Directory();
+void DeleteTable_Distro();
 void DeleteTable_EntertainArea();
 void DeleteTable_Event();
 void DeleteTable_EventCategory();
 void DeleteTable_EventHandler();
 void DeleteTable_EventParameter();
 void DeleteTable_Event_EventParameter();
-void DeleteTable_ExecTime();
 void DeleteTable_Floorplan();
 void DeleteTable_FloorplanObjectType();
 void DeleteTable_FloorplanObjectType_Color();
@@ -559,22 +588,29 @@ void DeleteTable_InfraredGroup_DSPMode();
 void DeleteTable_InfraredGroup_Input();
 void DeleteTable_Input();
 void DeleteTable_Installation();
+void DeleteTable_Installation_RepositorySource_URL();
 void DeleteTable_Installation_Users();
 void DeleteTable_Language();
 void DeleteTable_Manufacturer();
 void DeleteTable_MediaType();
 void DeleteTable_MediaType_Broadcast();
 void DeleteTable_MobilePhoneVersion();
+void DeleteTable_OperatingSystem();
+void DeleteTable_OperatingSystem_Directory();
 void DeleteTable_Orbiter();
 void DeleteTable_Orbiter_Users_PasswordReq();
 void DeleteTable_Orbiter_Variable();
 void DeleteTable_Output();
 void DeleteTable_Package();
+void DeleteTable_Package_Directory();
+void DeleteTable_Package_Directory_File();
+void DeleteTable_Package_Distro();
 void DeleteTable_ParameterType();
 void DeleteTable_PhoneLineType();
 void DeleteTable_Pipe();
+void DeleteTable_RepositorySource();
+void DeleteTable_RepositorySource_URL();
 void DeleteTable_Room();
-void DeleteTable_RoomMode();
 void DeleteTable_RoomType();
 void DeleteTable_SetupStep();
 void DeleteTable_Size();

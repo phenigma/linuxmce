@@ -85,12 +85,8 @@ string m_Define;
 string m_Models;
 long int m_Height;
 long int m_Width;
-string m_Modification_RecordInfo;
-short int m_IsNew_RecordInfo;
-short int m_IsDeleted_RecordInfo;
-long int m_FK_Users_RecordInfo;
 
-		bool is_null[10];
+		bool is_null[6];
 	
 		bool is_deleted;
 		bool is_added;
@@ -103,10 +99,6 @@ string Define_get();
 string Models_get();
 long int Height_get();
 long int Width_get();
-string Modification_RecordInfo_get();
-short int IsNew_RecordInfo_get();
-short int IsDeleted_RecordInfo_get();
-long int FK_Users_RecordInfo_get();
 
 		
 		void PK_MobilePhoneVersion_set(long int val);
@@ -115,28 +107,18 @@ void Define_set(string val);
 void Models_set(string val);
 void Height_set(long int val);
 void Width_set(long int val);
-void Modification_RecordInfo_set(string val);
-void IsNew_RecordInfo_set(short int val);
-void IsDeleted_RecordInfo_set(short int val);
-void FK_Users_RecordInfo_set(long int val);
 
 		
 		bool Define_isNull();
 bool Models_isNull();
 bool Height_isNull();
 bool Width_isNull();
-bool IsNew_RecordInfo_isNull();
-bool IsDeleted_RecordInfo_isNull();
-bool FK_Users_RecordInfo_isNull();
 
 			
 		void Define_setNull(bool val);
 void Models_setNull(bool val);
 void Height_setNull(bool val);
 void Width_setNull(bool val);
-void IsNew_RecordInfo_setNull(bool val);
-void IsDeleted_RecordInfo_setNull(bool val);
-void FK_Users_RecordInfo_setNull(bool val);
 	
 	
 		void Delete();
@@ -156,7 +138,7 @@ void FK_Users_RecordInfo_setNull(bool val);
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_MobilePhoneVersion+ m_Description+ m_Define+ m_Models+ m_Height+ m_Width+ m_Modification_RecordInfo+ m_IsNew_RecordInfo+ m_IsDeleted_RecordInfo+ m_FK_Users_RecordInfo;
+			StartSerializeList() + m_PK_MobilePhoneVersion+ m_Description+ m_Define+ m_Models+ m_Height+ m_Width;
 		}
 	private:
 		void SetDefaultValues();
@@ -167,10 +149,6 @@ string Define_asSQL();
 string Models_asSQL();
 string Height_asSQL();
 string Width_asSQL();
-string Modification_RecordInfo_asSQL();
-string IsNew_RecordInfo_asSQL();
-string IsDeleted_RecordInfo_asSQL();
-string FK_Users_RecordInfo_asSQL();
 
 	};
 

@@ -120,41 +120,40 @@ is_null[1] = true;
 is_null[2] = true;
 m_DisplayOrder = 0;
 is_null[3] = false;
-is_null[4] = true;
 m_X = 0;
-is_null[5] = false;
+is_null[4] = false;
 m_Y = 0;
-is_null[6] = false;
+is_null[5] = false;
+is_null[6] = true;
 is_null[7] = true;
 is_null[8] = true;
-is_null[9] = true;
 m_CanBeHidden = 0;
-is_null[10] = false;
+is_null[9] = false;
 m_HideByDefault = 0;
-is_null[11] = false;
+is_null[10] = false;
 m_RegenerateForEachScreen = 0;
-is_null[12] = false;
+is_null[11] = false;
 m_DisplayChildrenBeforeText = 0;
-is_null[13] = false;
+is_null[12] = false;
 m_DisplayChildrenBehindBackground = 0;
-is_null[14] = false;
+is_null[13] = false;
 m_DontMergeBackground = 0;
-is_null[15] = false;
+is_null[14] = false;
 m_IsTabStop = 0;
-is_null[16] = false;
+is_null[15] = false;
+is_null[16] = true;
 is_null[17] = true;
 is_null[18] = true;
 is_null[19] = true;
 is_null[20] = true;
 is_null[21] = true;
 is_null[22] = true;
-m_Modification_RecordInfo = "00000000000000";
-is_null[23] = false;
-m_IsNew_RecordInfo = 1;
-is_null[24] = false;
-m_IsDeleted_RecordInfo = 0;
+is_null[23] = true;
+is_null[24] = true;
+m_psc_frozen = 0;
 is_null[25] = false;
-is_null[26] = true;
+m_psc_mod = "00000000000000";
+is_null[26] = false;
 
 
 	is_added=false;
@@ -174,9 +173,6 @@ return m_FK_DesignObj_Child;}
 long int Row_DesignObjVariation_DesignObj::DisplayOrder_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_DisplayOrder;}
-long int Row_DesignObjVariation_DesignObj::FK_DockState_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return m_FK_DockState;}
 long int Row_DesignObjVariation_DesignObj::X_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_X;}
@@ -231,18 +227,21 @@ return m_sFK_DesignObj_TiedTo;}
 string Row_DesignObjVariation_DesignObj::VisibleStates_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_VisibleStates;}
-string Row_DesignObjVariation_DesignObj::Modification_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_DesignObjVariation_DesignObj::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_Modification_RecordInfo;}
-short int Row_DesignObjVariation_DesignObj::IsNew_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_psc_id;}
+long int Row_DesignObjVariation_DesignObj::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_IsNew_RecordInfo;}
-short int Row_DesignObjVariation_DesignObj::IsDeleted_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_psc_batch;}
+long int Row_DesignObjVariation_DesignObj::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_IsDeleted_RecordInfo;}
-long int Row_DesignObjVariation_DesignObj::FK_Users_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_psc_user;}
+short int Row_DesignObjVariation_DesignObj::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_FK_Users_RecordInfo;}
+return m_psc_frozen;}
+string Row_DesignObjVariation_DesignObj::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_mod;}
 
 		
 void Row_DesignObjVariation_DesignObj::PK_DesignObjVariation_DesignObj_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -257,75 +256,75 @@ m_FK_DesignObj_Child = val; is_modified=true; is_null[2]=false;}
 void Row_DesignObjVariation_DesignObj::DisplayOrder_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_DisplayOrder = val; is_modified=true; is_null[3]=false;}
-void Row_DesignObjVariation_DesignObj::FK_DockState_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-m_FK_DockState = val; is_modified=true; is_null[4]=false;}
 void Row_DesignObjVariation_DesignObj::X_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_X = val; is_modified=true; is_null[5]=false;}
+m_X = val; is_modified=true; is_null[4]=false;}
 void Row_DesignObjVariation_DesignObj::Y_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Y = val; is_modified=true; is_null[6]=false;}
+m_Y = val; is_modified=true; is_null[5]=false;}
 void Row_DesignObjVariation_DesignObj::Width_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Width = val; is_modified=true; is_null[7]=false;}
+m_Width = val; is_modified=true; is_null[6]=false;}
 void Row_DesignObjVariation_DesignObj::Height_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Height = val; is_modified=true; is_null[8]=false;}
+m_Height = val; is_modified=true; is_null[7]=false;}
 void Row_DesignObjVariation_DesignObj::FK_DesignObj_InsteadOf_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_FK_DesignObj_InsteadOf = val; is_modified=true; is_null[9]=false;}
+m_FK_DesignObj_InsteadOf = val; is_modified=true; is_null[8]=false;}
 void Row_DesignObjVariation_DesignObj::CanBeHidden_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_CanBeHidden = val; is_modified=true; is_null[10]=false;}
+m_CanBeHidden = val; is_modified=true; is_null[9]=false;}
 void Row_DesignObjVariation_DesignObj::HideByDefault_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_HideByDefault = val; is_modified=true; is_null[11]=false;}
+m_HideByDefault = val; is_modified=true; is_null[10]=false;}
 void Row_DesignObjVariation_DesignObj::RegenerateForEachScreen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_RegenerateForEachScreen = val; is_modified=true; is_null[12]=false;}
+m_RegenerateForEachScreen = val; is_modified=true; is_null[11]=false;}
 void Row_DesignObjVariation_DesignObj::DisplayChildrenBeforeText_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_DisplayChildrenBeforeText = val; is_modified=true; is_null[13]=false;}
+m_DisplayChildrenBeforeText = val; is_modified=true; is_null[12]=false;}
 void Row_DesignObjVariation_DesignObj::DisplayChildrenBehindBackground_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_DisplayChildrenBehindBackground = val; is_modified=true; is_null[14]=false;}
+m_DisplayChildrenBehindBackground = val; is_modified=true; is_null[13]=false;}
 void Row_DesignObjVariation_DesignObj::DontMergeBackground_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_DontMergeBackground = val; is_modified=true; is_null[15]=false;}
+m_DontMergeBackground = val; is_modified=true; is_null[14]=false;}
 void Row_DesignObjVariation_DesignObj::IsTabStop_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_IsTabStop = val; is_modified=true; is_null[16]=false;}
+m_IsTabStop = val; is_modified=true; is_null[15]=false;}
 void Row_DesignObjVariation_DesignObj::FK_DesignObj_Up_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_FK_DesignObj_Up = val; is_modified=true; is_null[17]=false;}
+m_FK_DesignObj_Up = val; is_modified=true; is_null[16]=false;}
 void Row_DesignObjVariation_DesignObj::FK_DesignObj_Down_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_FK_DesignObj_Down = val; is_modified=true; is_null[18]=false;}
+m_FK_DesignObj_Down = val; is_modified=true; is_null[17]=false;}
 void Row_DesignObjVariation_DesignObj::FK_DesignObj_Left_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_FK_DesignObj_Left = val; is_modified=true; is_null[19]=false;}
+m_FK_DesignObj_Left = val; is_modified=true; is_null[18]=false;}
 void Row_DesignObjVariation_DesignObj::FK_DesignObj_Right_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_FK_DesignObj_Right = val; is_modified=true; is_null[20]=false;}
+m_FK_DesignObj_Right = val; is_modified=true; is_null[19]=false;}
 void Row_DesignObjVariation_DesignObj::sFK_DesignObj_TiedTo_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_sFK_DesignObj_TiedTo = val; is_modified=true; is_null[21]=false;}
+m_sFK_DesignObj_TiedTo = val; is_modified=true; is_null[20]=false;}
 void Row_DesignObjVariation_DesignObj::VisibleStates_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_VisibleStates = val; is_modified=true; is_null[22]=false;}
-void Row_DesignObjVariation_DesignObj::Modification_RecordInfo_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_VisibleStates = val; is_modified=true; is_null[21]=false;}
+void Row_DesignObjVariation_DesignObj::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Modification_RecordInfo = val; is_modified=true; is_null[23]=false;}
-void Row_DesignObjVariation_DesignObj::IsNew_RecordInfo_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_psc_id = val; is_modified=true; is_null[22]=false;}
+void Row_DesignObjVariation_DesignObj::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_IsNew_RecordInfo = val; is_modified=true; is_null[24]=false;}
-void Row_DesignObjVariation_DesignObj::IsDeleted_RecordInfo_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_psc_batch = val; is_modified=true; is_null[23]=false;}
+void Row_DesignObjVariation_DesignObj::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_IsDeleted_RecordInfo = val; is_modified=true; is_null[25]=false;}
-void Row_DesignObjVariation_DesignObj::FK_Users_RecordInfo_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_psc_user = val; is_modified=true; is_null[24]=false;}
+void Row_DesignObjVariation_DesignObj::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_FK_Users_RecordInfo = val; is_modified=true; is_null[26]=false;}
+m_psc_frozen = val; is_modified=true; is_null[25]=false;}
+void Row_DesignObjVariation_DesignObj::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_mod = val; is_modified=true; is_null[26]=false;}
 
 		
 bool Row_DesignObjVariation_DesignObj::FK_DesignObjVariation_Parent_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -334,45 +333,45 @@ return is_null[1];}
 bool Row_DesignObjVariation_DesignObj::FK_DesignObj_Child_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[2];}
-bool Row_DesignObjVariation_DesignObj::FK_DockState_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return is_null[4];}
 bool Row_DesignObjVariation_DesignObj::Width_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[7];}
+return is_null[6];}
 bool Row_DesignObjVariation_DesignObj::Height_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[8];}
+return is_null[7];}
 bool Row_DesignObjVariation_DesignObj::FK_DesignObj_InsteadOf_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[9];}
+return is_null[8];}
 bool Row_DesignObjVariation_DesignObj::FK_DesignObj_Up_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[17];}
+return is_null[16];}
 bool Row_DesignObjVariation_DesignObj::FK_DesignObj_Down_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[18];}
+return is_null[17];}
 bool Row_DesignObjVariation_DesignObj::FK_DesignObj_Left_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[19];}
+return is_null[18];}
 bool Row_DesignObjVariation_DesignObj::FK_DesignObj_Right_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[20];}
+return is_null[19];}
 bool Row_DesignObjVariation_DesignObj::sFK_DesignObj_TiedTo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[21];}
+return is_null[20];}
 bool Row_DesignObjVariation_DesignObj::VisibleStates_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
+return is_null[21];}
+bool Row_DesignObjVariation_DesignObj::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
 return is_null[22];}
-bool Row_DesignObjVariation_DesignObj::IsNew_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DesignObjVariation_DesignObj::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[23];}
+bool Row_DesignObjVariation_DesignObj::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[24];}
-bool Row_DesignObjVariation_DesignObj::IsDeleted_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DesignObjVariation_DesignObj::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[25];}
-bool Row_DesignObjVariation_DesignObj::FK_Users_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return is_null[26];}
 
 			
 void Row_DesignObjVariation_DesignObj::FK_DesignObjVariation_Parent_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -381,45 +380,45 @@ is_null[1]=val;}
 void Row_DesignObjVariation_DesignObj::FK_DesignObj_Child_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[2]=val;}
-void Row_DesignObjVariation_DesignObj::FK_DockState_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[4]=val;}
 void Row_DesignObjVariation_DesignObj::Width_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[7]=val;}
+is_null[6]=val;}
 void Row_DesignObjVariation_DesignObj::Height_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[8]=val;}
+is_null[7]=val;}
 void Row_DesignObjVariation_DesignObj::FK_DesignObj_InsteadOf_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[9]=val;}
+is_null[8]=val;}
 void Row_DesignObjVariation_DesignObj::FK_DesignObj_Up_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[17]=val;}
+is_null[16]=val;}
 void Row_DesignObjVariation_DesignObj::FK_DesignObj_Down_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[18]=val;}
+is_null[17]=val;}
 void Row_DesignObjVariation_DesignObj::FK_DesignObj_Left_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[19]=val;}
+is_null[18]=val;}
 void Row_DesignObjVariation_DesignObj::FK_DesignObj_Right_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[20]=val;}
+is_null[19]=val;}
 void Row_DesignObjVariation_DesignObj::sFK_DesignObj_TiedTo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[21]=val;}
+is_null[20]=val;}
 void Row_DesignObjVariation_DesignObj::VisibleStates_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
+is_null[21]=val;}
+void Row_DesignObjVariation_DesignObj::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
 is_null[22]=val;}
-void Row_DesignObjVariation_DesignObj::IsNew_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DesignObjVariation_DesignObj::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[23]=val;}
+void Row_DesignObjVariation_DesignObj::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[24]=val;}
-void Row_DesignObjVariation_DesignObj::IsDeleted_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DesignObjVariation_DesignObj::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[25]=val;}
-void Row_DesignObjVariation_DesignObj::FK_Users_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[26]=val;}
 	
 
 string Row_DesignObjVariation_DesignObj::PK_DesignObjVariation_DesignObj_asSQL()
@@ -474,24 +473,11 @@ sprintf(buf, "%li", m_DisplayOrder);
 return buf;
 }
 
-string Row_DesignObjVariation_DesignObj::FK_DockState_asSQL()
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-if (is_null[4])
-return "NULL";
-
-char buf[32];
-sprintf(buf, "%li", m_FK_DockState);
-
-return buf;
-}
-
 string Row_DesignObjVariation_DesignObj::X_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[5])
+if (is_null[4])
 return "NULL";
 
 char buf[32];
@@ -504,7 +490,7 @@ string Row_DesignObjVariation_DesignObj::Y_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[6])
+if (is_null[5])
 return "NULL";
 
 char buf[32];
@@ -517,7 +503,7 @@ string Row_DesignObjVariation_DesignObj::Width_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[7])
+if (is_null[6])
 return "NULL";
 
 char buf[32];
@@ -530,7 +516,7 @@ string Row_DesignObjVariation_DesignObj::Height_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[8])
+if (is_null[7])
 return "NULL";
 
 char buf[32];
@@ -543,7 +529,7 @@ string Row_DesignObjVariation_DesignObj::FK_DesignObj_InsteadOf_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[9])
+if (is_null[8])
 return "NULL";
 
 char buf[32];
@@ -556,7 +542,7 @@ string Row_DesignObjVariation_DesignObj::CanBeHidden_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[10])
+if (is_null[9])
 return "NULL";
 
 char buf[32];
@@ -569,7 +555,7 @@ string Row_DesignObjVariation_DesignObj::HideByDefault_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[11])
+if (is_null[10])
 return "NULL";
 
 char buf[32];
@@ -582,7 +568,7 @@ string Row_DesignObjVariation_DesignObj::RegenerateForEachScreen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[12])
+if (is_null[11])
 return "NULL";
 
 char buf[32];
@@ -595,7 +581,7 @@ string Row_DesignObjVariation_DesignObj::DisplayChildrenBeforeText_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[13])
+if (is_null[12])
 return "NULL";
 
 char buf[32];
@@ -608,7 +594,7 @@ string Row_DesignObjVariation_DesignObj::DisplayChildrenBehindBackground_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[14])
+if (is_null[13])
 return "NULL";
 
 char buf[32];
@@ -621,7 +607,7 @@ string Row_DesignObjVariation_DesignObj::DontMergeBackground_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[15])
+if (is_null[14])
 return "NULL";
 
 char buf[32];
@@ -634,7 +620,7 @@ string Row_DesignObjVariation_DesignObj::IsTabStop_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[16])
+if (is_null[15])
 return "NULL";
 
 char buf[32];
@@ -647,7 +633,7 @@ string Row_DesignObjVariation_DesignObj::FK_DesignObj_Up_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[17])
+if (is_null[16])
 return "NULL";
 
 char buf[32];
@@ -660,7 +646,7 @@ string Row_DesignObjVariation_DesignObj::FK_DesignObj_Down_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[18])
+if (is_null[17])
 return "NULL";
 
 char buf[32];
@@ -673,7 +659,7 @@ string Row_DesignObjVariation_DesignObj::FK_DesignObj_Left_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[19])
+if (is_null[18])
 return "NULL";
 
 char buf[32];
@@ -686,7 +672,7 @@ string Row_DesignObjVariation_DesignObj::FK_DesignObj_Right_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[20])
+if (is_null[19])
 return "NULL";
 
 char buf[32];
@@ -699,7 +685,7 @@ string Row_DesignObjVariation_DesignObj::sFK_DesignObj_TiedTo_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[21])
+if (is_null[20])
 return "NULL";
 
 char buf[29];
@@ -711,7 +697,7 @@ string Row_DesignObjVariation_DesignObj::VisibleStates_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[22])
+if (is_null[21])
 return "NULL";
 
 char buf[21];
@@ -719,19 +705,33 @@ mysql_real_escape_string(table->database->db_handle, buf, m_VisibleStates.c_str(
 return string()+"\""+buf+"\"";
 }
 
-string Row_DesignObjVariation_DesignObj::Modification_RecordInfo_asSQL()
+string Row_DesignObjVariation_DesignObj::psc_id_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[22])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_psc_id);
+
+return buf;
+}
+
+string Row_DesignObjVariation_DesignObj::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[23])
 return "NULL";
 
-char buf[29];
-mysql_real_escape_string(table->database->db_handle, buf, m_Modification_RecordInfo.c_str(), (unsigned long) m_Modification_RecordInfo.size());
-return string()+"\""+buf+"\"";
+char buf[32];
+sprintf(buf, "%li", m_psc_batch);
+
+return buf;
 }
 
-string Row_DesignObjVariation_DesignObj::IsNew_RecordInfo_asSQL()
+string Row_DesignObjVariation_DesignObj::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -739,12 +739,12 @@ if (is_null[24])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%hi", m_IsNew_RecordInfo);
+sprintf(buf, "%li", m_psc_user);
 
 return buf;
 }
 
-string Row_DesignObjVariation_DesignObj::IsDeleted_RecordInfo_asSQL()
+string Row_DesignObjVariation_DesignObj::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -752,22 +752,21 @@ if (is_null[25])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%hi", m_IsDeleted_RecordInfo);
+sprintf(buf, "%hi", m_psc_frozen);
 
 return buf;
 }
 
-string Row_DesignObjVariation_DesignObj::FK_Users_RecordInfo_asSQL()
+string Row_DesignObjVariation_DesignObj::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[26])
 return "NULL";
 
-char buf[32];
-sprintf(buf, "%li", m_FK_Users_RecordInfo);
-
-return buf;
+char buf[29];
+mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
+return string()+"\""+buf+"\"";
 }
 
 
@@ -808,10 +807,10 @@ void Table_DesignObjVariation_DesignObj::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_DesignObjVariation_DesignObj_asSQL()+", "+pRow->FK_DesignObjVariation_Parent_asSQL()+", "+pRow->FK_DesignObj_Child_asSQL()+", "+pRow->DisplayOrder_asSQL()+", "+pRow->FK_DockState_asSQL()+", "+pRow->X_asSQL()+", "+pRow->Y_asSQL()+", "+pRow->Width_asSQL()+", "+pRow->Height_asSQL()+", "+pRow->FK_DesignObj_InsteadOf_asSQL()+", "+pRow->CanBeHidden_asSQL()+", "+pRow->HideByDefault_asSQL()+", "+pRow->RegenerateForEachScreen_asSQL()+", "+pRow->DisplayChildrenBeforeText_asSQL()+", "+pRow->DisplayChildrenBehindBackground_asSQL()+", "+pRow->DontMergeBackground_asSQL()+", "+pRow->IsTabStop_asSQL()+", "+pRow->FK_DesignObj_Up_asSQL()+", "+pRow->FK_DesignObj_Down_asSQL()+", "+pRow->FK_DesignObj_Left_asSQL()+", "+pRow->FK_DesignObj_Right_asSQL()+", "+pRow->sFK_DesignObj_TiedTo_asSQL()+", "+pRow->VisibleStates_asSQL()+", "+pRow->Modification_RecordInfo_asSQL()+", "+pRow->IsNew_RecordInfo_asSQL()+", "+pRow->IsDeleted_RecordInfo_asSQL()+", "+pRow->FK_Users_RecordInfo_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_DesignObjVariation_DesignObj_asSQL()+", "+pRow->FK_DesignObjVariation_Parent_asSQL()+", "+pRow->FK_DesignObj_Child_asSQL()+", "+pRow->DisplayOrder_asSQL()+", "+pRow->X_asSQL()+", "+pRow->Y_asSQL()+", "+pRow->Width_asSQL()+", "+pRow->Height_asSQL()+", "+pRow->FK_DesignObj_InsteadOf_asSQL()+", "+pRow->CanBeHidden_asSQL()+", "+pRow->HideByDefault_asSQL()+", "+pRow->RegenerateForEachScreen_asSQL()+", "+pRow->DisplayChildrenBeforeText_asSQL()+", "+pRow->DisplayChildrenBehindBackground_asSQL()+", "+pRow->DontMergeBackground_asSQL()+", "+pRow->IsTabStop_asSQL()+", "+pRow->FK_DesignObj_Up_asSQL()+", "+pRow->FK_DesignObj_Down_asSQL()+", "+pRow->FK_DesignObj_Left_asSQL()+", "+pRow->FK_DesignObj_Right_asSQL()+", "+pRow->sFK_DesignObj_TiedTo_asSQL()+", "+pRow->VisibleStates_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into DesignObjVariation_DesignObj (PK_DesignObjVariation_DesignObj, FK_DesignObjVariation_Parent, FK_DesignObj_Child, DisplayOrder, FK_DockState, X, Y, Width, Height, FK_DesignObj_InsteadOf, CanBeHidden, HideByDefault, RegenerateForEachScreen, DisplayChildrenBeforeText, DisplayChildrenBehindBackground, DontMergeBackground, IsTabStop, FK_DesignObj_Up, FK_DesignObj_Down, FK_DesignObj_Left, FK_DesignObj_Right, sFK_DesignObj_TiedTo, VisibleStates, Modification_RecordInfo, IsNew_RecordInfo, IsDeleted_RecordInfo, FK_Users_RecordInfo) values ("+
+		string query = "insert into DesignObjVariation_DesignObj (PK_DesignObjVariation_DesignObj, FK_DesignObjVariation_Parent, FK_DesignObj_Child, DisplayOrder, X, Y, Width, Height, FK_DesignObj_InsteadOf, CanBeHidden, HideByDefault, RegenerateForEachScreen, DisplayChildrenBeforeText, DisplayChildrenBehindBackground, DontMergeBackground, IsTabStop, FK_DesignObj_Up, FK_DesignObj_Down, FK_DesignObj_Left, FK_DesignObj_Right, sFK_DesignObj_TiedTo, VisibleStates, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -860,7 +859,7 @@ condition = condition + "PK_DesignObjVariation_DesignObj=" + tmp_PK_DesignObjVar
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_DesignObjVariation_DesignObj="+pRow->PK_DesignObjVariation_DesignObj_asSQL()+", FK_DesignObjVariation_Parent="+pRow->FK_DesignObjVariation_Parent_asSQL()+", FK_DesignObj_Child="+pRow->FK_DesignObj_Child_asSQL()+", DisplayOrder="+pRow->DisplayOrder_asSQL()+", FK_DockState="+pRow->FK_DockState_asSQL()+", X="+pRow->X_asSQL()+", Y="+pRow->Y_asSQL()+", Width="+pRow->Width_asSQL()+", Height="+pRow->Height_asSQL()+", FK_DesignObj_InsteadOf="+pRow->FK_DesignObj_InsteadOf_asSQL()+", CanBeHidden="+pRow->CanBeHidden_asSQL()+", HideByDefault="+pRow->HideByDefault_asSQL()+", RegenerateForEachScreen="+pRow->RegenerateForEachScreen_asSQL()+", DisplayChildrenBeforeText="+pRow->DisplayChildrenBeforeText_asSQL()+", DisplayChildrenBehindBackground="+pRow->DisplayChildrenBehindBackground_asSQL()+", DontMergeBackground="+pRow->DontMergeBackground_asSQL()+", IsTabStop="+pRow->IsTabStop_asSQL()+", FK_DesignObj_Up="+pRow->FK_DesignObj_Up_asSQL()+", FK_DesignObj_Down="+pRow->FK_DesignObj_Down_asSQL()+", FK_DesignObj_Left="+pRow->FK_DesignObj_Left_asSQL()+", FK_DesignObj_Right="+pRow->FK_DesignObj_Right_asSQL()+", sFK_DesignObj_TiedTo="+pRow->sFK_DesignObj_TiedTo_asSQL()+", VisibleStates="+pRow->VisibleStates_asSQL()+", Modification_RecordInfo="+pRow->Modification_RecordInfo_asSQL()+", IsNew_RecordInfo="+pRow->IsNew_RecordInfo_asSQL()+", IsDeleted_RecordInfo="+pRow->IsDeleted_RecordInfo_asSQL()+", FK_Users_RecordInfo="+pRow->FK_Users_RecordInfo_asSQL();
+update_values_list = update_values_list + "PK_DesignObjVariation_DesignObj="+pRow->PK_DesignObjVariation_DesignObj_asSQL()+", FK_DesignObjVariation_Parent="+pRow->FK_DesignObjVariation_Parent_asSQL()+", FK_DesignObj_Child="+pRow->FK_DesignObj_Child_asSQL()+", DisplayOrder="+pRow->DisplayOrder_asSQL()+", X="+pRow->X_asSQL()+", Y="+pRow->Y_asSQL()+", Width="+pRow->Width_asSQL()+", Height="+pRow->Height_asSQL()+", FK_DesignObj_InsteadOf="+pRow->FK_DesignObj_InsteadOf_asSQL()+", CanBeHidden="+pRow->CanBeHidden_asSQL()+", HideByDefault="+pRow->HideByDefault_asSQL()+", RegenerateForEachScreen="+pRow->RegenerateForEachScreen_asSQL()+", DisplayChildrenBeforeText="+pRow->DisplayChildrenBeforeText_asSQL()+", DisplayChildrenBehindBackground="+pRow->DisplayChildrenBehindBackground_asSQL()+", DontMergeBackground="+pRow->DontMergeBackground_asSQL()+", IsTabStop="+pRow->IsTabStop_asSQL()+", FK_DesignObj_Up="+pRow->FK_DesignObj_Up_asSQL()+", FK_DesignObj_Down="+pRow->FK_DesignObj_Down_asSQL()+", FK_DesignObj_Left="+pRow->FK_DesignObj_Left_asSQL()+", FK_DesignObj_Right="+pRow->FK_DesignObj_Right_asSQL()+", sFK_DesignObj_TiedTo="+pRow->sFK_DesignObj_TiedTo_asSQL()+", VisibleStates="+pRow->VisibleStates_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update DesignObjVariation_DesignObj set " + update_values_list + " where " + condition;
@@ -988,254 +987,254 @@ sscanf(row[3], "%li", &(pRow->m_DisplayOrder));
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_FK_DockState = 0;
+pRow->m_X = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%li", &(pRow->m_FK_DockState));
+sscanf(row[4], "%li", &(pRow->m_X));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_X = 0;
+pRow->m_Y = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_X));
+sscanf(row[5], "%li", &(pRow->m_Y));
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_Y = 0;
+pRow->m_Width = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%li", &(pRow->m_Y));
+sscanf(row[6], "%li", &(pRow->m_Width));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_Width = 0;
+pRow->m_Height = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%li", &(pRow->m_Width));
+sscanf(row[7], "%li", &(pRow->m_Height));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_Height = 0;
+pRow->m_FK_DesignObj_InsteadOf = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_Height));
+sscanf(row[8], "%li", &(pRow->m_FK_DesignObj_InsteadOf));
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_FK_DesignObj_InsteadOf = 0;
+pRow->m_CanBeHidden = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_FK_DesignObj_InsteadOf));
+sscanf(row[9], "%hi", &(pRow->m_CanBeHidden));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_CanBeHidden = 0;
+pRow->m_HideByDefault = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%hi", &(pRow->m_CanBeHidden));
+sscanf(row[10], "%hi", &(pRow->m_HideByDefault));
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_HideByDefault = 0;
+pRow->m_RegenerateForEachScreen = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-sscanf(row[11], "%hi", &(pRow->m_HideByDefault));
+sscanf(row[11], "%hi", &(pRow->m_RegenerateForEachScreen));
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_RegenerateForEachScreen = 0;
+pRow->m_DisplayChildrenBeforeText = 0;
 }
 else
 {
 pRow->is_null[12]=false;
-sscanf(row[12], "%hi", &(pRow->m_RegenerateForEachScreen));
+sscanf(row[12], "%hi", &(pRow->m_DisplayChildrenBeforeText));
 }
 
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_DisplayChildrenBeforeText = 0;
+pRow->m_DisplayChildrenBehindBackground = 0;
 }
 else
 {
 pRow->is_null[13]=false;
-sscanf(row[13], "%hi", &(pRow->m_DisplayChildrenBeforeText));
+sscanf(row[13], "%hi", &(pRow->m_DisplayChildrenBehindBackground));
 }
 
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_DisplayChildrenBehindBackground = 0;
+pRow->m_DontMergeBackground = 0;
 }
 else
 {
 pRow->is_null[14]=false;
-sscanf(row[14], "%hi", &(pRow->m_DisplayChildrenBehindBackground));
+sscanf(row[14], "%hi", &(pRow->m_DontMergeBackground));
 }
 
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_DontMergeBackground = 0;
+pRow->m_IsTabStop = 0;
 }
 else
 {
 pRow->is_null[15]=false;
-sscanf(row[15], "%hi", &(pRow->m_DontMergeBackground));
+sscanf(row[15], "%hi", &(pRow->m_IsTabStop));
 }
 
 if (row[16] == NULL)
 {
 pRow->is_null[16]=true;
-pRow->m_IsTabStop = 0;
+pRow->m_FK_DesignObj_Up = 0;
 }
 else
 {
 pRow->is_null[16]=false;
-sscanf(row[16], "%hi", &(pRow->m_IsTabStop));
+sscanf(row[16], "%li", &(pRow->m_FK_DesignObj_Up));
 }
 
 if (row[17] == NULL)
 {
 pRow->is_null[17]=true;
-pRow->m_FK_DesignObj_Up = 0;
+pRow->m_FK_DesignObj_Down = 0;
 }
 else
 {
 pRow->is_null[17]=false;
-sscanf(row[17], "%li", &(pRow->m_FK_DesignObj_Up));
+sscanf(row[17], "%li", &(pRow->m_FK_DesignObj_Down));
 }
 
 if (row[18] == NULL)
 {
 pRow->is_null[18]=true;
-pRow->m_FK_DesignObj_Down = 0;
+pRow->m_FK_DesignObj_Left = 0;
 }
 else
 {
 pRow->is_null[18]=false;
-sscanf(row[18], "%li", &(pRow->m_FK_DesignObj_Down));
+sscanf(row[18], "%li", &(pRow->m_FK_DesignObj_Left));
 }
 
 if (row[19] == NULL)
 {
 pRow->is_null[19]=true;
-pRow->m_FK_DesignObj_Left = 0;
+pRow->m_FK_DesignObj_Right = 0;
 }
 else
 {
 pRow->is_null[19]=false;
-sscanf(row[19], "%li", &(pRow->m_FK_DesignObj_Left));
+sscanf(row[19], "%li", &(pRow->m_FK_DesignObj_Right));
 }
 
 if (row[20] == NULL)
 {
 pRow->is_null[20]=true;
-pRow->m_FK_DesignObj_Right = 0;
+pRow->m_sFK_DesignObj_TiedTo = "";
 }
 else
 {
 pRow->is_null[20]=false;
-sscanf(row[20], "%li", &(pRow->m_FK_DesignObj_Right));
+pRow->m_sFK_DesignObj_TiedTo = string(row[20],lengths[20]);
 }
 
 if (row[21] == NULL)
 {
 pRow->is_null[21]=true;
-pRow->m_sFK_DesignObj_TiedTo = "";
+pRow->m_VisibleStates = "";
 }
 else
 {
 pRow->is_null[21]=false;
-pRow->m_sFK_DesignObj_TiedTo = string(row[21],lengths[21]);
+pRow->m_VisibleStates = string(row[21],lengths[21]);
 }
 
 if (row[22] == NULL)
 {
 pRow->is_null[22]=true;
-pRow->m_VisibleStates = "";
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[22]=false;
-pRow->m_VisibleStates = string(row[22],lengths[22]);
+sscanf(row[22], "%li", &(pRow->m_psc_id));
 }
 
 if (row[23] == NULL)
 {
 pRow->is_null[23]=true;
-pRow->m_Modification_RecordInfo = "";
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[23]=false;
-pRow->m_Modification_RecordInfo = string(row[23],lengths[23]);
+sscanf(row[23], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[24] == NULL)
 {
 pRow->is_null[24]=true;
-pRow->m_IsNew_RecordInfo = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[24]=false;
-sscanf(row[24], "%hi", &(pRow->m_IsNew_RecordInfo));
+sscanf(row[24], "%li", &(pRow->m_psc_user));
 }
 
 if (row[25] == NULL)
 {
 pRow->is_null[25]=true;
-pRow->m_IsDeleted_RecordInfo = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[25]=false;
-sscanf(row[25], "%hi", &(pRow->m_IsDeleted_RecordInfo));
+sscanf(row[25], "%hi", &(pRow->m_psc_frozen));
 }
 
 if (row[26] == NULL)
 {
 pRow->is_null[26]=true;
-pRow->m_FK_Users_RecordInfo = 0;
+pRow->m_psc_mod = "";
 }
 else
 {
 pRow->is_null[26]=false;
-sscanf(row[26], "%li", &(pRow->m_FK_Users_RecordInfo));
+pRow->m_psc_mod = string(row[26],lengths[26]);
 }
 
 
@@ -1391,254 +1390,254 @@ sscanf(row[3], "%li", &(pRow->m_DisplayOrder));
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_FK_DockState = 0;
+pRow->m_X = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%li", &(pRow->m_FK_DockState));
+sscanf(row[4], "%li", &(pRow->m_X));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_X = 0;
+pRow->m_Y = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_X));
+sscanf(row[5], "%li", &(pRow->m_Y));
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_Y = 0;
+pRow->m_Width = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%li", &(pRow->m_Y));
+sscanf(row[6], "%li", &(pRow->m_Width));
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_Width = 0;
+pRow->m_Height = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%li", &(pRow->m_Width));
+sscanf(row[7], "%li", &(pRow->m_Height));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_Height = 0;
+pRow->m_FK_DesignObj_InsteadOf = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_Height));
+sscanf(row[8], "%li", &(pRow->m_FK_DesignObj_InsteadOf));
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_FK_DesignObj_InsteadOf = 0;
+pRow->m_CanBeHidden = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_FK_DesignObj_InsteadOf));
+sscanf(row[9], "%hi", &(pRow->m_CanBeHidden));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_CanBeHidden = 0;
+pRow->m_HideByDefault = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%hi", &(pRow->m_CanBeHidden));
+sscanf(row[10], "%hi", &(pRow->m_HideByDefault));
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_HideByDefault = 0;
+pRow->m_RegenerateForEachScreen = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-sscanf(row[11], "%hi", &(pRow->m_HideByDefault));
+sscanf(row[11], "%hi", &(pRow->m_RegenerateForEachScreen));
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_RegenerateForEachScreen = 0;
+pRow->m_DisplayChildrenBeforeText = 0;
 }
 else
 {
 pRow->is_null[12]=false;
-sscanf(row[12], "%hi", &(pRow->m_RegenerateForEachScreen));
+sscanf(row[12], "%hi", &(pRow->m_DisplayChildrenBeforeText));
 }
 
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_DisplayChildrenBeforeText = 0;
+pRow->m_DisplayChildrenBehindBackground = 0;
 }
 else
 {
 pRow->is_null[13]=false;
-sscanf(row[13], "%hi", &(pRow->m_DisplayChildrenBeforeText));
+sscanf(row[13], "%hi", &(pRow->m_DisplayChildrenBehindBackground));
 }
 
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_DisplayChildrenBehindBackground = 0;
+pRow->m_DontMergeBackground = 0;
 }
 else
 {
 pRow->is_null[14]=false;
-sscanf(row[14], "%hi", &(pRow->m_DisplayChildrenBehindBackground));
+sscanf(row[14], "%hi", &(pRow->m_DontMergeBackground));
 }
 
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_DontMergeBackground = 0;
+pRow->m_IsTabStop = 0;
 }
 else
 {
 pRow->is_null[15]=false;
-sscanf(row[15], "%hi", &(pRow->m_DontMergeBackground));
+sscanf(row[15], "%hi", &(pRow->m_IsTabStop));
 }
 
 if (row[16] == NULL)
 {
 pRow->is_null[16]=true;
-pRow->m_IsTabStop = 0;
+pRow->m_FK_DesignObj_Up = 0;
 }
 else
 {
 pRow->is_null[16]=false;
-sscanf(row[16], "%hi", &(pRow->m_IsTabStop));
+sscanf(row[16], "%li", &(pRow->m_FK_DesignObj_Up));
 }
 
 if (row[17] == NULL)
 {
 pRow->is_null[17]=true;
-pRow->m_FK_DesignObj_Up = 0;
+pRow->m_FK_DesignObj_Down = 0;
 }
 else
 {
 pRow->is_null[17]=false;
-sscanf(row[17], "%li", &(pRow->m_FK_DesignObj_Up));
+sscanf(row[17], "%li", &(pRow->m_FK_DesignObj_Down));
 }
 
 if (row[18] == NULL)
 {
 pRow->is_null[18]=true;
-pRow->m_FK_DesignObj_Down = 0;
+pRow->m_FK_DesignObj_Left = 0;
 }
 else
 {
 pRow->is_null[18]=false;
-sscanf(row[18], "%li", &(pRow->m_FK_DesignObj_Down));
+sscanf(row[18], "%li", &(pRow->m_FK_DesignObj_Left));
 }
 
 if (row[19] == NULL)
 {
 pRow->is_null[19]=true;
-pRow->m_FK_DesignObj_Left = 0;
+pRow->m_FK_DesignObj_Right = 0;
 }
 else
 {
 pRow->is_null[19]=false;
-sscanf(row[19], "%li", &(pRow->m_FK_DesignObj_Left));
+sscanf(row[19], "%li", &(pRow->m_FK_DesignObj_Right));
 }
 
 if (row[20] == NULL)
 {
 pRow->is_null[20]=true;
-pRow->m_FK_DesignObj_Right = 0;
+pRow->m_sFK_DesignObj_TiedTo = "";
 }
 else
 {
 pRow->is_null[20]=false;
-sscanf(row[20], "%li", &(pRow->m_FK_DesignObj_Right));
+pRow->m_sFK_DesignObj_TiedTo = string(row[20],lengths[20]);
 }
 
 if (row[21] == NULL)
 {
 pRow->is_null[21]=true;
-pRow->m_sFK_DesignObj_TiedTo = "";
+pRow->m_VisibleStates = "";
 }
 else
 {
 pRow->is_null[21]=false;
-pRow->m_sFK_DesignObj_TiedTo = string(row[21],lengths[21]);
+pRow->m_VisibleStates = string(row[21],lengths[21]);
 }
 
 if (row[22] == NULL)
 {
 pRow->is_null[22]=true;
-pRow->m_VisibleStates = "";
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[22]=false;
-pRow->m_VisibleStates = string(row[22],lengths[22]);
+sscanf(row[22], "%li", &(pRow->m_psc_id));
 }
 
 if (row[23] == NULL)
 {
 pRow->is_null[23]=true;
-pRow->m_Modification_RecordInfo = "";
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[23]=false;
-pRow->m_Modification_RecordInfo = string(row[23],lengths[23]);
+sscanf(row[23], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[24] == NULL)
 {
 pRow->is_null[24]=true;
-pRow->m_IsNew_RecordInfo = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[24]=false;
-sscanf(row[24], "%hi", &(pRow->m_IsNew_RecordInfo));
+sscanf(row[24], "%li", &(pRow->m_psc_user));
 }
 
 if (row[25] == NULL)
 {
 pRow->is_null[25]=true;
-pRow->m_IsDeleted_RecordInfo = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[25]=false;
-sscanf(row[25], "%hi", &(pRow->m_IsDeleted_RecordInfo));
+sscanf(row[25], "%hi", &(pRow->m_psc_frozen));
 }
 
 if (row[26] == NULL)
 {
 pRow->is_null[26]=true;
-pRow->m_FK_Users_RecordInfo = 0;
+pRow->m_psc_mod = "";
 }
 else
 {
 pRow->is_null[26]=false;
-sscanf(row[26], "%li", &(pRow->m_FK_Users_RecordInfo));
+pRow->m_psc_mod = string(row[26],lengths[26]);
 }
 
 

@@ -241,18 +241,6 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
-				RelativePath="Bluetooth_Dongle.h">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BT_CP_CaptureKeyboard.h">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BT_CP_ShowList.h">
-			</File>
-			<File
-				RelativePath="..\VIPShared\BTCommandProcessor_BluetoothDongle.h">
-			</File>
-			<File
 				RelativePath="..\Orbiter\OrbiterData.h">
 			</File>
 			<File

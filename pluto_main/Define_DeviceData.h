@@ -7,6 +7,8 @@
 #define DEVICEDATA_Current_Screen_CONST 4
 #define DEVICEDATA_MediaDescriptor_CONST 5
 #define DEVICEDATA_Drive_CONST 6
+#define DEVICEDATA_PK_Distribution_CONST 7
+#define DEVICEDATA_Development_CONST 8
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"
@@ -17,14 +19,16 @@
 #define DEVICEDATA_DEFINE_TABLE_FIELD "DeviceData.Define"
 #define DEVICEDATA_FK_PARAMETERTYPE_FIELD "FK_ParameterType"
 #define DEVICEDATA_FK_PARAMETERTYPE_TABLE_FIELD "DeviceData.FK_ParameterType"
-#define DEVICEDATA_MODIFICATION_RECORDINFO_FIELD "Modification_RecordInfo"
-#define DEVICEDATA_MODIFICATION_RECORDINFO_TABLE_FIELD "DeviceData.Modification_RecordInfo"
-#define DEVICEDATA_ISNEW_RECORDINFO_FIELD "IsNew_RecordInfo"
-#define DEVICEDATA_ISNEW_RECORDINFO_TABLE_FIELD "DeviceData.IsNew_RecordInfo"
-#define DEVICEDATA_ISDELETED_RECORDINFO_FIELD "IsDeleted_RecordInfo"
-#define DEVICEDATA_ISDELETED_RECORDINFO_TABLE_FIELD "DeviceData.IsDeleted_RecordInfo"
-#define DEVICEDATA_FK_USERS_RECORDINFO_FIELD "FK_Users_RecordInfo"
-#define DEVICEDATA_FK_USERS_RECORDINFO_TABLE_FIELD "DeviceData.FK_Users_RecordInfo"
+#define DEVICEDATA_PSC_ID_FIELD "psc_id"
+#define DEVICEDATA_PSC_ID_TABLE_FIELD "DeviceData.psc_id"
+#define DEVICEDATA_PSC_BATCH_FIELD "psc_batch"
+#define DEVICEDATA_PSC_BATCH_TABLE_FIELD "DeviceData.psc_batch"
+#define DEVICEDATA_PSC_USER_FIELD "psc_user"
+#define DEVICEDATA_PSC_USER_TABLE_FIELD "DeviceData.psc_user"
+#define DEVICEDATA_PSC_FROZEN_FIELD "psc_frozen"
+#define DEVICEDATA_PSC_FROZEN_TABLE_FIELD "DeviceData.psc_frozen"
+#define DEVICEDATA_PSC_MOD_FIELD "psc_mod"
+#define DEVICEDATA_PSC_MOD_TABLE_FIELD "DeviceData.psc_mod"
 
 
 #endif

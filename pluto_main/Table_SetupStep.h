@@ -87,12 +87,13 @@ string m_Name;
 string m_Description;
 short int m_FirstStep;
 string m_Define;
-string m_Modification_RecordInfo;
-short int m_IsNew_RecordInfo;
-short int m_IsDeleted_RecordInfo;
-long int m_FK_Users_RecordInfo;
+long int m_psc_id;
+long int m_psc_batch;
+long int m_psc_user;
+short int m_psc_frozen;
+string m_psc_mod;
 
-		bool is_null[12];
+		bool is_null[13];
 	
 		bool is_deleted;
 		bool is_added;
@@ -107,10 +108,11 @@ string Name_get();
 string Description_get();
 short int FirstStep_get();
 string Define_get();
-string Modification_RecordInfo_get();
-short int IsNew_RecordInfo_get();
-short int IsDeleted_RecordInfo_get();
-long int FK_Users_RecordInfo_get();
+long int psc_id_get();
+long int psc_batch_get();
+long int psc_user_get();
+short int psc_frozen_get();
+string psc_mod_get();
 
 		
 		void PK_SetupStep_set(long int val);
@@ -121,28 +123,31 @@ void Name_set(string val);
 void Description_set(string val);
 void FirstStep_set(short int val);
 void Define_set(string val);
-void Modification_RecordInfo_set(string val);
-void IsNew_RecordInfo_set(short int val);
-void IsDeleted_RecordInfo_set(short int val);
-void FK_Users_RecordInfo_set(long int val);
+void psc_id_set(long int val);
+void psc_batch_set(long int val);
+void psc_user_set(long int val);
+void psc_frozen_set(short int val);
+void psc_mod_set(string val);
 
 		
 		bool FK_SetupStep_Next_isNull();
 bool FK_SetupStep_Parent_isNull();
 bool Description_isNull();
 bool Define_isNull();
-bool IsNew_RecordInfo_isNull();
-bool IsDeleted_RecordInfo_isNull();
-bool FK_Users_RecordInfo_isNull();
+bool psc_id_isNull();
+bool psc_batch_isNull();
+bool psc_user_isNull();
+bool psc_frozen_isNull();
 
 			
 		void FK_SetupStep_Next_setNull(bool val);
 void FK_SetupStep_Parent_setNull(bool val);
 void Description_setNull(bool val);
 void Define_setNull(bool val);
-void IsNew_RecordInfo_setNull(bool val);
-void IsDeleted_RecordInfo_setNull(bool val);
-void FK_Users_RecordInfo_setNull(bool val);
+void psc_id_setNull(bool val);
+void psc_batch_setNull(bool val);
+void psc_user_setNull(bool val);
+void psc_frozen_setNull(bool val);
 	
 	
 		void Delete();
@@ -166,7 +171,7 @@ void SetupStep_FK_SetupStep_Parent_getrows(vector <class Row_SetupStep*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_SetupStep+ m_FK_SetupStep_Next+ m_FK_SetupStep_Parent+ m_Address+ m_Name+ m_Description+ m_FirstStep+ m_Define+ m_Modification_RecordInfo+ m_IsNew_RecordInfo+ m_IsDeleted_RecordInfo+ m_FK_Users_RecordInfo;
+			StartSerializeList() + m_PK_SetupStep+ m_FK_SetupStep_Next+ m_FK_SetupStep_Parent+ m_Address+ m_Name+ m_Description+ m_FirstStep+ m_Define+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -179,10 +184,11 @@ string Name_asSQL();
 string Description_asSQL();
 string FirstStep_asSQL();
 string Define_asSQL();
-string Modification_RecordInfo_asSQL();
-string IsNew_RecordInfo_asSQL();
-string IsDeleted_RecordInfo_asSQL();
-string FK_Users_RecordInfo_asSQL();
+string psc_id_asSQL();
+string psc_batch_asSQL();
+string psc_user_asSQL();
+string psc_frozen_asSQL();
+string psc_mod_asSQL();
 
 	};
 

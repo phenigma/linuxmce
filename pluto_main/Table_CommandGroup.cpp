@@ -135,13 +135,13 @@ is_null[9] = true;
 is_null[10] = true;
 is_null[11] = true;
 is_null[12] = true;
-m_Modification_RecordInfo = "00000000000000";
-is_null[13] = false;
-m_IsNew_RecordInfo = 1;
-is_null[14] = false;
-m_IsDeleted_RecordInfo = 0;
-is_null[15] = false;
-is_null[16] = true;
+is_null[13] = true;
+is_null[14] = true;
+is_null[15] = true;
+m_psc_frozen = 0;
+is_null[16] = false;
+m_psc_mod = "00000000000000";
+is_null[17] = false;
 
 
 	is_added=false;
@@ -188,18 +188,21 @@ return m_AltID;}
 long int Row_CommandGroup::FK_Icon_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_Icon;}
-string Row_CommandGroup::Modification_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_CommandGroup::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_Modification_RecordInfo;}
-short int Row_CommandGroup::IsNew_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_psc_id;}
+long int Row_CommandGroup::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_IsNew_RecordInfo;}
-short int Row_CommandGroup::IsDeleted_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_psc_batch;}
+long int Row_CommandGroup::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_IsDeleted_RecordInfo;}
-long int Row_CommandGroup::FK_Users_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_psc_user;}
+short int Row_CommandGroup::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_FK_Users_RecordInfo;}
+return m_psc_frozen;}
+string Row_CommandGroup::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_mod;}
 
 		
 void Row_CommandGroup::PK_CommandGroup_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -241,18 +244,21 @@ m_AltID = val; is_modified=true; is_null[11]=false;}
 void Row_CommandGroup::FK_Icon_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_Icon = val; is_modified=true; is_null[12]=false;}
-void Row_CommandGroup::Modification_RecordInfo_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Modification_RecordInfo = val; is_modified=true; is_null[13]=false;}
-void Row_CommandGroup::IsNew_RecordInfo_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_psc_id = val; is_modified=true; is_null[13]=false;}
+void Row_CommandGroup::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_IsNew_RecordInfo = val; is_modified=true; is_null[14]=false;}
-void Row_CommandGroup::IsDeleted_RecordInfo_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_psc_batch = val; is_modified=true; is_null[14]=false;}
+void Row_CommandGroup::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_IsDeleted_RecordInfo = val; is_modified=true; is_null[15]=false;}
-void Row_CommandGroup::FK_Users_RecordInfo_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_psc_user = val; is_modified=true; is_null[15]=false;}
+void Row_CommandGroup::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_FK_Users_RecordInfo = val; is_modified=true; is_null[16]=false;}
+m_psc_frozen = val; is_modified=true; is_null[16]=false;}
+void Row_CommandGroup::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_mod = val; is_modified=true; is_null[17]=false;}
 
 		
 bool Row_CommandGroup::FK_Array_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -279,13 +285,16 @@ return is_null[11];}
 bool Row_CommandGroup::FK_Icon_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[12];}
-bool Row_CommandGroup::IsNew_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_CommandGroup::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[13];}
+bool Row_CommandGroup::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[14];}
-bool Row_CommandGroup::IsDeleted_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_CommandGroup::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[15];}
-bool Row_CommandGroup::FK_Users_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_CommandGroup::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[16];}
 
@@ -314,13 +323,16 @@ is_null[11]=val;}
 void Row_CommandGroup::FK_Icon_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[12]=val;}
-void Row_CommandGroup::IsNew_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[13]=val;}
+void Row_CommandGroup::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[14]=val;}
-void Row_CommandGroup::IsDeleted_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[15]=val;}
-void Row_CommandGroup::FK_Users_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[16]=val;}
 	
@@ -492,19 +504,20 @@ sprintf(buf, "%li", m_FK_Icon);
 return buf;
 }
 
-string Row_CommandGroup::Modification_RecordInfo_asSQL()
+string Row_CommandGroup::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[13])
 return "NULL";
 
-char buf[29];
-mysql_real_escape_string(table->database->db_handle, buf, m_Modification_RecordInfo.c_str(), (unsigned long) m_Modification_RecordInfo.size());
-return string()+"\""+buf+"\"";
+char buf[32];
+sprintf(buf, "%li", m_psc_id);
+
+return buf;
 }
 
-string Row_CommandGroup::IsNew_RecordInfo_asSQL()
+string Row_CommandGroup::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -512,12 +525,12 @@ if (is_null[14])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%hi", m_IsNew_RecordInfo);
+sprintf(buf, "%li", m_psc_batch);
 
 return buf;
 }
 
-string Row_CommandGroup::IsDeleted_RecordInfo_asSQL()
+string Row_CommandGroup::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -525,12 +538,12 @@ if (is_null[15])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%hi", m_IsDeleted_RecordInfo);
+sprintf(buf, "%li", m_psc_user);
 
 return buf;
 }
 
-string Row_CommandGroup::FK_Users_RecordInfo_asSQL()
+string Row_CommandGroup::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -538,9 +551,21 @@ if (is_null[16])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_FK_Users_RecordInfo);
+sprintf(buf, "%hi", m_psc_frozen);
 
 return buf;
+}
+
+string Row_CommandGroup::psc_mod_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[17])
+return "NULL";
+
+char buf[29];
+mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
+return string()+"\""+buf+"\"";
 }
 
 
@@ -581,10 +606,10 @@ void Table_CommandGroup::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_CommandGroup_asSQL()+", "+pRow->FK_Array_asSQL()+", "+pRow->FK_Installation_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Hint_asSQL()+", "+pRow->CanTurnOff_asSQL()+", "+pRow->AlwaysShow_asSQL()+", "+pRow->CanBeHidden_asSQL()+", "+pRow->FK_Criteria_Orbiter_asSQL()+", "+pRow->FK_DesignObj_asSQL()+", "+pRow->TemplateID_asSQL()+", "+pRow->AltID_asSQL()+", "+pRow->FK_Icon_asSQL()+", "+pRow->Modification_RecordInfo_asSQL()+", "+pRow->IsNew_RecordInfo_asSQL()+", "+pRow->IsDeleted_RecordInfo_asSQL()+", "+pRow->FK_Users_RecordInfo_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_CommandGroup_asSQL()+", "+pRow->FK_Array_asSQL()+", "+pRow->FK_Installation_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Hint_asSQL()+", "+pRow->CanTurnOff_asSQL()+", "+pRow->AlwaysShow_asSQL()+", "+pRow->CanBeHidden_asSQL()+", "+pRow->FK_Criteria_Orbiter_asSQL()+", "+pRow->FK_DesignObj_asSQL()+", "+pRow->TemplateID_asSQL()+", "+pRow->AltID_asSQL()+", "+pRow->FK_Icon_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into CommandGroup (PK_CommandGroup, FK_Array, FK_Installation, Description, Hint, CanTurnOff, AlwaysShow, CanBeHidden, FK_Criteria_Orbiter, FK_DesignObj, TemplateID, AltID, FK_Icon, Modification_RecordInfo, IsNew_RecordInfo, IsDeleted_RecordInfo, FK_Users_RecordInfo) values ("+
+		string query = "insert into CommandGroup (PK_CommandGroup, FK_Array, FK_Installation, Description, Hint, CanTurnOff, AlwaysShow, CanBeHidden, FK_Criteria_Orbiter, FK_DesignObj, TemplateID, AltID, FK_Icon, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -633,7 +658,7 @@ condition = condition + "PK_CommandGroup=" + tmp_PK_CommandGroup;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_CommandGroup="+pRow->PK_CommandGroup_asSQL()+", FK_Array="+pRow->FK_Array_asSQL()+", FK_Installation="+pRow->FK_Installation_asSQL()+", Description="+pRow->Description_asSQL()+", Hint="+pRow->Hint_asSQL()+", CanTurnOff="+pRow->CanTurnOff_asSQL()+", AlwaysShow="+pRow->AlwaysShow_asSQL()+", CanBeHidden="+pRow->CanBeHidden_asSQL()+", FK_Criteria_Orbiter="+pRow->FK_Criteria_Orbiter_asSQL()+", FK_DesignObj="+pRow->FK_DesignObj_asSQL()+", TemplateID="+pRow->TemplateID_asSQL()+", AltID="+pRow->AltID_asSQL()+", FK_Icon="+pRow->FK_Icon_asSQL()+", Modification_RecordInfo="+pRow->Modification_RecordInfo_asSQL()+", IsNew_RecordInfo="+pRow->IsNew_RecordInfo_asSQL()+", IsDeleted_RecordInfo="+pRow->IsDeleted_RecordInfo_asSQL()+", FK_Users_RecordInfo="+pRow->FK_Users_RecordInfo_asSQL();
+update_values_list = update_values_list + "PK_CommandGroup="+pRow->PK_CommandGroup_asSQL()+", FK_Array="+pRow->FK_Array_asSQL()+", FK_Installation="+pRow->FK_Installation_asSQL()+", Description="+pRow->Description_asSQL()+", Hint="+pRow->Hint_asSQL()+", CanTurnOff="+pRow->CanTurnOff_asSQL()+", AlwaysShow="+pRow->AlwaysShow_asSQL()+", CanBeHidden="+pRow->CanBeHidden_asSQL()+", FK_Criteria_Orbiter="+pRow->FK_Criteria_Orbiter_asSQL()+", FK_DesignObj="+pRow->FK_DesignObj_asSQL()+", TemplateID="+pRow->TemplateID_asSQL()+", AltID="+pRow->AltID_asSQL()+", FK_Icon="+pRow->FK_Icon_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update CommandGroup set " + update_values_list + " where " + condition;
@@ -860,45 +885,56 @@ sscanf(row[12], "%li", &(pRow->m_FK_Icon));
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_Modification_RecordInfo = "";
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[13]=false;
-pRow->m_Modification_RecordInfo = string(row[13],lengths[13]);
+sscanf(row[13], "%li", &(pRow->m_psc_id));
 }
 
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_IsNew_RecordInfo = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[14]=false;
-sscanf(row[14], "%hi", &(pRow->m_IsNew_RecordInfo));
+sscanf(row[14], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_IsDeleted_RecordInfo = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[15]=false;
-sscanf(row[15], "%hi", &(pRow->m_IsDeleted_RecordInfo));
+sscanf(row[15], "%li", &(pRow->m_psc_user));
 }
 
 if (row[16] == NULL)
 {
 pRow->is_null[16]=true;
-pRow->m_FK_Users_RecordInfo = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[16]=false;
-sscanf(row[16], "%li", &(pRow->m_FK_Users_RecordInfo));
+sscanf(row[16], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[17] == NULL)
+{
+pRow->is_null[17]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[17]=false;
+pRow->m_psc_mod = string(row[17],lengths[17]);
 }
 
 
@@ -1153,45 +1189,56 @@ sscanf(row[12], "%li", &(pRow->m_FK_Icon));
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_Modification_RecordInfo = "";
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[13]=false;
-pRow->m_Modification_RecordInfo = string(row[13],lengths[13]);
+sscanf(row[13], "%li", &(pRow->m_psc_id));
 }
 
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_IsNew_RecordInfo = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[14]=false;
-sscanf(row[14], "%hi", &(pRow->m_IsNew_RecordInfo));
+sscanf(row[14], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_IsDeleted_RecordInfo = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[15]=false;
-sscanf(row[15], "%hi", &(pRow->m_IsDeleted_RecordInfo));
+sscanf(row[15], "%li", &(pRow->m_psc_user));
 }
 
 if (row[16] == NULL)
 {
 pRow->is_null[16]=true;
-pRow->m_FK_Users_RecordInfo = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[16]=false;
-sscanf(row[16], "%li", &(pRow->m_FK_Users_RecordInfo));
+sscanf(row[16], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[17] == NULL)
+{
+pRow->is_null[17]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[17]=false;
+pRow->m_psc_mod = string(row[17],lengths[17]);
 }
 
 

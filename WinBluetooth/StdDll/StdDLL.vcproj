@@ -114,7 +114,7 @@
 				OutputFile="..\..\Bin\StdDLL.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\WinBluetooth\lib"
+				AdditionalLibraryDirectories="..\lib"
 				ModuleDefinitionFile=".\StdDLL.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\Debug/StdDLL.pdb"

@@ -1,5 +1,8 @@
 #include "PlutoUtils/CommonIncludes.h"	
+#include "PlutoUtils/StringUtils.h"
 #include "DatabaseInfo.h"
+
+using namespace StringUtils;
 
 void DatabaseInfo::getDatabaseTablesList()
 {
@@ -11,6 +14,10 @@ void DatabaseInfo::getDatabaseTablesList()
 		
 		while ((row = mysql_fetch_row(res)))
 		{
+			string sTable = row[0];
+			if( StringUtils::EndsWith(sTable,"_pschist") || StringUtils::StartsWith(sTable,"psc_") )
+				continue;
+
 			// Each table needs a list of all the other tables so that it can find foreign keys pointing
 			// to itself
 			TABLEINFO_TYPE *info = new TABLEINFO_TYPE(db, &map_tables_info);

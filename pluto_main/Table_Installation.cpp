@@ -26,6 +26,7 @@ using namespace std;
 #include "Table_EventHandler.h"
 #include "Table_Floorplan.h"
 #include "Table_Household_Installation.h"
+#include "Table_Installation_RepositorySource_URL.h"
 #include "Table_Installation_Users.h"
 #include "Table_Room.h"
 #include "Table_Users.h"
@@ -133,13 +134,13 @@ m_isActive = 0;
 is_null[10] = false;
 is_null[11] = true;
 is_null[12] = true;
-m_Modification_RecordInfo = "00000000000000";
-is_null[13] = false;
-m_IsNew_RecordInfo = 1;
-is_null[14] = false;
-m_IsDeleted_RecordInfo = 0;
-is_null[15] = false;
-is_null[16] = true;
+is_null[13] = true;
+is_null[14] = true;
+is_null[15] = true;
+m_psc_frozen = 0;
+is_null[16] = false;
+m_psc_mod = "00000000000000";
+is_null[17] = false;
 
 
 	is_added=false;
@@ -186,18 +187,21 @@ return m_FK_Version;}
 short int Row_Installation::isMonitored_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_isMonitored;}
-string Row_Installation::Modification_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_Installation::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_Modification_RecordInfo;}
-short int Row_Installation::IsNew_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_psc_id;}
+long int Row_Installation::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_IsNew_RecordInfo;}
-short int Row_Installation::IsDeleted_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_psc_batch;}
+long int Row_Installation::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_IsDeleted_RecordInfo;}
-long int Row_Installation::FK_Users_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_psc_user;}
+short int Row_Installation::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_FK_Users_RecordInfo;}
+return m_psc_frozen;}
+string Row_Installation::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_mod;}
 
 		
 void Row_Installation::PK_Installation_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -239,18 +243,21 @@ m_FK_Version = val; is_modified=true; is_null[11]=false;}
 void Row_Installation::isMonitored_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_isMonitored = val; is_modified=true; is_null[12]=false;}
-void Row_Installation::Modification_RecordInfo_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Modification_RecordInfo = val; is_modified=true; is_null[13]=false;}
-void Row_Installation::IsNew_RecordInfo_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_psc_id = val; is_modified=true; is_null[13]=false;}
+void Row_Installation::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_IsNew_RecordInfo = val; is_modified=true; is_null[14]=false;}
-void Row_Installation::IsDeleted_RecordInfo_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_psc_batch = val; is_modified=true; is_null[14]=false;}
+void Row_Installation::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_IsDeleted_RecordInfo = val; is_modified=true; is_null[15]=false;}
-void Row_Installation::FK_Users_RecordInfo_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_psc_user = val; is_modified=true; is_null[15]=false;}
+void Row_Installation::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_FK_Users_RecordInfo = val; is_modified=true; is_null[16]=false;}
+m_psc_frozen = val; is_modified=true; is_null[16]=false;}
+void Row_Installation::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_mod = val; is_modified=true; is_null[17]=false;}
 
 		
 bool Row_Installation::Name_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -283,13 +290,16 @@ return is_null[11];}
 bool Row_Installation::isMonitored_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[12];}
-bool Row_Installation::IsNew_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Installation::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[13];}
+bool Row_Installation::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[14];}
-bool Row_Installation::IsDeleted_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Installation::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[15];}
-bool Row_Installation::FK_Users_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Installation::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[16];}
 
@@ -324,13 +334,16 @@ is_null[11]=val;}
 void Row_Installation::isMonitored_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[12]=val;}
-void Row_Installation::IsNew_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[13]=val;}
+void Row_Installation::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[14]=val;}
-void Row_Installation::IsDeleted_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[15]=val;}
-void Row_Installation::FK_Users_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Installation::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[16]=val;}
 	
@@ -495,19 +508,20 @@ sprintf(buf, "%hi", m_isMonitored);
 return buf;
 }
 
-string Row_Installation::Modification_RecordInfo_asSQL()
+string Row_Installation::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[13])
 return "NULL";
 
-char buf[29];
-mysql_real_escape_string(table->database->db_handle, buf, m_Modification_RecordInfo.c_str(), (unsigned long) m_Modification_RecordInfo.size());
-return string()+"\""+buf+"\"";
+char buf[32];
+sprintf(buf, "%li", m_psc_id);
+
+return buf;
 }
 
-string Row_Installation::IsNew_RecordInfo_asSQL()
+string Row_Installation::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -515,12 +529,12 @@ if (is_null[14])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%hi", m_IsNew_RecordInfo);
+sprintf(buf, "%li", m_psc_batch);
 
 return buf;
 }
 
-string Row_Installation::IsDeleted_RecordInfo_asSQL()
+string Row_Installation::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -528,12 +542,12 @@ if (is_null[15])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%hi", m_IsDeleted_RecordInfo);
+sprintf(buf, "%li", m_psc_user);
 
 return buf;
 }
 
-string Row_Installation::FK_Users_RecordInfo_asSQL()
+string Row_Installation::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -541,9 +555,21 @@ if (is_null[16])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_FK_Users_RecordInfo);
+sprintf(buf, "%hi", m_psc_frozen);
 
 return buf;
+}
+
+string Row_Installation::psc_mod_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[17])
+return "NULL";
+
+char buf[29];
+mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
+return string()+"\""+buf+"\"";
 }
 
 
@@ -584,10 +610,10 @@ void Table_Installation::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Installation_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Name_asSQL()+", "+pRow->Address_asSQL()+", "+pRow->City_asSQL()+", "+pRow->State_asSQL()+", "+pRow->Zip_asSQL()+", "+pRow->ActivationCode_asSQL()+", "+pRow->LastStatus_asSQL()+", "+pRow->LastAlive_asSQL()+", "+pRow->isActive_asSQL()+", "+pRow->FK_Version_asSQL()+", "+pRow->isMonitored_asSQL()+", "+pRow->Modification_RecordInfo_asSQL()+", "+pRow->IsNew_RecordInfo_asSQL()+", "+pRow->IsDeleted_RecordInfo_asSQL()+", "+pRow->FK_Users_RecordInfo_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Installation_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Name_asSQL()+", "+pRow->Address_asSQL()+", "+pRow->City_asSQL()+", "+pRow->State_asSQL()+", "+pRow->Zip_asSQL()+", "+pRow->ActivationCode_asSQL()+", "+pRow->LastStatus_asSQL()+", "+pRow->LastAlive_asSQL()+", "+pRow->isActive_asSQL()+", "+pRow->FK_Version_asSQL()+", "+pRow->isMonitored_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into Installation (PK_Installation, Description, Name, Address, City, State, Zip, ActivationCode, LastStatus, LastAlive, isActive, FK_Version, isMonitored, Modification_RecordInfo, IsNew_RecordInfo, IsDeleted_RecordInfo, FK_Users_RecordInfo) values ("+
+		string query = "insert into Installation (PK_Installation, Description, Name, Address, City, State, Zip, ActivationCode, LastStatus, LastAlive, isActive, FK_Version, isMonitored, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -636,7 +662,7 @@ condition = condition + "PK_Installation=" + tmp_PK_Installation;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Installation="+pRow->PK_Installation_asSQL()+", Description="+pRow->Description_asSQL()+", Name="+pRow->Name_asSQL()+", Address="+pRow->Address_asSQL()+", City="+pRow->City_asSQL()+", State="+pRow->State_asSQL()+", Zip="+pRow->Zip_asSQL()+", ActivationCode="+pRow->ActivationCode_asSQL()+", LastStatus="+pRow->LastStatus_asSQL()+", LastAlive="+pRow->LastAlive_asSQL()+", isActive="+pRow->isActive_asSQL()+", FK_Version="+pRow->FK_Version_asSQL()+", isMonitored="+pRow->isMonitored_asSQL()+", Modification_RecordInfo="+pRow->Modification_RecordInfo_asSQL()+", IsNew_RecordInfo="+pRow->IsNew_RecordInfo_asSQL()+", IsDeleted_RecordInfo="+pRow->IsDeleted_RecordInfo_asSQL()+", FK_Users_RecordInfo="+pRow->FK_Users_RecordInfo_asSQL();
+update_values_list = update_values_list + "PK_Installation="+pRow->PK_Installation_asSQL()+", Description="+pRow->Description_asSQL()+", Name="+pRow->Name_asSQL()+", Address="+pRow->Address_asSQL()+", City="+pRow->City_asSQL()+", State="+pRow->State_asSQL()+", Zip="+pRow->Zip_asSQL()+", ActivationCode="+pRow->ActivationCode_asSQL()+", LastStatus="+pRow->LastStatus_asSQL()+", LastAlive="+pRow->LastAlive_asSQL()+", isActive="+pRow->isActive_asSQL()+", FK_Version="+pRow->FK_Version_asSQL()+", isMonitored="+pRow->isMonitored_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update Installation set " + update_values_list + " where " + condition;
@@ -863,45 +889,56 @@ sscanf(row[12], "%hi", &(pRow->m_isMonitored));
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_Modification_RecordInfo = "";
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[13]=false;
-pRow->m_Modification_RecordInfo = string(row[13],lengths[13]);
+sscanf(row[13], "%li", &(pRow->m_psc_id));
 }
 
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_IsNew_RecordInfo = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[14]=false;
-sscanf(row[14], "%hi", &(pRow->m_IsNew_RecordInfo));
+sscanf(row[14], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_IsDeleted_RecordInfo = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[15]=false;
-sscanf(row[15], "%hi", &(pRow->m_IsDeleted_RecordInfo));
+sscanf(row[15], "%li", &(pRow->m_psc_user));
 }
 
 if (row[16] == NULL)
 {
 pRow->is_null[16]=true;
-pRow->m_FK_Users_RecordInfo = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[16]=false;
-sscanf(row[16], "%li", &(pRow->m_FK_Users_RecordInfo));
+sscanf(row[16], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[17] == NULL)
+{
+pRow->is_null[17]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[17]=false;
+pRow->m_psc_mod = string(row[17],lengths[17]);
 }
 
 
@@ -1156,45 +1193,56 @@ sscanf(row[12], "%hi", &(pRow->m_isMonitored));
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_Modification_RecordInfo = "";
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[13]=false;
-pRow->m_Modification_RecordInfo = string(row[13],lengths[13]);
+sscanf(row[13], "%li", &(pRow->m_psc_id));
 }
 
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_IsNew_RecordInfo = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[14]=false;
-sscanf(row[14], "%hi", &(pRow->m_IsNew_RecordInfo));
+sscanf(row[14], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_IsDeleted_RecordInfo = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[15]=false;
-sscanf(row[15], "%hi", &(pRow->m_IsDeleted_RecordInfo));
+sscanf(row[15], "%li", &(pRow->m_psc_user));
 }
 
 if (row[16] == NULL)
 {
 pRow->is_null[16]=true;
-pRow->m_FK_Users_RecordInfo = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[16]=false;
-sscanf(row[16], "%li", &(pRow->m_FK_Users_RecordInfo));
+sscanf(row[16], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[17] == NULL)
+{
+pRow->is_null[17]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[17]=false;
+pRow->m_psc_mod = string(row[17],lengths[17]);
 }
 
 
@@ -1254,6 +1302,13 @@ void Row_Installation::Household_Installation_FK_Installation_getrows(vector <cl
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Household_Installation *pTable = table->database->Household_Installation_get();
+pTable->GetRows("FK_Installation=" + StringUtils::itos(m_PK_Installation),rows);
+}
+void Row_Installation::Installation_RepositorySource_URL_FK_Installation_getrows(vector <class Row_Installation_RepositorySource_URL*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Installation_RepositorySource_URL *pTable = table->database->Installation_RepositorySource_URL_get();
 pTable->GetRows("FK_Installation=" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::Installation_Users_FK_Installation_getrows(vector <class Row_Installation_Users*> *rows)

@@ -88,12 +88,13 @@ short int m_Operator;
 string m_DefaultValue;
 string m_ExtraInfo;
 short int m_Required;
-string m_Modification_RecordInfo;
-short int m_IsNew_RecordInfo;
-short int m_IsDeleted_RecordInfo;
-long int m_FK_Users_RecordInfo;
+long int m_psc_id;
+long int m_psc_batch;
+long int m_psc_user;
+short int m_psc_frozen;
+string m_psc_mod;
 
-		bool is_null[13];
+		bool is_null[14];
 	
 		bool is_deleted;
 		bool is_added;
@@ -109,10 +110,11 @@ short int Operator_get();
 string DefaultValue_get();
 string ExtraInfo_get();
 short int Required_get();
-string Modification_RecordInfo_get();
-short int IsNew_RecordInfo_get();
-short int IsDeleted_RecordInfo_get();
-long int FK_Users_RecordInfo_get();
+long int psc_id_get();
+long int psc_batch_get();
+long int psc_user_get();
+short int psc_frozen_get();
+string psc_mod_get();
 
 		
 		void PK_CannedEvents_CriteriaParmList_set(long int val);
@@ -124,26 +126,29 @@ void Operator_set(short int val);
 void DefaultValue_set(string val);
 void ExtraInfo_set(string val);
 void Required_set(short int val);
-void Modification_RecordInfo_set(string val);
-void IsNew_RecordInfo_set(short int val);
-void IsDeleted_RecordInfo_set(short int val);
-void FK_Users_RecordInfo_set(long int val);
+void psc_id_set(long int val);
+void psc_batch_set(long int val);
+void psc_user_set(long int val);
+void psc_frozen_set(short int val);
+void psc_mod_set(string val);
 
 		
 		bool Comments_isNull();
 bool DefaultValue_isNull();
 bool ExtraInfo_isNull();
-bool IsNew_RecordInfo_isNull();
-bool IsDeleted_RecordInfo_isNull();
-bool FK_Users_RecordInfo_isNull();
+bool psc_id_isNull();
+bool psc_batch_isNull();
+bool psc_user_isNull();
+bool psc_frozen_isNull();
 
 			
 		void Comments_setNull(bool val);
 void DefaultValue_setNull(bool val);
 void ExtraInfo_setNull(bool val);
-void IsNew_RecordInfo_setNull(bool val);
-void IsDeleted_RecordInfo_setNull(bool val);
-void FK_Users_RecordInfo_setNull(bool val);
+void psc_id_setNull(bool val);
+void psc_batch_setNull(bool val);
+void psc_user_setNull(bool val);
+void psc_frozen_setNull(bool val);
 	
 	
 		void Delete();
@@ -167,7 +172,7 @@ void CriteriaParm_D_FK_CannedEvents_CriteriaParmList_getrows(vector <class Row_C
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_CannedEvents_CriteriaParmList+ m_FK_CannedEvents+ m_FK_CriteriaParmList+ m_Description+ m_Comments+ m_Operator+ m_DefaultValue+ m_ExtraInfo+ m_Required+ m_Modification_RecordInfo+ m_IsNew_RecordInfo+ m_IsDeleted_RecordInfo+ m_FK_Users_RecordInfo;
+			StartSerializeList() + m_PK_CannedEvents_CriteriaParmList+ m_FK_CannedEvents+ m_FK_CriteriaParmList+ m_Description+ m_Comments+ m_Operator+ m_DefaultValue+ m_ExtraInfo+ m_Required+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -181,10 +186,11 @@ string Operator_asSQL();
 string DefaultValue_asSQL();
 string ExtraInfo_asSQL();
 string Required_asSQL();
-string Modification_RecordInfo_asSQL();
-string IsNew_RecordInfo_asSQL();
-string IsDeleted_RecordInfo_asSQL();
-string FK_Users_RecordInfo_asSQL();
+string psc_id_asSQL();
+string psc_batch_asSQL();
+string psc_user_asSQL();
+string psc_frozen_asSQL();
+string psc_mod_asSQL();
 
 	};
 

@@ -85,12 +85,13 @@ long int m_FK_Style_Selected;
 long int m_FK_Style_Highlighted;
 long int m_FK_Style_Alt;
 short int m_AlwaysIncludeOnOrbiter;
-string m_Modification_RecordInfo;
-short int m_IsNew_RecordInfo;
-short int m_IsDeleted_RecordInfo;
-long int m_FK_Users_RecordInfo;
+long int m_psc_id;
+long int m_psc_batch;
+long int m_psc_user;
+short int m_psc_frozen;
+string m_psc_mod;
 
-		bool is_null[10];
+		bool is_null[11];
 	
 		bool is_deleted;
 		bool is_added;
@@ -103,10 +104,11 @@ long int FK_Style_Selected_get();
 long int FK_Style_Highlighted_get();
 long int FK_Style_Alt_get();
 short int AlwaysIncludeOnOrbiter_get();
-string Modification_RecordInfo_get();
-short int IsNew_RecordInfo_get();
-short int IsDeleted_RecordInfo_get();
-long int FK_Users_RecordInfo_get();
+long int psc_id_get();
+long int psc_batch_get();
+long int psc_user_get();
+short int psc_frozen_get();
+string psc_mod_get();
 
 		
 		void PK_Style_set(long int val);
@@ -115,28 +117,31 @@ void FK_Style_Selected_set(long int val);
 void FK_Style_Highlighted_set(long int val);
 void FK_Style_Alt_set(long int val);
 void AlwaysIncludeOnOrbiter_set(short int val);
-void Modification_RecordInfo_set(string val);
-void IsNew_RecordInfo_set(short int val);
-void IsDeleted_RecordInfo_set(short int val);
-void FK_Users_RecordInfo_set(long int val);
+void psc_id_set(long int val);
+void psc_batch_set(long int val);
+void psc_user_set(long int val);
+void psc_frozen_set(short int val);
+void psc_mod_set(string val);
 
 		
 		bool Description_isNull();
 bool FK_Style_Selected_isNull();
 bool FK_Style_Highlighted_isNull();
 bool FK_Style_Alt_isNull();
-bool IsNew_RecordInfo_isNull();
-bool IsDeleted_RecordInfo_isNull();
-bool FK_Users_RecordInfo_isNull();
+bool psc_id_isNull();
+bool psc_batch_isNull();
+bool psc_user_isNull();
+bool psc_frozen_isNull();
 
 			
 		void Description_setNull(bool val);
 void FK_Style_Selected_setNull(bool val);
 void FK_Style_Highlighted_setNull(bool val);
 void FK_Style_Alt_setNull(bool val);
-void IsNew_RecordInfo_setNull(bool val);
-void IsDeleted_RecordInfo_setNull(bool val);
-void FK_Users_RecordInfo_setNull(bool val);
+void psc_id_setNull(bool val);
+void psc_batch_setNull(bool val);
+void psc_user_setNull(bool val);
+void psc_frozen_setNull(bool val);
 	
 	
 		void Delete();
@@ -165,7 +170,7 @@ void StyleVariation_FK_Style_getrows(vector <class Row_StyleVariation*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_Style+ m_Description+ m_FK_Style_Selected+ m_FK_Style_Highlighted+ m_FK_Style_Alt+ m_AlwaysIncludeOnOrbiter+ m_Modification_RecordInfo+ m_IsNew_RecordInfo+ m_IsDeleted_RecordInfo+ m_FK_Users_RecordInfo;
+			StartSerializeList() + m_PK_Style+ m_Description+ m_FK_Style_Selected+ m_FK_Style_Highlighted+ m_FK_Style_Alt+ m_AlwaysIncludeOnOrbiter+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -176,10 +181,11 @@ string FK_Style_Selected_asSQL();
 string FK_Style_Highlighted_asSQL();
 string FK_Style_Alt_asSQL();
 string AlwaysIncludeOnOrbiter_asSQL();
-string Modification_RecordInfo_asSQL();
-string IsNew_RecordInfo_asSQL();
-string IsDeleted_RecordInfo_asSQL();
-string FK_Users_RecordInfo_asSQL();
+string psc_id_asSQL();
+string psc_batch_asSQL();
+string psc_user_asSQL();
+string psc_frozen_asSQL();
+string psc_mod_asSQL();
 
 	};
 

@@ -139,13 +139,13 @@ is_null[14] = false;
 m_FK_VertAlignment = 0;
 is_null[15] = false;
 is_null[16] = true;
-m_Modification_RecordInfo = "00000000000000";
-is_null[17] = false;
-m_IsNew_RecordInfo = 1;
-is_null[18] = false;
-m_IsDeleted_RecordInfo = 0;
-is_null[19] = false;
-is_null[20] = true;
+is_null[17] = true;
+is_null[18] = true;
+is_null[19] = true;
+m_psc_frozen = 0;
+is_null[20] = false;
+m_psc_mod = "00000000000000";
+is_null[21] = false;
 
 
 	is_added=false;
@@ -204,18 +204,21 @@ return m_FK_VertAlignment;}
 long int Row_StyleVariation::BackColor_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_BackColor;}
-string Row_StyleVariation::Modification_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_StyleVariation::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_Modification_RecordInfo;}
-short int Row_StyleVariation::IsNew_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_psc_id;}
+long int Row_StyleVariation::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_IsNew_RecordInfo;}
-short int Row_StyleVariation::IsDeleted_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_psc_batch;}
+long int Row_StyleVariation::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_IsDeleted_RecordInfo;}
-long int Row_StyleVariation::FK_Users_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_psc_user;}
+short int Row_StyleVariation::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_FK_Users_RecordInfo;}
+return m_psc_frozen;}
+string Row_StyleVariation::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_mod;}
 
 		
 void Row_StyleVariation::PK_StyleVariation_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -269,18 +272,21 @@ m_FK_VertAlignment = val; is_modified=true; is_null[15]=false;}
 void Row_StyleVariation::BackColor_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_BackColor = val; is_modified=true; is_null[16]=false;}
-void Row_StyleVariation::Modification_RecordInfo_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_StyleVariation::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Modification_RecordInfo = val; is_modified=true; is_null[17]=false;}
-void Row_StyleVariation::IsNew_RecordInfo_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_psc_id = val; is_modified=true; is_null[17]=false;}
+void Row_StyleVariation::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_IsNew_RecordInfo = val; is_modified=true; is_null[18]=false;}
-void Row_StyleVariation::IsDeleted_RecordInfo_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_psc_batch = val; is_modified=true; is_null[18]=false;}
+void Row_StyleVariation::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_IsDeleted_RecordInfo = val; is_modified=true; is_null[19]=false;}
-void Row_StyleVariation::FK_Users_RecordInfo_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_psc_user = val; is_modified=true; is_null[19]=false;}
+void Row_StyleVariation::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_FK_Users_RecordInfo = val; is_modified=true; is_null[20]=false;}
+m_psc_frozen = val; is_modified=true; is_null[20]=false;}
+void Row_StyleVariation::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_mod = val; is_modified=true; is_null[21]=false;}
 
 		
 bool Row_StyleVariation::FK_Skin_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -304,13 +310,16 @@ return is_null[12];}
 bool Row_StyleVariation::BackColor_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[16];}
-bool Row_StyleVariation::IsNew_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_StyleVariation::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[17];}
+bool Row_StyleVariation::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[18];}
-bool Row_StyleVariation::IsDeleted_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_StyleVariation::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[19];}
-bool Row_StyleVariation::FK_Users_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_StyleVariation::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[20];}
 
@@ -336,13 +345,16 @@ is_null[12]=val;}
 void Row_StyleVariation::BackColor_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[16]=val;}
-void Row_StyleVariation::IsNew_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_StyleVariation::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[17]=val;}
+void Row_StyleVariation::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[18]=val;}
-void Row_StyleVariation::IsDeleted_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_StyleVariation::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[19]=val;}
-void Row_StyleVariation::FK_Users_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_StyleVariation::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[20]=val;}
 	
@@ -567,19 +579,20 @@ sprintf(buf, "%li", m_BackColor);
 return buf;
 }
 
-string Row_StyleVariation::Modification_RecordInfo_asSQL()
+string Row_StyleVariation::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[17])
 return "NULL";
 
-char buf[29];
-mysql_real_escape_string(table->database->db_handle, buf, m_Modification_RecordInfo.c_str(), (unsigned long) m_Modification_RecordInfo.size());
-return string()+"\""+buf+"\"";
+char buf[32];
+sprintf(buf, "%li", m_psc_id);
+
+return buf;
 }
 
-string Row_StyleVariation::IsNew_RecordInfo_asSQL()
+string Row_StyleVariation::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -587,12 +600,12 @@ if (is_null[18])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%hi", m_IsNew_RecordInfo);
+sprintf(buf, "%li", m_psc_batch);
 
 return buf;
 }
 
-string Row_StyleVariation::IsDeleted_RecordInfo_asSQL()
+string Row_StyleVariation::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -600,12 +613,12 @@ if (is_null[19])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%hi", m_IsDeleted_RecordInfo);
+sprintf(buf, "%li", m_psc_user);
 
 return buf;
 }
 
-string Row_StyleVariation::FK_Users_RecordInfo_asSQL()
+string Row_StyleVariation::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -613,9 +626,21 @@ if (is_null[20])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_FK_Users_RecordInfo);
+sprintf(buf, "%hi", m_psc_frozen);
 
 return buf;
+}
+
+string Row_StyleVariation::psc_mod_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[21])
+return "NULL";
+
+char buf[29];
+mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
+return string()+"\""+buf+"\"";
 }
 
 
@@ -656,10 +681,10 @@ void Table_StyleVariation::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_StyleVariation_asSQL()+", "+pRow->FK_Style_asSQL()+", "+pRow->FK_Skin_asSQL()+", "+pRow->FK_Criteria_D_asSQL()+", "+pRow->Font_asSQL()+", "+pRow->ForeColor_asSQL()+", "+pRow->PixelHeight_asSQL()+", "+pRow->Bold_asSQL()+", "+pRow->Italic_asSQL()+", "+pRow->Underline_asSQL()+", "+pRow->ShadowX_asSQL()+", "+pRow->ShadowY_asSQL()+", "+pRow->ShadowColor_asSQL()+", "+pRow->BorderStyle_asSQL()+", "+pRow->FK_HorizAlignment_asSQL()+", "+pRow->FK_VertAlignment_asSQL()+", "+pRow->BackColor_asSQL()+", "+pRow->Modification_RecordInfo_asSQL()+", "+pRow->IsNew_RecordInfo_asSQL()+", "+pRow->IsDeleted_RecordInfo_asSQL()+", "+pRow->FK_Users_RecordInfo_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_StyleVariation_asSQL()+", "+pRow->FK_Style_asSQL()+", "+pRow->FK_Skin_asSQL()+", "+pRow->FK_Criteria_D_asSQL()+", "+pRow->Font_asSQL()+", "+pRow->ForeColor_asSQL()+", "+pRow->PixelHeight_asSQL()+", "+pRow->Bold_asSQL()+", "+pRow->Italic_asSQL()+", "+pRow->Underline_asSQL()+", "+pRow->ShadowX_asSQL()+", "+pRow->ShadowY_asSQL()+", "+pRow->ShadowColor_asSQL()+", "+pRow->BorderStyle_asSQL()+", "+pRow->FK_HorizAlignment_asSQL()+", "+pRow->FK_VertAlignment_asSQL()+", "+pRow->BackColor_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into StyleVariation (PK_StyleVariation, FK_Style, FK_Skin, FK_Criteria_D, Font, ForeColor, PixelHeight, Bold, Italic, Underline, ShadowX, ShadowY, ShadowColor, BorderStyle, FK_HorizAlignment, FK_VertAlignment, BackColor, Modification_RecordInfo, IsNew_RecordInfo, IsDeleted_RecordInfo, FK_Users_RecordInfo) values ("+
+		string query = "insert into StyleVariation (PK_StyleVariation, FK_Style, FK_Skin, FK_Criteria_D, Font, ForeColor, PixelHeight, Bold, Italic, Underline, ShadowX, ShadowY, ShadowColor, BorderStyle, FK_HorizAlignment, FK_VertAlignment, BackColor, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -708,7 +733,7 @@ condition = condition + "PK_StyleVariation=" + tmp_PK_StyleVariation;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_StyleVariation="+pRow->PK_StyleVariation_asSQL()+", FK_Style="+pRow->FK_Style_asSQL()+", FK_Skin="+pRow->FK_Skin_asSQL()+", FK_Criteria_D="+pRow->FK_Criteria_D_asSQL()+", Font="+pRow->Font_asSQL()+", ForeColor="+pRow->ForeColor_asSQL()+", PixelHeight="+pRow->PixelHeight_asSQL()+", Bold="+pRow->Bold_asSQL()+", Italic="+pRow->Italic_asSQL()+", Underline="+pRow->Underline_asSQL()+", ShadowX="+pRow->ShadowX_asSQL()+", ShadowY="+pRow->ShadowY_asSQL()+", ShadowColor="+pRow->ShadowColor_asSQL()+", BorderStyle="+pRow->BorderStyle_asSQL()+", FK_HorizAlignment="+pRow->FK_HorizAlignment_asSQL()+", FK_VertAlignment="+pRow->FK_VertAlignment_asSQL()+", BackColor="+pRow->BackColor_asSQL()+", Modification_RecordInfo="+pRow->Modification_RecordInfo_asSQL()+", IsNew_RecordInfo="+pRow->IsNew_RecordInfo_asSQL()+", IsDeleted_RecordInfo="+pRow->IsDeleted_RecordInfo_asSQL()+", FK_Users_RecordInfo="+pRow->FK_Users_RecordInfo_asSQL();
+update_values_list = update_values_list + "PK_StyleVariation="+pRow->PK_StyleVariation_asSQL()+", FK_Style="+pRow->FK_Style_asSQL()+", FK_Skin="+pRow->FK_Skin_asSQL()+", FK_Criteria_D="+pRow->FK_Criteria_D_asSQL()+", Font="+pRow->Font_asSQL()+", ForeColor="+pRow->ForeColor_asSQL()+", PixelHeight="+pRow->PixelHeight_asSQL()+", Bold="+pRow->Bold_asSQL()+", Italic="+pRow->Italic_asSQL()+", Underline="+pRow->Underline_asSQL()+", ShadowX="+pRow->ShadowX_asSQL()+", ShadowY="+pRow->ShadowY_asSQL()+", ShadowColor="+pRow->ShadowColor_asSQL()+", BorderStyle="+pRow->BorderStyle_asSQL()+", FK_HorizAlignment="+pRow->FK_HorizAlignment_asSQL()+", FK_VertAlignment="+pRow->FK_VertAlignment_asSQL()+", BackColor="+pRow->BackColor_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update StyleVariation set " + update_values_list + " where " + condition;
@@ -979,45 +1004,56 @@ sscanf(row[16], "%li", &(pRow->m_BackColor));
 if (row[17] == NULL)
 {
 pRow->is_null[17]=true;
-pRow->m_Modification_RecordInfo = "";
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[17]=false;
-pRow->m_Modification_RecordInfo = string(row[17],lengths[17]);
+sscanf(row[17], "%li", &(pRow->m_psc_id));
 }
 
 if (row[18] == NULL)
 {
 pRow->is_null[18]=true;
-pRow->m_IsNew_RecordInfo = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[18]=false;
-sscanf(row[18], "%hi", &(pRow->m_IsNew_RecordInfo));
+sscanf(row[18], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[19] == NULL)
 {
 pRow->is_null[19]=true;
-pRow->m_IsDeleted_RecordInfo = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[19]=false;
-sscanf(row[19], "%hi", &(pRow->m_IsDeleted_RecordInfo));
+sscanf(row[19], "%li", &(pRow->m_psc_user));
 }
 
 if (row[20] == NULL)
 {
 pRow->is_null[20]=true;
-pRow->m_FK_Users_RecordInfo = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[20]=false;
-sscanf(row[20], "%li", &(pRow->m_FK_Users_RecordInfo));
+sscanf(row[20], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[21] == NULL)
+{
+pRow->is_null[21]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[21]=false;
+pRow->m_psc_mod = string(row[21],lengths[21]);
 }
 
 
@@ -1316,45 +1352,56 @@ sscanf(row[16], "%li", &(pRow->m_BackColor));
 if (row[17] == NULL)
 {
 pRow->is_null[17]=true;
-pRow->m_Modification_RecordInfo = "";
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[17]=false;
-pRow->m_Modification_RecordInfo = string(row[17],lengths[17]);
+sscanf(row[17], "%li", &(pRow->m_psc_id));
 }
 
 if (row[18] == NULL)
 {
 pRow->is_null[18]=true;
-pRow->m_IsNew_RecordInfo = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[18]=false;
-sscanf(row[18], "%hi", &(pRow->m_IsNew_RecordInfo));
+sscanf(row[18], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[19] == NULL)
 {
 pRow->is_null[19]=true;
-pRow->m_IsDeleted_RecordInfo = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[19]=false;
-sscanf(row[19], "%hi", &(pRow->m_IsDeleted_RecordInfo));
+sscanf(row[19], "%li", &(pRow->m_psc_user));
 }
 
 if (row[20] == NULL)
 {
 pRow->is_null[20]=true;
-pRow->m_FK_Users_RecordInfo = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[20]=false;
-sscanf(row[20], "%li", &(pRow->m_FK_Users_RecordInfo));
+sscanf(row[20], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[21] == NULL)
+{
+pRow->is_null[21]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[21]=false;
+pRow->m_psc_mod = string(row[21],lengths[21]);
 }
 
 

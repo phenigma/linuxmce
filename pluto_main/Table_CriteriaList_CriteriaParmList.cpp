@@ -113,13 +113,6 @@ void Row_CriteriaList_CriteriaParmList::SetDefaultValues()
 is_null[0] = false;
 m_FK_CriteriaParmList = 0;
 is_null[1] = false;
-m_Modification_RecordInfo = "00000000000000";
-is_null[2] = false;
-m_IsNew_RecordInfo = 1;
-is_null[3] = false;
-m_IsDeleted_RecordInfo = 0;
-is_null[4] = false;
-is_null[5] = true;
 
 
 	is_added=false;
@@ -133,18 +126,6 @@ return m_FK_CriteriaList;}
 long int Row_CriteriaList_CriteriaParmList::FK_CriteriaParmList_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_CriteriaParmList;}
-string Row_CriteriaList_CriteriaParmList::Modification_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return m_Modification_RecordInfo;}
-short int Row_CriteriaList_CriteriaParmList::IsNew_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return m_IsNew_RecordInfo;}
-short int Row_CriteriaList_CriteriaParmList::IsDeleted_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return m_IsDeleted_RecordInfo;}
-long int Row_CriteriaList_CriteriaParmList::FK_Users_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return m_FK_Users_RecordInfo;}
 
 		
 void Row_CriteriaList_CriteriaParmList::FK_CriteriaList_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -153,40 +134,10 @@ m_FK_CriteriaList = val; is_modified=true; is_null[0]=false;}
 void Row_CriteriaList_CriteriaParmList::FK_CriteriaParmList_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_CriteriaParmList = val; is_modified=true; is_null[1]=false;}
-void Row_CriteriaList_CriteriaParmList::Modification_RecordInfo_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-m_Modification_RecordInfo = val; is_modified=true; is_null[2]=false;}
-void Row_CriteriaList_CriteriaParmList::IsNew_RecordInfo_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-m_IsNew_RecordInfo = val; is_modified=true; is_null[3]=false;}
-void Row_CriteriaList_CriteriaParmList::IsDeleted_RecordInfo_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-m_IsDeleted_RecordInfo = val; is_modified=true; is_null[4]=false;}
-void Row_CriteriaList_CriteriaParmList::FK_Users_RecordInfo_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-m_FK_Users_RecordInfo = val; is_modified=true; is_null[5]=false;}
 
 		
-bool Row_CriteriaList_CriteriaParmList::IsNew_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return is_null[3];}
-bool Row_CriteriaList_CriteriaParmList::IsDeleted_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return is_null[4];}
-bool Row_CriteriaList_CriteriaParmList::FK_Users_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return is_null[5];}
 
 			
-void Row_CriteriaList_CriteriaParmList::IsNew_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[3]=val;}
-void Row_CriteriaList_CriteriaParmList::IsDeleted_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[4]=val;}
-void Row_CriteriaList_CriteriaParmList::FK_Users_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[5]=val;}
 	
 
 string Row_CriteriaList_CriteriaParmList::FK_CriteriaList_asSQL()
@@ -211,57 +162,6 @@ return "NULL";
 
 char buf[32];
 sprintf(buf, "%li", m_FK_CriteriaParmList);
-
-return buf;
-}
-
-string Row_CriteriaList_CriteriaParmList::Modification_RecordInfo_asSQL()
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-if (is_null[2])
-return "NULL";
-
-char buf[29];
-mysql_real_escape_string(table->database->db_handle, buf, m_Modification_RecordInfo.c_str(), (unsigned long) m_Modification_RecordInfo.size());
-return string()+"\""+buf+"\"";
-}
-
-string Row_CriteriaList_CriteriaParmList::IsNew_RecordInfo_asSQL()
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-if (is_null[3])
-return "NULL";
-
-char buf[32];
-sprintf(buf, "%hi", m_IsNew_RecordInfo);
-
-return buf;
-}
-
-string Row_CriteriaList_CriteriaParmList::IsDeleted_RecordInfo_asSQL()
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-if (is_null[4])
-return "NULL";
-
-char buf[32];
-sprintf(buf, "%hi", m_IsDeleted_RecordInfo);
-
-return buf;
-}
-
-string Row_CriteriaList_CriteriaParmList::FK_Users_RecordInfo_asSQL()
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-if (is_null[5])
-return "NULL";
-
-char buf[32];
-sprintf(buf, "%li", m_FK_Users_RecordInfo);
 
 return buf;
 }
@@ -309,10 +209,10 @@ void Table_CriteriaList_CriteriaParmList::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->FK_CriteriaList_asSQL()+", "+pRow->FK_CriteriaParmList_asSQL()+", "+pRow->Modification_RecordInfo_asSQL()+", "+pRow->IsNew_RecordInfo_asSQL()+", "+pRow->IsDeleted_RecordInfo_asSQL()+", "+pRow->FK_Users_RecordInfo_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->FK_CriteriaList_asSQL()+", "+pRow->FK_CriteriaParmList_asSQL();
 
 	
-		string query = "insert into CriteriaList_CriteriaParmList (FK_CriteriaList, FK_CriteriaParmList, Modification_RecordInfo, IsNew_RecordInfo, IsDeleted_RecordInfo, FK_Users_RecordInfo) values ("+
+		string query = "insert into CriteriaList_CriteriaParmList (FK_CriteriaList, FK_CriteriaParmList) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -362,7 +262,7 @@ condition = condition + "FK_CriteriaList=" + tmp_FK_CriteriaList+" AND "+"FK_Cri
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_CriteriaList="+pRow->FK_CriteriaList_asSQL()+", FK_CriteriaParmList="+pRow->FK_CriteriaParmList_asSQL()+", Modification_RecordInfo="+pRow->Modification_RecordInfo_asSQL()+", IsNew_RecordInfo="+pRow->IsNew_RecordInfo_asSQL()+", IsDeleted_RecordInfo="+pRow->IsDeleted_RecordInfo_asSQL()+", FK_Users_RecordInfo="+pRow->FK_Users_RecordInfo_asSQL();
+update_values_list = update_values_list + "FK_CriteriaList="+pRow->FK_CriteriaList_asSQL()+", FK_CriteriaParmList="+pRow->FK_CriteriaParmList_asSQL();
 
 	
 		string query = "update CriteriaList_CriteriaParmList set " + update_values_list + " where " + condition;
@@ -466,50 +366,6 @@ else
 {
 pRow->is_null[1]=false;
 sscanf(row[1], "%li", &(pRow->m_FK_CriteriaParmList));
-}
-
-if (row[2] == NULL)
-{
-pRow->is_null[2]=true;
-pRow->m_Modification_RecordInfo = "";
-}
-else
-{
-pRow->is_null[2]=false;
-pRow->m_Modification_RecordInfo = string(row[2],lengths[2]);
-}
-
-if (row[3] == NULL)
-{
-pRow->is_null[3]=true;
-pRow->m_IsNew_RecordInfo = 0;
-}
-else
-{
-pRow->is_null[3]=false;
-sscanf(row[3], "%hi", &(pRow->m_IsNew_RecordInfo));
-}
-
-if (row[4] == NULL)
-{
-pRow->is_null[4]=true;
-pRow->m_IsDeleted_RecordInfo = 0;
-}
-else
-{
-pRow->is_null[4]=false;
-sscanf(row[4], "%hi", &(pRow->m_IsDeleted_RecordInfo));
-}
-
-if (row[5] == NULL)
-{
-pRow->is_null[5]=true;
-pRow->m_FK_Users_RecordInfo = 0;
-}
-else
-{
-pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_FK_Users_RecordInfo));
 }
 
 
@@ -641,50 +497,6 @@ else
 {
 pRow->is_null[1]=false;
 sscanf(row[1], "%li", &(pRow->m_FK_CriteriaParmList));
-}
-
-if (row[2] == NULL)
-{
-pRow->is_null[2]=true;
-pRow->m_Modification_RecordInfo = "";
-}
-else
-{
-pRow->is_null[2]=false;
-pRow->m_Modification_RecordInfo = string(row[2],lengths[2]);
-}
-
-if (row[3] == NULL)
-{
-pRow->is_null[3]=true;
-pRow->m_IsNew_RecordInfo = 0;
-}
-else
-{
-pRow->is_null[3]=false;
-sscanf(row[3], "%hi", &(pRow->m_IsNew_RecordInfo));
-}
-
-if (row[4] == NULL)
-{
-pRow->is_null[4]=true;
-pRow->m_IsDeleted_RecordInfo = 0;
-}
-else
-{
-pRow->is_null[4]=false;
-sscanf(row[4], "%hi", &(pRow->m_IsDeleted_RecordInfo));
-}
-
-if (row[5] == NULL)
-{
-pRow->is_null[5]=true;
-pRow->m_FK_Users_RecordInfo = 0;
-}
-else
-{
-pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_FK_Users_RecordInfo));
 }
 
 

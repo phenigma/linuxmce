@@ -92,12 +92,13 @@ string m_LastAlive;
 short int m_isActive;
 long int m_FK_Version;
 short int m_isMonitored;
-string m_Modification_RecordInfo;
-short int m_IsNew_RecordInfo;
-short int m_IsDeleted_RecordInfo;
-long int m_FK_Users_RecordInfo;
+long int m_psc_id;
+long int m_psc_batch;
+long int m_psc_user;
+short int m_psc_frozen;
+string m_psc_mod;
 
-		bool is_null[17];
+		bool is_null[18];
 	
 		bool is_deleted;
 		bool is_added;
@@ -117,10 +118,11 @@ string LastAlive_get();
 short int isActive_get();
 long int FK_Version_get();
 short int isMonitored_get();
-string Modification_RecordInfo_get();
-short int IsNew_RecordInfo_get();
-short int IsDeleted_RecordInfo_get();
-long int FK_Users_RecordInfo_get();
+long int psc_id_get();
+long int psc_batch_get();
+long int psc_user_get();
+short int psc_frozen_get();
+string psc_mod_get();
 
 		
 		void PK_Installation_set(long int val);
@@ -136,10 +138,11 @@ void LastAlive_set(string val);
 void isActive_set(short int val);
 void FK_Version_set(long int val);
 void isMonitored_set(short int val);
-void Modification_RecordInfo_set(string val);
-void IsNew_RecordInfo_set(short int val);
-void IsDeleted_RecordInfo_set(short int val);
-void FK_Users_RecordInfo_set(long int val);
+void psc_id_set(long int val);
+void psc_batch_set(long int val);
+void psc_user_set(long int val);
+void psc_frozen_set(short int val);
+void psc_mod_set(string val);
 
 		
 		bool Name_isNull();
@@ -152,9 +155,10 @@ bool LastStatus_isNull();
 bool LastAlive_isNull();
 bool FK_Version_isNull();
 bool isMonitored_isNull();
-bool IsNew_RecordInfo_isNull();
-bool IsDeleted_RecordInfo_isNull();
-bool FK_Users_RecordInfo_isNull();
+bool psc_id_isNull();
+bool psc_batch_isNull();
+bool psc_user_isNull();
+bool psc_frozen_isNull();
 
 			
 		void Name_setNull(bool val);
@@ -167,9 +171,10 @@ void LastStatus_setNull(bool val);
 void LastAlive_setNull(bool val);
 void FK_Version_setNull(bool val);
 void isMonitored_setNull(bool val);
-void IsNew_RecordInfo_setNull(bool val);
-void IsDeleted_RecordInfo_setNull(bool val);
-void FK_Users_RecordInfo_setNull(bool val);
+void psc_id_setNull(bool val);
+void psc_batch_setNull(bool val);
+void psc_user_setNull(bool val);
+void psc_frozen_setNull(bool val);
 	
 	
 		void Delete();
@@ -192,6 +197,7 @@ void DeviceGroup_FK_Installation_getrows(vector <class Row_DeviceGroup*> *rows);
 void EventHandler_FK_Installation_getrows(vector <class Row_EventHandler*> *rows);
 void Floorplan_FK_Installation_getrows(vector <class Row_Floorplan*> *rows);
 void Household_Installation_FK_Installation_getrows(vector <class Row_Household_Installation*> *rows);
+void Installation_RepositorySource_URL_FK_Installation_getrows(vector <class Row_Installation_RepositorySource_URL*> *rows);
 void Installation_Users_FK_Installation_getrows(vector <class Row_Installation_Users*> *rows);
 void Room_FK_Installation_getrows(vector <class Row_Room*> *rows);
 void Users_FK_Installation_Main_getrows(vector <class Row_Users*> *rows);
@@ -199,7 +205,7 @@ void Users_FK_Installation_Main_getrows(vector <class Row_Users*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_Installation+ m_Description+ m_Name+ m_Address+ m_City+ m_State+ m_Zip+ m_ActivationCode+ m_LastStatus+ m_LastAlive+ m_isActive+ m_FK_Version+ m_isMonitored+ m_Modification_RecordInfo+ m_IsNew_RecordInfo+ m_IsDeleted_RecordInfo+ m_FK_Users_RecordInfo;
+			StartSerializeList() + m_PK_Installation+ m_Description+ m_Name+ m_Address+ m_City+ m_State+ m_Zip+ m_ActivationCode+ m_LastStatus+ m_LastAlive+ m_isActive+ m_FK_Version+ m_isMonitored+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -217,10 +223,11 @@ string LastAlive_asSQL();
 string isActive_asSQL();
 string FK_Version_asSQL();
 string isMonitored_asSQL();
-string Modification_RecordInfo_asSQL();
-string IsNew_RecordInfo_asSQL();
-string IsDeleted_RecordInfo_asSQL();
-string FK_Users_RecordInfo_asSQL();
+string psc_id_asSQL();
+string psc_batch_asSQL();
+string psc_user_asSQL();
+string psc_frozen_asSQL();
+string psc_mod_asSQL();
 
 	};
 

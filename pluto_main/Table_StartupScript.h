@@ -95,8 +95,13 @@ long int m_Hybrid_Boot_Order;
 short int m_Hybrid_Background;
 short int m_Hybrid_Enabled;
 string m_Hybrid_Parameter;
+long int m_psc_id;
+long int m_psc_batch;
+long int m_psc_user;
+short int m_psc_frozen;
+string m_psc_mod;
 
-		bool is_null[16];
+		bool is_null[21];
 	
 		bool is_deleted;
 		bool is_added;
@@ -119,6 +124,11 @@ long int Hybrid_Boot_Order_get();
 short int Hybrid_Background_get();
 short int Hybrid_Enabled_get();
 string Hybrid_Parameter_get();
+long int psc_id_get();
+long int psc_batch_get();
+long int psc_user_get();
+short int psc_frozen_get();
+string psc_mod_get();
 
 		
 		void PK_StartupScript_set(long int val);
@@ -137,11 +147,24 @@ void Hybrid_Boot_Order_set(long int val);
 void Hybrid_Background_set(short int val);
 void Hybrid_Enabled_set(short int val);
 void Hybrid_Parameter_set(string val);
+void psc_id_set(long int val);
+void psc_batch_set(long int val);
+void psc_user_set(long int val);
+void psc_frozen_set(short int val);
+void psc_mod_set(string val);
 
 		
-		
+		bool psc_id_isNull();
+bool psc_batch_isNull();
+bool psc_user_isNull();
+bool psc_frozen_isNull();
+
 			
-			
+		void psc_id_setNull(bool val);
+void psc_batch_setNull(bool val);
+void psc_user_setNull(bool val);
+void psc_frozen_setNull(bool val);
+	
 	
 		void Delete();
 		void Reload();		
@@ -161,7 +184,7 @@ void Hybrid_Parameter_set(string val);
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_StartupScript+ m_Command+ m_Description+ m_Parameter_Syntax+ m_Core_Boot_Order+ m_Core_Background+ m_Core_Enabled+ m_Core_Parameter+ m_MD_Boot_Order+ m_MD_Background+ m_MD_Enabled+ m_MD_Parameter+ m_Hybrid_Boot_Order+ m_Hybrid_Background+ m_Hybrid_Enabled+ m_Hybrid_Parameter;
+			StartSerializeList() + m_PK_StartupScript+ m_Command+ m_Description+ m_Parameter_Syntax+ m_Core_Boot_Order+ m_Core_Background+ m_Core_Enabled+ m_Core_Parameter+ m_MD_Boot_Order+ m_MD_Background+ m_MD_Enabled+ m_MD_Parameter+ m_Hybrid_Boot_Order+ m_Hybrid_Background+ m_Hybrid_Enabled+ m_Hybrid_Parameter+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -182,6 +205,11 @@ string Hybrid_Boot_Order_asSQL();
 string Hybrid_Background_asSQL();
 string Hybrid_Enabled_asSQL();
 string Hybrid_Parameter_asSQL();
+string psc_id_asSQL();
+string psc_batch_asSQL();
+string psc_user_asSQL();
+string psc_frozen_asSQL();
+string psc_mod_asSQL();
 
 	};
 

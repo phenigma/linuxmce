@@ -84,12 +84,8 @@ long int m_FK_CriteriaParmNesting;
 long int m_FK_CriteriaList;
 string m_Description;
 string m_Define;
-string m_Modification_RecordInfo;
-short int m_IsNew_RecordInfo;
-short int m_IsDeleted_RecordInfo;
-long int m_FK_Users_RecordInfo;
 
-		bool is_null[9];
+		bool is_null[5];
 	
 		bool is_deleted;
 		bool is_added;
@@ -101,10 +97,6 @@ long int FK_CriteriaParmNesting_get();
 long int FK_CriteriaList_get();
 string Description_get();
 string Define_get();
-string Modification_RecordInfo_get();
-short int IsNew_RecordInfo_get();
-short int IsDeleted_RecordInfo_get();
-long int FK_Users_RecordInfo_get();
 
 		
 		void PK_Criteria_set(long int val);
@@ -112,21 +104,11 @@ void FK_CriteriaParmNesting_set(long int val);
 void FK_CriteriaList_set(long int val);
 void Description_set(string val);
 void Define_set(string val);
-void Modification_RecordInfo_set(string val);
-void IsNew_RecordInfo_set(short int val);
-void IsDeleted_RecordInfo_set(short int val);
-void FK_Users_RecordInfo_set(long int val);
 
 		
-		bool IsNew_RecordInfo_isNull();
-bool IsDeleted_RecordInfo_isNull();
-bool FK_Users_RecordInfo_isNull();
-
+		
 			
-		void IsNew_RecordInfo_setNull(bool val);
-void IsDeleted_RecordInfo_setNull(bool val);
-void FK_Users_RecordInfo_setNull(bool val);
-	
+			
 	
 		void Delete();
 		void Reload();		
@@ -151,7 +133,7 @@ void EventHandler_FK_Criteria_getrows(vector <class Row_EventHandler*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_Criteria+ m_FK_CriteriaParmNesting+ m_FK_CriteriaList+ m_Description+ m_Define+ m_Modification_RecordInfo+ m_IsNew_RecordInfo+ m_IsDeleted_RecordInfo+ m_FK_Users_RecordInfo;
+			StartSerializeList() + m_PK_Criteria+ m_FK_CriteriaParmNesting+ m_FK_CriteriaList+ m_Description+ m_Define;
 		}
 	private:
 		void SetDefaultValues();
@@ -161,10 +143,6 @@ string FK_CriteriaParmNesting_asSQL();
 string FK_CriteriaList_asSQL();
 string Description_asSQL();
 string Define_asSQL();
-string Modification_RecordInfo_asSQL();
-string IsNew_RecordInfo_asSQL();
-string IsDeleted_RecordInfo_asSQL();
-string FK_Users_RecordInfo_asSQL();
 
 	};
 

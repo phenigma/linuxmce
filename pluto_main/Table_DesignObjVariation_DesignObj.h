@@ -83,7 +83,6 @@ class DLL_EXPORT Row_DesignObjVariation_DesignObj : public TableRow, public Seri
 long int m_FK_DesignObjVariation_Parent;
 long int m_FK_DesignObj_Child;
 long int m_DisplayOrder;
-long int m_FK_DockState;
 long int m_X;
 long int m_Y;
 long int m_Width;
@@ -102,10 +101,11 @@ long int m_FK_DesignObj_Left;
 long int m_FK_DesignObj_Right;
 string m_sFK_DesignObj_TiedTo;
 string m_VisibleStates;
-string m_Modification_RecordInfo;
-short int m_IsNew_RecordInfo;
-short int m_IsDeleted_RecordInfo;
-long int m_FK_Users_RecordInfo;
+long int m_psc_id;
+long int m_psc_batch;
+long int m_psc_user;
+short int m_psc_frozen;
+string m_psc_mod;
 
 		bool is_null[27];
 	
@@ -118,7 +118,6 @@ long int m_FK_Users_RecordInfo;
 long int FK_DesignObjVariation_Parent_get();
 long int FK_DesignObj_Child_get();
 long int DisplayOrder_get();
-long int FK_DockState_get();
 long int X_get();
 long int Y_get();
 long int Width_get();
@@ -137,17 +136,17 @@ long int FK_DesignObj_Left_get();
 long int FK_DesignObj_Right_get();
 string sFK_DesignObj_TiedTo_get();
 string VisibleStates_get();
-string Modification_RecordInfo_get();
-short int IsNew_RecordInfo_get();
-short int IsDeleted_RecordInfo_get();
-long int FK_Users_RecordInfo_get();
+long int psc_id_get();
+long int psc_batch_get();
+long int psc_user_get();
+short int psc_frozen_get();
+string psc_mod_get();
 
 		
 		void PK_DesignObjVariation_DesignObj_set(long int val);
 void FK_DesignObjVariation_Parent_set(long int val);
 void FK_DesignObj_Child_set(long int val);
 void DisplayOrder_set(long int val);
-void FK_DockState_set(long int val);
 void X_set(long int val);
 void Y_set(long int val);
 void Width_set(long int val);
@@ -166,15 +165,15 @@ void FK_DesignObj_Left_set(long int val);
 void FK_DesignObj_Right_set(long int val);
 void sFK_DesignObj_TiedTo_set(string val);
 void VisibleStates_set(string val);
-void Modification_RecordInfo_set(string val);
-void IsNew_RecordInfo_set(short int val);
-void IsDeleted_RecordInfo_set(short int val);
-void FK_Users_RecordInfo_set(long int val);
+void psc_id_set(long int val);
+void psc_batch_set(long int val);
+void psc_user_set(long int val);
+void psc_frozen_set(short int val);
+void psc_mod_set(string val);
 
 		
 		bool FK_DesignObjVariation_Parent_isNull();
 bool FK_DesignObj_Child_isNull();
-bool FK_DockState_isNull();
 bool Width_isNull();
 bool Height_isNull();
 bool FK_DesignObj_InsteadOf_isNull();
@@ -184,14 +183,14 @@ bool FK_DesignObj_Left_isNull();
 bool FK_DesignObj_Right_isNull();
 bool sFK_DesignObj_TiedTo_isNull();
 bool VisibleStates_isNull();
-bool IsNew_RecordInfo_isNull();
-bool IsDeleted_RecordInfo_isNull();
-bool FK_Users_RecordInfo_isNull();
+bool psc_id_isNull();
+bool psc_batch_isNull();
+bool psc_user_isNull();
+bool psc_frozen_isNull();
 
 			
 		void FK_DesignObjVariation_Parent_setNull(bool val);
 void FK_DesignObj_Child_setNull(bool val);
-void FK_DockState_setNull(bool val);
 void Width_setNull(bool val);
 void Height_setNull(bool val);
 void FK_DesignObj_InsteadOf_setNull(bool val);
@@ -201,9 +200,10 @@ void FK_DesignObj_Left_setNull(bool val);
 void FK_DesignObj_Right_setNull(bool val);
 void sFK_DesignObj_TiedTo_setNull(bool val);
 void VisibleStates_setNull(bool val);
-void IsNew_RecordInfo_setNull(bool val);
-void IsDeleted_RecordInfo_setNull(bool val);
-void FK_Users_RecordInfo_setNull(bool val);
+void psc_id_setNull(bool val);
+void psc_batch_setNull(bool val);
+void psc_user_setNull(bool val);
+void psc_frozen_setNull(bool val);
 	
 	
 		void Delete();
@@ -230,7 +230,7 @@ class Row_DesignObj* FK_DesignObj_Right_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_DesignObjVariation_DesignObj+ m_FK_DesignObjVariation_Parent+ m_FK_DesignObj_Child+ m_DisplayOrder+ m_FK_DockState+ m_X+ m_Y+ m_Width+ m_Height+ m_FK_DesignObj_InsteadOf+ m_CanBeHidden+ m_HideByDefault+ m_RegenerateForEachScreen+ m_DisplayChildrenBeforeText+ m_DisplayChildrenBehindBackground+ m_DontMergeBackground+ m_IsTabStop+ m_FK_DesignObj_Up+ m_FK_DesignObj_Down+ m_FK_DesignObj_Left+ m_FK_DesignObj_Right+ m_sFK_DesignObj_TiedTo+ m_VisibleStates+ m_Modification_RecordInfo+ m_IsNew_RecordInfo+ m_IsDeleted_RecordInfo+ m_FK_Users_RecordInfo;
+			StartSerializeList() + m_PK_DesignObjVariation_DesignObj+ m_FK_DesignObjVariation_Parent+ m_FK_DesignObj_Child+ m_DisplayOrder+ m_X+ m_Y+ m_Width+ m_Height+ m_FK_DesignObj_InsteadOf+ m_CanBeHidden+ m_HideByDefault+ m_RegenerateForEachScreen+ m_DisplayChildrenBeforeText+ m_DisplayChildrenBehindBackground+ m_DontMergeBackground+ m_IsTabStop+ m_FK_DesignObj_Up+ m_FK_DesignObj_Down+ m_FK_DesignObj_Left+ m_FK_DesignObj_Right+ m_sFK_DesignObj_TiedTo+ m_VisibleStates+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -239,7 +239,6 @@ class Row_DesignObj* FK_DesignObj_Right_getrow();
 string FK_DesignObjVariation_Parent_asSQL();
 string FK_DesignObj_Child_asSQL();
 string DisplayOrder_asSQL();
-string FK_DockState_asSQL();
 string X_asSQL();
 string Y_asSQL();
 string Width_asSQL();
@@ -258,10 +257,11 @@ string FK_DesignObj_Left_asSQL();
 string FK_DesignObj_Right_asSQL();
 string sFK_DesignObj_TiedTo_asSQL();
 string VisibleStates_asSQL();
-string Modification_RecordInfo_asSQL();
-string IsNew_RecordInfo_asSQL();
-string IsDeleted_RecordInfo_asSQL();
-string FK_Users_RecordInfo_asSQL();
+string psc_id_asSQL();
+string psc_batch_asSQL();
+string psc_user_asSQL();
+string psc_frozen_asSQL();
+string psc_mod_asSQL();
 
 	};
 

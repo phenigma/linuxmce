@@ -89,12 +89,13 @@ long int m_X;
 long int m_Y;
 long int m_Width;
 long int m_Height;
-string m_Modification_RecordInfo;
-short int m_IsNew_RecordInfo;
-short int m_IsDeleted_RecordInfo;
-long int m_FK_Users_RecordInfo;
+long int m_psc_id;
+long int m_psc_batch;
+long int m_psc_user;
+short int m_psc_frozen;
+string m_psc_mod;
 
-		bool is_null[14];
+		bool is_null[15];
 	
 		bool is_deleted;
 		bool is_added;
@@ -111,10 +112,11 @@ long int X_get();
 long int Y_get();
 long int Width_get();
 long int Height_get();
-string Modification_RecordInfo_get();
-short int IsNew_RecordInfo_get();
-short int IsDeleted_RecordInfo_get();
-long int FK_Users_RecordInfo_get();
+long int psc_id_get();
+long int psc_batch_get();
+long int psc_user_get();
+short int psc_frozen_get();
+string psc_mod_get();
 
 		
 		void PK_DesignObjVariation_Zone_set(long int val);
@@ -127,26 +129,29 @@ void X_set(long int val);
 void Y_set(long int val);
 void Width_set(long int val);
 void Height_set(long int val);
-void Modification_RecordInfo_set(string val);
-void IsNew_RecordInfo_set(short int val);
-void IsDeleted_RecordInfo_set(short int val);
-void FK_Users_RecordInfo_set(long int val);
+void psc_id_set(long int val);
+void psc_batch_set(long int val);
+void psc_user_set(long int val);
+void psc_frozen_set(short int val);
+void psc_mod_set(string val);
 
 		
 		bool FK_DesignObjVariation_isNull();
 bool FK_Button_isNull();
 bool FK_DesignObj_Goto_isNull();
-bool IsNew_RecordInfo_isNull();
-bool IsDeleted_RecordInfo_isNull();
-bool FK_Users_RecordInfo_isNull();
+bool psc_id_isNull();
+bool psc_batch_isNull();
+bool psc_user_isNull();
+bool psc_frozen_isNull();
 
 			
 		void FK_DesignObjVariation_setNull(bool val);
 void FK_Button_setNull(bool val);
 void FK_DesignObj_Goto_setNull(bool val);
-void IsNew_RecordInfo_setNull(bool val);
-void IsDeleted_RecordInfo_setNull(bool val);
-void FK_Users_RecordInfo_setNull(bool val);
+void psc_id_setNull(bool val);
+void psc_batch_setNull(bool val);
+void psc_user_setNull(bool val);
+void psc_frozen_setNull(bool val);
 	
 	
 		void Delete();
@@ -170,7 +175,7 @@ class Row_DesignObj* FK_DesignObj_Goto_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_DesignObjVariation_Zone+ m_FK_DesignObjVariation+ m_FK_Button+ m_FK_CommandGroup_D+ m_FK_DesignObj_Goto+ m_Description+ m_X+ m_Y+ m_Width+ m_Height+ m_Modification_RecordInfo+ m_IsNew_RecordInfo+ m_IsDeleted_RecordInfo+ m_FK_Users_RecordInfo;
+			StartSerializeList() + m_PK_DesignObjVariation_Zone+ m_FK_DesignObjVariation+ m_FK_Button+ m_FK_CommandGroup_D+ m_FK_DesignObj_Goto+ m_Description+ m_X+ m_Y+ m_Width+ m_Height+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -185,10 +190,11 @@ string X_asSQL();
 string Y_asSQL();
 string Width_asSQL();
 string Height_asSQL();
-string Modification_RecordInfo_asSQL();
-string IsNew_RecordInfo_asSQL();
-string IsDeleted_RecordInfo_asSQL();
-string FK_Users_RecordInfo_asSQL();
+string psc_id_asSQL();
+string psc_batch_asSQL();
+string psc_user_asSQL();
+string psc_frozen_asSQL();
+string psc_mod_asSQL();
 
 	};
 

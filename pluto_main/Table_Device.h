@@ -91,15 +91,15 @@ long int m_FK_Input_Audio;
 long int m_FK_Device_Video;
 long int m_FK_Input_Video;
 long int m_FK_Device_ControlledVia;
-long int m_FK_Interface;
 string m_IPaddress;
 string m_MACaddress;
 short int m_IgnoreOnOff;
 long int m_FK_Device_SlaveTo;
-string m_Modification_RecordInfo;
-short int m_IsNew_RecordInfo;
-short int m_IsDeleted_RecordInfo;
-long int m_FK_Users_RecordInfo;
+long int m_psc_id;
+long int m_psc_batch;
+long int m_psc_user;
+short int m_psc_frozen;
+string m_psc_mod;
 
 		bool is_null[21];
 	
@@ -120,15 +120,15 @@ long int FK_Input_Audio_get();
 long int FK_Device_Video_get();
 long int FK_Input_Video_get();
 long int FK_Device_ControlledVia_get();
-long int FK_Interface_get();
 string IPaddress_get();
 string MACaddress_get();
 short int IgnoreOnOff_get();
 long int FK_Device_SlaveTo_get();
-string Modification_RecordInfo_get();
-short int IsNew_RecordInfo_get();
-short int IsDeleted_RecordInfo_get();
-long int FK_Users_RecordInfo_get();
+long int psc_id_get();
+long int psc_batch_get();
+long int psc_user_get();
+short int psc_frozen_get();
+string psc_mod_get();
 
 		
 		void PK_Device_set(long int val);
@@ -143,15 +143,15 @@ void FK_Input_Audio_set(long int val);
 void FK_Device_Video_set(long int val);
 void FK_Input_Video_set(long int val);
 void FK_Device_ControlledVia_set(long int val);
-void FK_Interface_set(long int val);
 void IPaddress_set(string val);
 void MACaddress_set(string val);
 void IgnoreOnOff_set(short int val);
 void FK_Device_SlaveTo_set(long int val);
-void Modification_RecordInfo_set(string val);
-void IsNew_RecordInfo_set(short int val);
-void IsDeleted_RecordInfo_set(short int val);
-void FK_Users_RecordInfo_set(long int val);
+void psc_id_set(long int val);
+void psc_batch_set(long int val);
+void psc_user_set(long int val);
+void psc_frozen_set(short int val);
+void psc_mod_set(string val);
 
 		
 		bool FK_Room_isNull();
@@ -163,13 +163,13 @@ bool FK_Input_Audio_isNull();
 bool FK_Device_Video_isNull();
 bool FK_Input_Video_isNull();
 bool FK_Device_ControlledVia_isNull();
-bool FK_Interface_isNull();
 bool IPaddress_isNull();
 bool MACaddress_isNull();
 bool FK_Device_SlaveTo_isNull();
-bool IsNew_RecordInfo_isNull();
-bool IsDeleted_RecordInfo_isNull();
-bool FK_Users_RecordInfo_isNull();
+bool psc_id_isNull();
+bool psc_batch_isNull();
+bool psc_user_isNull();
+bool psc_frozen_isNull();
 
 			
 		void FK_Room_setNull(bool val);
@@ -181,13 +181,13 @@ void FK_Input_Audio_setNull(bool val);
 void FK_Device_Video_setNull(bool val);
 void FK_Input_Video_setNull(bool val);
 void FK_Device_ControlledVia_setNull(bool val);
-void FK_Interface_setNull(bool val);
 void IPaddress_setNull(bool val);
 void MACaddress_setNull(bool val);
 void FK_Device_SlaveTo_setNull(bool val);
-void IsNew_RecordInfo_setNull(bool val);
-void IsDeleted_RecordInfo_setNull(bool val);
-void FK_Users_RecordInfo_setNull(bool val);
+void psc_id_setNull(bool val);
+void psc_batch_setNull(bool val);
+void psc_user_setNull(bool val);
+void psc_frozen_setNull(bool val);
 	
 	
 		void Delete();
@@ -230,6 +230,7 @@ void Device_Device_Related_FK_Device_Related_getrows(vector <class Row_Device_De
 void Device_EntertainArea_FK_Device_getrows(vector <class Row_Device_EntertainArea*> *rows);
 void Device_HouseMode_FK_Device_getrows(vector <class Row_Device_HouseMode*> *rows);
 void Device_Orbiter_FK_Device_getrows(vector <class Row_Device_Orbiter*> *rows);
+void Device_Package_Directory_FK_Device_getrows(vector <class Row_Device_Package_Directory*> *rows);
 void Device_StartupScript_FK_Device_getrows(vector <class Row_Device_StartupScript*> *rows);
 void Device_Users_FK_Device_getrows(vector <class Row_Device_Users*> *rows);
 void InfraredCode_FK_Device_getrows(vector <class Row_InfraredCode*> *rows);
@@ -237,7 +238,7 @@ void InfraredCode_FK_Device_getrows(vector <class Row_InfraredCode*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_Device+ m_Disabled+ m_FK_Room+ m_FK_Installation+ m_FK_DesignObj+ m_Description+ m_FK_DeviceTemplate+ m_FK_Device_Audio+ m_FK_Input_Audio+ m_FK_Device_Video+ m_FK_Input_Video+ m_FK_Device_ControlledVia+ m_FK_Interface+ m_IPaddress+ m_MACaddress+ m_IgnoreOnOff+ m_FK_Device_SlaveTo+ m_Modification_RecordInfo+ m_IsNew_RecordInfo+ m_IsDeleted_RecordInfo+ m_FK_Users_RecordInfo;
+			StartSerializeList() + m_PK_Device+ m_Disabled+ m_FK_Room+ m_FK_Installation+ m_FK_DesignObj+ m_Description+ m_FK_DeviceTemplate+ m_FK_Device_Audio+ m_FK_Input_Audio+ m_FK_Device_Video+ m_FK_Input_Video+ m_FK_Device_ControlledVia+ m_IPaddress+ m_MACaddress+ m_IgnoreOnOff+ m_FK_Device_SlaveTo+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -254,15 +255,15 @@ string FK_Input_Audio_asSQL();
 string FK_Device_Video_asSQL();
 string FK_Input_Video_asSQL();
 string FK_Device_ControlledVia_asSQL();
-string FK_Interface_asSQL();
 string IPaddress_asSQL();
 string MACaddress_asSQL();
 string IgnoreOnOff_asSQL();
 string FK_Device_SlaveTo_asSQL();
-string Modification_RecordInfo_asSQL();
-string IsNew_RecordInfo_asSQL();
-string IsDeleted_RecordInfo_asSQL();
-string FK_Users_RecordInfo_asSQL();
+string psc_id_asSQL();
+string psc_batch_asSQL();
+string psc_user_asSQL();
+string psc_frozen_asSQL();
+string psc_mod_asSQL();
 
 	};
 

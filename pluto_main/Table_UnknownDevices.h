@@ -83,8 +83,13 @@ class DLL_EXPORT Row_UnknownDevices : public TableRow, public SerializeClass
 string m_Description;
 string m_MacAddress;
 string m_IPAddress;
+long int m_psc_id;
+long int m_psc_batch;
+long int m_psc_user;
+short int m_psc_frozen;
+string m_psc_mod;
 
-		bool is_null[4];
+		bool is_null[9];
 	
 		bool is_deleted;
 		bool is_added;
@@ -95,22 +100,40 @@ string m_IPAddress;
 string Description_get();
 string MacAddress_get();
 string IPAddress_get();
+long int psc_id_get();
+long int psc_batch_get();
+long int psc_user_get();
+short int psc_frozen_get();
+string psc_mod_get();
 
 		
 		void PK_UnknownDevices_set(long int val);
 void Description_set(string val);
 void MacAddress_set(string val);
 void IPAddress_set(string val);
+void psc_id_set(long int val);
+void psc_batch_set(long int val);
+void psc_user_set(long int val);
+void psc_frozen_set(short int val);
+void psc_mod_set(string val);
 
 		
 		bool Description_isNull();
 bool MacAddress_isNull();
 bool IPAddress_isNull();
+bool psc_id_isNull();
+bool psc_batch_isNull();
+bool psc_user_isNull();
+bool psc_frozen_isNull();
 
 			
 		void Description_setNull(bool val);
 void MacAddress_setNull(bool val);
 void IPAddress_setNull(bool val);
+void psc_id_setNull(bool val);
+void psc_batch_setNull(bool val);
+void psc_user_setNull(bool val);
+void psc_frozen_setNull(bool val);
 	
 	
 		void Delete();
@@ -130,7 +153,7 @@ void IPAddress_setNull(bool val);
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_UnknownDevices+ m_Description+ m_MacAddress+ m_IPAddress;
+			StartSerializeList() + m_PK_UnknownDevices+ m_Description+ m_MacAddress+ m_IPAddress+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -139,6 +162,11 @@ void IPAddress_setNull(bool val);
 string Description_asSQL();
 string MacAddress_asSQL();
 string IPAddress_asSQL();
+string psc_id_asSQL();
+string psc_batch_asSQL();
+string psc_user_asSQL();
+string psc_frozen_asSQL();
+string psc_mod_asSQL();
 
 	};
 

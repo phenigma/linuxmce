@@ -125,13 +125,13 @@ is_null[6] = true;
 m_UserCreated = 0;
 is_null[7] = false;
 is_null[8] = true;
-m_Modification_RecordInfo = "00000000000000";
-is_null[9] = false;
-m_IsNew_RecordInfo = 1;
-is_null[10] = false;
-m_IsDeleted_RecordInfo = 0;
-is_null[11] = false;
-is_null[12] = true;
+is_null[9] = true;
+is_null[10] = true;
+is_null[11] = true;
+m_psc_frozen = 0;
+is_null[12] = false;
+m_psc_mod = "00000000000000";
+is_null[13] = false;
 
 
 	is_added=false;
@@ -166,18 +166,21 @@ return m_UserCreated;}
 long int Row_EventHandler::FK_CannedEvents_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_CannedEvents;}
-string Row_EventHandler::Modification_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+long int Row_EventHandler::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_Modification_RecordInfo;}
-short int Row_EventHandler::IsNew_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_psc_id;}
+long int Row_EventHandler::psc_batch_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_IsNew_RecordInfo;}
-short int Row_EventHandler::IsDeleted_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_psc_batch;}
+long int Row_EventHandler::psc_user_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_IsDeleted_RecordInfo;}
-long int Row_EventHandler::FK_Users_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+return m_psc_user;}
+short int Row_EventHandler::psc_frozen_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_FK_Users_RecordInfo;}
+return m_psc_frozen;}
+string Row_EventHandler::psc_mod_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_psc_mod;}
 
 		
 void Row_EventHandler::PK_EventHandler_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -207,18 +210,21 @@ m_UserCreated = val; is_modified=true; is_null[7]=false;}
 void Row_EventHandler::FK_CannedEvents_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_CannedEvents = val; is_modified=true; is_null[8]=false;}
-void Row_EventHandler::Modification_RecordInfo_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_EventHandler::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Modification_RecordInfo = val; is_modified=true; is_null[9]=false;}
-void Row_EventHandler::IsNew_RecordInfo_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_psc_id = val; is_modified=true; is_null[9]=false;}
+void Row_EventHandler::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_IsNew_RecordInfo = val; is_modified=true; is_null[10]=false;}
-void Row_EventHandler::IsDeleted_RecordInfo_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_psc_batch = val; is_modified=true; is_null[10]=false;}
+void Row_EventHandler::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_IsDeleted_RecordInfo = val; is_modified=true; is_null[11]=false;}
-void Row_EventHandler::FK_Users_RecordInfo_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+m_psc_user = val; is_modified=true; is_null[11]=false;}
+void Row_EventHandler::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_FK_Users_RecordInfo = val; is_modified=true; is_null[12]=false;}
+m_psc_frozen = val; is_modified=true; is_null[12]=false;}
+void Row_EventHandler::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_psc_mod = val; is_modified=true; is_null[13]=false;}
 
 		
 bool Row_EventHandler::FK_EventType_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -236,13 +242,16 @@ return is_null[6];}
 bool Row_EventHandler::FK_CannedEvents_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[8];}
-bool Row_EventHandler::IsNew_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_EventHandler::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[9];}
+bool Row_EventHandler::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[10];}
-bool Row_EventHandler::IsDeleted_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_EventHandler::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[11];}
-bool Row_EventHandler::FK_Users_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_EventHandler::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[12];}
 
@@ -262,13 +271,16 @@ is_null[6]=val;}
 void Row_EventHandler::FK_CannedEvents_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[8]=val;}
-void Row_EventHandler::IsNew_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_EventHandler::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[9]=val;}
+void Row_EventHandler::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[10]=val;}
-void Row_EventHandler::IsDeleted_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_EventHandler::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[11]=val;}
-void Row_EventHandler::FK_Users_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_EventHandler::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[12]=val;}
 	
@@ -389,19 +401,20 @@ sprintf(buf, "%li", m_FK_CannedEvents);
 return buf;
 }
 
-string Row_EventHandler::Modification_RecordInfo_asSQL()
+string Row_EventHandler::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[9])
 return "NULL";
 
-char buf[29];
-mysql_real_escape_string(table->database->db_handle, buf, m_Modification_RecordInfo.c_str(), (unsigned long) m_Modification_RecordInfo.size());
-return string()+"\""+buf+"\"";
+char buf[32];
+sprintf(buf, "%li", m_psc_id);
+
+return buf;
 }
 
-string Row_EventHandler::IsNew_RecordInfo_asSQL()
+string Row_EventHandler::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -409,12 +422,12 @@ if (is_null[10])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%hi", m_IsNew_RecordInfo);
+sprintf(buf, "%li", m_psc_batch);
 
 return buf;
 }
 
-string Row_EventHandler::IsDeleted_RecordInfo_asSQL()
+string Row_EventHandler::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -422,12 +435,12 @@ if (is_null[11])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%hi", m_IsDeleted_RecordInfo);
+sprintf(buf, "%li", m_psc_user);
 
 return buf;
 }
 
-string Row_EventHandler::FK_Users_RecordInfo_asSQL()
+string Row_EventHandler::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -435,9 +448,21 @@ if (is_null[12])
 return "NULL";
 
 char buf[32];
-sprintf(buf, "%li", m_FK_Users_RecordInfo);
+sprintf(buf, "%hi", m_psc_frozen);
 
 return buf;
+}
+
+string Row_EventHandler::psc_mod_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[13])
+return "NULL";
+
+char buf[29];
+mysql_real_escape_string(table->database->db_handle, buf, m_psc_mod.c_str(), (unsigned long) m_psc_mod.size());
+return string()+"\""+buf+"\"";
 }
 
 
@@ -478,10 +503,10 @@ void Table_EventHandler::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_EventHandler_asSQL()+", "+pRow->FK_Event_asSQL()+", "+pRow->FK_EventType_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_Criteria_asSQL()+", "+pRow->FK_Installation_asSQL()+", "+pRow->FK_CommandGroup_asSQL()+", "+pRow->UserCreated_asSQL()+", "+pRow->FK_CannedEvents_asSQL()+", "+pRow->Modification_RecordInfo_asSQL()+", "+pRow->IsNew_RecordInfo_asSQL()+", "+pRow->IsDeleted_RecordInfo_asSQL()+", "+pRow->FK_Users_RecordInfo_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_EventHandler_asSQL()+", "+pRow->FK_Event_asSQL()+", "+pRow->FK_EventType_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_Criteria_asSQL()+", "+pRow->FK_Installation_asSQL()+", "+pRow->FK_CommandGroup_asSQL()+", "+pRow->UserCreated_asSQL()+", "+pRow->FK_CannedEvents_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into EventHandler (PK_EventHandler, FK_Event, FK_EventType, Description, FK_Criteria, FK_Installation, FK_CommandGroup, UserCreated, FK_CannedEvents, Modification_RecordInfo, IsNew_RecordInfo, IsDeleted_RecordInfo, FK_Users_RecordInfo) values ("+
+		string query = "insert into EventHandler (PK_EventHandler, FK_Event, FK_EventType, Description, FK_Criteria, FK_Installation, FK_CommandGroup, UserCreated, FK_CannedEvents, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -530,7 +555,7 @@ condition = condition + "PK_EventHandler=" + tmp_PK_EventHandler;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_EventHandler="+pRow->PK_EventHandler_asSQL()+", FK_Event="+pRow->FK_Event_asSQL()+", FK_EventType="+pRow->FK_EventType_asSQL()+", Description="+pRow->Description_asSQL()+", FK_Criteria="+pRow->FK_Criteria_asSQL()+", FK_Installation="+pRow->FK_Installation_asSQL()+", FK_CommandGroup="+pRow->FK_CommandGroup_asSQL()+", UserCreated="+pRow->UserCreated_asSQL()+", FK_CannedEvents="+pRow->FK_CannedEvents_asSQL()+", Modification_RecordInfo="+pRow->Modification_RecordInfo_asSQL()+", IsNew_RecordInfo="+pRow->IsNew_RecordInfo_asSQL()+", IsDeleted_RecordInfo="+pRow->IsDeleted_RecordInfo_asSQL()+", FK_Users_RecordInfo="+pRow->FK_Users_RecordInfo_asSQL();
+update_values_list = update_values_list + "PK_EventHandler="+pRow->PK_EventHandler_asSQL()+", FK_Event="+pRow->FK_Event_asSQL()+", FK_EventType="+pRow->FK_EventType_asSQL()+", Description="+pRow->Description_asSQL()+", FK_Criteria="+pRow->FK_Criteria_asSQL()+", FK_Installation="+pRow->FK_Installation_asSQL()+", FK_CommandGroup="+pRow->FK_CommandGroup_asSQL()+", UserCreated="+pRow->UserCreated_asSQL()+", FK_CannedEvents="+pRow->FK_CannedEvents_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update EventHandler set " + update_values_list + " where " + condition;
@@ -713,45 +738,56 @@ sscanf(row[8], "%li", &(pRow->m_FK_CannedEvents));
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_Modification_RecordInfo = "";
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-pRow->m_Modification_RecordInfo = string(row[9],lengths[9]);
+sscanf(row[9], "%li", &(pRow->m_psc_id));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_IsNew_RecordInfo = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%hi", &(pRow->m_IsNew_RecordInfo));
+sscanf(row[10], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_IsDeleted_RecordInfo = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-sscanf(row[11], "%hi", &(pRow->m_IsDeleted_RecordInfo));
+sscanf(row[11], "%li", &(pRow->m_psc_user));
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_FK_Users_RecordInfo = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[12]=false;
-sscanf(row[12], "%li", &(pRow->m_FK_Users_RecordInfo));
+sscanf(row[12], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[13] == NULL)
+{
+pRow->is_null[13]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[13]=false;
+pRow->m_psc_mod = string(row[13],lengths[13]);
 }
 
 
@@ -962,45 +998,56 @@ sscanf(row[8], "%li", &(pRow->m_FK_CannedEvents));
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_Modification_RecordInfo = "";
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-pRow->m_Modification_RecordInfo = string(row[9],lengths[9]);
+sscanf(row[9], "%li", &(pRow->m_psc_id));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_IsNew_RecordInfo = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%hi", &(pRow->m_IsNew_RecordInfo));
+sscanf(row[10], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_IsDeleted_RecordInfo = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-sscanf(row[11], "%hi", &(pRow->m_IsDeleted_RecordInfo));
+sscanf(row[11], "%li", &(pRow->m_psc_user));
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_FK_Users_RecordInfo = 0;
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[12]=false;
-sscanf(row[12], "%li", &(pRow->m_FK_Users_RecordInfo));
+sscanf(row[12], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[13] == NULL)
+{
+pRow->is_null[13]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[13]=false;
+pRow->m_psc_mod = string(row[13],lengths[13]);
 }
 
 

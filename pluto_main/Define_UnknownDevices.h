@@ -11,6 +11,16 @@
 #define UNKNOWNDEVICES_MACADDRESS_TABLE_FIELD "UnknownDevices.MacAddress"
 #define UNKNOWNDEVICES_IPADDRESS_FIELD "IPAddress"
 #define UNKNOWNDEVICES_IPADDRESS_TABLE_FIELD "UnknownDevices.IPAddress"
+#define UNKNOWNDEVICES_PSC_ID_FIELD "psc_id"
+#define UNKNOWNDEVICES_PSC_ID_TABLE_FIELD "UnknownDevices.psc_id"
+#define UNKNOWNDEVICES_PSC_BATCH_FIELD "psc_batch"
+#define UNKNOWNDEVICES_PSC_BATCH_TABLE_FIELD "UnknownDevices.psc_batch"
+#define UNKNOWNDEVICES_PSC_USER_FIELD "psc_user"
+#define UNKNOWNDEVICES_PSC_USER_TABLE_FIELD "UnknownDevices.psc_user"
+#define UNKNOWNDEVICES_PSC_FROZEN_FIELD "psc_frozen"
+#define UNKNOWNDEVICES_PSC_FROZEN_TABLE_FIELD "UnknownDevices.psc_frozen"
+#define UNKNOWNDEVICES_PSC_MOD_FIELD "psc_mod"
+#define UNKNOWNDEVICES_PSC_MOD_TABLE_FIELD "UnknownDevices.psc_mod"
 
 
 #endif

@@ -352,6 +352,9 @@
 				RelativePath=".\Table_Device_Orbiter.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_Device_Package_Directory.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_Device_StartupScript.cpp">
 			</File>
 			<File
@@ -359,6 +362,12 @@
 			</File>
 			<File
 				RelativePath=".\Table_Direction.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Directory.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Distro.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_EntertainArea.cpp">
@@ -377,9 +386,6 @@
 			</File>
 			<File
 				RelativePath=".\Table_Event_EventParameter.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_ExecTime.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_Floorplan.cpp">
@@ -433,6 +439,9 @@
 				RelativePath=".\Table_Installation.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_Installation_RepositorySource_URL.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_Installation_Users.cpp">
 			</File>
 			<File
@@ -451,6 +460,12 @@
 				RelativePath=".\Table_MobilePhoneVersion.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_OperatingSystem.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_OperatingSystem_Directory.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_Orbiter.cpp">
 			</File>
 			<File
@@ -466,6 +481,15 @@
 				RelativePath=".\Table_Package.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_Package_Directory.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Package_Directory_File.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Package_Distro.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_ParameterType.cpp">
 			</File>
 			<File
@@ -475,10 +499,13 @@
 				RelativePath=".\Table_Pipe.cpp">
 			</File>
 			<File
-				RelativePath=".\Table_Room.cpp">
+				RelativePath=".\Table_RepositorySource.cpp">
 			</File>
 			<File
-				RelativePath=".\Table_RoomMode.cpp">
+				RelativePath=".\Table_RepositorySource_URL.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Room.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_RoomType.cpp">

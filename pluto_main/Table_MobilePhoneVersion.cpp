@@ -115,13 +115,6 @@ is_null[2] = true;
 is_null[3] = true;
 is_null[4] = true;
 is_null[5] = true;
-m_Modification_RecordInfo = "00000000000000";
-is_null[6] = false;
-m_IsNew_RecordInfo = 1;
-is_null[7] = false;
-m_IsDeleted_RecordInfo = 0;
-is_null[8] = false;
-is_null[9] = true;
 
 
 	is_added=false;
@@ -147,18 +140,6 @@ return m_Height;}
 long int Row_MobilePhoneVersion::Width_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Width;}
-string Row_MobilePhoneVersion::Modification_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return m_Modification_RecordInfo;}
-short int Row_MobilePhoneVersion::IsNew_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return m_IsNew_RecordInfo;}
-short int Row_MobilePhoneVersion::IsDeleted_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return m_IsDeleted_RecordInfo;}
-long int Row_MobilePhoneVersion::FK_Users_RecordInfo_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return m_FK_Users_RecordInfo;}
 
 		
 void Row_MobilePhoneVersion::PK_MobilePhoneVersion_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -179,18 +160,6 @@ m_Height = val; is_modified=true; is_null[4]=false;}
 void Row_MobilePhoneVersion::Width_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Width = val; is_modified=true; is_null[5]=false;}
-void Row_MobilePhoneVersion::Modification_RecordInfo_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-m_Modification_RecordInfo = val; is_modified=true; is_null[6]=false;}
-void Row_MobilePhoneVersion::IsNew_RecordInfo_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-m_IsNew_RecordInfo = val; is_modified=true; is_null[7]=false;}
-void Row_MobilePhoneVersion::IsDeleted_RecordInfo_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-m_IsDeleted_RecordInfo = val; is_modified=true; is_null[8]=false;}
-void Row_MobilePhoneVersion::FK_Users_RecordInfo_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-m_FK_Users_RecordInfo = val; is_modified=true; is_null[9]=false;}
 
 		
 bool Row_MobilePhoneVersion::Define_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -205,15 +174,6 @@ return is_null[4];}
 bool Row_MobilePhoneVersion::Width_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[5];}
-bool Row_MobilePhoneVersion::IsNew_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return is_null[7];}
-bool Row_MobilePhoneVersion::IsDeleted_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return is_null[8];}
-bool Row_MobilePhoneVersion::FK_Users_RecordInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-return is_null[9];}
 
 			
 void Row_MobilePhoneVersion::Define_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -228,15 +188,6 @@ is_null[4]=val;}
 void Row_MobilePhoneVersion::Width_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[5]=val;}
-void Row_MobilePhoneVersion::IsNew_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[7]=val;}
-void Row_MobilePhoneVersion::IsDeleted_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[8]=val;}
-void Row_MobilePhoneVersion::FK_Users_RecordInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-is_null[9]=val;}
 	
 
 string Row_MobilePhoneVersion::PK_MobilePhoneVersion_asSQL()
@@ -314,57 +265,6 @@ sprintf(buf, "%li", m_Width);
 return buf;
 }
 
-string Row_MobilePhoneVersion::Modification_RecordInfo_asSQL()
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-if (is_null[6])
-return "NULL";
-
-char buf[29];
-mysql_real_escape_string(table->database->db_handle, buf, m_Modification_RecordInfo.c_str(), (unsigned long) m_Modification_RecordInfo.size());
-return string()+"\""+buf+"\"";
-}
-
-string Row_MobilePhoneVersion::IsNew_RecordInfo_asSQL()
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-if (is_null[7])
-return "NULL";
-
-char buf[32];
-sprintf(buf, "%hi", m_IsNew_RecordInfo);
-
-return buf;
-}
-
-string Row_MobilePhoneVersion::IsDeleted_RecordInfo_asSQL()
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-if (is_null[8])
-return "NULL";
-
-char buf[32];
-sprintf(buf, "%hi", m_IsDeleted_RecordInfo);
-
-return buf;
-}
-
-string Row_MobilePhoneVersion::FK_Users_RecordInfo_asSQL()
-{
-PLUTO_SAFETY_LOCK(M, table->m_Mutex);
-
-if (is_null[9])
-return "NULL";
-
-char buf[32];
-sprintf(buf, "%li", m_FK_Users_RecordInfo);
-
-return buf;
-}
-
 
 
 
@@ -403,10 +303,10 @@ void Table_MobilePhoneVersion::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_MobilePhoneVersion_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->Models_asSQL()+", "+pRow->Height_asSQL()+", "+pRow->Width_asSQL()+", "+pRow->Modification_RecordInfo_asSQL()+", "+pRow->IsNew_RecordInfo_asSQL()+", "+pRow->IsDeleted_RecordInfo_asSQL()+", "+pRow->FK_Users_RecordInfo_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_MobilePhoneVersion_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->Models_asSQL()+", "+pRow->Height_asSQL()+", "+pRow->Width_asSQL();
 
 	
-		string query = "insert into MobilePhoneVersion (PK_MobilePhoneVersion, Description, Define, Models, Height, Width, Modification_RecordInfo, IsNew_RecordInfo, IsDeleted_RecordInfo, FK_Users_RecordInfo) values ("+
+		string query = "insert into MobilePhoneVersion (PK_MobilePhoneVersion, Description, Define, Models, Height, Width) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -455,7 +355,7 @@ condition = condition + "PK_MobilePhoneVersion=" + tmp_PK_MobilePhoneVersion;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_MobilePhoneVersion="+pRow->PK_MobilePhoneVersion_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", Models="+pRow->Models_asSQL()+", Height="+pRow->Height_asSQL()+", Width="+pRow->Width_asSQL()+", Modification_RecordInfo="+pRow->Modification_RecordInfo_asSQL()+", IsNew_RecordInfo="+pRow->IsNew_RecordInfo_asSQL()+", IsDeleted_RecordInfo="+pRow->IsDeleted_RecordInfo_asSQL()+", FK_Users_RecordInfo="+pRow->FK_Users_RecordInfo_asSQL();
+update_values_list = update_values_list + "PK_MobilePhoneVersion="+pRow->PK_MobilePhoneVersion_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", Models="+pRow->Models_asSQL()+", Height="+pRow->Height_asSQL()+", Width="+pRow->Width_asSQL();
 
 	
 		string query = "update MobilePhoneVersion set " + update_values_list + " where " + condition;
@@ -600,50 +500,6 @@ else
 {
 pRow->is_null[5]=false;
 sscanf(row[5], "%li", &(pRow->m_Width));
-}
-
-if (row[6] == NULL)
-{
-pRow->is_null[6]=true;
-pRow->m_Modification_RecordInfo = "";
-}
-else
-{
-pRow->is_null[6]=false;
-pRow->m_Modification_RecordInfo = string(row[6],lengths[6]);
-}
-
-if (row[7] == NULL)
-{
-pRow->is_null[7]=true;
-pRow->m_IsNew_RecordInfo = 0;
-}
-else
-{
-pRow->is_null[7]=false;
-sscanf(row[7], "%hi", &(pRow->m_IsNew_RecordInfo));
-}
-
-if (row[8] == NULL)
-{
-pRow->is_null[8]=true;
-pRow->m_IsDeleted_RecordInfo = 0;
-}
-else
-{
-pRow->is_null[8]=false;
-sscanf(row[8], "%hi", &(pRow->m_IsDeleted_RecordInfo));
-}
-
-if (row[9] == NULL)
-{
-pRow->is_null[9]=true;
-pRow->m_FK_Users_RecordInfo = 0;
-}
-else
-{
-pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_FK_Users_RecordInfo));
 }
 
 
@@ -816,50 +672,6 @@ else
 {
 pRow->is_null[5]=false;
 sscanf(row[5], "%li", &(pRow->m_Width));
-}
-
-if (row[6] == NULL)
-{
-pRow->is_null[6]=true;
-pRow->m_Modification_RecordInfo = "";
-}
-else
-{
-pRow->is_null[6]=false;
-pRow->m_Modification_RecordInfo = string(row[6],lengths[6]);
-}
-
-if (row[7] == NULL)
-{
-pRow->is_null[7]=true;
-pRow->m_IsNew_RecordInfo = 0;
-}
-else
-{
-pRow->is_null[7]=false;
-sscanf(row[7], "%hi", &(pRow->m_IsNew_RecordInfo));
-}
-
-if (row[8] == NULL)
-{
-pRow->is_null[8]=true;
-pRow->m_IsDeleted_RecordInfo = 0;
-}
-else
-{
-pRow->is_null[8]=false;
-sscanf(row[8], "%hi", &(pRow->m_IsDeleted_RecordInfo));
-}
-
-if (row[9] == NULL)
-{
-pRow->is_null[9]=true;
-pRow->m_FK_Users_RecordInfo = 0;
-}
-else
-{
-pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_FK_Users_RecordInfo));
 }
 
 

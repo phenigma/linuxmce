@@ -11,6 +11,7 @@
 #define DATAGRID_Security_Scenarios_CONST 8
 #define DATAGRID_EPG_Current_Shows_CONST 9
 #define DATAGRID_Current_Media_CONST 10
+#define DATAGRID_EPG_All_Shows_CONST 11
 
 #define DATAGRID_TABLE "DataGrid"
 #define DATAGRID_PK_DATAGRID_FIELD "PK_DataGrid"
@@ -19,14 +20,16 @@
 #define DATAGRID_DESCRIPTION_TABLE_FIELD "DataGrid.Description"
 #define DATAGRID_DEFINE_FIELD "Define"
 #define DATAGRID_DEFINE_TABLE_FIELD "DataGrid.Define"
-#define DATAGRID_MODIFICATION_RECORDINFO_FIELD "Modification_RecordInfo"
-#define DATAGRID_MODIFICATION_RECORDINFO_TABLE_FIELD "DataGrid.Modification_RecordInfo"
-#define DATAGRID_ISNEW_RECORDINFO_FIELD "IsNew_RecordInfo"
-#define DATAGRID_ISNEW_RECORDINFO_TABLE_FIELD "DataGrid.IsNew_RecordInfo"
-#define DATAGRID_ISDELETED_RECORDINFO_FIELD "IsDeleted_RecordInfo"
-#define DATAGRID_ISDELETED_RECORDINFO_TABLE_FIELD "DataGrid.IsDeleted_RecordInfo"
-#define DATAGRID_FK_USERS_RECORDINFO_FIELD "FK_Users_RecordInfo"
-#define DATAGRID_FK_USERS_RECORDINFO_TABLE_FIELD "DataGrid.FK_Users_RecordInfo"
+#define DATAGRID_PSC_ID_FIELD "psc_id"
+#define DATAGRID_PSC_ID_TABLE_FIELD "DataGrid.psc_id"
+#define DATAGRID_PSC_BATCH_FIELD "psc_batch"
+#define DATAGRID_PSC_BATCH_TABLE_FIELD "DataGrid.psc_batch"
+#define DATAGRID_PSC_USER_FIELD "psc_user"
+#define DATAGRID_PSC_USER_TABLE_FIELD "DataGrid.psc_user"
+#define DATAGRID_PSC_FROZEN_FIELD "psc_frozen"
+#define DATAGRID_PSC_FROZEN_TABLE_FIELD "DataGrid.psc_frozen"
+#define DATAGRID_PSC_MOD_FIELD "psc_mod"
+#define DATAGRID_PSC_MOD_TABLE_FIELD "DataGrid.psc_mod"
 
 
 #endif
