@@ -79,6 +79,7 @@ if ( isset($HTTP_GET_VARS['view']) && empty($HTTP_GET_VARS[POST_POST_URL]) )
 						AND p.post_time >= u.user_lastvisit
 					ORDER BY p.post_time ASC
 					LIMIT 1";
+
 				if ( !($result = $db->sql_query($sql)) )
 				{
 					message_die(GENERAL_ERROR, 'Could not obtain newer/older topic information', '', __LINE__, __FILE__, $sql);
@@ -117,6 +118,7 @@ if ( isset($HTTP_GET_VARS['view']) && empty($HTTP_GET_VARS[POST_POST_URL]) )
 				AND t.topic_last_post_id $sql_condition t2.topic_last_post_id
 			ORDER BY t.topic_last_post_id $sql_ordering
 			LIMIT 1";
+
 		if ( !($result = $db->sql_query($sql)) )
 		{
 			message_die(GENERAL_ERROR, "Could not obtain newer/older topic information", '', __LINE__, __FILE__, $sql);

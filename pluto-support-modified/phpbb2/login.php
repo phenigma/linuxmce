@@ -4,11 +4,11 @@ include ($_SERVER['DOCUMENT_ROOT'].'/support/include/config/config.inc.php');
 $HTTP_POST_VARS['username']=@$HTTP_GET_VARS['username'];
 $HTTP_POST_VARS['password']=@$HTTP_GET_VARS['password'];
 $HTTP_POST_VARS['login']=@$HTTP_GET_VARS['login'];
+$HTTP_POST_VARS['autologin']=1;
 if(isset($_GET['redirect'])){
 	$oldParams=$_SERVER['QUERY_STRING'];
 	$redirectString=substr($oldParams,strpos($oldParams,'redirect')+9);
 	$firstQM=strpos($redirectString,'&');
-
 	$HTTP_POST_VARS['redirect']=$redirectString;
 	if( ($HTTP_GET_VARS['username']=='') || ($HTTP_GET_VARS['password']=='') )
 	{

@@ -1,4 +1,5 @@
 <?php
+	include_once('/var/www/globalconfig/globalconfig.inc.php');
 	# Mantis - a php based bugtracking system
 	# Copyright (C) 2000 - 2002  Kenzaburo Ito - kenito@300baud.org
 	# Copyright (C) 2002 - 2004  Mantis Team   - mantisbt-dev@lists.sourceforge.net
@@ -28,10 +29,6 @@
 	# --- database variables ---------
 
 	# set these values to match your setup
-	$g_hostname      = "localhost";
-	$g_db_username   = "plutovip";
-	$g_db_password   = "bogata41";
-	$g_database_name = "mantis";
 
 	# --- email variables -------------
 	$g_administrator_email  = 'webmaster@plutohome.com';
