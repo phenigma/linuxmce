@@ -1172,7 +1172,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
         case ARRAY_Lighting_Scenarios_CONST:
         case ARRAY_Climate_Scenarios_CONST:
         case ARRAY_Security_Scenarios_CONST:
-        case ARRAY_Communication_Sceneraios_CONST:
+        case ARRAY_Communication_Scenarios_CONST:
         case ARRAY_Misc_Scenarios_CONST:
             if( m_pOrbiterGenerator->m_pRow_Room )
             {
