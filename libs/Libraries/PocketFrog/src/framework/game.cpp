@@ -50,6 +50,8 @@ Game::Game()
 
 Game::~Game()
 {
+	DestroyWindow();
+	m_hWnd = NULL;
 }
 
 
