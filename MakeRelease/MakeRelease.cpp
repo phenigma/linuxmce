@@ -340,7 +340,7 @@ int main(int argc, char *argv[])
 
 	if( g_iPK_Distro==DISTRO_Debian_Sarge_CONST )
 	{
-		cout << "About to write debian-packages.list" << endl;
+		cout << "About to write debian-packages.tmp" << endl;
 		map<string,bool>::iterator it;
 		string sDebPkg = "";
 		for (it = g_DebianPackages.begin(); it != g_DebianPackages.end(); it++)
@@ -348,10 +348,10 @@ int main(int argc, char *argv[])
 			sDebPkg += it->first + " ";
 		}
 		
-		FILE * f = fopen("/home/tmp/pluto-build/debian-packages.list", "wb");
+		FILE * f = fopen("/home/tmp/pluto-build/debian-packages.tmp", "wb");
 		if(f)
 		{
-			cout << "Writing debian-packages.list" << endl;
+			cout << "Writing debian-packages.tmp" << endl;
 			fprintf(f, "%s\n", sDebPkg.c_str());
 			fclose(f);
 		}
