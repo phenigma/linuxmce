@@ -20,7 +20,7 @@ if (! isset($code) || $code === "" || preg_match("/^\d+-\d+$/", $code) != 1 || !
 }
 else // return
 {
-	$message = "OK\n" . implode("\n", (array)GetActivationSh($code,'list'));
+	$message = "OK\n" . implode("\n", (array)GetActivationSh($code,'listall'));
 }
 
 echo "$message";
