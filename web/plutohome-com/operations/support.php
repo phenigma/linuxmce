@@ -27,7 +27,7 @@ function support($output,$conn){
                   2699 Stirling Road, Building C<br>
                   Fort Lauderdale, FL 33312<br>
                   Phone: (877) pluto-4-u<br>
-                  Office house (EST):</span> Mon-Fri 8:30am &ndash; 9:00pm Sat: 10:00am &ndash; 3:00pm
+                  Office Hours (EST):</span> Mon-Fri 8:30am &ndash; 9:00pm Sat: 10:00am &ndash; 3:00pm
 			</td>
 		</tr>	
 		<tr>
