@@ -163,6 +163,7 @@ sub get_install {
       $st = $db_handle->prepare($sql);
       $st->execute();
       if($row = $st->fetchrow_hashref()) {
+    	$st->finish();
         return $row->{'FK_Installation'};
       } else {
         return 1;

@@ -4,7 +4,10 @@ use DBI;
 #use strict;
 use Socket;
 
-$line;
+open(CONF,"/etc/pluto.conf");
+@data=<CONF>;
+close(CONF);
+
 foreach $line (@data) {
   ($option, $eq, $value) = split(/ /,$line);
   if($option eq "MySqlHost") {
