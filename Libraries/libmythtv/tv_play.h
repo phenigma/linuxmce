@@ -247,6 +247,7 @@ private:
     OSD *osd;
     bool update_osd_pos;
 
+public:
     NuppelVideoPlayer *nvp;
     NuppelVideoPlayer *pipnvp;
     NuppelVideoPlayer *activenvp;
@@ -259,6 +260,7 @@ private:
     RingBuffer *piprbuffer;
     RingBuffer *activerbuffer;
 
+private:
     QString dialogname;
     bool editmode;
     bool requestDelete;
