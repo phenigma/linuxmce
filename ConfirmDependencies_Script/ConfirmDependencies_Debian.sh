@@ -1,4 +1,5 @@
 #!/bin/bash
+echo $0 $*
 
 . /usr/pluto/install/Common.sh
 

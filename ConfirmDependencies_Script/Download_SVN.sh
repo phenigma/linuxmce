@@ -5,7 +5,7 @@
 [ -z "$SRC_IMPL" ] && SRC_IMPL="/usr/pluto/src/$PKG_NAME"
 mkdir -p "$SRC_IMPL" || exit $ERR_DOWNLOAD
 
-echo "$REPOS_SRC" | egrep '^svn(\+ssh)?://' &>/dev/null || REPOS_SRC="svn://$REPOS_SRC"
+#echo "$REPOS_SRC" | egrep '^svn(\+ssh)?://' &>/dev/null || REPOS_SRC="svn://$REPOS_SRC"
 svn_param="--non-interactive --no-auth-cache"
 [ -n "$USERNAME" ] && svn_param="$svn_param --username $USERNAME"
 [ -n "$PASSWORD" ] && svn_param="$svn_param --password $PASSWORD"
