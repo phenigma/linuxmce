@@ -11,23 +11,31 @@ $st = $db->prepare($sql) or die "Error in code";
 $st->execute() or die "Error on execute";
 while($local_row = $st->fetchrow_hashref()) {
 	$devicecat = $local_row->{'PK_DeviceCategory'};
-	print "We have found the category $devicecat\n";
 	$sql = "SELECT PK_DeviceTemplate FROM DeviceTemplate WHERE FK_DeviceCategory='$devicecat'";
 	$st2 = $db->prepare($sql) or die "Error in code";
 	$st2->execute() or die "Error on execute";
 	while($local = $st2->fetchrow_hashref()) {
 		$devicetemplate = $local->{'PK_DeviceTemplate'};
-		print "We have found device template $devicetemplate\n";
 		$sql = "SELECT PK_Device FROM Device WHERE FK_DeviceTemplate='$devicetemplate'";
 		$st3 = $db->prepare($sql) or die "Error in code";
 		$st3->execute() or die "Error on execute";
 		while($row = $st3->fetchrow_hashref()) {
-			print "We have one\n";
 			$deviceid = $row->{'PK_Device'};
-			if($devices eq "") {
-				$devices = $deviceid;
-			} else {
-				$devices = $devices.",".$deviceid;
+			$sql = "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_Device='$deviceid' AND FK_DeviceData='54'";
+			$st4 = $db->prepare($sql) or die "Error in code";
+			$st4->execute() or die "Error on execute";
+			if($rowl = $st4->fetchrow_hashref()) {
+				$data = $rowl->{'IK_DeviceData'};
+				if($devices eq "") {
+					$devices = $deviceid.",";
+				} else {
+					$devices = $devices.$deviceid.",";
+				}
+				if($datas eq "") {
+					$datas = $data.",";
+				} else {
+					$datas = $datas.$data.",";
+				}
 			}
 		}
 	}
@@ -35,4 +43,15 @@ while($local_row = $st->fetchrow_hashref()) {
 
 $db->disconnect();
 
+if($devices eq "") {
+	print "We have found no camera devices so we will not purge. Exiting...\n";
+	exit(-1);
+}
+
+if($datas eq "") {
+	print "We have found no data concernig purge option. Exiting...\n";
+	exit(-1);
+}
+
 print "$devices\n";
+print "$datas\n";
