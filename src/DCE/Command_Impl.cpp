@@ -1,16 +1,16 @@
-/* 
+/*
 	Command_Impl
-	
+
 	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-	
-	www.plutohome.com		
-	
+
+	www.plutohome.com
+
 	Phone: +1 (877) 758-8648
-	
+
 	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
-	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-	
+	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
 	See the GNU General Public License for more details.
 */
 
@@ -24,7 +24,7 @@
  */
 
 
-#include "PlutoUtils/CommonIncludes.h"	
+#include "PlutoUtils/CommonIncludes.h"
 #include "DCE/Logger.h"
 
 #ifndef WINCE
@@ -70,9 +70,9 @@ void *WatchDogThread( void *pData )
 			g_pPlutoLogger->Write(LV_STATUS, "Before Disconnect.");
 			pCommand_Impl->Disconnect();
 			g_pPlutoLogger->Write(LV_STATUS, "After Disconnect.");
-			
+
 			bConnectionLost = true;
-			g_pPlutoLogger->Write( LV_CRITICAL, "Connection for client socket reported %s, device %d", 
+			g_pPlutoLogger->Write( LV_CRITICAL, "Connection for client socket reported %s, device %d",
 				sResponse.c_str(), pCommand_Impl->m_dwPK_Device );
 			break;
 		}
@@ -88,7 +88,7 @@ void *WatchDogThread( void *pData )
 		g_pPlutoLogger->Write(LV_STATUS, "Before MB_ICONEXCLAMATION.");
 		::MessageBeep( MB_ICONEXCLAMATION );
 	}
-	
+
 	g_pPlutoLogger->Write(LV_STATUS, "WatchDog stopped");
 	pCommand_Impl->m_bWatchdogRunning = false;
 
@@ -257,10 +257,13 @@ bool Command_Impl::SpawnChildDevice( class DeviceData_Impl *pDeviceData_Impl_Chi
 void Command_Impl::KillSpawnedDevices()
 {
 #ifndef WIN32
+	g_pPlutoLogger->Write(LV_STATUS, "Need to kill %d child devices", (int)m_vectSpawnedDevices.size());
 	for( size_t s=0; s < m_vectSpawnedDevices.size(); ++s )
+	{
+		g_pDCELogger->Write(LV_WARNING,"Killing spawned device %s",m_vectSpawnedDevices[s].c_str());
 		system( (string("") + "screen -list | grep " + m_vectSpawnedDevices[s] + " | cut -f 1 -d '.' | cut -f 2 -d '\t' | xargs kill -9" ).c_str() );
-	/** @todo check comments */
-	//g_pDCELogger->Write(LV_WARNING,"Need to kill %s",m_vectSpawnedDevices[s].c_str());
+	}
+	g_pPlutoLogger->Write(LV_STATUS, "Killing completed.");
 #endif
 }
 
@@ -271,25 +274,25 @@ void Command_Impl::ReplaceParams( ::std::string sReplacement ) {
 		string sParam1, sParam2;
 		bool bDone;
 		int iParam_value;
-	
+
 		string::size_type pos;
 		pos = 0;
 		bDone = false;
-	
+
 		do
 		{
 			sParam1 = StringUtils::Tokenize( sReplacement, ::std::string(","), pos ); // get the first token
 			sParam2 = StringUtils::Tokenize( sReplacement, ::std::string(","), pos ); // get the second token
-	
+
 			iParam_value = atoi( sParam1.c_str() ); // convert it to int
-		
+
 			if (( sParam1 != "" ) && ( sParam2 != "" ) && ( iParam_value != 0 ))
 			{
 				m_pData->m_mapParameters.erase( iParam_value ); // erase the old value
 				m_pData->m_mapParameters.insert( pair<int, string>( iParam_value, sParam2 ) ); // insert a new one
 			}
 			else bDone = true;
-	
+
 		} while ( !bDone );
 	}
 }
@@ -319,7 +322,7 @@ bool Command_Impl::Connect(int iPK_DeviceTemplate)
 #if (!defined(UNDER_CE) || !defined(DEBUG))
 		g_pPlutoLogger->Write(LV_CRITICAL,"DeviceCommand connect failed %p, device ID: %d",this,this->m_dwPK_Device);
 #endif
-	
+
 		if (m_pEvent)
 			m_pEvent->m_pClientSocket->Disconnect();
 
@@ -333,7 +336,7 @@ bool Command_Impl::Connect(int iPK_DeviceTemplate)
 	m_bWatchdogRunning = false;
 
 #ifdef WIN32
-	//StartWatchDog(10000);	
+	//StartWatchDog(10000);
 #endif
 
 	return bResult;
@@ -373,7 +376,7 @@ bool Command_Impl::ReceivedMessage( Message *pMessage )
 		*/
 		return true;
 	}
-	
+
 	if ( pMessage->m_dwMessage_Type == MESSAGETYPE_SYSCOMMAND && pMessage->m_dwID == SYSCOMMAND_RELOAD )
 	{
 		g_pPlutoLogger->Write(LV_WARNING,"Got a reload command");
@@ -382,7 +385,7 @@ bool Command_Impl::ReceivedMessage( Message *pMessage )
 		OnReload();
 		return true;
 	}
-	
+
 	if ( m_bHandleChildren && pMessage->m_dwPK_Device_To != m_dwPK_Device )
 	{
 		// This is slightly inelegant because we don't want to change
@@ -394,7 +397,7 @@ bool Command_Impl::ReceivedMessage( Message *pMessage )
 		pMessage->m_dwPK_Device_To = m_dwPK_Device;
 		return ReceivedMessage( pMessage );
 	}
-	
+
 	if ( pMessage->m_dwMessage_Type == MESSAGETYPE_DATAPARM_REQUEST && pMessage->m_dwPK_Device_To == m_dwPK_Device )
 	{
 			/** @todo:
@@ -411,7 +414,7 @@ bool Command_Impl::ReceivedMessage( Message *pMessage )
 			*/
 		return true;
 	}
-	else 
+	else
 		if ( pMessage->m_dwMessage_Type == MESSAGETYPE_DATAPARM_CHANGE && pMessage->m_dwPK_Device_To == m_dwPK_Device )
 		{
 			p = pMessage->m_mapParameters.begin();

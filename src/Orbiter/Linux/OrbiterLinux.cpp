@@ -37,9 +37,22 @@ OrbiterLinux::OrbiterLinux(int DeviceID,
     desktopInScreen(0),
     XServerDisplay(NULL)
 {
-    openDisplay();
+	char *titlestring, *iconstring;
+	SDL_WM_SetCaption(m_strWindowName.c_str(), "MAXIMIZE ME");
+	SDL_WM_GetCaption(&titlestring, &iconstring);
+	if(titlestring) {
+		printf("Got title string: %s\n", titlestring);
+	}
 
-    //reinitGraphics();
+	if(iconstring) {
+		printf("Got icon string: %s\n", iconstring);
+	}
+// 	SDL_WM_SetCaption(m_strWindowName.c_str(), "");
+// 	SDL_WM_SetIcon(m_strWindowName.c_str(), "");
+
+	openDisplay();
+
+    reinitGraphics();
 }
 
 OrbiterLinux::~OrbiterLinux()
