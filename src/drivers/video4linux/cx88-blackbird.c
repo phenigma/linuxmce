@@ -878,7 +878,8 @@ static void blackbird_codec_settings(struct cx8802_dev *dev)
 #endif
 
 	/* assign stream type */
-	blackbird_api_cmd(dev, BLACKBIRD_API_SET_STREAM_TYPE, 1, 0, BLACKBIRD_STREAM_PROGRAM);
+	//blackbird_api_cmd(dev, BLACKBIRD_API_SET_STREAM_TYPE, 1, 0, BLACKBIRD_STREAM_PROGRAM);
+	blackbird_api_cmd(dev, BLACKBIRD_API_SET_STREAM_TYPE, 1, 0, BLACKBIRD_STREAM_TRANSPORT);
 
 	/* assign output port */
 	blackbird_api_cmd(dev, BLACKBIRD_API_SET_OUTPUT_PORT, 1, 0, BLACKBIRD_OUTPUT_PORT_STREAMING); /* Host */
@@ -1290,11 +1291,11 @@ static int mpeg_do_ioctl(struct inode *inode, struct file *file,
 
 	if (debug > 1)
 		cx88_print_ioctl(dev->core->name,cmd);
-#if 1
+#if 0
 	cx88_print_ioctl(dev->core->name,cmd);
 	printk( KERN_INFO "IOCTL: 0x%x\n", cmd );
-	dprintk( 1, "IOCTL: 0x%x\n", cmd );
 #endif
+	dprintk( 1, "IOCTL: 0x%x\n", cmd );
 
 	switch (cmd) {
 
@@ -1592,8 +1593,8 @@ static int mpeg_do_ioctl(struct inode *inode, struct file *file,
 		codec->audio_bitmask = (2 << 2) | (14 << 4); /* layer II | 384kbps */
 		codec->bframes = 2;
 		codec->bitrate_mode = 1; /* cbr */
-		codec->bitrate = 7500000; /* bps */
-		codec->bitrate_peak = 7500000; /* peak */
+		codec->bitrate = 4000*1024; /* bps */
+		codec->bitrate_peak = 4000*1024; /* peak */
 		codec->dnr_mode = 0; /* spatial=manual | temporal=manual */
 		codec->dnr_spatial = 0;
 		codec->dnr_temporal = 0;
@@ -1766,22 +1767,15 @@ mpeg_read(struct file *file, char __user *data, size_t count, loff_t *ppos)
 	struct cx8802_fh *fh = file->private_data;
 	ssize_t ret;
 
-	/*file->f_flags |= O_NONBLOCK;*/
 	ret = videobuf_read_stream(&fh->mpegq, data, count, ppos, 0,
 				    file->f_flags & O_NONBLOCK );
 
 #if 1
-	/* why is read() choking with mythbackend while it works just fine
-	   with cat, dd and mplayer ? */
-	if( ret < 0 )
-	{
-		printk( KERN_INFO "mpeg_read: %d, count: %d, non-blocking: %d\n", ret, count, file->f_flags & O_NONBLOCK );
-		//videobuf_streamoff(&fh->mpegq);
-		//videobuf_streamon(&fh->mpegq);
-	}
+	if( ret < 0 && debug >= 1 )
+		printk( KERN_DEBUG "mpeg_read: %d, count: %d, non-blocking: %d\n", ret, count, file->f_flags & O_NONBLOCK );
 
-	if( ret != count && !( file->f_flags & O_NONBLOCK ) )
-		printk( KERN_INFO "mpeg_read: %d, count: %d, non-blocking: %d\n", ret, count, file->f_flags & O_NONBLOCK );
+	if( ret != count && !( file->f_flags & O_NONBLOCK ) && debug >= 1 )
+		printk( KERN_DEBUG "mpeg_read: %d, count: %d, non-blocking: %d\n", ret, count, file->f_flags & O_NONBLOCK );
 #endif
 	return ret;
 }
