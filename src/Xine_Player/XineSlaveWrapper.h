@@ -178,6 +178,11 @@ class XineSlaveWrapper
 
     XineStream *getStreamForId(int iStreamID, string strMessageInvalid);
 
+	/**
+     * @brief map a stream to a stream ID. It will return the previous stream if there was one.
+     */
+    XineStream *setStreamForId(int iStreamID, XineStream *pNewStream);
+
     /**
      * @brief conversion function used in the screen shot feature.
      */

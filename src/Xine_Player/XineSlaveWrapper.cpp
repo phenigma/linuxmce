@@ -204,18 +204,20 @@ void XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosit
     bool isNewStream = false;
     XineStream *xineStream = getStreamForId(iStreamID, ""); /** @warning HACK: This should be changed to behave properly */
 
-    g_pPlutoLogger->Write(LV_STATUS, "1");
+    g_pPlutoLogger->Write(LV_STATUS, "Testing to see if we can reuse the stream.");
+
     if ( xineStream == NULL )
     {
+		g_pPlutoLogger->Write(LV_STATUS, "Nope .. making a new one");
         isNewStream = true;
         xineStream = new XineStream();
-        m_pSameStream = xineStream; /** @warning HACK: this code should not be here */
         xineStream->m_pOwner = this;
         xineStream->m_iStreamID = iStreamID;
+		setStreamForId(iStreamID, xineStream);
     }
     else
     {
-        g_pPlutoLogger->Write(LV_STATUS, "Closing");
+        g_pPlutoLogger->Write(LV_STATUS, "Closing old stream");
         if ( m_pXineVisualizationPlugin )
         {
             xine_post_wire_audio_port(xine_get_audio_source(xineStream->m_pStream), m_pXineAudio);
@@ -225,7 +227,7 @@ void XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosit
 
         xine_close(xineStream->m_pStream);
 
-        g_pPlutoLogger->Write(LV_STATUS, "Closed previous stream!");
+        g_pPlutoLogger->Write(LV_STATUS, "Closed!");
 
         xineStream->m_bIsRendering = false;
         xineStream->m_iStreamID = iStreamID;
@@ -244,7 +246,7 @@ void XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosit
         return;
     }
 
-    if ( isNewStream &&  (m_pXineAudio = xine_open_audio_driver(m_pXine, m_sXineAudioDriverName.c_str(), NULL)) == NULL )
+    if ( isNewStream && (m_pXineAudio = xine_open_audio_driver(m_pXine, m_sXineAudioDriverName.c_str(), NULL)) == NULL )
     {
         g_pPlutoLogger->Write(LV_WARNING, "I'm unable to initialize m_pXine's '%s' audio driver.", m_sXineAudioDriverName.c_str());
         return;
@@ -268,6 +270,7 @@ void XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosit
         xine_event_create_listener_thread(xineStream->m_pStreamEventQueue, xineEventListener, xineStream);
     }
 
+	xine_port_send_gui_data(m_pXineVideo, XINE_GUI_SEND_VIDEOWIN_VISIBLE, (void *) 0);
     xine_port_send_gui_data(m_pXineVideo, XINE_GUI_SEND_DRAWABLE_CHANGED, (void *) windows[m_iCurrentWindow]);
     xine_port_send_gui_data(m_pXineVideo, XINE_GUI_SEND_VIDEOWIN_VISIBLE, (void *) 1);
 
@@ -320,6 +323,7 @@ void XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosit
         if ( isNewStream )
         {
             g_pPlutoLogger->Write(LV_STATUS, "Creating event processor");
+			m_bExitThread = false;
             pthread_create(&xineStream->eventLoop, NULL, eventProcessingLoop, xineStream);
             g_pPlutoLogger->Write(LV_STATUS, "Event processor started");
         }
@@ -774,7 +778,9 @@ int XineSlaveWrapper::XServerEventProcessor(XineStream *pStream, XEvent &event)
         case Expose:
         {
             XExposeEvent *exposeEvent = (XExposeEvent *)&event;
-            if(exposeEvent->count != 0)
+			g_pPlutoLogger->Write(LV_STATUS, "Expose with count %d", exposeEvent->count);
+
+            if( exposeEvent->count != 0 )
                 break;
 
             if (pStream->m_pOwner->m_pXineVideo)
@@ -881,7 +887,7 @@ void XineSlaveWrapper::changePlaybackSpeed(int iStreamID, PlayBackSpeedType desi
 {
     XineStream *pStream;
 
-    if ( (pStream  = getStreamForId(iStreamID, "Can't set the speed of a non existent stream (%d)!")) == NULL)
+    if ( (pStream = getStreamForId(iStreamID, "Can't set the speed of a non existent stream (%d)!")) == NULL)
         return;
 
     int xineSpeed = XINE_SPEED_PAUSE;
@@ -961,8 +967,44 @@ void XineSlaveWrapper::stopMedia(int iStreamID)
     if ( pStream == NULL )
         return;
 
-    xine_stop(pStream->m_pStream);
-    //xine_close(m_pstream->m_pstream);
+//	g_pPlutoLogger->Write(LV_STATUS, "Calling xine_stop for stream with id: %d", iStreamID);
+// 	xine_stop(pStream->m_pStream);
+
+//	g_pPlutoLogger->Write(LV_STATUS, "Calling xine_close for stream with id: %d", iStreamID);
+//	xine_close(pStream->m_pStream);
+
+	// stop the event thread first
+	g_pPlutoLogger->Write(LV_STATUS, "Stopping event thread.");
+	m_bExitThread = true;
+	pthread_join(pStream->eventLoop, NULL);
+	g_pPlutoLogger->Write(LV_STATUS, "Done.");
+
+	g_pPlutoLogger->Write(LV_STATUS, "Disposing the event queue");
+	xine_event_dispose_queue(pStream->m_pStreamEventQueue);
+
+	g_pPlutoLogger->Write(LV_STATUS, "Calling xine_dispose for stream with id: %d", iStreamID);
+	xine_dispose(pStream->m_pStream);
+
+	if ( m_pXineAudio )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Calling xine_close_audio_driver for stream with id: %d");
+		xine_close_audio_driver(m_pXine, m_pXineAudio);
+		m_pXineAudio = NULL;
+	}
+
+	if ( m_pXineVideo )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Calling xine_close_video_driver for stream with id: %d");
+		xine_close_video_driver(m_pXine, m_pXineVideo);
+		m_pXineVideo = NULL;
+	}
+
+	delete pStream;
+
+	// ignore the return since we know for sure that it was the same stream
+	setStreamForId(iStreamID, NULL);
+
+	g_pPlutoLogger->Write(LV_STATUS, "Cleanup completed");
 }
 
 /**
@@ -1318,7 +1360,7 @@ uint8_t * XineSlaveWrapper::yv12torgb (uint8_t *src_y, uint8_t *src_u, uint8_t *
 
   rgb = (uint8_t*)malloc (width * height * 3);
   if (!rgb)
-    return NULL;
+      return NULL;
 
   for (i = 0; i < height; ++i) {
     /*
@@ -1373,6 +1415,18 @@ uint8_t * XineSlaveWrapper::yv12torgb (uint8_t *src_y, uint8_t *src_u, uint8_t *
   return rgb;
 }
 
+XineSlaveWrapper::XineStream *XineSlaveWrapper::setStreamForId(int iStreamID, XineStream *pNewStream)
+{
+	XineStream *pXineStream = NULL;
+
+	if ( m_pSameStream != NULL )
+		pXineStream == m_pSameStream;
+
+	m_pSameStream = pNewStream;
+
+	return pXineStream;
+}
+
 XineSlaveWrapper::XineStream *XineSlaveWrapper::getStreamForId(int iStreamID, string strMessageInvalid)
 {
     /** @warning HACK: use the same m_pstream regardless of the StreamID; */
@@ -1384,21 +1438,6 @@ XineSlaveWrapper::XineStream *XineSlaveWrapper::getStreamForId(int iStreamID, st
         g_pPlutoLogger->Write(LV_STATUS, strMessageInvalid.c_str());
 
     return m_pSameStream;
-
-/**
-*   @test
-     XineStream *m_pstream;
-
-    m_pstream = m_mapStreams[iStreamID];
-
-    if ( m_pstream == NULL )
-    {
-        g_pPlutoLogger->Write(LV_WARNING, strMessageInvalid.c_str(), iStreamID);
-        return NULL;
-    }
-
-    return m_pstream;
-*/
 }
 
 /**
@@ -1503,6 +1542,21 @@ int XineSlaveWrapper::enableBroadcast(int iStreamID)
 
 void XineSlaveWrapper::simulateMouseClick(int X, int Y)
 {
+    Window oldWindow;
+    int oldRevertBehaviour;
+
+	XLockDisplay(XServerDisplay);
+	XGetInputFocus( XServerDisplay, &oldWindow, &oldRevertBehaviour);
+    XSetInputFocus( XServerDisplay, windows[m_iCurrentWindow], RevertToParent, CurrentTime );
+	XTestFakeMotionEvent( XServerDisplay, -1, X, Y, 0);
+	XTestFakeButtonEvent( XServerDisplay, 1, True, CurrentTime );
+	XTestFakeButtonEvent( XServerDisplay, 1, False, CurrentTime );
+
+	if ( oldWindow )
+        XSetInputFocus( XServerDisplay, oldWindow, oldRevertBehaviour, CurrentTime );
+
+    XFlush(XServerDisplay);
+	XUnlockDisplay(XServerDisplay);
 }
 
 void XineSlaveWrapper::simulateKeystroke(int plutoButton)
