@@ -2,6 +2,22 @@
 
 . /usr/pluto/bin/Config_Ops.sh
 
+UploadLogs()
+{
+	local ok
+
+	ok=0
+	while [ "$ok" -eq 0 ]; do
+		echo "$(date) Uploading critical errors" >>/var/log/pluto/ftp-upload.log
+		ftp-upload -v --ignore-quit-failure -h plutohome.com --passive -b -d upload "$Output/$Filename.critical.tar.gz" >>/var/log/pluto/ftp-upload.log 2>>/var/log/pluto/ftp-upload-err.log
+		if [ "$?" -eq 0 ]; then
+			echo "$(date) Done" >>/var/log/pluto/ftp-upload.log
+		else
+			echo "$(date) Failed. Retrying" >>/var/log/pluto/ftp-upload.log
+		fi
+	done
+}
+
 Filename="${PK_Device}_$(date +%F_%H-%M-%S)"
 Critical="/var/log/pluto/critical"
 Output="/var/log/pluto/archive"
@@ -16,8 +32,7 @@ done
 tar -czf "$Output/$Filename.critical.tar.gz" "$Critical" /usr/pluto/coredump
 
 if [ "$1" != "0" ]; then
-	date >>/var/log/pluto/ftp-log.log
-	ftp-upload --ignore-quit-failure -h plutohome.com --passive -b -d upload "$Output/$Filename.critical.tar.gz" >>/var/log/pluto/ftp-upload.log 2>>/var/log/pluto/ftp-upload-err.log &
+	UploadLogs &
 fi
 
 rm -rf "$Critical"
