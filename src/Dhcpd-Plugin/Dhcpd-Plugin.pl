@@ -53,13 +53,13 @@ while (1 eq 1) {
           $row_ref = $statement->fetchrow_hashref();
           $tmp = $row_ref->{PK_Device};
           if($tmp eq "") {
-            system("CreateDevice -i 1 -c $dhcpd_device -I $ip_sent -M $mac_found > dhcpd_temp.file\n");
+            system("/usr/pluto/bin/CreateDevice -i 1 -c $dhcpd_device -I $ip_sent -M $mac_found > dhcpd_temp.file\n");
             open(FILE, "dhcpd_temp.file");
             @data = <FILE>;
             $Device_ID = $data[0];
             chomp($Device_ID);
             close(FILE);
-			MessageSend localhost 0 0 2 24 26 $Device_ID
+            system("/usr/pluto/bin/MessageSend localhost 0 0 2 24 26 $Device_ID");
             system("rm -f dhcpd_temp.file");
             if($package_name ne "") {
               system("apt-get install $package_name");
@@ -69,7 +69,7 @@ while (1 eq 1) {
           }
           chomp($Device_ID);
           $db_handle->disconnect();
-          system("./script.pl -d $Device_ID -i $ip_sent -m $mac_found");
+          system("/usr/pluto/bin/$configure_script -d $Device_ID -i $ip_sent -m $mac_found");
       }
       $db_handle = DBI->connect("dbi:mysql:database=pluto_main;host=$DBHOST;user=$DBUSER;password=$DBPASSWD") or die "Could not connect";
       if($found == 0) {
