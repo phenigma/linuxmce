@@ -1,0 +1,187 @@
+/***************************************************************************
+ *   Copyright (C) 2005 by Igor Spac,,,                                    *
+ *   igor@dexx                                                             *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ ***************************************************************************/
+#ifndef EMBRUBYRUBYEMBEDEDCLASS_H
+#define EMBRUBYRUBYEMBEDEDCLASS_H
+
+#include "RubyExceptions.h"
+
+#include <list>
+#include <ruby.h>
+#include <stdarg.h>
+
+namespace EMBRUBY {
+
+/**
+@author Igor Spac,,,
+*/
+
+
+class RubyEmbededClass {
+public:
+	RubyEmbededClass();
+	~RubyEmbededClass();
+	
+public:
+	const VALUE getValue() {
+		return value_;
+	}
+	void setValue(const VALUE value) {
+		value_ = value;
+	}
+
+public:
+/*	void *operator new( unsigned int num_bytes )
+    {
+		return malloc(num_bytes);
+	} */
+
+protected:
+	struct ARGUMENTS {
+		union {
+			const char* classname_;
+			VALUE classvalue_;
+		} class_;
+		const char* member_;
+		int argc_;
+		VALUE *argv_;
+		
+		ARGUMENTS(const char* sclass, const char* member, int argc, VALUE* argv) 
+			: member_(member), argc_(argc), argv_(argv)	{
+			class_.classname_ = sclass; 
+		}
+		
+		ARGUMENTS(VALUE vclass, const char* member, int argc, VALUE* argv) 
+			: member_(member), argc_(argc), argv_(argv)	{
+			class_.classvalue_ = vclass; 
+		}
+	};
+	
+	static VALUE _callclass(VALUE arg);
+	static VALUE _callmethod(VALUE arg);
+	static std::string _backtrace();
+
+protected:
+	static VALUE StrToValue(const char* str);
+	static VALUE IntToValue(int n);
+	
+private:
+	VALUE value_;
+};
+
+template <class T = RubyEmbededClass>
+class RubyEmbededClassImpl : public RubyEmbededClass {
+public:
+    RubyEmbededClassImpl() throw(RubyException);
+    RubyEmbededClassImpl(const char *classname) throw(RubyException);
+    ~RubyEmbededClassImpl();
+
+protected:
+	void Init(const char *classname) throw(RubyException);
+
+public:
+	VALUE callmethod(const char* methodname, unsigned num = 0, ...);
+	VALUE callmethod(const char* methodname, const std::list<VALUE>& params);
+};
+
+template <class T>
+RubyEmbededClassImpl<T>:: RubyEmbededClassImpl() throw(RubyException) {
+	Init(T::_ClassName());
+}
+
+template <class T>
+RubyEmbededClassImpl<T>:: RubyEmbededClassImpl(const char *classname) throw(RubyException) {
+	if(classname != NULL) {
+		Init(classname);
+	}
+}
+
+template <class T>
+void RubyEmbededClassImpl<T>::Init(const char *classname) throw(RubyException) {
+	int error = 0;
+	ARGUMENTS args(classname, "new", 0, 0);
+	VALUE value = rb_protect(T::_callclass, reinterpret_cast<VALUE>(&args), &error);
+	if(!error) {
+		setValue(value);
+	} else {
+		throw RubyException(std::string("Cannot instantiate class: ") + classname);
+	}
+}
+
+template <class T>
+RubyEmbededClassImpl<T>::~RubyEmbededClassImpl() {
+}
+
+template <class T>
+VALUE RubyEmbededClassImpl<T>::callmethod(const char* methodname, unsigned num, ...) {
+	va_list marker;
+
+	std::list<VALUE> params;
+	if(num > 0) {
+		va_start( marker, methodname );     /* Initialize variable arguments. */
+		while( num > 0 )
+		{
+			VALUE v = va_arg( marker, VALUE );
+			params.push_back(v);
+			num--;
+		}
+		va_end( marker );              /* Reset variable arguments.      */
+	}
+
+	return callmethod(methodname, params);
+}
+
+template <class T>
+VALUE RubyEmbededClassImpl<T>::callmethod(const char* methodname, const std::list<VALUE>& params) {
+	VALUE *pv = NULL;
+	if(params.size() > 0) {
+		pv = new VALUE[params.size()];
+		int i = 0;
+		for(std::list<VALUE>::const_iterator it = params.begin(); it != params.end(); it++, i++) {
+			pv[i] = *it;
+		}
+	}
+	
+	int error = 0;
+	ARGUMENTS args(getValue(), methodname, params.size(), pv);
+	VALUE vret = rb_protect(T::_callmethod, reinterpret_cast<VALUE>(&args), &error);
+	if(pv != NULL) {
+		delete pv;
+	}
+	
+	if(error) {
+		std::string errpoint;
+		ID id = rb_frame_last_func();
+		if(id) {
+			errpoint = ", in: ";
+			errpoint += rb_id2name(id);
+		} 	
+		throw RubyException(std::string("Cannot call class method: ") + methodname + _backtrace());
+	}
+	
+	return vret;
+}
+
+#define DEFINE_CLASS_NAME(name) \
+	static const char* _ClassName() { \
+		return name; \
+	} 
+};
+
+#endif

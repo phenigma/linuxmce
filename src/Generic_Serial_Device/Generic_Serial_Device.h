@@ -2,22 +2,23 @@
 #ifndef Generic_Serial_Device_h
 #define Generic_Serial_Device_h
 
-//	DCE Implemenation for #69 Generic Serial Device
+//	DCE Implemenation for #74 Generic Serial Device
 
 #include "Gen_Devices/Generic_Serial_DeviceBase.h"
 //<-dceag-d-e->
 
 #include "Serial/GenericIODevice.h"
 
+#include "RubySerialIOManager.h"
+
+class Database_pluto_main;
+
 //<-dceag-decl-b->!
 namespace DCE
 {
-	class Generic_Serial_Device : public Generic_Serial_Device_Command, public GenericIODevice
+	class Generic_Serial_Device : public Generic_Serial_Device_Command
 	{
 //<-dceag-decl-e->
-		// Private member variables
-		map<int,string> m_CodeMap;
-
 		// Private methods
 public:
 		// Public member variables
@@ -32,9 +33,11 @@ public:
 		virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage);
 //<-dceag-const-e->
 		virtual bool Connect(int iPK_DeviceTemplate );
-		virtual bool ReceivedMessage(class Message *pMessageOriginal);
+//		virtual bool ReceivedMessage(class Message *pMessageOriginal);
 		virtual void Transmit(const char *pData,int iSize);
 
+		virtual void RunThread();
+		
 //<-dceag-const2-b->!
 
 //<-dceag-h-b->
@@ -45,7 +48,6 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
-	string DATA_Get_Port();
 
 			*****EVENT***** accessors inherited from base class
 
@@ -54,6 +56,13 @@ public:
 
 
 //<-dceag-h-e->
+
+public:
+		DeviceData_Impl* RecursiveFindChildDevice(unsigned dwPK_Device, DeviceData_Impl* pDeviceData_Impl);
+
+private:
+		RubySerialIOManager sermanager_;
+		Database_pluto_main *m_pdbPlutoMain;
 	};
 
 //<-dceag-end-b->

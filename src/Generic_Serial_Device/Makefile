@@ -10,21 +10,21 @@ BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
 MYNAME = Generic_Serial_Device
 VERSION = 2.0.0
-MYDEVTEMPLATEID = 69mplateID
+MYDEVTEMPLATEID = 74mplateID
 
 Gen_Dev_Files = $(GENDEV)/Generic_Serial_DeviceBase.cpp
 sources = Main.cpp Generic_Serial_Device.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS +=
-CPPFLAGS +=
+CPPFLAGS += -I/usr/lib/ruby/1.8/i386-linux
 LDFLAGS +=
-XTRALDLIBS =
+XTRALDLIBS = -lruby1.8 -lSerial -lpluto_main
 
 Gen_Dev_Files +=
-sources += $(ROOT)/Serial/GenericIODevice.cpp
+sources += $(ROOT)/Serial/GenericIODevice.cpp FileCodeSupplier.cpp IOMutex.cpp IOPool.cpp IOThread.cpp LoopStateMachine.cpp RubyEmbeder.cpp RubyEmbededClass.cpp RubyExceptions.cpp RubyStdStreamRedirector.cpp SerialInterceptorCodeSupplier.cpp SerialIOConnection.cpp SerialIOPool.cpp StateMachine.cpp TestEmbededClass.cpp RubySerialIOPool.cpp TestRubyEmbederCodeSupplier.cpp RubySerialIOWrapper.cpp RubyDeviceWrapper.cpp RubyDCECodeSupplier.cpp RubyDCEEmbededClass.cpp RubySerialIOManager.cpp
 
-#<-dceag-mf-b->
+#<-dceag-mf-b->!
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
 
 whattodo:
@@ -32,11 +32,13 @@ whattodo:
 
 all: bin so
 
-bin: Generic_Serial_Device
+bin: Generic_Serial_Device ruby
 
-so: Generic_Serial_Device.so
+so: Generic_Serial_Device.so ruby
 
-Generic_Serial_Device.so: $(sources:.cpp=.o)
+ruby: Ruby_$(MYNAME).so
+
+Generic_Serial_Device.so: $(sources:.cpp=.o) 
 	$(CXX) -shared -o $(MYNAME).so $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
@@ -47,8 +49,19 @@ Generic_Serial_Device: $(sources:.cpp=.o)
 	cp $@ ../bin
 	./post_make.sh $@
 
+
+Ruby_$(MYNAME).so: Ruby_$(MYNAME)_wrap.o 
+	$(CXX) -shared -o Ruby_$(MYNAME).so $(CPPFLAGS) Ruby_$(MYNAME)_wrap.o RubySerialIOWrapper.o RubyDeviceWrapper.o -ltcl8.4  
+	cp $@ ../bin
+	
+Ruby_$(MYNAME)_wrap.o: Ruby_$(MYNAME)_wrap.cxx
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) Ruby_$(MYNAME)_wrap.cxx RubySerialIOWrapper.cpp RubyDeviceWrapper.cpp -I/usr/include/tcl8.4 
+
+Ruby_Generic_Serial_Device_wrap.cxx:
+	swig -ruby -c++ -runtime Ruby_Generic_Serial_Device.i
+
 clean: clean-recursive
-	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) Generic_Serial_Device.bin Generic_Serial_Device.so >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) Generic_Serial_Device.bin Generic_Serial_Device.so *.cxx >/dev/null
 
 package:
 	chmod +x make_package.sh

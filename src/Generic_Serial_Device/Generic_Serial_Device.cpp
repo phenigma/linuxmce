@@ -12,12 +12,30 @@ using namespace DCE;
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
 
+#include "DCE/DCEConfig.h"
+#include "pluto_main/Database_pluto_main.h"
+
+#define GSD_COMMAND_LINE	"Generic_Serial_Device"
+
+
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 Generic_Serial_Device::Generic_Serial_Device(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Generic_Serial_Device_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
+	DCEConfig dceconf;
+
+	m_pdbPlutoMain = new Database_pluto_main();
+	if(!m_pdbPlutoMain->Connect(dceconf.m_sDBHost, dceconf.m_sDBUser, dceconf.m_sDBPassword,
+									dceconf.m_sDBName,dceconf.m_iDBPort) )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
+		return;
+	}
+	g_pPlutoLogger->Write(LV_STATUS, "Successfully connected to database!");
+	
+	sermanager_.setDatabase(m_pdbPlutoMain);
 }
 
 //<-dceag-const2-b->!
@@ -26,34 +44,13 @@ Generic_Serial_Device::Generic_Serial_Device(int DeviceID, string ServerAddress,
 Generic_Serial_Device::~Generic_Serial_Device()
 //<-dceag-dest-e->
 {
-	
+	delete m_pdbPlutoMain;
 }
 
 bool Generic_Serial_Device::Connect(int iPK_DeviceTemplate )
 {
 	if( !Generic_Serial_Device_Command::Connect(iPK_DeviceTemplate) )
 		return false;
-
-	string codes;
-	DCE::CMD_Get_Infrared_Codes_Cat CMD_Get_Infrared_Codes_Cat(m_dwPK_Device, DEVICECATEGORY_Infrared_Plugins_CONST,
-		false, BL_SameHouse, m_dwPK_Device, &codes);
-	SendCommand(CMD_Get_Infrared_Codes_Cat);
-
-	long iPK_Command, count;
-	string code;
-	size_t pos = 0;
-
-	count = atoi(StringUtils::Tokenize(codes, "\t", pos).c_str());
-	g_pPlutoLogger->Write(LV_STATUS, "IR Code request got this reply: %s", codes.c_str());
-	g_pPlutoLogger->Write(LV_STATUS, "IR Code count: %d", count);
-	for(long i = 0; i < count; i++)
-	{
-		iPK_Command = atoi(StringUtils::Tokenize(codes, "\t", pos).c_str());
-		code = StringUtils::Tokenize(codes, "\t", pos);
-		m_CodeMap[iPK_Command] = code;
-		g_pPlutoLogger->Write(LV_STATUS, "Loaded IR code for Device %ld, Action %ld", m_dwPK_Device, iPK_Command);
-	}
-
 	return true;
 }
 
@@ -70,6 +67,46 @@ void Generic_Serial_Device::ReceivedCommandForChild(DeviceData_Base *pDeviceData
 //<-dceag-cmdch-e->
 {
 	sCMD_Result = "UNHANDLED CHILD";
+/*	
+	// find descendant device
+    DeviceData_Impl* pDeviceData_Impl = RecursiveFindChildDevice(pMessage->m_dwPK_Device_To, m_pData);
+    if(!pDeviceData_Impl) {
+        g_pPlutoLogger->Write(LV_CRITICAL, "Child device %d not found.", pMessage->m_dwPK_Device_To);
+        return;
+    }
+*/	
+	/*We cannot route message to nephew devices or younger. 
+		Must route them to child.*/
+	/*find child*/
+	while(pDeviceData_Base != NULL && !sermanager_.hasDevice(pDeviceData_Base)) {
+		pDeviceData_Base =
+			m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pDeviceData_Base->m_dwPK_Device_ControlledVia);
+	}
+	
+	if(pDeviceData_Base == NULL) {
+	    g_pPlutoLogger->Write(LV_CRITICAL, "Error in parsing Controlled Via hierarchy.");
+		return;
+	}
+	
+    g_pPlutoLogger->Write(LV_STATUS, "Routing message to child device %d.", pDeviceData_Base->m_dwPK_Device);
+	sermanager_.RouteMessageToDevice(pDeviceData_Base, pMessage);
+}
+
+DeviceData_Impl* Generic_Serial_Device::RecursiveFindChildDevice(unsigned dwPK_Device, DeviceData_Impl* pDeviceData_Impl) 
+{	
+	if(pDeviceData_Impl->m_dwPK_Device == dwPK_Device) {
+		return pDeviceData_Impl;
+	} else {
+		VectDeviceData_Impl& vDeviceData = pDeviceData_Impl->m_vectDeviceData_Impl_Children;
+		for(VectDeviceData_Impl::size_type i = 0; i < vDeviceData.size(); i++) {
+			pDeviceData_Impl = RecursiveFindChildDevice(dwPK_Device, vDeviceData[i]);
+			if(pDeviceData_Impl != NULL) {
+				return pDeviceData_Impl;
+			}
+		}
+	}
+
+	return NULL;
 }
 
 /*
@@ -82,6 +119,7 @@ void Generic_Serial_Device::ReceivedUnknownCommand(string &sCMD_Result,Message *
 //<-dceag-cmduk-e->
 {
 	sCMD_Result = "UNKNOWN DEVICE";
+    g_pPlutoLogger->Write(LV_STATUS, "Received unknown command.");
 }
 
 //<-dceag-sample-b->!
@@ -96,6 +134,7 @@ bool Generic_Serial_Device::Register(){return false;}
 */
 
 // Intercept all commands
+/*
 bool Generic_Serial_Device::ReceivedMessage(class Message *pMessageOriginal)
 {
 	map<int,string>::iterator itCodeMap;
@@ -108,12 +147,36 @@ bool Generic_Serial_Device::ReceivedMessage(class Message *pMessageOriginal)
 			iHandled += Generic_Serial_Device_Command::ReceivedMessage(pMessage);  // If it's not a command or we don't have an entry for it, let the base class handle it
 		else
 		{
-			TransmitCommand((*itCodeMap).second,pMessage);
+//			TransmitCommand((*itCodeMap).second,pMessage);
 		}
 	}
 	return iHandled!=0;
 }
-
+*/
 void Generic_Serial_Device::Transmit(const char *pData,int iSize)
 {
+}
+
+void Generic_Serial_Device::RunThread() {
+	/* register serial devices
+		1. method if device has Generic_Serial_Device specified as command line, then we are standalone driver, controlling a single device
+	 	2. if no command line is specfified, we control child devices (performance hit, as we run only in single thread)
+	*/
+    
+	g_pPlutoLogger->Write(LV_STATUS, "Device %d has commad line %s.", m_dwPK_Device, m_pData->m_sCommandLine.c_str());
+	if(m_pData->m_sCommandLine == GSD_COMMAND_LINE) {
+		/*we are in case 1*/
+		sermanager_.addDevice(m_pData);
+	} else {
+		/*we are in case 2*/
+		VectDeviceData_Impl& vDeviceData = m_pData->m_vectDeviceData_Impl_Children;
+		for(VectDeviceData_Impl::size_type i = 0; i < vDeviceData.size(); i++) {
+			sermanager_.addDevice(vDeviceData[i]);
+		}
+	}
+	
+	sermanager_.RunDevices();
+	Generic_Serial_Device_Command::RunThread();
+    g_pPlutoLogger->Write(LV_STATUS, "Generic Serial Device RunThread ended.");
+	sermanager_.WaitDevices();
 }
