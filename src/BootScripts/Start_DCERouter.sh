@@ -13,3 +13,5 @@ module=DCERouter
 device_name="$module"
 
 screen -d -m -S DCERouter /usr/pluto/bin/Spawn_DCERouter.sh
+sleep 5
+# Wait 5 seconds so DCERouter has a chance to open the socket and start listening

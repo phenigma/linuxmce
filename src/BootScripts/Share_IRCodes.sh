@@ -1,4 +1,5 @@
 #!/bin/bash
-#do a sqlCVS ci on the dce and designer and ir, all should be frozen so they are saved to a separate file
-#create a 'used codes' file that contains that table from the local and ftp that over
+. /usr/pluto/bin/Config_Ops.sh
 
+/usr/pluto/bin/sqlCVS -H sqlcvs.plutohome.com -h localhost -a -n -r local -t InfraredGroup_Command_Preferred -d $PK_Users -U $PK_Users~nopass -e checkin >> /var/log/pluto/Share_IR.log
+/usr/pluto/bin/sqlCVS -H sqlcvs.plutohome.com -h localhost -a -n -r dce,ir -d $PK_Users -U $PK_Users~nopass -e checkin >> /var/log/pluto/Share_IR.log
