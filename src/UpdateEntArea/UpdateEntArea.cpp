@@ -307,7 +307,7 @@ void UpdateEntArea::AddDefaultCommandsToEntArea(Row_EntertainArea *pRow_Entertai
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,"14",COMMANDPARAMETER_Value_To_Assign_CONST,"7");
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,"3282");
 	}
-	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_pictures_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_pictures_CONST,"Docs"))!=0 )
+	if( (!iPK_Template || iPK_Template==TEMPLATE_Media_Wiz_documents_CONST) && (PK_CommandGroup=FindCommandGroupByTemplate(pRow_EntertainArea,TEMPLATE_Media_Wiz_documents_CONST,"Docs"))!=0 )
 	{
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Set_Variable_CONST,2,COMMANDPARAMETER_PK_Variable_CONST,"2",COMMANDPARAMETER_Value_To_Assign_CONST,"docs");
 		AddCommand(PK_CommandGroup,DEVICETEMPLATE_This_Orbiter_CONST,COMMAND_Goto_Screen_CONST,1,COMMANDPARAMETER_PK_DesignObj_CONST,"3282");
