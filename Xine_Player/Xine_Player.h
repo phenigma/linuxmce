@@ -50,12 +50,6 @@ public:
     /**
      * @brief destructor
      */
-
-     /**
-      * Change the GetMacAddress display. Report the one of the nearest computer.
-      */
-    virtual string GetMacAddress();
-
     Display *getDisplay();
     // Private methods
 public:
