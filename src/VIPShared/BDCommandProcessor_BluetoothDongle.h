@@ -37,7 +37,7 @@ public:
 	class Bluetooth_Dongle *m_pBluetooth_Dongle;
 
 	BDCommandProcessor_BluetoothDongle(
-		Bluetooth_Dongle *pBluetooth_Dongle,
+		class Bluetooth_Dongle *pBluetooth_Dongle,
 		string sMacAddressPhone,
 		class PhoneDevice *pPhoneDevice
 #ifdef BT_SOCKET
