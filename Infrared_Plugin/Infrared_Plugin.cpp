@@ -16,7 +16,7 @@ using namespace DCE;
 #include "pluto_main/Table_DeviceCategory.h"
 #include "pluto_main/Table_DeviceTemplate.h"
 #include "pluto_main/Table_InfraredGroup.h"
-#include "pluto_main/Table_InfraredCode.h"
+#include "pluto_main/Table_InfraredGroup_Command.h"
 
 //<-dceag-const-b->
 Infrared_Plugin::Infrared_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -190,11 +190,11 @@ void Infrared_Plugin::CMD_Get_Infrared_Codes(int iPK_Device,string *sValue_To_As
 	vector<Row_InfraredGroup *>::iterator i;
 	for (i = vectpRow_InfraredGroup.begin(); i != vectpRow_InfraredGroup.end(); i++)
 	{
-		vector<Row_InfraredCode *> vectpRow_InfraredCode;
-		m_pDatabase_pluto_main->InfraredCode_get()->GetRows("FK_InfraredGroup=" + StringUtils::ltos((*i)->PK_InfraredGroup_get()) + " LIMIT 1", &vectpRow_InfraredCode);
-		vector<Row_InfraredCode *>::iterator j;
-		* sValue_To_Assign = StringUtils::ltos((vectpRow_InfraredCode.size())) + "\t";
-		for (j = vectpRow_InfraredCode.begin(); j != vectpRow_InfraredCode.end(); j++)
+		vector<Row_InfraredGroup_Command *> vectpRow_InfraredGroup_Command;
+		m_pDatabase_pluto_main->InfraredGroup_Command_get()->GetRows("FK_InfraredGroup=" + StringUtils::ltos((*i)->PK_InfraredGroup_get()) + " LIMIT 1", &vectpRow_InfraredGroup_Command);
+		vector<Row_InfraredGroup_Command *>::iterator j;
+		* sValue_To_Assign = StringUtils::ltos((vectpRow_InfraredGroup_Command.size())) + "\t";
+		for (j = vectpRow_InfraredGroup_Command.begin(); j != vectpRow_InfraredGroup_Command.end(); j++)
 		{
 //			cout << (*j)->Description_get() << ": " << (*j)->IRData_get() << endl;
 			* sValue_To_Assign += StringUtils::ltos((*j)->FK_Command_get()) + "\t" + (*j)->IRData_get() + "\t";
