@@ -2,8 +2,8 @@
 
 . /usr/pluto/bin/Config_Ops.sh
 
-chown mythtv.mythtv $DlPath/etc/mythtv/mysql.txt
-chmod 660 $DlPath/etc/mythtv/mysql.txt
+chown mythtv.mythtv /etc/mythtv/mysql.txt
+chmod 660 /etc/mythtv/mysql.txt
 
 QueryIsConfigured="SELECT count(data) as a FROM settings WHERE value like '%BackendServerIP%' AND hostname='$(hostname)'";
 #MysqlCommand="mysql -D mythconverg -u mythtv -pArkhNKpr";

@@ -165,7 +165,7 @@ for Client in $R; do
 	IP=$(Field 1 "$Client")
 	MAC=$(Field 2 "$Client")
 	# verbatim escape sequences used by red in ReplaceVariables; don't replace them with the real thing!
-	MOON_ENTRIES="$MOON_ENTRIES\n\thost moon$MoonNumber { hardware ethernet $MAC; fixed-address $IP }"
+	MOON_ENTRIES="$MOON_ENTRIES\n\thost moon$MoonNumber { hardware ethernet $MAC; fixed-address $IP; }"
 	MOON_HOSTS="$MOON_HOSTS\n$IP\tmoon$MoonNumber"
 	MoonNumber=$((MoonNumber+1))
 done

@@ -36,7 +36,9 @@ InstallKernel()
 
 	cp "$kernel" tmp/
 	mount -t proc proc proc
-	echo | chroot . dpkg -i "/tmp/${kernel##*/}"
+	if ! echo | chroot . dpkg -i "/tmp/${kernel##*/}" >/dev/null; then
+		echo "Failed to install kernel '$KERNEL_VERSION' on '$IP'"
+	fi
 	umount ./proc
 }
 
