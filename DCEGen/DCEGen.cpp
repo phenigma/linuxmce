@@ -801,8 +801,9 @@ void DCEGen::SearchAndReplace(string InputFile,string OutputFile,string Classnam
 	while( (pos=sBuffer.find("DCE_Template"))!=string::npos )
 		sBuffer.replace(pos,12,Classname);
 
-	while( (pos=sBuffer.find("DCE_DestinationPackage"))!=string::npos )
-		sBuffer.replace(pos,22,pDeviceInfo->m_pRow_DeviceTemplate->DestinationPackage_get());
+#warning !!!! COMMENTED THIS LINE OUT SO IT WOULD COMPILE !!!!
+//	while( (pos=sBuffer.find("DCE_DestinationPackage"))!=string::npos )
+//		sBuffer.replace(pos,22,pDeviceInfo->m_pRow_DeviceTemplate->DestinationPackage_get());
 
 	while( (pos=sBuffer.find("DCE_DestinationDir"))!=string::npos )
 		sBuffer.replace(pos,18,pDeviceInfo->m_pRow_DeviceTemplate->DestinationDir_get());
@@ -815,6 +816,9 @@ void DCEGen::SearchAndReplace(string InputFile,string OutputFile,string Classnam
 
 	while( (pos=sBuffer.find("DCE_MaintainerEmail"))!=string::npos )
 		sBuffer.replace(pos,19,pDeviceInfo->m_pRow_DeviceTemplate->FK_Users_Maintainer_getrow()->ForwardEmail_get());
+
+	while ((pos = sBuffer.find("DCE_DevTemplateID")) != string::npos)
+		sBuffer.replace(pos, 9, StringUtils::ltos(pDeviceInfo->m_pRow_DeviceTemplate->PK_DeviceTemplate_get()));
 /*
 	string sDependencies="x";
 	vector<Row_DeviceTemplate_Package *> m_vectRow_DeviceTemplate_Package;

@@ -3,13 +3,14 @@ GENDEV=../Gen_Devices
 
 ROOT = ..
 CXX = g++
-MYNAME = App_Server
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -DDEBUG
 LDFLAGS = -L$(ROOT)/lib
-LDLIBS =  -lpthread -lDCECommon -lSerializeClass -lPlutoUtils -lmysqlclient_r
+LDLIBS =  -lpthread -lDCECommon -lmysqlclient_r
 
+MYNAME = App_Server
 VERSION = 2.0.0
+MYDEVTEMPLATEID = 26mplateID
 
 Gen_Dev_Files = $(GENDEV)/App_ServerBase.cpp
 sources = Main.cpp App_Server.cpp $(Gen_Dev_Files)
@@ -49,7 +50,7 @@ clean: clean-recursive
 
 package:
 	chmod +x make_package.sh
-	./make_package.sh $(MYNAME) $(VERSION)
+	./make_package.sh $(MYNAME) $(VERSION) $(MYDEVTEMPLATEID)
 
 include $(ROOT)/DCE/make.rules
 -include $(sources:.cpp=.d)

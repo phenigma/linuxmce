@@ -4,6 +4,6 @@ Dir =
 desc = DCE Implemenation for #11 Disk Drive
 Maintainer = aaronName
 Email = 
-Depend = x
+Depend = DCE_Dependencies
 <-dceag-p-e->
 

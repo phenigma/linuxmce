@@ -3,13 +3,14 @@ GENDEV=../Gen_Devices
 
 ROOT = ..
 CXX = g++
-MYNAME = Mozilla_Plugin
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -DDEBUG
 LDFLAGS = -L$(ROOT)/lib
 LDLIBS =  -lpthread -lDCECommon -lmysqlclient_r
 
+MYNAME = Mozilla_Plugin
 VERSION = 2.0.0
+MYDEVTEMPLATEID = 30mplateID
 
 Gen_Dev_Files = $(GENDEV)/Mozilla_PluginBase.cpp
 sources = Main.cpp Mozilla_Plugin.cpp $(Gen_Dev_Files)
@@ -33,14 +34,14 @@ bin: Mozilla_Plugin
 
 so: Mozilla_Plugin.so
 
-Mozilla_Plugin.so: $(sources:.cpp=.o) Makefile
-	$(CXX) -shared -o $(MYNAME).so $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS)
+Mozilla_Plugin.so: $(sources:.cpp=.o)
+	$(CXX) -shared -o $(MYNAME).so $+ $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 		
-Mozilla_Plugin: $(sources:.cpp=.o) Makefile
-	$(CXX) -o $(MYNAME) $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS)
+Mozilla_Plugin: $(sources:.cpp=.o)
+	$(CXX) -o $(MYNAME) $+ $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@
 
@@ -49,7 +50,7 @@ clean: clean-recursive
 
 package:
 	chmod +x make_package.sh
-	./make_package.sh $(MYNAME) $(VERSION)
+	./make_package.sh $(MYNAME) $(VERSION) $(MYDEVTEMPLATEID)
 
 include $(ROOT)/DCE/make.rules
 -include $(sources:.cpp=.d)

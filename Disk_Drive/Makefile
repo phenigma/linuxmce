@@ -3,13 +3,14 @@ GENDEV=../Gen_Devices
 
 ROOT = ..
 CXX = g++
-MYNAME = Disk_Drive
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -DDEBUG
 LDFLAGS = -L$(ROOT)/lib
 LDLIBS =  -lpthread -lDCECommon -lmysqlclient_r
 
+MYNAME = Disk_Drive
 VERSION = 2.0.0
+MYDEVTEMPLATEID = 11mplateID
 
 Gen_Dev_Files = $(GENDEV)/Disk_DriveBase.cpp
 sources = Main.cpp Disk_Drive.cpp $(Gen_Dev_Files)
@@ -49,7 +50,7 @@ clean: clean-recursive
 
 package:
 	chmod +x make_package.sh
-	./make_package.sh $(MYNAME) $(VERSION)
+	./make_package.sh $(MYNAME) $(VERSION) $(MYDEVTEMPLATEID)
 
 include $(ROOT)/DCE/make.rules
 -include $(sources:.cpp=.d)

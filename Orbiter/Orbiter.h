@@ -612,6 +612,16 @@ public:
 	virtual void CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pData,int iData_Size,string sDisable_Aspect_Lock,string &sCMD_Result,Message *pMessage);
 
 /* 
+	COMMAND: #58 - Set Current User
+	COMMENTS: Sets what user is currently using the orbiter.
+	PARAMETERS:
+		#17 PK_Users
+			The user currently using the orbiter.
+*/
+	virtual void CMD_Set_Current_User(int iPK_Users) { string sCMD_Result; CMD_Set_Current_User(iPK_Users,sCMD_Result,NULL);};
+	virtual void CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,Message *pMessage);
+
+/* 
 	COMMAND: #66 - Select Object
 	COMMENTS: The same as clicking on an object.
 	PARAMETERS:
@@ -640,6 +650,16 @@ public:
 */
 	virtual void CMD_Rest_Highlight() { string sCMD_Result; CMD_Rest_Highlight(sCMD_Result,NULL);};
 	virtual void CMD_Rest_Highlight(string &sCMD_Result,Message *pMessage);
+
+/* 
+	COMMAND: #88 - Set Current Location
+	COMMENTS: Sets the location the orbiter is in.  The location is a combination of room and entertainment area.
+	PARAMETERS:
+		#65 LocationID
+			The location ID is a sequential number created by OrbiterGen which defines a combination of room and entertainment area.
+*/
+	virtual void CMD_Set_Current_Location(int iLocationID) { string sCMD_Result; CMD_Set_Current_Location(iLocationID,sCMD_Result,NULL);};
+	virtual void CMD_Set_Current_Location(int iLocationID,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 

@@ -4231,3 +4231,23 @@ void Orbiter::CaptureKeyboard_UpdateVariableAndText(int iVariable, string sVaria
 		m_vectObjs_NeedRedraw.push_back(m_CaptureKeyboard_pText->m_pObject);
 	}*/
 }
+//<-dceag-c58-b->
+/* 
+	COMMAND: #58 - Set Current User
+	COMMENTS: Sets what user is currently using the orbiter.
+	PARAMETERS:
+		#17 PK_Users
+			The user currently using the orbiter.
+*/
+void Orbiter::CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,Message *pMessage)
+//<-dceag-c58-e->
+//<-dceag-c88-b->
+/* 
+	COMMAND: #88 - Set Current Location
+	COMMENTS: Sets the location the orbiter is in.  The location is a combination of room and entertainment area.
+	PARAMETERS:
+		#65 LocationID
+			The location ID is a sequential number created by OrbiterGen which defines a combination of room and entertainment area.
+*/
+void Orbiter::CMD_Set_Current_Location(int iLocationID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c88-e->

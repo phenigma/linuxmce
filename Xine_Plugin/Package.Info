@@ -4,6 +4,6 @@ Dir =
 desc = DCE Implemenation for #6 Xine Plug-in
 Maintainer = aaronName
 Email = 
-Depend = x
+Depend = DCE_Dependencies
 <-dceag-p-e->
 

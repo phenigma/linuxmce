@@ -3,13 +3,14 @@ GENDEV=../Gen_Devices
 
 ROOT = ..
 CXX = g++
-MYNAME = File_Grids_Plugin
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -DDEBUG
 LDFLAGS = -L$(ROOT)/lib
 LDLIBS =  -lpthread -lDCECommon -lmysqlclient_r
 
+MYNAME = File_Grids_Plugin
 VERSION = 2.0.0
+MYDEVTEMPLATEID = 10mplateID
 
 Gen_Dev_Files = $(GENDEV)/File_Grids_PluginBase.cpp
 sources = Main.cpp File_Grids_Plugin.cpp $(Gen_Dev_Files)

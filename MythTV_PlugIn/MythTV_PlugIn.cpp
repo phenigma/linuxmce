@@ -25,7 +25,7 @@ using namespace DCE;
 
 //<-dceag-const-b->
 MythTV_PlugIn::MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-    : MythTV_PlugIn_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
+	: MythTV_PlugIn_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
     m_pDatabase_FakeEPG = new Database_FakeEPG();
@@ -231,12 +231,12 @@ COMMANDS TO IMPLEMENT
 
 //<-dceag-sample-b->!
 //<-dceag-c65-b->
-/*
-    COMMAND: #65 - Jump Position In Playlist
-    COMMENTS: Change channels.  +1 and -1 mean up and down 1 channel.
-    PARAMETERS:
-        #5 Value To Assign
-            The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1.
+/* 
+	COMMAND: #65 - Jump Position In Playlist
+	COMMENTS: Change channels.  +1 and -1 mean up and down 1 channel.
+	PARAMETERS:
+		#5 Value To Assign
+			The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1.
 */
 void MythTV_PlugIn::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c65-e->

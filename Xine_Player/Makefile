@@ -3,13 +3,14 @@ GENDEV=../Gen_Devices
 
 ROOT = ..
 CXX = g++
-MYNAME = Xine_Player
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -DDEBUG
 LDFLAGS = -L$(ROOT)/lib
 LDLIBS =  -lpthread -lDCECommon -lmysqlclient_r
 
+MYNAME = Xine_Player
 VERSION = 2.0.0
+MYDEVTEMPLATEID = 5mplateID
 
 Gen_Dev_Files = $(GENDEV)/Xine_PlayerBase.cpp
 sources = Main.cpp Xine_Player.cpp $(Gen_Dev_Files)
@@ -49,7 +50,7 @@ clean: clean-recursive
 
 package:
 	chmod +x make_package.sh
-	./make_package.sh $(MYNAME) $(VERSION)
+	./make_package.sh $(MYNAME) $(VERSION) $(MYDEVTEMPLATEID)
 
 include $(ROOT)/DCE/make.rules
 -include $(sources:.cpp=.d)
