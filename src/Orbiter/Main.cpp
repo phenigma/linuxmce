@@ -203,7 +203,8 @@ g_pPlutoLogger->Write(LV_STATUS, "About to delete logger...");
 
 	delete g_pPlutoLogger;
 
-g_pPlutoLogger->Write(LV_STATUS, "Orbiter ready to return and die");
+//g_pPlutoLogger->Write(LV_STATUS, "Orbiter ready to return and die");
+	cout << "Orbiter ready to return and die" << end;
 
 	if( bReload )
 		return 2;
