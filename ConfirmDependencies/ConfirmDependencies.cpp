@@ -378,10 +378,6 @@ void CheckDeviceLoop(Row_Device *pRow_Device,bool bDevelopment)
 
 void CheckPackage(Row_Package *pRow_Package,bool bDevelopment,Row_Distro *pRow_Distro,bool bMustBuildFromSource)
 {
-if( pRow_Package->PK_Package_get()==136 || pRow_Package->PK_Package_get()==156 || pRow_Package->PK_Package_get()==117)
-{
-	int k=2;
-}
 	Database_pluto_main *pDatabase_pluto_main = pRow_Distro->Table_Distro_get()->Database_pluto_main_get();
 
 	// Start with the dependencies first, since we want the lowest dependency, and then the top one
@@ -659,6 +655,8 @@ void InstallPackage(PackageInfo *pPackageInfo)
 		<< " \"" << pPackageInfo->m_sSourceImplementationPath << "\"" 
 		<< " \"" << pPackageInfo->m_sBinaryLibraryPath << "\"" 
 		<< " \"" << pPackageInfo->m_sConfiguration << "\""
+		<< " \"" << pPackageInfo->m_pRow_RepositorySource_URL->Username_get() << "\""
+		<< " \"" << pPackageInfo->m_pRow_RepositorySource_URL->Password_get() << "\""
 		<< "; then"
 		<< endl;
 	cout << "\techo \"Something went wrong confirming package '" << pPackageInfo->m_pRow_Package_Source->Name_get() << "'\"" << endl;
