@@ -93,13 +93,14 @@ short int m_Confirmed;
 short int m_Core;
 short int m_MediaDirector;
 short int m_Orbiter;
+string m_InstallerURL;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[17];
+		bool is_null[18];
 	
 	public:
 		long int PK_Distro_get();
@@ -114,6 +115,7 @@ short int Confirmed_get();
 short int Core_get();
 short int MediaDirector_get();
 short int Orbiter_get();
+string InstallerURL_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -133,6 +135,7 @@ void Confirmed_set(short int val);
 void Core_set(short int val);
 void MediaDirector_set(short int val);
 void Orbiter_set(short int val);
+void InstallerURL_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -145,6 +148,7 @@ bool Installer_isNull();
 bool KickStartCD_isNull();
 bool Binaries_isNull();
 bool SourceCode_isNull();
+bool InstallerURL_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -156,6 +160,7 @@ void Installer_setNull(bool val);
 void KickStartCD_setNull(bool val);
 void Binaries_setNull(bool val);
 void SourceCode_setNull(bool val);
+void InstallerURL_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -187,7 +192,7 @@ void RepositorySource_FK_Distro_getrows(vector <class Row_RepositorySource*> *ro
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Distro+ m_Description+ m_Define+ m_FK_OperatingSystem+ m_Installer+ m_KickStartCD+ m_Binaries+ m_SourceCode+ m_Confirmed+ m_Core+ m_MediaDirector+ m_Orbiter+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_Distro+ m_Description+ m_Define+ m_FK_OperatingSystem+ m_Installer+ m_KickStartCD+ m_Binaries+ m_SourceCode+ m_Confirmed+ m_Core+ m_MediaDirector+ m_Orbiter+ m_InstallerURL+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -204,6 +209,7 @@ string Confirmed_asSQL();
 string Core_asSQL();
 string MediaDirector_asSQL();
 string Orbiter_asSQL();
+string InstallerURL_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

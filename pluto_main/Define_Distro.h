@@ -39,6 +39,8 @@
 #define DISTRO_MEDIADIRECTOR_TABLE_FIELD "Distro.MediaDirector"
 #define DISTRO_ORBITER_FIELD "Orbiter"
 #define DISTRO_ORBITER_TABLE_FIELD "Distro.Orbiter"
+#define DISTRO_INSTALLERURL_FIELD "InstallerURL"
+#define DISTRO_INSTALLERURL_TABLE_FIELD "Distro.InstallerURL"
 #define DISTRO_PSC_ID_FIELD "psc_id"
 #define DISTRO_PSC_ID_TABLE_FIELD "Distro.psc_id"
 #define DISTRO_PSC_BATCH_FIELD "psc_batch"
