@@ -10,7 +10,7 @@ RunSQL()
 	echo "$Q;" | /usr/bin/mysql pluto_main | tail +2 | tr '\t\n' ', '
 }
 
-$TemplateDir=/usr/pluto/templates
+TemplateDir=/usr/pluto/templates
 
 # Extract non-pluto entries
 awk '!/^pluto_/' /etc/group >/etc/group.$$
