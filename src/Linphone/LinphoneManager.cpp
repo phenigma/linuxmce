@@ -60,9 +60,6 @@ LinphoneManager::Open() {
 		g_pPlutoLogger->Write(LV_CRITICAL, "Exception occured during linphone initialization...");
 		return false;
 	}
-	
-	linphone_->sound_conf.enabled = 0;
-	linphone_->video_conf.enabled = 1;
 	return true;
 }
 
@@ -74,9 +71,13 @@ LinphoneManager::Close() {
 bool 
 LinphoneManager::Invite(std::string extension) {
 	g_pPlutoLogger->Write(LV_STATUS, "Inviting: %s...", extension.c_str());
+	
+	linphone_->sound_conf.enabled = 1;
+	linphone_->video_conf.enabled = 1;
+	
 	linphone_core_invite(linphone_, (char*)(string("sip:") + extension + "@" + host_ + ":5060").c_str());
 	return true;
-}
+}	
 
 bool 
 LinphoneManager::Answer() {

@@ -1,4 +1,4 @@
-	//<-dceag-d-b->
+//<-dceag-d-b->
 #include "Linphone.h"
 #include "DCE/Logger.h"
 #include "PlutoUtils/FileUtils.h"
@@ -74,6 +74,7 @@ bool Linphone::Connect(int iPK_DeviceTemplate) {
 	
 	manager_.setHost(pDeviceData->GetIPAddress().c_str());
 	manager_.setPhoneNum(sPhoneNumber.c_str());
+	manager_.regInterceptor(this);
 	return manager_.Open();
 }
 
@@ -232,14 +233,21 @@ void Linphone::SomeFunction()
 
 void Linphone::CMD_Phone_Initiate(string sPhoneExtension,string &sCMD_Result,Message *pMessage)
 //<-dceag-c334-e->
-//<-dceag-c335-b->
-
+{
+	if(!manager_.Invite(sPhoneExtension.c_str())) {
+		g_pPlutoLogger->Write(LV_WARNING, "Failed inviting %s.", sPhoneExtension.c_str());
+	}
+}
 	/** @brief COMMAND: #335 - Phone_Answer */
 	/** Answer a call */
 
 void Linphone::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 //<-dceag-c335-e->
-//<-dceag-c336-b->
+{
+	if(!manager_.Answer()) {
+		g_pPlutoLogger->Write(LV_WARNING, "Failed answering CALL.");
+	}
+}
 
 	/** @brief COMMAND: #336 - Phone_Drop */
 	/** Drop a call */
@@ -247,5 +255,6 @@ void Linphone::CMD_Phone_Answer(string &sCMD_Result,Message *pMessage)
 void Linphone::CMD_Phone_Drop(string &sCMD_Result,Message *pMessage)
 //<-dceag-c336-e->
 {
+	manager_.Drop();
 }
 

@@ -9,10 +9,10 @@
 
 #include "LinphoneManager.h"
 
-//<-dceag-decl-b->
+//<-dceag-decl-b->!
 namespace DCE
 {
-	class Linphone : public Linphone_Command
+	class Linphone : public Linphone_Command, public LinphoneMangerInterceptor
 	{
 //<-dceag-decl-e->
 		// Private member variables
