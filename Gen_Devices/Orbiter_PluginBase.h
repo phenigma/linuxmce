@@ -185,7 +185,7 @@ public:
 				case 183:
 					{
 						string sCMD_Result="OK";
-						string sValue_To_Assign;
+					string sValue_To_Assign=pMessage->m_mapParameters[5];
 						CMD_Get_Floorplan_Layout(&sValue_To_Assign,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
@@ -202,7 +202,7 @@ public:
 					{
 						string sCMD_Result="OK";
 					int iPK_FloorplanType=atoi(pMessage->m_mapParameters[46].c_str());
-						string sValue_To_Assign;
+					string sValue_To_Assign=pMessage->m_mapParameters[5];
 						CMD_Get_Current_Floorplan(iPK_FloorplanType,&sValue_To_Assign,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{

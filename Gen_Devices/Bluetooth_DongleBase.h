@@ -122,7 +122,7 @@ public:
 					{
 						string sCMD_Result="OK";
 					string sMac_address=pMessage->m_mapParameters[47];
-						int iValue;
+					int iValue=atoi(pMessage->m_mapParameters[48].c_str());
 						CMD_Get_Signal_Strength(sMac_address.c_str(),&iValue,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{

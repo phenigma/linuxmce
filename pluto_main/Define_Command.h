@@ -229,6 +229,8 @@
 #define COMMAND_Bass_Up_CONST 229
 #define COMMAND_Bass_Down_CONST 230
 #define COMMAND_Load_Playlist_CONST 231
+#define COMMAND_PL_Originate_CONST 232
+#define COMMAND_PBX_Originate_CONST 233
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

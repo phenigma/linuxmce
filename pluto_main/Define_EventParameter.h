@@ -19,6 +19,9 @@
 #define EVENTPARAMETER_SectionDescription_CONST 16
 #define EVENTPARAMETER_SynposisDescription_CONST 17
 #define EVENTPARAMETER_PhoneNumber_CONST 18
+#define EVENTPARAMETER_CommandID_CONST 19
+#define EVENTPARAMETER_Result_CONST 20
+#define EVENTPARAMETER_Message_CONST 21
 
 #define EVENTPARAMETER_TABLE "EventParameter"
 #define EVENTPARAMETER_PK_EVENTPARAMETER_FIELD "PK_EventParameter"

@@ -131,7 +131,7 @@ public:
 					{
 						string sCMD_Result="OK";
 					int iStreamID=atoi(pMessage->m_mapParameters[41].c_str());
-						int iMediaPosition;
+					int iMediaPosition=atoi(pMessage->m_mapParameters[42].c_str());
 						CMD_Stop_Media(iStreamID,&iMediaPosition,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{

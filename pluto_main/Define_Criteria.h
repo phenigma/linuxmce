@@ -7,6 +7,7 @@
 #define CRITERIA_3_4_CONST 5
 #define CRITERIA_16_9_CONST 6
 #define CRITERIA_CONTROLLER_CONST 76
+#define CRITERIA_event_CONST 493
 
 #define CRITERIA_TABLE "Criteria"
 #define CRITERIA_PK_CRITERIA_FIELD "PK_Criteria"

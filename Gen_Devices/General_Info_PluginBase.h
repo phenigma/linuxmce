@@ -89,7 +89,7 @@ public:
 					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
 					int iPK_DeviceData=atoi(pMessage->m_mapParameters[52].c_str());
 					bool bUseDefault=(pMessage->m_mapParameters[53]=="1" ? true : false);
-						string sValue_To_Assign;
+					string sValue_To_Assign=pMessage->m_mapParameters[5];
 						CMD_Get_Device_Data(iPK_Device,iPK_DeviceData,bUseDefault,&sValue_To_Assign,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
@@ -106,7 +106,8 @@ public:
 					{
 						string sCMD_Result="OK";
 					string sFilename=pMessage->m_mapParameters[13];
-						char *pData;int iData_Size;
+					char *pData=pMessage->m_mapData_Parameters[19];
+					int iData_Size=pMessage->m_mapData_Lengths[19];
 						CMD_Request_File(sFilename.c_str(),&pData,&iData_Size,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{

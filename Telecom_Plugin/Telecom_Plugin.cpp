@@ -148,3 +148,14 @@ class DataGridTable *Telecom_Plugin::TelecomScenariosGrid(string GridID,string P
 */
 
 
+//<-dceag-c232-b->
+
+	/** @brief COMMAND: #232 - PL_Originate */
+	/** Originate a call */
+		/** @param #2 PK_Device */
+			/** Device (phone) from which to place the call */
+		/** @param #83 PhoneExtension */
+			/** Phone extension to dial */
+
+void Telecom_Plugin::CMD_PL_Originate(int iPK_Device,string sPhoneExtension,string &sCMD_Result,Message *pMessage)
+//<-dceag-c232-e->

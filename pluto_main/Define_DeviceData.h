@@ -29,6 +29,10 @@
 #define DEVICEDATA_PK_Language_CONST 26
 #define DEVICEDATA_FK_EntertainArea_CONST 27
 #define DEVICEDATA_DHCP_CONST 28
+#define DEVICEDATA_PhoneType_CONST 29
+#define DEVICEDATA_PhoneNumber_CONST 31
+#define DEVICEDATA_Network_Interfaces_CONST 32
+#define DEVICEDATA_Alert_CONST 33
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

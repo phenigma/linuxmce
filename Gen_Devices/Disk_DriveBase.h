@@ -233,7 +233,7 @@ public:
 					{
 						string sCMD_Result="OK";
 					string sFilename=pMessage->m_mapParameters[13];
-						string sMediaURL;
+					string sMediaURL=pMessage->m_mapParameters[59];
 						CMD_Mount_Disk_Image(sFilename.c_str(),&sMediaURL,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{

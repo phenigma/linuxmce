@@ -155,6 +155,7 @@ class Table_PageSetup* tblPageSetup;
 class Table_ParameterType* tblParameterType;
 class Table_PhoneLineType* tblPhoneLineType;
 class Table_Pipe* tblPipe;
+class Table_PortForward* tblPortForward;
 class Table_RepositorySource* tblRepositorySource;
 class Table_RepositorySource_URL* tblRepositorySource_URL;
 class Table_RepositoryType* tblRepositoryType;
@@ -364,6 +365,7 @@ class Table_PageSetup* PageSetup_get() { return tblPageSetup; }
 class Table_ParameterType* ParameterType_get() { return tblParameterType; }
 class Table_PhoneLineType* PhoneLineType_get() { return tblPhoneLineType; }
 class Table_Pipe* Pipe_get() { return tblPipe; }
+class Table_PortForward* PortForward_get() { return tblPortForward; }
 class Table_RepositorySource* RepositorySource_get() { return tblRepositorySource; }
 class Table_RepositorySource_URL* RepositorySource_URL_get() { return tblRepositorySource_URL; }
 class Table_RepositoryType* RepositoryType_get() { return tblRepositoryType; }
@@ -576,6 +578,7 @@ void CreateTable_PageSetup();
 void CreateTable_ParameterType();
 void CreateTable_PhoneLineType();
 void CreateTable_Pipe();
+void CreateTable_PortForward();
 void CreateTable_RepositorySource();
 void CreateTable_RepositorySource_URL();
 void CreateTable_RepositoryType();
@@ -784,6 +787,7 @@ void DeleteTable_PageSetup();
 void DeleteTable_ParameterType();
 void DeleteTable_PhoneLineType();
 void DeleteTable_Pipe();
+void DeleteTable_PortForward();
 void DeleteTable_RepositorySource();
 void DeleteTable_RepositorySource_URL();
 void DeleteTable_RepositoryType();

@@ -133,7 +133,9 @@ public:
 					int iStreamID=atoi(pMessage->m_mapParameters[41].c_str());
 					int iWidth=atoi(pMessage->m_mapParameters[60].c_str());
 					int iHeight=atoi(pMessage->m_mapParameters[61].c_str());
-						char *pData;int iData_Size;string sFormat;
+					char *pData=pMessage->m_mapData_Parameters[19];
+					int iData_Size=pMessage->m_mapData_Lengths[19];
+					string sFormat=pMessage->m_mapParameters[20];
 						CMD_Get_Video_Frame(sDisable_Aspect_Lock.c_str(),iStreamID,iWidth,iHeight,&pData,&iData_Size,&sFormat,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{

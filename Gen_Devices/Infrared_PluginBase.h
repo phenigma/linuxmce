@@ -85,7 +85,7 @@ public:
 					{
 						string sCMD_Result="OK";
 					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
-						string sValue_To_Assign;
+					string sValue_To_Assign=pMessage->m_mapParameters[5];
 						CMD_Get_Infrared_Codes(iPK_Device,&sValue_To_Assign,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{

@@ -53,6 +53,17 @@ public:
 	*/
 
 
+	/** @brief COMMAND: #232 - PL_Originate */
+	/** Originate a call */
+		/** @param #2 PK_Device */
+			/** Device (phone) from which to place the call */
+		/** @param #83 PhoneExtension */
+			/** Phone extension to dial */
+
+	virtual void CMD_PL_Originate(int iPK_Device,string sPhoneExtension) { string sCMD_Result; CMD_PL_Originate(iPK_Device,sPhoneExtension.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_PL_Originate(int iPK_Device,string sPhoneExtension,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 };
 
