@@ -139,7 +139,7 @@ function mediaScenarios($output,$dbADO) {
 		if(count($displayedMediaScenarios)>0){
 			$out.='
 			<tr>
-				<td colspan="7" align="center"><input type="submit" name="saveChanges" value="Update descriptions"></td>
+				<td colspan="7" align="center"><input type="submit" class="button" name="saveChanges" value="Update descriptions"  ></td>
 			</tr>
 			';
 		}
@@ -234,7 +234,7 @@ function mediaScenarios($output,$dbADO) {
 					if(isset($_POST['newRemote']) && $_POST['newRemote']!='0'){
 						$out.='
 						<tr>
-							<td colspan="2" align="center"><input type="submit" name="add" value="add"></td>
+							<td colspan="2" align="center"><input type="submit" class="button" name="add" value="add"  ></td>
 						</tr>
 						';
 					}

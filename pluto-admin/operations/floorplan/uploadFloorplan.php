@@ -64,8 +64,8 @@ function uploadFloorplan($output,$dbADO) {
 									</tr>
 									<tr>
 										<td colspan="2" align="center"><br />
-											<input type="submit" value="'.(($page==0)?'Add':'Update').' Floorplan">
-											<input type="button" onclick="JavaScript:self.location=\'index.php?section=floorplanWizard&page='.$page.'&type='.$type.'\';" value="Cancel">&nbsp; &nbsp;
+											<input type="submit" class="button" value="'.(($page==0)?'Add':'Update').' Floorplan">
+											<input type="button" class="button" onclick="JavaScript:self.location=\'index.php?section=floorplanWizard&page='.$page.'&type='.$type.'\';" value="Cancel">&nbsp; &nbsp;
 										</td>
 									</tr>
 								</table>

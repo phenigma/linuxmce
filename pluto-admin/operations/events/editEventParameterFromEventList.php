@@ -53,7 +53,7 @@ function editEventParameterFromEvent($output,$dbADO) {
 				</tr>		
 				<tr>
 					<td colspan="2" align="center">						
-						<input type="submit" name="submitX" value="Save">
+						<input type="submit" class="button" name="submitX" value="Save">
 					</td>
 				</tr>
 			</table>

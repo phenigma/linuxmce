@@ -68,7 +68,7 @@ function floorplanWizard($output,$dbADO) {
 				<td colspan="2">&nbsp;<img src="inc/images/pixel_blank.gif" width="652" height="1" border="0"></td>
 			</tr>				
 			<tr>
-				<td align="center" colspan="2"><input type="button" value="Cancel" onclick="cancel();">&nbsp; &nbsp; &nbsp;	<input type="button" value="Update" onclick="submitForm();"><br /></td>
+				<td align="center" colspan="2"><input type="button" class="button" value="Cancel" onclick="cancel();">&nbsp; &nbsp; &nbsp;	<input type="button" class="button" value="Update" onclick="submitForm();"><br /></td>
 			</tr>
 			<tr>
 				<td valign="top" colspan="2"><script language="javascript" type="text/javascript">objSensorPositioner.writeHTML();</script></td>

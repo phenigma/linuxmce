@@ -171,7 +171,7 @@ function editRespondToEvent($output,$dbADO) {
 			$out.='
 			<input type="hidden" name="displayedCE_CP" value="'.join(',',$displayedCE_CP).'">
 			<tr>
-				<td colspan="3" align="center"><input type="submit" name="continue" value="Update"></td>
+				<td colspan="3" align="center"><input type="submit" class="button" name="continue" value="Update"></td>
 			</tr>
 			<tr>
 				<td colspan="3" align="center">Specify above what event you want Pluto to wait for.  Specify below what Pluto should do when the event occurs by choosing the device you want to respond, and what commands you want to send it.</td>
@@ -263,14 +263,14 @@ function editRespondToEvent($output,$dbADO) {
 					
 							</td>
 						<td valign="top">
-						<input type="button" name="editA" value="Remove" onClick="self.location=\'index.php?section=editRespondToEvent&ehID='.$eventHandlerID.'&cgcID='.$rowCommandAssigned['PK_CommandGroup_Command'].'\'">
+						<input type="button" class="button" name="editA" value="Remove" onClick="self.location=\'index.php?section=editRespondToEvent&ehID='.$eventHandlerID.'&cgcID='.$rowCommandAssigned['PK_CommandGroup_Command'].'\'">
 						</td>						
 					</tr>
 					';
 				}
 				$out.='
 				<tr>
-					<td colspan="3" align="center"><input type="submit" name="addNewDeviceButton" value="Save changes"></td>
+					<td colspan="3" align="center"><input type="submit" class="button" name="addNewDeviceButton" value="Save changes"></td>
 				</tr>
 				</table>
 				</fieldset>
@@ -317,7 +317,7 @@ function editRespondToEvent($output,$dbADO) {
 							if ($resNewCommand->RecordCount()==0) {
 								$out.='<option value="0">-no command-</option>';
 							}
-					$out.='</select> <input type="submit" name="submitX" value="Add">
+					$out.='</select> <input type="submit" class="button" name="submitX" value="Add">
 					</td>
 				</tr>';
 				}

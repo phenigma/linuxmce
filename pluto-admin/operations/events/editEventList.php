@@ -100,7 +100,7 @@ function editEvent($output,$dbADO) {
 				<tr>
 					<td colspan="2" align="center">
 						<input type="hidden" name="displayedEventParams" value="'.join(",",$displayedEventParams).'">
-						<input type="submit" name="submitX" value="Save">
+						<input type="submit" class="button" name="submitX" value="Save">
 					</td>
 				</tr>
 			</table>

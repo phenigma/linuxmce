@@ -90,7 +90,7 @@ function telecomScenarios($output,$dbADO) {
 		<tr bgcolor="#D1D9EA">
 			<td align="right" width="20">&nbsp;</td>
 			<td><B>'.$rowRooms['RoomName'].'</B></td>
-			<td align="center"><input type="button" name="addSpeedDial" value="Add speed dial" onClick="self.location=\'index.php?section=telecomScenarios&action=addSpeedDial&roomID='.$rowRooms['PK_Room'].'&roomName='.urlencode($rowRooms['RoomName']).'\'"></td>
+			<td align="center"><input type="button" class="button" name="addSpeedDial" value="Add speed dial" onClick="self.location=\'index.php?section=telecomScenarios&action=addSpeedDial&roomID='.$rowRooms['PK_Room'].'&roomName='.urlencode($rowRooms['RoomName']).'\'"></td>
 		</tr>
 		<tr>
 			<td align="right" width="20">&nbsp;</td>
@@ -191,7 +191,7 @@ function telecomScenarios($output,$dbADO) {
 			if($resCG->RecordCount()>0){
 				$out.='
 				<tr>
-					<td align="center" colspan="4"><input type="submit" name="update" value="Update Speed Dial"></td>
+					<td align="center" colspan="4"><input type="submit" class="button" name="update" value="Update Speed Dial"></td>
 				</tr>';
 			}
 			$out.='
@@ -251,7 +251,7 @@ function telecomScenarios($output,$dbADO) {
 					</td>
 				</tr>
 				<tr>
-					<td align="center" colspan="2"><input type="submit" name="addSpeedDial" value="Add speed dial"></td>
+					<td align="center" colspan="2"><input type="submit" class="button" name="addSpeedDial" value="Add speed dial"></td>
 				</tr>
 			</table>
 			<script>

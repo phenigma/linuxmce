@@ -57,7 +57,7 @@ function mainMediaFilesSync($output,$mediadbADO) {
 						foreach ($typeArray AS $typeID=>$typeDescription){
 							$addToDB.='<option value="'.$typeID.'">'.$typeDescription.'</option>';
 						}
-						$addToDB.='</select> <input type="submit" name="add" value="Add to database">
+						$addToDB.='</select> <input type="submit" class="button" name="add" value="Add to database">
 						<input type="hidden" name="filename_'.$physicalkey.'" value="'.$filename.'">
 						</td>';
 					}

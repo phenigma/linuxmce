@@ -150,7 +150,7 @@ function bootSequence($output,$dbADO) {
 		$out.='
 			<input type="hidden" name="displayedSS" value="'.@join(',',$displayedSS).'">
 			<tr> 
-				<td colspan="6" align="center"><input type="submit" name="save" value="Save Changes"></td>
+				<td colspan="6" align="center"><input type="submit" class="button" name="save" value="Save Changes"  ></td>
 			</tr>
 		</table>
 		</form>

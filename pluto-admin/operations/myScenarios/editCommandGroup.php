@@ -82,7 +82,7 @@ function editCommandGroup($output,$dbADO) {
 									:'')
 								 ).' 
 								 <input type="text" name="designObjID" size="20" value="'.(isset($_SESSION['editCommandGroup']['designObjID']) && $_SESSION['editCommandGroup']['designObjID'] != 0 ?$_SESSION['editCommandGroup']['designObjID']:$rowCommandGroupDetails['FK_DesignObj']).'">
-								 <input type="submit" name="searchCommandGroup" value="Search [...]" >
+								 <input type="submit" class="button" name="searchCommandGroup" value="Search [...]"  >
 					</td>
 				</tr>
 				<tr><td>Icon</td><td>
@@ -158,7 +158,7 @@ function editCommandGroup($output,$dbADO) {
 			$out.='</td>
 				</tr>
 					
-				<tr><td colspan="2"><input type="submit" name="submitX" value="Save"></td></tr>
+				<tr><td colspan="2"><input type="submit" class="button" name="submitX" value="Save"  ></td></tr>
 				';
 						
 				$selectCommandsAssigned = "
@@ -262,17 +262,17 @@ function editCommandGroup($output,$dbADO) {
 					
 							</td>
 						<td valign="top">
-						<input type="button" name="editA" value="Remove" onClick="windowOpen(\'index.php?section=deleteCommandFromCommandGroup_Command&from=editCommandGroup&cgID='.$rowCommandAssigned['PK_CommandGroup_Command'].'\',\'width=100,height=100,toolbars=true,resizable=1,scrollbars=1\');"">
+						<input type="button" class="button" name="editA" value="Remove" onClick="windowOpen(\'index.php?section=deleteCommandFromCommandGroup_Command&from=editCommandGroup&cgID='.$rowCommandAssigned['PK_CommandGroup_Command'].'\',\'width=100,height=100,toolbars=true,resizable=1,scrollbars=1\');"">
 						</td>						
 					</tr>
 					<tr>
-						<td align="center" colspan="2"><input type="button" name="testCommand" value="Test command" onClick="self.location=\'index.php?section=editCommandGroup&cgID='.$commandGroupID.'&cgcID='.$rowCommandAssigned['PK_CommandGroup_Command'].'&action=testCommand\'"></td>
+						<td align="center" colspan="2"><input type="button" class="button" name="testCommand" value="Test command" onClick="self.location=\'index.php?section=editCommandGroup&cgID='.$commandGroupID.'&cgcID='.$rowCommandAssigned['PK_CommandGroup_Command'].'&action=testCommand\'"></td>
 					</tr>
 					';
 				}
 				
 				$out.='
-									<tr><td colspan="3" align="center"><input type="submit" name="addNewDeviceButton" value="Save changes"></td></tr>
+									<tr><td colspan="3" align="center"><input type="submit" class="button" name="addNewDeviceButton" value="Save changes"  ></td></tr>
 								</table>
 							</fieldset>
 					</td>
@@ -354,12 +354,12 @@ function editCommandGroup($output,$dbADO) {
 					}
 				}
 				$out.='
-						<input type="submit" name="addNewDeviceButton" value="Add">
+						<input type="submit" class="button" name="addNewDeviceButton" value="Add"  >
 					</td>
 				</tr>
 				</table>	
 				<br><br><br>
-				<input type="button" name="deleteCG" value="Delete this scenario" onClick="if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=editCommandGroup&dcgID='.$commandGroupID.'\'">
+				<input type="button" class="button" name="deleteCG" value="Delete this scenario" onClick="if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=editCommandGroup&dcgID='.$commandGroupID.'\'">
 			</form>
 			<script>
 		 		var frmvalidator = new formValidator("editCommandGroup");

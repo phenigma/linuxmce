@@ -74,7 +74,7 @@ function editRepositorySource($output,$dbADO) {
 						for($i=0;$i<count($countryDescriptionArray);$i++)
 							$out.='<option value="'.$countryIDArray[$i].'" '.(($rowUrl['FK_Country']==$countryIDArray[$i])?'selected':'').'>'.$countryDescriptionArray[$i].'</option>';
 						$out.='</select>
-						<input type="submit" name="delete_'.$rowUrl['PK_RepositorySource_URL'].'" value="Delete">
+						<input type="submit" class="button" name="delete_'.$rowUrl['PK_RepositorySource_URL'].'" value="Delete">
 					</td>
 				</tr>';
 				}
@@ -94,7 +94,7 @@ function editRepositorySource($output,$dbADO) {
 					</td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center"><input type="submit" name="submitX" value="Save"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"></td>
 				</tr>
 			</table>
 		</form>

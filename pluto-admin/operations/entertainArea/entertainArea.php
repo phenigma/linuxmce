@@ -83,8 +83,8 @@ $resRooms = $dbADO->Execute($queryRooms,array($installationID));
 		$out.='</select>';
 			
 		$out.='
-			<tr><td colspan="2"> '.$roomsRemainingTxt.' <input type="submit" name="submitX" value="Add"></td></tr>
-			<tr><td colspan="2"><input type="submit" name="submitX" value="Submit"></td></tr>
+			<tr><td colspan="2"> '.$roomsRemainingTxt.' <input type="submit" class="button" name="submitX" value="Add"  ></td></tr>
+			<tr><td colspan="2"><input type="submit" class="button" name="submitX" value="Submit"  ></td></tr>
 			<input type="hidden" name="displayedEntertainArea" value="'.join(",",$displayedEntertainArea).'">
 			</form>
 		

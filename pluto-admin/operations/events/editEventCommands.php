@@ -141,14 +141,14 @@ function editEventCommands($output,$dbADO) {
 					
 							</td>
 						<td valign="top">
-						<input type="button" name="editA" value="Remove" onClick="self.location=\'index.php?section=editEventCommands&ehID='.$eventHandlerID.'&cgcID='.$rowCommandAssigned['PK_CommandGroup_Command'].'\'">
+						<input type="button" class="button" name="editA" value="Remove" onClick="self.location=\'index.php?section=editEventCommands&ehID='.$eventHandlerID.'&cgcID='.$rowCommandAssigned['PK_CommandGroup_Command'].'\'">
 						</td>						
 					</tr>
 					';
 				}
 				$out.='
 				<tr>
-					<td colspan="3" align="center"><input type="submit" name="addNewDeviceButton" value="Save changes"></td>
+					<td colspan="3" align="center"><input type="submit" class="button" name="addNewDeviceButton" value="Save changes"></td>
 				</tr>
 				</table>
 				</fieldset>
@@ -195,7 +195,7 @@ function editEventCommands($output,$dbADO) {
 							if ($resNewCommand->RecordCount()==0) {
 								$out.='<option value="0">-no command-</option>';
 							}
-					$out.='</select> <input type="submit" name="submitX" value="Add">
+					$out.='</select> <input type="submit" class="button" name="submitX" value="Add">
 					</td>
 				</tr>';
 				}

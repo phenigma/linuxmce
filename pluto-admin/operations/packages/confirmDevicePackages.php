@@ -48,7 +48,7 @@ function confirmDevicePackages($output,$dbADO) {
 			}
 			$out.='			
 				<tr>
-					<td colspan="3" align="center"><input type="submit" name="submitX" value="Save"></td>
+					<td colspan="3" align="center"><input type="submit" class="button" name="submitX" value="Save"></td>
 				</tr>
 			</table>
 			<input type="hidden" name="displayedPackages" value="'.join(",",$displayedPackages).'">

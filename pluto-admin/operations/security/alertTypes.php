@@ -44,7 +44,7 @@ function alertTypes($output,$securitydbADO) {
 		
 		$out.='
 				<tr>
-					<td align="center" colspan="4"><input type="submit" name="update" value="Update"></td>
+					<td align="center" colspan="4"><input type="submit" class="button" name="update" value="Update"></td>
 				</tr>		
 			</table>
 			<input type="hidden" name="displayedAlertTypes" value="'.join(',',$displayedAlertTypes).'">

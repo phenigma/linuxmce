@@ -45,7 +45,7 @@ function addControlledViaToMasterDevice($output,$dbADO) {
 									:'')
 								 ).' 
 								 <input type="text" name="ControlledViaDeviceTemplateID" size="20" value="'.(@(int)$_SESSION['addControlledViaToMasterDevice']['deviceTemplateID']!=0?@$_SESSION['addControlledViaToMasterDevice']['deviceTemplateID']:'').'">
-								 <input type="submit" name="searchDeviceTemplate" value="Search [...]" >
+								 <input type="submit" class="button" name="searchDeviceTemplate" value="Search [...]" >
 					</td>
 				</tr>		
 				<tr>
@@ -61,7 +61,7 @@ function addControlledViaToMasterDevice($output,$dbADO) {
 					</td>
 				</tr>					
 				<tr>
-					<td colspan="2" align="center"><input type="submit" name="submitX" value="Save"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"></td>
 				</tr>
 			</table>
 		</form>

@@ -95,7 +95,7 @@ function securitySettings($output,$dbADO,$securitydbADO) {
 				$out.='<input type="hidden" name="displayedDevices" value="'.join(',',$displayedDevices).'">';
 		$out.='
 			<tr>
-				<td colspan="7" align="center"><input type="submit" name="update" value="Update"></td>
+				<td colspan="7" align="center"><input type="submit" class="button" name="update" value="Update"  ></td>
 			</tr>
 		</table>
 		</form>

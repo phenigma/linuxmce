@@ -72,9 +72,9 @@ function editPlaylist($output,$mediadbADO) {
 					<td>'.(($rowPlaylistEntry['Filename']!='')?$rowPlaylistEntry['Filename']:$rowPlaylistEntry['FileFilename']).'</td>
 					<td>'.(($rowPlaylistEntry['Path']!='')?$rowPlaylistEntry['Path']:$rowPlaylistEntry['FilePath']).'</td>
 					<td><a href="index.php?section=editMediaFile&fileID='.$rowPlaylistEntry['FK_File'].'">Edit</a> <a href="#" onClick="if(confirm(\'Are you sure you want to delete this file from playlist?\'))self.location=\'index.php?section=editPlaylist&action=delete&plID='.$playlistID.'&entryID='.$rowPlaylistEntry['PK_PlaylistEntry'].'\'">Delete</a>
-					<input type="button" name="plus" value="+" size="2" onClick="self.location=\'index.php?section=editPlaylist&action=upd&plID='.$playlistID.'&increaseID='.$rowPlaylistEntry['PK_PlaylistEntry'].'&oldOrder='.$rowPlaylistEntry['Order'].'\'"> 
-					<input type="button" name="plus" value="-" size="2" onClick="self.location=\'index.php?section=editPlaylist&action=upd&plID='.$playlistID.'&decreaseID='.$rowPlaylistEntry['PK_PlaylistEntry'].'&oldOrder='.$rowPlaylistEntry['Order'].'\'">
-					<input type="text" name="jumpTo" value="" size="1" onBlur="document.editPlaylist.jumpFromTo.value=\''.$pos.',\'+this.value;document.editPlaylist.submit();"> <input type="button" name="go" value="Go">
+					<input type="button" class="button" name="plus" value="+" size="2" onClick="self.location=\'index.php?section=editPlaylist&action=upd&plID='.$playlistID.'&increaseID='.$rowPlaylistEntry['PK_PlaylistEntry'].'&oldOrder='.$rowPlaylistEntry['Order'].'\'"> 
+					<input type="button" class="button" name="plus" value="-" size="2" onClick="self.location=\'index.php?section=editPlaylist&action=upd&plID='.$playlistID.'&decreaseID='.$rowPlaylistEntry['PK_PlaylistEntry'].'&oldOrder='.$rowPlaylistEntry['Order'].'\'">
+					<input type="text" name="jumpTo" value="" size="1" onBlur="document.editPlaylist.jumpFromTo.value=\''.$pos.',\'+this.value;document.editPlaylist.submit();"> <input type="button" class="button" name="go" value="Go">
 					</td>
 				</tr>';
 		}
@@ -87,7 +87,7 @@ function editPlaylist($output,$mediadbADO) {
 					<td align="left">&nbsp;</td>
 					<td align="left"><B>Search for files:</B></td>
 					<td align="left"><input type="text" name="searchForFiles" value="'.@$_POST['searchForFiles'].'"></td>
-					<td align="left"><input type="button" name="searchBtn" value="Search" onClick="document.editPlaylist.action.value=\'form\';document.editPlaylist.submit();"></td>
+					<td align="left"><input type="button" class="button" name="searchBtn" value="Search" onClick="document.editPlaylist.action.value=\'form\';document.editPlaylist.submit();"></td>
 				</tr>';
 		if(isset($_POST['searchForFiles']) && $_POST['searchForFiles']!=''){
 			$searchString='%'.$_POST['searchForFiles'].'%';
@@ -105,7 +105,7 @@ function editPlaylist($output,$mediadbADO) {
 					<td colspan="4"><input type="checkbox" name="setAll" onClick="selAllCheckboxes()" checked> Select/Unselect all</td>
 				</tr>
 				<tr>
-					<td colspan="4"><input type="submit" name="add" value="Add selected files to playlist">
+					<td colspan="4"><input type="submit" class="button" name="add" value="Add selected files to playlist">
 						<input type="hidden" name="displayedFilesArray" value="'.join(',',$displayedFilesArray).'">
 					</td>
 				</tr>

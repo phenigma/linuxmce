@@ -173,7 +173,7 @@ function networkSettings($output,$dbADO) {
 			<td><input type="text" maxlength="3" name="internalCoreNetMask_1" size="3" value="'.@$internalCoreNetMaskArray[0].'">.<input type="text" maxlength="3" name="internalCoreNetMask_2" size="3" value="'.@$internalCoreNetMaskArray[1].'">.<input type="text" maxlength="3" name="internalCoreNetMask_3" size="3" value="'.@$internalCoreNetMaskArray[2].'">.<input type="text" maxlength="3" name="internalCoreNetMask_4" size="3" value="'.@$internalCoreNetMaskArray[3].'"></td>
 		</tr>
 		<tr>
-			<td colspan="3" align="center" bgcolor="#EEEEEE"><input type="button" name="update" value="Update" onClick="validateForm()"></td>
+			<td colspan="3" align="center" bgcolor="#EEEEEE"><input type="button" class="button" name="update" value="Update" onClick="validateForm()"></td>
 		</tr>		
 	</table>
 	You may need to open up ports in the firewall for some programs that run on your internal computers, like video conferencing, file sharing, etc.  To do this, visit the Advanced, <a href="index.php?section=firewall">Firewall</a> page.		

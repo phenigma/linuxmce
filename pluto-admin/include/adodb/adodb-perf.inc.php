@@ -833,10 +833,10 @@ Committed_AS:   348732 kB
 
 <form method="POST" action="<?php echo $PHP_SELF ?>">
 <table><tr>
-<td> Form size: <input type="submit" value=" &lt; " name="SMALLER"><input type="submit" value=" &gt; &gt; " name="BIGGER">
+<td> Form size: <input type="submit" class="button" value=" &lt; " name="SMALLER"><input type="submit" class="button" value=" &gt; &gt; " name="BIGGER">
 </td>
 <td align=right>
-<input type="submit" value=" Run SQL Below " name="RUN"><input type=hidden name=do value=dosql>
+<input type="submit" class="button" value=" Run SQL Below " name="RUN"><input type=hidden name=do value=dosql>
 </td></tr>
   <tr>
   <td colspan=2><textarea rows=<?php print $rows; ?> name="sql" cols="80"><?php print htmlspecialchars($sql) ?></textarea>

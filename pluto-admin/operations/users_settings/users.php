@@ -129,7 +129,7 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 				if(!isset($_SESSION['masterUserData'])){
 					$out.='Add an existing plutohome.com user to this installation - username: 
 					<input type="text" name="addUserToInstallation" value="" size="20">
-					<input type="submit" name="addUser" value="Add"> 
+					<input type="submit" class="button" name="addUser" value="Add"  > 
 						'.(@$_SESSION['users']['userNotValid'] == 1?'(<b>Invalid username</b>)':'').'
 						'.(@$_SESSION['users']['userNotValid'] == 2?'(<b>User already in this installation</b>)':'');
 					}else{
@@ -137,15 +137,15 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 						$out.='
 							<input type="hidden" name="addUserToInstallation" value="'.$_SESSION['masterUserName'].'">
 							User found in Pluto database. Please type the local password for him:
-							<input type="password" name="masterUserPas"> <input type="submit" name="addtoInst" value="Save"> <input type="submit" name="cancel" value="Cancel">
+							<input type="password" name="masterUserPas"> <input type="submit" class="button" name="addtoInst" value="Save"  > <input type="submit" class="button" name="cancel" value="Cancel"  >
 						';
 						$usersFormValidation.='
 							frmvalidator.addValidation("masterUserPas","req","Please enter a password");';
 					}
-				$out.='<p><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createUser&from=users\',\'width=600,height=650,toolbars=true\');">Create a new user/family member</a><p>
+				$out.='<p><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createUser&from=users\',\'width=600,height=650,toolbars=true, resizable=1\');">Create a new user/family member</a><p>
 				</td>
 			</tr>
-			<tr><td colspan="2"><input type="submit" name="submitX" value="Save">'.(isset($_GET['msg'])?"<br/><b>".strip_tags($_GET['msg']).'</b>':'').'</td></tr>
+			<tr><td colspan="2"><input type="submit" class="button" name="submitX" value="Save"  >'.(isset($_GET['msg'])?"<br/><b>".strip_tags($_GET['msg']).'</b>':'').'</td></tr>
 				<input type="hidden" name="displayedUsers" value="'.join(",",$displayedUsers).'">
 			</form>
 

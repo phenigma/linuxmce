@@ -34,7 +34,7 @@ function createEvent($output,$dbADO) {
 					<td>Description:</td><td><input type="text" maxlength="50" name="EventDescription" value=""></td>
 				</tr>				
 				<tr>
-					<td colspan="2" align="center"><input type="submit" name="submitX" value="Save"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"></td>
 				</tr>
 			</table>
 		</form>

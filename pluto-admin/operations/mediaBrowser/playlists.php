@@ -49,7 +49,7 @@ function playlists($output,$mediadbADO) {
 				<tr>
 					<td align="center">&nbsp;</td>
 					<td align="center"><B>Add playlist</B></td>
-					<td align="center"><input type="text" name="newPlaylist" value=""> <input type="submit" name="add" value="Add"></td>
+					<td align="center"><input type="text" name="newPlaylist" value=""> <input type="submit" class="button" name="add" value="Add"></td>
 				</tr>
 			</table>
 		</form>';

@@ -205,13 +205,13 @@ $out.='
 								</select>
 							</td>
 							<td>
-									<input type="button" style="width:40" onclick="moveDualList(this.form.DSPMode__available,this.form.DSPMode__selected,false,this.form.DSPMode__selectedOrdered,this.form.DSPMode__selected)" name=">>"  value="&gt;">
+									<input type="button" class="button" style="width:40" onclick="moveDualList(this.form.DSPMode__available,this.form.DSPMode__selected,false,this.form.DSPMode__selectedOrdered,this.form.DSPMode__selected)" name=">>"  value="&gt;">
 								    <br>
-									<input type="button" style="width:40" onclick="moveDualList(this.form.DSPMode__selected,this.form.DSPMode__available,false,this.form.DSPMode__selectedOrdered,this.form.DSPMode__selected)" name="<<"  value="&lt;">
+									<input type="button" class="button" style="width:40" onclick="moveDualList(this.form.DSPMode__selected,this.form.DSPMode__available,false,this.form.DSPMode__selectedOrdered,this.form.DSPMode__selected)" name="<<"  value="&lt;">
 								    <br>       
-								    <input type="button" style="width:40" onclick="moveDualList(this.form.DSPMode__available,this.form.DSPMode__selected,true,this.form.DSPMode__selectedOrdered,this.form.DSPMode__selected)"  name=">>>>"  value="&gt;&gt;"> 
+								    <input type="button" class="button" style="width:40" onclick="moveDualList(this.form.DSPMode__available,this.form.DSPMode__selected,true,this.form.DSPMode__selectedOrdered,this.form.DSPMode__selected)"  name=">>>>"  value="&gt;&gt;"> 
 								    <br />
-								    <input type="button" style="width:40" onclick="moveDualList(this.form.DSPMode__selected,this.form.DSPMode__available,true,this.form.DSPMode__selectedOrdered,this.form.DSPMode__selected)"  name="<<<<"  value="&lt;&lt;">
+								    <input type="button" class="button" style="width:40" onclick="moveDualList(this.form.DSPMode__selected,this.form.DSPMode__available,true,this.form.DSPMode__selectedOrdered,this.form.DSPMode__selected)"  name="<<<<"  value="&lt;&lt;">
 							</td>
 							<td>							
 								<select name="DSPMode__selected" size="10">
@@ -219,8 +219,8 @@ $out.='
 								</select>
 							</td>
 							<td>
-								<input type="button" value="U" onClick="move(this.form.DSPMode__selected,this.form.DSPMode__selected.selectedIndex,-1,this.form.DSPMode__selectedOrdered)"><br><br>
-								<input type="button" value="D" onClick="move(this.form.DSPMode__selected,this.form.DSPMode__selected.selectedIndex,+1,this.form.DSPMode__selectedOrdered)">
+								<input type="button" class="button" value="U" onClick="move(this.form.DSPMode__selected,this.form.DSPMode__selected.selectedIndex,-1,this.form.DSPMode__selectedOrdered)"><br><br>
+								<input type="button" class="button" value="D" onClick="move(this.form.DSPMode__selected,this.form.DSPMode__selected.selectedIndex,+1,this.form.DSPMode__selectedOrdered)">
 								<input type="hidden" name="DSPMode__selectedOrdered" value="">
 							</td>
 						</tr>
@@ -239,13 +239,13 @@ $out.='
 								</select>
 							</td>
 							<td>
-									<input type="button" style="width:40" onclick="moveDualList(this.form.Input__available,this.form.Input__selected,false,this.form.Input__selectedOrdered,this.form.Input__selected)" name=">>"  value="&gt;">
+									<input type="button" class="button" style="width:40" onclick="moveDualList(this.form.Input__available,this.form.Input__selected,false,this.form.Input__selectedOrdered,this.form.Input__selected)" name=">>"  value="&gt;">
 								    <br>
-									<input type="button" style="width:40" onclick="moveDualList(this.form.Input__selected,this.form.Input__available,false,this.form.Input__selectedOrdered,this.form.Input__selected)" name="<<"  value="&lt;">
+									<input type="button" class="button" style="width:40" onclick="moveDualList(this.form.Input__selected,this.form.Input__available,false,this.form.Input__selectedOrdered,this.form.Input__selected)" name="<<"  value="&lt;">
 								    <br>       
-								    <input type="button" style="width:40" onclick="moveDualList(this.form.Input__available,this.form.Input__selected,true,this.form.Input__selectedOrdered,this.form.Input__selected)"  name=">>>>"  value="&gt;&gt;"> 
+								    <input type="button" class="button" style="width:40" onclick="moveDualList(this.form.Input__available,this.form.Input__selected,true,this.form.Input__selectedOrdered,this.form.Input__selected)"  name=">>>>"  value="&gt;&gt;"> 
 								    <br />
-								    <input type="button" style="width:40" onclick="moveDualList(this.form.Input__selected,this.form.Input__available,true,this.form.Input__selectedOrdered,this.form.Input__selected)"  name="<<<<"  value="&lt;&lt;">
+								    <input type="button" class="button" style="width:40" onclick="moveDualList(this.form.Input__selected,this.form.Input__available,true,this.form.Input__selectedOrdered,this.form.Input__selected)"  name="<<<<"  value="&lt;&lt;">
 							</td>
 							<td>							
 								<select name="Input__selected" size="10">
@@ -253,8 +253,8 @@ $out.='
 								</select>
 							</td>
 							<td>
-								<input type="button" value="U" onClick="move(this.form.Input__selected,this.form.Input__selected.selectedIndex,-1,this.form.Input__selectedOrdered)"><br><br>
-								<input type="button" value="D" onClick="move(this.form.Input__selected,this.form.Input__selected.selectedIndex,+1,this.form.Input__selectedOrdered)">
+								<input type="button" class="button" value="U" onClick="move(this.form.Input__selected,this.form.Input__selected.selectedIndex,-1,this.form.Input__selectedOrdered)"><br><br>
+								<input type="button" class="button" value="D" onClick="move(this.form.Input__selected,this.form.Input__selected.selectedIndex,+1,this.form.Input__selectedOrdered)">
 								<input type="hidden" name="Input__selectedOrdered" value="">
 							</td>
 						</tr>
@@ -272,13 +272,13 @@ $out.='
 								</select>
 							</td>
 							<td>
-									<input type="button" style="width:40" onclick="moveDualList(this.form.Output__available,this.form.Output__selected,false,this.form.Output__selectedOrdered,this.form.Output__selected)" name=">>"  value="&gt;">
+									<input type="button" class="button" style="width:40" onclick="moveDualList(this.form.Output__available,this.form.Output__selected,false,this.form.Output__selectedOrdered,this.form.Output__selected)" name=">>"  value="&gt;">
 								    <br>
-									<input type="button" style="width:40" onclick="moveDualList(this.form.Output__selected,this.form.Output__available,false,this.form.Output__selectedOrdered,this.form.Output__selected)" name="<<"  value="&lt;">
+									<input type="button" class="button" style="width:40" onclick="moveDualList(this.form.Output__selected,this.form.Output__available,false,this.form.Output__selectedOrdered,this.form.Output__selected)" name="<<"  value="&lt;">
 								    <br>       
-								    <input type="button" style="width:40" onclick="moveDualList(this.form.Output__available,this.form.Output__selected,true,this.form.Output__selectedOrdered,this.form.Output__selected)"  name=">>>>"  value="&gt;&gt;"> 
+								    <input type="button" class="button" style="width:40" onclick="moveDualList(this.form.Output__available,this.form.Output__selected,true,this.form.Output__selectedOrdered,this.form.Output__selected)"  name=">>>>"  value="&gt;&gt;"> 
 								    <br />
-								    <input type="button" style="width:40" onclick="moveDualList(this.form.Output__selected,this.form.Output__available,true,this.form.Output__selectedOrdered,this.form.Output__selected)"  name="<<<<"  value="&lt;&lt;">
+								    <input type="button" class="button" style="width:40" onclick="moveDualList(this.form.Output__selected,this.form.Output__available,true,this.form.Output__selectedOrdered,this.form.Output__selected)"  name="<<<<"  value="&lt;&lt;">
 							</td>
 							<td>							
 								<select name="Output__selected" size="10">
@@ -286,8 +286,8 @@ $out.='
 								</select>
 							</td>
 							<td>
-								<input type="button" value="U" onClick="move(this.form.Output__selected,this.form.Output__selected.selectedIndex,-1,this.form.Output__selectedOrdered)"><br><br>
-								<input type="button" value="D" onClick="move(this.form.Output__selected,this.form.Output__selected.selectedIndex,+1,this.form.Output__selectedOrdered)">
+								<input type="button" class="button" value="U" onClick="move(this.form.Output__selected,this.form.Output__selected.selectedIndex,-1,this.form.Output__selectedOrdered)"><br><br>
+								<input type="button" class="button" value="D" onClick="move(this.form.Output__selected,this.form.Output__selected.selectedIndex,+1,this.form.Output__selectedOrdered)">
 								<input type="hidden" name="Output__selectedOrdered" value="">
 							</td>
 						</tr>
@@ -296,7 +296,7 @@ $out.='
 
 		</tr>
 		</table><br />
-		<div align="center"><input type="submit" name="mdl" value="Update" /></div>
+		<div align="center"><input type="submit" class="button" name="mdl" value="Update"  /></div>
 		
 	</form>
 ';

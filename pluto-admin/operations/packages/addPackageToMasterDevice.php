@@ -106,7 +106,7 @@ function addPackageToMasterDevice($output,$dbADO) {
 				while($rowSourceCode=$resSourceCode->FetchRow()){
 					$out.='<option value="'.$rowSourceCode['PK_Package'].'" '.(($rowSourceCode['PK_Package']==$rowPackage['FK_Package_Sourcecode'])?'selected':'').'>'.$rowSourceCode['Description'].'</option>';
 				}
-				$out.='</select><input type="Submit" name="submitX" value="Select"></td>
+				$out.='</select><input type="submit" class="button" name="submitX" value="Select"></td>
 						 </tr>
 						<tr>
 							<td align="right">Package Type</td>
@@ -153,13 +153,13 @@ function addPackageToMasterDevice($output,$dbADO) {
 								$out.='<option value="'.$arrayIdDistro[$key].'" '.(($arrayIdDistro[$key]==$rowPackageCompat['FK_Distro'])?'selected':'').'>'.$value.'</option>';
 							}
 							$out.='	</select></td>
-									<td><input type="submit" name="deletePackageCompat_'.$rowPackageCompat['PK_Package_Compat'].'" value="Delete compat"></td>
+									<td><input type="submit" class="button" name="deletePackageCompat_'.$rowPackageCompat['PK_Package_Compat'].'" value="Delete compat"></td>
 								</tr>';
 					}
 						$out.='
 								<input type="hidden" name="PackageCompatArray" value="'.join(',',$PackageCompatArray).'">
 									<tr>
-										<td colspan="2"><input type="submit" name="addPackageCompatibility" value="Add compatibility"></td>
+										<td colspan="2"><input type="submit" class="button" name="addPackageCompatibility" value="Add compatibility"></td>
 									</tr>
 								</table>
 								</fieldset>
@@ -182,7 +182,7 @@ function addPackageToMasterDevice($output,$dbADO) {
 						$out.='<tr>
 									<td>'.$rowPackagesDependsOn['Description'].'</td>
 									<td><input type="checkbox" name="OnlyToBuild_'.$rowPackagesDependsOn['PK_Package'].'" '.(($rowPackagesDependsOn['OnlyToBuild']==1)?'checked':'').' onClick="javascript:this.form.submit();" value="1"> Building from source</td>
-									<td><input type="submit" name="del_'.$rowPackagesDependsOn['PK_Package'].'" value="Delete"></td>
+									<td><input type="submit" class="button" name="del_'.$rowPackagesDependsOn['PK_Package'].'" value="Delete"></td>
 						    	</tr>';
 					}
 					$out.='</table> 
@@ -199,7 +199,7 @@ function addPackageToMasterDevice($output,$dbADO) {
 						$out.='<option value="'.$rowRemainingPackages['PK_Package'].'">'.$rowRemainingPackages['Description'].'</option>';
 					}
 					$out.='</select>
-						<input type="Submit" name="submitX" value="Add">
+						<input type="submit" class="button" name="submitX" value="Add">
 						</fieldset>
 						<input type="hidden" name="displayedPackages" value="'.join(",",$displayedPackages).'">
 						</td>
@@ -238,7 +238,7 @@ function addPackageToMasterDevice($output,$dbADO) {
 								<td><input type="text" name="repository_'.$rowSource['PK_Package_Source'].'" value="'.$rowSource['Repository'].'"></td>
 								<td><input type="text" name="version_'.$rowSource['PK_Package_Source'].'" value="'.$rowSource['Version'].'"></td>
 								<td><input type="text" name="parms_'.$rowSource['PK_Package_Source'].'" value="'.$rowSource['Parms'].'"></td>
-								<td><input type="submit" name="deleteSource_'.$rowSource['PK_Package_Source'].'" value="Delete source"></td>
+								<td><input type="submit" class="button" name="deleteSource_'.$rowSource['PK_Package_Source'].'" value="Delete source"></td>
 							</tr>
 						<input type="hidden" name="displayedSources" value="'.join(",",$displayedSources).'">
 						';
@@ -264,15 +264,15 @@ function addPackageToMasterDevice($output,$dbADO) {
 						$out.='	</select></td>
 								<td><input type="checkbox" name="mustBuild_'.$rowCompatibility['PK_Package_Source_Compat'].'" '.(($rowCompatibility['MustBuildFromSource']==1)?'checked':'').' value="1">Must build from source</td>
 								<td colspan="2"><textarea name="comments_'.$rowCompatibility['PK_Package_Source_Compat'].'">'.$rowCompatibility['Comments'].'</textarea></td>
-								<td><input type="submit" name="deleteCompatibility_'.$rowCompatibility['PK_Package_Source_Compat'].'" value="Delete compat"></td>
+								<td><input type="submit" class="button" name="deleteCompatibility_'.$rowCompatibility['PK_Package_Source_Compat'].'" value="Delete compat"></td>
 							</tr>
 						';
 					}
 					$out.='<tr>
 								<td>
-									<input type="submit" name="addCompatibility_'.$rowSource['PK_Package_Source'].'" value="Add other compatibility"><br>
+									<input type="submit" class="button" name="addCompatibility_'.$rowSource['PK_Package_Source'].'" value="Add other compatibility"><br>
 								</td>
-								<td colspan="6" align="center"><input type="submit" name="save" value="Save"></td>
+								<td colspan="6" align="center"><input type="submit" class="button" name="save" value="Save"></td>
 						   </tr>
 					';
 					
@@ -280,7 +280,7 @@ function addPackageToMasterDevice($output,$dbADO) {
 	
 				$out.='		<tr>
 								<td colspan="7">
-									<input type="submit" name="addSource" value="Add other source">
+									<input type="submit" class="button" name="addSource" value="Add other source">
 								</td>
 							</tr>
 						</table>
@@ -319,7 +319,7 @@ function addPackageToMasterDevice($output,$dbADO) {
 						<input type="text" name="packageDirectoryPath_'.$row['PK_Package_Directory'].'" value="'.$row['Path'].'">
 						Alternate input path: <input type="text" name="packageDirectoryInputPath_'.$row['PK_Package_Directory'].'" value="'.$row['InputPath'].'">
 						Flip source <input type="checkbox" name="packageDirectoryFlipSource_'.$row['PK_Package_Directory'].'" value="1" '.(($row['FlipSource']=='1')?'checked':'').'>
-						<input type="submit" name=da value="Save">
+						<input type="submit" class="button" name=da value="Save">
 						</legend>';
 					
 					$queryDirectoryFiles='SELECT * FROM Package_Directory_File WHERE FK_Package_Directory=?';
@@ -371,7 +371,7 @@ function addPackageToMasterDevice($output,$dbADO) {
 							}
 							$rs->Close();
 						$out.='
-							</select> <input type="Submit" name="submitX" value="Select"> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addDirectory&from=addPackageToMasterDevice&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbars=true\');">Add Directory</a>';
+							</select> <input type="submit" class="button" name="submitX" value="Select"> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addDirectory&from=addPackageToMasterDevice&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbars=true\');">Add Directory</a>';
 						$out.='</fieldset></td>
 					</tr>
 					<input type="hidden" name="displayedPackageDirectory" value="'.join(",",$displayedPackageDirectory).'">
@@ -379,7 +379,7 @@ function addPackageToMasterDevice($output,$dbADO) {
 					<input type="hidden" name="compatArray" value="'.join(",",$compatArray).'">';
 				}
 				$out.='<tr>
-					<td colspan="2" align="center"><input type="submit" name="saveClose" value="Save & Close"> <input type="button" name="cancelClose" value="Cancel & Close" onClick="javascript:self.close()"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="saveClose" value="Save & Close"> <input type="button" class="button" name="cancelClose" value="Cancel & Close" onClick="javascript:self.close()"></td>
 				</tr>
 			</table>
 		<script>

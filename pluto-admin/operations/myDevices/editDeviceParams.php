@@ -14,7 +14,7 @@ $installationID = (int)@$_SESSION['installationID'];
 	}
 	$query = "select 
 				FK_DeviceTemplate,FK_Device_ControlledVia,Device.Description,IPaddress,MACaddress,IgnoreOnOff,NeedConfigure,
-				DeviceTemplate.Description as MDL_description,FK_Room
+				DeviceTemplate.Description as MDL_description,FK_Room, Comments
 					from Device 
 						Inner JOIN DeviceTemplate on FK_DeviceTemplate = PK_DeviceTemplate
 						where PK_Device = ?";
@@ -32,6 +32,7 @@ $installationID = (int)@$_SESSION['installationID'];
 		$ignoreOnOff= $row['IgnoreOnOff'];
 		$deviceNeedConfigure= $row['NeedConfigure'];
 		$deviceRoom=$row['FK_Room'];
+		$dtComments=$row['Comments'];
 	}
 	
 	if ($DeviceTemplate==0) {
@@ -93,28 +94,12 @@ $installationID = (int)@$_SESSION['installationID'];
 	<legend>Device Info #'.$deviceID.'</legend>
 	<table>
 	<tr><td>Description</td><td><input type="text" name="DeviceDescription" value="'.$description.'" size="40"></td></tr>
-	<tr><td>Device Template</td><td>
-	<select name="DeviceTemplate">
-	';
-	
-	$queryDeviceTemplate = "select PK_DeviceTemplate ,Description,Comments from DeviceTemplate order by Description asc";
-	$resDeviceTemplate = $dbADO->_Execute($queryDeviceTemplate);
-	$comments='';
-	$out.= '<option value="0">-please select-</option>';
-	if($resDeviceTemplate) {
-		while ($row=$resDeviceTemplate->FetchRow()) {
-			$comments.=($row['PK_DeviceTemplate']==$DeviceTemplate)?$row['Comments']:'';
-			$out.='<option '.($row['PK_DeviceTemplate']==$DeviceTemplate?" selected ":'').' value="'.$row['PK_DeviceTemplate'].'">'.$row['Description'].' #'.$row['PK_DeviceTemplate'].'</option>';
-		}
-	}
-	
-	$out.='		    </select>
-					<input value="View" type="button" name="controlGoToMDL" onClick="windowOpen(\'index.php?section=editMasterDevice&model=\'+this.form.DeviceTemplate[this.form.DeviceTemplate.selectedIndex].value+\'&from=editDeviceParams\',\'width=600,height=800,toolbars=true,scrollbars=1,resizable=1\');">
-					</td>
-				</tr>
+	<tr>
+		<td>Device Template</td><td><B>'.$mdlDescription.'</B> <input value="View" type="button" class="button" name="controlGoToMDL" onClick="windowOpen(\'index.php?section=editMasterDevice&model=\'+this.form.DeviceTemplate[this.form.DeviceTemplate.selectedIndex].value+\'&from=editDeviceParams\',\'width=600,height=800,toolbars=true,scrollbars=1,resizable=1\');"></td>
+	</tr>
 	<tr>
 		<td>Device Template Comments</td>
-		<td>'.$comments.'</td>
+		<td>'.$dtComments.'</td>
 	</tr>
 	
 				<tr>
@@ -247,7 +232,7 @@ $installationID = (int)@$_SESSION['installationID'];
 				</tr>
 					
 				<tr>
-					<td colspan="2" align="center"><input type="submit" name="submitX" value="Save"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"  ></td>
 				</tr>
 	</table>
 	</fieldset>
@@ -311,7 +296,7 @@ $installationID = (int)@$_SESSION['installationID'];
 			}
 			
 			$out.='<td> Pipe '.$selectPipesTxt.'</td>';
-			$out.='<td><input value="Delete" type="button" onClick="if (confirm(\'Are you sure you want to delete this pipe?\')) {windowOpen(\'index.php?section=deleteDevicePipeFromDevice&deviceFromID='.$rowSelectedPipesUsed['FK_Device_From'].'&deviceToID='.$rowSelectedPipesUsed['FK_Device_To'].'&pipe='.$rowSelectedPipesUsed['FK_Pipe'].'&from=editDeviceParams\',\'width=100,height=100,toolbars=true,scrollbars=1,resizable=1\');}"></td>';
+			$out.='<td><input value="Delete" type="button" class="button" onClick="if (confirm(\'Are you sure you want to delete this pipe?\')) {windowOpen(\'index.php?section=deleteDevicePipeFromDevice&deviceFromID='.$rowSelectedPipesUsed['FK_Device_From'].'&deviceToID='.$rowSelectedPipesUsed['FK_Device_To'].'&pipe='.$rowSelectedPipesUsed['FK_Pipe'].'&from=editDeviceParams\',\'width=100,height=100,toolbars=true,scrollbars=1,resizable=1\');}"></td>';
 			
 			$out.='</tr>';
 		}
@@ -344,10 +329,10 @@ $installationID = (int)@$_SESSION['installationID'];
 				</select>
 				<select name="addPipe">
 					<option value="0">-please select-</option>'.$selectPipesTxt.'</select>
-			<input type="submit" name="submitX" value="Add">
+			<input type="submit" class="button" name="submitX" value="Add"  >
 			</td>
 		</tr>
-	    <tr><td><input type="submit" name="submitX" value="Save"></td></tr>
+	    <tr><td><input type="submit" class="button" name="submitX" value="Save"  ></td></tr>
 	</table>
 	</fieldset>
 
@@ -395,10 +380,10 @@ $installationID = (int)@$_SESSION['installationID'];
 	}
 	$out.='
 	
-	<tr><td><select name="addNewGroup">'.$remainingGroups.'</select></td><td><input type="submit" name="submitX" value="Add"></td></tr>		
+	<tr><td><select name="addNewGroup">'.$remainingGroups.'</select></td><td><input type="submit" class="button"   name="submitX" value="Add"></td></tr>		
 	<tr><td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=createDeviceGroup&deviceID='.$deviceID.'&from=editDeviceParams\',\'width=400,height=400,toolbars=true,scrollbars=1,resizable=1\');">Create new device group</a></td></tr>
 	
-		<tr><td colspan="2"><input type="submit" name="submitX" value="Save"></td></tr>
+		<tr><td colspan="2"><input type="submit" class="button" name="submitX" value="Save"  ></td></tr>
 	</table>
 	</fieldset>
 	<fieldset>
@@ -449,10 +434,10 @@ $installationID = (int)@$_SESSION['installationID'];
 	}
 	$out.='
 		
-		<tr><td><select name="addNewDeviceRelated">'.$newDeviceRelated.'</select></td><td><input type="submit" name="submitX" value="Add"></td></tr>
+		<tr><td><select name="addNewDeviceRelated">'.$newDeviceRelated.'</select></td><td><input type="submit" class="button" name="submitX" value="Add"  ></td></tr>
 	
 		<input type="hidden" name="selectedRelatedDevice" value="'.(join(",",$deviceRelatedData)).'">
-		<tr><td colspan="2"><input type="submit" name="submitX" value="Save"></td></tr>
+		<tr><td colspan="2"><input type="submit" class="button" name="submitX" value="Save"  ></td></tr>
 	</table>	
 	</fieldset>
 	
@@ -488,7 +473,7 @@ $installationID = (int)@$_SESSION['installationID'];
 	
 	$out.=(($resDeviceData && $resDeviceData->RecordCount()>0)?'
 		<input type="hidden" name="selectedData" value="'.(join(",",$deviceData)).'">
-		<tr><td><input type="submit" name="submitX" value="Save"></td></tr>
+		<tr><td><input type="submit" class="button" name="submitX" value="Save"  ></td></tr>
 	':'').'	
 	</table>
 	</fieldset>
@@ -513,7 +498,6 @@ $installationID = (int)@$_SESSION['installationID'];
 		$ipAddress = cleanString($_POST['ipAddress']);
 		$macAddress = cleanString($_POST['macAddress']);
 		$ignoreOnOff = cleanInteger($_POST['IgnoreOnOff']);
-		$DeviceTemplate = cleanInteger($_POST['DeviceTemplate']);
 		$controlledVia = (@$_POST['controlledVia']!='0')?cleanInteger(@$_POST['controlledVia']):NULL;
 		$needConfigure = (isset($_POST['needConfigure']))?cleanInteger($_POST['needConfigure']):0;
 		
@@ -575,7 +559,7 @@ $installationID = (int)@$_SESSION['installationID'];
 				}				
 			}
 		}		
-		if (trim($description)!='' && $DeviceTemplate!=0) {		
+		if (trim($description)!='') {		
 			$selectOldValues = 'SELECT * FROM Device where PK_Device = ?';	
 			$resOldValues = $dbADO->Execute($selectOldValues,array($deviceID));
 				if ($resOldValues) {
@@ -583,25 +567,11 @@ $installationID = (int)@$_SESSION['installationID'];
 					$old_description = cleanString($rowOldValues['Description']);
 					$old_DeviceTemplate = cleanInteger($rowOldValues['FK_DeviceTemplate']);
 						//check if master device list ischanged. if yes, delete the data values
-						if ($old_DeviceTemplate!=$DeviceTemplate) {
-							$queryDelete = "DELETE FROM Device_DeviceData WHERE FK_Device = ?";
-							$res = $dbADO->Execute($queryDelete,array($deviceID));
-							
-							$selectDeviceDatafromTemplate = 'SELECT FK_DeviceData, IK_DeviceData FROM DeviceTemplate_DeviceData WHERE FK_DeviceTemplate = ?';
-							$resDeviceDatafromTemplate = $dbADO->Execute($selectDeviceDatafromTemplate,array($DeviceTemplate));
-							if ($resDeviceDatafromTemplate) {
-								while($rowSelectDeviceDatafromTemplate = $resDeviceDatafromTemplate->FetchRow()){
-									$queryInsertDevice = "insert into Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData)
-															values(?,?,?)";
-									$dbADO->Execute($queryInsertDevice,array($deviceID,$rowSelectDeviceDatafromTemplate['FK_DeviceData'],$rowSelectDeviceDatafromTemplate['IK_DeviceData']));
-								}
-							}
-						}
 				}
 			
 			$room=(@$_POST['Room']!='0')?@$_POST['Room']:NULL;	
-			$query = "UPDATE Device SET Description=?,IPaddress=?,MACaddress=?,IgnoreOnOff=?,FK_DeviceTemplate=?,FK_Device_ControlledVia=?,NeedConfigure=?,FK_Room=? WHERE PK_Device = ?";
-			$dbADO->Execute($query,array($description,$ipAddress,$macAddress,$ignoreOnOff,$DeviceTemplate,$controlledVia,$needConfigure,$room,$deviceID));
+			$query = "UPDATE Device SET Description=?,IPaddress=?,MACaddress=?,IgnoreOnOff=?,FK_Device_ControlledVia=?,NeedConfigure=?,FK_Room=? WHERE PK_Device = ?";
+			$dbADO->Execute($query,array($description,$ipAddress,$macAddress,$ignoreOnOff,$controlledVia,$needConfigure,$room,$deviceID));
 			setDCERouterNeedConfigure($installationID,$dbADO);
 			$EntAreasArray=explode(',',$_POST['displayedEntAreas']);
 			$OldEntAreasArray=explode(',',$_POST['oldEntAreas']);

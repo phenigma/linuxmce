@@ -35,7 +35,7 @@ function editDirectoryFile($output,$dbADO) {
 					<td><textarea name="Search" rows="10" colls="30">'.$rowPackage_Directory_File['Search'].'</textarea></td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center"><input type="submit" name="submitX" value="Save"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"></td>
 				</tr>
 			</table>
 		</form>

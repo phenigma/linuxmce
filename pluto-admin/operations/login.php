@@ -20,7 +20,7 @@ $loginFormBig= '
 	      <td><input type="password" name="password" value="" /></td>
 	    </tr>
 	    <tr>
-	      <td colspan="2" align="center"><input type="submit" name="submitX" value="Log-in" /></td>
+	      <td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Log-in" /></td>
 	    </tr>
 	    <tr>
 	    &nbsp;&nbsp;

@@ -28,7 +28,7 @@ function addPackage($output,$dbADO) {
 					<td><input type="text" size="15" name="Description" value=""></td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center"><input type="submit" name="addDescription" value="Save"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="addDescription" value="Save"></td>
 				</tr>
 			</table>
 		</form>
@@ -129,7 +129,7 @@ function addPackage($output,$dbADO) {
 						$rs->Close();
 					$out.='
 						</select>
-					<input type="Submit" name="submitX" value="Add source"> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addDistro&from=addPackage&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbars=true\');">Add Distro</a>
+					<input type="submit" class="button" name="submitX" value="Add source"> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addDistro&from=addPackage&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbars=true\');">Add Distro</a>
 					<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addRepositorySource&from=addPackage&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbars=true\');">Add RepositorySource</a>
 					';
 					$out.='
@@ -183,11 +183,11 @@ function addPackage($output,$dbADO) {
 						}
 						$rs->Close();
 					$out.='
-						</select> <input type="Submit" name="submitX" value="Select"> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addDirectory&from=addPackage&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbars=true\');">Add Directory</a>';
+						</select> <input type="submit" class="button" name="submitX" value="Select"> <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addDirectory&from=addPackage&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbars=true\');">Add Directory</a>';
 					$out.='</fieldset></td>
 				</tr>					
 				<tr>
-					<td colspan="2" align="center"><input type="submit" name="submitX" value="Save"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"></td>
 				</tr>
 			</table>
 		</form>

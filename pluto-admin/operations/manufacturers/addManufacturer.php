@@ -14,7 +14,7 @@ function addManufacturer($output,$dbADO) {
 					<td>Manufacturer:</td><td><input type="text" maxlength="50" name="manufacturerDescription" value="'.@$_SESSION['addManufacturer']['manufacturerDescription'].'"></td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center"><input type="submit" name="submitX" value="Save"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"  ></td>
 				</tr>
 			</table>
 		</form>

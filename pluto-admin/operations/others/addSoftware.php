@@ -70,7 +70,7 @@ function addSoftware($output,$dbADO) {
 				<td><input type="text" name="repositoryName" value="'.@$_SESSION['repositoryName'].'" '.((@$_SESSION['debianRepository']!=1)?'disabled':'').'></td>
 			</tr>
 			<tr>
-				<td colspan="2" align="center"><input type="submit" name="add" value="Add software"></td>
+				<td colspan="2" align="center"><input type="submit" class="button" name="add" value="Add software"></td>
 			</tr>
 		</table>
 		</form>';

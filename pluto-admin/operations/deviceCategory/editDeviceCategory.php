@@ -59,7 +59,7 @@ $modelSelected = (int)$_REQUEST['model'];
 						No:<input type="radio" value="0" name="IsAV" '.($isAV==0?' checked="checked" ':'').'></td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center"><input type="submit" name="submitX" value="Save"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"></td>
 				</tr>
 	</table>
 	</form>

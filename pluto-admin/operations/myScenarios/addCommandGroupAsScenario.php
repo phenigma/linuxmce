@@ -58,7 +58,7 @@ function addCommandGroupAsScenario($output,$dbADO) {
 									:'')
 								 ).' 
 								 <input type="text" name="designObjID" size="20" value="'.(isset($_SESSION['addCommandGroupAsScenario']['designObjID']) && $_SESSION['addCommandGroupAsScenario']['designObjID'] != 0 ?$_SESSION['addCommandGroupAsScenario']['designObjID']:'').'">
-								 <input type="submit" name="searchCommandGroup" value="Search [...]" >
+								 <input type="submit" class="button" name="searchCommandGroup" value="Search [...]"  >
 					</td>
 				</tr>
 				<tr><td>Icon</td><td>
@@ -119,7 +119,7 @@ function addCommandGroupAsScenario($output,$dbADO) {
 				$out.='</td>
 				</tr>
 				<tr>
-					<td colspan="2"><input type="submit" name="submitX" value="Save"></td>
+					<td colspan="2"><input type="submit" class="button" name="submitX" value="Save"  ></td>
 				</tr>
 				';
 						

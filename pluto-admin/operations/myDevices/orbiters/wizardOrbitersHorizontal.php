@@ -163,7 +163,7 @@ function wizardOrbiters($output,$dbADO) {
 					unset($ddValue);
 				}
 			$out.='	
-					<td align="center"><input type="submit" name="delete_'.$rowD['PK_Device'].'" value="Delete"></td>
+					<td align="center"><input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="Delete"  ></td>
 				</tr>';
 			}
 			$out.='
@@ -172,7 +172,7 @@ function wizardOrbiters($output,$dbADO) {
 			if($resDevice->RecordCount()!=0){
 				$out.='
 				<tr>
-					<td colspan="'.(4+$ddNo).'" align="center"><input type="submit" name="update" value="Update"></td>
+					<td colspan="'.(4+$ddNo).'" align="center"><input type="submit" class="button" name="update" value="Update"  ></td>
 				</tr>';
 			}
 			$out.='
@@ -186,7 +186,7 @@ function wizardOrbiters($output,$dbADO) {
 				$out.='<option value="'.$value.'">'.$DTArray[$key].'</option>';
 			}
 			$out.='</select>
-					<input type="submit" name="add" value="Add device"></td>
+					<input type="submit" class="button" name="add" value="Add device"  ></td>
 				</tr>
 			</table>
 		</form>

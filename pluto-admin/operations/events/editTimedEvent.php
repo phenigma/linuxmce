@@ -171,7 +171,7 @@ function editTimedEvent($output,$dbADO) {
 				<td>If you would like to use this event as an alarm clock, choose what rooms this event should act as an alarm clock in. It will appear on the Orbiters\' sleeping menu and you can change the time on the Orbiter.</td>
 			</tr>
 			<tr bgcolor="#E7E7E7">
-				<td colspan="3" align="center"><input type="submit" name="continue" value="Update"></td>
+				<td colspan="3" align="center"><input type="submit" class="button" name="continue" value="Update"></td>
 			</tr>
 			<tr>
 				<td colspan="3" align="center">Specify above when you want Pluto to do something, and below what you want Pluto to do by choosing a device, and then a command to send to that device.</td>
@@ -262,14 +262,14 @@ function editTimedEvent($output,$dbADO) {
 					
 							</td>
 						<td valign="top">
-						<input type="button" name="editA" value="Remove" onClick="self.location=\'index.php?section=editTimedEvent&ehID='.$eventHandlerID.'&cgcID='.$rowCommandAssigned['PK_CommandGroup_Command'].'\'">
+						<input type="button" class="button" name="editA" value="Remove" onClick="self.location=\'index.php?section=editTimedEvent&ehID='.$eventHandlerID.'&cgcID='.$rowCommandAssigned['PK_CommandGroup_Command'].'\'">
 						</td>						
 					</tr>
 					';
 				}
 				$out.='
 				<tr>
-					<td colspan="3" align="center"><input type="submit" name="addNewDeviceButton" value="Save changes"></td>
+					<td colspan="3" align="center"><input type="submit" class="button" name="addNewDeviceButton" value="Save changes"></td>
 				</tr>
 				</table>
 				</fieldset>
@@ -316,7 +316,7 @@ function editTimedEvent($output,$dbADO) {
 							if ($resNewCommand->RecordCount()==0) {
 								$out.='<option value="0">-no command-</option>';
 							}
-					$out.='</select> <input type="submit" name="submitX" value="Add">
+					$out.='</select> <input type="submit" class="button" name="submitX" value="Add">
 					</td>
 				</tr>';
 				}

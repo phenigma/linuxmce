@@ -50,7 +50,7 @@ if($action=='form') {
 		<tr bgcolor="#D1D9EA">
 			<td><B>'.$rowRooms['RoomName'].'</B></td>
 			<td>&nbsp;</td>
-			<td align="right"><input type="button" name="add" value="Add scenario" onClick="javascript:document.lightingScenarios.action.value=\'add\';document.lightingScenarios.roomID.value='.$rowRooms['PK_Room'].';document.lightingScenarios.roomName.value=\''.$rowRooms['RoomName'].'\';document.lightingScenarios.submit();"></td>
+			<td align="right"><input type="button" class="button" name="add" value="Add scenario" onClick="javascript:document.lightingScenarios.action.value=\'add\';document.lightingScenarios.roomID.value='.$rowRooms['PK_Room'].';document.lightingScenarios.roomName.value=\''.$rowRooms['RoomName'].'\';document.lightingScenarios.submit();"></td>
 		</tr>';
 		$selectCommandGroups='
 			SELECT * 
@@ -75,8 +75,8 @@ if($action=='form') {
 			$pos++;
 			$out.='
 			<tr>
-				<td><input type="button" name="posDown" value="-" onClick="self.location=\'index.php?section=lightingScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&roomID='.$rowRooms['PK_Room'].'&operation=down&posInRoom='.urlencode(serialize($posInRoom)).'\'"> 
-					<input type="button" name="posUp" value="+" onClick="self.location=\'index.php?section=lightingScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&roomID='.$rowRooms['PK_Room'].'&operation=up&posInRoom='.urlencode(serialize($posInRoom)).'\'">
+				<td><input type="button" class="button" name="posDown" value="-" onClick="self.location=\'index.php?section=lightingScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&roomID='.$rowRooms['PK_Room'].'&operation=down&posInRoom='.urlencode(serialize($posInRoom)).'\'"> 
+					<input type="button" class="button" name="posUp" value="+" onClick="self.location=\'index.php?section=lightingScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&roomID='.$rowRooms['PK_Room'].'&operation=up&posInRoom='.urlencode(serialize($posInRoom)).'\'">
 				 Description: '.((!in_array($rowCG['PK_CommandGroup'],$displayedCommandGroups))?'<input type="text" name="commandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Description'].'"> Hint: <input type="text" name="hintCommandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Hint'].'">':'<b>'.$rowCG['Description'].': </b>Hint: <b>'.$rowCG['Hint'].'</b>').'</td>
 				<td>'.(($pos==1)?'Default ON':'').(($pos==2)?'Default OFF':'').'</td>
 				<td><a href="index.php?section=lightingScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=edit&roomID='.$rowRooms['PK_Room'].'">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=lightingScenarios&cgDelID='.$rowCG['PK_CommandGroup'].'\';">Delete</a></td>
@@ -89,7 +89,7 @@ if($action=='form') {
 	if(count($displayedCommandGroups)>0){
 		$out.='
 		<tr>
-			<td colspan="3" align="center"><input type="submit" name="updateCG" value="Update"></td>
+			<td colspan="3" align="center"><input type="submit" class="button" name="updateCG" value="Update"  ></td>
 			<td>&nbsp;</td>
 		</tr>';
 	}
@@ -198,7 +198,7 @@ if($action=='form') {
 	if(count($displayedDevices)>0){
 		$out.='
 			<tr>
-				<td colspan="6" align="center"><input type="submit" name="updateDevices" value="Update"></td>
+				<td colspan="6" align="center"><input type="submit" class="button" name="updateDevices" value="Update"  ></td>
 			</tr>
 		';
 	}

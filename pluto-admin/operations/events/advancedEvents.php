@@ -95,7 +95,7 @@ function advancedEvents($output,$dbADO) {
 		if(count($displayedEH)!=0)
 			$out.='
 			<tr bgcolor="#E7E7E7">
-				<td colspan="8" align="center"><input type="submit" name="update" value="Update"></td>
+				<td colspan="8" align="center"><input type="submit" class="button" name="update" value="Update"></td>
 			</tr>';
 		$out.='
 			<tr>

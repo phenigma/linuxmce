@@ -137,7 +137,7 @@ function cellphoneNotifications($output,$dbADO) {
 		$out.='
 		<input type="hidden" name="oldNtc" value="'.join(',',$ntcArray).'">
 		</table>
-		<div align="center"><input type="submit" name="submit" value="Update"></div>
+		<div align="center"><input type="submit" class="button" name="submit" value="Update"  ></div>
 	</form>';
 	$scriptInHead='
 	<script language="javascript" type="text/javascript">

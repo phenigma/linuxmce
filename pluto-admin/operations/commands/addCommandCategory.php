@@ -49,7 +49,7 @@ function addCommandCategory($output,$dbADO) {
 					</td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center"><input type="submit" name="submitX" value="Add"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Add"></td>
 				</tr>
 			</table>
 		</form>

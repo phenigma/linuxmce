@@ -98,7 +98,7 @@ function leftMenu($output,$dbADO) {
 						$installationTxt.="<option ".($selectedInstallation==$elem?" selected ":'')." value='".$elem."'>$elem</option>";
 					}
 
-					$installationTxt.='</select> <input type="submit" name="submitX" value="Go">
+					$installationTxt.='</select> <input type="submit" class="button" name="submitX" value="Go">
 				</form>
 				';
 			

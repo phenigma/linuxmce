@@ -66,7 +66,7 @@ elseif($action=='showArrayCommands') {
 		}
 		$out.='
 			<tr>
-				<td colspan="3"><input type="button" name="addCommandGroup" value="Add '.$rowArray['Description'].'" onClick="windowOpen(\'index.php?section=addCommandGroupAsScenario&from=myScenarios&arrayID='.$arrayID.'\',\'width=600,height=600,toolbars=true,resizable=1,scrollbars=1\');""></td>
+				<td colspan="3"><input type="button" class="button" name="addCommandGroup" value="Add '.$rowArray['Description'].'" onClick="windowOpen(\'index.php?section=addCommandGroupAsScenario&from=myScenarios&arrayID='.$arrayID.'\',\'width=600,height=600,toolbars=true,resizable=1,scrollbars=1\');""></td>
 			</tr>
 		';
 	}

@@ -72,7 +72,7 @@ function devicesAV($output,$dbADO) {
 			$out.='		</select></td>
 					<td align="center"><B>Audio/Video</B></td>
 					<td align="center"><B>Controlled by</B></td>
-					<td align="center"><input type="submit" name="delete_'.$rowD['PK_Device'].'" value="Delete"></td>
+					<td align="center"><input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="Delete"  ></td>
 				</tr>';
 			}
 			$out.='
@@ -80,7 +80,7 @@ function devicesAV($output,$dbADO) {
 			if($resDevice->RecordCount()!=0){
 				$out.='
 				<tr>
-					<td colspan="5" align="center"><input type="submit" name="update" value="Update"></td>
+					<td colspan="5" align="center"><input type="submit" class="button" name="update" value="Update"  ></td>
 				</tr>';
 			}
 			$out.='

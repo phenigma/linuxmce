@@ -52,7 +52,7 @@ function callRouting($output,$dbADO) {
 		if(count($linesArray)>0){
 			$out.='
 				<tr>
-					<td colspan="6" align="center"><input type="submit" name="update" value="Update"></td>
+					<td colspan="6" align="center"><input type="submit" class="button" name="update" value="Update"></td>
 				</tr>
 			';
 		}

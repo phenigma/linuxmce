@@ -55,7 +55,7 @@ function securityStatus($output,$dbADO) {
 	}
 	$out.='
 				</select></td>
-				<td colspan="4"><input type="submit" name="setAlarm" value="Set mode"></td>
+				<td colspan="4"><input type="submit" class="button" name="setAlarm" value="Set mode"></td>
 			</tr>
 			<tr>
 				<td align="center" colspan="7">&nbsp;</td>
@@ -170,7 +170,7 @@ function securityStatus($output,$dbADO) {
 	if(count($displayedDevices)>0){
 		$out.='
 			<tr>
-				<td align="center" colspan="7"><input type="submit" name="update" value="Update"></td>
+				<td align="center" colspan="7"><input type="submit" class="button" name="update" value="Update"></td>
 			</tr>';
 	}
 

@@ -191,17 +191,17 @@ function irCodes($output,$dbADO) {
 					$otherOutputCommands .= '</select>';
 					$otherDSPModeCommands .= '</select>';
 
-					$out.=$normalCommandsTxt.'<tr><td colspan="2" align="right">Add command to group: <select name="addNewCommandToDeviceCommandGroup">'.$otherCommands.'</td><td><input type="submit" name="submitX" value="Add"></td></tr>';
-					$out.=$inputCommandsTxt.'<tr><td colspan="2" align="right">Add input command to group: <select name="addNewCommandToDeviceCommandGroup">'.$otherInputCommands.'</td><td><input type="submit" name="submitX" value="Add"></td></tr>';
-					$out.=$outputCommandsTxt.'<tr><td colspan="2" align="right">Add output command to group: <select name="addNewCommandToDeviceCommandGroup">'.$otherOutputCommands.'</td><td><input type="submit" name="submitX" value="Add"></td></tr>';
-					$out.=$dspModeCommandsTxt.'<tr><td colspan="2" align="right">Add DSPMode command to group: <select name="addNewCommandToDeviceCommandGroup">'.$otherDSPModeCommands.'</td><td><input type="submit" name="submitX" value="Add"></td></tr>';
+					$out.=$normalCommandsTxt.'<tr><td colspan="2" align="right">Add command to group: <select name="addNewCommandToDeviceCommandGroup">'.$otherCommands.'</td><td><input type="submit" class="button" name="submitX" value="Add"></td></tr>';
+					$out.=$inputCommandsTxt.'<tr><td colspan="2" align="right">Add input command to group: <select name="addNewCommandToDeviceCommandGroup">'.$otherInputCommands.'</td><td><input type="submit" class="button" name="submitX" value="Add"></td></tr>';
+					$out.=$outputCommandsTxt.'<tr><td colspan="2" align="right">Add output command to group: <select name="addNewCommandToDeviceCommandGroup">'.$otherOutputCommands.'</td><td><input type="submit" class="button" name="submitX" value="Add"></td></tr>';
+					$out.=$dspModeCommandsTxt.'<tr><td colspan="2" align="right">Add DSPMode command to group: <select name="addNewCommandToDeviceCommandGroup">'.$otherDSPModeCommands.'</td><td><input type="submit" class="button" name="submitX" value="Add"></td></tr>';
 					$out.='
 								</table>
 							<br />';
 					$out.='<br /><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addCommand&from=editInfraredGroupFromMasterDevice\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">Create new command</a>';
 					$out.='<input type="hidden" name="displayedCommands" value="'.(join(",",$commandsDisplayed)).'">
 					</fieldset>
-					<div align="center"><input type="submit" name="submitX" value="Update"></div>';
+					<div align="center"><input type="submit" class="button" name="submitX" value="Update"></div>';
 				}
 				$out.='
 				</td>

@@ -35,7 +35,7 @@ function leftMediaBrowser($output,$dbADO) {
 		</tr>
 		<tr>
 			<td><input type="text" name="searchString" value="'.@$_SESSION['mediaSearchString'].'"></td>
-			<td><input type="submit" name="go" value="Go"></td>
+			<td><input type="submit" class="button" name="go" value="Go"></td>
 		</tr>
 		<tr>
 			<td colspan="2"><hr><B>Jump</B></td>

@@ -1,7 +1,7 @@
 <?php
 function createUser($output,$dbADO) {
 	global $addMasterUserUrl;
-	$out='Pick a username.  It must be unique among all Pluto users because you will have the option of using it
+	$out='<h3>Add new user/family member</h3>Pick a username.  It must be unique among all Pluto users because you will have the option of using it
 	as a substitute for your phone number and for instant messaging.
 	If you specify a "Nickname", that name will appear on all the screens instead of the username.  The nickname can be anything and does not need to be unique.';
 	$action = isset($_POST['action'])?cleanString($_POST['action']):'form';
@@ -17,15 +17,6 @@ function createUser($output,$dbADO) {
 				window.open(locationA,\'\',attributes);
 			}
 			
-			function enableMasterPass(){
-				if(!document.createUser.theSamePassword.checked){
-					document.createUser.userMasterPassword.disabled=false;
-					document.createUser.userMasterPassword2.disabled=false;
-				}else{
-					document.createUser.userMasterPassword.disabled=true;
-					document.createUser.userMasterPassword2.disabled=true;
-				}
-			}
 		</script>
 		<form action="index.php" method="post" name="createUser">
 		<input type="hidden" name="section" value="createUser">
@@ -50,72 +41,62 @@ function createUser($output,$dbADO) {
 		
 			$out.='
 					<tr valign="top">
-						<td colspan="2"><h3>'.(isset($_GET['error'])?$_GET['error']:'').'</h3></td>
+						<td colspan="2"><h3 class="err">'.(isset($_GET['error'])?$_GET['error']:'').'</h3></td>
 					</tr>
-					<tr valign="top">
-						<td>Username</td>
+					<tr valign="top" bgcolor="#EEEEEE">
+						<td><B>Username</B>*</td>
 						<td>
 							<input type="text" name="userUserName" value="'.@$_SESSION['createUser']['userUserName'].'">
 						</td>
 					</tr>
 					<tr valign="top">
-						<td>password</td>
+						<td><B>Password</B>*</td>
 						<td>
 							<input type="password" name="userPassword" value="">
 						</td>
 					</tr>
 					<tr valign="top">
-						<td>Re-Type password</td>
+						<td><B>Re-Type password</B>*</td>
 						<td>
 							<input type="password" name="userPassword2" value="">
 						</td>
 					</tr>
-					<tr valign="top">
-						<td>Use the same password for local and master account</td>
-						<td><input type="checkbox" value="1" name="theSamePassword" checked onClick="enableMasterPass();"></td>
-					</tr>
-					<tr valign="top">
-						<td>Master password</td>
+					<tr valign="top" bgcolor="#EEEEEE">
+						<td><B>PIN Code</B>* (numeric only)</td>
 						<td>
-							<input type="password" name="userMasterPassword" value="" disabled="disabled">
+							<input type="text" name="pinCode" value="">
 						</td>
-					</tr>
+					</tr>			
 					<tr valign="top">
-						<td>Re-Type master password</td>
-						<td>
-							<input type="password" name="userMasterPassword2" value="" disabled="disabled">
-						</td>
-					</tr>
-					<tr valign="top">
-						<td>Type</td>
+						<td><B>Type</B></td>
 						<td><input type="radio" value="Users" name="typeUser" checked>Individual<input type="radio" value="Establishment" name="typeUser">Business</td>
 					</tr>			
 					<tr valign="top">
-						<td>Create a voicemail box and an email account for the user?<br>This allows the user to check his messages/email on the Orbiters.</td>
+						<td><B>Create a voicemail box and an email account for the user?</B><br>This allows the user to check his messages/email on the Orbiters.</td>
 						<td><input type="checkbox" name="userHasMailbox" value="1" '.@($_SESSION['createUser']['userHasMailbox']==1?" checked='checked'":'').'></td>
 					</tr>
 					<tr valign="top">
-						<td>Access General Mailbox?<br>This allows the user to review messages left in the family\'s general mailbox.  Otherwise the user can only access his own private messages.</td>
+						<td><B>Access General Mailbox?</B><br>This allows the user to review messages left in the family\'s general mailbox.  Otherwise the user can only access his own private messages.</td>
 						<td><input type="checkbox" name="userAccessGeneralMailbox" value="1" '.@($_SESSION['createUser']['userAccessGeneralMailbox']==1?" checked='checked'":'').'></td>
 					</tr>
 					<tr valign="top">
-						<td>Extension for intercom<br>Dial this number from any phone in the house to quickly reach the user.  Outside callers can dial it also to be directly connected.</td>
+						<td><B>Extension for intercom</B><br>Dial this number from any phone in the house to quickly reach the user.  Outside callers can dial it also to be directly connected.</td>
 						<td><input type="text" name="userExtension" value="'.@$_SESSION['createUser']['userExtension'].'"></td>
 					</tr>
 					<tr valign="top">
-						<td>Name</td>
+						<td><B>Name</B></td>
 						<td>
-							FirstName:<input type="text" name="userFirstName" value="'.@$_SESSION['createUser']['userFirstName'].'"><br />
-							LastName :<input type="text" name="userLastName" value="'.@$_SESSION['createUser']['userLastName'].'"><br />
-							NickName :<input type="text" name="userNickname" value="'.@$_SESSION['createUser']['userNickname'].'">
+							<B>FirstName:</B><input type="text" name="userFirstName" value="'.@$_SESSION['createUser']['userFirstName'].'"><br />
+							<B>LastName:</B> <input type="text" name="userLastName" value="'.@$_SESSION['createUser']['userLastName'].'"><br />
+							<B>NickName:</B> <input type="text" name="userNickname" value="'.@$_SESSION['createUser']['userNickname'].'">
 						</td>
 					</tr>
-					<tr valign="top">
-						<td>Email<br>This user will get an email whenever he has new voicemail</td>
+					<tr valign="top" bgcolor="#EEEEEE">
+						<td><B>Email</B>*<br>This user will get an email whenever he has new voicemail</td>
 						<td><input type="text" name="userForwardEmail" value="'.@$_SESSION['createUser']['userForwardEmail'].'"></td>
 					</tr>
 					<tr valign="top">
-						<td>Can modify configuration<br>If checked, the user will be able to access this Pluto Admin site and change the configuration of Pluto</td>
+						<td><B>Can modify configuration</B><br>If checked, the user will be able to access this Pluto Admin site and change the configuration of Pluto</td>
 						<td><input type="checkbox" name="userCanModifyInstallation" value="1" '.(@$_SESSION['createUser']['userCanModifyInstallation']==1?" checked='checked'":'').'></td>
 					</tr>
 					
@@ -131,7 +112,7 @@ function createUser($output,$dbADO) {
 			$out.='
 						<tr>
 							<td>
-								Language:
+								<B>Language</B>
 							</td>
 							<td>
 								<select name="userLanguage">
@@ -149,7 +130,7 @@ function createUser($output,$dbADO) {
 					}
 			}
 			$out.='<tr>
-						<td>Main Installation<br>If you have multiple homes, or installations joined, which is this user\'s primary residence?</td>
+						<td><B>Main Installation</B><br>If you have multiple homes, or installations joined, which is this user\'s primary residence?</td>
 						<td>
 							<select name="userMainInstallation">
 							<option value="0">-please select-</option>
@@ -163,7 +144,10 @@ function createUser($output,$dbADO) {
 			
 			$out.='
 					<tr>
-						<td colspan="2" align="center"><input type="submit" name="submitX" value="Save"></td>
+						<td colspan="2" align="left">* Required fields.</td>
+					</tr>			
+					<tr>
+						<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"  ></td>
 					</tr>
 			</table>
 			</form>
@@ -177,7 +161,9 @@ function createUser($output,$dbADO) {
 					frmvalidator.addValidation("userPassword2","req","Please retype the password");
 					//frmvalidator.addValidation("userFirstName","req","Please enter a user first name");
 					//frmvalidator.addValidation("userLastName","req","Please enter a user last name");
-					//frmvalidator.addValidation("userForwardEmail","req","Please enter an email address");
+					frmvalidator.addValidation("pinCode","req","Please enter a number for PIN code.");
+			 		frmvalidator.addValidation("pinCode","numeric","PIN code must be a number.");
+					frmvalidator.addValidation("userForwardEmail","req","Please enter an email address");
 				</script>
 			';
 		
@@ -210,22 +196,12 @@ function createUser($output,$dbADO) {
 		$userPassword2 = $_SESSION['createUser']['userPassword2'] = cleanString($_POST['userPassword2']);
 		$passMd5=md5($userPassword);
 		
-		$theSamePassword=cleanInteger(@$_POST['theSamePassword']);
-		if($theSamePassword!=1){
-			$userMasterPassword = cleanString($_POST['userMasterPassword']);
-			$userMasterPassword2 = cleanString($_POST['userMasterPassword2']);
-			
-			if ($userMasterPassword!=$userMasterPassword2) {
-				header("Location: index.php?section=createUser&error=Master Passwords do not match&from=$from");
-				exit();
-			}	
+		$masterPassMd5=$passMd5;
+		$userMasterPassword=$userPassword;
 
-			$masterPassMd5=md5($userMasterPassword);
-		}else{ 
-			$masterPassMd5=$passMd5;
-			$userMasterPassword=$userPassword;
-		}
-			
+		$pinCode=(int)$_POST['pinCode'];
+		$pinCodeMd5=md5($pinCode);
+		
 		if ($userPassword!=$userPassword2) {
 			header("Location: index.php?section=createUser&error=Passwords do not match!&from=$from");
 			exit();
@@ -238,8 +214,7 @@ function createUser($output,$dbADO) {
 			exit();
 		}
 
-		if ($username!='' && $userFirstName!='' && $userLastName!='' && $userPassword!='') {
-			
+		if ($username!='' && $userPassword!='') {
 			$userAddedtoMasterUsers=addtoMasterUsers($_POST['typeUser'],$userForwardEmail,$username,$_SESSION['userID'],$userMasterPassword,$addMasterUserUrl);
 			if(!$userAddedtoMasterUsers[0]){
 				header("Location: index.php?section=createUser&error=".$userAddedtoMasterUsers[1]."&from=$from");
@@ -254,12 +229,12 @@ function createUser($output,$dbADO) {
 					INSERT INTO Users (PK_Users,UserName,Password, HasMailbox,
 					AccessGeneralMailbox,FirstName,
 					LastName,Nickname,Extension,ForwardEmail,
-					FK_Language,FK_Installation_Main) 
-					values(?,?,?,?,?,?,?,?,?,?,?,?)';
+					FK_Language,FK_Installation_Main,PINCode) 
+					values(?,?,?,?,?,?,?,?,?,?,?,?,?)';
 			$query = $dbADO->Execute($insertUser,array($FK_MasterUsers,
 					$username,$passMd5,$hasMailbox,$userAccessGeneralMailbox,$userFirstName,
 					$userLastName,$userNickname,$userExtension,$userForwardEmail,
-					$userLanguage,$userMainInstallation
+					$userLanguage,$userMainInstallation,$pinCodeMd5
 					));
 			$insertID = $dbADO->Insert_ID();
 			

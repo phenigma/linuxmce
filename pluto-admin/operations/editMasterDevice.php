@@ -170,7 +170,7 @@ $out='';
 					$out.='<option value="'.$row['PK_Package'].'" '.(($row['PK_Package']==$package)?'selected':'').'>'.$row['Description'].'</option>';
 				}
 				$rs->Close();
-				$out.='</select>&nbsp;<input type="Submit" name="submitX" value="Add">';
+				$out.='</select>&nbsp;<input type="submit" class="button" name="submitX" value="Add">';
 				if($package!=0)
 					$out.="  <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addPackageToMasterDevice&from=editMasterDevice&deviceID={$deviceID}&PK_Package={$package}','status=0,resizable=1,width=700,height=700,toolbars=true,scrollbars=1');\">Edit package</a>";
 				$out.="&nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addPackageToMasterDevice&from=editMasterDevice&deviceID={$deviceID}','status=0,resizable=1,width=700,height=850,toolbars=true,scrollbars=1');\">Create new package</a>";
@@ -180,7 +180,7 @@ $out='';
 				<tr>
 					<td valign="top"><a name="isAVDevice_link"></a>Audio/Video Device</td>
 					<td>
-						<input type="hidden" value="'.$isAVDevice.'" name="old_isAVDevice"><input type="checkbox" name="isAVDevice" '.($isAVDevice==1?" checked='checked' ":"").' value="1" onClick="javascript:this.form.submit();"><input type="button" name="isAV"  '.($isAVDevice!=1?'value="Is NOT Audio/Video" disabled="disabled" ':" value=\"Edit Audio/Video Properties\" onClick=\"windowOpen('index.php?section=editAVDevice&from=editMasterDevice&deviceID={$deviceID}','status=0,resizable=1,width=800,height=600,toolbars=true');\"").'>
+						<input type="hidden" value="'.$isAVDevice.'" name="old_isAVDevice"><input type="checkbox" name="isAVDevice" '.($isAVDevice==1?" checked='checked' ":"").' value="1" onClick="javascript:this.form.submit();"><input type="button" class="button" name="isAV"  '.($isAVDevice!=1?'value="Is NOT Audio/Video" disabled="disabled" ':" value=\"Edit Audio/Video Properties\" onClick=\"windowOpen('index.php?section=editAVDevice&from=editMasterDevice&deviceID={$deviceID}','status=0,resizable=1,width=800,height=600,toolbars=true');\"").'>
 					</td>
 				</tr>
 				<tr>
@@ -296,7 +296,7 @@ $out='';
 				
 				<tr>
 					<td colspan="2"><a name="deviceData_link"></a>Add a new parameter: <select name="newDeviceData">'.$remainingData.'</select>&nbsp;&nbsp;
-					<input type="Submit" name="submitX" value="Add" '.(@(int)$_SESSION['userID']!=$userID?' mdisabled="mdisabled" ':'').'>
+					<input type="submit" class="button" name="submitX" value="Add" '.(@(int)$_SESSION['userID']!=$userID?' mdisabled="mdisabled" ':'').'>
 				<br /> If the parameter you wish to add is not in the list, <a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addParameter&from=editMasterDevice&deviceID='.$deviceID.'\',\'status=0,resizable=1,width=500,height=250,toolbars=true\');">click here to create a new parameter</a>
 					</td>
 				</tr>
@@ -382,7 +382,7 @@ $out='';
 							}							
 						}
 						$res->Close();
-				$out.='	</select> <input type="Submit" name="submitX" value="Add" '.(@(int)$_SESSION['userID']!=$userID?' mdisabled="mdisabled" ':'').'></td></tr>
+				$out.='	</select> <input type="submit" class="button" name="submitX" value="Add" '.(@(int)$_SESSION['userID']!=$userID?' mdisabled="mdisabled" ':'').'></td></tr>
 					</table>
 					</fieldset>
 				</td>
@@ -457,7 +457,7 @@ $out='';
 							<td>'.(isset($_GET['irerror'])?'<b>'.$_GET['irerror'].'</b><br>':'').'
 								<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addInfraredGroup&from=editMasterDevice\',\'width=550,height=300,toolbars=true\');">Create Infrared Group</a>&nbsp;&nbsp;&nbsp;&nbsp;
 								Manually add infrared group 
-								<input type="text" name="addNewInfraredGroupToMasterDevice" value=""> <input type="Submit" name="submitX" value="Add" '.(@(int)$_SESSION['userID']!=$userID?' mdisabled="mdisabled" ':'').'>
+								<input type="text" name="addNewInfraredGroupToMasterDevice" value=""> <input type="submit" class="button" name="submitX" value="Add" '.(@(int)$_SESSION['userID']!=$userID?' mdisabled="mdisabled" ':'').'>
 							</td>
 						</tr>
 					</table>
@@ -527,7 +527,7 @@ $out='';
 					$out.='
 							
 							<tr>
-									<td>Add new event: <select name="newEventToMasterDevice">'.$eventsTxt.'</select></td><td><input type="Submit" name="submitX" value="Add" '.(@(int)$_SESSION['userID']!=$userID?' mdisabled="mdisabled" ':'').'>
+									<td>Add new event: <select name="newEventToMasterDevice">'.$eventsTxt.'</select></td><td><input type="submit" class="button" name="submitX" value="Add" '.(@(int)$_SESSION['userID']!=$userID?' mdisabled="mdisabled" ':'').'>
 										<input type="hidden" name="eventsListDisplayed" value="'.join(",",$eventsSelectedArray).'">
 									</td>
 							</tr>
@@ -583,7 +583,7 @@ $out='';
 				
 				$out.='
 				<tr>
-					<td valign="top" colspan="2"><input type="Submit" name="submitX" value="Save" '.(@(int)$_SESSION['userID']!=$userID?' mdisabled="mdisabled" ':'').'></td>
+					<td valign="top" colspan="2"><input type="submit" class="button" name="submitX" value="Save" '.(@(int)$_SESSION['userID']!=$userID?' mdisabled="mdisabled" ':'').'></td>
 				</tr>
 					
 			</table>

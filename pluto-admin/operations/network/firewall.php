@@ -73,7 +73,7 @@ function firewall($output,$dbADO) {
 			<td align="center">&nbsp;</td>
 		</tr>		
 		<tr>
-			<td colspan="6" align="center" bgcolor="#EEEEEE"><input type="submit" name="add" value="Add"></td>
+			<td colspan="6" align="center" bgcolor="#EEEEEE"><input type="submit" class="button" name="add" value="Add"></td>
 		</tr>		
 	</table>	
 	</form>

@@ -99,7 +99,7 @@ function timedEvents($output,$dbADO) {
 				<td colspan="2">Do something on 5 Mar 2005 at 11:15</td>
 			</tr>
 			<tr>
-				<td colspan="3" align="center"><input type="submit" name="continue" value="Add"></td>
+				<td colspan="3" align="center"><input type="submit" class="button" name="continue" value="Add"></td>
 			</tr>';
 		$out.='
 		</table>

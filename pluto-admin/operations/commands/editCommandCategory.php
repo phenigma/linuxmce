@@ -53,7 +53,7 @@ function editCommandCategory($output,$dbADO) {
 					</td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center"><input type="submit" name="submitX" value="Update"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Update"></td>
 				</tr>
 			</table>
 		</form>

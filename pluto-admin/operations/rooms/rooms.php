@@ -27,8 +27,6 @@ if ($action=='form') {
 $queryRooms = 'SELECT * FROM Room WHERE FK_Installation = ?';
 $resRooms = $dbADO->Execute($queryRooms,array($installationID));
 
-$queryRoomTypes = "SELECT * FROM RoomType Order by Description ASC";
-$resRoomTypes = $dbADO->_Execute($queryRoomTypes);
 $displayedRooms = array();
 
 	if ($resRooms) {
@@ -58,9 +56,7 @@ $displayedRooms = array();
 			<input type="hidden" name="lastAction" value="">
 		<tr>
 			<td align="center" bgcolor="#F0F3F8"><B>Room Description</B></td>
-			<td align="center" bgcolor="#F0F3F8"><B>Type</B></td>
 			<td align="center" bgcolor="#DADDE4"><B>Entertain areas</B></td>
-			<td>&nbsp;</td>
 		</tr>
 		';
 		
@@ -69,36 +65,31 @@ $displayedRooms = array();
 		while ($rowRoom = $resRooms->FetchRow()) {
 			$out.='
 			<tr>
-				<td><input type="text" name="roomDesc_'.$rowRoom['PK_Room'].'" value="'.$rowRoom['Description'].'"></td>
-				<td>';
-			$displayedRooms[]=$rowRoom['PK_Room'];
-			$resRoomTypes->MoveFirst();			
-			$out.='<select name="roomType_'.$rowRoom['PK_Room'].'">
-					<option value="0">Please select</option>';
-			while ($rowRoomTypes = $resRoomTypes->FetchRow()) {
-				$out.='<option '.($rowRoomTypes['PK_RoomType']==$rowRoom['FK_RoomType']?' selected ':'').' value="'.$rowRoomTypes['PK_RoomType'].'">'.$rowRoomTypes['Description'].'</option>';
-			}			
-			$out.='</select>';
-			$out.='</td><td bgcolor="#DADDE4">';
-			$queryEntertain='SELECT * FROM EntertainArea WHERE FK_Room=?';
-			$resEntertain=$dbADO->Execute($queryEntertain,$rowRoom['PK_Room']);
-			
-			while($rowEntertain=$resEntertain->FetchRow()){
-				$displayedEntertainArea[]=$rowEntertain['PK_EntertainArea'];
-				$out.='
-				<input type="text" name="entertainArea_'.$rowEntertain['PK_EntertainArea'].'" value="'.$rowEntertain['Description'].'">
-				<select name="fot_'.$rowEntertain['PK_EntertainArea'].'">
-					<option value="0"></option>
+				<td align="center" valign="top"><input type="text" name="roomDesc_'.$rowRoom['PK_Room'].'" value="'.$rowRoom['Description'].'"><br><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=deleteRoomFromInstallation&from=rooms&roomID='.$rowRoom['PK_Room'].'\',\'status=0,resizable=1,width=200,height=200,toolbars=true\');">Delete Room</a></td>
 				';
-				foreach($fotArray AS $fotID=>$fotDescription){
-					$out.='<option value="'.$fotID.'" '.(($fotID==$rowEntertain['FK_FloorplanObjectType'])?'selected':'').'>'.$fotDescription.'</option>';
+			$displayedRooms[]=$rowRoom['PK_Room'];
+			$out.='<td bgcolor="#DADDE4">';
+			$out.='<input type="checkbox" name="manually_'.$rowRoom['PK_Room'].'" value="1" '.(($rowRoom['ManuallyConfigureEA']==1)?'checked':'').' onclick="self.location=\'index.php?section=rooms&action=edit&manID='.$rowRoom['PK_Room'].'&val='.(($rowRoom['ManuallyConfigureEA']==1)?'0':'1').'\'"> Mannually configure.<br>';
+			if($rowRoom['ManuallyConfigureEA']==1){
+				$queryEntertain='SELECT * FROM EntertainArea WHERE FK_Room=?';
+				$resEntertain=$dbADO->Execute($queryEntertain,$rowRoom['PK_Room']);
+				
+				while($rowEntertain=$resEntertain->FetchRow()){
+					$displayedEntertainArea[]=$rowEntertain['PK_EntertainArea'];
+					$out.='
+					<input type="text" name="entertainArea_'.$rowEntertain['PK_EntertainArea'].'" value="'.$rowEntertain['Description'].'">
+					<select name="fot_'.$rowEntertain['PK_EntertainArea'].'">
+						<option value="0"></option>
+					';
+					foreach($fotArray AS $fotID=>$fotDescription){
+						$out.='<option value="'.$fotID.'" '.(($fotID==$rowEntertain['FK_FloorplanObjectType'])?'selected':'').'>'.$fotDescription.'</option>';
+					}
+					$out.='</select>
+					<input type="checkbox" name="private_'.$rowEntertain['PK_EntertainArea'].'" '.(($rowEntertain['Private']==1)?'checked':'').' value="1"> Private <a href="index.php?section=rooms&eaid='.$rowEntertain['PK_EntertainArea'].'">Delete area</a> <br>';
 				}
-				$out.='</select>
-				<input type="checkbox" name="private_'.$rowEntertain['PK_EntertainArea'].'" '.(($rowEntertain['Private']==1)?'checked':'').' value="1"> Private <a href="index.php?section=rooms&eaid='.$rowEntertain['PK_EntertainArea'].'">Delete area</a> <br>';
+				$out.='  <input type="submit" class="button" name="addEA_'.$rowRoom['PK_Room'].'" value="Add EA">';
 			}
-			$out.='  <input type="submit" name="addEA_'.$rowRoom['PK_Room'].'" value="Add EA"></td>
-					<td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=deleteRoomFromInstallation&from=rooms&roomID='.$rowRoom['PK_Room'].'\',\'status=0,resizable=1,width=200,height=200,toolbars=true\');">Delete Room</a>
-				</td>
+				$out.='</td>
 			</tr>';
 			$roomsFormValidation.='
 				frmvalidator.addValidation("roomDesc_'.$rowRoom['PK_Room'].'","req","Please enter a description");
@@ -110,7 +101,7 @@ $displayedRooms = array();
 				<td colspan="4" align="center"> &nbsp;</td>
 			</tr>
 			<tr>
-				<td colspan="4" align="center"> <input type="submit" name="add" value="Add room"> <input type="submit" name="save" value="Save changes"></td>
+				<td colspan="4" align="center"> <input type="submit" class="button" name="add" value="Add room"> <input type="submit" class="button" name="save" value="Save changes"></td>
 			</tr>
 			<input type="hidden" name="displayedEntertainArea" value="'.join(",",$displayedEntertainArea).'">
 			<input type="hidden" name="displayedRooms" value="'.join(",",$displayedRooms).'">
@@ -133,6 +124,14 @@ $displayedRooms = array();
 	}
 	
 	//process
+	if(isset($_REQUEST['manID'])){
+		$roomID=(int)$_REQUEST['manID'];
+		$newVal=(int)$_REQUEST['val'];
+		
+		$dbADO->Execute('UPDATE Room SET ManuallyConfigureEA=? WHERE PK_Room=?',array($newVal,$roomID));
+		header("Location: index.php?section=rooms&msg=Saved!");
+		exit();
+	}
 	
 	if (isset($_POST['add'])) {
 		$queryInsertRoom = 'INSERT INTO Room (Description,FK_Installation) values(?,?)';
@@ -149,7 +148,7 @@ $displayedRooms = array();
 		}
 	
 		foreach ($displayedRoomsArray as $room) {
-			$queryOldValue = "SELECT Description, FK_RoomType FROM Room WHERE PK_Room = ?";
+			$queryOldValue = "SELECT Description  FROM Room WHERE PK_Room = ?";
 			$resOldValue = $dbADO->Execute($queryOldValue,array($room));
 			$oldDesc = '';
 			$oldRoomType = '';
@@ -157,15 +156,14 @@ $displayedRooms = array();
 			if ($resOldValue) {
 				$rowOldValue = $resOldValue->FetchRow();
 				$oldDesc = $rowOldValue['Description'];
-				$oldRoomType = $rowOldValue['FK_RoomType'];
 			}
 			
 			$newDesc = cleanString(@$_POST['roomDesc_'.$room]);
 			$newRoomType = (@$_POST['roomType_'.$room]!=0)?cleanInteger(@$_POST['roomType_'.$room]):NULL;
 	
-			if ($newDesc!=$oldDesc || $oldRoomType!=$newRoomType)  {
-				$query = 'UPDATE Room set Description=?,FK_RoomType=? WHERE PK_Room = ?';
-				$resUpdRoom = $dbADO->Execute($query,array($newDesc,$newRoomType,$room));
+			if ($newDesc!=$oldDesc)  {
+				$query = 'UPDATE Room set Description=? WHERE PK_Room = ?';
+				$resUpdRoom = $dbADO->Execute($query,array($newDesc,$room));
 				$locationGoTo = "roomDesc_".$room;
 			}
 

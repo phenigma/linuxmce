@@ -48,7 +48,7 @@ function editCriteria($output,$dbADO) {
 		$out.='</td>
 			</tr>
 			<tr>
-				<td colspan="6" align="center"><input type="submit" name="update" value="update"></td>
+				<td colspan="6" align="center"><input type="submit" class="button" name="update" value="update"></td>
 			</tr>
 		
 		</table>

@@ -314,9 +314,9 @@ function avWizard($output,$dbADO) {
 				$out.='</td>';
 				$out.='<td align="center" rowspan="2" valign="top">';
 				if($type=='avEquipment')
-					$out.='	<input type="button" name="btn" value="IR Codes" onClick="windowOpen(\'index.php?section=irCodes&from=avWizard&deviceID='.$rowD['FK_DeviceTemplate'].'&from='.urlencode('avWizard&type='.$type).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"><br>
-							<input type="button" name="btn" value="A/V Properties" onClick="windowOpen(\'index.php?section=editAVDevice&deviceID='.$rowD['FK_DeviceTemplate'].'&from='.urlencode('avWizard&type='.$type).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"><br>';
-						$out.='<input type="submit" name="delete_'.$rowD['PK_Device'].'" value="Delete"></td>
+					$out.='	<input type="button" class="button" name="btn" value="IR Codes" onClick="windowOpen(\'index.php?section=irCodes&from=avWizard&deviceID='.$rowD['FK_DeviceTemplate'].'&from='.urlencode('avWizard&type='.$type).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"><br>
+							<input type="button" class="button" name="btn" value="A/V Properties" onClick="windowOpen(\'index.php?section=editAVDevice&deviceID='.$rowD['FK_DeviceTemplate'].'&from='.urlencode('avWizard&type='.$type).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"><br>';
+						$out.='<input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="Delete"  ></td>
 					</tr>
 					<tr bgcolor="'.(($pos%2==0)?'#EFF2F9':'').'">			
 						<td align="center"><select name="deviceTemplate_'.$rowD['PK_Device'].'">';
@@ -408,7 +408,7 @@ function avWizard($output,$dbADO) {
 			if($resDevice->RecordCount()!=0){
 				$out.='
 				<tr>
-					<td colspan="8" align="center"><input type="submit" name="update" value="Update"></td>
+					<td colspan="8" align="center"><input type="submit" class="button" name="update" value="Update"  ></td>
 				</tr>';
 			}
 			$out.='
@@ -416,7 +416,7 @@ function avWizard($output,$dbADO) {
 					<td colspan="8">&nbsp;</td>
 				</tr>
 				<tr>
-					<td colspan="8" align="center"><input type="button" name="button" value="Pick Device Template" onClick="windowOpen(\'index.php?section=deviceTemplatePicker&from='.urlencode('avWizard&type='.$type).'&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
+					<td colspan="8" align="center"><input type="button" class="button" name="button" value="Pick Device Template" onClick="windowOpen(\'index.php?section=deviceTemplatePicker&from='.urlencode('avWizard&type='.$type).'&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
 				</tr>
 			</table>
 		</form>

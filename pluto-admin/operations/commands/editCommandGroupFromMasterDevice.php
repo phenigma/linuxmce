@@ -96,14 +96,14 @@ function editCommandGroupFromMasterDevice($output,$dbADO) {
 							
 					$out.='
 							</table>
-						<br />Add this command to group: <select name="addNewCommandToDeviceCommandGroup">'.$otherCommands.'</select><input type="submit" name="submitX" value="Add">';
+						<br />Add this command to group: <select name="addNewCommandToDeviceCommandGroup">'.$otherCommands.'</select><input type="submit" class="button" name="submitX" value="Add">';
 						$out.='<br /><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addCommand&from=editCommandGroupFromMasterDevice\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">Create new command</a>';
 						$out.='<input type="hidden" name="displayedCommands" value="'.(join(",",$commandsDisplayed)).'">
 						</fieldset>
 					</td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center"><input type="submit" name="submitX" value="Save"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"></td>
 				</tr>
 			</table>
 		</form>

@@ -94,7 +94,7 @@ function viewCameras($output,$dbADO) {
 				<td><input type="checkbox" name="setAll" onClick="selAllCheckboxes()" '.((isset($_POST['setAll']))?'checked':'').'> <B>Check/Uncheck all</B></td>
 			</tr>
 			<tr>
-				<td><input type="button" name="preview" onClick="document.viewCameras.action.value=\'form\';document.viewCameras.submit();" Value="Preview checked cameras"></td>
+				<td><input type="button" class="button" name="preview" onClick="document.viewCameras.action.value=\'form\';document.viewCameras.submit();" Value="Preview checked cameras"></td>
 			</tr>';
 	}
 	$out.='

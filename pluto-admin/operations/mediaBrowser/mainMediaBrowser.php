@@ -146,7 +146,7 @@ function mainMediaBrowser($output,$mediadbADO) {
 			$out.='</select></td>
 				</tr>
 				<tr>
-					<td colspan="6" align="center"><input type="button" name="update" value="Update" onclick="document.mainMediaBrowser.action.value=\'update\';document.mainMediaBrowser.submit();"></td>
+					<td colspan="6" align="center"><input type="button" class="button" name="update" value="Update" onclick="document.mainMediaBrowser.action.value=\'update\';document.mainMediaBrowser.submit();"></td>
 				</tr>
 				<tr>
 					<td colspan="6" align="center">&nbsp;</td>
@@ -174,7 +174,7 @@ function mainMediaBrowser($output,$mediadbADO) {
 				</tr>
 				<tr>
 					<td><B>Add file</B></td>
-					<td colspan="6">Name: <input type="text" name="newFile" value=""> Path: <input type="text" name="newPath" value=""> Type: '.$fileTypeSelect.' <input type="button" name="update" value="Add file" onclick="document.mainMediaBrowser.action.value=\'update\';document.mainMediaBrowser.submit();"></td>
+					<td colspan="6">Name: <input type="text" name="newFile" value=""> Path: <input type="text" name="newPath" value=""> Type: '.$fileTypeSelect.' <input type="button" class="button" name="update" value="Add file" onclick="document.mainMediaBrowser.action.value=\'update\';document.mainMediaBrowser.submit();"></td>
 				</tr>
 				<tr>
 					<td valign="top" align="left"><B>Pictures</B></td>
@@ -200,7 +200,7 @@ function mainMediaBrowser($output,$mediadbADO) {
 				</tr>
 				<tr>
 					<td><B>Add picture</B></td>
-					<td colspan="6"> <input type="file" name="newPic" value=""> <input type="button" name="update" value="Add Picture" onclick="document.mainMediaBrowser.action.value=\'update\';document.mainMediaBrowser.submit();"></td>
+					<td colspan="6"> <input type="file" name="newPic" value=""> <input type="button" class="button" name="update" value="Add Picture" onclick="document.mainMediaBrowser.action.value=\'update\';document.mainMediaBrowser.submit();"></td>
 				</tr>
 
 			</table>
@@ -240,7 +240,7 @@ function mainMediaBrowser($output,$mediadbADO) {
 					</tr>
 					<tr>
 						<td align="center">
-							<input type="submit" name="merge" value="Yes, merge them">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" name="cancel" value="Cancel" onClick="self.location=\'index.php?section=mainMediaBrowser&attributeID='.$attributeID.'&action=properties\';"> 
+							<input type="submit" class="button" name="merge" value="Yes, merge them">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" class="button" name="cancel" value="Cancel" onClick="self.location=\'index.php?section=mainMediaBrowser&attributeID='.$attributeID.'&action=properties\';"> 
 						</td>
 					</tr>
 				

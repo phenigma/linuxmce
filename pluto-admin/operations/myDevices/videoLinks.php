@@ -62,7 +62,7 @@ function videoLinks($output,$dbADO) {
 			<input type="hidden" name="cameraIDArray" value="'.join(',',$cameraIDArray).'">
 			<input type="hidden" name="intercomIDArray" value="'.join(',',$intercomIDArray).'">
 			<tr>
-				<td align="center" colspan="'.($colCount+1).'"><input type="submit" name="update" value="Update"></td>
+				<td align="center" colspan="'.($colCount+1).'"><input type="submit" class="button" name="update" value="Update"  ></td>
 			</tr>
 		</table>
 		</form>

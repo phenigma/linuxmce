@@ -145,14 +145,14 @@ if($action=='form') {
 			</tr>
 			';
 		}
-		$out.='</table><input type="button" name="newScenario" value="New quad camera security scenario" onClick="self.location=\'index.php?section=securityScenarios&roomID='.$rowRooms['PK_Room'].'&RoomName='.$rowRooms['RoomName'].'&action=addScenario\'">';
+		$out.='</table><input type="button" class="button" name="newScenario" value="New quad camera security scenario" onClick="self.location=\'index.php?section=securityScenarios&roomID='.$rowRooms['PK_Room'].'&RoomName='.$rowRooms['RoomName'].'&action=addScenario\'">';
 	}
 	$out.='		</td>
 			</tr>';
 		if(count($displayedRooms)!=0){
 			$out.='
 			<tr>
-				<td colspan="2" align="center"><input type="submit" name="updateScenario" value="Update"></td>
+				<td colspan="2" align="center"><input type="submit" class="button" name="updateScenario" value="Update"  ></td>
 			</tr>';
 		}
 			$out.='
@@ -211,7 +211,7 @@ if($action=='form') {
 			}
 		$out.='	
 			<tr>
-				<td align="center" colspan="2"><input type="submit" name="addScenario" value="Add new quad camera security scenario"> <input type="button" name="cancel" value="Cancel" onClick="self.location=\'index.php?section=securityScenarios\'"></td>
+				<td align="center" colspan="2"><input type="submit" class="button" name="addScenario" value="Add new quad camera security scenario"  > <input type="button" class="button" name="cancel" value="Cancel" onClick="self.location=\'index.php?section=securityScenarios\'"></td>
 			</tr>
 		</table>
 			<script>
@@ -310,7 +310,7 @@ if($action=='form') {
 			}
 		$out.='	
 			<tr>
-				<td align="center" colspan="2"><input type="submit" name="editScenario" value="Update quad camera security scenario"> <input type="button" name="cancel" value="Cancel" onClick="self.location=\'index.php?section=securityScenarios\'"></td>
+				<td align="center" colspan="2"><input type="submit" class="button" name="editScenario" value="Update quad camera security scenario"> <input type="button" class="button" name="cancel" value="Cancel" onClick="self.location=\'index.php?section=securityScenarios\'"></td>
 			</tr>
 		</table>
 			<script>

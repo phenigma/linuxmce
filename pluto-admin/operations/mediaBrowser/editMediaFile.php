@@ -95,7 +95,7 @@ function editMediaFile($output,$mediadbADO) {
 				</table></td>
 			</tr>			
 			<tr>
-				<td colspan="2" align="center"><input type="submit" name="update" value="Update">
+				<td colspan="2" align="center"><input type="submit" class="button" name="update" value="Update">
 				<input type="hidden" name="oldPath" value="'.$rowFile['Path'].'">
 				<input type="hidden" name="oldFilename" value="'.$rowFile['Filename'].'">
 				</td>
@@ -124,7 +124,7 @@ function editMediaFile($output,$mediadbADO) {
 					$out.='<option value="'.$rowAttributesByType['PK_Attribute'].'">'.$rowAttributesByType['Name'].'</option>';
 				}
 				$out.='
-					</select> <input type="submit" name="add" value="Add"></td>
+					</select> <input type="submit" class="button" name="add" value="Add"></td>
 				</tr>';
 			}
 			$out.='

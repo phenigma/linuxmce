@@ -180,7 +180,7 @@ function wizardOrbiters($output,$dbADO) {
 				}
 			$out.='	
 				<tr>
-					<td align="center" colspan="2"><input type="submit" name="quickRegen_'.$rowD['PK_Device'].'" value="Quick regen">&nbsp;&nbsp;<input type="submit" name="fullRegen_'.$rowD['PK_Device'].'" value="Full regen">&nbsp;&nbsp;<input type="submit" name="update" value="Update"> &nbsp;&nbsp;<input type="submit" name="delete_'.$rowD['PK_Device'].'" value="Delete">
+					<td align="center" colspan="2"><input type="submit" class="button" name="quickRegen_'.$rowD['PK_Device'].'" value="Quick regen"  >&nbsp;&nbsp;<input type="submit" class="button" name="fullRegen_'.$rowD['PK_Device'].'" value="Full regen"  >&nbsp;&nbsp;<input type="submit" class="button" name="update" value="Update"  > &nbsp;&nbsp;<input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="Delete"  >
 					
 					
 					</td>
@@ -204,7 +204,7 @@ function wizardOrbiters($output,$dbADO) {
 				$out.='<option value="'.$value.'">'.$DTArray[$key].'</option>';
 			}
 			$out.='</select>
-					<input type="submit" name="add" value="Add orbiter"></td>
+					<input type="submit" class="button" name="add" value="Add orbiter"  ></td>
 				</tr>
 			</table>
 		</form>

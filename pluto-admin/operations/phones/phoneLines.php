@@ -57,7 +57,7 @@ function phoneLines($output,$dbADO) {
 		if(count($linesArray)>0){
 			$out.='
 				<tr>
-					<td colspan="5" align="center"><input type="submit" name="update" value="Update"></td>
+					<td colspan="5" align="center"><input type="submit" class="button" name="update" value="Update"></td>
 				</tr>
 			';
 		}
@@ -107,7 +107,7 @@ function phoneLines($output,$dbADO) {
 				<td><input type="checkbox" name="defaultLine" value="1"></td>
 			</tr>		
 			<tr>
-				<td colspan="2" align="center"><input type="submit" name="add" value="Add phone line"></td>
+				<td colspan="2" align="center"><input type="submit" class="button" name="add" value="Add phone line"></td>
 			</tr>
 		</table>
 		</form>
@@ -148,7 +148,11 @@ function phoneLines($output,$dbADO) {
 					$dbADO->Execute('UPDATE extensions_table SET appdata=? WHERE id=?',array('DIALLINE='.$name,$defaultLineID));
 				}
 			}
-			
+			$sync=exec('/usr/pluto/bin/SyncronizeAsterisk.sh');
+			if($sync!=0){
+				header("Location: index.php?section=phoneLines&error=Synchronisation failed.");
+				exit();
+			}
 			header('Location: index.php?section=phoneLines&msg=The phone line was added.');
 			exit();
 		}

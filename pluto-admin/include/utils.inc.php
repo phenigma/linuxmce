@@ -1291,7 +1291,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 					if($boolManufacturer==1){
 						$out.='
 							<input type="text" name="Manufacturer_Description" size="15" />
-							<input type="submit" name="addManufacturer" value="Add" />';
+							<input type="submit" class="button" name="addManufacturer" value="Add"  />';
 					}
 					$out.=$firstColText.'
 						</td>
@@ -1309,12 +1309,12 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 						if($boolCategory==1){
 							$out.='
 							<input type="text" name="DeviceCategory_Description" size="15" />
-							<input type="submit" name="addDeviceCategory" value="Add '.($selectedDevice==0?' Top Level Child':' Child').'" />
-							'.($selectedDevice!=0?'<input type="button" name="editDeviceCategory" value="Edit" onClick="javascript: windowOpen(\'index.php?section=editDeviceCategory&from='.$section.'&manufacturers='.$selectedManufacturer.'&deviceCategSelected='.$selectedDeviceCateg.'&deviceSelected='.$selectedDevice.'&model='.$selectedModel.'\',\'status=0,resizable=1,width=600,height=250,toolbars=true\');" />':'<input type="submit" name="editDeviceCategory" value="Edit" disabled="disabled" />').'';
+							<input type="submit" class="button" name="addDeviceCategory"   value="Add '.($selectedDevice==0?' Top Level Child':' Child').'" />
+							'.($selectedDevice!=0?'<input type="button" class="button" name="editDeviceCategory" value="Edit" onClick="javascript: windowOpen(\'index.php?section=editDeviceCategory&from='.$section.'&manufacturers='.$selectedManufacturer.'&deviceCategSelected='.$selectedDeviceCateg.'&deviceSelected='.$selectedDevice.'&model='.$selectedModel.'\',\'status=0,resizable=1,width=600,height=250,toolbars=true\');" />':'<input   type="submit" class="button" name="editDeviceCategory" value="Edit" disabled="disabled" />').'';
 							getDeviceCategoryChildsNo($selectedDevice,$dbADO);					
 							$childsToDelete = $GLOBALS['childsDeviceCategoryNo'];
 							$out.='
-							&nbsp;&nbsp;'.($selectedDevice!=0?'<input type="button" name="deteleDeviceCategory" value="Delete" onClick="javascript: if (confirm(\'Are you sure you want to delete this device category?'.($childsToDelete==1?'There is 1 child to delete!':($childsToDelete>0?'There are '.$childsToDelete.' childs to delete!':'')).'\')) windowOpen(\'index.php?section=deleteDeviceCategory&from='.$section.'&manufacturers='.$selectedManufacturer.'&deviceCategSelected='.$selectedDeviceCateg.'&deviceSelected='.$selectedDevice.'&model='.$selectedModel.'\',\'status=0,resizable=1,width=100,height=100,toolbars=0\');" />':'<input type="submit" name="deleteDeviceCategory" value="Delete" disabled="disabled" />');
+							&nbsp;&nbsp;'.($selectedDevice!=0?'<input type="button" class="button" name="deteleDeviceCategory" value="Delete" onClick="javascript: if (confirm(\'Are you sure you want to delete this device category?'.($childsToDelete==1?'There is 1 child to delete!':($childsToDelete>0?'There are '.$childsToDelete.' childs to delete!':'')).'\')) windowOpen(\'index.php?section=deleteDeviceCategory&from='.$section.'&manufacturers='.$selectedManufacturer.'&deviceCategSelected='.$selectedDeviceCateg.'&deviceSelected='.$selectedDevice.'&model='.$selectedModel.'\',\'status=0,resizable=1,width=100,height=100,toolbars=0\');" />':'<input type="submit" class="button" name="deleteDeviceCategory"   value="Delete" disabled="disabled" />');
 						}
 						$out.='
 						</td>
@@ -1345,9 +1345,9 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 									'.$selectModels.'	
 							</select>';
 							if($returnValue==0){
-								$out.='<input type="button" name="edit_DeviceTemplate" value="Edit" onClick="javascript:checkEdit(this.form);" />';
+								$out.='<input type="button" class="button" name="edit_DeviceTemplate" value="Edit" onClick="javascript:checkEdit(this.form);" />';
 							}else{
-								$out.='<br><input type="button" name="pickDT" value="Pick Device Template" onClick="opener.location=\'index.php?section='.$_SESSION['from'].'&deviceTemplate=\'+document.'.$section.'.model[document.'.$section.'.model.selectedIndex].value+\'&action=add&add=1\';self.close();" />';
+								$out.='<br><input type="button" class="button" name="pickDT" value="Pick Device Template" onClick="opener.location=\'index.php?section='.$_SESSION['from'].'&deviceTemplate=\'+document.'.$section.'.model[document.'.$section.'.model.selectedIndex].value+\'&action=add&add=1\';self.close();" />';
 							}
 							$out.='
 							<hr />
@@ -1366,7 +1366,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 					
 					$out.='	<b>New:</b>
 							<input type="text" name="DeviceTemplate_Description" size="15"'.$disabledAdd.' />
-							<input type="submit" name="addDeviceTemplate" value="Add"'. $disabledAdd .' />';
+							<input type="submit" class="button" name="addDeviceTemplate" value="Add"'. $disabledAdd .'  />';
 				}
 				$out.='
 						</td>				

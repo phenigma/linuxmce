@@ -100,7 +100,7 @@ function respondToEvents($output,$dbADO) {
 			</select></td>
 			</tr>
 			<tr>
-				<td colspan="3" align="center"><input type="submit" name="continue" value="Add"></td>
+				<td colspan="3" align="center"><input type="submit" class="button" name="continue" value="Add"></td>
 			</tr>';
 		$out.='
 		</table>

@@ -199,7 +199,7 @@ $resOrbiters = $dbADO->_Execute($queryOrbiters);
 		
 		$out.='
 			
-			<tr><td colspan="2"><input type="submit" name="submitX" value="Submit">'.(isset($_GET['msg'])?"<br/><b>".strip_tags($_GET['msg']).'</b>':'').'</td></tr>
+			<tr><td colspan="2"><input type="submit" class="button" name="submitX" value="Submit"  >'.(isset($_GET['msg'])?"<br/><b>".strip_tags($_GET['msg']).'</b>':'').'</td></tr>
 				<input type="hidden" name="displayedOrbiters" value="'.join(",",$displayedOrbiters).'">
 			</form>
 

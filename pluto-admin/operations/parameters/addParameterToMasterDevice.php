@@ -81,7 +81,7 @@ function addParameterToMasterDevice($output,$dbADO) {
 					<td><input type="checkbox" name="SetByDevice" value="1"></td>
 				</tr>	
 				<tr>
-					<td colspan="2" align="center"><input type="submit" name="submitX" value="Save"></td>
+					<td colspan="2" align="center"><input type="submit" class="button" name="submitX" value="Save"></td>
 				</tr>
 			</table>
 		</form>

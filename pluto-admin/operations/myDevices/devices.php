@@ -76,7 +76,7 @@ function devices($output,$dbADO) {
 	<input type="hidden" name="type" value="'.$type.'">
 	<input type="hidden" name="action" value="add">	
 	<div align="center"><h3>'.((isset($title))?$title:strtoupper(str_replace('_',' ',$type))).'</h3></div>
-		<table align="center">
+		<table align="center" cellpadding="3" cellspacing="0">
 				<tr>
 					<td align="center"><B>Type of Device</B></td>
 					<td align="center"><B>Description</B></td>
@@ -90,7 +90,9 @@ function devices($output,$dbADO) {
 				$joinArray[]=0;
 				$queryDevice='
 					SELECT 
-						Device.* FROM Device 
+						Device.*, DeviceTemplate.Description AS TemplateName
+					FROM Device 
+						INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
 					WHERE
 						FK_DeviceTemplate IN ('.join(',',$joinArray).') AND FK_Installation=?';	
 				$resDevice=$dbADO->Execute($queryDevice,$installationID);
@@ -128,11 +130,7 @@ function devices($output,$dbADO) {
 				
 				$out.='
 				<tr>
-					<td align="center"><select name="deviceTemplate_'.$rowD['PK_Device'].'">';
-			foreach($DTIDArray as $key => $value){
-				$out.='<option value="'.$value.'" '.(($rowD['FK_DeviceTemplate']==$value)?'selected':'').'>'.$DTArray[$key].'</option>';
-			}
-			$out.='</select></td>
+					<td align="center">'.$rowD['TemplateName'].'</td>
 					<td align="center"><input type="text" name="description_'.$rowD['PK_Device'].'" value="'.$rowD['Description'].'"></td>
 					<td><select name="room_'.$rowD['PK_Device'].'">
 						<option value="0"></option>';
@@ -215,8 +213,8 @@ function devices($output,$dbADO) {
 			$out.='	
 					<td align="center">';
 			if($type=='avEquipment')
-				$out.='<input type="button" name="btn" value="IR Codes" onClick="windowOpen(\'index.php?section=irCodes&from=devices&deviceID='.$rowD['FK_DeviceTemplate'].'&from='.urlencode('devices&type='.$type).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> <input type="button" name="btn" value="A/V Properties" onClick="windowOpen(\'index.php?section=editAVDevice&deviceID='.$rowD['FK_DeviceTemplate'].'&from='.urlencode('devices&type='.$type).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> ';
-					$out.='<input type="submit" name="delete_'.$rowD['PK_Device'].'" value="Delete"></td>
+				$out.='<input type="button" class="button" name="btn" value="IR Codes" onClick="windowOpen(\'index.php?section=irCodes&from=devices&deviceID='.$rowD['FK_DeviceTemplate'].'&from='.urlencode('devices&type='.$type).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> <input type="button" class="button" name="btn" value="A/V Properties" onClick="windowOpen(\'index.php?section=editAVDevice&deviceID='.$rowD['FK_DeviceTemplate'].'&from='.urlencode('devices&type='.$type).'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"> ';
+					$out.='<input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="Delete"  ></td>
 				</tr>';
 			}
 			$out.='
@@ -225,7 +223,7 @@ function devices($output,$dbADO) {
 			if($resDevice->RecordCount()!=0){
 				$out.='
 				<tr>
-					<td colspan="5" align="center"><input type="submit" name="update" value="Update"></td>
+					<td colspan="5" align="center"><input type="submit" class="button" name="update" value="Update"  ></td>
 				</tr>';
 			}
 			$out.='
@@ -233,7 +231,7 @@ function devices($output,$dbADO) {
 					<td colspan="5">&nbsp;</td>
 				</tr>
 				<tr>
-					<td colspan="5" align="center"><input type="button" name="button" value="Pick Device Template" onClick="windowOpen(\'index.php?section=deviceTemplatePicker&from='.urlencode('devices&type='.$type).'&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
+					<td colspan="5" align="center"><input type="button" class="button" name="button" value="Pick Device Template" onClick="windowOpen(\'index.php?section=deviceTemplatePicker&from='.urlencode('devices&type='.$type).'&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
 				</tr>
 			</table>
 		</form>
@@ -264,13 +262,12 @@ function devices($output,$dbADO) {
 			setDCERouterNeedConfigure($installationID,$dbADO);
 			$DeviceDataToDisplayArray=explode(',',$_POST['DeviceDataToDisplay']);
 			foreach($displayedDevicesArray as $key => $value){
-				$deviceTemplate=(int)@$_POST['deviceTemplate_'.$value];
 				$description=@$_POST['description_'.$value];
 				$room=(@$_POST['room_'.$value]!=0)?(int)@$_POST['room_'.$value]:NULL;
 				$controlledBy=(@$_POST['controlledBy_'.$value]!=0)?(int)@$_POST['controlledBy_'.$value]:NULL;
 				
-				$updateDevice='UPDATE Device SET FK_DeviceTemplate=?, Description=?, FK_Room=?,FK_Device_ControlledVia =? WHERE PK_Device=?';
-				$dbADO->Execute($updateDevice,array($deviceTemplate,$description,$room,$controlledBy,$value));
+				$updateDevice='UPDATE Device SET Description=?, FK_Room=?,FK_Device_ControlledVia =? WHERE PK_Device=?';
+				$dbADO->Execute($updateDevice,array($description,$room,$controlledBy,$value));
 
 				foreach($DeviceDataToDisplayArray as $ddValue){
 					$deviceData=(isset($_POST['deviceData_'.$value.'_'.$ddValue]))?$_POST['deviceData_'.$value.'_'.$ddValue]:0;

@@ -66,7 +66,7 @@ function confirmPackages($output,$dbADO) {
 					$out.='
 						</select>
 					</td>
-					<td align="left"><input type="submit" name="submitX" value="Display"></td>
+					<td align="left"><input type="submit" class="button" name="submitX" value="Display"></td>
 				</tr>
 				<tr>';
 		$out.='
@@ -135,7 +135,7 @@ function confirmPackages($output,$dbADO) {
 		$out.='	</tr>
 					<input type="hidden" name="displayedPackagesArray" value="'.join(",",$displayedPackagesArray).'">
 				<tr>
-					<td colspan="5" align="center"><input type="submit" name="submitX" value="Save"></td>
+					<td colspan="5" align="center"><input type="submit" class="button" name="submitX" value="Save"></td>
 				</tr>
 			</table>
 		</form>
