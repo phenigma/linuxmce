@@ -254,7 +254,7 @@ bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
 
 
 	vector<DeviceData_Router *> vectDeviceData_Router_PVR;
-	DeviceData_Router *pDevice_Myth = m_pRouter->m_mapDeviceData_Router_Find(pMythTvMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
+	DeviceData_Router *pDevice_Myth = m_pRouter->m_mapDeviceData_Router_Find(pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
 	pDevice_Myth->FindSibblingsWithinCategory(m_pRouter->m_mapDeviceCategory_Find(DEVICECATEGORY_PVR_Capture_Cards_CONST),vectDeviceData_Router_PVR);
 	for(size_t s=0;s<vectDeviceData_Router_PVR.size();++s)
 	{
@@ -262,7 +262,7 @@ bool MythTV_PlugIn::StopMedia(class MediaStream *pMediaStream)
 		for(size_t s2=0;s2<pDevice_CaptureCard->m_vectDevices_SendingPipes.size();++s2)
 		{
 			DeviceData_Router *pDevice_Tuner = pDevice_CaptureCard->m_vectDevices_SendingPipes[s2];
-			DCE::CMD_Off(m_dwPK_Device,pDevice_Tuner->m_dwPK_Device,0,"");
+			DCE::CMD_Off(m_dwPK_Device,pDevice_Tuner->m_dwPK_Device,0);
 		}
 	}
 
