@@ -52,7 +52,7 @@ namespace DCE
 string g_sPackages, g_sManufacturer, g_sSourcePath;
 string g_sPK_RepositorySource;
 int g_iPK_Distro=0;
-bool g_bBuildSource = true, g_bCreatePackage = true, g_bInteractive = false;
+bool g_bBuildSource = true, g_bCreatePackage = true, g_bInteractive = false, g_bSimulate = false;
 Database_pluto_main *g_pDatabase_pluto_main;
 Row_Version *g_pRow_Version;
 Row_Distro *g_pRow_Distro;
@@ -132,6 +132,8 @@ int main(int argc, char *argv[])
 		case 's':
 			g_sSourcePath = argv[++optnum];
 			break;
+		case 'S':
+			g_bSimulate = true;
 		default:
 			cout << "Unknown: " << argv[optnum] << endl;
 			bError=true;
@@ -705,7 +707,8 @@ AsksSourceQuests:
 			return false;
 		}
 
-		system(("cd " + sSourceDirectory).c_str());
+		if( !g_bSimulate )
+			system(("cd " + sSourceDirectory).c_str());
 		fstr_compile << "cd " << sSourceDirectory << endl;
 
 		// Find the make command for pRow_Package_Source_SVN in the _Compat table.  First look for a match on this distro
@@ -790,12 +793,11 @@ AsksSourceQuests:
 		}
 
 		fstr_compile << pRow_Package_Source_Compat->MakeCommand_get() << endl;
-		if( system(pRow_Package_Source_Compat->MakeCommand_get().c_str()) )
+		if( !g_bSimulate && system(pRow_Package_Source_Compat->MakeCommand_get().c_str()) )
 		{
-#pragma warning("do this")
 			cout << pRow_Package_Source_Compat->MakeCommand_get() << " ****FAILED****" << endl;
-			//			cout << "Error: " << pRow_Package_Source_Compat->MakeCommand_get() << " failed!" << endl;
-//			return false;
+			cout << "Error: " << pRow_Package_Source_Compat->MakeCommand_get() << " failed!" << endl;
+			return false;
 		}
 		cout << pRow_Package_Source_Compat->MakeCommand_get() << " succeeded" << endl;
 
@@ -806,8 +808,7 @@ AsksSourceQuests:
 			if( !FileUtils::FileExists(sCompiledOutput + "/" + pRow_Package_Directory_File->File_get()) ) 
 			{
 				cout << "**ERROR** The file: " << sCompiledOutput << "/" << pRow_Package_Directory_File->File_get() << " was not created.";
-#pragma warning("do this")
-// 				return false;
+ 				return false;
 			}
 			cout << sCompiledOutput << "/" << pRow_Package_Directory_File->File_get() << " exists" << endl;
 		}
