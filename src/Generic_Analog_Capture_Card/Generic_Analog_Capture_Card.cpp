@@ -69,7 +69,7 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(int DeviceID, string Se
 		FileUtils::MakeDir("/var/www/cam");
 	}
 	fprintf(fp,"target_dir /var/www/cam\n");
-
+/*
 	for(i = 1 ; i < atoi(sNumberOfPorts.c_str())+1 ; i++) {
 		itoa(i,buf,10);
 		filename = "#thread /etc/motion/thread";
@@ -77,6 +77,7 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(int DeviceID, string Se
 		strcpy(filename,".config");
 		fprintf(fp,"%s\n",sLine.c_str());
 	}
+*/
 	fclose(fp);
 	g_pPlutoLogger->Write(LV_STATUS, "Starting motion server");
 	filename="/usr/bin/motion";
