@@ -339,6 +339,7 @@ namespace DCE
 		void DeleteGlobalAllocs();
 
 	};
+
 }
 
 #endif

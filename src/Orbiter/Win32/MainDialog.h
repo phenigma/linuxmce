@@ -31,6 +31,7 @@ void				RecordKeyboardAction(long key);
 //-----------------------------------------------------------------------------------------------------
 void				StartOrbiterThread();
 void				LoadUI_From_ConfigurationData();
+void				SyncConfigurationData();
 //-----------------------------------------------------------------------------------------------------
 struct CommandLineParams
 {

@@ -1375,13 +1375,16 @@ void SaveUI_To_ConfigurationData()
 		Simulator::GetInstance()->SaveConfigurationFile(Simulator::GetInstance()->m_sConfigurationFile);
 }
 //-----------------------------------------------------------------------------------------------------
-void LoadUI_From_ConfigurationData()
+void SyncConfigurationData()
 {
 	Simulator::GetInstance()->m_sDeviceID = StringUtils::ltos(CmdLineParams.PK_Device);
 	Simulator::GetInstance()->m_sRouterIP = CmdLineParams.sRouter_IP;
 	Simulator::GetInstance()->m_bTryToDetermineAutomatically = 
 		CmdLineParams.PK_Device == 0 && CmdLineParams.sRouter_IP == "dcerouter";
-
+}
+//-----------------------------------------------------------------------------------------------------
+void LoadUI_From_ConfigurationData()
+{
 	::SendMessage(g_hWndRandom_MouseCheckBox, BM_SETCHECK, 
 		Simulator::GetInstance()->m_bGenerateMouseClicks ? BST_CHECKED : BST_UNCHECKED, 0);
 	::SendMessage(g_hWndRandom_KeyboardCheckBox, BM_SETCHECK, 

@@ -204,7 +204,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 #endif
 
 		if(!CmdLineParams.bDeviceIDSpecified)
-			if(!Simulator::GetInstance()->m_bTryToDetermineAutomatically)
+			if(!(Simulator::GetInstance()->m_bTryToDetermineAutomatically))
 			{
 				try
 				{
@@ -216,7 +216,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 			}
 
 		if(!CmdLineParams.bRouterIPSpecified)
-			if(!Simulator::GetInstance()->m_bTryToDetermineAutomatically)
+			if(!(Simulator::GetInstance()->m_bTryToDetermineAutomatically))
 				CmdLineParams.sRouter_IP = Simulator::GetInstance()->m_sRouterIP;
 
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",CmdLineParams.PK_Device,
@@ -224,6 +224,9 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 
 		//now it's safe to start orbiter's thread
 		StartOrbiterThread();
+
+		SyncConfigurationData();
+		LoadUI_From_ConfigurationData();
 
 		// Main message loop:
 		while (GetMessage(&msg, NULL, 0, 0)) 

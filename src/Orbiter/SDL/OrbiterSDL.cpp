@@ -55,10 +55,6 @@ OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirector
     m_nImageHeight=nImageHeight;
 	m_bFullScreen=bFullScreen;
 
-//#ifdef WINCE
-//	putenv ("SDL_VIDEODRIVER=windib"); 
-//#endif
-
 	Uint32 uSDLInitFlags = SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE;
 
 	if(m_bFullScreen)
@@ -72,7 +68,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirector
 		printf("Failed to initialize SDL %s\n", SDL_GetError());
 #endif //WINCE
 
-		throw "Failed to initialize SDL";
+		exit(1);
     }
 
 	atexit(SDL_Quit);
@@ -87,7 +83,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirector
 	if ((Screen = SDL_SetVideoMode(m_nImageWidth, m_nImageHeight, 0, uVideoModeFlags)) == NULL)
     {
         g_pPlutoLogger->Write(LV_WARNING, "Failed to set video mode: %s", SDL_GetError());
-        throw "Failed to set video mode";
+        exit(1);
     }
 #endif
 

@@ -20,6 +20,9 @@ protected:
     bool m_bShiftDown, m_bControlDown, m_bAltDown, m_bRepeat, m_bCapsLock;
     clock_t m_cKeyDown;
 
+	//Rect m_UpdateRect;
+	bool m_bUpdating;
+
 protected: // (mtoader) I want access to them in the OrbiterLinuxDesktop
 	int m_nImageWidth, m_nImageHeight;
 	int m_bFullScreen;
@@ -78,6 +81,9 @@ public:
 	static Orbiter_PocketFrog *GetInstance();
 
 	static inline Pixel GetColor16(PlutoColor color);
+	static inline BYTE GetRedColor(Pixel pixel);
+	static inline BYTE GetGreenColor(Pixel pixel);
+	static inline BYTE GetBlueColor(Pixel pixel);
 
 
 	void WriteStatusOutput(const char* pMessage);

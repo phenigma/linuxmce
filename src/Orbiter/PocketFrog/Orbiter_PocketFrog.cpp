@@ -7,6 +7,11 @@
 
 #include "../pluto_main/Define_VertAlignment.h" 
 #include "../pluto_main/Define_HorizAlignment.h" 
+
+using namespace Frog;
+using namespace Frog::Internal;
+
+#include <src/rasterizer.h>
 //-----------------------------------------------------------------------------------------------------
 #define VK_A 0x41
 #define VK_C 0x43
@@ -94,8 +99,6 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 {
     m_config.orientation      = ORIENTATION_WEST;
     m_config.splashScreenTime = 0;	
-
-	m_bNeedToUpdate = false;
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ Orbiter_PocketFrog::~Orbiter_PocketFrog()
@@ -138,11 +141,6 @@ Orbiter_PocketFrog::Orbiter_PocketFrog(int DeviceID, string ServerAddress, strin
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::GameLoop()
 {
-	if(m_bNeedToUpdate)
-	{
-		m_bNeedToUpdate = false;
-		GetDisplay()->Update();
-	}
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::StylusDown( Point stylus )
@@ -440,6 +438,21 @@ clock_t ccc=clock();
 	return (Pixel)(((color.R() << 8) & RED_MASK_16) | ((color.G() << 3) & GREEN_MASK_16) | (color.B() >> 3));		
 }
 //-----------------------------------------------------------------------------------------------------
+/*static inline*/ BYTE Orbiter_PocketFrog::GetRedColor(Pixel pixel)
+{
+	return (pixel & RED_MASK >> RED_SHIFT);
+}
+//-----------------------------------------------------------------------------------------------------
+/*static inline*/ BYTE Orbiter_PocketFrog::GetGreenColor(Pixel pixel)
+{
+	return (pixel & GREEN_MASK >> GREEN_SHIFT);
+}
+//-----------------------------------------------------------------------------------------------------
+/*static inline*/ BYTE Orbiter_PocketFrog::GetBlueColor(Pixel pixel)
+{
+	return (pixel & BLUE_MASK >> BLUE_SHIFT);
+}
+//-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::SolidRectangle(int x, int y, int width, int height, PlutoColor color, int Opacity)
 {
 	GetDisplay()->FillRect(x, y, x + width, y + height, GetColor16(color));
@@ -450,9 +463,31 @@ clock_t ccc=clock();
 	GetDisplay()->DrawRect(x, y, x + width, y + height, GetColor16(color));
 }
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void Orbiter_PocketFrog::ReplaceColorInRectangle(int x, int y, int width, int height, PlutoColor ColorToReplace, PlutoColor ReplacementColor)
+/*virtual*/ void Orbiter_PocketFrog::ReplaceColorInRectangle(int x, int y, int width, int height, 
+	PlutoColor ColorToReplace, PlutoColor ReplacementColor)
 {
-	
+	Pixel pixelSrc = GetColor16(ColorToReplace);
+	Pixel pixelDest = GetColor16(ReplacementColor);
+	Pixel pixelCurrent;
+
+    for (int j = 0; j < height; j++)
+    {
+        for (int i = 0; i < width; i++)
+        {
+			pixelCurrent = GetDisplay()->GetPixel(i + x, j + y);
+
+			const int max_diff = 20;
+
+			if(
+				abs(GetRedColor(pixelSrc)	- GetRedColor(pixelCurrent))  < max_diff	&&
+				abs(GetGreenColor(pixelSrc) - GetGreenColor(pixelCurrent)) < max_diff	&&
+				abs(GetBlueColor(pixelSrc)	- GetBlueColor(pixelCurrent)) < max_diff
+			)
+			{
+				GetDisplay()->SetPixel(i + x, j + y, pixelDest);
+			}
+        }
+    }
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::RenderText(class DesignObjText *Text,class TextStyle *pTextStyle)
@@ -508,7 +543,15 @@ clock_t ccc=clock();
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::SaveBackgroundForDeselect(DesignObj_Orbiter *pObj)
 {
+	Rect srcRect;
+	srcRect.Set(pObj->m_rPosition.Left(), pObj->m_rPosition.Top(), pObj->m_rPosition.Right(), pObj->m_rPosition.Bottom());
 
+	Surface *pSurface = GetDisplay()->CreateSurface(pObj->m_rPosition.Width, pObj->m_rPosition.Height);
+	Rasterizer *pRasterizer = GetDisplay()->CreateRasterizer(pSurface);
+	pRasterizer->Blit(0, 0, GetDisplay()->GetBackBuffer(), &srcRect);
+
+	//pRasterizer->Clear(
+	//delete pRasterizer;
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ PlutoGraphic *Orbiter_PocketFrog::CreateGraphic()
@@ -523,11 +566,21 @@ clock_t ccc=clock();
     if (m_pScreenHistory_Current)
     {
         PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
-		GetDisplay()->FillRect(0, 0, m_iWidth, m_iHeight, 0x0000);
+		GetDisplay()->FillRect(0, 0, m_nImageWidth, m_nImageHeight, 0x0000);
     }
 
     Orbiter::RenderScreen();
-	m_bNeedToUpdate = true;
+
+
+	while(m_bUpdating)
+		Sleep(1);
+
+	if(!m_bUpdating)
+	{
+		m_bUpdating = true;
+		GetDisplay()->Update();
+		m_bUpdating = false;
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::RedrawObjects()
@@ -555,12 +608,21 @@ clock_t ccc=clock();
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::EndPaint()
 {
-	m_bNeedToUpdate = true;
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::UpdateRect(PlutoRectangle rect)
 {
-	//m_bNeedToUpdate = true;
+	while(m_bUpdating)
+		Sleep(1);
+
+	if(!m_bUpdating)
+	{
+		m_bUpdating = true;
+		Rect rectUpdate;
+		rectUpdate.Set(rect.Left(), rect.Top(), rect.Right(), rect.Bottom());
+		GetDisplay()->Update(&rectUpdate);
+		m_bUpdating = false;
+	}
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void Orbiter_PocketFrog::OnQuit()

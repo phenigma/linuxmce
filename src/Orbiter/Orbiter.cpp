@@ -5843,6 +5843,10 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 	clock_t clkStart = clock();
 #endif
 
+#if ( defined( PROFILINGX ) )
+	clock_t clkStart9 = clock();
+#endif
+
 	bool bIsMNG = false;
     bool bDeleteSurface=true;  // Will set to false if we're going to cache
 
@@ -5921,6 +5925,12 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 		pGraphicFile = NULL;
 	}
 
+#if ( defined( PROFILINGX ) )
+	clock_t clkFinished9 = clock();
+	g_pPlutoLogger->Write( LV_CONTROLLER, "######### RenderGraphic logic for obj %s took %d ms ######",
+		pObj->m_ObjectID.c_str(), clkFinished9 - clkStart9);
+#endif
+
 	if(pPlutoGraphic->IsEmpty() && !sFileName.empty())
 	{
 		if(!FileUtils::FileExists(sFileName))
@@ -5940,7 +5950,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 			//case GR_PFG:
 				{
 
-#if ( defined( PROFILING ) )
+#if ( defined( PROFILINGX ) )
 					clock_t clkStart1 = clock();
 #endif
 
@@ -5955,9 +5965,9 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 
 					delete [] pData;
 
-#if ( defined( PROFILING ) )
+#if ( defined( PROFILINGX ) )
 					clock_t clkFinished1 = clock();
-					g_pPlutoLogger->Write( LV_CONTROLLER, "~~~~~~~~~~~ File -> SDL_Surface %s took %d ms ~~~~~~~",
+					g_pPlutoLogger->Write( LV_CONTROLLER, "~~~~~~~~~~~ LoadGraphic %s took %d ms ~~~~~~~",
 						pObj->m_ObjectID.c_str(), clkFinished1 - clkStart1);
 #endif
 				}
@@ -6040,7 +6050,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
     bDeleteSurface = false;
 #endif
 
-#if ( defined( PROFILING ) )
+#if ( defined( PROFILINGX ) )
 	clock_t clkStart2 = clock();
 #endif
 
@@ -6049,7 +6059,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 	else
 		g_pPlutoLogger->Write(LV_STATUS, "No graphic to render for object %s", pObj->m_ObjectID.c_str());
 
-#if ( defined( PROFILING ) )
+#if ( defined( PROFILINGX ) )
 	clock_t clkFinished2 = clock();
 	g_pPlutoLogger->Write( LV_CONTROLLER, "********** Surface bliting %s took %d ms *********",
 		pObj->m_ObjectID.c_str(), clkFinished2 - clkStart2);
@@ -6108,6 +6118,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 	{
 		pObj->m_iCurrentFrame = 0;
 
+		//let's clear these data on GraphicOffScreen()
 		size_t size = (*pVectorPlutoGraphic).size();
 		for(size_t i = 0; i < size; i++)
 			(*pVectorPlutoGraphic)[i]->Clear();

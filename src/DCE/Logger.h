@@ -195,7 +195,9 @@ namespace DCE
 	
 		virtual ~NullLogger()
 		{}
-	
+
+		virtual void Write( int iLevel, const char *pcFormat, ... ) {}
+
 		virtual void WriteEntry( class Logger::Entry& entry ) {}
 
 		virtual int GetType() { return LT_LOGGER_NULL; }

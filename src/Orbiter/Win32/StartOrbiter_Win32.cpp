@@ -36,6 +36,7 @@ OrbiterSDL_Win32* Connect(int PK_Device,string sRouter_IP,string sLocalDirectory
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "about to cleanup 3");
 		OrbiterSDL_Win32::Cleanup();
+
 		OrbiterSDL_Win32::BuildOrbiterSDL_Win32(
 			PK_Device, sRouter_IP,
 			sLocalDirectory, bLocalMode, 
