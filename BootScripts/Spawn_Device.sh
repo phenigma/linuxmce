@@ -24,7 +24,18 @@ if [ -z "$cmd_line" ]; then
 	exit 1
 fi
 
-if [ ! -x "$cmd_line" ]; then
+OK=0
+if [ -x "./$cmd_line" ]; then
+	Path="./"
+	OK=1
+elif [ -x "/usr/pluto/bin/$cmd_line" ]; then
+	Path="/usr/pluto/bin/"
+	cd $Path
+	OK=1
+elif [ -x "$cmd_line" ]; then
+	Path=
+	OK=1
+else
 	Logging "$TYPE" "$SEVERITY_CRITICAL" "$0 $module" "Can't execute $cmd_line"
 	exit 1
 fi
@@ -43,16 +54,8 @@ for i in $(seq 1 10); do
 	Logging $TYPE $SEVERITY_NORMAL "$module" "Starting... $i"
 	echo $(date) Starting > "$new_log"
 
-	if [ -x "./$cmd_line" ]; then
-		echo "$(date) Found ./$cmd_line"
-		"./$cmd_line" -d "$device_id" -r "$ip_of_router" | tee "$new_log"
-	elif [ -x "/pluto/bin/$cmd_line" ]; then
-		echo "$(date) Found /pluto/bin/$cmd_line"
-		"/pluto/bin/$cmd_line" -d "$device_id" -r "$ip_of_router" | tee "$new_log"
-	else
-		echo "$(date) Not Found $cmd_line"
-		true
-	fi
+	Logging $TYPE $SEVERITY_NORMAL "$module" "Found $Path$cmd_line"
+	"$Path$cmd_line" -d "$device_id" -r "$ip_of_router" | tee "$new_log"
 	
 	if [ -f /var/pluto/bootpluto/shutdown_$device_id -o -f /var/tmp/shutdown_$device_id ];
 	then
