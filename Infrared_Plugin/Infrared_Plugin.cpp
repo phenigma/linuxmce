@@ -174,6 +174,7 @@ void Infrared_Plugin::CMD_Store_Infrared_Code(int iPK_Device,string sValue_To_As
 		// we found an entry; updating it
 		vectRow_InfraredGroup_Command[0]->IRData_set(sValue_To_Assign);
 	}
+	pTable_InfraredGroup_Command->Commit();
 
 	sCMD_Result = "OK";
 }
