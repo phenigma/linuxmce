@@ -1072,17 +1072,25 @@ cout << "Copying Files\n";
 				pos = cmd.rfind("/");
 				length = cmd.length();
 				cmd = cmd.substr(pos+1,length-pos-1);
+				if(cmd.compare(pRow_Package_Source->Name_get().c_str()) == 0) {
+					cmd = "";
+				}
 				if(FileUtils::DirExists(cmd) != true) {
 #ifdef WIN32
 					cmd = "copy /y " + pFileInfo->m_sSource + " " + cmd + "\\" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 					system(cmd.c_str());
 #else
-					cmd = "cp -f " + pFileInfo->m_sSource + " " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+					if(cmd == "") {
+						cmd = "cp -f " + pFileInfo->m_sSource + " " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+					} else {
+						cmd = "cp -f " + pFileInfo->m_sSource + " " + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+					}
 					system(cmd.c_str());
 					cout << cmd.c_str() << endl;
 #endif
 				}
 				flag = true;
+				break;
 			}
 		}
 		if(flag != true) {
