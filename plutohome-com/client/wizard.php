@@ -2,6 +2,7 @@
 function wizard($output,$dbADO) {
 	global $domain, $downloadDirectory;
 	/* @var $dbADO ADOConnection */
+	/* @var $output Template */
 	
 	if ($_SESSION['userIsLogged']!="yes") {
 		header("Location: index.php");
@@ -275,12 +276,36 @@ function wizard($output,$dbADO) {
 					<script>
 					function enableHybrid()
 					{
-						if(document.wizard.computerType.selectedIndex!=0 && document.wizard.platform.selectedIndex!=0)
-						{
-							document.wizard.action.value="addDevice";
-							document.wizard.submit();
+						if(document.wizard.coreRoom.value!=\'\'){
+							if(document.wizard.computerType.selectedIndex!=0 && document.wizard.platform.selectedIndex!=0)
+							{
+								document.wizard.action.value="addDevice";
+								document.wizard.submit();
+							}
+						}else{
+							alert(\'Please type the room name.\');
+							document.wizard.coreRoom.focus();
 						}
 					}
+					
+					function check_if_enter()
+					{
+						if(window.Event){
+							window.captureEvents(Event.KEYPRESS)
+						}
+						document.onkeypress=  keyPressed;
+					}
+
+					function keyPressed(e)
+					{
+						var n
+						(window.Event) ? n=e.which : n=event.keyCode
+					        if (n==13){
+					            enableHybrid();
+					        }
+					}
+
+					
 					function showPlatforms()
 					{
 						document.wizard.action.value="form";
@@ -290,16 +315,20 @@ function wizard($output,$dbADO) {
 					';
 				// display form
 				$queryDevice='
-					SELECT * 
+					SELECT Device.*,Room.Description AS RoomName 
 						FROM Device
 					INNER JOIN DeviceTemplate ON 
 						FK_DeviceTemplate=PK_DeviceTemplate
+					INNER JOIN Room ON
+						FK_Room=PK_Room
 					WHERE FK_DeviceCategory=? AND Device.FK_Installation=?
 				';
 				$resDevice=$dbADO->Execute($queryDevice,array($GLOBALS['rootCoreID'],$installationID));
 				if($resDevice->RecordCount()!=0){
 					$rowDevice=$resDevice->FetchRow();
+					$roomName=$rowDevice['RoomName'];
 					$_SESSION['deviceID']=$rowDevice['PK_Device'];
+					$_SESSION['coreRoom']=$rowDevice['FK_Room'];
 				}else{
 					unset($_SESSION['deviceID']);
 					unset($_SESSION['isCoreFirstTime']);
@@ -307,10 +336,10 @@ function wizard($output,$dbADO) {
 					unset($_SESSION['coreHybridID']);
 					unset($_SESSION['OrbiterHybridChild']);
 					unset($_SESSION['isHybridFirstTime']);
+					unset($_SESSION['coreRoom']);
 					$FK_DeviceTemplate=0;
 					$FK_Distro=0;
 				}
-				
 				if(isset($_SESSION['deviceID'])){
 					$queryDevice='SELECT * FROM Device WHERE PK_Device=?';
 					$resDevice=$dbADO->Execute($queryDevice,$_SESSION['deviceID']);
@@ -384,7 +413,11 @@ function wizard($output,$dbADO) {
 								$out.='<option value="'.$rowCoreDeviceTemplates['PK_DeviceTemplate'].'" '.(($rowCoreDeviceTemplates['PK_DeviceTemplate']==$FK_DeviceTemplate || $rowCoreDeviceTemplates['PK_DeviceTemplate']==@$_POST['computerType'])?'selected':'').'>'.$rowCoreDeviceTemplates['Description'].'</option>';
 							}
 					$out.='		</td>
-							</tr>				
+							</tr>
+							<tr class="normaltext">
+								<td>&nbsp;&nbsp;&nbsp;&nbsp;In what room?</td>
+								<td><input type="text" name="coreRoom" value="'.@$roomName.'" onkeypress="check_if_enter();"></td>
+							</tr>									
 							<tr class="normaltext">
 								<td>&nbsp;&nbsp;&nbsp;&nbsp;Next, what platform will you use?</td>
 								<td><select name="platform" onChange="enableHybrid()">
@@ -470,7 +503,8 @@ function wizard($output,$dbADO) {
 				// process form step 4 subsection 1
 				$deviceTemplate=$_POST['computerType'];
 				$distro=$_POST['platform'];
-								
+				$coreRoom=cleanString($_POST['coreRoom']);
+							
 				if($action=='addDevice'){
 					if(isset($_SESSION['deviceID'])){
 						$updateDevice='UPDATE Device SET FK_DeviceTemplate=? WHERE PK_Device=?';
@@ -487,11 +521,33 @@ function wizard($output,$dbADO) {
 							unset($_SESSION['OrbiterHybridChild']);
 						}
 					}else{
-						$insertDevice='INSERT INTO Device (Description, FK_DeviceTemplate, FK_Installation) VALUES (?,?,?)';
-						$dbADO->Execute($insertDevice,array('CORE',$deviceTemplate,$installationID));
+						$queryRoom='SELECT * FROM Room WHERE Description=? AND FK_Installation=?';
+						$resRoom=$dbADO->Execute($queryRoom,array($coreRoom,$installationID));
+						if($resRoom->RecordCount()==0){
+							$insertRoom='INSERT INTO Room (Description,FK_RoomType,FK_Installation) VALUES (?,?,?)';
+							$dbADO->Execute($insertRoom,array($coreRoom,$GLOBALS['MiscelaneousRoomType'],$installationID));
+							$roomID=$dbADO->Insert_ID();
+							
+							$insertEntertainArea='INSERT INTO EntertainArea (Description, FK_Room) VALUES (?,?)';
+							$dbADO->Execute($insertEntertainArea,array($coreRoom,$roomID));
+							$entAreaID=$dbADO->Insert_ID();
+						}else{
+							$rowRoom=$resRoom->FetchRow();
+							$roomID=$rowRoom['PK_Room'];
+							
+							$selectEntArea='SELECT * FROM EntertainArea WHERE FK_Room=? AND Description=?';
+							$resEntArea=$dbADO->Execute($selectEntArea,array($roomID,$roomName));
+							$rowEntArea=@$resEntArea->FetchRow();
+							$entAreaID=$rowEntArea['PK_EntertainArea'];
+						}
+						$_SESSION['coreRoom']=$roomID;
+						$_SESSION['coreEntertainArea']=$entAreaID;
+						
+						$insertDevice='INSERT INTO Device (Description, FK_DeviceTemplate, FK_Installation,FK_Room) VALUES (?,?,?,?)';
+						$dbADO->Execute($insertDevice,array('CORE',$deviceTemplate,$installationID,$roomID));
 						$deviceID=$dbADO->Insert_ID();
-						createChildsForControledViaDeviceTemplate($deviceTemplate,$installationID,$deviceID,$dbADO);
-						createChildsForControledViaDeviceCategory($deviceTemplate,$installationID,$deviceID,$dbADO);
+						createChildsForControledViaDeviceTemplate($deviceTemplate,$installationID,$deviceID,$dbADO,$roomID,$_SESSION['coreEntertainArea']);
+						createChildsForControledViaDeviceCategory($deviceTemplate,$installationID,$deviceID,$dbADO,$roomID,$_SESSION['coreEntertainArea']);
 						
 						$getDCERouter='SELECT * FROM Device WHERE FK_DeviceTemplate=? AND FK_Device_ControlledVia=?';
 						$resDCERouter=$dbADO->Execute($getDCERouter,array($GLOBALS['rootDCERouter'],$deviceID));
@@ -502,9 +558,10 @@ function wizard($output,$dbADO) {
 						
 						$insertDeviceDeviceData='INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData,IK_DeviceData) VALUES (?,?,?)';
 						$dbADO->Execute($insertDeviceDeviceData,array($deviceID,$GLOBALS['rootPK_Distro'],$distro));
+						
+						addDeviceToEntertainArea($deviceID,$_SESSION['coreEntertainArea'],$dbADO);
 						$_SESSION['deviceID']=$deviceID;
 						$_SESSION['isCoreFirstTime']=1;
-			
 					}
 					header("Location: index.php?section=wizard&step=4");
 				}else{
@@ -554,14 +611,14 @@ function wizard($output,$dbADO) {
 					$coreHybridID=@$_SESSION['coreHybridID'];
 					if($oldHybridCore==0 || @$_SESSION['recreateHybrid']==1){
 						if($hybridCore!=0 || @$_SESSION['recreateHybrid']==1){
-							$insertDeviceMD='INSERT INTO Device (Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia) VALUES (?,?,?,?)';
-							$dbADO->Execute($insertDeviceMD,array('The core/hybrid',$GLOBALS['rootGenericMediaDirector'],$installationID,$_SESSION['deviceID']));
+							$insertDeviceMD='INSERT INTO Device (Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia,FK_Room) VALUES (?,?,?,?,?)';
+							$dbADO->Execute($insertDeviceMD,array('The core/hybrid',$GLOBALS['rootGenericMediaDirector'],$installationID,$_SESSION['deviceID'],$_SESSION['coreRoom']));
 							$_SESSION['coreHybridID']=$dbADO->Insert_ID();
-							
+
 							// inherit DeviceData for hybrid MD
-							InheritDeviceData($FK_DeviceTemplate,$insertID,$dbADO);
-							createChildsForControledViaDeviceTemplate($GLOBALS['rootGenericMediaDirector'],$_SESSION['installationID'],$_SESSION['coreHybridID'],$dbADO);
-							createChildsForControledViaDeviceCategory($GLOBALS['rootGenericMediaDirector'],$_SESSION['installationID'],$_SESSION['coreHybridID'],$dbADO);
+							InheritDeviceData($GLOBALS['rootGenericMediaDirector'],$_SESSION['coreHybridID'],$dbADO);
+							createChildsForControledViaDeviceTemplate($GLOBALS['rootGenericMediaDirector'],$_SESSION['installationID'],$_SESSION['coreHybridID'],$dbADO,$_SESSION['coreRoom'],$_SESSION['coreEntertainArea']);
+							createChildsForControledViaDeviceCategory($GLOBALS['rootGenericMediaDirector'],$_SESSION['installationID'],$_SESSION['coreHybridID'],$dbADO,$_SESSION['coreRoom'],$_SESSION['coreEntertainArea']);
 
 							// get PK_Device for Orbiter child to Hybrid
 							$getOrbiterHybridChild='SELECT * FROM Device WHERE FK_DeviceTemplate=? AND FK_Device_ControlledVia=?';
@@ -574,6 +631,13 @@ function wizard($output,$dbADO) {
 							$insertDeviceMDDeviceData='INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData,IK_DeviceData) VALUES (?,?,?)';
 							$dbADO->Execute($insertDeviceMDDeviceData,array($_SESSION['coreHybridID'],$GLOBALS['rootPK_Distro'],$distro));
 							$_SESSION['isHybridFirstTime']=1;
+							
+							addDeviceToEntertainArea($_SESSION['coreHybridID'],$_SESSION['coreEntertainArea'],$dbADO);
+
+							$commandGroupsArray=array('TV', 'playlists', 'music', 'movies', 'videos', 'pictures');
+							foreach($commandGroupsArray as $commandGroup)
+								addMediaCommandGroup($commandGroup,$_SESSION['coreEntertainArea'], $installationID,$dbADO);
+
 							unset($_SESSION['recreateHybrid']);
 						}
 					}elseif($hybridCore==0){
@@ -596,10 +660,13 @@ function wizard($output,$dbADO) {
 								
 							$insertDevice='
 									INSERT INTO Device 
-										(Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia) 
-									VALUES (?,?,?,?)';
-							if($oldDevice=='')
-								$dbADO->Execute($insertDevice,array($OptionalDeviceName,$elem,$installationID,$parentDevice));
+										(Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia,FK_Room) 
+									VALUES (?,?,?,?,?)';
+							if($oldDevice==''){
+								$dbADO->Execute($insertDevice,array($OptionalDeviceName,$elem,$installationID,$parentDevice,$_SESSION['coreRoom']));
+								$childDeviceId=$dbADO->Insert_ID();
+								addDeviceToEntertainArea($childDeviceId,$_SESSION['coreEntertainArea'],$dbADO);
+							}
 						}else{
 							$dbADO->Execute("DELETE FROM Device WHERE PK_Device='".$oldDevice."'");
 						}
@@ -700,6 +767,7 @@ function wizard($output,$dbADO) {
 								<table align="center">
 									<tr bgcolor="#DADDE4" class="normaltext">
 										<td><B>Name</B></td>
+										<td><B>Room</B></td>
 										<td><B>Type</B></td>
 										<td><B>Platform</B></td>
 										<td><B>Install source code</B></td>
@@ -707,12 +775,15 @@ function wizard($output,$dbADO) {
 										<td>&nbsp;</td>
 									</tr>';
 					$queryMediaDirectors='
-						SELECT * FROM Device WHERE FK_DeviceTemplate=? AND FK_Installation=?';
+						SELECT Device.*, Room.Description AS Room
+						FROM Device
+						LEFT JOIN Room ON FK_Room=PK_Room
+						WHERE FK_DeviceTemplate=? AND Device.FK_Installation=?';
 					$resMediaDirectors=$dbADO->Execute($queryMediaDirectors,array($GLOBALS['rootGenericMediaDirector'],$installationID));
 					$displayedDevices=array();
 					if($resMediaDirectors->RecordCount()==0){
 						$out.='		<tr class="normaltext">
-										<td colspan="6" align="center">No Media Directors</td>
+										<td colspan="7" align="center">No Media Directors</td>
 									</tr>';
 					}
 					$counter=0;
@@ -725,6 +796,8 @@ function wizard($output,$dbADO) {
 							$rowcolor = '';
 							
 						$out.='
+									<input type="hidden" name="oldRoomID_'.$rowMediaDirectors['PK_Device'].'" value="'.$rowMediaDirectors['FK_Room'].'">
+									<input type="hidden" name="oldRoom_'.$rowMediaDirectors['PK_Device'].'" value="'.$rowMediaDirectors['Room'].'">
 									<tr '.$rowcolor.'>
 										<td><input type="text" name="description_'.$rowMediaDirectors['PK_Device'].'" value="'.$rowMediaDirectors['Description'].'"></td>';
 										
@@ -736,7 +809,9 @@ function wizard($output,$dbADO) {
 								}
 
 						if( $rowMediaDirectors['FK_Device_ControlledVia']=='' ) {
-								$out.='<td><select name="deviceTemplate_'.$rowMediaDirectors['PK_Device'].'">';
+								$out.='
+									<td><input type="text" name="room_'.$rowMediaDirectors['PK_Device'].'" value="'.$rowMediaDirectors['Room'].'"></td>
+									<td><select name="deviceTemplate_'.$rowMediaDirectors['PK_Device'].'">';
 								foreach ($deviceTemplateIdArray as $key => $value){
 									$out.='<option value="'.$value.'" '.(($rowMediaDirectors['FK_DeviceTemplate']==$value)?'selected':'').'>'.$deviceTemplateDescriptionArray[$key].'</option>';
 								}
@@ -764,14 +839,14 @@ function wizard($output,$dbADO) {
 							else {
 								$out .='<input type="hidden" name="platform_'.$rowMediaDirectors['PK_Device'].'" value="'.@$selectedDistro.'">
 										<input type="hidden" name="deviceTemplate_'.$rowMediaDirectors['PK_Device'].'" value="'.$GLOBALS['rootGenericMediaDirector'].'">
-									<td colspan="5" class="normaltext">This is your hybrid--the media director software will be running on the same computer as the core.  Choose the media director-related software modules you want on this hybrid.  To change the core-related software modules or other options, return to the <a href="index.php?section=wizard&step=4">Core page</a>.  You can add more stand-alone media directors below that will connect to this hybrid.</td>
+									<td colspan="6" class="normaltext">This is your hybrid--the media director software will be running on the same computer as the core.  Choose the media director-related software modules you want on this hybrid.  To change the core-related software modules or other options, return to the <a href="index.php?section=wizard&step=4">Core page</a>.  You can add more stand-alone media directors below that will connect to this hybrid.</td>
 								</tr>';
 							}
 							$orbiterMDChild=getMediaDirectorOrbiterChild($rowMediaDirectors['PK_Device'],$dbADO);
 							if($orbiterMDChild){
 								$out.='
 									<tr '.$rowcolor.'>	
-										<td colspan="6">'.getInstallWizardDeviceTemplates($step,$dbADO,$orbiterMDChild,$selectedDistro).'</td>
+										<td colspan="7">'.getInstallWizardDeviceTemplates($step,$dbADO,$orbiterMDChild,$selectedDistro).'</td>
 									</tr>';
 							}
 					}
@@ -793,6 +868,10 @@ function wizard($output,$dbADO) {
 								<td>Name</td>
 								<td><input type="text" name="Description" value="'.@$_POST['Description'].'"></td>
 							</tr>
+							<tr class="normaltext">
+								<td>Room</td>
+								<td><input type="text" name="mdRoom" value="'.@stripslashes($_POST['mdRoom']).'"></td>
+							</tr>					
 							<tr class="normaltext">
 								<td>Type</td>
 								<td><select name="newType" onChange="showPlatforms();">
@@ -862,16 +941,45 @@ function wizard($output,$dbADO) {
 					$description=$_POST['Description'];
 					$FK_DeviceTemplate=$_POST['newType'];
 					$FK_Distro=$_POST['newPlatform'];
+					$mdRoom=cleanString($_POST['mdRoom']);
+					
+					$queryRoom='SELECT * FROM Room WHERE Description=? AND FK_Installation=?';
+					$resRoom=$dbADO->Execute($queryRoom,array($mdRoom,$installationID));
+					if($resRoom->RecordCount()==0){
+						$insertRoom='INSERT INTO Room (Description,FK_RoomType,FK_Installation) VALUES (?,?,?)';
+						$dbADO->Execute($insertRoom,array($mdRoom,$GLOBALS['MiscelaneousRoomType'],$installationID));
+						$roomID=$dbADO->Insert_ID();
+							
+						$insertEntertainArea='INSERT INTO EntertainArea (Description, FK_Room) VALUES (?,?)';
+						$dbADO->Execute($insertEntertainArea,array($mdRoom,$roomID));
+						$mdEntAreaID=$dbADO->Insert_ID();
+					}else{
+						$rowRoom=$resRoom->FetchRow();
+						$roomID=$rowRoom['PK_Room'];
+							
+						$selectEntArea='SELECT * FROM EntertainArea WHERE FK_Room=?';
+						$resEntArea=$dbADO->Execute($selectEntArea,$roomID);
+						$rowEntArea=@$resEntArea->FetchRow();
+						$mdEntAreaID=$rowEntArea['PK_EntertainArea'];
+					}
+
+					
 					$installSourceCode=(isset($_POST['installSourceCode']))?$_POST['installSourceCode']:0;
 					$diskless=(isset($_POST['disklessBoot_']))?$_POST['disklessBoot_']:0;
 					$macAddress=($diskless!=0)?$_POST['mdMAC']:NULL;
 
-					$insertDevice='INSERT INTO Device (Description, FK_DeviceTemplate, FK_Installation,MACaddress) VALUES (?,?,?,?)';
-					$dbADO->Execute($insertDevice,array($description,$FK_DeviceTemplate,$_SESSION['installationID'],$macAddress));
+					$insertDevice='INSERT INTO Device (Description, FK_DeviceTemplate, FK_Installation,MACaddress,FK_Room) VALUES (?,?,?,?,?)';
+					$dbADO->Execute($insertDevice,array($description,$FK_DeviceTemplate,$_SESSION['installationID'],$macAddress,$roomID));
 					$insertID=$dbADO->Insert_ID();
+					
 					InheritDeviceData($FK_DeviceTemplate,$insertID,$dbADO);
-					createChildsForControledViaDeviceTemplate($FK_DeviceTemplate,$_SESSION['installationID'],$insertID,$dbADO);
-					createChildsForControledViaDeviceCategory($FK_DeviceTemplate,$_SESSION['installationID'],$insertID,$dbADO);
+					createChildsForControledViaDeviceTemplate($FK_DeviceTemplate,$_SESSION['installationID'],$insertID,$dbADO,$roomID,$mdEntAreaID);
+					createChildsForControledViaDeviceCategory($FK_DeviceTemplate,$_SESSION['installationID'],$insertID,$dbADO,$roomID,$mdEntAreaID);
+					addDeviceToEntertainArea($insertID,$mdEntAreaID,$dbADO);					
+					
+					$commandGroupsArray=array('TV', 'playlists', 'music', 'movies', 'videos', 'pictures');
+					foreach($commandGroupsArray as $commandGroup)
+						addMediaCommandGroup($commandGroup,$mdEntAreaID, $installationID,$dbADO);
 					
 					// install options 
 					$orbiterMDChild=getMediaDirectorOrbiterChild($insertID,$dbADO);
@@ -882,9 +990,11 @@ function wizard($output,$dbADO) {
 							$OptionalDeviceName=cleanString(@$_POST['templateName_'.$elem]);
 							$insertDevice='
 									INSERT INTO Device 
-										(Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia) 
-									VALUES (?,?,?,?)';
-							$dbADO->Execute($insertDevice,array($OptionalDeviceName,$elem,$installationID,$orbiterMDChild));
+										(Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia,FK_Room) 
+									VALUES (?,?,?,?,?)';
+							$dbADO->Execute($insertDevice,array($OptionalDeviceName,$elem,$installationID,$orbiterMDChild,$roomID));
+							$optionInsertId=$dbADO->Insert_ID();
+							addDeviceToEntertainArea($optionInsertId,$mdEntAreaID,$dbADO);					
 						}
 					}
 										
@@ -914,10 +1024,21 @@ function wizard($output,$dbADO) {
 					$installSourceCode=(isset($_POST['installSourceCode_'.$value]))?$_POST['installSourceCode_'.$value]:0;
 					$diskless=(isset($_POST['disklessBoot_'.$value]))?$_POST['disklessBoot_'.$value]:0;
 					$macAddress=($diskless!=0)?$_POST['mdMAC_'.$value]:NULL;
-	
+					$oldRoomID=$_POST['oldRoomID_'.$value];
+					$oldRoom=$_POST['oldRoom_'.$value];
+					$mdRoom=@$_POST['room_'.$value];
+					
 					$updateDevice='UPDATE Device SET Description=?, FK_DeviceTemplate=?,MACaddress=? WHERE PK_Device=?';
 					$dbADO->Execute($updateDevice,array($description,$FK_DeviceTemplate,$macAddress,$value));
-	
+					
+					if($oldRoom!=$mdRoom && $mdRoom!=''){
+						$updateRoom='UPDATE Room SET Description=? WHERE PK_Room=?';
+						$dbADO->Execute($updateRoom,array($mdRoom,$oldRoomID));
+						
+						$updateEntertainArea='UPDATE EntertainArea SET Description=? WHERE FK_Room=?';
+						$dbADO->Execute($updateEntertainArea,array($mdRoom,$oldRoomID));
+					}
+					
 					$updateDeviceDeviceData='UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?';
 					$dbADO->Execute($updateDeviceDeviceData,array($FK_Distro,$value,$GLOBALS['rootPK_Distro']));
 					if($installSourceCode!=$oldInstallSourceCode){
@@ -940,6 +1061,12 @@ function wizard($output,$dbADO) {
 						}
 					}
 					
+					$resEntArea=$dbADO->Execute('SELECT * FROM EntertainArea WHERE FK_Room=?',array($oldRoomID));
+					if($resEntArea){
+						$rowEntArea=$resEntArea->FetchRow();
+						$mdEntArea=$rowEntArea['PK_EntertainArea'];
+					}
+												
 					// install options - delete or insert devices
 					$orbiterMDChild=getMediaDirectorOrbiterChild($value,$dbADO);
 					$installOptionsArray=explode(',',$_POST['displayedTemplatesRequired_'.$orbiterMDChild]);
@@ -950,10 +1077,14 @@ function wizard($output,$dbADO) {
 							$OptionalDeviceName=cleanString(@$_POST['templateName_'.$elem]);
 							$insertDevice='
 									INSERT INTO Device 
-										(Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia) 
-									VALUES (?,?,?,?)';
-							if($oldDevice=='')
-								$dbADO->Execute($insertDevice,array($OptionalDeviceName,$elem,$installationID,$orbiterMDChild));
+										(Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia,FK_Room) 
+									VALUES (?,?,?,?,?)';
+							if($oldDevice==''){
+								$dbADO->Execute($insertDevice,array($OptionalDeviceName,$elem,$installationID,$orbiterMDChild,$oldRoomID));
+								$optionInsertId=$dbADO->Insert_ID();
+								if(isset($mdEntArea))
+									addDeviceToEntertainArea($optionInsertId,$mdEntArea,$dbADO);					
+							}
 						}else{
 							$dbADO->Execute("DELETE FROM Device WHERE PK_Device='".$oldDevice."'");
 						}
@@ -1175,8 +1306,8 @@ function wizard($output,$dbADO) {
 					$dbADO->Execute($insertDevice,array($description,$FK_DeviceTemplate,$_SESSION['installationID']));
 					$insertID=$dbADO->Insert_ID();
 					InheritDeviceData($FK_DeviceTemplate,$insertID,$dbADO);
-					createChildsForControledViaDeviceTemplate($FK_DeviceTemplate,$_SESSION['installationID'],$insertID,$dbADO);
-					createChildsForControledViaDeviceCategory($FK_DeviceTemplate,$_SESSION['installationID'],$insertID,$dbADO);
+					createChildsForControledViaDeviceTemplate($FK_DeviceTemplate,$_SESSION['installationID'],$insertID,$dbADO,NULL,NULL);
+					createChildsForControledViaDeviceCategory($FK_DeviceTemplate,$_SESSION['installationID'],$insertID,$dbADO,NULL,NULL);
 
 					// install options
 					$installOptionsArray=explode(',',$_POST['displayedTemplatesRequired_']);

@@ -335,20 +335,22 @@ function InheritDeviceData($masterDeviceID,$insertID,$dbADO)
 	}
 }
 
-function createChildsForDeviceTemplate($masterDeviceID,$installationID,$insertID,$dbADO)
+function createChildsForDeviceTemplate($masterDeviceID,$installationID,$insertID,$dbADO,$roomID,$entertainAreaID)
 {
 	$queryDeviceTemplate='SELECT Description FROM DeviceTemplate WHERE PK_DeviceTemplate=?';
 	$resDeviceTemplate=$dbADO->Execute($queryDeviceTemplate,$masterDeviceID);
 	$rowDeviceTemplate=$resDeviceTemplate->FetchRow();
-	$queryInsertDevice = "INSERT INTO Device(FK_Installation, Description, FK_Device_ControlledVia, FK_DeviceTemplate)
-									values(?,?,?,?)";
-	$dbADO->Execute($queryInsertDevice,array($installationID,$rowDeviceTemplate['Description'],$insertID,$masterDeviceID));
+	$queryInsertDevice = "INSERT INTO Device(FK_Installation, Description, FK_Device_ControlledVia, FK_DeviceTemplate,FK_Room)
+									values(?,?,?,?,?)";
+	$dbADO->Execute($queryInsertDevice,array($installationID,$rowDeviceTemplate['Description'],$insertID,$masterDeviceID,$roomID));
 	$insertChildID = $dbADO->Insert_ID();
 	InheritDeviceData($masterDeviceID,$insertChildID,$dbADO);
-	createChildsForControledViaDeviceTemplate($masterDeviceID,$installationID,$insertChildID,$dbADO);
+	if(!is_null($entertainAreaID))
+		addDeviceToEntertainArea($insertChildID,$entertainAreaID,$dbADO);
+	createChildsForControledViaDeviceTemplate($masterDeviceID,$installationID,$insertChildID,$dbADO,$roomID,$entertainAreaID);
 }
 
-function createChildsForControledViaDeviceTemplate($masterDeviceID,$installationID,$insertID,$dbADO)
+function createChildsForControledViaDeviceTemplate($masterDeviceID,$installationID,$insertID,$dbADO,$roomID,$entertainAreaID)
 {
 	// check if DeviceTemplate controll anything
 	$queryDeviceTemplate_DeviceTemplate_ControlledVia='SELECT * FROM DeviceTemplate_DeviceTemplate_ControlledVia
@@ -357,12 +359,12 @@ function createChildsForControledViaDeviceTemplate($masterDeviceID,$installation
 	if($resDeviceTemplate_DeviceTemplate_ControlledVia->RecordCount()>0){
 		// insert the children
 		while($row=$resDeviceTemplate_DeviceTemplate_ControlledVia->FetchRow()){
-			createChildsForDeviceTemplate($row['FK_DeviceTemplate'],$installationID,$insertID,$dbADO);
+			createChildsForDeviceTemplate($row['FK_DeviceTemplate'],$installationID,$insertID,$dbADO,$roomID,$entertainAreaID);
 		}
 	}
 }
 
-function createChildsForControledViaDeviceCategory($masterDeviceID,$installationID,$insertID,$dbADO)
+function createChildsForControledViaDeviceCategory($masterDeviceID,$installationID,$insertID,$dbADO,$roomID,$entertainAreaID)
 {
 	$getTemplateGategory='SELECT * FROM DeviceTemplate WHERE PK_DeviceTemplate=?';
 	$resTemplateGategory=$dbADO->Execute($getTemplateGategory,$masterDeviceID);
@@ -381,7 +383,7 @@ function createChildsForControledViaDeviceCategory($masterDeviceID,$installation
 		}
 	}
 	foreach($deviceTemplateArray as $value)
-		createChildsForDeviceTemplate($value,$installationID,$insertID,$dbADO);
+		createChildsForDeviceTemplate($value,$installationID,$insertID,$dbADO,$roomID,$entertainAreaID);
 }
 
 // $device is the PK_Device of the device who has current options, if '' use default options
@@ -488,9 +490,11 @@ function getInstallWizardDeviceTemplates($step,$dbADO,$device='',$distro=0,$oper
 			if(@$isHybridFirstTime==1){
 				$insertDevice='
 					INSERT INTO Device 
-						(Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia) 
-					VALUES (?,?,?,?)';
-				$dbADO->Execute($insertDevice,array($row['Template'],$row['FK_DeviceTemplate'],$_SESSION['installationID'],$_SESSION['OrbiterHybridChild']));
+						(Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia,FK_Room) 
+					VALUES (?,?,?,?,?)';
+				$dbADO->Execute($insertDevice,array($row['Template'],$row['FK_DeviceTemplate'],$_SESSION['installationID'],$_SESSION['OrbiterHybridChild'],$_SESSION['coreRoom']));
+				$insertHybridID=$dbADO->Insert_ID();
+				addDeviceToEntertainArea($insertHybridID,$_SESSION['coreEntertainArea'],$dbADO);
 			}
 			$res->MoveFirst();
 			$out.=$rowIWD['Comments'];
@@ -566,7 +570,7 @@ function deleteDevice($PK_Device,$dbADO)
 	}
 	foreach ($toDelete as $elem) {
 	
-		$arrayFKDeviceTables=array('CommandGroup_Command','Device_Command','Device_CommandGroup','Device_DeviceData','Device_DeviceGroup','Device_Device_Related','Device_EntertainArea','Device_HouseMode','Device_Orbiter','Device_StartupScript','Device_Users','InfraredCode');
+		$arrayFKDeviceTables=array('CommandGroup_Command','Device_Command','Device_CommandGroup','Device_DeviceData','Device_DeviceGroup','Device_Device_Related','Device_EntertainArea','Device_HouseMode','Device_Orbiter','Device_StartupScript','Device_Users','InfraredGroup_Command');
 		foreach($arrayFKDeviceTables AS $tablename){	
 			$queryDelFromTable='DELETE FROM '.$tablename.' WHERE FK_Device='.$elem;
 			$dbADO->Execute($queryDelFromTable);
@@ -577,4 +581,124 @@ function deleteDevice($PK_Device,$dbADO)
 
 }
 
+function addDeviceToEntertainArea($deviceID,$entArea,$dbADO)
+{
+	$queryDE='SELECT * FROM Device_EntertainArea WHERE FK_Device=? AND FK_EntertainArea=?';
+	$resDE=$dbADO->Execute($queryDE,array($deviceID,$entArea));
+	if($resDE->RecordCount()==0){
+		$insertDeviceEntertainArea='INSERT INTO Device_EntertainArea (FK_Device, FK_EntertainArea) VALUES (?,?)';
+		$dbADO->Execute($insertDeviceEntertainArea,array($deviceID,$entArea));
+	}
+					
+	if(isOrbiter($deviceID,$dbADO) || isMediaDirector($deviceID,$dbADO)){
+		$queryChilds='SELECT * FROM Device WHERE FK_Device_ControlledVia=? AND FK_Installation=?';
+		$resChilds=$dbADO->Execute($queryChilds,array($deviceID,$_SESSION['installationID']));
+		if($resChilds->RecordCount()>0){
+			while($rowChilds=$resChilds->FetchRow()){
+				addDeviceToEntertainArea($rowChilds['PK_Device'],$entArea,$dbADO);
+			}
+		}
+	}
+}
+
+function isOrbiter($deviceID,$dbADO)
+{
+	$orbitersArray=array();
+	$orbitersArray=getValidOrbitersArray($_SESSION['installationID'],$dbADO);
+	if(in_array($deviceID,$orbitersArray))
+		return true;
+	return false;
+}
+
+function isMediaDirector($deviceID,$dbADO)
+{
+	$getTemplate='SELECT FK_DeviceTemplate,FK_Device_ControlledVia FROM Device WHERE PK_Device=?';
+	$resTemplate=$dbADO->Execute($getTemplate,$deviceID);
+	if($resTemplate->RecordCount()>0){
+		$row=$resTemplate->FetchRow();
+		$DeviceTemplate=$row['FK_DeviceTemplate'];
+	}else
+		return false;
+	if($DeviceTemplate==$GLOBALS['rootGenericMediaDirector']){
+		return true;
+	}
+	elseif($row['FK_Device_ControlledVia']=='' )
+		return false;
+	else{
+		return isMediaDirector($row['FK_Device_ControlledVia'],$dbADO);
+	}
+}
+
+function addMediaCommandGroup($optionName,$FK_EntertainArea, $installationID,$dbADO)
+{
+	$arrayID=$GLOBALS['ArrayIDForMedia'];
+	
+	$getTemplateID='SELECT * FROM Template WHERE Description=?';
+	$resTemplateID=$dbADO->Execute($getTemplateID,'Media Wiz - '.$optionName);
+	$rowTemplateID=$resTemplateID->FetchRow();
+	$FK_Template=$rowTemplateID['PK_Template'];
+
+	$insertScenario='INSERT INTO CommandGroup (FK_Array, FK_Installation, Description,FK_Template) VALUES (?,?,?,?)';
+	$dbADO->Execute($insertScenario,array($arrayID,$installationID,$optionName,$FK_Template));
+	$insertID=$dbADO->Insert_ID();
+
+	$insertDeviceCommandGroup='INSERT INTO CommandGroup_EntertainArea (FK_EntertainArea, FK_CommandGroup,Sort) VALUES (?,?,?)';
+	$dbADO->Execute($insertDeviceCommandGroup,array($FK_EntertainArea,$insertID,$insertID));
+	$CG_C_insertID=$dbADO->Insert_ID();
+	$queryInsertCommandGroup_Command = "
+		INSERT INTO CommandGroup_Command 
+			(FK_CommandGroup,FK_Command,FK_Device) 
+		VALUES(?,?,?)";								
+	if($optionName=='TV'){
+		$queryMediaPlugin='SELECT * FROM Device WHERE FK_Installation=? AND FK_DeviceTemplate=?';
+		$resMediaPlugin=$dbADO->Execute($queryMediaPlugin,array($installationID,$GLOBALS['rootMediaPlugin']));
+		$rowMediaPlugin=$resMediaPlugin->FetchRow();
+		$mediaPluginID=$rowMediaPlugin['PK_Device'];
+
+		$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandMHPlayMedia'],$mediaPluginID));
+		$CG_C_insertID=$dbADO->Insert_ID();
+
+		$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
+		$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_MediaType'],1));
+
+	}elseif($optionName=='playlists'){
+		$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandGotoScreen'],$GLOBALS['localOrbiter']));
+		$CG_C_insertID=$dbADO->Insert_ID();
+		$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
+		$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_DesignObj'],$GLOBALS['mnuMediaFileList2DesignObj']));
+
+	}else{
+
+		$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandSetVar'],$GLOBALS['localOrbiter']));
+		$CG_C_insertID=$dbADO->Insert_ID();
+
+		$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
+		$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParameterVariableNumber'],2));
+		$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParameterValueToAsign'],$optionName));
+
+		$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandGotoScreen'],$GLOBALS['localOrbiter']));
+		$CG_C_insertID=$dbADO->Insert_ID();
+		$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_DesignObj'],$GLOBALS['mnuMediaFileListDesignObj']));
+
+		$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandSetVar'],$GLOBALS['localOrbiter']));
+		$CG_C_insertID=$dbADO->Insert_ID();
+
+		switch ($optionName){
+			case 'music':
+			$parmValue=4;
+			break;
+			case 'movies':
+			$parmValue=3;
+			break;
+			case 'videos':
+			$parmValue=5;
+			break;
+			case 'pictures':
+			$parmValue=7;
+			break;
+		}
+		$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParameterVariableNumber'],14));
+		$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParameterValueToAsign'],$parmValue));
+	}
+}
 ?>
