@@ -224,9 +224,11 @@ int OrbiterGenerator::DoIt()
 	if( !m_pRow_Device )
 		throw "No orbiter info for device: "; 
 
+	bool bNewOrbiter=false; // Will set to true if this is the first time this Orbiter was generated
 	m_pRow_Orbiter = mds.Orbiter_get()->GetRow(m_iPK_Orbiter);
 	if( !m_pRow_Orbiter )
 	{
+		bNewOrbiter=true;
 		m_pRow_Orbiter = mds.Orbiter_get()->AddRow();
 		m_pRow_Orbiter->PK_Orbiter_set(m_iPK_Orbiter);
 		m_pRow_Orbiter->Table_Orbiter_get()->Commit();
@@ -670,6 +672,19 @@ int OrbiterGenerator::DoIt()
 			}
 			catch(...)
 			{}
+		}
+	}
+
+	if( bNewOrbiter )
+	{
+		cout << "First time generating this orbiter" << endl;
+		Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(DESIGNOBJ_mnuFirstTime_CONST);
+		if( !drNewDesignObj )
+			cerr << "Cannot find 'first time' menu" << endl;
+		else
+		{
+			alNewDesignObjsToGenerate.push_back(drNewDesignObj);
+			m_sMainMenu=StringUtils::itos(DESIGNOBJ_mnuFirstTime_CONST);
 		}
 	}
 

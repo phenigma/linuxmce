@@ -96,13 +96,15 @@ string m_ForwardEmail;
 short int m_FK_Language;
 long int m_FK_Installation_Main;
 short int m_Staff;
+string m_Password_Unix;
+string m_Password_Samba;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[20];
+		bool is_null[22];
 	
 	public:
 		long int PK_Users_get();
@@ -120,6 +122,8 @@ string ForwardEmail_get();
 short int FK_Language_get();
 long int FK_Installation_Main_get();
 short int Staff_get();
+string Password_Unix_get();
+string Password_Samba_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -142,6 +146,8 @@ void ForwardEmail_set(string val);
 void FK_Language_set(short int val);
 void FK_Installation_Main_set(long int val);
 void Staff_set(short int val);
+void Password_Unix_set(string val);
+void Password_Samba_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -157,6 +163,8 @@ bool ForwardEmail_isNull();
 bool FK_Language_isNull();
 bool FK_Installation_Main_isNull();
 bool Staff_isNull();
+bool Password_Unix_isNull();
+bool Password_Samba_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -171,6 +179,8 @@ void ForwardEmail_setNull(bool val);
 void FK_Language_setNull(bool val);
 void FK_Installation_Main_setNull(bool val);
 void Staff_setNull(bool val);
+void Password_Unix_setNull(bool val);
+void Password_Samba_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -202,7 +212,7 @@ void Package_Users_FK_Users_getrows(vector <class Row_Package_Users*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Users+ m_UserName+ m_Password+ m_samePasswordMasterUsers+ m_HasMailbox+ m_AccessGeneralMailbox+ m_Extension+ m_FirstName+ m_LastName+ m_Nickname+ m_ExtensionRingTimeout+ m_ForwardEmail+ m_FK_Language+ m_FK_Installation_Main+ m_Staff+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_Users+ m_UserName+ m_Password+ m_samePasswordMasterUsers+ m_HasMailbox+ m_AccessGeneralMailbox+ m_Extension+ m_FirstName+ m_LastName+ m_Nickname+ m_ExtensionRingTimeout+ m_ForwardEmail+ m_FK_Language+ m_FK_Installation_Main+ m_Staff+ m_Password_Unix+ m_Password_Samba+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -222,6 +232,8 @@ string ForwardEmail_asSQL();
 string FK_Language_asSQL();
 string FK_Installation_Main_asSQL();
 string Staff_asSQL();
+string Password_Unix_asSQL();
+string Password_Samba_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();
