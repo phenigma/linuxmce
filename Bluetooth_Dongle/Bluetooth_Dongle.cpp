@@ -433,12 +433,12 @@ void Bluetooth_Dongle::CMD_Get_Signal_Strength(string sMac_address,int *iValue,s
 {
 	cout << "Need to implement command #61 - Get Signal Strength" << endl;
 	cout << "Parm #47 - Mac_address=" << sMac_address << endl;
-	cout << "Parm #48 - Value_int_=" << iValue_int << endl;
+	cout << "Parm #48 - Value_int_=" << *iValue << endl;
 
 	//BDCommandProcessor *pBDCommandProcessor = m_mapOrbiterSockets_Find( sMac_address );
 
 	//TO BE IMPLEMENTED!!
-	*iValue_int = 255;
+	*iValue = 255;
 } 
 
 //-----------------------------------------------------------------------------------------------------

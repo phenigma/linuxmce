@@ -4,7 +4,9 @@
  * else: return "ERROR. Invalid code.\n"
  */
 
-require_once("database.inc.php");
+
+require('include/config/config.inc.php');
+require('include/utils.inc.php');
 header("Content-type: text/plain");
 
 $signup_url = "http://www.plutohome.com/signup.html";
@@ -12,7 +14,7 @@ $signup_url = "http://www.plutohome.com/signup.html";
 $code = $_GET["code"];
 
 // sanity checks
-if (! isset($code) || $code === "" || preg_match("/^\d+-\d+$/", $code) != 1 || ! CheckValidCode($code))
+if (! isset($code) || $code === "" || preg_match("/^\d+-\d+$/", $code) != 1 || ! CheckValidCode($code,$dbADO))
 {
 	$message = "ERROR. Invalid activation code. If you don't have an activation code, get yours by signing up at $signup_url. Thank you";
 }
@@ -24,29 +26,5 @@ else // return
 echo "$message";
 
 // return true if code is valid, false if not
-function CheckValidCode($code)
-{
-	list($device, $pin) = explode("-", $code);
-	$sql = "SELECT ActivationCode"
-		. " FROM Device"
-		. " JOIN Installation ON Device.FK_Installation = Installation.PK_Installation"
-		. " WHERE Device.PK_Device = '$device' LIMIT 1";
-	$res = @mysql_query($sql);
-	if (mysql_num_rows($res) == 0)
-		return false;
-	$row = mysql_fetch_row($res);
-	if ($row[0] !== $pin)
-		return false;
-	return true;
-}
-
-// return an array of packages
-function GetActivationSh($code)
-{
-	list($device, $pin) = explode("-", $code);
-	exec("/usr/pluto/bin/ConfirmDependencies -d $device install", $result) || die("ERROR. Can't generate answer: $device:$pin");
-
-	return $result;
-}
 ?>
 
