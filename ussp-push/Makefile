@@ -34,8 +34,11 @@ OBEXLIB=-L/usr/local/lib -lopenobex
 # libraries and we can make the executable.
 #
 
+all: ussp-push
+
 ussp-push: obex_main.o obex_socket.o
 	gcc obex_main.o obex_socket.o ${GLIBLIB} ${OBEXLIB} -o ussp-push
+	cp ussp-push ../bin
  
 obex_main.o: obex_main.c obex_socket.h
 	gcc ${OBEXINC} ${GLIBINC} -c obex_main.c -o obex_main.o
@@ -43,3 +46,5 @@ obex_main.o: obex_main.c obex_socket.h
 obex_socket.o: obex_socket.c obex_socket.h
 	gcc ${OBEXINC} ${GLIBINC} -c obex_socket.c -o obex_socket.o
 
+clean:
+	rm -f *.o ussp-push

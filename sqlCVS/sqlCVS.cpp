@@ -19,6 +19,8 @@
 
 #ifndef WIN32
 #include <unistd.h>
+#else
+#include <conio.h>
 #endif
 
 #include <iostream>
@@ -28,7 +30,6 @@
 #include <cstdlib>
 
 #include <stdio.h>
-#include <conio.h>
 
 #include <string>
 #include <vector>

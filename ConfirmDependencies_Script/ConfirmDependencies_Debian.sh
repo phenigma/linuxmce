@@ -76,7 +76,7 @@ case "$URL_TYPE" in
 	;;
 	
 	direct)
-		wget -t 0 -c -P /var/cache/apt/archives "$REPOS_SRC/$PKG_NAME" || exit $ERR_DOWNLOAD
+		wget --dns-timeout=180 -t 0 -c -P /var/cache/apt/archives "$REPOS_SRC/$PKG_NAME" || exit $ERR_DOWNLOAD
 		keep_sending_enters | dpkg -i /var/cache/apt/archives/"$PKG_NAME" || exit $ERR_DPKG_INSTALL
 	;;
 

@@ -5,7 +5,7 @@ CXX = g++
 LDFLAGS = -L$(ROOT)/lib
 LDLIBS = -lmysqlclient_r
 
-sources = RA_Processor.cpp RA_Action.cpp RA_Request.cpp
+sources = RA_Processor.cpp RA_Action.cpp RA_Request.cpp RAServer.cpp RAClientSocket.cpp RAServerSocket.cpp
 
 all: libRACommon.a all-recursive
 

@@ -367,7 +367,6 @@ void CheckDeviceLoop(Row_Device *pRow_Device,bool bDevelopment)
 	else
 	{
 		string PkgName = pRow_Device->FK_DeviceTemplate_getrow()->FK_Package_getrow()->Description_get();
-		cout << "# Package: " << PkgName << endl;
 		CheckPackage(pRow_Device->FK_DeviceTemplate_getrow()->FK_Package_getrow(),pRow_Device,bDevelopment,pRow_Distro,false);
 	}
 

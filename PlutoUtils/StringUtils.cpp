@@ -33,6 +33,7 @@
     #else
         #include <dirent.h>
         #define stricmp(x, y) strcasecmp(x, y)
+		#include <signal.h>
     #endif
 #endif //#ifndef SYMBIAN
 
@@ -484,8 +485,14 @@ string StringUtils::GetStringFromConsole()
 			}
 			continue;
 		}
-		else if( c==3 )
-			exit(1); // Ctrl+c
+		else if( c==3 ) // CTRL+C
+		{
+#ifdef WIN32
+			exit(1); // I don't know of another way
+#else
+			kill(getpid(), SIGINT);
+#endif
+		}
 		cout << c;
 		if( c=='\n' || c=='\r' )
 			return sOutput;

@@ -881,6 +881,11 @@ bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,list<FileI
 	
 	string Package_Name = StringUtils::ToLower(pRow_Package_Source->Name_get());
 	string Dir("/home/tmp/pluto-build/" + Package_Name + "-" + Version);
+	string Prefix("/usr/");
+	if (pRow_Package_Source->FK_Package_getrow()->IsSource_get())
+	{
+		Prefix = "/usr/pluto/src/";
+	}
 
 	FILE * f;
 
@@ -911,10 +916,13 @@ string Makefile = "none:\n"
 	list<FileInfo *>::iterator iFileInfo;
 	for (iFileInfo = listFileInfo.begin(); iFileInfo != listFileInfo.end(); iFileInfo++)
 	{
-		cout << "COPY: " << (*iFileInfo)->m_sSource << " --> " + Dir + "/root/" + (*iFileInfo)->m_sDestination << endl;
+		string sSource = (*iFileInfo)->m_sSource;
+		string sDestination = Dir + "/root/" + Prefix + (*iFileInfo)->m_sDestination;
+		
+		cout << "COPY: " << sSource << " --> " + sDestination << endl;
 #ifndef WIN32
-		system(("mkdir -p " + FileUtils::BasePath(Dir + "/root/" + (*iFileInfo)->m_sDestination)).c_str());
-		FileUtils::PUCopyFile((*iFileInfo)->m_sSource, Dir + "/root/" + (*iFileInfo)->m_sDestination);
+		system(("mkdir -p " + FileUtils::BasePath(sDestination)).c_str());
+		FileUtils::PUCopyFile(sSource, sDestination);
 #endif
 	}
 

@@ -22,7 +22,7 @@
 
 #include "A_UpdateRow.h"
 
-#include "sqlCVSProcessor.h"
+#include "sqlCVSprocessor.h"
 
 
 RA_Request *RA_Processor::BuildRequestFromData( long dwSize, const char *pcData, unsigned long dwRequestID )
