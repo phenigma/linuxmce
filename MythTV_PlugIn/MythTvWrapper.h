@@ -18,6 +18,7 @@ using namespace DCE;
 
 typedef enum {
     WatchTVResult_Failed,
+    WatchTVResult_Ignored,
     WatchTVResult_Tuned,
     WatchTVResult_InTheFuture
 } WatchTVRequestResult;

@@ -7,6 +7,8 @@ CXX = g++
 
 sources = 	convert_mac.cpp
 
+LDLIBS += -lPlutoUtils
+
 all: convert_mac
 
 convert_mac: $(sources:.cpp=.o)

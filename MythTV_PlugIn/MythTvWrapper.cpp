@@ -26,7 +26,7 @@ MythTvWrapper::MythTvWrapper(Command_Impl *pCommandImpl)
 
     g_pPlutoLogger->Write(LV_STATUS, "Passing params: %d", argc);
 
-    m_pQApplication = new QApplication(argc, argv);
+    m_pQApplication = new QApplication(argc, argv, false); // we don't need to display anything on X.
 
     if ( ! initMythTVGlobalContext() )
     {
@@ -37,8 +37,7 @@ MythTvWrapper::MythTvWrapper(Command_Impl *pCommandImpl)
 
 bool MythTvWrapper::initMythTVGlobalContext()
 {
-    gContext = new MythContext(MYTH_BINARY_VERSION);
-    gContext->LoadQtConfig();
+    gContext = new MythContext(MYTH_BINARY_VERSION, false); // we don't need X in the plugin
 
     QSqlDatabase *db = QSqlDatabase::addDatabase("QMYSQL3");
     if (!db)
@@ -47,6 +46,7 @@ bool MythTvWrapper::initMythTVGlobalContext()
         return false;
     }
 
+    g_pPlutoLogger->Write(LV_STATUS, "database object was created");
     if (!gContext->OpenDatabase(db))
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "Could not open mysql database");
@@ -204,24 +204,28 @@ void MythTvWrapper::MythTvEpgGrid::readDataGridBlock(int rowStart, int rowCount,
     startDataAsString = periodStart.toString(strTimeFormat);
     endDateAsString   = periodEnd.toString(strTimeFormat);
 
+
     strQuery.sprintf("SELECT p.chanid, p.title, p.starttime, p.endtime"
                      " FROM program p"
                      " WHERE p.chanid IN (%s) AND "
-                           "p.starttime BETWEEN '%s' and '%s' OR "
-                           "p.endtime BETWEEN '%s' and '%s' OR "
-                           "(p.starttime <= '%s' AND p.endtime >= '%s')"
+                           "("
+                            "(p.starttime BETWEEN '%s' and '%s') OR "
+                            "(p.endtime BETWEEN '%s' and '%s') OR "
+                            "(p.starttime < '%s' AND p.endtime > '%s')"
+                           ")"
                      " ORDER BY p.chanid, p.starttime",
-                     getChannelList(m_bKeepRowHeader ? rowStart + 1 : rowStart, m_bKeepRowHeader ? rowCount - 1 : rowCount).ascii(),
-                     startDataAsString.ascii(),
-                     endDateAsString.ascii(),
-                     startDataAsString.ascii(),
-                     endDateAsString.ascii(),
-                     startDataAsString.ascii(),
-                     endDateAsString.ascii());
+                     getChannelList(rowStart, m_bKeepRowHeader ? rowCount - 1 : rowCount).ascii(),
+                     periodStart.toString(strTimeFormat).ascii(),
+                     periodEnd.addSecs(-1).toString(strTimeFormat).ascii(),
+                     periodStart.addSecs(1).toString(strTimeFormat).ascii(),
+                     periodEnd.toString(strTimeFormat).ascii(),
+                     periodStart.toString(strTimeFormat).ascii(),
+                     periodEnd.toString(strTimeFormat).ascii());
 
     QSqlQuery query;
     query.exec(strQuery);
 
+//     g_pPlutoLogger->Write(LV_STATUS, "Query: %s", strQuery.ascii());
     if ( ! query.isActive() )
     {
         g_pPlutoLogger->Write(LV_WARNING,
@@ -232,9 +236,12 @@ void MythTvWrapper::MythTvEpgGrid::readDataGridBlock(int rowStart, int rowCount,
         return;
     }
 
+    this->ClearData();
+
     if ( m_bKeepRowHeader )
         MakeTimeRow(colStart, colCount);
 
+//     g_pPlutoLogger->Write(LV_STATUS, "Quant %d --> Period: %s <--> %s", m_iQuantInSecs, startDataAsString.ascii(), endDateAsString.ascii());
     if ( query.numRowsAffected() > 0 )
     {
         int currentChannelId = 0, nextChannelId = 0;
@@ -260,11 +267,22 @@ void MythTvWrapper::MythTvEpgGrid::readDataGridBlock(int rowStart, int rowCount,
             programColumnSpan = dateStart.secsTo(dateEnd) / m_iQuantInSecs;
             programStartColumn = periodStart.secsTo(dateStart) / m_iQuantInSecs;
 
+
             if ( programStartColumn < 0 )
             {
                 programColumnSpan += programStartColumn;
                 programStartColumn = 0;
             }
+
+            /*
+            g_pPlutoLogger->Write(LV_STATUS, "Program %d->(%d+%d) %d: %s<-->%s (%s)",
+                        channelPos,
+                        programStartColumn, programColumnSpan,
+                        currentChannelId,
+                        dateStart.toString().ascii(),
+                        dateEnd.toString().ascii(),
+                        programName.ascii());
+            */
 
             DataGridCell *pCell = new DataGridCell(
                     programName.ascii(),
@@ -281,7 +299,8 @@ void MythTvWrapper::MythTvEpgGrid::readDataGridBlock(int rowStart, int rowCount,
                         .append(QString::number(dateStart.time().minute())).ascii());
 
             pCell->m_Colspan = programColumnSpan;
-            SetData(programStartColumn  + colStart, channelPos, pCell);
+//             g_pPlutoLogger->Write(LV_STATUS, "Setting cell to position: %d, %d", programStartColumn + colStart, channelPos);
+            SetData(programStartColumn  + colStart, channelPos + rowStart, pCell);
         }
     }
     else
@@ -361,12 +380,11 @@ WatchTVRequestResult MythTvWrapper::ProcessWatchTvRequest(string showStartTimeEn
     int iChanId;
     int tmYear, tmMonth, tmDay, tmHour, tmMinute;
 
-
     if ( ! decodeProgramStartTime(showStartTimeEncoded,
                                   iChanId,
                                   tmYear, tmMonth, tmDay,
                                   tmHour, tmMinute))
-        return WatchTVResult_Failed;
+        return WatchTVResult_Ignored;
 
     WatchTVRequestResult result;
     if ( (result = ProcessWatchTvRequest(iChanId, tmYear, tmMonth, tmDay, tmHour, tmMinute)) == WatchTVResult_Tuned )
@@ -422,9 +440,7 @@ ScheduleRecordTvResult MythTvWrapper::ProcessAddRecordingRequest(int channelId, 
                                         QString::number(channelId),
                                         programStartTime);
 
-
     programInfo->ApplyRecordStateChange(QSqlDatabase::database(), kSingleRecord);
-    g_pPlutoLogger->Write(LV_STATUS, "After recording: %s %s", programInfo->RecStatusChar().ascii(), programInfo->RecStatusText().ascii());
 
     return ScheduleRecordTVResult_Success;
 }

@@ -27,7 +27,7 @@ using namespace DCE;
 
 //<-dceag-const-b->
 MythTV_PlugIn::MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-	: MythTV_PlugIn_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
+    : MythTV_PlugIn_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
 //     m_pDatabase_FakeEPG = new Database_FakeEPG();
@@ -249,12 +249,12 @@ COMMANDS TO IMPLEMENT
 
 //<-dceag-sample-b->!
 //<-dceag-c65-b->
-/* 
-	COMMAND: #65 - Jump Position In Playlist
-	COMMENTS: Change channels.  +1 and -1 mean up and down 1 channel.
-	PARAMETERS:
-		#5 Value To Assign
-			The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1.
+/*
+    COMMAND: #65 - Jump Position In Playlist
+    COMMENTS: Change channels.  +1 and -1 mean up and down 1 channel.
+    PARAMETERS:
+        #5 Value To Assign
+            The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1.
 */
 void MythTV_PlugIn::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c65-e->
@@ -270,25 +270,39 @@ void MythTV_PlugIn::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string
         return;  // Can't do anything
 
 
-    if ( m_pMythWrapper->ProcessWatchTvRequest(sValue_To_Assign) == WatchTVResult_Tuned )
+    WatchTVRequestResult result;
+    result = m_pMythWrapper->ProcessWatchTvRequest(sValue_To_Assign);
+    switch ( result )
     {
-        pMediaStream->UpdateDescriptions();
-        m_pMedia_Plugin->MediaInfoChanged(pMediaStream);
-        return;
-    }
+        case WatchTVResult_Tuned:
+            pMediaStream->UpdateDescriptions();
+            m_pMedia_Plugin->MediaInfoChanged(pMediaStream);
+            return;
+        case WatchTVResult_InTheFuture:
+        {
+            DCE::CMD_Goto_Screen
+                cmdGotoScreen(
+                    m_dwPK_Device,
+                    pMessage->m_dwPK_Device_From,
+                    0,
+                    StringUtils::itos(DESIGNOBJ_mnuPVROptions_CONST).c_str(),
+                    "", "", false);
 
-    DCE::CMD_Goto_Screen cmdGotoScreen(m_dwPK_Device, pMessage->m_dwPK_Device_From, 0, StringUtils::itos(DESIGNOBJ_mnuPVROptions_CONST).c_str(), "", "", false);
+            SendCommand(cmdGotoScreen);
+        }
 
-    SendCommand(cmdGotoScreen);
+        default:
+            return;
+        }
 }
 
 //<-dceag-c185-b->
-/* 
-	COMMAND: #185 - Schedule Recording
-	COMMENTS: This will schedule a recording.
-	PARAMETERS:
-		#68 ProgramID
-			The program which will need to be recorded. (The format is defined by the device which created the original datagrid)
+/*
+    COMMAND: #185 - Schedule Recording
+    COMMENTS: This will schedule a recording.
+    PARAMETERS:
+        #68 ProgramID
+            The program which will need to be recorded. (The format is defined by the device which created the original datagrid)
 */
 void MythTV_PlugIn::CMD_Schedule_Recording(string sProgramID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c185-e->

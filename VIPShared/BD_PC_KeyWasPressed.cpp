@@ -53,7 +53,7 @@ bool BD_PC_KeyWasPressed::ProcessCommand(BDCommandProcessor *pProcessor)
 		(BDCommandProcessor_BluetoothDongle *)pProcessor;
 
 	BD_Orbiter *pOrbiter = 
-		m_pProcessor->m_pBluetooth_Dongle->m_OrbiterSockets_Find(pProcessor->m_sMacAddressPhone);
+		m_pProcessor->m_pBluetooth_Dongle->m_mapOrbiterSockets_Find(pProcessor->m_sMacAddressPhone);
 
 	if(NULL == pOrbiter || NULL == pOrbiter->m_pOrbiter)
 	{

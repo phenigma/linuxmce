@@ -7,6 +7,7 @@
 #include <map>
 
 using namespace std;
+
 //------------------------------------------------------------------------------------------------------
 class DCEConfig : public RA_Config
 {

@@ -1,4 +1,4 @@
-//<-dceag-d-b->
+    //<-dceag-d-b->
 #include "MythTV_Player.h"
 #include "DCE/Logger.h"
 #include "PlutoUtils/FileUtils.h"
@@ -18,13 +18,19 @@ using namespace DCE;
 
 #include <programinfo.h>
 
+#include <remoteencoder.h>
+#include <remoteutil.h>
+
 MythContext *gContext;
+
+// extern int print_verbose_messages;
 
 //<-dceag-const-b->
 MythTV_Player::MythTV_Player(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
     : MythTV_Player_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
+//     print_verbose_messages = VB_ALL;
     int argc = 1;
     char *argv[] = { "", "", "" };
 
@@ -41,14 +47,14 @@ MythTV_Player::MythTV_Player(int DeviceID, string ServerAddress,bool bConnectEve
     m_pMythMainWindow = new MythMainWindow();
     m_pMythMainWindow->Init();
     // make a window regardless of what the myth Tv conf wants.
-    m_pMythMainWindow->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-    m_pMythMainWindow->resize(QSize(800, 600));
+//     m_pMythMainWindow->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+//     m_pMythMainWindow->setFixedSize(QSize(800,600));
+//     m_pMythMainWindow->resize(QSize(800, 600));
     m_pMythMainWindow->showNormal();
-
 
     gContext->SetMainWindow(m_pMythMainWindow);
 
-    TV::InitKeys();
+//     TV::InitKeys();
 
     m_pMythTV = new TV();
     m_pMythTV->Init();
@@ -77,6 +83,8 @@ bool MythTV_Player::initMythTVGlobalContext()
         g_pPlutoLogger->Write(LV_CRITICAL, "Could not open mysql database");
         return false;
     }
+
+    return true;
 }
 //<-dceag-reg-b->
 // This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in.  Otherwise Connect() will be called from the main()
@@ -168,8 +176,6 @@ void MythTV_Player::CMD_Start_TV(string &sCMD_Result,Message *pMessage)
         g_pPlutoLogger->Write(LV_STATUS, "Starting Live TV Playback!");
         m_pMythTV->LiveTV(true);
     }
-
-    sCMD_Result = "OK";
 }
 
 //<-dceag-c76-b->
@@ -181,7 +187,9 @@ void MythTV_Player::CMD_Start_TV(string &sCMD_Result,Message *pMessage)
 void MythTV_Player::CMD_Stop_TV(string &sCMD_Result,Message *pMessage)
 //<-dceag-c76-e->
 {
-    m_pMythTV->StopLiveTV();
+    m_pRemoteEncoder->StopLiveTV();
+    if ( m_pMythTV )
+        m_pMythTV->Stop();
 }
 
 //<-dceag-c187-b->
@@ -217,7 +225,15 @@ void MythTV_Player::CMD_Tune_to_channel(string sProgramID,string &sCMD_Result,Me
                                         channelName,
                                         startTime);
 
-    g_pPlutoLogger->Write(LV_STATUS, "Tuning .. ");
-    m_pMythTV->Playback(programInfo);
+    g_pPlutoLogger->Write(LV_STATUS, "Tuning recorder num: %d to channel %s", m_pMythTV->GetLastRecorderNum(), channelName.ascii());
+//     RemoteEncoder *pRemoteEncoder = RemoteGetExistingRecorder(m_pMythTV->GetLastRecorderNum());
+//     if ( m_pRemoteEncoder )
+//     {
+//         g_pPlutoLogger->Write(LV_STATUS, "Doing a set channel!");
+//         m_pRemoteEncoder->SetChannel(channelName);
+//     }
+    m_pMythTV->ChangeChannelByString(channelName);
+
+//     gContextRemoteEncoder->GetLCDDevice()->switchToChannel(channelName);
     g_pPlutoLogger->Write(LV_STATUS, "Done");
 }
