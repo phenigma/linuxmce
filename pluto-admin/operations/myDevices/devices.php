@@ -69,7 +69,7 @@ function devices($output,$dbADO) {
 	}
 	
 	
-	if(isset($_REQUEST['lastAdded'])){
+	if(isset($_REQUEST['lastAdded']) && (int)$_REQUEST['lastAdded']!=0){
 		$rs=$dbADO->Execute('SELECT Comments FROM DeviceTemplate WHERE PK_DeviceTemplate=?',(int)$_REQUEST['lastAdded']);
 		$row=$rs->FetchRow();
 		if($row['Comments']!=''){

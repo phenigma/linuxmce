@@ -108,7 +108,7 @@ function SensorPositionerWriteHTML()
 	{
 		objListItem = new DynLayer();
 		objListItem.moveTo(40, 30*intCount + 50);
-		objListItem.setSize(150,25);
+		objListItem.setSize(200,25);
 		objListItem.setBgColor((intCount == this.selectedSensorIndex && this.SensorInstances.length > 1) ? this.highlightColorText : "");
 		objListItem.setHTML("<table><tr><td>&nbsp;<a href=\"JavaScript:void(null);\" class='normalLink'>" + this.SensorInstances[intCount].Description + "</a></td></tr></table>");
 		this.SensorInstances[intCount].Label = objListItem;

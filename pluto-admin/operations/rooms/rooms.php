@@ -203,9 +203,8 @@ $displayedRooms = array();
 	}
 	
 	$output->setNavigationMenu(array("Rooms"=>'index.php?section=rooms'));
-	
-$output->setBody($out);
-$output->setTitle(APPLICATION_NAME);			
-$output->output();  		
+	$output->setBody($out);
+	$output->setTitle(APPLICATION_NAME);			
+	$output->output();  		
 }
 ?>

@@ -21,8 +21,10 @@ function steps($output,$dbADO) {
 		<script>
 		function setMenuItem(mainUrl,selfPage,sender)
 		{
-			if(mainUrl!=\'\')
+			if(mainUrl!=\'\'){
+				top.basefrm.forms[0].submit();
 				top.basefrm.location=mainUrl;
+			}
 			else
 				top.basefrm.location=\'index.php?section=installationSettings\';
 			self.location=\'index.php?section=wizard&pageSetup=\'+selfPage+\'&senderID=\'+sender;				

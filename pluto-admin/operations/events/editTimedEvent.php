@@ -62,19 +62,19 @@ function editTimedEvent($output,$dbADO) {
 		$out.='
 			<tr>
 				<td><input type="radio" name="timedEventType" value="1" '.(($timedEventType==1)?'checked':'').' onClick="showOptions(1);"> <B>Interval based:</B></td>
-				<td colspan="2">Do something every x minutes, or every other hour</td>
+				<td>Do something every x minutes, or every other hour</td>
 			</tr>	
 			<tr>
 				<td><input type="radio" name="timedEventType" value="2" '.(($timedEventType==2)?'checked':'').' onClick="showOptions(2);"> <B>Day of week based:</B></td>
-				<td colspan="2">Do something at 7:00 and 9:00 on Monday, Wednesday and Friday</td>
+				<td>Do something at 7:00 and 9:00 on Monday, Wednesday and Friday</td>
 			</tr>		
 			<tr>
 				<td><input type="radio" name="timedEventType" value="3" '.(($timedEventType==3)?'checked':'').' onClick="showOptions(3);"> <B>Day of month based:</B></td>
-				<td colspan="2">Do something at 8:00 on the 1st and 15th of each month</td>
+				<td>Do something at 8:00 on the 1st and 15th of each month</td>
 			</tr>		
 			<tr>
 				<td><input type="radio" name="timedEventType" value="4" '.(($timedEventType==4)?'checked':'').' onClick="showOptions(4);"> <B>Absolute:</B></td>
-				<td colspan="2">Do something on 5 Mar 2005 at 11:15</td>
+				<td>Do something on 5 Mar 2005 at 11:15</td>
 			</tr>
 		
 			<tr bgcolor="#E7E7E7">
@@ -167,14 +167,14 @@ function editTimedEvent($output,$dbADO) {
 			$out.='
 					<input type="hidden" name="oldCheckedRooms" value="'.join(',',$oldCheckedRooms).'">
 					<input type="hidden" name="displayedRoomsArray" value="'.join(',',$displayedRoomsArray).'">
-				<td>
+				</td>
 				<td>If you would like to use this event as an alarm clock, choose what rooms this event should act as an alarm clock in. It will appear on the Orbiters\' sleeping menu and you can change the time on the Orbiter.</td>
 			</tr>
 			<tr bgcolor="#E7E7E7">
-				<td colspan="3" align="center"><input type="submit" class="button" name="continue" value="Update"></td>
+				<td colspan="2" align="center"><input type="submit" class="button" name="continue" value="Update"></td>
 			</tr>
 			<tr>
-				<td colspan="3" align="center">Specify above when you want Pluto to do something, and below what you want Pluto to do by choosing a device, and then a command to send to that device.</td>
+				<td colspan="2" align="center">Specify above when you want Pluto to do something, and below what you want Pluto to do by choosing a device, and then a command to send to that device.</td>
 			</tr>';
 
 			$selectCommandsAssigned = "

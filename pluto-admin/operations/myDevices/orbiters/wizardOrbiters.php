@@ -305,7 +305,6 @@ function wizardOrbiters($output,$dbADO) {
 	}
 
 	$output->setScriptCalendar('null');
-
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME.' :: Orbiters');
 	$output->output();

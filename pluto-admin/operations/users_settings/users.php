@@ -303,9 +303,9 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 	}
 	
 	$output->setNavigationMenu(array("Settings"=>'index.php?section=installationSettings',"Users"=>'index.php?section=users'));
-	
-$output->setBody($out);
-$output->setTitle(APPLICATION_NAME.' :: Users');			
-$output->output();  		
+
+	$output->setBody($out);
+	$output->setTitle(APPLICATION_NAME.' :: Users');			
+	$output->output();  		
 }
 ?>
