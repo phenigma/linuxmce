@@ -316,7 +316,7 @@ int main(int argc, char *argv[])
 		for(it=listPackageInfo.begin(); it!=listPackageInfo.end(); ++it)
 		{
 			PackageInfo *pPackageInfo = *it;
-			cout << pPackageInfo->m_pRow_Package_Source->FK_Package_get() << "\t" << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << endl;
+			cout << pPackageInfo->m_pRow_Package_Source->FK_Package_get() << "|" << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << endl;
 		}
 	}
 	// The ConfirmDependencies program specific to this distro will be given the following parameters:
