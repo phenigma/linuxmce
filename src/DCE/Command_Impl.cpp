@@ -69,7 +69,7 @@ void *WatchDogThread( void *pData )
 		string sResponse = pCommand_Impl->SendReceiveString( "PING " + StringUtils::itos( pCommand_Impl->m_dwPK_Device ) );
 		g_pPlutoLogger->Write(LV_STATUS, "Sent PING to the router.");
 
-		if ( sResponse != "OOPS!!!" )
+		if ( sResponse != "OK" )
 		{
 			g_pPlutoLogger->Write(LV_STATUS, "Before Disconnect.");
 			pCommand_Impl->Disconnect();

@@ -75,7 +75,17 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 					PK_Device = atoi(StringUtils::Tokenize(command_line, " ", pos).c_str());
 					break;
 				case 'l':
-					sLogger = StringUtils::Tokenize(command_line, " ", pos);
+					//sLogger = StringUtils::Tokenize(command_line, " ", pos);
+					{
+						if(command_line[pos] == '\"')
+						{
+							pos++;
+							sLogger = StringUtils::Tokenize(command_line, "\"", pos);
+							pos++;
+						}
+						else
+							sLogger = StringUtils::Tokenize(command_line, " ", pos);
+					}
 					break;
 				case 'D':
 					sLocalDirectory = StringUtils::Tokenize(command_line, " ", pos);
