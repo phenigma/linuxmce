@@ -23,15 +23,15 @@ function myPluto($output,$dbADO,$conn) {
 	$res=$dbADO->Execute($queryInstallations,$FK_Users);
 	if($res->RecordCount()==0)
 		$installationsText='No Pluto installations.<br><br>
-		<b>To get Pluto</b>, choose <a href="index.php?section=wizard&step=1&instid=0">New Installation</a>.';
+		<b>To get Pluto</b>, choose <a href="index.php?section=wizard&step=1&instid=0">Start wizard</a>.';
 	else {
 		$installationsText='You have the following installations:<br>';
 		while($rowInstallations=$res->FetchRow()){
 			$installationsText.='
 				Installation no. <b>'.$rowInstallations['PK_Installation'].'</b><br>
-				Description: <a href="index.php?section=wizard&step=7&instid='.$rowInstallations['PK_Installation'].'"><b>'.stripslashes($rowInstallations['Description']).'</b></a><br>';
+				Description: <a href="index.php?section=wizard&step=8&instid='.$rowInstallations['PK_Installation'].'"><b>'.stripslashes($rowInstallations['Description']).'</b></a><br>';
 		}
-		$installationsText.='<br><a href="index.php?section=wizard&step=1&instid=0"><b>New installation</b></a><br>';
+		$installationsText.='<br><a href="index.php?section=wizard&step=1&instid=0"><b>Start wizard</b></a><br>';
 	}
 
 	if(isset($_GET['redirect'])){

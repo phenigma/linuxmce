@@ -454,7 +454,7 @@ function getInstallWizardDeviceTemplates($step,$dbADO,$device='',$distro=0,$oper
 	}else{
 		$out.='
 			<tr class="normaltext">
-				<td colspan="5"><b>What software modules do you want on this device?</b></td>
+				<td colspan="5"><b>What software modules do you want on this device?</b> &nbsp; The most common are selected by default.</td>
 			</tr>';
 	}
 	$oldCategory='';

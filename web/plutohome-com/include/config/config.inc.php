@@ -40,16 +40,19 @@
 	$GLOBALS['rootOrbiterID'] = 5; 			// the PK_DeviceCategory from DeviceCategory table for the root orbiter
 	$GLOBALS['rootCoreID'] = 7; 			// the PK_DeviceCategory from DeviceCategory table for the root Core
 	$GLOBALS['rootMediaDirectorID'] = 8;	// the PK_DeviceCategory from DeviceCategory table for the root MediaDirector
+	$GLOBALS['MobileOrbiterCategory'] = 2;	// the PK_DeviceCategory Mobile Orbiter
 	
 	$GLOBALS['rootGenericMediaDirector']=28;// the PK_DeviceTemplate for Generic Media Director
 	$GLOBALS['rootDCERouter'] = 1; 			// the PK_DeviceTemplate from DeviceTemplate table for the root DCE Router
 	$GLOBALS['deviceTemplateOrbiter']=8;	// the PK_DeviceTemplate for 'Orbiter' 
-	$GLOBALS['rootMediaPlugin']=2;				// Media Plug-in
+	$GLOBALS['rootMediaPlugin']=2;			// Media Plug-in
+	$GLOBALS['onScreenOrbiter']=62;			// OnScreen Orbiter
 	
 	$GLOBALS['rootDevelopment']=8;			// the PK_DeviceData for description Development from table DeviceData
 	$GLOBALS['rootPK_Distro']=7;			// the PK_DeviceData for PK_Distro from table DeviceData
 	$GLOBALS['rootDisklessBoot']=9;			// the PK_DeviceData for Diskless Boot from table DeviceData
 	$GLOBALS['DHCPDeviceData']=28;			// PK_DeviceData for DHCP
+	$GLOBALS['kickStartCD']=46;				// Kick Start CD
 	
   	$GLOBALS['HTTPorFTP']=array(2,5,6);  	// the PK_RepositoryType for HTTP FTP and both from table RepositoryType
 	$GLOBALS['CVSorSVN']=array(2,5,6);  	// the PK_RepositoryType for CVS or SVN  from table RepositoryType
