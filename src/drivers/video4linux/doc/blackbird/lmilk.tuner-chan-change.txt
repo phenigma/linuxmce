@@ -1,0 +1,32 @@
+Milksop GPL Reflasher - 0.12 - (c)2002 andy@warmcat.com
+
+# wintv32 running displays valid tuner PAL channel
+# start capture 
+# change channel to another valid PAL tuner channel
+# stop capture
+
+CheapI2C on printer port at 0x378
+Starting realtime...
+Entering capture mode, your PC will appear frozen - press any key to end
+      0uS: 40 W 11 02 00 
+  1.015mS: 40 r 00 06 
+  1.534 S: 21 W 09 
+    514uS: 21 r 53 
+    681uS: 40 W 13 00 05 
+  1.012mS: 40 r 00 00 
+    844uS: 40 W 10 00 20 00 20 
+483.860mS: 21 W 87 00 
+ 61.622mS: 61 W 8E 90 0E 40 
+ 57.624mS: 61 r 7C 
+    578uS: 40 W 13 00 05 
+  1.022mS: 40 r 00 00 
+    773uS: 40 W 10 00 20 00 20 
+ 36.171mS: 21 W 88 D0 
+    844uS: 21 W 88 F0 
+ 99.157mS: 21 W 87 01 
+721.549mS: 40 W 11 02 00 
+  1.021mS: 40 r 00 06 
+  1.999 S: 40 W 11 02 00 
+  1.013mS: 40 r 00 06 
+   Binary Hack Dump lmilk written
+Done

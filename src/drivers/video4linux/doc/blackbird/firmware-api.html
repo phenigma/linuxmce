@@ -1,0 +1,1375 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>iTVC15 Firmware API</title>
+</head>
+
+<body>
+<center>
+	<h2>iTVC15 Firmware API</h2>
+	<table width="60%">
+	<tr><td><i>
+		This page describes the iTVC Firmware API calls.
+		Uploading the firmware to the card will be discussed on the
+		<a href="firmware-upload.html">firmware-upload.html</a>	page.
+		How the driver communicates with the firmware will be discussed on the
+		<a href="firmware-calling.html">firmware-calling.html</a> page.
+		Information about the memory map of the card and the registers are described on the
+		<a href="memory-map.html">memory-map.html</a> page.
+	</i></td></tr>
+	</table>
+
+	<br>
+
+	<table width="80%" border="1" cellspacing="0" cellpadding="5">
+		<tr><th><h1>Encoder API calls</h1></th></tr>
+		<tr><td><center><br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">128</td></tr>
+			<tr><th>Enum</th><td>0x80</td></tr>
+			<tr><th>Description</th><td>Does nothing. May be used to check if the firmware is responding.</td></tr>
+			<tr><th>#Params</td><td>0</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">129</td></tr>
+			<tr><th>Enum</th><td>0x81</td></tr>
+			<tr><th>Description</th><td>Commences the capture of video, audio and/or VBI data. All encoding parameters must be initialized prior to this
+										API call. Captures frames continuously or until a predefined number of frames have been captured.
+			</td></tr>
+			<tr><th>#Params</td><td>2</td></tr>
+			<tr><th>Param[0]</th><td>
+<pre>
+Capture stream type:
+0=MPEG
+1=Raw
+2=Raw passthrough
+3=VBI
+</pre>
+			</td></tr>
+			<tr><th>Param[1]</th><td>
+<pre>
+Bitmask
+Bit 0 when set, captures YUV
+Bit 1 when set, captures PCM audio
+Bit 2 when set, captures VBI (same as param[0]=3)
+Bit 3 when set, the capture destination is the decoder (same as param[0]=2)
+Bit 4 when set, the capture destination is the host
+<b>Note:</b> this parameter is only meaningful for RAW capture type.
+</pre>
+			</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">130</td></tr>
+			<tr><th>Enum</th><td>0x82</td></tr>
+			<tr><th>Description</th><td>Ends a capture in progress
+			</td></tr>
+			<tr><th>#Params</td><td>3</td></tr>
+			<tr><th>Param[0]</th><td>0=stop at end of GOP (generates IRQ), 1=stop immediate (no IRQ)</td></tr>
+			<tr><th>Param[1]</th><td>Stream type to stop, see param[0] of API 0x81</td></tr>
+			<tr><th>Param[2]</th><td>Subtype, see param[1] of API 0x81</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">137</td></tr>
+			<tr><th>Enum</th><td>0x89</td></tr>
+			<tr><th>Description</th><td>Assigns the transport stream ID of the encoded audio stream</td></tr>
+			<tr><th>#Params</td><td>1</td></tr>
+			<tr><th>Param[0]</th><td>Audio Stream ID</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">139</td></tr>
+			<tr><th>Enum</th><td>0x8B</td></tr>
+			<tr><th>Description</th><td>Set video transport stream ID
+			</td></tr>
+			<tr><th>#Params</td><td>1</td></tr>
+			<tr><th>Param[0]</th><td>Video stream ID</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">141</td></tr>
+			<tr><th>Enum</th><td>0x8D</td></tr>
+			<tr><th>Description</th><td>Assigns the transport stream ID for PCR packets</td></tr>
+			<tr><th>#Params</td><td>1</td></tr>
+			<tr><th>Param[0]</th><td>PCR Stream ID</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">143</td></tr>
+			<tr><th>Enum</th><td>0x8F</td></tr>
+			<tr><th>Description</th><td>Set video frames per second. Change occurs at start or new GOP.
+			</td></tr>
+			<tr><th>#Params</td><td>1</td></tr>
+			<tr><th>Param[0]</th><td>0=30fps, 1=25fps</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">145</td></tr>
+			<tr><th>Enum</th><td>0x91</td></tr>
+			<tr><th>Description</th><td>Select video stream encoding resolution.
+			</td></tr>
+			<tr><th>#Params</td><td>2</td></tr>
+			<tr><th>Param[0]</th><td>Height in lines. Default 480</td></tr>
+			<tr><th>Param[1]</th><td>Width in pixels. Default 720</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">149</td></tr>
+			<tr><th>Enum</th><td>0x95</td></tr>
+			<tr><th>Description</th><td>Assign average video stream bitrate.
+			</td></tr>
+			<tr><th>#Params</td><td>3</td></tr>
+			<tr><th>Param[0]</th><td>0=variable bitrate, 1=constant bitrate</td></tr>
+			<tr><th>Param[1]</th><td>bitrate in bits per second</td></tr>
+			<tr><th>Param[2]</th><td>peak bitrate in bits per second, divided by 400</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">151</td></tr>
+			<tr><th>Enum</th><td>0x97</td></tr>
+			<tr><th>Description</th><td>Setup the GOP structure</td></tr>
+			<tr><th>#Params</td><td>2</td></tr>
+			<tr><th>Param[0]</th><td>GOP size</td></tr>
+			<tr><th>Param[1]</th><td>Number of B frames between the I and P frame, plus 1.<br>
+									eg.  IBBPBBPBBPBB --> GOP size: 12, number of B frames: 2+1 = 3</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">153</td></tr>
+			<tr><th>Enum</th><td>0x99</td></tr>
+			<tr><th>Description</th><td>Sets the encoding aspect ratio. Changes in the aspect ratio take 
+											effect at the start of the next GOP.</td></tr>
+			<tr><th>#Params</td><td>1</td></tr>
+			<tr><th>Param[0]</th><td>
+<pre>
+'0000' forbidden
+'0001' 1:1 square
+'0010' 4:3
+'0011' 16:9
+'0100' 2.21:1
+'0101' reserved
+ ....
+'1111' reserved
+</pre>
+			</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">155</td></tr>
+			<tr><th>Enum</th><td>0x9B</td></tr>
+			<tr><th>Description</th><td>Assign Dynamic Noise Reduction operating mode</td></tr>
+			<tr><th>#Params</td><td>2</td></tr>
+			<tr><th>Param[0]</th><td>Bit0: Spatial filter, set=auto, clear=manual<br>
+											Bit1: Temporal filter, set=auto, clear=manual</td></tr>
+			<tr><th>Param[1]</th><td>Median filter:<br>
+											0=Disabled<br>
+											1=Horizontal<br>
+											2=Vertical<br>
+											3=Horiz/Vert<br>
+											4=Diagonal</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">157</td></tr>
+			<tr><th>Enum</th><td>0x9D</td></tr>
+			<tr><th>Description</th><td>These Dynamic Noise Reduction filter values are only meaningful when the
+											respective filter is set to "manual" (See API 0x9B)</td></tr>
+			<tr><th>#Params</td><td>2</td></tr>
+			<tr><th>Param[0]</th><td>Spatial filter, Default 0, Range 0:15</td></tr>
+			<tr><th>Param[1]</th><td>Temporal filter, Default 0, Range 0:31</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">159</td></tr>
+			<tr><th>Enum</th><td>0x9F</td></tr>
+			<tr><th>Description</th><td>Assign Dynamic Noise Reduction median filter properties.</td></tr>
+			<tr><th>#Params</td><td>4</td></tr>
+			<tr><th>Param[0]</th><td>Threshold above which the luminance median filter is enabled. Default: 0 Range 0:255</td></tr>
+			<tr><th>Param[1]</th><td>Threshold below which the luminance median filter is enabled. Default: 255 Range 0:255</td></tr>
+			<tr><th>Param[2]</th><td>Threshold above which the chrominance median filter is enabled. Default: 0 Range 0:255</td></tr>
+			<tr><th>Param[3]</th><td>Threshold below which the chrominance median filter is enabled. Default: 255 Range 0:255</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">161</td></tr>
+			<tr><th>Enum</th><td>0xA1</td></tr>
+			<tr><th>Description</th><td>Assign spatial prefilter parameters</td></tr>
+			<tr><th>#Params</td><td>2</td></tr>
+			<tr><th>Param[0]</th><td>
+<pre>
+Luminance filter
+ 0=Off
+ 1=1D Horizontal
+ 2=1D Vertical
+ 3=2D H/V Separable (default)
+ 4=2D Symmetric non-separable
+</pre>
+			</td></tr>
+			<tr><th>Param[1]</th><td>
+<pre>
+Chrominance filter
+ 0=Off
+ 1=1D Horizontal (default)
+</pre>
+			</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">177</td></tr>
+			<tr><th>Enum</th><td>0xB1</td></tr>
+			<tr><th>Description</th><td>3:2 pulldown properties</td></tr>
+			<tr><th>#Params</td><td>1</td></tr>
+			<tr><th>Param[0]</th><td>0=enabled<br>
+									1=disabled</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">183</td></tr>
+			<tr><th>Enum</th><td>0xB7</td></tr>
+			<tr><th>Description</th><td>Selects VBI line number.
+			</td></tr>
+			<tr><th>#Params</td><td>5</td></tr>
+			<tr><th>Param[0]</th><td>Bit 31 0=top_field, 1=bottom_field<br>
+									Bits 4:0 line number<br>
+									Bits 31:0 all set specifies "all lines"</td></tr>
+			<tr><th>Param[1]</th><td>VBI line information features: 0=disabled, 1=enabled</td></tr>
+			<tr><th>Param[2]</th><td>Slicing: 0=None, 1=Closed Caption</td></tr>
+			<tr><th>Param[3]</th><td>Luminance samples in this line</td></tr>
+			<tr><th>Param[4]</th><td>Chrominance samples in this line</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">185</td></tr>
+			<tr><th>Enum</th><td>0xB9</td></tr>
+			<tr><th>Description</th><td>Assign stream type</td></tr>
+			<tr><th>#Params</td><td>1</td></tr>
+			<tr><th>Param[0]</th><td>
+<pre>
+ 0=Program Stream
+ 1=Transport Stream
+ 2=MPEG1 stream
+ 3=PES A/V
+ 5=PES Video
+ 7=PES Audio
+10=DVD Stream
+11=VCD stream
+</pre>
+										</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">187</td></tr>
+			<tr><th>Enum</th><td>0xBB</td></tr>
+			<tr><th>Description</th><td>Assign stream output port (not recommended you change setting from default)</td></tr>
+			<tr><th>#Params</td><td>1</td></tr>
+			<tr><th>Param[0]</th><td>
+<pre>
+0=Memory (default)
+1=Streaming
+2=Serial
+</pre>									 </td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">189</td></tr>
+			<tr><th>Enum</th><td>0xBD</td></tr>
+			<tr><th>Description</th><td>Set audio stream properties, may be called while encoding is in progress.<br>
+											<b>Note</b>: all bitfields are consistent with ISO11172 documentation except bits 3:2
+											which ISO docs define as
+<pre>
+'11' Layer I
+'10' Layer II
+'01' Layer III
+'00' Undefined
+</pre>
+This discrepancy may indicate a possible error in the documentation.
+			<tr><th>#Params</td><td>1</td></tr>
+			<tr><th>Param[0]</th><td>
+<pre>
+ Bitmask
+ 1:0  '00' 44.1Khz
+      '01' 48Khz
+      '10' 32Khz
+      '11' reserved
+
+ 3:2  '01'=Layer I, '10'=Layer II
+
+ 7:4  Bitrate
+       Index | Layer I     | Layer II
+       ------+-------------+------------
+      '0000' | free format | free format
+      '0001' |  32 kbit/s  |  32 kbit/s 
+      '0010' |  64 kbit/s  |  48 kbit/s 
+      '0011' |  96 kbit/s  |  56 kbit/s 
+      '0100' | 128 kbit/s  |  64 kbit/s 
+      '0101' | 160 kbit/s  |  80 kbit/s 
+      '0110' | 192 kbit/s  |  96 kbit/s 
+      '0111' | 224 kbit/s  | 112 kbit/s 
+      '1000' | 256 kbit/s  | 128 kbit/s 
+      '1001' | 288 kbit/s  | 160 kbit/s 
+      '1010' | 320 kbit/s  | 192 kbit/s 
+      '1011' | 352 kbit/s  | 224 kbit/s 
+      '1100' | 384 kbit/s  | 256 kbit/s 
+      '1101' | 416 kbit/s  | 320 kbit/s 
+      '1110' | 448 kbit/s  | 384 kbit/s 
+      <b>Note</b>: For Layer II, not all combinations of total bitrate
+      and mode are allowed. See ISO11172-3 3-Annex B, Table 3-B.2
+
+ 9:8  '00'=Stereo
+      '01'=JointStereo
+      '10'=Dual
+      '11'=Mono
+
+11:10 Mode Extension used in joint_stereo mode.
+      In Layer I and II they indicate which
+      subbands are in intensity_stereo.
+      All other subbands are coded in stereo.
+      '00' subbands 4-31 in intensity_stereo, bound==4
+      '01' subbands 8-31 in intensity_stereo, bound==8
+      '10' subbands 12-31 in intensity_stereo, bound==12
+      '11' subbands 16-31 in intensity_stereo, bound==16
+
+13:12 Emphasis
+      '00' None
+      '01' 50/15uS
+      '10' reserved
+      '11' CCITT J.17
+
+   14 CRC
+      '0' off
+      '1' on
+
+   15 Copyright
+      '0' off
+      '1' on
+
+   16 Generation
+      '0' copy
+      '1' original</td></tr>
+</pre>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">195</td></tr>
+			<tr><th>Enum</th><td>0xC3</td></tr>
+			<tr><th>Description</th><td>The firmware is halted and no further API calls are serviced until the firmware is uploaded again.
+			</td></tr>
+			<tr><th>#Params</td><td>0</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">196</td></tr>
+			<tr><th>Enum</th><td>0xC4</td></tr>
+			<tr><th>Description</th><td>Returns the version of the encoder firmware.</td></tr>
+			<tr><th>#Params</td><td>0</td></tr>
+			<tr><th>#Results</td><td>1</td></tr>
+			<tr><th>Result[0]</th><td>Version bitmask:<br>
+											Bits 31:24 major<br>
+											Bits 23:16 minor<br>
+											Bits 15:0 build</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">197</td></tr>
+			<tr><th>Enum</th><td>0xC5</td></tr>
+			<tr><th>Description</th><td>Assigns the GOP open/close property.</td></tr>
+			<tr><th>#Params</td><td>1</td></tr>
+			<tr><th>Param[0]</th><td>0=Open<br>
+									1=Closed</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0 bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">198</td></tr>
+			<tr><th>Enum</th><td>0xC6</td></tr>
+			<tr><th>Description</th><td>Obtains the sequence end code of the encoder's buffer. When a capture is started a number of
+										interrupts are still generated, the last of which will have Result[0] set to 1 and Result[1]
+										will contain the size of the buffer.
+			</td></tr>
+			<tr><th>#Params</td><td>0</td></tr>
+			<tr><th>#Results</td><td>2</td></tr>
+			<tr><th>Result[0]</th><td>State of the transfer (1 if last buffer)</td></tr>
+			<tr><th>Result[1]</th><td>If Result[0] is 1, this contains the size of the last buffer, undefined otherwise.</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">199</td></tr>
+			<tr><th>Enum</th><td>0xC7</td></tr>
+			<tr><th>Description</th><td>Sets the Program Index Information.</td></tr>
+			<tr><th>#Params</td><td>2</td></tr>
+			<tr><th>Param[0]</th><td>Picture Mask:<br>
+											0=No index capture<br>
+											1=I frames<br>
+											3=I,P frames<br>
+											7=I,P,B frames</td></tr>
+			<tr><th>Param[1]</th><td>Elements requested (up to 400)</td></tr>
+			<tr><th>#Results</td><td>2</td></tr>
+			<tr><th>Result[0]</th><td>Offset in SDF memory of the table.</td></tr>
+			<tr><th>Result[1]</th><td>Number of allocated elements up to a maximum of Param[1]</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">200</td></tr>
+			<tr><th>Enum</th><td>0xC8</td></tr>
+			<tr><th>Description</th><td>Configure VBI settings
+			</td></tr>
+			<tr><th>#Params</td><td>7</td></tr>
+			<tr><th>Param[0]</th><td>
+<pre>
+Bitmap:
+   0 Mode '0' Sliced, '1' Raw
+ 3:1 insertion
+     '000' insert in extension & user data
+     '001' insert in private packets
+     '010' separate stream and user data
+     '111' separate stream and private data
+15:8 Stream ID (normally 0xBD)
+</pre>
+			</td></tr>
+			<tr><th>Param[1]</th><td>Frames per interrupt (max 8). Only valid in raw mode.</td></tr>
+			<tr><th>Param[2]</th><td>Total raw VBI frames. Only valid in raw mode.</td></tr>
+			<tr><th>Param[3]</th><td>Start codes</td></tr>
+			<tr><th>Param[4]</th><td>Stop codes</td></tr>
+			<tr><th>Param[5]</th><td>Lines per frame</td></tr>
+			<tr><th>Param[6]</th><td>Byte per line</td></tr>
+			<tr><th>#Results</td><td>3</td></tr>
+			<tr><th>Result[0]</th><td>Observed frames per interrupt in raw mode only. Rage 1 to Param[1]</td></tr>
+			<tr><th>Result[1]</th><td>Observed number of frames in raw mode. Range 1 to Param[2]</td></tr>
+			<tr><th>Result[2]</th><td>Memory offset to start or raw VBI data</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">201</td></tr>
+			<tr><th>Enum</th><td>0xC9</td></tr>
+			<tr><th>Description</th><td>Set DMA transfer block size</td></tr>
+			<tr><th>#Params</td><td>2</td></tr>
+			<tr><th>Param[0]</th><td>DMA transfer block size in bytes or frames. When unit is bytes, supported block sizes are 2^7, 2^8 and 2^9 bytes.
+			</td></tr>
+			<tr><th>Param[1]</th><td>unit: 0=bytes, 1=frames</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">202</td></tr>
+			<tr><th>Enum</th><td>0xCA</td></tr>
+			<tr><th>Description</th><td>Returns information on the previous DMA transfer in conjunction with bit27
+											of the interrupt mask. Uses mailbox 10.
+			</td></tr>
+			<tr><th>#Params</td><td>0</td></tr>
+			<tr><th>#Results</td><td>3</td></tr>
+			<tr><th>Result[0]</th><td>Type of stream</td></tr>
+			<tr><th>Result[1]</th><td>Address Offset</td></tr>
+			<tr><th>Result[2]</th><td>Maximum size of transfer</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">203</td></tr>
+			<tr><th>Enum</th><td>0xCB</td></tr>
+			<tr><th>Description</th><td>Returns information on the previous DMA transfer in conjunction with bit27
+											of the interrupt mask. Uses mailbox 9.
+			</td></tr>
+			<tr><th>#Params</td><td>0</td></tr>
+			<tr><th>#Results</td><td>4</td></tr>
+			<tr><th>Result[0]</th><td>Status bits:<br>
+											Bit0 set indicates transfer complete<br>
+											Bit2 set indicates transfer error<br>
+											Bit4 set indicates linked list error</td></tr>
+			<tr><th>Result[1]</th><td>DMA type</td></tr>
+			<tr><th>Result[2]</th><td>Presentation Time Stamp bits 31..0</td></tr>
+			<tr><th>Result[3]</th><td>Presentation Time Stamp bit 32</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">204</td></tr>
+			<tr><th>Enum</th><td>0xCC</td></tr>
+			<tr><th>Description</th><td>Setup DMA to host operation</td></tr>
+			<tr><th>#Params</td><td>3</td></tr>
+			<tr><th>Param[0]</th><td>Memory address of link list</td></tr>
+			<tr><th>Param[1]</th><td>Length of link list (wtf: what units ???)</td></tr>
+			<tr><th>Param[2]</th><td>DMA type (0=MPEG)</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">205</td></tr>
+			<tr><th>Enum</th><td>0xCD</td></tr>
+			<tr><th>Description</th><td>Initializes the video input</td></tr>
+			<tr><th>#Params</td><td>0</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">208</td></tr>
+			<tr><th>Enum</th><td>0xD0</td></tr>
+			<tr><th>Description</th><td>For each frame captured, skip specified number of frames.</td></tr>
+			<tr><th>#Params</td><td>1</td></tr>
+			<tr><th>Param[0]</th><td>number of frames to skip</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">210</td></tr>
+			<tr><th>Enum</th><td>0xD2</td></tr>
+			<tr><th>Description</th><td>During a pause condition, all frames are dropped instead of being encoded.</td></tr>
+			<tr><th>#Params</td><td>1</td></tr>
+			<tr><th>Param[0]</th><td>0=Pause encoding<br>
+									1=Continue encoding</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">211</td></tr>
+			<tr><th>Enum</th><td>0xD3</td></tr>
+			<tr><th>Description</th><td>Refreshes the video input</td></tr>
+			<tr><th>#Params</td><td>0</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">212</td></tr>
+			<tr><th>Enum</th><td>0xD4</td></tr>
+			<tr><th>Description</th><td>Sets stream copyright property</td></tr>
+			<tr><th>#Params</td><td>1</td></tr>
+			<tr><th>Param[0]</th><td>0=Stream is not copyrighted<br>
+									1=Stream is copyrighted</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">213</td></tr>
+			<tr><th>Enum</th><td>0xD5</td></tr>
+			<tr><th>Description</th><td>Setup firmware to notify the host about a particular event. Host must unmask the interrupt bit.</td></tr>
+			<tr><th>#Params</td><td>4</td></tr>
+			<tr><th>Param[0]</th><td>Event (0=refresh encoder input)</td></tr>
+			<tr><th>Param[1]</th><td>Notification 0=disabled 1=enabled</td></tr>
+			<tr><th>Param[2]</th><td>Interrupt bit</td></tr>
+			<tr><th>Param[3]</th><td>Mailbox slot, -1 if no mailbox required.</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">214</td></tr>
+			<tr><th>Enum</th><td>0xD6</td></tr>
+			<tr><th>Description</th><td>Depending on the analog video decoder used, this assigns the number of lines for field 1 and 2.</td></tr>
+			<tr><th>#Params</td><td>2</td></tr>
+			<tr><th>Param[0]</th><td>Field 1 number of lines:<br>
+											0x00EF for SAA7114<br>
+											0x00F0 for SAA7115<br>
+											0x0105 for Micronas</td></tr>
+			<tr><th>Param[1]</th><td>Field 2 number of lines:<br>
+											0x00EF for SAA7114<br>
+											0x00F0 for SAA7115<br>
+											0x0106 for Micronas</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">215</td></tr>
+			<tr><th>Enum</th><td>0xD7</td></tr>
+			<tr><th>Description</th><td>Provides a mechanism of inserting custom user data in the MPEG stream.</td></tr>
+			<tr><th>#Params</td><td>12</td></tr>
+			<tr><th>Param[0]</th><td>0=extension & user data<br>
+									1=private packet with stream ID 0xBD</td></tr>
+			<tr><th>Param[1]</th><td>Rate at which to insert data, in units of frames (for private packet)
+											or GOPs (for ext. & user data)</td></tr>
+			<tr><th>Param[2]</th><td>Number of data DWORDs (below) to insert</td></tr>
+			<tr><th>Param[3]</th><td>custom data 0</td></tr>
+			<tr><th>Param[4]</th><td>custom data 1</td></tr>
+			<tr><th>Param[5]</th><td>custom data 2</td></tr>
+			<tr><th>Param[6]</th><td>custom data 3</td></tr>
+			<tr><th>Param[7]</th><td>custom data 4</td></tr>
+			<tr><th>Param[8]</th><td>custom data 5</td></tr>
+			<tr><th>Param[9]</th><td>custom data 6</td></tr>
+			<tr><th>Param[10]</th><td>custom data 7</td></tr>
+			<tr><th>Param[11]</th><td>custom data 8</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">217</td></tr>
+			<tr><th>Enum</th><td>0xD9</td></tr>
+			<tr><th>Description</th><td>Video muting
+			</td></tr>
+			<tr><th>#Params</td><td>1</td></tr>
+			<tr><th>Param[0]</th><td>
+<pre>
+Bit usage
+   0  '0'=video not muted, '1'=video muted, creates frames with the YUV color defined below
+ 7:1  unused
+15:8  V chrominance information
+23:16 U chrominance information
+31:24 Y luminance information
+</pre>
+			</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F0E0F0>
+			<tr><th>Name</th><td width="90%">218</td></tr>
+			<tr><th>Enum</th><td>0xDA</td></tr>
+			<tr><th>Description</th><td>Audio muting
+			</td></tr>
+			<tr><th>#Params</td><td>1</td></tr>
+			<tr><th>Param[0]</th><td>0=audio not muted<br>
+									1=audio muted (produces silent mpeg audio stream)</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+		</center></td></tr>
+	</table>
+
+	<br>
+
+	<table width="80%" border="1" cellspacing="0" cellpadding="5">
+		<tr><th><h1>Decoder API calls</h1></th></tr>
+		<tr><td><center><br>
+			<table border="1" width="100%" bgcolor=#D0F0F0>
+			<tr><th>Name</th><td width="90%">0</td></tr>
+			<tr><th>Enum</th><td>0x00</td></tr>
+			<tr><th>Description</th><td>This API call does nothing. It may be used to check if the firmware is responding.
+			</td></tr>
+			<tr><th>#Params</td><td>0</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#D0F0F0>
+			<tr><th>Name</th><td width="90%">1</td></tr>
+			<tr><th>Enum</th><td>0x01</td></tr>
+			<tr><th>Description</th><td>Begin or resume playback.
+			</td></tr>
+			<tr><th>#Params</td><td>2</td></tr>
+			<tr><th>Param[0]</th><td>0 based frame number in GOP to begin playback from.</td></tr>
+			<tr><th>Param[1]</th><td>Specifies the number of muted audio frames to play before normal audio resumes</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#D0F0F0>
+			<tr><th>Name</th><td width="90%">2</td></tr>
+			<tr><th>Enum</th><td>0x02</td></tr>
+			<tr><th>Description</th><td>Ends playback and clears all decoder buffers. If PTS is not zero, playback stops at specified PTS.
+			</td></tr>
+			<tr><th>#Params</td><td>3</td></tr>
+			<tr><th>Param[0]</th><td>Display 0=last frame, 1=black</td></tr>
+			<tr><th>Param[1]</th><td>PTS low</td></tr>
+			<tr><th>Param[2]</th><td>PTS high</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#D0F0F0>
+			<tr><th>Name</th><td width="90%">3</td></tr>
+			<tr><th>Enum</th><td>0x03</td></tr>
+			<tr><th>Description</th><td>Playback stream at speed other than normal. There are two modes of operation
+			<li></li>Smooth: host transfers entire stream and firmware drops unused frames
+			<li></li>Coarse: host drops frames based on indexing as required to achieve desired speed
+			</td></tr>
+			<tr><th>#Params</td><td>7</td></tr>
+			<tr><th>Param[0]</th><td>
+<pre>
+Bitmap
+7:0  
+     0 normal
+     1 fast only "1.5 times"
+     n nX fast, 1/nX slow
+  30 Framedrop
+     '0' during 1.5 times play, every other B frame is dropped
+     '1' during 1.5 times play, stream is unchanged (bitrate must not exceed 8mbps)
+  31 Speed
+     '0' slow
+     '1' fast
+</pre>
+			</td></tr>
+			<tr><th>Param[1]</th><td>direction: 0=forward, 1=reverse</td></tr>
+			<tr><th>Param[2]</th><td>Picture mask:<br>
+									1=I frames<br>
+									3=I, P frames<br>
+									7=I, P, B frames</td></tr>
+			<tr><th>Param[3]</th><td>B frames per GOP (for reverse play only)</td></tr>
+			<tr><th>Param[4]</th><td>Mute audio: 0=disable, 1=enable</td></tr>
+			<tr><th>Param[5]</th><td>Display 0=frame, 1=field</td></tr>
+			<tr><th>Param[6]</th><td>Specifies the number of muted audio frames to play before normal audio resumes</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#D0F0F0>
+			<tr><th>Name</th><td width="90%">5</td></tr>
+			<tr><th>Enum</th><td>0x05</td></tr>
+			<tr><th>Description</th><td>Each call to this API steps the playback to the next unit defined below in the current playback direction.
+			</td></tr>
+			<tr><th>#Params</td><td>1</td></tr>
+			<tr><th>Param[0]</th><td>0=frame, 1=top field, 2=bottom field</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#D0F0F0>
+			<tr><th>Name</th><td width="90%">8</td></tr>
+			<tr><th>Enum</th><td>0x08</td></tr>
+			<tr><th>Description</th><td>Set DMA transfer block size. Counterpart to API 0xC9
+			</td></tr>
+			<tr><th>#Params</td><td>1</td></tr>
+			<tr><th>Param[0]</th><td>DMA transfer block size in bytes. A different size may be specified when issuing the DMA transfer command.</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#D0F0F0>
+			<tr><th>Name</th><td width="90%">9</td></tr>
+			<tr><th>Enum</th><td>0x09</td></tr>
+			<tr><th>Description</th><td>This API call may be used to detect an end of stream condtion.
+			</td></tr>
+			<tr><th>#Params</td><td>0</td></tr>
+			<tr><th>#Results</td><td>4</td></tr>
+			<tr><th>Result[0]</th><td>Stream type</td></tr>
+			<tr><th>Result[1]</th><td>Address offset</td></tr>
+			<tr><th>Result[2]</th><td>Maximum bytes to transfer</td></tr>
+			<tr><th>Result[3]</th><td>Buffer fullness</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#D0F0F0>
+			<tr><th>Name</th><td width="90%">10</td></tr>
+			<tr><th>Enum</th><td>0x0A</td></tr>
+			<tr><th>Description</th><td>Status of the last DMA transfer
+			</td></tr>
+			<tr><th>#Params</td><td>0</td></tr>
+			<tr><th>#Results</td><td>2</td></tr>
+			<tr><th>Result[0]</th><td>Bit1 set means transfer complete<br>
+									Bit2 set means DMA error<br>
+									Bit3 set means linked list error</td></tr>
+			<tr><th>Result[1]</th><td>DMA type: 0=MPEG, 1=OSD, 2=YUV</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#D0F0F0>
+			<tr><th>Name</th><td width="90%">11</td></tr>
+			<tr><th>Enum</th><td>0x0B</td></tr>
+			<tr><th>Description</th><td>Setup DMA from host operation. Counterpart to API 0xCC
+			</td></tr>
+			<tr><th>#Params</td><td>3</td></tr>
+			<tr><th>Param[0]</th><td>Memory address of link list</td></tr>
+			<tr><th>Param[1]</th><td>Total # of bytes to xfer <td></tr>
+			<tr><th>Param[2]</th><td>DMA type (0=MPEG, 1=OSD, 2=YUV)</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#D0F0F0>
+			<tr><th>Name</th><td width="90%">13</td></tr>
+			<tr><th>Enum</th><td>0x0D</td></tr>
+			<tr><th>Description</th><td>Freeze playback immediately. In this mode, when internal buffers are full, no more data will be accepted
+										and data request IRQs will be masked.
+			</td></tr>
+			<tr><th>#Params</td><td>1</td></tr>
+			<tr><th>Param[0]</th><td>Display: 0=last frame, 1=black</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#D0F0F0>
+			<tr><th>Name</th><td width="90%">14</td></tr>
+			<tr><th>Enum</th><td>0x0E</td></tr>
+			<tr><th>Description</th><td>The firmware is halted and no further API calls are serviced until the firmware is uploaded again.
+			</td></tr>
+			<tr><th>#Params</td><td>0</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#D0F0F0>
+			<tr><th>Name</th><td width="90%">16</td></tr>
+			<tr><th>Enum</th><td>0x10</td></tr>
+			<tr><th>Description</th><td>Selects display standard
+			</td></tr>
+			<tr><th>#Params</td><td>1</td></tr>
+			<tr><th>Param[0]</th><td>0=NTSC, 1=PAL</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#D0F0F0>
+			<tr><th>Name</th><td width="90%">17</td></tr>
+			<tr><th>Enum</th><td>0x11</td></tr>
+			<tr><th>Description</th><td>Returns decoder firmware version information
+			</td></tr>
+			<tr><th>#Params</td><td>0</td></tr>
+			<tr><th>#Results</td><td>1</td></tr>
+			<tr><th>Result[0]</th><td>Version bitmask:<br>
+									Bits 31:24 major<br>
+									Bits 23:16 minor<br>
+									Bits 15:0 build</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#D0F0F0>
+			<tr><th>Name</th><td width="90%">20</td></tr>
+			<tr><th>Enum</th><td>0x14</td></tr>
+			<tr><th>Description</th><td>Select decoder stream input port
+			</td></tr>
+			<tr><th>#Params</td><td>1</td></tr>
+			<tr><th>Param[0]</th><td>0=memory (default), 1=streaming</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#D0F0F0>
+			<tr><th>Name</th><td width="90%">21</td></tr>
+			<tr><th>Enum</th><td>0x15</td></tr>
+			<tr><th>Description</th><td>Returns timing information from start of playback
+			</td></tr>
+			<tr><th>#Params</td><td>0</td></tr>
+			<tr><th>#Results</td><td>5</td></tr>
+			<tr><th>Result[0]</th><td>Frame count by decode order</td></tr>
+			<tr><th>Result[1]</th><td>Video PTS bits 31:0 by display order</td></tr>
+			<tr><th>Result[2]</th><td>Video PTS bit 32 by display order</td></tr>
+			<tr><th>Result[3]</th><td>SCR bits 31:0 by display order</td></tr>
+			<tr><th>Result[4]</th><td>SCR bit 32 by display order</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#D0F0F0>
+			<tr><th>Name</th><td width="90%">22</td></tr>
+			<tr><th>Enum</th><td>0x16</td></tr>
+			<tr><th>Description</th><td>Select audio mode
+			</td></tr>
+			<tr><th>#Params</td>2<td></td></tr>
+			<tr><th>Param[0]</th><td>Dual mono mode action</td></tr>
+			<tr><th>Param[1]</th><td>Stereo mode action<br>
+							0=Stereo, 1=Left, 2=Right, 3=Mono, 4=Swap, -1=Unchanged</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#D0F0F0>
+			<tr><th>Name</th><td width="90%">23</td></tr>
+			<tr><th>Enum</th><td>0x17</td></tr>
+			<tr><th>Description</th><td>Setup firmware to notify the host about a particular event. Counterpart to API 0xD5
+			</td></tr>
+			<tr><th>#Params</td><td>4</td></tr>
+			<tr><th>Param[0]</th><td>Event: 0=Audio mode change between stereo and dual channel</td></tr>
+			<tr><th>Param[1]</th><td>Notification 0=disabled, 1=enabled</td></tr>
+			<tr><th>Param[2]</th><td>Interrupt bit</td></tr>
+			<tr><th>Param[32]</th><td>Mailbox slot, -1 if no mailbox required.</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#D0F0F0>
+			<tr><th>Name</th><td width="90%">24</td></tr>
+			<tr><th>Enum</th><td>0x18</td></tr>
+			<tr><th>Description</th><td>Number of display buffers. To decode all frames in reverse playback you must use nine buffers.
+			</td></tr>
+			<tr><th>#Params</td><td>1</td></tr>
+			<tr><th>Param[0]</th><td>0=six buffers, 1=nine buffers</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#D0F0F0>
+			<tr><th>Name</th><td width="90%">25</td></tr>
+			<tr><th>Enum</th><td>0x19</td></tr>
+			<tr><th>Description</th><td>Extracts VBI data
+			</td></tr>
+			<tr><th>#Params</td><td>1</td></tr>
+			<tr><th>Param[0]</th><td>0=extract from extension & user data, 1=extract from private packets</td></tr>
+			<tr><th>#Results</td><td>2</td></tr>
+			<tr><th>Result[0]</th><td>VBI table location</td></tr>
+			<tr><th>Result[1]</th><td>VBI table size</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#D0F0F0>
+			<tr><th>Name</th><td width="90%">26</td></tr>
+			<tr><th>Enum</th><td>0x1A</td></tr>
+			<tr><th>Description</th><td>Selects decoder source. Ensure that the parameters passed to this API match the encoder settings.
+			</td></tr>
+			<tr><th>#Params</td><td>4</td></tr>
+			<tr><th>Param[0]</th><td>Mode: 0=MPEG from host, 1=YUV from encoder, 2=YUV from host</td></tr>
+			<tr><th>Param[1]</th><td>YUV picture width</td></tr>
+			<tr><th>Param[2]</th><td>YUV picture height</td></tr>
+			<tr><th>Param[3]</th><td>Bitmap: see Param[0] of API 0xBD
+			</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#D0F0F0>
+			<tr><th>Name</th><td width="90%">27</td></tr>
+			<tr><th>Enum</th><td>0x1B</td></tr>
+			<tr><th>Description</th><td>Select audio output format
+			</td></tr>
+			<tr><th>#Params</td><td>1</td></tr>
+			<tr><th>Param[0]</th><td>
+<pre>
+Bitmask:
+ 1:0  Data size
+      '00' 16 bit
+      '01' 20 bit
+      '10' 24 bit
+ 7:2  Unused
+ 9:8  Mode
+      '00' 2 chans
+      '01' 4 chans
+      '10' 6 chans
+      '11' 6 chans with one line data mode (for left justified MSB first mode, 20 bit only)
+11:10 Unused
+13:12 Channel format
+      '00' right justified MSB first mode
+      '01' left justified MSB first mode
+      '10' I2S mode
+15:14 Unused
+21:16 right justify bit count
+31:22 Unused
+</pre>
+			</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#D0F0F0>
+			<tr><th>Name</th><td width="90%">28</td></tr>
+			<tr><th>Enum</th><td>0x1C</td></tr>
+			<tr><th>Description</th><td>Set audio/video delay in 90Khz ticks
+			</td></tr>
+			<tr><th>#Params</td><td>1</td></tr>
+			<tr><th>Param[0]</th><td>0=A/V in sync, negative=audio lags, positive=video lags
+			</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#D0F0F0>
+			<tr><th>Name</th><td width="90%">30</td></tr>
+			<tr><th>Enum</th><td>0x1E</td></tr>
+			<tr><th>Description</th><td>Decoder prebuffering, when enabled up to 128KB are buffered for streams <8mpbs or 640KB for streams >8mbps
+			</td></tr>
+			<tr><th>#Params</td><td>1</td></tr>
+			<tr><th>Param[0]</th><td>0=off, 1=on
+			</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+		</center></td></tr>
+	</table>
+
+	<br>
+
+	<table width="80%" border="1" cellspacing="0" cellpadding="5">
+		<tr><th><h1>OSD API calls</h1></th></tr>
+		<tr><td><center><br>
+
+			<table border="1" width="100%" bgcolor=#F8FFE0>
+			<tr><th>Name</th><td width="90%">65</td></tr>
+			<tr><th>Enum</th><td>0x41</td></tr>
+			<tr><th>Description</th><td>Return base and length of contiguous OSD memory.
+			</td></tr>
+			<tr><th>#Params</td><td>0</td></tr>
+			<tr><th>#Results</td><td>2</td></tr>
+			<tr><th>Result[0]</th><td>OSD base address</td></tr>
+			<tr><th>Result[1]</th><td>OSD length</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F8FFE0>
+			<tr><th>Name</th><td width="90%">66</td></tr>
+			<tr><th>Enum</th><td>0x42</td></tr>
+			<tr><th>Description</th><td>Query OSD format
+			</td></tr>
+			<tr><th>#Params</td><td>0</td></tr>
+			<tr><th>#Results</td><td>1</td></tr>
+			<tr><th>Result[0]</th><td>0=8bit index, 4=AlphaRGB 8:8:8:8</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F8FFE0>
+			<tr><th>Name</th><td width="90%">67</td></tr>
+			<tr><th>Enum</th><td>0x43</td></tr>
+			<tr><th>Description</th><td>Assign pixel format
+			</td></tr>
+			<tr><th>#Params</td><td>1</td></tr>
+			<tr><th>Param[0]</th><td>0=8bit index, 4=AlphaRGB 8:8:8:8</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F8FFE0>
+			<tr><th>Name</th><td width="90%">68</td></tr>
+			<tr><th>Enum</th><td>0x44</td></tr>
+			<tr><th>Description</th><td>Query OSD state
+			</td></tr>
+			<tr><th>#Params</td><td>0</td></tr>
+			<tr><th>#Results</td><td>1</td></tr>
+			<tr><th>Result[0]</th><td>Bit 0 0=off, 1=on<br>
+									Bits 2:1 alpha control<br>
+									Bits 5:3 pixel format</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F8FFE0>
+			<tr><th>Name</th><td width="90%">69</td></tr>
+			<tr><th>Enum</th><td>0x45</td></tr>
+			<tr><th>Description</th><td>OSD switch
+			</td></tr>
+			<tr><th>#Params</td><td>1</td></tr>
+			<tr><th>Param[0]</th><td>0=off, 1=on</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F8FFE0>
+			<tr><th>Name</th><td width="90%">70</td></tr>
+			<tr><th>Enum</th><td>0x46</td></tr>
+			<tr><th>Description</th><td>Retrieve coordinates of OSD area blended with video
+			</td></tr>
+			<tr><th>#Params</td><td>0</td></tr>
+			<tr><th>#Results</td><td>5</td></tr>
+			<tr><th>Result[0]</th><td>OSD buffer address</td></tr>
+			<tr><th>Result[1]</th><td>Stride in pixels</td></tr>
+			<tr><th>Result[2]</th><td>Lines in OSD buffer</td></tr>
+			<tr><th>Result[3]</th><td>Horizontal offset in buffer</td></tr>
+			<tr><th>Result[4]</th><td>Vertical offset in buffer</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F8FFE0>
+			<tr><th>Name</th><td width="90%">71</td></tr>
+			<tr><th>Enum</th><td>0x47</td></tr>
+			<tr><th>Description</th><td>Assign the coordinates of the OSD area to blend with video
+			</td></tr>
+			<tr><th>#Params</td><td>5</td></tr>
+			<tr><th>Param[0]</th><td>buffer address</td></tr>
+			<tr><th>Param[1]</th><td>buffer stride in pixels</td></tr>
+			<tr><th>Param[2]</th><td>lines in buffer</td></tr>
+			<tr><th>Param[3]</th><td>horizontal offset</td></tr>
+			<tr><th>Param[4]</th><td>vertical offset</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F8FFE0>
+			<tr><th>Name</th><td width="90%">72</td></tr>
+			<tr><th>Enum</th><td>0x48</td></tr>
+			<tr><th>Description</th><td>Retrieve OSD screen area coordinates
+			</td></tr>
+			<tr><th>#Params</td><td>0</td></tr>
+			<tr><th>#Results</td><td>4</td></tr>
+			<tr><th>Result[0]</th><td>top left horizontal offset</td></tr>
+			<tr><th>Result[1]</th><td>top left vertical offset</td></tr>
+			<tr><th>Result[2]</th><td>bottom right hotizontal offset</td></tr>
+			<tr><th>Result[3]</th><td>bottom right vertical offset</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F8FFE0>
+			<tr><th>Name</th><td width="90%">73</td></tr>
+			<tr><th>Enum</th><td>0x49</td></tr>
+			<tr><th>Description</th><td>Assign the coordinates of the screen area to blend with video
+			</td></tr>
+			<tr><th>#Params</td><td>4</td></tr>
+			<tr><th>Param[0]</th><td>top left horizontal offset</td></tr>
+			<tr><th>Param[1]</th><td>top left vertical offset</td></tr>
+			<tr><th>Param[2]</th><td>bottom left horizontal offset</td></tr>
+			<tr><th>Param[3]</th><td>bottom left vertical offset</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F8FFE0>
+			<tr><th>Name</th><td width="90%">74</td></tr>
+			<tr><th>Enum</th><td>0x4A</td></tr>
+			<tr><th>Description</th><td>Retrieve OSD global alpha
+			</td></tr>
+			<tr><th>#Params</td><td>0</td></tr>
+			<tr><th>#Results</td><td>2</td></tr>
+			<tr><th>Result[0]</th><td>global alpha: 0=off, 1=on</td></tr>
+			<tr><th>Result[1]</th><td>bits 7:0 global alpha</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F8FFE0>
+			<tr><th>Name</th><td width="90%">75</td></tr>
+			<tr><th>Enum</th><td>0x4B</td></tr>
+			<tr><th>Description</th><td>Update global alpha
+			</td></tr>
+			<tr><th>#Params</td><td>3</td></tr>
+			<tr><th>Param[0]</th><td>global alpha: 0=off, 1=on</td></tr>
+			<tr><th>Param[1]</th><td>global alpha (8bits)</td></tr>
+			<tr><th>Param[2]</th><td>local alpha: 0=off, 1=on</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F8FFE0>
+			<tr><th>Name</th><td width="90%">78</td></tr>
+			<tr><th>Enum</th><td>0x4C</td></tr>
+			<tr><th>Description</th><td>Move start of blending area within display buffer
+			</td></tr>
+			<tr><th>#Params</td><td>0</td></tr>
+			<tr><th>Param[0]</th><td>horizontal offset in buffer</td></tr>
+			<tr><th>Param[1]</th><td>vertical offset in buffer</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F8FFE0>
+			<tr><th>Name</th><td width="90%">79</td></tr>
+			<tr><th>Enum</th><td>0x4F</td></tr>
+			<tr><th>Description</th><td>Retrieve flicker reduction module state
+			</td></tr>
+			<tr><th>#Params</td><td>0</td></tr>
+			<tr><th>#Results</td><td>1</td></tr>
+			<tr><th>Result[0]</th><td>flicker state: 0=off, 1=on</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F8FFE0>
+			<tr><th>Name</th><td width="90%">80</td></tr>
+			<tr><th>Enum</th><td>0x50</td></tr>
+			<tr><th>Description</th><td>Set flicker reduction module state
+			</td></tr>
+			<tr><th>#Params</td><td></td></tr>
+			<tr><th>Param[0]</th><td>Stete: 0=off, 1=on</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F8FFE0>
+			<tr><th>Name</th><td width="90%">82</td></tr>
+			<tr><th>Enum</th><td>0x52</td></tr>
+			<tr><th>Description</th><td>BLT copy
+			</td></tr>
+			<tr><th>#Params</td><td>10</td></tr>
+			<tr><th>Param[0]</th><td>
+<pre>
+'0000'  zero
+'0001' ~destination AND ~source
+'0010' ~destination AND  source
+'0011' ~destination
+'0100'  destination AND ~source
+'0101'                  ~source
+'0110'  destination XOR  source
+'0111' ~destination OR  ~source
+'1000' ~destination AND ~source
+'1001'  destination XNOR source
+'1010'                   source
+'1011' ~destination OR   source
+'1100'  destination
+'1101'  destination OR  ~source
+'1110'  destination OR   source
+'1111'  one
+</pre>
+			</td></tr>
+			<tr><th>Param[1]</th><td>
+<pre>
+resulting alpha blending
+'01' source_alpha
+'10' destination_alpha
+'11' source_alpha*destination_alpha+1
+    (zero if both source and destination alpha are zero)
+</pre>
+			</td></tr>
+			<tr><th>Param[2]</th><td>
+<pre>
+'00' output_pixel = source_pixel
+
+'01' if source_alpha=0,     output_pixel = destination_pixel
+     if 256>source_alpha>1,
+     output_pixel = ((source_alpha + 1)*source_pixel +
+                     (255 - source_alpha)*destination_pixel)/256
+
+'10' if destination_alpha=0,     output_pixel = source_pixel
+     if 255>destination_alpha>0, output_pixel = ((255 - destination_alpha)*source_pixel +
+                                                 (destination_alpha + 1)*destination_pixel)/256
+
+'11' if source_alpha=0,     source_temp = 0
+     if source_alpha=255,   source_temp = source_pixel*256
+     if 255>source_alpha>0, source_temp = source_pixel*(source_alpha + 1)
+
+     if destination_alpha=0,     destination_temp = 0
+     if destination_alpha=255,   destination_temp = destination_pixel*256
+     if 255>destination_alpha>0, destination_temp = destination_pixel*(destination_alpha + 1)
+
+     output_pixel = (source_temp + destination_temp)/256
+</pre>
+			</td></tr>
+			<tr><th>Param[3]</th><td>width</td></tr>
+			<tr><th>Param[4]</th><td>heiht</td></tr>
+			<tr><th>Param[5]</th><td>destination pixel mask</td></tr>
+			<tr><th>Param[6]</th><td>destination rectangle start address</td></tr>
+			<tr><th>Param[7]</th><td>destination stride in dwords</td></tr>
+			<tr><th>Param[8]</th><td>source stride in dwords</td></tr>
+			<tr><th>Param[9]</th><td>source rectangle start address</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F8FFE0>
+			<tr><th>Name</th><td width="90%">83</td></tr>
+			<tr><th>Enum</th><td>0x53</td></tr>
+			<tr><th>Description</th><td>BLT fill color
+			</td></tr>
+			<tr><th>#Params</td><td>9</td></tr>
+			<tr><th>Param[0]</th><td>Same as Param[0] on API 0x52</td></tr>
+			<tr><th>Param[1]</th><td>Same as Param[1] on API 0x52</td></tr>
+			<tr><th>Param[2]</th><td>Same as Param[2] on API 0x52</td></tr>
+			<tr><th>Param[3]</th><td>width</td></tr>
+			<tr><th>Param[4]</th><td>height</td></tr>
+			<tr><th>Param[5]</th><td>destination pixel mask</td></tr>
+			<tr><th>Param[6]</th><td>destination rectangle start address</td></tr>
+			<tr><th>Param[7]</th><td>destination stride in dwords</td></tr>
+			<tr><th>Param[8]</th><td>color fill value</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F8FFE0>
+			<tr><th>Name</th><td width="90%">84</td></tr>
+			<tr><th>Enum</th><td>0x54</td></tr>
+			<tr><th>Description</th><td>BLT for 8bit alpha text source
+			</td></tr>
+			<tr><th>#Params</td><td>11</td></tr>
+			<tr><th>Param[0]</th><td>Same as Param[0] on API 0x52</td></tr>
+			<tr><th>Param[1]</th><td>Same as Param[1] on API 0x52</td></tr>
+			<tr><th>Param[2]</th><td>Same as Param[2] on API 0x52</td></tr>
+			<tr><th>Param[3]</th><td>width</td></tr>
+			<tr><th>Param[4]</th><td>height</td></tr>
+			<tr><th>Param[5]</th><td>destination pixel mask</td></tr>
+			<tr><th>Param[6]</th><td>destination rectangle start address</td></tr>
+			<tr><th>Param[7]</th><td>destination stride in dwords</td></tr>
+			<tr><th>Param[8]</th><td>source stride in dwords</td></tr>
+			<tr><th>Param[9]</th><td>source rectangle start address</td></tr>
+			<tr><th>Param[10]</th><td>color fill value</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F8FFE0>
+			<tr><th>Name</th><td width="90%">86</td></tr>
+			<tr><th>Enum</th><td>0x56</td></tr>
+			<tr><th>Description</th><td>Positions the main output window on the screen. The coordinates must be such that the entire window
+					fits on the screen.
+			</td></tr>
+			<tr><th>#Params</td><td>4</td></tr>
+			<tr><th>Param[0]</th><td>window width</td></tr>
+			<tr><th>Param[1]</th><td>window height</td></tr>
+			<tr><th>Param[2]</th><td>top left window corner horizontal offset</td></tr>
+			<tr><th>Param[3]</th><td>top left window corner vertical offset</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F8FFE0>
+			<tr><th>Name</th><td width="90%">96</td></tr>
+			<tr><th>Enum</th><td>0x60</td></tr>
+			<tr><th>Description</th><td>chroma key switch and color
+			</td></tr>
+			<tr><th>#Params</td><td>2</td></tr>
+			<tr><th>Param[0]</th><td>state: 0=off, 1=on</td></tr>
+			<tr><th>Param[1]</th><td>color</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F8FFE0>
+			<tr><th>Name</th><td width="90%">97</td></tr>
+			<tr><th>Enum</th><td>0x61</td></tr>
+			<tr><th>Description</th><td>Retrieve alpha content index
+			</td></tr>
+			<tr><th>#Params</td><td>0</td></tr>
+			<tr><th>#Results</td><td>1</td></tr>
+			<tr><th>Result[0]</th><td>alpha content index, Range 0:15</td></tr>
+			</table>
+			<br>
+
+			<table border="1" width="100%" bgcolor=#F8FFE0>
+			<tr><th>Name</th><td width="90%">98</td></tr>
+			<tr><th>Enum</th><td>0x62</td></tr>
+			<tr><th>Description</th><td>Assign alpha content index
+			</td></tr>
+			<tr><th>#Params</td><td>1</td></tr>
+			<tr><th>Param[0]</th><td>alpha content index, range 0:15</td></tr>
+			<tr><th>#Results</td><td>0</td></tr>
+			</table>
+			<br>
+
+		</center></td></tr>
+	</table>
+
+	<table width="60%" cellspacing="0" cellpadding="5">
+	<tr><td><font size="-1"><center>Copyright 2003 The IvyTV Team<br>iTVC15 is a trademark of Conexant Systems, Inc.</center></font>
+<a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=73219&type=1" width="88" height="31" border="0" alt="SourceForge.net Logo"></a></td></tr>
+	</table>
+
+</center>
+</body>
+
+</html>

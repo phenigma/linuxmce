@@ -1,0 +1,174 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>iTVC15 Precapture Initialization</title>
+</head>
+
+<body>
+<center>
+	<h2>iTVC15 Precapture Initialization</h2>
+	<table width="60%"><tr><td>
+	<i>This page summarizes how to initialize the iTVC15 for capture.</i>
+	</td></tr></table>
+
+	<br>
+
+    <table width="60%" border="1" cellspacing="0" cellpadding="5">
+		<tr><th>Initialization</th></tr>
+		<tr><td>
+<pre>
+(After the firmware has been loaded and started...)
+0xc9 <b>assign_dma_blocklen</b>
+args: (num_bytes_in_block) 
+	= (1,1) // use information from SchedDMA instead
+
+0xc7 <b>assign_prgm_index_info</b>
+args: (mask,num_req)        
+	= (0:Disable,0)
+rets: (sdf_offset,num_alloc)
+
+0xb9 <b>assign_stream_type</b>
+args: (output_type)        
+	= (0:Program Stream)
+
+0xbb <b>assign_output_port</b>
+args: (port)                
+	= (0:Memory)
+
+0x8f <b>assign_framerate</b>
+args: (rate)                
+	= (0:30fps) // 1:25fps PAL
+
+0x91 <b>assign_frame_size</b>
+args: (height,width)        
+	= (480,720) // {240,288,480,576} {720,480,352,320}
+
+0x99 <b>assign_aspect_ratio</b>
+args: (mpeg_aspect_ratio)    
+	= (2:from MPEG spec)
+
+0x95 <b>assign_bitrates</b>
+args: (mode,bps,peak,???,???)
+	= (0,8000000,16000000/400,0,0x70)
+
+0x97 <b>assign_gop_properties</b>
+args: (size,num_b)            
+	= (15,3)
+
+0xb1 <b>assign_3_2_pulldown</b>
+args: (on_off)                
+	= (0:off)
+
+0xc5 <b>assign_gop_closure</b>
+args: (on_off)                
+	= (0:off)
+
+0xbd <b>assign_audio_properties</b>
+args: (flags)                
+	= (0xE9: 0 00 00 00 00 1110 10 01)
+
+0x9b <b>assign_dnr_filter_mode</b>
+args: (mode,filter)        
+	= (3:DynTemporal&DynSpatial,0:Disable)
+
+0x9d <b>assign_dnr_filter_props</b>
+args: (spatial,temporal)
+	= (0,0)
+
+0x9f <b>assign_coring_levels</b>
+args: (luma_h,luma_l,chroma_h,chroma_l)
+	= (0,255,0,255)
+
+0xa1 <b>assign_spatial_filter_type</b>
+args: (luma_t,chroma_t)    
+	= (1:horiz_only,1:horiz_only)
+
+0xd0 <b>assign_frame_drop_rate</b>
+args: (num)                
+	= (0)
+
+0xd8 <b>assign_placeholder</b>
+args: (type,period,size_t,arg0 - arg8)
+	= (0:Extension/UserData,0,0, 0,0,0,0,0,0,0,0)
+
+Disable the digitizer (7115) dev[0x42].reg[0x87] = 0
+
+0xcd <b>initialize_input</b>
+args: (void)
+
+0xd6 <b>assign_num_vsync_lines</b>
+args: (???,???)
+	= (240,240)
+
+Wait for 100ms
+</pre>
+        </td></tr>
+    </table>
+
+    <br>
+
+    <table width="60%" border="1" cellspacing="0" cellpadding="5">
+        <tr><th>Start Capture</th></tr>
+        <tr><td>
+<pre>
+0x81 <b>begin_capture</b>
+args: (type,subtype)        
+	= (0:MPEG,3:Video+Audio)
+
+0xD5 <b>event_notification</b>
+args: (type,on_off,intr_bit,mbox_id)
+	= (0:Refresh Input,1:On,0x10000000:Digitizer,-1:none)
+
+Clear the following Interrupt mask bits: 0xd8000000
+
+Enable the digitizer (7115) dev[0x42].reg[0x87] = 1
+</pre>
+<i>The interrupt is now live.  Please see <a href="dma.html">dma.html</a> for details
+on how to handle it and schedule DMA transactions.</i>
+        </td></tr>
+    </table>
+
+    <br>
+
+    <table width="60%" border="1" cellspacing="0" cellpadding="5">
+        <tr><th>Halt Capture</th></tr>
+        <tr><td>
+<pre>
+Disable the digitizer (7115) dev[0x42].reg[0x87] = 0
+
+0x82 <b>end_capture</b>
+args: (when,type,subtype)    
+	= (0:EndOfGOP,0:MPEG,3:Video+Audio)
+
+0xD5 <b>event_notification</b>
+args: (type,on_off,intr_bit,mbox_id)
+	= (0:Refresh Input,0:Off,0x10000000:Digitizer,-1:none)
+
+Clear the following Interrupt mask bits: 0xd8000000
+</pre>
+        </td></tr>
+    </table>
+
+    <br>
+
+    <table width="60%" border="1" cellspacing="0" cellpadding="5">
+        <tr><th>Reinitialize</th></tr>
+        <tr><td>
+<i>The source indicates that after you issue an end_capture, you must
+reinitialize the card before you issue another begin_capture.</i>
+<pre>
+TBD
+</pre>
+	</td></tr>
+	</table>
+
+	<br>
+	<table width="60%" cellspacing="0" cellpadding="5">
+	<tr><td><font size="-1"><center>Copyright 2003 The IvyTV Team<br>iTVC15 is a trademark of Conexant Systems, Inc.</center></font>
+<a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=73219&type=1" width="88" height="31" border="0" alt="SourceForge.net Logo"></a></td></tr>
+	</table>
+
+</center>
+</body>
+
+</html>

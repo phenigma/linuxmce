@@ -1,0 +1,111 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>iTVC15 Firmware Calling</title>
+</head>
+
+<body>
+<center>
+	<h2>iTVC15 Firmware Calling</h2>
+	<table width="60%"><tr><td>
+	<i>This page describes how to make calls to the firmware api.  The upload
+		procedure will be described on the <a href="firmware-upload.html">firmware-upload.html</a>		page and the API will be described on the <a href="firmware-api.html">firmware-api.html</a>		page. Information about the memory map of the card and the registers are described
+		on the <a href="memory-map.html">memory-map.html</a> page.</i>
+	</td></tr></table>
+
+	<br>
+
+    <table width="60%" border="1" cellspacing="0" cellpadding="5">
+		<tr><th>How to call</th></tr>
+		<tr><td>
+		<br>
+The preferred calling convention is known as the firmware mailbox.
+The mailboxes are basically a fixed length array that serves as the
+call-stack.<br>
+<br>
+The Firmware API documentation tells us to use the appropriate
+field in the FWID structure, yet no such field exists.  A code
+comment tells us that the firmware mailboxes may be located by 
+searching the encoder and decoder memory for a 16 byte signature.  
+That signature will be located on a 256-byte boundary.<br>
+<br>
+			<center>
+			<table border="1" cellspacing="0" cellpadding="2">
+			  <tr><th>Signature</th></tr>
+			  <tr><td>
+				  <code>0x78,0x56,0x34,0x12,0x12,0x78,0x56,0x34,<br>
+						0x34,0x12,0x78,0x56,0x56,0x34,0x12,0x78</code>
+			  </td></tr>
+			</table>
+			</center>
+<br>
+The firmware implements 20 mailboxes of 20 32bit words.
+The first 10 are reserved for API calls.  The second 10 are used by
+the firmware for event notification.
+			<br><br>
+			<center>
+			<table width="60%" border="1" cellspacing="0" cellpadding="2">
+			  <tr><th>Index</th><th>Name</th></tr>
+			  <tr><td>0</td><td>Flags</td></tr>
+			  <tr><td>1</td><td>Command</td></tr>
+			  <tr><td>2</td><td>Return value</td></tr>
+			  <tr><td>3</td><td>Timeout</td></tr>
+			  <tr><td>4-19</td><td>Parameter/Result</td></tr>
+			</table>
+			</center>
+			<br>
+The <b>flags</b> are defined in the following table.  The direction is
+from the perspective of the firmware.
+			<br><br>
+			<center>
+			<table width="60%" border="1" cellspacing="0" cellpadding="2">
+			  <tr><th>Bit</th><th>Direction</th><th>Purpose</th></tr>
+			  <tr><td>2</td><td>O</td><td>Firmware has processed the command.</td></tr>
+			  <tr><td>1</td><td>I</td><td>Driver has finished setting the parameters.</td></tr>
+			  <tr><td>0</td><td>I</td><td>Driver is using this mailbox.</td></tr>
+			</table>
+			</center>
+			<br>
+The <b>command</b> is a 32bit enumerator.  The API specifics may be found
+on the <a href="firmware-api.html">firmware-api.html</a> page.
+		<br><br>
+The <b>return value</b> is a 32bit enumerator.  Only two values are currently
+defined: 0=success and -1=command undefined.
+			<br><br>
+There are 16 <b>parameters/results</b> 32bit fields.  The driver populates these
+fields with values for all the parameters required by the call.  The driver overwrites
+these fields with result values returned by the call.  The API specifics may be found
+on the <a href="firmware-api.html">firmware-api.html</a> page.
+			<br><br>
+The <b>timeout</b> value protects the card from a hung driver thread.
+If the driver doesn't handle the completed call within the timeout
+specified, the firmware will reset that mailbox.
+			<br><br>
+To make an API call, the driver iterates over each mailbox looking for
+the first one available (bit 0 has been cleared).  The driver sets that
+bit, fills in the command enumerator, the timeout value and any required
+parameters.  The driver then sets the parameter ready bit (bit 1).  The
+firmware scans the mailboxes for pending commands, processes them, sets
+the result code, populates the result value array with that call's
+return values and sets the call complete bit (bit 2).  Once bit 2 is set,
+the driver should retrieve the results and clears all the flags.  If the
+driver does not perform this task within the time set in the timeout register,
+the firmware will reset that mailbox.
+			<br><br>
+<b>Event notifications</b> are sent from the firmware to the host.  The host
+tells the firmware which events it is interested in via an API call.  That call
+tells the firmware which notification mailbox to use.  The firmware signals the host 
+via an interrupt.  Only the 16 <b>Results</b> fields are used, the <b>Flags,
+Command, Return value and Timeout</b> words are not used.
+		</td></tr>
+	</table>
+
+	<br>
+	<table width="60%" cellspacing="0" cellpadding="5">
+	<tr><td><font size="-1"><center>Copyright 2003 The IvyTV Team<br>iTVC15 is a trademark of Conexant Systems, Inc.</center></font>
+<a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=73219&type=1" width="88" height="31" border="0" alt="SourceForge.net Logo"></a></td></tr>
+	</table>
+
+</center>
+</body>
+</html>

@@ -1,0 +1,428 @@
+startup5.log linux
+
+# started cheapi2c
+# started linux player6 capture with defaults
+# stopped cheapi2c while player6 still running
+
+      0uS: 21 W 87 00 
+  2.660 S: 21 W 01 08 
+    550uS: 21 W 03 20 
+    546uS: 21 W 04 90 
+    547uS: 21 W 05 90 
+    546uS: 21 W 06 EB 
+    546uS: 21 W 07 E0 
+    546uS: 21 W 08 B0 
+    546uS: 21 W 0A 80 
+    546uS: 21 W 0E 85 
+    547uS: 21 W 0F 2A 
+    545uS: 21 W 10 06 
+    546uS: 21 W 11 00 
+    547uS: 21 W 12 9D 
+    560uS: 21 W 13 80 
+    547uS: 21 W 14 00 
+    546uS: 21 W 15 04 
+    547uS: 21 W 16 11 
+    547uS: 21 W 17 D8 
+    547uS: 21 W 18 40 
+    546uS: 21 W 19 80 
+    547uS: 21 W 1A 77 
+    546uS: 21 W 1B 42 
+    545uS: 21 W 1C A9 
+    547uS: 21 W 1D 01 
+    548uS: 21 W 30 BC 
+    545uS: 21 W 31 DF 
+    547uS: 21 W 32 02 
+    548uS: 21 W 34 F2 
+    545uS: 21 W 35 00 
+    548uS: 21 W 36 2D 
+    546uS: 21 W 38 03 
+  2.296mS: 21 W 39 10 
+    548uS: 21 W 3A 00 
+    548uS: 21 W 40 00 
+    548uS: 21 W 80 00 
+    546uS: 21 W 81 01 
+    548uS: 21 W 82 00 
+    548uS: 21 W 83 01 
+    546uS: 21 W 84 20 
+    547uS: 21 W 85 21 
+    545uS: 21 W 86 C5 
+    547uS: 21 W 87 01 
+    547uS: 21 W 88 D0 
+    546uS: 21 W 91 40 
+    547uS: 21 W 92 40 
+    547uS: 21 W 93 80 
+    588uS: 21 W 94 02 
+    547uS: 21 W 95 00 
+    548uS: 21 W 96 D0 
+    545uS: 21 W 97 02 
+    547uS: 21 W 98 0D 
+    548uS: 21 W 99 00 
+    547uS: 21 W 9A 02 
+    548uS: 21 W 9B 00 
+    548uS: 21 W 9C A0 
+    546uS: 21 W 9D 05 
+    547uS: 21 W 9E 01 
+    549uS: 21 W 9F 00 
+    546uS: 21 W A0 01 
+    548uS: 21 W A1 00 
+    548uS: 21 W A2 00 
+    547uS: 21 W A4 80 
+    547uS: 21 W A5 40 
+    545uS: 21 W A6 40 
+    547uS: 21 W A8 00 
+    633uS: 21 W A9 02 
+    546uS: 21 W AA 00 
+    548uS: 21 W AC 00 
+    547uS: 21 W AD 01 
+    548uS: 21 W AE 00 
+    546uS: 21 W B0 00 
+    549uS: 21 W B1 04 
+    547uS: 21 W B2 00 
+    547uS: 21 W B3 04 
+    548uS: 21 W B4 01 
+    547uS: 21 W B8 00 
+    548uS: 21 W B9 00 
+    548uS: 21 W BA 00 
+    547uS: 21 W BB 00 
+    548uS: 21 W BC 00 
+    548uS: 21 W BD 00 
+    546uS: 21 W BE 00 
+    549uS: 21 W BF 00 
+    556uS: 21 W C0 00 
+    548uS: 21 W C1 08 
+    546uS: 21 W C2 00 
+    548uS: 21 W C3 80 
+    548uS: 21 W C4 02 
+    548uS: 21 W C5 00 
+    547uS: 21 W C6 D0 
+    545uS: 21 W C7 02 
+    548uS: 21 W C8 14 
+    545uS: 21 W C9 00 
+    548uS: 21 W CA FD 
+    547uS: 21 W CB 00 
+    548uS: 21 W CE FD 
+    547uS: 21 W CF 00 
+    547uS: 21 W D4 80 
+    548uS: 21 W D5 40 
+    547uS: 21 W D6 40 
+    548uS: 21 W DA 00 
+    559uS: 21 W DD 02 
+    548uS: 21 W DE 00 
+    547uS: 21 W E0 00 
+    548uS: 21 W E1 04 
+    548uS: 21 W E2 00 
+    546uS: 21 W E3 04 
+    548uS: 21 W E4 01 
+    546uS: 21 W E8 00 
+    548uS: 21 W E9 00 
+    547uS: 21 W EA 00 
+    548uS: 21 W EB 00 
+    547uS: 21 W EC 00 
+    547uS: 21 W ED 00 
+    548uS: 21 W EE 00 
+    547uS: 21 W EF 00 
+    548uS: 21 W F0 AD 
+    545uS: 21 W F1 05 
+    548uS: 21 W F2 50 
+    559uS: 21 W F3 46 
+    545uS: 21 W F4 00 
+    546uS: 21 W F5 AD 
+    547uS: 21 W F6 01 
+    547uS: 21 W F7 4B 
+    545uS: 21 W F8 00 
+    548uS: 21 W F9 4B 
+    545uS: 21 W FA 00 
+    547uS: 21 W FB 4B 
+    549uS: 21 W FC 00 
+    547uS: 21 W FD 00 
+    550uS: 21 W FE 00 
+    545uS: 21 W FF 88 
+  2.316mS: 21 W 98 05 
+    560uS: 21 W 41 FF 
+  2.196mS: 21 W 42 FF 
+    548uS: 21 W 43 FF 
+    547uS: 21 W 44 FF 
+    548uS: 21 W 45 FF 
+    548uS: 21 W 46 FF 
+    548uS: 21 W 47 FF 
+    547uS: 21 W 48 FF 
+    548uS: 21 W 49 FF 
+    547uS: 21 W 4A FF 
+    549uS: 21 W 4B FF 
+    547uS: 21 W 4C FF 
+    548uS: 21 W 4D FF 
+    548uS: 21 W 4E FF 
+    547uS: 21 W 4F FF 
+    548uS: 21 W 50 FF 
+ 20.594mS: 21 W 51 FF 
+    547uS: 21 W 52 FF 
+    547uS: 21 W 53 FF 
+    547uS: 21 W 54 FF 
+    547uS: 21 W 55 FF 
+    545uS: 21 W 56 FF 
+    548uS: 21 W 57 FF 
+    547uS: 21 W 58 00 
+    545uS: 21 W 59 47 
+    547uS: 21 W 5A 06 
+    550uS: 21 W 5B 88 
+    545uS: 21 W 5D BF 
+    545uS: 21 W 5E 35 
+    548uS: 21 W 90 80 
+    548uS: 21 W 80 30 
+  2.816mS: 21 W 02 C0 
+    549uS: 21 W 09 40 
+    547uS: 21 W 0B 44 
+    546uS: 21 W 0C 40 
+    548uS: 21 W 0D 00 
+  6.542mS: 21 W 30 00 
+    547uS: 21 W 31 C0 
+    604uS: 21 W 32 03 
+    546uS: 21 W C4 00 
+    552uS: 21 W CA 20 
+    545uS: 21 W CB 01 
+    546uS: 21 W CE 20 
+    545uS: 21 W CF 01 
+    547uS: 21 W 91 08 
+    551uS: 21 W 94 00 
+  1.653mS: 21 W 98 0A 
+    549uS: 21 W 9A 03 
+    548uS: 21 W 9C D0 
+    547uS: 21 W 9D 02 
+  2.424mS: 21 W 91 48 
+  2.192mS: 21 W 93 84 
+    549uS: 21 W CC D0 
+    545uS: 21 W CD 02 
+    546uS: 21 W D0 01 
+    548uS: 21 W D1 00 
+    548uS: 21 W D2 00 
+    547uS: 21 W D8 00 
+    548uS: 21 W D9 04 
+    547uS: 21 W DC 00 
+    549uS: 21 W 88 F0 
+  2.249mS: 21 W 31 80 
+    548uS: 21 W 32 02 
+    602uS: 21 W 34 DF 
+    545uS: 21 W 35 A7 
+    547uS: 21 W 36 20 
+  5.465mS: 40 W 00 80 00 
+    709uS: 40 W 00 00 00 
+    707uS: 40 W 12 00 13 0C 00 
+  1.029mS: 40 W 10 00 30 21 0B 
+  1.048mS: 40 W 12 00 0E 18 00 
+  1.027mS: 40 W 10 00 20 00 20 
+  1.031mS: 40 W 12 00 0A 02 20 
+  1.030mS: 40 W 12 00 0D 00 19 
+  1.030mS: 40 W 12 00 07 7C 00 
+ 10.111mS: 44 W  -nak-
+    224uS: 44 W  -nak-
+  4.865mS: 44 W  -nak-
+    243uS: 44 W  -nak-
+  4.737mS: 44 W  -nak-
+    224uS: 44 W  -nak-
+  4.542mS: 44 W  -nak-
+    224uS: 44 W  -nak-
+ 16.626mS: 44 W  -nak-
+    223uS: 44 W  -nak-
+  4.786mS: 44 W  -nak-
+    224uS: 44 W  -nak-
+  4.854mS: 44 W  -nak-
+    223uS: 44 W  -nak-
+  5.255mS: 44 W  -nak-
+    224uS: 44 W  -nak-
+  5.014mS: 44 W  -nak-
+    224uS: 44 W  -nak-
+  5.123mS: 44 W  -nak-
+    224uS: 44 W  -nak-
+  5.208mS: 44 W  -nak-
+    223uS: 44 W  -nak-
+  5.239mS: 44 W  -nak-
+    224uS: 44 W  -nak-
+  5.278mS: 44 W  -nak-
+    223uS: 44 W  -nak-
+  5.371mS: 44 W  -nak-
+    224uS: 44 W  -nak-
+  7.231mS: 44 W  -nak-
+    224uS: 44 W  -nak-
+  5.836mS: 44 W  -nak-
+    225uS: 44 W  -nak-
+  5.758mS: 44 W  -nak-
+    222uS: 44 W  -nak-
+  5.696mS: 44 W  -nak-
+    223uS: 44 W  -nak-
+    906uS: 44 W  -nak-
+    224uS: 44 W  -nak-
+    261uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    259uS: 44 W  -nak-
+    223uS: 44 W  -nak-
+    256uS: 44 W  -nak-
+    224uS: 44 W  -nak-
+    257uS: 44 W  -nak-
+    223uS: 44 W  -nak-
+    257uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    258uS: 44 W  -nak-
+    223uS: 44 W  -nak-
+    257uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    258uS: 44 W  -nak-
+    224uS: 44 W  -nak-
+    256uS: 44 W  -nak-
+    224uS: 44 W  -nak-
+    257uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    256uS: 44 W  -nak-
+    223uS: 44 W  -nak-
+    256uS: 44 W  -nak-
+    223uS: 44 W  -nak-
+    257uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    257uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    258uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    257uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    257uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    255uS: 44 W  -nak-
+    237uS: 44 W  -nak-
+    254uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+  1.383mS: 44 W  -nak-
+    224uS: 44 W  -nak-
+    256uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    253uS: 44 W  -nak-
+    223uS: 44 W  -nak-
+    252uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    254uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    252uS: 44 W  -nak-
+    224uS: 44 W  -nak-
+    253uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    253uS: 44 W  -nak-
+    224uS: 44 W  -nak-
+    251uS: 44 W  -nak-
+    223uS: 44 W  -nak-
+    253uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    254uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    253uS: 44 W  -nak-
+    223uS: 44 W  -nak-
+    251uS: 44 W  -nak-
+    224uS: 44 W  -nak-
+    253uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    253uS: 44 W  -nak-
+    223uS: 44 W  -nak-
+    252uS: 44 W  -nak-
+    224uS: 44 W  -nak-
+    253uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+ 11.151mS: 44 W  -nak-
+    225uS: 44 W  -nak-
+  5.526mS: 44 W  -nak-
+    224uS: 44 W  -nak-
+  4.565mS: 44 W  -nak-
+    223uS: 44 W  -nak-
+    284uS: 44 W  -nak-
+    223uS: 44 W  -nak-
+    261uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    259uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    258uS: 44 W  -nak-
+    224uS: 44 W  -nak-
+    257uS: 44 W  -nak-
+    223uS: 44 W  -nak-
+    258uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    258uS: 44 W  -nak-
+    224uS: 44 W  -nak-
+    290uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    259uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    257uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    257uS: 44 W  -nak-
+    224uS: 44 W  -nak-
+    257uS: 44 W  -nak-
+    224uS: 44 W  -nak-
+    256uS: 44 W  -nak-
+    223uS: 44 W  -nak-
+    256uS: 44 W  -nak-
+    224uS: 44 W  -nak-
+    257uS: 44 W  -nak-
+    223uS: 44 W  -nak-
+    256uS: 44 W  -nak-
+    224uS: 44 W  -nak-
+    257uS: 44 W  -nak-
+    235uS: 44 W  -nak-
+    258uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    253uS: 44 W  -nak-
+    223uS: 44 W  -nak-
+    253uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    253uS: 44 W  -nak-
+    223uS: 44 W  -nak-
+    252uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    253uS: 44 W  -nak-
+    224uS: 44 W  -nak-
+    251uS: 44 W  -nak-
+    223uS: 44 W  -nak-
+    252uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    254uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    253uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    253uS: 44 W  -nak-
+    224uS: 44 W  -nak-
+    251uS: 44 W  -nak-
+    224uS: 44 W  -nak-
+    252uS: 44 W  -nak-
+    223uS: 44 W  -nak-
+    253uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    253uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    253uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    253uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    252uS: 44 W  -nak-
+    224uS: 44 W  -nak-
+    252uS: 44 W  -nak-
+    223uS: 44 W  -nak-
+    253uS: 44 W  -nak-
+    222uS: 44 W  -nak-
+    253uS: 44 W  -nak-
+    234uS: 44 W  -nak-
+    253uS: 44 W  -nak-
+    224uS: 44 W  -nak-
+    303uS: 21 W 0A 70 
+    546uS: 21 W 0B 3F 
+    546uS: 21 W 09 
+    347uS: 21 r 40 
+    363uS: 21 W 09 47 
+    547uS: 21 W 0C 3F 
+ 20.123mS: 21 W 87 00 
+    604uS: 21 W 87 01 
+  1.354 S: 21 W 1F 
+    380uS: 21 r 91 
+  1.079 S: 21 W 1F 
+    381uS: 21 r 91 
+  1.078 S: 22 W 3E 
+    389uS: 21 r 91 
+  1.075 S: 21 r 91 
+  1.084 S: 21 W 1F 
+    383uS: 21 r 91 
+  1.079 S: 21 W 1F 
+    417uS: 21 r 91 

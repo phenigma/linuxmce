@@ -1,0 +1,96 @@
+Script started on Fri Dec 13 02:21:44 2002
+
+# start cheapi2c
+# start player6 record with PCIDEFAULTs
+# press x to stop mpeg recording after 6 secs
+# stopped cheapi2c
+
+
+Milksop GPL Reflasher - 0.12 - (c)2002 andy@warmcat.com
+
+CheapI2C on printer port at 0x378
+Starting realtime...
+Entering capture mode, your PC will appear frozen - press any key to end
+      0uS: 21 W 0A 80 
+    581uS: 21 W 30 BC 
+    546uS: 21 W 31 DF 
+    548uS: 21 W 34 F2 
+    544uS: 21 W 35 00 
+    546uS: 21 W 36 2D 
+    618uS: 21 W 80 00 
+    559uS: 21 W 87 01 
+    546uS: 21 W 88 D0 
+    629uS: 21 W 91 40 
+    548uS: 21 W 93 80 
+    545uS: 21 W 94 02 
+    552uS: 21 W 98 0D 
+    547uS: 21 W 9A 02 
+    548uS: 21 W 9C A0 
+    546uS: 21 W 9D 05 
+    624uS: 21 W C4 02 
+    555uS: 21 W CA FD 
+    546uS: 21 W CB 00 
+    545uS: 21 W CE FD 
+    546uS: 21 W CF 00 
+  3.345mS: 21 W 98 05 
+    627uS: 21 W 80 30 
+  2.424mS: 21 W 09 40 
+    546uS: 21 W 0B 44 
+    546uS: 21 W 0C 40 
+  2.569mS: 21 W 30 00 
+    547uS: 21 W 31 C0 
+    546uS: 21 W 32 03 
+ 10.621mS: 21 W C4 00 
+    554uS: 21 W CA 20 
+    545uS: 21 W CB 01 
+    546uS: 21 W CE 20 
+    544uS: 21 W CF 01 
+    548uS: 21 W 91 08 
+    551uS: 21 W 94 00 
+    565uS: 21 W 98 0A 
+    549uS: 21 W 9A 03 
+    547uS: 21 W 9C D0 
+    546uS: 21 W 9D 02 
+  2.577mS: 21 W 91 48 
+    549uS: 21 W 93 84 
+    563uS: 21 W 88 F0 
+  4.058mS: 21 W 31 80 
+    547uS: 21 W 32 02 
+    546uS: 21 W 34 DF 
+    544uS: 21 W 35 A7 
+    546uS: 21 W 36 20 
+  2.313mS: 40 W 00 80 00 
+    707uS: 40 W 00 00 00 
+    706uS: 40 W 12 00 13 0C 00 
+  1.082mS: 40 W 10 00 30 21 0B 
+  1.027mS: 40 W 12 00 0E 18 00 
+  1.027mS: 40 W 10 00 20 00 20 
+  1.025mS: 40 W 12 00 0A 02 20 
+  1.027mS: 40 W 12 00 0D 00 19 
+  1.027mS: 40 W 12 00 07 7C 00 
+  3.263mS: 21 W 0A 70 
+    547uS: 21 W 0B 3F 
+    548uS: 21 W 09 
+    366uS: 21 r 40 
+    403uS: 21 W 09 47 
+    548uS: 21 W 0C 3F 
+ 21.171mS: 21 W 87 00 
+    601uS: 21 W 87 01 
+  1.350 S: 21 W 1E 
+  1.080 S: 21 W 1F 
+    428uS: 21 r 91 
+  1.076 S: 21 W 1F 
+    377uS: 21 r 91 
+  1.073 S: 00 r  -interrupted-
+     77uS: 08 W 
+    342uS: 21 r 91 
+  1.085 S: 21 W 1F 
+    400uS: 21 r 91 
+  1.080 S: 21 W 1F 
+    402uS: 21 r 91 
+884.816mS: 21 W 87 00 
+   Binary Hack Dump lmilk written
+Done
+[root@mini tmp]# [root@mini tmp]# [root@mini tmp]#  [root@mini tmp]#  [root@mini tmp]#  [root@mini tmp]#  
+[root@mini tmp]# [root@mini tmp]# 
+Script done on Fri Dec 13 02:22:33 2002

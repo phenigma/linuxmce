@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>iTVC15 Firmware Upload</title>
+</head>
+
+<body>
+<center>
+	<h2>iTVC15 Firmware upload</h2>
+	<table width="60%"><tr><td>
+	<i>This page describes how to upload the firmware to the card.  The calling
+		procedure will be described on the <a href="firmware-calling.html">firmware-calling.html</a>		page and the API will be described on the <a href="firmware-api.html">firmware-api.html</a>		page. Information about the memory map of the card and the registers are 
+		described on the <a href="memory-map.html">memory-map.html</a> page.
+	</td></tr></table>
+
+	<br>
+
+    <table width="60%" border="1" cellspacing="0" cellpadding="5">
+		<tr><th>How to find</th></tr>
+		<tr><td>
+		The firmware is Conexant property.  As such, I am not entitled
+		to distribute it without a license from Conexant.  Fear not.
+		The complementary Windows coaster so thoughtfully supplied
+		with your card contains this particular magic, but it's
+		hidden.  This is information on how to locate both the images
+		you need.
+		<br>
+		<code>
+		<ul>
+
+		<li>Unpack the driver.
+		<li>Locate the hcw98gp2.sys file.
+		<li>Each firmware image is 256k bytes.
+		<li>The 2nd 32-bit word of both images are 0xaa55bb66
+		<li>The 1st 32-bit word of the Encoder image is 0x0000da7
+		<li>The 1st 32-bit word of the Decoder image is 0x00003a7
+		<li>You need both images.
+
+		</ul>
+		</code>
+		<br>		
+		</td></tr>
+	</table><br>
+				
+    <table width="60%" border="1" cellspacing="0" cellpadding="5">
+		<tr><th>How to load</th></tr>
+		<tr><td>
+		<br>
+		<code>
+		<ul>
+		<li>Issue the FWapi command to stop the encoder if it is running.
+			Wait for the command to complete.
+		<li>Issue the FWapi command to stop the decoder if it is running.
+			Wait for the command to complete.
+		<li>Issue the I2C command to the digitizer to stop emitting VSYNC
+			events.
+		<li>Issue the FWapi command to halt the encoder's firmware.
+		<li>Sleep for 10ms.
+		<li>Issue the FWapi command to halt the decoder's firmware.
+		<li>Sleep for 10ms.
+		<li>Write 0x00000000 to register 0x2800 to stop the Video Display Module.
+		<li>Write 0x00000005 to register 0x2D00 to stop the AO (audio output?).
+		<li>Write 0x00000000 to register 0xA064 to ping? the APU.
+		<li>Write 0xFFFFFFFE to register 0x9058 to stop the VPU.
+		<li>Write 0xFFFFFFFF to register 0x9054 to reset the HW blocks.
+		<li>Write 0x00000001 to register 0x9050 to stop the SPU.
+		<li>Sleep for 10ms.
+		<li>Write 0x0000001A to register 0x07FC to init the Encoder SDRAM's pre-charge.
+		<li>Write 0x80000640 to register 0x07F8 to init the Encoder SDRAM's refresh to 1us.
+		<li>Write 0x0000001A to register 0x08FC to init the Decoder SDRAM's pre-charge.
+		<li>Write 0x80000640 to register 0x08F8 to init the Decoder SDRAM's refresh to 1us.
+		<li>Sleep for 512ms.  (600ms is recommended)
+		<li>Transfer the encoder's firmware image to offset 0 in Encoder memory space.
+		<li>Transfer the decoder's firmware image to offset 0 in Decoder memory space.
+		<li>Use a read-modify-write operation to Clear bit 0 of register 0x9050 
+		    to renable the SPU.
+		<li>Sleep for 1 second.
+		<li>Use a read-modify-write operation to Clear bits 3 and 0 of register
+		     0x9058 to renable the VPU.
+		<li>Sleep for 1 second.
+		<li>Issue staus API commands to both firmware images to verify.
+		</ul>
+		</code>
+		<br>		
+		</td></tr>
+	</table>
+				
+	<br>
+	<table width="60%" cellspacing="0" cellpadding="5">
+	<tr><td><font size="-1"><center>Copyright 2003 The IvyTV Team<br>iTVC15 is a trademark of Conexant Systems, Inc.</center></font>
+<a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=73219&type=1" width="88" height="31" border="0" alt="SourceForge.net Logo"></a></td></tr>
+	</table>
+
+</center>
+</body>
+
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>iTVC15 Memory Map</title>
+</head>
+
+<body>
+<center>
+	<h2>iTVC15 Memory Map</h2>
+	<table width="60%"><tr><td>
+	<i>This page describes the iTVC memory map and documents some of the register space.  Uploading the
+		firmware to the card will be discussed on the <a href="firmware-upload.html">firmware-upload.html</a>		page.  How the driver communicates with the	firmware will be discussed on the 
+		<a href="firmware-calling.html">firmware-calling.html</a> page. The api calls will be described on the
+		<a href="firmware-api.html">firmware-api.html</a> page.<br>
+		<br>
+		<font color="red"><b>Warning!</b> The information on this page was not derived from any
+		documentation. Inaccuracies and holes are ineveitable.</font>
+	</i>
+	</td></tr></table>
+
+	<br>
+
+    <table width="60%" border="1" cellspacing="0" cellpadding="5">
+		<tr><th>Memory Map</th></tr>
+		<tr><td>
+The iTVC15 exposes its entire 64M memory space to the PCI host
+via the PCI BAR 0 (Base Address Register 0).  The addresses
+here are offsets relative to the address held in BAR 0.				  
+		<pre>
+0x00000000-0x00ffffff Encoder memory space
+0x00000000-0x0003ffff Encode.rom
+       ???-???        MPEG buffer(s)
+       ???-???        Raw video capture buffer(s)
+       ???-???        Raw audio capture buffer(s)
+       ???-???        Display buffers [6 or 9]
+
+0x01000000-0x01ffffff Decoder memory space
+0x01000000-0x0103ffff Decode.rom
+       ???-???        MPEG buffers(s)
+0x0114b000-0x0115afff Audio.rom [deprecated?]
+
+0x02000000-0x0200ffff Register Space</pre>
+		</td></tr>
+	</table>
+
+	<br>
+
+    <table width="60%" border="1" cellspacing="0" cellpadding="5">
+		<tr><th>Registers</th></tr>
+		<tr><td>
+The registers occupy the 64k space starting at the 0x02000000
+offset from BAR0.  All of these registers are 32 bits wide.
+		<pre>
+0x0000:
+0x0004: DMA Transfer Status
+	Bit 4: link list error
+	Bit 3: dma write error
+	Bit 2: dma read error
+	Bit 1: write completed
+0x0010:
+0x0040: Interrupt Status (which Interrupt fired)
+	See NOTES/interrupts
+0x0048: Interrupt Mask (which Interrupts to ignore)
+	See NOTES/interrupts
+0x07F8: Encoder SDRAM refresh
+0x07FC: Encoder SDRAM pre-charge
+0x08F8: Decoder SDRAM refresh 
+0x08FC: Decoder SDRAM pre-charge
+0x2800: Video Display Module control
+0x2D00: AO (audio output?) control
+0x2D24: Bytes Flushed
+0x7000: [LSB] I2C write clock bit (inverted)
+0x7004: [LSB] I2C write data bit (inverted)
+0x7008: [LSB] I2C read clock bit
+0x700c: [LSB] I2C read data bit
+0x9008: GPIO get input state
+0x900c: GPIO set output state
+0x9020: GPIO direction (Bit7 (GPIO[0..7]) - 0:input, 1:output)
+0x9050: SPU control
+0x9054: Reset HW blocks
+0x9058: VPU control
+0xA018: Bit6: interrupt pending?
+0xA064: APU command</pre>
+		</td></tr>
+	</table>
+
+	<br>
+
+    <table width="60%" border="1" cellspacing="0" cellpadding="5">
+		<tr><th>Interrupt Status Register</th></tr>
+		<tr><td>
+The definition of the bits in the interrupt status register 0x0040,
+and the interrupt mask 0x0048.  If a bit is cleared in the mask,
+then we want our ISR to execute.
+		<pre>
+Bit
+31 Encoder [Start Capture]
+30 Encoder EOS
+29 Encoder VBI capture
+28 Encoder Video Input Module reset event
+27 Encoder DMA complete
+26 
+25 Decoder copy protect detection event
+24 Decoder audio mode change detection event
+23 
+22 Decoder data request
+21 Decoder I-Frame done
+20 Decoder DMA complete
+19 Decoder VBI re-insertion
+18 Decoder DMA err (linked-list bad)
+
+Missing
+Encoder API call completed
+Decoder API call completed
+Encoder API post(?)
+Decoder API post(?)
+Decoder VTRACE event</pre>
+		</td></tr>
+	</table>
+
+	<br>
+	<table width="60%" cellspacing="0" cellpadding="5">
+	<tr><td><font size="-1"><center>Copyright 2003 The IvyTV Team<br>iTVC15 is a trademark of Conexant Systems, Inc.</center></font>
+<a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=73219&type=1" width="88" height="31" border="0" alt="SourceForge.net Logo"></a></td></tr>
+	</table>
+
+</center>
+</body>
+
+</html>

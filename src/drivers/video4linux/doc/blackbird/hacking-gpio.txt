@@ -1,0 +1,254 @@
+"mini-howto: Hacking GPIO of CX23416/CX23415"
+    by Takeru Komoriya <komoriya at paken.org>
+
+History:
+  10/9, 2003 --  original version
+
+
+(Note: My English may be broken, so please feel free to send me a
+ patch of this document:-))
+
+
+1.Summary
+
+Original ivtv driver supports Win-PVR-250/350 of which audio is
+controlled by msp34xx sound processor. On the other hand, Yuan's
+MPG600 and MPG160 cards(and possibly other vendor's cards) have
+no sound processor. Instead, these card have analog switch and simple
+audio decoder connected to GPIO(General Purpose I/O) of CX23416.
+
+In order to support these cards, we need to know the assignment of
+GPIO - which port is assigned to control audio input selection,
+mute, stereo/mono mode or multilingual mode.
+
+In this article, I try to show how to hack GPIO and to know its
+correct settings.
+
+2.Strategy
+
+The simplest strategy is that to give sequencial values to gpio one by
+one, and check the result and suppose which bit is connected to
+expected function.
+
+Because of the huge number of combination, this is rather boring work,
+and may take long time to lead us to the right answer.
+
+So I recommand to read GPIO values when the card is working on Windows.
+I made a small application for this operation.
+
+3.Preparation
+
+ a) Check 'Vendor ID' and 'Device ID' of your card.
+
+   Use lspci command like below:
+    $ lspci
+     (snip)
+     00:0f.0 Multimedia video controller: Internext Compression Inc:\
+                                        Unknown device 0016 (rev 01)
+    $ lspci -n 
+     00:0f.0 Class 0400: 4444:0016 (rev 01)
+
+   Here 4444 is vendor ID and 0016 is device ID respectively.
+   (These IDs are of my yuan's MPG600.)
+
+ b) Download Application for checking GPIO status on Windows
+
+   Download Mr. Kasiwano's PCIDEBUG.DLL.
+    $ wget http://www.otto.to/~kasiwano/pdbg10.lzh
+
+   Extract the file using lha. We need two files:
+     exec/pcidebug.dll
+     exec/pcidebug.sys
+
+   Next, download my pcidebug.exe.
+    $ wget http://www.paken.org/linux/itvc16/pcidebug.exe
+
+   Put these files into the same directory.
+
+4.Hack on Windows
+
+ a) Execute TV watching application first.
+
+ b) Run pcidebug.exe and simple window will appear.
+
+ c) Put Device ID and Vendor ID which you memorized.
+
+ d) Click 'Detect Card'.
+    If succeeded, base address of CX23416's register space will be
+    automatically inserted to 'Read Address' and 'Write Address'.
+
+ e) Read GPIO direction setting
+    Put '9020' to the lower digit of 'Read Address',
+      ex) Replace 'EA000000' with 'EA009020'
+    and click 'Read'.
+
+    You will get a 'Value' like '3080'. This should be the default
+    direction setting of GPIO.
+
+ f) Read GPIO output state
+    Put '900C' to the lower digit of 'Read Address' and click 'Read'.
+    The result value is the one which is set by the driver on Windows.
+    Change input source on TV watching application and click 'Read'
+    again, and will get different value. Memorize which bit was
+    different.
+
+    Then try setting value in 'Write Value' and click 'Write', and
+    you can change input audio source manually.
+
+    In the same way, you may control mute, stereo/mono and billingual
+    mode. Keep the place of the correspoding bit in mind.
+
+ g) Read GPIO input state
+    Put '9008' to the lower digit of 'Read Address' and click 'Read'.
+
+    In this way, you can read input status of GPIO which may indicate
+    current audio mode(mono/stereo/bilingual). Let's check location of
+    the bits thougth it is not so important.
+
+5.Modification of the ivtv source code
+
+ a) Check subsystem ID of your card
+    Load ivtv module with debug option:
+     # insmod ivtv debug=3
+    
+    And check dmesg to know subsystem id of your card.
+
+     ivtv: subsystem_id is <subsystemID>
+     ivtv: Found an unknown chip, treating it like an iTVC15
+
+    Or, probe PCI bus with kudzu like:
+     # kudzu -p
+    and subsystem ID will appear.
+
+ b) Add definitions to ivtv.h
+
+    #define IVTV_MPG160 4 /* Kurouto .... */
+   +#define IVTV_MYCARD 5  
+
+    #define IVTV_MPG160_STREAMS 3
+   +#define IVTV_MYCARD_STREAMS 3
+
+    #define IVTV_PCI_ID_MPG160 0x0000
+   +#define IVTV_PCI_ID_MYCARD <subsystem id>
+    (checked on 5-(a))
+
+ c) Add entries to ivtv-driver.c
+
+  Add an entry to ivtv_card_flags[].
+
+        {IVTV_MPG160, 1, USE_GPIO,    NOT_HANDLE_VOL},
+   +    {IVTV_MYCARD, <A>, USE_GPIO,    NOT_HANDLE_VOL}
+    };
+
+  Here, <A> should be set to
+   1 : CX23415 based card
+   0 : CX23416 based card
+
+  Next, add an entry to ivtv_gpio_data[].
+
+        {IVTV_MPG160, 1, 0x7080, 0x400c, /* Normal/main ch./Stereo */
+         0xcfff, 0x0000, 0x2000, 0xfffe, 0x0001, 0x0000,
+         0xfff1, 0x0006, 0x0004, 0x0004, 0x0000, 0x0008,
+         0xf6ff, 0x0100, 0x0900, 0x0100},
+   +    {IVTV_MYCARD, <B>, <C>, <D>,
+   +     <E>, <F>, <G>, <H>, <I>, <J>,
+   +     <K>, <L>, <M>, <N>, <O>, <P>,
+   +     <Q>, <R>, <S>, <T>}
+    };
+
+  Here, <B>-<T> is depending on the result of your GPIO hacking.
+
+   <B> should be set to 1 if you use GPIO.
+   <C> should be set to the value on 4-(e).
+       (GPIO direction setting)
+   <D> is the default value for GPIO output.
+       Should be set to the value on 4-(f) with tuner input.
+   <E> <F> <G> are used to select audio input source.
+       Assume the location of the bit which you checked in 4-(f) was
+       bit13, then <E> should be set to 0xdfff(== ~0x2000).
+       And if you can select tuner when bit13=1, then <F> will be
+       0x2000 and <G> will be 0x0000.
+   <H> <I> <J> are used to mute control.
+       Try the same way of <E>-<G>.
+       If not sure, set 0xffff to <H> and 0x0000 to the others.
+   <K> - <P> are used to select tuner's audio mode.
+       Try to see source code for details ;-)
+       If not sure, set 0xffff to <K> and 0x0000 to the others.
+   <Q> - <T> are used to detect tuner's audio mode.
+       The values are guessed from 4-(g).
+       If not sure, set 0xffff to <Q> and 0x0000 to the others.
+   
+  Next, add an entry to ivtv_i2c_addresses[].
+
+     {IVTV_MPG160, IVTV_MPG160_TUNER_I2C_ADDR, IVTV_SAA7115_I2C_ADDR,0},
+   + {IVTV_MYCARD, <U>, IVTV_SAA7115_I2C_ADDR, 0}
+    };
+
+  Here, <U> should be set to the address of tuner's I2C interface.
+  Try IVTV_TUNER_I2C_ADDR or IVTV_MPG600_TUNER_I2C_ADDR.
+  If you get error meaasage like:
+    ivtv: i2c client addr: 97 not found!
+  tuner address may not be correct.
+  In this case, you can use 'i2cdetect' command(included in lm_sensors).
+
+    # i2cdetect
+      ....
+      i2c-0       i2c             ivtv i2c driver #0     Bit-shift algorithm
+
+    # i2cdetect 0
+      ....
+         0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+     00: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+     10: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+     20: XX UU XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+     30: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+     40: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+     50: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+     60: UU XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+     70: XX XX XX XX XX XX XX XX XX XX 7a XX XX XX XX XX
+
+    In above case, 0x60 is tuner's i2c address and 0x21 is the one of
+    SAA7115.
+
+
+  Next, add an entry to ivtv_msp34xx_audio_map[].
+
+        {IVTV_MPG160, 0, 0},
+   +    {IVTV_MYCARD, 0, 0}
+    };
+
+  Next, add an entry to ivtv_card_params[].
+
+      {IVTV_MPG160, IVTV_PCI_ID_MPG160,
+         (V4L2_CAP_VIDEO_CAPTURE|V4L2_CAP_TUNER|
+          V4L2_CAP_AUDIO|V4L2_CAP_READWRITE),
+         IVTV_MPG160_STREAMS,
+         "YUAN MPG160/Kuroutoshikou ITVC15-STVLP",
+         "iTVC15"},
+   +  {IVTV_MYCARD, IVTV_PCI_ID_MYCARD,
+   +    <V>,
+   +    IVTV_MYCARD_STREAMS,
+   +   <W>,
+   +   <X>},
+      {-1,0,0,0,NULL}
+    };
+
+
+  If your card has no TV output,<V> should be set to
+    (V4L2_CAP_VIDEO_CAPTURE|V4L2_CAP_TUNER|
+     V4L2_CAP_AUDIO|V4L2_CAP_READWRITE)
+
+  <W> is the name of your card,
+
+  <X> should be set to 
+    "iTVC15" if your card is based on CX23415.
+    "iTVC16" if your card is based on CX23416.
+
+  When all modification is done, try make and test if the driver
+  works.
+
+
+If you have difficulty in the process above, please feel free to
+contact me.
+
+Happy hacking!
