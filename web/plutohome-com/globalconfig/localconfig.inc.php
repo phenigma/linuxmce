@@ -24,8 +24,6 @@
 	$GLOBALS['CVSorSVN']=array(2,5,6);  	// the PK_RepositoryType for CVS or SVN  from table RepositoryType
 	$GLOBALS['DHCPDeviceData']=28;			// PK_DeviceData for DHCP
 	
-	$GLOBALS['userIsAdmin']=array(33129,33130,34306);
-	
 	// pluto_main
 	$dbPlutoMainUser = 'root';
 	$dbPlutoMainPass = '';
