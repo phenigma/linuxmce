@@ -1,3 +1,4 @@
+ROOT = ..
 VIP = ../VIPShared
 GDEV = ./Gen_Devices
 CXXFLAGS = -Wall -g -ggdb3 -D_GNU_SOURCE -DDEBUG
@@ -21,5 +22,5 @@ libSerializeClass.a: $(sources:.cpp=.o)
 clean: 
 	rm -f $(sources:.cpp=.o) $(sources:.cpp=.d) libSerializeClass.so libSerializeClass.a >/dev/null
 
-include ./make.rules
+include $(ROOT)/PlutoUtils/make.rules
 -include $(sources:.cpp=.d)

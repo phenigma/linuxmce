@@ -22,5 +22,5 @@ libPlutoUtils.a: $(sources:.cpp=.o)
 clean: 
 	rm -f $(sources:.cpp=.o) $(sources:.cpp=.d) libPlutoUtils.so libPlutoUtils.a >/dev/null
 
-include $(ROOT)/DCE/make.rules
+include $(ROOT)/PlutoUtils/make.rules
 -include $(sources:.cpp=.d)

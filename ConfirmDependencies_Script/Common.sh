@@ -7,6 +7,7 @@ ERR_APT=3
 ERR_DOWNLOAD=4
 ERR_DPKG_INSTALL=5
 ERR_MAKE=6
+ERR_UNPACK=7
 
 SPACE_SED='s/  */ /g; s/^ *//g; s/ *$//g'
 

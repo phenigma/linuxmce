@@ -64,13 +64,25 @@ case "$URL_TYPE" in
 	
 	direct)
 		mkdir -p /usr/pluto/download
-		/usr/pluto/install/Download_Direct.sh "$@"
+		/usr/pluto/install/Download_Direct.sh "$@" || exit $ERR_DOWNLOAD
 		
+		# about the finds: should be ran in the extracted package's directory
+		mkdir -p "/usr/pluto/download/${PKG_NAME}_$MIN_VER"
+		pushd "/usr/pluto/download/${PKG_NAME}_$MIN_VER"
 		if [ "$PARAMETER" == ".zip" ]; then
-			(cd /usr/pluto/download; unzip "${PKG_NAME}_$MIN_VER$PARAMETER")
+			echo "Extracting '${PKG_NAME}_$MIN_VER$PARAMETER'"
+			/usr/bin/unzip "../${PKG_NAME}_$MIN_VER$PARAMETER" || exit $ERR_UNPACK
+			find -name 'mkr_preinst*' -exec chmod +x '{}' ';' -exec '{}' ';'
+			find -name 'mkr_postinst*' -exec chmod +x '{}' ';' -exec '{}' ';'
 		elif [ "$PARAMETER" == ".tar.gz" ]; then
-			(cd /usr/pluto/download; tar -xzvf "${PKG_NAME}_$MIN_VER$PARAMETER")
+			echo "Extracting '${PKG_NAME}_$MIN_VER$PARAMETER'"
+			/bin/tar -xzvf "../${PKG_NAME}_$MIN_VER$PARAMETER" || exit $ERR_UNPACK
+			find -name 'mkr_preinst*' -exec chmod +x '{}' ';' -exec '{}' ';'
+			find -name 'mkr_postinst*' -exec chmod +x '{}' ';' -exec '{}' ';'
+		else
+			echo "Unknown parameter: '$PARAMETER'"
 		fi
+		popd
 		
 		if [ "$REPOS_TYPE" -eq 1 ]; then
 			keep_sending_enters | dpkg -i /usr/pluto/download/"$PKG_NAME" || exit $ERR_DPKG_INSTALL

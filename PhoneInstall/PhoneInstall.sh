@@ -37,5 +37,5 @@ echo "$rfcomm" >/etc/bluetooth/rfcomm.conf
 /etc/init.d/bluez-utils restart
 rfcomm bind /dev/rfcomm0 "$MAC" 9 &&
 rfcomm connect rfcomm0 "$MAC" &&
-ussp-push /dev/rfcomm0 "$SIS" PlutoMO.sis
+/usr/pluto/bin/ussp-push /dev/rfcomm0 "$SIS" PlutoMO.sis
 

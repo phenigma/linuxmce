@@ -52,7 +52,7 @@ package:
 	chmod +x make_package.sh
 	./make_package.sh $(MYNAME) $(VERSION)
 
-include $(ROOT)/DCE/make.rules
+include $(ROOT)/PlutoUtils/make.rules
 -include $(sources:.cpp=.d)
 #<-dceag-mf-e->
 

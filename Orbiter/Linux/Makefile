@@ -7,4 +7,4 @@ clean-all: clean
 	rm -rf *.d
 
 
-include $(ROOT)/DCE/make.rules
+include $(ROOT)/PlutoUtils/make.rules

@@ -31,5 +31,5 @@ clean: clean-recursive
 package:
 	./make_package.sh $(APPNAME) $(VERSION)
 
-include $(ROOT)/DCE/make.rules
+include $(ROOT)/PlutoUtils/make.rules
 -include $(sources:.cpp=.d)

@@ -17,5 +17,5 @@ libBDCommon.a: $(sources:.cpp=.o)
 clean: clean-recursive
 	rm -f $(sources:.cpp=.o) $(sources:.cpp=.d) libBDCommon.a >/dev/null
 
-include ./make.rules
+include $(ROOT)/PlutoUtils/make.rules
 -include $(sources:.cpp=.d)

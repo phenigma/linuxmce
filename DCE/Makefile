@@ -1,3 +1,4 @@
+ROOT = ..
 VIP = ../VIPShared
 GDEV = ./Gen_Devices
 CXXFLAGS = -Wall -ggdb3 
@@ -32,5 +33,5 @@ clean:
 package:
 	./make_package.sh $(APPNAME) $(VERSION)
 
-include ./make.rules
+include $(ROOT)/PlutoUtils/make.rules
 -include $(sources:.cpp=.d)

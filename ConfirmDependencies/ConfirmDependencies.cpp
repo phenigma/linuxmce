@@ -262,7 +262,9 @@ int main(int argc, char *argv[])
 			PackageInfo *pPackageInfo = *it;
 
 //			cout << endl << "-----------------------------------------------------" << endl;
-			cout << endl << "# Package: " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get()
+			cout << "# PK_Package: " << pPackageInfo->m_pRow_Package_Source->FK_Package_get() << endl;
+			cout << "# Rep. type: " << pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get() << endl;
+			cout << "# Package: " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get()
 				<< " Type: " << pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_getrow()->Description_get() << endl;
 			InstallPackage(pPackageInfo);
 
@@ -512,7 +514,7 @@ int k=2;
 		}
 		else
 		{
-			cout << "*ERROR* " << pRow_Package->Description_get() << " not available for this distro" << endl;
+			cout << "#*ERROR* " << pRow_Package->Description_get() << " not available for this distro" << endl;
 			return;
 		}
 	}

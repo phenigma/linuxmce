@@ -217,5 +217,5 @@ libpluto_main.a: $(sources:.cpp=.o)
 clean: clean-recursive
 	rm -f *.o *.d libpluto_main.a >/dev/null
 
-include $(ROOT)/DCE/make.rules
+include $(ROOT)/PlutoUtils/make.rules
 -include $(sources:.cpp=.d)
