@@ -41,6 +41,10 @@
 	#endif
 #endif //#ifndef SYMBIAN
 
+#ifndef WIN32
+#include <sys/times.h>
+#endif
+
 #ifndef SYMBIAN
 unsigned long xClock()
 {
