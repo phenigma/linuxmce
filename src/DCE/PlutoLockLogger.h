@@ -137,38 +137,6 @@ namespace DCE
 #endif
 				pthread_mutex_lock(&m_pLock->mutex);
 			}
-			else
-			{
-	#ifdef DEBUG
-
-				timeval tv;
-				gettimeofday(&tv, NULL);
-
-				FILE *file = fopen(LoggerFileName,"ab");
-				if( file )
-				{
-
-					struct tm *t = localtime((time_t *)&tv.tv_sec);
-					char c[50];
-					double sec = (double)(tv.tv_usec/1E6) + t->tm_sec;
-					snprintf(c,sizeof(c),"%02d/%02d/%02d %d:%02d:%06.3f",(int) t->tm_mon+1,(int) t->tm_mday,(int) t->tm_year-100,(int) t->tm_hour,(int) t->tm_min, sec);
-
-					fprintf(file, "%02d\t%s\t%s\t", LV_CRITICAL,c,"Logger");
-	#ifdef WIN32
-					fprintf(file, " got lock <%p>\n",pthread_self());
-	#else
-					fprintf(file, " got lock <%d>\n",(int) pthread_self());
-	#endif
-					fwrite("\n", 1, 1, file);
-					fflush(file);
-					fclose(file);
-				}
-	#ifndef WIN32
-				else
-					system( (string("lsof >> /var/log/pluto/lsof_") + StringUtils::itos((int) time(NULL)) + ".newlog").c_str() );
-	#endif
-	#endif
-			}
 			m_pLock->m_Line=m_Line;
 			m_pLock->m_sFileName=m_sFileName;
 			m_pLock->m_thread=pthread_self();
@@ -194,43 +162,7 @@ namespace DCE
 	//			clock(),pthread_self(),m_pLock,(m_bReleased ? 1 : 0));
 	#endif
 			if( !m_bReleased )
-			{
-	#ifdef DEBUG
-				timeval tv;
-	#ifndef WIN32
-				gettimeofday(&tv, NULL);
-	#else
-				SYSTEMTIME lt;
-				::GetLocalTime(&lt);
-				//TODO Need to fill tv
-				tv.tv_sec = (long) time(NULL);
-				tv.tv_usec = lt.wMilliseconds * 1000;
-	#endif
-				FILE *file = fopen(LoggerFileName,"ab");
-				if( file )
-				{
-					struct tm *t = localtime((time_t *)&tv.tv_sec);
-					char c[50];
-					double sec = (double)(tv.tv_usec/1E6) + t->tm_sec;
-					snprintf(c,sizeof(c),"%02d/%02d/%02d %d:%02d:%06.3f",(int) t->tm_mon+1,(int) t->tm_mday,(int) t->tm_year-100,(int) t->tm_hour,(int) t->tm_min, sec);
-
-					fprintf(file, "%02d\t%s\t%s\t", LV_CRITICAL,c,"Logger");
-	#ifdef WIN32
-					fprintf(file, " releasing <%p>\n",pthread_self());
-	#else
-					fprintf(file, " releasing <%d>\n",(int) pthread_self());
-	#endif
-					fwrite("\n", 1, 1, file);
-					fflush(file);
-					fclose(file);
-				}
-	#ifndef WIN32
-				else
-					system( (string("lsof >> /var/log/pluto/lsof_") + StringUtils::itos((int) time(NULL)) + ".newlog").c_str() );
-	#endif
-	#endif
 				pthread_mutex_unlock(&m_pLock->mutex);
-			}
 			m_bReleased=true;
 		}
 
