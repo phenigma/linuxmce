@@ -929,7 +929,7 @@ RendererImage * Renderer::CreateBlankCanvas(PlutoSize size)
         Canvas = NULL;
     }
 
-//  SDL_FillRect(Canvas->m_pSDL_Surface, NULL,SDL_MapRGBA(Canvas->m_pSDL_Surface->format, 0, 0, 0, 255));
+//	SDL_FillRect(Canvas->m_pSDL_Surface, NULL,SDL_MapRGBA(Canvas->m_pSDL_Surface->format, 0, 0, 0, 255));
 
     Canvas->NewSurface = true;
 
