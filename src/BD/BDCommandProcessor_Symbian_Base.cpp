@@ -102,7 +102,7 @@ void BDCommandProcessor_Symbian_Base::GotoStage(TBluetoothState state)
 //----------------------------------------------------------------------------------------------
 void BDCommandProcessor_Symbian_Base::GotoNextStage()
 {
-	LOG("@GotoNext@:\n");
+	//LOG("@GotoNext@:\n");
 	TRequestStatus* s = &iStatus; 
 	User::RequestComplete(s, KErrNone); 
 }
@@ -134,9 +134,9 @@ bool  BDCommandProcessor_Symbian_Base::SendData(int size, const char *data)
 
 		iSocket.Write(*m_Send_iBuf, iStatus);
 
-		LOG(">>> Sending: ");
-		LOGN(size);
-		LOGN(" bytes\n");
+		//LOG(">>> Sending: ");
+		//LOGN(size);
+		//LOGN(" bytes\n");
 	}
 	else //nothing to send ... just go to the next stage
 	{
@@ -148,9 +148,9 @@ bool  BDCommandProcessor_Symbian_Base::SendData(int size, const char *data)
 //----------------------------------------------------------------------------------------------
 bool BDCommandProcessor_Symbian_Base::SendLong(long l)
 {
-	LOG("@ About to send a long  with value : ");
-	LOGN(l);
-	LOGN(" \n");
+	//LOG("@ About to send a long  with value : ");
+	//LOGN(l);
+	//LOGN(" \n");
 
 	SendData(4,(const char *)&l);
 
@@ -331,7 +331,7 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 {
 	if (iStatus != KErrNone || iState == EConnectionLost)
 	{
-		LOG("Disconnected! [iStatus != KErrNone || iState == EConnectionLost]\n");
+		//LOG("Disconnected! [iStatus != KErrNone || iState == EConnectionLost]\n");
 
 		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bMakeVisibleAllowed = false;
 		((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->ResetViewer();
@@ -349,7 +349,7 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 		iListener->Hide();
 
-		LOG("Waiting for new connections...\n");
+		//LOG("Waiting for new connections...\n");
 		return;
 	}
 
@@ -369,7 +369,7 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 	{
 	case EAccepting:
 		{
-			LOG("EAccepting\n");
+			//LOG("EAccepting\n");
 			iConnected = true;
 
 			if (iCommandTimer->IsActive())
@@ -393,7 +393,7 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case ESendingCommand:
 		{
-			LOG("ESendingCommand\n");
+			//LOG("ESendingCommand\n");
 			m_bImmediateCallback = false;
 
   			if( MYSTL_SIZEOF_LIST(m_listCommands)==0 )
@@ -414,7 +414,7 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case ESendingCommandId:
 		{
-			LOG("ESendingCommandId\n");
+			//LOG("ESendingCommandId\n");
 			SendLong(m_pCommand_Sent->GetCommandOrAckSize());
 			iState = ESendingCommandOrAckSize;
 			SetActive();
@@ -423,7 +423,7 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case ESendingCommandOrAckSize:
 		{
-			LOG("ESendingCommandOrAckSize\n");
+			//LOG("ESendingCommandOrAckSize\n");
 			SendData(m_pCommand_Sent->GetCommandOrAckSize(),m_pCommand_Sent->GetCommandOrAckData());
 			iState = ESendingCommandOrAckData;
 			SetActive();
@@ -432,7 +432,7 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case ESendingCommandOrAckData:
 		{
-			LOG("ESendingCommandOrAckData\n");
+			//LOG("ESendingCommandOrAckData\n");
 			int AckHeaderSize;
 			if( m_pCommand_Sent->ID() == BD_PC_WHAT_DO_YOU_HAVE )
 				AckHeaderSize = 8; 
@@ -459,16 +459,16 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case EReceivingAckHeader:
 		{
-			LOG("EReceivingAckHeader\n");
+			//LOG("EReceivingAckHeader\n");
 
 			PLUTO_SAFE_DELETE_ARRAY(m_ReceiveAckHeader);
 			m_ReceiveAckHeader = new char[m_iRecvSize];
 			for (int i = 0; i < m_iRecvSize; i++) 
 				m_ReceiveAckHeader[i] = (char)(*m_Recv_iBuf)[i];
 
-			LOG("<<< Received: ");
-			LOGN(m_iRecvSize);
-			LOGN(" bytes\n");
+			//LOG("<<< Received: ");
+			//LOGN(m_iRecvSize);
+			//LOGN(" bytes\n");
 
 			long *lSize;
 			if( m_pCommand_Sent->ID()==BD_PC_WHAT_DO_YOU_HAVE )
@@ -496,7 +496,7 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case EReceivingAckData_Loop:
 		{
-			LOG("EReceivingAckData_Loop\n");
+			//LOG("EReceivingAckData_Loop\n");
 			if(m_bStartRecv)
 			{
 				m_bStartRecv = false;
@@ -519,9 +519,9 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 				for (int i = 0; i < m_iRecvSize; i++) 
 					m_ReceiveAckData[i] = (char)(*m_Recv_iBuf)[i];
 
-				LOG("<<< Received: ");
-				LOGN(m_iRecvSize);
-				LOGN(" bytes\n");
+				//LOG("<<< Received: ");
+				//LOGN(m_iRecvSize);
+				//LOGN(" bytes\n");
 
 				GotoStage(EReceivingAckData);
 			}
@@ -532,7 +532,7 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case EReceivingAckData:
 		{
-			LOG("EReceivingAckData\n");
+			//LOG("EReceivingAckData\n");
 			if( m_pCommand_Sent->ID() == BD_PC_WHAT_DO_YOU_HAVE )
 			{
 				iStatus = KErrNone;
@@ -554,7 +554,7 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case EReceivingCommand:
 		{
-			LOG("EReceivingCommand\n");
+			//LOG("EReceivingCommand\n");
 			// The Ack will be a command that's parsed directly
 			long *lType = (long *) m_ReceiveAckHeader;
 			long *lSize = (long *) (m_ReceiveAckHeader + 4);
@@ -590,7 +590,7 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case ERecvCommand_ReadyToSendAck:
 		{
-			LOG("ERecvCommand_ReadyToSendAck\n");
+			//LOG("ERecvCommand_ReadyToSendAck\n");
 			SendLong(m_pCommand->GetCommandOrAckSize());
 			iState = ERecvCommand_SendingCommandOrAckSize;
 			SetActive();
@@ -599,7 +599,7 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case ERecvCommand_SendingCommandOrAckSize:
 		{
-			LOG("ERecvCommand_SendingCommandOrAckSize\n");
+			//LOG("ERecvCommand_SendingCommandOrAckSize\n");
 			SendData(m_pCommand->GetCommandOrAckSize(),m_pCommand->GetCommandOrAckData());
 			iState = ERecvCommand_SendingCommandOrAckData;
 			SetActive();
@@ -608,7 +608,7 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case ERecvCommand_SendingCommandOrAckData:
 		{
-			LOG("ERecvCommand_SendingCommandOrAckData\n");
+			//LOG("ERecvCommand_SendingCommandOrAckData\n");
 			m_pCommand->FreeSerializeMemory();
 			PLUTO_SAFE_DELETE(m_pCommand);
 
@@ -619,7 +619,7 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case ERecvCommand_End:
 		{
-			LOG("ERecvCommand_End\n");
+			//LOG("ERecvCommand_End\n");
 			long *lType = (long *) m_ReceiveAckHeader;
 
 			if( *lType != BD_CP_HAVE_NOTHING )
@@ -634,16 +634,16 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case EReceivingCmdHeader:
 		{
-			LOG("EReceivingCmdHeader\n");
+			//LOG("EReceivingCmdHeader\n");
 
 			PLUTO_SAFE_DELETE_ARRAY(m_ReceiveCmdHeader);
 			m_ReceiveCmdHeader = new char[m_iRecvSize];
 			for (int i = 0; i < m_iRecvSize; i++) 
 				m_ReceiveCmdHeader[i] = (char)(*m_Recv_iBuf)[i];
 
-			LOG("<<< Received: ");
-			LOGN(m_iRecvSize);
-			LOGN(" bytes\n");
+			//LOG("<<< Received: ");
+			//LOGN(m_iRecvSize);
+			//LOGN(" bytes\n");
 			
 			long *lSize = (long *) (m_ReceiveCmdHeader + 4);
 
@@ -672,16 +672,16 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case EReceivingCmdData:
 		{
-			LOG("EReceivingCmdData\n");
+			//LOG("EReceivingCmdData\n");
 
 			PLUTO_SAFE_DELETE_ARRAY(m_ReceiveCmdData);
 			m_ReceiveCmdData = new char[m_iRecvSize];
 			for (int i = 0; i < m_iRecvSize; i++) 
 				m_ReceiveCmdData[i] = (char)(*m_Recv_iBuf)[i];
 
-			LOG("<<< Received: ");
-			LOGN(m_iRecvSize);
-			LOGN(" bytes\n");
+			//LOG("<<< Received: ");
+			//LOGN(m_iRecvSize);
+			//LOGN(" bytes\n");
 
 			GotoStage(EReceivingCommand_BuildCommand);
 			SetActive();
@@ -690,7 +690,7 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case EReceivingCommand_BuildCommand:
 		{
-			LOG("EReceivingCommand_BuildCommand\n");
+			//LOG("EReceivingCommand_BuildCommand\n");
 			long *lType = (long *) m_ReceiveCmdHeader;
 			long *lSize = (long *) (m_ReceiveCmdHeader+4);
 			m_pCommand = BuildCommandFromData(*lType);
@@ -714,7 +714,7 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case ERecvCommand_SendingCommandOrAckSize_Step2:
 		{
-			LOG("ERecvCommand_SendingCommandOrAckSize_Step2\n");
+			//LOG("ERecvCommand_SendingCommandOrAckSize_Step2\n");
 			SendData(m_pCommand->GetCommandOrAckSize(), m_pCommand->GetCommandOrAckData());
 			iState = ERecvCommand_SendingCommandOrAckData_Step2;
 			SetActive();
@@ -723,7 +723,7 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 
 	case ERecvCommand_SendingCommandOrAckData_Step2:
 		{
-			LOG("ERecvCommand_SendingCommandOrAckData_Step2\n");
+			//LOG("ERecvCommand_SendingCommandOrAckData_Step2\n");
 			m_pCommand->FreeSerializeMemory();
 
 			long *lType = (long *) m_ReceiveCmdHeader;
@@ -770,7 +770,7 @@ void BDCommandProcessor_Symbian_Base::ProcessCommands(bool bCriticalRequest /*=t
 
 		if(bCriticalRequest && IsActive()) //the object is already active.
 		{
-			LOG("Key was press, but the object is still active. Will just set a flag\n"); 
+			//LOG("Key was press, but the object is still active. Will just set a flag\n"); 
 			//GotoStage(ESendingCommand); //don't force object activation
 			iPendingKey = true;
 			return;
@@ -778,7 +778,7 @@ void BDCommandProcessor_Symbian_Base::ProcessCommands(bool bCriticalRequest /*=t
 
 		if(iState == EIdle || bCriticalRequest)
 		{
-			LOG("The state is idle. Force object to go to ESendingCommand stage directly.\n"); 
+			//LOG("The state is idle. Force object to go to ESendingCommand stage directly.\n"); 
 			GotoStage(ESendingCommand);
 			SetActive();
 			return;

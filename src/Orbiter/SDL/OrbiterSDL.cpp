@@ -144,14 +144,14 @@ g_pPlutoLogger->Write(LV_STATUS, "~OrbiterSDL finished");
 {
     PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
 
-g_pPlutoLogger->Write(LV_STATUS,"Enter display image on screen");
+//g_pPlutoLogger->Write(LV_STATUS,"Enter display image on screen");
 
 #ifndef USE_ONLY_SCREEN_SURFACE
     SDL_BlitSurface(m_pScreenImage, NULL, Screen, NULL);
 #endif
 
 	SDL_UpdateRect(Screen, 0, 0, 0, 0);
-g_pPlutoLogger->Write(LV_STATUS,"Exit display image on screen");
+//g_pPlutoLogger->Write(LV_STATUS,"Exit display image on screen");
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::RedrawObjects()

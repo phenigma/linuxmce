@@ -86,7 +86,13 @@ int iCallbackCounter=0;
 class CallBackInfo
 {
 public:
-	CallBackInfo(pluto_pthread_mutex_t *pCallbackMutex) { m_iCounter=iCallbackCounter++; m_bStop=false; m_pCallbackMutex=pCallbackMutex; }
+	CallBackInfo(pluto_pthread_mutex_t *pCallbackMutex, bool bPurgeTaskWhenScreenIsChanged = true) 
+	{ 
+		m_iCounter=iCallbackCounter++; 
+		m_bStop=false; 
+		m_pCallbackMutex=pCallbackMutex; 
+		m_bPurgeTaskWhenScreenIsChanged = bPurgeTaskWhenScreenIsChanged; 
+	}
     Orbiter *m_pOrbiter;
     OrbiterCallBack m_fnCallBack;
 	timespec m_abstime;
@@ -94,6 +100,7 @@ public:
 	int m_iCounter; // A unique ID
 	bool m_bStop; // Don't execute after all, we've decided to stop it (probably started another one of same type)
 	pluto_pthread_mutex_t *m_pCallbackMutex;
+	bool m_bPurgeTaskWhenScreenIsChanged;
 };
 map<int,CallBackInfo *> mapPendingCallbacks;
 
@@ -453,15 +460,6 @@ void Orbiter::RealRedraw( void *data )
     {
         m_vectObjs_NeedRedraw.clear();
 		m_vectTexts_NeedRedraw.clear();
-
-		//also cancel all other pending tasks
-		PLUTO_SAFETY_LOCK( pm, m_CallbackMutex );
-		map<int,CallBackInfo *>::iterator itCallBackInfo;
-		for(itCallBackInfo = mapPendingCallbacks.begin(); itCallBackInfo != mapPendingCallbacks.end(); itCallBackInfo++)
-			delete (*itCallBackInfo).second;
-		mapPendingCallbacks.clear();
-		pm.Release();
-
 		m_vectObjs_Selected.clear();
 
         RenderScreen(  );
@@ -1046,6 +1044,22 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable is now %p",pObj-
 	// TODO: Make sure this is called properly (if the implementation will actually take the params into
 	// account it will probably break somehing). )))
 	RegionUp ( 0, 0);
+
+	//purge pending tasks, if need it
+	PLUTO_SAFETY_LOCK( pm, m_CallbackMutex );
+	map<int,CallBackInfo *>::iterator itCallBackInfo;
+	for(itCallBackInfo = mapPendingCallbacks.begin(); itCallBackInfo != mapPendingCallbacks.end();)
+	{
+		CallBackInfo *pCallBackInfo = (*itCallBackInfo).second;
+		if(pCallBackInfo->m_bPurgeTaskWhenScreenIsChanged)
+		{
+			mapPendingCallbacks.erase(itCallBackInfo++);
+			delete pCallBackInfo;
+		}
+		else
+			itCallBackInfo++;
+	}
+	pm.Release();
 
     //  m_listDevice_Selected=""; // Nothing is selected anymore
     //  m_pLastSelectedObject=NULL;
@@ -1678,7 +1692,7 @@ bool Orbiter::SelectedGrid( int DGRow )
     if( m_vectObjs_GridsOnScreen.size(  ) != 1 )
     {
         g_pPlutoLogger->Write( LV_WARNING,
-            "It should be one and only one this visible on this screen!" );
+            "It should be one and only one visible on this screen!" );
 
         return false;
     }
@@ -4012,7 +4026,10 @@ g_pPlutoLogger->Write(LV_STATUS,"Maint thread exited");
 }
 
 //------------------------------------------------------------------------
-void Orbiter::CallMaintenanceInMiliseconds( clock_t milliseconds, OrbiterCallBack fnCallBack, void *data, bool bPurgeExisting )
+void Orbiter::CallMaintenanceInMiliseconds( clock_t milliseconds, OrbiterCallBack fnCallBack, 
+										   void *data, bool bPurgeExisting,
+										   bool bPurgeTaskWhenScreenIsChanged/*= true*/
+										   )
 {
     PLUTO_SAFETY_LOCK( cm, m_CallbackMutex );
 
@@ -4026,7 +4043,7 @@ void Orbiter::CallMaintenanceInMiliseconds( clock_t milliseconds, OrbiterCallBac
 		}
 	}
 
-    CallBackInfo *pCallBack = new CallBackInfo( &m_CallbackMutex );
+    CallBackInfo *pCallBack = new CallBackInfo( &m_CallbackMutex, bPurgeTaskWhenScreenIsChanged );
 
 	gettimeofday(&pCallBack->m_abstime,NULL);
 	pCallBack->m_abstime += milliseconds;
@@ -4203,7 +4220,15 @@ void Orbiter::CMD_Go_back(string sPK_DesignObj_CurrentScreen,string sForce,strin
 			m_mapVariable[ (*it).first ] = (*it).second;
 
 		vm.Release();
-        NeedToChangeScreens( pScreenHistory, false );
+
+		//hack! :(
+		if( pScreenHistory->m_pObj->m_iBaseObjectID == atoi(m_sMainMenu.c_str()) )
+			GotoScreen( m_sMainMenu );
+		else
+		{
+			pScreenHistory->m_pLocationInfo = m_pScreenHistory_Current->m_pLocationInfo;
+	        NeedToChangeScreens( pScreenHistory, false );
+		}
 	}
 }
 
@@ -5306,7 +5331,7 @@ void Orbiter::CMD_Set_Current_Location(int iLocationID,string &sCMD_Result,Messa
         DCE::CMD_Set_Current_Room CMD_Set_Current_Room( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, pLocationInfo->PK_Room );
         SendCommand( CMD_Set_Current_Room );
         m_sMainMenu = StringUtils::itos( atoi( m_sMainMenu.c_str(  ) ) ) + "." + StringUtils::itos( iLocationID ) + ".0";
-        GotoScreen( m_sMainMenu );
+        //GotoScreen( m_sMainMenu );
     }
 }
 

@@ -807,7 +807,7 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate
 	g_pPlutoLogger->Write(LV_STATUS,"Execution returned: %s",Cmd.c_str());
 
     // todo -- need to restart the dce router automatically
-    if( !pUnknownDeviceInfos->m_iDeviceIDFrom )
+    if( !pUnknownDeviceInfos || !pUnknownDeviceInfos->m_iDeviceIDFrom )
         g_pPlutoLogger->Write(LV_CRITICAL,"Got New Mobile Orbiter but can't find device!");
     else
     {
