@@ -674,14 +674,14 @@ Table *pTable = ( *it ).second;
 if( pTable->m_vectRowsToDelete.size() )
 {
 cout << "Table: " << pTable->Name_get() <<  " has " << pTable->m_vectRowsToDelete.size() << " rows to delete from the server" << endl;
-if( !AskYNQuestion("Continue",false) )
+if( !g_GlobalConfig.m_bNoPrompts && !AskYNQuestion("Continue",false) )
 	throw "Checkin aborted";
 }
 
 if( pTable->itmp_RowsToDelete )
 {
 cout << "Table: " << pTable->Name_get() <<  " has " << pTable->itmp_RowsToDelete << " rows deleted locally" << endl;
-if( !AskYNQuestion("Continue",false) )
+if( !g_GlobalConfig.m_bNoPrompts && !AskYNQuestion("Continue",false) )
 	throw "Checkin aborted";
 }
 }

@@ -505,7 +505,7 @@ bool Table::Update( RA_Processor &ra_Processor, DCE::Socket *pSocket )
 
 		sSql << ")";
 cout << sSql.str() << endl;
-if( !AskYNQuestion("Proceed with delete?",false) )
+if( !g_GlobalConfig.m_bNoPrompts && !AskYNQuestion("Proceed with delete?",false) )
 throw "problem with delete";
 		if( m_pDatabase->threaded_mysql_query( sSql.str() )!=0 )
 		{
@@ -1176,7 +1176,7 @@ void Table::DeleteRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSproces
 	std::ostringstream sSQL;
 	sSQL << "DELETE FROM `" << m_sName << "` WHERE psc_id=" << pR_CommitRow->m_psc_id;
 cout << sSQL.str() << endl;
-if( !AskYNQuestion("Proceed with delete?",false) )
+if( !g_GlobalConfig.m_bNoPrompts && !AskYNQuestion("Proceed with delete?",false) )
 throw "problem with delete";
 	if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
 	{
@@ -1788,7 +1788,7 @@ void Table::ApplyChangedRow(ChangedRow *pChangedRow)
 	{
 		sSql << "DELETE FROM `" << m_sName << "` WHERE psc_id=" << pChangedRow->m_psc_id;
 cout << sSql.str() << endl;
-if( !AskYNQuestion("Proceed with delete?",false) )
+if( !g_GlobalConfig.m_bNoPrompts && !AskYNQuestion("Proceed with delete?",false) )
 throw "problem with delete";
 	}
 	else if( pChangedRow->m_eTypeOfChange==toc_Modify )
