@@ -43,10 +43,10 @@ function register($output,$conn){
 				<td class="formextrainfo">Please confirm the password</td>
 			</tr>
 			<tr>
-				<td colspan="3" align="center"><input type="image" name="register" src="images/buttons/buton_sign_up.gif" onsubmit="validateEmail(this);"/></th>
+				<td colspan="3" align="left"><input type="image" name="register" src="images/buttons/buton_sign_up.gif" onsubmit="validateEmail(this);"/></th>
 			</tr>
          <tr>
-         <td colspan="3" align="center"><a href="index.php?section=login">I am an Existing User</a></td>
+         <td colspan="3" align="left"><a href="index.php?section=login">I am an Existing User</a></td>
        </tr>
 		</table>
 		
