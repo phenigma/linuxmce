@@ -49,7 +49,7 @@ OrbiterSDL_Win32::OrbiterSDL_Win32(int DeviceID, string ServerAddress, string sL
 	m_bRepeat = false;
 	m_bCapsLock = false;
     m_cKeyDown=0;
-	m_bQuitWinCE=false;
+	//m_bQuitWinCE=false;
 }
 //-----------------------------------------------------------------------------------------------------
 OrbiterSDL_Win32::~OrbiterSDL_Win32()
@@ -123,6 +123,16 @@ void OrbiterSDL_Win32::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         g_pPlutoLogger->Write(LV_STATUS, "key up %d  rept: %d  shif: %d",(int) wParam, (int) m_bRepeat, (int) m_bShiftDown);
 
+#ifndef PHONEKEYS
+        if(wParam >= 'a' && wParam <= 'z')
+        {
+            if((!m_bCapsLock && !m_bShiftDown) || (m_bCapsLock && m_bShiftDown))
+                bHandled = ButtonDown(BUTTON_a_CONST + wParam - 'a');
+            else
+                bHandled = ButtonDown(BUTTON_A_CONST + wParam - 'a');
+        }
+        else
+#endif 
         if( wParam == VK_SHIFT)
             m_bShiftDown=false;
         else if( wParam == VK_CONTROL)
@@ -131,7 +141,7 @@ void OrbiterSDL_Win32::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
             m_bAltDown=false;
 		else if( wParam == VK_ESCAPE && m_bControlDown && m_bAltDown)
 		{
-			m_bQuitWinCE = true;
+			m_bQuit = true;
 
 			atexit(SDL_Quit);
 			::PostMessage(hSDLWindow, WM_QUIT, 0L, 0L);
@@ -178,6 +188,34 @@ void OrbiterSDL_Win32::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				case '9':
 					bHandled=ButtonDown(BUTTON_9_CONST);
 					break;
+
+#ifdef PHONEKEYS
+                case 'c':
+                    bHandled = ButtonDown(BUTTON_Phone_C_CONST);
+                    break;
+                case 'p':
+                    bHandled = ButtonDown(BUTTON_Phone_Pencil_CONST);
+                    break;
+                case 't':
+                    bHandled = ButtonDown(BUTTON_Phone_Talk_CONST);
+                    break;
+                case 'e':
+                    bHandled = ButtonDown(BUTTON_Phone_End_CONST);
+                    break;
+                case 'l':
+                    bHandled = ButtonDown(BUTTON_Phone_Soft_left_CONST);
+                    break;
+                case 'r':
+                    bHandled = ButtonDown(BUTTON_Phone_Soft_right_CONST);
+                    break;
+                case '*':
+                    bHandled = ButtonDown(BUTTON_Asterisk_CONST);
+                    break;
+				case '#':
+                    bHandled = ButtonDown(BUTTON_Pound_CONST);
+                    break;
+#endif 
+
 				case VK_F1:
 					bHandled=ButtonDown(BUTTON_F1_CONST);
 					break;
@@ -273,6 +311,32 @@ void OrbiterSDL_Win32::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				case '9':
 					bHandled=ButtonDown(BUTTON_Rept_9_CONST);
 					break;
+#ifdef PHONEKEYS
+                case 'c':
+                    bHandled = ButtonDown(BUTTON_Rept_Phone_C_CONST);
+                    break;
+                case 'p':
+                    bHandled = ButtonDown(BUTTON_Rept_Phone_Pencil_CONST);
+                    break;
+                case 't':
+                    bHandled = ButtonDown(BUTTON_Rept_Phone_Talk_CONST);
+                    break;
+                case 'e':
+                    bHandled = ButtonDown(BUTTON_Rept_Phone_End_CONST);
+                    break;
+                case 'l':
+                    bHandled = ButtonDown(BUTTON_Rept_Phone_Soft_left_CONST);
+                    break;
+                case 'r':
+                    bHandled = ButtonDown(BUTTON_Rept_Phone_Soft_right_CONST);
+                    break;
+                case '*':
+                    bHandled = ButtonDown(BUTTON_Rept_Asterisk_CONST);
+                    break;
+					case '#':
+                    bHandled = ButtonDown(BUTTON_Rept_Pound_CONST);
+                    break;
+#endif 
 			}
 		}
 	}

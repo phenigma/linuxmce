@@ -82,7 +82,7 @@ bool Run(OrbiterSDL_Win32* pOrbiter, bool bLocalMode)
     g_pPlutoLogger->Write(LV_STATUS, "Starting processing events");
 
 	WriteStatusOutput("Starting processing events...");
-	pOrbiter->WriteStatusOutput("Parsing configuration data...");
+	pOrbiter->WriteStatusOutput("Starting processing events...");
 
 	return SDLEventLoop(pOrbiter);
 }
@@ -96,7 +96,7 @@ bool SDLEventLoop(OrbiterSDL_Win32* pOrbiter)
     // For now I'll assume that shift + arrows scrolls a grid
     bool bShiftDown=false,bControlDown=false,bAltDown=false,bRepeat=false,bCapsLock=false;
     clock_t cKeyDown=0;
-    while (!pOrbiter->m_bQuitWinCE && !pOrbiter->m_bReload)
+    while (!pOrbiter->m_bQuit && !pOrbiter->m_bReload)
     {
         SDL_WaitEvent(&Event);
 

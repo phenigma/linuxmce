@@ -51,7 +51,7 @@ using namespace DCE;
 #ifdef WINCE
     #include "wince.h"
 
-    //very nasty hack :) (this will ignore cout's. could be improved to actually log all this in a file)
+    //very nasty hack :) (this will ignore cout's. could be improved to actually log all these in a file)
     class cout_dummy
     {
     public:

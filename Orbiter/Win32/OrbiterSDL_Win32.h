@@ -17,7 +17,7 @@ private:
 
 public:
 
-	bool m_bQuitWinCE;
+	//bool m_bQuitWin;
 
 	WNDPROC OldSDLWindowProc;
 	HWND hSDLWindow;

@@ -1561,4 +1561,5 @@ void Media_Plugin::CMD_Load_Playlist(int iPK_EntertainArea,int iEK_Playlist,stri
 class DataGridTable *Media_Plugin::AllCommandsAppliableToEntAreas( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
     g_pPlutoLogger->Write(LV_STATUS, "Media plugin called!");
+	return NULL;
 }

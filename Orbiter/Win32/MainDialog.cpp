@@ -279,19 +279,33 @@ DWORD WINAPI GeneratorThread( LPVOID lpParameter)
 
 			if(bOption1)
 			{
-				//not implemented
+				int count = 0;
+				int list[128];
+
+				char c;
+				for(c = 'a'; c <= 'z'; c++)
+					list[count++] = c;
+
+				for(c = 'A'; c <= 'Z'; c++)
+					list[count++] = c;
+
+				for(c = '0'; c <= '9'; c++)
+					list[count++] = c;
+
+				int index = rand() % count;
+				PerformActionKeyPress(list[index]);
 			}
 			else if(bOption2)
 			{
 				int list[] = { VK_UP, VK_DOWN, VK_LEFT, VK_RIGHT, VK_RETURN };
-
 				int index = rand() % sizeof(list)/sizeof(list[0]);
-
 				PerformActionKeyPress(list[index]);
 			}
 			else if(bOption3)
 			{
-				//not implemented
+				int list[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '#' , 'c', 'n'};
+				int index = rand() % sizeof(list)/sizeof(list[0]);
+				PerformActionKeyPress(list[index]);
 			}
 		}
 	}
