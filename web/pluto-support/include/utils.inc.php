@@ -346,7 +346,7 @@ function builtTopMenu($website,$dbADO)
 	menuObject.item0_0 = "Summary of all projects";
 	menuObject.url0_0 = "index.php?section=modules&package=0";
 	menuObject.item0_1 = "Pluto Home main page";
-	menuObject.url0_1 = "index.php?section=home";
+	menuObject.url0_1 = "index.php?section=home&package=0";
 	menuObject.item0_2 = "Pluto VIP main page";
 	menuObject.url0_2 = "index.php?section=home&package=159";
 	menuObject.item0_3 = "<B>Pluto Core Programs</B>";

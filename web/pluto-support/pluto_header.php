@@ -96,7 +96,7 @@ function menuSettings(menuObject)
 	menuObject.divider_border_width = 0
 	menuObject.divider_border_color = "#000000"
 	menuObject.menu_is_horizontal = false
-	menuObject.menu_width = "175"
+	menuObject.menu_width = "220"
 	menuObject.menu_xy = "-100,-2"
 	menuObject.menu_scroll_direction = 1
 	menuObject.menu_scroll_reverse_on_hide = true
@@ -280,10 +280,44 @@ return $menuPages;
 function buildHeaderTopMenu($website,$dbADO)
 {
 	global $relativePath;
+	$menuPages='';
+		
+	// hard coded menu items	
+	$menuPages.='menuObject.item0 = "Projects";
+	menuObject.item0_0 = "Summary of all projects";
+	menuObject.url0_0 = "'.$relativePath.'index.php?section=modules&package=0";
+	menuObject.item0_1 = "Pluto Home main page";
+	menuObject.url0_1 = "'.$relativePath.'index.php?section=home&package=0";
+	menuObject.item0_2 = "Pluto VIP main page";
+	menuObject.url0_2 = "'.$relativePath.'index.php?section=home&package=159";
+	menuObject.item0_3 = "<B>Pluto Core Programs</B>";
+	';
+	$queryModules = '
+		SELECT PK_Package, Package.Description AS Pack, Comments, PackageType.Description as Type,FK_PackageType
+		FROM Package
+		LEFT JOIN PackageType ON FK_PackageType = PK_PackageType
+		WHERE HomePage IS NOT NULL AND isSource=0 AND PK_Package!=159
+		ORDER BY Type';
+	$res=$dbADO->Execute($queryModules);
+	$firstPos=4;
+	$firstCateg=1;
+	while($row=$res->FetchRow()){
+		if($row['FK_PackageType']!=$firstCateg){
+			$menuPages.='menuObject.item0_'.$firstPos.' = "<B>'.$row['Type'].'</B>";
+			';
+			$firstCateg=$row['FK_PackageType'];
+			$firstPos++;
+		}
+		$menuPages.='
+			menuObject.item0_'.$firstPos.' = "'.$row['Pack'].'";
+			menuObject.url0_'.$firstPos.' = "'.$relativePath.'index.php?section=home&package='.$row['PK_Package'].'";
+		';		
+		$firstPos++;
+	}
+
 	$selectMenu = "SELECT * FROM PageSetup WHERE FK_PageSetup_Parent IS NULL AND showInTopMenu = 1 AND Website='$website' ORDER BY OrderNum ASC";
 	$resSelectMenu = $dbADO->Execute($selectMenu);
-	$menuPages='';
-	$pos=0;	
+	$pos=1;	
 	while ($rowSelectMenu = $resSelectMenu->FetchRow()) {
 		$menuPages.='menuObject.item'.$pos.' = "'.ReplaceTokens($rowSelectMenu['Description']).'"
 		';
