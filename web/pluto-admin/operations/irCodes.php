@@ -222,7 +222,7 @@ function irCodes($output,$dbADO) {
 					SELECT
 						NULL,DeviceCommandGroup_Command.FK_Command,'.$dtID.',\'\','.$_SESSION['userID'].'
 					FROM DeviceCommandGroup_Command
-					LEFT JOIN InfraredGroup_Command ON InfraredGroup_Command.FK_Command=DeviceCommandGroup_Command.FK_Command AND FK_DeviceTemplate=? AND FK_InfraredGroup IS NULL AND FK_Device=? AND FK_Users=?
+					LEFT JOIN InfraredGroup_Command ON InfraredGroup_Command.FK_Command=DeviceCommandGroup_Command.FK_Command AND FK_DeviceTemplate=? AND FK_InfraredGroup IS NULL AND (FK_Device IS NULL OR FK_Device=?) AND FK_Users=?
 					WHERE FK_DeviceCommandGroup=? AND PK_InfraredGroup_Command IS NULL',array($dtID,$deviceID,$_SESSION['userID'],$rowDCG['PK_DeviceCommandGroup']));
 			}
 				
