@@ -83,7 +83,7 @@ $statement = $db_handle->prepare($sql) or die "Couldn't prepare query '$sql': $D
 $statement->execute() or die "Couldn't execute query '$sql': $DBI::errstr\n";
 
 $db_handle->disconnect();
-system("/usr/pluto/bin/SyncronizeAsterisk.sh"); #Run igor sync config
+system("/usr/pluto/bin/SynchronizeAsterisk.sh"); #Run igor sync config
 
 open(FILE,">/var/www/snom$ext.htm");
 print FILE "<html>\n<pre>\n";
