@@ -633,35 +633,35 @@ void Row_psc_constants_bathdr::psc_constants_batdet_FK_psc_constants_bathdr_getr
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_constants_batdet *pTable = table->database->psc_constants_batdet_get();
-pTable->GetRows("`FK_psc_constants_bathdr=`" + StringUtils::itos(m_PK_psc_constants_bathdr),rows);
+pTable->GetRows("`FK_psc_constants_bathdr`=" + StringUtils::itos(m_PK_psc_constants_bathdr),rows);
 }
 void Row_psc_constants_bathdr::psc_constants_batdet_FK_psc_constants_bathdr_orig_getrows(vector <class Row_psc_constants_batdet*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_constants_batdet *pTable = table->database->psc_constants_batdet_get();
-pTable->GetRows("`FK_psc_constants_bathdr_orig=`" + StringUtils::itos(m_PK_psc_constants_bathdr),rows);
+pTable->GetRows("`FK_psc_constants_bathdr_orig`=" + StringUtils::itos(m_PK_psc_constants_bathdr),rows);
 }
 void Row_psc_constants_bathdr::psc_constants_batdet_FK_psc_constants_bathdr_auth_getrows(vector <class Row_psc_constants_batdet*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_constants_batdet *pTable = table->database->psc_constants_batdet_get();
-pTable->GetRows("`FK_psc_constants_bathdr_auth=`" + StringUtils::itos(m_PK_psc_constants_bathdr),rows);
+pTable->GetRows("`FK_psc_constants_bathdr_auth`=" + StringUtils::itos(m_PK_psc_constants_bathdr),rows);
 }
 void Row_psc_constants_bathdr::psc_constants_batdet_FK_psc_constants_bathdr_unauth_getrows(vector <class Row_psc_constants_batdet*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_constants_batdet *pTable = table->database->psc_constants_batdet_get();
-pTable->GetRows("`FK_psc_constants_bathdr_unauth=`" + StringUtils::itos(m_PK_psc_constants_bathdr),rows);
+pTable->GetRows("`FK_psc_constants_bathdr_unauth`=" + StringUtils::itos(m_PK_psc_constants_bathdr),rows);
 }
 void Row_psc_constants_bathdr::psc_constants_batuser_FK_psc_constants_bathdr_getrows(vector <class Row_psc_constants_batuser*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_constants_batuser *pTable = table->database->psc_constants_batuser_get();
-pTable->GetRows("`FK_psc_constants_bathdr=`" + StringUtils::itos(m_PK_psc_constants_bathdr),rows);
+pTable->GetRows("`FK_psc_constants_bathdr`=" + StringUtils::itos(m_PK_psc_constants_bathdr),rows);
 }
 
 

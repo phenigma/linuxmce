@@ -963,28 +963,28 @@ void Row_Criteria::CommandGroup_FK_Criteria_Orbiter_getrows(vector <class Row_Co
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup *pTable = table->database->CommandGroup_get();
-pTable->GetRows("`FK_Criteria_Orbiter=`" + StringUtils::itos(m_PK_Criteria),rows);
+pTable->GetRows("`FK_Criteria_Orbiter`=" + StringUtils::itos(m_PK_Criteria),rows);
 }
 void Row_Criteria::CommandGroup_D_FK_Criteria_Orbiter_getrows(vector <class Row_CommandGroup_D*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_D *pTable = table->database->CommandGroup_D_get();
-pTable->GetRows("`FK_Criteria_Orbiter=`" + StringUtils::itos(m_PK_Criteria),rows);
+pTable->GetRows("`FK_Criteria_Orbiter`=" + StringUtils::itos(m_PK_Criteria),rows);
 }
 void Row_Criteria::DesignObjVariation_FK_Criteria_Orbiter_getrows(vector <class Row_DesignObjVariation*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation *pTable = table->database->DesignObjVariation_get();
-pTable->GetRows("`FK_Criteria_Orbiter=`" + StringUtils::itos(m_PK_Criteria),rows);
+pTable->GetRows("`FK_Criteria_Orbiter`=" + StringUtils::itos(m_PK_Criteria),rows);
 }
 void Row_Criteria::EventHandler_FK_Criteria_getrows(vector <class Row_EventHandler*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_EventHandler *pTable = table->database->EventHandler_get();
-pTable->GetRows("`FK_Criteria=`" + StringUtils::itos(m_PK_Criteria),rows);
+pTable->GetRows("`FK_Criteria`=" + StringUtils::itos(m_PK_Criteria),rows);
 }
 
 

@@ -861,28 +861,28 @@ void Row_Text::DesignObjVariation_Text_FK_Text_getrows(vector <class Row_DesignO
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_Text *pTable = table->database->DesignObjVariation_Text_get();
-pTable->GetRows("`FK_Text=`" + StringUtils::itos(m_PK_Text),rows);
+pTable->GetRows("`FK_Text`=" + StringUtils::itos(m_PK_Text),rows);
 }
 void Row_Text::DesignObjVariation_Text_FK_Text_OverrideFromHeader_getrows(vector <class Row_DesignObjVariation_Text*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_Text *pTable = table->database->DesignObjVariation_Text_get();
-pTable->GetRows("`FK_Text_OverrideFromHeader=`" + StringUtils::itos(m_PK_Text),rows);
+pTable->GetRows("`FK_Text_OverrideFromHeader`=" + StringUtils::itos(m_PK_Text),rows);
 }
 void Row_Text::Text_LS_FK_Text_getrows(vector <class Row_Text_LS*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Text_LS *pTable = table->database->Text_LS_get();
-pTable->GetRows("`FK_Text=`" + StringUtils::itos(m_PK_Text),rows);
+pTable->GetRows("`FK_Text`=" + StringUtils::itos(m_PK_Text),rows);
 }
 void Row_Text::Text_LS_AltVersions_FK_Text_getrows(vector <class Row_Text_LS_AltVersions*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Text_LS_AltVersions *pTable = table->database->Text_LS_AltVersions_get();
-pTable->GetRows("`FK_Text=`" + StringUtils::itos(m_PK_Text),rows);
+pTable->GetRows("`FK_Text`=" + StringUtils::itos(m_PK_Text),rows);
 }
 
 

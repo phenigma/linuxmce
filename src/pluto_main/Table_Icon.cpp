@@ -1048,21 +1048,21 @@ void Row_Icon::CommandGroup_FK_Icon_getrows(vector <class Row_CommandGroup*> *ro
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup *pTable = table->database->CommandGroup_get();
-pTable->GetRows("`FK_Icon=`" + StringUtils::itos(m_PK_Icon),rows);
+pTable->GetRows("`FK_Icon`=" + StringUtils::itos(m_PK_Icon),rows);
 }
 void Row_Icon::Floorplan_FK_Icon_getrows(vector <class Row_Floorplan*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Floorplan *pTable = table->database->Floorplan_get();
-pTable->GetRows("`FK_Icon=`" + StringUtils::itos(m_PK_Icon),rows);
+pTable->GetRows("`FK_Icon`=" + StringUtils::itos(m_PK_Icon),rows);
 }
 void Row_Icon::Room_FK_Icon_getrows(vector <class Row_Room*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Room *pTable = table->database->Room_get();
-pTable->GetRows("`FK_Icon=`" + StringUtils::itos(m_PK_Icon),rows);
+pTable->GetRows("`FK_Icon`=" + StringUtils::itos(m_PK_Icon),rows);
 }
 
 

@@ -907,7 +907,7 @@ void Row_EventParameter::Event_EventParameter_FK_EventParameter_getrows(vector <
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Event_EventParameter *pTable = table->database->Event_EventParameter_get();
-pTable->GetRows("`FK_EventParameter=`" + StringUtils::itos(m_PK_EventParameter),rows);
+pTable->GetRows("`FK_EventParameter`=" + StringUtils::itos(m_PK_EventParameter),rows);
 }
 
 

@@ -812,7 +812,7 @@ void Row_Template::CommandGroup_FK_Template_getrows(vector <class Row_CommandGro
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup *pTable = table->database->CommandGroup_get();
-pTable->GetRows("`FK_Template=`" + StringUtils::itos(m_PK_Template),rows);
+pTable->GetRows("`FK_Template`=" + StringUtils::itos(m_PK_Template),rows);
 }
 
 

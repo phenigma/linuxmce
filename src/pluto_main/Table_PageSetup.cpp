@@ -1056,21 +1056,21 @@ void Row_PageSetup::DeviceTemplate_PageSetup_FK_PageSetup_getrows(vector <class 
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_PageSetup *pTable = table->database->DeviceTemplate_PageSetup_get();
-pTable->GetRows("`FK_PageSetup=`" + StringUtils::itos(m_PK_PageSetup),rows);
+pTable->GetRows("`FK_PageSetup`=" + StringUtils::itos(m_PK_PageSetup),rows);
 }
 void Row_PageSetup::PageSetup_FK_PageSetup_Parent_getrows(vector <class Row_PageSetup*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_PageSetup *pTable = table->database->PageSetup_get();
-pTable->GetRows("`FK_PageSetup_Parent=`" + StringUtils::itos(m_PK_PageSetup),rows);
+pTable->GetRows("`FK_PageSetup_Parent`=" + StringUtils::itos(m_PK_PageSetup),rows);
 }
 void Row_PageSetup::SetupStep_FK_PageSetup_getrows(vector <class Row_SetupStep*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_SetupStep *pTable = table->database->SetupStep_get();
-pTable->GetRows("`FK_PageSetup=`" + StringUtils::itos(m_PK_PageSetup),rows);
+pTable->GetRows("`FK_PageSetup`=" + StringUtils::itos(m_PK_PageSetup),rows);
 }
 
 

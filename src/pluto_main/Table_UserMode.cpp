@@ -807,7 +807,7 @@ void Row_UserMode::Users_FK_UserMode_getrows(vector <class Row_Users*> *rows)
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Users *pTable = table->database->Users_get();
-pTable->GetRows("`FK_UserMode=`" + StringUtils::itos(m_PK_UserMode),rows);
+pTable->GetRows("`FK_UserMode`=" + StringUtils::itos(m_PK_UserMode),rows);
 }
 
 

@@ -901,14 +901,14 @@ void Row_CannedEvents::CannedEvents_CriteriaParmList_FK_CannedEvents_getrows(vec
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CannedEvents_CriteriaParmList *pTable = table->database->CannedEvents_CriteriaParmList_get();
-pTable->GetRows("`FK_CannedEvents=`" + StringUtils::itos(m_PK_CannedEvents),rows);
+pTable->GetRows("`FK_CannedEvents`=" + StringUtils::itos(m_PK_CannedEvents),rows);
 }
 void Row_CannedEvents::EventHandler_FK_CannedEvents_getrows(vector <class Row_EventHandler*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_EventHandler *pTable = table->database->EventHandler_get();
-pTable->GetRows("`FK_CannedEvents=`" + StringUtils::itos(m_PK_CannedEvents),rows);
+pTable->GetRows("`FK_CannedEvents`=" + StringUtils::itos(m_PK_CannedEvents),rows);
 }
 
 

@@ -808,14 +808,14 @@ void Row_Country::Installation_FK_Country_getrows(vector <class Row_Installation
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Installation *pTable = table->database->Installation_get();
-pTable->GetRows("`FK_Country=`" + StringUtils::itos(m_PK_Country),rows);
+pTable->GetRows("`FK_Country`=" + StringUtils::itos(m_PK_Country),rows);
 }
 void Row_Country::RepositorySource_URL_FK_Country_getrows(vector <class Row_RepositorySource_URL*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_RepositorySource_URL *pTable = table->database->RepositorySource_URL_get();
-pTable->GetRows("`FK_Country=`" + StringUtils::itos(m_PK_Country),rows);
+pTable->GetRows("`FK_Country`=" + StringUtils::itos(m_PK_Country),rows);
 }
 
 

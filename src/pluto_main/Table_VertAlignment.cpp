@@ -808,14 +808,14 @@ void Row_VertAlignment::DesignObjVariation_Text_Skin_Language_FK_VertAlignment_g
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_Text_Skin_Language *pTable = table->database->DesignObjVariation_Text_Skin_Language_get();
-pTable->GetRows("`FK_VertAlignment=`" + StringUtils::itos(m_PK_VertAlignment),rows);
+pTable->GetRows("`FK_VertAlignment`=" + StringUtils::itos(m_PK_VertAlignment),rows);
 }
 void Row_VertAlignment::StyleVariation_FK_VertAlignment_getrows(vector <class Row_StyleVariation*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_StyleVariation *pTable = table->database->StyleVariation_get();
-pTable->GetRows("`FK_VertAlignment=`" + StringUtils::itos(m_PK_VertAlignment),rows);
+pTable->GetRows("`FK_VertAlignment`=" + StringUtils::itos(m_PK_VertAlignment),rows);
 }
 
 

@@ -807,7 +807,7 @@ void Row_RoomType::Room_FK_RoomType_getrows(vector <class Row_Room*> *rows)
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Room *pTable = table->database->Room_get();
-pTable->GetRows("`FK_RoomType=`" + StringUtils::itos(m_PK_RoomType),rows);
+pTable->GetRows("`FK_RoomType`=" + StringUtils::itos(m_PK_RoomType),rows);
 }
 
 

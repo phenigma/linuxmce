@@ -825,14 +825,14 @@ void Row_TextCategory::Text_FK_TextCategory_getrows(vector <class Row_Text*> *ro
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Text *pTable = table->database->Text_get();
-pTable->GetRows("`FK_TextCategory=`" + StringUtils::itos(m_PK_TextCategory),rows);
+pTable->GetRows("`FK_TextCategory`=" + StringUtils::itos(m_PK_TextCategory),rows);
 }
 void Row_TextCategory::TextCategory_FK_TextCategory_Parent_getrows(vector <class Row_TextCategory*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_TextCategory *pTable = table->database->TextCategory_get();
-pTable->GetRows("`FK_TextCategory_Parent=`" + StringUtils::itos(m_PK_TextCategory),rows);
+pTable->GetRows("`FK_TextCategory_Parent`=" + StringUtils::itos(m_PK_TextCategory),rows);
 }
 
 

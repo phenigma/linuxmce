@@ -1025,14 +1025,14 @@ void Row_RepositorySource::Package_Source_FK_RepositorySource_getrows(vector <cl
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Source *pTable = table->database->Package_Source_get();
-pTable->GetRows("`FK_RepositorySource=`" + StringUtils::itos(m_PK_RepositorySource),rows);
+pTable->GetRows("`FK_RepositorySource`=" + StringUtils::itos(m_PK_RepositorySource),rows);
 }
 void Row_RepositorySource::RepositorySource_URL_FK_RepositorySource_getrows(vector <class Row_RepositorySource_URL*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_RepositorySource_URL *pTable = table->database->RepositorySource_URL_get();
-pTable->GetRows("`FK_RepositorySource=`" + StringUtils::itos(m_PK_RepositorySource),rows);
+pTable->GetRows("`FK_RepositorySource`=" + StringUtils::itos(m_PK_RepositorySource),rows);
 }
 
 

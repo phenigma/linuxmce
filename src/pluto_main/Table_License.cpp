@@ -955,14 +955,14 @@ void Row_License::Package_FK_License_getrows(vector <class Row_Package*> *rows)
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package *pTable = table->database->Package_get();
-pTable->GetRows("`FK_License=`" + StringUtils::itos(m_PK_License),rows);
+pTable->GetRows("`FK_License`=" + StringUtils::itos(m_PK_License),rows);
 }
 void Row_License::PaidLicense_FK_License_getrows(vector <class Row_PaidLicense*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_PaidLicense *pTable = table->database->PaidLicense_get();
-pTable->GetRows("`FK_License=`" + StringUtils::itos(m_PK_License),rows);
+pTable->GetRows("`FK_License`=" + StringUtils::itos(m_PK_License),rows);
 }
 
 

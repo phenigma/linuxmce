@@ -814,7 +814,7 @@ void Row_ConfigType_Setting::ConfigType_Token_FK_ConfigType_Setting_getrows(vect
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_ConfigType_Token *pTable = table->database->ConfigType_Token_get();
-pTable->GetRows("`FK_ConfigType_Setting=`" + StringUtils::itos(m_PK_ConfigType_Setting),rows);
+pTable->GetRows("`FK_ConfigType_Setting`=" + StringUtils::itos(m_PK_ConfigType_Setting),rows);
 }
 
 

@@ -860,35 +860,35 @@ void Row_ParameterType::CommandParameter_FK_ParameterType_getrows(vector <class 
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandParameter *pTable = table->database->CommandParameter_get();
-pTable->GetRows("`FK_ParameterType=`" + StringUtils::itos(m_PK_ParameterType),rows);
+pTable->GetRows("`FK_ParameterType`=" + StringUtils::itos(m_PK_ParameterType),rows);
 }
 void Row_ParameterType::CriteriaParmList_FK_ParameterType_getrows(vector <class Row_CriteriaParmList*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CriteriaParmList *pTable = table->database->CriteriaParmList_get();
-pTable->GetRows("`FK_ParameterType=`" + StringUtils::itos(m_PK_ParameterType),rows);
+pTable->GetRows("`FK_ParameterType`=" + StringUtils::itos(m_PK_ParameterType),rows);
 }
 void Row_ParameterType::DesignObjParameter_FK_ParameterType_getrows(vector <class Row_DesignObjParameter*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjParameter *pTable = table->database->DesignObjParameter_get();
-pTable->GetRows("`FK_ParameterType=`" + StringUtils::itos(m_PK_ParameterType),rows);
+pTable->GetRows("`FK_ParameterType`=" + StringUtils::itos(m_PK_ParameterType),rows);
 }
 void Row_ParameterType::DeviceData_FK_ParameterType_getrows(vector <class Row_DeviceData*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceData *pTable = table->database->DeviceData_get();
-pTable->GetRows("`FK_ParameterType=`" + StringUtils::itos(m_PK_ParameterType),rows);
+pTable->GetRows("`FK_ParameterType`=" + StringUtils::itos(m_PK_ParameterType),rows);
 }
 void Row_ParameterType::EventParameter_FK_ParameterType_getrows(vector <class Row_EventParameter*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_EventParameter *pTable = table->database->EventParameter_get();
-pTable->GetRows("`FK_ParameterType=`" + StringUtils::itos(m_PK_ParameterType),rows);
+pTable->GetRows("`FK_ParameterType`=" + StringUtils::itos(m_PK_ParameterType),rows);
 }
 
 

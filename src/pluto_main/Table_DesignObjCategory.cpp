@@ -825,14 +825,14 @@ void Row_DesignObjCategory::DesignObj_FK_DesignObjCategory_getrows(vector <class
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObj *pTable = table->database->DesignObj_get();
-pTable->GetRows("`FK_DesignObjCategory=`" + StringUtils::itos(m_PK_DesignObjCategory),rows);
+pTable->GetRows("`FK_DesignObjCategory`=" + StringUtils::itos(m_PK_DesignObjCategory),rows);
 }
 void Row_DesignObjCategory::DesignObjCategory_FK_DesignObjCategory_Parent_getrows(vector <class Row_DesignObjCategory*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjCategory *pTable = table->database->DesignObjCategory_get();
-pTable->GetRows("`FK_DesignObjCategory_Parent=`" + StringUtils::itos(m_PK_DesignObjCategory),rows);
+pTable->GetRows("`FK_DesignObjCategory_Parent`=" + StringUtils::itos(m_PK_DesignObjCategory),rows);
 }
 
 

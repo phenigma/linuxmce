@@ -978,28 +978,28 @@ void Row_Room::CommandGroup_Room_FK_Room_getrows(vector <class Row_CommandGroup_
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_Room *pTable = table->database->CommandGroup_Room_get();
-pTable->GetRows("`FK_Room=`" + StringUtils::itos(m_PK_Room),rows);
+pTable->GetRows("`FK_Room`=" + StringUtils::itos(m_PK_Room),rows);
 }
 void Row_Room::Device_FK_Room_getrows(vector <class Row_Device*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device *pTable = table->database->Device_get();
-pTable->GetRows("`FK_Room=`" + StringUtils::itos(m_PK_Room),rows);
+pTable->GetRows("`FK_Room`=" + StringUtils::itos(m_PK_Room),rows);
 }
 void Row_Room::EntertainArea_FK_Room_getrows(vector <class Row_EntertainArea*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_EntertainArea *pTable = table->database->EntertainArea_get();
-pTable->GetRows("`FK_Room=`" + StringUtils::itos(m_PK_Room),rows);
+pTable->GetRows("`FK_Room`=" + StringUtils::itos(m_PK_Room),rows);
 }
 void Row_Room::Room_Users_FK_Room_getrows(vector <class Row_Room_Users*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Room_Users *pTable = table->database->Room_Users_get();
-pTable->GetRows("`FK_Room=`" + StringUtils::itos(m_PK_Room),rows);
+pTable->GetRows("`FK_Room`=" + StringUtils::itos(m_PK_Room),rows);
 }
 
 

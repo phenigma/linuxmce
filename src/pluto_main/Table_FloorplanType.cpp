@@ -807,7 +807,7 @@ void Row_FloorplanType::FloorplanObjectType_FK_FloorplanType_getrows(vector <cla
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_FloorplanObjectType *pTable = table->database->FloorplanObjectType_get();
-pTable->GetRows("`FK_FloorplanType=`" + StringUtils::itos(m_PK_FloorplanType),rows);
+pTable->GetRows("`FK_FloorplanType`=" + StringUtils::itos(m_PK_FloorplanType),rows);
 }
 
 

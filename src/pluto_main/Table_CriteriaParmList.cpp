@@ -861,28 +861,28 @@ void Row_CriteriaParmList::CannedEvents_CriteriaParmList_FK_CriteriaParmList_get
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CannedEvents_CriteriaParmList *pTable = table->database->CannedEvents_CriteriaParmList_get();
-pTable->GetRows("`FK_CriteriaParmList=`" + StringUtils::itos(m_PK_CriteriaParmList),rows);
+pTable->GetRows("`FK_CriteriaParmList`=" + StringUtils::itos(m_PK_CriteriaParmList),rows);
 }
 void Row_CriteriaParmList::CriteriaList_CriteriaParmList_FK_CriteriaParmList_getrows(vector <class Row_CriteriaList_CriteriaParmList*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CriteriaList_CriteriaParmList *pTable = table->database->CriteriaList_CriteriaParmList_get();
-pTable->GetRows("`FK_CriteriaParmList=`" + StringUtils::itos(m_PK_CriteriaParmList),rows);
+pTable->GetRows("`FK_CriteriaParmList`=" + StringUtils::itos(m_PK_CriteriaParmList),rows);
 }
 void Row_CriteriaParmList::CriteriaParm_FK_CriteriaParmList_getrows(vector <class Row_CriteriaParm*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CriteriaParm *pTable = table->database->CriteriaParm_get();
-pTable->GetRows("`FK_CriteriaParmList=`" + StringUtils::itos(m_PK_CriteriaParmList),rows);
+pTable->GetRows("`FK_CriteriaParmList`=" + StringUtils::itos(m_PK_CriteriaParmList),rows);
 }
 void Row_CriteriaParmList::CriteriaParm_D_FK_CriteriaParmList_getrows(vector <class Row_CriteriaParm_D*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CriteriaParm_D *pTable = table->database->CriteriaParm_D_get();
-pTable->GetRows("`FK_CriteriaParmList=`" + StringUtils::itos(m_PK_CriteriaParmList),rows);
+pTable->GetRows("`FK_CriteriaParmList`=" + StringUtils::itos(m_PK_CriteriaParmList),rows);
 }
 
 

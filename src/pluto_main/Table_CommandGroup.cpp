@@ -1329,35 +1329,35 @@ void Row_CommandGroup::CommandGroup_Command_FK_CommandGroup_getrows(vector <clas
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_Command *pTable = table->database->CommandGroup_Command_get();
-pTable->GetRows("`FK_CommandGroup=`" + StringUtils::itos(m_PK_CommandGroup),rows);
+pTable->GetRows("`FK_CommandGroup`=" + StringUtils::itos(m_PK_CommandGroup),rows);
 }
 void Row_CommandGroup::CommandGroup_EntertainArea_FK_CommandGroup_getrows(vector <class Row_CommandGroup_EntertainArea*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_EntertainArea *pTable = table->database->CommandGroup_EntertainArea_get();
-pTable->GetRows("`FK_CommandGroup=`" + StringUtils::itos(m_PK_CommandGroup),rows);
+pTable->GetRows("`FK_CommandGroup`=" + StringUtils::itos(m_PK_CommandGroup),rows);
 }
 void Row_CommandGroup::CommandGroup_Room_FK_CommandGroup_getrows(vector <class Row_CommandGroup_Room*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_Room *pTable = table->database->CommandGroup_Room_get();
-pTable->GetRows("`FK_CommandGroup=`" + StringUtils::itos(m_PK_CommandGroup),rows);
+pTable->GetRows("`FK_CommandGroup`=" + StringUtils::itos(m_PK_CommandGroup),rows);
 }
 void Row_CommandGroup::Device_CommandGroup_FK_CommandGroup_getrows(vector <class Row_Device_CommandGroup*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device_CommandGroup *pTable = table->database->Device_CommandGroup_get();
-pTable->GetRows("`FK_CommandGroup=`" + StringUtils::itos(m_PK_CommandGroup),rows);
+pTable->GetRows("`FK_CommandGroup`=" + StringUtils::itos(m_PK_CommandGroup),rows);
 }
 void Row_CommandGroup::EventHandler_FK_CommandGroup_getrows(vector <class Row_EventHandler*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_EventHandler *pTable = table->database->EventHandler_get();
-pTable->GetRows("`FK_CommandGroup=`" + StringUtils::itos(m_PK_CommandGroup),rows);
+pTable->GetRows("`FK_CommandGroup`=" + StringUtils::itos(m_PK_CommandGroup),rows);
 }
 
 

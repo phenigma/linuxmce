@@ -823,35 +823,35 @@ void Row_Language::DesignObjVariation_Text_Skin_Language_FK_Language_getrows(vec
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_Text_Skin_Language *pTable = table->database->DesignObjVariation_Text_Skin_Language_get();
-pTable->GetRows("`FK_Language=`" + StringUtils::itos(m_PK_Language),rows);
+pTable->GetRows("`FK_Language`=" + StringUtils::itos(m_PK_Language),rows);
 }
 void Row_Language::Language_FK_Language_TextPlacement_getrows(vector <class Row_Language*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Language *pTable = table->database->Language_get();
-pTable->GetRows("`FK_Language_TextPlacement=`" + StringUtils::itos(m_PK_Language),rows);
+pTable->GetRows("`FK_Language_TextPlacement`=" + StringUtils::itos(m_PK_Language),rows);
 }
 void Row_Language::Text_LS_FK_Language_getrows(vector <class Row_Text_LS*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Text_LS *pTable = table->database->Text_LS_get();
-pTable->GetRows("`FK_Language=`" + StringUtils::itos(m_PK_Language),rows);
+pTable->GetRows("`FK_Language`=" + StringUtils::itos(m_PK_Language),rows);
 }
 void Row_Language::Text_LS_AltVersions_FK_Language_getrows(vector <class Row_Text_LS_AltVersions*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Text_LS_AltVersions *pTable = table->database->Text_LS_AltVersions_get();
-pTable->GetRows("`FK_Language=`" + StringUtils::itos(m_PK_Language),rows);
+pTable->GetRows("`FK_Language`=" + StringUtils::itos(m_PK_Language),rows);
 }
 void Row_Language::Users_FK_Language_getrows(vector <class Row_Users*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Users *pTable = table->database->Users_get();
-pTable->GetRows("`FK_Language=`" + StringUtils::itos(m_PK_Language),rows);
+pTable->GetRows("`FK_Language`=" + StringUtils::itos(m_PK_Language),rows);
 }
 
 

@@ -911,7 +911,7 @@ void Row_InstallWizard::InstallWizard_Distro_FK_InstallWizard_getrows(vector <cl
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_InstallWizard_Distro *pTable = table->database->InstallWizard_Distro_get();
-pTable->GetRows("`FK_InstallWizard=`" + StringUtils::itos(m_PK_InstallWizard),rows);
+pTable->GetRows("`FK_InstallWizard`=" + StringUtils::itos(m_PK_InstallWizard),rows);
 }
 
 

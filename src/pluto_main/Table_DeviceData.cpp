@@ -861,28 +861,28 @@ void Row_DeviceData::DHCPDevice_DeviceData_FK_DeviceData_getrows(vector <class R
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DHCPDevice_DeviceData *pTable = table->database->DHCPDevice_DeviceData_get();
-pTable->GetRows("`FK_DeviceData=`" + StringUtils::itos(m_PK_DeviceData),rows);
+pTable->GetRows("`FK_DeviceData`=" + StringUtils::itos(m_PK_DeviceData),rows);
 }
 void Row_DeviceData::DeviceCategory_DeviceData_FK_DeviceData_getrows(vector <class Row_DeviceCategory_DeviceData*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceCategory_DeviceData *pTable = table->database->DeviceCategory_DeviceData_get();
-pTable->GetRows("`FK_DeviceData=`" + StringUtils::itos(m_PK_DeviceData),rows);
+pTable->GetRows("`FK_DeviceData`=" + StringUtils::itos(m_PK_DeviceData),rows);
 }
 void Row_DeviceData::DeviceTemplate_DeviceData_FK_DeviceData_getrows(vector <class Row_DeviceTemplate_DeviceData*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_DeviceData *pTable = table->database->DeviceTemplate_DeviceData_get();
-pTable->GetRows("`FK_DeviceData=`" + StringUtils::itos(m_PK_DeviceData),rows);
+pTable->GetRows("`FK_DeviceData`=" + StringUtils::itos(m_PK_DeviceData),rows);
 }
 void Row_DeviceData::Device_DeviceData_FK_DeviceData_getrows(vector <class Row_Device_DeviceData*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device_DeviceData *pTable = table->database->Device_DeviceData_get();
-pTable->GetRows("`FK_DeviceData=`" + StringUtils::itos(m_PK_DeviceData),rows);
+pTable->GetRows("`FK_DeviceData`=" + StringUtils::itos(m_PK_DeviceData),rows);
 }
 
 

@@ -825,14 +825,14 @@ void Row_EventCategory::Event_FK_EventCategory_getrows(vector <class Row_Event*>
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Event *pTable = table->database->Event_get();
-pTable->GetRows("`FK_EventCategory=`" + StringUtils::itos(m_PK_EventCategory),rows);
+pTable->GetRows("`FK_EventCategory`=" + StringUtils::itos(m_PK_EventCategory),rows);
 }
 void Row_EventCategory::EventCategory_FK_EventCategory_Parent_getrows(vector <class Row_EventCategory*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_EventCategory *pTable = table->database->EventCategory_get();
-pTable->GetRows("`FK_EventCategory_Parent=`" + StringUtils::itos(m_PK_EventCategory),rows);
+pTable->GetRows("`FK_EventCategory_Parent`=" + StringUtils::itos(m_PK_EventCategory),rows);
 }
 
 

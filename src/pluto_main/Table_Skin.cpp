@@ -1272,21 +1272,21 @@ void Row_Skin::DesignObjVariation_Text_Skin_Language_FK_Skin_getrows(vector <cla
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_Text_Skin_Language *pTable = table->database->DesignObjVariation_Text_Skin_Language_get();
-pTable->GetRows("`FK_Skin=`" + StringUtils::itos(m_PK_Skin),rows);
+pTable->GetRows("`FK_Skin`=" + StringUtils::itos(m_PK_Skin),rows);
 }
 void Row_Skin::Skin_FK_Skin_TextPlacement_getrows(vector <class Row_Skin*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Skin *pTable = table->database->Skin_get();
-pTable->GetRows("`FK_Skin_TextPlacement=`" + StringUtils::itos(m_PK_Skin),rows);
+pTable->GetRows("`FK_Skin_TextPlacement`=" + StringUtils::itos(m_PK_Skin),rows);
 }
 void Row_Skin::StyleVariation_FK_Skin_getrows(vector <class Row_StyleVariation*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_StyleVariation *pTable = table->database->StyleVariation_get();
-pTable->GetRows("`FK_Skin=`" + StringUtils::itos(m_PK_Skin),rows);
+pTable->GetRows("`FK_Skin`=" + StringUtils::itos(m_PK_Skin),rows);
 }
 
 

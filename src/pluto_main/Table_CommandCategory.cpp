@@ -825,14 +825,14 @@ void Row_CommandCategory::Command_FK_CommandCategory_getrows(vector <class Row_C
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Command *pTable = table->database->Command_get();
-pTable->GetRows("`FK_CommandCategory=`" + StringUtils::itos(m_PK_CommandCategory),rows);
+pTable->GetRows("`FK_CommandCategory`=" + StringUtils::itos(m_PK_CommandCategory),rows);
 }
 void Row_CommandCategory::CommandCategory_FK_CommandCategory_Parent_getrows(vector <class Row_CommandCategory*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandCategory *pTable = table->database->CommandCategory_get();
-pTable->GetRows("`FK_CommandCategory_Parent=`" + StringUtils::itos(m_PK_CommandCategory),rows);
+pTable->GetRows("`FK_CommandCategory_Parent`=" + StringUtils::itos(m_PK_CommandCategory),rows);
 }
 
 

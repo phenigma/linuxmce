@@ -1012,7 +1012,7 @@ void Row_RepositorySource_URL::Installation_RepositorySource_URL_FK_RepositorySo
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Installation_RepositorySource_URL *pTable = table->database->Installation_RepositorySource_URL_get();
-pTable->GetRows("`FK_RepositorySource_URL=`" + StringUtils::itos(m_PK_RepositorySource_URL),rows);
+pTable->GetRows("`FK_RepositorySource_URL`=" + StringUtils::itos(m_PK_RepositorySource_URL),rows);
 }
 
 

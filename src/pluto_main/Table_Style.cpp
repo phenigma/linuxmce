@@ -984,42 +984,42 @@ void Row_Style::DesignObjVariation_Text_Skin_Language_FK_Style_getrows(vector <c
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_Text_Skin_Language *pTable = table->database->DesignObjVariation_Text_Skin_Language_get();
-pTable->GetRows("`FK_Style=`" + StringUtils::itos(m_PK_Style),rows);
+pTable->GetRows("`FK_Style`=" + StringUtils::itos(m_PK_Style),rows);
 }
 void Row_Style::Skin_FK_Style_getrows(vector <class Row_Skin*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Skin *pTable = table->database->Skin_get();
-pTable->GetRows("`FK_Style=`" + StringUtils::itos(m_PK_Style),rows);
+pTable->GetRows("`FK_Style`=" + StringUtils::itos(m_PK_Style),rows);
 }
 void Row_Style::Style_FK_Style_Selected_getrows(vector <class Row_Style*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Style *pTable = table->database->Style_get();
-pTable->GetRows("`FK_Style_Selected=`" + StringUtils::itos(m_PK_Style),rows);
+pTable->GetRows("`FK_Style_Selected`=" + StringUtils::itos(m_PK_Style),rows);
 }
 void Row_Style::Style_FK_Style_Highlighted_getrows(vector <class Row_Style*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Style *pTable = table->database->Style_get();
-pTable->GetRows("`FK_Style_Highlighted=`" + StringUtils::itos(m_PK_Style),rows);
+pTable->GetRows("`FK_Style_Highlighted`=" + StringUtils::itos(m_PK_Style),rows);
 }
 void Row_Style::Style_FK_Style_Alt_getrows(vector <class Row_Style*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Style *pTable = table->database->Style_get();
-pTable->GetRows("`FK_Style_Alt=`" + StringUtils::itos(m_PK_Style),rows);
+pTable->GetRows("`FK_Style_Alt`=" + StringUtils::itos(m_PK_Style),rows);
 }
 void Row_Style::StyleVariation_FK_Style_getrows(vector <class Row_StyleVariation*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_StyleVariation *pTable = table->database->StyleVariation_get();
-pTable->GetRows("`FK_Style=`" + StringUtils::itos(m_PK_Style),rows);
+pTable->GetRows("`FK_Style`=" + StringUtils::itos(m_PK_Style),rows);
 }
 
 

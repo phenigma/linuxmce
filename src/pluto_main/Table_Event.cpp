@@ -873,42 +873,42 @@ void Row_Event::CannedEvents_FK_Event_getrows(vector <class Row_CannedEvents*> *
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CannedEvents *pTable = table->database->CannedEvents_get();
-pTable->GetRows("`FK_Event=`" + StringUtils::itos(m_PK_Event),rows);
+pTable->GetRows("`FK_Event`=" + StringUtils::itos(m_PK_Event),rows);
 }
 void Row_Event::DeviceCategory_Event_FK_Event_getrows(vector <class Row_DeviceCategory_Event*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceCategory_Event *pTable = table->database->DeviceCategory_Event_get();
-pTable->GetRows("`FK_Event=`" + StringUtils::itos(m_PK_Event),rows);
+pTable->GetRows("`FK_Event`=" + StringUtils::itos(m_PK_Event),rows);
 }
 void Row_Event::DeviceTemplate_Event_FK_Event_getrows(vector <class Row_DeviceTemplate_Event*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_Event *pTable = table->database->DeviceTemplate_Event_get();
-pTable->GetRows("`FK_Event=`" + StringUtils::itos(m_PK_Event),rows);
+pTable->GetRows("`FK_Event`=" + StringUtils::itos(m_PK_Event),rows);
 }
 void Row_Event::Device_HouseMode_FK_Event_getrows(vector <class Row_Device_HouseMode*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device_HouseMode *pTable = table->database->Device_HouseMode_get();
-pTable->GetRows("`FK_Event=`" + StringUtils::itos(m_PK_Event),rows);
+pTable->GetRows("`FK_Event`=" + StringUtils::itos(m_PK_Event),rows);
 }
 void Row_Event::EventHandler_FK_Event_getrows(vector <class Row_EventHandler*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_EventHandler *pTable = table->database->EventHandler_get();
-pTable->GetRows("`FK_Event=`" + StringUtils::itos(m_PK_Event),rows);
+pTable->GetRows("`FK_Event`=" + StringUtils::itos(m_PK_Event),rows);
 }
 void Row_Event::Event_EventParameter_FK_Event_getrows(vector <class Row_Event_EventParameter*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Event_EventParameter *pTable = table->database->Event_EventParameter_get();
-pTable->GetRows("`FK_Event=`" + StringUtils::itos(m_PK_Event),rows);
+pTable->GetRows("`FK_Event`=" + StringUtils::itos(m_PK_Event),rows);
 }
 
 

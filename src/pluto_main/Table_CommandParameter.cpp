@@ -909,21 +909,21 @@ void Row_CommandParameter::CommandGroup_Command_CommandParameter_FK_CommandParam
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_Command_CommandParameter *pTable = table->database->CommandGroup_Command_CommandParameter_get();
-pTable->GetRows("`FK_CommandParameter=`" + StringUtils::itos(m_PK_CommandParameter),rows);
+pTable->GetRows("`FK_CommandParameter`=" + StringUtils::itos(m_PK_CommandParameter),rows);
 }
 void Row_CommandParameter::CommandGroup_D_Command_CommandParameter_FK_CommandParameter_getrows(vector <class Row_CommandGroup_D_Command_CommandParameter*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_D_Command_CommandParameter *pTable = table->database->CommandGroup_D_Command_CommandParameter_get();
-pTable->GetRows("`FK_CommandParameter=`" + StringUtils::itos(m_PK_CommandParameter),rows);
+pTable->GetRows("`FK_CommandParameter`=" + StringUtils::itos(m_PK_CommandParameter),rows);
 }
 void Row_CommandParameter::Command_CommandParameter_FK_CommandParameter_getrows(vector <class Row_Command_CommandParameter*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Command_CommandParameter *pTable = table->database->Command_CommandParameter_get();
-pTable->GetRows("`FK_CommandParameter=`" + StringUtils::itos(m_PK_CommandParameter),rows);
+pTable->GetRows("`FK_CommandParameter`=" + StringUtils::itos(m_PK_CommandParameter),rows);
 }
 
 

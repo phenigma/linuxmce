@@ -1022,7 +1022,7 @@ void Row_DHCPDevice::DHCPDevice_DeviceData_FK_DHCPDevice_getrows(vector <class R
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DHCPDevice_DeviceData *pTable = table->database->DHCPDevice_DeviceData_get();
-pTable->GetRows("`FK_DHCPDevice=`" + StringUtils::itos(m_PK_DHCPDevice),rows);
+pTable->GetRows("`FK_DHCPDevice`=" + StringUtils::itos(m_PK_DHCPDevice),rows);
 }
 
 

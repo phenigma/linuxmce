@@ -781,49 +781,49 @@ void Row_CommandGroup_D::CommandGroup_D_Command_FK_CommandGroup_D_getrows(vector
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_D_Command *pTable = table->database->CommandGroup_D_Command_get();
-pTable->GetRows("`FK_CommandGroup_D=`" + StringUtils::itos(m_PK_CommandGroup_D),rows);
+pTable->GetRows("`FK_CommandGroup_D`=" + StringUtils::itos(m_PK_CommandGroup_D),rows);
 }
 void Row_CommandGroup_D::DesignObjVariation_FK_CommandGroup_D_OnActivate_getrows(vector <class Row_DesignObjVariation*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation *pTable = table->database->DesignObjVariation_get();
-pTable->GetRows("`FK_CommandGroup_D_OnActivate=`" + StringUtils::itos(m_PK_CommandGroup_D),rows);
+pTable->GetRows("`FK_CommandGroup_D_OnActivate`=" + StringUtils::itos(m_PK_CommandGroup_D),rows);
 }
 void Row_CommandGroup_D::DesignObjVariation_FK_CommandGroup_D_OnLoad_getrows(vector <class Row_DesignObjVariation*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation *pTable = table->database->DesignObjVariation_get();
-pTable->GetRows("`FK_CommandGroup_D_OnLoad=`" + StringUtils::itos(m_PK_CommandGroup_D),rows);
+pTable->GetRows("`FK_CommandGroup_D_OnLoad`=" + StringUtils::itos(m_PK_CommandGroup_D),rows);
 }
 void Row_CommandGroup_D::DesignObjVariation_FK_CommandGroup_D_OnUnload_getrows(vector <class Row_DesignObjVariation*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation *pTable = table->database->DesignObjVariation_get();
-pTable->GetRows("`FK_CommandGroup_D_OnUnload=`" + StringUtils::itos(m_PK_CommandGroup_D),rows);
+pTable->GetRows("`FK_CommandGroup_D_OnUnload`=" + StringUtils::itos(m_PK_CommandGroup_D),rows);
 }
 void Row_CommandGroup_D::DesignObjVariation_FK_CommandGroup_D_OnTimeout_getrows(vector <class Row_DesignObjVariation*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation *pTable = table->database->DesignObjVariation_get();
-pTable->GetRows("`FK_CommandGroup_D_OnTimeout=`" + StringUtils::itos(m_PK_CommandGroup_D),rows);
+pTable->GetRows("`FK_CommandGroup_D_OnTimeout`=" + StringUtils::itos(m_PK_CommandGroup_D),rows);
 }
 void Row_CommandGroup_D::DesignObjVariation_FK_CommandGroup_D_OnStartup_getrows(vector <class Row_DesignObjVariation*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation *pTable = table->database->DesignObjVariation_get();
-pTable->GetRows("`FK_CommandGroup_D_OnStartup=`" + StringUtils::itos(m_PK_CommandGroup_D),rows);
+pTable->GetRows("`FK_CommandGroup_D_OnStartup`=" + StringUtils::itos(m_PK_CommandGroup_D),rows);
 }
 void Row_CommandGroup_D::DesignObjVariation_Zone_FK_CommandGroup_D_getrows(vector <class Row_DesignObjVariation_Zone*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_Zone *pTable = table->database->DesignObjVariation_Zone_get();
-pTable->GetRows("`FK_CommandGroup_D=`" + StringUtils::itos(m_PK_CommandGroup_D),rows);
+pTable->GetRows("`FK_CommandGroup_D`=" + StringUtils::itos(m_PK_CommandGroup_D),rows);
 }
 
 

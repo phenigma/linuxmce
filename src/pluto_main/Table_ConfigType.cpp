@@ -920,14 +920,14 @@ void Row_ConfigType::ConfigType_File_FK_ConfigType_getrows(vector <class Row_Con
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_ConfigType_File *pTable = table->database->ConfigType_File_get();
-pTable->GetRows("`FK_ConfigType=`" + StringUtils::itos(m_PK_ConfigType),rows);
+pTable->GetRows("`FK_ConfigType`=" + StringUtils::itos(m_PK_ConfigType),rows);
 }
 void Row_ConfigType::ConfigType_Setting_FK_ConfigType_getrows(vector <class Row_ConfigType_Setting*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_ConfigType_Setting *pTable = table->database->ConfigType_Setting_get();
-pTable->GetRows("`FK_ConfigType=`" + StringUtils::itos(m_PK_ConfigType),rows);
+pTable->GetRows("`FK_ConfigType`=" + StringUtils::itos(m_PK_ConfigType),rows);
 }
 
 

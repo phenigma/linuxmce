@@ -1463,7 +1463,7 @@ void Row_StartupScript::Device_StartupScript_FK_StartupScript_getrows(vector <cl
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device_StartupScript *pTable = table->database->Device_StartupScript_get();
-pTable->GetRows("`FK_StartupScript=`" + StringUtils::itos(m_PK_StartupScript),rows);
+pTable->GetRows("`FK_StartupScript`=" + StringUtils::itos(m_PK_StartupScript),rows);
 }
 
 

@@ -871,14 +871,14 @@ void Row_InfraredGroup::DeviceTemplate_InfraredGroup_FK_InfraredGroup_getrows(ve
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_InfraredGroup *pTable = table->database->DeviceTemplate_InfraredGroup_get();
-pTable->GetRows("`FK_InfraredGroup=`" + StringUtils::itos(m_PK_InfraredGroup),rows);
+pTable->GetRows("`FK_InfraredGroup`=" + StringUtils::itos(m_PK_InfraredGroup),rows);
 }
 void Row_InfraredGroup::InfraredGroup_Command_FK_InfraredGroup_getrows(vector <class Row_InfraredGroup_Command*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_InfraredGroup_Command *pTable = table->database->InfraredGroup_Command_get();
-pTable->GetRows("`FK_InfraredGroup=`" + StringUtils::itos(m_PK_InfraredGroup),rows);
+pTable->GetRows("`FK_InfraredGroup`=" + StringUtils::itos(m_PK_InfraredGroup),rows);
 }
 
 

@@ -1017,7 +1017,7 @@ void Row_Package_Source::Package_Source_Compat_FK_Package_Source_getrows(vector 
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Source_Compat *pTable = table->database->Package_Source_Compat_get();
-pTable->GetRows("`FK_Package_Source=`" + StringUtils::itos(m_PK_Package_Source),rows);
+pTable->GetRows("`FK_Package_Source`=" + StringUtils::itos(m_PK_Package_Source),rows);
 }
 
 

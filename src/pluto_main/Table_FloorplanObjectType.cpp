@@ -1094,14 +1094,14 @@ void Row_FloorplanObjectType::EntertainArea_FK_FloorplanObjectType_getrows(vecto
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_EntertainArea *pTable = table->database->EntertainArea_get();
-pTable->GetRows("`FK_FloorplanObjectType=`" + StringUtils::itos(m_PK_FloorplanObjectType),rows);
+pTable->GetRows("`FK_FloorplanObjectType`=" + StringUtils::itos(m_PK_FloorplanObjectType),rows);
 }
 void Row_FloorplanObjectType::FloorplanObjectType_Color_FK_FloorplanObjectType_getrows(vector <class Row_FloorplanObjectType_Color*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_FloorplanObjectType_Color *pTable = table->database->FloorplanObjectType_Color_get();
-pTable->GetRows("`FK_FloorplanObjectType=`" + StringUtils::itos(m_PK_FloorplanObjectType),rows);
+pTable->GetRows("`FK_FloorplanObjectType`=" + StringUtils::itos(m_PK_FloorplanObjectType),rows);
 }
 
 

@@ -925,70 +925,70 @@ void Row_DeviceCategory::CommandGroup_D_Command_FK_DeviceCategory_getrows(vector
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_D_Command *pTable = table->database->CommandGroup_D_Command_get();
-pTable->GetRows("`FK_DeviceCategory=`" + StringUtils::itos(m_PK_DeviceCategory),rows);
+pTable->GetRows("`FK_DeviceCategory`=" + StringUtils::itos(m_PK_DeviceCategory),rows);
 }
 void Row_DeviceCategory::ConfigType_FK_DeviceCategory_getrows(vector <class Row_ConfigType*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_ConfigType *pTable = table->database->ConfigType_get();
-pTable->GetRows("`FK_DeviceCategory=`" + StringUtils::itos(m_PK_DeviceCategory),rows);
+pTable->GetRows("`FK_DeviceCategory`=" + StringUtils::itos(m_PK_DeviceCategory),rows);
 }
 void Row_DeviceCategory::DHCPDevice_FK_DeviceCategory_getrows(vector <class Row_DHCPDevice*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DHCPDevice *pTable = table->database->DHCPDevice_get();
-pTable->GetRows("`FK_DeviceCategory=`" + StringUtils::itos(m_PK_DeviceCategory),rows);
+pTable->GetRows("`FK_DeviceCategory`=" + StringUtils::itos(m_PK_DeviceCategory),rows);
 }
 void Row_DeviceCategory::DeviceCategory_FK_DeviceCategory_Parent_getrows(vector <class Row_DeviceCategory*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceCategory *pTable = table->database->DeviceCategory_get();
-pTable->GetRows("`FK_DeviceCategory_Parent=`" + StringUtils::itos(m_PK_DeviceCategory),rows);
+pTable->GetRows("`FK_DeviceCategory_Parent`=" + StringUtils::itos(m_PK_DeviceCategory),rows);
 }
 void Row_DeviceCategory::DeviceCategory_DeviceData_FK_DeviceCategory_getrows(vector <class Row_DeviceCategory_DeviceData*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceCategory_DeviceData *pTable = table->database->DeviceCategory_DeviceData_get();
-pTable->GetRows("`FK_DeviceCategory=`" + StringUtils::itos(m_PK_DeviceCategory),rows);
+pTable->GetRows("`FK_DeviceCategory`=" + StringUtils::itos(m_PK_DeviceCategory),rows);
 }
 void Row_DeviceCategory::DeviceCategory_Event_FK_DeviceCategory_getrows(vector <class Row_DeviceCategory_Event*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceCategory_Event *pTable = table->database->DeviceCategory_Event_get();
-pTable->GetRows("`FK_DeviceCategory=`" + StringUtils::itos(m_PK_DeviceCategory),rows);
+pTable->GetRows("`FK_DeviceCategory`=" + StringUtils::itos(m_PK_DeviceCategory),rows);
 }
 void Row_DeviceCategory::DeviceCommandGroup_FK_DeviceCategory_getrows(vector <class Row_DeviceCommandGroup*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceCommandGroup *pTable = table->database->DeviceCommandGroup_get();
-pTable->GetRows("`FK_DeviceCategory=`" + StringUtils::itos(m_PK_DeviceCategory),rows);
+pTable->GetRows("`FK_DeviceCategory`=" + StringUtils::itos(m_PK_DeviceCategory),rows);
 }
 void Row_DeviceCategory::DeviceTemplate_FK_DeviceCategory_getrows(vector <class Row_DeviceTemplate*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate *pTable = table->database->DeviceTemplate_get();
-pTable->GetRows("`FK_DeviceCategory=`" + StringUtils::itos(m_PK_DeviceCategory),rows);
+pTable->GetRows("`FK_DeviceCategory`=" + StringUtils::itos(m_PK_DeviceCategory),rows);
 }
 void Row_DeviceCategory::DeviceTemplate_DeviceCategory_ControlledVia_FK_DeviceCategory_getrows(vector <class Row_DeviceTemplate_DeviceCategory_ControlledVia*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_DeviceCategory_ControlledVia *pTable = table->database->DeviceTemplate_DeviceCategory_ControlledVia_get();
-pTable->GetRows("`FK_DeviceCategory=`" + StringUtils::itos(m_PK_DeviceCategory),rows);
+pTable->GetRows("`FK_DeviceCategory`=" + StringUtils::itos(m_PK_DeviceCategory),rows);
 }
 void Row_DeviceCategory::InfraredGroup_FK_DeviceCategory_getrows(vector <class Row_InfraredGroup*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_InfraredGroup *pTable = table->database->InfraredGroup_get();
-pTable->GetRows("`FK_DeviceCategory=`" + StringUtils::itos(m_PK_DeviceCategory),rows);
+pTable->GetRows("`FK_DeviceCategory`=" + StringUtils::itos(m_PK_DeviceCategory),rows);
 }
 
 

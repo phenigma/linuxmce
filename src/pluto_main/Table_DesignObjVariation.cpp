@@ -1371,28 +1371,28 @@ void Row_DesignObjVariation::DesignObjVariation_DesignObj_FK_DesignObjVariation_
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_DesignObj *pTable = table->database->DesignObjVariation_DesignObj_get();
-pTable->GetRows("`FK_DesignObjVariation_Parent=`" + StringUtils::itos(m_PK_DesignObjVariation),rows);
+pTable->GetRows("`FK_DesignObjVariation_Parent`=" + StringUtils::itos(m_PK_DesignObjVariation),rows);
 }
 void Row_DesignObjVariation::DesignObjVariation_DesignObjParameter_FK_DesignObjVariation_getrows(vector <class Row_DesignObjVariation_DesignObjParameter*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_DesignObjParameter *pTable = table->database->DesignObjVariation_DesignObjParameter_get();
-pTable->GetRows("`FK_DesignObjVariation=`" + StringUtils::itos(m_PK_DesignObjVariation),rows);
+pTable->GetRows("`FK_DesignObjVariation`=" + StringUtils::itos(m_PK_DesignObjVariation),rows);
 }
 void Row_DesignObjVariation::DesignObjVariation_Text_FK_DesignObjVariation_getrows(vector <class Row_DesignObjVariation_Text*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_Text *pTable = table->database->DesignObjVariation_Text_get();
-pTable->GetRows("`FK_DesignObjVariation=`" + StringUtils::itos(m_PK_DesignObjVariation),rows);
+pTable->GetRows("`FK_DesignObjVariation`=" + StringUtils::itos(m_PK_DesignObjVariation),rows);
 }
 void Row_DesignObjVariation::DesignObjVariation_Zone_FK_DesignObjVariation_getrows(vector <class Row_DesignObjVariation_Zone*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_Zone *pTable = table->database->DesignObjVariation_Zone_get();
-pTable->GetRows("`FK_DesignObjVariation=`" + StringUtils::itos(m_PK_DesignObjVariation),rows);
+pTable->GetRows("`FK_DesignObjVariation`=" + StringUtils::itos(m_PK_DesignObjVariation),rows);
 }
 
 

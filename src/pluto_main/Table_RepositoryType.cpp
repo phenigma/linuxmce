@@ -960,21 +960,21 @@ void Row_RepositoryType::Installation_FK_RepositoryType_Source_getrows(vector <c
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Installation *pTable = table->database->Installation_get();
-pTable->GetRows("`FK_RepositoryType_Source=`" + StringUtils::itos(m_PK_RepositoryType),rows);
+pTable->GetRows("`FK_RepositoryType_Source`=" + StringUtils::itos(m_PK_RepositoryType),rows);
 }
 void Row_RepositoryType::Installation_FK_RepositoryType_Binaries_getrows(vector <class Row_Installation*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Installation *pTable = table->database->Installation_get();
-pTable->GetRows("`FK_RepositoryType_Binaries=`" + StringUtils::itos(m_PK_RepositoryType),rows);
+pTable->GetRows("`FK_RepositoryType_Binaries`=" + StringUtils::itos(m_PK_RepositoryType),rows);
 }
 void Row_RepositoryType::RepositorySource_FK_RepositoryType_getrows(vector <class Row_RepositorySource*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_RepositorySource *pTable = table->database->RepositorySource_get();
-pTable->GetRows("`FK_RepositoryType=`" + StringUtils::itos(m_PK_RepositoryType),rows);
+pTable->GetRows("`FK_RepositoryType`=" + StringUtils::itos(m_PK_RepositoryType),rows);
 }
 
 

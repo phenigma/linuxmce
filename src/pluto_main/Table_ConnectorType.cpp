@@ -808,14 +808,14 @@ void Row_ConnectorType::DeviceTemplate_Input_FK_ConnectorType_getrows(vector <cl
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_Input *pTable = table->database->DeviceTemplate_Input_get();
-pTable->GetRows("`FK_ConnectorType=`" + StringUtils::itos(m_PK_ConnectorType),rows);
+pTable->GetRows("`FK_ConnectorType`=" + StringUtils::itos(m_PK_ConnectorType),rows);
 }
 void Row_ConnectorType::DeviceTemplate_Output_FK_ConnectorType_getrows(vector <class Row_DeviceTemplate_Output*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_Output *pTable = table->database->DeviceTemplate_Output_get();
-pTable->GetRows("`FK_ConnectorType=`" + StringUtils::itos(m_PK_ConnectorType),rows);
+pTable->GetRows("`FK_ConnectorType`=" + StringUtils::itos(m_PK_ConnectorType),rows);
 }
 
 

@@ -807,7 +807,7 @@ void Row_HouseMode::Device_HouseMode_FK_HouseMode_getrows(vector <class Row_Devi
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device_HouseMode *pTable = table->database->Device_HouseMode_get();
-pTable->GetRows("`FK_HouseMode=`" + StringUtils::itos(m_PK_HouseMode),rows);
+pTable->GetRows("`FK_HouseMode`=" + StringUtils::itos(m_PK_HouseMode),rows);
 }
 
 

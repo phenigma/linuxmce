@@ -819,56 +819,56 @@ void Row_OperatingSystem::DeviceTemplate_FK_OperatingSystem_getrows(vector <clas
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate *pTable = table->database->DeviceTemplate_get();
-pTable->GetRows("`FK_OperatingSystem=`" + StringUtils::itos(m_PK_OperatingSystem),rows);
+pTable->GetRows("`FK_OperatingSystem`=" + StringUtils::itos(m_PK_OperatingSystem),rows);
 }
 void Row_OperatingSystem::Distro_FK_OperatingSystem_getrows(vector <class Row_Distro*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Distro *pTable = table->database->Distro_get();
-pTable->GetRows("`FK_OperatingSystem=`" + StringUtils::itos(m_PK_OperatingSystem),rows);
+pTable->GetRows("`FK_OperatingSystem`=" + StringUtils::itos(m_PK_OperatingSystem),rows);
 }
 void Row_OperatingSystem::InstallWizard_Distro_FK_OperatingSystem_getrows(vector <class Row_InstallWizard_Distro*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_InstallWizard_Distro *pTable = table->database->InstallWizard_Distro_get();
-pTable->GetRows("`FK_OperatingSystem=`" + StringUtils::itos(m_PK_OperatingSystem),rows);
+pTable->GetRows("`FK_OperatingSystem`=" + StringUtils::itos(m_PK_OperatingSystem),rows);
 }
 void Row_OperatingSystem::Package_Compat_FK_OperatingSystem_getrows(vector <class Row_Package_Compat*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Compat *pTable = table->database->Package_Compat_get();
-pTable->GetRows("`FK_OperatingSystem=`" + StringUtils::itos(m_PK_OperatingSystem),rows);
+pTable->GetRows("`FK_OperatingSystem`=" + StringUtils::itos(m_PK_OperatingSystem),rows);
 }
 void Row_OperatingSystem::Package_Directory_FK_OperatingSystem_getrows(vector <class Row_Package_Directory*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Directory *pTable = table->database->Package_Directory_get();
-pTable->GetRows("`FK_OperatingSystem=`" + StringUtils::itos(m_PK_OperatingSystem),rows);
+pTable->GetRows("`FK_OperatingSystem`=" + StringUtils::itos(m_PK_OperatingSystem),rows);
 }
 void Row_OperatingSystem::Package_Directory_File_FK_OperatingSystem_getrows(vector <class Row_Package_Directory_File*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Directory_File *pTable = table->database->Package_Directory_File_get();
-pTable->GetRows("`FK_OperatingSystem=`" + StringUtils::itos(m_PK_OperatingSystem),rows);
+pTable->GetRows("`FK_OperatingSystem`=" + StringUtils::itos(m_PK_OperatingSystem),rows);
 }
 void Row_OperatingSystem::Package_Source_Compat_FK_OperatingSystem_getrows(vector <class Row_Package_Source_Compat*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Source_Compat *pTable = table->database->Package_Source_Compat_get();
-pTable->GetRows("`FK_OperatingSystem=`" + StringUtils::itos(m_PK_OperatingSystem),rows);
+pTable->GetRows("`FK_OperatingSystem`=" + StringUtils::itos(m_PK_OperatingSystem),rows);
 }
 void Row_OperatingSystem::RepositorySource_FK_OperatingSystem_getrows(vector <class Row_RepositorySource*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_RepositorySource *pTable = table->database->RepositorySource_get();
-pTable->GetRows("`FK_OperatingSystem=`" + StringUtils::itos(m_PK_OperatingSystem),rows);
+pTable->GetRows("`FK_OperatingSystem`=" + StringUtils::itos(m_PK_OperatingSystem),rows);
 }
 
 

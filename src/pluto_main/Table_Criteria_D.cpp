@@ -911,21 +911,21 @@ void Row_Criteria_D::DesignObjVariation_FK_Criteria_D_getrows(vector <class Row_
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation *pTable = table->database->DesignObjVariation_get();
-pTable->GetRows("`FK_Criteria_D=`" + StringUtils::itos(m_PK_Criteria_D),rows);
+pTable->GetRows("`FK_Criteria_D`=" + StringUtils::itos(m_PK_Criteria_D),rows);
 }
 void Row_Criteria_D::Skin_FK_Criteria_D_getrows(vector <class Row_Skin*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Skin *pTable = table->database->Skin_get();
-pTable->GetRows("`FK_Criteria_D=`" + StringUtils::itos(m_PK_Criteria_D),rows);
+pTable->GetRows("`FK_Criteria_D`=" + StringUtils::itos(m_PK_Criteria_D),rows);
 }
 void Row_Criteria_D::StyleVariation_FK_Criteria_D_getrows(vector <class Row_StyleVariation*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_StyleVariation *pTable = table->database->StyleVariation_get();
-pTable->GetRows("`FK_Criteria_D=`" + StringUtils::itos(m_PK_Criteria_D),rows);
+pTable->GetRows("`FK_Criteria_D`=" + StringUtils::itos(m_PK_Criteria_D),rows);
 }
 
 

@@ -1356,84 +1356,84 @@ void Row_Package::DeviceTemplate_FK_Package_getrows(vector <class Row_DeviceTemp
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate *pTable = table->database->DeviceTemplate_get();
-pTable->GetRows("`FK_Package=`" + StringUtils::itos(m_PK_Package),rows);
+pTable->GetRows("`FK_Package`=" + StringUtils::itos(m_PK_Package),rows);
 }
 void Row_Package::News_FK_Package_getrows(vector <class Row_News*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_News *pTable = table->database->News_get();
-pTable->GetRows("`FK_Package=`" + StringUtils::itos(m_PK_Package),rows);
+pTable->GetRows("`FK_Package`=" + StringUtils::itos(m_PK_Package),rows);
 }
 void Row_Package::Package_FK_Package_Sourcecode_getrows(vector <class Row_Package*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package *pTable = table->database->Package_get();
-pTable->GetRows("`FK_Package_Sourcecode=`" + StringUtils::itos(m_PK_Package),rows);
+pTable->GetRows("`FK_Package_Sourcecode`=" + StringUtils::itos(m_PK_Package),rows);
 }
 void Row_Package::Package_Compat_FK_Package_getrows(vector <class Row_Package_Compat*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Compat *pTable = table->database->Package_Compat_get();
-pTable->GetRows("`FK_Package=`" + StringUtils::itos(m_PK_Package),rows);
+pTable->GetRows("`FK_Package`=" + StringUtils::itos(m_PK_Package),rows);
 }
 void Row_Package::Package_Directory_FK_Package_getrows(vector <class Row_Package_Directory*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Directory *pTable = table->database->Package_Directory_get();
-pTable->GetRows("`FK_Package=`" + StringUtils::itos(m_PK_Package),rows);
+pTable->GetRows("`FK_Package`=" + StringUtils::itos(m_PK_Package),rows);
 }
 void Row_Package::Package_Package_FK_Package_getrows(vector <class Row_Package_Package*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Package *pTable = table->database->Package_Package_get();
-pTable->GetRows("`FK_Package=`" + StringUtils::itos(m_PK_Package),rows);
+pTable->GetRows("`FK_Package`=" + StringUtils::itos(m_PK_Package),rows);
 }
 void Row_Package::Package_Package_FK_Package_DependsOn_getrows(vector <class Row_Package_Package*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Package *pTable = table->database->Package_Package_get();
-pTable->GetRows("`FK_Package_DependsOn=`" + StringUtils::itos(m_PK_Package),rows);
+pTable->GetRows("`FK_Package_DependsOn`=" + StringUtils::itos(m_PK_Package),rows);
 }
 void Row_Package::Package_Source_FK_Package_getrows(vector <class Row_Package_Source*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Source *pTable = table->database->Package_Source_get();
-pTable->GetRows("`FK_Package=`" + StringUtils::itos(m_PK_Package),rows);
+pTable->GetRows("`FK_Package`=" + StringUtils::itos(m_PK_Package),rows);
 }
 void Row_Package::Package_Users_FK_Package_getrows(vector <class Row_Package_Users*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Users *pTable = table->database->Package_Users_get();
-pTable->GetRows("`FK_Package=`" + StringUtils::itos(m_PK_Package),rows);
+pTable->GetRows("`FK_Package`=" + StringUtils::itos(m_PK_Package),rows);
 }
 void Row_Package::Package_Version_FK_Package_getrows(vector <class Row_Package_Version*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Version *pTable = table->database->Package_Version_get();
-pTable->GetRows("`FK_Package=`" + StringUtils::itos(m_PK_Package),rows);
+pTable->GetRows("`FK_Package`=" + StringUtils::itos(m_PK_Package),rows);
 }
 void Row_Package::PageSetup_FK_Package_getrows(vector <class Row_PageSetup*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_PageSetup *pTable = table->database->PageSetup_get();
-pTable->GetRows("`FK_Package=`" + StringUtils::itos(m_PK_Package),rows);
+pTable->GetRows("`FK_Package`=" + StringUtils::itos(m_PK_Package),rows);
 }
 void Row_Package::PaidLicense_FK_Package_getrows(vector <class Row_PaidLicense*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_PaidLicense *pTable = table->database->PaidLicense_get();
-pTable->GetRows("`FK_Package=`" + StringUtils::itos(m_PK_Package),rows);
+pTable->GetRows("`FK_Package`=" + StringUtils::itos(m_PK_Package),rows);
 }
 
 

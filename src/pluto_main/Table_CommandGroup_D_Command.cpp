@@ -1077,7 +1077,7 @@ void Row_CommandGroup_D_Command::CommandGroup_D_Command_CommandParameter_FK_Comm
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_D_Command_CommandParameter *pTable = table->database->CommandGroup_D_Command_CommandParameter_get();
-pTable->GetRows("`FK_CommandGroup_D_Command=`" + StringUtils::itos(m_PK_CommandGroup_D_Command),rows);
+pTable->GetRows("`FK_CommandGroup_D_Command`=" + StringUtils::itos(m_PK_CommandGroup_D_Command),rows);
 }
 
 

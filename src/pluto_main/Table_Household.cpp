@@ -719,7 +719,7 @@ void Row_Household::Household_Installation_FK_Household_getrows(vector <class Ro
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Household_Installation *pTable = table->database->Household_Installation_get();
-pTable->GetRows("`FK_Household=`" + StringUtils::itos(m_PK_Household),rows);
+pTable->GetRows("`FK_Household`=" + StringUtils::itos(m_PK_Household),rows);
 }
 
 

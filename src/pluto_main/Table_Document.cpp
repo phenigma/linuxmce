@@ -959,42 +959,42 @@ void Row_Document::DesignObj_FK_Document_getrows(vector <class Row_DesignObj*> *
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObj *pTable = table->database->DesignObj_get();
-pTable->GetRows("`FK_Document=`" + StringUtils::itos(m_PK_Document),rows);
+pTable->GetRows("`FK_Document`=" + StringUtils::itos(m_PK_Document),rows);
 }
 void Row_Document::Document_FK_Document_Parent_getrows(vector <class Row_Document*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Document *pTable = table->database->Document_get();
-pTable->GetRows("`FK_Document_Parent=`" + StringUtils::itos(m_PK_Document),rows);
+pTable->GetRows("`FK_Document_Parent`=" + StringUtils::itos(m_PK_Document),rows);
 }
 void Row_Document::Document_Comment_FK_Document_getrows(vector <class Row_Document_Comment*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Document_Comment *pTable = table->database->Document_Comment_get();
-pTable->GetRows("`FK_Document=`" + StringUtils::itos(m_PK_Document),rows);
+pTable->GetRows("`FK_Document`=" + StringUtils::itos(m_PK_Document),rows);
 }
 void Row_Document::Package_FK_Document_getrows(vector <class Row_Package*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package *pTable = table->database->Package_get();
-pTable->GetRows("`FK_Document=`" + StringUtils::itos(m_PK_Document),rows);
+pTable->GetRows("`FK_Document`=" + StringUtils::itos(m_PK_Document),rows);
 }
 void Row_Document::Package_FK_Document_UsersManual_getrows(vector <class Row_Package*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package *pTable = table->database->Package_get();
-pTable->GetRows("`FK_Document_UsersManual=`" + StringUtils::itos(m_PK_Document),rows);
+pTable->GetRows("`FK_Document_UsersManual`=" + StringUtils::itos(m_PK_Document),rows);
 }
 void Row_Document::Package_FK_Document_ProgrammersGuide_getrows(vector <class Row_Package*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package *pTable = table->database->Package_get();
-pTable->GetRows("`FK_Document_ProgrammersGuide=`" + StringUtils::itos(m_PK_Document),rows);
+pTable->GetRows("`FK_Document_ProgrammersGuide`=" + StringUtils::itos(m_PK_Document),rows);
 }
 
 

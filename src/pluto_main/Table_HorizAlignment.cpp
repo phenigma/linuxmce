@@ -808,14 +808,14 @@ void Row_HorizAlignment::DesignObjVariation_Text_Skin_Language_FK_HorizAlignment
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_Text_Skin_Language *pTable = table->database->DesignObjVariation_Text_Skin_Language_get();
-pTable->GetRows("`FK_HorizAlignment=`" + StringUtils::itos(m_PK_HorizAlignment),rows);
+pTable->GetRows("`FK_HorizAlignment`=" + StringUtils::itos(m_PK_HorizAlignment),rows);
 }
 void Row_HorizAlignment::StyleVariation_FK_HorizAlignment_getrows(vector <class Row_StyleVariation*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_StyleVariation *pTable = table->database->StyleVariation_get();
-pTable->GetRows("`FK_HorizAlignment=`" + StringUtils::itos(m_PK_HorizAlignment),rows);
+pTable->GetRows("`FK_HorizAlignment`=" + StringUtils::itos(m_PK_HorizAlignment),rows);
 }
 
 

@@ -812,7 +812,7 @@ void Row_PackageType::Package_FK_PackageType_getrows(vector <class Row_Package*>
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package *pTable = table->database->Package_get();
-pTable->GetRows("`FK_PackageType=`" + StringUtils::itos(m_PK_PackageType),rows);
+pTable->GetRows("`FK_PackageType`=" + StringUtils::itos(m_PK_PackageType),rows);
 }
 
 

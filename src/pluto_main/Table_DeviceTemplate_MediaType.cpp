@@ -1042,7 +1042,7 @@ void Row_DeviceTemplate_MediaType::DeviceTemplate_MediaType_DesignObj_FK_DeviceT
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_MediaType_DesignObj *pTable = table->database->DeviceTemplate_MediaType_DesignObj_get();
-pTable->GetRows("`FK_DeviceTemplate_MediaType=`" + StringUtils::itos(m_PK_DeviceTemplate_MediaType),rows);
+pTable->GetRows("`FK_DeviceTemplate_MediaType`=" + StringUtils::itos(m_PK_DeviceTemplate_MediaType),rows);
 }
 
 

@@ -1148,14 +1148,14 @@ void Row_CannedEvents_CriteriaParmList::CriteriaParm_FK_CannedEvents_CriteriaPar
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CriteriaParm *pTable = table->database->CriteriaParm_get();
-pTable->GetRows("`FK_CannedEvents_CriteriaParmList=`" + StringUtils::itos(m_PK_CannedEvents_CriteriaParmList),rows);
+pTable->GetRows("`FK_CannedEvents_CriteriaParmList`=" + StringUtils::itos(m_PK_CannedEvents_CriteriaParmList),rows);
 }
 void Row_CannedEvents_CriteriaParmList::CriteriaParm_D_FK_CannedEvents_CriteriaParmList_getrows(vector <class Row_CriteriaParm_D*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CriteriaParm_D *pTable = table->database->CriteriaParm_D_get();
-pTable->GetRows("`FK_CannedEvents_CriteriaParmList=`" + StringUtils::itos(m_PK_CannedEvents_CriteriaParmList),rows);
+pTable->GetRows("`FK_CannedEvents_CriteriaParmList`=" + StringUtils::itos(m_PK_CannedEvents_CriteriaParmList),rows);
 }
 
 

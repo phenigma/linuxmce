@@ -1485,98 +1485,98 @@ void Row_Installation::CommandGroup_FK_Installation_getrows(vector <class Row_Co
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup *pTable = table->database->CommandGroup_get();
-pTable->GetRows("`FK_Installation=`" + StringUtils::itos(m_PK_Installation),rows);
+pTable->GetRows("`FK_Installation`=" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::Criteria_FK_Installation_getrows(vector <class Row_Criteria*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Criteria *pTable = table->database->Criteria_get();
-pTable->GetRows("`FK_Installation=`" + StringUtils::itos(m_PK_Installation),rows);
+pTable->GetRows("`FK_Installation`=" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::Device_FK_Installation_getrows(vector <class Row_Device*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device *pTable = table->database->Device_get();
-pTable->GetRows("`FK_Installation=`" + StringUtils::itos(m_PK_Installation),rows);
+pTable->GetRows("`FK_Installation`=" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::DeviceGroup_FK_Installation_getrows(vector <class Row_DeviceGroup*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceGroup *pTable = table->database->DeviceGroup_get();
-pTable->GetRows("`FK_Installation=`" + StringUtils::itos(m_PK_Installation),rows);
+pTable->GetRows("`FK_Installation`=" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::EventHandler_FK_Installation_getrows(vector <class Row_EventHandler*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_EventHandler *pTable = table->database->EventHandler_get();
-pTable->GetRows("`FK_Installation=`" + StringUtils::itos(m_PK_Installation),rows);
+pTable->GetRows("`FK_Installation`=" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::Floorplan_FK_Installation_getrows(vector <class Row_Floorplan*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Floorplan *pTable = table->database->Floorplan_get();
-pTable->GetRows("`FK_Installation=`" + StringUtils::itos(m_PK_Installation),rows);
+pTable->GetRows("`FK_Installation`=" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::Household_Installation_FK_Installation_getrows(vector <class Row_Household_Installation*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Household_Installation *pTable = table->database->Household_Installation_get();
-pTable->GetRows("`FK_Installation=`" + StringUtils::itos(m_PK_Installation),rows);
+pTable->GetRows("`FK_Installation`=" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::InfraredGroup_Command_FK_Installation_getrows(vector <class Row_InfraredGroup_Command*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_InfraredGroup_Command *pTable = table->database->InfraredGroup_Command_get();
-pTable->GetRows("`FK_Installation=`" + StringUtils::itos(m_PK_Installation),rows);
+pTable->GetRows("`FK_Installation`=" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::InfraredGroup_Command_Preferred_FK_Installation_getrows(vector <class Row_InfraredGroup_Command_Preferred*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_InfraredGroup_Command_Preferred *pTable = table->database->InfraredGroup_Command_Preferred_get();
-pTable->GetRows("`FK_Installation=`" + StringUtils::itos(m_PK_Installation),rows);
+pTable->GetRows("`FK_Installation`=" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::Installation_RepositorySource_URL_FK_Installation_getrows(vector <class Row_Installation_RepositorySource_URL*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Installation_RepositorySource_URL *pTable = table->database->Installation_RepositorySource_URL_get();
-pTable->GetRows("`FK_Installation=`" + StringUtils::itos(m_PK_Installation),rows);
+pTable->GetRows("`FK_Installation`=" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::Installation_Users_FK_Installation_getrows(vector <class Row_Installation_Users*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Installation_Users *pTable = table->database->Installation_Users_get();
-pTable->GetRows("`FK_Installation=`" + StringUtils::itos(m_PK_Installation),rows);
+pTable->GetRows("`FK_Installation`=" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::Room_FK_Installation_getrows(vector <class Row_Room*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Room *pTable = table->database->Room_get();
-pTable->GetRows("`FK_Installation=`" + StringUtils::itos(m_PK_Installation),rows);
+pTable->GetRows("`FK_Installation`=" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::SetupStep_FK_Installation_getrows(vector <class Row_SetupStep*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_SetupStep *pTable = table->database->SetupStep_get();
-pTable->GetRows("`FK_Installation=`" + StringUtils::itos(m_PK_Installation),rows);
+pTable->GetRows("`FK_Installation`=" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::Users_FK_Installation_Main_getrows(vector <class Row_Users*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Users *pTable = table->database->Users_get();
-pTable->GetRows("`FK_Installation_Main=`" + StringUtils::itos(m_PK_Installation),rows);
+pTable->GetRows("`FK_Installation_Main`=" + StringUtils::itos(m_PK_Installation),rows);
 }
 
 

@@ -1151,21 +1151,21 @@ void Row_Version::Installation_FK_Version_getrows(vector <class Row_Installation
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Installation *pTable = table->database->Installation_get();
-pTable->GetRows("`FK_Version=`" + StringUtils::itos(m_PK_Version),rows);
+pTable->GetRows("`FK_Version`=" + StringUtils::itos(m_PK_Version),rows);
 }
 void Row_Version::Package_Version_FK_Version_getrows(vector <class Row_Package_Version*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Version *pTable = table->database->Package_Version_get();
-pTable->GetRows("`FK_Version=`" + StringUtils::itos(m_PK_Version),rows);
+pTable->GetRows("`FK_Version`=" + StringUtils::itos(m_PK_Version),rows);
 }
 void Row_Version::Schema_FK_Version_getrows(vector <class Row_Schema*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Schema *pTable = table->database->Schema_get();
-pTable->GetRows("`FK_Version=`" + StringUtils::itos(m_PK_Version),rows);
+pTable->GetRows("`FK_Version`=" + StringUtils::itos(m_PK_Version),rows);
 }
 
 

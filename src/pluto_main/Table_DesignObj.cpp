@@ -1316,140 +1316,140 @@ void Row_DesignObj::CachedScreens_FK_DesignObj_getrows(vector <class Row_CachedS
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CachedScreens *pTable = table->database->CachedScreens_get();
-pTable->GetRows("`FK_DesignObj=`" + StringUtils::itos(m_PK_DesignObj),rows);
+pTable->GetRows("`FK_DesignObj`=" + StringUtils::itos(m_PK_DesignObj),rows);
 }
 void Row_DesignObj::CommandGroup_FK_DesignObj_getrows(vector <class Row_CommandGroup*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup *pTable = table->database->CommandGroup_get();
-pTable->GetRows("`FK_DesignObj=`" + StringUtils::itos(m_PK_DesignObj),rows);
+pTable->GetRows("`FK_DesignObj`=" + StringUtils::itos(m_PK_DesignObj),rows);
 }
 void Row_DesignObj::DesignObj_FK_DesignObj_IncludeIfOtherIncluded_getrows(vector <class Row_DesignObj*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObj *pTable = table->database->DesignObj_get();
-pTable->GetRows("`FK_DesignObj_IncludeIfOtherIncluded=`" + StringUtils::itos(m_PK_DesignObj),rows);
+pTable->GetRows("`FK_DesignObj_IncludeIfOtherIncluded`=" + StringUtils::itos(m_PK_DesignObj),rows);
 }
 void Row_DesignObj::DesignObjVariation_FK_DesignObj_getrows(vector <class Row_DesignObjVariation*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation *pTable = table->database->DesignObjVariation_get();
-pTable->GetRows("`FK_DesignObj=`" + StringUtils::itos(m_PK_DesignObj),rows);
+pTable->GetRows("`FK_DesignObj`=" + StringUtils::itos(m_PK_DesignObj),rows);
 }
 void Row_DesignObj::DesignObjVariation_FK_DesignObj_Goto_getrows(vector <class Row_DesignObjVariation*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation *pTable = table->database->DesignObjVariation_get();
-pTable->GetRows("`FK_DesignObj_Goto=`" + StringUtils::itos(m_PK_DesignObj),rows);
+pTable->GetRows("`FK_DesignObj_Goto`=" + StringUtils::itos(m_PK_DesignObj),rows);
 }
 void Row_DesignObj::DesignObjVariation_DesignObj_FK_DesignObj_Child_getrows(vector <class Row_DesignObjVariation_DesignObj*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_DesignObj *pTable = table->database->DesignObjVariation_DesignObj_get();
-pTable->GetRows("`FK_DesignObj_Child=`" + StringUtils::itos(m_PK_DesignObj),rows);
+pTable->GetRows("`FK_DesignObj_Child`=" + StringUtils::itos(m_PK_DesignObj),rows);
 }
 void Row_DesignObj::DesignObjVariation_DesignObj_FK_DesignObj_InsteadOf_getrows(vector <class Row_DesignObjVariation_DesignObj*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_DesignObj *pTable = table->database->DesignObjVariation_DesignObj_get();
-pTable->GetRows("`FK_DesignObj_InsteadOf=`" + StringUtils::itos(m_PK_DesignObj),rows);
+pTable->GetRows("`FK_DesignObj_InsteadOf`=" + StringUtils::itos(m_PK_DesignObj),rows);
 }
 void Row_DesignObj::DesignObjVariation_DesignObj_FK_DesignObj_Up_getrows(vector <class Row_DesignObjVariation_DesignObj*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_DesignObj *pTable = table->database->DesignObjVariation_DesignObj_get();
-pTable->GetRows("`FK_DesignObj_Up=`" + StringUtils::itos(m_PK_DesignObj),rows);
+pTable->GetRows("`FK_DesignObj_Up`=" + StringUtils::itos(m_PK_DesignObj),rows);
 }
 void Row_DesignObj::DesignObjVariation_DesignObj_FK_DesignObj_Down_getrows(vector <class Row_DesignObjVariation_DesignObj*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_DesignObj *pTable = table->database->DesignObjVariation_DesignObj_get();
-pTable->GetRows("`FK_DesignObj_Down=`" + StringUtils::itos(m_PK_DesignObj),rows);
+pTable->GetRows("`FK_DesignObj_Down`=" + StringUtils::itos(m_PK_DesignObj),rows);
 }
 void Row_DesignObj::DesignObjVariation_DesignObj_FK_DesignObj_Left_getrows(vector <class Row_DesignObjVariation_DesignObj*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_DesignObj *pTable = table->database->DesignObjVariation_DesignObj_get();
-pTable->GetRows("`FK_DesignObj_Left=`" + StringUtils::itos(m_PK_DesignObj),rows);
+pTable->GetRows("`FK_DesignObj_Left`=" + StringUtils::itos(m_PK_DesignObj),rows);
 }
 void Row_DesignObj::DesignObjVariation_DesignObj_FK_DesignObj_Right_getrows(vector <class Row_DesignObjVariation_DesignObj*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_DesignObj *pTable = table->database->DesignObjVariation_DesignObj_get();
-pTable->GetRows("`FK_DesignObj_Right=`" + StringUtils::itos(m_PK_DesignObj),rows);
+pTable->GetRows("`FK_DesignObj_Right`=" + StringUtils::itos(m_PK_DesignObj),rows);
 }
 void Row_DesignObj::DesignObjVariation_Zone_FK_DesignObj_Goto_getrows(vector <class Row_DesignObjVariation_Zone*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_Zone *pTable = table->database->DesignObjVariation_Zone_get();
-pTable->GetRows("`FK_DesignObj_Goto=`" + StringUtils::itos(m_PK_DesignObj),rows);
+pTable->GetRows("`FK_DesignObj_Goto`=" + StringUtils::itos(m_PK_DesignObj),rows);
 }
 void Row_DesignObj::Device_FK_DesignObj_getrows(vector <class Row_Device*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device *pTable = table->database->Device_get();
-pTable->GetRows("`FK_DesignObj=`" + StringUtils::itos(m_PK_DesignObj),rows);
+pTable->GetRows("`FK_DesignObj`=" + StringUtils::itos(m_PK_DesignObj),rows);
 }
 void Row_DesignObj::DeviceTemplate_DesignObj_FK_DesignObj_getrows(vector <class Row_DeviceTemplate_DesignObj*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_DesignObj *pTable = table->database->DeviceTemplate_DesignObj_get();
-pTable->GetRows("`FK_DesignObj=`" + StringUtils::itos(m_PK_DesignObj),rows);
+pTable->GetRows("`FK_DesignObj`=" + StringUtils::itos(m_PK_DesignObj),rows);
 }
 void Row_DesignObj::DeviceTemplate_MediaType_DesignObj_FK_DesignObj_getrows(vector <class Row_DeviceTemplate_MediaType_DesignObj*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_MediaType_DesignObj *pTable = table->database->DeviceTemplate_MediaType_DesignObj_get();
-pTable->GetRows("`FK_DesignObj=`" + StringUtils::itos(m_PK_DesignObj),rows);
+pTable->GetRows("`FK_DesignObj`=" + StringUtils::itos(m_PK_DesignObj),rows);
 }
 void Row_DesignObj::FloorplanObjectType_FK_DesignObj_Control_getrows(vector <class Row_FloorplanObjectType*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_FloorplanObjectType *pTable = table->database->FloorplanObjectType_get();
-pTable->GetRows("`FK_DesignObj_Control=`" + StringUtils::itos(m_PK_DesignObj),rows);
+pTable->GetRows("`FK_DesignObj_Control`=" + StringUtils::itos(m_PK_DesignObj),rows);
 }
 void Row_DesignObj::MediaType_FK_DesignObj_getrows(vector <class Row_MediaType*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_MediaType *pTable = table->database->MediaType_get();
-pTable->GetRows("`FK_DesignObj=`" + StringUtils::itos(m_PK_DesignObj),rows);
+pTable->GetRows("`FK_DesignObj`=" + StringUtils::itos(m_PK_DesignObj),rows);
 }
 void Row_DesignObj::Skin_FK_DesignObj_MainMenu_getrows(vector <class Row_Skin*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Skin *pTable = table->database->Skin_get();
-pTable->GetRows("`FK_DesignObj_MainMenu=`" + StringUtils::itos(m_PK_DesignObj),rows);
+pTable->GetRows("`FK_DesignObj_MainMenu`=" + StringUtils::itos(m_PK_DesignObj),rows);
 }
 void Row_DesignObj::Skin_FK_DesignObj_Sleeping_getrows(vector <class Row_Skin*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Skin *pTable = table->database->Skin_get();
-pTable->GetRows("`FK_DesignObj_Sleeping=`" + StringUtils::itos(m_PK_DesignObj),rows);
+pTable->GetRows("`FK_DesignObj_Sleeping`=" + StringUtils::itos(m_PK_DesignObj),rows);
 }
 void Row_DesignObj::Skin_FK_DesignObj_ScreenSaver_getrows(vector <class Row_Skin*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Skin *pTable = table->database->Skin_get();
-pTable->GetRows("`FK_DesignObj_ScreenSaver=`" + StringUtils::itos(m_PK_DesignObj),rows);
+pTable->GetRows("`FK_DesignObj_ScreenSaver`=" + StringUtils::itos(m_PK_DesignObj),rows);
 }
 
 

@@ -869,28 +869,28 @@ void Row_Orbiter::CachedScreens_FK_Orbiter_getrows(vector <class Row_CachedScree
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CachedScreens *pTable = table->database->CachedScreens_get();
-pTable->GetRows("`FK_Orbiter=`" + StringUtils::itos(m_PK_Orbiter),rows);
+pTable->GetRows("`FK_Orbiter`=" + StringUtils::itos(m_PK_Orbiter),rows);
 }
 void Row_Orbiter::Device_Orbiter_FK_Orbiter_getrows(vector <class Row_Device_Orbiter*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device_Orbiter *pTable = table->database->Device_Orbiter_get();
-pTable->GetRows("`FK_Orbiter=`" + StringUtils::itos(m_PK_Orbiter),rows);
+pTable->GetRows("`FK_Orbiter`=" + StringUtils::itos(m_PK_Orbiter),rows);
 }
 void Row_Orbiter::Orbiter_Users_PasswordReq_FK_Orbiter_getrows(vector <class Row_Orbiter_Users_PasswordReq*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Orbiter_Users_PasswordReq *pTable = table->database->Orbiter_Users_PasswordReq_get();
-pTable->GetRows("`FK_Orbiter=`" + StringUtils::itos(m_PK_Orbiter),rows);
+pTable->GetRows("`FK_Orbiter`=" + StringUtils::itos(m_PK_Orbiter),rows);
 }
 void Row_Orbiter::Orbiter_Variable_FK_Orbiter_getrows(vector <class Row_Orbiter_Variable*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Orbiter_Variable *pTable = table->database->Orbiter_Variable_get();
-pTable->GetRows("`FK_Orbiter=`" + StringUtils::itos(m_PK_Orbiter),rows);
+pTable->GetRows("`FK_Orbiter`=" + StringUtils::itos(m_PK_Orbiter),rows);
 }
 
 

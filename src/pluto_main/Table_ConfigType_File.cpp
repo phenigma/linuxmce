@@ -901,7 +901,7 @@ void Row_ConfigType_File::ConfigType_Token_FK_ConfigType_File_getrows(vector <cl
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_ConfigType_Token *pTable = table->database->ConfigType_Token_get();
-pTable->GetRows("`FK_ConfigType_File=`" + StringUtils::itos(m_PK_ConfigType_File),rows);
+pTable->GetRows("`FK_ConfigType_File`=" + StringUtils::itos(m_PK_ConfigType_File),rows);
 }
 
 

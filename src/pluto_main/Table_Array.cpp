@@ -850,7 +850,7 @@ void Row_Array::CommandGroup_FK_Array_getrows(vector <class Row_CommandGroup*> *
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup *pTable = table->database->CommandGroup_get();
-pTable->GetRows("`FK_Array=`" + StringUtils::itos(m_PK_Array),rows);
+pTable->GetRows("`FK_Array`=" + StringUtils::itos(m_PK_Array),rows);
 }
 
 

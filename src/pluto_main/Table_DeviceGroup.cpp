@@ -925,21 +925,21 @@ void Row_DeviceGroup::CommandGroup_Command_FK_DeviceGroup_getrows(vector <class 
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_Command *pTable = table->database->CommandGroup_Command_get();
-pTable->GetRows("`FK_DeviceGroup=`" + StringUtils::itos(m_PK_DeviceGroup),rows);
+pTable->GetRows("`FK_DeviceGroup`=" + StringUtils::itos(m_PK_DeviceGroup),rows);
 }
 void Row_DeviceGroup::DeviceGroup_FK_DeviceGroup_Parent_getrows(vector <class Row_DeviceGroup*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceGroup *pTable = table->database->DeviceGroup_get();
-pTable->GetRows("`FK_DeviceGroup_Parent=`" + StringUtils::itos(m_PK_DeviceGroup),rows);
+pTable->GetRows("`FK_DeviceGroup_Parent`=" + StringUtils::itos(m_PK_DeviceGroup),rows);
 }
 void Row_DeviceGroup::Device_DeviceGroup_FK_DeviceGroup_getrows(vector <class Row_Device_DeviceGroup*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device_DeviceGroup *pTable = table->database->Device_DeviceGroup_get();
-pTable->GetRows("`FK_DeviceGroup=`" + StringUtils::itos(m_PK_DeviceGroup),rows);
+pTable->GetRows("`FK_DeviceGroup`=" + StringUtils::itos(m_PK_DeviceGroup),rows);
 }
 
 

@@ -956,7 +956,7 @@ void Row_DeviceTemplate_DeviceCategory_ControlledVia::DeviceTemplate_DeviceCateg
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_DeviceCategory_ControlledVia_Pipe *pTable = table->database->DeviceTemplate_DeviceCategory_ControlledVia_Pipe_get();
-pTable->GetRows("`FK_DeviceTemplate_DeviceCategory_ControlledVia=`" + StringUtils::itos(m_PK_DeviceTemplate_DeviceCategory_ControlledVia),rows);
+pTable->GetRows("`FK_DeviceTemplate_DeviceCategory_ControlledVia`=" + StringUtils::itos(m_PK_DeviceTemplate_DeviceCategory_ControlledVia),rows);
 }
 
 

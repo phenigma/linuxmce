@@ -877,7 +877,7 @@ void Row_DesignObjVariation_Text::DesignObjVariation_Text_Skin_Language_FK_Desig
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_Text_Skin_Language *pTable = table->database->DesignObjVariation_Text_Skin_Language_get();
-pTable->GetRows("`FK_DesignObjVariation_Text=`" + StringUtils::itos(m_PK_DesignObjVariation_Text),rows);
+pTable->GetRows("`FK_DesignObjVariation_Text`=" + StringUtils::itos(m_PK_DesignObjVariation_Text),rows);
 }
 
 

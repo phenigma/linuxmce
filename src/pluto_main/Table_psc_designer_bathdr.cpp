@@ -633,35 +633,35 @@ void Row_psc_designer_bathdr::psc_designer_batdet_FK_psc_designer_bathdr_getrows
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_designer_batdet *pTable = table->database->psc_designer_batdet_get();
-pTable->GetRows("`FK_psc_designer_bathdr=`" + StringUtils::itos(m_PK_psc_designer_bathdr),rows);
+pTable->GetRows("`FK_psc_designer_bathdr`=" + StringUtils::itos(m_PK_psc_designer_bathdr),rows);
 }
 void Row_psc_designer_bathdr::psc_designer_batdet_FK_psc_designer_bathdr_orig_getrows(vector <class Row_psc_designer_batdet*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_designer_batdet *pTable = table->database->psc_designer_batdet_get();
-pTable->GetRows("`FK_psc_designer_bathdr_orig=`" + StringUtils::itos(m_PK_psc_designer_bathdr),rows);
+pTable->GetRows("`FK_psc_designer_bathdr_orig`=" + StringUtils::itos(m_PK_psc_designer_bathdr),rows);
 }
 void Row_psc_designer_bathdr::psc_designer_batdet_FK_psc_designer_bathdr_auth_getrows(vector <class Row_psc_designer_batdet*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_designer_batdet *pTable = table->database->psc_designer_batdet_get();
-pTable->GetRows("`FK_psc_designer_bathdr_auth=`" + StringUtils::itos(m_PK_psc_designer_bathdr),rows);
+pTable->GetRows("`FK_psc_designer_bathdr_auth`=" + StringUtils::itos(m_PK_psc_designer_bathdr),rows);
 }
 void Row_psc_designer_bathdr::psc_designer_batdet_FK_psc_designer_bathdr_unauth_getrows(vector <class Row_psc_designer_batdet*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_designer_batdet *pTable = table->database->psc_designer_batdet_get();
-pTable->GetRows("`FK_psc_designer_bathdr_unauth=`" + StringUtils::itos(m_PK_psc_designer_bathdr),rows);
+pTable->GetRows("`FK_psc_designer_bathdr_unauth`=" + StringUtils::itos(m_PK_psc_designer_bathdr),rows);
 }
 void Row_psc_designer_bathdr::psc_designer_batuser_FK_psc_designer_bathdr_getrows(vector <class Row_psc_designer_batuser*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_designer_batuser *pTable = table->database->psc_designer_batuser_get();
-pTable->GetRows("`FK_psc_designer_bathdr=`" + StringUtils::itos(m_PK_psc_designer_bathdr),rows);
+pTable->GetRows("`FK_psc_designer_bathdr`=" + StringUtils::itos(m_PK_psc_designer_bathdr),rows);
 }
 
 

@@ -1099,7 +1099,7 @@ void Row_InfraredGroup_Command::InfraredGroup_Command_Preferred_FK_InfraredGroup
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_InfraredGroup_Command_Preferred *pTable = table->database->InfraredGroup_Command_Preferred_get();
-pTable->GetRows("`FK_InfraredGroup_Command=`" + StringUtils::itos(m_PK_InfraredGroup_Command),rows);
+pTable->GetRows("`FK_InfraredGroup_Command`=" + StringUtils::itos(m_PK_InfraredGroup_Command),rows);
 }
 
 

@@ -856,7 +856,7 @@ void Row_Variable::Orbiter_Variable_FK_Variable_getrows(vector <class Row_Orbite
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Orbiter_Variable *pTable = table->database->Orbiter_Variable_get();
-pTable->GetRows("`FK_Variable=`" + StringUtils::itos(m_PK_Variable),rows);
+pTable->GetRows("`FK_Variable`=" + StringUtils::itos(m_PK_Variable),rows);
 }
 
 

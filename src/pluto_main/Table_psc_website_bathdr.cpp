@@ -633,35 +633,35 @@ void Row_psc_website_bathdr::psc_website_batdet_FK_psc_website_bathdr_getrows(ve
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_website_batdet *pTable = table->database->psc_website_batdet_get();
-pTable->GetRows("`FK_psc_website_bathdr=`" + StringUtils::itos(m_PK_psc_website_bathdr),rows);
+pTable->GetRows("`FK_psc_website_bathdr`=" + StringUtils::itos(m_PK_psc_website_bathdr),rows);
 }
 void Row_psc_website_bathdr::psc_website_batdet_FK_psc_website_bathdr_orig_getrows(vector <class Row_psc_website_batdet*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_website_batdet *pTable = table->database->psc_website_batdet_get();
-pTable->GetRows("`FK_psc_website_bathdr_orig=`" + StringUtils::itos(m_PK_psc_website_bathdr),rows);
+pTable->GetRows("`FK_psc_website_bathdr_orig`=" + StringUtils::itos(m_PK_psc_website_bathdr),rows);
 }
 void Row_psc_website_bathdr::psc_website_batdet_FK_psc_website_bathdr_auth_getrows(vector <class Row_psc_website_batdet*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_website_batdet *pTable = table->database->psc_website_batdet_get();
-pTable->GetRows("`FK_psc_website_bathdr_auth=`" + StringUtils::itos(m_PK_psc_website_bathdr),rows);
+pTable->GetRows("`FK_psc_website_bathdr_auth`=" + StringUtils::itos(m_PK_psc_website_bathdr),rows);
 }
 void Row_psc_website_bathdr::psc_website_batdet_FK_psc_website_bathdr_unauth_getrows(vector <class Row_psc_website_batdet*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_website_batdet *pTable = table->database->psc_website_batdet_get();
-pTable->GetRows("`FK_psc_website_bathdr_unauth=`" + StringUtils::itos(m_PK_psc_website_bathdr),rows);
+pTable->GetRows("`FK_psc_website_bathdr_unauth`=" + StringUtils::itos(m_PK_psc_website_bathdr),rows);
 }
 void Row_psc_website_bathdr::psc_website_batuser_FK_psc_website_bathdr_getrows(vector <class Row_psc_website_batuser*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_website_batuser *pTable = table->database->psc_website_batuser_get();
-pTable->GetRows("`FK_psc_website_bathdr=`" + StringUtils::itos(m_PK_psc_website_bathdr),rows);
+pTable->GetRows("`FK_psc_website_bathdr`=" + StringUtils::itos(m_PK_psc_website_bathdr),rows);
 }
 
 

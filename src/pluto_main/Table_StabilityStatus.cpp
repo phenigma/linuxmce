@@ -810,28 +810,28 @@ void Row_StabilityStatus::DesignObj_FK_StabilityStatus_getrows(vector <class Row
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObj *pTable = table->database->DesignObj_get();
-pTable->GetRows("`FK_StabilityStatus=`" + StringUtils::itos(m_PK_StabilityStatus),rows);
+pTable->GetRows("`FK_StabilityStatus`=" + StringUtils::itos(m_PK_StabilityStatus),rows);
 }
 void Row_StabilityStatus::DesignObjVariation_FK_StabilityStatus_getrows(vector <class Row_DesignObjVariation*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation *pTable = table->database->DesignObjVariation_get();
-pTable->GetRows("`FK_StabilityStatus=`" + StringUtils::itos(m_PK_StabilityStatus),rows);
+pTable->GetRows("`FK_StabilityStatus`=" + StringUtils::itos(m_PK_StabilityStatus),rows);
 }
 void Row_StabilityStatus::DeviceTemplate_FK_StabilityStatus_getrows(vector <class Row_DeviceTemplate*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate *pTable = table->database->DeviceTemplate_get();
-pTable->GetRows("`FK_StabilityStatus=`" + StringUtils::itos(m_PK_StabilityStatus),rows);
+pTable->GetRows("`FK_StabilityStatus`=" + StringUtils::itos(m_PK_StabilityStatus),rows);
 }
 void Row_StabilityStatus::Skin_FK_StabilityStatus_getrows(vector <class Row_Skin*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Skin *pTable = table->database->Skin_get();
-pTable->GetRows("`FK_StabilityStatus=`" + StringUtils::itos(m_PK_StabilityStatus),rows);
+pTable->GetRows("`FK_StabilityStatus`=" + StringUtils::itos(m_PK_StabilityStatus),rows);
 }
 
 

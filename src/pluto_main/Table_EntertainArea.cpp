@@ -1006,14 +1006,14 @@ void Row_EntertainArea::CommandGroup_EntertainArea_FK_EntertainArea_getrows(vect
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_EntertainArea *pTable = table->database->CommandGroup_EntertainArea_get();
-pTable->GetRows("`FK_EntertainArea=`" + StringUtils::itos(m_PK_EntertainArea),rows);
+pTable->GetRows("`FK_EntertainArea`=" + StringUtils::itos(m_PK_EntertainArea),rows);
 }
 void Row_EntertainArea::Device_EntertainArea_FK_EntertainArea_getrows(vector <class Row_Device_EntertainArea*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device_EntertainArea *pTable = table->database->Device_EntertainArea_get();
-pTable->GetRows("`FK_EntertainArea=`" + StringUtils::itos(m_PK_EntertainArea),rows);
+pTable->GetRows("`FK_EntertainArea`=" + StringUtils::itos(m_PK_EntertainArea),rows);
 }
 
 

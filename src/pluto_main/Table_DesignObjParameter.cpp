@@ -908,14 +908,14 @@ void Row_DesignObjParameter::DesignObjType_DesignObjParameter_FK_DesignObjParame
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjType_DesignObjParameter *pTable = table->database->DesignObjType_DesignObjParameter_get();
-pTable->GetRows("`FK_DesignObjParameter=`" + StringUtils::itos(m_PK_DesignObjParameter),rows);
+pTable->GetRows("`FK_DesignObjParameter`=" + StringUtils::itos(m_PK_DesignObjParameter),rows);
 }
 void Row_DesignObjParameter::DesignObjVariation_DesignObjParameter_FK_DesignObjParameter_getrows(vector <class Row_DesignObjVariation_DesignObjParameter*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_DesignObjParameter *pTable = table->database->DesignObjVariation_DesignObjParameter_get();
-pTable->GetRows("`FK_DesignObjParameter=`" + StringUtils::itos(m_PK_DesignObjParameter),rows);
+pTable->GetRows("`FK_DesignObjParameter`=" + StringUtils::itos(m_PK_DesignObjParameter),rows);
 }
 
 

@@ -1118,7 +1118,7 @@ void Row_Package_Directory::Package_Directory_File_FK_Package_Directory_getrows(
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Directory_File *pTable = table->database->Package_Directory_File_get();
-pTable->GetRows("`FK_Package_Directory=`" + StringUtils::itos(m_PK_Package_Directory),rows);
+pTable->GetRows("`FK_Package_Directory`=" + StringUtils::itos(m_PK_Package_Directory),rows);
 }
 
 

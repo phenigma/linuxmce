@@ -633,35 +633,35 @@ void Row_psc_ir_bathdr::psc_ir_batdet_FK_psc_ir_bathdr_getrows(vector <class Row
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_ir_batdet *pTable = table->database->psc_ir_batdet_get();
-pTable->GetRows("`FK_psc_ir_bathdr=`" + StringUtils::itos(m_PK_psc_ir_bathdr),rows);
+pTable->GetRows("`FK_psc_ir_bathdr`=" + StringUtils::itos(m_PK_psc_ir_bathdr),rows);
 }
 void Row_psc_ir_bathdr::psc_ir_batdet_FK_psc_ir_bathdr_orig_getrows(vector <class Row_psc_ir_batdet*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_ir_batdet *pTable = table->database->psc_ir_batdet_get();
-pTable->GetRows("`FK_psc_ir_bathdr_orig=`" + StringUtils::itos(m_PK_psc_ir_bathdr),rows);
+pTable->GetRows("`FK_psc_ir_bathdr_orig`=" + StringUtils::itos(m_PK_psc_ir_bathdr),rows);
 }
 void Row_psc_ir_bathdr::psc_ir_batdet_FK_psc_ir_bathdr_auth_getrows(vector <class Row_psc_ir_batdet*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_ir_batdet *pTable = table->database->psc_ir_batdet_get();
-pTable->GetRows("`FK_psc_ir_bathdr_auth=`" + StringUtils::itos(m_PK_psc_ir_bathdr),rows);
+pTable->GetRows("`FK_psc_ir_bathdr_auth`=" + StringUtils::itos(m_PK_psc_ir_bathdr),rows);
 }
 void Row_psc_ir_bathdr::psc_ir_batdet_FK_psc_ir_bathdr_unauth_getrows(vector <class Row_psc_ir_batdet*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_ir_batdet *pTable = table->database->psc_ir_batdet_get();
-pTable->GetRows("`FK_psc_ir_bathdr_unauth=`" + StringUtils::itos(m_PK_psc_ir_bathdr),rows);
+pTable->GetRows("`FK_psc_ir_bathdr_unauth`=" + StringUtils::itos(m_PK_psc_ir_bathdr),rows);
 }
 void Row_psc_ir_bathdr::psc_ir_batuser_FK_psc_ir_bathdr_getrows(vector <class Row_psc_ir_batuser*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_ir_batuser *pTable = table->database->psc_ir_batuser_get();
-pTable->GetRows("`FK_psc_ir_bathdr=`" + StringUtils::itos(m_PK_psc_ir_bathdr),rows);
+pTable->GetRows("`FK_psc_ir_bathdr`=" + StringUtils::itos(m_PK_psc_ir_bathdr),rows);
 }
 
 

@@ -814,28 +814,28 @@ void Row_Manufacturer::DHCPDevice_FK_Manufacturer_getrows(vector <class Row_DHCP
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DHCPDevice *pTable = table->database->DHCPDevice_get();
-pTable->GetRows("`FK_Manufacturer=`" + StringUtils::itos(m_PK_Manufacturer),rows);
+pTable->GetRows("`FK_Manufacturer`=" + StringUtils::itos(m_PK_Manufacturer),rows);
 }
 void Row_Manufacturer::DeviceTemplate_FK_Manufacturer_getrows(vector <class Row_DeviceTemplate*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate *pTable = table->database->DeviceTemplate_get();
-pTable->GetRows("`FK_Manufacturer=`" + StringUtils::itos(m_PK_Manufacturer),rows);
+pTable->GetRows("`FK_Manufacturer`=" + StringUtils::itos(m_PK_Manufacturer),rows);
 }
 void Row_Manufacturer::InfraredGroup_FK_Manufacturer_getrows(vector <class Row_InfraredGroup*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_InfraredGroup *pTable = table->database->InfraredGroup_get();
-pTable->GetRows("`FK_Manufacturer=`" + StringUtils::itos(m_PK_Manufacturer),rows);
+pTable->GetRows("`FK_Manufacturer`=" + StringUtils::itos(m_PK_Manufacturer),rows);
 }
 void Row_Manufacturer::Package_FK_Manufacturer_getrows(vector <class Row_Package*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package *pTable = table->database->Package_get();
-pTable->GetRows("`FK_Manufacturer=`" + StringUtils::itos(m_PK_Manufacturer),rows);
+pTable->GetRows("`FK_Manufacturer`=" + StringUtils::itos(m_PK_Manufacturer),rows);
 }
 
 

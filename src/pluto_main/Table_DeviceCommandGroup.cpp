@@ -817,28 +817,28 @@ void Row_DeviceCommandGroup::DeviceCommandGroup_Command_FK_DeviceCommandGroup_ge
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceCommandGroup_Command *pTable = table->database->DeviceCommandGroup_Command_get();
-pTable->GetRows("`FK_DeviceCommandGroup=`" + StringUtils::itos(m_PK_DeviceCommandGroup),rows);
+pTable->GetRows("`FK_DeviceCommandGroup`=" + StringUtils::itos(m_PK_DeviceCommandGroup),rows);
 }
 void Row_DeviceCommandGroup::DeviceCommandGroup_DeviceCommandGroup_Parent_FK_DeviceCommandGroup_getrows(vector <class Row_DeviceCommandGroup_DeviceCommandGroup_Parent*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceCommandGroup_DeviceCommandGroup_Parent *pTable = table->database->DeviceCommandGroup_DeviceCommandGroup_Parent_get();
-pTable->GetRows("`FK_DeviceCommandGroup=`" + StringUtils::itos(m_PK_DeviceCommandGroup),rows);
+pTable->GetRows("`FK_DeviceCommandGroup`=" + StringUtils::itos(m_PK_DeviceCommandGroup),rows);
 }
 void Row_DeviceCommandGroup::DeviceCommandGroup_DeviceCommandGroup_Parent_FK_DeviceCommandGroup_Parent_getrows(vector <class Row_DeviceCommandGroup_DeviceCommandGroup_Parent*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceCommandGroup_DeviceCommandGroup_Parent *pTable = table->database->DeviceCommandGroup_DeviceCommandGroup_Parent_get();
-pTable->GetRows("`FK_DeviceCommandGroup_Parent=`" + StringUtils::itos(m_PK_DeviceCommandGroup),rows);
+pTable->GetRows("`FK_DeviceCommandGroup_Parent`=" + StringUtils::itos(m_PK_DeviceCommandGroup),rows);
 }
 void Row_DeviceCommandGroup::DeviceTemplate_DeviceCommandGroup_FK_DeviceCommandGroup_getrows(vector <class Row_DeviceTemplate_DeviceCommandGroup*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_DeviceCommandGroup *pTable = table->database->DeviceTemplate_DeviceCommandGroup_get();
-pTable->GetRows("`FK_DeviceCommandGroup=`" + StringUtils::itos(m_PK_DeviceCommandGroup),rows);
+pTable->GetRows("`FK_DeviceCommandGroup`=" + StringUtils::itos(m_PK_DeviceCommandGroup),rows);
 }
 
 

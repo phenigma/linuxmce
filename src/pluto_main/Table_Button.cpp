@@ -808,14 +808,14 @@ void Row_Button::DesignObjVariation_FK_Button_getrows(vector <class Row_DesignOb
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation *pTable = table->database->DesignObjVariation_get();
-pTable->GetRows("`FK_Button=`" + StringUtils::itos(m_PK_Button),rows);
+pTable->GetRows("`FK_Button`=" + StringUtils::itos(m_PK_Button),rows);
 }
 void Row_Button::DesignObjVariation_Zone_FK_Button_getrows(vector <class Row_DesignObjVariation_Zone*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_Zone *pTable = table->database->DesignObjVariation_Zone_get();
-pTable->GetRows("`FK_Button=`" + StringUtils::itos(m_PK_Button),rows);
+pTable->GetRows("`FK_Button`=" + StringUtils::itos(m_PK_Button),rows);
 }
 
 

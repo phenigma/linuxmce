@@ -812,7 +812,7 @@ void Row_Broadcast::MediaType_Broadcast_FK_Broadcast_getrows(vector <class Row_M
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_MediaType_Broadcast *pTable = table->database->MediaType_Broadcast_get();
-pTable->GetRows("`FK_Broadcast=`" + StringUtils::itos(m_PK_Broadcast),rows);
+pTable->GetRows("`FK_Broadcast`=" + StringUtils::itos(m_PK_Broadcast),rows);
 }
 
 
