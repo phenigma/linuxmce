@@ -7,7 +7,6 @@
 #include "BD/PhoneDevice.h"
 #include "VR_IdentifyPhone.h"
 #include "PlutoVIP/Customer.h"
-#include "VR_ShowMenu.h"
 
 #ifdef VIPESTABLISHMENT
 #include "VIPEstablishment/CellPhoneEmulator.h"
@@ -19,16 +18,14 @@
 #endif
 
 // todo - is there a cross platform (linux/symbian/windows) way to dynamically allocate a growable memory block?
-VA_SendMenuToPhone::VA_SendMenuToPhone(VR_ShowMenu *pVR_ShowMenu, u_int64_t MacAddress) 
+VA_SendMenuToPhone::VA_SendMenuToPhone(string Filename, u_int64_t MacAddress) 
 	: RA_Action()
 { 
 	m_iMacAddress=MacAddress;
 
-	pVR_ShowMenu->ConvertRequestToBinary();
-	m_pdbMenu.m_dwSize = pVR_ShowMenu->RequestSize();
-	m_pdbMenu.m_pBlock = new char[m_pdbMenu.m_dwSize];
-	memcpy(m_pdbMenu.m_pBlock, pVR_ShowMenu->Request(), m_pdbMenu.m_dwSize);
-
+	size_t size;
+	m_pdbMenu.m_pBlock = FileUtils::ReadFileIntoBuffer(Filename, size);
+	m_pdbMenu.m_dwSize = (unsigned long)size;
 }
 
 #ifdef VIPESTABLISHMENT

@@ -56,11 +56,11 @@ bool VR_ManuallyMatchPhone::ProcessRequest(RA_Processor *pRA_Processor)
 		cout << "Match OK " << m_iEstablishmentID << 
 			" IdentiedPlutoID: " << m_iIdentifiedPlutoId << " " << m_sIdentifiedPlutoIdPin << " adding to database"; 
 		// Add it to the MacAddress table
-//		sprintf(sql,"INSERT INTO MacAddress(PKID_MacAddress,FKID_PlutoId,FKID_C_PhoneStatus) "
+//		sprintf(sql,"INSERT INTO MacAddress(PKID_MacAddress,FK_MasterUsers,FKID_C_PhoneStatus) "
 //			"VALUES(%I64d,%d,%d)",m_iMacAddress,m_iIdentifiedPlutoId,C_PHONESTATUS_NEW_PHONE_CONST);
 
 		s.str("");
-		s << "INSERT INTO MacAddress(PKID_MacAddress,FKID_PlutoId,FKID_C_PhoneStatus) " <<
+		s << "INSERT INTO MacAddress(PKID_MacAddress,FK_MasterUsers,FKID_C_PhoneStatus) " <<
 			"VALUES(" << m_iMacAddress << "," << m_iIdentifiedPlutoId << "," << C_PHONESTATUS_NEW_PHONE_CONST << ")";
 
 

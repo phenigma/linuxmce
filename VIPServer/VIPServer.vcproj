@@ -148,10 +148,10 @@
 				RelativePath="..\Ra\RAServerSocket.cpp">
 			</File>
 			<File
-				RelativePath="..\PlutoVIP\VA_ForwardRequestToPhone.cpp">
+				RelativePath="..\PlutoVIP\VA_SendFileToPhone.cpp">
 			</File>
 			<File
-				RelativePath="..\PlutoVIP\VA_SendFileToPhone.cpp">
+				RelativePath="..\PlutoVIP\VA_SendMenuToPhone.cpp">
 			</File>
 			<File
 				RelativePath="..\PlutoVIP\VA_UpdateTransaction.cpp">
@@ -182,9 +182,6 @@
 			</File>
 			<File
 				RelativePath="..\PlutoVIP\VR_RequestSecureTransaction.cpp">
-			</File>
-			<File
-				RelativePath="..\PlutoVIP\VR_ShowMenu.cpp">
 			</File>
 			<File
 				RelativePath="..\PlutoVIP\VR_UnknownRequest.cpp">

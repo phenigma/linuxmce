@@ -10,7 +10,7 @@ public:
 	PlutoDataBlock m_pdbMenu;
 	u_int64_t m_iMacAddress;
 
-	VA_SendMenuToPhone(class VR_ShowMenu *pVR_ShowMenu, u_int64_t MacAddress);
+	VA_SendMenuToPhone(string Filename, u_int64_t MacAddress);
 	VA_SendMenuToPhone() {}
 
 	unsigned long ID() { return ACTION_SENDMENU_TOPHONE; }

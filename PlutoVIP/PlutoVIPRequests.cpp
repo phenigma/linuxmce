@@ -1,6 +1,5 @@
 #include "PlutoVIPrequests.h"
 #include "RA/RA_Processor.h"
-#include "VR_ShowMenu.h"
 #include "VR_RequestSecureTransaction.h"
 #include "VR_RequestPayment.h"
 #include "VR_PhoneRespondedToRequest.h"
@@ -17,10 +16,12 @@ RA_Request *RA_Processor::BuildRequestFromData(long dwSize, const char *pcData, 
 	RA_Request *pRequest=NULL;
 	switch( dwRequestID )
 	{
+/*
 	case VRP_REQUEST_SHOW_MENU:
 		pRequest=new VR_ShowMenu();
 		pRequest->CreateRequest(dwSize,pcData);
 		return pRequest;
+*/
 	case VRP_REQUEST_SEC_TRANS:
 		pRequest=new VR_RequestSecureTransaction();
 		pRequest->CreateRequest(dwSize,pcData);

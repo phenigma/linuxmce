@@ -6,7 +6,6 @@
 #include "PlutoUtils/MySQLHelper.h"
 #include "VR_RequestPayment.h"
 #include "VR_RequestSecureTransaction.h"
-#include "VR_ShowMenu.h"
 #include "VA_SendMenuToPhone.h"
 #include "VIPShared/VIPMenu.h"
 
@@ -42,7 +41,7 @@ bool VR_RequestPayment::ProcessRequest(RA_Processor *pRA_Processor)
 
 	std::ostringstream sql;
 
-	sql << "INSERT INTO PmtTrans (FKID_PlutoId_Establishment,FKID_PlutoId_User,InvoiceNumber,Description,Cashier,Amount,DateTime) VALUES(" <<
+	sql << "INSERT INTO PmtTrans (FK_MasterUsers_Establishment,FK_MasterUsers_User,InvoiceNumber,Description,Cashier,Amount,DateTime) VALUES(" <<
 		m_FKID_PlutoId_Establishment << "," << m_FKID_PlutoId_User << ",'" << StringUtils::SQLEscape(m_sInvoiceNumber) << "','" <<
 		StringUtils::SQLEscape(m_sDescription) << "','" << StringUtils::SQLEscape(m_sCashierName) << "'," << m_iAmount << 
 		",'" << StringUtils::SQLDateTime() << "');";
@@ -76,7 +75,7 @@ bool VR_RequestPayment::ProcessRequest(RA_Processor *pRA_Processor)
 	sql.str("");
 	PlutoSqlResult rsEstablishment,rsPaymentMethods;
 	MYSQL_ROW EstablishmentRow=NULL,PaymentMethodsRow=NULL;
-	sql << "SELECT Name FROM Establishment WHERE FKID_PlutoId=" << m_FKID_PlutoId_Establishment;
+	sql << "SELECT Name FROM Establishment WHERE FK_MasterUsers=" << m_FKID_PlutoId_Establishment;
 	
 
 	if( (rsEstablishment.r = pDCEMySqlConfig->MySqlQueryResult(sql.str()))==NULL || 
@@ -88,7 +87,7 @@ bool VR_RequestPayment::ProcessRequest(RA_Processor *pRA_Processor)
 	}
 
 	sql.str("");
-	sql << "SELECT PKID_CC,Description FROM Users_CC WHERE FKID_PlutoId=" << m_FKID_PlutoId_User;
+	sql << "SELECT PKID_CC,Description FROM Users_CC WHERE FK_MasterUsers=" << m_FKID_PlutoId_User;
 	if( (rsPaymentMethods.r = pDCEMySqlConfig->MySqlQueryResult(sql.str()))==NULL || 
 		(PaymentMethodsRow=mysql_fetch_row(rsPaymentMethods.r))==NULL )
 	{
@@ -106,6 +105,7 @@ bool VR_RequestPayment::ProcessRequest(RA_Processor *pRA_Processor)
 	}
 
 	m_cProcessOutcome = SUCCESSFULLY_PROCESSED;
+	/*
 	VR_ShowMenu *pMenu = new VR_ShowMenu((pDCEMySqlConfig->m_sMenuPath + "payment.vmc").c_str());
 	
 	MYSTL_ADDTO_LIST(pMenu->m_listInputVariables, (new VIPVariable(VIPVAR_PAYMENT_AMOUNT_REQUESTED,0,StringUtils::itos(m_iAmount),0,0)));
@@ -123,7 +123,12 @@ bool VR_RequestPayment::ProcessRequest(RA_Processor *pRA_Processor)
 
 	pMenu->m_listInputVariables.push_back(new VIPVariable(VIPVAR_INVOICE_DETAIL,0,sInvoiceDetail.c_str(),0,0));
 
-	VA_SendMenuToPhone *pbefore = new VA_SendMenuToPhone(0,pMenu,m_iMacAddress);
+	VA_SendMenuToPhone *pbefore = new VA_SendMenuToPhone(pMenu,m_iMacAddress);
+	*/
+
+	VA_SendMenuToPhone *pbefore = new VA_SendMenuToPhone(pDCEMySqlConfig->m_sMenuPath + "payment.vmc", 
+		m_iMacAddress);
+
 	MYSTL_ADDTO_LIST(m_listActions,pbefore);
 	m_cProcessOutcome = SUCCESSFULLY_PROCESSED;
 	return true;
