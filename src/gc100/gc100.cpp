@@ -1256,7 +1256,7 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 					for (int i = 0; i < retval; i++)
 					{
 						unsigned char c = learn_buffer[i];
-						if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || c == ',' || c == '\r')
+						if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || c == ',' || c == '\r' || c == '-')
 							continue;
 						learning_error = true;
 						ErrorMsg = "Garbage data received. Wrong baud rate?";
