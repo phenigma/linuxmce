@@ -1081,7 +1081,8 @@ void Database::Import( string sRepository, Repository *pRepository )
 	MapStringString::iterator it;
 	for(it=mapSettings.begin();it!=mapSettings.end();++it)
 	{
-		pRepository->SetSetting((*it).first,(*it).second);
+		if( (*it).first!="schema" )  // Don't import this setting.  We just updated the schema
+			pRepository->SetSetting((*it).first,(*it).second);
 	}
 }
 
