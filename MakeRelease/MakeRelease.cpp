@@ -1449,8 +1449,21 @@ bool CreateSource_FTPHTTP(Row_Package_Source *pRow_Package_Source,list<FileInfo 
 
 	if( pRow_Package_Source->FK_RepositorySource_get()==REPOSITORYSOURCE_SourceForge_Archives_CONST )
 	{
-		// Marius -- ArchiveFileName will be the name of the archive.  Add code here to actually upload it to sourceforge
+		// ArchiveFileName will be the name of the archive.  Add code here to actually upload it to sourceforge
 		// Initiate an ftp upload using Username & Password
+		string cmd;
+		cmd = "echo open -u anonymous,sf@plutohome.com ftp1.sourceforge.net > batch";
+		system(cmd.c_str());
+		cmd = "echo cd incoming >> batch";
+		system(cmd.c_str());
+		cmd = "echo put " + ArchiveFileName + " >> batch";
+		system(cmd.c_str());
+		cmd = "echo quit >> batch";
+		system(cmd.c_str());
+		cmd = "lftp -f batch";
+		system(cmd.c_str());
+		cmd = "rm -f batch";
+		system(cmd.c_str());
 	}
 	system(("ls -l " + ArchiveFileName + " >> ../dirlist").c_str());
 	chdir("/");
