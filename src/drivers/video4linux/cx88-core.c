@@ -629,16 +629,19 @@ void cx88_wakeup(struct cx88_core *core,
 			break;
 #endif
 		do_gettimeofday(&buf->vb.ts);
-		dprintk(2,"[%p/%d] wakeup reg=%d buf=%d\n",buf,buf->vb.i,
+		dprintk(0,"[%p/%d] wakeup reg=%d buf=%d\n",buf,buf->vb.i,
 			count, buf->count);
 		buf->vb.state = STATE_DONE;
 		list_del(&buf->vb.queue);
 		wake_up(&buf->vb.done);
 	}
 	if (list_empty(&q->active)) {
+		dprintk(0,"del_timer\n");
 		del_timer(&q->timeout);
+		//mod_timer(&q->timeout, jiffies+10*BUFFER_TIMEOUT);
 	} else {
-		mod_timer(&q->timeout, jiffies+BUFFER_TIMEOUT);
+		dprintk(0,"mod_timer\n");
+		mod_timer(&q->timeout, jiffies+10*BUFFER_TIMEOUT);
 	}
 	if (bc != 1)
 		printk("%s: %d buffers handled (should be 1)\n",__FUNCTION__,bc);

@@ -243,7 +243,8 @@ const int CX8800_CTLS = ARRAY_SIZE(cx8800_ctls);
 #define IVTV_CMD_HW_BLOCKS_RST 0xFFFFFFFF
 
 /*Firmware API commands*/
-#define IVTV_API_STD_TIMEOUT 0x00010000 /*65536, units??*/
+//#define IVTV_API_STD_TIMEOUT 0x00010000 /*65536, units??*/
+#define IVTV_API_STD_TIMEOUT 500
 
 #define BLACKBIRD_API_PING               0x80
 #define BLACKBIRD_API_BEGIN_CAPTURE      0x81
@@ -872,8 +873,11 @@ static void blackbird_codec_settings(struct cx8802_dev *dev)
 	int bitrate_peak = 7500000;
 #if 1
 	bitrate_mode = BLACKBIRD_VIDEO_VBR;
-	bitrate = 3500*1024;
+	bitrate = 4000*1024;
 	bitrate_peak = 4000*1024;
+	bitrate_mode = BLACKBIRD_VIDEO_CBR;
+	bitrate = 10000000;
+	bitrate_peak = 10000000;
 #endif
 
 	/* assign stream type */
@@ -1732,6 +1736,7 @@ static int mpeg_open(struct inode *inode, struct file *file)
 			    V4L2_FIELD_TOP,
 			    sizeof(struct cx88_buffer),
 			    fh);
+	//msleep(1000);
 	return 0;
 }
 
@@ -1772,7 +1777,12 @@ mpeg_read(struct file *file, char __user *data, size_t count, loff_t *ppos)
 	/* why is read() choking with mythbackend while it works just fine
 	   with cat, dd and mplayer ? */
 	if( ret < 0 )
+	{
 		printk( KERN_INFO "mpeg_read: %d, count: %d, non-blocking: %d\n", ret, count, file->f_flags & O_NONBLOCK );
+		//videobuf_streamoff(&fh->mpegq);
+		//videobuf_streamon(&fh->mpegq);
+	}
+
 	if( ret != count && !( file->f_flags & O_NONBLOCK ) )
 		printk( KERN_INFO "mpeg_read: %d, count: %d, non-blocking: %d\n", ret, count, file->f_flags & O_NONBLOCK );
 #endif
