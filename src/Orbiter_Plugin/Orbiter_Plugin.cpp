@@ -518,7 +518,7 @@ bool Orbiter_Plugin::MobileOrbiterLinked(class Socket *pSocket,class Message *pM
 
         DCE::CMD_Send_File_To_Device CMD_Send_File_To_Device(
             m_dwPK_Device,
-            pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+			pDeviceFrom->m_dwPK_Device,
             PlutoMOInstaller,
             sMacAddress,
             ""
