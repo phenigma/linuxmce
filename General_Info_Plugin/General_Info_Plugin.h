@@ -85,6 +85,21 @@ public:
 	virtual void CMD_Add_Unknown_Device(string sText,string sID,string sMac_address,string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #239 - Request File And Checksum */
+	/** Get the contents of a file from the server and the checksum of the file */
+		/** @param #13 Filename */
+			/** The file to get */
+		/** @param #19 Data */
+			/** The file's contents */
+		/** @param #91 Checksum */
+			/** The checksum of the file */
+		/** @param #92 Checksum Only */
+			/** If this is true, this command will return only the checksum of the file, Data will be null. */
+
+	virtual void CMD_Request_File_And_Checksum(string sFilename,char **pData,int *iData_Size,string *sChecksum,bool *bChecksum_Only) { string sCMD_Result; CMD_Request_File_And_Checksum(sFilename.c_str(),pData,iData_Size,sChecksum,bChecksum_Only,sCMD_Result,NULL);};
+	virtual void CMD_Request_File_And_Checksum(string sFilename,char **pData,int *iData_Size,string *sChecksum,bool *bChecksum_Only,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 };
 

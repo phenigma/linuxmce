@@ -73,7 +73,6 @@ public:
 
 	/*
 			*****DATA***** accessors inherited from base class
-	string DATA_Get_Floorplan_Info();
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Playback_Info_Changed(string sMediaDescription,string sSectionDescription,string sSynposisDescription);

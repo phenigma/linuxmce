@@ -178,3 +178,18 @@ void General_Info_Plugin::CMD_Add_Unknown_Device(string sText,string sID,string 
 	m_pDatabase_pluto_main->UnknownDevices_get()->Commit();
 g_pPlutoLogger->Write(LV_STATUS,"uknown device, setting: %d to mac: %s",pRow_UnknownDevices->PK_UnknownDevices_get(),pRow_UnknownDevices->MacAddress_get().c_str());
 }
+//<-dceag-c239-b->
+
+	/** @brief COMMAND: #239 - Request File And Checksum */
+	/** Get the contents of a file from the server and the checksum of the file */
+		/** @param #13 Filename */
+			/** The file to get */
+		/** @param #19 Data */
+			/** The file's contents */
+		/** @param #91 Checksum */
+			/** The checksum of the file */
+		/** @param #92 Checksum Only */
+			/** If this is true, this command will return only the checksum of the file, Data will be null. */
+
+void General_Info_Plugin::CMD_Request_File_And_Checksum(string sFilename,char **pData,int *iData_Size,string *sChecksum,bool *bChecksum_Only,string &sCMD_Result,Message *pMessage)
+//<-dceag-c239-e->

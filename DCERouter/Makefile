@@ -1,6 +1,6 @@
 ROOT = ..
 CXXFLAGS = -Wall -ggdb3 -DxAUDIDEMO -fmessage-length=0
-CPPFLAGS = -I$(ROOT)/ -I$(ROOT)/DCE -I/usr/include/mysql -D_REENTRANT -DXLL_DEBUG_FILE -D_GNU_SOURCE -DxUSE_THREAD_COUNT -DxTHREAD_LOG -DDEBUG -DUSE_LZO_DATAGRID
+CPPFLAGS = -I$(ROOT)/ -I$(ROOT)/DCE -I/usr/include/mysql -D_REENTRANT -D_GNU_SOURCE -D_DEVEL_DEFINES -DUSE_LZO_DATAGRID
 LDFLAGS = -L$(ROOT)/lib 
 #LDLIBS = -lpthread -lmysqlclient_r -lattr -lDCECommon -lSerializeClass -lPlutoUtils -lpluto_main -lFakeEPG -lqt-mt -lmyth-0.16 -lmythtv-0.16
 LDLIBS = -lpthread -lmysqlclient_r -lattr -lDCECommon -lSerializeClass -lPlutoUtils -lpluto_main 
