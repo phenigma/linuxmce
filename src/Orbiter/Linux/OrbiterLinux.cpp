@@ -36,7 +36,8 @@ OrbiterLinux::OrbiterLinux(int DeviceID,
                int nImageWidth, int nImageHeight)
 : OrbiterSDL(DeviceID, ServerAddress, sLocalDirectory, bLocalMode, nImageWidth, nImageHeight),
     // defaults
-    m_strWindowName("pluto-linux-orbiter"),
+	/** @hack to make it work for the short term. We need to find a way to set the class name properly or use the window ID if we can find it. */
+    m_strWindowName("SDL_App"),
     m_strDisplayName(getenv("DISPLAY")),
 
     // initializations
