@@ -4,21 +4,17 @@
 nobuild=""
 
 # If not version was specified then we will assume the latest specified version from the database 
-
-#temp!!! -- always build version 1 at this moment.  I made the following if always false
-if [ "xxx$1" = "x" ]; then
+if [ "$1" = "x" ]; then
 	# lock the svn commits only to the authorized personnel
  
-   if [ "x$nobuild" = "x" ]; then
-        cp -f /var/lib/svn-repos/pluto2/conf/users-restricted /var/lib/svn-repos/pluto2/conf/users
+	if [ "x$nobuild" = "x" ]; then
+		cp -f /var/lib/svn-repos/pluto2/conf/users-restricted /var/lib/svn-repos/pluto2/conf/users
     fi
  	Q="select PK_Version from Version WHERE PK_Version<>1 ORDER BY date desc, PK_Version limit 1"
 	version=$(echo "$Q;" | mysql -N pluto_main)
 else
 	cp -f /var/lib/svn-repos/pluto2/conf/users-all /var/lib/svn-repos/pluto2/conf/users
-#temp!!! --- hack  -- force to version 1
-#	version=$1
-version=1
+	version=$1
 fi
 
 echo Using version with id: "$version"
