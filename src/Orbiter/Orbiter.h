@@ -475,6 +475,11 @@ void RealRedraw( void *data );  // temp hack -- see comments
 
 	virtual PlutoGraphic *CreateGraphic() = 0;
 
+	/**
+	 * @brief The derived class should implement this if it can.  It moves the mouse pointer to the given coordinates
+	 */
+	virtual void SetMousePointer(int X, int Y) {}
+
 	virtual void PlayMNG_CallBack(void *data);
 
 	/**
@@ -664,8 +669,7 @@ public:
 	void CaptureKeyboard_UpdateVariableAndText( int iVariable, string sVariable );
 
 	/**
-	 * @brief Find an object
-	 * @todo ask
+	 * @brief Find an object.  If pDesignObj_Orbiter is past and the ObjectID is not fully qualified, it will look for sPK_DesignObj as a child of pDesignObj_Orbiter
 	 */
 	DesignObj_Orbiter *FindObject( string sPK_DesignObj, class DesignObj_Orbiter *pDesignObj_Orbiter = NULL );
 
@@ -1249,6 +1253,15 @@ public:
 
 	virtual void CMD_Keep_Screen_On(string sOnOff) { string sCMD_Result; CMD_Keep_Screen_On(sOnOff.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Keep_Screen_On(string sOnOff,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #330 - Set Mouse Pointer Over Object */
+	/** Positions the on-screen mouse pointer centered over a certain object */
+		/** @param #3 PK_DesignObj */
+			/** The object to center the mouse over. */
+
+	virtual void CMD_Set_Mouse_Pointer_Over_Object(string sPK_DesignObj) { string sCMD_Result; CMD_Set_Mouse_Pointer_Over_Object(sPK_DesignObj.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Set_Mouse_Pointer_Over_Object(string sPK_DesignObj,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

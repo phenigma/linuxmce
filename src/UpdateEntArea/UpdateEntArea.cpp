@@ -173,6 +173,7 @@ void UpdateEntArea::DoIt()
 					pRow_EntertainArea = m_pDatabase_pluto_main->EntertainArea_get()->AddRow();
 					g_pPlutoLogger->Write(LV_STATUS,"set ent area %d %s to Room: %d %s creating default commands",pRow_EntertainArea->PK_EntertainArea_get(),pRow_EntertainArea->Description_get().c_str(),pRow_Room->PK_Room_get(),pRow_Room->Description_get().c_str());
 					pRow_EntertainArea->FK_Room_set(pRow_Room->PK_Room_get());
+					pRow_EntertainArea->Description_set(pRow_Room->Description_get());
 					m_pDatabase_pluto_main->EntertainArea_get()->Commit();
 					AddDefaultCommandsToEntArea(pRow_EntertainArea);
 				}

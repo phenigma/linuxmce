@@ -305,7 +305,7 @@ int OrbiterGenerator::DoIt()
 	m_pRow_DesignObj_ScreenSaver = mds.DesignObj_get()->GetRow(m_pRow_Skin->FK_DesignObj_ScreenSaver_get());
 
 	if( !m_pRow_DesignObj_ScreenSaver )
-		m_pRow_DesignObj_ScreenSaver = m_pRow_DesignObj_MainMenu;
+		m_pRow_DesignObj_ScreenSaver = mds.DesignObj_get()->GetRow(DESIGNOBJ_mnuScreenSaver_CONST);
 
 	// Get the language
 	m_pRow_Language = NULL;

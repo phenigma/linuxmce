@@ -458,6 +458,8 @@ void Orbiter::Timeout( void *data )
 	if( !data || data!=(void *) m_pScreenHistory_Current->m_pObj )
 		return;
 
+g_pPlutoLogger->Write(LV_STATUS,"Screen %s timed out",m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str());
+
 	DesignObj_Orbiter *pObj = (DesignObj_Orbiter *) data;
     Message *pMessage_GotoScreen=NULL;
     if(  pObj->m_Action_TimeoutList.size(  )>0  )
@@ -3232,7 +3234,10 @@ bool Orbiter::ButtonUp( int iPK_Button )
 bool Orbiter::RegionDown( int x,  int y )
 {
     if( !GotActivity(  ) )
+	{
+g_pPlutoLogger->Write(LV_STATUS,"Ignoring click %d,%d",x,y);
 		return true;
+	}
 
 	NeedToRender render( this, "Region Down" );  // Redraw anything that was changed by this command
 
@@ -3308,8 +3313,9 @@ bool Orbiter::GotActivity(  )
 		if( m_pScreenHistory_Current->m_pObj == m_pDesignObj_Orbiter_ScreenSaveMenu )
 		{
 			CMD_Set_Main_Menu("N");
-			GotoScreen(m_sMainMenu);
+			CMD_Go_back("","1");
 		}
+g_pPlutoLogger->Write(LV_STATUS,"Ignoring click because screen saver was active");
 		return false; // Don't do anything with this
     }
 
@@ -5377,7 +5383,24 @@ void Orbiter::CMD_Set_Current_Location(int iLocationID,string &sCMD_Result,Messa
         DCE::CMD_Set_Current_Room CMD_Set_Current_Room( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, pLocationInfo->PK_Room );
         SendCommand( CMD_Set_Current_Room );
         m_sMainMenu = StringUtils::itos( atoi( m_sMainMenu.c_str(  ) ) ) + "." + StringUtils::itos( iLocationID ) + ".0";
-        //GotoScreen( m_sMainMenu );
+
+		string sMainMenu = StringUtils::itos( atoi( m_pDesignObj_Orbiter_MainMenu->m_ObjectID.c_str(  ) ) ) + "." + StringUtils::itos( iLocationID ) + ".0";
+		DesignObj_Orbiter *pObj = FindObject( sMainMenu );
+		if( !pObj )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Trying to change to non-existant main menu: %s",sMainMenu.c_str());
+		else
+			m_pDesignObj_Orbiter_MainMenu = pObj;
+
+		string sSleepingMenu = StringUtils::itos( atoi( m_pDesignObj_Orbiter_SleepingMenu->m_ObjectID.c_str(  ) ) ) + "." + StringUtils::itos( iLocationID ) + ".0";
+		pObj = FindObject( sSleepingMenu );
+		if( !pObj )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Trying to change to non-existant sleeping menu: %s",sSleepingMenu.c_str());
+		else
+			m_pDesignObj_Orbiter_SleepingMenu = pObj;
+
+g_pPlutoLogger->Write(LV_STATUS,"Set location %d ea %d rm %d (%s) now %s",iLocationID,pLocationInfo->PK_EntertainArea,
+					  pLocationInfo->PK_Room,pLocationInfo->Description.c_str(),m_sMainMenu.c_str());
+		//GotoScreen( m_sMainMenu );
     }
 }
 
@@ -5517,6 +5540,9 @@ void Orbiter::ContinuousRefresh( void *data )
 				pText->m_sText = StringUtils::itos(	m_tTimeoutTime - time(NULL) ) + " seconds";
 				pText->m_rPosition.X = rand() * m_iImageWidth * .5 / RAND_MAX;
 				pText->m_rPosition.Y = rand() * m_iImageHeight *.9 / RAND_MAX;
+				g_pPlutoLogger->Write(LV_STATUS,"Rand position (RM: %d) x: %d y: %d w: %d h: %d",(int) RAND_MAX,
+					pText->m_rPosition.X, pText->m_rPosition.Y, m_iImageWidth, m_iImageHeight);
+
 			}
 
 			CMD_Set_Text(m_pScreenHistory_Current->m_pObj->m_ObjectID, StringUtils::itos( m_tTimeoutTime - time(NULL) ) + " seconds",TEXT_USR_ENTRY_CONST);
@@ -5910,6 +5936,7 @@ void Orbiter::CMD_Set_Main_Menu(string sText,string &sCMD_Result,Message *pMessa
 		else if( sText[0]=='V' )
 			m_sMainMenu = m_pDesignObj_Orbiter_ScreenSaveMenu->m_ObjectID;
 	}
+g_pPlutoLogger->Write(LV_STATUS,"Set menu: %s now %s",sText.c_str(),m_sMainMenu.c_str());
 }
 //<-dceag-c265-b->
 
@@ -6075,4 +6102,25 @@ void Orbiter::CMD_Off(int iPK_Pipe,string &sCMD_Result,Message *pMessage)
 	TextStyle *pTextStyle = m_mapTextStyle_Find( 1 );
 	RenderText(&text, pTextStyle);
 	EndPaint();
-} 
+}
+
+//<-dceag-c330-b->
+
+	/** @brief COMMAND: #330 - Set Mouse Pointer Over Object */
+	/** Positions the on-screen mouse pointer centered over a certain object */
+		/** @param #3 PK_DesignObj */
+			/** The object to center the mouse over. */
+
+void Orbiter::CMD_Set_Mouse_Pointer_Over_Object(string sPK_DesignObj,string &sCMD_Result,Message *pMessage)
+//<-dceag-c330-e->
+{
+	DesignObj_Orbiter *pObj = FindObject( sPK_DesignObj, m_pScreenHistory_Current->m_pObj );
+	if( !pObj )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"MousePointerOverUnknownObject: %s",sPK_DesignObj.c_str());
+		return;
+	}
+	int X = pObj->m_rPosition.X + pObj->m_rPosition.Width/2;
+	int Y = pObj->m_rPosition.Y + pObj->m_rPosition.Height/2;
+	SetMousePointer(X,Y);
+}

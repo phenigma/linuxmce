@@ -20,9 +20,11 @@
 #include "DCE/Logger.h"
 #include "DCERouter.h"
 #include "MediaHandlerInfo.h"
+#include "pluto_main/Table_MediaType.h"
 #include "pluto_main/Table_DeviceTemplate.h"
 #include "pluto_main/Table_DeviceTemplate_MediaType.h"
 #include "pluto_main/Table_DeviceTemplate_MediaType_DesignObj.h"
+#include "pluto_main/Table_MediaType_DesignObj.h"
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
 #include "MediaAttributes.h"
 
@@ -168,12 +170,20 @@ public:
                 new MediaHandlerInfo(pMediaHandlerBase,pCommand_Impl,pRow_DeviceTemplate_MediaType->FK_MediaType_get(),
                     iPK_MasterDeviceList,pRow_DeviceTemplate_MediaType->CanSetPosition_get()==1,bUsesDCE);
 
+			// Find a default remote control for this.  If one is specified by the DeviceTemplate, use that, and then revert to one that matches the media type
             vector<Row_DeviceTemplate_MediaType_DesignObj *> vectRow_DeviceTemplate_MediaType_DesignObj;
             pRow_DeviceTemplate_MediaType->DeviceTemplate_MediaType_DesignObj_FK_DeviceTemplate_MediaType_getrows(&vectRow_DeviceTemplate_MediaType_DesignObj);
             if( vectRow_DeviceTemplate_MediaType_DesignObj.size() )
                 pMediaHandlerInfo->m_iPK_DesignObj = vectRow_DeviceTemplate_MediaType_DesignObj[0]->FK_DesignObj_get();
             else
-                pMediaHandlerInfo->m_iPK_DesignObj = 0;
+			{
+				vector<Row_MediaType_DesignObj *> vectRow_MediaType_DesignObj;
+				pRow_DeviceTemplate_MediaType->FK_MediaType_getrow()->MediaType_DesignObj_FK_MediaType_getrows(&vectRow_MediaType_DesignObj);
+	            if( vectRow_MediaType_DesignObj.size() )
+		            pMediaHandlerInfo->m_iPK_DesignObj = vectRow_MediaType_DesignObj[0]->FK_DesignObj_get();
+				else
+	                pMediaHandlerInfo->m_iPK_DesignObj = 0;
+			}
         }
     }
 
