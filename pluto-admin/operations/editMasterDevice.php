@@ -392,27 +392,56 @@ $out='';
 								<table>				
 				';
 
+				$queryIGNonDelete='
+					SELECT PK_InfraredGroup,FK_DeviceCategory,InfraredGroup.Description 
+					FROM InfraredGroup 
+					WHERE FK_Manufacturer=? AND FK_DeviceCategory=?
+					ORDER BY Description ASC';
+				$resIGNonDelete=$dbADO->Execute($queryIGNonDelete,array($manufacturerID,$deviceCategID));
 				
-				$query = "SELECT InfraredGroup.* FROM InfraredGroup
+				$queryCheckedIG = "SELECT InfraredGroup.* FROM InfraredGroup
 								INNER JOIN DeviceTemplate_InfraredGroup on FK_InfraredGroup = PK_InfraredGroup
 							WHERE 
 								FK_DeviceTemplate='$deviceID'
 								ORDER BY InfraredGroup.Description Asc
 				";
-				$resInfraredGroups = $dbADO->_Execute($query);
+				$resCheckedIG = $dbADO->_Execute($queryCheckedIG);
 				
 				$infraredGroupsDisplayed = array();
-				if ($resInfraredGroups) {
-					while ($row = $resInfraredGroups->FetchRow()) {
+				if ($resCheckedIG) {
+					$checkedIGArray=array();
+					while ($row = $resCheckedIG->FetchRow()) {
+						$checkedIGArray[]=$row['PK_InfraredGroup'];
+					}
+					
+					$categIGArray=array();
+					while ($rowCategIG = $resIGNonDelete->FetchRow()) {
+						$categIGArray[]=$rowCategIG['PK_InfraredGroup'];
 						$out.='<tr>
 								<td>
-									<input type="checkbox" name="InfraredGroup_'.$row['PK_InfraredGroup'].'" value="1" checked>'.stripslashes($row['Description']).' #'.$row['PK_InfraredGroup'].'
+									<input type="checkbox" name="InfraredGroup_'.$rowCategIG['PK_InfraredGroup'].'" value="1" '.((in_array($rowCategIG['PK_InfraredGroup'],$checkedIGArray))?'checked':'').' onClick="document.editMasterDevice.submit();">'.stripslashes($rowCategIG['Description']).' #'.$rowCategIG['PK_InfraredGroup'].' (by category and manufacturer)
 								</td>
 								<td>
 									<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editInfraredGroupFromMasterDevice&from=editMasterDevice&deviceID='.$deviceID.'&infraredGroupID='.$row['PK_InfraredGroup'].'\',\'width=800,height=600,toolbars=true,resizable=1,scrollbars=yes\');">Edit Infrared Commands</a>								
 								</td>
 							  </tr>';
-						$infraredGroupsDisplayed[]=$row['PK_InfraredGroup'];
+						$infraredGroupsDisplayed[]=$rowCategIG['PK_InfraredGroup'];
+					}					
+					
+					
+					$resCheckedIG->MoveFirst();
+					while ($row = $resCheckedIG->FetchRow()) {
+						if(!in_array($row['PK_InfraredGroup'],$categIGArray)){
+							$out.='<tr>
+									<td>
+										<input type="checkbox" name="InfraredGroup_'.$row['PK_InfraredGroup'].'" value="1" checked onClick="document.editMasterDevice.submit();">'.stripslashes($row['Description']).' #'.$row['PK_InfraredGroup'].'
+									</td>
+									<td>
+										<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editInfraredGroupFromMasterDevice&from=editMasterDevice&deviceID='.$deviceID.'&infraredGroupID='.$row['PK_InfraredGroup'].'\',\'width=800,height=600,toolbars=true,resizable=1,scrollbars=yes\');">Edit Infrared Commands</a>								
+									</td>
+								  </tr>';
+							$infraredGroupsDisplayed[]=$row['PK_InfraredGroup'];
+						}
 					}					
 				}
 
