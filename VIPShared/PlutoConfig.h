@@ -16,6 +16,7 @@ using namespace std;
 extern class PlutoConfig *g_pPlutoConfig;
 #endif //SYMBIAN
 
+/*
 class BasketOption
 {
 public:
@@ -25,7 +26,9 @@ public:
 	BasketOption() {};
 	BasketOption (string ID,string Description,long Qty, long Cost) { m_sID=ID; m_sDescription=Description; m_iQty=Qty; m_iCost=Cost; }
 };
+*/
 
+/*
 class BasketItem
 {
 public:
@@ -44,6 +47,7 @@ public:
 		}
 	}
 };
+*/
 
 // Todo - Remove me, use macros
 #ifndef SYMBIAN
@@ -59,9 +63,9 @@ public:
 };
 
 //#define ErrorLog { std::cout
-#define ErrorLog if(g_pPlutoConfig && g_pPlutoConfig->m_ofErrorLog){ DCESAFETYLOCK(slErrorLog,g_pPlutoConfig->m_MyErrorLogMutex); PrettyLog plog(g_pPlutoConfig->m_ofErrorLog); (*g_pPlutoConfig->m_ofErrorLog) 
+#define ErrorLog if(g_pPlutoConfig && g_pPlutoConfig->m_ofErrorLog){ PLUTO_SAFETY_LOCK(slErrorLog,g_pPlutoConfig->m_MyErrorLogMutex); PrettyLog plog(g_pPlutoConfig->m_ofErrorLog); (*g_pPlutoConfig->m_ofErrorLog) 
 //#define UsageLog { std::cout  
-#define UsageLog if(g_pPlutoConfig && g_pPlutoConfig->m_ofUsageLog){ DCESAFETYLOCK(slUsageLog,g_pPlutoConfig->m_MyUsageLogMutex); PrettyLog plog(g_pPlutoConfig->m_ofUsageLog); (*g_pPlutoConfig->m_ofUsageLog) 
+#define UsageLog if(g_pPlutoConfig && g_pPlutoConfig->m_ofUsageLog){ PLUTO_SAFETY_LOCK(slUsageLog,g_pPlutoConfig->m_MyUsageLogMutex); PrettyLog plog(g_pPlutoConfig->m_ofUsageLog); (*g_pPlutoConfig->m_ofUsageLog) 
 
 #ifdef USE_MYSQL
 	#include <mysql.h>
@@ -116,7 +120,7 @@ public:
 #endif //USE_MYSQL
 
 #ifdef MULTI_THREADED
-	my_pthread_mutex_t m_MyErrorLogMutex,m_MyUsageLogMutex;
+	pluto_pthread_mutex_t m_MyErrorLogMutex,m_MyUsageLogMutex;
 #endif //MULTI_THREADED
 
 #ifdef VIPDESIGN

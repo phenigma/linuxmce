@@ -9,6 +9,12 @@
 #include "Logger.h"
 #endif
 
+#ifdef VIPPHONE
+#ifdef VIPDESIGN
+#include "VIPShared/PlutoConfig.h"
+#endif
+#endif
+
 #include "PlutoUtils/MyStl.h"
 #include "BD_CP_SendMeKeystrokes.h"
 

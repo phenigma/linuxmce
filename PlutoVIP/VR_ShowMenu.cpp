@@ -18,7 +18,7 @@
 
 #include "VIPIncludes.h"
 
-#include "VIPShared/PlutoConfig.h"
+//#include "VIPShared/PlutoConfig.h"
 
 #include "VR_ShowMenu.h"
 

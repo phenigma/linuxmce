@@ -2,6 +2,7 @@
 #ifdef VIPDESIGN
 #include "stdafx.h"
 #include "VIPDesign/VIPDesignDoc.h"
+#include "VIPShared/PlutoConfig.h"
 #endif
 #else
 #ifndef SYMBIAN

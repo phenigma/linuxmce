@@ -1,6 +1,11 @@
 #include "VIPIncludes.h"
-//#include "VIPShared/PlutoConfig.h"
 #include "VIPMenu.h"
+
+#ifdef VIPPHONE
+#ifdef VIPDESIGN
+#include "VIPShared/PlutoConfig.h"
+#endif
+#endif
 
 #ifndef SYMBIAN
 #include "PlutoUtils/FileUtils.h"

@@ -1,0 +1,881 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#include ""res\\VIPDesign.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#include ""afxprint.rc""       // printing/print preview resources\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\VIPDesign.ico"
+IDR_VIPDesignTYPE       ICON                    "res\\VIPDesignDoc.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_MAINFRAME TOOLBAR  16, 15
+BEGIN
+    BUTTON      ID_FILE_NEW
+    BUTTON      ID_FILE_OPEN
+    BUTTON      ID_FILE_SAVE
+    SEPARATOR
+    BUTTON      ID_EDIT_CUT
+    BUTTON      ID_EDIT_COPY
+    BUTTON      ID_EDIT_PASTE
+    SEPARATOR
+    BUTTON      ID_FILE_PRINT
+    BUTTON      ID_APP_ABOUT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINFRAME MENU 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
+        MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
+        MENUITEM SEPARATOR
+        MENUITEM "P&rint Setup...",             ID_FILE_PRINT_SETUP
+        MENUITEM SEPARATOR
+        MENUITEM "Recent File",                 ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "&Close",                      ID_FILE_CLOSE
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About VIPDesign...",         ID_APP_ABOUT
+    END
+END
+
+IDR_VIPDesignTYPE MENU 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
+        MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
+        MENUITEM "&Close",                      ID_FILE_CLOSE
+        MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
+        MENUITEM "Save &As...",                 ID_FILE_SAVE_AS
+        MENUITEM SEPARATOR
+        MENUITEM "&Print...\tCtrl+P",           ID_FILE_PRINT
+        MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
+        MENUITEM "P&rint Setup...",             ID_FILE_PRINT_SETUP
+        MENUITEM SEPARATOR
+        MENUITEM "Recent File",                 ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "&Undo\tCtrl+Z",               ID_EDIT_UNDO
+        MENUITEM SEPARATOR
+        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
+        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
+    END
+    POPUP "&Add"
+    BEGIN
+        MENUITEM "&Text",                       130
+        MENUITEM "&Graphic",                    ID_ADD_GRAPHIC
+        MENUITEM "&List",                       ID_ADD_LIST
+        MENUITEM "&Input",                      132
+        MENUITEM "&Zone",                       ID_ADD_ZONE
+        MENUITEM "&Resolution",                 133
+        MENUITEM "&Menu",                       ID_ADD_MENU
+        MENUITEM "&Variable",                   ID_ADD_VARIABLE
+    END
+    POPUP "&Modify"
+    BEGIN
+        MENUITEM "&Text",                       ID_EDIT_TEXT
+        MENUITEM "&Graphic",                    ID_EDIT_GRAPHIC
+        MENUITEM "&List",                       ID_MODIFY_LIST
+        MENUITEM "&Input",                      ID_EDIT_INPUT
+        MENUITEM "&Zone",                       ID_EDIT_ZONE
+        MENUITEM "&Resolution",                 ID_EDIT_RESOLUTION
+        MENUITEM "&Menu",                       ID_EDIT_MENU
+        MENUITEM "&Variable",                   ID_EDIT_VARIABLE
+        MENUITEM "&Properties",                 ID_MODIFY_PROPERTIES
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+        MENUITEM "&Goto Menu",                  ID_VIEW_GOTOMENU
+        MENUITEM "&Emulator",                   ID_VIEW_EMULATOR
+    END
+    POPUP "&Window"
+    BEGIN
+        MENUITEM "&New Window",                 ID_WINDOW_NEW
+        MENUITEM "&Cascade",                    ID_WINDOW_CASCADE
+        MENUITEM "&Tile",                       ID_WINDOW_TILE_HORZ
+        MENUITEM "&Arrange Icons",              ID_WINDOW_ARRANGE
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About VIPDesign...",         ID_APP_ABOUT
+    END
+    POPUP "&Goto"
+    BEGIN
+        MENUITEM "&Reset Emulator",             ID_GOTO_LISTMENUS
+    END
+    POPUP "&POS"
+    BEGIN
+        MENUITEM "&Member Identified",          ID_POS_MEMBERIDENTIFIED
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_MAINFRAME ACCELERATORS 
+BEGIN
+    "N",            ID_FILE_NEW,            VIRTKEY, CONTROL
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL
+    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL
+    "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL
+    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT
+    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL
+    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT
+    VK_F6,          ID_NEXT_PANE,           VIRTKEY 
+    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOGEX 0, 0, 235, 55
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "About VIPDesign"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
+    LTEXT           "VIPDesign Version 1.0",IDC_STATIC,40,10,119,8,
+                    SS_NOPREFIX
+    LTEXT           "Copyright (C) 2004",IDC_STATIC,40,25,119,8
+    DEFPUSHBUTTON   "OK",IDOK,178,7,50,16,WS_GROUP
+END
+
+IDD_VIPTEXT DIALOGEX 0, 0, 300, 228
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "Text"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    COMBOBOX        IDC_TEXT_FONT,25,7,154,30,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_TEXT_SIZE,201,7,21,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TEXT_X,26,40,32,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TEXT_Y,77,40,32,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TEXT_WIDTH,133,40,32,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TEXT_HEIGHT,184,39,32,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TEXT,7,76,286,145,ES_MULTILINE | ES_AUTOHSCROLL | 
+                    ES_WANTRETURN
+    DEFPUSHBUTTON   "OK",IDOK,243,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,243,24,50,14
+    LTEXT           "Size",IDC_STATIC,185,7,14,8
+    LTEXT           "Font",IDC_STATIC,7,7,16,8
+    LTEXT           "X:",IDC_STATIC,17,43,8,8
+    LTEXT           "Y:",IDC_STATIC,69,43,8,8
+    LTEXT           "W:",IDC_STATIC,123,43,10,8
+    LTEXT           "H:",IDC_STATIC,178,43,8,8
+    EDITTEXT        IDC_TEXT_R,27,22,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TEXT_G,79,22,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TEXT_B,135,22,40,14,ES_AUTOHSCROLL
+    LTEXT           "R:",IDC_STATIC,17,25,8,8
+    LTEXT           "G:",IDC_STATIC,69,25,8,8
+    LTEXT           "B:",IDC_STATIC,124,25,8,8
+    PUSHBUTTON      "...",IDC_TEXT_COLOR,179,22,22,14
+    LTEXT           "Visibility linked to variable:",IDC_STATIC,7,60,84,8
+    EDITTEXT        IDC_TEXT_VARIABLE,92,57,31,14,ES_AUTOHSCROLL
+    LTEXT           "Basket Option:",IDC_STATIC,131,60,48,8
+    EDITTEXT        IDC_TEXT_BASKETOPTION2,178,57,77,14,ES_AUTOHSCROLL
+END
+
+IDD_VIPGRAPHIC DIALOGEX 0, 0, 290, 66
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "Graphic"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_GRAPHIC_FILENAME,22,7,184,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_GRAPHIC_FIND,208,7,16,14
+    EDITTEXT        IDC_GRAPHIC_X,23,27,32,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GRAPHIC_Y,74,27,32,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GRAPHIC_WIDTH,130,27,32,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_GRAPHIC_HEIGHT,183,27,32,14,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,233,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,233,27,50,14
+    LTEXT           "File:",IDC_STATIC,7,10,14,8
+    LTEXT           "X:",IDC_STATIC,14,30,8,8
+    LTEXT           "Y:",IDC_STATIC,66,30,8,8
+    LTEXT           "W:",IDC_STATIC,120,30,10,8
+    LTEXT           "H:",IDC_STATIC,175,30,8,8
+    LTEXT           "Visibility linked to variable:",IDC_STATIC,7,48,84,8
+    EDITTEXT        IDC_GRAPHIC_VARIABLE,92,45,31,14,ES_AUTOHSCROLL
+    LTEXT           "Basket Option:",IDC_STATIC,131,48,48,8
+    EDITTEXT        IDC_GRAPHIC_BASKETOPTION,178,45,77,14,ES_AUTOHSCROLL
+END
+
+IDD_VIPEDIT DIALOGEX 0, 0, 224, 174
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,167,102,50,14
+    LISTBOX         IDC_LIST_ITEMS,7,7,152,160,LBS_SORT | 
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "&Up",IDC_EDIT_UP,167,7,50,14
+    PUSHBUTTON      "&Down",IDC_EDIT_DOWN,167,153,50,14
+    PUSHBUTTON      "&Edit",IDC_EDIT_EDIT,167,41,50,14
+    PUSHBUTTON      "&Delete",IDC_EDIT_DELETE,167,72,50,14
+END
+
+IDD_VIPINPUT DIALOGEX 0, 0, 249, 82
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "Input"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_INPUT_NUMCHARS,66,7,40,14,ES_AUTOHSCROLL
+    CONTROL         "Auto Terminate",IDC_INPUT_AUTOTERM,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,113,7,65,10
+    COMBOBOX        IDC_INPUT_VARIABLE,7,33,169,30,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Clear on load",IDC_INPUT_CLEARVAR,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,118,24,58,10
+    DEFPUSHBUTTON   "OK",IDOK,192,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,192,24,50,14
+    LTEXT           "# of characters:",IDC_STATIC,7,7,54,8
+    LTEXT           "Variable:",IDC_STATIC,7,24,29,8
+    LTEXT           "Redraw Text:",IDC_STATIC,7,53,45,8
+    COMBOBOX        IDC_CB_TEXT,7,64,167,30,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_VIPRESOLUTION DIALOG  0, 0, 340, 164
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "Resolution"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    CONTROL         "Y",IDC_RES_Y,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,63,7,
+                    20,10
+    CONTROL         "N",IDC_RES_N,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,85,7,
+                    21,10
+    CONTROL         "Enter",IDC_RES_E,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    109,7,33,10
+    CONTROL         "Fill Input",IDC_RES_F,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,145,7,43,10
+    CONTROL         "Up",IDC_RES_UP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,63,
+                    18,25,10
+    CONTROL         "Down",IDC_RES_DOWN,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,87,18,34,10
+    CONTROL         "Left",IDC_RES_LEFT,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,123,18,29,10
+    CONTROL         "Right",IDC_RES_RIGHT,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,153,18,33,10
+    CONTROL         "0",IDC_RES_0,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,63,
+                    31,20,10
+    CONTROL         "1",IDC_RES_1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,85,
+                    31,20,10
+    CONTROL         "2",IDC_RES_2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,105,
+                    31,20,10
+    CONTROL         "3",IDC_RES_3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,126,
+                    31,20,10
+    CONTROL         "4",IDC_RES_4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,145,
+                    31,20,10
+    CONTROL         "5",IDC_RES_5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,166,
+                    31,20,10
+    CONTROL         "6",IDC_RES_6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,186,
+                    31,20,10
+    CONTROL         "7",IDC_RES_7,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,207,
+                    31,20,10
+    CONTROL         "8",IDC_RES_8,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,227,
+                    31,20,10
+    CONTROL         "9",IDC_RES_9,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,248,
+                    31,20,10
+    COMBOBOX        IDC_RES_CRIT_VARIABLE,64,50,125,30,CBS_DROPDOWN | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_RES_CRIT_VAR_VALUE,201,48,40,14,ES_AUTOHSCROLL
+    CONTROL         "Hide App",IDC_RES_HIDE_APP,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,38,80,45,10
+    CONTROL         "Report Variables",IDC_RES_REPORT,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,85,80,69,10
+    COMBOBOX        IDC_RES_GOTO,58,93,149,58,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_RES_ACTION_VARIABLE,58,109,125,48,CBS_DROPDOWN | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_RES_VALUE,197,108,40,14,ES_AUTOHSCROLL
+    COMBOBOX        IDC_BASKET_ACTION,58,126,55,30,CBS_DROPDOWN | WS_VSCROLL | 
+                    WS_TABSTOP
+    CONTROL         "Toggle",IDC_RES_BASKET_TOGGLE,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,121,128,37,10
+    EDITTEXT        IDC_RES_BASKET_ID,69,143,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_RES_BASKET_DESCRIPTION,155,143,100,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_RES_BASKET_COST,282,143,51,14,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,283,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,283,24,50,14
+    LTEXT           "Terminate with:",IDC_STATIC,7,7,51,8
+    LTEXT           "Criteria: Variable:",IDC_STATIC,7,52,57,8
+    LTEXT           "=",IDC_STATIC,193,49,8,8
+    LTEXT           "Action:",IDC_STATIC,9,81,24,8
+    LTEXT           "Goto:",IDC_STATIC,36,96,19,8
+    LTEXT           "Set Variable:",IDC_STATIC,15,111,42,8
+    LTEXT           "to",IDC_STATIC,187,111,8,8
+    LTEXT           "Basket:",IDC_STATIC,32,129,25,8
+    LTEXT           "ID:",IDC_STATIC,55,148,11,8
+    LTEXT           "Description:",IDC_STATIC,113,148,40,8
+    LTEXT           "Cost:",IDC_STATIC,260,148,18,8
+    COMBOBOX        IDC_RES_CLOSE_REQUEST,167,77,101,30,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Clear",IDC_RES_CLEAR,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,189,7,33,10
+END
+
+IDD_VIPMENU DIALOGEX 0, 0, 186, 46
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "Menu"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,129,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,129,24,50,14
+    LTEXT           "Desription:",IDC_STATIC,7,7,36,8
+    EDITTEXT        IDC_MENU_DESCRIPTION,7,21,109,14,ES_AUTOHSCROLL
+END
+
+IDD_VIPVARIABLE DIALOGEX 0, 0, 301, 121
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "Variable"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,244,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,244,24,50,14
+    LTEXT           "Predefined:",IDC_STATIC,7,7,38,8
+    COMBOBOX        IDC_VAR_PREDEFINED,49,7,115,30,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "or:",IDC_STATIC,34,22,10,8
+    EDITTEXT        IDC_VAR_CUSTOM_VARIABLE,48,22,116,14,ES_AUTOHSCROLL
+    CONTROL         "Encrypt before sending",IDC_VAR_ENCRYPT,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,45,91,10
+    CONTROL         "Phone sets value",IDC_VAR_PHONE_SETS_VALUE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,101,43,71,10
+    LTEXT           "Format:",IDC_STATIC,15,62,26,8
+    COMBOBOX        IDC_VAR_FORMAT,47,62,48,30,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Value:",IDC_STATIC,17,86,21,8
+    EDITTEXT        IDC_VAR_VALUE,48,82,160,14,ES_AUTOHSCROLL
+END
+
+IDD_PROPERTIES DIALOGEX 0, 0, 237, 65
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "Properties"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,180,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,180,24,50,14
+    LTEXT           "Width:",IDC_STATIC,7,28,22,8
+    LTEXT           "Height:",IDC_STATIC,74,29,24,8
+    EDITTEXT        IDC_PROP_WIDTH,29,26,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_PROP_HEIGHT,100,26,40,14,ES_AUTOHSCROLL
+    LTEXT           "Starting Menu:",IDC_STATIC,7,7,48,8
+    COMBOBOX        IDC_PROP_STARTINGMENU,57,7,113,30,CBS_DROPDOWN | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Collection ID:",IDC_STATIC,7,48,44,8
+    EDITTEXT        IDC_PROP_COLLECTIONID,57,44,40,14,ES_AUTOHSCROLL
+END
+
+IDD_VIPLIST DIALOGEX 0, 0, 314, 262
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "List"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "Is Alphanumeric",IDC_LIST_ISALPHA,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,7,67,10
+    EDITTEXT        IDC_LIST_MAXLINES,133,7,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LIST_TABSTOPS,45,23,139,14,ES_AUTOHSCROLL
+    COMBOBOX        IDC_LIST_FONT,25,40,154,30,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_LIST_SIZE,201,40,21,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LIST_X,26,73,32,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LIST_Y,77,73,32,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LIST_WIDTH,133,73,32,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LIST_HEIGHT,186,73,32,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LIST_TEXT,7,110,300,145,ES_MULTILINE | 
+                    ES_AUTOHSCROLL | ES_WANTRETURN
+    DEFPUSHBUTTON   "OK",IDOK,257,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,257,24,50,14
+    LTEXT           "Size",IDC_STATIC,185,40,14,8
+    LTEXT           "Font",IDC_STATIC,7,40,16,8
+    LTEXT           "X:",IDC_STATIC,17,76,8,8
+    LTEXT           "Y:",IDC_STATIC,69,76,8,8
+    LTEXT           "W:",IDC_STATIC,123,76,10,8
+    LTEXT           "H:",IDC_STATIC,178,76,8,8
+    EDITTEXT        IDC_LIST_R,27,55,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LIST_G,79,55,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LIST_B,135,55,40,14,ES_AUTOHSCROLL
+    LTEXT           "R:",IDC_STATIC,17,58,8,8
+    LTEXT           "G:",IDC_STATIC,69,58,8,8
+    LTEXT           "B:",IDC_STATIC,124,58,8,8
+    PUSHBUTTON      "...",IDC_TEXT_COLOR,179,55,22,14
+    LTEXT           "Max Lines:",IDC_STATIC,83,9,35,8
+    LTEXT           "Tab Stops:",IDC_STATIC,7,26,36,8
+    LTEXT           "Visibility linked to variable:",IDC_STATIC,7,93,84,8
+    EDITTEXT        IDC_LIST_VARIABLE,92,90,31,14,ES_AUTOHSCROLL
+    LTEXT           "Basket Option:",IDC_STATIC,131,93,48,8
+    EDITTEXT        IDC_LIST_BASKETOPTION,178,90,77,14,ES_AUTOHSCROLL
+END
+
+IDD_RESET_EMULATOR DIALOGEX 0, 0, 378, 348
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,7,327,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,71,327,50,14
+END
+
+IDD_DIALOG1 DIALOGEX 0, 0, 317, 156
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,260,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,260,24,50,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904e4"
+        BEGIN
+            VALUE "CompanyName", "TODO: <Company name>"
+            VALUE "FileDescription", "TODO: <File description>"
+            VALUE "FileVersion", "1.0.0.1"
+            VALUE "InternalName", "VIPDesign.exe"
+            VALUE "LegalCopyright", "TODO: (c) <Company name>.  All rights reserved."
+            VALUE "OriginalFilename", "VIPDesign.exe"
+            VALUE "ProductName", "TODO: <Product name>"
+            VALUE "ProductVersion", "1.0.0.1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 228
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 48
+    END
+
+    IDD_VIPTEXT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 293
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 221
+    END
+
+    IDD_VIPGRAPHIC, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 283
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 59
+    END
+
+    IDD_VIPEDIT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 217
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 167
+    END
+
+    IDD_VIPINPUT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 242
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 75
+    END
+
+    IDD_VIPRESOLUTION, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 333
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 157
+    END
+
+    IDD_VIPMENU, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 39
+    END
+
+    IDD_VIPVARIABLE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 294
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 114
+    END
+
+    IDD_PROPERTIES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 230
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 58
+    END
+
+    IDD_VIPLIST, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 307
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 255
+    END
+
+    IDD_RESET_EMULATOR, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 371
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 341
+    END
+
+    IDD_DIALOG1, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 310
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 149
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// RT_MANIFEST
+//
+
+IDR_MANIFEST            RT_MANIFEST             "res\\VIPDesign.manifest"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_VIPTEXT DLGINIT
+BEGIN
+    IDC_TEXT_FONT, 0x403, 6, 0
+0x7241, 0x6169, 0x006c, 
+    IDC_TEXT_FONT, 0x403, 8, 0
+0x6f43, 0x7275, 0x6569, 0x0072, 
+    IDC_TEXT_FONT, 0x403, 16, 0
+0x6954, 0x656d, 0x2073, 0x654e, 0x2077, 0x6f52, 0x616d, 0x006e, 
+    0
+END
+
+IDD_VIPLIST DLGINIT
+BEGIN
+    IDC_LIST_FONT, 0x403, 6, 0
+0x7241, 0x6169, 0x006c, 
+    IDC_LIST_FONT, 0x403, 8, 0
+0x6f43, 0x7275, 0x6569, 0x0072, 
+    IDC_LIST_FONT, 0x403, 16, 0
+0x6954, 0x656d, 0x2073, 0x654e, 0x2077, 0x6f52, 0x616d, 0x006e, 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDP_SOCKETS_INIT_FAILED "Windows sockets initialization failed."
+END
+
+STRINGTABLE 
+BEGIN
+    IDR_MAINFRAME           "VIPDesign"
+    IDR_VIPDesignTYPE       "\nVIPDesign\nVIPDesign\nVIPDesign Files (*.vdm)\n.vdm\nVIPDesign.Document\nVIPDesign.Document"
+END
+
+STRINGTABLE 
+BEGIN
+    AFX_IDS_APP_TITLE       "VIPDesign"
+    AFX_IDS_IDLEMESSAGE     "Ready"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_INDICATOR_EXT        "EXT"
+    ID_INDICATOR_CAPS       "CAP"
+    ID_INDICATOR_NUM        "NUM"
+    ID_INDICATOR_SCRL       "SCRL"
+    ID_INDICATOR_OVR        "OVR"
+    ID_INDICATOR_REC        "REC"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_FILE_NEW             "Create a new document\nNew"
+    ID_FILE_OPEN            "Open an existing document\nOpen"
+    ID_FILE_CLOSE           "Close the active document\nClose"
+    ID_FILE_SAVE            "Save the active document\nSave"
+    ID_FILE_SAVE_AS         "Save the active document with a new name\nSave As"
+    ID_FILE_PAGE_SETUP      "Change the printing options\nPage Setup"
+    ID_FILE_PRINT_SETUP     "Change the printer and printing options\nPrint Setup"
+    ID_FILE_PRINT           "Print the active document\nPrint"
+    ID_FILE_PRINT_PREVIEW   "Display full pages\nPrint Preview"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
+    ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_FILE_MRU_FILE1       "Open this document"
+    ID_FILE_MRU_FILE2       "Open this document"
+    ID_FILE_MRU_FILE3       "Open this document"
+    ID_FILE_MRU_FILE4       "Open this document"
+    ID_FILE_MRU_FILE5       "Open this document"
+    ID_FILE_MRU_FILE6       "Open this document"
+    ID_FILE_MRU_FILE7       "Open this document"
+    ID_FILE_MRU_FILE8       "Open this document"
+    ID_FILE_MRU_FILE9       "Open this document"
+    ID_FILE_MRU_FILE10      "Open this document"
+    ID_FILE_MRU_FILE11      "Open this document"
+    ID_FILE_MRU_FILE12      "Open this document"
+    ID_FILE_MRU_FILE13      "Open this document"
+    ID_FILE_MRU_FILE14      "Open this document"
+    ID_FILE_MRU_FILE15      "Open this document"
+    ID_FILE_MRU_FILE16      "Open this document"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_NEXT_PANE            "Switch to the next window pane\nNext Pane"
+    ID_PREV_PANE            "Switch back to the previous window pane\nPrevious Pane"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_WINDOW_NEW           "Open another window for the active document\nNew Window"
+    ID_WINDOW_ARRANGE       "Arrange icons at the bottom of the window\nArrange Icons"
+    ID_WINDOW_CASCADE       "Arrange windows so they overlap\nCascade Windows"
+    ID_WINDOW_TILE_HORZ     "Arrange windows as non-overlapping tiles\nTile Windows"
+    ID_WINDOW_TILE_VERT     "Arrange windows as non-overlapping tiles\nTile Windows"
+    ID_WINDOW_SPLIT         "Split the active window into panes\nSplit"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_EDIT_CLEAR           "Erase the selection\nErase"
+    ID_EDIT_CLEAR_ALL       "Erase everything\nErase All"
+    ID_EDIT_COPY            "Copy the selection and put it on the Clipboard\nCopy"
+    ID_EDIT_CUT             "Cut the selection and put it on the Clipboard\nCut"
+    ID_EDIT_FIND            "Find the specified text\nFind"
+    ID_EDIT_PASTE           "Insert Clipboard contents\nPaste"
+    ID_EDIT_REPEAT          "Repeat the last action\nRepeat"
+    ID_EDIT_REPLACE         "Replace specific text with different text\nReplace"
+    ID_EDIT_SELECT_ALL      "Select the entire document\nSelect All"
+    ID_EDIT_UNDO            "Undo the last action\nUndo"
+    ID_EDIT_REDO            "Redo the previously undone action\nRedo"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_VIEW_TOOLBAR         "Show or hide the toolbar\nToggle ToolBar"
+    ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle StatusBar"
+END
+
+STRINGTABLE 
+BEGIN
+    AFX_IDS_SCSIZE          "Change the window size"
+    AFX_IDS_SCMOVE          "Change the window position"
+    AFX_IDS_SCMINIMIZE      "Reduce the window to an icon"
+    AFX_IDS_SCMAXIMIZE      "Enlarge the window to full size"
+    AFX_IDS_SCNEXTWINDOW    "Switch to the next document window"
+    AFX_IDS_SCPREVWINDOW    "Switch to the previous document window"
+    AFX_IDS_SCCLOSE         "Close the active window and prompts to save the documents"
+END
+
+STRINGTABLE 
+BEGIN
+    AFX_IDS_SCRESTORE       "Restore the window to normal size"
+    AFX_IDS_SCTASKLIST      "Activate Task List"
+    AFX_IDS_MDICHILD        "Activate this window"
+END
+
+STRINGTABLE 
+BEGIN
+    AFX_IDS_PREVIEW_CLOSE   "Close print preview mode\nCancel Preview"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#include "res\VIPDesign.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#include "afxprint.rc"       // printing/print preview resources
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

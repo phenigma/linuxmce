@@ -1,0 +1,236 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: VIPDesign - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating command line "rc.exe /l 0x409 /fo"Debug/VIPDesign.res" /d "_DEBUG" /d "_AFXDLL" "C:\ha\level4\VIPDesign\VIPDesign.rc"" 
+Creating temporary file "C:\DOCUME~1\aaron\LOCALS~1\Temp\RSP6.tmp" with contents
+[
+/nologo /MDd /w /W0 /Gm /GX /ZI /Od /I ".\\" /I "\ha\level4" /I "\ha\level1\Libraries\pthreads-win32\include" /I "\ha\level4\DCE" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /D "MULTI_THREADED" /D "VIPDESIGN" /D "VIPPHONE" /FR"Debug/" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"C:\ha\level4\DCE\AlarmManager.cpp"
+"C:\ha\level4\VIPShared\BT_CP_Disconnect.cpp"
+"C:\ha\level4\VIPShared\BT_CP_Have_Nothing.cpp"
+"C:\ha\level4\VIPShared\BT_CP_SendMeKeystrokes.cpp"
+"C:\ha\level4\VIPShared\BT_CP_ShowImage.cpp"
+"C:\ha\level4\VIPShared\BT_CP_ShowVMC.cpp"
+"C:\ha\level4\VIPShared\BT_CP_UpdateVariables.cpp"
+"C:\ha\level4\VIPShared\BT_PC_Disconnect.cpp"
+"C:\ha\level4\VIPShared\BT_PC_KeyWasPressed.cpp"
+"C:\ha\level4\VIPShared\BT_PC_OrderPlaced.cpp"
+"C:\ha\level4\VIPShared\BT_PC_ReportingVariables.cpp"
+"C:\ha\level4\VIPShared\BT_PC_VMCHidden.cpp"
+"C:\ha\level4\VIPShared\BT_PC_VMCTerminated.cpp"
+"C:\ha\level4\VIPShared\BT_PC_WhatDoYouHave.cpp"
+"C:\ha\level4\VIPShared\BTCommand.cpp"
+"C:\ha\level4\VIPShared\BTCommandProcessor.cpp"
+"C:\ha\level4\VIPShared\BTCommandProcessor_Windows_Socket.cpp"
+"C:\ha\level4\VIPDesign\ChildFrm.cpp"
+"C:\ha\level4\DCE\CommonIncludes.cpp"
+"C:\ha\level4\DCE\DCEClientSocket.cpp"
+"C:\ha\level4\DCE\DCELogger.cpp"
+"C:\ha\level4\DCE\DCEMessage.cpp"
+"C:\ha\level4\DCE\DCEServerSocket.cpp"
+"C:\ha\level4\DCE\DCESocket.cpp"
+"C:\ha\level4\DCE\DCESocketListener.cpp"
+"C:\ha\level4\VIPEstablishment\EstablishmentSocket.cpp"
+"C:\ha\level4\VIPDesign\MainFrm.cpp"
+"C:\ha\level4\DCE\MultiThreadIncludes.cpp"
+"C:\ha\level4\DCE\Picture.cpp"
+"C:\ha\level4\VIPShared\PlutoConfig.cpp"
+"C:\ha\level4\VIPShared\RenderMenu.cpp"
+"C:\ha\level4\VIPDesign\ResetEmulatorDlg.cpp"
+"C:\ha\level4\DCE\StringUtils.cpp"
+"C:\ha\level4\DCE\TokenStream.cpp"
+"C:\ha\level4\VIPDesign\VIPDesign.cpp"
+"C:\ha\level4\VIPDesign\VIPDesignDoc.cpp"
+"C:\ha\level4\VIPDesign\VIPDesignView.cpp"
+"C:\ha\level4\VIPDesign\VIPEditDlg.cpp"
+"C:\ha\level4\VIPDesign\VIPEmulator.cpp"
+"C:\ha\level4\VIPDesign\VIPEmulatorSocket.cpp"
+"C:\ha\level4\VIPDesign\VIPGraphicDlg.cpp"
+"C:\ha\level4\VIPDesign\VIPInputDlg.cpp"
+"C:\ha\level4\VIPDesign\VIPListDlg.cpp"
+"C:\ha\level4\VIPShared\VIPMenu.cpp"
+"C:\ha\level4\VIPDesign\VIPMenuDlg.cpp"
+"C:\ha\level4\VIPDesign\VIPPropertiesDlg.cpp"
+"C:\ha\level4\VIPShared\VIPRequest.cpp"
+"C:\ha\level4\VIPDesign\VIPResolutionDlg.cpp"
+"C:\ha\level4\VIPDesign\VIPTextDlg.cpp"
+"C:\ha\level4\VIPDesign\VIPVariableDlg.cpp"
+"C:\ha\level4\VIPShared\VR_IdentifyPhone.cpp"
+"C:\ha\level4\VIPShared\VR_ManuallyMatchPhone.cpp"
+"C:\ha\level4\VIPShared\VR_PhoneRespondedToRequest.cpp"
+"C:\ha\level4\VIPShared\VR_RequestPayment.cpp"
+"C:\ha\level4\VIPShared\VR_RequestSecureTransaction.cpp"
+"C:\ha\level4\VIPShared\VR_ShowMenu.cpp"
+"C:\ha\level4\VIPShared\VR_UnknownRequest.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\aaron\LOCALS~1\Temp\RSP6.tmp" 
+Creating temporary file "C:\DOCUME~1\aaron\LOCALS~1\Temp\RSP7.tmp" with contents
+[
+/nologo /MDd /w /W0 /Gm /GX /ZI /Od /I ".\\" /I "\ha\level4" /I "\ha\level1\Libraries\pthreads-win32\include" /I "\ha\level4\DCE" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /D "MULTI_THREADED" /D "VIPDESIGN" /D "VIPPHONE" /FR"Debug/" /Fp"Debug/VIPDesign.pch" /Yc"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"C:\ha\level4\VIPDesign\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\aaron\LOCALS~1\Temp\RSP7.tmp" 
+Creating temporary file "C:\DOCUME~1\aaron\LOCALS~1\Temp\RSP8.tmp" with contents
+[
+C:/ha/level1/Libraries/pthreads-win32/lib/pthreadVC.lib wsock32.lib /nologo /subsystem:windows /incremental:yes /pdb:"Debug/VIPDesign.pdb" /debug /machine:I386 /out:"../VIPDesign.exe" /pdbtype:sept 
+.\Debug\AlarmManager.obj
+.\Debug\BT_CP_Disconnect.obj
+.\Debug\BT_CP_Have_Nothing.obj
+.\Debug\BT_CP_SendMeKeystrokes.obj
+.\Debug\BT_CP_ShowImage.obj
+.\Debug\BT_CP_ShowVMC.obj
+.\Debug\BT_CP_UpdateVariables.obj
+.\Debug\BT_PC_Disconnect.obj
+.\Debug\BT_PC_KeyWasPressed.obj
+.\Debug\BT_PC_OrderPlaced.obj
+.\Debug\BT_PC_ReportingVariables.obj
+.\Debug\BT_PC_VMCHidden.obj
+.\Debug\BT_PC_VMCTerminated.obj
+.\Debug\BT_PC_WhatDoYouHave.obj
+.\Debug\BTCommand.obj
+.\Debug\BTCommandProcessor.obj
+.\Debug\BTCommandProcessor_Windows_Socket.obj
+.\Debug\ChildFrm.obj
+.\Debug\CommonIncludes.obj
+.\Debug\DCEClientSocket.obj
+.\Debug\DCELogger.obj
+.\Debug\DCEMessage.obj
+.\Debug\DCEServerSocket.obj
+.\Debug\DCESocket.obj
+.\Debug\DCESocketListener.obj
+.\Debug\EstablishmentSocket.obj
+.\Debug\MainFrm.obj
+.\Debug\MultiThreadIncludes.obj
+.\Debug\Picture.obj
+.\Debug\PlutoConfig.obj
+.\Debug\RenderMenu.obj
+.\Debug\ResetEmulatorDlg.obj
+.\Debug\StdAfx.obj
+.\Debug\StringUtils.obj
+.\Debug\TokenStream.obj
+.\Debug\VIPDesign.obj
+.\Debug\VIPDesignDoc.obj
+.\Debug\VIPDesignView.obj
+.\Debug\VIPEditDlg.obj
+.\Debug\VIPEmulator.obj
+.\Debug\VIPEmulatorSocket.obj
+.\Debug\VIPGraphicDlg.obj
+.\Debug\VIPInputDlg.obj
+.\Debug\VIPListDlg.obj
+.\Debug\VIPMenu.obj
+.\Debug\VIPMenuDlg.obj
+.\Debug\VIPPropertiesDlg.obj
+.\Debug\VIPRequest.obj
+.\Debug\VIPResolutionDlg.obj
+.\Debug\VIPTextDlg.obj
+.\Debug\VIPVariableDlg.obj
+.\Debug\VR_IdentifyPhone.obj
+.\Debug\VR_ManuallyMatchPhone.obj
+.\Debug\VR_PhoneRespondedToRequest.obj
+.\Debug\VR_RequestPayment.obj
+.\Debug\VR_RequestSecureTransaction.obj
+.\Debug\VR_ShowMenu.obj
+.\Debug\VR_UnknownRequest.obj
+.\Debug\VIPDesign.res
+]
+Creating command line "link.exe @C:\DOCUME~1\aaron\LOCALS~1\Temp\RSP8.tmp"
+<h3>Output Window</h3>
+Compiling resources...
+Compiling...
+StdAfx.cpp
+c:\program files\microsoft visual studio\vc98\mfc\include\afxv_w32.h(119) : note C6311: c:\ha\level4\vipdesign\stdafx.h(22) : see previous definition of '_WIN32_WINDOWS'
+Compiling...
+AlarmManager.cpp
+BT_CP_Disconnect.cpp
+BT_CP_Have_Nothing.cpp
+BT_CP_SendMeKeystrokes.cpp
+BT_CP_ShowImage.cpp
+c:\program files\microsoft visual studio\vc98\mfc\include\afxv_w32.h(119) : note C6311: c:\ha\level4\vipshared\stdafx.h(22) : see previous definition of '_WIN32_WINDOWS'
+BT_CP_ShowVMC.cpp
+c:\program files\microsoft visual studio\vc98\mfc\include\afxv_w32.h(119) : note C6311: c:\ha\level4\vipshared\stdafx.h(22) : see previous definition of '_WIN32_WINDOWS'
+BT_CP_UpdateVariables.cpp
+BT_PC_Disconnect.cpp
+BT_PC_KeyWasPressed.cpp
+BT_PC_OrderPlaced.cpp
+BT_PC_ReportingVariables.cpp
+BT_PC_VMCHidden.cpp
+BT_PC_VMCTerminated.cpp
+BT_PC_WhatDoYouHave.cpp
+BTCommand.cpp
+BTCommandProcessor.cpp
+BTCommandProcessor_Windows_Socket.cpp
+ChildFrm.cpp
+c:\program files\microsoft visual studio\vc98\mfc\include\afxv_w32.h(119) : note C6311: c:\ha\level4\vipdesign\stdafx.h(22) : see previous definition of '_WIN32_WINDOWS'
+CommonIncludes.cpp
+DCEClientSocket.cpp
+Generating Code...
+Compiling...
+DCELogger.cpp
+DCEMessage.cpp
+DCEServerSocket.cpp
+DCESocket.cpp
+DCESocketListener.cpp
+EstablishmentSocket.cpp
+MainFrm.cpp
+c:\program files\microsoft visual studio\vc98\mfc\include\afxv_w32.h(119) : note C6311: c:\ha\level4\vipdesign\stdafx.h(22) : see previous definition of '_WIN32_WINDOWS'
+MultiThreadIncludes.cpp
+Picture.cpp
+PlutoConfig.cpp
+RenderMenu.cpp
+ResetEmulatorDlg.cpp
+c:\program files\microsoft visual studio\vc98\mfc\include\afxv_w32.h(119) : note C6311: c:\ha\level4\vipdesign\stdafx.h(22) : see previous definition of '_WIN32_WINDOWS'
+StringUtils.cpp
+TokenStream.cpp
+VIPDesign.cpp
+c:\program files\microsoft visual studio\vc98\mfc\include\afxv_w32.h(119) : note C6311: c:\ha\level4\vipdesign\stdafx.h(22) : see previous definition of '_WIN32_WINDOWS'
+VIPDesignDoc.cpp
+c:\program files\microsoft visual studio\vc98\mfc\include\afxv_w32.h(119) : note C6311: c:\ha\level4\vipdesign\stdafx.h(22) : see previous definition of '_WIN32_WINDOWS'
+VIPDesignView.cpp
+c:\program files\microsoft visual studio\vc98\mfc\include\afxv_w32.h(119) : note C6311: c:\ha\level4\vipdesign\stdafx.h(22) : see previous definition of '_WIN32_WINDOWS'
+VIPEditDlg.cpp
+c:\program files\microsoft visual studio\vc98\mfc\include\afxv_w32.h(119) : note C6311: c:\ha\level4\vipdesign\stdafx.h(22) : see previous definition of '_WIN32_WINDOWS'
+VIPEmulator.cpp
+VIPEmulatorSocket.cpp
+Generating Code...
+Compiling...
+VIPGraphicDlg.cpp
+c:\program files\microsoft visual studio\vc98\mfc\include\afxv_w32.h(119) : note C6311: c:\ha\level4\vipdesign\stdafx.h(22) : see previous definition of '_WIN32_WINDOWS'
+VIPInputDlg.cpp
+c:\program files\microsoft visual studio\vc98\mfc\include\afxv_w32.h(119) : note C6311: c:\ha\level4\vipdesign\stdafx.h(22) : see previous definition of '_WIN32_WINDOWS'
+VIPListDlg.cpp
+c:\program files\microsoft visual studio\vc98\mfc\include\afxv_w32.h(119) : note C6311: c:\ha\level4\vipdesign\stdafx.h(22) : see previous definition of '_WIN32_WINDOWS'
+VIPMenu.cpp
+VIPMenuDlg.cpp
+c:\program files\microsoft visual studio\vc98\mfc\include\afxv_w32.h(119) : note C6311: c:\ha\level4\vipdesign\stdafx.h(22) : see previous definition of '_WIN32_WINDOWS'
+VIPPropertiesDlg.cpp
+c:\program files\microsoft visual studio\vc98\mfc\include\afxv_w32.h(119) : note C6311: c:\ha\level4\vipdesign\stdafx.h(22) : see previous definition of '_WIN32_WINDOWS'
+VIPRequest.cpp
+VIPResolutionDlg.cpp
+c:\program files\microsoft visual studio\vc98\mfc\include\afxv_w32.h(119) : note C6311: c:\ha\level4\vipdesign\stdafx.h(22) : see previous definition of '_WIN32_WINDOWS'
+VIPTextDlg.cpp
+c:\program files\microsoft visual studio\vc98\mfc\include\afxv_w32.h(119) : note C6311: c:\ha\level4\vipdesign\stdafx.h(22) : see previous definition of '_WIN32_WINDOWS'
+VIPVariableDlg.cpp
+c:\program files\microsoft visual studio\vc98\mfc\include\afxv_w32.h(119) : note C6311: c:\ha\level4\vipdesign\stdafx.h(22) : see previous definition of '_WIN32_WINDOWS'
+VR_IdentifyPhone.cpp
+VR_ManuallyMatchPhone.cpp
+VR_PhoneRespondedToRequest.cpp
+VR_RequestPayment.cpp
+VR_RequestSecureTransaction.cpp
+VR_ShowMenu.cpp
+c:\program files\microsoft visual studio\vc98\mfc\include\afxv_w32.h(119) : note C6311: c:\ha\level4\vipshared\stdafx.h(22) : see previous definition of '_WIN32_WINDOWS'
+VR_UnknownRequest.cpp
+Generating Code...
+Linking...
+
+
+
+<h3>Results</h3>
+VIPDesign.exe - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

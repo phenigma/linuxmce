@@ -1,6 +1,6 @@
 #include "VIPShared/PlutoConfig.h"
 #ifndef SYMBIAN
-#include "StringUtils.h"
+#include "PlutoUtils/StringUtils.h"
 #include "VIPShared/VIPIncludes.h"
 
 PlutoConfig::PlutoConfig() 

@@ -102,8 +102,21 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShopNetUtil", "http://localhost/ShopNetUtil/ShopNetUtil.csproj", "{972B3876-021F-4AE3-BE9F-1C9BC215AB8B}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VIPDesign", "VIPDesign\VIPDesign.vcproj", "{A826C96C-9D11-4E4E-8B08-DA706704E823}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Global
+	GlobalSection(SourceCodeControl) = preSolution
+		SccNumberOfProjects = 1
+		SccProjectUniqueName0 = WinBluetooth\\StdDll\\StdDLL.vcproj
+		SccProjectName0 = \u0022$/Bluetooth/Applications/StdDLL/StdDLL\u0022,\u0020CYWBAAAA
+		SccLocalPath0 = WinBluetooth\\StdDll
+		SccProvider0 = MSSCCI:Microsoft\u0020Visual\u0020SourceSafe
+	EndGlobalSection
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
 		Release = Release
@@ -213,6 +226,10 @@ Global
 		{972B3876-021F-4AE3-BE9F-1C9BC215AB8B}.Debug.Build.0 = Debug|.NET
 		{972B3876-021F-4AE3-BE9F-1C9BC215AB8B}.Release.ActiveCfg = Release|.NET
 		{972B3876-021F-4AE3-BE9F-1C9BC215AB8B}.Release.Build.0 = Release|.NET
+		{A826C96C-9D11-4E4E-8B08-DA706704E823}.Debug.ActiveCfg = Debug|Win32
+		{A826C96C-9D11-4E4E-8B08-DA706704E823}.Debug.Build.0 = Debug|Win32
+		{A826C96C-9D11-4E4E-8B08-DA706704E823}.Release.ActiveCfg = Release|Win32
+		{A826C96C-9D11-4E4E-8B08-DA706704E823}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
