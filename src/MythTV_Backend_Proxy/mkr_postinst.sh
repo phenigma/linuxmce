@@ -14,8 +14,11 @@ function addEntries
 	fi;
 }
 
-# Force the backend to actually create the database on startup
+#Force the backend to make the database structure
 /etc/init.d/mythtv-backend force-reload
+
+echo "Waiting 3 seconds so that myth backed is able to actually create the schema"
+sleep 3
 
 isSetup=`echo "$query" | $mysql_command`;
 
