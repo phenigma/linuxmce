@@ -25,7 +25,7 @@ foreach $line (@data) {
 $db = DBI->connect("dbi:mysql:database=pluto_main;host=$DBHOST;user=$DBUSER;password=$DBPASSWD") or die "Couldn't connect to database: $DBI::errstr\n";
 $gw = "";
 
-system("rm -f /var/log/pluto/gc100-conf.log >> /dev/null");
+`rm -f /var/log/pluto/gc100-conf.log >> /dev/null`;
 
 if($ARGV[0] eq "") {
     loggc("No params\n\tFinding GC100 on the network\n");
@@ -42,22 +42,36 @@ if($ARGV[0] eq "") {
 	loggc("Finding Template ");
 	$dev_templ = get_template();
 	loggc("[$dev_templ]\n");
-	@data = sqlexec("select * from Device WHERE FK_DeviceTemplate='$dev_templ'");
-	if($data[0]->{'PK_Device'} ne "") {
-	  loggc("The device allready exist in the database\n");
-	  $db->disconnect();
-	  exit(2);
+	$sa = "select * from Device where FK_DeviceTemplate='$dev_templ'";
+	$state = $db->prepare($sa) or die "first";
+	$state->execute() or die "second";
+	while($row_x = $state->fetchrow_hashref()) {
+		$newmac = $row_x->{'MACaddress'};
+		$ret = comp_mac($newmac,$mac);
+		if($ret == 1) {
+			loggc("The device allready exist in the database\n");
+			$state->finish();
+			$db->disconnect();
+			exit(2);
+		}
 	}
+	$state->finish();
 	loggc("Creating Device...\n");
-	$line = "/usr/pluto/bin/CreateDevice -i ".$install." -d ".$dev_templ." -I  ".$ip." -M ".$mac." -C ".$PKDEV." -n > dhcpd_temp.file";
-	system($line);
-	loggc($line."\n");
+	open(F,">temp_exec.sh");
+	print F "#!/bin/bash\n";
+	print F "./CreateDevice -i $install -d $dev_templ -I $ip -M $mac -C $PKDEV -n > gc100_temp.file\n";
+	close(F);
+	`chmod +x temp_exec.sh`;
+	`./temp_exec.sh`;
+	`rm -f temp_exec.sh`;
 	loggc("Done\n");
-	open(FILE, "dhcpd_temp.file");
+	open(FILE, "gc100_temp.file");
         @data = <FILE>;
         $Device_ID = $data[0];
         chomp($Device_ID);
+	print "$Device_ID\n";	
         close(FILE);
+	`rm -f gc100_temp.file`;
 	system("/usr/pluto/bin/MessageSend localhost 0 0 2 24 26 $Device_ID");
 	loggc("Configuring GC100 via Web...");
 	configure_webgc($ip);
@@ -92,15 +106,21 @@ exit(0);
     }
 }
 
-sub add_control_via {
-	$sql = "UPDATE Device SET FK_Device_ControlledVia=\'$PKDEV\' WHERE IPaddress=\'$ip\' AND MACaddress=\'$mac\'";
-	loggc($sql);
-	$st = $db->prepare($sql);
-	$st->execute();
-	$st->finish();
-}
-
 $db->disconnect();
+
+sub comp_mac {
+	$fst = shift;
+	$snd = shift;
+	@f1 = split(/\:/,$fst);
+	@f2 = split(/\:/,$snd);
+	print "@f1\n";
+	print "@f2\n---\n";
+	if(hex($f1[0]) eq hex($f2[0]) && hex($f1[1]) eq hex($f2[1]) && hex($f1[2]) eq hex($f2[2]) && hex($f1[3]) eq hex($f2[3]) && hex($f1[4]) eq hex($f2[4]) && hex($f1[5]) eq hex($f2[5])) {
+		return 1;
+	} else {
+		return 0;
+	}
+}
 
 sub ip_2_long {
   $local_ip = shift;
@@ -171,7 +191,8 @@ sub get_template {
   $st = $db->prepare($sql);
   $st->execute();
   if($row = $st->fetchrow_hashref()) {
-    return $row->{'PK_DeviceTemplate'};
+	$st->finish();
+	return $row->{'PK_DeviceTemplate'};
   } else {
   	loggc("Invalid Template");
     	exit(4);
@@ -179,8 +200,8 @@ sub get_template {
 }
 
 sub get_gc100mac {
-  system("curl http://192.168.1.70/Commands.cgi -o gc100mac --silent");
-  system("curl http://192.168.1.101/Commands.cgi -o gc100mac --silent");
+  `curl http://192.168.1.70/Commands.cgi -o gc100mac --silent`;
+  `curl http://192.168.1.101/Commands.cgi -o gc100mac --silent`;
   open(FILE,"gc100mac");
   @data = <FILE>;
   close(FILE);
@@ -238,7 +259,7 @@ sub allias_up {
 
 sub allias_down {
   	loggc("Bringing down the allias...");
-  system("ifconfig $local_dev:100 down");
+  `ifconfig $local_dev:100 down`;
   	loggc("Down\n");
 }
 
@@ -289,8 +310,10 @@ sub find_gc100 {
 }
 
 sub find_ip {
-@data = sqlexec("SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_DeviceData='28'");
-foreach $row (@data) {
+$sql = "SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_DeviceData='28'";
+$stx = $db->prepare($sql) or die "MySQL sux";
+$stx->execute() or die "It sux";
+while($row = $stx->fetchrow_hashref()) {
   $line = $row->{'IK_DeviceData'};
   ($staticrange, $dinamicrange) = split(/\,/,$line);
   $sl = length($staticrange);
@@ -303,8 +326,10 @@ foreach $row (@data) {
     $dstart = ip_2_long($dstart);
     $dend = ip_2_long($dend);
     
-    @data2 = sqlexec("SELECT IPaddress FROM Device WHERE IPaddress<>0");
-    foreach $rowx (@data2) {
+    $sql = "SELECT IPaddress FROM Device WHERE IPaddress<>0";
+    $st2 = $db->prepare($sql) or die "y";
+    $st2->execute() or die "x";
+    while($rowx = $st2->fetchrow_hashref()) {
       $fip = ip_2_long($rowx->{'IPaddress'});
       if($fip >= $sstart && $fip <= $send) {
         $flag=0;
@@ -319,9 +344,17 @@ foreach $row (@data) {
         }
       }
     }
+    $st2->finish();
   }
 }
-
+@oldip = split(/\,/,$ips);
+foreach $ipeu (@oldip) {
+	$x = ip_2_long($ipeu);
+	$y = ip_2_long($send);
+	if($x > $y) {
+		$send = $ipeu;
+	}
+}
 for($ii=$sstart;$ii<=$send;$ii=$ii+1) {
   @oldip = split(/\,/,$ips);
   $flag = 0;
@@ -331,7 +364,7 @@ for($ii=$sstart;$ii<=$send;$ii=$ii+1) {
     }
   }
   if($flag == 0) {
-    $main_ip = $ii + 1;
+    $main_ip = $ii;
     $ii = $send + 1;
   }
 }
@@ -340,7 +373,10 @@ return $main_ip;
 }
 
 sub update_db {
-    @data = sqlexec("UPDATE Devices SET IPaddress='$ip', MACaddress='$mac' WHERE PK_Device='$ARGV[0]'");
+    $sql = "UPDATE Devices SET IPaddress='$ip', MACaddress='$mac' WHERE PK_Device='$ARGV[0]'";
+    $st = $db->prepare($sql);
+    $st->execute();
+    $st->finish();
 }
 
 sub configure_webgc {
