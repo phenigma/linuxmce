@@ -165,6 +165,7 @@ int main(int argc, char* argv[])
 
 		delete pSpeech;
 	}
+	cout << "Insert Here " << endl;
 	catch(string s)
 	{
 		cerr << "Exception: " << s << endl;
