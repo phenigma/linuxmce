@@ -156,7 +156,7 @@ int main(int argc, char* argv[])
     try
     {
         if( sLogger=="dcerouter" )
-            g_pPlutoLogger = new ServerLogger(PK_Device, sRouter_IP);
+            g_pPlutoLogger = new ServerLogger(PK_Device, Disk_Drive::PK_DeviceTemplate_get_static(), sRouter_IP);
         else if( sLogger=="null" )
             g_pPlutoLogger = new NullLogger();
         else if( sLogger=="stdout" )
