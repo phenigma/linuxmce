@@ -58,7 +58,7 @@ if($action=='form'){
 	else{
 		$rowDocument=$res->FetchRow();
 		$out.='
-		<form action="right.php" method="post" name="documentDisplay">
+		<form action="right.php" method="post" name="documentDisplay" target="_self">
 		<input type="hidden" name="section" value="'.$section.'">
 		<input type="hidden" name="action" value="save">
 		<input type="hidden" name="docID" value="'.$docID.'">
@@ -105,7 +105,8 @@ if($action=='form'){
 	$_SESSION['parentID']=cleanInteger($_POST['parentID']);
 
 	$out.='
-		<form action="documentDisplay.php" method="post" name="documentDisplay">
+		<form action="right.php" method="post" name="documentDisplay" target="_self">
+		<input type="hidden" name="section" value="'.$section.'">
 		<input type="hidden" name="action" value="save">
 		<input type="hidden" name="docID" value="'.$docID.'">
 		<input type="hidden" name="Title" value="'.$_SESSION['docTitle'].'">
@@ -146,7 +147,7 @@ else{
 		if($rowOldValues['FK_Document_Parent']==$parentID && $rowOldValues['Order']==$docOrder)
 		$out.='self.location="right.php?section=documents/documentDisplay&docID='.$docID.'"';
 		else
-		$out.='top.location="document.php?docID='.$docID.'"';
+		$out.='top.location="index.php?section=document&docID='.$docID.'"';
 		$out.='</script>
 			';
 
