@@ -88,7 +88,7 @@ function avWizard($output,$dbADO) {
 	<input type="hidden" name="action" value="add">
 	<input type="hidden" name="cmd" value="0">			
 	<div align="center"><h3>'.((isset($title))?$title:strtoupper(str_replace('_',' ',$type))).'</h3></div>
-		<table align="center" border="0">
+		<table align="center" border="0" cellpadding="2" cellspacing="0">
 				<tr>
 					<td align="center"><B>Device</B></td>
 					<td align="center"><B>Room '.(($type!='media_directors')?'/ Controlled by':'').'</B></td>';
@@ -127,7 +127,9 @@ function avWizard($output,$dbADO) {
 				$joinArray=$DTIDArray;	// used only for query when there are no DT in selected category
 				$queryDevice='
 					SELECT 
-						Device.* FROM Device 
+						Device.*, DeviceTemplate.Description AS TemplateName 
+					FROM Device 
+						INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
 					WHERE
 						FK_DeviceTemplate IN ('.join(',',$joinArray).') AND FK_Installation=?';	
 				$resDevice=$dbADO->Execute($queryDevice,$installationID);
@@ -251,7 +253,7 @@ function avWizard($output,$dbADO) {
 					$resInput->Close();
 					$out.='</select>
 					</td>
-					<td rowspan="2" valign="top">';
+					<td rowspan="2" valign="top" align="right">';
 				foreach($DeviceDataToDisplay as $key => $value){
 					$queryDDforDevice='
 						SELECT 
@@ -310,6 +312,7 @@ function avWizard($output,$dbADO) {
 					$out.='	
 						<input type="hidden" name="oldDeviceData_'.$rowD['PK_Device'].'_'.$value.'" value="'.(($resDDforDevice->RecordCount()>0)?$ddValue:'NULL').'">';					
 					unset($ddValue);
+					$out.='<br>';
 				}
 				$out.='</td>';
 				$out.='<td align="center" rowspan="2" valign="top">';
@@ -319,11 +322,7 @@ function avWizard($output,$dbADO) {
 						$out.='<input type="submit" class="button" name="delete_'.$rowD['PK_Device'].'" value="Delete"  ></td>
 					</tr>
 					<tr bgcolor="'.(($pos%2==0)?'#EFF2F9':'').'">			
-						<td align="center"><select name="deviceTemplate_'.$rowD['PK_Device'].'">';
-				foreach($DTIDArray as $key => $value){
-					$out.='<option value="'.$value.'" '.(($rowD['FK_DeviceTemplate']==$value)?'selected':'').'>'.$DTArray[$key].'</option>';
-				}
-				$out.='</select></td>
+						<td align="center">'.$rowD['TemplateName'].'</td>
 						<td>';
 				if($type!='media_directors'){
 					$out.='
@@ -448,13 +447,12 @@ function avWizard($output,$dbADO) {
 			setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
 			$DeviceDataToDisplayArray=explode(',',$_POST['DeviceDataToDisplay']);
 			foreach($displayedDevicesArray as $key => $value){
-				$deviceTemplate=(int)@$_POST['deviceTemplate_'.$value];
 				$description=@$_POST['description_'.$value];
 				$room=(@$_POST['room_'.$value]!=0)?(int)@$_POST['room_'.$value]:NULL;
 				$controlledBy=(@$_POST['controlledBy_'.$value]!=0)?(int)@$_POST['controlledBy_'.$value]:NULL;
 				
-				$updateDevice='UPDATE Device SET FK_DeviceTemplate=?, Description=?, FK_Room=?,FK_Device_ControlledVia =? WHERE PK_Device=?';
-				$dbADO->Execute($updateDevice,array($deviceTemplate,$description,$room,$controlledBy,$value));
+				$updateDevice='UPDATE Device SET Description=?, FK_Room=?,FK_Device_ControlledVia =? WHERE PK_Device=?';
+				$dbADO->Execute($updateDevice,array($description,$room,$controlledBy,$value));
 
 				foreach($DeviceDataToDisplayArray as $ddValue){
 					$deviceData=(isset($_POST['deviceData_'.$value.'_'.$ddValue]))?$_POST['deviceData_'.$value.'_'.$ddValue]:0;

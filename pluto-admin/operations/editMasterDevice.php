@@ -26,7 +26,6 @@ $out='';
 		$manufacturerID = $row['FK_Manufacturer'];
 		$implementsDCE = (int)$row['ImplementsDCE'];
 		$commandLine = stripslashes($row['CommandLine']);
-		$isAVDevice = (int)$row['IsAVDevice'];		
 		$userID = $_SESSION['userID'];
 		$quarantine = $row['FK_StabilityStatus'];
 		$package = $row['FK_Package'];
@@ -175,12 +174,6 @@ $out='';
 					$out.="  <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addPackageToMasterDevice&from=editMasterDevice&deviceID={$deviceID}&PK_Package={$package}','status=0,resizable=1,width=700,height=700,toolbars=true,scrollbars=1');\">Edit package</a>";
 				$out.="&nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addPackageToMasterDevice&from=editMasterDevice&deviceID={$deviceID}','status=0,resizable=1,width=700,height=850,toolbars=true,scrollbars=1');\">Create new package</a>";
 				$out.='	
-					</td>
-				</tr>
-				<tr>
-					<td valign="top"><a name="isAVDevice_link"></a>Audio/Video Device</td>
-					<td>
-						<input type="hidden" value="'.$isAVDevice.'" name="old_isAVDevice"><input type="checkbox" name="isAVDevice" '.($isAVDevice==1?" checked='checked' ":"").' value="1" onClick="javascript:this.form.submit();"><input type="button" class="button" name="isAV"  '.($isAVDevice!=1?'value="Is NOT Audio/Video" disabled="disabled" ':" value=\"Edit Audio/Video Properties\" onClick=\"windowOpen('index.php?section=editAVDevice&from=editMasterDevice&deviceID={$deviceID}','status=0,resizable=1,width=800,height=600,toolbars=true');\"").'>
 					</td>
 				</tr>
 				<tr>
@@ -604,8 +597,6 @@ $out='';
 		$ImplementsDCE = @cleanInteger($_POST['ImplementsDCE']);
 		$category = cleanInteger($_POST['MasterDeviceCategory']);
 		$manufacturer = cleanInteger($_POST['Manufacturer']);
-		$isAVDevice = cleanInteger(@$_POST['isAVDevice']);
-		$old_isAVDevice = cleanInteger(@$_POST['old_isAVDevice']);
 		$package = (@$_POST['package']!='0')?cleanInteger(@$_POST['package']):NULL;
 		$isPlugIn = cleanInteger(@$_POST['isPlugIn']);
 		$oldIsPlugIn = cleanInteger(@$_POST['oldIsPlugIn']);
@@ -805,21 +796,17 @@ $out='';
 
 		}
 		
-		if ($isAVDevice!=$old_isAVDevice) {			
-			$locationGoTo = "#isAVDevice_link";
-		}
 		if ($deviceID!=0 && $description!='' && $category!=0 && $manufacturer!=0) {
 		$updateQuery = "UPDATE DeviceTemplate set Description = ?, ImplementsDCE = ?,							
 							CommandLine = ?, 
 							FK_DeviceCategory = ?,FK_Manufacturer  = ?,
-							IsAVDevice = ?,
 							FK_Package=?,
 							IsPlugIn =?,
 							IsEmbedded=?,
 							InheritsMacFromPC=?
 							WHERE PK_DeviceTemplate = ?";
 
-		$dbADO->Execute($updateQuery,array($description,$ImplementsDCE,$commandLine,$category,$manufacturer,$isAVDevice,$package,$isPlugIn,$isEmbedded,$inheritsMacFromPC,$deviceID));
+		$dbADO->Execute($updateQuery,array($description,$ImplementsDCE,$commandLine,$category,$manufacturer,$package,$isPlugIn,$isEmbedded,$inheritsMacFromPC,$deviceID));
 
 		if($isPlugIn==1 && $oldIsPlugIn==0){
 			$insertControlledVia = '

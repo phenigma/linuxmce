@@ -80,13 +80,14 @@ function phoneExtensions($output,$dbADO) {
 				$phoneNo=@$_POST['phoneNumber_'.$deviceID];
 				$dbADO->Execute('UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?',array($phoneNo,$deviceID,$GLOBALS['PhoneNumber']));
 				$sync=exec('/usr/pluto/bin/SyncronizeAsterisk.sh');
-				if($sync!=0){
-					header("Location: index.php?section=phoneExtensions&error=Synchronisation failed.");
-					exit();
-				}
-				header("Location: index.php?section=phoneExtensions&msg=Phone numbers updated.");
+			}
+			if($sync!=0){
+				header("Location: index.php?section=phoneExtensions&error=Synchronisation failed.");
 				exit();
 			}
+			header("Location: index.php?section=phoneExtensions&msg=Phone numbers updated.");
+			exit();
+
 		}
 		
 		
