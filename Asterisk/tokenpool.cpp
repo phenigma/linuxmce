@@ -10,7 +10,6 @@
 //
 //
 #include "tokenpool.h"
-#include "tokenstatemachine.h"
 #include "DCE/Logger.h"
 #include "asteriskconsts.h"
 
