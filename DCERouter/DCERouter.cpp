@@ -1124,10 +1124,10 @@ void Router::RealSendMessage(Socket *pSocket,SafetyMessage *pSafetyMessage)
                 {
                     g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find destination device: %d",pDeviceConnection->m_dwPK_Device);
                 }
-                g_pPlutoLogger->Write(LV_SOCKET, "Ready to send message type %d id %d to %d %s on socket %d using lock: %p",
+                g_pPlutoLogger->Write(LV_SOCKET, "Ready to send message type %d id %d to %d %s on socket %d(%p) using lock: %p",
                     (*(*pSafetyMessage))->m_dwMessage_Type,(*(*pSafetyMessage))->m_dwID,pDeviceConnection->m_dwPK_Device,
                     (pDest ? pDest->m_sDescription.c_str() : "*UNKNOWN DEVICE*"),
-                    pDeviceConnection->m_Socket,&pDeviceConnection->m_ConnectionMutex);
+                    pDeviceConnection->m_iSocketCounter,pDeviceConnection,&pDeviceConnection->m_ConnectionMutex);
 
                 string Message = "Device " + StringUtils::itos(pDeviceConnection->m_dwPK_Device) + " " + (pDest ? pDest->m_sDescription : "*UNKNOWN DEVICE*");
                 PLUTO_SAFETY_LOCK_MESSAGE(slConnMutex,pDeviceConnection->m_ConnectionMutex,Message)

@@ -1158,7 +1158,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
 
         pButtonTouchMessage->m_vectExtraMessages.push_back( pThisMessage );
 
-        QueueMessage( pButtonTouchMessage );
+        QueueMessageToRouter( pButtonTouchMessage );
         //      GetEvents(  )->Orbiter_Object_Actions( StringUtils::itos( NumActions ) + "\t" +ActionData,
         //          pObj->m_ObjectID,  StringUtils::itos( CTRLCOMMAND_ACTIVATE ),  StringUtils::itos( X-pObj->m_rPosition.X ),
         //          StringUtils::itos( Y-pObj->m_rPosition.Y ) );
@@ -1320,9 +1320,9 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCe
         else
         {
 #pragma warning( "Look into this and the sendreceive above.  one deletes,  the other not.  if it deletes,  you can't select the grid twice.  if not,  the framework will delete.  should make a copy I think" );
-            QueueMessage( pMessage );
+            QueueMessageToRouter( pMessage );
 
-            //          QueueMessage( pMessage );  // I think this caused some grids not to immediately refresh  **TODO** look into this
+            //          QueueMessageToRouter( pMessage );  // I think this caused some grids not to immediately refresh  **TODO** look into this
             //          pMessage=NULL;  // Send message will delete the messages.  It's okay--it's just a copy anyway
         }
     }

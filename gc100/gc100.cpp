@@ -723,7 +723,7 @@ void gc100::parse_message_statechange(std::string message, bool change)
 	{
 		Message *pMessage = new Message(result->m_dwPK_Device, 0, PRIORITY_NORMAL, MESSAGETYPE_EVENT, EVENT_Pin_Changed_CONST,
 			1, EVENTPARAMETER_OnOff_CONST, StringUtils::itos(input_state).c_str());
-		QueueMessage(pMessage);
+		QueueMessageToRouter(pMessage);
 
 		std::string verify_request;
 

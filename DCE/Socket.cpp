@@ -89,8 +89,8 @@ Socket::Socket(string Name) : m_SocketMutex("socket mutex " + Name)
 	sprintf( m_pcSockLogFile, "\\socklog-%s-%s-%s", c, Module, m_sName.c_str() );
 	sprintf( m_pcSockLogErrorFile, "\\socklog_error-%s-%s-%s", c, Module, m_sName.c_str() );
 #else
-	sprintf( m_pcSockLogFile, "/tmp/socklog-%s-%s-%s", c, Module, m_sName.c_str() );
-	sprintf( m_pcSockLogErrorFile, "/tmp/socklog_error-%s-%s-%s", c, Module, m_sName.c_str() );
+	sprintf( m_pcSockLogFile, "/tmp/socklog-%p-%d-%s-%s-%s", this, m_iSocketCounter, c, Module, m_sName.c_str() );
+	sprintf( m_pcSockLogErrorFile, "/tmp/socklog_error-%p-%d-%s-%s-%s", this, m_iSocketCounter, c, Module, m_sName.c_str() );
 #endif
 
 	FILE *f = fopen( m_pcSockLogFile, "a" );

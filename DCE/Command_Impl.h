@@ -191,16 +191,16 @@ namespace DCE
 		 * until the message is sent by using the normal SendMessageWithConfirm.  Also, SendMessageWithConfirm introduces
 		 * the possibility that the receiving device may send something back in response, creating a 
 		 * potential race condition if the thread sending the message is blocking the same mutex
-		 * as the thread on which the new command comes in on.  To prevent this, call QueueMessage,
+		 * as the thread on which the new command comes in on.  To prevent this, call QueueMessageToRouter,
 		 * which causes the message to be put in a queue and sent on a separate thread.  This is like
 		 * the difference between SendMessage and PostMessage in Windows.
 		 */
-		void QueueMessage( Message *pMessage );
+		void QueueMessageToRouter( Message *pMessage );
 		
 		/**
 		 * @brief sends a message.  This will send the message on the event socket since that is the correct outgoing socket
 		 */
-		void SendMessage( Message *pMessage ) { m_pEvent->SendMessage(pMessage); }
+		void SendMessageToRouter( Message *pMessage ) { m_pEvent->SendMessage(pMessage); }
 
 		/**
 		 * @brief sends all the messges in the message queue

@@ -409,7 +409,7 @@ bool Command_Impl::ReceivedMessage( Message *pMessage )
 	return false;
 }
 
-void Command_Impl::QueueMessage( Message *pMessage )
+void Command_Impl::QueueMessageToRouter( Message *pMessage )
 {
 	if( m_bLocalMode )
 		return;
@@ -460,7 +460,7 @@ bool Command_Impl::InternalSendCommand( PreformedCommand &pPreformedCommand, int
 	if( iConfirmation == 0 || ( iConfirmation == -1 && !pPreformedCommand.m_pcResponse ) )
 	{
 		pPreformedCommand.m_pMessage->m_eExpectedResponse = ER_None;
-		QueueMessage( pPreformedCommand.m_pMessage );
+		QueueMessageToRouter( pPreformedCommand.m_pMessage );
 		return true;
 	}
 

@@ -315,7 +315,7 @@ void App_Server::SendMessageList(string messageList)
     for ( int i = 0; i < commands.size(); i++ )
         pMessage->m_vectExtraMessages.push_back(new Message(commands[i]));
 
-    SendMessage(pMessage);
+    SendMessageToRouter(pMessage);
 }
 
 //<-dceag-sample-b->

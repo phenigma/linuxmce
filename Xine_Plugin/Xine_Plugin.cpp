@@ -325,7 +325,7 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
             DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL( m_dwPK_Device, sOtherOrbiters, VARIABLE_PK_Device_CONST, StringUtils::itos( pMessage->m_dwPK_Device_From ) );
 
             CMD_Set_Variable_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Goto_Screen_DL.m_pMessage );
-            QueueMessage( CMD_Set_Variable_DL.m_pMessage );
+            QueueMessageToRouter( CMD_Set_Variable_DL.m_pMessage );
         }
 
         if( sOnScreenOrbiters.size( ) )
@@ -415,7 +415,7 @@ void Xine_Plugin::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMe
     PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
   Message *pNewMessage = new Message( pMessage );
   pNewMessage->m_dwPK_Device_To = 6; // hack this in. need to lookup streams
-  QueueMessage( pNewMessage );
+  QueueMessageToRouter( pNewMessage );
 }
 //<-dceag-c40-b->
 
@@ -445,7 +445,7 @@ void Xine_Plugin::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpee
     PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
   Message *pNewMessage = new Message( pMessage );
   pNewMessage->m_dwPK_Device_To = 6; /** @warning hack this in. need to lookup streams */
-  QueueMessage( pNewMessage );
+  QueueMessageToRouter( pNewMessage );
 }
 
 //<-dceag-c65-b->
@@ -461,7 +461,7 @@ void Xine_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &
     PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
   Message *pNewMessage = new Message( pMessage );
   pNewMessage->m_dwPK_Device_To = 6; /** @warning hack this in. need to lookup streams   */
-  QueueMessage( pNewMessage );
+  QueueMessageToRouter( pNewMessage );
 }
 
 //<-dceag-sample-b->! no sample

@@ -551,7 +551,7 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
 
             #pragma warning( "received dcemessage should take a bool bdon't delete in or something so we don't need to copy he message" );
             Message *pNewMessage = new Message( pMessage );
-            QueueMessage( pNewMessage );
+            QueueMessageToRouter( pNewMessage );
         }
 
         g_pPlutoLogger->Write( LV_STATUS, "Media plug in handled message id: %d", pMessage->m_dwID );

@@ -265,7 +265,7 @@ void SocketListener::RegisterCommandHandler( ServerSocket *Socket, int iDeviceID
 	m_mapCommandHandlers[iDeviceID] = Socket; // assigning it the new specified socket
 	Socket->SetReceiveTimeout( 30 );
 	ll.Release();
-	g_pPlutoLogger->Write( LV_REGISTRATION, "Device ID \x1b[34;1m%d's command handler\x1b[0m registered.", iDeviceID );
+	g_pPlutoLogger->Write( LV_REGISTRATION, "Device ID \x1b[34;1m%d's command handler\x1b[0m registered on socket: %d %p", iDeviceID, Socket->m_iSocketCounter, Socket );
 	RegisteredCommandHandler( iDeviceID );
 }
 
