@@ -93,13 +93,14 @@ long int m_FK_Manufacturer;
 long int m_FK_Document;
 long int m_FK_Document_UsersManual;
 long int m_FK_Document_ProgrammersGuide;
+string m_Comments;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[17];
+		bool is_null[18];
 	
 	public:
 		long int PK_Package_get();
@@ -114,6 +115,7 @@ long int FK_Manufacturer_get();
 long int FK_Document_get();
 long int FK_Document_UsersManual_get();
 long int FK_Document_ProgrammersGuide_get();
+string Comments_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -133,6 +135,7 @@ void FK_Manufacturer_set(long int val);
 void FK_Document_set(long int val);
 void FK_Document_UsersManual_set(long int val);
 void FK_Document_ProgrammersGuide_set(long int val);
+void Comments_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -149,6 +152,7 @@ bool FK_Manufacturer_isNull();
 bool FK_Document_isNull();
 bool FK_Document_UsersManual_isNull();
 bool FK_Document_ProgrammersGuide_isNull();
+bool Comments_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -164,6 +168,7 @@ void FK_Manufacturer_setNull(bool val);
 void FK_Document_setNull(bool val);
 void FK_Document_UsersManual_setNull(bool val);
 void FK_Document_ProgrammersGuide_setNull(bool val);
+void Comments_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -204,7 +209,7 @@ void PageSetup_FK_Package_getrows(vector <class Row_PageSetup*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_Package+ m_Description+ m_FK_PackageType+ m_FK_Package_Sourcecode+ m_IsSource+ m_NonExecutable+ m_HomePage+ m_FK_License+ m_FK_Manufacturer+ m_FK_Document+ m_FK_Document_UsersManual+ m_FK_Document_ProgrammersGuide+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_Package+ m_Description+ m_FK_PackageType+ m_FK_Package_Sourcecode+ m_IsSource+ m_NonExecutable+ m_HomePage+ m_FK_License+ m_FK_Manufacturer+ m_FK_Document+ m_FK_Document_UsersManual+ m_FK_Document_ProgrammersGuide+ m_Comments+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -221,6 +226,7 @@ string FK_Manufacturer_asSQL();
 string FK_Document_asSQL();
 string FK_Document_UsersManual_asSQL();
 string FK_Document_ProgrammersGuide_asSQL();
+string Comments_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

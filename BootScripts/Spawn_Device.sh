@@ -35,7 +35,7 @@ if [ -z "$display" ]; then
 fi
 
 #export DISPLAY="$display"
-export DISPLAY=:0
+[ -z "$DISPLAY" ] && export DISPLAY=:0
 
 Logging $TYPE $SEVERITY_STAGE $module "Entering $module"
 for i in $(seq 1 10); do

@@ -928,6 +928,7 @@ string Makefile = "none:\n"
 	fprintf(f, "%s", Makefile.c_str(), Makefile.length());
 	fclose(f);
 	system("echo | dh_make -c gpl -s -n");
+//	mkdir("DEBIAN", 0666);
 #endif
 
 	list<FileInfo *>::iterator iFileInfo;
@@ -935,18 +936,74 @@ string Makefile = "none:\n"
 	{
 		string sSource = (*iFileInfo)->m_sSource;
 
-		// no prefix for absolute paths (the ones that start with a slash)
-		string thePrefix(Prefix);
-		if ((*iFileInfo)->m_sDestination[0] == '/')
-			thePrefix = "";
+		// TODO: Error checks
+		if (sSource.find("mkr_postinst") != string::npos) // NOTE: not right; should check at begining of file name
+		{
+			cout << "POSTINST: " << sSource << endl;
+			// put mkr_postinst scripts into control section instead of package contents
+			FILE * g;
+			f = fopen("debian/postinst.ex", "r");
+			g = fopen("debian/postinst", "w");
+			fchmod(fileno(g), 0644);
+			char buffer[1024];
+			while (fgets(buffer, 1024, f))
+			{
+				fprintf(g, "%s", buffer);
+				if (strstr(buffer, "configure)") != NULL)
+				{
+					fprintf(g, "%s", ("# " + sSource + "\n").c_str());
+					FILE * g2 = fopen(sSource.c_str(), "r");
+					while (fgets(buffer, 1024, g2))
+					{
+						fprintf(g, "%s", buffer);
+					}
+					fclose(g2);
+				}
+			}
+			fclose(g);
+			fclose(f);
+		}
+		else if (sSource.find("mkr_preinst") != string::npos) // NOTE: not right; should check at begining of file name
+		{
+			cout << "PREINST: " << sSource << endl;
+			// put mkr_preinst scripts into control section instead of package contents
+			FILE * g;
+			f = fopen("debian/preinst.ex", "r");
+			g = fopen("debian/preinst", "w");
+			fchmod(fileno(g), 0644);
+			char buffer[1024];
+			while (fgets(buffer, 1024, f))
+			{
+				fprintf(g, "%s", buffer);
+				if (strstr(buffer, "install|upgrade)") != NULL)
+				{
+					fprintf(g, "%s", ("# " + sSource + "\n").c_str());
+					FILE * g2 = fopen(sSource.c_str(), "r");
+					while (fgets(buffer, 1024, g2))
+					{
+						fprintf(g, "%s", buffer);
+					}
+					fclose(g2);
+				}
+			}
+			fclose(g);
+			fclose(f);
+		}
+		else
+		{
+			// no prefix for absolute paths (the ones that start with a slash)
+			string thePrefix(Prefix);
+			if ((*iFileInfo)->m_sDestination[0] == '/')
+				thePrefix = "";
 		
-		string sDestination = Dir + "/root/" + thePrefix + (*iFileInfo)->m_sDestination;
+			string sDestination = Dir + "/root/" + thePrefix + (*iFileInfo)->m_sDestination;
 		
-		cout << "COPY: " << sSource << " --> " + sDestination << endl;
+			cout << "COPY: " << sSource << " --> " + sDestination << endl;
 #ifndef WIN32
-		system(("mkdir -p " + FileUtils::BasePath(sDestination)).c_str());
-		FileUtils::PUCopyFile(sSource, sDestination);
+			system(("mkdir -p " + FileUtils::BasePath(sDestination)).c_str());
+			FileUtils::PUCopyFile(sSource, sDestination);
 #endif
+		}
 	}
 
 	//f = fopen((Dir + "/root/dummy-file").c_str(), "w");
@@ -974,17 +1031,17 @@ string Makefile = "none:\n"
 
 #ifndef WIN32
 	system(("sed -i 's/^Depends:.*$/Depends: ${shlibs:Depends}, ${misc:Depends}" + sDepends + "/' " + Dir + "/debian/control").c_str());
-	if( system("dpkg-buildpackage -b") )
+	if( system("dpkg-buildpackage -b -rfakeroot") )
 	{
 		cout << "dpkg-buildpackage -b failed.  Aborting." << endl;
 		return false;
 	}
 #endif
 	
-	cout << "------------DEBIAN PACKAGE OUTPUT" << endl;
-	cout << " rep: " << pRow_Package_Source->Repository_get() << " ver: " << pRow_Package_Source->Version_get() << " parm: " << pRow_Package_Source->Parms_get() << endl;
-	cout << "Press any key to continue..." << endl;
-	char c = getch();
+//	cout << "------------DEBIAN PACKAGE OUTPUT" << endl;
+//	cout << " rep: " << pRow_Package_Source->Repository_get() << " ver: " << pRow_Package_Source->Version_get() << " parm: " << pRow_Package_Source->Parms_get() << endl;
+//	cout << "Press any key to continue..." << endl;
+//	char c = getch();
 					
 #ifndef WIN32
 	chdir(CurrentDir);

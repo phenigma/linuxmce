@@ -27,6 +27,8 @@
 #define PACKAGE_FK_DOCUMENT_USERSMANUAL_TABLE_FIELD "Package.FK_Document_UsersManual"
 #define PACKAGE_FK_DOCUMENT_PROGRAMMERSGUIDE_FIELD "FK_Document_ProgrammersGuide"
 #define PACKAGE_FK_DOCUMENT_PROGRAMMERSGUIDE_TABLE_FIELD "Package.FK_Document_ProgrammersGuide"
+#define PACKAGE_COMMENTS_FIELD "Comments"
+#define PACKAGE_COMMENTS_TABLE_FIELD "Package.Comments"
 #define PACKAGE_PSC_ID_FIELD "psc_id"
 #define PACKAGE_PSC_ID_TABLE_FIELD "Package.psc_id"
 #define PACKAGE_PSC_BATCH_FIELD "psc_batch"

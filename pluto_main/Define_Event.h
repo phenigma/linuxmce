@@ -2,7 +2,7 @@
 #define __Define_Event_H__
 
 #define EVENT_Touch_or_click_CONST 1
-#define EVENT_Playback_Events_CONST 2
+#define EVENT_Playback_Info_Changed_CONST 2
 #define EVENT_Media_Inserted_CONST 3
 #define EVENT_Mobile_orbiter_detected_CONST 4
 #define EVENT_Mobile_orbiter_linked_CONST 5

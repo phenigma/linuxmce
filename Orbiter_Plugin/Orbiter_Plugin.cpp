@@ -654,7 +654,7 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_DeviceTemplate,string sMac_a
 //<-dceag-c78-e->
 {
 	if( !iPK_DeviceTemplate )
-		iPK_DeviceTemplate = DEVICETEMPLATE_Symbian_60_CONST;  // hack - todo fix this
+		iPK_DeviceTemplate = DEVICETEMPLATE_Nokia_36503660_CONST;  // hack - todo fix this
 
 	Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->AddRow();
 	pRow_Device->FK_DeviceTemplate_set(iPK_DeviceTemplate);

@@ -5,6 +5,9 @@ echo "** Initial config script"
 PHURL="http://www.plutohome.com/"
 ACTIV="http://activate.plutohome.com"
 
+# !!!HACK!!!
+echo "10.0.0.150 plutohome.com www.plutohome.com activate.plutohome.com dce_router" >>/etc/hosts
+
 activation_url="$ACTIV/activation.php"
 
 DIR="/usr/pluto/install"
@@ -70,6 +73,7 @@ while [ "$ok" -eq 0 ]; do
 
 # everything went ok
 	echo "Code accepted"
+	echo "$activation_key" >/usr/pluto/install/Last_Activation_Code.txt
 	echo "$answer" | awk 'NR>1' >"$DIR/activation.sh"
 	ok=1
 done

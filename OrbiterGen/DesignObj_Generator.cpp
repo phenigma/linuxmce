@@ -583,11 +583,12 @@ if( m_drDesignObj->PK_DesignObj_get()==2239 )//2821 && bAddToGenerated )
 				string::size_type pos=0;
 				while(true)
 				{
-					string sFloorplan = StringUtils::Tokenize(pRow_Device_DeviceData_FPInfo->Value_get(),",",pos);
+					string FPInfo_Value = pRow_Device_DeviceData_FPInfo->Value_get();
+					string sFloorplan = StringUtils::Tokenize(FPInfo_Value,string(","),pos);
 					if( sFloorplan.length()==0 )
 						break;
-					int X = atoi(StringUtils::Tokenize(pRow_Device_DeviceData_FPInfo->Value_get(),",",pos).c_str());
-					int Y = atoi(StringUtils::Tokenize(pRow_Device_DeviceData_FPInfo->Value_get(),",",pos).c_str());
+					int X = atoi(StringUtils::Tokenize(FPInfo_Value,",",pos).c_str());
+					int Y = atoi(StringUtils::Tokenize(FPInfo_Value,",",pos).c_str());
 					if( atoi(sFloorplan.c_str())==m_pOrbiterGenerator->m_iFloorplanPage )
 					{
 						m_VariableMap[VARIABLE_Array_ID_CONST] = pRow_FloorplanObjectType->Description_get();

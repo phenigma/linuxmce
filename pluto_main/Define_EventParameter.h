@@ -15,6 +15,9 @@
 #define EVENTPARAMETER_Error_Message_CONST 12
 #define EVENTPARAMETER_Text_CONST 13
 #define EVENTPARAMETER_PK_Orbiter_CONST 14
+#define EVENTPARAMETER_MediaDescription_CONST 15
+#define EVENTPARAMETER_SectionDescription_CONST 16
+#define EVENTPARAMETER_SynposisDescription_CONST 17
 
 #define EVENTPARAMETER_TABLE "EventParameter"
 #define EVENTPARAMETER_PK_EVENTPARAMETER_FIELD "PK_EventParameter"

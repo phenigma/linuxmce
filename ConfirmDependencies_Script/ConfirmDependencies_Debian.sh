@@ -68,7 +68,7 @@ case "$URL_TYPE" in
 			SECTIONS="$TMP_SECT"
 			REPOS=$(echo -n "$REPOS" | cut -d' ' -f1)
 		fi
-		if ! cat /etc/apt/sources.list | sed "$SPACE_SED" | egrep "$REPOS_SRC.+$REPOS.+$SECTIONS" 2>/dev/null; then
+		if ! cat /etc/apt/sources.list | sed "$SPACE_SED" | egrep -v "^#" | egrep "deb.+$REPOS_SRC.+$REPOS.+$SECTIONS" 2>/dev/null; then
 			echo "$REPOS_SRC $REPOS $SECTIONS" >>/etc/apt/sources.list
 			apt-get update
 		fi

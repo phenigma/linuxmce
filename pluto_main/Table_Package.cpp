@@ -147,10 +147,11 @@ is_null[11] = true;
 is_null[12] = true;
 is_null[13] = true;
 is_null[14] = true;
+is_null[15] = true;
 m_psc_frozen = 0;
-is_null[15] = false;
-m_psc_mod = "00000000000000";
 is_null[16] = false;
+m_psc_mod = "00000000000000";
+is_null[17] = false;
 
 
 	is_added=false;
@@ -194,6 +195,9 @@ return m_FK_Document_UsersManual;}
 long int Row_Package::FK_Document_ProgrammersGuide_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_Document_ProgrammersGuide;}
+string Row_Package::Comments_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Comments;}
 long int Row_Package::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_id;}
@@ -247,21 +251,24 @@ m_FK_Document_UsersManual = val; is_modified=true; is_null[10]=false;}
 void Row_Package::FK_Document_ProgrammersGuide_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_Document_ProgrammersGuide = val; is_modified=true; is_null[11]=false;}
+void Row_Package::Comments_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Comments = val; is_modified=true; is_null[12]=false;}
 void Row_Package::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_id = val; is_modified=true; is_null[12]=false;}
+m_psc_id = val; is_modified=true; is_null[13]=false;}
 void Row_Package::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_batch = val; is_modified=true; is_null[13]=false;}
+m_psc_batch = val; is_modified=true; is_null[14]=false;}
 void Row_Package::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_user = val; is_modified=true; is_null[14]=false;}
+m_psc_user = val; is_modified=true; is_null[15]=false;}
 void Row_Package::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_frozen = val; is_modified=true; is_null[15]=false;}
+m_psc_frozen = val; is_modified=true; is_null[16]=false;}
 void Row_Package::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_mod = val; is_modified=true; is_null[16]=false;}
+m_psc_mod = val; is_modified=true; is_null[17]=false;}
 
 		
 bool Row_Package::FK_PackageType_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -291,18 +298,21 @@ return is_null[10];}
 bool Row_Package::FK_Document_ProgrammersGuide_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[11];}
-bool Row_Package::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package::Comments_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[12];}
-bool Row_Package::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[13];}
-bool Row_Package::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[14];}
-bool Row_Package::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_Package::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[15];}
+bool Row_Package::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[16];}
 
 			
 void Row_Package::FK_PackageType_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -332,18 +342,21 @@ is_null[10]=val;}
 void Row_Package::FK_Document_ProgrammersGuide_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[11]=val;}
-void Row_Package::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package::Comments_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[12]=val;}
-void Row_Package::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[13]=val;}
-void Row_Package::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[14]=val;}
-void Row_Package::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_Package::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[15]=val;}
+void Row_Package::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[16]=val;}
 	
 
 string Row_Package::PK_Package_asSQL()
@@ -500,11 +513,23 @@ sprintf(buf, "%li", m_FK_Document_ProgrammersGuide);
 return buf;
 }
 
-string Row_Package::psc_id_asSQL()
+string Row_Package::Comments_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[12])
+return "NULL";
+
+char buf[131071];
+mysql_real_escape_string(table->database->db_handle, buf, m_Comments.c_str(), (unsigned long) m_Comments.size());
+return string()+"\""+buf+"\"";
+}
+
+string Row_Package::psc_id_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[13])
 return "NULL";
 
 char buf[32];
@@ -517,7 +542,7 @@ string Row_Package::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[13])
+if (is_null[14])
 return "NULL";
 
 char buf[32];
@@ -530,7 +555,7 @@ string Row_Package::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[14])
+if (is_null[15])
 return "NULL";
 
 char buf[32];
@@ -543,7 +568,7 @@ string Row_Package::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[15])
+if (is_null[16])
 return "NULL";
 
 char buf[32];
@@ -556,7 +581,7 @@ string Row_Package::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[16])
+if (is_null[17])
 return "NULL";
 
 char buf[29];
@@ -602,10 +627,10 @@ void Table_Package::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_PackageType_asSQL()+", "+pRow->FK_Package_Sourcecode_asSQL()+", "+pRow->IsSource_asSQL()+", "+pRow->NonExecutable_asSQL()+", "+pRow->HomePage_asSQL()+", "+pRow->FK_License_asSQL()+", "+pRow->FK_Manufacturer_asSQL()+", "+pRow->FK_Document_asSQL()+", "+pRow->FK_Document_UsersManual_asSQL()+", "+pRow->FK_Document_ProgrammersGuide_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_PackageType_asSQL()+", "+pRow->FK_Package_Sourcecode_asSQL()+", "+pRow->IsSource_asSQL()+", "+pRow->NonExecutable_asSQL()+", "+pRow->HomePage_asSQL()+", "+pRow->FK_License_asSQL()+", "+pRow->FK_Manufacturer_asSQL()+", "+pRow->FK_Document_asSQL()+", "+pRow->FK_Document_UsersManual_asSQL()+", "+pRow->FK_Document_ProgrammersGuide_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into Package (PK_Package, Description, FK_PackageType, FK_Package_Sourcecode, IsSource, NonExecutable, HomePage, FK_License, FK_Manufacturer, FK_Document, FK_Document_UsersManual, FK_Document_ProgrammersGuide, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into Package (PK_Package, Description, FK_PackageType, FK_Package_Sourcecode, IsSource, NonExecutable, HomePage, FK_License, FK_Manufacturer, FK_Document, FK_Document_UsersManual, FK_Document_ProgrammersGuide, Comments, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -654,7 +679,7 @@ condition = condition + "PK_Package=" + tmp_PK_Package;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Package="+pRow->PK_Package_asSQL()+", Description="+pRow->Description_asSQL()+", FK_PackageType="+pRow->FK_PackageType_asSQL()+", FK_Package_Sourcecode="+pRow->FK_Package_Sourcecode_asSQL()+", IsSource="+pRow->IsSource_asSQL()+", NonExecutable="+pRow->NonExecutable_asSQL()+", HomePage="+pRow->HomePage_asSQL()+", FK_License="+pRow->FK_License_asSQL()+", FK_Manufacturer="+pRow->FK_Manufacturer_asSQL()+", FK_Document="+pRow->FK_Document_asSQL()+", FK_Document_UsersManual="+pRow->FK_Document_UsersManual_asSQL()+", FK_Document_ProgrammersGuide="+pRow->FK_Document_ProgrammersGuide_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_Package="+pRow->PK_Package_asSQL()+", Description="+pRow->Description_asSQL()+", FK_PackageType="+pRow->FK_PackageType_asSQL()+", FK_Package_Sourcecode="+pRow->FK_Package_Sourcecode_asSQL()+", IsSource="+pRow->IsSource_asSQL()+", NonExecutable="+pRow->NonExecutable_asSQL()+", HomePage="+pRow->HomePage_asSQL()+", FK_License="+pRow->FK_License_asSQL()+", FK_Manufacturer="+pRow->FK_Manufacturer_asSQL()+", FK_Document="+pRow->FK_Document_asSQL()+", FK_Document_UsersManual="+pRow->FK_Document_UsersManual_asSQL()+", FK_Document_ProgrammersGuide="+pRow->FK_Document_ProgrammersGuide_asSQL()+", Comments="+pRow->Comments_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update Package set " + update_values_list + " where " + condition;
@@ -877,56 +902,67 @@ sscanf(row[11], "%li", &(pRow->m_FK_Document_ProgrammersGuide));
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_psc_id = 0;
+pRow->m_Comments = "";
 }
 else
 {
 pRow->is_null[12]=false;
-sscanf(row[12], "%li", &(pRow->m_psc_id));
+pRow->m_Comments = string(row[12],lengths[12]);
 }
 
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[13]=false;
-sscanf(row[13], "%li", &(pRow->m_psc_batch));
+sscanf(row[13], "%li", &(pRow->m_psc_id));
 }
 
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[14]=false;
-sscanf(row[14], "%li", &(pRow->m_psc_user));
+sscanf(row[14], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[15]=false;
-sscanf(row[15], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[15], "%li", &(pRow->m_psc_user));
 }
 
 if (row[16] == NULL)
 {
 pRow->is_null[16]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[16]=false;
-pRow->m_psc_mod = string(row[16],lengths[16]);
+sscanf(row[16], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[17] == NULL)
+{
+pRow->is_null[17]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[17]=false;
+pRow->m_psc_mod = string(row[17],lengths[17]);
 }
 
 
@@ -1170,56 +1206,67 @@ sscanf(row[11], "%li", &(pRow->m_FK_Document_ProgrammersGuide));
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_psc_id = 0;
+pRow->m_Comments = "";
 }
 else
 {
 pRow->is_null[12]=false;
-sscanf(row[12], "%li", &(pRow->m_psc_id));
+pRow->m_Comments = string(row[12],lengths[12]);
 }
 
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[13]=false;
-sscanf(row[13], "%li", &(pRow->m_psc_batch));
+sscanf(row[13], "%li", &(pRow->m_psc_id));
 }
 
 if (row[14] == NULL)
 {
 pRow->is_null[14]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[14]=false;
-sscanf(row[14], "%li", &(pRow->m_psc_user));
+sscanf(row[14], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[15] == NULL)
 {
 pRow->is_null[15]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[15]=false;
-sscanf(row[15], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[15], "%li", &(pRow->m_psc_user));
 }
 
 if (row[16] == NULL)
 {
 pRow->is_null[16]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[16]=false;
-pRow->m_psc_mod = string(row[16],lengths[16]);
+sscanf(row[16], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[17] == NULL)
+{
+pRow->is_null[17]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[17]=false;
+pRow->m_psc_mod = string(row[17],lengths[17]);
 }
 
 
