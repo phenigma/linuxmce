@@ -2,7 +2,17 @@
 
 use DBI;
 
+
 $db = DBI->connect("dbi:mysql:database=pluto_main;host=localhost;user=root;password=") or die "Couldn't connect to database: $DBI::errstr\n";
+
+$gw = "";
+
+@data = sqlexec("select * from Device WHERE Description='gc100'");
+if($data[0]->{'PK_Device'} ne "") {
+  print "The device allready exist\n";
+  $db->disconnect();
+  exit(0);
+}
 
 @data = sqlexec("SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_DeviceData='28'");
 foreach $row (@data) {
@@ -54,19 +64,19 @@ $main_ip = long_2_ip($main_ip);
 $installation = get_install();
 print "IP=$main_ip on Installation=$installation\n";
 
-#call CREATE DEVICE
+$install = get_install();
+$dev_templ = get_template();
 
-@data = sqlexec("SELECT IK_DeviceData FROM Device_DeviceData WHERE FK_DeviceData=32");
-$row = $data[0];
-$devices = $row->{'IK_DeviceData'};
-($first,$second) = split(/\|/,$devices);
-@frag = split(/\,/,$first);
-$liface = $frag[0];
-@frag = split(/\,/,$second);
-$oiface = $frag[0];
-print "$liface-$oiface\n";
+$flag = allias_up();
+$mac = get_gc100mac();
 
+system("wget -q -T 3 --read-timeout=4 -t 1 \"http://192.168.1.170/commands.cgi?2=$main_ip&3=255.255.255.0&4=$gw&7=submit\"");
+system("wget -q -T 3 --read-timeout=4 -t 1 \"http://192.168.1.101/commands.cgi?2=$main_ip&3=255.255.255.0&4=$gw&7=submit\"");
+system("/usr/pluto/bin/CreateDevice -i $install -d $dev_templ -I $main_ip -M $mac > gc100_temp.file\n");
 
+if($flag == 1) {
+    allias_down();
+}
 
 $db->disconnect();
 
@@ -127,4 +137,78 @@ sub get_install {
       }
     }
   }
+}
+sub get_install {
+  $sql = "select FK_Installation from Device WHERE PK_Device='$PKDEV'";
+  $st = $db->prepare($sql);
+  $st->execute();
+  if($row = $st->fetchrow_hashref()) {
+    return $row->{'FK_Installation'};
+  } else {
+    return 1;
+  }
+}
+sub get_template {
+  $sql = "select PK_DeviceTemplate from DeviceTemplate WHERE Description='gc100'";
+  $st = $db->prepare($sql);
+  $st->execute();
+  if($row = $st->fetchrow_hashref()) {
+    return $row->{'PK_DeviceTemplate'};
+  } else {
+    return 40;
+  }
+}
+
+sub get_gc100mac {
+  system("curl http://192.168.1.170/Commands.cgi -o gc100mac --silent");
+  system("curl http://192.168.1.101/Commands.cgi -o gc100mac --silent");
+  open(FILE,"gc100mac");
+  @data = <FILE>;
+  close(FILE);
+  $line = $data[0];
+  @vars = split(/ /,$line);
+  $i = 0;
+  foreach $line (@vars) {
+    if($vars[$i] eq "Address") {
+	$ii = $i - 1;
+	if($vars[$ii] eq "MAC") {
+	    $j = $i + 2;
+	    @frag = split(/\</,$vars[$j]);
+	    $mac = $frag[0];
+	    $mac =~ tr/\-/\:/;
+	    print "Mac Found $mac\n";
+	    system("rm -f gc100mac");
+	    return $mac;
+	}
+    }
+    $i = $i + 1;
+  }
+}
+
+sub allias_up {
+    $sql = "select * from Device_DeviceData where FK_DeviceData='32'";
+    $st = $db->prepare($sql);
+    $st->execute();
+    if($row = $st->fetchrow_hashref()) {
+	$data = $row->{'IK_DeviceData'};
+	@frag = split(/\|/,$data);
+	@frag = split(/\,/,$frag[1]);
+	$local_dev = $frag[0];
+	$local_ip = $frag[1];
+    } else {
+	$local_ip = "192.168.1.1";
+    }
+    
+    $gw = $local_ip;
+    @frag = split(/\./,$local_ip);
+    if($frag[0] ne "192" && $frag[1] ne "168" && $frag[3] ne "1") {
+	system("ifconfig $local_dev:100 192.168.1.1 broadcast 255.255.255.255 netmask 255.255.255.0");
+	return 1;
+    } else {
+	return 0;
+    }
+}
+
+sub allias_down {
+  system("ifconfig $local_dev:100 down");
 }
