@@ -566,16 +566,34 @@ int gettimeofday(struct timespec *ts, struct timezone *tz)
 	
 bool operator < (const timespec & t1, const timespec & t2)
 {
-	if( t1.tv_sec!=t2.tv_sec )
-		return t1.tv_sec<t2.tv_sec;
-	return t1.tv_nsec<t2.tv_nsec;
+	if (t1.tv_sec != t2.tv_sec)
+		return t1.tv_sec < t2.tv_sec;
+	return t1.tv_nsec < t2.tv_nsec;
+}
+
+bool operator == (const timespec & t1, const timespec & t2)
+{
+	return t1.tv_sec == t2.tv_sec && t1.tv_nsec == t2.tv_nsec;
 }
 
 bool operator <= (const timespec & t1, const timespec & t2)
 {
-	if( t1.tv_sec!=t2.tv_sec )
-		return t1.tv_sec<t2.tv_sec;
-	return t1.tv_nsec<=t2.tv_nsec;
+	return t1 == t2 || t1 < t2;
+}
+
+bool operator > (const timespec & t1, const timespec & t2)
+{
+	return ! (t1 <= t2);
+}
+
+bool operator >= (const timespec & t1, const timespec & t2)
+{
+	return t1 == t2 || t1 > t2;
+}
+
+bool operator != (const timespec & t1, const timespec & t2)
+{
+	return ! (t1 == t2);
 }
 
 timespec & operator += (timespec & t1, const timespec & t2)
