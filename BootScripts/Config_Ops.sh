@@ -44,5 +44,15 @@ if [ -n "$Valgrind" ]; then
 		echo "*** WARNING *** Valgrind not installed. Running programs the normal way ***"
 	fi
 fi
+
+[ -f /tmp/pluto.gdb ] || echo "run" >/tmp/pluto.gdb
+if [ -n "$GDB" ]; then
+	if which gdb &>/dev/null; then
+		VGcmd="gdb --args --command=/tmp/pluto.gdb "
+	elif [ -z "$VGcmd" ]; then
+		echo "*** WARNING *** GDB not installed. Running programs the normal way ***"
+	fi
+fi
+
 ulimit -c unlimited
 shopt -s nullglob
