@@ -149,42 +149,22 @@ void Asterisk::SomeFunction()
 
 */
 
-//<-dceag-c195-b->
 
-	/** @brief COMMAND: #195 - Dial */
-	/** This will cause the device to dial a number. */
+//<-dceag-c233-b->
+
+	/** @brief COMMAND: #233 - PBX_Originate */
+	/** Originate a call */
 		/** @param #75 PhoneNumber */
-			/** Phone number to dial. */
+			/** Phone id from which to place the call */
+		/** @param #82 PhoneType */
+			/** Phone type from which to place the call */
+		/** @param #83 PhoneExtension */
+			/** Extention to dial */
+		/** @param #84 PhoneCallerID */
+			/** Caller id */
 
-void Asterisk::CMD_Dial(string sPhoneNumber,string &sCMD_Result,Message *pMessage)
-//<-dceag-c195-e->
+void Asterisk::CMD_PBX_Originate(string sPhoneNumber,string sPhoneType,string sPhoneExtension,string sPhoneCallerID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c233-e->
 {
-	cout << "Need to implement command #195 - Dial" << endl;
-	cout << "Parm #75 - PhoneNumber=" << sPhoneNumber << endl;
 }
-
-//<-dceag-c227-b->
-
-	/** @brief COMMAND: #227 - Originate */
-	/** This will cause the device to originate a call */
-		/** @param #75 PhoneNumber */
-			/** Phone number to dial */
-		/** @param #79 OriginatorNumber */
-			/** Phone number from which the call is placed */
-		/** @param #80 OriginatorType */
-			/** Phone type (SIP/Zap) */
-		/** @param #81 CallerID */
-			/** Caller ID */
-
-void Asterisk::CMD_Originate(string sPhoneNumber,string sOriginatorNumber,string sOriginatorType,string sCallerID,string &sCMD_Result,Message *pMessage)
-//<-dceag-c227-e->
-{
-	cout << "Need to implement command #227 - Originate" << endl;
-	cout << "Parm #75 - PhoneNumber=" << sPhoneNumber << endl;
-	cout << "Parm #79 - OriginatorNumber=" << sOriginatorNumber << endl;
-	cout << "Parm #80 - OriginatorType=" << sOriginatorType << endl;
-	cout << "Parm #81 - CallerID=" << sCallerID << endl;
-}
-
-
 
