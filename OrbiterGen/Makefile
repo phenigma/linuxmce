@@ -22,10 +22,12 @@ sources = \
 	$(ORB)/TextStyle.cpp \
 	$(ORB)/RendererMNG.cpp
 
-all: $(sources:.cpp=.o)
+all: bin
+
+bin: $(sources:.cpp=.o)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $(APPNAME) $+ $(LDFLAGS) $(LDLIBS)
 	cp OrbiterGen ../bin
-	
+
 clean: clean-recursive
 	rm -f $(sources:.cpp=.o) $(sources:.cpp=.d) $(APPNAME) >/dev/null
 
@@ -33,4 +35,6 @@ package:
 	./make_package.sh $(APPNAME) $(VERSION)
 
 include $(ROOT)/PlutoUtils/make.rules
+ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 -include $(sources:.cpp=.d)
+endif

@@ -1,5 +1,5 @@
 ROOT = ..
-CXXFLAGS = -Wall -ggdb3 
+CXXFLAGS = -Wall -ggdb3
 CPPFLAGS = -I./ -I../ -I../DCE/ -I../VIPShared/ -I/usr/include/mysql
 CXX = g++
 
@@ -15,16 +15,18 @@ Serial: libSerial.so libSerial.a
 libSerial.so: $(sources:.cpp=.o)
 	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $+
 #	cp $@ ../lib
-	
+
 libSerial.a: $(sources:.cpp=.o)
 	$(AR) rc $@ $+
 	cp $@ ../lib
-	
-clean: 
+
+clean:
 	rm -f $(sources:.cpp=.o) $(sources:.cpp=.d) libSerial.so libSerial.a >/dev/null
 
 package:
 	./make_package.sh $(APPNAME) $(VERSION)
 
 include $(ROOT)/PlutoUtils/make.rules
+ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 -include $(sources:.cpp=.d)
+endif

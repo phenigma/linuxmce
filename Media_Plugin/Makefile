@@ -1,4 +1,4 @@
-#<-dceag-mh-b->
+#<-dceag-mh-b->!
 GENDEV=../Gen_Devices
 
 ROOT = ..
@@ -6,7 +6,8 @@ CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES
 LDFLAGS = -L$(ROOT)/lib
-BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
+EXTERNAL_LIBS_NAMES = mysqlclient_r pthread
+INTERNAL_LIBS_NAMES = SerializeClass DCECommon PlutoUtils
 
 MYNAME = Media_Plugin
 VERSION = 2.0.0
@@ -19,7 +20,7 @@ sources = Main.cpp Media_Plugin.cpp $(Gen_Dev_Files)
 CXXFLAGS += -fmessage-length=0
 CPPFLAGS +=
 LDFLAGS +=
-XTRALDLIBS = -lpluto_main -lpluto_media
+INTERNAL_LIBS_NAMES += pluto_main pluto_media
 
 Gen_Dev_Files += $(GENDEV)/Datagrid_PluginBase.cpp
 sources += \
@@ -32,7 +33,7 @@ sources += \
 	BoundRemote.cpp
 
 #<-dceag-mf-b->!
-LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
+LDLIBS_NAMES = $(INTERNAL_LIBS_NAMES) $(EXTERNAL_LIBS_NAMES)
 
 whattodo:
 	@echo "type 'make bin', 'make so' or 'make all'"
@@ -43,18 +44,18 @@ bin: Media_Plugin
 
 so: Media_Plugin.so
 
-Media_Plugin.so: $(sources:.cpp=.o) $(ROOT)/lib/libpluto_main.a $(ROOT)/lib/libpluto_media.a $(ROOT)/lib/libDCECommon.a $(ROOT)/lib/libSerializeClass.a $(ROOT)/lib/libPlutoUtils.a
-	$(CXX) -shared -o $(MYNAME).so $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS)
+Media_Plugin.so: $(sources:.cpp=.o) $(INTERNAL_LIBS_NAMES:%=$(ROOT)/lib/lib%.a) Makefile
+	$(CXX) -shared -o $(MYNAME).so $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS_NAMES:%=-l%)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 
-Media_Plugin: $(sources:.cpp=.o)
-	$(CXX) -o $(MYNAME) $+ $(LDFLAGS) $(LDLIBS)
+Media_Plugin: $(sources:.cpp=.o) $(INTERNAL_LIBS_NAMES:%=$(ROOT)/lib/lib%.a) Makefile
+	$(CXX) -o $(MYNAME) $+ $(LDFLAGS) $(LDLIBS_NAMES:%=-l%)
 	cp $@ ../bin
 	./post_make.sh $@
 
-clean: clean-recursive
+clean:
 	rm -f $(sources:.cpp=.o) $(sources:.cpp=.d) Media_Plugin.bin Media_Plugin.so >/dev/null
 
 package:
@@ -62,6 +63,9 @@ package:
 	./make_package.sh $(MYNAME) $(VERSION) $(MYDEVTEMPLATEID)
 
 include $(ROOT)/PlutoUtils/make.rules
+
+ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 -include $(sources:.cpp=.d)
+endif
 #<-dceag-mf-e->
 

@@ -1,9 +1,9 @@
 ROOT = ..
 CXXFLAGS = -Wall -ggdb3 -DxAUDIDEMO -fmessage-length=0
 CPPFLAGS = -I$(ROOT)/ -I$(ROOT)/DCE -I/usr/include/mysql -D_REENTRANT -D_GNU_SOURCE -D_DEVEL_DEFINES -DUSE_LZO_DATAGRID
-LDFLAGS = -L$(ROOT)/lib 
+LDFLAGS = -L$(ROOT)/lib
 #LDLIBS = -lpthread -lmysqlclient_r -lattr -lDCECommon -lSerializeClass -lPlutoUtils -lpluto_main -lFakeEPG -lqt-mt -lmyth-0.16 -lmythtv-0.16
-LDLIBS = -lpthread -lmysqlclient_r -lattr -lDCECommon -lSerializeClass -lPlutoUtils -lpluto_main -ldl 
+LDLIBS = -lpthread -lmysqlclient_r -lattr -lDCECommon -lSerializeClass -lPlutoUtils -lpluto_main -ldl
 
 APPNAME=DCERouter
 VERSION=2.0.0
@@ -17,8 +17,8 @@ sources = \
 		DCERouter_CreatePluginHardCoded_Impl.cpp
 
 
-#sources += ../Gen_Devices/Media_PluginBase.cpp ../Media_Plugin/Media_Plugin.cpp ../Media_Plugin/MediaPluginInfo.cpp 
-#sources += ../Gen_Devices/Datagrid_PluginBase.cpp ../Datagrid_Plugin/Datagrid_Plugin.cpp 
+#sources += ../Gen_Devices/Media_PluginBase.cpp ../Media_Plugin/Media_Plugin.cpp ../Media_Plugin/MediaPluginInfo.cpp
+#sources += ../Gen_Devices/Datagrid_PluginBase.cpp ../Datagrid_Plugin/Datagrid_Plugin.cpp
 #sources += ../Gen_Devices/MythTV_PlugInBase.cpp  ../MythTV_PlugIn/MythTV_PlugIn.cpp ../MythTV_PlugIn/MythTvEPGWrapper.cpp
 #sources += ../Gen_Devices/Xine_PluginBase.cpp ../Xine_Plugin/Xine_Plugin.cpp
 #sources += ../Gen_Devices/Telecom_PluginBase.cpp ../Telecom_Plugin/Telecom_Plugin.cpp
@@ -46,4 +46,6 @@ package:
 	./make_package.sh $(APPNAME) $(VERSION)
 
 include $(ROOT)/PlutoUtils/make.rules
+ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 -include $(sources:.cpp=.d)
+endif

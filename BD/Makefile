@@ -13,9 +13,11 @@ all: libBDCommon.a all-recursive
 libBDCommon.a: $(sources:.cpp=.o)
 	$(AR) rc $@ $+
 	cp $@ ../lib
-		
+
 clean: clean-recursive
 	rm -f $(sources:.cpp=.o) $(sources:.cpp=.d) libBDCommon.a >/dev/null
 
 include $(ROOT)/PlutoUtils/make.rules
+ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 -include $(sources:.cpp=.d)
+endif

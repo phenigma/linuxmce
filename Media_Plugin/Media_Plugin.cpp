@@ -207,7 +207,7 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
 					if( pRow_Device_EntertainArea )
 					{
 						vector<Row_Device_EntertainArea *> vectRow_Device_EntertainArea2;
-						m_pDatabase_pluto_main->Device_EntertainArea_get()->GetRows("WHERE FK_EntertainArea<>" + 
+						m_pDatabase_pluto_main->Device_EntertainArea_get()->GetRows("WHERE FK_EntertainArea<>" +
 							StringUtils::itos(pRow_Device_EntertainArea->FK_EntertainArea_get()) + " AND FK_Device=" + StringUtils::itos(pRow_Device_EntertainArea->FK_Device_get()),
 							&vectRow_Device_EntertainArea2);
 						for(size_t s2=0;s2<vectRow_Device_EntertainArea2.size();++s2)
@@ -229,7 +229,7 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
 			}
 			m_pDatabase_pluto_main->Device_get()->Commit();
 		}
-        
+
         vector<Row_EntertainArea *> vectRow_EntertainArea;
         pRow_Room->EntertainArea_FK_Room_getrows( &vectRow_EntertainArea );
         for( size_t s=0;s<vectRow_EntertainArea.size( );++s )
@@ -2232,6 +2232,24 @@ void Media_Plugin::TurnDeviceOff(int PK_Pipe,DeviceData_Router *pDeviceData_Rout
 void Media_Plugin::CMD_Move_Playlist_entry_Up(int iValue,string &sCMD_Result,Message *pMessage)
 //<-dceag-c269-e->
 {
+	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+
+	// Only an Orbiter will tell us to Mode media
+    EntertainArea *pEntertainArea = DetermineEntArea(pMessage->m_dwPK_Device_From, 0, 0);
+    if( !pEntertainArea )
+	{
+        g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Move_Playlist_entry_Up() got a message from a device that is not a orbiter in an ent area. Ignoring!");
+		return;  // Don't know what area it should be played in
+	}
+
+	if ( pEntertainArea->m_pMediaStream == NULL )
+	{
+        g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Move_Playlist_entry_Up(): There is no media stream in the detected ent area %d.!");
+		return;  // There is no stream in the target ent area.
+	}
+
+	// the playlist is reversed
+	pEntertainArea->m_pMediaStream->MoveEntryInPlaylist(iValue, -1);
 }
 
 //<-dceag-c270-b->
@@ -2244,6 +2262,24 @@ void Media_Plugin::CMD_Move_Playlist_entry_Up(int iValue,string &sCMD_Result,Mes
 void Media_Plugin::CMD_Move_Playlist_entry_Down(int iValue,string &sCMD_Result,Message *pMessage)
 //<-dceag-c270-e->
 {
+	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+
+	// Only an Orbiter will tell us to Mode media
+    EntertainArea *pEntertainArea = DetermineEntArea(pMessage->m_dwPK_Device_From, 0, 0);
+    if( !pEntertainArea )
+	{
+        g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Move_Playlist_entry_Down() got a message from a device that is not a orbiter in an ent area. Ignoring!");
+		return;  // Don't know what area it should be played in
+	}
+
+	if ( pEntertainArea->m_pMediaStream == NULL )
+	{
+        g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Move_Playlist_entry_Down(): There is no media stream in the detected ent area %d.!");
+		return;  // There is no stream in the target ent area.
+	}
+
+	// the playlist is reversed
+	pEntertainArea->m_pMediaStream->MoveEntryInPlaylist(iValue, +1);
 }
 
 //<-dceag-c271-b->
@@ -2255,6 +2291,22 @@ void Media_Plugin::CMD_Move_Playlist_entry_Down(int iValue,string &sCMD_Result,M
 
 void Media_Plugin::CMD_Remove_playlist_entry(int iValue,string &sCMD_Result,Message *pMessage)
 //<-dceag-c271-e->
-{
+{	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+
+	// Only an Orbiter will tell us to Mode media
+    EntertainArea *pEntertainArea = DetermineEntArea(pMessage->m_dwPK_Device_From, 0, 0);
+    if( !pEntertainArea )
+	{
+        g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Remove_playlist_entry() got a message from a device that is not a orbiter in an ent area. Ignoring!");
+		return;  // Don't know what area it should be played in
+	}
+
+	if ( pEntertainArea->m_pMediaStream == NULL )
+	{
+        g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Remove_playlist_entry(): There is no media stream in the detected ent area %d.!");
+		return;  // There is no stream in the target ent area.
+	}
+
+	pEntertainArea->m_pMediaStream->DeleteEntryFromPlaylist(iValue);
 }
 

@@ -1,10 +1,10 @@
-LIBRARIES=pluto_main DCE VIPShared
-APPS=DCEGen DCERouter sql2cpp MessageSend 
-DCEDEVS=App_Server Bluetooth_Dongle Disk_Drive
+LIBRARIES=pluto_main pluto_media DCE VIPShared IRBase Serial
+APPS=DCEGen DCERouter sql2cpp MessageSend DCEGen 
+DCEDEVS=App_Server Disk_Drive Slim_Server_Streamer MythTV_Backend_Proxy gc100
 PLUGINS=Datagrid_Plugin File_Grids_Plugin Media_Plugin Orbiter_Plugin Xine_Plugin \
 	General_Info_Plugin Mozilla_Plugin Lighting_Plugin Climate_Plugin Security_Plugin Telecom_Plugin \
-	MythTV_PlugIn
-CONFLICTING=OrbiterGen Orbiter Xine_Player 
+	MythTV_PlugIn Asterisk Event_Plugin
+CONFLICTING=OrbiterGen Orbiter Bluetooth_Dongle Xine_Player 
 
 all: libs nolibs
 
@@ -23,7 +23,7 @@ plugins: required_dirs
 	for i in $(PLUGINS); do make -C $$i so || exit $$?; done
 
 intersecting: required_dirs
-	for i in $(CONFLICTING); do make -C $$i clean all || exit $$?; done
+	for i in $(CONFLICTING); do make -C $$i clean bin || exit $$?; done
 
 required_dirs:
 	mkdir -p bin lib 2>/dev/null

@@ -98,6 +98,8 @@ namespace DCE
         virtual void ClearPlaylist();
         virtual bool HaveMoreInQueue();
 
+		virtual void DeleteEntryFromPlaylist(int position);
+		virtual void MoveEntryInPlaylist(int position, int displacement);
 		/**
 		 * @brief The stream will change his internal state to match the new location specificated.
 		 * @return true if the specification was undestood by the MediaStream, false otherwise.

@@ -2,7 +2,7 @@ sources=slim-input-plugin.c slim-protocol-handler.c slim-stream.c socket-utils.c
 
 LIBTOOL=libtool
 CC=gcc
-CFLAGS=`xine-config --cflags`
+CFLAGS=`xine-config --cflags` -ggdb3
 LDFLAGS=-fPIC
 
 xineplug_inp_slim.so: $(sources:.c=.o)

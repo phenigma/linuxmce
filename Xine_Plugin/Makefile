@@ -1,4 +1,4 @@
-#<-dceag-mh-b->
+#<-dceag-mh-b->!
 GENDEV=../Gen_Devices
 
 ROOT = ..
@@ -6,7 +6,8 @@ CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES
 LDFLAGS = -L$(ROOT)/lib
-BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
+EXTERNAL_LIBS_NAMES = mysqlclient_r pthread
+INTERNAL_LIBS_NAMES = SerializeClass DCECommon PlutoUtils
 
 MYNAME = Xine_Plugin
 VERSION = 2.0.0
@@ -19,7 +20,9 @@ sources = Main.cpp Xine_Plugin.cpp $(Gen_Dev_Files)
 CXXFLAGS += -fmessage-length=0
 CPPFLAGS +=
 LDFLAGS +=
-XTRALDLIBS = -lpluto_main -lpluto_media -lattr
+
+INTERNAL_LIBS_NAMES += pluto_main pluto_media
+EXTERNAL_LIBS_NAMES += attr
 
 Gen_Dev_Files += $(GENDEV)/Media_PluginBase.cpp $(GENDEV)/Datagrid_PluginBase.cpp
 sources += \
@@ -35,7 +38,7 @@ sources += \
 	../File_Grids_Plugin/FileListGrid.cpp
 
 #<-dceag-mf-b->!
-LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
+LDLIBS_NAMES = $(INTERNAL_LIBS_NAMES) $(EXTERNAL_LIBS_NAMES)
 
 whattodo:
 	@echo "type 'make bin', 'make so' or 'make all'"
@@ -46,14 +49,14 @@ bin: Xine_Plugin
 
 so: Xine_Plugin.so
 
-Xine_Plugin.so: $(sources:.cpp=.o) $(ROOT)/lib/libSerializeClass.a $(ROOT)/lib/libDCECommon.a $(ROOT)/lib/libpluto_main.a $(ROOT)/lib/libpluto_media.a $(ROOT)/lib/libPlutoUtils.a
-	$(CXX) -shared -o $(MYNAME).so $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS)
+Xine_Plugin.so: $(sources:.cpp=.o) $(INTERNAL_LIBS_NAMES:%=$(ROOT)/lib/lib%.a) Makefile
+	$(CXX) -shared -o $(MYNAME).so $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS_NAMES:%=-l%)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 
-Xine_Plugin: $(sources:.cpp=.o)
-	$(CXX) -o $(MYNAME) $+ $(LDFLAGS) $(LDLIBS)
+Xine_Plugin: $(sources:.cpp=.o) $(INTERNAL_LIBS_NAMES:%=$(ROOT)/lib/lib%.a) Makefile
+	$(CXX) -o $(MYNAME) $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS_NAMES:%=-l%)
 	cp $@ ../bin
 	./post_make.sh $@
 
@@ -65,6 +68,8 @@ package:
 	./make_package.sh $(MYNAME) $(VERSION) $(MYDEVTEMPLATEID)
 
 include $(ROOT)/PlutoUtils/make.rules
+ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 -include $(sources:.cpp=.d)
+endif
 #<-dceag-mf-e->
 

@@ -6,7 +6,8 @@ CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES
 LDFLAGS = -L$(ROOT)/lib
-BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
+EXTERNAL_LIBS_NAMES = mysqlclient_r pthread
+INTERNAL_LIBS_NAMES = SerializeClass DCECommon PlutoUtils
 
 MYNAME = Xine_Player
 VERSION = 2.0.0
@@ -18,14 +19,17 @@ sources = Main.cpp Xine_Player.cpp $(Gen_Dev_Files)
 
 CXXFLAGS += -fmessage-length=0
 CPPFLAGS +=
-LDFLAGS += -L/usr/X11R6/lib
-XTRALDLIBS = `xine-config --libs` -lpng -lX11 -lm -lXext -lXxf86vm
+LDFLAGS += -L/usr/X11R6/lib -L/usr/lib
+INTERNAL_LIBS_NAMES +=
+EXTERNAL_LIBS_NAMES += xine z nsl rt png X11 m Xext Xxf86vm
+
+XTRALDLIBS =
 
 Gen_Dev_Files +=
-sources +=  XineSlaveWrapper.cpp 
+sources +=  XineSlaveWrapper.cpp
 
-#<-dceag-mf-b->
-LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
+#<-dceag-mf-b->!
+LDLIBS_NAMES = $(INTERNAL_LIBS_NAMES) $(EXTERNAL_LIBS_NAMES)
 
 whattodo:
 	@echo "type 'make bin', 'make so' or 'make all'"
@@ -36,14 +40,14 @@ bin: Xine_Player
 
 so: Xine_Player.so
 
-Xine_Player.so: $(sources:.cpp=.o)
-	$(CXX) -shared -o $(MYNAME).so $+ $(LDFLAGS) $(LDLIBS)
+Xine_Player.so: $(sources:.cpp=.o) $(INTERNAL_LIBS_NAMES:%=$(ROOT)/lib/lib%.a) Makefile
+	$(CXX) -shared -o $(MYNAME).so $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS_NAMES:%=-l%)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
-		
-Xine_Player: $(sources:.cpp=.o)
-	$(CXX) -o $(MYNAME) $+ $(LDFLAGS) $(LDLIBS)
+
+Xine_Player: $(sources:.cpp=.o) $(INTERNAL_LIBS_NAMES:%=$(ROOT)/lib/lib%.a) Makefile
+	$(CXX) -o $(MYNAME) $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS_NAMES:%=-l%)
 	cp $@ ../bin
 	./post_make.sh $@
 

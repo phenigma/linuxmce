@@ -6,6 +6,7 @@
 #include <xine.h>
 
 #define BUFFER_SIZE 262144
+// #define BUFFER_SIZE 40960
 
 typedef enum _ThreadControlCommandType
 {

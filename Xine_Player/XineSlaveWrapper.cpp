@@ -379,7 +379,8 @@ bool XineSlaveWrapper::closeWindow()
         XCloseDisplay (XServerDisplay);
 
 		m_bExitThread = true;
-		pthread_join(m_pSameStream->eventLoop, NULL);
+		if ( m_pSameStream )
+			pthread_join(m_pSameStream->eventLoop, NULL);
 
         XServerDisplay = NULL;
     }

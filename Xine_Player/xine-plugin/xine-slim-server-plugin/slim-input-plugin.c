@@ -305,18 +305,23 @@ static char* slim_plugin_get_mrl (input_plugin_t *this_gen) {
 
 static int slim_plugin_get_optional_data (input_plugin_t *general_plugin, void *data, int data_type)
 {
-// 	slim_input_plugin_t *plugin = (slim_input_plugin_t *) general_plugin;
-// 	slim_input_class_t  *plugin_class = (slim_input_class_t *) plugin->input_plugin.input_class;
-//
-// 	fill_preview_buffer(plugin, plugin_class);
-//
-// 	switch (data_type)
-// 	{
-// 		case INPUT_OPTIONAL_DATA_PREVIEW:
-// 			memcpy (data, plugin->preview_buffer, plugin->preview_size);
-// 			return plugin->preview_size;
-// 			break;
-// 	}
+	slim_input_plugin_t *plugin = (slim_input_plugin_t *) general_plugin;
+	slim_input_class_t  *plugin_class = (slim_input_class_t *) plugin->input_plugin.input_class;
+
+	// fill_preview_buffer(plugin, plugin_class);
+
+	while ( stream_get_data_size(&plugin->source_stream) < MAX_PREVIEW_SIZE )
+		do_one_command(plugin, plugin_class);
+
+	switch (data_type)
+	{
+		case INPUT_OPTIONAL_DATA_PREVIEW:
+			// xine_log(plugin_class->xine, XINE_LOG_PLUGIN, _(LOG_MODULE "Returning preview data with size %d\n"), MAX_PREVIEW_SIZE);
+			stream_read(data, 0, MAX_PREVIEW_SIZE, &plugin->source_stream);
+// 			memcpy (data, plugin->preview_buffer, MAX_PREVIEW_SIZE);
+			return MAX_PREVIEW_SIZE;
+			break;
+	}
 
 	return INPUT_OPTIONAL_UNSUPPORTED;
 }
@@ -346,27 +351,16 @@ static off_t slim_plugin_read (input_plugin_t *input_plugin, char *buf, off_t le
 	off_t n, total;
 
 	// xine_log(plugin_class->xine, XINE_LOG_MSG, _(LOG_MODULE ": Plugin open called!"));
-	xine_log(plugin->stream->xine, XINE_LOG_MSG, _(LOG_MODULE ": Reading data from network"));
+	// xine_log(plugin->stream->xine, XINE_LOG_MSG, _(LOG_MODULE ": Reading data from network \n"));
 
-	do_one_command(plugin, plugin_class);
+	while ( stream_get_data_size(&plugin->source_stream) < len )
+		do_one_command(plugin, plugin_class);
 
 	total=0;
 
-/*	if( (len - total) > 0 )
-	{
-		n = _x_read_abort (this_plugin->stream, (int)this_plugin->comm_socket, &buf[total], len-total);
+	stream_read(buf, 0, len, &plugin->source_stream );
 
-		xine_log(this_plugin->stream->xine, XINE_VERBOSITY_DEBUG, _(LOG_MODULE ": got %d bytes (%d/%d bytes read)\n"), (intmax_t)n, (intmax_t)total, (intmax_t)len);
-		if (n < 0)
-		{
-			_x_message(this_plugin->stream, XINE_MSG_READ_ERROR, this_plugin->slim_server_specification, NULL);
-			return 0;
-		}
-
-		this_plugin->current_position += n;
-		total += n;
-	}*/
-	return total;
+	return len;
 }
 
 static buf_element_t *slim_plugin_read_block (input_plugin_t *this_gen, fifo_buffer_t *fifo, off_t todo)

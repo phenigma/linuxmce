@@ -1,4 +1,4 @@
-#<-dceag-mh-b->
+#<-dceag-mh-b->!
 GENDEV=../Gen_Devices
 
 ROOT = ..
@@ -6,7 +6,8 @@ CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES
 LDFLAGS = -L$(ROOT)/lib
-BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
+EXTERNAL_LIBS_NAMES = mysqlclient_r pthread
+INTERNAL_LIBS_NAMES = SerializeClass DCECommon PlutoUtils
 
 MYNAME = MythTV_Player
 VERSION = 2.0.0
@@ -19,15 +20,16 @@ sources = Main.cpp MythTV_Player.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS += -I/usr/include/qt3 -I$(ROOT)/Libraries/ -DQT_NO_DEBUG -DQT_THREAD_SUPPORT -DQT_SHARED
 LDFLAGS += -L/usr/X11R6/lib
-XTRALDLIBS = -lXtst -lqt-mt -lmyth-0.16 -lmythtv-0.16 
+INTERNAL_LIBS_NAMES +=
+EXTERNAL_LIBS_NAMES += Xtst qt-mt myth-0.16 mythtv-0.16
 
 Gen_Dev_Files +=
 sources += \
 	MythMainWindowResizable.cpp \
 	../utilities/linux/ImageConvertor.cpp
 
-#<-dceag-mf-b->
-LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
+#<-dceag-mf-b->!
+LDLIBS_NAMES = $(INTERNAL_LIBS_NAMES) $(EXTERNAL_LIBS_NAMES)
 
 whattodo:
 	@echo "type 'make bin', 'make so' or 'make all'"
@@ -38,14 +40,14 @@ bin: MythTV_Player
 
 so: MythTV_Player.so
 
-MythTV_Player.so: $(sources:.cpp=.o)
-	$(CXX) -shared -o $(MYNAME).so $+ $(LDFLAGS) $(LDLIBS)
+MythTV_Player.so: $(sources:.cpp=.o) $(INTERNAL_LIBS_NAMES:%=$(ROOT)/lib/lib%.a) Makefile
+	$(CXX) -shared -o $(MYNAME).so $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS_NAMES:%=-l%)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
-		
-MythTV_Player: $(sources:.cpp=.o)
-	$(CXX) -o $(MYNAME) $+ $(LDFLAGS) $(LDLIBS)
+
+MythTV_Player: $(sources:.cpp=.o) $(INTERNAL_LIBS_NAMES:%=$(ROOT)/lib/lib%.a) Makefile
+	$(CXX) -o $(MYNAME) $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS_NAMES:%=-l%)
 	cp $@ ../bin
 	./post_make.sh $@
 

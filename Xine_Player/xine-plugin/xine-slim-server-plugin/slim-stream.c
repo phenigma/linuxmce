@@ -33,7 +33,7 @@ int stream_get_free_space(struct slim_stream *pStream)
 	pthread_mutex_lock(&pStream->bufferMutex);
 	freeSpace = pStream->readPtr - pStream->writePtr - 1;
 
-	if ( freeSpace < 0 )
+		if ( freeSpace < 0 )
 		freeSpace += BUFFER_SIZE;
 
 	pthread_mutex_unlock(&pStream->bufferMutex);
@@ -166,8 +166,11 @@ void *stream_reader_function(void*pData)
 	{
 		len = read((int)pStream->connection, buffer, TMP_BUFFER_SIZE);
 
-		while (stream_write(buffer, 0, len, pStream) == 0 && pStream->readerThreadControl != THREAD_CONTROL_STOP )
+		while ( pStream->readerThreadControl != THREAD_CONTROL_STOP && stream_get_free_space(pStream) < len )
 			Sleep(50);
+
+		if ( THREAD_CONTROL_STOP != pStream->readerThreadControl )
+			stream_write(buffer, 0, len, pStream);
 	}
 
 	return NULL;
@@ -220,10 +223,19 @@ void stream_open(struct slim_stream *pStream, xine_t *xine_handler)
 
 int stream_write(char *pBuffer, int off, int len, struct slim_stream *pStream)
 {
-	printf("original write position: %d from %d  writing %d\n", pStream->writePtr, BUFFER_SIZE, len - off);
+	int oldWritePtr;
+	oldWritePtr = pStream->writePtr;
 
 	if ( stream_get_free_space(pStream) < len )
+	{
+/**
+		printf("--->Buffer (%d) writing %d: [ %d->%d, %d->%d ].\n",
+					BUFFER_SIZE, len,
+					pStream->readPtr, pStream->readPtr,
+					oldWritePtr, pStream->writePtr);
+*/
 		return 0;
+	}
 
 	pthread_mutex_lock(&pStream->bufferMutex);
 	if ( pStream->writePtr < pStream->readPtr)
@@ -243,20 +255,29 @@ int stream_write(char *pBuffer, int off, int len, struct slim_stream *pStream)
 			int currentWriteSize = pStream->writePtr;
 
 			memcpy(pStream->buffer + pStream->writePtr, pBuffer + off, BUFFER_SIZE - currentWriteSize );
-			memcpy(pStream->buffer, pBuffer + off + BUFFER_SIZE - currentWriteSize, len - currentWriteSize );
+			memcpy(pStream->buffer, pBuffer + off + BUFFER_SIZE - currentWriteSize, len - (BUFFER_SIZE - currentWriteSize) );
 
-			pStream->writePtr = len - currentWriteSize;
+			pStream->writePtr = len - (BUFFER_SIZE - currentWriteSize);
 		}
 	}
 
-	printf("final write position: %d\n", pStream->writePtr);
+// 	printf("--->Buffer (%d) writing %d: [ %d->%d, %d->%d ].\n",
+// 			BUFFER_SIZE, len,
+// 			pStream->readPtr, pStream->readPtr,
+// 			oldWritePtr, pStream->writePtr);
+
 	pthread_mutex_unlock(&pStream->bufferMutex);
 	return 0;
 }
 
 int stream_read(char *pBuffer, int off, int len, struct slim_stream *pStream)
 {
+	int oldReadPtr;
+	int requestedReadSize;
 	int copiedCount;
+
+	oldReadPtr = pStream->readPtr;
+	requestedReadSize = len;
 
 	while ( stream_get_data_size(pStream) <= len )
 	{
@@ -268,29 +289,12 @@ int stream_read(char *pBuffer, int off, int len, struct slim_stream *pStream)
 		printf("Reader sleep completed!\n");
 	}
 
-		//if ( pStream->isStreaming && pStream->writePtr == pStream->readPtr )
-		//{
-			 // sleep for 0.1 seconds
-			// int bufferUnderrunHere = 1;
-			// return READ_BUFFER_UNDERRUN;
-		//}
-		//		if (streaming && readPtr == writePtr) {
-		//			logger.debug("buffer underrun");
-		//			for (Iterator i = listeners.iterator(); i.hasNext();)
-		//				((AudioBufferInputStreamListener) i.next())
-		//				.bufferUnderrun(this);
-		//		}
-
-		//		wait();
-//	}
-
 	pthread_mutex_lock(&pStream->bufferMutex);
 
 	pStream->isStreaming = 1;
 
 	copiedCount = 0;
 
-	printf("Read pointer: %d from %d, need to read %d\n", pStream->readPtr, BUFFER_SIZE, len - off);
 	if ( pStream->writePtr < pStream->readPtr )
 	{
 		int count = BUFFER_SIZE - pStream->readPtr;
@@ -323,7 +327,12 @@ int stream_read(char *pBuffer, int off, int len, struct slim_stream *pStream)
 		copiedCount += count;
 	}
 
-	printf("Final read pointer: %d\n", pStream->readPtr);
+/*
+	printf("<---Buffer (%d) reading %d: [ %d->%d, %d->%d ].\n",
+				BUFFER_SIZE, requestedReadSize,
+				oldReadPtr, pStream->readPtr,
+				pStream->writePtr, pStream->writePtr);
+*/
 	pthread_mutex_unlock(&pStream->bufferMutex);
 	return copiedCount;
 }

@@ -189,39 +189,39 @@ int slim_protocol_decode_vfdc_command(unsigned char *buffer, unsigned int buffer
 			{
 				decodedCommand->data.vfDisplay.ddramAddr = buffer[i + 1] & 0x7F;
 				decodedCommand->data.vfDisplay.setDdram = 1;
-				xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "DDRAM addr set to %d\n"), buffer[i + 1] & 0x7F);
+// 				xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "DDRAM addr set to %d\n"), buffer[i + 1] & 0x7F);
 			}
 			else if ( (buffer[i + 1] & 0x40) == 0x40 )
 			{
 				decodedCommand->data.vfDisplay.ddramAddr = 0;
 				decodedCommand->data.vfDisplay.cgramAddr = buffer[i + 1] & 0x3F;
-				xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "CGRAM addr set to %d\n"), buffer[i + 1] & 0x3F);
+// 				xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "CGRAM addr set to %d\n"), buffer[i + 1] & 0x3F);
 			}
 			else if ( (buffer[i + 1] & 0x20) == 0x20 )
 			{
 				decodedCommand->data.vfDisplay.brightness = 32 - buffer[i + 7] * 4;
 				i += 6;
-				xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Brightness set to: %d\n"), 32 - buffer[i + 7] * 4);
+// 				xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Brightness set to: %d\n"), 32 - buffer[i + 7] * 4);
 			}
 			else if ( (buffer[i + 1] & 0x10) == 0x10 )
 			{
-				xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "VFD packet type 0x02 \"Cursor or display shift not implemented\"!\n"));
+// 				xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "VFD packet type 0x02 \"Cursor or display shift not implemented\"!\n"));
 			}
 			else if ( (buffer[i + 1] & 0x08) == 0x08 )
 			{
 				decodedCommand->data.vfDisplay.displayOn = (( buffer[i + 1] & 0x04 ) == 0x04);
-				xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Display set to: %d\n"), decodedCommand->data.vfDisplay.displayOn);
+// 				xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Display set to: %d\n"), decodedCommand->data.vfDisplay.displayOn);
 			}
 			else if ( (buffer[i + 1] & 0x04) == 0x04 )
 			{
 				decodedCommand->data.vfDisplay.entryMode = (( buffer[i + 1] & 0x03 ) == 0x03);
-				xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Entry mode set to: %d\n"), decodedCommand->data.vfDisplay.entryMode);
+// 				xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Entry mode set to: %d\n"), decodedCommand->data.vfDisplay.entryMode);
 			}
 			else if ((buffer[i + 1 ] & 0x02) == 0x02)
 			{
 				decodedCommand->data.vfDisplay.ddramAddr = 0;
 				decodedCommand->data.vfDisplay.setDdram = 1;
-				xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Resetting cursor\n"));
+// 				xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Resetting cursor\n"));
 			}
 			else if ((buffer[i + 1] & 0x01) == 0x01)
 			{
@@ -230,7 +230,7 @@ int slim_protocol_decode_vfdc_command(unsigned char *buffer, unsigned int buffer
 				// framebuf[j] = 0x00;
 				decodedCommand->data.vfDisplay.ddramAddr = 0;
 				decodedCommand->data.vfDisplay.entryMode = 0x02;
-				xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Clearing display\n"));
+// 				xine_log(xine_session, XINE_LOG_PLUGIN, _(LOG_MODULE "Clearing display\n"));
 			}
 			break;
 		case 0x03:

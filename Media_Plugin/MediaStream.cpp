@@ -164,3 +164,27 @@ bool MediaStream::ProcessJumpPosition(string sJumpSpecification)
 
 	return true;
 }
+
+void MediaStream::DeleteEntryFromPlaylist(int position)
+{
+	if ( position >= 0 && position < m_dequeMediaFile.size() )
+		m_dequeMediaFile.erase(m_dequeMediaFile.begin() + position);
+
+	DumpPlaylist();
+}
+
+void MediaStream::MoveEntryInPlaylist(int position, int displacement)
+{
+	if ( position >= 0 && position < m_dequeMediaFile.size() &&
+		 position + displacement >= 0 && position + displacement < m_dequeMediaFile.size() )
+	{
+		MediaFile *pTargetFile = m_dequeMediaFile[position];
+		m_dequeMediaFile[position] = m_dequeMediaFile[position + displacement];
+		m_dequeMediaFile[position + displacement ] = pTargetFile;
+
+		if ( m_iDequeMediaFile_Pos == position )
+			m_iDequeMediaFile_Pos += displacement;
+	}
+
+	DumpPlaylist();
+}
