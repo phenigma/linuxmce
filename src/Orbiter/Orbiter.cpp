@@ -4402,6 +4402,9 @@ g_pPlutoLogger->Write( LV_STATUS, "Object: %s visible: %d", pObj->m_ObjectID.c_s
 		if( pObj->m_bHidden && pObj->m_pParentObject )
 			m_vectObjs_NeedRedraw.push_back( (DesignObj_Orbiter *) pObj->m_pParentObject  );
     }
+	else
+g_pPlutoLogger->Write( LV_STATUS, "Ignoring show object for %s",sPK_DesignObj.c_str() );
+
 }
 
 //<-dceag-c7-b->
@@ -6099,7 +6102,10 @@ void Orbiter::CMD_Set_Timeout(string sPK_DesignObj,string sTime,string &sCMD_Res
         g_pPlutoLogger->Write( LV_CRITICAL, "Cannot find object in CMD_Set_Timeout: %s", sPK_DesignObj.c_str(  ) );
         return;
     }
+
+
 	pObj->m_dwTimeoutSeconds = atoi(sTime.c_str());
+g_pPlutoLogger->Write( LV_STATUS, "set timeout on %s to %d  %p = %p",pObj->m_ObjectID.c_str(),pObj->m_dwTimeoutSeconds,pObj,m_pScreenHistory_Current->m_pObj );
 	if( pObj==m_pScreenHistory_Current->m_pObj && pObj->m_dwTimeoutSeconds )
 		CallMaintenanceInMiliseconds( pObj->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) pObj, true );
 }
