@@ -1059,7 +1059,7 @@ AsksSourceQuests:
 			}
 
 			// Be sure we compile with debug info
-			if( !g_bSimulate && g_pRow_Version->PK_Version_get()==1 )
+			if( !g_bSimulate )
 				StringUtils::Replace( "Makefile", "Makefile", "-D_DEVEL_DEFINES", g_sDefines );
 
 			if( FileUtils::FileExists("Main.cpp") )
