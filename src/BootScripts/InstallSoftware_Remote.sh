@@ -17,13 +17,13 @@ if [ -n "$IsDeb" ]; then
 	awk '!/#Pluto temporary/' /etc/apt/sources.list >/etc/apt/sources.list.$$
 	mv /etc/apt/sources.list.$$ /etc/apt/sources.list
 
-	[ "$RetCode" -ne 0 ] && Result="Installation failed"
+	[ "$RetCode" -ne 0 ] && Result="Installation failed (from Debian repository)"
 else
 	wget -P /tmp "$RepositoryURL/$PackageName"
 	if [ "$?" -eq 0 ]; then
-		dpkg -i /tmp/$PackageName || Result="Installation failed"
+		dpkg -i /tmp/$PackageName || Result="Installation failed (direct link)"
 	else
-		Result="Download failed"
+		Result="Download failed (direct link)"
 	fi
 	rm -f /tmp/$PackageName
 fi
