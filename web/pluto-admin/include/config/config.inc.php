@@ -66,6 +66,7 @@
 	$GLOBALS['TVdevices']=77;					// TV's
 	$GLOBALS['TVVCRCombo']=106;					// TV VCR Combo
 	$GLOBALS['AmpsReceivers']=103;				// Amps/Receivers
+	$GLOBALS['GenericSerialDevices']=119;		// GenericSerialDevices
 	
 	$GLOBALS['TVdevicesArray']=array($GLOBALS['TVdevices'],$GLOBALS['TVVCRCombo'],$GLOBALS['AmpsReceivers']);
 	
@@ -239,6 +240,9 @@
 	
 	// PK_PageSetup from table PageSetup
 	$GLOBALS['InstallationPage']=11;	// Installation Settings
+
+	// PK_Package from table Package
+	$GLOBALS['orbiterInstallerPackage']=363;
 	
 	// date format
 	$GLOBALS['defaultDateFormat']='Y-m-d h:i:s';

@@ -1051,7 +1051,18 @@ switch ($section) {
 	    include_once('operations/myDevices/connectionWizard.php');
 	    connectionWizard($output,$dbADO);
 	break;
-
+	case 'genericSerialDevices';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/myDevices/genericSerialDevices.php');
+	    genericSerialDevices($output,$dbADO);
+	break;
+	case 'orbitersWin';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/myDevices/orbiters/orbitersWin.php');
+	    orbitersWin($output,$dbADO);
+	break;
 	
 	case '';
 		$output = new Template($dbADO);	

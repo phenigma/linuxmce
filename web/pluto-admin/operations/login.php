@@ -32,7 +32,7 @@ $loginFormBig= '
 	      <td colspan="2" align="center"><a href="/support/index.php?section=document&docID=35" target="_top">Help with the Pluto Admin site</a></td>
 	    </tr>
 	    <tr>
-	      <td colspan="2" align="center">Learn about Pluto at <a href="http://www.plutohome.com" target="_top">www.plutohome.com</a></td>
+	      <td colspan="2" align="center">Learn about Pluto at <a href="http://www.plutohome.com" target="_top">www.plutohome.com</a><br><br>Download <a href="index.php?section=orbitersWin">Orbiter Win Installer</a></td>
 	    </tr>
 	  </table>
 	</form>

@@ -1,0 +1,15 @@
+<HTML>
+<HEAD>
+<TITLE>Orbiter CE binaries</TITLE>
+</HEAD>
+<BODY>
+<b>Orbiter CE binaries</b><br>
+<a href="fdownload.php?filepath=AYGSHELL.DLL" target="_blank">Download AYGSHELL.DLL</a><br>
+<a href="fdownload.php?filepath=PthreadsCE.dll" target="_blank">Download PthreadsCE.dll</a><br>
+<a href="fdownload.php?filepath=SDL.dll" target="_blank">Download SDL.dll</a><br>
+<a href="fdownload.php?filepath=Orbiter.MD5" target="_blank">Download Orbiter.MD5</a><br>
+<a href="fdownload.php?filepath=OrbiterCE.exe" target="_blank">Download OrbiterCE.exe</a><br><br>
+
+<a href="downloadOrbiterSoftware.php">Download Orbiter CE Installer</a>
+</BODY>
+</HTML>

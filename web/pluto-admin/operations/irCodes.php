@@ -7,7 +7,8 @@ function irCodes($output,$dbADO) {
 	$installationID = (int)@$_SESSION['installationID'];
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$from = isset($_REQUEST['from'])?cleanString($_REQUEST['from']):'';
-
+	$label=(isset($_REQUEST['label']))?$_REQUEST['label']:'infrared';
+	
 	$dtID = (int)$_REQUEST['dtID'];
 	$deviceID = (isset($_REQUEST['deviceID']) && (int)@$_REQUEST['deviceID']!=0)?(int)$_REQUEST['deviceID']:NULL;
 	$userID = $_SESSION['userID'];
@@ -62,7 +63,8 @@ function irCodes($output,$dbADO) {
 			<input type="hidden" name="dtID" value="'.$dtID.'">
 			<input type="hidden" name="deviceID" value="'.$deviceID.'">
 			<input type="hidden" name="infraredGroupID" value="'.$infraredGroupID.'">
-			<input type="hidden" name="irgroup_command" value="">';
+			<input type="hidden" name="irgroup_command" value="">
+			<input type="hidden" name="mode" value="'.$label.'">';
 		$selectDTData='
 			SELECT DeviceTemplate.Description AS Template, DeviceCategory.Description AS Category,Manufacturer.Description AS Manufacturer, FK_Manufacturer,FK_DeviceCategory
 			FROM DeviceTemplate
@@ -165,7 +167,7 @@ function irCodes($output,$dbADO) {
 		
 		$out.='
 		<input type="hidden" name="oldIRGroup" value="'.@$infraredGroupID.'">
-		<h3>Edit infrared codes</h3>
+		<h3>Edit '.$label.' codes</h3>
 		<table border="0">
 			<tr>
 				<td class="err" colspan="2">WARNING: the changes will afect all devices created from <B>'.$rowDTData['Template'].'</B> template.</td>
@@ -176,7 +178,7 @@ function irCodes($output,$dbADO) {
 		if(!is_null($deviceID)){
 			$out.='
 			<tr>
-				<td colspan="2">Uses Infrared Group <select name="irGroup" onChange="document.irCodes.submit();">
+				<td colspan="2">Uses '.$label.' group <select name="irGroup" onChange="document.irCodes.submit();">
 					<option value="0" '.(($infraredGroupID==0)?'selected':'').'>I don\'t know the group</option>';
 			$queryIG='
 				SELECT PK_InfraredGroup,InfraredGroup.Description 
