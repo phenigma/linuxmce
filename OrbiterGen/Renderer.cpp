@@ -26,6 +26,9 @@ using namespace std;
 #ifndef ORBITER
 #include "pluto_main/Define_HorizAlignment.h"
 #include "pluto_main/Define_VertAlignment.h"
+#else
+#include "Logger.h"
+using namespace DCE;
 #endif //#ifndef ORBITER
 
 #ifdef WINCE
@@ -810,6 +813,11 @@ PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *
     // hack
     if( !pTextStyle->m_pTTF_Font )
     {
+// TODO -- temporary debugging info
+#ifdef ORBITER
+		g_pPlutoLogger->Write(LV_STATUS,"Opening font: %s style: %p %d text: %d",pTextStyle->m_sFont.c_str(),pTextStyle,pTextStyle->m_iPK_StyleVariation,pDesignObjText->m_PK_Text);
+#endif
+
         if (pTextStyle->m_sFont == "")
             pTextStyle->m_sFont = "arial";
 
@@ -853,6 +861,9 @@ PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *
         */
         if (pTextStyle->m_pTTF_Font == NULL)
         {
+#ifdef ORBITER
+		g_pPlutoLogger->Write(LV_STATUS,"cannot open font: %s style: %p %d text: %d",pTextStyle->m_sFont.c_str(),pTextStyle,pTextStyle->m_iPK_StyleVariation,pDesignObjText->m_PK_Text);
+#endif
             TTF_Quit();
             throw "Can't open font: " + pTextStyle->m_sFont + ": " + TTF_GetError();
         }
