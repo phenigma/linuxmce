@@ -194,9 +194,9 @@ void Slim_Server_Streamer::CMD_Start_Streaming(string sFilename,int iStreamID,st
     if ( sStreamingTargets == "" &&
         m_mapStreamsToPlayers.find(iStreamID) != m_mapStreamsToPlayers.end() )
     {
-        SqueezeBox_Player *player = m_mapStreamsToPlayers[iStreamID].second.front();
+        DeviceData_Base *playerDevice = m_mapStreamsToPlayers[iStreamID].second.front();
 
-        string macAddress = StringUtils::URLEncode(StringUtils::ToLower(player->m_pData->GetMacAddress()));
+        string macAddress = StringUtils::URLEncode(StringUtils::ToLower(playerDevice->GetMacAddress()));
 
         SendReceiveCommand(macAddress + " playlist play " + StringUtils::URLEncode(string("file://") + StringUtils::Replace(sFilename, "//", "/")).c_str());
         m_mapStreamsToPlayers[iStreamID].first = STATE_PLAY;
@@ -206,7 +206,7 @@ void Slim_Server_Streamer::CMD_Start_Streaming(string sFilename,int iStreamID,st
     g_pPlutoLogger->Write(LV_STATUS, "Processing Start streaming command for target devices: %s", sStreamingTargets.c_str());
 
     vector<string> vectPlayersIds;
-    vector<SqueezeBox_Player *> vectPlayers;
+    vector<DeviceData_Base*> vectDevices;
 
     StringUtils::Tokenize(sStreamingTargets, ",", vectPlayersIds);
 
@@ -232,11 +232,11 @@ void Slim_Server_Streamer::CMD_Start_Streaming(string sFilename,int iStreamID,st
         }
 
         // assume all the children are Squeeze boxes.
-        SqueezeBox_Player *pPlayer = static_cast<SqueezeBox_Player*>((*itPlayer).second);
+        DeviceData_Base *pDevice= static_cast<DeviceData_Base*>((*itPlayer).second);
 
-        vectPlayers.push_back(pPlayer);
+        vectDevices.push_back(pDevice);
 
-        currentPlayerAddress = StringUtils::URLEncode(StringUtils::ToLower(pPlayer->m_pData->GetMacAddress()));
+        currentPlayerAddress = StringUtils::URLEncode(StringUtils::ToLower(pDevice->GetMacAddress()));
 
         SendReceiveCommand(currentPlayerAddress + " sync -"); // break previous syncronization;
         SendReceiveCommand(currentPlayerAddress + " sync " + lastPlayerAddress); // synchronize with the last one.
@@ -245,7 +245,7 @@ void Slim_Server_Streamer::CMD_Start_Streaming(string sFilename,int iStreamID,st
     }
 
     // add this stream to the list of playing streams.
-    m_mapStreamsToPlayers[iStreamID] = make_pair(STATE_PLAY, vectPlayers);
+    m_mapStreamsToPlayers[iStreamID] = make_pair(STATE_PLAY, vectDevices);
 
     SendReceiveCommand(lastPlayerAddress + " playlist play " + StringUtils::URLEncode(string("file://") + sFilename).c_str());
 }

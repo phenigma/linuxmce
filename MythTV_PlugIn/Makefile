@@ -29,7 +29,7 @@ sources += \
 	../File_Grids_Plugin/FileListGrid.cpp \
 	MythTvWrapper.cpp 
 
-#<-dceag-mf-b->
+#<-dceag-mf-b->!
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
 
 whattodo:
@@ -41,8 +41,8 @@ bin: MythTV_PlugIn
 
 so: MythTV_PlugIn.so
 
-MythTV_PlugIn.so: $(sources:.cpp=.o)
-	$(CXX) -shared -o $(MYNAME).so $+ $(LDFLAGS) $(LDLIBS)
+MythTV_PlugIn.so: $(sources:.cpp=.o) $(ROOT)/lib/libSerializeClass.a $(ROOT)/lib/libDCECommon.a $(ROOT)/lib/libPlutoUtils.a $(ROOT)/lib/libpluto_media.a $(ROOT)/lib/libpluto_main.a
+	$(CXX) -shared -o $(MYNAME).so $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@

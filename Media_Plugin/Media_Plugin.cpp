@@ -78,7 +78,7 @@ MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 	// do stuff with this
 }
 
-void MediaPluginBase::GetRenderDevices(MediaStream *pMediaStream,map<int,MediaDevice *> *pmapMediaDevice) 
+void MediaPluginBase::GetRenderDevices(MediaStream *pMediaStream,map<int,MediaDevice *> *pmapMediaDevice)
 {
 	if( pMediaStream && pMediaStream->m_pDeviceData_Router_Source )
 		(*pmapMediaDevice)[pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device] = m_pMedia_Plugin->m_mapMediaDevice_Find(pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
@@ -416,20 +416,22 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
 bool Media_Plugin::StartMedia( MediaPluginInfo *pMediaPluginInfo, unsigned int PK_Device_Orbiter, EntertainArea *pEntertainArea, int PK_Device_Source, int PK_DesignObj_Remote, deque<MediaFile *> *dequeMediaFile )
 {
     PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
-	
+
 	// We need to keep track of the devices where we were previously rendering media so that we can send on/off commands
 	map<int,MediaDevice *> mapMediaDevice_Prior;
 	int PK_MediaType_Prior=0;
 
 	bool bNoChanges=false; // We'll set this to true of we're still using the same media plug-in so we know we don't need to resend the on commands
 	
-	// Normally we'll add new files to the queue if we're playing stored audio/video.  However, if the current media is not playing files, or if it's playing a mounted dvd, or if the new
+	// Normally we'll add new files to the queue if we're playing stored audio/video.  
+	// However, if the current media is not playing files, or if it's playing a mounted dvd, or if the new
     // file to play is a mounted dvd, then we can't add to the queue, and will need to create a new media stream
     if( pEntertainArea->m_pMediaStream )
     {
 		pEntertainArea->m_pMediaStream->m_pMediaPluginInfo->m_pMediaPluginBase->GetRenderDevices(pEntertainArea->m_pMediaStream,&mapMediaDevice_Prior);
 		PK_MediaType_Prior = pEntertainArea->m_pMediaStream->m_pMediaPluginInfo->m_PK_MediaType;
-		if( pEntertainArea->m_pMediaStream->m_pMediaPluginInfo!=pMediaPluginInfo )
+
+		if( pEntertainArea->m_pMediaStream->m_pMediaPluginInfo->m_pMediaPluginBase != pMediaPluginInfo->m_pMediaPluginBase )
         {
             // We can't queue this.
             pEntertainArea->m_pMediaStream->m_pMediaPluginInfo->m_pMediaPluginBase->StopMedia( pEntertainArea->m_pMediaStream );
@@ -445,7 +447,10 @@ bool Media_Plugin::StartMedia( MediaPluginInfo *pMediaPluginInfo, unsigned int P
         pMediaDevice = m_mapMediaDevice_Find(PK_Device_Source);
 
     // If this pointer is still valid, then we'll just add this file to the queue
-    MediaStream *pMediaStream;
+    MediaStream *pMediaStream = NULL;
+
+	g_pPlutoLogger->Write(LV_STATUS, "Media streams: (%p) -> (%p)", pMediaStream, pEntertainArea->m_pMediaStream);
+
     if( pEntertainArea->m_pMediaStream )
     {
         pMediaStream = pEntertainArea->m_pMediaStream;
@@ -455,11 +460,18 @@ bool Media_Plugin::StartMedia( MediaPluginInfo *pMediaPluginInfo, unsigned int P
     else
     {
         OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(PK_Device_Orbiter);
-        pMediaStream = pMediaPluginInfo->m_pMediaPluginBase->CreateMediaStream(pMediaPluginInfo,pEntertainArea,pMediaDevice,(pOH_Orbiter ? pOH_Orbiter->m_iPK_Users : 0),dequeMediaFile,++m_iStreamID);
+		if ( (pMediaStream = pMediaPluginInfo->m_pMediaPluginBase->CreateMediaStream(pMediaPluginInfo,pEntertainArea,pMediaDevice,(pOH_Orbiter ? pOH_Orbiter->m_iPK_Users : 0),dequeMediaFile,++m_iStreamID)) == NULL )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "The plugin %s (%d) returned a NULL media stream object",
+													pMediaPluginInfo->m_pMediaPluginBase->m_pMedia_Plugin->m_sName.c_str(),
+													pMediaPluginInfo->m_pMediaPluginBase->m_pMedia_Plugin->m_dwPK_Device);
+			return false;
+		}
+
         pEntertainArea->m_pMediaStream=pMediaStream;
         pMediaStream->m_pOH_Orbiter = pOH_Orbiter;
         pMediaStream->m_dequeMediaFile += *dequeMediaFile;
-    }	
+    }
 
     pMediaStream->m_pMediaPluginInfo = pMediaPluginInfo;
     pMediaStream->m_iPK_MediaType = pMediaPluginInfo->m_PK_MediaType;
@@ -576,7 +588,7 @@ class DataGridTable *Media_Plugin::CurrentMediaSections( string GridID, string P
 
     if ( pMediaStream == NULL )
     {
-        g_pPlutoLogger->Write(LV_WARNING, "The message was not from an orbiter or there is not media stream on it");
+        g_pPlutoLogger->Write(LV_WARNING, "The message was not from an orbiter or it doesn't have a media stream on it!");
         return NULL;
     }
 
@@ -623,7 +635,7 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
         pMessage->m_dwPK_Device_To=pPlugIn->m_dwPK_Device;
         if( !pPlugIn->ReceivedMessage( pMessage ) )
         {
-            g_pPlutoLogger->Write( LV_STATUS, "Media plug in did not handled message id: %d forwarding to %d", 
+            g_pPlutoLogger->Write( LV_STATUS, "Media plug in did not handled message id: %d forwarding to %d",
 				pMessage->m_dwID, pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device );
             // The plug-in doesn't know what to do with it either. Send the message to the actual media device
             pMessage->m_dwPK_Device_To = pEntertainArea->m_pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device;
@@ -1643,7 +1655,7 @@ class DataGridTable *Media_Plugin::AvailablePlaylists( string GridID, string Par
 
 void Media_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD)
 {
-	if( pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->m_iOrder>=0 && pEntertainArea->m_pMediaStream->m_iOrder<MAX_MEDIA_COLORS )
+	if( pEntertainArea && pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->m_iOrder>=0 && pEntertainArea->m_pMediaStream->m_iOrder<MAX_MEDIA_COLORS )
 	{
 		Color = UniqueColors[pEntertainArea->m_pMediaStream->m_iOrder];
 		sDescription = pEntertainArea->m_pMediaStream->m_sMediaDescription;
@@ -1716,36 +1728,7 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
     string sCurrentEntArea = StringUtils::Tokenize(sPK_EntertainArea, ",", nPosition);
 	while ( sCurrentEntArea.length() )
     {
-// Start Hack to reverse map the device to an EntertainArea.
-// This should be removed once the Media Floorplan will send me back actual entertainment areas and not device ids.
-		int iPK_Device = atoi(sCurrentEntArea.c_str());
-		if ( iPK_Device == 0 )
-		{
-			g_pPlutoLogger->Write(LV_STATUS, "Invalid device number string specification: %s", sCurrentEntArea.c_str());
-			sCurrentEntArea = StringUtils::Tokenize(sPK_EntertainArea, ",", nPosition);
-			continue;
-		}
-
-		MediaDevice *pMediaDevice = m_mapMediaDevice_Find(iPK_Device);
-		if ( pMediaDevice == NULL )
-		{
-			g_pPlutoLogger->Write(LV_STATUS, "Invalid device number: %d", iPK_Device);
-			sCurrentEntArea = StringUtils::Tokenize(sPK_EntertainArea, ",", nPosition);
-			continue;
-		}
-
-		if ( pMediaDevice->m_listEntertainArea.size() == 0 )
-		{
-			g_pPlutoLogger->Write(LV_STATUS, "The device %d is not in any entertainment area. Ignoring.", iPK_Device);
-			sCurrentEntArea = StringUtils::Tokenize(sPK_EntertainArea, ",", nPosition);
-			continue;
-		}
-
-		// HACK: uncomment this when you are removing the hack
-		// int iPK_EntertainArea = atoi(sCurrentEntArea.c_str());
-		int iPK_EntertainArea = pMediaDevice->m_listEntertainArea.front()->m_iPK_EntertainArea;
-
-// End Hack
+		int iPK_EntertainArea = atoi(sCurrentEntArea.c_str());
 		if ( iPK_EntertainArea == 0 ) // sanity check. We need this here since the m_mapEntertainAreas_Find() can't handle 0 as an entertainment area. :-(
 		{
 			g_pPlutoLogger->Write(LV_STATUS, "The string %s could not be converted to a valid number (it should be a not 0 number but it converted to 0)", sCurrentEntArea.c_str());
@@ -1762,7 +1745,6 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 			continue;
 		}
 
-//         g_pPlutoLogger->Write(LV_STATUS, "Found entertainment area %p for id %d", realEntertainmentArea, iPK_EntertainArea);
 		mapRequestedAreas[iPK_EntertainArea] = realEntertainmentArea;
 		sCurrentEntArea = StringUtils::Tokenize(sPK_EntertainArea, ",", nPosition);
 	}
@@ -1805,18 +1787,15 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 	list<EntertainArea *>::iterator itList;
 
 	string output = "";
-	for ( itList = listStop.begin(); itList != listStop.end(); itList++ )
-		output += StringUtils::itos((*itList)->m_iPK_EntertainArea) + " ";
+	for ( itList = listStop.begin(); itList != listStop.end(); itList++ )  output += StringUtils::itos((*itList)->m_iPK_EntertainArea) + " ";
 	g_pPlutoLogger->Write(LV_STATUS, "Stop list: %s", output.c_str());
 
 	output = "";
-	for ( itList = listStart.begin(); itList != listStart.end(); itList++ )
-		output += StringUtils::itos((*itList)->m_iPK_EntertainArea) + " ";
+	for ( itList = listStart.begin(); itList != listStart.end(); itList++ ) output += StringUtils::itos((*itList)->m_iPK_EntertainArea) + " ";
 	g_pPlutoLogger->Write(LV_STATUS, "Start list: %s", output.c_str());
 
 	output = "";
-	for ( itList = listChange.begin(); itList != listChange.end(); itList++ )
-		output += StringUtils::itos((*itList)->m_iPK_EntertainArea) + " ";
+	for ( itList = listChange.begin(); itList != listChange.end(); itList++ ) output += StringUtils::itos((*itList)->m_iPK_EntertainArea) + " ";
 	g_pPlutoLogger->Write(LV_STATUS, "Change list: %s", output.c_str());
 
 	g_pPlutoLogger->Write(LV_STATUS, "Calling move media on the plugin!");
@@ -1854,7 +1833,12 @@ void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current,
 	for(map<int,MediaDevice *>::iterator it=pmapMediaDevice_Prior->begin();it!=pmapMediaDevice_Prior->end();++it)
 		// We need a recursive function to propagate the off's along the pipe, but not turning off any devices
 		// that we're still going to use in the current map
-		TurnDeviceOff(PK_Pipe_Prior,(*it).second->m_pDeviceData_Router,pmapMediaDevice_Current); 
+		if ( (*it).second )  // Obs: I got a crash here while testing mihai.t
+			TurnDeviceOff(PK_Pipe_Prior,(*it).second->m_pDeviceData_Router,pmapMediaDevice_Current);
+		else
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Found a NULL associated device in the HandleOnOff: %d", (*it).first);
+		}
 
 	for(map<int,MediaDevice *>::iterator it=pmapMediaDevice_Current->begin();it!=pmapMediaDevice_Current->end();++it)
 	{

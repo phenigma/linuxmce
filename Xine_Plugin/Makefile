@@ -29,7 +29,7 @@ sources += \
 	../Datagrid_Plugin/Datagrid_Plugin.cpp \
 	../File_Grids_Plugin/FileListGrid.cpp
 
-#<-dceag-mf-b->
+#<-dceag-mf-b->!
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
 
 whattodo:
@@ -41,8 +41,8 @@ bin: Xine_Plugin
 
 so: Xine_Plugin.so
 
-Xine_Plugin.so: $(sources:.cpp=.o)
-	$(CXX) -shared -o $(MYNAME).so $+ $(LDFLAGS) $(LDLIBS)
+Xine_Plugin.so: $(sources:.cpp=.o) $(ROOT)/lib/libSerializeClass.a $(ROOT)/lib/libDCECommon.a $(ROOT)/lib/libpluto_main.a $(ROOT)/lib/libpluto_media.a $(ROOT)/lib/libPlutoUtils.a
+	$(CXX) -shared -o $(MYNAME).so $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@

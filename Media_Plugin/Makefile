@@ -29,7 +29,7 @@ sources += \
 	MediaAttributes.cpp
 	
 
-#<-dceag-mf-b->
+#<-dceag-mf-b->!
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
 
 whattodo:
@@ -41,8 +41,8 @@ bin: Media_Plugin
 
 so: Media_Plugin.so
 
-Media_Plugin.so: $(sources:.cpp=.o)
-	$(CXX) -shared -o $(MYNAME).so $+ $(LDFLAGS) $(LDLIBS)
+Media_Plugin.so: $(sources:.cpp=.o) $(ROOT)/lib/libpluto_main.a $(ROOT)/lib/libpluto_media.a $(ROOT)/lib/libDCECommon.a $(ROOT)/lib/libSerializeClass.a $(ROOT)/lib/libPlutoUtils.a
+	$(CXX) -shared -o $(MYNAME).so $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
