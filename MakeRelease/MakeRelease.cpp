@@ -1155,10 +1155,7 @@ cout << "Copying Files\n";
 			}
 		}
 		if (flag != true) {
-			if(cmd2 == "") {
-				cout << "Ignoring CVS files or directory <-\n";
-			} else {
-				cout << "We have a ghost <-\n";
+			if(cmd2 != "") {
 				cmd = "rm -r -f " + cmd2;
 				system(cmd.c_str());
 				cout << cmd << endl;
@@ -1177,7 +1174,6 @@ cout << "Copying Files\n";
 	cout << "[Done]\n";
 
 	//at the end we delete the temporary directory
-	return true;
 	cout << "Clearing Temporary ";
 	cmd = "../../";
 	chdir(cmd.c_str());
