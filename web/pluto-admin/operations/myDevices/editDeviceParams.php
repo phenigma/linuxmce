@@ -99,7 +99,7 @@ $installationID = (int)@$_SESSION['installationID'];
 	
 		<a href="index.php?section=addMyDevice&parentID='.$deviceID.'">Create '.($deviceID==0?' Top Level ':'').'Child Device</a> &nbsp; &nbsp; &nbsp;
 
-	'.$deleteLink.' <a href="javascript:windowOpen(\'index.php?section=sendCommand&deviceID='.$deviceID.'\',\'width=600,height=400,scrollbars=1,resizable=1\');">Send command to device</a>
+	'.$deleteLink.' &nbsp; &nbsp; &nbsp; <a href="javascript:windowOpen(\'index.php?section=sendCommand&deviceID='.$deviceID.'\',\'width=800,height=600,scrollbars=1,resizable=1\');">Send command to device</a>
 	<form method="post" action="index.php" name="editDeviceParams">
 	<fieldset>
 	<legend>Device Info #'.$deviceID.'</legend>

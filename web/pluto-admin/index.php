@@ -1069,6 +1069,12 @@ switch ($section) {
 	    include_once('operations/infrared/newRubyCode.php');
 	    newRubyCode($output,$dbADO);
 	break;	
+	case 'sendCommand';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/myDevices/sendCommand.php');
+	    sendCommand($output,$dbADO);
+	break;	
 	
 	case '';
 		$output = new Template($dbADO);	
