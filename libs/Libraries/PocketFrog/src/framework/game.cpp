@@ -111,7 +111,7 @@ bool Game::Init()
     DWORD exStyle = 0;
 #endif
 
-    if (!Create( 0, r, m_config.szWindowName, style, exStyle ))
+    if (!(m_hWnd = Create( 0, r, m_config.szWindowName, style, exStyle )))
 	{
 		FatalError( _T("Window creation failed") );
         return false;
@@ -197,11 +197,13 @@ bool Game::Run()
     {
         MSG msg;
 
-        if (::PeekMessage( &msg, 0, 0, 0, PM_REMOVE ))
+        if (::PeekMessage( &msg, m_hWnd, 0, 0, PM_REMOVE ))
         {
             if (msg.message == WM_QUIT)
                 break;
-            
+
+
+
             ::TranslateMessage( &msg );
             ::DispatchMessage( &msg );
         }
@@ -419,6 +421,7 @@ LRESULT Game::OnActivate( UINT msg, WPARAM wparam, LPARAM lparam, BOOL& bHandled
             PocketPC::Resume();
             m_bSuspended = false;
 						Game::GameResume(); // Added 6/10/2003 by Frank W. Zammetti
+			m_bNeedToUpdate = true;
         }
     }
     
@@ -449,8 +452,9 @@ LRESULT Game::OnPaint( UINT msg, WPARAM wparam, LPARAM lparam, BOOL& bHandled )
     PAINTSTRUCT ps;
     
     BeginPaint( &ps );
+	m_bNeedToUpdate = true;
     EndPaint( &ps );
-
+	
 	return 0;
 }
 

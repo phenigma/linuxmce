@@ -37,7 +37,7 @@ namespace Frog
 
 class Game : public CWindowImpl<Game>
 {
-    BEGIN_MSG_MAP( Game )
+	BEGIN_MSG_MAP( Game )
         MESSAGE_HANDLER( WM_CLOSE,       OnClose )
         MESSAGE_HANDLER( WM_DESTROY,     OnDestroy)
         MESSAGE_HANDLER( WM_KEYDOWN,     OnKeyDown )
@@ -54,11 +54,15 @@ class Game : public CWindowImpl<Game>
 
 public:
 
+	DECLARE_WND_CLASS(TEXT("PocketFrog"));
+
     Game();
     virtual ~Game();
 
     // Start running the game
     bool Run();
+
+	HWND m_hWnd;
 
 
 protected:
@@ -105,7 +109,7 @@ protected:
 				unsigned    frameRate;        // The maximum frame rate the app will run at
     } m_config;
 
-
+	bool m_bNeedToUpdate;
 
 private:
 
