@@ -65,6 +65,6 @@ addEntries MasterServerPort	6543;
 PID=`pidof /usr/bin/mythbackend`;
 if [ "$PID" != "" ]; then
 	# It seems that in certain circumstances the backed refuses to notice the -9 signal
-	kill -15 $PID;
+	kill -9 $PID;
 	/etc/init.d/mythtv-backend start || /bin/true
 fi
