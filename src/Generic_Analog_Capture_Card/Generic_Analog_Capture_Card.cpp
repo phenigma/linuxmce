@@ -111,6 +111,7 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(Command_Impl *pPrimaryD
 Generic_Analog_Capture_Card::~Generic_Analog_Capture_Card()
 //<-dceag-dest-e->
 {
+	delete g_pPlutoLogger;	// Created in either main or RegisterAsPlugin.  When this exits we won't need it anymore
 }
 
 //<-dceag-reg-b->

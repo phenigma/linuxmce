@@ -44,6 +44,7 @@ EIB::EIB(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl
 EIB::~EIB()
 //<-dceag-dest-e->
 {
+	delete g_pPlutoLogger;	// Created in either main or RegisterAsPlugin.  When this exits we won't need it anymore
 }
 
 //<-dceag-reg-b->

@@ -25,7 +25,13 @@ namespace DCE
 
 		~EntertainArea()
 		{
+			for(map<int,ListMediaDevice *>::iterator it=m_mapMediaDeviceByTemplate.begin();it!=m_mapMediaDeviceByTemplate.end();++it)
+				delete (*it).second;
 			for(map<int,List_MediaHandlerInfo *>::iterator it=m_mapMediaHandlerInfo_MediaType.begin();it!=m_mapMediaHandlerInfo_MediaType.end();++it)
+				delete (*it).second;
+			for(map<string,List_MediaHandlerInfo *>::iterator it=m_mapMediaHandlerInfo_Extension.begin();it!=m_mapMediaHandlerInfo_Extension.end();++it)
+				delete (*it).second;
+			for(MapBoundRemote::iterator it=m_mapBoundRemote.begin();it!=m_mapBoundRemote.end();++it)
 				delete (*it).second;
 		}
 

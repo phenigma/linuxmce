@@ -173,11 +173,8 @@ int k=2;
         system( ("del \"" + Filespec2 + "\" 2> null").c_str() );
 #else
         // Remove any old cached files
-        system( ("rm \"" + Filespec + "\" 2>/dev/null").c_str() );
-        system( ("rm \"" + Filespec2 + "\" 2>/dev/null").c_str() );
-		cout << "Executing: " << ("rm \"" + Filespec + "\" 2>/dev/null").c_str() << endl;
-		cout << "Executing: " << ("rm \"" + Filespec2 + "\" 2>/dev/null").c_str() << endl;
-
+        system( ("rm " + Filespec + " 2>/dev/null").c_str() );
+        system( ("rm " + Filespec2 + " 2>/dev/null").c_str() );
 #endif
     }
 

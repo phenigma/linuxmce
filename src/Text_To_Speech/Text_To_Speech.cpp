@@ -25,6 +25,7 @@ Text_To_Speech::Text_To_Speech(int DeviceID, string ServerAddress,bool bConnectE
 Text_To_Speech::~Text_To_Speech()
 //<-dceag-dest-e->
 {
+	delete g_pPlutoLogger;	// Created in either main or RegisterAsPlugin.  When this exits we won't need it anymore
 }
 
 //<-dceag-reg-b->

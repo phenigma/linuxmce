@@ -187,6 +187,15 @@ Media_Plugin::~Media_Plugin()
 	delete m_pDatabase_pluto_media;
 	for(map<int,MediaDevice *>::iterator it=m_mapMediaDevice.begin();it!=m_mapMediaDevice.end();++it)
 		delete (*it).second;
+	for(map<int,EntertainArea *>::iterator it=m_mapEntertainAreas.begin();it!=m_mapEntertainAreas.end();++it)
+		delete (*it).second;
+
+	for(size_t s=0;s<m_vectMediaHandlerInfo.size();++s)
+	{
+		MediaHandlerInfo *pMediaHandlerInfo = m_vectMediaHandlerInfo[s];
+		delete pMediaHandlerInfo;
+	}
+	delete g_pPlutoLogger;	// Created in either main or RegisterAsPlugin.  When this exits we won't need it anymore
 }
 
 //<-dceag-reg-b->

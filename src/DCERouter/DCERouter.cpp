@@ -227,6 +227,7 @@ Router::~Router()
     for(it=m_mapPlugIn.begin();it!=m_mapPlugIn.end();++it)
 	{
 		class Command_Impl *pCommand_Impl = (*it).second;
+		pCommand_Impl->DeleteGlobalAllocs();
 		delete pCommand_Impl;
 	}
 	m_mapPlugIn.clear();
@@ -235,6 +236,15 @@ Router::~Router()
     delete m_pDeviceStructure;
 	delete m_pBufferForDeviceCategories;
 	DropAllSockets();
+
+#ifndef WIN32
+	for(list<void *>::iterator it=m_listPluginHandles.begin();it!=m_listPluginHandles.end();++it)
+	{
+		void *pSO = *it;
+		dlclose(pSO);
+	}
+	m_listPluginHandles.clear();
+#endif
 
 	for(map<int, ListCommand_Impl *>::iterator it=m_mapPlugIn_DeviceTemplate.begin();it!=m_mapPlugIn_DeviceTemplate.end();++it)
 		delete (*it).second;
@@ -522,6 +532,8 @@ int Router::DynamicallyLoadPlugin(string sFile)
         g_pPlutoLogger->Write(LV_CRITICAL, "Can't open plug-in file '%s': %s", sFile.c_str(), ErrorMessage.c_str());
         return NULL;
     }
+
+	m_listPluginHandles.push_back(so_handle);
 
 #ifndef WIN32
     IsRuntimePlugin = (RAP_FType) dlsym(so_handle, "IsRuntimePlugin");

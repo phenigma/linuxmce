@@ -58,6 +58,7 @@ Xine_Plugin::Xine_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHa
 Xine_Plugin::~Xine_Plugin()
 //<-dceag-dest-e->
 {
+	delete g_pPlutoLogger;	// Created in either main or RegisterAsPlugin.  When this exits we won't need it anymore
 }
 
 //<-dceag-reg-b->

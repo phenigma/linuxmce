@@ -77,6 +77,7 @@ Disk_Drive::Disk_Drive(int DeviceID, string ServerAddress,bool bConnectEventHand
 Disk_Drive::~Disk_Drive()
 //<-dceag-dest-e->
 {
+	delete g_pPlutoLogger;	// Created in either main or RegisterAsPlugin.  When this exits we won't need it anymore
 }
 
 //<-dceag-reg-b->

@@ -107,6 +107,7 @@ Orbiter_Plugin::~Orbiter_Plugin()
 
 	for(map<int,OH_User *>::iterator it=m_mapOH_User.begin();it!=m_mapOH_User.end();++it)
 		delete (*it).second;
+	delete g_pPlutoLogger;	// Created in either main or RegisterAsPlugin.  When this exits we won't need it anymore
 }
 
 /* Kind of a hack -- The goal was to allow the lighting, telecom, media, climate and security plug-ins to be

@@ -127,6 +127,8 @@ protected:
      */
     //     int FindMediaTypeForFile(string strFileName);
     // Private methods
+	vector<MediaHandlerInfo *> m_vectMediaHandlerInfo;
+
 public:
     // Public member variables
     map<int,EntertainArea *> m_mapEntertainAreas;  // Plug-ins may want this
@@ -169,6 +171,8 @@ public:
             MediaHandlerInfo *pMediaHandlerInfo =
                 new MediaHandlerInfo(pMediaHandlerBase,pCommand_Impl,pRow_DeviceTemplate_MediaType->FK_MediaType_get(),
                     iPK_MasterDeviceList,pRow_DeviceTemplate_MediaType->CanSetPosition_get()==1,bUsesDCE);
+
+			m_vectMediaHandlerInfo.push_back(pMediaHandlerInfo);
 
 			// Find a default remote control for this.  If one is specified by the DeviceTemplate, use that, and then revert to one that matches the media type
             vector<Row_DeviceTemplate_MediaType_DesignObj *> vectRow_DeviceTemplate_MediaType_DesignObj;

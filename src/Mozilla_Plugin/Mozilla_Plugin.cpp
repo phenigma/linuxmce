@@ -48,6 +48,7 @@ Mozilla_Plugin::Mozilla_Plugin(int DeviceID, string ServerAddress,bool bConnectE
 Mozilla_Plugin::~Mozilla_Plugin()
 //<-dceag-dest-e->
 {
+	delete g_pPlutoLogger;	// Created in either main or RegisterAsPlugin.  When this exits we won't need it anymore
 }
 
 //<-dceag-reg-b->

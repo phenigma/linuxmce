@@ -211,6 +211,7 @@ Bluetooth_Dongle::Bluetooth_Dongle( int iDeviceID, string sServerAddress, bool b
 Bluetooth_Dongle::~Bluetooth_Dongle()
 //<-dceag-dest-e->
 {
+	delete g_pPlutoLogger;	// Created in either main or RegisterAsPlugin.  When this exits we won't need it anymore
 }
 
 //-----------------------------------------------------------------------------------------------------

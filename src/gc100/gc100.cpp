@@ -107,6 +107,7 @@ gc100::~gc100()
 	pthread_cancel(m_EventThread);
 	pthread_join(m_MessageQueueThread, NULL);
 	pthread_join(m_EventThread, NULL);
+	delete g_pPlutoLogger;	// Created in either main or RegisterAsPlugin.  When this exits we won't need it anymore
 }
 
 //<-dceag-reg-b->

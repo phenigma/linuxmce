@@ -58,6 +58,7 @@ General_Info_Plugin::~General_Info_Plugin()
 //<-dceag-dest-e->
 {
 	delete m_pDatabase_pluto_main;
+	delete g_pPlutoLogger;	// Created in either main or RegisterAsPlugin.  When this exits we won't need it anymore
 }
 
 //<-dceag-reg-b->

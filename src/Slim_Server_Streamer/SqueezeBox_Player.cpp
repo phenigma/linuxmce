@@ -39,6 +39,7 @@ SqueezeBox_Player::SqueezeBox_Player(Command_Impl *pPrimaryDeviceCommand, Device
 SqueezeBox_Player::~SqueezeBox_Player()
 //<-dceag-dest-e->
 {
+	delete g_pPlutoLogger;	// Created in either main or RegisterAsPlugin.  When this exits we won't need it anymore
 }
 
 //<-dceag-reg-b->

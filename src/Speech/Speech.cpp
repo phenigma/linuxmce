@@ -32,6 +32,7 @@ Speech::Speech(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Even
 Speech::~Speech()
 //<-dceag-dest-e->
 {
+	delete g_pPlutoLogger;	// Created in either main or RegisterAsPlugin.  When this exits we won't need it anymore
 }
 
 //<-dceag-reg-b->

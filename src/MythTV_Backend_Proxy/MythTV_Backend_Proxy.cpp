@@ -44,6 +44,7 @@ MythTV_Backend_Proxy::MythTV_Backend_Proxy(Command_Impl *pPrimaryDeviceCommand, 
 MythTV_Backend_Proxy::~MythTV_Backend_Proxy()
 //<-dceag-dest-e->
 {
+	delete g_pPlutoLogger;	// Created in either main or RegisterAsPlugin.  When this exits we won't need it anymore
 }
 
 //<-dceag-reg-b->

@@ -53,6 +53,7 @@ Datagrid_Plugin::~Datagrid_Plugin()
 {
 	for(map<int, class DataGridGeneratorCallBack *>::iterator it = m_mapDataGridGeneratorCallBack.begin();it != m_mapDataGridGeneratorCallBack.end();++it)
 		delete (*it).second;
+	delete g_pPlutoLogger;	// Created in either main or RegisterAsPlugin.  When this exits we won't need it anymore
 }
 
 //<-dceag-reg-b->

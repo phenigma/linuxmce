@@ -90,6 +90,7 @@ MythTV_Player::~MythTV_Player()
 //<-dceag-dest-e->
 {
     delete m_pRatWrapper;
+	delete g_pPlutoLogger;	// Created in either main or RegisterAsPlugin.  When this exits we won't need it anymore
 }
 
 bool MythTV_Player::LaunchMythFrontend()

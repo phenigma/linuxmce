@@ -29,6 +29,7 @@ Asterisk::Asterisk(int DeviceID, string ServerAddress,bool bConnectEventHandler,
 Asterisk::~Asterisk()
 //<-dceag-dest-e->
 {
+	delete g_pPlutoLogger;	// Created in either main or RegisterAsPlugin.  When this exits we won't need it anymore
 }
 
 //<-dceag-reg-b->

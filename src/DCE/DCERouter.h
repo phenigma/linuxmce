@@ -148,6 +148,7 @@ int k;
 
         map<int,class MessageTypeInterceptor *> m_mapMessageTypeInterceptor;
         list<class MessageInterceptorCallBack *> m_listMessageInterceptor_Global;   // Interceptors that want all messages
+		list<void *> m_listPluginHandles; // The handles to the .so and .dll files
 
         // Miscellaneous Data for internal use
         AlarmManager* m_pAlarmManager;

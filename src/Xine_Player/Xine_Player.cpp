@@ -77,6 +77,7 @@ Xine_Player::~Xine_Player()
 //<-dceag-dest-e->
 {
     delete m_pXineSlaveControl;
+	delete g_pPlutoLogger;	// Created in either main or RegisterAsPlugin.  When this exits we won't need it anymore
 }
 
 //<-dceag-reg-b->
