@@ -37,6 +37,7 @@
 #include "pluto_main/Table_Package_Package.h"
 #include "pluto_main/Table_Package_Directory.h"
 #include "pluto_main/Table_Package_Directory_File.h"
+#include "pluto_main/Table_Package_Compat.h"
 
 #define  VERSION "<=version=>"
 
@@ -515,7 +516,8 @@ void CheckPackage(Row_Package *pRow_Package,Row_Device *pRow_Device,bool bDevelo
 	{
 		Row_Package_Compat *pRow_Package_Compat = vectRow_Package_Compat[s];
 		if( pRow_Package_Compat->FK_Distro_get()==pRow_Distro->PK_Distro_get() ||
-			pRow_Package_Compat->FK_OperatingSystem_get()==pRow_Distro->FK_OperatingSystem_get() )
+			pRow_Package_Compat->FK_OperatingSystem_get()==pRow_Distro->FK_OperatingSystem_get() ||
+			(pRow_Package_Compat->FK_Distro_isNull() && pRow_Package_Compat->FK_OperatingSystem_isNull()) )
 		{
 			bFound=true;
 			break;
@@ -654,7 +656,9 @@ int k=2;
 				if( sCommand=="list" )
 					cout << pRow_Package->PK_Package_get() << "|" << "*ERROR* " << pRow_Package->Description_get() << " not found for this distro" << endl;
 				else
-					cout << "#*ERROR* " << pRow_Package->Description_get() << " not found for this distro" << endl;
+					//cout << "#*ERROR* " << pRow_Package->Description_get() << " not found for this distro" << endl;
+					cout << pRow_Package->PK_Package_get() << "," << pRow_Package->Description_get() << "," <<
+						"#*ERROR* " << pRow_Package->Description_get() << " not found for this distro" << endl;
 			}
 			return;
 		}
