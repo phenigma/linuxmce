@@ -62,7 +62,8 @@ public:
 	CM11A_Event *GetEvents() { return (CM11A_Event *) m_pEvent; };
 	CM11A_Data *GetData() { return (CM11A_Data *) m_pData; };
 	const char *GetClassName() { return "CM11A_Command"; };
-	static int PK_DeviceTemplate_get() { return 48; };
+	virtual int PK_DeviceTemplate_get() { return 48; };
+	static int PK_DeviceTemplate_get_static() { return 48; };
 	virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage) { };
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);

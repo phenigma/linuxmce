@@ -62,7 +62,8 @@ public:
 	Telecom_Plugin_Event *GetEvents() { return (Telecom_Plugin_Event *) m_pEvent; };
 	Telecom_Plugin_Data *GetData() { return (Telecom_Plugin_Data *) m_pData; };
 	const char *GetClassName() { return "Telecom_Plugin_Command"; };
-	static int PK_DeviceTemplate_get() { return 34; };
+	virtual int PK_DeviceTemplate_get() { return 34; };
+	static int PK_DeviceTemplate_get_static() { return 34; };
 	virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage) { };
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);

@@ -171,8 +171,12 @@ namespace DCE
 		 */
 		virtual void OnDisconnect() {};
 
-		
-		
+		/**
+		 * @brief The derived classes must implement this.  We can't make it pure virtual, though, since a device
+		 * with children of an unknown type may create generic CommandImpl.
+		 */
+		virtual int PK_DeviceTemplate_get() { return 0; };
+				
 		/**
 		 * @brief override to handle specifying real-time parameter data (like running time)
 		 */

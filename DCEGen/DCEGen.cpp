@@ -456,7 +456,8 @@ void DCEGen::CreateDeviceFile(class Row_DeviceTemplate *p_Row_DeviceTemplate,map
 	fstr_DeviceCommand << "\t"  << Name  << "_Event *GetEvents() { return ("  << Name  << "_Event *) m_pEvent; };" << endl;
 	fstr_DeviceCommand << "\t"  << Name  << "_Data *GetData() { return ("  << Name  << "_Data *) m_pData; };" << endl;
 	fstr_DeviceCommand << "\tconst char *GetClassName() { return \""   <<  Name   <<  "_Command\"; };" << endl;
-	fstr_DeviceCommand << "\tstatic int PK_DeviceTemplate_get() { return " << p_Row_DeviceTemplate->PK_DeviceTemplate_get() <<  "; };" << endl;
+	fstr_DeviceCommand << "\tvirtual int PK_DeviceTemplate_get() { return " << p_Row_DeviceTemplate->PK_DeviceTemplate_get() <<  "; };" << endl;
+	fstr_DeviceCommand << "\tstatic int PK_DeviceTemplate_get_static() { return " << p_Row_DeviceTemplate->PK_DeviceTemplate_get() <<  "; };" << endl;
 	fstr_DeviceCommand << "\tvirtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage) { };" << endl;
 	fstr_DeviceCommand << "\tvirtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };" << endl;
 

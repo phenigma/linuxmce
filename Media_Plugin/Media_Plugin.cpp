@@ -935,6 +935,8 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
     MYSQL_ROW row;
     int RowCount=0;
 
+	string AttributesFirstSearch; // Because we're going to search twice and want to exclude any attributes we hit the first search
+
     if( ( result.r=m_MySqlHelper_Media.mysql_query_result( SQL ) ) )
     {
         while( ( row=mysql_fetch_row( result.r ) ) )
@@ -945,6 +947,10 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
             label += string( "\n" ) + row[3];
             pCell = new DataGridCell( "", row[0] );
             pDataGrid->SetData( 0, RowCount, pCell );
+
+			if( AttributesFirstSearch.length() )
+				AttributesFirstSearch += ",";
+			AttributesFirstSearch += row[0];
 
             pCell = new DataGridCell( label, row[0] );
             pCell->m_Colspan = 5;
@@ -957,9 +963,11 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
         "JOIN SearchToken_Attribute ON PK_SearchToken=FK_SearchToken "\
         "JOIN Attribute ON FK_Attribute=PK_Attribute "\
         "JOIN AttributeType ON FK_AttributeType=PK_AttributeType "\
-        "WHERE Token like '" + AC + "%' "\
+        "WHERE Token like '" + AC + "%' AND PK_Attribute NOT IN (" + AttributesFirstSearch + ") "\
         "limit 30;";
-    if( ( result.r=m_MySqlHelper_Media.mysql_query_result( SQL ) ) )
+//        "WHERE Token like '" + AC + "%' "\
+
+	if( ( result.r=m_MySqlHelper_Media.mysql_query_result( SQL ) ) )
     {
         while( ( row=mysql_fetch_row( result.r ) ) )
         {

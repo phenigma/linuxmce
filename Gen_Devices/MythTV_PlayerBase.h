@@ -72,7 +72,8 @@ public:
 	MythTV_Player_Event *GetEvents() { return (MythTV_Player_Event *) m_pEvent; };
 	MythTV_Player_Data *GetData() { return (MythTV_Player_Data *) m_pData; };
 	const char *GetClassName() { return "MythTV_Player_Command"; };
-	static int PK_DeviceTemplate_get() { return 35; };
+	virtual int PK_DeviceTemplate_get() { return 35; };
+	static int PK_DeviceTemplate_get_static() { return 35; };
 	virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage) { };
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);

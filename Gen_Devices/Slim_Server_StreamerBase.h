@@ -67,7 +67,8 @@ public:
 	Slim_Server_Streamer_Event *GetEvents() { return (Slim_Server_Streamer_Event *) m_pEvent; };
 	Slim_Server_Streamer_Data *GetData() { return (Slim_Server_Streamer_Data *) m_pData; };
 	const char *GetClassName() { return "Slim_Server_Streamer_Command"; };
-	static int PK_DeviceTemplate_get() { return 53; };
+	virtual int PK_DeviceTemplate_get() { return 53; };
+	static int PK_DeviceTemplate_get_static() { return 53; };
 	virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage) { };
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);

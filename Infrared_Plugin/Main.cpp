@@ -44,7 +44,7 @@ extern "C" {
 		// Then the Router will scan for all .so or .dll files, and if found they will be registered with a temporary device number
 		bool bIsRuntimePlugin=true;
 		if( bIsRuntimePlugin )
-			return Infrared_Plugin::PK_DeviceTemplate_get();
+			return Infrared_Plugin::PK_DeviceTemplate_get_static();
 		else
 			return 0;
 	}

@@ -3954,14 +3954,13 @@ void Orbiter::CMD_Goto_Screen(int iPK_Device,string sPK_DesignObj,string sID,str
         g_pPlutoLogger->Write( LV_CRITICAL, "cannot find screen %s in goto", sPK_DesignObj.c_str(  ) );
         return;
     }
-/*
+
     if(  m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj==pObj_New  )
     {
         g_pPlutoLogger->Write( LV_STATUS, "Changing to same screen: %s", pObj_New->m_ObjectID.c_str(  ) );
-        NeedToRender render( this, "goto same screen" );
+	    NeedToChangeScreens( m_pScreenHistory_Current, false );  // Don't add this to the history, just do the change
         return;
     }
-*/
 
     // We're going to change screens,  create the new ScreenHistory object
     ScreenHistory *pScreenHistory_New = new ScreenHistory( pObj_New, m_pScreenHistory_Current );

@@ -77,7 +77,8 @@ public:
 	Bluetooth_Dongle_Event *GetEvents() { return (Bluetooth_Dongle_Event *) m_pEvent; };
 	Bluetooth_Dongle_Data *GetData() { return (Bluetooth_Dongle_Data *) m_pData; };
 	const char *GetClassName() { return "Bluetooth_Dongle_Command"; };
-	static int PK_DeviceTemplate_get() { return 13; };
+	virtual int PK_DeviceTemplate_get() { return 13; };
+	static int PK_DeviceTemplate_get_static() { return 13; };
 	virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage) { };
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);

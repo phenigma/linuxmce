@@ -62,7 +62,8 @@ public:
 	App_Server_Event *GetEvents() { return (App_Server_Event *) m_pEvent; };
 	App_Server_Data *GetData() { return (App_Server_Data *) m_pData; };
 	const char *GetClassName() { return "App_Server_Command"; };
-	static int PK_DeviceTemplate_get() { return 26; };
+	virtual int PK_DeviceTemplate_get() { return 26; };
+	static int PK_DeviceTemplate_get_static() { return 26; };
 	virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage) { };
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);

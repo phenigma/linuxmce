@@ -62,7 +62,8 @@ public:
 	GE_Interlogix_Event *GetEvents() { return (GE_Interlogix_Event *) m_pEvent; };
 	GE_Interlogix_Data *GetData() { return (GE_Interlogix_Data *) m_pData; };
 	const char *GetClassName() { return "GE_Interlogix_Command"; };
-	static int PK_DeviceTemplate_get() { return 44; };
+	virtual int PK_DeviceTemplate_get() { return 44; };
+	static int PK_DeviceTemplate_get_static() { return 44; };
 	virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage) { };
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);

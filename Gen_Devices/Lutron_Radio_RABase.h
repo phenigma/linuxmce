@@ -62,7 +62,8 @@ public:
 	Lutron_Radio_RA_Event *GetEvents() { return (Lutron_Radio_RA_Event *) m_pEvent; };
 	Lutron_Radio_RA_Data *GetData() { return (Lutron_Radio_RA_Data *) m_pData; };
 	const char *GetClassName() { return "Lutron_Radio_RA_Command"; };
-	static int PK_DeviceTemplate_get() { return 25; };
+	virtual int PK_DeviceTemplate_get() { return 25; };
+	static int PK_DeviceTemplate_get_static() { return 25; };
 	virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage) { };
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);

@@ -62,7 +62,8 @@ public:
 	Event_Plugin_Event *GetEvents() { return (Event_Plugin_Event *) m_pEvent; };
 	Event_Plugin_Data *GetData() { return (Event_Plugin_Data *) m_pData; };
 	const char *GetClassName() { return "Event_Plugin_Command"; };
-	static int PK_DeviceTemplate_get() { return 52; };
+	virtual int PK_DeviceTemplate_get() { return 52; };
+	static int PK_DeviceTemplate_get_static() { return 52; };
 	virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage) { };
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
