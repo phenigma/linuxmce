@@ -12,6 +12,7 @@
 #ifndef DCERUBYSERIALIOMANAGER_H
 #define DCERUBYSERIALIOMANAGER_H
 
+#include "RubyDCEConnector.h"
 #include "RubyDCECodeSupplier.h"
 #include "RubySerialIOPool.h"
 
@@ -21,16 +22,17 @@ namespace DCE {
 
 class DeviceData_Base;
 class DeviceData_Impl;
+class Event_Impl;
 
 /**
 @author Igor Spac,,,
 */
 
 /*manages instances of serial pools*/
-class RubySerialIOManager {
+class RubySerialIOManager : protected RubyDCEConnector {
 public:
     RubySerialIOManager();
-    ~RubySerialIOManager();
+    virtual ~RubySerialIOManager();
 
 public:
 	void setDatabase(Database_pluto_main* pdb) {
@@ -39,21 +41,32 @@ public:
 	Database_pluto_main* getDatabase() {
 		return pdb_;
 	}
-	
+
+	void setEventDispatcher(Event_Impl* pevdisp) {
+		pevdisp_ = pevdisp;
+	}
+	Event_Impl* getEventDispatcher() {
+		return pevdisp_;
+	}
+		
 	int addDevice(DeviceData_Impl* pdevdata);
 	int removeDevice(DeviceData_Impl* pdevdata);
 	bool hasDevice(DeviceData_Base* pdevdata);
 	
 public:
-	int RouteMessageToDevice(DeviceData_Base* pdevdata, Message *pMessage);
-
-public:
 	void RunDevices();
 	void WaitDevices();
+	int RouteMessageToDevice(DeviceData_Base* pdevdata, Message *pMessage);
 	
+protected:
+	/*methods for comunicating with DCE, accessed by wrappers */
+	virtual void SendCommand(RubyCommandWrapper* pcmd);
+	
+
 private:
 	RubyDCECodeSupplier cs_;
 	Database_pluto_main* pdb_;
+	Event_Impl* pevdisp_;
 	
 	typedef std::map<std::string, RubySerialIOPool*> POOLMAP;
 	POOLMAP pools_; /*[serial port <--> pool] map*/

@@ -36,6 +36,7 @@ Generic_Serial_Device::Generic_Serial_Device(int DeviceID, string ServerAddress,
 	g_pPlutoLogger->Write(LV_STATUS, "Successfully connected to database!");
 	
 	sermanager_.setDatabase(m_pdbPlutoMain);
+	sermanager_.setEventDispatcher(GetEvents());
 }
 
 //<-dceag-const2-b->!
@@ -119,7 +120,11 @@ void Generic_Serial_Device::ReceivedUnknownCommand(string &sCMD_Result,Message *
 //<-dceag-cmduk-e->
 {
 	sCMD_Result = "UNKNOWN DEVICE";
-    g_pPlutoLogger->Write(LV_STATUS, "Received unknown command.");
+	if(sermanager_.hasDevice(m_pData)) {
+		sermanager_.RouteMessageToDevice(m_pData, pMessage);
+	} else {
+	    g_pPlutoLogger->Write(LV_WARNING, "Received command for me but I am not registered as Generic Serial Device.");
+	}
 }
 
 //<-dceag-sample-b->!

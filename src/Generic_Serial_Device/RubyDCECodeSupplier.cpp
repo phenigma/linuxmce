@@ -38,6 +38,13 @@ RubyDCECodeSupplier::addCode(Database_pluto_main* pdb, DeviceData_Base* pdeviced
 	
 	sprintf(tmpbuff, "%lu", devid);
 	string sdevid = tmpbuff;
+
+	/* 
+		header:
+			in header we define type names for wrapper classes in order to shorten the names */
+	
+	rcode_ += "class Command < Ruby_Generic_Serial_Device::RubyCommandWrapper\nend\n";
+	/* header end*/	
 	
 	rcode_ += "class Device_"; rcode_ += sdevid; rcode_ += " < Ruby_Generic_Serial_Device::RubySerialIOWrapper""\n";
 	
@@ -92,7 +99,7 @@ RubyDCECodeSupplier::addCode(Database_pluto_main* pdb, DeviceData_Base* pdeviced
 			rcode_ += rowcmd[1];
 			
 			/*insert ruby code for the method*/
-			rcode_ += "end""\n"; // def
+			rcode_ += "\n""end""\n"; // def
 			
 		}
 	}

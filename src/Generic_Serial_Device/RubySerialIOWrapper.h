@@ -14,10 +14,14 @@
 
 #include "IOConnection.h"
 #include "RubyDeviceWrapper.h"
+#include "RubyCommandWrapper.h"
+#include "RubyDCEConnector.h"
 
 #include <map>
 
 namespace DCE {
+
+class Event_Impl;
 
 /**
 @author Igor Spac,,,
@@ -43,11 +47,24 @@ public:
 	void setDevice(const RubyDeviceWrapper& device) {
 		device_ = device;
 	}
+	
+	void setDCEConnector(RubyDCEConnector* pdce) {
+		pdce_ = pdce;
+	}
+	RubyDCEConnector* getDCEConnector() {
+		return pdce_;
+	}
+	
+public:
+	void SendCommand(RubyCommandWrapper* pcmd);
 
 	/*accessed from ruby code*/
 public:
 	IOConnection* conn_; /*connection*/
 	RubyDeviceWrapper device_; /*our device*/
+	
+private:
+	RubyDCEConnector* pdce_;
 };
 
 };

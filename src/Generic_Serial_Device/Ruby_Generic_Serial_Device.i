@@ -2,6 +2,7 @@
 
 %{
 	#include "RubyDeviceWrapper.h"
+	#include "RubyCommandWrapper.h"
 	#include "RubySerialIOWrapper.h"
 
 	using namespace DCE;
@@ -35,6 +36,7 @@ namespace std
 
 %include "IOConnection.h"
 %include "RubyDeviceWrapper.h"
+%include "RubyCommandWrapper.h"
 %include "RubySerialIOWrapper.h"
 
 

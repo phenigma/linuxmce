@@ -18,6 +18,7 @@
 #include "RubyDeviceWrapper.h"
 #include "RubyDCECodeSupplier.h"
 #include "RubyDCEEmbededClass.h"
+#include "RubyDCEConnector.h"
 
 class Database_pluto_main;
 
@@ -25,40 +26,35 @@ namespace DCE {
 
 class Message;
 class DeviceData_Impl;
+class Event_Impl;
 
 /**
 @author Igor Spac,,,
 */
+
 class RubySerialIOPool : public SerialIOPool {
 public:
-    RubySerialIOPool();
+    RubySerialIOPool(RubyDCECodeSupplier* pcs, Database_pluto_main* pdb, DeviceData_Impl* pdevdata);
     ~RubySerialIOPool();
 
 public:
-	void setDatabase(Database_pluto_main* pdb) {
- 		pdb_ = pdb;
-	}
-	Database_pluto_main* getDatabase() {
-		return pdb_;
-	}
+	RubyDCECodeSupplier* getCodeSupplier() 
+	{ return pcs_;}
+	Database_pluto_main* getDatabase() 
+	{ return pdb_;}
+	DeviceData_Impl* getDeviceData() 
+	{ return pdevdata_;}
 	
-	void setDeviceData(DeviceData_Impl* pdevdata) {
-		pdevdata_ = pdevdata;
+public:
+	void setDCEConnector(RubyDCEConnector* pdceconn) {
+		pdceconn_ = pdceconn;
 	}
-	DeviceData_Impl* getDeviceData() {
-		return pdevdata_;
-	}
-
-	void setCodeSupplier(RubyDCECodeSupplier* pcs) {
-		pcs_ = pcs;
-	}
-	RubyDCECodeSupplier* getCodeSupplier() {
-		return pcs_;
+	RubyDCEConnector* getDCEConnector() {
+		return pdceconn_;
 	}
 			
 public:
 	int RouteMessage(Message* pMessage);
-	void PopulateDevice(DeviceData_Impl* pdevdata, RubyDeviceWrapper& devwrap);
 
 protected:
 	virtual bool handleStartup();
@@ -68,9 +64,13 @@ public:
 	void Test();
 
 private:
+	void PopulateDevice(DeviceData_Impl* pdevdata, RubyDeviceWrapper& devwrap);
+	
+private:
 	Database_pluto_main* pdb_;
 	DeviceData_Impl* pdevdata_;
 	RubyDCECodeSupplier* pcs_;
+	RubyDCEConnector* pdceconn_;
 	
 	RubyDCEEmbededClass* pembclass_; // Ruby class instance
 };

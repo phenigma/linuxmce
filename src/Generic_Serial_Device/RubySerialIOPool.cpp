@@ -31,8 +31,8 @@ using namespace std;
 
 namespace DCE {
 
-RubySerialIOPool::RubySerialIOPool() 
-	: pdb_(NULL), pdevdata_(NULL), pembclass_(NULL)
+RubySerialIOPool::RubySerialIOPool(RubyDCECodeSupplier* pcs, Database_pluto_main* pdb, DeviceData_Impl* pdevdata) 
+	: pdb_(pdb), pdevdata_(pdevdata), pcs_(pcs), pdceconn_(NULL), pembclass_(NULL)
 {
 	setState(&defstate_);
 }
@@ -62,30 +62,12 @@ RubySerialIOPool::handleStartup() {
 		}
 		
 		pWrapper->setConn(getConnection());
+		pWrapper->setDCEConnector(pdceconn_);
 		
 		if(!pdevdata_) {
 			g_pPlutoLogger->Write(LV_WARNING, "Serial IO pool was not initialized with device Data.");
 		} else {
 			PopulateDevice(pdevdata_, pWrapper->getDevice());
-		/*
-			int devicenum = 0;
-			
-			std::map<int, RubyDeviceWrapper> devices;
-			Map_DeviceData_Base::iterator it = pdevdata_->m_AllDevices.m_mapDeviceData_Base.begin();
-			while(it != pdevdata_->m_AllDevices.m_mapDeviceData_Base.end()) {
-				RubyDeviceWrapper& devwrap = devices[(*it).first];
-				devwrap.setDevId((*it).first);
-				std::map<int, string>::iterator pit = ((DeviceData_Impl*)((*it).second))->m_mapParameters.begin();
-				while(pit != ((DeviceData_Impl*)((*it).second))->m_mapParameters.end()) {
-					Row_DeviceData *p_Row_DeviceData = pdb_->DeviceData_get()->GetRow((*pit).first);
-					devwrap.setData(p_Row_DeviceData->Description_get().c_str(), (*pit).second.c_str());
-					pit++;
-				}
-				it++; devicenum++;
-			}
-			pWrapper->setDevice(devices);
-			g_pPlutoLogger->Write(LV_STATUS, "Added %d devices to wrapper class.", devicenum);
-			*/
 		}
 	} catch(RubyException e) {
 		g_pPlutoLogger->Write(LV_CRITICAL, "Failed instantiating class: %s.", e.getMessage());

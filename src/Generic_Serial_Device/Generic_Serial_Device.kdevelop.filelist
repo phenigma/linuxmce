@@ -85,3 +85,7 @@ TestEmbededClass.h
 RubySerialIOPool.cpp
 RubySerialIOManager.h
 RubySerialIOManager.cpp
+/RubyCommandWrapper.h
+/RubyCommandWrapper.cpp
+/RubyDCEConnector.h
+/RubyDCEConnector.cpp
