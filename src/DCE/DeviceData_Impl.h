@@ -142,6 +142,24 @@ namespace DCE
 		 */
 		virtual class DeviceData_Impl *CreateData( DeviceData_Impl *pParent, char *pcDataBlock, unsigned long dwAllocatedSize, char *pcCurrentPosition) { return NULL; }
 
+		/*
+		 * @brief Find self or child within category
+		 */
+		DeviceData_Impl *FindSelfOrChildWithinCategory( unsigned long dwPK_DeviceCategory )
+		{
+			if( WithinCategory(dwPK_DeviceCategory) )
+				return this;
+
+			for(size_t s=0;s<m_vectDeviceData_Impl_Children.size();++s)
+			{
+				DeviceData_Impl *pDevice = m_vectDeviceData_Impl_Children[s];
+				if( pDevice->WithinCategory(dwPK_DeviceCategory) )
+					return pDevice;
+			}
+
+			return NULL;
+		}
+
 		/** 
 		 * @brief sets the specified value for the specified parameter
 		 */

@@ -356,14 +356,14 @@ namespace DCE
 		}
 
 		/*
-		 * @brief 
+		 * @brief Find self or parent with category
 		 */
-		DeviceData_Base *FindDeviceWithinCategory( unsigned long dwPK_DeviceCategory )
+		DeviceData_Base *FindSelfOrParentWithinCategory( unsigned long dwPK_DeviceCategory )
 		{
 			if( WithinCategory(dwPK_DeviceCategory) )
 				return this;
 			if( m_pDevice_ControlledVia )
-				return m_pDevice_ControlledVia->FindDeviceWithinCategory(dwPK_DeviceCategory);
+				return m_pDevice_ControlledVia->FindSelfOrParentWithinCategory(dwPK_DeviceCategory);
 			return NULL;
 		}
 
