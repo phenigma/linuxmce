@@ -1210,7 +1210,7 @@ void XineSlaveWrapper::getScreenShot(int iStreamID, int iWidth, int iHeight, cha
     make_snapshot(pStream->m_pStream, sFormat.c_str(), iWidth, iHeight, true, pData, iDataSize);
 }
 
-void XineSlaveWrapper::make_snapshot(xine_stream_t *m_pstream, string sFormat, int iWidth, int iHeight, bool bKeepAspect, char*&pData, int &iDataSize)
+void XineSlaveWrapper::make_snapshot(xine_stream_t *pStream, string sFormat, int iWidth, int iHeight, bool bKeepAspect, char*&pData, int &iDataSize)
 {
 //   uint8_t   *yuv, *y, *u, *v, *rgb;
 //   void      *blob;
@@ -1226,17 +1226,30 @@ void XineSlaveWrapper::make_snapshot(xine_stream_t *m_pstream, string sFormat, i
 //   Image *resize_image;
 //   ImageInfo *image_info;
 
-    int         imageWidth, imageHeight, imageRatio, imageFormat;
-    uint8_t     *imageData;
+	int         imageWidth = 0, imageHeight = 0, imageRatio = 0, imageFormat = 0;
+    uint8_t     *imageData = NULL;
+
+	if ( pStream == NULL )
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "XineSlaveWrapper::make_snapshot(): The xine_stream_t object passed as parameter was null. Can't get the screen shot");
+		return;
+	}
 
     g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): Getting frame info");
-    xine_get_current_frame(m_pstream, &imageWidth, &imageHeight, &imageRatio, &imageFormat, NULL);
+    if ( ! xine_get_current_frame(pStream, &imageWidth, &imageHeight, &imageRatio, &imageFormat, NULL) )
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "XineSlaveWrapper::make_snapshot(): Error getting frame info. Returning!");
+		return;
+	}
     g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): Got %d %d %d %d", imageWidth, imageHeight, imageRatio, imageFormat);
 
     imageData = (uint8_t*)malloc ((imageWidth+8) * (imageHeight+1) * 2);
-
     g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): Getting frame data");
-    xine_get_current_frame (m_pstream, &imageWidth, &imageHeight, &imageRatio, &imageFormat, imageData);
+    if ( ! xine_get_current_frame (pStream, &imageWidth, &imageHeight, &imageRatio, &imageFormat, imageData) )
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "XineSlaveWrapper::make_snapshot(): Error getting frame data. Returning!");
+		return;
+	}
     g_pPlutoLogger->Write(LV_STATUS, "XineSlaveWrapper::make_snapshot(): Got %d %d %d %d", imageWidth, imageHeight, imageRatio, imageFormat);
 
     // we should have the image in YV12 format aici
