@@ -215,6 +215,9 @@ int main( int argc, char *argv[] )
 		case 'r':
 			g_GlobalConfig.m_sRepository = argv[++optnum];
 			break;
+		case 's':
+			g_GlobalConfig.m_sSkipVerification = argv[++optnum];
+			break;
 		case 'c':
 			g_GlobalConfig.m_sComments = argv[++optnum];
 			break;
@@ -268,6 +271,7 @@ int main( int argc, char *argv[] )
 			<< "[-r Repository( -ies )] [-v] [-i] [-c comments]" << endl
 			<< "[-t Table( s )] [-U Username[~Password][,...]] [-d username]" << endl
 			<< "[-a Allow unmet dependencies] [-e everyone] [-w width]" << endl
+			<< "[-s Skip Verification of fields]" << endl
 			<< "-h hostname    -- address or DNS of database host," << endl
 			<< "			default is `dcerouter`" << endl
 			<< "-u username    -- username for database connection" << endl
@@ -285,6 +289,7 @@ int main( int argc, char *argv[] )
 			<< "-d username    -- the owner of any unclaimed new records" << endl
 			<< "            Default is the first user checking in records" << endl
 			<< "-v verify      -- Verifies the integrity of the database first (foreign keys)" << endl
+			<< "-s Table:Field -- Comma delimted list of Fields to ignore when doing a verify" << endl
 			<< "-i verify id   -- Verifies that all records have unique psc_id" << endl
 			<< "-a allow       -- Allows checking in a row with a foreign key" << endl
 			<< "            to a modified/ew row in another table that is not" << endl

@@ -1886,6 +1886,10 @@ int k=2;
 			for(MapField::iterator it=m_mapField.begin();it!=m_mapField.end();++it)
 			{
 				Field *pField = (*it).second;
+
+				if( g_GlobalConfig.m_sSkipVerification.find( m_sName + ":" + pField->Name_get() )!=string::npos )
+					continue;
+
 				if( pField->m_pField_IReferTo_Directly )
 				{
 					sql.str("");

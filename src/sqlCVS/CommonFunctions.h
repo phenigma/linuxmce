@@ -59,6 +59,8 @@ namespace sqlCVS
 		string m_sSqlCVSHost;	/**< The host name or IP for the sqlCVS listener */
 		string m_sComments; /**< Comments to be included during a checkin  */
 
+		string m_sSkipVerification; /**< Table:Field's to be skipped during a verify integrity */
+
 		int m_iDBPort;		/**< The port of the database */
 		int m_iSqlCVSPort;	/**< The port of the sqlCVS */
 
