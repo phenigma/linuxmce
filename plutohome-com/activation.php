@@ -9,7 +9,7 @@ require('include/config/config.inc.php');
 require('include/utils.inc.php');
 header("Content-type: text/plain");
 
-$signup_url = "http://www.plutohome.com/signup.html";
+$signup_url = "http://plutohome.com/signup.html";
 
 $code = $_GET["code"];
 

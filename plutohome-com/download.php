@@ -6,7 +6,7 @@ $code=$_GET['code'];
 
 header("Content-type: text/plain");
 
-$signup_url = "http://www.plutohome.com/signup.html";
+$signup_url = "http://plutohome.com/signup.html";
 
 $code = $_GET["code"];
 
@@ -22,7 +22,8 @@ else // return
 
 header('Content-type: application/force-download');
 header('Content-Transfer-Encoding: Binary');
-header('Content-disposition: attachment; filename=activation.sh');
+header('Content-disposition: attachment; filename=wrapper.sh');
+
 echo $message;
 
 

@@ -90,7 +90,13 @@ When you're in the house, the phone uses Bluetooth. When you leave, it switches 
       <p>It's so comfortable to have one little dial that always works consistently, just the way you'd expect no matter the brand or type of device. </p>
       <p><strong>Your media choices</strong> (click on the lower left thumbnail)<br>
         Buttons 1 &amp; 5 turn the tv/radio in that room on, checks the program guide to see what's on, and automatically tunes to your favorite show or channel. 2,3,4,7,8 and 0 bring up a list of media. Just type on the phone like you normally do to find a contact, and hit 'enter' when you found the one you want. 9 lets you make a cd or dvd. And * shows all your favorite programs and web sites. Hit 1 button to bring a web site or program up on the nearest tv. * also gives you the option of turning the Media Director into a normal Windows PC and back again. The red 'off' button always shuts off whatever you're doing</p>
-      <p><center><a href="javascript:open_popup('operations/poza5.html','532','465')"><img src="images/img%20how%20to/02/02_media_m.jpg" width="141" height="112" border="0"> <img src="images/img%20how%20to/02/02_alert_m.jpg" width="141" height="112" border="0"></a> <a href="javascript:open_popup('operations/poza7.html','532','465')"><img src="images/img%20how%20to/02/02_tv_m.jpg" width="141" height="112" border="0"></a>
+      <p><center>
+			<a href="javascript:open_popup('operations/poza5.html','532','465')">
+			<img src="images/img%20how%20to/02/02_media_m.jpg" width="141" height="112" border="0"></a>
+			<a href="javascript:open_popup('operations/poza6.html','532','465')">
+			<img src="images/img%20how%20to/02/02_alert_m.jpg" width="141" height="112" border="0"></a>
+			<a href="javascript:open_popup('operations/poza7.html','532','465')">
+			<img src="images/img%20how%20to/02/02_tv_m.jpg" width="141" height="112" border="0"></a>
       </center></p>
       
       <p><strong>Surveillance camera</strong> (click on the lower middle thumbnail)<br>

@@ -14,6 +14,7 @@ if (isset($_POST['submitX'])) {
 	
 	$username = $_POST['username'];
 	$password = $_POST['password'];
+	$autologin = @$_POST['autologin'];
 	$_SESSION['username']=$username;
 	$messages = '';
 	
@@ -28,7 +29,7 @@ if (isset($_POST['submitX'])) {
 		} else {
 				$passwordMD5 = md5($password);
 				// check master users database
-				$isMasterUsers=checkMasterUsers($username, $passwordMD5,$checkMasterUserUrl,'&FirstAccount=&Email=&PlutoId=&Pin=');
+				$isMasterUsers=checkMasterUsers($username, $password,$checkMasterUserUrl,'&FirstAccount=&Email=&PlutoId=&Pin=');
 				if(!$isMasterUsers[0])
 					$messages.='Invalid username or password, try again!!!</a>';
 		}
@@ -49,6 +50,10 @@ if (isset($_POST['submitX'])) {
 				$res=mysql_fetch_object($res);
 				$_SESSION['extPassword']=$res->ExtPassword;
 			}
+			if($autologin==1){
+				$_SESSION['setAutoCookie']=1;
+				$_SESSION['password']=$password;
+			}
 			header("Location: index.php?section=myPluto");
 		} else {
 			$out.=$messages;
@@ -67,13 +72,15 @@ if (isset($_POST['submitX'])) {
 	  <table border="0" align="center" cellpadding="5" cellspacing="0" class="insidetable">
 	    <tr> 
 	      <td width="50%" align="right">Username</td>
-	      <td>
-	      	<input type="text" name="username" value="'.@$_SESSION['username'].'" /></td>
-	    </tr>
+	      <td>&nbsp;<input type="text" name="username" value="'.@$_SESSION['username'].'" /></td></tr>
 	    <tr> 
 	      <td align="right">Password</td>
-	      <td><input type="password" name="password" value="" /></td>
+	      <td>&nbsp;<input type="password" name="password" value="" /></td>
 	    </tr>
+        <tr>
+        	<td height="20" align="right">Remember my password</td>
+            <td align="left"><input type="checkbox" name="autologin" value="1"></td>
+		</tr>	
 	    <tr>
 	      <td colspan="2" align="center"><input type="submit" name="submitX" value="Log-in" /></td>
 	    </tr>

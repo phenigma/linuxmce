@@ -8,17 +8,42 @@ $out.='
   <tr>
     <td class="titletable"><img src="images/take_a_pluto.gif" width="550" height="53"></td>
     <td width="251" rowspan="2" valign="top" bgcolor="#F2F3F7"><table width="100%" border="0" cellspacing="0" cellpadding="0">
-    <tr>
-    <td class="counter"><br>Build your own Pluto system for free</td>
-  </tr>
-     <tr>
-     <td align="left">
-       <a href="support/index.php?section=document&docID=1"><img src="images/24-nov.jpg" border="0"></a>
-        </td>
-        </tr>
-  <tr>
-    <td class="counter">&nbsp;</td>
-  </tr>
+<tr>
+    <td>
+	<img src="images/3ways.gif" width="251" height="23">
+	</td>
+</tr>
+
+<tr>
+    <td class="counter">1. Smart-home and hi-fi dealers offering custom installation and a turnkey solution<br></td>
+</tr>
+
+<tr>
+    <td class="counter" align="left">
+	<a href="index.php?section=locator"><b>dealer locator</b></a>
+	</td>
+</tr>
+
+<tr>
+    <td class="counter">2.  Third party products that work with Pluto<br></td>
+</tr>
+
+<tr>
+    <td class="counter" align="left">
+	<a href="index.php?section=get_pluto"><b>tell me more</b></a>
+	</td>
+</tr>
+
+<tr>
+    <td class="counter">3.  Use your own computers, and Pluto gives you the software <b>FREE</b>!<br></td>
+</tr>
+
+<tr>
+    <td class="counter" align="left">
+	<a href="support/index.php?section=document&docID=1"><b>get the software</b></a>
+	</td>
+</tr>
+
       <tr>
         <td><img src="images/m_news.gif" width="251" height="23"></td>
       </tr>';

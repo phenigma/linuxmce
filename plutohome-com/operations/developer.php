@@ -48,7 +48,7 @@ $out.='
 	Open Source is a key component of our corporate strategy, so we have done everything possible to make Pluto a comfortable, extensible platform for open source developers.
 	We have a class generator that you can use to build your own DCE Device or plug-in in a matter of minutes.  It builds a complete, cross-platform project ready to 
 	run on both Windows and Linux, including documentation and stubs for you to implement.  Plus we have our own in-house programmers available through our live help to
-	provide instant assistance.  Additionally our <a href="http://www.plutohome.com/support">support site</a> includes forums, bug tracking and extensive documentation both for Pluto\'s own modules, as well as any modules 
+	provide instant assistance.  Additionally our <a href="http://plutohome.com/support">support site</a> includes forums, bug tracking and extensive documentation both for Pluto\'s own modules, as well as any modules 
 	that you may develop that you would like Pluto to host.  We have a sophisticated build system that allows us to target different platforms and operating systems 
 	simultaneously.<br><br>
 	

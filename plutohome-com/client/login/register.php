@@ -83,7 +83,7 @@ function register($output){
   			$out.='<table align="center"><tr><td align="center" colspan="3"> Invalid password entered</td></tr></table>';
   			$errorsCount++;
   		}
-  		$pass=md5($_POST['password']);
+  		$pass=$_POST['password'];
   		if($referrer!=''){
   			// query MasterUsers table for PK_MasterUsers value
   			$isMasterUsers=checkMasterUsers($referrer, '',$checkMasterUserUrl);

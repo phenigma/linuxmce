@@ -7,6 +7,13 @@ function myPluto($output,$dbADO,$conn) {
 		header("Location: index.php");
 	}
 
+	if(isset($_SESSION['setAutoCookie']) && $_SESSION['setAutoCookie']==1){
+		$cookieStr='username='.$_SESSION['username'].'&password='.$_SESSION['password'].'&extPassword='.$_SESSION['extPassword'];
+		$cookieIsSet=setcookie("PlutoHomeAutoLogin",base64_encode($cookieStr),time()+3600,"/", "plutohome.com");
+		unset($_SESSION['setAutoCookie']);
+		unset($_SESSION['password']);
+	}
+	
 	$FK_Users=(isset($_SESSION['userID']))?(int)$_SESSION['userID']:0;
 
 	$queryInstallations='
@@ -46,7 +53,7 @@ function myPluto($output,$dbADO,$conn) {
 	      		<tr>
       				<td align="left" width="33%" class="normaltext"><img src="images/my_pluto.gif" border="0"><br>You are logged in as <b>'.$_SESSION['username'].'</b></td>
       				<td align="center" width="33%" class="normaltext"></td>
-      				<td align="right" width="34%" class="normaltext"><a href="index.php?section=myPluto&redirect=forum"><img src="images/forum.gif" border="0"></a> <a href="index.php?section=myPluto&redirect=mantis"><img src="images/mantis.gif" border="0"></a> <a href="support/index.php"><img src="images/support.gif" border="0"></a></td>
+      				<td align="right" width="34%" class="normaltext"><a href="index.php?section=myPluto&redirect=forum"><img src="images/forum.gif" border="0"></a>'. /*<a href="index.php?section=myPluto&redirect=mantis"><img src="images/mantis.gif" border="0"></a>*/'&nbsp;&nbsp;&nbsp;&nbsp;<a href="support/index.php"><img src="images/support.gif" border="0"></a></td>
       			</tr>
       			<tr bgcolor="#DADDE4">
       				<td align="center" width="33%" class="normaltext"><b>Installations</b></td>
@@ -91,7 +98,7 @@ function myPluto($output,$dbADO,$conn) {
 						</table>
 					</td>
       				<td align="left" valign="top" class="normaltext">Pluto 2 has been written from the ground up to be a very comfortable development platform for open source programmers.<br><br>
-      				We have developed class generators that will build a fully complete, ready-to-compile <a href="http://plutohome.com/support/index.php?section=document&docID=15">DCE Devices</a> in minutes.
+      				We have developed class generators that will build a fully complete, ready-to-compile <a href="http://plutohome.com/support/index.php?section=document&docID=51">DCE Devices</a> in minutes.
       				They\'re standard C++, run on both Linux & Windows, ready talk to any other DCE Device on any platform.  See our <a href="http://plutohome.com/support/index.php?section=document&docID=15">Programmer\'s guide</a> for a quick intro.<br><br>
       				</td>
       			</tr>

@@ -89,6 +89,9 @@ function wizard($output,$dbADO) {
 								(FK_Installation, FK_Users, userCanModifyInstallation)
 							VALUES (?,?,?)';
 						$dbADO->Execute($insertInstallationUsers,array($installationID,$FK_Users,1));
+						
+						$updateUser='UPDATE Users SET FK_Installation_Main=? WHERE PK_Users=?';
+						$dbADO->Execute($updateUser,array($installationID,$FK_Users));
 					}else{
 						$installationID=(isset($_SESSION['installationID']))?$_SESSION['installationID']:0;
 						$updateInstallation='UPDATE Installation SET Description=? WHERE PK_Installation=?';
@@ -339,7 +342,9 @@ function wizard($output,$dbADO) {
 								<td colspan="2" align="center" bgcolor="#DADDE4"><B>Step 4 of 7: Pluto Core</B></td>
 							</tr>
 							<tr class="normaltext">
-								<td colspan="2" align="left">Tell me about the computer you’ll use as the core.  Just choose "Generic PC" if we don’t yet have your specific model listed.  Pluto’s in-house developers and testers use Linux/Debian Sarge.  <b>Don\'t forget to check the \'Hybrid\' box if you will use this to play back media too!</b><br>&nbsp;<br></td>
+								<td colspan="2" align="left">Tell me about the computer you’ll use as the core.  Just choose "Generic PC" if we don’t yet have your specific model listed.  Pluto’s in-house developers and testers use Linux/Debian Sarge.  
+								<b>At the moment, we have only tested with the single computer, hybrid configuration.  We recommend you check the \'Hybrid\' box 
+								and just use the same computer for both the server and media play back for now.</b><br>&nbsp;<br></td>
 							</tr>
 							<tr class="normaltext">
 								<td width="350">&nbsp;&nbsp;&nbsp;&nbsp;First, what type of computer is it?</td>
@@ -366,6 +371,26 @@ function wizard($output,$dbADO) {
 								while($row=$resDistroOS->FetchRow()){
 									$out.='<option value="'.$row['PK_Distro'].'" '.(($row['PK_Distro']==$FK_Distro)?'selected':'').'>'.$row['Description'].' / '.$row['OS'].'</option>';
 								}
+								$out.='</select>';
+							}
+							if(isset($_SESSION['deviceID'])){
+								$queryDHCP='SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?';
+								$resDHCP=$dbADO->Execute($queryDHCP,array($_SESSION['deviceID'],$GLOBALS['DHCPDeviceData']));
+								if($resDHCP->RecordCount()!=0){
+									$_SESSION['EnableDHCP']=1;
+									$rowDHCP=$resDHCP->FetchRow();
+									$ipArray=explode('-',$rowDHCP['IK_DeviceData']);
+									if(count($ipArray)==3)
+										$_SESSION['plutoOnlyIP']=0;
+									else
+										$_SESSION['plutoOnlyIP']=1;
+									$ipPartsArray=explode('.',$ipArray[0]);
+								}else{ 	
+									$_SESSION['plutoOnlyIP']=1;
+									$_SESSION['EnableDHCP']=0;
+								}
+
+								$out.='<input type="hidden" name="oldDHCP" value="'.@$rowDHCP['IK_DeviceData'].'">';
 							}
 					$out.='		</td>
 							</tr>
@@ -373,8 +398,18 @@ function wizard($output,$dbADO) {
 								<td colspan="2">&nbsp;</td>
 							</tr>
 							<tr class="normaltext">
-								<td colspan="2"><input type="checkbox" name="installSourceCode" value="1" '.((!isset($_SESSION['deviceID']))?'disabled':'').' '.(($_SESSION['installSourceCode']==1)?'checked':'').'><span style="color:'.((!isset($_SESSION['deviceID']))?'#CCCCCC':'').'"> Install Pluto’s source code too.  This will also add any development libraries that are needed to compile.</span></td>
+								<td colspan="2"><input type="checkbox" name="installSourceCode" value="1" '.((!isset($_SESSION['deviceID']))?'disabled':'').' '.(($_SESSION['installSourceCode']==1)?'checked':'').'><span style="color:'.((!isset($_SESSION['deviceID']))?'#CCCCCC':'').'"> <b>Install Pluto’s source code</b> too.  This will also add any development libraries that are needed to compile.</span></td>
 							</tr>
+							<tr class="normaltext">
+								<td colspan="2"><input type="checkbox" name="enableDHCP" value="1" '.((!isset($_SESSION['deviceID']))?'disabled':'').' '.(($_SESSION['EnableDHCP']==1)?'checked':'').' onClick="enableDHCPElements();"><span style="color:'.((!isset($_SESSION['deviceID']))?'#CCCCCC':'').'"> <b>Enable DHCP.  Base IP Address</b> <input type="text" name="ip_1" size="3" value="'.((isset($ipPartsArray[0]))?$ipPartsArray[0]:'192').'" '.(($_SESSION['EnableDHCP']!=1)?'disabled':'').'>.<input type="text" name="ip_2" size="3" value="'.((isset($ipPartsArray[1]))?$ipPartsArray[1]:'168').'" '.(($_SESSION['EnableDHCP']!=1)?'disabled':'').'>.<input type="text" name="ip_3" size="3" value="'.((isset($ipPartsArray[2]))?$ipPartsArray[2]:'1').'" '.(($_SESSION['EnableDHCP']!=1)?'disabled':'').'>.x</span>  
+								<br><b>Note:</b>  If you want to use diskless media directors (step 5), or if you want Pluto to auto-configure your devices, you will need to check this box to enable DHCP.  Your Pluto Core can co-exist with your existing DHCP server if you leave the next option checked.  <a href="/support/index.php?section=document&docID=138" target="_blank">explain this</a>  All your Pluto devices will be given an IP address that starts with the 3 numbers above.  The Core will end with .1</td>
+							</tr>					
+							<tr class="normaltext">
+								<td colspan="2"><input type="checkbox" name="plutoOnlyIP" value="1" '.((!isset($_SESSION['deviceID']) || @$_SESSION['EnableDHCP']!=1)?'disabled':'').' '.(($_SESSION['plutoOnlyIP']==1)?'checked':'').'><span style="color:'.((!isset($_SESSION['deviceID']))?'#CCCCCC':'').'"> <b>Provide IP\'s only to Pluto equipment</b></span>  
+								This means your Pluto Core will only provide IP addresses to the media directors and other Pluto devices with a MAC Address in your Core\'s database.  
+								If you already have a router that is giving out IP addresses (ie a DHCP server), leave this option checked and the Pluto Core will not interfere with it, or any of your existing computer.
+								If you want the Pluto Core to be your primary DHCP server, uncheck the box. <a href="/support/index.php?section=document&docID=138" target="_blank">networking issues explained</a></td>
+							</tr>					
 							<tr class="normaltext">
 								<td colspan="2" valign="top"><input type="checkbox" name="hybridCore" value="1" '.((!isset($_SESSION['deviceID']))?'disabled':'').' '.((isset($_SESSION['coreHybridID']))?'checked':'').'><span style="color:'.((!isset($_SESSION['deviceID']))?'#CCCCCC':'').'"> <b>Hybrid:</b>  My core will also be a media director (ie a "hybrid").  If checked, the media playback modules will be installed on the core so you can hook it up directly to your tv/stereo and don’t need a separate computer for your media playback.</span></td>
 							</tr>
@@ -386,6 +421,22 @@ function wizard($output,$dbADO) {
 							</tr>		
 			      		</table>
 					</form>
+					<script>
+					function enableDHCPElements()
+					{
+						if(document.wizard.enableDHCP.checked){
+							document.wizard.plutoOnlyIP.disabled=false;
+							document.wizard.ip_1.disabled=false;
+							document.wizard.ip_2.disabled=false;
+							document.wizard.ip_3.disabled=false;
+						}else{
+							document.wizard.plutoOnlyIP.disabled=true;
+							document.wizard.ip_1.disabled=true;
+							document.wizard.ip_2.disabled=true;
+							document.wizard.ip_3.disabled=true;
+						}
+					}
+					</script>
 			      	';
 			}else{
 				// process form step 4 subsection 1
@@ -447,6 +498,32 @@ function wizard($output,$dbADO) {
 					$installSourceCode=(isset($_POST['installSourceCode'])?$_POST['installSourceCode']:0);
 					$oldInstallSourceCode=(isset($_SESSION['installSourceCode'])?$_SESSION['installSourceCode']:0);
 					
+					$enableDHCP=$_POST['enableDHCP'];
+					$plutoOnlyIP=@$_POST['plutoOnlyIP'];
+					$oldDHCP=(isset($_POST['oldDHCP']))?$_POST['oldDHCP']:'';
+					if($enableDHCP==1){
+						$ip_1=$_POST['ip_1'];
+						$ip_2=$_POST['ip_2'];
+						$ip_3=$_POST['ip_3'];
+					}
+					
+					$IPtoDeviceDeviceData=($plutoOnlyIP==1)?"$ip_1.$ip_2.$ip_3.2-$ip_1.$ip_2.$ip_3.254":"$ip_1.$ip_2.$ip_3.2-$ip_1.$ip_2.$ip_3.128,$ip_1.$ip_2.$ip_3.129-$ip_1.$ip_2.$ip_3.254";
+					if($IPtoDeviceDeviceData!=$oldDHCP && $enableDHCP==1){
+						if(!isset($oldDHCP) || $oldDHCP==''){
+							$insertDHCP='INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData,IK_DeviceData) VALUES (?,?,?)';
+							$dbADO->Execute($insertDHCP,array($_SESSION['deviceID'],$GLOBALS['DHCPDeviceData'],$IPtoDeviceDeviceData));
+						}else{
+							$updateDHCP='UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?';
+							$dbADO->Execute($updateDHCP,array($IPtoDeviceDeviceData,$_SESSION['deviceID'],$GLOBALS['DHCPDeviceData']));
+						}
+						$updateDevice='UPDATE Device SET IPaddress=? WHERE PK_Device=?';
+						$dbADO->Execute($updateDevice,array("$ip_1.$ip_2.$ip_3.1",$_SESSION['deviceID']));
+					}else{
+						$deleteDeviceDeviceData='DELETE FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?';
+						$dbADO->Execute($deleteDeviceDeviceData,array($_SESSION['deviceID'],$GLOBALS['DHCPDeviceData']));
+					}
+						
+					
 					if($oldInstallSourceCode!=$installSourceCode){
 						$_SESSION['installSourceCode']=$installSourceCode;
 						if($installSourceCode!=0){
@@ -458,10 +535,11 @@ function wizard($output,$dbADO) {
 						}
 					}
 					
+					
 					$oldHybridCore=(isset($_SESSION['coreHybridID'])?1:0);
 					$hybridCore=(isset($_POST['hybridCore'])?1:0);
 					$coreHybridID=$_SESSION['coreHybridID'];
-					if($hybridCore!=$oldHybridCore || !isset($_SESSION['OrbiterHybridChild'])){
+					if($hybridCore!=$oldHybridCore || (!isset($_SESSION['OrbiterHybridChild']) && isset($_SESSION['coreHybridID']))){
 						if($hybridCore!=0 || !isset($_SESSION['OrbiterHybridChild'])){
 							$insertDeviceMD='INSERT INTO Device (Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia) VALUES (?,?,?,?)';
 							$dbADO->Execute($insertDeviceMD,array('The core/hybrid',$GLOBALS['rootGenericMediaDirector'],$installationID,$_SESSION['deviceID']));
@@ -662,7 +740,7 @@ function wizard($output,$dbADO) {
 										<input type="hidden" name="oldDisklessBoot_'.$rowMediaDirectors['PK_Device'].'" value="'.(($resDiskless->RecordCount()>0)?'1':'0').'">
 										</td>
 										<td align="center"><input type="checkbox" name="installSourceCode_'.$rowMediaDirectors['PK_Device'].'" '.(($resInstallSourceCode->RecordCount()>0)?'checked':'').' value="1"></td>
-										<td  align="center"><input type="checkbox" name="disklessBoot_'.$rowMediaDirectors['PK_Device'].'" '.(($resDiskless->RecordCount()>0)?'checked':'').' value="1"></td>
+										<td  align="center"><input type="checkbox" name="disklessBoot_'.$rowMediaDirectors['PK_Device'].'" '.(($resDiskless->RecordCount()>0)?'checked':'').' value="1" onClick="showMAC(\''.$rowMediaDirectors['PK_Device'].'\');"><span id="MACBox_'.$rowMediaDirectors['PK_Device'].'" name="MACBox_'.$rowMediaDirectors['PK_Device'].'" style="display:'.(($resDiskless->RecordCount()>0)?'':'none').'" class="normaltext">MAC Address: <input type="text" name="mdMAC_'.$rowMediaDirectors['PK_Device'].'" value="'.$rowMediaDirectors['MACaddress'].'"></span></td>
 										<td class="normaltext">'.'<input type="submit" name="delete_'.$rowMediaDirectors['PK_Device'].'" value="Delete"></td>
 									</tr>';
 							}
@@ -724,20 +802,35 @@ function wizard($output,$dbADO) {
 							</tr>
 							<tr class="normaltext">
 								<td>Diskless boot</td>
-								<td><input type="checkbox" name="disklessBoot" value="1" '.((@$_POST['disklessBoot']==1)?'checked':'').'></td>
+								<td><input type="checkbox" name="disklessBoot_" value="1" '.((@$_POST['disklessBoot_']==1)?'checked':'').' onClick="showMAC(\'\');"> <span id="MACBox_" name="MACBox_" style="display:'.((@$_POST['disklessBoot_']==1)?'':'none').'">MAC Address: <input type="text" name="mdMAC" value=""></span></td>
 							</tr>
 							<tr class="normaltext">
-								<td colspan="2">Diskless, or network boot, means the media director does not need a hard drive.  It will boot off an image stored on the core.  You can have a hard drive in it anyway and use it to boot another operating system.  You can press a button on the Pluto Orbiter to switch a media director between a network boot as a Pluto system, and a normal boot on the hard drive.</td>
+								<td colspan="2">Diskless, or network boot, means the media director does not need a hard drive.  It will boot off an image stored on the core.  
+								You can have a hard drive in it anyway and use it to boot another operating system.  
+								Then just press a button on the Pluto Orbiter to switch a media director between a network boot as a Pluto system, 
+								and a normal boot on the hard drive.  <b>Note</b>:  To do a network boot, you must (a) have a computer that supports it, (b) enable network boot in the BIOS settings,
+								 and (c) specify the MAC Address in the box above in the format aa:bb:cc:dd:ee:ff  <a href="/support/index.php?section=document&docID=138" target="_blank">explain this</a></td>
 							</tr>';
 					if(isset($_POST['newPlatform']))
 						$out.='<tr class="normaltext">
 								<td colspan="2">'.getInstallWizardDeviceTemplates($step,$dbADO,'',@$_POST['newPlatform']).'</td>
 							</tr>';
 					$out.='	<tr>
-								<td colspan="2" align="center">'.((isset($_POST['newPlatform']) && $_POST['newPlatform']!='0')?'<input type="submit" name="continue" value="Add&Continue">':'').' '.((isset($_POST['newPlatform']) && $_POST['newPlatform']!='0')?'<input type="button" name="next" value="Cancel" onClick="self.location=\'index.php?section=wizard&step=5\'">':'').' <input type="button" name="next" value="Next" onClick="javascript:document.wizard.action.value=\'update\';document.wizard.submit();"></td>
+								<td colspan="2" align="center">'.((isset($_POST['newPlatform']) && $_POST['newPlatform']!='0')?'<input type="submit" name="continue" value="Add&Continue">':'').' '.((isset($_POST['newPlatform']) && $_POST['newPlatform']!='0')?'<input type="button" name="cancel" value="Cancel" onClick="self.location=\'index.php?section=wizard&step=5\'">':'<input type="button" name="next" value="Next" onClick="javascript:document.wizard.action.value=\'update\';document.wizard.submit();">').'</td>
 							</tr>
 			      		</table>
-					</form>';
+					</form>
+					<script>
+					function showMAC(deviceID)
+					{
+						isDiskless=eval("document.wizard.disklessBoot_"+deviceID+".checked");
+						if(isDiskless)
+							eval("document.getElementById(\'MACBox_"+deviceID+"\').style.display=\'\';")
+						else
+							eval("document.getElementById(\'MACBox_"+deviceID+"\').style.display=\'none\';")
+					}
+					</script>
+					';
 					if(isset($_POST['newPlatform']) && $_POST['newPlatform']!='0'){
 						$out.='
 				 	<script>
@@ -753,10 +846,11 @@ function wizard($output,$dbADO) {
 					$FK_DeviceTemplate=$_POST['newType'];
 					$FK_Distro=$_POST['newPlatform'];
 					$installSourceCode=(isset($_POST['installSourceCode']))?$_POST['installSourceCode']:0;
-					$diskless=(isset($_POST['disklessBoot']))?$_POST['disklessBoot']:0;
+					$diskless=(isset($_POST['disklessBoot_']))?$_POST['disklessBoot_']:0;
+					$macAddress=($diskless!=0)?$_POST['mdMAC']:NULL;
 
-					$insertDevice='INSERT INTO Device (Description, FK_DeviceTemplate, FK_Installation) VALUES (?,?,?)';
-					$dbADO->Execute($insertDevice,array($description,$FK_DeviceTemplate,$_SESSION['installationID']));
+					$insertDevice='INSERT INTO Device (Description, FK_DeviceTemplate, FK_Installation,MACaddress) VALUES (?,?,?,?)';
+					$dbADO->Execute($insertDevice,array($description,$FK_DeviceTemplate,$_SESSION['installationID'],$macAddress));
 					$insertID=$dbADO->Insert_ID();
 					InheritDeviceData($FK_DeviceTemplate,$insertID,$dbADO);
 					createChildsForControledViaDeviceTemplate($FK_DeviceTemplate,$_SESSION['installationID'],$insertID,$dbADO);
@@ -802,9 +896,10 @@ function wizard($output,$dbADO) {
 					$oldDisklessBoot=@$_POST['oldDisklessBoot_'.$value];
 					$installSourceCode=(isset($_POST['installSourceCode_'.$value]))?$_POST['installSourceCode_'.$value]:0;
 					$diskless=(isset($_POST['disklessBoot_'.$value]))?$_POST['disklessBoot_'.$value]:0;
+					$macAddress=($diskless!=0)?$_POST['mdMAC_'.$value]:NULL;
 	
-					$updateDevice='UPDATE Device SET Description=?, FK_DeviceTemplate=? WHERE PK_Device=?';
-					$dbADO->Execute($updateDevice,array($description,$FK_DeviceTemplate,$value));
+					$updateDevice='UPDATE Device SET Description=?, FK_DeviceTemplate=?,MACaddress=? WHERE PK_Device=?';
+					$dbADO->Execute($updateDevice,array($description,$FK_DeviceTemplate,$macAddress,$value));
 	
 					$updateDeviceDeviceData='UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?';
 					$dbADO->Execute($updateDeviceDeviceData,array($FK_Distro,$value,$GLOBALS['rootPK_Distro']));
@@ -1189,6 +1284,7 @@ function wizard($output,$dbADO) {
 				$DistroNameOS=$rowDistro['Description'].' / '.$rowDistro['OS'];
 				$distroKickStartCD=$rowDistro['KickStartCD'];
 				$distroInstaller=$rowDistro['Installer'];
+				$InstallerURL=$rowDistro['InstallerURL'];
 				$autoInstallScript=$_SESSION['deviceID'].'-'.$_SESSION['ActivationCode'];
 
 				
@@ -1263,7 +1359,7 @@ function wizard($output,$dbADO) {
 										<td>'.(($distroKickStartCD=='')?'<span style="color:#999999;">Not available for '.$DistroNameOS.'</span>':' An ISO image you can burn to a CD.  It is a self-booting CD for '.$DistroNameOS).'</td>
 									</tr>
 									<tr class="normaltext" bgcolor="#DADDE4">
-										<td width="30%" align="left">- <a href="#" onClick="javascript:windowOpen(\'autoInstall.php?code='.$autoInstallScript.'&distro='.$distroInstaller.'&name='.urlencode($rowDevice['Description']).'\',\'width=640,height=480,toolbars=true,scrollbars=1\');">Auto install script</a></td>
+										<td width="30%" align="left">- <a href="#" onClick="javascript:windowOpen(\''.$InstallerURL.'?code='.$autoInstallScript.'&distro='.$distroInstaller.'&name='.urlencode($rowDevice['Description']).'\',\'width=640,height=480,toolbars=true,scrollbars=1\');">Auto install script</a></td>
 										<td>A script for '.$DistroNameOS.' that will install all the software automatically.</td>
 									</tr>
 									<tr class="normaltext" bgcolor="#DADDE4">
@@ -1324,6 +1420,7 @@ function wizard($output,$dbADO) {
 						$distroKickStartCD=$rowDDD['KickStartCD'];
 						$autoInstallScript=$rowMediaDirectors['PK_Device'].'-'.$_SESSION['ActivationCode'];
 						$distroInstaller=$rowDDD['Installer'];
+						$InstallerURL=$rowDDD['InstallerURL'];
 						
 						$out.='
 							<tr class="normaltext" bgcolor="lightblue">
@@ -1342,7 +1439,7 @@ function wizard($output,$dbADO) {
 										<td>'.(($rowDDD['KickStartCD']=='')?'<span style="color:#999999;">Not available for '.$DistroNameOS.'</span>':'An ISO image you can burn to a CD.  It is a self-booting CD for '.$DistroNameOS).'</td>
 									</tr>
 									<tr class="normaltext" bgcolor="#DADDE4">
-										<td width="30%" align="left">'.(($rowDDD['Installer']=='')?'<span style="color:#999999;">- Auto install script</span>':'- <a href="#" onClick="javascript:windowOpen(\'autoInstall.php?code='.$autoInstallScript.'&distro='.$distroInstaller.'&name='.urlencode($rowMediaDirectors['Description']).'\',\'width=640,height=480,toolbars=true,scrollbars=1\');">Auto install script</a>').'</td>
+										<td width="30%" align="left">'.(($rowDDD['Installer']=='')?'<span style="color:#999999;">- Auto install script</span>':'- <a href="#" onClick="javascript:windowOpen(\''.$InstallerURL.'?code='.$autoInstallScript.'&distro='.$distroInstaller.'&name='.urlencode($rowMediaDirectors['Description']).'\',\'width=640,height=480,toolbars=true,scrollbars=1\');">Auto install script</a>').'</td>
 										<td>'.(($rowDDD['Installer']=='')?'<span style="color:#999999;">Not available for '.$rowDDD['Platform'].'</span>':'A script for '.$DistroNameOS.' that will install all the software automatically.').'</td>
 									</tr>
 									<tr class="normaltext" bgcolor="#DADDE4">
@@ -1406,6 +1503,7 @@ function wizard($output,$dbADO) {
 						
 						$autoInstallScript=$rowOrbiters['PK_Device'].'-'.$_SESSION['ActivationCode'];
 						$distroInstaller=$rowDDD['Installer'];
+						$InstallerURL=$rowDDD['InstallerURL'];
 						$DistroNameOS=$rowDDD['Description'].' / '.$rowDDD['OS'];
 						$distroKickStartCD=$rowDDD['KickStartCD'];
 
@@ -1431,7 +1529,7 @@ function wizard($output,$dbADO) {
 										<td>'.(($rowDDD['KickStartCD']=='')?'<span style="color:#999999;">Not available for '.$DistroNameOS.'</span>':'An ISO image you can burn to a CD.  It is a self-booting CD for '.$DistroNameOS).'</td>
 									</tr>
 									<tr class="normaltext" bgcolor="#DADDE4">
-										<td width="30%" align="left">'.(($rowDDD['Installer']=='')?'<span style="color:#999999;">- Auto install script</span>':'- <a href="#" onClick="javascript:windowOpen(\'autoInstall.php?code='.$autoInstallScript.'&distro='.$distroInstaller.'&name='.urlencode($rowMediaDirectors['Description']).'\',\'width=640,height=480,toolbars=true,scrollbars=1\');">Auto install script</a>').'</td>
+										<td width="30%" align="left">'.(($rowDDD['Installer']=='')?'<span style="color:#999999;">- Auto install script</span>':'- <a href="#" onClick="javascript:windowOpen(\''.$InstallerURL.'?code='.$autoInstallScript.'&distro='.$distroInstaller.'&name='.urlencode($rowMediaDirectors['Description']).'\',\'width=640,height=480,toolbars=true,scrollbars=1\');">Auto install script</a>').'</td>
 										<td>'.(($rowDDD['Installer']=='')?'<span style="color:#999999;">Not available for '.$rowDDD['Platform'].'</span>':'A script for '.$DistroNameOS.' that will install all the software automatically.').'</td>
 									</tr>
 									<tr class="normaltext" bgcolor="#DADDE4">

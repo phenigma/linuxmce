@@ -47,38 +47,29 @@ else
   <tr>
     <td align="center" background="images/back_header.jpg"><table width="900"  border="0" cellspacing="0" cellpadding="0">
       <tr>
-        <td width="152">&nbsp;</td>
-        <td width="273"><table width="273"  border="0" cellpadding="0" cellspacing="0">
-          <tr>
-            <td width="18"><img src="images/colt_header_st.jpg" width="18" height="36"></td>
-            <td width="237"><table width="237"  border="0" cellspacing="0" cellpadding="0">
-			<form name="form2" method="post" action="index.php?section=search">
-	        <input type="hidden" name="section" value="search">
-              <tr bgcolor="#019734">
-                <td width="139" bgcolor="#019734"><input type="text" name="cuvant" size="17"></td>
-                <td width="10" bgcolor="#019734"><img src="images/spacer_header_2.jpg" width="10" height="30"></td>
-                <td width="87" bgcolor="#019734"><input type="image" src="images/buton_search.jpg" name="search" onClick="Validate()"></a></td></form>
-                </tr>
-              <tr >
-                <td colspan="3" background="images/spacer_header_1.jpg"><img src="images/spacer_header_1.jpg" width="8" height="6"></td>
-                </tr>
-            </table></td>
-            <td width="18"><img src="images/colt_header_dr.jpg" width="18" height="36"></td>
-          </tr>
-        </table></td>
+        <td width="1">&nbsp;</td>
+        <td width="273" background="images/back_search.jpg"><table width="225"  border="0" cellpadding="0" cellspacing="0">
+              <tr>
+                <td width="124"><img src="images/live_support.jpg" width="124" height="36" /></td>
+                <td width="102" valign="top"><!-- BEGIN PHP Live! code, (c) OSI Codes Inc. -->
+<script language="JavaScript" src="http://plutohome.com/phplive/js/status_image.php?base_url=http://plutohome.com/phplive&l=radu&x=1&deptid=0&btn=1"><a href=""></a></script>
+<!-- END PHP Live! code : (c) OSI Codes Inc. --></td>
+				<td width="31"><img src="images/header_colt_1.jpg" width="31" height="36" /></td>
+              </tr>
+          </table></td>
+        <td width="226" background="images/back_search.jpg"><table width="226"  border="0" cellpadding="0" cellspacing="0">
+        <form name="form2" method="post" action="index.php?section=search">
+              <tr>
+                <td width="132" background="images/back_search.jpg"><input type="text" name="cuvant" value="" class="search"></td>
+                <td width="94"><input type="image" src="images/buton_search.jpg" name="search""></td></form>
+              </tr>
+          </table></td>
         <td>&nbsp;</td>
-        <td width="99"><table width="99"  border="0" cellpadding="0" cellspacing="0">
-          <tr>
-            <td width="18"><img src="images/colt_header_st.jpg" width="18" height="36"></td>
-            <td width="63"><a href="index.php"><img src="images/buton_home.jpg" width="63" height="36" border="0"></a></td>
-            <td width="18"><img src="images/colt_header_dr.jpg" width="18" height="36"></td>
-          </tr>
-        </table></td>
         <td width="141"><table width="141"  border="0" cellpadding="0" cellspacing="0">
           <tr>
-            <td width="18"><img src="images/colt_header_st.jpg" width="18" height="36"></td>
-            <td width="105"><a href="index.php?section=clientLoginForm"><img src="images/buton_login.jpg" width="105" height="36" border="0"></a></td>
-            <td width="18"><img src="images/colt_header_dr.jpg" width="18" height="36"></td>
+            <td width="18"></td>
+            <td width="1">&nbsp;</td>
+            <td width="239">{LoginLogoutButton}</td>
           </tr>
         </table></td>
       </tr>
@@ -109,7 +100,7 @@ else
 <TD ROWSPAN=3 COLSPAN=1 align="center" valign="top" class="insidetable">
 <!--log on area-->
 {LoginForm}
-{Logout}
+
 <!-- end log on area-->
 </TD>
 <TD ROWSPAN=1 COLSPAN=2 WIDTH="100%" HEIGHT=39 class="insidetable">&nbsp;</TD>

@@ -1,8 +1,8 @@
 <?php
 function clientLoginForm($output) {
-  $out.='';
+  $out='';
 	
-	$out. = '<table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable"><td  valign="top" align="center" >
+	$out.= '<table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable"><td  valign="top" align="center" >
 		
 			<table cellSpacing="1" cellPadding="5" align="center" bgColor="#cccccc" border="0" class="insidetable">
               		<tbody>

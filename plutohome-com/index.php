@@ -1,10 +1,33 @@
 <?php
 session_start('Pluto');
-
 require('include/config/config.inc.php');
 require('include/template.class.inc.php');
 require('include/masterusers.inc.php');
 require('include/utils.inc.php');
+
+if($_SERVER['HTTP_HOST']=='www.plutohome.com'){
+	header('Location: http://plutohome.com'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING']);
+}
+// autologin check: if cookie is set grab the user's data from database
+if ($_SESSION['userIsLogged']!="yes"){
+	//print_r($_COOKIE);
+	if(isset($_COOKIE['PlutoHomeAutoLogin'])){
+		parse_str(base64_decode($_COOKIE['PlutoHomeAutoLogin']));
+		$isMasterUsers=checkMasterUsers($username, $password,$checkMasterUserUrl,'&FirstAccount=&Email=&PlutoId=&Pin=');
+		if($isMasterUsers[0]){
+			parse_str($isMasterUsers[1]);
+			$_SESSION['userID'] = $MasterUsersID;
+			$_SESSION['PlutoId'] = $PlutoId;
+			$_SESSION['Pin'] = $Pin;
+			$_SESSION['username'] = $username;
+			$_SESSION['userIsLogged']="yes";
+			$_SESSION['categ']=$FirstAccount;
+			$_SESSION['Email']=$Email;
+			$_SESSION['extPassword']=$extPassword;
+		}
+	}
+}
+// end autologin check
 
 $section = @$_REQUEST['section'];
 
@@ -327,6 +350,12 @@ switch ($section) {
 		$output = new Template();
 		$output->setTemplateFileType('home');
 	    include_once('operations/get_pluto.php');
+	    get_pluto($output);
+    break;
+        case 'locator':
+		$output = new Template();
+		$output->setTemplateFileType('home');
+	    include_once('operations/locator.php');
 	    get_pluto($output);
     break;
         case 'dealer':

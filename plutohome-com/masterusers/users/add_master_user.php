@@ -5,7 +5,7 @@ function add_master_user($conn,$connPlutoVip,$connPlutoHome,$connphpBB,$connMant
 		$typeUser=$_POST['typeUser'];
 		$email=$_POST['email'];
 		$username=$_POST['username'];
-		$password=$_POST['password'];
+		$password=md5($_POST['password']);
 		$referrer=$_POST['referrer'];
 		
 		// check if the email isn't already used
@@ -57,15 +57,21 @@ function add_master_user($conn,$connPlutoVip,$connPlutoHome,$connphpBB,$connMant
 					$updateMasterUsers=mysql_query("UPDATE MasterUsers SET Sync_phpBB='1' WHERE PK_MasterUsers='$PK_MasterUsers'",$conn);
 				
 				// sync with Mantis
-				$insertMantis=mysql_query("INSERT INTO mantis_user_table (id, username, password, email,date_created,cookie_string)
-													VALUES	('$PK_MasterUsers','$username','$random_passwordMD5','$email','NOW()','$PK_MasterUsers')",$connMantis);
+				$insertMantis=mysql_query("INSERT INTO mantis_user_table (id, username, password, email,date_created,cookie_string,access_level)
+													VALUES	('$PK_MasterUsers','$username','$random_passwordMD5','$email','NOW()','$PK_MasterUsers','25')",$connMantis);
 				if($insertMantis && $insertExtPassword)
 					$updateMasterUsers=mysql_query("UPDATE MasterUsers SET Sync_Mantis='1' WHERE PK_MasterUsers='$PK_MasterUsers'",$conn);
 
 				
 				// sync with Main
-				$insertMain=mysql_query("INSERT INTO Users (PK_Users, Username, Password, samePasswordMasterUsers, ForwardEmail, FirstName, LastName, Nickname)
-													VALUES	('$PK_MasterUsers','$username','$password','1', '$email','$username','$username','$username')",$connMain) OR die('error: '.mysql_error($connMain));
+				// Unix,Samba password
+                $SambaPass = @exec("/usr/pluto/bin/smbpass.pl $_POST[password]", $output, $retcode);
+                if ($retcode != 0)
+                    $SambaPass=''; // we can't issue an error here, can we?
+                $LinuxSalt = '$1$Pluto$'; // should we generate this? :)
+                $LinuxPass = crypt($_POST['password'], $LinuxSalt);
+				$insertMain=mysql_query("INSERT INTO Users (PK_Users, Username, Password, samePasswordMasterUsers, ForwardEmail, FirstName, LastName, Nickname, Password_Unix, Password_Samba)
+													VALUES	('$PK_MasterUsers','$username','$password','1', '$email','$username','$username','$username','$LinuxPass','$SambaPass')",$connMain) OR die('error: '.mysql_error($connMain));
 				if($insertMain)
 					$updateMasterUsers=mysql_query("UPDATE MasterUsers SET Sync_Main='1' WHERE PK_MasterUsers='$PK_MasterUsers'",$conn);
 

@@ -24,7 +24,6 @@ function addtoMasterUsers($typeUser,$emailUser,$username,$referrer,$password,$ur
 {
 	$params = "typeUser=".$typeUser."&email=".$emailUser."&username=".$username ."&password=".$password."&referrer=".$referrer;
 	$result=queryExternalServer($params,$url);
-
 	if(ereg("MasterUsersID",$result)){
 		return array(true,$result);	// return true and PK_MasterUsers
 	}
@@ -48,7 +47,7 @@ function checkMasterUsers($username, $password,$url,$FieldsNames='')
 {
 	$params = "username=".$username."&password=".$password.$FieldsNames;
 	$MasterUsersResponse=queryExternalServer($params,$url);
-	
+
 	if(ereg("MasterUsersID",$MasterUsersResponse)){
 		return array(true,$MasterUsersResponse);	// return true and PK_MasterUsers
 	}
