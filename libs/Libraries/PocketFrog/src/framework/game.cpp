@@ -459,7 +459,7 @@ LRESULT Game::OnKillFocus( UINT msg, WPARAM wparam, LPARAM lparam, BOOL& bHandle
 LRESULT Game::OnPaint( UINT msg, WPARAM wparam, LPARAM lparam, BOOL& bHandled )
 {
     PAINTSTRUCT ps;
-    
+
     BeginPaint( &ps );
 	TryToUpdate();
     EndPaint( &ps );
