@@ -1,3 +1,16 @@
+/**
+ *
+ * @file A_UpdatedRow.cpp
+ * @brief source file for A_UpdatedRow class
+ *
+ */
+ 
+ /**
+  *
+  * Copyright:  See COPYING file that comes with this distribution
+  *
+  */
+  
 #include "A_UpdateRow.h"
 #include "PlutoUtils/CommonIncludes.h"
 #include "PlutoUtils/FileUtils.h"

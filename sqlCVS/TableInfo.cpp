@@ -1,39 +1,52 @@
+/**
+ *
+ * @file TableInfo.cpp
+ * @brief source file for the Table class
+ *
+ */
+ 
+ /**
+  *
+  * Copyright information goes here
+  *
+  */
+  
 #include "PlutoUtils/CommonIncludes.h"	
 #include "TableInfo.h"
 
-bool TableInfo::loadFromDB(string table)
+bool TableInfo::loadFromDB( string table )
 {
 	table_name = table;
 	
-	MYSQL_RES *res = mysql_list_fields(db, table_name.c_str(), NULL);
-	if (res != NULL)
+	MYSQL_RES *res = mysql_list_fields( db, table_name.c_str( ), NULL );
+	if ( res != NULL )
 	{		
-		int fields_count = mysql_num_fields(res);
+		int fields_count = mysql_num_fields( res );
 			
-		MYSQL_FIELD *mysql_fields = mysql_fetch_fields(res);
+		MYSQL_FIELD *mysql_fields = mysql_fetch_fields( res );
 			
-		for (int i=0; i<fields_count; i++)
-			fields.push_back(new Field(mysql_fields+i));
+		for ( int i=0; i<fields_count; i++ )
+			fields.push_back( new Field( mysql_fields+i ) );
 		
-		mysql_free_result(res);
+		mysql_free_result( res );
 		
-		return true;
+		return true;  /** The table was load successfully from database */
 	}
 	else
-		return false;
+		return false;	/** Failed to load table from database */
 	
 }
 
-bool TableInfo::HasPrimaryKeys()
+bool TableInfo::HasPrimaryKeys( )
 {
-	for (vector<Field*>::iterator i=fields.begin(); i!=fields.end(); i++)
-		if ((*i)->flags & PRI_KEY_FLAG)
-			return true;
+	for ( vector<Field*>::iterator i=fields.begin( ); i!=fields.end( ); i++ )
+		if ( ( *i )->flags & PRI_KEY_FLAG )
+			return true;	/** The table has primary keys */
 	
-	return false;
+	return false;	/** The table doesn't have primary keys */
 }
 
-string TableInfo::get_table_name()
+string TableInfo::get_table_name( )
 {
 	return table_name;
 }

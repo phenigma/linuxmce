@@ -1,37 +1,69 @@
+/**
+ *
+ * @file R_GetAll_psc_id.h
+ * @brief header file for the R_GetAll_psc_id class
+ * @author
+ *
+ */
+ 
 #ifndef R_GetAll_psc_id_H
 #define R_GetAll_psc_id_H
 
 #include "RA/RA_Request.h"
 #include "sqlCVSrequests.h"
 
+/**
+ * @brief  class modelling a GetAll_psc_id request
+ * @todo complete documentation
+ */
+ 
 class R_GetAll_psc_id : public RA_Request
 {
 public:
-	// Request Variables
+	/** @brief Request Variables */
 	string m_sTable;
 	int m_psc_id;
 
-	// Response Variables
+	/** @brief Response Variables */
 	vector<int> m_vectAll_psc_id;
 
-	R_GetAll_psc_id(string sTable,int psc_id);
-	R_GetAll_psc_id() {};
+	/** @brief constructor */
+	R_GetAll_psc_id( string sTable, int psc_id );
+	
+	/** @brief constructor */
+	R_GetAll_psc_id( ) {};
 
-	virtual unsigned long ID() { return R_GET_ALL_PSC_ID; }
+	/**
+	 * @brief Returns the id of @todo ask
+	 */
+	 
+	virtual unsigned long ID( ) { return R_GET_ALL_PSC_ID; }
 
-	virtual void SetupSerialization_Request()
+	/**
+	 * @brief Sets up the serialization request
+	 */
+	 	
+	virtual void SetupSerialization_Request( )
 	{
-		RA_Request::SetupSerialization_Request();
-		StartSerializeList() + m_sTable + m_psc_id;
+		RA_Request::SetupSerialization_Request( );
+		StartSerializeList( ) + m_sTable + m_psc_id;
 	}
 
-	virtual void SetupSerialization_Response()
+	/**
+	 * @brief Sets up the serialization response
+	 */
+	 	
+	virtual void SetupSerialization_Response( )
 	{
-		RA_Request::SetupSerialization_Response();
-		StartSerializeList() + m_vectAll_psc_id;
+		RA_Request::SetupSerialization_Response( );
+		StartSerializeList( ) + m_vectAll_psc_id;
 	}
 
-	virtual bool ProcessRequest(class RA_Processor *pRA_Processor);
+	/**
+	 * @brief This will say whether the request was processed successfully or not
+	 */
+	 	
+	virtual bool ProcessRequest( class RA_Processor *pRA_Processor );
 };
 
 

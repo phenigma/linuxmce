@@ -1,3 +1,11 @@
+/**
+ *
+ * @file Table.h
+ * @brief header file for the Table class
+ * @author
+ *
+ */
+ 
 #ifndef Table_h
 #define Table_h
 
@@ -17,89 +25,138 @@ class A_UpdateRow;
 
 namespace sqlCVS
 {
-	typedef map<string,class Table *> MapTable;
+	typedef map<string, class Table *> MapTable;
 	typedef list<class Table *> ListTable;
 
+	/**
+	 * @brief  brief description of the class
+	 * @todo complete the documentation
+	 */
+	 
 	class Table
 	{
 		friend class ChangedRow;
-		class Database *m_pDatabase;
+		class Database *m_pDatabase;  /**< m_pDatabase points to the database the table belongs to */
 
-		// We will put a list of all new rows here and all the rows dependent on this one, stored by the ID.  After we have added all the rows, and merged
-		// in all the modifications, then we will go through the map of dependencies (m_mapDependentRows) and see what has changed.  If we find a list of changes
-		// and it refers to a changed row that has not been committed, that is a fatal error.
+		/**
+		 * 
+		 * We will put a list of all new rows here and all the rows dependent on this one, stored by the ID. 
+		 * After we have added all the rows, and merged in all the modifications, then we will go through the map of dependencies 
+		 * ( m_mapDependentRows ) and see what has changed. 
+		 * If we find a list of changes and it refers to a changed row that has not been committed, that is a fatal error.
+		*/
+		
 		MapAutoIncrChanges m_mapAutoIncrChanges;
 
-		map<int,ListChangedRow *> m_mapUsers2ChangedRowList;
-		vector<int> m_vectRowsToDelete; // When we determine the deletions we made locally, we also determine the rows deleted on the server side.  Store them here so we don't need to request them twice in the event of an update + sync.
+		map<int, ListChangedRow *> m_mapUsers2ChangedRowList;
+		
+		/**
+		 * When we determine the deletions we made locally, we also determine the rows deleted on the server side. 
+		 * Store them here so we don't need to request them twice in the event of an update + sync.
+		 */
+		
+		vector<int> m_vectRowsToDelete; 
 
 		MapField m_mapField;
 		string m_sName;
 		class Repository *m_pRepository;
 		bool m_bIsSystemTable;
-		class Field *m_pField_id, *m_pField_batch, *m_pField_user, *m_pField_frozen, *m_pField_mod, *m_pField_AutoIncrement;
-		class Table *m_pTable_History,*m_pTable_WeAreHistoryFor;  // A pointer to our history table, if we have one, or the table we are logging history for if we're a history table
+		class Field *m_pField_id;
+		class Field *m_pField_batch;
+		class Field  *m_pField_user;
+		class Field  *m_pField_frozen;
+		class Field  *m_pField_mod;
+		class Field  *m_pField_AutoIncrement;
+		
+		class Table *m_pTable_History;		/**< A pointer to our history table, if we have one,   */
+		class Table *m_pTable_WeAreHistoryFor; 	/**<  or the table we are logging history for if we're a history table */
 		ListField m_listField_PrimaryKey;
-		string m_sFilter;  // If users are not able to retrieve the entire database, this will be a filter  <%=U%> will be replaced with the user ID
+		
+		/** If users are not able to retrieve the entire database, this will be a filter <%=U%> will be replaced with the user ID */
+		string m_sFilter; 
 
-		// For the server: Because we can't have 2 auto-increment fields, and the primary key may be one already, we'll have to manually keep track of this
+		/** For the server: 
+		 *  Because we can't have 2 auto-increment fields, and the primary key may be one already, 
+		 * we'll have to manually keep track of this 
+		 */
+		
 		int m_psc_id_next;
-		// For the client: Keep track of the last psc_id we sync'd so we can figure out what we deleted locally
-		int m_psc_id_last_sync,m_psc_batch_last_sync;
+		
+		/** For the client: Keep track of the last psc_id we sync'd so we can figure out what we deleted locally */
+		
+		int m_psc_id_last_sync, m_psc_batch_last_sync;
 
 	public:
-		Table(class Database *pDatabase,string sName);
-		~Table();
+		/** @brief constructor */
+		
+		Table( class Database *pDatabase, string sName );
+		
+		/** @brief destructor */
+		~Table( );
 
-		string GetTrailingString(string sName="");  // If the table is in the format some_text_something it returns 'something'--the text following the final _
-		string DefinesRepository();  // If this is one of the tables defining a repository (ie psc_RepositoryName_myfunction) it returns RepositoryName, otherwise empty string
-		void SetRepository(class Repository *pRepository,bool bIsSystemTable) { m_pRepository=pRepository; m_bIsSystemTable=bIsSystemTable; }
+		/** If the table is in the format some_text_something it returns 'something'--the text following the final _ */
+		
+		string GetTrailingString( string sName="" ); 
+		
+		 /** @brief 
+		  * If this is one of the tables defining a repository ( ie psc_RepositoryName_myfunction ) it returns RepositoryName, 
+		  * otherwise empty string 
+		  */
+		string DefinesRepository( );
+		void SetRepository( class Repository *pRepository, bool bIsSystemTable ) 
+		{ m_pRepository=pRepository; m_bIsSystemTable=bIsSystemTable; }
 
-		void GetFields();
-		void GetDependencies();
-		bool ConfirmDependencies();
-		bool ConfirmDependency(ChangedRow *pChangedRow,Field *pField_Referring,Field *pField_ReferredTo);
+		void GetFields( );
+		void GetDependencies( );
+		bool ConfirmDependencies( );
+		bool ConfirmDependency( ChangedRow *pChangedRow, Field *pField_Referring, Field *pField_ReferredTo );
 
-		void MatchUpHistory();
-		bool HasFullHistory_get() { return m_pTable_History!=NULL; }
-		void HasFullHistory_set(bool bOn);
+		void MatchUpHistory( );
+		bool HasFullHistory_get( ) { return m_pTable_History!=NULL; }
+		void HasFullHistory_set( bool bOn );
 
-		// This version is called by the server.  It finds all new rows and modified rows changed after the specified batch
-		// and adds an UpdateRow action for each change.  It does not need to send delete's because the client side
-		// will have already determined the deletes in DetermineDeletions
-		void GetChanges(R_UpdateTable *pR_UpdateTable);
+		/** @brief
+		 * This version is called by the server. It finds all new rows and modified rows changed after the specified batch
+		 * and adds an UpdateRow action for each change. It does not need to send delete's because the client side
+		 * will have already determined the deletes in DetermineDeletions
+		 */
+		 
+		void GetChanges( R_UpdateTable *pR_UpdateTable );
 
-		// This version is called by the client side to get all the changes and send them to the server
-		void GetChanges();
+		/** This version is called by the client side to get all the changes and send them to the server */
+		
+		void GetChanges( );
 
-		// Called by the client side to update itself with the server's changes
-		bool Update(RA_Processor &ra_Processor,DCE::Socket *pSocket);
+		/** Called by the client side to update itself with the server's changes */
+		bool Update( RA_Processor &ra_Processor, DCE::Socket *pSocket );
 
-		bool Dump(SerializeableStrings &str);
+		bool Dump( SerializeableStrings &str );
 
-		void AddChangedRow(ChangedRow *pChangedRow);
-		bool CheckIn(RA_Processor &ra_Processor,DCE::Socket *pSocket,enum TypeOfChange toc);
-		bool DetermineDeletions(RA_Processor &ra_Processor,string Connection,DCE::Socket **ppSocket);
-		void AddRow(R_CommitRow *pR_CommitRow,sqlCVSprocessor *psqlCVSprocessor);
-		void UpdateRow(R_CommitRow *pR_CommitRow,sqlCVSprocessor *psqlCVSprocessor);  // Server side update
-		void UpdateRow(A_UpdateRow *pA_UpdateRow,R_UpdateTable *pR_UpdateTable,sqlCVSprocessor *psqlCVSprocessor);  // Client side update
-		void AddToHistory(R_CommitRow *pR_CommitRow,sqlCVSprocessor *psqlCVSprocessor);
+		void AddChangedRow( ChangedRow *pChangedRow );
+		bool CheckIn( RA_Processor &ra_Processor, DCE::Socket *pSocket, enum TypeOfChange toc );
+		bool DetermineDeletions( RA_Processor &ra_Processor, string Connection, DCE::Socket **ppSocket );
+		void AddRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor );
+		void UpdateRow( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor ); /**< Server side update */
+		
+		void UpdateRow( A_UpdateRow *pA_UpdateRow, R_UpdateTable *pR_UpdateTable, sqlCVSprocessor *psqlCVSprocessor ); /**< Client side update */
+		void AddToHistory( R_CommitRow *pR_CommitRow, sqlCVSprocessor *psqlCVSprocessor );
 
-		void PropagateUpdatedField(Field *pField_Changed,string NewValue,string OldValue,ChangedRow *pChangedRow);
-		void PropagateUpdatedField(Field *pField_Changed,string NewValue,string OldValue,ChangedRow *pChangedRow,Field *pField_FK);
+		void PropagateUpdatedField( Field *pField_Changed, string NewValue, string OldValue, ChangedRow *pChangedRow );
+		void PropagateUpdatedField( Field *pField_Changed, string NewValue, string OldValue, ChangedRow *pChangedRow, Field *pField_FK );
 
-		bool TrackChanges_get() { return m_pField_id && m_pField_batch && m_pField_user && m_pField_frozen && m_pField_mod; }
-		void TrackChanges_set(bool bOn);
+		bool TrackChanges_get( ) { return m_pField_id && m_pField_batch && m_pField_user && m_pField_frozen && m_pField_mod; }
+		void TrackChanges_set( bool bOn );
 
-		void psc_id_last_sync_set(int psc_id_last_sync) { m_psc_id_last_sync=psc_id_last_sync; }
-		void psc_batch_last_sync_set(int psc_batch_last_sync) { m_psc_batch_last_sync=psc_batch_last_sync; }
-		bool bIsSystemTable_get() { return m_bIsSystemTable; }
+		void psc_id_last_sync_set( int psc_id_last_sync ) { m_psc_id_last_sync=psc_id_last_sync; }
+		void psc_batch_last_sync_set( int psc_batch_last_sync ) { m_psc_batch_last_sync=psc_batch_last_sync; }
+		bool bIsSystemTable_get( ) { return m_bIsSystemTable; }
 
-		class Field *m_mapField_Find(string sField) { MapField::iterator it = m_mapField.find(sField); return it==m_mapField.end() ? NULL : (*it).second; }
+		class Field *m_mapField_Find( string sField ) 
+		{ MapField::iterator it = m_mapField.find( sField ); return it==m_mapField.end( ) ? NULL : ( *it ).second; }
 
-		// Accessors
-		string Name_get() { return m_sName; }
-		class Repository *Repository_get() { return m_pRepository; }
+		/** @brief Accessors */
+		string Name_get( ) { return m_sName; }
+		class Repository *Repository_get( ) { return m_pRepository; }
 	};
 }
 

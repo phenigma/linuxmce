@@ -3,7 +3,6 @@
  * @file sqlCVSProcessor.h
  * @brief header file for the request processor class specific to the sqlCVS program
  * @author
- * @todo notcommented
  *
  */
 
@@ -24,12 +23,13 @@ namespace sqlCVS
 class sqlCVSprocessor : public RA_Processor
 {
 public:
-	sqlCVS::Table *m_pTable; // The table we are currently committing
-	vector<string> *m_pvectFields;
+	sqlCVS::Table *m_pTable;	/**< The table we are currently committing */
+	vector<string> *m_pvectFields;	/**< The fields of the table @todo ask */
 	int m_i_psc_batch;
-	sqlCVS::Repository *m_pRepository;  // The repository we're currently committing
+	sqlCVS::Repository *m_pRepository; /**< The repository we're currently committing */
 
-	sqlCVSprocessor() : RA_Processor(0,1) { m_pTable=NULL; m_pvectFields=NULL; m_i_psc_batch=1; m_pRepository=NULL; }
+	/** @brief constructor assigning null to all the pointers */
+	sqlCVSprocessor( ) : RA_Processor( 0, 1 ) { m_pTable=NULL; m_pvectFields=NULL; m_i_psc_batch=1; m_pRepository=NULL; }
 
 };
 

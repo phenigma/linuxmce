@@ -1,3 +1,16 @@
+/**
+ *
+ * @file R_UpdateRepository.cpp
+ * @brief source file for the R_UpdateRepository class
+ *
+ */
+ 
+ /**
+  *
+  * Copyright information goes here
+  *
+  */
+  
 #include "R_UpdateRepository.h"
 #include "PlutoUtils/CommonIncludes.h"
 #include "PlutoUtils/FileUtils.h"
@@ -13,15 +26,15 @@
 
 using namespace sqlCVS;
 
-R_UpdateRepository::R_UpdateRepository(string sRepository)
+R_UpdateRepository::R_UpdateRepository( string sRepository )
 {
 	m_sRepository=sRepository;
 }
 
-bool R_UpdateRepository::ProcessRequest(class RA_Processor *pRA_Processor)
+bool R_UpdateRepository::ProcessRequest( class RA_Processor *pRA_Processor )
 {
-	sqlCVSprocessor *psqlCVSprocessor = (sqlCVSprocessor *) pRA_Processor;
-	Repository *pRepository = g_GlobalConfig.m_pDatabase->m_mapRepository_Find(m_sRepository);
+	sqlCVSprocessor *psqlCVSprocessor = ( sqlCVSprocessor * ) pRA_Processor;
+	Repository *pRepository = g_GlobalConfig.m_pDatabase->m_mapRepository_Find( m_sRepository );
 	if( !pRepository )
 	{
 		cerr << "Cannot find repository: " << m_sRepository;
@@ -29,10 +42,10 @@ bool R_UpdateRepository::ProcessRequest(class RA_Processor *pRA_Processor)
 	}
 	else
 	{
-		// TODO - validate users, and store in request processors
+		/** @todo - validate users, and store in request processors */
 		psqlCVSprocessor->m_pRepository = pRepository;
-		psqlCVSprocessor->m_i_psc_batch = pRepository->CreateBatch();
-		m_cProcessOutcome=SUCCESSFULLY_PROCESSED; // Todo -- process it
+		psqlCVSprocessor->m_i_psc_batch = pRepository->CreateBatch( );
+		m_cProcessOutcome=SUCCESSFULLY_PROCESSED; /** @todo -- process it */
 	}
-	return true;
+	return true;   /** The request was processed successfully */
 }

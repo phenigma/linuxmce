@@ -1,3 +1,15 @@
+/**
+ * @file sqlCVS.cpp
+ * @ brief  the main class for the sqlCVS
+ *
+*/
+
+/**
+  *
+  * Copyright information goes here
+  *
+  */
+
 //#define C99_FORMAT_SPECIFIERS
 #include "PlutoUtils/CommonIncludes.h"	
 
@@ -55,27 +67,27 @@ namespace sqlCVS
 using namespace DCE;
 using namespace sqlCVS;
 
-string GetCommand()
+string GetCommand( )
 {
 	cout << "What would you like to do?" << endl
 		<< "In the future you can also make your selections on the command line using the command shown in parenthesis." << endl
 		<< "------Server-side functions------" << endl
-		<< "1.	Create a new sqlCVS repository from an existing database (create)" << endl
-		<< "2.	Edit an existing repository (edit)" << endl
-		<< "3.	Start listening for incoming connections from clients (listen)" << endl
-		<< "4.	Permanently roll-back checkins (rollback)" << endl
-		<< "5.	Create a 'dump' file with the tables in the current repository (dump)" << endl
+		<< "1.	Create a new sqlCVS repository from an existing database ( create )" << endl
+		<< "2.	Edit an existing repository ( edit )" << endl
+		<< "3.	Start listening for incoming connections from clients ( listen )" << endl
+		<< "4.	Permanently roll-back checkins ( rollback )" << endl
+		<< "5.	Create a 'dump' file with the tables in the current repository ( dump )" << endl
 		<< "------Client-side functions------" << endl
-		<< "A.	Import a 'dump' file from a server and make a local, working copy (import)" << endl
-		<< "B.	Check-in changes you've made locally (checkin)" << endl
-		<< "C.	Update my local copy with changes from the server (update)" << endl
-		<< "D.	Synchronize my database with the server.  Same as checkin+update (sync)" << endl
-		<< "E.	View my local changes (diff)" << endl
-		<< endl << "Q.  Quit" << endl;
+		<< "A.	Import a 'dump' file from a server and make a local, working copy ( import )" << endl
+		<< "B.	Check-in changes you've made locally ( checkin )" << endl
+		<< "C.	Update my local copy with changes from the server ( update )" << endl
+		<< "D.	Synchronize my database with the server. Same as checkin+update ( sync )" << endl
+		<< "E.	View my local changes ( diff )" << endl
+		<< endl << "Q. Quit" << endl;
 
-	char c=(char) getch();
+	char c=( char ) getch( );
 
-	switch(c)
+	switch( c )
 	{
 	case '1':
 		return "create";
@@ -105,30 +117,30 @@ string GetCommand()
 		return "diff";
 	case 'Q':
 	case 'q':
-		exit(1);
+		exit( 1 );
 	}
 	return "";
 }
 
-int main(int argc, char *argv[])
+int main( int argc, char *argv[] )
 {
-	bool bError=false; // An error parsing the command line
+	bool bError=false; /** An error parsing the command line */
 
 	string sUsers;
 
 	char c;
-	for(int optnum=1;optnum<argc;++optnum)
+	for( int optnum=1;optnum<argc;++optnum )
 	{
 		if( argv[optnum][0]!='-' )
 		{
 			g_GlobalConfig.m_sCommand = argv[optnum];
 			if( optnum<argc-1 )
-				bError=true;	// The command must be the last thing on the line
+				bError=true;	/** The command must be the last thing on the line */
 			break;
 		}
 
 		c=argv[optnum][1];
-		switch (c)
+		switch ( c )
 		{
 		case 'h':
 			g_GlobalConfig.m_sDBHost = argv[++optnum];
@@ -143,7 +155,7 @@ int main(int argc, char *argv[])
 			g_GlobalConfig.m_sDBName = argv[++optnum];
 			break;
 		case 'P':
-			g_GlobalConfig.m_iDBPort = atoi(argv[++optnum]);
+			g_GlobalConfig.m_iDBPort = atoi( argv[++optnum] );
 			break;
 		case 'r':
 			g_GlobalConfig.m_sRepository = argv[++optnum];
@@ -160,113 +172,113 @@ int main(int argc, char *argv[])
 		};
 	}
 
-	if ( bError)
+	if ( bError )
 	{
 		cout << "sqlCVS, v." << sqlCVS_VERSION << endl
-			<< "Usage: sqlCVS [-h hostname] [-u username] [-p password] [-D database] [-P mysql port] [-r Repository(-ies)] [-t Table(s)] [-U Users(s)]" << endl
-			<< "hostname    -- address or DNS of database host, default is `dce_router`" << endl
-			<< "username    -- username for database connection" << endl
-			<< "password    -- password for database connection, default is `` (empty)" << endl
-			<< "database    -- database name.  default is pluto_main" << endl
-			<< "port        -- port for database connection, default is 3306" << endl
-			<< "output path -- Where to put the output files.  Default is ../[database name]" << endl
-			<< "input path  -- Where to find the template files.  Default is . then ../sqlCVS" << endl;
+			<< "Usage: sqlCVS [-h hostname] [-u username] [-p password] [-D database] [-P mysql port] [-r Repository( -ies )] [-t Table( s )] [-U Users( s )]" << endl
+			<< "hostname  -- address or DNS of database host, default is `dce_router`" << endl
+			<< "username  -- username for database connection" << endl
+			<< "password  -- password for database connection, default is `` ( empty )" << endl
+			<< "database  -- database name. default is pluto_main" << endl
+			<< "port    -- port for database connection, default is 3306" << endl
+			<< "output path -- Where to put the output files. Default is ../[database name]" << endl
+			<< "input path -- Where to find the template files. Default is . then ../sqlCVS" << endl;
 
-		exit(0);
+		exit( 0 );
 	}
 
 	try
 	{
-		g_pPlutoLogger = new DCE::FileLogger(stdout);
-		if(g_pPlutoLogger == NULL)
+		g_pPlutoLogger = new DCE::FileLogger( stdout );
+		if( g_pPlutoLogger == NULL )
 		{
-			cerr << "Problem creating logger.  Check params." << endl;
-			exit(1);
+			cerr << "Problem creating logger. Check params." << endl;
+			exit( 1 );
 		}
 
 #ifdef WIN32
 		long err;
 		WSADATA wsaData;
-		err = WSAStartup(MAKEWORD( 1, 1 ),(LPWSADATA)  &wsaData);
+		err = WSAStartup( MAKEWORD( 1, 1 ), ( LPWSADATA ) &wsaData );
 #endif
-		Database database(g_GlobalConfig.m_sDBHost, g_GlobalConfig.m_sDBUser, g_GlobalConfig.m_sDBPassword, g_GlobalConfig.m_sDBName, g_GlobalConfig.m_iDBPort);
+		Database database( g_GlobalConfig.m_sDBHost, g_GlobalConfig.m_sDBUser, g_GlobalConfig.m_sDBPassword, g_GlobalConfig.m_sDBName, g_GlobalConfig.m_iDBPort );
 		g_GlobalConfig.m_pDatabase=&database;
 
-		// Fill the lists with any repositories or tables that were passed in on the command line
-		database.GetRepositoriesTables();
+		/** Fill the lists with any repositories or tables that were passed in on the command line */
+		database.GetRepositoriesTables( );
 
 		string::size_type pos=0;
 		string Token;
-		while( (Token=StringUtils::Tokenize(sUsers,",",pos)).length() )
+		while( ( Token=StringUtils::Tokenize( sUsers, ", ", pos ) ).length( ) )
 		{
-			string Password = StringUtils::Tokenize(sUsers,",",pos);
-			g_GlobalConfig.m_mapUsersPasswords[atoi(Token.c_str())]=Password;
+			string Password = StringUtils::Tokenize( sUsers, ", ", pos );
+			g_GlobalConfig.m_mapUsersPasswords[atoi( Token.c_str( ) )]=Password;
 		}
 
-		while( true ) // An endless loop processing commands
+		while( true ) /** An endless loop processing commands */
 		{
-			if( g_GlobalConfig.m_sCommand.length()==0 )
+			if( g_GlobalConfig.m_sCommand.length( )==0 )
 			{
-				g_GlobalConfig.m_sCommand=GetCommand();
+				g_GlobalConfig.m_sCommand=GetCommand( );
 				database.m_bInteractiveMode=true;
 			}
-			if( database.bIsInvalid() && g_GlobalConfig.m_sCommand!="import" )
+			if( database.bIsInvalid( ) && g_GlobalConfig.m_sCommand!="import" )
 			{
 				g_GlobalConfig.m_sCommand="";
-				cerr << "Database is invalid.  Import is the only available option" << endl;
+				cerr << "Database is invalid. Import is the only available option" << endl;
 				continue;
 			}
 			if( g_GlobalConfig.m_sCommand=="create" )
-				database.CreateRepository();
+				database.CreateRepository( );
 			else if( g_GlobalConfig.m_sCommand=="checkin" )
 			{
-				if( g_GlobalConfig.m_sRepository.length() )
-				{   
-					// If it was a valid repository, GetRepositoriesTables would have replaced it with a pointer to the repository in mapRepository
+				if( g_GlobalConfig.m_sRepository.length( ) )
+				{  
+					/** If it was a valid repository, GetRepositoriesTables would have replaced it with a pointer to the repository in mapRepository */
 					cerr << "Repository: " << g_GlobalConfig.m_sRepository << "is invalid";
 					throw "Bad Arguments";
 				}
-				database.CheckIn();
+				database.CheckIn( );
 			}
 			else if( g_GlobalConfig.m_sCommand=="update" )
 			{
-				if( g_GlobalConfig.m_sRepository.length() )
-				{   
-					// If it was a valid repository, GetRepositoriesTables would have replaced it with a pointer to the repository in mapRepository
+				if( g_GlobalConfig.m_sRepository.length( ) )
+				{  
+					/** If it was a valid repository, GetRepositoriesTables would have replaced it with a pointer to the repository in mapRepository */
 					cerr << "Repository: " << g_GlobalConfig.m_sRepository << "is invalid";
 					throw "Bad Arguments";
 				}
-				database.Update();
+				database.Update( );
 			}
 			else if( g_GlobalConfig.m_sCommand=="listen" )
 			{
-				RAServer *pServer = new RAServer();
-				pServer->Initialize();
-				pServer->StartListening(g_GlobalConfig.m_iSqlCVSPort);
-				pServer->Run();
+				RAServer *pServer = new RAServer( );
+				pServer->Initialize( );
+				pServer->StartListening( g_GlobalConfig.m_iSqlCVSPort );
+				pServer->Run( );
 				delete pServer;
 			}
 			else if( g_GlobalConfig.m_sCommand=="dump" )
 			{
-				if( g_GlobalConfig.m_sRepository.length() )
-				{   
-					// If it was a valid repository, GetRepositoriesTables would have replaced it with a pointer to the repository in mapRepository
+				if( g_GlobalConfig.m_sRepository.length( ) )
+				{  
+					/** If it was a valid repository, GetRepositoriesTables would have replaced it with a pointer to the repository in mapRepository */
 					cerr << "Repository: " << g_GlobalConfig.m_sRepository << "is invalid";
 					throw "Bad Arguments";
 				}
-				database.Dump();
+				database.Dump( );
 			}
 			else if( g_GlobalConfig.m_sCommand=="import" )
 			{
-				database.Import();
+				database.Import( );
 			}
-/*
+/** @test
 			else if( Command=="add-tables" )
 				database.AddTablesToRepository( sRepository, &listCommandParms );
 			else if( Command=="remove-tables" )
 				database.RemoveTablesFromRepository( sRepository, &listCommandParms );
 			else if( Command=="listen" )
-				rp.Listen(iListenPort, &database, sRepository);
+				rp.Listen( iListenPort, &database, sRepository );
 			else if( Command=="dump" )
 				database.DumpTables( sRepository, &listCommandParms );
 
@@ -274,14 +286,14 @@ int main(int argc, char *argv[])
 return 0;
 		};
 	}
-	catch(char *pException)
+	catch( char *pException )
 	{
 		cerr << "Caught exception: " << pException;
 	}
 
 	delete g_pPlutoLogger;
 #ifdef _WIN32
-		WSACleanup();
+		WSACleanup( );
 #endif
 	return 0;
 }

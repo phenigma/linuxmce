@@ -1,3 +1,11 @@
+/**
+ *
+ * @file Field.h
+ * @brief header file for the Field class
+ * @author
+ *
+ */
+ 
 #ifndef Field_h
 #define Field_h
 
@@ -10,13 +18,19 @@
 namespace sqlCVS
 {
 	class Field;
-	typedef map<string,Field *> MapField;
+	typedef map<string, Field *> MapField;
 	typedef list<Field *> ListField;
 
+	/**
+	 * @brief  class modelling the fields in the database
+	 */
+	 
 	class Field : public ::FieldInfo
 	{
 		friend class Table;
-		class Table *m_pTable;
+		class Table *m_pTable; /**< points to the table the field belongs to 
+					* @todo ask
+					*/
 
 		Field *m_pField_IReferTo_Directly;
 		ListField m_listField_IReferTo_Indirectly;
@@ -31,11 +45,17 @@ namespace sqlCVS
 		bool m_bIsAutoIncrement;
 
 	public:
-		Field(class Table *pTable, MYSQL_FIELD *pMYSQL_FIELD);
+		/**
+		 * @brief constructor
+		 */
+		Field( class Table *pTable, MYSQL_FIELD *pMYSQL_FIELD );
 
-		// Accessors
-		string Name_get() { return m_sName; }
-		class Table *Table_get() { return m_pTable; }
+		/**
+		 * @brief Accessors 
+		 */
+		 
+		string Name_get( ) { return m_sName; }
+		class Table *Table_get( ) { return m_pTable; }
 	};
 }
 

@@ -1,3 +1,16 @@
+/**
+ *
+ * @file ChangedRow.cpp
+ * @brief source file for the Dependency, DependetRow and ChangedRow classes
+ *
+ */
+ 
+ /**
+  *
+  * Copyright information goes here
+  *
+  */
+  
 #include "PlutoUtils/CommonIncludes.h"	
 #include "ChangedRow.h"	
 #include "Table.h"
@@ -9,7 +22,10 @@ using namespace sqlCVS;
 string ChangedRow::GetWhereClause()
 {
 	std::ostringstream sWhere;
-	// If it's not a new row, it will have m_psc_id assigned
+	/**
+	 * If it's not a new row, it will have m_psc_id assigned
+	 */
+	 
 	if( m_psc_id )
 		sWhere << " WHERE psc_id=" << m_psc_id;
 	else
