@@ -455,7 +455,7 @@ bool Security_Plugin::SensorTrippedEvent(class Socket *pSocket,class Message *pM
 	DeviceData_Router *pDevice = (DeviceData_Router *) pDeviceFrom;
 
 	PLUTO_SAFETY_LOCK(sm,m_SecurityMutex);
-	if( !pDevice || pDevice->m_dwPK_DeviceCategory!=DEVICECATEGORY_Security_Device_CONST )
+	if( !pDevice || (pDevice->m_dwPK_DeviceCategory!=DEVICECATEGORY_Security_Device_CONST && pDevice->m_dwPK_DeviceCategory!=DEVICECATEGORY_Generic_IO_CONST) )
 	{
 		g_pPlutoLogger->Write(LV_WARNING,"Receieved a sensor trip from an unrecognized device: %d",pMessage->m_dwPK_Device_From);
 		return false;

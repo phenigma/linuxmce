@@ -2041,12 +2041,30 @@ void Router::AlarmCallback(int id, void* param)
 
 int Router::GetDeviceID( int iPK_DeviceTemplate, string sIPorMacAddress )
 {
+g_pPlutoLogger->Write(LV_STATUS,"Looking for device with temp: %d %s",iPK_DeviceTemplate,sIPorMacAddress.c_str());
 	ListDeviceData_Router *pListDeviceData_Router = m_mapDeviceByTemplate_Find(iPK_DeviceTemplate);
-	for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
+	if( pListDeviceData_Router )
 	{
-		DeviceData_Router *pDevice = *it;
-		if( pDevice->m_sIPAddress==sIPorMacAddress || pDevice->m_sMacAddress==sIPorMacAddress )
-			return pDevice->m_dwPK_Device;
+		for(ListDeviceData_Router::iterator it=pListDeviceData_Router->begin();it!=pListDeviceData_Router->end();++it)
+		{
+			DeviceData_Router *pDevice = *it;
+			if( pDevice->m_sIPAddress==sIPorMacAddress || pDevice->m_sMacAddress==sIPorMacAddress )
+				return pDevice->m_dwPK_Device;
+		}
+		return 0;
+	}
+	// We'll have to search based on IP or Mac Address
+	if( sIPorMacAddress.length()==0 )
+		return 0;
+
+	vector<Row_Device *> vectRow_Device;
+	string sWhere="FK_Installation=" + StringUtils::itos(m_dwPK_Installation) + " AND (IPaddress='" + StringUtils::SQLEscape(sIPorMacAddress) + "' OR MACaddress='" + StringUtils::SQLEscape(sIPorMacAddress) + "')";
+	m_pDatabase_pluto_main->Device_get()->GetRows(sWhere,&vectRow_Device);
+g_pPlutoLogger->Write(LV_STATUS,"Where rows: %d: %s",(int) vectRow_Device.size(), sWhere.c_str());
+	if( vectRow_Device.size()==1 )
+	{
+g_pPlutoLogger->Write(LV_STATUS,"It's device %d",vectRow_Device[0]->PK_Device_get());
+		return vectRow_Device[0]->PK_Device_get();
 	}
 	return 0;
 }
