@@ -122,6 +122,8 @@
 	// PK_DeviceData from table DeviceData
 	$GLOBALS['FloorplanInfo']=10;				// FloorplanInfo (coordinates)
 	$GLOBALS['FloorplanObjectType']=11;			// FloorplanObjectType
+	$GLOBALS['DHCPDeviceData']=28;				// DHCP
+	$GLOBALS['NetworkInterfaces']=32;			// Network Interfaces
 	$GLOBALS['securityAlert']=33;				// Alert 
 	$GLOBALS['MobileOrbiterNotification']=34;	// Mobile Orbiter Notification
 	$GLOBALS['OtherPhoneNotifications']=35;		// Other Phone Notifications 

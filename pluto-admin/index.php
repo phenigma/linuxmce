@@ -760,6 +760,18 @@ switch ($section) {
 	    include_once('operations/myScenarios/telecomScenarios.php');
 	    telecomScenarios($output,$dbADO);
 	break;
+	case 'networkSettings';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/network/networkSettings.php');
+	    networkSettings($output,$dbADO);
+	break;
+	case 'firewall';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/network/firewall.php');
+	    firewall($output,$dbADO);
+	break;
 
 	
 	case '';

@@ -1,0 +1,254 @@
+<?
+function networkSettings($output,$dbADO) {
+	/* @var $dbADO ADOConnection */
+	/* @var $rs ADORecordSet */
+//	$dbADO->debug=true;
+	$out='';
+	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
+	$installationID = (int)@$_SESSION['installationID'];
+
+	$queryDevice='
+		SELECT Device.*
+			FROM Device
+		INNER JOIN DeviceTemplate ON 
+			FK_DeviceTemplate=PK_DeviceTemplate
+		WHERE FK_DeviceCategory=? AND Device.FK_Installation=?
+		';
+	$resDevice=$dbADO->Execute($queryDevice,array($GLOBALS['rootCoreID'],$installationID));
+	if($resDevice->RecordCount()!=0){
+		$rowDevice=$resDevice->FetchRow();
+		$coreID=$rowDevice['PK_Device'];
+	}
+	
+	$queryDHCP='SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?';
+	$resDHCP=$dbADO->Execute($queryDHCP,array($coreID,$GLOBALS['DHCPDeviceData']));
+	$enableDHCP=($resDHCP->RecordCount()>0)?1:0;
+	$rowDHCP=$resDHCP->FetchRow();
+	if(ereg(',',$rowDHCP['IK_DeviceData'])){
+		$nonPlutoIP=1;
+		$ipArray=explode(',',$rowDHCP['IK_DeviceData']);
+		$coreDHCPArray=explode('.',str_replace('-','.',$ipArray[0]));
+		$nonPlutoIPArray=explode('.',str_replace('-','.',$ipArray[1]));
+	}else{
+		$coreDHCPArray=explode('.',str_replace('-','.',$rowDHCP['IK_DeviceData']));
+	}
+
+	$queryNC='SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?';
+	$resNC=$dbADO->Execute($queryNC,array($coreID,$GLOBALS['NetworkInterfaces']));
+	if($resNC->RecordCount()>0){
+		$rowNC=$resNC->FetchRow();
+		$interfacesArray=explode('|',$rowNC['IK_DeviceData']);
+		$externalInterfaceArray=explode(',',$interfacesArray[0]);
+		if($externalInterfaceArray[1]!='dhcp'){
+			$coreIPArray=explode('.',$externalInterfaceArray[1]);
+			$coreNetMaskArray=explode('.',$externalInterfaceArray[2]);
+			$coreGWArray=explode('.',$externalInterfaceArray[3]);
+			$coreDNS1Array=explode('.',$externalInterfaceArray[4]);
+			$coreDNS2Array=explode('.',$externalInterfaceArray[5]);
+		}
+		$internalInterfaceArray=explode(',',$interfacesArray[1]);
+		$internalCoreIPArray=explode('.',$internalInterfaceArray[1]);
+		$internalCoreNetMaskArray=explode('.',$internalInterfaceArray[2]);
+	}	
+
+	if ($action == 'form') {
+		$out.='
+	<script>
+	function ipFromDHCP()
+	{
+		if(document.networkSettings.ipForAnonymousDevices.checked){
+			document.networkSettings.ipFrom[0].disabled=true;
+			document.networkSettings.ipFrom[1].checked=true;
+		}else{
+			document.networkSettings.ipFrom[0].disabled=false;
+			document.networkSettings.nonPlutoIP_1.value="";
+			document.networkSettings.nonPlutoIP_2.value="";
+			document.networkSettings.nonPlutoIP_3.value="";
+			document.networkSettings.nonPlutoIP_4.value="";
+		}
+		
+	}
+
+	function validateElement(elementNameArray,errorMsg)
+	{
+		for(i=0;i<elementNameArray.length;i++){
+			tmp=eval(\'document.networkSettings.\'+elementNameArray[i]+\'.value==""\');
+			if(tmp){
+				eval(\'document.networkSettings.\'+elementNameArray[i]+\'.focus()\');
+				alert(errorMsg);
+				return false;
+			}
+		}
+		return true;
+	}
+			
+	function validateForm()
+	{
+		if(document.networkSettings.ipFrom[1].checked ){
+			validIP=validateElement(new Array("coreIP_1","coreIP_2","coreIP_3","coreIP_4"),"Please enter Core\'s IP address.");
+			if(validIP)
+				validNetMask=validateElement(new Array("coreNetMask_1","coreNetMask_2","coreNetMask_3","coreNetMask_4"),"Please enter Subnet Mask address.");
+			if(validNetMask)
+				validGW=validateElement(new Array("coreGW_1","coreGW_2","coreGW_3","coreGW_4"),"Please enter Gateway address.");
+			if(validGW)
+				validDNS1=validateElement(new Array("coreDNS1_1","coreDNS1_2","coreDNS1_3","coreDNS1_4"),"Please enter first DNS address.");
+			if(validDNS1)
+				validDNS2=validateElement(new Array("coreDNS2_1","coreDNS2_2","coreDNS2_3","coreDNS2_4"),"Please enter second DNS address.");
+			if(validDNS2)
+				document.networkSettings.submit();
+		}else
+			document.networkSettings.submit();
+	}
+	</script>
+	<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').(($resNC->RecordCount()==0)?' No record in Device_DeviceData for Network Interfaces.':'').'</div>
+	<form action="index.php" method="POST" name="networkSettings">
+	<input type="hidden" name="section" value="networkSettings">
+	<input type="hidden" name="action" value="add">
+	<div align="center"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg']):'').'</B></div>
+	<table border="0">
+		<tr>
+			<td colspan="3" align="center" bgcolor="#EEEEEE"><b>Network Settings</b></td>
+		</tr>
+		<tr>
+			<td colspan="3"><p>Your core has the following network adapters:<br><B>1. External network card '.@$externalInterfaceArray[0].'</B> </td>
+		<tr>
+		<tr>
+			<td width="20"><input type="checkbox" name="enableDHCP" value="1" '.(($enableDHCP==1)?'checked':'').'></td>
+			<td align="left" colspan="2">Enable DHCP server</td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td colspan="2">Range of IP addresses for Pluto devices: <input type="text" maxlength="3" name="coreDHCP_1" size="3" value="'.@$coreDHCPArray[0].'">.<input type="text" maxlength="3" name="coreDHCP_2" size="3" value="'.@$coreDHCPArray[1].'">.<input type="text" maxlength="3" name="coreDHCP_3" size="3" value="'.@$coreDHCPArray[2].'">.<input type="text" maxlength="3" name="coreDHCP_4" size="3" value="'.@$coreDHCPArray[3].'"> - <input type="text" maxlength="3" name="coreDHCP_5" size="3" value="'.@$coreDHCPArray[4].'">.<input type="text" maxlength="3" name="coreDHCP_6" size="3" value="'.@$coreDHCPArray[5].'">.<input type="text" maxlength="3" name="coreDHCP_7" size="3" value="'.@$coreDHCPArray[6].'">.<input type="text" maxlength="3" name="coreDHCP_8" size="3" value="'.@$coreDHCPArray[7].'"></td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td colspan="2"><input type="checkbox" name="ipForAnonymousDevices" value="1" '.((@$nonPlutoIP==1)?'checked':'').' onClick="ipFromDHCP()"> Provide IP addresses for anonymous devices not in Pluto’s database.</td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Range of IP addresses for non-Pluto devices: <input type="text" maxlength="3" name="nonPlutoIP_1" size="3" value="'.@$nonPlutoIPArray[0].'">.<input type="text" maxlength="3" name="nonPlutoIP_2" size="3" value="'.@$nonPlutoIPArray[1].'">.<input type="text" maxlength="3" name="nonPlutoIP_3" size="3" value="'.@$nonPlutoIPArray[2].'">.<input type="text" maxlength="3" name="nonPlutoIP_4" size="3" value="'.@$nonPlutoIPArray[3].'"> - <input type="text" maxlength="3" name="nonPlutoIP_5" size="3" value="'.@$nonPlutoIPArray[4].'">.<input type="text" maxlength="3" name="nonPlutoIP_6" size="3" value="'.@$nonPlutoIPArray[5].'">.<input type="text" maxlength="3" name="nonPlutoIP_7" size="3" value="'.@$nonPlutoIPArray[6].'">.<input type="text" maxlength="3" name="nonPlutoIP_8" size="3" value="'.@$nonPlutoIPArray[7].'"></td>
+		</tr>
+		<tr>
+			<td colspan="3"><input type="radio" name="ipFrom" value="DHCP" '.((@$externalInterfaceArray[1]=='dhcp'?'checked':'')).' '.((@$nonPlutoIP==1)?'disabled':'').'> Obtain an IP address from DHCP</td>
+		</tr>
+		<tr>
+			<td colspan="3"><input type="radio" name="ipFrom" value="static"> Use a static IP address</td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td width="150">Core’s IP address:</td>
+			<td><input type="text" maxlength="3" name="coreIP_1" size="3" value="'.@$coreIPArray[0].'">.<input type="text" maxlength="3" name="coreIP_2" size="3" value="'.@$coreIPArray[1].'">.<input type="text" maxlength="3" name="coreIP_3" size="3" value="'.@$coreIPArray[2].'">.<input type="text" maxlength="3" name="coreIP_4" size="3" value="'.@$coreIPArray[3].'"></td>
+		</tr>						
+		<tr>
+			<td>&nbsp;</td>
+			<td>Subnet mask:</td>
+			<td><input type="text" maxlength="3" name="coreNetMask_1" size="3" value="'.@$coreNetMaskArray[0].'">.<input type="text" maxlength="3" name="coreNetMask_2" size="3" value="'.@$coreNetMaskArray[1].'">.<input type="text" maxlength="3" name="coreNetMask_3" size="3" value="'.@$coreNetMaskArray[2].'">.<input type="text" maxlength="3" name="coreNetMask_4" size="3" value="'.@$coreNetMaskArray[3].'"></td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td>Gateway:</td>
+			<td><input type="text" maxlength="3" name="coreGW_1" size="3" value="'.@$coreGWArray[0].'">.<input type="text" maxlength="3" name="coreGW_2" size="3" value="'.@$coreGWArray[1].'">.<input type="text" maxlength="3" name="coreGW_3" size="3" value="'.@$coreGWArray[2].'">.<input type="text" maxlength="3" name="coreGW_4" size="3" value="'.@$coreGWArray[3].'"></td>
+		</tr>		
+		<tr>
+			<td>&nbsp;</td>
+			<td>Nameserver (DNS) #1:</td>
+			<td><input type="text" maxlength="3" name="coreDNS1_1" size="3" value="'.@$coreDNS1Array[0].'">.<input type="text" maxlength="3" name="coreDNS1_2" size="3" value="'.@$coreDNS1Array[1].'">.<input type="text" maxlength="3" name="coreDNS1_3" size="3" value="'.@$coreDNS1Array[2].'">.<input type="text" maxlength="3" name="coreDNS1_4" size="3" value="'.@$coreDNS1Array[3].'"></td>
+		</tr>		
+		<tr>
+			<td>&nbsp;</td>
+			<td>Nameserver (DNS) #2:</td>
+			<td><input type="text" maxlength="3" name="coreDNS2_1" size="3" value="'.@$coreDNS2Array[0].'">.<input type="text" maxlength="3" name="coreDNS2_2" size="3" value="'.@$coreDNS2Array[1].'">.<input type="text" maxlength="3" name="coreDNS2_3" size="3" value="'.@$coreDNS2Array[2].'">.<input type="text" maxlength="3" name="coreDNS2_4" size="3" value="'.@$coreDNS2Array[3].'"></td>
+		</tr>		
+		<tr>
+			<td colspan="3"><B>2. Internal network card '.@$internalInterfaceArray[0].'</B> </td>
+		<tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td width="150">IP address:</td>
+			<td><input type="text" maxlength="3" name="internalCoreIP_1" size="3" value="'.@$internalCoreIPArray[0].'">.<input type="text" maxlength="3" name="internalCoreIP_2" size="3" value="'.@$internalCoreIPArray[1].'">.<input type="text" maxlength="3" name="internalCoreIP_3" size="3" value="'.@$internalCoreIPArray[2].'">.<input type="text" maxlength="3" name="internalCoreIP_4" size="3" value="'.@$internalCoreIPArray[3].'"></td>
+		</tr>						
+		<tr>
+			<td>&nbsp;</td>
+			<td>Subnet mask:</td>
+			<td><input type="text" maxlength="3" name="internalCoreNetMask_1" size="3" value="'.@$internalCoreNetMaskArray[0].'">.<input type="text" maxlength="3" name="internalCoreNetMask_2" size="3" value="'.@$internalCoreNetMaskArray[1].'">.<input type="text" maxlength="3" name="internalCoreNetMask_3" size="3" value="'.@$internalCoreNetMaskArray[2].'">.<input type="text" maxlength="3" name="internalCoreNetMask_4" size="3" value="'.@$internalCoreNetMaskArray[3].'"></td>
+		</tr>
+		<tr>
+			<td colspan="3" align="center" bgcolor="#EEEEEE"><input type="button" name="update" value="Update" onClick="validateForm()"></td>
+		</tr>		
+	</table>
+	You may need to open up ports in the firewall for some programs that run on your internal computers, like video conferencing, file sharing, etc.  To do this, visit the Advanced, <a href="index.php?section=firewall">Firewall</a> page.		
+	</form>
+		<script>
+		 	var frmvalidator = new formValidator("networkSettings");
+ 			frmvalidator.addValidation("internalCoreIP_1","req","Please enter an IP address.");
+			frmvalidator.addValidation("internalCoreIP_2","req","Please enter an IP address.");			
+			frmvalidator.addValidation("internalCoreIP_3","req","Please enter an IP address.");
+			frmvalidator.addValidation("internalCoreIP_4","req","Please enter an IP address.");
+			frmvalidator.addValidation("internalCoreNetMask_1","req","Please enter the subnet mask.");
+			frmvalidator.addValidation("internalCoreNetMask_2","req","Please enter the subnet mask.");
+			frmvalidator.addValidation("internalCoreNetMask_3","req","Please enter the subnet mask.");
+			frmvalidator.addValidation("internalCoreNetMask_4","req","Please enter the subnet mask.");
+		</script>
+	';
+	} else {
+		// check if the user has the right to modify installation
+		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);
+		if (!$canModifyInstallation){
+			header("Location: index.php?section=networkSettings&error=You are not authorised to change the installation.");
+			exit(0);
+		}
+		$newEnableDHCP=(isset($_POST['enableDHCP']))?1:0;
+		$coreDHCP=getIpFromParts('coreDHCP_',1).'-'.getIpFromParts('coreDHCP_',5);
+
+		$ipForAnonymousDevices=isset($_POST['ipForAnonymousDevices'])?1:0;
+		if($ipForAnonymousDevices==1){
+			$coreDHCP.=','.getIpFromParts('nonPlutoIP_').'-'.getIpFromParts('nonPlutoIP_',5);
+		}
+
+		if($enableDHCP==0){
+			if($newEnableDHCP==1){
+				$insertDDD='INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData, IK_DeviceData) VALUES (?,?,?)';
+				$dbADO->Execute($insertDDD,array($coreID,$GLOBALS['DHCPDeviceData'],$coreDHCP));
+			}
+		}elseif($newEnableDHCP==1){
+			if($coreDHCP!=$rowDHCP['IK_DeviceData']){
+				$updateDDD='UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?';
+				$dbADO->Execute($updateDDD,array($coreDHCP,$coreID,$GLOBALS['DHCPDeviceData']));
+			}
+		}
+		else{
+			$deleteDDD='DELETE FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?';
+			$dbADO->Execute($deleteDDD,array($coreID,$GLOBALS['DHCPDeviceData']));
+		}
+
+		if($resNC->RecordCount()>0){
+			$networkInterfaces=$externalInterfaceArray[0];
+			if($_POST['ipFrom']=='DHCP'){
+				$networkInterfaces.=',dhcp';
+			}else{
+				$networkInterfaces.=','.getIpFromParts('coreIP_').','.getIpFromParts('coreNetMask_').','.getIpFromParts('coreGW_').','.getIpFromParts('coreDNS1_').','.getIpFromParts('coreDNS2_');
+			}
+			$networkInterfaces.='|'.$internalInterfaceArray[0].','.getIpFromParts('internalCoreIP_').','.getIpFromParts('internalCoreNetMask_');
+			if($networkInterfaces!=$rowNC['IK_DeviceData']){
+				$updateDDD='UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?';
+				$dbADO->Execute($updateDDD,array($networkInterfaces,$coreID,$GLOBALS['NetworkInterfaces']));
+			}
+		}
+
+		header("Location: index.php?section=networkSettings&msg=Network settings updated.");
+	}
+	$output->setScriptCalendar('null');
+
+	$output->setBody($out);
+	$output->setTitle(APPLICATION_NAME.' :: Network Settings');
+	$output->output();
+}
+
+function getIpFromParts($partName,$startIndex=1)
+{
+	$ipArray=array();
+	for($i=$startIndex;$i<($startIndex+4);$i++)
+		$ipArray[]=$_POST[$partName.$i];
+	return join('.',$ipArray);
+}
+?>
