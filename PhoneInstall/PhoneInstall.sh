@@ -17,25 +17,6 @@ if [ ! -f "$SIS" -o ! -r "$SIS" ]; then
 	exit
 fi
 
-rfcomm="# RFCOMM configuration file.
-#
-# $Id: PhoneInstall.sh,v 1.1 2004/10/18 08:00:15 radu Exp $
-#
+#/usr/pluto/bin/ussp-push /dev/rfcomm0 "$SIS" PlutoMO.sis
 
-rfcomm0 {
-    # bluetooth address of the device
-    device $MAC;
-
-    # RFCOMM channel for the connection
-    channel 9;
-
-    # Description of the connection
-    comment \"Nokia 3650 OBEX push\";
-}"
-
-echo "$rfcomm" >/etc/bluetooth/rfcomm.conf
-/etc/init.d/bluez-utils restart
-rfcomm bind /dev/rfcomm0 "$MAC" 9 &&
-rfcomm connect rfcomm0 "$MAC" &&
-/usr/pluto/bin/ussp-push /dev/rfcomm0 "$SIS" PlutoMO.sis
-
+(echo "c"; echo "p"; echo "$SIS PlutoMO.sis"; echo "q") | obex_test -b $MAC 9 1>/dev/null
