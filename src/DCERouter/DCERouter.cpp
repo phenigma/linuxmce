@@ -652,16 +652,16 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 
 	PLUTO_SAFETY_LOCK(im,m_InterceptorMutex);  // Protect the interceptor map
 
-    list<class MessageInterceptorCallBack *>::iterator itInterceptors;
+	// Make a copy of the interceptors that we need to call since calling them may loop back into this function on another thread, so we can't use a recursive mutex
+	// but we still need to protect the map in case other devices register interceptors
+	list<class MessageInterceptorCallBack *> listMessageInterceptor;
+
+	list<class MessageInterceptorCallBack *>::iterator itInterceptors;
     for(itInterceptors=m_listMessageInterceptor_Global.begin();
         itInterceptors!=m_listMessageInterceptor_Global.end();++itInterceptors)
     {
         class MessageInterceptorCallBack *pMessageInterceptorCallBack = (*itInterceptors);
-
-        class Command_Impl *pPlugIn = pMessageInterceptorCallBack->m_pPlugIn;
-        MessageInterceptorFn pMessageInterceptorFn = pMessageInterceptorCallBack->m_pMessageInterceptorFn;
-
-        CALL_MEMBER_FN(*pPlugIn,pMessageInterceptorFn) (pSocket, pMessageWillBeDeleted, pDeviceFrom, pDeviceTo);
+		listMessageInterceptor.push_back(pMessageInterceptorCallBack);
     }
 
     // See if we have a handler for this type of message
@@ -669,17 +669,37 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
     if( itMessageType!=m_mapMessageTypeInterceptor.end() )
     {
         class MessageTypeInterceptor *pMessageTypeInterceptors = (*itMessageType).second;
-        CheckInterceptor(pMessageTypeInterceptors,pSocket,pMessageWillBeDeleted,pDeviceFrom,pDeviceTo);
+        CheckInterceptor(pMessageTypeInterceptors,pSocket,pMessageWillBeDeleted,pDeviceFrom,pDeviceTo,listMessageInterceptor);
     }
 
-	im.Release();
-
-    // Check against all the Interceptors that didn't specify a message type
+	// Check against all the Interceptors that didn't specify a message type
     itMessageType = m_mapMessageTypeInterceptor.find(0);
     if( itMessageType!=m_mapMessageTypeInterceptor.end() )
     {
         class MessageTypeInterceptor *pMessageTypeInterceptors = (*itMessageType).second;
-        CheckInterceptor(pMessageTypeInterceptors,pSocket,pMessageWillBeDeleted,pDeviceFrom,pDeviceTo);
+        CheckInterceptor(pMessageTypeInterceptors,pSocket,pMessageWillBeDeleted,pDeviceFrom,pDeviceTo,listMessageInterceptor);
+    }
+
+	im.Release();
+
+    for(itInterceptors=listMessageInterceptor.begin();
+        itInterceptors!=listMessageInterceptor.end();++itInterceptors)
+    {
+        class MessageInterceptorCallBack *pMessageInterceptorCallBack = (*itInterceptors);
+
+        class Command_Impl *pPlugIn = pMessageInterceptorCallBack->m_pPlugIn;
+        MessageInterceptorFn pMessageInterceptorFn = pMessageInterceptorCallBack->m_pMessageInterceptorFn;
+
+        if( pMessageInterceptorFn )  // It's a plug-in
+            CALL_MEMBER_FN(*pPlugIn,pMessageInterceptorFn) (pSocket, pMessageWillBeDeleted, pDeviceFrom, pDeviceTo);
+        else
+        {
+            Message *pMessageOriginator = new Message(pMessageWillBeDeleted);
+            Message *pMessageInterceptor = new Message(0,pMessageInterceptorCallBack->m_dwPK_Device,PRIORITY_NORMAL,
+                MESSAGETYPE_MESSAGE_INTERCEPTED,pMessageInterceptorCallBack->m_dwID,0);
+            pMessageInterceptor->m_vectExtraMessages.push_back( pMessageOriginator );
+            ReceivedMessage(NULL,pMessageInterceptor);
+        }
     }
 
 	for(int s=-1;s<(int) (*SafetyMessage)->m_vectExtraMessages.size(); ++s)

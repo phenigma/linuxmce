@@ -358,24 +358,24 @@ int k;
         }
 
         // Helper functions for message interceptors, declared inline for performance
-        void CheckInterceptor(class MessageTypeInterceptor *pMessageTypeInterceptor,class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo)
+        void CheckInterceptor(class MessageTypeInterceptor *pMessageTypeInterceptor,class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo,list<class MessageInterceptorCallBack *> &listMessageInterceptor)
         {
             map<int,class MessageIDInterceptor *>::iterator itMessageID = pMessageTypeInterceptor->m_mapMessageIDInterceptor.find(pMessage->m_dwID);
             if( itMessageID != pMessageTypeInterceptor->m_mapMessageIDInterceptor.end() )
             {
-                CheckInterceptor( (*itMessageID).second, pSocket, pMessage, pDeviceFrom, pDeviceTo );
+                CheckInterceptor( (*itMessageID).second, pSocket, pMessage, pDeviceFrom, pDeviceTo,listMessageInterceptor );
             }
             if( pMessage->m_dwID )
             {
                 itMessageID = pMessageTypeInterceptor->m_mapMessageIDInterceptor.find(0);
                 if( itMessageID != pMessageTypeInterceptor->m_mapMessageIDInterceptor.end() )
                 {
-                    CheckInterceptor( (*itMessageID).second, pSocket, pMessage, pDeviceFrom, pDeviceTo );
+                    CheckInterceptor( (*itMessageID).second, pSocket, pMessage, pDeviceFrom, pDeviceTo,listMessageInterceptor );
                 }
             }
         }
 
-        void CheckInterceptor(class MessageIDInterceptor *pMessageIDInterceptor,class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo)
+        void CheckInterceptor(class MessageIDInterceptor *pMessageIDInterceptor,class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo,list<class MessageInterceptorCallBack *> &listMessageInterceptor)
         {
             map<int,class MessageMDLInterceptor *>::iterator itMessageMDL;
             if( pDeviceFrom )
@@ -383,7 +383,7 @@ int k;
                 itMessageMDL = pMessageIDInterceptor->m_mapMessageMDLInterceptor.find(pDeviceFrom->m_dwPK_DeviceTemplate);
                 if( itMessageMDL != pMessageIDInterceptor->m_mapMessageMDLInterceptor.end() )
                 {
-                    CheckInterceptor( (*itMessageMDL).second, pSocket, pMessage, pDeviceFrom, pDeviceTo );
+                    CheckInterceptor( (*itMessageMDL).second, pSocket, pMessage, pDeviceFrom, pDeviceTo,listMessageInterceptor );
                 }
             }
             if( !pDeviceFrom || pDeviceFrom->m_dwPK_DeviceTemplate!=0 )
@@ -391,17 +391,17 @@ int k;
                 itMessageMDL = pMessageIDInterceptor->m_mapMessageMDLInterceptor.find(0);
                 if( itMessageMDL != pMessageIDInterceptor->m_mapMessageMDLInterceptor.end() )
                 {
-                    CheckInterceptor( (*itMessageMDL).second, pSocket, pMessage, pDeviceFrom, pDeviceTo );
+                    CheckInterceptor( (*itMessageMDL).second, pSocket, pMessage, pDeviceFrom, pDeviceTo,listMessageInterceptor );
                 }
             }
         }
 
-        void CheckInterceptor(class MessageMDLInterceptor *pMessageMDLInterceptor,class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo)
+        void CheckInterceptor(class MessageMDLInterceptor *pMessageMDLInterceptor,class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo,list<class MessageInterceptorCallBack *> &listMessageInterceptor)
         {
             map<int,class MessageToInterceptor *>::iterator itMessageTo = pMessageMDLInterceptor->m_mapMessageToInterceptor.find(pMessage->m_dwPK_Device_To);
             if( itMessageTo != pMessageMDLInterceptor->m_mapMessageToInterceptor.end() )
             {
-                CheckInterceptor( (*itMessageTo).second, pSocket, pMessage, pDeviceFrom, pDeviceTo );
+                CheckInterceptor( (*itMessageTo).second, pSocket, pMessage, pDeviceFrom, pDeviceTo,listMessageInterceptor );
             }
             // If we didn't already check for 0, check now
             if( pMessage->m_dwPK_Device_To )
@@ -409,7 +409,7 @@ int k;
                 itMessageTo = pMessageMDLInterceptor->m_mapMessageToInterceptor.find(0);
                 if( itMessageTo != pMessageMDLInterceptor->m_mapMessageToInterceptor.end() )
                 {
-                    CheckInterceptor( (*itMessageTo).second, pSocket, pMessage, pDeviceFrom, pDeviceTo );
+                    CheckInterceptor( (*itMessageTo).second, pSocket, pMessage, pDeviceFrom, pDeviceTo,listMessageInterceptor );
                 }
             }
             if( pMessage->m_sPK_Device_List_To.length() )
@@ -421,7 +421,7 @@ int k;
                     itMessageTo = pMessageMDLInterceptor->m_mapMessageToInterceptor.find(PK_Device);
                     if( itMessageTo != pMessageMDLInterceptor->m_mapMessageToInterceptor.end() )
                     {
-                        CheckInterceptor( (*itMessageTo).second, pSocket, pMessage, pDeviceFrom, pDeviceTo );
+                        CheckInterceptor( (*itMessageTo).second, pSocket, pMessage, pDeviceFrom, pDeviceTo,listMessageInterceptor );
                     }
                     if( pos>=pMessage->m_sPK_Device_List_To.length() || pos==string::npos )
                         break;
@@ -429,7 +429,7 @@ int k;
             }
         }
 
-        void CheckInterceptor(class MessageToInterceptor *pMessageToInterceptor,class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo)
+        void CheckInterceptor(class MessageToInterceptor *pMessageToInterceptor,class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo,list<class MessageInterceptorCallBack *> &listMessageInterceptor)
         {
             map<int,class MessageToCategoryInterceptor *>::iterator itMessageToCat;
             if( pDeviceTo )
@@ -437,13 +437,13 @@ int k;
                 itMessageToCat = pMessageToInterceptor->m_mapMessageToCategoryInterceptor.find(pDeviceTo->m_dwPK_DeviceCategory);
                 if( itMessageToCat != pMessageToInterceptor->m_mapMessageToCategoryInterceptor.end() )
                 {
-                    CheckInterceptor( (*itMessageToCat).second, pSocket, pMessage, pDeviceFrom, pDeviceTo );
+                    CheckInterceptor( (*itMessageToCat).second, pSocket, pMessage, pDeviceFrom, pDeviceTo,listMessageInterceptor );
                 }
             }
             itMessageToCat = pMessageToInterceptor->m_mapMessageToCategoryInterceptor.find(0);
             if( itMessageToCat != pMessageToInterceptor->m_mapMessageToCategoryInterceptor.end() )
             {
-                CheckInterceptor( (*itMessageToCat).second, pSocket, pMessage, pDeviceFrom, pDeviceTo );
+                CheckInterceptor( (*itMessageToCat).second, pSocket, pMessage, pDeviceFrom, pDeviceTo,listMessageInterceptor );
             }
             if( pMessage->m_sPK_Device_List_To.length() )
             {
@@ -457,7 +457,7 @@ int k;
                         itMessageToCat = pMessageToInterceptor->m_mapMessageToCategoryInterceptor.find(pDeviceData_Router->m_dwPK_DeviceCategory);
                         if( itMessageToCat != pMessageToInterceptor->m_mapMessageToCategoryInterceptor.end() )
                         {
-                            CheckInterceptor( (*itMessageToCat).second, pSocket, pMessage, pDeviceFrom, pDeviceTo );
+                            CheckInterceptor( (*itMessageToCat).second, pSocket, pMessage, pDeviceFrom, pDeviceTo,listMessageInterceptor );
                         }
                     }
                     if( pos>=pMessage->m_sPK_Device_List_To.length() || pos==string::npos )
@@ -466,24 +466,24 @@ int k;
             }
         }
 
-        void CheckInterceptor(class MessageToCategoryInterceptor *pMessageToCategoryInterceptor,class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo)
+        void CheckInterceptor(class MessageToCategoryInterceptor *pMessageToCategoryInterceptor,class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo,list<class MessageInterceptorCallBack *> &listMessageInterceptor)
         {
             map<int,class MessageFromInterceptor *>::iterator itMessageFrom = pMessageToCategoryInterceptor->m_mapMessageFromInterceptor.find(pMessage->m_dwPK_Device_From);
             if( itMessageFrom != pMessageToCategoryInterceptor->m_mapMessageFromInterceptor.end() )
             {
-                CheckInterceptor( (*itMessageFrom).second, pSocket, pMessage, pDeviceFrom, pDeviceTo );
+                CheckInterceptor( (*itMessageFrom).second, pSocket, pMessage, pDeviceFrom, pDeviceTo,listMessageInterceptor);
             }
             if( pMessage->m_dwPK_Device_From )
             {
                 itMessageFrom = pMessageToCategoryInterceptor->m_mapMessageFromInterceptor.find(0);
                 if( itMessageFrom != pMessageToCategoryInterceptor->m_mapMessageFromInterceptor.end() )
                 {
-                    CheckInterceptor( (*itMessageFrom).second, pSocket, pMessage, pDeviceFrom, pDeviceTo );
+                    CheckInterceptor( (*itMessageFrom).second, pSocket, pMessage, pDeviceFrom, pDeviceTo,listMessageInterceptor);
                 }
             }
         }
 
-        void CheckInterceptor(class MessageFromInterceptor *pMessageFromInterceptor,class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo)
+        void CheckInterceptor(class MessageFromInterceptor *pMessageFromInterceptor,class Socket *pSocket,class Message *pMessage,class DeviceData_Router *pDeviceFrom,class DeviceData_Router *pDeviceTo,list<class MessageInterceptorCallBack *> &listMessageInterceptor)
         {
             list<class MessageInterceptorCallBack *>::iterator itMessageInterceptor;
             for(itMessageInterceptor=pMessageFromInterceptor->m_listMessageInterceptor.begin();
@@ -491,20 +491,7 @@ int k;
                 ++itMessageInterceptor)
             {
                 class MessageInterceptorCallBack *pMessageInterceptorCallBack = (*itMessageInterceptor);
-
-                class Command_Impl *pPlugIn = pMessageInterceptorCallBack->m_pPlugIn;
-                MessageInterceptorFn pMessageInterceptorFn = pMessageInterceptorCallBack->m_pMessageInterceptorFn;
-
-                if( pMessageInterceptorFn )  // It's a plug-in
-                    CALL_MEMBER_FN(*pPlugIn,pMessageInterceptorFn) (pSocket, pMessage, pDeviceFrom, pDeviceTo);
-                else
-                {
-                    Message *pMessageOriginator = new Message(pMessage);
-                    Message *pMessageInterceptor = new Message(0,pMessageInterceptorCallBack->m_dwPK_Device,PRIORITY_NORMAL,
-                        MESSAGETYPE_MESSAGE_INTERCEPTED,pMessageInterceptorCallBack->m_dwID,0);
-                    pMessageInterceptor->m_vectExtraMessages.push_back( pMessageOriginator );
-                    ReceivedMessage(NULL,pMessageInterceptor);
-                }
+				listMessageInterceptor.push_back(pMessageInterceptorCallBack);
             }
         }
     };
