@@ -384,11 +384,24 @@ void CPlutoMOAppUi::SaveFile(
 	aFs.Close();
 }
 //----------------------------------------------------------------------------------------------
-void CPlutoMOAppUi::UpdateScreen(VIPMenuCollection *pVMC)
+void CPlutoMOAppUi::UpdateScreen(
+	bool bStore, 
+	unsigned long iVMCSize, 
+	const char* pVMC,
+	unsigned long iVMCFileNameSize, 
+	const char* pVMCFileName
+)
 {
-	TFileName iDummy;
+	if(bStore)
+	{
+		string FilePath("c:\\Nokia\\Images\\");
+		FilePath += pVMCFileName;
+		SaveFile(FilePath.length(), FilePath.c_str(), iVMCSize, pVMC);
+	}
 
-	OpenVMC(true, iDummy, pVMC);
+	TFileName iDummy;
+	VIPMenuCollection *pVIPMenuCollection = new VIPMenuCollection(iVMCSize, pVMC);
+	OpenVMC(true, iDummy, pVIPMenuCollection);
 }
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::UpdateScreen(bool bParsed, const TDes8& aVmc, unsigned int uSize, 

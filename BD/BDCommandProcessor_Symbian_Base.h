@@ -30,7 +30,14 @@ class MBluetoothListener
 public:
 	virtual void UpdateScreen(bool bParsed, const TDes8& aVmc, unsigned int uSize, 
 								 VIPMenuCollection *pVMC) = 0;
-	virtual void UpdateScreen(VIPMenuCollection *pVMC) = 0;
+	virtual void UpdateScreen(	
+		bool bStore, 
+		unsigned long iVMCSize, 
+		const char* pVMC,
+		unsigned long iVMCFileNameSize, 
+		const char* pVMCFileName
+	) = 0;
+
 	virtual void Hide() = 0;
 	virtual void Show() = 0;
 	virtual CCoeEnv* CoeEnv() = 0;

@@ -4,7 +4,6 @@
 #include "PlutoUtils/Other.h"
 #include "VR_PhoneInstalledBinary.h"
 #include "VA_UpdateTransaction.h"
-#include "VR_ShowMenu.h"
 #include "VIPShared/VIPMenu.h"
 
 #include "RA/RA_Processor.h"

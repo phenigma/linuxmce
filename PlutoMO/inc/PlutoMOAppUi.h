@@ -57,7 +57,14 @@ public:
 	CCoeEnv* CoeEnv() { return CEikonEnv::Static();}
 	void UpdateScreen(bool bParsed, const TDes8& aVmc, unsigned int uSize, 
 								 VIPMenuCollection *pVMC);
-	void UpdateScreen(VIPMenuCollection *pVMC);
+	void UpdateScreen(	
+		bool bStore, 
+		unsigned long iVMCSize, 
+		const char* pVMC,
+		unsigned long iVMCFileNameSize, 
+		const char* pVMCFileName
+	);
+
 	void Hide();
 	void Show();
 

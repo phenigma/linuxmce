@@ -9,10 +9,14 @@ class BD_CP_ShowVMC : public BDCommand
 	char *m_pVMC;
 	unsigned char m_iStore;
 	unsigned long m_iVMCSize;
+	unsigned long m_iVMCFileNameSize;
+	char *m_pVMCFileName;
 
 public:
 	BD_CP_ShowVMC()  {}
-	BD_CP_ShowVMC(unsigned char Store,unsigned long VMCSize,const char *pVMC);
+	BD_CP_ShowVMC(unsigned char Store,unsigned long VMCSize,const char *pVMC,
+		unsigned long iVMCFileNameSize, char *pVMCFileName);
+	~BD_CP_ShowVMC(); 
 
 	virtual void ConvertCommandToBinary();
 	virtual void ParseCommand(unsigned long size,const char *data);

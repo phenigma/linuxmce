@@ -5,7 +5,6 @@
 #include "PlutoUtils/MySqlHelper.h"
 #include "VR_PhoneRespondedToRequest.h"
 #include "VA_UpdateTransaction.h"
-#include "VR_ShowMenu.h"
 #include "VIPShared/VIPMenu.h"
 #include "RA/RA_Request.h"
 
@@ -46,6 +45,7 @@ bool VR_PhoneRespondedToRequest::ProcessRequest(RA_Processor *pRA_Processor)
 	pRequest->ParseResponse(m_pdbOriginalResponse.m_dwSize,m_pdbOriginalResponse.m_pBlock);
 	if( m_iRequestID==VRP_REQUEST_SHOW_MENU )
 	{
+		/*
 		VR_ShowMenu *pShowMenu = (VR_ShowMenu *) pRequest;
 		if( pShowMenu->m_iMenuCollectionID==VIPMENUCOLL_SECURE_PAYMENT )
 		{
@@ -122,6 +122,7 @@ bool VR_PhoneRespondedToRequest::ProcessRequest(RA_Processor *pRA_Processor)
 			m_listActions.push_back(pUP);
 			m_cProcessOutcome = SUCCESSFULLY_PROCESSED;
 		}
+		*/
 	}
 #endif
 	return true;

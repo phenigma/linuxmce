@@ -21,15 +21,28 @@
 #endif
 
 #include "PlutoUtils/MyStl.h"
+#include "PlutoUtils/PlutoDefs.h"
 #include "VIPShared/VIPMenu.h"
 #include "BD_CP_ShowVMC.h"
 
-BD_CP_ShowVMC::BD_CP_ShowVMC(unsigned char Store,unsigned long VMCSize,const char *pVMC) 
+BD_CP_ShowVMC::BD_CP_ShowVMC(unsigned char Store,unsigned long VMCSize,const char *pVMC,
+							 unsigned long iVMCFileNameSize, char *pVMCFileName) 
 	
 {
+	m_iStore = Store;
 	m_iVMCSize=VMCSize;
 	m_pVMC=(char *)malloc(m_iVMCSize);
 	memcpy(m_pVMC,pVMC,m_iVMCSize);
+
+	m_iVMCFileNameSize = iVMCFileNameSize;
+	m_pVMCFileName=(char *)malloc(m_iVMCFileNameSize);	
+	memcpy(m_pVMCFileName, pVMCFileName, m_iVMCFileNameSize);
+}	
+
+BD_CP_ShowVMC::~BD_CP_ShowVMC()
+{
+	PLUTO_SAFE_DELETE(m_pVMC);
+	PLUTO_SAFE_DELETE(m_pVMCFileName);
 }
 
 void BD_CP_ShowVMC::ConvertCommandToBinary()
@@ -38,26 +51,34 @@ void BD_CP_ShowVMC::ConvertCommandToBinary()
 	Write_unsigned_char(m_iStore);
 	Write_long(m_iVMCSize);
 	Write_block(m_pVMC,m_iVMCSize);
+	Write_long(m_iVMCFileNameSize);
+	Write_block(m_pVMCFileName, m_iVMCFileNameSize);
 }
 
 void BD_CP_ShowVMC::ParseCommand(unsigned long size,const char *data)
 {
 	BDCommand::ParseCommand(size, data);
-	m_iStore = Read_unsigned_char();
+
 #ifdef VIPPHONE
 
+	m_iStore = Read_unsigned_char();
+	long m_iVMCSize = Read_long();
+	const char *m_pVMC = Read_block(m_iVMCSize);
+	long m_iVMCFileNameSize = Read_long();
+	const char *m_pVMCFileName = Read_block(m_iVMCFileNameSize);
+
 #ifdef SYMBIAN
-	long VMCSize = Read_long();
 
 	LOG("#	Received 'ShowVMC' command  #\n");
-	VIPMenuCollection *pVMC = new VIPMenuCollection(VMCSize, m_pcCurrentPosition);
-	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->UpdateScreen(pVMC);
+	
+	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->UpdateScreen(m_iStore == '1', m_iVMCSize, m_pVMC, 
+		m_iVMCFileNameSize, m_pVMCFileName);
 	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->Show();
 #endif
 
 #ifdef VIPDESIGN
-	long VMCSize = Read_long();
 
+	//@todo
 	VIPMenuCollection *pVMC = new VIPMenuCollection(VMCSize, m_pcCurrentPosition);
 	g_pPlutoConfig->m_pDoc->m_pMenuCollection=pVMC;
 	g_pPlutoConfig->m_pDoc->m_pMenu=pVMC->m_pMenu_Starting;

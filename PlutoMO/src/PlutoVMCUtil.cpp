@@ -12,6 +12,8 @@
 #include "BD_PC_SetVariable.h"
 #include "BD/BD_WhatDoYouHave.h"
 
+#include "PlutoUtils/PlutoDefs.h"
+
 #include "PlutoVMCContainer.h"
 #include "PlutoVMCUtil.h"
 #include "PlutoVMCView.h"
@@ -103,6 +105,14 @@ void CPlutoVMCUtil::EndPaint()
 //------------------------------------------------------------------------------------------------------------------
 void CPlutoVMCUtil::SetAndSwitchToMenu(VIPMenuCollection *pVMC)
 {
+	m_pImageStatic_Type=0;
+	m_pImageStatic_Size=0;
+	if(NULL != m_pImageStatic_Data)
+	{
+		delete (char *)m_pImageStatic_Data;
+		m_pImageStatic_Data = NULL;
+	}
+
 	if(NULL != m_pMenuCollection)
 	{
 		delete m_pMenuCollection;
@@ -390,9 +400,13 @@ void CPlutoVMCUtil::SetCaptureKeyboardCommand(
 
 void CPlutoVMCUtil::Parse(TFileName iFileName)
 {
-	m_pImageStatic_Type = 0; 
-	m_pImageStatic_Size = 0;
-	m_pImageStatic_Data = NULL;
+	m_pImageStatic_Type=0;
+	m_pImageStatic_Size=0;
+	if(NULL != m_pImageStatic_Data)
+	{
+		delete (char *)m_pImageStatic_Data;
+		m_pImageStatic_Data = NULL;
+	}
 
 	RFile file;
 	RFs   aFs;
