@@ -1,9 +1,21 @@
 #!/usr/bin/perl
 use DBI;
 
-$DBHOST="10.0.0.150";
-$DBUSER="root";
-$DBPASSWD="";
+open(CONF,"/etc/pluto.conf");
+@data=<CONF>;
+close(CONF);
+
+foreach $line (@data) {
+  ($option, $eq, $value) = split(/ /,$line);
+  if($option eq "MySqlHost") {
+    $DBHOST=$value;
+    $FILEHOST=$value;
+  } elsif ($option eq "MySqlUser") {
+    $DBUSER=$value;
+  } elsif ($option eq "MySqlPassword") {
+     $DBPASSWD=$value;
+  }
+}
 
 while (1 eq 1) {
   $inline = <STDIN>;
@@ -34,11 +46,27 @@ while (1 eq 1) {
           $dev_template = $row_ref->{FK_DeviceTemplate};
           $configure_script = $row_ref->{ConfigureScript};
           $package_name = $row_ref->{Name};
-          system("CreateDevice -c $dhcpd_device -I $ip_sent -M $mac_found\n");
-          if($package_name ne "") {
-            system("apt-get install $package_name");
+
+          $sql="select PK_Device,MACaddress from Device where MACaddress=\"$mac_found\"";
+          $statement = $db_handle->prepare($sql) or die "Couldn't prepare query '$sql': $DBI::errstr\n";
+          $statement->execute() or die "Couldn't execute query '$sql': $DBI::errstr\n";
+          $tmp = "";
+          $row_ref = $statement->fetchrow_hashref();
+          $tmp = $row_ref->{PK_Device};
+          if($tmp eq "") {
+            system("CreateDevice -c $dhcpd_device -I $ip_sent -M $mac_found > dhcpd_temp.file\n");
+            open(FILE, "dhcpd_temp.file");
+            @data = <FILE>;
+            $Device_ID = $data[0];
+            close(FILE);
+            system("rm -f dhcpd_temp.file");
+            if($package_name ne "") {
+              system("apt-get install $package_name");
+            }
+          } else {
+            $Device_ID = $tmp;
           }
-          system("$configure_script -d $dev_temlate -i $ip_sent -m $mac_found");
+          system("$configure_script -d $Device_ID -i $ip_sent -m $mac_found");
       }
       if($found == 0) {
         $sql = "select PK_UnknownDevices FROM UnknownDevices WHERE MacAddress='$mac_found'";
