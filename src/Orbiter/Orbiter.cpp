@@ -53,6 +53,7 @@ using namespace DCE;
 #include "Simulator.h"
 
 #define  VERSION "<=version=>"
+extern const char *g_szCompile_Date;
 
 #define PROFILING_GRID
 
@@ -3765,7 +3766,7 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
         else if(  Variable=="L" && m_pScreenHistory_Current && m_pScreenHistory_Current->m_pLocationInfo  )
             Output += m_pScreenHistory_Current->m_pLocationInfo->Description;
         else if(  Variable=="V" )
-            Output += string(VERSION);
+			Output += string(VERSION) + "(" + g_szCompile_Date + ")";
         else if(  Variable=="NP" )
             Output += m_sNowPlaying;
         else if(  Variable=="ND" )

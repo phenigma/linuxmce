@@ -73,7 +73,7 @@ public:
 	Row_Package_Directory *m_pRow_Package_Directory;
 };
 
-string g_sPackages, g_sManufacturer, g_sSourcecodePrefix, g_sNonSourcecodePrefix;
+string g_sPackages, g_sManufacturer, g_sSourcecodePrefix, g_sNonSourcecodePrefix, g_sCompile_Date;
 string g_sPK_RepositorySource;
 int g_iPK_Distro=0,g_iSVNRevision=0;
 bool g_bBuildSource = true, g_bCreatePackage = true, g_bInteractive = false, g_bSimulate = false, g_bSupressPrompts = false;
@@ -117,6 +117,9 @@ bool CopySourceFile(string sInput,string sOutput)
 			StringUtils::EndsWith(sInput,".h",true) )
 	{
 		if( !StringUtils::Replace( sInput, "/mkrelease_temp_file", "/*SVN_REVISION*/", "int g_SvnRevision=" + StringUtils::itos(g_iSVNRevision) + ";" ) )
+			return false;
+
+		if( !StringUtils::Replace( sInput, "/mkrelease_temp_file", "<=compile_date=>", g_sCompile_Date ) )
 			return false;
 
 		return StringUtils::Replace( "/mkrelease_temp_file", sOutput, "<=version=>", g_pRow_Version->VersionName_get() );
@@ -217,6 +220,13 @@ int main(int argc, char *argv[])
 	}
 
 	string sWhere;
+
+
+	struct tm *newtime;
+	time_t aclock;
+	time( &aclock );                 /* Get time in seconds */
+	newtime = localtime( &aclock );  /* Convert time to struct */
+	g_sCompile_Date = asctime( newtime );
 
 	if( g_sPackages.length() )
 		sWhere = "PK_Package IN (" + g_sPackages + ")";
@@ -1013,10 +1023,12 @@ AsksSourceQuests:
 		if( !g_bSimulate )
 		{
 			list<string> listFiles;
-			FileUtils::FindFiles(listFiles,sSourceDirectory,"*.cpp,*.c,*.h,*.cs");
+			FileUtils::FindFiles(listFiles,sSourceDirectory,"*.cpp,*.c,*.h,*.cs",true);
 			for(list<string>::iterator it=listFiles.begin();it!=listFiles.end();++it)
 			{
 				StringUtils::Replace(sSourceDirectory + "/" + *it,sSourceDirectory + "/" + *it,"<=version=>",g_pRow_Version->VersionName_get());
+				StringUtils::Replace(sSourceDirectory + "/" + *it,sSourceDirectory + "/" + *it, "<=compile_date=>", g_sCompile_Date );
+				StringUtils::Replace(sSourceDirectory + "/" + *it,sSourceDirectory + "/" + *it, "/*SVN_REVISION*/", "int g_SvnRevision=" + StringUtils::itos(g_iSVNRevision) + ";" );
 			}
 		}
 		// Now we've got to run the make file
@@ -1041,7 +1053,6 @@ AsksSourceQuests:
 
 			if( FileUtils::FileExists("Main.cpp") )
 				StringUtils::Replace( "Main.cpp", "Main.cpp", "/*SVN_REVISION*/", "int g_SvnRevision=" + StringUtils::itos(g_iSVNRevision) + ";" );
-
 
 			fstr_compile << pRow_Package_Directory_File->MakeCommand_get() << endl;
 			cout << "Executing: " << pRow_Package_Directory_File->MakeCommand_get() << endl;

@@ -12,6 +12,8 @@
 #include "Simulator.h"
 
 #define  VERSION "<=version=>"
+const char *g_szCompile_Date="<=compile_date=>";
+/*SVN_REVISION*/
 
 extern HWND	g_hWndList; //maindialog logger list
 
