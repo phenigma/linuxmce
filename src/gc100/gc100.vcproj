@@ -85,7 +85,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE-r.lib IRBase.lib Serial-r.lib"
+				AdditionalDependencies="pthreadVC.lib wsock32.lib DCE-r.lib IRBase-r.lib Serial-r.lib"
 				OutputFile="../Release/gc100.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="../../libs/Libraries/pthreads-win32/lib;../lib"
