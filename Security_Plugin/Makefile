@@ -4,7 +4,7 @@ GENDEV=../Gen_Devices
 ROOT = ..
 CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
-CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES
+CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -DDEBUG -DTHREAD_LOG -DLL_DEBUG_FILE
 LDFLAGS = -L$(ROOT)/lib
 BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
 
@@ -19,7 +19,7 @@ sources = Main.cpp Security_Plugin.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS +=
 LDFLAGS += 
-XTRALDLIBS = -lpluto_main
+XTRALDLIBS = -lpluto_main -lpluto_security
 
 Gen_Dev_Files += $(GENDEV)/Datagrid_PluginBase.cpp
 sources += ../Datagrid_Plugin/Datagrid_Plugin.cpp
