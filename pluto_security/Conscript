@@ -1,0 +1,3 @@
+Import qw ( env ) ;
+
+Library $env 'libpluto_security', <*.cpp>;

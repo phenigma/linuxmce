@@ -13,11 +13,19 @@ using namespace DCE;
 //<-dceag-d-e->
 
 #include "pluto_main/Define_DeviceTemplate.h"
+#include "pluto_main/Define_Command.h"
+
 //<-dceag-const-b->
 Slim_Server_Streamer::Slim_Server_Streamer(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
     : Slim_Server_Streamer_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
+    // Usually the slim server and the application server that is going to spawn it are going to be on the same machine.
+    // This is good because you can also restrinct the control of the server only to connection that are from that machine.
+    m_strSlimServerCliAddress = "127.0.0.1"; // hard code it here for now.
+    m_iSlimServerCliPort = 7888;
+
+    m_iServerSocket = -1;
 }
 
 //<-dceag-dest-b->
@@ -162,14 +170,48 @@ void Slim_Server_Streamer::SomeFunction()
             /** Identifier for this streaming session. */
         /** @param #59 MediaURL */
             /** The url to use to play this stream. */
+        /** @param #105 StreamingDestinations */
+            /** Target destinations for streaming. Semantics dependent on the target device. */
 
-void Slim_Server_Streamer::CMD_Start_Streaming(string sFilename,int iStreamID,string *sMediaURL,string &sCMD_Result,Message *pMessage)
+void Slim_Server_Streamer::CMD_Start_Streaming(string sFilename,int iStreamID,string sStreamingDestinations,string *sMediaURL,string &sCMD_Result,Message *pMessage)
 //<-dceag-c249-e->
 {
     // CMD_Spawn_Application_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string sFilename,string sName,string sArguments,string sSendOnFailure,string sSendOnSuccess)
 
+
+    vector<string> vectMacAddresses;
+
+    StringUtils::Tokenize(sStreamingDestinations, ",", vectMacAddresses);
+
+    string macAddress;
+    string playerAddress = "-";
+    vector<string>::iterator itMacAddresses = vectMacAddresses.begin();
+    while ( itMacAddresses != vectMacAddresses.end() )
+    {
+        if ( (*itMacAddresses) != "" )
+        {
+            macAddress = StringUtils::ToLower(*itMacAddresses);
+            macAddress = StringUtils::Replace(macAddress, ":", "%3A");
+
+            g_pPlutoLogger->Write(LV_STATUS, "Preprocessed player MAC address: %s -> %s", (*itMacAddresses).c_str(), macAddress.c_str());
+
+            SendReceiveCommand(macAddress + " sync -"); // break previous syncronization;
+            SendReceiveCommand(macAddress + " sync " + playerAddress); // break previous syncronization;
+            playerAddress = macAddress;
+        }
+
+        itMacAddresses++;
+    }
+
+/*
     string serverName = StringUtils::Format("slim-server-%d", iStreamID);
-    string notificationMessage = StringUtils::Format("0 %d 1 249", m_dwPK_Device);
+
+    string notificationMessage = StringUtils::Format("%d %d %d %d",
+                                                            0,
+                                                            m_dwPK_Device,
+                                                            MESSAGETYPE_COMMAND,
+                                                            COMMAND_Start_Streaming_CONST // this is not proper :-). I think it should send a different message
+                                                            );
 
     DCE::CMD_Spawn_Application_DT spawnApplication(
                 m_dwPK_Device,                      // send from here
@@ -184,5 +226,116 @@ void Slim_Server_Streamer::CMD_Start_Streaming(string sFilename,int iStreamID,st
     spawnApplication.m_pMessage->m_bRelativeToSender = true;
     SendCommand(spawnApplication);
 
-    g_pPlutoLogger->Write(LV_STATUS, "Received a start streaming command with file: %s from master !", sFilename.c_str());
+    g_pPlutoLogger->Write(LV_STATUS, "Received a start streaming command with file: %s from master !", sFilename.c_str());*/
+}
+
+bool Slim_Server_Streamer::ConnectToSlimServerCliCommandChannel()
+{
+    bool socketNotOpen  = true;
+    struct sockaddr_in serverSocket;
+    struct hostent *host;
+
+    m_iServerSocket = socket(PF_INET, SOCK_STREAM, 0);
+    if ( m_iServerSocket == -1 )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "Could create client test socket. This should not happend here. Returning empty mrl.");
+        return false;
+    }
+
+    if( (host = gethostbyname(m_strSlimServerCliAddress.c_str())) == NULL )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "Could not resolve ip address: %s. Returning empty mrl.", m_strSlimServerCliAddress.c_str());
+        return false;
+    }
+
+    g_pPlutoLogger->Write(LV_WARNING, "Trying to connect to slimserver at address: %s:%d", m_strSlimServerCliAddress.c_str(), m_iSlimServerCliPort );
+    serverSocket.sin_family = AF_INET;
+    memcpy((char *) &serverSocket.sin_addr.s_addr, host->h_addr_list[0], host->h_length);
+    serverSocket.sin_port = htons(m_iSlimServerCliPort);
+
+    long timeSpent;
+    struct timeval startTime, currentTime;
+
+    gettimeofday(&startTime, NULL);
+    while ( socketNotOpen )
+    {
+        gettimeofday(&currentTime, NULL);
+        timeSpent = (currentTime.tv_sec - startTime.tv_sec) * 1000000 + (currentTime.tv_usec - startTime.tv_usec);
+
+        if ( connect(m_iServerSocket, (struct sockaddr*)&serverSocket, sizeof(serverSocket)) == 0 )
+        {
+            g_pPlutoLogger->Write(LV_STATUS, "We have made a succesfull connection to the slim server on %s:%d. Life is good.", m_strSlimServerCliAddress.c_str(), m_iSlimServerCliPort);
+            socketNotOpen = false;
+            return true;
+        }
+        else
+        {
+            g_pPlutoLogger->Write(LV_STATUS, "We can't connect yet to the server. Waiting!");
+            usleep(500000); // sleep half a second
+        }
+
+        if ( timeSpent >= 3 * 1000000 ) // wait at most three seconds;
+        {
+            g_pPlutoLogger->Write(LV_WARNING, "Couldn't contact the slim server for the past 3 seconds..");
+            m_iServerSocket = -1;
+            return false;
+        }
+    }
+}
+
+string Slim_Server_Streamer::SendReceiveCommand(string command)
+{
+    if ( m_iServerSocket == 0 || m_iServerSocket == -1 )
+    {
+        g_pPlutoLogger->Write(LV_STATUS, "Connection is down. Trying to reconnect.");
+        if ( ! ConnectToSlimServerCliCommandChannel() )
+        {
+            g_pPlutoLogger->Write(LV_STATUS, "Reconnection failed. Ignoring command");
+            return command;
+        }
+    }
+
+    g_pPlutoLogger->Write(LV_STATUS, "Sending command: %s", command.c_str());
+    unsigned int nBytes;
+    const char *sendBuffer;
+    char *receiveBuffer;
+
+    command += "\n";
+
+    sendBuffer = command.c_str();
+
+    nBytes = 0;
+    while ( nBytes >= 0 && nBytes < (unsigned int)command.length() - 1  )
+    {
+        int result = write(m_iServerSocket, sendBuffer + nBytes, command.length() - nBytes);
+
+        if ( result == 0 || result == -1 )
+        {
+            g_pPlutoLogger->Write(LV_WARNING, "Error while sending to socket: %s.", strerror(errno));
+            close(m_iServerSocket);
+            m_iServerSocket = -1;
+        }
+
+        nBytes += result;
+    }
+
+    receiveBuffer = new char[512];
+
+    int pos = 0;
+    while ( read(m_iServerSocket, receiveBuffer + pos, 1) == 1 && pos < 511 && receiveBuffer[pos] != '\n' ) pos++;
+
+    receiveBuffer[pos] = '\0';
+    if ( pos == 511 )
+    {
+        g_pPlutoLogger->Write(LV_STATUS, "Invalid read from socket. Closing connection");
+        close(m_iServerSocket);
+        m_iServerSocket = -1;
+    }
+
+    string result(receiveBuffer);
+
+    delete receiveBuffer;
+
+    g_pPlutoLogger->Write(LV_STATUS, "Got response: %s", result.c_str());
+    return result;
 }

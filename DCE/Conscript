@@ -1,0 +1,9 @@
+Import qw( env );
+
+Library $env 'DCECommon', qw(
+								DataGrid.cpp ClientSocket.cpp Logger.cpp Message.cpp
+						        Socket.cpp ServerSocket.cpp SocketListener.cpp ServerLogger.cpp 
+								AlarmManager.cpp Command_Impl.cpp Event_Impl.cpp 
+								HandleRequestSocket.cpp DeviceData_Impl.cpp DeviceData_Base.cpp 
+								DCEConfig.cpp DCEMySqlConfig.cpp
+							);

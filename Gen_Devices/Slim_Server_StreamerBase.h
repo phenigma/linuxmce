@@ -48,7 +48,8 @@ public:
 		if( !pConfig )
 			throw "Cannot get configuration data";
 		m_pData = new Slim_Server_Streamer_Data();
-		m_pData->SerializeRead(Size,pConfig);
+		if( Size )
+			m_pData->SerializeRead(Size,pConfig);
 		delete pConfig;
 		pConfig = m_pEvent->GetDeviceList(Size);
 		m_pData->m_AllDevices.SerializeRead(Size,pConfig);
@@ -61,14 +62,14 @@ public:
 	Slim_Server_Streamer_Event *GetEvents() { return (Slim_Server_Streamer_Event *) m_pEvent; };
 	Slim_Server_Streamer_Data *GetData() { return (Slim_Server_Streamer_Data *) m_pData; };
 	const char *GetClassName() { return "Slim_Server_Streamer_Command"; };
-	int PK_DeviceTemplate_get() { return 53; };
+	static int PK_DeviceTemplate_get() { return 53; };
 	virtual void ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage) { };
 	virtual void ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage) { };
 	Command_Impl *CreateCommand(int PK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	//Data accessors
 	//Event accessors
 	//Commands - Override these to handle commands from the server
-	virtual void CMD_Start_Streaming(string sFilename,int iStreamID,string *sMediaURL,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Start_Streaming(string sFilename,int iStreamID,string sStreamingDestinations,string *sMediaURL,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -88,8 +89,9 @@ public:
 						string sCMD_Result="OK";
 					string sFilename=pMessage->m_mapParameters[13];
 					int iStreamID=atoi(pMessage->m_mapParameters[41].c_str());
+					string sStreamingDestinations=pMessage->m_mapParameters[105];
 					string sMediaURL=pMessage->m_mapParameters[59];
-						CMD_Start_Streaming(sFilename.c_str(),iStreamID,&sMediaURL,sCMD_Result,pMessage);
+						CMD_Start_Streaming(sFilename.c_str(),iStreamID,sStreamingDestinations.c_str(),&sMediaURL,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);

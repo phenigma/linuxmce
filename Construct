@@ -1,0 +1,24 @@
+$env = new cons(
+	'CC' => 'g++',
+	'CPPPATH' => '../trunk:DCE',
+	'CXXFLAGS' => '-Wall -O2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DMULTI_THREADED -DNO_SQL_THREAD_LOG -DUSE_MYSQL -I/usr/include/mysql',
+	'ENV' => {
+		'PATH' => '/usr/lib/ccache:/bin:/usr/bin',
+		'HOME' => $HOME
+	}
+);
+
+use Cwd;
+
+Link 'build' => '.';
+
+Export qw( env );
+
+Conscript_chdir 1;
+
+Build qw( 
+	build/DCE/Conscript 
+	build/pluto_main/Conscript
+	build/pluto_security/Conscript
+);
+	 
