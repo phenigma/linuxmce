@@ -27,7 +27,7 @@ if ($action == 'showBasicInfo') {
 					auxS'.$row1['PK_Device'].' = insFld(foldersTree, gFld("'.$row1['Description'].'", "index.php?section=editDeviceParams&deviceID='.$row1['PK_Device'].'"));
 					auxS'.$row1['PK_Device'].'.xID = -'.$row1['PK_Device'].';
 				';
-				$jsTree.=getChilds($row1['PK_Device'],$dbADO);
+				$jsTree.=getDeviceChilds($row1['PK_Device'],$dbADO);
 			}
 		}
 $out='';		
@@ -140,7 +140,7 @@ $output->setTitle(APPLICATION_NAME);
 $output->output();  	
 }
 
-function getChilds($parentID,$dbADO) {
+function getDeviceChilds($parentID,$dbADO) {
 	$queryGP = "select * from Device where FK_Device_ControlledVia = $parentID";
 	$resGP = $dbADO->Execute($queryGP);
 	$jsTree='';
@@ -150,7 +150,7 @@ function getChilds($parentID,$dbADO) {
 					auxS'.$row['PK_Device'].' = insFld(auxS'.$parentID.', gFld("'.$row['Description'].'", "index.php?section=editDeviceParams&deviceID='.$row['PK_Device'].'"))
 					auxS'.$row['PK_Device'].'.xID = '.$row['PK_Device'].';
 				';
-				$jsTree.=getChilds($row['PK_Device'],$dbADO);
+				$jsTree.=getDeviceChilds($row['PK_Device'],$dbADO);
 		}
 	}
 	return $jsTree;

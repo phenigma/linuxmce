@@ -51,8 +51,9 @@ function floorplanWizard($output,$dbADO) {
 					$resFloorplanObjectType=$dbADO->Execute($queryFloorplanObjectType,$type);
 					$itemsCount=0;
 					while($rowFloorplanObjectType=$resFloorplanObjectType->FetchRow()){
+						$objColor[$rowFloorplanObjectType['PK_FloorplanObjectType']]=$colors[$itemsCount%count($colors)];
 						$out.=($itemsCount%$objectsPerPage==0)?'</tr><tr>':'';
-						$out.='<td><img src="scripts/floorplan/images/'.$colors[$itemsCount%count($colors)].'" width="20" height="20" /> '.$rowFloorplanObjectType['Description'].'</td>';
+						$out.='<td><img src="scripts/floorplan/images/'.$objColor[$rowFloorplanObjectType['PK_FloorplanObjectType']].'" width="20" height="20" /> '.$rowFloorplanObjectType['Description'].'</td>';
 						$itemsCount++;
 					}
 					$out.='
@@ -76,13 +77,7 @@ function floorplanWizard($output,$dbADO) {
 		</form>
 		';
 
-	if(file_exists($path.'/'.$page.'.jpg')){
-		$floorPlanImage='floorplans/inst'.$installationID.'/'.$page.'.jpg';
-		$imgArray=getimagesize($path.'/'.$page.'.jpg');
-		$origWidth=$imgArray[0];
-		$origHeight=$imgArray[1];
-	}
-	elseif(file_exists($path.'/'.$page.'.png')){
+	if(file_exists($path.'/'.$page.'.png')){
 		$floorPlanImage='floorplans/inst'.$installationID.'/'.$page.'.png';
 		$imgArray=getimagesize($path.'/'.$page.'.png');
 		$origWidth=$imgArray[0];
@@ -97,7 +92,8 @@ function floorplanWizard($output,$dbADO) {
 				d.PK_Device as id, 
 				d.Description as description, 
 				itemtype.IK_DeviceData as itemtype,	
-				coord.IK_DeviceData as coordinates
+				coord.IK_DeviceData as coordinates,
+				PK_FloorplanObjectType
 			FROM Device d
 				INNER JOIN DeviceTemplate mdl ON d.FK_DeviceTemplate=mdl.PK_DeviceTemplate
 				INNER JOIN DeviceCategory dc ON mdl.FK_DeviceCategory=dc.PK_DeviceCategory
@@ -136,7 +132,6 @@ function floorplanWizard($output,$dbADO) {
 	while($rowCoord=$resCoords->FetchRow()){
 		$item=array();
 		$item['hascoordinatesthispage'] = false;
-		$item['hascoordinatesthispage'] = false;
 		$item['x'] = -1;
 		$item['y'] = -1;
 		$item['pages'] = array();
@@ -151,7 +146,8 @@ function floorplanWizard($output,$dbADO) {
 				//the following is for making updates below
 				$item['pages'][$arValues[$intCursor]] = array( 'x'=>$arValues[$intCursor+1] , 'y'=>$arValues[$intCursor+2] );
 				//the following is for positioning on the current page only
-				if ($arValues[$intCursor] == $page)
+				
+				if ($arValues[$intCursor] == $page && $arValues[$intCursor+1]!=-1 && $arValues[$intCursor+2] !=-1)
 				{
 					$item['hascoordinatesthispage'] = true;
 					$item['x'] = round($arValues[$intCursor+1] )-10;
@@ -161,10 +157,9 @@ function floorplanWizard($output,$dbADO) {
 				$intCursor += 3;
 			}
 		}
-
 		$scriptInHead.='
 			objSensor = new SensorInstance();
-			objSensor.SensorURL = "scripts/floorplan/images/'.$colors[$countCoords%count($colors)].'";
+			objSensor.SensorURL = "scripts/floorplan/images/'.$objColor[$rowCoord['PK_FloorplanObjectType']].'";
 			objSensor.SensorWidth = 20;
 			objSensor.SensorHeight = 20;
 			objSensor.Description = "'.$rowCoord['description'].' #'.$rowCoord['id'].'";
@@ -219,8 +214,10 @@ function floorplanWizard($output,$dbADO) {
 				$key=0;
 				while($rowFloorplans=$resFloorplans->FetchRow()){
 					$deviceCoords[$key]=$rowFloorplans['Page'];
-					$deviceCoords[$key+1]=($rowFloorplans['Page']==$page)?$arIncomingCoords[$intCursor+1]+10:(isset($oldCoordsArray[$key+1])?$oldCoordsArray[$key+1]:-1);
-					$deviceCoords[$key+2]=($rowFloorplans['Page']==$page)?$arIncomingCoords[$intCursor+2]+10:(isset($oldCoordsArray[$key+2])?$oldCoordsArray[$key+2]:-1);
+					$xcoord=($arIncomingCoords[$intCursor+1]!=-1)?($arIncomingCoords[$intCursor+1]+10):-1;
+					$ycoord=($arIncomingCoords[$intCursor+2]!=-1)?($arIncomingCoords[$intCursor+2]+10):-1;
+					$deviceCoords[$key+1]=($rowFloorplans['Page']==$page)?$xcoord:(isset($oldCoordsArray[$key+1])?$oldCoordsArray[$key+1]:-1);
+					$deviceCoords[$key+2]=($rowFloorplans['Page']==$page)?$ycoord:(isset($oldCoordsArray[$key+2])?$oldCoordsArray[$key+2]:-1);
 					$key+=3;
 				}
 					

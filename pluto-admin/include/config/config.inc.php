@@ -1,6 +1,6 @@
 <?PHP
   	//debuging
-  	$GLOBALS['inDebug']=0;
+  	$GLOBALS['inDebug']=1;
   	
   	if($GLOBALS['inDebug']!=1){
   		// production settings
@@ -18,7 +18,7 @@
 	
 	// path where the media pics are uploaded
 	$GLOBALS['mediaPicsPath']=$_SERVER['DOCUMENT_ROOT'].'/pluto-admin/mediapics/';
-	$GLOBALS['floorplansPath']='/var/www/test/floorplans';
+	$GLOBALS['floorplansPath']='/var/www/test/pluto-admin/floorplans';
 	
 	define("VERSION","0.1");
 	define("APPLICATION_NAME","Pluto");

@@ -699,6 +699,13 @@ switch ($section) {
 	    include_once('operations/myScenarios/securityScenarios.php');
 	    securityScenarios($output,$dbADO);
 	break;
+	case 'deviceTemplatePicker':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+		$output->setHelpSrc('/support/index.php?section=document&docID=58');
+	    include_once('operations/deviceTemplatePicker.php');
+	    deviceTemplatePicker($output,$dbADO);
+	break;
 
 	
 	case '';

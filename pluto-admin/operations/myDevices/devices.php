@@ -8,7 +8,7 @@ function devices($output,$dbADO) {
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$type = isset($_REQUEST['type'])?cleanString($_REQUEST['type']):'lights';
 	$installationID = (int)@$_SESSION['installationID'];
-	
+
 	switch($type){
 		case 'lights_interfaces':
 			$deviceCategory=$GLOBALS['rootLightsInterfaces'];
@@ -230,13 +230,7 @@ function devices($output,$dbADO) {
 					<td colspan="5">&nbsp;</td>
 				</tr>
 				<tr>
-					<td colspan="5" align="center"><select name="deviceTemplate">
-						<option value="0">Select device template</option>';
-			foreach($DTIDArray as $key => $value){
-				$out.='<option value="'.$value.'">'.$DTArray[$key].'</option>';
-			}
-			$out.='</select>
-					<input type="submit" name="add" value="Add device"></td>
+					<td colspan="5" align="center"><input type="button" name="button" value="Pick Device Template" onClick="windowOpen(\'index.php?section=deviceTemplatePicker&from='.urlencode('devices&type='.$type).'&categoryID='.$deviceCategory.'\',\'width=800,height=600,toolbars=true,scrollbars=1,resizable=1\');"></td>
 				</tr>
 			</table>
 		</form>
@@ -255,7 +249,7 @@ function devices($output,$dbADO) {
 			header("Location: index.php?section=devices&type=$type&error=You are not authorised to change the installation.");
 			exit(0);
 		}
-		$displayedDevicesArray=explode(',',$_POST['displayedDevices']);
+		$displayedDevicesArray=explode(',',@$_POST['displayedDevices']);
 		foreach($displayedDevicesArray as $value){
 			if(isset($_POST['delete_'.$value])){
 				$deleteDevice='DELETE FROM Device WHERE PK_Device=?';
@@ -298,15 +292,15 @@ function devices($output,$dbADO) {
 			}
 		}
 		
-		if(isset($_POST['add'])){
-			$deviceTemplate=(int)$_POST['deviceTemplate'];
+		if(isset($_REQUEST['add'])){
+			unset($_SESSION['from']);
+			$deviceTemplate=(int)$_REQUEST['deviceTemplate'];
 			if($deviceTemplate!=0){
 				$insertDevice='
 					INSERT INTO Device
 						(Description,FK_DeviceTemplate,FK_Installation)
-					VALUES
-						(?,?,?)';
-				$dbADO->Execute($insertDevice,array('New',$deviceTemplate,$installationID));
+					SELECT Description, '.$deviceTemplate.','.$installationID.' FROM DeviceTemplate WHERE PK_DeviceTemplate=?';
+				$dbADO->Execute($insertDevice,$deviceTemplate);
 				$insertID=$dbADO->Insert_ID();
 				InheritDeviceData($deviceTemplate,$insertID,$dbADO);
 			}

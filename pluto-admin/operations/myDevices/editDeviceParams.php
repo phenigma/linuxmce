@@ -159,7 +159,7 @@ $installationID = (int)@$_SESSION['installationID'];
 							
 						 }						 
 					}
-						
+					$whereClause.=" AND PK_Device!='$deviceID'";
 					$queryDeviceTemplate = "
 						SELECT DISTINCT Device.Description,Device.PK_Device
 							FROM Device 

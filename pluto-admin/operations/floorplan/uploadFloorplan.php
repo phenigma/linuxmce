@@ -9,9 +9,8 @@ function uploadFloorplan($output,$dbADO) {
 	$installationID = (int)@$_SESSION['installationID'];
 	$path=$GLOBALS['floorplansPath'].'/inst'.$installationID;
 	$floorplanImage='floorplans/image_not_found.gif';
-	if(file_exists($path.'/'.$page.'.jpg'))
-		$floorplanImage='floorplans/inst'.$installationID.'/'.$page.'.jpg';
-	elseif(file_exists($path.'/'.$page.'.png'))
+	
+	if(file_exists($path.'/'.$page.'.png'))
 		$floorplanImage='floorplans/inst'.$installationID.'/'.$page.'.png';
 
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
@@ -59,7 +58,7 @@ function uploadFloorplan($output,$dbADO) {
 									</tr>
 									<tr>
 										<td class="normal">
-											Choose an file:<br />&nbsp; &nbsp; (must be PNG or JPG)
+											Choose an file:<br />&nbsp; &nbsp; (must be PNG)
 										</td>
 										<td><input type="file" name="fileImage"></td>
 									</tr>
@@ -86,9 +85,6 @@ function uploadFloorplan($output,$dbADO) {
 		switch($_FILES['fileImage']['type']){
 			case 'image/x-png':
 			case 'image/png': $extension = 'png'; break;
-			case 'image/pjpeg':
-			case 'image/jpg':
-			case 'image/jpeg': $extension = 'jpg'; break;
 			default:
 				$invalidType=true;
 			break;
@@ -116,11 +112,6 @@ function uploadFloorplan($output,$dbADO) {
 		if(!move_uploaded_file($_FILES['fileImage']['tmp_name'],$path.'/'.$newPicName)){
 			header("Location: index.php?section=uploadFloorplan&error=Upload failed. Check the rights for $path&page=".$page);
 			exit();
-		}else{
-			$otherExtension=($extension=='jpg')?'png':'jpg';
-			if(file_exists($path.'/'.$page.'.'.$otherExtension)){
-				unlink($path.'/'.$page.'.'.$otherExtension);
-			}
 		}
 		
 		if($page==0){
