@@ -87,7 +87,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../..;C:\pluto\trunk\src\;C:\pluto\trunk\src\Orbiter"
+				AdditionalIncludeDirectories="../..;C:\pluto\trunk\src\;C:\pluto\trunk\src\Orbiter;C:\pluto\trunk\libs\CrossPlatform\lpng127;C:\pluto\trunk\libs\CrossPlatform\zlib\;C:\pluto\trunk\libs\CrossPlatform\lpng127\contrib\visupng\"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="5"
@@ -104,11 +104,12 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="PocketFrog_x86_Debug.lib "
+				AdditionalDependencies="PocketFrog_x86_Debug.lib libpng-pluto-d.lib zlib1-pluto-d.lib"
 				OutputFile=".\Debug/Blit.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="../../lib"
+				AdditionalLibraryDirectories="../../lib;C:\pluto\trunk\libs\CrossPlatform\lpng127\projects\visualc6\Win32_DLL_Debug\;C:\pluto\trunk\libs\CrossPlatform\zlib\projects\visualc6\Win32_DLL_Debug\"
+				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\Debug/Blit.pdb"
 				SubSystem="2"
@@ -144,9 +145,6 @@
 		</Configuration>
 	</Configurations>
 	<References>
-		<ProjectReference
-			ReferencedProjectIdentifier="{E1D4EBB1-9E34-4187-A12F-DF2D127DAC7E}"
-			Name="PocketFrog"/>
 	</References>
 	<Files>
 		<Filter
@@ -177,6 +175,12 @@
 			</File>
 			<File
 				RelativePath="..\..\..\..\..\src\PlutoUtils\minilzo.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\..\..\src\Orbiter\PocketFrog\PNGWrapper.cpp">
+			</File>
+			<File
+				RelativePath="..\..\..\..\..\src\Orbiter\PocketFrog\PNGWrapper.h">
 			</File>
 			<File
 				RelativePath="..\..\..\..\..\src\Orbiter\RendererOCG.cpp">

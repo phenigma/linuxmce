@@ -23,6 +23,8 @@ namespace Frog {
 class DisplayDevice;
 class InputDevice;
 
+void PocketPC_Cleanup();
+
 namespace Internal
 {
     class GAPILibrary;

@@ -89,6 +89,8 @@ protected:
     
     // Splashscreen
     virtual void SplashScreen();
+
+	virtual void TryToUpdate() {}
     
     // Shutdown the game
     void Shutdown();
@@ -108,9 +110,6 @@ protected:
 				unsigned		desktopZoom;      // Set to zoom the size of the window on a desktop PC
 				unsigned    frameRate;        // The maximum frame rate the app will run at
     } m_config;
-
-	bool m_bUpdating;
-
 private:
 
     // Initialize the game

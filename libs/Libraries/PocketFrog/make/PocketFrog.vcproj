@@ -71,6 +71,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories=""
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="5"

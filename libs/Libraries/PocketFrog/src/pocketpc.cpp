@@ -28,7 +28,23 @@ using Internal::GAPILibrary;
 using Internal::Win32Display;
 using Internal::Win32Input;
 
+DisplayDriver* l_displayDriver; //fixme: leak at exit
+InputDriver*   l_inputDriver;   //fixme: leak at exit
 
+void PocketPC_Cleanup()
+{
+	if(l_displayDriver)
+	{
+		delete l_displayDriver;
+		l_displayDriver = NULL;
+	}
+
+	if(l_inputDriver)
+	{
+		delete l_inputDriver;
+		l_inputDriver = NULL;
+	}
+}
 
 namespace
 {
@@ -38,10 +54,6 @@ namespace
 // Drivers
 //
 //////////////////////////////////////////////////////////////////////////////
-
-DisplayDriver* l_displayDriver; //fixme: leak at exit
-InputDriver*   l_inputDriver;   //fixme: leak at exit
-
 
 bool InitDrivers( HWND hwnd, unsigned int desktopZoom )
 {

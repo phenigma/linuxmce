@@ -16,6 +16,11 @@
 #include <algorithm>
 #include "game.h"
 
+#include "../PocketPC.h"
+
+using namespace Frog;
+using namespace Internal;
+
 namespace Frog
 {
 
@@ -39,8 +44,6 @@ Game::Game()
 #else
     m_config.splashScreenTime = 0;     // Disabled on debug builds
 #endif
-
-	m_bUpdating = false;
 }
 
 
@@ -239,8 +242,6 @@ void Game::ShowTaskbar( bool bShow )
 #endif
 }
 
-
-
 void Game::Shutdown()
 {
     GameEnd();
@@ -249,6 +250,7 @@ void Game::Shutdown()
     m_display.reset();
 
     DestroyWindow();
+	PocketPC_Cleanup();
 }
 
 
@@ -359,12 +361,12 @@ LRESULT Game::OnKeyDown( UINT msg, WPARAM wparam, LPARAM lparam, BOOL& bHandled 
         m_input->DeviceToLogical( button );
         ButtonDown( button );
     }
-    
+/*    
 #if defined(FROG_PC)
     if (wparam == VK_ESCAPE)
         PostMessage( WM_CLOSE, 0, 0 );
 #endif
-
+*/
     return 0;
 }
 
@@ -426,16 +428,8 @@ LRESULT Game::OnActivate( UINT msg, WPARAM wparam, LPARAM lparam, BOOL& bHandled
             m_bSuspended = false;
 			Game::GameResume(); // Added 6/10/2003 by Frank W. Zammetti
 
-			while(m_bUpdating)
-				Sleep(1);
-
-			if(!m_bUpdating)
-			{
-				m_bUpdating = true;
-				GetDisplay()->Update();
-				m_bUpdating = false;
-			}
-        }
+			TryToUpdate();
+		}
     }
     
 
@@ -465,17 +459,7 @@ LRESULT Game::OnPaint( UINT msg, WPARAM wparam, LPARAM lparam, BOOL& bHandled )
     PAINTSTRUCT ps;
     
     BeginPaint( &ps );
-
-	while(m_bUpdating)
-		Sleep(1);
-
-	if(!m_bUpdating)
-	{
-		m_bUpdating = true;
-		GetDisplay()->Update();
-		m_bUpdating = false;
-	}
-
+	TryToUpdate();
     EndPaint( &ps );
 	
 	return 0;

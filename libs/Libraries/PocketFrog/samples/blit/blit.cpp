@@ -15,9 +15,9 @@
 
 #include "blit.h"
 #include "resource.h"
+#include "PocketFrog/PNGWrapper.h"
 
 using namespace Frog;
-
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -54,14 +54,19 @@ bool BlitSample::GameInit()
     m_images[1] = LoadImage( display, IDB_BITMAP2 );
     m_images[2] = LoadImage( display, IDB_BITMAP3 );
     m_images[3] = LoadImage( display, IDB_BITMAP4 );
-    m_background = LoadImage( display, "/bubu.bmp" );
-    
+
+	m_background = LoadPNG(display, "/bubu.png");
+	display->Blit( rand() % 300, rand() % 300, m_background );
+
+    //m_background = LoadImage( display, "/bubu.bmp" );
+
+   
     m_numbers = LoadImage( display, IDB_NUMBERS );
     m_FPSCounter = 0;
 
     m_dragImage = -1;   // Not dragging any image
 
-#ifndef WINCE
+#ifdef WINCESS
 	DEVMODE dmSettings;                          // Device Mode variable - Needed to change modes
 	memset(&dmSettings,0,sizeof(dmSettings));    // Makes Sure Memory's Cleared
 
@@ -112,92 +117,14 @@ void BlitSample::GameEnd()
 
 }
 
-#include "RendererOCG.h"
-#include "PlutoUtils/PlutoDefs.h"
-#include "PlutoUtils/FileUtils.h"
-
 #include <pocketfrog.h>
 #include "../../src/internal/GraphicBuffer.h" 
-
-//using namespace Frog::Internal;
-//using namespace Internal;
-//----------------------------------------------------------------------------------------------------------------
-bool PocketFrog_SaveOCG(Surface* pSurface, string sFilename)
-{
-        //int    pitch;
-        //Pixel* pixels;
-	
-	int iPixelsDataSize = pSurface->m_height * pSurface->m_buffer->GetPitch();//pSurface.pitch;
-	char *pPixelsData = new char[iPixelsDataSize];
-	char *pPixels = (char *)pSurface->m_buffer->GetPixels();
-	memcpy(pPixelsData, pPixels, iPixelsDataSize);
-
-	int iPixelFormatDataSize = 4;
-	char dummy[] = {0, 0, 0, 0};
-	char *pPixelFormatData = new char[iPixelFormatDataSize];
-	memcpy(pPixelFormatData, dummy, iPixelFormatDataSize);
-
-	RendererOCG *pRendererOCG = new RendererOCG(pPixelsData, iPixelsDataSize, pPixelFormatData, iPixelFormatDataSize, 
-		pSurface->m_width, pSurface->m_height);
-
-	bool bResult = pRendererOCG->SaveOCG(sFilename);
-	PLUTO_SAFE_DELETE(pRendererOCG);	
-
-	return bResult;
-}
-
-
-Surface* PocketFrog_LoadOCG(DisplayDevice* display, char *pOCGData, size_t iOCGDataSize);
-Surface* PocketFrog_LoadOCG(DisplayDevice* display, string sFilename)
-{
-	size_t iSize;
-	char *pData = FileUtils::ReadFileIntoBuffer(sFilename, iSize);
-
-	if(!pData)
-		return NULL;
-
-	Surface* pSurface = PocketFrog_LoadOCG(display, pData, iSize);
-
-	delete pData;
-
-	return pSurface;
-}
-
-Surface* PocketFrog_LoadOCG(DisplayDevice* display, char *pOCGData, size_t iOCGDataSize)
-{
-	RendererOCG *pRendererOCG = new RendererOCG();
-	pRendererOCG->SetOCGData(pOCGData, iOCGDataSize);
-	Surface *pSurface = NULL;
-
-	char *pPixelsData;
-	size_t iPixelsDataSize;
-	char *pPixelFormatData;
-	size_t iPixelFormatDataSize;
-	int iWidth;
-	int iHeigth;
-
-	if(pRendererOCG->GetSurface(pPixelsData, iPixelsDataSize, pPixelFormatData, iPixelFormatDataSize, iWidth, iHeigth))
-	{
-		pSurface = display->CreateSurface(iWidth, iHeigth);
-
-		delete pSurface->m_buffer->GetPixels();
-		Pixel * pPixels = pSurface->m_buffer->GetPixels();
-		pPixels = (Pixel *)new char[iPixelsDataSize];
-		memcpy((char *)pPixels, pPixelsData, iPixelsDataSize);
-
-	}
-
-	PLUTO_SAFE_DELETE(pRendererOCG);
-	return pSurface; 
-}
-
 
 void BlitSample::GameLoop()
 {
 
     DisplayDevice* display = GetDisplay();
-	display->Blit( rand() % 300, rand() % 300, m_background );
-    
+
     // Update FPS
     m_FPSTicks[ m_FPSCounter & 15 ] = PocketPC::GetTickCount();
     if (m_FPSCounter > 15)
