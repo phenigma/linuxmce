@@ -44,7 +44,7 @@
     char *LoggerFileName="/usr/local/pluto/var/log/PlutoServer.Logger.txt";
 #else
     #ifdef UNDER_CE
-        char *LoggerFileName="\\Storage Card\\PlutoServer.Logger.txt";
+        char *LoggerFileName="\\Storage Cardx\\PlutoServer.Logger.txt";
     #else
         char *LoggerFileName="C:\\ha\\level1\\PlutoServer\\PlutoServer.Logger.txt";
     #endif

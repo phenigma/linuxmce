@@ -144,15 +144,14 @@ g_pPlutoLogger->Write(LV_STATUS, "~OrbiterSDL finished");
 {
     PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
 
-//g_pPlutoLogger->Write(LV_STATUS,"Enter display image on screen");
+g_pPlutoLogger->Write(LV_STATUS,"Enter display image on screen");
 
 #ifndef USE_ONLY_SCREEN_SURFACE
     SDL_BlitSurface(m_pScreenImage, NULL, Screen, NULL);
 #endif
 
 	SDL_UpdateRect(Screen, 0, 0, 0, 0);
-
-//g_pPlutoLogger->Write(LV_STATUS,"Exit display image on screen");
+g_pPlutoLogger->Write(LV_STATUS,"Exit display image on screen");
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::RedrawObjects()
@@ -255,6 +254,7 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
 	SourceRect.x = pObj->m_rPosition.Left(); SourceRect.y = pObj->m_rPosition.Top();
 	SourceRect.w = pObj->m_rPosition.Width; SourceRect.h = pObj->m_rPosition.Height;
 
+	SDL_SetAlpha(m_pScreenImage, 0, 0);
 	SDL_BlitSurface(m_pScreenImage, &SourceRect, pSDL_Surface, NULL);
 
     pObj->m_pGraphicToUndoSelect = new SDLGraphic(pSDL_Surface);
@@ -371,7 +371,6 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::EndPaint()
 {
-	//g_pPlutoLogger->Write(LV_STATUS, "End paint.");
 	DisplayImageOnScreen(m_pScreenImage);
 }
 //-----------------------------------------------------------------------------------------------------
