@@ -131,14 +131,8 @@ string GetCommand()
 	return "";
 }
 
-
-int main(int argc, char *argv[])
+void PrintCmd(int argc, char * argv[])
 {
-	g_pPlutoLogger = new FileLogger(stdout);
-
-	bool bError=false,bIncludeDisklessMD=true,bSourceCode=false; // An error parsing the command line
-	int iPK_Device = dceConfig.m_iPK_Device_Computer;
-	char c;
 	cout << "#";
 	for(int optnum=0;optnum<argc;++optnum)
 	{
@@ -149,6 +143,15 @@ int main(int argc, char *argv[])
 	}
 
 	cout << endl;
+}
+
+int main(int argc, char *argv[])
+{
+	g_pPlutoLogger = new FileLogger(stdout);
+
+	bool bError=false,bIncludeDisklessMD=true,bSourceCode=false; // An error parsing the command line
+	int iPK_Device = dceConfig.m_iPK_Device_Computer;
+	char c;
 
 	for(int optnum=1;optnum<argc;++optnum)
 	{
@@ -242,6 +245,7 @@ int main(int argc, char *argv[])
 
 	if ( bError)
 	{
+		PrintCmd(argc, argv);
 		cout << "ConfirmDependencies, v." << VERSION << endl
 			<< "Usage: ConfirmDependencies [-h hostname] [-u username] [-p password] [-D database] [-P mysql port] [-r Repository(-ies)] [-t Table(s)] [-U Users(s)]" << endl
 			<< "hostname    -- address or DNS of database host, default is `dcerouter`" << endl
@@ -275,6 +279,7 @@ int main(int argc, char *argv[])
 
 	if (sCommand == "install")
 		cout << "#!/bin/sh" << endl;
+	PrintCmd(argc, argv);
 	pRow_Installation = pRow_Device->FK_Installation_getrow();
 
 	CheckDevice(pRow_Device,bSourceCode);
@@ -309,27 +314,47 @@ int main(int argc, char *argv[])
 		{
 			PackageInfo *pPackageInfo = *it;
 
+			cout << "ok=0" << endl;
+			cout << "while [ \"$ok\" -eq 0 ]; do" << endl;
 //			cout << endl << "-----------------------------------------------------" << endl;
-			cout << "# PK_Package: " << pPackageInfo->m_pRow_Package_Source->FK_Package_get() << endl;
-			cout << "# Rep. type: " << pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get() << endl;
-			cout << "# Package: " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get()
+			cout << "\t# PK_Package: " << pPackageInfo->m_pRow_Package_Source->FK_Package_get() << endl;
+			cout << "\t# Rep. type: " << pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get() << endl;
+			cout << "\t# Package: " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get()
 				<< " Type: " << pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_getrow()->Description_get() << endl;
 			InstallPackage(pPackageInfo);
 
-			for(size_t s=0;s<pPackageInfo->m_vectPackageInfo.size();++s)
+			if (pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get() != REPOSITORYTYPE_PACKAGE_CONST)
 			{
-				PackageInfo *pPackageInfoAlt = pPackageInfo->m_vectPackageInfo[s];
-				InstallPackage(pPackageInfoAlt, true);
+				for(size_t s=0;s<pPackageInfo->m_vectPackageInfo.size();++s)
+				{
+					PackageInfo *pPackageInfoAlt = pPackageInfo->m_vectPackageInfo[s];
+					cout << "\t# PK_Package: " << pPackageInfoAlt->m_pRow_Package_Source->FK_Package_get() << endl;
+					cout << "\t# Rep. type: " << pPackageInfoAlt->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get() << endl;
+					cout << "\t# Package: " << pPackageInfoAlt->m_pRow_Package_Source->FK_Package_getrow()->Description_get()
+						<< " Type: " << pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_getrow()->Description_get() << endl;
+					InstallPackage(pPackageInfoAlt, true);
+				}
 			}
-			cout << "else" << endl;
+			cout << "\telse" << endl;
 //			cout << "\techo '**ERROR** Unable to get package " << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << "'" << endl;
-			cout << "\techo \"***************************************************\"" << endl;
-			cout << "\techo \"***ERROR*** Processing of package '" << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << "' failed\"" << endl;
-			cout << "\techo \"I tried every known option to find this software.  You will need\"" << endl;
-			cout << "\techo \"to get it manually.  Press any key to continue.\"" << endl;
-			cout << "\techo \"***************************************************\"" << endl;
-			cout << "\tread" << endl;
-			cout << "fi" << endl;
+
+#define EOL "\n"
+			cout <<
+"\t\techo \"***************************************************\"" EOL
+"\t\techo \"***ERROR*** Processing of package '" + pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() + "' failed\"" EOL
+//"\t\techo \"I tried every known option to find this software. " EOL
+//"\t\tYou will need\"" EOL
+//"\t\techo \"to get it manually.  Press any key to continue.\"" EOL
+"\t\techo \"***************************************************\"" EOL
+"\t\techo -n 'Do you want to try again? [Y/n]: '" EOL
+"\t\tread answer" EOL
+"\t\tif [ \"$answer\" == n -o \"$answer\" == N ]; then" EOL
+"\t\t\techo '*** Leaving package uninstalled'" EOL
+"\t\t\tok=1" EOL
+"\t\tfi" EOL
+;
+			cout << "\tfi" << endl;
+			cout << "done" << endl;
 		}
 		for(it=listPackageInfo.begin(); it!=listPackageInfo.end(); ++it)
 		{
@@ -777,7 +802,7 @@ Row_Package_Directory *GetDirectory(Row_Package *pRow_Package,int PK_Directory)
 
 void InstallPackage(PackageInfo *pPackageInfo, bool bElse)
 {
-	cout << (bElse ? "el" : "") << "if /usr/pluto/install/" << pRow_Distro->Installer_get()
+	cout << "\t" << (bElse ? "el" : "") << "if /usr/pluto/install/" << pRow_Distro->Installer_get()
 		<< " \"" << pPackageInfo->m_pRow_Package_Source->Name_get() << "\""
 		<< " \"" << pPackageInfo->m_pRow_RepositorySource_URL->URL_get() << "\""
 		<< " \"" << pPackageInfo->m_pRow_Package_Source->Repository_get() << "\""
@@ -793,5 +818,6 @@ void InstallPackage(PackageInfo *pPackageInfo, bool bElse)
 		<< " \"" << pPackageInfo->m_pRow_Package_Source->Parms_get() << "\""
 		<< "; then"
 		<< endl;
-	cout << "\techo \"Confirmation of package '" << pPackageInfo->m_pRow_Package_Source->Name_get() << "' went ok.\"" << endl;
+	cout << "\t\techo \"Confirmation of package '" << pPackageInfo->m_pRow_Package_Source->Name_get() << "' went ok.\"" << endl;
+	cout << "\t\tok=1" << endl;
 }
