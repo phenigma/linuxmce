@@ -159,6 +159,7 @@ public:
 	void ProcessCommands(bool bCriticalRequest = true);
 
 	bool m_bStatusOk;
+	int  m_iTimedOut;
 };
 //----------------------------------------------------------------------------------------------
 #endif

@@ -6,7 +6,7 @@
 ;
 ; UID is the app's UID
 ;
-#{"PlutoMO"},(0x01483450),1,00,0
+#{"PlutoMO"},(0x01483450),2,00,0
 
 ; Series 60 identifier
 (0x101F6F88), 0, 0, 0, {"Series60ProductID"}

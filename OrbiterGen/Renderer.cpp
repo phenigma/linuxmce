@@ -793,9 +793,9 @@ int DoRenderToSurface(void * Surface, list<void *> &RI, int posX, int posY)
 int DoRenderToScreen(list<void *> &RI, int posX, int posY)
 {
 	static SDL_Surface * Screen = NULL;
-	if (! (SDL_WasInit(SDL_INIT_VIDEO) == SDL_INIT_VIDEO))
+	if (! (SDL_WasInit(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == SDL_INIT_VIDEO))
 	{
-		SDL_Init(SDL_INIT_VIDEO);
+		SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE); 
 		atexit(SDL_Quit);
 	}
 

@@ -351,12 +351,16 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 		return;
 	}
 
-	if(iPendingKey && iState != ESendingCommandOrAckData)
+	if(
+		iPendingKey					&& 
+		iState == ERecvCommand_End 
+	)
 	{
 		iPendingKey = false;
 		iState = ESendingCommand;
 	}
 
+	m_iTimedOut = 0; //no timed-out
 	m_bStatusOk = true;
 
 	switch (iState)
@@ -376,7 +380,7 @@ void  BDCommandProcessor_Symbian_Base::RunL()
 				iCommandTimer = CPeriodic::NewL(EPriorityIdle);
 			}
 
-			iCommandTimer->Start(100000, 5 * 1000000,
+			iCommandTimer->Start(100000, 1000000,
 				TCallBack(CommandTimerCallBack, this)); 
 
 			iState = EIdle;
@@ -827,6 +831,7 @@ void BDCommandProcessor_Symbian_Base::ProcessCommands(bool bCriticalRequest /*=t
 
 		if(bCriticalRequest && IsActive()) //the object is already active.
 		{
+			LOG("Key was press, but the object is still active. Will just set a flag\n"); 
 			//GotoStage(ESendingCommand); //don't force object activation
 			iPendingKey = true;
 			return;
@@ -834,13 +839,23 @@ void BDCommandProcessor_Symbian_Base::ProcessCommands(bool bCriticalRequest /*=t
 
 		if(iState == EIdle || bCriticalRequest)
 		{
+			LOG("The state is idle. Force object to go to ESendingCommand stage directly.\n"); 
 			GotoStage(ESendingCommand);
 			SetActive();
 			return;
 		}
 
 		//on timer tick, we found an EIdle state. what if the connection was lost?
-		m_bStatusOk = false;
+		m_iTimedOut++;
+
+		LOG("@ Inactivity : \n");
+		LOGN(m_iTimedOut);
+		LOGN(" \n");
+
+		if(m_iTimedOut >= 5)
+		{
+			m_bStatusOk = false;
+		}
 	}
 }
 //----------------------------------------------------------------------------------------------

@@ -148,6 +148,9 @@
 			<File
 				RelativePath="..\Gen_Devices\MythTV_PlugInBase.cpp">
 			</File>
+			<File
+				RelativePath=".\MythTvWrapper.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -157,6 +160,9 @@
 			</File>
 			<File
 				RelativePath="MythTV_PlugIn.h">
+			</File>
+			<File
+				RelativePath=".\MythTvWrapper.h">
 			</File>
 		</Filter>
 		<Filter

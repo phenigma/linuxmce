@@ -45,12 +45,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_3DFCBD6FEC544AF6B370DFA40AB121A4"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_849872C9CE46414A9103CFE693CABCBF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -205,26 +199,6 @@
             {
             "SourcePath" = "8:Files\\Images\\default.bmp"
             "TargetName" = "8:default.bmp"
-            "Tag" = "8:"
-            "Folder" = "8:_8686197E7B124C2D8CF838DBC92F9709"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_3DFCBD6FEC544AF6B370DFA40AB121A4"
-            {
-            "SourcePath" = "8:Files\\Images\\logo.bmp"
-            "TargetName" = "8:logo.bmp"
             "Tag" = "8:"
             "Folder" = "8:_8686197E7B124C2D8CF838DBC92F9709"
             "Condition" = "8:"
@@ -614,20 +588,6 @@
             "Transitive" = "11:FALSE"
             "Target" = "8:_0240348649FB4304B081AC0336FCD4F0"
             "Folder" = "8:_DD010703E8AC475CBB9F4B0B7A5E5B6F"
-            "WorkingFolder" = "8:_1B5D852E068541949D4C4EFC20232C0B"
-            "Icon" = "8:_0240348649FB4304B081AC0336FCD4F0"
-            "Feature" = "8:"
-            }
-            "{478F747B-8505-45D1-9AAE-8C3B645C26E3}:_32E4A59DD3A14E99BEC6F31EC2CCC983"
-            {
-            "Name" = "8:PlutoVIP 2.0.0.0"
-            "Arguments" = "8:"
-            "Description" = "8:"
-            "ShowCmd" = "3:1"
-            "IconIndex" = "3:26"
-            "Transitive" = "11:FALSE"
-            "Target" = "8:_0240348649FB4304B081AC0336FCD4F0"
-            "Folder" = "8:_01278160A8B2430696990760DCCD688E"
             "WorkingFolder" = "8:_1B5D852E068541949D4C4EFC20232C0B"
             "Icon" = "8:_0240348649FB4304B081AC0336FCD4F0"
             "Feature" = "8:"
