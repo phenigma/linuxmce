@@ -1529,11 +1529,11 @@ bool CreateSource_FTPHTTP(Row_Package_Source *pRow_Package_Source,list<FileInfo 
 		// ArchiveFileName will be the name of the archive.  Add code here to actually upload it to sourceforge
 		// Initiate an ftp upload using Username & Password
 		string cmd;
-		cmd = "echo open -u anonymous,sf@plutohome.com ftp1.sourceforge.net > batch";
+		cmd = "echo 'open -u anonymous,sf@plutohome.com upload.sourceforge.net' > batch";
 		system(cmd.c_str());
-		cmd = "echo cd incoming >> batch";
+		cmd = "echo 'cd incoming' >> batch";
 		system(cmd.c_str());
-		cmd = "echo put " + ArchiveFileName + " >> batch";
+		cmd = "echo 'put " + ArchiveFileName + "' >> batch";
 		system(cmd.c_str());
 		cmd = "echo quit >> batch";
 		system(cmd.c_str());
