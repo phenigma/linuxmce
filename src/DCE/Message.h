@@ -59,7 +59,7 @@ namespace DCE
     /**
      * @brief enum containing values associeted with syscommands
      */
-    enum { SYSCOMMAND_QUIT=0, SYSCOMMAND_RELOAD=1, SYSCOMMAND_START_MODULE=2, SYSCOMMAND_STOP_MODULE=3, SYSCOMMAND_REACQUIREEPG=4 };
+    enum { SYSCOMMAND_QUIT=0, SYSCOMMAND_RELOAD=1, SYSCOMMAND_START_MODULE=2, SYSCOMMAND_STOP_MODULE=3, SYSCOMMAND_SEGFAULT=4, SYSCOMMAND_DEADLOCK=5 };
 
     /**
      * @brief enum containing values associted with priorities

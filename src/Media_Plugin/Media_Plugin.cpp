@@ -1938,6 +1938,7 @@ class DataGridTable *Media_Plugin::FloorplanMediaChoices( string GridID, string 
 
 class DataGridTable *Media_Plugin::ActiveMediaStreams( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
 {
+    g_pPlutoLogger->Write(LV_STATUS, "Ready to populate active media stream...");
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     DataGridTable *pDataGrid = new DataGridTable();
 
@@ -1950,6 +1951,7 @@ class DataGridTable *Media_Plugin::ActiveMediaStreams( string GridID, string Par
         pDataGridCell->m_AltColor = UniqueColors[iRow];
         pDataGrid->SetData(0,iRow++,pDataGridCell);
     }
+    g_pPlutoLogger->Write(LV_STATUS, "Done with active media streams...");
     return pDataGrid;
 }
 

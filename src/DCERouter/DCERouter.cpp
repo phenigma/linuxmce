@@ -632,7 +632,27 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
             case SYSCOMMAND_RELOAD:
                 m_bReload=true;
                 break;
-            }
+            case SYSCOMMAND_SEGFAULT:
+				{
+					char *pNULLPointer=NULL;
+					strcpy(pNULLPointer,"this always crashes any os");
+				}
+				break;
+            case SYSCOMMAND_DEADLOCK:
+				{
+                    PLUTO_SAFETY_LOCK(slCore,m_CoreMutex);
+					PLUTO_SAFETY_LOCK(slListener,m_CoreMutex);
+			
+					for(DeviceClientMap::iterator iDeviceConnection=m_mapCommandHandlers.begin();iDeviceConnection!=m_mapCommandHandlers.end();++iDeviceConnection)
+					{
+			            ServerSocket *pDeviceConnection = (*iDeviceConnection).second;
+						PLUTO_SAFETY_LOCK(slConnMutex,pDeviceConnection->m_ConnectionMutex);
+						slConnMutex.m_bReleased=true; // So it never gets released
+					}
+				}
+				break;			
+			
+			}
             return;
         }
         else if( (*SafetyMessage)->m_dwMessage_Type == MESSAGETYPE_LOG )

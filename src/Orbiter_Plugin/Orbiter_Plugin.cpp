@@ -445,7 +445,17 @@ printf("Mobile orbiter detected\n");
                 else
                     pOH_Orbiter->m_iLastSignalStrength = 0;
             }
-
+/*
+			if( SignalStrength==0 )  // We don't know the signal strength from the dongle
+			{
+				if( pOH_Orbiter->m_iLastSignalStrength>threshhold )
+					continue; // Do nothing, and don't allow a new connection
+			}
+			else
+			{
+				// We know both signal strengths.  Do a comparisson and take the stronger one
+			}
+*/
             if( pOH_Orbiter->m_pDevice_CurrentDetected && pOH_Orbiter->m_iLastSignalStrength > 0 &&
 				pOH_Orbiter->m_iLastSignalStrength >= SignalStrength )
             {

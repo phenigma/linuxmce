@@ -295,6 +295,7 @@ void Datagrid_Plugin::CMD_Populate_Datagrid(string sID,string sDataGrid_ID,int i
 		*bIsSuccessful=true; // it worked
 
 	m_DataGrids[sDataGrid_ID]=pDataGridTable;
+	g_pPlutoLogger->Write( LV_STATUS, "Returning from populate grid successful? %s", (*bIsSuccessful ? "Y" : "N") );
 	return;
 }
 

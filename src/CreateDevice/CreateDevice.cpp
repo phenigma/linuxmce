@@ -100,6 +100,8 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 		exit(1);
 	}
 
+	g_pPlutoLogger->Write(LV_STATUS,"Inserted device: %d",PK_Device);
+
 	// Loop through all the categories
 	int iPK_DeviceCategory_Loop = iPK_DeviceCategory;
 	while( iPK_DeviceCategory_Loop )
@@ -107,9 +109,12 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 		SQL = "SELECT FK_DeviceData,IK_DeviceData FROM DeviceCategory_DeviceData WHERE FK_DeviceCategory=" + StringUtils::itos(iPK_DeviceCategory_Loop);
 		if( ( result1.r=mysql_query_result( SQL ) ) )
 		{
+g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result1.r->row_count,SQL.c_str());
 			while( row=mysql_fetch_row( result1.r ) )
 			{
 				mapParametersAdded[ atoi(row[0]) ] = row[1] ? row[1] : "";
+g_pPlutoLogger->Write(LV_STATUS,"Added parameter from category %d %s",atoi(row[0]),mapParametersAdded[ atoi(row[0]) ].c_str());
+
 				SQL = "INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData) VALUES(" + StringUtils::itos(PK_Device) + 
 					"," + row[0] + ",'" + (row[1] ? StringUtils::SQLEscape( row[1] ) : string("")) + "');";
 				if( threaded_mysql_query(SQL)!=0 )
@@ -129,6 +134,7 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 	SQL = "SELECT FK_DeviceData,IK_DeviceData FROM DeviceTemplate_DeviceData JOIN DeviceData ON PK_DeviceData=FK_DeviceData WHERE FK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
 	if( ( result2.r=mysql_query_result( SQL ) ) )
 	{
+g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result2.r->row_count,SQL.c_str());
 		while( row=mysql_fetch_row( result2.r ) )
 		{
 			if( mapParametersAdded.find(atoi(row[0]))!=mapParametersAdded.end() )
@@ -142,6 +148,7 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 				SQL = "INSERT INTO Device_DeviceData(FK_Device,FK_DeviceData,IK_DeviceData) VALUES(" + StringUtils::itos(PK_Device) + 
 					"," + row[0] + ",'" + (row[1] ? StringUtils::SQLEscape( row[1] ) : string("")) + "');";
 			}
+g_pPlutoLogger->Write(LV_STATUS,"Executing %s",SQL.c_str());
 			if( threaded_mysql_query(SQL)!=0 )
 			{
 				cout << "Error adding device" << endl;
@@ -153,9 +160,10 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 	if( iPK_DHCPDevice )
 	{
 		SQL = "SELECT FK_DeviceData,IK_DeviceData FROM DHCPDevice_DeviceData WHERE FK_DHCPDevice=" + StringUtils::itos(iPK_DHCPDevice);
-		if( ( result2.r=mysql_query_result( SQL ) ) )
+		if( ( result3.r=mysql_query_result( SQL ) ) )
 		{
-			while( row=mysql_fetch_row( result2.r ) )
+g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_count,SQL.c_str());
+			while( row=mysql_fetch_row( result3.r ) )
 			{
 				if( mapParametersAdded.find(atoi(row[0]))!=mapParametersAdded.end() )
 				{
