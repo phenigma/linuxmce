@@ -920,7 +920,7 @@ class DataGridTable *Media_Plugin::MediaAttrXref( string GridID, string Parms, v
     string PK_Attribute = Parms;
     g_pPlutoLogger->Write(LV_STATUS, "Got this PK_Attributte: %s", PK_Attribute.c_str());
 
-    if( PK_Attribute.substr( 0, 2 )=="#A" )
+	if( PK_Attribute.substr( 0, 2 )=="#A" )
         PK_Attribute = PK_Attribute.substr( 2 );
     else if( PK_Attribute.substr( 0, 2 )=="#F" )
         PK_Attribute = StringUtils::itos(m_pMediaAttributes->GetAttributeFromFileID( atoi( PK_Attribute.substr( 2 ).c_str( ) ) ) );

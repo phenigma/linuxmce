@@ -217,7 +217,13 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
 					char addr[18];
 					ba2str(&(info+i)->bdaddr, addr);
 
-					PhoneDevice *pDNew = new PhoneDevice("",addr,result.rssi);
+					char name[248];
+					memset(name, 0, sizeof(name));
+// For some reason when I do this, I can only scan once and all future scans fail
+//                  if (hci_read_remote_name(dd, &(info+i)->bdaddr, sizeof(name), name, 100000) < 0)
+                        strcpy(name, "see notes in code");
+
+					PhoneDevice *pDNew = new PhoneDevice(name,addr,result.rssi);
 					bacpy(&pDNew->m_bdaddrDongle, &m_DevInfo.bdaddr);
 					g_pPlutoLogger->Write(LV_STATUS, "Device %s responded.", pDNew->m_sMacAddress.c_str());
 					
@@ -262,7 +268,13 @@ bool PhoneDetection_Bluetooth_Linux::ScanningLoop()
 					char addr[18];
 					ba2str(&result.bdaddr, addr);
 
-					PhoneDevice *pDNew = new PhoneDevice("",addr,result.rssi);
+					char name[248];
+					memset(name, 0, sizeof(name));
+// For some reason when I do this, I can only scan once and all future scans fail
+//                  if (hci_read_remote_name(dd, &(info+i)->bdaddr, sizeof(name), name, 100000) < 0)
+                        strcpy(name, "see notes in code");
+
+					PhoneDevice *pDNew = new PhoneDevice(name,addr,result.rssi);
 					bacpy(&pDNew->m_bdaddrDongle, &m_DevInfo.bdaddr);
 					
 					PLUTO_SAFETY_LOCK(mm,m_MapMutex);

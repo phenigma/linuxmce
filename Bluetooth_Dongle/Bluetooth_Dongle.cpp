@@ -318,6 +318,7 @@ void Bluetooth_Dongle::SignalStrengthChanged( class PhoneDevice *pDevice )
 	{
 		//printf( "Detection event, link quality: %d", pDevice->m_iLinkQuality );
 
+		g_pPlutoLogger->Write( LV_WARNING, "Detected mac: %s id: %s", pDevice->m_sMacAddress.c_str(), pDevice->m_sID.c_str() );
 		GetEvents()->Mobile_orbiter_detected( pDevice->m_sMacAddress, pDevice->m_iLinkQuality, pDevice->m_sID );
 	}	
 }

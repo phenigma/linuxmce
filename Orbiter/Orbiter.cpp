@@ -2915,7 +2915,8 @@ void Orbiter::ExecuteCommandsInList( DesignObjCommandList *pDesignObjCommandList
 	}
 	if(  pMessage && !m_bLocalMode  )
 	{
-		m_pcRequestSocket->SendMessage( pMessage );
+		if( !m_pcRequestSocket->SendMessage( pMessage ) )
+			g_pPlutoLogger->Write( LV_CRITICAL,  "Send Message failed");
 	}
 	if(  bRefreshGrids  )
 	{

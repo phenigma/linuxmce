@@ -186,6 +186,7 @@ bool Orbiter_Plugin::RouteToOrbitersInRoom(class Socket *pSocket,class Message *
 
 void Orbiter_Plugin::ProcessUnknownDevice()
 {
+g_pPlutoLogger->Write(LV_STATUS,"in process");
     m_bNoUnknownDeviceIsProcessing = true;
 
     PLUTO_SAFETY_LOCK(mm, m_UnknownDevicesMutex);
@@ -315,6 +316,8 @@ printf("Mobile orbiter detected\n");
             // we need to ask the user if it's a phone that he wants to use on the system.
             if( !vectRow_UnknownDevices.size() )
             {
+g_pPlutoLogger->Write(LV_STATUS,"Need to process.  Bit flag is: %d",(int) m_bNoUnknownDeviceIsProcessing);
+
                 if(!m_bNoUnknownDeviceIsProcessing) //the list was empty... we are processing the first unknown device
                     ProcessUnknownDevice();
             }
@@ -763,6 +766,7 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_DeviceTemplate,string sMac_a
 		g_pPlutoLogger->Write(LV_WARNING, "Sending command CMD_Send_File_To_Device... PlutoMO file: %s, mac: %s", PlutoMOInstaller.c_str(), sMac_address.c_str());
     }
 
+g_pPlutoLogger->Write(LV_STATUS,"setting process flag to false");
     m_bNoUnknownDeviceIsProcessing = false;
 
     ProcessUnknownDevice();
