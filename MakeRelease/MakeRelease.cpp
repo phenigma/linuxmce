@@ -997,8 +997,9 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 	// 7.   Do a cvs ci
 	string MyPath, WorkPath;
 	string cmd;
+	int flag;
 	list<FileInfo *>::iterator iFileInfo;
-
+cout << "\nCreting temporary directory\n";
 	MyPath = "cvs_temp";
 	//Building Temporary Directory
 #ifdef WIN32
@@ -1009,6 +1010,7 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 	//ChDir to Temporary Directory
 	chdir(MyPath.c_str());
 
+cout << "Making CVS Checkout to temporary\n";
 	//Checking Version From SourceForge
 	cmd = " cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/"+
 			pRow_Package_Source->Name_get()+
@@ -1016,33 +1018,116 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 	system(cmd.c_str());
 	chdir(pRow_Package_Source->Name_get().c_str());
 
+	list <string> MyList;
+	list <string>::iterator iMyList;
+	//reading actual directory list
+	FileUtils::FindFiles(MyList, "", "*", true, "");
+
 //	cout<<"\n\n SourceForgeCVS : "<<pRow_Package_Source->FK_Package_getrow()->Description_get();
 //	cout<<"\n Nr of files : "<<listFileInfo.size();
 
+	/*for (iFileInfo = listFileInfo.begin();iFileInfo != listFileInfo.end(); iFileInfo++)
+	{
+		for (iMyList = MyList.begin();iMyList != MyList.end(); iMyList++)
+		{
+			FileInfo *pFileInfo = (*iFileInfo);
+			cmd = FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+			cmd2 = FileUtils::FilenameWithoutPath(*iMyList);
+			cout << "'" << cmd << "'='" << cmd2 << "'";
+			if(cmd.compare (cmd2) == 0) {
+				//if the file exist we overwrite it
+				cmd=FileUtils::BasePath(pFileInfo->m_sSource);
+				string::size_type pos = sInput.rfind("/");
+				cmd = cmd.substr(pos);
+				if(FileUtils::DirExists(cmd) != true) {
+#ifdef WIN32
+					cmd = "copy -f " + pFileInfo->m_sSource + " " + cmd + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+					system(cmd.c_str());
+#else
+					cmd = "cp -f " + pFileInfo->m_sSource + " " + cmd + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+					system(cmd.c_str());
+#endif
+				}
+				flag = 1;
+			}
+		}
+		if(flag != 1) {
+				//if it is a new file we copy it
+				cmd=FileUtils::BasePath(pFileInfo->m_sSource);
+				string::size_type pos = sInput.rfind("/");
+				cmd = cmd.substr(pos);
+				//if we are 
+				if(cmd.compare(pRow_Package_Source->Name_get()) == 0)
+				{
+#ifdef WIN32
+					cmd = "copy -f " + pFileInfo->m_sSource + " " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+					system(cmd.c_str());
+#else
+					cmd = "cp -f " + pFileInfo->m_sSource + " " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+					system(cmd.c_str());
+#endif
+				}
+				else {
+					if(FileUtils::DirExists(cmd) != true) {
+#ifdef WIN32
+						mkdir(cmd.c_str());
+						cmd = "copy -f " + pFileInfo->m_sSource + " " + cmd + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+						system(cmd.c_str());
+#else
+						mkdir(cmd.c_str(), 0777);
+						cmd = "cp -f " + pFileInfo->m_sSource + " " + cmd + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+						system(cmd.c_str());
+#endif
+					}
+					else {
+#ifdef WIN32
+						cmd = "copy -f " + pFileInfo->m_sSource + " " + cmd + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+						system(cmd.c_str());
+#else
+						cmd = "cp -f " + pFileInfo->m_sSource + " " + cmd + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+						system(cmd.c_str());
+#endif
+					}
+				}
+		}
+		flag = 0;
+	}*/
+	return true;
+	///////////////////////////////---------------
 	for (iFileInfo = listFileInfo.begin();iFileInfo != listFileInfo.end(); iFileInfo++)
 	{
 		FileInfo *pFileInfo = (*iFileInfo);
 		WorkPath = pFileInfo->m_sSource;
 //		chdir(FileUtils::BasePath(pFileInfo->m_sSource).c_str());
 		if(FileUtils::BasePath(WorkPath).compare(pRow_Package_Source->Name_get()) == 0) {
+#ifdef WIN32
+			cmd = "copy -f " + WorkPath + " " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+#else
 			cmd = "cp -f " + WorkPath + " " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+#endif
 		} else {
 			if(FileUtils::DirExists(FileUtils::BasePath(WorkPath)) != true) {
 				cmd = FileUtils::BasePath(WorkPath);
 #ifdef WIN32
 				mkdir(cmd.c_str());
-#else
+				cmd = "copy -f " + WorkPath + " " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+#else 
 				mkdir(cmd.c_str(), 0777);
-#endif
 				cmd = "cp -f " + WorkPath + " " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+#endif
 			} else {
+#ifdef WIN32
+				cmd = "copy -f " + WorkPath + " " + FileUtils::BasePath(WorkPath) + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource); 
+#else
 				cmd = "cp -f " + WorkPath + " " + FileUtils::BasePath(WorkPath) + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource); 
+#endif
 			}
 		}
 		printf("%s\n", cmd.c_str());
-		system(cmd.c_str());
+//		system(cmd.c_str());
 	}
 
+	return true;
 	//Making CVS add for each file and subdirectory
 	for (iFileInfo = listFileInfo.begin();iFileInfo != listFileInfo.end(); iFileInfo++)
 	{
@@ -1050,11 +1135,6 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 		cmd = "cvs add " + FileUtils::BasePath(pFileInfo->m_sSource) + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 		system(cmd.c_str());
 	}
-
-	list <string> MyList;
-	list <string>::iterator iMyList;
-	//reading actual directory list
-	FileUtils::FindFiles(MyList, "", "*", true, "");
 
 	//for every file from the temporary directory list ...
 	for(iMyList = MyList.begin();iMyList != MyList.end(); iMyList++) {
