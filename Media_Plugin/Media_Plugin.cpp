@@ -200,6 +200,10 @@ bool Media_Plugin::Register()
         , DATAGRID_Current_Media_CONST );
 
     m_pDatagrid_Plugin->RegisterDatagridGenerator(
+        new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::StoredAudioPlaylist) )
+        , DATAGRID_Stored_Audio_Playlist_CONST );
+
+    m_pDatagrid_Plugin->RegisterDatagridGenerator(
         new DataGridGeneratorCallBack( this, ( DCEDataGridGeneratorFn )( &Media_Plugin::MediaSections ) )
         , DATAGRID_Media_Tracks_CONST );
 
@@ -355,7 +359,11 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
         return false;
     }
 
-    return StartMediaByPositionInPlaylist(pEntertainArea, pMediaStream->m_iDequeFilenames_Pos + 1, m_dwPK_Device, 0);
+    if ( pMediaStream->HaveMoreInQueue() )
+        return StartMediaByPositionInPlaylist(pEntertainArea, pMediaStream->m_iDequeFilenames_Pos + 1, m_dwPK_Device, 0);
+
+    g_pPlutoLogger->Write(LV_STATUS, "Playback completed. At the end of the queue");
+    return true;
 }
 
 bool Media_Plugin::StartMedia( MediaPluginInfo *pMediaPluginInfo, int PK_Device_Orbiter, EntertainArea *pEntertainArea, int PK_Device_Source, int PK_DesignObj_Remote, string Filename )
@@ -378,6 +386,32 @@ bool Media_Plugin::StartMedia( MediaPluginInfo *pMediaPluginInfo, int PK_Device_
 
 
     return true; // hack -- handle errors
+}
+
+class DataGridTable *Media_Plugin::StoredAudioPlaylist( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
+{
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+
+    class MediaStream *pMediaStream = DetermineStreamOnOrbiter( pMessage->m_dwPK_Device_From, true );
+
+    if ( pMediaStream == NULL )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "The message was not from an orbiter or there is not media stream on it");
+        return NULL;
+    }
+
+    DataGridTable *pDataGrid = new DataGridTable();
+    DataGridCell *pCell;
+
+    deque<string>::iterator itFiles;
+    string sCurrentFile;
+    for ( itFiles = pMediaStream->m_dequeFilenames.begin(); itFiles != pMediaStream->m_dequeFilenames.end(); itFiles++ )
+        pDataGrid->SetData(0,
+                           itFiles - pMediaStream->m_dequeFilenames.begin(),
+                           new DataGridCell(
+                                    FileUtils::FilenameWithoutPath(m_pMediaAttributes->ConvertFileSpecToFilePath(*itFiles), false),
+                                    StringUtils::itos(itFiles - pMediaStream->m_dequeFilenames.begin())));
+    return pDataGrid;
 }
 
 class DataGridTable *Media_Plugin::CurrentMedia( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
@@ -513,6 +547,8 @@ void Media_Plugin::CMD_MH_Send_Me_To_Remote(string &sCMD_Result,Message *pMessag
     PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     // Only an Orbiter will send this
     EntertainArea *pEntertainArea = DetermineEntArea( pMessage->m_dwPK_Device_From, 0, 0 );
+
+    g_pPlutoLogger->Write(LV_STATUS, "Found entertainment area: (%d) %p %p", pEntertainArea->m_iPK_EntertainArea, pEntertainArea, pEntertainArea->m_pMediaStream);
     if( !pEntertainArea || !pEntertainArea->m_pMediaStream )
     {
         DCE::CMD_Goto_Screen CMD_Goto_Screen( m_dwPK_Device, pMessage->m_dwPK_Device_From, 0, StringUtils::itos( DESIGNOBJ_mnuNoMedia_CONST ), "", "", false );
@@ -1348,6 +1384,7 @@ bool Media_Plugin::StartMediaOnPlugin(MediaPluginInfo *pMediaPluginInfo, Enterta
 void Media_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage)
 //<-dceag-c65-e->
 {
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     int iPK_Device_Orbiter = pMessage->m_dwPK_Device_From;
 
     // Only an Orbiter will tell us to jump to next position
@@ -1395,6 +1432,7 @@ void Media_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string 
 void Media_Plugin::CMD_Save_playlist(int iPK_Users,int iPK_EntertainArea,string sName,bool bSave_as_new,string &sCMD_Result,Message *pMessage)
 //<-dceag-c214-e->
 {
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     // Find the corrent entertainment area to use.
     EntertainArea *pEntertainArea = DetermineEntArea( pMessage->m_dwPK_Device_From, 0, iPK_EntertainArea );
 
@@ -1441,6 +1479,7 @@ void Media_Plugin::CMD_Save_playlist(int iPK_Users,int iPK_EntertainArea,string 
 void Media_Plugin::CMD_Load_Playlist(int iPK_EntertainArea,int iPK_Playlist,string &sCMD_Result,Message *pMessage)
 //<-dceag-c231-e->
 {
+    PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
     // Find the corrent entertainment area to use.
     EntertainArea *pEntertainArea = DetermineEntArea( pMessage->m_dwPK_Device_From, 0, iPK_EntertainArea );
     MediaStream *pMediaStream;

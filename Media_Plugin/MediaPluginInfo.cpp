@@ -178,7 +178,6 @@ g_pPlutoLogger->Write( LV_STATUS, "Mediastream mapea size %d", m_mapEntertainAre
 
 void MediaStream::SetPlaylistPosition(int position)
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Setting position to value: %d", position);
     m_iDequeFilenames_Pos = position;
 
     // The animals .... size_t vs int...
@@ -192,8 +191,6 @@ void MediaStream::SetPlaylistPosition(int position)
 
 void MediaStream::ChangePositionInPlaylist(int iHowMuch)
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Increment %d", iHowMuch);
-
     SetPlaylistPosition(m_iDequeFilenames_Pos + iHowMuch);
 }
 
@@ -236,6 +233,11 @@ void MediaStream::ClearPlaylist()
 {
     m_iDequeFilenames_Pos = -1;
     m_dequeFilenames.clear();
+}
+
+bool MediaStream::HaveMoreInQueue()
+{
+    return m_iDequeFilenames_Pos < (m_dequeFilenames.size() - 1);
 }
 
 MediaStream::~MediaStream( )

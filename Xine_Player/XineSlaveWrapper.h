@@ -40,25 +40,25 @@ class XineSlaveWrapper
 {
     class XineStream
     {
-        int                 m_istreamID;
+        int                 m_iStreamID;
         int                 m_irequestingObject;
 
         bool                m_bisRendering;
-        int                 m_iimgWidth, m_iimgHeight;
+        int                 m_iImgWidth, m_iImgHeight;
         int                 m_iimgXPos, m_iimgYPos;
         int                 m_iplaybackSpeed;
 
+        bool                m_bHasVideo;
         pthread_t           eventLoop;
-        xine_stream_t       *m_pstream;
-        xine_event_queue_t  *m_pstreamEventQueue;
+        xine_stream_t       *m_pStream;
+        xine_event_queue_t  *m_pStreamEventQueue;
 
         XineSlaveWrapper    *m_pOwner;  /** < the Owner */
 
-    /**
-     * @brief destructor
-     */
-
-    void setPlaybackSpeed(int speed);
+        /**
+        * @brief This will change the playback speed of the current stream
+        */
+        void setPlaybackSpeed(int speed);
         friend class XineSlaveWrapper;
     };
 
@@ -75,7 +75,7 @@ class XineSlaveWrapper
     Pixmap      noCursor;
 
     int         m_icurrentScreen;
-    int         m_icurrentWindow;
+    int         m_iCurrentWindow;
 
     string      m_sXineVideoDriverName;
     string      m_sXineAudioDriverName;
@@ -84,6 +84,7 @@ class XineSlaveWrapper
     xine_t              *m_pXine;
     xine_video_port_t   *m_pXineVideo;
     xine_audio_port_t   *m_pXineAudio;
+    xine_post_t         *m_pXineVisualizationPlugin;
 
     map<int, XineStream *> m_mapStreams;
 

@@ -1,17 +1,17 @@
 /*
-	Xine_Player
-	
-	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-	
-	www.plutohome.com		
-	
-	Phone: +1 (877) 758-8648
-	
-	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
-	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-	
-	See the GNU General Public License for more details.
+    Xine_Player
+
+    Copyright (C) 2004 Pluto, Inc., a Florida Corporation
+
+    www.plutohome.com
+
+    Phone: +1 (877) 758-8648
+
+    This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
+    This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+    of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+    See the GNU General Public License for more details.
 */
 
 
@@ -39,34 +39,34 @@ using namespace DCE;
 
 //<-dceag-const-b->
 Xine_Player::Xine_Player(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-	: Xine_Player_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
+    : Xine_Player_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
-	m_pXineSlaveControl = new XineSlaveWrapper();
+    m_pXineSlaveControl = new XineSlaveWrapper();
 
-	if ( ! m_pXineSlaveControl->createWindow() )
-	{
-	g_pPlutoLogger->Write(LV_WARNING, "Couldn't create the xine slave window. This plugin is useless here!");
-	delete m_pXineSlaveControl;
-	m_pXineSlaveControl = NULL;
-	}
-	
-	else if ( ! m_pXineSlaveControl->createXineLibConnection() )
-	{
-	g_pPlutoLogger->Write(LV_WARNING, "Couldn't create the Xine Object.");
+    if ( ! m_pXineSlaveControl->createWindow() )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "Couldn't create the xine slave window. This plugin is useless here!");
+        delete m_pXineSlaveControl;
+        m_pXineSlaveControl = NULL;
+    }
 
-	delete m_pXineSlaveControl;
-	m_pXineSlaveControl = NULL;
-	}
+    else if ( ! m_pXineSlaveControl->createXineLibConnection() )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "Couldn't create the Xine Object.");
 
-	m_pXineSlaveControl->setXinePlayerObject(this);
+       delete m_pXineSlaveControl;
+       m_pXineSlaveControl = NULL;
+    }
+
+    m_pXineSlaveControl->setXinePlayerObject(this);
 }
 
 //<-dceag-dest-b->
 Xine_Player::~Xine_Player()
 //<-dceag-dest-e->
 {
-	delete m_pXineSlaveControl;
+    delete m_pXineSlaveControl;
 }
 
 //<-dceag-reg-b->
@@ -74,34 +74,34 @@ Xine_Player::~Xine_Player()
 bool Xine_Player::Register()
 //<-dceag-reg-e->
 {
-	return Connect();
+    return Connect();
 }
 
 /*
-	When you receive commands that are destined to one of your children,
-	then if that child implements DCE then there will already be a separate class
-	created for the child that will get the message.  If the child does not, then you will 
-	get all	commands for your children in ReceivedCommandForChild, where 
-	pDeviceData_Base is the child device.  If you handle the message, you 
-	should change the sCMD_Result to OK
+    When you receive commands that are destined to one of your children,
+    then if that child implements DCE then there will already be a separate class
+    created for the child that will get the message.  If the child does not, then you will
+    get all commands for your children in ReceivedCommandForChild, where
+    pDeviceData_Base is the child device.  If you handle the message, you
+    should change the sCMD_Result to OK
 */
 //<-dceag-cmdch-b->
 void Xine_Player::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
-	sCMD_Result = "UNHANDLED CHILD";
+    sCMD_Result = "UNHANDLED CHILD";
 }
 
 /*
-	When you received a valid command, but it wasn't for one of your children,
-	then ReceivedUnknownCommand gets called.  If you handle the message, you 
-	should change the sCMD_Result to OK
+    When you received a valid command, but it wasn't for one of your children,
+    then ReceivedUnknownCommand gets called.  If you handle the message, you
+    should change the sCMD_Result to OK
 */
 //<-dceag-cmduk-b->
 void Xine_Player::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 //<-dceag-cmduk-e->
 {
-	sCMD_Result = "UNKNOWN DEVICE";
+    sCMD_Result = "UNKNOWN DEVICE";
 }
 
 /** @example   **** SAMPLE ILLUSTRATING HOW TO USE THE BASE CLASSES ****
@@ -171,90 +171,90 @@ void Xine_Player::SomeFunction()
 
 //<-dceag-c37-b->
 
-	/** @brief COMMAND: #37 - Play Media */
-	/** This command will instruct a Media Player to play a media stream identified by a media descriptor created by the "Create Media" command. */
-		/** @param #13 Filename */
-			/** The file to play.  The format is specific on the media type and the media player. */
-		/** @param #29 PK_MediaType */
-			/** The type of media */
-		/** @param #41 StreamID */
-			/** The media that we need to play. */
-		/** @param #42 MediaPosition */
-			/** The position at which we need to start playing. */
+    /** @brief COMMAND: #37 - Play Media */
+    /** This command will instruct a Media Player to play a media stream identified by a media descriptor created by the "Create Media" command. */
+        /** @param #13 Filename */
+            /** The file to play.  The format is specific on the media type and the media player. */
+        /** @param #29 PK_MediaType */
+            /** The type of media */
+        /** @param #41 StreamID */
+            /** The media that we need to play. */
+        /** @param #42 MediaPosition */
+            /** The position at which we need to start playing. */
 
 void Xine_Player::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
-	if ( ! m_pXineSlaveControl )
-	{
-	g_pPlutoLogger->Write(LV_WARNING, "I don't have a slave to make it play. The slave proabbly failed to initialize properly.");
-	return;
-	}
+    if ( ! m_pXineSlaveControl )
+    {
+    g_pPlutoLogger->Write(LV_WARNING, "I don't have a slave to make it play. The slave proabbly failed to initialize properly.");
+    return;
+    }
 
-	makeActive(m_pXineSlaveControl->getRenderingWindowName());
-	m_pXineSlaveControl->playStream(sFilename, iStreamID, iMediaPosition, pMessage->m_dwPK_Device_From);
+    makeActive(m_pXineSlaveControl->getRenderingWindowName());
+    m_pXineSlaveControl->playStream(sFilename, iStreamID, iMediaPosition, pMessage->m_dwPK_Device_From);
 }
 
 //<-dceag-c38-b->
 
-	/** @brief COMMAND: #38 - Stop Media */
-	/** This will instruct the media player to stop the playback of a media started with the "Play Media" Command */
-		/** @param #41 StreamID */
-			/** The media needing to be stopped. */
+    /** @brief COMMAND: #38 - Stop Media */
+    /** This will instruct the media player to stop the playback of a media started with the "Play Media" Command */
+        /** @param #41 StreamID */
+            /** The media needing to be stopped. */
 
 void Xine_Player::CMD_Stop_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c38-e->
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Got a stop media for stream ID %d", iStreamID);
-	m_pXineSlaveControl->stopMedia(iStreamID);
-	g_pPlutoLogger->Write(LV_STATUS, "The stream playback should be stopped at this moment and the resources should be freed!");
+    g_pPlutoLogger->Write(LV_STATUS, "Got a stop media for stream ID %d", iStreamID);
+    m_pXineSlaveControl->stopMedia(iStreamID);
+    g_pPlutoLogger->Write(LV_STATUS, "The stream playback should be stopped at this moment and the resources should be freed!");
 }
 
 //<-dceag-c39-b->
 
-	/** @brief COMMAND: #39 - Pause Media */
-	/** This will stop a media that is currently played. This method should be paired with the "Restart Media" and used when the playback will be stopped and restarted on the same display device. */
-		/** @param #41 StreamID */
-			/** The media stream for which we need to pause playback. */
+    /** @brief COMMAND: #39 - Pause Media */
+    /** This will stop a media that is currently played. This method should be paired with the "Restart Media" and used when the playback will be stopped and restarted on the same display device. */
+        /** @param #41 StreamID */
+            /** The media stream for which we need to pause playback. */
 
 void Xine_Player::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c39-e->
 {
-	m_pXineSlaveControl->pauseMediaStream(iStreamID);
+    m_pXineSlaveControl->pauseMediaStream(iStreamID);
 }
 
 //<-dceag-c40-b->
 
-	/** @brief COMMAND: #40 - Restart Media */
-	/** This will restart a media was paused with the above command */
-		/** @param #41 StreamID */
-			/** The media stream that we need to restart playback for. */
+    /** @brief COMMAND: #40 - Restart Media */
+    /** This will restart a media was paused with the above command */
+        /** @param #41 StreamID */
+            /** The media stream that we need to restart playback for. */
 
 void Xine_Player::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c40-e->
 {
-	m_pXineSlaveControl->restartMediaStream(iStreamID);
+    m_pXineSlaveControl->restartMediaStream(iStreamID);
 }
 
 //<-dceag-c41-b->
 
-	/** @brief COMMAND: #41 - Change Playback Speed */
-	/** Will make the playback to FF with a configurable amount of speed. */
-		/** @param #41 StreamID */
-			/** The media needing the playback speed change. */
-		/** @param #43 MediaPlaybackSpeed */
-			/** The requested media playback speed. This is a multiplier of the normal speed. (If we want 2x playback this parameter will be 2 if we want half of normal speed then the parameter will be 0.5). The formula is NextSpeed = MediaPlaybackSpeed * NormalPlaybackS */
+    /** @brief COMMAND: #41 - Change Playback Speed */
+    /** Will make the playback to FF with a configurable amount of speed. */
+        /** @param #41 StreamID */
+            /** The media needing the playback speed change. */
+        /** @param #43 MediaPlaybackSpeed */
+            /** The requested media playback speed. This is a multiplier of the normal speed. (If we want 2x playback this parameter will be 2 if we want half of normal speed then the parameter will be 0.5). The formula is NextSpeed = MediaPlaybackSpeed * NormalPlaybackS */
 
 void Xine_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpeed,string &sCMD_Result,Message *pMessage)
 //<-dceag-c41-e->
 {
-	m_pXineSlaveControl->changePlaybackSpeed(iStreamID, iMediaPlaybackSpeed);
+    m_pXineSlaveControl->changePlaybackSpeed(iStreamID, iMediaPlaybackSpeed);
 }
 
 //<-dceag-c63-b->
 
-	/** @brief COMMAND: #63 - Skip Forward */
-	/** Chapter/Track Next/Down/Forward */
+    /** @brief COMMAND: #63 - Skip Forward */
+    /** Chapter/Track Next/Down/Forward */
 
 void Xine_Player::CMD_Skip_Forward(string &sCMD_Result,Message *pMessage)
 //<-dceag-c63-e->
@@ -264,8 +264,8 @@ void Xine_Player::CMD_Skip_Forward(string &sCMD_Result,Message *pMessage)
 
 //<-dceag-c64-b->
 
-	/** @brief COMMAND: #64 - Skip Back */
-	/** Chapter/Track Back/Up/Prior */
+    /** @brief COMMAND: #64 - Skip Back */
+    /** Chapter/Track Back/Up/Prior */
 
 void Xine_Player::CMD_Skip_Back(string &sCMD_Result,Message *pMessage)
 //<-dceag-c64-e->
@@ -276,101 +276,101 @@ void Xine_Player::CMD_Skip_Back(string &sCMD_Result,Message *pMessage)
 
 Display *Xine_Player::getDisplay()
 {
-	return m_pXineSlaveControl->XServerDisplay;
+    return m_pXineSlaveControl->XServerDisplay;
 }
 //<-dceag-c81-b->
 
-	/** @brief COMMAND: #81 - Navigate Next */
-	/** Nagivate to the next possible navigable area. (The actual outcome depends on the specifc device) */
-		/** @param #41 StreamID */
-			/** The stream on which to do the navigation. */
+    /** @brief COMMAND: #81 - Navigate Next */
+    /** Nagivate to the next possible navigable area. (The actual outcome depends on the specifc device) */
+        /** @param #41 StreamID */
+            /** The stream on which to do the navigation. */
 
 void Xine_Player::CMD_Navigate_Next(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c81-e->
 {
-	m_pXineSlaveControl->selectNextButton(iStreamID);
+    m_pXineSlaveControl->selectNextButton(iStreamID);
 }
 
 //<-dceag-c82-b->
 
-	/** @brief COMMAND: #82 - Navigate Prev */
-	/** Nagivate the previous possible navigable area. (The actual outcome depends on the specific device). */
-		/** @param #41 StreamID */
-			/** The stream on which to do the navigation. */
+    /** @brief COMMAND: #82 - Navigate Prev */
+    /** Nagivate the previous possible navigable area. (The actual outcome depends on the specific device). */
+        /** @param #41 StreamID */
+            /** The stream on which to do the navigation. */
 
 void Xine_Player::CMD_Navigate_Prev(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c82-e->
 {
-	m_pXineSlaveControl->selectPrevButton(iStreamID);
+    m_pXineSlaveControl->selectPrevButton(iStreamID);
 
 }
 
 //<-dceag-c83-b->
 
-	/** @brief COMMAND: #83 - Select Current Navigable Area */
-	/** Mark the selected area as "clicked". */
-		/** @param #41 StreamID */
-			/** The stream on which to do the navigation. */
+    /** @brief COMMAND: #83 - Select Current Navigable Area */
+    /** Mark the selected area as "clicked". */
+        /** @param #41 StreamID */
+            /** The stream on which to do the navigation. */
 
 void Xine_Player::CMD_Select_Current_Navigable_Area(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c83-e->
 {
-	m_pXineSlaveControl->pushCurrentButton(iStreamID);
+    m_pXineSlaveControl->pushCurrentButton(iStreamID);
 }
 
 
 //<-dceag-c84-b->
 
-	/** @brief COMMAND: #84 - Get Video Frame */
-	/** Get's the current video frame from the media player. */
-		/** @param #19 Data */
-			/** The video frame */
-		/** @param #20 Format */
-			/** One of the following: "jpg", "png" */
-		/** @param #23 Disable Aspect Lock */
-			/** If true, don't worry about the aspect ratio.  Try to get the requested width and height. */
-		/** @param #41 StreamID */
-			/** Optional.  For multi stream devices, like media players, this identifies the stream. */
-		/** @param #60 Width */
-			/** The desired width of the video frame.  The sender need not respect this. */
-		/** @param #61 Height */
-			/** The desired height of the video frame.  The sender need not respect this. */
+    /** @brief COMMAND: #84 - Get Video Frame */
+    /** Get's the current video frame from the media player. */
+        /** @param #19 Data */
+            /** The video frame */
+        /** @param #20 Format */
+            /** One of the following: "jpg", "png" */
+        /** @param #23 Disable Aspect Lock */
+            /** If true, don't worry about the aspect ratio.  Try to get the requested width and height. */
+        /** @param #41 StreamID */
+            /** Optional.  For multi stream devices, like media players, this identifies the stream. */
+        /** @param #60 Width */
+            /** The desired width of the video frame.  The sender need not respect this. */
+        /** @param #61 Height */
+            /** The desired height of the video frame.  The sender need not respect this. */
 
 void Xine_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat,string &sCMD_Result,Message *pMessage)
 //<-dceag-c84-e->
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Getting the frame!");
-	*pData = NULL;
-	*iData_Size = 0;
+    g_pPlutoLogger->Write(LV_STATUS, "Getting the frame!");
+    *pData = NULL;
+    *iData_Size = 0;
 
-	m_pXineSlaveControl->getScreenShot(iStreamID, iWidth, iHeight, *pData, *iData_Size, *sFormat, sCMD_Result);
-	g_pPlutoLogger->Write(LV_STATUS, "Done!");
+    m_pXineSlaveControl->getScreenShot(iStreamID, iWidth, iHeight, *pData, *iData_Size, *sFormat, sCMD_Result);
+    g_pPlutoLogger->Write(LV_STATUS, "Done!");
 }
 
 //<-dceag-c87-b->
 
-	/** @brief COMMAND: #87 - Goto Media Menu */
-	/** Goto to the current media Root Menu. */
-		/** @param #41 StreamID */
-			/** The stream ID */
-		/** @param #64 MenuType */
-			/** The type of menu that the user want to jump to.
+    /** @brief COMMAND: #87 - Goto Media Menu */
+    /** Goto to the current media Root Menu. */
+        /** @param #41 StreamID */
+            /** The stream ID */
+        /** @param #64 MenuType */
+            /** The type of menu that the user want to jump to.
 (For DVD handlers usually this applies)
-0 - Root menu 
+0 - Root menu
 1 - Title menu
 2 - Media menu */
 
 void Xine_Player::CMD_Goto_Media_Menu(int iStreamID,int iMenuType,string &sCMD_Result,Message *pMessage)
 //<-dceag-c87-e->
 {
-	m_pXineSlaveControl->selectMenu(iStreamID, iMenuType);
+    m_pXineSlaveControl->selectMenu(iStreamID, iMenuType);
 }
 
 void Xine_Player::FireMenuOnScreen(int iDestinationDevice, int iStreamID, bool bOnOff)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Sending Menu on screen event %s for stream %d", bOnOff ? "on" : "off", iStreamID);
+    g_pPlutoLogger->Write(LV_STATUS, "Sending Menu on screen event %s for stream %d", bOnOff ? "on" : "off", iStreamID);
 
-	EVENT_Menu_Onscreen(iStreamID, bOnOff);
+    EVENT_Menu_Onscreen(iStreamID, bOnOff);
 /*    SendMessage(
         new Message(
             m_dwPK_Device,

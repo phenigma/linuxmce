@@ -175,6 +175,7 @@ namespace DCE
         virtual void AddFileArrayToPlaylist(vector<string> &vectFileList);
         virtual void DumpPlaylist();
         virtual void ClearPlaylist();
+        virtual bool HaveMoreInQueue();
     };
 
     typedef map<int,MediaStream *> MapMediaStream;
