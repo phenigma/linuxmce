@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-video.c,v 1.56 2005/02/15 10:51:54 kraxel Exp $
+ * $Id: cx88-video.c,v 1.57 2005/02/24 13:32:30 kraxel Exp $
  *
  * device driver for Conexant 2388x based TV cards
  * video4linux video interface
@@ -1348,7 +1348,6 @@ static int video_do_ioctl(struct inode *inode, struct file *file,
 			0;
 		if (UNSET != core->tuner_type)
 			cap->capabilities |= V4L2_CAP_TUNER;
-
 		return 0;
 	}
 

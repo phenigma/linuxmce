@@ -1,3 +1,9 @@
+2005-02-24 14:32  kraxel
+
+	* cx88-video.c, video-buf.c:
+
+	- catch pci_map_sg failure.
+
 2005-02-22 15:06  kraxel
 
 	* bttv-cards.c, bttv.h:
