@@ -442,14 +442,13 @@ function editCommandGroup($output,$dbADO) {
 			if ($dbADO->Affected_Rows()>0) {
 				$isModified=1;				
 			}
-			
 			$selectCommandsAssigned = "
 				SELECT CommandGroup_Command.* FROM 
 					CommandGroup_Command				
 					LEFT JOIN 
 						Device ON CommandGroup_Command.FK_Device = Device.PK_Device						
 					WHERE 
-						(Device.FK_Installation = ? OR Device.PK_Device IS NULL)
+						(Device.FK_Installation = ? OR Device.FK_Installation IS NULL)
 				AND CommandGroup_Command.FK_CommandGroup = ?
 				";								
 
@@ -489,7 +488,7 @@ function editCommandGroup($output,$dbADO) {
 					}
 					//die();
 					//command parameters
-					
+
 					$query = "SELECT Command_CommandParameter.FK_CommandParameter,Command_CommandParameter.Description as C_CP_Description,CommandParameter.Description as CP_Description,
 										CommandGroup_Command_CommandParameter.IK_CommandParameter,
 										ParameterType.Description as PT_Description
