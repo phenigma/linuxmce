@@ -11,7 +11,6 @@ using namespace DCE;
 
 #include "Gen_Devices/AllCommandsRequests.h"
 //<-dceag-d-e->
-
 //<-dceag-const-b->
 Text_To_Speech::Text_To_Speech(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Text_To_Speech_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
@@ -149,6 +148,67 @@ void Text_To_Speech::SomeFunction()
 
 */
 
+char *Text_To_Speech::CreateWAV(string sText,int &Size)
+{
+	// do it
+	FILE *fp;
+	string cmd;
+
+	char *pBuffer, *pData;
+	unsigned int count, size;
+
+	pBuffer = pData = NULL;
+#ifdef WIN32
+	cmd = "iisc /ttw \"" + sText + "\" sample.wav";
+	system(cmd.c_str());
+#else
+	cmd = "flite -t \"" + sText + "\" sample.wav";
+	system(cmd.c_str());
+#endif
+
+	count = 0;
+	pData = (char *)malloc(1);
+	fp = fopen("sample.wav", "rb");
+	fseek( fp, 0L, SEEK_SET );
+	if(fp != NULL) {
+		while(feof(fp)==0) {
+			char c;
+			fscanf( fp, "%c", &c );
+			count++;
+		}
+		fclose(fp);
+	}
+	size = count;
+	pBuffer = new char[size];
+	size--;
+//Oricare Os este pana aici avem fisierul WAV;
+	fp = fopen("sample.wav", "rb");
+	fseek( fp, 0L, SEEK_SET );
+	count = 0;
+	if(fp != NULL) {
+		while(feof(fp)==0) {
+			fscanf(fp, "%c", &pBuffer[count]);
+			count++;
+		}
+		fclose(fp);
+	} 
+	else {
+		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to open WAV file");
+	}
+//Am citit buferul shi il returnam;
+	Size = size;
+
+#ifdef WIN32
+	cmd = "del sample.wav";
+	system(cmd.c_str());
+#else
+	cmd = "rm sample.wav";
+	system(cmd.c_str());
+#endif
+
+	return pBuffer;
+}
+
 //<-dceag-c253-b->
 
 	/** @brief COMMAND: #253 - Send Audio To Device */
@@ -161,9 +221,18 @@ void Text_To_Speech::SomeFunction()
 void Text_To_Speech::CMD_Send_Audio_To_Device(string sText,string sPK_Device_List,string &sCMD_Result,Message *pMessage)
 //<-dceag-c253-e->
 {
-	cout << "Need to implement command #253 - Send Audio To Device" << endl;
-	cout << "Parm #9 - Text=" << sText << endl;
-	cout << "Parm #103 - PK_Device_List=" << sPK_Device_List << endl;
+	int Size;
+	char *pBuffer = CreateWAV(sText,Size);
+	if( !pBuffer )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to create WAV");
+	}
+	else
+	{
+		DCE::CMD_Play_Sound_DL CMD_Play_Sound_DL(m_dwPK_Device,sPK_Device_List,pBuffer,Size,"WAV");
+		SendCommand(CMD_Play_Sound_DL);
+	}
+	delete [] pBuffer;
 }
 
 //<-dceag-c256-b->
@@ -178,10 +247,49 @@ void Text_To_Speech::CMD_Send_Audio_To_Device(string sText,string sPK_Device_Lis
 void Text_To_Speech::CMD_Text_To_Wave(string sText,char **pData,int *iData_Size,string &sCMD_Result,Message *pMessage)
 //<-dceag-c256-e->
 {
-	cout << "Need to implement command #256 - Text To Wave" << endl;
-	cout << "Parm #9 - Text=" << sText << endl;
-	cout << "Parm #19 - Data  (data value)" << endl;
+	int Size;
+
+	Size = Find_Exact_Size(sText);
+	*pData = new char[Size];
+	*iData_Size=Size;
+	cout << "the size is " << Size << endl;
+	*pData = CreateWAV(sText,Size);
+
 }
+unsigned int Text_To_Speech::Find_Exact_Size(string sText)
+{
+	unsigned int count;
+	FILE *fp;
+	char c;
+	string cmd;
 
+#ifdef WIN32
+	cmd = "iisc /ttw \"" + sText + "\" sample.wav";
+	system(cmd.c_str());
+#else
+	cmd = "flite -t \"" + sText + "\" sample.wav";
+	system(cmd.c_str());
+#endif
 
+	count = 0;
+	fp = fopen("sample.wav", "rb");
+	fseek( fp, 0L, SEEK_SET );
+	if(fp != NULL) {
+		while(feof(fp)==0) {
+			char c;
+			fscanf( fp, "%c", &c );
+			count++;
+		}
+		fclose(fp);
+	}
+	count--;
 
+#ifdef WIN32
+	cmd = "del sample.wav";
+	system(cmd.c_str());
+#else
+	cmd = "rm sample.wav";
+	system(cmd.c_str());
+#endif
+	return count;
+}
