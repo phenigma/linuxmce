@@ -633,7 +633,7 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 	for( MapEntertainArea::iterator itEA = pMediaStream->m_mapEntertainArea.begin( );itEA != pMediaStream->m_mapEntertainArea.end( );++itEA )
 	{
 		EntertainArea *pEntertainArea = ( *itEA ).second;
-		g_pPlutoLogger->Write( LV_STATUS, "Looking into the ent area (%p) with id %d", pEntertainArea, pEntertainArea->m_iPK_EntertainArea );
+		g_pPlutoLogger->Write( LV_STATUS, "Looking into the ent area (%p) with id %d and %d remotes", pEntertainArea, pEntertainArea->m_iPK_EntertainArea, (int) pEntertainArea->m_mapBoundRemote.size() );
 		for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
 		{
 			BoundRemote *pBoundRemote = ( *itBR ).second;
@@ -650,6 +650,8 @@ bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, 
 		else
 			sOtherOrbiters += StringUtils::itos( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device ) + ", ";
 	}
+
+	g_pPlutoLogger->Write( LV_STATUS, "osd: %s other: %s",sOnScreenOrbiters.c_str(),sOtherOrbiters.c_str());
 
 	if( sOnScreenOrbiters.size( )==0 && sOtherOrbiters.size( )==0 )
 	{

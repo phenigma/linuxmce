@@ -163,11 +163,17 @@ Command_Impl::~Command_Impl()
 	g_pPlutoLogger->Write( LV_STATUS, "Waiting for message queue thread to quit" );
 
 	m_bQuit=true;
+	time_t tTime = time(NULL);
 
 	while( m_bMessageQueueThreadRunning )
 	{
 		pthread_cond_broadcast( &m_listMessageQueueCond );
 		Sleep(10); // Should happen right away
+		if( tTime + 5 < time(NULL) )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"m_bMessageQueueThreadRunning had blocked!!!!");
+			exit(1);
+		}
 	}
 	g_pPlutoLogger->Write( LV_STATUS, "Message queue thread quit" );
 

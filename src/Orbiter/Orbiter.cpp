@@ -450,6 +450,7 @@ void Orbiter::RedrawObjects(  )
 
 void Orbiter::ScreenSaver( void *data )
 {
+g_pPlutoLogger->Write(LV_CRITICAL,"::Screen saver Bypass screen saver now: %d",(int)m_bBypassScreenSaver);
 	if( m_bBypassScreenSaver || !m_pDesignObj_Orbiter_ScreenSaveMenu )
 		return;
 
@@ -1134,7 +1135,10 @@ g_pPlutoLogger->Write( LV_STATUS, "@@@ About to call maint for display off with 
 		CallMaintenanceInMiliseconds( m_iTimeoutBlank * 1000, &Orbiter::ScreenSaver, NULL, true );
 	}
 	else if( m_pDesignObj_Orbiter_ScreenSaveMenu && !m_bBypassScreenSaver && pScreenHistory->m_pObj != m_pDesignObj_Orbiter_ScreenSaveMenu && m_iTimeoutScreenSaver )
+	{
+g_pPlutoLogger->Write( LV_STATUS, "@@@ About to call maint for screen saver with timeout: %d ms", m_iTimeoutScreenSaver * 1000);
 		CallMaintenanceInMiliseconds( m_iTimeoutScreenSaver * 1000, &Orbiter::ScreenSaver, NULL, true );
+	}
 
     m_pScreenHistory_Current=pScreenHistory;
     m_pScreenHistory_Current->m_pObj->m_bActive=true;
@@ -3353,7 +3357,10 @@ g_pPlutoLogger->Write(LV_STATUS,"Ignoring click because screen saver was active"
 		CallMaintenanceInMiliseconds( m_pScreenHistory_Current->m_pObj->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) m_pScreenHistory_Current->m_pObj, true );
 
 	if( m_pDesignObj_Orbiter_ScreenSaveMenu && !m_bBypassScreenSaver && m_pScreenHistory_Current->m_pObj != m_pDesignObj_Orbiter_ScreenSaveMenu && m_iTimeoutScreenSaver )
+	{
+g_pPlutoLogger->Write(LV_STATUS,"Got activity - calling ScreenSaver in %d ",m_iTimeoutScreenSaver);
 		CallMaintenanceInMiliseconds( m_iTimeoutScreenSaver * 1000, &Orbiter::ScreenSaver, NULL, true );
+	}
 	return true;
 }
 
@@ -6103,8 +6110,16 @@ void Orbiter::KillMaintThread()
 {
 	m_bQuit=true;
 	pthread_cond_broadcast(&m_MaintThreadCond);  // Wake it up, it will quit when it sees the quit
+	time_t tTime = time(NULL);
 	while(bMaintThreadIsRunning)
+	{
 		Sleep(10);
+		if( tTime + 5 < time(NULL) )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Maint Thread had blocked!!!!");
+			exit(1);
+		}
+	}
 }
 
 int Orbiter::TranslateVirtualDevice(int PK_DeviceTemplate)
@@ -6208,6 +6223,7 @@ void Orbiter::CMD_Keep_Screen_On(string sOnOff,string &sCMD_Result,Message *pMes
 //<-dceag-c325-e->
 {
 	m_bBypassScreenSaver = sOnOff!="0";
+	g_pPlutoLogger->Write(LV_CRITICAL,"Bypass screen saver now: %d",(int)m_bBypassScreenSaver);
 }
 //<-dceag-c192-b->
 
