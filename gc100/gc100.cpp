@@ -243,7 +243,8 @@ void gc100::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 		cout << "Cmd: Learn IR '" << pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST] << "' == '" << atoi(pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST].c_str()) << "'" << endl;
 		cout << "C: " << (atoi(pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST].c_str()) != 0) << endl;
 		if (atoi(pMessage->m_mapParameters[COMMANDPARAMETER_OnOff_CONST].c_str()) != 0)
-			LEARN_IR(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Device_CONST], pMessage->m_mapParameters[COMMANDPARAMETER_PK_Command_Input_CONST], pMessage->m_dwPK_Device_From);
+			LEARN_IR(pMessage->m_dwPK_Device_To, atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Command_Input_CONST].c_str()),
+			pMessage->m_dwPK_Device_From, atoi(pMessage->m_mapParameters[COMMANDPARAMETER_PK_Text_CONST].c_str()));
 		else
 			LEARN_IR_CANCEL();
 		sCMD_Result = "OK";
@@ -1061,14 +1062,11 @@ void gc100::SendIR(string Port, string IRCode)
 
 // Not done
 // TODO: Create LearningInfo object and spawn new thread
-void gc100::LEARN_IR(string PKID_Device, string CommandID, long OrbiterID)
+void gc100::LEARN_IR(long PK_Device, long PK_Command, long PK_Device_Orbiter, long PK_Text)
 {
-	g_pPlutoLogger->Write(LV_STATUS,"RECEIVED LEARN_IR PKID_Device='%s' CommandID='%s'", PKID_Device.c_str(), CommandID.c_str());
+	g_pPlutoLogger->Write(LV_STATUS,"RECEIVED LEARN_IR PKID_Device='%s' CommandID='%s'", PK_Device, PK_Command);
 
 	PLUTO_SAFETY_LOCK(sl, gc100_mutex);
-	m_IRDeviceID = atoi(PKID_Device.c_str()); // Device_To
-	m_IRCommandID = atoi(CommandID.c_str());
-	m_ControllerID = OrbiterID; // Device_From
 
 	learn_input_string=""; // Clear out the IR to learn the next sequence clean
 
@@ -1076,7 +1074,7 @@ void gc100::LEARN_IR(string PKID_Device, string CommandID, long OrbiterID)
 	{
 		if (! m_bLearning)
 		{
-			LearningInfo * pLI = new LearningInfo(m_IRDeviceID, m_IRCommandID, m_ControllerID, this);
+			LearningInfo * pLI = new LearningInfo(PK_Device, PK_Command, PK_Device_Orbiter, PK_Text, this);
 			if (pthread_create(&m_LearningThread, NULL, StartLearningThread, (void *) pLI))
 			{
 				g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create Event Thread");
@@ -1094,6 +1092,7 @@ void gc100::LEARN_IR(string PKID_Device, string CommandID, long OrbiterID)
 	else
 	{
 		g_pPlutoLogger->Write(LV_WARNING,"Can't learn because no learning port is open");
+		DCE::CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Can't learn because no learning port is open", PK_Text);
 	}
 }
 
@@ -1138,6 +1137,11 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 	bool learning_error = false;
 	int retval;
 	int ErrNo;
+
+	long PK_Command = pLearningInfo->m_PK_Command;
+	long PK_Device = pLearningInfo->m_PK_Device;
+	long PK_Device_Orbiter = pLearningInfo->m_PK_Device_Orbiter;
+	long PK_Text = pLearningInfo->m_PK_Text;
 
 	g_pPlutoLogger->Write(LV_STATUS, "Learning thread started");
 	timeval StartTime;
@@ -1211,16 +1215,19 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 					m_pCommand_Impl->SendCommand(CMD_Store_Infrared_Code_Cat);
 					m_CodeMap[IntPair(m_IRDeviceID, m_IRCommandID)] = pronto_result;
 					bLearnedCode = true;
+					DCE::CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Learning timed out", PK_Text);
 				}
 				else
 				{
 					g_pPlutoLogger->Write(LV_WARNING, "Learn event not sent because GC-IRL indicated error, possibly code was too long to be learned");
+					DCE::CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Learn event not sent because GC-IRL indicated error, possibly code was too long to be learned", PK_Text);
 				}
 			}
 		}
 		else
 		{
 			g_pPlutoLogger->Write(LV_WARNING, "Timeout");
+			DCE::CMD_Set_Text(m_dwPK_Device, PK_Device_Orbiter, "", "Learning timed out", PK_Text);
 		}
 	} // end if is_open_for_learning
 	m_bLearning=false;

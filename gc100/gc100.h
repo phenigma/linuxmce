@@ -19,14 +19,15 @@ namespace DCE
 	class LearningInfo
 	{
 	public:
-		int m_PK_Device, m_PK_Command, m_PK_Device_Orbiter;
+		long m_PK_Device, m_PK_Command, m_PK_Device_Orbiter, m_PK_Text;
 		class gc100 *m_pgc100;
-		LearningInfo(int PK_Device, int PK_Command, int PK_Device_Orbiter, gc100 *pgc100)
+		LearningInfo(long PK_Device, long PK_Command, long PK_Device_Orbiter, long PK_Text, gc100 *pgc100)
 		{
 			m_PK_Device = PK_Device;
 			m_PK_Command = PK_Command;
 			m_PK_Device_Orbiter = PK_Device_Orbiter;
 			m_pgc100 = pgc100;
+			m_PK_Text = PK_Text;
 		}
 	};
 
@@ -121,7 +122,7 @@ public:
 
 
 //<-dceag-h-e->
-		virtual void LEARN_IR(string PKID_Device, string CommandID, long OrbiterID);
+		virtual void LEARN_IR(long PK_Device, long PK_Command, long PK_Device_Orbiter, long PK_Text);
 		virtual void LEARN_IR_CANCEL();
 
 		void LearningThread(LearningInfo * pLearningInfo);
