@@ -1,0 +1,63 @@
+KDIR	:= /lib/modules/$(shell uname -r)/build
+HEADERDIR = /usr/include/linux
+INSTALL_HEADERS = ivtv.h
+
+ifdef HP_FWLOAD
+EXTRA_CFLAGS+=-DIVTV_FW_LOADER
+endif
+
+ifneq ($(KERNELRELEASE),)
+
+ivtv-objs		:= ivtv-driver.o ivtv-fileops.o ivtv-i2c.o ivtv-streams.o \
+			   ivtv-firmware.o ivtv-reset.o ivtv-gpio.o ivtv-queue.o \
+			   ivtv-irq.o ivtv-mailbox.o ivtv-vbi.o ivtv-kthreads.o \
+			   ivtv-audio.o ivtv-ioctl.o ivtv-controls.o ivtv-video.o \
+			   ivtv-cards.o v4l1-compat.o ivtv-dma.o
+ivtv-fb-objs		:= ivtv-osd.o ivtv-queue.o ivtv-dma.o
+obj-m			+= msp3400.o saa7115.o tveeprom.o ivtv.o saa7127.o
+
+# if the kernel .config has fb enabled, it's safe to build ivtv-fb.o
+obj-m			+= $(shell grep -q '^CONFIG_FB' $(KDIR)/.config && echo "ivtv-fb.o")
+
+else
+PWD	:= $(shell pwd)
+
+# Note: building external modules for a 2.6 kernel causes 'has no CRC' warnings
+# to be generated. These messages are harmless but cannot be suppressed.
+all:
+	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules
+	@echo
+	@echo "Any 'has no CRC' warnings are harmless and can be ignored."
+	@echo
+
+reload:
+	-sudo rmmod ivtv-fb ivtv msp3400 saa7115 saa7127 tuner
+	sync
+	-sudo modprobe i2c-core
+	-sudo modprobe i2c-algo-bit
+	-sudo insmod saa7115.ko
+	-sudo insmod msp3400.ko
+	-sudo modprobe tuner type=29
+	-sudo modprobe videodev
+	-sudo insmod ivtv.ko ivtv_debug=255
+
+unload:
+	-sudo rmmod ivtv-fb ivtv msp3400 saa7115 saa7127 tuner
+
+install: all
+	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) modules_install
+	install -m 0644 $(INSTALL_HEADERS) $(DESTDIR)/$(HEADERDIR)
+	@msp=/lib/modules/`uname -r`/kernel/drivers/media/video/msp3400.ko ; \
+	 if [ -f $$msp ]; then \
+		echo "You appear to have a $$msp."; \
+		echo "That can cause a conflict with the msp3400.ko from ivtv."; \
+		echo "It is wise to remove $$msp."; \
+		echo "After that run depmod again."; \
+	 fi
+
+clean: 
+	rm -f .*.cmd *.o *.mod.c *.ko *~ core .tmp_versions/* 
+
+load:
+
+endif

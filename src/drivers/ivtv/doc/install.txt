@@ -1,0 +1,148 @@
+These instructions are for installing the ivtv driver as a module.
+
+Kernel 2.6
+==========
+
+CONFIG needed:
+
+(can we check this?)
+
+ 1. unpack the tarball
+ 2. cd .../drivers
+ 3. make
+ 4. make install
+ 5. unload any old drivers
+ 6. modprobe ivtv
+
+Comments:
+ * The driver is not affected by the 4k/8k stacks kernel configuration.
+
+Kernel 2.4
+==========
+
+CONFIG needed:
+
+(can we check this?)
+
+ 1. unpack the tarball
+ 2. cd .../drivers
+ 3. make
+ 4. make install
+ 5. unload any old drivers
+ 6. modprobe ivtv
+
+General Comments
+================
+
+Note that the msp3400 driver supplied here is not the same as the one that comes
+with the kernel. 'make install' will try and tell you if the kernel has the standard
+driver built as a module already.
+
+Microtune 4049FM5 tuner
+=======================
+
+If you have a Microtune 4049FM5 tuner then you need to set the tda9887 ivtv module
+option to 0 when in the SECAM world, or to 1+ for others (need more precise data here!).
+
+For this to work, make sure that tda9887.ko is from bttv version 0.9.15 or up, or
+from the 2.6.7 or up linux kernel.
+
+Creating device entries
+=======================
+If you are using udev or devfs then devices should be created automatically.
+
+You may need to: 
+for i in 0 1 2 3 16 32 224 ; do \
+    if [ ! -f /dev/video$i ]; then \
+        echo "Creating /dev/video$i" && mknod /dev/video$i c 81 $i && \
+        chown video /dev/video$i && chmod 660 /dev/video$i; \
+    else echo "/dev/video$i already exists"; \
+    fi; \
+done
+
+ln -s video0 /dev/video 
+
+Here is a list of the base v4l devices:
+crw-rw----    1 root     video     81,   0 Jun 19 22:22 /dev/video0
+crw-rw----    1 root     video     81,  16 Jun 19 22:22 /dev/video16
+crw-rw----    1 root     video     81,  24 Jun 19 22:22 /dev/video24
+crw-rw----    1 root     video     81,  32 Jun 19 22:22 /dev/video32
+crw-rw----    1 root     video     81,  48 Jun 19 22:22 /dev/video48
+crw-rw----    1 root     video     81,  64 Jun 19 22:22 /dev/radio0
+crw-rw----    1 root     video     81, 224 Jun 19 22:22 /dev/vbi0
+crw-rw----    1 root     video     81, 228 Jun 19 22:22 /dev/vbi4
+crw-rw----    1 root     video     81, 232 Jun 19 22:22 /dev/vbi8
+
+note that the permissions are often restricted and that you may need to add users
+to a particular group in order that they might access the devices.
+
+Testing the installation
+========================
+First see if it's fine:
+install the modules
+  modprobe ivtv
+
+Capture some video
+  cat /dev/video0 > my.mpg
+(press ctrl-c after a few seconds)
+
+play it back (for cards with a decoder only)
+  dd if=my.mpg of=/dev/video16 bs=64k
+
+With any luck you'll see a picture (or more likely static) and hear some sound.
+
+You can now use ivtvctl to set the input (s-video, audio etc)
+
+You may also now install the ivtv-fb module: (for cards with a decoder only)
+  modprobe ivtv-fb
+
+Check the output from dmesg as this will show you which fb device ivtv-fb has grabbed.
+eg in a system thatis already using the vesafb module it may show
+  fb1: iTVC15 TV out frame buffer device
+
+This value is what you need in your XF86Config-4
+
+This can result in a black screen as nothing is being shown.
+ivtvfbctl allows you to change the alpha (transparency) settings:
+ ivtvfbctl /dev/fb1 -noglobalalpha -nolocalalpha
+would turn off the fb display (clearest possible video)
+
+ ivtvfbctl /dev/fb1 -globalalpha -localalpha -alpha 50
+would set the framebuffer to be transparency level 50 over the video.
+
+
+Debugging
+=========
+
+First make sure everything is wired up correctly.
+
+
+Check video out
+---------------
+remove the video generating module and start it with a testcard image:
+ rmmod saa7127
+ modprobe saa7127 test_image=1
+
+You should see 8 coloured bars on the screen.
+
+Then restore normal operation:
+ rmmod saa7127
+ modprobe saa7127
+
+Troubleshooting
+===============
+
+1. If having memory allocation errors, try rebooting fresh, and putting this
+   into /etc/sysctl.conf (or the corresponding /proc filessystem config
+   under /proc/vm/min_free_kbytes doing 'echo 16384 > /proc/vm/min_free_kbytes`)...
+
+#for making ivtv happier with memory usage:
+vm.min_free_kbytes=16384
+
+2. Always reboot cold when troubleshooting, the card will keep settings over
+   normal reboots
+
+3. The framebuffer will not allow direct writing safely, it will mess up
+encoding and decoding, usually makes the chip inoperable till another reboot.
+
+

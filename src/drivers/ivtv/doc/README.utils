@@ -1,0 +1,34 @@
+README for the IVTV Utilities
+
+
+Introduction
+============
+
+This document describes the utilities supporting the ivtv modules.
+
+ivtvctl
+-------
+This utility lets you read and control features of the card such as video and audio
+formats, inputs and outputs.
+
+ivtvfbctl
+---------
+This utility lets you set the alpha/transparency of the OSD.
+It also has other functions (FIXME)
+
+radio
+-----
+A simple - but functioning - radio application
+See README.radio for more details
+
+ivtvplay
+mpegindex
+vbi
+fwapi
+encoder
+wss
+vbi_passthrough
+
+test_ioctl
+----------
+A dummy application that just says that you have to use ivtvctl instead.

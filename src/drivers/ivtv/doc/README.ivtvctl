@@ -1,0 +1,123 @@
+The ivtvctl command (formerly 'test_ioctl') allows many aspects of the ivtv module
+suite to be controlled. Usually the uppercase variant of an option returns information
+whilst the lowercase variant sets it.
+
+  -h, --help         display this help message
+  -d, --device=<dev> Use device <dev> instead of /dev/video0
+  -a, --all          display all information available
+  -C, --list-codec-params
+                     get codec parameters [IVTV_IOC_G_CODEC]
+  -c, --set-codec-params=[param],[param],...
+                     set codec parameters [IVTV_IOC_S_CODEC]
+     param:
+       aspect       =<#> aspect ratio (try 3)
+       audio        =<#> sets audio bitmask (try 0xE9)
+       bframes      =<#> number of B frames
+       bitrate      =<#> bitrate (DVD max = 9.6Mbps)
+       bitrate_peak =<#> peak bitrate (must be greater than bitrate)
+       dnr_mode     =<#> 
+        0:  spatial and temporal noise removal filters
+        1:  temporal only
+        2:  spatial only
+        3:  no noise filter
+       dnr_spatial  =<#>
+        0..16:  0=no filtering  16=strongest filter
+              (horizontal only, smoothing/lowpass)
+          dnr_spatial smooths out the picture by averaging across the screen.
+          It's effects will show up as smoother individual frames.
+          if you know mplayer's denoise3d or hqdn3d filter, then
+          dnr_spatial is the same as its first parameter, and dnr_temporal is the
+          same as its 3rd param.
+       dnr_temporal =<#> see API documentation
+        0..16:  0=no filtering  16=strongest filter 
+              (inter-frame (time dimension), averaging)
+          dnr_spatial smooths out the picture by averaging between frames.
+          It's effects will show up as reduced flickering as you play the video)
+          if you set dnr_temporal too high (say 16) you'll get
+          motion blur effect.  if you set dnr_spatial too high, you get image
+          horizontaly blured.
+       dnr_type     =<#> No effect
+       framerate    =<#> try 0 (30fps) or 1 (25fps)
+       framespergop =<#> GOP size
+       gop_closure  =<#> open/closed gop
+       pulldown     =<#> inverse telecine on (1) / off (0)
+       stream_type  =<#> see ivtv.h IVTV_STREAM_* types (try 10 for DVD, or 0 for PS)
+  -E, --end-gop      capture last GOP
+  -S, --streamoff    send StreamOff API
+  -e, --get-format   get the data format [VIDIOC_G_FMT]
+  -f, --set-format=width=<x>,height=<y>
+                     set the data format [VIDIOC_G_FMT]
+  -k, --sync
+                     test vsync  scapabilities [IVTV_IOC_FRAMESYNC]
+  -m, --list-capability
+                     query device capabilities [VIDIOC_QUERYCAP]
+  -n, --list-inputs  display video inputs [VIDIOC_ENUMINPUT]
+  -o, --get-input    query the current video input [VIDIOC_G_INPUT]
+  -p, --set-input=<num>
+                     set the current video input to <num> [VIDIOC_S_INPUT]
+  -N, --list-outputs display video outputs [VIDIOC_ENUMOUTPUT]
+  -L, --get-output   query the current video output [VIDIOC_G_OUTPUT]
+  -l, --set-output=<num>
+                     set the current video output to <num> [VIDIOC_S_OUTPUT]
+  -q, --get-freq=<tuner>
+                     get frequency for <tuner> [VIDIOC_G_FREQUENCY]
+  -r, --set-freq=tuner=<tuner>,freq=<freq>
+                     sets frequency to <freq> for tuner <tuner> [VIDIOC_S_FREQUENCY]
+  -s, --list-standards
+                     display supported video standards [VIDIOC_ENUMSTD]
+  -t, --get-standard
+                     query the video standard of the current input [VIDIOC_G_STD]
+  -u, --set-standard=<num>
+                     sets standard to <num> [VIDIOC_S_STD]
+  -v, --set-io=input=<in>,output=<out>
+                     sets the MSP34xx input/output mapping [MSP_SET_MATRIX]
+  -Y, --list-ctrls   list all contrl's and their values [VIDIOC_QUERYCTRL]
+  -y, --set-ctrl=[ctrl]=<val>
+                     sets the control to the value specified [VIDIOC_S_CTRL]
+     ctrl:
+       brightness    =<#> Picture brightness, or more precisely, the black level. [0 - 255]
+       hue           =<#> Hue or color balance. [-128 - 127]
+       saturation    =<#> Picture color saturation or chroma gain. [0 - 127]
+       contrast      =<#> Picture contrast or luma gain. [0 - 127]
+       volume        =<#> Overall audio volume. [0 - 65535]
+       mute          =<#> Mute audio, i. e. set the volume to zero [boolean]
+  -i, --set-gpio=<mode>
+                     sets GPIO output to <mode> for debugging.[0x0000-0xffff]
+  -D, --set-debug=level
+                     sets the module ivtv_debug variable
+  -F, --get-debug    gets the module ivtv_debug variable
+  -P, --passthrough=<mode>
+                     sets passthrough mode. 1 = on, 0 = off
+  -b, --set-vbi=<mode>   sets the VBI mode. <mode> is a comma separated list of:
+                     raw: raw VBI mode
+                     teletext: sliced teletext
+                     cc: sliced closed caption
+                     wss: sliced widescreen signal
+                     vps: sliced vps
+  -B, --get-vbi      gets the VBI mode.
+  -w, --set-vbi-passthrough=<mode>
+                     sets the VBI passthrough mode
+                     <mode> is a comma separated list of:
+                     none: no passthrough
+                     cc: closed caption
+                     wss: widescreen signal
+                     vps: vps
+  -W, --get-vbi-passthrough
+                     gets the VBI passthrough mode
+  -x, --set-vbi-embed=<mode>
+                     sets whether VBI data is embedded in the MPEG stream.
+                     if 1, embed VBI data in the MPEG stream, if 0, don't.
+  -X, --get-vbi-embed
+                     gets whether VBI data is embedded in the MPEG stream.
+  -R, --reload       forces reload on cards firmware
+  -G, --list-registers
+                     dump SAA7115 registers [SAA7115_GET_REG]
+  -g, --set-register=reg=<reg>,val=<val>
+                     set SAA7115 registers [SAA7115_SET_REG]
+  -J, --list-dec-registers
+                     dump SAA7127 registers [SAA7127_GET_REG]
+  -j, --set-dec-register=reg=<reg>,val=<val>
+                     set SAA7127 registers [SAA7127_SET_REG]
+  -z, --set-sapmode=<mode>
+                     Possible values: 0(mono),1(stereo),2(lang2),3(lang1)
+  -Z, --get-sapmode

@@ -1,0 +1,77 @@
+README for the IVTV Radio Support
+
+Hans Verkuil (hverkuil@xs4all.nl)
+
+[FIX: the usage of the radio util has been much improved lately. Update
+ this doc to reflect this.]
+
+Introduction
+============
+
+This document describes the ivtv PVR-350 radio support and the (very) simple
+radio utility.
+
+The ivtv driver supports only the v4l2 API for the radio functionality, so
+you need to find a radio application that can use that API. My experience
+with several of the radio applications is that they are either too old (i.e.
+they only support v4l), cannot do the simplest task (scanning for stations)
+properly, or tend to crash a lot. I've added a very simple radio utility
+that at least supports v4l2 and doesn't crash. The scanning of stations
+should be optimized: it should only report the frequency with the best
+reception. Some proper command line options and presets would also be nice :-)
+
+A quick usage for the radio utility:
+
+        radio <ivtv radio device> <scan|frequency>
+
+So: 'radio /dev/radio0 scan' will scan the frequency range and prints the
+frequencies with a reception quality above a certain threshold.
+'radio /dev/radio0 103.19' selects that frequency and will sleep until you
+press Ctrl-C. While the radio utility is sleeping you can read from device
+/dev/video24 a PCM stream (normally signed 16 bit Little Endian, 48000 Hz,
+stereo) which is the audio from the radio. I use the ALSA tool aplay:
+
+        aplay -f dat </dev/video24
+
+When you press Ctrl-C to stop the radio utility you will get the sound of
+the current TV channel instead. On rare occasions I've seen read errors
+when trying to read from /dev/video24. Using 'cat </dev/video0 >/dev/video16'
+for a few seconds seems to fix the problem and I can use /dev/video24 again.
+
+The radio utility is just a proof-of-concept utility that shows the basic
+code you need. Feel free to turn it into a really useful program.
+
+
+
+Driver Implementation Details
+=============================
+
+The tuner in the PVR-350 has to be switched from TV to FM mode, which means
+that it is not possible to listen to the radio and watch TV at the same time.
+So, when you open the /dev/radio0 device the tuner is switched to FM mode,
+and after closing it it goes back to TV mode. You can open the radio device
+only once, the second time it will return EBUSY (just like the bttv driver).
+The last selected TV and radio frequencies are remembered and restored when
+closing/opening the radio device.
+
+At the moment there is no passthrough mode yet, so the only way to get the
+audio is by using /dev/video0 (which gives an MPEG stream with black video)
+or by using /dev/video24 (PCM stream).
+
+For the FM tuner the msp device also maps the input to msp input 2 instead
+of 3, which is used by the TV tuner.
+
+
+
+TODO
+====
+
+1) Can anyone tell if the right and left stereo channels of the PCM stream
+   are swapped or not? If they are, then the PCM stream must also use do byte
+   swapping like the MPG and VBI streams.
+
+2) PCM output. There is YUV output, so is PCM output also possible? This
+   needs some experimenting.
+
+3) Perhaps the 'video24' device should be turned into a ALSA driver with
+   mixer support, etc. I'm not sure if this is possible or desirable.
