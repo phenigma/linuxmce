@@ -413,11 +413,12 @@ int main(int argc, char *argv[])
 		for(it=listPackageInfo.begin(); it!=listPackageInfo.end(); ++it)
 		{
 			PackageInfo *pPackageInfo = *it;
+
 			cout << 
 				pPackageInfo->m_pRow_Package_Source->FK_Package_get() << "|" << 
 				pPackageInfo->m_pRow_Package_Source->Name_get() << "|" <<
 				pPackageInfo->m_pRow_RepositorySource_URL->URL_get() << "|" <<
-				pPackageInfo->m_pRow_RepositorySource_URL->Comments_get() << "|" <<
+				pPackageInfo->m_pRow_Package_Source_Compat->Comments_get() << "|" <<
 				pPackageInfo->m_pRow_Package_Source->Repository_get() << "|" <<
 				pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get() << "|" <<
 				pPackageInfo->m_pRow_Package_Source->Version_get() << "|" <<
