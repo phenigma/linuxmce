@@ -242,12 +242,14 @@ Orbiter::~Orbiter()
 	m_mapDeviceGroups.clear();
 
 	//clearing user icons map
-	map<int, PlutoGraphic *>::iterator itUserIcons;
+	map<int, VectorPlutoGraphic *>::iterator itUserIcons;
+	/*
 	for(itUserIcons = m_mapUserIcons.begin(); itUserIcons != m_mapUserIcons.end(); itUserIcons++)
 	{
 		delete (*itUserIcons).second;
 		(*itUserIcons).second = NULL;
 	}
+	*/
 	m_mapUserIcons.clear();
 
 	//clearing floor plan object map
@@ -552,45 +554,55 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
         PlutoRectangle rectBackground = pObj->m_rBackgroundPosition;
     PlutoRectangle rectTotal = pObj->m_rPosition;
     vm.Release(  );
-    if(  ( pObj==m_pObj_Highlighted || pObj->m_GraphicToDisplay==GRAPHIC_HIGHLIGHTED ) && pObj->m_pHighlightedGraphic )
-        pObj->m_pCurrentGraphic = pObj->m_pHighlightedGraphic;
-    else if(  pObj->m_GraphicToDisplay==GRAPHIC_SELECTED && pObj->m_pSelectedGraphic )
-        pObj->m_pCurrentGraphic = pObj->m_pSelectedGraphic;
-    else if(  pObj->m_GraphicToDisplay>0 && pObj->m_GraphicToDisplay<=( int )pObj->vectAltGraphics.size(  )  )
-        pObj->m_pCurrentGraphic = pObj->vectAltGraphics[pObj->m_GraphicToDisplay-1];
+    
+	if( (pObj == m_pObj_Highlighted || pObj->m_GraphicToDisplay == GRAPHIC_HIGHLIGHTED ) && pObj->m_vectHighlightedGraphic.size() )
+		pObj->m_pvectCurrentGraphic = &(pObj->m_vectHighlightedGraphic);
+    else if(pObj->m_GraphicToDisplay == GRAPHIC_SELECTED && pObj->m_vectSelectedGraphic.size())
+        pObj->m_pvectCurrentGraphic = &(pObj->m_vectSelectedGraphic);
+    else if(  pObj->m_GraphicToDisplay >= 1 && pObj->m_GraphicToDisplay <= int(pObj->m_vectAltGraphics.size()))
+        pObj->m_pvectCurrentGraphic = &(pObj->m_vectAltGraphics[pObj->m_GraphicToDisplay - 1]);
     else // Something that was invalid was chosen,  or just the normal version
-        pObj->m_pCurrentGraphic = pObj->m_pGraphic;
+        pObj->m_pvectCurrentGraphic = &(pObj->m_vectGraphic);
 
-    if(  !pObj->m_pCurrentGraphic && pObj->m_GraphicToDisplay!=GRAPHIC_NORMAL  )
-        pObj->m_pCurrentGraphic = pObj->m_pGraphic;
+    if(  !pObj->m_pvectCurrentGraphic && pObj->m_GraphicToDisplay != GRAPHIC_NORMAL  )
+        pObj->m_pvectCurrentGraphic = &(pObj->m_vectGraphic);
 
     // This is somewhat of a hack, but we don't have a clean method for setting the graphics on the user & location buttons to
     if( pObj->m_iBaseObjectID==DESIGNOBJ_objCurrentUser_CONST )
     {
-        PlutoGraphic *pGraphic = m_mapUserIcons[m_pScreenHistory_Current->m_dwPK_Users];
-        if( pGraphic )
-            pObj->m_pCurrentGraphic = pGraphic;
-        if( pObj->m_pCurrentGraphic )
+        vector<PlutoGraphic*> *pvectGraphic = m_mapUserIcons[m_pScreenHistory_Current->m_dwPK_Users];
+		//vector<PlutoGraphic*> *p = pvectGraphic;
+
+        if( pvectGraphic )
+			pObj->m_pvectCurrentGraphic = pvectGraphic;
+        if( pObj->m_pvectCurrentGraphic )
             RenderGraphic(pObj, rectTotal);
     }
     else if( pObj->m_iBaseObjectID==DESIGNOBJ_objCurrentLocation_CONST )
     {
-        if( m_pScreenHistory_Current->m_pLocationInfo && m_pScreenHistory_Current->m_pLocationInfo->m_pGraphic )
-            pObj->m_pCurrentGraphic = m_pScreenHistory_Current->m_pLocationInfo->m_pGraphic;
-        if( pObj->m_pCurrentGraphic )
+        if( m_pScreenHistory_Current->m_pLocationInfo && m_pScreenHistory_Current->m_pLocationInfo->m_pvectGraphic )
+            pObj->m_pvectCurrentGraphic = m_pScreenHistory_Current->m_pLocationInfo->m_pvectGraphic;
+        if( pObj->m_pvectCurrentGraphic )
             RenderGraphic(pObj, rectTotal);
     }
-    // Maybe we're showing a non stard state
+    // Maybe we're showing a non standard state
     else if(  pObj->m_pGraphicToUndoSelect && pObj->m_GraphicToDisplay==GRAPHIC_NORMAL  )
     {
-        PlutoGraphic *pGraphic_Hold = pObj->m_pCurrentGraphic;
-        pObj->m_pCurrentGraphic=pObj->m_pGraphicToUndoSelect;
-        RenderGraphic( pObj,  rectTotal );
-        pObj->m_pCurrentGraphic=pGraphic_Hold;
+        vector<PlutoGraphic*> *pvectGraphic_Hold = pObj->m_pvectCurrentGraphic;
+
+		vector<PlutoGraphic*> vectGraphicToUndoSelect;
+		vectGraphicToUndoSelect.push_back(pObj->m_pGraphicToUndoSelect);
+		pObj->m_pvectCurrentGraphic = &vectGraphicToUndoSelect; 
+
+		RenderGraphic( pObj,  rectTotal );
+
+        pObj->m_pvectCurrentGraphic = pvectGraphic_Hold;
+
+		vectGraphicToUndoSelect.clear();
         delete pObj->m_pGraphicToUndoSelect;
         pObj->m_pGraphicToUndoSelect=NULL;
     }
-    else if(  pObj->m_pCurrentGraphic  )
+    else if(  pObj->m_pvectCurrentGraphic  )
     {
         RenderGraphic( pObj,  rectTotal );
     }
@@ -1072,11 +1084,10 @@ void Orbiter::ObjectOnScreenWrapper(  )
     }
 
     if(  m_vectObjs_TabStops.size(  )  )
-        HighlightFirstObject(  );
+        HighlightFirstObject();
 
-    if( NULL != m_pObj_Highlighted &&  m_pObj_Highlighted->m_pHighlightedGraphic==NULL  )
-        HighlightObject( m_pObj_Highlighted );
-
+    if(NULL != m_pObj_Highlighted &&  m_pObj_Highlighted->m_vectHighlightedGraphic.size())
+		HighlightObject( m_pObj_Highlighted );
 }
 //------------------------------------------------------------------------
 // If an object has the don't reset state true,  it won't reset to normal,  and it's children won't reset either
@@ -1139,7 +1150,7 @@ void Orbiter::ObjectOffScreen( DesignObj_Orbiter *pObj )
         int k=2;
     }
 
-    pObj->m_pCurrentGraphic = NULL;
+    pObj->m_pvectCurrentGraphic = NULL;
     pObj->m_bOnScreen=false;
     if(  pObj->m_pGraphicToUndoSelect  )
     {
@@ -1147,11 +1158,11 @@ void Orbiter::ObjectOffScreen( DesignObj_Orbiter *pObj )
         pObj->m_pGraphicToUndoSelect=NULL;
     }
 
-    if(  pObj->m_pGraphic!=NULL  )
-        GraphicOffScreen( pObj->m_pGraphic );
+    if(pObj->m_vectGraphic.size())
+        GraphicOffScreen( &(pObj->m_vectGraphic) );
 
-    if(  pObj->m_pSelectedGraphic!=NULL  )
-        GraphicOffScreen( pObj->m_pSelectedGraphic );
+    if(pObj->m_vectSelectedGraphic.size())
+        GraphicOffScreen( &(pObj->m_vectSelectedGraphic) );
     /* todo 2
     if ( pObj->m_pWebWindow )
     {
@@ -1160,13 +1171,14 @@ void Orbiter::ObjectOffScreen( DesignObj_Orbiter *pObj )
     m_pCurWebWindow = NULL;
     }
     */
+
     int i;
-    for( i=0;i<( int )pObj->vectAltGraphics.size(  );++i )
-        GraphicOffScreen( pObj->vectAltGraphics[i] );
+    for(i = 0; i < pObj->m_vectAltGraphics.size(); ++i)
+        GraphicOffScreen(&(pObj->m_vectAltGraphics[i]));
 
-    pObj->m_pCurrentGraphic = NULL;
+    pObj->m_pvectCurrentGraphic = NULL;
 
-    Message *pMessage_GotoScreen=NULL;
+    Message *pMessage_GotoScreen = NULL;
     ExecuteCommandsInList( &pObj->m_Action_UnloadList, m_pScreenHistory_Current->m_pObj, pMessage_GotoScreen, 0, 0 );
     if( pMessage_GotoScreen )
         ReceivedMessage( pMessage_GotoScreen );
@@ -1212,7 +1224,7 @@ void Orbiter::SelectedObject( DesignObj_Orbiter *pObj,  int X,  int Y )
         if( pMessage_GotoScreen )
             ReceivedMessage( pMessage_GotoScreen );
 
-        if(  pObj->m_pSelectedGraphic!=NULL && pObj->m_GraphicToDisplay!=GRAPHIC_SELECTED ) // TODO 2.0 && m_ChangeToScreen.length(  ) == 0 )
+        if(  pObj->m_vectSelectedGraphic.size() && pObj->m_GraphicToDisplay != GRAPHIC_SELECTED ) // TODO 2.0 && m_ChangeToScreen.length(  ) == 0 )
         {
             pObj->m_GraphicToDisplay=GRAPHIC_SELECTED;
             m_vectObjs_NeedRedraw.push_back( pObj );
@@ -2391,14 +2403,16 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
 
     enum eGraphicManagement eMgmt = GR_DISCARDONCHANGE;
     if(  pObj->m_sBackgroundFile.length(  )>0  )
-        pObj->m_pGraphic = CreateGraphic( Type,  pObj->m_sBackgroundFile,  eMgmt,  this );
+        CreateVectorGraphic(pObj->m_vectGraphic, Type,  pObj->m_sBackgroundFile,  eMgmt,  this );
     if(  pObj->m_sHighlightGraphicFilename.length(  )>0  )
-        pObj->m_pHighlightedGraphic = CreateGraphic( Type,  pObj->m_sHighlightGraphicFilename,  eMgmt,  this );
+        CreateVectorGraphic(pObj->m_vectHighlightedGraphic, Type,  pObj->m_sHighlightGraphicFilename,  eMgmt,  this );
     if(  pObj->m_sSelectedFile.length(  )>0  )
-        pObj->m_pSelectedGraphic = CreateGraphic( Type,  pObj->m_sSelectedFile,  eMgmt,  this );
+        CreateVectorGraphic(pObj->m_vectSelectedGraphic, Type,  pObj->m_sSelectedFile,  eMgmt,  this );
     for( size_t salt=0;salt<pObj->m_vectAltGraphicFilename.size(  );++salt )
     {
-        pObj->vectAltGraphics.push_back( CreateGraphic( Type,  pObj->m_vectAltGraphicFilename[salt],  eMgmt,  this ) );
+		VectorPlutoGraphic vectPlutoGraphic;
+		CreateVectorGraphic( vectPlutoGraphic, Type,  pObj->m_vectAltGraphicFilename[salt],  eMgmt,  this );
+		pObj->m_vectAltGraphics.push_back( vectPlutoGraphic );
     }
 
     if(  pObj->m_bTabStop  )
@@ -2655,7 +2669,7 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
             }
         }
         if(  PK_Users  )
-            m_mapUserIcons[PK_Users]=pObj->m_pGraphic;
+            m_mapUserIcons[PK_Users]= &(pObj->m_vectGraphic);
     }
     else if(  pObj->m_iBaseObjectID==DESIGNOBJ_butLocations_CONST  )
     {
@@ -2684,7 +2698,7 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
         if(  iLocation!=-1  )
         {
             LocationInfo *pLocation = m_dequeLocation[iLocation];
-            pLocation->m_pGraphic=pObj->m_pGraphic;
+            pLocation->m_pvectGraphic = &(pObj->m_vectGraphic);
         }
     }
 }
@@ -3465,18 +3479,18 @@ string Orbiter::SubstituteVariables( string Input,  DesignObj_Orbiter *pObj,  in
             Output += StringUtils::itos( Y );
         else if(  Variable=="XS"  )
         {
-            if(  pObj->m_pGraphic!=NULL && pObj->m_pGraphic->Width>0  )
+            if(pObj->m_vectGraphic.size() && pObj->m_vectGraphic[pObj->m_iFrame_Background]->Width > 0)
             {
                 int ClickX = X - pObj->m_rPosition.X;
-                Output+=StringUtils::itos( pObj->m_pGraphic->Width * ClickX / pObj->m_rPosition.Width );
+                Output+=StringUtils::itos( pObj->m_vectGraphic[pObj->m_iFrame_Background]->Width * ClickX / pObj->m_rPosition.Width );
             }
         }
         else if(  Variable=="YS"  )
         {
-            if(  pObj->m_pGraphic!=NULL && pObj->m_pGraphic->Height>0  )
+            if(pObj->m_vectGraphic.size() && pObj->m_vectGraphic[pObj->m_iFrame_Background]->Height > 0)
             {
                 int ClickY = Y - pObj->m_rPosition.Y;
-                Output += StringUtils::itos( pObj->m_pGraphic->Height * ClickY / pObj->m_rPosition.Height );
+                Output += StringUtils::itos( pObj->m_vectGraphic[pObj->m_iFrame_Background]->Height * ClickY / pObj->m_rPosition.Height );
             }
         }
         else if(  Variable=="S"  )
@@ -4541,17 +4555,24 @@ void Orbiter::CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pD
     if ( pObj )
     {
         int PriorWidth=0, PriorHeight=0;
-        if(  pObj->m_pCurrentGraphic  )
-            pObj->m_pCurrentGraphic = NULL;
-        if ( pObj->m_pGraphic )
+        if(  pObj->m_pvectCurrentGraphic  )
+            pObj->m_pvectCurrentGraphic = NULL;
+        if ( pObj->m_vectGraphic.size() )
         {
-            PriorWidth=pObj->m_pGraphic->Width;
-            PriorHeight=pObj->m_pGraphic->Height;
+            PriorWidth = pObj->m_vectGraphic[pObj->m_iFrame_Background]->Width;
+            PriorHeight = pObj->m_vectGraphic[pObj->m_iFrame_Background]->Height;
         }
-        delete pObj->m_pGraphic;
+
+		for(int i = 0; i < pObj->m_vectGraphic.size(); i++)
+		{
+			delete pObj->m_vectGraphic[i];
+		}
+		pObj->m_vectGraphic.clear();
+		pObj->m_iFrame_Background = 0;
+
         if(  iData_Size==0  )
         {
-            pObj->m_pGraphic=NULL;
+            //pObj->m_pGraphic=NULL;
             return;
         }
 
@@ -5219,4 +5240,29 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 	DesignObj_Orbiter *pObj=NULL;
 	if( sPK_DesignObj.length() && (pObj=FindObject(sPK_DesignObj))!=NULL )
 		m_vectObjs_NeedRedraw.push_back(pObj);
+}
+
+class A
+{
+public:
+	map<int, VectorPlutoGraphic *> m_mapA;
+};
+
+class B
+{
+public:
+	VectorPlutoGraphic *m_vectB;
+};
+
+void test()
+{
+	VectorPlutoGraphic* p = NULL;
+
+	A a;
+	a.m_mapA[1] = p;
+
+	VectorPlutoGraphic* p2 = a.m_mapA[1];
+
+	B b;
+	b.m_vectB = p2;
 }

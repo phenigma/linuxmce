@@ -26,7 +26,7 @@
 #include "CCF.h"
 #endif
 //=======================================================================================================
-//PlutoGraphic builder method CreateGraphic
+//PlutoGraphic builder methods
 //-------------------------------------------------------------------------------------------------------
 /*extern*/ PlutoGraphic *CreateGraphic(GraphicType Type, string Filename, eGraphicManagement GraphicManagement, 
 	Orbiter *pOrbiter)
@@ -35,17 +35,22 @@
 
 	switch(Type)
 	{
-		//case gtWinGraphic: 
-		//	pGraphic = new WinGraphic(Filename, GraphicManagement, pOrbiter);
-		//	break;
-		//case gtIMGraphic:  
-		//	return new IMGraphic(Filename, GraphicManagement, pOrbiter);
-		//	break;
-	case gtSDLGraphic: 
-		return new SDLGraphic(Filename, GraphicManagement, pOrbiter);
+		case gtSDLGraphic: 
+			return new SDLGraphic(Filename, GraphicManagement, pOrbiter);
 	}
 
 	return pGraphic;
+}
+//-------------------------------------------------------------------------------------------------------
+/*extern*/ void CreateVectorGraphic(VectorPlutoGraphic& vectPlutoGraphic, GraphicType Type, string Filename, 
+	eGraphicManagement GraphicManagement, Orbiter *pOrbiter)
+{
+	//TODO
+	switch(Type) //for now, handle only single frame graphic files 
+	{
+		case gtSDLGraphic: 
+			vectPlutoGraphic.push_back(new SDLGraphic(Filename, GraphicManagement, pOrbiter));
+	}
 }
 //=======================================================================================================
 //Generic PlutoGraphic class methods
@@ -140,11 +145,18 @@ DesignObj_Orbiter::DesignObj_Orbiter(Orbiter *pCore)
 		m_pDesignObj_Orbiter_TiedTo=NULL;
 	m_pDataGridTable=NULL;
 	m_pCore = pCore;
-	m_pGraphic=NULL;
-	m_pSelectedGraphic=NULL;
-	m_pHighlightedGraphic=NULL;
-	m_pCurrentGraphic=NULL;
-	m_pGraphicToUndoSelect=NULL;
+
+	m_vectGraphic.clear();
+	m_vectSelectedGraphic.clear();
+	m_vectHighlightedGraphic.clear();
+	m_vectAltGraphics.clear();
+	m_pvectCurrentGraphic = NULL;
+	m_pGraphicToUndoSelect = NULL;
+
+	m_iFrame_Background = 0;
+	m_iFrame_Selected = 0;
+	m_iFrame_Highlighted = 0;
+
 	m_pCriteria=NULL;
 	m_GraphicToDisplay=GRAPHIC_NORMAL;
 	m_GridCurRow=-1;
@@ -206,17 +218,6 @@ DesignObj_Orbiter::~DesignObj_Orbiter()
 	} 
 
 	int i;
-	for(i=0;i<(int)vectAltGraphics.size();++i)
-	{
-		WinGraphic *pWinGraphic = dynamic_cast<WinGraphic *>(vectAltGraphics[i]);
-		if (pWinGraphic && pWinGraphic->m_pUncompressedImage)
-		{
-			m_pCore->RemoveUncompressedImage(pWinGraphic->m_pUncompressedImage);
-		}
-
-		if(pWinGraphic)
-			delete pWinGraphic;
-	}
 */
 	DesignObjZoneList::iterator iZone;
 	for(iZone = m_ZoneList.begin(); iZone !=m_ZoneList.end(); ++iZone)

@@ -39,7 +39,7 @@ public:
 	int m_dwPK_Device_MediaDirector,m_dwPK_Device_DiscDrive,m_dwPK_Device_AppServer,m_dwPK_Device_MediaBurner,m_dwPK_Device_VideoConf,m_dwPK_Device_CamcorderCapt,m_dwPK_Device_Orbiter,m_dwPK_Device_WebBrowser; 
 	string Description;
 	class Row_Icon *drIcon; // Not serialized, just a temporary pointer for the generator
-	class PlutoGraphic *m_pGraphic; // Not serialized, just a temporary pointer for the orbiter with the button for this location
+	vector<class PlutoGraphic*> *m_pvectGraphic; // Not serialized, just a temporary pointer for the orbiter with the button for this location
 
 	LocationInfo() { m_dwPK_Device_MediaDirector = m_dwPK_Device_DiscDrive = m_dwPK_Device_AppServer = m_dwPK_Device_MediaBurner = m_dwPK_Device_VideoConf = m_dwPK_Device_CamcorderCapt = m_dwPK_Device_Orbiter = m_dwPK_Device_WebBrowser = DEVICEID_NULL; }
 	void SetupSerialization(int iSC_Version)

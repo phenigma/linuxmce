@@ -37,12 +37,28 @@ enum GraphicType
 {
 	gtSDLGraphic
 };
-//=======================================================================================================
-//PlutoGraphic builder method CreateGraphic
 //-------------------------------------------------------------------------------------------------------
-extern class PlutoGraphic *CreateGraphic(GraphicType Type, string Filename, 
+class PlutoGraphic;
+class DesignObj_Orbiter;
+//-------------------------------------------------------------------------------------------------------
+typedef map<string, DesignObj_Orbiter*> DesignObj_OrbiterMap;
+typedef list<PlutoGraphic*> PlutoGraphicList;
+typedef vector<DesignObj_Orbiter *> VectDesignObj_Orbiter;
+typedef vector<PlutoGraphic *> VectorPlutoGraphic;
+
+#define GRAPHIC_NORMAL		 0
+#define GRAPHIC_SELECTED	-1
+#define GRAPHIC_HIGHLIGHTED	-2
+//=======================================================================================================
+//PlutoGraphic builder methods
+//-------------------------------------------------------------------------------------------------------
+extern PlutoGraphic *CreateGraphic(GraphicType Type, string Filename, 
 										 eGraphicManagement GraphicManagement, 
 										 class Orbiter *pOrbiter); 
+//-------------------------------------------------------------------------------------------------------
+extern void CreateVectorGraphic(VectorPlutoGraphic& vectPlutoGraphic, GraphicType Type, string Filename, 
+												eGraphicManagement GraphicManagement, 
+												class Orbiter *pOrbiter);
 //=======================================================================================================
 //Generic abstract class PlutoGraphic
 //-------------------------------------------------------------------------------------------------------
@@ -82,14 +98,6 @@ public:
 	void *m_pImage;
 	struct SDL_Surface *m_pSDL_Surface;
 };
-//-------------------------------------------------------------------------------------------------------
-typedef map<string, class DesignObj_Orbiter*> DesignObj_OrbiterMap;
-typedef list<class PlutoGraphic*> PlutoGraphicList;
-typedef vector<class DesignObj_Orbiter *> VectDesignObj_Orbiter;
-
-#define GRAPHIC_NORMAL	0
-#define GRAPHIC_SELECTED	-1
-#define GRAPHIC_HIGHLIGHTED	-2
 //=======================================================================================================
 //Concrete class DesignObj_Orbiter
 //-------------------------------------------------------------------------------------------------------
@@ -118,10 +126,24 @@ public:
 
 	int m_GraphicToDisplay;
 
+	//// m_pGraphicToUndoSelect is a temporary snapshot of the background that may be created during a select or restore
+	//// to return it to it's previous state
+	//PlutoGraphic *m_pGraphic,*m_pSelectedGraphic,*m_pCurrentGraphic,*m_pHighlightedGraphic,*m_pGraphicToUndoSelect;
+	//vector<PlutoGraphic *> vectAltGraphics;
+
 	// m_pGraphicToUndoSelect is a temporary snapshot of the background that may be created during a select or restore
 	// to return it to it's previous state
-	PlutoGraphic *m_pGraphic,*m_pSelectedGraphic,*m_pCurrentGraphic,*m_pHighlightedGraphic,*m_pGraphicToUndoSelect;
-	vector<PlutoGraphic *> vectAltGraphics;
+	PlutoGraphic *m_pGraphicToUndoSelect;
+	VectorPlutoGraphic *m_pvectCurrentGraphic;
+	VectorPlutoGraphic m_vectGraphic,m_vectSelectedGraphic,m_vectHighlightedGraphic;
+	vector<VectorPlutoGraphic> m_vectAltGraphics;
+	int m_iTime_Background,m_iTime_Selected,m_iTime_Highlighted;
+	vector<int> m_ivectTime_Alt;
+	bool m_bLoop_Background,m_bLoop_Selected,m_bLoop_Highlighted;
+	vector<bool> m_bvectLoop_Alt;
+	int m_iFrame_Background,m_iFrame_Selected,m_iFrame_Highlighted;
+	vector<int> m_ivectFrame_Alt;
+
 	class Orbiter_CriteriaList *m_pCriteria;
 	ProntoCCF *m_pCCF;
 

@@ -144,9 +144,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Enter display image on screen");
 	SDL_UpdateRect(Screen, 0, 0, 0, 0);
 
 	g_pPlutoLogger->Write(LV_STATUS,"Exit display image on screen");
-
-	//PlutoRectangle rectTotal(100, 100, 300, 300);
-	//PlayMNG(NULL, rectTotal);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::RedrawObjects()
@@ -197,9 +194,24 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
     bool bDeleteSurface=true;  // Will set to false if we're going to cache
     SDL_Surface * obj_image = NULL;
 
-	if( pObj->m_pCurrentGraphic->GraphicType_get()==gtSDLGraphic )
+	vector<PlutoGraphic*> *pVectorPlutoGraphic = pObj->m_pvectCurrentGraphic;
+
+	if(pVectorPlutoGraphic->size() == 0) //we have nothing to render
+		return;
+
+	int iCurrentFrame = 0;
+	switch(pObj->m_GraphicToDisplay)
+	{
+		case GRAPHIC_HIGHLIGHTED: iCurrentFrame = pObj->m_iFrame_Highlighted; break;
+		case GRAPHIC_SELECTED: iCurrentFrame = pObj->m_iFrame_Selected; break;
+		case GRAPHIC_NORMAL: iCurrentFrame = pObj->m_iFrame_Background; break;
+	}
+
+	PlutoGraphic *pPlutoGraphic = (*pVectorPlutoGraphic)[iCurrentFrame];
+
+	if( pPlutoGraphic->GraphicType_get()==gtSDLGraphic )
     {
-		SDLGraphic *pSDLGraphic = (SDLGraphic *) pObj->m_pCurrentGraphic;
+		SDLGraphic *pSDLGraphic = (SDLGraphic *) pPlutoGraphic;
         obj_image = pSDLGraphic->m_pSDL_Surface;
         if( !obj_image && m_sLocalDirectory.length()>0 )
         {
@@ -281,9 +293,9 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
 	//free the surface
 	if( bDeleteSurface )
 	{
-		if( pObj->m_pCurrentGraphic->GraphicType_get()==gtSDLGraphic )
+		if( pPlutoGraphic->GraphicType_get() == gtSDLGraphic )
 		{
-			SDLGraphic *pSDLGraphic = (SDLGraphic *) pObj->m_pCurrentGraphic;
+			SDLGraphic *pSDLGraphic = (SDLGraphic *) pPlutoGraphic;
 			SDL_FreeSurface(obj_image);
 
 			pSDLGraphic->m_pSDL_Surface = NULL;

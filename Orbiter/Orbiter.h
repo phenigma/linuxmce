@@ -142,7 +142,7 @@ protected:
 	string m_sNowPlaying; /** < set by the media engine, this is whatever media is currently playing */
 
 	DesignObjText *m_pCaptureKeyboard_Text; /** < @todo ask */
-	map<int,  PlutoGraphic *> m_mapUserIcons; /** < user icons */
+	map<int,  vector<PlutoGraphic*> *> m_mapUserIcons; /** < user icons */
 	map<int,FloorplanObjectVectorMap *> m_mapFloorplanObjectVector;
 	FloorplanObjectVectorMap *m_mapFloorplanObjectVector_Find(int Page)	{ map<int,FloorplanObjectVectorMap *>::iterator it = m_mapFloorplanObjectVector.find(Page); return it==m_mapFloorplanObjectVector.end() ? NULL : (*it).second; }
 
@@ -519,7 +519,7 @@ void RealRedraw( void *data );  // temp hack -- see comments
 	/**
 	 * @brief A graphic is no longer on screen. Maybe remove it from cache
 	 */
-	virtual void GraphicOffScreen( class PlutoGraphic *pGraphic ) {}
+	virtual void GraphicOffScreen(vector<class PlutoGraphic*> *pvectGraphic) {}
 
 public:
 
