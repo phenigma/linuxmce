@@ -482,7 +482,6 @@ int main( int argc, char *argv[] )
 return 0;
 		};
 	}
-	/*
 	catch( char *pException )
 	{
 		cerr << "Caught exception: " << pException << endl;
@@ -502,8 +501,7 @@ getch();
 		exit(1);
 		return 1;
 	}
-	*/
-	catch( double d /*...*/ )
+	catch( ... )
 	{
 		cerr << "Caught unknown exception" << endl;
 getch();

@@ -59,6 +59,8 @@ using namespace std;
 using namespace DCE;
 extern DCEConfig g_DCEConfig;
 
+#define  VERSION "<=version=>"
+
 void* MessageQueueThread_DCER(void* param) // renamed to cancel link-time name collision in MS C++ 7.0 / VS .NET 2002
 {
     Router* pc = (Router*)param;
@@ -1112,7 +1114,15 @@ bool Router::Run()
 {
     m_bIsLoading=true;
     StartListening();
-    g_pPlutoLogger->Write(LV_STATUS, "Version: $Id: Router.cpp,v 1.21 2004/10/28 05:11:28 mihaid Exp $");
+	int Timeout=0;
+	while( !m_bRunning && Timeout++<10 )
+		Sleep(500); // Give the listener socket a chance to start before we load the plugins
+	if( !m_bRunning )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Could not start listening");
+		exit(1);
+	}
+	g_pPlutoLogger->Write(LV_STATUS, "DCERouter Version: %s",VERSION);
     RegisterAllPlugins();
     m_bIsLoading=false;
     g_pPlutoLogger->Write(LV_STATUS, "Plug-ins loaded");

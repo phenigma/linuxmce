@@ -88,7 +88,7 @@ void SocketListener::StartListening( int iPortNumber )
 {
 	m_bClosed = false;
 	m_bTerminate = false;
-	m_bRunning = true;
+	m_bRunning = false; // So we know when we started
 	m_iListenPort = iPortNumber;
     pthread_create( &m_ListenerThreadID, NULL, BeginListenerThread, (void *)this );
 }
@@ -143,6 +143,7 @@ void SocketListener::Run()
 		dwFlags |= O_NONBLOCK;
 		fcntl( m_Socket, F_SETFL, dwFlags );
 #endif
+		m_bRunning = true; // So we know when we started
 		while( !m_bTerminate ) // while the listener dosen't terminate
 		{
 			fd_set rfds;
