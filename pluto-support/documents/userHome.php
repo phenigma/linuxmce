@@ -2,7 +2,7 @@
 $out='';
 $dbADO->debug=false;
 $reloadTree = @$_REQUEST['reloadTree']=='true'?true:false;
-$docID=(isset($_GET['docID']))?$_GET['docID']:0;
+$docID=(isset($_GET['docID']))?$_GET['docID']:1;
 
 $scriptInHead='
 <script>

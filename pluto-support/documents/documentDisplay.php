@@ -144,10 +144,13 @@ else{
 
 		$out='
 				<script>';
+				$out.='self.location="right.php?section=documents/documentDisplay&docID='.$docID.'"';
+			/*
 		if($rowOldValues['FK_Document_Parent']==$parentID && $rowOldValues['Order']==$docOrder)
-		$out.='self.location="right.php?section=documents/documentDisplay&docID='.$docID.'"';
+			$out.='self.location="right.php?section=documents/documentDisplay&docID='.$docID.'"';
 		else
-		$out.='top.location="index.php?section=document&docID='.$docID.'"';
+			$out.='top.location="index.php?section=document&docID='.$docID.'"';
+			*/
 		$out.='</script>
 			';
 
