@@ -24,7 +24,7 @@ XTRALDLIBS = -llinphone -lraw1394 -ldc1394_control
 Gen_Dev_Files +=
 sources += LinphoneManager.cpp
 
-#<-dceag-mf-b->
+#<-dceag-mf-b->!
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
 
 whattodo:
@@ -43,8 +43,9 @@ Linphone.so: $(sources:.cpp=.o)
 	./post_make.sh $@
 		
 Linphone: $(sources:.cpp=.o)
-	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
+	LD_LIBRARY_PATH=/usr/pluto/lib $(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
+	cp Linphone ../bin
 	cp Linphone_Wrapper.sh ../bin
 	./post_make.sh $@
 
