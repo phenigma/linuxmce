@@ -10,9 +10,9 @@ $gw = "";
 system("rm -f /var/log/pluto/gc100-conf.log >> /dev/null");
 
 if($ARGV[0] eq "") {
-    log("Finding GC100 on the network\n");
+    loggc("Finding GC100 on the network\n");
     if(find_gc100() == 1) {
-        log("GC100 Found\n");
+        loggc("GC100 Found\n");
 	$flag = allias_up();
 	$mac = get_gc100mac();
 	if($flag == 1) {
@@ -24,26 +24,26 @@ if($ARGV[0] eq "") {
 	
 	@data = sqlexec("select * from Device WHERE Description='gc100'");
 	if($data[0]->{'PK_Device'} ne "") {
-	  log("The device allready exist in the database\n");
+	  loggc("The device allready exist in the database\n");
 	  $db->disconnect();
 	  exit(0);
 	}
 	system("/usr/pluto/bin/CreateDevice -i $install -d $dev_templ -I $ip -M $mac\n");
     } else {
-        log("Gc100 as default not found\n");
+        loggc("Gc100 as default not found\n");
 	exit(0);
     }
 } else {
-    log("Finding GC100 on the network\n");
+    loggc("Finding GC100 on the network\n");
     if($ARGV[1] eq "") {
         if(find_gc100() == 1) {
-            log("GC100 found\n");
+            loggc("GC100 found\n");
     	    $flag = allias_up();
 	    $mac = get_gc100mac();
 	    $ip = find_ip();
 	    update_db();
 	} else {
-	    log("Gc100 as default not found\n");
+	    loggc("Gc100 as default not found\n");
 	    exit(0);
 	}
     }
@@ -154,7 +154,7 @@ sub get_gc100mac {
 	    @frag = split(/\</,$vars[$j]);
 	    $mac = $frag[0];
 	    $mac =~ tr/\-/\:/;
-	    log("Mac Found $mac\n");
+	    loggc("Mac Found $mac\n");
 	    system("rm -f gc100mac");
 	    return $mac;
 	}
@@ -290,7 +290,7 @@ sub configure_webgc {
     system("wget -q -T 3 --read-timeout=4 -t 1 \"http://192.168.1.101/commands.cgi?2=$ip&3=255.255.255.0&4=$gw&7=submit\"");
 }
 
-sub log {
+sub loggc {
     $line = shift;
     open(LOG,">>/var/log/pluto/gc100-conf.log");
     print LOG $line;
