@@ -1,0 +1,151 @@
+/***************************************************************************
+ *   Copyright (C) 2005 by igor                                            *
+ *   igor@dexx                                                             *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ ***************************************************************************/
+#include "busconnector.h"
+
+#include <termios.h>
+
+#include "DCE/Logger.h"
+
+#define EIB_SER_PORT 		"ttyS0"
+#define EIB_BPS 			19200
+
+
+using namespace DCE;
+
+namespace EIBBUS {
+
+Mutex BusConnector::s_minst;
+BusConnector* BusConnector::s_instance = NULL;
+
+BusConnector::BusConnector()
+	: framebit_(false), framets_(0)
+{
+}
+
+
+BusConnector::~BusConnector()
+{
+}
+
+BusConnector* 
+BusConnector::getInstance() {
+	static BusConnector connector;
+	
+	s_minst.Lock();
+	if(!s_instance)	{
+		s_instance = &connector;
+	}
+	s_minst.Unlock();
+	
+	return s_instance;
+}
+
+int 
+BusConnector::Open() {
+	try {
+		psp_ = new CSerialPort(EIB_SER_PORT, EIB_BPS, epbsN81);
+		int hserial = psp_->getHandle();
+
+		struct termios terminal;
+		if ( -1 == tcgetattr(hserial, &terminal) ) {
+			return -1;
+		}
+		
+		// set EIB specific values
+		terminal.c_iflag = terminal.c_iflag | (INPCK);
+		terminal.c_iflag = terminal.c_iflag & ~ (IXON | ICRNL);
+		terminal.c_cflag = terminal.c_cflag & ~(CSIZE | CSTOPB | CRTSCTS | PARODD);
+		terminal.c_cflag = terminal.c_cflag |  (CS8 | CREAD | HUPCL
+														| CLOCAL | PARENB);
+   
+		terminal.c_oflag = 0;
+		terminal.c_lflag = 0;
+   
+		if ( -1 == cfsetospeed(&terminal,B19200) ) {
+			return -1;
+		}
+		if ( -1 == cfsetispeed(&terminal,B19200) ) {
+			return -1;
+		}
+		terminal.c_cc[VMIN]=0;
+		terminal.c_cc[VTIME]=1;
+		
+		if ( -1 == tcsetattr(hserial, TCSANOW, &terminal) ) {
+			return -1;
+		}
+		if ( -1 == tcflush(hserial, TCIOFLUSH) ) {
+			return -1;
+		}
+   	
+	} catch(...) {
+		g_pPlutoLogger->Write(LV_CRITICAL, "Failed Opening EIB serial port: %s", EIB_SER_PORT);
+		return -1;
+	}
+	
+	g_pPlutoLogger->Write(LV_STATUS, "EIB serial port opened.");
+	return 0;
+}
+
+void 
+BusConnector::Close() {
+	if(psp_) {
+		delete psp_;
+	}
+}
+
+bool 
+BusConnector::isOpened() {
+	return psp_ != NULL;
+}
+
+bool 
+BusConnector::isDataAvailable() {
+	return !psp_->IsReadEmpty();
+}
+
+int 
+BusConnector::Recv(unsigned char* buff, unsigned int size, int timeout) {
+	if(!psp_) {
+		return -1;
+	}
+
+	return psp_->Read((char*)buff, size, timeout);
+}
+
+int 
+BusConnector::Send(const unsigned char* buff, unsigned int size) {	
+	if(!psp_) {
+		return -1;
+	}
+	
+	psp_->Write((char*)buff, size);
+	return size;
+}
+
+void 
+BusConnector::Clear() {
+	char inchar;
+	while(!psp_->IsReadEmpty()) {
+		psp_->Read(&inchar, 1, 0);
+	}
+}
+
+};
+
