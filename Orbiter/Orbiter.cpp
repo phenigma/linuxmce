@@ -623,6 +623,10 @@ void Orbiter::RenderDataGrid( DesignObj_DataGrid *pObj )
 
 	PrepareRenderDataGrid( pObj,  delSelections );
 
+#if ( defined( PROFILING ) )
+	clock_t clkAcquired = clock(  );
+#endif
+
 	if( !pObj->m_pDataGridTable )
 		return;
 
@@ -687,7 +691,9 @@ void Orbiter::RenderDataGrid( DesignObj_DataGrid *pObj )
 				}
 				else
 					RenderCell( pObj,  pT,  pCell,  j,  i + ( int ) bAddedUpButton,  GRAPHIC_NORMAL );
+
 				delete pCell;
+				pCell = NULL;
 			}
 		}
 	}
@@ -696,8 +702,9 @@ void Orbiter::RenderDataGrid( DesignObj_DataGrid *pObj )
 
 #if ( defined( PROFILING ) )
 	clock_t clkFinished = clock(  );
-	g_pPlutoLogger->Write( LV_CONTROLLER, "Grid: %s took %d ms to acquire and %d ms to render ( Acquired: %d )", 
-		pObj->m_sGridID, clkAcquired-clkStart, clkFinished-clkAcquired, ( bAcquiredGrid ? 1 : 0 ) );
+
+	g_pPlutoLogger->Write( LV_CONTROLLER, "Grid: %s took %d ms to acquire and %d ms to render", 
+		pObj->m_sGridID.c_str(), int(clkAcquired-clkStart), int(clkFinished-clkAcquired));
 #endif
 }
 //------------------------------------------------------------------------
@@ -711,10 +718,6 @@ void Orbiter::PrepareRenderDataGrid( DesignObj_DataGrid *pObj,  string& delSelec
 	m_GridCaching[pObj]=1;
 	}
 	*/
-
-#if ( defined( PROFILING ) )
-	clock_t clkAcquired = clock(  );
-#endif
 
 	if ( pObj->m_pDataGridTable )
 	{

@@ -32,6 +32,13 @@ using namespace std;
 	#define endl '\n'
 #endif
 
+#if ( defined( PROFILING ) )
+	#ifdef WINCE
+		#include "DCE/Logger.h"
+		using namespace DCE;
+	#endif
+#endif
+
 
 int myCounter=0;
 
@@ -655,6 +662,10 @@ RendererImage * Renderer::CreateBlankCanvas(PlutoSize size)
 // pass NULL in pRenderImage if you're interested only in the rendered text canvas size
 PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *pDesignObjText, TextStyle *pTextStyle, PlutoPoint pos)
 {
+#if ( defined( PROFILING_TEMP ) )
+	clock_t clkStart = clock(  );
+#endif
+
     //  cout << "Starting to render text" << pDesignObjText->m_PK_Text << " " << pDesignObjText->m_Text << endl;
     // hack
     if( !pTextStyle->m_pTTF_Font )
@@ -730,8 +741,14 @@ PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *
     }
     TTF_SetFontStyle((TTF_Font *) pTextStyle->m_pTTF_Font, style);
 
+#if ( defined( PROFILING_TEMP ) )
+	clock_t clkBlending = clock(  );
+#endif
+
     SDL_Surface * RenderedText = TTF_RenderText_Blended((TTF_Font *)pTextStyle->m_pTTF_Font, pDesignObjText->m_sText.c_str(), SDL_color);
-    //  cout << "called RenderText_Solid" << endl;
+
+	//SDL_Surface * RenderedText = TTF_RenderText_Solid((TTF_Font *)pTextStyle->m_pTTF_Font, pDesignObjText->m_sText.c_str(), SDL_color);
+
     if (RenderedText == NULL)
     {
         TTF_Quit();
@@ -739,6 +756,10 @@ PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *
     }
 
     PlutoSize RenderedSize(RenderedText->w, RenderedText->h);
+
+#if ( defined( PROFILING_TEMP ) )
+	clock_t clkBliting = clock(  );
+#endif
 
     if (pRenderImage != NULL)
     {
@@ -754,6 +775,25 @@ PlutoSize Renderer::RealRenderText(RendererImage * pRenderImage, DesignObjText *
 
 // todo - find a solution for this  TTF_CloseFont(Font);
     SDL_FreeSurface(RenderedText);
+
+#if ( defined( PROFILING_TEMP ) )
+	clock_t clkFinished = clock(  );
+
+	g_pPlutoLogger->Write( 
+		LV_CONTROLLER, 
+		"PlutoSize Renderer::RealRenderText: %s took %d ms: \n"
+			"\t- Start: %d ms\n"
+			"\t- Blended: %d ms\n"
+			"\t- Blited: %d ms",
+		pDesignObjText->m_sText.c_str(), 
+		clkFinished - clkStart,
+		clkBlending - clkStart,
+		clkBliting - clkBlending,
+		clkFinished - clkBliting
+	);
+
+#endif
+
 
     return RenderedSize;
 }
@@ -802,6 +842,7 @@ pair<int, int> GetWordWidth(string Word, string FontPath, TextStyle *pTextStyle,
 
     RI = Canvas;
     return pair<int, int>(Size.Width, Size.Height);
+
 }
 
 /* WORKAROUND: void * = SDL_Surface * */

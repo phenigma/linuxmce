@@ -178,6 +178,10 @@ public:
 		// of whoever called SerializeWrite to be sure they delete the datablock.  Just start
 		// with a new one
 		m_pcDataBlock = (char *)malloc(BLOCK_SIZE);
+
+		if(NULL == m_pcDataBlock)
+			throw "Cannot allocate memory for m_pcDataBlock";
+
 		m_dwAllocatedSize = BLOCK_SIZE;
 		m_pcCurrentPosition = m_pcDataBlock;
 	}

@@ -4,7 +4,7 @@
 #include "stdafx.h"
 #include <commctrl.h>
 
-#include "OrbiterCENet.h"
+#include "main.h"
 #include "StartOrbiterCE.h"
 #include "DCE/Logger.h"
 
@@ -59,7 +59,6 @@ int WINAPI WinMain(	HINSTANCE hInstance,
     char c;
 
 	//parse command line
-	//lpCmdLine
 	string::size_type pos = 0;
 
 	char pCmdLine[256];
@@ -147,6 +146,17 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		if( sLocalDirectory.length()>0 && sLocalDirectory[ sLocalDirectory.length()-1 ]!='/' )
 			sLocalDirectory += "/";
 
+		WORD    wVersion;
+		WSADATA wsaData;
+		wVersion = MAKEWORD( 1, 1 );
+		if (WSAStartup(wVersion, &wsaData)!=0)
+		{
+			int ec = WSAGetLastError();
+			char s[91];
+			printf("WSAStartup err %d", ec);
+			return 0;
+		}
+
 		try
 		{
 			StartOrbiterCE(PK_Device,sRouter_IP,sLocalDirectory,bLocalMode,Width,Height,bFullScreen);
@@ -161,6 +171,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		}
 	}
 
+
 	// Main message loop:
 	while (GetMessage(&msg, NULL, 0, 0)) 
 	{
@@ -170,6 +181,8 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 			DispatchMessage(&msg);
 		}
 	}
+
+    WSACleanup();
 
 	return msg.wParam;
 }

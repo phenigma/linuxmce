@@ -11,8 +11,6 @@ using namespace std;
 #include "../Orbiter.h"
 #include "../DesignObj_Orbiter.h"
 //-----------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------
 namespace DCE
 {
 
@@ -45,7 +43,7 @@ public:
 	// Rendering
 	virtual void RenderScreen();
 	virtual void RedrawObjects();
-	virtual void OrbiterSDL::DisplayImageOnScreen(SDL_Surface *m_pScreenImage);
+	virtual void DisplayImageOnScreen(SDL_Surface *m_pScreenImage);
 
 	// Other
 	virtual void Initialize(GraphicType Type);

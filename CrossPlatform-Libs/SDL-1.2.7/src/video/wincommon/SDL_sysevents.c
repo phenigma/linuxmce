@@ -515,6 +515,7 @@ LONG CALLBACK WinMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			     !(current_video->screen->flags & SDL_OPENGL) ) {
 				WIN_WinPAINT(current_video, hdc);
 			}
+
 			EndPaint(SDL_Window, &ps);
 		}
 		return(0);

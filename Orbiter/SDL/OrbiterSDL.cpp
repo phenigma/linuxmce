@@ -45,7 +45,6 @@
 #endif
 
 using namespace DCE;
-
 //-----------------------------------------------------------------------------------------------------
 OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
 					   int nImageWidth, int nImageHeight, bool bFullScreen/*=false*/)
@@ -97,7 +96,6 @@ OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirector
     }
 
     g_pPlutoLogger->Write(LV_STATUS, "Created back screen surface!");
-
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ OrbiterSDL::~OrbiterSDL()
@@ -137,11 +135,9 @@ g_pPlutoLogger->Write(LV_STATUS,"Exit display image on screen");
 //-----------------------------------------------------------------------------------------------------
 void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
                        string FontPath, TextStyle *pTextStyle);
-
+//-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::RenderText(DesignObjText *Text,TextStyle *pTextStyle)
 {
-    //PLUTO_SAFETY_LOCK_ERRORSONLY(vm,m_VariableMutex)
-
     string TextToDisplay = SubstituteVariables(Text->m_sText, NULL, 0, 0).c_str();
     SDL_Rect TextLocation;
     TextLocation.x = Text->m_rPosition.X;
@@ -153,66 +149,18 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
     string BasePath="C:\\Windows\\Fonts\\";
 #else
     string BasePath="/usr/pluto/fonts/";
-#endif
+#endif //win32
 
+#if ( defined( PROFILING ) )
+	clock_t clkStart = clock(  );
+#endif //PROFILING
     WrapAndRenderText(m_pScreenImage, TextToDisplay, TextLocation.x, TextLocation.y, TextLocation.w, TextLocation.h, BasePath, pTextStyle);
-    return;
+#if ( defined( PROFILING ) )
+	clock_t clkFinished = clock(  );
 
-    if( !pTextStyle->m_pTTF_Font )
-    {
-        try
-        {
-            pTextStyle->m_pTTF_Font = TTF_OpenFont((BasePath+pTextStyle->m_sFont+".ttf").c_str(), pTextStyle->m_iPixelHeight);
-        }
-        catch(...)
-        {
-        }
-
-        // Sometimes the camel case is converted to all upper or lower in Linux.
-        if( pTextStyle->m_pTTF_Font==NULL )
-        {
-            try
-            {
-                pTextStyle->m_pTTF_Font = TTF_OpenFont((BasePath+StringUtils::ToUpper(pTextStyle->m_sFont)+".TTF").c_str(), pTextStyle->m_iPixelHeight);
-            }
-            catch(...)
-            {
-            }
-        }
-
-        if( pTextStyle->m_pTTF_Font==NULL )
-        {
-            try
-            {
-                pTextStyle->m_pTTF_Font = TTF_OpenFont((BasePath+StringUtils::ToLower(pTextStyle->m_sFont)+".ttf").c_str(), pTextStyle->m_iPixelHeight);
-            }
-            catch(...)
-            {
-            }
-        }
-
-        if( pTextStyle->m_pTTF_Font==NULL )
-        {
-            g_pPlutoLogger->Write(LV_CRITICAL,"Failed to open font %s: %s", pTextStyle->m_sFont.c_str(), TTF_GetError());
-            return;
-        }
-    }
-
-    try
-    {
-        SDL_Color sdl_color;
-        sdl_color.r = sdl_color.g = sdl_color.b = 255;  // get this from the styles -- HACK!!!
-
-        SDL_Surface * RenderedText = TTF_RenderText_Blended((TTF_Font *) pTextStyle->m_pTTF_Font, TextToDisplay.c_str(), sdl_color);
-        SDL_BlitSurface(RenderedText, NULL, m_pScreenImage, &TextLocation);
-
-        SDL_FreeSurface(RenderedText);
-    }
-    catch(...)
-    {
-        g_pPlutoLogger->Write(LV_CRITICAL,"Failed to write text with font: %s",pTextStyle->m_sFont.c_str());
-    }
-    //vm.Release();
+	g_pPlutoLogger->Write( LV_CONTROLLER, "WrapAndRenderText: %s took %d ms", 
+			TextToDisplay.c_str(), clkFinished - clkStart );
+#endif //PROFILING
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::XORRectangle(int x, int y, int width,int height)
@@ -288,25 +236,10 @@ void OrbiterSDL::DrawRectangle(int x, int y, int width, int height, PlutoColor c
                 return;
             }
 
-#ifdef WINCE
-	//hack! test if png rendering works
-
-	/*
-	unsigned int size;
-	pGraphicFile = FileUtils::ReadFileIntoBuffer( "\\temp\\1255.4.0.png", size );
-	iSizeGraphicFile = size;
-	*/
-
-	/*
-	FILE* f = fopen("\temp\1255.4.0.png", "r");
-	fread(pGraphicFile, 1, iSizeGraphicFile, f);
-	fclose(f);
-	*/
-#endif
-
             SDL_RWops * rw = SDL_RWFromMem(pGraphicFile, iSizeGraphicFile);
             obj_image = IMG_Load_RW(rw, 1); // rw is freed here
             delete pGraphicFile;
+
         }
 #ifdef CACHE_IMAGES
         pIMGraphic->m_pSDL_Surface = obj_image;  // In case we loaded from cache

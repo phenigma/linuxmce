@@ -40,3 +40,4 @@ static char rcsid =
 #ifdef macintosh	/* MacOS 7/8 don't support preemptive multi-tasking */
 #define CANT_THREAD_EVENTS
 #endif
+

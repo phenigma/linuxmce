@@ -1,6 +1,13 @@
 #include "TextWrapper.h"
 #include "Orbiter/TextStyle.h"
 
+#if ( defined( PROFILING ) )
+	#ifdef WINCE
+		#include "DCE/Logger.h"
+		using namespace DCE;
+	#endif
+#endif
+
 // Radu: I hope I'll get around to optimizing all this some time.
 // Radu: From my point of view, this looks like its going to eat a lot of memory.
 
@@ -116,7 +123,6 @@ list<Row> & TextLineWrap::Wrap(string text, int atX, int atY, int W, int H,
 				}
 				continue; // don't wrap formatting
 			}
-
 			bool statB_bk = pTextStyle->m_bBold;
 			bool statU_bk = pTextStyle->m_bUnderline;
 			bool statI_bk = pTextStyle->m_bItalic;
@@ -139,7 +145,7 @@ list<Row> & TextLineWrap::Wrap(string text, int atX, int atY, int W, int H,
 				// re-render last word because it is going to start a new line
 				WW = WordWidth(* j, RI, pTextStyle, false);
 			}
-			
+
 			pTextStyle->m_bBold = statB_bk;
 			pTextStyle->m_bUnderline = statU_bk;
 			pTextStyle->m_bItalic = statI_bk;
@@ -253,8 +259,40 @@ void TextLineWrap::RenderToSurface(SDL_Surface * Surface)
 void WrapAndRenderText(SDL_Surface * Surface, string text, int X, int Y, int W, int H,
 					   string FontPath, TextStyle *pTextStyle)
 {
+#if ( defined( PROFILING ) )
+	clock_t clkStart = clock(  );
+#endif
+
 	TextLineWrap T;
 
+#if ( defined( PROFILING ) )
+	clock_t clkConstructor = clock(  );
+#endif
+
 	T.Wrap(text, X, Y, W, H, FontPath, pTextStyle);
+
+#if ( defined( PROFILING ) )
+	clock_t clkWarp = clock(  );
+#endif
+
 	T.RenderToSurface(Surface);
+
+#if ( defined( PROFILING ) )
+	clock_t clkFinished = clock(  );
+
+	g_pPlutoLogger->Write( 
+		LV_CONTROLLER, 
+		"WrapAndRenderText: %s took %d ms: \n"
+			"\t- Contructor: %d ms\n"
+			"\t- Wrap: %d ms\n"
+			"\t- RenderToSurface: %d ms",
+		text.c_str(), 
+		clkFinished - clkStart,
+		clkConstructor - clkStart,
+		clkWarp - clkConstructor,
+		clkFinished - clkWarp
+	);
+#endif
+
+
 }

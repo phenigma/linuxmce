@@ -6,20 +6,13 @@
 --------------------Configuration: Orbiter - Win32 (WCE ARMV4) Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\Race\LOCALS~1\Temp\RSP562.tmp" with contents
+Creating temporary file "C:\DOCUME~1\Race\LOCALS~1\Temp\RSPBD2.tmp" with contents
 [
-/nologo /Zp4 /Zi /Od /I "." /I ".." /I "../.." /I "../../DCE" /I "../../Libraries/pthreads-snap-2002-11-04" /I "../../Libraries/pthreads-win32/include" /I "../../CrossPlatform-Libs/sge030809-w32/src" /I "../../CrossPlatform-Libs/SDL_ttf-2.0.6" /I "../../CrossPlatform-Libs/SDL_image-1.2.3" /I "../../CrossPlatform-Libs/SDL-1.2.7/include" /I "../../Splitter" /I "../../CrossPlatform-Libs/zlib" /I "../../CrossPlatform-Libs/lpng127" /I "../../Libraries/STLport-4.5.3/stlport" /I "../../Libraries/STLport-4.5.3/src" /I "../../PlutoUtils" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=420 /D _WIN32_WCE=420 /D "WIN32_PLATFORM_PSPC=400" /D "UNICODE" /D "_UNICODE" /D "WIN32" /D "WINCE" /D "ORBITER" /D "__STL_NO_IOSTREAMS" /D "LOAD_PNG" /Fo"ARMV4Dbg/" /Fd"ARMV4Dbg/" /I /pluto/trunk" /MC " /c 
-"C:\pluto\trunk\Orbiter\DesignObj_Data.cpp"
-"C:\pluto\trunk\Orbiter\DesignObj_Orbiter.cpp"
-"C:\pluto\trunk\Orbiter\Orbiter.cpp"
-"C:\pluto\trunk\Orbiter\CENet\OrbiterCENet.cpp"
-"C:\pluto\trunk\Orbiter\SDL\OrbiterSDL.cpp"
-"C:\pluto\trunk\OrbiterGen\Renderer.cpp"
-"C:\pluto\trunk\Orbiter\CENet\StartOrbiterCE.cpp"
-"C:\pluto\trunk\Splitter\TextWrapper.cpp"
+/nologo /Zp4 /Zi /Od /I "." /I ".." /I "../.." /I "../../DCE" /I "../../Libraries/pthreads-snap-2002-11-04" /I "../../Libraries/pthreads-win32/include" /I "../../CrossPlatform-Libs/sge030809-w32/src" /I "../../CrossPlatform-Libs/SDL_ttf-2.0.6" /I "../../CrossPlatform-Libs/SDL_image-1.2.3" /I "../../CrossPlatform-Libs/SDL-1.2.7/include" /I "../../Splitter" /I "../../CrossPlatform-Libs/zlib" /I "../../CrossPlatform-Libs/lpng127" /I "../../Libraries/STLport-4.5.3/stlport" /I "../../Libraries/STLport-4.5.3/src" /I "../../PlutoUtils" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=420 /D _WIN32_WCE=420 /D "WIN32_PLATFORM_PSPC=400" /D "UNICODE" /D "_UNICODE" /D "WIN32" /D "WINCE" /D "ORBITER" /D "__STL_NO_IOSTREAMS" /D "LOAD_PNG" /D "PROFILING" /D "CACHE_IMAGES" /Fo"ARMV4Dbg/" /Fd"ARMV4Dbg/" /I /pluto/trunk" /MC " /c 
+"C:\pluto\trunk\Orbiter\CENet\OrbiterSDL_WinCE.cpp"
 ]
-Creating command line "clarm.exe @C:\DOCUME~1\Race\LOCALS~1\Temp\RSP562.tmp" 
-Creating temporary file "C:\DOCUME~1\Race\LOCALS~1\Temp\RSP563.tmp" with contents
+Creating command line "clarm.exe @C:\DOCUME~1\Race\LOCALS~1\Temp\RSPBD2.tmp" 
+Creating temporary file "C:\DOCUME~1\Race\LOCALS~1\Temp\RSPBD3.tmp" with contents
 [
 commctrl.lib coredll.lib PthreadsCE.lib winsock.lib sdl.lib sdl_image_wince.lib sdl_ttf_wince.lib freetype_wince.lib zlib_wince.lib ccrtrtti.lib sge_wince.lib lpng_wince.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /incremental:yes /pdb:"ARMV4Dbg/Orbiter.pdb" /debug /nodefaultlib:"libc.lib /nodefaultlib:libcd.lib /nodefaultlib:libcmt.lib /nodefaultlib:libcmtd.lib /nodefaultlib:msvcrt.lib /nodefaultlib:msvcrtd.lib" /out:"ARMV4Dbg/Orbiter.exe" /libpath:"Ritti/ArmV4" /libpath:"../../CrossPlatform-Libs/zlib/zlib_wince/ARMV4Dbg" /libpath:"../../CrossPlatform-Libs/sge030809-w32/sge_wince/ARMV4Dbg" /libpath:"../../CrossPlatform-Libs/lpng127/lpng_wince/ARMV4Dbg\\" /libpath:""../../CrossPlatform-Libs/SDL_image-1.2.3/WINCE/ARMV4Dbg"" /libpath:""../../CrossPlatform-Libs/SDL_ttf-2.0.6/WinCE/ARMV4Dbg"" /libpath:""c:\pluto\trunk\CrossPlatform-Libs\freetype-2.1.9\freetype_wince\ARMV4Dbg\"" /libpath:""../../CrossPlatform-Libs/SDL-1.2.7/VisualCE/SDL/ARMV4Dbg"" /libpath:""../../Libraries/pthreads-snap-2002-11-04/PthreadsCE/ARMDbg"" /libpath:""C:\Program /libpath:""../../CrossPlatform-Libs/SDL-1.2.7/VisualC7/SDL/Debug"" /libpath:""../../CrossPlatform-Libs/SDL_image-1.2.3/VisualC/Debug"" /libpath:""../../CrossPlatform-Libs/SDL_ttf-2.0.6/VisualC/Debug"" /libpath:""../../CrossPlatform-Libs/sge030809-w32/sge-msvc/sge/VisualC/Debug"" /libpath:""../../CrossPlatform-Libs/lpng127/projects/visualc6/Win32_DLL_Debug"" /libpath:""../../CrossPlatform-Libs/zlib/projects/visualc6/Win32_DLL_Debug"" /subsystem:windowsce,4.20 /align:"4096" /MACHINE:THUMB 
 .\ARMV4Dbg\ClientSocket.obj
@@ -33,13 +26,14 @@ commctrl.lib coredll.lib PthreadsCE.lib winsock.lib sdl.lib sdl_image_wince.lib 
 .\ARMV4Dbg\FileUtils.obj
 .\ARMV4Dbg\HandleRequestSocket.obj
 .\ARMV4Dbg\Logger.obj
+.\ARMV4Dbg\main.obj
 .\ARMV4Dbg\Message.obj
 .\ARMV4Dbg\minilzo.obj
 .\ARMV4Dbg\MultiThreadIncludes.obj
 .\ARMV4Dbg\Orbiter.obj
 .\ARMV4Dbg\OrbiterBase.obj
-.\ARMV4Dbg\OrbiterCENet.obj
 .\ARMV4Dbg\OrbiterSDL.obj
+.\ARMV4Dbg\OrbiterSDL_WinCE.obj
 .\ARMV4Dbg\Renderer.obj
 .\ARMV4Dbg\SerializeClass.obj
 .\ARMV4Dbg\Socket.obj
@@ -50,45 +44,25 @@ commctrl.lib coredll.lib PthreadsCE.lib winsock.lib sdl.lib sdl_image_wince.lib 
 .\ARMV4Dbg\WinCE.obj
 .\ARMV4Dbg\Orbiter.res
 ]
-Creating command line "link.exe @C:\DOCUME~1\Race\LOCALS~1\Temp\RSP563.tmp"
+Creating command line "link.exe @C:\DOCUME~1\Race\LOCALS~1\Temp\RSPBD3.tmp"
 <h3>Output Window</h3>
 Compiling...
-DesignObj_Data.cpp
-DesignObj_Orbiter.cpp
-Orbiter.cpp
-c:\pluto\trunk\orbiter\orbiter.cpp(466) : warning C4615: #pragma warning : unknown user warning type
-c:\pluto\trunk\orbiter\orbiter.cpp(476) : warning C4615: #pragma warning : unknown user warning type
-c:\pluto\trunk\orbiter\orbiter.cpp(567) : warning C4615: #pragma warning : unknown user warning type
-c:\pluto\trunk\orbiter\orbiter.cpp(984) : warning C4615: #pragma warning : unknown user warning type
-c:\pluto\trunk\orbiter\orbiter.cpp(1194) : warning C4615: #pragma warning : unknown user warning type
-OrbiterCENet.cpp
-c:\pluto\trunk\libraries\stlport-4.5.3\stlport\stl\_prolog.h(16) : warning C4103: 'c:\pluto\trunk\libraries\stlport-4.5.3\stlport\stl\_prolog.h' : used #pragma pack to change alignment
-c:\pluto\trunk\libraries\stlport-4.5.3\stlport\ctype.h(18) : warning C4103: 'c:\pluto\trunk\libraries\stlport-4.5.3\stlport\ctype.h' : used #pragma pack to change alignment
-c:\pluto\trunk\libraries\stlport-4.5.3\stlport\stl\_epilog.h(10) : warning C4103: 'c:\pluto\trunk\libraries\stlport-4.5.3\stlport\stl\_epilog.h' : used #pragma pack to change alignment
-c:\pluto\trunk\libraries\stlport-4.5.3\stlport\ctype.h(27) : warning C4103: 'c:\pluto\trunk\libraries\stlport-4.5.3\stlport\ctype.h' : used #pragma pack to change alignment
-c:\pluto\trunk\orbiter\cenet\orbitercenet.cpp(110) : warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify -GX
-OrbiterSDL.cpp
-c:\pluto\trunk\orbiter\sdl\orbitersdl.cpp(164) : warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify -GX
-Renderer.cpp
-c:\pluto\trunk\orbitergen\renderer.cpp(666) : warning C4530: C++ exception handler used, but unwind semantics are not enabled. Specify -GX
-StartOrbiterCE.cpp
-TextWrapper.cpp
-Generating Code...
+OrbiterSDL_WinCE.cpp
 Linking...
    Creating library ARMV4Dbg/Orbiter.lib and object ARMV4Dbg/Orbiter.exp
-Orbiter.obj : warning LNK1166: cannot adjust code at offset=0x00001000, rva=0x00031F80
-freetype_wince.lib(ftbase.obj) : warning LNK1166: cannot adjust code at offset=0x00001000, rva=0x0007E5CC
-freetype_wince.lib(sfnt.obj) : warning LNK1166: cannot adjust code at offset=0x00001000, rva=0x00098D08
-freetype_wince.lib(cff.obj) : warning LNK1166: cannot adjust code at offset=0x00001000, rva=0x000C2A6C
-freetype_wince.lib(truetype.obj) : warning LNK1166: cannot adjust code at offset=0x00001000, rva=0x000D3D7C
-sge_wince.lib(sge_primitives.obj) : warning LNK1166: cannot adjust code at offset=0x00001000, rva=0x000FC408
-lpng_wince.lib(pngrtran.obj) : warning LNK1166: cannot adjust code at offset=0x00001000, rva=0x00110CB0
+Orbiter.obj : warning LNK1166: cannot adjust code at offset=0x00001000, rva=0x000335EC
+freetype_wince.lib(ftbase.obj) : warning LNK1166: cannot adjust code at offset=0x00001000, rva=0x0007FD10
+freetype_wince.lib(sfnt.obj) : warning LNK1166: cannot adjust code at offset=0x00001000, rva=0x0009A8E0
+freetype_wince.lib(cff.obj) : warning LNK1166: cannot adjust code at offset=0x00001000, rva=0x000C4A6C
+freetype_wince.lib(truetype.obj) : warning LNK1166: cannot adjust code at offset=0x00001000, rva=0x000D5D7C
+sge_wince.lib(sge_primitives.obj) : warning LNK1166: cannot adjust code at offset=0x00001000, rva=0x000FE408
+lpng_wince.lib(pngrtran.obj) : warning LNK1166: cannot adjust code at offset=0x00001000, rva=0x00112CB0
 
 
 
 
 <h3>Results</h3>
-Orbiter.exe - 0 error(s), 19 warning(s)
+Orbiter.exe - 0 error(s), 7 warning(s)
 </pre>
 </body>
 </html>
