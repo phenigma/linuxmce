@@ -20,7 +20,8 @@ int THE_getch(bool echo) // :P
 		new_ts.c_lflag &= !ECHO;
 	ioctl(0, TCSETS, &new_ts);
 
-	cin >> c;
+	c = getchar();
+//	cin >> c;
 
 	ioctl(0, TCSETS, &ts);
 
