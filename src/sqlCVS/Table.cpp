@@ -801,7 +801,7 @@ itmp_RowsToDelete++;
 			if( pos>=r_GetAll_psc_id.m_vectAll_psc_id.size( ) || r_GetAll_psc_id.m_vectAll_psc_id[pos]>atoi( row[0] ) )
 			{
 cout << "Deleted a server row - pos: " << pos << " size: " << r_GetAll_psc_id.m_vectAll_psc_id.size( ) << 
-	" atoi: " << atoi( row[0] ) << " comp: " << r_GetAll_psc_id.m_vectAll_psc_id[pos] << endl;
+	" atoi: " << atoi( row[0] ) << endl;
 				m_vectRowsToDelete.push_back( atoi( row[0] ) );
 				continue; 
 			}

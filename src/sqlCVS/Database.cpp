@@ -479,24 +479,32 @@ void Database::ShowChanges()
 
 	DCE::Socket *pSocket=NULL;
 
-	for( MapTable::iterator it=m_mapTable.begin( );it!=m_mapTable.end( );++it )
+	for( MapRepository::iterator it=m_mapRepository.begin( );it!=m_mapRepository.end( );++it )
 	{
-		Table *pTable = ( *it ).second;
-		
-		/**
-		 * Since we don't need to connect to the server for anything here, but we don't each table to make it's own connection, 
-		 * Pass in the connection string and the NULL pointer to the socket so a connection will be made the
-		 * first time and preserved for the other tables
-		 */
-		 
-		if( pTable->Repository_get( ) )
+		Repository *pRepository = ( *it ).second;
+		if( g_GlobalConfig.m_mapRepository.size() && 
+				g_GlobalConfig.m_mapRepository.find( pRepository->Name_get() )==g_GlobalConfig.m_mapRepository.end() )
+			continue;  // If we specified repositories, only show the tables in those repositories -- not all tables
+
+		for( MapTable::iterator it=pRepository->m_mapTable.begin( );it!=pRepository->m_mapTable.end( );++it )
 		{
-			pTable->GetChanges(); // This will get the adds and modifies
-			if( !pTable->DetermineDeletions( ra_Processor, g_GlobalConfig.m_sSqlCVSHost + ":" + StringUtils::itos(g_GlobalConfig.m_iSqlCVSPort), &pSocket ) )
+			Table *pTable = ( *it ).second;
+			
+			/**
+			* Since we don't need to connect to the server for anything here, but we don't each table to make it's own connection, 
+			* Pass in the connection string and the NULL pointer to the socket so a connection will be made the
+			* first time and preserved for the other tables
+			*/
+			 
+			if( pTable->Repository_get( ) )
 			{
-				delete pSocket;
-				cerr << "Unable to contact the server to determine what records were deleted" << endl;
-				throw "database error";
+				pTable->GetChanges(); // This will get the adds and modifies
+				if( !pTable->DetermineDeletions( ra_Processor, g_GlobalConfig.m_sSqlCVSHost + ":" + StringUtils::itos(g_GlobalConfig.m_iSqlCVSPort), &pSocket ) )
+				{
+					delete pSocket;
+					cerr << "Unable to contact the server to determine what records were deleted" << endl;
+					throw "database error";
+				}
 			}
 		}
 	}
@@ -509,6 +517,9 @@ void Database::ShowChanges()
 		for( MapRepository::iterator it=m_mapRepository.begin( );it!=m_mapRepository.end( );++it )
 		{
 			Repository *pRepository = ( *it ).second;
+			if( g_GlobalConfig.m_mapRepository.size() && 
+					g_GlobalConfig.m_mapRepository.find( pRepository->Name_get() )==g_GlobalConfig.m_mapRepository.end() )
+				continue;  // If we specified repositories, only show the tables in those repositories -- not all tables
 			vectRepository.push_back(pRepository);
 			cout << setw( 3 ) << (int) vectRepository.size() << " ";
 			if( pRepository->Name_get().length() > 40 )
