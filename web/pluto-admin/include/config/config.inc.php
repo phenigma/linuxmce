@@ -9,7 +9,7 @@
   		$GLOBALS['floorplansPath']='/var/www/pluto-admin/floorplans';
   	}else{
   		error_reporting(E_ALL);
-  		$GLOBALS['globalConfigPath']='/var/www/test/globalconfig/';
+  		$GLOBALS['globalConfigPath']='/home/users/vali/work/web/globalconfig/';
   		$GLOBALS['floorplansPath']='/var/www/test/pluto-admin/floorplans';
   	}
 
@@ -111,8 +111,11 @@
 	$GLOBALS['commandParamPK_DesignObj']=3;			// PK_DesignObj
 	$GLOBALS['commandParameterVariableNumber']=4;	// Variable Number (PK_Variable)
 	$GLOBALS['commandParameterValueToAsign']=5;		// Value to assign
+	$GLOBALS['commandParamID']=10;					// ID
 	$GLOBALS['commandParamFilename']=13;			// Filename
+	$GLOBALS['commandParamDesignObjCurrentScreen']=16;	// PK_DesignObj_CurrentScreen
 	$GLOBALS['commandParamPKUsers']=17;				// PK_Users
+	$GLOBALS['commandParamStoreVariables']=22;		// Store Variables
 	$GLOBALS['commandParamPK_MediaType']=29;		// PK_MediaType
 	$GLOBALS['commandParamPK_DeviceTemplate']=44;	// PK_DeviceTemplate
 	$GLOBALS['commandParamPK_EntertainArea']=45;	// PK_EntertainArea
@@ -149,7 +152,7 @@
 	$GLOBALS['mnuMediaFileListDesignObj']=2071;			// mnuMediaFileList
 	$GLOBALS['mnuMediaFileList2DesignObj']=3226;		// mnuMediaFileList2
 	$GLOBALS['butViewDesignObj']=3283;					// butView
-	
+	$GLOBALS['TelecomMenu']=1323;						// Telecom Menu mnuMakeCallFavorites
 	
 	// PK_CriteriaList from table CriteriaList
 	
@@ -173,7 +176,7 @@
 	
 	// options to display in Media Wizard
 	
-	$GLOBALS['mediaOptionsArray']=array('TV', 'playlists', 'music', 'movies', 'videos', 'pictures', 'documents');
+	$GLOBALS['mediaOptionsArray']=array('TV', 'playlists', 'music', 'movies', 'videos', 'pictures', 'documents', 'Disc CD/DVD');
 	
 	// DeviceData displayed as pulldown menu
 	

@@ -565,7 +565,7 @@ $out='';
 							<tr>
 								<td>From: <input type="text" name="mac_from_'.$rowDHCP['PK_DHCPDevice'].'" value="'.$rowDHCP['Mac_Range_Low'].'"></td>
 								<td>To: <input type="text" name="mac_to_'.$rowDHCP['PK_DHCPDevice'].'" value="'.$rowDHCP['Mac_Range_High'].'"></td>
-								<td><input type="button" class="button" name="delDHCP" value="Edit"> <input type="button" class="button" name="delDHCP" value="Delete" onClick="self.location=\'index.php?section=editMasterDevice&model='.$deviceID.'&action=removeDHCP&dhcpID='.$rowDHCP['PK_DHCPDevice'].'\'"></td>
+								<td><input type="button" class="button" name="editDHCP" value="Edit" onClick="windowOpen(\'index.php?section=editDHCP&dhcpID='.$rowDHCP['PK_DHCPDevice'].'\',\'width=500,height=400,toolbars=true,resizable=1\');"> <input type="button" class="button" name="delDHCP" value="Delete" onClick="self.location=\'index.php?section=editMasterDevice&model='.$deviceID.'&action=removeDHCP&dhcpID='.$rowDHCP['PK_DHCPDevice'].'\'"></td>
 							</tr>';
 					}
 					$out.='

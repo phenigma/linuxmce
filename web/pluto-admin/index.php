@@ -935,6 +935,12 @@ switch ($section) {
 	    include_once('operations/myScenarios/mobileScenarios.php');
 	    mobileScenarios($output,$dbADO);
 	break;	
+	case 'editDHCP';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('small');
+	    include_once('operations/deviceTemplate/editDHCP.php');
+	    editDHCP($output,$dbADO);
+	break;	
 	
 	case '';
 		$output = new Template($dbADO);	

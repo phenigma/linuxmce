@@ -347,9 +347,9 @@ if($action=='form') {
 		$dbADO->Execute($insertCG_Room,array($cgID,$roomID,$cgID));
 		$insertCG_C='
 			INSERT INTO CommandGroup_Command 
-				(FK_CommandGroup,FK_Command,TurnOff,OrderNum)
+				(FK_CommandGroup,FK_Command,TurnOff,OrderNum,FK_Device)
 			VALUES
-				(?,?,?,?)';
+				(?,?,?,?,?)';
 		$insertCG_C_CP='
 			INSERT INTO CommandGroup_Command_CommandParameter 
 				(FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter)
@@ -360,14 +360,14 @@ if($action=='form') {
 		for($i=1;$i<5;$i++){
 			$camera=(int)$_POST['camera_'.$i];
 			
-			$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandSetVar'],0,0));
+			$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandSetVar'],0,0,$GLOBALS['localOrbiter']));
 			$cg_cID=$dbADO->Insert_ID();
 				
 			$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterVariableNumber'],$GLOBALS['camerasVariableNumbersArray'][$i-1]));
 			$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterValueToAsign'],$camera));
 		}
 		
-		$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandGotoScreen'],0,4));
+		$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandGotoScreen'],0,4,$GLOBALS['localOrbiter']));
 		$cg_cID=$dbADO->Insert_ID();
 		$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterObjectScreen'],$GLOBALS['mnuSecurityCamerasDesignObj']));
 		$msg="New security scenario was added.";
@@ -391,9 +391,9 @@ if($action=='form') {
 		
 		$insertCG_C='
 			INSERT INTO CommandGroup_Command 
-				(FK_CommandGroup,FK_Command,TurnOff,OrderNum)
+				(FK_CommandGroup,FK_Command,TurnOff,OrderNum,FK_Command)
 			VALUES
-				(?,?,?,?)';
+				(?,?,?,?,?)';
 		$insertCG_C_CP='
 			INSERT INTO CommandGroup_Command_CommandParameter 
 				(FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter)
@@ -407,7 +407,7 @@ if($action=='form') {
 
 			if($oldCamera==0){
 				if($camera!=0){
-					$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandSetVar'],0,0));
+					$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandSetVar'],0,0,$GLOBALS['localOrbiter']));
 					$cg_cID=$dbADO->Insert_ID();
 				
 					$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterVariableNumber'],$cameraNO));
@@ -425,7 +425,7 @@ if($action=='form') {
 				$dbADO->Execute($deleteParameters,array($oldCameraCG_C,$GLOBALS['commandParameterVariableNumber'],$cameraNO));
 				$dbADO->Execute($deleteParameters,array($oldCameraCG_C,$GLOBALS['commandParameterValueToAsign'],$oldCamera));
 				if($camera!=$oldCamera && $camera!=0){
-					$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandSetVar'],0,0));
+					$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandSetVar'],0,0,$GLOBALS['localOrbiter']));
 					$cg_cID=$dbADO->Insert_ID();
 				
 					$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterVariableNumber'],$cameraNO));
@@ -440,9 +440,9 @@ if($action=='form') {
 	if(isset($_POST['updateScenario']) || $action=='externalSubmit'){
 		$insertCG_C='
 			INSERT INTO CommandGroup_Command 
-				(FK_CommandGroup,FK_Command,TurnOff,OrderNum)
+				(FK_CommandGroup,FK_Command,TurnOff,OrderNum, FK_Device)
 			VALUES
-				(?,?,?,?)';
+				(?,?,?,?,?)';
 		$insertCG_C_CP='
 			INSERT INTO CommandGroup_Command_CommandParameter 
 				(FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter)
@@ -468,7 +468,7 @@ if($action=='form') {
 			$armDisarmCG=$dbADO->Insert_ID();
 			$newDisarmCG=1;
 			
-			$dbADO->Execute($insertCG_C,array($armDisarmCG,$GLOBALS['commandGotoScreen'],0,0));
+			$dbADO->Execute($insertCG_C,array($armDisarmCG,$GLOBALS['commandGotoScreen'],0,0,$GLOBALS['localOrbiter']));
 			$cg_cID=$dbADO->Insert_ID();
 			$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterObjectScreen'],$GLOBALS['mnuSecurityCamerasDesignObj']));
 		}
@@ -489,7 +489,7 @@ if($action=='form') {
 			$viewAllCG=$dbADO->Insert_ID();
 			$newAllCG=1;
 			
-			$dbADO->Execute($insertCG_C,array($viewAllCG,$GLOBALS['commandGotoScreen'],0,0));
+			$dbADO->Execute($insertCG_C,array($viewAllCG,$GLOBALS['commandGotoScreen'],0,0,$GLOBALS['localOrbiter']));
 			$cg_cID=$dbADO->Insert_ID();
 			$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterObjectScreen'],$GLOBALS['mnuSecurityCamerasDesignObj']));
 		}
@@ -510,7 +510,7 @@ if($action=='form') {
 			$sosCG=$dbADO->Insert_ID();
 			$newSosCG=1;
 
-			$dbADO->Execute($insertCG_C,array($sosCG,$GLOBALS['commandGotoScreen'],0,0));
+			$dbADO->Execute($insertCG_C,array($sosCG,$GLOBALS['commandGotoScreen'],0,0,$GLOBALS['localOrbiter']));
 			$cg_cID=$dbADO->Insert_ID();
 			$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterObjectScreen'],$GLOBALS['mnuSecurityCamerasDesignObj']));
 		}
@@ -613,13 +613,13 @@ if($action=='form') {
 						$cgID=$dbADO->Insert_ID();
 						$camerasCGArray[$cameraID]=$cgID;
 						
-						$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandSetVar'],0,0));					
+						$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandSetVar'],0,0,$GLOBALS['localOrbiter']));					
 						$cg_cID=$dbADO->Insert_ID();
 						
 						$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterVariableNumber'],$GLOBALS['cameraVariable']));
 						$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterValueToAsign'],$cameraID));
 						
-						$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandGotoScreen'],0,1));
+						$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandGotoScreen'],0,1,$GLOBALS['localOrbiter']));
 						$cg_cID=$dbADO->Insert_ID();
 						$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterObjectScreen'],$GLOBALS['mnuSingleCameraViewOnlyDesignObj']));
 						

@@ -17,6 +17,12 @@ $installationID = (int)@$_SESSION['installationID'];
 $arrayID = $GLOBALS['ArrayIDForMobileOrbiterScenarios'];	
 $templateArray=array($GLOBALS['LightingScenariosTemplate']=>'Lighting Scenarios', $GLOBALS['ClimateScenariosTemplate']=>'Climate Scenarios');
 
+$allTemplateArray=array();
+$resAll=$dbADO->Execute('SELECT Description, PK_Template FROM Template ORDER BY Description ASC');
+while($rowAll=$resAll->FetchRow()){
+	$allTemplateArray[$rowAll['PK_Template']]=$rowAll['Description'];
+}
+
 if($action=='form') {
 	
 	$queryArray = 'SELECT * FROM Array WHERE PK_Array=?';	
@@ -61,9 +67,9 @@ if($action=='form') {
 			SELECT * 
 			FROM CommandGroup
 			INNER JOIN CommandGroup_Room ON FK_CommandGroup=PK_CommandGroup
-			WHERE FK_Array=? AND FK_Room=? AND FK_Installation=? AND (FK_Template=? OR FK_Template=?)
+			WHERE FK_Array=? AND FK_Room=? AND FK_Installation=?
 			ORDER BY Sort ASC';
-		$resCommandGroups=$dbADO->Execute($selectCommandGroups,array($arrayID,$rowRooms['PK_Room'],$installationID,$GLOBALS['LightingScenariosTemplate'],$GLOBALS['ClimateScenariosTemplate']));
+		$resCommandGroups=$dbADO->Execute($selectCommandGroups,array($arrayID,$rowRooms['PK_Room'],$installationID));
 		if($resCommandGroups->RecordCount()==0){
 		$out.='
 			<tr>
@@ -85,9 +91,14 @@ if($action=='form') {
 				<td><input type="button" class="button" name="posDown" value="-" onClick="self.location=\'index.php?section=mobileScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&roomID='.$rowRooms['PK_Room'].'&operation=down&posInRoom='.urlencode(serialize($posInRoom)).'\'"> 
 					<input type="button" class="button" name="posUp" value="+" onClick="self.location=\'index.php?section=mobileScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&roomID='.$rowRooms['PK_Room'].'&operation=up&posInRoom='.urlencode(serialize($posInRoom)).'\'">
 				 Description: '.((!in_array($rowCG['PK_CommandGroup'],$displayedCommandGroups))?'<input type="text" name="commandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Description'].'"> Hint: <input type="text" name="hintCommandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Hint'].'">':'<b>'.$rowCG['Description'].': </b>Hint: <b>'.$rowCG['Hint'].'</b> (See '.$firstRoomArray[$rowCG['PK_CommandGroup']].')').'</td>
-				<td>Category: <b>'.$templateArray[$rowCG['FK_Template']].'</b></td>
-				<td>&nbsp;</td>
-				<td><a href="index.php?section=mobileScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action='.(($rowCG['FK_Template']==$GLOBALS['LightingScenariosTemplate'])?'editLighting':'editClimate').'&roomID='.$rowRooms['PK_Room'].'">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=mobileScenarios&action=delete&cgDelID='.$rowCG['PK_CommandGroup'].'\';">Delete</a></td>
+				<td>Category: <b>'.$allTemplateArray[$rowCG['FK_Template']].'</b></td>
+				<td>&nbsp;</td>';
+			if(in_array($rowCG['FK_Template'],array_keys($templateArray)))
+				$editLink='<a href="index.php?section=mobileScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action='.(($rowCG['FK_Template']==$GLOBALS['LightingScenariosTemplate'])?'editLighting':'editClimate').'&roomID='.$rowRooms['PK_Room'].'">Edit</a>';
+			else
+				$editLink='<a href="index.php?section=editCommandGroup&cgID='.$rowCG['PK_CommandGroup'].'">Edit</a>';
+			$out.='
+				<td>'.$editLink.' <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=mobileScenarios&action=delete&cgDelID='.$rowCG['PK_CommandGroup'].'\';">Delete</a></td>
 				<td>&nbsp;</td>
 			</tr>
 			';

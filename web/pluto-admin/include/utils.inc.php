@@ -1265,7 +1265,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 		$out.=$scriptInHead;
 		$out.='
 		<div class="err">'.(isset($_GET['error'])&&$_GET['error']!='password'?strip_tags($_GET['error']):'').'</div>	
-		<form action="index" method="POST" name="'.$section.'">
+		<form action="index.php" method="POST" name="'.$section.'">
 		<input type="hidden" name="section" value="'.$section.'">
 		<input type="hidden" name="actionX" value="add">
 		<input type="hidden" name="deviceCategSelected" value="'.$selectedDeviceCateg.'">
@@ -1664,21 +1664,33 @@ function setDCERouterNeedConfigure($installationID,$dbADO)
 {
 	$dbADO->Execute('UPDATE Device SET NeedConfigure=1 WHERE FK_DeviceTemplate=? AND FK_Installation=?',array($GLOBALS['rootDCERouter'],$installationID));
 }
+
 function addScenariosToRoom($roomID, $installationID, $dbADO)
 {
-	$insertTelecomScenario='INSERT INTO CommandGroup (FK_Array, FK_Installation, Description,FK_Template,Hint) SELECT '.$GLOBALS['ArrayIDCommunicationScenarios'].','.$installationID.',\'Telecom Scenario\','.$GLOBALS['TelecomScenariosTemplate'].',Description FROM Room WHERE PK_Room=?';
+	$insertTelecomScenario='INSERT INTO CommandGroup (FK_Array, FK_Installation, Description,FK_Template,Hint) SELECT '.$GLOBALS['ArrayIDCommunicationScenarios'].','.$installationID.',\'Phones Scenario\','.$GLOBALS['TelecomScenariosTemplate'].',Description FROM Room WHERE PK_Room=?';
 	$dbADO->Execute($insertTelecomScenario,$roomID);
 	$cgID=$dbADO->Insert_ID();
 
 	$insertCG_R='INSERT INTO CommandGroup_Room (FK_Room, FK_CommandGroup,Sort) VALUES (?,?,?)';
 	$dbADO->Execute($insertCG_R,array($roomID,$cgID,$cgID));
 
+	$queryInsertCommandGroup_Command = "INSERT INTO CommandGroup_Command (FK_CommandGroup,FK_Command,FK_Device) VALUES(?,?,?)";
+	$dbADO->Execute($queryInsertCommandGroup_Command,array($cgID,$GLOBALS['commandGotoScreen'],$GLOBALS['localOrbiter']));
+	$CG_C_insertID=$dbADO->Insert_ID();
+
+	$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
+	$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamID'],''));
+	$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_DesignObj'],$GLOBALS['TelecomMenu']));
+	$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamDesignObjCurrentScreen'],''));
+	$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_Device'],''));
+	$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamStoreVariables'],''));
+
 	$insertCG_Room='INSERT INTO CommandGroup_Room (FK_CommandGroup, FK_Room,Sort) VALUES (?,?,?)';
 	$insertCG_C='
 		INSERT INTO CommandGroup_Command 
-			(FK_CommandGroup,FK_Command,TurnOff,OrderNum)
+			(FK_CommandGroup,FK_Command,TurnOff,OrderNum,FK_Device)
 		VALUES
-			(?,?,?,?)';
+			(?,?,?,?,?)';
 	$insertCG_C_CP='
 		INSERT INTO CommandGroup_Command_CommandParameter 
 			(FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter)
@@ -1699,7 +1711,7 @@ function addScenariosToRoom($roomID, $installationID, $dbADO)
 		$dbADO->Execute($insertCommandGroup,array($GLOBALS['ArrayIDForSecurity'],$installationID,'Arm Disarm',0,0,0,$GLOBALS['SecurityArmDisarmTemplate']));
 		$armDisarmCG=$dbADO->Insert_ID();
 
-		$dbADO->Execute($insertCG_C,array($armDisarmCG,$GLOBALS['commandGotoScreen'],0,0));
+		$dbADO->Execute($insertCG_C,array($armDisarmCG,$GLOBALS['commandGotoScreen'],0,0,$GLOBALS['localOrbiter']));
 		$cg_cID=$dbADO->Insert_ID();
 		$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterObjectScreen'],$GLOBALS['mnuSecurityCamerasDesignObj']));
 	}
@@ -1719,7 +1731,7 @@ function addScenariosToRoom($roomID, $installationID, $dbADO)
 		$dbADO->Execute($insertCommandGroup,array($GLOBALS['ArrayIDForSecurity'],$installationID,'*SOS*',0,0,0,$GLOBALS['SecuritySOSTemplate']));
 		$sosCG=$dbADO->Insert_ID();
 
-		$dbADO->Execute($insertCG_C,array($sosCG,$GLOBALS['commandGotoScreen'],0,0));
+		$dbADO->Execute($insertCG_C,array($sosCG,$GLOBALS['commandGotoScreen'],0,0,$GLOBALS['localOrbiter']));
 		$cg_cID=$dbADO->Insert_ID();
 		$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterObjectScreen'],$GLOBALS['mnuSecurityCamerasDesignObj']));
 	}
