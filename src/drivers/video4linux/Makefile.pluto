@@ -8,10 +8,10 @@ PACKAGE_VER=0.1
 
 
 clean:
-	$(MAKE) -C driver/ clean
+	$(MAKE) -f Makefile clean
 
 modules: FORCE
-	KDIR=/lib/modules/$(KERNEL)/build $(MAKE) -e 
+	KDIR=/lib/modules/$(KERNEL)/build $(MAKE) -f Makefile -e 
 
 deb: modules 
 	rm -rf $(PACKAGE_NAME)-$(PACKAGE_VER);
