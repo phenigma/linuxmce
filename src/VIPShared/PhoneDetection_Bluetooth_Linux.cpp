@@ -65,7 +65,7 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 1 m_mapPhoneDevice_Detected size: %d",(int
 	//printf("Start of scan loop %p\n",g_pPlutoLogger);
 	int num_rsp, length, flags, dev_id = 0;
 
-	length  = 8;	/* ~10 seconds */
+	length  = 8 * 3;	/* ~30 seconds */
 	num_rsp = 100;
 	flags   = 0;
 	const uint8_t *lap=NULL;
@@ -225,7 +225,7 @@ g_pPlutoLogger->Write(LV_STATUS,"loop 1 m_mapPhoneDevice_Detected size: %d",(int
 					PhoneDevice *pDNew = new PhoneDevice(name,addr,result.rssi);
 					bacpy(&pDNew->m_bdaddrDongle, &m_DevInfo.bdaddr);
 					g_pPlutoLogger->Write(LV_STATUS, "Device %s responded.", pDNew->m_sMacAddress.c_str());
-					
+
 					AddDeviceToDetectionList(pDNew);
 
 					/*
@@ -592,32 +592,56 @@ void PhoneDetection_Bluetooth_Linux::GetLinkQuality()
 
 int PhoneDetection_Bluetooth_Linux::GetLinkQuality(const char *addr)
 {
-	/*
-	int dev_id = m_DevInfo.dev_id;
-
+	int dev_id = -1;
+	uint16_t *handle;
 	struct hci_conn_info_req *cr;
 	struct hci_request rq;
 	get_link_quality_rp rp;
 	bdaddr_t bdaddr;
 	int dd;
 
+	//connecting
+    int opt, ptype;
+    uint8_t role;
+
+    role = 0;
+    ptype = HCI_DM1 | HCI_DM3 | HCI_DM5 | HCI_DH1 | HCI_DH3 | HCI_DH5;
 	str2ba(addr, &bdaddr);
 
+	
+    if(dev_id < 0)
+	{
+		dev_id = hci_get_route(&bdaddr);
+		if(dev_id < 0)
+		{
+			printf("Cannot connect\n");
+			return 0;
+	    }
+	}
+		
+    if(hci_create_connection(dd, &bdaddr, htobs(ptype), 0, role, handle,4000) < 0)
+    {
+	    printf("Cannot create connection\n");
+	//return 0;
+	}
+	
+
+	//get connection links
 	dd = hci_open_dev(dev_id);
 	if (dd < 0) {
-		perror("HCI device open failed");
-		exit(1);
+		printf("HCI device open failed\n");
+		return 0;
 	}
 
-	cr = malloc(sizeof(*cr) + sizeof(struct hci_conn_info));
+	cr = (hci_conn_info_req *)malloc(sizeof(*cr) + sizeof(struct hci_conn_info));
 	if (!cr)
-		return;
+		return 0;
 
 	bacpy(&cr->bdaddr, &bdaddr);
 	cr->type = ACL_LINK;
 	if (ioctl(dd, HCIGETCONNINFO, (unsigned long) cr) < 0) {
-		perror("Get connection info failed");
-		exit(1);
+		printf("Get connection info failed\n");
+		return 0;
 	}
 
 	memset(&rq, 0, sizeof(rq));
@@ -629,22 +653,20 @@ int PhoneDetection_Bluetooth_Linux::GetLinkQuality(const char *addr)
 	rq.rlen   = GET_LINK_QUALITY_RP_SIZE;
 
 	if (hci_send_req(dd, &rq, 100) < 0) {
-		perror("HCI get_link_quality request failed");
-		exit(1);
+		printf("HCI get_link_quality request failed\n");
+		return 0;
 	}
 
 	if (rp.status) {
-		fprintf(stderr, "HCI get_link_quality cmd failed (0x%2.2X)\n",
-			rp.status);
-		exit(1);
+		printf("HCI get_link_quality cmd failed (0x%2.2X)\n", rp.status);
+		return 0;
 	}
-	printf("Link quality: %d\n", rp.link_quality);
-
+	
 	int link_quality = rp.link_quality;
-
+	g_pPlutoLogger->Write(LV_STATUS, "Link quality for %s: %d", addr, link_quality);
+	
 	close(dd);
 	free(cr);
 
 	return link_quality;
-	*/
 }

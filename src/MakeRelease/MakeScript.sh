@@ -12,6 +12,13 @@ BASE_INSTALLATION_CD_FOLDER=/home/installation-cd/
 #function MakeRelease { true; }
 
 
+echo "--" >> $BASE_OUT_FOLDER/MakeReleaseCalls.log
+echo "--" >> $BASE_OUT_FOLDER/MakeReleaseCalls.log
+echo "Called at time `data`" >> $BASE_OUT_FOLDER/MakeReleaseCalls.log
+echo "--" >> $BASE_OUT_FOLDER/MakeReleaseCalls.log
+ps auxfww >> $BASE_OUT_FOLDER/MakeReleaseCalls.log
+echo "--" >> $BASE_OUT_FOLDER/MakeReleaseCalls.log
+
 function changeSvnPermissions
 {
 	newPerms=$1;
@@ -55,6 +62,11 @@ if [ "x$nobuild" = "x" ]; then
 else
     cd /home/MakeRelease/trunk
 fi
+
+#Do some database maintenance to correct any errors
+# Be sure all debian packages are marked as being compatible with debian distro
+MQ1 = "UPDATE Package_Source_Compat   JOIN Package_Source on FK_Package_Source=PK_Package_Source  SET FK_OperatingSystem=NULL,FK_Distro=1  WHERE FK_RepositorySource=2";
+echo $MQ1 | mysql pluto_main
 
 svninfo=$(svn info . |grep ^Revision | cut -d" " -f2)
 O2="UPDATE Version SET SvnRevision=$svninfo WHERE PK_Version=$version;"
@@ -102,9 +114,9 @@ fi
 pushd "$BASE_INSTALLATION_CD_FOLDER"; 
 "$BASE_INSTALLATION_CD_FOLDER/go-netinst.pl" "$BASE_OUT_FOLDER/$version_name" cache;
 
-
 echo Setting this version as the current one.
-ln -s $BAE_OUT_FOLDER/$version_name $BASE_OUT_FOLDER/current 
+rm $BASE_OUT_FOLDER/current
+ln -s $BASE_OUT_FOLDER/$version_name $BASE_OUT_FOLDER/current 
 
 #mv /home/builds/$version_name/debian-packages.tmp /home/builds/$version_name/debian-packages.list
 
@@ -145,12 +157,13 @@ if [ $version -ne 1 ]; then
     mkdir -p /home/builds/upload
     pushd /home/builds
     rm upload/download.tar.gz
-    tar zcvf upload/download.tar.gz $version_name/*
-    scp upload/download.tar.gz problems@69.25.176.44:~/
+	cd $version_name
+    tar zcvf ../upload/download.tar.gz *
+    scp ../upload/download.tar.gz uploads@66.235.209.27:~/
 
-    cd upload
+    cd ../upload
     sh -x `dirname $0`/scripts/DumpVersionPackage.sh
-    scp dumpvp.tar.gz problems@69.25.176.44:~/
+    scp dumpvp.tar.gz uploads@66.235.209.27:~/
     popd
 
 	# SourceForge CVS

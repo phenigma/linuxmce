@@ -71,11 +71,16 @@ class BD_Orbiter_Plus_DongleHandle
 public:
 	BD_Orbiter* m_pBD_Orbiter;
 	Bluetooth_Dongle* m_pBluetooth_Dongle;
+	string m_sMacAddress;
+	u_int64_t m_iMacAddress;
 
-	BD_Orbiter_Plus_DongleHandle(class BD_Orbiter* pBD_Orbiter, class Bluetooth_Dongle* pBluetooth_Dongle)
+	BD_Orbiter_Plus_DongleHandle(class BD_Orbiter* pBD_Orbiter, class Bluetooth_Dongle* pBluetooth_Dongle, 
+			string sMacAddress, u_int64_t iMacAddress)
 	{
 		m_pBD_Orbiter = pBD_Orbiter;
 		m_pBluetooth_Dongle = pBluetooth_Dongle;
+		m_sMacAddress = sMacAddress;
+		m_iMacAddress = iMacAddress;
 	}
 };
 

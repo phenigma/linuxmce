@@ -77,7 +77,7 @@ public:
 	virtual void SignalStrengthChanged(class PhoneDevice *pDevice)=0;
 
 	virtual void AddDeviceToDetectionList(class PhoneDevice *pDevice);
-	virtual void RemoveDeviceFromDetectionList(class PhoneDevice *pDevice);
+	virtual void RemoveDeviceFromDetectionList(u_int64_t iMacAddress);
 
 	//this method should not be overrided in derived classes
 	virtual void DetectionLogic(); 

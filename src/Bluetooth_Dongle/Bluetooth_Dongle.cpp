@@ -92,6 +92,9 @@ void *HandleBDCommandProcessorThread( void *p )
 	/** @todo -- need a mutex to protect this, right */
 	BD_Orbiter *pBD_Orbiter = pBD_Orbiter_Plus_DongleHandle->m_pBD_Orbiter; // converting it to an BD_Orbiter object
 	Bluetooth_Dongle *pBluetooth_Dongle = pBD_Orbiter_Plus_DongleHandle->m_pBluetooth_Dongle;
+	string sMacAddress = pBD_Orbiter_Plus_DongleHandle->m_sMacAddress;
+	u_int64_t iMacAddress = pBD_Orbiter_Plus_DongleHandle->m_iMacAddress;
+	
 	if( !pBD_Orbiter || !pBD_Orbiter->m_pBDCommandProcessor || pBD_Orbiter->m_pBDCommandProcessor->m_bDead ) // check if everything is OK first
 	{
 		if( pBD_Orbiter && pBD_Orbiter->m_pBDCommandProcessor ) // pBD_Orbiter->m_pBDCommandProcessor->m_bDead is true
@@ -138,13 +141,19 @@ void *HandleBDCommandProcessorThread( void *p )
 	g_pPlutoLogger->Write( LV_STATUS, "Exiting command processor...");
 
 	g_pPlutoLogger->Write( LV_STATUS, "Sending 'Mobile_orbiter_lost' to Orbiter_Plugin...");
-	pBluetooth_Dongle->GetEvents()->Mobile_orbiter_lost( pBD_Orbiter->m_pPhoneDevice->m_sMacAddress.c_str(), true );
+	pBluetooth_Dongle->GetEvents()->Mobile_orbiter_lost( sMacAddress, true );
 	
 	g_pPlutoLogger->Write( LV_STATUS, "Removing phone from the detection list...");
-	pBluetooth_Dongle->RemoveDeviceFromDetectionList( pBD_Orbiter->m_pPhoneDevice);
+	pBluetooth_Dongle->RemoveDeviceFromDetectionList( iMacAddress );
 	
 	if( NULL != pBD_Orbiter->m_pPhoneDevice )
-		pBD_Orbiter->m_pPhoneDevice->m_bIsConnected = false;
+	{
+	    PLUTO_SAFETY_LOCK(mm,pBluetooth_Dongle->m_MapMutex);
+	    pBluetooth_Dongle->m_mapPhoneDevice_Detected[iMacAddress]->m_bIsConnected = false;
+		
+		g_pPlutoLogger->Write( LV_STATUS, "Setting PhoneDevice IsConnected flag to false...");
+		//pBD_Orbiter->m_pPhoneDevice->m_bIsConnected = false;
+	}
 
 	g_pPlutoLogger->Write( LV_STATUS, "Deleting command processor...");
 	PLUTO_SAFE_DELETE(pBD_Orbiter->m_pBDCommandProcessor);
@@ -292,8 +301,11 @@ void Bluetooth_Dongle::Intern_NewDeviceDetected(class PhoneDevice *pDevice)
 		g_pPlutoLogger->Write(LV_STATUS,"Bluetooth dongle intercepted new device.  We're connected.  Ignoring it %p",pBD_Orbiter);
 
 		if( pBD_Orbiter )
-			g_pPlutoLogger->Write(LV_STATUS,"Status: %p %p %d",pBD_Orbiter->m_pOrbiter,pBD_Orbiter->m_pBDCommandProcessor,pBD_Orbiter->m_pBDCommandProcessor->m_bDead ? 1 : 0);
+			g_pPlutoLogger->Write(LV_STATUS,"Status: %p %p %p %d %d",pBD_Orbiter->m_pOrbiter,pBD_Orbiter->m_pBDCommandProcessor,
+					pBD_Orbiter->m_pPhoneDevice, pBD_Orbiter->m_pPhoneDevice->m_bIsConnected,
+					pBD_Orbiter->m_pBDCommandProcessor->m_bDead ? 1 : 0);
 
+		/*
 		PhoneDevice *pDExisting = m_mapPhoneDevice_Detected_Find(pDevice->m_iMacAddress);
 
 		if(pDExisting)
@@ -301,6 +313,11 @@ void Bluetooth_Dongle::Intern_NewDeviceDetected(class PhoneDevice *pDevice)
 
 		PLUTO_SAFETY_LOCK(mm,m_MapMutex);
 		m_mapPhoneDevice_Detected[pDevice->m_iMacAddress] = pDevice;
+		*/
+
+		//don't replace the phonedevice`
+		if(pDevice)
+			delete pDevice;
 	}
 }
 
@@ -497,7 +514,11 @@ void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter(int iMediaPosition,string sM
 	if( NULL != pProcessor && !pProcessor->m_bDead )
 	{
 	    pthread_create( &pProcessor->m_BDSockThreadID, NULL, HandleBDCommandProcessorThread, 
-			( void* )new BD_Orbiter_Plus_DongleHandle(pBD_Orbiter, this) );
+			( void* )new BD_Orbiter_Plus_DongleHandle(pBD_Orbiter, this, 
+													  pBD_Orbiter->m_pPhoneDevice->m_sMacAddress,
+													  pBD_Orbiter->m_pPhoneDevice->m_iMacAddress
+		    ) 
+		);
 
 		//GetEvents()->Mobile_orbiter_linked( sMac_address, "version" ); /** @todo: Chris add this */
 	}
@@ -520,12 +541,15 @@ void Bluetooth_Dongle::CMD_Get_Signal_Strength(string sMac_address,int *iValue,s
 {
 	cout << "Need to implement command #61 - Get Signal Strength" << endl;
 	cout << "Parm #47 - Mac_address=" << sMac_address << endl;
-	cout << "Parm #48 - Value_int_=" << *iValue << endl;
+	//cout << "Parm #48 - Value_int_=" << *iValue << endl;
 
 	//BDCommandProcessor *pBDCommandProcessor = m_mapOrbiterSockets_Find( sMac_address );
+	int bubu = GetLinkQuality(sMac_address.c_str());
+
+	//g_pPlutoLogger->Write( LV_WARNING, "$$$ CMD_Create_Mobile_Orbiter received for %s device $$$", sMac_address.c_str() );
 
 	//TO BE IMPLEMENTED!!
-	*iValue = 255;
+	//*iValue = 255;
 } 
 
 //-----------------------------------------------------------------------------------------------------
