@@ -44,7 +44,9 @@ using namespace DCE;
 void* MessageQueueThread_DCECI( void* param ) // renamed to cancel link-time name collision in MS C++ 7.0 / VS .NET 2002
 {
 	Command_Impl* p = (Command_Impl*)param;
+	p->m_bMessageQueueThreadRunning=true;
 	p->ProcessMessageQueue();
+	p->m_bMessageQueueThreadRunning=false;
 	return NULL;
 }
 
@@ -105,6 +107,7 @@ Command_Impl::Command_Impl( int DeviceID, string ServerAddress, bool bLocalMode,
 	m_bQuit = false;
 	m_pPrimaryDeviceCommand = this;
 	m_bHandleChildren = false;
+	m_bMessageQueueThreadRunning = false;
 	m_pParent = NULL;
 	m_listMessageQueueMutex.Init( NULL );
 	m_bKillSpawnedDevicesOnExit = false;
@@ -134,6 +137,7 @@ Command_Impl::Command_Impl( Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl
 	m_pData = pData;
 	m_pEvent = pEvent;
 	m_bHandleChildren = false;
+	m_bMessageQueueThreadRunning = false;
 	m_listMessageQueueMutex.Init(NULL);
 	m_bKillSpawnedDevicesOnExit = false;
 	m_bGeneric = false;
@@ -151,6 +155,15 @@ Command_Impl::Command_Impl( Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl
 
 Command_Impl::~Command_Impl()
 {
+	g_pPlutoLogger->Write( LV_STATUS, "Waiting for message queue thread to quit" );
+	m_bQuit=true;
+	while( m_bMessageQueueThreadRunning )
+	{
+		pthread_cond_broadcast( &m_listMessageQueueCond );
+		Sleep(10); // Should happen right away
+	}
+	g_pPlutoLogger->Write( LV_STATUS, "Message queue thread quit" );
+
 	if (m_pData)
 		delete m_pData;
 	if (this==m_pPrimaryDeviceCommand && m_pEvent)
@@ -435,11 +448,13 @@ void Command_Impl::QueueMessageToRouter( Message *pMessage )
 void Command_Impl::ProcessMessageQueue()
 {
 	pthread_mutex_lock( &m_listMessageQueueMutex.mutex );
-	while( true )
+	while( !m_bQuit )
 	{
 		while( m_listMessageQueue.size() == 0 )
 		{
 			pthread_cond_wait( &m_listMessageQueueCond, &m_listMessageQueueMutex.mutex );
+			if( m_bQuit )
+				return;
 		}
 
 		list<Message*> copyMessageQueue;

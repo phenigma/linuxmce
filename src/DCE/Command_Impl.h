@@ -60,6 +60,7 @@ namespace DCE
 
 		bool m_bWatchdogRunning; /** < specifies if the watchdog is running */
 		bool m_bStopWatchdog; /** < specifies if the watchdog is stoped @todo ask is it used? */
+		bool m_bMessageQueueThreadRunning; /** < specifies if the MessageQueueThread is running */
 		pthread_t m_pThread; /** < the wachdog thread */
 
 		/** < If this is a plug-in, the message interceptors will be registered directly.  Otherwise there will be 'callbacks' stored in this map */
