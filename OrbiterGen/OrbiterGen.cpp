@@ -338,8 +338,10 @@ int OrbiterGenerator::DoIt()
 		mds.Installation_Users_get()->GetRows(INSTALLATION_USERS_FK_INSTALLATION_FIELD + string("=") + StringUtils::itos(m_pRow_Device->FK_Installation_get()),&vectRow_Installation_Users);
 		if( vectRow_Installation_Users.size() )
 		{
-			cout << "***Warning*** No default user specified.  Picking first one" << endl;
+			cout << "***Warning*** No default user specified.  Picking first one: " << vectRow_Installation_Users[0]->FK_Users_get() << endl;
 			drUsers_Default = vectRow_Installation_Users[0]->FK_Users_getrow();
+			if( !drUsers_Default )
+				throw "Database problem -- There is a user in Installation_Users that is not a valid user";
 		}
 		else
 		{
