@@ -150,7 +150,7 @@ MediaStream::MediaStream( class MediaPluginInfo *pMediaPluginInfo, MediaDevice *
     m_pOH_Orbiter=NULL;
     m_pPictureData=NULL;
     m_iPictureSize=0;
-
+	m_iOrder=0;
     m_iDequeMediaFile_Pos=-1;
     m_iPK_Playlist=0;
     m_sPlaylistName="";

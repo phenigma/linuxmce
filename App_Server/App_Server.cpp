@@ -105,12 +105,14 @@ void App_Server::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sC
 	/** Spawn an application */
 		/** @param #13 Filename */
 			/** The name of the executable file to spawn */
+		/** @param #39 Options */
+			/** This will contain the serialization of the command list that should be fired against the source device of this command. */
 		/** @param #50 Name */
 			/** A name that we'll remember the application by for future kill commands */
 		/** @param #51 Arguments */
 			/** Command arguments */
 
-void App_Server::CMD_Spawn_Application(string sFilename,string sName,string sArguments,string &sCMD_Result,Message *pMessage)
+void App_Server::CMD_Spawn_Application(string sFilename,string sOptions,string sName,string sArguments,string &sCMD_Result,Message *pMessage)
 //<-dceag-c67-e->
 {
 	cout << "command #67 - Spawn Application" << endl;

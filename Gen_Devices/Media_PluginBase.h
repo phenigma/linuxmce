@@ -68,13 +68,14 @@ public:
 	//Data accessors
 	//Event accessors
 	//Commands - Override these to handle commands from the server
-	virtual void CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,int iPK_EntertainArea,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_DeviceTemplate,int iPK_EntertainArea,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string sFilename,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_DeviceTemplate,string sPK_EntertainArea,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_MH_Send_Me_To_Remote(string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,string sOnOff,string sPK_DesignObj_CurrentScreen,int iPK_Text,string sOptions,int iPK_EntertainArea,int iPK_Text_Timecode,int iPK_Text_SectionDesc,int iPK_Text_Synopsis,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Save_playlist(int iPK_Users,int iPK_EntertainArea,string sName,bool bSave_as_new,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Load_Playlist(int iPK_EntertainArea,int iEK_Playlist,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_MH_Send_Me_To_Remote(bool bNot_Full_Screen,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,string sOnOff,string sPK_DesignObj_CurrentScreen,int iPK_Text,string sOptions,string sPK_EntertainArea,int iPK_Text_Timecode,int iPK_Text_SectionDesc,int iPK_Text_Synopsis,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Save_playlist(int iPK_Users,string sPK_EntertainArea,string sName,bool bSave_as_new,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Load_Playlist(string sPK_EntertainArea,int iEK_Playlist,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -95,8 +96,8 @@ public:
 					string sFilename=pMessage->m_mapParameters[13];
 					int iPK_MediaType=atoi(pMessage->m_mapParameters[29].c_str());
 					int iPK_DeviceTemplate=atoi(pMessage->m_mapParameters[44].c_str());
-					int iPK_EntertainArea=atoi(pMessage->m_mapParameters[45].c_str());
-						CMD_MH_Play_Media(iPK_Device,sPK_DesignObj.c_str(),sFilename.c_str(),iPK_MediaType,iPK_DeviceTemplate,iPK_EntertainArea,sCMD_Result,pMessage);
+					string sPK_EntertainArea=pMessage->m_mapParameters[45];
+						CMD_MH_Play_Media(iPK_Device,sPK_DesignObj.c_str(),sFilename.c_str(),iPK_MediaType,iPK_DeviceTemplate,sPK_EntertainArea.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
@@ -113,8 +114,8 @@ public:
 					int iPK_Device=atoi(pMessage->m_mapParameters[2].c_str());
 					int iPK_MediaType=atoi(pMessage->m_mapParameters[29].c_str());
 					int iPK_DeviceTemplate=atoi(pMessage->m_mapParameters[44].c_str());
-					int iPK_EntertainArea=atoi(pMessage->m_mapParameters[45].c_str());
-						CMD_MH_Stop_Media(iPK_Device,iPK_MediaType,iPK_DeviceTemplate,iPK_EntertainArea,sCMD_Result,pMessage);
+					string sPK_EntertainArea=pMessage->m_mapParameters[45];
+						CMD_MH_Stop_Media(iPK_Device,iPK_MediaType,iPK_DeviceTemplate,sPK_EntertainArea.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
@@ -143,7 +144,8 @@ public:
 				case 73:
 					{
 						string sCMD_Result="OK";
-						CMD_MH_Send_Me_To_Remote(sCMD_Result,pMessage);
+					bool bNot_Full_Screen=(pMessage->m_mapParameters[93]=="1" ? true : false);
+						CMD_MH_Send_Me_To_Remote(bNot_Full_Screen,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
@@ -163,11 +165,11 @@ public:
 					string sPK_DesignObj_CurrentScreen=pMessage->m_mapParameters[16];
 					int iPK_Text=atoi(pMessage->m_mapParameters[25].c_str());
 					string sOptions=pMessage->m_mapParameters[39];
-					int iPK_EntertainArea=atoi(pMessage->m_mapParameters[45].c_str());
+					string sPK_EntertainArea=pMessage->m_mapParameters[45];
 					int iPK_Text_Timecode=atoi(pMessage->m_mapParameters[56].c_str());
 					int iPK_Text_SectionDesc=atoi(pMessage->m_mapParameters[62].c_str());
 					int iPK_Text_Synopsis=atoi(pMessage->m_mapParameters[63].c_str());
-						CMD_Bind_to_Media_Remote(iPK_Device,sPK_DesignObj.c_str(),sOnOff.c_str(),sPK_DesignObj_CurrentScreen.c_str(),iPK_Text,sOptions.c_str(),iPK_EntertainArea,iPK_Text_Timecode,iPK_Text_SectionDesc,iPK_Text_Synopsis,sCMD_Result,pMessage);
+						CMD_Bind_to_Media_Remote(iPK_Device,sPK_DesignObj.c_str(),sOnOff.c_str(),sPK_DesignObj_CurrentScreen.c_str(),iPK_Text,sOptions.c_str(),sPK_EntertainArea.c_str(),iPK_Text_Timecode,iPK_Text_SectionDesc,iPK_Text_Synopsis,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
@@ -182,10 +184,10 @@ public:
 					{
 						string sCMD_Result="OK";
 					int iPK_Users=atoi(pMessage->m_mapParameters[17].c_str());
-					int iPK_EntertainArea=atoi(pMessage->m_mapParameters[45].c_str());
+					string sPK_EntertainArea=pMessage->m_mapParameters[45];
 					string sName=pMessage->m_mapParameters[50];
 					bool bSave_as_new=(pMessage->m_mapParameters[77]=="1" ? true : false);
-						CMD_Save_playlist(iPK_Users,iPK_EntertainArea,sName.c_str(),bSave_as_new,sCMD_Result,pMessage);
+						CMD_Save_playlist(iPK_Users,sPK_EntertainArea.c_str(),sName.c_str(),bSave_as_new,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
@@ -199,9 +201,25 @@ public:
 				case 231:
 					{
 						string sCMD_Result="OK";
-					int iPK_EntertainArea=atoi(pMessage->m_mapParameters[45].c_str());
+					string sPK_EntertainArea=pMessage->m_mapParameters[45];
 					int iEK_Playlist=atoi(pMessage->m_mapParameters[78].c_str());
-						CMD_Load_Playlist(iPK_EntertainArea,iEK_Playlist,sCMD_Result,pMessage);
+						CMD_Load_Playlist(sPK_EntertainArea.c_str(),iEK_Playlist,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 241:
+					{
+						string sCMD_Result="OK";
+					int iStreamID=atoi(pMessage->m_mapParameters[41].c_str());
+					string sPK_EntertainArea=pMessage->m_mapParameters[45];
+						CMD_MH_Move_Media(iStreamID,sPK_EntertainArea.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);

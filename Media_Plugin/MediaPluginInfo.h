@@ -146,6 +146,7 @@ namespace DCE
         bool m_bPlaying;        /** True if the media is now playing */
         int m_iPK_Users;        /** Who started the media */
         bool m_bFollowMe;       /** True if the media is supposed to follow the above user */
+		int m_iOrder;  /** This is used for the floorplans to order and color code the streams */
 
         enum SourceType m_eSourceType;  /** Where the media is coming from */
 

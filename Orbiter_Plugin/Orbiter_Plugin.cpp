@@ -731,9 +731,10 @@ void Orbiter_Plugin::CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,Mess
 		/** @param #45 PK_EntertainArea */
 			/** The current entertainment area where the orbiter is. */
 
-void Orbiter_Plugin::CMD_Set_Entertainment_Area(int iPK_EntertainArea,string &sCMD_Result,Message *pMessage)
+void Orbiter_Plugin::CMD_Set_Entertainment_Area(string sPK_EntertainArea,string &sCMD_Result,Message *pMessage)
 //<-dceag-c59-e->
 {
+	int iPK_EntertainArea = atoi(sPK_EntertainArea.c_str());
     OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
     if( !pOH_Orbiter )
     {
@@ -960,13 +961,13 @@ void Orbiter_Plugin::CMD_Get_Current_Floorplan(string sID,int iPK_FloorplanType,
 	case FLOORPLANTYPE_Lighting_Zone_CONST:
 		pFloorplanInfoProvider=m_pLighting_Plugin;
 		break;
+	case FLOORPLANTYPE_Entertainment_Zone_CONST:
+		pFloorplanInfoProvider=m_pMedia_Plugin;
+//		m_pMedia_Plugin->Populate_CurrentMediaOptions(Page,sValue_To_Assign);
+		break;
 /*
 	case FLOORPLANTYPE_Climate_Zone_CONST:
 		pFloorplanInfoProvider=m_pClimate_Plugin;
-		break;
-	case FLOORPLANTYPE_Entertainment_Zone_CONST:
-		pFloorplanInfoProvider=m_pMedia_Plugin;
-//Populate_CurrentOptions(Page,sValue_To_Assign);
 		break;
 	case FLOORPLANTYPE_Phones_CONST:
 		pFloorplanInfoProvider=m_pTelecom_Plugin;
@@ -993,18 +994,23 @@ void Orbiter_Plugin::CMD_Get_Current_Floorplan(string sID,int iPK_FloorplanType,
 		for(int i=0;i<(int) fpObjVector->size();++i)
 		{
 			string OSD="";
-			int iPK_FloorplanObjectType_Color;
+			int iPK_FloorplanObjectType_Color=0,iColor=0;
+			string sDescription;
+			Row_FloorplanObjectType_Color *pRow_FloorplanObjectType_Color = NULL;
 
 			FloorplanObject *fpObj = (*fpObjVector)[i];
 			DeviceData_Router *pDeviceData_Router = fpObj->m_pDeviceData_Router;
 
-			pFloorplanInfoProvider->GetFloorplanDeviceInfo(pDeviceData_Router,fpObj->Type,iPK_FloorplanObjectType_Color,OSD);
-			Row_FloorplanObjectType_Color *pRow_FloorplanObjectType_Color = m_pDatabase_pluto_main->FloorplanObjectType_Color_get()->GetRow(iPK_FloorplanObjectType_Color);
-			if( pRow_FloorplanObjectType_Color )
-				(*sValue_To_Assign) += StringUtils::itos(pRow_FloorplanObjectType_Color->Color_get()) + "|" + 
-					pRow_FloorplanObjectType_Color->Description_get() + "|" + OSD + "|";
-			else
-				(*sValue_To_Assign) += "0||" + OSD + "|";
+			pFloorplanInfoProvider->GetFloorplanDeviceInfo(pDeviceData_Router,fpObj->Type,iPK_FloorplanObjectType_Color,iColor,sDescription,OSD);
+			if( iPK_FloorplanObjectType_Color )
+				pRow_FloorplanObjectType_Color = m_pDatabase_pluto_main->FloorplanObjectType_Color_get()->GetRow(iPK_FloorplanObjectType_Color);
+
+			if( !iColor && pRow_FloorplanObjectType_Color )
+				iColor = pRow_FloorplanObjectType_Color->Color_get();
+			if( sDescription.length()==0 && pRow_FloorplanObjectType_Color )
+				sDescription = pRow_FloorplanObjectType_Color->Description_get();
+
+			(*sValue_To_Assign) += StringUtils::itos(iColor) + "|" + sDescription + "|" + OSD + "|";
 		}
 	}
 	if( (*sValue_To_Assign).length()==0 )

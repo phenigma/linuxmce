@@ -70,7 +70,7 @@ public:
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Set_User_Mode(string sValue_To_Assign,int iPK_Users,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Current_User(int iPK_Users,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Set_Entertainment_Area(int iPK_EntertainArea,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Set_Entertainment_Area(string sPK_EntertainArea,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Set_Current_Room(int iPK_Room,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_New_Mobile_Orbiter(int iPK_DeviceTemplate,string sMac_address,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Add_Unknown_Device(string sText,string sID,string sMac_address,string &sCMD_Result,class Message *pMessage) {};
@@ -122,8 +122,8 @@ public:
 				case 59:
 					{
 						string sCMD_Result="OK";
-					int iPK_EntertainArea=atoi(pMessage->m_mapParameters[45].c_str());
-						CMD_Set_Entertainment_Area(iPK_EntertainArea,sCMD_Result,pMessage);
+					string sPK_EntertainArea=pMessage->m_mapParameters[45];
+						CMD_Set_Entertainment_Area(sPK_EntertainArea.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);

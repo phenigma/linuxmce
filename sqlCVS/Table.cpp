@@ -1702,3 +1702,27 @@ void Table::ApplyChangedRow(ChangedRow *pChangedRow)
 		pChangedRow->m_iNewAutoIncrID=0;
 	}
 }
+
+void Table::VerifyIntegrity()
+{
+	if( m_pRepository )
+	{
+		ostringstream sql;
+		sql << "SELECT psc_id FROM `" << m_sName << "` ORDER BY psc_id";
+		PlutoSqlResult result_set;
+		MYSQL_ROW row=NULL;
+		int psc_id_last=0;
+		if( ( result_set.r=m_pDatabase->mysql_query_result( sql.str( ) ) ) )
+		{
+			while( ( row = mysql_fetch_row( result_set.r ) ) )
+			{
+				if( !row[0] || !atoi(row[0]) || atoi(row[0])==psc_id_last )
+				{
+					cerr << "In table: " << m_sName << " all rows don't have unique psc_id's" << endl;
+					throw "Database integrity failed";
+				}
+				psc_id_last = atoi(row[0]);
+			}
+		}
+	}
+}

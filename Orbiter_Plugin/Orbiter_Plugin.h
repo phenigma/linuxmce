@@ -187,8 +187,8 @@ public:
 		/** @param #45 PK_EntertainArea */
 			/** The current entertainment area where the orbiter is. */
 
-	virtual void CMD_Set_Entertainment_Area(int iPK_EntertainArea) { string sCMD_Result; CMD_Set_Entertainment_Area(iPK_EntertainArea,sCMD_Result,NULL);};
-	virtual void CMD_Set_Entertainment_Area(int iPK_EntertainArea,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Set_Entertainment_Area(string sPK_EntertainArea) { string sCMD_Result; CMD_Set_Entertainment_Area(sPK_EntertainArea.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Set_Entertainment_Area(string sPK_EntertainArea,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #77 - Set Current Room */

@@ -1001,7 +1001,11 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 
 	MyPath = "cvs_temp";
 	//Building Temporary Directory
+#ifdef WIN32
+	mkdir(MyPath.c_str());
+#else
 	mkdir(MyPath.c_str(), 0777);
+#endif
 	//ChDir to Temporary Directory
 	chdir(MyPath.c_str());
 
@@ -1025,7 +1029,11 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 		} else {
 			if(FileUtils::DirExists(FileUtils::BasePath(WorkPath)) != true) {
 				cmd = FileUtils::BasePath(WorkPath);
+#ifdef WIN32
+				mkdir(cmd.c_str());
+#else
 				mkdir(cmd.c_str(), 0777);
+#endif
 				cmd = "cp -f " + WorkPath + " " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 			} else {
 				cmd = "cp -f " + WorkPath + " " + FileUtils::BasePath(WorkPath) + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource); 

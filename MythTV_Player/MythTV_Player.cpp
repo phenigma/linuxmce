@@ -30,7 +30,6 @@
 #include "PlutoUtils/Other.h"
 
 #include <iostream>
-#include <sstream>
 using namespace std;
 using namespace DCE;
 
@@ -69,7 +68,7 @@ MythContext *gContext;
 
 //<-dceag-const-b->
 MythTV_Player::MythTV_Player(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-    : MythTV_Player_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
+	: MythTV_Player_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
     LaunchMythFrontend();
@@ -345,8 +344,8 @@ bool MythTV_Player::locateMythTvFrontendWindow(long unsigned int window)
 
 //<-dceag-c75-b->
 
-    /** @brief COMMAND: #75 - Start TV */
-    /** Start TV playback on this device. */
+	/** @brief COMMAND: #75 - Start TV */
+	/** Start TV playback on this device. */
 
 void MythTV_Player::CMD_Start_TV(string &sCMD_Result,Message *pMessage)
 //<-dceag-c75-e->
@@ -375,8 +374,8 @@ void MythTV_Player::CMD_Start_TV(string &sCMD_Result,Message *pMessage)
 
 //<-dceag-c76-b->
 
-    /** @brief COMMAND: #76 - Stop TV */
-    /** Stop TV playback on this device. */
+	/** @brief COMMAND: #76 - Stop TV */
+	/** Stop TV playback on this device. */
 
 void MythTV_Player::CMD_Stop_TV(string &sCMD_Result,Message *pMessage)
 //<-dceag-c76-e->
@@ -388,10 +387,10 @@ void MythTV_Player::CMD_Stop_TV(string &sCMD_Result,Message *pMessage)
 
 //<-dceag-c187-b->
 
-    /** @brief COMMAND: #187 - Tune to channel */
-    /** This will make the device to tune to a specific channel. */
-        /** @param #68 ProgramID */
-            /** The Program ID that we need to tune to. */
+	/** @brief COMMAND: #187 - Tune to channel */
+	/** This will make the device to tune to a specific channel. */
+		/** @param #68 ProgramID */
+			/** The Program ID that we need to tune to. */
 
 void MythTV_Player::CMD_Tune_to_channel(string sProgramID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c187-e->
@@ -463,20 +462,20 @@ void MythTV_Player::CMD_Tune_to_channel(string sProgramID,string &sCMD_Result,Me
 }
 //<-dceag-c84-b->
 
-    /** @brief COMMAND: #84 - Get Video Frame */
-    /** Capture a Video frame */
-        /** @param #19 Data */
-            /** The video frame */
-        /** @param #20 Format */
-            /** One of the following: "jpg", "png" */
-        /** @param #23 Disable Aspect Lock */
-            /** If true, don't worry about the aspect ratio.  Try to get the requested width and height. */
-        /** @param #41 StreamID */
-            /** Optional.  For multi stream devices, like media players, this identifies the stream. */
-        /** @param #60 Width */
-            /** The desired width of the video frame.  The sender need not respect this. */
-        /** @param #61 Height */
-            /** The desired height of the video frame.  The sender need not respect this. */
+	/** @brief COMMAND: #84 - Get Video Frame */
+	/** Capture a Video frame */
+		/** @param #19 Data */
+			/** The video frame */
+		/** @param #20 Format */
+			/** One of the following: "jpg", "png" */
+		/** @param #23 Disable Aspect Lock */
+			/** If true, don't worry about the aspect ratio.  Try to get the requested width and height. */
+		/** @param #41 StreamID */
+			/** Optional.  For multi stream devices, like media players, this identifies the stream. */
+		/** @param #60 Width */
+			/** The desired width of the video frame.  The sender need not respect this. */
+		/** @param #61 Height */
+			/** The desired height of the video frame.  The sender need not respect this. */
 
 void MythTV_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat,string &sCMD_Result,Message *pMessage)
 //<-dceag-c84-e->
@@ -523,8 +522,8 @@ void MythTV_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamI
 
 //<-dceag-c129-b->
 
-    /** @brief COMMAND: #129 - PIP - Channel Up */
-    /** Go the next channel */
+	/** @brief COMMAND: #129 - PIP - Channel Up */
+	/** Go the next channel */
 
 void MythTV_Player::CMD_PIP_Channel_Up(string &sCMD_Result,Message *pMessage)
 //<-dceag-c129-e->
@@ -538,8 +537,8 @@ void MythTV_Player::CMD_PIP_Channel_Up(string &sCMD_Result,Message *pMessage)
 
 //<-dceag-c130-b->
 
-    /** @brief COMMAND: #130 - PIP - Channel Down */
-    /** Go the previous channel. */
+	/** @brief COMMAND: #130 - PIP - Channel Down */
+	/** Go the previous channel. */
 
 void MythTV_Player::CMD_PIP_Channel_Down(string &sCMD_Result,Message *pMessage)
 //<-dceag-c130-e->
@@ -552,8 +551,8 @@ void MythTV_Player::CMD_PIP_Channel_Down(string &sCMD_Result,Message *pMessage)
 }
 //<-dceag-c190-b->
 
-    /** @brief COMMAND: #190 - Enter/Go */
-    /** Enter was hit */
+	/** @brief COMMAND: #190 - Enter/Go */
+	/** Enter was hit */
 
 void MythTV_Player::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
 //<-dceag-c190-e->
@@ -563,8 +562,8 @@ void MythTV_Player::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
 
 //<-dceag-c200-b->
 
-    /** @brief COMMAND: #200 - Move Up */
-    /** Up */
+	/** @brief COMMAND: #200 - Move Up */
+	/** Up */
 
 void MythTV_Player::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
 //<-dceag-c200-e->
@@ -574,8 +573,8 @@ void MythTV_Player::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
 
 //<-dceag-c201-b->
 
-    /** @brief COMMAND: #201 - Move Down */
-    /** Down */
+	/** @brief COMMAND: #201 - Move Down */
+	/** Down */
 
 void MythTV_Player::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
 //<-dceag-c201-e->
@@ -585,8 +584,8 @@ void MythTV_Player::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
 
 //<-dceag-c202-b->
 
-    /** @brief COMMAND: #202 - Move Left */
-    /** Left */
+	/** @brief COMMAND: #202 - Move Left */
+	/** Left */
 
 void MythTV_Player::CMD_Move_Left(string &sCMD_Result,Message *pMessage)
 //<-dceag-c202-e->
@@ -596,8 +595,8 @@ void MythTV_Player::CMD_Move_Left(string &sCMD_Result,Message *pMessage)
 
 //<-dceag-c203-b->
 
-    /** @brief COMMAND: #203 - Move Right */
-    /** Right */
+	/** @brief COMMAND: #203 - Move Right */
+	/** Right */
 
 void MythTV_Player::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
 //<-dceag-c203-e->
@@ -607,8 +606,8 @@ void MythTV_Player::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
 
 //<-dceag-c204-b->
 
-    /** @brief COMMAND: #204 - 0 */
-    /** 0 */
+	/** @brief COMMAND: #204 - 0 */
+	/** 0 */
 
 void MythTV_Player::CMD_0(string &sCMD_Result,Message *pMessage)
 //<-dceag-c204-e->
@@ -618,8 +617,8 @@ void MythTV_Player::CMD_0(string &sCMD_Result,Message *pMessage)
 
 //<-dceag-c205-b->
 
-    /** @brief COMMAND: #205 - 1 */
-    /** 1 */
+	/** @brief COMMAND: #205 - 1 */
+	/** 1 */
 
 void MythTV_Player::CMD_1(string &sCMD_Result,Message *pMessage)
 //<-dceag-c205-e->
@@ -629,8 +628,8 @@ void MythTV_Player::CMD_1(string &sCMD_Result,Message *pMessage)
 
 //<-dceag-c206-b->
 
-    /** @brief COMMAND: #206 - 2 */
-    /** 2 */
+	/** @brief COMMAND: #206 - 2 */
+	/** 2 */
 
 void MythTV_Player::CMD_2(string &sCMD_Result,Message *pMessage)
 //<-dceag-c206-e->
@@ -640,8 +639,8 @@ void MythTV_Player::CMD_2(string &sCMD_Result,Message *pMessage)
 
 //<-dceag-c207-b->
 
-    /** @brief COMMAND: #207 - 3 */
-    /** 3 */
+	/** @brief COMMAND: #207 - 3 */
+	/** 3 */
 
 void MythTV_Player::CMD_3(string &sCMD_Result,Message *pMessage)
 //<-dceag-c207-e->
@@ -651,8 +650,8 @@ void MythTV_Player::CMD_3(string &sCMD_Result,Message *pMessage)
 
 //<-dceag-c208-b->
 
-    /** @brief COMMAND: #208 - 4 */
-    /** 4 */
+	/** @brief COMMAND: #208 - 4 */
+	/** 4 */
 
 void MythTV_Player::CMD_4(string &sCMD_Result,Message *pMessage)
 //<-dceag-c208-e->
@@ -662,8 +661,8 @@ void MythTV_Player::CMD_4(string &sCMD_Result,Message *pMessage)
 
 //<-dceag-c209-b->
 
-    /** @brief COMMAND: #209 - 5 */
-    /** 5 */
+	/** @brief COMMAND: #209 - 5 */
+	/** 5 */
 
 void MythTV_Player::CMD_5(string &sCMD_Result,Message *pMessage)
 //<-dceag-c209-e->
@@ -673,8 +672,8 @@ void MythTV_Player::CMD_5(string &sCMD_Result,Message *pMessage)
 
 //<-dceag-c210-b->
 
-    /** @brief COMMAND: #210 - 6 */
-    /** 6 */
+	/** @brief COMMAND: #210 - 6 */
+	/** 6 */
 
 void MythTV_Player::CMD_6(string &sCMD_Result,Message *pMessage)
 //<-dceag-c210-e->
@@ -684,8 +683,8 @@ void MythTV_Player::CMD_6(string &sCMD_Result,Message *pMessage)
 
 //<-dceag-c211-b->
 
-    /** @brief COMMAND: #211 - 7 */
-    /** 7 */
+	/** @brief COMMAND: #211 - 7 */
+	/** 7 */
 
 void MythTV_Player::CMD_7(string &sCMD_Result,Message *pMessage)
 //<-dceag-c211-e->
@@ -695,8 +694,8 @@ void MythTV_Player::CMD_7(string &sCMD_Result,Message *pMessage)
 
 //<-dceag-c212-b->
 
-    /** @brief COMMAND: #212 - 8 */
-    /** 8 */
+	/** @brief COMMAND: #212 - 8 */
+	/** 8 */
 
 void MythTV_Player::CMD_8(string &sCMD_Result,Message *pMessage)
 //<-dceag-c212-e->
@@ -706,8 +705,8 @@ void MythTV_Player::CMD_8(string &sCMD_Result,Message *pMessage)
 
 //<-dceag-c213-b->
 
-    /** @brief COMMAND: #213 - 9 */
-    /** 9 */
+	/** @brief COMMAND: #213 - 9 */
+	/** 9 */
 
 void MythTV_Player::CMD_9(string &sCMD_Result,Message *pMessage)
 //<-dceag-c213-e->
@@ -717,8 +716,8 @@ void MythTV_Player::CMD_9(string &sCMD_Result,Message *pMessage)
 
 //<-dceag-c240-b->
 
-    /** @brief COMMAND: #240 - Back */
-    /** Navigate back .. ( Escape ) */
+	/** @brief COMMAND: #240 - Back */
+	/** Navigate back .. ( Escape ) */
 
 void MythTV_Player::CMD_Back(string &sCMD_Result,Message *pMessage)
 //<-dceag-c240-e->

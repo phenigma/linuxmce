@@ -84,6 +84,8 @@ namespace sqlCVS
 		class Table *CreateTablesTable( );
 		class Table *CreateSchemaTable( );
 	
+		void VerifyIntegrity() { }
+
 		string GetSetting(string Setting,string Default);
 		void SetSetting(string Setting,string Value);
 		void ImportTable(string sTableName,SerializeableStrings &str,size_t &pos,Table *pTable);

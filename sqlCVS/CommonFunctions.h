@@ -72,7 +72,7 @@ namespace sqlCVS
 
 		map<int,bool> m_mapValidatedUsers; /**< Map of user id's to bool's if the user is a supervisor */
 
-		bool m_bNewDatabase;
+		bool m_bNewDatabase,m_bVerify;
 
 		/**
 		 * @ brief constructor
@@ -91,6 +91,7 @@ namespace sqlCVS
 			m_pRepository=NULL;
 			m_bNewDatabase=false;
 			m_psc_batch=0;
+			m_bVerify=false;
 		}
 
 		/**

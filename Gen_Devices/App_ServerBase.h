@@ -69,7 +69,7 @@ public:
 	//Event accessors
 	//Commands - Override these to handle commands from the server
 	virtual void CMD_Simulate_Keypress(string sPK_Button,string sName,string &sCMD_Result,class Message *pMessage) {};
-	virtual void CMD_Spawn_Application(string sFilename,string sName,string sArguments,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Spawn_Application(string sFilename,string sOptions,string sName,string sArguments,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Kill_Application(string sName,string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Hide_Application(string sName,string &sCMD_Result,class Message *pMessage) {};
 
@@ -104,9 +104,10 @@ public:
 					{
 						string sCMD_Result="OK";
 					string sFilename=pMessage->m_mapParameters[13];
+					string sOptions=pMessage->m_mapParameters[39];
 					string sName=pMessage->m_mapParameters[50];
 					string sArguments=pMessage->m_mapParameters[51];
-						CMD_Spawn_Application(sFilename.c_str(),sName.c_str(),sArguments.c_str(),sCMD_Result,pMessage);
+						CMD_Spawn_Application(sFilename.c_str(),sOptions.c_str(),sName.c_str(),sArguments.c_str(),sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);

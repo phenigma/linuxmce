@@ -218,6 +218,9 @@ int main( int argc, char *argv[] )
 		case 'b':
 			g_GlobalConfig.m_psc_batch = atoi( argv[++optnum] );
 			break;
+		case 'v':
+			g_GlobalConfig.m_bVerify = true;
+			break;
 		default:
 			bError=true;
 			break;
@@ -230,7 +233,7 @@ int main( int argc, char *argv[] )
 //                123456789012345678901234567890123456789012345678901234567890	
 		cout << "sqlCVS, v." << VERSION << endl
 			<< "Usage: sqlCVS [-h hostname] [-u username] [-p password]" << endl
-			<< "[-D database] [-P mysql port] [-r Repository( -ies )]" << endl
+			<< "[-D database] [-P mysql port] [-r Repository( -ies )] [-v verify]" << endl
 			<< "[-t Table( s )] [-U Username[~Password][,...]] [-d username]" << endl
 			<< "-h hostname    -- address or DNS of database host," << endl
 			<< "			default is `dce_router`" << endl
@@ -247,7 +250,8 @@ int main( int argc, char *argv[] )
 			<< "-b batch       -- the batch number you want to approve" << endl
 			<< "-U user~pass   -- the user(s) who are logged in and will be committing rows" << endl
 			<< "-d username    -- the owner of any unclaimed new records" << endl
-			<< "            Default is the first user checking in records" << endl;
+			<< "            Default is the first user checking in records" << endl
+			<< "-v verify      -- Verifies the integrity of the database first" << endl;
 
 		exit( 0 );
 	}

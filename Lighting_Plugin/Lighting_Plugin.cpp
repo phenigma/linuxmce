@@ -177,7 +177,7 @@ bool Lighting_Plugin::LightingCommand( class Socket *pSocket, class Message *pMe
 	return true;
 }
 
-void Lighting_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,string &OSD)
+void Lighting_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD)
 {
 	switch(iFloorplanObjectType)
 	{

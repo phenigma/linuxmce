@@ -62,13 +62,15 @@ public:
 	/** Spawn an application */
 		/** @param #13 Filename */
 			/** The name of the executable file to spawn */
+		/** @param #39 Options */
+			/** This will contain the serialization of the command list that should be fired against the source device of this command. */
 		/** @param #50 Name */
 			/** A name that we'll remember the application by for future kill commands */
 		/** @param #51 Arguments */
 			/** Command arguments */
 
-	virtual void CMD_Spawn_Application(string sFilename,string sName,string sArguments) { string sCMD_Result; CMD_Spawn_Application(sFilename.c_str(),sName.c_str(),sArguments.c_str(),sCMD_Result,NULL);};
-	virtual void CMD_Spawn_Application(string sFilename,string sName,string sArguments,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Spawn_Application(string sFilename,string sOptions,string sName,string sArguments) { string sCMD_Result; CMD_Spawn_Application(sFilename.c_str(),sOptions.c_str(),sName.c_str(),sArguments.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Spawn_Application(string sFilename,string sOptions,string sName,string sArguments,string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #69 - Kill Application */
