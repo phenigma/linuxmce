@@ -1017,8 +1017,8 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 cout << "Making CVS Checkout to temporary\n";
 	//Checking Version From SourceForge
 	cmd = " cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/"+
-			pRow_Package_Source->Name_get()+
 			" checkout " + pRow_Package_Source->Name_get();
+	cmd.
 	system(cmd.c_str());
 
 	cmd = pRow_Package_Source->Name_get();
@@ -1102,14 +1102,14 @@ cout << "Copying Files\n";
 #ifdef WIN32
 					cmd = "copy /y " + pFileInfo->m_sSource + " " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 					system(cmd.c_str());
-					cmd = "cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/"+
-			pRow_Package_Source->Name_get() + " add " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+					cmd = "cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/ add "
+						+ FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 					system(cmd.c_str());
 #else
 					cmd = "cp -f " + pFileInfo->m_sSource + " " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 					system(cmd.c_str());
-					cmd = "cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/"+
-			pRow_Package_Source->Name_get() + " add " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+					cmd = "cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/ add "
+						+ FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 					system(cmd.c_str());
 #endif
 				}
@@ -1124,8 +1124,8 @@ cout << "Copying Files\n";
 						mkdir(cmd.c_str(), 0777);
 						cmd2 = "cp " + pFileInfo->m_sSource + " " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 						system(cmd2.c_str());
-						cmd2 = "cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/"+
-			pRow_Package_Source->Name_get()+ " add " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+						cmd2 = "cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/ add "
+							+ cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 						system(cmd2.c_str());
 #endif
 					}
@@ -1137,8 +1137,8 @@ cout << "Copying Files\n";
 #else
 						cmd2 = "cp -f " + pFileInfo->m_sSource + " " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 						system(cmd2.c_str());
-						cmd2 = "cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/"+
-			pRow_Package_Source->Name_get()+ " add " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+						cmd2 = "cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/ add "
+							+ cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 						system(cmd2.c_str());
 						cout << cmd2.c_str() << endl;
 #endif
@@ -1201,8 +1201,7 @@ cout << "Copying Files\n";
 
 	cout<<"\n\nMaking commit ";
 	//Updating files from the server to the sourceforge
-	cmd = "cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/" + pRow_Package_Source->Name_get() + 
-		" commit -m 'Automatic Update'";
+	cmd = "cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/ commit -m 'Automatic Update'";
 	system(cmd.c_str());
 	cout << "[Done]\n";
 
