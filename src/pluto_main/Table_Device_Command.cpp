@@ -364,12 +364,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->FK_Device_asSQL()+", "+pRow->FK_Command_asSQL()+", "+pRow->Sort_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Device_Command (FK_Device, FK_Command, Sort, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Device_Command (`FK_Device`, `FK_Command`, `Sort`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -410,12 +411,12 @@ sprintf(tmp_FK_Command, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Device=" + tmp_FK_Device+" AND "+"FK_Command=" + tmp_FK_Command;
+condition = condition + "`FK_Device`=" + tmp_FK_Device+" AND "+"`FK_Command`=" + tmp_FK_Command;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_Device="+pRow->FK_Device_asSQL()+", FK_Command="+pRow->FK_Command_asSQL()+", Sort="+pRow->Sort_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`FK_Device`="+pRow->FK_Device_asSQL()+", `FK_Command`="+pRow->FK_Command_asSQL()+", `Sort`="+pRow->Sort_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Device_Command set " + update_values_list + " where " + condition;
@@ -423,6 +424,7 @@ update_values_list = update_values_list + "FK_Device="+pRow->FK_Device_asSQL()+"
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -457,7 +459,7 @@ sprintf(tmp_FK_Command, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Device=" + tmp_FK_Device+" AND "+"FK_Command=" + tmp_FK_Command;
+condition = condition + "`FK_Device`=" + tmp_FK_Device+" AND "+"`FK_Command`=" + tmp_FK_Command;
 
 	
 		string query = "delete from Device_Command where " + condition;
@@ -465,6 +467,7 @@ condition = condition + "FK_Device=" + tmp_FK_Device+" AND "+"FK_Command=" + tmp
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -491,6 +494,7 @@ bool Table_Device_Command::GetRows(string where_statement,vector<class Row_Devic
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -499,6 +503,7 @@ bool Table_Device_Command::GetRows(string where_statement,vector<class Row_Devic
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -676,7 +681,7 @@ sprintf(tmp_FK_Command, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Device=" + tmp_FK_Device+" AND "+"FK_Command=" + tmp_FK_Command;
+condition = condition + "`FK_Device`=" + tmp_FK_Device+" AND "+"`FK_Command`=" + tmp_FK_Command;
 
 
 	string query = "select * from Device_Command where " + condition;		
@@ -684,6 +689,7 @@ condition = condition + "FK_Device=" + tmp_FK_Device+" AND "+"FK_Command=" + tmp
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -692,6 +698,7 @@ condition = condition + "FK_Device=" + tmp_FK_Device+" AND "+"FK_Command=" + tmp
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

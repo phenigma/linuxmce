@@ -385,12 +385,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_Text_asSQL()+", "+pRow->FK_TextCategory_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Text (PK_Text, FK_TextCategory, Description, Define, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Text (`PK_Text`, `FK_TextCategory`, `Description`, `Define`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -430,12 +431,12 @@ sprintf(tmp_PK_Text, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Text=" + tmp_PK_Text;
+condition = condition + "`PK_Text`=" + tmp_PK_Text;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Text="+pRow->PK_Text_asSQL()+", FK_TextCategory="+pRow->FK_TextCategory_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Text`="+pRow->PK_Text_asSQL()+", `FK_TextCategory`="+pRow->FK_TextCategory_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Text set " + update_values_list + " where " + condition;
@@ -443,6 +444,7 @@ update_values_list = update_values_list + "PK_Text="+pRow->PK_Text_asSQL()+", FK
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -474,7 +476,7 @@ sprintf(tmp_PK_Text, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Text=" + tmp_PK_Text;
+condition = condition + "`PK_Text`=" + tmp_PK_Text;
 
 	
 		string query = "delete from Text where " + condition;
@@ -482,6 +484,7 @@ condition = condition + "PK_Text=" + tmp_PK_Text;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -508,6 +511,7 @@ bool Table_Text::GetRows(string where_statement,vector<class Row_Text*> *rows)
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -516,6 +520,7 @@ bool Table_Text::GetRows(string where_statement,vector<class Row_Text*> *rows)
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -701,7 +706,7 @@ sprintf(tmp_PK_Text, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Text=" + tmp_PK_Text;
+condition = condition + "`PK_Text`=" + tmp_PK_Text;
 
 
 	string query = "select * from Text where " + condition;		
@@ -709,6 +714,7 @@ condition = condition + "PK_Text=" + tmp_PK_Text;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -717,6 +723,7 @@ condition = condition + "PK_Text=" + tmp_PK_Text;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -854,28 +861,28 @@ void Row_Text::DesignObjVariation_Text_FK_Text_getrows(vector <class Row_DesignO
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_Text *pTable = table->database->DesignObjVariation_Text_get();
-pTable->GetRows("FK_Text=" + StringUtils::itos(m_PK_Text),rows);
+pTable->GetRows("`FK_Text=`" + StringUtils::itos(m_PK_Text),rows);
 }
 void Row_Text::DesignObjVariation_Text_FK_Text_OverrideFromHeader_getrows(vector <class Row_DesignObjVariation_Text*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_Text *pTable = table->database->DesignObjVariation_Text_get();
-pTable->GetRows("FK_Text_OverrideFromHeader=" + StringUtils::itos(m_PK_Text),rows);
+pTable->GetRows("`FK_Text_OverrideFromHeader=`" + StringUtils::itos(m_PK_Text),rows);
 }
 void Row_Text::Text_LS_FK_Text_getrows(vector <class Row_Text_LS*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Text_LS *pTable = table->database->Text_LS_get();
-pTable->GetRows("FK_Text=" + StringUtils::itos(m_PK_Text),rows);
+pTable->GetRows("`FK_Text=`" + StringUtils::itos(m_PK_Text),rows);
 }
 void Row_Text::Text_LS_AltVersions_FK_Text_getrows(vector <class Row_Text_LS_AltVersions*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Text_LS_AltVersions *pTable = table->database->Text_LS_AltVersions_get();
-pTable->GetRows("FK_Text=" + StringUtils::itos(m_PK_Text),rows);
+pTable->GetRows("`FK_Text=`" + StringUtils::itos(m_PK_Text),rows);
 }
 
 

@@ -370,12 +370,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->FK_Package_asSQL()+", "+pRow->FK_Version_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Package_Version (FK_Package, FK_Version, Comments, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Package_Version (`FK_Package`, `FK_Version`, `Comments`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -416,12 +417,12 @@ sprintf(tmp_FK_Version, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Package=" + tmp_FK_Package+" AND "+"FK_Version=" + tmp_FK_Version;
+condition = condition + "`FK_Package`=" + tmp_FK_Package+" AND "+"`FK_Version`=" + tmp_FK_Version;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_Package="+pRow->FK_Package_asSQL()+", FK_Version="+pRow->FK_Version_asSQL()+", Comments="+pRow->Comments_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`FK_Package`="+pRow->FK_Package_asSQL()+", `FK_Version`="+pRow->FK_Version_asSQL()+", `Comments`="+pRow->Comments_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Package_Version set " + update_values_list + " where " + condition;
@@ -429,6 +430,7 @@ update_values_list = update_values_list + "FK_Package="+pRow->FK_Package_asSQL()
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -463,7 +465,7 @@ sprintf(tmp_FK_Version, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Package=" + tmp_FK_Package+" AND "+"FK_Version=" + tmp_FK_Version;
+condition = condition + "`FK_Package`=" + tmp_FK_Package+" AND "+"`FK_Version`=" + tmp_FK_Version;
 
 	
 		string query = "delete from Package_Version where " + condition;
@@ -471,6 +473,7 @@ condition = condition + "FK_Package=" + tmp_FK_Package+" AND "+"FK_Version=" + t
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -497,6 +500,7 @@ bool Table_Package_Version::GetRows(string where_statement,vector<class Row_Pack
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -505,6 +509,7 @@ bool Table_Package_Version::GetRows(string where_statement,vector<class Row_Pack
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -682,7 +687,7 @@ sprintf(tmp_FK_Version, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Package=" + tmp_FK_Package+" AND "+"FK_Version=" + tmp_FK_Version;
+condition = condition + "`FK_Package`=" + tmp_FK_Package+" AND "+"`FK_Version`=" + tmp_FK_Version;
 
 
 	string query = "select * from Package_Version where " + condition;		
@@ -690,6 +695,7 @@ condition = condition + "FK_Package=" + tmp_FK_Package+" AND "+"FK_Version=" + t
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -698,6 +704,7 @@ condition = condition + "FK_Package=" + tmp_FK_Package+" AND "+"FK_Version=" + t
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

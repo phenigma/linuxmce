@@ -18,7 +18,7 @@
 // maps for the standard types of primary keys (single long, double long, etc.) and
 // put them in a common base class, which is optionally included as tablebase below
 
-class DLL_EXPORT Table_DeviceTemplate_InfraredGroup : public TableBase , DoubleLongKeyBase
+class DLL_EXPORT Table_DeviceTemplate_InfraredGroup : public TableBase , SingleLongKeyBase
 {
 private:
 	Database_pluto_main *database;
@@ -41,11 +41,10 @@ private:
 	struct Key
 	{
 		friend class Row_DeviceTemplate_InfraredGroup;
-		long int pk_FK_InfraredGroup;
-long int pk_FK_DeviceTemplate;
+		long int pk_PK_DeviceTemplate_InfraredGroup;
 
 		
-		Key(long int in_FK_InfraredGroup, long int in_FK_DeviceTemplate);
+		Key(long int in_PK_DeviceTemplate_InfraredGroup);
 	
 		Key(class Row_DeviceTemplate_InfraredGroup *pRow);
 	};
@@ -64,13 +63,13 @@ public:
 	Database_pluto_main *Database_pluto_main_get() { return database; }
 	
 		
-	class Row_DeviceTemplate_InfraredGroup* GetRow(long int in_FK_InfraredGroup, long int in_FK_DeviceTemplate);
+	class Row_DeviceTemplate_InfraredGroup* GetRow(long int in_PK_DeviceTemplate_InfraredGroup);
 	
 
 private:	
 	
 		
-	class Row_DeviceTemplate_InfraredGroup* FetchRow(DoubleLongKey &key);
+	class Row_DeviceTemplate_InfraredGroup* FetchRow(SingleLongKey &key);
 		
 			
 };
@@ -82,7 +81,8 @@ class DLL_EXPORT Row_DeviceTemplate_InfraredGroup : public TableRow, public Seri
 	private:
 		Table_DeviceTemplate_InfraredGroup *table;
 		
-		long int m_FK_InfraredGroup;
+		long int m_PK_DeviceTemplate_InfraredGroup;
+long int m_FK_InfraredGroup;
 long int m_FK_DeviceTemplate;
 long int m_psc_id;
 long int m_psc_batch;
@@ -90,10 +90,11 @@ long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[7];
+		bool is_null[8];
 	
 	public:
-		long int FK_InfraredGroup_get();
+		long int PK_DeviceTemplate_InfraredGroup_get();
+long int FK_InfraredGroup_get();
 long int FK_DeviceTemplate_get();
 long int psc_id_get();
 long int psc_batch_get();
@@ -102,7 +103,8 @@ short int psc_frozen_get();
 string psc_mod_get();
 
 		
-		void FK_InfraredGroup_set(long int val);
+		void PK_DeviceTemplate_InfraredGroup_set(long int val);
+void FK_InfraredGroup_set(long int val);
 void FK_DeviceTemplate_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
@@ -142,12 +144,13 @@ class Row_DeviceTemplate* FK_DeviceTemplate_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_FK_InfraredGroup+ m_FK_DeviceTemplate+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_DeviceTemplate_InfraredGroup+ m_FK_InfraredGroup+ m_FK_DeviceTemplate+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
 		
-		string FK_InfraredGroup_asSQL();
+		string PK_DeviceTemplate_InfraredGroup_asSQL();
+string FK_InfraredGroup_asSQL();
 string FK_DeviceTemplate_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();

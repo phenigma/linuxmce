@@ -390,12 +390,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->FK_Installation_asSQL()+", "+pRow->FK_Users_asSQL()+", "+pRow->userCanModifyInstallation_asSQL()+", "+pRow->userCanChangeHouseMode_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Installation_Users (FK_Installation, FK_Users, userCanModifyInstallation, userCanChangeHouseMode, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Installation_Users (`FK_Installation`, `FK_Users`, `userCanModifyInstallation`, `userCanChangeHouseMode`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -436,12 +437,12 @@ sprintf(tmp_FK_Users, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Installation=" + tmp_FK_Installation+" AND "+"FK_Users=" + tmp_FK_Users;
+condition = condition + "`FK_Installation`=" + tmp_FK_Installation+" AND "+"`FK_Users`=" + tmp_FK_Users;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_Installation="+pRow->FK_Installation_asSQL()+", FK_Users="+pRow->FK_Users_asSQL()+", userCanModifyInstallation="+pRow->userCanModifyInstallation_asSQL()+", userCanChangeHouseMode="+pRow->userCanChangeHouseMode_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`FK_Installation`="+pRow->FK_Installation_asSQL()+", `FK_Users`="+pRow->FK_Users_asSQL()+", `userCanModifyInstallation`="+pRow->userCanModifyInstallation_asSQL()+", `userCanChangeHouseMode`="+pRow->userCanChangeHouseMode_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Installation_Users set " + update_values_list + " where " + condition;
@@ -449,6 +450,7 @@ update_values_list = update_values_list + "FK_Installation="+pRow->FK_Installati
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -483,7 +485,7 @@ sprintf(tmp_FK_Users, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Installation=" + tmp_FK_Installation+" AND "+"FK_Users=" + tmp_FK_Users;
+condition = condition + "`FK_Installation`=" + tmp_FK_Installation+" AND "+"`FK_Users`=" + tmp_FK_Users;
 
 	
 		string query = "delete from Installation_Users where " + condition;
@@ -491,6 +493,7 @@ condition = condition + "FK_Installation=" + tmp_FK_Installation+" AND "+"FK_Use
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -517,6 +520,7 @@ bool Table_Installation_Users::GetRows(string where_statement,vector<class Row_I
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -525,6 +529,7 @@ bool Table_Installation_Users::GetRows(string where_statement,vector<class Row_I
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -713,7 +718,7 @@ sprintf(tmp_FK_Users, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Installation=" + tmp_FK_Installation+" AND "+"FK_Users=" + tmp_FK_Users;
+condition = condition + "`FK_Installation`=" + tmp_FK_Installation+" AND "+"`FK_Users`=" + tmp_FK_Users;
 
 
 	string query = "select * from Installation_Users where " + condition;		
@@ -721,6 +726,7 @@ condition = condition + "FK_Installation=" + tmp_FK_Installation+" AND "+"FK_Use
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -729,6 +735,7 @@ condition = condition + "FK_Installation=" + tmp_FK_Installation+" AND "+"FK_Use
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

@@ -409,12 +409,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_EventParameter_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->FK_ParameterType_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into EventParameter (PK_EventParameter, Description, Define, Comments, FK_ParameterType, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into EventParameter (`PK_EventParameter`, `Description`, `Define`, `Comments`, `FK_ParameterType`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -454,12 +455,12 @@ sprintf(tmp_PK_EventParameter, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_EventParameter=" + tmp_PK_EventParameter;
+condition = condition + "`PK_EventParameter`=" + tmp_PK_EventParameter;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_EventParameter="+pRow->PK_EventParameter_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", Comments="+pRow->Comments_asSQL()+", FK_ParameterType="+pRow->FK_ParameterType_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_EventParameter`="+pRow->PK_EventParameter_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `Comments`="+pRow->Comments_asSQL()+", `FK_ParameterType`="+pRow->FK_ParameterType_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update EventParameter set " + update_values_list + " where " + condition;
@@ -467,6 +468,7 @@ update_values_list = update_values_list + "PK_EventParameter="+pRow->PK_EventPar
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -498,7 +500,7 @@ sprintf(tmp_PK_EventParameter, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_EventParameter=" + tmp_PK_EventParameter;
+condition = condition + "`PK_EventParameter`=" + tmp_PK_EventParameter;
 
 	
 		string query = "delete from EventParameter where " + condition;
@@ -506,6 +508,7 @@ condition = condition + "PK_EventParameter=" + tmp_PK_EventParameter;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -532,6 +535,7 @@ bool Table_EventParameter::GetRows(string where_statement,vector<class Row_Event
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -540,6 +544,7 @@ bool Table_EventParameter::GetRows(string where_statement,vector<class Row_Event
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -736,7 +741,7 @@ sprintf(tmp_PK_EventParameter, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_EventParameter=" + tmp_PK_EventParameter;
+condition = condition + "`PK_EventParameter`=" + tmp_PK_EventParameter;
 
 
 	string query = "select * from EventParameter where " + condition;		
@@ -744,6 +749,7 @@ condition = condition + "PK_EventParameter=" + tmp_PK_EventParameter;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -752,6 +758,7 @@ condition = condition + "PK_EventParameter=" + tmp_PK_EventParameter;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -900,7 +907,7 @@ void Row_EventParameter::Event_EventParameter_FK_EventParameter_getrows(vector <
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Event_EventParameter *pTable = table->database->Event_EventParameter_get();
-pTable->GetRows("FK_EventParameter=" + StringUtils::itos(m_PK_EventParameter),rows);
+pTable->GetRows("`FK_EventParameter=`" + StringUtils::itos(m_PK_EventParameter),rows);
 }
 
 

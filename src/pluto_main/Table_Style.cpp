@@ -450,12 +450,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_Style_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_Style_Selected_asSQL()+", "+pRow->FK_Style_Highlighted_asSQL()+", "+pRow->FK_Style_Alt_asSQL()+", "+pRow->AlwaysIncludeOnOrbiter_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Style (PK_Style, Description, FK_Style_Selected, FK_Style_Highlighted, FK_Style_Alt, AlwaysIncludeOnOrbiter, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Style (`PK_Style`, `Description`, `FK_Style_Selected`, `FK_Style_Highlighted`, `FK_Style_Alt`, `AlwaysIncludeOnOrbiter`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -495,12 +496,12 @@ sprintf(tmp_PK_Style, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Style=" + tmp_PK_Style;
+condition = condition + "`PK_Style`=" + tmp_PK_Style;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Style="+pRow->PK_Style_asSQL()+", Description="+pRow->Description_asSQL()+", FK_Style_Selected="+pRow->FK_Style_Selected_asSQL()+", FK_Style_Highlighted="+pRow->FK_Style_Highlighted_asSQL()+", FK_Style_Alt="+pRow->FK_Style_Alt_asSQL()+", AlwaysIncludeOnOrbiter="+pRow->AlwaysIncludeOnOrbiter_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Style`="+pRow->PK_Style_asSQL()+", `Description`="+pRow->Description_asSQL()+", `FK_Style_Selected`="+pRow->FK_Style_Selected_asSQL()+", `FK_Style_Highlighted`="+pRow->FK_Style_Highlighted_asSQL()+", `FK_Style_Alt`="+pRow->FK_Style_Alt_asSQL()+", `AlwaysIncludeOnOrbiter`="+pRow->AlwaysIncludeOnOrbiter_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Style set " + update_values_list + " where " + condition;
@@ -508,6 +509,7 @@ update_values_list = update_values_list + "PK_Style="+pRow->PK_Style_asSQL()+", 
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -539,7 +541,7 @@ sprintf(tmp_PK_Style, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Style=" + tmp_PK_Style;
+condition = condition + "`PK_Style`=" + tmp_PK_Style;
 
 	
 		string query = "delete from Style where " + condition;
@@ -547,6 +549,7 @@ condition = condition + "PK_Style=" + tmp_PK_Style;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -573,6 +576,7 @@ bool Table_Style::GetRows(string where_statement,vector<class Row_Style*> *rows)
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -581,6 +585,7 @@ bool Table_Style::GetRows(string where_statement,vector<class Row_Style*> *rows)
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -788,7 +793,7 @@ sprintf(tmp_PK_Style, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Style=" + tmp_PK_Style;
+condition = condition + "`PK_Style`=" + tmp_PK_Style;
 
 
 	string query = "select * from Style where " + condition;		
@@ -796,6 +801,7 @@ condition = condition + "PK_Style=" + tmp_PK_Style;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -804,6 +810,7 @@ condition = condition + "PK_Style=" + tmp_PK_Style;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -977,42 +984,42 @@ void Row_Style::DesignObjVariation_Text_Skin_Language_FK_Style_getrows(vector <c
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_Text_Skin_Language *pTable = table->database->DesignObjVariation_Text_Skin_Language_get();
-pTable->GetRows("FK_Style=" + StringUtils::itos(m_PK_Style),rows);
+pTable->GetRows("`FK_Style=`" + StringUtils::itos(m_PK_Style),rows);
 }
 void Row_Style::Skin_FK_Style_getrows(vector <class Row_Skin*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Skin *pTable = table->database->Skin_get();
-pTable->GetRows("FK_Style=" + StringUtils::itos(m_PK_Style),rows);
+pTable->GetRows("`FK_Style=`" + StringUtils::itos(m_PK_Style),rows);
 }
 void Row_Style::Style_FK_Style_Selected_getrows(vector <class Row_Style*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Style *pTable = table->database->Style_get();
-pTable->GetRows("FK_Style_Selected=" + StringUtils::itos(m_PK_Style),rows);
+pTable->GetRows("`FK_Style_Selected=`" + StringUtils::itos(m_PK_Style),rows);
 }
 void Row_Style::Style_FK_Style_Highlighted_getrows(vector <class Row_Style*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Style *pTable = table->database->Style_get();
-pTable->GetRows("FK_Style_Highlighted=" + StringUtils::itos(m_PK_Style),rows);
+pTable->GetRows("`FK_Style_Highlighted=`" + StringUtils::itos(m_PK_Style),rows);
 }
 void Row_Style::Style_FK_Style_Alt_getrows(vector <class Row_Style*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Style *pTable = table->database->Style_get();
-pTable->GetRows("FK_Style_Alt=" + StringUtils::itos(m_PK_Style),rows);
+pTable->GetRows("`FK_Style_Alt=`" + StringUtils::itos(m_PK_Style),rows);
 }
 void Row_Style::StyleVariation_FK_Style_getrows(vector <class Row_StyleVariation*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_StyleVariation *pTable = table->database->StyleVariation_get();
-pTable->GetRows("FK_Style=" + StringUtils::itos(m_PK_Style),rows);
+pTable->GetRows("`FK_Style=`" + StringUtils::itos(m_PK_Style),rows);
 }
 
 

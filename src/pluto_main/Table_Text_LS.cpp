@@ -365,12 +365,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->FK_Text_asSQL()+", "+pRow->FK_Language_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Text_LS (FK_Text, FK_Language, Description, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Text_LS (`FK_Text`, `FK_Language`, `Description`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -411,12 +412,12 @@ sprintf(tmp_FK_Language, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Text=" + tmp_FK_Text+" AND "+"FK_Language=" + tmp_FK_Language;
+condition = condition + "`FK_Text`=" + tmp_FK_Text+" AND "+"`FK_Language`=" + tmp_FK_Language;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_Text="+pRow->FK_Text_asSQL()+", FK_Language="+pRow->FK_Language_asSQL()+", Description="+pRow->Description_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`FK_Text`="+pRow->FK_Text_asSQL()+", `FK_Language`="+pRow->FK_Language_asSQL()+", `Description`="+pRow->Description_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Text_LS set " + update_values_list + " where " + condition;
@@ -424,6 +425,7 @@ update_values_list = update_values_list + "FK_Text="+pRow->FK_Text_asSQL()+", FK
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -458,7 +460,7 @@ sprintf(tmp_FK_Language, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Text=" + tmp_FK_Text+" AND "+"FK_Language=" + tmp_FK_Language;
+condition = condition + "`FK_Text`=" + tmp_FK_Text+" AND "+"`FK_Language`=" + tmp_FK_Language;
 
 	
 		string query = "delete from Text_LS where " + condition;
@@ -466,6 +468,7 @@ condition = condition + "FK_Text=" + tmp_FK_Text+" AND "+"FK_Language=" + tmp_FK
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -492,6 +495,7 @@ bool Table_Text_LS::GetRows(string where_statement,vector<class Row_Text_LS*> *r
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -500,6 +504,7 @@ bool Table_Text_LS::GetRows(string where_statement,vector<class Row_Text_LS*> *r
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -677,7 +682,7 @@ sprintf(tmp_FK_Language, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Text=" + tmp_FK_Text+" AND "+"FK_Language=" + tmp_FK_Language;
+condition = condition + "`FK_Text`=" + tmp_FK_Text+" AND "+"`FK_Language`=" + tmp_FK_Language;
 
 
 	string query = "select * from Text_LS where " + condition;		
@@ -685,6 +690,7 @@ condition = condition + "FK_Text=" + tmp_FK_Text+" AND "+"FK_Language=" + tmp_FK
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -693,6 +699,7 @@ condition = condition + "FK_Text=" + tmp_FK_Text+" AND "+"FK_Language=" + tmp_FK
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

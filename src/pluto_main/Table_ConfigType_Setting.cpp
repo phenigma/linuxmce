@@ -360,12 +360,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_ConfigType_Setting_asSQL()+", "+pRow->FK_ConfigType_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into ConfigType_Setting (PK_ConfigType_Setting, FK_ConfigType, Description, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into ConfigType_Setting (`PK_ConfigType_Setting`, `FK_ConfigType`, `Description`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -405,12 +406,12 @@ sprintf(tmp_PK_ConfigType_Setting, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_ConfigType_Setting=" + tmp_PK_ConfigType_Setting;
+condition = condition + "`PK_ConfigType_Setting`=" + tmp_PK_ConfigType_Setting;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_ConfigType_Setting="+pRow->PK_ConfigType_Setting_asSQL()+", FK_ConfigType="+pRow->FK_ConfigType_asSQL()+", Description="+pRow->Description_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_ConfigType_Setting`="+pRow->PK_ConfigType_Setting_asSQL()+", `FK_ConfigType`="+pRow->FK_ConfigType_asSQL()+", `Description`="+pRow->Description_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update ConfigType_Setting set " + update_values_list + " where " + condition;
@@ -418,6 +419,7 @@ update_values_list = update_values_list + "PK_ConfigType_Setting="+pRow->PK_Conf
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -449,7 +451,7 @@ sprintf(tmp_PK_ConfigType_Setting, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_ConfigType_Setting=" + tmp_PK_ConfigType_Setting;
+condition = condition + "`PK_ConfigType_Setting`=" + tmp_PK_ConfigType_Setting;
 
 	
 		string query = "delete from ConfigType_Setting where " + condition;
@@ -457,6 +459,7 @@ condition = condition + "PK_ConfigType_Setting=" + tmp_PK_ConfigType_Setting;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -483,6 +486,7 @@ bool Table_ConfigType_Setting::GetRows(string where_statement,vector<class Row_C
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -491,6 +495,7 @@ bool Table_ConfigType_Setting::GetRows(string where_statement,vector<class Row_C
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -665,7 +670,7 @@ sprintf(tmp_PK_ConfigType_Setting, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_ConfigType_Setting=" + tmp_PK_ConfigType_Setting;
+condition = condition + "`PK_ConfigType_Setting`=" + tmp_PK_ConfigType_Setting;
 
 
 	string query = "select * from ConfigType_Setting where " + condition;		
@@ -673,6 +678,7 @@ condition = condition + "PK_ConfigType_Setting=" + tmp_PK_ConfigType_Setting;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -681,6 +687,7 @@ condition = condition + "PK_ConfigType_Setting=" + tmp_PK_ConfigType_Setting;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -807,7 +814,7 @@ void Row_ConfigType_Setting::ConfigType_Token_FK_ConfigType_Setting_getrows(vect
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_ConfigType_Token *pTable = table->database->ConfigType_Token_get();
-pTable->GetRows("FK_ConfigType_Setting=" + StringUtils::itos(m_PK_ConfigType_Setting),rows);
+pTable->GetRows("`FK_ConfigType_Setting=`" + StringUtils::itos(m_PK_ConfigType_Setting),rows);
 }
 
 

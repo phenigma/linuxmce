@@ -237,7 +237,7 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_media_repset_asSQL()+", "+pRow->Setting_asSQL()+", "+pRow->Value_asSQL();
 
 	
-		string query = "insert into psc_media_repset (PK_psc_media_repset, Setting, Value) values ("+
+		string query = "insert into psc_media_repset (`PK_psc_media_repset`, `Setting`, `Value`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -283,12 +283,12 @@ sprintf(tmp_PK_psc_media_repset, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_media_repset=" + tmp_PK_psc_media_repset;
+condition = condition + "`PK_psc_media_repset`=" + tmp_PK_psc_media_repset;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_psc_media_repset="+pRow->PK_psc_media_repset_asSQL()+", Setting="+pRow->Setting_asSQL()+", Value="+pRow->Value_asSQL();
+update_values_list = update_values_list + "`PK_psc_media_repset`="+pRow->PK_psc_media_repset_asSQL()+", `Setting`="+pRow->Setting_asSQL()+", `Value`="+pRow->Value_asSQL();
 
 	
 		string query = "update psc_media_repset set " + update_values_list + " where " + condition;
@@ -328,7 +328,7 @@ sprintf(tmp_PK_psc_media_repset, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_media_repset=" + tmp_PK_psc_media_repset;
+condition = condition + "`PK_psc_media_repset`=" + tmp_PK_psc_media_repset;
 
 	
 		string query = "delete from psc_media_repset where " + condition;
@@ -492,7 +492,7 @@ sprintf(tmp_PK_psc_media_repset, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_media_repset=" + tmp_PK_psc_media_repset;
+condition = condition + "`PK_psc_media_repset`=" + tmp_PK_psc_media_repset;
 
 
 	string query = "select * from psc_media_repset where " + condition;		

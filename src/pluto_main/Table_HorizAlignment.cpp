@@ -361,12 +361,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_HorizAlignment_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into HorizAlignment (PK_HorizAlignment, Description, Define, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into HorizAlignment (`PK_HorizAlignment`, `Description`, `Define`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -406,12 +407,12 @@ sprintf(tmp_PK_HorizAlignment, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_HorizAlignment=" + tmp_PK_HorizAlignment;
+condition = condition + "`PK_HorizAlignment`=" + tmp_PK_HorizAlignment;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_HorizAlignment="+pRow->PK_HorizAlignment_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_HorizAlignment`="+pRow->PK_HorizAlignment_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update HorizAlignment set " + update_values_list + " where " + condition;
@@ -419,6 +420,7 @@ update_values_list = update_values_list + "PK_HorizAlignment="+pRow->PK_HorizAli
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -450,7 +452,7 @@ sprintf(tmp_PK_HorizAlignment, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_HorizAlignment=" + tmp_PK_HorizAlignment;
+condition = condition + "`PK_HorizAlignment`=" + tmp_PK_HorizAlignment;
 
 	
 		string query = "delete from HorizAlignment where " + condition;
@@ -458,6 +460,7 @@ condition = condition + "PK_HorizAlignment=" + tmp_PK_HorizAlignment;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -484,6 +487,7 @@ bool Table_HorizAlignment::GetRows(string where_statement,vector<class Row_Horiz
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -492,6 +496,7 @@ bool Table_HorizAlignment::GetRows(string where_statement,vector<class Row_Horiz
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -666,7 +671,7 @@ sprintf(tmp_PK_HorizAlignment, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_HorizAlignment=" + tmp_PK_HorizAlignment;
+condition = condition + "`PK_HorizAlignment`=" + tmp_PK_HorizAlignment;
 
 
 	string query = "select * from HorizAlignment where " + condition;		
@@ -674,6 +679,7 @@ condition = condition + "PK_HorizAlignment=" + tmp_PK_HorizAlignment;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -682,6 +688,7 @@ condition = condition + "PK_HorizAlignment=" + tmp_PK_HorizAlignment;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -801,14 +808,14 @@ void Row_HorizAlignment::DesignObjVariation_Text_Skin_Language_FK_HorizAlignment
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_Text_Skin_Language *pTable = table->database->DesignObjVariation_Text_Skin_Language_get();
-pTable->GetRows("FK_HorizAlignment=" + StringUtils::itos(m_PK_HorizAlignment),rows);
+pTable->GetRows("`FK_HorizAlignment=`" + StringUtils::itos(m_PK_HorizAlignment),rows);
 }
 void Row_HorizAlignment::StyleVariation_FK_HorizAlignment_getrows(vector <class Row_StyleVariation*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_StyleVariation *pTable = table->database->StyleVariation_get();
-pTable->GetRows("FK_HorizAlignment=" + StringUtils::itos(m_PK_HorizAlignment),rows);
+pTable->GetRows("`FK_HorizAlignment=`" + StringUtils::itos(m_PK_HorizAlignment),rows);
 }
 
 

@@ -406,12 +406,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_Criteria_D_asSQL()+", "+pRow->FK_CriteriaParmNesting_D_asSQL()+", "+pRow->FK_CriteriaList_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Criteria_D (PK_Criteria_D, FK_CriteriaParmNesting_D, FK_CriteriaList, Description, Define, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Criteria_D (`PK_Criteria_D`, `FK_CriteriaParmNesting_D`, `FK_CriteriaList`, `Description`, `Define`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -451,12 +452,12 @@ sprintf(tmp_PK_Criteria_D, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Criteria_D=" + tmp_PK_Criteria_D;
+condition = condition + "`PK_Criteria_D`=" + tmp_PK_Criteria_D;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Criteria_D="+pRow->PK_Criteria_D_asSQL()+", FK_CriteriaParmNesting_D="+pRow->FK_CriteriaParmNesting_D_asSQL()+", FK_CriteriaList="+pRow->FK_CriteriaList_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Criteria_D`="+pRow->PK_Criteria_D_asSQL()+", `FK_CriteriaParmNesting_D`="+pRow->FK_CriteriaParmNesting_D_asSQL()+", `FK_CriteriaList`="+pRow->FK_CriteriaList_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Criteria_D set " + update_values_list + " where " + condition;
@@ -464,6 +465,7 @@ update_values_list = update_values_list + "PK_Criteria_D="+pRow->PK_Criteria_D_a
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -495,7 +497,7 @@ sprintf(tmp_PK_Criteria_D, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Criteria_D=" + tmp_PK_Criteria_D;
+condition = condition + "`PK_Criteria_D`=" + tmp_PK_Criteria_D;
 
 	
 		string query = "delete from Criteria_D where " + condition;
@@ -503,6 +505,7 @@ condition = condition + "PK_Criteria_D=" + tmp_PK_Criteria_D;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -529,6 +532,7 @@ bool Table_Criteria_D::GetRows(string where_statement,vector<class Row_Criteria_
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -537,6 +541,7 @@ bool Table_Criteria_D::GetRows(string where_statement,vector<class Row_Criteria_
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -733,7 +738,7 @@ sprintf(tmp_PK_Criteria_D, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Criteria_D=" + tmp_PK_Criteria_D;
+condition = condition + "`PK_Criteria_D`=" + tmp_PK_Criteria_D;
 
 
 	string query = "select * from Criteria_D where " + condition;		
@@ -741,6 +746,7 @@ condition = condition + "PK_Criteria_D=" + tmp_PK_Criteria_D;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -749,6 +755,7 @@ condition = condition + "PK_Criteria_D=" + tmp_PK_Criteria_D;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -904,21 +911,21 @@ void Row_Criteria_D::DesignObjVariation_FK_Criteria_D_getrows(vector <class Row_
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation *pTable = table->database->DesignObjVariation_get();
-pTable->GetRows("FK_Criteria_D=" + StringUtils::itos(m_PK_Criteria_D),rows);
+pTable->GetRows("`FK_Criteria_D=`" + StringUtils::itos(m_PK_Criteria_D),rows);
 }
 void Row_Criteria_D::Skin_FK_Criteria_D_getrows(vector <class Row_Skin*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Skin *pTable = table->database->Skin_get();
-pTable->GetRows("FK_Criteria_D=" + StringUtils::itos(m_PK_Criteria_D),rows);
+pTable->GetRows("`FK_Criteria_D=`" + StringUtils::itos(m_PK_Criteria_D),rows);
 }
 void Row_Criteria_D::StyleVariation_FK_Criteria_D_getrows(vector <class Row_StyleVariation*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_StyleVariation *pTable = table->database->StyleVariation_get();
-pTable->GetRows("FK_Criteria_D=" + StringUtils::itos(m_PK_Criteria_D),rows);
+pTable->GetRows("`FK_Criteria_D=`" + StringUtils::itos(m_PK_Criteria_D),rows);
 }
 
 

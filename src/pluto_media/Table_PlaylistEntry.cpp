@@ -444,7 +444,7 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_PlaylistEntry_asSQL()+", "+pRow->FK_Playlist_asSQL()+", "+pRow->FK_File_asSQL()+", "+pRow->Path_asSQL()+", "+pRow->Filename_asSQL()+", "+pRow->Order_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into PlaylistEntry (PK_PlaylistEntry, FK_Playlist, FK_File, Path, Filename, Order, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into PlaylistEntry (`PK_PlaylistEntry`, `FK_Playlist`, `FK_File`, `Path`, `Filename`, `Order`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -490,12 +490,12 @@ sprintf(tmp_PK_PlaylistEntry, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_PlaylistEntry=" + tmp_PK_PlaylistEntry;
+condition = condition + "`PK_PlaylistEntry`=" + tmp_PK_PlaylistEntry;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_PlaylistEntry="+pRow->PK_PlaylistEntry_asSQL()+", FK_Playlist="+pRow->FK_Playlist_asSQL()+", FK_File="+pRow->FK_File_asSQL()+", Path="+pRow->Path_asSQL()+", Filename="+pRow->Filename_asSQL()+", Order="+pRow->Order_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_PlaylistEntry`="+pRow->PK_PlaylistEntry_asSQL()+", `FK_Playlist`="+pRow->FK_Playlist_asSQL()+", `FK_File`="+pRow->FK_File_asSQL()+", `Path`="+pRow->Path_asSQL()+", `Filename`="+pRow->Filename_asSQL()+", `Order`="+pRow->Order_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update PlaylistEntry set " + update_values_list + " where " + condition;
@@ -535,7 +535,7 @@ sprintf(tmp_PK_PlaylistEntry, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_PlaylistEntry=" + tmp_PK_PlaylistEntry;
+condition = condition + "`PK_PlaylistEntry`=" + tmp_PK_PlaylistEntry;
 
 	
 		string query = "delete from PlaylistEntry where " + condition;
@@ -787,7 +787,7 @@ sprintf(tmp_PK_PlaylistEntry, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_PlaylistEntry=" + tmp_PK_PlaylistEntry;
+condition = condition + "`PK_PlaylistEntry`=" + tmp_PK_PlaylistEntry;
 
 
 	string query = "select * from PlaylistEntry where " + condition;		

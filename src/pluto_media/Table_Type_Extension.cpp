@@ -338,7 +338,7 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->FK_Type_asSQL()+", "+pRow->Extension_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Type_Extension (FK_Type, Extension, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Type_Extension (`FK_Type`, `Extension`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -382,12 +382,12 @@ sprintf(tmp_FK_Type, "%li", key.pk);
 
 
 string condition;
-condition = condition + "FK_Type=" + tmp_FK_Type;
+condition = condition + "`FK_Type`=" + tmp_FK_Type;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_Type="+pRow->FK_Type_asSQL()+", Extension="+pRow->Extension_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`FK_Type`="+pRow->FK_Type_asSQL()+", `Extension`="+pRow->Extension_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Type_Extension set " + update_values_list + " where " + condition;
@@ -427,7 +427,7 @@ sprintf(tmp_FK_Type, "%li", key.pk);
 
 
 string condition;
-condition = condition + "FK_Type=" + tmp_FK_Type;
+condition = condition + "`FK_Type`=" + tmp_FK_Type;
 
 	
 		string query = "delete from Type_Extension where " + condition;
@@ -635,7 +635,7 @@ sprintf(tmp_FK_Type, "%li", key.pk);
 
 
 string condition;
-condition = condition + "FK_Type=" + tmp_FK_Type;
+condition = condition + "`FK_Type`=" + tmp_FK_Type;
 
 
 	string query = "select * from Type_Extension where " + condition;		

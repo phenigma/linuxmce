@@ -371,12 +371,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_TextCategory_asSQL()+", "+pRow->FK_TextCategory_Parent_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into TextCategory (PK_TextCategory, FK_TextCategory_Parent, Description, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into TextCategory (`PK_TextCategory`, `FK_TextCategory_Parent`, `Description`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -416,12 +417,12 @@ sprintf(tmp_PK_TextCategory, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_TextCategory=" + tmp_PK_TextCategory;
+condition = condition + "`PK_TextCategory`=" + tmp_PK_TextCategory;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_TextCategory="+pRow->PK_TextCategory_asSQL()+", FK_TextCategory_Parent="+pRow->FK_TextCategory_Parent_asSQL()+", Description="+pRow->Description_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_TextCategory`="+pRow->PK_TextCategory_asSQL()+", `FK_TextCategory_Parent`="+pRow->FK_TextCategory_Parent_asSQL()+", `Description`="+pRow->Description_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update TextCategory set " + update_values_list + " where " + condition;
@@ -429,6 +430,7 @@ update_values_list = update_values_list + "PK_TextCategory="+pRow->PK_TextCatego
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -460,7 +462,7 @@ sprintf(tmp_PK_TextCategory, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_TextCategory=" + tmp_PK_TextCategory;
+condition = condition + "`PK_TextCategory`=" + tmp_PK_TextCategory;
 
 	
 		string query = "delete from TextCategory where " + condition;
@@ -468,6 +470,7 @@ condition = condition + "PK_TextCategory=" + tmp_PK_TextCategory;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -494,6 +497,7 @@ bool Table_TextCategory::GetRows(string where_statement,vector<class Row_TextCat
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -502,6 +506,7 @@ bool Table_TextCategory::GetRows(string where_statement,vector<class Row_TextCat
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -676,7 +681,7 @@ sprintf(tmp_PK_TextCategory, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_TextCategory=" + tmp_PK_TextCategory;
+condition = condition + "`PK_TextCategory`=" + tmp_PK_TextCategory;
 
 
 	string query = "select * from TextCategory where " + condition;		
@@ -684,6 +689,7 @@ condition = condition + "PK_TextCategory=" + tmp_PK_TextCategory;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -692,6 +698,7 @@ condition = condition + "PK_TextCategory=" + tmp_PK_TextCategory;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -818,14 +825,14 @@ void Row_TextCategory::Text_FK_TextCategory_getrows(vector <class Row_Text*> *ro
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Text *pTable = table->database->Text_get();
-pTable->GetRows("FK_TextCategory=" + StringUtils::itos(m_PK_TextCategory),rows);
+pTable->GetRows("`FK_TextCategory=`" + StringUtils::itos(m_PK_TextCategory),rows);
 }
 void Row_TextCategory::TextCategory_FK_TextCategory_Parent_getrows(vector <class Row_TextCategory*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_TextCategory *pTable = table->database->TextCategory_get();
-pTable->GetRows("FK_TextCategory_Parent=" + StringUtils::itos(m_PK_TextCategory),rows);
+pTable->GetRows("`FK_TextCategory_Parent=`" + StringUtils::itos(m_PK_TextCategory),rows);
 }
 
 

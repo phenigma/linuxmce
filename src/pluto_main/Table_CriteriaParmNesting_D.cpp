@@ -387,12 +387,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_CriteriaParmNesting_D_asSQL()+", "+pRow->FK_CriteriaParmNesting_D_Parent_asSQL()+", "+pRow->IsAnd_asSQL()+", "+pRow->IsNot_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into CriteriaParmNesting_D (PK_CriteriaParmNesting_D, FK_CriteriaParmNesting_D_Parent, IsAnd, IsNot, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into CriteriaParmNesting_D (`PK_CriteriaParmNesting_D`, `FK_CriteriaParmNesting_D_Parent`, `IsAnd`, `IsNot`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -432,12 +433,12 @@ sprintf(tmp_PK_CriteriaParmNesting_D, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_CriteriaParmNesting_D=" + tmp_PK_CriteriaParmNesting_D;
+condition = condition + "`PK_CriteriaParmNesting_D`=" + tmp_PK_CriteriaParmNesting_D;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_CriteriaParmNesting_D="+pRow->PK_CriteriaParmNesting_D_asSQL()+", FK_CriteriaParmNesting_D_Parent="+pRow->FK_CriteriaParmNesting_D_Parent_asSQL()+", IsAnd="+pRow->IsAnd_asSQL()+", IsNot="+pRow->IsNot_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_CriteriaParmNesting_D`="+pRow->PK_CriteriaParmNesting_D_asSQL()+", `FK_CriteriaParmNesting_D_Parent`="+pRow->FK_CriteriaParmNesting_D_Parent_asSQL()+", `IsAnd`="+pRow->IsAnd_asSQL()+", `IsNot`="+pRow->IsNot_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update CriteriaParmNesting_D set " + update_values_list + " where " + condition;
@@ -445,6 +446,7 @@ update_values_list = update_values_list + "PK_CriteriaParmNesting_D="+pRow->PK_C
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -476,7 +478,7 @@ sprintf(tmp_PK_CriteriaParmNesting_D, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_CriteriaParmNesting_D=" + tmp_PK_CriteriaParmNesting_D;
+condition = condition + "`PK_CriteriaParmNesting_D`=" + tmp_PK_CriteriaParmNesting_D;
 
 	
 		string query = "delete from CriteriaParmNesting_D where " + condition;
@@ -484,6 +486,7 @@ condition = condition + "PK_CriteriaParmNesting_D=" + tmp_PK_CriteriaParmNesting
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -510,6 +513,7 @@ bool Table_CriteriaParmNesting_D::GetRows(string where_statement,vector<class Ro
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -518,6 +522,7 @@ bool Table_CriteriaParmNesting_D::GetRows(string where_statement,vector<class Ro
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -703,7 +708,7 @@ sprintf(tmp_PK_CriteriaParmNesting_D, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_CriteriaParmNesting_D=" + tmp_PK_CriteriaParmNesting_D;
+condition = condition + "`PK_CriteriaParmNesting_D`=" + tmp_PK_CriteriaParmNesting_D;
 
 
 	string query = "select * from CriteriaParmNesting_D where " + condition;		
@@ -711,6 +716,7 @@ condition = condition + "PK_CriteriaParmNesting_D=" + tmp_PK_CriteriaParmNesting
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -719,6 +725,7 @@ condition = condition + "PK_CriteriaParmNesting_D=" + tmp_PK_CriteriaParmNesting
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -856,21 +863,21 @@ void Row_CriteriaParmNesting_D::CriteriaParmNesting_D_FK_CriteriaParmNesting_D_P
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CriteriaParmNesting_D *pTable = table->database->CriteriaParmNesting_D_get();
-pTable->GetRows("FK_CriteriaParmNesting_D_Parent=" + StringUtils::itos(m_PK_CriteriaParmNesting_D),rows);
+pTable->GetRows("`FK_CriteriaParmNesting_D_Parent=`" + StringUtils::itos(m_PK_CriteriaParmNesting_D),rows);
 }
 void Row_CriteriaParmNesting_D::CriteriaParm_D_FK_CriteriaParmNesting_D_getrows(vector <class Row_CriteriaParm_D*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CriteriaParm_D *pTable = table->database->CriteriaParm_D_get();
-pTable->GetRows("FK_CriteriaParmNesting_D=" + StringUtils::itos(m_PK_CriteriaParmNesting_D),rows);
+pTable->GetRows("`FK_CriteriaParmNesting_D=`" + StringUtils::itos(m_PK_CriteriaParmNesting_D),rows);
 }
 void Row_CriteriaParmNesting_D::Criteria_D_FK_CriteriaParmNesting_D_getrows(vector <class Row_Criteria_D*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Criteria_D *pTable = table->database->Criteria_D_get();
-pTable->GetRows("FK_CriteriaParmNesting_D=" + StringUtils::itos(m_PK_CriteriaParmNesting_D),rows);
+pTable->GetRows("`FK_CriteriaParmNesting_D=`" + StringUtils::itos(m_PK_CriteriaParmNesting_D),rows);
 }
 
 

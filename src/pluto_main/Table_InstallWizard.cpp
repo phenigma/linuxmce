@@ -413,12 +413,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_InstallWizard_asSQL()+", "+pRow->FK_DeviceTemplate_asSQL()+", "+pRow->Step_asSQL()+", "+pRow->Default_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into InstallWizard (PK_InstallWizard, FK_DeviceTemplate, Step, Default, Comments, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into InstallWizard (`PK_InstallWizard`, `FK_DeviceTemplate`, `Step`, `Default`, `Comments`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -458,12 +459,12 @@ sprintf(tmp_PK_InstallWizard, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_InstallWizard=" + tmp_PK_InstallWizard;
+condition = condition + "`PK_InstallWizard`=" + tmp_PK_InstallWizard;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_InstallWizard="+pRow->PK_InstallWizard_asSQL()+", FK_DeviceTemplate="+pRow->FK_DeviceTemplate_asSQL()+", Step="+pRow->Step_asSQL()+", Default="+pRow->Default_asSQL()+", Comments="+pRow->Comments_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_InstallWizard`="+pRow->PK_InstallWizard_asSQL()+", `FK_DeviceTemplate`="+pRow->FK_DeviceTemplate_asSQL()+", `Step`="+pRow->Step_asSQL()+", `Default`="+pRow->Default_asSQL()+", `Comments`="+pRow->Comments_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update InstallWizard set " + update_values_list + " where " + condition;
@@ -471,6 +472,7 @@ update_values_list = update_values_list + "PK_InstallWizard="+pRow->PK_InstallWi
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -502,7 +504,7 @@ sprintf(tmp_PK_InstallWizard, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_InstallWizard=" + tmp_PK_InstallWizard;
+condition = condition + "`PK_InstallWizard`=" + tmp_PK_InstallWizard;
 
 	
 		string query = "delete from InstallWizard where " + condition;
@@ -510,6 +512,7 @@ condition = condition + "PK_InstallWizard=" + tmp_PK_InstallWizard;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -536,6 +539,7 @@ bool Table_InstallWizard::GetRows(string where_statement,vector<class Row_Instal
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -544,6 +548,7 @@ bool Table_InstallWizard::GetRows(string where_statement,vector<class Row_Instal
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -740,7 +745,7 @@ sprintf(tmp_PK_InstallWizard, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_InstallWizard=" + tmp_PK_InstallWizard;
+condition = condition + "`PK_InstallWizard`=" + tmp_PK_InstallWizard;
 
 
 	string query = "select * from InstallWizard where " + condition;		
@@ -748,6 +753,7 @@ condition = condition + "PK_InstallWizard=" + tmp_PK_InstallWizard;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -756,6 +762,7 @@ condition = condition + "PK_InstallWizard=" + tmp_PK_InstallWizard;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -904,7 +911,7 @@ void Row_InstallWizard::InstallWizard_Distro_FK_InstallWizard_getrows(vector <cl
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_InstallWizard_Distro *pTable = table->database->InstallWizard_Distro_get();
-pTable->GetRows("FK_InstallWizard=" + StringUtils::itos(m_PK_InstallWizard),rows);
+pTable->GetRows("`FK_InstallWizard=`" + StringUtils::itos(m_PK_InstallWizard),rows);
 }
 
 

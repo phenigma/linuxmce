@@ -396,12 +396,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_UnknownDevices_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->MacAddress_asSQL()+", "+pRow->IPAddress_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into UnknownDevices (PK_UnknownDevices, Description, MacAddress, IPAddress, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into UnknownDevices (`PK_UnknownDevices`, `Description`, `MacAddress`, `IPAddress`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -441,12 +442,12 @@ sprintf(tmp_PK_UnknownDevices, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_UnknownDevices=" + tmp_PK_UnknownDevices;
+condition = condition + "`PK_UnknownDevices`=" + tmp_PK_UnknownDevices;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_UnknownDevices="+pRow->PK_UnknownDevices_asSQL()+", Description="+pRow->Description_asSQL()+", MacAddress="+pRow->MacAddress_asSQL()+", IPAddress="+pRow->IPAddress_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_UnknownDevices`="+pRow->PK_UnknownDevices_asSQL()+", `Description`="+pRow->Description_asSQL()+", `MacAddress`="+pRow->MacAddress_asSQL()+", `IPAddress`="+pRow->IPAddress_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update UnknownDevices set " + update_values_list + " where " + condition;
@@ -454,6 +455,7 @@ update_values_list = update_values_list + "PK_UnknownDevices="+pRow->PK_UnknownD
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -485,7 +487,7 @@ sprintf(tmp_PK_UnknownDevices, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_UnknownDevices=" + tmp_PK_UnknownDevices;
+condition = condition + "`PK_UnknownDevices`=" + tmp_PK_UnknownDevices;
 
 	
 		string query = "delete from UnknownDevices where " + condition;
@@ -493,6 +495,7 @@ condition = condition + "PK_UnknownDevices=" + tmp_PK_UnknownDevices;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -519,6 +522,7 @@ bool Table_UnknownDevices::GetRows(string where_statement,vector<class Row_Unkno
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -527,6 +531,7 @@ bool Table_UnknownDevices::GetRows(string where_statement,vector<class Row_Unkno
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -712,7 +717,7 @@ sprintf(tmp_PK_UnknownDevices, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_UnknownDevices=" + tmp_PK_UnknownDevices;
+condition = condition + "`PK_UnknownDevices`=" + tmp_PK_UnknownDevices;
 
 
 	string query = "select * from UnknownDevices where " + condition;		
@@ -720,6 +725,7 @@ condition = condition + "PK_UnknownDevices=" + tmp_PK_UnknownDevices;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -728,6 +734,7 @@ condition = condition + "PK_UnknownDevices=" + tmp_PK_UnknownDevices;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

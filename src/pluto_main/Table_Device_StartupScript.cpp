@@ -433,12 +433,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->FK_Device_asSQL()+", "+pRow->FK_StartupScript_asSQL()+", "+pRow->Boot_Order_asSQL()+", "+pRow->Background_asSQL()+", "+pRow->Enabled_asSQL()+", "+pRow->Parameter_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Device_StartupScript (FK_Device, FK_StartupScript, Boot_Order, Background, Enabled, Parameter, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Device_StartupScript (`FK_Device`, `FK_StartupScript`, `Boot_Order`, `Background`, `Enabled`, `Parameter`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -479,12 +480,12 @@ sprintf(tmp_FK_StartupScript, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Device=" + tmp_FK_Device+" AND "+"FK_StartupScript=" + tmp_FK_StartupScript;
+condition = condition + "`FK_Device`=" + tmp_FK_Device+" AND "+"`FK_StartupScript`=" + tmp_FK_StartupScript;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_Device="+pRow->FK_Device_asSQL()+", FK_StartupScript="+pRow->FK_StartupScript_asSQL()+", Boot_Order="+pRow->Boot_Order_asSQL()+", Background="+pRow->Background_asSQL()+", Enabled="+pRow->Enabled_asSQL()+", Parameter="+pRow->Parameter_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`FK_Device`="+pRow->FK_Device_asSQL()+", `FK_StartupScript`="+pRow->FK_StartupScript_asSQL()+", `Boot_Order`="+pRow->Boot_Order_asSQL()+", `Background`="+pRow->Background_asSQL()+", `Enabled`="+pRow->Enabled_asSQL()+", `Parameter`="+pRow->Parameter_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Device_StartupScript set " + update_values_list + " where " + condition;
@@ -492,6 +493,7 @@ update_values_list = update_values_list + "FK_Device="+pRow->FK_Device_asSQL()+"
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -526,7 +528,7 @@ sprintf(tmp_FK_StartupScript, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Device=" + tmp_FK_Device+" AND "+"FK_StartupScript=" + tmp_FK_StartupScript;
+condition = condition + "`FK_Device`=" + tmp_FK_Device+" AND "+"`FK_StartupScript`=" + tmp_FK_StartupScript;
 
 	
 		string query = "delete from Device_StartupScript where " + condition;
@@ -534,6 +536,7 @@ condition = condition + "FK_Device=" + tmp_FK_Device+" AND "+"FK_StartupScript="
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -560,6 +563,7 @@ bool Table_Device_StartupScript::GetRows(string where_statement,vector<class Row
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -568,6 +572,7 @@ bool Table_Device_StartupScript::GetRows(string where_statement,vector<class Row
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -778,7 +783,7 @@ sprintf(tmp_FK_StartupScript, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Device=" + tmp_FK_Device+" AND "+"FK_StartupScript=" + tmp_FK_StartupScript;
+condition = condition + "`FK_Device`=" + tmp_FK_Device+" AND "+"`FK_StartupScript`=" + tmp_FK_StartupScript;
 
 
 	string query = "select * from Device_StartupScript where " + condition;		
@@ -786,6 +791,7 @@ condition = condition + "FK_Device=" + tmp_FK_Device+" AND "+"FK_StartupScript="
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -794,6 +800,7 @@ condition = condition + "FK_Device=" + tmp_FK_Device+" AND "+"FK_StartupScript="
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

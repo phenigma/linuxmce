@@ -85,20 +85,23 @@ class DLL_EXPORT Row_psc_constants_batuser : public TableRow, public SerializeCl
 long int m_FK_psc_constants_bathdr;
 long int m_psc_user;
 short int m_is_sup;
+short int m_no_pass;
 
-		bool is_null[4];
+		bool is_null[5];
 	
 	public:
 		long int PK_psc_constants_batuser_get();
 long int FK_psc_constants_bathdr_get();
 long int psc_user_get();
 short int is_sup_get();
+short int no_pass_get();
 
 		
 		void PK_psc_constants_batuser_set(long int val);
 void FK_psc_constants_bathdr_set(long int val);
 void psc_user_set(long int val);
 void is_sup_set(short int val);
+void no_pass_set(short int val);
 
 		
 		
@@ -123,7 +126,7 @@ void is_sup_set(short int val);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_psc_constants_batuser+ m_FK_psc_constants_bathdr+ m_psc_user+ m_is_sup;
+			StartSerializeList() + m_PK_psc_constants_batuser+ m_FK_psc_constants_bathdr+ m_psc_user+ m_is_sup+ m_no_pass;
 		}
 	private:
 		void SetDefaultValues();
@@ -132,6 +135,7 @@ void is_sup_set(short int val);
 string FK_psc_constants_bathdr_asSQL();
 string psc_user_asSQL();
 string is_sup_asSQL();
+string no_pass_asSQL();
 
 	};
 

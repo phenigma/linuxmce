@@ -387,12 +387,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_DesignObjVariation_Text_asSQL()+", "+pRow->FK_DesignObjVariation_asSQL()+", "+pRow->FK_Text_asSQL()+", "+pRow->FK_Text_OverrideFromHeader_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into DesignObjVariation_Text (PK_DesignObjVariation_Text, FK_DesignObjVariation, FK_Text, FK_Text_OverrideFromHeader, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into DesignObjVariation_Text (`PK_DesignObjVariation_Text`, `FK_DesignObjVariation`, `FK_Text`, `FK_Text_OverrideFromHeader`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -432,12 +433,12 @@ sprintf(tmp_PK_DesignObjVariation_Text, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DesignObjVariation_Text=" + tmp_PK_DesignObjVariation_Text;
+condition = condition + "`PK_DesignObjVariation_Text`=" + tmp_PK_DesignObjVariation_Text;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_DesignObjVariation_Text="+pRow->PK_DesignObjVariation_Text_asSQL()+", FK_DesignObjVariation="+pRow->FK_DesignObjVariation_asSQL()+", FK_Text="+pRow->FK_Text_asSQL()+", FK_Text_OverrideFromHeader="+pRow->FK_Text_OverrideFromHeader_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_DesignObjVariation_Text`="+pRow->PK_DesignObjVariation_Text_asSQL()+", `FK_DesignObjVariation`="+pRow->FK_DesignObjVariation_asSQL()+", `FK_Text`="+pRow->FK_Text_asSQL()+", `FK_Text_OverrideFromHeader`="+pRow->FK_Text_OverrideFromHeader_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update DesignObjVariation_Text set " + update_values_list + " where " + condition;
@@ -445,6 +446,7 @@ update_values_list = update_values_list + "PK_DesignObjVariation_Text="+pRow->PK
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -476,7 +478,7 @@ sprintf(tmp_PK_DesignObjVariation_Text, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DesignObjVariation_Text=" + tmp_PK_DesignObjVariation_Text;
+condition = condition + "`PK_DesignObjVariation_Text`=" + tmp_PK_DesignObjVariation_Text;
 
 	
 		string query = "delete from DesignObjVariation_Text where " + condition;
@@ -484,6 +486,7 @@ condition = condition + "PK_DesignObjVariation_Text=" + tmp_PK_DesignObjVariatio
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -510,6 +513,7 @@ bool Table_DesignObjVariation_Text::GetRows(string where_statement,vector<class 
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -518,6 +522,7 @@ bool Table_DesignObjVariation_Text::GetRows(string where_statement,vector<class 
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -703,7 +708,7 @@ sprintf(tmp_PK_DesignObjVariation_Text, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DesignObjVariation_Text=" + tmp_PK_DesignObjVariation_Text;
+condition = condition + "`PK_DesignObjVariation_Text`=" + tmp_PK_DesignObjVariation_Text;
 
 
 	string query = "select * from DesignObjVariation_Text where " + condition;		
@@ -711,6 +716,7 @@ condition = condition + "PK_DesignObjVariation_Text=" + tmp_PK_DesignObjVariatio
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -719,6 +725,7 @@ condition = condition + "PK_DesignObjVariation_Text=" + tmp_PK_DesignObjVariatio
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -870,7 +877,7 @@ void Row_DesignObjVariation_Text::DesignObjVariation_Text_Skin_Language_FK_Desig
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_Text_Skin_Language *pTable = table->database->DesignObjVariation_Text_Skin_Language_get();
-pTable->GetRows("FK_DesignObjVariation_Text=" + StringUtils::itos(m_PK_DesignObjVariation_Text),rows);
+pTable->GetRows("`FK_DesignObjVariation_Text=`" + StringUtils::itos(m_PK_DesignObjVariation_Text),rows);
 }
 
 

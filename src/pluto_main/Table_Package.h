@@ -206,6 +206,7 @@ void Package_Source_FK_Package_getrows(vector <class Row_Package_Source*> *rows)
 void Package_Users_FK_Package_getrows(vector <class Row_Package_Users*> *rows);
 void Package_Version_FK_Package_getrows(vector <class Row_Package_Version*> *rows);
 void PageSetup_FK_Package_getrows(vector <class Row_PageSetup*> *rows);
+void PaidLicense_FK_Package_getrows(vector <class Row_PaidLicense*> *rows);
 
 
 		// Setup binary serialization

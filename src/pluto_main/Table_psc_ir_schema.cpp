@@ -210,12 +210,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_ir_schema_asSQL()+", "+pRow->Value_asSQL();
 
 	
-		string query = "insert into psc_ir_schema (PK_psc_ir_schema, Value) values ("+
+		string query = "insert into psc_ir_schema (`PK_psc_ir_schema`, `Value`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -255,12 +256,12 @@ sprintf(tmp_PK_psc_ir_schema, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_ir_schema=" + tmp_PK_psc_ir_schema;
+condition = condition + "`PK_psc_ir_schema`=" + tmp_PK_psc_ir_schema;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_psc_ir_schema="+pRow->PK_psc_ir_schema_asSQL()+", Value="+pRow->Value_asSQL();
+update_values_list = update_values_list + "`PK_psc_ir_schema`="+pRow->PK_psc_ir_schema_asSQL()+", `Value`="+pRow->Value_asSQL();
 
 	
 		string query = "update psc_ir_schema set " + update_values_list + " where " + condition;
@@ -268,6 +269,7 @@ update_values_list = update_values_list + "PK_psc_ir_schema="+pRow->PK_psc_ir_sc
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -299,7 +301,7 @@ sprintf(tmp_PK_psc_ir_schema, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_ir_schema=" + tmp_PK_psc_ir_schema;
+condition = condition + "`PK_psc_ir_schema`=" + tmp_PK_psc_ir_schema;
 
 	
 		string query = "delete from psc_ir_schema where " + condition;
@@ -307,6 +309,7 @@ condition = condition + "PK_psc_ir_schema=" + tmp_PK_psc_ir_schema;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -333,6 +336,7 @@ bool Table_psc_ir_schema::GetRows(string where_statement,vector<class Row_psc_ir
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -341,6 +345,7 @@ bool Table_psc_ir_schema::GetRows(string where_statement,vector<class Row_psc_ir
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -449,7 +454,7 @@ sprintf(tmp_PK_psc_ir_schema, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_ir_schema=" + tmp_PK_psc_ir_schema;
+condition = condition + "`PK_psc_ir_schema`=" + tmp_PK_psc_ir_schema;
 
 
 	string query = "select * from psc_ir_schema where " + condition;		
@@ -457,6 +462,7 @@ condition = condition + "PK_psc_ir_schema=" + tmp_PK_psc_ir_schema;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -465,6 +471,7 @@ condition = condition + "PK_psc_ir_schema=" + tmp_PK_psc_ir_schema;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

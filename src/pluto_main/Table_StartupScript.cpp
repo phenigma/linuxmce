@@ -686,12 +686,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_StartupScript_asSQL()+", "+pRow->When_asSQL()+", "+pRow->Command_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->ConfigureOnly_asSQL()+", "+pRow->Parameter_Syntax_asSQL()+", "+pRow->Core_Boot_Order_asSQL()+", "+pRow->Core_Background_asSQL()+", "+pRow->Core_Enabled_asSQL()+", "+pRow->Core_Parameter_asSQL()+", "+pRow->MD_Boot_Order_asSQL()+", "+pRow->MD_Background_asSQL()+", "+pRow->MD_Enabled_asSQL()+", "+pRow->MD_Parameter_asSQL()+", "+pRow->Hybrid_Boot_Order_asSQL()+", "+pRow->Hybrid_Background_asSQL()+", "+pRow->Hybrid_Enabled_asSQL()+", "+pRow->Hybrid_Parameter_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into StartupScript (PK_StartupScript, When, Command, Description, ConfigureOnly, Parameter_Syntax, Core_Boot_Order, Core_Background, Core_Enabled, Core_Parameter, MD_Boot_Order, MD_Background, MD_Enabled, MD_Parameter, Hybrid_Boot_Order, Hybrid_Background, Hybrid_Enabled, Hybrid_Parameter, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into StartupScript (`PK_StartupScript`, `When`, `Command`, `Description`, `ConfigureOnly`, `Parameter_Syntax`, `Core_Boot_Order`, `Core_Background`, `Core_Enabled`, `Core_Parameter`, `MD_Boot_Order`, `MD_Background`, `MD_Enabled`, `MD_Parameter`, `Hybrid_Boot_Order`, `Hybrid_Background`, `Hybrid_Enabled`, `Hybrid_Parameter`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -731,12 +732,12 @@ sprintf(tmp_PK_StartupScript, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_StartupScript=" + tmp_PK_StartupScript;
+condition = condition + "`PK_StartupScript`=" + tmp_PK_StartupScript;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_StartupScript="+pRow->PK_StartupScript_asSQL()+", When="+pRow->When_asSQL()+", Command="+pRow->Command_asSQL()+", Description="+pRow->Description_asSQL()+", ConfigureOnly="+pRow->ConfigureOnly_asSQL()+", Parameter_Syntax="+pRow->Parameter_Syntax_asSQL()+", Core_Boot_Order="+pRow->Core_Boot_Order_asSQL()+", Core_Background="+pRow->Core_Background_asSQL()+", Core_Enabled="+pRow->Core_Enabled_asSQL()+", Core_Parameter="+pRow->Core_Parameter_asSQL()+", MD_Boot_Order="+pRow->MD_Boot_Order_asSQL()+", MD_Background="+pRow->MD_Background_asSQL()+", MD_Enabled="+pRow->MD_Enabled_asSQL()+", MD_Parameter="+pRow->MD_Parameter_asSQL()+", Hybrid_Boot_Order="+pRow->Hybrid_Boot_Order_asSQL()+", Hybrid_Background="+pRow->Hybrid_Background_asSQL()+", Hybrid_Enabled="+pRow->Hybrid_Enabled_asSQL()+", Hybrid_Parameter="+pRow->Hybrid_Parameter_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_StartupScript`="+pRow->PK_StartupScript_asSQL()+", `When`="+pRow->When_asSQL()+", `Command`="+pRow->Command_asSQL()+", `Description`="+pRow->Description_asSQL()+", `ConfigureOnly`="+pRow->ConfigureOnly_asSQL()+", `Parameter_Syntax`="+pRow->Parameter_Syntax_asSQL()+", `Core_Boot_Order`="+pRow->Core_Boot_Order_asSQL()+", `Core_Background`="+pRow->Core_Background_asSQL()+", `Core_Enabled`="+pRow->Core_Enabled_asSQL()+", `Core_Parameter`="+pRow->Core_Parameter_asSQL()+", `MD_Boot_Order`="+pRow->MD_Boot_Order_asSQL()+", `MD_Background`="+pRow->MD_Background_asSQL()+", `MD_Enabled`="+pRow->MD_Enabled_asSQL()+", `MD_Parameter`="+pRow->MD_Parameter_asSQL()+", `Hybrid_Boot_Order`="+pRow->Hybrid_Boot_Order_asSQL()+", `Hybrid_Background`="+pRow->Hybrid_Background_asSQL()+", `Hybrid_Enabled`="+pRow->Hybrid_Enabled_asSQL()+", `Hybrid_Parameter`="+pRow->Hybrid_Parameter_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update StartupScript set " + update_values_list + " where " + condition;
@@ -744,6 +745,7 @@ update_values_list = update_values_list + "PK_StartupScript="+pRow->PK_StartupSc
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -775,7 +777,7 @@ sprintf(tmp_PK_StartupScript, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_StartupScript=" + tmp_PK_StartupScript;
+condition = condition + "`PK_StartupScript`=" + tmp_PK_StartupScript;
 
 	
 		string query = "delete from StartupScript where " + condition;
@@ -783,6 +785,7 @@ condition = condition + "PK_StartupScript=" + tmp_PK_StartupScript;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -809,6 +812,7 @@ bool Table_StartupScript::GetRows(string where_statement,vector<class Row_Startu
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -817,6 +821,7 @@ bool Table_StartupScript::GetRows(string where_statement,vector<class Row_Startu
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -1156,7 +1161,7 @@ sprintf(tmp_PK_StartupScript, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_StartupScript=" + tmp_PK_StartupScript;
+condition = condition + "`PK_StartupScript`=" + tmp_PK_StartupScript;
 
 
 	string query = "select * from StartupScript where " + condition;		
@@ -1164,6 +1169,7 @@ condition = condition + "PK_StartupScript=" + tmp_PK_StartupScript;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -1172,6 +1178,7 @@ condition = condition + "PK_StartupScript=" + tmp_PK_StartupScript;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -1456,7 +1463,7 @@ void Row_StartupScript::Device_StartupScript_FK_StartupScript_getrows(vector <cl
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device_StartupScript *pTable = table->database->Device_StartupScript_get();
-pTable->GetRows("FK_StartupScript=" + StringUtils::itos(m_PK_StartupScript),rows);
+pTable->GetRows("`FK_StartupScript=`" + StringUtils::itos(m_PK_StartupScript),rows);
 }
 
 

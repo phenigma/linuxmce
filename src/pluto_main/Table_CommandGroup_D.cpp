@@ -349,12 +349,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_CommandGroup_D_asSQL()+", "+pRow->FK_Criteria_Orbiter_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into CommandGroup_D (PK_CommandGroup_D, FK_Criteria_Orbiter, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into CommandGroup_D (`PK_CommandGroup_D`, `FK_Criteria_Orbiter`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -394,12 +395,12 @@ sprintf(tmp_PK_CommandGroup_D, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_CommandGroup_D=" + tmp_PK_CommandGroup_D;
+condition = condition + "`PK_CommandGroup_D`=" + tmp_PK_CommandGroup_D;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_CommandGroup_D="+pRow->PK_CommandGroup_D_asSQL()+", FK_Criteria_Orbiter="+pRow->FK_Criteria_Orbiter_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_CommandGroup_D`="+pRow->PK_CommandGroup_D_asSQL()+", `FK_Criteria_Orbiter`="+pRow->FK_Criteria_Orbiter_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update CommandGroup_D set " + update_values_list + " where " + condition;
@@ -407,6 +408,7 @@ update_values_list = update_values_list + "PK_CommandGroup_D="+pRow->PK_CommandG
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -438,7 +440,7 @@ sprintf(tmp_PK_CommandGroup_D, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_CommandGroup_D=" + tmp_PK_CommandGroup_D;
+condition = condition + "`PK_CommandGroup_D`=" + tmp_PK_CommandGroup_D;
 
 	
 		string query = "delete from CommandGroup_D where " + condition;
@@ -446,6 +448,7 @@ condition = condition + "PK_CommandGroup_D=" + tmp_PK_CommandGroup_D;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -472,6 +475,7 @@ bool Table_CommandGroup_D::GetRows(string where_statement,vector<class Row_Comma
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -480,6 +484,7 @@ bool Table_CommandGroup_D::GetRows(string where_statement,vector<class Row_Comma
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -643,7 +648,7 @@ sprintf(tmp_PK_CommandGroup_D, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_CommandGroup_D=" + tmp_PK_CommandGroup_D;
+condition = condition + "`PK_CommandGroup_D`=" + tmp_PK_CommandGroup_D;
 
 
 	string query = "select * from CommandGroup_D where " + condition;		
@@ -651,6 +656,7 @@ condition = condition + "PK_CommandGroup_D=" + tmp_PK_CommandGroup_D;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -659,6 +665,7 @@ condition = condition + "PK_CommandGroup_D=" + tmp_PK_CommandGroup_D;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -774,49 +781,49 @@ void Row_CommandGroup_D::CommandGroup_D_Command_FK_CommandGroup_D_getrows(vector
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_D_Command *pTable = table->database->CommandGroup_D_Command_get();
-pTable->GetRows("FK_CommandGroup_D=" + StringUtils::itos(m_PK_CommandGroup_D),rows);
+pTable->GetRows("`FK_CommandGroup_D=`" + StringUtils::itos(m_PK_CommandGroup_D),rows);
 }
 void Row_CommandGroup_D::DesignObjVariation_FK_CommandGroup_D_OnActivate_getrows(vector <class Row_DesignObjVariation*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation *pTable = table->database->DesignObjVariation_get();
-pTable->GetRows("FK_CommandGroup_D_OnActivate=" + StringUtils::itos(m_PK_CommandGroup_D),rows);
+pTable->GetRows("`FK_CommandGroup_D_OnActivate=`" + StringUtils::itos(m_PK_CommandGroup_D),rows);
 }
 void Row_CommandGroup_D::DesignObjVariation_FK_CommandGroup_D_OnLoad_getrows(vector <class Row_DesignObjVariation*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation *pTable = table->database->DesignObjVariation_get();
-pTable->GetRows("FK_CommandGroup_D_OnLoad=" + StringUtils::itos(m_PK_CommandGroup_D),rows);
+pTable->GetRows("`FK_CommandGroup_D_OnLoad=`" + StringUtils::itos(m_PK_CommandGroup_D),rows);
 }
 void Row_CommandGroup_D::DesignObjVariation_FK_CommandGroup_D_OnUnload_getrows(vector <class Row_DesignObjVariation*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation *pTable = table->database->DesignObjVariation_get();
-pTable->GetRows("FK_CommandGroup_D_OnUnload=" + StringUtils::itos(m_PK_CommandGroup_D),rows);
+pTable->GetRows("`FK_CommandGroup_D_OnUnload=`" + StringUtils::itos(m_PK_CommandGroup_D),rows);
 }
 void Row_CommandGroup_D::DesignObjVariation_FK_CommandGroup_D_OnTimeout_getrows(vector <class Row_DesignObjVariation*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation *pTable = table->database->DesignObjVariation_get();
-pTable->GetRows("FK_CommandGroup_D_OnTimeout=" + StringUtils::itos(m_PK_CommandGroup_D),rows);
+pTable->GetRows("`FK_CommandGroup_D_OnTimeout=`" + StringUtils::itos(m_PK_CommandGroup_D),rows);
 }
 void Row_CommandGroup_D::DesignObjVariation_FK_CommandGroup_D_OnStartup_getrows(vector <class Row_DesignObjVariation*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation *pTable = table->database->DesignObjVariation_get();
-pTable->GetRows("FK_CommandGroup_D_OnStartup=" + StringUtils::itos(m_PK_CommandGroup_D),rows);
+pTable->GetRows("`FK_CommandGroup_D_OnStartup=`" + StringUtils::itos(m_PK_CommandGroup_D),rows);
 }
 void Row_CommandGroup_D::DesignObjVariation_Zone_FK_CommandGroup_D_getrows(vector <class Row_DesignObjVariation_Zone*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_Zone *pTable = table->database->DesignObjVariation_Zone_get();
-pTable->GetRows("FK_CommandGroup_D=" + StringUtils::itos(m_PK_CommandGroup_D),rows);
+pTable->GetRows("`FK_CommandGroup_D=`" + StringUtils::itos(m_PK_CommandGroup_D),rows);
 }
 
 

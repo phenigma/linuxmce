@@ -467,12 +467,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_Directory_File_asSQL()+", "+pRow->FK_Package_Directory_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->File_asSQL()+", "+pRow->Search_asSQL()+", "+pRow->MakeCommand_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Package_Directory_File (PK_Package_Directory_File, FK_Package_Directory, FK_OperatingSystem, FK_Distro, File, Search, MakeCommand, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Package_Directory_File (`PK_Package_Directory_File`, `FK_Package_Directory`, `FK_OperatingSystem`, `FK_Distro`, `File`, `Search`, `MakeCommand`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -512,12 +513,12 @@ sprintf(tmp_PK_Package_Directory_File, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Package_Directory_File=" + tmp_PK_Package_Directory_File;
+condition = condition + "`PK_Package_Directory_File`=" + tmp_PK_Package_Directory_File;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Package_Directory_File="+pRow->PK_Package_Directory_File_asSQL()+", FK_Package_Directory="+pRow->FK_Package_Directory_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", FK_Distro="+pRow->FK_Distro_asSQL()+", File="+pRow->File_asSQL()+", Search="+pRow->Search_asSQL()+", MakeCommand="+pRow->MakeCommand_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Package_Directory_File`="+pRow->PK_Package_Directory_File_asSQL()+", `FK_Package_Directory`="+pRow->FK_Package_Directory_asSQL()+", `FK_OperatingSystem`="+pRow->FK_OperatingSystem_asSQL()+", `FK_Distro`="+pRow->FK_Distro_asSQL()+", `File`="+pRow->File_asSQL()+", `Search`="+pRow->Search_asSQL()+", `MakeCommand`="+pRow->MakeCommand_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Package_Directory_File set " + update_values_list + " where " + condition;
@@ -525,6 +526,7 @@ update_values_list = update_values_list + "PK_Package_Directory_File="+pRow->PK_
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -556,7 +558,7 @@ sprintf(tmp_PK_Package_Directory_File, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Package_Directory_File=" + tmp_PK_Package_Directory_File;
+condition = condition + "`PK_Package_Directory_File`=" + tmp_PK_Package_Directory_File;
 
 	
 		string query = "delete from Package_Directory_File where " + condition;
@@ -564,6 +566,7 @@ condition = condition + "PK_Package_Directory_File=" + tmp_PK_Package_Directory_
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -590,6 +593,7 @@ bool Table_Package_Directory_File::GetRows(string where_statement,vector<class R
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -598,6 +602,7 @@ bool Table_Package_Directory_File::GetRows(string where_statement,vector<class R
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -816,7 +821,7 @@ sprintf(tmp_PK_Package_Directory_File, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Package_Directory_File=" + tmp_PK_Package_Directory_File;
+condition = condition + "`PK_Package_Directory_File`=" + tmp_PK_Package_Directory_File;
 
 
 	string query = "select * from Package_Directory_File where " + condition;		
@@ -824,6 +829,7 @@ condition = condition + "PK_Package_Directory_File=" + tmp_PK_Package_Directory_
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -832,6 +838,7 @@ condition = condition + "PK_Package_Directory_File=" + tmp_PK_Package_Directory_
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

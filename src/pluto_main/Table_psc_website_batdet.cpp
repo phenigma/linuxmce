@@ -361,12 +361,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_website_batdet_asSQL()+", "+pRow->FK_psc_website_bathdr_asSQL()+", "+pRow->Tablename_asSQL()+", "+pRow->New_asSQL()+", "+pRow->Deleted_asSQL()+", "+pRow->Modified_asSQL()+", "+pRow->FK_psc_website_bathdr_orig_asSQL()+", "+pRow->FK_psc_website_bathdr_auth_asSQL()+", "+pRow->FK_psc_website_bathdr_unauth_asSQL();
 
 	
-		string query = "insert into psc_website_batdet (PK_psc_website_batdet, FK_psc_website_bathdr, Tablename, New, Deleted, Modified, FK_psc_website_bathdr_orig, FK_psc_website_bathdr_auth, FK_psc_website_bathdr_unauth) values ("+
+		string query = "insert into psc_website_batdet (`PK_psc_website_batdet`, `FK_psc_website_bathdr`, `Tablename`, `New`, `Deleted`, `Modified`, `FK_psc_website_bathdr_orig`, `FK_psc_website_bathdr_auth`, `FK_psc_website_bathdr_unauth`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -406,12 +407,12 @@ sprintf(tmp_PK_psc_website_batdet, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_website_batdet=" + tmp_PK_psc_website_batdet;
+condition = condition + "`PK_psc_website_batdet`=" + tmp_PK_psc_website_batdet;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_psc_website_batdet="+pRow->PK_psc_website_batdet_asSQL()+", FK_psc_website_bathdr="+pRow->FK_psc_website_bathdr_asSQL()+", Tablename="+pRow->Tablename_asSQL()+", New="+pRow->New_asSQL()+", Deleted="+pRow->Deleted_asSQL()+", Modified="+pRow->Modified_asSQL()+", FK_psc_website_bathdr_orig="+pRow->FK_psc_website_bathdr_orig_asSQL()+", FK_psc_website_bathdr_auth="+pRow->FK_psc_website_bathdr_auth_asSQL()+", FK_psc_website_bathdr_unauth="+pRow->FK_psc_website_bathdr_unauth_asSQL();
+update_values_list = update_values_list + "`PK_psc_website_batdet`="+pRow->PK_psc_website_batdet_asSQL()+", `FK_psc_website_bathdr`="+pRow->FK_psc_website_bathdr_asSQL()+", `Tablename`="+pRow->Tablename_asSQL()+", `New`="+pRow->New_asSQL()+", `Deleted`="+pRow->Deleted_asSQL()+", `Modified`="+pRow->Modified_asSQL()+", `FK_psc_website_bathdr_orig`="+pRow->FK_psc_website_bathdr_orig_asSQL()+", `FK_psc_website_bathdr_auth`="+pRow->FK_psc_website_bathdr_auth_asSQL()+", `FK_psc_website_bathdr_unauth`="+pRow->FK_psc_website_bathdr_unauth_asSQL();
 
 	
 		string query = "update psc_website_batdet set " + update_values_list + " where " + condition;
@@ -419,6 +420,7 @@ update_values_list = update_values_list + "PK_psc_website_batdet="+pRow->PK_psc_
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -450,7 +452,7 @@ sprintf(tmp_PK_psc_website_batdet, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_website_batdet=" + tmp_PK_psc_website_batdet;
+condition = condition + "`PK_psc_website_batdet`=" + tmp_PK_psc_website_batdet;
 
 	
 		string query = "delete from psc_website_batdet where " + condition;
@@ -458,6 +460,7 @@ condition = condition + "PK_psc_website_batdet=" + tmp_PK_psc_website_batdet;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -484,6 +487,7 @@ bool Table_psc_website_batdet::GetRows(string where_statement,vector<class Row_p
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -492,6 +496,7 @@ bool Table_psc_website_batdet::GetRows(string where_statement,vector<class Row_p
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -677,7 +682,7 @@ sprintf(tmp_PK_psc_website_batdet, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_website_batdet=" + tmp_PK_psc_website_batdet;
+condition = condition + "`PK_psc_website_batdet`=" + tmp_PK_psc_website_batdet;
 
 
 	string query = "select * from psc_website_batdet where " + condition;		
@@ -685,6 +690,7 @@ condition = condition + "PK_psc_website_batdet=" + tmp_PK_psc_website_batdet;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -693,6 +699,7 @@ condition = condition + "PK_psc_website_batdet=" + tmp_PK_psc_website_batdet;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

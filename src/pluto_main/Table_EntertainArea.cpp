@@ -457,12 +457,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_EntertainArea_asSQL()+", "+pRow->FK_Room_asSQL()+", "+pRow->Only1Stream_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Private_asSQL()+", "+pRow->FK_FloorplanObjectType_asSQL()+", "+pRow->FloorplanInfo_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into EntertainArea (PK_EntertainArea, FK_Room, Only1Stream, Description, Private, FK_FloorplanObjectType, FloorplanInfo, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into EntertainArea (`PK_EntertainArea`, `FK_Room`, `Only1Stream`, `Description`, `Private`, `FK_FloorplanObjectType`, `FloorplanInfo`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -502,12 +503,12 @@ sprintf(tmp_PK_EntertainArea, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_EntertainArea=" + tmp_PK_EntertainArea;
+condition = condition + "`PK_EntertainArea`=" + tmp_PK_EntertainArea;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_EntertainArea="+pRow->PK_EntertainArea_asSQL()+", FK_Room="+pRow->FK_Room_asSQL()+", Only1Stream="+pRow->Only1Stream_asSQL()+", Description="+pRow->Description_asSQL()+", Private="+pRow->Private_asSQL()+", FK_FloorplanObjectType="+pRow->FK_FloorplanObjectType_asSQL()+", FloorplanInfo="+pRow->FloorplanInfo_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_EntertainArea`="+pRow->PK_EntertainArea_asSQL()+", `FK_Room`="+pRow->FK_Room_asSQL()+", `Only1Stream`="+pRow->Only1Stream_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Private`="+pRow->Private_asSQL()+", `FK_FloorplanObjectType`="+pRow->FK_FloorplanObjectType_asSQL()+", `FloorplanInfo`="+pRow->FloorplanInfo_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update EntertainArea set " + update_values_list + " where " + condition;
@@ -515,6 +516,7 @@ update_values_list = update_values_list + "PK_EntertainArea="+pRow->PK_Entertain
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -546,7 +548,7 @@ sprintf(tmp_PK_EntertainArea, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_EntertainArea=" + tmp_PK_EntertainArea;
+condition = condition + "`PK_EntertainArea`=" + tmp_PK_EntertainArea;
 
 	
 		string query = "delete from EntertainArea where " + condition;
@@ -554,6 +556,7 @@ condition = condition + "PK_EntertainArea=" + tmp_PK_EntertainArea;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -580,6 +583,7 @@ bool Table_EntertainArea::GetRows(string where_statement,vector<class Row_Entert
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -588,6 +592,7 @@ bool Table_EntertainArea::GetRows(string where_statement,vector<class Row_Entert
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -806,7 +811,7 @@ sprintf(tmp_PK_EntertainArea, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_EntertainArea=" + tmp_PK_EntertainArea;
+condition = condition + "`PK_EntertainArea`=" + tmp_PK_EntertainArea;
 
 
 	string query = "select * from EntertainArea where " + condition;		
@@ -814,6 +819,7 @@ condition = condition + "PK_EntertainArea=" + tmp_PK_EntertainArea;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -822,6 +828,7 @@ condition = condition + "PK_EntertainArea=" + tmp_PK_EntertainArea;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -999,14 +1006,14 @@ void Row_EntertainArea::CommandGroup_EntertainArea_FK_EntertainArea_getrows(vect
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_EntertainArea *pTable = table->database->CommandGroup_EntertainArea_get();
-pTable->GetRows("FK_EntertainArea=" + StringUtils::itos(m_PK_EntertainArea),rows);
+pTable->GetRows("`FK_EntertainArea=`" + StringUtils::itos(m_PK_EntertainArea),rows);
 }
 void Row_EntertainArea::Device_EntertainArea_FK_EntertainArea_getrows(vector <class Row_Device_EntertainArea*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device_EntertainArea *pTable = table->database->Device_EntertainArea_get();
-pTable->GetRows("FK_EntertainArea=" + StringUtils::itos(m_PK_EntertainArea),rows);
+pTable->GetRows("`FK_EntertainArea=`" + StringUtils::itos(m_PK_EntertainArea),rows);
 }
 
 

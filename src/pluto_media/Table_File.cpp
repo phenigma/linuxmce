@@ -405,7 +405,7 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_File_asSQL()+", "+pRow->FK_Type_asSQL()+", "+pRow->Path_asSQL()+", "+pRow->Filename_asSQL()+", "+pRow->Missing_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into File (PK_File, FK_Type, Path, Filename, Missing, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into File (`PK_File`, `FK_Type`, `Path`, `Filename`, `Missing`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -451,12 +451,12 @@ sprintf(tmp_PK_File, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_File=" + tmp_PK_File;
+condition = condition + "`PK_File`=" + tmp_PK_File;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_File="+pRow->PK_File_asSQL()+", FK_Type="+pRow->FK_Type_asSQL()+", Path="+pRow->Path_asSQL()+", Filename="+pRow->Filename_asSQL()+", Missing="+pRow->Missing_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_File`="+pRow->PK_File_asSQL()+", `FK_Type`="+pRow->FK_Type_asSQL()+", `Path`="+pRow->Path_asSQL()+", `Filename`="+pRow->Filename_asSQL()+", `Missing`="+pRow->Missing_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update File set " + update_values_list + " where " + condition;
@@ -496,7 +496,7 @@ sprintf(tmp_PK_File, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_File=" + tmp_PK_File;
+condition = condition + "`PK_File`=" + tmp_PK_File;
 
 	
 		string query = "delete from File where " + condition;
@@ -737,7 +737,7 @@ sprintf(tmp_PK_File, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_File=" + tmp_PK_File;
+condition = condition + "`PK_File`=" + tmp_PK_File;
 
 
 	string query = "select * from File where " + condition;		
@@ -903,21 +903,21 @@ void Row_File::File_Attribute_FK_File_getrows(vector <class Row_File_Attribute*>
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_File_Attribute *pTable = table->database->File_Attribute_get();
-pTable->GetRows("FK_File=" + StringUtils::itos(m_PK_File),rows);
+pTable->GetRows("`FK_File=`" + StringUtils::itos(m_PK_File),rows);
 }
 void Row_File::Picture_File_FK_File_getrows(vector <class Row_Picture_File*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Picture_File *pTable = table->database->Picture_File_get();
-pTable->GetRows("FK_File=" + StringUtils::itos(m_PK_File),rows);
+pTable->GetRows("`FK_File=`" + StringUtils::itos(m_PK_File),rows);
 }
 void Row_File::PlaylistEntry_FK_File_getrows(vector <class Row_PlaylistEntry*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_PlaylistEntry *pTable = table->database->PlaylistEntry_get();
-pTable->GetRows("FK_File=" + StringUtils::itos(m_PK_File),rows);
+pTable->GetRows("`FK_File=`" + StringUtils::itos(m_PK_File),rows);
 }
 
 

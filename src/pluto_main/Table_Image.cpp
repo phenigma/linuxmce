@@ -385,12 +385,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_Image_asSQL()+", "+pRow->Date_asSQL()+", "+pRow->Width_asSQL()+", "+pRow->Height_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Image (PK_Image, Date, Width, Height, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Image (`PK_Image`, `Date`, `Width`, `Height`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -428,12 +429,12 @@ mysql_real_escape_string(database->db_handle,tmp_PK_Image, key.pk_PK_Image.c_str
 
 
 string condition;
-condition = condition + "PK_Image=" + "\"" + tmp_PK_Image+ "\"";
+condition = condition + "`PK_Image`=" + "\"" + tmp_PK_Image+ "\"";
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Image="+pRow->PK_Image_asSQL()+", Date="+pRow->Date_asSQL()+", Width="+pRow->Width_asSQL()+", Height="+pRow->Height_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Image`="+pRow->PK_Image_asSQL()+", `Date`="+pRow->Date_asSQL()+", `Width`="+pRow->Width_asSQL()+", `Height`="+pRow->Height_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Image set " + update_values_list + " where " + condition;
@@ -441,6 +442,7 @@ update_values_list = update_values_list + "PK_Image="+pRow->PK_Image_asSQL()+", 
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -472,7 +474,7 @@ mysql_real_escape_string(database->db_handle,tmp_PK_Image, key.pk_PK_Image.c_str
 
 
 string condition;
-condition = condition + "PK_Image=" + "\"" + tmp_PK_Image+ "\"";
+condition = condition + "`PK_Image`=" + "\"" + tmp_PK_Image+ "\"";
 
 	
 		string query = "delete from Image where " + condition;
@@ -480,6 +482,7 @@ condition = condition + "PK_Image=" + "\"" + tmp_PK_Image+ "\"";
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -506,6 +509,7 @@ bool Table_Image::GetRows(string where_statement,vector<class Row_Image*> *rows)
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -514,6 +518,7 @@ bool Table_Image::GetRows(string where_statement,vector<class Row_Image*> *rows)
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -699,7 +704,7 @@ mysql_real_escape_string(database->db_handle,tmp_PK_Image, key.pk_PK_Image.c_str
 
 
 string condition;
-condition = condition + "PK_Image=" + "\"" + tmp_PK_Image+ "\"";
+condition = condition + "`PK_Image`=" + "\"" + tmp_PK_Image+ "\"";
 
 
 	string query = "select * from Image where " + condition;		
@@ -707,6 +712,7 @@ condition = condition + "PK_Image=" + "\"" + tmp_PK_Image+ "\"";
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -715,6 +721,7 @@ condition = condition + "PK_Image=" + "\"" + tmp_PK_Image+ "\"";
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

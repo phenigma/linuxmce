@@ -338,7 +338,7 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_SearchToken_asSQL()+", "+pRow->Token_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into SearchToken (PK_SearchToken, Token, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into SearchToken (`PK_SearchToken`, `Token`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -384,12 +384,12 @@ sprintf(tmp_PK_SearchToken, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_SearchToken=" + tmp_PK_SearchToken;
+condition = condition + "`PK_SearchToken`=" + tmp_PK_SearchToken;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_SearchToken="+pRow->PK_SearchToken_asSQL()+", Token="+pRow->Token_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_SearchToken`="+pRow->PK_SearchToken_asSQL()+", `Token`="+pRow->Token_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update SearchToken set " + update_values_list + " where " + condition;
@@ -429,7 +429,7 @@ sprintf(tmp_PK_SearchToken, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_SearchToken=" + tmp_PK_SearchToken;
+condition = condition + "`PK_SearchToken`=" + tmp_PK_SearchToken;
 
 	
 		string query = "delete from SearchToken where " + condition;
@@ -637,7 +637,7 @@ sprintf(tmp_PK_SearchToken, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_SearchToken=" + tmp_PK_SearchToken;
+condition = condition + "`PK_SearchToken`=" + tmp_PK_SearchToken;
 
 
 	string query = "select * from SearchToken where " + condition;		
@@ -763,7 +763,7 @@ void Row_SearchToken::SearchToken_Attribute_FK_SearchToken_getrows(vector <class
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_SearchToken_Attribute *pTable = table->database->SearchToken_Attribute_get();
-pTable->GetRows("FK_SearchToken=" + StringUtils::itos(m_PK_SearchToken),rows);
+pTable->GetRows("`FK_SearchToken=`" + StringUtils::itos(m_PK_SearchToken),rows);
 }
 
 

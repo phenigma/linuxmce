@@ -371,12 +371,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_DesignObjCategory_asSQL()+", "+pRow->FK_DesignObjCategory_Parent_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into DesignObjCategory (PK_DesignObjCategory, FK_DesignObjCategory_Parent, Description, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into DesignObjCategory (`PK_DesignObjCategory`, `FK_DesignObjCategory_Parent`, `Description`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -416,12 +417,12 @@ sprintf(tmp_PK_DesignObjCategory, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DesignObjCategory=" + tmp_PK_DesignObjCategory;
+condition = condition + "`PK_DesignObjCategory`=" + tmp_PK_DesignObjCategory;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_DesignObjCategory="+pRow->PK_DesignObjCategory_asSQL()+", FK_DesignObjCategory_Parent="+pRow->FK_DesignObjCategory_Parent_asSQL()+", Description="+pRow->Description_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_DesignObjCategory`="+pRow->PK_DesignObjCategory_asSQL()+", `FK_DesignObjCategory_Parent`="+pRow->FK_DesignObjCategory_Parent_asSQL()+", `Description`="+pRow->Description_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update DesignObjCategory set " + update_values_list + " where " + condition;
@@ -429,6 +430,7 @@ update_values_list = update_values_list + "PK_DesignObjCategory="+pRow->PK_Desig
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -460,7 +462,7 @@ sprintf(tmp_PK_DesignObjCategory, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DesignObjCategory=" + tmp_PK_DesignObjCategory;
+condition = condition + "`PK_DesignObjCategory`=" + tmp_PK_DesignObjCategory;
 
 	
 		string query = "delete from DesignObjCategory where " + condition;
@@ -468,6 +470,7 @@ condition = condition + "PK_DesignObjCategory=" + tmp_PK_DesignObjCategory;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -494,6 +497,7 @@ bool Table_DesignObjCategory::GetRows(string where_statement,vector<class Row_De
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -502,6 +506,7 @@ bool Table_DesignObjCategory::GetRows(string where_statement,vector<class Row_De
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -676,7 +681,7 @@ sprintf(tmp_PK_DesignObjCategory, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DesignObjCategory=" + tmp_PK_DesignObjCategory;
+condition = condition + "`PK_DesignObjCategory`=" + tmp_PK_DesignObjCategory;
 
 
 	string query = "select * from DesignObjCategory where " + condition;		
@@ -684,6 +689,7 @@ condition = condition + "PK_DesignObjCategory=" + tmp_PK_DesignObjCategory;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -692,6 +698,7 @@ condition = condition + "PK_DesignObjCategory=" + tmp_PK_DesignObjCategory;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -818,14 +825,14 @@ void Row_DesignObjCategory::DesignObj_FK_DesignObjCategory_getrows(vector <class
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObj *pTable = table->database->DesignObj_get();
-pTable->GetRows("FK_DesignObjCategory=" + StringUtils::itos(m_PK_DesignObjCategory),rows);
+pTable->GetRows("`FK_DesignObjCategory=`" + StringUtils::itos(m_PK_DesignObjCategory),rows);
 }
 void Row_DesignObjCategory::DesignObjCategory_FK_DesignObjCategory_Parent_getrows(vector <class Row_DesignObjCategory*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjCategory *pTable = table->database->DesignObjCategory_get();
-pTable->GetRows("FK_DesignObjCategory_Parent=" + StringUtils::itos(m_PK_DesignObjCategory),rows);
+pTable->GetRows("`FK_DesignObjCategory_Parent=`" + StringUtils::itos(m_PK_DesignObjCategory),rows);
 }
 
 

@@ -154,6 +154,7 @@ void psc_frozen_setNull(bool val);
 
 		// Return the rows in other tables with foreign keys pointing here
 		void Package_FK_License_getrows(vector <class Row_Package*> *rows);
+void PaidLicense_FK_License_getrows(vector <class Row_PaidLicense*> *rows);
 
 
 		// Setup binary serialization

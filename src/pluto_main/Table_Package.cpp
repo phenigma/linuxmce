@@ -36,6 +36,7 @@ using namespace std;
 #include "Table_Package_Users.h"
 #include "Table_Package_Version.h"
 #include "Table_PageSetup.h"
+#include "Table_PaidLicense.h"
 
 
 void Database_pluto_main::CreateTable_Package()
@@ -639,12 +640,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_PackageType_asSQL()+", "+pRow->FK_Package_Sourcecode_asSQL()+", "+pRow->IsSource_asSQL()+", "+pRow->NonExecutable_asSQL()+", "+pRow->HomePage_asSQL()+", "+pRow->FK_License_asSQL()+", "+pRow->FK_Manufacturer_asSQL()+", "+pRow->FK_Document_asSQL()+", "+pRow->FK_Document_UsersManual_asSQL()+", "+pRow->FK_Document_ProgrammersGuide_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Package (PK_Package, Description, FK_PackageType, FK_Package_Sourcecode, IsSource, NonExecutable, HomePage, FK_License, FK_Manufacturer, FK_Document, FK_Document_UsersManual, FK_Document_ProgrammersGuide, Comments, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Package (`PK_Package`, `Description`, `FK_PackageType`, `FK_Package_Sourcecode`, `IsSource`, `NonExecutable`, `HomePage`, `FK_License`, `FK_Manufacturer`, `FK_Document`, `FK_Document_UsersManual`, `FK_Document_ProgrammersGuide`, `Comments`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -684,12 +686,12 @@ sprintf(tmp_PK_Package, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Package=" + tmp_PK_Package;
+condition = condition + "`PK_Package`=" + tmp_PK_Package;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Package="+pRow->PK_Package_asSQL()+", Description="+pRow->Description_asSQL()+", FK_PackageType="+pRow->FK_PackageType_asSQL()+", FK_Package_Sourcecode="+pRow->FK_Package_Sourcecode_asSQL()+", IsSource="+pRow->IsSource_asSQL()+", NonExecutable="+pRow->NonExecutable_asSQL()+", HomePage="+pRow->HomePage_asSQL()+", FK_License="+pRow->FK_License_asSQL()+", FK_Manufacturer="+pRow->FK_Manufacturer_asSQL()+", FK_Document="+pRow->FK_Document_asSQL()+", FK_Document_UsersManual="+pRow->FK_Document_UsersManual_asSQL()+", FK_Document_ProgrammersGuide="+pRow->FK_Document_ProgrammersGuide_asSQL()+", Comments="+pRow->Comments_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Package`="+pRow->PK_Package_asSQL()+", `Description`="+pRow->Description_asSQL()+", `FK_PackageType`="+pRow->FK_PackageType_asSQL()+", `FK_Package_Sourcecode`="+pRow->FK_Package_Sourcecode_asSQL()+", `IsSource`="+pRow->IsSource_asSQL()+", `NonExecutable`="+pRow->NonExecutable_asSQL()+", `HomePage`="+pRow->HomePage_asSQL()+", `FK_License`="+pRow->FK_License_asSQL()+", `FK_Manufacturer`="+pRow->FK_Manufacturer_asSQL()+", `FK_Document`="+pRow->FK_Document_asSQL()+", `FK_Document_UsersManual`="+pRow->FK_Document_UsersManual_asSQL()+", `FK_Document_ProgrammersGuide`="+pRow->FK_Document_ProgrammersGuide_asSQL()+", `Comments`="+pRow->Comments_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Package set " + update_values_list + " where " + condition;
@@ -697,6 +699,7 @@ update_values_list = update_values_list + "PK_Package="+pRow->PK_Package_asSQL()
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -728,7 +731,7 @@ sprintf(tmp_PK_Package, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Package=" + tmp_PK_Package;
+condition = condition + "`PK_Package`=" + tmp_PK_Package;
 
 	
 		string query = "delete from Package where " + condition;
@@ -736,6 +739,7 @@ condition = condition + "PK_Package=" + tmp_PK_Package;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -762,6 +766,7 @@ bool Table_Package::GetRows(string where_statement,vector<class Row_Package*> *r
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -770,6 +775,7 @@ bool Table_Package::GetRows(string where_statement,vector<class Row_Package*> *r
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -1054,7 +1060,7 @@ sprintf(tmp_PK_Package, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Package=" + tmp_PK_Package;
+condition = condition + "`PK_Package`=" + tmp_PK_Package;
 
 
 	string query = "select * from Package where " + condition;		
@@ -1062,6 +1068,7 @@ condition = condition + "PK_Package=" + tmp_PK_Package;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -1070,6 +1077,7 @@ condition = condition + "PK_Package=" + tmp_PK_Package;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -1348,77 +1356,84 @@ void Row_Package::DeviceTemplate_FK_Package_getrows(vector <class Row_DeviceTemp
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate *pTable = table->database->DeviceTemplate_get();
-pTable->GetRows("FK_Package=" + StringUtils::itos(m_PK_Package),rows);
+pTable->GetRows("`FK_Package=`" + StringUtils::itos(m_PK_Package),rows);
 }
 void Row_Package::News_FK_Package_getrows(vector <class Row_News*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_News *pTable = table->database->News_get();
-pTable->GetRows("FK_Package=" + StringUtils::itos(m_PK_Package),rows);
+pTable->GetRows("`FK_Package=`" + StringUtils::itos(m_PK_Package),rows);
 }
 void Row_Package::Package_FK_Package_Sourcecode_getrows(vector <class Row_Package*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package *pTable = table->database->Package_get();
-pTable->GetRows("FK_Package_Sourcecode=" + StringUtils::itos(m_PK_Package),rows);
+pTable->GetRows("`FK_Package_Sourcecode=`" + StringUtils::itos(m_PK_Package),rows);
 }
 void Row_Package::Package_Compat_FK_Package_getrows(vector <class Row_Package_Compat*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Compat *pTable = table->database->Package_Compat_get();
-pTable->GetRows("FK_Package=" + StringUtils::itos(m_PK_Package),rows);
+pTable->GetRows("`FK_Package=`" + StringUtils::itos(m_PK_Package),rows);
 }
 void Row_Package::Package_Directory_FK_Package_getrows(vector <class Row_Package_Directory*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Directory *pTable = table->database->Package_Directory_get();
-pTable->GetRows("FK_Package=" + StringUtils::itos(m_PK_Package),rows);
+pTable->GetRows("`FK_Package=`" + StringUtils::itos(m_PK_Package),rows);
 }
 void Row_Package::Package_Package_FK_Package_getrows(vector <class Row_Package_Package*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Package *pTable = table->database->Package_Package_get();
-pTable->GetRows("FK_Package=" + StringUtils::itos(m_PK_Package),rows);
+pTable->GetRows("`FK_Package=`" + StringUtils::itos(m_PK_Package),rows);
 }
 void Row_Package::Package_Package_FK_Package_DependsOn_getrows(vector <class Row_Package_Package*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Package *pTable = table->database->Package_Package_get();
-pTable->GetRows("FK_Package_DependsOn=" + StringUtils::itos(m_PK_Package),rows);
+pTable->GetRows("`FK_Package_DependsOn=`" + StringUtils::itos(m_PK_Package),rows);
 }
 void Row_Package::Package_Source_FK_Package_getrows(vector <class Row_Package_Source*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Source *pTable = table->database->Package_Source_get();
-pTable->GetRows("FK_Package=" + StringUtils::itos(m_PK_Package),rows);
+pTable->GetRows("`FK_Package=`" + StringUtils::itos(m_PK_Package),rows);
 }
 void Row_Package::Package_Users_FK_Package_getrows(vector <class Row_Package_Users*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Users *pTable = table->database->Package_Users_get();
-pTable->GetRows("FK_Package=" + StringUtils::itos(m_PK_Package),rows);
+pTable->GetRows("`FK_Package=`" + StringUtils::itos(m_PK_Package),rows);
 }
 void Row_Package::Package_Version_FK_Package_getrows(vector <class Row_Package_Version*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Version *pTable = table->database->Package_Version_get();
-pTable->GetRows("FK_Package=" + StringUtils::itos(m_PK_Package),rows);
+pTable->GetRows("`FK_Package=`" + StringUtils::itos(m_PK_Package),rows);
 }
 void Row_Package::PageSetup_FK_Package_getrows(vector <class Row_PageSetup*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_PageSetup *pTable = table->database->PageSetup_get();
-pTable->GetRows("FK_Package=" + StringUtils::itos(m_PK_Package),rows);
+pTable->GetRows("`FK_Package=`" + StringUtils::itos(m_PK_Package),rows);
+}
+void Row_Package::PaidLicense_FK_Package_getrows(vector <class Row_PaidLicense*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_PaidLicense *pTable = table->database->PaidLicense_get();
+pTable->GetRows("`FK_Package=`" + StringUtils::itos(m_PK_Package),rows);
 }
 
 

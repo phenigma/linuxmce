@@ -369,12 +369,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_Language_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_Language_TextPlacement_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Language (PK_Language, Description, FK_Language_TextPlacement, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Language (`PK_Language`, `Description`, `FK_Language_TextPlacement`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -414,12 +415,12 @@ sprintf(tmp_PK_Language, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Language=" + tmp_PK_Language;
+condition = condition + "`PK_Language`=" + tmp_PK_Language;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Language="+pRow->PK_Language_asSQL()+", Description="+pRow->Description_asSQL()+", FK_Language_TextPlacement="+pRow->FK_Language_TextPlacement_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Language`="+pRow->PK_Language_asSQL()+", `Description`="+pRow->Description_asSQL()+", `FK_Language_TextPlacement`="+pRow->FK_Language_TextPlacement_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Language set " + update_values_list + " where " + condition;
@@ -427,6 +428,7 @@ update_values_list = update_values_list + "PK_Language="+pRow->PK_Language_asSQL
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -458,7 +460,7 @@ sprintf(tmp_PK_Language, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Language=" + tmp_PK_Language;
+condition = condition + "`PK_Language`=" + tmp_PK_Language;
 
 	
 		string query = "delete from Language where " + condition;
@@ -466,6 +468,7 @@ condition = condition + "PK_Language=" + tmp_PK_Language;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -492,6 +495,7 @@ bool Table_Language::GetRows(string where_statement,vector<class Row_Language*> 
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -500,6 +504,7 @@ bool Table_Language::GetRows(string where_statement,vector<class Row_Language*> 
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -674,7 +679,7 @@ sprintf(tmp_PK_Language, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Language=" + tmp_PK_Language;
+condition = condition + "`PK_Language`=" + tmp_PK_Language;
 
 
 	string query = "select * from Language where " + condition;		
@@ -682,6 +687,7 @@ condition = condition + "PK_Language=" + tmp_PK_Language;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -690,6 +696,7 @@ condition = condition + "PK_Language=" + tmp_PK_Language;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -816,35 +823,35 @@ void Row_Language::DesignObjVariation_Text_Skin_Language_FK_Language_getrows(vec
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_Text_Skin_Language *pTable = table->database->DesignObjVariation_Text_Skin_Language_get();
-pTable->GetRows("FK_Language=" + StringUtils::itos(m_PK_Language),rows);
+pTable->GetRows("`FK_Language=`" + StringUtils::itos(m_PK_Language),rows);
 }
 void Row_Language::Language_FK_Language_TextPlacement_getrows(vector <class Row_Language*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Language *pTable = table->database->Language_get();
-pTable->GetRows("FK_Language_TextPlacement=" + StringUtils::itos(m_PK_Language),rows);
+pTable->GetRows("`FK_Language_TextPlacement=`" + StringUtils::itos(m_PK_Language),rows);
 }
 void Row_Language::Text_LS_FK_Language_getrows(vector <class Row_Text_LS*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Text_LS *pTable = table->database->Text_LS_get();
-pTable->GetRows("FK_Language=" + StringUtils::itos(m_PK_Language),rows);
+pTable->GetRows("`FK_Language=`" + StringUtils::itos(m_PK_Language),rows);
 }
 void Row_Language::Text_LS_AltVersions_FK_Language_getrows(vector <class Row_Text_LS_AltVersions*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Text_LS_AltVersions *pTable = table->database->Text_LS_AltVersions_get();
-pTable->GetRows("FK_Language=" + StringUtils::itos(m_PK_Language),rows);
+pTable->GetRows("`FK_Language=`" + StringUtils::itos(m_PK_Language),rows);
 }
 void Row_Language::Users_FK_Language_getrows(vector <class Row_Users*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Users *pTable = table->database->Users_get();
-pTable->GetRows("FK_Language=" + StringUtils::itos(m_PK_Language),rows);
+pTable->GetRows("`FK_Language=`" + StringUtils::itos(m_PK_Language),rows);
 }
 
 

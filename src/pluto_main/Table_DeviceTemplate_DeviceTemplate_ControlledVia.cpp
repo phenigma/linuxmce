@@ -429,12 +429,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_DeviceTemplate_DeviceTemplate_ControlledVia_asSQL()+", "+pRow->FK_DeviceTemplate_asSQL()+", "+pRow->FK_DeviceTemplate_ControlledVia_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->RerouteMessagesToParent_asSQL()+", "+pRow->AutoCreateChildren_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into DeviceTemplate_DeviceTemplate_ControlledVia (PK_DeviceTemplate_DeviceTemplate_ControlledVia, FK_DeviceTemplate, FK_DeviceTemplate_ControlledVia, Description, RerouteMessagesToParent, AutoCreateChildren, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into DeviceTemplate_DeviceTemplate_ControlledVia (`PK_DeviceTemplate_DeviceTemplate_ControlledVia`, `FK_DeviceTemplate`, `FK_DeviceTemplate_ControlledVia`, `Description`, `RerouteMessagesToParent`, `AutoCreateChildren`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -474,12 +475,12 @@ sprintf(tmp_PK_DeviceTemplate_DeviceTemplate_ControlledVia, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DeviceTemplate_DeviceTemplate_ControlledVia=" + tmp_PK_DeviceTemplate_DeviceTemplate_ControlledVia;
+condition = condition + "`PK_DeviceTemplate_DeviceTemplate_ControlledVia`=" + tmp_PK_DeviceTemplate_DeviceTemplate_ControlledVia;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_DeviceTemplate_DeviceTemplate_ControlledVia="+pRow->PK_DeviceTemplate_DeviceTemplate_ControlledVia_asSQL()+", FK_DeviceTemplate="+pRow->FK_DeviceTemplate_asSQL()+", FK_DeviceTemplate_ControlledVia="+pRow->FK_DeviceTemplate_ControlledVia_asSQL()+", Description="+pRow->Description_asSQL()+", RerouteMessagesToParent="+pRow->RerouteMessagesToParent_asSQL()+", AutoCreateChildren="+pRow->AutoCreateChildren_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_DeviceTemplate_DeviceTemplate_ControlledVia`="+pRow->PK_DeviceTemplate_DeviceTemplate_ControlledVia_asSQL()+", `FK_DeviceTemplate`="+pRow->FK_DeviceTemplate_asSQL()+", `FK_DeviceTemplate_ControlledVia`="+pRow->FK_DeviceTemplate_ControlledVia_asSQL()+", `Description`="+pRow->Description_asSQL()+", `RerouteMessagesToParent`="+pRow->RerouteMessagesToParent_asSQL()+", `AutoCreateChildren`="+pRow->AutoCreateChildren_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update DeviceTemplate_DeviceTemplate_ControlledVia set " + update_values_list + " where " + condition;
@@ -487,6 +488,7 @@ update_values_list = update_values_list + "PK_DeviceTemplate_DeviceTemplate_Cont
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -518,7 +520,7 @@ sprintf(tmp_PK_DeviceTemplate_DeviceTemplate_ControlledVia, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DeviceTemplate_DeviceTemplate_ControlledVia=" + tmp_PK_DeviceTemplate_DeviceTemplate_ControlledVia;
+condition = condition + "`PK_DeviceTemplate_DeviceTemplate_ControlledVia`=" + tmp_PK_DeviceTemplate_DeviceTemplate_ControlledVia;
 
 	
 		string query = "delete from DeviceTemplate_DeviceTemplate_ControlledVia where " + condition;
@@ -526,6 +528,7 @@ condition = condition + "PK_DeviceTemplate_DeviceTemplate_ControlledVia=" + tmp_
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -552,6 +555,7 @@ bool Table_DeviceTemplate_DeviceTemplate_ControlledVia::GetRows(string where_sta
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -560,6 +564,7 @@ bool Table_DeviceTemplate_DeviceTemplate_ControlledVia::GetRows(string where_sta
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -767,7 +772,7 @@ sprintf(tmp_PK_DeviceTemplate_DeviceTemplate_ControlledVia, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DeviceTemplate_DeviceTemplate_ControlledVia=" + tmp_PK_DeviceTemplate_DeviceTemplate_ControlledVia;
+condition = condition + "`PK_DeviceTemplate_DeviceTemplate_ControlledVia`=" + tmp_PK_DeviceTemplate_DeviceTemplate_ControlledVia;
 
 
 	string query = "select * from DeviceTemplate_DeviceTemplate_ControlledVia where " + condition;		
@@ -775,6 +780,7 @@ condition = condition + "PK_DeviceTemplate_DeviceTemplate_ControlledVia=" + tmp_
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -783,6 +789,7 @@ condition = condition + "PK_DeviceTemplate_DeviceTemplate_ControlledVia=" + tmp_
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -949,7 +956,7 @@ void Row_DeviceTemplate_DeviceTemplate_ControlledVia::DeviceTemplate_DeviceTempl
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe *pTable = table->database->DeviceTemplate_DeviceTemplate_ControlledVia_Pipe_get();
-pTable->GetRows("FK_DeviceTemplate_DeviceTemplate_ControlledVia=" + StringUtils::itos(m_PK_DeviceTemplate_DeviceTemplate_ControlledVia),rows);
+pTable->GetRows("`FK_DeviceTemplate_DeviceTemplate_ControlledVia=`" + StringUtils::itos(m_PK_DeviceTemplate_DeviceTemplate_ControlledVia),rows);
 }
 
 

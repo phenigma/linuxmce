@@ -484,12 +484,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->FK_DeviceTemplate_asSQL()+", "+pRow->UsesIR_asSQL()+", "+pRow->IR_PowerDelay_asSQL()+", "+pRow->IR_ModeDelay_asSQL()+", "+pRow->DigitDelay_asSQL()+", "+pRow->TogglePower_asSQL()+", "+pRow->ToggleDSP_asSQL()+", "+pRow->ToggleInput_asSQL()+", "+pRow->ToggleOutput_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into DeviceTemplate_AV (FK_DeviceTemplate, UsesIR, IR_PowerDelay, IR_ModeDelay, DigitDelay, TogglePower, ToggleDSP, ToggleInput, ToggleOutput, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into DeviceTemplate_AV (`FK_DeviceTemplate`, `UsesIR`, `IR_PowerDelay`, `IR_ModeDelay`, `DigitDelay`, `TogglePower`, `ToggleDSP`, `ToggleInput`, `ToggleOutput`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -527,12 +528,12 @@ sprintf(tmp_FK_DeviceTemplate, "%li", key.pk);
 
 
 string condition;
-condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate;
+condition = condition + "`FK_DeviceTemplate`=" + tmp_FK_DeviceTemplate;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_DeviceTemplate="+pRow->FK_DeviceTemplate_asSQL()+", UsesIR="+pRow->UsesIR_asSQL()+", IR_PowerDelay="+pRow->IR_PowerDelay_asSQL()+", IR_ModeDelay="+pRow->IR_ModeDelay_asSQL()+", DigitDelay="+pRow->DigitDelay_asSQL()+", TogglePower="+pRow->TogglePower_asSQL()+", ToggleDSP="+pRow->ToggleDSP_asSQL()+", ToggleInput="+pRow->ToggleInput_asSQL()+", ToggleOutput="+pRow->ToggleOutput_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`FK_DeviceTemplate`="+pRow->FK_DeviceTemplate_asSQL()+", `UsesIR`="+pRow->UsesIR_asSQL()+", `IR_PowerDelay`="+pRow->IR_PowerDelay_asSQL()+", `IR_ModeDelay`="+pRow->IR_ModeDelay_asSQL()+", `DigitDelay`="+pRow->DigitDelay_asSQL()+", `TogglePower`="+pRow->TogglePower_asSQL()+", `ToggleDSP`="+pRow->ToggleDSP_asSQL()+", `ToggleInput`="+pRow->ToggleInput_asSQL()+", `ToggleOutput`="+pRow->ToggleOutput_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update DeviceTemplate_AV set " + update_values_list + " where " + condition;
@@ -540,6 +541,7 @@ update_values_list = update_values_list + "FK_DeviceTemplate="+pRow->FK_DeviceTe
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -571,7 +573,7 @@ sprintf(tmp_FK_DeviceTemplate, "%li", key.pk);
 
 
 string condition;
-condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate;
+condition = condition + "`FK_DeviceTemplate`=" + tmp_FK_DeviceTemplate;
 
 	
 		string query = "delete from DeviceTemplate_AV where " + condition;
@@ -579,6 +581,7 @@ condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -605,6 +608,7 @@ bool Table_DeviceTemplate_AV::GetRows(string where_statement,vector<class Row_De
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -613,6 +617,7 @@ bool Table_DeviceTemplate_AV::GetRows(string where_statement,vector<class Row_De
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -853,7 +858,7 @@ sprintf(tmp_FK_DeviceTemplate, "%li", key.pk);
 
 
 string condition;
-condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate;
+condition = condition + "`FK_DeviceTemplate`=" + tmp_FK_DeviceTemplate;
 
 
 	string query = "select * from DeviceTemplate_AV where " + condition;		
@@ -861,6 +866,7 @@ condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -869,6 +875,7 @@ condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

@@ -385,12 +385,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_CriteriaParmList_asSQL()+", "+pRow->FK_ParameterType_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into CriteriaParmList (PK_CriteriaParmList, FK_ParameterType, Description, Define, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into CriteriaParmList (`PK_CriteriaParmList`, `FK_ParameterType`, `Description`, `Define`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -430,12 +431,12 @@ sprintf(tmp_PK_CriteriaParmList, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_CriteriaParmList=" + tmp_PK_CriteriaParmList;
+condition = condition + "`PK_CriteriaParmList`=" + tmp_PK_CriteriaParmList;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_CriteriaParmList="+pRow->PK_CriteriaParmList_asSQL()+", FK_ParameterType="+pRow->FK_ParameterType_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_CriteriaParmList`="+pRow->PK_CriteriaParmList_asSQL()+", `FK_ParameterType`="+pRow->FK_ParameterType_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update CriteriaParmList set " + update_values_list + " where " + condition;
@@ -443,6 +444,7 @@ update_values_list = update_values_list + "PK_CriteriaParmList="+pRow->PK_Criter
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -474,7 +476,7 @@ sprintf(tmp_PK_CriteriaParmList, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_CriteriaParmList=" + tmp_PK_CriteriaParmList;
+condition = condition + "`PK_CriteriaParmList`=" + tmp_PK_CriteriaParmList;
 
 	
 		string query = "delete from CriteriaParmList where " + condition;
@@ -482,6 +484,7 @@ condition = condition + "PK_CriteriaParmList=" + tmp_PK_CriteriaParmList;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -508,6 +511,7 @@ bool Table_CriteriaParmList::GetRows(string where_statement,vector<class Row_Cri
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -516,6 +520,7 @@ bool Table_CriteriaParmList::GetRows(string where_statement,vector<class Row_Cri
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -701,7 +706,7 @@ sprintf(tmp_PK_CriteriaParmList, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_CriteriaParmList=" + tmp_PK_CriteriaParmList;
+condition = condition + "`PK_CriteriaParmList`=" + tmp_PK_CriteriaParmList;
 
 
 	string query = "select * from CriteriaParmList where " + condition;		
@@ -709,6 +714,7 @@ condition = condition + "PK_CriteriaParmList=" + tmp_PK_CriteriaParmList;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -717,6 +723,7 @@ condition = condition + "PK_CriteriaParmList=" + tmp_PK_CriteriaParmList;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -854,28 +861,28 @@ void Row_CriteriaParmList::CannedEvents_CriteriaParmList_FK_CriteriaParmList_get
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CannedEvents_CriteriaParmList *pTable = table->database->CannedEvents_CriteriaParmList_get();
-pTable->GetRows("FK_CriteriaParmList=" + StringUtils::itos(m_PK_CriteriaParmList),rows);
+pTable->GetRows("`FK_CriteriaParmList=`" + StringUtils::itos(m_PK_CriteriaParmList),rows);
 }
 void Row_CriteriaParmList::CriteriaList_CriteriaParmList_FK_CriteriaParmList_getrows(vector <class Row_CriteriaList_CriteriaParmList*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CriteriaList_CriteriaParmList *pTable = table->database->CriteriaList_CriteriaParmList_get();
-pTable->GetRows("FK_CriteriaParmList=" + StringUtils::itos(m_PK_CriteriaParmList),rows);
+pTable->GetRows("`FK_CriteriaParmList=`" + StringUtils::itos(m_PK_CriteriaParmList),rows);
 }
 void Row_CriteriaParmList::CriteriaParm_FK_CriteriaParmList_getrows(vector <class Row_CriteriaParm*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CriteriaParm *pTable = table->database->CriteriaParm_get();
-pTable->GetRows("FK_CriteriaParmList=" + StringUtils::itos(m_PK_CriteriaParmList),rows);
+pTable->GetRows("`FK_CriteriaParmList=`" + StringUtils::itos(m_PK_CriteriaParmList),rows);
 }
 void Row_CriteriaParmList::CriteriaParm_D_FK_CriteriaParmList_getrows(vector <class Row_CriteriaParm_D*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CriteriaParm_D *pTable = table->database->CriteriaParm_D_get();
-pTable->GetRows("FK_CriteriaParmList=" + StringUtils::itos(m_PK_CriteriaParmList),rows);
+pTable->GetRows("`FK_CriteriaParmList=`" + StringUtils::itos(m_PK_CriteriaParmList),rows);
 }
 
 

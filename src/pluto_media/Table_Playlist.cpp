@@ -359,7 +359,7 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_Playlist_asSQL()+", "+pRow->EK_User_asSQL()+", "+pRow->Name_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Playlist (PK_Playlist, EK_User, Name, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Playlist (`PK_Playlist`, `EK_User`, `Name`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -405,12 +405,12 @@ sprintf(tmp_PK_Playlist, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Playlist=" + tmp_PK_Playlist;
+condition = condition + "`PK_Playlist`=" + tmp_PK_Playlist;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Playlist="+pRow->PK_Playlist_asSQL()+", EK_User="+pRow->EK_User_asSQL()+", Name="+pRow->Name_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Playlist`="+pRow->PK_Playlist_asSQL()+", `EK_User`="+pRow->EK_User_asSQL()+", `Name`="+pRow->Name_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Playlist set " + update_values_list + " where " + condition;
@@ -450,7 +450,7 @@ sprintf(tmp_PK_Playlist, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Playlist=" + tmp_PK_Playlist;
+condition = condition + "`PK_Playlist`=" + tmp_PK_Playlist;
 
 	
 		string query = "delete from Playlist where " + condition;
@@ -669,7 +669,7 @@ sprintf(tmp_PK_Playlist, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Playlist=" + tmp_PK_Playlist;
+condition = condition + "`PK_Playlist`=" + tmp_PK_Playlist;
 
 
 	string query = "select * from Playlist where " + condition;		
@@ -806,7 +806,7 @@ void Row_Playlist::PlaylistEntry_FK_Playlist_getrows(vector <class Row_PlaylistE
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_PlaylistEntry *pTable = table->database->PlaylistEntry_get();
-pTable->GetRows("FK_Playlist=" + StringUtils::itos(m_PK_Playlist),rows);
+pTable->GetRows("`FK_Playlist=`" + StringUtils::itos(m_PK_Playlist),rows);
 }
 
 

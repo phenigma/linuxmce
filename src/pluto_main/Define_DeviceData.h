@@ -43,6 +43,13 @@
 #define DEVICEDATA_MythTV_PVR_Input_CONST 44
 #define DEVICEDATA_EK_AlertType_CONST 45
 #define DEVICEDATA_Kick_Start_CD_CONST 46
+#define DEVICEDATA_Type_CONST 47
+#define DEVICEDATA_Number_of_ports_CONST 48
+#define DEVICEDATA_Video_Standard_CONST 49
+#define DEVICEDATA_Port_Number_CONST 50
+#define DEVICEDATA_Motion_Option_CONST 51
+#define DEVICEDATA_Sensitivity_CONST 52
+#define DEVICEDATA_Noise_CONST 53
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

@@ -450,12 +450,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_Command_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->FK_CommandCategory_asSQL()+", "+pRow->AVCommand_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Command (PK_Command, Description, Define, FK_CommandCategory, AVCommand, Comments, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Command (`PK_Command`, `Description`, `Define`, `FK_CommandCategory`, `AVCommand`, `Comments`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -495,12 +496,12 @@ sprintf(tmp_PK_Command, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Command=" + tmp_PK_Command;
+condition = condition + "`PK_Command`=" + tmp_PK_Command;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Command="+pRow->PK_Command_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", FK_CommandCategory="+pRow->FK_CommandCategory_asSQL()+", AVCommand="+pRow->AVCommand_asSQL()+", Comments="+pRow->Comments_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Command`="+pRow->PK_Command_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `FK_CommandCategory`="+pRow->FK_CommandCategory_asSQL()+", `AVCommand`="+pRow->AVCommand_asSQL()+", `Comments`="+pRow->Comments_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Command set " + update_values_list + " where " + condition;
@@ -508,6 +509,7 @@ update_values_list = update_values_list + "PK_Command="+pRow->PK_Command_asSQL()
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -539,7 +541,7 @@ sprintf(tmp_PK_Command, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Command=" + tmp_PK_Command;
+condition = condition + "`PK_Command`=" + tmp_PK_Command;
 
 	
 		string query = "delete from Command where " + condition;
@@ -547,6 +549,7 @@ condition = condition + "PK_Command=" + tmp_PK_Command;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -573,6 +576,7 @@ bool Table_Command::GetRows(string where_statement,vector<class Row_Command*> *r
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -581,6 +585,7 @@ bool Table_Command::GetRows(string where_statement,vector<class Row_Command*> *r
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -788,7 +793,7 @@ sprintf(tmp_PK_Command, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Command=" + tmp_PK_Command;
+condition = condition + "`PK_Command`=" + tmp_PK_Command;
 
 
 	string query = "select * from Command where " + condition;		
@@ -796,6 +801,7 @@ condition = condition + "PK_Command=" + tmp_PK_Command;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -804,6 +810,7 @@ condition = condition + "PK_Command=" + tmp_PK_Command;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -963,112 +970,112 @@ void Row_Command::CommandGroup_Command_FK_Command_getrows(vector <class Row_Comm
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_Command *pTable = table->database->CommandGroup_Command_get();
-pTable->GetRows("FK_Command=" + StringUtils::itos(m_PK_Command),rows);
+pTable->GetRows("`FK_Command=`" + StringUtils::itos(m_PK_Command),rows);
 }
 void Row_Command::CommandGroup_D_Command_FK_Command_getrows(vector <class Row_CommandGroup_D_Command*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_D_Command *pTable = table->database->CommandGroup_D_Command_get();
-pTable->GetRows("FK_Command=" + StringUtils::itos(m_PK_Command),rows);
+pTable->GetRows("`FK_Command=`" + StringUtils::itos(m_PK_Command),rows);
 }
 void Row_Command::Command_CommandParameter_FK_Command_getrows(vector <class Row_Command_CommandParameter*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Command_CommandParameter *pTable = table->database->Command_CommandParameter_get();
-pTable->GetRows("FK_Command=" + StringUtils::itos(m_PK_Command),rows);
+pTable->GetRows("`FK_Command=`" + StringUtils::itos(m_PK_Command),rows);
 }
 void Row_Command::Command_Pipe_FK_Command_getrows(vector <class Row_Command_Pipe*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Command_Pipe *pTable = table->database->Command_Pipe_get();
-pTable->GetRows("FK_Command=" + StringUtils::itos(m_PK_Command),rows);
+pTable->GetRows("`FK_Command=`" + StringUtils::itos(m_PK_Command),rows);
 }
 void Row_Command::DeviceCommandGroup_Command_FK_Command_getrows(vector <class Row_DeviceCommandGroup_Command*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceCommandGroup_Command *pTable = table->database->DeviceCommandGroup_Command_get();
-pTable->GetRows("FK_Command=" + StringUtils::itos(m_PK_Command),rows);
+pTable->GetRows("`FK_Command=`" + StringUtils::itos(m_PK_Command),rows);
 }
 void Row_Command::DeviceTemplate_DSPMode_FK_Command_getrows(vector <class Row_DeviceTemplate_DSPMode*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_DSPMode *pTable = table->database->DeviceTemplate_DSPMode_get();
-pTable->GetRows("FK_Command=" + StringUtils::itos(m_PK_Command),rows);
+pTable->GetRows("`FK_Command=`" + StringUtils::itos(m_PK_Command),rows);
 }
 void Row_Command::DeviceTemplate_DeviceCategory_ControlledVia_Pipe_FK_Command_Input_getrows(vector <class Row_DeviceTemplate_DeviceCategory_ControlledVia_Pipe*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_DeviceCategory_ControlledVia_Pipe *pTable = table->database->DeviceTemplate_DeviceCategory_ControlledVia_Pipe_get();
-pTable->GetRows("FK_Command_Input=" + StringUtils::itos(m_PK_Command),rows);
+pTable->GetRows("`FK_Command_Input=`" + StringUtils::itos(m_PK_Command),rows);
 }
 void Row_Command::DeviceTemplate_DeviceCategory_ControlledVia_Pipe_FK_Command_Output_getrows(vector <class Row_DeviceTemplate_DeviceCategory_ControlledVia_Pipe*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_DeviceCategory_ControlledVia_Pipe *pTable = table->database->DeviceTemplate_DeviceCategory_ControlledVia_Pipe_get();
-pTable->GetRows("FK_Command_Output=" + StringUtils::itos(m_PK_Command),rows);
+pTable->GetRows("`FK_Command_Output=`" + StringUtils::itos(m_PK_Command),rows);
 }
 void Row_Command::DeviceTemplate_DeviceTemplate_ControlledVia_Pipe_FK_Command_Input_getrows(vector <class Row_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe *pTable = table->database->DeviceTemplate_DeviceTemplate_ControlledVia_Pipe_get();
-pTable->GetRows("FK_Command_Input=" + StringUtils::itos(m_PK_Command),rows);
+pTable->GetRows("`FK_Command_Input=`" + StringUtils::itos(m_PK_Command),rows);
 }
 void Row_Command::DeviceTemplate_DeviceTemplate_ControlledVia_Pipe_FK_Command_Output_getrows(vector <class Row_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_DeviceTemplate_ControlledVia_Pipe *pTable = table->database->DeviceTemplate_DeviceTemplate_ControlledVia_Pipe_get();
-pTable->GetRows("FK_Command_Output=" + StringUtils::itos(m_PK_Command),rows);
+pTable->GetRows("`FK_Command_Output=`" + StringUtils::itos(m_PK_Command),rows);
 }
 void Row_Command::DeviceTemplate_Input_FK_Command_getrows(vector <class Row_DeviceTemplate_Input*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_Input *pTable = table->database->DeviceTemplate_Input_get();
-pTable->GetRows("FK_Command=" + StringUtils::itos(m_PK_Command),rows);
+pTable->GetRows("`FK_Command=`" + StringUtils::itos(m_PK_Command),rows);
 }
 void Row_Command::DeviceTemplate_Output_FK_Command_getrows(vector <class Row_DeviceTemplate_Output*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_Output *pTable = table->database->DeviceTemplate_Output_get();
-pTable->GetRows("FK_Command=" + StringUtils::itos(m_PK_Command),rows);
+pTable->GetRows("`FK_Command=`" + StringUtils::itos(m_PK_Command),rows);
 }
 void Row_Command::Device_Command_FK_Command_getrows(vector <class Row_Device_Command*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device_Command *pTable = table->database->Device_Command_get();
-pTable->GetRows("FK_Command=" + StringUtils::itos(m_PK_Command),rows);
+pTable->GetRows("`FK_Command=`" + StringUtils::itos(m_PK_Command),rows);
 }
 void Row_Command::Device_Device_Pipe_FK_Command_Input_getrows(vector <class Row_Device_Device_Pipe*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device_Device_Pipe *pTable = table->database->Device_Device_Pipe_get();
-pTable->GetRows("FK_Command_Input=" + StringUtils::itos(m_PK_Command),rows);
+pTable->GetRows("`FK_Command_Input=`" + StringUtils::itos(m_PK_Command),rows);
 }
 void Row_Command::Device_Device_Pipe_FK_Command_Output_getrows(vector <class Row_Device_Device_Pipe*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device_Device_Pipe *pTable = table->database->Device_Device_Pipe_get();
-pTable->GetRows("FK_Command_Output=" + StringUtils::itos(m_PK_Command),rows);
+pTable->GetRows("`FK_Command_Output=`" + StringUtils::itos(m_PK_Command),rows);
 }
 void Row_Command::InfraredGroup_Command_FK_Command_getrows(vector <class Row_InfraredGroup_Command*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_InfraredGroup_Command *pTable = table->database->InfraredGroup_Command_get();
-pTable->GetRows("FK_Command=" + StringUtils::itos(m_PK_Command),rows);
+pTable->GetRows("`FK_Command=`" + StringUtils::itos(m_PK_Command),rows);
 }
 
 

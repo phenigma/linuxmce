@@ -550,12 +550,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_Version_asSQL()+", "+pRow->VersionName_asSQL()+", "+pRow->BuildName_asSQL()+", "+pRow->Date_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Repository_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->NextSteps_asSQL()+", "+pRow->SvnRevision_asSQL()+", "+pRow->SvnBranch_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Version (PK_Version, VersionName, BuildName, Date, Description, Repository, Comments, NextSteps, SvnRevision, SvnBranch, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Version (`PK_Version`, `VersionName`, `BuildName`, `Date`, `Description`, `Repository`, `Comments`, `NextSteps`, `SvnRevision`, `SvnBranch`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -595,12 +596,12 @@ sprintf(tmp_PK_Version, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Version=" + tmp_PK_Version;
+condition = condition + "`PK_Version`=" + tmp_PK_Version;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Version="+pRow->PK_Version_asSQL()+", VersionName="+pRow->VersionName_asSQL()+", BuildName="+pRow->BuildName_asSQL()+", Date="+pRow->Date_asSQL()+", Description="+pRow->Description_asSQL()+", Repository="+pRow->Repository_asSQL()+", Comments="+pRow->Comments_asSQL()+", NextSteps="+pRow->NextSteps_asSQL()+", SvnRevision="+pRow->SvnRevision_asSQL()+", SvnBranch="+pRow->SvnBranch_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Version`="+pRow->PK_Version_asSQL()+", `VersionName`="+pRow->VersionName_asSQL()+", `BuildName`="+pRow->BuildName_asSQL()+", `Date`="+pRow->Date_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Repository`="+pRow->Repository_asSQL()+", `Comments`="+pRow->Comments_asSQL()+", `NextSteps`="+pRow->NextSteps_asSQL()+", `SvnRevision`="+pRow->SvnRevision_asSQL()+", `SvnBranch`="+pRow->SvnBranch_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Version set " + update_values_list + " where " + condition;
@@ -608,6 +609,7 @@ update_values_list = update_values_list + "PK_Version="+pRow->PK_Version_asSQL()
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -639,7 +641,7 @@ sprintf(tmp_PK_Version, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Version=" + tmp_PK_Version;
+condition = condition + "`PK_Version`=" + tmp_PK_Version;
 
 	
 		string query = "delete from Version where " + condition;
@@ -647,6 +649,7 @@ condition = condition + "PK_Version=" + tmp_PK_Version;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -673,6 +676,7 @@ bool Table_Version::GetRows(string where_statement,vector<class Row_Version*> *r
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -681,6 +685,7 @@ bool Table_Version::GetRows(string where_statement,vector<class Row_Version*> *r
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -932,7 +937,7 @@ sprintf(tmp_PK_Version, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Version=" + tmp_PK_Version;
+condition = condition + "`PK_Version`=" + tmp_PK_Version;
 
 
 	string query = "select * from Version where " + condition;		
@@ -940,6 +945,7 @@ condition = condition + "PK_Version=" + tmp_PK_Version;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -948,6 +954,7 @@ condition = condition + "PK_Version=" + tmp_PK_Version;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -1144,21 +1151,21 @@ void Row_Version::Installation_FK_Version_getrows(vector <class Row_Installation
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Installation *pTable = table->database->Installation_get();
-pTable->GetRows("FK_Version=" + StringUtils::itos(m_PK_Version),rows);
+pTable->GetRows("`FK_Version=`" + StringUtils::itos(m_PK_Version),rows);
 }
 void Row_Version::Package_Version_FK_Version_getrows(vector <class Row_Package_Version*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Version *pTable = table->database->Package_Version_get();
-pTable->GetRows("FK_Version=" + StringUtils::itos(m_PK_Version),rows);
+pTable->GetRows("`FK_Version=`" + StringUtils::itos(m_PK_Version),rows);
 }
 void Row_Version::Schema_FK_Version_getrows(vector <class Row_Schema*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Schema *pTable = table->database->Schema_get();
-pTable->GetRows("FK_Version=" + StringUtils::itos(m_PK_Version),rows);
+pTable->GetRows("`FK_Version=`" + StringUtils::itos(m_PK_Version),rows);
 }
 
 

@@ -427,12 +427,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_DeviceCategory_asSQL()+", "+pRow->FK_DeviceCategory_Parent_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->IsAV_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into DeviceCategory (PK_DeviceCategory, FK_DeviceCategory_Parent, Description, Define, IsAV, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into DeviceCategory (`PK_DeviceCategory`, `FK_DeviceCategory_Parent`, `Description`, `Define`, `IsAV`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -472,12 +473,12 @@ sprintf(tmp_PK_DeviceCategory, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DeviceCategory=" + tmp_PK_DeviceCategory;
+condition = condition + "`PK_DeviceCategory`=" + tmp_PK_DeviceCategory;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_DeviceCategory="+pRow->PK_DeviceCategory_asSQL()+", FK_DeviceCategory_Parent="+pRow->FK_DeviceCategory_Parent_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", IsAV="+pRow->IsAV_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_DeviceCategory`="+pRow->PK_DeviceCategory_asSQL()+", `FK_DeviceCategory_Parent`="+pRow->FK_DeviceCategory_Parent_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `IsAV`="+pRow->IsAV_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update DeviceCategory set " + update_values_list + " where " + condition;
@@ -485,6 +486,7 @@ update_values_list = update_values_list + "PK_DeviceCategory="+pRow->PK_DeviceCa
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -516,7 +518,7 @@ sprintf(tmp_PK_DeviceCategory, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DeviceCategory=" + tmp_PK_DeviceCategory;
+condition = condition + "`PK_DeviceCategory`=" + tmp_PK_DeviceCategory;
 
 	
 		string query = "delete from DeviceCategory where " + condition;
@@ -524,6 +526,7 @@ condition = condition + "PK_DeviceCategory=" + tmp_PK_DeviceCategory;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -550,6 +553,7 @@ bool Table_DeviceCategory::GetRows(string where_statement,vector<class Row_Devic
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -558,6 +562,7 @@ bool Table_DeviceCategory::GetRows(string where_statement,vector<class Row_Devic
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -754,7 +759,7 @@ sprintf(tmp_PK_DeviceCategory, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DeviceCategory=" + tmp_PK_DeviceCategory;
+condition = condition + "`PK_DeviceCategory`=" + tmp_PK_DeviceCategory;
 
 
 	string query = "select * from DeviceCategory where " + condition;		
@@ -762,6 +767,7 @@ condition = condition + "PK_DeviceCategory=" + tmp_PK_DeviceCategory;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -770,6 +776,7 @@ condition = condition + "PK_DeviceCategory=" + tmp_PK_DeviceCategory;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -918,70 +925,70 @@ void Row_DeviceCategory::CommandGroup_D_Command_FK_DeviceCategory_getrows(vector
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_D_Command *pTable = table->database->CommandGroup_D_Command_get();
-pTable->GetRows("FK_DeviceCategory=" + StringUtils::itos(m_PK_DeviceCategory),rows);
+pTable->GetRows("`FK_DeviceCategory=`" + StringUtils::itos(m_PK_DeviceCategory),rows);
 }
 void Row_DeviceCategory::ConfigType_FK_DeviceCategory_getrows(vector <class Row_ConfigType*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_ConfigType *pTable = table->database->ConfigType_get();
-pTable->GetRows("FK_DeviceCategory=" + StringUtils::itos(m_PK_DeviceCategory),rows);
+pTable->GetRows("`FK_DeviceCategory=`" + StringUtils::itos(m_PK_DeviceCategory),rows);
 }
 void Row_DeviceCategory::DHCPDevice_FK_DeviceCategory_getrows(vector <class Row_DHCPDevice*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DHCPDevice *pTable = table->database->DHCPDevice_get();
-pTable->GetRows("FK_DeviceCategory=" + StringUtils::itos(m_PK_DeviceCategory),rows);
+pTable->GetRows("`FK_DeviceCategory=`" + StringUtils::itos(m_PK_DeviceCategory),rows);
 }
 void Row_DeviceCategory::DeviceCategory_FK_DeviceCategory_Parent_getrows(vector <class Row_DeviceCategory*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceCategory *pTable = table->database->DeviceCategory_get();
-pTable->GetRows("FK_DeviceCategory_Parent=" + StringUtils::itos(m_PK_DeviceCategory),rows);
+pTable->GetRows("`FK_DeviceCategory_Parent=`" + StringUtils::itos(m_PK_DeviceCategory),rows);
 }
 void Row_DeviceCategory::DeviceCategory_DeviceData_FK_DeviceCategory_getrows(vector <class Row_DeviceCategory_DeviceData*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceCategory_DeviceData *pTable = table->database->DeviceCategory_DeviceData_get();
-pTable->GetRows("FK_DeviceCategory=" + StringUtils::itos(m_PK_DeviceCategory),rows);
+pTable->GetRows("`FK_DeviceCategory=`" + StringUtils::itos(m_PK_DeviceCategory),rows);
 }
 void Row_DeviceCategory::DeviceCategory_Event_FK_DeviceCategory_getrows(vector <class Row_DeviceCategory_Event*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceCategory_Event *pTable = table->database->DeviceCategory_Event_get();
-pTable->GetRows("FK_DeviceCategory=" + StringUtils::itos(m_PK_DeviceCategory),rows);
+pTable->GetRows("`FK_DeviceCategory=`" + StringUtils::itos(m_PK_DeviceCategory),rows);
 }
 void Row_DeviceCategory::DeviceCommandGroup_FK_DeviceCategory_getrows(vector <class Row_DeviceCommandGroup*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceCommandGroup *pTable = table->database->DeviceCommandGroup_get();
-pTable->GetRows("FK_DeviceCategory=" + StringUtils::itos(m_PK_DeviceCategory),rows);
+pTable->GetRows("`FK_DeviceCategory=`" + StringUtils::itos(m_PK_DeviceCategory),rows);
 }
 void Row_DeviceCategory::DeviceTemplate_FK_DeviceCategory_getrows(vector <class Row_DeviceTemplate*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate *pTable = table->database->DeviceTemplate_get();
-pTable->GetRows("FK_DeviceCategory=" + StringUtils::itos(m_PK_DeviceCategory),rows);
+pTable->GetRows("`FK_DeviceCategory=`" + StringUtils::itos(m_PK_DeviceCategory),rows);
 }
 void Row_DeviceCategory::DeviceTemplate_DeviceCategory_ControlledVia_FK_DeviceCategory_getrows(vector <class Row_DeviceTemplate_DeviceCategory_ControlledVia*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_DeviceCategory_ControlledVia *pTable = table->database->DeviceTemplate_DeviceCategory_ControlledVia_get();
-pTable->GetRows("FK_DeviceCategory=" + StringUtils::itos(m_PK_DeviceCategory),rows);
+pTable->GetRows("`FK_DeviceCategory=`" + StringUtils::itos(m_PK_DeviceCategory),rows);
 }
 void Row_DeviceCategory::InfraredGroup_FK_DeviceCategory_getrows(vector <class Row_InfraredGroup*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_InfraredGroup *pTable = table->database->InfraredGroup_get();
-pTable->GetRows("FK_DeviceCategory=" + StringUtils::itos(m_PK_DeviceCategory),rows);
+pTable->GetRows("`FK_DeviceCategory=`" + StringUtils::itos(m_PK_DeviceCategory),rows);
 }
 
 

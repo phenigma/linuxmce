@@ -364,12 +364,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->FK_Package_asSQL()+", "+pRow->FK_Package_DependsOn_asSQL()+", "+pRow->OnlyToBuild_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Package_Package (FK_Package, FK_Package_DependsOn, OnlyToBuild, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Package_Package (`FK_Package`, `FK_Package_DependsOn`, `OnlyToBuild`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -410,12 +411,12 @@ sprintf(tmp_FK_Package_DependsOn, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Package=" + tmp_FK_Package+" AND "+"FK_Package_DependsOn=" + tmp_FK_Package_DependsOn;
+condition = condition + "`FK_Package`=" + tmp_FK_Package+" AND "+"`FK_Package_DependsOn`=" + tmp_FK_Package_DependsOn;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_Package="+pRow->FK_Package_asSQL()+", FK_Package_DependsOn="+pRow->FK_Package_DependsOn_asSQL()+", OnlyToBuild="+pRow->OnlyToBuild_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`FK_Package`="+pRow->FK_Package_asSQL()+", `FK_Package_DependsOn`="+pRow->FK_Package_DependsOn_asSQL()+", `OnlyToBuild`="+pRow->OnlyToBuild_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Package_Package set " + update_values_list + " where " + condition;
@@ -423,6 +424,7 @@ update_values_list = update_values_list + "FK_Package="+pRow->FK_Package_asSQL()
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -457,7 +459,7 @@ sprintf(tmp_FK_Package_DependsOn, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Package=" + tmp_FK_Package+" AND "+"FK_Package_DependsOn=" + tmp_FK_Package_DependsOn;
+condition = condition + "`FK_Package`=" + tmp_FK_Package+" AND "+"`FK_Package_DependsOn`=" + tmp_FK_Package_DependsOn;
 
 	
 		string query = "delete from Package_Package where " + condition;
@@ -465,6 +467,7 @@ condition = condition + "FK_Package=" + tmp_FK_Package+" AND "+"FK_Package_Depen
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -491,6 +494,7 @@ bool Table_Package_Package::GetRows(string where_statement,vector<class Row_Pack
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -499,6 +503,7 @@ bool Table_Package_Package::GetRows(string where_statement,vector<class Row_Pack
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -676,7 +681,7 @@ sprintf(tmp_FK_Package_DependsOn, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Package=" + tmp_FK_Package+" AND "+"FK_Package_DependsOn=" + tmp_FK_Package_DependsOn;
+condition = condition + "`FK_Package`=" + tmp_FK_Package+" AND "+"`FK_Package_DependsOn`=" + tmp_FK_Package_DependsOn;
 
 
 	string query = "select * from Package_Package where " + condition;		
@@ -684,6 +689,7 @@ condition = condition + "FK_Package=" + tmp_FK_Package+" AND "+"FK_Package_Depen
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -692,6 +698,7 @@ condition = condition + "FK_Package=" + tmp_FK_Package+" AND "+"FK_Package_Depen
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

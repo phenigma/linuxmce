@@ -343,12 +343,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->FK_Device_asSQL()+", "+pRow->FK_Orbiter_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Device_Orbiter (FK_Device, FK_Orbiter, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Device_Orbiter (`FK_Device`, `FK_Orbiter`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -389,12 +390,12 @@ sprintf(tmp_FK_Orbiter, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Device=" + tmp_FK_Device+" AND "+"FK_Orbiter=" + tmp_FK_Orbiter;
+condition = condition + "`FK_Device`=" + tmp_FK_Device+" AND "+"`FK_Orbiter`=" + tmp_FK_Orbiter;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_Device="+pRow->FK_Device_asSQL()+", FK_Orbiter="+pRow->FK_Orbiter_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`FK_Device`="+pRow->FK_Device_asSQL()+", `FK_Orbiter`="+pRow->FK_Orbiter_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Device_Orbiter set " + update_values_list + " where " + condition;
@@ -402,6 +403,7 @@ update_values_list = update_values_list + "FK_Device="+pRow->FK_Device_asSQL()+"
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -436,7 +438,7 @@ sprintf(tmp_FK_Orbiter, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Device=" + tmp_FK_Device+" AND "+"FK_Orbiter=" + tmp_FK_Orbiter;
+condition = condition + "`FK_Device`=" + tmp_FK_Device+" AND "+"`FK_Orbiter`=" + tmp_FK_Orbiter;
 
 	
 		string query = "delete from Device_Orbiter where " + condition;
@@ -444,6 +446,7 @@ condition = condition + "FK_Device=" + tmp_FK_Device+" AND "+"FK_Orbiter=" + tmp
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -470,6 +473,7 @@ bool Table_Device_Orbiter::GetRows(string where_statement,vector<class Row_Devic
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -478,6 +482,7 @@ bool Table_Device_Orbiter::GetRows(string where_statement,vector<class Row_Devic
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -644,7 +649,7 @@ sprintf(tmp_FK_Orbiter, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Device=" + tmp_FK_Device+" AND "+"FK_Orbiter=" + tmp_FK_Orbiter;
+condition = condition + "`FK_Device`=" + tmp_FK_Device+" AND "+"`FK_Orbiter`=" + tmp_FK_Orbiter;
 
 
 	string query = "select * from Device_Orbiter where " + condition;		
@@ -652,6 +657,7 @@ condition = condition + "FK_Device=" + tmp_FK_Device+" AND "+"FK_Orbiter=" + tmp
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -660,6 +666,7 @@ condition = condition + "FK_Device=" + tmp_FK_Device+" AND "+"FK_Orbiter=" + tmp
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

@@ -7,6 +7,8 @@
 #define PIPE_PK_PIPE_TABLE_FIELD "Pipe.PK_Pipe"
 #define PIPE_DESCRIPTION_FIELD "Description"
 #define PIPE_DESCRIPTION_TABLE_FIELD "Pipe.Description"
+#define PIPE_FK_PIPE_USEPATH_FIELD "FK_Pipe_UsePath"
+#define PIPE_FK_PIPE_USEPATH_TABLE_FIELD "Pipe.FK_Pipe_UsePath"
 #define PIPE_PSC_ID_FIELD "psc_id"
 #define PIPE_PSC_ID_TABLE_FIELD "Pipe.psc_id"
 #define PIPE_PSC_BATCH_FIELD "psc_batch"

@@ -371,12 +371,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_CommandCategory_asSQL()+", "+pRow->FK_CommandCategory_Parent_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into CommandCategory (PK_CommandCategory, FK_CommandCategory_Parent, Description, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into CommandCategory (`PK_CommandCategory`, `FK_CommandCategory_Parent`, `Description`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -416,12 +417,12 @@ sprintf(tmp_PK_CommandCategory, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_CommandCategory=" + tmp_PK_CommandCategory;
+condition = condition + "`PK_CommandCategory`=" + tmp_PK_CommandCategory;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_CommandCategory="+pRow->PK_CommandCategory_asSQL()+", FK_CommandCategory_Parent="+pRow->FK_CommandCategory_Parent_asSQL()+", Description="+pRow->Description_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_CommandCategory`="+pRow->PK_CommandCategory_asSQL()+", `FK_CommandCategory_Parent`="+pRow->FK_CommandCategory_Parent_asSQL()+", `Description`="+pRow->Description_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update CommandCategory set " + update_values_list + " where " + condition;
@@ -429,6 +430,7 @@ update_values_list = update_values_list + "PK_CommandCategory="+pRow->PK_Command
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -460,7 +462,7 @@ sprintf(tmp_PK_CommandCategory, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_CommandCategory=" + tmp_PK_CommandCategory;
+condition = condition + "`PK_CommandCategory`=" + tmp_PK_CommandCategory;
 
 	
 		string query = "delete from CommandCategory where " + condition;
@@ -468,6 +470,7 @@ condition = condition + "PK_CommandCategory=" + tmp_PK_CommandCategory;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -494,6 +497,7 @@ bool Table_CommandCategory::GetRows(string where_statement,vector<class Row_Comm
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -502,6 +506,7 @@ bool Table_CommandCategory::GetRows(string where_statement,vector<class Row_Comm
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -676,7 +681,7 @@ sprintf(tmp_PK_CommandCategory, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_CommandCategory=" + tmp_PK_CommandCategory;
+condition = condition + "`PK_CommandCategory`=" + tmp_PK_CommandCategory;
 
 
 	string query = "select * from CommandCategory where " + condition;		
@@ -684,6 +689,7 @@ condition = condition + "PK_CommandCategory=" + tmp_PK_CommandCategory;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -692,6 +698,7 @@ condition = condition + "PK_CommandCategory=" + tmp_PK_CommandCategory;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -818,14 +825,14 @@ void Row_CommandCategory::Command_FK_CommandCategory_getrows(vector <class Row_C
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Command *pTable = table->database->Command_get();
-pTable->GetRows("FK_CommandCategory=" + StringUtils::itos(m_PK_CommandCategory),rows);
+pTable->GetRows("`FK_CommandCategory=`" + StringUtils::itos(m_PK_CommandCategory),rows);
 }
 void Row_CommandCategory::CommandCategory_FK_CommandCategory_Parent_getrows(vector <class Row_CommandCategory*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandCategory *pTable = table->database->CommandCategory_get();
-pTable->GetRows("FK_CommandCategory_Parent=" + StringUtils::itos(m_PK_CommandCategory),rows);
+pTable->GetRows("`FK_CommandCategory_Parent=`" + StringUtils::itos(m_PK_CommandCategory),rows);
 }
 
 

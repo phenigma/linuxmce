@@ -365,12 +365,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_Broadcast_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Extensions_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Broadcast (PK_Broadcast, Description, Extensions, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Broadcast (`PK_Broadcast`, `Description`, `Extensions`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -410,12 +411,12 @@ sprintf(tmp_PK_Broadcast, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Broadcast=" + tmp_PK_Broadcast;
+condition = condition + "`PK_Broadcast`=" + tmp_PK_Broadcast;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Broadcast="+pRow->PK_Broadcast_asSQL()+", Description="+pRow->Description_asSQL()+", Extensions="+pRow->Extensions_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Broadcast`="+pRow->PK_Broadcast_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Extensions`="+pRow->Extensions_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Broadcast set " + update_values_list + " where " + condition;
@@ -423,6 +424,7 @@ update_values_list = update_values_list + "PK_Broadcast="+pRow->PK_Broadcast_asS
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -454,7 +456,7 @@ sprintf(tmp_PK_Broadcast, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Broadcast=" + tmp_PK_Broadcast;
+condition = condition + "`PK_Broadcast`=" + tmp_PK_Broadcast;
 
 	
 		string query = "delete from Broadcast where " + condition;
@@ -462,6 +464,7 @@ condition = condition + "PK_Broadcast=" + tmp_PK_Broadcast;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -488,6 +491,7 @@ bool Table_Broadcast::GetRows(string where_statement,vector<class Row_Broadcast*
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -496,6 +500,7 @@ bool Table_Broadcast::GetRows(string where_statement,vector<class Row_Broadcast*
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -670,7 +675,7 @@ sprintf(tmp_PK_Broadcast, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Broadcast=" + tmp_PK_Broadcast;
+condition = condition + "`PK_Broadcast`=" + tmp_PK_Broadcast;
 
 
 	string query = "select * from Broadcast where " + condition;		
@@ -678,6 +683,7 @@ condition = condition + "PK_Broadcast=" + tmp_PK_Broadcast;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -686,6 +692,7 @@ condition = condition + "PK_Broadcast=" + tmp_PK_Broadcast;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -805,7 +812,7 @@ void Row_Broadcast::MediaType_Broadcast_FK_Broadcast_getrows(vector <class Row_M
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_MediaType_Broadcast *pTable = table->database->MediaType_Broadcast_get();
-pTable->GetRows("FK_Broadcast=" + StringUtils::itos(m_PK_Broadcast),rows);
+pTable->GetRows("`FK_Broadcast=`" + StringUtils::itos(m_PK_Broadcast),rows);
 }
 
 

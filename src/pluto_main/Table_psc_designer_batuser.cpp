@@ -120,6 +120,8 @@ m_psc_user = 0;
 is_null[2] = false;
 m_is_sup = 0;
 is_null[3] = false;
+m_no_pass = 0;
+is_null[4] = false;
 
 
 	is_added=false;
@@ -139,6 +141,9 @@ return m_psc_user;}
 short int Row_psc_designer_batuser::is_sup_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_is_sup;}
+short int Row_psc_designer_batuser::no_pass_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_no_pass;}
 
 		
 void Row_psc_designer_batuser::PK_psc_designer_batuser_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -153,6 +158,9 @@ m_psc_user = val; is_modified=true; is_null[2]=false;}
 void Row_psc_designer_batuser::is_sup_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_is_sup = val; is_modified=true; is_null[3]=false;}
+void Row_psc_designer_batuser::no_pass_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_no_pass = val; is_modified=true; is_null[4]=false;}
 
 		
 
@@ -211,6 +219,19 @@ sprintf(buf, "%hi", m_is_sup);
 return buf;
 }
 
+string Row_psc_designer_batuser::no_pass_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[4])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%hi", m_no_pass);
+
+return buf;
+}
+
 
 
 
@@ -249,15 +270,16 @@ bool Table_psc_designer_batuser::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_designer_batuser_asSQL()+", "+pRow->FK_psc_designer_bathdr_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->is_sup_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_designer_batuser_asSQL()+", "+pRow->FK_psc_designer_bathdr_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->is_sup_asSQL()+", "+pRow->no_pass_asSQL();
 
 	
-		string query = "insert into psc_designer_batuser (PK_psc_designer_batuser, FK_psc_designer_bathdr, psc_user, is_sup) values ("+
+		string query = "insert into psc_designer_batuser (`PK_psc_designer_batuser`, `FK_psc_designer_bathdr`, `psc_user`, `is_sup`, `no_pass`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -297,12 +319,12 @@ sprintf(tmp_PK_psc_designer_batuser, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_designer_batuser=" + tmp_PK_psc_designer_batuser;
+condition = condition + "`PK_psc_designer_batuser`=" + tmp_PK_psc_designer_batuser;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_psc_designer_batuser="+pRow->PK_psc_designer_batuser_asSQL()+", FK_psc_designer_bathdr="+pRow->FK_psc_designer_bathdr_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", is_sup="+pRow->is_sup_asSQL();
+update_values_list = update_values_list + "`PK_psc_designer_batuser`="+pRow->PK_psc_designer_batuser_asSQL()+", `FK_psc_designer_bathdr`="+pRow->FK_psc_designer_bathdr_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `is_sup`="+pRow->is_sup_asSQL()+", `no_pass`="+pRow->no_pass_asSQL();
 
 	
 		string query = "update psc_designer_batuser set " + update_values_list + " where " + condition;
@@ -310,6 +332,7 @@ update_values_list = update_values_list + "PK_psc_designer_batuser="+pRow->PK_ps
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -341,7 +364,7 @@ sprintf(tmp_PK_psc_designer_batuser, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_designer_batuser=" + tmp_PK_psc_designer_batuser;
+condition = condition + "`PK_psc_designer_batuser`=" + tmp_PK_psc_designer_batuser;
 
 	
 		string query = "delete from psc_designer_batuser where " + condition;
@@ -349,6 +372,7 @@ condition = condition + "PK_psc_designer_batuser=" + tmp_PK_psc_designer_batuser
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -375,6 +399,7 @@ bool Table_psc_designer_batuser::GetRows(string where_statement,vector<class Row
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -383,6 +408,7 @@ bool Table_psc_designer_batuser::GetRows(string where_statement,vector<class Row
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -437,6 +463,17 @@ else
 {
 pRow->is_null[3]=false;
 sscanf(row[3], "%hi", &(pRow->m_is_sup));
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_no_pass = 0;
+}
+else
+{
+pRow->is_null[4]=false;
+sscanf(row[4], "%hi", &(pRow->m_no_pass));
 }
 
 
@@ -513,7 +550,7 @@ sprintf(tmp_PK_psc_designer_batuser, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_designer_batuser=" + tmp_PK_psc_designer_batuser;
+condition = condition + "`PK_psc_designer_batuser`=" + tmp_PK_psc_designer_batuser;
 
 
 	string query = "select * from psc_designer_batuser where " + condition;		
@@ -521,6 +558,7 @@ condition = condition + "PK_psc_designer_batuser=" + tmp_PK_psc_designer_batuser
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -529,6 +567,7 @@ condition = condition + "PK_psc_designer_batuser=" + tmp_PK_psc_designer_batuser
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -587,6 +626,17 @@ else
 {
 pRow->is_null[3]=false;
 sscanf(row[3], "%hi", &(pRow->m_is_sup));
+}
+
+if (row[4] == NULL)
+{
+pRow->is_null[4]=true;
+pRow->m_no_pass = 0;
+}
+else
+{
+pRow->is_null[4]=false;
+sscanf(row[4], "%hi", &(pRow->m_no_pass));
 }
 
 

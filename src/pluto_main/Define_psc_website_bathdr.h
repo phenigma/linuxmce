@@ -5,6 +5,8 @@
 #define PSC_WEBSITE_BATHDR_TABLE "psc_website_bathdr"
 #define PSC_WEBSITE_BATHDR_PK_PSC_WEBSITE_BATHDR_FIELD "PK_psc_website_bathdr"
 #define PSC_WEBSITE_BATHDR_PK_PSC_WEBSITE_BATHDR_TABLE_FIELD "psc_website_bathdr.PK_psc_website_bathdr"
+#define PSC_WEBSITE_BATHDR_IPADDRESS_FIELD "IPAddress"
+#define PSC_WEBSITE_BATHDR_IPADDRESS_TABLE_FIELD "psc_website_bathdr.IPAddress"
 #define PSC_WEBSITE_BATHDR_DATE_FIELD "date"
 #define PSC_WEBSITE_BATHDR_DATE_TABLE_FIELD "psc_website_bathdr.date"
 #define PSC_WEBSITE_BATHDR_COMMENTS_FIELD "comments"

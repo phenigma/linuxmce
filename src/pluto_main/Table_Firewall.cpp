@@ -444,12 +444,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_Firewall_asSQL()+", "+pRow->Protocol_asSQL()+", "+pRow->SourcePort_asSQL()+", "+pRow->SourcePortEnd_asSQL()+", "+pRow->DestinationPort_asSQL()+", "+pRow->DestinationIP_asSQL()+", "+pRow->RuleType_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Firewall (PK_Firewall, Protocol, SourcePort, SourcePortEnd, DestinationPort, DestinationIP, RuleType, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Firewall (`PK_Firewall`, `Protocol`, `SourcePort`, `SourcePortEnd`, `DestinationPort`, `DestinationIP`, `RuleType`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -489,12 +490,12 @@ sprintf(tmp_PK_Firewall, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Firewall=" + tmp_PK_Firewall;
+condition = condition + "`PK_Firewall`=" + tmp_PK_Firewall;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Firewall="+pRow->PK_Firewall_asSQL()+", Protocol="+pRow->Protocol_asSQL()+", SourcePort="+pRow->SourcePort_asSQL()+", SourcePortEnd="+pRow->SourcePortEnd_asSQL()+", DestinationPort="+pRow->DestinationPort_asSQL()+", DestinationIP="+pRow->DestinationIP_asSQL()+", RuleType="+pRow->RuleType_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Firewall`="+pRow->PK_Firewall_asSQL()+", `Protocol`="+pRow->Protocol_asSQL()+", `SourcePort`="+pRow->SourcePort_asSQL()+", `SourcePortEnd`="+pRow->SourcePortEnd_asSQL()+", `DestinationPort`="+pRow->DestinationPort_asSQL()+", `DestinationIP`="+pRow->DestinationIP_asSQL()+", `RuleType`="+pRow->RuleType_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Firewall set " + update_values_list + " where " + condition;
@@ -502,6 +503,7 @@ update_values_list = update_values_list + "PK_Firewall="+pRow->PK_Firewall_asSQL
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -533,7 +535,7 @@ sprintf(tmp_PK_Firewall, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Firewall=" + tmp_PK_Firewall;
+condition = condition + "`PK_Firewall`=" + tmp_PK_Firewall;
 
 	
 		string query = "delete from Firewall where " + condition;
@@ -541,6 +543,7 @@ condition = condition + "PK_Firewall=" + tmp_PK_Firewall;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -567,6 +570,7 @@ bool Table_Firewall::GetRows(string where_statement,vector<class Row_Firewall*> 
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -575,6 +579,7 @@ bool Table_Firewall::GetRows(string where_statement,vector<class Row_Firewall*> 
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -793,7 +798,7 @@ sprintf(tmp_PK_Firewall, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Firewall=" + tmp_PK_Firewall;
+condition = condition + "`PK_Firewall`=" + tmp_PK_Firewall;
 
 
 	string query = "select * from Firewall where " + condition;		
@@ -801,6 +806,7 @@ condition = condition + "PK_Firewall=" + tmp_PK_Firewall;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -809,6 +815,7 @@ condition = condition + "PK_Firewall=" + tmp_PK_Firewall;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

@@ -5,6 +5,8 @@
 #define PSC_CONSTANTS_BATHDR_TABLE "psc_constants_bathdr"
 #define PSC_CONSTANTS_BATHDR_PK_PSC_CONSTANTS_BATHDR_FIELD "PK_psc_constants_bathdr"
 #define PSC_CONSTANTS_BATHDR_PK_PSC_CONSTANTS_BATHDR_TABLE_FIELD "psc_constants_bathdr.PK_psc_constants_bathdr"
+#define PSC_CONSTANTS_BATHDR_IPADDRESS_FIELD "IPAddress"
+#define PSC_CONSTANTS_BATHDR_IPADDRESS_TABLE_FIELD "psc_constants_bathdr.IPAddress"
 #define PSC_CONSTANTS_BATHDR_DATE_FIELD "date"
 #define PSC_CONSTANTS_BATHDR_DATE_TABLE_FIELD "psc_constants_bathdr.date"
 #define PSC_CONSTANTS_BATHDR_COMMENTS_FIELD "comments"

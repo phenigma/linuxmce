@@ -501,12 +501,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_FloorplanObjectType_asSQL()+", "+pRow->FK_FloorplanType_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->Direction_asSQL()+", "+pRow->FK_DesignObj_Control_asSQL()+", "+pRow->Filename_asSQL()+", "+pRow->FillX_asSQL()+", "+pRow->FillY_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into FloorplanObjectType (PK_FloorplanObjectType, FK_FloorplanType, Description, Define, Direction, FK_DesignObj_Control, Filename, FillX, FillY, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into FloorplanObjectType (`PK_FloorplanObjectType`, `FK_FloorplanType`, `Description`, `Define`, `Direction`, `FK_DesignObj_Control`, `Filename`, `FillX`, `FillY`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -546,12 +547,12 @@ sprintf(tmp_PK_FloorplanObjectType, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_FloorplanObjectType=" + tmp_PK_FloorplanObjectType;
+condition = condition + "`PK_FloorplanObjectType`=" + tmp_PK_FloorplanObjectType;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_FloorplanObjectType="+pRow->PK_FloorplanObjectType_asSQL()+", FK_FloorplanType="+pRow->FK_FloorplanType_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", Direction="+pRow->Direction_asSQL()+", FK_DesignObj_Control="+pRow->FK_DesignObj_Control_asSQL()+", Filename="+pRow->Filename_asSQL()+", FillX="+pRow->FillX_asSQL()+", FillY="+pRow->FillY_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_FloorplanObjectType`="+pRow->PK_FloorplanObjectType_asSQL()+", `FK_FloorplanType`="+pRow->FK_FloorplanType_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `Direction`="+pRow->Direction_asSQL()+", `FK_DesignObj_Control`="+pRow->FK_DesignObj_Control_asSQL()+", `Filename`="+pRow->Filename_asSQL()+", `FillX`="+pRow->FillX_asSQL()+", `FillY`="+pRow->FillY_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update FloorplanObjectType set " + update_values_list + " where " + condition;
@@ -559,6 +560,7 @@ update_values_list = update_values_list + "PK_FloorplanObjectType="+pRow->PK_Flo
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -590,7 +592,7 @@ sprintf(tmp_PK_FloorplanObjectType, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_FloorplanObjectType=" + tmp_PK_FloorplanObjectType;
+condition = condition + "`PK_FloorplanObjectType`=" + tmp_PK_FloorplanObjectType;
 
 	
 		string query = "delete from FloorplanObjectType where " + condition;
@@ -598,6 +600,7 @@ condition = condition + "PK_FloorplanObjectType=" + tmp_PK_FloorplanObjectType;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -624,6 +627,7 @@ bool Table_FloorplanObjectType::GetRows(string where_statement,vector<class Row_
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -632,6 +636,7 @@ bool Table_FloorplanObjectType::GetRows(string where_statement,vector<class Row_
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -872,7 +877,7 @@ sprintf(tmp_PK_FloorplanObjectType, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_FloorplanObjectType=" + tmp_PK_FloorplanObjectType;
+condition = condition + "`PK_FloorplanObjectType`=" + tmp_PK_FloorplanObjectType;
 
 
 	string query = "select * from FloorplanObjectType where " + condition;		
@@ -880,6 +885,7 @@ condition = condition + "PK_FloorplanObjectType=" + tmp_PK_FloorplanObjectType;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -888,6 +894,7 @@ condition = condition + "PK_FloorplanObjectType=" + tmp_PK_FloorplanObjectType;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -1087,14 +1094,14 @@ void Row_FloorplanObjectType::EntertainArea_FK_FloorplanObjectType_getrows(vecto
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_EntertainArea *pTable = table->database->EntertainArea_get();
-pTable->GetRows("FK_FloorplanObjectType=" + StringUtils::itos(m_PK_FloorplanObjectType),rows);
+pTable->GetRows("`FK_FloorplanObjectType=`" + StringUtils::itos(m_PK_FloorplanObjectType),rows);
 }
 void Row_FloorplanObjectType::FloorplanObjectType_Color_FK_FloorplanObjectType_getrows(vector <class Row_FloorplanObjectType_Color*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_FloorplanObjectType_Color *pTable = table->database->FloorplanObjectType_Color_get();
-pTable->GetRows("FK_FloorplanObjectType=" + StringUtils::itos(m_PK_FloorplanObjectType),rows);
+pTable->GetRows("`FK_FloorplanObjectType=`" + StringUtils::itos(m_PK_FloorplanObjectType),rows);
 }
 
 

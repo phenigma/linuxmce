@@ -391,7 +391,7 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->FK_Type_asSQL()+", "+pRow->FK_AttributeType_asSQL()+", "+pRow->Identifier_asSQL()+", "+pRow->CombineAsOne_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Type_AttributeType (FK_Type, FK_AttributeType, Identifier, CombineAsOne, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Type_AttributeType (`FK_Type`, `FK_AttributeType`, `Identifier`, `CombineAsOne`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -438,12 +438,12 @@ sprintf(tmp_FK_AttributeType, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Type=" + tmp_FK_Type+" AND "+"FK_AttributeType=" + tmp_FK_AttributeType;
+condition = condition + "`FK_Type`=" + tmp_FK_Type+" AND "+"`FK_AttributeType`=" + tmp_FK_AttributeType;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_Type="+pRow->FK_Type_asSQL()+", FK_AttributeType="+pRow->FK_AttributeType_asSQL()+", Identifier="+pRow->Identifier_asSQL()+", CombineAsOne="+pRow->CombineAsOne_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`FK_Type`="+pRow->FK_Type_asSQL()+", `FK_AttributeType`="+pRow->FK_AttributeType_asSQL()+", `Identifier`="+pRow->Identifier_asSQL()+", `CombineAsOne`="+pRow->CombineAsOne_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Type_AttributeType set " + update_values_list + " where " + condition;
@@ -486,7 +486,7 @@ sprintf(tmp_FK_AttributeType, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Type=" + tmp_FK_Type+" AND "+"FK_AttributeType=" + tmp_FK_AttributeType;
+condition = condition + "`FK_Type`=" + tmp_FK_Type+" AND "+"`FK_AttributeType`=" + tmp_FK_AttributeType;
 
 	
 		string query = "delete from Type_AttributeType where " + condition;
@@ -719,7 +719,7 @@ sprintf(tmp_FK_AttributeType, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Type=" + tmp_FK_Type+" AND "+"FK_AttributeType=" + tmp_FK_AttributeType;
+condition = condition + "`FK_Type`=" + tmp_FK_Type+" AND "+"`FK_AttributeType`=" + tmp_FK_AttributeType;
 
 
 	string query = "select * from Type_AttributeType where " + condition;		

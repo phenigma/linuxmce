@@ -372,12 +372,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_OperatingSystem_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into OperatingSystem (PK_OperatingSystem, Description, Define, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into OperatingSystem (`PK_OperatingSystem`, `Description`, `Define`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -417,12 +418,12 @@ sprintf(tmp_PK_OperatingSystem, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_OperatingSystem=" + tmp_PK_OperatingSystem;
+condition = condition + "`PK_OperatingSystem`=" + tmp_PK_OperatingSystem;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_OperatingSystem="+pRow->PK_OperatingSystem_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_OperatingSystem`="+pRow->PK_OperatingSystem_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update OperatingSystem set " + update_values_list + " where " + condition;
@@ -430,6 +431,7 @@ update_values_list = update_values_list + "PK_OperatingSystem="+pRow->PK_Operati
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -461,7 +463,7 @@ sprintf(tmp_PK_OperatingSystem, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_OperatingSystem=" + tmp_PK_OperatingSystem;
+condition = condition + "`PK_OperatingSystem`=" + tmp_PK_OperatingSystem;
 
 	
 		string query = "delete from OperatingSystem where " + condition;
@@ -469,6 +471,7 @@ condition = condition + "PK_OperatingSystem=" + tmp_PK_OperatingSystem;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -495,6 +498,7 @@ bool Table_OperatingSystem::GetRows(string where_statement,vector<class Row_Oper
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -503,6 +507,7 @@ bool Table_OperatingSystem::GetRows(string where_statement,vector<class Row_Oper
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -677,7 +682,7 @@ sprintf(tmp_PK_OperatingSystem, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_OperatingSystem=" + tmp_PK_OperatingSystem;
+condition = condition + "`PK_OperatingSystem`=" + tmp_PK_OperatingSystem;
 
 
 	string query = "select * from OperatingSystem where " + condition;		
@@ -685,6 +690,7 @@ condition = condition + "PK_OperatingSystem=" + tmp_PK_OperatingSystem;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -693,6 +699,7 @@ condition = condition + "PK_OperatingSystem=" + tmp_PK_OperatingSystem;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -812,56 +819,56 @@ void Row_OperatingSystem::DeviceTemplate_FK_OperatingSystem_getrows(vector <clas
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate *pTable = table->database->DeviceTemplate_get();
-pTable->GetRows("FK_OperatingSystem=" + StringUtils::itos(m_PK_OperatingSystem),rows);
+pTable->GetRows("`FK_OperatingSystem=`" + StringUtils::itos(m_PK_OperatingSystem),rows);
 }
 void Row_OperatingSystem::Distro_FK_OperatingSystem_getrows(vector <class Row_Distro*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Distro *pTable = table->database->Distro_get();
-pTable->GetRows("FK_OperatingSystem=" + StringUtils::itos(m_PK_OperatingSystem),rows);
+pTable->GetRows("`FK_OperatingSystem=`" + StringUtils::itos(m_PK_OperatingSystem),rows);
 }
 void Row_OperatingSystem::InstallWizard_Distro_FK_OperatingSystem_getrows(vector <class Row_InstallWizard_Distro*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_InstallWizard_Distro *pTable = table->database->InstallWizard_Distro_get();
-pTable->GetRows("FK_OperatingSystem=" + StringUtils::itos(m_PK_OperatingSystem),rows);
+pTable->GetRows("`FK_OperatingSystem=`" + StringUtils::itos(m_PK_OperatingSystem),rows);
 }
 void Row_OperatingSystem::Package_Compat_FK_OperatingSystem_getrows(vector <class Row_Package_Compat*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Compat *pTable = table->database->Package_Compat_get();
-pTable->GetRows("FK_OperatingSystem=" + StringUtils::itos(m_PK_OperatingSystem),rows);
+pTable->GetRows("`FK_OperatingSystem=`" + StringUtils::itos(m_PK_OperatingSystem),rows);
 }
 void Row_OperatingSystem::Package_Directory_FK_OperatingSystem_getrows(vector <class Row_Package_Directory*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Directory *pTable = table->database->Package_Directory_get();
-pTable->GetRows("FK_OperatingSystem=" + StringUtils::itos(m_PK_OperatingSystem),rows);
+pTable->GetRows("`FK_OperatingSystem=`" + StringUtils::itos(m_PK_OperatingSystem),rows);
 }
 void Row_OperatingSystem::Package_Directory_File_FK_OperatingSystem_getrows(vector <class Row_Package_Directory_File*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Directory_File *pTable = table->database->Package_Directory_File_get();
-pTable->GetRows("FK_OperatingSystem=" + StringUtils::itos(m_PK_OperatingSystem),rows);
+pTable->GetRows("`FK_OperatingSystem=`" + StringUtils::itos(m_PK_OperatingSystem),rows);
 }
 void Row_OperatingSystem::Package_Source_Compat_FK_OperatingSystem_getrows(vector <class Row_Package_Source_Compat*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Source_Compat *pTable = table->database->Package_Source_Compat_get();
-pTable->GetRows("FK_OperatingSystem=" + StringUtils::itos(m_PK_OperatingSystem),rows);
+pTable->GetRows("`FK_OperatingSystem=`" + StringUtils::itos(m_PK_OperatingSystem),rows);
 }
 void Row_OperatingSystem::RepositorySource_FK_OperatingSystem_getrows(vector <class Row_RepositorySource*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_RepositorySource *pTable = table->database->RepositorySource_get();
-pTable->GetRows("FK_OperatingSystem=" + StringUtils::itos(m_PK_OperatingSystem),rows);
+pTable->GetRows("`FK_OperatingSystem=`" + StringUtils::itos(m_PK_OperatingSystem),rows);
 }
 
 

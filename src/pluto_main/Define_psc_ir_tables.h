@@ -11,6 +11,8 @@
 #define PSC_IR_TABLES_FILTER_TABLE_FIELD "psc_ir_tables.filter"
 #define PSC_IR_TABLES_FROZEN_FIELD "frozen"
 #define PSC_IR_TABLES_FROZEN_TABLE_FIELD "psc_ir_tables.frozen"
+#define PSC_IR_TABLES_ANONYMOUS_FIELD "anonymous"
+#define PSC_IR_TABLES_ANONYMOUS_TABLE_FIELD "psc_ir_tables.anonymous"
 #define PSC_IR_TABLES_LAST_PSC_ID_FIELD "last_psc_id"
 #define PSC_IR_TABLES_LAST_PSC_ID_TABLE_FIELD "psc_ir_tables.last_psc_id"
 #define PSC_IR_TABLES_LAST_PSC_BATCH_FIELD "last_psc_batch"

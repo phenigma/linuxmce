@@ -31,7 +31,7 @@
 #define DEVICECATEGORY_Interfaces_CONST 71
 #define DEVICECATEGORY_Environment_CONST 72
 #define DEVICECATEGORY_Lighting_Device_CONST 73
-#define DEVICECATEGORY_gc100_CONST 75
+#define DEVICECATEGORY_PVR_Capture_Cards_CONST 75
 #define DEVICECATEGORY_AV_CONST 76
 #define DEVICECATEGORY_TVs_CONST 77
 #define DEVICECATEGORY_Infrared_Plugins_CONST 78
@@ -65,6 +65,8 @@
 #define DEVICECATEGORY_Satellite_Boxes_CONST 108
 #define DEVICECATEGORY_TVVCR_Combo_CONST 109
 #define DEVICECATEGORY_Bluetooth_Dongles_CONST 110
+#define DEVICECATEGORY_Generic_Analog_Capture_Card_CONST 111
+#define DEVICECATEGORY_Generic_Analog_Camera_CONST 113
 
 #define DEVICECATEGORY_TABLE "DeviceCategory"
 #define DEVICECATEGORY_PK_DEVICECATEGORY_FIELD "PK_DeviceCategory"

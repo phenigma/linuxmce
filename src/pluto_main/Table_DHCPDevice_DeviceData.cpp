@@ -370,12 +370,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->FK_DHCPDevice_asSQL()+", "+pRow->FK_DeviceData_asSQL()+", "+pRow->IK_DeviceData_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into DHCPDevice_DeviceData (FK_DHCPDevice, FK_DeviceData, IK_DeviceData, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into DHCPDevice_DeviceData (`FK_DHCPDevice`, `FK_DeviceData`, `IK_DeviceData`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -416,12 +417,12 @@ sprintf(tmp_FK_DeviceData, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_DHCPDevice=" + tmp_FK_DHCPDevice+" AND "+"FK_DeviceData=" + tmp_FK_DeviceData;
+condition = condition + "`FK_DHCPDevice`=" + tmp_FK_DHCPDevice+" AND "+"`FK_DeviceData`=" + tmp_FK_DeviceData;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_DHCPDevice="+pRow->FK_DHCPDevice_asSQL()+", FK_DeviceData="+pRow->FK_DeviceData_asSQL()+", IK_DeviceData="+pRow->IK_DeviceData_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`FK_DHCPDevice`="+pRow->FK_DHCPDevice_asSQL()+", `FK_DeviceData`="+pRow->FK_DeviceData_asSQL()+", `IK_DeviceData`="+pRow->IK_DeviceData_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update DHCPDevice_DeviceData set " + update_values_list + " where " + condition;
@@ -429,6 +430,7 @@ update_values_list = update_values_list + "FK_DHCPDevice="+pRow->FK_DHCPDevice_a
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -463,7 +465,7 @@ sprintf(tmp_FK_DeviceData, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_DHCPDevice=" + tmp_FK_DHCPDevice+" AND "+"FK_DeviceData=" + tmp_FK_DeviceData;
+condition = condition + "`FK_DHCPDevice`=" + tmp_FK_DHCPDevice+" AND "+"`FK_DeviceData`=" + tmp_FK_DeviceData;
 
 	
 		string query = "delete from DHCPDevice_DeviceData where " + condition;
@@ -471,6 +473,7 @@ condition = condition + "FK_DHCPDevice=" + tmp_FK_DHCPDevice+" AND "+"FK_DeviceD
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -497,6 +500,7 @@ bool Table_DHCPDevice_DeviceData::GetRows(string where_statement,vector<class Ro
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -505,6 +509,7 @@ bool Table_DHCPDevice_DeviceData::GetRows(string where_statement,vector<class Ro
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -682,7 +687,7 @@ sprintf(tmp_FK_DeviceData, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_DHCPDevice=" + tmp_FK_DHCPDevice+" AND "+"FK_DeviceData=" + tmp_FK_DeviceData;
+condition = condition + "`FK_DHCPDevice`=" + tmp_FK_DHCPDevice+" AND "+"`FK_DeviceData`=" + tmp_FK_DeviceData;
 
 
 	string query = "select * from DHCPDevice_DeviceData where " + condition;		
@@ -690,6 +695,7 @@ condition = condition + "FK_DHCPDevice=" + tmp_FK_DHCPDevice+" AND "+"FK_DeviceD
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -698,6 +704,7 @@ condition = condition + "FK_DHCPDevice=" + tmp_FK_DHCPDevice+" AND "+"FK_DeviceD
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

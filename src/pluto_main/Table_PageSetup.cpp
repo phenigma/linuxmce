@@ -485,12 +485,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_PageSetup_asSQL()+", "+pRow->FK_PageSetup_Parent_asSQL()+", "+pRow->Website_asSQL()+", "+pRow->OrderNum_asSQL()+", "+pRow->FK_Package_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->pageURL_asSQL()+", "+pRow->showInTopMenu_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into PageSetup (PK_PageSetup, FK_PageSetup_Parent, Website, OrderNum, FK_Package, Description, pageURL, showInTopMenu, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into PageSetup (`PK_PageSetup`, `FK_PageSetup_Parent`, `Website`, `OrderNum`, `FK_Package`, `Description`, `pageURL`, `showInTopMenu`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -530,12 +531,12 @@ sprintf(tmp_PK_PageSetup, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_PageSetup=" + tmp_PK_PageSetup;
+condition = condition + "`PK_PageSetup`=" + tmp_PK_PageSetup;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_PageSetup="+pRow->PK_PageSetup_asSQL()+", FK_PageSetup_Parent="+pRow->FK_PageSetup_Parent_asSQL()+", Website="+pRow->Website_asSQL()+", OrderNum="+pRow->OrderNum_asSQL()+", FK_Package="+pRow->FK_Package_asSQL()+", Description="+pRow->Description_asSQL()+", pageURL="+pRow->pageURL_asSQL()+", showInTopMenu="+pRow->showInTopMenu_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_PageSetup`="+pRow->PK_PageSetup_asSQL()+", `FK_PageSetup_Parent`="+pRow->FK_PageSetup_Parent_asSQL()+", `Website`="+pRow->Website_asSQL()+", `OrderNum`="+pRow->OrderNum_asSQL()+", `FK_Package`="+pRow->FK_Package_asSQL()+", `Description`="+pRow->Description_asSQL()+", `pageURL`="+pRow->pageURL_asSQL()+", `showInTopMenu`="+pRow->showInTopMenu_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update PageSetup set " + update_values_list + " where " + condition;
@@ -543,6 +544,7 @@ update_values_list = update_values_list + "PK_PageSetup="+pRow->PK_PageSetup_asS
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -574,7 +576,7 @@ sprintf(tmp_PK_PageSetup, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_PageSetup=" + tmp_PK_PageSetup;
+condition = condition + "`PK_PageSetup`=" + tmp_PK_PageSetup;
 
 	
 		string query = "delete from PageSetup where " + condition;
@@ -582,6 +584,7 @@ condition = condition + "PK_PageSetup=" + tmp_PK_PageSetup;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -608,6 +611,7 @@ bool Table_PageSetup::GetRows(string where_statement,vector<class Row_PageSetup*
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -616,6 +620,7 @@ bool Table_PageSetup::GetRows(string where_statement,vector<class Row_PageSetup*
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -845,7 +850,7 @@ sprintf(tmp_PK_PageSetup, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_PageSetup=" + tmp_PK_PageSetup;
+condition = condition + "`PK_PageSetup`=" + tmp_PK_PageSetup;
 
 
 	string query = "select * from PageSetup where " + condition;		
@@ -853,6 +858,7 @@ condition = condition + "PK_PageSetup=" + tmp_PK_PageSetup;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -861,6 +867,7 @@ condition = condition + "PK_PageSetup=" + tmp_PK_PageSetup;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -1049,21 +1056,21 @@ void Row_PageSetup::DeviceTemplate_PageSetup_FK_PageSetup_getrows(vector <class 
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_PageSetup *pTable = table->database->DeviceTemplate_PageSetup_get();
-pTable->GetRows("FK_PageSetup=" + StringUtils::itos(m_PK_PageSetup),rows);
+pTable->GetRows("`FK_PageSetup=`" + StringUtils::itos(m_PK_PageSetup),rows);
 }
 void Row_PageSetup::PageSetup_FK_PageSetup_Parent_getrows(vector <class Row_PageSetup*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_PageSetup *pTable = table->database->PageSetup_get();
-pTable->GetRows("FK_PageSetup_Parent=" + StringUtils::itos(m_PK_PageSetup),rows);
+pTable->GetRows("`FK_PageSetup_Parent=`" + StringUtils::itos(m_PK_PageSetup),rows);
 }
 void Row_PageSetup::SetupStep_FK_PageSetup_getrows(vector <class Row_SetupStep*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_SetupStep *pTable = table->database->SetupStep_get();
-pTable->GetRows("FK_PageSetup=" + StringUtils::itos(m_PK_PageSetup),rows);
+pTable->GetRows("`FK_PageSetup=`" + StringUtils::itos(m_PK_PageSetup),rows);
 }
 
 

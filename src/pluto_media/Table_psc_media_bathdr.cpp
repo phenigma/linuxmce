@@ -211,7 +211,7 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_media_bathdr_asSQL()+", "+pRow->Value_asSQL();
 
 	
-		string query = "insert into psc_media_bathdr (PK_psc_media_bathdr, Value) values ("+
+		string query = "insert into psc_media_bathdr (`PK_psc_media_bathdr`, `Value`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -257,12 +257,12 @@ sprintf(tmp_PK_psc_media_bathdr, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_media_bathdr=" + tmp_PK_psc_media_bathdr;
+condition = condition + "`PK_psc_media_bathdr`=" + tmp_PK_psc_media_bathdr;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_psc_media_bathdr="+pRow->PK_psc_media_bathdr_asSQL()+", Value="+pRow->Value_asSQL();
+update_values_list = update_values_list + "`PK_psc_media_bathdr`="+pRow->PK_psc_media_bathdr_asSQL()+", `Value`="+pRow->Value_asSQL();
 
 	
 		string query = "update psc_media_bathdr set " + update_values_list + " where " + condition;
@@ -302,7 +302,7 @@ sprintf(tmp_PK_psc_media_bathdr, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_media_bathdr=" + tmp_PK_psc_media_bathdr;
+condition = condition + "`PK_psc_media_bathdr`=" + tmp_PK_psc_media_bathdr;
 
 	
 		string query = "delete from psc_media_bathdr where " + condition;
@@ -455,7 +455,7 @@ sprintf(tmp_PK_psc_media_bathdr, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_media_bathdr=" + tmp_PK_psc_media_bathdr;
+condition = condition + "`PK_psc_media_bathdr`=" + tmp_PK_psc_media_bathdr;
 
 
 	string query = "select * from psc_media_bathdr where " + condition;		
@@ -526,7 +526,7 @@ void Row_psc_media_bathdr::psc_media_batuser_FK_psc_media_bathdr_getrows(vector 
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_media_batuser *pTable = table->database->psc_media_batuser_get();
-pTable->GetRows("FK_psc_media_bathdr=" + StringUtils::itos(m_PK_psc_media_bathdr),rows);
+pTable->GetRows("`FK_psc_media_bathdr=`" + StringUtils::itos(m_PK_psc_media_bathdr),rows);
 }
 
 

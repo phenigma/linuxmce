@@ -252,7 +252,7 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_media_batuser_asSQL()+", "+pRow->FK_psc_media_bathdr_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->is_sup_asSQL();
 
 	
-		string query = "insert into psc_media_batuser (PK_psc_media_batuser, FK_psc_media_bathdr, psc_user, is_sup) values ("+
+		string query = "insert into psc_media_batuser (`PK_psc_media_batuser`, `FK_psc_media_bathdr`, `psc_user`, `is_sup`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -298,12 +298,12 @@ sprintf(tmp_PK_psc_media_batuser, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_media_batuser=" + tmp_PK_psc_media_batuser;
+condition = condition + "`PK_psc_media_batuser`=" + tmp_PK_psc_media_batuser;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_psc_media_batuser="+pRow->PK_psc_media_batuser_asSQL()+", FK_psc_media_bathdr="+pRow->FK_psc_media_bathdr_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", is_sup="+pRow->is_sup_asSQL();
+update_values_list = update_values_list + "`PK_psc_media_batuser`="+pRow->PK_psc_media_batuser_asSQL()+", `FK_psc_media_bathdr`="+pRow->FK_psc_media_bathdr_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `is_sup`="+pRow->is_sup_asSQL();
 
 	
 		string query = "update psc_media_batuser set " + update_values_list + " where " + condition;
@@ -343,7 +343,7 @@ sprintf(tmp_PK_psc_media_batuser, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_media_batuser=" + tmp_PK_psc_media_batuser;
+condition = condition + "`PK_psc_media_batuser`=" + tmp_PK_psc_media_batuser;
 
 	
 		string query = "delete from psc_media_batuser where " + condition;
@@ -518,7 +518,7 @@ sprintf(tmp_PK_psc_media_batuser, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_media_batuser=" + tmp_PK_psc_media_batuser;
+condition = condition + "`PK_psc_media_batuser`=" + tmp_PK_psc_media_batuser;
 
 
 	string query = "select * from psc_media_batuser where " + condition;		

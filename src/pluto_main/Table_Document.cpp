@@ -439,12 +439,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_Document_asSQL()+", "+pRow->FK_Document_Parent_asSQL()+", "+pRow->Hidden_asSQL()+", "+pRow->Order_asSQL()+", "+pRow->Title_asSQL()+", "+pRow->Contents_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Document (PK_Document, FK_Document_Parent, Hidden, Order, Title, Contents, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Document (`PK_Document`, `FK_Document_Parent`, `Hidden`, `Order`, `Title`, `Contents`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -484,12 +485,12 @@ sprintf(tmp_PK_Document, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Document=" + tmp_PK_Document;
+condition = condition + "`PK_Document`=" + tmp_PK_Document;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Document="+pRow->PK_Document_asSQL()+", FK_Document_Parent="+pRow->FK_Document_Parent_asSQL()+", Hidden="+pRow->Hidden_asSQL()+", Order="+pRow->Order_asSQL()+", Title="+pRow->Title_asSQL()+", Contents="+pRow->Contents_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Document`="+pRow->PK_Document_asSQL()+", `FK_Document_Parent`="+pRow->FK_Document_Parent_asSQL()+", `Hidden`="+pRow->Hidden_asSQL()+", `Order`="+pRow->Order_asSQL()+", `Title`="+pRow->Title_asSQL()+", `Contents`="+pRow->Contents_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Document set " + update_values_list + " where " + condition;
@@ -497,6 +498,7 @@ update_values_list = update_values_list + "PK_Document="+pRow->PK_Document_asSQL
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -528,7 +530,7 @@ sprintf(tmp_PK_Document, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Document=" + tmp_PK_Document;
+condition = condition + "`PK_Document`=" + tmp_PK_Document;
 
 	
 		string query = "delete from Document where " + condition;
@@ -536,6 +538,7 @@ condition = condition + "PK_Document=" + tmp_PK_Document;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -562,6 +565,7 @@ bool Table_Document::GetRows(string where_statement,vector<class Row_Document*> 
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -570,6 +574,7 @@ bool Table_Document::GetRows(string where_statement,vector<class Row_Document*> 
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -777,7 +782,7 @@ sprintf(tmp_PK_Document, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Document=" + tmp_PK_Document;
+condition = condition + "`PK_Document`=" + tmp_PK_Document;
 
 
 	string query = "select * from Document where " + condition;		
@@ -785,6 +790,7 @@ condition = condition + "PK_Document=" + tmp_PK_Document;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -793,6 +799,7 @@ condition = condition + "PK_Document=" + tmp_PK_Document;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -952,42 +959,42 @@ void Row_Document::DesignObj_FK_Document_getrows(vector <class Row_DesignObj*> *
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObj *pTable = table->database->DesignObj_get();
-pTable->GetRows("FK_Document=" + StringUtils::itos(m_PK_Document),rows);
+pTable->GetRows("`FK_Document=`" + StringUtils::itos(m_PK_Document),rows);
 }
 void Row_Document::Document_FK_Document_Parent_getrows(vector <class Row_Document*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Document *pTable = table->database->Document_get();
-pTable->GetRows("FK_Document_Parent=" + StringUtils::itos(m_PK_Document),rows);
+pTable->GetRows("`FK_Document_Parent=`" + StringUtils::itos(m_PK_Document),rows);
 }
 void Row_Document::Document_Comment_FK_Document_getrows(vector <class Row_Document_Comment*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Document_Comment *pTable = table->database->Document_Comment_get();
-pTable->GetRows("FK_Document=" + StringUtils::itos(m_PK_Document),rows);
+pTable->GetRows("`FK_Document=`" + StringUtils::itos(m_PK_Document),rows);
 }
 void Row_Document::Package_FK_Document_getrows(vector <class Row_Package*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package *pTable = table->database->Package_get();
-pTable->GetRows("FK_Document=" + StringUtils::itos(m_PK_Document),rows);
+pTable->GetRows("`FK_Document=`" + StringUtils::itos(m_PK_Document),rows);
 }
 void Row_Document::Package_FK_Document_UsersManual_getrows(vector <class Row_Package*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package *pTable = table->database->Package_get();
-pTable->GetRows("FK_Document_UsersManual=" + StringUtils::itos(m_PK_Document),rows);
+pTable->GetRows("`FK_Document_UsersManual=`" + StringUtils::itos(m_PK_Document),rows);
 }
 void Row_Document::Package_FK_Document_ProgrammersGuide_getrows(vector <class Row_Package*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package *pTable = table->database->Package_get();
-pTable->GetRows("FK_Document_ProgrammersGuide=" + StringUtils::itos(m_PK_Document),rows);
+pTable->GetRows("`FK_Document_ProgrammersGuide=`" + StringUtils::itos(m_PK_Document),rows);
 }
 
 

@@ -461,12 +461,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_CommandGroup_Command_asSQL()+", "+pRow->FK_CommandGroup_asSQL()+", "+pRow->FK_Command_asSQL()+", "+pRow->FK_Device_asSQL()+", "+pRow->FK_DeviceGroup_asSQL()+", "+pRow->TurnOff_asSQL()+", "+pRow->OrderNum_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into CommandGroup_Command (PK_CommandGroup_Command, FK_CommandGroup, FK_Command, FK_Device, FK_DeviceGroup, TurnOff, OrderNum, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into CommandGroup_Command (`PK_CommandGroup_Command`, `FK_CommandGroup`, `FK_Command`, `FK_Device`, `FK_DeviceGroup`, `TurnOff`, `OrderNum`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -506,12 +507,12 @@ sprintf(tmp_PK_CommandGroup_Command, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_CommandGroup_Command=" + tmp_PK_CommandGroup_Command;
+condition = condition + "`PK_CommandGroup_Command`=" + tmp_PK_CommandGroup_Command;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_CommandGroup_Command="+pRow->PK_CommandGroup_Command_asSQL()+", FK_CommandGroup="+pRow->FK_CommandGroup_asSQL()+", FK_Command="+pRow->FK_Command_asSQL()+", FK_Device="+pRow->FK_Device_asSQL()+", FK_DeviceGroup="+pRow->FK_DeviceGroup_asSQL()+", TurnOff="+pRow->TurnOff_asSQL()+", OrderNum="+pRow->OrderNum_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_CommandGroup_Command`="+pRow->PK_CommandGroup_Command_asSQL()+", `FK_CommandGroup`="+pRow->FK_CommandGroup_asSQL()+", `FK_Command`="+pRow->FK_Command_asSQL()+", `FK_Device`="+pRow->FK_Device_asSQL()+", `FK_DeviceGroup`="+pRow->FK_DeviceGroup_asSQL()+", `TurnOff`="+pRow->TurnOff_asSQL()+", `OrderNum`="+pRow->OrderNum_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update CommandGroup_Command set " + update_values_list + " where " + condition;
@@ -519,6 +520,7 @@ update_values_list = update_values_list + "PK_CommandGroup_Command="+pRow->PK_Co
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -550,7 +552,7 @@ sprintf(tmp_PK_CommandGroup_Command, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_CommandGroup_Command=" + tmp_PK_CommandGroup_Command;
+condition = condition + "`PK_CommandGroup_Command`=" + tmp_PK_CommandGroup_Command;
 
 	
 		string query = "delete from CommandGroup_Command where " + condition;
@@ -558,6 +560,7 @@ condition = condition + "PK_CommandGroup_Command=" + tmp_PK_CommandGroup_Command
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -584,6 +587,7 @@ bool Table_CommandGroup_Command::GetRows(string where_statement,vector<class Row
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -592,6 +596,7 @@ bool Table_CommandGroup_Command::GetRows(string where_statement,vector<class Row
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -810,7 +815,7 @@ sprintf(tmp_PK_CommandGroup_Command, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_CommandGroup_Command=" + tmp_PK_CommandGroup_Command;
+condition = condition + "`PK_CommandGroup_Command`=" + tmp_PK_CommandGroup_Command;
 
 
 	string query = "select * from CommandGroup_Command where " + condition;		
@@ -818,6 +823,7 @@ condition = condition + "PK_CommandGroup_Command=" + tmp_PK_CommandGroup_Command
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -826,6 +832,7 @@ condition = condition + "PK_CommandGroup_Command=" + tmp_PK_CommandGroup_Command
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -1017,7 +1024,7 @@ void Row_CommandGroup_Command::CommandGroup_Command_CommandParameter_FK_CommandG
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_Command_CommandParameter *pTable = table->database->CommandGroup_Command_CommandParameter_get();
-pTable->GetRows("FK_CommandGroup_Command=" + StringUtils::itos(m_PK_CommandGroup_Command),rows);
+pTable->GetRows("`FK_CommandGroup_Command=`" + StringUtils::itos(m_PK_CommandGroup_Command),rows);
 }
 
 

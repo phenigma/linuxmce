@@ -612,12 +612,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_Distro_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->Installer_asSQL()+", "+pRow->KickStartCD_asSQL()+", "+pRow->Binaries_asSQL()+", "+pRow->SourceCode_asSQL()+", "+pRow->Confirmed_asSQL()+", "+pRow->Core_asSQL()+", "+pRow->MediaDirector_asSQL()+", "+pRow->Orbiter_asSQL()+", "+pRow->InstallerURL_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Distro (PK_Distro, Description, Define, FK_OperatingSystem, Installer, KickStartCD, Binaries, SourceCode, Confirmed, Core, MediaDirector, Orbiter, InstallerURL, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Distro (`PK_Distro`, `Description`, `Define`, `FK_OperatingSystem`, `Installer`, `KickStartCD`, `Binaries`, `SourceCode`, `Confirmed`, `Core`, `MediaDirector`, `Orbiter`, `InstallerURL`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -657,12 +658,12 @@ sprintf(tmp_PK_Distro, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Distro=" + tmp_PK_Distro;
+condition = condition + "`PK_Distro`=" + tmp_PK_Distro;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Distro="+pRow->PK_Distro_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", Installer="+pRow->Installer_asSQL()+", KickStartCD="+pRow->KickStartCD_asSQL()+", Binaries="+pRow->Binaries_asSQL()+", SourceCode="+pRow->SourceCode_asSQL()+", Confirmed="+pRow->Confirmed_asSQL()+", Core="+pRow->Core_asSQL()+", MediaDirector="+pRow->MediaDirector_asSQL()+", Orbiter="+pRow->Orbiter_asSQL()+", InstallerURL="+pRow->InstallerURL_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Distro`="+pRow->PK_Distro_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `FK_OperatingSystem`="+pRow->FK_OperatingSystem_asSQL()+", `Installer`="+pRow->Installer_asSQL()+", `KickStartCD`="+pRow->KickStartCD_asSQL()+", `Binaries`="+pRow->Binaries_asSQL()+", `SourceCode`="+pRow->SourceCode_asSQL()+", `Confirmed`="+pRow->Confirmed_asSQL()+", `Core`="+pRow->Core_asSQL()+", `MediaDirector`="+pRow->MediaDirector_asSQL()+", `Orbiter`="+pRow->Orbiter_asSQL()+", `InstallerURL`="+pRow->InstallerURL_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Distro set " + update_values_list + " where " + condition;
@@ -670,6 +671,7 @@ update_values_list = update_values_list + "PK_Distro="+pRow->PK_Distro_asSQL()+"
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -701,7 +703,7 @@ sprintf(tmp_PK_Distro, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Distro=" + tmp_PK_Distro;
+condition = condition + "`PK_Distro`=" + tmp_PK_Distro;
 
 	
 		string query = "delete from Distro where " + condition;
@@ -709,6 +711,7 @@ condition = condition + "PK_Distro=" + tmp_PK_Distro;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -735,6 +738,7 @@ bool Table_Distro::GetRows(string where_statement,vector<class Row_Distro*> *row
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -743,6 +747,7 @@ bool Table_Distro::GetRows(string where_statement,vector<class Row_Distro*> *row
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -1027,7 +1032,7 @@ sprintf(tmp_PK_Distro, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Distro=" + tmp_PK_Distro;
+condition = condition + "`PK_Distro`=" + tmp_PK_Distro;
 
 
 	string query = "select * from Distro where " + condition;		
@@ -1035,6 +1040,7 @@ condition = condition + "PK_Distro=" + tmp_PK_Distro;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -1043,6 +1049,7 @@ condition = condition + "PK_Distro=" + tmp_PK_Distro;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -1279,49 +1286,49 @@ void Row_Distro::DeviceTemplate_FK_Distro_getrows(vector <class Row_DeviceTempla
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate *pTable = table->database->DeviceTemplate_get();
-pTable->GetRows("FK_Distro=" + StringUtils::itos(m_PK_Distro),rows);
+pTable->GetRows("`FK_Distro=`" + StringUtils::itos(m_PK_Distro),rows);
 }
 void Row_Distro::InstallWizard_Distro_FK_Distro_getrows(vector <class Row_InstallWizard_Distro*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_InstallWizard_Distro *pTable = table->database->InstallWizard_Distro_get();
-pTable->GetRows("FK_Distro=" + StringUtils::itos(m_PK_Distro),rows);
+pTable->GetRows("`FK_Distro=`" + StringUtils::itos(m_PK_Distro),rows);
 }
 void Row_Distro::Package_Compat_FK_Distro_getrows(vector <class Row_Package_Compat*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Compat *pTable = table->database->Package_Compat_get();
-pTable->GetRows("FK_Distro=" + StringUtils::itos(m_PK_Distro),rows);
+pTable->GetRows("`FK_Distro=`" + StringUtils::itos(m_PK_Distro),rows);
 }
 void Row_Distro::Package_Directory_FK_Distro_getrows(vector <class Row_Package_Directory*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Directory *pTable = table->database->Package_Directory_get();
-pTable->GetRows("FK_Distro=" + StringUtils::itos(m_PK_Distro),rows);
+pTable->GetRows("`FK_Distro=`" + StringUtils::itos(m_PK_Distro),rows);
 }
 void Row_Distro::Package_Directory_File_FK_Distro_getrows(vector <class Row_Package_Directory_File*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Directory_File *pTable = table->database->Package_Directory_File_get();
-pTable->GetRows("FK_Distro=" + StringUtils::itos(m_PK_Distro),rows);
+pTable->GetRows("`FK_Distro=`" + StringUtils::itos(m_PK_Distro),rows);
 }
 void Row_Distro::Package_Source_Compat_FK_Distro_getrows(vector <class Row_Package_Source_Compat*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Source_Compat *pTable = table->database->Package_Source_Compat_get();
-pTable->GetRows("FK_Distro=" + StringUtils::itos(m_PK_Distro),rows);
+pTable->GetRows("`FK_Distro=`" + StringUtils::itos(m_PK_Distro),rows);
 }
 void Row_Distro::RepositorySource_FK_Distro_getrows(vector <class Row_RepositorySource*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_RepositorySource *pTable = table->database->RepositorySource_get();
-pTable->GetRows("FK_Distro=" + StringUtils::itos(m_PK_Distro),rows);
+pTable->GetRows("`FK_Distro=`" + StringUtils::itos(m_PK_Distro),rows);
 }
 
 

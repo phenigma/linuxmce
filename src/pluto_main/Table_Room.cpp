@@ -444,12 +444,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_Room_asSQL()+", "+pRow->FK_Installation_asSQL()+", "+pRow->FK_RoomType_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_Icon_asSQL()+", "+pRow->ManuallyConfigureEA_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Room (PK_Room, FK_Installation, FK_RoomType, Description, FK_Icon, ManuallyConfigureEA, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Room (`PK_Room`, `FK_Installation`, `FK_RoomType`, `Description`, `FK_Icon`, `ManuallyConfigureEA`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -489,12 +490,12 @@ sprintf(tmp_PK_Room, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Room=" + tmp_PK_Room;
+condition = condition + "`PK_Room`=" + tmp_PK_Room;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Room="+pRow->PK_Room_asSQL()+", FK_Installation="+pRow->FK_Installation_asSQL()+", FK_RoomType="+pRow->FK_RoomType_asSQL()+", Description="+pRow->Description_asSQL()+", FK_Icon="+pRow->FK_Icon_asSQL()+", ManuallyConfigureEA="+pRow->ManuallyConfigureEA_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Room`="+pRow->PK_Room_asSQL()+", `FK_Installation`="+pRow->FK_Installation_asSQL()+", `FK_RoomType`="+pRow->FK_RoomType_asSQL()+", `Description`="+pRow->Description_asSQL()+", `FK_Icon`="+pRow->FK_Icon_asSQL()+", `ManuallyConfigureEA`="+pRow->ManuallyConfigureEA_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Room set " + update_values_list + " where " + condition;
@@ -502,6 +503,7 @@ update_values_list = update_values_list + "PK_Room="+pRow->PK_Room_asSQL()+", FK
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -533,7 +535,7 @@ sprintf(tmp_PK_Room, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Room=" + tmp_PK_Room;
+condition = condition + "`PK_Room`=" + tmp_PK_Room;
 
 	
 		string query = "delete from Room where " + condition;
@@ -541,6 +543,7 @@ condition = condition + "PK_Room=" + tmp_PK_Room;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -567,6 +570,7 @@ bool Table_Room::GetRows(string where_statement,vector<class Row_Room*> *rows)
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -575,6 +579,7 @@ bool Table_Room::GetRows(string where_statement,vector<class Row_Room*> *rows)
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -782,7 +787,7 @@ sprintf(tmp_PK_Room, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Room=" + tmp_PK_Room;
+condition = condition + "`PK_Room`=" + tmp_PK_Room;
 
 
 	string query = "select * from Room where " + condition;		
@@ -790,6 +795,7 @@ condition = condition + "PK_Room=" + tmp_PK_Room;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -798,6 +804,7 @@ condition = condition + "PK_Room=" + tmp_PK_Room;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -971,28 +978,28 @@ void Row_Room::CommandGroup_Room_FK_Room_getrows(vector <class Row_CommandGroup_
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_Room *pTable = table->database->CommandGroup_Room_get();
-pTable->GetRows("FK_Room=" + StringUtils::itos(m_PK_Room),rows);
+pTable->GetRows("`FK_Room=`" + StringUtils::itos(m_PK_Room),rows);
 }
 void Row_Room::Device_FK_Room_getrows(vector <class Row_Device*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device *pTable = table->database->Device_get();
-pTable->GetRows("FK_Room=" + StringUtils::itos(m_PK_Room),rows);
+pTable->GetRows("`FK_Room=`" + StringUtils::itos(m_PK_Room),rows);
 }
 void Row_Room::EntertainArea_FK_Room_getrows(vector <class Row_EntertainArea*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_EntertainArea *pTable = table->database->EntertainArea_get();
-pTable->GetRows("FK_Room=" + StringUtils::itos(m_PK_Room),rows);
+pTable->GetRows("`FK_Room=`" + StringUtils::itos(m_PK_Room),rows);
 }
 void Row_Room::Room_Users_FK_Room_getrows(vector <class Row_Room_Users*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Room_Users *pTable = table->database->Room_Users_get();
-pTable->GetRows("FK_Room=" + StringUtils::itos(m_PK_Room),rows);
+pTable->GetRows("`FK_Room=`" + StringUtils::itos(m_PK_Room),rows);
 }
 
 

@@ -366,7 +366,7 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_AttributeType_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into AttributeType (PK_AttributeType, Description, Define, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into AttributeType (`PK_AttributeType`, `Description`, `Define`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -410,12 +410,12 @@ sprintf(tmp_PK_AttributeType, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_AttributeType=" + tmp_PK_AttributeType;
+condition = condition + "`PK_AttributeType`=" + tmp_PK_AttributeType;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_AttributeType="+pRow->PK_AttributeType_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_AttributeType`="+pRow->PK_AttributeType_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update AttributeType set " + update_values_list + " where " + condition;
@@ -455,7 +455,7 @@ sprintf(tmp_PK_AttributeType, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_AttributeType=" + tmp_PK_AttributeType;
+condition = condition + "`PK_AttributeType`=" + tmp_PK_AttributeType;
 
 	
 		string query = "delete from AttributeType where " + condition;
@@ -674,7 +674,7 @@ sprintf(tmp_PK_AttributeType, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_AttributeType=" + tmp_PK_AttributeType;
+condition = condition + "`PK_AttributeType`=" + tmp_PK_AttributeType;
 
 
 	string query = "select * from AttributeType where " + condition;		
@@ -811,14 +811,14 @@ void Row_AttributeType::Attribute_FK_AttributeType_getrows(vector <class Row_Att
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Attribute *pTable = table->database->Attribute_get();
-pTable->GetRows("FK_AttributeType=" + StringUtils::itos(m_PK_AttributeType),rows);
+pTable->GetRows("`FK_AttributeType=`" + StringUtils::itos(m_PK_AttributeType),rows);
 }
 void Row_AttributeType::Type_AttributeType_FK_AttributeType_getrows(vector <class Row_Type_AttributeType*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Type_AttributeType *pTable = table->database->Type_AttributeType_get();
-pTable->GetRows("FK_AttributeType=" + StringUtils::itos(m_PK_AttributeType),rows);
+pTable->GetRows("`FK_AttributeType=`" + StringUtils::itos(m_PK_AttributeType),rows);
 }
 
 

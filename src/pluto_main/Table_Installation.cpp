@@ -138,8 +138,7 @@ is_null[3] = true;
 is_null[4] = true;
 is_null[5] = true;
 is_null[6] = true;
-m_FK_Country = 0;
-is_null[7] = false;
+is_null[7] = true;
 is_null[8] = true;
 is_null[9] = true;
 is_null[10] = true;
@@ -310,6 +309,9 @@ return is_null[5];}
 bool Row_Installation::Zip_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[6];}
+bool Row_Installation::FK_Country_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[7];}
 bool Row_Installation::ActivationCode_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[8];}
@@ -360,6 +362,9 @@ is_null[5]=val;}
 void Row_Installation::Zip_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[6]=val;}
+void Row_Installation::FK_Country_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[7]=val;}
 void Row_Installation::ActivationCode_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[8]=val;}
@@ -719,12 +724,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_Installation_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Name_asSQL()+", "+pRow->Address_asSQL()+", "+pRow->City_asSQL()+", "+pRow->State_asSQL()+", "+pRow->Zip_asSQL()+", "+pRow->FK_Country_asSQL()+", "+pRow->ActivationCode_asSQL()+", "+pRow->LastStatus_asSQL()+", "+pRow->LastAlive_asSQL()+", "+pRow->isActive_asSQL()+", "+pRow->FK_Version_asSQL()+", "+pRow->isMonitored_asSQL()+", "+pRow->FK_RepositoryType_Source_asSQL()+", "+pRow->FK_RepositoryType_Binaries_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Installation (PK_Installation, Description, Name, Address, City, State, Zip, FK_Country, ActivationCode, LastStatus, LastAlive, isActive, FK_Version, isMonitored, FK_RepositoryType_Source, FK_RepositoryType_Binaries, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Installation (`PK_Installation`, `Description`, `Name`, `Address`, `City`, `State`, `Zip`, `FK_Country`, `ActivationCode`, `LastStatus`, `LastAlive`, `isActive`, `FK_Version`, `isMonitored`, `FK_RepositoryType_Source`, `FK_RepositoryType_Binaries`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -764,12 +770,12 @@ sprintf(tmp_PK_Installation, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Installation=" + tmp_PK_Installation;
+condition = condition + "`PK_Installation`=" + tmp_PK_Installation;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Installation="+pRow->PK_Installation_asSQL()+", Description="+pRow->Description_asSQL()+", Name="+pRow->Name_asSQL()+", Address="+pRow->Address_asSQL()+", City="+pRow->City_asSQL()+", State="+pRow->State_asSQL()+", Zip="+pRow->Zip_asSQL()+", FK_Country="+pRow->FK_Country_asSQL()+", ActivationCode="+pRow->ActivationCode_asSQL()+", LastStatus="+pRow->LastStatus_asSQL()+", LastAlive="+pRow->LastAlive_asSQL()+", isActive="+pRow->isActive_asSQL()+", FK_Version="+pRow->FK_Version_asSQL()+", isMonitored="+pRow->isMonitored_asSQL()+", FK_RepositoryType_Source="+pRow->FK_RepositoryType_Source_asSQL()+", FK_RepositoryType_Binaries="+pRow->FK_RepositoryType_Binaries_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Installation`="+pRow->PK_Installation_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Name`="+pRow->Name_asSQL()+", `Address`="+pRow->Address_asSQL()+", `City`="+pRow->City_asSQL()+", `State`="+pRow->State_asSQL()+", `Zip`="+pRow->Zip_asSQL()+", `FK_Country`="+pRow->FK_Country_asSQL()+", `ActivationCode`="+pRow->ActivationCode_asSQL()+", `LastStatus`="+pRow->LastStatus_asSQL()+", `LastAlive`="+pRow->LastAlive_asSQL()+", `isActive`="+pRow->isActive_asSQL()+", `FK_Version`="+pRow->FK_Version_asSQL()+", `isMonitored`="+pRow->isMonitored_asSQL()+", `FK_RepositoryType_Source`="+pRow->FK_RepositoryType_Source_asSQL()+", `FK_RepositoryType_Binaries`="+pRow->FK_RepositoryType_Binaries_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Installation set " + update_values_list + " where " + condition;
@@ -777,6 +783,7 @@ update_values_list = update_values_list + "PK_Installation="+pRow->PK_Installati
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -808,7 +815,7 @@ sprintf(tmp_PK_Installation, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Installation=" + tmp_PK_Installation;
+condition = condition + "`PK_Installation`=" + tmp_PK_Installation;
 
 	
 		string query = "delete from Installation where " + condition;
@@ -816,6 +823,7 @@ condition = condition + "PK_Installation=" + tmp_PK_Installation;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -842,6 +850,7 @@ bool Table_Installation::GetRows(string where_statement,vector<class Row_Install
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -850,6 +859,7 @@ bool Table_Installation::GetRows(string where_statement,vector<class Row_Install
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -1167,7 +1177,7 @@ sprintf(tmp_PK_Installation, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Installation=" + tmp_PK_Installation;
+condition = condition + "`PK_Installation`=" + tmp_PK_Installation;
 
 
 	string query = "select * from Installation where " + condition;		
@@ -1175,6 +1185,7 @@ condition = condition + "PK_Installation=" + tmp_PK_Installation;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -1183,6 +1194,7 @@ condition = condition + "PK_Installation=" + tmp_PK_Installation;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -1473,98 +1485,98 @@ void Row_Installation::CommandGroup_FK_Installation_getrows(vector <class Row_Co
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup *pTable = table->database->CommandGroup_get();
-pTable->GetRows("FK_Installation=" + StringUtils::itos(m_PK_Installation),rows);
+pTable->GetRows("`FK_Installation=`" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::Criteria_FK_Installation_getrows(vector <class Row_Criteria*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Criteria *pTable = table->database->Criteria_get();
-pTable->GetRows("FK_Installation=" + StringUtils::itos(m_PK_Installation),rows);
+pTable->GetRows("`FK_Installation=`" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::Device_FK_Installation_getrows(vector <class Row_Device*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device *pTable = table->database->Device_get();
-pTable->GetRows("FK_Installation=" + StringUtils::itos(m_PK_Installation),rows);
+pTable->GetRows("`FK_Installation=`" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::DeviceGroup_FK_Installation_getrows(vector <class Row_DeviceGroup*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceGroup *pTable = table->database->DeviceGroup_get();
-pTable->GetRows("FK_Installation=" + StringUtils::itos(m_PK_Installation),rows);
+pTable->GetRows("`FK_Installation=`" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::EventHandler_FK_Installation_getrows(vector <class Row_EventHandler*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_EventHandler *pTable = table->database->EventHandler_get();
-pTable->GetRows("FK_Installation=" + StringUtils::itos(m_PK_Installation),rows);
+pTable->GetRows("`FK_Installation=`" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::Floorplan_FK_Installation_getrows(vector <class Row_Floorplan*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Floorplan *pTable = table->database->Floorplan_get();
-pTable->GetRows("FK_Installation=" + StringUtils::itos(m_PK_Installation),rows);
+pTable->GetRows("`FK_Installation=`" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::Household_Installation_FK_Installation_getrows(vector <class Row_Household_Installation*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Household_Installation *pTable = table->database->Household_Installation_get();
-pTable->GetRows("FK_Installation=" + StringUtils::itos(m_PK_Installation),rows);
+pTable->GetRows("`FK_Installation=`" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::InfraredGroup_Command_FK_Installation_getrows(vector <class Row_InfraredGroup_Command*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_InfraredGroup_Command *pTable = table->database->InfraredGroup_Command_get();
-pTable->GetRows("FK_Installation=" + StringUtils::itos(m_PK_Installation),rows);
+pTable->GetRows("`FK_Installation=`" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::InfraredGroup_Command_Preferred_FK_Installation_getrows(vector <class Row_InfraredGroup_Command_Preferred*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_InfraredGroup_Command_Preferred *pTable = table->database->InfraredGroup_Command_Preferred_get();
-pTable->GetRows("FK_Installation=" + StringUtils::itos(m_PK_Installation),rows);
+pTable->GetRows("`FK_Installation=`" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::Installation_RepositorySource_URL_FK_Installation_getrows(vector <class Row_Installation_RepositorySource_URL*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Installation_RepositorySource_URL *pTable = table->database->Installation_RepositorySource_URL_get();
-pTable->GetRows("FK_Installation=" + StringUtils::itos(m_PK_Installation),rows);
+pTable->GetRows("`FK_Installation=`" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::Installation_Users_FK_Installation_getrows(vector <class Row_Installation_Users*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Installation_Users *pTable = table->database->Installation_Users_get();
-pTable->GetRows("FK_Installation=" + StringUtils::itos(m_PK_Installation),rows);
+pTable->GetRows("`FK_Installation=`" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::Room_FK_Installation_getrows(vector <class Row_Room*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Room *pTable = table->database->Room_get();
-pTable->GetRows("FK_Installation=" + StringUtils::itos(m_PK_Installation),rows);
+pTable->GetRows("`FK_Installation=`" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::SetupStep_FK_Installation_getrows(vector <class Row_SetupStep*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_SetupStep *pTable = table->database->SetupStep_get();
-pTable->GetRows("FK_Installation=" + StringUtils::itos(m_PK_Installation),rows);
+pTable->GetRows("`FK_Installation=`" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::Users_FK_Installation_Main_getrows(vector <class Row_Users*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Users *pTable = table->database->Users_get();
-pTable->GetRows("FK_Installation_Main=" + StringUtils::itos(m_PK_Installation),rows);
+pTable->GetRows("`FK_Installation_Main=`" + StringUtils::itos(m_PK_Installation),rows);
 }
 
 

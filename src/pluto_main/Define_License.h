@@ -3,7 +3,6 @@
 
 #define LICENSE_GPL_CONST 1
 #define LICENSE_Pluto_CONST 2
-#define LICENSE_Commercial_CONST 3
 
 #define LICENSE_TABLE "License"
 #define LICENSE_PK_LICENSE_FIELD "PK_License"

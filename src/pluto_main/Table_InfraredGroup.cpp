@@ -388,12 +388,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_InfraredGroup_asSQL()+", "+pRow->FK_DeviceCategory_asSQL()+", "+pRow->FK_Manufacturer_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into InfraredGroup (PK_InfraredGroup, FK_DeviceCategory, FK_Manufacturer, Description, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into InfraredGroup (`PK_InfraredGroup`, `FK_DeviceCategory`, `FK_Manufacturer`, `Description`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -433,12 +434,12 @@ sprintf(tmp_PK_InfraredGroup, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_InfraredGroup=" + tmp_PK_InfraredGroup;
+condition = condition + "`PK_InfraredGroup`=" + tmp_PK_InfraredGroup;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_InfraredGroup="+pRow->PK_InfraredGroup_asSQL()+", FK_DeviceCategory="+pRow->FK_DeviceCategory_asSQL()+", FK_Manufacturer="+pRow->FK_Manufacturer_asSQL()+", Description="+pRow->Description_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_InfraredGroup`="+pRow->PK_InfraredGroup_asSQL()+", `FK_DeviceCategory`="+pRow->FK_DeviceCategory_asSQL()+", `FK_Manufacturer`="+pRow->FK_Manufacturer_asSQL()+", `Description`="+pRow->Description_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update InfraredGroup set " + update_values_list + " where " + condition;
@@ -446,6 +447,7 @@ update_values_list = update_values_list + "PK_InfraredGroup="+pRow->PK_InfraredG
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -477,7 +479,7 @@ sprintf(tmp_PK_InfraredGroup, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_InfraredGroup=" + tmp_PK_InfraredGroup;
+condition = condition + "`PK_InfraredGroup`=" + tmp_PK_InfraredGroup;
 
 	
 		string query = "delete from InfraredGroup where " + condition;
@@ -485,6 +487,7 @@ condition = condition + "PK_InfraredGroup=" + tmp_PK_InfraredGroup;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -511,6 +514,7 @@ bool Table_InfraredGroup::GetRows(string where_statement,vector<class Row_Infrar
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -519,6 +523,7 @@ bool Table_InfraredGroup::GetRows(string where_statement,vector<class Row_Infrar
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -704,7 +709,7 @@ sprintf(tmp_PK_InfraredGroup, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_InfraredGroup=" + tmp_PK_InfraredGroup;
+condition = condition + "`PK_InfraredGroup`=" + tmp_PK_InfraredGroup;
 
 
 	string query = "select * from InfraredGroup where " + condition;		
@@ -712,6 +717,7 @@ condition = condition + "PK_InfraredGroup=" + tmp_PK_InfraredGroup;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -720,6 +726,7 @@ condition = condition + "PK_InfraredGroup=" + tmp_PK_InfraredGroup;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -864,14 +871,14 @@ void Row_InfraredGroup::DeviceTemplate_InfraredGroup_FK_InfraredGroup_getrows(ve
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_InfraredGroup *pTable = table->database->DeviceTemplate_InfraredGroup_get();
-pTable->GetRows("FK_InfraredGroup=" + StringUtils::itos(m_PK_InfraredGroup),rows);
+pTable->GetRows("`FK_InfraredGroup=`" + StringUtils::itos(m_PK_InfraredGroup),rows);
 }
 void Row_InfraredGroup::InfraredGroup_Command_FK_InfraredGroup_getrows(vector <class Row_InfraredGroup_Command*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_InfraredGroup_Command *pTable = table->database->InfraredGroup_Command_get();
-pTable->GetRows("FK_InfraredGroup=" + StringUtils::itos(m_PK_InfraredGroup),rows);
+pTable->GetRows("`FK_InfraredGroup=`" + StringUtils::itos(m_PK_InfraredGroup),rows);
 }
 
 

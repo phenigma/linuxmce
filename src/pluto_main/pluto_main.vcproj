@@ -520,6 +520,9 @@
 				RelativePath=".\Table_PageSetup.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_PaidLicense.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_ParameterType.cpp">
 			</File>
 			<File

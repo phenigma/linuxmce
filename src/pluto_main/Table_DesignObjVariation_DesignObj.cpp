@@ -820,12 +820,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_DesignObjVariation_DesignObj_asSQL()+", "+pRow->FK_DesignObjVariation_Parent_asSQL()+", "+pRow->FK_DesignObj_Child_asSQL()+", "+pRow->DisplayOrder_asSQL()+", "+pRow->X_asSQL()+", "+pRow->Y_asSQL()+", "+pRow->Width_asSQL()+", "+pRow->Height_asSQL()+", "+pRow->FK_DesignObj_InsteadOf_asSQL()+", "+pRow->CanBeHidden_asSQL()+", "+pRow->HideByDefault_asSQL()+", "+pRow->RegenerateForEachScreen_asSQL()+", "+pRow->DisplayChildrenBeforeText_asSQL()+", "+pRow->DisplayChildrenBehindBackground_asSQL()+", "+pRow->DontMergeBackground_asSQL()+", "+pRow->IsTabStop_asSQL()+", "+pRow->FK_DesignObj_Up_asSQL()+", "+pRow->FK_DesignObj_Down_asSQL()+", "+pRow->FK_DesignObj_Left_asSQL()+", "+pRow->FK_DesignObj_Right_asSQL()+", "+pRow->sFK_DesignObj_TiedTo_asSQL()+", "+pRow->VisibleStates_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into DesignObjVariation_DesignObj (PK_DesignObjVariation_DesignObj, FK_DesignObjVariation_Parent, FK_DesignObj_Child, DisplayOrder, X, Y, Width, Height, FK_DesignObj_InsteadOf, CanBeHidden, HideByDefault, RegenerateForEachScreen, DisplayChildrenBeforeText, DisplayChildrenBehindBackground, DontMergeBackground, IsTabStop, FK_DesignObj_Up, FK_DesignObj_Down, FK_DesignObj_Left, FK_DesignObj_Right, sFK_DesignObj_TiedTo, VisibleStates, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into DesignObjVariation_DesignObj (`PK_DesignObjVariation_DesignObj`, `FK_DesignObjVariation_Parent`, `FK_DesignObj_Child`, `DisplayOrder`, `X`, `Y`, `Width`, `Height`, `FK_DesignObj_InsteadOf`, `CanBeHidden`, `HideByDefault`, `RegenerateForEachScreen`, `DisplayChildrenBeforeText`, `DisplayChildrenBehindBackground`, `DontMergeBackground`, `IsTabStop`, `FK_DesignObj_Up`, `FK_DesignObj_Down`, `FK_DesignObj_Left`, `FK_DesignObj_Right`, `sFK_DesignObj_TiedTo`, `VisibleStates`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -865,12 +866,12 @@ sprintf(tmp_PK_DesignObjVariation_DesignObj, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DesignObjVariation_DesignObj=" + tmp_PK_DesignObjVariation_DesignObj;
+condition = condition + "`PK_DesignObjVariation_DesignObj`=" + tmp_PK_DesignObjVariation_DesignObj;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_DesignObjVariation_DesignObj="+pRow->PK_DesignObjVariation_DesignObj_asSQL()+", FK_DesignObjVariation_Parent="+pRow->FK_DesignObjVariation_Parent_asSQL()+", FK_DesignObj_Child="+pRow->FK_DesignObj_Child_asSQL()+", DisplayOrder="+pRow->DisplayOrder_asSQL()+", X="+pRow->X_asSQL()+", Y="+pRow->Y_asSQL()+", Width="+pRow->Width_asSQL()+", Height="+pRow->Height_asSQL()+", FK_DesignObj_InsteadOf="+pRow->FK_DesignObj_InsteadOf_asSQL()+", CanBeHidden="+pRow->CanBeHidden_asSQL()+", HideByDefault="+pRow->HideByDefault_asSQL()+", RegenerateForEachScreen="+pRow->RegenerateForEachScreen_asSQL()+", DisplayChildrenBeforeText="+pRow->DisplayChildrenBeforeText_asSQL()+", DisplayChildrenBehindBackground="+pRow->DisplayChildrenBehindBackground_asSQL()+", DontMergeBackground="+pRow->DontMergeBackground_asSQL()+", IsTabStop="+pRow->IsTabStop_asSQL()+", FK_DesignObj_Up="+pRow->FK_DesignObj_Up_asSQL()+", FK_DesignObj_Down="+pRow->FK_DesignObj_Down_asSQL()+", FK_DesignObj_Left="+pRow->FK_DesignObj_Left_asSQL()+", FK_DesignObj_Right="+pRow->FK_DesignObj_Right_asSQL()+", sFK_DesignObj_TiedTo="+pRow->sFK_DesignObj_TiedTo_asSQL()+", VisibleStates="+pRow->VisibleStates_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_DesignObjVariation_DesignObj`="+pRow->PK_DesignObjVariation_DesignObj_asSQL()+", `FK_DesignObjVariation_Parent`="+pRow->FK_DesignObjVariation_Parent_asSQL()+", `FK_DesignObj_Child`="+pRow->FK_DesignObj_Child_asSQL()+", `DisplayOrder`="+pRow->DisplayOrder_asSQL()+", `X`="+pRow->X_asSQL()+", `Y`="+pRow->Y_asSQL()+", `Width`="+pRow->Width_asSQL()+", `Height`="+pRow->Height_asSQL()+", `FK_DesignObj_InsteadOf`="+pRow->FK_DesignObj_InsteadOf_asSQL()+", `CanBeHidden`="+pRow->CanBeHidden_asSQL()+", `HideByDefault`="+pRow->HideByDefault_asSQL()+", `RegenerateForEachScreen`="+pRow->RegenerateForEachScreen_asSQL()+", `DisplayChildrenBeforeText`="+pRow->DisplayChildrenBeforeText_asSQL()+", `DisplayChildrenBehindBackground`="+pRow->DisplayChildrenBehindBackground_asSQL()+", `DontMergeBackground`="+pRow->DontMergeBackground_asSQL()+", `IsTabStop`="+pRow->IsTabStop_asSQL()+", `FK_DesignObj_Up`="+pRow->FK_DesignObj_Up_asSQL()+", `FK_DesignObj_Down`="+pRow->FK_DesignObj_Down_asSQL()+", `FK_DesignObj_Left`="+pRow->FK_DesignObj_Left_asSQL()+", `FK_DesignObj_Right`="+pRow->FK_DesignObj_Right_asSQL()+", `sFK_DesignObj_TiedTo`="+pRow->sFK_DesignObj_TiedTo_asSQL()+", `VisibleStates`="+pRow->VisibleStates_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update DesignObjVariation_DesignObj set " + update_values_list + " where " + condition;
@@ -878,6 +879,7 @@ update_values_list = update_values_list + "PK_DesignObjVariation_DesignObj="+pRo
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -909,7 +911,7 @@ sprintf(tmp_PK_DesignObjVariation_DesignObj, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DesignObjVariation_DesignObj=" + tmp_PK_DesignObjVariation_DesignObj;
+condition = condition + "`PK_DesignObjVariation_DesignObj`=" + tmp_PK_DesignObjVariation_DesignObj;
 
 	
 		string query = "delete from DesignObjVariation_DesignObj where " + condition;
@@ -917,6 +919,7 @@ condition = condition + "PK_DesignObjVariation_DesignObj=" + tmp_PK_DesignObjVar
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -943,6 +946,7 @@ bool Table_DesignObjVariation_DesignObj::GetRows(string where_statement,vector<c
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -951,6 +955,7 @@ bool Table_DesignObjVariation_DesignObj::GetRows(string where_statement,vector<c
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -1334,7 +1339,7 @@ sprintf(tmp_PK_DesignObjVariation_DesignObj, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DesignObjVariation_DesignObj=" + tmp_PK_DesignObjVariation_DesignObj;
+condition = condition + "`PK_DesignObjVariation_DesignObj`=" + tmp_PK_DesignObjVariation_DesignObj;
 
 
 	string query = "select * from DesignObjVariation_DesignObj where " + condition;		
@@ -1342,6 +1347,7 @@ condition = condition + "PK_DesignObjVariation_DesignObj=" + tmp_PK_DesignObjVar
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -1350,6 +1356,7 @@ condition = condition + "PK_DesignObjVariation_DesignObj=" + tmp_PK_DesignObjVar
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

@@ -692,12 +692,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_StyleVariation_asSQL()+", "+pRow->FK_Style_asSQL()+", "+pRow->FK_Skin_asSQL()+", "+pRow->FK_Criteria_D_asSQL()+", "+pRow->Font_asSQL()+", "+pRow->ForeColor_asSQL()+", "+pRow->PixelHeight_asSQL()+", "+pRow->Bold_asSQL()+", "+pRow->Italic_asSQL()+", "+pRow->Underline_asSQL()+", "+pRow->ShadowX_asSQL()+", "+pRow->ShadowY_asSQL()+", "+pRow->ShadowColor_asSQL()+", "+pRow->BorderStyle_asSQL()+", "+pRow->FK_HorizAlignment_asSQL()+", "+pRow->FK_VertAlignment_asSQL()+", "+pRow->BackColor_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into StyleVariation (PK_StyleVariation, FK_Style, FK_Skin, FK_Criteria_D, Font, ForeColor, PixelHeight, Bold, Italic, Underline, ShadowX, ShadowY, ShadowColor, BorderStyle, FK_HorizAlignment, FK_VertAlignment, BackColor, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into StyleVariation (`PK_StyleVariation`, `FK_Style`, `FK_Skin`, `FK_Criteria_D`, `Font`, `ForeColor`, `PixelHeight`, `Bold`, `Italic`, `Underline`, `ShadowX`, `ShadowY`, `ShadowColor`, `BorderStyle`, `FK_HorizAlignment`, `FK_VertAlignment`, `BackColor`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -737,12 +738,12 @@ sprintf(tmp_PK_StyleVariation, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_StyleVariation=" + tmp_PK_StyleVariation;
+condition = condition + "`PK_StyleVariation`=" + tmp_PK_StyleVariation;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_StyleVariation="+pRow->PK_StyleVariation_asSQL()+", FK_Style="+pRow->FK_Style_asSQL()+", FK_Skin="+pRow->FK_Skin_asSQL()+", FK_Criteria_D="+pRow->FK_Criteria_D_asSQL()+", Font="+pRow->Font_asSQL()+", ForeColor="+pRow->ForeColor_asSQL()+", PixelHeight="+pRow->PixelHeight_asSQL()+", Bold="+pRow->Bold_asSQL()+", Italic="+pRow->Italic_asSQL()+", Underline="+pRow->Underline_asSQL()+", ShadowX="+pRow->ShadowX_asSQL()+", ShadowY="+pRow->ShadowY_asSQL()+", ShadowColor="+pRow->ShadowColor_asSQL()+", BorderStyle="+pRow->BorderStyle_asSQL()+", FK_HorizAlignment="+pRow->FK_HorizAlignment_asSQL()+", FK_VertAlignment="+pRow->FK_VertAlignment_asSQL()+", BackColor="+pRow->BackColor_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_StyleVariation`="+pRow->PK_StyleVariation_asSQL()+", `FK_Style`="+pRow->FK_Style_asSQL()+", `FK_Skin`="+pRow->FK_Skin_asSQL()+", `FK_Criteria_D`="+pRow->FK_Criteria_D_asSQL()+", `Font`="+pRow->Font_asSQL()+", `ForeColor`="+pRow->ForeColor_asSQL()+", `PixelHeight`="+pRow->PixelHeight_asSQL()+", `Bold`="+pRow->Bold_asSQL()+", `Italic`="+pRow->Italic_asSQL()+", `Underline`="+pRow->Underline_asSQL()+", `ShadowX`="+pRow->ShadowX_asSQL()+", `ShadowY`="+pRow->ShadowY_asSQL()+", `ShadowColor`="+pRow->ShadowColor_asSQL()+", `BorderStyle`="+pRow->BorderStyle_asSQL()+", `FK_HorizAlignment`="+pRow->FK_HorizAlignment_asSQL()+", `FK_VertAlignment`="+pRow->FK_VertAlignment_asSQL()+", `BackColor`="+pRow->BackColor_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update StyleVariation set " + update_values_list + " where " + condition;
@@ -750,6 +751,7 @@ update_values_list = update_values_list + "PK_StyleVariation="+pRow->PK_StyleVar
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -781,7 +783,7 @@ sprintf(tmp_PK_StyleVariation, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_StyleVariation=" + tmp_PK_StyleVariation;
+condition = condition + "`PK_StyleVariation`=" + tmp_PK_StyleVariation;
 
 	
 		string query = "delete from StyleVariation where " + condition;
@@ -789,6 +791,7 @@ condition = condition + "PK_StyleVariation=" + tmp_PK_StyleVariation;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -815,6 +818,7 @@ bool Table_StyleVariation::GetRows(string where_statement,vector<class Row_Style
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -823,6 +827,7 @@ bool Table_StyleVariation::GetRows(string where_statement,vector<class Row_Style
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -1151,7 +1156,7 @@ sprintf(tmp_PK_StyleVariation, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_StyleVariation=" + tmp_PK_StyleVariation;
+condition = condition + "`PK_StyleVariation`=" + tmp_PK_StyleVariation;
 
 
 	string query = "select * from StyleVariation where " + condition;		
@@ -1159,6 +1164,7 @@ condition = condition + "PK_StyleVariation=" + tmp_PK_StyleVariation;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -1167,6 +1173,7 @@ condition = condition + "PK_StyleVariation=" + tmp_PK_StyleVariation;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

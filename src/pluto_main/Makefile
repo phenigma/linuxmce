@@ -143,6 +143,7 @@ Table_Package_Source_Compat.cpp \
 Table_Package_Users.cpp \
 Table_Package_Version.cpp \
 Table_PageSetup.cpp \
+Table_PaidLicense.cpp \
 Table_ParameterType.cpp \
 Table_PhoneLineType.cpp \
 Table_Pipe.cpp \

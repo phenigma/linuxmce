@@ -11,6 +11,8 @@
 #define PSC_DESIGNER_TABLES_FILTER_TABLE_FIELD "psc_designer_tables.filter"
 #define PSC_DESIGNER_TABLES_FROZEN_FIELD "frozen"
 #define PSC_DESIGNER_TABLES_FROZEN_TABLE_FIELD "psc_designer_tables.frozen"
+#define PSC_DESIGNER_TABLES_ANONYMOUS_FIELD "anonymous"
+#define PSC_DESIGNER_TABLES_ANONYMOUS_TABLE_FIELD "psc_designer_tables.anonymous"
 #define PSC_DESIGNER_TABLES_LAST_PSC_ID_FIELD "last_psc_id"
 #define PSC_DESIGNER_TABLES_LAST_PSC_ID_TABLE_FIELD "psc_designer_tables.last_psc_id"
 #define PSC_DESIGNER_TABLES_LAST_PSC_BATCH_FIELD "last_psc_batch"

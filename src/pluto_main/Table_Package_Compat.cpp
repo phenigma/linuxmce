@@ -391,12 +391,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_Compat_asSQL()+", "+pRow->FK_Package_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Package_Compat (PK_Package_Compat, FK_Package, FK_Distro, FK_OperatingSystem, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Package_Compat (`PK_Package_Compat`, `FK_Package`, `FK_Distro`, `FK_OperatingSystem`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -436,12 +437,12 @@ sprintf(tmp_PK_Package_Compat, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Package_Compat=" + tmp_PK_Package_Compat;
+condition = condition + "`PK_Package_Compat`=" + tmp_PK_Package_Compat;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Package_Compat="+pRow->PK_Package_Compat_asSQL()+", FK_Package="+pRow->FK_Package_asSQL()+", FK_Distro="+pRow->FK_Distro_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Package_Compat`="+pRow->PK_Package_Compat_asSQL()+", `FK_Package`="+pRow->FK_Package_asSQL()+", `FK_Distro`="+pRow->FK_Distro_asSQL()+", `FK_OperatingSystem`="+pRow->FK_OperatingSystem_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Package_Compat set " + update_values_list + " where " + condition;
@@ -449,6 +450,7 @@ update_values_list = update_values_list + "PK_Package_Compat="+pRow->PK_Package_
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -480,7 +482,7 @@ sprintf(tmp_PK_Package_Compat, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Package_Compat=" + tmp_PK_Package_Compat;
+condition = condition + "`PK_Package_Compat`=" + tmp_PK_Package_Compat;
 
 	
 		string query = "delete from Package_Compat where " + condition;
@@ -488,6 +490,7 @@ condition = condition + "PK_Package_Compat=" + tmp_PK_Package_Compat;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -514,6 +517,7 @@ bool Table_Package_Compat::GetRows(string where_statement,vector<class Row_Packa
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -522,6 +526,7 @@ bool Table_Package_Compat::GetRows(string where_statement,vector<class Row_Packa
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -707,7 +712,7 @@ sprintf(tmp_PK_Package_Compat, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Package_Compat=" + tmp_PK_Package_Compat;
+condition = condition + "`PK_Package_Compat`=" + tmp_PK_Package_Compat;
 
 
 	string query = "select * from Package_Compat where " + condition;		
@@ -715,6 +720,7 @@ condition = condition + "PK_Package_Compat=" + tmp_PK_Package_Compat;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -723,6 +729,7 @@ condition = condition + "PK_Package_Compat=" + tmp_PK_Package_Compat;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

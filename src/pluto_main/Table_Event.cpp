@@ -397,12 +397,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_Event_asSQL()+", "+pRow->FK_EventCategory_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Event (PK_Event, FK_EventCategory, Description, Define, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Event (`PK_Event`, `FK_EventCategory`, `Description`, `Define`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -442,12 +443,12 @@ sprintf(tmp_PK_Event, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Event=" + tmp_PK_Event;
+condition = condition + "`PK_Event`=" + tmp_PK_Event;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Event="+pRow->PK_Event_asSQL()+", FK_EventCategory="+pRow->FK_EventCategory_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Event`="+pRow->PK_Event_asSQL()+", `FK_EventCategory`="+pRow->FK_EventCategory_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Event set " + update_values_list + " where " + condition;
@@ -455,6 +456,7 @@ update_values_list = update_values_list + "PK_Event="+pRow->PK_Event_asSQL()+", 
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -486,7 +488,7 @@ sprintf(tmp_PK_Event, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Event=" + tmp_PK_Event;
+condition = condition + "`PK_Event`=" + tmp_PK_Event;
 
 	
 		string query = "delete from Event where " + condition;
@@ -494,6 +496,7 @@ condition = condition + "PK_Event=" + tmp_PK_Event;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -520,6 +523,7 @@ bool Table_Event::GetRows(string where_statement,vector<class Row_Event*> *rows)
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -528,6 +532,7 @@ bool Table_Event::GetRows(string where_statement,vector<class Row_Event*> *rows)
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -713,7 +718,7 @@ sprintf(tmp_PK_Event, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Event=" + tmp_PK_Event;
+condition = condition + "`PK_Event`=" + tmp_PK_Event;
 
 
 	string query = "select * from Event where " + condition;		
@@ -721,6 +726,7 @@ condition = condition + "PK_Event=" + tmp_PK_Event;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -729,6 +735,7 @@ condition = condition + "PK_Event=" + tmp_PK_Event;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -866,42 +873,42 @@ void Row_Event::CannedEvents_FK_Event_getrows(vector <class Row_CannedEvents*> *
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CannedEvents *pTable = table->database->CannedEvents_get();
-pTable->GetRows("FK_Event=" + StringUtils::itos(m_PK_Event),rows);
+pTable->GetRows("`FK_Event=`" + StringUtils::itos(m_PK_Event),rows);
 }
 void Row_Event::DeviceCategory_Event_FK_Event_getrows(vector <class Row_DeviceCategory_Event*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceCategory_Event *pTable = table->database->DeviceCategory_Event_get();
-pTable->GetRows("FK_Event=" + StringUtils::itos(m_PK_Event),rows);
+pTable->GetRows("`FK_Event=`" + StringUtils::itos(m_PK_Event),rows);
 }
 void Row_Event::DeviceTemplate_Event_FK_Event_getrows(vector <class Row_DeviceTemplate_Event*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_Event *pTable = table->database->DeviceTemplate_Event_get();
-pTable->GetRows("FK_Event=" + StringUtils::itos(m_PK_Event),rows);
+pTable->GetRows("`FK_Event=`" + StringUtils::itos(m_PK_Event),rows);
 }
 void Row_Event::Device_HouseMode_FK_Event_getrows(vector <class Row_Device_HouseMode*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device_HouseMode *pTable = table->database->Device_HouseMode_get();
-pTable->GetRows("FK_Event=" + StringUtils::itos(m_PK_Event),rows);
+pTable->GetRows("`FK_Event=`" + StringUtils::itos(m_PK_Event),rows);
 }
 void Row_Event::EventHandler_FK_Event_getrows(vector <class Row_EventHandler*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_EventHandler *pTable = table->database->EventHandler_get();
-pTable->GetRows("FK_Event=" + StringUtils::itos(m_PK_Event),rows);
+pTable->GetRows("`FK_Event=`" + StringUtils::itos(m_PK_Event),rows);
 }
 void Row_Event::Event_EventParameter_FK_Event_getrows(vector <class Row_Event_EventParameter*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Event_EventParameter *pTable = table->database->Event_EventParameter_get();
-pTable->GetRows("FK_Event=" + StringUtils::itos(m_PK_Event),rows);
+pTable->GetRows("`FK_Event=`" + StringUtils::itos(m_PK_Event),rows);
 }
 
 

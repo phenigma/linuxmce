@@ -318,7 +318,7 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_media_tables_asSQL()+", "+pRow->Tablename_asSQL()+", "+pRow->filter_asSQL()+", "+pRow->frozen_asSQL()+", "+pRow->last_psc_id_asSQL()+", "+pRow->last_psc_batch_asSQL();
 
 	
-		string query = "insert into psc_media_tables (PK_psc_media_tables, Tablename, filter, frozen, last_psc_id, last_psc_batch) values ("+
+		string query = "insert into psc_media_tables (`PK_psc_media_tables`, `Tablename`, `filter`, `frozen`, `last_psc_id`, `last_psc_batch`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -364,12 +364,12 @@ sprintf(tmp_PK_psc_media_tables, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_media_tables=" + tmp_PK_psc_media_tables;
+condition = condition + "`PK_psc_media_tables`=" + tmp_PK_psc_media_tables;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_psc_media_tables="+pRow->PK_psc_media_tables_asSQL()+", Tablename="+pRow->Tablename_asSQL()+", filter="+pRow->filter_asSQL()+", frozen="+pRow->frozen_asSQL()+", last_psc_id="+pRow->last_psc_id_asSQL()+", last_psc_batch="+pRow->last_psc_batch_asSQL();
+update_values_list = update_values_list + "`PK_psc_media_tables`="+pRow->PK_psc_media_tables_asSQL()+", `Tablename`="+pRow->Tablename_asSQL()+", `filter`="+pRow->filter_asSQL()+", `frozen`="+pRow->frozen_asSQL()+", `last_psc_id`="+pRow->last_psc_id_asSQL()+", `last_psc_batch`="+pRow->last_psc_batch_asSQL();
 
 	
 		string query = "update psc_media_tables set " + update_values_list + " where " + condition;
@@ -409,7 +409,7 @@ sprintf(tmp_PK_psc_media_tables, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_media_tables=" + tmp_PK_psc_media_tables;
+condition = condition + "`PK_psc_media_tables`=" + tmp_PK_psc_media_tables;
 
 	
 		string query = "delete from psc_media_tables where " + condition;
@@ -606,7 +606,7 @@ sprintf(tmp_PK_psc_media_tables, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_media_tables=" + tmp_PK_psc_media_tables;
+condition = condition + "`PK_psc_media_tables`=" + tmp_PK_psc_media_tables;
 
 
 	string query = "select * from psc_media_tables where " + condition;		

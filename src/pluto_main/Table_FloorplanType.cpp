@@ -360,12 +360,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_FloorplanType_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into FloorplanType (PK_FloorplanType, Description, Define, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into FloorplanType (`PK_FloorplanType`, `Description`, `Define`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -405,12 +406,12 @@ sprintf(tmp_PK_FloorplanType, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_FloorplanType=" + tmp_PK_FloorplanType;
+condition = condition + "`PK_FloorplanType`=" + tmp_PK_FloorplanType;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_FloorplanType="+pRow->PK_FloorplanType_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_FloorplanType`="+pRow->PK_FloorplanType_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update FloorplanType set " + update_values_list + " where " + condition;
@@ -418,6 +419,7 @@ update_values_list = update_values_list + "PK_FloorplanType="+pRow->PK_Floorplan
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -449,7 +451,7 @@ sprintf(tmp_PK_FloorplanType, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_FloorplanType=" + tmp_PK_FloorplanType;
+condition = condition + "`PK_FloorplanType`=" + tmp_PK_FloorplanType;
 
 	
 		string query = "delete from FloorplanType where " + condition;
@@ -457,6 +459,7 @@ condition = condition + "PK_FloorplanType=" + tmp_PK_FloorplanType;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -483,6 +486,7 @@ bool Table_FloorplanType::GetRows(string where_statement,vector<class Row_Floorp
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -491,6 +495,7 @@ bool Table_FloorplanType::GetRows(string where_statement,vector<class Row_Floorp
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -665,7 +670,7 @@ sprintf(tmp_PK_FloorplanType, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_FloorplanType=" + tmp_PK_FloorplanType;
+condition = condition + "`PK_FloorplanType`=" + tmp_PK_FloorplanType;
 
 
 	string query = "select * from FloorplanType where " + condition;		
@@ -673,6 +678,7 @@ condition = condition + "PK_FloorplanType=" + tmp_PK_FloorplanType;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -681,6 +687,7 @@ condition = condition + "PK_FloorplanType=" + tmp_PK_FloorplanType;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -800,7 +807,7 @@ void Row_FloorplanType::FloorplanObjectType_FK_FloorplanType_getrows(vector <cla
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_FloorplanObjectType *pTable = table->database->FloorplanObjectType_get();
-pTable->GetRows("FK_FloorplanType=" + StringUtils::itos(m_PK_FloorplanType),rows);
+pTable->GetRows("`FK_FloorplanType=`" + StringUtils::itos(m_PK_FloorplanType),rows);
 }
 
 

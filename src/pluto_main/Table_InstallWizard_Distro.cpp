@@ -418,12 +418,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_InstallWizard_Distro_asSQL()+", "+pRow->FK_InstallWizard_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into InstallWizard_Distro (PK_InstallWizard_Distro, FK_InstallWizard, FK_OperatingSystem, FK_Distro, Comments, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into InstallWizard_Distro (`PK_InstallWizard_Distro`, `FK_InstallWizard`, `FK_OperatingSystem`, `FK_Distro`, `Comments`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -463,12 +464,12 @@ sprintf(tmp_PK_InstallWizard_Distro, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_InstallWizard_Distro=" + tmp_PK_InstallWizard_Distro;
+condition = condition + "`PK_InstallWizard_Distro`=" + tmp_PK_InstallWizard_Distro;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_InstallWizard_Distro="+pRow->PK_InstallWizard_Distro_asSQL()+", FK_InstallWizard="+pRow->FK_InstallWizard_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", FK_Distro="+pRow->FK_Distro_asSQL()+", Comments="+pRow->Comments_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_InstallWizard_Distro`="+pRow->PK_InstallWizard_Distro_asSQL()+", `FK_InstallWizard`="+pRow->FK_InstallWizard_asSQL()+", `FK_OperatingSystem`="+pRow->FK_OperatingSystem_asSQL()+", `FK_Distro`="+pRow->FK_Distro_asSQL()+", `Comments`="+pRow->Comments_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update InstallWizard_Distro set " + update_values_list + " where " + condition;
@@ -476,6 +477,7 @@ update_values_list = update_values_list + "PK_InstallWizard_Distro="+pRow->PK_In
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -507,7 +509,7 @@ sprintf(tmp_PK_InstallWizard_Distro, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_InstallWizard_Distro=" + tmp_PK_InstallWizard_Distro;
+condition = condition + "`PK_InstallWizard_Distro`=" + tmp_PK_InstallWizard_Distro;
 
 	
 		string query = "delete from InstallWizard_Distro where " + condition;
@@ -515,6 +517,7 @@ condition = condition + "PK_InstallWizard_Distro=" + tmp_PK_InstallWizard_Distro
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -541,6 +544,7 @@ bool Table_InstallWizard_Distro::GetRows(string where_statement,vector<class Row
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -549,6 +553,7 @@ bool Table_InstallWizard_Distro::GetRows(string where_statement,vector<class Row
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -745,7 +750,7 @@ sprintf(tmp_PK_InstallWizard_Distro, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_InstallWizard_Distro=" + tmp_PK_InstallWizard_Distro;
+condition = condition + "`PK_InstallWizard_Distro`=" + tmp_PK_InstallWizard_Distro;
 
 
 	string query = "select * from InstallWizard_Distro where " + condition;		
@@ -753,6 +758,7 @@ condition = condition + "PK_InstallWizard_Distro=" + tmp_PK_InstallWizard_Distro
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -761,6 +767,7 @@ condition = condition + "PK_InstallWizard_Distro=" + tmp_PK_InstallWizard_Distro
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

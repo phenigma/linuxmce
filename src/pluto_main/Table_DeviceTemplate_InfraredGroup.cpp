@@ -34,7 +34,7 @@ void Database_pluto_main::DeleteTable_DeviceTemplate_InfraredGroup()
 
 Table_DeviceTemplate_InfraredGroup::~Table_DeviceTemplate_InfraredGroup()
 {
-	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator it;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator it;
 	for(it=cachedRows.begin();it!=cachedRows.end();++it)
 	{
 		Row_DeviceTemplate_InfraredGroup *pRow = (Row_DeviceTemplate_InfraredGroup *) (*it).second;
@@ -74,8 +74,8 @@ void Row_DeviceTemplate_InfraredGroup::Delete()
 		}
 		else
 		{
-			DoubleLongKey key(pRow->m_FK_InfraredGroup,pRow->m_FK_DeviceTemplate);
-			map<DoubleLongKey, TableRow*, DoubleLongKey_Less>::iterator i = table->cachedRows.find(key);
+			SingleLongKey key(pRow->m_PK_DeviceTemplate_InfraredGroup);
+			map<SingleLongKey, TableRow*, SingleLongKey_Less>::iterator i = table->cachedRows.find(key);
 			if (i!=table->cachedRows.end())
 				table->cachedRows.erase(i);
 						
@@ -93,7 +93,7 @@ void Row_DeviceTemplate_InfraredGroup::Reload()
 	
 	if (!is_added)
 	{
-		DoubleLongKey key(pRow->m_FK_InfraredGroup,pRow->m_FK_DeviceTemplate);
+		SingleLongKey key(pRow->m_PK_DeviceTemplate_InfraredGroup);
 		Row_DeviceTemplate_InfraredGroup *pRow = table->FetchRow(key);
 		
 		if (pRow!=NULL)
@@ -113,17 +113,19 @@ Row_DeviceTemplate_InfraredGroup::Row_DeviceTemplate_InfraredGroup(Table_DeviceT
 
 void Row_DeviceTemplate_InfraredGroup::SetDefaultValues()
 {
-	m_FK_InfraredGroup = 0;
+	m_PK_DeviceTemplate_InfraredGroup = 0;
 is_null[0] = false;
-m_FK_DeviceTemplate = 0;
+m_FK_InfraredGroup = 0;
 is_null[1] = false;
-is_null[2] = true;
+m_FK_DeviceTemplate = 0;
+is_null[2] = false;
 is_null[3] = true;
 is_null[4] = true;
+is_null[5] = true;
 m_psc_frozen = 0;
-is_null[5] = false;
-m_psc_mod = "00000000000000";
 is_null[6] = false;
+m_psc_mod = "00000000000000";
+is_null[7] = false;
 
 
 	is_added=false;
@@ -131,6 +133,9 @@ is_null[6] = false;
 	is_modified=false;
 }
 
+long int Row_DeviceTemplate_InfraredGroup::PK_DeviceTemplate_InfraredGroup_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_PK_DeviceTemplate_InfraredGroup;}
 long int Row_DeviceTemplate_InfraredGroup::FK_InfraredGroup_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_InfraredGroup;}
@@ -154,62 +159,78 @@ string Row_DeviceTemplate_InfraredGroup::psc_mod_get(){PLUTO_SAFETY_LOCK(M, tabl
 return m_psc_mod;}
 
 		
+void Row_DeviceTemplate_InfraredGroup::PK_DeviceTemplate_InfraredGroup_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_PK_DeviceTemplate_InfraredGroup = val; is_modified=true; is_null[0]=false;}
 void Row_DeviceTemplate_InfraredGroup::FK_InfraredGroup_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_FK_InfraredGroup = val; is_modified=true; is_null[0]=false;}
+m_FK_InfraredGroup = val; is_modified=true; is_null[1]=false;}
 void Row_DeviceTemplate_InfraredGroup::FK_DeviceTemplate_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_FK_DeviceTemplate = val; is_modified=true; is_null[1]=false;}
+m_FK_DeviceTemplate = val; is_modified=true; is_null[2]=false;}
 void Row_DeviceTemplate_InfraredGroup::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_id = val; is_modified=true; is_null[2]=false;}
+m_psc_id = val; is_modified=true; is_null[3]=false;}
 void Row_DeviceTemplate_InfraredGroup::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_batch = val; is_modified=true; is_null[3]=false;}
+m_psc_batch = val; is_modified=true; is_null[4]=false;}
 void Row_DeviceTemplate_InfraredGroup::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_user = val; is_modified=true; is_null[4]=false;}
+m_psc_user = val; is_modified=true; is_null[5]=false;}
 void Row_DeviceTemplate_InfraredGroup::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_frozen = val; is_modified=true; is_null[5]=false;}
+m_psc_frozen = val; is_modified=true; is_null[6]=false;}
 void Row_DeviceTemplate_InfraredGroup::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_mod = val; is_modified=true; is_null[6]=false;}
+m_psc_mod = val; is_modified=true; is_null[7]=false;}
 
 		
 bool Row_DeviceTemplate_InfraredGroup::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[2];}
+return is_null[3];}
 bool Row_DeviceTemplate_InfraredGroup::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[3];}
+return is_null[4];}
 bool Row_DeviceTemplate_InfraredGroup::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[4];}
+return is_null[5];}
 bool Row_DeviceTemplate_InfraredGroup::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[5];}
+return is_null[6];}
 
 			
 void Row_DeviceTemplate_InfraredGroup::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[2]=val;}
+is_null[3]=val;}
 void Row_DeviceTemplate_InfraredGroup::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[3]=val;}
+is_null[4]=val;}
 void Row_DeviceTemplate_InfraredGroup::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[4]=val;}
+is_null[5]=val;}
 void Row_DeviceTemplate_InfraredGroup::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[5]=val;}
+is_null[6]=val;}
 	
+
+string Row_DeviceTemplate_InfraredGroup::PK_DeviceTemplate_InfraredGroup_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[0])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_PK_DeviceTemplate_InfraredGroup);
+
+return buf;
+}
 
 string Row_DeviceTemplate_InfraredGroup::FK_InfraredGroup_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[0])
+if (is_null[1])
 return "NULL";
 
 char buf[32];
@@ -222,7 +243,7 @@ string Row_DeviceTemplate_InfraredGroup::FK_DeviceTemplate_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[1])
+if (is_null[2])
 return "NULL";
 
 char buf[32];
@@ -235,7 +256,7 @@ string Row_DeviceTemplate_InfraredGroup::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[2])
+if (is_null[3])
 return "NULL";
 
 char buf[32];
@@ -248,7 +269,7 @@ string Row_DeviceTemplate_InfraredGroup::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[3])
+if (is_null[4])
 return "NULL";
 
 char buf[32];
@@ -261,7 +282,7 @@ string Row_DeviceTemplate_InfraredGroup::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[4])
+if (is_null[5])
 return "NULL";
 
 char buf[32];
@@ -274,7 +295,7 @@ string Row_DeviceTemplate_InfraredGroup::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[5])
+if (is_null[6])
 return "NULL";
 
 char buf[32];
@@ -287,7 +308,7 @@ string Row_DeviceTemplate_InfraredGroup::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[6])
+if (is_null[7])
 return "NULL";
 
 char *buf = new char[29];
@@ -300,10 +321,9 @@ return s;
 
 
 
-Table_DeviceTemplate_InfraredGroup::Key::Key(long int in_FK_InfraredGroup, long int in_FK_DeviceTemplate)
+Table_DeviceTemplate_InfraredGroup::Key::Key(long int in_PK_DeviceTemplate_InfraredGroup)
 {
-			pk_FK_InfraredGroup = in_FK_InfraredGroup;
-pk_FK_DeviceTemplate = in_FK_DeviceTemplate;
+			pk_PK_DeviceTemplate_InfraredGroup = in_PK_DeviceTemplate_InfraredGroup;
 	
 }
 
@@ -311,18 +331,14 @@ Table_DeviceTemplate_InfraredGroup::Key::Key(Row_DeviceTemplate_InfraredGroup *p
 {
 			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
 
-			pk_FK_InfraredGroup = pRow->m_FK_InfraredGroup;
-pk_FK_DeviceTemplate = pRow->m_FK_DeviceTemplate;
+			pk_PK_DeviceTemplate_InfraredGroup = pRow->m_PK_DeviceTemplate_InfraredGroup;
 	
 }		
 
 bool Table_DeviceTemplate_InfraredGroup::Key_Less::operator()(const Table_DeviceTemplate_InfraredGroup::Key &key1, const Table_DeviceTemplate_InfraredGroup::Key &key2) const
 {
-			if (key1.pk_FK_InfraredGroup!=key2.pk_FK_InfraredGroup)
-return key1.pk_FK_InfraredGroup<key2.pk_FK_InfraredGroup;
-else
-if (key1.pk_FK_DeviceTemplate!=key2.pk_FK_DeviceTemplate)
-return key1.pk_FK_DeviceTemplate<key2.pk_FK_DeviceTemplate;
+			if (key1.pk_PK_DeviceTemplate_InfraredGroup!=key2.pk_PK_DeviceTemplate_InfraredGroup)
+return key1.pk_PK_DeviceTemplate_InfraredGroup<key2.pk_PK_DeviceTemplate_InfraredGroup;
 else
 return false;	
 }	
@@ -340,15 +356,16 @@ bool Table_DeviceTemplate_InfraredGroup::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->FK_InfraredGroup_asSQL()+", "+pRow->FK_DeviceTemplate_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_DeviceTemplate_InfraredGroup_asSQL()+", "+pRow->FK_InfraredGroup_asSQL()+", "+pRow->FK_DeviceTemplate_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into DeviceTemplate_InfraredGroup (FK_InfraredGroup, FK_DeviceTemplate, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into DeviceTemplate_InfraredGroup (`PK_DeviceTemplate_InfraredGroup`, `FK_InfraredGroup`, `FK_DeviceTemplate`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -358,10 +375,12 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_InfraredGro
 			
 			long int id	= (long int) mysql_insert_id(database->db_handle);
 		
-				
+			if (id!=0)
+pRow->m_PK_DeviceTemplate_InfraredGroup=id;
+	
 			
 			addedRows.erase(i);
-			DoubleLongKey key(pRow->m_FK_InfraredGroup,pRow->m_FK_DeviceTemplate);	
+			SingleLongKey key(pRow->m_PK_DeviceTemplate_InfraredGroup);	
 			cachedRows[key] = pRow;
 					
 			
@@ -375,26 +394,23 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_InfraredGro
 //update modified
 	
 
-	for (map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
+	for (map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.begin(); i!= cachedRows.end(); i++)
 		if	(((*i).second)->is_modified_get())
 	{
 		Row_DeviceTemplate_InfraredGroup* pRow = (Row_DeviceTemplate_InfraredGroup*) (*i).second;	
-		DoubleLongKey key(pRow->m_FK_InfraredGroup,pRow->m_FK_DeviceTemplate);
+		SingleLongKey key(pRow->m_PK_DeviceTemplate_InfraredGroup);
 
-		char tmp_FK_InfraredGroup[32];
-sprintf(tmp_FK_InfraredGroup, "%li", key.pk1);
-
-char tmp_FK_DeviceTemplate[32];
-sprintf(tmp_FK_DeviceTemplate, "%li", key.pk2);
+		char tmp_PK_DeviceTemplate_InfraredGroup[32];
+sprintf(tmp_PK_DeviceTemplate_InfraredGroup, "%li", key.pk);
 
 
 string condition;
-condition = condition + "FK_InfraredGroup=" + tmp_FK_InfraredGroup+" AND "+"FK_DeviceTemplate=" + tmp_FK_DeviceTemplate;
+condition = condition + "`PK_DeviceTemplate_InfraredGroup`=" + tmp_PK_DeviceTemplate_InfraredGroup;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_InfraredGroup="+pRow->FK_InfraredGroup_asSQL()+", FK_DeviceTemplate="+pRow->FK_DeviceTemplate_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_DeviceTemplate_InfraredGroup`="+pRow->PK_DeviceTemplate_InfraredGroup_asSQL()+", `FK_InfraredGroup`="+pRow->FK_InfraredGroup_asSQL()+", `FK_DeviceTemplate`="+pRow->FK_DeviceTemplate_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update DeviceTemplate_InfraredGroup set " + update_values_list + " where " + condition;
@@ -402,6 +418,7 @@ update_values_list = update_values_list + "FK_InfraredGroup="+pRow->FK_InfraredG
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -423,20 +440,17 @@ update_values_list = update_values_list + "FK_InfraredGroup="+pRow->FK_InfraredG
 	
 	while (!deleted_cachedRows.empty())
 	{	
-		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = deleted_cachedRows.begin();
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = deleted_cachedRows.begin();
 	
-		DoubleLongKey key = (*i).first;
+		SingleLongKey key = (*i).first;
 		Row_DeviceTemplate_InfraredGroup* pRow = (Row_DeviceTemplate_InfraredGroup*) (*i).second;	
 
-		char tmp_FK_InfraredGroup[32];
-sprintf(tmp_FK_InfraredGroup, "%li", key.pk1);
-
-char tmp_FK_DeviceTemplate[32];
-sprintf(tmp_FK_DeviceTemplate, "%li", key.pk2);
+		char tmp_PK_DeviceTemplate_InfraredGroup[32];
+sprintf(tmp_PK_DeviceTemplate_InfraredGroup, "%li", key.pk);
 
 
 string condition;
-condition = condition + "FK_InfraredGroup=" + tmp_FK_InfraredGroup+" AND "+"FK_DeviceTemplate=" + tmp_FK_DeviceTemplate;
+condition = condition + "`PK_DeviceTemplate_InfraredGroup`=" + tmp_PK_DeviceTemplate_InfraredGroup;
 
 	
 		string query = "delete from DeviceTemplate_InfraredGroup where " + condition;
@@ -444,6 +458,7 @@ condition = condition + "FK_InfraredGroup=" + tmp_FK_InfraredGroup+" AND "+"FK_D
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -470,6 +485,7 @@ bool Table_DeviceTemplate_InfraredGroup::GetRows(string where_statement,vector<c
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -478,6 +494,7 @@ bool Table_DeviceTemplate_InfraredGroup::GetRows(string where_statement,vector<c
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -493,87 +510,98 @@ bool Table_DeviceTemplate_InfraredGroup::GetRows(string where_statement,vector<c
 		if (row[0] == NULL)
 {
 pRow->is_null[0]=true;
-pRow->m_FK_InfraredGroup = 0;
+pRow->m_PK_DeviceTemplate_InfraredGroup = 0;
 }
 else
 {
 pRow->is_null[0]=false;
-sscanf(row[0], "%li", &(pRow->m_FK_InfraredGroup));
+sscanf(row[0], "%li", &(pRow->m_PK_DeviceTemplate_InfraredGroup));
 }
 
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_FK_DeviceTemplate = 0;
+pRow->m_FK_InfraredGroup = 0;
 }
 else
 {
 pRow->is_null[1]=false;
-sscanf(row[1], "%li", &(pRow->m_FK_DeviceTemplate));
+sscanf(row[1], "%li", &(pRow->m_FK_InfraredGroup));
 }
 
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_psc_id = 0;
+pRow->m_FK_DeviceTemplate = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-sscanf(row[2], "%li", &(pRow->m_psc_id));
+sscanf(row[2], "%li", &(pRow->m_FK_DeviceTemplate));
 }
 
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[3]=false;
-sscanf(row[3], "%li", &(pRow->m_psc_batch));
+sscanf(row[3], "%li", &(pRow->m_psc_id));
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%li", &(pRow->m_psc_user));
+sscanf(row[4], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[5], "%li", &(pRow->m_psc_user));
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-pRow->m_psc_mod = string(row[6],lengths[6]);
+sscanf(row[6], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[7] == NULL)
+{
+pRow->is_null[7]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[7]=false;
+pRow->m_psc_mod = string(row[7],lengths[7]);
 }
 
 
 
 		//checking for duplicates
 
-		DoubleLongKey key(pRow->m_FK_InfraredGroup,pRow->m_FK_DeviceTemplate);
+		SingleLongKey key(pRow->m_PK_DeviceTemplate_InfraredGroup);
 		
-		map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i = cachedRows.find(key);
+		map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i = cachedRows.find(key);
 			
 		if (i!=cachedRows.end())
 		{
@@ -603,13 +631,13 @@ Row_DeviceTemplate_InfraredGroup* Table_DeviceTemplate_InfraredGroup::AddRow()
 
 
 
-Row_DeviceTemplate_InfraredGroup* Table_DeviceTemplate_InfraredGroup::GetRow(long int in_FK_InfraredGroup, long int in_FK_DeviceTemplate)
+Row_DeviceTemplate_InfraredGroup* Table_DeviceTemplate_InfraredGroup::GetRow(long int in_PK_DeviceTemplate_InfraredGroup)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	DoubleLongKey row_key(in_FK_InfraredGroup, in_FK_DeviceTemplate);
+	SingleLongKey row_key(in_PK_DeviceTemplate_InfraredGroup);
 
-	map<DoubleLongKey, class TableRow*, DoubleLongKey_Less>::iterator i;
+	map<SingleLongKey, class TableRow*, SingleLongKey_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
 		
 	//row was deleted	
@@ -631,20 +659,17 @@ Row_DeviceTemplate_InfraredGroup* Table_DeviceTemplate_InfraredGroup::GetRow(lon
 
 
 
-Row_DeviceTemplate_InfraredGroup* Table_DeviceTemplate_InfraredGroup::FetchRow(DoubleLongKey &key)
+Row_DeviceTemplate_InfraredGroup* Table_DeviceTemplate_InfraredGroup::FetchRow(SingleLongKey &key)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
-	char tmp_FK_InfraredGroup[32];
-sprintf(tmp_FK_InfraredGroup, "%li", key.pk1);
-
-char tmp_FK_DeviceTemplate[32];
-sprintf(tmp_FK_DeviceTemplate, "%li", key.pk2);
+	char tmp_PK_DeviceTemplate_InfraredGroup[32];
+sprintf(tmp_PK_DeviceTemplate_InfraredGroup, "%li", key.pk);
 
 
 string condition;
-condition = condition + "FK_InfraredGroup=" + tmp_FK_InfraredGroup+" AND "+"FK_DeviceTemplate=" + tmp_FK_DeviceTemplate;
+condition = condition + "`PK_DeviceTemplate_InfraredGroup`=" + tmp_PK_DeviceTemplate_InfraredGroup;
 
 
 	string query = "select * from DeviceTemplate_InfraredGroup where " + condition;		
@@ -652,6 +677,7 @@ condition = condition + "FK_InfraredGroup=" + tmp_FK_InfraredGroup+" AND "+"FK_D
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -660,6 +686,7 @@ condition = condition + "FK_InfraredGroup=" + tmp_FK_InfraredGroup+" AND "+"FK_D
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -679,78 +706,89 @@ condition = condition + "FK_InfraredGroup=" + tmp_FK_InfraredGroup+" AND "+"FK_D
 	if (row[0] == NULL)
 {
 pRow->is_null[0]=true;
-pRow->m_FK_InfraredGroup = 0;
+pRow->m_PK_DeviceTemplate_InfraredGroup = 0;
 }
 else
 {
 pRow->is_null[0]=false;
-sscanf(row[0], "%li", &(pRow->m_FK_InfraredGroup));
+sscanf(row[0], "%li", &(pRow->m_PK_DeviceTemplate_InfraredGroup));
 }
 
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_FK_DeviceTemplate = 0;
+pRow->m_FK_InfraredGroup = 0;
 }
 else
 {
 pRow->is_null[1]=false;
-sscanf(row[1], "%li", &(pRow->m_FK_DeviceTemplate));
+sscanf(row[1], "%li", &(pRow->m_FK_InfraredGroup));
 }
 
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_psc_id = 0;
+pRow->m_FK_DeviceTemplate = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-sscanf(row[2], "%li", &(pRow->m_psc_id));
+sscanf(row[2], "%li", &(pRow->m_FK_DeviceTemplate));
 }
 
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[3]=false;
-sscanf(row[3], "%li", &(pRow->m_psc_batch));
+sscanf(row[3], "%li", &(pRow->m_psc_id));
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%li", &(pRow->m_psc_user));
+sscanf(row[4], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[5], "%li", &(pRow->m_psc_user));
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[6]=false;
-pRow->m_psc_mod = string(row[6],lengths[6]);
+sscanf(row[6], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[7] == NULL)
+{
+pRow->is_null[7]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[7]=false;
+pRow->m_psc_mod = string(row[7],lengths[7]);
 }
 
 

@@ -170,7 +170,7 @@ Command_Impl::~Command_Impl()
 		delete m_pEvent;
 	if( m_pcRequestSocket )
 		delete m_pcRequestSocket;
-	m_pcRequestSocket=NULL;
+	m_pEvent=m_pcRequestSocket=NULL;
 	if( m_bKillSpawnedDevicesOnExit )
 	{
 		g_pPlutoLogger->Write( LV_STATUS, "About to call kill spawned devices" );

@@ -1,6 +1,7 @@
 #ifndef __Define_StabilityStatus_H__
 #define __Define_StabilityStatus_H__
 
+#define STABILITYSTATUS_Testing_CONST 1
 
 #define STABILITYSTATUS_TABLE "StabilityStatus"
 #define STABILITYSTATUS_PK_STABILITYSTATUS_FIELD "PK_StabilityStatus"

@@ -5,6 +5,8 @@
 #define PSC_DESIGNER_BATHDR_TABLE "psc_designer_bathdr"
 #define PSC_DESIGNER_BATHDR_PK_PSC_DESIGNER_BATHDR_FIELD "PK_psc_designer_bathdr"
 #define PSC_DESIGNER_BATHDR_PK_PSC_DESIGNER_BATHDR_TABLE_FIELD "psc_designer_bathdr.PK_psc_designer_bathdr"
+#define PSC_DESIGNER_BATHDR_IPADDRESS_FIELD "IPAddress"
+#define PSC_DESIGNER_BATHDR_IPADDRESS_TABLE_FIELD "psc_designer_bathdr.IPAddress"
 #define PSC_DESIGNER_BATHDR_DATE_FIELD "date"
 #define PSC_DESIGNER_BATHDR_DATE_TABLE_FIELD "psc_designer_bathdr.date"
 #define PSC_DESIGNER_BATHDR_COMMENTS_FIELD "comments"

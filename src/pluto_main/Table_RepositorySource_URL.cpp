@@ -463,12 +463,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_RepositorySource_URL_asSQL()+", "+pRow->FK_RepositorySource_asSQL()+", "+pRow->URL_asSQL()+", "+pRow->FK_Country_asSQL()+", "+pRow->Username_asSQL()+", "+pRow->Password_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into RepositorySource_URL (PK_RepositorySource_URL, FK_RepositorySource, URL, FK_Country, Username, Password, Comments, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into RepositorySource_URL (`PK_RepositorySource_URL`, `FK_RepositorySource`, `URL`, `FK_Country`, `Username`, `Password`, `Comments`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -508,12 +509,12 @@ sprintf(tmp_PK_RepositorySource_URL, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_RepositorySource_URL=" + tmp_PK_RepositorySource_URL;
+condition = condition + "`PK_RepositorySource_URL`=" + tmp_PK_RepositorySource_URL;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_RepositorySource_URL="+pRow->PK_RepositorySource_URL_asSQL()+", FK_RepositorySource="+pRow->FK_RepositorySource_asSQL()+", URL="+pRow->URL_asSQL()+", FK_Country="+pRow->FK_Country_asSQL()+", Username="+pRow->Username_asSQL()+", Password="+pRow->Password_asSQL()+", Comments="+pRow->Comments_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_RepositorySource_URL`="+pRow->PK_RepositorySource_URL_asSQL()+", `FK_RepositorySource`="+pRow->FK_RepositorySource_asSQL()+", `URL`="+pRow->URL_asSQL()+", `FK_Country`="+pRow->FK_Country_asSQL()+", `Username`="+pRow->Username_asSQL()+", `Password`="+pRow->Password_asSQL()+", `Comments`="+pRow->Comments_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update RepositorySource_URL set " + update_values_list + " where " + condition;
@@ -521,6 +522,7 @@ update_values_list = update_values_list + "PK_RepositorySource_URL="+pRow->PK_Re
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -552,7 +554,7 @@ sprintf(tmp_PK_RepositorySource_URL, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_RepositorySource_URL=" + tmp_PK_RepositorySource_URL;
+condition = condition + "`PK_RepositorySource_URL`=" + tmp_PK_RepositorySource_URL;
 
 	
 		string query = "delete from RepositorySource_URL where " + condition;
@@ -560,6 +562,7 @@ condition = condition + "PK_RepositorySource_URL=" + tmp_PK_RepositorySource_URL
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -586,6 +589,7 @@ bool Table_RepositorySource_URL::GetRows(string where_statement,vector<class Row
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -594,6 +598,7 @@ bool Table_RepositorySource_URL::GetRows(string where_statement,vector<class Row
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -812,7 +817,7 @@ sprintf(tmp_PK_RepositorySource_URL, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_RepositorySource_URL=" + tmp_PK_RepositorySource_URL;
+condition = condition + "`PK_RepositorySource_URL`=" + tmp_PK_RepositorySource_URL;
 
 
 	string query = "select * from RepositorySource_URL where " + condition;		
@@ -820,6 +825,7 @@ condition = condition + "PK_RepositorySource_URL=" + tmp_PK_RepositorySource_URL
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -828,6 +834,7 @@ condition = condition + "PK_RepositorySource_URL=" + tmp_PK_RepositorySource_URL
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -1005,7 +1012,7 @@ void Row_RepositorySource_URL::Installation_RepositorySource_URL_FK_RepositorySo
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Installation_RepositorySource_URL *pTable = table->database->Installation_RepositorySource_URL_get();
-pTable->GetRows("FK_RepositorySource_URL=" + StringUtils::itos(m_PK_RepositorySource_URL),rows);
+pTable->GetRows("`FK_RepositorySource_URL=`" + StringUtils::itos(m_PK_RepositorySource_URL),rows);
 }
 
 

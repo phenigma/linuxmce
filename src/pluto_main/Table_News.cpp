@@ -450,12 +450,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_News_asSQL()+", "+pRow->Date_asSQL()+", "+pRow->FK_Package_asSQL()+", "+pRow->Title_asSQL()+", "+pRow->ShortSummary_asSQL()+", "+pRow->FullText_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into News (PK_News, Date, FK_Package, Title, ShortSummary, FullText, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into News (`PK_News`, `Date`, `FK_Package`, `Title`, `ShortSummary`, `FullText`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -493,12 +494,12 @@ sprintf(tmp_PK_News, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_News=" + tmp_PK_News;
+condition = condition + "`PK_News`=" + tmp_PK_News;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_News="+pRow->PK_News_asSQL()+", Date="+pRow->Date_asSQL()+", FK_Package="+pRow->FK_Package_asSQL()+", Title="+pRow->Title_asSQL()+", ShortSummary="+pRow->ShortSummary_asSQL()+", FullText="+pRow->FullText_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_News`="+pRow->PK_News_asSQL()+", `Date`="+pRow->Date_asSQL()+", `FK_Package`="+pRow->FK_Package_asSQL()+", `Title`="+pRow->Title_asSQL()+", `ShortSummary`="+pRow->ShortSummary_asSQL()+", `FullText`="+pRow->FullText_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update News set " + update_values_list + " where " + condition;
@@ -506,6 +507,7 @@ update_values_list = update_values_list + "PK_News="+pRow->PK_News_asSQL()+", Da
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -537,7 +539,7 @@ sprintf(tmp_PK_News, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_News=" + tmp_PK_News;
+condition = condition + "`PK_News`=" + tmp_PK_News;
 
 	
 		string query = "delete from News where " + condition;
@@ -545,6 +547,7 @@ condition = condition + "PK_News=" + tmp_PK_News;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -571,6 +574,7 @@ bool Table_News::GetRows(string where_statement,vector<class Row_News*> *rows)
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -579,6 +583,7 @@ bool Table_News::GetRows(string where_statement,vector<class Row_News*> *rows)
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -786,7 +791,7 @@ sprintf(tmp_PK_News, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_News=" + tmp_PK_News;
+condition = condition + "`PK_News`=" + tmp_PK_News;
 
 
 	string query = "select * from News where " + condition;		
@@ -794,6 +799,7 @@ condition = condition + "PK_News=" + tmp_PK_News;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -802,6 +808,7 @@ condition = condition + "PK_News=" + tmp_PK_News;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

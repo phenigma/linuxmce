@@ -516,12 +516,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_MediaType_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_DesignObj_asSQL()+", "+pRow->DCEAware_asSQL()+", "+pRow->Extensions_asSQL()+", "+pRow->Subdirectory_asSQL()+", "+pRow->IsExternalTransmission_asSQL()+", "+pRow->FK_Pipe_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into MediaType (PK_MediaType, Define, Description, FK_DesignObj, DCEAware, Extensions, Subdirectory, IsExternalTransmission, FK_Pipe, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into MediaType (`PK_MediaType`, `Define`, `Description`, `FK_DesignObj`, `DCEAware`, `Extensions`, `Subdirectory`, `IsExternalTransmission`, `FK_Pipe`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -561,12 +562,12 @@ sprintf(tmp_PK_MediaType, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_MediaType=" + tmp_PK_MediaType;
+condition = condition + "`PK_MediaType`=" + tmp_PK_MediaType;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_MediaType="+pRow->PK_MediaType_asSQL()+", Define="+pRow->Define_asSQL()+", Description="+pRow->Description_asSQL()+", FK_DesignObj="+pRow->FK_DesignObj_asSQL()+", DCEAware="+pRow->DCEAware_asSQL()+", Extensions="+pRow->Extensions_asSQL()+", Subdirectory="+pRow->Subdirectory_asSQL()+", IsExternalTransmission="+pRow->IsExternalTransmission_asSQL()+", FK_Pipe="+pRow->FK_Pipe_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_MediaType`="+pRow->PK_MediaType_asSQL()+", `Define`="+pRow->Define_asSQL()+", `Description`="+pRow->Description_asSQL()+", `FK_DesignObj`="+pRow->FK_DesignObj_asSQL()+", `DCEAware`="+pRow->DCEAware_asSQL()+", `Extensions`="+pRow->Extensions_asSQL()+", `Subdirectory`="+pRow->Subdirectory_asSQL()+", `IsExternalTransmission`="+pRow->IsExternalTransmission_asSQL()+", `FK_Pipe`="+pRow->FK_Pipe_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update MediaType set " + update_values_list + " where " + condition;
@@ -574,6 +575,7 @@ update_values_list = update_values_list + "PK_MediaType="+pRow->PK_MediaType_asS
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -605,7 +607,7 @@ sprintf(tmp_PK_MediaType, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_MediaType=" + tmp_PK_MediaType;
+condition = condition + "`PK_MediaType`=" + tmp_PK_MediaType;
 
 	
 		string query = "delete from MediaType where " + condition;
@@ -613,6 +615,7 @@ condition = condition + "PK_MediaType=" + tmp_PK_MediaType;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -639,6 +642,7 @@ bool Table_MediaType::GetRows(string where_statement,vector<class Row_MediaType*
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -647,6 +651,7 @@ bool Table_MediaType::GetRows(string where_statement,vector<class Row_MediaType*
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -887,7 +892,7 @@ sprintf(tmp_PK_MediaType, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_MediaType=" + tmp_PK_MediaType;
+condition = condition + "`PK_MediaType`=" + tmp_PK_MediaType;
 
 
 	string query = "select * from MediaType where " + condition;		
@@ -895,6 +900,7 @@ condition = condition + "PK_MediaType=" + tmp_PK_MediaType;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -903,6 +909,7 @@ condition = condition + "PK_MediaType=" + tmp_PK_MediaType;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -1102,14 +1109,14 @@ void Row_MediaType::DeviceTemplate_MediaType_FK_MediaType_getrows(vector <class 
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_MediaType *pTable = table->database->DeviceTemplate_MediaType_get();
-pTable->GetRows("FK_MediaType=" + StringUtils::itos(m_PK_MediaType),rows);
+pTable->GetRows("`FK_MediaType=`" + StringUtils::itos(m_PK_MediaType),rows);
 }
 void Row_MediaType::MediaType_Broadcast_FK_MediaType_getrows(vector <class Row_MediaType_Broadcast*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_MediaType_Broadcast *pTable = table->database->MediaType_Broadcast_get();
-pTable->GetRows("FK_MediaType=" + StringUtils::itos(m_PK_MediaType),rows);
+pTable->GetRows("`FK_MediaType=`" + StringUtils::itos(m_PK_MediaType),rows);
 }
 
 

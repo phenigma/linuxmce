@@ -213,6 +213,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Orbiter is exiting");
 	m_bQuit=true;
 	pthread_cond_broadcast(&m_MaintThreadCond);  // Wake it up, it will quit when it sees the quit
 	pthread_mutex_lock(&m_MaintThreadMutex.mutex);  // Be sure it's not executing anything--it will lock this while it's doing an execute
+	mapPendingCallbacks.clear();
 g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 
 	DCE::CMD_Orbiter_Registered CMD_Orbiter_Registered( m_dwPK_Device, m_dwPK_Device_OrbiterPlugIn, "0" );
@@ -309,15 +310,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Maint thread dead");
 		*itDesignObjData = NULL;
 	}
 	m_listScreenHistory.clear();
-
-	//clearing design object datagrid vector
-	vector < class DesignObj_DataGrid * >::iterator itDesignDataGrid;
-	for(itDesignDataGrid = m_vectObjs_GridsOnScreen.begin(); itDesignDataGrid != m_vectObjs_GridsOnScreen.end(); itDesignDataGrid++)
-	{
-		delete *itDesignDataGrid;
-		*itDesignDataGrid = NULL;
-	}
-	m_vectObjs_GridsOnScreen.clear();
 
 	//clearing device data map
 	map< string, class DesignObj_DataGrid * >::iterator itDesignObjDataGrid;

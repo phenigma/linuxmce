@@ -403,12 +403,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_CannedEvents_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_Event_asSQL()+", "+pRow->bIsAnd_asSQL()+", "+pRow->bIsNot_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into CannedEvents (PK_CannedEvents, Description, FK_Event, bIsAnd, bIsNot, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into CannedEvents (`PK_CannedEvents`, `Description`, `FK_Event`, `bIsAnd`, `bIsNot`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -448,12 +449,12 @@ sprintf(tmp_PK_CannedEvents, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_CannedEvents=" + tmp_PK_CannedEvents;
+condition = condition + "`PK_CannedEvents`=" + tmp_PK_CannedEvents;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_CannedEvents="+pRow->PK_CannedEvents_asSQL()+", Description="+pRow->Description_asSQL()+", FK_Event="+pRow->FK_Event_asSQL()+", bIsAnd="+pRow->bIsAnd_asSQL()+", bIsNot="+pRow->bIsNot_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_CannedEvents`="+pRow->PK_CannedEvents_asSQL()+", `Description`="+pRow->Description_asSQL()+", `FK_Event`="+pRow->FK_Event_asSQL()+", `bIsAnd`="+pRow->bIsAnd_asSQL()+", `bIsNot`="+pRow->bIsNot_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update CannedEvents set " + update_values_list + " where " + condition;
@@ -461,6 +462,7 @@ update_values_list = update_values_list + "PK_CannedEvents="+pRow->PK_CannedEven
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -492,7 +494,7 @@ sprintf(tmp_PK_CannedEvents, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_CannedEvents=" + tmp_PK_CannedEvents;
+condition = condition + "`PK_CannedEvents`=" + tmp_PK_CannedEvents;
 
 	
 		string query = "delete from CannedEvents where " + condition;
@@ -500,6 +502,7 @@ condition = condition + "PK_CannedEvents=" + tmp_PK_CannedEvents;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -526,6 +529,7 @@ bool Table_CannedEvents::GetRows(string where_statement,vector<class Row_CannedE
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -534,6 +538,7 @@ bool Table_CannedEvents::GetRows(string where_statement,vector<class Row_CannedE
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -730,7 +735,7 @@ sprintf(tmp_PK_CannedEvents, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_CannedEvents=" + tmp_PK_CannedEvents;
+condition = condition + "`PK_CannedEvents`=" + tmp_PK_CannedEvents;
 
 
 	string query = "select * from CannedEvents where " + condition;		
@@ -738,6 +743,7 @@ condition = condition + "PK_CannedEvents=" + tmp_PK_CannedEvents;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -746,6 +752,7 @@ condition = condition + "PK_CannedEvents=" + tmp_PK_CannedEvents;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -894,14 +901,14 @@ void Row_CannedEvents::CannedEvents_CriteriaParmList_FK_CannedEvents_getrows(vec
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CannedEvents_CriteriaParmList *pTable = table->database->CannedEvents_CriteriaParmList_get();
-pTable->GetRows("FK_CannedEvents=" + StringUtils::itos(m_PK_CannedEvents),rows);
+pTable->GetRows("`FK_CannedEvents=`" + StringUtils::itos(m_PK_CannedEvents),rows);
 }
 void Row_CannedEvents::EventHandler_FK_CannedEvents_getrows(vector <class Row_EventHandler*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_EventHandler *pTable = table->database->EventHandler_get();
-pTable->GetRows("FK_CannedEvents=" + StringUtils::itos(m_PK_CannedEvents),rows);
+pTable->GetRows("`FK_CannedEvents=`" + StringUtils::itos(m_PK_CannedEvents),rows);
 }
 
 

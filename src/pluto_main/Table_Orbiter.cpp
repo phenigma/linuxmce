@@ -400,12 +400,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_Orbiter_asSQL()+", "+pRow->FloorplanInfo_asSQL()+", "+pRow->Modification_LastGen_asSQL()+", "+pRow->Regen_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Orbiter (PK_Orbiter, FloorplanInfo, Modification_LastGen, Regen, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Orbiter (`PK_Orbiter`, `FloorplanInfo`, `Modification_LastGen`, `Regen`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -445,12 +446,12 @@ sprintf(tmp_PK_Orbiter, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Orbiter=" + tmp_PK_Orbiter;
+condition = condition + "`PK_Orbiter`=" + tmp_PK_Orbiter;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Orbiter="+pRow->PK_Orbiter_asSQL()+", FloorplanInfo="+pRow->FloorplanInfo_asSQL()+", Modification_LastGen="+pRow->Modification_LastGen_asSQL()+", Regen="+pRow->Regen_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Orbiter`="+pRow->PK_Orbiter_asSQL()+", `FloorplanInfo`="+pRow->FloorplanInfo_asSQL()+", `Modification_LastGen`="+pRow->Modification_LastGen_asSQL()+", `Regen`="+pRow->Regen_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Orbiter set " + update_values_list + " where " + condition;
@@ -458,6 +459,7 @@ update_values_list = update_values_list + "PK_Orbiter="+pRow->PK_Orbiter_asSQL()
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -489,7 +491,7 @@ sprintf(tmp_PK_Orbiter, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Orbiter=" + tmp_PK_Orbiter;
+condition = condition + "`PK_Orbiter`=" + tmp_PK_Orbiter;
 
 	
 		string query = "delete from Orbiter where " + condition;
@@ -497,6 +499,7 @@ condition = condition + "PK_Orbiter=" + tmp_PK_Orbiter;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -523,6 +526,7 @@ bool Table_Orbiter::GetRows(string where_statement,vector<class Row_Orbiter*> *r
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -531,6 +535,7 @@ bool Table_Orbiter::GetRows(string where_statement,vector<class Row_Orbiter*> *r
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -716,7 +721,7 @@ sprintf(tmp_PK_Orbiter, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Orbiter=" + tmp_PK_Orbiter;
+condition = condition + "`PK_Orbiter`=" + tmp_PK_Orbiter;
 
 
 	string query = "select * from Orbiter where " + condition;		
@@ -724,6 +729,7 @@ condition = condition + "PK_Orbiter=" + tmp_PK_Orbiter;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -732,6 +738,7 @@ condition = condition + "PK_Orbiter=" + tmp_PK_Orbiter;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -862,28 +869,28 @@ void Row_Orbiter::CachedScreens_FK_Orbiter_getrows(vector <class Row_CachedScree
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CachedScreens *pTable = table->database->CachedScreens_get();
-pTable->GetRows("FK_Orbiter=" + StringUtils::itos(m_PK_Orbiter),rows);
+pTable->GetRows("`FK_Orbiter=`" + StringUtils::itos(m_PK_Orbiter),rows);
 }
 void Row_Orbiter::Device_Orbiter_FK_Orbiter_getrows(vector <class Row_Device_Orbiter*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device_Orbiter *pTable = table->database->Device_Orbiter_get();
-pTable->GetRows("FK_Orbiter=" + StringUtils::itos(m_PK_Orbiter),rows);
+pTable->GetRows("`FK_Orbiter=`" + StringUtils::itos(m_PK_Orbiter),rows);
 }
 void Row_Orbiter::Orbiter_Users_PasswordReq_FK_Orbiter_getrows(vector <class Row_Orbiter_Users_PasswordReq*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Orbiter_Users_PasswordReq *pTable = table->database->Orbiter_Users_PasswordReq_get();
-pTable->GetRows("FK_Orbiter=" + StringUtils::itos(m_PK_Orbiter),rows);
+pTable->GetRows("`FK_Orbiter=`" + StringUtils::itos(m_PK_Orbiter),rows);
 }
 void Row_Orbiter::Orbiter_Variable_FK_Orbiter_getrows(vector <class Row_Orbiter_Variable*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Orbiter_Variable *pTable = table->database->Orbiter_Variable_get();
-pTable->GetRows("FK_Orbiter=" + StringUtils::itos(m_PK_Orbiter),rows);
+pTable->GetRows("`FK_Orbiter=`" + StringUtils::itos(m_PK_Orbiter),rows);
 }
 
 

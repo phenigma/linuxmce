@@ -17,6 +17,30 @@
 #define VK_R 0x52
 #define VK_Z 0x5A
 
+extern void (*g_pDeadlockHandler)(PlutoLock *pPlutoLock);
+extern void (*g_pSocketCrashHandler)(Socket *pSocket);
+Command_Impl *g_pCommand_Impl=NULL;
+void DeadlockHandler(PlutoLock *pPlutoLock)
+{
+	// This isn't graceful, but for the moment in the event of a deadlock we'll just kill everything and force a reload
+	if( g_pCommand_Impl )
+	{
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Deadlock problem.  Going to reload and quit");
+		g_pCommand_Impl->OnReload();
+	}
+}
+void SocketCrashHandler(Socket *pSocket)
+{
+	// This isn't graceful, but for the moment in the event of a socket crash we'll just kill everything and force a reload
+	if( g_pCommand_Impl )
+	{
+		if( g_pPlutoLogger )
+			g_pPlutoLogger->Write(LV_CRITICAL,"Socket problem.  Going to reload and quit");
+		g_pCommand_Impl->OnReload();
+	}
+}
+
 const MAX_STRING_LEN = 4096;
 //-----------------------------------------------------------------------------------------------------
 LRESULT CALLBACK SDLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -88,6 +112,9 @@ OrbiterSDL_Win32::~OrbiterSDL_Win32()
 	{
 		throw "OrbiterSDL_Win32 already created!";
 	}
+	g_pDeadlockHandler=DeadlockHandler;
+	g_pSocketCrashHandler=SocketCrashHandler;
+	g_pCommand_Impl=m_pInstance;
 }
 //-----------------------------------------------------------------------------------------------------
 /*static*/ void OrbiterSDL_Win32::Cleanup()

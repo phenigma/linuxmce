@@ -343,12 +343,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->FK_CriteriaList_asSQL()+", "+pRow->FK_CriteriaParmList_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into CriteriaList_CriteriaParmList (FK_CriteriaList, FK_CriteriaParmList, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into CriteriaList_CriteriaParmList (`FK_CriteriaList`, `FK_CriteriaParmList`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -389,12 +390,12 @@ sprintf(tmp_FK_CriteriaParmList, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_CriteriaList=" + tmp_FK_CriteriaList+" AND "+"FK_CriteriaParmList=" + tmp_FK_CriteriaParmList;
+condition = condition + "`FK_CriteriaList`=" + tmp_FK_CriteriaList+" AND "+"`FK_CriteriaParmList`=" + tmp_FK_CriteriaParmList;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_CriteriaList="+pRow->FK_CriteriaList_asSQL()+", FK_CriteriaParmList="+pRow->FK_CriteriaParmList_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`FK_CriteriaList`="+pRow->FK_CriteriaList_asSQL()+", `FK_CriteriaParmList`="+pRow->FK_CriteriaParmList_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update CriteriaList_CriteriaParmList set " + update_values_list + " where " + condition;
@@ -402,6 +403,7 @@ update_values_list = update_values_list + "FK_CriteriaList="+pRow->FK_CriteriaLi
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -436,7 +438,7 @@ sprintf(tmp_FK_CriteriaParmList, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_CriteriaList=" + tmp_FK_CriteriaList+" AND "+"FK_CriteriaParmList=" + tmp_FK_CriteriaParmList;
+condition = condition + "`FK_CriteriaList`=" + tmp_FK_CriteriaList+" AND "+"`FK_CriteriaParmList`=" + tmp_FK_CriteriaParmList;
 
 	
 		string query = "delete from CriteriaList_CriteriaParmList where " + condition;
@@ -444,6 +446,7 @@ condition = condition + "FK_CriteriaList=" + tmp_FK_CriteriaList+" AND "+"FK_Cri
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -470,6 +473,7 @@ bool Table_CriteriaList_CriteriaParmList::GetRows(string where_statement,vector<
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -478,6 +482,7 @@ bool Table_CriteriaList_CriteriaParmList::GetRows(string where_statement,vector<
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -644,7 +649,7 @@ sprintf(tmp_FK_CriteriaParmList, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_CriteriaList=" + tmp_FK_CriteriaList+" AND "+"FK_CriteriaParmList=" + tmp_FK_CriteriaParmList;
+condition = condition + "`FK_CriteriaList`=" + tmp_FK_CriteriaList+" AND "+"`FK_CriteriaParmList`=" + tmp_FK_CriteriaParmList;
 
 
 	string query = "select * from CriteriaList_CriteriaParmList where " + condition;		
@@ -652,6 +657,7 @@ condition = condition + "FK_CriteriaList=" + tmp_FK_CriteriaList+" AND "+"FK_Cri
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -660,6 +666,7 @@ condition = condition + "FK_CriteriaList=" + tmp_FK_CriteriaList+" AND "+"FK_Cri
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

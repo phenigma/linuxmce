@@ -82,27 +82,32 @@ class DLL_EXPORT Row_psc_designer_bathdr : public TableRow, public SerializeClas
 		Table_psc_designer_bathdr *table;
 		
 		long int m_PK_psc_designer_bathdr;
+string m_IPAddress;
 string m_date;
 string m_comments;
 
-		bool is_null[3];
+		bool is_null[4];
 	
 	public:
 		long int PK_psc_designer_bathdr_get();
+string IPAddress_get();
 string date_get();
 string comments_get();
 
 		
 		void PK_psc_designer_bathdr_set(long int val);
+void IPAddress_set(string val);
 void date_set(string val);
 void comments_set(string val);
 
 		
-		bool date_isNull();
+		bool IPAddress_isNull();
+bool date_isNull();
 bool comments_isNull();
 
 			
-		void date_setNull(bool val);
+		void IPAddress_setNull(bool val);
+void date_setNull(bool val);
 void comments_setNull(bool val);
 	
 	
@@ -128,12 +133,13 @@ void psc_designer_batuser_FK_psc_designer_bathdr_getrows(vector <class Row_psc_d
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_psc_designer_bathdr+ m_date+ m_comments;
+			StartSerializeList() + m_PK_psc_designer_bathdr+ m_IPAddress+ m_date+ m_comments;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string PK_psc_designer_bathdr_asSQL();
+string IPAddress_asSQL();
 string date_asSQL();
 string comments_asSQL();
 

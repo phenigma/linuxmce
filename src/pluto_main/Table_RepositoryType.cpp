@@ -447,12 +447,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_RepositoryType_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->SourceOnly_asSQL()+", "+pRow->PathToFile_asSQL()+", "+pRow->Instructions_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into RepositoryType (PK_RepositoryType, Description, Define, SourceOnly, PathToFile, Instructions, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into RepositoryType (`PK_RepositoryType`, `Description`, `Define`, `SourceOnly`, `PathToFile`, `Instructions`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -492,12 +493,12 @@ sprintf(tmp_PK_RepositoryType, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_RepositoryType=" + tmp_PK_RepositoryType;
+condition = condition + "`PK_RepositoryType`=" + tmp_PK_RepositoryType;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_RepositoryType="+pRow->PK_RepositoryType_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", SourceOnly="+pRow->SourceOnly_asSQL()+", PathToFile="+pRow->PathToFile_asSQL()+", Instructions="+pRow->Instructions_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_RepositoryType`="+pRow->PK_RepositoryType_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `SourceOnly`="+pRow->SourceOnly_asSQL()+", `PathToFile`="+pRow->PathToFile_asSQL()+", `Instructions`="+pRow->Instructions_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update RepositoryType set " + update_values_list + " where " + condition;
@@ -505,6 +506,7 @@ update_values_list = update_values_list + "PK_RepositoryType="+pRow->PK_Reposito
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -536,7 +538,7 @@ sprintf(tmp_PK_RepositoryType, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_RepositoryType=" + tmp_PK_RepositoryType;
+condition = condition + "`PK_RepositoryType`=" + tmp_PK_RepositoryType;
 
 	
 		string query = "delete from RepositoryType where " + condition;
@@ -544,6 +546,7 @@ condition = condition + "PK_RepositoryType=" + tmp_PK_RepositoryType;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -570,6 +573,7 @@ bool Table_RepositoryType::GetRows(string where_statement,vector<class Row_Repos
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -578,6 +582,7 @@ bool Table_RepositoryType::GetRows(string where_statement,vector<class Row_Repos
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -785,7 +790,7 @@ sprintf(tmp_PK_RepositoryType, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_RepositoryType=" + tmp_PK_RepositoryType;
+condition = condition + "`PK_RepositoryType`=" + tmp_PK_RepositoryType;
 
 
 	string query = "select * from RepositoryType where " + condition;		
@@ -793,6 +798,7 @@ condition = condition + "PK_RepositoryType=" + tmp_PK_RepositoryType;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -801,6 +807,7 @@ condition = condition + "PK_RepositoryType=" + tmp_PK_RepositoryType;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -953,21 +960,21 @@ void Row_RepositoryType::Installation_FK_RepositoryType_Source_getrows(vector <c
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Installation *pTable = table->database->Installation_get();
-pTable->GetRows("FK_RepositoryType_Source=" + StringUtils::itos(m_PK_RepositoryType),rows);
+pTable->GetRows("`FK_RepositoryType_Source=`" + StringUtils::itos(m_PK_RepositoryType),rows);
 }
 void Row_RepositoryType::Installation_FK_RepositoryType_Binaries_getrows(vector <class Row_Installation*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Installation *pTable = table->database->Installation_get();
-pTable->GetRows("FK_RepositoryType_Binaries=" + StringUtils::itos(m_PK_RepositoryType),rows);
+pTable->GetRows("`FK_RepositoryType_Binaries=`" + StringUtils::itos(m_PK_RepositoryType),rows);
 }
 void Row_RepositoryType::RepositorySource_FK_RepositoryType_getrows(vector <class Row_RepositorySource*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_RepositorySource *pTable = table->database->RepositorySource_get();
-pTable->GetRows("FK_RepositoryType=" + StringUtils::itos(m_PK_RepositoryType),rows);
+pTable->GetRows("`FK_RepositoryType=`" + StringUtils::itos(m_PK_RepositoryType),rows);
 }
 
 

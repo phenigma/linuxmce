@@ -410,12 +410,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_DesignObjParameter_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_ParameterType_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into DesignObjParameter (PK_DesignObjParameter, Define, Comments, Description, FK_ParameterType, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into DesignObjParameter (`PK_DesignObjParameter`, `Define`, `Comments`, `Description`, `FK_ParameterType`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -455,12 +456,12 @@ sprintf(tmp_PK_DesignObjParameter, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DesignObjParameter=" + tmp_PK_DesignObjParameter;
+condition = condition + "`PK_DesignObjParameter`=" + tmp_PK_DesignObjParameter;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_DesignObjParameter="+pRow->PK_DesignObjParameter_asSQL()+", Define="+pRow->Define_asSQL()+", Comments="+pRow->Comments_asSQL()+", Description="+pRow->Description_asSQL()+", FK_ParameterType="+pRow->FK_ParameterType_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_DesignObjParameter`="+pRow->PK_DesignObjParameter_asSQL()+", `Define`="+pRow->Define_asSQL()+", `Comments`="+pRow->Comments_asSQL()+", `Description`="+pRow->Description_asSQL()+", `FK_ParameterType`="+pRow->FK_ParameterType_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update DesignObjParameter set " + update_values_list + " where " + condition;
@@ -468,6 +469,7 @@ update_values_list = update_values_list + "PK_DesignObjParameter="+pRow->PK_Desi
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -499,7 +501,7 @@ sprintf(tmp_PK_DesignObjParameter, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DesignObjParameter=" + tmp_PK_DesignObjParameter;
+condition = condition + "`PK_DesignObjParameter`=" + tmp_PK_DesignObjParameter;
 
 	
 		string query = "delete from DesignObjParameter where " + condition;
@@ -507,6 +509,7 @@ condition = condition + "PK_DesignObjParameter=" + tmp_PK_DesignObjParameter;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -533,6 +536,7 @@ bool Table_DesignObjParameter::GetRows(string where_statement,vector<class Row_D
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -541,6 +545,7 @@ bool Table_DesignObjParameter::GetRows(string where_statement,vector<class Row_D
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -737,7 +742,7 @@ sprintf(tmp_PK_DesignObjParameter, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DesignObjParameter=" + tmp_PK_DesignObjParameter;
+condition = condition + "`PK_DesignObjParameter`=" + tmp_PK_DesignObjParameter;
 
 
 	string query = "select * from DesignObjParameter where " + condition;		
@@ -745,6 +750,7 @@ condition = condition + "PK_DesignObjParameter=" + tmp_PK_DesignObjParameter;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -753,6 +759,7 @@ condition = condition + "PK_DesignObjParameter=" + tmp_PK_DesignObjParameter;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -901,14 +908,14 @@ void Row_DesignObjParameter::DesignObjType_DesignObjParameter_FK_DesignObjParame
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjType_DesignObjParameter *pTable = table->database->DesignObjType_DesignObjParameter_get();
-pTable->GetRows("FK_DesignObjParameter=" + StringUtils::itos(m_PK_DesignObjParameter),rows);
+pTable->GetRows("`FK_DesignObjParameter=`" + StringUtils::itos(m_PK_DesignObjParameter),rows);
 }
 void Row_DesignObjParameter::DesignObjVariation_DesignObjParameter_FK_DesignObjParameter_getrows(vector <class Row_DesignObjVariation_DesignObjParameter*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_DesignObjParameter *pTable = table->database->DesignObjVariation_DesignObjParameter_get();
-pTable->GetRows("FK_DesignObjParameter=" + StringUtils::itos(m_PK_DesignObjParameter),rows);
+pTable->GetRows("`FK_DesignObjParameter=`" + StringUtils::itos(m_PK_DesignObjParameter),rows);
 }
 
 

@@ -429,12 +429,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_CriteriaParm_asSQL()+", "+pRow->FK_CriteriaParmNesting_D_asSQL()+", "+pRow->FK_CriteriaParmList_asSQL()+", "+pRow->Operator_asSQL()+", "+pRow->Value_asSQL()+", "+pRow->FK_CannedEvents_CriteriaParmList_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into CriteriaParm_D (PK_CriteriaParm, FK_CriteriaParmNesting_D, FK_CriteriaParmList, Operator, Value, FK_CannedEvents_CriteriaParmList, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into CriteriaParm_D (`PK_CriteriaParm`, `FK_CriteriaParmNesting_D`, `FK_CriteriaParmList`, `Operator`, `Value`, `FK_CannedEvents_CriteriaParmList`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -474,12 +475,12 @@ sprintf(tmp_PK_CriteriaParm, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_CriteriaParm=" + tmp_PK_CriteriaParm;
+condition = condition + "`PK_CriteriaParm`=" + tmp_PK_CriteriaParm;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_CriteriaParm="+pRow->PK_CriteriaParm_asSQL()+", FK_CriteriaParmNesting_D="+pRow->FK_CriteriaParmNesting_D_asSQL()+", FK_CriteriaParmList="+pRow->FK_CriteriaParmList_asSQL()+", Operator="+pRow->Operator_asSQL()+", Value="+pRow->Value_asSQL()+", FK_CannedEvents_CriteriaParmList="+pRow->FK_CannedEvents_CriteriaParmList_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_CriteriaParm`="+pRow->PK_CriteriaParm_asSQL()+", `FK_CriteriaParmNesting_D`="+pRow->FK_CriteriaParmNesting_D_asSQL()+", `FK_CriteriaParmList`="+pRow->FK_CriteriaParmList_asSQL()+", `Operator`="+pRow->Operator_asSQL()+", `Value`="+pRow->Value_asSQL()+", `FK_CannedEvents_CriteriaParmList`="+pRow->FK_CannedEvents_CriteriaParmList_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update CriteriaParm_D set " + update_values_list + " where " + condition;
@@ -487,6 +488,7 @@ update_values_list = update_values_list + "PK_CriteriaParm="+pRow->PK_CriteriaPa
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -518,7 +520,7 @@ sprintf(tmp_PK_CriteriaParm, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_CriteriaParm=" + tmp_PK_CriteriaParm;
+condition = condition + "`PK_CriteriaParm`=" + tmp_PK_CriteriaParm;
 
 	
 		string query = "delete from CriteriaParm_D where " + condition;
@@ -526,6 +528,7 @@ condition = condition + "PK_CriteriaParm=" + tmp_PK_CriteriaParm;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -552,6 +555,7 @@ bool Table_CriteriaParm_D::GetRows(string where_statement,vector<class Row_Crite
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -560,6 +564,7 @@ bool Table_CriteriaParm_D::GetRows(string where_statement,vector<class Row_Crite
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -767,7 +772,7 @@ sprintf(tmp_PK_CriteriaParm, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_CriteriaParm=" + tmp_PK_CriteriaParm;
+condition = condition + "`PK_CriteriaParm`=" + tmp_PK_CriteriaParm;
 
 
 	string query = "select * from CriteriaParm_D where " + condition;		
@@ -775,6 +780,7 @@ condition = condition + "PK_CriteriaParm=" + tmp_PK_CriteriaParm;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -783,6 +789,7 @@ condition = condition + "PK_CriteriaParm=" + tmp_PK_CriteriaParm;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

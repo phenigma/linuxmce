@@ -360,12 +360,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_UserMode_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into UserMode (PK_UserMode, Description, Define, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into UserMode (`PK_UserMode`, `Description`, `Define`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -405,12 +406,12 @@ sprintf(tmp_PK_UserMode, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_UserMode=" + tmp_PK_UserMode;
+condition = condition + "`PK_UserMode`=" + tmp_PK_UserMode;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_UserMode="+pRow->PK_UserMode_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_UserMode`="+pRow->PK_UserMode_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update UserMode set " + update_values_list + " where " + condition;
@@ -418,6 +419,7 @@ update_values_list = update_values_list + "PK_UserMode="+pRow->PK_UserMode_asSQL
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -449,7 +451,7 @@ sprintf(tmp_PK_UserMode, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_UserMode=" + tmp_PK_UserMode;
+condition = condition + "`PK_UserMode`=" + tmp_PK_UserMode;
 
 	
 		string query = "delete from UserMode where " + condition;
@@ -457,6 +459,7 @@ condition = condition + "PK_UserMode=" + tmp_PK_UserMode;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -483,6 +486,7 @@ bool Table_UserMode::GetRows(string where_statement,vector<class Row_UserMode*> 
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -491,6 +495,7 @@ bool Table_UserMode::GetRows(string where_statement,vector<class Row_UserMode*> 
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -665,7 +670,7 @@ sprintf(tmp_PK_UserMode, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_UserMode=" + tmp_PK_UserMode;
+condition = condition + "`PK_UserMode`=" + tmp_PK_UserMode;
 
 
 	string query = "select * from UserMode where " + condition;		
@@ -673,6 +678,7 @@ condition = condition + "PK_UserMode=" + tmp_PK_UserMode;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -681,6 +687,7 @@ condition = condition + "PK_UserMode=" + tmp_PK_UserMode;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -800,7 +807,7 @@ void Row_UserMode::Users_FK_UserMode_getrows(vector <class Row_Users*> *rows)
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Users *pTable = table->database->Users_get();
-pTable->GetRows("FK_UserMode=" + StringUtils::itos(m_PK_UserMode),rows);
+pTable->GetRows("`FK_UserMode=`" + StringUtils::itos(m_PK_UserMode),rows);
 }
 
 

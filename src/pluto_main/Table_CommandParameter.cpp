@@ -411,12 +411,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_CommandParameter_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->FK_ParameterType_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into CommandParameter (PK_CommandParameter, Description, Define, Comments, FK_ParameterType, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into CommandParameter (`PK_CommandParameter`, `Description`, `Define`, `Comments`, `FK_ParameterType`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -456,12 +457,12 @@ sprintf(tmp_PK_CommandParameter, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_CommandParameter=" + tmp_PK_CommandParameter;
+condition = condition + "`PK_CommandParameter`=" + tmp_PK_CommandParameter;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_CommandParameter="+pRow->PK_CommandParameter_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", Comments="+pRow->Comments_asSQL()+", FK_ParameterType="+pRow->FK_ParameterType_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_CommandParameter`="+pRow->PK_CommandParameter_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `Comments`="+pRow->Comments_asSQL()+", `FK_ParameterType`="+pRow->FK_ParameterType_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update CommandParameter set " + update_values_list + " where " + condition;
@@ -469,6 +470,7 @@ update_values_list = update_values_list + "PK_CommandParameter="+pRow->PK_Comman
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -500,7 +502,7 @@ sprintf(tmp_PK_CommandParameter, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_CommandParameter=" + tmp_PK_CommandParameter;
+condition = condition + "`PK_CommandParameter`=" + tmp_PK_CommandParameter;
 
 	
 		string query = "delete from CommandParameter where " + condition;
@@ -508,6 +510,7 @@ condition = condition + "PK_CommandParameter=" + tmp_PK_CommandParameter;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -534,6 +537,7 @@ bool Table_CommandParameter::GetRows(string where_statement,vector<class Row_Com
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -542,6 +546,7 @@ bool Table_CommandParameter::GetRows(string where_statement,vector<class Row_Com
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -738,7 +743,7 @@ sprintf(tmp_PK_CommandParameter, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_CommandParameter=" + tmp_PK_CommandParameter;
+condition = condition + "`PK_CommandParameter`=" + tmp_PK_CommandParameter;
 
 
 	string query = "select * from CommandParameter where " + condition;		
@@ -746,6 +751,7 @@ condition = condition + "PK_CommandParameter=" + tmp_PK_CommandParameter;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -754,6 +760,7 @@ condition = condition + "PK_CommandParameter=" + tmp_PK_CommandParameter;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -902,21 +909,21 @@ void Row_CommandParameter::CommandGroup_Command_CommandParameter_FK_CommandParam
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_Command_CommandParameter *pTable = table->database->CommandGroup_Command_CommandParameter_get();
-pTable->GetRows("FK_CommandParameter=" + StringUtils::itos(m_PK_CommandParameter),rows);
+pTable->GetRows("`FK_CommandParameter=`" + StringUtils::itos(m_PK_CommandParameter),rows);
 }
 void Row_CommandParameter::CommandGroup_D_Command_CommandParameter_FK_CommandParameter_getrows(vector <class Row_CommandGroup_D_Command_CommandParameter*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_D_Command_CommandParameter *pTable = table->database->CommandGroup_D_Command_CommandParameter_get();
-pTable->GetRows("FK_CommandParameter=" + StringUtils::itos(m_PK_CommandParameter),rows);
+pTable->GetRows("`FK_CommandParameter=`" + StringUtils::itos(m_PK_CommandParameter),rows);
 }
 void Row_CommandParameter::Command_CommandParameter_FK_CommandParameter_getrows(vector <class Row_Command_CommandParameter*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Command_CommandParameter *pTable = table->database->Command_CommandParameter_get();
-pTable->GetRows("FK_CommandParameter=" + StringUtils::itos(m_PK_CommandParameter),rows);
+pTable->GetRows("`FK_CommandParameter=`" + StringUtils::itos(m_PK_CommandParameter),rows);
 }
 
 

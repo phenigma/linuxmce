@@ -491,12 +491,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_Icon_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->TransparentColor_asSQL()+", "+pRow->MainFileName_asSQL()+", "+pRow->SelectedFileName_asSQL()+", "+pRow->AltFileNames_asSQL()+", "+pRow->BackgroundFileName_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Icon (PK_Icon, Define, Description, TransparentColor, MainFileName, SelectedFileName, AltFileNames, BackgroundFileName, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Icon (`PK_Icon`, `Define`, `Description`, `TransparentColor`, `MainFileName`, `SelectedFileName`, `AltFileNames`, `BackgroundFileName`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -536,12 +537,12 @@ sprintf(tmp_PK_Icon, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Icon=" + tmp_PK_Icon;
+condition = condition + "`PK_Icon`=" + tmp_PK_Icon;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Icon="+pRow->PK_Icon_asSQL()+", Define="+pRow->Define_asSQL()+", Description="+pRow->Description_asSQL()+", TransparentColor="+pRow->TransparentColor_asSQL()+", MainFileName="+pRow->MainFileName_asSQL()+", SelectedFileName="+pRow->SelectedFileName_asSQL()+", AltFileNames="+pRow->AltFileNames_asSQL()+", BackgroundFileName="+pRow->BackgroundFileName_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Icon`="+pRow->PK_Icon_asSQL()+", `Define`="+pRow->Define_asSQL()+", `Description`="+pRow->Description_asSQL()+", `TransparentColor`="+pRow->TransparentColor_asSQL()+", `MainFileName`="+pRow->MainFileName_asSQL()+", `SelectedFileName`="+pRow->SelectedFileName_asSQL()+", `AltFileNames`="+pRow->AltFileNames_asSQL()+", `BackgroundFileName`="+pRow->BackgroundFileName_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Icon set " + update_values_list + " where " + condition;
@@ -549,6 +550,7 @@ update_values_list = update_values_list + "PK_Icon="+pRow->PK_Icon_asSQL()+", De
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -580,7 +582,7 @@ sprintf(tmp_PK_Icon, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Icon=" + tmp_PK_Icon;
+condition = condition + "`PK_Icon`=" + tmp_PK_Icon;
 
 	
 		string query = "delete from Icon where " + condition;
@@ -588,6 +590,7 @@ condition = condition + "PK_Icon=" + tmp_PK_Icon;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -614,6 +617,7 @@ bool Table_Icon::GetRows(string where_statement,vector<class Row_Icon*> *rows)
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -622,6 +626,7 @@ bool Table_Icon::GetRows(string where_statement,vector<class Row_Icon*> *rows)
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -851,7 +856,7 @@ sprintf(tmp_PK_Icon, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Icon=" + tmp_PK_Icon;
+condition = condition + "`PK_Icon`=" + tmp_PK_Icon;
 
 
 	string query = "select * from Icon where " + condition;		
@@ -859,6 +864,7 @@ condition = condition + "PK_Icon=" + tmp_PK_Icon;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -867,6 +873,7 @@ condition = condition + "PK_Icon=" + tmp_PK_Icon;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -1041,21 +1048,21 @@ void Row_Icon::CommandGroup_FK_Icon_getrows(vector <class Row_CommandGroup*> *ro
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup *pTable = table->database->CommandGroup_get();
-pTable->GetRows("FK_Icon=" + StringUtils::itos(m_PK_Icon),rows);
+pTable->GetRows("`FK_Icon=`" + StringUtils::itos(m_PK_Icon),rows);
 }
 void Row_Icon::Floorplan_FK_Icon_getrows(vector <class Row_Floorplan*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Floorplan *pTable = table->database->Floorplan_get();
-pTable->GetRows("FK_Icon=" + StringUtils::itos(m_PK_Icon),rows);
+pTable->GetRows("`FK_Icon=`" + StringUtils::itos(m_PK_Icon),rows);
 }
 void Row_Icon::Room_FK_Icon_getrows(vector <class Row_Room*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Room *pTable = table->database->Room_get();
-pTable->GetRows("FK_Icon=" + StringUtils::itos(m_PK_Icon),rows);
+pTable->GetRows("`FK_Icon=`" + StringUtils::itos(m_PK_Icon),rows);
 }
 
 

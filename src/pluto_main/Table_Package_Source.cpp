@@ -468,12 +468,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_Source_asSQL()+", "+pRow->FK_Package_asSQL()+", "+pRow->Name_asSQL()+", "+pRow->FK_RepositorySource_asSQL()+", "+pRow->Repository_asSQL()+", "+pRow->Version_asSQL()+", "+pRow->Parms_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Package_Source (PK_Package_Source, FK_Package, Name, FK_RepositorySource, Repository, Version, Parms, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Package_Source (`PK_Package_Source`, `FK_Package`, `Name`, `FK_RepositorySource`, `Repository`, `Version`, `Parms`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -513,12 +514,12 @@ sprintf(tmp_PK_Package_Source, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Package_Source=" + tmp_PK_Package_Source;
+condition = condition + "`PK_Package_Source`=" + tmp_PK_Package_Source;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Package_Source="+pRow->PK_Package_Source_asSQL()+", FK_Package="+pRow->FK_Package_asSQL()+", Name="+pRow->Name_asSQL()+", FK_RepositorySource="+pRow->FK_RepositorySource_asSQL()+", Repository="+pRow->Repository_asSQL()+", Version="+pRow->Version_asSQL()+", Parms="+pRow->Parms_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Package_Source`="+pRow->PK_Package_Source_asSQL()+", `FK_Package`="+pRow->FK_Package_asSQL()+", `Name`="+pRow->Name_asSQL()+", `FK_RepositorySource`="+pRow->FK_RepositorySource_asSQL()+", `Repository`="+pRow->Repository_asSQL()+", `Version`="+pRow->Version_asSQL()+", `Parms`="+pRow->Parms_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Package_Source set " + update_values_list + " where " + condition;
@@ -526,6 +527,7 @@ update_values_list = update_values_list + "PK_Package_Source="+pRow->PK_Package_
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -557,7 +559,7 @@ sprintf(tmp_PK_Package_Source, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Package_Source=" + tmp_PK_Package_Source;
+condition = condition + "`PK_Package_Source`=" + tmp_PK_Package_Source;
 
 	
 		string query = "delete from Package_Source where " + condition;
@@ -565,6 +567,7 @@ condition = condition + "PK_Package_Source=" + tmp_PK_Package_Source;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -591,6 +594,7 @@ bool Table_Package_Source::GetRows(string where_statement,vector<class Row_Packa
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -599,6 +603,7 @@ bool Table_Package_Source::GetRows(string where_statement,vector<class Row_Packa
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -817,7 +822,7 @@ sprintf(tmp_PK_Package_Source, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Package_Source=" + tmp_PK_Package_Source;
+condition = condition + "`PK_Package_Source`=" + tmp_PK_Package_Source;
 
 
 	string query = "select * from Package_Source where " + condition;		
@@ -825,6 +830,7 @@ condition = condition + "PK_Package_Source=" + tmp_PK_Package_Source;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -833,6 +839,7 @@ condition = condition + "PK_Package_Source=" + tmp_PK_Package_Source;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -1010,7 +1017,7 @@ void Row_Package_Source::Package_Source_Compat_FK_Package_Source_getrows(vector 
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Source_Compat *pTable = table->database->Package_Source_Compat_get();
-pTable->GetRows("FK_Package_Source=" + StringUtils::itos(m_PK_Package_Source),rows);
+pTable->GetRows("`FK_Package_Source=`" + StringUtils::itos(m_PK_Package_Source),rows);
 }
 
 

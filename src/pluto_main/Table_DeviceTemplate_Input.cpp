@@ -391,12 +391,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->FK_DeviceTemplate_asSQL()+", "+pRow->FK_Command_asSQL()+", "+pRow->FK_ConnectorType_asSQL()+", "+pRow->OrderNo_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into DeviceTemplate_Input (FK_DeviceTemplate, FK_Command, FK_ConnectorType, OrderNo, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into DeviceTemplate_Input (`FK_DeviceTemplate`, `FK_Command`, `FK_ConnectorType`, `OrderNo`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -437,12 +438,12 @@ sprintf(tmp_FK_Command, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate+" AND "+"FK_Command=" + tmp_FK_Command;
+condition = condition + "`FK_DeviceTemplate`=" + tmp_FK_DeviceTemplate+" AND "+"`FK_Command`=" + tmp_FK_Command;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_DeviceTemplate="+pRow->FK_DeviceTemplate_asSQL()+", FK_Command="+pRow->FK_Command_asSQL()+", FK_ConnectorType="+pRow->FK_ConnectorType_asSQL()+", OrderNo="+pRow->OrderNo_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`FK_DeviceTemplate`="+pRow->FK_DeviceTemplate_asSQL()+", `FK_Command`="+pRow->FK_Command_asSQL()+", `FK_ConnectorType`="+pRow->FK_ConnectorType_asSQL()+", `OrderNo`="+pRow->OrderNo_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update DeviceTemplate_Input set " + update_values_list + " where " + condition;
@@ -450,6 +451,7 @@ update_values_list = update_values_list + "FK_DeviceTemplate="+pRow->FK_DeviceTe
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -484,7 +486,7 @@ sprintf(tmp_FK_Command, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate+" AND "+"FK_Command=" + tmp_FK_Command;
+condition = condition + "`FK_DeviceTemplate`=" + tmp_FK_DeviceTemplate+" AND "+"`FK_Command`=" + tmp_FK_Command;
 
 	
 		string query = "delete from DeviceTemplate_Input where " + condition;
@@ -492,6 +494,7 @@ condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate+" AND "+"FK
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -518,6 +521,7 @@ bool Table_DeviceTemplate_Input::GetRows(string where_statement,vector<class Row
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -526,6 +530,7 @@ bool Table_DeviceTemplate_Input::GetRows(string where_statement,vector<class Row
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -714,7 +719,7 @@ sprintf(tmp_FK_Command, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate+" AND "+"FK_Command=" + tmp_FK_Command;
+condition = condition + "`FK_DeviceTemplate`=" + tmp_FK_DeviceTemplate+" AND "+"`FK_Command`=" + tmp_FK_Command;
 
 
 	string query = "select * from DeviceTemplate_Input where " + condition;		
@@ -722,6 +727,7 @@ condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate+" AND "+"FK
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -730,6 +736,7 @@ condition = condition + "FK_DeviceTemplate=" + tmp_FK_DeviceTemplate+" AND "+"FK
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

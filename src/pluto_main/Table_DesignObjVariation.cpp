@@ -627,12 +627,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_DesignObjVariation_asSQL()+", "+pRow->FK_DesignObj_asSQL()+", "+pRow->FK_Criteria_D_asSQL()+", "+pRow->FK_DesignObj_Goto_asSQL()+", "+pRow->FK_CommandGroup_D_OnActivate_asSQL()+", "+pRow->FK_CommandGroup_D_OnLoad_asSQL()+", "+pRow->FK_CommandGroup_D_OnUnload_asSQL()+", "+pRow->FK_CommandGroup_D_OnTimeout_asSQL()+", "+pRow->FK_CommandGroup_D_OnStartup_asSQL()+", "+pRow->FK_Button_asSQL()+", "+pRow->FK_Criteria_Orbiter_asSQL()+", "+pRow->DontResetSelectedState_asSQL()+", "+pRow->FK_StabilityStatus_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into DesignObjVariation (PK_DesignObjVariation, FK_DesignObj, FK_Criteria_D, FK_DesignObj_Goto, FK_CommandGroup_D_OnActivate, FK_CommandGroup_D_OnLoad, FK_CommandGroup_D_OnUnload, FK_CommandGroup_D_OnTimeout, FK_CommandGroup_D_OnStartup, FK_Button, FK_Criteria_Orbiter, DontResetSelectedState, FK_StabilityStatus, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into DesignObjVariation (`PK_DesignObjVariation`, `FK_DesignObj`, `FK_Criteria_D`, `FK_DesignObj_Goto`, `FK_CommandGroup_D_OnActivate`, `FK_CommandGroup_D_OnLoad`, `FK_CommandGroup_D_OnUnload`, `FK_CommandGroup_D_OnTimeout`, `FK_CommandGroup_D_OnStartup`, `FK_Button`, `FK_Criteria_Orbiter`, `DontResetSelectedState`, `FK_StabilityStatus`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -672,12 +673,12 @@ sprintf(tmp_PK_DesignObjVariation, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DesignObjVariation=" + tmp_PK_DesignObjVariation;
+condition = condition + "`PK_DesignObjVariation`=" + tmp_PK_DesignObjVariation;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_DesignObjVariation="+pRow->PK_DesignObjVariation_asSQL()+", FK_DesignObj="+pRow->FK_DesignObj_asSQL()+", FK_Criteria_D="+pRow->FK_Criteria_D_asSQL()+", FK_DesignObj_Goto="+pRow->FK_DesignObj_Goto_asSQL()+", FK_CommandGroup_D_OnActivate="+pRow->FK_CommandGroup_D_OnActivate_asSQL()+", FK_CommandGroup_D_OnLoad="+pRow->FK_CommandGroup_D_OnLoad_asSQL()+", FK_CommandGroup_D_OnUnload="+pRow->FK_CommandGroup_D_OnUnload_asSQL()+", FK_CommandGroup_D_OnTimeout="+pRow->FK_CommandGroup_D_OnTimeout_asSQL()+", FK_CommandGroup_D_OnStartup="+pRow->FK_CommandGroup_D_OnStartup_asSQL()+", FK_Button="+pRow->FK_Button_asSQL()+", FK_Criteria_Orbiter="+pRow->FK_Criteria_Orbiter_asSQL()+", DontResetSelectedState="+pRow->DontResetSelectedState_asSQL()+", FK_StabilityStatus="+pRow->FK_StabilityStatus_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_DesignObjVariation`="+pRow->PK_DesignObjVariation_asSQL()+", `FK_DesignObj`="+pRow->FK_DesignObj_asSQL()+", `FK_Criteria_D`="+pRow->FK_Criteria_D_asSQL()+", `FK_DesignObj_Goto`="+pRow->FK_DesignObj_Goto_asSQL()+", `FK_CommandGroup_D_OnActivate`="+pRow->FK_CommandGroup_D_OnActivate_asSQL()+", `FK_CommandGroup_D_OnLoad`="+pRow->FK_CommandGroup_D_OnLoad_asSQL()+", `FK_CommandGroup_D_OnUnload`="+pRow->FK_CommandGroup_D_OnUnload_asSQL()+", `FK_CommandGroup_D_OnTimeout`="+pRow->FK_CommandGroup_D_OnTimeout_asSQL()+", `FK_CommandGroup_D_OnStartup`="+pRow->FK_CommandGroup_D_OnStartup_asSQL()+", `FK_Button`="+pRow->FK_Button_asSQL()+", `FK_Criteria_Orbiter`="+pRow->FK_Criteria_Orbiter_asSQL()+", `DontResetSelectedState`="+pRow->DontResetSelectedState_asSQL()+", `FK_StabilityStatus`="+pRow->FK_StabilityStatus_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update DesignObjVariation set " + update_values_list + " where " + condition;
@@ -685,6 +686,7 @@ update_values_list = update_values_list + "PK_DesignObjVariation="+pRow->PK_Desi
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -716,7 +718,7 @@ sprintf(tmp_PK_DesignObjVariation, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DesignObjVariation=" + tmp_PK_DesignObjVariation;
+condition = condition + "`PK_DesignObjVariation`=" + tmp_PK_DesignObjVariation;
 
 	
 		string query = "delete from DesignObjVariation where " + condition;
@@ -724,6 +726,7 @@ condition = condition + "PK_DesignObjVariation=" + tmp_PK_DesignObjVariation;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -750,6 +753,7 @@ bool Table_DesignObjVariation::GetRows(string where_statement,vector<class Row_D
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -758,6 +762,7 @@ bool Table_DesignObjVariation::GetRows(string where_statement,vector<class Row_D
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -1042,7 +1047,7 @@ sprintf(tmp_PK_DesignObjVariation, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DesignObjVariation=" + tmp_PK_DesignObjVariation;
+condition = condition + "`PK_DesignObjVariation`=" + tmp_PK_DesignObjVariation;
 
 
 	string query = "select * from DesignObjVariation where " + condition;		
@@ -1050,6 +1055,7 @@ condition = condition + "PK_DesignObjVariation=" + tmp_PK_DesignObjVariation;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -1058,6 +1064,7 @@ condition = condition + "PK_DesignObjVariation=" + tmp_PK_DesignObjVariation;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -1364,28 +1371,28 @@ void Row_DesignObjVariation::DesignObjVariation_DesignObj_FK_DesignObjVariation_
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_DesignObj *pTable = table->database->DesignObjVariation_DesignObj_get();
-pTable->GetRows("FK_DesignObjVariation_Parent=" + StringUtils::itos(m_PK_DesignObjVariation),rows);
+pTable->GetRows("`FK_DesignObjVariation_Parent=`" + StringUtils::itos(m_PK_DesignObjVariation),rows);
 }
 void Row_DesignObjVariation::DesignObjVariation_DesignObjParameter_FK_DesignObjVariation_getrows(vector <class Row_DesignObjVariation_DesignObjParameter*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_DesignObjParameter *pTable = table->database->DesignObjVariation_DesignObjParameter_get();
-pTable->GetRows("FK_DesignObjVariation=" + StringUtils::itos(m_PK_DesignObjVariation),rows);
+pTable->GetRows("`FK_DesignObjVariation=`" + StringUtils::itos(m_PK_DesignObjVariation),rows);
 }
 void Row_DesignObjVariation::DesignObjVariation_Text_FK_DesignObjVariation_getrows(vector <class Row_DesignObjVariation_Text*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_Text *pTable = table->database->DesignObjVariation_Text_get();
-pTable->GetRows("FK_DesignObjVariation=" + StringUtils::itos(m_PK_DesignObjVariation),rows);
+pTable->GetRows("`FK_DesignObjVariation=`" + StringUtils::itos(m_PK_DesignObjVariation),rows);
 }
 void Row_DesignObjVariation::DesignObjVariation_Zone_FK_DesignObjVariation_getrows(vector <class Row_DesignObjVariation_Zone*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_Zone *pTable = table->database->DesignObjVariation_Zone_get();
-pTable->GetRows("FK_DesignObjVariation=" + StringUtils::itos(m_PK_DesignObjVariation),rows);
+pTable->GetRows("`FK_DesignObjVariation=`" + StringUtils::itos(m_PK_DesignObjVariation),rows);
 }
 
 

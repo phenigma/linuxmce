@@ -200,7 +200,7 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 			else
 			{
 				pRenderImage_Child = CreateFromFile(sInputFile,pDesignObj_Generator->m_rBackgroundPosition.Size(),bPreserveAspectRatio,bIsMenu);
-SaveImageToFile(pRenderImage_Child, "first");
+//SaveImageToFile(pRenderImage_Child, "first");
 			}
 
             if( !pRenderImage_Child && !pRendererMNG )
@@ -273,11 +273,11 @@ SaveImageToFile(pRenderImage_Child, "first");
 			{
 				if(pRenderImageClone_Child )
 				{
-SaveImageToFile(pRenderImage, "ri");
-SaveImageToFile(pRenderImageClone, "ic b4");
-SaveImageToFile(pRenderImageClone_Child, "icc b4");
+//SaveImageToFile(pRenderImage, "ri");
+//SaveImageToFile(pRenderImageClone, "ic b4");
+//SaveImageToFile(pRenderImageClone_Child, "icc b4");
 					CompositeImage(pRenderImageClone,pRenderImageClone_Child,pDesignObj_Generator->m_rPosition.Location() + Position);
-SaveImageToFile(pRenderImageClone, "ic aft");
+//SaveImageToFile(pRenderImageClone, "ic aft");
 				}
 				if( pDesignObj_Generator->m_bChildrenBeforeText )
 				{
@@ -289,9 +289,9 @@ SaveImageToFile(pRenderImageClone, "ic aft");
 					RenderObjectsText(pRenderImageClone,pDesignObj_Generator,Position,iIteration);
 					RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position,bPreserveAspectRatio,iOnlyVersion_Children);
 				}
-SaveImageToFile(pRenderImageClone, "ic aft ch");
+//SaveImageToFile(pRenderImageClone, "ic aft ch");
 			}
-SaveImageToFile(pRenderImageClone, "compositec");
+//SaveImageToFile(pRenderImageClone, "compositec");
 			if( pRendererMNG )
 				pRendererMNG->ReplaceFrame(iFrame, pRenderImageClone);
 		}

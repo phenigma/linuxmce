@@ -747,12 +747,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_Users_asSQL()+", "+pRow->UserName_asSQL()+", "+pRow->Password_asSQL()+", "+pRow->PINCode_asSQL()+", "+pRow->HasMailbox_asSQL()+", "+pRow->AccessGeneralMailbox_asSQL()+", "+pRow->Extension_asSQL()+", "+pRow->FirstName_asSQL()+", "+pRow->LastName_asSQL()+", "+pRow->Nickname_asSQL()+", "+pRow->ExtensionRingTimeout_asSQL()+", "+pRow->ForwardEmail_asSQL()+", "+pRow->FK_Language_asSQL()+", "+pRow->FK_Installation_Main_asSQL()+", "+pRow->Staff_asSQL()+", "+pRow->Password_Unix_asSQL()+", "+pRow->Password_Samba_asSQL()+", "+pRow->FK_UserMode_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Users (PK_Users, UserName, Password, PINCode, HasMailbox, AccessGeneralMailbox, Extension, FirstName, LastName, Nickname, ExtensionRingTimeout, ForwardEmail, FK_Language, FK_Installation_Main, Staff, Password_Unix, Password_Samba, FK_UserMode, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Users (`PK_Users`, `UserName`, `Password`, `PINCode`, `HasMailbox`, `AccessGeneralMailbox`, `Extension`, `FirstName`, `LastName`, `Nickname`, `ExtensionRingTimeout`, `ForwardEmail`, `FK_Language`, `FK_Installation_Main`, `Staff`, `Password_Unix`, `Password_Samba`, `FK_UserMode`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -792,12 +793,12 @@ sprintf(tmp_PK_Users, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Users=" + tmp_PK_Users;
+condition = condition + "`PK_Users`=" + tmp_PK_Users;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Users="+pRow->PK_Users_asSQL()+", UserName="+pRow->UserName_asSQL()+", Password="+pRow->Password_asSQL()+", PINCode="+pRow->PINCode_asSQL()+", HasMailbox="+pRow->HasMailbox_asSQL()+", AccessGeneralMailbox="+pRow->AccessGeneralMailbox_asSQL()+", Extension="+pRow->Extension_asSQL()+", FirstName="+pRow->FirstName_asSQL()+", LastName="+pRow->LastName_asSQL()+", Nickname="+pRow->Nickname_asSQL()+", ExtensionRingTimeout="+pRow->ExtensionRingTimeout_asSQL()+", ForwardEmail="+pRow->ForwardEmail_asSQL()+", FK_Language="+pRow->FK_Language_asSQL()+", FK_Installation_Main="+pRow->FK_Installation_Main_asSQL()+", Staff="+pRow->Staff_asSQL()+", Password_Unix="+pRow->Password_Unix_asSQL()+", Password_Samba="+pRow->Password_Samba_asSQL()+", FK_UserMode="+pRow->FK_UserMode_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Users`="+pRow->PK_Users_asSQL()+", `UserName`="+pRow->UserName_asSQL()+", `Password`="+pRow->Password_asSQL()+", `PINCode`="+pRow->PINCode_asSQL()+", `HasMailbox`="+pRow->HasMailbox_asSQL()+", `AccessGeneralMailbox`="+pRow->AccessGeneralMailbox_asSQL()+", `Extension`="+pRow->Extension_asSQL()+", `FirstName`="+pRow->FirstName_asSQL()+", `LastName`="+pRow->LastName_asSQL()+", `Nickname`="+pRow->Nickname_asSQL()+", `ExtensionRingTimeout`="+pRow->ExtensionRingTimeout_asSQL()+", `ForwardEmail`="+pRow->ForwardEmail_asSQL()+", `FK_Language`="+pRow->FK_Language_asSQL()+", `FK_Installation_Main`="+pRow->FK_Installation_Main_asSQL()+", `Staff`="+pRow->Staff_asSQL()+", `Password_Unix`="+pRow->Password_Unix_asSQL()+", `Password_Samba`="+pRow->Password_Samba_asSQL()+", `FK_UserMode`="+pRow->FK_UserMode_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Users set " + update_values_list + " where " + condition;
@@ -805,6 +806,7 @@ update_values_list = update_values_list + "PK_Users="+pRow->PK_Users_asSQL()+", 
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -836,7 +838,7 @@ sprintf(tmp_PK_Users, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Users=" + tmp_PK_Users;
+condition = condition + "`PK_Users`=" + tmp_PK_Users;
 
 	
 		string query = "delete from Users where " + condition;
@@ -844,6 +846,7 @@ condition = condition + "PK_Users=" + tmp_PK_Users;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -870,6 +873,7 @@ bool Table_Users::GetRows(string where_statement,vector<class Row_Users*> *rows)
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -878,6 +882,7 @@ bool Table_Users::GetRows(string where_statement,vector<class Row_Users*> *rows)
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -1217,7 +1222,7 @@ sprintf(tmp_PK_Users, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Users=" + tmp_PK_Users;
+condition = condition + "`PK_Users`=" + tmp_PK_Users;
 
 
 	string query = "select * from Users where " + condition;		
@@ -1225,6 +1230,7 @@ condition = condition + "PK_Users=" + tmp_PK_Users;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -1233,6 +1239,7 @@ condition = condition + "PK_Users=" + tmp_PK_Users;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -1538,56 +1545,56 @@ void Row_Users::DeviceTemplate_FK_Users_Maintainer_getrows(vector <class Row_Dev
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate *pTable = table->database->DeviceTemplate_get();
-pTable->GetRows("FK_Users_Maintainer=" + StringUtils::itos(m_PK_Users),rows);
+pTable->GetRows("`FK_Users_Maintainer=`" + StringUtils::itos(m_PK_Users),rows);
 }
 void Row_Users::Device_Users_FK_Users_getrows(vector <class Row_Device_Users*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device_Users *pTable = table->database->Device_Users_get();
-pTable->GetRows("FK_Users=" + StringUtils::itos(m_PK_Users),rows);
+pTable->GetRows("`FK_Users=`" + StringUtils::itos(m_PK_Users),rows);
 }
 void Row_Users::Document_Comment_FK_Users_getrows(vector <class Row_Document_Comment*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Document_Comment *pTable = table->database->Document_Comment_get();
-pTable->GetRows("FK_Users=" + StringUtils::itos(m_PK_Users),rows);
+pTable->GetRows("`FK_Users=`" + StringUtils::itos(m_PK_Users),rows);
 }
 void Row_Users::InfraredGroup_Command_FK_Users_getrows(vector <class Row_InfraredGroup_Command*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_InfraredGroup_Command *pTable = table->database->InfraredGroup_Command_get();
-pTable->GetRows("FK_Users=" + StringUtils::itos(m_PK_Users),rows);
+pTable->GetRows("`FK_Users=`" + StringUtils::itos(m_PK_Users),rows);
 }
 void Row_Users::Installation_Users_FK_Users_getrows(vector <class Row_Installation_Users*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Installation_Users *pTable = table->database->Installation_Users_get();
-pTable->GetRows("FK_Users=" + StringUtils::itos(m_PK_Users),rows);
+pTable->GetRows("`FK_Users=`" + StringUtils::itos(m_PK_Users),rows);
 }
 void Row_Users::Orbiter_Users_PasswordReq_FK_Users_getrows(vector <class Row_Orbiter_Users_PasswordReq*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Orbiter_Users_PasswordReq *pTable = table->database->Orbiter_Users_PasswordReq_get();
-pTable->GetRows("FK_Users=" + StringUtils::itos(m_PK_Users),rows);
+pTable->GetRows("`FK_Users=`" + StringUtils::itos(m_PK_Users),rows);
 }
 void Row_Users::Package_Users_FK_Users_getrows(vector <class Row_Package_Users*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Users *pTable = table->database->Package_Users_get();
-pTable->GetRows("FK_Users=" + StringUtils::itos(m_PK_Users),rows);
+pTable->GetRows("`FK_Users=`" + StringUtils::itos(m_PK_Users),rows);
 }
 void Row_Users::Room_Users_FK_Users_getrows(vector <class Row_Room_Users*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Room_Users *pTable = table->database->Room_Users_get();
-pTable->GetRows("FK_Users=" + StringUtils::itos(m_PK_Users),rows);
+pTable->GetRows("`FK_Users=`" + StringUtils::itos(m_PK_Users),rows);
 }
 
 

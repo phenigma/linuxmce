@@ -370,12 +370,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->FK_DesignObjVariation_asSQL()+", "+pRow->FK_DesignObjParameter_asSQL()+", "+pRow->Value_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into DesignObjVariation_DesignObjParameter (FK_DesignObjVariation, FK_DesignObjParameter, Value, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into DesignObjVariation_DesignObjParameter (`FK_DesignObjVariation`, `FK_DesignObjParameter`, `Value`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -416,12 +417,12 @@ sprintf(tmp_FK_DesignObjParameter, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_DesignObjVariation=" + tmp_FK_DesignObjVariation+" AND "+"FK_DesignObjParameter=" + tmp_FK_DesignObjParameter;
+condition = condition + "`FK_DesignObjVariation`=" + tmp_FK_DesignObjVariation+" AND "+"`FK_DesignObjParameter`=" + tmp_FK_DesignObjParameter;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_DesignObjVariation="+pRow->FK_DesignObjVariation_asSQL()+", FK_DesignObjParameter="+pRow->FK_DesignObjParameter_asSQL()+", Value="+pRow->Value_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`FK_DesignObjVariation`="+pRow->FK_DesignObjVariation_asSQL()+", `FK_DesignObjParameter`="+pRow->FK_DesignObjParameter_asSQL()+", `Value`="+pRow->Value_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update DesignObjVariation_DesignObjParameter set " + update_values_list + " where " + condition;
@@ -429,6 +430,7 @@ update_values_list = update_values_list + "FK_DesignObjVariation="+pRow->FK_Desi
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -463,7 +465,7 @@ sprintf(tmp_FK_DesignObjParameter, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_DesignObjVariation=" + tmp_FK_DesignObjVariation+" AND "+"FK_DesignObjParameter=" + tmp_FK_DesignObjParameter;
+condition = condition + "`FK_DesignObjVariation`=" + tmp_FK_DesignObjVariation+" AND "+"`FK_DesignObjParameter`=" + tmp_FK_DesignObjParameter;
 
 	
 		string query = "delete from DesignObjVariation_DesignObjParameter where " + condition;
@@ -471,6 +473,7 @@ condition = condition + "FK_DesignObjVariation=" + tmp_FK_DesignObjVariation+" A
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -497,6 +500,7 @@ bool Table_DesignObjVariation_DesignObjParameter::GetRows(string where_statement
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -505,6 +509,7 @@ bool Table_DesignObjVariation_DesignObjParameter::GetRows(string where_statement
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -682,7 +687,7 @@ sprintf(tmp_FK_DesignObjParameter, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_DesignObjVariation=" + tmp_FK_DesignObjVariation+" AND "+"FK_DesignObjParameter=" + tmp_FK_DesignObjParameter;
+condition = condition + "`FK_DesignObjVariation`=" + tmp_FK_DesignObjVariation+" AND "+"`FK_DesignObjParameter`=" + tmp_FK_DesignObjParameter;
 
 
 	string query = "select * from DesignObjVariation_DesignObjParameter where " + condition;		
@@ -690,6 +695,7 @@ condition = condition + "FK_DesignObjVariation=" + tmp_FK_DesignObjVariation+" A
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -698,6 +704,7 @@ condition = condition + "FK_DesignObjVariation=" + tmp_FK_DesignObjVariation+" A
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

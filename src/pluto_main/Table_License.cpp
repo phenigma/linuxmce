@@ -19,6 +19,7 @@ using namespace std;
 #include "Table_License.h"
 
 #include "Table_Package.h"
+#include "Table_PaidLicense.h"
 
 
 void Database_pluto_main::CreateTable_License()
@@ -441,12 +442,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_License_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->Summary_asSQL()+", "+pRow->URL_asSQL()+", "+pRow->RequiresPayment_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into License (PK_License, Description, Define, Summary, URL, RequiresPayment, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into License (`PK_License`, `Description`, `Define`, `Summary`, `URL`, `RequiresPayment`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -486,12 +488,12 @@ sprintf(tmp_PK_License, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_License=" + tmp_PK_License;
+condition = condition + "`PK_License`=" + tmp_PK_License;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_License="+pRow->PK_License_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", Summary="+pRow->Summary_asSQL()+", URL="+pRow->URL_asSQL()+", RequiresPayment="+pRow->RequiresPayment_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_License`="+pRow->PK_License_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `Summary`="+pRow->Summary_asSQL()+", `URL`="+pRow->URL_asSQL()+", `RequiresPayment`="+pRow->RequiresPayment_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update License set " + update_values_list + " where " + condition;
@@ -499,6 +501,7 @@ update_values_list = update_values_list + "PK_License="+pRow->PK_License_asSQL()
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -530,7 +533,7 @@ sprintf(tmp_PK_License, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_License=" + tmp_PK_License;
+condition = condition + "`PK_License`=" + tmp_PK_License;
 
 	
 		string query = "delete from License where " + condition;
@@ -538,6 +541,7 @@ condition = condition + "PK_License=" + tmp_PK_License;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -564,6 +568,7 @@ bool Table_License::GetRows(string where_statement,vector<class Row_License*> *r
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -572,6 +577,7 @@ bool Table_License::GetRows(string where_statement,vector<class Row_License*> *r
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -779,7 +785,7 @@ sprintf(tmp_PK_License, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_License=" + tmp_PK_License;
+condition = condition + "`PK_License`=" + tmp_PK_License;
 
 
 	string query = "select * from License where " + condition;		
@@ -787,6 +793,7 @@ condition = condition + "PK_License=" + tmp_PK_License;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -795,6 +802,7 @@ condition = condition + "PK_License=" + tmp_PK_License;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -947,7 +955,14 @@ void Row_License::Package_FK_License_getrows(vector <class Row_Package*> *rows)
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package *pTable = table->database->Package_get();
-pTable->GetRows("FK_License=" + StringUtils::itos(m_PK_License),rows);
+pTable->GetRows("`FK_License=`" + StringUtils::itos(m_PK_License),rows);
+}
+void Row_License::PaidLicense_FK_License_getrows(vector <class Row_PaidLicense*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_PaidLicense *pTable = table->database->PaidLicense_get();
+pTable->GetRows("`FK_License=`" + StringUtils::itos(m_PK_License),rows);
 }
 
 

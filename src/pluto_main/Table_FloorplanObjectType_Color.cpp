@@ -402,12 +402,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_FloorplanObjectType_Color_asSQL()+", "+pRow->FK_FloorplanObjectType_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->Color_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into FloorplanObjectType_Color (PK_FloorplanObjectType_Color, FK_FloorplanObjectType, Description, Define, Color, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into FloorplanObjectType_Color (`PK_FloorplanObjectType_Color`, `FK_FloorplanObjectType`, `Description`, `Define`, `Color`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -447,12 +448,12 @@ sprintf(tmp_PK_FloorplanObjectType_Color, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_FloorplanObjectType_Color=" + tmp_PK_FloorplanObjectType_Color;
+condition = condition + "`PK_FloorplanObjectType_Color`=" + tmp_PK_FloorplanObjectType_Color;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_FloorplanObjectType_Color="+pRow->PK_FloorplanObjectType_Color_asSQL()+", FK_FloorplanObjectType="+pRow->FK_FloorplanObjectType_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", Color="+pRow->Color_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_FloorplanObjectType_Color`="+pRow->PK_FloorplanObjectType_Color_asSQL()+", `FK_FloorplanObjectType`="+pRow->FK_FloorplanObjectType_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `Color`="+pRow->Color_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update FloorplanObjectType_Color set " + update_values_list + " where " + condition;
@@ -460,6 +461,7 @@ update_values_list = update_values_list + "PK_FloorplanObjectType_Color="+pRow->
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -491,7 +493,7 @@ sprintf(tmp_PK_FloorplanObjectType_Color, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_FloorplanObjectType_Color=" + tmp_PK_FloorplanObjectType_Color;
+condition = condition + "`PK_FloorplanObjectType_Color`=" + tmp_PK_FloorplanObjectType_Color;
 
 	
 		string query = "delete from FloorplanObjectType_Color where " + condition;
@@ -499,6 +501,7 @@ condition = condition + "PK_FloorplanObjectType_Color=" + tmp_PK_FloorplanObject
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -525,6 +528,7 @@ bool Table_FloorplanObjectType_Color::GetRows(string where_statement,vector<clas
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -533,6 +537,7 @@ bool Table_FloorplanObjectType_Color::GetRows(string where_statement,vector<clas
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -729,7 +734,7 @@ sprintf(tmp_PK_FloorplanObjectType_Color, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_FloorplanObjectType_Color=" + tmp_PK_FloorplanObjectType_Color;
+condition = condition + "`PK_FloorplanObjectType_Color`=" + tmp_PK_FloorplanObjectType_Color;
 
 
 	string query = "select * from FloorplanObjectType_Color where " + condition;		
@@ -737,6 +742,7 @@ condition = condition + "PK_FloorplanObjectType_Color=" + tmp_PK_FloorplanObject
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -745,6 +751,7 @@ condition = condition + "PK_FloorplanObjectType_Color=" + tmp_PK_FloorplanObject
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

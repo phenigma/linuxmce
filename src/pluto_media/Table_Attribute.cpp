@@ -394,7 +394,7 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_Attribute_asSQL()+", "+pRow->FK_AttributeType_asSQL()+", "+pRow->Name_asSQL()+", "+pRow->FirstName_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Attribute (PK_Attribute, FK_AttributeType, Name, FirstName, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Attribute (`PK_Attribute`, `FK_AttributeType`, `Name`, `FirstName`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -440,12 +440,12 @@ sprintf(tmp_PK_Attribute, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Attribute=" + tmp_PK_Attribute;
+condition = condition + "`PK_Attribute`=" + tmp_PK_Attribute;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Attribute="+pRow->PK_Attribute_asSQL()+", FK_AttributeType="+pRow->FK_AttributeType_asSQL()+", Name="+pRow->Name_asSQL()+", FirstName="+pRow->FirstName_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Attribute`="+pRow->PK_Attribute_asSQL()+", `FK_AttributeType`="+pRow->FK_AttributeType_asSQL()+", `Name`="+pRow->Name_asSQL()+", `FirstName`="+pRow->FirstName_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Attribute set " + update_values_list + " where " + condition;
@@ -485,7 +485,7 @@ sprintf(tmp_PK_Attribute, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Attribute=" + tmp_PK_Attribute;
+condition = condition + "`PK_Attribute`=" + tmp_PK_Attribute;
 
 	
 		string query = "delete from Attribute where " + condition;
@@ -715,7 +715,7 @@ sprintf(tmp_PK_Attribute, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Attribute=" + tmp_PK_Attribute;
+condition = condition + "`PK_Attribute`=" + tmp_PK_Attribute;
 
 
 	string query = "select * from Attribute where " + condition;		
@@ -870,21 +870,21 @@ void Row_Attribute::File_Attribute_FK_Attribute_getrows(vector <class Row_File_A
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_File_Attribute *pTable = table->database->File_Attribute_get();
-pTable->GetRows("FK_Attribute=" + StringUtils::itos(m_PK_Attribute),rows);
+pTable->GetRows("`FK_Attribute=`" + StringUtils::itos(m_PK_Attribute),rows);
 }
 void Row_Attribute::Picture_Attribute_FK_Attribute_getrows(vector <class Row_Picture_Attribute*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Picture_Attribute *pTable = table->database->Picture_Attribute_get();
-pTable->GetRows("FK_Attribute=" + StringUtils::itos(m_PK_Attribute),rows);
+pTable->GetRows("`FK_Attribute=`" + StringUtils::itos(m_PK_Attribute),rows);
 }
 void Row_Attribute::SearchToken_Attribute_FK_Attribute_getrows(vector <class Row_SearchToken_Attribute*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_SearchToken_Attribute *pTable = table->database->SearchToken_Attribute_get();
-pTable->GetRows("FK_Attribute=" + StringUtils::itos(m_PK_Attribute),rows);
+pTable->GetRows("`FK_Attribute=`" + StringUtils::itos(m_PK_Attribute),rows);
 }
 
 

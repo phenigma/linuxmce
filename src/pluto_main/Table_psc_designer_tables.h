@@ -85,16 +85,18 @@ class DLL_EXPORT Row_psc_designer_tables : public TableRow, public SerializeClas
 string m_Tablename;
 string m_filter;
 short int m_frozen;
+short int m_anonymous;
 long int m_last_psc_id;
 long int m_last_psc_batch;
 
-		bool is_null[6];
+		bool is_null[7];
 	
 	public:
 		long int PK_psc_designer_tables_get();
 string Tablename_get();
 string filter_get();
 short int frozen_get();
+short int anonymous_get();
 long int last_psc_id_get();
 long int last_psc_batch_get();
 
@@ -103,20 +105,15 @@ long int last_psc_batch_get();
 void Tablename_set(string val);
 void filter_set(string val);
 void frozen_set(short int val);
+void anonymous_set(short int val);
 void last_psc_id_set(long int val);
 void last_psc_batch_set(long int val);
 
 		
 		bool filter_isNull();
-bool frozen_isNull();
-bool last_psc_id_isNull();
-bool last_psc_batch_isNull();
 
 			
 		void filter_setNull(bool val);
-void frozen_setNull(bool val);
-void last_psc_id_setNull(bool val);
-void last_psc_batch_setNull(bool val);
 	
 	
 		void Delete();
@@ -136,7 +133,7 @@ void last_psc_batch_setNull(bool val);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_psc_designer_tables+ m_Tablename+ m_filter+ m_frozen+ m_last_psc_id+ m_last_psc_batch;
+			StartSerializeList() + m_PK_psc_designer_tables+ m_Tablename+ m_filter+ m_frozen+ m_anonymous+ m_last_psc_id+ m_last_psc_batch;
 		}
 	private:
 		void SetDefaultValues();
@@ -145,6 +142,7 @@ void last_psc_batch_setNull(bool val);
 string Tablename_asSQL();
 string filter_asSQL();
 string frozen_asSQL();
+string anonymous_asSQL();
 string last_psc_id_asSQL();
 string last_psc_batch_asSQL();
 

@@ -11,6 +11,8 @@
 #define PSC_DOCUMENT_BATUSER_PSC_USER_TABLE_FIELD "psc_document_batuser.psc_user"
 #define PSC_DOCUMENT_BATUSER_IS_SUP_FIELD "is_sup"
 #define PSC_DOCUMENT_BATUSER_IS_SUP_TABLE_FIELD "psc_document_batuser.is_sup"
+#define PSC_DOCUMENT_BATUSER_NO_PASS_FIELD "no_pass"
+#define PSC_DOCUMENT_BATUSER_NO_PASS_TABLE_FIELD "psc_document_batuser.no_pass"
 
 
 #endif

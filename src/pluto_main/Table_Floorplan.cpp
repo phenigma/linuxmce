@@ -391,12 +391,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->FK_Installation_asSQL()+", "+pRow->Page_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_Icon_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Floorplan (FK_Installation, Page, Description, FK_Icon, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Floorplan (`FK_Installation`, `Page`, `Description`, `FK_Icon`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -437,12 +438,12 @@ sprintf(tmp_Page, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Installation=" + tmp_FK_Installation+" AND "+"Page=" + tmp_Page;
+condition = condition + "`FK_Installation`=" + tmp_FK_Installation+" AND "+"`Page`=" + tmp_Page;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_Installation="+pRow->FK_Installation_asSQL()+", Page="+pRow->Page_asSQL()+", Description="+pRow->Description_asSQL()+", FK_Icon="+pRow->FK_Icon_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`FK_Installation`="+pRow->FK_Installation_asSQL()+", `Page`="+pRow->Page_asSQL()+", `Description`="+pRow->Description_asSQL()+", `FK_Icon`="+pRow->FK_Icon_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Floorplan set " + update_values_list + " where " + condition;
@@ -450,6 +451,7 @@ update_values_list = update_values_list + "FK_Installation="+pRow->FK_Installati
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -484,7 +486,7 @@ sprintf(tmp_Page, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Installation=" + tmp_FK_Installation+" AND "+"Page=" + tmp_Page;
+condition = condition + "`FK_Installation`=" + tmp_FK_Installation+" AND "+"`Page`=" + tmp_Page;
 
 	
 		string query = "delete from Floorplan where " + condition;
@@ -492,6 +494,7 @@ condition = condition + "FK_Installation=" + tmp_FK_Installation+" AND "+"Page="
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -518,6 +521,7 @@ bool Table_Floorplan::GetRows(string where_statement,vector<class Row_Floorplan*
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -526,6 +530,7 @@ bool Table_Floorplan::GetRows(string where_statement,vector<class Row_Floorplan*
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -714,7 +719,7 @@ sprintf(tmp_Page, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Installation=" + tmp_FK_Installation+" AND "+"Page=" + tmp_Page;
+condition = condition + "`FK_Installation`=" + tmp_FK_Installation+" AND "+"`Page`=" + tmp_Page;
 
 
 	string query = "select * from Floorplan where " + condition;		
@@ -722,6 +727,7 @@ condition = condition + "FK_Installation=" + tmp_FK_Installation+" AND "+"Page="
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -730,6 +736,7 @@ condition = condition + "FK_Installation=" + tmp_FK_Installation+" AND "+"Page="
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

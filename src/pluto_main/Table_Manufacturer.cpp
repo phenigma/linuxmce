@@ -367,12 +367,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_Manufacturer_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->IRFrequency_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Manufacturer (PK_Manufacturer, Description, IRFrequency, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Manufacturer (`PK_Manufacturer`, `Description`, `IRFrequency`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -412,12 +413,12 @@ sprintf(tmp_PK_Manufacturer, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Manufacturer=" + tmp_PK_Manufacturer;
+condition = condition + "`PK_Manufacturer`=" + tmp_PK_Manufacturer;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Manufacturer="+pRow->PK_Manufacturer_asSQL()+", Description="+pRow->Description_asSQL()+", IRFrequency="+pRow->IRFrequency_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Manufacturer`="+pRow->PK_Manufacturer_asSQL()+", `Description`="+pRow->Description_asSQL()+", `IRFrequency`="+pRow->IRFrequency_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Manufacturer set " + update_values_list + " where " + condition;
@@ -425,6 +426,7 @@ update_values_list = update_values_list + "PK_Manufacturer="+pRow->PK_Manufactur
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -456,7 +458,7 @@ sprintf(tmp_PK_Manufacturer, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Manufacturer=" + tmp_PK_Manufacturer;
+condition = condition + "`PK_Manufacturer`=" + tmp_PK_Manufacturer;
 
 	
 		string query = "delete from Manufacturer where " + condition;
@@ -464,6 +466,7 @@ condition = condition + "PK_Manufacturer=" + tmp_PK_Manufacturer;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -490,6 +493,7 @@ bool Table_Manufacturer::GetRows(string where_statement,vector<class Row_Manufac
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -498,6 +502,7 @@ bool Table_Manufacturer::GetRows(string where_statement,vector<class Row_Manufac
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -672,7 +677,7 @@ sprintf(tmp_PK_Manufacturer, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Manufacturer=" + tmp_PK_Manufacturer;
+condition = condition + "`PK_Manufacturer`=" + tmp_PK_Manufacturer;
 
 
 	string query = "select * from Manufacturer where " + condition;		
@@ -680,6 +685,7 @@ condition = condition + "PK_Manufacturer=" + tmp_PK_Manufacturer;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -688,6 +694,7 @@ condition = condition + "PK_Manufacturer=" + tmp_PK_Manufacturer;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -807,28 +814,28 @@ void Row_Manufacturer::DHCPDevice_FK_Manufacturer_getrows(vector <class Row_DHCP
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DHCPDevice *pTable = table->database->DHCPDevice_get();
-pTable->GetRows("FK_Manufacturer=" + StringUtils::itos(m_PK_Manufacturer),rows);
+pTable->GetRows("`FK_Manufacturer=`" + StringUtils::itos(m_PK_Manufacturer),rows);
 }
 void Row_Manufacturer::DeviceTemplate_FK_Manufacturer_getrows(vector <class Row_DeviceTemplate*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate *pTable = table->database->DeviceTemplate_get();
-pTable->GetRows("FK_Manufacturer=" + StringUtils::itos(m_PK_Manufacturer),rows);
+pTable->GetRows("`FK_Manufacturer=`" + StringUtils::itos(m_PK_Manufacturer),rows);
 }
 void Row_Manufacturer::InfraredGroup_FK_Manufacturer_getrows(vector <class Row_InfraredGroup*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_InfraredGroup *pTable = table->database->InfraredGroup_get();
-pTable->GetRows("FK_Manufacturer=" + StringUtils::itos(m_PK_Manufacturer),rows);
+pTable->GetRows("`FK_Manufacturer=`" + StringUtils::itos(m_PK_Manufacturer),rows);
 }
 void Row_Manufacturer::Package_FK_Manufacturer_getrows(vector <class Row_Package*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package *pTable = table->database->Package_get();
-pTable->GetRows("FK_Manufacturer=" + StringUtils::itos(m_PK_Manufacturer),rows);
+pTable->GetRows("`FK_Manufacturer=`" + StringUtils::itos(m_PK_Manufacturer),rows);
 }
 
 

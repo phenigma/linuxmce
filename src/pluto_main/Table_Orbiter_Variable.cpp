@@ -370,12 +370,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->FK_Orbiter_asSQL()+", "+pRow->FK_Variable_asSQL()+", "+pRow->Value_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Orbiter_Variable (FK_Orbiter, FK_Variable, Value, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Orbiter_Variable (`FK_Orbiter`, `FK_Variable`, `Value`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -416,12 +417,12 @@ sprintf(tmp_FK_Variable, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Orbiter=" + tmp_FK_Orbiter+" AND "+"FK_Variable=" + tmp_FK_Variable;
+condition = condition + "`FK_Orbiter`=" + tmp_FK_Orbiter+" AND "+"`FK_Variable`=" + tmp_FK_Variable;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_Orbiter="+pRow->FK_Orbiter_asSQL()+", FK_Variable="+pRow->FK_Variable_asSQL()+", Value="+pRow->Value_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`FK_Orbiter`="+pRow->FK_Orbiter_asSQL()+", `FK_Variable`="+pRow->FK_Variable_asSQL()+", `Value`="+pRow->Value_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Orbiter_Variable set " + update_values_list + " where " + condition;
@@ -429,6 +430,7 @@ update_values_list = update_values_list + "FK_Orbiter="+pRow->FK_Orbiter_asSQL()
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -463,7 +465,7 @@ sprintf(tmp_FK_Variable, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Orbiter=" + tmp_FK_Orbiter+" AND "+"FK_Variable=" + tmp_FK_Variable;
+condition = condition + "`FK_Orbiter`=" + tmp_FK_Orbiter+" AND "+"`FK_Variable`=" + tmp_FK_Variable;
 
 	
 		string query = "delete from Orbiter_Variable where " + condition;
@@ -471,6 +473,7 @@ condition = condition + "FK_Orbiter=" + tmp_FK_Orbiter+" AND "+"FK_Variable=" + 
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -497,6 +500,7 @@ bool Table_Orbiter_Variable::GetRows(string where_statement,vector<class Row_Orb
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -505,6 +509,7 @@ bool Table_Orbiter_Variable::GetRows(string where_statement,vector<class Row_Orb
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -682,7 +687,7 @@ sprintf(tmp_FK_Variable, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Orbiter=" + tmp_FK_Orbiter+" AND "+"FK_Variable=" + tmp_FK_Variable;
+condition = condition + "`FK_Orbiter`=" + tmp_FK_Orbiter+" AND "+"`FK_Variable`=" + tmp_FK_Variable;
 
 
 	string query = "select * from Orbiter_Variable where " + condition;		
@@ -690,6 +695,7 @@ condition = condition + "FK_Orbiter=" + tmp_FK_Orbiter+" AND "+"FK_Variable=" + 
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -698,6 +704,7 @@ condition = condition + "FK_Orbiter=" + tmp_FK_Orbiter+" AND "+"FK_Variable=" + 
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

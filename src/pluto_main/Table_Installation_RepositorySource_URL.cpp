@@ -343,12 +343,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->FK_Installation_asSQL()+", "+pRow->FK_RepositorySource_URL_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Installation_RepositorySource_URL (FK_Installation, FK_RepositorySource_URL, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Installation_RepositorySource_URL (`FK_Installation`, `FK_RepositorySource_URL`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -389,12 +390,12 @@ sprintf(tmp_FK_RepositorySource_URL, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Installation=" + tmp_FK_Installation+" AND "+"FK_RepositorySource_URL=" + tmp_FK_RepositorySource_URL;
+condition = condition + "`FK_Installation`=" + tmp_FK_Installation+" AND "+"`FK_RepositorySource_URL`=" + tmp_FK_RepositorySource_URL;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_Installation="+pRow->FK_Installation_asSQL()+", FK_RepositorySource_URL="+pRow->FK_RepositorySource_URL_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`FK_Installation`="+pRow->FK_Installation_asSQL()+", `FK_RepositorySource_URL`="+pRow->FK_RepositorySource_URL_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Installation_RepositorySource_URL set " + update_values_list + " where " + condition;
@@ -402,6 +403,7 @@ update_values_list = update_values_list + "FK_Installation="+pRow->FK_Installati
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -436,7 +438,7 @@ sprintf(tmp_FK_RepositorySource_URL, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Installation=" + tmp_FK_Installation+" AND "+"FK_RepositorySource_URL=" + tmp_FK_RepositorySource_URL;
+condition = condition + "`FK_Installation`=" + tmp_FK_Installation+" AND "+"`FK_RepositorySource_URL`=" + tmp_FK_RepositorySource_URL;
 
 	
 		string query = "delete from Installation_RepositorySource_URL where " + condition;
@@ -444,6 +446,7 @@ condition = condition + "FK_Installation=" + tmp_FK_Installation+" AND "+"FK_Rep
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -470,6 +473,7 @@ bool Table_Installation_RepositorySource_URL::GetRows(string where_statement,vec
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -478,6 +482,7 @@ bool Table_Installation_RepositorySource_URL::GetRows(string where_statement,vec
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -644,7 +649,7 @@ sprintf(tmp_FK_RepositorySource_URL, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_Installation=" + tmp_FK_Installation+" AND "+"FK_RepositorySource_URL=" + tmp_FK_RepositorySource_URL;
+condition = condition + "`FK_Installation`=" + tmp_FK_Installation+" AND "+"`FK_RepositorySource_URL`=" + tmp_FK_RepositorySource_URL;
 
 
 	string query = "select * from Installation_RepositorySource_URL where " + condition;		
@@ -652,6 +657,7 @@ condition = condition + "FK_Installation=" + tmp_FK_Installation+" AND "+"FK_Rep
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -660,6 +666,7 @@ condition = condition + "FK_Installation=" + tmp_FK_Installation+" AND "+"FK_Rep
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

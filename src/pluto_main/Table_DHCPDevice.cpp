@@ -466,12 +466,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_DHCPDevice_asSQL()+", "+pRow->FK_DeviceTemplate_asSQL()+", "+pRow->Mac_Range_Low_asSQL()+", "+pRow->Mac_Range_High_asSQL()+", "+pRow->FK_DeviceCategory_asSQL()+", "+pRow->FK_Manufacturer_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into DHCPDevice (PK_DHCPDevice, FK_DeviceTemplate, Mac_Range_Low, Mac_Range_High, FK_DeviceCategory, FK_Manufacturer, Description, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into DHCPDevice (`PK_DHCPDevice`, `FK_DeviceTemplate`, `Mac_Range_Low`, `Mac_Range_High`, `FK_DeviceCategory`, `FK_Manufacturer`, `Description`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -511,12 +512,12 @@ sprintf(tmp_PK_DHCPDevice, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DHCPDevice=" + tmp_PK_DHCPDevice;
+condition = condition + "`PK_DHCPDevice`=" + tmp_PK_DHCPDevice;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_DHCPDevice="+pRow->PK_DHCPDevice_asSQL()+", FK_DeviceTemplate="+pRow->FK_DeviceTemplate_asSQL()+", Mac_Range_Low="+pRow->Mac_Range_Low_asSQL()+", Mac_Range_High="+pRow->Mac_Range_High_asSQL()+", FK_DeviceCategory="+pRow->FK_DeviceCategory_asSQL()+", FK_Manufacturer="+pRow->FK_Manufacturer_asSQL()+", Description="+pRow->Description_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_DHCPDevice`="+pRow->PK_DHCPDevice_asSQL()+", `FK_DeviceTemplate`="+pRow->FK_DeviceTemplate_asSQL()+", `Mac_Range_Low`="+pRow->Mac_Range_Low_asSQL()+", `Mac_Range_High`="+pRow->Mac_Range_High_asSQL()+", `FK_DeviceCategory`="+pRow->FK_DeviceCategory_asSQL()+", `FK_Manufacturer`="+pRow->FK_Manufacturer_asSQL()+", `Description`="+pRow->Description_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update DHCPDevice set " + update_values_list + " where " + condition;
@@ -524,6 +525,7 @@ update_values_list = update_values_list + "PK_DHCPDevice="+pRow->PK_DHCPDevice_a
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -555,7 +557,7 @@ sprintf(tmp_PK_DHCPDevice, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DHCPDevice=" + tmp_PK_DHCPDevice;
+condition = condition + "`PK_DHCPDevice`=" + tmp_PK_DHCPDevice;
 
 	
 		string query = "delete from DHCPDevice where " + condition;
@@ -563,6 +565,7 @@ condition = condition + "PK_DHCPDevice=" + tmp_PK_DHCPDevice;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -589,6 +592,7 @@ bool Table_DHCPDevice::GetRows(string where_statement,vector<class Row_DHCPDevic
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -597,6 +601,7 @@ bool Table_DHCPDevice::GetRows(string where_statement,vector<class Row_DHCPDevic
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -815,7 +820,7 @@ sprintf(tmp_PK_DHCPDevice, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DHCPDevice=" + tmp_PK_DHCPDevice;
+condition = condition + "`PK_DHCPDevice`=" + tmp_PK_DHCPDevice;
 
 
 	string query = "select * from DHCPDevice where " + condition;		
@@ -823,6 +828,7 @@ condition = condition + "PK_DHCPDevice=" + tmp_PK_DHCPDevice;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -831,6 +837,7 @@ condition = condition + "PK_DHCPDevice=" + tmp_PK_DHCPDevice;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -1015,7 +1022,7 @@ void Row_DHCPDevice::DHCPDevice_DeviceData_FK_DHCPDevice_getrows(vector <class R
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DHCPDevice_DeviceData *pTable = table->database->DHCPDevice_DeviceData_get();
-pTable->GetRows("FK_DHCPDevice=" + StringUtils::itos(m_PK_DHCPDevice),rows);
+pTable->GetRows("`FK_DHCPDevice=`" + StringUtils::itos(m_PK_DHCPDevice),rows);
 }
 
 

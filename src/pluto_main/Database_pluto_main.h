@@ -152,6 +152,7 @@ class Table_Package_Source_Compat* tblPackage_Source_Compat;
 class Table_Package_Users* tblPackage_Users;
 class Table_Package_Version* tblPackage_Version;
 class Table_PageSetup* tblPageSetup;
+class Table_PaidLicense* tblPaidLicense;
 class Table_ParameterType* tblParameterType;
 class Table_PhoneLineType* tblPhoneLineType;
 class Table_Pipe* tblPipe;
@@ -361,6 +362,7 @@ class Table_Package_Source_Compat* Package_Source_Compat_get() { return tblPacka
 class Table_Package_Users* Package_Users_get() { return tblPackage_Users; }
 class Table_Package_Version* Package_Version_get() { return tblPackage_Version; }
 class Table_PageSetup* PageSetup_get() { return tblPageSetup; }
+class Table_PaidLicense* PaidLicense_get() { return tblPaidLicense; }
 class Table_ParameterType* ParameterType_get() { return tblParameterType; }
 class Table_PhoneLineType* PhoneLineType_get() { return tblPhoneLineType; }
 class Table_Pipe* Pipe_get() { return tblPipe; }
@@ -432,6 +434,7 @@ class Table_psc_website_batuser* psc_website_batuser_get() { return tblpsc_websi
 class Table_psc_website_repset* psc_website_repset_get() { return tblpsc_website_repset; }
 class Table_psc_website_schema* psc_website_schema_get() { return tblpsc_website_schema; }
 class Table_psc_website_tables* psc_website_tables_get() { return tblpsc_website_tables; }
+string m_sLastMySqlError;
 bool Connect(string host, string user, string pass, string sDBName, int port);
 bool Connect(class DCEConfig *pDCEConfig);
 void Disconnect();
@@ -573,6 +576,7 @@ void CreateTable_Package_Source_Compat();
 void CreateTable_Package_Users();
 void CreateTable_Package_Version();
 void CreateTable_PageSetup();
+void CreateTable_PaidLicense();
 void CreateTable_ParameterType();
 void CreateTable_PhoneLineType();
 void CreateTable_Pipe();
@@ -781,6 +785,7 @@ void DeleteTable_Package_Source_Compat();
 void DeleteTable_Package_Users();
 void DeleteTable_Package_Version();
 void DeleteTable_PageSetup();
+void DeleteTable_PaidLicense();
 void DeleteTable_ParameterType();
 void DeleteTable_PhoneLineType();
 void DeleteTable_Pipe();

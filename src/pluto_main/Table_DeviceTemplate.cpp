@@ -832,12 +832,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_DeviceTemplate_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->FK_DeviceCategory_asSQL()+", "+pRow->FK_Manufacturer_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->ImplementsDCE_asSQL()+", "+pRow->IsEmbedded_asSQL()+", "+pRow->CommandLine_asSQL()+", "+pRow->IsPlugAndPlay_asSQL()+", "+pRow->IsIPBased_asSQL()+", "+pRow->IsPlugIn_asSQL()+", "+pRow->IRFrequency_asSQL()+", "+pRow->FK_StabilityStatus_asSQL()+", "+pRow->FK_Package_asSQL()+", "+pRow->DestinationDir_asSQL()+", "+pRow->FK_Users_Maintainer_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->InheritsMacFromPC_asSQL()+", "+pRow->ConfigureScript_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into DeviceTemplate (PK_DeviceTemplate, Description, Comments, FK_DeviceCategory, FK_Manufacturer, Define, ImplementsDCE, IsEmbedded, CommandLine, IsPlugAndPlay, IsIPBased, IsPlugIn, IRFrequency, FK_StabilityStatus, FK_Package, DestinationDir, FK_Users_Maintainer, FK_OperatingSystem, FK_Distro, InheritsMacFromPC, ConfigureScript, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into DeviceTemplate (`PK_DeviceTemplate`, `Description`, `Comments`, `FK_DeviceCategory`, `FK_Manufacturer`, `Define`, `ImplementsDCE`, `IsEmbedded`, `CommandLine`, `IsPlugAndPlay`, `IsIPBased`, `IsPlugIn`, `IRFrequency`, `FK_StabilityStatus`, `FK_Package`, `DestinationDir`, `FK_Users_Maintainer`, `FK_OperatingSystem`, `FK_Distro`, `InheritsMacFromPC`, `ConfigureScript`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -877,12 +878,12 @@ sprintf(tmp_PK_DeviceTemplate, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DeviceTemplate=" + tmp_PK_DeviceTemplate;
+condition = condition + "`PK_DeviceTemplate`=" + tmp_PK_DeviceTemplate;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_DeviceTemplate="+pRow->PK_DeviceTemplate_asSQL()+", Description="+pRow->Description_asSQL()+", Comments="+pRow->Comments_asSQL()+", FK_DeviceCategory="+pRow->FK_DeviceCategory_asSQL()+", FK_Manufacturer="+pRow->FK_Manufacturer_asSQL()+", Define="+pRow->Define_asSQL()+", ImplementsDCE="+pRow->ImplementsDCE_asSQL()+", IsEmbedded="+pRow->IsEmbedded_asSQL()+", CommandLine="+pRow->CommandLine_asSQL()+", IsPlugAndPlay="+pRow->IsPlugAndPlay_asSQL()+", IsIPBased="+pRow->IsIPBased_asSQL()+", IsPlugIn="+pRow->IsPlugIn_asSQL()+", IRFrequency="+pRow->IRFrequency_asSQL()+", FK_StabilityStatus="+pRow->FK_StabilityStatus_asSQL()+", FK_Package="+pRow->FK_Package_asSQL()+", DestinationDir="+pRow->DestinationDir_asSQL()+", FK_Users_Maintainer="+pRow->FK_Users_Maintainer_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", FK_Distro="+pRow->FK_Distro_asSQL()+", InheritsMacFromPC="+pRow->InheritsMacFromPC_asSQL()+", ConfigureScript="+pRow->ConfigureScript_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_DeviceTemplate`="+pRow->PK_DeviceTemplate_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Comments`="+pRow->Comments_asSQL()+", `FK_DeviceCategory`="+pRow->FK_DeviceCategory_asSQL()+", `FK_Manufacturer`="+pRow->FK_Manufacturer_asSQL()+", `Define`="+pRow->Define_asSQL()+", `ImplementsDCE`="+pRow->ImplementsDCE_asSQL()+", `IsEmbedded`="+pRow->IsEmbedded_asSQL()+", `CommandLine`="+pRow->CommandLine_asSQL()+", `IsPlugAndPlay`="+pRow->IsPlugAndPlay_asSQL()+", `IsIPBased`="+pRow->IsIPBased_asSQL()+", `IsPlugIn`="+pRow->IsPlugIn_asSQL()+", `IRFrequency`="+pRow->IRFrequency_asSQL()+", `FK_StabilityStatus`="+pRow->FK_StabilityStatus_asSQL()+", `FK_Package`="+pRow->FK_Package_asSQL()+", `DestinationDir`="+pRow->DestinationDir_asSQL()+", `FK_Users_Maintainer`="+pRow->FK_Users_Maintainer_asSQL()+", `FK_OperatingSystem`="+pRow->FK_OperatingSystem_asSQL()+", `FK_Distro`="+pRow->FK_Distro_asSQL()+", `InheritsMacFromPC`="+pRow->InheritsMacFromPC_asSQL()+", `ConfigureScript`="+pRow->ConfigureScript_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update DeviceTemplate set " + update_values_list + " where " + condition;
@@ -890,6 +891,7 @@ update_values_list = update_values_list + "PK_DeviceTemplate="+pRow->PK_DeviceTe
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -921,7 +923,7 @@ sprintf(tmp_PK_DeviceTemplate, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DeviceTemplate=" + tmp_PK_DeviceTemplate;
+condition = condition + "`PK_DeviceTemplate`=" + tmp_PK_DeviceTemplate;
 
 	
 		string query = "delete from DeviceTemplate where " + condition;
@@ -929,6 +931,7 @@ condition = condition + "PK_DeviceTemplate=" + tmp_PK_DeviceTemplate;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -955,6 +958,7 @@ bool Table_DeviceTemplate::GetRows(string where_statement,vector<class Row_Devic
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -963,6 +967,7 @@ bool Table_DeviceTemplate::GetRows(string where_statement,vector<class Row_Devic
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -1335,7 +1340,7 @@ sprintf(tmp_PK_DeviceTemplate, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DeviceTemplate=" + tmp_PK_DeviceTemplate;
+condition = condition + "`PK_DeviceTemplate`=" + tmp_PK_DeviceTemplate;
 
 
 	string query = "select * from DeviceTemplate where " + condition;		
@@ -1343,6 +1348,7 @@ condition = condition + "PK_DeviceTemplate=" + tmp_PK_DeviceTemplate;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -1351,6 +1357,7 @@ condition = condition + "PK_DeviceTemplate=" + tmp_PK_DeviceTemplate;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -1717,154 +1724,154 @@ void Row_DeviceTemplate::CommandGroup_D_Command_FK_DeviceTemplate_getrows(vector
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_D_Command *pTable = table->database->CommandGroup_D_Command_get();
-pTable->GetRows("FK_DeviceTemplate=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
+pTable->GetRows("`FK_DeviceTemplate=`" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::ConfigType_FK_DeviceTemplate_getrows(vector <class Row_ConfigType*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_ConfigType *pTable = table->database->ConfigType_get();
-pTable->GetRows("FK_DeviceTemplate=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
+pTable->GetRows("`FK_DeviceTemplate=`" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DHCPDevice_FK_DeviceTemplate_getrows(vector <class Row_DHCPDevice*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DHCPDevice *pTable = table->database->DHCPDevice_get();
-pTable->GetRows("FK_DeviceTemplate=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
+pTable->GetRows("`FK_DeviceTemplate=`" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::Device_FK_DeviceTemplate_getrows(vector <class Row_Device*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device *pTable = table->database->Device_get();
-pTable->GetRows("FK_DeviceTemplate=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
+pTable->GetRows("`FK_DeviceTemplate=`" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_AV_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_AV*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_AV *pTable = table->database->DeviceTemplate_AV_get();
-pTable->GetRows("FK_DeviceTemplate=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
+pTable->GetRows("`FK_DeviceTemplate=`" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_DSPMode_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_DSPMode*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_DSPMode *pTable = table->database->DeviceTemplate_DSPMode_get();
-pTable->GetRows("FK_DeviceTemplate=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
+pTable->GetRows("`FK_DeviceTemplate=`" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_DesignObj_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_DesignObj*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_DesignObj *pTable = table->database->DeviceTemplate_DesignObj_get();
-pTable->GetRows("FK_DeviceTemplate=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
+pTable->GetRows("`FK_DeviceTemplate=`" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_DeviceCategory_ControlledVia_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_DeviceCategory_ControlledVia*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_DeviceCategory_ControlledVia *pTable = table->database->DeviceTemplate_DeviceCategory_ControlledVia_get();
-pTable->GetRows("FK_DeviceTemplate=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
+pTable->GetRows("`FK_DeviceTemplate=`" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_DeviceCommandGroup_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_DeviceCommandGroup*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_DeviceCommandGroup *pTable = table->database->DeviceTemplate_DeviceCommandGroup_get();
-pTable->GetRows("FK_DeviceTemplate=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
+pTable->GetRows("`FK_DeviceTemplate=`" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_DeviceData_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_DeviceData*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_DeviceData *pTable = table->database->DeviceTemplate_DeviceData_get();
-pTable->GetRows("FK_DeviceTemplate=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
+pTable->GetRows("`FK_DeviceTemplate=`" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_DeviceTemplate_ControlledVia_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_DeviceTemplate_ControlledVia*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_DeviceTemplate_ControlledVia *pTable = table->database->DeviceTemplate_DeviceTemplate_ControlledVia_get();
-pTable->GetRows("FK_DeviceTemplate=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
+pTable->GetRows("`FK_DeviceTemplate=`" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_DeviceTemplate_ControlledVia_FK_DeviceTemplate_ControlledVia_getrows(vector <class Row_DeviceTemplate_DeviceTemplate_ControlledVia*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_DeviceTemplate_ControlledVia *pTable = table->database->DeviceTemplate_DeviceTemplate_ControlledVia_get();
-pTable->GetRows("FK_DeviceTemplate_ControlledVia=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
+pTable->GetRows("`FK_DeviceTemplate_ControlledVia=`" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_DeviceTemplate_Related_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_DeviceTemplate_Related*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_DeviceTemplate_Related *pTable = table->database->DeviceTemplate_DeviceTemplate_Related_get();
-pTable->GetRows("FK_DeviceTemplate=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
+pTable->GetRows("`FK_DeviceTemplate=`" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_DeviceTemplate_Related_FK_DeviceTemplate_Related_getrows(vector <class Row_DeviceTemplate_DeviceTemplate_Related*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_DeviceTemplate_Related *pTable = table->database->DeviceTemplate_DeviceTemplate_Related_get();
-pTable->GetRows("FK_DeviceTemplate_Related=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
+pTable->GetRows("`FK_DeviceTemplate_Related=`" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_Event_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_Event*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_Event *pTable = table->database->DeviceTemplate_Event_get();
-pTable->GetRows("FK_DeviceTemplate=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
+pTable->GetRows("`FK_DeviceTemplate=`" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_InfraredGroup_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_InfraredGroup*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_InfraredGroup *pTable = table->database->DeviceTemplate_InfraredGroup_get();
-pTable->GetRows("FK_DeviceTemplate=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
+pTable->GetRows("`FK_DeviceTemplate=`" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_Input_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_Input*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_Input *pTable = table->database->DeviceTemplate_Input_get();
-pTable->GetRows("FK_DeviceTemplate=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
+pTable->GetRows("`FK_DeviceTemplate=`" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_MediaType_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_MediaType*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_MediaType *pTable = table->database->DeviceTemplate_MediaType_get();
-pTable->GetRows("FK_DeviceTemplate=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
+pTable->GetRows("`FK_DeviceTemplate=`" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_Output_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_Output*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_Output *pTable = table->database->DeviceTemplate_Output_get();
-pTable->GetRows("FK_DeviceTemplate=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
+pTable->GetRows("`FK_DeviceTemplate=`" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::DeviceTemplate_PageSetup_FK_DeviceTemplate_getrows(vector <class Row_DeviceTemplate_PageSetup*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_PageSetup *pTable = table->database->DeviceTemplate_PageSetup_get();
-pTable->GetRows("FK_DeviceTemplate=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
+pTable->GetRows("`FK_DeviceTemplate=`" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::InfraredGroup_Command_FK_DeviceTemplate_getrows(vector <class Row_InfraredGroup_Command*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_InfraredGroup_Command *pTable = table->database->InfraredGroup_Command_get();
-pTable->GetRows("FK_DeviceTemplate=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
+pTable->GetRows("`FK_DeviceTemplate=`" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 void Row_DeviceTemplate::InstallWizard_FK_DeviceTemplate_getrows(vector <class Row_InstallWizard*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_InstallWizard *pTable = table->database->InstallWizard_get();
-pTable->GetRows("FK_DeviceTemplate=" + StringUtils::itos(m_PK_DeviceTemplate),rows);
+pTable->GetRows("`FK_DeviceTemplate=`" + StringUtils::itos(m_PK_DeviceTemplate),rows);
 }
 
 

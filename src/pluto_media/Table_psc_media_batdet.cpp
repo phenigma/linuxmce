@@ -210,7 +210,7 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_media_batdet_asSQL()+", "+pRow->Value_asSQL();
 
 	
-		string query = "insert into psc_media_batdet (PK_psc_media_batdet, Value) values ("+
+		string query = "insert into psc_media_batdet (`PK_psc_media_batdet`, `Value`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -256,12 +256,12 @@ sprintf(tmp_PK_psc_media_batdet, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_media_batdet=" + tmp_PK_psc_media_batdet;
+condition = condition + "`PK_psc_media_batdet`=" + tmp_PK_psc_media_batdet;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_psc_media_batdet="+pRow->PK_psc_media_batdet_asSQL()+", Value="+pRow->Value_asSQL();
+update_values_list = update_values_list + "`PK_psc_media_batdet`="+pRow->PK_psc_media_batdet_asSQL()+", `Value`="+pRow->Value_asSQL();
 
 	
 		string query = "update psc_media_batdet set " + update_values_list + " where " + condition;
@@ -301,7 +301,7 @@ sprintf(tmp_PK_psc_media_batdet, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_media_batdet=" + tmp_PK_psc_media_batdet;
+condition = condition + "`PK_psc_media_batdet`=" + tmp_PK_psc_media_batdet;
 
 	
 		string query = "delete from psc_media_batdet where " + condition;
@@ -454,7 +454,7 @@ sprintf(tmp_PK_psc_media_batdet, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_media_batdet=" + tmp_PK_psc_media_batdet;
+condition = condition + "`PK_psc_media_batdet`=" + tmp_PK_psc_media_batdet;
 
 
 	string query = "select * from psc_media_batdet where " + condition;		

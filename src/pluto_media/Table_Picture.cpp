@@ -339,7 +339,7 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_Picture_asSQL()+", "+pRow->Extension_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Picture (PK_Picture, Extension, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Picture (`PK_Picture`, `Extension`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -385,12 +385,12 @@ sprintf(tmp_PK_Picture, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Picture=" + tmp_PK_Picture;
+condition = condition + "`PK_Picture`=" + tmp_PK_Picture;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Picture="+pRow->PK_Picture_asSQL()+", Extension="+pRow->Extension_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Picture`="+pRow->PK_Picture_asSQL()+", `Extension`="+pRow->Extension_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Picture set " + update_values_list + " where " + condition;
@@ -430,7 +430,7 @@ sprintf(tmp_PK_Picture, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Picture=" + tmp_PK_Picture;
+condition = condition + "`PK_Picture`=" + tmp_PK_Picture;
 
 	
 		string query = "delete from Picture where " + condition;
@@ -638,7 +638,7 @@ sprintf(tmp_PK_Picture, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Picture=" + tmp_PK_Picture;
+condition = condition + "`PK_Picture`=" + tmp_PK_Picture;
 
 
 	string query = "select * from Picture where " + condition;		
@@ -764,14 +764,14 @@ void Row_Picture::Picture_Attribute_FK_Picture_getrows(vector <class Row_Picture
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Picture_Attribute *pTable = table->database->Picture_Attribute_get();
-pTable->GetRows("FK_Picture=" + StringUtils::itos(m_PK_Picture),rows);
+pTable->GetRows("`FK_Picture=`" + StringUtils::itos(m_PK_Picture),rows);
 }
 void Row_Picture::Picture_File_FK_Picture_getrows(vector <class Row_Picture_File*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Picture_File *pTable = table->database->Picture_File_get();
-pTable->GetRows("FK_Picture=" + StringUtils::itos(m_PK_Picture),rows);
+pTable->GetRows("`FK_Picture=`" + StringUtils::itos(m_PK_Picture),rows);
 }
 
 

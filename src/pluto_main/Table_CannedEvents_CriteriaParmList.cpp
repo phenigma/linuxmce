@@ -533,12 +533,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_CannedEvents_CriteriaParmList_asSQL()+", "+pRow->FK_CannedEvents_asSQL()+", "+pRow->FK_CriteriaParmList_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->Operator_asSQL()+", "+pRow->Parm_asSQL()+", "+pRow->DefaultValue_asSQL()+", "+pRow->ExtraInfo_asSQL()+", "+pRow->Required_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into CannedEvents_CriteriaParmList (PK_CannedEvents_CriteriaParmList, FK_CannedEvents, FK_CriteriaParmList, Description, Comments, Operator, Parm, DefaultValue, ExtraInfo, Required, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into CannedEvents_CriteriaParmList (`PK_CannedEvents_CriteriaParmList`, `FK_CannedEvents`, `FK_CriteriaParmList`, `Description`, `Comments`, `Operator`, `Parm`, `DefaultValue`, `ExtraInfo`, `Required`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -578,12 +579,12 @@ sprintf(tmp_PK_CannedEvents_CriteriaParmList, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_CannedEvents_CriteriaParmList=" + tmp_PK_CannedEvents_CriteriaParmList;
+condition = condition + "`PK_CannedEvents_CriteriaParmList`=" + tmp_PK_CannedEvents_CriteriaParmList;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_CannedEvents_CriteriaParmList="+pRow->PK_CannedEvents_CriteriaParmList_asSQL()+", FK_CannedEvents="+pRow->FK_CannedEvents_asSQL()+", FK_CriteriaParmList="+pRow->FK_CriteriaParmList_asSQL()+", Description="+pRow->Description_asSQL()+", Comments="+pRow->Comments_asSQL()+", Operator="+pRow->Operator_asSQL()+", Parm="+pRow->Parm_asSQL()+", DefaultValue="+pRow->DefaultValue_asSQL()+", ExtraInfo="+pRow->ExtraInfo_asSQL()+", Required="+pRow->Required_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_CannedEvents_CriteriaParmList`="+pRow->PK_CannedEvents_CriteriaParmList_asSQL()+", `FK_CannedEvents`="+pRow->FK_CannedEvents_asSQL()+", `FK_CriteriaParmList`="+pRow->FK_CriteriaParmList_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Comments`="+pRow->Comments_asSQL()+", `Operator`="+pRow->Operator_asSQL()+", `Parm`="+pRow->Parm_asSQL()+", `DefaultValue`="+pRow->DefaultValue_asSQL()+", `ExtraInfo`="+pRow->ExtraInfo_asSQL()+", `Required`="+pRow->Required_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update CannedEvents_CriteriaParmList set " + update_values_list + " where " + condition;
@@ -591,6 +592,7 @@ update_values_list = update_values_list + "PK_CannedEvents_CriteriaParmList="+pR
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -622,7 +624,7 @@ sprintf(tmp_PK_CannedEvents_CriteriaParmList, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_CannedEvents_CriteriaParmList=" + tmp_PK_CannedEvents_CriteriaParmList;
+condition = condition + "`PK_CannedEvents_CriteriaParmList`=" + tmp_PK_CannedEvents_CriteriaParmList;
 
 	
 		string query = "delete from CannedEvents_CriteriaParmList where " + condition;
@@ -630,6 +632,7 @@ condition = condition + "PK_CannedEvents_CriteriaParmList=" + tmp_PK_CannedEvent
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -656,6 +659,7 @@ bool Table_CannedEvents_CriteriaParmList::GetRows(string where_statement,vector<
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -664,6 +668,7 @@ bool Table_CannedEvents_CriteriaParmList::GetRows(string where_statement,vector<
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -915,7 +920,7 @@ sprintf(tmp_PK_CannedEvents_CriteriaParmList, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_CannedEvents_CriteriaParmList=" + tmp_PK_CannedEvents_CriteriaParmList;
+condition = condition + "`PK_CannedEvents_CriteriaParmList`=" + tmp_PK_CannedEvents_CriteriaParmList;
 
 
 	string query = "select * from CannedEvents_CriteriaParmList where " + condition;		
@@ -923,6 +928,7 @@ condition = condition + "PK_CannedEvents_CriteriaParmList=" + tmp_PK_CannedEvent
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -931,6 +937,7 @@ condition = condition + "PK_CannedEvents_CriteriaParmList=" + tmp_PK_CannedEvent
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -1141,14 +1148,14 @@ void Row_CannedEvents_CriteriaParmList::CriteriaParm_FK_CannedEvents_CriteriaPar
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CriteriaParm *pTable = table->database->CriteriaParm_get();
-pTable->GetRows("FK_CannedEvents_CriteriaParmList=" + StringUtils::itos(m_PK_CannedEvents_CriteriaParmList),rows);
+pTable->GetRows("`FK_CannedEvents_CriteriaParmList=`" + StringUtils::itos(m_PK_CannedEvents_CriteriaParmList),rows);
 }
 void Row_CannedEvents_CriteriaParmList::CriteriaParm_D_FK_CannedEvents_CriteriaParmList_getrows(vector <class Row_CriteriaParm_D*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CriteriaParm_D *pTable = table->database->CriteriaParm_D_get();
-pTable->GetRows("FK_CannedEvents_CriteriaParmList=" + StringUtils::itos(m_PK_CannedEvents_CriteriaParmList),rows);
+pTable->GetRows("`FK_CannedEvents_CriteriaParmList=`" + StringUtils::itos(m_PK_CannedEvents_CriteriaParmList),rows);
 }
 
 

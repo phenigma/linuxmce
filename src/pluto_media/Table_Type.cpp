@@ -367,7 +367,7 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_Type_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Type (PK_Type, Description, Define, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Type (`PK_Type`, `Description`, `Define`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -411,12 +411,12 @@ sprintf(tmp_PK_Type, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Type=" + tmp_PK_Type;
+condition = condition + "`PK_Type`=" + tmp_PK_Type;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Type="+pRow->PK_Type_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Type`="+pRow->PK_Type_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Type set " + update_values_list + " where " + condition;
@@ -456,7 +456,7 @@ sprintf(tmp_PK_Type, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Type=" + tmp_PK_Type;
+condition = condition + "`PK_Type`=" + tmp_PK_Type;
 
 	
 		string query = "delete from Type where " + condition;
@@ -675,7 +675,7 @@ sprintf(tmp_PK_Type, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Type=" + tmp_PK_Type;
+condition = condition + "`PK_Type`=" + tmp_PK_Type;
 
 
 	string query = "select * from Type where " + condition;		
@@ -812,21 +812,21 @@ void Row_Type::File_FK_Type_getrows(vector <class Row_File*> *rows)
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_File *pTable = table->database->File_get();
-pTable->GetRows("FK_Type=" + StringUtils::itos(m_PK_Type),rows);
+pTable->GetRows("`FK_Type=`" + StringUtils::itos(m_PK_Type),rows);
 }
 void Row_Type::Type_AttributeType_FK_Type_getrows(vector <class Row_Type_AttributeType*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Type_AttributeType *pTable = table->database->Type_AttributeType_get();
-pTable->GetRows("FK_Type=" + StringUtils::itos(m_PK_Type),rows);
+pTable->GetRows("`FK_Type=`" + StringUtils::itos(m_PK_Type),rows);
 }
 void Row_Type::Type_Extension_FK_Type_getrows(vector <class Row_Type_Extension*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Type_Extension *pTable = table->database->Type_Extension_get();
-pTable->GetRows("FK_Type=" + StringUtils::itos(m_PK_Type),rows);
+pTable->GetRows("`FK_Type=`" + StringUtils::itos(m_PK_Type),rows);
 }
 
 

@@ -424,12 +424,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->FK_DeviceTemplate_DeviceCategory_ControlledVia_asSQL()+", "+pRow->FK_Pipe_asSQL()+", "+pRow->FK_Command_Input_asSQL()+", "+pRow->FK_Command_Output_asSQL()+", "+pRow->ToChild_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into DeviceTemplate_DeviceCategory_ControlledVia_Pipe (FK_DeviceTemplate_DeviceCategory_ControlledVia, FK_Pipe, FK_Command_Input, FK_Command_Output, ToChild, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into DeviceTemplate_DeviceCategory_ControlledVia_Pipe (`FK_DeviceTemplate_DeviceCategory_ControlledVia`, `FK_Pipe`, `FK_Command_Input`, `FK_Command_Output`, `ToChild`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -470,12 +471,12 @@ sprintf(tmp_FK_Pipe, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_DeviceTemplate_DeviceCategory_ControlledVia=" + tmp_FK_DeviceTemplate_DeviceCategory_ControlledVia+" AND "+"FK_Pipe=" + tmp_FK_Pipe;
+condition = condition + "`FK_DeviceTemplate_DeviceCategory_ControlledVia`=" + tmp_FK_DeviceTemplate_DeviceCategory_ControlledVia+" AND "+"`FK_Pipe`=" + tmp_FK_Pipe;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_DeviceTemplate_DeviceCategory_ControlledVia="+pRow->FK_DeviceTemplate_DeviceCategory_ControlledVia_asSQL()+", FK_Pipe="+pRow->FK_Pipe_asSQL()+", FK_Command_Input="+pRow->FK_Command_Input_asSQL()+", FK_Command_Output="+pRow->FK_Command_Output_asSQL()+", ToChild="+pRow->ToChild_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`FK_DeviceTemplate_DeviceCategory_ControlledVia`="+pRow->FK_DeviceTemplate_DeviceCategory_ControlledVia_asSQL()+", `FK_Pipe`="+pRow->FK_Pipe_asSQL()+", `FK_Command_Input`="+pRow->FK_Command_Input_asSQL()+", `FK_Command_Output`="+pRow->FK_Command_Output_asSQL()+", `ToChild`="+pRow->ToChild_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update DeviceTemplate_DeviceCategory_ControlledVia_Pipe set " + update_values_list + " where " + condition;
@@ -483,6 +484,7 @@ update_values_list = update_values_list + "FK_DeviceTemplate_DeviceCategory_Cont
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -517,7 +519,7 @@ sprintf(tmp_FK_Pipe, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_DeviceTemplate_DeviceCategory_ControlledVia=" + tmp_FK_DeviceTemplate_DeviceCategory_ControlledVia+" AND "+"FK_Pipe=" + tmp_FK_Pipe;
+condition = condition + "`FK_DeviceTemplate_DeviceCategory_ControlledVia`=" + tmp_FK_DeviceTemplate_DeviceCategory_ControlledVia+" AND "+"`FK_Pipe`=" + tmp_FK_Pipe;
 
 	
 		string query = "delete from DeviceTemplate_DeviceCategory_ControlledVia_Pipe where " + condition;
@@ -525,6 +527,7 @@ condition = condition + "FK_DeviceTemplate_DeviceCategory_ControlledVia=" + tmp_
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -551,6 +554,7 @@ bool Table_DeviceTemplate_DeviceCategory_ControlledVia_Pipe::GetRows(string wher
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -559,6 +563,7 @@ bool Table_DeviceTemplate_DeviceCategory_ControlledVia_Pipe::GetRows(string wher
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -758,7 +763,7 @@ sprintf(tmp_FK_Pipe, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_DeviceTemplate_DeviceCategory_ControlledVia=" + tmp_FK_DeviceTemplate_DeviceCategory_ControlledVia+" AND "+"FK_Pipe=" + tmp_FK_Pipe;
+condition = condition + "`FK_DeviceTemplate_DeviceCategory_ControlledVia`=" + tmp_FK_DeviceTemplate_DeviceCategory_ControlledVia+" AND "+"`FK_Pipe`=" + tmp_FK_Pipe;
 
 
 	string query = "select * from DeviceTemplate_DeviceCategory_ControlledVia_Pipe where " + condition;		
@@ -766,6 +771,7 @@ condition = condition + "FK_DeviceTemplate_DeviceCategory_ControlledVia=" + tmp_
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -774,6 +780,7 @@ condition = condition + "FK_DeviceTemplate_DeviceCategory_ControlledVia=" + tmp_
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

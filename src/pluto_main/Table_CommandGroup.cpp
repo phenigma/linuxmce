@@ -620,12 +620,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_CommandGroup_asSQL()+", "+pRow->FK_Array_asSQL()+", "+pRow->FK_Installation_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Hint_asSQL()+", "+pRow->CanTurnOff_asSQL()+", "+pRow->AlwaysShow_asSQL()+", "+pRow->CanBeHidden_asSQL()+", "+pRow->FK_Criteria_Orbiter_asSQL()+", "+pRow->FK_DesignObj_asSQL()+", "+pRow->FK_Template_asSQL()+", "+pRow->AltID_asSQL()+", "+pRow->FK_Icon_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into CommandGroup (PK_CommandGroup, FK_Array, FK_Installation, Description, Hint, CanTurnOff, AlwaysShow, CanBeHidden, FK_Criteria_Orbiter, FK_DesignObj, FK_Template, AltID, FK_Icon, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into CommandGroup (`PK_CommandGroup`, `FK_Array`, `FK_Installation`, `Description`, `Hint`, `CanTurnOff`, `AlwaysShow`, `CanBeHidden`, `FK_Criteria_Orbiter`, `FK_DesignObj`, `FK_Template`, `AltID`, `FK_Icon`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -665,12 +666,12 @@ sprintf(tmp_PK_CommandGroup, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_CommandGroup=" + tmp_PK_CommandGroup;
+condition = condition + "`PK_CommandGroup`=" + tmp_PK_CommandGroup;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_CommandGroup="+pRow->PK_CommandGroup_asSQL()+", FK_Array="+pRow->FK_Array_asSQL()+", FK_Installation="+pRow->FK_Installation_asSQL()+", Description="+pRow->Description_asSQL()+", Hint="+pRow->Hint_asSQL()+", CanTurnOff="+pRow->CanTurnOff_asSQL()+", AlwaysShow="+pRow->AlwaysShow_asSQL()+", CanBeHidden="+pRow->CanBeHidden_asSQL()+", FK_Criteria_Orbiter="+pRow->FK_Criteria_Orbiter_asSQL()+", FK_DesignObj="+pRow->FK_DesignObj_asSQL()+", FK_Template="+pRow->FK_Template_asSQL()+", AltID="+pRow->AltID_asSQL()+", FK_Icon="+pRow->FK_Icon_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_CommandGroup`="+pRow->PK_CommandGroup_asSQL()+", `FK_Array`="+pRow->FK_Array_asSQL()+", `FK_Installation`="+pRow->FK_Installation_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Hint`="+pRow->Hint_asSQL()+", `CanTurnOff`="+pRow->CanTurnOff_asSQL()+", `AlwaysShow`="+pRow->AlwaysShow_asSQL()+", `CanBeHidden`="+pRow->CanBeHidden_asSQL()+", `FK_Criteria_Orbiter`="+pRow->FK_Criteria_Orbiter_asSQL()+", `FK_DesignObj`="+pRow->FK_DesignObj_asSQL()+", `FK_Template`="+pRow->FK_Template_asSQL()+", `AltID`="+pRow->AltID_asSQL()+", `FK_Icon`="+pRow->FK_Icon_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update CommandGroup set " + update_values_list + " where " + condition;
@@ -678,6 +679,7 @@ update_values_list = update_values_list + "PK_CommandGroup="+pRow->PK_CommandGro
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -709,7 +711,7 @@ sprintf(tmp_PK_CommandGroup, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_CommandGroup=" + tmp_PK_CommandGroup;
+condition = condition + "`PK_CommandGroup`=" + tmp_PK_CommandGroup;
 
 	
 		string query = "delete from CommandGroup where " + condition;
@@ -717,6 +719,7 @@ condition = condition + "PK_CommandGroup=" + tmp_PK_CommandGroup;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -743,6 +746,7 @@ bool Table_CommandGroup::GetRows(string where_statement,vector<class Row_Command
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -751,6 +755,7 @@ bool Table_CommandGroup::GetRows(string where_statement,vector<class Row_Command
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -1035,7 +1040,7 @@ sprintf(tmp_PK_CommandGroup, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_CommandGroup=" + tmp_PK_CommandGroup;
+condition = condition + "`PK_CommandGroup`=" + tmp_PK_CommandGroup;
 
 
 	string query = "select * from CommandGroup where " + condition;		
@@ -1043,6 +1048,7 @@ condition = condition + "PK_CommandGroup=" + tmp_PK_CommandGroup;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -1051,6 +1057,7 @@ condition = condition + "PK_CommandGroup=" + tmp_PK_CommandGroup;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -1322,35 +1329,35 @@ void Row_CommandGroup::CommandGroup_Command_FK_CommandGroup_getrows(vector <clas
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_Command *pTable = table->database->CommandGroup_Command_get();
-pTable->GetRows("FK_CommandGroup=" + StringUtils::itos(m_PK_CommandGroup),rows);
+pTable->GetRows("`FK_CommandGroup=`" + StringUtils::itos(m_PK_CommandGroup),rows);
 }
 void Row_CommandGroup::CommandGroup_EntertainArea_FK_CommandGroup_getrows(vector <class Row_CommandGroup_EntertainArea*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_EntertainArea *pTable = table->database->CommandGroup_EntertainArea_get();
-pTable->GetRows("FK_CommandGroup=" + StringUtils::itos(m_PK_CommandGroup),rows);
+pTable->GetRows("`FK_CommandGroup=`" + StringUtils::itos(m_PK_CommandGroup),rows);
 }
 void Row_CommandGroup::CommandGroup_Room_FK_CommandGroup_getrows(vector <class Row_CommandGroup_Room*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup_Room *pTable = table->database->CommandGroup_Room_get();
-pTable->GetRows("FK_CommandGroup=" + StringUtils::itos(m_PK_CommandGroup),rows);
+pTable->GetRows("`FK_CommandGroup=`" + StringUtils::itos(m_PK_CommandGroup),rows);
 }
 void Row_CommandGroup::Device_CommandGroup_FK_CommandGroup_getrows(vector <class Row_Device_CommandGroup*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device_CommandGroup *pTable = table->database->Device_CommandGroup_get();
-pTable->GetRows("FK_CommandGroup=" + StringUtils::itos(m_PK_CommandGroup),rows);
+pTable->GetRows("`FK_CommandGroup=`" + StringUtils::itos(m_PK_CommandGroup),rows);
 }
 void Row_CommandGroup::EventHandler_FK_CommandGroup_getrows(vector <class Row_EventHandler*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_EventHandler *pTable = table->database->EventHandler_get();
-pTable->GetRows("FK_CommandGroup=" + StringUtils::itos(m_PK_CommandGroup),rows);
+pTable->GetRows("`FK_CommandGroup=`" + StringUtils::itos(m_PK_CommandGroup),rows);
 }
 
 

@@ -369,12 +369,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_SetupStep_asSQL()+", "+pRow->FK_Installation_asSQL()+", "+pRow->FK_PageSetup_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into SetupStep (PK_SetupStep, FK_Installation, FK_PageSetup, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into SetupStep (`PK_SetupStep`, `FK_Installation`, `FK_PageSetup`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -414,12 +415,12 @@ sprintf(tmp_PK_SetupStep, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_SetupStep=" + tmp_PK_SetupStep;
+condition = condition + "`PK_SetupStep`=" + tmp_PK_SetupStep;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_SetupStep="+pRow->PK_SetupStep_asSQL()+", FK_Installation="+pRow->FK_Installation_asSQL()+", FK_PageSetup="+pRow->FK_PageSetup_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_SetupStep`="+pRow->PK_SetupStep_asSQL()+", `FK_Installation`="+pRow->FK_Installation_asSQL()+", `FK_PageSetup`="+pRow->FK_PageSetup_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update SetupStep set " + update_values_list + " where " + condition;
@@ -427,6 +428,7 @@ update_values_list = update_values_list + "PK_SetupStep="+pRow->PK_SetupStep_asS
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -458,7 +460,7 @@ sprintf(tmp_PK_SetupStep, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_SetupStep=" + tmp_PK_SetupStep;
+condition = condition + "`PK_SetupStep`=" + tmp_PK_SetupStep;
 
 	
 		string query = "delete from SetupStep where " + condition;
@@ -466,6 +468,7 @@ condition = condition + "PK_SetupStep=" + tmp_PK_SetupStep;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -492,6 +495,7 @@ bool Table_SetupStep::GetRows(string where_statement,vector<class Row_SetupStep*
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -500,6 +504,7 @@ bool Table_SetupStep::GetRows(string where_statement,vector<class Row_SetupStep*
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -674,7 +679,7 @@ sprintf(tmp_PK_SetupStep, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_SetupStep=" + tmp_PK_SetupStep;
+condition = condition + "`PK_SetupStep`=" + tmp_PK_SetupStep;
 
 
 	string query = "select * from SetupStep where " + condition;		
@@ -682,6 +687,7 @@ condition = condition + "PK_SetupStep=" + tmp_PK_SetupStep;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -690,6 +696,7 @@ condition = condition + "PK_SetupStep=" + tmp_PK_SetupStep;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

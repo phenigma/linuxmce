@@ -385,12 +385,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_DeviceData_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->FK_ParameterType_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into DeviceData (PK_DeviceData, Description, Define, FK_ParameterType, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into DeviceData (`PK_DeviceData`, `Description`, `Define`, `FK_ParameterType`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -430,12 +431,12 @@ sprintf(tmp_PK_DeviceData, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DeviceData=" + tmp_PK_DeviceData;
+condition = condition + "`PK_DeviceData`=" + tmp_PK_DeviceData;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_DeviceData="+pRow->PK_DeviceData_asSQL()+", Description="+pRow->Description_asSQL()+", Define="+pRow->Define_asSQL()+", FK_ParameterType="+pRow->FK_ParameterType_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_DeviceData`="+pRow->PK_DeviceData_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Define`="+pRow->Define_asSQL()+", `FK_ParameterType`="+pRow->FK_ParameterType_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update DeviceData set " + update_values_list + " where " + condition;
@@ -443,6 +444,7 @@ update_values_list = update_values_list + "PK_DeviceData="+pRow->PK_DeviceData_a
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -474,7 +476,7 @@ sprintf(tmp_PK_DeviceData, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DeviceData=" + tmp_PK_DeviceData;
+condition = condition + "`PK_DeviceData`=" + tmp_PK_DeviceData;
 
 	
 		string query = "delete from DeviceData where " + condition;
@@ -482,6 +484,7 @@ condition = condition + "PK_DeviceData=" + tmp_PK_DeviceData;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -508,6 +511,7 @@ bool Table_DeviceData::GetRows(string where_statement,vector<class Row_DeviceDat
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -516,6 +520,7 @@ bool Table_DeviceData::GetRows(string where_statement,vector<class Row_DeviceDat
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -701,7 +706,7 @@ sprintf(tmp_PK_DeviceData, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DeviceData=" + tmp_PK_DeviceData;
+condition = condition + "`PK_DeviceData`=" + tmp_PK_DeviceData;
 
 
 	string query = "select * from DeviceData where " + condition;		
@@ -709,6 +714,7 @@ condition = condition + "PK_DeviceData=" + tmp_PK_DeviceData;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -717,6 +723,7 @@ condition = condition + "PK_DeviceData=" + tmp_PK_DeviceData;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -854,28 +861,28 @@ void Row_DeviceData::DHCPDevice_DeviceData_FK_DeviceData_getrows(vector <class R
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DHCPDevice_DeviceData *pTable = table->database->DHCPDevice_DeviceData_get();
-pTable->GetRows("FK_DeviceData=" + StringUtils::itos(m_PK_DeviceData),rows);
+pTable->GetRows("`FK_DeviceData=`" + StringUtils::itos(m_PK_DeviceData),rows);
 }
 void Row_DeviceData::DeviceCategory_DeviceData_FK_DeviceData_getrows(vector <class Row_DeviceCategory_DeviceData*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceCategory_DeviceData *pTable = table->database->DeviceCategory_DeviceData_get();
-pTable->GetRows("FK_DeviceData=" + StringUtils::itos(m_PK_DeviceData),rows);
+pTable->GetRows("`FK_DeviceData=`" + StringUtils::itos(m_PK_DeviceData),rows);
 }
 void Row_DeviceData::DeviceTemplate_DeviceData_FK_DeviceData_getrows(vector <class Row_DeviceTemplate_DeviceData*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate_DeviceData *pTable = table->database->DeviceTemplate_DeviceData_get();
-pTable->GetRows("FK_DeviceData=" + StringUtils::itos(m_PK_DeviceData),rows);
+pTable->GetRows("`FK_DeviceData=`" + StringUtils::itos(m_PK_DeviceData),rows);
 }
 void Row_DeviceData::Device_DeviceData_FK_DeviceData_getrows(vector <class Row_Device_DeviceData*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Device_DeviceData *pTable = table->database->Device_DeviceData_get();
-pTable->GetRows("FK_DeviceData=" + StringUtils::itos(m_PK_DeviceData),rows);
+pTable->GetRows("`FK_DeviceData=`" + StringUtils::itos(m_PK_DeviceData),rows);
 }
 
 

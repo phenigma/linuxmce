@@ -343,7 +343,7 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->FK_File_asSQL()+", "+pRow->FK_Attribute_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into File_Attribute (FK_File, FK_Attribute, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into File_Attribute (`FK_File`, `FK_Attribute`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -390,12 +390,12 @@ sprintf(tmp_FK_Attribute, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_File=" + tmp_FK_File+" AND "+"FK_Attribute=" + tmp_FK_Attribute;
+condition = condition + "`FK_File`=" + tmp_FK_File+" AND "+"`FK_Attribute`=" + tmp_FK_Attribute;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_File="+pRow->FK_File_asSQL()+", FK_Attribute="+pRow->FK_Attribute_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`FK_File`="+pRow->FK_File_asSQL()+", `FK_Attribute`="+pRow->FK_Attribute_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update File_Attribute set " + update_values_list + " where " + condition;
@@ -438,7 +438,7 @@ sprintf(tmp_FK_Attribute, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_File=" + tmp_FK_File+" AND "+"FK_Attribute=" + tmp_FK_Attribute;
+condition = condition + "`FK_File`=" + tmp_FK_File+" AND "+"`FK_Attribute`=" + tmp_FK_Attribute;
 
 	
 		string query = "delete from File_Attribute where " + condition;
@@ -649,7 +649,7 @@ sprintf(tmp_FK_Attribute, "%li", key.pk2);
 
 
 string condition;
-condition = condition + "FK_File=" + tmp_FK_File+" AND "+"FK_Attribute=" + tmp_FK_Attribute;
+condition = condition + "`FK_File`=" + tmp_FK_File+" AND "+"`FK_Attribute`=" + tmp_FK_Attribute;
 
 
 	string query = "select * from File_Attribute where " + condition;		

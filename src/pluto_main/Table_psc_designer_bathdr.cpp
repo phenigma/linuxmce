@@ -120,6 +120,7 @@ void Row_psc_designer_bathdr::SetDefaultValues()
 is_null[0] = false;
 is_null[1] = true;
 is_null[2] = true;
+is_null[3] = true;
 
 
 	is_added=false;
@@ -130,6 +131,9 @@ is_null[2] = true;
 long int Row_psc_designer_bathdr::PK_psc_designer_bathdr_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_PK_psc_designer_bathdr;}
+string Row_psc_designer_bathdr::IPAddress_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_IPAddress;}
 string Row_psc_designer_bathdr::date_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_date;}
@@ -141,28 +145,37 @@ return m_comments;}
 void Row_psc_designer_bathdr::PK_psc_designer_bathdr_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_PK_psc_designer_bathdr = val; is_modified=true; is_null[0]=false;}
+void Row_psc_designer_bathdr::IPAddress_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_IPAddress = val; is_modified=true; is_null[1]=false;}
 void Row_psc_designer_bathdr::date_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_date = val; is_modified=true; is_null[1]=false;}
+m_date = val; is_modified=true; is_null[2]=false;}
 void Row_psc_designer_bathdr::comments_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_comments = val; is_modified=true; is_null[2]=false;}
+m_comments = val; is_modified=true; is_null[3]=false;}
 
 		
-bool Row_psc_designer_bathdr::date_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_psc_designer_bathdr::IPAddress_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[1];}
-bool Row_psc_designer_bathdr::comments_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_psc_designer_bathdr::date_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[2];}
+bool Row_psc_designer_bathdr::comments_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[3];}
 
 			
-void Row_psc_designer_bathdr::date_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_designer_bathdr::IPAddress_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[1]=val;}
-void Row_psc_designer_bathdr::comments_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_psc_designer_bathdr::date_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[2]=val;}
+void Row_psc_designer_bathdr::comments_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[3]=val;}
 	
 
 string Row_psc_designer_bathdr::PK_psc_designer_bathdr_asSQL()
@@ -178,11 +191,25 @@ sprintf(buf, "%li", m_PK_psc_designer_bathdr);
 return buf;
 }
 
-string Row_psc_designer_bathdr::date_asSQL()
+string Row_psc_designer_bathdr::IPAddress_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[1])
+return "NULL";
+
+char *buf = new char[33];
+mysql_real_escape_string(table->database->db_handle, buf, m_IPAddress.c_str(), (unsigned long) m_IPAddress.size());
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
+}
+
+string Row_psc_designer_bathdr::date_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[2])
 return "NULL";
 
 char *buf = new char[39];
@@ -196,7 +223,7 @@ string Row_psc_designer_bathdr::comments_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[2])
+if (is_null[3])
 return "NULL";
 
 char *buf = new char[131071];
@@ -244,15 +271,16 @@ bool Table_psc_designer_bathdr::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_designer_bathdr_asSQL()+", "+pRow->date_asSQL()+", "+pRow->comments_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_psc_designer_bathdr_asSQL()+", "+pRow->IPAddress_asSQL()+", "+pRow->date_asSQL()+", "+pRow->comments_asSQL();
 
 	
-		string query = "insert into psc_designer_bathdr (PK_psc_designer_bathdr, date, comments) values ("+
+		string query = "insert into psc_designer_bathdr (`PK_psc_designer_bathdr`, `IPAddress`, `date`, `comments`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -292,12 +320,12 @@ sprintf(tmp_PK_psc_designer_bathdr, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_designer_bathdr=" + tmp_PK_psc_designer_bathdr;
+condition = condition + "`PK_psc_designer_bathdr`=" + tmp_PK_psc_designer_bathdr;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_psc_designer_bathdr="+pRow->PK_psc_designer_bathdr_asSQL()+", date="+pRow->date_asSQL()+", comments="+pRow->comments_asSQL();
+update_values_list = update_values_list + "`PK_psc_designer_bathdr`="+pRow->PK_psc_designer_bathdr_asSQL()+", `IPAddress`="+pRow->IPAddress_asSQL()+", `date`="+pRow->date_asSQL()+", `comments`="+pRow->comments_asSQL();
 
 	
 		string query = "update psc_designer_bathdr set " + update_values_list + " where " + condition;
@@ -305,6 +333,7 @@ update_values_list = update_values_list + "PK_psc_designer_bathdr="+pRow->PK_psc
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -336,7 +365,7 @@ sprintf(tmp_PK_psc_designer_bathdr, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_designer_bathdr=" + tmp_PK_psc_designer_bathdr;
+condition = condition + "`PK_psc_designer_bathdr`=" + tmp_PK_psc_designer_bathdr;
 
 	
 		string query = "delete from psc_designer_bathdr where " + condition;
@@ -344,6 +373,7 @@ condition = condition + "PK_psc_designer_bathdr=" + tmp_PK_psc_designer_bathdr;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -370,6 +400,7 @@ bool Table_psc_designer_bathdr::GetRows(string where_statement,vector<class Row_
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -378,6 +409,7 @@ bool Table_psc_designer_bathdr::GetRows(string where_statement,vector<class Row_
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -404,23 +436,34 @@ sscanf(row[0], "%li", &(pRow->m_PK_psc_designer_bathdr));
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_date = "";
+pRow->m_IPAddress = "";
 }
 else
 {
 pRow->is_null[1]=false;
-pRow->m_date = string(row[1],lengths[1]);
+pRow->m_IPAddress = string(row[1],lengths[1]);
 }
 
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_comments = "";
+pRow->m_date = "";
 }
 else
 {
 pRow->is_null[2]=false;
-pRow->m_comments = string(row[2],lengths[2]);
+pRow->m_date = string(row[2],lengths[2]);
+}
+
+if (row[3] == NULL)
+{
+pRow->is_null[3]=true;
+pRow->m_comments = "";
+}
+else
+{
+pRow->is_null[3]=false;
+pRow->m_comments = string(row[3],lengths[3]);
 }
 
 
@@ -497,7 +540,7 @@ sprintf(tmp_PK_psc_designer_bathdr, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_psc_designer_bathdr=" + tmp_PK_psc_designer_bathdr;
+condition = condition + "`PK_psc_designer_bathdr`=" + tmp_PK_psc_designer_bathdr;
 
 
 	string query = "select * from psc_designer_bathdr where " + condition;		
@@ -505,6 +548,7 @@ condition = condition + "PK_psc_designer_bathdr=" + tmp_PK_psc_designer_bathdr;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -513,6 +557,7 @@ condition = condition + "PK_psc_designer_bathdr=" + tmp_PK_psc_designer_bathdr;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -543,23 +588,34 @@ sscanf(row[0], "%li", &(pRow->m_PK_psc_designer_bathdr));
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_date = "";
+pRow->m_IPAddress = "";
 }
 else
 {
 pRow->is_null[1]=false;
-pRow->m_date = string(row[1],lengths[1]);
+pRow->m_IPAddress = string(row[1],lengths[1]);
 }
 
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_comments = "";
+pRow->m_date = "";
 }
 else
 {
 pRow->is_null[2]=false;
-pRow->m_comments = string(row[2],lengths[2]);
+pRow->m_date = string(row[2],lengths[2]);
+}
+
+if (row[3] == NULL)
+{
+pRow->is_null[3]=true;
+pRow->m_comments = "";
+}
+else
+{
+pRow->is_null[3]=false;
+pRow->m_comments = string(row[3],lengths[3]);
 }
 
 
@@ -577,35 +633,35 @@ void Row_psc_designer_bathdr::psc_designer_batdet_FK_psc_designer_bathdr_getrows
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_designer_batdet *pTable = table->database->psc_designer_batdet_get();
-pTable->GetRows("FK_psc_designer_bathdr=" + StringUtils::itos(m_PK_psc_designer_bathdr),rows);
+pTable->GetRows("`FK_psc_designer_bathdr=`" + StringUtils::itos(m_PK_psc_designer_bathdr),rows);
 }
 void Row_psc_designer_bathdr::psc_designer_batdet_FK_psc_designer_bathdr_orig_getrows(vector <class Row_psc_designer_batdet*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_designer_batdet *pTable = table->database->psc_designer_batdet_get();
-pTable->GetRows("FK_psc_designer_bathdr_orig=" + StringUtils::itos(m_PK_psc_designer_bathdr),rows);
+pTable->GetRows("`FK_psc_designer_bathdr_orig=`" + StringUtils::itos(m_PK_psc_designer_bathdr),rows);
 }
 void Row_psc_designer_bathdr::psc_designer_batdet_FK_psc_designer_bathdr_auth_getrows(vector <class Row_psc_designer_batdet*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_designer_batdet *pTable = table->database->psc_designer_batdet_get();
-pTable->GetRows("FK_psc_designer_bathdr_auth=" + StringUtils::itos(m_PK_psc_designer_bathdr),rows);
+pTable->GetRows("`FK_psc_designer_bathdr_auth=`" + StringUtils::itos(m_PK_psc_designer_bathdr),rows);
 }
 void Row_psc_designer_bathdr::psc_designer_batdet_FK_psc_designer_bathdr_unauth_getrows(vector <class Row_psc_designer_batdet*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_designer_batdet *pTable = table->database->psc_designer_batdet_get();
-pTable->GetRows("FK_psc_designer_bathdr_unauth=" + StringUtils::itos(m_PK_psc_designer_bathdr),rows);
+pTable->GetRows("`FK_psc_designer_bathdr_unauth=`" + StringUtils::itos(m_PK_psc_designer_bathdr),rows);
 }
 void Row_psc_designer_bathdr::psc_designer_batuser_FK_psc_designer_bathdr_getrows(vector <class Row_psc_designer_batuser*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_psc_designer_batuser *pTable = table->database->psc_designer_batuser_get();
-pTable->GetRows("FK_psc_designer_bathdr=" + StringUtils::itos(m_PK_psc_designer_bathdr),rows);
+pTable->GetRows("`FK_psc_designer_bathdr=`" + StringUtils::itos(m_PK_psc_designer_bathdr),rows);
 }
 
 

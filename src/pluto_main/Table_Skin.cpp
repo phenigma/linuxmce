@@ -578,12 +578,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_Skin_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->FK_Criteria_D_asSQL()+", "+pRow->MergeStandardVariation_asSQL()+", "+pRow->DataSubdirectory_asSQL()+", "+pRow->FK_Style_asSQL()+", "+pRow->FK_Skin_TextPlacement_asSQL()+", "+pRow->DrawTextBeforeChildren_asSQL()+", "+pRow->FK_StabilityStatus_asSQL()+", "+pRow->FK_DesignObj_MainMenu_asSQL()+", "+pRow->FK_DesignObj_Sleeping_asSQL()+", "+pRow->FK_DesignObj_ScreenSaver_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into Skin (PK_Skin, Description, FK_Criteria_D, MergeStandardVariation, DataSubdirectory, FK_Style, FK_Skin_TextPlacement, DrawTextBeforeChildren, FK_StabilityStatus, FK_DesignObj_MainMenu, FK_DesignObj_Sleeping, FK_DesignObj_ScreenSaver, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into Skin (`PK_Skin`, `Description`, `FK_Criteria_D`, `MergeStandardVariation`, `DataSubdirectory`, `FK_Style`, `FK_Skin_TextPlacement`, `DrawTextBeforeChildren`, `FK_StabilityStatus`, `FK_DesignObj_MainMenu`, `FK_DesignObj_Sleeping`, `FK_DesignObj_ScreenSaver`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -623,12 +624,12 @@ sprintf(tmp_PK_Skin, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Skin=" + tmp_PK_Skin;
+condition = condition + "`PK_Skin`=" + tmp_PK_Skin;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_Skin="+pRow->PK_Skin_asSQL()+", Description="+pRow->Description_asSQL()+", FK_Criteria_D="+pRow->FK_Criteria_D_asSQL()+", MergeStandardVariation="+pRow->MergeStandardVariation_asSQL()+", DataSubdirectory="+pRow->DataSubdirectory_asSQL()+", FK_Style="+pRow->FK_Style_asSQL()+", FK_Skin_TextPlacement="+pRow->FK_Skin_TextPlacement_asSQL()+", DrawTextBeforeChildren="+pRow->DrawTextBeforeChildren_asSQL()+", FK_StabilityStatus="+pRow->FK_StabilityStatus_asSQL()+", FK_DesignObj_MainMenu="+pRow->FK_DesignObj_MainMenu_asSQL()+", FK_DesignObj_Sleeping="+pRow->FK_DesignObj_Sleeping_asSQL()+", FK_DesignObj_ScreenSaver="+pRow->FK_DesignObj_ScreenSaver_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_Skin`="+pRow->PK_Skin_asSQL()+", `Description`="+pRow->Description_asSQL()+", `FK_Criteria_D`="+pRow->FK_Criteria_D_asSQL()+", `MergeStandardVariation`="+pRow->MergeStandardVariation_asSQL()+", `DataSubdirectory`="+pRow->DataSubdirectory_asSQL()+", `FK_Style`="+pRow->FK_Style_asSQL()+", `FK_Skin_TextPlacement`="+pRow->FK_Skin_TextPlacement_asSQL()+", `DrawTextBeforeChildren`="+pRow->DrawTextBeforeChildren_asSQL()+", `FK_StabilityStatus`="+pRow->FK_StabilityStatus_asSQL()+", `FK_DesignObj_MainMenu`="+pRow->FK_DesignObj_MainMenu_asSQL()+", `FK_DesignObj_Sleeping`="+pRow->FK_DesignObj_Sleeping_asSQL()+", `FK_DesignObj_ScreenSaver`="+pRow->FK_DesignObj_ScreenSaver_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update Skin set " + update_values_list + " where " + condition;
@@ -636,6 +637,7 @@ update_values_list = update_values_list + "PK_Skin="+pRow->PK_Skin_asSQL()+", De
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -667,7 +669,7 @@ sprintf(tmp_PK_Skin, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Skin=" + tmp_PK_Skin;
+condition = condition + "`PK_Skin`=" + tmp_PK_Skin;
 
 	
 		string query = "delete from Skin where " + condition;
@@ -675,6 +677,7 @@ condition = condition + "PK_Skin=" + tmp_PK_Skin;
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -701,6 +704,7 @@ bool Table_Skin::GetRows(string where_statement,vector<class Row_Skin*> *rows)
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -709,6 +713,7 @@ bool Table_Skin::GetRows(string where_statement,vector<class Row_Skin*> *rows)
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -982,7 +987,7 @@ sprintf(tmp_PK_Skin, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_Skin=" + tmp_PK_Skin;
+condition = condition + "`PK_Skin`=" + tmp_PK_Skin;
 
 
 	string query = "select * from Skin where " + condition;		
@@ -990,6 +995,7 @@ condition = condition + "PK_Skin=" + tmp_PK_Skin;
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -998,6 +1004,7 @@ condition = condition + "PK_Skin=" + tmp_PK_Skin;
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	
@@ -1265,21 +1272,21 @@ void Row_Skin::DesignObjVariation_Text_Skin_Language_FK_Skin_getrows(vector <cla
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DesignObjVariation_Text_Skin_Language *pTable = table->database->DesignObjVariation_Text_Skin_Language_get();
-pTable->GetRows("FK_Skin=" + StringUtils::itos(m_PK_Skin),rows);
+pTable->GetRows("`FK_Skin=`" + StringUtils::itos(m_PK_Skin),rows);
 }
 void Row_Skin::Skin_FK_Skin_TextPlacement_getrows(vector <class Row_Skin*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Skin *pTable = table->database->Skin_get();
-pTable->GetRows("FK_Skin_TextPlacement=" + StringUtils::itos(m_PK_Skin),rows);
+pTable->GetRows("`FK_Skin_TextPlacement=`" + StringUtils::itos(m_PK_Skin),rows);
 }
 void Row_Skin::StyleVariation_FK_Skin_getrows(vector <class Row_StyleVariation*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_StyleVariation *pTable = table->database->StyleVariation_get();
-pTable->GetRows("FK_Skin=" + StringUtils::itos(m_PK_Skin),rows);
+pTable->GetRows("`FK_Skin=`" + StringUtils::itos(m_PK_Skin),rows);
 }
 
 

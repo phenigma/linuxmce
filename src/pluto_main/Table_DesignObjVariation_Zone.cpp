@@ -524,12 +524,13 @@ string values_list_comma_separated;
 values_list_comma_separated = values_list_comma_separated + pRow->PK_DesignObjVariation_Zone_asSQL()+", "+pRow->FK_DesignObjVariation_asSQL()+", "+pRow->FK_Button_asSQL()+", "+pRow->FK_CommandGroup_D_asSQL()+", "+pRow->FK_DesignObj_Goto_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->X_asSQL()+", "+pRow->Y_asSQL()+", "+pRow->Width_asSQL()+", "+pRow->Height_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into DesignObjVariation_Zone (PK_DesignObjVariation_Zone, FK_DesignObjVariation, FK_Button, FK_CommandGroup_D, FK_DesignObj_Goto, Description, X, Y, Width, Height, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into DesignObjVariation_Zone (`PK_DesignObjVariation_Zone`, `FK_DesignObjVariation`, `FK_Button`, `FK_CommandGroup_D`, `FK_DesignObj_Goto`, `Description`, `X`, `Y`, `Width`, `Height`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -569,12 +570,12 @@ sprintf(tmp_PK_DesignObjVariation_Zone, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DesignObjVariation_Zone=" + tmp_PK_DesignObjVariation_Zone;
+condition = condition + "`PK_DesignObjVariation_Zone`=" + tmp_PK_DesignObjVariation_Zone;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_DesignObjVariation_Zone="+pRow->PK_DesignObjVariation_Zone_asSQL()+", FK_DesignObjVariation="+pRow->FK_DesignObjVariation_asSQL()+", FK_Button="+pRow->FK_Button_asSQL()+", FK_CommandGroup_D="+pRow->FK_CommandGroup_D_asSQL()+", FK_DesignObj_Goto="+pRow->FK_DesignObj_Goto_asSQL()+", Description="+pRow->Description_asSQL()+", X="+pRow->X_asSQL()+", Y="+pRow->Y_asSQL()+", Width="+pRow->Width_asSQL()+", Height="+pRow->Height_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_DesignObjVariation_Zone`="+pRow->PK_DesignObjVariation_Zone_asSQL()+", `FK_DesignObjVariation`="+pRow->FK_DesignObjVariation_asSQL()+", `FK_Button`="+pRow->FK_Button_asSQL()+", `FK_CommandGroup_D`="+pRow->FK_CommandGroup_D_asSQL()+", `FK_DesignObj_Goto`="+pRow->FK_DesignObj_Goto_asSQL()+", `Description`="+pRow->Description_asSQL()+", `X`="+pRow->X_asSQL()+", `Y`="+pRow->Y_asSQL()+", `Width`="+pRow->Width_asSQL()+", `Height`="+pRow->Height_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update DesignObjVariation_Zone set " + update_values_list + " where " + condition;
@@ -582,6 +583,7 @@ update_values_list = update_values_list + "PK_DesignObjVariation_Zone="+pRow->PK
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}
 	
@@ -613,7 +615,7 @@ sprintf(tmp_PK_DesignObjVariation_Zone, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DesignObjVariation_Zone=" + tmp_PK_DesignObjVariation_Zone;
+condition = condition + "`PK_DesignObjVariation_Zone`=" + tmp_PK_DesignObjVariation_Zone;
 
 	
 		string query = "delete from DesignObjVariation_Zone where " + condition;
@@ -621,6 +623,7 @@ condition = condition + "PK_DesignObjVariation_Zone=" + tmp_PK_DesignObjVariatio
 		if (mysql_query(database->db_handle, query.c_str()))
 		{	
 			cerr << "Cannot perform query: [" << query << "]" << endl;
+			database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 			return false;
 		}	
 		
@@ -647,6 +650,7 @@ bool Table_DesignObjVariation_Zone::GetRows(string where_statement,vector<class 
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 
@@ -655,6 +659,7 @@ bool Table_DesignObjVariation_Zone::GetRows(string where_statement,vector<class 
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return false;
 	}	
 	
@@ -906,7 +911,7 @@ sprintf(tmp_PK_DesignObjVariation_Zone, "%li", key.pk);
 
 
 string condition;
-condition = condition + "PK_DesignObjVariation_Zone=" + tmp_PK_DesignObjVariation_Zone;
+condition = condition + "`PK_DesignObjVariation_Zone`=" + tmp_PK_DesignObjVariation_Zone;
 
 
 	string query = "select * from DesignObjVariation_Zone where " + condition;		
@@ -914,6 +919,7 @@ condition = condition + "PK_DesignObjVariation_Zone=" + tmp_PK_DesignObjVariatio
 	if (mysql_query(database->db_handle, query.c_str()))
 	{	
 		cerr << "Cannot perform query: [" << query << "]" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 
@@ -922,6 +928,7 @@ condition = condition + "PK_DesignObjVariation_Zone=" + tmp_PK_DesignObjVariatio
 	if (!res)
 	{
 		cerr << "mysql_store_result returned NULL handler" << endl;
+		database->m_sLastMySqlError = mysql_error(database->m_pMySQL);
 		return NULL;
 	}	
 	

@@ -80,6 +80,7 @@ void hexmemcpy( char *pDest, const char *pSource, int NumBytes )
 
 Socket::Socket(string Name,string sIPAddress) : m_SocketMutex("socket mutex " + Name)
 {
+	m_pcSockLogFile=m_pcSockLogErrorFile=NULL;
 	m_sIPAddress = sIPAddress;
 	m_iSocketCounter = SocketCounter++;
 	m_sName = Name;
