@@ -284,7 +284,7 @@ void Bluetooth_Dongle::CMD_Link_with_mobile_orbiter(int iMediaPosition,string sM
 
 		if (pBD_Orbiter->m_pBDCommandProcessor != NULL)
 		{
-			if(!pBD_Orbiter->m_pBDCommandProcessor->m_bDead)
+			if(pBD_Orbiter->m_pBDCommandProcessor->m_bDead)
 			{
 				g_pPlutoLogger->Write(LV_STATUS, "Try to reconnect to MO %s. The connection with the app seems to be dead.", sMac_address.c_str());
 
