@@ -208,7 +208,7 @@ int main(int argc, char *argv[])
 	{
 		g_mapPackagesToBuild[vectPackages_Main[s]->PK_Package_get()]=false;
 		cout << vectPackages_Main[s]->Description_get() << " ";
-		if( (s+1) % 3==0 )
+//		if( (s+1) % 3==0 )
 			cout << endl;
 	}
 
