@@ -19,7 +19,8 @@ sources = \
 	$(TS)/TextSplitter.cpp \
 	$(TS)/TextWrapper.cpp \
 	$(ORB)/DesignObj_Data.cpp \
-	$(ORB)/TextStyle.cpp
+	$(ORB)/TextStyle.cpp \
+	$(ORB)/RendererMNG.cpp
 
 all: $(sources:.cpp=.o)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $(APPNAME) $+ $(LDFLAGS) $(LDLIBS)
