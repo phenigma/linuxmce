@@ -84,3 +84,5 @@ ConfSet PK_Installation "$R"
 Q="SELECT PK_Users FROM Users LIMIT 1"
 R=$(echo "$Q" | /usr/bin/mysql pluto_main -N)
 ConfSet PK_Users "$R"
+
+chmod 700 /usr/pluto/keys/id_dsa_remoteassistance
