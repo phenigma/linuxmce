@@ -963,7 +963,22 @@ if( sTableName=="Command_CommandParameter" )
 		}
 	}
 
-	bool bCheckForUpdate = map_id_mod.size()!=0;
+	if( iField_psc_id!=-1 )
+	{
+		sSQL.str( "" );
+		sSQL << "ALTER TABLE `" << sTableName << "` drop index `psc_id`";
+		m_pDatabase->threaded_mysql_query( sSQL.str( ), true);
+
+		sSQL.str( "" );
+		sSQL << "ALTER TABLE `" << sTableName << "` add unique `psc_id` ( `psc_id` )";
+		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
+		{
+			cerr << "SQL Failed: " << sSQL.str( ) << endl;
+			throw "Database error";
+		}
+	}
+
+	bool bCheckForUpdate = map_id_mod.size()!=0;  // This is true if we've made local changes and need to check before doing updates/deletes
 	int i_psc_id_prior=0; // Keep track of the prior psc_id so we can see if any records were deleted on the server
 	int NumRows = atoi( str.m_vectString[pos++].c_str( ) );
 	cout << "Importing table: " << sTableName << " (" << m_sName << ") " << NumRows << " rows" << endl;
@@ -983,10 +998,20 @@ if( sTableName=="Command_CommandParameter" )
 			{
 				cout << endl << "***Warning*** While importing into table: " << sTableName << " pscid: " << ipsc_id_deleted << endl;
 				cout << "You modified the row that was deleted on the server." << endl;
+				if( g_GlobalConfig.m_bNoPrompts )
+				{
+					cerr << "No prompts specified.  Not delete changes" << endl;
+					g_pPlutoLogger->Write(LV_CRITICAL,"While importing into table: %s pscid: %d was deleted.  Skipping",sTableName.c_str(),i_psc_id);
+					pos += listFields.size();
+					i_psc_id_prior = i_psc_id;
+					continue;
+				}
 				if( !AskYNQuestion("Delete anyway and lose your changes?",false) )
 				{
 					cerr << "Local database modified deleted rows on server" << endl;
-					throw "Cannot rollback local changes";
+					pos += listFields.size();
+					i_psc_id_prior = i_psc_id;
+					continue;
 				}
 			}
 			sSQL.str( "" );
@@ -1023,6 +1048,7 @@ if( sTableName=="Command_CommandParameter" )
 					else if( Response=='n' )
 					{
 						pos += listFields.size();
+						i_psc_id_prior = i_psc_id;
 						continue;
 					}
 				}
@@ -1061,16 +1087,6 @@ if( sTableName=="Command_CommandParameter" )
 			throw "Database error";
 		}
 		i_psc_id_prior = i_psc_id;
-	}
-	if( !pTable && iField_psc_id!=-1 )
-	{
-		sSQL.str( "" );
-		sSQL << "ALTER TABLE `" << sTableName << "` add unique `psc_id` ( `psc_id` )";
-		if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )
-		{
-			cerr << "SQL Failed: " << sSQL.str( ) << endl;
-			throw "Database error";
-		}
 	}
 }
 
