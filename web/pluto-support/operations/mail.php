@@ -68,15 +68,11 @@ if($userID!=0){
 			if(isset($_POST['ml_'.$ml])){
 				if(!in_array($ml,$mlSubscribed)){
 					$webADO->Execute('INSERT INTO MailingList_MasterUsers (FK_MailingList,FK_MAsterUsers) VALUES (?,?)',array($ml,$userID));
-					// TODO
-					// call Radu's script for subscribe
 					subscribe($mlNames[$ml],$userEmail);
 				}
 			}else{
 				if(in_array($ml,$mlSubscribed)){
 					$webADO->Execute('DELETE FROM MailingList_MasterUsers WHERE FK_MailingList=? AND FK_MAsterUsers=?',array($ml,$userID));
-					// TODO
-					// call Radu's script for unsubscribe
 					unsubscribe($mlNames[$ml],$userEmail);
 				}
 			}
@@ -109,8 +105,7 @@ function getEmailsFromDatabase($MLname,$webADO){
 // return an array with the emails who subscribed to mailing list given in $MLname
 function getEmailsFromML($MLname){
 	$emailsArray=array();
-	
-	
+	exec("sudo -u root /usr/pluto/bin/maillists.sh view members '$MLname'", $emailsArray);
 	return $emailsArray;
 }
 
@@ -120,7 +115,8 @@ function subscribe($MLname,$userEmail)
 {
 	// return errors using 
 	// header('Location: right.php?section=operations/mail&error=ERROR_MESSAGE');
-	
+
+	exec("sudo -u root /usr/pluto/bin/maillists.sh subscribe '$MLname' '$userEmail'");
 }
 
 // unsubscribe an email address to a mailing list 
@@ -129,6 +125,7 @@ function unsubscribe($MLname,$userEmail)
 	// return errors using 
 	// header('Location: right.php?section=operations/mail&error=ERROR_MESSAGE');
 	
+	exec("sudo -u root /usr/pluto/bin/maillists.sh unsubscribe '$MLname' '$userEmail'");
 }
 
 ?>
