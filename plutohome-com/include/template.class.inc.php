@@ -65,17 +65,17 @@ function setTemplateFileType($type) {
 	
 		switch ($type) {
 			case "home":
-				$this->content = implode('',file(APPROOT."include/templates/template.home.tpl.html"));  		
+				$this->content = implode('',file("include/templates/template.home.tpl.html"));  		
 				break;
 			case "customer":
-			    $this->content = implode('',file(APPROOT."include/templates/template.customer.tpl.html")); 
+			    $this->content = implode('',file("include/templates/template.customer.tpl.html")); 
 				break;	
 			case "admin":
-				$this->content = implode('',file(APPROOT."include/templates/template.admin.tpl.html")); 
+				$this->content = implode('',file("include/templates/template.admin.tpl.html")); 
 				break;
 			default:
 				$this->templateType = 'public';
-				$this->content = implode('',file(APPROOT."include/templates/template.public.tpl.html")); 
+				$this->content = implode('',file("include/templates/template.public.tpl.html")); 
 		}
 }
   
