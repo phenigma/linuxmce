@@ -36,7 +36,7 @@ while (1 eq 1) {
       system("rm -f dhcpd_temp.file");
       
       $db_handle = DBI->connect("dbi:mysql:database=pluto_main;host=$DBHOST;user=$DBUSER;password=$DBPASSWD") or die "Could not connect to MySQL server\n";
-      $sql = "select PK_DHCPDevice,FK_DeviceTemplate,ConfigureScript,Package_Source.Name FROM DHCPDevice JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate LEFT JOIN Package ON DeviceTemplate.FK_Package=PK_Package LEFT JOIN Package_Source ON Package_Source.FK_Package=PK_Package WHERE Mac_Range_Low<=$mac_2_nr AND Mac_Range_High>=$mac_2_nr AND (FK_RepositorySource=2 OR FK_RepositorySource Is Null)";
+      $sql = "select PK_DHCPDevice,FK_DeviceTemplate,ConfigureScript,Package_Source.Name FROM DHCPDevice JOIN DeviceTemplate ON DHCPDevice.FK_DeviceTemplate=DeviceTemplate.PK_DeviceTemplate LEFT JOIN Package ON DeviceTemplate.FK_Package=PK_Package LEFT JOIN Package_Source ON Package_Source.FK_Package=Package.PK_Package WHERE Mac_Range_Low<=$mac_2_nr AND Mac_Range_High>=$mac_2_nr";
       $statement = $db_handle->prepare($sql) or die "Couldn't prepare query '$sql': $DBI::errstr\n";
       $statement->execute() or die "Couldn't execute query '$sql': $DBI::errstr\n";
       while($row_ref = $statement->fetchrow_hashref())
@@ -46,7 +46,6 @@ while (1 eq 1) {
           $dev_template = $row_ref->{FK_DeviceTemplate};
           $configure_script = $row_ref->{ConfigureScript};
           $package_name = $row_ref->{Name};
-
           $sql="select PK_Device,MACaddress from Device where MACaddress=\"$mac_found\"";
           $statement = $db_handle->prepare($sql) or die "Couldn't prepare query '$sql': $DBI::errstr\n";
           $statement->execute() or die "Couldn't execute query '$sql': $DBI::errstr\n";
@@ -54,10 +53,11 @@ while (1 eq 1) {
           $row_ref = $statement->fetchrow_hashref();
           $tmp = $row_ref->{PK_Device};
           if($tmp eq "") {
-            system("CreateDevice -c $dhcpd_device -I $ip_sent -M $mac_found > dhcpd_temp.file\n");
+            system("CreateDevice -i 1 -c $dhcpd_device -I $ip_sent -M $mac_found > dhcpd_temp.file\n");
             open(FILE, "dhcpd_temp.file");
             @data = <FILE>;
             $Device_ID = $data[0];
+            chomp($Device_ID);
             close(FILE);
             system("rm -f dhcpd_temp.file");
             if($package_name ne "") {
@@ -66,8 +66,11 @@ while (1 eq 1) {
           } else {
             $Device_ID = $tmp;
           }
-          system("$configure_script -d $Device_ID -i $ip_sent -m $mac_found");
+          chomp($Device_ID);
+          $db_handle->disconnect();
+          system("./script.pl -d $Device_ID -i $ip_sent -m $mac_found");
       }
+      $db_handle = DBI->connect("dbi:mysql:database=pluto_main;host=$DBHOST;user=$DBUSER;password=$DBPASSWD") or die "Could not connect";
       if($found == 0) {
         $sql = "select PK_UnknownDevices FROM UnknownDevices WHERE MacAddress='$mac_found'";
         $statement = $db_handle->prepare($sql) or die "Couldn't prepare query '$sql': $DBI::errstr\n";
