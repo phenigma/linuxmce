@@ -161,6 +161,26 @@ public:
 	virtual void CMD_Restart_DCERouter(string &sCMD_Result,Message *pMessage);
 
 
+	/** @brief COMMAND: #322 - Wake Device */
+	/** Sends a Wake on LAN to the specified device. */
+		/** @param #2 PK_Device */
+			/** The device to wake up */
+
+	virtual void CMD_Wake_Device(int iPK_Device) { string sCMD_Result; CMD_Wake_Device(iPK_Device,sCMD_Result,NULL);};
+	virtual void CMD_Wake_Device(int iPK_Device,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #323 - Halt Device */
+	/** Halts, or suspends, the given device. */
+		/** @param #2 PK_Device */
+			/** The device to halt */
+		/** @param #21 Force */
+			/** Normally this will do a suspend if the device supports suspend/resume, otherwise it will do a halt.  If Force is "H" it will always halt, if Force is "S" it will always suspend.  If Force is "D" it will only turn off the display */
+
+	virtual void CMD_Halt_Device(int iPK_Device,string sForce) { string sCMD_Result; CMD_Halt_Device(iPK_Device,sForce.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Result,Message *pMessage);
+
+
 //<-dceag-h-e->
 };
 
