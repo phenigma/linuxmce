@@ -5,18 +5,16 @@ if [ "$#" -lt 2 ]; then
 	exit
 fi
 
-Path="$1"
-FileList="$2"
+Path="$1"; shift
 Cache="/home/tmp/pluto-build/package-cache"
 
 mkdir -p "$Cache"
 
 x=""
 y=""
-for i in $(cat "$FileList"); do
+for i in $(cat "$@"); do
 	x="$x $y -name '${i}_*.deb'"
 	y="-or"
 done
 Cmd="find \"$Path\" '(' $x ')' -exec cp '{}' \"$Cache\" ';' -print"
-#eval "$Cmd"
-find "$Path" '(' $x ')' -exec cp '{}' \"$Cache\" ';' -print
+eval "$Cmd"
