@@ -828,6 +828,13 @@ AsksSourceQuests:
 	return true;
 }
 
+// mapFilesToMove: files that go into the package
+// 1st: fully qualified path to the source file (ex: /usr/src/pluto/svn/Orbiter/Orbiter.cpp)
+// 2nd: relative path within the package (ex: Orbiter/Orbiter.cpp)
+// assumptions for the Pluto Debian repository:
+// - the .deb file will go in dists/<pluto2 (repository name - var in package source)>/
+//   intended to be run from a directory with this dists directory under it
+// - the target destination will be /usr/pluto/<relative path>
 bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,map<string,string> &mapFilesToMove)
 {
 	cout << "------------DEBIAN PACKAGE OUTPUT" << endl;
@@ -837,6 +844,7 @@ bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,map<string
 					
 	return true;
 }
+
 bool CreateSource_PlutoFTP(Row_Package_Source *pRow_Package_Source,map<string,string> &mapFilesToMove)
 {
 	cout << "------------PLUTO FTP OUTPUT" << endl;
