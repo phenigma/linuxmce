@@ -52,7 +52,7 @@ public:
 
 	bool MySQLConnect(string host, string user, string pass, string db_name, int port=3306,bool bReset=false)
 	{
-		mysql_init(m_pMySQL);
+		m_pMySQL = mysql_init(NULL);
 		m_sMySQLHost=host;
 		m_sMySQLUser=user;
 		m_sMySQLPass=pass;
@@ -63,16 +63,17 @@ public:
 
 	bool MySQLConnect(bool bReset=false)
 	{
-g_pPlutoLogger->Write(LV_STATUS,"In MySQLConnect 1");
 		if( bReset && m_bConnected )
+		{
 			mysql_close(m_pMySQL);
+			m_pMySQL = mysql_init(NULL);
+		}
 
-g_pPlutoLogger->Write(LV_STATUS,"In MySQLConnect 2");
 		if (mysql_real_connect(m_pMySQL, m_sMySQLHost.c_str(), m_sMySQLUser.c_str(), m_sMySQLPass.c_str(), m_sMySQLDBName.c_str(), m_iMySQLPort, NULL, 0) == NULL)
 			m_bConnected=false;
 		else
 			m_bConnected=true;
-g_pPlutoLogger->Write(LV_STATUS,"In MySQLConnect 3");
+
 		return m_bConnected;
 	}
 
