@@ -114,7 +114,7 @@ function outsideAccess($output,$dbADO) {
 				$dbADO->Execute('DELETE FROM Firewall WHERE RuleType=?','Website');
 			}
 
-			exec('/usr/pluto/bin/SetupRemoteAcces.sh');
+			exec('sudo -u root /usr/pluto/bin/SetupRemoteAccess.sh');
 			header("Location: index.php?section=outsideAccess&msg=Remote access was updated.");
 			exit();
 		}

@@ -1,6 +1,6 @@
 <?PHP
   	//debuging
-  	$GLOBALS['inDebug']=0;
+  	$GLOBALS['inDebug']=1;
   	
   	if($GLOBALS['inDebug']!=1){
   		// production settings
@@ -96,6 +96,7 @@
 	
 	$GLOBALS['genericONCommand']=192;				// Generic On
 	$GLOBALS['genericOFFCommand']=193;				// Generic OFF
+	$GLOBALS['powerCommand']=194;					// Generic OFF
 	$GLOBALS['genericSetLevelCommand']=184;			// Set Level
 	$GLOBALS['genericHeatCommand']=197;				// Generic Heat
 	$GLOBALS['genericCoolCommand']=196;				// Generic Cool
@@ -176,7 +177,13 @@
 	// PK_StartupScript from table StartupScript
 	$GLOBALS['ProcessLogs']=45;					// Process_Logs.sh
 	$GLOBALS['ShareIRCodes']=49;				// Share IR codes
-		
+
+	// PK_CommandCategory
+	$GLOBALS['AVCommandCategory']=12;			// AV commands
+	$GLOBALS['DSPModeCommandCategory']=21;		// DSP Modes
+	$GLOBALS['InputsCommandCategory']=22;		// Inputs
+	$GLOBALS['OutputsCommandCategory']=27;		// Outputs
+	
 	// options to display in Media Wizard
 	
 	$GLOBALS['mediaOptionsArray']=array('TV', 'playlists', 'music', 'movies', 'videos', 'pictures', 'documents', 'Disc CD/DVD');
