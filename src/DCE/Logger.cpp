@@ -204,9 +204,13 @@ void FileLogger::ClearConsole()
 #endif
 }
 
-
 void FileLogger::WriteEntry( Entry& Entry )
 {
+#ifdef ERROR_LOGGING_ONLY
+	if( Entry.m_iLevel != LV_CRITICAL && Entry.m_iLevel != LV_WARNING )
+		return;
+#endif
+
     PLUTO_SAFETY_LOCK_LOGGER( sSM, m_Lock );  // Don't log anything but failures
 
     struct tm *t = localtime((time_t *)&Entry.m_TimeStamp.tv_sec);
