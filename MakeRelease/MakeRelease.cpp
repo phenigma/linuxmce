@@ -1088,7 +1088,6 @@ cout << "Copying Files\n";
 				string::size_type pos = cmd.rfind("/");
 				string::size_type marime = cmd.length();
 				cmd = cmd.substr(pos+1,marime-pos-1);
-				cout << cmd << endl;
 				//if we are on the root dir we just copy it as a file
 				if(cmd.compare(pRow_Package_Source->Name_get()) == 0)
 				{
