@@ -14,6 +14,7 @@
 using namespace std;
 
 typedef enum _StreamState {
+	STATE_UNDEFINED,
 	STATE_STOP,
 	STATE_PAUSE,
 	STATE_PLAY
@@ -53,7 +54,9 @@ namespace DCE
         static void *checkForPlaybackCompleted(void *pSlim_Server_Streamer);
 
 		string FindControllingMacForStream(int iStreamID);
-		void ChangeStateForStream(int iStreamID, StreamStateType newState);
+
+		void SetStateForStream(int iStreamID, StreamStateType newState);
+		StreamStateType GetStateForStream(int iStreamID);
     public:
         // Public member variables
 

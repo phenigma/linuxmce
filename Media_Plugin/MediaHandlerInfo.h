@@ -14,6 +14,7 @@
 #include <deque>
 
 class MediaFile;
+
 void operator+= (deque<MediaFile *> &dTarget, deque<MediaFile *> &dAdditional);
 
 namespace DCE

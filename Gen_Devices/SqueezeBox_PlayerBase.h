@@ -80,6 +80,7 @@ public:
 	virtual void CMD_Skip_Forward(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Skip_Back(string &sCMD_Result,class Message *pMessage) {};
 	virtual void CMD_Enable_Broadcasting(int iStreamID,string *sMediaURL,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Report_Playback_Position(int iStreamID,string *sOptions,int *iMediaPosition,int *iMedia_Length,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -213,6 +214,27 @@ public:
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 						pMessageOut->m_mapParameters[59]=sMediaURL;
+							SendMessage(pMessageOut);
+						}
+						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )
+							SendString(sCMD_Result);
+					};
+					iHandled++;
+					continue;
+				case 259:
+					{
+						string sCMD_Result="OK";
+					int iStreamID=atoi(pMessage->m_mapParameters[41].c_str());
+					string sOptions=pMessage->m_mapParameters[39];
+					int iMediaPosition=atoi(pMessage->m_mapParameters[42].c_str());
+					int iMedia_Length=atoi(pMessage->m_mapParameters[106].c_str());
+						CMD_Report_Playback_Position(iStreamID,&sOptions,&iMediaPosition,&iMedia_Length,sCMD_Result,pMessage);
+						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
+						{
+							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
+						pMessageOut->m_mapParameters[39]=sOptions;
+						pMessageOut->m_mapParameters[42]=StringUtils::itos(iMediaPosition);
+						pMessageOut->m_mapParameters[106]=StringUtils::itos(iMedia_Length);
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )

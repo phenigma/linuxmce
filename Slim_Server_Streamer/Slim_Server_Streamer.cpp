@@ -403,12 +403,12 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
 
             if (strResult == macAddress + " mode stop" || strResult == macAddress + " mode %3F" )
             {
-				pStreamer->ChangeStateForStream((*itStreamsToPlayers).first, STATE_STOP);
+				pStreamer->SetStateForStream((*itStreamsToPlayers).first, STATE_STOP);
                 pStreamer->EVENT_Playback_Completed((*itStreamsToPlayers).first);
             }
 			else if ( strResult == macAddress + " mode pause" )
 			{
-				pStreamer->ChangeStateForStream((*itStreamsToPlayers).first, STATE_PAUSE);
+				pStreamer->SetStateForStream((*itStreamsToPlayers).first, STATE_PAUSE);
 			}
 
             itStreamsToPlayers++;
@@ -432,10 +432,24 @@ string Slim_Server_Streamer::FindControllingMacForStream(int iStreamID)
         return StringUtils::URLEncode(StringUtils::ToLower(playerDevice->GetMacAddress()));
     }
 
+	g_pPlutoLogger->Write(LV_WARNING, "Could not find an controlling device for stream: %d", iStreamID);
 	return "";
 }
 
-void Slim_Server_Streamer::ChangeStateForStream(int iStreamID, StreamStateType newState)
+StreamStateType Slim_Server_Streamer::GetStateForStream(int iStreamID)
+{
+	PLUTO_SAFETY_LOCK(dataMutex, m_mutexDataStructureAccess);
+
+	if ( m_mapStreamsToPlayers.find(iStreamID) == m_mapStreamsToPlayers.end() )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Can't get the state of an invalid stream: %d!", iStreamID);
+		return STATE_UNDEFINED;
+	}
+
+	return m_mapStreamsToPlayers[iStreamID].first;
+}
+
+void Slim_Server_Streamer::SetStateForStream(int iStreamID, StreamStateType newState)
 {
 	PLUTO_SAFETY_LOCK(dataMutex, m_mutexDataStructureAccess);
 
@@ -464,15 +478,17 @@ void Slim_Server_Streamer::ChangeStateForStream(int iStreamID, StreamStateType n
 void Slim_Server_Streamer::CMD_Play_Media(string sFilename,int iPK_MediaType,int iStreamID,int iMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c37-e->
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Got a play media command for stream %d", iStreamID);
-
 	string sControlledPlayerMac;
 	if ( (sControlledPlayerMac = FindControllingMacForStream(iStreamID)) == "" )
 		return;
 
 	// SendReceiveCommand(lastPlayerAddress + " playlist play " + StringUtils::URLEncode(string("file://") + sFilename).c_str());
 	SendReceiveCommand(sControlledPlayerMac + " playlist play " + StringUtils::URLEncode(string("file://") + StringUtils::Replace(sFilename,"//", "/")));
-	ChangeStateForStream(iStreamID, STATE_PLAY);
+
+	if ( iMediaPosition != 0 )
+		SendReceiveCommand(sControlledPlayerMac + " gototime " + StringUtils::itos(iMediaPosition / 1000));
+
+	SetStateForStream(iStreamID, STATE_PLAY);
 }
 
 //<-dceag-c38-b->
@@ -487,6 +503,13 @@ void Slim_Server_Streamer::CMD_Play_Media(string sFilename,int iPK_MediaType,int
 void Slim_Server_Streamer::CMD_Stop_Media(int iStreamID,int *iMediaPosition,string &sCMD_Result,Message *pMessage)
 //<-dceag-c38-e->
 {
+	string sControlledPlayerMac;
+	if ( (sControlledPlayerMac = FindControllingMacForStream(iStreamID)) == "" )
+		return;
+
+	/** @todo: should i remove it from here and desincronize the devices */
+	SendReceiveCommand(sControlledPlayerMac + " stop");
+	SetStateForStream(iStreamID, STATE_STOP);
 }
 
 //<-dceag-c39-b->
@@ -499,7 +522,22 @@ void Slim_Server_Streamer::CMD_Stop_Media(int iStreamID,int *iMediaPosition,stri
 void Slim_Server_Streamer::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c39-e->
 {
+	string sControlledPlayerMac;
+	if ( (sControlledPlayerMac = FindControllingMacForStream(iStreamID)) == "" )
+		return;
 
+	// SendReceiveCommand(lastPlayerAddress + " playlist play " + StringUtils::URLEncode(string("file://") + sFilename).c_str());
+
+	if ( GetStateForStream(iStreamID) == STATE_PAUSE )
+	{
+		SendReceiveCommand(sControlledPlayerMac + " pause 0");
+		SetStateForStream(iStreamID, STATE_PLAY);
+	}
+	else
+	{
+		SendReceiveCommand(sControlledPlayerMac + " pause 1");
+		SetStateForStream(iStreamID, STATE_PAUSE);
+	}
 }
 
 //<-dceag-c40-b->
@@ -512,6 +550,7 @@ void Slim_Server_Streamer::CMD_Pause_Media(int iStreamID,string &sCMD_Result,Mes
 void Slim_Server_Streamer::CMD_Restart_Media(int iStreamID,string &sCMD_Result,Message *pMessage)
 //<-dceag-c40-e->
 {
+	CMD_Pause_Media(iStreamID,sCMD_Result,pMessage);
 }
 
 //<-dceag-c41-b->
@@ -579,5 +618,43 @@ void Slim_Server_Streamer::CMD_Enable_Broadcasting(int iStreamID,string *sMediaU
 void Slim_Server_Streamer::CMD_Report_Playback_Position(int iStreamID,string *sOptions,int *iMediaPosition,int *iMedia_Length,string &sCMD_Result,Message *pMessage)
 //<-dceag-c259-e->
 {
+	string commandResult;
+	string command;
+	string sPlayerMac;
+	float floatValue;
 
+	if ( (sPlayerMac = FindControllingMacForStream(iStreamID)) == "" )
+		return;
+
+	command = sPlayerMac + " gototime ";
+	if ( (commandResult = SendReceiveCommand(command + "?")) == "")
+	{
+		sCMD_Result = "Could not get current position.";
+		return;
+	}
+
+	if ( sscanf(commandResult.substr(command.length()).c_str(), "%f", &floatValue) == 0 )
+	{
+		sCMD_Result = "Could not parse current position";
+		return;
+	}
+
+	*iMediaPosition = (int)(floatValue * 1000);
+
+	command = sPlayerMac + " duration ";
+	if ( (commandResult = SendReceiveCommand(command + "?")) == "")
+	{
+		sCMD_Result = "Could not get duration.";
+		return;
+	}
+
+	if ( sscanf(commandResult.substr(command.length()).c_str(), "%f", &floatValue) == 0 )
+	{
+		sCMD_Result = "Could not parse duration.";
+		return;
+	}
+
+	*iMedia_Length = (int)(floatValue * 1000);
+
+	g_pPlutoLogger->Write(LV_STATUS, "Detected data: position %d from %d", *iMediaPosition, *iMedia_Length);
 }

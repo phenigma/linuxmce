@@ -19,10 +19,13 @@ sources = Main.cpp File_Grids_Plugin.cpp $(Gen_Dev_Files)
 CXXFLAGS +=
 CPPFLAGS +=
 LDFLAGS += 
-XTRALDLIBS = -lpluto_main
+XTRALDLIBS = -lpluto_main -lpluto_media
 
 Gen_Dev_Files += $(GENDEV)/Datagrid_PluginBase.cpp
-sources += ../Datagrid_Plugin/Datagrid_Plugin.cpp FileListOps.cpp
+sources += ../Datagrid_Plugin/Datagrid_Plugin.cpp \
+	../Media_Plugin/MediaAttributes.cpp \
+	FileListGrid.cpp \
+	FileListOps.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
@@ -36,8 +39,8 @@ bin: File_Grids_Plugin
 
 so: File_Grids_Plugin.so
 
-File_Grids_Plugin.so: $(sources:.cpp=.o)
-	$(CXX) -shared -o $(MYNAME).so $+ $(LDFLAGS) $(LDLIBS)
+File_Grids_Plugin.so: $(sources:.cpp=.o) $(ROOT)/lib/libpluto_media.a $(ROOT)/lib/libpluto_main.a $(ROOT)/lib/libSerializeClass.a $(ROOT)/lib/libDCECommon.a
+	$(CXX) -shared -o $(MYNAME).so $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@

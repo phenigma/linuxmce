@@ -39,6 +39,7 @@ using namespace DCE;
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Define_MediaType.h"
 #include "pluto_main/Define_Command.h"
+#include "pluto_main/Define_CommandParameter.h"
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Table_Event.h"
 #include "pluto_main/Table_EntertainArea.h"
@@ -349,8 +350,6 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
 
     int iStreamID = atoi( pMessage->m_mapParameters[EVENTPARAMETER_Stream_ID_CONST].c_str( ) );
 
-    g_pPlutoLogger->Write(LV_STATUS, "Here 1");
-
     MediaStream * pMediaStream = m_mapMediaStream_Find( iStreamID );
 
     if ( pMediaStream == NULL )
@@ -359,16 +358,13 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
         return false;
     }
 
-    g_pPlutoLogger->Write(LV_STATUS, "Here 2");
     if ( pMediaStream->m_pOH_Orbiter == NULL )
     {
         g_pPlutoLogger->Write(LV_WARNING, "The stream object mapped to the stream ID %d does not have an associated orbiter object.", iStreamID);
         return false;
     }
 
-    g_pPlutoLogger->Write(LV_STATUS, "Here 3");
     EntertainArea *pEntertainArea = pMediaStream->m_pOH_Orbiter->m_pEntertainArea;
-
     if ( pEntertainArea == NULL )
     {
         g_pPlutoLogger->Write(LV_WARNING, "The orbiter %d which created this stream %d is not in a valid entertainment area",
@@ -377,11 +373,8 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
         return false;
     }
 
-    g_pPlutoLogger->Write(LV_STATUS, "Here 4");
-// #pragma warning("implement this");
     if ( pMediaStream->HaveMoreInQueue() )
     {
-        g_pPlutoLogger->Write(LV_STATUS, "Here 5");
         pMediaStream->ChangePositionInPlaylist(1);
         pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream);
     }
@@ -390,7 +383,6 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
         g_pPlutoLogger->Write(LV_STATUS, "Playback completed. At the end of the queue");
     }
 
-    g_pPlutoLogger->Write(LV_STATUS, "Here 5");
     return true;
 }
 
@@ -403,8 +395,8 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
 	int PK_MediaType_Prior=0;
 
 	bool bNoChanges=false; // We'll set this to true of we're still using the same media plug-in so we know we don't need to resend the on commands
-	
-	// Normally we'll add new files to the queue if we're playing stored audio/video.  
+
+	// Normally we'll add new files to the queue if we're playing stored audio/video.
 	// However, if the current media is not playing files, or if it's playing a mounted dvd, or if the new
     // file to play is a mounted dvd, then we can't add to the queue, and will need to create a new media stream
     if( pEntertainArea->m_pMediaStream )
@@ -429,8 +421,6 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
 
     // If this pointer is still valid, then we'll just add this file to the queue
     MediaStream *pMediaStream = NULL;
-
-	g_pPlutoLogger->Write(LV_STATUS, "Media streams: (%p) -> (%p)", pMediaStream, pEntertainArea->m_pMediaStream);
 
     if( pEntertainArea->m_pMediaStream )
     {
@@ -609,6 +599,8 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
             return false;
         }
         pEntertainArea=pOH_Orbiter->m_pEntertainArea;
+
+		pMessage->m_mapParameters[COMMANDPARAMETER_StreamID_CONST] = StringUtils::itos(pEntertainArea->m_pMediaStream->m_iStreamID_get());
 
         // We know it's derived from CommandImpl
         class Command_Impl *pPlugIn = pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl;
@@ -1843,7 +1835,7 @@ int Media_Plugin::GetComputerForMediaDevice(DeviceData_Router *pDeviceData_Route
 	if( pDeviceData_Router->m_pDevice_ControlledVia )
 	{
 		if( pDeviceData_Router->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Orbiter_CONST) &&
-				pDeviceData_Router->m_pDevice_ControlledVia->m_pDevice_ControlledVia && 
+				pDeviceData_Router->m_pDevice_ControlledVia->m_pDevice_ControlledVia &&
 				pDeviceData_Router->m_pDevice_ControlledVia->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Computers_CONST) )
 			return pDeviceData_Router->m_pDevice_ControlledVia->m_pDevice_ControlledVia->m_dwPK_Device;
         else if( pDeviceData_Router->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Computers_CONST) )

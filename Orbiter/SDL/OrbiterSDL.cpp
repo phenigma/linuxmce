@@ -1,20 +1,20 @@
 /*
  OrbiterSDL
- 
+
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
- 
- www.plutohome.com		
- 
+
+ www.plutohome.com
+
  Phone: +1 (877) 758-8648
- 
- This program is distributed according to the terms of the Pluto Public License, available at: 
- http://plutohome.com/index.php?section=public_license 
- 
- This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+
+ This program is distributed according to the terms of the Pluto Public License, available at:
+ http://plutohome.com/index.php?section=public_license
+
+ This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  or FITNESS FOR A PARTICULAR PURPOSE. See the Pluto Public License for more details.
- 
+
  */
- 
+
 #include "PlutoUtils/CommonIncludes.h"
 #include "PlutoUtils/MultiThreadIncludes.h"
 #include "DCE/Logger.h"
@@ -32,7 +32,7 @@
 #include <sge.h>
 #include <sge_surface.h>
 
-#ifndef BLUETOOTH_DONGLE 
+#ifndef BLUETOOTH_DONGLE
 #define USE_ONLY_SCREEN_SURFACE
 #endif
 
@@ -54,7 +54,7 @@
 
 using namespace DCE;
 //-----------------------------------------------------------------------------------------------------
-OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode, 
+OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirectory, bool bLocalMode,
 					   int nImageWidth, int nImageHeight, bool bFullScreen/*=false*/)
     : Orbiter(DeviceID, ServerAddress, sLocalDirectory, bLocalMode, nImageWidth, nImageHeight)
 {
@@ -87,7 +87,7 @@ OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirector
 
 	if(m_bFullScreen)
 		uVideoModeFlags |= SDL_FULLSCREEN;
-	
+
 	if ((Screen = SDL_SetVideoMode(m_nImageWidth, m_nImageHeight, 0, uVideoModeFlags)) == NULL)
     {
         g_pPlutoLogger->Write(LV_WARNING, "Failed to set video mode: %s", SDL_GetError());
@@ -122,7 +122,8 @@ OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirector
 /*virtual*/ void OrbiterSDL::RenderScreen()
 {
 	g_pPlutoLogger->Write(LV_STATUS,"$$$ RENDER SCREEN $$$");
-    PLUTO_SAFETY_LOCK(cm,m_ScreenMutex);
+    PLUTO_SAFETY_LOCK(cm, m_ScreenMutex);
+
     if (m_pScreenHistory_Current)
     {
         SDL_FillRect(m_pScreenImage, NULL, SDL_MapRGBA(m_pScreenImage->format, 0, 0, 0, 255));
@@ -190,10 +191,10 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
 }
 
 //-----------------------------------------------------------------------------------------------------
-/*virtual*/ void OrbiterSDL::RenderGraphic(PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal, 
+/*virtual*/ void OrbiterSDL::RenderGraphic(PlutoGraphic *pPlutoGraphic, PlutoRectangle rectTotal,
 	bool bDisableAspectRatio)
 {
-	if(!pPlutoGraphic || pPlutoGraphic->GraphicType_get() != gtSDLGraphic) 
+	if(!pPlutoGraphic || pPlutoGraphic->GraphicType_get() != gtSDLGraphic)
 		return;//nothing to render or not an sdl graphic
 
 	if(pPlutoGraphic->IsEmpty())
@@ -224,7 +225,7 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
 			}
 			else //we'll have to keep the aspect
 			{
-				ZoomX = ZoomY = min(rectTotal.Width / double(pSDL_Surface->w), 
+				ZoomX = ZoomY = min(rectTotal.Width / double(pSDL_Surface->w),
 					rectTotal.Height / double(pSDL_Surface->h));
 			}
 
@@ -240,7 +241,7 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
 /*virtual*/ void OrbiterSDL::SaveBackgroundForDeselect(DesignObj_Orbiter *pObj)
 {
 
-    SDL_Surface *pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE, 
+    SDL_Surface *pSDL_Surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
 		pObj->m_rPosition.Width, pObj->m_rPosition.Height, 32, rmask, gmask, bmask, amask);
 
 	SDL_Rect SourceRect;
@@ -355,9 +356,9 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
         }
     }
 }
-//-----------------------------------------------------------------------------------------------------	
+//-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::BeginPaint()
-{	
+{
 	//g_pPlutoLogger->Write(LV_STATUS, "Begin paint.");
 }
 //-----------------------------------------------------------------------------------------------------
