@@ -190,8 +190,8 @@ function editMediaFile($output,$mediadbADO) {
 			$deletePicFile='DELETE FROM Picture_File WHERE FK_Picture=?';
 			$mediadbADO->Execute($deletePicFile,$toDelete);
 			
-			@unlink($GLOBALS['mediaPicsPath'].$toDelete.'.png');
-			@unlink($GLOBALS['mediaPicsPath'].$toDelete.'_tn.png');
+			@unlink($GLOBALS['mediaPicsPath'].$toDelete.'.jpg');
+			@unlink($GLOBALS['mediaPicsPath'].$toDelete.'_tn.jpg');
 		}
 
 		if(isset($_POST['add'])){
@@ -260,8 +260,8 @@ function editMediaFile($output,$mediadbADO) {
 			$newPicName=$insertID.'.'.$picExtension;
 			
 			$error='';
-			if(($_FILES['newPic']['type']!="image/png") && ($_FILES['newPic']['type']!="image/x-png")){
-				$error='The file is not a png file';
+			if(($_FILES['newPic']['type']!="image/jpg") && ($_FILES['newPic']['type']!="image/pjpeg") && ($_FILES['newPic']['type']!="image/jpeg")){
+				$error='The file is not a jpg file';
 			}
 			elseif(move_uploaded_file($_FILES['newPic']['tmp_name'],$GLOBALS['mediaPicsPath'].$newPicName)){
 				// create thumbnail
