@@ -2,7 +2,7 @@
 
 . /usr/pluto/bin/pluto.func
 . /usr/pluto/bin/SQL_Ops.sh
-. /usr/pluto/bin/COnfig_Ops.sh
+. /usr/pluto/bin/Config_Ops.sh
 
 P="$1"
 
