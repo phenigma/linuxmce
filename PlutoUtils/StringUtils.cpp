@@ -1,17 +1,17 @@
-/* 
-	StringUtils
-	
-	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-	
-	www.plutohome.com		
-	
-	Phone: +1 (877) 758-8648
-	
-	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
-	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-	
-	See the GNU General Public License for more details.
+/*
+    StringUtils
+
+    Copyright (C) 2004 Pluto, Inc., a Florida Corporation
+
+    www.plutohome.com
+
+    Phone: +1 (877) 758-8648
+
+    This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
+    This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+    of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+    See the GNU General Public License for more details.
 */
 
 /**
@@ -33,24 +33,25 @@
     #include <time.h>
     #include <cctype>
     #include <algorithm>
-	#include <locale>
+    #include <locale>
     #include <stdarg.h>
-	#include <iostream>
+    #include <iostream>
+    #include <iomanip>
     #ifdef WIN32
-		#ifndef WINCE
-			#include <direct.h>
-			#include <conio.h>
-		#else
-			#include _STLP_NATIVE_C_HEADER(time.h)
-			#include _STLP_NATIVE_C_HEADER(stdio.h) 
-			#include "wince.h"
-		#endif
+        #ifndef WINCE
+            #include <direct.h>
+            #include <conio.h>
+        #else
+            #include _STLP_NATIVE_C_HEADER(time.h)
+            #include _STLP_NATIVE_C_HEADER(stdio.h)
+            #include "wince.h"
+        #endif
     #else
-	    #include <sys/types.h>
-		#include <sys/stat.h>
+        #include <sys/types.h>
+        #include <sys/stat.h>
         #include <dirent.h>
         #define stricmp(x, y) strcasecmp(x, y)
-		#include <signal.h>
+        #include <signal.h>
     #endif
 #endif //#ifndef SYMBIAN
 
@@ -90,11 +91,11 @@ string StringUtils::Tokenize( string &sInput, string sToken, string::size_type &
 string StringUtils::ToUpper(string sInput)
 {
 #ifndef SYMBIAN
-	for (string::iterator i = sInput.begin(); i != sInput.end(); i++)
-	{
-		*i = toupper(*i);
-	}
-//	transform( sInput.begin(), sInput.end(), sInput.begin(), toupper );
+    for (string::iterator i = sInput.begin(); i != sInput.end(); i++)
+    {
+        *i = toupper(*i);
+    }
+//  transform( sInput.begin(), sInput.end(), sInput.begin(), toupper );
     return sInput;
 #else
     string sOutput( sInput );
@@ -106,11 +107,11 @@ string StringUtils::ToUpper(string sInput)
 string StringUtils::ToLower(string sInput)
 {
 #ifndef SYMBIAN
-	for (string::iterator i = sInput.begin(); i != sInput.end(); i++)
-	{
-		*i = tolower(*i);
-	}
-//	transform( sInput.begin(), sInput.end(), sInput.begin(), tolower );
+    for (string::iterator i = sInput.begin(); i != sInput.end(); i++)
+    {
+        *i = tolower(*i);
+    }
+//  transform( sInput.begin(), sInput.end(), sInput.begin(), tolower );
     return sInput;
 #else
     string sOutput(sInput);
@@ -144,13 +145,13 @@ void StringUtils::Tokenize(string &Input, string Tokens, vector<string> &vect_st
     string::size_type pos=0;
     string sToken;
     while( true )
-	{
-		sToken=StringUtils::Tokenize(Input,Tokens,pos);
-		if( sToken.length() )
-	        vect_strings.push_back(sToken);
-		if( pos>=Input.length() )
-			return;
-	}
+    {
+        sToken=StringUtils::Tokenize(Input,Tokens,pos);
+        if( sToken.length() )
+            vect_strings.push_back(sToken);
+        if( pos>=Input.length() )
+            return;
+    }
 }
 
 void StringUtils::Tokenize(string &Input, string Tokens, deque<string> &deque_strings, bool bPushToFront)
@@ -237,7 +238,7 @@ bool StringUtils::Replace( string sInputFile, string sOutputFile, string sSearch
     StringUtils::Replace( sInput, sSearch, sReplace );
 
 #ifndef WIN32
-	system(("mkdir -p \"" + FileUtils::BasePath(sOutputFile) + "\"").c_str());
+    system(("mkdir -p \"" + FileUtils::BasePath(sOutputFile) + "\"").c_str());
 #endif
 
     FILE *pFile = fopen( sOutputFile.c_str(), "wb" );
@@ -395,23 +396,100 @@ void StringUtils::AddressAndPortFromString( string sInput, int iDefaultPort, str
 
 string StringUtils::URLEncode( string sInput )
 {
-    string::size_type s;
-    while( ( s = sInput.find( ' ' ) ) != string::npos ) // replace spaces with '%20'
-        sInput.replace( s, 1, "%20" );
+    char hexValues[16] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
-    while( ( s = sInput.find( '#' ) ) != string::npos || ( s = sInput.find( ':' ) ) != string::npos
-            || ( s = sInput.find( '&' ) ) != string::npos || ( s = sInput.find( '(' ) ) != string::npos
-            || ( s = sInput.find( ')' ) ) != string::npos ) // eliminate other URL non-compliant characters
-        sInput.replace( s, 1, "" );
-    return sInput;
+    string::size_type s;
+
+    const char *inBuffer = sInput.c_str();
+    char *outBuffer = new char[(sInput.length() * 3) + 1];
+    char *baseOutBuffer = outBuffer;
+
+    while ( *inBuffer != 0 )
+    {
+        switch ( *inBuffer )
+        {
+            case '\"': case '<': case '>': case '%': case '\\':
+            case  '^': case '[': case ']': case '`': case '+':
+            case  '$': case ',': case '@': case ';': case '/':
+            case  '!': case '#': case '?': case '=': case '&':
+            case  ':':
+                *outBuffer++ = '%';
+                *outBuffer++ = hexValues[(*inBuffer >> 4) & 0x0F];
+                *outBuffer++ = hexValues[*inBuffer & 0x0F];
+                break;
+            default:
+                if ( *inBuffer > 32 && *inBuffer < 123 )
+                    *outBuffer++ = *inBuffer;
+                else
+                {
+                    *outBuffer++ = '%';
+                    *outBuffer++ = hexValues[(*inBuffer >> 4) & 0x0F];
+                    *outBuffer++ = hexValues[*inBuffer & 0x0F];
+                }
+        }
+
+        inBuffer++;
+    }
+    *outBuffer = '\0';
+
+    string result(baseOutBuffer);
+    delete baseOutBuffer;
+    return result;
 }
 
 string StringUtils::URLDecode( string sInput )
 {
-    string::size_type s;
-    while( ( s = sInput.find( "%20" ) ) != string::npos ) // replace the '%20' with ' '
-        sInput.replace( s, 3, " " );
-    return sInput;
+    const char *inBuffer = sInput.c_str();
+    char *outBuffer = new char[sInput.length() + 1];
+    char *baseOutBuffer = outBuffer;
+
+    while ( *inBuffer != 0 )
+    {
+        if ( *inBuffer != '%' ) // if not special just copy it and continue.
+            *outBuffer = *inBuffer;
+        else
+        {
+            inBuffer++; // skip the %;
+
+            // this routine looks to be too complicated. But i don't have time to try to fix it.
+            if ( *inBuffer && *(inBuffer + 1) && // make sure we aren't past the end of string.
+                ( ('0' <= *inBuffer && *inBuffer <= '9') ||
+                    ('A' <= *inBuffer && *inBuffer <= 'F') ||
+                    ('a' <= *inBuffer && *inBuffer <= 'f') ) && // check the range of the first character
+                ( ('0' <= *(inBuffer + 1) && *(inBuffer + 1) <= '9') ||
+                    ('A' <= *(inBuffer + 1) && *(inBuffer + 1) <= 'F') ||
+                    ('a' <= *(inBuffer + 1) && *(inBuffer + 1) <= 'f') ) ) // check the range of the second character
+            {
+                if ( '0' <= *inBuffer && *inBuffer <= '9' )
+                    *outBuffer = *inBuffer - '0';
+                else if ('A' <= *inBuffer && *inBuffer <= 'F')
+                    *outBuffer = *inBuffer - ('A' - 10);
+                else if ('A' <= *inBuffer && *inBuffer <= 'F')
+                    *outBuffer = *inBuffer - ('a' - 10);
+                *outBuffer <<= 4;
+
+                inBuffer++;
+                if ( '0' <= *inBuffer && *inBuffer <= '9' )
+                    *outBuffer |= (*inBuffer - '0');
+                else if ('A' <= *inBuffer && *inBuffer <= 'F')
+                    *outBuffer |= (*inBuffer - ('A' - 10));
+                else if ('A' <= *inBuffer && *inBuffer <= 'F')
+                    *outBuffer |= (*inBuffer - ('a' - 10));
+            }
+            else
+                cerr << "Invalid string passed (found % followed by something which is not a hex digit) to URLDecode: " << sInput << endl;
+        }
+
+        outBuffer++;
+        inBuffer++; // advance the source
+    }
+
+
+    *outBuffer = '\0';
+
+    string result(baseOutBuffer);
+    delete baseOutBuffer;
+    return result;
 }
 
 unsigned int StringUtils::CalcChecksum( unsigned int iSize, char *pData )
@@ -498,47 +576,47 @@ bool StringUtils::EndsWith( string sFirst, string sSecond, bool bIgnoreCase )
 
 string StringUtils::GetStringFromConsole()
 {
-	string sOutput;
-	while(true)
-	{
-#ifndef WINCE		
-		char c = getch();
+    string sOutput;
+    while(true)
+    {
+#ifndef WINCE
+        char c = getch();
 #else
-		char c = getchar();
+        char c = getchar();
 #endif
 
-		// 8 and 127 are the two (known to me) backspace characters a terminal can send
-		if ((c == 8 || c == 127))
-		{
-			if (sOutput.length() > 0)
-			{
-				sOutput = sOutput.substr(0, sOutput.length() - 1);
-#ifndef WINCE				
-				cout << c << " " << c;
+        // 8 and 127 are the two (known to me) backspace characters a terminal can send
+        if ((c == 8 || c == 127))
+        {
+            if (sOutput.length() > 0)
+            {
+                sOutput = sOutput.substr(0, sOutput.length() - 1);
+#ifndef WINCE
+                cout << c << " " << c;
 #else
-				printf("%c %c", c, c);
+                printf("%c %c", c, c);
 #endif
-			}
-			continue;
-		}
-		else if( c==3 ) // CTRL+C
-		{
+            }
+            continue;
+        }
+        else if( c==3 ) // CTRL+C
+        {
 #ifdef WIN32
-			exit(1); // I don't know of another way
+            exit(1); // I don't know of another way
 #else
-			kill(getpid(), SIGINT);
+            kill(getpid(), SIGINT);
 #endif
-		}
-#ifndef WINCE				
-				cout << c;
+        }
+#ifndef WINCE
+                cout << c;
 #else
-				printf("%c", c);
+                printf("%c", c);
 #endif
-		if( c=='\n' || c=='\r' )
-			return sOutput;
+        if( c=='\n' || c=='\r' )
+            return sOutput;
 
-		sOutput+=c;
-	}
+        sOutput+=c;
+    }
 }
 
 #endif //#ifndef SYMBIAN
