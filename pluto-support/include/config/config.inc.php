@@ -1,7 +1,8 @@
 <?PHP
    include_once($_SERVER['DOCUMENT_ROOT'].'/globalconfig/globalconfig.inc.php');
       
-   error_reporting(E_ALL);
+   error_reporting(E_ALL ^ E_NOTICE);
+
   //debuging
   //$GLOBALS['inDebug']=1;
   	

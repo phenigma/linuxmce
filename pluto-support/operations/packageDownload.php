@@ -23,6 +23,7 @@ $out='
 <a href="javascript:history.back()">Back</a><br>
 <h3><b>Download options for "'.$packageName.'"</b></h3>
 <br>
+<br><b><u>Note: The Windows download links</b></u> are not yet active.  You can download all the windows binaries <a href="index.php?section=document&docID=106">here</a>.<br><br>
 Dependencies: '.((count($dependanciesTxt)==0)?'none':join(', ',$dependanciesTxt)).'<br><br>';
 		
 	$selectRuns = 'select Package_Compat.FK_OperatingSystem,Package_Compat.FK_Distro,

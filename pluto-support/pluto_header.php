@@ -3,6 +3,28 @@ session_start('Pluto');
 
 require($_SERVER['DOCUMENT_ROOT'].'/support/include/config/config.inc.php');
 require($_SERVER['DOCUMENT_ROOT'].'/support/include/utils.inc.php');
+require($_SERVER['DOCUMENT_ROOT'].'/support/include/masterusers.inc.php');
+
+// autologin check: if cookie is set grab the user's data from database
+if ($_SESSION['userIsLogged']!="yes"){
+	//print_r($_COOKIE);
+	if(isset($_COOKIE['PlutoHomeAutoLogin'])){
+		parse_str(base64_decode($_COOKIE['PlutoHomeAutoLogin']));
+		$isMasterUsers=checkMasterUsers($username, $password,$checkMasterUserUrl,'&FirstAccount=&Email=&PlutoId=&Pin=');
+		if($isMasterUsers[0]){
+			parse_str($isMasterUsers[1]);
+			$_SESSION['userID'] = $MasterUsersID;
+			$_SESSION['PlutoId'] = $PlutoId;
+			$_SESSION['Pin'] = $Pin;
+			$_SESSION['username'] = $username;
+			$_SESSION['userIsLogged']="yes";
+			$_SESSION['categ']=$FirstAccount;
+			$_SESSION['Email']=$Email;
+			$_SESSION['extPassword']=$extPassword;
+		}
+	}
+}
+// end autologin check
 
 $serverPath=$PlutoSupportHost;
 $imagesPath=$serverPath.'include/images/';
@@ -20,7 +42,7 @@ $login='<table width="239"  border="0" cellpadding="0" cellspacing="0">
 $logout='<table width="214" border="0" cellpadding="0" cellspacing="0">
   <tr>
     <td width="115"><a href="'.$PlutoHomeHost.'index.php?section=myPluto"><img src="'.$imagesPath.'buton_my_pluto.jpg" width="115" height="36" border="0"/></a></td>
-    <td width="99"><a href="<?=$relativePath?>index.php?section=logout"><img src="'.$imagesPath.'buton_logout.jpg" width="99" height="36" border="0"/></a></td>
+    <td width="99"><a href="'.$relativePath.'index.php?section=logout"><img src="'.$imagesPath.'buton_logout.jpg" width="99" height="36" border="0"/></a></td>
   </tr>
 </table>';
 
