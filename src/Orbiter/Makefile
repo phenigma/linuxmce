@@ -29,6 +29,7 @@ sources +=  DesignObj_Data.cpp DesignObj_Orbiter.cpp \
 			RendererMNG.cpp \
 			GraphicBuilder.cpp \
 			TextStyle.cpp \
+			CacheImageManager.cpp \
 			SDL/SDLGraphic.cpp \
 			SDL/OrbiterSDL.cpp SDL/StartOrbiterSDL.cpp \
 			$(ROOT)/Splitter/TextSplitter.cpp \
