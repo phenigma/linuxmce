@@ -84,7 +84,7 @@ class DLL_EXPORT Row_CommandGroup_D_Command_CommandParameter : public TableRow, 
 		
 		long int m_FK_CommandGroup_D_Command;
 long int m_FK_CommandParameter;
-string m_Value;
+string m_IK_CommandParameter;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -96,7 +96,7 @@ string m_psc_mod;
 	public:
 		long int FK_CommandGroup_D_Command_get();
 long int FK_CommandParameter_get();
-string Value_get();
+string IK_CommandParameter_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -106,7 +106,7 @@ string psc_mod_get();
 		
 		void FK_CommandGroup_D_Command_set(long int val);
 void FK_CommandParameter_set(long int val);
-void Value_set(string val);
+void IK_CommandParameter_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -114,14 +114,14 @@ void psc_frozen_set(short int val);
 void psc_mod_set(string val);
 
 		
-		bool Value_isNull();
+		bool IK_CommandParameter_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
 bool psc_frozen_isNull();
 
 			
-		void Value_setNull(bool val);
+		void IK_CommandParameter_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -147,14 +147,14 @@ class Row_CommandParameter* FK_CommandParameter_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_FK_CommandGroup_D_Command+ m_FK_CommandParameter+ m_Value+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_FK_CommandGroup_D_Command+ m_FK_CommandParameter+ m_IK_CommandParameter+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string FK_CommandGroup_D_Command_asSQL();
 string FK_CommandParameter_asSQL();
-string Value_asSQL();
+string IK_CommandParameter_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

@@ -84,7 +84,7 @@ class DLL_EXPORT Row_Device_DeviceData : public TableRow, public SerializeClass
 		
 		long int m_FK_Device;
 long int m_FK_DeviceData;
-string m_Value;
+string m_IK_DeviceData;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
@@ -96,7 +96,7 @@ string m_psc_mod;
 	public:
 		long int FK_Device_get();
 long int FK_DeviceData_get();
-string Value_get();
+string IK_DeviceData_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -106,7 +106,7 @@ string psc_mod_get();
 		
 		void FK_Device_set(long int val);
 void FK_DeviceData_set(long int val);
-void Value_set(string val);
+void IK_DeviceData_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -145,14 +145,14 @@ class Row_DeviceData* FK_DeviceData_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_FK_Device+ m_FK_DeviceData+ m_Value+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_FK_Device+ m_FK_DeviceData+ m_IK_DeviceData+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string FK_Device_asSQL();
 string FK_DeviceData_asSQL();
-string Value_asSQL();
+string IK_DeviceData_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

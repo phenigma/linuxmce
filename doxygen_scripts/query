@@ -1,7 +1,0 @@
-use pluto_main
-select Path FROM Package as BinPkg
-JOIN Package AS Source ON BinPkg.FK_Package_Sourcecode=Source.PK_Package
-JOIN Package_Directory ON Source.PK_Package=Package_Directory.FK_Package
-WHERE BinPkg.HomePage='.' AND GenerateDoxygen=1
-AND FK_Directory=3
-

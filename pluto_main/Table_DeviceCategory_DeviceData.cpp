@@ -145,9 +145,9 @@ return m_FK_DeviceCategory;}
 long int Row_DeviceCategory_DeviceData::FK_DeviceData_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_DeviceData;}
-string Row_DeviceCategory_DeviceData::DefaultValue_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_DeviceCategory_DeviceData::IK_DeviceData_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_DefaultValue;}
+return m_IK_DeviceData;}
 short int Row_DeviceCategory_DeviceData::Required_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Required;}
@@ -183,9 +183,9 @@ m_FK_DeviceCategory = val; is_modified=true; is_null[0]=false;}
 void Row_DeviceCategory_DeviceData::FK_DeviceData_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_DeviceData = val; is_modified=true; is_null[1]=false;}
-void Row_DeviceCategory_DeviceData::DefaultValue_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceCategory_DeviceData::IK_DeviceData_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_DefaultValue = val; is_modified=true; is_null[2]=false;}
+m_IK_DeviceData = val; is_modified=true; is_null[2]=false;}
 void Row_DeviceCategory_DeviceData::Required_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Required = val; is_modified=true; is_null[3]=false;}
@@ -215,7 +215,7 @@ void Row_DeviceCategory_DeviceData::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M,
 m_psc_mod = val; is_modified=true; is_null[11]=false;}
 
 		
-bool Row_DeviceCategory_DeviceData::DefaultValue_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DeviceCategory_DeviceData::IK_DeviceData_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[2];}
 bool Row_DeviceCategory_DeviceData::Description_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -235,7 +235,7 @@ bool Row_DeviceCategory_DeviceData::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, ta
 return is_null[10];}
 
 			
-void Row_DeviceCategory_DeviceData::DefaultValue_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceCategory_DeviceData::IK_DeviceData_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[2]=val;}
 void Row_DeviceCategory_DeviceData::Description_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -281,7 +281,7 @@ sprintf(buf, "%li", m_FK_DeviceData);
 return buf;
 }
 
-string Row_DeviceCategory_DeviceData::DefaultValue_asSQL()
+string Row_DeviceCategory_DeviceData::IK_DeviceData_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -289,7 +289,7 @@ if (is_null[2])
 return "NULL";
 
 char *buf = new char[41];
-mysql_real_escape_string(table->database->db_handle, buf, m_DefaultValue.c_str(), (unsigned long) m_DefaultValue.size());
+mysql_real_escape_string(table->database->db_handle, buf, m_IK_DeviceData.c_str(), (unsigned long) m_IK_DeviceData.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -457,10 +457,10 @@ void Table_DeviceCategory_DeviceData::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->FK_DeviceCategory_asSQL()+", "+pRow->FK_DeviceData_asSQL()+", "+pRow->DefaultValue_asSQL()+", "+pRow->Required_asSQL()+", "+pRow->SetByDevice_asSQL()+", "+pRow->AllowedToModify_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->FK_DeviceCategory_asSQL()+", "+pRow->FK_DeviceData_asSQL()+", "+pRow->IK_DeviceData_asSQL()+", "+pRow->Required_asSQL()+", "+pRow->SetByDevice_asSQL()+", "+pRow->AllowedToModify_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into DeviceCategory_DeviceData (FK_DeviceCategory, FK_DeviceData, DefaultValue, Required, SetByDevice, AllowedToModify, Description, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into DeviceCategory_DeviceData (FK_DeviceCategory, FK_DeviceData, IK_DeviceData, Required, SetByDevice, AllowedToModify, Description, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -510,7 +510,7 @@ condition = condition + "FK_DeviceCategory=" + tmp_FK_DeviceCategory+" AND "+"FK
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_DeviceCategory="+pRow->FK_DeviceCategory_asSQL()+", FK_DeviceData="+pRow->FK_DeviceData_asSQL()+", DefaultValue="+pRow->DefaultValue_asSQL()+", Required="+pRow->Required_asSQL()+", SetByDevice="+pRow->SetByDevice_asSQL()+", AllowedToModify="+pRow->AllowedToModify_asSQL()+", Description="+pRow->Description_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "FK_DeviceCategory="+pRow->FK_DeviceCategory_asSQL()+", FK_DeviceData="+pRow->FK_DeviceData_asSQL()+", IK_DeviceData="+pRow->IK_DeviceData_asSQL()+", Required="+pRow->Required_asSQL()+", SetByDevice="+pRow->SetByDevice_asSQL()+", AllowedToModify="+pRow->AllowedToModify_asSQL()+", Description="+pRow->Description_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update DeviceCategory_DeviceData set " + update_values_list + " where " + condition;
@@ -626,12 +626,12 @@ sscanf(row[1], "%li", &(pRow->m_FK_DeviceData));
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_DefaultValue = "";
+pRow->m_IK_DeviceData = "";
 }
 else
 {
 pRow->is_null[2]=false;
-pRow->m_DefaultValue = string(row[2],lengths[2]);
+pRow->m_IK_DeviceData = string(row[2],lengths[2]);
 }
 
 if (row[3] == NULL)
@@ -867,12 +867,12 @@ sscanf(row[1], "%li", &(pRow->m_FK_DeviceData));
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_DefaultValue = "";
+pRow->m_IK_DeviceData = "";
 }
 else
 {
 pRow->is_null[2]=false;
-pRow->m_DefaultValue = string(row[2],lengths[2]);
+pRow->m_IK_DeviceData = string(row[2],lengths[2]);
 }
 
 if (row[3] == NULL)

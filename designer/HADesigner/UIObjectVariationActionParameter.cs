@@ -148,7 +148,7 @@ namespace HADesigner
 				try
 				{
 					CommandGroup_D_Command_CommandParameterDataRow drParameter = this.mds.tCommandGroup_D_Command_CommandParameter[this.ParentUIDesignObjVariationCommand.LinkID, this.ParameterID];
-					this.Value = (drParameter.fValueIsNull) ? "" : drParameter.fValue;
+					this.Value = (drParameter.fIK_CommandParameterIsNull) ? "" : drParameter.fIK_CommandParameter;
 				}
 				catch(Exception e)
 				{
@@ -202,11 +202,11 @@ namespace HADesigner
 
 						if(this.Value == "")
 						{
-							drParameter.fValueSetNull();
+							drParameter.fIK_CommandParameterSetNull();
 						}
 						else
 						{	
-							drParameter.fValue = this.Value;
+							drParameter.fIK_CommandParameter = this.Value;
 						}
 						
 						this.mds.tCommandGroup_D_Command_CommandParameter.Rows.Add(drParameter.dr);
@@ -228,11 +228,11 @@ namespace HADesigner
 
 							if(this.Value == "")
 							{
-								drParameter.fValueSetNull();
+								drParameter.fIK_CommandParameterSetNull();
 							}
 							else
 							{	
-								drParameter.fValue = this.Value;
+								drParameter.fIK_CommandParameter = this.Value;
 							}
 
 

@@ -160,13 +160,13 @@ void CGCommand::SharedConstructor(DesignObj_Generator *Parent)
 void CGCommand::AddParm(Row_CommandGroup_Command_CommandParameter * drAGACP,DesignObj_Generator *Parent)
 {
 	bool bContainsRunTimeVariables;
-	m_ParameterList[drAGACP->FK_CommandParameter_get()] = Parent->SubstituteVariables(drAGACP->Value_get(),&bContainsRunTimeVariables);
+	m_ParameterList[drAGACP->FK_CommandParameter_get()] = Parent->SubstituteVariables(drAGACP->IK_CommandParameter_get(),&bContainsRunTimeVariables);
 }
 
 void CGCommand::AddParm(Row_CommandGroup_D_Command_CommandParameter * drAGACP,DesignObj_Generator *Parent)
 {
 	bool bContainsRunTimeVariables;
-	m_ParameterList[drAGACP->FK_CommandParameter_get()] = Parent->SubstituteVariables(drAGACP->Value_get(),&bContainsRunTimeVariables);
+	m_ParameterList[drAGACP->FK_CommandParameter_get()] = Parent->SubstituteVariables(drAGACP->IK_CommandParameter_get(),&bContainsRunTimeVariables);
 }
 
 

@@ -67,10 +67,6 @@ public:
 		Row_Package_Source *pRow_Package_Source, Row_RepositorySource_URL *pRow_RepositorySource_URL,
 		bool bMustBuild)
 	{
-if( pRow_Package_Source->FK_Package_get()==192 )
-{
-int k=2;
-}
 		m_pRow_Package_Source_Compat=pRow_Package_Source_Compat;
 		m_pRow_Package_Source=pRow_Package_Source;
 		m_pRow_Package_Source=pRow_Package_Source;
@@ -248,7 +244,7 @@ int main(int argc, char *argv[])
 				if( pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()==DEVICECATEGORY_Media_Director_CONST )
 				{
 					Row_Device_DeviceData *pRow_Device_DeviceData = database_pluto_main.Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),DEVICEDATA_Diskless_Boot_CONST);
-					if( pRow_Device_DeviceData && pRow_Device_DeviceData->Value_get()=="1" )
+					if( pRow_Device_DeviceData && pRow_Device_DeviceData->IK_DeviceData_get()=="1" )
 						CheckDevice(pRow_Device,bSourceCode);
 				}
 			}
@@ -354,13 +350,13 @@ void CheckDevice(Row_Device *pRow_Device,bool bSourceCode)
 	if( !bDevelopment )
 	{
 		Row_Device_DeviceData *pRow_Device_DeviceData = pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),DEVICEDATA_Development_CONST);
-		bDevelopment = pRow_Device_DeviceData && pRow_Device_DeviceData->Value_get()=="1";
+		bDevelopment = pRow_Device_DeviceData && pRow_Device_DeviceData->IK_DeviceData_get()=="1";
 	}
 	if( iPK_Distro==-1 )
 	{
 		Row_Device_DeviceData *pRow_Device_DeviceData = pDatabase_pluto_main->Device_DeviceData_get()->GetRow(pRow_Device->PK_Device_get(),DEVICEDATA_PK_Distro_CONST);
 		if( pRow_Device_DeviceData )
-			iPK_Distro = atoi(pRow_Device_DeviceData->Value_get().c_str());
+			iPK_Distro = atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str());
 		else if( dceConfig.m_iPK_Distro )
 			iPK_Distro = dceConfig.m_iPK_Distro;
 	}
@@ -375,7 +371,7 @@ void CheckDevice(Row_Device *pRow_Device,bool bSourceCode)
 void CheckDeviceLoop(Row_Device *pRow_Device,bool bDevelopment)
 {
 	if( pRow_Device->FK_DeviceTemplate_getrow()->FK_Package_isNull() )
-		cout << "#***ERROR*** I don't know how to get the software for: " << pRow_Device->Description_get() << " (" << pRow_Device->FK_DeviceTemplate_getrow()->Description_get() << ")" << endl;
+		cout << "#Device: " << pRow_Device->Description_get() << " (#" << pRow_Device->FK_DeviceTemplate_get() << " " << pRow_Device->FK_DeviceTemplate_getrow()->Description_get() << ") doesn't require any software." << endl;
 	else
 	{
 		string PkgName = pRow_Device->FK_DeviceTemplate_getrow()->FK_Package_getrow()->Description_get();
@@ -454,7 +450,11 @@ int k=2;
 		pRow_Package_Source->Package_Source_Compat_FK_Package_Source_getrows(&vectRPSC);
 
 		// We've got 3 lists we can put this in.  We'll put it in whatever one is the best
-		// We'll update the following when it's a match, and take the best
+		// We'll update the following when it's a match, and take the best.  The exception is the 
+		// source code.  In that case we're not going to look for a source that is specific to 
+		// our distribution because then we would always choose to take from a package before SVN, for example,
+		// if that's what the user prefers.  So if it's source, just put them all in the "compat"
+		// vector and we'll pick the user's preference
 		Row_Package_Source_Compat *pRPSC_Match=NULL,*pRPSC_OS=NULL,*pRPSC_Comp=NULL;
 
 		for(size_t t=0;t<vectRPSC.size();++t)
@@ -469,7 +469,9 @@ int k=2;
 					(pRPSC->FK_OperatingSystem_isNull() || pRow_Distro->FK_OperatingSystem_get()==pRPSC->FK_OperatingSystem_get()) )
 				pRPSC_Comp=pRPSC;
 		}
-		if( pRPSC_Match )
+		if( pRow_Package->IsSource_get()==1 && pRPSC_Comp )  // See comments above
+			vectRow_Package_Source_Compat.push_back( pRPSC_Comp );
+		else if( pRPSC_Match )
 			vectRow_Package_Source_Compat_Match.push_back(pRPSC_Match); // This is considered the perfect match
 		else if( pRPSC_OS )
 			vectRow_Package_Source_Compat_OS.push_back(pRPSC_OS); // It matched the OS, so we'll use it if we don't find an exact match for the distro
@@ -529,6 +531,7 @@ Row_Package_Source_Compat *FindPreferredSource(vector<Row_Package_Source_Compat 
 	for(size_t s=0;s<vectRow_Package_Source_Compat.size();++s)
 	{
 		Row_Package_Source_Compat *pRow_Package_Source_Compat=vectRow_Package_Source_Compat[s];
+
 		if( pRow_Package_Source_Compat->FK_Package_Source_getrow()->FK_Package_getrow()->IsSource_get()==1 )
 		{
 			if( pRow_Package_Source_Compat->FK_Package_Source_getrow()->FK_RepositorySource_getrow()->FK_RepositoryType_get() ==
@@ -711,6 +714,7 @@ void InstallPackage(PackageInfo *pPackageInfo, bool bElse)
 		<< " \"" << pPackageInfo->m_sConfiguration << "\""
 		<< " \"" << pPackageInfo->m_pRow_RepositorySource_URL->Username_get() << "\""
 		<< " \"" << pPackageInfo->m_pRow_RepositorySource_URL->Password_get() << "\""
+		<< " \"" << pPackageInfo->m_pRow_Package_Source->Parms_get() << "\""
 		<< "; then"
 		<< endl;
 	cout << "\techo \"Confirmation of package '" << pPackageInfo->m_pRow_Package_Source->Name_get() << "' went ok.\"" << endl;

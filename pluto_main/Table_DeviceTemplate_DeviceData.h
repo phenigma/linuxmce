@@ -84,7 +84,7 @@ class DLL_EXPORT Row_DeviceTemplate_DeviceData : public TableRow, public Seriali
 		
 		long int m_FK_DeviceTemplate;
 long int m_FK_DeviceData;
-string m_DefaultValue;
+string m_IK_DeviceData;
 short int m_Required;
 short int m_AllowedToModify;
 short int m_SetByDevice;
@@ -101,7 +101,7 @@ string m_psc_mod;
 	public:
 		long int FK_DeviceTemplate_get();
 long int FK_DeviceData_get();
-string DefaultValue_get();
+string IK_DeviceData_get();
 short int Required_get();
 short int AllowedToModify_get();
 short int SetByDevice_get();
@@ -116,7 +116,7 @@ string psc_mod_get();
 		
 		void FK_DeviceTemplate_set(long int val);
 void FK_DeviceData_set(long int val);
-void DefaultValue_set(string val);
+void IK_DeviceData_set(string val);
 void Required_set(short int val);
 void AllowedToModify_set(short int val);
 void SetByDevice_set(short int val);
@@ -129,7 +129,7 @@ void psc_frozen_set(short int val);
 void psc_mod_set(string val);
 
 		
-		bool DefaultValue_isNull();
+		bool IK_DeviceData_isNull();
 bool Required_isNull();
 bool AllowedToModify_isNull();
 bool Description_isNull();
@@ -139,7 +139,7 @@ bool psc_user_isNull();
 bool psc_frozen_isNull();
 
 			
-		void DefaultValue_setNull(bool val);
+		void IK_DeviceData_setNull(bool val);
 void Required_setNull(bool val);
 void AllowedToModify_setNull(bool val);
 void Description_setNull(bool val);
@@ -168,14 +168,14 @@ class Row_DeviceData* FK_DeviceData_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_FK_DeviceTemplate+ m_FK_DeviceData+ m_DefaultValue+ m_Required+ m_AllowedToModify+ m_SetByDevice+ m_Description+ m_UseDeviceTemplateDefault+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_FK_DeviceTemplate+ m_FK_DeviceData+ m_IK_DeviceData+ m_Required+ m_AllowedToModify+ m_SetByDevice+ m_Description+ m_UseDeviceTemplateDefault+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
 		
 		string FK_DeviceTemplate_asSQL();
 string FK_DeviceData_asSQL();
-string DefaultValue_asSQL();
+string IK_DeviceData_asSQL();
 string Required_asSQL();
 string AllowedToModify_asSQL();
 string SetByDevice_asSQL();

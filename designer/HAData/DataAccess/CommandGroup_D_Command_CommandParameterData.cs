@@ -13,18 +13,18 @@ namespace HAData.DataAccess {
 		public const String COMMANDGROUP_D_COMMAND_COMMANDPARAMETER_TABLE = "CommandGroup_D_Command_CommandParameter";
 		public const String FK_COMMANDGROUP_D_COMMAND_FIELD = "FK_CommandGroup_D_Command";
 		public const String FK_COMMANDPARAMETER_FIELD = "FK_CommandParameter";
-		public const String VALUE_FIELD = "Value";
+		public const String IK_COMMANDPARAMETER_FIELD = "IK_CommandParameter";
 		// table+field constants
 		public const String FK_COMMANDGROUP_D_COMMAND_TABLE_FIELD = "CommandGroup_D_Command_CommandParameter.FK_CommandGroup_D_Command";
 		public const String FK_COMMANDPARAMETER_TABLE_FIELD = "CommandGroup_D_Command_CommandParameter.FK_CommandParameter";
-		public const String VALUE_TABLE_FIELD = "CommandGroup_D_Command_CommandParameter.Value";
+		public const String IK_COMMANDPARAMETER_TABLE_FIELD = "CommandGroup_D_Command_CommandParameter.IK_CommandParameter";
 		// DataSetCommand object
 		protected OdbcDataAdapter m_DSCommand;
 
 		// Stored procedure parameters
 		protected const String FK_COMMANDGROUP_D_COMMAND_PARM = "@FK_CommandGroup_D_Command";
 		protected const String FK_COMMANDPARAMETER_PARM = "@FK_CommandParameter";
-		protected const String VALUE_PARM = "@Value";
+		protected const String IK_COMMANDPARAMETER_PARM = "@IK_CommandParameter";
 		protected const String USERID_PARM = "@UserID";
 
 		protected OdbcCommand m_LoadCommand;
@@ -94,7 +94,7 @@ namespace HAData.DataAccess {
 			PKColumns[1] = Column;
 			Column.DefaultValue = -1;
 
-			Columns.Add(VALUE_FIELD, typeof(System.String));
+			Columns.Add(IK_COMMANDPARAMETER_FIELD, typeof(System.String));
 			Table.PrimaryKey = PKColumns;
 
 			return Table;
@@ -102,14 +102,14 @@ namespace HAData.DataAccess {
 		protected static void CreateParameters(OdbcParameterCollection Params, bool IsInsert) {
 			Params.Add(new OdbcParameter(FK_COMMANDGROUP_D_COMMAND_PARM, OdbcType.Int,4));
 			Params.Add(new OdbcParameter(FK_COMMANDPARAMETER_PARM, OdbcType.Int,4));
-			Params.Add(new OdbcParameter(VALUE_PARM, OdbcType.VarChar, 50));
+			Params.Add(new OdbcParameter(IK_COMMANDPARAMETER_PARM, OdbcType.VarChar, 50));
 			Params.Add(new OdbcParameter(USERID_PARM, OdbcType.Int));
 
 			// map the parameters to the data table
 
 			Params[FK_COMMANDGROUP_D_COMMAND_PARM].SourceColumn = CommandGroup_D_Command_CommandParameterData.FK_COMMANDGROUP_D_COMMAND_FIELD;
 			Params[FK_COMMANDPARAMETER_PARM].SourceColumn = CommandGroup_D_Command_CommandParameterData.FK_COMMANDPARAMETER_FIELD;
-			Params[VALUE_PARM].SourceColumn = CommandGroup_D_Command_CommandParameterData.VALUE_FIELD;
+			Params[IK_COMMANDPARAMETER_PARM].SourceColumn = CommandGroup_D_Command_CommandParameterData.IK_COMMANDPARAMETER_FIELD;
 		}
 
 		protected static void CreateCommands(OdbcConnection Conn, OdbcTransaction Trans, ref OdbcCommand LoadCommand, ref OdbcCommand InsertCommand, ref OdbcCommand UpdateCommand, ref OdbcCommand DeleteCommand) {
@@ -159,7 +159,7 @@ namespace HAData.DataAccess {
 		}
 
 		protected static void CreateCommands(OdbcDataAdapter odbcda,OdbcConnection Conn, OdbcTransaction Trans, ref OdbcCommand LoadCommand, ref OdbcCommand InsertCommand, ref OdbcCommand UpdateCommand, ref OdbcCommand DeleteCommand) {
-				LoadCommand = new OdbcCommand("SELECT FK_CommandGroup_D_Command,FK_CommandParameter,Value FROM CommandGroup_D_Command_CommandParameter", Conn);
+				LoadCommand = new OdbcCommand("SELECT FK_CommandGroup_D_Command,FK_CommandParameter,IK_CommandParameter FROM CommandGroup_D_Command_CommandParameter", Conn);
 				LoadCommand.Transaction = Trans;
 
 				LoadCommand.Parameters.Add(new OdbcParameter(FK_COMMANDGROUP_D_COMMAND_PARM, OdbcType.Int,4));
@@ -205,7 +205,7 @@ namespace HAData.DataAccess {
 				conn = HADataConfiguration.GetOdbcConnection();
 			
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			string sSQL = "SELECT FK_CommandGroup_D_Command, FK_CommandParameter, Value FROM CommandGroup_D_Command_CommandParameter WHERE " + WhereClause;
+			string sSQL = "SELECT FK_CommandGroup_D_Command, FK_CommandParameter, IK_CommandParameter FROM CommandGroup_D_Command_CommandParameter WHERE " + WhereClause;
 			
 			OdbcCommand LoadCommand = new OdbcCommand(sSQL,conn);
 			
@@ -511,7 +511,7 @@ namespace HAData.DataAccess {
 				return mds.tCommandParameter[Convert.ToInt32(dr[1])];
 			}
 		}
-		public System.String fValue
+		public System.String fIK_CommandParameter
 		{
 			get
 			{
@@ -522,14 +522,14 @@ namespace HAData.DataAccess {
 				dr[2]=value;
 			}
 		}
-		public bool fValueIsNull
+		public bool fIK_CommandParameterIsNull
 		{
 			get
 			{
 				return dr[2]==DBNull.Value;
 			}
 		}
-		public void fValueSetNull()
+		public void fIK_CommandParameterSetNull()
 		{
 			dr[2]=DBNull.Value;
 		}
@@ -660,7 +660,7 @@ namespace HAData.DataAccess {
 					return Convert.ToInt32(dr[1]);
 			}
 		}
-		public System.String fValue
+		public System.String fIK_CommandParameter
 		{
 			get
 			{
@@ -670,7 +670,7 @@ namespace HAData.DataAccess {
 					return Convert.ToString(dr[2]);
 			}
 		}
-		public bool fValueIsNull
+		public bool fIK_CommandParameterIsNull
 		{
 			get
 			{
@@ -715,7 +715,7 @@ namespace HAData.DataAccess {
 		public DataRowCollection LoadAll(OdbcConnection conn, OdbcTransaction trans)
 		{
 			OdbcDataAdapter sqlda = new OdbcDataAdapter();
-			OdbcCommand LoadCommand = new OdbcCommand("SELECT FK_CommandGroup_D_Command,FK_CommandParameter,Value FROM CommandGroup_D_Command_CommandParameter", conn);
+			OdbcCommand LoadCommand = new OdbcCommand("SELECT FK_CommandGroup_D_Command,FK_CommandParameter,IK_CommandParameter FROM CommandGroup_D_Command_CommandParameter", conn);
 			LoadCommand.CommandType = CommandType.Text;
 			if( trans!=null )
 				LoadCommand.Transaction = trans;
@@ -751,7 +751,7 @@ namespace HAData.DataAccess {
 				return Columns[1];
 			}
 		}
-		public DataColumn cValue
+		public DataColumn cIK_CommandParameter
 		{
 			get
 			{

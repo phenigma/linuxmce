@@ -1320,7 +1320,7 @@ void Router::Configure()
         for(size_t s2=0;s2<vectDeviceParms.size();++s2)
         {
             Row_Device_DeviceData *prDeviceParm = vectDeviceParms[s2];
-            pDevice->m_mapParameters[ prDeviceParm->FK_DeviceData_get()] = prDeviceParm->Value_get();
+            pDevice->m_mapParameters[ prDeviceParm->FK_DeviceData_get()] = prDeviceParm->IK_DeviceData_get();
         }
 
         vector<Row_DeviceTemplate_Input *> vectDeviceInputs;

@@ -254,7 +254,7 @@ int OrbiterGenerator::DoIt()
 	m_pRow_DesignObj_MainMenu = NULL;
 	Row_Device_DeviceData *pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_DesignObj_MainMenu_CONST);
 	if( pRow_Device_DeviceData )
-		m_pRow_DesignObj_MainMenu = mds.DesignObj_get()->GetRow( atoi(pRow_Device_DeviceData->Value_get().c_str()) );
+		m_pRow_DesignObj_MainMenu = mds.DesignObj_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
 
 	if( !m_pRow_DesignObj_MainMenu )
 		m_pRow_DesignObj_MainMenu = mds.DesignObj_get()->GetRow(DESIGNOBJ_mnuMain_CONST);
@@ -268,7 +268,7 @@ int OrbiterGenerator::DoIt()
 	m_pRow_DesignObj_Sleeping = NULL;
 	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_DesignObj_Sleeping_CONST);
 	if( pRow_Device_DeviceData )
-		m_pRow_DesignObj_Sleeping = mds.DesignObj_get()->GetRow( atoi(pRow_Device_DeviceData->Value_get().c_str()) );
+		m_pRow_DesignObj_Sleeping = mds.DesignObj_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
 
 	if( !m_pRow_DesignObj_Sleeping )
 		m_pRow_DesignObj_Sleeping = m_pRow_DesignObj_MainMenu;
@@ -276,7 +276,7 @@ int OrbiterGenerator::DoIt()
 	m_pRow_Skin = NULL;
 	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_Skin_CONST);
 	if( pRow_Device_DeviceData )
-		m_pRow_Skin = mds.Skin_get()->GetRow( atoi(pRow_Device_DeviceData->Value_get().c_str()) );
+		m_pRow_Skin = mds.Skin_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
 
 	if( !m_pRow_Skin )
 	{
@@ -288,7 +288,7 @@ int OrbiterGenerator::DoIt()
 	m_pRow_Language = NULL;
 	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_Language_CONST);
 	if( pRow_Device_DeviceData )
-		m_pRow_Language = mds.Language_get()->GetRow( atoi(pRow_Device_DeviceData->Value_get().c_str()) );
+		m_pRow_Language = mds.Language_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
 
 	if( !m_pRow_Language )
 	{
@@ -299,7 +299,7 @@ int OrbiterGenerator::DoIt()
 	// Get the no effects flag
 	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_No_Effects_CONST);
 	if( pRow_Device_DeviceData )
-		m_bNoEffects = atoi(pRow_Device_DeviceData->Value_get().c_str())!=1;
+		m_bNoEffects = atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str())!=1;
 
 	// See if there's a default entertainment area for this orbiter
 	Row_EntertainArea *pRow_EntertainArea_Default = NULL;
@@ -329,7 +329,7 @@ int OrbiterGenerator::DoIt()
 
 	Row_Users *drUsers_Default = NULL;
 
-	Row_Installation_Users *pRow_Installation_Users=mds.Installation_Users_get()->GetRow(m_pRow_Device->FK_Installation_get(),atoi(drD_C_DP_DefaultUser->Value_get().c_str()));
+	Row_Installation_Users *pRow_Installation_Users=mds.Installation_Users_get()->GetRow(m_pRow_Device->FK_Installation_get(),atoi(drD_C_DP_DefaultUser->IK_DeviceData_get().c_str()));
 	if( pRow_Installation_Users )
 		drUsers_Default = pRow_Installation_Users->FK_Users_getrow();
 	if( !drUsers_Default)
@@ -363,7 +363,7 @@ int OrbiterGenerator::DoIt()
 	m_pRow_Size = NULL;
 	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_PK_Size_CONST);
 	if( pRow_Device_DeviceData )
-		m_pRow_Size = mds.Size_get()->GetRow( atoi(pRow_Device_DeviceData->Value_get().c_str()) );
+		m_pRow_Size = mds.Size_get()->GetRow( atoi(pRow_Device_DeviceData->IK_DeviceData_get().c_str()) );
 
 	if( !m_pRow_Size )
 		throw "Cannot determine the size";
@@ -596,7 +596,7 @@ int OrbiterGenerator::DoIt()
 	}
 
 
-	string sql = string("SELECT ") + COMMANDGROUP_COMMAND_COMMANDPARAMETER_VALUE_TABLE_FIELD + " FROM " +
+	string sql = string("SELECT ") + COMMANDGROUP_COMMAND_COMMANDPARAMETER_IK_COMMANDPARAMETER_TABLE_FIELD + " FROM " +
 		EVENTHANDLER_TABLE + " JOIN " + COMMANDGROUP_COMMAND_TABLE + " ON " + COMMANDGROUP_COMMAND_FK_COMMANDGROUP_TABLE_FIELD + "=" +
 		EVENTHANDLER_FK_COMMANDGROUP_TABLE_FIELD + " JOIN " + COMMANDGROUP_COMMAND_COMMANDPARAMETER_TABLE + " ON " +
 		COMMANDGROUP_COMMAND_COMMANDPARAMETER_FK_COMMANDGROUP_COMMAND_FIELD + "=" + COMMANDGROUP_COMMAND_PK_COMMANDGROUP_COMMAND_FIELD +

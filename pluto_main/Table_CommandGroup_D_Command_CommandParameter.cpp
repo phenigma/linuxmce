@@ -138,9 +138,9 @@ return m_FK_CommandGroup_D_Command;}
 long int Row_CommandGroup_D_Command_CommandParameter::FK_CommandParameter_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_CommandParameter;}
-string Row_CommandGroup_D_Command_CommandParameter::Value_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+string Row_CommandGroup_D_Command_CommandParameter::IK_CommandParameter_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return m_Value;}
+return m_IK_CommandParameter;}
 long int Row_CommandGroup_D_Command_CommandParameter::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_id;}
@@ -164,9 +164,9 @@ m_FK_CommandGroup_D_Command = val; is_modified=true; is_null[0]=false;}
 void Row_CommandGroup_D_Command_CommandParameter::FK_CommandParameter_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_FK_CommandParameter = val; is_modified=true; is_null[1]=false;}
-void Row_CommandGroup_D_Command_CommandParameter::Value_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup_D_Command_CommandParameter::IK_CommandParameter_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Value = val; is_modified=true; is_null[2]=false;}
+m_IK_CommandParameter = val; is_modified=true; is_null[2]=false;}
 void Row_CommandGroup_D_Command_CommandParameter::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_psc_id = val; is_modified=true; is_null[3]=false;}
@@ -184,7 +184,7 @@ void Row_CommandGroup_D_Command_CommandParameter::psc_mod_set(string val){PLUTO_
 m_psc_mod = val; is_modified=true; is_null[7]=false;}
 
 		
-bool Row_CommandGroup_D_Command_CommandParameter::Value_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_CommandGroup_D_Command_CommandParameter::IK_CommandParameter_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[2];}
 bool Row_CommandGroup_D_Command_CommandParameter::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -201,7 +201,7 @@ bool Row_CommandGroup_D_Command_CommandParameter::psc_frozen_isNull() {PLUTO_SAF
 return is_null[6];}
 
 			
-void Row_CommandGroup_D_Command_CommandParameter::Value_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CommandGroup_D_Command_CommandParameter::IK_CommandParameter_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[2]=val;}
 void Row_CommandGroup_D_Command_CommandParameter::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -244,7 +244,7 @@ sprintf(buf, "%li", m_FK_CommandParameter);
 return buf;
 }
 
-string Row_CommandGroup_D_Command_CommandParameter::Value_asSQL()
+string Row_CommandGroup_D_Command_CommandParameter::IK_CommandParameter_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
@@ -252,7 +252,7 @@ if (is_null[2])
 return "NULL";
 
 char *buf = new char[101];
-mysql_real_escape_string(table->database->db_handle, buf, m_Value.c_str(), (unsigned long) m_Value.size());
+mysql_real_escape_string(table->database->db_handle, buf, m_IK_CommandParameter.c_str(), (unsigned long) m_IK_CommandParameter.size());
 string s=string()+"\""+buf+"\"";
 delete buf;
 return s;
@@ -367,10 +367,10 @@ void Table_CommandGroup_D_Command_CommandParameter::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->FK_CommandGroup_D_Command_asSQL()+", "+pRow->FK_CommandParameter_asSQL()+", "+pRow->Value_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->FK_CommandGroup_D_Command_asSQL()+", "+pRow->FK_CommandParameter_asSQL()+", "+pRow->IK_CommandParameter_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into CommandGroup_D_Command_CommandParameter (FK_CommandGroup_D_Command, FK_CommandParameter, Value, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into CommandGroup_D_Command_CommandParameter (FK_CommandGroup_D_Command, FK_CommandParameter, IK_CommandParameter, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -420,7 +420,7 @@ condition = condition + "FK_CommandGroup_D_Command=" + tmp_FK_CommandGroup_D_Com
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_CommandGroup_D_Command="+pRow->FK_CommandGroup_D_Command_asSQL()+", FK_CommandParameter="+pRow->FK_CommandParameter_asSQL()+", Value="+pRow->Value_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "FK_CommandGroup_D_Command="+pRow->FK_CommandGroup_D_Command_asSQL()+", FK_CommandParameter="+pRow->FK_CommandParameter_asSQL()+", IK_CommandParameter="+pRow->IK_CommandParameter_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update CommandGroup_D_Command_CommandParameter set " + update_values_list + " where " + condition;
@@ -536,12 +536,12 @@ sscanf(row[1], "%li", &(pRow->m_FK_CommandParameter));
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_Value = "";
+pRow->m_IK_CommandParameter = "";
 }
 else
 {
 pRow->is_null[2]=false;
-pRow->m_Value = string(row[2],lengths[2]);
+pRow->m_IK_CommandParameter = string(row[2],lengths[2]);
 }
 
 if (row[3] == NULL)
@@ -733,12 +733,12 @@ sscanf(row[1], "%li", &(pRow->m_FK_CommandParameter));
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_Value = "";
+pRow->m_IK_CommandParameter = "";
 }
 else
 {
 pRow->is_null[2]=false;
-pRow->m_Value = string(row[2],lengths[2]);
+pRow->m_IK_CommandParameter = string(row[2],lengths[2]);
 }
 
 if (row[3] == NULL)
