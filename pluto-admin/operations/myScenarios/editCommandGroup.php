@@ -166,7 +166,7 @@ function editCommandGroup($output,$dbADO) {
 						<tr><td valign="top">
 							<select name="device_'.$rowCommandAssigned['PK_CommandGroup_Command'].'" onChange="this.form.submit();">
 								<option value="0">-please select-</option>
-								<option value="-999" '.(($rowCommandAssigned['FK_Device']=='-999')?'selected':'').'>[Local Orbiter</option>
+								<option value="-300" '.(($rowCommandAssigned['FK_Device']=='-300')?'selected':'').'>[Local Orbiter</option>
 						';
 							
 							$query = 'SELECT * From Device WHERE FK_Installation = ? order by Description ASC';
@@ -182,7 +182,7 @@ function editCommandGroup($output,$dbADO) {
 					 		</select></td>
 						<td>
 						';
-					if($rowCommandAssigned['FK_Device']!='-999'){
+					if($rowCommandAssigned['FK_Device']!='-300'){
 						$query = "SELECT PK_Command,Command.Description
 								FROM Device 
 									INNER JOIN DeviceTemplate_DeviceCommandGroup ON Device.FK_DeviceTemplate = DeviceTemplate_DeviceCommandGroup.FK_DeviceTemplate 
@@ -274,7 +274,7 @@ function editCommandGroup($output,$dbADO) {
 					<td colspan="2">
 					 Device:<select name="addNewDevice" onChange="this.form.submit();">
 						<option value="0">-please select-</option>
-						<option value="-999" '.(cleanInteger(@$_REQUEST['newDevice']=='-999')?' selected="selected" ':'').'>[Local Orbiter</option>
+						<option value="-300" '.(cleanInteger(@$_REQUEST['newDevice']=='-300')?' selected="selected" ':'').'>[Local Orbiter</option>
 				';
 				
 				if (isset($devicesAllowed) && is_array($devicesAllowed) && count($devicesAllowed)!=0) {
@@ -298,7 +298,7 @@ function editCommandGroup($output,$dbADO) {
 				';
 				
 				if (isset($_REQUEST['newDevice']) && cleanInteger($_REQUEST['newDevice'])!=0) {
-					if(cleanInteger(@$_REQUEST['newDevice']!='-999')){
+					if(cleanInteger(@$_REQUEST['newDevice']!='-300')){
 						$query = "SELECT PK_Command,Command.Description
 										FROM Device 
 												INNER JOIN DeviceTemplate_DeviceCommandGroup ON Device.FK_DeviceTemplate = DeviceTemplate_DeviceCommandGroup.FK_DeviceTemplate 

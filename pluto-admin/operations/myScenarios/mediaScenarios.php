@@ -320,8 +320,8 @@ function mediaScenarios($output,$dbADO) {
 							$CG_C_insertID=$dbADO->Insert_ID();
 							
 							$queryInsertCommandGroup_Command = "INSERT INTO CommandGroup_Command (FK_CommandGroup,FK_Command,FK_Device) values(?,?,?)";			
-							$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandSetVar'],-999));			
-							$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandGotoScreen'],-999));			
+							$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandSetVar'],-300));			
+							$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandGotoScreen'],-300));			
 						}else{
 							$selectOptions='
 								SELECT PK_CommandGroup FROM CommandGroup
