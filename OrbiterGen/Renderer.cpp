@@ -254,7 +254,8 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
 //			SaveImageToFile(pRenderImageClone, "c:/x/compositec");
 			if( pRendererMNG )
 				pRendererMNG->ReplaceFrame(iFrame, pRenderImageClone);
-			delete pRenderImageClone;
+			else
+				delete pRenderImageClone;
 		}
         // If this is a screen (ie top level object) then we should always save something even
         // if there was no input file.
