@@ -18,7 +18,7 @@ ReplaceVars()
 	local File Commands Vars VarValue SedCmd
 	File="$1"
 	
-	Vars="CORE_INTERNAL_ADDRESS INTERNAL_SUBNET INTERNAL_SUBNET_MASK MOON_ENTRIES MOON_ADDRESS"
+	Vars="CORE_INTERNAL_ADDRESS INTERNAL_SUBNET INTERNAL_SUBNET_MASK MOON_ENTRIES MOON_ADDRESS DYNAMIC_IP_RANGE"
 
 	for i in $Vars; do
 		eval "VarValue=\"\$$i\""
@@ -164,14 +164,10 @@ done
 DYNAMIC_IP_RANGE=
 if [ "${DHCPsetting%,*}" != "$DHCPsetting" ]; then
 	DHCPRange="${DHCPsetting#*,}"
-	Range1="${DHCPsetting%-*}"
-	Range2="${DHCPsetting#*-}"
+	Range1="${DHCPRange%-*}"
+	Range2="${DHCPRange#*-}"
 
-	DYNAMIC_IP_RANGE="
-	pool {
-		allow unknown-clients;
-		range $Range1 $Range2;
-	}"
+	DYNAMIC_IP_RANGE=$(printf "%s" "\n\tpool {\n\t\tallow unknown-clients;\n\t\trange $Range1 $Range2;\n\t}")
 fi
 
 ReplaceVars /etc/dhcp3/dhcpd.conf.$$
