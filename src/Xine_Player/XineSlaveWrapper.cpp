@@ -983,11 +983,17 @@ void XineSlaveWrapper::stopMedia(int iStreamID)
 		g_pPlutoLogger->Write(LV_STATUS, "Done.");
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Disposing the event queue");
-	xine_event_dispose_queue(pStream->m_pStreamEventQueue);
+	if ( pStream->m_pStreamEventQueue )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Disposing the event queue");
+		xine_event_dispose_queue(pStream->m_pStreamEventQueue);
+	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Calling xine_dispose for stream with id: %d", iStreamID);
-	xine_dispose(pStream->m_pStream);
+	if ( pStream->m_pStream )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Calling xine_dispose for stream with id: %d", iStreamID);
+		xine_dispose(pStream->m_pStream);
+	}
 
 	if ( m_pXineAudio )
 	{
