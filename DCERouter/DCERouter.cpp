@@ -1401,12 +1401,7 @@ void Router::Configure()
         if( CommandLine.size()==0 && pRow_Device->FK_DeviceTemplate_getrow()->ImplementsDCE_get() )
             CommandLine = FileUtils::ValidCPPName(pRow_Device->FK_DeviceTemplate_getrow()->Description_get());
 
-        DeviceData_Router *pDevice = new DeviceData_Router(
-            pRow_Device->PK_Device_get(),pRow_Device->FK_Installation_get(),pRow_Device->FK_DeviceTemplate_get(),pRow_Device->FK_Device_ControlledVia_get(),
-            pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get(),
-			m_mapRoom_Find(pRow_Device->FK_Room_get()),pRow_Device->FK_DeviceTemplate_getrow()->ImplementsDCE_get()==1,
-			pRow_Device->FK_DeviceTemplate_getrow()->IsEmbedded_get()==1,
-            CommandLine,pRow_Device->FK_DeviceTemplate_getrow()->IsPlugIn_get()==1,pRow_Device->Description_get(),pRow_Device->IPaddress_get(),pRow_Device->MACaddress_get());
+        DeviceData_Router *pDevice = new DeviceData_Router(pRow_Device,m_mapRoom_Find(pRow_Device->FK_Room_get()),CommandLine);
 
         m_mapDeviceData_Router[pDevice->m_dwPK_Device]=pDevice;
 

@@ -85,18 +85,20 @@ class DLL_EXPORT Row_Installation_Users : public TableRow, public SerializeClass
 		long int m_FK_Installation;
 long int m_FK_Users;
 short int m_userCanModifyInstallation;
+short int m_userCanChangeHouseMode;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[8];
+		bool is_null[9];
 	
 	public:
 		long int FK_Installation_get();
 long int FK_Users_get();
 short int userCanModifyInstallation_get();
+short int userCanChangeHouseMode_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -107,6 +109,7 @@ string psc_mod_get();
 		void FK_Installation_set(long int val);
 void FK_Users_set(long int val);
 void userCanModifyInstallation_set(short int val);
+void userCanChangeHouseMode_set(short int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -114,13 +117,15 @@ void psc_frozen_set(short int val);
 void psc_mod_set(string val);
 
 		
-		bool psc_id_isNull();
+		bool userCanChangeHouseMode_isNull();
+bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
 bool psc_frozen_isNull();
 
 			
-		void psc_id_setNull(bool val);
+		void userCanChangeHouseMode_setNull(bool val);
+void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
 void psc_frozen_setNull(bool val);
@@ -145,7 +150,7 @@ class Row_Users* FK_Users_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_FK_Installation+ m_FK_Users+ m_userCanModifyInstallation+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_FK_Installation+ m_FK_Users+ m_userCanModifyInstallation+ m_userCanChangeHouseMode+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -153,6 +158,7 @@ class Row_Users* FK_Users_getrow();
 		string FK_Installation_asSQL();
 string FK_Users_asSQL();
 string userCanModifyInstallation_asSQL();
+string userCanChangeHouseMode_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

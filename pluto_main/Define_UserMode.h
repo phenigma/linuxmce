@@ -1,6 +1,10 @@
 #ifndef __Define_UserMode_H__
 #define __Define_UserMode_H__
 
+#define USERMODE_At_Home_CONST 1
+#define USERMODE_Away_CONST 2
+#define USERMODE_Sleeping_CONST 3
+#define USERMODE_Do_not_disturb_CONST 4
 
 #define USERMODE_TABLE "UserMode"
 #define USERMODE_PK_USERMODE_FIELD "PK_UserMode"

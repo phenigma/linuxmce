@@ -138,7 +138,8 @@ void psc_frozen_setNull(bool val);
 		
 
 		// Return the rows in other tables with foreign keys pointing here
-		
+		void Users_FK_UserMode_getrows(vector <class Row_Users*> *rows);
+
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {

@@ -30,6 +30,7 @@
 #include "PlutoUtils/Other.h"
 
 #include <iostream>
+#include <sstream>
 using namespace std;
 using namespace DCE;
 
@@ -155,3 +156,39 @@ class DataGridTable *Security_Plugin::SecurityScenariosGrid( string GridID, stri
 */
 
 
+//<-dceag-c19-b->
+
+	/** @brief COMMAND: #19 - Set House Mode */
+	/** Sets the current security setting (at home, away, etc.) for the house */
+		/** @param #5 Value To Assign */
+			/** A value from the HouseMode table */
+		/** @param #17 PK_Users */
+			/** The user setting the mode */
+		/** @param #18 Errors */
+			/** not used by the Orbiter.  This is used only when sending the action to the core. */
+		/** @param #99 Password */
+			/** The password, or PIN of the user */
+
+void Security_Plugin::CMD_Set_House_Mode(string sValue_To_Assign,int iPK_Users,string sErrors,string sPassword,string &sCMD_Result,Message *pMessage)
+//<-dceag-c19-e->
+{
+	ostringstream sql;
+	sql << "SELECT PK_Users,Username FROM Users JOIN Installation_Users ON FK_Users=PK_Users WHERE FK_Installation="
+		<< m_pRouter->iPK_Installation_get();
+	/*
+		Description LIKE 'PK_%'";
+	PlutoSqlResult result_set;
+	MYSQL_ROW row=NULL;
+	if( ( result_set.r=m_pDatabase->mysql_query_result( sql.str( ) ) ) )
+	{
+		while( ( row = mysql_fetch_row( result_set.r ) ) )
+		{
+			string FieldName = row[0];
+			class Table *pTable = m_pDatabase->GetTableFromForeignKeyString( this, FieldName );
+			Field *pField_PrimaryKey = pTable->m_mapField_Find( "PK_" + pTable->Name_get( ) );
+			pField->m_listField_IReferTo_Indirectly.push_back( pField_PrimaryKey );
+			pField_PrimaryKey->m_listField_ReferringToMe_Indirectly.push_back( pField );
+		}
+	}
+	*/
+}

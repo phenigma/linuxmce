@@ -151,9 +151,9 @@ bool Lighting_Plugin::LightingCommand( class Socket *pSocket, class Message *pMe
 	if( pDevice_RouterTo )
 	{
 		if( pMessage->m_dwID==COMMAND_Generic_On_CONST )
-			pDevice_RouterTo->m_iLastState=100;
+			pDevice_RouterTo->m_sState_set("ON");
 		else if( pMessage->m_dwID==COMMAND_Generic_Off_CONST )
-			pDevice_RouterTo->m_iLastState=0;
+			pDevice_RouterTo->m_sState_set("OFF");
 	}
 	if( pMessage->m_sPK_Device_List_To.length() ) 
 	{
@@ -165,9 +165,9 @@ bool Lighting_Plugin::LightingCommand( class Socket *pSocket, class Message *pMe
 			if( pDeviceData_Router )
 			{
 				if( pMessage->m_dwID==COMMAND_Generic_On_CONST )
-					pDeviceData_Router->m_iLastState=100;
+					pDevice_RouterTo->m_sState_set("ON");
 				else if( pMessage->m_dwID==COMMAND_Generic_Off_CONST )
-					pDeviceData_Router->m_iLastState=0;
+					pDevice_RouterTo->m_sState_set("OFF");
 			}
 			if( pos>=pMessage->m_sPK_Device_List_To.length() || pos==string::npos )
 				break;
@@ -188,7 +188,7 @@ void Lighting_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Rout
 	case FLOORPLANOBJECTTYPE_LIGHT_CHANDALIER_CONST:
 	case FLOORPLANOBJECTTYPE_LIGHT_PICTURE_LIGHT_CONST:
 	case FLOORPLANOBJECTTYPE_LIGHT_ACCENT_LIGHT_CONST:
-		if( pDeviceData_Router->m_iLastState==0 )
+		if( pDeviceData_Router->m_sState_get()=="OFF" )
 			iPK_FloorplanObjectType_Color = FLOORPLANOBJECTTYPE_COLOR_LIGHT_CEILING_LIGHT_OFF_CONST;
 		else
 			iPK_FloorplanObjectType_Color = FLOORPLANOBJECTTYPE_COLOR_LIGHT_CEILING_LIGHT_ON_CONST;

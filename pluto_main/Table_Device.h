@@ -94,13 +94,15 @@ string m_MACaddress;
 short int m_IgnoreOnOff;
 long int m_FK_Device_SlaveTo;
 short int m_NeedConfigure;
+string m_State;
+string m_Status;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[18];
+		bool is_null[20];
 	
 	public:
 		long int PK_Device_get();
@@ -116,6 +118,8 @@ string MACaddress_get();
 short int IgnoreOnOff_get();
 long int FK_Device_SlaveTo_get();
 short int NeedConfigure_get();
+string State_get();
+string Status_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -136,6 +140,8 @@ void MACaddress_set(string val);
 void IgnoreOnOff_set(short int val);
 void FK_Device_SlaveTo_set(long int val);
 void NeedConfigure_set(short int val);
+void State_set(string val);
+void Status_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -152,6 +158,8 @@ bool IPaddress_isNull();
 bool MACaddress_isNull();
 bool FK_Device_SlaveTo_isNull();
 bool NeedConfigure_isNull();
+bool State_isNull();
+bool Status_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -167,6 +175,8 @@ void IPaddress_setNull(bool val);
 void MACaddress_setNull(bool val);
 void FK_Device_SlaveTo_setNull(bool val);
 void NeedConfigure_setNull(bool val);
+void State_setNull(bool val);
+void Status_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -213,7 +223,7 @@ void InfraredGroup_Command_FK_Device_getrows(vector <class Row_InfraredGroup_Com
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Device+ m_Disabled+ m_FK_Room+ m_FK_Installation+ m_FK_DesignObj+ m_Description+ m_FK_DeviceTemplate+ m_FK_Device_ControlledVia+ m_IPaddress+ m_MACaddress+ m_IgnoreOnOff+ m_FK_Device_SlaveTo+ m_NeedConfigure+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_Device+ m_Disabled+ m_FK_Room+ m_FK_Installation+ m_FK_DesignObj+ m_Description+ m_FK_DeviceTemplate+ m_FK_Device_ControlledVia+ m_IPaddress+ m_MACaddress+ m_IgnoreOnOff+ m_FK_Device_SlaveTo+ m_NeedConfigure+ m_State+ m_Status+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -231,6 +241,8 @@ string MACaddress_asSQL();
 string IgnoreOnOff_asSQL();
 string FK_Device_SlaveTo_asSQL();
 string NeedConfigure_asSQL();
+string State_asSQL();
+string Status_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

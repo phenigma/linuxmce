@@ -2,6 +2,8 @@
 #define DCEDEVICE_H
 
 #include "DeviceData_Impl.h"
+#include "pluto_main/Table_Device.h"
+#include "pluto_main/Table_DeviceTemplate.h"
 
 class Row_Device_Device_Pipe;
 
@@ -96,6 +98,11 @@ namespace DCE
 
 	class DeviceData_Router : public DeviceData_Impl
 	{
+	private:
+		// The following are stored in the Device table so they persist
+		string m_sStatus; // A device can set a generic status message, such as "triggered".  There is no predefined purpose.  Status is considered a constantly changing value
+		string m_sState;  // This is user defined.  Examples are: on, off, 50%, bypassed, etc.  State is the value that the user set and wants the device to stay in
+
 	public:
 
 		// **** SERIALIZED VALUES FROM THE CONFIGURATION FILE ****
@@ -134,10 +141,6 @@ namespace DCE
 		bool m_bIsRegistered,m_bIsReady; // Some devices will set this by sending a ready message/event
 		bool m_bBusy; // A device can be marked busy.  It's messages will be queued until this flag is cleared
 		bool m_bAlert;  // A device with this flag set is having a problem
-		string m_sStatus; // A device can set a generic status message, such as "triggered".  There is no predefined purpose
-		// When a device received an on or an off, the state is set to 0 or -1.  A plug-in may override this
-		// and assign a value of, for example, 1-99 for a percentage of brightness
-		int m_iLastState;
 
 		string m_IPAddr;
 		time_t m_tCanReceiveNextCommand,m_tLastused;
@@ -145,21 +148,29 @@ namespace DCE
 		char *m_pMySerializedData;  // A copy of the device serialized so we don't have to do it for each request
 		int m_iConfigSize;
 
+		string m_sStatus_get() { return m_sStatus; }
+		string m_sState_get() { return m_sState; }
+		void m_sStatus_set(string sStatus) { m_sStatus=sStatus; m_pRow_Device->Status_set(m_sStatus); m_pRow_Device->Table_Device_get()->Commit(); }
+		void m_sState_set(string sState) { m_sState=sState; m_pRow_Device->State_set(m_sState); m_pRow_Device->Table_Device_get()->Commit(); }
+
 		// **** POINTERS CREATED BY THE SERIALIZED ID'S ****
 
 		Room *m_pRoom;
 		class DeviceData_Router *m_pDevice_SlaveTo;
 		class DeviceData_Router *m_pDevice_Audio,*m_pDevice_Video;
+		Row_Device *m_pRow_Device;
 
-		DeviceData_Router(unsigned long  iPK_Device,unsigned long  iPK_Installation,unsigned long  iPK_DeviceTemplate,unsigned long  iPK_Device_ControlledVia, unsigned long m_dwPK_DeviceCategory, Room *pRoom,bool bImplementsDCE,bool bIsEmbedded,
-			string sCommandLine,bool bIsPlugIn,string sDescription,string sIPAddress,string sMacAddress)
-			: DeviceData_Impl(iPK_Device,iPK_Installation,iPK_DeviceTemplate,iPK_Device_ControlledVia,m_dwPK_DeviceCategory,pRoom ? pRoom->m_dwPK_Room : 0,
-			bImplementsDCE,bIsEmbedded,sCommandLine,bIsPlugIn,sDescription,sIPAddress,sMacAddress)
+		DeviceData_Router(Row_Device *pRow_Device, Room *pRoom, string sCommandLine)
+			: DeviceData_Impl(pRow_Device->PK_Device_get(),pRow_Device->FK_Installation_get(),pRow_Device->FK_DeviceTemplate_get(),pRow_Device->FK_Device_ControlledVia_get(),pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get(),pRoom ? pRoom->m_dwPK_Room : 0,
+			pRow_Device->FK_DeviceTemplate_getrow()->ImplementsDCE_get()==1,
+			pRow_Device->FK_DeviceTemplate_getrow()->IsEmbedded_get()==1,sCommandLine,pRow_Device->FK_DeviceTemplate_getrow()->IsPlugIn_get()==1,pRow_Device->Description_get(),pRow_Device->IPaddress_get(),pRow_Device->MACaddress_get())
 		{
+			m_pRow_Device=pRow_Device;
 			m_dwPK_Device_SlaveTo=0;
-			m_iLastState=0;
 			m_bForceReloadOnFirstConnect=m_bIsRegistered=m_bIsReady=m_bBusy=m_bAlert=false;
 			m_tLastused=m_tCanReceiveNextCommand=0;
+			m_sState = m_pRow_Device->State_get();
+			m_sStatus = m_pRow_Device->Status_get();
 
 			m_pRoom=pRoom;
 			m_pDevice_ControlledVia=m_pDevice_SlaveTo=NULL;
