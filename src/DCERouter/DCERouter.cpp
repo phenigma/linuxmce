@@ -614,7 +614,9 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 
     SafetyMessage SafetyMessage(pMessageWillBeDeleted);
 
-    if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_REGISTER_INTERCEPTOR )
+	PLUTO_SAFETY_LOCK(cm,m_CoreMutex);  // Protect the interceptor map
+
+	if( (*SafetyMessage)->m_dwMessage_Type==MESSAGETYPE_REGISTER_INTERCEPTOR )
     {
         RegisterMsgInterceptor( (*SafetyMessage) );
         return;
@@ -751,6 +753,8 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 			}
 		}
 	}
+	cm.Release();
+
     int tempid = (*SafetyMessage)->m_dwPK_Device_To;
     if(tempid == m_dwPK_Device)
         tempid = DEVICEID_DCEROUTER;

@@ -222,6 +222,7 @@ protected:
 	 */
 	void RealRedraw( void *iData );
 
+public: // temp - remove this
 	/**
 	 * @brief Timeout the object, which is data
 	 */

@@ -469,10 +469,9 @@ g_pPlutoLogger->Write(LV_CRITICAL,"::Screen saver Bypass screen saver now: %d",(
 
 void Orbiter::Timeout( void *data )
 {
+g_pPlutoLogger->Write(LV_STATUS,"Screen %s timed out data: %p",m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(),data);
 	if( !data || data!=(void *) m_pScreenHistory_Current->m_pObj )
 		return;
-
-g_pPlutoLogger->Write(LV_STATUS,"Screen %s timed out",m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str());
 
 	DesignObj_Orbiter *pObj = (DesignObj_Orbiter *) data;
     Message *pMessage_GotoScreen=NULL;
@@ -4061,11 +4060,13 @@ void *MaintThread(void *p)
 			timespec ts_NextCallBack,ts_now;
 			ts_NextCallBack.tv_sec=0;
 			gettimeofday(&ts_now,NULL);
-
+g_pPlutoLogger->Write(LV_STATUS,"Awoke with %d pending",(int) mapPendingCallbacks.size());
 			//let's choose the one which must be processed first
 			for(map<int,CallBackInfo *>::iterator it=mapPendingCallbacks.begin();it!=mapPendingCallbacks.end();)
 			{
 				CallBackInfo *pCallBackInfo = (*it).second;
+if( pCallBackInfo->m_fnCallBack==Orbiter::Timeout)
+g_pPlutoLogger->Write(LV_STATUS,"Found a screen timeout - stop: %d  sec: %d now: %d",(int) pCallBackInfo->m_bStop,(int) pCallBackInfo->m_abstime.tv_sec,(int) ts_now.tv_sec );
 				if( pCallBackInfo->m_bStop )
 				{
 					mapPendingCallbacks.erase( it++ );  // This is dead anyway
@@ -4074,6 +4075,8 @@ void *MaintThread(void *p)
 				}
 				else if(pCallBackInfo->m_abstime <= ts_now)
 				{
+if( pCallBackInfo->m_fnCallBack==Orbiter::Timeout)
+g_pPlutoLogger->Write(LV_STATUS,"Found a screen timeout - good to go");
 					mapPendingCallbacks.erase( it );
 					pCallBackInfoGood = pCallBackInfo;
 					break;  // We got one to execute now
@@ -4085,6 +4088,9 @@ void *MaintThread(void *p)
 
 			if( pCallBackInfoGood )
 			{
+if( pCallBackInfoGood->m_fnCallBack==Orbiter::Timeout)
+g_pPlutoLogger->Write(LV_STATUS,"Found a screen timeout - executing");
+
 				pthread_mutex_unlock(&pOrbiter->m_MaintThreadMutex.mutex);  // Don't keep the mutex locked while executing
 				CALL_MEMBER_FN(*(pCallBackInfoGood->m_pOrbiter), pCallBackInfoGood->m_fnCallBack)(pCallBackInfoGood->m_pData);
 //                              CALL_MEMBER_FN(*pOrbiterGood, fnCallBackGood)(pDataGood);^M
@@ -4364,7 +4370,7 @@ g_pPlutoLogger->Write(LV_STATUS,"CMD_Goto_Screen: %s",sPK_DesignObj.c_str());
     {
         g_pPlutoLogger->Write( LV_CRITICAL, "cannot find screen %s in goto", sPK_DesignObj.c_str(  ) );
 		// Just go to the main menu since maybe we're stuck!
-		if( m_pScreenHistory_Current->m_pObj==m_pDesignObj_Orbiter_MainMenu )
+		if( m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj==m_pDesignObj_Orbiter_MainMenu )
 	        return;
 		pObj_New = m_pScreenHistory_Current->m_pObj;
     }

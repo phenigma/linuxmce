@@ -228,7 +228,10 @@ bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 			g_pPlutoLogger->Write(LV_CRITICAL,"Displaying one moment message");
 		}
 
-		pXineMediaStream->m_sMediaDescription = "Media Desc";
+		if( pXineMediaStream->m_dequeMediaFile.size() )
+			pXineMediaStream->m_sMediaDescription = pXineMediaStream->m_dequeMediaFile[0]->m_sFilename;
+		else
+			pXineMediaStream->m_sMediaDescription = "DVD";
 
 		g_pPlutoLogger->Write(LV_STATUS, "Got pluto DVD media type");
 		// Find a disk Drive in one of the entertainment areas.
