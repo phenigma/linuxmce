@@ -1,7 +1,7 @@
 <?
 function leftMenu($output,$dbADO) {
 	// this should be removed before release
-	global $dbDatabase;
+
 	// end remove line
 	$out='';
 	$currentSection = @cleanString($_REQUEST['rightSection']);
@@ -18,10 +18,6 @@ function leftMenu($output,$dbADO) {
 	
 	if (isset($_SESSION['userLoggedIn']) && $_SESSION['userLoggedIn']==true) {
 		$out.='
-				<tr>
-					<td valign="top">Database: <b>'.$dbDatabase.'</b></td>					
-				</tr>
-
 				<tr>
 					<td valign="top">'.($currentSection=='login'?'&raquo;':'').'<a href="index.php?section=login&action=logout" target="basefrm" >Logout</a></td>					
 				</tr>

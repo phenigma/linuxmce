@@ -1,6 +1,6 @@
 <?php
 
-session_start();
+session_start('Pluto-admin');
 
 require('include/config/config.inc.php');
 require('include/utils.inc.php');
@@ -469,6 +469,13 @@ switch ($section) {
 	    include_once('operations/myDevices/orbiters/orbiters.php');
 	    orbiters($output,$dbADO);	    
 	break;
+	case 'wizardOrbiters':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/myDevices/orbiters/wizardOrbiters.php');
+	    wizardOrbiters($output,$dbADO);	    
+	break;
+	
 	//categories
 	case 'manageCategories':
 		$output = new Template($dbADO);

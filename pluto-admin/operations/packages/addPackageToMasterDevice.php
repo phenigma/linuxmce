@@ -174,7 +174,7 @@ function addPackageToMasterDevice($output,$dbADO) {
 							frmvalidator.addValidation("source_'.$rowSource['PK_Package_Source'].'","req","Please enter a source name!");';
 	
 						$out.='
-							<tr>
+							<tr bgcolor="#F0F3F8">
 								<td>Name</td>
 								<td>Repository Source</td>
 								<td>Repository</td>
@@ -182,7 +182,7 @@ function addPackageToMasterDevice($output,$dbADO) {
 								<td>Parms</td>
 								<td>&nbsp;</td>
 							</tr>
-							<tr>
+							<tr bgcolor="#F0F3F8">
 								<td><input type="text" name="source_'.$rowSource['PK_Package_Source'].'" value="'.$rowSource['Name'].'"></td>
 								<td><select name="repositorySource_'.$rowSource['PK_Package_Source'].'">
 								<option value="0">-Any-</option>';
@@ -271,8 +271,10 @@ function addPackageToMasterDevice($output,$dbADO) {
 						foreach($arrayDescriptionDistro as $key => $value){
 							$out.='<option value="'.$arrayIdDistro[$key].'" '.(($arrayIdDistro[$key]==$row['FK_Distro'])?'selected':'').'>'.$value.'</option>';
 						}
-						$out.='	</select>
+						$out.='	</select> Path:
 						<input type="text" name="packageDirectoryPath_'.$row['PK_Package_Directory'].'" value="'.$row['Path'].'">
+						Alternate input path: <input type="text" name="packageDirectoryInputPath_'.$row['PK_Package_Directory'].'" value="'.$row['InputPath'].'">
+						Flip source <input type="checkbox" name="packageDirectoryFlipSource_'.$row['PK_Package_Directory'].'" value="1" '.(($row['FlipSource']=='1')?'checked':'').'>
 						<input type="submit" name=da value="Save">
 						</legend>';
 					
@@ -450,8 +452,10 @@ function addPackageToMasterDevice($output,$dbADO) {
 				$pdOperatingSystem=(cleanInteger(@$_POST['packageDirectoryOS_'.$elem]))?cleanInteger(@$_POST['packageDirectoryOS_'.$elem]):NULL;
 				$pdDistro=(cleanInteger(@$_POST['packageDirectoryDistro_'.$elem]))?cleanInteger(@$_POST['packageDirectoryDistro_'.$elem]):NULL;
 				$pdPath=cleanString(@$_POST['packageDirectoryPath_'.$elem]);
-				$updatePackageDirectory='UPDATE Package_Directory SET FK_OperatingSystem=?, FK_Distro=?, Path=? WHERE PK_Package_Directory=?';
-				$dbADO->Execute($updatePackageDirectory,array($pdOperatingSystem,$pdDistro,$pdPath,$elem));
+				$pdInputPath=(@$_POST['packageDirectoryInputPath_'.$elem]!='')?cleanString(@$_POST['packageDirectoryInputPath_'.$elem]):NULL;
+				$pdFlipSource=(@$_POST['packageDirectoryFlipSource_'.$elem]=='1')?1:0;
+				$updatePackageDirectory='UPDATE Package_Directory SET FK_OperatingSystem=?, FK_Distro=?, Path=?, InputPath=?, FlipSource=? WHERE PK_Package_Directory=?';
+				$dbADO->Execute($updatePackageDirectory,array($pdOperatingSystem,$pdDistro,$pdPath,$pdInputPath,$pdFlipSource,$elem));
 			}
 
 			// update  Package_Directory_Files
