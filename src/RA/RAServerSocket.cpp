@@ -31,7 +31,7 @@ RAServerSocket::~RAServerSocket()
 
 void RAServerSocket::Run()
 {
-	RA_Processor *pRA_Processor = RA_Processor::CreateRA_Processor(new DCEMySqlConfig("c:\\pluto\\trunk\\bin\\PlutoConfig.conf"));
+	RA_Processor *pRA_Processor = RA_Processor::CreateRA_Processor(new DCEMySqlConfig("/etc/pluto.conf"));
 	while( pRA_Processor->ReceiveRequests(this) );
 	delete pRA_Processor;
 	if (!SOCKFAIL(m_Socket))

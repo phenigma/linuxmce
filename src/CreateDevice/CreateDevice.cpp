@@ -35,7 +35,7 @@ using namespace std;
 using namespace DCE;
 
 
-int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddress,string sMacAddress,int PK_Device_ControlledVia)
+int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddress,string sMacAddress,int PK_Device_ControlledVia,string *psConfigureScript)
 {
 	if( !m_bConnected )
 	{
@@ -70,14 +70,13 @@ int CreateDevice::DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddre
 	PlutoSqlResult result,result1,result1b,result2,result3;
 	MYSQL_ROW row;
 
-	string ConfigureScript;
 	int iPK_DeviceCategory;
 	string SQL = "SELECT FK_DeviceCategory,Description,ConfigureScript,IsPlugAndPlay FROM DeviceTemplate WHERE PK_DeviceTemplate=" + StringUtils::itos(iPK_DeviceTemplate);
 	if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
 	{
 		iPK_DeviceCategory = atoi(row[0]);
-		if( row[2] && row[3] && string(row[3])!="1" ) // Plug and play devices will spawn the ConfigureScript when plugged and call us--don't call the configure script again
-			ConfigureScript = string("/usr/pluto/bin/") + row[2];
+		if( psConfigureScript && pconf row[2] && row[3] && string(row[3])!="1" ) // Plug and play devices will spawn the ConfigureScript when plugged and call us--don't call the configure script again
+			(*psConfigureScript) = string("/usr/pluto/bin/") + row[2];
 	}
 	else
 	{
@@ -189,10 +188,6 @@ g_pPlutoLogger->Write(LV_STATUS,"Found %d rows with %s",(int) result3.r->row_cou
 	CreateChildrenByCategory(PK_Device,iPK_DeviceCategory);
 	CreateChildrenByTemplate(PK_Device,iPK_DeviceTemplate);
 
-	if( ConfigureScript.length() )
-	{
-		system( (ConfigureScript + " " + StringUtils::itos(PK_Device) + " \"" + sIPAddress + "\" \"" + sMacAddress + "\"").c_str() );
-	}
 	return PK_Device;
 }
 

@@ -11,7 +11,7 @@ public:
 	CreateDevice(int PK_Installation,string host, string user, string pass, string db_name, int port=3306) 
 		: MySqlHelper(host, user, pass, db_name, port) { m_iPK_Installation=PK_Installation; }
 
-	int DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddress,string sMacAddress,int PK_Device_ControlledVia=0);
+	int DoIt(int iPK_DHCPDevice,int iPK_DeviceTemplate,string sIPAddress,string sMacAddress,int PK_Device_ControlledVia=0,string *psConfigureScript=NULL);
 	void CreateChildrenByCategory(int iPK_Device,int iPK_DeviceCategory);
 	void CreateChildrenByTemplate(int iPK_Device,int iPK_DeviceTemplate);
 };

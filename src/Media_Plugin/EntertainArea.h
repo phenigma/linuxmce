@@ -7,6 +7,7 @@
 
 namespace DCE
 {
+	class Room;
 
 	/** @brief An entertainment area is a cluster of devices.  It's analogous to a Room, except you can have multiple entertainment areas in a room, like
 	* a 'his' and 'hers' tv in the bedroom.
@@ -18,11 +19,12 @@ namespace DCE
 
 		/** @brief constructor*/
 
-		EntertainArea(int iPK_EntertainArea,bool bOnly1Stream,string sDescription)
-		{ m_iPK_EntertainArea=iPK_EntertainArea; m_bOnly1Stream=bOnly1Stream; m_pMediaStream=NULL; m_sDescription=sDescription; }
+		EntertainArea(int iPK_EntertainArea,bool bOnly1Stream,string sDescription,Room *pRoom)
+		{ m_iPK_EntertainArea=iPK_EntertainArea; m_bOnly1Stream=bOnly1Stream; m_pMediaStream=NULL; m_sDescription=sDescription; m_pRoom=pRoom; }
 
 		int m_iPK_EntertainArea;
 		string m_sDescription;
+		Room *m_pRoom;
 
 		class MediaStream  *m_pMediaStream;   /** The current media streams in this entertainment area */
 

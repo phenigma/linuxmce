@@ -239,7 +239,9 @@ g_pPlutoLogger->Write(LV_STATUS,"set ent area %d %s to Room: %d %s has no video"
         for( size_t s=0;s<vectRow_EntertainArea.size( );++s )
         {
             Row_EntertainArea *pRow_EntertainArea = vectRow_EntertainArea[s];
-            EntertainArea *pEntertainArea = new EntertainArea( pRow_EntertainArea->PK_EntertainArea_get( ), ( pRow_EntertainArea->Only1Stream_get( )==1 ), pRow_EntertainArea->Description_get() );
+            EntertainArea *pEntertainArea = new EntertainArea( pRow_EntertainArea->PK_EntertainArea_get( ), 
+				( pRow_EntertainArea->Only1Stream_get( )==1 ), pRow_EntertainArea->Description_get(),
+				m_pRouter->m_mapRoom_Find(pRow_Room->PK_Room_get()) );
             m_mapEntertainAreas[pEntertainArea->m_iPK_EntertainArea]=pEntertainArea;
             // Now find all the devices in the ent area
             vector<Row_Device_EntertainArea *> vectRow_Device_EntertainArea;
@@ -1660,15 +1662,29 @@ EntertainArea *Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_D
         OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find( iPK_Device_Orbiter );
         if( !pOH_Orbiter )
         {
-            g_pPlutoLogger->Write( LV_CRITICAL, "Received a play media with no entertainment area from a non-orbiter" );
+            g_pPlutoLogger->Write( LV_CRITICAL, "Received a play media with no entertainment area from a non-orbiter %d %d %d",iPK_Device_Orbiter,iPK_Device,iPK_EntertainArea );
             return NULL; // Don't know what area it should be played in
         }
 
         iPK_EntertainArea = pOH_Orbiter->m_pEntertainArea ? pOH_Orbiter->m_pEntertainArea->m_iPK_EntertainArea : 0;
         if( !iPK_EntertainArea )
         {
-            g_pPlutoLogger->Write( LV_CRITICAL, "Received a DetermineEntArea from an orbiter with no entertainment area" );
-            return NULL; // Don't know what area it should be played in
+			// It could be an orbiter that was recently added
+			for( map<int, EntertainArea *>::iterator itEntArea=m_mapEntertainAreas.begin( );itEntArea!=m_mapEntertainAreas.end( );++itEntArea )
+			{
+				class EntertainArea *pEntertainArea = ( *itEntArea ).second;
+				if( pEntertainArea->m_pRoom && pEntertainArea->m_pRoom->m_dwPK_Room == pOH_Orbiter->m_dwPK_Room )
+				{
+					iPK_EntertainArea = pEntertainArea->m_iPK_EntertainArea;
+					break;
+				}
+			}
+
+			if( !iPK_EntertainArea )
+			{
+				g_pPlutoLogger->Write( LV_CRITICAL, "Received a DetermineEntArea from an orbiter with no entertainment area %d %d %d",iPK_Device_Orbiter,iPK_Device,iPK_EntertainArea );
+				return NULL; // Don't know what area it should be played in
+			}
         }
     }
 
@@ -1676,7 +1692,7 @@ EntertainArea *Media_Plugin::DetermineEntArea( int iPK_Device_Orbiter, int iPK_D
     EntertainArea *pEntertainArea = m_mapEntertainAreas_Find( iPK_EntertainArea );
     if( !pEntertainArea )
     {
-        g_pPlutoLogger->Write( LV_CRITICAL, "Received a play media for an invalid entertainment area" );
+        g_pPlutoLogger->Write( LV_CRITICAL, "Received a play media for an invalid entertainment area %d %d %d",iPK_Device_Orbiter,iPK_Device,iPK_EntertainArea );
         return NULL; // Don't know what area it should be played in
     }
     return pEntertainArea;

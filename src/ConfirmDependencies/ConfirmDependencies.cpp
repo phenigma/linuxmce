@@ -72,7 +72,7 @@ public:
 		Row_Package_Source *pRow_Package_Source, Row_RepositorySource_URL *pRow_RepositorySource_URL,
 		bool bMustBuild)
 	{
-if( pRow_Package_Source->FK_Package_get()==133 )
+if( pRow_Package_Source->FK_Package_get()==280 )
 {
 int k=2;
 }
@@ -625,7 +625,7 @@ void CheckPackage(Row_Package *pRow_Package,Row_Device *pRow_Device,bool bDevelo
 		}
 	}
 
-if( pRow_Package->PK_Package_get()==277 )
+if( pRow_Package->PK_Package_get()==280 )
 {
 int k=2;
 }
@@ -743,12 +743,22 @@ Row_Package_Source_Compat *FindPreferredSource(vector<Row_Package_Source_Compat 
 
 		if( pRow_Package_Source_Compat->FK_Package_Source_getrow()->FK_Package_getrow()->IsSource_get()==1 )
 		{
+			// Assume the user wants svn for source code if there's no preference in the database
+			if( pRow_Device->FK_Installation_getrow()->FK_RepositoryType_Source_isNull() && 
+				pRow_Package_Source_Compat->FK_Package_Source_getrow()->FK_RepositorySource_getrow()->FK_RepositoryType_get() == REPOSITORYTYPE_Subversion_SVN_CONST )
+				return pRow_Package_Source_Compat;
+
 			if( pRow_Package_Source_Compat->FK_Package_Source_getrow()->FK_RepositorySource_getrow()->FK_RepositoryType_get() ==
 					pRow_Device->FK_Installation_getrow()->FK_RepositoryType_Source_get() )
 				return pRow_Package_Source_Compat;
 		}
 		else
 		{
+			// Assume the user wants packages if there's no preference in the database
+			if( pRow_Device->FK_Installation_getrow()->FK_RepositoryType_Source_isNull() && 
+				pRow_Package_Source_Compat->FK_Package_Source_getrow()->FK_RepositorySource_getrow()->FK_RepositoryType_get() == REPOSITORYTYPE_PACKAGE_CONST )
+				return pRow_Package_Source_Compat;
+
 			if( pRow_Package_Source_Compat->FK_Package_Source_getrow()->FK_RepositorySource_getrow()->FK_RepositoryType_get() ==
 					pRow_Device->FK_Installation_getrow()->FK_RepositoryType_Binaries_get() )
 				return pRow_Package_Source_Compat;

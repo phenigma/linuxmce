@@ -155,7 +155,7 @@ bool PlutoConfig::MysqlConnect(bool bReset)
 	mysql_init(&m_MySQL);
 	if(! mysql_real_connect(&m_MySQL, m_sMysqlHost.c_str(), m_sMysqlUser.c_str(), m_sMysqlPass.c_str(), m_sMysqlDatabase.c_str(), 0, NULL,0))
 	{
-		ErrorLog << "Failed to connect to MySQL:" << mysql_error(&m_MySQL); }
+		ErrorLog << "Failed to connect to MySQL (2):" << mysql_error(&m_MySQL); }
 		return false;
 	} 
 	return true;
