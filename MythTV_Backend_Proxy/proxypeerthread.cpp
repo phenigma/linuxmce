@@ -104,7 +104,7 @@ ProxyPeerThread::replData(bool fromsrc) {
 	}
 	
 //	cout << "Received data: " << endl << datastr << endl;
-	g_pPlutoLogger->Write(LV_STATUS, "Received data: %s", datastr.c_str());
+//	g_pPlutoLogger->Write(LV_STATUS, "Received data: %s", datastr.c_str());
 
 	/*process data with interceptors*/
 	bool processed = false;
