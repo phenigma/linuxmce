@@ -250,7 +250,7 @@ int k=2;
                 // Be sure there are no windows paths in here.  Windows will work with forward slashes also, use them instead
                 sGraphicFile = StringUtils::Replace(sGraphicFile,"\\","/");
                 string sOriginalFile = sGraphicFile;
-                if( sGraphicFile[0]=='/' )
+	                if( sGraphicFile[0]=='/' )
                     sGraphicFile = m_pOrbiterGenerator->m_GraphicsBasePath + sGraphicFile;
                 else
                     sGraphicFile = m_pOrbiterGenerator->m_GraphicsBasePath + "/" + m_pOrbiterGenerator->m_pRow_Skin->DataSubdirectory_get() + "/" + sGraphicFile;
@@ -616,25 +616,28 @@ int k=2;
                         X = (X * ScaleFactor) / 1000;
                         Y = (Y * ScaleFactor) / 1000;
                         PlutoRectangle rectangle(m_rPosition.X+X,m_rPosition.Y+Y,0,0);
-                        DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,pRow_FloorplanObjectType->FK_DesignObj_Control_getrow(),
-                            rectangle,this,false,false);  // See if it will fill in the wdith/height automatically
-                        pDesignObj_Generator->m_bCanBeHidden = false;
-                        pDesignObj_Generator->m_bHideByDefault = false;
-                        pDesignObj_Generator->m_bChildrenBeforeText = false;
-                        pDesignObj_Generator->m_bChildrenBehind = false;
-                        pDesignObj_Generator->m_bDontMergeBackground = false;
-                        pDesignObj_Generator->m_iFloorplanPage = m_iFloorplanPage;
-                        pDesignObj_Generator->m_iFloorplanDevice = pRow_Device_DeviceData_FPInfo->FK_Device_get();
+						if( !pRow_FloorplanObjectType->FK_DesignObj_Control_isNull() )
+						{
+							DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,pRow_FloorplanObjectType->FK_DesignObj_Control_getrow(),
+								rectangle,this,false,false);  // See if it will fill in the wdith/height automatically
+							pDesignObj_Generator->m_bCanBeHidden = false;
+							pDesignObj_Generator->m_bHideByDefault = false;
+							pDesignObj_Generator->m_bChildrenBeforeText = false;
+							pDesignObj_Generator->m_bChildrenBehind = false;
+							pDesignObj_Generator->m_bDontMergeBackground = false;
+							pDesignObj_Generator->m_iFloorplanPage = m_iFloorplanPage;
+							pDesignObj_Generator->m_iFloorplanDevice = pRow_Device_DeviceData_FPInfo->FK_Device_get();
 
-                        // Scale these here because we need to reset all the x/y positions since we may have used a different scale factor
-                        pDesignObj_Generator->ScaleAllValues(m_pOrbiterGenerator->m_pRow_Size->ScaleX_get(),m_pOrbiterGenerator->m_pRow_Size->ScaleY_get(),NULL);
-                        m_alChildDesignObjs.push_back(pDesignObj_Generator);
-                        pDesignObj_Generator->m_rBackgroundPosition.X=X;
-                        pDesignObj_Generator->m_rBackgroundPosition.Y=Y;
-                        pDesignObj_Generator->m_rPosition.X=X;
-                        pDesignObj_Generator->m_rPosition.Y=Y;
+							// Scale these here because we need to reset all the x/y positions since we may have used a different scale factor
+							pDesignObj_Generator->ScaleAllValues(m_pOrbiterGenerator->m_pRow_Size->ScaleX_get(),m_pOrbiterGenerator->m_pRow_Size->ScaleY_get(),NULL);
+							m_alChildDesignObjs.push_back(pDesignObj_Generator);
+							pDesignObj_Generator->m_rBackgroundPosition.X=X;
+							pDesignObj_Generator->m_rBackgroundPosition.Y=Y;
+							pDesignObj_Generator->m_rPosition.X=X;
+							pDesignObj_Generator->m_rPosition.Y=Y;
 
-                        pDesignObj_Generator->m_pFloorplanFillPoint = new PlutoPoint(pRow_FloorplanObjectType->FillX_get() * ScaleFactor / 1000,pRow_FloorplanObjectType->FillY_get() * ScaleFactor / 1000);
+							pDesignObj_Generator->m_pFloorplanFillPoint = new PlutoPoint(pRow_FloorplanObjectType->FillX_get() * ScaleFactor / 1000,pRow_FloorplanObjectType->FillY_get() * ScaleFactor / 1000);
+						}
                     }
                 }
             }
