@@ -25,9 +25,6 @@
 using namespace std;
 using namespace EMBRUBY;
 
-#define SPORTTYPE_SERIAL		"SER"
-#define SPORTTYPE_NETWORK		"NET"
-
 namespace DCE {
 
 RubyIOManager* RubyIOManager::s_instance_ = NULL;
@@ -55,47 +52,52 @@ RubyIOManager::addDevice(DeviceData_Impl* pdevdata) {
 	g_pPlutoLogger->Write(LV_STATUS, "Adding child device: %d.", pdevdata->m_dwPK_Device);
 	cs_.addCode(pdb_, pdevdata);
 	
-	string portdesc = pdevdata->m_mapParameters[DEVICEDATA_Port_CONST], port;
-	if(portdesc.empty()) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "Port parameter not specified.");
+	string sport = pdevdata->m_mapParameters[DEVICEDATA_Port_CONST],
+			sporttype = pdevdata->m_mapParameters[DEVICEDATA_Port_Type_CONST];
+			
+	if(sport.empty() || sporttype.empty()) {
+		g_pPlutoLogger->Write(LV_CRITICAL, "Port and Port Type parameters must both be specified.");
 		return -1;
 	}
 
 	/*check the kind of device we instantiate, based on port string*/
+	int porttype = atoi(sporttype.c_str());
+	/*
 	PORTTYPE porttype = PortType(portdesc, port);
 	if(porttype == PORTTYPE_UNKNOWN) {
 		g_pPlutoLogger->Write(LV_WARNING, "Could not determine port Type from port Parameter.");
 		return -1;
-	}
+	}*/
 	
-	RubyIOPool*& ppool = pools_[port];
+	RubyIOPool*& ppool = pools_[sport];
 	if(ppool != NULL) {
-		g_pPlutoLogger->Write(LV_CRITICAL, "There is already a device configured for port: %s.", port.c_str());
+		g_pPlutoLogger->Write(LV_CRITICAL, "There is already a device configured for port: %s.", sport.c_str());
 		return -1;
 	} 
 
-	IOPool* pnewpool = NULL;	
+	IOPool* pnewpool = NULL;
 	switch(porttype) {
 		/*** Serial Device Initialization *********************************/
 		case PORTTYPE_SERIAL: {
 			string serport;
 			int bps = 9600;
 			
-			if(port.find("/dev/") == 0) {
-				port.erase(0, strlen("/dev/"));
+			if(sport.find("/dev/") == 0) {
+				sport.erase(0, strlen("/dev/"));
 			}
 			
 			/*/dev/ttyS0(9600)*/
 			/*parse conn params*/
-			int lpar = port.find("("), rpar = port.find(")", lpar + 1);
+			int lpar = sport.find("("), rpar = sport.find(")", lpar + 1);
 			if(lpar > 0 && rpar > 0) {
-				bps = atoi(port.substr(lpar + 1, rpar - lpar - 1).c_str());
-				serport = port.substr(0, lpar);
-				g_pPlutoLogger->Write(LV_STATUS, "Using port %s, at bps: %d.", serport.c_str(), bps);
+				bps = atoi(sport.substr(lpar + 1, rpar - lpar - 1).c_str());
+				serport = sport.substr(0, lpar);
 			} else {
-				serport = port;
+				serport = sport;
 			}
 		
+			g_pPlutoLogger->Write(LV_STATUS, "Using port %s, at bps: %d.", serport.c_str(), bps);
+			
 			pnewpool = new SerialIOPool();
 			SerialIOConnection* pio = reinterpret_cast<SerialIOConnection*>(pnewpool->getConnection());
 			pio->setBPS(bps);
@@ -108,15 +110,17 @@ RubyIOManager::addDevice(DeviceData_Impl* pdevdata) {
 			string netaddr;
 			int netport = -1;
 			
-			int lpar = port.find("("), rpar = port.find(")", lpar + 1);
+			int lpar = sport.find("("), rpar = sport.find(")", lpar + 1);
 			if(lpar > 0 && rpar > 0) {
-				netport = atoi(port.substr(lpar + 1, rpar - lpar - 1).c_str());
-				netaddr = port.substr(0, lpar);
-				g_pPlutoLogger->Write(LV_STATUS, "Using network device with address %s, at port: %d.", netaddr.c_str(), netport);
+				netport = atoi(sport.substr(lpar + 1, rpar - lpar - 1).c_str());
+				netaddr = sport.substr(0, lpar);
 			} else {
-				g_pPlutoLogger->Write(LV_WARNING, "Error in format of the NET port.");
-				return -1;
+				/*get device ip addr*/
+				netport = atoi(sport.c_str());
+				netaddr = pdevdata->GetIPAddress();
 			}
+			
+			g_pPlutoLogger->Write(LV_STATUS, "Using network device with address <%s>, at port: <%d>.", netaddr.c_str(), netport);
 			
 			pnewpool = new NetworkIOPool();
 			NetworkIOConnection* pio = reinterpret_cast<NetworkIOConnection*>(pnewpool->getConnection());
@@ -155,6 +159,7 @@ RubyIOManager::hasDevice(DeviceData_Base* pdevdata) {
 	return false;
 }
 
+/*
 RubyIOManager::PORTTYPE 
 RubyIOManager::PortType(const std::string& portdesc, std::string& port) {
 	if(portdesc.length() < 4) {
@@ -169,10 +174,13 @@ RubyIOManager::PortType(const std::string& portdesc, std::string& port) {
 	if(porttype == SPORTTYPE_NETWORK) {
 		port = portdesc.substr(4, portdesc.length() - 4);
 		return PORTTYPE_NETWORK;
+	} else {
+		port = portdesc;
+		return PORTTYPE_SERIAL;
 	}
 	return PORTTYPE_UNKNOWN;
 }
-
+*/
 	
 int 
 RubyIOManager::RouteMessageToDevice(DeviceData_Base* pdevdata, Message *pMessage) {

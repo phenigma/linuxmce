@@ -79,12 +79,11 @@ protected:
 	virtual void* _Run();
 
 	enum PORTTYPE {
-		PORTTYPE_UNKNOWN = 0,
+		PORTTYPE_UNKNOWN = -1,
 		PORTTYPE_SERIAL,
 		PORTTYPE_NETWORK
 	};
-	static PORTTYPE PortType(const std::string& portdesc, std::string& port);
-			
+		
 private:
 	bool DispatchMessageToDevice(Message *pmsg, unsigned deviceid);
 
