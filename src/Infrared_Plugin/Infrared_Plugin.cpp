@@ -560,23 +560,30 @@ void Infrared_Plugin::CMD_Add_GC100(string &sCMD_Result,Message *pMessage)
   int iPK_Device_Orbiter = pMessage->m_dwPK_Device_From;
   m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"Finding GC100");
 
-    returned = system(Command.c_str());
-            if ( returned == -1) {
-              g_pPlutoLogger->Write(LV_STATUS, "Failed Spawning configure script");
-            } else if( returned == 0) {
-              fp = fopen("/var/log/pluto/gc100-conf.log","rt");
-              if(fp != NULL) {
-                g_pPlutoLogger->Write(LV_STATUS, "Reading GC100 log file");
-                while(feof(fp) == 0) {
-		  fgets(line, 45, fp);
-		  size = strlen(line);
-                  g_pPlutoLogger->Write(LV_STATUS, "GC100-Conf : %s",line);
-		}
-		fclose(fp);
-              } else {
-		g_pPlutoLogger->Write(LV_STATUS, "GC100 Configure script did not generate any log's");
-              }
-              g_pPlutoLogger->Write(LV_STATUS, "The configure script returned with success");
-	      m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 added with success");
-            }
+  g_pPlutoLogger->Write(LV_STATUS, "Before");
+  returned = system(Command.c_str());
+  g_pPlutoLogger->Write(LV_STATUS, "After");
+
+    if ( returned == -1) {
+	g_pPlutoLogger->Write(LV_STATUS, "Failed Spawning configure script");
+	m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Failed");
+    } else if( returned == 0) {
+	fp = fopen("/var/log/pluto/gc100-conf.log","rt");
+        if(fp != NULL) {
+	    g_pPlutoLogger->Write(LV_STATUS, "Reading GC100 log file");
+            while(feof(fp) == 0) {
+		fgets(line, 45, fp);
+		size = strlen(line);
+                g_pPlutoLogger->Write(LV_STATUS, "GC100-Conf : %s",line);
+	    }
+	    fclose(fp);
+        } else {
+	    g_pPlutoLogger->Write(LV_STATUS, "GC100 Configure script did not generate any log's");
+	}
+        g_pPlutoLogger->Write(LV_STATUS, "The configure script returned with success");
+	m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 added with success");
+    } else {
+	g_pPlutoLogger->Write(LV_STATUS, "The config script returned weierd error");
+	m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter,"GC100 Failed");
+    }
 }
