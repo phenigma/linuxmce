@@ -40,20 +40,31 @@ CatMessages()
 	echo "$M"
 }
 
+# TODO: make these work at install time (currently they mess up debconf)
 InputBox()
 {
-	# 13 80
 	whiptail --inputbox "$(CatMessages "$@")" 0 0 --fb --nocancel --title Pluto 2>&1
 }
 
 MessageBox()
 {
-	# 10 30
 	whiptail --msgbox "$(CatMessages "$@")" 0 0 --fb --title Pluto
 }
 
 QuestionBox()
 {
-	# 13 80
 	whiptail --yesno "$(CatMessages "$@")" 0 0 --fb --title Pluto && echo "y" || echo "n"
+}
+# TODO: ends here
+
+ClearBlack()
+{
+	echo "[0;40m"
+	clear
+}
+
+ClearBlue()
+{
+	echo "[0;44m"
+	clear
 }

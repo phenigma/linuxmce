@@ -32,11 +32,13 @@ BUILD_ALL_MSG="We created a file called '$DIR/build_all.sh' which will make the 
 # ask "Try again?" question; return 1 on "Nn", 0 otherwise
 try_again()
 {
-#	echo "$(CatMessages "$@")"
-#	echo -n "Do you want to try again? (Y/n): "
-#	read again
-	again=$(QuestionBox "$@" "Do you want to try again?")
+	ClearBlue
+	echo "$(CatMessages "$@")"
+	echo -n "Do you want to try again? (Y/n): "
+	read again
+#	again=$(QuestionBox "$@" "Do you want to try again?")
 	[ "$again" == "N" -o "$again" == "n" ] && return 1
+	ClearBlack
 	return 0
 }
 
@@ -53,6 +55,7 @@ while [ "$ok" -eq 0 ]; do
 # ask user for activation key
 	ok_key=0
 	if [ "$Type" == "diskless" -a -n "$Device" -a -n "$Code" ]; then
+		clear
 		echo "Found Device and Activation Code in diskless.conf"
 		echo "Device: $Device"
 		echo "Activation Code: $Code"
@@ -67,27 +70,31 @@ while [ "$ok" -eq 0 ]; do
 		Message1="What device is this going to be?"
 		Message2="The device number is listed on step 8 of the new installation wizard at plutohome.com"
 
-#		echo "$Message1"
-#		echo "$Message2"
-#		echo -n "Device number: "
-#		read device
-#		[ -z "$device" ] && echo "Empty device number" || ok_device=1
+		ClearBlue
+		echo "$Message1"
+		echo "$Message2"
+		echo -n "Device number: "
+		read device
+		[ -z "$device" ] && echo "Empty device number" || ok_device=1
+		clear # blank
 		
-		device=$(InputBox "$Message1" "$Message2")
-		[ -z "$device" ] && MessageBox "Empty device number" || ok_device=1
+#		device=$(InputBox "$Message1" "$Message2")
+#		[ -z "$device" ] && MessageBox "Empty device number" || ok_device=1
 	done
 
 	ok_code="$ok_key"
 	while [ "$ok_code" -ne 1 ]; do
 		Message1="What is your activation code for this installation from plutohome.com?"
 
-#		echo "$Message1"
-#		echo -n "Activation code: "
-#		read code
-#		[ -z "$code" ] && echo "Empty activation code" || ok_code=1
+		ClearBlue
+		echo "$Message1"
+		echo -n "Activation code: "
+		read code
+		[ -z "$code" ] && echo "Empty activation code" || ok_code=1
+		ClearBlack
 
-		code=$(InputBox "$Message1")
-		[ -z "$code" ] && MessageBox "Empty activation code" || ok_device=1
+#		code=$(InputBox "$Message1")
+#		[ -z "$code" ] && MessageBox "Empty activation code" || ok_device=1
 	done
 
 	activation_key="$device-$code"
@@ -98,8 +105,8 @@ while [ "$ok" -eq 0 ]; do
 		answer=$(wget -O - "$activation_url?code=$activation_key" 2>/dev/null)
 		if [ "$?" -ne 0 ]; then
 			try_again "Failed to contact activation server over the Internet" && continue
-#			echo "$ICS_MSG"
-			MessageBox "$ICS_MSG"
+			echo "$ICS_MSG"
+#			MessageBox "$ICS_MSG"
 			break
 		fi
 		ok_internet=1
@@ -112,11 +119,9 @@ while [ "$ok" -eq 0 ]; do
 	if [ "$result" != "OK" ]; then
 		Message1="Failed getting activation data. Server answer was:"
 		Message2="$result"
-#		echo "$Message1"
-#		echo "$Message2"
 		try_again "$Message1" "$Message2" && continue
-#		echo "$NOCODE_MSG"
-		MessageBox "$NOCODE_MSG"
+		echo "$NOCODE_MSG"
+#		MessageBox "$NOCODE_MSG"
 		break
 	fi
 
@@ -202,13 +207,13 @@ to configure it, and you can start plugging in your media
 directors and other plug-and-play devices.  If you are an
 advanced Linux user and want to access a terminal before
 the reboot, press ALT+F2.  Otherwise..."
-#Key="the Enter key"
-Key="OK"
+Key="the Enter key"
+#Key="OK"
 Message2="Press $Key to reboot and startup your new Pluto $SysType."
 
-#echo "$(CatMessages "$Message1" "$Message2")"
-#read
-MessageBox "$Message1" "$Message2"
+echo "$(CatMessages "$Message1" "$Message2")"
+read
+#MessageBox "$Message1" "$Message2"
 
 if [ "$Type" == "diskless" ]; then
 	# Replace Initial_Config.sh entry with regular one in inittab
