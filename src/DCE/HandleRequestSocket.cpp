@@ -144,8 +144,8 @@ void HandleRequestSocket::RunThread()
 			if ( sMessage.substr(0,4) == "PING" )
 			{
 #ifdef DEBUG
-#ifdef WINDOWS
-				LACA_B4_0( "got ping, sending pong %s", m_sName.c_str() );
+#ifdef WIN32
+				//LACA_B4_0( "got ping, sending pong %s", m_sName.c_str() );
 				g_pPlutoLogger->Write( LV_STATUS, "got ping, sending pong %p device: %d %s", this, m_dwPK_Device, m_sName.c_str() );
 #endif
 #endif
