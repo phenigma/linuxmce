@@ -418,7 +418,7 @@ function wizard($output,$dbADO) {
 								If you want the Pluto Core to be your primary DHCP server, uncheck the box. <a href="/support/index.php?section=document&docID=138" target="_blank">networking issues explained</a></td>
 							</tr>					
 							<tr class="normaltext">
-								<td colspan="2" valign="top"><input type="checkbox" name="hybridCore" value="1" '.((!isset($_SESSION['deviceID']))?'disabled':'').' '.((isset($_SESSION['coreHybridID']))?'checked':'').'><span style="color:'.((!isset($_SESSION['deviceID']))?'#CCCCCC':'').'"> <b>Hybrid:</b>  My core will also be a media director (ie a "hybrid").  If checked, the media playback modules will be installed on the core so you can hook it up directly to your tv/stereo and don’t need a separate computer for your media playback.</span></td>
+								<td colspan="2" valign="top"><input type="checkbox" name="hybridCore" value="1" '.((!isset($_SESSION['deviceID']))?'disabled':'').' '.((isset($_SESSION['coreHybridID']) || isset($_SESSION['recreateHybrid']))?'checked':'').'><span style="color:'.((!isset($_SESSION['deviceID']))?'#CCCCCC':'').'"> <b>Hybrid:</b>  My core will also be a media director (ie a "hybrid").  If checked, the media playback modules will be installed on the core so you can hook it up directly to your tv/stereo and don’t need a separate computer for your media playback.</span></td>
 							</tr>
 							<tr>	
 								<td colspan="2" class="normaltext">'.((!isset($_SESSION['deviceID']))?'&nbsp;':getInstallWizardDeviceTemplates($step,$dbADO,$_SESSION['CoreDCERouter'],$FK_Distro,$CoreOS)).'</td>
@@ -460,23 +460,14 @@ function wizard($output,$dbADO) {
 						// install options - delete or insert devices
 						$installOptionsArray=explode(',',$_POST['displayedTemplatesRequired_'.$_SESSION['CoreDCERouter']]);
 						foreach($installOptionsArray AS $elem){
-							$optionalDevice=(isset($_POST['device_'.$_SESSION['CoreDCERouter'].'_requiredTemplate_'.$elem]))?$_POST['device_'.$_SESSION['CoreDCERouter'].'_requiredTemplate_'.$elem]:0;
-							if($optionalDevice!=0){
-								$OptionalDeviceName=cleanString(@$_POST['templateName_'.$elem]);
-								$insertDevice='
-									INSERT INTO Device 
-										(Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia) 
-									VALUES (?,?,?,?)';
-								$dbADO->Execute($insertDevice,array($OptionalDeviceName,$elem,$installationID,$_SESSION['CoreDCERouter']));
-							}else{
-								$oldDevice=$_POST['device_'.$_SESSION['CoreDCERouter'].'_requiredTemplate_'.$elem];
-								$dbADO->Execute("DELETE FROM Device WHERE PK_Device='".$oldDevice."'");
-							}
+							$oldDevice=$_POST['device_'.$_SESSION['CoreDCERouter'].'_requiredTemplate_'.$elem];
+							$dbADO->Execute("DELETE FROM Device WHERE PK_Device='".$oldDevice."'");
 						}
 						// the template was changed, I delete the hybrid, it will be recreated when click on "Next"
 						if(isset($_SESSION['coreHybridID'])){
 							deleteDevice($_SESSION['coreHybridID'],$dbADO);
-							//unset($_SESSION['coreHybridID']);
+							$_SESSION['recreateHybrid']=1;
+							unset($_SESSION['coreHybridID']);
 							unset($_SESSION['isHybridFirstTime']);
 							unset($_SESSION['OrbiterHybridChild']);
 						}
@@ -546,8 +537,8 @@ function wizard($output,$dbADO) {
 					$oldHybridCore=(isset($_SESSION['coreHybridID'])?1:0);
 					$hybridCore=(isset($_POST['hybridCore'])?1:0);
 					$coreHybridID=$_SESSION['coreHybridID'];
-					if($hybridCore!=$oldHybridCore || (!isset($_SESSION['OrbiterHybridChild']) && isset($_SESSION['coreHybridID']))){
-						if($hybridCore!=0 || !isset($_SESSION['OrbiterHybridChild'])){
+					if($oldHybridCore==0 || @$_SESSION['recreateHybrid']==1){
+						if($hybridCore!=0 || @$_SESSION['recreateHybrid']==1){
 							$insertDeviceMD='INSERT INTO Device (Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia) VALUES (?,?,?,?)';
 							$dbADO->Execute($insertDeviceMD,array('The core/hybrid',$GLOBALS['rootGenericMediaDirector'],$installationID,$_SESSION['deviceID']));
 							$_SESSION['coreHybridID']=$dbADO->Insert_ID();
@@ -568,13 +559,13 @@ function wizard($output,$dbADO) {
 							$insertDeviceMDDeviceData='INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData,IK_DeviceData) VALUES (?,?,?)';
 							$dbADO->Execute($insertDeviceMDDeviceData,array($_SESSION['coreHybridID'],$GLOBALS['rootPK_Distro'],$distro));
 							$_SESSION['isHybridFirstTime']=1;
-						}else{
-							deleteDevice($coreHybridID,$dbADO);
-
-							unset($_SESSION['coreHybridID']);
-							unset($_SESSION['isHybridFirstTime']);
-							unset($_SESSION['OrbiterHybridChild']);
+							unset($_SESSION['recreateHybrid']);
 						}
+					}elseif($hybridCore==0){
+						deleteDevice($coreHybridID,$dbADO);
+						unset($_SESSION['coreHybridID']);
+						unset($_SESSION['isHybridFirstTime']);
+						unset($_SESSION['OrbiterHybridChild']);
 					}
 
 					// install options - delete or insert devices
