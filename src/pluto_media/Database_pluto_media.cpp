@@ -71,11 +71,7 @@ DeleteTable_psc_media_tables();
 
 bool Database_pluto_media::Connect(string host, string user, string pass, string sDBName, int port)
 {
-m_pMySQL = mysql_init(NULL);
-if (mysql_real_connect(m_pMySQL, host.c_str(), user.c_str(), pass.c_str(), sDBName.c_str(), port, NULL, 0) == NULL)
-{return false;}
-else
-{SetConnection(m_pMySQL); return true;}
+return MySQLConnect(host, user, pass, sDBName, port);
 }
 
 bool Database_pluto_media::Connect(class DCEConfig *pDCEConfig)
