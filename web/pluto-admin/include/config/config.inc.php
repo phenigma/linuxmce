@@ -50,7 +50,7 @@
 	$GLOBALS['rootMediaDirectors'] = 8; 		// Media Directors
 	$GLOBALS['LightSwitchOnOff']=37;			// Light Switch (on/off)
 	$GLOBALS['LightSwitchDimmable']=38;			// Light Switch (dimmable)
-	$GLOBALS['EIB']=48;							// EIB
+	$GLOBALS['EIB']=49;							// EIB
 	$GLOBALS['rootInterfaces'] = 71; 			// Interfaces
 	$GLOBALS['rootLights'] = 73; 				// Lighting devices
 	$GLOBALS['rootAVEquipment'] = 76; 			// AV Equipment
