@@ -248,6 +248,8 @@ function devices($output,$dbADO) {
 									exec('sudo -u root /usr/pluto/bin/ListSerialPorts.sh', $serial_ports);
 									foreach ($serial_ports as $serial_port)
 									{
+										if ($serial_port === "")
+											continue;
 										$selected = $ddValue === $serial_port ? " selected" : "";
 										$out .= "<option value=\"$serial_port\"$selected>".PortForHumans($serial_port);
 									}
