@@ -592,7 +592,7 @@ void Infrared_Plugin::CMD_Add_GC100(string &sCMD_Result,Message *pMessage)
             break;
         }
         case -1:
-            g_pPlutoLogger->Write(LV_CRITICAL, "Error starting %s, err: %s", Command, strerror(errno));
+            g_pPlutoLogger->Write(LV_CRITICAL, "Error starting %s, err: %s", Command.c_str(), strerror(errno));
             break;
         default:
 	    break;
