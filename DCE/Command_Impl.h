@@ -239,7 +239,7 @@ namespace DCE
 		 * @brief
 		 * Tells the router to execute the given command group (ie group of commands)
 		 */
-		bool ExecCommandGroup(int PK_CommandGroup);
+		void ExecCommandGroup(int PK_CommandGroup);
 
 		/**
 		 * @brief Register a function that we want to get called back when a message matching a given criteria is received.
