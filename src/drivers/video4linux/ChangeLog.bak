@@ -1,3 +1,22 @@
+2005-02-21 14:57  kraxel
+
+	* Makefile, btcx-risc.c, bttv-cards.c, bttv-driver.c, cx88.h,
+	  saa7134-core.c, doc/Cards, scripts/update:
+
+	- add some bttv debug code.
+
+2005-02-18 17:18  kraxel
+
+	* doc/: lifeview.txt, liveview.txt:
+
+	- one more rename *sigh*.
+
+2005-02-18 17:16  kraxel
+
+	* doc/: liveview.txt, saa7134-liveview.txt:
+
+	- rename docfile.
+
 2005-02-18 14:26  kraxel
 
 	* cx88-dvb.c, cx88-mpeg.c, cx88.h, or51132.c, or51132.h:

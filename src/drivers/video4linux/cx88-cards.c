@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-cards.c,v 1.64 2005/02/16 13:11:55 kraxel Exp $
+ * $Id: cx88-cards.c,v 1.65 2005/02/22 09:56:28 kraxel Exp $
  *
  * device driver for Conexant 2388x based TV cards
  * card-specific stuff.
@@ -737,7 +737,7 @@ static void hauppauge_eeprom(struct cx88_core *core, u8 *eeprom_data)
 	core->has_radio  = tv.has_radio;
 }
 
-static void hauppauge_eeprom_dvb(struct cx88_core *core, u8 *ee)
+static int hauppauge_eeprom_dvb(struct cx88_core *core, u8 *ee)
 {
 	int model;
 	int tuner;
@@ -765,10 +765,11 @@ static void hauppauge_eeprom_dvb(struct cx88_core *core, u8 *ee)
 	default:
 		printk("%s: error: unknown hauppauge tuner 0x%02x\n",
 		       core->name, tuner);
-		return;
+		return -ENODEV;
 	}
 	printk(KERN_INFO "%s: hauppauge eeprom: model=%d, tuner=%d\n",
 	       core->name, model, tuner);
+	return 0;
 }
 
 /* ----------------------------------------------------------------------- */

@@ -66,7 +66,7 @@ endif
 
 ifneq ($(KERNELRELEASE),)
 # recursive call from kernel build system
-dummy		:= $(shell echo $(KERNELRELEASE) > $(obj)/.version)
+dummy		:= $(shell echo $(KERNELRELEASE) >  $(obj)/.version)
 
 ifeq ($(VERSION).$(PATCHLEVEL),2.6)
  export-objs	:=

@@ -1,5 +1,5 @@
 /*
-    $Id: bttv-cards.c,v 1.45 2005/02/16 11:18:28 kraxel Exp $
+    $Id: bttv-cards.c,v 1.46 2005/02/21 13:57:59 kraxel Exp $
 
     bttv-cards.c
 
@@ -303,7 +303,7 @@ static struct CARD {
 	{ 0x07611461, BTTV_AVDVBT_761,    "AverMedia AverTV DVB-T 761" },
 	{ 0x001c11bd, BTTV_PINNACLESAT,   "Pinnacle PCTV Sat" },
 	{ 0x002611bd, BTTV_TWINHAN_DST,   "Pinnacle PCTV SAT CI" },
-	{ 0x00011822, BTTV_TWINHAN_DST,   "Twinhan VisionPlus DVB-T" },
+	{ 0x00011822, BTTV_TWINHAN_DST,   "Twinhan VisionPlus DVB" },
 	{ 0xfc00270f, BTTV_TWINHAN_DST,   "ChainTech digitop DST-1000 DVB-S" },
 	{ 0x07711461, BTTV_AVDVBT_771,    "AVermedia AverTV DVB-T 771" },
 	{ 0xdb1018ac, BTTV_DVICO_DVBT_LITE,    "DVICO FusionHDTV DVB-T Lite" },

@@ -1,3 +1,18 @@
+2005-02-22 10:56  kraxel
+
+	* cx88-cards.c, cx88-tvaudio.c, or51132.c, saa7134-core.c,
+	  tuner-simple.c:
+
+	- misc fixes from various people.
+	- make or51132.c compile (not work) on 2.6.10.
+
+2005-02-21 14:57  kraxel
+
+	* Makefile, btcx-risc.c, bttv-cards.c, bttv-driver.c, cx88.h,
+	  saa7134-core.c, doc/Cards, scripts/update:
+
+	- add some bttv debug code.
+
 2005-02-18 17:18  kraxel
 
 	* doc/: lifeview.txt, liveview.txt:

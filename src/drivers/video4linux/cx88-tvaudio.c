@@ -1,5 +1,5 @@
 /*
-    $Id: cx88-tvaudio.c,v 1.32 2005/02/15 10:51:54 kraxel Exp $
+    $Id: cx88-tvaudio.c,v 1.33 2005/02/22 09:56:29 kraxel Exp $
 
     cx88x-audio.c - Conexant CX23880/23881 audio downstream driver driver
 
@@ -142,10 +142,12 @@ static void set_audio_finish(struct cx88_core *core)
 {
 	u32 volume;
 
-	// 'pass-thru mode': this enables the i2s output to the mpeg encoder
-	cx_set(AUD_CTL, 0x2000);
-	cx_write(AUD_I2SOUTPUTCNTL, 1);
-	//cx_write(AUD_APB_IN_RATE_ADJ, 0);
+	if (cx88_boards[core->board].blackbird) {
+		// 'pass-thru mode': this enables the i2s output to the mpeg encoder
+		cx_set(AUD_CTL, 0x2000);
+		cx_write(AUD_I2SOUTPUTCNTL, 1);
+		//cx_write(AUD_APB_IN_RATE_ADJ, 0);
+	}
 
 	// finish programming
 	cx_write(AUD_SOFT_RESET, 0x0000);
@@ -155,8 +157,6 @@ static void set_audio_finish(struct cx88_core *core)
 
 	// unmute
 	volume = cx_sread(SHADOW_AUD_VOL_CTL);
-	// it may look redundant, but it's better to be sure than sorry
-	volume &= (1 << 6);
 	cx_swrite(SHADOW_AUD_VOL_CTL, AUD_VOL_CTL, volume);
 }
 

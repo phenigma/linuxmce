@@ -1347,7 +1347,6 @@ static int mpeg_ioctl(struct inode *inode, struct file *file,
 	}
 
 	int rez;
-	/*printk( KERN_INFO "2_IOCTL: 0x%x\n", cmd );*/
 	rez = video_usercopy(inode, file, cmd, arg, mpeg_do_ioctl);
 	if( rez < 0 )
 	{
@@ -1421,15 +1420,16 @@ mpeg_read(struct file *file, char __user *data, size_t count, loff_t *ppos)
 	struct cx8802_fh *fh = file->private_data;
 	ssize_t ret;
 
-	if( count > 51200 )
-		count = 51200;
-
 	ret = videobuf_read_stream(&fh->mpegq, data, count, ppos, 0,
 				    file->f_flags & O_NONBLOCK );
+#if 1
+	/* why is read() choking with mythbackend while it works just fine
+	   with cat, dd and mplayer ? */
 	if( ret < 0 )
 		printk( KERN_INFO "mpeg_read: %d, count: %d, blocking: %d\n", ret, count, file->f_flags & O_NONBLOCK );
 	if( ret != count )
 		printk( KERN_INFO "mpeg_read: %d, count: %d, blocking: %d\n", ret, count, file->f_flags & O_NONBLOCK );
+#endif
 	return ret;
 }
 

@@ -1,5 +1,5 @@
 /*
- * $Id: cx88.h,v 1.54 2005/02/18 13:26:20 kraxel Exp $
+ * $Id: cx88.h,v 1.55 2005/02/21 13:57:59 kraxel Exp $
  *
  * v4l2 device driver for cx2388x based TV cards
  *
@@ -550,7 +550,7 @@ void cx8802_cancel_buffers(struct cx8802_dev *dev);
 int cx8802_init_common(struct cx8802_dev *dev);
 void cx8802_fini_common(struct cx8802_dev *dev);
 
-int cx8802_suspend_common(struct pci_dev *pci_dev, u32 state);
+int cx8802_suspend_common(struct pci_dev *pci_dev, pm_message_t state);
 int cx8802_resume_common(struct pci_dev *pci_dev);
 
 /*

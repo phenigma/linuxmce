@@ -72,7 +72,7 @@ v4l2basic
 
 xinsmod tveeprom  debug=0
 xinsmod dvb-pll   debug=0
-xinsmod btcx-risc debug=0
+xinsmod btcx-risc debug=1
 xinsmod ir-common debug=0 repeat=0
 xinsmod tuner     tuner_debug=0
 xinsmod tda9887   debug=0 qss=1
@@ -100,6 +100,7 @@ xinsmod saa7134-empress
 xinsmod cx22702 debug=0
 xinsmod mt352	debug=1
 xinsmod or51132
+xinsmod tda1004x
 xinsmod video-buf-dvb
 xinsmod cx88-dvb
 xinsmod saa7134-dvb
