@@ -305,28 +305,17 @@ void Renderer::RenderObjectsText(RendererImage *pRenderImage,DesignObj_Generator
     }
 }
 
-void Renderer::SaveImageToFile(RendererImage * pRendererImage, string sSaveToFile)
+void Renderer::SaveImageToPNGFile(RendererImage * pRendererImage, FILE * File)
 {
     // we can't just save NULL pointers...
     if (pRendererImage == NULL || pRendererImage->m_pSDL_Surface == NULL)
     {
         throw "Save to image passed in a null pointer";
     }
-#ifdef OUTPUT_BMP
-    string FileName = sSaveToFile + ".bmp";
-    if (SDL_SaveBMP(pRendererImage->m_pSDL_Surface, FileName.c_str()) == -1)
-    {
-        throw "Failed to write file: " + FileName + ": " + SDL_GetError();
-    }
-#else
-    string FileName = sSaveToFile + ".png";
-    SDL_Surface * Drawing = pRendererImage->m_pSDL_Surface;
 
-    png_bytepp image_rows;
-    FILE * File;
+	png_bytepp image_rows;
     int BitsPerColor;
-
-    File = fopen(FileName.c_str(), "wb");
+    SDL_Surface * Drawing = pRendererImage->m_pSDL_Surface;
 
     image_rows = new png_bytep[Drawing->h];
     for (int n = 0; n < Drawing->h; n++)
@@ -351,6 +340,27 @@ void Renderer::SaveImageToFile(RendererImage * pRendererImage, string sSaveToFil
     delete [] image_rows;
 
     png_destroy_write_struct(&png_ptr, &png_info);
+}
+
+void Renderer::SaveImageToFile(RendererImage * pRendererImage, string sSaveToFile)
+{
+    // we can't just save NULL pointers...
+    if (pRendererImage == NULL || pRendererImage->m_pSDL_Surface == NULL)
+    {
+        throw "Save to image passed in a null pointer";
+    }
+#ifdef OUTPUT_BMP
+    string FileName = sSaveToFile + ".bmp";
+    if (SDL_SaveBMP(pRendererImage->m_pSDL_Surface, FileName.c_str()) == -1)
+    {
+        throw "Failed to write file: " + FileName + ": " + SDL_GetError();
+    }
+#else
+    string FileName = sSaveToFile + ".png";
+    FILE * File = fopen(FileName.c_str(), "wb");
+
+	SaveImageToPNGFile(pRendererImage, File);
+
     fclose(File);
 #endif
 }
@@ -493,6 +503,132 @@ void Renderer::CompositeImage(RendererImage * pRenderImage_Parent, RendererImage
     SDL_Flip(Screen);
     */
     //Sleep(5000);
+}
+
+// TODO: unify this if CreateFromFile on the streching/scaling section
+RendererMNG * Renderer::CreateMNGFromFile(string FileName, PlutoSize Size)
+{
+	FILE * File;
+
+	File = fopen(FileName.c_str(), "r");
+	if (! File)
+		return NULL;
+
+	char buffer[1024];
+	fread(buffer, 1, 8, File); // strip signature
+
+	PNGChunk * chunk = new PNGChunk;
+	bool BuildingPNG = false;
+	PNGCatChunks * InMemoryPNG = new PNGCatChunks;
+
+	RendererMNG * Result = new RendererMNG;
+	while (ReadChunk(File, chunk))
+	{
+		if (chunk->type == "MHDR")
+		{
+			MNGHeader Header;
+			ParseMNGHeader(chunk->data, &Header);
+			Result->SetHeader(Header);
+		}
+
+		if (chunk->type == "IHDR")
+		{
+			BuildingPNG = true;
+		}
+
+		if (BuildingPNG)
+		{
+			InMemoryPNG->AddChunk(* chunk);
+			if (chunk->type == "IEND")
+			{
+				BuildingPNG = false;
+				char * pGraphicFile;
+				size_t iSizeGraphicFile = InMemoryPNG->CatChunks(pGraphicFile);
+				
+				SDL_RWops * rw = SDL_RWFromMem(pGraphicFile, iSizeGraphicFile);
+				SDL_Surface * pSDL_Surface = IMG_Load_RW(rw, 1); // rw is freed here
+				delete [] pGraphicFile;
+
+				int W = Size.Width == 0 ? Result->GetHeader().frame_width : Size.Width;
+				int H = Size.Height == 0 ? Result->GetHeader().frame_height : Size.Height;
+
+				PlutoSize CanvasSize(W, H);
+				RendererImage * pRendererImage = CreateBlankCanvas(CanvasSize);
+
+				SDL_Surface * ScaledSurface;
+				if (W == Result->GetHeader().frame_width && H == Result->GetHeader().frame_height)
+				{
+					// no scaling/stretching needed
+					//SDL_BlitSurface(SurfaceFromFile, NULL, RIFromFile->m_pSDL_Surface, NULL);
+					//sge_transform(SurfaceFromFile, RIFromFile->m_pSDL_Surface, 0, 1, 1, 0, 0, 0, 0, SGE_TSAFE);
+					ScaledSurface = sge_transform_surface(pSDL_Surface, SDL_MapRGBA(pSDL_Surface->format, 0, 0, 0, 0), 0, 1, 1, SGE_TSAFE);
+				}
+				else
+				{
+					// image needs to be streched/scaled
+					// I could use SDL_SoftStretch(), but the SDL developers strongly advise against it for the moment
+					// I use the SGE extension library instead
+					float scaleX = (float) pRendererImage->m_pSDL_Surface->w / Result->GetHeader().frame_width;
+					float scaleY = (float) pRendererImage->m_pSDL_Surface->h / Result->GetHeader().frame_height;
+
+					//if( bPreserveAspectRatio && bCrop )
+					//{
+					//	if( scaleY>scaleX )
+					//		scaleX=scaleY;
+					//	else
+					//		scaleY=scaleX;
+					//}
+					//else if( bPreserveAspectRatio )
+					//{
+						if( scaleY>scaleX )
+							scaleY=scaleX;
+						else
+							scaleX=scaleY;
+					//}
+/*  starting with the mobile phone, we have 'distorted' images because we want to re-use buttons, but the aspect ratios are different  */
+
+					//sge_transform(SurfaceFromFile, RIFromFile->m_pSDL_Surface, 0, scaleX, scaleY, 0, 0, 0, 0, SGE_TSAFE);
+					ScaledSurface = sge_transform_surface(pSDL_Surface, SDL_MapRGBA(pSDL_Surface->format, 0, 0, 0, 0), 0, scaleX, scaleY, SGE_TSAFE);
+				}
+				SDL_SetAlpha(ScaledSurface, 0, 0);
+				SDL_BlitSurface(ScaledSurface, NULL, pRendererImage->m_pSDL_Surface, NULL);
+
+				SDL_FreeSurface(ScaledSurface);
+				SDL_FreeSurface(pSDL_Surface);
+
+				Result->AppendFrame(* pRendererImage);
+			}
+		}
+		chunk->clear();
+	}
+	delete chunk;
+	delete InMemoryPNG;
+
+	fclose(File);
+
+	return Result;
+}
+
+void Renderer::SaveMNGToFile(string FileName, RendererMNG * MNG)
+{
+	FILE * File;
+
+	File = fopen(FileName.c_str(), "wb");
+
+	fwrite(MNGsignature, 1, 8, File);
+	char * Header;
+	MNG->GetHeader().BinaryForm(Header);
+	fwrite(Header, 1, 40, File);
+
+	for (size_t i = 0; i < MNG->count() ; i++)
+	{
+		SaveImageToPNGFile(& MNG->GetFrame(i), File);
+	}
+
+	const char * MEND = "\x00\x00\x00\x00MEND\x21\x20\xF7\xD5";
+	fwrite(MEND, 1, 12, File);
+
+	fclose(File);
 }
 
 /* WORKAROUND */

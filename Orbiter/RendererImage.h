@@ -2,6 +2,9 @@
 #define __RENDERER_IMAGE_H__
 
 #include <string>
+using namespace std;
+
+#include <SDL.h>
 
 class RendererImage
 {

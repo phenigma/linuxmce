@@ -144,6 +144,9 @@
 				RelativePath=".\Renderer.cpp">
 			</File>
 			<File
+				RelativePath="..\Orbiter\RendererMNG.cpp">
+			</File>
+			<File
 				RelativePath="..\Splitter\TextSplitter.cpp">
 			</File>
 			<File
@@ -171,6 +174,9 @@
 			</File>
 			<File
 				RelativePath="..\Orbiter\RendererImage.h">
+			</File>
+			<File
+				RelativePath="..\Orbiter\RendererMNG.h">
 			</File>
 			<File
 				RelativePath="..\Orbiter\TextStyle.h">
