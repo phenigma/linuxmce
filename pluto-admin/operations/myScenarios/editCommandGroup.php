@@ -5,7 +5,6 @@ function editCommandGroup($output,$dbADO) {
 	/* @var $rs ADORecordSet */
 	/* @var $output Template */
 
-//	$dbADO->debug=true;			
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$out='';
 	$installationID = (int)@$_SESSION['installationID'];
@@ -146,10 +145,10 @@ function editCommandGroup($output,$dbADO) {
 				$selectCommandsAssigned = "
 				SELECT CommandGroup_Command.* FROM 
 					CommandGroup_Command				
-					INNER JOIN 
+					LEFT JOIN 
 						Device ON CommandGroup_Command.FK_Device = Device.PK_Device						
 					WHERE 
-						Device.FK_Installation = ?
+						(Device.FK_Installation = ? OR Device.PK_Device IS NULL)
 					AND CommandGroup_Command.FK_CommandGroup = ?
 				";
 				$resCommandAssigned = $dbADO->Execute($selectCommandsAssigned,array($installationID,$commandGroupID));
@@ -167,6 +166,7 @@ function editCommandGroup($output,$dbADO) {
 						<tr><td valign="top">
 							<select name="device_'.$rowCommandAssigned['PK_CommandGroup_Command'].'" onChange="this.form.submit();">
 								<option value="0">-please select-</option>
+								<option value="-999" '.(($rowCommandAssigned['FK_Device']=='-999')?'selected':'').'>[Local Orbiter</option>
 						';
 							
 							$query = 'SELECT * From Device WHERE FK_Installation = ? order by Description ASC';
@@ -182,14 +182,26 @@ function editCommandGroup($output,$dbADO) {
 					 		</select></td>
 						<td>
 						';
-						
+					if($rowCommandAssigned['FK_Device']!='-999'){
 						$query = "SELECT PK_Command,Command.Description
-												FROM Device 
-													INNER JOIN DeviceTemplate_DeviceCommandGroup ON Device.FK_DeviceTemplate = DeviceTemplate_DeviceCommandGroup.FK_DeviceTemplate 
-													INNER JOIN DeviceCommandGroup_Command ON DeviceTemplate_DeviceCommandGroup.FK_DeviceCommandGroup = DeviceCommandGroup_Command.FK_DeviceCommandGroup 
-													INNER JOIN Command on DeviceCommandGroup_Command.FK_Command = Command.PK_Command
-										   WHERE PK_Device=?";
+								FROM Device 
+									INNER JOIN DeviceTemplate_DeviceCommandGroup ON Device.FK_DeviceTemplate = DeviceTemplate_DeviceCommandGroup.FK_DeviceTemplate 
+									INNER JOIN DeviceCommandGroup_Command ON DeviceTemplate_DeviceCommandGroup.FK_DeviceCommandGroup = DeviceCommandGroup_Command.FK_DeviceCommandGroup 
+									INNER JOIN Command on DeviceCommandGroup_Command.FK_Command = Command.PK_Command
+							   WHERE PK_Device=?";
 						$resNewCommand = $dbADO->Execute($query,array($rowCommandAssigned['FK_Device']));
+					}else{
+						$query = "
+							SELECT PK_Command,Command.Description
+								FROM Command 
+									INNER JOIN DeviceCommandGroup_Command ON 
+										DeviceCommandGroup_Command.FK_Command = Command.PK_Command
+									INNER JOIN DeviceTemplate_DeviceCommandGroup ON 
+										DeviceTemplate_DeviceCommandGroup.FK_DeviceCommandGroup = DeviceCommandGroup_Command.FK_DeviceCommandGroup 
+							   WHERE FK_DeviceTemplate=?
+									ORDER BY Command.Description ASC";
+						$resNewCommand = $dbADO->Execute($query,array(cleanInteger($GLOBALS['deviceTemplateOrbiter'])));
+					}
 						if ($resNewCommand) {
 							$out.='<select name="deviceCommand_'.$rowCommandAssigned['PK_CommandGroup_Command'].'" onChange="this.form.submit();">
 								<option value="0">-please select-</option>';
@@ -215,7 +227,7 @@ function editCommandGroup($output,$dbADO) {
 									  ORDER BY CommandParameter.Description asc
 								";
 							$resSelectParameters = $dbADO->Execute($query,array($rowCommandAssigned['FK_Command'],$rowCommandAssigned['PK_CommandGroup_Command']));
-							$dbADO->debug=false;
+
 								if ($resSelectParameters) {
 									$out.='<table>';
 									while ($rowSelectParameters=$resSelectParameters->FetchRow()) {
@@ -338,7 +350,6 @@ function editCommandGroup($output,$dbADO) {
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
 	
 		
-		
 		$designObjID = cleanInteger(@$_POST['designObjID']);
 		$_SESSION['editCommandGroup']['designObjID'] = 0;
 		$_SESSION['editCommandGroup']['designObjName'] = '';
@@ -387,11 +398,12 @@ function editCommandGroup($output,$dbADO) {
 			$selectCommandsAssigned = "
 				SELECT CommandGroup_Command.* FROM 
 					CommandGroup_Command				
-					INNER JOIN 
+					LEFT JOIN 
 						Device ON CommandGroup_Command.FK_Device = Device.PK_Device						
 					WHERE 
-						Device.FK_Installation = ?
+						(Device.FK_Installation = ? OR Device.PK_Device IS NULL)
 				";								
+
 			$resCommandAssigned = $dbADO->Execute($selectCommandsAssigned,array($installationID));
 			
 			$parametersUpdatedAlert = 'Parameters not updated!';
@@ -465,7 +477,6 @@ function editCommandGroup($output,$dbADO) {
 					
 				 }
 			  }
-			//$dbADO->debug=false;
 			//die();
 			
 			$description = cleanString($_POST['description']);
@@ -499,10 +510,10 @@ function editCommandGroup($output,$dbADO) {
 							if(@$_POST['entArea_'.$value]==1){
 								$insertCommandGroupEntArea='
 									INSERT INTO CommandGroup_EntertainArea 
-										(FK_CommandGroup, FK_EntertainArea)
+										(FK_CommandGroup, FK_EntertainArea,Sort)
 									VALUES
-										(?,?)';
-								$dbADO->Execute($insertCommandGroupEntArea,array($commandGroupID,$value));
+										(?,?,?)';
+								$dbADO->Execute($insertCommandGroupEntArea,array($commandGroupID,$value,$commandGroupID));
 							}else{
 								$deleteCommandGroupEntArea='
 									DELETE FROM CommandGroup_EntertainArea 
@@ -524,10 +535,10 @@ function editCommandGroup($output,$dbADO) {
 							if(@$_POST['room_'.$value]==1){
 								$insertCommandGroupRoom='
 									INSERT INTO CommandGroup_Room 
-										(FK_CommandGroup, FK_Room)
+										(FK_CommandGroup, FK_Room,Sort)
 									VALUES
-										(?,?)';
-								$dbADO->Execute($insertCommandGroupRoom,array($commandGroupID,$value));
+										(?,?,?)';
+								$dbADO->Execute($insertCommandGroupRoom,array($commandGroupID,$value,$commandGroupID));
 							}else{
 								$deleteCommandGroupRoom='
 									DELETE FROM CommandGroup_Room 

@@ -104,6 +104,10 @@
   $GLOBALS['commandParameterObjectScreen']=87;
   $GLOBALS['mnuSecurityCamerasDesignObj']=1414;	// PK_DesignObj for Security cameras
   
+  $GLOBALS['SecurityArmDisarmTemplate']=13;		// PK_Template for Security - Arm Disarm
+  $GLOBALS['SecuritySOSTemplate']=14;			// PK_Template for Security - SOS
+  $GLOBALS['SecurityViewCamerasTemplate']=15;	// PK_Template for Security - View Cameras
+  
   // do not change the following lines 
   $addMasterUserUrl=$MasterUsersHost."index.php?section=add_master_user";
   $checkMasterUserUrl=$MasterUsersHost."index.php?section=check_master_user";

@@ -194,8 +194,8 @@ if($action=='form') {
 		$insertCommandGroup='INSERT INTO CommandGroup (Description,FK_Array,FK_Installation,FK_Template) VALUES (?,?,?,?)';
 		$dbADO->Execute($insertCommandGroup,array('New Lighting Scenario',$arrayID,$installationID,$GLOBALS['LightingScenariosTemplate']));
 		$insertID=$dbADO->Insert_ID();
-		$insertCG_Room='INSERT INTO CommandGroup_Room (FK_CommandGroup,FK_Room) VALUES (?,?)';
-		$dbADO->Execute($insertCG_Room,array($insertID,$roomID));
+		$insertCG_Room='INSERT INTO CommandGroup_Room (FK_CommandGroup,FK_Room,Sort) VALUES (?,?,?)';
+		$dbADO->Execute($insertCG_Room,array($insertID,$roomID,$insertID));
 	}
 	
 	if(isset($_POST['updateCG'])){

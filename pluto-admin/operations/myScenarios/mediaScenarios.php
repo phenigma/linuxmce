@@ -277,8 +277,8 @@ function mediaScenarios($output,$dbADO) {
 						$dbADO->Execute($insertMediaScenario,array($arrayID,$installationID,$newDescription,@$_POST['newRemote'],$templateWizard));
 						$insertID=$dbADO->Insert_ID();
 						
-						$insertDeviceCommandGroup='INSERT INTO CommandGroup_EntertainArea (FK_EntertainArea, FK_CommandGroup) VALUES (?,?)';
-						$dbADO->Execute($insertDeviceCommandGroup,array(@$_POST['newEntArea'],$insertID));
+						$insertDeviceCommandGroup='INSERT INTO CommandGroup_EntertainArea (FK_EntertainArea, FK_CommandGroup,Sort) VALUES (?,?,?)';
+						$dbADO->Execute($insertDeviceCommandGroup,array(@$_POST['newEntArea'],$insertID,$insertID));
 						
 						$queryMediaPlugin='SELECT * FROM Device WHERE FK_DeviceTemplate=? AND FK_Installation=?';
 						$res=$dbADO->Execute($queryMediaPlugin,array($GLOBALS['rootMediaPlugin'],$installationID));
@@ -315,8 +315,8 @@ function mediaScenarios($output,$dbADO) {
 							$dbADO->Execute($insertScenario,array($arrayID,$installationID,$optionName,$FK_Template));
 							$insertID=$dbADO->Insert_ID();
 							
-							$insertDeviceCommandGroup='INSERT INTO CommandGroup_EntertainArea (FK_EntertainArea, FK_CommandGroup) VALUES (?,?)';
-							$dbADO->Execute($insertDeviceCommandGroup,array($FK_EntertainArea,$insertID));
+							$insertDeviceCommandGroup='INSERT INTO CommandGroup_EntertainArea (FK_EntertainArea, FK_CommandGroup,Sort) VALUES (?,?,?)';
+							$dbADO->Execute($insertDeviceCommandGroup,array($FK_EntertainArea,$insertID,$insertID));
 							$CG_C_insertID=$dbADO->Insert_ID();
 							
 							$queryInsertCommandGroup_Command = "INSERT INTO CommandGroup_Command (FK_CommandGroup,FK_Command,FK_Device) values(?,?,?)";			

@@ -42,22 +42,37 @@ if($action=='form') {
 			ORDER BY Room.Description ASC';
 	$resRooms=$dbADO->Execute($queryRooms,$installationID);
 	$displayedCommandGroups=array();
+	$displayedRooms=array();
 	while($rowRooms=$resRooms->FetchRow()){
+		$queryCG_T='
+			SELECT * 
+			FROM CommandGroup_Room
+				INNER JOIN CommandGroup ON FK_CommandGroup=PK_CommandGroup
+			WHERE
+				FK_Room=? AND FK_Template=?';
+		$resArmDisarm=$dbADO->Execute($queryCG_T,array($rowRooms['PK_Room'],$GLOBALS['SecurityArmDisarmTemplate']));
+		$resViewAll=$dbADO->Execute($queryCG_T,array($rowRooms['PK_Room'],$GLOBALS['SecurityViewCamerasTemplate']));
+		$resSOS=$dbADO->Execute($queryCG_T,array($rowRooms['PK_Room'],$GLOBALS['SecuritySOSTemplate']));
+		$out.='
+			<input type="hidden" name="oldArmDisarm_'.$rowRooms['PK_Room'].'" value="'.(($resArmDisarm->RecordCount()>0)?'1':'0').'">
+			<input type="hidden" name="oldViewAll_'.$rowRooms['PK_Room'].'" value="'.(($resViewAll->RecordCount()>0)?'1':'0').'">
+			<input type="hidden" name="oldSOS_'.$rowRooms['PK_Room'].'" value="'.(($resSOS->RecordCount()>0)?'1':'0').'">';
+		$displayedRooms[]=$rowRooms['PK_Room'];
 		$out.='
 		<tr bgcolor="#D1D9EA">
 			<td colspan="2"><B>'.$rowRooms['RoomName'].'</B></td>
 		</tr>
 		<tr>
 			<td width="20">&nbsp;</td>
-			<td><input type="checkbox" name="later" value="1"> Button to arm system, disarm system & change masks</td>
+			<td><input type="checkbox" name="armDisarm_'.$rowRooms['PK_Room'].'" value="1" '.(($resArmDisarm->RecordCount()>0)?'checked':'').'> Button to arm system, disarm system & change masks</td>
 		</tr>
 		<tr>
 			<td width="20">&nbsp;</td>
-			<td><input type="checkbox" name="later" value="1"> Button to view all cameras</td>
+			<td><input type="checkbox" name="viewAll_'.$rowRooms['PK_Room'].'" value="1" '.(($resViewAll->RecordCount()>0)?'checked':'').'> Button to view all cameras</td>
 		</tr>
 		<tr>
 			<td width="20">&nbsp;</td>
-			<td><input type="checkbox" name="later" value="1"> *SOS* Button for emergencies</td>
+			<td><input type="checkbox" name="sos_'.$rowRooms['PK_Room'].'" value="1" '.(($resSOS->RecordCount()>0)?'checked':'').'> *SOS* Button for emergencies</td>
 		</tr>';
 
 		if(count($cameraDevices)>0){
@@ -107,7 +122,11 @@ if($action=='form') {
 	}
 	$out.='		</td>
 			</tr>
+			<tr>
+				<td colspan="2" align="center"><input type="submit" name="updateScenario" value="Update"></td>
+			</tr>
 		</table>
+	<input type="hidden" name="displayedRooms" value="'.join(',',$displayedRooms).'">	
 	<input type="hidden" name="displayedCommandGroups" value="'.join(',',$displayedCommandGroups).'">	
 	</form>
 	';
@@ -180,52 +199,180 @@ else{
 		header("Location: index.php?section=securityScenarios&error=You are not authorised to change the installation.");
 		exit(0);
 	}
-	
-	$roomID=(int)$_REQUEST['roomID'];
-	$description=cleanString($_POST['description']);
-	$hint=cleanString($_POST['hint']);
-	$icon=((int)$_POST['icon']!=0)?(int)$_POST['icon']:NULL;
-	
-	$dbADO->debug=true;
-	$insertCommandGroup='
-		INSERT INTO CommandGroup 
-			(FK_Array,FK_Installation,Description,Hint,CanTurnOff,AlwaysShow,CanBeHidden,FK_Template,FK_Icon)
-		VALUES
-			(?,?,?,?,?,?,?,?,?)';
-	$dbADO->Execute($insertCommandGroup,array($arrayID,$installationID,$description,$hint,0,0,0,$GLOBALS['securityScenariosTemplate'],$icon));
-	$cgID=$dbADO->Insert_ID();
-	
-	$insertCG_Room='
-		INSERT INTO CommandGroup_Room 
-			(FK_CommandGroup, FK_Room)
-		VALUES
-			(?,?)';
-	$dbADO->Execute($insertCG_Room,array($cgID,$roomID));
-	$insertCG_C='
-		INSERT INTO CommandGroup_Command 
-			(FK_CommandGroup,FK_Command,TurnOff,OrderNum)
-		VALUES
-			(?,?,?,?)';
-	$insertCG_C_CP='
-		INSERT INTO CommandGroup_Command_CommandParameter 
-			(FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter)
-		VALUES
-			(?,?,?)';
-	
-	
-	for($i=1;$i<5;$i++){
-		$camera=(int)$_POST['camera_'.$i];
+	if(isset($_POST['addScenario'])){
+		$roomID=(int)$_REQUEST['roomID'];
+		$description=cleanString($_POST['description']);
+		$hint=cleanString($_POST['hint']);
+		$icon=((int)$_POST['icon']!=0)?(int)$_POST['icon']:NULL;
 		
-		$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandSetVar'],0,0));
-		$cg_cID=$dbADO->Insert_ID();
+		$insertCommandGroup='
+			INSERT INTO CommandGroup 
+				(FK_Array,FK_Installation,Description,Hint,CanTurnOff,AlwaysShow,CanBeHidden,FK_Template,FK_Icon)
+			VALUES
+				(?,?,?,?,?,?,?,?,?)';
+		$dbADO->Execute($insertCommandGroup,array($arrayID,$installationID,$description,$hint,0,0,0,$GLOBALS['securityScenariosTemplate'],$icon));
+		$cgID=$dbADO->Insert_ID();
+		
+		$insertCG_Room='
+			INSERT INTO CommandGroup_Room 
+				(FK_CommandGroup, FK_Room,Sort)
+			VALUES
+				(?,?,?)';
+		$dbADO->Execute($insertCG_Room,array($cgID,$roomID,$cgID));
+		$insertCG_C='
+			INSERT INTO CommandGroup_Command 
+				(FK_CommandGroup,FK_Command,TurnOff,OrderNum)
+			VALUES
+				(?,?,?,?)';
+		$insertCG_C_CP='
+			INSERT INTO CommandGroup_Command_CommandParameter 
+				(FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter)
+			VALUES
+				(?,?,?)';
+		
+		
+		for($i=1;$i<5;$i++){
+			$camera=(int)$_POST['camera_'.$i];
 			
-		$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandVariableNumber'],$GLOBALS['camerasVariableNumbersArray'][$i-1]));
-		$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterValueToAsign'],$camera));
+			$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandSetVar'],0,0));
+			$cg_cID=$dbADO->Insert_ID();
+				
+			$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandVariableNumber'],$GLOBALS['camerasVariableNumbersArray'][$i-1]));
+			$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterValueToAsign'],$camera));
+		}
+		
+		$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandGotoScreen'],0,4));
+		$cg_cID=$dbADO->Insert_ID();
+		$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterObjectScreen'],$GLOBALS['mnuSecurityCamerasDesignObj']));
 	}
-	
-	$dbADO->Execute($insertCG_C,array($cgID,$GLOBALS['commandGotoScreen'],0,4));
-	$cg_cID=$dbADO->Insert_ID();
-	$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterObjectScreen'],$GLOBALS['mnuSecurityCamerasDesignObj']));
+
+	if(isset($_POST['updateScenario'])){
+		$insertCG_C='
+			INSERT INTO CommandGroup_Command 
+				(FK_CommandGroup,FK_Command,TurnOff,OrderNum)
+			VALUES
+				(?,?,?,?)';
+		$insertCG_C_CP='
+			INSERT INTO CommandGroup_Command_CommandParameter 
+				(FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter)
+			VALUES
+				(?,?,?)';
+
+		$dbADO->debug=true;
+		$displayedRoomsArray=explode(',',$_POST['displayedRooms']);
+		
+		$selectArmDisarm='SELECT * FROM CommandGroup WHERE FK_Template=?';
+		$resArmDisarm=$dbADO->Execute($selectArmDisarm,$GLOBALS['SecurityArmDisarmTemplate']);
+		if($resArmDisarm->RecordCount()){
+			$rowArmDisarm=$resArmDisarm->FetchRow();
+			$armDisarmCG=$rowArmDisarm['PK_CommandGroup'];
+		}else{
+			$insertCommandGroup='
+				INSERT INTO CommandGroup 
+					(FK_Array,FK_Installation,Description,CanTurnOff,AlwaysShow,CanBeHidden,FK_Template)
+				VALUES
+					(?,?,?,?,?,?,?)';
+			$dbADO->Execute($insertCommandGroup,array($GLOBALS['ArrayIDForSecurity'],$installationID,'Arm Disarm',0,0,0,$GLOBALS['SecurityArmDisarmTemplate']));
+			$armDisarmCG=$dbADO->Insert_ID();
+			
+			$dbADO->Execute($insertCG_C,array($armDisarmCG,$GLOBALS['commandGotoScreen'],0,0));
+			$cg_cID=$dbADO->Insert_ID();
+			$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterObjectScreen'],$GLOBALS['mnuSecurityCamerasDesignObj']));
+		}
+
+		$selectViewAll='SELECT * FROM CommandGroup WHERE FK_Template=?';
+		$resViewAll=$dbADO->Execute($selectViewAll,$GLOBALS['SecurityViewCamerasTemplate']);
+		if($resViewAll->RecordCount()){
+			$rowViewAll=$resViewAll->FetchRow();
+			$viewAllCG=$rowViewAll['PK_CommandGroup'];
+		}else{
+			$insertCommandGroup='
+				INSERT INTO CommandGroup 
+					(FK_Array,FK_Installation,Description,CanTurnOff,AlwaysShow,CanBeHidden,FK_Template)
+				VALUES
+					(?,?,?,?,?,?,?)';
+			$dbADO->Execute($insertCommandGroup,array($GLOBALS['ArrayIDForSecurity'],$installationID,'View All Cameras',0,0,0,$GLOBALS['SecurityViewCamerasTemplate']));
+			$viewAllCG=$dbADO->Insert_ID();
+			
+			$dbADO->Execute($insertCG_C,array($viewAllCG,$GLOBALS['commandGotoScreen'],0,0));
+			$cg_cID=$dbADO->Insert_ID();
+			$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterObjectScreen'],$GLOBALS['mnuSecurityCamerasDesignObj']));
+		}
+
+		$selectSOS='SELECT * FROM CommandGroup WHERE FK_Template=?';
+		$resSOS=$dbADO->Execute($selectSOS,$GLOBALS['SecuritySOSTemplate']);
+		if($resSOS->RecordCount()){
+			$rowSOS=$resSOS->FetchRow();
+			$sosCG=$rowSOS['PK_CommandGroup'];
+		}else{
+			$insertCommandGroup='
+				INSERT INTO CommandGroup 
+					(FK_Array,FK_Installation,Description,CanTurnOff,AlwaysShow,CanBeHidden,FK_Template)
+				VALUES
+					(?,?,?,?,?,?,?)';
+			$dbADO->Execute($insertCommandGroup,array($GLOBALS['ArrayIDForSecurity'],$installationID,'*SOS*',0,0,0,$GLOBALS['SecuritySOSTemplate']));
+			$sosCG=$dbADO->Insert_ID();
+
+			$dbADO->Execute($insertCG_C,array($sosCG,$GLOBALS['commandGotoScreen'],0,0));
+			$cg_cID=$dbADO->Insert_ID();
+			$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterObjectScreen'],$GLOBALS['mnuSecurityCamerasDesignObj']));
+		}
+
+		$insertCG_Room='
+			INSERT INTO CommandGroup_Room 
+				(FK_CommandGroup, FK_Room,Sort)
+			VALUES
+				(?,?,?)';
+		$deleteCG_Room='DELETE FROM CommandGroup_Room  WHERE FK_CommandGroup=? AND FK_Room=?';
+		$uncheckedArmDisarm=0;
+		$uncheckedViewAll=0;
+		$uncheckedSOS=0;
+		foreach($displayedRoomsArray as $room){
+			$armDisarm=(int)@$_POST['armDisarm_'.$room];
+			$oldArmDisarm=(int)@$_POST['oldArmDisarm_'.$room];
+			if($oldArmDisarm==0){
+				if($armDisarm==1){
+					$dbADO->Execute($insertCG_Room,array($armDisarmCG,$room,$armDisarmCG));
+				}else 
+					$uncheckedArmDisarm++;
+			}elseif($armDisarm==0){
+				$uncheckedArmDisarm++;
+				$dbADO->Execute($deleteCG_Room,array($armDisarmCG,$room));
+			}
+
+			
+			$viewAll=(int)@$_POST['viewAll_'.$room];
+			$oldViewAll=(int)@$_POST['oldViewAll_'.$room];
+			if($oldViewAll==0){
+				if($viewAll==1){
+					$dbADO->Execute($insertCG_Room,array($viewAllCG,$room,$viewAllCG));
+				}else 
+					$uncheckedViewAll++;
+			}elseif($viewAll==0){
+				$uncheckedViewAll++;
+				$dbADO->Execute($deleteCG_Room,array($viewAllCG,$room));
+			}
+			
+			$sos=(int)@$_POST['sos_'.$room];
+			$oldSos=(int)@$_POST['oldSOS_'.$room];
+			if($oldSos==0){
+				if($sos==1){
+					$dbADO->Execute($insertCG_Room,array($sosCG,$room,$sosCG));
+				}else
+					$uncheckedSOS++;
+			}elseif($sos==0){
+				$uncheckedSOS++;
+				$dbADO->Execute($deleteCG_Room,array($sosCG,$room));
+			}
+		}
+		if($uncheckedArmDisarm==count($displayedRoomsArray))
+			deleteCommandGroup($armDisarmCG,$dbADO);
+		if($uncheckedViewAll==count($displayedRoomsArray))
+			deleteCommandGroup($viewAllCG,$dbADO);
+		if($uncheckedSOS==count($displayedRoomsArray))
+			deleteCommandGroup($sosCG,$dbADO);
+
+	}
 	
 	header("Location: index.php?section=securityScenarios");
 }

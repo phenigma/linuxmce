@@ -192,10 +192,10 @@ function addCommandGroupAsScenario($output,$dbADO) {
 						if(isset($_POST['entArea_'.$value]) && $_POST['entArea_'.$value]==1){
 							$insertCommandGroupEntArea='
 								INSERT INTO CommandGroup_EntertainArea 
-									(FK_CommandGroup, FK_EntertainArea)
+									(FK_CommandGroup, FK_EntertainArea,Sort)
 								VALUES
-									(?,?)';
-							$dbADO->Execute($insertCommandGroupEntArea,array($PK_CommandGroup,$value));
+									(?,?,?)';
+							$dbADO->Execute($insertCommandGroupEntArea,array($PK_CommandGroup,$value),$PK_CommandGroup);
 						}
 					}
 				}
@@ -207,10 +207,10 @@ function addCommandGroupAsScenario($output,$dbADO) {
 						if(isset($_POST['room_'.$value]) && $_POST['room_'.$value]==1){
 							$insertCommandGroupRoom='
 								INSERT INTO CommandGroup_Room 
-									(FK_CommandGroup, FK_Room)
+									(FK_CommandGroup, FK_Room,Sort)
 								VALUES
-									(?,?)';
-							$dbADO->Execute($insertCommandGroupRoom,array($PK_CommandGroup,$value));
+									(?,?,?)';
+							$dbADO->Execute($insertCommandGroupRoom,array($PK_CommandGroup,$value,$PK_CommandGroup));
 						}
 					}
 				}
