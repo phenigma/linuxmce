@@ -8,6 +8,8 @@ function floorplanWizard($output,$dbADO) {
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$path=$_SERVER['DOCUMENT_ROOT'].'/pluto-admin/floorplans/inst'.$installationID;
 	$floorPlanImage='floorplans/image_not_found.gif';
+	$maxWidth=400;
+	$maxHeight=400;
 	
 	$colors = array('pixel_lightblue.gif','pixel_green.gif','pixel_blue.gif','pixel_pink.gif','pixel_red.gif','pixel_orange.gif');
 
@@ -74,7 +76,6 @@ function floorplanWizard($output,$dbADO) {
 		<input type="hidden" name="hidFloorplanData" value="" />
 		<input type="hidden" name="page_orig" value="1" />
 		<input type="hidden" name="type_orig" value="1" />
-		</form>
 		';
 
 	if(file_exists($path.'/'.$page.'.png')){
@@ -82,10 +83,25 @@ function floorplanWizard($output,$dbADO) {
 		$imgArray=getimagesize($path.'/'.$page.'.png');
 		$origWidth=$imgArray[0];
 		$origHeight=$imgArray[1];
+		
+		if($origWidth/$origHeight>1){
+			$scaleFactor=$maxWidth/$origWidth;
+			$origWidth=$maxWidth;
+			$origHeight=floor($origHeight*$scaleFactor);
+		}
+		else{
+			$scaleFactor=$maxHeight/$origHeight;
+			$origHeight=$maxHeight;
+			$origWidth=floor($origWidth*$scaleFactor);
+		}
+
+		$out.='<input type="hidden" name="scaleFactor" value="'.$scaleFactor.'">';
 	}else{
 		$origWidth=384;
 		$origHeight=359;
 	}
+	$out.='</form>';
+	
 	if($type==$GLOBALS['Entertainment Zone']){
 		$queryCoords = "
 			SELECT 
@@ -167,8 +183,8 @@ function floorplanWizard($output,$dbADO) {
 				if ($arValues[$intCursor] == $page && $arValues[$intCursor+1]!=-1 && $arValues[$intCursor+2] !=-1)
 				{
 					$item['hascoordinatesthispage'] = true;
-					$item['x'] = round($arValues[$intCursor+1] )-10;
-					$item['y'] = round($arValues[$intCursor+2] )-10;
+					$item['x'] = (round($arValues[$intCursor+1] ))/$scaleFactor-10;
+					$item['y'] = (round($arValues[$intCursor+2] ))/$scaleFactor-10;
 					
 				}
 				$intCursor += 3;
@@ -210,6 +226,8 @@ function floorplanWizard($output,$dbADO) {
 		$hidFloorplanData=$_POST['hidFloorplanData'];
 		$intCursor = 1; //the first one should be empty
 		$arIncomingCoords = explode(',',$hidFloorplanData);
+		$scaleFactor=isset($_POST['scaleFactor'])?$_POST['scaleFactor']:1;
+
 		if($type==$GLOBALS['Entertainment Zone']){
 			// exception: for entertain zone I get data from Entertain area
 			while (isset($arIncomingCoords[$intCursor])){
@@ -221,8 +239,8 @@ function floorplanWizard($output,$dbADO) {
 				if($res->RecordCount()==0){
 					while($rowFloorplans=$resFloorplans->FetchRow()){
 						$entAreaCoords[]=$rowFloorplans['Page'];
-						$entAreaCoords[]=($rowFloorplans['Page']==$page)?$arIncomingCoords[$intCursor+1]:-1;
-						$entAreaCoords[]=($rowFloorplans['Page']==$page)?$arIncomingCoords[$intCursor+2]:-1;
+						$entAreaCoords[]=($rowFloorplans['Page']==$page)?$scaleFactor*($arIncomingCoords[$intCursor+1]):-1;
+						$entAreaCoords[]=($rowFloorplans['Page']==$page)?$scaleFactor*($arIncomingCoords[$intCursor+2]):-1;
 					}
 					
 					$updateCoords='UPDATE EntertainArea SET FloorplanInfo=? WHERE PK_EntertainArea=?';
@@ -233,8 +251,8 @@ function floorplanWizard($output,$dbADO) {
 					$key=0;
 					while($rowFloorplans=$resFloorplans->FetchRow()){
 						$entAreaCoords[$key]=$rowFloorplans['Page'];
-						$xcoord=($arIncomingCoords[$intCursor+1]!=-1)?($arIncomingCoords[$intCursor+1]+10):-1;
-						$ycoord=($arIncomingCoords[$intCursor+2]!=-1)?($arIncomingCoords[$intCursor+2]+10):-1;
+						$xcoord=($arIncomingCoords[$intCursor+1]!=-1)?$scaleFactor*($arIncomingCoords[$intCursor+1]+10):-1;
+						$ycoord=($arIncomingCoords[$intCursor+2]!=-1)?$scaleFactor*($arIncomingCoords[$intCursor+2]+10):-1;
 						$entAreaCoords[$key+1]=($rowFloorplans['Page']==$page)?$xcoord:(isset($oldCoordsArray[$key+1])?$oldCoordsArray[$key+1]:-1);
 						$entAreaCoords[$key+2]=($rowFloorplans['Page']==$page)?$ycoord:(isset($oldCoordsArray[$key+2])?$oldCoordsArray[$key+2]:-1);
 						$key+=3;
@@ -255,8 +273,8 @@ function floorplanWizard($output,$dbADO) {
 				if($res->RecordCount()==0){
 					while($rowFloorplans=$resFloorplans->FetchRow()){
 						$deviceCoords[]=$rowFloorplans['Page'];
-						$deviceCoords[]=($rowFloorplans['Page']==$page)?$arIncomingCoords[$intCursor+1]:-1;
-						$deviceCoords[]=($rowFloorplans['Page']==$page)?$arIncomingCoords[$intCursor+2]:-1;
+						$deviceCoords[]=($rowFloorplans['Page']==$page)?$scaleFactor*($arIncomingCoords[$intCursor+1]):-1;
+						$deviceCoords[]=($rowFloorplans['Page']==$page)?$scaleFactor*($arIncomingCoords[$intCursor+2]):-1;
 					}
 					
 					$insertDD='INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData, IK_DeviceData) VALUES (?,?,?)';
@@ -267,8 +285,8 @@ function floorplanWizard($output,$dbADO) {
 					$key=0;
 					while($rowFloorplans=$resFloorplans->FetchRow()){
 						$deviceCoords[$key]=$rowFloorplans['Page'];
-						$xcoord=($arIncomingCoords[$intCursor+1]!=-1)?($arIncomingCoords[$intCursor+1]+10):-1;
-						$ycoord=($arIncomingCoords[$intCursor+2]!=-1)?($arIncomingCoords[$intCursor+2]+10):-1;
+						$xcoord=($arIncomingCoords[$intCursor+1]!=-1)?$scaleFactor*($arIncomingCoords[$intCursor+1]+10):-1;
+						$ycoord=($arIncomingCoords[$intCursor+2]!=-1)?$scaleFactor*($arIncomingCoords[$intCursor+2]+10):-1;
 						$deviceCoords[$key+1]=($rowFloorplans['Page']==$page)?$xcoord:(isset($oldCoordsArray[$key+1])?$oldCoordsArray[$key+1]:-1);
 						$deviceCoords[$key+2]=($rowFloorplans['Page']==$page)?$ycoord:(isset($oldCoordsArray[$key+2])?$oldCoordsArray[$key+2]:-1);
 						$key+=3;

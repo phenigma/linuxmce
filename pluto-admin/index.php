@@ -875,6 +875,12 @@ switch ($section) {
 	    include_once('operations/automation/executeScenarios.php');
 	    executeScenarios($output,$dbADO);
 	break;
+	case 'viewCameras';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/security/viewCameras.php');
+	    viewCameras($output,$dbADO);
+	break;
 		
 	case '';
 		$output = new Template($dbADO);	
