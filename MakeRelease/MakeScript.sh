@@ -28,6 +28,7 @@ if ! MakeRelease -o 1 -r 2,9,11 -m 1 -s /home/MakeRelease/trunk -n / -R $svninfo
 else
 	cd /home/tmp/pluto-build/
 	./propagate.sh
+	(cd /home/Pluto-D-i; ./go cache; cp DSP.iso /var/www/download/cds/pldebsrg.iso)
 	if [ $version -ne 1 ]; then
 		if ! MakeRelease -o 1 -r 12 -m 1 -s /home/MakeRelease/trunk -n / -b -v $version > /home/MakeRelease/MakeRelease.log ; then
 			echo "MakeRelease to source forge CVS Failed.  Press any key"

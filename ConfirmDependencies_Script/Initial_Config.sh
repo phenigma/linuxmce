@@ -109,6 +109,12 @@ done
 
 [ "$ok" -eq 0 ] && exit 1
 chmod +x "$DIR"/activation.sh
+
+if [ -d /usr/pluto/install/deb-cache ]; then
+	mv /usr/pluto/install/deb-cache/* /var/cache/apt/archives
+	rmdir /usr/pluto/install/deb-cache
+fi
+
 if "$DIR"/activation.sh; then
 	echo "Activation went ok"
 else

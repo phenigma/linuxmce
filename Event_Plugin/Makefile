@@ -21,7 +21,7 @@ CPPFLAGS +=
 LDFLAGS +=
 XTRALDLIBS = -lpluto_main
 
-Gen_Dev_Files += Criteria.cpp  CriteriaParmNesting.cpp  Criteria_EvaluateExpression.cpp
+Gen_Dev_Files += Criteria.cpp  CriteriaParmNesting.cpp  Criteria_EvaluateExpression.cpp TimedEvent.cpp
 sources +=
 
 #<-dceag-mf-b->

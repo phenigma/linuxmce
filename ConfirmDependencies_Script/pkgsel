@@ -38,9 +38,6 @@ case "$1" in
 		fi
 	done
 
-	mv /usr/pluto/install/deb-cache/* /var/cache/apt/archives
-	rmdir /usr/pluto/install/deb-cache
-
 	ok=0
 	until [ "$ok" -eq 1 ]; do
 		echo "Do you want a Pluto system or a regular Debian system?"
