@@ -952,7 +952,7 @@ if( sTableName=="Command_CommandParameter" )
 		}
 
 		sSQL.str( "" );
-		sSQL << "SELECT psc_id,psc_mod FROM " << sTableName;// << " WHERE psc_mod<>0 AND psc_mod IS NOT NULL";
+		sSQL << "SELECT psc_id,psc_mod FROM " << sTableName;
 		PlutoSqlResult result_set;
 		MYSQL_ROW row=NULL;
 		if( ( result_set.r=m_pDatabase->mysql_query_result( sSQL.str( ) ) ) )
@@ -961,6 +961,14 @@ if( sTableName=="Command_CommandParameter" )
 				if( row[0] )  // Ignore records that were added on the local database
 					map_id_mod[atoi(row[0])] = row[1] ? atoi(row[1]) : 0;
 		}
+	}
+
+	int NumIndexes = atoi( str.m_vectString[pos++].c_str( ) );
+	for( int i=0;i<NumIndexes;++i )
+	{
+		sSQL.str( "" );
+		sSQL << "ALTER TABLE `" << sTableName << "` " << str.m_vectString[pos++] << ";";
+		m_pDatabase->threaded_mysql_query( sSQL.str( ), true); // Don't worry about errors -- the index may already be in here
 	}
 
 	if( iField_psc_id!=-1 )

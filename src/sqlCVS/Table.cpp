@@ -1572,6 +1572,49 @@ bool Table::Dump( SerializeableStrings &str )
 			str.m_vectString.push_back( row[s] ? row[s] : NULL_TOKEN );
 	}
 
+	sSQL.str( "" );
+	sSQL << "SHOW INDEX FROM " << m_sName;
+	PlutoSqlResult result_set3;
+	if( !( result_set3.r=m_pDatabase->mysql_query_result( sSQL.str( ) ) ) )
+		return false;
+
+	vector<string> vectIndex;
+	row = mysql_fetch_row( result_set3.r );
+	while( row )
+	{
+		if( strcmp(row[2],"PRIMARY")==0 )
+		{
+			row = mysql_fetch_row( result_set3.r );
+			continue;
+		}
+
+		string sIndex;
+		if( row[1] && row[1][0]=='1' )
+			sIndex = "add unique ";
+		else
+			sIndex = "add index ";
+
+		string sName = row[2];
+		sIndex += "`" + sName + "` (`" + row[4] + "`";
+
+		while(true) // All subsequent rows with the same name are part of the same index
+		{
+			row = mysql_fetch_row( result_set3.r );
+			if( !row || sName!=row[2] )
+				break;
+
+			// It's another field in the same index
+			sIndex += string(",`") + row[2] + "`";
+		}
+
+		sIndex += ")";
+		vectIndex.push_back(sIndex);
+	}
+
+	str.m_vectString.push_back( StringUtils::itos( ( int ) vectIndex.size() ) );
+	for(size_t sVI=0;sVI<vectIndex.size();++sVI)
+		str.m_vectString.push_back( vectIndex[sVI] );
+
 	StringUtils::Replace(m_sFilter,"<%=U%>",g_GlobalConfig.csvUserID());
 	sSQL.str( "" );
 	sSQL << "SELECT " << sFieldList << " FROM " << m_sName << (m_sFilter.length() && StringUtils::ToUpper(m_sFilter).find("WHERE")==string::npos ? " WHERE " : " " ) << m_sFilter;
