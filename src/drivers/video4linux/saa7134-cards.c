@@ -1,6 +1,6 @@
 
 /*
- * $Id: saa7134-cards.c,v 1.52 2005/02/14 16:30:26 kraxel Exp $
+ * $Id: saa7134-cards.c,v 1.53 2005/02/18 12:28:29 kraxel Exp $
  *
  * device driver for philips saa7134 based TV cards
  * card-specific stuff.
@@ -478,6 +478,7 @@ struct saa7134_board saa7134_boards[] = {
 		.audio_clock    = 0x00187de7,
 		.tuner_type     = TUNER_PHILIPS_FM1216ME_MK3,
 		.tda9887_conf   = TDA9887_PRESENT,
+		.mpeg           = SAA7134_MPEG_DVB,
 		.inputs = {{
 			.name   = name_tv,
 			.vmux   = 1,

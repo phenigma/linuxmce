@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-mpeg.c,v 1.21 2005/02/15 10:51:53 kraxel Exp $
+ * $Id: cx88-mpeg.c,v 1.22 2005/02/18 13:26:20 kraxel Exp $
  *
  *  Support for the mpeg transport stream transfers
  *  PCI function #2 of the cx2388x.
@@ -75,17 +75,8 @@ static int cx8802_start_dma(struct cx8802_dev    *dev,
 		cx_write(MO_PINMUX_IO, 0x00);
 		cx_write(TS_HW_SOP_CNTRL,47<<16|188<<4|0x00);
 		cx_write(TS_SOP_STAT,0x00);
-
-		switch (core->board) {
-		case CX88_BOARD_PCHDTV_HD3000:
-			/* non-punctured clock TS */
-			cx_write(TS_GEN_CNTRL, 0x00); 
-			udelay(100);
-			break;
-		default:
-			cx_write(TS_GEN_CNTRL, 0x0c);
-			break;
-		}
+		cx_write(TS_GEN_CNTRL, dev->ts_gen_cntrl); 
+		udelay(100);
 	}
 
 	if (cx88_boards[core->board].blackbird) {

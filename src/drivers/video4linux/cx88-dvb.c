@@ -1,5 +1,5 @@
 /*
- * $Id: cx88-dvb.c,v 1.28 2005/02/17 10:24:08 kraxel Exp $
+ * $Id: cx88-dvb.c,v 1.29 2005/02/18 13:26:20 kraxel Exp $
  *
  * device driver for Conexant 2388x based TV cards
  * MPEG Transport Stream (DVB) routines
@@ -183,10 +183,19 @@ static struct cx22702_config hauppauge_novat_config = {
 #endif
 
 #if HAVE_OR51132
+static int or51132_set_ts_param(struct dvb_frontend* fe, 
+				int is_punctured)
+{
+	struct cx8802_dev *dev= fe->dvb->priv;
+	dev->ts_gen_cntrl = is_punctured ? 0x04 : 0x00;
+	return 0;
+}
+
 struct or51132_config pchdtv_hd3000 = {
 	.demod_address    = 0x15,
 	.pll_address      = 0x61,
 	.pll_desc         = &dvb_pll_thomson_dtt7610,
+	.set_ts_params    = or51132_set_ts_param,
 };
 #endif
 
@@ -194,6 +203,7 @@ static int dvb_register(struct cx8802_dev *dev)
 {
 	/* init struct videobuf_dvb */
 	dev->dvb.name = dev->core->name;
+	dev->ts_gen_cntrl = 0xc0;
 
 	/* init frontend */
 	switch (dev->core->board) {

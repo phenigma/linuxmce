@@ -31,6 +31,9 @@ struct or51132_config
 	u8 demod_address;
 	u8 pll_address;
 	struct dvb_pll_desc *pll_desc;
+
+	/* Need to set device param for start_dma */
+	int (*set_ts_params)(struct dvb_frontend* fe, int is_punctured);
 };
 
 extern struct dvb_frontend* or51132_attach(const struct or51132_config* config,

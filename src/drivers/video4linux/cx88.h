@@ -1,5 +1,5 @@
 /*
- * $Id: cx88.h,v 1.53 2005/02/16 13:11:55 kraxel Exp $
+ * $Id: cx88.h,v 1.54 2005/02/18 13:26:20 kraxel Exp $
  *
  * v4l2 device driver for cx2388x based TV cards
  *
@@ -395,6 +395,9 @@ struct cx8802_dev {
 	struct videobuf_dvb        dvb;
 	void*                      fe_handle;
 	int                        (*fe_release)(void *handle);
+
+	/* for switching modulation types */
+	unsigned char              ts_gen_cntrl;
 };
 
 /* ----------------------------------------------------------- */

@@ -737,7 +737,7 @@ static void hauppauge_eeprom(struct cx88_core *core, u8 *eeprom_data)
 	core->has_radio  = tv.has_radio;
 }
 
-static int hauppauge_eeprom_dvb(struct cx88_core *core, u8 *ee)
+static void hauppauge_eeprom_dvb(struct cx88_core *core, u8 *ee)
 {
 	int model;
 	int tuner;
@@ -765,7 +765,7 @@ static int hauppauge_eeprom_dvb(struct cx88_core *core, u8 *ee)
 	default:
 		printk("%s: error: unknown hauppauge tuner 0x%02x\n",
 		       core->name, tuner);
-		return -ENODEV;
+		return;
 	}
 	printk(KERN_INFO "%s: hauppauge eeprom: model=%d, tuner=%d\n",
 	       core->name, model, tuner);

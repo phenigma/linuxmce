@@ -1,3 +1,27 @@
+2005-02-18 17:18  kraxel
+
+	* doc/: lifeview.txt, liveview.txt:
+
+	- one more rename *sigh*.
+
+2005-02-18 17:16  kraxel
+
+	* doc/: liveview.txt, saa7134-liveview.txt:
+
+	- rename docfile.
+
+2005-02-18 14:26  kraxel
+
+	* cx88-dvb.c, cx88-mpeg.c, cx88.h, or51132.c, or51132.h:
+
+	- more HD3000 stuff from Rusty Scott.
+
+2005-02-18 13:28  kraxel
+
+	* saa7134-cards.c, saa7134-dvb.c:
+
+	- medion 7134 dvb-t support -- first cut, likely doesn't work yet.
+
 2005-02-17 11:24  kraxel
 
 	* cx88-dvb.c, or51132.c, or51132.h, doc/saa7134-liveview.txt:
