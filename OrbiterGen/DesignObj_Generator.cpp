@@ -87,7 +87,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
     m_bDontShare=bDontShare;
     m_bUsingCache=false;
 
-if( m_pRow_DesignObj->PK_DesignObj_get()==2239 )//2821 && bAddToGenerated )
+if( m_pRow_DesignObj->PK_DesignObj_get()==1326 )//2821 && bAddToGenerated )
 {
     int k=2;
 }
@@ -105,7 +105,7 @@ if( m_pRow_DesignObj->PK_DesignObj_get()==2239 )//2821 && bAddToGenerated )
 
     if( bAddToGenerated )
     {
-        cout << "Generating: " << drDesignObj->PK_DesignObj_get() << endl;
+		cout << "Generating screen: " << drDesignObj->PK_DesignObj_get() << " in orbiter: " << pGenerator->m_pRow_Device->PK_Device_get() << endl;
         listDesignObj_Generator *al = m_pOrbiterGenerator->m_htGeneratedScreens[drDesignObj->PK_DesignObj_get()];
         if( al==NULL )
         {
@@ -450,6 +450,10 @@ Table_Image *p = m_mds->Image_get();
                     throw "Cannot open style";
                 }
                 CGText *pCGText = new CGText(this,drOVTSL_match,m_pOrbiterGenerator->m_pRow_Orbiter);
+if( pCGText->m_sText=="1" )
+{
+int k=2;
+}
                 m_vectDesignObjText.push_back(pCGText);
                 PickStyleVariation(drStyle,m_pOrbiterGenerator,pCGText->m_mapTextStyle);
 
@@ -1001,7 +1005,6 @@ void DesignObj_Generator::HandleGoto(int PK_DesignObj_Goto)
 
 
         m_pOrbiterGenerator->m_iPK_DesignObj_Screen = PK_DesignObj_Goto;
-        cout << "Handling Goto: " << PK_DesignObj_Goto << endl;
         m_DesignObj_GeneratorGoto = new DesignObj_Generator(m_pOrbiterGenerator,drDesignObj_new,PlutoRectangle(0,0,0,0),NULL,pListScreens->size()==0,false);
 //  I think this is not needed since the if( bAddToGenerated at the top of the constructor does this since pListScreens->size()==0???       pListScreens->push_back(m_DesignObj_GeneratorGoto);
 //      m_pOrbiterGenerator->m_mapVariable = htPriorVariables;
@@ -1459,18 +1462,14 @@ int k=2;
     for(size_t s=0;s<m_alChildDesignObjs.size();++s)
     {
         DesignObj_Generator *oc = m_alChildDesignObjs[s];
-        if( oc->m_pRow_DesignObj->FK_DesignObjType_get()==DESIGNOBJTYPE_Array_CONST )
-            oc->m_bContainsArrays=true;
-
         oc->ScaleAllValues(FactorX,FactorY,pTopmostObject);
-
-        if( oc->m_bContainsArrays && pTopmostObject )
-            pTopmostObject->m_bContainsArrays=true;
     }
 
     for(size_t s=0;s<m_alNonMPArrays.size();++s)
     {
         CGArray *oa = m_alNonMPArrays[s];
+        if( pTopmostObject )
+            pTopmostObject->m_bContainsArrays=true;
 
         for(size_t s2=0;s2<oa->m_alChildDesignObjs.size();++s2)
         {
@@ -1481,7 +1480,10 @@ int k=2;
     for(size_t s=0;s<m_alMPArray.size();++s)
     {
         CGArray *oa = m_alMPArray[s];
-        for(size_t s2=0;s2<oa->m_alChildDesignObjs.size();++s2)
+        if( pTopmostObject )
+            pTopmostObject->m_bContainsArrays=true;
+
+		for(size_t s2=0;s2<oa->m_alChildDesignObjs.size();++s2)
         {
             DesignObj_Generator *oc = oa->m_alChildDesignObjs[s2];
             oc->ScaleAllValues(FactorX,FactorY,pTopmostObject);

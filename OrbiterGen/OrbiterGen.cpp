@@ -767,7 +767,7 @@ int OrbiterGenerator::DoIt()
 				oco->m_rPosition.Bottom(m_Height);
 				oco->m_rBackgroundPosition.Right(m_Width);
 				oco->m_rBackgroundPosition.Bottom(m_Height);
-				cout << "Rendering screen " << oco->m_ObjectID << endl;
+				cout << "Rendering screen " << oco->m_ObjectID << " in orbiter: " << m_pRow_Device->PK_Device_get() << endl;
 				try
 				{
 					DoRender(m_sFontPath,m_sOutputPath,m_Width,m_Height,m_pRow_Size->PreserveAspectRatio_get()==1,oco);
