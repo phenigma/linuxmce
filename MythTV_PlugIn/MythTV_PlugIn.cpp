@@ -28,6 +28,7 @@ using namespace DCE;
 #include "DataGrid.h"
 
 #include "MythTvWrapper.h"
+#include "../Orbiter_Plugin/OH_Orbiter.h"
 #include <libmythtv/frame.h>
 
 //<-dceag-const-b->
@@ -149,7 +150,7 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
 		else
 		{
 			DCE::CMD_Goto_Screen cmdGotoScreen(
-                    m_dwPK_Device, -1,
+                    m_dwPK_Device, pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,
                     0, StringUtils::itos(DESIGNOBJ_mnuPVROptions_CONST).c_str(),
                     "", "", false);
 			SendCommand(cmdGotoScreen);

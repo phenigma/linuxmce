@@ -367,20 +367,22 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
         return false;
     }
 
+/*
     if ( pMediaStream->m_pOH_Orbiter_StartedMedia == NULL )
     {
         g_pPlutoLogger->Write(LV_WARNING, "The stream object mapped to the stream ID %d does not have an associated orbiter object.", iStreamID);
         return false;
     }
+*/
 
-    EntertainArea *pEntertainArea = pMediaStream->m_pOH_Orbiter_StartedMedia->m_pEntertainArea;
-    if ( pEntertainArea == NULL )
-    {
-        g_pPlutoLogger->Write(LV_WARNING, "The orbiter %d which created this stream %d is not in a valid entertainment area",
-                    pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,
-                    iStreamID );
-        return false;
-    }
+//     EntertainArea *pEntertainArea = pMediaStream->m_pOH_Orbiter_StartedMedia->m_pEntertainArea;
+//     if ( pEntertainArea == NULL )
+//     {
+//         g_pPlutoLogger->Write(LV_WARNING, "The orbiter %d which created this stream %d is not in a valid entertainment area",
+//                     pMediaStream->m_pOH_Orbiter_StartedMedia->m_pDeviceData_Router->m_dwPK_Device,
+//                     iStreamID );
+//         return false;
+//     }
 
     if ( pMediaStream->HaveMoreInQueue() )
     {
@@ -1492,6 +1494,9 @@ void Media_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string 
         g_pPlutoLogger->Write(LV_STATUS, "Can't jump in an empty queue");
         return;
     }
+
+	// update the orbiter object to be the one that commanded this.
+	pEntertainArea->m_pMediaStream->m_pOH_Orbiter_StartedMedia = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find( iPK_Device_Orbiter );
 
 	// Made the Jump to position to be the responsibility of hte Media stream. Most of them will just inherit the previous behaviour
 	// +1 next in playlist

@@ -538,6 +538,11 @@ ScheduleRecordTvResult MythTvWrapper::ProcessAddRecordingRequest(int channelId, 
                                         QString::number(channelId),
                                         programStartTime);
 
+	if ( programInfo == NULL )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "I could not find the data for the show that i want to record. Is the MythTV Backed and/or proxy working ?");
+		return ScheduleRecordTVResult_Failed;
+	}
     programInfo->ApplyRecordStateChange(QSqlDatabase::database(), kSingleRecord);
 
     vector<ProgramInfo *> *conflictsWith = RemoteGetConflictList(programInfo);
