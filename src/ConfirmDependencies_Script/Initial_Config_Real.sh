@@ -33,7 +33,7 @@ BUILD_ALL_MSG="We created a file called '$DIR/build_all.sh' which will make the 
 try_again()
 {
 	ClearBlue
-	echo "$(CatMessages "$@")"
+	echo "$(CatMessages "$@")" | fmt
 	echo -n "Do you want to try again? (Y/n): "
 	read again
 #	again=$(QuestionBox "$@" "Do you want to try again?")
@@ -71,8 +71,8 @@ while [ "$ok" -eq 0 ]; do
 		Message2="The device number is listed on step 8 of the new installation wizard at plutohome.com"
 
 		ClearBlue
-		echo "$Message1"
-		echo "$Message2"
+		echo "$Message1" | fmt
+		echo "$Message2" | fmt
 		echo -n "Device number: "
 		read device
 		[ -z "$device" ] && echo "Empty device number" || ok_device=1
@@ -87,7 +87,7 @@ while [ "$ok" -eq 0 ]; do
 		Message1="What is your activation code for this installation from plutohome.com?"
 
 		ClearBlue
-		echo "$Message1"
+		echo "$Message1" | fmt
 		echo -n "Activation code: "
 		read code
 		[ -z "$code" ] && echo "Empty activation code" || ok_code=1
@@ -211,7 +211,7 @@ Key="the Enter key"
 #Key="OK"
 Message2="Press $Key to reboot and startup your new Pluto $SysType."
 
-echo "$(CatMessages "$Message1" "$Message2")"
+echo "$(CatMessages "$Message1" "$Message2")" | fmt
 read
 #MessageBox "$Message1" "$Message2"
 
