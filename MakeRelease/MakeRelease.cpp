@@ -1168,7 +1168,7 @@ cout << "Copying Files\n";
 			pos = cmd.rfind("/");
 			length = cmd.length();
 			cmd = cmd.substr(pos+1,length-pos-1);
-			if(cmd.compare(pRow_Package_Source->Name_get()) == 0)) {
+			if(cmd.compare(pRow_Package_Source->Name_get()) == 0) {
 				cmd = FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 			} else {
 				cmd = cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
