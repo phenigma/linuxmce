@@ -79,14 +79,14 @@ switch ($section) {
 	case 'myPluto':
 		$output = new Template();
 		$output->setConn($conn);
-		$output->setTemplateFileType('home');
+		$output->setTemplateFileType('nonews');
 	    include_once('client/myPluto.php');
 	    myPluto($output,$dbADO,$conn);
 	break;
 	case 'wizard':
 		$output = new Template();
 		$output->setConn($conn);
-		$output->setTemplateFileType('home');
+		$output->setTemplateFileType('nonews');
 	    include_once('client/wizard.php');
 	    wizard($output,$dbADO);
 	break;

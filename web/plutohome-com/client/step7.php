@@ -96,7 +96,7 @@ if($action=='form'){
 		$out.='
 									<tr>
 										<td><input type="text" name="description_'.$rowOrbiters['PK_Device'].'" value="'.$rowOrbiters['Description'].'"></td>
-										<td class="normaltext"><B>'.$orbitersArray[$rowOrbiters['FK_DeviceTemplate']].'</B></td>
+										<td class="normaltext"><B>'.@$orbitersArray[$rowOrbiters['FK_DeviceTemplate']].'</B></td>
 										<td><input type="submit" name="delete_'.$rowOrbiters['PK_Device'].'" value="Delete"></td>
 									</tr>';
 	}

@@ -7,10 +7,15 @@ if($action=='form'){
 					<input type="hidden" name="section" value="wizard">
 					<input type="hidden" name="step" value="'.$step.'">
 					<input type="hidden" name="action" value="add">	
-			      		<table align="center">
-			      			<tr>
-								<td align="left" class="insidetable"><img src="images/titles/installation_wizzard.gif"></td>
-								<td align="right" class="insidetable"><a href="index.php?section=wizard&step=3">&lt;&lt; Previous</a> <a href="index.php?section=wizard&step=5">Next &gt;&gt;</a></td>
+			      		<table align="center" border="0">
+							<tr>
+								<td colspan="2"><table width="100%">
+				      			<tr>
+									<td align="left" class="insidetable"><img src="images/titles/installation_wizzard.gif"></td>
+									<td align="right" class="insidetable"><a href="index.php?section=wizard&step=3">&lt;&lt; Previous</a> <a href="index.php?section=wizard&step=5">Next &gt;&gt;</a></td>
+								</tr>
+								</table>
+								</td>
 							</tr>
 							<tr>
 			      				<td align="center" colspan="2" bgcolor="#DADDE4"><b>Step 4 of 8: Version</b></td>

@@ -78,6 +78,9 @@ function setTemplateFileType($type) {
 			case "nonav":
 			    $this->content = implode('',file("include/templates/template.nonav.tpl.html")); 
 			break;	
+			case "nonews":
+			    $this->content = implode('',file("include/templates/template.nonews.tpl.html")); 
+			break;			
 			default:
 				$this->templateType = 'public';
 				$this->content = implode('',file("include/templates/template.home.tpl.html")); 
