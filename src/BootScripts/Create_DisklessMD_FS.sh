@@ -16,11 +16,19 @@ FSarchive=PlutoMD.tar.bz2
 DlPath="/usr/pluto/diskless/$IP"
 HexIP=$(gethostip -x "$IP")
 
+Modules="pcnet32 tg3 e1000 sk98lin fealnx natsemi"
+
 KERNEL_VERSION="$(uname -r)"
 
 InstallKernel()
 {
 	local KERNEL_VERSION="$1"
+	local Module
+
+	: >etc/mkinitrd/modules
+	for Module in $Modules; do
+		echo $Module >>etc/mkinitrd/modules
+	done
 
 	if chroot . dpkg -s "kernel-image-$KERNEL_VERSION" 2>/dev/null | grep -q 'Status: install ok installed'; then
 		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Kernel already installed."
