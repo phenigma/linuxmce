@@ -16,18 +16,21 @@ echo Building pluto(windows ce) sources...
 call "MakeRelease_Symbian_S60.bat"
 
 echo Misc actions...
-cd bin
+cd "c:\pluto.makerelease\trunk\bin"
 copy Orbiter.exe Orbiter_Win32.dat
 copy OrbiterCE.exe Orbiter_WinCE.dat
 
 echo Copying EXE files...
-copy *.exe "\\10.0.0.150\www_docs\download\win2000xp\WinMakeRelease_output\"
+copy *.exe "\\10.0.0.150\www_docs\WinMakeRelease_output\bin"
 echo Copying DLL files...
-copy *.dll "\\10.0.0.150\www_docs\download\win2000xp\WinMakeRelease_output\"
+copy *.dll "\\10.0.0.150\www_docs\WinMakeRelease_output\bin"
 echo Copying DAT files...
-copy *.dat "\\10.0.0.150\www_docs\download\win2000xp\WinMakeRelease_output\"
+copy *.dat "\\10.0.0.150\www_docs\WinMakeRelease_output\bin"
 echo Copying SIS files...
-copy *.sis "\\10.0.0.150\www_docs\download\win2000xp\WinMakeRelease_output\"
+copy *.sis "\\10.0.0.150\www_docs\WinMakeRelease_output\bin"
 
+echo Copying LIB files...
+cd "c:\pluto.makerelease\trunk\lib"
+copy *.lib "\\10.0.0.150\www_docs\WinMakeRelease_output\lib"
 
 
