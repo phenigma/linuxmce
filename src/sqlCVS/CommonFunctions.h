@@ -120,13 +120,19 @@ namespace sqlCVS
 		bool ValidateUsers(bool &bSupervisor,bool bExpectAtLeastOne=true,MapStringString *pmapUsersPasswords=NULL)
 		{
 			if( !pmapUsersPasswords )
+			{
 				pmapUsersPasswords = &m_mapUsersPasswords;
+cout << "Map was null, using internal" << endl;
+			}
 			bSupervisor=false;
 			bool bValidatedUser=false;  // Be sure there is at least 1 user that was validated, and the map isn't empty
+cout << "Ready to loop.  size is: " << pmapUsersPasswords->size() << endl;
 			for(MapStringString::iterator it=pmapUsersPasswords->begin();it!=pmapUsersPasswords->end();++it)
 			{
 				bool bNoPassword,bSupervisor;
+cout << "before validate user" << endl;
 				int psc_user = ValidateUser( (*it).first, (*it).second, bNoPassword, bSupervisor );
+cout << "validate user:" << psc_user << endl;
 				if( !psc_user )
 				{
 					return false;

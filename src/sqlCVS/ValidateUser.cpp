@@ -6,9 +6,12 @@
 #include "CommonFunctions.h"
 #include "PlutoUtils/MySQLHelper.h"
 
+using namespace sqlCVS;
+
 int ValidateUser(string Username,string Password,bool &bNoPassword,bool &bSupervisor)
 {
-	MySqlHelper mySqlHelper("10.0.0.150","root","","MasterUsers");
+cout << "Ready to validate Masterusers with host: " << g_GlobalConfig.dceConfig.m_sDBHost << " user: " << g_GlobalConfig.dceConfig.m_sDBUser << " pass: " << g_GlobalConfig.dceConfig.m_sDBPassword << endl;
+	MySqlHelper mySqlHelper(g_GlobalConfig.dceConfig.m_sDBHost,g_GlobalConfig.dceConfig.m_sDBUser,g_GlobalConfig.dceConfig.m_sDBPassword,"MasterUsers");
 	PlutoSqlResult result_set;
 	MYSQL_ROW row=NULL;
 	string md5;

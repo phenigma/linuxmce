@@ -56,6 +56,7 @@ bool R_CommitChanges::ProcessRequest( class RA_Processor *pRA_Processor )
 	}
 	else
 	{
+		cout << "Ready to validate users.  m_map: " << &m_mapUsersPasswords << endl;
 		if( !g_GlobalConfig.ValidateUsers(psqlCVSprocessor->m_bSupervisor,true,&m_mapUsersPasswords) )
 		{
 			m_cProcessOutcome=LOGIN_FAILED;

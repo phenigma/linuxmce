@@ -1808,9 +1808,9 @@ int k=2;
 						string sValue = row[1];
 						if( StringUtils::itos( atoi(row[1]) )!=StringUtils::TrimSpaces( sValue ) )
 							continue; // It's not numeric
-						cout << "In table: " << m_sName << ":" << pField->Name_get() << ":";
+						cout << "In table: " << m_sName << ":" << pField->Name_get() << ": ";
 						cout << (row[0] ? row[0] : "NULL") << "-" << row[1];
-						cout << pField_IReferTo_Indirectly->Table_get()->Name_get() << ":" << pField_IReferTo_Indirectly->Name_get() << endl;
+						cout << " " << pField_IReferTo_Indirectly->Table_get()->Name_get() << ":" << pField_IReferTo_Indirectly->Name_get() << endl;
 						if( Keys.length() )
 							Keys += " OR ";
 						Keys += "(FK_" + pField->Name_get().substr(3) + "='" + StringUtils::SQLEscape(row[0]) + "' AND " + pField->Name_get() + 
