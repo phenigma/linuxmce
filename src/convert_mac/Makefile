@@ -12,11 +12,11 @@ XTRALDLIBS =
 all: convert_mac
 
 convert_mac: $(sources:.cpp=.o)
-	$(CXX) -o $@ $+  $(LDFLAGS) $(LDLIBS)
+	$(CXX) -o $@ $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ $(ROOT)/bin
 
 clean: clean-recursive
-	rm -f $(sources:.cpp=.o) $(sources:.cpp=.d) convert_mac >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) convert_mac >/dev/null
 
 include $(ROOT)/PlutoUtils/make.rules
 -include $(sources:.cpp=.d)

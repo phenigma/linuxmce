@@ -14,11 +14,11 @@ SVNLog = $(sources)
 all: SVNLog
 
 SVNLog: $(SVNLog:.cpp=.o)
-	$(CXX) -o $@ $+  $(LDFLAGS) $(LDLIBS)
+	$(CXX) -o $@ $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ $(ROOT)/bin
 
 clean: clean-recursive
-	rm -f $(sources:.cpp=.o) $(sources:.cpp=.d) SVNLog >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) SVNLog >/dev/null
 
 include $(ROOT)/PlutoUtils/make.rules
 -include $(sources:.cpp=.d)

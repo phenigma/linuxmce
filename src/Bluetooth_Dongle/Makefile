@@ -63,7 +63,7 @@ Bluetooth_Dongle: $(sources:.cpp=.o)
 	./post_make.sh $@
 
 clean: clean-recursive
-	rm -f $(call cpath,$(sources:.cpp=.o)) $(call cpath,$(sources:.cpp=.d)) Bluetooth_Dongle.bin Bluetooth_Dongle.so >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) Bluetooth_Dongle.bin Bluetooth_Dongle.so >/dev/null
 
 package:
 	chmod +x make_package.sh

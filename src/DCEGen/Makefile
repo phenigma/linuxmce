@@ -14,7 +14,7 @@ all: $(sources:.cpp=.o)
 	cp DCEGen ../bin
 
 clean: clean-recursive
-	rm -f $(call cpath,$(sources:.cpp=.o)) $(call cpath,$(sources:.cpp=.d)) DCEGen >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) DCEGen >/dev/null
 
 package:
 	./make_package.sh $(APPNAME) $(VERSION)

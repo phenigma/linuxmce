@@ -45,18 +45,18 @@ bin: Media_Plugin
 so: Media_Plugin.so
 
 Media_Plugin.so: $(sources:.cpp=.o) $(INTERNAL_LIBS_NAMES:%=$(ROOT)/lib/lib%.a) Makefile
-	$(CXX) -shared -o $(MYNAME).so $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS_NAMES:%=-l%)
+	$(CXX) -shared -o $(MYNAME).so $(call cpach,$(sources:.cpp=.o)) $(LDFLAGS) $(LDLIBS_NAMES:%=-l%)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 
 Media_Plugin: $(sources:.cpp=.o) $(INTERNAL_LIBS_NAMES:%=$(ROOT)/lib/lib%.a) Makefile
-	$(CXX) -o $(MYNAME) $+ $(LDFLAGS) $(LDLIBS_NAMES:%=-l%)
+	$(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS_NAMES:%=-l%)
 	cp $@ ../bin
 	./post_make.sh $@
 
 clean:
-	rm -f $(sources:.cpp=.o) $(sources:.cpp=.d) Media_Plugin.bin Media_Plugin.so >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) Media_Plugin.bin Media_Plugin.so >/dev/null
 
 package:
 	chmod +x make_package.sh

@@ -15,7 +15,9 @@ medialib: MediaLib.cpp MediaLib.h MediaLib.o
 	$(CXX) -o medialib MediaLib.o
 
 $(MY_DEVICE): $(SOURCES:.cpp=.o)
-	$(CXX) -o $(MY_DEVICE) $(SOURCES:.cpp=.o) $(LDFLAGS) $(LDLIBS)
+	$(CXX) -o $(MY_DEVICE) $(call cpath,$(SOURCES:.cpp=.o)) $(LDFLAGS) $(LDLIBS)
 
 clean:
-	rm -f $(SOURCES:.cpp=.o) $(MY_DEVICE) medialib
+	rm -f $(call cpath,$(SOURCES:.cpp=.o)) $(MY_DEVICE) medialib
+
+include $(ROOT)/PlutoUtils/make.rules

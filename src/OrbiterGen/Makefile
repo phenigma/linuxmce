@@ -25,11 +25,11 @@ sources = \
 all: bin
 
 bin: $(sources:.cpp=.o)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $(APPNAME) $+ $(LDFLAGS) $(LDLIBS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $(APPNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp OrbiterGen ../bin
 
 clean: clean-recursive
-	rm -f $(sources:.cpp=.o) $(sources:.cpp=.d) $(APPNAME) >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) $(APPNAME) >/dev/null
 
 package:
 	./make_package.sh $(APPNAME) $(VERSION)

@@ -13,7 +13,7 @@ Table_Listing.cpp
 all: libFakeEPG.a all-recursive
 
 libFakeEPG.a: $(sources:.cpp=.o)
-	$(AR) rc $@ $+
+	$(AR) rc $@ $(call cpath,$+)
 	cp $@ ../lib
 
 clean: clean-recursive

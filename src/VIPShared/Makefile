@@ -35,11 +35,11 @@ sources = \
 all: libVIPCommon.a all-recursive
 
 libVIPCommon.a: $(sources:.cpp=.o)
-	$(AR) rc $@ $+
+	$(AR) rc $@ $(call cpath,$+)
 	cp $@ ../lib
 		
 clean: clean-recursive
-	rm -f $(sources:.cpp=.o) $(sources:.cpp=.d) libVIPCommon.a >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) libVIPCommon.a >/dev/null
 
 include $(ROOT)/PlutoUtils/make.rules
 -include $(sources:.cpp=.d)

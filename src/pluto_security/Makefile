@@ -21,7 +21,7 @@ Table_psc_security_tables.cpp
 all: libpluto_security.a all-recursive
 
 libpluto_security.a: $(sources:.cpp=.o)
-	$(AR) rc $@ $+
+	$(AR) rc $@ $(call cpath,$+)
 	cp $@ ../lib
 
 clean: clean-recursive

@@ -15,7 +15,7 @@ all: libIRBase all-recursive
 libIRBase: libIRBase.so libIRBase.a
 
 libIRBase.so: $(sources:.cpp=.o)
-	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $+
+	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $(call cpath,$+)
 #	cp $@ $(ROOT)/lib
 
 libIRBase.a: $(sources:.cpp=.o)
@@ -23,7 +23,7 @@ libIRBase.a: $(sources:.cpp=.o)
 	cp $@ $(ROOT)/lib
 
 clean:
-	rm -f $(sources:.cpp=.o) $(sources:.cpp=.d) libIRBase.so libIRBase.a >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) libIRBase.so libIRBase.a >/dev/null
 
 package:
 	./make_package.sh $(APPNAME) $(VERSION)

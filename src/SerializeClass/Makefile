@@ -12,15 +12,15 @@ all: libSerializeClass all-recursive
 libSerializeClass: libSerializeClass.so libSerializeClass.a
 
 libSerializeClass.so: $(sources:.cpp=.o)
-	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $+
+	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $(call cpath,$+)
 #	cp $@ ../lib
 	
 libSerializeClass.a: $(sources:.cpp=.o)
-	$(AR) rc $@ $+
+	$(AR) rc $@ $(call cpath,$+)
 	cp $@ ../lib
 	
 clean: 
-	rm -f $(sources:.cpp=.o) $(sources:.cpp=.d) libSerializeClass.so libSerializeClass.a >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) libSerializeClass.so libSerializeClass.a >/dev/null
 
 include $(ROOT)/PlutoUtils/make.rules
 -include $(sources:.cpp=.d)

@@ -10,11 +10,11 @@ sources = RA_Processor.cpp RA_Action.cpp RA_Request.cpp RAServer.cpp RAClientSoc
 all: libRACommon.a all-recursive
 
 libRACommon.a: $(sources:.cpp=.o)
-	$(AR) rc $@ $+
+	$(AR) rc $@ $(call cpath,$+)
 	cp $@ ../lib
 		
 clean: clean-recursive
-	rm -f $(sources:.cpp=.o) $(sources:.cpp=.d) libRACommon.a >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) libRACommon.a >/dev/null
 
 include $(ROOT)/PlutoUtils/make.rules
 -include $(sources:.cpp=.d)

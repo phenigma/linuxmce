@@ -13,7 +13,7 @@ all: MessageSend
 	cp $+ $(ROOT)bin
 
 MessageSend: MessageSend.o
-	$(CXX) -o $@ $+  $(LDFLAGS) $(LDLIBS)
+	$(CXX) -o $@ $(call cpath,$+)  $(LDFLAGS) $(LDLIBS)
 
 clean: clean-recursive
 	rm -f *.o *.d MessageSend >/dev/null

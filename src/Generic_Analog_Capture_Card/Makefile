@@ -48,7 +48,7 @@ Generic_Analog_Capture_Card: $(sources:.cpp=.o)
 	./post_make.sh $@
 
 clean: clean-recursive
-	rm -f $(call cpath,$(sources:.cpp=.o)) $(call cpath,$(sources:.cpp=.d)) Generic_Analog_Capture_Card.bin Generic_Analog_Capture_Card.so >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) Generic_Analog_Capture_Card.bin Generic_Analog_Capture_Card.so >/dev/null
 
 package:
 	chmod +x make_package.sh

@@ -20,15 +20,15 @@ all: libDCECommon all-recursive
 libDCECommon: libDCECommon.so libDCECommon.a
 
 libDCECommon.so: $(sources:.cpp=.o)
-	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $+
+	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $(call cpath,$+)
 #	cp $@ ../lib
 
 libDCECommon.a: $(sources:.cpp=.o)
-	$(AR) rc $@ $+
+	$(AR) rc $@ $(call cpath,$+)
 	cp $@ ../lib
 
 clean:
-	rm -f $(sources:.cpp=.o) $(sources:.cpp=.d) libDCECommon.so libDCECommon.a >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) libDCECommon.so libDCECommon.a >/dev/null
 
 package:
 	./make_package.sh $(APPNAME) $(VERSION)

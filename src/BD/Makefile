@@ -11,11 +11,11 @@ sources = BDCommand.cpp BDCommandProcessor.cpp BDCommandProcessor_Linux_Bluetoot
 all: libBDCommon.a all-recursive
 
 libBDCommon.a: $(sources:.cpp=.o)
-	$(AR) rc $@ $+
+	$(AR) rc $@ $(call cpath,$+)
 	cp $@ ../lib
 
 clean: clean-recursive
-	rm -f $(sources:.cpp=.o) $(sources:.cpp=.d) libBDCommon.a >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) libBDCommon.a >/dev/null
 
 include $(ROOT)/PlutoUtils/make.rules
 ifeq (,$(findstring clean, $(MAKECMDGOALS)))

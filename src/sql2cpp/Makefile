@@ -16,14 +16,14 @@ all: sql2cpp
 #all: newthing
 
 sql2cpp: $(sql2cpp:.cpp=.o)
-	$(CXX) -o $@ $+  $(LDFLAGS) $(LDLIBS)
+	$(CXX) -o $@ $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ $(ROOT)/bin
 
 newthing: $(new_thing:.cpp=.o)
 	@echo "*** Something to do here ***"
 
 clean: clean-recursive
-	rm -f $(sources:.cpp=.o) $(sources:.cpp=.d) sql2cpp >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) sql2cpp >/dev/null
 
 package:
 	./make_package.sh $(APPNAME) $(VERSION)

@@ -17,14 +17,14 @@ all: VIPServer
 #all: newthing
 
 VIPServer: $(VIPServer:.cpp=.o)
-	$(CXX) -o $@ $+  $(LDFLAGS) $(LDLIBS)
+	$(CXX) -o $@ $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ $(ROOT)/bin
 
 newthing: $(new_thing:.cpp=.o)
 	@echo "*** Something to do here ***"
 
 clean: clean-recursive
-	rm -f $(sources:.cpp=.o) $(sources:.cpp=.d) VIPServer >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) VIPServer >/dev/null
 
 include $(ROOT)/PlutoUtils/make.rules
 -include $(sources:.cpp=.d)

@@ -13,15 +13,15 @@ all: Serial all-recursive
 Serial: libSerial.so libSerial.a
 
 libSerial.so: $(sources:.cpp=.o)
-	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $+
+	$(CXX) -shared $(CXXFLAGS) $(CPPFLAGS) -o $@ $(call cpath,$+)
 #	cp $@ ../lib
 
 libSerial.a: $(sources:.cpp=.o)
-	$(AR) rc $@ $+
+	$(AR) rc $@ $(call cpath,$+)
 	cp $@ ../lib
 
 clean:
-	rm -f $(sources:.cpp=.o) $(sources:.cpp=.d) libSerial.so libSerial.a >/dev/null
+	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) libSerial.so libSerial.a >/dev/null
 
 package:
 	./make_package.sh $(APPNAME) $(VERSION)

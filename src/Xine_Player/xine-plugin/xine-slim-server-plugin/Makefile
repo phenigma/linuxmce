@@ -6,8 +6,8 @@ CFLAGS=`xine-config --cflags` -ggdb3
 LDFLAGS=-fPIC
 
 xineplug_inp_slim.so: $(sources:.c=.o)
-	$(LIBTOOL) --mode=link --tag=CC $(CC) -shared -avoid-version  $(CFLAGS) $(LDFLAGS) -o $@ $+ `xine-config --libs`
-# 	gcc -o xineplug_inp_slim.so -module -avoid-version $(sources:.c=.o) `xine-config --libs`
+	$(LIBTOOL) --mode=link --tag=CC $(CC) -shared -avoid-version  $(CFLAGS) $(LDFLAGS) -o $@ $(call cpath,$+) `xine-config --libs`
+# 	gcc -o xineplug_inp_slim.so -module -avoid-version $(call cpath,$(sources:.c=.o)) `xine-config --libs`
 
 .PHONY: install clean
 install: xineplug_inp_slim.so
@@ -15,3 +15,5 @@ install: xineplug_inp_slim.so
 
 clean:
 	rm -f *.o *.so
+
+include $(ROOT)/PlutoUtils/make.rules
