@@ -19,6 +19,7 @@ awk '!/^pluto_/' /etc/shadow >/etc/shadow.$$
 
 cp $TemplateDir/smb.conf.tmpl /etc/samba/smb.conf.$$
 cp $TemplateDir/smbpasswd.tmpl /etc/samba/smbpasswd.$$
+: >/etc/samba/usermap.txt
 
 # get a list of all users
 Q="SELECT PK_Users,UserName,Password_Unix,Password_Samba FROM Users"
@@ -50,16 +51,18 @@ for Users in $R; do
 	public = no
 "
 # TODO: replace 00000001 with a real number of seconds (never set to 00000000)
-	SambaEntry="$UserName:$LinuxUserID:$SambaPassword:[U          ]:LCT-00000001:,,,"
+	SambaEntry="pluto_$UserName:$LinuxUserID:$SambaPassword:[U          ]:LCT-00000001:,,,"
 	ShadowEntry="pluto_$UserName:$LinuxPassword:12221:0:99999:7:::"
 	PasswdEntry="pluto_$UserName:x:$LinuxUserID:$LinuxUserID:,,,:/home/user_$PlutoUserID:/bin/false"
 	GroupEntry="pluto_$UserName:x:$LinuxUserID:www-data"
+	SambaUnixMap="pluto_$UserName = $UserName"
 	
 	echo "$SambaShare" >>/etc/samba/smb.conf.$$
 	echo "$SambaEntry" >>/etc/samba/smbpasswd.$$
 	echo "$ShadowEntry" >>/etc/shadow.$$
 	echo "$PasswdEntry" >>/etc/passwd.$$
 	echo "$GroupEntry" >>/etc/group.$$
+	echo "$SambaUnixMap" >>/etc/samba/usermap.txt
 
 	mkdir -p -m 0770 /home/user_$PlutoUserID
 	for dir in $user_dirs; do
@@ -94,8 +97,9 @@ for file in $files; do
 done
 
 # Only now we have the copies in place of the originals so we can add users and set ownerships
+addgroup public &>/dev/null
 for User in $UserList; do
-	adduser $User public
+	adduser pluto_$User public &>/dev/null
 	chown --dereference -R pluto_$User.pluto_$User /home/$User/
 done
 

@@ -10,4 +10,14 @@
    dns proxy = no
    passwd program = /usr/bin/passwd %u
    passwd chat = *Enter\snew\sUNIX\spassword:* %n\n *Retype\snew\sUNIX\spassword:* %n\n .
+   username map = /etc/samba/usermap.txt
+
+[public]
+   comment = public files
+   browseable = yes
+   writable = yes
+   create mask = 0770
+   directory mask = 0770
+   path = /home/public/data
+   public = no
 

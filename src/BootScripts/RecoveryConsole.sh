@@ -2,9 +2,10 @@
 
 Connectivity()
 {
-	while ./bin/ping -c 1 dcerouter &>/dev/null; do
-		./bin/sleep 5
-	done
+#	while ./bin/ping -c 1 dcerouter &>/dev/null; do
+#		./bin/sleep 5
+#	done
+	./bin/nc dcerouter 3450
 }
 
 ShellLoop()
@@ -13,8 +14,8 @@ ShellLoop()
 	while :; do
 		echo "-- Diskless MD analysis and recovery console --"
 		echo
-		bin/sh
-		bin/sleep 1
+		./bin/sh
+		./bin/sleep 1
 	done
 }
 
