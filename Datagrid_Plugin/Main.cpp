@@ -8,7 +8,7 @@
 #include "PlutoUtils/Other.h"
 #include "PlutoUtils/Other.h"
 
-#define  Datagrid_Plugin_VERSION "testing"
+#define Datagrid_Plugin_VERSION "testing"
 
 namespace DCE
 {
@@ -20,28 +20,28 @@ using namespace DCE;
 
 //<-dceag-plug-b->
 extern "C" {
-	class Command_Impl *RegisterAsPlugIn(class Router *pRouter,int PK_Device,string sLogger)
+	class Command_Impl *RegisterAsPlugIn( class Router *pRouter, int PK_Device, string sLogger )
 	{
 		if( sLogger=="dce_router" )
 		{
-			g_pPlutoLogger = new ServerLogger(PK_Device, "localhost");
-			if( ! ((ServerLogger *) g_pPlutoLogger)->IsConnected() )
+			g_pPlutoLogger = new ServerLogger( PK_Device, "localhost" );
+			if( ! ( ( ServerLogger * ) g_pPlutoLogger )->IsConnected() )
 			{
 				sLogger="stdout";
-				cerr << "Failed to create server logger.  Reverting to stdout instead." << endl;
+				cerr << "Failed to create server logger. Reverting to stdout instead." << endl;
 			}
 		}
 		
 		if( sLogger=="null" )
 			g_pPlutoLogger = new NullLogger();
 		else if( sLogger=="stdout" )
-			g_pPlutoLogger = new FileLogger(stdout);
+			g_pPlutoLogger = new FileLogger( stdout );
 		else if( sLogger!="dce_router" )
-			g_pPlutoLogger = new FileLogger(sLogger.c_str());
+			g_pPlutoLogger = new FileLogger( sLogger.c_str() );
 
-		g_pPlutoLogger->Write(LV_STATUS, "Device: %d loaded as plug-in",PK_Device);
+		g_pPlutoLogger->Write( LV_STATUS, "Device: %d loaded as plug-in", PK_Device );
 
-		Datagrid_Plugin *pDatagrid_Plugin = new Datagrid_Plugin(PK_Device, "localhost",true,false,pRouter);
+		Datagrid_Plugin *pDatagrid_Plugin = new Datagrid_Plugin( PK_Device, "localhost", true, false, pRouter );
 		if( pDatagrid_Plugin->m_bQuit )
 		{
 			delete pDatagrid_Plugin;
@@ -53,7 +53,7 @@ extern "C" {
 //<-dceag-plug-e->
 
 //<-dceag-main-b->
-int main(int argc, char* argv[]) 
+int main( int argc, char* argv[] ) 
 {
 	string sRouter_IP="dce_router";
 	int PK_Device=0;
@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
 
 	bool bError=false; // An error parsing the command line
 	char c;
-	for(int optnum=1;optnum<argc;++optnum)
+	for( int optnum=1;optnum<argc;++optnum )
 	{
 		if( argv[optnum][0]!='-' )
 		{
@@ -70,13 +70,13 @@ int main(int argc, char* argv[])
 		}
 
 		c=argv[optnum][1];
-		switch (c)
+		switch ( c )
 		{
 		case 'r':
 			sRouter_IP = argv[++optnum];
 			break;
 		case 'd':
-			PK_Device = atoi(argv[++optnum]);
+			PK_Device = atoi( argv[++optnum] );
 			break;
 		case 'l':
 			sLogger = argv[++optnum];
@@ -87,77 +87,77 @@ int main(int argc, char* argv[])
 		};
 	}
 
-	if (bError)
+	if ( bError )
 	{
 		cout << "Datagrid_Plugin, v." << Datagrid_Plugin_VERSION << endl
-			<< "A Pluto DCE Device.  See www.plutohome.com/dce for details." << endl
+			<< "A Pluto DCE Device. See www.plutohome.com/dce for details." << endl
 			<< "Usage: Datagrid_Plugin [-r Router's IP] [-d My Device ID] [-l dce_router|stdout|null|filename]" << endl
-			<< "-r -- the IP address of the DCE Router  Defaults to 'dce_router'." << endl
-			<< "-d -- This device's ID number.  If not specified, it will be requested from the router based on our IP address." << endl
-			<< "-l -- Where to save the log files.  Specify 'dce_router' to have the messages logged to the DCE Router.  Defaults to stdout." << endl;
-		exit(0);
+			<< "-r -- the IP address of the DCE Router Defaults to 'dce_router'." << endl
+			<< "-d -- This device's ID number. If not specified, it will be requested from the router based on our IP address." << endl
+			<< "-l -- Where to save the log files. Specify 'dce_router' to have the messages logged to the DCE Router. Defaults to stdout." << endl;
+		exit( 0 );
 	}
 
 #ifdef WIN32
-	WORD    wVersion;
-    WSADATA wsaData;
-    wVersion = MAKEWORD( 1, 1 );
-	if (WSAStartup(wVersion, &wsaData)!=0)
+	WORD wVersion;
+ WSADATA wsaData;
+ wVersion = MAKEWORD( 1, 1 );
+	if ( WSAStartup( wVersion, &wsaData )!=0 )
 	{
 		int ec = WSAGetLastError();
 		char s[91];
-		sprintf(s, "WSAStartup err %d", ec);
+		sprintf( s, "WSAStartup err %d", ec );
 		cerr << s << endl;
-		exit(1);
+		exit( 1 );
 	}
 #endif
 
 	try
 	{
 		if( sLogger=="dce_router" )
-			g_pPlutoLogger = new ServerLogger(PK_Device, sRouter_IP);
+			g_pPlutoLogger = new ServerLogger( PK_Device, sRouter_IP );
 		else if( sLogger=="null" )
 			g_pPlutoLogger = new NullLogger();
 		else if( sLogger=="stdout" )
-			g_pPlutoLogger = new FileLogger(stdout);
+			g_pPlutoLogger = new FileLogger( stdout );
 		else
-			g_pPlutoLogger = new FileLogger(sLogger.c_str());
+			g_pPlutoLogger = new FileLogger( sLogger.c_str() );
 	}
-	catch(...)
+	catch( ... )
 	{
 		cerr << "Unable to create logger" << endl;
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting",PK_Device);
+	g_pPlutoLogger->Write( LV_STATUS, "Device: %d starting", PK_Device );
 
 	try
 	{
-		Datagrid_Plugin *pDatagrid_Plugin = new Datagrid_Plugin(PK_Device, sRouter_IP);	
+		Datagrid_Plugin *pDatagrid_Plugin = new Datagrid_Plugin( PK_Device, sRouter_IP );	
 		if ( pDatagrid_Plugin->Connect() ) 
 		{
-			g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
+			g_pPlutoLogger->Write( LV_STATUS, "Connect OK" );
 			pDatagrid_Plugin->CreateChildren();
-			pthread_join(pDatagrid_Plugin->m_RequestHandlerThread, NULL);
+			pthread_join( pDatagrid_Plugin->m_RequestHandlerThread, NULL );
 
 		} 
 		else 
 		{
-			g_pPlutoLogger->Write(LV_CRITICAL, "Connect() Failed");
+			g_pPlutoLogger->Write( LV_CRITICAL, "Connect() Failed" );
 		}
 
 		delete pDatagrid_Plugin;
 	}
-	catch(string s)
+	catch( string s )
 	{
 		cerr << "Exception: " << s << endl;
 	}
-	catch(const char *s)
+	catch( const char *s )
 	{
 		cerr << "Exception: " << s << endl;
 	}
 #ifdef WIN32
-    WSACleanup();
+ WSACleanup();
 #endif
-    return 0;
+ return 0;
 }
 //<-dceag-main-e->
