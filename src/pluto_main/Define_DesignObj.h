@@ -1183,7 +1183,7 @@
 #define DESIGNOBJ_go_to_filelist_CONST 3372
 #define DESIGNOBJ_dvd_menu_full_screen_with_opti_CONST 3373
 #define DESIGNOBJ_save_playlist_CONST 3374
-#define DESIGNOBJ_objMenu2_CONST 3375
+#define DESIGNOBJ_objMenu2_CONST 3376
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

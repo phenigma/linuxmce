@@ -72,6 +72,8 @@
 #define DEVICECATEGORY_Remote_Controls_CONST 117
 #define DEVICECATEGORY_LIRC_Remote_Controls_CONST 118
 #define DEVICECATEGORY_Generic_Serial_Devices_CONST 119
+#define DEVICECATEGORY_Sound_Cards_CONST 124
+#define DEVICECATEGORY_Video_Cards_CONST 125
 
 #define DEVICECATEGORY_TABLE "DeviceCategory"
 #define DEVICECATEGORY_PK_DEVICECATEGORY_FIELD "PK_DeviceCategory"

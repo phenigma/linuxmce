@@ -327,6 +327,7 @@
 #define COMMAND_Rip_Disk_CONST 337
 #define COMMAND_Process_Incoming_Data_CONST 350
 #define COMMAND_Process_IDLE_CONST 351
+#define COMMAND_Show_Mouse_Pointer_CONST 354
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"
