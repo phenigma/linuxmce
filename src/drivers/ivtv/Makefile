@@ -20,5 +20,7 @@ deb: modules
 	mkdir -p $(PACKAGE_NAME)-$(PACKAGE_VER)/lib/modules/$(KERNEL)/extra
 	cp driver/*.ko $(PACKAGE_NAME)-$(PACKAGE_VER)/lib/modules/$(KERNEL)/extra/
 	cp postinst $(PACKAGE_NAME)-$(PACKAGE_VER)/debian/
+	cp Makefile.debian $(PACKAGE_NAME)-$(PACKAGE_VER)/Makefile
+	cd $(PACKAGE_NAME)-$(PACKAGE_VER) && dpkg-buildpackage -b 
 
 FORCE:
