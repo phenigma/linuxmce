@@ -260,7 +260,6 @@ void SocketListener::RegisterCommandHandler( ServerSocket *Socket, int iDeviceID
 		g_pPlutoLogger->Write( LV_REGISTRATION, "!!! Replacing command handler on device ID \x1b[34;1m%d!\x1b[0m", iDeviceID );
 		ll.Release();
 		RemoveSocket( (*iDC).second ); // then remove it
-		delete (*iDC).second;
 		ll.Relock();
 	}
 	m_mapCommandHandlers[iDeviceID] = Socket; // assigning it the new specified socket
