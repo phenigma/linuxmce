@@ -1,6 +1,16 @@
 #ifndef MediaStream_h
 #define MediaStream_h
 
+#include <map>
+#include <deque>
+
+#include "MediaAttributes.h"
+#include "MediaHandlerInfo.h"
+#include "DeviceData_Router.h"
+
+
+using namespace std;
+
 namespace DCE
 {
 

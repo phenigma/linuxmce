@@ -25,10 +25,11 @@ Gen_Dev_Files += $(GENDEV)/Datagrid_PluginBase.cpp
 sources += \
 	../Datagrid_Plugin/Datagrid_Plugin.cpp \
 	../File_Grids_Plugin/FileListGrid.cpp \
+	../Orbiter_Plugin/FollowMe_Plugin.cpp \
 	MediaHandlerInfo.cpp \
 	MediaAttributes.cpp \
-	../Orbiter_Plugin/FollowMe_Plugin.cpp
-	
+	MediaStream.cpp \
+	BoundRemote.cpp
 
 #<-dceag-mf-b->!
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
@@ -47,7 +48,7 @@ Media_Plugin.so: $(sources:.cpp=.o) $(ROOT)/lib/libpluto_main.a $(ROOT)/lib/libp
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
-		
+
 Media_Plugin: $(sources:.cpp=.o)
 	$(CXX) -o $(MYNAME) $+ $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin

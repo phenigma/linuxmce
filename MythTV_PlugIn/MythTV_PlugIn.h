@@ -18,6 +18,8 @@
 #include "../Media_Plugin/MediaHandlerBase.h"
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
 
+#include "MythTvMediaStream.h"
+
 class Database_FakeEPG;
 class Row_Listing;
 
@@ -27,34 +29,15 @@ namespace DCE
 {
     using namespace std;
 
-    /**
-     * @brief
-     */
-
-    class MythTvStream : public MediaStream
-    {
-    public:
-        class MythTV_PlugIn *m_pMythTV_PlugIn;
-
-        MythTvStream(class MythTV_PlugIn *pMythTV_PlugIn,class MediaHandlerInfo *pMediaHandlerInfo, DeviceData_Router *pDeviceData_Router, int PK_DesignObj_Remote, int PK_Users,enum SourceType sourceType,int iStreamID)
-            : MediaStream(pMediaHandlerInfo,pDeviceData_Router,PK_DesignObj_Remote,PK_Users,sourceType,iStreamID) { m_iCurrentShow=-1; m_pMythTV_PlugIn=pMythTV_PlugIn; }
-
-        /** Temporary hacks, just populate m_vectRow_Listing with all the shows, and make m_iCurrentShow point to the current one */
-        vector<Row_Listing *> m_vectRow_Listing;
-        int m_iCurrentShow;
-
-        virtual int GetType() { return MEDIASTREAM_TYPE_MYTHTV; }
-    };
-
     //<-dceag-decl-b->!
     class MythTV_PlugIn : public MythTV_PlugIn_Command, public MediaHandlerBase // , public MediaHandlerBase
     {
         //<-dceag-decl-e->
-        friend class MythTvStream;
-        /** Private member variables */
+       friend class MythTvStream;
 
-
+		/** Private member variables */
         map<int, int> m_mapDevicesToStreams;
+
         MythTvWrapper *m_pMythWrapper;
         // MythTvEPGWrapper *m_pAllShowsDataGrid;
 
@@ -64,7 +47,7 @@ namespace DCE
         int m_dwTargetDevice;
 
         //<-dceag-const-b->
-public:
+	public:
 		// Constructors/Destructor
 		MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
 		virtual ~MythTV_PlugIn();
@@ -93,19 +76,19 @@ public:
 
         virtual bool isValidStreamForPlugin(class MediaStream *pMediaStream);
 
+		MythTvMediaStream* ConvertToMythMediaStream(MediaStream *pMediaStream, string callerIdMessage = "");
+
         /** Datagrids */
-    class DataGridTable *CurrentShows(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign
-                        ,class Message *pMessage);
+    	class DataGridTable *CurrentShows(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign, class Message *pMessage);
 
         /** All Shows available in the MythTv database */
-    class DataGridTable *AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign
-                        ,Message *pMessage);
+    	class DataGridTable *AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage);
 
         /** All current shows on all channels (This grid is suitable for mobile phones.) */
-    class DataGridTable *AllShowsForMobiles(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage);
+    	class DataGridTable *AllShowsForMobiles(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage);
 
         /** The interceptor for the MediaInfoChangedEvent from the playing device */
-    bool MediaInfoChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Router *pDeviceFrom, class DeviceData_Router *pDeviceTo );
+    	bool MediaInfoChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Router *pDeviceFrom, class DeviceData_Router *pDeviceTo );
         //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION

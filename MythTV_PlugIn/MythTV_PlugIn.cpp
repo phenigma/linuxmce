@@ -120,22 +120,18 @@ void MythTV_PlugIn::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage
 
 bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
 {
-    if( pMediaStream->GetType() != MEDIASTREAM_TYPE_MYTHTV )
-    {
-        g_pPlutoLogger->Write(LV_CRITICAL,"Trying to start a non myth-tv stream");
+	PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+
+	MythTvMediaStream *pMythTvMediaStream = NULL;
+
+	if( (pMythTvMediaStream = ConvertToMythMediaStream(pMediaStream, "MythTV_PlugIn::StartMedia() ")) == NULL)
         return false;
-    }
-
-    PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
-    MythTvStream *pMythTvStream = (MythTvStream *) pMediaStream;
-
-    g_pPlutoLogger->Write(LV_STATUS, "Media type %d %s", pMythTvStream->m_iPK_MediaType, pMediaStream->GetFilenameToPlay("empty files").c_str());
 
     string Response;
 
-    m_dwTargetDevice = pMythTvStream->m_pDeviceData_Router_Source->m_dwPK_Device;
+    m_dwTargetDevice = pMythTvMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device;
 
-    DCE::CMD_Start_TV cmd(m_dwPK_Device, pMythTvStream->m_pDeviceData_Router_Source->m_dwPK_Device);
+    DCE::CMD_Start_TV cmd(m_dwPK_Device, pMythTvMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
 
 //     DCE::CMD_Play_Media cmd(m_dwPK_Device,
 
@@ -146,7 +142,7 @@ bool MythTV_PlugIn::StartMedia(class MediaStream *pMediaStream)
 //         pMythTvStream->m_iStreamID_get(),#include "pluto_main/Table_EventParameter.h"
 //         0);
 
-    m_pMedia_Plugin->MediaInfoChanged(pMythTvStream);
+    m_pMedia_Plugin->MediaInfoChanged(pMythTvMediaStream);
 
     if( !SendCommand(cmd, &Response) )
     {
@@ -216,7 +212,7 @@ class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaHandlerInfo *pMed
         return NULL;
     }
 
-    MythTvStream *pMediaStream = new MythTvStream(this, pMediaHandlerInfo, pMediaDevice->m_pDeviceData_Router, pMediaHandlerInfo->m_iPK_DesignObj, 0, st_RemovableMedia,StreamID);
+    MythTvMediaStream *pMediaStream = new MythTvMediaStream(pMediaHandlerInfo, pMediaDevice->m_pDeviceData_Router, pMediaHandlerInfo->m_iPK_DesignObj, 0, st_RemovableMedia,StreamID);
 
     pMediaStream->m_sMediaDescription = "Not available";
     pMediaStream->m_sSectionDescription = "Not available";
@@ -230,6 +226,23 @@ bool MythTV_PlugIn::MoveMedia(class MediaStream *pMediaStream, list<EntertainAre
 {
     g_pPlutoLogger->Write(LV_STATUS, "This is not implemented yet here");
 	return true;
+}
+
+MythTvMediaStream* MythTV_PlugIn::ConvertToMythMediaStream(MediaStream *pMediaStream, string callerIdMessage)
+{
+	if ( pMediaStream == NULL )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, (callerIdMessage + "Stream is a NULL stream!").c_str());
+		return NULL;
+	}
+
+	if ( pMediaStream->GetType() != MEDIASTREAM_TYPE_MYTHTV )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL, (callerIdMessage + "Stream is not a MythTvMediaStream!").c_str());
+		return NULL;
+	}
+
+	return static_cast<MythTvMediaStream*>(pMediaStream);
 }
 
 bool MythTV_PlugIn::isValidStreamForPlugin(class MediaStream *pMediaStream)
@@ -279,60 +292,46 @@ class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void
 {
     PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 
-    class MediaStream *pMediaStream = m_pMedia_Plugin->DetermineStreamOnOrbiter(pMessage->m_dwPK_Device_From);
-    if( !pMediaStream || pMediaStream->GetType()!=MEDIASTREAM_TYPE_MYTHTV )
+	MythTvMediaStream *pMythTvMediaStream = NULL;
 
-    /** @todo probably should have a virtual GetID method to confirm it's the right type to cast */
-
-        return NULL;
-
-    class MythTvStream *pMythTvStream = (MythTvStream *) pMediaStream;
+	if ( (pMythTvMediaStream = ConvertToMythMediaStream(m_pMedia_Plugin->DetermineStreamOnOrbiter(pMessage->m_dwPK_Device_From), "MythTV_PlugIn::CurrentShows() ")) == NULL)
+		return new DataGridTable();
 
     DataGridTable *pDataGrid = new DataGridTable();
-    DataGridCell *pCell;
 
-    for(size_t s=0;s<pMythTvStream->m_vectRow_Listing.size();++s)
-    {
+	/** @brief Find out where is this function used!! */
+//     DataGridCell *pCell;
+
+//     for(size_t s=0;s < pMythTvMediaStream->m_vectRow_Listing.size();++s)
+//     {
 /** @test
 //         Row_Listing *pListing = pMythTvStream->m_vectRow_Listing[s];
 //         pCell = new DataGridCell(StringUtils::itos(pListing->ChannelNum_get()) + " " + pListing->ChannelName_get() + " - " +                     pListing->ShowName_get(),StringUtils::itos(pListing->PK_Listing_get()));
-
 */
-        pCell = new DataGridCell(StringUtils::itos(1) + " " + "ChannelName" + " - " + "ShowName",StringUtils::itos(1));
-        pDataGrid->SetData(0,s,pCell);
-    }
+//         pCell = new DataGridCell(StringUtils::itos(1) + " " + "ChannelName" + " - " + "ShowName",StringUtils::itos(1));
+//         pDataGrid->SetData(0,s,pCell);
+//     }
 
     return pDataGrid;
 }
 
-
 bool MythTV_PlugIn::MediaInfoChanged( class Socket *pSocket, class Message *pMessage, class DeviceData_Router *pDeviceFrom, class DeviceData_Router *pDeviceTo )
 {
-    MediaStream *pMediaStream;
-    MythTvStream *pMythStream;
+    MythTvMediaStream *pMythTvStream;
 
     if ( pDeviceFrom->m_dwPK_DeviceTemplate == DEVICETEMPLATE_MythTV_Player_CONST )
     {
-        g_pPlutoLogger->Write(LV_STATUS, "Got event from Myth Player device: %d, associated stream is %d", pDeviceFrom->m_dwPK_Device, m_mapDevicesToStreams[pDeviceFrom->m_dwPK_Device]);
-        pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find(m_mapDevicesToStreams[pDeviceFrom->m_dwPK_Device]);
+		if ( (pMythTvStream = ConvertToMythMediaStream(m_pMedia_Plugin->m_mapMediaStream_Find(m_mapDevicesToStreams[pDeviceFrom->m_dwPK_Device]), "MythTV_PlugIn::MediaInfoChanged() ")) == NULL)
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Could not detect a valid MythTV media stream based on the device %d", pDeviceFrom->m_dwPK_Device);
+			return false;
+		}
 
-        if ( pMediaStream == NULL || pMediaStream->GetType() != MEDIASTREAM_TYPE_MYTHTV )
-        {
-            if ( pMediaStream == NULL )
-                g_pPlutoLogger->Write(LV_WARNING, "Got a MediaInfoChanged but there is no stream in the media plugin associated with the device %d", pDeviceFrom->m_dwPK_Device );
-            else
-                g_pPlutoLogger->Write(LV_STATUS, "This device %d claims to be a MythTV Player but the stream assciated with it is not a Myth Stream", pDeviceFrom->m_dwPK_Device);
+        pMythTvStream->m_sMediaDescription = pMessage->m_mapParameters[EVENTPARAMETER_MediaDescription_CONST];
+        pMythTvStream->m_sSectionDescription = pMessage->m_mapParameters[EVENTPARAMETER_SectionDescription_CONST];
+        pMythTvStream->m_sMediaSynopsis = pMessage->m_mapParameters[EVENTPARAMETER_SynposisDescription_CONST];
 
-            return false;
-        }
-
-        pMythStream = (MythTvStream *) pMediaStream;
-
-        pMythStream->m_sMediaDescription = pMessage->m_mapParameters[EVENTPARAMETER_MediaDescription_CONST];
-        pMythStream->m_sSectionDescription = pMessage->m_mapParameters[EVENTPARAMETER_SectionDescription_CONST];
-        pMythStream->m_sMediaSynopsis = pMessage->m_mapParameters[EVENTPARAMETER_SynposisDescription_CONST];
-
-        m_pMedia_Plugin->MediaInfoChanged(pMythStream);
+        m_pMedia_Plugin->MediaInfoChanged(pMythTvStream);
     }
 
     return true;

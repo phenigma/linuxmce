@@ -1382,22 +1382,33 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string 
 {
     int iPK_EntertainArea = atoi(sPK_EntertainArea.c_str()); // TODO: handle multiple entertainment areas
     PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
-    int iPK_Device_Orbiter = pMessage->m_dwPK_Device_From;
+
+	int iPK_Device_Orbiter = pMessage->m_dwPK_Device_From;
     // Only an Orbiter will tell us to play media
     EntertainArea *pEntertainArea = DetermineEntArea(iPK_Device_Orbiter,iPK_Device,iPK_EntertainArea);
     if( !pEntertainArea )
         return;  // Don't know what area it should be played in
 
     deque<MediaFile *> dequeMediaFile;
-    if( sFilename.length()>0 )
-// 	{
-        m_pMediaAttributes->TransformFilenameToDeque(sFilename,dequeMediaFile);  // This will convert any #a, #f, etc.
-//
-// 		if ( sFilename.substr(sFilename.length() - 1) == '*' )
-// 		{
-// 			int nrFiles = CountFilesInDirectory(sFilename);
-// 		}
-// 	}
+    if( sFilename.length() > 0 )
+ 	{
+		if ( sFilename[sFilename.length() - 1] == '*' )
+		{
+			list<string> allFilesList;
+			list<string>::const_iterator itFileName;
+
+			if ( FileUtils::FindFiles(allFilesList, sFilename.substr(0, sFilename.length()-1), "*.mp3", true, true) ) // we have hit the bottom
+			{
+				m_pOrbiter_Plugin->DisplayMessageOnOrbiter(iPK_Device_Orbiter, "Hannibal e plecat la munte");
+			}
+
+			itFileName = allFilesList.begin();
+			while ( itFileName != allFilesList.end() )
+				dequeMediaFile.push_back(new MediaFile(m_pMediaAttributes, *itFileName++));
+		}
+		else
+			m_pMediaAttributes->TransformFilenameToDeque(sFilename, dequeMediaFile);  // This will convert any #a, #f, etc.
+ 	}
 
     // What is the media?  It must be a master device, or a media type, or filename
     if( iPK_DeviceTemplate )

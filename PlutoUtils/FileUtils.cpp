@@ -1,16 +1,16 @@
-/* 
+/*
 	FileUtils
-	
+
 	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
-	
-	www.plutohome.com		
-	
+
+	www.plutohome.com
+
 	Phone: +1 (877) 758-8648
-	
+
 	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
-	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-	
+	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
 	See the GNU General Public License for more details.
 */
 
@@ -340,7 +340,8 @@ void FileUtils::MakeDir(string sDirectory)
     sDirectory = StringUtils::Replace( sDirectory, "\\", "/" );
 
     // Run it on each Directory in the path just to be sure
-    string::size_type pos = -1;
+	string::size_type pos = 0; // string::size_type is UNSIGNED
+
     while( (pos = sDirectory.find( '/', pos+1 )) != string::npos )
 #ifdef WIN32
     mkdir( sDirectory.substr(0,pos).c_str() );
@@ -355,7 +356,7 @@ void FileUtils::MakeDir(string sDirectory)
 #include <iostream>
 using namespace std;
 
-void FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFileSpec_CSV,bool bRecurse,bool bFullyQualifiedPath, string PrependedPath)
+bool FileUtils::FindFiles(list<string> &listFiles, string sDirectory, string sFileSpec_CSV, bool bRecurse, bool bFullyQualifiedPath, int iMaxFileCount, string PrependedPath)
 {
     if( !StringUtils::EndsWith(sDirectory,"/") )
         sDirectory += "/";
@@ -386,10 +387,14 @@ void FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
                     break;
                 }
             }
+
+			if ( iMaxFileCount < listFiles.size() )
+				return true; // max depth hit
         }
         else if (bRecurse && finddata.attrib == _A_SUBDIR && finddata.name[0] != '.')
 		{
-			FindFiles(listFiles,sDirectory + finddata.name,sFileSpec_CSV,true,bFullyQualifiedPath,PrependedPath + finddata.name + "/");
+			if ( FindFiles(listFiles, sDirectory + finddata.name, sFileSpec_CSV, true, bFullyQualifiedPath, iMaxFileCount, PrependedPath + finddata.name + "/") )
+				return true; // if one recursive call hit the maximum depth then return now.
 		}
         if (_findnext(ptrFileList, & finddata) < 0)
             break;
@@ -405,7 +410,7 @@ void FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
     if (dirp == NULL)
     {
 //      g_pPlutoLogger->Write(LV_CRITICAL, "opendir1 %s failed: %s", BasePath.c_str(), strerror(errno));
-        return;
+        return false;
     }
 
     int x;
@@ -435,14 +440,20 @@ void FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFile
                     break;
                 }
             }
+
+			if ( iMaxFileCount < listFiles.size() )
+				return true;
         }
         else if (bRecurse && S_ISDIR(s.st_mode) && entry.d_name[0] != '.')
 		{
-			FindFiles(listFiles,sDirectory + entry.d_name,sFileSpec_CSV,true,bFullyQualifiedPath,PrependedPath + entry.d_name + "/");
+			if ( FindFiles( listFiles, sDirectory + entry.d_name, sFileSpec_CSV, true, bFullyQualifiedPath, iMaxFileCount, PrependedPath + entry.d_name + "/" ) )
+				return true;
 		}
     }
     closedir (dirp);
 #endif
+
+	return false; // if we are here it means we didn't hit the bottom return false.
 }
 
 // Use a 1 meg buffer
@@ -464,7 +475,7 @@ bool FileUtils::PUCopyFile(string sSource,string sDestination)
 		fclose(fileSource);
 		return false;
 	}
-	
+
 #ifndef WIN32
 	{
 		struct stat srcStat;
@@ -472,7 +483,7 @@ bool FileUtils::PUCopyFile(string sSource,string sDestination)
 		fchmod(fileno(fileDest), srcStat.st_mode);
 	}
 #endif
-	
+
 	void *Buffer = malloc(BUFFER_SIZE);
 	size_t BytesRead;
 	while((BytesRead = fread(Buffer,1,BUFFER_SIZE,fileSource)) > 0)

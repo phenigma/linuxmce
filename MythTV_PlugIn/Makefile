@@ -18,7 +18,7 @@ sources = Main.cpp MythTV_PlugIn.cpp $(Gen_Dev_Files)
 
 CXXFLAGS +=
 CPPFLAGS += -I/usr/include/qt3 -I$(ROOT)/Libraries
-XTRALDLIBS += -lpluto_media -lpluto_main -lqt-mt -lmyth-0.16 -lmythtv-0.16 
+XTRALDLIBS += -lpluto_media -lpluto_main -lqt-mt -lmyth-0.16 -lmythtv-0.16
 
 Gen_Dev_Files += $(GENDEV)/Media_PluginBase.cpp $(GENDEV)/Datagrid_PluginBase.cpp
 sources += \
@@ -31,7 +31,8 @@ sources += \
 	../Media_Plugin/BoundRemote.cpp \
 	../Datagrid_Plugin/Datagrid_Plugin.cpp \
 	../File_Grids_Plugin/FileListGrid.cpp \
-	MythTvWrapper.cpp 
+	MythTvMediaStream.cpp \
+	MythTvWrapper.cpp
 
 #<-dceag-mf-b->!
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
@@ -50,7 +51,7 @@ MythTV_PlugIn.so: $(sources:.cpp=.o) $(ROOT)/lib/libSerializeClass.a $(ROOT)/lib
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
-		
+
 MythTV_PlugIn: $(sources:.cpp=.o)
 	$(CXX) -o $(MYNAME) $+ $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin

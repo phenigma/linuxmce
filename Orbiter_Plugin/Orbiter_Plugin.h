@@ -111,10 +111,12 @@ public:
     void ProcessUnknownDevice();
 	void DisplayMessageOnOrbiter(int dwPK_Device,string sMessage)
 	{
-		DCE::CMD_Set_Text CMD_Set_Text( 0, m_dwPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST),
-		"Unable to save playlist",TEXT_STATUS_CONST);
-	
-		DCE::CMD_Goto_Screen CMD_Goto_Screen( 0, m_dwPK_Device, 0, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), "", "", false );
+		if ( sMessage == "" )
+			sMessage = "Unable to save playlist";
+
+		DCE::CMD_Set_Text CMD_Set_Text( 0, dwPK_Device, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), sMessage, TEXT_STATUS_CONST);
+
+		DCE::CMD_Goto_Screen CMD_Goto_Screen( 0, dwPK_Device, 0, StringUtils::itos(DESIGNOBJ_mnuPopupMessage_CONST), "", "", false );
 		CMD_Goto_Screen.m_pMessage->m_vectExtraMessages.push_back(CMD_Set_Text.m_pMessage);
 		SendCommand( CMD_Goto_Screen );
 	}

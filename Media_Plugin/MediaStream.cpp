@@ -75,6 +75,9 @@ void MediaStream::setIsMovable(bool bIsMovable)
 
 void MediaStream::SetPlaylistPosition(int position)
 {
+	if ( position == m_iDequeMediaFile_Pos )
+		return;
+
 	if ( position < 0 )
 		m_iDequeMediaFile_Pos = m_dequeMediaFile.size() - 1;
 	else
@@ -86,13 +89,6 @@ void MediaStream::SetPlaylistPosition(int position)
 	// reset the stream position
 	if ( m_pMediaPosition )
 		m_pMediaPosition->Reset();
-
-	g_pPlutoLogger->Write(LV_STATUS, "New position in playlist: %d (tried %d) (queue size: %d)", m_iDequeMediaFile_Pos, position, m_dequeMediaFile.size());
-	DumpPlaylist();
-//     m_iSavedPosition = 0;
-// 	m_sSavedPosition = "";
-
-    // DumpPlaylist();
 }
 
 
