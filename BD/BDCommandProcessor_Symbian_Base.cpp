@@ -148,7 +148,7 @@ bool  BDCommandProcessor_Symbian_Base::SendData(int size, const char *data)
 //----------------------------------------------------------------------------------------------
 bool BDCommandProcessor_Symbian_Base::SendLong(long l)
 {
-	LOG("@ About to send a long  with value : \n");
+	LOG("@ About to send a long  with value : ");
 	LOGN(l);
 	LOGN(" \n");
 
@@ -851,7 +851,7 @@ void BDCommandProcessor_Symbian_Base::ProcessCommands(bool bCriticalRequest /*=t
 		//on timer tick, we found an EIdle state. what if the connection was lost?
 		m_iTimedOut++;
 
-		LOG("@ Inactivity : \n");
+		LOG("@ Inactivity : ");
 		LOGN(m_iTimedOut);
 		LOGN(" \n");
 
