@@ -150,7 +150,7 @@ void Text_To_Speech::SomeFunction()
 	COMMANDS TO IMPLEMENT
 
 */
-
+/*
 char *Text_To_Speech::CreateWAV(string sText,int &Size)
 {
 	// do it
@@ -212,6 +212,8 @@ char *Text_To_Speech::CreateWAV(string sText,int &Size)
 	return pBuffer;
 }
 
+*/
+
 //<-dceag-c253-b->
 
 	/** @brief COMMAND: #253 - Send Audio To Device */
@@ -225,7 +227,7 @@ void Text_To_Speech::CMD_Send_Audio_To_Device(string sText,string sPK_Device_Lis
 //<-dceag-c253-e->
 {
 	int Size;
-	char *pBuffer = CreateWAV(sText,Size);
+	char *pBuffer = NULL;//CreateWAV(sText,Size);
 	if( !pBuffer )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Failed to create WAV");
@@ -252,13 +254,14 @@ void Text_To_Speech::CMD_Text_To_Wave(string sText,char **pData,int *iData_Size,
 {
 	int Size;
 
-	Size = Find_Exact_Size(sText);
+//	Size = Find_Exact_Size(sText);
 	*pData = new char[Size];
 	*iData_Size=Size;
 	cout << "the size is " << Size << endl;
-	*pData = CreateWAV(sText,Size);
+	*pData = NULL; //CreateWAV(sText,Size);
 
 }
+/*
 unsigned int Text_To_Speech::Find_Exact_Size(string sText)
 {
 	unsigned int count;
@@ -296,3 +299,5 @@ unsigned int Text_To_Speech::Find_Exact_Size(string sText)
 #endif
 	return count;
 }
+*/
+
