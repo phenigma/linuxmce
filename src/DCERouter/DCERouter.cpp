@@ -719,12 +719,13 @@ void Router::ReceivedMessage(Socket *pSocket, Message *pMessageWillBeDeleted)
 
 bool Router::ReceivedString(Socket *pSocket, string Line)
 {
+    ServerSocket *pServerSocket = /*dynamic_cast<*/(ServerSocket *)/*>*/(pSocket);
     if (Line.substr(0,4)=="PING")
     {
         pSocket->SendString("PONG");
         return true;
     }
-    if (Line.substr(0,5)=="DPING")
+    else if (Line.substr(0,5)=="DPING")
     {
 #ifdef DEBUG
         clock_t clk = clock();
@@ -781,9 +782,7 @@ bool Router::ReceivedString(Socket *pSocket, string Line)
         g_pPlutoLogger->Write(LV_CRITICAL, "%s sent FAIL at %d got %s", Line.c_str(),(int) clock(),s.c_str());
         return true;
     }
-    ServerSocket *pServerSocket = /*dynamic_cast<*/(ServerSocket *)/*>*/(pSocket);
-
-    if (Line=="CONFIG")
+    else if (Line=="CONFIG")
     {
 		if( pServerSocket->m_dwPK_Device>m_dwPK_Device_Largest )
 		{
@@ -810,19 +809,18 @@ bool Router::ReceivedString(Socket *pSocket, string Line)
         }
         return true;
     }
-    if( Line=="DEVICELIST" )
+    else if( Line=="DEVICELIST" )
     {
         pServerSocket->SendString(string("DEVICELIST ")+StringUtils::itos(m_dwIDeviceStructure_Size));
         pServerSocket->SendData(m_dwIDeviceStructure_Size, m_pDeviceStructure);
-
         return true;
     }
-    if (Line=="CORRUPT SOCKET")
+    else if (Line=="CORRUPT SOCKET")
     {
         g_pPlutoLogger->Write(LV_CRITICAL, "Upon connection, the socket received an invalid response (socket %d).  Terminating.", pSocket->m_Socket);
         closesocket(pSocket->m_Socket);
     }
-    if( Line=="CONFIG_TIMESTAMP" )
+    else if( Line=="CONFIG_TIMESTAMP" )
     {
         string Result = "0";
         struct stat filestat;
@@ -830,6 +828,61 @@ bool Router::ReceivedString(Socket *pSocket, string Line)
         Result = StringUtils::itos((int) filestat.st_mtime);
         pSocket->SendString(Result);
     }
+    else if( Line.substr(0,10)=="SET_STATUS" )
+	{
+		string::size_type pos = 11;
+		int PK_Device = atoi(StringUtils::Tokenize(Line," ",pos).c_str());
+		if( pos!=Line.length() && pos!=string::npos )
+		{
+			DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(PK_Device);
+			pDevice->m_sStatus_set( Line.substr(pos) );
+		}
+		else
+			g_pPlutoLogger->Write(LV_CRITICAL,"Invalid Set_Status %s",Line.c_str());
+        return true;
+	}
+    else if( Line.substr(0,9)=="SET_STATE" )
+	{
+		string::size_type pos = 10;
+		int PK_Device = atoi(StringUtils::Tokenize(Line," ",pos).c_str());
+		if( pos!=Line.length() && pos!=string::npos )
+		{
+			DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(PK_Device);
+			pDevice->m_sState_set( Line.substr(pos) );
+		}
+		else
+			g_pPlutoLogger->Write(LV_CRITICAL,"Invalid Set_State %s",Line.c_str());
+        return true;
+	}
+    else if( Line.substr(0,9)=="GET_STATE" )
+	{
+		string::size_type pos = 10;
+		int PK_Device = atoi(StringUtils::Tokenize(Line," ",pos).c_str());
+		DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(PK_Device);
+		if( pDevice )
+			pSocket->SendString( pDevice->m_sState_get() );
+		else
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Invalid get_State %s",Line.c_str());
+			pSocket->SendString( "BAD DEVICE" );
+		}
+        return true;
+	}
+    else if( Line.substr(0,10)=="GET_STATUS" )
+	{
+		string::size_type pos = 11;
+		int PK_Device = atoi(StringUtils::Tokenize(Line," ",pos).c_str());
+		DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(PK_Device);
+		if( pDevice )
+			pSocket->SendString( pDevice->m_sStatus_get() );
+		else
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Invalid get_State %s",Line.c_str());
+			pSocket->SendString( "BAD DEVICE" );
+		}
+        return true;
+	}
+
     g_pPlutoLogger->Write(LV_WARNING, "Router: Don't know how to handle %s.", Line.c_str());
     pSocket->SendString("ERROR");
     return false;

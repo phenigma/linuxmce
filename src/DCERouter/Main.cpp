@@ -187,6 +187,7 @@ int main(int argc, char *argv[])
 	{
 		g_pRouter = new Router(PK_Device,Installation,BasePath,DBHost,DBUser,DBPassword,DBName,DBPort,ListenPort);
 		bStartRouter = g_pRouter->Run();
+		g_pPlutoLogger->Write(LV_STATUS, "PlutoServer: Exited with %d",(int) bStartRouter);
 		if( bStartRouter )
 		{
 			break; // This reloading thing isn't working.  We're just going to return an exit code of 2 and let the scripts restart us
@@ -212,6 +213,7 @@ int main(int argc, char *argv[])
 		delete m_LL_DEBUG_Mutex;
 	}
 #endif
+	g_pPlutoLogger->Write(LV_STATUS, "PlutoServer: terminating now with %d",(int) bStartRouter);
 	if( bStartRouter )
 		return 2;
 	else

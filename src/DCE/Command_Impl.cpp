@@ -631,3 +631,41 @@ void Command_Impl::ExecCommandGroup(int PK_CommandGroup)
 	Message *pMessage = new Message(m_dwPK_Device,0,PRIORITY_NORMAL,MESSAGETYPE_EXEC_COMMAND_GROUP,PK_CommandGroup,0);
 	QueueMessageToRouter(pMessage);
 }
+
+string Command_Impl::GetState( int dwPK_Device )
+{
+	if( !m_pcRequestSocket )
+		return "";
+
+	string sResult;
+	m_pcRequestSocket->m_pClientSocket->SendString("GET_STATE " + StringUtils::itos( dwPK_Device ? dwPK_Device : m_dwPK_Device ) );
+	m_pcRequestSocket->m_pClientSocket->ReceiveString(sResult);
+	return sResult;
+}
+
+string Command_Impl::GetStatus( int dwPK_Device )
+{
+	if( !m_pcRequestSocket )
+		return "";
+
+	string sResult;
+	m_pcRequestSocket->m_pClientSocket->SendString("GET_STATUS " + StringUtils::itos( dwPK_Device ? dwPK_Device : m_dwPK_Device ) );
+	m_pcRequestSocket->m_pClientSocket->ReceiveString(sResult);
+	return sResult;
+}
+
+bool Command_Impl::SetState( string sState, int dwPK_Device )
+{
+	if( !m_pcRequestSocket )
+		return false;
+
+	return m_pcRequestSocket->m_pClientSocket->SendString("SET_STATE " + StringUtils::itos( dwPK_Device ? dwPK_Device : m_dwPK_Device ) + " " + sState );
+}
+
+bool Command_Impl::SetStatus( string sStatus, int dwPK_Device )
+{
+	if( !m_pcRequestSocket )
+		return false;
+
+	return m_pcRequestSocket->m_pClientSocket->SendString("SET_STATUS " + StringUtils::itos( dwPK_Device ? dwPK_Device : m_dwPK_Device ) + " " + sStatus );
+}

@@ -14,6 +14,16 @@
     See the GNU General Public License for more details.
 */
 
+/*
+	AppServer will also set the State of the m/d to indicate the currently installed operating system on the hard drive (LINUX / WINDOWS)
+	and will set the Status to one of the following:
+	MD_ON, PC_ON, MD_BLACK, PC_BLACK, MD_OFF, PC_OFF, MD_REBOOTING, PC_REBOOTING
+
+	Where MD means it booted up or will boot up as a media director over the network, and PC means a normal hard drive boot
+	ON = it's on and the display is on.  BLACK = The display was shut off
+	OFF = It's turned off   REBOOTING = It's being rebooted and should come online soon
+*/
+
 //<-dceag-d-b->
 #include "App_Server.h"
 #include "DCE/Logger.h"
@@ -76,6 +86,38 @@ bool App_Server::Register()
 //<-dceag-reg-e->
 {
     return Connect(PK_DeviceTemplate_get());
+}
+
+bool App_Server::Connect(int iPK_DeviceTemplate )
+{
+	bool bResult = App_Server_Command::Connect(iPK_DeviceTemplate);
+	m_dwPK_Device_MD = m_dwPK_Device; // Shouldn't use this value.  Only relevant if something is corrupted below
+
+	// Find the media director
+	DeviceData_Base *pDevice_This = m_pData->m_AllDevices.m_mapDeviceData_Base_Find( m_dwPK_Device );
+	if( pDevice_This && pDevice_This->m_pDevice_ControlledVia && pDevice_This->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Computers_CONST) )
+		m_dwPK_Device_MD = pDevice_This->m_pDevice_ControlledVia->m_dwPK_Device;
+	else if( pDevice_This && pDevice_This->m_pDevice_ControlledVia && pDevice_This->m_pDevice_ControlledVia->m_pDevice_ControlledVia &&
+			pDevice_This->m_pDevice_ControlledVia->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Computers_CONST) )
+		m_dwPK_Device_MD = pDevice_This->m_pDevice_ControlledVia->m_dwPK_Device;
+
+
+	if( m_bHardDrive )
+	{
+		// Store whether this hard drive boot is windows or linux
+#ifdef WIN32
+		SetState("WINDOWS",m_dwPK_Device_MD);
+#else
+		SetState("LINUX",m_dwPK_Device_MD);
+#endif
+	}
+
+	if( m_bHardDrive )
+		SetStatus("PC_ON",m_dwPK_Device_MD);
+	else
+		SetStatus("MD_ON",m_dwPK_Device_MD);
+
+	return bResult;
 }
 
 /*
@@ -340,15 +382,57 @@ void App_Server::SendMessageList(string messageList)
 }
 
 //<-dceag-sample-b->!
-//<-dceag-c268-b->
-
-	/** @brief COMMAND: #268 - Reboot */
-	/** Reboots the computers this is running on. */
-		/** @param #2 PK_Device */
-			/** The computer to reboot.  This is ignored when AppServer receives the command--it reboots itself.  When General Info Plugin receives it, it reboots the mentioned computer. */
-
-void App_Server::CMD_Reboot(int iPK_Device,string &sCMD_Result,Message *pMessage)
-//<-dceag-c268-e->
-{
-}
 //<-dceag-createinst-b->!
+
+//<-dceag-c323-b->
+
+	/** @brief COMMAND: #323 - Halt Device */
+	/** Halt or reboot this device */
+		/** @param #2 PK_Device */
+			/** The device to halt */
+		/** @param #21 Force */
+			/** Normally this will do a suspend if the device supports suspend/resume, otherwise it will do a halt.  
+			If Force is "H" it will always halt, if Force is "S" it will always suspend.  If Force is "D" it will only turn off the display.  If Force is "R" it will */
+
+void App_Server::CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Result,Message *pMessage)
+//<-dceag-c323-e->
+{
+	if( sForce=="" )
+		sForce = "H"; // HACK - todo: figure out how to determine if we have suspend capabilities
+
+	// See who sent this to us.  If it wasn't GeneralInfoPlugin we want to forward it to it
+	DeviceData_Base *pDeviceData_Base = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pMessage->m_dwPK_Device_From);
+	if( pDeviceData_Base )
+	{
+		Message *pMessageCopy = new Message(pMessage);
+		pMessageCopy->m_dwPK_Device_To=0;
+		pMessageCopy->m_dwPK_Device_Category_To = DEVICECATEGORY_General_Info_Plugins_CONST;
+		
+	}
+
+	switch( sForce[0] )
+	{
+	case 'H':
+		if( m_bHardDrive )
+			SetStatus("PC_OFF",m_dwPK_Device_MD);
+		else
+			SetStatus("MD_OFF",m_dwPK_Device_MD);
+
+		// TODO: Power off this system
+		break;
+	case 'S':
+		if( m_bHardDrive )
+			SetStatus("PC_SUSPEND",m_dwPK_Device_MD);
+		else
+			SetStatus("MD_SUSPEND",m_dwPK_Device_MD);
+
+		// TODO: Power off this system
+		break;
+	case 'R':
+	case 'N':
+	case 'V':
+		SetStatus("REBOOTING",m_dwPK_Device_MD);
+		// TODO: Reboot this system
+		break;
+	}
+}

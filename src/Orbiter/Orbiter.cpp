@@ -53,6 +53,8 @@ using namespace DCE;
 
 #define  VERSION "<=version=>"
 
+#define PROFILING_GRID
+
 #ifdef WINCE
     #include "wince.h"
 
@@ -407,6 +409,8 @@ if( !m_pScreenHistory_Current || !m_pScreenHistory_Current->m_pObj )
             m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(  ), clkFinished-clkStart );
     }
 #endif
+g_pPlutoLogger->Write( LV_STATUS, "Render screen: %s finished", m_pScreenHistory_Current->m_pObj->m_ObjectID.c_str(  ) );
+
 }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -462,6 +466,7 @@ void Orbiter::RealRedraw( void *data )
 
         RenderScreen(  );
 		m_bRerenderScreen = false;
+g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
         return;
     }
 
@@ -520,6 +525,9 @@ void Orbiter::RealRedraw( void *data )
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Screen )
 {
+if( pObj->m_pParentObject == pObj_Screen )
+g_pPlutoLogger->Write( LV_STATUS, "Rendering top level child %s", pObj->m_ObjectID.c_str() );
+
     if(  pObj->m_ObjectID.find( "3296" )!=string::npos  )
         //if(  pObj->m_iBaseObjectID == 2707  )
     {
@@ -882,6 +890,7 @@ bool Orbiter::RenderCell( class DesignObj_DataGrid *pObj,  class DataGridTable *
 //------------------------------------------------------------------------
 void Orbiter::RenderDataGrid( DesignObj_DataGrid *pObj )
 {
+g_pPlutoLogger->Write(LV_WARNING,"RenderDataGrid %s %p",pObj->m_ObjectID.c_str(),pObj->m_pDataGridTable);
     PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
     string delSelections;
     if ( !pObj->sSelVariable.empty(  ) )
@@ -1089,7 +1098,6 @@ void Orbiter::ObjectOnScreenWrapper(  )
     // a variable and a datagrid that uses it.  PopulateDataGrid can get called before the
     // variable is set.  10-15-2003
     ObjectOnScreen( &vectDesignObj_Orbiter_OnScreen, m_pScreenHistory_Current->m_pObj, false );
-    CheckSpecialOnScreenConditions(  );
 
     // Do the on load actions for the screen itself,  and objects on it
     Message *pMessage_GotoScreen=NULL;
@@ -1685,6 +1693,67 @@ void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbite
 {
     if( pDesignObj_Orbiter->m_pFloorplanObject )
         SelectedFloorplan(pDesignObj_Orbiter);
+
+	if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_mnuDisplayOptions_CONST )
+	{
+		// We're going to hide all the on/off buttons in the 'controlling' area if this is an osd and we're controlling ourselves, or if there is no m/d in this area
+		if( (m_pScreenHistory_Current->m_pLocationInfo == m_pLocationInfo_Initial && m_pData->m_dwPK_DeviceTemplate==DEVICETEMPLATE_OnScreen_Orbiter_CONST) ||
+			m_pScreenHistory_Current->m_pLocationInfo->m_dwPK_Device_MediaDirector==-1 )
+		{
+			CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayON_OtherControlling_CONST), 0, "", "",  "0" );
+
+			CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_CurrentMedia_CONST), 0, "", "",  "0" );
+			CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_Display_CONST), 0, "", "",  "0" );
+			CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_halt_CONST), 0, "", "",  "0" );
+		}
+		else
+		{
+			// We know we've got an m/d and it's not us.  Find out the state and status
+			string sState = GetState(m_pScreenHistory_Current->m_pLocationInfo->m_dwPK_Device_MediaDirector);
+			string sStatus = GetStatus(m_pScreenHistory_Current->m_pLocationInfo->m_dwPK_Device_MediaDirector);
+
+			if( sStatus == "MD_ON" || sStatus == "MD_BLACK" )
+			{
+				CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_halt_CONST), 0, "", "",  "1" );
+				if( sStatus == "MD_BLACK" )
+				{
+					// We can turn it on -- that just means a wakeup
+					CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayON_OtherControlling_CONST), 0, "", "",  "0" );
+					CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_Display_CONST), 0, "", "",  "0" );
+				}
+				else
+				{
+					// It's already on
+					CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayON_OtherControlling_CONST), 0, "", "",  "0" );
+					CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_Display_CONST), 0, "", "",  "1" );
+				}
+			}
+			else
+			{
+				if( sStatus == "PC_ON" || sStatus == "PC_BLACK" )
+					CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayON_OtherControlling_CONST), 0, "", "",  "0" );
+				else
+					CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayON_OtherControlling_CONST), 0, "", "",  "1" );
+
+				CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_Display_CONST), 0, "", "",  "0" );
+				CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_DisplayOFF_halt_CONST), 0, "", "",  "0" );
+			}
+		}
+
+		// If we're not an OSD hide all the buttons to halt our own m/d too
+		if( m_pLocationInfo_Initial->m_dwPK_Device_MediaDirector==-1 )
+		{
+			CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_mnuMyMedia_OFF_CONST), 0, "", "",  "0" );
+			CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_mnuMyDisplay_Off_CONST), 0, "", "",  "0" );
+			CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_mnuMyMD_Halt_CONST), 0, "", "",  "0" );
+		}
+		else
+		{
+// TODO: Show Now playing??			CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_mnuMyMedia_OFF_CONST), 0, "", "",  "0" );
+			CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_mnuMyDisplay_Off_CONST), 0, "", "",  "1" );
+			CMD_Show_Object( m_pScreenHistory_Current->m_pObj->m_ObjectID + "." + StringUtils::itos(DESIGNOBJ_mnuMyMD_Halt_CONST), 0, "", "",  "1" );
+		}
+	}
 }
 
 void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter)
@@ -3805,7 +3874,7 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable deleted indirect
 				free(data); //data was allocated using malloc
 				data = NULL;
 
-				g_pPlutoLogger->Write( LV_STATUS, "Got %d rows %d cols in new %s m_pDataGridTable ", pDataGridTable->GetRows(  ), pDataGridTable->GetCols(  ), pObj->m_ObjectID.c_str() );
+				g_pPlutoLogger->Write( LV_STATUS, "Got %d rows %d cols in new %s m_pDataGridTable %p", pDataGridTable->GetRows(  ), pDataGridTable->GetCols(  ), pObj->m_ObjectID.c_str(), pDataGridTable );
                 if(  !pDataGridTable->GetRows(  ) || !pDataGridTable->GetCols(  )  )
                 {
                     // Initialize grid will set these to 0,  assuming there will be data.  If the grid is empty,  change that
@@ -5776,7 +5845,10 @@ int Orbiter::TranslateVirtualDevice(int PK_DeviceTemplate)
 		
 	case DEVICETEMPLATE_VirtDev_Media_Director_CONST:
 		return m_pScreenHistory_Current->m_pLocationInfo->m_dwPK_Device_MediaDirector;
-		
+
+	case DEVICETEMPLATE_VirtDev_Local_Media_Director_CONST:
+		return m_pLocationInfo_Initial->m_dwPK_Device_MediaDirector;
+
 	case DEVICETEMPLATE_This_Orbiter_CONST:
 		return m_dwPK_Device;
 		
@@ -5814,6 +5886,7 @@ int Orbiter::TranslateVirtualDevice(int PK_DeviceTemplate)
 		return m_dwPK_Device_LocalAppServer;
 		
 	}
+	return -1;
 }
 
 //<-dceag-c324-b->

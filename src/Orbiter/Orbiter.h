@@ -271,12 +271,6 @@ protected:
 	virtual void ObjectOffScreen( DesignObj_Orbiter *pObj );
 
 	/**
-	 * @brief checks the special on screen conditions
-	 * @todo ask
-	 */
-	virtual void CheckSpecialOnScreenConditions() {};
-
-	/**
 	 * @brief returnes the video frame from the DesignObj_Orbiter object pointed by iData
 	 * @param iData points to the DesignObj_Orbiter object we want the video frame from
 	 */

@@ -123,7 +123,7 @@ extern "C" {
 }
 //<-dceag-plug-e->
 
-//<-dceag-main-b->
+//<-dceag-main-b->!
 int main(int argc, char* argv[]) 
 {
 	g_sBinary = FileUtils::FilenameWithoutPath(argv[0]);
@@ -137,6 +137,7 @@ int main(int argc, char* argv[])
 	string sLogger="stdout";
 
 	bool bError=false; // An error parsing the command line
+	bool bHardDrive=false;
 	char c;
 	for(int optnum=1;optnum<argc;++optnum)
 	{
@@ -158,6 +159,9 @@ int main(int argc, char* argv[])
 		case 'l':
 			sLogger = argv[++optnum];
 			break;
+		case 'V':
+			bHardDrive = true;
+			break;
 		default:
 			bError=true;
 			break;
@@ -167,10 +171,11 @@ int main(int argc, char* argv[])
 	if (bError)
 	{
 		cout << "A Pluto DCE Device.  See www.plutohome.com/dce for details." << endl
-			<< "Usage: App_Server [-r Router's IP] [-d My Device ID] [-l dcerouter|stdout|null|filename]" << endl
+			<< "Usage: App_Server [-r Router's IP] [-d My Device ID] [-l dcerouter|stdout|null|filename] [-v]" << endl
 			<< "-r -- the IP address of the DCE Router  Defaults to 'dcerouter'." << endl
 			<< "-d -- This device's ID number.  If not specified, it will be requested from the router based on our IP address." << endl
-			<< "-l -- Where to save the log files.  Specify 'dcerouter' to have the messages logged to the DCE Router.  Defaults to stdout." << endl;
+			<< "-l -- Where to save the log files.  Specify 'dcerouter' to have the messages logged to the DCE Router.  Defaults to stdout." << endl
+			<< "-V -- This is being run from a hard drive boot--ie not a Pluto Media Director" << endl;
 		exit(0);
 	}
 
@@ -209,7 +214,8 @@ int main(int argc, char* argv[])
 	bool bReload=false;
 	try
 	{
-		App_Server *pApp_Server = new App_Server(PK_Device, sRouter_IP);	
+		App_Server *pApp_Server = new App_Server(PK_Device, sRouter_IP);
+		pApp_Server->m_bHardDrive=bHardDrive;
 		if ( pApp_Server->Connect(pApp_Server->PK_DeviceTemplate_get()) ) 
 		{
 			g_pCommand_Impl=pApp_Server;

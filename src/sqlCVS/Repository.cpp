@@ -1009,7 +1009,15 @@ if( sTableName=="Command_CommandParameter" )
 				{
 					cout << endl << "***Warning*** While importing into table: " << sTableName << " pscid: " << i_psc_id << endl;
 					cout << "You modified the row that is being re-imported." << endl;
-					char Response = AskMCQuestion("Overwrite your changes (yes,no,abort)?","yna");
+					char Response;
+					if( g_GlobalConfig.m_bNoPrompts )
+					{
+						cerr << "No prompts specified.  Not overwriting changes" << endl;
+						g_pPlutoLogger->Write(LV_CRITICAL,"While importing into table: %s pscid: %d was modified.  Skipping",sTableName.c_str(),i_psc_id);
+						Response='n';
+					}
+					else
+						Response = AskMCQuestion("Overwrite your changes (yes,no,abort)?","yna");
 					if( Response=='a' )
 						exit (1);
 					else if( Response=='n' )

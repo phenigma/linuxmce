@@ -192,9 +192,9 @@ bool Lighting_Plugin::LightingCommand( class Socket *pSocket, class Message *pMe
 			if( pDeviceData_Router )
 			{
 				if( pMessage->m_dwID==COMMAND_Generic_On_CONST )
-					pDevice_RouterTo->m_sState_set("ON");
+					pDeviceData_Router->m_sState_set("ON");
 				else if( pMessage->m_dwID==COMMAND_Generic_Off_CONST )
-					pDevice_RouterTo->m_sState_set("OFF");
+					pDeviceData_Router->m_sState_set("OFF");
 			}
 			if( pos>=pMessage->m_sPK_Device_List_To.length() || pos==string::npos )
 				break;

@@ -295,6 +295,18 @@ namespace DCE
 				return Socket::ReceiveData( iSize, pcData );
 		}
 
+		/** @brief Gets the "state" for the given device, or this device by default */
+		virtual string GetState( int dwPK_Device=0 );
+
+		/** @brief Gets the "status" for the given device, or this device by default */
+		virtual string GetStatus( int dwPK_Device=0 );
+
+		/** @brief Sets the "state" for the given device, or this device by default */
+		virtual bool SetState( string sState, int dwPK_Device=0 );
+
+		/** @brief Sets the "status" for the given device, or this device by default */
+		virtual bool SetStatus( string sStatus, int dwPK_Device=0 );
+
 		/**
 		 * 
 		 * Watchdog will kill the connection if it exceeds Timeout.

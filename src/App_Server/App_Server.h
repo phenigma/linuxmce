@@ -30,11 +30,13 @@ public:
         // Private methods
         bool StartApp(string CmdExecutable, string CmdParams, string AppName, string sCommandsOnSuccess, string sCommandsOnFailure);
         void ProcessExited(int pid, int status);
+		virtual bool Connect(int iPK_DeviceTemplate );
 
-        void SendMessageList(string messageList);
+		void SendMessageList(string messageList);
 public:
     // Public member variables
-
+		bool m_bHardDrive; // True if this is running on a hard-drive boot, not as a diskless Pluto media director
+		int m_dwPK_Device_MD;  // The media director we're running on
 
 //<-dceag-h-b->
 	/*
@@ -97,13 +99,15 @@ public:
 	virtual void CMD_Hide_Application(string sName,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #268 - Reboot */
-	/** Reboots the computers this is running on. */
+	/** @brief COMMAND: #323 - Halt Device */
+	/** Halt or reboot this device */
 		/** @param #2 PK_Device */
-			/** The computer to reboot.  This is ignored when AppServer receives the command--it reboots itself.  When General Info Plugin receives it, it reboots the mentioned computer. */
+			/** The device to halt */
+		/** @param #21 Force */
+			/** Normally this will do a suspend if the device supports suspend/resume, otherwise it will do a halt.  If Force is "H" it will always halt, if Force is "S" it will always suspend.  If Force is "D" it will only turn off the display.  If Force is "R" it will */
 
-	virtual void CMD_Reboot(int iPK_Device) { string sCMD_Result; CMD_Reboot(iPK_Device,sCMD_Result,NULL);};
-	virtual void CMD_Reboot(int iPK_Device,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Halt_Device(int iPK_Device,string sForce) { string sCMD_Result; CMD_Halt_Device(iPK_Device,sForce.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Halt_Device(int iPK_Device,string sForce,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

@@ -9,6 +9,7 @@
 #define DEVICETEMPLATE_VirtDev_Disc_Drive_CONST -202
 #define DEVICETEMPLATE_VirtDev_AppServer_CONST -201
 #define DEVICETEMPLATE_VirtDev_Media_Director_CONST -200
+#define DEVICETEMPLATE_VirtDev_Local_Media_Director_CONST -151
 #define DEVICETEMPLATE_VirtDev_Local_AppServer_CONST -150
 #define DEVICETEMPLATE_VirtDev_Infrared_Plugin_CONST -110
 #define DEVICETEMPLATE_VirtDev_Event_Plugin_CONST -109
