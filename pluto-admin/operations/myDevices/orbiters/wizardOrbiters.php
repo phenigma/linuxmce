@@ -64,18 +64,25 @@ function wizardOrbiters($output,$dbADO) {
 				while($rowD=$resDevice->FetchRow()){
 					$displayedDevices[]=$rowD['PK_Device'];
 				}
-				$joinArray=$displayedDevices;	// used only for query when there are no Devices in selected category
-				$joinArray[]=0;
+				$joinArray=$displayedDevices;	// temp array used only for query when there are no Devices in selected category
+				// WARNING: hard-coded values
+				$joinArray[]=3;			// default user
+				$joinArray[]=20;		// No effects
+				$joinArray[]=21;		// Main menu
+				$joinArray[]=22;		// Sleeping menu
+				$joinArray[]=23;		// Screen saver menu
+				$joinArray[]=24;		// Skin
+				$joinArray[]=25;		// Size
+				$joinArray[]=26;		// Language
+			
 				$queryDeviceDeviceData='
 					SELECT 
-						DISTINCT DeviceData.PK_DeviceData,DeviceData.Description, ParameterType.Description AS paramName
+						DeviceData.PK_DeviceData,DeviceData.Description, ParameterType.Description AS paramName
 					FROM DeviceData
 						INNER JOIN ParameterType ON 
 							FK_ParameterType = PK_ParameterType 
-						INNER JOIN Device_DeviceData ON 
-							FK_DeviceData=PK_DeviceData
 					WHERE
-						FK_Device IN ('.join(',',$joinArray).')
+						PK_DeviceData IN ('.join(',',$joinArray).')
 					ORDER BY Description ASC';
 				$resDDD=$dbADO->Execute($queryDeviceDeviceData);
 				while($rowDDD=$resDDD->FetchRow()){
@@ -84,7 +91,7 @@ function wizardOrbiters($output,$dbADO) {
 					$DeviceDataDescriptionToDisplay[]=$rowDDD['Description'];;
 				}	
 				
-				
+
 			$resDevice->MoveFirst();
 			$orbiterCount=0;
 			while($rowD=$resDevice->FetchRow()){
@@ -143,7 +150,10 @@ function wizardOrbiters($output,$dbADO) {
 							if(in_array($DeviceDataDescriptionToDisplay[$key],$GLOBALS['DeviceDataLinkedToTables']))
 							{
 								$tableName=str_replace('PK_','',$DeviceDataDescriptionToDisplay[$key]);
-								$queryTable="SELECT * FROM $tableName ORDER BY Description ASC";
+								if($tableName!='Users')
+									$queryTable="SELECT * FROM $tableName ORDER BY Description ASC";
+								else
+									$queryTable="SELECT Users.*, Users.Username AS Description FROM Users ORDER BY Description ASC";
 								$resTable=$dbADO->Execute($queryTable);
 								$out.='<select name="deviceData_'.$rowD['PK_Device'].'_'.$value.'">
 										<option value="0"></option>';

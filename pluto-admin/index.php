@@ -502,6 +502,13 @@ switch ($section) {
 	    include_once('operations/myScenarios/myScenarios.php');
 	    myScenarios($output,$dbADO);
 	break;
+	case 'mediaScenarios':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/myScenarios/mediaScenarios.php');
+	    mediaScenarios($output,$dbADO);
+	break;
+	
 	case 'editCommandGroup':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');

@@ -104,7 +104,7 @@ function bootSequence($output,$dbADO) {
 
 		$selectDeviceStartupScript='
 			SELECT * FROM Device_StartupScript
-				JOIN StartupScript ON FK_StartupScript=PK_StartupScript
+				INNER JOIN StartupScript ON FK_StartupScript=PK_StartupScript
 			WHERE
 				FK_Device=?
 			ORDER BY Device_StartupScript.Boot_Order';

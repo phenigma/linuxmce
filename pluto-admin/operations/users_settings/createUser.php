@@ -227,8 +227,10 @@ function createUser($output,$dbADO) {
 			}	
 
 			$masterPassMd5=md5($userMasterPassword);
-		}else 
+		}else{ 
 			$masterPassMd5=$passMd5;
+			$userMasterPassword=$userPassword;
+		}
 			
 		if ($userPassword!=$userPassword2) {
 			header("Location: index.php?section=createUser&error=Passwords do not match!&from=$from");
@@ -244,7 +246,7 @@ function createUser($output,$dbADO) {
 
 		if ($username!='' && $userFirstName!='' && $userLastName!='' && $userPassword!='') {
 			
-			$userAddedtoMasterUsers=addtoMasterUsers($_POST['typeUser'],$userForwardEmail,$username,$_SESSION['userID'],$masterPassMd5,$addMasterUserUrl);
+			$userAddedtoMasterUsers=addtoMasterUsers($_POST['typeUser'],$userForwardEmail,$username,$_SESSION['userID'],$userMasterPassword,$addMasterUserUrl);
 			if(!$userAddedtoMasterUsers[0]){
 				header("Location: index.php?section=createUser&error=".$userAddedtoMasterUsers[1]."&from=$from");
 				exit(0);

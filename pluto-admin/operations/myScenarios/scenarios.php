@@ -85,7 +85,7 @@ elseif($action=='showArrayCommands') {
 
 
 
-	$output->setNavigationMenu(array("My Scenarios"=>'index.php?section=myScenarios'));
+	$output->setNavigationMenu(array("My Scenarios"=>'index.php?section=myScenarios',"Lightning Scenarios"=>'index.php?section=scenarios&action=showArrayCommands&array=1'));
 
 	$output->setScriptCalendar('null');
 

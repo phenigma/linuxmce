@@ -591,8 +591,8 @@ function InheritDeviceData($masterDeviceID,$insertID,$dbADO)
 		SELECT 
 			PK_Device, DeviceTemplate_DeviceData.FK_DeviceData, DeviceTemplate_DeviceData.IK_DeviceData
 		FROM Device
-			JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
-			JOIN DeviceTemplate_DeviceData on DeviceTemplate_DeviceData.FK_DeviceTemplate=PK_DeviceTemplate
+			INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
+			INNER JOIN DeviceTemplate_DeviceData on DeviceTemplate_DeviceData.FK_DeviceTemplate=PK_DeviceTemplate
 			LEFT JOIN Device_DeviceData ON FK_Device=PK_Device AND Device_DeviceData.FK_DeviceData=DeviceTemplate_DeviceData.FK_DeviceData
 		WHERE Device_DeviceData.FK_Device IS NULL AND PK_Device=?';
 	$dbADO->Execute($getDeviceTemplateDeviceData,$insertID);
@@ -603,8 +603,8 @@ function InheritDeviceData($masterDeviceID,$insertID,$dbADO)
 	SELECT 
 		PK_Device, DeviceCategory_DeviceData.FK_DeviceData, DeviceCategory_DeviceData.IK_DeviceData
 	FROM Device
-		JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
-		JOIN DeviceCategory_DeviceData on DeviceCategory_DeviceData.FK_DeviceCategory=DeviceTemplate.FK_DeviceCategory
+		INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
+		INNER JOIN DeviceCategory_DeviceData on DeviceCategory_DeviceData.FK_DeviceCategory=DeviceTemplate.FK_DeviceCategory
 		LEFT JOIN Device_DeviceData ON FK_Device=PK_Device AND Device_DeviceData.FK_DeviceData=DeviceCategory_DeviceData.FK_DeviceData
 	WHERE Device_DeviceData.FK_Device IS NULL AND PK_Device=?';
 	$dbADO->Execute($getDeviceCategoryDeviceData,$insertID);
@@ -615,9 +615,9 @@ function InheritDeviceData($masterDeviceID,$insertID,$dbADO)
 		SELECT 
 			PK_Device, DeviceCategory_DeviceData.FK_DeviceData, DeviceCategory_DeviceData.IK_DeviceData
 		FROM Device
-			JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
-			JOIN DeviceCategory ON DeviceTemplate.FK_DeviceCategory=PK_DeviceCategory
-			JOIN DeviceCategory_DeviceData on DeviceCategory_DeviceData.FK_DeviceCategory=DeviceCategory.FK_DeviceCategory_Parent
+			INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
+			INNER JOIN DeviceCategory ON DeviceTemplate.FK_DeviceCategory=PK_DeviceCategory
+			INNER JOIN DeviceCategory_DeviceData on DeviceCategory_DeviceData.FK_DeviceCategory=DeviceCategory.FK_DeviceCategory_Parent
 			LEFT JOIN Device_DeviceData ON FK_Device=PK_Device AND Device_DeviceData.FK_DeviceData=DeviceCategory_DeviceData.FK_DeviceData
 		WHERE Device_DeviceData.FK_Device IS NULL AND PK_Device=?';
 	$dbADO->Execute($getParentCategoryDeviceData,$insertID);
@@ -769,5 +769,30 @@ function isCore($deviceID,$dbADO)
 		return true;
 	}
 	return false;
+}
+
+function deleteCommandGroup($PK_CommandGroup,$dbADO)
+{
+	$deleteParameters='
+		DELETE CommandGroup_Command_CommandParameter
+		FROM CommandGroup_Command_CommandParameter
+		JOIN CommandGroup_Command on FK_CommandGroup_Command=PK_CommandGroup_Command
+		WHERE FK_CommandGroup=?';
+	$dbADO->Execute($deleteParameters,$PK_CommandGroup);
+	
+	$deleteCommandGroup_Command='
+		DELETE FROM CommandGroup_Command
+		WHERE FK_CommandGroup=?';
+	$dbADO->Execute($deleteCommandGroup_Command,$PK_CommandGroup);
+
+	$deleteCommandGroup_EntArea='
+		DELETE FROM CommandGroup_EntertainArea
+		WHERE FK_CommandGroup=?';
+	$dbADO->Execute($deleteCommandGroup_EntArea,$PK_CommandGroup);
+
+	$deleteCommandGroup='
+		DELETE FROM CommandGroup 
+		WHERE PK_CommandGroup=?';
+	$dbADO->Execute($deleteCommandGroup,$PK_CommandGroup);
 }
 ?>

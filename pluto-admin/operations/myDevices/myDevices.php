@@ -9,7 +9,7 @@ $action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'leftTree'
 
 if ($action == 'showBasicInfo') {
 	$out='
-		2You can write something about what he can do here.
+		All the devices in your installation are in the tree on the left.  Choose one to edit its data settings manually.  Normally we recommend you use one of the wizards rather than editing the devices manually.
 	
 		<a href="index.php?section=addMyDevice&parentID=0">Add a top level device</a>
 	';	

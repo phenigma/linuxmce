@@ -30,6 +30,7 @@ $out='';
 		$userID = $_SESSION['userID'];
 		$quarantine = $row['FK_StabilityStatus'];
 		$package = $row['FK_Package'];
+		$isPlugIn = $row['IsPlugIn'];
 		$rs->Close();
 		
 		$out='
@@ -180,7 +181,10 @@ $out='';
 						<input type="hidden" value="'.$isAVDevice.'" name="old_isAVDevice"><input type="checkbox" name="isAVDevice" '.($isAVDevice==1?" checked='checked' ":"").' value="1" onClick="javascript:this.form.submit();"><input type="button" name="isAV"  '.($isAVDevice!=1?'value="Is NOT Audio/Video" disabled="disabled" ':" value=\"Edit Audio/Video Properties\" onClick=\"windowOpen('index.php?section=editAVDevice&from=editMasterDevice&deviceID={$deviceID}','status=0,resizable=1,width=800,height=600,toolbars=true');\"").'>
 					</td>
 				</tr>
-					
+				<tr>
+					<td valign="top">Is PlugIg</td>
+					<td><input type="checkbox" name="isPlugIn" value="1" '.(($isPlugIn==1)?'checked':'').' onClick=\'javascript:this.form.submit();\'></td>
+				</tr>					
 				<tr>
 					<td valign="top">Contact</td>
 					<td>';
@@ -561,6 +565,7 @@ $out='';
 		$isAVDevice = cleanInteger(@$_POST['isAVDevice']);
 		$old_isAVDevice = cleanInteger(@$_POST['old_isAVDevice']);
 		$package = cleanInteger(@$_POST['package']);
+		$isPlugIn = cleanInteger(@$_POST['isPlugIn']);
 		
 		$locationGoTo=''; 
 
@@ -758,11 +763,20 @@ $out='';
 							CommandLine = ?, 
 							FK_DeviceCategory = ?,FK_Manufacturer  = ?,
 							IsAVDevice = ?,
-							FK_Package=?
+							FK_Package=?,
+							IsPlugIn =?
 							WHERE PK_DeviceTemplate = ?";
+
+		$dbADO->Execute($updateQuery,array($description,$ImplementsDCE,$commandLine,$category,$manufacturer,$isAVDevice,$package,$isPlugIn,$deviceID));
+
+		if($isPlugIn==1){
+			$insertControlledVia = '
+				INSERT INTO DeviceTemplate_DeviceTemplate_ControlledVia
+					(FK_DeviceTemplate, FK_DeviceTemplate_ControlledVia) 
+				VALUES(?,?)';
+			$query = $dbADO->Execute($insertControlledVia,array($deviceID,$GLOBALS['rootDCERouter']));
 		
-		$dbADO->Execute($updateQuery,array($description,$ImplementsDCE,$commandLine,$category,$manufacturer,$isAVDevice,$package,$deviceID));
-			
+		}	
 			if (strstr($locationGoTo,"#")) {
 				header("Location: index.php?section=editMasterDevice&model=$deviceID&msg=Saved!".$locationGoTo);
 			} else {

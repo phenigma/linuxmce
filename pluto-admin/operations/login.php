@@ -91,6 +91,8 @@ if (isset($_POST['submitX'])) {
 								
 								if ($installations===array()) {
 									//the user has no installation!!!
+									$messages="You don't have any installation.";
+									header("Location: index.php?section=login&error=urlencode($messages)");
 								} else {
 									$_SESSION['installationIDs'] = $installations;			
 									$_SESSION['installationID'] = $installations[0];

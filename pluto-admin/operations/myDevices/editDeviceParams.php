@@ -13,8 +13,8 @@ $installationID = (int)@$_SESSION['installationID'];
 		exit();
 	}
 	$query = "select 
-				FK_DeviceTemplate,FK_Device_ControlledVia,Device.Description,IPaddress,MACaddress,IgnoreOnOff ,
-				DeviceTemplate.Description as MDL_description
+				FK_DeviceTemplate,FK_Device_ControlledVia,Device.Description,IPaddress,MACaddress,IgnoreOnOff,NeedConfigure,
+				DeviceTemplate.Description as MDL_description,FK_Room
 					from Device 
 						Inner JOIN DeviceTemplate on FK_DeviceTemplate = PK_DeviceTemplate
 						where PK_Device = ?";
@@ -30,6 +30,8 @@ $installationID = (int)@$_SESSION['installationID'];
 		$ipAddress = stripslashes($row['IPaddress']);
 		$macAddress = stripslashes($row['MACaddress']);
 		$ignoreOnOff= $row['IgnoreOnOff'];
+		$deviceNeedConfigure= $row['NeedConfigure'];
+		$deviceRoom=$row['FK_Room'];
 	}
 	
 	if ($DeviceTemplate==0) {
@@ -177,7 +179,47 @@ $installationID = (int)@$_SESSION['installationID'];
 					$out.='		
 					</td>
 				</tr>
-					
+				<tr>
+					<td>Room:</td>
+					<td><select name="Room">
+						<option value="0">Please select</option>';
+					$selectRooms='SELECT * FROM Room WHERE FK_installation=?';
+					$resRooms=$dbADO->Execute($selectRooms,$installationID);
+					while($rowRooms=$resRooms->FetchRow()){
+						$out.='<option value="'.$rowRooms['PK_Room'].'" '.(($rowRooms['PK_Room']==$deviceRoom)?'selected':'').'>'.$rowRooms['Description'].'</option>';
+					}
+					$out.='
+					</select></td>
+				</tr>
+				<tr>
+					<td>Entertain Areas:</td>
+					<td>';
+					$selectCheckedEA='SELECT * FROM Device_EntertainArea WHERE FK_Device=?';
+					$resCheckedEA=$dbADO->Execute($selectCheckedEA,$deviceID);
+					$checkedArray=array();
+					while($rowCheckedEA=$resCheckedEA->FetchRow()){
+						$checkedArray[]=$rowCheckedEA['FK_EntertainArea'];
+					}
+
+					$selectEntertainArea='
+						SELECT 
+							EntertainArea.*
+						FROM EntertainArea
+							INNER JOIN Room ON FK_Room=PK_Room
+						WHERE FK_installation=?';
+					$displayedEntAreas=array();
+					$oldEntAreas=array();
+					$resEntertainArea=$dbADO->Execute($selectEntertainArea,$installationID);
+					while($rowEntertainArea=$resEntertainArea->FetchRow()){
+						$oldEntAreas[]=(in_array($rowEntertainArea['PK_EntertainArea'],$checkedArray))?1:0;
+						$displayedEntAreas[]=$rowEntertainArea['PK_EntertainArea'];
+						$out.='<input type="checkbox" value="1" name="entArea_'.$rowEntertainArea['PK_EntertainArea'].'" '.((in_array($rowEntertainArea['PK_EntertainArea'],$checkedArray))?'checked':'').'> '.$rowEntertainArea['Description'].'<br>';
+					}
+					$out.='
+					<input type="hidden" name="displayedEntAreas" value="'.join(',',$displayedEntAreas).'">
+					<input type="hidden" name="oldEntAreas" value="'.join(',',$oldEntAreas).'">
+					</td>
+				</tr>					
 				<tr>
 					<td>IP Address:</td>
 					<td><input name="ipAddress" value="'.$ipAddress.'"></td>
@@ -191,6 +233,11 @@ $installationID = (int)@$_SESSION['installationID'];
 					<td>On:<input type="radio" value="1" name="IgnoreOnOff" '.($ignoreOnOff==1?' checked="checked" ':'').'> &nbsp; 
 						Off:<input type="radio" value="0" name="IgnoreOnOff" '.($ignoreOnOff==0?' checked="checked" ':'').'></td>
 				</tr>
+				<tr>
+					<td><input type="checkbox" name="needConfigure" value="1" '.(($deviceNeedConfigure==1)?'checked':'').' onClick="javascript:document.editDeviceParams.submit();"></td>
+					<td>Resend the software to the device</td>
+				</tr>
+					
 				<tr>
 					<td colspan="2" align="center"><input type="submit" name="submitX" value="Save"></td>
 				</tr>
@@ -440,7 +487,8 @@ $installationID = (int)@$_SESSION['installationID'];
 		$macAddress = cleanString($_POST['macAddress']);
 		$ignoreOnOff = cleanInteger($_POST['IgnoreOnOff']);
 		$DeviceTemplate = cleanInteger($_POST['DeviceTemplate']);
-		$controlledVia = cleanInteger($_POST['controlledVia']);
+		$controlledVia = (@$_POST['controlledVia']!='0')?cleanInteger(@$_POST['controlledVia']):NULL;
+		$needConfigure = (isset($_POST['needConfigure']))?cleanInteger($_POST['needConfigure']):0;
 		
 		$addNewDeviceRelated = (int)$_POST['addNewDeviceRelated'];
 		if ($addNewDeviceRelated!=0) {
@@ -464,7 +512,7 @@ $installationID = (int)@$_SESSION['installationID'];
 		$selectedRelatedDevices = $_POST['selectedRelatedDevice'];
 		$selectedRelatedDevicesArray = explode(",",$selectedRelatedDevices);
 		foreach ($selectedRelatedDevicesArray as $selectedRelatedDev) {
-			$selectOldValueQuery = "SELECT IK_DeviceData From Device_Device_Related WHERE FK_Device = ? AND  FK_Device_Related = ?";
+			$selectOldValueQuery = "SELECT Value From Device_Device_Related WHERE FK_Device = ? AND  FK_Device_Related = ?";
 			$selectOldValueRes = $dbADO->Execute($selectOldValueQuery,array($deviceID,$selectedRelatedDev));
 			$selectOldValueRow = array();
 			 if ($selectOldValueRes) {
@@ -523,9 +571,25 @@ $installationID = (int)@$_SESSION['installationID'];
 							}
 						}
 				}
-				
-			$query = "UPDATE Device SET Description=?,IPaddress=?,MACaddress=?,IgnoreOnOff=?,FK_DeviceTemplate=?,FK_Device_ControlledVia=? WHERE PK_Device = ?";
-			$dbADO->Execute($query,array($description,$ipAddress,$macAddress,$ignoreOnOff,$DeviceTemplate,$controlledVia,$deviceID));
+			
+			$room=(@$_POST['Room']!='0')?@$_POST['Room']:NULL;	
+			$query = "UPDATE Device SET Description=?,IPaddress=?,MACaddress=?,IgnoreOnOff=?,FK_DeviceTemplate=?,FK_Device_ControlledVia=?,NeedConfigure=?,FK_Room=? WHERE PK_Device = ?";
+			$dbADO->Execute($query,array($description,$ipAddress,$macAddress,$ignoreOnOff,$DeviceTemplate,$controlledVia,$needConfigure,$room,$deviceID));
+			$EntAreasArray=explode(',',$_POST['displayedEntAreas']);
+			$OldEntAreasArray=explode(',',$_POST['oldEntAreas']);
+			
+			foreach($EntAreasArray AS $key => $value){
+				$entArea=(isset($_POST['entArea_'.$value]))?(int)@$_POST['entArea_'.$value]:0;
+				if($entArea!=$OldEntAreasArray[$key]){
+					if($entArea==1){
+						$insertDeviceEntertainArea='INSERT INTO Device_EntertainArea (FK_Device, FK_EntertainArea) VALUES (?,?)';
+						$dbADO->Execute($insertDeviceEntertainArea,array($deviceID,$value));
+					}else{
+						$deleteDeviceEntertainArea='DELETE FROM Device_EntertainArea WHERE FK_Device=? AND FK_EntertainArea=?';
+						$dbADO->Execute($deleteDeviceEntertainArea,array($deviceID,$value));
+					}
+				}
+			}
 		}
 		
 			
@@ -551,8 +615,11 @@ $installationID = (int)@$_SESSION['installationID'];
 				$updateDevicePipe = 'UPDATE Device_Device_Pipe SET FK_Input=?,FK_Output=?,FK_Pipe=? WHERE FK_Device_From = ? AND FK_Device_To = ? ';
 				$res=$dbADO->Execute($updateDevicePipe,array($input,$output,$pipe,$deviceID,$deviceTo));
 		}
-	
-		header("Location: index.php?section=editDeviceParams&deviceID=$deviceID&data=saved");
+		$out.='
+		<script>
+			self.location=\'index.php?section=editDeviceParams&deviceID='.$deviceID.'&data=saved\';
+			top.frames[\'treeframe\'].location=\'index.php?section=leftMenu\';
+		</script>';
 	} else {
 			$out = 'You are not allowed to do that!<a href="javascript:window.close();">Close</a>';
 	}

@@ -10,7 +10,9 @@ $installationID = (int)@$_SESSION['installationID'];
 
 if ($action == 'showBasicInfo') {
 	$out='
-		3You can write something about what he can do here, in my scenarios area.
+		All the scenarios in your installation are shown in the tree to the left.  The scenarios correspond to buttons on your Orbiters.
+		It is usually faster to use the wizard to create basic scenarios, like lighting, climate, etc.  This section allows you to 
+		select a scenario and manually edit the commands that it will fire.
 	';	
 } elseif($action=='showArrayCommands') {
 	$arrayID = cleanInteger(@$_REQUEST['array']);	

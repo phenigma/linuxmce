@@ -80,7 +80,8 @@ function editCommandGroup($output,$dbADO) {
 						</select>
 				</td></tr>
 				<tr><td>Template</td><td>
-						<select name="template">';
+						<select name="template">
+							<option value="0">Please select</option>';
 	
 							$queryTemplates = "SELECT * FROM Template order by Description Asc";
 							$resTemplates = $dbADO->Execute($queryTemplates);
@@ -213,9 +214,9 @@ function editCommandGroup($output,$dbADO) {
 									  WHERE FK_Command = ? AND FK_CommandGroup_Command =?
 									  ORDER BY CommandParameter.Description asc
 								";
-							
+							$dbADO->debug=true;
 							$resSelectParameters = $dbADO->Execute($query,array($rowCommandAssigned['FK_Command'],$rowCommandAssigned['PK_CommandGroup_Command']));
-							
+							$dbADO->debug=false;
 								if ($resSelectParameters) {
 									$out.='<table>';
 									while ($rowSelectParameters=$resSelectParameters->FetchRow()) {
@@ -327,8 +328,7 @@ function editCommandGroup($output,$dbADO) {
 			</form>
 			<script>
 		 		var frmvalidator = new formValidator("editCommandGroup");
- 				frmvalidator.addValidation("description","req","Please enter a package description");			
-				frmvalidator.addValidation("designObjID","req","Please enter a design obj number!");			
+ 				frmvalidator.addValidation("description","req","Please enter a description for this scenario.");			
 	 			//frmvalidator.addValidation("icon","dontselect=0","Please select an Icon!");			
 			</script>
 			';
@@ -473,7 +473,7 @@ function editCommandGroup($output,$dbADO) {
 			$arrayID = cleanInteger($_POST['arrayType']);
 			$designObjID = $_SESSION['editCommandGroup']['designObjID'];
 			$iconID = cleanInteger((isset($_POST['icon'])?$_POST['icon']:0));
-			$templateID = cleanInteger($_POST['template']);
+			$templateID = (isset($_POST['template']) && $_POST['template']!=0)?cleanInteger($_POST['template']):NULL;
 			
 			$updateCommandGroup = "UPDATE CommandGroup SET Description = ?,FK_Array=?,FK_DesignObj =?,FK_Icon=?,FK_Template=?
 			WHERE PK_CommandGroup = ?

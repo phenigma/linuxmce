@@ -34,9 +34,11 @@
   $GLOBALS['rootOrbiterID'] = 5; //the PK_DeviceCategory from DeviceCategory table for the root orbiter
   $GLOBALS['rootComputerID'] = 6; //the PK_DeviceCategory from DeviceCategory table for the root Computers
   
+  $GLOBALS['rootDCERouter'] = 1; //the PK_DeviceTemplate from DeviceTemplate table for the root DCE Router
   $GLOBALS['rootCoreID'] = 7; //the PK_DeviceTemplate from DeviceTemplate table for the root Core
   $GLOBALS['rootMediaDirectorsID'] = 28; //the PK_DeviceTemplate from DeviceTemplate table for the root Media Directors
-
+  $GLOBALS['rootMediaPlugin']=2;		// the PK_DeviceTemplate for device template "Media Plug-in"
+  
   $GLOBALS['rootLights'] = 71; //the PK_DeviceCategory from DeviceCategory table for the root Lightning devices
   $GLOBALS['ArrayIDForLight'] = 1;
   
@@ -51,9 +53,24 @@
   $GLOBALS['rootClimateInterfaces'] = 78;
   $GLOBALS['rootSecurityInterfaces'] = 79;
   
-  $GLOBALS['DeviceDataLinkedToTables']=array('PK_Distro','PK_FloorplanObjectType','PK_Skin','PK_Size','PK_Language');
+  $GLOBALS['MediaScenariosCommand']=43;			// the PK_Command for the command "MH Play Media" used in Media Scenarios
+  $GLOBALS['commandParamPK_Device']=2;			// PK_CommandParameter from CommandParameter table for parameter "PK_Device"
+  $GLOBALS['commandParamPK_DesignObj']=3;		// PK_CommandParameter from CommandParameter table for parameter "PK_DesignObj"
+  $GLOBALS['commandParamFilename']=13;			// PK_CommandParameter from CommandParameter table for parameter "Filename"
+  $GLOBALS['commandParamPK_MediaType']=29;		// PK_CommandParameter from CommandParameter table for parameter "PK_MediaType"
+  $GLOBALS['commandParamPK_DeviceTemplate']=44;	// PK_CommandParameter from CommandParameter table for parameter "PK_DeviceTemplate"
+  $GLOBALS['commandParamPK_EntertainArea']=45;	// PK_CommandParameter from CommandParameter table for parameter "PK_EntertainArea"
+  
+  $GLOBALS['commandSetVar']=27;				// FK_Command for "Set var to path"
+  $GLOBALS['commandGotoScreen']=5;			// FK_Command for "Go to screen"
+  
+  $GLOBALS['mediaOptionsArray']=array('TV', 'playlists', 'music', 'movies', 'videos', 'pictures', 'documents');
+  
+  
+  $GLOBALS['DeviceDataLinkedToTables']=array('PK_Distro','PK_FloorplanObjectType','PK_Skin','PK_Size','PK_Language','PK_Users');
   $GLOBALS['deviceTemplateOrbiter']=8;	// the PK_DeviceTemplate for 'Orbiter'
 
+  
   // do not change the following lines 
   $addMasterUserUrl=$MasterUsersHost."index.php?section=add_master_user";
   $checkMasterUserUrl=$MasterUsersHost."index.php?section=check_master_user";
