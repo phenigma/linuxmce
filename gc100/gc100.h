@@ -92,6 +92,7 @@ public:
 			*****COMMANDS***** we need to implement
 	*/
 
+
 //<-dceag-h-e->
 	virtual Command_Impl *CreateCommand(int iPK_DeviceTemplate, Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl *pData, Event_Impl *pEvent);
 	
