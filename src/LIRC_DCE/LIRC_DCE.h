@@ -7,8 +7,11 @@
 #include "Gen_Devices/LIRC_DCEBase.h"
 //<-dceag-d-e->
 #include "DCE/DeviceData_Router.h"
+#ifndef WIN32
 #include <lirc/lirc_client.h>
+#endif
 class Database_pluto_main;
+#include "DCE/Virtual_Device_Translator.h"
 
 //<-dceag-decl-b->
 namespace DCE
@@ -17,6 +20,7 @@ namespace DCE
 	{
 //<-dceag-decl-e->
 		// Private member variables
+		Virtual_Device_Translator m_Virtual_Device_Translator;
 
 		// Private methods
 public:

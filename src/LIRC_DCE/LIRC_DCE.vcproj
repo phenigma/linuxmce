@@ -120,13 +120,16 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
-				RelativePath="Main.cpp">
-			</File>
-			<File
 				RelativePath="LIRC_DCE.cpp">
 			</File>
 			<File
 				RelativePath="..\Gen_Devices\LIRC_DCEBase.cpp">
+			</File>
+			<File
+				RelativePath="Main.cpp">
+			</File>
+			<File
+				RelativePath="..\Dce\Virtual_Device_Translator.cpp">
 			</File>
 		</Filter>
 		<Filter
