@@ -475,9 +475,9 @@ function getInstallWizardDeviceTemplates($step,$dbADO,$device='',$distro=0,$oper
 				$queryDevice='SELECT * FROM Device WHERE FK_DeviceTemplate=? AND (FK_Device_ControlledVia=? OR FK_Device_ControlledVia=?)';
 				$resDevice=$dbADO->Execute($queryDevice,array($row['FK_DeviceTemplate'],$_SESSION['CoreDCERouter'],$_SESSION['deviceID']));
 			}
-				$deviceTemplateChecked=($resDevice->RecordCount()==0)?'':'checked';
-				$rowDevice=$resDevice->FetchRow();
-				$oldDevice=$rowDevice['PK_Device'];
+			$deviceTemplateChecked=($resDevice->RecordCount()==0)?'':'checked';
+			$rowDevice=$resDevice->FetchRow();
+			$oldDevice=$rowDevice['PK_Device'];
 		}
 
 		if($device==@$_SESSION['CoreDCERouter'] && @$_SESSION['isCoreFirstTime']==1){
@@ -504,16 +504,54 @@ function getInstallWizardDeviceTemplates($step,$dbADO,$device='',$distro=0,$oper
 			WHERE (FK_Distro IS NULL OR FK_Distro=?) AND (FK_OperatingSystem=? OR FK_OperatingSystem IS NULL) AND FK_InstallWizard=?';
 		$res=$dbADO->Execute($query,array($distro,$operatingSystem,$row['PK_InstallWizard']));
 		$rowIWD=$res->FetchRow();
-		$templateIsChecked=((isset($deviceTemplateChecked) && @$isCoreFirstTime!=1 && @$isHybridFirstTime!=1)?$deviceTemplateChecked:(($rowIWD['Default']==1)?'checked':''));
+		$templateIsChecked=((isset($deviceTemplateChecked) && @$isCoreFirstTime!=1)?$deviceTemplateChecked:(($rowIWD['Default']==1)?'checked':''));
 		$out.='<td><input type="checkbox" '.(($res->RecordCount()==0)?'disabled':'').' '.$templateIsChecked.' name="device_'.$device.'_requiredTemplate_'.$row['FK_DeviceTemplate'].'" value="1"> 
 			<input type="hidden" name="templateName_'.$row['FK_DeviceTemplate'].'" value="'.$row['Template'].'">
-			<input type="hidden" name="oldDevice_'.$device.'_requiredTemplate_'.$row['FK_DeviceTemplate'].'" value="'.@$oldDevice.'">				
+			<input type="hidden" name="oldDevice_'.$device.'_requiredTemplate_'.$row['FK_DeviceTemplate'].'" value="'.@$oldDevice.'">
 		';
 		if($res->RecordCount()==0)
 			$out.='Not available for '.(($distro!=0)?$distroName:'').(($operatingSystem!=0)?' / '.$operatingSystemName:'');
 		else{
 			$displayedTemplatesRequired[]=$row['FK_DeviceTemplate'];
-			if(@$isHybridFirstTime==1){
+			$out.=$rowIWD['Comments'];
+		}
+		$out.='
+				</td>
+			</tr>
+		';
+	}
+
+	$out.='	<input type="hidden" name="displayedTemplatesRequired_'.$device.'" value="'.(join(',',$displayedTemplatesRequired)).'">
+	</table>';
+	return $out;
+}
+
+function createInstallWizardDevices($step,$dbADO,$distro=0,$operatingSystem=0)
+{
+	$queryInstallWizard='
+		SELECT InstallWizard.*,
+			DeviceTemplate.Description AS Template
+		FROM InstallWizard
+			INNER JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
+		WHERE step=?';
+	$resInstallWizard=$dbADO->Execute($queryInstallWizard,$step);
+	if($resInstallWizard->RecordCount()==0){
+		return NULL;
+	}
+	while($row=$resInstallWizard->FetchRow()){
+
+		$query='
+			SELECT 
+				InstallWizard_Distro.*,
+				InstallWizard.Default
+			FROM InstallWizard_Distro
+				INNER JOIN InstallWizard ON FK_InstallWizard=PK_InstallWizard
+			WHERE (FK_Distro IS NULL OR FK_Distro=?) AND (FK_OperatingSystem=? OR FK_OperatingSystem IS NULL) AND FK_InstallWizard=?';
+		$res=$dbADO->Execute($query,array($distro,$operatingSystem,$row['PK_InstallWizard']));
+		$rowIWD=$res->FetchRow();
+
+		if($res->RecordCount()!=0){
+			if($rowIWD['Default']==1){
 				$insertDevice='
 					INSERT INTO Device 
 						(Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia,FK_Room) 
@@ -522,16 +560,8 @@ function getInstallWizardDeviceTemplates($step,$dbADO,$device='',$distro=0,$oper
 				$insertHybridID=$dbADO->Insert_ID();
 			}
 			$res->MoveFirst();
-			$out.=$rowIWD['Comments'];
 		}
-		$out.='</td>
-			</tr>
-		';
 	}
-
-	$out.='	<input type="hidden" name="displayedTemplatesRequired_'.$device.'" value="'.(join(',',$displayedTemplatesRequired)).'">
-	</table>';
-	return $out;
 }
 
 function CheckValidCode($code,$dbADO)

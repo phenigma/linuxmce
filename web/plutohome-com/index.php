@@ -43,7 +43,7 @@ switch ($section) {
        $output = new Template();
        $output->setTemplateFileType('home');
        include_once('client/login/login.php');
-	    login($output,$dbADO);
+	    login($output,$dbADO,$conn);
        break;
 	case 'clientLoggedOut':
 		$output = new Template();

@@ -116,9 +116,9 @@ if($_SESSION['sollutionType']==3){
 			$displayedDevices[]=$rowMediaDirectors['PK_Device'];
 			$counter++;
 			if( $counter % 2==1 )
-			$rowcolor = 'bgcolor="#F0F3F8"';
+				$rowcolor = 'bgcolor="#F0F3F8"';
 			else
-			$rowcolor = '';
+				$rowcolor = '';
 	
 			$out.='
 					<input type="hidden" name="oldRoomID_'.$rowMediaDirectors['PK_Device'].'" value="'.$rowMediaDirectors['FK_Room'].'">
@@ -366,9 +366,9 @@ if($_SESSION['sollutionType']==3){
 					$dbADO->Execute($deleteDeviceDeviceData,array($value,$GLOBALS['rootDisklessBoot']));
 				}
 			}
-	
-	
+
 			// install options - delete or insert devices
+			//$dbADO->debug=true;
 			$orbiterMDChild=getMediaDirectorOrbiterChild($value,$dbADO);
 			$installOptionsArray=explode(',',@$_POST['displayedTemplatesRequired_'.$orbiterMDChild]);
 			foreach($installOptionsArray AS $elem){

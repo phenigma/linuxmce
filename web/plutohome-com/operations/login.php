@@ -1,5 +1,5 @@
 <?
-function login($output,$dbADO) {
+function login($output,$dbADO,$conn) {
 /* @var $dbADO ADOConnection */
 $out='';
 if (isset($_POST['submitX'])) {	

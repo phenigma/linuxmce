@@ -1,5 +1,5 @@
 <?
-function login($output,$dbADO) {
+function login($output,$dbADO,$conn) {
 	global $forumHost;
 /* @var $dbADO ADOConnection */
 global $checkMasterUserUrl;
@@ -45,7 +45,7 @@ if (isset($_POST['submitX'])) {
 			$_SESSION['categ']=$FirstAccount;
 			$_SESSION['Email']=$Email;
 			
-			$res=mysql_query("SELECT * FROM Users WHERE FK_MasterUsers='$MasterUsersID'");
+			$res=mysql_query("SELECT * FROM Users WHERE FK_MasterUsers='$MasterUsersID'",$conn);
 			if(mysql_num_rows($res)!=0){
 				$res=mysql_fetch_object($res);
 				$_SESSION['extPassword']=$res->ExtPassword;

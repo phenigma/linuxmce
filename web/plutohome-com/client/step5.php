@@ -370,6 +370,7 @@ if($action=='form'){
 		}
 	}
 	if($_SESSION['sollutionType']!=1 && !isset($_SESSION['coreHybridID'])){
+		
 			$insertDeviceMD='INSERT INTO Device (Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia,FK_Room) VALUES (?,?,?,?,?)';
 			$hybridName=($_SESSION['sollutionType']==3)?'Standalone Core/Hybrid':'The core/hybrid';
 			$dbADO->Execute($insertDeviceMD,array($hybridName,$GLOBALS['rootGenericMediaDirector'],$installationID,$_SESSION['deviceID'],$_SESSION['coreRoom']));
@@ -382,8 +383,10 @@ if($action=='form'){
 
 			// get PK_Device for Orbiter child to Hybrid
 			$OrbiterHybridChild=getMediaDirectorOrbiterChild($_SESSION['coreHybridID'],$dbADO);
-			if(!is_null($OrbiterHybridChild))
+			if(!is_null($OrbiterHybridChild)){
 				$_SESSION['OrbiterHybridChild']=$OrbiterHybridChild;
+				createInstallWizardDevices(($step+1),$dbADO,$_SESSION['distro'],$_SESSION['OperatingSystem']);
+			}
 
 			$insertDeviceMDDeviceData='INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData,IK_DeviceData) VALUES (?,?,?)';
 			$dbADO->Execute($insertDeviceMDDeviceData,array($_SESSION['coreHybridID'],$GLOBALS['rootPK_Distro'],$distro));
