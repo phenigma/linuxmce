@@ -71,7 +71,7 @@ void hexmemcpy( char *pDest, const char *pSource, int NumBytes )
 		else
 			pDest[i]=' ';
 	}
-	pDest[i]=0;
+	pDest[NumBytes]=0;
 }
 
 
