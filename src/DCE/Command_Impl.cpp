@@ -48,7 +48,8 @@ Command_Impl *g_pCommand_Impl=NULL;
 void* MessageQueueThread_DCECI( void* param ) // renamed to cancel link-time name collision in MS C++ 7.0 / VS .NET 2002
 {
 	Command_Impl* p = (Command_Impl*)param;
-	p->ProcessMessageQueue();
+	if( p->m_bMessageQueueThreadRunning )  // The constructor should have set this to true
+		p->ProcessMessageQueue();
 	p->m_bMessageQueueThreadRunning=false;
 	return NULL;
 }
@@ -118,7 +119,7 @@ Command_Impl::Command_Impl( int DeviceID, string ServerAddress, bool bLocalMode,
 	m_dwMessageInterceptorCounter=0;
 	if(pthread_create( &m_pthread_queue_id, NULL, MessageQueueThread_DCECI, (void*)this) )
 	{
-		p->m_bMessageQueueThreadRunning=false;
+		m_bMessageQueueThreadRunning=false;
 		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot create message processing queue" );
 	}
 #ifdef LL_DEBUG
@@ -147,7 +148,7 @@ Command_Impl::Command_Impl( Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl
 	m_dwMessageInterceptorCounter=0;
 	if(pthread_create( &m_pthread_queue_id, NULL, MessageQueueThread_DCECI, (void*)this) )
 	{
-		p->m_bMessageQueueThreadRunning=false;
+		m_bMessageQueueThreadRunning=false;
 		g_pPlutoLogger->Write( LV_CRITICAL, "Cannot create message processing queue" );
 	}
 
