@@ -424,7 +424,8 @@ void Media_Plugin::AddDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea)
 				Row_Device_EntertainArea *pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->GetRow(pDeviceData_Router->m_dwPK_Device,pRow_EntertainArea->PK_EntertainArea_get());
 				if( !pRow_Device_EntertainArea )
 				{
-g_pPlutoLogger->Write( LV_CRITICAL, "adding device %d %s to ent area %d %s",pRow_Device_EntertainArea->FK_Device_get(),pRow_Device_EntertainArea->FK_Device_getrow()->Description_get().c_str(),pRow_EntertainArea->PK_EntertainArea_get(),pRow_EntertainArea->Description_get().c_str());
+g_pPlutoLogger->Write( LV_WARNING, "adding device %d %s to ent area %d %s",pDeviceData_Router->m_dwPK_Device,pDeviceData_Router->m_sDescription.c_str(),
+					  pRow_EntertainArea->PK_EntertainArea_get(),pRow_EntertainArea->Description_get().c_str());
 					pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->AddRow();
 					pRow_Device_EntertainArea->FK_Device_set(pDeviceData_Router->m_dwPK_Device);
 					pRow_Device_EntertainArea->FK_EntertainArea_set(pRow_EntertainArea->PK_EntertainArea_get());
