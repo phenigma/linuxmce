@@ -50,29 +50,6 @@ typedef struct
 } MWMHints;
 
 
-enum
-{
-    PLAYBACK_REW_32     = -32000,
-    PLAYBACK_REW_16     = -16000,
-    PLAYBACK_REW_8      =  -8000,
-    PLAYBACK_REW_4      =  -4000,
-    PLAYBACK_REW_2      =  -2000,
-    PLAYBACK_REW_1      =  -1000,
-    PLAYBACK_REW_1_2    =   -500,
-    PLAYBACK_REW_1_4    =   -250,
-
-    PLAYBACK_STOP       =      0,
-
-    PLAYBACK_FF_1_4     =    250,
-    PLAYBACK_FF_1_2     =    500,
-    PLAYBACK_FF_1       =   1000,
-    PLAYBACK_FF_2       =   2000,
-    PLAYBACK_FF_4       =   4000,
-    PLAYBACK_FF_8       =   8000,
-    PLAYBACK_FF_16      =  16000,
-    PLAYBACK_FF_32      =  32000,
-} PlayBackSpeedEnum;
-
 XineSlaveWrapper::XineSlaveWrapper()
     : m_sWindowTitle("xine-slave window (controlled by the DCE m_pXine Player device)"),
       XServerDisplay(NULL),
@@ -838,15 +815,15 @@ int XineSlaveWrapper::translate_point(int gui_x, int gui_y, int *video_x, int *v
 /**
     \fn XineSlaveWrapper::changePlaybackSpeed(int iStreamID, int iMediaPlaybackSpeed)
  */
-void XineSlaveWrapper::changePlaybackSpeed(int iStreamID, int iMediaPlaybackSpeed)
+void XineSlaveWrapper::changePlaybackSpeed(int iStreamID, PlayBackSpeedType desiredSpeed)
 {
-    XineStream *pStream = getStreamForId(iStreamID, "Can't set the speed of a non existent stream (%d)!");
+    XineStream *pStream;
 
-    if ( pStream == NULL)
+    if ( (pStream  = getStreamForId(iStreamID, "Can't set the speed of a non existent stream (%d)!")) == NULL)
         return;
 
     int xineSpeed = XINE_SPEED_PAUSE;
-    switch ( iMediaPlaybackSpeed )
+    switch ( desiredSpeed )
     {
         case PLAYBACK_STOP:
             xineSpeed = XINE_SPEED_PAUSE;
@@ -868,12 +845,48 @@ void XineSlaveWrapper::changePlaybackSpeed(int iStreamID, int iMediaPlaybackSpee
             break;
 
         default:
-            g_pPlutoLogger->Write(LV_WARNING, "Don't know how to handle speed: %d", iMediaPlaybackSpeed);
+            g_pPlutoLogger->Write(LV_WARNING, "Don't know how to handle speed: %d", desiredSpeed);
             break;
     }
 
-    if ( (xineSpeed == XINE_SPEED_PAUSE && iMediaPlaybackSpeed == 0) || xineSpeed != XINE_SPEED_PAUSE)
+    if ( (xineSpeed == XINE_SPEED_PAUSE && desiredSpeed == 0) || xineSpeed != XINE_SPEED_PAUSE)
         xine_set_param(pStream->m_pStream, XINE_PARAM_SPEED, xineSpeed);
+}
+
+XineSlaveWrapper::PlayBackSpeedType XineSlaveWrapper::getPlaybackStream(int iStreamID)
+{
+	XineStream *pStream;
+
+	if ( (pStream = getStreamForId(iStreamID, "Can't set the speed of a non existent stream (%d)!")) == NULL )
+		return PLAYBACK_STOP;
+
+	int currentSpeed;
+	switch ( (currentSpeed = xine_get_param(pStream->m_pStream, XINE_PARAM_SPEED)) )
+	{
+		case XINE_SPEED_SLOW_4:
+			return PLAYBACK_FF_1_4;
+
+		case XINE_SPEED_SLOW_2:
+			return PLAYBACK_FF_1_2;
+
+		case XINE_SPEED_NORMAL:
+			return PLAYBACK_FF_1;
+
+		case XINE_SPEED_FAST_2:
+			return PLAYBACK_FF_2;
+
+		case XINE_SPEED_FAST_4:
+			return PLAYBACK_FF_4;
+
+		case XINE_SPEED_PAUSE:
+			return PLAYBACK_STOP;
+
+		default:
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Can't translate current Xine speed %d. Assuming normal playback speed!", currentSpeed);
+			return PLAYBACK_FF_1;
+		}
+	}
 }
 
 /**
@@ -905,7 +918,10 @@ void XineSlaveWrapper::pauseMediaStream(int iStreamID)
 {
     int stoppedTime, completeTime;
 
-    changePlaybackSpeed(iStreamID, PLAYBACK_STOP);
+	if ( getPlaybackStream(iStreamID) == PLAYBACK_STOP )
+		changePlaybackSpeed(iStreamID, PLAYBACK_FF_1);
+	else
+    	changePlaybackSpeed(iStreamID, PLAYBACK_STOP);
 
     getStreamPlaybackPosition(iStreamID, stoppedTime, completeTime);
 
@@ -1068,7 +1084,7 @@ void XineSlaveWrapper::make_snapshot(xine_stream_t *m_pstream, string sFormat, i
 
 
     double outputRatio;
-    double currentRatio;
+    // double currentRatio;
 
 
     g_pPlutoLogger->Write(LV_STATUS, "Temp data was freed here!");

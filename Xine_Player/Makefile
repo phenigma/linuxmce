@@ -36,14 +36,14 @@ bin: Xine_Player
 
 so: Xine_Player.so
 
-Xine_Player.so: $(sources:.cpp=.o)
+Xine_Player.so: $(sources:.cpp=.o) 
 	$(CXX) -shared -o $(MYNAME).so $+ $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 		
-Xine_Player: $(sources:.cpp=.o)
-	$(CXX) -o $(MYNAME) $+ $(LDFLAGS) $(LDLIBS)
+Xine_Player: $(sources:.cpp=.o) Makefile $(ROOT)/lib/libSerializeClass.a $(ROOT)/lib/libDCECommon.a $(ROOT)/lib/libPlutoUtils.a
+	$(CXX) -o $(MYNAME) $(sources:.cpp=.o) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	./post_make.sh $@
 

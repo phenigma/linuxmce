@@ -38,7 +38,32 @@ class Xine_Player;  /**< to be able to use it in declarations */
 */
 class XineSlaveWrapper
 {
-    class XineStream
+    typedef enum _playbackSpeedEnum
+	{
+		PLAYBACK_REW_32     = -32000,
+		PLAYBACK_REW_16     = -16000,
+		PLAYBACK_REW_8      =  -8000,
+		PLAYBACK_REW_4      =  -4000,
+		PLAYBACK_REW_2      =  -2000,
+		PLAYBACK_REW_1      =  -1000,
+		PLAYBACK_REW_1_2    =   -500,
+		PLAYBACK_REW_1_4    =   -250,
+
+		PLAYBACK_STOP       =      0,
+
+		PLAYBACK_FF_1_4     =    250,
+		PLAYBACK_FF_1_2     =    500,
+		PLAYBACK_FF_1       =   1000,
+		PLAYBACK_FF_2       =   2000,
+		PLAYBACK_FF_4       =   4000,
+		PLAYBACK_FF_8       =   8000,
+		PLAYBACK_FF_16      =  16000,
+		PLAYBACK_FF_32      =  32000,
+	} PlayBackSpeedType;
+
+
+
+	class XineStream
     {
         int                 m_iStreamID;
         int                 m_iRequestingObject;
@@ -216,7 +241,12 @@ public:
      * @brief change the stream playback speed.
      */
 
-    void changePlaybackSpeed(int iStreamID, int iMediaPlaybackSpeed);
+    void changePlaybackSpeed(int iStreamID, PlayBackSpeedType newSpeed);
+
+	/**
+	 * @brief get current playback speed
+	 */
+	PlayBackSpeedType getPlaybackStream(int iStreamID);
 
     /**
      * @brief stop the stream playback.
