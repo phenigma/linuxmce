@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
 			sMacAddress = argv[++optnum];
 			break;
 		case 'n':
-			bDontCallConfigureScript=false;
+			bDontCallConfigureScript=true;
 			break;
 		default:
 			cout << "Unknown: " << argv[optnum] << endl;
