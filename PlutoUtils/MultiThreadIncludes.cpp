@@ -542,46 +542,6 @@ void PlutoLock::Release()
 		ts->tv_nsec = (int)((*(LONGLONG *)ft - PTW32_TIMESPEC_TO_FILETIME_OFFSET - ((LONGLONG)ts->tv_sec * (LONGLONG)10000000)) * 100);
 	}
 
-	bool operator <(timespec &t1,timespec &t2)
-	{
-		if( t1.tv_sec!=t2.tv_sec )
-			return t1.tv_sec<t2.tv_sec;
-		return t1.tv_nsec<t2.tv_nsec;
-	}
-
-	bool operator <=(timespec &t1,timespec &t2)
-	{
-		if( t1.tv_sec!=t2.tv_sec )
-			return t1.tv_sec<t2.tv_sec;
-		return t1.tv_nsec<=t2.tv_nsec;
-	}
-/*
-	void operator +=(timespec &t1,timespec &t2)
-	{
-		t1.tv_nsec += t2.tv_nsec;
-		t2.tv_sec += t2.tv_sec;
-
-		pCallBack->m_abstime.tv_sec += milliseconds / 1000;
-	pCallBack->m_abstime.tv_nsec += milliseconds % 1000 * 1000000;
-if( t1.tv_nsec >= 1000000000 )
-		{
-			t1.tv_sec++;
-			t1.tv_nsec = t1.tv_nsec - 1000000000;
-		}
-	}
-	*/
-
-	void timespec_to_timeval(timespec *ts_source,timeval *tv_dest)
-	{
-		tv_dest->tv_sec = ts_source->tv_sec;
-		tv_dest->tv_usec = ts_source->tv_nsec / 1000;
-	}
-	void timeval_to_timespec(timeval *tv_source,timespec *ts_dest)
-	{
-		ts_dest->tv_sec = tv_source->tv_sec;
-		ts_dest->tv_nsec = tv_source->tv_usec * 1000;
-	}
-
 	int gettimeofday(struct timeval *tv, struct timezone *tz)
 	 {
 		FILETIME ft;
@@ -595,3 +555,61 @@ if( t1.tv_nsec >= 1000000000 )
 		return 0;
 	 }
 #endif
+	
+bool operator < (const timespec & t1, const timespec & t2)
+{
+	if( t1.tv_sec!=t2.tv_sec )
+		return t1.tv_sec<t2.tv_sec;
+	return t1.tv_nsec<t2.tv_nsec;
+}
+
+bool operator <= (const timespec & t1, const timespec & t2)
+{
+	if( t1.tv_sec!=t2.tv_sec )
+		return t1.tv_sec<t2.tv_sec;
+	return t1.tv_nsec<=t2.tv_nsec;
+}
+
+timespec & operator += (timespec & t1, const timespec & t2)
+{
+	t1.tv_sec += t2.tv_sec;
+	t1.tv_nsec += t2.tv_nsec;
+
+	t1.tv_sec += t1.tv_nsec / 1000;
+	t1.tv_nsec = t1.tv_nsec % 1000 * 1000000;
+
+	return t1;
+}
+
+timespec operator + (const timespec & t1, const timespec & t2)
+{
+	timespec result = { 0, 0 };
+
+	result += t1;
+	result += t2;
+
+	return result;
+}
+
+void timespec_to_timeval(timespec *ts_source,timeval *tv_dest)
+{
+	tv_dest->tv_sec = ts_source->tv_sec;
+	tv_dest->tv_usec = ts_source->tv_nsec / 1000;
+}
+
+void timeval_to_timespec(timeval *tv_source,timespec *ts_dest)
+{
+	ts_dest->tv_sec = tv_source->tv_sec;
+	ts_dest->tv_nsec = tv_source->tv_usec * 1000;
+}
+
+timespec ms_to_timespec(unsigned long ts)
+{
+	timespec result;
+
+	result.tv_sec = ts / 1000;
+	result.tv_nsec = ts % 1000 * 1000000;
+
+	return result;
+}
+
