@@ -46,7 +46,7 @@ using namespace DCE;
 #include "pluto_main/Define_DesignObj.h"
 #include "pluto_main/Define_FloorplanType.h"
 
-#include "Renderer.h"
+#include "../OrbiterGen/Renderer.h"
 
 #include "GraphicBuilder.h"
 
