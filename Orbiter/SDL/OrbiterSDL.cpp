@@ -411,7 +411,8 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
 		ReplacementColor.R(), ReplacementColor.G(), ReplacementColor.B());
 
 	PlutoPixelSrc = (ColorToReplace.R() << PF->Rshift) | (ColorToReplace.G() << PF->Gshift) | (ColorToReplace.B() << PF->Bshift) | (ColorToReplace.A() << PF->Ashift);
-	PlutoPixelDest = ReplacementColor.R() << PF->Rshift | ReplacementColor.G() << PF->Gshift | ReplacementColor.B() << PF->Bshift | ReplacementColor.A() << PF->Ashift;
+	unsigned char *Source = (unsigned char *) &PlutoPixelSrc;
+	PlutoPixelDest = ReplacementColor.R() << PF->Rshift | ReplacementColor.G() << PF->Gshift | ReplacementColor.B() << PF->Bshift;//  TODO -- this should work | ReplacementColor.A() << PF->Ashift;
 
     for (int j = 0; j < height; j++)
     {
@@ -419,7 +420,8 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
         {
             // we may need locking on the surface
 			Pixel = getpixel(m_pScreenImage, i + x, j + y);
-			if (Pixel == PlutoPixelSrc)
+			unsigned char *pPixel = (unsigned char *) &Pixel;
+			if ( abs(Source[0]-pPixel[0])<2 && abs(Source[1]-pPixel[1])<2 && abs(Source[2]-pPixel[2])<2 && abs(Source[3]-pPixel[3])<2 )
 			{
 				putpixel(m_pScreenImage, i + x, j + y, PlutoPixelDest);
 			}

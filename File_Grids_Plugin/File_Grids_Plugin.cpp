@@ -403,7 +403,6 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 
 	// Because the orbiter cannot execute different actions for files than directories, it will pass an "Actions" 
 	// parameter that will tell the file grid generator what type of command to attach to file entries.
-	// Q = "queue this file", which is a start media with the queue flag set
 	// P = "play this file", which is a normal start media command
 	// S = "show the play button", which is a normal start media command
 	string Actions = StringUtils::Tokenize(Parms, "|", pos);
@@ -457,13 +456,14 @@ g_pPlutoLogger->Write(LV_WARNING, "Build grid, actions %s GOT %d entries ", Acti
 		DCE::CMD_NOREP_Populate_Datagrid_DT CMDPDG(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse,
 			"", GridID, DATAGRID_Directory_Listing_CONST, newParams);
 		pCell->m_pMessage = CMDPDG.m_pMessage;
-		pCell->m_Colspan = 6;
-		pDataGrid->SetData(1, iRow++, pCell);
+		pCell->m_Colspan = 7;
+		pDataGrid->SetData(0, iRow++, pCell);
 	}
 
 	for (list<FileDetails *>::iterator i = listFileDetails.begin(); i != listFileDetails.end(); i++)
 	{
 		FileDetails *pFileDetails = *i;
+		DataGridCell *pCellPicture = new DataGridCell("", pFileDetails->m_sBaseName + pFileDetails->m_sFileName);
 		pCell = new DataGridCell(pFileDetails->m_sFileName + " " + pFileDetails->m_sDescription, pFileDetails->m_sBaseName + pFileDetails->m_sFileName);
 		pCell->m_Colspan = 6;
 g_pPlutoLogger->Write(LV_WARNING, "Added '%s' to datagrid", pFileDetails->m_sFileName.c_str());
@@ -474,25 +474,29 @@ g_pPlutoLogger->Write(LV_WARNING, "Added '%s' to datagrid", pFileDetails->m_sFil
 			DCE::CMD_NOREP_Populate_Datagrid_DT CMDPDG(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse,
 				"", GridID, DATAGRID_Directory_Listing_CONST, newParams);
 			pCell->m_pMessage = CMDPDG.m_pMessage;
+			pCellPicture->m_pMessage = CMDPDG.m_pMessage;
 		}
 		else if( Actions.length() )
 		{
-			if( Actions.find('Q')!=string::npos )
+			if( Actions.find('P')!=string::npos )
 			{
 	g_pPlutoLogger->Write(LV_WARNING, "Added file %s with actions to datagrid", pFileDetails->m_sFileName.c_str());
 				// The Orbiter wants us to attach an action to files too
 				DCE::CMD_MH_Play_Media_Cat cmd(PK_Controller, DEVICECATEGORY_Media_Plugins_CONST, false, BL_SameHouse,
-					0 /* any device */,"" /* default remote */,pFileDetails->m_sBaseName + pFileDetails->m_sFileName,0 /* whatever media type the file is */,0 /* any master device */,0 /* current entertain area */);
+					0 /* any device */,"" /* default remote */,pFileDetails->m_sBaseName + pFileDetails->m_sFileName,0 /* whatever media type the file is */,0 /* any master device */,"" /* current entertain area */);
 				pCell->m_pMessage = cmd.m_pMessage;
+				pCellPicture->m_pMessage = cmd.m_pMessage;
 			}
 			else if( Actions.find('S')!=string::npos )
 			{
 				// The Orbiter wants us to attach an action to files too
 				DCE::CMD_Show_Object cmd(PK_Controller, PK_Controller, StringUtils::itos(DESIGNOBJ_butPreviewFileList_CONST), 0, "", "", "1");
 				pCell->m_pMessage = cmd.m_pMessage;
+				pCellPicture->m_pMessage = cmd.m_pMessage;
 			}
 		}
 		delete pFileDetails; // We won't need it anymore and it was allocated on the heap
+		pDataGrid->SetData(0, iRow, pCellPicture);
 		pDataGrid->SetData(1, iRow++, pCell);
 	}
 

@@ -127,6 +127,20 @@ template<class T> inline static T Dist( T x,  T y ) { return x * x + y * y; }
 //------------------------------------------------------------------------
 void *MaintThread(void *p);
 //------------------------------------------------------------------------
+
+
+/*
+	EXTRAINFO codes for datagrids:
+	'H' means allow the user to highlight cells without selecting them.  
+	'R' or 'C' means only highlight/select whole rows/columns
+	Either 'A' means arrows scroll the grid.  If 'H' is not specified, the scrolling will be selecting cells.  Otherwise it will be highlighting them
+	'As' means arrows scroll the grid 1 cell at a time
+	'Ap' means arrows scroll the grid 1 page at a time
+	'P' means make the first/last cell a 'page up'/'page down'
+	'h' means that moving the highlight should de-select any selected cells so you don't have both a highlighted and selected cell.  Only meaningfull with 'H'.
+	'X' means that clear the selected cell entry whenever the user scrolls
+*/
+
 /*
 
 Constructors/Destructor
@@ -869,14 +883,16 @@ void Orbiter::RenderDataGrid( DesignObj_DataGrid *pObj )
     int i,  j; //indexes
 
     bool bAddedUpButton=false, bAddedDownButton=false;
-    // If we're not capturing the scrolling,  we'll add butttons the user can touch
-    if(  pObj->m_sExtraInfo.find( 'S' )!=string::npos  )
+    
+	// See if we should add page up/down cells -- see notes at top of file
+    if(  pObj->m_sExtraInfo.find( 'P' )!=string::npos  )
     {
         ArrRows = pObj->CanGoDown(  ) + ( pObj->CanGoUp(  ) && pObj->CanGoDown(  ) );
         if ( pObj->CanGoUp(  ) )
         {
             pObj->m_iUpRow = 0;
             DataGridCell * pCell = new DataGridCell( "<Scroll up>" );
+			pCell->m_Colspan = pObj->m_pDataGridTable->m_ColumnCount;
             RenderCell( pObj,  pT,  pCell,  0,  0,  GRAPHIC_NORMAL );
             delete pCell;
             bAddedUpButton=true;
@@ -886,6 +902,7 @@ void Orbiter::RenderDataGrid( DesignObj_DataGrid *pObj )
         {
             pObj->m_dwIDownRow = pObj->m_pDataGridTable->m_RowCount - 1;
             DataGridCell * pCell = new DataGridCell( "<Scroll down>" );
+			pCell->m_Colspan = pObj->m_pDataGridTable->m_ColumnCount;
             RenderCell( pObj,  pT,  pCell,  0,  pObj->m_dwIDownRow,  GRAPHIC_NORMAL );
             delete pCell;
             bAddedDownButton=true;
@@ -1325,11 +1342,23 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  int X,  in
                 {
                     if(  i==pDesignObj_DataGrid->m_dwIDownRow  )
                     {
+						pDesignObj_DataGrid->m_iHighlightedColumn=pDesignObj_DataGrid->m_iHighlightedRow=-1;
+					    if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'X' )!=string::npos  )
+						{
+							PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
+							m_mapVariable[pDesignObj_DataGrid->m_iPK_Variable] = "";
+						}
                         CMD_Scroll_Grid( "",  "",  DIRECTION_Down_CONST );
                         return false;  // No more processing
                     }
                     else
                     {
+						pDesignObj_DataGrid->m_iHighlightedColumn=pDesignObj_DataGrid->m_iHighlightedRow=-1;
+					    if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'X' )!=string::npos  )
+						{
+							PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
+							m_mapVariable[pDesignObj_DataGrid->m_iPK_Variable] = "";
+						}
                         CMD_Scroll_Grid( "",  "",  DIRECTION_Up_CONST );
                         return false;  // No more processing
                     }
@@ -1387,6 +1416,8 @@ bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  int X,  in
 //------------------------------------------------------------------------
 bool Orbiter::SelectedGrid( DesignObj_DataGrid *pDesignObj_DataGrid,  DataGridCell *pCell )
 {
+	pDesignObj_DataGrid->m_iHighlightedColumn=pDesignObj_DataGrid->m_iHighlightedRow=-1;
+
     PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
     if(  pCell->m_pMessage  )
     {
@@ -1552,6 +1583,7 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter)
         // We went past the end, select nothing
         if( m_iLastEntryInDeviceGroup>=(int) pDesignObj_Orbiter->m_pFloorplanObject->m_pDeviceData_Base->m_vectDeviceGroup.size()-1 )
         {
+			m_vectObjs_NeedRedraw.push_back((DesignObj_Orbiter *) pDesignObj_Orbiter->m_pParentObject);
             m_mapDevice_Selected.clear();
             m_pObj_LastSelected=NULL;
             m_iLastEntryInDeviceGroup=-1;  // Start at the beginning
@@ -1583,6 +1615,7 @@ void Orbiter::SelectedFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter)
         m_mapDevice_Selected[pDesignObj_Orbiter->m_pFloorplanObject->PK_Device] = pDesignObj_Orbiter->m_pFloorplanObject->m_pDeviceData_Base;
         m_pObj_LastSelected=pDesignObj_Orbiter;
     }
+	m_vectObjs_NeedRedraw.push_back(pDesignObj_Orbiter);
 /*
     if( pDesignObj_Orbiter->m_pParentObject->m_iBaseObjectID==OBJECT_FPENTERTAINMENT_CONST )
     {
@@ -1782,18 +1815,20 @@ void Orbiter::FindObjectToHighlight(
 /*virtual*/ void Orbiter::HighlightNextObject( int PK_Direction )
 {
     PLUTO_SAFETY_LOCK( dg, m_DatagridMutex );
+	vector<DesignObj_DataGrid *> vectObj_SelectedGrids;
     for( size_t s=0;s<m_vectObjs_GridsOnScreen.size(  );++s )
     {
         DesignObj_DataGrid *pDesignObj_DataGrid = m_vectObjs_GridsOnScreen[s];
         if(  pDesignObj_DataGrid->IsHidden(  )  )
             continue;
-        if(  pDesignObj_DataGrid->m_pDataGridTable && pDesignObj_DataGrid->m_sExtraInfo.find( 'C' )!=string::npos  )
+        if(  pDesignObj_DataGrid->m_pDataGridTable && pDesignObj_DataGrid->m_sExtraInfo.find( 'A' )!=string::npos  )
         {
             // We've got a datagrid that is capturing scrolling.
-            if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'P' )!=string::npos  ) // P means page
+            if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'p' )!=string::npos  ) // P means page
                 CMD_Scroll_Grid( "", "", PK_Direction );
             else  // Otherwise we move 1 row at a time
             {
+int r=pDesignObj_DataGrid->m_pDataGridTable->GetRows(  );
                 switch( PK_Direction )
                 {
                 case DIRECTION_Up_CONST:
@@ -1810,12 +1845,12 @@ void Orbiter::FindObjectToHighlight(
                     }
                     break;
                 case DIRECTION_Down_CONST:
-                    // See if we scrolled past the physical end of all the rows
-                    if(  pDesignObj_DataGrid->m_GridCurRow+pDesignObj_DataGrid->m_iHighlightedRow+1 < pDesignObj_DataGrid->m_pDataGridTable->GetRows(  )  )  // Add 1 since the highlight is 0 based and get rows is not
+                    // Continue only if we're not already highlighting the last cell
+					if(  pDesignObj_DataGrid->m_GridCurRow+pDesignObj_DataGrid->m_iHighlightedRow + 1 < pDesignObj_DataGrid->m_pDataGridTable->GetRows(  )  )  // Add 1 since the highlight is 0 based and get rows is not, add 2 if the last row is just a 'scroll down'
                     {
                         pDesignObj_DataGrid->m_iHighlightedRow++;
-                        // See if we've scrolled past the visible end, in which case we need to page
-                        if(  pDesignObj_DataGrid->m_iHighlightedRow>=pDesignObj_DataGrid->m_MaxRow  )
+                        // See if we've scrolled past the visible end, in which case we need to page.  Subtract 1 or 2 cells for the scroll up/down cells if any
+                        if(  pDesignObj_DataGrid->m_iHighlightedRow>=pDesignObj_DataGrid->m_MaxRow - (pDesignObj_DataGrid->m_dwIDownRow >= 0 ? 1 : 0) - (pDesignObj_DataGrid->m_iUpRow >= 0 ? 1 : 0) )
                         {
                             int iHighlightedAbsoluteRow = pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow;
                             CMD_Scroll_Grid( "", "", PK_Direction );
@@ -1825,7 +1860,7 @@ void Orbiter::FindObjectToHighlight(
                     break;
                 case DIRECTION_Left_CONST:
                     if(  pDesignObj_DataGrid->m_iHighlightedRow>0 || pDesignObj_DataGrid->m_GridCurRow>0  )
-                    {
+                    {	
                         pDesignObj_DataGrid->m_iHighlightedColumn--;
                         if(  pDesignObj_DataGrid->m_iHighlightedColumn<0  )
                         {
@@ -1848,11 +1883,42 @@ void Orbiter::FindObjectToHighlight(
                     }
                     break;
                 };
+
+				// Check that pDesignObj_DataGrid->m_pDataGridTable wasn't deleted
+	            if(  pDesignObj_DataGrid->m_sExtraInfo.find( 'H' )==string::npos )
+				{
+					if( pDesignObj_DataGrid->m_pDataGridTable )
+					{
+						// We don't want the user to be able to just highlight cells without selecting, so select this cell
+						DataGridCell *pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData(
+							pDesignObj_DataGrid->m_iHighlightedColumn!=-1 ? pDesignObj_DataGrid->m_iHighlightedColumn + pDesignObj_DataGrid->m_GridCurCol : 0,
+							pDesignObj_DataGrid->m_iHighlightedRow!=-1 ? pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow : 0);
+						if( pCell )
+						{
+							PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
+							m_mapVariable[pDesignObj_DataGrid->m_iPK_Variable] = pCell->GetValue(  );
+							vm.Release();
+							delete pCell;
+						}
+					}
+					else
+					{
+						// Be sure nothing is selected since we moved the highlight
+						PLUTO_SAFETY_LOCK( vm, m_VariableMutex )
+						m_mapVariable[pDesignObj_DataGrid->m_iPK_Variable] = "";
+					}
+					// Do a select object on this grid so we reset any hidden/shown objects like buttons.  But do it outside
+					// this loop since we're holding the datagrid mutex
+					vectObj_SelectedGrids.push_back(pDesignObj_DataGrid);
+				}
             }
             m_vectObjs_NeedRedraw.push_back( pDesignObj_DataGrid );
         }
     }
     dg.Release(  );
+
+	for(size_t s=0;s<vectObj_SelectedGrids.size();++s)
+		SelectedObject(vectObj_SelectedGrids[s]);
     if( NULL == m_pObj_Highlighted ||
         (
         m_pObj_Highlighted &&
@@ -2081,8 +2147,8 @@ void Orbiter::InitializeGrid( DesignObj_DataGrid *pObj )
     string::size_type posH;
     if(  (posH=pObj->m_sExtraInfo.find( 'H' ))!=string::npos && pObj->sSelVariable.length()==0 )
     {
-        pObj->m_iHighlightedRow = (posH==pObj->m_sExtraInfo.length() || pObj->m_sExtraInfo[posH+1]!='c') ? 0 : -1;
-        pObj->m_iHighlightedColumn = (posH==pObj->m_sExtraInfo.length() || pObj->m_sExtraInfo[posH+1]!='r') ? 0 : -1;
+        pObj->m_iHighlightedRow = (posH==pObj->m_sExtraInfo.length() || pObj->m_sExtraInfo[posH+1]!='C') ? 0 : -1;
+        pObj->m_iHighlightedColumn = (posH==pObj->m_sExtraInfo.length() || pObj->m_sExtraInfo[posH+1]!='R') ? 0 : -1;
     }
     else
     {
@@ -2642,10 +2708,13 @@ bool Orbiter::ButtonDown( int PK_Button )
             for( s=0;s<m_vectObjs_GridsOnScreen.size(  );++s )
             {
                 DesignObj_DataGrid *pDesignObj_DataGrid = m_vectObjs_GridsOnScreen[s];
-                if(  !pDesignObj_DataGrid->IsHidden(  ) && pDesignObj_DataGrid->m_pDataGridTable && pDesignObj_DataGrid->m_sExtraInfo.find( 'C' )!=string::npos  )
+				// We're using the arrows, so use this to activate the cell
+                if(  !pDesignObj_DataGrid->IsHidden(  ) && pDesignObj_DataGrid->m_pDataGridTable && pDesignObj_DataGrid->m_sExtraInfo.find( 'A' )!=string::npos )
                 {
-                    // We've got a datagrid that is capturing scrolling,  and we need to select the cell
-                    DataGridCell *pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData(  pDesignObj_DataGrid->m_iHighlightedColumn + pDesignObj_DataGrid->m_GridCurCol,  pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow );
+                    // We've got a datagrid that allows the user to highlight cells without selecting them.  Now that enter was pressed it needs to select the cell
+                    DataGridCell *pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData(  
+						pDesignObj_DataGrid->m_iHighlightedColumn!=-1 ? pDesignObj_DataGrid->m_iHighlightedColumn + pDesignObj_DataGrid->m_GridCurCol : 0,
+						pDesignObj_DataGrid->m_iHighlightedRow!=-1 ? pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow : 0);
                     if(  pCell  )
                     {
                         // First select the cell,  then select the grid object,  passing in -1 values so it won't reselect the cell
@@ -3491,8 +3560,9 @@ bool Orbiter::AcquireGrid( DesignObj_DataGrid *pObj,  int GridCurCol,  int &Grid
 
     if (  pObj->bReAcquire || !pDataGridTable || pDataGridTable->m_StartingColumn != GridCurCol || pDataGridTable->m_StartingRow != GridCurRow || pObj->m_sSeek.length() )
     {
-        // See if we're supposed to highlight rows.  If so,  we should reset this
-        pObj->bReAcquire=false;
+		pObj->m_iHighlightedColumn=pObj->m_iHighlightedRow=-1;
+
+		pObj->bReAcquire=false;
         if ( pDataGridTable )
         {
             delete pDataGridTable;
@@ -4585,9 +4655,16 @@ void Orbiter::CalculateGridUp( DesignObj_DataGrid *pObj,  int &CurRow,  int Cell
     if ( CellsToSkip == 0 )
         CellsToSkip = pObj->m_MaxRow - ( pObj->m_pDataGridTable->m_bKeepRowHeader ? 1 : 0 );
 
-    bool bCanGoDown = pObj->m_dwIDownRow >= 0;
-    bool bCanGoUp = pObj->m_iUpRow >= 0;
-    CellsToSkip -= bCanGoDown + ( bCanGoUp && bCanGoDown );
+	// Are we going to display 'scroll up/down' cells?  If so, we may not be able to scroll up a full page
+    if(  pObj->m_sExtraInfo.find( 'P' )!=string::npos  )
+	{
+		// After doing the scroll, will we still be able to go up?  If so, reduce the cells to skip by 1
+		if( CurRow - CellsToSkip > 0)
+			CellsToSkip--;
+		// After doing the scroll, will we still be able to go down?  If so, reduce the cells to skip by 1
+		if( pObj->m_pDataGridTable->GetRows() > (CurRow - CellsToSkip) + pObj->m_MaxRow ) 
+			CellsToSkip--;
+	}
 
     if ( CellsToSkip < 0 )
         CellsToSkip = 0;
@@ -4601,7 +4678,7 @@ void Orbiter::CalculateGridDown( DesignObj_DataGrid *pObj,  int &CurRow,  int Ce
 {
     PLUTO_SAFETY_LOCK( dg,  m_DatagridMutex );
 
-    if ( pObj->m_dwIDownRow < 0 && CellsToSkip == 0 && pObj->m_sExtraInfo.find( 'C' )==string::npos  )
+    if ( pObj->m_dwIDownRow < 0 && CellsToSkip == 0 )
         return;
 
     if ( CellsToSkip == 0 )
@@ -4918,9 +4995,6 @@ void Orbiter::RenderFloorplan(DesignObj_Orbiter *pDesignObj_Orbiter, DesignObj_O
 				if( Color )
 				{
 					PlutoColor Magenta(255,102,255);
-PlutoColor p0(128,0,0);
-PlutoColor p1(0,128,0);
-PlutoColor p2(0,128,128);
 
 					ReplaceColorInRectangle(fpObj->pObj->m_rBackgroundPosition.X,fpObj->pObj->m_rBackgroundPosition.Y,fpObj->pObj->m_rBackgroundPosition.Width,
 						fpObj->pObj->m_rBackgroundPosition.Height, Magenta, Color);
@@ -5077,7 +5151,7 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 /*virtual*/ void Orbiter::SimulateKeyPress(long key)
 {
 	g_pPlutoLogger->Write(LV_WARNING, "Simulate key press. Key code: %d", key);
-		
+
 	BeginPaint();
 	PlutoColor color(200, 200, 200, 100);
 	SolidRectangle(5, m_iImageHeight - 30, 200, 25, color, 50);
@@ -5086,7 +5160,7 @@ void Orbiter::CMD_Bind_Icon(string sPK_DesignObj,string sType,bool bChild,string
 	DesignObjText text;
 	text.m_sText = "Key code pressed: " + StringUtils::ltos(key);
 	text.m_rPosition = rect;
-	
+
 	TextStyle *pTextStyle = m_mapTextStyle_Find( 1 );
 	RenderText(&text, pTextStyle);
 

@@ -440,7 +440,7 @@ bool Media_Plugin::StartMedia( MediaPluginInfo *pMediaPluginInfo, int PK_Device_
     // hack get the user if the message originated from an orbiter!
 
     // Todo -- get the real remote
-    if( PK_DesignObj_Remote )
+    if( PK_DesignObj_Remote && PK_DesignObj_Remote!=-1 )
         pMediaStream->m_iPK_DesignObj_Remote = PK_DesignObj_Remote;
 
     g_pPlutoLogger->Write(LV_STATUS,"Calling Plug-in's start media");
@@ -467,18 +467,20 @@ bool Media_Plugin::StartMedia( MediaPluginInfo *pMediaPluginInfo, int PK_Device_
                 // Only send the orbiter if it's at the main menu, unless it's the orbiter that started the stream in the first place
 #pragma warning("implement bound to media remote")
                 // this IF is identical ?? Why ?
-                if( pMediaStream->m_pOH_Orbiter==pOH_Orbiter ) //|| pOH_Orbiter->boundtomediaremote )
+                if( pMediaStream->m_pOH_Orbiter==pOH_Orbiter && iPK_DesignObj_Remote == DESIGNOBJ_screen_app_desktop_CONST ) //|| pOH_Orbiter->boundtomediaremote )
                 {
                     DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
                         StringUtils::itos(iPK_DesignObj_Remote),"","",false);
                     SendCommand(CMD_Goto_Screen);
                 }
+/* AB 1-5-05 what was this for???
                 else
                 {
                     DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
                         StringUtils::itos(iPK_DesignObj_Remote),"","",false);
                     SendCommand(CMD_Goto_Screen);
                 }
+*/
             }
         }
         else
