@@ -75,8 +75,11 @@ function outsideAccess($output,$dbADO) {
 		</tr>
 		<tr>
 			<td><input type="checkbox" name="allowOnPassword" value="1" '.(isset($remote)?'checked':'').'></td>
-			<td>Allow outside access with password</td>
+			<td>Allow Pluto tech support temporary access using this password</td>
 			<td><input type="password" name="password" value="'.(isset($remote)?$remote:'').'"></td>
+		</tr>
+		<tr>
+			<td colspan="3">You will need to provide your support rep the password and the following installation number: <b>'.$_SESSION['installationID'].'</b></td>
 		</tr>
 		<tr>
 			<td><input type="checkbox" name="sendErrorsToPluto" value="1" '.((@$sendErrorsToPluto==1)?'checked':'').'></td>
