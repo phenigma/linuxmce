@@ -11,3 +11,6 @@ echo -e "\n\n" | mythtv-setup
 
 /etc/init.d/mythtv-backend force-reload &
 
+sleep 1;
+
+/usr/pluto/bin/ratpoison -c "select mythtv-setup";
