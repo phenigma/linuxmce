@@ -859,7 +859,7 @@ void Orbiter_Plugin::CMD_Add_Unknown_Device(string sText,string sID,string sMac_
 {
     Row_UnknownDevices *pRow_Device = m_pDatabase_pluto_main->UnknownDevices_get()->AddRow();
     pRow_Device->MacAddress_set(sMac_address);
-    pRow_Device->IPAddress_set(sID);
+    pRow_Device->Description_set(sID);
     m_pDatabase_pluto_main->UnknownDevices_get()->Commit();
 
     g_pPlutoLogger->Write(
