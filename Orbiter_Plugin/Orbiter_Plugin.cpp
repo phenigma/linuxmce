@@ -2,9 +2,7 @@
 #include "Orbiter_Plugin.h"
 #include "DCE/Logger.h"
 #include "PlutoUtils/FileUtils.h"
-#include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
-#include "PlutoUtils/Other.h"
 #include "PlutoUtils/Other.h"
 
 #include <iostream>
@@ -24,12 +22,14 @@ using namespace DCE;
 #include "pluto_main/Define_EventParameter.h"
 #include "pluto_main/Define_DeviceData.h"
 #include "pluto_main/Define_Event.h"
+#include "pluto_main/Table_FloorplanObjectType.h"
+#include "pluto_main/Table_Orbiter.h"
 #include "DCERouter/DCERouter.h"
 
 #include <cctype>
 #include <algorithm>
 
-//<-dceag-const-b->
+//<-dceag-const-b->!
 Orbiter_Plugin::Orbiter_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
 	: Orbiter_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter), m_UnknownDevicesMutex("Unknown devices varibles")
 //<-dceag-const-e->
@@ -717,4 +717,144 @@ void Orbiter_Plugin::CMD_Add_Unknown_Device(string sText,string sID,string sMac_
 	m_bNoUnknownDeviceIsProcessing = false;
 
 	ProcessUnknownDevice();
+}
+
+
+//<-dceag-c183-b->
+/* 
+	COMMAND: #183 - Get Floorplan Layout
+	COMMENTS: Gets the layout of all floorplans for the orbiter.
+	PARAMETERS:
+		#5 Value To Assign
+			A | delimited list in the format, where {} indicate a repeating value: #pages,{#Types,{#Objects,{DeviceDescription, ObjectDescription, FillX Point, FillY Point, PK_DesignObj, Page, PK_Device, Type}}}
+*/
+void Orbiter_Plugin::CMD_Get_Floorplan_Layout(string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+//<-dceag-c183-e->
+{
+	OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Find(pMessage->m_dwPK_Device_From);
+	if( !pOH_Orbiter )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find orbiter for floorplan layout: %d",pMessage->m_dwPK_Device_From);
+		return;
+	}
+	(*sValue_To_Assign) = StringUtils::itos((int) pOH_Orbiter->m_mapFloorplanObjectVector.size()) + "|";
+
+	map<int,FloorplanObjectVectorMap *>::iterator itFloorplanObjectVectorMap;
+	for(itFloorplanObjectVectorMap = pOH_Orbiter->m_mapFloorplanObjectVector.begin();itFloorplanObjectVectorMap!=pOH_Orbiter->m_mapFloorplanObjectVector.end();itFloorplanObjectVectorMap++)
+	{
+
+		int Page = (*itFloorplanObjectVectorMap).first;
+		FloorplanObjectVectorMap *pfpObjVectorMap = (*itFloorplanObjectVectorMap).second;
+		
+		if( !pfpObjVectorMap )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"There's a null in m_mapFloorplanObjectVector with Page: %d controller: %d",Page,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+			(*sValue_To_Assign) += StringUtils::itos(Page) + "|0|";
+			continue;
+		}
+		(*sValue_To_Assign) += StringUtils::itos(Page) + "|" +
+			StringUtils::itos((int) pfpObjVectorMap->size()) + "|";
+
+		map<int,FloorplanObjectVector *>::iterator itFloorplanObjectVector;
+		for(itFloorplanObjectVector = pfpObjVectorMap->begin();itFloorplanObjectVector!=pfpObjVectorMap->end();itFloorplanObjectVector++)
+		{
+			int Type = (*itFloorplanObjectVector).first;
+			FloorplanObjectVector *pfpObjVector = (*itFloorplanObjectVector).second;
+
+			if( !pfpObjVector )
+			{
+				// 2004 I don't fully understand why this null gets in there, but it's harmless--it just
+				// means there are no floorplan objects of this type on the given page
+				g_pPlutoLogger->Write(LV_STATUS,"There's a null in m_FloorplanObjectVector with Page: %d Type: %d Controller: %d",Page,Type,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+				(*sValue_To_Assign) += StringUtils::itos(Type) + "|0|";
+				continue;
+			}
+
+			(*sValue_To_Assign) += StringUtils::itos(Type) + "|" +
+				StringUtils::itos((int) pfpObjVector->size()) + "|";
+
+			for(int i=0;i<(int) pfpObjVector->size();++i)
+			{
+				FloorplanObject *fpObj = (*pfpObjVector)[i];
+				(*sValue_To_Assign) += fpObj->ObjectTypeDescription + "|" + StringUtils::itos(fpObj->FillX) + "|" + StringUtils::itos(fpObj->FillY) + "|" +
+					fpObj->ObjectID + "|" + StringUtils::itos(fpObj->Page) + "|" + StringUtils::itos(fpObj->PK_Device) + "|" + 
+					StringUtils::itos(fpObj->Type) + "|";
+			}
+		}
+	}
+}
+
+//<-dceag-c186-b->
+/* 
+	COMMAND: #186 - Get Current Floorplan
+	COMMENTS: Gets the current Floorplan status (ie what items are on/off, etc.) for the specified Floorplan type.
+	PARAMETERS:
+		#5 Value To Assign
+			The status of all the devices within the floorplan.
+		#46 PK_FloorplanType
+			The type of floorplan (lights, climate, etc.)
+*/
+void Orbiter_Plugin::CMD_Get_Current_Floorplan(int iPK_FloorplanType,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage)
+//<-dceag-c186-e->
+{
+}
+
+
+void Orbiter_Plugin::PrepareFloorplanInfo()
+{
+	for(map<int,OH_Orbiter *>::iterator it=m_mapOH_Orbiter.begin();it!=m_mapOH_Orbiter.end();++it)
+	{
+		OH_Orbiter *pOH_Orbiter = (*it).second;
+
+		Row_Orbiter *pRow_Orbiter = m_pDatabase_pluto_main->Orbiter_get()->GetRow(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+		if( !pRow_Orbiter )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL,"Cannot find Row_Orbiter for: %d",
+				pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+			continue;
+		}
+		string s = pRow_Orbiter->FloorplanInfo_get();
+		string::size_type pos=0;	
+
+		int NumDevices = atoi( StringUtils::Tokenize(s, "\t", pos).c_str());
+		for(int iDevice=0;iDevice<NumDevices;++iDevice)
+		{
+			int PK_Device = atoi( StringUtils::Tokenize(s, "\t", pos).c_str());
+			DeviceData_Router *pDeviceData_Router = m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
+			int FloorplanObjectType = atoi(pDeviceData_Router->mapParameters_Find(DEVICEDATA_PK_FloorplanObjectType_CONST).c_str());
+			Row_FloorplanObjectType *pRow_FloorplanObjectType = m_pDatabase_pluto_main->FloorplanObjectType_get()->GetRow(FloorplanObjectType);
+
+			int Page = atoi( StringUtils::Tokenize(s, "\t", pos).c_str());
+			string ObjectID = StringUtils::Tokenize(s, "\t", pos);
+			int FillX = atoi( StringUtils::Tokenize(s, "\t", pos).c_str());
+			int FillY = atoi( StringUtils::Tokenize(s, "\t", pos).c_str());
+
+			string Description = pRow_FloorplanObjectType->Description_get();
+			int FloorplanType = pRow_FloorplanObjectType->FK_FloorplanType_get();
+
+			FloorplanObjectVectorMap *pFpObjMap = pOH_Orbiter->m_mapFloorplanObjectVector_Find(Page);
+			if( !pFpObjMap )
+			{
+				pFpObjMap = new FloorplanObjectVectorMap();
+				pOH_Orbiter->m_mapFloorplanObjectVector[Page] = pFpObjMap;
+			}
+
+			FloorplanObjectVector *fpVect = (*pFpObjMap)[FloorplanType];
+			if( !fpVect )
+			{
+				fpVect = new FloorplanObjectVector();
+				(*pFpObjMap)[FloorplanType] = fpVect;
+			}
+			FloorplanObject *fp = new FloorplanObject();
+			fp->PK_Device = PK_Device;
+			fp->m_pDeviceData_Base = m_pRouter->m_mapDeviceData_Router_Find(PK_Device);
+			fp->Type = FloorplanObjectType;
+			fp->Page = Page;
+			fp->FillX = FillX;
+			fp->FillY = FillY;
+			fp->ObjectID = ObjectID;;
+			fp->ObjectTypeDescription = Description;
+			fpVect->push_back(fp);
+		}
+	}
 }

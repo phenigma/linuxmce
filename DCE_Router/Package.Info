@@ -1,9 +1,0 @@
-<-dceag-p-b->
-Package = DCE_Destination_Package
-Dir = 
-desc = DCE Implemenation for #1 DCE Router
-Maintainer = aaronName
-Email = 
-Depend = x
-<-dceag-p-e->
-

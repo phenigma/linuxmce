@@ -6,36 +6,42 @@
 
 #include "Gen_Devices/Orbiter_PluginBase.h"
 //<-dceag-d-e->
+
+#include "Orbiter/Floorplan.h"
+
 class Database_pluto_main;
 
 namespace DCE
 {
 
-// Store an orbiter list within the handler
-class OH_Orbiter
-{
-public:
-	class DeviceData_Router *m_pDeviceData_Router;
-	class DeviceData_Router *m_pDevice_CurrentDetected;
-
-	int m_iPK_Users;  // The current user
-	int m_iPK_EntertainArea;  // The current entertain area
-	int m_dwPK_Room;  // The current room
-
-	int m_iLastSignalStrength;
-
-	int m_iFailedToConnectCount;
-
-	OH_Orbiter(class DeviceData_Router *pDeviceData_Router)
+	// Store an orbiter list within the handler
+	class OH_Orbiter
 	{
-		m_pDeviceData_Router = pDeviceData_Router;
-		m_iPK_Users = m_iPK_EntertainArea = m_dwPK_Room = 0;
-		m_iLastSignalStrength = 0;
-		m_pDevice_CurrentDetected = NULL;
-		m_iFailedToConnectCount = 0;
-	}
+	public:
+		map<int,FloorplanObjectVectorMap *> m_mapFloorplanObjectVector;
+		FloorplanObjectVectorMap *m_mapFloorplanObjectVector_Find(int Page) { map<int,FloorplanObjectVectorMap *>::iterator it = m_mapFloorplanObjectVector.find(Page);	return it==m_mapFloorplanObjectVector.end() ? NULL : (*it).second; }
 
-};
+		class DeviceData_Router *m_pDeviceData_Router;
+		class DeviceData_Router *m_pDevice_CurrentDetected;
+
+		int m_iPK_Users;  // The current user
+		int m_iPK_EntertainArea;  // The current entertain area
+		int m_dwPK_Room;  // The current room
+
+		int m_iLastSignalStrength;
+
+		int m_iFailedToConnectCount;
+
+		OH_Orbiter(class DeviceData_Router *pDeviceData_Router)
+		{
+			m_pDeviceData_Router = pDeviceData_Router;
+			m_iPK_Users = m_iPK_EntertainArea = m_dwPK_Room = 0;
+			m_iLastSignalStrength = 0;
+			m_pDevice_CurrentDetected = NULL;
+			m_iFailedToConnectCount = 0;
+		}
+
+	};
 
 class UnknownDeviceInfos
 {
@@ -88,6 +94,7 @@ public:
 
 	// Private methods
 	map<string,UnknownDeviceInfos *> m_mapUnknownDevices; // A temporary map to match Bluetooth Dongle's with devices they detect
+	void PrepareFloorplanInfo();
 	UnknownDeviceInfos *m_mapUnknownDevices_Find(string sMacAddress) 
 	{
 		map<string,UnknownDeviceInfos *>::iterator it = m_mapUnknownDevices.find(sMacAddress);
@@ -200,6 +207,28 @@ public:
 */
 	virtual void CMD_Add_Unknown_Device(string sText,string sID,string sMac_address) { string sCMD_Result; CMD_Add_Unknown_Device(sText.c_str(),sID.c_str(),sMac_address.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Add_Unknown_Device(string sText,string sID,string sMac_address,string &sCMD_Result,Message *pMessage);
+
+/* 
+	COMMAND: #183 - Get Floorplan Layout
+	COMMENTS: Gets the layout of all floorplans for the orbiter.
+	PARAMETERS:
+		#5 Value To Assign
+			A | delimited list in the format, where {} indicate a repeating value: #pages,{#Types,{#Objects,{DeviceDescription, ObjectDescription, FillX Point, FillY Point, PK_DesignObj, Page, PK_Device, Type}}}
+*/
+	virtual void CMD_Get_Floorplan_Layout(string *sValue_To_Assign) { string sCMD_Result; CMD_Get_Floorplan_Layout(sValue_To_Assign,sCMD_Result,NULL);};
+	virtual void CMD_Get_Floorplan_Layout(string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);
+
+/* 
+	COMMAND: #186 - Get Current Floorplan
+	COMMENTS: Gets the current Floorplan status (ie what items are on/off, etc.) for the specified Floorplan type.
+	PARAMETERS:
+		#5 Value To Assign
+			The status of all the devices within the floorplan.
+		#46 PK_FloorplanType
+			The type of floorplan (lights, climate, etc.)
+*/
+	virtual void CMD_Get_Current_Floorplan(int iPK_FloorplanType,string *sValue_To_Assign) { string sCMD_Result; CMD_Get_Current_Floorplan(iPK_FloorplanType,sValue_To_Assign,sCMD_Result,NULL);};
+	virtual void CMD_Get_Current_Floorplan(int iPK_FloorplanType,string *sValue_To_Assign,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
 };
