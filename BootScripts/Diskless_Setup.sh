@@ -1,6 +1,7 @@
 #!/bin/bash
 
 . /usr/pluto/bin/Network_Parameters.sh
+. /usr/pluto/bin/Config_Ops.sh
 
 DlDir="/usr/pluto/diskless"
 
@@ -105,7 +106,7 @@ if [ -n "$DHCPsetting" ]; then
 	done
 fi
 
-Q="SELECT IPaddress, MACaddress
+Q="SELECT IPaddress, MACaddress, PK_Device
 FROM Device
 JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate
 WHERE PK_DeviceTemplate=28 AND FK_Device_ControlledVia IS NULL AND MACaddress IS NOT NULL AND IPaddress IS NOT NULL"
@@ -115,9 +116,10 @@ echo "Setting diskless MD filesystems"
 for Client in $R; do
 	IP=$(Field 1 "$Client")
 	MAC=$(Field 2 "$Client")
+	Device=$(Field 3 "$Client")
 	DlPath="$DlDir/$IP"
 	
-	Q="SELECT *
+	Q="SELECT PK_Device
 	FROM Device_DeviceData
 	JOIN Device ON PK_Device=FK_Device
 	JOIN DeviceTemplate ON PK_DeviceTemplate=FK_DeviceTemplate
@@ -125,13 +127,13 @@ for Client in $R; do
 	Diskless=$(RunSQL "$Q")
 
 	if [ -z "$Diskless" ]; then
-		echo "Skipping non-diskless MD '$IP,$MAC'"
+		echo "Skipping non-diskless MD '$IP , $MAC' ($Device)"
 		continue
 	fi
 
 	if ! [ -d $DlPath -a -f $DlPath/etc/diskless.conf ]; then
-		echo "Creating initial filesystem for moon '$IP,$MAC'"
-		/usr/pluto/bin/Create_DisklessMD_FS.sh "$IP" "$MAC"
+		echo "Creating initial filesystem for moon '$IP , $MAC' ($Device)"
+		/usr/pluto/bin/Create_DisklessMD_FS.sh "$IP" "$MAC" "$Device" "$Activation_Code"
 	fi
 	DisklessR="$DisklessR $Client"
 done
@@ -203,7 +205,7 @@ for Client in $DisklessR; do
 	echo -n " MythTV DB Settings"
 	mkdir -p $DlPath/etc/mythtv
 	cp /etc/mythtv/mysql.txt $DlPath/etc/mythtv/mysql.txt.$$
-	SedCmd="s/^DBHostName.*/DBHostName=dce_router/g"
+	SedCmd="s/^DBHostName.*/DBHostName=dcerouter/g"
 	sed -i "$SedCmd" $DlPath/etc/mythtv/mysql.txt.$$
 	mv $DlPath/etc/mythtv/mysql.txt.$$ $DlPath/etc/mythtv/mysql.txt
 
@@ -212,7 +214,7 @@ for Client in $DisklessR; do
 #	PK_Device=$(RunSQL "$Q")
 #	mkdir -p $DlPath/usr/pluto/bin
 #	/usr/pluto/bin/Start_LocalDevices.sh script "$IP" -d "$PK_Device" >$DlPath/usr/pluto/bin/Start_LocalDevices_Static.sh
-#	sed -i 's/localhost/dce_router/g' $DlPath/usr/pluto/bin/Start_LocalDevices_Static.sh
+#	sed -i 's/localhost/dcerouter/g' $DlPath/usr/pluto/bin/Start_LocalDevices_Static.sh
 #	chmod +x $DlPath/usr/pluto/bin/Start_LocalDevices_Static.sh
 
 	echo -n " MySQL_access"
