@@ -33,7 +33,7 @@ CM11A::~CM11A()
 //<-dceag-dest-e->
 {
 	g_pPlutoLogger->Write(LV_STATUS,"Destroying CM11A");
-	delete g_pPlutoLogger;	// Created in either main or RegisterAsPlugin.  When this exits we won't need it anymore
+	
 }
 
 //<-dceag-reg-b->

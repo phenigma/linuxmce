@@ -95,10 +95,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MakeRelease", "MakeRelease\
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PlutoVIP", "PlutoVIP\PlutoVIP.vcproj", "{05A67227-6223-4B99-9C33-44C93CD27DCD}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Slim_Server_Streamer", "Slim_Server_Streamer\Slim_Server_Streamer.vcproj", "{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
@@ -233,10 +229,6 @@ Global
 		{B6EFB531-105E-4A1E-BC46-78C6DF6FA325}.Debug.Build.0 = Debug|Win32
 		{B6EFB531-105E-4A1E-BC46-78C6DF6FA325}.Release.ActiveCfg = Release|Win32
 		{B6EFB531-105E-4A1E-BC46-78C6DF6FA325}.Release.Build.0 = Release|Win32
-		{05A67227-6223-4B99-9C33-44C93CD27DCD}.Debug.ActiveCfg = Debug|Win32
-		{05A67227-6223-4B99-9C33-44C93CD27DCD}.Debug.Build.0 = Debug|Win32
-		{05A67227-6223-4B99-9C33-44C93CD27DCD}.Release.ActiveCfg = Release|Win32
-		{05A67227-6223-4B99-9C33-44C93CD27DCD}.Release.Build.0 = Release|Win32
 		{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}.Debug.ActiveCfg = Debug|Win32
 		{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}.Debug.Build.0 = Debug|Win32
 		{BFB764EC-A94C-414F-AE25-7EECDFEE8BBA}.Release.ActiveCfg = Release|Win32

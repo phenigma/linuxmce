@@ -52,6 +52,8 @@ MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, DeviceData_
     m_iPK_Playlist=0;
     m_sPlaylistName="";
 	m_bIsMovable = true; // by default all the media can move but not always.
+	m_tTime = time(NULL);
+	m_tTime_Parked = 0;
 
     m_pDeviceData_Router_Source=pDeviceData_Router;
 

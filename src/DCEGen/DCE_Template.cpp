@@ -32,7 +32,7 @@ DCE_Template::DCE_Template(Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl 
 DCE_Template::~DCE_Template()
 //<-dceag-dest-e->
 {
-	delete g_pPlutoLogger;	// Created in either main or RegisterAsPlugin.  When this exits we won't need it anymore
+	
 }
 
 //<-dceag-reg-b->

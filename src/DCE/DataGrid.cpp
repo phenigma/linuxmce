@@ -62,9 +62,9 @@ void DataGridCell::Initialize()
 DataGridCell::~DataGridCell()
 {
 	if (m_Text) 
-		free(m_Text);
+		delete[] m_Text;
 	if (m_Value)
-		free(m_Value);
+		delete[] m_Value;
 
 	if(NULL != m_pMessage)
 	{
@@ -83,10 +83,12 @@ DataGridCell::DataGridCell(string Text, string Value)
 {
 	Initialize();
 
-	m_Text = strdup(Text.c_str());
+	m_Text = new char[Text.length()+1];
+	strcpy(m_Text,Text.c_str());
 	m_TextLength = (int)Text.length();
 
-	m_Value = strdup(Value.c_str());
+	m_Value = new char[Value.length()+1]; 
+	strcpy(m_Value,Value.c_str());
 	m_ValueLength = (int)Value.length();
 }
 
@@ -100,14 +102,14 @@ DataGridCell::DataGridCell(int Size, char *Data)
 	Data+=sizeof(DataGridCellSerializableData);
 	if (m_TextLength)
 	{
-		m_Text = (char *)malloc(m_TextLength+1);
+		m_Text = new char[m_TextLength+1];
 		memcpy(m_Text, Data, m_TextLength);
 		m_Text[m_TextLength]=0;
 		Data+=m_TextLength;
 	}
 	if (m_ValueLength)
 	{
-		m_Value = (char *)malloc(m_ValueLength+1);
+		m_Value = new char[m_ValueLength+1];
 		memcpy(m_Value, Data, m_ValueLength);
 		m_Value[m_ValueLength]=0;
 		Data+=m_ValueLength;
@@ -184,7 +186,7 @@ void DataGridCell::ToData(unsigned long &Size, char* &Data)
 
 	if(NULL != MessageData)
 	{
-		free(MessageData);
+		delete[] MessageData;
 		MessageData = NULL;
 	}
 }

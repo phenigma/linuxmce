@@ -47,7 +47,7 @@ Slim_Server_Streamer::~Slim_Server_Streamer()
 //<-dceag-dest-e->
 {
 	m_bShouldQuit = true;
-	delete g_pPlutoLogger;	// Created in either main or RegisterAsPlugin.  When this exits we won't need it anymore
+	
 	pthread_join(m_threadPlaybackCompletedChecker, NULL);
 }
 

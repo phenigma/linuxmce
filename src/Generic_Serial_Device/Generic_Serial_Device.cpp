@@ -26,7 +26,7 @@ Generic_Serial_Device::Generic_Serial_Device(int DeviceID, string ServerAddress,
 Generic_Serial_Device::~Generic_Serial_Device()
 //<-dceag-dest-e->
 {
-	delete g_pPlutoLogger;	// Created in either main or RegisterAsPlugin.  When this exits we won't need it anymore
+	
 }
 
 bool Generic_Serial_Device::Connect(int iPK_DeviceTemplate )

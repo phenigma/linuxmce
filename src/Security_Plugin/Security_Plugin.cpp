@@ -123,7 +123,7 @@ Security_Plugin::~Security_Plugin()
 {
 	delete m_pDatabase_pluto_main;
 	delete m_pDatabase_pluto_security;
-	delete g_pPlutoLogger;	// Created in either main or RegisterAsPlugin.  When this exits we won't need it anymore
+	
 }
 
 //<-dceag-reg-b->

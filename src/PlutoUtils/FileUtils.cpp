@@ -524,16 +524,16 @@ bool FileUtils::FindFiles(list<string> &listFiles, string sDirectory, string sFi
 			if ( -1 == readlink((sDirectory + entry.d_name).c_str(),  pLinkContents, s.st_size) )
 			{
 				printf("Error reading link contents for symlink %s (%s).", (sDirectory + entry.d_name).c_str(), strerror(errno));
-				delete pLinkContents;
+				delete[] pLinkContents;
 				continue;
 			}
 			if ( pLinkContents[0] == '.' && s.st_size == 1 )
 			{
-				delete pLinkContents;
+				delete[] pLinkContents;
 				continue;
 			}
 
-			delete pLinkContents;
+			delete[] pLinkContents;
 			stat((sDirectory + entry.d_name).c_str(), &s);
 		}
 

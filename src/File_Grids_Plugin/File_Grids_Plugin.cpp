@@ -66,7 +66,7 @@ File_Grids_Plugin::~File_Grids_Plugin()
 //<-dceag-dest-e->
 {
 	delete m_pDatabase_pluto_main;
-	delete g_pPlutoLogger;	// Created in either main or RegisterAsPlugin.  When this exits we won't need it anymore
+	
 }
 
 //<-dceag-reg-b->
@@ -215,7 +215,7 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 		pCell->m_pMessage = CMDPDG.m_pMessage;
 		pDataGrid->SetData(0, iRow, pCell);
 
-		pCell = new DataGridCell("<-- Back (..)  " + FileUtils::FilenameWithoutPath(sSubDirectory), "");
+		pCell = new DataGridCell("<-- Back (..) - " + FileUtils::FilenameWithoutPath(sSubDirectory), "");
 		pCell->m_pMessage = new Message(CMDPDG.m_pMessage);
 		pCell->m_Colspan = 6;
 		pDataGrid->SetData(1, iRow++, pCell);

@@ -125,7 +125,7 @@ Generic_Analog_Camera::Generic_Analog_Camera(Command_Impl *pPrimaryDeviceCommand
 Generic_Analog_Camera::~Generic_Analog_Camera()
 //<-dceag-dest-e->
 {
-	delete g_pPlutoLogger;	// Created in either main or RegisterAsPlugin.  When this exits we won't need it anymore
+	
 }
 
 //<-dceag-reg-b->

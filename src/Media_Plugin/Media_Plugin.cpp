@@ -195,7 +195,7 @@ Media_Plugin::~Media_Plugin()
 		MediaHandlerInfo *pMediaHandlerInfo = m_vectMediaHandlerInfo[s];
 		delete pMediaHandlerInfo;
 	}
-	delete g_pPlutoLogger;	// Created in either main or RegisterAsPlugin.  When this exits we won't need it anymore
+	
 }
 
 //<-dceag-reg-b->
@@ -215,6 +215,7 @@ bool Media_Plugin::Register()
 
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::MediaInserted ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Media_Inserted_CONST );
     RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::PlaybackCompleted ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Playback_Completed_CONST );
+    RegisterMsgInterceptor( ( MessageInterceptorFn )( &Media_Plugin::MediaFollowMe ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Follow_Me_Media_CONST );
 
     // And the datagrid plug-in
     m_pDatagrid_Plugin=NULL;
@@ -498,6 +499,9 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
 
         pEntertainArea->m_pMediaStream=pMediaStream;
         pMediaStream->m_pOH_Orbiter_StartedMedia = pOH_Orbiter;
+		if( pOH_Orbiter && pOH_Orbiter->m_pOH_User )
+			pMediaStream->m_iPK_Users = pOH_Orbiter->m_pOH_User->m_iPK_Users;
+
         pMediaStream->m_dequeMediaFile += *dequeMediaFile;
     }
 
@@ -1850,12 +1854,13 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 {
 	MediaStream *pMediaStream;
 
-	if ( (pMediaStream = this->m_mapMediaStream_Find(iStreamID)) == NULL )
+	if ( (pMediaStream = m_mapMediaStream_Find(iStreamID)) == NULL )
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "No media stream with ID %d available", iStreamID );
 		return;
 	}
 
+	g_pPlutoLogger->Write(LV_WARNING,"Move Media, stream %d  ea: %s",iStreamID,sPK_EntertainArea.c_str());
 
 	// cases:
         // the stream only play in an entertainment area.
@@ -2193,4 +2198,58 @@ void Media_Plugin::CMD_Get_EntAreas_For_Device(int iPK_Device,string *sText,stri
 		EntertainArea *pEntertainArea = *it;
 		(*sText) += StringUtils::itos(pEntertainArea->m_iPK_EntertainArea) + ",";
 	}
+}
+
+void Media_Plugin::FollowMe_EnteredRoom(int iPK_Event, int iPK_Orbiter, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left)
+{
+	// See if we have any pending media for this user
+	MediaStream *pMediaStream = NULL;
+	time_t tStarted = 0;
+
+	// Find the last media stream this user started
+	for( MapMediaStream::iterator it=m_mapMediaStream.begin();it!=m_mapMediaStream.end();++it )
+	{
+		MediaStream *pMS = (*it).second;
+		if( pMS->m_iPK_Users && pMS->m_iPK_Users==iPK_Users && pMS->m_tTime > tStarted )
+			pMediaStream = pMS;
+	}
+
+	if( !pMediaStream )
+		g_pPlutoLogger->Write(LV_STATUS,"Move Media, but user %d isn't listening to anything.  Open Streams: %d",iPK_Users,(int) m_mapMediaStream.size());
+	else
+	{
+		g_pPlutoLogger->Write(LV_WARNING,"Move Media, user %d -- stream %d %s",pMediaStream->m_iStreamID_get(),pMediaStream->m_sMediaDescription.c_str());
+		CMD_MH_Move_Media(pMediaStream->m_iStreamID_get(),StringUtils::itos(iPK_RoomOrEntArea));
+	}
+}
+
+void Media_Plugin::FollowMe_LeftRoom(int iPK_Event, int iPK_Orbiter, int iPK_Users, int iPK_RoomOrEntArea, int iPK_RoomOrEntArea_Left)
+{
+	if( iPK_RoomOrEntArea && iPK_RoomOrEntArea_Left )
+		return; // It's just a move, we're going to get EnteredRoom called immediately hereafter
+
+	// See if we have any pending media for this user
+	MediaStream *pMediaStream = NULL;
+	time_t tStarted = 0;
+
+	// Find the last media stream this user started
+	for( MapMediaStream::iterator it=m_mapMediaStream.begin();it!=m_mapMediaStream.end();++it )
+	{
+		MediaStream *pMS = (*it).second;
+		if( pMS->m_iPK_Users && pMS->m_iPK_Users==iPK_Users && pMS->m_tTime > tStarted )
+			pMediaStream = pMS;
+	}
+
+	if( !pMediaStream )
+		g_pPlutoLogger->Write(LV_WARNING,"Move Media left, but user %d isn't listening to anything.  Open Streams: %d",iPK_Users,(int) m_mapMediaStream.size());
+	else
+	{
+		CMD_MH_Move_Media(pMediaStream->m_iStreamID_get(),"");  // Park it for the time being
+		g_pPlutoLogger->Write(LV_WARNING,"Move Media left, user %d -- parking stream %d %s",pMediaStream->m_iStreamID_get(),pMediaStream->m_sMediaDescription.c_str());
+	}
+}
+
+bool Media_Plugin::MediaFollowMe( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
+{
+	return HandleFollowMe(pMessage);
 }

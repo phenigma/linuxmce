@@ -58,7 +58,7 @@ Xine_Plugin::Xine_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHa
 Xine_Plugin::~Xine_Plugin()
 //<-dceag-dest-e->
 {
-	delete g_pPlutoLogger;	// Created in either main or RegisterAsPlugin.  When this exits we won't need it anymore
+	
 }
 
 //<-dceag-reg-b->
@@ -187,6 +187,8 @@ class MediaStream *Xine_Plugin::CreateMediaStream( class MediaHandlerInfo *pMedi
 
 XineMediaStream *Xine_Plugin::ConvertToXineMediaStream(MediaStream *pMediaStream, string callerIdMessage)
 {
+	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
+
 	if ( pMediaStream == NULL )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL, (callerIdMessage + "Stream is a NULL stream!").c_str());
@@ -354,6 +356,8 @@ bool Xine_Plugin::StopMedia( class MediaStream *pMediaStream )
 */
 bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*> &listStart, list<EntertainArea *> &listStop, list<EntertainArea *> &listChange)
 {
+	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
+
 	map<int, EntertainArea *>::const_iterator itIntToEntArea;
 	list<EntertainArea *>::const_iterator itEntArea;
 	list<MediaDevice *> startDevices;
@@ -462,7 +466,7 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
 
 		pXineMediaStream->GetRenderDevices(&mapPlaybackDevices);
 
-		if ( mapPlaybackDevices.size() != 1 )
+		if ( mapPlaybackDevices.size() > 1 )
 			g_pPlutoLogger->Write(LV_CRITICAL, "Programming error. We have a stream (%d) which ended up maked as non streamed but which has more than 1 render devices (%d). This is not right.", pXineMediaStream->m_iStreamID_get(), mapPlaybackDevices.size());
 		else if ( mapPlaybackDevices.size() == 0 )
 			return false;
@@ -488,6 +492,8 @@ DeviceData_Router *Xine_Plugin::FindStreamerDevice()
 
 bool Xine_Plugin::StartStreaming(XineMediaStream *pMediaStream)
 {
+	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
+
 	map<int, MediaDevice *>::const_iterator itPlaybackDevices;
 	map<int, MediaDevice *> mapPlaybackDevices;
 	string strTargetDevices = "";
@@ -550,6 +556,8 @@ bool Xine_Plugin::StartStreaming(XineMediaStream *pMediaStream)
 
 MediaDevice *Xine_Plugin::FindMediaDeviceForEntertainArea(EntertainArea *pEntertainArea)
 {
+	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
+
 	MediaDevice *pMediaDevice;
 	pMediaDevice = GetMediaDeviceForEntertainArea(pEntertainArea, DEVICETEMPLATE_Xine_Player_CONST);
 
@@ -582,6 +590,8 @@ bool Xine_Plugin::BroadcastMedia( class MediaStream *pMediaStream )
 
 void Xine_Plugin::GetRenderDevices(MediaStream *pMediaStream, map<int,MediaDevice *> *pmapMediaDevice)
 {
+	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
+
 	XineMediaStream *pXineMediaStream;
 
 	if ( (pXineMediaStream = ConvertToXineMediaStream(pMediaStream, "Xine_Plugin::GetRenderDevices() ")) == NULL )
