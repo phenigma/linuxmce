@@ -15,28 +15,28 @@ $out.=<<<TEXT
         <td width="20">&nbsp;</td>
       </tr>
       <tr>
-        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
         </tr>
       <tr>
         <td><a href="index.php?section=contact"><img src="images/submenus/Company/contact_off.gif" width="139" height="17" border="0"></a></td>
         <td width="20">&nbsp;</td>
       </tr>
       <tr>
-        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
         </tr>
       <tr>
         <td><a href="index.php?section=newsPresentation"><img src="images/submenus/Company/news_off.gif" width="139" height="17" border="0"></a></td>
         <td width="20">&nbsp;</td>
       </tr>
       <tr>
-        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
         </tr>
       <tr>
         <td><a href="index.php?section=privacy_policy"><img src="images/submenus/Company/privacy_policy_off.gif" width="139" height="17" border="0"></a></td>
         <td width="20">&nbsp;</td>
       </tr>
       <tr>
-        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
         </tr>
       <tr>
         <td><a href="index.php?section=site_map"><img src="images/submenus/Company/site_map_on.gif" width="139" height="17" border="0"></a></td>
@@ -60,35 +60,35 @@ $out.=<<<TEXT
                           <td width="20">&nbsp;</td>
                         </tr>
                         <tr>
-                          <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                          <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                         </tr>
                         <tr>
                           <td><a href="index.php?section=telecom"><img src="images/submenus/Pluto%20benefits/telecom_off.gif" width="166" height="17" border="0"></a></td>
                           <td width="20">&nbsp;</td>
                         </tr>
                         <tr>
-                          <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                          <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                         </tr>
                         <tr>
                           <td><a href="index.php?section=home_automation"><img src="images/submenus/Pluto%20benefits/home_automation_off.gif" width="166" height="17" border="0"></a></td>
                           <td width="20">&nbsp;</td>
                         </tr>
                         <tr>
-                          <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                          <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                         </tr>
                         <tr>
                           <td><a href="index.php?section=media_entertainment"><img src="images/submenus/Pluto%20benefits/media_entertainment_off.gif" width="166" height="17" border="0"></a></td>
                           <td>&nbsp;</td>
                         </tr>
                         <tr>
-                          <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                          <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                         </tr>
                         <tr>
                           <td><a href="index.php?section=personal_computing"><img src="images/submenus/Pluto%20benefits/personal_computing_off.gif" width="166" height="17" border="0"></a></td>
                           <td>&nbsp;</td>
                         </tr>
                         <tr>
-                          <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                          <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                         </tr>
                         <tr>
                           <td><a href="index.php?section=benefits_comparison"><img src="images/submenus/Pluto%20benefits/benefits_comparison_off.gif" width="166" height="17" border="0"></a></td>
@@ -110,49 +110,49 @@ $out.=<<<TEXT
                         <td width="20">&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=core"><img src="images/submenus/Pluto%20system/core_off.gif" width="154" height="17" border="0"></a></td>
                         <td width="20">&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=media_director"><img src="images/submenus/Pluto%20system/media_director_off.gif" width="154" height="17" border="0"></a></td>
                         <td width="20">&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=orbiter"><img src="images/submenus/Pluto%20system/orbiter_off.gif" width="154" height="17" border="0"></a></td>
                         <td>&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=mobile_orbiter"><img src="images/submenus/Pluto%20system/mobile_orbiter_off.gif" width="154" height="17" border="0"></a></td>
                         <td>&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=accesories"><img src="images/submenus/Pluto%20system/accessories_off.gif" width="154" height="17" border="0"></a></td>
                         <td>&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=software"><img src="images/submenus/Pluto%20system/software_off.gif" width="154" height="17" border="0"></a></td>
                         <td>&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=special_offer"><img src="images/submenus/Pluto%20system/special_offer_off.gif" width="154" height="17" border="0"></a></td>
@@ -174,56 +174,56 @@ $out.=<<<TEXT
                         <td width="20">&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=use_mobile_phone"><img src="images/submenus/How%20Pluto%20works/mobile_phone_off.gif" width="230" height="17" border="0"></a></td>
                         <td width="20">&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=search_media"><img src="images/submenus/How%20Pluto%20works/search_media_off.gif" width="230" height="17" border="0"></a></td>
                         <td width="20">&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=dvd_remote"><img src="images/submenus/How%20Pluto%20works/dvd_remote_off.gif" width="230" height="17" border="0"></a></td>
                         <td>&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=tv_remote"><img src="images/submenus/How%20Pluto%20works/tv_remote_off.gif" width="230" height="17" border="0"></a></td>
                         <td>&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=manage_house"><img src="images/submenus/How%20Pluto%20works/manage_your_house_off.gif" width="230" height="17" border="0"></a></td>
                         <td>&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=handle_security"><img src="images/submenus/How%20Pluto%20works/handle_security_event_off.gif" width="230" height="17" border="0"></a></td>
                         <td>&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=manage_call"><img src="images/submenus/How%20Pluto%20works/manage_call_progress_off.gif" width="230" height="17" border="0"></a></td>
                         <td>&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=maps"><img src="images/submenus/How%20Pluto%20works/maps_off.gif" width="230" height="17" border="0"></a></td>
@@ -245,35 +245,35 @@ $out.=<<<TEXT
                         <td width="20">&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=benefits"><img src="images/submenus/Why%20Pluto/benefits_off.gif" width="278" height="17" border="0"></a></td>
                         <td width="20">&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=reliability"><img src="images/submenus/Why%20Pluto/reliability_off.gif" width="278" height="17" border="0"></a></td>
                         <td width="20">&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=cost"><img src="images/submenus/Why%20Pluto/cost_off.gif" width="278" height="17" border="0"></a></td>
                         <td>&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=future"><img src="images/submenus/Why%20Pluto/future_proof_off.gif" width="278" height="17" border="0"></a></td>
                         <td>&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td>&nbsp;</td>
@@ -291,49 +291,49 @@ $out.=<<<TEXT
                         <td width="20">&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=project"><img src="images/submenus/Support/project_management_off.gif" width="207" height="17" border="0"></a></td>
                         <td width="20">&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=warranty"><img src="images/submenus/Support/warranty_off.gif" width="207" height="17" border="0"></a></td>
                         <td width="20">&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=download"><img src="images/submenus/Support/download_off.gif" width="207" height="17" border="0"></a></td>
                         <td>&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=compatibility"><img src="images/submenus/Support/compatibility_off.gif" width="207" height="17" border="0"></a></td>
                         <td>&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=technical_support"><img src="images/submenus/Support/technical_support_off.gif" width="207" height="17" border="0"></a></td>
                         <td>&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=faq_presentation"><img src="images/submenus/Support/faqs_off.gif" width="207" height="17" border="0"></a></td>
                         <td>&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td>&nbsp;</td>
@@ -351,28 +351,28 @@ $out.=<<<TEXT
                         <td width="20">&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=dealer"><img src="images/submenus/How%20to%20buy/a_dealer_off.gif" width="200" height="17" border="0"></a></td>
                         <td width="20">&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=manufacturer"><img src="images/submenus/How%20to%20buy/a_manufacturer_off.gif" width="200" height="17" border="0"></a></td>
                         <td width="20">&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=developer"><img src="images/submenus/How%20to%20buy/open_source_developer_off.gif" width="200" height="17" border="0"></a></td>
                         <td>&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td>&nbsp;</td>
@@ -390,28 +390,28 @@ $out.=<<<TEXT
                         <td width="20">&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=contact"><img src="images/submenus/Company/contact_off.gif" width="139" height="17" border="0"></a></td>
                         <td width="20">&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=newsPresentation"><img src="images/submenus/Company/news_off.gif" width="139" height="17" border="0"></a></td>
                         <td width="20">&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=privacy_policy"><img src="images/submenus/Company/privacy_policy_off.gif" width="139" height="17" border="0"></a></td>
                         <td width="20">&nbsp;</td>
                       </tr>
                       <tr>
-                        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+                        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
                       </tr>
                       <tr>
                         <td><a href="index.php?section=site_map"><img src="images/submenus/Company/site_map_off.gif" width="139" height="17" border="0"></a></td>

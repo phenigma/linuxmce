@@ -319,7 +319,7 @@ function wizard($output,$dbADO) {
 						FROM Device
 					INNER JOIN DeviceTemplate ON 
 						FK_DeviceTemplate=PK_DeviceTemplate
-					INNER JOIN Room ON
+					LEFT JOIN Room ON
 						FK_Room=PK_Room
 					WHERE FK_DeviceCategory=? AND Device.FK_Installation=?
 				';

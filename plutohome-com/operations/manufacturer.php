@@ -15,28 +15,28 @@ $out.='
         
       </tr>
       <tr>
-        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
       </tr>
       <tr>
         <td><a href="index.php?section=dealer"><img src="images/submenus/How%20to%20buy/a_dealer_off.gif" width="200" height="17" border="0"></a></td>
        
       </tr>
       <tr>
-        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
       </tr>
       <tr>
         <td><a href="index.php?section=manufacturer"><img src="images/submenus/How%20to%20buy/a_manufacturer_on.gif" width="200" height="17" border="0"></a></td>
         
       </tr>
       <tr>
-        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
       </tr>
       <tr>
         <td><a href="index.php?section=developer"><img src="images/submenus/How%20to%20buy/open_source_developer_off.gif" width="200" height="17" border="0"></a></td>
         
       </tr>
       <tr>
-        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
       </tr>
       <tr>
         
@@ -57,7 +57,7 @@ $out.='
     <p>If you are interested in working with Pluto, please complete the following inquiry form and a sales rep will contact you promptly:</p>
 ';
 	include('operations/contactForm.php');
-	$out=contactForm('manufacturer');	
+	$out.=contactForm('manufacturer');	
 		
 	$output->setImgName("support.jpg"); //img that needs to be changed
 	$output->setPageID(5); //butonul selectat

@@ -15,56 +15,56 @@ $out.=<<<TEXT
         <td width="20">&nbsp;</td>
       </tr>
       <tr>
-        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
       </tr>
       <tr>
         <td><a href="index.php?section=use_mobile_phone"><img src="images/submenus/How%20Pluto%20works/mobile_phone_off.gif" width="230" height="17" border="0"></a></td>
         <td width="20">&nbsp;</td>
       </tr>
       <tr>
-        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
       </tr>
       <tr>
         <td><a href="index.php?section=search_media"><img src="images/submenus/How%20Pluto%20works/search_media_off.gif" width="230" height="17" border="0"></a></td>
         <td width="20">&nbsp;</td>
       </tr>
       <tr>
-        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
       </tr>
       <tr>
         <td><a href="index.php?section=dvd_remote"><img src="images/submenus/How%20Pluto%20works/dvd_remote_off.gif" width="230" height="17" border="0"></a></td>
         <td>&nbsp;</td>
       </tr>
       <tr>
-        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
       </tr>
       <tr>
         <td><a href="index.php?section=tv_remote"><img src="images/submenus/How%20Pluto%20works/tv_remote_off.gif" width="230" height="17" border="0"></a></td>
         <td>&nbsp;</td>
       </tr>
       <tr>
-        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
       </tr>
       <tr>
         <td><a href="index.php?section=manage_house"><img src="images/submenus/How%20Pluto%20works/manage_your_house_off.gif" width="230" height="17" border="0"></a></td>
         <td>&nbsp;</td>
       </tr>
       <tr>
-        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
       </tr>
       <tr>
         <td><a href="index.php?section=handle_security"><img src="images/submenus/How%20Pluto%20works/handle_security_event_off.gif" width="230" height="17" border="0"></a></td>
         <td>&nbsp;</td>
       </tr>
       <tr>
-        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
       </tr>
       <tr>
         <td><a href="index.php?section=manage_call"><img src="images/submenus/How%20Pluto%20works/manage_call_progress_on.gif" width="230" height="17" border="0"></a></td>
         <td>&nbsp;</td>
       </tr>
       <tr>
-        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
       </tr>
       <tr>
         <td><a href="index.php?section=maps"><img src="images/submenus/How%20Pluto%20works/maps_off.gif" width="230" height="17" border="0"></a></td>

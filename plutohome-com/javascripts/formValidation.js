@@ -407,6 +407,49 @@ function TestDontSelectChk(objValue,chkValue,strError)
     return pass;
 }
 
+function TestSelectChk(objValue,chkValue,strError)
+{
+    var pass=true;
+	var objcheck = objValue.form.elements[objValue.name];
+    if(objcheck.length)
+	{
+		var idxchk=-1;
+		for(var c=0;c < objcheck.length;c++)
+		{
+		   if(objcheck[c].value == chkValue)
+		   {
+		     idxchk=c;
+			 break;
+		   }//if
+		}//for
+		if(idxchk>= 0)
+		{
+		  if(objcheck[idxchk].checked=="1")
+		  {
+		    pass=false;
+		  }
+		}//if
+	}
+	else
+	{
+		if(objValue.checked != "1")
+		{
+			pass=false;
+		}//if
+	}//else
+	if(pass==false)
+	{
+     if(!strError || strError.length ==0) 
+        { 
+        	strError = "Can't Proceed as you selected "+objValue.name;  
+        }//if			  
+	  alert(strError);
+	  
+	}
+    return pass;
+}
+
+
 function TestRequiredInput(objValue,strError)
 {
  var ret = true;
@@ -721,6 +764,11 @@ function validateInput(strValidateStr,objValue,strError)
 		case "dontselectchk":
 		{
 			ret = TestDontSelectChk(objValue,cmdvalue,strError)
+			break;
+		}
+		case "selectchk":
+		{
+			ret = TestSelectChk(objValue,cmdvalue,strError)
 			break;
 		}
 		case "selmin":

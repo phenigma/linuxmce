@@ -3,48 +3,53 @@
 		$out = '';
 		
 $out.='
-
-<table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable"><td width="10%" valign="top" align="left" >
-  <tr>
-    <td class="titletable"><img src="images/submenus/how_to_buy_txt.gif" width="82" height="13"></td>
-  </tr>
-  <tr>
-    <td class="insidetable" valign="top"><table border="0" align="left" cellpadding="0" cellspacing="0">
-      <tr>
-        <td width="154"><a href="index.php?section=get_pluto"><img src="images/submenus/How%20to%20buy/pluto_for_my_home_off.gif" width="200" height="17" border="0"></a></td>
-        
-      </tr>
-      <tr>
-        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
-      </tr>
-      <tr>
-        <td><a href="index.php?section=dealer"><img src="images/submenus/How%20to%20buy/a_dealer_on.gif" width="200" height="17" border="0"></a></td>
-        
-      </tr>
-      <tr>
-        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
-      </tr>
-      <tr>
-        <td><a href="index.php?section=manufacturer"><img src="images/submenus/How%20to%20buy/a_manufacturer_off.gif" width="200" height="17" border="0"></a></td>
-        
-      </tr>
-      <tr>
-        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
-      </tr>
-      <tr>
-        <td><a href="index.php?section=developer"><img src="images/submenus/How%20to%20buy/open_source_developer_off.gif" width="200" height="17" border="0"></a></td>
-        
-      </tr>
-      <tr>
-        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
-      </tr>
-      <tr>
-        
-      </tr>
-    </table>
-  </tr>
-  </td>
+<table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable">
+<tr>
   <td width="100%" class="insidetable" align="left">
+	<div style="position:relative; top=0px; float:left; width=250px;">
+	<table width="230" border="0" cellpadding="0" cellspacing="0">
+		<tr>
+	    	<td height="30" valign="top"><img src="images/submenus/how_to_buy_txt.gif" width="82" height="13"></td>
+	  	</tr>
+      	<tr>
+	        <td width="154"><a href="index.php?section=get_pluto"><img src="images/submenus/How%20to%20buy/pluto_for_my_home_off.gif" width="200" height="17" border="0"></a></td>
+	    </tr>
+	    <tr>
+	        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
+	    </tr>
+	    <tr>
+	        <td><a href="index.php?section=dealer"><img src="images/submenus/How%20to%20buy/a_dealer_on.gif" width="200" height="17" border="0"></a></td>
+        </tr>
+	    <tr>
+	        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
+	    </tr>
+	    <tr>
+	        <td><a href="index.php?section=manufacturer"><img src="images/submenus/How%20to%20buy/a_manufacturer_off.gif" width="200" height="17" border="0"></a></td>
+        </tr>
+	    <tr>
+	        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
+	    </tr>
+	    <tr>
+	        <td><a href="index.php?section=developer"><img src="images/submenus/How%20to%20buy/open_source_developer_off.gif" width="200" height="17" border="0"></a></td>
+	    </tr>
+	    <tr>
+	        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
+	    </tr>
+	    <tr>
+	        <td class="normaltext">&nbsp;</td>
+	    </tr>
+	    <tr>
+	        <td class="normaltext"><a href="index.php?section=dealerProgram"><B>Dealer Program</B></a></td>
+	    </tr>
+	    <tr>
+	        <td class="normaltext"><a href="index.php?section=dealerApplication"><B>Dealer Application</B></a></td>
+	    </tr>
+	    <tr>
+	        <td class="normaltext" height="30">&nbsp;</td>
+	    </tr>
+	</table>
+	</div>
+
     <p><img src="images/submenus/im_a_dealer_txt.gif" width="86" height="13"><br>
       <p>Why should you carry Pluto?</p>
 
@@ -62,11 +67,11 @@ $out.='
 <p>2.	Pluto\'s standard dealers do not have the same requirements as Pluto Pro dealers. These dealers can contract with a local hardware supplier, or use one of Pluto\'s outsourcers, to get Pluto-compatible hardware: Cores, Media Directors, Orbiters and accessories.  They are not required to offer custom installation.</p>
 
       <p>If you are interested in becoming a Pluto dealer, please fill out the form below and a rep will contact you shortly.</p>
-      
+     
 ';
 	include('operations/contactForm.php');
 	$out.=contactForm('dealer');
-			
+
 	$output->setImgName("support.jpg"); //img that needs to be changed
 	$output->setPageID(5); //butonul selectat
 	$output->setNavigationMenu(array("Sample page"=>"index.php?section=samplePage")); //not used yet

@@ -75,7 +75,7 @@ $out.='
             <td>&bull; Protect your home and family 24/7 from anywhere in the world</td>
           </tr>
           <tr>
-            <td colspan="3"><img src="../images/spacer.gif" width="3" height="3"></td>
+            <td colspan="3"><img src="images/spacer.gif" width="3" height="3"></td>
           </tr>
           <tr>
             <td><a href="index.php?section=telecom"><img src="images/submenus/Pluto%20benefits/telecom_off.gif" width="166" height="17" border="0"></a></td>
@@ -83,7 +83,7 @@ $out.='
             <td>&bull; Voice-over-ip, video conferencing, multiple homes joined as one</td>
           </tr>
           <tr>
-            <td colspan="3"><img src="../images/spacer.gif" width="3" height="3"></td>
+            <td colspan="3"><img src="images/spacer.gif" width="3" height="3"></td>
           </tr>
           <tr>
             <td><a href="index.php?section=home_automation"><img src="images/submenus/Pluto%20benefits/home_automation_off.gif" width="166" height="17" border="0"></a></td>
@@ -91,7 +91,7 @@ $out.='
             <td width="508">&bull; A mobile phone turns into a remote for everything from lights to sprinklers. </td>
           </tr>
           <tr>
-            <td colspan="3"><img src="../images/spacer.gif" width="3" height="3"></td>
+            <td colspan="3"><img src="images/spacer.gif" width="3" height="3"></td>
           </tr>
           <tr>
             <td><a href="index.php?section=media_entertainment"><img src="images/submenus/Pluto%20benefits/media_entertainment_off.gif" width="166" height="17" border="0"></a></td>
@@ -99,7 +99,7 @@ $out.='
             <td>&bull; PVR, whole-home music &amp; movie server, DVD recorder/player</td>
           </tr>
           <tr>
-            <td colspan="3"><img src="../images/spacer.gif" width="3" height="3"></td>
+            <td colspan="3"><img src="images/spacer.gif" width="3" height="3"></td>
           </tr>
           <tr>
             <td valign="top"><a href="index.php?section=personal_computing"><img src="images/submenus/Pluto%20benefits/personal_computing_off.gif" width="166" height="17" border="0"></a></td>
@@ -107,7 +107,7 @@ $out.='
             <td class="ftable">&bull; Run Windows and Linux seamlessly, with a simple mode for the novice</td>
           </tr>
           <tr>
-            <td colspan="3"><img src="../images/spacer.gif" width="3" height="3"></td>
+            <td colspan="3"><img src="images/spacer.gif" width="3" height="3"></td>
           </tr>
         </table></td>
       </tr>

@@ -701,4 +701,10 @@ function addMediaCommandGroup($optionName,$FK_EntertainArea, $installationID,$db
 		$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParameterValueToAsign'],$parmValue));
 	}
 }
+
+function dbQuery($query,$conn,$error='MySQL error')
+{
+	$res=mysql_query($query,$conn) or die($error.": ".mysql_error($conn));
+	return $res;
+}
 ?>

@@ -7,9 +7,11 @@
   		// production settings
   		error_reporting(E_ALL ^ E_NOTICE);
   		include_once('/var/www/globalconfig/globalconfig.inc.php');
+  		$GLOBALS['sendNotificationsTo']='info@plutohome.com';
   	}else{
   		error_reporting(E_ALL);
   		include_once('/var/www/test/globalconfig/globalconfig.inc.php');
+  		$GLOBALS['sendNotificationsTo']='valentin.g@newflavorstudio.com';
   	}
   	
   	$GLOBALS['sendErrorsTo']='info@plutohome.com';

@@ -423,18 +423,61 @@ switch ($section) {
 		$output->setTemplateFileType('home');
 	    include_once('operations/ref_comm.php');
 	    ref_comm($output);
-       break;
+    break;
+    case 'public_license':
+		$output = new Template();
+		$output->setTemplateFileType('home');
+	    include_once('operations/public_license.php');
+	    public_license($output);
+    break;
+    case 'dealerProgram':
+		$output = new Template();
+		$output->setTemplateFileType('home');
+	    include_once('dealer/dealerProgram.php');
+	    dealerProgram($output);
+    break;
+    case 'dealerApplication':
+		$output = new Template();
+		$output->setTemplateFileType('home');
+	    include_once('dealer/dealerApplication.php');
+	    dealerApplication($output,$conn);
+    break;
+    case 'programGuidelines':
+		$output = new Template();
+		$output->setTemplateFileType('home');
+	    include_once('dealer/programGuidelines.php');
+	    programGuidelines($output,$dbADO);
+    break;
+    case 'schedule':
+		$output = new Template();
+		$output->setTemplateFileType('home');
+	    include_once('dealer/schedule.php');
+	    schedule($output,$dbADO);
+    break;
+    case 'dealerTerms':
+		$output = new Template();
+		$output->setTemplateFileType('home');
+	    include_once('dealer/dealerTerms.php');
+	    dealerTerms($output);
+    break;
+    case 'fundRequestApplication':
+		$output = new Template();
+		$output->setTemplateFileType('home');
+	    include_once('dealer/fundRequestApplication.php');
+	    fundRequestApplication($output,$conn);
+    break;
+     case 'reimbursementClaimForm':
+		$output = new Template();
+		$output->setTemplateFileType('home');
+	    include_once('dealer/reimbursementClaimForm.php');
+	    reimbursementClaimForm($output,$conn);
+    break;
+       
 	default:			
 		$output = new Template();	
 		$output->setTemplateFileType('home');
 		include_once('operations/news.php');
 	   news($output);
 	break;
-	    case 'public_license':
-		$output = new Template();
-		$output->setTemplateFileType('home');
-	    include_once('operations/public_license.php');
-	    public_license($output);
-    break;
 }
 ?>

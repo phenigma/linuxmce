@@ -15,35 +15,35 @@ $out.=<<<TEXT
         <td width="20">&nbsp;</td>
       </tr>
       <tr>
-        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
         </tr>
       <tr>
         <td><a href="index.php?section=benefits"><img src="images/submenus/Why%20Pluto/benefits_off.gif" width="278" height="17" border="0"></a></td>
         <td width="20">&nbsp;</td>
       </tr>
       <tr>
-        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
         </tr>
       <tr>
         <td><a href="index.php?section=reliability"><img src="images/submenus/Why%20Pluto/reliability_off.gif" width="278" height="17" border="0"></a></td>
         <td width="20">&nbsp;</td>
       </tr>
       <tr>
-        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
         </tr>
       <tr>
         <td><a href="index.php?section=cost"><img src="images/submenus/Why%20Pluto/cost_off.gif" width="278" height="17" border="0"></a></td>
         <td>&nbsp;</td>
       </tr>
       <tr>
-        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
         </tr>
       <tr>
         <td><a href="index.php?section=future"><img src="images/submenus/Why%20Pluto/future_proof_off.gif" width="278" height="17" border="0"></a></td>
         <td>&nbsp;</td>
       </tr>
       <tr>
-        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
         </tr>
       <tr>
         <td>&nbsp;</td>

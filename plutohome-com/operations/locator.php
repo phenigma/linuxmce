@@ -15,28 +15,28 @@ $out.='
         <td width="20">&nbsp;</td>
       </tr>
       <tr>
-        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
       </tr>
       <tr>
         <td><a href="index.php?section=dealer"><img src="images/submenus/How%20to%20buy/a_dealer_off.gif" width="200" height="17" border="0"></a></td>
         <td width="20">&nbsp;</td>
       </tr>
       <tr>
-        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
       </tr>
       <tr>
         <td><a href="index.php?section=manufacturer"><img src="images/submenus/How%20to%20buy/a_manufacturer_off.gif" width="200" height="17" border="0"></a></td>
         <td width="20">&nbsp;</td>
       </tr>
       <tr>
-        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
       </tr>
       <tr>
         <td><a href="index.php?section=developer"><img src="images/submenus/How%20to%20buy/open_source_developer_off.gif" width="200" height="17" border="0"></a></td>
         <td>&nbsp;</td>
       </tr>
       <tr>
-        <td colspan="2"><img src="../images/spacer.gif" width="3" height="3"></td>
+        <td colspan="2"><img src="images/spacer.gif" width="3" height="3"></td>
       </tr>
       <tr>
         <td>&nbsp;</td>
