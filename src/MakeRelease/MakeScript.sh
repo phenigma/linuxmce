@@ -84,6 +84,8 @@ if [ "x$nobuild" = "x" ]; then
     mkdir -p /home/MakeRelease
     cd /home/MakeRelease
 	svn co http://10.0.0.170/pluto/trunk/. | tee /home/MakeRelease/svn.log
+	mkdir -p /home/MakeRelease/trunk/src/bin
+	cp /home/builds/Windows_Output/src/bin/* /home/MakeRelease/trunk/src/bin
     cd /home/MakeRelease/trunk
     svn info > svn.info
 else
