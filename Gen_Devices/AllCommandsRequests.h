@@ -4279,19 +4279,19 @@ namespace DCE
 	};
 	class CMD_Store_Infrared_Code : public PreformedCommand {
 	public:
-		CMD_Store_Infrared_Code(long DeviceIDFrom, long DeviceIDTo,int iPK_Device,string sValue_To_Assign) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,250,2,2,StringUtils::itos(iPK_Device).c_str(),5,sValue_To_Assign.c_str()); }
+		CMD_Store_Infrared_Code(long DeviceIDFrom, long DeviceIDTo,int iPK_Device,string sValue_To_Assign,int iPK_Command_Input) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,250,3,2,StringUtils::itos(iPK_Device).c_str(),5,sValue_To_Assign.c_str(),71,StringUtils::itos(iPK_Command_Input).c_str()); }
 	};
 	class CMD_Store_Infrared_Code_DL : public PreformedCommand {
 	public:
-		CMD_Store_Infrared_Code_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Device,string sValue_To_Assign) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,250,2,2,StringUtils::itos(iPK_Device).c_str(),5,sValue_To_Assign.c_str()); }
+		CMD_Store_Infrared_Code_DL(long DeviceIDFrom, string DeviceIDTo,int iPK_Device,string sValue_To_Assign,int iPK_Command_Input) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,250,3,2,StringUtils::itos(iPK_Device).c_str(),5,sValue_To_Assign.c_str(),71,StringUtils::itos(iPK_Command_Input).c_str()); }
 	};
 	class CMD_Store_Infrared_Code_DT : public PreformedCommand {
 	public:
-		CMD_Store_Infrared_Code_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Device,string sValue_To_Assign) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,250,2,2,StringUtils::itos(iPK_Device).c_str(),5,sValue_To_Assign.c_str()); }
+		CMD_Store_Infrared_Code_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iPK_Device,string sValue_To_Assign,int iPK_Command_Input) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,250,3,2,StringUtils::itos(iPK_Device).c_str(),5,sValue_To_Assign.c_str(),71,StringUtils::itos(iPK_Command_Input).c_str()); }
 	};
 	class CMD_Store_Infrared_Code_Cat : public PreformedCommand {
 	public:
-		CMD_Store_Infrared_Code_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device,string sValue_To_Assign) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,250,2,2,StringUtils::itos(iPK_Device).c_str(),5,sValue_To_Assign.c_str()); }
+		CMD_Store_Infrared_Code_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device,string sValue_To_Assign,int iPK_Command_Input) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,250,3,2,StringUtils::itos(iPK_Device).c_str(),5,sValue_To_Assign.c_str(),71,StringUtils::itos(iPK_Command_Input).c_str()); }
 	};
 	class RESP_Save_Current_Frame : public PreformedCommandResponse {
 		string *m_sFilename;
