@@ -341,7 +341,8 @@ if($_SESSION['sollutionType']==3){
 				exit();
 			}
 		}
-		updateMediaDirectors($displayedDevicesArray,$dbADO);
+		if(count($displayedDevicesArray)>0 && $displayedDevicesArray[0]!='')
+			updateMediaDirectors($displayedDevicesArray,$dbADO);
 		
 		header("Location: index.php?section=wizard&step=".(($action=='updateOnly')?'6':'7'));
 	}
