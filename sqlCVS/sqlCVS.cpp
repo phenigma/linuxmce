@@ -253,7 +253,7 @@ int main( int argc, char *argv[] )
 			<< "            Default is the first user checking in records" << endl
 			<< "-v verify      -- Verifies the integrity of the database first" << endl;
 
-		exit( 0 );
+		exit( 1 );
 	}
 
 	try

@@ -1705,7 +1705,7 @@ void Table::ApplyChangedRow(ChangedRow *pChangedRow)
 
 void Table::VerifyIntegrity()
 {
-	if( m_pRepository )
+	if( m_pRepository && !m_bIsSystemTable )
 	{
 		ostringstream sql;
 		sql << "SELECT psc_id FROM `" << m_sName << "` ORDER BY psc_id";
