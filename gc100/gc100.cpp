@@ -60,7 +60,9 @@ void * StartLearningThread(void * Arg)
 {
 	LearningInfo *pLearningInfo = (LearningInfo *) Arg;
 
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 	pLearningInfo->m_pgc100->LearningThread(pLearningInfo);
+	delete pLearningInfo;
 	return NULL;
 }
 
@@ -139,20 +141,21 @@ void gc100::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sC
 		cout << "Parameter: " << i->first << " Value: " << i->second << endl;
 	}
 
-	// Let the gc100 Base class try to handle the message
-	//if (gc100_Command::ReceivedMessage(pMessage))
-	//{
-	//	printf("Message processed by base class\n");
-	//	sCMD_Result = "OK";
-	//	return;
-	//}
-
 	// Let the IR Base class try to handle the message
 	if (IRBase::ProcessMessage(pMessage))
 	{
 		printf("Message processed by IRBase class\n");
 		sCMD_Result = "OK";
 		return;
+	}
+
+	if (pMessage->m_dwID == COMMAND_Learn_IR_CONST)
+	{
+		map<long, string> * mapParam = &pMessage->m_mapParameters;
+		if (atoi((*mapParam)[COMMANDPARAMETER_OnOff_CONST].c_str()) != 0)
+			LEARN_IR((*mapParam)[COMMANDPARAMETER_PK_Device_CONST], (*mapParam)[COMMANDPARAMETER_PK_Command_Input_CONST]);
+		else
+			LEARN_IR_CANCEL();
 	}
 
 	// This is a relay command
@@ -1039,26 +1042,28 @@ void gc100::SendIR(string Port, string IRCode)
 
 // Not done
 // TODO: Create LearningInfo object and spawn new thread
-void gc100::LEARN_IR(string PKID_Device,string ID)
+void gc100::LEARN_IR(string PKID_Device, string CommandID)
 {
-	g_pPlutoLogger->Write(LV_STATUS,"RECEIVED LEARN_IR");
+	g_pPlutoLogger->Write(LV_STATUS,"RECEIVED LEARN_IR PKID_Device='%s' CommandID='%s'", PKID_Device, CommandID);
 
 	PLUTO_SAFETY_LOCK(sl, gc100_mutex);
 	m_IRDeviceID = atoi(PKID_Device.c_str()); // Device_To
-	m_IRCommandID = atoi(ID.c_str());
+	m_IRCommandID = atoi(CommandID.c_str());
 	m_ControllerID = m_pThisMessage->m_dwPK_Device_From; // Device_From
 
 	learn_input_string=""; // Clear out the IR to learn the next sequence clean
 
 	if (is_open_for_learning)
 	{
-		m_bLearning = true;
-		if (pthread_create(&m_LearningThread, NULL, StartLearningThread, (void *) this))
+		LearningInfo * pLI = new LearningInfo(m_IRDeviceID, m_IRCommandID, m_ControllerID, this);
+		if (pthread_create(&m_LearningThread, NULL, StartLearningThread, (void *) pLI))
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "Failed to create Event Thread");
 			m_bQuit = 1;
 			exit(1);
 		}
+		m_bLearning = true;
+		pthread_detach(m_LearningThread);
 	}
 	else
 	{
@@ -1201,6 +1206,11 @@ void gc100::EventThread()
 
 void gc100::LEARN_IR_CANCEL()
 {
+	if (m_bLearning)
+	{
+		pthread_cancel(m_LearningThread);
+		m_bLearning = false;
+	}
 }
 
 void gc100::SetQuitFlag()

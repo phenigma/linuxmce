@@ -120,7 +120,7 @@ public:
 
 
 //<-dceag-h-e->
-		virtual void LEARN_IR(string PKID_Device, string ID);
+		virtual void LEARN_IR(string PKID_Device, string CommandID);
 		virtual void LEARN_IR_CANCEL();
 
 		void LearningThread(LearningInfo * pLearningInfo);
