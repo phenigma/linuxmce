@@ -104,7 +104,7 @@ function addPackageToMasterDevice($output,$dbADO) {
 				$querySourceCode='SELECT * FROM Package WHERE IsSource=1 ORDER BY Description ASC';
 				$resSourceCode=$dbADO->execute($querySourceCode);
 				while($rowSourceCode=$resSourceCode->FetchRow()){
-					$out.='<option value="'.$rowSourceCode['PK_Package'].'" '.(($rowSourceCode['PK_Package']==$rowPackage['FK_Package_Sourcecode'])?'selected':'').'>'.$rowSourceCode['Description'].'</option>';
+					$out.='<option value="'.$rowSourceCode['PK_Package'].'" '.(($rowSourceCode['PK_Package']==$rowPackage['FK_Package_Sourcecode'])?'selected':'').'>'.$rowSourceCode['Description'].' (#'.$rowSourceCode['PK_Package'].')'.'</option>';
 				}
 				$out.='</select><input type="submit" class="button" name="submitX" value="Select"></td>
 						 </tr>
