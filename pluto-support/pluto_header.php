@@ -276,11 +276,11 @@ function menuSettings(menuObject)
 return $menuPages;
 }
 
-// the main difference between the menu generator from util.inc.php is that this one could set absolute links
+// this menu use absolute or relative links
 function buildHeaderTopMenu($website,$dbADO)
 {
 	global $relativePath;
-	$selectMenu = "SELECT * FROM PageSetup WHERE FK_PageSetup_Parent IS NULL AND showInTopMenu = 1 AND Website='$website'";
+	$selectMenu = "SELECT * FROM PageSetup WHERE FK_PageSetup_Parent IS NULL AND showInTopMenu = 1 AND Website='$website' ORDER BY OrderNum ASC";
 	$resSelectMenu = $dbADO->Execute($selectMenu);
 	$menuPages='';
 	$pos=0;	
@@ -301,7 +301,7 @@ function buildHeaderTopMenu($website,$dbADO)
 function getHeaderSubmenu($website,$level,$parentID,$dbADO)
 {
 	global $relativePath;
-	$selectMenu = "SELECT * FROM PageSetup WHERE FK_PageSetup_Parent =? AND showInTopMenu = 1 AND Website=?";
+	$selectMenu = "SELECT * FROM PageSetup WHERE FK_PageSetup_Parent =? AND showInTopMenu = 1 AND Website=? ORDER BY OrderNum ASC";
 	$resSelectMenu = $dbADO->Execute($selectMenu,array($parentID,$website));
 	$menuPages='';
 	$pos=0;	

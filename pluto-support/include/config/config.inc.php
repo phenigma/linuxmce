@@ -12,6 +12,7 @@
   	
   // PlutoHome website
   	$GLOBALS['sendErrorsTo']='info@plutohome.com';
+	$GLOBALS['userIsAdmin']=array(33129,33130);
 
 	$directory="/support/";
 	$domain="http://plutohome.com/";
