@@ -13,6 +13,7 @@
 	$_POST['username']=(isset($_GET['username']))?$_GET['username']:@$_POST['username'];
 	$_POST['password']=(isset($_GET['password']))?$_GET['password']:@$_POST['password'];
 	$_POST['Login']=(isset($_GET['Login']))?$_GET['Login']:@$_POST['Login'];
+	$_POST['perm_login']=1;
 	
 	# Check login then redirect to main_page.php or to login_page.php
 
