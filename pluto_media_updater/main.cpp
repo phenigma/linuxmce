@@ -46,7 +46,7 @@ int main(int argc, char **argv)
     cout << "Media info updater daemon, v." << VERSION << endl
          << "Visit www.plutohome.com for source code and license information" << endl << endl;
 
-    string DBHost="dce_router",DBUser="root",DBPassword="",DBName="pluto_main";
+    string DBHost="dce_router",DBUser="root",DBPassword="",DBName="pluto_media";
     int DBPort=3306,ListenPort=3450;
     string sLogger="stdout";
 
@@ -109,6 +109,20 @@ int main(int argc, char **argv)
 
     try
     {
+        if( sLogger=="null" )
+            g_pPlutoLogger = new NullLogger();
+        else if( sLogger=="stdout" )
+            g_pPlutoLogger = new FileLogger(stdout);
+        else
+            g_pPlutoLogger = new FileLogger(sLogger.c_str());
+    }
+    catch(...)
+    {
+        cerr << "Unable to create logger" << endl;
+    }
+//
+    try
+    {
         g_control = new Controller;
 
         g_mediaAttributes = new MediaAttributes(DBHost, DBUser, DBPassword, DBName, DBPort);
@@ -129,7 +143,15 @@ int main(int argc, char **argv)
         sigaction(SIGRTMIN+1, &act, NULL);
 
         for (int i = 0; i < vectDirectories.size() ; i ++)
-           g_control->addDirectory(vectDirectories[i]);
+        {
+           string strDirectory = vectDirectories[i];
+           int nSize = strDirectory.size();
+
+           if ( strDirectory[nSize-1] == '/' )
+            strDirectory = strDirectory.substr(0, nSize - 1);
+
+            g_control->addDirectory(strDirectory);
+        }
 
         /* daemonize */
         // 19-Mar-04: It doesn't work with the fork anymore.  Removing it and will call medialibd with & - Matt

@@ -68,9 +68,11 @@ void Directory::checkFile(const string& name)
     File* f = new File(fileKey, name, this);
     if ( f->key == 0 )
     {
+        cout << "New file: " << f->name << endl;
         m_pNewFilesTemp->insert( make_pair(f->name, f) );
 
         FileByNameMap::iterator i = m_pNewFiles->find(f->name);
+
         if (i != m_pNewFiles->end())
             m_pNewFiles->erase(i);
         else
@@ -78,14 +80,24 @@ void Directory::checkFile(const string& name)
     }
     else
     {
+        cout << "File with attributtes file: " << f->name << endl;
         m_pFilesTemp->insert( make_pair(f->key, f) );
 
         FileByIdMap::iterator i = m_pFiles->find(f->key);
+
         if ( i != m_pFiles->end() )
+        {
+            cout << "File was already registered" << endl;
+            File *pOldFile = (*i).second;
+
+            cout << "Comparing " << pOldFile->name << " vs. " << f->name << endl;
+            if ( pOldFile->name.compare(f->name) != 0 )
+                fireFileChanged(f);
+
             m_pFiles->erase(i);
+        }
     }
 }
-
 
 void Directory::addSubDirectory(const string& name)
 {
@@ -114,7 +126,6 @@ void Directory::scan(void)
                     addSubDirectory(entry->d_name);
             }
         }
-
         fixPairStorages();
     }
 }
@@ -135,7 +146,7 @@ void Directory::fixPairStorages()
     FileByNameMap::iterator itNew = m_pNewFiles->begin();
     while ( itNew != m_pNewFiles->end() )
         fireFileRemoved((*itNew++).second);
-    m_pFiles->clear();
+    m_pNewFiles->clear();
 
     FileByNameMap *pTempDataNew = m_pNewFiles;
     m_pNewFiles = m_pNewFilesTemp;
@@ -168,10 +179,16 @@ void Directory::rescan(void)
 
 void Directory::fireFileRemoved(File *pFile)
 {
-    cout << "File: " << pFile->name << " was removed!" << endl;
+    m_controller.removeFile(pFile);
 }
 
 void Directory::fireFileAdded(File *pFile)
 {
+    m_controller.addFile(pFile);
+}
+
+void Directory::fireFileChanged(File *pFile)
+{
+    g_pPlutoLogger->Write(LV_STATUS, "File changed: %s", (pFile->parent->getPath() + "/" + pFile->name).c_str());
     m_controller.addFile(pFile);
 }

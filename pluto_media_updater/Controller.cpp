@@ -3,6 +3,8 @@
 #include <glib.h>
 #include "Controller.h"
 
+#include "pluto_media/Define_Type.h"
+
 Controller::Controller()
 {
     pthread_mutex_init(&m_files_lock, NULL);
@@ -46,32 +48,22 @@ void Controller::removeDirectory(Directory* directory)
 void Controller::addFile(File* file)
 {
     pthread_mutex_lock(&m_files_lock);
+    int m_iFileID;
 
-    if ( file->key != 0 && m_files.find(file->key) == m_files.end())
-    {
-        cout << "adding file " << file->parent->getPath() << "/" << file->name << " with ID " << file->key << endl;
-        m_files.insert( make_pair(file->key, file) );
-    }
+    if  ( (m_iFileID = m_pMediaAttr->GetFileIDFromFilePath(file->parent->getPath() + "/" + file->name) ) == 0 )
+        m_pMediaAttr->CreatedMedia(TYPE_Music_CONST, file->parent->getPath() + "/" + file->name, NULL, NULL);
     else
-    {
-        cout << "We have a new file: " << file->parent->getPath() + file->name << endl;
-        int id = m_pMediaAttr->GetFileIDFromFilePath(file->parent->getPath() + file->name);
+        m_pMediaAttr->UpdatedMedia(m_iFileID, TYPE_Music_CONST, file->parent->getPath() + "/" + file->name, NULL, NULL);
 
-        if ( id == 0 )
-        {
-
-        }
-    }
     pthread_mutex_unlock(&m_files_lock);
 }
 
 void Controller::removeFile(File* file)
 {
-    FileMap::iterator i;
     pthread_mutex_lock(&m_files_lock);
-    i = m_files.find(file->key);
-    if (i != m_files.end())
-        m_files.erase(i);
+    if ( file->key != 0 )
+        m_pMediaAttr->MarkAsMissing(file->key, file->name);
+
     pthread_mutex_unlock(&m_files_lock);
 }
 

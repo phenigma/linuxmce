@@ -71,8 +71,8 @@ private:
     Database_pluto_media *m_pDatabase_pluto_media;
 
 public:
-	/** @brief constructor */
-	MediaAttributes(string host, string user, string pass, string db_name, int port);
+    /** @brief constructor */
+    MediaAttributes(string host, string user, string pass, string db_name, int port);
     int CreatedMedia(int PK_Type,string Path,listMediaAttribute *plistMediaAttribute,listMediaPicture *plistMediaPicture);
     void UpdatedMedia(int PK_File,int PK_Type,string Path,listMediaAttribute *plistMediaAttribute,listMediaPicture *plistMediaPicture);
     int AddAttribute(int PK_File,int PK_Attribute,int PK_AttributeType,string Name,string FirstName);
@@ -94,6 +94,8 @@ public:
     int GetAttributeFromFileID(int PK_File);
     int GetAttributeFromFilePath(string File);
     int GetFileIDFromAttributeID(int PK_Attribute);
+
+    void MarkAsMissing(int iKey, string fileName);
 
     // Utility function to allow removal of internal storage modes from other objects. Only the
     // MediaAttribute class should be aware of #[Aa]|[Ff] syntax.

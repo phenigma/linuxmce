@@ -68,6 +68,7 @@ class Directory
     protected:
         void fireFileRemoved(File *pFile);
         void fireFileAdded(File *pFile);
+        void fireFileChanged(File *pFile);
 };
 
 #endif /* _DIRECTORY_H */

@@ -42,17 +42,21 @@ MediaAttributes::MediaAttributes(string host, string user, string pass, string d
     }
 }
 
-int MediaAttributes::CreatedMedia( int PK_Type, string Path, listMediaAttribute *plistMediaAttribute, listMediaPicture *plistMediaPicture )
+int MediaAttributes::CreatedMedia( int PK_Type, string FilePath, listMediaAttribute *plistMediaAttribute, listMediaPicture *plistMediaPicture )
 {
     PlutoSqlResult result;
     MYSQL_ROW row;
     int PK_File =0;
-    string SQL = "SELECT PK_File FROM File WHERE Path='" + StringUtils::SQLEscape( Path ) + "'";
+
+    string Path = FileUtils::BasePath(FilePath);
+    string Name = FileUtils::FilenameWithoutPath(FilePath);
+
+    string SQL = "SELECT PK_File FROM File WHERE Path='" + StringUtils::SQLEscape( Path ) + "' AND Filename='" + StringUtils::SQLEscape( Name ) + "'";
     if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
         PK_File = atoi( row[0] );
     else
     {
-        SQL = "INSERT INTO File( FK_Type, Path ) VALUES( " + StringUtils::itos( PK_Type ) + ", '" + StringUtils::SQLEscape( Path ) + "' )";
+        SQL = "INSERT INTO File( FK_Type, Path, Filename ) VALUES ( " + StringUtils::itos( PK_Type ) + ", '" + StringUtils::SQLEscape( Path ) + "', '" + StringUtils::SQLEscape( Name ) + "' )";
         PK_File = threaded_mysql_query_withID( SQL );
     }
     if( !PK_File )
@@ -61,19 +65,20 @@ int MediaAttributes::CreatedMedia( int PK_Type, string Path, listMediaAttribute 
     }
     else
     {
-        UpdatedMedia( PK_File, 0, "", plistMediaAttribute, plistMediaPicture );
+        UpdatedMedia( PK_File, 0, FilePath, plistMediaAttribute, plistMediaPicture );
 #ifndef WIN32
         string value = StringUtils::itos( PK_File );
-        attr_set( Path.c_str( ), "ID", value.c_str( ), value.length( ), 0 );
+        if ( attr_set( FilePath.c_str( ), "ID", value.c_str( ), value.length( ), 0 ) != 0 )
+            g_pPlutoLogger->Write(LV_STATUS, "Error setting attribute for file: %s", FilePath.c_str());
 #endif
     }
 
-    printf( "Created Media %s reutrning %d\n", Path.c_str( ), PK_File );
+    printf( "Created Media %s returning %d\n", FilePath.c_str( ), PK_File );
 
     return PK_File;
 }
 
-void MediaAttributes::UpdatedMedia( int PK_File, int PK_Type, string Path, listMediaAttribute *plistMediaAttribute, listMediaPicture *plistMediaPicture )
+void MediaAttributes::UpdatedMedia( int PK_File, int PK_Type, string FilePath, listMediaAttribute *plistMediaAttribute, listMediaPicture *plistMediaPicture )
 {
     if( PK_Type )
     {
@@ -82,11 +87,16 @@ void MediaAttributes::UpdatedMedia( int PK_File, int PK_Type, string Path, listM
 
         threaded_mysql_query_withID( SQL );
     }
+
+    string Path = FileUtils::BasePath(FilePath);
+    string Name = FileUtils::FilenameWithoutPath(FilePath);
+
     if( Path.length( )!=0 )
     {
-        string SQL = "UPDATE File SET Path='" + StringUtils::SQLEscape( Path ) + "'" +
+        string SQL = "UPDATE File SET Path='" + StringUtils::SQLEscape( Path ) + "', Filename='" + StringUtils::SQLEscape( Name ) + "', Missing = 0 " +
             " WHERE PK_File=" + StringUtils::itos( PK_File );
 
+        cout << "Query: " << SQL << endl;
         threaded_mysql_query_withID( SQL );
     }
 
@@ -125,7 +135,8 @@ int MediaAttributes::AddAttribute( int PK_File, int PK_Attribute, int PK_Attribu
         string SQL = "SELECT CombineAsOne FROM File "\
             "JOIN Type_AttributeType ON File.FK_Type=Type_AttributeType.FK_Type "\
             "WHERE FK_AttributeType=" + StringUtils::itos( PK_AttributeType ) + " AND PK_File=" + StringUtils::itos( PK_File );
-
+        {
+        }
         if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
         {
             if( atoi( row[0] )==1 )
@@ -234,7 +245,7 @@ void MediaAttributes::AddPicture( int PK_File, int PK_Attribute, string Path )
                     continue;
                 }
                 fseek( file, 0L, SEEK_END );
-                int file_size2=ftell( file );
+                size_t file_size2=ftell( file );
                 if( file_size2!=file_size )
                 {
                     fclose( file );
@@ -574,11 +585,16 @@ string MediaAttributes::PicturesToString( listMediaPicture *plistMediaPicture )
 
 string MediaAttributes::GetFilePathFromFileID( int PK_File )
 {
-    string SQL = "SELECT Path FROM File WHERE PK_File=" + StringUtils::itos( PK_File );
+    string SQL = "SELECT Path,Filename FROM File WHERE PK_File=" + StringUtils::itos( PK_File );
     PlutoSqlResult result;
     MYSQL_ROW row;
     if( ( result.r=mysql_query_result( SQL ) ) && ( row=mysql_fetch_row( result.r ) ) )
-        return row[0];
+    {
+        string strPath = row[0];
+        string strFile = row[1];
+        return strPath + "/" + strFile;
+    }
+
     return "";
 }
 
@@ -653,7 +669,7 @@ int MediaAttributes::GetFileIDFromFilePath( string File )
         {
             if( DatabaseFile.length( )==0 )
             {
-                g_pPlutoLogger->Write( LV_CRITICAL, "There appears to be a foreign file in the system %d %s", value, File.c_str( ) );
+                g_pPlutoLogger->Write( LV_CRITICAL, "There appears to be a foreign file in the system %d %s", ID, File.c_str( ) );
                 return 0;
             }
             else
@@ -662,14 +678,20 @@ int MediaAttributes::GetFileIDFromFilePath( string File )
                 FILE *file = fopen( DatabaseFile.c_str( ), "rb" );
                 if( file )
                 {
-                    g_pPlutoLogger->Write( LV_CRITICAL, "There are 2 files with id %d %s and: %s", value, File.c_str( ), DatabaseFile.c_str( ) );
+                    g_pPlutoLogger->Write( LV_CRITICAL, "There are 2 files with id %d %s and: %s", ID, File.c_str( ), DatabaseFile.c_str( ) );
                     return 0;
                 }
                 else
                 {
                     // They must have moved it
                     g_pPlutoLogger->Write( LV_MEDIA, "File %d moved from %s to %s", ID, DatabaseFile.c_str( ), File.c_str( ) );
-                    string SQL = "UPDATE File SET Path='" + StringUtils::SQLEscape( File ) + "' WHERE PK_File=" + value;
+
+                    string path = FileUtils::BasePath( File );
+                    string name = FileUtils::FilenameWithoutPath( File, true );
+
+                    string SQL;
+                    SQL += "UPDATE File SET Path='" + StringUtils::SQLEscape( path ) + "', Filename='" + StringUtils::SQLEscape( name ) + "' WHERE PK_File=" + StringUtils::itos(ID);
+                    cout << "Query: " << SQL << endl;
                     threaded_mysql_query( SQL );
                 }
             }
@@ -1056,3 +1078,13 @@ MediaAttributesReturnCode MediaAttributes::LoadPlaylist(int iPlaylistToLoadID, i
 
     return errNoError;
 }
+
+void MediaAttributes::MarkAsMissing(int iKey, string fileName)
+{
+    g_pPlutoLogger->Write(LV_STATUS, "Marking %s as missing", fileName.c_str());
+
+    string SQL = "UPDATE File SET Missing=1 WHERE PK_File=" + StringUtils::itos( iKey );
+
+    threaded_mysql_query_withID( SQL );
+}
+
