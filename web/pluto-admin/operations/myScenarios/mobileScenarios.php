@@ -78,7 +78,6 @@ if($action=='form') {
 				$editLink='<a href="index.php?section=editCommandGroup&cgID='.$rowCG['PK_CommandGroup'].'">Edit</a>';
 			$out.='
 				<td>'.$editLink.' <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=mobileScenarios&action=delete&cgDelID='.$rowCG['PK_CommandGroup'].'\';">Delete</a></td>
-				<td>&nbsp;</td>
 			</tr>
 			';
 		$displayedCommandGroups[]=$rowCG['PK_CommandGroup'];
@@ -328,18 +327,15 @@ else{
 			$dbADO->Execute($insertCommandGroup,array('New '.$templateArray[$newScenarioType],$arrayID,$installationID,$newScenarioType));
 			$insertID=$dbADO->Insert_ID();
 			setOrbitersNeedConfigure($installationID,$dbADO);
-			$msg='New '.$templateArray[$newScenarioType].' added';
-
-			header("Location: index.php?section=mobileScenarios&msg=".@$msg.'&lastAdded='.$insertID);
-			exit();
+			$msg='New '.$templateArray[$newScenarioType].' added.&lastAdded='.$insertID;
 		}
 	}
 
-	if(isset($_POST['updateCG']) || $action=='externalSubmit' || @(int)$_REQUEST['editedCgID']!=0){
+	if(isset($_POST['updateCG']) || $action=='externalSubmit' || @(int)$_REQUEST['editedCgID']!=0 || $action=='addToRoom'){
 		$displayedCommandGroupsArray=explode(',',$_POST['displayedCommandGroups']);
 		foreach($displayedCommandGroupsArray as $elem){
-			$cgDescription=cleanString($_POST['commandGroup_'.$elem]);
-			$cgHint=cleanString($_POST['hintCommandGroup_'.$elem]);
+			$cgDescription=cleanString(@$_POST['commandGroup_'.$elem]);
+			$cgHint=cleanString(@$_POST['hintCommandGroup_'.$elem]);
 			$updateCG='UPDATE CommandGroup SET Description=?, Hint=? WHERE PK_CommandGroup=?';
 			$dbADO->Execute($updateCG,array($cgDescription,$cgHint,$elem));
 		}
@@ -349,7 +345,7 @@ else{
 			header('Location: index.php?section=mobileScenarios&cgID='.$_REQUEST['editedCgID'].'&action='.(((int)$_REQUEST['editedTemplate']==$GLOBALS['LightingScenariosTemplate'])?'editLighting':'editClimate'));
 			exit();
 		}
-		$msg="Mobile Orbiter Scenario updated.";
+		$msg=(isset($msg))?$msg:"Mobile Orbiter Scenario updated.";
 		header("Location: index.php?section=mobileScenarios&msg=".@$msg);
 		exit();
 	}

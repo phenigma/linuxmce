@@ -15,9 +15,10 @@ $out='';
 //the form	
 	if ($action=='form') {
 		$queryGetMasterDeviceDetails = "
-				SELECT DeviceTemplate.*
-				FROM  DeviceTemplate 				
-				WHERE PK_DeviceTemplate=?";
+			SELECT DeviceTemplate.*,FK_DeviceTemplate
+			FROM  DeviceTemplate 				
+			LEFT JOIN DeviceTemplate_AV ON FK_DeviceTemplate=PK_DeviceTemplate
+			WHERE PK_DeviceTemplate=?";
 		$rs = $dbADO->Execute($queryGetMasterDeviceDetails,array($deviceID));	
 		
 		$row = $rs->FetchRow();
@@ -35,6 +36,7 @@ $out='';
 		$isIPBased=$row['IsIPBased'];
 		$ConfigureScript=$row['ConfigureScript'];
 		$comments=$row['Comments'];
+		$isAVDevice = is_null($row['FK_DeviceTemplate'])?0:1;	
 		$rs->Close();
 		
 		$out='
@@ -184,6 +186,12 @@ $out='';
 					$out.="  <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addPackageToMasterDevice&from=editMasterDevice&deviceID={$deviceID}&PK_Package={$package}','status=0,resizable=1,width=700,height=700,toolbars=true,scrollbars=1');\">Edit package</a>";
 				$out.="&nbsp; <a href=\"javascript:void(0);\" onClick=\"windowOpen('index.php?section=addPackageToMasterDevice&from=editMasterDevice&deviceID={$deviceID}','status=0,resizable=1,width=700,height=850,toolbars=true,scrollbars=1');\">Create new package</a>";
 				$out.='	
+					</td>
+				</tr>
+				<tr>
+					<td valign="top"><a name="isAVDevice_link"></a>Audio/Video Device</td>
+					<td>
+						<input type="hidden" value="'.$isAVDevice.'" name="old_isAVDevice"><input type="checkbox" name="isAVDevice" '.($isAVDevice==1?" checked='checked' ":"").' value="1" onClick="javascript:this.form.submit();"><input type="button" class="button" name="isAV"  '.($isAVDevice!=1?'value="Is NOT Audio/Video" disabled="disabled" ':" value=\"Edit Audio/Video Properties\" onClick=\"windowOpen('index.php?section=editAVDevice&from=editMasterDevice&deviceID={$deviceID}','status=0,resizable=1,width=800,height=600,toolbars=true,resizable=1');\"").'>
 					</td>
 				</tr>
 				<tr>
@@ -445,7 +453,7 @@ $out='';
 									<input type="checkbox" name="InfraredGroup_'.$rowCategIG['PK_InfraredGroup'].'" value="1" '.((in_array($rowCategIG['PK_InfraredGroup'],$checkedIGArray))?'checked':'').' onClick="document.editMasterDevice.submit();">'.stripslashes($rowCategIG['Description']).' #'.$rowCategIG['PK_InfraredGroup'].' (by category and manufacturer)
 								</td>
 								<td>
-									<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editInfraredGroupFromMasterDevice&from=editMasterDevice&deviceID='.$deviceID.'&infraredGroupID='.$rowCategIG['PK_InfraredGroup'].'\',\'width=800,height=600,toolbars=true,resizable=1,scrollbars=yes\');">Edit Infrared Commands</a>								
+									<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=irCodes&from=editMasterDevice&dtID='.$deviceID.'&infraredGroupID='.$rowCategIG['PK_InfraredGroup'].'\',\'width=800,height=600,toolbars=true,resizable=1,scrollbars=yes\');">Edit Infrared Commands</a>								
 								</td>
 							  </tr>';
 						$infraredGroupsDisplayed[]=$rowCategIG['PK_InfraredGroup'];
@@ -713,6 +721,9 @@ $out='';
 		$newCategory=((int)$_POST['categoryPnp']>0)?(int)$_POST['categoryPnp']:NULL;
 		$newComment=$_POST['commentPnp'];
 		$dhcpArray=explode(',',$_POST['dhcpArray']);
+		$isAVDevice = cleanInteger(@$_POST['isAVDevice']);
+		$old_isAVDevice = cleanInteger(@$_POST['old_isAVDevice']);
+
 		
 		if($newMacFrom!='' && $newMacTo!=''){
 			$dbADO->Execute('INSERT INTO DHCPDevice (FK_DeviceTemplate, Mac_Range_Low, Mac_Range_High,FK_Manufacturer,FK_DeviceCategory,Description) VALUES (?,?,?,?,?,?)',array($deviceID,$newMacFrom,$newMacTo,$newManufacturer,$newCategory,$newComment));
@@ -722,9 +733,9 @@ $out='';
 		foreach ($dhcpArray AS $dhcpID){
 			$macFrom=@$_POST['mac_from_'.$dhcpID];
 			$macTo=@$_POST['mac_to_'.$dhcpID];
-			$newManufacturer=((int)$_POST['manufacturerPnp_'.$dhcpID]>0)?(int)$_POST['manufacturerPnp_'.$dhcpID]:NULL;
-			$newCategory=((int)$_POST['categoryPnp_'.$dhcpID]>0)?(int)$_POST['categoryPnp_'.$dhcpID]:NULL;
-			$newComment=$_POST['commentPnp_'.$dhcpID];
+			$newManufacturer=((int)@$_POST['manufacturerPnp_'.$dhcpID]>0)?(int)$_POST['manufacturerPnp_'.$dhcpID]:NULL;
+			$newCategory=((int)@$_POST['categoryPnp_'.$dhcpID]>0)?(int)$_POST['categoryPnp_'.$dhcpID]:NULL;
+			$newComment=@$_POST['commentPnp_'.$dhcpID];
 			$dbADO->Execute('UPDATE DHCPDevice SET Mac_Range_Low=?, Mac_Range_High=?,FK_Manufacturer=?,FK_DeviceCategory=?,Description=? WHERE PK_DHCPDevice=?',array($macFrom, $macTo,$newManufacturer,$newCategory,$newComment,$dhcpID));
 		}
 		
@@ -937,6 +948,20 @@ $out='';
 			$locationGoTo = "Data_Description_{$newDeviceData}";
 
 		}
+
+		if ($isAVDevice!=$old_isAVDevice) {			
+			if($isAVDevice==1){
+				$insertRecord = "INSERT INTO DeviceTemplate_AV (FK_DeviceTemplate,UsesIR) VALUES(?,1)";
+				$resInsertRecord = $dbADO->Execute($insertRecord,array($deviceID));
+				$controlSQL='INSERT INTO DeviceTemplate_DeviceCategory_ControlledVia (FK_DeviceTemplate,FK_DeviceCategory) VALUES (?,?)';
+				$dbADO->Execute($controlSQL,array($deviceID,$GLOBALS['specialized']));
+				$dbADO->Execute($controlSQL,array($deviceID,$GLOBALS['InfraredInterface']));
+			}else{
+				$dbADO->Execute('DELETE FROM DeviceTemplate_AV WHERE FK_DeviceTemplate=?',$deviceID);
+				$dbADO->Execute('DELETE FROM DeviceTemplate_DeviceCategory_ControlledVia WHERE FK_DeviceTemplate=?',$deviceID);
+			}
+		}
+
 		
 		if ($deviceID!=0 && $description!='' && $category!=0 && $manufacturer!=0) {
 		$updateQuery = "UPDATE DeviceTemplate set Description = ?, ImplementsDCE = ?,							

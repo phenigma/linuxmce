@@ -1015,6 +1015,12 @@ switch ($section) {
 	    include_once('operations/commands/commandsPicker.php');
 	    commandsPicker($output,$dbADO);
 	break;	
+	case 'core';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/myDevices/core.php');
+	    core($output,$dbADO);
+	break;	
 	
 	case '';
 		$output = new Template($dbADO);	

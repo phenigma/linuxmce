@@ -8,7 +8,7 @@ function infraredCommands($output,$dbADO) {
 	$GLOBALS['excludedCategories']=array($GLOBALS['DSPModeCommandCategory'], $GLOBALS['InputsCommandCategory'],$GLOBALS['OutputsCommandCategory']);
 	$GLOBALS['excludedCommands']=array($GLOBALS['genericONCommand'],$GLOBALS['genericOFFCommand'],$GLOBALS['powerCommand']);
 	$GLOBALS['infraredGroup']=(int)@$_REQUEST['infraredGroup'];	
-	$GLOBALS['deviceID']=(int)@$_REQUEST['deviceID'];	
+	$GLOBALS['deviceID']=((int)@$_REQUEST['deviceID']!=0)?(int)@$_REQUEST['deviceID']:NULL;	
 	$GLOBALS['dtID']=(int)@$_REQUEST['dtID'];	
 	
 	if($action=='form'){

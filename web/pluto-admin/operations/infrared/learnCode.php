@@ -3,7 +3,7 @@ function learnCode($output,$dbADO) {
 	//$dbADO->debug=true;
 	$out='';
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
-	$deviceID = (int)$_REQUEST['deviceID'];
+	$deviceID = ((int)$_REQUEST['deviceID']>0)?(int)$_REQUEST['deviceID']:NULL;
 	$commandID = (int)$_REQUEST['commandID'];
 	$dtID=(int)$_REQUEST['dtID'];
 	$infraredGroupID=(int)@$_REQUEST['infraredGroupID'];

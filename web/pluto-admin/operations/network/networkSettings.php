@@ -19,7 +19,6 @@ function networkSettings($output,$dbADO) {
 		$rowDevice=$resDevice->FetchRow();
 		$coreID=$rowDevice['PK_Device'];
 	}
-	
 	$queryDHCP='SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?';
 	$resDHCP=$dbADO->Execute($queryDHCP,array($coreID,$GLOBALS['DHCPDeviceData']));
 	$enableDHCP=($resDHCP->RecordCount()>0)?1:0;
@@ -45,27 +44,30 @@ function networkSettings($output,$dbADO) {
 			$coreGWArray=explode('.',$externalInterfaceArray[3]);
 			$coreDNS1Array=explode('.',$externalInterfaceArray[4]);
 			$coreDNS2Array=explode('.',$externalInterfaceArray[5]);
+			$ipFromDHCP=0;
+		}else{
+			$ipFromDHCP=1;
 		}
 		$internalInterfaceArray=explode(',',$interfacesArray[1]);
 		$internalCoreIPArray=explode('.',$internalInterfaceArray[1]);
 		$internalCoreNetMaskArray=explode('.',$internalInterfaceArray[2]);
+	}else{
+		$fatalError='No record in Device_DeviceData for Network Interfaces.';
 	}	
 
 	if ($action == 'form') {
-		$out.='
+		if(!isset($fatalError)){
+			$out.='
 	<script>
 	function ipFromDHCP()
 	{
-		if(document.networkSettings.ipForAnonymousDevices.checked){
-			document.networkSettings.ipFrom[0].disabled=true;
-			document.networkSettings.ipFrom[1].checked=true;
-		}else{
-			document.networkSettings.ipFrom[0].disabled=false;
-			document.networkSettings.nonPlutoIP_1.value="";
-			document.networkSettings.nonPlutoIP_2.value="";
-			document.networkSettings.nonPlutoIP_3.value="";
-			document.networkSettings.nonPlutoIP_4.value="";
+		newVal=(!document.networkSettings.ipForAnonymousDevices.checked)?true:false;
+		newColor=(document.networkSettings.ipForAnonymousDevices.checked)?"#4E6CA6":"#CCCCCC";
+
+		for(i=1;i<9;i++){
+			eval("document.networkSettings.nonPlutoIP_"+i+".disabled="+newVal+";");
 		}
+		document.getElementById("nonPluto").style.color=newColor;
 		
 	}
 
@@ -99,8 +101,41 @@ function networkSettings($output,$dbADO) {
 		}else
 			document.networkSettings.submit();
 	}
+		
+	function setIPRange()
+	{
+		newVal=(!document.networkSettings.enableDHCP.checked)?true:false;
+		newColor=(document.networkSettings.enableDHCP.checked)?"#4E6CA6":"#CCCCCC";
+
+		for(i=1;i<9;i++){
+			eval("document.networkSettings.coreDHCP_"+i+".disabled="+newVal+";");
+		}
+		document.networkSettings.ipForAnonymousDevices.disabled=newVal;
+		if(!document.networkSettings.enableDHCP.checked)
+			document.networkSettings.ipForAnonymousDevices.checked=false;
+		document.getElementById("range").style.color=newColor;
+		document.getElementById("provide").style.color=newColor;
+		ipFromDHCP();
+	}
+		
+	function setStaticIP(newVal)
+	{
+		for(i=1;i<5;i++){
+			eval("document.networkSettings.coreIP_"+i+".disabled="+newVal+";");
+			eval("document.networkSettings.coreNetMask_"+i+".disabled="+newVal+";");
+			eval("document.networkSettings.coreGW_"+i+".disabled="+newVal+";");
+			eval("document.networkSettings.coreDNS1_"+i+".disabled="+newVal+";");
+			eval("document.networkSettings.coreDNS2_"+i+".disabled="+newVal+";");
+		}
+		newColor=(newVal==false)?"#4E6CA6":"#CCCCCC";
+		document.getElementById("coreIPtext").style.color=newColor;
+		document.getElementById("coreNMtext").style.color=newColor;
+		document.getElementById("coreGWtext").style.color=newColor;
+		document.getElementById("coreDNS1text").style.color=newColor;
+		document.getElementById("coreDNS2text").style.color=newColor;
+	}
 	</script>
-	<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').(($resNC->RecordCount()==0)?' No record in Device_DeviceData for Network Interfaces.':'').'</div>
+	<div class="err">'.(isset($_GET['error'])?strip_tags($_GET['error']):'').'</div>
 	<form action="index.php" method="POST" name="networkSettings">
 	<input type="hidden" name="section" value="networkSettings">
 	<input type="hidden" name="action" value="add">
@@ -113,51 +148,51 @@ function networkSettings($output,$dbADO) {
 			<td colspan="3"><p>Your core has the following network adapters:<br><B>1. External network card '.@$externalInterfaceArray[0].'</B> </td>
 		<tr>
 		<tr>
-			<td width="20"><input type="checkbox" name="enableDHCP" value="1" '.(($enableDHCP==1)?'checked':'').'></td>
+			<td width="20"><input type="checkbox" name="enableDHCP" value="1" '.(($enableDHCP==1)?'checked':'').' onclick="setIPRange();"></td>
 			<td align="left" colspan="2">Enable DHCP server</td>
 		</tr>
 		<tr>
 			<td>&nbsp;</td>
-			<td colspan="2">Range of IP addresses for Pluto devices: <input type="text" maxlength="3" name="coreDHCP_1" size="3" value="'.@$coreDHCPArray[0].'">.<input type="text" maxlength="3" name="coreDHCP_2" size="3" value="'.@$coreDHCPArray[1].'">.<input type="text" maxlength="3" name="coreDHCP_3" size="3" value="'.@$coreDHCPArray[2].'">.<input type="text" maxlength="3" name="coreDHCP_4" size="3" value="'.@$coreDHCPArray[3].'"> - <input type="text" maxlength="3" name="coreDHCP_5" size="3" value="'.@$coreDHCPArray[4].'">.<input type="text" maxlength="3" name="coreDHCP_6" size="3" value="'.@$coreDHCPArray[5].'">.<input type="text" maxlength="3" name="coreDHCP_7" size="3" value="'.@$coreDHCPArray[6].'">.<input type="text" maxlength="3" name="coreDHCP_8" size="3" value="'.@$coreDHCPArray[7].'"></td>
+			<td colspan="2"><span id="range" style="color:'.(($enableDHCP!=1)?'#CCCCCC':'').'">Range of IP addresses for Pluto devices: <input type="text" maxlength="3" name="coreDHCP_1" size="3" value="'.@$coreDHCPArray[0].'" '.(($enableDHCP!=1)?'disabled':'').'>.<input type="text" maxlength="3" name="coreDHCP_2" size="3" value="'.@$coreDHCPArray[1].'" '.(($enableDHCP!=1)?'disabled':'').'>.<input type="text" maxlength="3" name="coreDHCP_3" size="3" value="'.@$coreDHCPArray[2].'" '.(($enableDHCP!=1)?'disabled':'').'>.<input type="text" maxlength="3" name="coreDHCP_4" size="3" value="'.@$coreDHCPArray[3].'" '.(($enableDHCP!=1)?'disabled':'').'> - <input type="text" maxlength="3" name="coreDHCP_5" size="3" value="'.@$coreDHCPArray[4].'" '.(($enableDHCP!=1)?'disabled':'').'>.<input type="text" maxlength="3" name="coreDHCP_6" size="3" value="'.@$coreDHCPArray[5].'" '.(($enableDHCP!=1)?'disabled':'').'>.<input type="text" maxlength="3" name="coreDHCP_7" size="3" value="'.@$coreDHCPArray[6].'" '.(($enableDHCP!=1)?'disabled':'').'>.<input type="text" maxlength="3" name="coreDHCP_8" size="3" value="'.@$coreDHCPArray[7].'" '.(($enableDHCP!=1)?'disabled':'').'></td>
 		</tr>
 		<tr>
 			<td>&nbsp;</td>
-			<td colspan="2"><input type="checkbox" name="ipForAnonymousDevices" value="1" '.((@$nonPlutoIP==1)?'checked':'').' onClick="ipFromDHCP()"> Provide IP addresses for anonymous devices not in Pluto’s database.</td>
+			<td colspan="2"><input type="checkbox" name="ipForAnonymousDevices" value="1" '.((@$nonPlutoIP==1)?'checked':'').' onClick="ipFromDHCP()" '.(($enableDHCP==1)?'':'disabled').'><span id="provide" style="color:'.(($enableDHCP!=1)?'#CCCCCC':'').'"> Provide IP addresses for anonymous devices not in Pluto’s database.</span></td>
 		</tr>
 		<tr>
 			<td>&nbsp;</td>
-			<td colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Range of IP addresses for non-Pluto devices: <input type="text" maxlength="3" name="nonPlutoIP_1" size="3" value="'.@$nonPlutoIPArray[0].'">.<input type="text" maxlength="3" name="nonPlutoIP_2" size="3" value="'.@$nonPlutoIPArray[1].'">.<input type="text" maxlength="3" name="nonPlutoIP_3" size="3" value="'.@$nonPlutoIPArray[2].'">.<input type="text" maxlength="3" name="nonPlutoIP_4" size="3" value="'.@$nonPlutoIPArray[3].'"> - <input type="text" maxlength="3" name="nonPlutoIP_5" size="3" value="'.@$nonPlutoIPArray[4].'">.<input type="text" maxlength="3" name="nonPlutoIP_6" size="3" value="'.@$nonPlutoIPArray[5].'">.<input type="text" maxlength="3" name="nonPlutoIP_7" size="3" value="'.@$nonPlutoIPArray[6].'">.<input type="text" maxlength="3" name="nonPlutoIP_8" size="3" value="'.@$nonPlutoIPArray[7].'"></td>
+			<td colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="nonPluto" style="color:'.(($enableDHCP!=1)?'#CCCCCC':'').'">Range of IP addresses for non-Pluto devices: </span><input type="text" maxlength="3" name="nonPlutoIP_1" size="3" value="'.@$nonPlutoIPArray[0].'" '.(($enableDHCP==1)?'':'disabled').'>.<input type="text" maxlength="3" name="nonPlutoIP_2" size="3" value="'.@$nonPlutoIPArray[1].'" '.(($enableDHCP==1)?'':'disabled').'>.<input type="text" maxlength="3" name="nonPlutoIP_3" size="3" value="'.@$nonPlutoIPArray[2].'" '.(($enableDHCP==1)?'':'disabled').'>.<input type="text" maxlength="3" name="nonPlutoIP_4" size="3" value="'.@$nonPlutoIPArray[3].'" '.(($enableDHCP==1)?'':'disabled').'> - <input type="text" maxlength="3" name="nonPlutoIP_5" size="3" value="'.@$nonPlutoIPArray[4].'" '.(($enableDHCP==1)?'':'disabled').'>.<input type="text" maxlength="3" name="nonPlutoIP_6" size="3" value="'.@$nonPlutoIPArray[5].'" '.(($enableDHCP==1)?'':'disabled').'>.<input type="text" maxlength="3" name="nonPlutoIP_7" size="3" value="'.@$nonPlutoIPArray[6].'" '.(($enableDHCP==1)?'':'disabled').'>.<input type="text" maxlength="3" name="nonPlutoIP_8" size="3" value="'.@$nonPlutoIPArray[7].'" '.(($enableDHCP==1)?'':'disabled').'></td>
 		</tr>
 		<tr>
-			<td colspan="3"><input type="radio" name="ipFrom" value="DHCP" '.((@$externalInterfaceArray[1]=='dhcp'?'checked':'')).' '.((@$nonPlutoIP==1)?'disabled':'').'> Obtain an IP address from DHCP</td>
+			<td colspan="3"><input type="radio" name="ipFrom" value="DHCP" onclick="setStaticIP(true);"'.(($ipFromDHCP==1)?'checked':'').' '.((@$nonPlutoIP==1)?'disabled':'').'> Obtain an IP address from DHCP</td>
 		</tr>
 		<tr>
-			<td colspan="3"><input type="radio" name="ipFrom" value="static"> Use a static IP address</td>
+			<td colspan="3"><input type="radio" name="ipFrom" value="static" onclick="setStaticIP(false);" '.(($ipFromDHCP==0)?'checked':'').'> Use a static IP address</td>
 		</tr>
 		<tr>
 			<td>&nbsp;</td>
-			<td width="150">Core’s IP address:</td>
-			<td><input type="text" maxlength="3" name="coreIP_1" size="3" value="'.@$coreIPArray[0].'">.<input type="text" maxlength="3" name="coreIP_2" size="3" value="'.@$coreIPArray[1].'">.<input type="text" maxlength="3" name="coreIP_3" size="3" value="'.@$coreIPArray[2].'">.<input type="text" maxlength="3" name="coreIP_4" size="3" value="'.@$coreIPArray[3].'"></td>
+			<td width="150"><span id="coreIPtext" style="color:'.(($ipFromDHCP==1)?'#CCCCCC':'').'">Core’s IP address:</span></td>
+			<td><input type="text" maxlength="3" name="coreIP_1" size="3" value="'.@$coreIPArray[0].'" '.(($ipFromDHCP==1)?'disabled':'').'>.<input type="text" maxlength="3" name="coreIP_2" size="3" value="'.@$coreIPArray[1].'" '.(($ipFromDHCP==1)?'disabled':'').'>.<input type="text" maxlength="3" name="coreIP_3" size="3" value="'.@$coreIPArray[2].'" '.(($ipFromDHCP==1)?'disabled':'').'>.<input type="text" maxlength="3" name="coreIP_4" size="3" value="'.@$coreIPArray[3].'" '.(($ipFromDHCP==1)?'disabled':'').'></td>
 		</tr>						
 		<tr>
 			<td>&nbsp;</td>
-			<td>Subnet mask:</td>
-			<td><input type="text" maxlength="3" name="coreNetMask_1" size="3" value="'.@$coreNetMaskArray[0].'">.<input type="text" maxlength="3" name="coreNetMask_2" size="3" value="'.@$coreNetMaskArray[1].'">.<input type="text" maxlength="3" name="coreNetMask_3" size="3" value="'.@$coreNetMaskArray[2].'">.<input type="text" maxlength="3" name="coreNetMask_4" size="3" value="'.@$coreNetMaskArray[3].'"></td>
+			<td><span id="coreNMtext" style="color:'.(($ipFromDHCP==1)?'#CCCCCC':'').'">Subnet mask:</span></td>
+			<td><input type="text" maxlength="3" name="coreNetMask_1" size="3" value="'.@$coreNetMaskArray[0].'" '.(($ipFromDHCP==1)?'disabled':'').'>.<input type="text" maxlength="3" name="coreNetMask_2" size="3" value="'.@$coreNetMaskArray[1].'" '.(($ipFromDHCP==1)?'disabled':'').'>.<input type="text" maxlength="3" name="coreNetMask_3" size="3" value="'.@$coreNetMaskArray[2].'" '.(($ipFromDHCP==1)?'disabled':'').'>.<input type="text" maxlength="3" name="coreNetMask_4" size="3" value="'.@$coreNetMaskArray[3].'" '.(($ipFromDHCP==1)?'disabled':'').'></td>
 		</tr>
 		<tr>
 			<td>&nbsp;</td>
-			<td>Gateway:</td>
-			<td><input type="text" maxlength="3" name="coreGW_1" size="3" value="'.@$coreGWArray[0].'">.<input type="text" maxlength="3" name="coreGW_2" size="3" value="'.@$coreGWArray[1].'">.<input type="text" maxlength="3" name="coreGW_3" size="3" value="'.@$coreGWArray[2].'">.<input type="text" maxlength="3" name="coreGW_4" size="3" value="'.@$coreGWArray[3].'"></td>
+			<td><span id="coreGWtext" style="color:'.(($ipFromDHCP==1)?'#CCCCCC':'').'">Gateway:</span></td>
+			<td><input type="text" maxlength="3" name="coreGW_1" size="3" value="'.@$coreGWArray[0].'" '.(($ipFromDHCP==1)?'disabled':'').'>.<input type="text" maxlength="3" name="coreGW_2" size="3" value="'.@$coreGWArray[1].'" '.(($ipFromDHCP==1)?'disabled':'').'>.<input type="text" maxlength="3" name="coreGW_3" size="3" value="'.@$coreGWArray[2].'" '.(($ipFromDHCP==1)?'disabled':'').'>.<input type="text" maxlength="3" name="coreGW_4" size="3" value="'.@$coreGWArray[3].'" '.(($ipFromDHCP==1)?'disabled':'').'></td>
 		</tr>		
 		<tr>
 			<td>&nbsp;</td>
-			<td>Nameserver (DNS) #1:</td>
-			<td><input type="text" maxlength="3" name="coreDNS1_1" size="3" value="'.@$coreDNS1Array[0].'">.<input type="text" maxlength="3" name="coreDNS1_2" size="3" value="'.@$coreDNS1Array[1].'">.<input type="text" maxlength="3" name="coreDNS1_3" size="3" value="'.@$coreDNS1Array[2].'">.<input type="text" maxlength="3" name="coreDNS1_4" size="3" value="'.@$coreDNS1Array[3].'"></td>
+			<td><span id="coreDNS1text" style="color:'.(($ipFromDHCP==1)?'#CCCCCC':'').'">Nameserver (DNS) #1:</span></td>
+			<td><input type="text" maxlength="3" name="coreDNS1_1" size="3" value="'.@$coreDNS1Array[0].'" '.(($ipFromDHCP==1)?'disabled':'').'>.<input type="text" maxlength="3" name="coreDNS1_2" size="3" value="'.@$coreDNS1Array[1].'" '.(($ipFromDHCP==1)?'disabled':'').'>.<input type="text" maxlength="3" name="coreDNS1_3" size="3" value="'.@$coreDNS1Array[2].'" '.(($ipFromDHCP==1)?'disabled':'').'>.<input type="text" maxlength="3" name="coreDNS1_4" size="3" value="'.@$coreDNS1Array[3].'" '.(($ipFromDHCP==1)?'disabled':'').'></td>
 		</tr>		
 		<tr>
 			<td>&nbsp;</td>
-			<td>Nameserver (DNS) #2:</td>
-			<td><input type="text" maxlength="3" name="coreDNS2_1" size="3" value="'.@$coreDNS2Array[0].'">.<input type="text" maxlength="3" name="coreDNS2_2" size="3" value="'.@$coreDNS2Array[1].'">.<input type="text" maxlength="3" name="coreDNS2_3" size="3" value="'.@$coreDNS2Array[2].'">.<input type="text" maxlength="3" name="coreDNS2_4" size="3" value="'.@$coreDNS2Array[3].'"></td>
+			<td><span id="coreDNS2text" style="color:'.(($ipFromDHCP==1)?'#CCCCCC':'').'">Nameserver (DNS) #2:</span></td>
+			<td><input type="text" maxlength="3" name="coreDNS2_1" size="3" value="'.@$coreDNS2Array[0].'" '.(($ipFromDHCP==1)?'disabled':'').'>.<input type="text" maxlength="3" name="coreDNS2_2" size="3" value="'.@$coreDNS2Array[1].'" '.(($ipFromDHCP==1)?'disabled':'').'>.<input type="text" maxlength="3" name="coreDNS2_3" size="3" value="'.@$coreDNS2Array[2].'" '.(($ipFromDHCP==1)?'disabled':'').'>.<input type="text" maxlength="3" name="coreDNS2_4" size="3" value="'.@$coreDNS2Array[3].'" '.(($ipFromDHCP==1)?'disabled':'').'></td>
 		</tr>		
 		<tr>
 			<td colspan="3"><B>2. Internal network card '.@$internalInterfaceArray[0].'</B> </td>
@@ -173,7 +208,7 @@ function networkSettings($output,$dbADO) {
 			<td><input type="text" maxlength="3" name="internalCoreNetMask_1" size="3" value="'.@$internalCoreNetMaskArray[0].'">.<input type="text" maxlength="3" name="internalCoreNetMask_2" size="3" value="'.@$internalCoreNetMaskArray[1].'">.<input type="text" maxlength="3" name="internalCoreNetMask_3" size="3" value="'.@$internalCoreNetMaskArray[2].'">.<input type="text" maxlength="3" name="internalCoreNetMask_4" size="3" value="'.@$internalCoreNetMaskArray[3].'"></td>
 		</tr>
 		<tr>
-			<td colspan="3" align="center" bgcolor="#EEEEEE"><input type="button" class="button" name="update" value="Update" onClick="validateForm()"></td>
+			<td colspan="3" align="center" bgcolor="#EEEEEE"><input type="button" class="button" name="update" value="Update" onClick="validateForm()"> <input type="reset" class="button" name="reset" value="Reset"></td>
 		</tr>		
 	</table>
 	You may need to open up ports in the firewall for some programs that run on your internal computers, like video conferencing, file sharing, etc.  To do this, visit the Advanced, <a href="index.php?section=firewall">Firewall</a> page.		
@@ -190,6 +225,9 @@ function networkSettings($output,$dbADO) {
 			frmvalidator.addValidation("internalCoreNetMask_4","req","Please enter the subnet mask.");
 		</script>
 	';
+		}else{
+			$out.='<h2 style="color:red;">'.$fatalError.'</h2>';
+		}
 	} else {
 		// check if the user has the right to modify installation
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$_SESSION['installationID'],$dbADO);

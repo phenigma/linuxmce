@@ -365,18 +365,15 @@ else{
 			$insertCG_Room='INSERT INTO CommandGroup_Room (FK_CommandGroup,FK_Room,Sort) VALUES (?,?,?)';
 			$dbADO->Execute($insertCG_Room,array($insertID,$roomID,$insertID));
 			setOrbitersNeedConfigure($installationID,$dbADO);
-			$msg='New '.$templateArray[$newScenarioType].' added';
-
-			header("Location: index.php?section=sleepingScenarios&msg=".@$msg.'&lastAdded='.$insertID);
-			exit();
+			$msg='New '.$templateArray[$newScenarioType].' added.&lastAdded='.$insertID;
 		}
 	}
 
-	if(isset($_POST['updateCG']) || $action=='externalSubmit' || @(int)$_REQUEST['editedCgID']!=0){
+	if(isset($_POST['updateCG']) || $action=='externalSubmit' || @(int)$_REQUEST['editedCgID']!=0 || $action=='addToRoom'){
 		$displayedCommandGroupsArray=explode(',',$_POST['displayedCommandGroups']);
 		foreach($displayedCommandGroupsArray as $elem){
-			$cgDescription=cleanString($_POST['commandGroup_'.$elem]);
-			$cgHint=cleanString($_POST['hintCommandGroup_'.$elem]);
+			$cgDescription=cleanString(@$_POST['commandGroup_'.$elem]);
+			$cgHint=cleanString(@$_POST['hintCommandGroup_'.$elem]);
 			$updateCG='UPDATE CommandGroup SET Description=?, Hint=? WHERE PK_CommandGroup=?';
 			$dbADO->Execute($updateCG,array($cgDescription,$cgHint,$elem));
 		}
@@ -386,7 +383,7 @@ else{
 			header('Location: index.php?section=sleepingScenarios&cgID='.$_REQUEST['editedCgID'].'&action='.(((int)$_REQUEST['editedTemplate']==$GLOBALS['LightingScenariosTemplate'])?'editLighting':'editClimate').'&roomID='.$_REQUEST['roomID']);
 			exit();
 		}
-		$msg="Sleeping Scenario updated.";
+		$msg=(isset($msg))?$msg:"Sleeping Scenario updated.";
 		header("Location: index.php?section=sleepingScenarios&msg=".@$msg);
 		exit();
 	}

@@ -1922,24 +1922,13 @@ function getInstallWizardDeviceTemplates($step,$dbADO,$device='',$distro=0,$oper
 			}else{
 				// if device is DCE Router, check also childs of Core
 				$queryDevice='SELECT * FROM Device WHERE FK_DeviceTemplate=? AND (FK_Device_ControlledVia=? OR FK_Device_ControlledVia=?)';
-				$resDevice=$dbADO->Execute($queryDevice,array($row['FK_DeviceTemplate'],$_SESSION['CoreDCERouter'],$_SESSION['deviceID']));
+				$resDevice=$dbADO->Execute($queryDevice,array($row['FK_DeviceTemplate'],$_SESSION['CoreDCERouter'],$_SESSION['CoreID']));
 			}
 			$deviceTemplateChecked=($resDevice->RecordCount()==0)?'':'checked';
 			$rowDevice=$resDevice->FetchRow();
 			$oldDevice=$rowDevice['PK_Device'];
 		}
 
-		if($device==@$_SESSION['CoreDCERouter'] && @$_SESSION['isCoreFirstTime']==1){
-			$isCoreFirstTime=1;
-			unset($_SESSION['isCoreFirstTime']);
-		}
-
-		if($device==@$_SESSION['OrbiterHybridChild'] && @$_SESSION['isHybridFirstTime']==1){
-			$isHybridFirstTime=1;
-			unset($_SESSION['isHybridFirstTime']);
-		}
-
-		
 		$out.='
 			<tr class="normaltext">
 				<td align="center"><b>'.$displayCategory.'</b></td>

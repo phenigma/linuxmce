@@ -86,7 +86,6 @@ if($action=='form') {
 			 Description: '.((!in_array($rowCG['PK_CommandGroup'],$displayedCommandGroups))?'<input type="text" name="commandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Description'].'"> Hint: <input type="text" name="hintCommandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Hint'].'">':'<b>'.$rowCG['Description'].': </b>Hint: <b>'.$rowCG['Hint'].'</b> (See '.$firstRoomArray[$rowCG['PK_CommandGroup']].')').'</td>
 				<td>'.(($pos==1)?'Default ON':'').(($pos==2)?'Default OFF':'').'</td>
 				<td><a href="#" onClick="document.climateScenarios.editedCgID.value='.$rowCG['PK_CommandGroup'].';document.climateScenarios.roomID.value='.$rowRooms['PK_Room'].';document.climateScenarios.submit();">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=climateScenarios&cgDelID='.$rowCG['PK_CommandGroup'].'\';">Delete</a></td>
-				<td>&nbsp;</td>
 			</tr>
 			';
 			$displayedCommandGroups[]=$rowCG['PK_CommandGroup'];
@@ -240,16 +239,14 @@ if($action=='form') {
 		$insertCG_Room='INSERT INTO CommandGroup_Room (FK_CommandGroup,FK_Room,Sort) VALUES (?,?,?)';
 		$dbADO->Execute($insertCG_Room,array($insertID,$roomID,$insertID));
 		setOrbitersNeedConfigure($installationID,$dbADO);
-		$msg="New Climate Scenario added.";
-		header("Location: index.php?section=climateScenarios&msg=".@$msg.'&lastAdded='.$insertID);
-		exit();
+		$msg="New Climate Scenario added.&lastAdded=$insertID";
 	}
 
-	if(isset($_POST['updateCG']) || $action=='externalSubmit' || @(int)$_REQUEST['editedCgID']!=0){
+	if(isset($_POST['updateCG']) || $action=='externalSubmit' || @(int)$_REQUEST['editedCgID']!=0 || $action=='addToRoom'){
 		$displayedCommandGroupsArray=explode(',',$_POST['displayedCommandGroups']);
 		foreach($displayedCommandGroupsArray as $elem){
-			$cgDescription=cleanString($_POST['commandGroup_'.$elem]);
-			$cgHint=cleanString($_POST['hintCommandGroup_'.$elem]);
+			$cgDescription=cleanString(@$_POST['commandGroup_'.$elem]);
+			$cgHint=cleanString(@$_POST['hintCommandGroup_'.$elem]);
 			$updateCG='UPDATE CommandGroup SET Description=?, Hint=? WHERE PK_CommandGroup=?';
 			$dbADO->Execute($updateCG,array($cgDescription,$cgHint,$elem));
 		}
@@ -260,7 +257,7 @@ if($action=='form') {
 			exit();
 		}
 		
-		$msg="Climate Scenario updated.";
+		$msg=(isset($msg))?$msg:"Climate Scenario updated";
 	}
 	
 	if(isset($_REQUEST['operation'])){

@@ -226,15 +226,13 @@ if($action=='form') {
 		$dbADO->Execute($insertCG_Room,array($insertID,$roomID,$insertID));
 		setOrbitersNeedConfigure($installationID,$dbADO);
 		$msg="New Lighting Scenario added";
-		header("Location: index.php?section=lightingScenarios&msg=".@$msg.'&lastAdded='.$insertID);
-		exit();
 	}
 	
-	if(isset($_POST['updateCG']) || $action=='externalSubmit' || @(int)$_REQUEST['editedCgID']!=0){
+	if(isset($_POST['updateCG']) || $action=='externalSubmit' || @(int)$_REQUEST['editedCgID']!=0 || $action=='addToRoom'){
 		$displayedCommandGroupsArray=explode(',',$_POST['displayedCommandGroups']);
 		foreach($displayedCommandGroupsArray as $elem){
-			$cgDescription=cleanString($_POST['commandGroup_'.$elem]);
-			$cgHint=cleanString($_POST['hintCommandGroup_'.$elem]);
+			$cgDescription=cleanString(@$_POST['commandGroup_'.$elem]);
+			$cgHint=cleanString(@$_POST['hintCommandGroup_'.$elem]);
 			$updateCG='UPDATE CommandGroup SET Description=?, Hint=? WHERE PK_CommandGroup=?';
 			$dbADO->Execute($updateCG,array($cgDescription,$cgHint,$elem));
 		}
@@ -243,7 +241,7 @@ if($action=='form') {
 			header('Location: index.php?section=lightingScenarios&cgID='.$_REQUEST['editedCgID'].'&action=edit&roomID='.$_REQUEST['roomID']);
 			exit();
 		}
-		$msg="Lighting Scenario updated";
+		$msg=(isset($msg))?$msg:"Lighting Scenario updated&lastAdded=$insertID";
 	}
 	
 	if(isset($_REQUEST['operation'])){
