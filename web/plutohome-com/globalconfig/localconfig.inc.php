@@ -6,7 +6,6 @@
   	$PlutoHomeHost="http://plutohome.com/";
   	$MasterUsersHost="http://plutohome.com/masterusers/";
 	$PlutoSupportHost='http://plutohome.com/support/';
-	
 
 	// hard-coded values
 	$GLOBALS['rootOrbiterID'] = 5; 			// the PK_DeviceCategory from DeviceCategory table for the root orbiter
@@ -39,5 +38,12 @@
 	$dbPlutoMediaUser = "plutomedia";
 	$dbPlutoMediaPass = "";
 	$dbPlutoMediaServer = "localhost";
-	$dbPlutoMediaDatabase = "pluto_media";	
+	$dbPlutoMediaDatabase = "pluto_media";
+
+	// pluto security
+	$dbPlutoSecurityType = "MySQL";
+	$dbPlutoSecurityUser = "plutosecurity";
+	$dbPlutoSecurityPass = "";
+	$dbPlutoSecurityServer = "localhost";
+	$dbPlutoSecurityDatabase = "pluto_security";
 ?>
