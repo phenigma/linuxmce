@@ -165,6 +165,11 @@ MOON_HOSTS=""
 for Client in $R; do
 	IP=$(Field 1 "$Client")
 	MAC=$(Field 2 "$Client")
+
+	if ! /usr/pluto/bin/CheckMAC.sh "$MAC"; then
+		echo "Invalid MAC address for moon '$IP , $MAC'"
+		continue;
+	fi
 	# verbatim escape sequences used by red in ReplaceVariables; don't replace them with the real thing!
 	MOON_ENTRIES="$MOON_ENTRIES\n\thost moon$MoonNumber { hardware ethernet $MAC; fixed-address $IP; }"
 	MOON_HOSTS="$MOON_HOSTS\n$IP\tmoon$MoonNumber"
