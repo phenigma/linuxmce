@@ -410,6 +410,9 @@
 #define TEXT_Away_CONST 1085
 #define TEXT_Disturb_CONST 1086
 #define TEXT_Sleeping_phone_status_CONST 1087
+#define TEXT_Press_enter_to_go_to_security_alerts_CONST 1088
+#define TEXT_To_enter_PIN_press_Enter_CONST 1089
+#define TEXT_Choose_a_user_CONST 1090
 
 #define TEXT_TABLE "Text"
 #define TEXT_PK_TEXT_FIELD "PK_Text"
