@@ -26,6 +26,7 @@ namespace DCE
             : MediaStream(pMediaHandlerInfo, pDeviceData_Router, PK_DesignObj_Remote, PK_Users, sourceType, iStreamID)
 	{
 		// m_pMythTV_PlugIn=pMythTV_PlugIn;
+		m_iNextProgramChannelID = m_iCurrentProgramChannelID = 0;
 	}
 
 	MythTvMediaStream::~MythTvMediaStream()
