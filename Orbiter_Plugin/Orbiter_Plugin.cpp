@@ -92,11 +92,11 @@ receive as pointers to Command_Impl, because they are not the first base class (
 lcmts plug-ins are included, the command_impl is cast to that class, then it's recast to a follow-me or floorplan plugin.
 Don't know the best solution to allow for this type of abstraction. */
 
-#include "../Lighting_PlugIn/Lighting_PlugIn.h"
-#include "../Climate_PlugIn/Climate_PlugIn.h"
-#include "../Media_PlugIn/Media_PlugIn.h"
-#include "../Telecom_PlugIn/Telecom_PlugIn.h"
-#include "../Security_PlugIn/Security_PlugIn.h"
+#include "../Lighting_Plugin/Lighting_Plugin.h"
+#include "../Climate_Plugin/Climate_Plugin.h"
+#include "../Media_Plugin/Media_Plugin.h"
+#include "../Telecom_Plugin/Telecom_Plugin.h"
+#include "../Security_Plugin/Security_Plugin.h"
 
 //<-dceag-reg-b->
 // This function will only be used if this device is loaded into the DCE Router's memory space as a plug-in.  Otherwise Connect() will be called from the main()
