@@ -62,16 +62,15 @@ public:
 		m_vectRow_Package_Directory_File_SourceImplementation,m_vectRow_Package_Directory_File_BinaryLibrary,
 		m_vectRow_Package_Directory_File_Configuration;
 
+	// If this package is SVN or CVS, we may need to do svn co's on multiple directories
+	vector<Row_Package_Directory *> m_vectAltSourceImplementation;
+
 	vector<PackageInfo *> m_vectPackageInfo; // Some alternates in case this one fails
 
 	PackageInfo(Row_Package_Source_Compat *pRow_Package_Source_Compat,
 		Row_Package_Source *pRow_Package_Source, Row_RepositorySource_URL *pRow_RepositorySource_URL,
 		bool bMustBuild)
 	{
-if( pRow_Package_Source->FK_Package_getrow()->Description_get().find("MySql")!=string::npos )
-{
-int k=2;
-}
 		m_pRow_Package_Source_Compat=pRow_Package_Source_Compat;
 		m_pRow_Package_Source=pRow_Package_Source;
 		m_pRow_Package_Source=pRow_Package_Source;
@@ -441,6 +440,33 @@ cout << "\t\tif [ \"$answer\" == n -o \"$answer\" == N ]; then" EOL
 				pPackageInfo->m_pRow_RepositorySource_URL->Password_get() << "|" <<
 				pPackageInfo->m_pRow_Package_Source->Parms_get() << "|" <<
 				pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << endl;
+
+			if( pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get()==REPOSITORYTYPE_CVS_CONST ||
+				pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get()==REPOSITORYTYPE_Subversion_SVN_CONST )
+			{
+				for(size_t s=0;s<pPackageInfo->m_vectAltSourceImplementation.size();++s)
+				{
+					Row_Package_Directory *pRow_Package_Directory = pPackageInfo->m_vectAltSourceImplementation[s];
+					// Same thing as above but with alternate source implementation
+					cout << 
+						pPackageInfo->m_pRow_Package_Source->FK_Package_get() << "|" << 
+						pPackageInfo->m_pRow_Package_Source->Name_get() << "|" <<
+						pPackageInfo->m_pRow_RepositorySource_URL->URL_get() << "|" <<
+						pPackageInfo->m_pRow_Package_Source_Compat->Comments_get() << "|" <<
+						pPackageInfo->m_pRow_Package_Source->Repository_get() << "|" <<
+						pPackageInfo->m_pRow_Package_Source->FK_RepositorySource_getrow()->FK_RepositoryType_get() << "|" <<
+						pPackageInfo->m_pRow_Package_Source->Version_get() << "|" <<
+						pPackageInfo->m_sBinaryExecutiblesPathPath << "|" <<
+						pPackageInfo->m_sSourceIncludesPath << "|" <<
+						pRow_Package_Directory->Path_get() << "|" <<
+						pPackageInfo->m_sBinaryLibraryPath << "|" <<
+						pPackageInfo->m_sConfiguration << "|" <<
+						pPackageInfo->m_pRow_RepositorySource_URL->Username_get() << "|" <<
+						pPackageInfo->m_pRow_RepositorySource_URL->Password_get() << "|" <<
+						pPackageInfo->m_pRow_Package_Source->Parms_get() << "|" <<
+						pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << endl;
+				}
+			}
 		}
 	}
 	// The ConfirmDependencies program specific to this distro will be given the following parameters:
@@ -808,6 +834,22 @@ PackageInfo *MakePackageInfo(Row_Package_Source_Compat *pRow_Package_Source_Comp
 	pRow_Package_Directory = GetDirectory(pRow_Package,DIRECTORY_Source_Implementation_CONST);
 	if( pRow_Package_Directory )
 	{
+		// For source implementation we may be doing a SVN or CVS checkout.  In that case we will need to do this repeatedly 
+		// for all source implementation directories--not just the primary.  Go through the directories again and find
+		// any other directories that we may have missed and add them to the vectAlt
+		vector<Row_Package_Directory *> vectRow_Package_Directory;
+		pRow_Package->Package_Directory_FK_Package_getrows(&vectRow_Package_Directory);
+		for(size_t s=0;s<vectRow_Package_Directory.size();++s)
+		{
+			Row_Package_Directory *pRow_Package_Directory_SI = vectRow_Package_Directory[s];
+			if( pRow_Package_Directory_SI->FK_Directory_get()!=DIRECTORY_Source_Implementation_CONST || pRow_Package_Directory_SI==pRow_Package_Directory )
+				continue;
+			if( pRow_Package_Directory_SI->FK_Distro_get() == pRow_Distro->PK_Distro_get() ||
+				pRow_Package_Directory_SI->FK_OperatingSystem_get() == pRow_Distro->FK_OperatingSystem_get() ||
+				( pRow_Package_Directory_SI->FK_Distro_isNull() && pRow_Package_Directory_SI->FK_OperatingSystem_isNull() ) )
+					pPackageInfo->m_vectAltSourceImplementation.push_back(pRow_Package_Directory_SI);
+		}
+
 		pPackageInfo->m_sSourceImplementationPath = pRow_Package_Directory->Path_get();
 		pRow_Package_Directory->Package_Directory_File_FK_Package_Directory_getrows(&pPackageInfo->m_vectRow_Package_Directory_File_SourceImplementation);
 	}
