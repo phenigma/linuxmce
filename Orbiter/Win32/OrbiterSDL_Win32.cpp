@@ -141,7 +141,7 @@ void OrbiterSDL_Win32::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
         m_cKeyDown=0;
 
         g_pPlutoLogger->Write(LV_STATUS, "key up %d  rept: %d  shif: %d",(int) wParam, (int) m_bRepeat, (int) m_bShiftDown);
-
+/*
 #ifndef PHONEKEYS
         if(wParam >= 'a' && wParam <= 'z')
         {
@@ -152,6 +152,7 @@ void OrbiterSDL_Win32::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
         else
 #endif 
+			*/
         if( wParam == VK_SHIFT)
             m_bShiftDown=false;
         else if( wParam == VK_CONTROL)
@@ -300,6 +301,8 @@ void OrbiterSDL_Win32::HandleKeyEvents(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					break;
             };
         }
+		else if( m_bShiftDown && m_bControlDown && wParam==VK_F1 )
+			GotoScreen(m_sMainMenu);
         else if( m_bRepeat )
         {
             switch (wParam)
