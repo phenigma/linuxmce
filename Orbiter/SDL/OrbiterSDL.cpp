@@ -87,14 +87,14 @@ OrbiterSDL::OrbiterSDL(int DeviceID, string ServerAddress, string sLocalDirector
 	if(m_bFullScreen)
 		uVideoModeFlags |= SDL_FULLSCREEN;
 	
-	if ((Screen = SDL_SetVideoMode(800, 600, 0, uVideoModeFlags)) == NULL)
+	if ((Screen = SDL_SetVideoMode(m_nImageWidth, m_nImageHeight, 0, uVideoModeFlags)) == NULL)
     {
         g_pPlutoLogger->Write(LV_WARNING, "Failed to set video mode: %s", SDL_GetError());
         throw "Failed to set video mode";
     }
 #endif
 
-    g_pPlutoLogger->Write(LV_STATUS, "Set video mode to 800x600 Window.");
+    g_pPlutoLogger->Write(LV_STATUS, "Set video mode to %d x %d Window.", m_nImageWidth, m_nImageHeight);
 
 #ifdef USE_ONLY_SCREEN_SURFACE
 	m_pScreenImage = Screen;
@@ -141,27 +141,12 @@ g_pPlutoLogger->Write(LV_STATUS,"Enter display image on screen");
     SDL_BlitSurface(m_pScreenImage, NULL, Screen, NULL);
 #endif
 
-/*
-	SDL_Rect Destination;
-	Destination.x = 100; Destination.y = 100;
-	Destination.w = 200; Destination.h = 200;
-
-	SDL_Surface *picture = SDL_LoadBMP ("Poza.bmp"); 
-	SDL_BlitSurface(picture, NULL, m_pScreenImage, &Destination);
-
-	SDL_Rect Destination2;
-	Destination2.x = 300; Destination2.y = 300;
-	Destination2.w = 100; Destination2.h = 100;
-
-	SDL_Surface *rotozoom_picture = zoomSurface(picture, 0.5, 0.5, SMOOTHING_ON);
-	SDL_BlitSurface(rotozoom_picture, NULL, m_pScreenImage, &Destination2);
-
-	SDL_FreeSurface(picture);
-	SDL_FreeSurface(rotozoom_picture);
-*/
 	SDL_UpdateRect(Screen, 0, 0, 0, 0);
 
 	g_pPlutoLogger->Write(LV_STATUS,"Exit display image on screen");
+
+	PlutoRectangle rectTotal(100, 100, 300, 300);
+	//PlayMNG(NULL, rectTotal);
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ void OrbiterSDL::RedrawObjects()
@@ -211,21 +196,22 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
 {
     bool bDeleteSurface=true;  // Will set to false if we're going to cache
     SDL_Surface * obj_image = NULL;
-    if( pObj->m_pCurrentGraphic->GraphicType_get()==gtSDLGraphic )
+    //if( pObj->m_pCurrentGraphic->GraphicType_get()==gtSDLGraphic )
+    //{
+    //    SDLGraphic *pSDL = (SDLGraphic *) pObj->m_pCurrentGraphic;
+    //    obj_image = pSDL->m_pSDL_Surface;
+    //}
+    //else 
+	if( pObj->m_pCurrentGraphic->GraphicType_get()==gtSDLGraphic )
     {
-        SDLGraphic *pSDL = (SDLGraphic *) pObj->m_pCurrentGraphic;
-        obj_image = pSDL->m_pSDL_Surface;
-    }
-    else if( pObj->m_pCurrentGraphic->GraphicType_get()==gtIMGraphic )
-    {
-        IMGraphic *pIMGraphic = (IMGraphic *) pObj->m_pCurrentGraphic;
-        obj_image = pIMGraphic->m_pSDL_Surface;
+		SDLGraphic *pSDLGraphic = (SDLGraphic *) pObj->m_pCurrentGraphic;
+        obj_image = pSDLGraphic->m_pSDL_Surface;
         if( !obj_image && m_sLocalDirectory.length()>0 )
         {
-            obj_image = IMG_Load ((m_sLocalDirectory + pIMGraphic->m_Filename).c_str());
+            obj_image = IMG_Load ((m_sLocalDirectory + pSDLGraphic->m_Filename).c_str());
             if( !obj_image )
             {
-                g_pPlutoLogger->Write(LV_CRITICAL, "Unable to read file %s",(m_sLocalDirectory + pIMGraphic->m_Filename).c_str());
+                g_pPlutoLogger->Write(LV_CRITICAL, "Unable to read file %s",(m_sLocalDirectory + pSDLGraphic->m_Filename).c_str());
                 return;
             }
         }
@@ -235,13 +221,13 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
             char *pGraphicFile=NULL;
             int iSizeGraphicFile=0;
 
-            DCE::CMD_Request_File CMD_Request_File(m_dwPK_Device,m_dwPK_Device_GeneralInfoPlugIn,"orbiter/C" + StringUtils::itos(m_dwPK_Device) + "/" + pIMGraphic->m_Filename,
+            DCE::CMD_Request_File CMD_Request_File(m_dwPK_Device,m_dwPK_Device_GeneralInfoPlugIn,"orbiter/C" + StringUtils::itos(m_dwPK_Device) + "/" + pSDLGraphic->m_Filename,
                 &pGraphicFile,&iSizeGraphicFile);
             SendCommand(CMD_Request_File);
 
             if (!iSizeGraphicFile)
             {
-                g_pPlutoLogger->Write(LV_CRITICAL, "Unable to get file from server %s", pIMGraphic->m_Filename.c_str());
+                g_pPlutoLogger->Write(LV_CRITICAL, "Unable to get file from server %s", pSDLGraphic->m_Filename.c_str());
                 return;
             }
 
@@ -251,11 +237,12 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
 
         }
 #ifdef CACHE_IMAGES
-        pIMGraphic->m_pSDL_Surface = obj_image;  // In case we loaded from cache
+        pSDLGraphic->m_pSDL_Surface = obj_image;  // In case we loaded from cache
         bDeleteSurface = false;
 #endif
     }
-    else if( pObj->m_pCurrentGraphic->GraphicType_get()==gtWinGraphic )
+/*
+	else if( pObj->m_pCurrentGraphic->GraphicType_get()==gtWinGraphic )
     {
         WinGraphic *pWinGraphic = (WinGraphic *) pObj->m_pCurrentGraphic;
         if( pWinGraphic->m_pCompressedImage && pWinGraphic->m_CompressedImageLength )
@@ -264,6 +251,7 @@ void WrapAndRenderText(void *Surface, string text, int X, int Y, int W, int H,
             obj_image = IMG_Load_RW(rw, 1); // rw is freed here
         }
     }
+*/
     else
         g_pPlutoLogger->Write(LV_CRITICAL,"SDL Got a type of graphic I don't know how to render");
 

@@ -38,20 +38,26 @@ enum eGraphicManagement { GR_KEEPUNCOMPRESSED, GR_KEEPCOMPRESSED, GR_DISCARDONCH
 //-------------------------------------------------------------------------------------------------------
 enum GraphicType
 {
-	gtWinGraphic,
-	gtIMGraphic,
 	gtSDLGraphic
 };
+//=======================================================================================================
+//PlutoGraphic builder method CreateGraphic
 //-------------------------------------------------------------------------------------------------------
-class CHAGraphic
+extern class PlutoGraphic *CreateGraphic(GraphicType Type, string Filename, 
+										 eGraphicManagement GraphicManagement, 
+										 class Orbiter *pOrbiter); 
+//=======================================================================================================
+//Generic abstract class PlutoGraphic
+//-------------------------------------------------------------------------------------------------------
+class PlutoGraphic
 {
 protected :
 	Orbiter *m_pOrbiter;
 public:
-	CHAGraphic();
-	CHAGraphic(Orbiter *pOrbiter);
-	CHAGraphic(string Filename, eGraphicManagement GraphicManagement, Orbiter *pOrbiter);
-	virtual ~CHAGraphic();
+	PlutoGraphic();
+	PlutoGraphic(Orbiter *pOrbiter);
+	PlutoGraphic(string Filename, eGraphicManagement GraphicManagement, Orbiter *pOrbiter);
+	virtual ~PlutoGraphic();
 
 	virtual void Initialize();
 	virtual GraphicType GraphicType_get()=0;  // Must be implemented
@@ -62,67 +68,34 @@ public:
 	int Width, Height;
 	string m_Filename;
 };
+//=======================================================================================================
+//Concrete class SDLGraphic
 //-------------------------------------------------------------------------------------------------------
-class WinGraphic : public CHAGraphic
+class SDLGraphic : public PlutoGraphic
 {
 public:
-	WinGraphic(string Filename, eGraphicManagement GraphicManagement, Orbiter *pOrbiter);
-	WinGraphic(Orbiter *pOrbiter);
-	~WinGraphic();
+	SDLGraphic(string Filename, eGraphicManagement GraphicManagement, Orbiter *pCI);
+	SDLGraphic(struct SDL_Surface *pSDL_Surface) { m_pSDL_Surface=pSDL_Surface; }
+	SDLGraphic(Orbiter *pCI);
+	~SDLGraphic();
 
 	void Initialize();
-	GraphicType GraphicType_get() { return gtWinGraphic; }
-
-	void *m_pUncompressedImage;
-	char *m_pCompressedImage;
-	int m_CompressedImageLength;
-};
-//-------------------------------------------------------------------------------------------------------
-class IMGraphic : public CHAGraphic
-{
-public:
-	IMGraphic(string Filename, eGraphicManagement GraphicManagement, Orbiter *pCI);
-	IMGraphic(Orbiter *pCI);
-	~IMGraphic();
-
-	void Initialize();
-	GraphicType GraphicType_get() { return gtIMGraphic; }
+	GraphicType GraphicType_get() { return gtSDLGraphic; }
 
 	void *m_pImage;
 	struct SDL_Surface *m_pSDL_Surface;
 };
 //-------------------------------------------------------------------------------------------------------
-class SDLGraphic: public CHAGraphic
-{
-public:
-	SDLGraphic(string Filename, eGraphicManagement GraphicManagement, Orbiter *pCI) { m_pSDL_Surface=NULL; };
-	SDLGraphic(Orbiter *pCI) { m_pSDL_Surface=NULL; };
-	SDLGraphic(struct SDL_Surface *pSDL_Surface) { m_pSDL_Surface=pSDL_Surface; }
-	~SDLGraphic() {};
-
-	void Initialize() {};
-	GraphicType GraphicType_get() { return gtSDLGraphic; }
-
-	struct SDL_Surface *m_pSDL_Surface;
-};
-//-------------------------------------------------------------------------------------------------------
-extern CHAGraphic *CreateGraphic(GraphicType Type, string Filename, eGraphicManagement GraphicManagement, 
-						  class Orbiter *pOrbiter); //a builder method
-//-------------------------------------------------------------------------------------------------------
-
-
-
-//-------------------------------------------------------------------------------------------------------
-
 typedef map<string, class DesignObj_Orbiter*> DesignObj_OrbiterMap;
-typedef list<class CHAGraphic*> CHAGraphicList;
+typedef list<class PlutoGraphic*> PlutoGraphicList;
 typedef vector<class DesignObj_Orbiter *> VectDesignObj_Orbiter;
 
 #define GRAPHIC_NORMAL	0
 #define GRAPHIC_SELECTED	-1
 #define GRAPHIC_HIGHLIGHTED	-2
-
-
+//=======================================================================================================
+//Concrete class DesignObj_Orbiter
+//-------------------------------------------------------------------------------------------------------
 class DesignObj_Orbiter : public DesignObj_Data
 {
 public:
@@ -150,8 +123,8 @@ public:
 
 	// m_pGraphicToUndoSelect is a temporary snapshot of the background that may be created during a select or restore
 	// to return it to it's previous state
-	CHAGraphic *m_pGraphic,*m_pSelectedGraphic,*m_pCurrentGraphic,*m_pHighlightedGraphic,*m_pGraphicToUndoSelect;
-	vector<CHAGraphic *> vectAltGraphics;
+	PlutoGraphic *m_pGraphic,*m_pSelectedGraphic,*m_pCurrentGraphic,*m_pHighlightedGraphic,*m_pGraphicToUndoSelect;
+	vector<PlutoGraphic *> vectAltGraphics;
 	class Orbiter_CriteriaList *m_pCriteria;
 	ProntoCCF *m_pCCF;
 
@@ -170,7 +143,9 @@ public:
 
 	string GetParameterValue(int ParameterID);
 };
-
+//=======================================================================================================
+//Concrete class CHAEffect
+//-------------------------------------------------------------------------------------------------------
 class CHAEffect
 {
 public:
@@ -193,7 +168,7 @@ public:
 
 	virtual void UpdateEffect(bool bRedrawFrame = false)=0;
 };
-
+//-------------------------------------------------------------------------------------------------------
 typedef list<CHAEffect *> CHAEffectList;
 
 #define CACHE_UP 0
@@ -201,9 +176,12 @@ typedef list<CHAEffect *> CHAEffectList;
 #define CACHE_LEFT 2
 #define CACHE_RIGHT 3
 #define CACHE_SIZE 4
-
+//-------------------------------------------------------------------------------------------------------
 // Eventually it might be good to be able to ask the server to cache a fairly signficant amount of the grid
 class ProntoCCF;
+//=======================================================================================================
+//Concrete class DesignObj_DataGrid
+//-------------------------------------------------------------------------------------------------------
 class DesignObj_DataGrid : public DesignObj_Orbiter 
 {
 public:
@@ -239,5 +217,5 @@ public:
 	bool HasMoreUp();
 	bool HasMoreDown();
 };
-
+//-------------------------------------------------------------------------------------------------------
 #endif

@@ -242,7 +242,7 @@ Orbiter::~Orbiter()
 	m_mapDeviceGroups.clear();
 
 	//clearing user icons map
-	map<int, CHAGraphic *>::iterator itUserIcons;
+	map<int, PlutoGraphic *>::iterator itUserIcons;
 	for(itUserIcons = m_mapUserIcons.begin(); itUserIcons != m_mapUserIcons.end(); itUserIcons++)
 	{
 		delete (*itUserIcons).second;
@@ -567,7 +567,7 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
     // This is somewhat of a hack, but we don't have a clean method for setting the graphics on the user & location buttons to
     if( pObj->m_iBaseObjectID==DESIGNOBJ_objCurrentUser_CONST )
     {
-        CHAGraphic *pGraphic = m_mapUserIcons[m_pScreenHistory_Current->m_dwPK_Users];
+        PlutoGraphic *pGraphic = m_mapUserIcons[m_pScreenHistory_Current->m_dwPK_Users];
         if( pGraphic )
             pObj->m_pCurrentGraphic = pGraphic;
         if( pObj->m_pCurrentGraphic )
@@ -583,7 +583,7 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
     // Maybe we're showing a non stard state
     else if(  pObj->m_pGraphicToUndoSelect && pObj->m_GraphicToDisplay==GRAPHIC_NORMAL  )
     {
-        CHAGraphic *pGraphic_Hold = pObj->m_pCurrentGraphic;
+        PlutoGraphic *pGraphic_Hold = pObj->m_pCurrentGraphic;
         pObj->m_pCurrentGraphic=pObj->m_pGraphicToUndoSelect;
         RenderGraphic( pObj,  rectTotal );
         pObj->m_pCurrentGraphic=pGraphic_Hold;
@@ -4554,23 +4554,25 @@ void Orbiter::CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pD
             pObj->m_pGraphic=NULL;
             return;
         }
-        WinGraphic *pWinGraphic = new WinGraphic( this );
-        pObj->m_pGraphic = pWinGraphic;
-        pWinGraphic->m_pCompressedImage = pData;
-        pWinGraphic->m_CompressedImageLength = iData_Size;
 
-        // We won't know the real size until after the graphic is rendered.  If this a DVD menu
-        // that is being touched,  the touch will fail if it happens in between,  so assume the
-        // new image is the same size as the old until we render it.
-        pWinGraphic->Width = PriorWidth;
-        pWinGraphic->Height = PriorHeight;
-        if(  pWinGraphic->m_CompressedImageLength > 500000  )
-        {
-            g_pPlutoLogger->Write( LV_CRITICAL, "Load Graphic( 3 ),  length is %d %s",  pWinGraphic->m_CompressedImageLength,  pWinGraphic->m_Filename.c_str(  ) );
-        }
-        // what was this for???  Doesn't the framework delete this?  It makes it impossible to call from within Orbiter -- todo        m_pThisMessage->m_mapData_Parameters.clear(  );
-        pWinGraphic->m_GraphicFormat = ( eGraphicFormat )atoi( sType.c_str(  ) );
-        pWinGraphic->m_GraphicManagement = GR_DYNAMIC;
+        //WinGraphic *pWinGraphic = new WinGraphic( this );
+        //pObj->m_pGraphic = pWinGraphic;
+        //pWinGraphic->m_pCompressedImage = pData;
+        //pWinGraphic->m_CompressedImageLength = iData_Size;
+
+        //// We won't know the real size until after the graphic is rendered.  If this a DVD menu
+        //// that is being touched,  the touch will fail if it happens in between,  so assume the
+        //// new image is the same size as the old until we render it.
+        //pWinGraphic->Width = PriorWidth;
+        //pWinGraphic->Height = PriorHeight;
+        //if(  pWinGraphic->m_CompressedImageLength > 500000  )
+        //{
+        //    g_pPlutoLogger->Write( LV_CRITICAL, "Load Graphic( 3 ),  length is %d %s",  pWinGraphic->m_CompressedImageLength,  pWinGraphic->m_Filename.c_str(  ) );
+        //}
+        //// what was this for???  Doesn't the framework delete this?  It makes it impossible to call from within Orbiter -- todo        m_pThisMessage->m_mapData_Parameters.clear(  );
+        //pWinGraphic->m_GraphicFormat = ( eGraphicFormat )atoi( sType.c_str(  ) );
+        //pWinGraphic->m_GraphicManagement = GR_DYNAMIC;
+
         if (  sDisable_Aspect_Lock.length(  )  )
             pObj->m_bDisableAspectLock = ( sDisable_Aspect_Lock=="1" ) ? true : false;
         m_vectObjs_NeedRedraw.push_back( pObj );

@@ -25,10 +25,105 @@
 #ifdef PRONTO
 #include "CCF.h"
 #endif
+//=======================================================================================================
+//PlutoGraphic builder method CreateGraphic
+//-------------------------------------------------------------------------------------------------------
+/*extern*/ PlutoGraphic *CreateGraphic(GraphicType Type, string Filename, eGraphicManagement GraphicManagement, 
+	Orbiter *pOrbiter)
+{
+	class PlutoGraphic *pGraphic = NULL;
 
+	switch(Type)
+	{
+		//case gtWinGraphic: 
+		//	pGraphic = new WinGraphic(Filename, GraphicManagement, pOrbiter);
+		//	break;
+		//case gtIMGraphic:  
+		//	return new IMGraphic(Filename, GraphicManagement, pOrbiter);
+		//	break;
+	case gtSDLGraphic: 
+		return new SDLGraphic(Filename, GraphicManagement, pOrbiter);
+	}
+
+	return pGraphic;
+}
+//=======================================================================================================
+//Generic PlutoGraphic class methods
+//-------------------------------------------------------------------------------------------------------
+PlutoGraphic::PlutoGraphic()
+{
+	Initialize();
+
+	Width = 0;
+	Height = 0;
+}
+//-------------------------------------------------------------------------------------------------------
+PlutoGraphic::PlutoGraphic(Orbiter *pOrbiter)
+{
+	Initialize();
+
+	m_pOrbiter = pOrbiter;
+	Width = 0;
+	Height = 0;
+};
+//-------------------------------------------------------------------------------------------------------
+PlutoGraphic::PlutoGraphic(string Filename, eGraphicManagement GraphicManagement, 
+						   Orbiter *pOrbiter)
+{
+	Initialize();
+
+	m_pOrbiter = pOrbiter;
+	m_Filename = Filename;
+	m_GraphicManagement = GraphicManagement;
+	Width = 0;
+	Height = 0;
+};
+//-------------------------------------------------------------------------------------------------------
+/*virtual*/ PlutoGraphic::~PlutoGraphic()
+{
+}
+//-------------------------------------------------------------------------------------------------------
+/*virtual*/ void PlutoGraphic::Initialize() 
+{ 
+	m_GraphicManagement = GR_KEEPCOMPRESSED; 
+	m_GraphicFormat = GR_UNKNOWN; 
+}
+//=======================================================================================================
+//Concrete SDLGraphic class methods
+//-------------------------------------------------------------------------------------------------------
+SDLGraphic::SDLGraphic(string Filename, eGraphicManagement GraphicManagement, 
+					   Orbiter *pOrbiter) 
+					   : PlutoGraphic(Filename, GraphicManagement, pOrbiter)
+{
+	Initialize();
+}
+//-------------------------------------------------------------------------------------------------------
+SDLGraphic::SDLGraphic(Orbiter *pOrbiter) 
+: PlutoGraphic(pOrbiter)
+{
+	Initialize();
+}
+//-------------------------------------------------------------------------------------------------------
+SDLGraphic::~SDLGraphic()
+{
+	if (m_pImage)
+		delete m_pImage;
+	if (m_pSDL_Surface)
+		SDL_FreeSurface(m_pSDL_Surface);
+}
+//-------------------------------------------------------------------------------------------------------
+void SDLGraphic::Initialize() 
+{ 
+	m_pSDL_Surface = NULL;
+	m_pImage = NULL; 
+}
+//=======================================================================================================
+//Concrete class DesignObj_Orbiter
+//-------------------------------------------------------------------------------------------------------
 DesignObj_Orbiter::DesignObj_Orbiter(Orbiter *pCore)
 {
-	m_pDesignObj_Orbiter_Up=m_pDesignObj_Orbiter_Down=m_pDesignObj_Orbiter_Left=m_pDesignObj_Orbiter_Right=m_pDesignObj_Orbiter_TiedTo=NULL;
+	m_pDesignObj_Orbiter_Up=m_pDesignObj_Orbiter_Down=m_pDesignObj_Orbiter_Left=m_pDesignObj_Orbiter_Right=
+		m_pDesignObj_Orbiter_TiedTo=NULL;
 	m_pDataGridTable=NULL;
 	m_pCore = pCore;
 	m_pGraphic=NULL;
@@ -53,7 +148,7 @@ DesignObj_Orbiter::DesignObj_Orbiter(Orbiter *pCore)
 	m_bContainsDataGrid=false;
 	m_bTabStop = true;
 };
-
+//-------------------------------------------------------------------------------------------------------
 DesignObj_Orbiter::~DesignObj_Orbiter()
 {
 /* todo 2.0, dynamic_cast isn't cross-platform, I don't think
@@ -136,7 +231,7 @@ DesignObj_Orbiter::~DesignObj_Orbiter()
 	delete m_pCCF;
 #endif
 };
-
+//-------------------------------------------------------------------------------------------------------
 string DesignObj_Orbiter::GetParameterValue(int ParameterID)
 {
 	map<int,string>::iterator ipParm = m_mapObjParms.find(ParameterID);
@@ -144,138 +239,8 @@ string DesignObj_Orbiter::GetParameterValue(int ParameterID)
 		return "";
 	return m_pCore->SubstituteVariables((*ipParm).second,this,0,0);
 }
-
-
 //=======================================================================================================
-//Generic CHAGraphic class methods
-//-------------------------------------------------------------------------------------------------------
-CHAGraphic::CHAGraphic()
-{
-	Initialize();
-
-	Width = 0;
-	Height = 0;
-}
-//-------------------------------------------------------------------------------------------------------
-CHAGraphic::CHAGraphic(Orbiter *pOrbiter)
-{
-	Initialize();
-
-	m_pOrbiter = pOrbiter;
-	Width = 0;
-	Height = 0;
-};
-//-------------------------------------------------------------------------------------------------------
-CHAGraphic::CHAGraphic(string Filename, eGraphicManagement GraphicManagement, 
-					   Orbiter *pOrbiter)
-{
-	Initialize();
-
-	m_pOrbiter = pOrbiter;
-	m_Filename = Filename;
-	m_GraphicManagement = GraphicManagement;
-	Width = 0;
-	Height = 0;
-};
-//-------------------------------------------------------------------------------------------------------
-/*virtual*/ CHAGraphic::~CHAGraphic()
-{
-}
-//-------------------------------------------------------------------------------------------------------
-/*virtual*/ void CHAGraphic::Initialize() 
-{ 
-	m_GraphicManagement = GR_KEEPCOMPRESSED; 
-	m_GraphicFormat = GR_UNKNOWN; 
-}
-//-------------------------------------------------------------------------------------------------------
-
-
-//=======================================================================================================
-//Concrete WinGraphic class methods
-//-------------------------------------------------------------------------------------------------------
-WinGraphic::WinGraphic(string Filename, eGraphicManagement GraphicManagement, 
-	Orbiter *pOrbiter) 
-	: CHAGraphic(Filename, GraphicManagement, pOrbiter)
-{
-	Initialize();
-}
-//-------------------------------------------------------------------------------------------------------
-WinGraphic::WinGraphic(Orbiter *pOrbiter) 
-	: CHAGraphic(pOrbiter)
-{
-	Initialize();
-}
-//-------------------------------------------------------------------------------------------------------
-WinGraphic::~WinGraphic()
-{
-	/* todo 2.0
-	if (m_pUncompressedImage)
-		m_pOrbiter->RemoveUncompressedImage(m_pUncompressedImage);
-
-	delete m_pCompressedImage;
-*/
-}
-//-------------------------------------------------------------------------------------------------------
-void WinGraphic::Initialize() 
-{ 
-	m_pUncompressedImage = NULL; 
-	m_pCompressedImage = NULL; 
-}
-//-------------------------------------------------------------------------------------------------------
-
-
-
-//=======================================================================================================
-//Concrete IMGraphic class methods
-//-------------------------------------------------------------------------------------------------------
-IMGraphic::IMGraphic(string Filename, eGraphicManagement GraphicManagement, 
-	Orbiter *pOrbiter) 
-	: CHAGraphic(Filename, GraphicManagement, pOrbiter)
-{
-	Initialize();
-}
-//-------------------------------------------------------------------------------------------------------
-IMGraphic::IMGraphic(Orbiter *pOrbiter) 
-	: CHAGraphic(pOrbiter)
-{
-	Initialize();
-}
-//-------------------------------------------------------------------------------------------------------
-IMGraphic::~IMGraphic()
-{
-	if (m_pImage)
-		delete m_pImage;
-	if (m_pSDL_Surface)
-	    SDL_FreeSurface(m_pSDL_Surface);
-}
-//-------------------------------------------------------------------------------------------------------
-void IMGraphic::Initialize() 
-{ 
-	m_pSDL_Surface = NULL;
-	m_pImage = NULL; 
-}
-//-------------------------------------------------------------------------------------------------------
-
-//-------------------------------------------------------------------------------------------------------
-/*extern*/ CHAGraphic *CreateGraphic(GraphicType Type, string Filename, eGraphicManagement GraphicManagement, 
-						  Orbiter *pOrbiter)
-{
-	CHAGraphic *pGraphic = NULL;
-
-	switch(Type)
-	{
-		case gtWinGraphic: 
-			pGraphic = new WinGraphic(Filename, GraphicManagement, pOrbiter);
-			break;
-		case gtIMGraphic:  
-			return new IMGraphic(Filename, GraphicManagement, pOrbiter);
-			break;
-		case gtSDLGraphic: 
-			return new IMGraphic/*SDLGraphic*/(Filename, GraphicManagement, pOrbiter);
-	}
-
-	return pGraphic;
-}
+//Concrete class DesignObj_DataGrid
 //-------------------------------------------------------------------------------------------------------
 DesignObj_DataGrid::~DesignObj_DataGrid() 
 {
