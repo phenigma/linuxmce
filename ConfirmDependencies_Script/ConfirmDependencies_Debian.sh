@@ -49,7 +49,12 @@ keep_sending_enters()
 
 case "$URL_TYPE" in
 	apt)
-		if ! cat /etc/apt/sources.list | sed "$SPACE_SED" | egrep "$REPOS_SRC.+$REPOS" 2>/dev/null; then
+		TMP_SECT=$(echo -n "$REPOS" | cut -d' ' -f2-)
+		if [ -n "$TMP_SECT" ]; then
+			SECTIONS="$TMP_SECT"
+			REPOS=$(echo -n "$REPOS" | cut -d' ' -f1)
+		fi
+		if ! cat /etc/apt/sources.list | sed "$SPACE_SED" | egrep "$REPOS_SRC.+$REPOS.+$SECTIONS" 2>/dev/null; then
 			echo "$REPOS_SRC $REPOS $SECTIONS" >>/etc/apt/sources.list
 			apt-get update
 		fi
