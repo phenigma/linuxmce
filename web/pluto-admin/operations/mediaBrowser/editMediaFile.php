@@ -187,6 +187,9 @@ function editMediaFile($output,$mediadbADO) {
 			$deletePicAttribute='DELETE FROM Picture_Attribute WHERE FK_Picture=?';
 			$mediadbADO->Execute($deletePicAttribute,$toDelete);
 			
+			$deletePicFile='DELETE FROM Picture_File WHERE FK_Picture=?';
+			$mediadbADO->Execute($deletePicFile,$toDelete);
+			
 			unlink($GLOBALS['mediaPicsPath'].$toDelete.'.jpg');
 			unlink($GLOBALS['mediaPicsPath'].$toDelete.'_tn.jpg');
 		}
