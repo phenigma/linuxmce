@@ -839,7 +839,7 @@ bool Table::CheckIn( int psc_user, RA_Processor &ra_Processor, DCE::Socket *pSoc
 
 			R_CommitRow r_CommitRow( pChangedRow );
 
-			cout << "Sending row toc: " << pChangedRow->m_eTypeOfChange << " psc_id: " << pChangedRow->m_psc_id << " " << pChangedRow->GetWhereClause() << endl;
+			cout << "Sending row table: " << m_sName << " toc: " << pChangedRow->m_eTypeOfChange << " psc_id: " << pChangedRow->m_psc_id << " " << pChangedRow->GetWhereClause() << endl;
 
 			std::ostringstream sSQL;
 			if( pChangedRow->m_eTypeOfChange!=toc_Delete )

@@ -56,6 +56,8 @@ bool R_CommitRow::ProcessRequest( class RA_Processor *pRA_Processor )
 		m_cProcessOutcome=INTERNAL_ERROR;
 	}
 
+	cout << "Committing row table: " << psqlCVSprocessor->m_pTable->Name_get() << " type: " << m_eTypeOfChange << " psc_id: " << m_psc_id << " user: " << m_psc_user << " auto incr: " << m_iOriginalAutoIncrID << endl;
+
 	m_iNewAutoIncrID=0;
 	m_cProcessOutcome=SUCCESSFULLY_PROCESSED; /** @todo -- process it */
 	try
