@@ -18,6 +18,8 @@ sources = \
 	OGText.cpp Renderer.cpp \
 	$(TS)/TextSplitter.cpp \
 	$(TS)/TextWrapper.cpp \
+	$(ORB)/SDL/SDLRendererOCGHelper.cpp \
+	$(ORB)/RendererOCG.cpp \
 	$(ORB)/DesignObj_Data.cpp \
 	$(ORB)/TextStyle.cpp \
 	$(ORB)/RendererMNG.cpp
