@@ -28,6 +28,7 @@ else
 	rm -f /tmp/$PackageName
 fi
 
-[ -z "$Result" ] && Result="Installation complete"
+[ -z "$Result" ] && Result="Installation complete" || Err="yes"
 
 echo "$Result"
+[ -n "$Err" ] && return 10 || return 0
