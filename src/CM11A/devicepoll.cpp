@@ -10,9 +10,12 @@
 //
 //
 #include "devicepoll.h"
-#include "DCE/Logger.h"
 
+#include <time.h>
+
+#include "DCE/Logger.h"
 #include "cm11aconsts.h"
+
 
 using namespace DCE;
 
@@ -88,6 +91,11 @@ DevicePoll::SendPacket(CSerialPort* pport,
 	} else {
 		g_pPlutoLogger->Write(LV_STATUS, "Got response: %x from CM11A.", resp);
 		
+		if(resp == CM11A_CLOCK_REQ) {
+			g_pPlutoLogger->Write(LV_STATUS, "CM11A requested clock SET UP", resp);
+			SendClock(pport);
+			return -1;
+		} else
 		if(resp != CM11A_INTERFACE_READY) {
 			g_pPlutoLogger->Write(LV_STATUS, "Acknowledge of adress failed.");
 			return -1;
@@ -96,6 +104,28 @@ DevicePoll::SendPacket(CSerialPort* pport,
 	
 	return 0;
 }			
+
+int 
+DevicePoll::SendClock(CSerialPort* pport) {
+	unsigned char sbuff[9];
+	time_t ttime = time((long *) NULL);
+	
+	struct tm *tp;
+	tp = localtime(&ttime);
+
+	sbuff[0] = CM11A_SET_TIME;             /* CM11A timer download code */
+	sbuff[1] = tp->tm_sec ;
+	sbuff[2] = tp->tm_min + (((tp->tm_hour) %2) * 60 ) ;  /* minutes 0 - 119 */
+	sbuff[3] = tp->tm_hour / 2 ;                 /* hour / 2         0 - 11 */
+	sbuff[4] = tp->tm_yday % 256 ;               /* mantisa of julian date */
+	sbuff[5] = ((tp->tm_yday / 256 ) << 7);      /* radix of julian date */
+	sbuff[5] |= (0x01 << (tp->tm_wday)); /* bits 0-6 =  single bit mask day */
+								/* of week ( smtwtfs ) */
+	sbuff[6] = 0x61; /* hard coded house code A for monitoring, probably shouldn't be hard coded */
+	pport->Write((char*)sbuff, 7);
+	pport->Read((char*)sbuff, 1, 10000);
+	return true;
+}
 
 int 
 DevicePoll::SendAddress(CSerialPort* pport, const Message* pMesg) {
@@ -148,6 +178,7 @@ void* DevicePoll::_Run() {
 					g_pPlutoLogger->Write(LV_STATUS, "Address sent successfully.");
 				} else  {
 					g_pPlutoLogger->Write(LV_CRITICAL, "Failed sending address.");
+					continue;
 				}
 				
 				sendretry = 0;

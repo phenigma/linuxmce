@@ -37,6 +37,7 @@ protected:
 	
 	int SendPacket(CSerialPort* pport, 
 			unsigned char highByte, unsigned char lowByte);
+	int SendClock(CSerialPort* pport);
 	
 	virtual int SendAddress(CSerialPort* pport, const Message* pMesg);
 	virtual int SendFunction(CSerialPort* pport, const Message* pMesg);
