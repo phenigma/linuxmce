@@ -199,7 +199,7 @@ function editMediaFile($output,$mediadbADO) {
 			header('Location: index.php?section=editMediaFile&fileID='.$fileID.'&msg=Media file updated.');			
 		}
 	}
-	
+	$output->setReloadLeftFrame(false);
 	$output->setScriptInHead($scriptInHead);	
 	$output->setScriptCalendar('null');
 	$output->setBody($out);

@@ -177,7 +177,7 @@ $displayedRooms = array();
 	
 			$displayedEntertainAreaArray=explode(',',$_POST['displayedEntertainArea']);
 			foreach ($displayedEntertainAreaArray as $key => $value){
-				$entertainAreaDescription=@$_POST['entertainArea_'.$value];
+				$entertainAreaDescription=stripslashes(@$_POST['entertainArea_'.$value]);
 				$private=isset($_POST['private_'.$value])?$_POST['private_'.$value]:0;
 				$fot=(isset($_POST['fot_'.$value]) && (int)$_POST['fot_'.$value]>0)?$_POST['fot_'.$value]:NULL;
 				

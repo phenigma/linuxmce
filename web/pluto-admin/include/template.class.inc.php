@@ -30,11 +30,7 @@
   var $defaultCssFile   = "include/styles/customer_setup_style.css";
   
   var $defaultScriptValidateSrc = 'scripts/formValidation.js';
-  var $defaultScriptCalendar = '
-    <link rel="stylesheet" type="text/css" media="all" href="scripts/jscalendar/calendar2.css" />
-    <script type="text/javascript" src="scripts/jscalendar/calendar.js"></script>
-    <script type="text/javascript" src="scripts/jscalendar/lang/calendar-en.js"></script>
-    <script type="text/javascript" src="scripts/jscalendar/calendar-setup.js"></script>';
+  var $defaultScriptCalendar = '';
   
   var $defaultScriptInHead = '';
   
