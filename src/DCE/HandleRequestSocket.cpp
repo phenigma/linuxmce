@@ -203,11 +203,6 @@ void HandleRequestSocket::RunThread()
 g_pPlutoLogger->Write( LV_STATUS, "Closing request handler connection...");
 //	g_pPlutoLogger->Write( LV_STATUS, "Closing event handler connection %d (%d,%s), Terminate: %d %s\n", 
 //		m_dwPK_Device, (int) m_bUnexpected, sMessage.c_str(), (int) m_bTerminate, m_sName.c_str() );
-	if ( m_bUnexpected )
-	{
-		g_pPlutoLogger->Write(LV_STATUS, "OnUnexpectedDisconnect");
-		OnUnexpectedDisconnect();
-	}
 #ifdef UNDER_CE
 	}
 	__except( EXCEPTION_EXECUTE_HANDLER )
@@ -224,8 +219,13 @@ g_pPlutoLogger->Write( LV_STATUS, "Closing request handler connection...");
 	}
 #endif
 
-	g_pPlutoLogger->Write(LV_CRITICAL, "Ready to quit HandleRequestSocket::RunThread()");
 	m_bRunning = false;
+	if ( m_bUnexpected )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "OnUnexpectedDisconnect");
+		OnUnexpectedDisconnect();
+	}
+
 	return;
 }
 
