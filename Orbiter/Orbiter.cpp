@@ -1680,9 +1680,9 @@ void Orbiter::Initialize( GraphicType Type )
 			if(  m_sLocalDirectory.length(  )==0  )
 			{
 #ifdef WIN32
-				m_sLocalDirectory = "/pluto/C" + StringUtils::itos( m_dwPK_Device ) + "/";
+				m_sLocalDirectory = "/pluto/orbiter/C" + StringUtils::itos( m_dwPK_Device ) + "/";
 #else
-				m_sLocalDirectory = "/usr/pluto/C" + StringUtils::itos( m_dwPK_Device ) + "/";
+				m_sLocalDirectory = "/usr/pluto/orbiter/C" + StringUtils::itos( m_dwPK_Device ) + "/";
 #endif
 				if(  !( bFileExists=FileUtils::FileExists( m_sLocalDirectory + Filename ) )  )
 				{
@@ -2464,13 +2464,20 @@ bool Orbiter::ButtonDown( int PK_Button )
 		{
 			if( 
 				( PK_Button >= BUTTON_a_CONST && PK_Button <= BUTTON_z_CONST ) ||
-				( PK_Button >= BUTTON_A_CONST && PK_Button <= BUTTON_Z_CONST )
+				( PK_Button >= BUTTON_A_CONST && PK_Button <= BUTTON_Z_CONST ) ||
+				( PK_Button >= BUTTON_1_CONST && PK_Button <= BUTTON_0_CONST )
 				 )
 			{
-				char ch =
-					( PK_Button >= BUTTON_a_CONST && PK_Button <= BUTTON_z_CONST ) ?
-					'a' + PK_Button - BUTTON_a_CONST :
-				'A' + PK_Button - BUTTON_A_CONST;
+				char ch;
+				
+				if( PK_Button == BUTTON_0_CONST )
+					ch = '0';
+				else if ( PK_Button >= BUTTON_1_CONST && PK_Button <= BUTTON_0_CONST )
+					ch = '1' + PK_Button - BUTTON_1_CONST;
+				else
+					ch = ( PK_Button >= BUTTON_a_CONST && PK_Button <= BUTTON_z_CONST ) ?
+						'a' + PK_Button - BUTTON_a_CONST :
+						'A' + PK_Button - BUTTON_A_CONST;
 
 				bHandled |= CaptureKeyboard_EditText_AppendChar( ch );
 			}

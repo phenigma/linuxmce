@@ -88,11 +88,11 @@ int main(int argc, char *argv[])
 #endif
 	g_pPlutoLogger=new FileLogger(stdout);
 
-	string DBHost="localhost",DBUser="root",DBPassword="",DBName="pluto_main";
+	string DBHost="dce_router",DBUser="root",DBPassword="",DBName="pluto_main";
 #ifdef WIN32
-	string GraphicsFiles="/pluto/graphics/skins",FontFiles="/windows/fonts",OutputFiles="/pluto";
+	string GraphicsFiles="/pluto/orbiter/skins",FontFiles="/windows/fonts",OutputFiles="/pluto/orbiter";
 #else
-	string GraphicsFiles="/usr/pluto/skins",FontFiles="/usr/share/fonts/truetype/msttcorefonts",OutputFiles="/usr/pluto";
+	string GraphicsFiles="/usr/pluto/orbiter/skins",FontFiles="/usr/share/fonts/truetype/msttcorefonts",OutputFiles="/usr/pluto/orbiter";
 #endif
 	int DBPort=3306,PK_Orbiter=0;
 	bool bRegen=false;

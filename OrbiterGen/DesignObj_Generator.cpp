@@ -1298,10 +1298,10 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 
             {
                 vector<class Row_Device *> vectD;
-                string sql = string("SELECT Device.* FROM Device") + 
-					"JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate" +
-					"JOIN DeviceCategory ON FK_DeviceCategory=DeviceCategory.PK_DeviceCategory" +
-					"LEFT JOIN DeviceCategory As ParentCategory ON DeviceCategory.FK_DeviceCategory_Parent=ParentCategory.PK_DeviceCategory" +
+                string sql = string("SELECT Device.* FROM Device ") + 
+					"JOIN DeviceTemplate ON FK_DeviceTemplate=PK_DeviceTemplate " +
+					"JOIN DeviceCategory ON FK_DeviceCategory=DeviceCategory.PK_DeviceCategory " +
+					"LEFT JOIN DeviceCategory As ParentCategory ON DeviceCategory.FK_DeviceCategory_Parent=ParentCategory.PK_DeviceCategory " +
 					"WHERE DeviceCategory.PK_DeviceCategory="+StringUtils::itos(PK_DeviceCategory)+
 					" OR ParentCategory.PK_DeviceCategory="+StringUtils::itos(PK_DeviceCategory)+" OR ParentCategory.FK_DeviceCategory_Parent="+StringUtils::itos(PK_DeviceCategory)+
                     " ORDER BY Device.Description";
