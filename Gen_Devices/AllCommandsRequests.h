@@ -4293,5 +4293,45 @@ namespace DCE
 	public:
 		CMD_Store_Infrared_Code_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iPK_Device,string sValue_To_Assign) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,250,2,2,StringUtils::itos(iPK_Device).c_str(),5,sValue_To_Assign.c_str()); }
 	};
+	class RESP_Save_Current_Frame : public PreformedCommandResponse {
+		string *m_sFilename;
+	public:
+		RESP_Save_Current_Frame(string *sFilename) { 
+		m_sFilename=sFilename; }
+		void ParseResponse(Message *pMessage) {
+			*m_sFilename=pMessage->m_mapParameters[13]; };
+	};
+	class CMD_Save_Current_Frame : public PreformedCommand {
+	public:
+		CMD_Save_Current_Frame(long DeviceIDFrom, long DeviceIDTo,string *sFilename) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,251,1,13,(*sFilename).c_str());		m_pcResponse = new RESP_Save_Current_Frame(sFilename); }
+	};
+	class CMD_Save_Current_Frame_DL : public PreformedCommand {
+	public:
+		CMD_Save_Current_Frame_DL(long DeviceIDFrom, string DeviceIDTo,string *sFilename) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,251,1,13,(*sFilename).c_str());		m_pcResponse = new RESP_Save_Current_Frame(sFilename); }
+	};
+	class CMD_Save_Current_Frame_DT : public PreformedCommand {
+	public:
+		CMD_Save_Current_Frame_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,string *sFilename) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,251,1,13,(*sFilename).c_str());		m_pcResponse = new RESP_Save_Current_Frame(sFilename); }
+	};
+	class CMD_Save_Current_Frame_Cat : public PreformedCommand {
+	public:
+		CMD_Save_Current_Frame_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,string *sFilename) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,251,1,13,(*sFilename).c_str());		m_pcResponse = new RESP_Save_Current_Frame(sFilename); }
+	};
+	class CMD_NOREP_Save_Current_Frame : public PreformedCommand {
+	public:
+		CMD_NOREP_Save_Current_Frame(long DeviceIDFrom, long DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,251,0); }
+	};
+	class CMD_NOREP_Save_Current_Frame_DL : public PreformedCommand {
+	public:
+		CMD_NOREP_Save_Current_Frame_DL(long DeviceIDFrom, string DeviceIDTo) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,251,0); }
+	};
+	class CMD_NOREP_Save_Current_Frame_DT : public PreformedCommand {
+	public:
+		CMD_NOREP_Save_Current_Frame_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,251,0); }
+	};
+	class CMD_NOREP_Save_Current_Frame_Cat : public PreformedCommand {
+	public:
+		CMD_NOREP_Save_Current_Frame_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,251,0); }
+	};
 }
 #endif
