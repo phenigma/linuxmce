@@ -416,6 +416,9 @@ bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileIn
 		for(size_t s2=0;s2<vectPackage_Directory_File.size();++s2)
 		{
 			Row_Package_Directory_File *pRow_Package_Directory_File = vectPackage_Directory_File[s2];
+			if( !pRow_Package_Directory_File->MakeCommand_isNull() )
+				continue; // Don't add this to the list of source code.  This is something we make
+
 			FileInfo *pFileInfo = new FileInfo(sDirectory + "/" + pRow_Package_Directory_File->File_get(),pRow_Package_Directory->Path_get() + "/" + pRow_Package_Directory_File->File_get(),pRow_Package_Directory_File->FK_Package_Directory_getrow());
 			listFileInfo.push_back(pFileInfo);
 		}
