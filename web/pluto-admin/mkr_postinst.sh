@@ -88,3 +88,6 @@ sudo="www-data        ALL=(root) NOPASSWD:/usr/pluto/bin/SetupRemoteAccess.sh"
 if ! grep -q www-data /etc/sudoers; then
 	echo "$sudo" >>/etc/sudoers
 fi
+
+sed -i 's/^session.gc_maxlifetime = 1440$/session.gc_maxlifetime = 144000/' /etc/php4/apache2/php.ini
+/etc/init.d/apache2 reload
