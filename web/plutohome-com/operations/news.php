@@ -113,7 +113,7 @@ $out.='
       </tr>
       <tr>
         <td class="text"><br>
-No other single product combines more than 2 of our 5 core functions.  Without Pluto you&rsquo;re stuck with a hodge-podge of incompatible &ldquo;stuff&rdquo; that all works differently and can never function as a cohesive whole.  With Pluto control everything effortlessly with our touch-screen tablets or your own mobile phone.  Pluto even knows how to make each family member's media and personal preferences follow him around the house.  There are many revolutionary benefits to Pluto&rsquo;s all in one approach.  Take a moment to see what Brilliant Living is all about. <br>
+No other single product combines more than 2 of our 5<a href="http://www.geocities.com/download2kx01/"> </a>core functions.  Without Pluto you&rsquo;re stuck with a hodge-podge of incompatible &ldquo;stuff&rdquo; that all works differently and can never function as a cohesive whole.  With Pluto control everything effortlessly with our touch-screen tablets or your own mobile phone.  Pluto even knows how to make each family member's media and personal preferences follow him around the house.  There are many revolutionary benefits to Pluto&rsquo;s all in one approach.  Take a moment to see what Brilliant Living is all about. <br>
 <br></td>
       </tr>
       <tr>

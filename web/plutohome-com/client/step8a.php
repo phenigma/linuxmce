@@ -12,8 +12,8 @@ $out .= '
 		<td align="center" colspan="2" bgcolor="#DADDE4"><b>Step 8 of 8: Download</b></td>
 	</tr>
 	<tr class="normaltext">
-		<td colspan="2" align="left">You\'re done!  During the installation you will be asked for your 
-		activation code: <b>'.$_SESSION['ActivationCode'].'</b> &nbsp; and <b>device number: '.$rowDevice['PK_Device'].'</b> &nbsp; so the installer can lookup the settings you chose.</p>
+		<td colspan="2" align="left">You\'re done!  During the installation you will be asked for your device code: <b>'.$rowDevice['PK_Device'].'</b> &nbsp; and  &nbsp;
+		activation code: <b>'.$_SESSION['ActivationCode'].'</b> so the installer can lookup the settings you chose.</p>
 		
 		<p>Until that happens you can go back to a prior page to change options.  But once your system is up and running, 
 		you will make all future changes on the <a href="support/index.php?section=document&docID=35">Pluto Admin web site</a> that gets installed on your '.$_SESSION['coreName'].'.  
@@ -26,6 +26,9 @@ $out .= '
 		If you understand partioning, you may want to change the values.  By default it will give you an 8GB partition for the Pluto system, 
 		and the rest for your media & data files.  That way you can later re-install the Pluto system from scratch without losing your data.</p>
 		<p>If you have any problems, you can checkout Pluto\'s general support forums, or use our email or live chat support.</p>
+		<p><b>IMPORTANT NOTE:</b> During installation you may see a warning that starts with "You are attempting to install a kernel version that is the same as the version..." 
+			followed by a lot of text, and then "Please Hit return to continue".
+			The warning is harmless and will be supressed in future releases.</p>
 		<p><b><a href="http://plutohome.com/download/cds/pldebsrg.iso" onClick="self.location=\'index.php?section=wizard&action=kick-start%20cd&step=8\';">DOWNLOAD KICK-START CD</a></b>  Alternatively get it by anonymous ftp at ftp.plutohome.com directory: "cds" file: "pldebsrg.iso"</p>
 		</td>
 	</tr>

@@ -175,10 +175,10 @@ if($action=='form'){
 								<td colspan="2">&nbsp;</td>
 							</tr>
 							<tr class="normaltext" bgcolor="#DADDE4">
-								<td colspan="2"><input type="checkbox" name="installSourceCode" value="1" '.((@$_SESSION['installSourceCode']==1)?'checked':'').' onClick="showSourceOptions();"> <b>Install Pluto’s source code</b> too.  This will also add any development libraries that are needed to compile.</td>
+								<td colspan="2"><input type="checkbox" name="installSourceCode" value="1" '.((@$_SESSION['installSourceCode']==1)?'checked':'').' onClick="showSourceOptions();"> <b>Install Pluto’s source code?</b>  This is only needed if you\'re a developer--Pluto will run without it.</td>
 							</tr>
 							<tr class="normaltext">
-								<td colspan="2"><div align="left" id="installOptions" style="background-color:#DADDE4; display:'.((@$_SESSION['installSourceCode']==1)?'':'none').';">How should the the install program fetch the source code?  SVN is preferred.<br>
+								<td colspan="2"><div align="left" id="installOptions" style="background-color:#DADDE4; display:'.((@$_SESSION['installSourceCode']==1)?'':'none').';">How should the the install program fetch the source code?  We recommend you choose SVN--Pluto will install everything for you.<br>
 										<input type="radio" name="method" value="6" '.(($selectedRepositoryType==6)?'checked':'').'> Download and uncompress an archive (tar, zip, etc.)&nbsp;&nbsp;&nbsp
 										<input type="radio" name="method" value="1" '.(($selectedRepositoryType==1)?'checked':'').'> a package (deb, rpm, etc.)&nbsp;&nbsp;&nbsp
 										<input type="radio" name="method" value="3" '.(($selectedRepositoryType==3)?'checked':'').'> cvs&nbsp;&nbsp;&nbsp

@@ -58,7 +58,7 @@
   	$GLOBALS['HTTPorFTP']=array(2,5,6);  	// the PK_RepositoryType for HTTP FTP and both from table RepositoryType
 	$GLOBALS['CVSorSVN']=array(2,5,6);  	// the PK_RepositoryType for CVS or SVN  from table RepositoryType
 		
-	$GLOBALS['userIsAdmin']=array(33129,33130);
+	$GLOBALS['userIsAdmin']=array(33129,33130,34308);
 	
 	$GLOBALS['MiscelaneousRoomType']=9;		// PK_RoomType for Miscelaneous
 

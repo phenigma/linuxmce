@@ -11,8 +11,8 @@ $out .= '
 		<td align="center" colspan="2" bgcolor="#DADDE4"><b>Step 8 of 8: Download</b></td>
 	</tr>
 	<tr class="normaltext">
-		<td colspan="2" align="left">You\'re done!  During the installation you will be asked for your 
-		activation code: <b>'.$_SESSION['ActivationCode'].'</b> &nbsp; and <b>device number: '.$rowDevice['PK_Device'].'</b> &nbsp; so the installer can lookup the settings you chose.</p>
+		<td colspan="2" align="left">You\'re done!  During the installation you will be asked for your device code: <b>'.$rowDevice['PK_Device'].'</b> &nbsp; and  &nbsp;
+		activation code: <b>'.$_SESSION['ActivationCode'].'</b> so the installer can lookup the settings you chose.</p>
 		
 		<p>Until that happens you can go back to a prior page to change options.  But once your system is up and running, 
 		you will make all future changes on the <a href="support/index.php?section=document&docID=35">Pluto Admin web site</a> that gets installed on your '.$_SESSION['coreName'].'.  
