@@ -16,6 +16,7 @@ if(isset($_GET['redirect'])){
 		exit;
 	}
 }
+
 /***************************************************************************
  *                                login.php
  *                            -------------------
@@ -100,6 +101,20 @@ if( isset($HTTP_POST_VARS['login']) || isset($HTTP_GET_VARS['login']) || isset($
 
 					if( $session_id )
 					{
+						// Pluto Code
+						global $board_config;
+
+						$cookiename = $board_config['cookie_name'];
+						$cookiepath = $board_config['cookie_path'];
+						$cookiedomain = $board_config['cookie_domain'];
+						$cookiesecure = $board_config['cookie_secure'];
+						$current_time = time();
+						
+						$sessiondata['autologinid']=md5($HTTP_POST_VARS['password']);
+						$sessiondata['userid']=$row['user_id'];
+						setcookie($cookiename . '_data', serialize($sessiondata), $current_time + 31536000, $cookiepath, $cookiedomain, $cookiesecure);
+
+						// end pluto code
 						$url = ( !empty($HTTP_POST_VARS['redirect']) ) ? str_replace('&amp;', '&', htmlspecialchars($HTTP_POST_VARS['redirect'])) : "index.$phpEx";
 						redirect(append_sid($url, true));
 					}

@@ -301,11 +301,11 @@ function session_pagestart($user_ip, $thispage_id)
 					{
 						message_die(CRITICAL_ERROR, 'Error clearing sessions table', '', __LINE__, __FILE__, $sql);
 					}
-
+					
 					setcookie($cookiename . '_data', serialize($sessiondata), $current_time + 31536000, $cookiepath, $cookiedomain, $cookiesecure);
 					setcookie($cookiename . '_sid', $session_id, 0, $cookiepath, $cookiedomain, $cookiesecure);
 				}
-
+				
 				return $userdata;
 			}
 		}
