@@ -1534,16 +1534,19 @@ void OrbiterGenerator::OutputCriteriaNest(Row_CriteriaParmNesting *row)
 
 void OrbiterGenerator::MatchChildDevicesToLocation(LocationInfo *li,Row_Device *pRow_Device)
 {
+cout << "Matching child devices to " << pRow_Device->PK_Device_get() << " " << pRow_Device->Description_get() << endl;
 	vector<Row_Device *> vectChildren;
 	pRow_Device->Device_FK_Device_ControlledVia_getrows(&vectChildren);
 
 	for(size_t s=0;s<vectChildren.size();++s)
 	{
 		Row_Device *pRow_Device_MDChild = vectChildren[s];
+cout << "Checking device " << pRow_Device_MDChild->PK_Device_get() << " " << pRow_Device_MDChild->Description_get() << endl;
 		switch( pRow_Device_MDChild->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get() )
 		{
 		case DEVICECATEGORY_App_Server_CONST:
 			li->m_dwPK_Device_AppServer = pRow_Device_MDChild->PK_Device_get();
+cout << "Set appserver to " << li->m_dwPK_Device_AppServer << endl;
 			MatchChildDevicesToLocation(li,pRow_Device_MDChild);  // These devices may be children of an app server also
 			break;
 		case DEVICECATEGORY_Disc_Drives_CONST:
