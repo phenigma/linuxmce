@@ -929,9 +929,15 @@ void Repository::ImportTable(string sTableName,SerializeableStrings &str,size_t 
 	}
 
 	int NumRows = atoi( str.m_vectString[pos++].c_str( ) );
-	cout << "Importing table: " << sTableName << " " << NumRows << " rows" << endl;
+	cout << "Importing table: " << sTableName << " (" << m_sName << ") " << NumRows << " rows" << endl;
 	for( int j=0;j<NumRows;++j )
 	{
+		if( j && j % 1000 == 0 )
+			if( j==1000 )
+				cout << "Please be patient.  I am comparing each row one" << endl << "at a time to preserve any local changes you made" << endl;
+			else
+				cout << "Completed " << j << " rows out of " << NumRows << endl;
+
 		bool bUpdate=false; // Make this an update rather than an insert
 		int i_psc_id=0; // If an update, this will be the psc_id
 		if( iField_psc_id!=-1 )
