@@ -262,6 +262,13 @@ void Xine_Player::CMD_Change_Playback_Speed(int iStreamID,int iMediaPlaybackSpee
 void Xine_Player::CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,Message *pMessage)
 //<-dceag-c63-e->
 {
+	if ( ! m_pXineSlaveControl )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "Xine_Player::CMD_Skip_Fwd_ChannelTrack_Greater() I don't have a slave to use. Ignoring.");
+        return;
+    }
+
+	m_pXineSlaveControl->sendInputEvent(XINE_EVENT_INPUT_NEXT);
 }
 
 
@@ -273,7 +280,9 @@ void Xine_Player::CMD_Skip_Fwd_ChannelTrack_Greater(string &sCMD_Result,Message 
 void Xine_Player::CMD_Skip_Back_ChannelTrack_Lower(string &sCMD_Result,Message *pMessage)
 //<-dceag-c64-e->
 {
+	m_pXineSlaveControl->sendInputEvent(XINE_EVENT_INPUT_PREVIOUS);
 }
+
 
 //<-dceag-sample-b->!
 
@@ -496,7 +505,8 @@ void Xine_Player::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
     }
 
 	makeActive(m_pXineSlaveControl->getRenderingWindowName());
-	m_pXineSlaveControl->simulateKeystroke(BUTTON_Enter_CONST);
+	m_pXineSlaveControl->sendInputEvent(XINE_EVENT_INPUT_SELECT);
+	// m_pXineSlaveControl->simulateKeystroke(BUTTON_Enter_CONST);
 }
 
 //<-dceag-c200-b->
@@ -513,7 +523,8 @@ void Xine_Player::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
         return;
     }
 	makeActive(m_pXineSlaveControl->getRenderingWindowName());
-	m_pXineSlaveControl->simulateKeystroke(BUTTON_Up_Arrow_CONST);
+	m_pXineSlaveControl->sendInputEvent(XINE_EVENT_INPUT_UP);
+	// m_pXineSlaveControl->simulateKeystroke(BUTTON_Up_Arrow_CONST);
 }
 
 //<-dceag-c201-b->
@@ -531,7 +542,8 @@ void Xine_Player::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
     }
 
 	makeActive(m_pXineSlaveControl->getRenderingWindowName());
-	m_pXineSlaveControl->simulateKeystroke(BUTTON_Down_Arrow_CONST);
+	m_pXineSlaveControl->sendInputEvent(XINE_EVENT_INPUT_DOWN);
+	// m_pXineSlaveControl->simulateKeystroke(BUTTON_Down_Arrow_CONST);
 }
 
 //<-dceag-c202-b->
@@ -548,8 +560,9 @@ void Xine_Player::CMD_Move_Left(string &sCMD_Result,Message *pMessage)
         return;
     }
 
+	// m_pXineSlaveControl->simulateKeystroke(BUTTON_Left_Arrow_CONST);
 	makeActive(m_pXineSlaveControl->getRenderingWindowName());
- 	m_pXineSlaveControl->simulateKeystroke(BUTTON_Left_Arrow_CONST);
+	m_pXineSlaveControl->sendInputEvent(XINE_EVENT_INPUT_LEFT);
 }
 
 //<-dceag-c203-b->
@@ -567,5 +580,6 @@ void Xine_Player::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
     }
 
 	makeActive(m_pXineSlaveControl->getRenderingWindowName());
-	m_pXineSlaveControl->simulateKeystroke(BUTTON_Right_Arrow_CONST);
+	m_pXineSlaveControl->sendInputEvent(XINE_EVENT_INPUT_RIGHT);
+//	m_pXineSlaveControl->simulateKeystroke(BUTTON_Right_Arrow_CONST);
 }

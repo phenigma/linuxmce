@@ -1050,6 +1050,28 @@ void XineSlaveWrapper::pauseMediaStream(int iStreamID)
     g_pPlutoLogger->Write(LV_STATUS, "Stream paused at time: %d from %d", stoppedTime, completeTime);
 }
 
+/**
+ * \fn void XineSlaveWrapper::sendInputEvent(int eventID);
+ */
+void XineSlaveWrapper::sendInputEvent(int eventType)
+{
+	XineStream *pStream;
+	if ( (pStream = getStreamForId(1, "void XineSlaveWrapper::sendInputEvent(int eventType) getting one stream")) == NULL )
+		return;
+
+	g_pPlutoLogger->Write(LV_STATUS, "Sending %d event to the engine.", eventType);
+
+	xine_event_t event;
+
+    event.type        = eventType;
+    event.stream      = pStream->m_pStream;
+    event.data        = NULL;
+    event.data_length = 0;
+    gettimeofday(&event.tv, NULL);
+
+	xine_event_send(pStream->m_pStream, &event);
+}
+
 void XineSlaveWrapper::XineStream::setPlaybackSpeed(int speed)
 {
 /** @todo: Make this proper.

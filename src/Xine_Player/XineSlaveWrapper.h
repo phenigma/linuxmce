@@ -62,8 +62,6 @@ class XineSlaveWrapper
 		PLAYBACK_FF_32      =  32000,
 	} PlayBackSpeedType;
 
-
-
 	class XineStream
     {
         int                 m_iStreamID;
@@ -277,10 +275,14 @@ public:
 
     void pauseMediaStream(int iStreamID);
 
+	/**
+	 * @brief send a Xine event to the engine
+	 */
+	void sendInputEvent(int eventID);
+
     /**
      * @brief move the button down in a DVD menu.
      */
-
     void selectNextButton(int iStreamID);
 
     /**
