@@ -17,7 +17,7 @@ void CPlutoMOGridContainer::ConstructL(const TRect& aRect)
 	iGamesGrid->SetListBoxObserver(this);
 	
 	SetRect(aRect);
-	ActivateL();
+	//ActivateL();
 	}
 
 CPlutoMOGridContainer* CPlutoMOGridContainer::NewL(const TRect& aRect)

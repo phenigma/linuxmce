@@ -63,6 +63,8 @@ bool VR_IdentifyPhone::ProcessRequest(RA_Processor *pRA_Processor)
 {
 #ifdef VIPSERVER
 
+	m_iPlutoId = 0;
+
 	DCEMySqlConfig *pDCEMySqlConfig = dynamic_cast<DCEMySqlConfig *>(pRA_Processor->m_pRA_Config);
 	assert(NULL != pDCEMySqlConfig);
 
@@ -147,11 +149,11 @@ bool VR_IdentifyPhone::ProcessRequest(RA_Processor *pRA_Processor)
 		cout << "Request from " << m_iEstablishmentID << 
 			" IdentiedPlutoID: " << m_iIdentifiedPlutoId << " " << m_sIdentifiedPlutoIdPin << endl; 
 		s.str("");
-		s << "SELECT RecordVersion,Email,FKID_PhoneModel,NoBinary,BinaryFilename FROM PlutoId "
-			<< " LEFT JOIN Users on FK_MasterUsers=PKID_PlutoId "
+		s << "SELECT RecordVersion,Email,FKID_PhoneModel,NoBinary,BinaryFilename FROM MasterUsers "
+			<< " LEFT JOIN Users on FK_MasterUsers=PK_MasterUsers "
 			<< " LEFT JOIN PhoneModel ON FKID_PhoneModel=PKID_PhoneModel "
 			<< " LEFT JOIN BinaryVersion ON FKID_BinaryVersion=PKID_BinaryVersion "
-			<< " WHERE PKID_PlutoId=" << m_iIdentifiedPlutoId << " AND PIN='"
+			<< " WHERE PK_MasterUsers=" << m_iIdentifiedPlutoId << " AND PIN='"
 			<< m_sIdentifiedPlutoIdPin << "'";
 
 		if( 

@@ -71,7 +71,7 @@ void BD_CP_ShowVMC::ParseCommand(unsigned long size,const char *data)
 
 	LOG("#	Received 'ShowVMC' command  #\n");
 	
-	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->UpdateScreen(m_iStore == '1', m_iVMCSize, m_pVMC, 
+	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->UpdateScreen(m_iStore, m_iVMCSize, m_pVMC, 
 		m_iVMCFileNameSize, m_pVMCFileName);
 	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->Show();
 #endif

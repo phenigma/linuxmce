@@ -99,7 +99,11 @@ CPlutoMOAppUi::~CPlutoMOAppUi()
 		delete iAppContainer;
     }
 
-	delete iGetCallerId;
+	if(NULL != iGetCallerId)
+	{
+		delete iGetCallerId;
+		iGetCallerId = NULL;
+	}
 }
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::ReadConfigurationFile()
@@ -222,7 +226,7 @@ void CPlutoMOAppUi::HandleCommandL(TInt aCommand)
             break;
 //        case EEikCmdExit:
 //            Exit();
-//            break; 
+//          break; 
 
 
 //       case EAknSoftkeyBack:
@@ -243,9 +247,9 @@ void CPlutoMOAppUi::HandleCommandL(TInt aCommand)
         case EPlutoMOCmdAppTest2:
             {
 			    //BaseConstructL();
-				iGridContainer = new (ELeave) CPlutoMOGridContainer;
+				//iGridContainer = new (ELeave) CPlutoMOGridContainer;
 				//iGridContainer->SetMopParent(this);
-				iGridContainer->ConstructL( ClientRect() );
+				//iGridContainer->ConstructL( ClientRect() );
 				//AddToStackL( iGridContainer );
 				break;
             }
@@ -394,9 +398,17 @@ void CPlutoMOAppUi::UpdateScreen(
 {
 	if(bStore)
 	{
+		HBufC16 *pPath = HBufC16::NewL(256);
+		TPtr16 aPath = pPath->Des();
+
 		string FilePath("c:\\Nokia\\Images\\");
-		FilePath += pVMCFileName;
-		SaveFile(FilePath.length(), FilePath.c_str(), iVMCSize, pVMC);
+		for (unsigned int i = 0; i < FilePath.length(); i++)
+			aPath.Append(FilePath[i]);
+
+		for (i = 0; i < iVMCFileNameSize; i++)
+			aPath.Append(pVMCFileName[i]);
+		
+		SaveFile(FilePath.length(), string(aPath).c_str(), iVMCSize, pVMC);
 	}
 
 	TFileName iDummy;
@@ -469,6 +481,18 @@ void CPlutoMOAppUi::Show()
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::ResetViewer()
 {
+	LOG("Hidding VMCView...\n");
+	if(NULL != m_pVMCView && NULL != m_pVMCView->iContainer)
+	{
+		m_pVMCView->iContainer->MakeVisible(false);
+		m_bVMCViewerVisible = false;
+		m_bMakeVisibleAllowed = true;
+	}
+
+	LOG("Hidding PlutoEventView...\n");
+	if(NULL != iPlutoEventView && NULL != iPlutoEventView->iContainer)
+		iPlutoEventView->iContainer->MakeVisible(false);
+
 	LOG("Reseting list...\n");
 	RPointerArray<string> Dummy;
 	ShowList(-1, -1, -1, -1, Dummy);

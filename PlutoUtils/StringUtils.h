@@ -13,42 +13,48 @@
 #define STRINGUTILS
 
 #ifndef SYMBIAN
+	#include <string>
+	#include <vector>
+	#include <deque>
+	using namespace ::std;
+#endif //ifndef SYMBIAN
 
-#include <string>
-#include <vector>
-#include <deque>
-using namespace ::std;
-
+#ifdef SYMBIAN
+struct StringUtils
 #else
-//#include "../PlutoUtils/MyString.h"
-/*
-#define abs(x) Abs(x)
-#define atoi(x) SymbianAtoi(x, 0)
-#define itos(x) string::IntegerToString(x)
-#define strchr(x, y) (x)
-*/
-#endif
-
 namespace StringUtils
+#endif //SYMBIAN
 {
     /**
      * @brief breakes the input string into pieces sparated by sTokens; call it repeatedly to get all the pieces
      */
+#ifdef SYMBIAN
+	static
+#endif
     string Tokenize( string &sInput, string sTokens, string::size_type &CurPos );
 
     /**
      * @brief converts input string to lowercase
      */
+#ifdef SYMBIAN
+	static
+#endif
     string ToLower( string sInput );
 
     /**
      * @brief converts input string to uppercase
      */
+#ifdef SYMBIAN
+	static
+#endif
     string ToUpper( string sInput );
 
     /**
      * @brief returns the string representing the integer
      */
+#ifdef SYMBIAN
+	static
+#endif
     string itos( int iNum );
 
 #ifndef SYMBIAN

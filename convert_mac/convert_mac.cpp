@@ -1,16 +1,14 @@
-#include <unistd.h>
+//#include <unistd.h>
+#include <math.h>
 
 #include <iostream>
 #include <strstream>
 #include <fstream>
-
 #include <cstdlib>
-
 #include <string>
-
-#include "VIPShared/PhoneDevice.h"
-
 using namespace std;
+
+#include "BD/PhoneDevice.h"
 
 int main(int argc, char *argv[])
 {
