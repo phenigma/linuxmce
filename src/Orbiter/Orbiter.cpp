@@ -1791,8 +1791,6 @@ bool Orbiter::SelectedGrid( int DGRow )
 	size_t sPos;
 	if((sPos = pDesignObj_DataGrid->m_sExtraInfo.find( 'c' )) != string::npos)
 	{
-		g_pPlutoLogger->Write(LV_STATUS, "Extraoptions in grid: %s", pDesignObj_DataGrid->m_sExtraInfo.c_str());
-		
 		if(sPos + 1 < pDesignObj_DataGrid->m_sExtraInfo.size())
 			iSelectedColumn = pDesignObj_DataGrid->m_sExtraInfo[sPos + 1] - '0';
 	}
@@ -1800,6 +1798,9 @@ bool Orbiter::SelectedGrid( int DGRow )
     DataGridCell *pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData( iSelectedColumn,  DGRow );
 	pDesignObj_DataGrid->m_iHighlightedRow = DGRow;
 	pDesignObj_DataGrid->m_iHighlightedColumn = iSelectedColumn;
+
+	g_pPlutoLogger->Write(LV_STATUS, "Selected row: %d, selected column: %d", 
+		DGRow, iSelectedColumn);
 
 	if( pCell )
 	{
@@ -3099,6 +3100,10 @@ bool Orbiter::ButtonDown( int PK_Button )
                 if(  !pDesignObj_DataGrid->IsHidden(  ) && pDesignObj_DataGrid->m_pDataGridTable && pDesignObj_DataGrid->m_sExtraInfo.find( 'A' )!=string::npos )
                 {
                     // We've got a datagrid that allows the user to highlight cells without selecting them.  Now that enter was pressed it needs to select the cell
+					g_pPlutoLogger->Write(LV_STATUS, "Enter key press. Status: iHighlightedColumn %d, GridCurCol %d, iHighlightedRow %d, GridCurRow %d", 
+						pDesignObj_DataGrid->m_iHighlightedColumn, pDesignObj_DataGrid->m_GridCurCol,
+						pDesignObj_DataGrid->m_iHighlightedRow, pDesignObj_DataGrid->m_GridCurRow);
+
                     DataGridCell *pCell = pDesignObj_DataGrid->m_pDataGridTable->GetData(
 						pDesignObj_DataGrid->m_iHighlightedColumn!=-1 ? pDesignObj_DataGrid->m_iHighlightedColumn + pDesignObj_DataGrid->m_GridCurCol : 0,
 						pDesignObj_DataGrid->m_iHighlightedRow!=-1 ? pDesignObj_DataGrid->m_iHighlightedRow + pDesignObj_DataGrid->m_GridCurRow : 0);
