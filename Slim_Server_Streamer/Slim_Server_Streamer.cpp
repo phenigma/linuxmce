@@ -223,20 +223,17 @@ void Slim_Server_Streamer::CMD_Start_Streaming(string sFilename,int iStreamID,st
             g_pPlutoLogger->Write(LV_WARNING, "Player id string %s parsed to 0. Ignoring.", (*itPlayerIds).c_str() );
             continue;
         }
-
-        map<int, Command_Impl *>::iterator itPlayer = m_mapCommandImpl_Children.find(iPlayerId);
-        if ( itPlayer == m_mapCommandImpl_Children.end() )
+		
+        DeviceData_Base *pPlayerDeviceData = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(iPlayerId);
+        if ( pPlayerDeviceData == NULL )
         {
             g_pPlutoLogger->Write(LV_WARNING, "Child with id: %d was not found. Ignoring", iPlayerId);
             continue;
         }
+       
+		vectDevices.push_back(pPlayerDeviceData);
 
-        // assume all the children are Squeeze boxes.
-        DeviceData_Base *pDevice=NULL; // Mihai -- this looks like a 'command' not a 'data' class  static_cast<DeviceData_Base*>((*itPlayer).second);
-
-        vectDevices.push_back(pDevice);
-
-        currentPlayerAddress = StringUtils::URLEncode(StringUtils::ToLower(pDevice->GetMacAddress()));
+        currentPlayerAddress = StringUtils::URLEncode(StringUtils::ToLower(pPlayerDeviceData->GetMacAddress()));
 
         SendReceiveCommand(currentPlayerAddress + " sync -"); // break previous syncronization;
         SendReceiveCommand(currentPlayerAddress + " sync " + lastPlayerAddress); // synchronize with the last one.
@@ -395,18 +392,17 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
     {
         PLUTO_SAFETY_LOCK( pm, pStreamer->m_mutexDataStructureAccess);
 
-        map<int, pair<StreamStateType, vector<SqueezeBox_Player *> > >::iterator itStreamsToPlayers;
-/* mihai -- this didn't compile
+        map<int, pair<StreamStateType, vector<DeviceData_Base *> > >::iterator itStreamsToPlayers;
         itStreamsToPlayers = pStreamer->m_mapStreamsToPlayers.begin();
         while ( itStreamsToPlayers != pStreamer->m_mapStreamsToPlayers.end() &&
                 (*itStreamsToPlayers).second.first == STATE_PLAY )
         {
-            SqueezeBox_Player *pPlayer = (*itStreamsToPlayers).second.second[0];
+            DeviceData_Base *pPlayerDeviceData = (*itStreamsToPlayers).second.second[0];
 
-            string strCommand = StringUtils::URLEncode(pPlayer->m_pData->GetMacAddress()) + " mode ?";
+            string strCommand = StringUtils::URLEncode(pPlayerDeviceData->GetMacAddress()) + " mode ?";
             string strResult = pStreamer->SendReceiveCommand(strCommand);
 
-            if (strResult == StringUtils::URLEncode(pPlayer->m_pData->GetMacAddress()) + " mode stop")
+            if (strResult == StringUtils::URLEncode(pPlayerDeviceData->GetMacAddress()) + " mode stop")
             {
                 (*itStreamsToPlayers).second.first = STATE_STOP;
                 pStreamer->EVENT_Playback_Completed((*itStreamsToPlayers).first);
@@ -414,7 +410,6 @@ void *Slim_Server_Streamer::checkForPlaybackCompleted(void *pSlim_Server_Streame
 
             itStreamsToPlayers++;
         }
-*/
         pm.Release();
 
         Sleep(500);
