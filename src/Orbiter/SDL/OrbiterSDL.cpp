@@ -378,6 +378,7 @@ void OrbiterSDL::ReplaceColorInRectangle(int x, int y, int width, int height, Pl
 	SDL_Event *pEvent = new SDL_Event;
 	pEvent->type = SDL_QUIT;
 	SDL_PushEvent(pEvent);
+	delete pEvent;
 }
 //-----------------------------------------------------------------------------------------------------
 /*virtual*/ PlutoGraphic *OrbiterSDL::CreateGraphic()

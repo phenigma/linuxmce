@@ -98,7 +98,11 @@ bool SDLEventLoop(OrbiterSDL_Win32* pOrbiter)
     //clock_t cKeyDown=0;
     while (!pOrbiter->m_bQuit && !pOrbiter->m_bReload)
     {
-		SDL_WaitEvent(&Event);
+		try
+		{
+			SDL_WaitEvent(&Event);
+		}
+		catch(...){}
 
 		Orbiter::Event orbiterEvent;
 		orbiterEvent.type = Orbiter::Event::NOT_PROCESSED;

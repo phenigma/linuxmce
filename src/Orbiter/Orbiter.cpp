@@ -5434,7 +5434,7 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
 					if(!pPlutoGraphic->LoadGraphic(pData, size))
 						return;
 
-					delete pData;
+					delete [] pData;
 				}
 				break;
 
