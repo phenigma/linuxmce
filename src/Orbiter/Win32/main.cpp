@@ -114,7 +114,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 					break;
 		}
 	}
-	while(token != "");
+	while(pos<command_line.length());
 
     if (bError)
     {

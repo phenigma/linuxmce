@@ -285,7 +285,7 @@ void Router::RegisterAllPlugins()
 	FileUtils::FindFiles(listFiles,"/pluto/bin","*.dll",false,true);
 #else
 	FileUtils::FindFiles(listFiles,".","*.so",false,true);
-	FileUtils::FindFiles(listFiles,"/usr/pluto/bin","*.dll",false,true);
+	FileUtils::FindFiles(listFiles,"/usr/pluto/bin","*.so",false,true);
 #endif
 
 	int PlugInNumber=0;  // How many plug-ins we're loading dynamically

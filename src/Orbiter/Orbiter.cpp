@@ -490,7 +490,7 @@ void Orbiter::RealRedraw( void *data )
 	if( m_bQuit )
 		return;
 
-    g_pPlutoLogger->Write( LV_STATUS, "In Redraw Objects" );
+	g_pPlutoLogger->Write( LV_STATUS, "In Redraw Objects: rerender %d",(int) m_bRerenderScreen );
     PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );
     if(  m_bRerenderScreen  )
     {
@@ -504,9 +504,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
         return;
     }
 
-	g_pPlutoLogger->Write( LV_CONTROLLER, "I won't render the whole screen. Objects to be rendered: %d, texts to be rendered: %d",
-		m_vectObjs_NeedRedraw.size(), m_vectTexts_NeedRedraw.size()
-	);
+	g_pPlutoLogger->Write( LV_CONTROLLER, "I won't render the whole screen. Objects to be rendered: %d, texts to be rendered: %d",	m_vectObjs_NeedRedraw.size(), m_vectTexts_NeedRedraw.size()	);
 
     if(m_vectObjs_NeedRedraw.size() == 0 && m_vectTexts_NeedRedraw.size() == 0)
         return;
@@ -563,8 +561,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Exiting Redraw Objects" );
 //-----------------------------------------------------------------------------------------------------------
 void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Screen )
 {
-if( pObj->m_pParentObject == pObj_Screen )
-g_pPlutoLogger->Write( LV_STATUS, "Rendering top level child %s", pObj->m_ObjectID.c_str() );
+g_pPlutoLogger->Write( LV_STATUS, "Rendering: %s visble: %d", pObj->m_ObjectID.c_str(), (int) pObj->m_bHidden );
 
     if(  pObj->m_ObjectID.find( "3351" )!=string::npos  )
         //if(  pObj->m_iBaseObjectID == 2707  )
@@ -609,7 +606,10 @@ g_pPlutoLogger->Write( LV_STATUS, "Object: %s visible: %d", pObj->m_ObjectID.c_s
     }
 
     if ( pObj->m_bHidden )
+{
+g_pPlutoLogger->Write( LV_STATUS, "object: %s  not visible: %d", pObj->m_ObjectID.c_str(), (int) pObj->m_bHidden );
         return;
+	}
 
     if(  pObj->m_ObjectID=="2689.0.0.2855.179"  )
     {
@@ -1087,22 +1087,6 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable is now %p",pObj-
 	// account it will probably break somehing). )))
 	RegionUp ( 0, 0);
 
-	//purge pending tasks, if need it
-	PLUTO_SAFETY_LOCK( pm, m_MaintThreadMutex );
-	map<int,CallBackInfo *>::iterator itCallBackInfo;
-	for(itCallBackInfo = mapPendingCallbacks.begin(); itCallBackInfo != mapPendingCallbacks.end();)
-	{
-		CallBackInfo *pCallBackInfo = (*itCallBackInfo).second;
-		if(pCallBackInfo->m_bPurgeTaskWhenScreenIsChanged)
-		{
-			mapPendingCallbacks.erase(itCallBackInfo++);
-			delete pCallBackInfo;
-		}
-		else
-			itCallBackInfo++;
-	}
-	pm.Release();
-
     //  m_listDevice_Selected=""; // Nothing is selected anymore
     //  m_pLastSelectedObject=NULL;
 
@@ -1123,7 +1107,23 @@ g_pPlutoLogger->Write(LV_WARNING,"from grid %s m_pDataGridTable is now %p",pObj-
 		}
     }
 
-    // todo 2.0 SelectFirstObject(  );
+	//purge pending tasks, if need it
+	PLUTO_SAFETY_LOCK( pm, m_MaintThreadMutex );
+	map<int,CallBackInfo *>::iterator itCallBackInfo;
+	for(itCallBackInfo = mapPendingCallbacks.begin(); itCallBackInfo != mapPendingCallbacks.end();)
+	{
+		CallBackInfo *pCallBackInfo = (*itCallBackInfo).second;
+		if(pCallBackInfo->m_bPurgeTaskWhenScreenIsChanged)
+		{
+			mapPendingCallbacks.erase(itCallBackInfo++);
+			delete pCallBackInfo;
+		}
+		else
+			itCallBackInfo++;
+	}
+	pm.Release();
+
+	// todo 2.0 SelectFirstObject(  );
 
 	if( m_pDesignObj_Orbiter_ScreenSaveMenu && !m_bBypassScreenSaver && pScreenHistory->m_pObj == m_pDesignObj_Orbiter_ScreenSaveMenu && m_iTimeoutBlank )
 	{
@@ -6110,9 +6110,10 @@ void Orbiter::CMD_Set_Timeout(string sPK_DesignObj,string sTime,string &sCMD_Res
 
 
 	pObj->m_dwTimeoutSeconds = atoi(sTime.c_str());
+
 g_pPlutoLogger->Write( LV_STATUS, "set timeout on %s to %d  %p = %p",pObj->m_ObjectID.c_str(),pObj->m_dwTimeoutSeconds,pObj,m_pScreenHistory_Current->m_pObj );
 	if( pObj==m_pScreenHistory_Current->m_pObj && pObj->m_dwTimeoutSeconds )
-		CallMaintenanceInMiliseconds( pObj->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) pObj, true );
+		CallMaintenanceInMiliseconds( pObj->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) pObj, true, true );
 }
 //<-dceag-c325-b->
 
