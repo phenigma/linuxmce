@@ -95,7 +95,7 @@ void App_Server::CMD_Simulate_Keypress(string sPK_Button,string sName,string &sC
 //<-dceag-c28-e->
 {
 	cout << "Need to implement command #28 - Simulate Keypress" << endl;
-	cout << "Parm #26 - PK_Button=" << iPK_Button << endl;
+	cout << "Parm #26 - PK_Button=" << sPK_Button << endl;
 	cout << "Parm #50 - Name=" << sName << endl;
 }
 
