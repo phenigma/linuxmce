@@ -534,7 +534,9 @@ g_pPlutoLogger->Write(LV_STATUS,"mobile orbiter linked: %p",pOH_Orbiter);
     Row_Device *pRow_Device = pOH_Orbiter->m_pDeviceData_Router->m_pRow_Device;
     //if( (pRow_Device->NeedConfigure_get() == 1 || sVersion != g_sLatestMobilePhoneVersion) && pOH_Orbiter->m_sVersion != g_sLatestMobilePhoneVersion )
 	if( pRow_Device->NeedConfigure_get() == 1 || sVersion != g_sLatestMobilePhoneVersion )
+	{
 		SendAppToPhone(pOH_Orbiter,pDeviceFrom);
+	}
 
 	DeviceData_Router *pDevice_PriorDetected = pOH_Orbiter->m_pDevice_CurrentDetected;
 
@@ -801,7 +803,11 @@ void Orbiter_Plugin::CMD_New_Mobile_Orbiter(int iPK_Users,int iPK_DeviceTemplate
         g_pPlutoLogger->Write(LV_CRITICAL,"Got New Mobile Orbiter but can't find device!");
     else
     {
-        Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(iPK_DeviceTemplate);
+		Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(PK_Device);
+		pRow_Device->NeedConfigure_set(0);
+		pRow_Device->Table_Device_get()->Commit();
+		
+		Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(iPK_DeviceTemplate);
         string PlutoMOInstaller = pRow_DeviceTemplate->CommandLine_get();
 
         DCE::CMD_Send_File_To_Device CMD_Send_File_To_Device(
