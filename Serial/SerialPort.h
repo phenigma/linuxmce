@@ -1,0 +1,32 @@
+#ifndef __SERIAL_PORT_H__
+#define __SERIAL_PORT_H__
+
+#include <string>
+
+#ifdef WIN32
+#include "serio.h"
+#endif
+
+using namespace std;
+
+enum eParityBitStop { epbsN81 };
+
+class   CSerialPort
+{
+#ifdef WIN32
+	serio_t m_Serio;
+#else
+    int m_fdSerial;
+#endif
+public:
+	// Will throw with an error description as a string if the port cannot be opened.
+	CSerialPort(string Port, unsigned int BPS, enum eParityBitStop ParityBitStop, bool EnableFlowControl=false);
+	~CSerialPort();
+
+	bool IsReadEmpty();
+	size_t Read(char *Buf, size_t MaxLen, int Timeout=5);
+	void Write(char *Buf, size_t Len);
+};	
+
+#endif
+
