@@ -13,16 +13,15 @@ if($resPackage->RecordCount()!=0){
 
 $out='
 <a href="javascript:history.back()">Back</a><br>
-<h3><b>Download options for "'.$packageName.'"</b></h3>
+<h1><b>Download '.$packageName.'</b></h1>
 <br>
-<h4>'.(($isSource!=1)?'Precompiled binaries':'Source code').'</h4>
-<b><u>Note: The Windows download links</b></u> are not yet active.  You can download all the windows binaries <a href="index.php?section=document&docID=106">here</a>.<br><br>';
+<h2>'.(($isSource!=1)?'Binaries':'Source code').'</h2>';
 
 $out.=displayPackageDownload($PK_Package,$dbADO);
 
 if($isSource!=1){
 	if($sourceCodeID!=''){
-		$out.='<h4>Source code</h4>';
+		$out.='<h2>Source code</h2>';
 		$out.=displayPackageDownload($sourceCodeID,$dbADO);
 	}
 }else{
@@ -88,7 +87,7 @@ Dependencies: '.((count($dependanciesTxt)==0)?'none':join(', ',$dependanciesTxt)
 	WHERE FK_Package=? ORDER BY Name ASC';
 
 	$resSources=$dbADO->Execute($selectSources,$PK_Package);
-	$out.='<b>Download options:</b><table>';
+	$out.='<table>';
 	$sourcesCount=0;
 	while($rowSources=$resSources->FetchRow()){
 		$sourcesCount++;

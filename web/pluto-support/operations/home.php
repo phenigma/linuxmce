@@ -2,13 +2,14 @@
 $package=(isset($_SESSION['package']))?$_SESSION['package']:0;
 if($package!=0){
 	
-	$queryDocs = 'SELECT Contents FROM Package
+	$queryDocs = 'SELECT Contents,Comments FROM Package
 					INNER JOIN Document ON FK_Document=PK_Document
 					where PK_Package=?';
 	$resDocs = $dbADO ->Execute($queryDocs,$package);
 	$rowDocs = $resDocs->FetchRow();                             	
 	
-	$out = '<p><h1>**package**</h1></p>';
+	$out = '<p><h1>**package**</h1></p>
+		<p>'.$rowDocs['Comments'].'</p>';
 
 	$documentation = "";
 	if ( $rowDocs['Contents'] != "" )
