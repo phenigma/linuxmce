@@ -547,11 +547,12 @@ $out='';
 					</td>
 				</tr>
 				<tr>
-						<td valign="top" colspan="2"><a name="eventsList_link"></a>
+						<td valign="top" colspan="2"><a name="plugAndPlay"></a>
 				
 				<fieldset>
             		<legend>Plug & Play</legend>
 						<table>';
+					$dhcpArray=array();
 					$resDHCP=$dbADO->Execute('SELECT * FROM DHCPDevice WHERE FK_DeviceTemplate=?',$deviceID);
 					$out.='
 							<tr>
@@ -559,11 +560,12 @@ $out='';
 							</tr>
 						';
 					while($rowDHCP=$resDHCP->FetchRow()){
+						$dhcpArray[]=$rowDHCP['PK_DHCPDevice'];
 						$out.='
 							<tr>
 								<td>From: <input type="text" name="mac_from_'.$rowDHCP['PK_DHCPDevice'].'" value="'.$rowDHCP['Mac_Range_Low'].'"></td>
 								<td>To: <input type="text" name="mac_to_'.$rowDHCP['PK_DHCPDevice'].'" value="'.$rowDHCP['Mac_Range_High'].'"></td>
-								<td><input type="button" class="button" name="delDHCP" value="Edit"> <input type="button" class="button" name="delDHCP" value="Delete"></td>
+								<td><input type="button" class="button" name="delDHCP" value="Edit"> <input type="button" class="button" name="delDHCP" value="Delete" onClick="self.location=\'index.php?section=editMasterDevice&model='.$deviceID.'&action=removeDHCP&dhcpID='.$rowDHCP['PK_DHCPDevice'].'\'"></td>
 							</tr>';
 					}
 					$out.='
@@ -571,7 +573,8 @@ $out='';
 								<td>From: <input type="text" name="mac_from" value=""></td>
 								<td>To: <input type="text" name="mac_to" value=""></td>
 								<td><input type="submit" class="button" name="addDHCP" value="Add"></td>
-							</tr>					
+							</tr>
+							<input type="hidden" name="dhcpArray" value="'.((join(',',$dhcpArray))).'">	
 						</table>
 					</fieldset>
 					</td>
@@ -673,6 +676,22 @@ $out='';
 		$oldIsIPBased= cleanInteger(@$_POST['oldIsIPBased']);
 		$comments=cleanString($_POST['comments']);
 		$newScreen=(int)$_POST['newScreen'];
+		$newMacFrom=(int)$_POST['mac_from'];
+		$newMacTo=(int)$_POST['mac_to'];
+		$dhcpArray=explode(',',$_POST['dhcpArray']);
+		
+		if($newMacFrom!='' && $newMacTo!=''){
+			$dbADO->Execute('INSERT INTO DHCPDevice (FK_DeviceTemplate, Mac_Range_Low, Mac_Range_High) VALUES (?,?,?)',array($deviceID,$newMacFrom,$newMacTo));
+			$locationGoTo='plugAndPlay';
+		}
+		
+		foreach ($dhcpArray AS $dhcpID){
+			$macFrom=@$_POST['mac_from_'.$dhcpID];
+			$macTo=@$_POST['mac_to_'.$dhcpID];
+			$dbADO->Execute('UPDATE DHCPDevice SET Mac_Range_Low=?, Mac_Range_High=? WHERE PK_DHCPDevice=?',array($macFrom, $macTo,$dhcpID));
+		}
+		
+		if(isset($_REQUEST['']))
 		
 		if($newScreen!=0){
 			$newScreenExist=$dbADO->Execute('SELECT * FROM DesignObj WHERE PK_DesignObj=?',$newScreen);

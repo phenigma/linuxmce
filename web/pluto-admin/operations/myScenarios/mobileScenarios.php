@@ -23,13 +23,6 @@ if($action=='form') {
 	$resArray = $dbADO->Execute($queryArray,$arrayID);
 	$rowArray=$resArray->FetchRow();
 
-	if(isset($_GET['cgDelID']) && (int)$_GET['cgDelID']!=0){
-		$cgToDelete=(int)$_GET['cgDelID'];
-		deleteCommandGroup($cgToDelete,$dbADO);
-		header("Location: index.php?section=mobileScenarios&msg=Lighting scenario deleted.");
-	}
-
-	
 	$out.='
 	<div align="center" class="confirm"><B>'.(isset($_GET['msg'])?strip_tags($_GET['msg'].'<br>'):'').'</B></div>
 	<h2 align="center">'.$rowArray['Description'].'</h2>';
@@ -94,7 +87,7 @@ if($action=='form') {
 				 Description: '.((!in_array($rowCG['PK_CommandGroup'],$displayedCommandGroups))?'<input type="text" name="commandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Description'].'"> Hint: <input type="text" name="hintCommandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Hint'].'">':'<b>'.$rowCG['Description'].': </b>Hint: <b>'.$rowCG['Hint'].'</b> (See '.$firstRoomArray[$rowCG['PK_CommandGroup']].')').'</td>
 				<td>Category: <b>'.$templateArray[$rowCG['FK_Template']].'</b></td>
 				<td>&nbsp;</td>
-				<td><a href="index.php?section=mobileScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action='.(($rowCG['FK_Template']==$GLOBALS['LightingScenariosTemplate'])?'editLighting':'editClimate').'&roomID='.$rowRooms['PK_Room'].'">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=mobileScenarios&cgDelID='.$rowCG['PK_CommandGroup'].'\';">Delete</a></td>
+				<td><a href="index.php?section=mobileScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action='.(($rowCG['FK_Template']==$GLOBALS['LightingScenariosTemplate'])?'editLighting':'editClimate').'&roomID='.$rowRooms['PK_Room'].'">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=mobileScenarios&action=delete&cgDelID='.$rowCG['PK_CommandGroup'].'\';">Delete</a></td>
 				<td>&nbsp;</td>
 			</tr>
 			';
@@ -526,6 +519,13 @@ else{
 		header("Location: index.php?section=mobileScenarios&roomID=$roomID&cgID=$cgID&action=editClimate&msg=Mobile Obiter Scenario updated.");
 		exit();
 	}
+	
+	if(isset($_GET['cgDelID']) && (int)$_GET['cgDelID']!=0){
+		$cgToDelete=(int)$_GET['cgDelID'];
+		deleteCommandGroup($cgToDelete,$dbADO);
+		header("Location: index.php?section=mobileScenarios&msg=Lighting scenario deleted.");
+	}
+
 }
 
 	$output->setScriptInBody("onLoad=\"javascript:top.treeframe.location.reload();\"");
