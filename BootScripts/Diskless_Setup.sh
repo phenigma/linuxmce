@@ -81,12 +81,15 @@ ORDER BY IPaddress"
 	for IP in $R; do
 		Digit=$(echo "$IP" | cut -d. -f4)
 		InRange "$Digit" "$DHCPsetting" || continue
-		if [ -a "$Next" -lt "$Digit" ] && InRange "$Next" "$DHCPsetting"; then
+		if [ "$Next" -lt "$Digit" ] && InRange "$Next" "$DHCPsetting"; then
 			echo "$Next"
 			return
 		fi
 		Next=$((Digit+1))
 	done
+	if InRange "$Next" "$DHCPsetting"; then
+		echo "$Next"
+	fi
 }
 
 # TODO: Core configuration in database; currently using eth0:0 as the internal card
