@@ -265,7 +265,7 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
     MediaDevice *pCurrentDevice = pMediaStream->m_pMediaDevice;
     for ( itEntArea = listStop.begin(); itEntArea != listStop.end(); itEntArea++ )
     {
-        pMediaStream->m_pMediaDevice = GetMediaDeviceForEntertainArea(*itEntArea, DEVICETEMPLATE_Xine_Player_CONST);
+        pMediaStream->m_pMediaDevice = FindMediaDeviceForEntertainArea(*itEntArea);
         if  ( ! pMediaStream->m_pMediaDevice )
         {
             g_pPlutoLogger->Write(LV_STATUS, "Could not find a device that needs stopped in the entertainment area: %d", (*itEntArea)->m_iPK_EntertainArea);
@@ -284,13 +284,10 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
     {
         pTmpEntertainArea = (listStart.size() != 0) ? pTmpEntertainArea = listStart.front() : pTmpEntertainArea = listChange.front();
 
-        pMediaStream->m_pMediaDevice = GetMediaDeviceForEntertainArea(pTmpEntertainArea, DEVICETEMPLATE_Xine_Player_CONST);
+        pMediaStream->m_pMediaDevice = FindMediaDeviceForEntertainArea(pTmpEntertainArea);
 
         if ( pMediaStream->m_pMediaDevice == NULL )
-        {
-            g_pPlutoLogger->Write(LV_STATUS, "Could not find a proper device on which to start media in the entertainment area: %d", pTmpEntertainArea->m_iPK_EntertainArea);
             return false;
-        }
 
         g_pPlutoLogger->Write(LV_STATUS, "Found device %d to play in the entertainemnt area %d", pMediaStream->m_pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, pTmpEntertainArea->m_iPK_EntertainArea);
         StartMedia(pMediaStream);
@@ -298,7 +295,6 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
         pMediaStream->m_mapEntertainArea[pTmpEntertainArea->m_iPK_EntertainArea] = pTmpEntertainArea;
         return true;
     }
-
 
     if ( pXineMediaStream->getStreamerDeviceID() == 0 )
     {
@@ -319,6 +315,31 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
     SendCommand(startStreamingCommand);
 }
 
+MediaDevice *Xine_Plugin::FindMediaDeviceForEntertainArea(EntertainArea *pEntertainArea)
+{
+    MediaDevice *pMediaDevice;
+    pMediaDevice = GetMediaDeviceForEntertainArea(pEntertainArea, DEVICETEMPLATE_Xine_Player_CONST);
+
+    if ( pMediaDevice == NULL )
+    {
+        g_pPlutoLogger->Write(LV_WARNING, "Could not find a Xine Player device (with device template id: %d) on which to start media in the entertainment area: %d. Looking for a squeeze box.",
+                DEVICETEMPLATE_Xine_Player_CONST,
+                pEntertainArea->m_iPK_EntertainArea);
+
+        pMediaDevice = GetMediaDeviceForEntertainArea(pEntertainArea, DEVICETEMPLATE_SqueezeBox_Player_CONST);
+
+        if ( pMediaDevice == NULL )
+        {
+            g_pPlutoLogger->Write(LV_WARNING, "No squeeze box device (device template id: %d) was found in the on which to start media in the entertainment area: %d. Ignoring this",
+                DEVICETEMPLATE_SqueezeBox_Player_CONST,
+                pEntertainArea->m_iPK_EntertainArea);
+
+            return NULL;
+        }
+    }
+
+    return pMediaDevice;
+}
 bool Xine_Plugin::isValidStreamForPlugin(class MediaStream *pMediaStream)
 {
     if ( pMediaStream->GetType() != MEDIASTREAM_TYPE_XINE )
