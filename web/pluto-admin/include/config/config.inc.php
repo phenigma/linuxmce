@@ -129,9 +129,9 @@
 	$GLOBALS['tuner_2']=175;						// Tuner 2
 	$GLOBALS['tuner_3']=326;						// Tuner 3
 	$GLOBALS['AM_Command']=169;						// AM
-	$GLOBALS['AM_Command']=169;						// AM
-	$GLOBALS['AM_Command']=169;						// AM
-	$GLOBALS['AM_Command']=169;						// AM
+	$GLOBALS['FM_Command']=170;						// FM
+	$GLOBALS['SW_Command']=328;						// SW
+	$GLOBALS['WB_Command']=327;						// WB
 	
 	// PK_CommandParameters from table CommandParameters
 	

@@ -241,7 +241,10 @@ function createUser($output,$dbADO) {
 			";
 			$_SESSION['createUser']=array();
 			$query=$dbADO->Execute($insertUserToInstallation,array($installationID,$insertID,$userCanModifyInstallation));
-	
+
+			$commandToSend='/usr/pluto/bin/SetupUsers.sh';
+			system($commandToSend);
+			
 			$out.="
 			<script>
 				alert('User created!');

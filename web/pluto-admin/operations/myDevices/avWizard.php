@@ -139,6 +139,19 @@ function avWizard($output,$dbADO) {
 				}
 				$resDevice->Close();
 				
+				$queryConnectedToDevices='
+					SELECT DISTINCT Device.*
+					FROM Device 
+					INNER JOIN DeviceTemplate ON Device.FK_DeviceTemplate=PK_DeviceTemplate
+					INNER JOIN DeviceTemplate_Input ON DeviceTemplate_Input.FK_DeviceTemplate=Device.FK_DeviceTemplate 
+					WHERE Device.FK_DeviceTemplate IN ('.join(',',$avDTIDArray).') AND FK_Installation=?';	
+				$resConnectedToDevices=$dbADO->Execute($queryConnectedToDevices,$installationID);
+				$conD=array();
+				while($rowConD=$resConnectedToDevices->FetchRow()){
+					$conD[$rowConD['PK_Device']]=$rowConD['Description'];
+				}
+				$resConnectedToDevices->Close();
+			
 			
 				$displayedDevices=array();
 				$DeviceDataToDisplay=array();
@@ -188,6 +201,7 @@ function avWizard($output,$dbADO) {
 				$pos++;
 				
 				$deviceName=(@$childOf[$rowD['PK_Device']]=='')?'<input type="text" name="description_'.$rowD['PK_Device'].'" value="'.$rowD['Description'].'">':'<input type="hidden" name="description_'.$rowD['PK_Device'].'" value="'.$rowD['Description'].'"><B>'.$rowD['Description'].'</B>';
+				$deviceName.=' # '.$rowD['PK_Device'];
 				$roomPulldown='<select name="room_'.$rowD['PK_Device'].'">
 						<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- Select room -&nbsp;&nbsp;&nbsp;&nbsp;</option>';
 				foreach($roomIDArray as $key => $value){
@@ -228,16 +242,6 @@ function avWizard($output,$dbADO) {
 					$resOutput->Close();
 					$audioOutputPulldown.='</select>';
 				
-					
-					$audioConnectToPulldown='<input type="hidden" name="oldAudioPipe_'.$rowD['PK_Device'].'" value="'.@$toDevice.','.$audioInput.','.$audioOutput.'"><a name="AudioPipe_'.$rowD['PK_Device'].'"></a>
-					<select name="audioConnectTo_'.$rowD['PK_Device'].'" onChange="document.avWizard.cmd.value=1;document.forms[0].submit();">
-						<option value="0"></option>';
-					foreach($displayedAVDevices AS $key=>$device){
-						if($device!=$rowD['PK_Device'])
-							$audioConnectToPulldown.='<option value="'.$device.'" '.(($device==@$toDevice)?'selected':'').'>'.$displayedAVDevicesDescription[$key].'</option>';					
-					}
-					$audioConnectToPulldown.='</select>';
-					
 					$audioInputPulldown='<select name="audioInput_'.$rowD['PK_Device'].'">
 						<option value="0"></option>';
 					$queryInput='
@@ -255,7 +259,16 @@ function avWizard($output,$dbADO) {
 					}
 					$resInput->Close();
 					$audioInputPulldown.='</select>';
-
+					
+					$audioConnectToPulldown='<input type="hidden" name="oldAudioPipe_'.$rowD['PK_Device'].'" value="'.@$toDevice.','.$audioInput.','.$audioOutput.'"><a name="AudioPipe_'.$rowD['PK_Device'].'"></a>
+					<select name="audioConnectTo_'.$rowD['PK_Device'].'" onChange="document.avWizard.cmd.value=1;document.forms[0].submit();">
+						<option value="0"></option>';
+					foreach($conD AS $key=>$device){
+						if($key!=$rowD['PK_Device'])
+							$audioConnectToPulldown.='<option value="'.$key.'" '.(($key==@$toDevice)?'selected':'').'>'.$device.'</option>';					
+					}
+					$audioConnectToPulldown.='</select>';
+					
 					$deviceDataBox='';
 					foreach($DeviceDataToDisplay as $key => $value){
 						$queryDDforDevice='
@@ -382,9 +395,9 @@ function avWizard($output,$dbADO) {
 						<a name="VideoPipe_'.$rowD['PK_Device'].'"></a>
 					<select name="videoConnectTo_'.$rowD['PK_Device'].'" onChange="document.avWizard.cmd.value=1;document.forms[0].submit();" '.(($childOf[$rowD['PK_Device']]=='')?'':'disabled').'>
 						<option value="0"></option>';
-					foreach($displayedAVDevices AS $key=>$device){
-						if($device!=$rowD['PK_Device'])
-							$videoConnectToPulldown.='<option value="'.$device.'" '.(($device==@$toDevice)?'selected':'').'>'.$displayedAVDevicesDescription[$key].'</option>';					
+					foreach($conD AS $key=>$device){
+						if($key!=$rowD['PK_Device'])
+							$videoConnectToPulldown.='<option value="'.$key.'" '.(($key==@$toDevice)?'selected':'').'>'.$device.'</option>';					
 					}
 					$videoConnectToPulldown.='</select>';
 					
@@ -443,6 +456,13 @@ function avWizard($output,$dbADO) {
 					<td>'.$audioInputPulldown.'</td>
 					<td valign="top" align="right">- embedded device -</td>
 					<td align="center" rowspan="2" valign="top">&nbsp;</td>
+				</tr>
+				<tr>			
+					<td align="center" title="Category: '.$rowD['CategoryName'].', manufacturer: '.$rowD['ManufacturerName'].'">DT: '.$rowD['TemplateName'].'</td>
+					<td>&nbsp;</td>
+					<td>V: '.$videoOutputPulldown.'</td>
+					<td>'.$videoConnectToPulldown.'</td>
+					<td>'.$videoInputPulldown.'</td>
 				</tr>';
 				}
 				if($type=='media_directors'){
@@ -558,10 +578,10 @@ function avWizard($output,$dbADO) {
 							}
 						}
 					}
-					$oldAudioPipeArray=explode(',',$_POST['oldAudioPipe_'.$value]);
-					$oldTo=$oldAudioPipeArray[0];
-					$oldInput=$oldAudioPipeArray[1];
-					$oldOutput=$oldAudioPipeArray[2];
+					$oldAudioPipeArray=explode(',',@$_POST['oldAudioPipe_'.$value]);
+					$oldTo=@$oldAudioPipeArray[0];
+					$oldInput=@$oldAudioPipeArray[1];
+					$oldOutput=@$oldAudioPipeArray[2];
 					$audioOutput=(isset($_POST['audioOutput_'.$value]) && $_POST['audioOutput_'.$value]!='0')?cleanInteger($_POST['audioOutput_'.$value]):NULL;
 					$audioInput=(isset($_POST['audioInput_'.$value]) && $_POST['audioInput_'.$value]!='0')?cleanInteger($_POST['audioInput_'.$value]):NULL;
 					$audioConnectTo=(isset($_POST['audioConnectTo_'.$value]) && $_POST['audioConnectTo_'.$value]!='0')?cleanInteger($_POST['audioConnectTo_'.$value]):NULL;

@@ -289,6 +289,8 @@ $resUsers = $dbADO->Execute($queryUsers,array($installationID));
 
 				
 			}
+			$commandToSend='/usr/pluto/bin/SetupUsers.sh';
+			system($commandToSend);
 			
 			if (strstr($locationGoTo,"#")) {
 				header("Location: index.php?section=users&msg=Saved!".$locationGoTo);
