@@ -22,16 +22,16 @@ if($ARGV[0] eq "") {
 	$install = get_install();
 	$dev_templ = get_template();
 	
-	@data = sqlexec("select * from Device WHERE Description='gc100'");
+	@data = sqlexec("select * from Device WHERE FK_DeviceTemplate='$dev_templ'");
 	if($data[0]->{'PK_Device'} ne "") {
 	  loggc("The device allready exist in the database\n");
 	  $db->disconnect();
-	  exit(0);
+	  exit(2);
 	}
 	system("/usr/pluto/bin/CreateDevice -i $install -d $dev_templ -I $ip -M $mac -n\n");
     } else {
         loggc("Gc100 as default not found\n");
-	exit(0);
+	exit(1);
     }
 } else {
     loggc("Finding GC100 on the network\n");
@@ -44,7 +44,7 @@ if($ARGV[0] eq "") {
 	    update_db();
 	} else {
 	    loggc("Gc100 as default not found\n");
-	    exit(0);
+	    exit(1);
 	}
     }
     $ip = $ARGV[1];
@@ -93,6 +93,7 @@ sub sqlexec {
     $outdata[$i]=$local_row;
     $i = $i + 1;
   }         
+  $st->finish();
   return @outdata;
 }
 
@@ -103,29 +104,20 @@ sub get_install {
   foreach $line (@data) {
     chomp($line);
     ($var,$value) = split(/=/,$line);
-    @frag = split(/ /,$var);
-    $var = $frag[0];
-    @frag = split(/ /,$value);
-    $value = $frag[1];
+    @fg = split(/ /,$var);
+    $var = $fr[0];
+    @fr = split(/ /,$value);
+    $value = $fg[1];
     if($var eq "PK_Installation") {
       if($value eq "") {
-        return 1;
+        exit(3);
       } else {
         return $value;
       }
     }
   }
 }
-#sub get_install {
-#  $sql = "select FK_Installation from Device WHERE PK_Device='$PKDEV'";
-#  $st = $db->prepare($sql);
-#  $st->execute();
-#  if($row = $st->fetchrow_hashref()) {
-#    return $row->{'FK_Installation'};
-#  } else {
-#    return 1;
-#  }
-#}
+
 sub get_template {
   $sql = "select PK_DeviceTemplate from DeviceTemplate WHERE Description='gc100'";
   $st = $db->prepare($sql);
@@ -155,7 +147,10 @@ sub get_gc100mac {
 	    $mac = $frag[0];
 	    $mac =~ tr/\-/\:/;
 	    loggc("Mac Found $mac\n");
-	    system("rm -f gc100mac");
+	    system("rm -f gc100mac >> /dev/null");
+	    if($mac eq "") {
+	      exit(1);
+	    }
 	    return $mac;
 	}
     }
