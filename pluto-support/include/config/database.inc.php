@@ -1,9 +1,9 @@
 <?PHP
 
 
- include($_SERVER['DOCUMENT_ROOT']."".$directory.'include/adodb/adodb-errorhandler.inc.php');
- require($_SERVER['DOCUMENT_ROOT']."".$directory.'include/adodb/adodb.inc.php');
- include($_SERVER['DOCUMENT_ROOT']."".$directory.'include/adodb/tohtml.inc.php');
+ include('include/adodb/adodb-errorhandler.inc.php');
+ require('include/adodb/adodb.inc.php');
+ include('include/adodb/tohtml.inc.php');
  
   $ADODB_COUNTRECS=true; //for speed up, set it to false, but it will return -1 for RecordCount()
   

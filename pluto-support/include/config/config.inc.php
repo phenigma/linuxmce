@@ -1,5 +1,5 @@
 <?PHP
-   include_once('/var/www/globalconfig/globalconfig.inc.php');
+   include_once($_SERVER['DOCUMENT_ROOT'].'/globalconfig/globalconfig.inc.php');
       
    error_reporting(E_ALL);
   //debuging

@@ -72,11 +72,11 @@
   
 function setTemplateFileType($type) { 	
 	$this->templateType = $type;
-	if (file_exists(APPROOT."include/templates/template.$type.tpl.html")) {
-		$this->content = implode('',file(APPROOT."include/templates/template.$type.tpl.html"));
+	if (file_exists("include/templates/template.$type.tpl.html")) {
+		$this->content = implode('',file("include/templates/template.$type.tpl.html"));
 	} else {
-		if (file_exists(APPROOT."include/templates/template.home.tpl.html")) {
-			$this->content = implode('',file(APPROOT."include/templates/template.home.tpl.html"));  		
+		if (file_exists("include/templates/template.home.tpl.html")) {
+			$this->content = implode('',file("include/templates/template.home.tpl.html"));  		
 		} else {
 			die('Please provide at least a include/templates/template.home.tpl.html file to be used as a template!');
 		}
