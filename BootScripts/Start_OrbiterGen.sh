@@ -5,7 +5,7 @@
 
 SkinDir=/usr/pluto/orbiter/skins
 FontDir=/usr/share/fonts/truetype/msttcorefonts
-OutDir=/usr/pluto
+OutDir=/usr/pluto/orbiter
 
 Q="SELECT PK_Installation FROM Installation LIMIT 1"
 installation=$(echo "$Q;" | /usr/bin/mysql pluto_main | tail +2)
