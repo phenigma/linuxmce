@@ -468,9 +468,9 @@ bool Orbiter::RenderCell(class DesignObj_DataGrid *pObj, class DataGridTable *pT
         pTextStyle = pObj->m_pTextStyle_FirstRow;
         bTransparentCell = false;
     }
-    if (pCell->m_AltColor > 0 && pCell->m_AltColor<(int) pObj->m_pTextStyle_Alt.size())
+    if (pCell->m_iAltColor > 0 && pCell->m_iAltColor<(int) pObj->m_pTextStyle_Alt.size())
     {
-        pTextStyle = pObj->m_pTextStyle_Alt[pCell->m_AltColor];
+        pTextStyle = pObj->m_pTextStyle_Alt[pCell->m_iAltColor];
         bTransparentCell = false;
     }
     if(GraphicToDisplay==GRAPHIC_SELECTED)
@@ -495,7 +495,7 @@ bool Orbiter::RenderCell(class DesignObj_DataGrid *pObj, class DataGridTable *pT
         return false;
     }
     int x,y,w,h;
-    GetGridCellDimensions(pObj, pCell->m_Colspan, pCell->m_Rowspan, j, i, x, y, w, h);
+    GetGridCellDimensions(pObj, pCell->m_iColspan, pCell->m_iRowspan, j, i, x, y, w, h);
     if (w>4 && h >4)
     {
         if (!bTransparentCell)
@@ -572,7 +572,7 @@ void Orbiter::RenderDataGrid(DesignObj_DataGrid *pObj)
     int ArrRows = 0;
 
     DataGridTable *pT = pObj->m_pDataGridTable;
-    int DGLastRow = pT->m_bKeepColumnHeader ? pObj->m_pDataGridTable->m_RowCount-2 : pObj->m_pDataGridTable->m_RowCount-1;
+    int DGLastRow = pT->m_bKeepColumnHeader ? pObj->m_pDataGridTable->m_iRowCount-2 : pObj->m_pDataGridTable->m_iRowCount-1;
     int i, j; //indexes
 
 	bool bAddedUpButton=false,bAddedDownButton=false;
@@ -591,7 +591,7 @@ void Orbiter::RenderDataGrid(DesignObj_DataGrid *pObj)
 
         if (pObj->CanGoDown())
         {
-            pObj->m_dwIDownRow = pObj->m_pDataGridTable->m_RowCount - 1;
+            pObj->m_dwIDownRow = pObj->m_pDataGridTable->m_iRowCount - 1;
             DataGridCell * pCell = new DataGridCell("<Scroll down>");
             RenderCell(pObj, pT, pCell, 0, pObj->m_dwIDownRow, GRAPHIC_NORMAL);
             delete pCell;
@@ -599,12 +599,12 @@ void Orbiter::RenderDataGrid(DesignObj_DataGrid *pObj)
         }
     }
 
-    for (i = 0; i < pObj->m_pDataGridTable->m_RowCount - ArrRows; i++)
+    for (i = 0; i < pObj->m_pDataGridTable->m_iRowCount - ArrRows; i++)
     {
-        for (j = 0; j < pObj->m_pDataGridTable->m_ColumnCount; j++)
+        for (j = 0; j < pObj->m_pDataGridTable->m_iColumnCount; j++)
         {
-            int DGRow = ((i == 0 && pT->m_bKeepRowHeader) ? 0 : i + pT->m_StartingRow);
-            int DGColumn = (j == 0 && pT->m_bKeepColumnHeader) ? 0 : j + pT->m_StartingColumn;
+            int DGRow = ((i == 0 && pT->m_bKeepRowHeader) ? 0 : i + pT->m_iStartingRow);
+            int DGColumn = (j == 0 && pT->m_bKeepColumnHeader) ? 0 : j + pT->m_iStartingColumn;
 
             DataGridCell * pCell = pT->GetData(DGColumn, DGRow);
 
@@ -629,7 +629,7 @@ void Orbiter::RenderDataGrid(DesignObj_DataGrid *pObj)
         }
     }
 
-    pObj->m_pDataGridTable->m_RowCount = i + ArrRows;
+    pObj->m_pDataGridTable->m_iRowCount = i + ArrRows;
 
 #if (defined(PROFILING))
     clock_t clkFinished = clock();
@@ -1001,9 +1001,9 @@ bool Orbiter::SelectedGrid(DesignObj_DataGrid *pDesignObj_DataGrid, int X, int Y
 	// up, so datagrid will set the row count to be 5 (you can't past the number of rows left)
 	// So, if we have an up, we need to loop one more time for the last row only if we
 	// are showing all the rows that are left.  Otherwise, row count will be correct
-	for(i=0;i<=pT->m_RowCount && !bFinishLoop ;i++)
+	for(i=0;i<=pT->m_iRowCount && !bFinishLoop ;i++)
 	{
-		for(j=pT->m_ColumnCount-1;j>=0 && !bFinishLoop;j--)
+		for(j=pT->m_iColumnCount-1;j>=0 && !bFinishLoop;j--)
 		{
 			int x,y,w,h;
 			if( i==pDesignObj_DataGrid->m_iUpRow  || i==pDesignObj_DataGrid->m_dwIDownRow )
@@ -1033,14 +1033,14 @@ bool Orbiter::SelectedGrid(DesignObj_DataGrid *pDesignObj_DataGrid, int X, int Y
 					continue;
 			}
 
-			int DGColumn = (j==0 && pT->m_bKeepColumnHeader) ? 0 : j+pT->m_StartingColumn;
-			int DGRow = (i==0 && pT->m_bKeepRowHeader) ? 0 : i+pT->m_StartingRow;
+			int DGColumn = (j==0 && pT->m_bKeepColumnHeader) ? 0 : j+pT->m_iStartingColumn;
+			int DGRow = (i==0 && pT->m_bKeepRowHeader) ? 0 : i+pT->m_iStartingRow;
 			if( pDesignObj_DataGrid->m_iUpRow!=-1 )
 				DGRow--; // Everything is shifted up
 			DataGridCell *pCell=pT->GetData(DGColumn, DGRow);
 			if (pCell)
 			{
-				GetGridCellDimensions(pDesignObj_DataGrid, pCell->m_Colspan, pCell->m_Rowspan, j, i, x, y, w, h);
+				GetGridCellDimensions(pDesignObj_DataGrid, pCell->m_iColspan, pCell->m_iRowspan, j, i, x, y, w, h);
 				PLUTO_SAFETY_LOCK(vm,m_VariableMutex)
 				int ContainsX=X+pDesignObj_DataGrid->m_rPosition.X;
 				int ContainsY=Y+pDesignObj_DataGrid->m_rPosition.Y;
@@ -2416,7 +2416,7 @@ bool Orbiter::ButtonDown(int PK_Button)
                     vector<DesignObj_DataGrid *>::iterator it = m_vectObjs_GridsOnScreen.begin();
                     DesignObj_DataGrid *pDataGrid = *it;
 
-                    for(int i = 0; i < pDataGrid->m_pDataGridTable->m_RowCount; i++)
+                    for(int i = 0; i < pDataGrid->m_pDataGridTable->m_iRowCount; i++)
                     {
                         DataGridCell * pCell = pDataGrid->m_pDataGridTable->GetData(0, i);
                         string Text = "";
@@ -3038,7 +3038,7 @@ bool Orbiter::AcquireGrid(DesignObj_DataGrid *pObj, int GridCurCol, int GridCurR
 {
     bool bLoadedSomething = false;
 
-    if ( pObj->bReAcquire || !pDataGridTable || pDataGridTable->m_StartingColumn != GridCurCol || pDataGridTable->m_StartingRow != GridCurRow)
+    if ( pObj->bReAcquire || !pDataGridTable || pDataGridTable->m_iStartingColumn != GridCurCol || pDataGridTable->m_iStartingRow != GridCurRow)
     {
         // See if we're supposed to highlight rows.  If so, we should reset this
         pObj->bReAcquire=false;

@@ -166,7 +166,7 @@ public:
 	// we pre-parse it at start up.
 
 #define MAX_ALT_COLORS 15
-	int m_AltColorValues[MAX_ALT_COLORS];
+	int m_iAltColorValues[MAX_ALT_COLORS];
 
 	string GetParameterValue(int ParameterID);
 };
