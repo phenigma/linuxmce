@@ -51,7 +51,7 @@ bool Linphone::Register()
 }
 
 bool Linphone::Connect(int iPK_DeviceTemplate) {
-	if(!Linphone::Connect(iPK_DeviceTemplate)) {
+	if(!Linphone_Command::Connect(iPK_DeviceTemplate)) {
 		return false;
 	}
 	

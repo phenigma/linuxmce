@@ -6,9 +6,9 @@ CXX = g++
 CXXFLAGS = -Wall -fPIC -ggdb3
 CPPFLAGS = -I$(ROOT) -I$(ROOT)/DCE -I/usr/include/mysql -D_DEVEL_DEFINES
 LDFLAGS = -L$(ROOT)/lib
-BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lmysqlclient_r -lpthread
+BASELDLIBS = -lSerializeClass -lDCECommon -lPlutoUtils -lpthread 
 
-MYNAME = Linphone
+MYNAME = LinphoneBase
 VERSION = 2.0.0
 MYDEVTEMPLATEID = 1602mplateID
 
@@ -19,7 +19,8 @@ sources = Main.cpp Linphone.cpp $(Gen_Dev_Files)
 CXXFLAGS += -I../ -I/usr/pluto/include -I/usr/pluto/include/linphone -I/usr/pluto/include/ortp -I/usr/pluto/include/osipua -DHAVE_GLIB `pkg-config gdk-2.0 --cflags`
 CPPFLAGS +=
 LDFLAGS += -L/usr/pluto/lib
-XTRALDLIBS = -llinphone -lmediastreamer -lortp -lraw1394 -ldc1394_control
+XTRALDLIBS = -llinphone -lraw1394 -ldc1394_control
+#-llinphone -lmediastreamer -lortp -lraw1394 -ldc1394_control
 
 Gen_Dev_Files +=
 sources += LinphoneManager.cpp
@@ -32,19 +33,20 @@ whattodo:
 
 all: bin so
 
-bin: Linphone
+bin: LinphoneBase
 
-so: Linphone.so
+so: LinphoneBase.so
 
-Linphone.so: $(sources:.cpp=.o)
+LinphoneBase.so: $(sources:.cpp=.o)
 	$(CXX) -shared -o $(MYNAME).so $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
 	chmod +x post_make.sh
 	./post_make.sh $@
 		
-Linphone: $(sources:.cpp=.o)
+LinphoneBase: $(sources:.cpp=.o)
 	LD_LIBRARY_PATH=/usr/pluto/lib $(CXX) -o $(MYNAME) $(call cpath,$+) $(LDFLAGS) $(LDLIBS)
 	cp $@ ../bin
+	cp Linphone ../bin
 	./post_make.sh $@
 
 clean: clean-recursive

@@ -53,7 +53,13 @@ LinphoneManager::Open() {
 		return false;
 	}
 	
-	linphone_core_init(linphone_, &LinphoneVTable, (gchar*)conffile.c_str(), (void*)this);
+	try {	
+		char buff[255] = LINPHONE_CONFIG_FILE_PATH;
+		linphone_core_init(linphone_, &LinphoneVTable, (gchar*)conffile.c_str(), (void*)this);
+	} catch (...) {
+		g_pPlutoLogger->Write(LV_CRITICAL, "Exception occured during linphone initialization...");
+		return false;
+	}
 	
 	linphone_->sound_conf.enabled = 0;
 	linphone_->video_conf.enabled = 1;
@@ -160,14 +166,14 @@ LinphoneManager::generateConfigFile() {
 		"con_type=3\n"
 		"use_nat=0\n"
 		"nat_address=\n"
-		"\n"
+		
 		"[rtp]\n"
 		"audio_rtp_port=7078\n"
 		"video_rtp_port=9078\n"
 		"audio_jitt_comp=64\n"
 		"video_jitt_comp=200\n"
 		"audio_delay=0\n"
-		"\n"
+		
 		"[sound]\n"
 		"enabled=1\n"
 		"dev_id=0\n"
@@ -176,7 +182,7 @@ LinphoneManager::generateConfigFile() {
 		"source=m\n"
 		"local_ring=/usr/local/share/sounds/linphone/ring.wav\n"
 		"remote_ring=/usr/local/share/sounds/linphone/ringback.wav\n"
-		"\n"
+		
 		"[sip]\n"
 		"sip_port=5060\n"
 		"use_registrar=1\n"
@@ -187,53 +193,53 @@ LinphoneManager::generateConfigFile() {
 		"expires=900\n"
 		"as_proxy=1\n"
 		"addr_of_rec=sip:" + phonenum_ + "@" + host_ + ":5060\n"
-		"\n"
+		
 		"[video]\n"
 		"enabled=1\n"
 		"show_local=1\n"
 		"source=IEEE 1394 Digital Camera\n"
 		"device=/dev/video1394/0\n"
-		"\n"
+		
 		"[audio_codec_0]\n"
 		"mime=PCMU\n"
 		"rate=8000\n"
 		"enabled=1\n"
-		"\n"
+		
 		"[audio_codec_1]\n"
 		"mime=GSM\n"
 		"rate=8000\n"
 		"enabled=1\n"
-		"\n"
+		
 		"[audio_codec_2]\n"
 		"mime=PCMA\n"
 		"rate=8000\n"
 		"enabled=1\n"
-		"\n"
+		
 		"[audio_codec_3]\n"
 		"mime=speex\n"
 		"rate=8000\n"
 		"enabled=0\n"
-		"\n"
+		
 		"[audio_codec_4]\n"
 		"mime=speex\n"
 		"rate=16000\n"
 		"enabled=0\n"
-		"\n"
+		
 		"[audio_codec_5]\n"
 		"mime=1015\n"
 		"rate=8000\n"
 		"enabled=0\n"
-		"\n"
+		
 		"[video_codec_0]\n"
 		"mime=MPV\n"
 		"rate=90000\n"
 		"enabled=0\n"
-		"\n"
+		
 		"[video_codec_1]\n"
 		"mime=H263\n"
 		"rate=90000\n"
 		"enabled=1\n"
-		"\n"
+		
 		"[address_book]\n"
 		"entry_count=0\n";
 
