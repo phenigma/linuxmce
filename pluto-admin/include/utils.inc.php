@@ -1664,4 +1664,66 @@ function setDCERouterNeedConfigure($installationID,$dbADO)
 {
 	$dbADO->Execute('UPDATE Device SET NeedConfigure=1 WHERE FK_DeviceTemplate=? AND FK_Installation=?',array($GLOBALS['rootDCERouter'],$installationID));
 }
+function addScenariosToRoom($roomID, $installationID, $dbADO)
+{
+	$insertTelecomScenario='INSERT INTO CommandGroup (FK_Array, FK_Installation, Description,FK_Template,Hint) SELECT '.$GLOBALS['ArrayIDCommunicationScenarios'].','.$installationID.',\'Telecom Scenario\','.$GLOBALS['TelecomScenariosTemplate'].',Description FROM Room WHERE PK_Room=?';
+	$dbADO->Execute($insertTelecomScenario,$roomID);
+	$cgID=$dbADO->Insert_ID();
+
+	$insertCG_R='INSERT INTO CommandGroup_Room (FK_Room, FK_CommandGroup,Sort) VALUES (?,?,?)';
+	$dbADO->Execute($insertCG_R,array($roomID,$cgID,$cgID));
+
+	$insertCG_Room='INSERT INTO CommandGroup_Room (FK_CommandGroup, FK_Room,Sort) VALUES (?,?,?)';
+	$insertCG_C='
+		INSERT INTO CommandGroup_Command 
+			(FK_CommandGroup,FK_Command,TurnOff,OrderNum)
+		VALUES
+			(?,?,?,?)';
+	$insertCG_C_CP='
+		INSERT INTO CommandGroup_Command_CommandParameter 
+			(FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter)
+		VALUES
+			(?,?,?)';
+	
+	$selectArmDisarm='SELECT * FROM CommandGroup WHERE FK_Template=? AND FK_Installation=?';
+	$resArmDisarm=$dbADO->Execute($selectArmDisarm,array($GLOBALS['SecurityArmDisarmTemplate'],$installationID));
+	if($resArmDisarm->RecordCount()){
+		$rowArmDisarm=$resArmDisarm->FetchRow();
+		$armDisarmCG=$rowArmDisarm['PK_CommandGroup'];
+	}else{
+		$insertCommandGroup='
+				INSERT INTO CommandGroup 
+					(FK_Array,FK_Installation,Description,CanTurnOff,AlwaysShow,CanBeHidden,FK_Template)
+				VALUES
+					(?,?,?,?,?,?,?)';
+		$dbADO->Execute($insertCommandGroup,array($GLOBALS['ArrayIDForSecurity'],$installationID,'Arm Disarm',0,0,0,$GLOBALS['SecurityArmDisarmTemplate']));
+		$armDisarmCG=$dbADO->Insert_ID();
+
+		$dbADO->Execute($insertCG_C,array($armDisarmCG,$GLOBALS['commandGotoScreen'],0,0));
+		$cg_cID=$dbADO->Insert_ID();
+		$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterObjectScreen'],$GLOBALS['mnuSecurityCamerasDesignObj']));
+	}
+	$dbADO->Execute($insertCG_Room,array($armDisarmCG,$roomID,$armDisarmCG));
+	
+	$selectSOS='SELECT * FROM CommandGroup WHERE FK_Template=? AND FK_Installation=?';
+	$resSOS=$dbADO->Execute($selectSOS,array($GLOBALS['SecuritySOSTemplate'], $installationID));
+	if($resSOS->RecordCount()){
+		$rowSOS=$resSOS->FetchRow();
+		$sosCG=$rowSOS['PK_CommandGroup'];
+	}else{
+		$insertCommandGroup='
+				INSERT INTO CommandGroup 
+					(FK_Array,FK_Installation,Description,CanTurnOff,AlwaysShow,CanBeHidden,FK_Template)
+				VALUES
+					(?,?,?,?,?,?,?)';
+		$dbADO->Execute($insertCommandGroup,array($GLOBALS['ArrayIDForSecurity'],$installationID,'*SOS*',0,0,0,$GLOBALS['SecuritySOSTemplate']));
+		$sosCG=$dbADO->Insert_ID();
+
+		$dbADO->Execute($insertCG_C,array($sosCG,$GLOBALS['commandGotoScreen'],0,0));
+		$cg_cID=$dbADO->Insert_ID();
+		$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterObjectScreen'],$GLOBALS['mnuSecurityCamerasDesignObj']));
+	}
+	$dbADO->Execute($insertCG_Room,array($sosCG,$roomID,$sosCG));
+}
+
 ?>

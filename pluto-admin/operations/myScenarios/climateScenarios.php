@@ -38,7 +38,6 @@ if($action=='form') {
 	<table width="100%" cellpadding="4" cellspacing="0" border="0">';
 	$queryRooms='
 		SELECT Room.*, Room.Description AS RoomName FROM Room
-			INNER JOIN RoomType ON FK_RoomType=PK_RoomType
 		WHERE FK_Installation=?
 			ORDER BY Room.Description ASC';
 	$resRooms=$dbADO->Execute($queryRooms,$installationID);

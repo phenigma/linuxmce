@@ -137,6 +137,7 @@ $displayedRooms = array();
 		$queryInsertRoom = 'INSERT INTO Room (Description,FK_Installation) values(?,?)';
 		$res = $dbADO->Execute($queryInsertRoom,array('New room',$installationID));
 		$lastInsert = $dbADO->Insert_ID();
+		addScenariosToRoom($lastInsert, $installationID, $dbADO);
 		$locationGoTo = "roomDesc_{$lastInsert}";		
 	}else{
 	

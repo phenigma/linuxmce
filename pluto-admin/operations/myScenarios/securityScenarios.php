@@ -51,7 +51,6 @@ if($action=='form') {
 
 	$queryRooms='
 		SELECT Room.*, Room.Description AS RoomName FROM Room
-			INNER JOIN RoomType ON FK_RoomType=PK_RoomType
 		WHERE FK_Installation=?
 			ORDER BY Room.Description ASC';
 	$resRooms=$dbADO->Execute($queryRooms,$installationID);
@@ -453,8 +452,8 @@ if($action=='form') {
 		$displayedRoomsArray=explode(',',$_POST['displayedRooms']);
 		$displayedRoomNamesArray=explode(',',$_POST['displayedRoomNames']);
 		
-		$selectArmDisarm='SELECT * FROM CommandGroup WHERE FK_Template=?';
-		$resArmDisarm=$dbADO->Execute($selectArmDisarm,$GLOBALS['SecurityArmDisarmTemplate']);
+		$selectArmDisarm='SELECT * FROM CommandGroup WHERE FK_Template=? AND FK_Installation=?';
+		$resArmDisarm=$dbADO->Execute($selectArmDisarm,array($GLOBALS['SecurityArmDisarmTemplate'],$installationID));
 		if($resArmDisarm->RecordCount()){
 			$rowArmDisarm=$resArmDisarm->FetchRow();
 			$armDisarmCG=$rowArmDisarm['PK_CommandGroup'];
@@ -474,8 +473,8 @@ if($action=='form') {
 			$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterObjectScreen'],$GLOBALS['mnuSecurityCamerasDesignObj']));
 		}
 
-		$selectViewAll='SELECT * FROM CommandGroup WHERE FK_Template=?';
-		$resViewAll=$dbADO->Execute($selectViewAll,$GLOBALS['SecurityViewCamerasTemplate']);
+		$selectViewAll='SELECT * FROM CommandGroup WHERE FK_Template=?  AND FK_Installation=?';
+		$resViewAll=$dbADO->Execute($selectViewAll,array($GLOBALS['SecurityViewCamerasTemplate'],$installationID));
 		if($resViewAll->RecordCount()){
 			$rowViewAll=$resViewAll->FetchRow();
 			$viewAllCG=$rowViewAll['PK_CommandGroup'];
@@ -495,8 +494,8 @@ if($action=='form') {
 			$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParameterObjectScreen'],$GLOBALS['mnuSecurityCamerasDesignObj']));
 		}
 
-		$selectSOS='SELECT * FROM CommandGroup WHERE FK_Template=?';
-		$resSOS=$dbADO->Execute($selectSOS,$GLOBALS['SecuritySOSTemplate']);
+		$selectSOS='SELECT * FROM CommandGroup WHERE FK_Template=? AND FK_Installation=?';
+		$resSOS=$dbADO->Execute($selectSOS,array($GLOBALS['SecuritySOSTemplate'],$installationID));
 		if($resSOS->RecordCount()){
 			$rowSOS=$resSOS->FetchRow();
 			$sosCG=$rowSOS['PK_CommandGroup'];
