@@ -18,11 +18,11 @@ sources = Main.cpp Telecom_Plugin.cpp $(Gen_Dev_Files)
 
 CXXFLAGS +=
 CPPFLAGS +=
-LDFLAGS +=
-XTRALDLIBS = -lpluto_main
+LDFLAGS +=  
+XTRALDLIBS = -lpluto_main -lldap
 
 Gen_Dev_Files += $(GENDEV)/Datagrid_PluginBase.cpp
-sources += ../Datagrid_Plugin/Datagrid_Plugin.cpp callmanager.cpp calldata.cpp
+sources += ../Datagrid_Plugin/Datagrid_Plugin.cpp callmanager.cpp calldata.cpp ldapmanager.cpp ldapexception.cpp ldapentry.cpp ldapentrycollection.cpp ldapattribute.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)

@@ -7,3 +7,13 @@ Telecom_Plugin.h
 /originatestatemachine.cpp
 callmanager.h
 callmanager.cpp
+ldapattribute.cpp
+ldapattribute.h
+ldapentrycollection.cpp
+ldapentrycollection.h
+ldapentry.cpp
+ldapentry.h
+ldapexception.cpp
+ldapexception.h
+ldapmanager.cpp
+ldapmanager.h

@@ -40,10 +40,34 @@ using namespace DCE;
 #include "pluto_main/Define_DeviceTemplate.h"
 #include "pluto_main/Define_DataGrid.h"
 #include "pluto_main/Define_DeviceData.h"
+#include "pluto_main/Define_CommandParameter.h"
 #include "pluto_main/Define_Event.h"
 #include "pluto_main/Define_EventParameter.h"
+#include "pluto_main/Table_Users.h"
 
 #include "callmanager.h"
+#include "ldapmanager.h"
+
+using namespace LDAPSERVER;
+
+
+#define LDAP_HOST			"localhost"
+#define LDAP_PORT			389
+#define LDAP_BINDNAME		"cn=admin,dc=plutohome,dc=org"
+#define LDAP_BINDSECRET		"secret"
+
+#define LDAP_PHONE_BUSINESS	"telephoneNumber"
+#define LDAP_PHONE_HOME		"homePhone"
+#define LDAP_PHONE_MOBILE	"mobile"
+
+static struct _PHONEMAPENTRY {
+	const char* ldapattr;
+	const char* display;
+} _phonemap[] = {
+		{"telephoneNumber", "Business"},
+		{"homePhone", "Home"},
+		{"mobile", "Mobile"},
+};
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -68,6 +92,7 @@ Telecom_Plugin::Telecom_Plugin(int DeviceID, string ServerAddress,bool bConnectE
 Telecom_Plugin::~Telecom_Plugin()
 //<-dceag-dest-e->
 {
+	delete m_pDatabase_pluto_main;
 }
 
 //<-dceag-reg-b->
@@ -162,46 +187,145 @@ class DataGridTable *Telecom_Plugin::TelecomScenariosGrid(string GridID,string P
 
 class DataGridTable *Telecom_Plugin::PhoneBookAutoCompl(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
+	g_pPlutoLogger->Write(LV_STATUS, "Phone Book Autocomplete request received for GridID: %s with Params: %s.", 
+																					GridID.c_str(), Parms.c_str());
+																				
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
 
-	pCell = new DataGridCell("adam","12");
-	pDataGrid->SetData(0,0,pCell);
+	// get uid and filter text 
+	string uid, filtertxt;
+	int index = Parms.find('|');
+	if(index < 0) {
+		uid = Parms;
+	} else  {
+		uid = Parms.substr(0, index);
+		filtertxt = Parms.substr(index + 1, Parms.length() - index);
+	}
+	
+	if(uid.length() == 0) {
+		g_pPlutoLogger->Write(LV_CRITICAL, "No user ID passed in parameters.");
+		return pDataGrid;
+	}
+			
+	// find user name given the user ID sent in Parms
+	Row_Users *pUsers = m_pDatabase_pluto_main->Users_get()->GetRow(atol(uid.c_str()));
+	if(!pUsers) {
+		g_pPlutoLogger->Write(LV_STATUS, "User with ID: %s not found.", uid.c_str());
+		return pDataGrid;
+	}
+	
+	string uname = pUsers->UserName_get();
+	
+	LDAPManager ldapm(LDAP_HOST, LDAP_PORT);
+	try {
+		ldapm.SimpleBind(LDAP_BINDNAME, LDAP_BINDSECRET);
+	
+		string searchbase = "dc=" + uname + ", dc=plutohome, dc=org";
+		string searchfilter = "(&(objectclass=person)" + 
+											((filtertxt.length() > 0) ? "(cn=*" + filtertxt + "*)" : "")
+											+ ")";
+		
+		g_pPlutoLogger->Write(LV_STATUS, "Searching LDAP server from Base: %s with Filter: %s", 
+													searchbase.c_str(), searchfilter.c_str());
+		
+		LDAPEntryCollectionPtr pcol = 
+						ldapm.Search(searchbase.c_str(), LDAP_SCOPE_SUBTREE, searchfilter.c_str(), NULL, 0);
+	
+						
+		int numEntries = 0;
+				
+		LDAPEntryPtr pe = pcol->First();
+		while(pe.get() != NULL) {
+			const LDAPATTRIBUTESVEC& attrs = pe->GetAttrs();
 
-	pCell = new DataGridCell("bob","13");
-	pDataGrid->SetData(0,0,pCell);
+			for(LDAPATTRIBUTESVEC::const_iterator it = attrs.begin();
+								it != attrs.end(); it++) 
+			{
+				if((*it).GetName() == "cn") {
+					const LDAPVALUESVEC& values = (*it).GetValues();
+						if(values.size() > 0 && values.begin()->length() > 0) {
+							pCell = new DataGridCell(*values.begin(), uname + "|" + *values.begin());
+							pDataGrid->SetData(0, numEntries++, pCell);
+						}
+				}
+			}
+			pe = pcol->Next(pe);
+		}
 
-	pCell = new DataGridCell("chuck","14");
-	pDataGrid->SetData(0,0,pCell);
-
+		ldapm.Unbind();
+	} catch(LDAPException e) {
+		g_pPlutoLogger->Write(LV_CRITICAL, "LDAP raised exception: %s.", e.GetErrString());
+	}
+	
+	
 	return pDataGrid;
 }
 
 class DataGridTable *Telecom_Plugin::PhoneBookListOfNos(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage)
 {
+	g_pPlutoLogger->Write(LV_STATUS, "Phone Book List of NOS request received for GridID: %s with Params: %s.", 
+																					GridID.c_str(), Parms.c_str());
+	
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
 
-	if( Parms.length()==0 )
+	string uname, cn;
+	
+	int index = Parms.find('|');
+	if(index > 0) {
+		uname = Parms.substr(0, index);
+		cn = Parms.substr(index + 1, Parms.length() - index);
+	}
+	
+	if(uname.length() == 0 || cn.length() == 0) {
+		g_pPlutoLogger->Write(LV_CRITICAL, "Invalid params passed.");
 		return pDataGrid;
-
-	if( Parms=="12" )
-	{
-		pCell = new DataGridCell("chuck's cell","123456");
-//		pCell->m_pGraphicData = FileUtils::ReadFileIntoBuffer("/home/mypic.jpg",pCell->m_GraphicLength);
-		pDataGrid->SetData(0,0,pCell);
-		pCell = new DataGridCell("chuck's home","7890");
-		pDataGrid->SetData(0,0,pCell);
 	}
-	else if( Parms=="13" )
-	{
-		pCell = new DataGridCell("bob's cell","123456");
-		pDataGrid->SetData(0,0,pCell);
-		pCell = new DataGridCell("bob's home","7890");
-		pDataGrid->SetData(0,0,pCell);
+	
+	g_pPlutoLogger->Write(LV_STATUS, "Searching phones for User: %s, Entry: %s", 
+													uname.c_str(), cn.c_str());
+
+	LDAPManager ldapm(LDAP_HOST, LDAP_PORT);
+	try {
+		ldapm.SimpleBind(LDAP_BINDNAME, LDAP_BINDSECRET);
+	
+		string searchbase = "dc=" + uname + ", dc=plutohome, dc=org";
+		string searchfilter = "(cn=" + cn + ")";
+		
+		g_pPlutoLogger->Write(LV_STATUS, "Searching LDAP server from Base: %s with Filter: %s", 
+													searchbase.c_str(), searchfilter.c_str());
+		
+		LDAPEntryCollectionPtr pcol = 
+						ldapm.Search(searchbase.c_str(), LDAP_SCOPE_SUBTREE, searchfilter.c_str(), NULL, 0);
+		
+		int numEntries = 0;
+				
+		LDAPEntryPtr pe = pcol->First();
+		if(pe.get() != NULL) {
+			const LDAPATTRIBUTESVEC& attrs = pe->GetAttrs();
+			for(LDAPATTRIBUTESVEC::const_iterator it = attrs.begin();
+								it != attrs.end(); it++) 
+			{
+				for(unsigned int i = 0; 
+						i < sizeof(_phonemap) / sizeof(struct _PHONEMAPENTRY); i++) 
+				{
+					if((*it).GetName() == _phonemap[i].ldapattr) {
+						const LDAPVALUESVEC& values = (*it).GetValues();
+						if(values.size() > 0 && values.begin()->length() > 0) {
+							pCell = new DataGridCell( string(_phonemap[i].display) + " [" + *values.begin() +"]", *values.begin() );
+							pDataGrid->SetData(0, numEntries++, pCell);
+						}
+					}
+				}
+			}
+		}
+
+		ldapm.Unbind();
+	} catch(LDAPException e) {
+		g_pPlutoLogger->Write(LV_CRITICAL, "LDAP raised exception: %s.", e.GetErrString());
 	}
-
-
+	
 	return pDataGrid;
 }
 
