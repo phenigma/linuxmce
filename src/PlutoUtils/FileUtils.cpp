@@ -116,7 +116,12 @@ bool FileUtils::WriteVectorToFile( string sFileName, vector<string> &vectString 
 {
 	FILE *file = fopen(sFileName.c_str(),"wb");
 	if( !file )
-		return false;
+	{
+		MakeDir( FileUtils::BasePath(sFileName) );
+		file = fopen(sFileName.c_str(),"wb");
+		if( !file )
+			return false;
+	}
 
 	for(size_t s=0;s<vectString.size();++s)
 	{
@@ -213,6 +218,9 @@ void FileUtils::MakeDir(string sDirectory)
 {
     // Windows understands both
     sDirectory = StringUtils::Replace( sDirectory, "\\", "/" );
+
+    if( !StringUtils::EndsWith(sDirectory,"/") )
+        sDirectory += "/";
 
     // Run it on each Directory in the path just to be sure
 	string::size_type pos = 0; // string::size_type is UNSIGNED
