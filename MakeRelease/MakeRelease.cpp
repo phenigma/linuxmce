@@ -1023,15 +1023,15 @@ cout << "Making CVS Checkout to temporary\n";
 			" checkout " + pRow_Package_Source->Name_get();
 	system(cmd.c_str());
 
+	cmd = pRow_Package_Source->Name_get();
+	chdir(cmd.c_str());
+
 cout << "Reading files from temporary ";
 	getcwd(direct, 255);
 	cout << direct << " ";
 	FileUtils::FindFiles(MyList, direct, "*", true, "");
 	cout << MyList.size();
 cout << " [Done]\n";
-
-	cmd = pRow_Package_Source->Name_get();
-	chdir(cmd.c_str());
 
 	//reading actual directory list
 //	cout<<"\n\n SourceForgeCVS : "<<pRow_Package_Source->FK_Package_getrow()->Description_get();
