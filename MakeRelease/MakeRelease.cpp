@@ -1016,8 +1016,9 @@ cout << "Making CVS Checkout to temporary\n";
 			pRow_Package_Source->Name_get()+
 			" checkout " + pRow_Package_Source->Name_get();
 	system(cmd.c_str());
-	cout << cmd << endl;
 	chdir(pRow_Package_Source->Name_get().c_str());
+
+	system("pwd");
 
 	list <string> MyList;
 	list <string>::iterator iMyList;
@@ -1029,7 +1030,8 @@ cout << "Making CVS Checkout to temporary\n";
 
 //	cout<<"\n\n SourceForgeCVS : "<<pRow_Package_Source->FK_Package_getrow()->Description_get();
 //	cout<<"\n Nr of files : "<<listFileInfo.size();
-
+	
+	cout << "Copying Files " << endl;
 /////////////-------------------- We copy the files from the project to the temporary
 	flag = false;
 	for (iFileInfo = listFileInfo.begin();iFileInfo != listFileInfo.end(); iFileInfo++)
