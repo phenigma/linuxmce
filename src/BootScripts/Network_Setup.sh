@@ -87,12 +87,6 @@ fi
 
 /etc/init.d/networking start
 
-if [ "$ExtIP" == "dhcp" ]; then
-	RealExtIP=$(ip addr ls "$ExtIf" | grep "inet .*$ExtIf\$" | awk '{print $2}' | cut -d/ -f1)
-	Q="UPDATE Device SET IPaddress='$RealExtIP' WHERE PK_Device='$PK_Device'"
-	RunSQL "$Q"
-fi
-
 Fwd="forwarders {"
 for i in $DNSservers; do
 	Fwd=$(printf "%s" "$Fwd~!$i;")
@@ -149,8 +143,16 @@ Allow SSH connections? [y/N]?"
 #	RunSQL "$Q"
 #fi
 
+RealExtIP="$ExtIP"
 dcerouterIP="$IntIP"
-[ -z "$IntIP" ] && dcerouterIP="$RealExtIP" #dcerouterIP="127.0.0.1"
+if [ "$ExtIP" == "dhcp" ]; then
+	RealExtIP=$(ip addr ls "$ExtIf" | grep "inet .*$ExtIf\$" | awk '{print $2}' | cut -d/ -f1)
+fi
+if [ -z "$dcerouterIP" ]; then
+	dcerouterIP="$RealExtIP" #dcerouterIP="127.0.0.1"
+fi
+Q="UPDATE Device SET IPaddress='$dcerouterIP' WHERE PK_Device='$PK_Device'"
+RunSQL "$Q"
 
 hosts="
 127.0.0.1       localhost.localdomain   localhost
