@@ -107,7 +107,7 @@ function irCodes($output,$dbADO) {
 			<td><input type="text" name="irData_'.$rowCommands['PK_InfraredGroup_Command'].'" value="'.$rowCommands['IRData'].'" '.(($rowCommands['FK_DeviceTemplate']=='')?'disabled':'').'></td>
 			<td align="center">'.(($rowCommands['FK_DeviceTemplate']=='')?'<input type="button" class="button" name="addCustomCode" value="Add custom code" onClick="document.irCodes.irgroup_command.value='.$rowCommands['PK_InfraredGroup_Command'].';document.irCodes.submit();">':'<input type="button" class="button" name="delCustomCode" value="Delete code" onClick="document.irCodes.action.value=\'delete\';document.irCodes.irgroup_command.value='.$rowCommands['PK_InfraredGroup_Command'].';document.irCodes.submit();">').' 
 				<input type="button" class="button" name="testCode" value="Test code" onClick="self.location=\'index.php?section=irCodes&from=avWizard&deviceID='.$deviceID.'&from=avWizard&action=testCode&irCode='.$rowCommands['IRData'].'\'">
-				<input type="button" class="button" name="learnCode" value="Learn code" onClick="windowOpen(\'index.php?section=learnCode&deviceID='.$deviceID.'&commandID='.$rowCommands['FK_Command'].'\',\'width=300,height=200,toolbars=true,scrollbars=1,resizable=1\');">
+				<input type="button" class="button" name="learnCode" value="Learn code" onClick="windowOpen(\'index.php?section=learnCode&deviceID='.$deviceID.'&commandID='.$rowCommands['FK_Command'].'&action=sendCommand\',\'width=400,height=250,toolbars=true,scrollbars=1,resizable=1\');">
 			</td>
 		</tr>';
 	}
