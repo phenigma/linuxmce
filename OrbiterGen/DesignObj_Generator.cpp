@@ -14,11 +14,14 @@
 #include "pluto_main/Database_pluto_main.h"
 #include "pluto_main/Table_Text_LS.h"
 #include "pluto_main/Table_Floorplan.h"
+#include "pluto_main/Table_FloorplanType.h"
+#include "pluto_main/Table_FloorplanObjectType.h"
 #include "pluto_main/Table_CachedScreens.h"
 #include "pluto_main/Table_Image.h"
 #include "pluto_main/Table_Installation.h"
 #include "pluto_main/Table_Installation_Users.h"
 #include "pluto_main/Table_DesignObj.h"
+#include "pluto_main/Table_DesignObjParameter.h"
 #include "pluto_main/Table_DesignObjVariation.h"
 #include "pluto_main/Table_DesignObjVariation_Text_Skin_Language.h"
 #include "pluto_main/Table_DesignObjVariation_Text.h"
@@ -31,6 +34,8 @@
 #include "pluto_main/Table_Style.h"
 #include "pluto_main/Table_StyleVariation.h"
 #include "pluto_main/Table_Device.h"
+#include "pluto_main/Table_DeviceData.h"
+#include "pluto_main/Table_Device_DeviceData.h"
 #include "pluto_main/Table_DeviceCategory.h"
 #include "pluto_main/Table_DeviceTemplate.h"
 #include "pluto_main/Table_Orbiter.h"
@@ -79,7 +84,7 @@ DesignObj_Generator::DesignObj_Generator(OrbiterGenerator *pGenerator,class Row_
 	m_bDontShare=bDontShare;
 	m_bUsingCache=false;
 
-if( m_drDesignObj->PK_DesignObj_get()==2431 )//2821 && bAddToGenerated )
+if( m_drDesignObj->PK_DesignObj_get()==2239 )//2821 && bAddToGenerated )
 {
 	int k=2;
 }
@@ -176,14 +181,14 @@ if( m_drDesignObj->PK_DesignObj_get()==2431 )//2821 && bAddToGenerated )
 			if( GraphicType==1 )
 			{
 				m_iFloorplanPage = m_pOrbiterGenerator->m_iFloorplanPage;
-				o = m_pOrbiterGenerator->m_GraphicsBasePath + "/Floorplans/I" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Device->FK_Installation_get()) + "/","Page" + StringUtils::itos(m_iFloorplanPage) + ".jpg";
-				/*
+				o = "/Floorplans/I" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Device->FK_Installation_get()) + "/" + "Page" + StringUtils::itos(m_iFloorplanPage) + ".png";
+/*
 				string[] sFiles = Directory.GetFiles(m_pOrbiterGenerator->m_GraphicsBasePath + "/Floorplans/I" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Device->FK_Installation_get()) + "/","Page" + StringUtils::itos(m_iFloorplanPage) + ".*");
 				if( sFiles.Length>0 )
 				{
 					o = sFiles[0].substr(sFiles[0].IndexOf("/Floorplans/"));
 				}
-				*/
+*/
 			}
 		}
 		else
@@ -551,78 +556,69 @@ if( m_drDesignObj->PK_DesignObj_get()==2431 )//2821 && bAddToGenerated )
 		m_rBackgroundPosition.Height = m_sOriginalSize.Height * ScaleFactor / m_pOrbiterGenerator->m_drSize->ScaleY_get();
 		m_rPosition.Width = m_rBackgroundPosition.Width;
 		m_rPosition.Height = m_rBackgroundPosition.Height;
-/*
 
-TODO - C++ generator -- put all this back
-TODO - C++ generator -- put all this back
-TODO - C++ generator -- put all this back
-TODO - C++ generator -- put all this back
-TODO - C++ generator -- put all this back
-TODO - C++ generator -- put all this back
-TODO - C++ generator -- put all this back
+		int FloorplanType = atoi(GetParm(DESIGNOBJPARAMETER_Type_CONST).c_str());
+		Row_FloorplanType *drFloorplanType = m_mds->FloorplanType_get()->GetRow(FloorplanType);
 
-		try
+//		string SQL = "SELECT * FROM " + string(DEVICE_DEVICEDATA_TABLE) + 
+		string SQL=	"JOIN " + string(DEVICE_TABLE) + " ON " + DEVICE_DEVICEDATA_FK_DEVICE_FIELD + "=" + DEVICE_PK_DEVICE_FIELD +
+			" JOIN " + FLOORPLANOBJECTTYPE_TABLE + " ON " + DEVICE_DEVICEDATA_VALUE_FIELD + "=" + FLOORPLANOBJECTTYPE_PK_FLOORPLANOBJECTTYPE_FIELD +
+			" WHERE " + DEVICE_FK_INSTALLATION_FIELD + "=" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Device->FK_Installation_get()) +
+			" AND " + DEVICE_DEVICEDATA_FK_DEVICEDATA_FIELD + "=" + StringUtils::itos(DEVICEDATA_PK_FloorplanObjectType_CONST) +
+			" AND " + FLOORPLANOBJECTTYPE_FK_FLOORPLANTYPE_FIELD + "=" + StringUtils::itos(FloorplanType);
+
+		vector<Row_Device_DeviceData *> vectRow_Device_DeviceData;
+		m_mds->Device_DeviceData_get()->GetRows(SQL,&vectRow_Device_DeviceData);
+		for(size_t s=0;s<vectRow_Device_DeviceData.size();++s)
 		{
-			int FloorplanType = atoi(GetParm(DesignObjParameter_TYPE_CONST).c_str());
-			Row_FloorplanType *drFloorplanType = m_mds->FloorplanType_get()->GetRow(FloorplanType);
-
-			DEVICE_C_DEVICEDATA_eader dreadDevice = new DEVICE_C_DEVICEDATA_eader("SELECT * FROM " + DEVICE_C_DEVICEDATA_DEVICE_C_DEVICEDATA_TABLE + 
-				" JOIN " + DEVICE_DEVICE_TABLE + " ON " + DEVICE_C_DEVICEDATA_FK_DEVICE_FIELD + "=" + DEVICE_PK_DEVICE_FIELD +
-				" JOIN " + FloorplanObjectTypeData.C_FLOORPLANOBJECTTYPE_TABLE + " ON " + DEVICE_C_DEVICEDATA_VALUE_FIELD + "=" + FloorplanObjectTypeData.PK_C_FLOORPLANOBJECTTYPE_FIELD +
-				" WHERE " + DEVICE_FK_INSTALLATION_FIELD + "=" + m_pOrbiterGenerator->m_pRow_Device->FK_Installation_get() +
-				" AND " + DEVICE_C_DEVICEDATA_FK_C_DEVICEDATA_FIELD + "=" + C_DEVICEDATA_PK_C_FLOORPLANOBJECTTYPE_CONST +
-				" AND " + FloorplanObjectTypeData.FK_C_FLOORPLANTYPE_FIELD + "=" + FloorplanType,m_mds.m_conn,m_mds.m_trans,true);
-			while(dreadDevice.Read())
+			Row_Device_DeviceData *pRow_Device_DeviceData = vectRow_Device_DeviceData[s];
+			Row_Device_DeviceData *pRow_Device_DeviceData_FPInfo = m_mds->Device_DeviceData_get()->GetRow(pRow_Device_DeviceData->FK_Device_get(),DEVICEDATA_Floorplan_Info_CONST);
+			Row_Device_DeviceData *pRow_Device_DeviceData_ObjType = m_mds->Device_DeviceData_get()->GetRow(pRow_Device_DeviceData->FK_Device_get(),DEVICEDATA_PK_FloorplanObjectType_CONST);
+			int FloorplanObjectType = atoi(pRow_Device_DeviceData_ObjType->Value_get().c_str());
+			Row_FloorplanObjectType *pRow_FloorplanObjectType = m_mds->FloorplanObjectType_get()->GetRow(FloorplanObjectType);
+			if( pRow_Device_DeviceData_FPInfo )
 			{
-				Device_Row_DeviceData * dr = m_mds->Device_DeviceData_get()->GetRow(dreadDevice->FK_Device_get(),C_DEVICEDATA_FLOORPLAN_INFO_CONST);
-				Device_Row_DeviceData * dr2 = m_mds->Device_DeviceData_get()->GetRow(dreadDevice->FK_Device_get(),C_DEVICEDATA_PK_C_FLOORPLANOBJECTTYPE_CONST);
-				int FloorplanObjectType = atoi(dr2->Value_get().c_str());
-				FloorplanObjectTypeDataRow drDesignObjType = m_mds.tFloorplanObjectType[FloorplanObjectType];
-				if( dr )
+				// Parse the parameters to see if any of these sensors are on this page
+				string::size_type pos=0;
+				while(true)
 				{
-					// Parse the parameters to see if any of these sensors are on this page
-					char[] sc = {','};
-					string[] Parms = dr->Value_get().Split(sc);
-					for(int i=0;i<Parms.Length;i+=3)
+					string sFloorplan = StringUtils::Tokenize(pRow_Device_DeviceData_FPInfo->Value_get(),",",pos);
+					if( sFloorplan.length()==0 )
+						break;
+					int X = atoi(StringUtils::Tokenize(pRow_Device_DeviceData_FPInfo->Value_get(),",",pos).c_str());
+					int Y = atoi(StringUtils::Tokenize(pRow_Device_DeviceData_FPInfo->Value_get(),",",pos).c_str());
+					if( atoi(sFloorplan.c_str())==m_pOrbiterGenerator->m_iFloorplanPage )
 					{
-						try
-						{
-							if( atoi(Parms[i].c_str())==m_pOrbiterGenerator->m_iFloorplanPage )
-							{
-								m_VariableMap[VARIABLE_Array_ID_CONST] = drDesignObjType->Description_get();
-								m_VariableMap[VARIABLE_Array_Desc_CONST] = dr->FK_Device_getrow()->Description_get();
+						m_VariableMap[VARIABLE_Array_ID_CONST] = pRow_FloorplanObjectType->Description_get();
+						m_VariableMap[VARIABLE_Array_Desc_CONST] = pRow_Device_DeviceData_FPInfo->FK_Device_getrow()->Description_get();
 
-								// We got ourselves an object to appear on this map
-								int X = atoi(Parms[i+1].c_str()) * ScaleFactor / 1000;
-								int Y = atoi(Parms[i+2].c_str()) * ScaleFactor / 1000;
-								DesignObj_Generator DesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,drDesignObjType->FK_DesignObj_Control_getrow(),
-									new PlutoRectangle(m_rPosition.X+X,m_rPosition.Y+Y,0,0),this,false,false);  // See if it will fill in the wdith/height automatically
-								DesignObj_Generator.m_bCanBeHidden = false;
-								DesignObj_Generator.m_bHideByDefault = false;
-								DesignObj_Generator.m_bChildrenBeforeText = false;
-								DesignObj_Generator.m_bChildrenBehind = false;
-								DesignObj_Generator.m_bDontMergeBackground = false;
-								DesignObj_Generator.m_iFloorplanPage = m_iFloorplanPage;
-								DesignObj_Generator.m_iFloorplanDevice = dr->FK_Device_get();
+						// We got ourselves an object to appear on this map
+						X = (X * ScaleFactor) / 1000;
+						Y = (Y * ScaleFactor) / 1000;
+						PlutoRectangle rectangle(m_rPosition.X+X,m_rPosition.Y+Y,0,0);
+						DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,pRow_FloorplanObjectType->FK_DesignObj_Control_getrow(),
+							rectangle,this,false,false);  // See if it will fill in the wdith/height automatically
+						pDesignObj_Generator->m_bCanBeHidden = false;
+						pDesignObj_Generator->m_bHideByDefault = false;
+						pDesignObj_Generator->m_bChildrenBeforeText = false;
+						pDesignObj_Generator->m_bChildrenBehind = false;
+						pDesignObj_Generator->m_bDontMergeBackground = false;
+						pDesignObj_Generator->m_iFloorplanPage = m_iFloorplanPage;
+						pDesignObj_Generator->m_iFloorplanDevice = pRow_Device_DeviceData_FPInfo->FK_Device_get();
 
-								// Scale these here because we need to reset all the x/y positions since we may have used a different scale factor
-								DesignObj_Generator.ScaleAllValues((int) (m_pOrbiterGenerator->m_drSize->Scale_get()));
-								m_alChildDesignObjs.Add(DesignObj_Generator);
-								DesignObj_Generator.m_rBackgroundPosition.X=X;
-								DesignObj_Generator.m_rBackgroundPosition.Y=Y;
-								DesignObj_Generator.m_rPosition.X=X;
-								DesignObj_Generator.m_rPosition.Y=Y;
+						// Scale these here because we need to reset all the x/y positions since we may have used a different scale factor
+						pDesignObj_Generator->ScaleAllValues(m_pOrbiterGenerator->m_drSize->ScaleX_get(),m_pOrbiterGenerator->m_drSize->ScaleY_get(),NULL);
+						m_alChildDesignObjs.push_back(pDesignObj_Generator);
+						pDesignObj_Generator->m_rBackgroundPosition.X=X;
+						pDesignObj_Generator->m_rBackgroundPosition.Y=Y;
+						pDesignObj_Generator->m_rPosition.X=X;
+						pDesignObj_Generator->m_rPosition.Y=Y;
 
-								DesignObj_Generator.m_pFloorplanFillPoint = new PlutoPoint(drDesignObjType->FillX_get() * ScaleFactor / 1000,drDesignObjType.fFillY * ScaleFactor / 1000);
-							}
-						}
-						catch(Exception) {}
+						pDesignObj_Generator->m_pFloorplanFillPoint = new PlutoPoint(pRow_FloorplanObjectType->FillX_get() * ScaleFactor / 1000,pRow_FloorplanObjectType->FillY_get() * ScaleFactor / 1000);
 					}
 				}
 			}
 		}
-		catch(Exception) {}
-*/
 	}
 	if( m_drDesignObj->PK_DesignObj_get()==1683 || m_drDesignObj->PK_DesignObj_get()==1677 )
 	{
@@ -652,25 +648,23 @@ if( drOVO->PK_DesignObjVariation_DesignObj_get()==6312 )
 				{
 					if( drOVO->FK_DesignObj_Child_getrow()->FK_DesignObjType_get()==DESIGNOBJTYPE_Floorplan_CONST )
 					{
-/*
- 
- TODO -- put this back in the C++ generator
-
 						// Add 1 child for each floorplan page
 						int PageCount=0;
-						FloorplanDataReader dreadFloorplan = new FloorplanDataReader(FLOORPLAN_FK_INSTALLATION_FIELD + " Is Null OR " + DEVICE_FK_INSTALLATION_FIELD + "=" + m_pOrbiterGenerator->m_pRow_Device->FK_Installation_get(),m_mds.m_conn,m_mds.m_trans,true);
-						while(dreadFloorplan.Read())
+						vector<Row_Floorplan *> vectRow_Floorplan;
+						m_mds->Floorplan_get()->GetRows(string(FLOORPLAN_FK_INSTALLATION_FIELD) + " Is Null OR " + DEVICE_FK_INSTALLATION_FIELD + "=" + StringUtils::itos(m_pOrbiterGenerator->m_pRow_Device->FK_Installation_get()),&vectRow_Floorplan);
+						for(size_t s=0;s<vectRow_Floorplan.size();++s)
 						{
+							Row_Floorplan *pRow_Floorplan = vectRow_Floorplan[s];
 							m_pOrbiterGenerator->m_iFloorplanPage = ++PageCount;
-							DesignObj_Generator DesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,drOVO->FK_DesignObj_Child_getrow(),new PlutoRectangle(m_rPosition.X+drOVO->X_get(),m_rPosition.Y+drOVO->Y_get(),drOVO->Width_get(),drOVO->Height_get()),this,false,false);
-							DesignObj_Generator.m_bCanBeHidden = true;
-							DesignObj_Generator.m_bHideByDefault = true;
-							DesignObj_Generator.m_bChildrenBeforeText = drOVO->DisplayChildrenBeforeText_get();
-							DesignObj_Generator.m_bChildrenBehind = drOVO->DisplayChildrenBehindBackground_get();
-							DesignObj_Generator.m_bDontMergeBackground = drOVO->DontMergeBackground_get();
-							m_alChildDesignObjs.Add(DesignObj_Generator);
+							PlutoRectangle rectangle(m_rPosition.X+drOVO->X_get(),m_rPosition.Y+drOVO->Y_get(),drOVO->Width_get(),drOVO->Height_get());
+							DesignObj_Generator *pDesignObj_Generator = new DesignObj_Generator(m_pOrbiterGenerator,drOVO->FK_DesignObj_Child_getrow(),rectangle,this,false,false);
+							pDesignObj_Generator->m_bCanBeHidden = true;
+							pDesignObj_Generator->m_bHideByDefault = true;
+							pDesignObj_Generator->m_bChildrenBeforeText = drOVO->DisplayChildrenBeforeText_get()==1;
+							pDesignObj_Generator->m_bChildrenBehind = drOVO->DisplayChildrenBehindBackground_get()==1;
+							pDesignObj_Generator->m_bDontMergeBackground = drOVO->DontMergeBackground_get()==1;
+							m_alChildDesignObjs.push_back(pDesignObj_Generator);
 						}
-*/
 					}
 					else
 					{
@@ -1042,9 +1036,9 @@ void DesignObj_Generator::PickVariation(OrbiterGenerator *pGenerator,class Row_D
 			// We're going to have to figure it out ourselves
 
 			// HACK _- todo
-			if( !drOV->FK_Criteria_D_isNull() && drOV->FK_Criteria_D_get()!=1 && pDevice->FK_DeviceTemplate_get()==24 )  // normal tablet
+			if( !drOV->FK_Criteria_D_isNull() && drOV->FK_Criteria_D_get()!=1 && pDevice->FK_DeviceTemplate_get()==8 )  // normal tablet
 				continue;  // Don't include the audi mmi prototype on the phone
-			if( !drOV->FK_Criteria_D_isNull() && drOV->FK_Criteria_D_get()!=2 && pDevice->FK_DeviceTemplate_get()==8 )   // phone
+			if( !drOV->FK_Criteria_D_isNull() && drOV->FK_Criteria_D_get()!=2 && pDevice->FK_DeviceTemplate_get()==24 )   // phone
 				continue;  // Don't include the phone on a the audi mmi prototype
 
 			// hack this in for audi
@@ -1145,8 +1139,13 @@ TextStyle *DesignObj_Generator::PickStyleVariation(vector<Row_StyleVariation *> 
 			drCorrectMatch= drSV_Neither;
 	}
 
-	TextStyle *pTextStyle = new TextStyle(drCorrectMatch);
-	pTextStyle->m_iPixelHeight = drCorrectMatch->PixelHeight_get() * pGenerator->m_pRow_Orbiter->FK_Size_getrow()->ScaleY_get() / 1000;
+	TextStyle *pTextStyle = pGenerator->m_mapTextStyle_Find(drCorrectMatch->FK_Style_get());
+	if( !pTextStyle )
+	{
+		pTextStyle = new TextStyle(drCorrectMatch);
+		pTextStyle->m_iPixelHeight = drCorrectMatch->PixelHeight_get() * pGenerator->m_pRow_Orbiter->FK_Size_getrow()->ScaleY_get() / 1000;
+		pGenerator->m_mapTextStyle[drCorrectMatch->FK_Style_get()]=pTextStyle;
+	}
 	return pTextStyle;
 }
 
@@ -1300,29 +1299,31 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 			}
 			break;
 		}
+*/
+
 		case ARRAY_Phone_Users_CONST:
 		case ARRAY_All_Users_CONST:
 			{
 				vector<Row_Installation_Users *> vectIUs;
-				m_pOrbiterGenerator->m_pRow_Orbiter->FK_Installation_getrow()->Installation_Users_FK_Installation_getrows(&vectIUs);
+				m_pOrbiterGenerator->m_pRow_Device->FK_Installation_getrow()->Installation_Users_FK_Installation_getrows(&vectIUs);
 				for(size_t s=0;s<vectIUs.size();++s)
 				{
 					Row_Installation_Users *drIU = vectIUs[s];
 					if( PK_Array==ARRAY_Phone_Users_CONST && drIU->FK_Users_getrow()->Extension_isNull() )
 						continue;
 					alArray->push_back(new ArrayValue(StringUtils::itos(drIU->FK_Users_getrow()->PK_Users_get()),drIU->FK_Users_getrow()->UserName_get(),NULL,0,0,
-						0,VARIABLE_PK_Users_CONST,drOVO->CanBeHidden_get()==1,drOVO->HideByDefault_get()==1,false));
+						0,0,drOVO->CanBeHidden_get()==1,drOVO->HideByDefault_get()==1,false));
 				}
 			}
 			break;
 		case ARRAY_Locations_CONST:
 			{
-				list<class LocationInfo *>::iterator it;
-				for(it=m_pOrbiterGenerator->m_alLocations.begin();it!=m_pOrbiterGenerator->m_alLocations.end();++it)
+				DequeLocationInfo::iterator it;
+				for(it=m_pOrbiterGenerator->m_dequeLocation.begin();it!=m_pOrbiterGenerator->m_dequeLocation.end();++it)
 				{
 					LocationInfo *li = (*it);
 
-					alArray->push_back(new ArrayValue(StringUtils::itos(li->iLocation) + "," + StringUtils::itos(li->PK_Room) + "," + StringUtils::itos(li->PK_Device),li->Description,li->drIcon,0,0,0,VARIABLE_PK_Device_CONST,drOVO->CanBeHidden_get()==1,drOVO->HideByDefault_get()==1,false));
+					alArray->push_back(new ArrayValue(StringUtils::itos(li->iLocation) + "," + StringUtils::itos(li->PK_Room) + "," + StringUtils::itos(li->PK_EntertainArea),li->Description,li->drIcon,0,0,0,VARIABLE_PK_Device_CONST,drOVO->CanBeHidden_get()==1,drOVO->HideByDefault_get()==1,false));
 				}
 			}
 			break;
@@ -1331,7 +1332,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 				vector<class Row_Floorplan *> vectFs;
 				string sql = string(FLOORPLAN_FK_INSTALLATION_FIELD) + "=" + \
 					StringUtils::itos(m_pOrbiterGenerator->m_pRow_Device->FK_Installation_get()) + " ORDER BY " + FLOORPLAN_PAGE_FIELD;
-				vectFs = m_mds->Floorplan_get()->GetRows(sql);
+				m_mds->Floorplan_get()->GetRows(sql,&vectFs);
 
 				for(size_t s=0;s<vectFs.size();++s)
 				{
@@ -1343,7 +1344,7 @@ vector<class ArrayValue *> *DesignObj_Generator::GetArrayValues(Row_DesignObjVar
 				}
 			}
 			break;
-*/
+
 			/*
 		case C_ARRAY_ROOMS_CONST:
 			DataView dv = new DataView(HADataConfiguration.m_mdsCache->Room_get(),
@@ -1442,7 +1443,7 @@ void DesignObj_Generator::ScaleAllValues(int FactorX,int FactorY,class DesignObj
 
 		oc->ScaleAllValues(FactorX,FactorY,pTopmostObject);
 
-		if( oc->m_bContainsArrays )
+		if( oc->m_bContainsArrays && pTopmostObject )
 			pTopmostObject->m_bContainsArrays=true;
 	}
 

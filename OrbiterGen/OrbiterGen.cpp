@@ -48,6 +48,7 @@
 #include "pluto_main/Table_CommandParameter.h"
 #include "pluto_main/Table_DeviceData.h"
 #include "pluto_main/Table_DesignObjParameter.h"
+#include "pluto_main/Table_Installation_Users.h"
 #include "pluto_main/Table_DesignObjType.h"
 #include "pluto_main/Table_Command.h"
 #include "pluto_main/Table_Variable.h"
@@ -269,10 +270,12 @@ int OrbiterGenerator::DoIt()
 
 	Row_Users *drUsers_Default = NULL;
 
-	drUsers_Default = mds.Users_get()->GetRow(atoi(drD_C_DP_DefaultUser->Value_get().c_str()));
+	Row_Installation_Users *pRow_Installation_Users=mds.Installation_Users_get()->GetRow(drDevice->FK_Installation_get(),atoi(drD_C_DP_DefaultUser->Value_get().c_str()));
+	if( pRow_Installation_Users )
+		drUsers_Default = pRow_Installation_Users->FK_Users_getrow();
 	if( !drUsers_Default)
 	{
-		throw "Default user is invalid for contorller: " + StringUtils::itos(m_pRow_Orbiter->PK_Orbiter_get());
+		throw "Default user is invalid for orbiter: " + StringUtils::itos(m_pRow_Orbiter->PK_Orbiter_get());
 	}
 
 	m_iPK_Users = drUsers_Default->PK_Users_get();
@@ -313,6 +316,10 @@ int OrbiterGenerator::DoIt()
 	+	"AND (X.FK_Installation=" + StringUtils::itos(m_pRow_Device->FK_Installation_get()) + " Or X.FK_Installation IS NULL)";
 	*/
 
+	// First put this in a list.  We really need a deque so we can access the members by their numeric
+	// position, but we also need to sort it, and deque's don't implement sorting
+	list<LocationInfo *> listLocationInfo;
+
 	vector<Row_Room *> vectRow_Room;
 	mds.Room_get()->GetRows("FK_Installation=" + StringUtils::itos(m_pRow_Device->FK_Installation_get()),&vectRow_Room);
 	for(size_t s=0;s<vectRow_Room.size();++s)
@@ -325,7 +332,7 @@ int OrbiterGenerator::DoIt()
 		li->drIcon=NULL;
 		if( !pRow_Room->FK_Icon_isNull() )
 			li->drIcon = pRow_Room->FK_Icon_getrow();
-		m_alLocations.push_back(li);
+		listLocationInfo.push_back(li);
 	}
 
 	m_sMainMenu="";
@@ -379,8 +386,8 @@ int OrbiterGenerator::DoIt()
 			Row_EntertainArea *pRow_EntertainArea = vectRow_EntertainArea[s];
 
 			// Find the entry for the room
-			list<class LocationInfo *>::iterator it;
-			for(it=m_alLocations.begin();it!=m_alLocations.end();++it)
+			list<LocationInfo *>::iterator it;
+			for(it=listLocationInfo.begin();it!=listLocationInfo.end();++it)
 			{
 				li = (*it);
 				if( li->PK_Room==pRow_EntertainArea->FK_Room_get() )
@@ -398,7 +405,7 @@ int OrbiterGenerator::DoIt()
 				li = new LocationInfo();
 				li->PK_Room = pRow_EntertainArea->FK_Room_get();
 				li->drIcon=NULL;
-				m_alLocations.push_back(li);
+				listLocationInfo.push_back(li);
 			}
 
 			li->Description = pRow_EntertainArea->Description_get();
@@ -426,17 +433,19 @@ int OrbiterGenerator::DoIt()
 		}
 	}
 
-	m_alLocations.sort(LocationComparer);
+	listLocationInfo.sort(LocationComparer);
 
-	// First add the location numbers so they're available from the beginning
-	list<class LocationInfo *>::iterator it;
-	for(it=m_alLocations.begin();it!=m_alLocations.end();++it)
+	// First add the location numbers so they're available from the beginning, and put them in 
+	// the deque.  We only used a list up till now so we could sort it.
+	list<LocationInfo *>::iterator it;
+	for(it=listLocationInfo.begin();it!=listLocationInfo.end();++it)
 	{
 		LocationInfo *li = (*it);
 		li->iLocation=i++;
+		m_dequeLocation.push_back(li);
 	}
 
-	if( m_alLocations.size()==0 )
+	if( m_dequeLocation.size()==0 )
 	{
 		throw "No entertainment areas in this installation";
 		/*
@@ -451,16 +460,17 @@ int OrbiterGenerator::DoIt()
 		li->PK_EntertainArea = pRow_EntertainArea->PK_EntertainArea_get();
 		li->PK_Room = pRow_EntertainArea->FK_Room_get();
 		li->drIcon=NULL;
-		m_alLocations.push_back(li);					
+		m_dequeLocation.push_back(li);					
 */
 	}
 
 	m_iLocation_Initial=0;
-	for(it=m_alLocations.begin();it!=m_alLocations.end();++it)
+	DequeLocationInfo::iterator itd;
+	for(itd=m_dequeLocation.begin();itd!=m_dequeLocation.end();++itd)
 	{
-		LocationInfo *li = (*it);
+		LocationInfo *li = (*itd);
 		if( (!m_pRow_Orbiter->FK_EntertainArea_isNull() && li->PK_EntertainArea==m_pRow_Orbiter->FK_EntertainArea_get()) ||
-			(m_pRow_Orbiter->FK_EntertainArea_isNull()==0 && li->PK_Room==drDevice->FK_Room_get()) || m_alLocations.size()==1 )
+			(m_pRow_Orbiter->FK_EntertainArea_isNull() && li->PK_Room==drDevice->FK_Room_get()) || m_dequeLocation.size()==1 )
 		{
 			m_sMainMenu = StringUtils::itos(m_pRow_Orbiter->FK_DesignObj_MainMenu_get()) + "." + StringUtils::itos(li->iLocation) + ".0";
 			m_iLocation_Initial = li->iLocation;
@@ -479,7 +489,7 @@ int OrbiterGenerator::DoIt()
 		cerr << "WARNING: No valid main menu found.  Check that a default room and entertainment area are specified in the Orbiter table." << endl
 				<< "Using the first entry as the main menu." << endl;
 		
-		LocationInfo *li = m_alLocations.front();
+		LocationInfo *li = m_dequeLocation.front();
 		m_sMainMenu = StringUtils::itos(m_pRow_Orbiter->FK_DesignObj_MainMenu_get()) + "." + StringUtils::itos(li->iLocation) + ".0";
 		m_iLocation_Initial = li->iLocation;
 	}
@@ -712,7 +722,7 @@ int OrbiterGenerator::DoIt()
 	}
 */
 	// This will update the _LastGen without changing the Modification field
-	sql = "UPDATE Orbiter SET Modification_LastGen=Modification_RecordInfo,Modification_RecordInfo=Modification_RecordInfo WHERE PK_Orbiter=" + StringUtils::itos(m_pRow_Orbiter->PK_Orbiter_get());
+	sql = "UPDATE Orbiter SET Modification_LastGen=psc_mod,psc_mod=psc_mod WHERE PK_Orbiter=" + StringUtils::itos(m_pRow_Orbiter->PK_Orbiter_get());
 	threaded_mysql_query(sql);
 
 	bool b=SerializeWrite(m_sOutputPath + "C" + StringUtils::itos(m_iPK_Orbiter) + ".info");
@@ -827,7 +837,7 @@ void OrbiterGenerator::OutputDesignObjs(DesignObj_Generator *ocDesignObj,int Arr
 		string PageList = "";
 		if( htDevicePages.find(ocDesignObj->m_iFloorplanDevice)!=htDevicePages.end() )
 			PageList = htDevicePages[ocDesignObj->m_iFloorplanDevice];
-		if( PageList.find(ocDesignObj->m_iFloorplanPage + ",")!=string::npos )
+		if( PageList.find(StringUtils::itos(ocDesignObj->m_iFloorplanPage) + ",")!=string::npos )
 		{
 			throw "Floorplan device " + StringUtils::itos(ocDesignObj->m_iFloorplanDevice) + " Page " + StringUtils::itos(ocDesignObj->m_iFloorplanPage) + " already in the system";
 		}
