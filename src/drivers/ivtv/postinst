@@ -23,12 +23,12 @@ case "$1" in
 	for i in /lib/modules/2.6.10-1-686/extra/*.ko; do 
 		MODULE=`echo $i | sed s#[^/]*/##g`;
 		cd /lib/modules/2.6.10-1-686/;
-		echo $MODULE
-		find . -name \"*$MODULE\"# -path "./extra" -prune -o -print # -a -exec mv \\{} \\{}.saved \; ;
+		find . -path ./extra -prune -o -name $MODULE -print -exec mv \{} \{}.saved \; ;
 	done
 
-	echo "Running depmod"
+	echo -n "Running depmod .... "
 	depmod -a
+	echo "done"
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
