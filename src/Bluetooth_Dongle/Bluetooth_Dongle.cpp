@@ -707,9 +707,32 @@ void Bluetooth_Dongle::CMD_Disconnect_From_Mobile_Orbiter(string sMac_address,st
 	// Lookup the mobile orbiter entry
 	BD_Orbiter *pBD_Orbiter = m_mapOrbiterSockets_Find( sMac_address );
 	
+	/*
 	if(NULL != pBD_Orbiter && NULL != pBD_Orbiter->m_pBDCommandProcessor)
 	{
 		BD_PC_Disconnect *pBD_CP_Disconnect = new BD_PC_Disconnect( );
 		pBD_Orbiter->m_pBDCommandProcessor->AddCommand( pBD_CP_Disconnect );
+	}
+	*/
+
+	if ( NULL != pBD_Orbiter && NULL != pBD_Orbiter->m_pOrbiter )
+	{
+		if( NULL != pBD_Orbiter->m_pPhoneDevice )
+			pBD_Orbiter->m_pPhoneDevice->m_bIsConnected = false;
+
+		delete pBD_Orbiter->m_pOrbiter;
+		pBD_Orbiter->m_pOrbiter = NULL;
+
+		g_pPlutoLogger->Write( LV_WARNING, "Orbiter deleted for %s device!", sMac_address.c_str() );
+
+		if( NULL != pBD_Orbiter->m_pBDCommandProcessor )
+		{
+			delete pBD_Orbiter->m_pBDCommandProcessor;
+			pBD_Orbiter->m_pBDCommandProcessor = NULL;
+
+			g_pPlutoLogger->Write( LV_WARNING, "CommandProcessor deleted for %s device!", sMac_address.c_str() );
+		}
+
+		return;
 	}
 }
