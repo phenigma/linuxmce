@@ -203,6 +203,7 @@ if($action=='form') {
 		$insertID=$dbADO->Insert_ID();
 		$insertCG_Room='INSERT INTO CommandGroup_Room (FK_CommandGroup,FK_Room,Sort) VALUES (?,?,?)';
 		$dbADO->Execute($insertCG_Room,array($insertID,$roomID,$insertID));
+		setOrbitersNeedConfigure($installationID,$dbADO);
 		$msg="New Lighting Scenario added";
 	}
 	
@@ -214,6 +215,7 @@ if($action=='form') {
 			$updateCG='UPDATE CommandGroup SET Description=?, Hint=? WHERE PK_CommandGroup=?';
 			$dbADO->Execute($updateCG,array($cgDescription,$cgHint,$elem));
 		}
+		setOrbitersNeedConfigure($installationID,$dbADO);
 		$msg="Lighting Scenario updated";
 	}
 	

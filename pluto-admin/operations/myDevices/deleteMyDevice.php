@@ -16,6 +16,7 @@ if (!$canModifyInstallation){
 }
 
 	deleteDevice($deviceID,$dbADO);
+	setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
 	
 	$out.='
 	<script>

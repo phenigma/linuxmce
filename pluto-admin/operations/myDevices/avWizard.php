@@ -444,6 +444,7 @@ function avWizard($output,$dbADO) {
 		}
 		
 		if(isset($_POST['update']) || $cmd==1){
+			setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
 			$DeviceDataToDisplayArray=explode(',',$_POST['DeviceDataToDisplay']);
 			foreach($displayedDevicesArray as $key => $value){
 				$deviceTemplate=(int)@$_POST['deviceTemplate_'.$value];
@@ -567,6 +568,7 @@ function avWizard($output,$dbADO) {
 				$dbADO->Execute($insertDevice,$deviceTemplate);
 				$insertID=$dbADO->Insert_ID();
 				InheritDeviceData($deviceTemplate,$insertID,$dbADO);
+				setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
 			}
 		}
 		

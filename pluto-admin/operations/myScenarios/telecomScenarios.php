@@ -34,7 +34,7 @@ function telecomScenarios($output,$dbADO) {
 
 		$delCG_ID=(int)$_REQUEST['cgID'];
 		deleteCommandGroup($delCG_ID,$dbADO);
-		
+		setOrbitersNeedConfigure($installationID,$dbADO);
 		header("Location: index.php?section=telecomScenarios&msg=The speed dial was deleted.");
 		exit();
 	}
@@ -90,7 +90,7 @@ function telecomScenarios($output,$dbADO) {
 		<tr bgcolor="#D1D9EA">
 			<td align="right" width="20">&nbsp;</td>
 			<td><B>'.$rowRooms['RoomName'].'</B></td>
-			<td align="center"><input type="button" name="addSpeedDial" value="Add speed dial" onClick="self.location=\'index.php?section=telecomScenarios&action=addSpeedDial&roomID='.$rowRooms['PK_Room'].'\'&roomName='.$rowRooms['RoomName'].'\'"></td>
+			<td align="center"><input type="button" name="addSpeedDial" value="Add speed dial" onClick="self.location=\'index.php?section=telecomScenarios&action=addSpeedDial&roomID='.$rowRooms['PK_Room'].'&roomName='.urlencode($rowRooms['RoomName']).'\'"></td>
 		</tr>
 		<tr>
 			<td align="right" width="20">&nbsp;</td>
@@ -297,6 +297,7 @@ function telecomScenarios($output,$dbADO) {
 			$insertCommandParam='INSERT INTO CommandGroup_Command_CommandParameter (FK_CommandGroup_Command,FK_CommandParameter,IK_CommandParameter) VALUES (?,?,?)';
 			$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_Device'],$phone));
 			
+			setOrbitersNeedConfigure($installationID,$dbADO);	
 			header("Location: index.php?section=telecomScenarios&msg=Speed dial added.");
 			exit();
 		}
@@ -397,6 +398,7 @@ function telecomScenarios($output,$dbADO) {
 			}
 		}
 		
+		setOrbitersNeedConfigure($installationID,$dbADO);	
 		header("Location: index.php?section=telecomScenarios&msg=Telecom scenario updated.");
 	}
 

@@ -260,6 +260,7 @@ function devices($output,$dbADO) {
 		}
 		
 		if(isset($_POST['update'])){
+			setDCERouterNeedConfigure($installationID,$dbADO);
 			$DeviceDataToDisplayArray=explode(',',$_POST['DeviceDataToDisplay']);
 			foreach($displayedDevicesArray as $key => $value){
 				$deviceTemplate=(int)@$_POST['deviceTemplate_'.$value];
@@ -305,6 +306,7 @@ function devices($output,$dbADO) {
 				$dbADO->Execute($insertDevice,$deviceTemplate);
 				$insertID=$dbADO->Insert_ID();
 				InheritDeviceData($deviceTemplate,$insertID,$dbADO);
+				setDCERouterNeedConfigure($installationID,$dbADO);
 			}
 		}
 		header("Location: index.php?section=devices&type=$type");		

@@ -95,11 +95,13 @@ $installationID = (int)@$_SESSION['installationID'];
 	<select name="DeviceTemplate">
 	';
 	
-	$queryDeviceTemplate = "select PK_DeviceTemplate ,Description from DeviceTemplate order by Description asc";
+	$queryDeviceTemplate = "select PK_DeviceTemplate ,Description,Comments from DeviceTemplate order by Description asc";
 	$resDeviceTemplate = $dbADO->_Execute($queryDeviceTemplate);
+	$comments='';
 	$out.= '<option value="0">-please select-</option>';
 	if($resDeviceTemplate) {
 		while ($row=$resDeviceTemplate->FetchRow()) {
+			$comments.=($row['PK_DeviceTemplate']==$DeviceTemplate)?$row['Comments']:'';
 			$out.='<option '.($row['PK_DeviceTemplate']==$DeviceTemplate?" selected ":'').' value="'.$row['PK_DeviceTemplate'].'">'.$row['Description'].' #'.$row['PK_DeviceTemplate'].'</option>';
 		}
 	}
@@ -108,6 +110,10 @@ $installationID = (int)@$_SESSION['installationID'];
 					<input value="View" type="button" name="controlGoToMDL" onClick="windowOpen(\'index.php?section=editMasterDevice&model=\'+this.form.DeviceTemplate[this.form.DeviceTemplate.selectedIndex].value+\'&from=editDeviceParams\',\'width=600,height=800,toolbars=true,scrollbars=1,resizable=1\');">
 					</td>
 				</tr>
+	<tr>
+		<td>Device Template Comments</td>
+		<td>'.$comments.'</td>
+	</tr>
 	
 				<tr>
 					<td valign="top">This device is controlled via:</td>
@@ -252,26 +258,35 @@ $installationID = (int)@$_SESSION['installationID'];
 				<table>
 					';
 	
-	$selectInputs = 'SELECT * FROM Command WHERE FK_CommandCategory=22 Order By Description ASC';
-	$resSelectInputs = $dbADO->Execute($selectInputs);
-	
-	$selectOutputs = 'SELECT * FROM Command WHERE FK_CommandCategory=27 Order By Description ASC';
-	$resSelectOutputs = $dbADO->Execute($selectOutputs);
-	
 	$selectPipes = 'SELECT * FROM Pipe Order By Description ASC';
 	$resSelectPipes = $dbADO->Execute($selectPipes);
 	
-	$selectPipesUsed = 'SELECT Device_Device_Pipe.*,D1.Description as Desc_From,D2.Description as Desc_To
+	$selectPipesUsed = 'SELECT Device_Device_Pipe.*,D1.Description as Desc_From,D2.Description as Desc_To,D2.FK_DeviceTemplate AS DT_To
 							 FROM Device_Device_Pipe 
 								INNER JOIN Device D1 ON D1.PK_Device = FK_Device_From
 								INNER JOIN Device D2 ON D2.PK_Device = FK_Device_To
 						WHERE FK_Device_From = ?';
 	$resSelectPipesUsed = $dbADO->Execute($selectPipesUsed,array($deviceID));
+	
 	if ($resSelectPipesUsed) {
 		while ($rowSelectedPipesUsed = $resSelectPipesUsed->FetchRow()) {
+			$selectInputs = '
+				SELECT * 
+				FROM Command 
+				INNER JOIN DeviceTemplate_Input ON FK_Command=PK_Command
+				WHERE FK_CommandCategory=22 AND FK_DeviceTemplate=?
+				ORDER BY Description ASC';
+			$resSelectInputs = $dbADO->Execute($selectInputs,$rowSelectedPipesUsed['DT_To']);
+			
+			$selectOutputs = '
+				SELECT * FROM Command 
+				INNER JOIN DeviceTemplate_Output ON FK_Command=PK_Command
+				WHERE FK_CommandCategory=27 AND FK_DeviceTemplate=?
+				Order By Description ASC';
+			$resSelectOutputs = $dbADO->Execute($selectOutputs,$rowSelectedPipesUsed['DT_To']);
+			
 			$out.='<tr><td>'.$rowSelectedPipesUsed['Desc_To']." <input type='hidden' name='deviceTo_{$rowSelectedPipesUsed['FK_Device_To']}'> &nbsp;&nbsp;&nbsp;&nbsp;</td>";
 			
-			$resSelectInputs->MoveFirst();			
 			$selectInputsTxt='';
 			while ($rowSelInputs = $resSelectInputs->FetchRow()) {
 				$selectInputsTxt.= '<option '.($rowSelInputs['PK_Command']==$rowSelectedPipesUsed['FK_Command_Input']?" selected='selected' ":"").' value="'.$rowSelInputs['PK_Command'].'">'.$rowSelInputs['Description'].'</option>';
@@ -279,7 +294,6 @@ $installationID = (int)@$_SESSION['installationID'];
 			
 			$out.='<td> Input on '.$rowSelectedPipesUsed['Desc_To'].' <select name="input_'.$rowSelectedPipesUsed['FK_Device_To'].'_'.$rowSelectedPipesUsed['FK_Pipe'].'"><option value="0">-please select-</option>'.$selectInputsTxt.'</select></td>';
 			
-			$resSelectOutputs->MoveFirst();			
 			$selectOutputsTxt='';
 			while ($rowSelOutputs = $resSelectOutputs->FetchRow()) {
 				$selectOutputsTxt.= '<option '.($rowSelOutputs['PK_Command']==$rowSelectedPipesUsed['FK_Command_Output']?" selected='selected' ":"").' value="'.$rowSelOutputs['PK_Command'].'">'.$rowSelOutputs['Description'].'</option>';
@@ -582,6 +596,7 @@ $installationID = (int)@$_SESSION['installationID'];
 			$room=(@$_POST['Room']!='0')?@$_POST['Room']:NULL;	
 			$query = "UPDATE Device SET Description=?,IPaddress=?,MACaddress=?,IgnoreOnOff=?,FK_DeviceTemplate=?,FK_Device_ControlledVia=?,NeedConfigure=?,FK_Room=? WHERE PK_Device = ?";
 			$dbADO->Execute($query,array($description,$ipAddress,$macAddress,$ignoreOnOff,$DeviceTemplate,$controlledVia,$needConfigure,$room,$deviceID));
+			setDCERouterNeedConfigure($installationID,$dbADO);
 			$EntAreasArray=explode(',',$_POST['displayedEntAreas']);
 			$OldEntAreasArray=explode(',',$_POST['oldEntAreas']);
 			
@@ -636,7 +651,7 @@ $installationID = (int)@$_SESSION['installationID'];
 
 		$out.='
 		<script>
-			self.location=\'index.php?section=editDeviceParams&deviceID='.$deviceID.((isset($error))?'&error='.$error:'&msg='.$msg).'\';
+			self.location=\'index.php?section=editDeviceParams&deviceID='.$deviceID.((isset($error))?'&error='.$error:'&msg='.@$msg).'\';
 			top.frames[\'treeframe\'].location=\'index.php?section=leftMenu\';
 		</script>';
 	} else {

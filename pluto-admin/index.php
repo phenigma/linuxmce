@@ -862,8 +862,20 @@ switch ($section) {
 	    include_once('operations/commands/editCommandCategory.php');
 	    editCommandCategory($output,$dbADO);
 	break;
-	
-	
+
+	case 'deviceStatus';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/automation/deviceStatus.php');
+	    deviceStatus($output,$dbADO);
+	break;
+	case 'executeScenarios';
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/automation/executeScenarios.php');
+	    executeScenarios($output,$dbADO);
+	break;
+		
 	case '';
 		$output = new Template($dbADO);	
 		

@@ -32,7 +32,7 @@ function dceCommands($output,$dbADO) {
 			SELECT Description,PK_CommandCategory
 			FROM CommandCategory
 			WHERE FK_CommandCategory_Parent IS NULL
-			ORDER BY Description ASC';
+			ORDER BY CommandCategory.Description ASC';
 		$resRootCC=$dbADO->Execute($queryRootCC);
 		$out.=formatOutput($resRootCC,$dbADO,0);
 		$out.='
@@ -61,7 +61,7 @@ function getCommandCategoryChilds($CommandCategory,$dbADO,$level)
 			SELECT Description,PK_CommandCategory
 			FROM CommandCategory
 			WHERE FK_CommandCategory_Parent=?
-			ORDER BY Description ASC';
+			ORDER BY CommandCategory.Description ASC';
 	$resCC=$dbADO->Execute($queryCC,$CommandCategory);
 	$out.=formatOutput($resCC,$dbADO,$level);
 	return $out;
@@ -82,7 +82,7 @@ function formatOutput($resRootCC,$dbADO,$level)
 			<tr bgcolor="#EEEEEE">
 				<td colspan="3">'.$indent.' <a href="#" onClick="windowOpen(\'index.php?section=editCommandCategory&from=dceCommands&ccID='.$rowRootCC['PK_CommandCategory'].'\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');"><B>'.$rowRootCC['Description'].'</B></a></td>
 			</tr>';
-		$resCommands=$dbADO->Execute('SELECT * FROM Command WHERE FK_CommandCategory=?',$rowRootCC['PK_CommandCategory']);
+		$resCommands=$dbADO->Execute('SELECT * FROM Command WHERE FK_CommandCategory=? ORDER BY Description ASC',$rowRootCC['PK_CommandCategory']);
 		$cmdPos=0;
 		while($rowCommands=$resCommands->FetchRow()){
 			$cmdPos++;

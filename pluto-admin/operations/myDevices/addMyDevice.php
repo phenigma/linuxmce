@@ -132,6 +132,7 @@ if ($action == 'form') {
 		InheritDeviceData($masterDeviceID,$insertID,$dbADO);
 		createChildsForControledViaDeviceTemplate($masterDeviceID,$_SESSION['installationID'],$insertID,$dbADO);
 		createChildsForControledViaDeviceCategory($masterDeviceID,$_SESSION['installationID'],$insertID,$dbADO);
+		setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
 		
 		$out.="<script>
 			top.frames['treeframe'].location='index.php?section=leftMenu';

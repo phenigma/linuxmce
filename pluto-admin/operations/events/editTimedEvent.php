@@ -50,7 +50,7 @@ function editTimedEvent($output,$dbADO) {
 		}
 		</script>
 		<div align="center" class="err">'.@$_REQUEST['error'].'</div>
-		<div align="center"><B>'.@$_REQUEST['msg'].'</B></div>
+		<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 		<form action="index.php" method="post" name="editTimedEvent">
 		<input type="hidden" name="section" value="editTimedEvent">
 		<input type="hidden" name="action" value="update">
@@ -109,15 +109,15 @@ function editTimedEvent($output,$dbADO) {
 				$out.='<input type="hidden" name="oldDayOfWeek" value="'.@$oldDayOfWeek.'">';
 			break;
 			case 3:
-				$resOldValue=$dbADO->Execute('SELECT * FROM CriteriaParm WHERE FK_CriteriaParmNesting=? AND FK_CriteriaParmList=?',array($FK_CriteriaParmNesting,$GLOBALS['DayOfMonthParmList']));
-				if($resOldValue->RecordCount()!=0){
-					$rowOldValues=$resOldValue->FetchRow();
+				$resOldMonthValue=$dbADO->Execute('SELECT * FROM CriteriaParm WHERE FK_CriteriaParmNesting=? AND FK_CriteriaParmList=?',array($FK_CriteriaParmNesting,$GLOBALS['DayOfMonthParmList']));
+				if($resOldMonthValue->RecordCount()!=0){
+					$rowOldMonthValues=$resOldMonthValue->FetchRow();
 				}
-				$resOldTime=$dbADO->Execute('SELECT * FROM CriteriaParm WHERE FK_CriteriaParmNesting=? AND FK_CriteriaParmList=?',array($FK_CriteriaParmNesting,$GLOBALS['TimeOfDayParmList']));
-				if($resOldTime){
-					$rowOldTime=$resOldTime->FetchRow();
+				$resOldMonthTime=$dbADO->Execute('SELECT * FROM CriteriaParm WHERE FK_CriteriaParmNesting=? AND FK_CriteriaParmList=?',array($FK_CriteriaParmNesting,$GLOBALS['TimeOfDayParmList']));
+				if($resOldMonthTime){
+					$rowOldMonthTime=$resOldMonthTime->FetchRow();
 				}
-				$oldDayOfMonth=@$rowOldValues['Value'].@$rowOldTime['Value'];
+				$oldDayOfMonth=@$rowOldMonthValues['Value'].@$rowOldMonthTime['Value'];
 
 				$out.='<input type="hidden" name="oldDayOfMonth" value="'.@$oldDayOfMonth.'">';
 			break;
@@ -140,7 +140,7 @@ function editTimedEvent($output,$dbADO) {
 				$out.='<input type="checkbox" name="dayOfWeek_'.$key.'" '.((is_array(@$checkedArray) && in_array($key,$checkedArray))?'checked':'').'> '.$dayName;
 			}
 		$out.='<br>Time: <input type="text" name="dayOfWeekTime" value="'.((isset($rowOldTime['Value']))?$rowOldTime['Value']:date('h:i')).'"> (comma separated list for multiple values)</span>';
-		$out.='<span id="type_3" style="display:'.(($timedEventType!=3)?'none':'').';">What day of the month (e.g. 2,7)? <input type="text" name="dayOfMonths" value="'.((isset($rowOldValues['Value']))?$rowOldValues['Value']:'').'"> Time: (e.g. 10:00,21:30)<input type="text" name="dayOfMonthTime" value="'.((isset($rowOldTime['Value']))?$rowOldTime['Value']:date('h:i')).'"></span>';
+		$out.='<span id="type_3" style="display:'.(($timedEventType!=3)?'none':'').';">What day of the month (e.g. 2,7)? <input type="text" name="dayOfMonths" value="'.((isset($rowOldMonthValues['Value']))?$rowOldMonthValues['Value']:'').'"> Time: (e.g. 10:00,21:30)<input type="text" name="dayOfMonthTime" value="'.((isset($rowOldMonthTime['Value']))?$rowOldMonthTime['Value']:date('h:i')).'"></span>';
 		$out.='<span id="type_4" style="display:'.(($timedEventType!=4)?'none':'').';">What date day/month/year? <input type="text" name="absoluteDate" size="7" value="'.((isset($dataParts[0]))?formatMySQLDate($dataParts[0],'d/m/Y'):date('d/m/Y')).'">  What time? <input type="text" name="absoluteTime" value="'.((isset($dataParts[1]))?$dataParts[1]:date('h:i')).'"> (comma separated list for multiple values)</span>';
 		$out.='</td>
 			</tr>		

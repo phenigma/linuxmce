@@ -57,7 +57,7 @@ $displayedRooms = array();
 			<input type="hidden" name="action" value="add">
 			<input type="hidden" name="lastAction" value="">
 		<tr>
-			<td align="center" bgcolor="#F0F3F8"><B>Description</B></td>
+			<td align="center" bgcolor="#F0F3F8"><B>Room Description</B></td>
 			<td align="center" bgcolor="#F0F3F8"><B>Type</B></td>
 			<td align="center" bgcolor="#DADDE4"><B>Entertain areas</B></td>
 			<td>&nbsp;</td>
@@ -94,7 +94,7 @@ $displayedRooms = array();
 					$out.='<option value="'.$fotID.'" '.(($fotID==$rowEntertain['FK_FloorplanObjectType'])?'selected':'').'>'.$fotDescription.'</option>';
 				}
 				$out.='</select>
-				<input type="checkbox" name="private_'.$rowEntertain['PK_EntertainArea'].'" '.(($rowEntertain['Private']==1)?'checked':'').' value="1"> Private <a href="index.php?section=rooms&eaid='.$rowEntertain['PK_EntertainArea'].'">Delete area</a> ';
+				<input type="checkbox" name="private_'.$rowEntertain['PK_EntertainArea'].'" '.(($rowEntertain['Private']==1)?'checked':'').' value="1"> Private <a href="index.php?section=rooms&eaid='.$rowEntertain['PK_EntertainArea'].'">Delete area</a> <br>';
 			}
 			$out.='  <input type="submit" name="addEA_'.$rowRoom['PK_Room'].'" value="Add EA"></td>
 					<td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=deleteRoomFromInstallation&from=rooms&roomID='.$rowRoom['PK_Room'].'\',\'status=0,resizable=1,width=200,height=200,toolbars=true\');">Delete Room</a>

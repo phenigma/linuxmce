@@ -20,6 +20,7 @@ if($action=='form') {
 	if(isset($_GET['cgDelID']) && (int)$_GET['cgDelID']!=0){
 		$cgToDelete=(int)$_GET['cgDelID'];
 		deleteCommandGroup($cgToDelete,$dbADO);
+		setOrbitersNeedConfigure($installationID,$dbADO);
 		header("Location: index.php?section=securityScenarios&msg=The security scenario was deleted.");
 	}
 
@@ -338,7 +339,7 @@ if($action=='form') {
 				(?,?,?,?,?,?,?,?,?)';
 		$dbADO->Execute($insertCommandGroup,array($arrayID,$installationID,$description,$roomName,0,0,0,$GLOBALS['securityScenariosTemplate'],$icon));
 		$cgID=$dbADO->Insert_ID();
-		
+		setOrbitersNeedConfigure($installationID,$dbADO);		
 		$insertCG_Room='
 			INSERT INTO CommandGroup_Room 
 				(FK_CommandGroup, FK_Room,Sort)
@@ -387,6 +388,7 @@ if($action=='form') {
 			WHERE
 				PK_CommandGroup=?';
 		$dbADO->Execute($updateCommandGroup,array($description,$hint,$icon,$cgID));
+		setOrbitersNeedConfigure($installationID,$dbADO);
 		
 		$insertCG_C='
 			INSERT INTO CommandGroup_Command 
@@ -639,6 +641,7 @@ if($action=='form') {
 					deleteCommandGroup($camerasCGArray[$cameraID],$dbADO);
 			}
 		}
+		setOrbitersNeedConfigure($installationID,$dbADO);
 		$msg="The security scenario was updated.";
 	}
 	

@@ -21,6 +21,7 @@ function editCommandGroup($output,$dbADO) {
 		}
 		
 		deleteCommandGroup($commandGroupID,$dbADO);
+		setOrbitersNeedConfigure($installationID,$dbADO);
 		header("Location: index.php?section=myScenarios&msg=The scenario was deleted.");
 	}
 	
@@ -46,6 +47,7 @@ function editCommandGroup($output,$dbADO) {
 				
 				<input type="hidden" name="action" value="add">	
 				<input type="hidden" name="cgID" value="'.$commandGroupID.'">
+				<div align="center" class="confirm"><B>'.@$_REQUEST['msg'].'</B></div>
 				<h2>Edit My Scenario</h2>
 				<table>
 						<tr>
@@ -263,6 +265,9 @@ function editCommandGroup($output,$dbADO) {
 						<input type="button" name="editA" value="Remove" onClick="windowOpen(\'index.php?section=deleteCommandFromCommandGroup_Command&from=editCommandGroup&cgID='.$rowCommandAssigned['PK_CommandGroup_Command'].'\',\'width=100,height=100,toolbars=true,resizable=1,scrollbars=1\');"">
 						</td>						
 					</tr>
+					<tr>
+						<td align="center" colspan="2"><input type="button" name="testCommand" value="Test command" onClick="self.location=\'index.php?section=editCommandGroup&cgID='.$commandGroupID.'&cgcID='.$rowCommandAssigned['PK_CommandGroup_Command'].'&action=testCommand\'"></td>
+					</tr>
 					';
 				}
 				
@@ -399,6 +404,30 @@ function editCommandGroup($output,$dbADO) {
 		
 		//die();				
 		if ($canModifyInstallation) {
+
+			if(isset($_REQUEST['cgcID'])){
+				
+				// TODO: finish test command
+				$cgcID=$_REQUEST['cgcID'];
+				$queryCommands='
+					SELECT CommandGroup_Command_CommandParameter.*,FK_Command 
+					FROM CommandGroup_Command_CommandParameter
+					INNER JOIN CommandGroup_Command ON FK_CommandGroup_Command=PK_CommandGroup_Command
+					WHERE PK_CommandGroup_Command=?';
+
+				$resCommands=$dbADO->Execute($queryCommands,$cgcID);
+				// /usr/pluto/bin/MessageSend localhost 0 device 1 PK_Command PK_CommandParm1 "value" PK_CommandParm2 "value"
+				$commandParmsArray=array();
+				while($rowCommands=$resCommands->FetchRow()){
+					$commandParmsArray[]=$rowCommands['FK_CommandParameter'].' "'.$rowCommands['IK_CommandParameter'].'"';
+					$FK_Command=$rowCommands['FK_Command'];
+				}
+				$commandToSend='/usr/pluto/bin/MessageSend localhost 0 device 1 '.$FK_Command.' '.join(' ',$commandParmsArray);
+				system($commandToSend);
+				header('Location: index.php?section=editCommandGroup&cgID='.$commandGroupID.'&msg=The command with parameters was sent.');
+				exit();
+			}
+			
 			
 			$x=cleanInteger(@$_POST['addNewDevice']);
 			$y=cleanInteger(@$_POST['addNewDeviceCommand']);
@@ -570,7 +599,7 @@ function editCommandGroup($output,$dbADO) {
 					}
 				}
 			}
-			
+			setOrbitersNeedConfigure($installationID,$dbADO);			
 			
 			$out.="
 			<script>

@@ -57,6 +57,7 @@ if ($action=='form') {
 		$toggleDSP = $row['ToggleDSP'];
 		$toggleInput = $row['ToggleInput'];
 		$toggleOutput = $row['ToggleOutput'];
+		$usesIR = $row['UsesIR'];
 	}
 	
 		
@@ -163,7 +164,7 @@ if ($action=='form') {
 	$checkedDSPModes = $toggleDSP>0?"checked":"";
 	$checkedInput = $toggleInput>0?"checked":"";
 	$checkedOutput = $toggleOutput>0?"checked":"";
-
+	$checkedUsesIR = $usesIR>0?"checked":"";
 
 $out.='
 
@@ -185,6 +186,7 @@ $out.='
 		IR Mode Delay: <input type="text" name="irModeDelay" value="'.$irModeDelay.'" size="5" /><br />
 		Digit Delay (ms): <input type="text" name="irDigitDelay" value="'.$digitDelay.'" size="5" /><br /><br />
 		Toggle Power: <input type="checkbox" name="toggle_power" value="1" '.$checkedTogglePower.'>  <br />
+		Uses IR: <input type="checkbox" name="usesIR" value="1" '.$checkedUsesIR.'>  <br />
 </div>
 	
 <br />
@@ -454,6 +456,7 @@ $output->setScriptInBody($onLoad);
 	$toggleDSP = cleanInteger(@$_POST['toggle_dsp']);
 	$toggleInput = cleanInteger(@$_POST['toggle_input']);
 	$toggleOutput = cleanInteger(@$_POST['toggle_output']);
+	$usesIR = cleanInteger(@$_POST['usesIR']);
 	
 	$dspOrdered=cleanString($_POST['DSPMode__selectedOrdered']);
 	$inputOrdered=cleanString($_POST['Input__selectedOrdered']);
@@ -462,10 +465,10 @@ $output->setScriptInBody($onLoad);
 	
 	
 	$updateBasicDetails = "UPDATE DeviceTemplate_AV SET 
-			IR_PowerDelay = ?,IR_ModeDelay = ?,DigitDelay =?,TogglePower=?,ToggleDSP=?,ToggleInput=?,ToggleOutput=?
+			IR_PowerDelay = ?,IR_ModeDelay = ?,DigitDelay =?,TogglePower=?,ToggleDSP=?,ToggleInput=?,ToggleOutput=?, UsesIR=?
 						WHERE  FK_DeviceTemplate = ? ";
 	$res = $dbADO->Execute($updateBasicDetails,array($powerDelay,$modeDelay,$digitDelay,$togglePower,
-													$toggleDSP,$toggleInput,$toggleOutput,$deviceID)
+													$toggleDSP,$toggleInput,$toggleOutput,$usesIR,$deviceID)
 	);
 	
 	$dspOrderedArray = explode(",",$dspOrdered);

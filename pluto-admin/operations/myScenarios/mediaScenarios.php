@@ -258,13 +258,14 @@ function mediaScenarios($output,$dbADO) {
 					$newMSDescription=$_POST['description_'.$value];
 					$updateMediaScenario='UPDATE CommandGroup SET Description=? WHERE PK_CommandGroup=?';
 					$dbADO->Execute($updateMediaScenario,array($newMSDescription,$value));
+					setOrbitersNeedConfigure($installationID,$dbADO);
 				}
 			}else{
 			
 				if($action=='delete'){
 					$delCG=$_POST['delCG'];
 					deleteCommandGroup($delCG,$dbADO);
-					
+					setOrbitersNeedConfigure($installationID,$dbADO);
 				}else{
 					if(isset($_POST['add'])){
 						$newDescription=cleanString($_POST['newDescription']);
@@ -302,6 +303,7 @@ function mediaScenarios($output,$dbADO) {
 							$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_DeviceTemplate'],$newFKDeviceTemplate));
 							$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_EntertainArea'],$newEntArea));
 						}
+						setOrbitersNeedConfigure($installationID,$dbADO);
 						$msg="New Media Scenario was added.";
 					}
 
@@ -382,6 +384,7 @@ function mediaScenarios($output,$dbADO) {
 									$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParameterValueToAsign'],$parmValue));
 								}
 							}							
+							setOrbitersNeedConfigure($installationID,$dbADO);
 							$msg="New Media Scenario was added.";
 						}else{
 							$selectOptions='
@@ -392,6 +395,7 @@ function mediaScenarios($output,$dbADO) {
 							$resOptions=$dbADO->Execute($selectOptions,array('Media Wiz - '.$optionName,$FK_EntertainArea));
 							$rowOption=$resOptions->FetchRow();
 							deleteCommandGroup($rowOption['PK_CommandGroup'],$dbADO);
+							setOrbitersNeedConfigure($installationID,$dbADO);
 							$msg="Media Scenario was deleted.";
 						}						
 					}

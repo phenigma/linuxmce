@@ -640,6 +640,7 @@ function createChildsForControledViaDeviceTemplate($masterDeviceID,$installation
 			$dbADO->Execute($queryInsertDevice,array($installationID,$rowDeviceTemplate['Description'],$insertID,$row['FK_DeviceTemplate']));
 			$insertChildID = $dbADO->Insert_ID();
 			InheritDeviceData($row['FK_DeviceTemplate'],$insertChildID,$dbADO);
+			setDCERouterNeedConfigure($installationID,$dbADO);
 		}
 	}
 }
@@ -667,6 +668,7 @@ function createChildsForControledViaDeviceCategory($masterDeviceID,$installation
 			$dbADO->Execute($queryInsertDevice,array($installationID,$rowDeviceTemplate['Description'],$insertID,$row['FK_DeviceTemplate']));
 			$insertChildID = $dbADO->Insert_ID();
 			InheritDeviceData($row['FK_DeviceTemplate'],$insertChildID,$dbADO);
+			setDCERouterNeedConfigure($installationID,$dbADO);
 		}
 	}
 }
@@ -1339,7 +1341,7 @@ function pickDeviceTemplate($categoryID, $boolManufacturer,$boolCategory,$boolDe
 							<select name="model" id="model" 
 									onChange="updateModelDetail(this.form);"
 									 size="10">
-									<option value="" selected="selected">All</option>
+									<option value="" selected="selected">'.(($section=='deviceTemplatePicker')?'- Please select -':'All').'</option>
 									'.$selectModels.'	
 							</select>';
 							if($returnValue==0){
@@ -1648,5 +1650,17 @@ function deleteCriteriaParmNesting($cpnID,$dbADO)
 	while($rowChilds=$resChilds->FetchRow()){
 		deleteCriteriaParmNesting($rowChilds['PK_CriteriaParmNesting'],$dbADO);
 	}
+}
+
+function setOrbitersNeedConfigure($installationID,$dbADO)
+{
+	$orbitersArray=getValidOrbitersArray($installationID,$dbADO);
+	if(count($orbitersArray)!=0)
+		$dbADO->Execute('UPDATE Device SET NeedConfigure=1 WHERE PK_Device IN ('.join(',',$orbitersArray).') AND FK_Installation=?',$installationID);
+}
+
+function setDCERouterNeedConfigure($installationID,$dbADO)
+{
+	$dbADO->Execute('UPDATE Device SET NeedConfigure=1 WHERE FK_DeviceTemplate=? AND FK_Installation=?',array($GLOBALS['rootDCERouter'],$installationID));
 }
 ?>

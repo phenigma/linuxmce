@@ -17,6 +17,7 @@ if($action=='form') {
 	if(isset($_GET['cgDelID']) && (int)$_GET['cgDelID']!=0){
 		$cgToDelete=(int)$_GET['cgDelID'];
 		deleteCommandGroup($cgToDelete,$dbADO);
+		setOrbitersNeedConfigure($installationID,$dbADO);
 		header("Location: index.php?section=climateScenarios&msg=Climate Scenario deleted.");
 	}
 
@@ -213,6 +214,7 @@ if($action=='form') {
 		$insertID=$dbADO->Insert_ID();
 		$insertCG_Room='INSERT INTO CommandGroup_Room (FK_CommandGroup,FK_Room,Sort) VALUES (?,?,?)';
 		$dbADO->Execute($insertCG_Room,array($insertID,$roomID,$insertID));
+		setOrbitersNeedConfigure($installationID,$dbADO);
 		$msg="New Climate Scenario added.";
 	}
 	
@@ -224,6 +226,7 @@ if($action=='form') {
 			$updateCG='UPDATE CommandGroup SET Description=?, Hint=? WHERE PK_CommandGroup=?';
 			$dbADO->Execute($updateCG,array($cgDescription,$cgHint,$elem));
 		}
+		setOrbitersNeedConfigure($installationID,$dbADO);
 		$msg="Climate Scenario updated.";
 	}
 	
@@ -280,6 +283,7 @@ if($action=='form') {
 					break;
 				}
 			}
+			setOrbitersNeedConfigure($installationID,$dbADO);
 		}
 		header("Location: index.php?section=climateScenarios&roomID=$roomID&cgID=$cgID&action=edit");
 		exit();
