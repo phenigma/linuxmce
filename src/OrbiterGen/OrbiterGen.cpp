@@ -726,7 +726,7 @@ int OrbiterGenerator::DoIt()
 		}
 	}
 
-	if( bNewOrbiter )
+	if( bNewOrbiter && m_pRow_Device->FK_DeviceTemplate_getrow()->FK_DeviceCategory_get()!=DEVICECATEGORY_Mobile_Orbiter_CONST )
 	{
 		cout << "First time generating this orbiter" << endl;
 		Row_DesignObj *drNewDesignObj = mds.DesignObj_get()->GetRow(DESIGNOBJ_mnuFirstTime_CONST);
