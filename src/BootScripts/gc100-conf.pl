@@ -48,11 +48,17 @@ if($ARGV[0] eq "") {
 	  $db->disconnect();
 	  exit(2);
 	}
-	loggc("Creating Device...");
-	loggc("/usr/pluto/bin/CreateDevice -i $install -d $dev_templ -I $ip -M $mac -C $PKDEV -n\n");
-	system("/usr/pluto/bin/CreateDevice -i $install -d $dev_templ -I $ip -M $mac -C $PKDEV -n\n");
-	add_control_via();
+	loggc("Creating Device...\n");
+	$line = "/usr/pluto/bin/CreateDevice -i ".$install." -d ".$dev_templ." -I  ".$ip." -M ".$mac." -C ".$PKDEV." -n > dhcpd_temp.file";
+	system($line);
+	loggc($line."\n");
 	loggc("Done\n");
+	open(FILE, "dhcpd_temp.file");
+        @data = <FILE>;
+        $Device_ID = $data[0];
+        chomp($Device_ID);
+        close(FILE);
+	system("/usr/pluto/bin/MessageSend localhost 0 0 2 24 26 $Device_ID");
 	loggc("Configuring GC100 via Web...");
 	configure_webgc($ip);
 	loggc("Done\n");
