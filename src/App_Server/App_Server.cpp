@@ -47,14 +47,14 @@ using namespace DCE;
 #ifdef WIN32
 void EnablePrivileges()
 {
-	HANDLE hToken; // handle to process token 
+	HANDLE hToken; // handle to process token
 	TOKEN_PRIVILEGES tkp; // pointer to token structure
-	OpenProcessToken(GetCurrentProcess(),TOKEN_ADJUST_PRIVILEGES | 
-					TOKEN_QUERY, &hToken); // Get the LUID for shutdown privilege.              
-	LookupPrivilegeValue(NULL, SE_SHUTDOWN_NAME, &tkp.Privileges[0].Luid); 
+	OpenProcessToken(GetCurrentProcess(),TOKEN_ADJUST_PRIVILEGES |
+					TOKEN_QUERY, &hToken); // Get the LUID for shutdown privilege.
+	LookupPrivilegeValue(NULL, SE_SHUTDOWN_NAME, &tkp.Privileges[0].Luid);
 	tkp.PrivilegeCount = 1; // one privilege to set
-	tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;   
-	// Get shutdown privilege for this process. 
+	tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+	// Get shutdown privilege for this process.
 	AdjustTokenPrivileges(hToken, FALSE, &tkp, 0, (PTOKEN_PRIVILEGES) NULL, 0);
 }
 #endif
@@ -232,21 +232,25 @@ void App_Server::CMD_Kill_Application(string sName,string &sCMD_Result,Message *
     cout << "Parm #50 - Name=" << sName << endl;
 
 #ifndef WIN32
-/*    vector_map::iterator element = m_mapAppPids.find(sName);
+	vector_map::iterator element = m_mapAppPids.find(sName);
     if (element == m_mapAppPids.end())
     {
         g_pPlutoLogger->Write(LV_STATUS, "No application '%s' found. None killed", sName.c_str());
     }
     else
     {
-        const vector<int> & our_vect = element->second;
-        g_pPlutoLogger->Write(LV_STATUS, "Found %d '%s' applications. Killing them all (really)", our_vect.size(), sName.c_str());
-        vector<int>::const_iterator i;
-        for (i = our_vect.begin(); i < our_vect.end(); i++)
-            kill(* i, SIGKILL); // we don't SIGTERM first; we simply kill them all; where your shutgun at? :)
+        const map<int, pair<string, string> > & our_map = element->second;
+        g_pPlutoLogger->Write(LV_STATUS, "Found %d '%s' applications. Killing them all (really)", our_map.size(), sName.c_str());
+
+		map<int, pair<string, string> >::const_iterator i;
+        for (i = our_map.begin(); i != our_map.end(); i++)
+		{
+            kill( (*i).first, SIGKILL); // we don't SIGTERM first; we simply kill them all; where your shutgun at? :)
+			SendMessageList((*i).second.first);
+		}
 
         m_mapAppPids.erase(element);
-    }*/
+    }
 #endif
 }
 

@@ -5,7 +5,7 @@ CXXFLAGS = -Wall -g -ggdb3 -D_GNU_SOURCE -DDEBUG
 CPPFLAGS = -I./ -I../../ -I../ -I../DCE/ -I../../DCE -I../VIPShared/ -I../../VIPShared -I/usr/include/mysql -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DUSE_LZO_DATAGRID -DDEBUG -DTHREAD_LOG -DLL_DEBUG_FILE
 CXX = g++
 
-sources = CommonIncludes.cpp FileUtils.cpp MultiThreadIncludes.cpp Other.cpp StringUtils.cpp getch.cpp md5c.cpp minilzo.cpp
+sources = CommonIncludes.cpp FileUtils.cpp MultiThreadIncludes.cpp Other.cpp ProcessUtils.cpp StringUtils.cpp getch.cpp md5c.cpp minilzo.cpp
 
 all: libPlutoUtils all-recursive
 

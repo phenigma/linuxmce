@@ -27,6 +27,7 @@
 #include "DCE/Logger.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
+#include "PlutoUtils/ProcessUtils.h"
 #include "PlutoUtils/Other.h"
 
 #include <iostream>
@@ -95,19 +96,20 @@ MythTV_Player::~MythTV_Player()
 
 bool MythTV_Player::LaunchMythFrontend()
 {
-    string commandToFire = StringUtils::Format("0 %d %d %d %d %d",
+
+	string commandToFire = StringUtils::Format("0 %d %d %d %d %d",
 				m_pData->m_dwPK_Device_ControlledVia, 					// assume that we are controlled by one Orbiter.
 				MESSAGETYPE_COMMAND, 									// on exit send a command to the Orbiter
 				COMMAND_Go_back_CONST,									// to go back
 				COMMANDPARAMETER_PK_DesignObj_CurrentScreen_CONST,		// if it is at the
 				DESIGNOBJ_pvr_full_screen_CONST);						// pvr_full_screen.
 
+	ProcessUtils::SpawnApplication("/usr/bin/mythfrontend", "", MYTH_WINDOW_NAME);
     DCE::CMD_Spawn_Application_DT spawnApplication(m_dwPK_Device, DEVICETEMPLATE_App_Server_CONST, BL_SameComputer, "/usr/bin/mythfrontend", MYTH_WINDOW_NAME, "", commandToFire, commandToFire);
-    spawnApplication.m_pMessage->m_bRelativeToSender = true;
-    SendCommand(spawnApplication);
+//     spawnApplication.m_pMessage->m_bRelativeToSender = true;
+//     SendCommand(spawnApplication);
 
-    g_pPlutoLogger->Write(LV_STATUS, "Controlling device id: %d", m_pData->m_dwPK_Device_ControlledVia);
-    sleep(5);
+	sleep(5);
 
     if ( ! m_pRatWrapper )
         m_pRatWrapper = new RatPoisonWrapper(XOpenDisplay(getenv("DISPLAY")));
@@ -334,10 +336,8 @@ void MythTV_Player::CMD_Stop_TV(string &sCMD_Result,Message *pMessage)
 	if ( ! checkXServerConnection())
 		return;
 
-	//  m_pRemoteEncoder->StopLiveTV();
-    // DCE::CMD_Spawn_Application_DT (m_dwPK_Device, DEVICETEMPLATE_App_Server_CONST, BL_SameComputer, "/usr/bin/mythfrontend", MYTH_WINDOW_NAME, "", "", "");
-    DCE::CMD_Kill_Application_DT killApplicationCommand(m_dwPK_Device, DEVICETEMPLATE_App_Server_CONST, BL_SameComputer, MYTH_WINDOW_NAME);
-    SendCommand(killApplicationCommand);
+	if ( ProcessUtils::KillApplication(MYTH_WINDOW_NAME) == false )
+		g_pPlutoLogger->Write(LV_WARNING, "I failed to kill the application launched with name: %s", MYTH_WINDOW_NAME);
 }
 
 //<-dceag-c187-b->
