@@ -607,6 +607,8 @@ else if ( $search_keywords != '' || $search_author != '' || $search_id )
 		}
 		else if ( $search_id == 'unansweredByPluto' )
 		{
+			$plutoTesterID=5;
+			$plutoStaffID=6;
 			$qid="SELECT user_id FROM ".USER_GROUP_TABLE." WHERE group_id='".$plutoTesterID."' OR group_id='".$plutoStaffID."'";
 			if ( !($result = $db->sql_query($qid)) )
 			{
