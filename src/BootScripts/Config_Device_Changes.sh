@@ -64,7 +64,7 @@ CUsh="/usr/pluto/install/config_update.sh"
 echo /usr/pluto/bin/ConfirmDependencies -n -h $MySqlHost -u $MySqlUser $Pass -d $PK_Device install
 /usr/pluto/bin/ConfirmDependencies -n -h $MySqlHost -u $MySqlUser $Pass -d $PK_Device install >"$CUsh.$$"
 linecount=$(cat "$CUsh.$$" | wc -l)
-awk "NR<$linecount-8" "$CUsh.$$" >"$CUsh"
+awk "NR<$linecount-9" "$CUsh.$$" >"$CUsh"
 rm "$CUsh.$$"
 
 chmod +x "$CUsh"
