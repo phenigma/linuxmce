@@ -1022,12 +1022,12 @@ cout << "Making CVS Checkout to temporary\n";
 			" checkout " + pRow_Package_Source->Name_get();
 	system(cmd.c_str());
 
-cout << "Reading files from temporary";
+cout << "Reading files from temporary ";
 	FileUtils::FindFiles(MyList, pRow_Package_Source->Name_get(), "*", true, "");
+	cout << MyList.size();
 cout << " [Done]\n";
 
 	cmd = pRow_Package_Source->Name_get();
-	cout << cmd << "\n";
 	chdir(cmd.c_str());
 
 	//reading actual directory list
