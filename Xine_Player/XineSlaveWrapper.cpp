@@ -899,7 +899,13 @@ void XineSlaveWrapper::restartMediaStream(int iStreamID)
  */
 void XineSlaveWrapper::pauseMediaStream(int iStreamID)
 {
+    int stoppedTime, completeTime;
+
     changePlaybackSpeed(iStreamID, PLAYBACK_STOP);
+
+    getStreamPlaybackPosition(iStreamID, stoppedTime, completeTime);
+
+    g_pPlutoLogger->Write(LV_STATUS, "Stream paused at time: %d from %d", stoppedTime, completeTime);
 }
 
 void XineSlaveWrapper::XineStream::setPlaybackSpeed(int speed)

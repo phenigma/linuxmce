@@ -343,3 +343,21 @@ void Xine_Player::CMD_Enable_Broadcasting(int iStreamID,string *sMediaURL,string
 
     *sMediaURL = string("slave://localhost") + StringUtils::itos(iBroadcastPort);
 }
+//<-dceag-c259-b->
+
+    /** @brief COMMAND: #259 - Report Playback Position */
+    /** This will report the playback position of the current stream. */
+        /** @param #39 Options */
+            /** Other options that the player might record for this position. Usefull if we have a non standard encoding of the player position. */
+        /** @param #41 StreamID */
+            /** The stream ID on which to report the position. */
+        /** @param #42 MediaPosition */
+            /** The reported media position ( in milliseconds since the beginning of the stream). */
+        /** @param #106 Media Length */
+            /** The complete length of the media stream. Where appliable. */
+
+void Xine_Player::CMD_Report_Playback_Position(int iStreamID,string *sOptions,int *iMediaPosition,int *iMedia_Length,string &sCMD_Result,Message *pMessage)
+//<-dceag-c259-e->
+{
+    m_pXineSlaveControl->getStreamPlaybackPosition(iStreamID, *iMediaPosition, *iMedia_Length);
+}

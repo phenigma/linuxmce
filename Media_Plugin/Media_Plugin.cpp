@@ -67,13 +67,13 @@ int UniqueColors[MAX_MEDIA_COLORS];
 
 MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 {
-UniqueColors[0] = PlutoColor(128,0,0).m_Value;
-UniqueColors[1] = PlutoColor(0,128,0).m_Value;
-UniqueColors[2] = PlutoColor(0,0,128).m_Value;
-UniqueColors[3] = PlutoColor(0,128,128).m_Value;
-UniqueColors[4] = PlutoColor(128,128,0).m_Value;
-    m_pDeviceData_Router = pRouter->m_mapDeviceData_Router_Find( pRow_Device->PK_Device_get( ) );
-    // do stuff with this
+	UniqueColors[0] = PlutoColor(128,0,0).m_Value;
+	UniqueColors[1] = PlutoColor(0,128,0).m_Value;
+	UniqueColors[2] = PlutoColor(0,0,128).m_Value;
+	UniqueColors[3] = PlutoColor(0,128,128).m_Value;
+	UniqueColors[4] = PlutoColor(128,128,0).m_Value;
+	m_pDeviceData_Router = pRouter->m_mapDeviceData_Router_Find( pRow_Device->PK_Device_get( ) );
+	// do stuff with this
 }
 
 //<-dceag-const-b->! custom
@@ -452,19 +452,19 @@ bool Media_Plugin::StartMedia( MediaPluginInfo *pMediaPluginInfo, int PK_Device_
     if( PK_DesignObj_Remote && PK_DesignObj_Remote!=-1 )
         pMediaStream->m_iPK_DesignObj_Remote = PK_DesignObj_Remote;
 
-	OH_Orbiter *pOH_Orbiter_OSD=NULL;
+    OH_Orbiter *pOH_Orbiter_OSD=NULL;
     if ( pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST ||
-		pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_LiveTV_CONST ||
-		pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_StoredVideo_CONST )
-	{
-		if( pMediaStream->m_pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia &&
-			pMediaStream->m_pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Orbiter_CONST) )
-		{
-			pOH_Orbiter_OSD = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMediaStream->m_pMediaDevice->m_pDeviceData_Router->m_dwPK_Device_ControlledVia);
-		}
-	}
+        pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_LiveTV_CONST ||
+        pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_StoredVideo_CONST )
+    {
+        if( pMediaStream->m_pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia &&
+            pMediaStream->m_pMediaDevice->m_pDeviceData_Router->m_pDevice_ControlledVia->WithinCategory(DEVICECATEGORY_Orbiter_CONST) )
+        {
+            pOH_Orbiter_OSD = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(pMediaStream->m_pMediaDevice->m_pDeviceData_Router->m_dwPK_Device_ControlledVia);
+        }
+    }
 
-	g_pPlutoLogger->Write(LV_STATUS,"Calling Plug-in's start media");
+    g_pPlutoLogger->Write(LV_STATUS,"Calling Plug-in's start media");
     if( pMediaPluginInfo->m_pMediaPluginBase->StartMedia(pMediaStream) )
     {
         g_pPlutoLogger->Write(LV_STATUS,"Plug-in started media");
@@ -483,29 +483,29 @@ bool Media_Plugin::StartMedia( MediaPluginInfo *pMediaPluginInfo, int PK_Device_
                 int iPK_DesignObj_Remote = pMediaStream->m_iPK_DesignObj_Remote;
 
                 // Only send the orbiter if it's at the main menu, unless it's the orbiter that started the stream in the first place
-				// If there's another user in the entertainment area that is in the middle of something (ie the Orbiter is not at the main menu),
-				// we don't want to forcibly 'take over' and change to the remote screen.
+                // If there's another user in the entertainment area that is in the middle of something (ie the Orbiter is not at the main menu),
+                // we don't want to forcibly 'take over' and change to the remote screen.
                 if( pOH_Orbiter!=pOH_Orbiter_OSD )
                 {
-					if( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device==PK_Device_Orbiter )
-					{
-	                    DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
-		                    StringUtils::itos(iPK_DesignObj_Remote),"","",false);
-			            SendCommand(CMD_Goto_Screen);
-					}
-					else
-					{
-	                    DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
-		                    StringUtils::itos(iPK_DesignObj_Remote),"","-1",false);
-			            SendCommand(CMD_Goto_Screen);
-					}
+                    if( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device==PK_Device_Orbiter )
+                    {
+                        DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
+                            StringUtils::itos(iPK_DesignObj_Remote),"","",false);
+                        SendCommand(CMD_Goto_Screen);
+                    }
+                    else
+                    {
+                        DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,
+                            StringUtils::itos(iPK_DesignObj_Remote),"","-1",false);
+                        SendCommand(CMD_Goto_Screen);
+                    }
                 }
             }
         }
         else
             g_pPlutoLogger->Write(LV_CRITICAL,"Media Plug-in's call to Start Media failed.");
 
-		if( pOH_Orbiter_OSD )
+        if( pOH_Orbiter_OSD )
         {
             DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pOH_Orbiter_OSD->m_pDeviceData_Router->m_dwPK_Device,0,
                 StringUtils::itos(DESIGNOBJ_app_desktop_CONST),"","",false);
@@ -1578,20 +1578,21 @@ class DataGridTable *Media_Plugin::AvailablePlaylists( string GridID, string Par
 
 void Media_Plugin::GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD)
 {
-    MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pDeviceData_Router->m_dwPK_Device);
-    if( !pMediaDevice )
-        return;
-    for(list<EntertainArea *>::iterator it=pMediaDevice->m_listEntertainArea.begin();it!=pMediaDevice->m_listEntertainArea.end();++it)
-    {
-        EntertainArea *pEntertainArea = *it;
-        if( pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->m_iOrder>=0 && pEntertainArea->m_pMediaStream->m_iOrder<MAX_MEDIA_COLORS )
-        {
-            Color = UniqueColors[pEntertainArea->m_pMediaStream->m_iOrder];
-            sDescription = pEntertainArea->m_pMediaStream->m_sMediaDescription;
-            return;
-        }
-    }
-}//<-dceag-c241-b->
+	MediaDevice *pMediaDevice = m_mapMediaDevice_Find(pDeviceData_Router->m_dwPK_Device);
+	if( !pMediaDevice )
+		return;
+	for(list<EntertainArea *>::iterator it=pMediaDevice->m_listEntertainArea.begin();it!=pMediaDevice->m_listEntertainArea.end();++it)
+	{
+		EntertainArea *pEntertainArea = *it;
+		if( pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->m_iOrder>=0 && pEntertainArea->m_pMediaStream->m_iOrder<MAX_MEDIA_COLORS )
+		{
+			Color = UniqueColors[pEntertainArea->m_pMediaStream->m_iOrder];
+			sDescription = pEntertainArea->m_pMediaStream->m_sMediaDescription;
+			return;
+		}
+	}
+}
+//<-dceag-c241-b->
 
     /** @brief COMMAND: #241 - MH Move Media */
     /** Moves an existing media stream to the specified entertainment areas. */
@@ -1640,134 +1641,134 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 
     MediaStream *pMediaStream = this->m_mapMediaStream_Find(iStreamID);
 
-    if ( pMediaStream == NULL )
-    {
-        g_pPlutoLogger->Write(LV_STATUS, "No media stream with ID %d available", iStreamID );
-        return;
-    }
+	if ( pMediaStream == NULL )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "No media stream with ID %d available", iStreamID );
+		return;
+	}
 
-    map<int, EntertainArea *> mapRequestedAreas;
+	map<int, EntertainArea *> mapRequestedAreas;
     string::size_type nPosition = 0;
     string sCurrentEntArea = StringUtils::Tokenize(sPK_EntertainArea, ",", nPosition);
     while ( sCurrentEntArea.length() )
     {
 // Start Hack to reverse map the device to an EntertainArea.
 // This should be removed once the Media Floorplan will send me back actual entertainment areas and not device ids.
-        int iPK_Device = atoi(sCurrentEntArea.c_str());
-        if ( iPK_Device == 0 )
-        {
-            g_pPlutoLogger->Write(LV_STATUS, "Invalid device number string specification: %s", sCurrentEntArea.c_str());
-            sCurrentEntArea = StringUtils::Tokenize(sPK_EntertainArea, ",", nPosition);
-            continue;
-        }
+		int iPK_Device = atoi(sCurrentEntArea.c_str());
+		if ( iPK_Device == 0 )
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Invalid device number string specification: %s", sCurrentEntArea.c_str());
+			sCurrentEntArea = StringUtils::Tokenize(sPK_EntertainArea, ",", nPosition);
+			continue;
+		}
 
-        MediaDevice *pMediaDevice = m_mapMediaDevice_Find(iPK_Device);
-        if ( pMediaDevice == NULL )
-        {
-            g_pPlutoLogger->Write(LV_STATUS, "Invalid device number: %d", iPK_Device);
-            sCurrentEntArea = StringUtils::Tokenize(sPK_EntertainArea, ",", nPosition);
-            continue;
-        }
+		MediaDevice *pMediaDevice = m_mapMediaDevice_Find(iPK_Device);
+		if ( pMediaDevice == NULL )
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Invalid device number: %d", iPK_Device);
+			sCurrentEntArea = StringUtils::Tokenize(sPK_EntertainArea, ",", nPosition);
+			continue;
+		}
 
-        if ( pMediaDevice->m_listEntertainArea.size() == 0 )
-        {
-            g_pPlutoLogger->Write(LV_STATUS, "The device %d is not in any entertainment area. Ignoring.", iPK_Device);
-            sCurrentEntArea = StringUtils::Tokenize(sPK_EntertainArea, ",", nPosition);
-            continue;
-        }
+		if ( pMediaDevice->m_listEntertainArea.size() == 0 )
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "The device %d is not in any entertainment area. Ignoring.", iPK_Device);
+			sCurrentEntArea = StringUtils::Tokenize(sPK_EntertainArea, ",", nPosition);
+			continue;
+		}
 
-        // WARNING: uncomment this when you are removing the hack
-        // int iPK_EntertainArea = atoi(sCurrentEntArea.c_str());
-        int iPK_EntertainArea = pMediaDevice->m_listEntertainArea.front()->m_iPK_EntertainArea;
+		// HACK: uncomment this when you are removing the hack
+		// int iPK_EntertainArea = atoi(sCurrentEntArea.c_str());
+		int iPK_EntertainArea = pMediaDevice->m_listEntertainArea.front()->m_iPK_EntertainArea;
 
 // End Hack
-        if ( iPK_EntertainArea == 0 ) // sanity check. We need this here since the m_mapEntertainAreas_Find() can't handle 0 as an entertainment area. :-(
-        {
-            g_pPlutoLogger->Write(LV_STATUS, "The string %s could not be converted to a valid number (it should be a not 0 number but it converted to 0)", sCurrentEntArea.c_str());
-            sCurrentEntArea = StringUtils::Tokenize(sPK_EntertainArea, ",", nPosition);
-            continue;
-        }
+		if ( iPK_EntertainArea == 0 ) // sanity check. We need this here since the m_mapEntertainAreas_Find() can't handle 0 as an entertainment area. :-(
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "The string %s could not be converted to a valid number (it should be a not 0 number but it converted to 0)", sCurrentEntArea.c_str());
+			sCurrentEntArea = StringUtils::Tokenize(sPK_EntertainArea, ",", nPosition);
+			continue;
+		}
 
-        EntertainArea *realEntertainmentArea = m_mapEntertainAreas_Find(iPK_EntertainArea);
+		EntertainArea *realEntertainmentArea = m_mapEntertainAreas_Find(iPK_EntertainArea);
 
-        if ( realEntertainmentArea == NULL )
-        {
-            g_pPlutoLogger->Write(LV_STATUS, "Could not map the %d ent area id to a real entertatainment area", iPK_EntertainArea);
-            sCurrentEntArea = StringUtils::Tokenize(sPK_EntertainArea, ",", nPosition);
-            continue;
-        }
+		if ( realEntertainmentArea == NULL )
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Could not map the %d ent area id to a real entertatainment area", iPK_EntertainArea);
+			sCurrentEntArea = StringUtils::Tokenize(sPK_EntertainArea, ",", nPosition);
+			continue;
+		}
 
 //         g_pPlutoLogger->Write(LV_STATUS, "Found entertainment area %p for id %d", realEntertainmentArea, iPK_EntertainArea);
-        mapRequestedAreas[iPK_EntertainArea] = realEntertainmentArea;
-        sCurrentEntArea = StringUtils::Tokenize(sPK_EntertainArea, ",", nPosition);
-    }
+		mapRequestedAreas[iPK_EntertainArea] = realEntertainmentArea;
+		sCurrentEntArea = StringUtils::Tokenize(sPK_EntertainArea, ",", nPosition);
+	}
 
-    // now we have transformed the desired ent areas spec (id1, id2, id3) into a real structure { {id1 -> EntertainArea *}, {id2 -> EntertainArea *}, {id3 -> EntertainArea *}}
-    // we will walk it to see what is already playing and what is not already playing. We need to have 3 lists in the end.
-    //      - the list of devices that should stop playing
-    //      - the list of devices that should start playing
-    //      - the list of devices which probably need a change in the way that they are playing now ()
-    //  Those 3 should be passed the the media plugin info object in the end.
+	// now we have transformed the desired ent areas spec (id1, id2, id3) into a real structure { {id1 -> EntertainArea *}, {id2 -> EntertainArea *}, {id3 -> EntertainArea *}}
+	// we will walk it to see what is already playing and what is not already playing. We need to have 3 lists in the end.
+	//      - the list of devices that should stop playing
+	//      - the list of devices that should start playing
+	//      - the list of devices which probably need a change in the way that they are playing now ()
+	//  Those 3 should be passed the the media plugin info object in the end.
 
-    // The building of lists. Walk the list of current ent areas.
-    //      - if the area is in the target list we will put in the update list and remove it from the target list
-    //      - if the area is not in the target list we will put in the remove list
-    //
-    //  In the end the remove list is the list to stop media on, the update list is the list which probably need to have the MediaURL updated on
-    //          (if we migrate the media from one machine to anoter or .. ) and what is remained in the target list is the list of the devices that need
-    //          media to be started on
+	// The building of lists. Walk the list of current ent areas.
+	//      - if the area is in the target list we will put in the update list and remove it from the target list
+	//      - if the area is not in the target list we will put in the remove list
+	//
+	//  In the end the remove list is the list to stop media on, the update list is the list which probably need to have the MediaURL updated on
+	//          (if we migrate the media from one machine to anoter or .. ) and what is remained in the target list is the list of the devices that need
+	//          media to be started on
 
-    map<int,class EntertainArea *>::iterator itEntAreas;
+	list<EntertainArea *> listStop, listChange, listStart;
 
-    list<EntertainArea *> listStop;
-    list<EntertainArea *> listChange;
-    list<EntertainArea *> listStart;
+	map<int,class EntertainArea *>::iterator itEntAreas;
+	for ( itEntAreas  = pMediaStream->m_mapEntertainArea.begin(); itEntAreas != pMediaStream->m_mapEntertainArea.end(); itEntAreas++)
+	{
+		if ( mapRequestedAreas.find((*itEntAreas).first) != mapRequestedAreas.end() )
+		{
+			mapRequestedAreas.erase((*itEntAreas).first);
+			listChange.push_back((*itEntAreas).second);
+		}
+		else
+			listStop.push_back((*itEntAreas).second);
+	}
 
-    for ( itEntAreas  = pMediaStream->m_mapEntertainArea.begin(); itEntAreas != pMediaStream->m_mapEntertainArea.end(); itEntAreas++)
-    {
-        if ( mapRequestedAreas.find((*itEntAreas).first) != mapRequestedAreas.end() )
-        {
-//             g_pPlutoLogger->Write(LV_STATUS, "The device %d is in the source and target list. It will be probably updated.", (*itEntAreas).first);
-            mapRequestedAreas.erase((*itEntAreas).first);
-            listChange.push_back((*itEntAreas).second);
-        }
-        else
-        {
-//             g_pPlutoLogger->Write(LV_STATUS, "The device %d is in the source and not in the target list. It will be stopped.", (*itEntAreas).first);
-            listStop.push_back((*itEntAreas).second);
-        }
-    }
+	// make the proper start list by walking what is remained in the target list. We can't clean it at the same time since i don't know the semantics.
+	for ( itEntAreas = mapRequestedAreas.begin(); itEntAreas != mapRequestedAreas.end(); itEntAreas++ )
+		listStart.push_back((*itEntAreas).second);
 
-    // make the proper start list by walking what is remained in the target list. We can't clean it at the same time since i don't know the semantics.
-    for ( itEntAreas = mapRequestedAreas.begin(); itEntAreas != mapRequestedAreas.end(); itEntAreas++ )
-    {
-//         g_pPlutoLogger->Write(LV_STATUS, "The device %d is not in the source list but is in the target list. It will be started.", (*itEntAreas).first);
-        listStart.push_back((*itEntAreas).second);
-    }
-    mapRequestedAreas.clear();
+	mapRequestedAreas.clear();
 
+	list<EntertainArea *>::iterator itList;
 
-//    EntertainArea *pEntArea;
+	string output = "";
+	for ( itList = listStop.begin(); itList != listStop.end(); itList++ )
+		output += StringUtils::itos((*itList)->m_iPK_EntertainArea) + " ";
+	g_pPlutoLogger->Write(LV_STATUS, "Stop list: %s", output.c_str());
 
-    list<EntertainArea *>::iterator itList;
+	output = "";
+	for ( itList = listStart.begin(); itList != listStart.end(); itList++ )
+		output += StringUtils::itos((*itList)->m_iPK_EntertainArea) + " ";
+	g_pPlutoLogger->Write(LV_STATUS, "Start list: %s", output.c_str());
 
-    string output = "";
-    for ( itList = listStop.begin(); itList != listStop.end(); itList++ )
-        output += StringUtils::itos((*itList)->m_iPK_EntertainArea) + " ";
-    g_pPlutoLogger->Write(LV_STATUS, "Stop list: %s", output.c_str());
+	output = "";
+	for ( itList = listChange.begin(); itList != listChange.end(); itList++ )
+		output += StringUtils::itos((*itList)->m_iPK_EntertainArea) + " ";
+	g_pPlutoLogger->Write(LV_STATUS, "Change list: %s", output.c_str());
 
-    output = "";
-    for ( itList = listStart.begin(); itList != listStart.end(); itList++ )
-        output += StringUtils::itos((*itList)->m_iPK_EntertainArea) + " ";
-    g_pPlutoLogger->Write(LV_STATUS, "Start list: %s", output.c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "Calling move media on the plugin!");
 
-    output = "";
-    for ( itList = listChange.begin(); itList != listChange.end(); itList++ )
-        output += StringUtils::itos((*itList)->m_iPK_EntertainArea) + " ";
-    g_pPlutoLogger->Write(LV_STATUS, "Change list: %s", output.c_str());
+	// save the current playback position.
+	DCE::CMD_Report_Playback_Position reportCurrentPosition(
+		m_dwPK_Device,
+		pMediaStream->m_pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
+		pMediaStream->m_iStreamID_get(),
+		&pMediaStream->m_sSavedPosition,
+		&pMediaStream->m_iSavedPosition,
+		&pMediaStream->m_iTotalStreamTime);
 
-    g_pPlutoLogger->Write(LV_STATUS, "Calling move media on the plugin!");
+	if ( ! SendCommand(reportCurrentPosition) )
+		g_pPlutoLogger->Write(LV_STATUS, "The query for current stream position failed!");
 
-    // I'm not going to find the media devices in here. We will let the plugin decide what devices to use in there
-    pMediaStream->m_pMediaPluginInfo->m_pMediaPluginBase->MoveMedia(pMediaStream, listStart, listStop, listChange);
+	// I'm not going to find the media devices in here. We will let the plugin decide what devices to use in there
+	pMediaStream->m_pMediaPluginInfo->m_pMediaPluginBase->MoveMedia(pMediaStream, listStart, listStop, listChange);
 }

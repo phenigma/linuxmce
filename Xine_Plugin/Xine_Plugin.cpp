@@ -1,26 +1,26 @@
 /*
-    Xine_Plugin
+	Xine_Plugin
 
-    Copyright (C) 2004 Pluto, Inc., a Florida Corporation
+	Copyright (C) 2004 Pluto, Inc., a Florida Corporation
 
-    www.plutohome.com
+	www.plutohome.com
 
-    Phone: +1 (877) 758-8648
+	Phone: +1 (877) 758-8648
 
-    This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
-    This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-    of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License.
+	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    See the GNU General Public License for more details.
+	See the GNU General Public License for more details.
 */
 
 /**
- *
- * @file Xine_Plugin.h
- * @brief source file for the Xine_Plugin class
- * @author
- *
- */
+*
+* @file Xine_Plugin.h
+* @brief source file for the Xine_Plugin class
+* @author
+*
+*/
 
 //<-dceag-d-b->
 #include "Xine_Plugin.h"
@@ -47,7 +47,7 @@ using namespace DCE;
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
 Xine_Plugin::Xine_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
-    : Xine_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
+	: Xine_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
 }
@@ -65,330 +65,330 @@ Xine_Plugin::~Xine_Plugin()
 bool Xine_Plugin::Register()
 //<-dceag-reg-e->
 {
-  m_pMedia_Plugin=NULL;
-  ListCommand_Impl *pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Media_Plugin_CONST );
-  if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
-  {
-    g_pPlutoLogger->Write( LV_CRITICAL, "Xine plug in cannot find media handler %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
-    return false;
-  }
+m_pMedia_Plugin=NULL;
+ListCommand_Impl *pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Media_Plugin_CONST );
+if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
+{
+	g_pPlutoLogger->Write( LV_CRITICAL, "Xine plug in cannot find media handler %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
+	return false;
+}
 
-  m_pMedia_Plugin=( Media_Plugin * ) pListCommand_Impl->front( );
+m_pMedia_Plugin=( Media_Plugin * ) pListCommand_Impl->front( );
 
-  m_pMedia_Plugin->RegisterMediaPlugin( this, this, DEVICETEMPLATE_Xine_Player_CONST, true );
+m_pMedia_Plugin->RegisterMediaPlugin( this, this, DEVICETEMPLATE_Xine_Player_CONST, true );
 
-  RegisterMsgInterceptor(( MessageInterceptorFn )( &Xine_Plugin::MenuOnScreen ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Menu_Onscreen_CONST );
+RegisterMsgInterceptor(( MessageInterceptorFn )( &Xine_Plugin::MenuOnScreen ), 0, 0, 0, 0, MESSAGETYPE_EVENT, EVENT_Menu_Onscreen_CONST );
 
-  /**
-  // The constructor for this class registers itself, so we don't worry about deleting it or doing anything with it
+/**
+// The constructor for this class registers itself, so we don't worry about deleting it or doing anything with it
 
-  // We can play cd's, both discs and stored media
-  MediaPluginInfo *pMediaPluginInfo = new MediaPluginInfo( this, MEDIATYPE_pluto_CD_CONST, DEVICETEMPLATE_Xine_Player_CONST, canjumptrue, usesdcetrue );
+// We can play cd's, both discs and stored media
+MediaPluginInfo *pMediaPluginInfo = new MediaPluginInfo( this, MEDIATYPE_pluto_CD_CONST, DEVICETEMPLATE_Xine_Player_CONST, canjumptrue, usesdcetrue );
 
-  // We can play dvd's, both discs and stored media
-  pMediaPluginInfo = new MediaPluginInfo( this, MEDIATYPE_pluto_DVD_CONST, DEVICETEMPLATE_Xine_Player_CONST, true, true );
+// We can play dvd's, both discs and stored media
+pMediaPluginInfo = new MediaPluginInfo( this, MEDIATYPE_pluto_DVD_CONST, DEVICETEMPLATE_Xine_Player_CONST, true, true );
 
-  // We can play stored audio and video of all types
-  pMediaPluginInfo = new MediaPluginInfo( this, MEDIATYPE_pluto_StoredAudio_CONST, DEVICETEMPLATE_Xine_Player_CONST, true, true );
-  pMediaPluginInfo = new MediaPluginInfo( this, MEDIATYPE_pluto_StoredAudio_CONST, DEVICETEMPLATE_Xine_Player_CONST, true, true );
+// We can play stored audio and video of all types
+pMediaPluginInfo = new MediaPluginInfo( this, MEDIATYPE_pluto_StoredAudio_CONST, DEVICETEMPLATE_Xine_Player_CONST, true, true );
+pMediaPluginInfo = new MediaPluginInfo( this, MEDIATYPE_pluto_StoredAudio_CONST, DEVICETEMPLATE_Xine_Player_CONST, true, true );
 */
-  /** @todo list<int> m_PK_Broadcast_Send; // What broadcast formats it supports to send */
-  /** @todo list<int> m_PK_Broadcast_Receive;  // What broadcast formats it supports to receive */
+/** @todo list<int> m_PK_Broadcast_Send; // What broadcast formats it supports to send */
+/** @todo list<int> m_PK_Broadcast_Receive;  // What broadcast formats it supports to receive */
 
-  return Connect( );
+return Connect( );
 }
 
 /*
-    When you receive commands that are destined to one of your children,
-    then if that child implements DCE then there will already be a separate class
-    created for the child that will get the message.  If the child does not, then you will
-    get all commands for your children in ReceivedCommandForChild, where
-    pDeviceData_Base is the child device.  If you handle the message, you
-    should change the sCMD_Result to OK
+	When you receive commands that are destined to one of your children,
+	then if that child implements DCE then there will already be a separate class
+	created for the child that will get the message.  If the child does not, then you will
+	get all commands for your children in ReceivedCommandForChild, where
+	pDeviceData_Base is the child device.  If you handle the message, you
+	should change the sCMD_Result to OK
 */
 //<-dceag-cmdch-b->
 void Xine_Plugin::ReceivedCommandForChild(DeviceData_Base *pDeviceData_Base,string &sCMD_Result,Message *pMessage)
 //<-dceag-cmdch-e->
 {
-    sCMD_Result = "UNHANDLED";
+	sCMD_Result = "UNHANDLED";
 }
 
 /*
-    When you received a valid command, but it wasn't for one of your children,
-    then ReceivedUnknownCommand gets called.  If you handle the message, you
-    should change the sCMD_Result to OK
+	When you received a valid command, but it wasn't for one of your children,
+	then ReceivedUnknownCommand gets called.  If you handle the message, you
+	should change the sCMD_Result to OK
 */
 //<-dceag-cmduk-b->
 void Xine_Plugin::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 //<-dceag-cmduk-e->
 {
-    g_pPlutoLogger->Write(LV_STATUS, "Called");
-    sCMD_Result = "UNHANDLED";
+	sCMD_Result = "UNHANDLED";
 }
 
 class MediaStream *Xine_Plugin::CreateMediaStream( class MediaPluginInfo *pMediaPluginInfo, class EntertainArea *pEntertainArea, MediaDevice *pMediaDevice, int iPK_Users, deque<MediaFile *> *dequeFilenames, int StreamID )
 {
-    PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
-    if( (!pMediaDevice || pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_Xine_Player_CONST) && pEntertainArea )
-        pMediaDevice = GetMediaDeviceForEntertainArea(pEntertainArea,DEVICETEMPLATE_Xine_Player_CONST);
+	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
+	if( (!pMediaDevice || pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_Xine_Player_CONST) && pEntertainArea )
+		pMediaDevice = GetMediaDeviceForEntertainArea(pEntertainArea,DEVICETEMPLATE_Xine_Player_CONST);
 
-    if( !pMediaDevice || pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_Xine_Player_CONST )
-    {
-        g_pPlutoLogger->Write(LV_CRITICAL,"Xine plugin being told to play in an entertainment area without a xine player");
-        return NULL;
-    }
+	if( !pMediaDevice || pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_Xine_Player_CONST )
+	{
+		g_pPlutoLogger->Write(LV_CRITICAL,"Xine plugin being told to play in an entertainment area without a xine player");
+		return NULL;
+	}
 
-    return new XineMediaStream( this, pMediaPluginInfo, pMediaDevice, pMediaPluginInfo->m_iPK_DesignObj, iPK_Users, st_RemovableMedia, StreamID ); // hack hack hack
+	return new XineMediaStream( this, pMediaPluginInfo, pMediaDevice, pMediaPluginInfo->m_iPK_DesignObj, iPK_Users, st_RemovableMedia, StreamID ); // hack hack hack
 }
 
 bool Xine_Plugin::StartMedia( class MediaStream *pMediaStream )
 {
-    PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
-    g_pPlutoLogger->Write( LV_STATUS, "Starting media stream playback--sending command, waiting for response" );
+	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
+	g_pPlutoLogger->Write( LV_STATUS, "Starting media stream playback--sending command, waiting for response" );
 
-    string sFileToPlay = pMediaStream->GetFilenameToPlay("Empty file name");
+	string sFileToPlay = pMediaStream->GetFilenameToPlay("Empty file name");
 
-    g_pPlutoLogger->Write( LV_STATUS, "Media type %d %s", pMediaStream->m_iPK_MediaType, sFileToPlay.c_str());
+	g_pPlutoLogger->Write( LV_STATUS, "Media type %d %s", pMediaStream->m_iPK_MediaType, sFileToPlay.c_str());
 
-    string mediaURL;
-    string Response;
+	string mediaURL;
+	string Response;
 
-    if ( pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST )
-    {
-        pMediaStream->m_sMediaDescription = "Media Desc";
+	if ( pMediaStream->m_iPK_MediaType == MEDIATYPE_pluto_DVD_CONST )
+	{
+		pMediaStream->m_sMediaDescription = "Media Desc";
 
-        g_pPlutoLogger->Write(LV_STATUS, "Got pluto DVD media type");
-        // Find a disk Drive in one of the entertainment areas.
-        map<int, EntertainArea *>::iterator itEntertainmentAreas;
+		g_pPlutoLogger->Write(LV_STATUS, "Got pluto DVD media type");
+		// Find a disk Drive in one of the entertainment areas.
+		map<int, EntertainArea *>::iterator itEntertainmentAreas;
 
-        bool bFound = false ;
+		bool bFound = false ;
 
-        for ( itEntertainmentAreas = pMediaStream->m_mapEntertainArea.begin(); ! bFound && itEntertainmentAreas != pMediaStream->m_mapEntertainArea.end(); itEntertainmentAreas++ )
-        {
-            EntertainArea *pEntertainArea = ( *itEntertainmentAreas ).second;
+		for ( itEntertainmentAreas = pMediaStream->m_mapEntertainArea.begin(); ! bFound && itEntertainmentAreas != pMediaStream->m_mapEntertainArea.end(); itEntertainmentAreas++ )
+		{
+			EntertainArea *pEntertainArea = ( *itEntertainmentAreas ).second;
 
-            map<int, MediaDevice *>::iterator itDevice;
-            for( itDevice = pEntertainArea->m_mapMediaDevice.begin( ); ! bFound && itDevice != pEntertainArea->m_mapMediaDevice.end( ); ++itDevice )
-            {
-                class MediaDevice *pMediaDevice = ( *itDevice ).second;
+			map<int, MediaDevice *>::iterator itDevice;
+			for( itDevice = pEntertainArea->m_mapMediaDevice.begin( ); ! bFound && itDevice != pEntertainArea->m_mapMediaDevice.end( ); ++itDevice )
+			{
+				class MediaDevice *pMediaDevice = ( *itDevice ).second;
 
-                if( pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceCategory==DEVICECATEGORY_Disc_Drives_CONST )
-                {
-                    DCE::CMD_Mount_Disk_Image mountCommand( pMediaStream->m_pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, sFileToPlay, &mediaURL );
+				if( pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceCategory==DEVICECATEGORY_Disc_Drives_CONST )
+				{
+					DCE::CMD_Mount_Disk_Image mountCommand( pMediaStream->m_pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, sFileToPlay, &mediaURL );
 
-                    g_pPlutoLogger->Write(LV_STATUS, "And Here ");
-                    // TODO: read the response ( see if the mount was succesfull ) and continue if not.
-                    if ( SendCommand( mountCommand, &Response ) )
-                    {
-                        g_pPlutoLogger->Write(LV_STATUS, "And again Here ");
-                        bFound = true;
-                        break; // exit the loop
-                    }
-                    else
-                    {
-                        g_pPlutoLogger->Write(LV_STATUS, "And again Here with failure");
-                        g_pPlutoLogger->Write(LV_CRITICAL, "Failed to receive response from the disk drive device!. Response was: \"%s\"!", Response.c_str( ) );
-                    }
+					g_pPlutoLogger->Write(LV_STATUS, "And Here ");
+					// TODO: read the response ( see if the mount was succesfull ) and continue if not.
+					if ( SendCommand( mountCommand, &Response ) )
+					{
+						g_pPlutoLogger->Write(LV_STATUS, "And again Here ");
+						bFound = true;
+						break; // exit the loop
+					}
+					else
+					{
+						g_pPlutoLogger->Write(LV_STATUS, "And again Here with failure");
+						g_pPlutoLogger->Write(LV_CRITICAL, "Failed to receive response from the disk drive device!. Response was: \"%s\"!", Response.c_str( ) );
+					}
 
-                    g_pPlutoLogger->Write(LV_STATUS, "Got response from the disk drive: %s", mediaURL.c_str() );
-                }
-            }
-            g_pPlutoLogger->Write( LV_CRITICAL, "Media device %d got back URL: %s", pMediaStream->m_pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, mediaURL.c_str( ) );
-        }
-    }
-    else
-    {
-        // HACK: -- todo: get real informations.
-        pMediaStream->m_sMediaDescription = FileUtils::FilenameWithoutPath(sFileToPlay);
-        mediaURL = sFileToPlay;
-    }
+					g_pPlutoLogger->Write(LV_STATUS, "Got response from the disk drive: %s", mediaURL.c_str() );
+				}
+			}
+			g_pPlutoLogger->Write( LV_CRITICAL, "Media device %d got back URL: %s", pMediaStream->m_pMediaDevice->m_pDeviceData_Router->m_dwPK_Device, mediaURL.c_str( ) );
+		}
+	}
+	else
+	{
+		// HACK: -- todo: get real informations.
+		pMediaStream->m_sMediaDescription = FileUtils::FilenameWithoutPath(sFileToPlay);
+		mediaURL = sFileToPlay;
+	}
 
-    g_pPlutoLogger->Write(LV_STATUS, "Calling play command with media URL: %s", mediaURL.c_str());
-    DCE::CMD_Play_Media cmd( m_dwPK_Device,
-                             pMediaStream->m_pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
-                             mediaURL,
-                             pMediaStream->m_iPK_MediaType,
-                             pMediaStream->m_iStreamID_get( ),
-                             pMediaStream->m_iStoppedAtPosition );
+	// TODO: Add here a way to also send the custom position data to the players.
+	g_pPlutoLogger->Write(LV_STATUS, "Calling play command with media URL: %s", mediaURL.c_str());
+	DCE::CMD_Play_Media cmd( m_dwPK_Device,
+							pMediaStream->m_pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,
+							mediaURL,
+							pMediaStream->m_iPK_MediaType,
+							pMediaStream->m_iStreamID_get( ),
+							pMediaStream->m_iSavedPosition);
 
-    m_pMedia_Plugin->MediaInfoChanged( pMediaStream );
+	m_pMedia_Plugin->MediaInfoChanged( pMediaStream );
 
-    if( !SendCommand( cmd, &Response ) )
-    {
-        g_pPlutoLogger->Write( LV_CRITICAL, "Xine player didn't respond to play media command!" );
-        // TODO: Ignore failure for now. make it return false. Need to handle it properly.
-    }
-    else
-    {
-        g_pPlutoLogger->Write( LV_STATUS, "Xine player responded to play media command!" );
-    }
+	if( !SendCommand( cmd, &Response ) )
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL, "Xine player didn't respond to play media command!" );
+		// TODO: Ignore failure for now. make it return false. Need to handle it properly.
+	}
+	else
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "Xine player responded to play media command!" );
+	}
 
-    return true;
+	return true;
 }
 
 bool Xine_Plugin::StopMedia( class MediaStream *pMediaStream )
 {
-    PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
-    g_pPlutoLogger->Write( LV_STATUS, "Stopping media stream playback--sending command, waiting for response" );
+	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
+	g_pPlutoLogger->Write( LV_STATUS, "Stopping media stream playback--sending command, waiting for response" );
 
-    DCE::CMD_Stop_Media cmd( m_dwPK_Device,                          // Send from us
-                             pMediaStream->m_pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,  // Send to the device that is actually playing
-                             pMediaStream->m_iStreamID_get( ),       // Send teh stream ID that we want to actually stop
-                             &pMediaStream->m_iStoppedAtPosition);   // Get Back the position at which this stream was stopped.
-    string Response;
-    if( !SendCommand( cmd, &Response ) )
-    {
-        g_pPlutoLogger->Write( LV_CRITICAL, "Xine player didn't respond to stop media command!" );
-        // TODO: handle failure when sending the command. This is ignored now.
-        // #pragma warning( "Ignore this for now" )
-        // return true;
-        // return false;
-    }
-    else
-    {
-        g_pPlutoLogger->Write( LV_STATUS, "Xine player responded to stop media command! Stopped at position: %d", pMediaStream->m_iStoppedAtPosition );
-    }
-    return true;
+	DCE::CMD_Stop_Media cmd( m_dwPK_Device,                          // Send from us
+							pMediaStream->m_pMediaDevice->m_pDeviceData_Router->m_dwPK_Device,  // Send to the device that is actually playing
+							pMediaStream->m_iStreamID_get( ),       // Send teh stream ID that we want to actually stop
+							&pMediaStream->m_iSavedPosition);   // Get Back the position at which this stream was stopped.
+	string Response;
+	if( !SendCommand( cmd, &Response ) )
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL, "Xine player didn't respond to stop media command!" );
+		// TODO: handle failure when sending the command. This is ignored now.
+		// #pragma warning( "Ignore this for now" )
+		// return true;
+		// return false;
+	}
+	else
+	{
+		g_pPlutoLogger->Write( LV_STATUS, "Xine player responded to stop media command! Stopped at position: %d", pMediaStream->m_iSavedPosition);
+	}
+	return true;
 }
 
 /**
- * @brief Called by the Media Plugin when we need to move media around in entertainment areas. The media plugin will pass 3 lists:
- *          < listStart: the list on which media needs to be started. >
- *          < listStop: the list on which media needs to be stopped >
- *          < listChange: the list on which media needs to be changed (if we move the media from one place to another it might be possible that the actual source of the stream to change). >
- */
+* @brief Called by the Media Plugin when we need to move media around in entertainment areas. The media plugin will pass 3 lists:
+*          < listStart: the list on which media needs to be started. >
+*          < listStop: the list on which media needs to be stopped >
+*          < listChange: the list on which media needs to be changed (if we move the media from one place to another it might be possible that the actual source of the stream to change). >
+*/
 bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*> &listStart, list<EntertainArea *> &listStop, list<EntertainArea *> &listChange)
 {
-    list<EntertainArea*>::iterator itEntArea;
+	list<EntertainArea*>::iterator itEntArea;
 
-    if ( ! isValidStreamForPlugin(pMediaStream) )
-        return false;
+	if ( ! isValidStreamForPlugin(pMediaStream) )
+		return false;
 
-    XineMediaStream *pXineMediaStream = static_cast<XineMediaStream*>(pMediaStream);
+	XineMediaStream *pXineMediaStream = static_cast<XineMediaStream*>(pMediaStream);
 
-    // stop all the media where it needs to be stopped.
-    // to stop the media we will actually call our StopMedia function while passing it a "touched" pMediaStream parameter.
-    MediaDevice *pCurrentDevice = pMediaStream->m_pMediaDevice;
-    for ( itEntArea = listStop.begin(); itEntArea != listStop.end(); itEntArea++ )
-    {
-        pMediaStream->m_pMediaDevice = FindMediaDeviceForEntertainArea(*itEntArea);
-        if  ( ! pMediaStream->m_pMediaDevice )
-        {
-            g_pPlutoLogger->Write(LV_STATUS, "Could not find a device that needs stopped in the entertainment area: %d", (*itEntArea)->m_iPK_EntertainArea);
-            continue;
-        }
+	// stop all the media where it needs to be stopped.
+	// to stop the media we will actually call our StopMedia function while passing it a "touched" pMediaStream parameter.
+	MediaDevice *pCurrentDevice = pMediaStream->m_pMediaDevice;
+	for ( itEntArea = listStop.begin(); itEntArea != listStop.end(); itEntArea++ )
+	{
+		pMediaStream->m_pMediaDevice = FindMediaDeviceForEntertainArea(*itEntArea);
+		if  ( ! pMediaStream->m_pMediaDevice )
+		{
+			g_pPlutoLogger->Write(LV_STATUS, "Could not find a device that needs stopped in the entertainment area: %d", (*itEntArea)->m_iPK_EntertainArea);
+			continue;
+		}
 
-        StopMedia(pMediaStream);
-        pMediaStream->m_mapEntertainArea.erase((*itEntArea)->m_iPK_EntertainArea);
-        (*itEntArea)->m_pMediaStream = NULL; // remove this stream from entertainment areas on which it was playing
-    }
-    // we have successfully stopped the devices; Restore the state.
-    pMediaStream->m_pMediaDevice = pCurrentDevice;
+		StopMedia(pMediaStream);
+		pMediaStream->m_mapEntertainArea.erase((*itEntArea)->m_iPK_EntertainArea);
+		(*itEntArea)->m_pMediaStream = NULL; // remove this stream from entertainment areas on which it was playing
+	}
+	// we have successfully stopped the devices; Restore the state.
+	pMediaStream->m_pMediaDevice = pCurrentDevice;
 
-    bool bTargetSqueezBox = false;
-    list<MediaDevice*> startDevices;
-    list<MediaDevice*> changeDevices;
+	bool bTargetSqueezBox = false;
+	list<MediaDevice*> startDevices;
+	list<MediaDevice*> changeDevices;
 
-    for ( itEntArea = listStart.begin(); itEntArea != listStart.end(); itEntArea++ )
-    {
-        pCurrentDevice = FindMediaDeviceForEntertainArea(*itEntArea);
-        if ( pCurrentDevice != NULL )
-        {
-            startDevices.push_back(pCurrentDevice);
+	for ( itEntArea = listStart.begin(); itEntArea != listStart.end(); itEntArea++ )
+	{
+		pCurrentDevice = FindMediaDeviceForEntertainArea(*itEntArea);
+		if ( pCurrentDevice != NULL )
+		{
+			startDevices.push_back(pCurrentDevice);
 
-            if ( pCurrentDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate == DEVICETEMPLATE_SqueezeBox_Player_CONST )
-                bTargetSqueezBox = true;
+			if ( pCurrentDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate == DEVICETEMPLATE_SqueezeBox_Player_CONST )
+				bTargetSqueezBox = true;
 
-            pXineMediaStream->m_mapEntertainArea[(*itEntArea)->m_iPK_EntertainArea] = *itEntArea;
-            (*itEntArea)->m_pMediaStream = pXineMediaStream;
-        }
-    }
+			pXineMediaStream->m_mapEntertainArea[(*itEntArea)->m_iPK_EntertainArea] = *itEntArea;
+			(*itEntArea)->m_pMediaStream = pXineMediaStream;
+		}
+	}
 
-    for ( itEntArea = listChange.begin(); itEntArea != listChange.end(); itEntArea++ )
-    {
-        pCurrentDevice = FindMediaDeviceForEntertainArea(*itEntArea);
-        if ( pCurrentDevice != NULL )
-        {
-            changeDevices.push_back(pCurrentDevice);
+	for ( itEntArea = listChange.begin(); itEntArea != listChange.end(); itEntArea++ )
+	{
+		pCurrentDevice = FindMediaDeviceForEntertainArea(*itEntArea);
+		if ( pCurrentDevice != NULL )
+		{
+			changeDevices.push_back(pCurrentDevice);
 
-            if ( pCurrentDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate == DEVICETEMPLATE_SqueezeBox_Player_CONST )
-                bTargetSqueezBox = true;
+			if ( pCurrentDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate == DEVICETEMPLATE_SqueezeBox_Player_CONST )
+				bTargetSqueezBox = true;
 
-            pXineMediaStream->m_mapEntertainArea[(*itEntArea)->m_iPK_EntertainArea] = *itEntArea;
-            (*itEntArea)->m_pMediaStream = pXineMediaStream;
-        }
-    }
+			pXineMediaStream->m_mapEntertainArea[(*itEntArea)->m_iPK_EntertainArea] = *itEntArea;
+			(*itEntArea)->m_pMediaStream = pXineMediaStream;
+		}
+	}
 
-    if ( bTargetSqueezBox == true) // we have at least a Squeeze Box in the target list. Locate a slim server device on the router.
-    {
-        if ( pXineMediaStream->getStreamerDeviceID() == 0 )
-        {
-            pXineMediaStream->setStreamerDeviceID(m_pRouter->FindClosestRelative(DEVICETEMPLATE_Slim_Server_Streamer_CONST, m_dwPK_Device));
+	if ( bTargetSqueezBox == true) // we have at least a Squeeze Box in the target list. Locate a slim server device on the router.
+	{
+		if ( pXineMediaStream->getStreamerDeviceID() == 0 )
+		{
+			pXineMediaStream->setStreamerDeviceID(m_pRouter->FindClosestRelative(DEVICETEMPLATE_Slim_Server_Streamer_CONST, m_dwPK_Device));
 
-            if ( pXineMediaStream->getStreamerDeviceID() == 0 )
-                g_pPlutoLogger->Write(LV_STATUS, "I wasn't able to lookup the Streamer device to use for multiple entertainment areas streaming. Failing!.");
-        }
-    }
+			if ( pXineMediaStream->getStreamerDeviceID() == 0 )
+				g_pPlutoLogger->Write(LV_STATUS, "I wasn't able to lookup the Streamer device to use for multiple entertainment areas streaming. Failing!.");
+		}
+	}
 
-    string squeezeBoxIds = "";
+	string squeezeBoxIds = "";
 
-    if ( bTargetSqueezBox )
-    {
-        g_pPlutoLogger->Write(LV_STATUS, "We have at least a SqueezeBox in the target ent areas. The streamer device ID: %d", pXineMediaStream->getStreamerDeviceID() );
-    }
+	if ( bTargetSqueezBox )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "We have at least a SqueezeBox in the target ent areas. The streamer device ID: %d", pXineMediaStream->getStreamerDeviceID() );
+	}
 
-    list<MediaDevice*>::iterator itMediaDevice;
+	list<MediaDevice*>::iterator itMediaDevice;
 
-    itMediaDevice = startDevices.begin();
-    while ( itMediaDevice != startDevices.end() )
-    {
-        list<MediaDevice*>::iterator next = itMediaDevice;
-        ++next;
+	itMediaDevice = startDevices.begin();
+	while ( itMediaDevice != startDevices.end() )
+	{
+		list<MediaDevice*>::iterator next = itMediaDevice;
+		++next;
 
-        pCurrentDevice = *itMediaDevice;
-        g_pPlutoLogger->Write(LV_STATUS, "Starting on device: %s (%d)",
-                pCurrentDevice->m_pDeviceData_Router->m_sDescription.c_str(),
-                pCurrentDevice->m_pDeviceData_Router->m_dwPK_Device);
+		pCurrentDevice = *itMediaDevice;
+		g_pPlutoLogger->Write(LV_STATUS, "Starting on device: %s (%d)",
+				pCurrentDevice->m_pDeviceData_Router->m_sDescription.c_str(),
+				pCurrentDevice->m_pDeviceData_Router->m_dwPK_Device);
 
-        if ( pCurrentDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate == DEVICETEMPLATE_SqueezeBox_Player_CONST )
-        {
-            pXineMediaStream->m_pMediaDevice = pCurrentDevice;
-            squeezeBoxIds += StringUtils::itos(pCurrentDevice->m_pDeviceData_Router->m_dwPK_Device) + ",";
-            startDevices.erase(itMediaDevice);
-        }
+		if ( pCurrentDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate == DEVICETEMPLATE_SqueezeBox_Player_CONST )
+		{
+			pXineMediaStream->m_pMediaDevice = pCurrentDevice;
+			squeezeBoxIds += StringUtils::itos(pCurrentDevice->m_pDeviceData_Router->m_dwPK_Device) + ",";
+			startDevices.erase(itMediaDevice);
+		}
 
-        itMediaDevice = next;
-    }
+		itMediaDevice = next;
+	}
 
-    itMediaDevice = changeDevices.begin();
-    while ( itMediaDevice != changeDevices.end() )
-    {
-        list<MediaDevice*>::iterator next = itMediaDevice;
-        ++next;
+	itMediaDevice = changeDevices.begin();
+	while ( itMediaDevice != changeDevices.end() )
+	{
+		list<MediaDevice*>::iterator next = itMediaDevice;
+		++next;
 
-        pCurrentDevice = *itMediaDevice;
-        g_pPlutoLogger->Write(LV_STATUS, "Restarting on device: %s (%d)",
-                pCurrentDevice->m_pDeviceData_Router->m_sDescription.c_str(),
-                pCurrentDevice->m_pDeviceData_Router->m_dwPK_Device);
+		pCurrentDevice = *itMediaDevice;
+		g_pPlutoLogger->Write(LV_STATUS, "Restarting on device: %s (%d)",
+				pCurrentDevice->m_pDeviceData_Router->m_sDescription.c_str(),
+				pCurrentDevice->m_pDeviceData_Router->m_dwPK_Device);
 
-        if ( pCurrentDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate == DEVICETEMPLATE_SqueezeBox_Player_CONST )
-        {
-            pXineMediaStream->m_pMediaDevice = pCurrentDevice;
-            squeezeBoxIds += StringUtils::itos(pCurrentDevice->m_pDeviceData_Router->m_dwPK_Device) + ",";
-            changeDevices.erase(itMediaDevice);
-        }
+		if ( pCurrentDevice->m_pDeviceData_Router->m_dwPK_DeviceTemplate == DEVICETEMPLATE_SqueezeBox_Player_CONST )
+		{
+			pXineMediaStream->m_pMediaDevice = pCurrentDevice;
+			squeezeBoxIds += StringUtils::itos(pCurrentDevice->m_pDeviceData_Router->m_dwPK_Device) + ",";
+			changeDevices.erase(itMediaDevice);
+		}
 
-        itMediaDevice = next;
-    }
+		itMediaDevice = next;
+	}
 
-    // I have the devices. now i need to start the streamer and set the currently playing song on it.
-    if ( bTargetSqueezBox )
-    {
-        StartStreaming(pXineMediaStream, squeezeBoxIds);
-    }
+	// I have the devices. now i need to start the streamer and set the currently playing song on it.
+	if ( bTargetSqueezBox )
+	{
+		StartStreaming(pXineMediaStream, squeezeBoxIds);
+	}
 
-    return true;
-    // if the target change set is one we just restart the media on it.
+	return true;
+	// if the target change set is one we just restart the media on it.
 //     if ( (listStart.size() + listChange.size()) == 1 )
 //     {
 //         pTmpEntertainArea = (listStart.size() != 0) ? pTmpEntertainArea = listStart.front() : pTmpEntertainArea = listChange.front();
@@ -408,170 +408,171 @@ bool Xine_Plugin::MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*
 
 /*    g_pPlutoLogger->Write(LV_STATUS, "I have the streamer device ID: %d", pXineMediaStream->getStreamerDeviceID());
 
-    string resultingURL;
+	string resultingURL;
 
-    DCE::CMD_Start_Streaming startStreamingCommand(m_dwPK_Device, pXineMediaStream->getStreamerDeviceID(), pMediaStream->GetFilenameToPlay(), pXineMediaStream->m_iStreamID_get(), &resultingURL);
-    SendCommand(startStreamingCommand);*/
+	DCE::CMD_Start_Streaming startStreamingCommand(m_dwPK_Device, pXineMediaStream->getStreamerDeviceID(), pMediaStream->GetFilenameToPlay(), pXineMediaStream->m_iStreamID_get(), &resultingURL);
+	SendCommand(startStreamingCommand);*/
 }
 
 void Xine_Plugin::StartStreaming(XineMediaStream *pMediaStream, string strTargetDevices)
 {
-    // TODO: handle when there is already a streaming server started.
-    if ( pMediaStream->getStreamerDeviceID() == 0 )
-    {
-        g_pPlutoLogger->Write(LV_STATUS, "Wanted to start streaming for the media stream: %d but the stream does not have a streamer device id set", pMediaStream->m_iStreamID_get());
-        return;
-    }
+	// TODO: handle when there is already a streaming server started.
+	if ( pMediaStream->getStreamerDeviceID() == 0 )
+	{
+		g_pPlutoLogger->Write(LV_STATUS, "Wanted to start streaming for the media stream: %d but the stream does not have a streamer device id set", pMediaStream->m_iStreamID_get());
+		return;
+	}
 
-    g_pPlutoLogger->Write(LV_STATUS, "Using the device %d as the source streamer !", pMediaStream->getStreamerDeviceID());
-    g_pPlutoLogger->Write(LV_STATUS, "Streaming to devices: %s", strTargetDevices.c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "Using the device %d as the source streamer !", pMediaStream->getStreamerDeviceID());
+	g_pPlutoLogger->Write(LV_STATUS, "Streaming to devices: %s", strTargetDevices.c_str());
 
-    string resultingURL;
+	string resultingURL;
 
-    DCE::CMD_Start_Streaming startStreamingCommand(
-                    m_dwPK_Device,
-                    pMediaStream->getStreamerDeviceID(),
-                    pMediaStream->GetFilenameToPlay(),
-                    pMediaStream->m_iStreamID_get(),
-                    strTargetDevices,
-                    &resultingURL );
+	DCE::CMD_Start_Streaming startStreamingCommand(
+					m_dwPK_Device,
+					pMediaStream->getStreamerDeviceID(),
+					pMediaStream->GetFilenameToPlay(),
+					pMediaStream->m_iStreamID_get(),
+					strTargetDevices,
+					&resultingURL );
 
-    SendCommand(startStreamingCommand);
+	SendCommand(startStreamingCommand);
 }
 
 MediaDevice *Xine_Plugin::FindMediaDeviceForEntertainArea(EntertainArea *pEntertainArea)
 {
-    MediaDevice *pMediaDevice;
-    pMediaDevice = GetMediaDeviceForEntertainArea(pEntertainArea, DEVICETEMPLATE_Xine_Player_CONST);
+	MediaDevice *pMediaDevice;
+	pMediaDevice = GetMediaDeviceForEntertainArea(pEntertainArea, DEVICETEMPLATE_Xine_Player_CONST);
 
-    if ( pMediaDevice == NULL )
-    {
-        g_pPlutoLogger->Write(LV_WARNING, "Could not find a Xine Player device (with device template id: %d) in the entertainment area: %d. Looking for a squeeze box.",
-                DEVICETEMPLATE_Xine_Player_CONST,
-                pEntertainArea->m_iPK_EntertainArea);
+	if ( pMediaDevice == NULL )
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Could not find a Xine Player device (with device template id: %d) in the entertainment area: %d. Looking for a squeeze box.",
+				DEVICETEMPLATE_Xine_Player_CONST,
+				pEntertainArea->m_iPK_EntertainArea);
 
-        pMediaDevice = GetMediaDeviceForEntertainArea(pEntertainArea, DEVICETEMPLATE_SqueezeBox_Player_CONST);
+		pMediaDevice = GetMediaDeviceForEntertainArea(pEntertainArea, DEVICETEMPLATE_SqueezeBox_Player_CONST);
 
-        if ( pMediaDevice == NULL )
-        {
-            g_pPlutoLogger->Write(LV_WARNING, "No squeeze box device (device template id: %d) was found in the entertainment area: %d. Ignoring this ent area ",
-                DEVICETEMPLATE_SqueezeBox_Player_CONST,
-                pEntertainArea->m_iPK_EntertainArea);
+		if ( pMediaDevice == NULL )
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "No squeeze box device (device template id: %d) was found in the entertainment area: %d. Ignoring this ent area ",
+				DEVICETEMPLATE_SqueezeBox_Player_CONST,
+				pEntertainArea->m_iPK_EntertainArea);
 
-            return NULL;
-        }
-    }
+			return NULL;
+		}
+	}
 
-    return pMediaDevice;
+	return pMediaDevice;
 }
 bool Xine_Plugin::isValidStreamForPlugin(class MediaStream *pMediaStream)
 {
-    if ( pMediaStream->GetType() != MEDIASTREAM_TYPE_XINE )
-    {
-        g_pPlutoLogger->Write(LV_WARNING, "This stream is not a valid Xine stream (%d)", pMediaStream->m_iStreamID_get());
-        return false;
-    }
+	if ( pMediaStream->GetType() != MEDIASTREAM_TYPE_XINE )
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "This stream is not a valid Xine stream (%d)", pMediaStream->m_iStreamID_get());
+		return false;
+	}
 
-    return true;
+	return true;
 }
 
 bool Xine_Plugin::BroadcastMedia( class MediaStream *pMediaStream )
 {
-    PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
-    return true;
+	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
+	return true;
 }
 
 
 bool Xine_Plugin::MenuOnScreen( class Socket *pSocket, class Message *pMessage, class DeviceData_Base *pDeviceFrom, class DeviceData_Base *pDeviceTo )
 {
-    PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
+	PLUTO_SAFETY_LOCK( mm, m_pMedia_Plugin->m_MediaMutex );
 
-    g_pPlutoLogger->Write(LV_STATUS, "Hannibal is here");
-    /** Confirm this is from one of ours */
-    if( !pDeviceFrom || pDeviceFrom->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_Xine_Player_CONST )
-        return false; /** Some other media player. We only know xine's menu handling */
+	g_pPlutoLogger->Write(LV_STATUS, "Hannibal is here");
+	/** Confirm this is from one of ours */
+	if( !pDeviceFrom || pDeviceFrom->m_dwPK_DeviceTemplate!=DEVICETEMPLATE_Xine_Player_CONST )
+		return false; /** Some other media player. We only know xine's menu handling */
 
-    int StreamID = atoi( pMessage->m_mapParameters[EVENTPARAMETER_Stream_ID_CONST].c_str( ) );
-    bool bOnOff = pMessage->m_mapParameters[EVENTPARAMETER_OnOff_CONST]=="1";
+	int StreamID = atoi( pMessage->m_mapParameters[EVENTPARAMETER_Stream_ID_CONST].c_str( ) );
+	bool bOnOff = pMessage->m_mapParameters[EVENTPARAMETER_OnOff_CONST]=="1";
 
-      /** Find the stream */
-    MediaStream *pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find( StreamID );
-    if( !pMediaStream )
-    {
-        g_pPlutoLogger->Write( LV_CRITICAL, "DVD Menu appeared for stream %d, but I can't find it", StreamID );
-        return false; /** Maybe somebody else knows what to do with it */
-    }
+	/** Find the stream */
+	MediaStream *pMediaStream = m_pMedia_Plugin->m_mapMediaStream_Find( StreamID );
+	if( !pMediaStream )
+	{
+		g_pPlutoLogger->Write( LV_CRITICAL, "DVD Menu appeared for stream %d, but I can't find it", StreamID );
+		return false; /** Maybe somebody else knows what to do with it */
+	}
 
-    string sOnScreenOrbiters="", sOtherOrbiters="";
-    map<int, OH_Orbiter *> mapOH_Orbiter; /** Use a map so we don't have duplicates */
+	string sOnScreenOrbiters="", sOtherOrbiters="";
+	map<int, OH_Orbiter *> mapOH_Orbiter; /** Use a map so we don't have duplicates */
 
-    g_pPlutoLogger->Write( LV_STATUS, "Mediastream %p on menu id: %d type %d", pMediaStream, pMediaStream->m_iStreamID_get( ), pMediaStream->m_iPK_MediaType );
-    g_pPlutoLogger->Write( LV_STATUS, "Mediastream mapea size %d", pMediaStream->m_mapEntertainArea.size( ) );
+	g_pPlutoLogger->Write( LV_STATUS, "Mediastream %p on menu id: %d type %d", pMediaStream, pMediaStream->m_iStreamID_get( ), pMediaStream->m_iPK_MediaType );
+	g_pPlutoLogger->Write( LV_STATUS, "Mediastream mapea size %d", pMediaStream->m_mapEntertainArea.size( ) );
 
-    /** We're going to send a message to all the orbiters that are bound to remotes in any of the entertainment areas */
-    for( MapEntertainArea::iterator itEA = pMediaStream->m_mapEntertainArea.begin( );itEA != pMediaStream->m_mapEntertainArea.end( );++itEA )
-    {
-        EntertainArea *pEntertainArea = ( *itEA ).second;
-        g_pPlutoLogger->Write( LV_STATUS, "Mediastream ea %p %d", pEntertainArea, pEntertainArea->m_iPK_EntertainArea );
-        for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
-        {
-            BoundRemote *pBoundRemote = ( *itBR ).second;
-            mapOH_Orbiter[pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device] = pBoundRemote->m_pOH_Orbiter;
-        }
-    }
+	/** We're going to send a message to all the orbiters that are bound to remotes in any of the entertainment areas */
+	for( MapEntertainArea::iterator itEA = pMediaStream->m_mapEntertainArea.begin( );itEA != pMediaStream->m_mapEntertainArea.end( );++itEA )
+	{
+		EntertainArea *pEntertainArea = ( *itEA ).second;
+		g_pPlutoLogger->Write( LV_STATUS, "Mediastream ea %p %d", pEntertainArea, pEntertainArea->m_iPK_EntertainArea );
+		for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
+		{
+			BoundRemote *pBoundRemote = ( *itBR ).second;
+			mapOH_Orbiter[pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device] = pBoundRemote->m_pOH_Orbiter;
+		}
+	}
 
-    for( map<int, OH_Orbiter *>::iterator itOH=mapOH_Orbiter.begin( );itOH!=mapOH_Orbiter.end( );++itOH )
-    {
-        OH_Orbiter *pOH_Orbiter = ( *itOH ).second;
-        if( pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia && pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_DeviceCategory==DEVICECATEGORY_Media_Director_CONST )
-            sOnScreenOrbiters += StringUtils::itos( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device ) + ", ";
-        else
-            sOtherOrbiters += StringUtils::itos( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device ) + ", ";
-    }
+	for( map<int, OH_Orbiter *>::iterator itOH=mapOH_Orbiter.begin( );itOH!=mapOH_Orbiter.end( );++itOH )
+	{
+		OH_Orbiter *pOH_Orbiter = ( *itOH ).second;
+		if( pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia && pOH_Orbiter->m_pDeviceData_Router->m_pDevice_ControlledVia->m_dwPK_DeviceCategory==DEVICECATEGORY_Media_Director_CONST )
+			sOnScreenOrbiters += StringUtils::itos( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device ) + ", ";
+		else
+			sOtherOrbiters += StringUtils::itos( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device ) + ", ";
+	}
 
-    if( sOnScreenOrbiters.size( )==0 && sOtherOrbiters.size( )==0 )
-    {
-        g_pPlutoLogger->Write( LV_WARNING, "Got a menu goto, but there are no related orbiters" );
-        return false;
-    }
+	if( sOnScreenOrbiters.size( )==0 && sOtherOrbiters.size( )==0 )
+	{
+		g_pPlutoLogger->Write( LV_WARNING, "Got a menu goto, but there are no related orbiters" );
+		return false;
+	}
 
-    if( bOnOff )
-    {
-        if( sOtherOrbiters.size( ) )
-        {
-            /** Send all the orbiters to the dvd menu */
-            // DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL( m_dwPK_Device, sOtherOrbiters, 0, StringUtils::itos( /*DESIGNOBJ_dvd_menu_CONST HACK -- todo*/1 ), "", "", false );
-            DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL( m_dwPK_Device, sOtherOrbiters, 0, StringUtils::itos( DESIGNOBJ_mnuDVDMenu_CONST ), "", "", false );
-            DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL( m_dwPK_Device, sOtherOrbiters, VARIABLE_PK_Device_CONST, StringUtils::itos( pMessage->m_dwPK_Device_From ) );
+	if( bOnOff )
+	{
+		if( sOtherOrbiters.size( ) )
+		{
+			/** Send all the orbiters to the dvd menu */
+			// DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL( m_dwPK_Device, sOtherOrbiters, 0, StringUtils::itos( /*DESIGNOBJ_dvd_menu_CONST HACK -- todo*/1 ), "", "", false );
+			DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL( m_dwPK_Device, sOtherOrbiters, 0, StringUtils::itos( DESIGNOBJ_mnuDVDMenu_CONST ), "", "", false );
+			DCE::CMD_Set_Variable_DL CMD_Set_Variable_DL( m_dwPK_Device, sOtherOrbiters, VARIABLE_PK_Device_CONST, StringUtils::itos( pMessage->m_dwPK_Device_From ) );
 
-            CMD_Set_Variable_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Goto_Screen_DL.m_pMessage );
-            QueueMessageToRouter( CMD_Set_Variable_DL.m_pMessage );
-        }
+			CMD_Set_Variable_DL.m_pMessage->m_vectExtraMessages.push_back( CMD_Goto_Screen_DL.m_pMessage );
+			QueueMessageToRouter( CMD_Set_Variable_DL.m_pMessage );
+		}
 
-        if( sOnScreenOrbiters.size( ) )
-        {
-            /** If it's an on-screen orbiter, just send it to the full screen menu */
+		if( sOnScreenOrbiters.size( ) )
+		{
+			/** If it's an on-screen orbiter, just send it to the full screen menu */
 //            int DESIGNOBJ_full_screen_CONST=1; /** @todo - hack */
 //             DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL( m_dwPK_Device, sOnScreenOrbiters, 0, StringUtils::itos( DESIGNOBJ_full_screen_CONST ), "", "", false );
-            DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL( m_dwPK_Device, sOnScreenOrbiters, 0, StringUtils::itos( DESIGNOBJ_mnuDVDMenu_CONST ), "", "", false );
-            SendCommand( CMD_Goto_Screen_DL );
-        }
-    }
-    else if( sOtherOrbiters.size( ) )
-    {
-        DCE::CMD_Go_back_DL CMD_Go_back_DL( m_dwPK_Device, sOtherOrbiters, StringUtils::itos( DESIGNOBJ_mnuDVDMenu_CONST ), "" );
-        SendCommand( CMD_Go_back_DL );
-    }
-  return true;
+			DCE::CMD_Goto_Screen_DL CMD_Goto_Screen_DL( m_dwPK_Device, sOnScreenOrbiters, 0, StringUtils::itos( DESIGNOBJ_mnuDVDMenu_CONST ), "", "", false );
+			SendCommand( CMD_Goto_Screen_DL );
+		}
+	}
+	else if( sOtherOrbiters.size( ) )
+	{
+		DCE::CMD_Go_back_DL CMD_Go_back_DL( m_dwPK_Device, sOtherOrbiters, StringUtils::itos( DESIGNOBJ_mnuDVDMenu_CONST ), "" );
+		SendCommand( CMD_Go_back_DL );
+	}
+
+	return true;
 }
 
 int XineMediaStream::getStreamerDeviceID()
 {
-    return m_dwStreamer;
+	return m_dwStreamer;
 }
 
 void XineMediaStream::setStreamerDeviceID(int deviceID)
 {
-    m_dwStreamer = deviceID; // we should lookup and put the actual in here.
+	m_dwStreamer = deviceID; // we should lookup and put the actual in here.
 }
 

@@ -147,7 +147,9 @@ MediaStream::MediaStream( class MediaPluginInfo *pMediaPluginInfo, MediaDevice *
     m_eSourceType=sourceType;
     m_bPlaying=false;
     m_pMediaPosition=NULL;
-    m_iStoppedAtPosition = 0;
+    m_iSavedPosition = 0;
+	m_iTotalStreamTime = 0;
+	m_sSavedPosition = "";
     m_pOH_Orbiter=NULL;
     m_pPictureData=NULL;
     m_iPictureSize=0;
@@ -178,9 +180,11 @@ void MediaStream::SetPlaylistPosition(int position)
     if ( m_iDequeMediaFile_Pos < 0 )
         m_iDequeMediaFile_Pos = 0;
 
-    m_iStoppedAtPosition = 0; // reset the file pointer also.
+	// reset the file pointer also.
+    m_iSavedPosition = 0;
+	m_sSavedPosition = "";
 
-    DumpPlaylist();
+    // DumpPlaylist();
 }
 
 
@@ -271,6 +275,7 @@ void BoundRemote::UpdateOrbiter( MediaStream *pMediaStream )
         CMD_Update_Object_Image.m_pMessage->m_vectExtraMessages.push_back( CMD_Set_Text.m_pMessage );
     }
 
-    m_pMedia_Plugin->QueueMessageToRouter( CMD_Update_Object_Image.m_pMessage );
+
+	m_pMedia_Plugin->QueueMessageToRouter( CMD_Update_Object_Image.m_pMessage );
     // TODO -- Need a real way to send multiple messages to the same device in one package. This gets them to the
 }

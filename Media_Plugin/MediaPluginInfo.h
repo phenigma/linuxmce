@@ -2,7 +2,7 @@
  *
  * @file MediaPluginInfo.h
  * @brief documentation
- * @todo ask
+ * The set of classes that support a Media Plugin object
  *
  */
 
@@ -135,9 +135,11 @@ namespace DCE
         int					m_iPK_Playlist;          /** the ID of the playlist. nonZero if the playlist was loaded from database, zero otherwise. */
         string				m_sPlaylistName;       /** the name of the playlist which was loaded from the database. */
 
-        // TODO: In the future check to see how to manage the file which is playing from which position.
-        // For the moment we should just ignore it.
-        int             m_iStoppedAtPosition;
+		// data related to stream position. I'm not sure we even need it here because we can always ask the device
+		// for it. If a device crashes then we might need to keep the data here.
+        int             	m_iSavedPosition;
+		int					m_iTotalStreamTime;
+		string 				m_sSavedPosition;
 
         char *m_pPictureData;
         size_t m_iPictureSize;
