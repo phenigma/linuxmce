@@ -996,8 +996,8 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 	// 6.   Call FileUtils::GetDirectory(vector<strings)), and see what files are there, that are not in listFileInfo and do a delete
 	// 7.   Do a cvs ci
 	string MyPath, WorkPath;
-	string cmd;
-	int flag;
+	string cmd, cmd2;
+	bool flag;
 	list<FileInfo *>::iterator iFileInfo;
 cout << "\nCreting temporary directory\n";
 	MyPath = "cvs_temp";
@@ -1016,6 +1016,7 @@ cout << "Making CVS Checkout to temporary\n";
 			pRow_Package_Source->Name_get()+
 			" checkout " + pRow_Package_Source->Name_get();
 	system(cmd.c_str());
+	cout << cmd << endl;
 	chdir(pRow_Package_Source->Name_get().c_str());
 
 	list <string> MyList;
@@ -1023,144 +1024,147 @@ cout << "Making CVS Checkout to temporary\n";
 	//reading actual directory list
 	FileUtils::FindFiles(MyList, "", "*", true, "");
 
+	string::size_type pos;
+	string::size_type length;
+
 //	cout<<"\n\n SourceForgeCVS : "<<pRow_Package_Source->FK_Package_getrow()->Description_get();
 //	cout<<"\n Nr of files : "<<listFileInfo.size();
 
-	/*for (iFileInfo = listFileInfo.begin();iFileInfo != listFileInfo.end(); iFileInfo++)
+/////////////-------------------- We copy the files from the project to the temporary
+	flag = false;
+	for (iFileInfo = listFileInfo.begin();iFileInfo != listFileInfo.end(); iFileInfo++)
 	{
+		FileInfo *pFileInfo = (*iFileInfo);
 		for (iMyList = MyList.begin();iMyList != MyList.end(); iMyList++)
 		{
-			FileInfo *pFileInfo = (*iFileInfo);
-			cmd = FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
-			cmd2 = FileUtils::FilenameWithoutPath(*iMyList);
-			cout << "'" << cmd << "'='" << cmd2 << "'";
+			cmd = FileUtils::BasePath(pFileInfo->m_sSource);
+			pos = cmd.rfind("/");
+			length = cmd.length();
+			cmd = cmd.substr(pos+1,length-pos-1);
+			cmd = cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+			
+			cmd2 = FileUtils::BasePath(*iMyList);
+			pos = cmd2.rfind("/");
+			length = cmd2.length();
+			cmd2 = cmd2.substr(pos+1,length-pos-1);
+			cmd2 = cmd2 + "/" + FileUtils::FilenameWithoutPath(*iMyList);
+
+			cout << cmd.c_str() << "=" << cmd2.c_str() << endl;
 			if(cmd.compare (cmd2) == 0) {
 				//if the file exist we overwrite it
-				cmd=FileUtils::BasePath(pFileInfo->m_sSource);
-				string::size_type pos = sInput.rfind("/");
-				cmd = cmd.substr(pos);
+				cmd = FileUtils::BasePath(pFileInfo->m_sSource);
+				pos = cmd.rfind("/");
+				length = cmd.length();
+				cmd = cmd.substr(pos+1,length-pos-1);
 				if(FileUtils::DirExists(cmd) != true) {
 #ifdef WIN32
-					cmd = "copy -f " + pFileInfo->m_sSource + " " + cmd + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+					cmd = "copy /y " + pFileInfo->m_sSource + " " + cmd + "\\" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 					system(cmd.c_str());
 #else
-					cmd = "cp -f " + pFileInfo->m_sSource + " " + cmd + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+					cmd = "cp -f " + pFileInfo->m_sSource + " " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 					system(cmd.c_str());
+					cout << cmd.c_str() << endl;
 #endif
 				}
-				flag = 1;
+				flag = true;
 			}
 		}
-		if(flag != 1) {
+		if(flag != true) {
 				//if it is a new file we copy it
 				cmd=FileUtils::BasePath(pFileInfo->m_sSource);
-				string::size_type pos = sInput.rfind("/");
-				cmd = cmd.substr(pos);
-				//if we are 
+				string::size_type pos = cmd.rfind("/");
+				string::size_type marime = cmd.length();
+				cmd = cmd.substr(pos+1,marime-pos-1);
+				//if we are on the root dir we just copy it as a file
 				if(cmd.compare(pRow_Package_Source->Name_get()) == 0)
 				{
 #ifdef WIN32
-					cmd = "copy -f " + pFileInfo->m_sSource + " " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+					cmd = "copy /y " + pFileInfo->m_sSource + " " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+					system(cmd.c_str());
+					cmd = "cvs add " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 					system(cmd.c_str());
 #else
 					cmd = "cp -f " + pFileInfo->m_sSource + " " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 					system(cmd.c_str());
+					cout << cmd.c_str() << endl;
+					cmd = "cvs add " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+					system(cmd.c_str());
+					cout << cmd.c_str() << endl;
 #endif
 				}
 				else {
+					//if we are not in ther root
 					if(FileUtils::DirExists(cmd) != true) {
 #ifdef WIN32
 						mkdir(cmd.c_str());
-						cmd = "copy -f " + pFileInfo->m_sSource + " " + cmd + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
-						system(cmd.c_str());
+						cmd2 = "copy /y " + pFileInfo->m_sSource + " " + cmd + "\\" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+						system(cmd2.c_str());
 #else
 						mkdir(cmd.c_str(), 0777);
-						cmd = "cp -f " + pFileInfo->m_sSource + " " + cmd + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
-						system(cmd.c_str());
+						cmd2 = "cp -f " + pFileInfo->m_sSource + " " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+						system(cmd2.c_str());
+						cout << cmd2.c_str() << endl;
+						cmd2 = "cvs add " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+						system(cmd2.c_str());
+						cout << cmd2.c_str() << endl;
+
 #endif
 					}
 					else {
 #ifdef WIN32
-						cmd = "copy -f " + pFileInfo->m_sSource + " " + cmd + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+						cmd = "copy /y " + pFileInfo->m_sSource + " " + cmd + "\\" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 						system(cmd.c_str());
+						cout << cmd.c_str() << endl;
 #else
-						cmd = "cp -f " + pFileInfo->m_sSource + " " + cmd + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
-						system(cmd.c_str());
+						cmd2 = "cp -f " + pFileInfo->m_sSource + " " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+						system(cmd2.c_str());
+						cmd2 = "cvs add " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+						system(cmd2.c_str());
+						cout << cmd2.c_str() << endl;
 #endif
 					}
 				}
 		}
-		flag = 0;
-	}*/
-	return true;
-	///////////////////////////////---------------
-	for (iFileInfo = listFileInfo.begin();iFileInfo != listFileInfo.end(); iFileInfo++)
-	{
-		FileInfo *pFileInfo = (*iFileInfo);
-		WorkPath = pFileInfo->m_sSource;
-//		chdir(FileUtils::BasePath(pFileInfo->m_sSource).c_str());
-		if(FileUtils::BasePath(WorkPath).compare(pRow_Package_Source->Name_get()) == 0) {
-#ifdef WIN32
-			cmd = "copy -f " + WorkPath + " " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
-#else
-			cmd = "cp -f " + WorkPath + " " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
-#endif
-		} else {
-			if(FileUtils::DirExists(FileUtils::BasePath(WorkPath)) != true) {
-				cmd = FileUtils::BasePath(WorkPath);
-#ifdef WIN32
-				mkdir(cmd.c_str());
-				cmd = "copy -f " + WorkPath + " " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
-#else 
-				mkdir(cmd.c_str(), 0777);
-				cmd = "cp -f " + WorkPath + " " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
-#endif
-			} else {
-#ifdef WIN32
-				cmd = "copy -f " + WorkPath + " " + FileUtils::BasePath(WorkPath) + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource); 
-#else
-				cmd = "cp -f " + WorkPath + " " + FileUtils::BasePath(WorkPath) + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource); 
-#endif
-			}
-		}
-		printf("%s\n", cmd.c_str());
-//		system(cmd.c_str());
+		flag = false;
 	}
-
-	return true;
-	//Making CVS add for each file and subdirectory
-	for (iFileInfo = listFileInfo.begin();iFileInfo != listFileInfo.end(); iFileInfo++)
+///////////////////////////////////////////////////////////
+////////---------------- Findinf old files and delete them
+	for (iMyList = MyList.begin();iMyList != MyList.end(); iMyList++)
 	{
-		FileInfo *pFileInfo = (*iFileInfo);
-		cmd = "cvs add " + FileUtils::BasePath(pFileInfo->m_sSource) + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
-		system(cmd.c_str());
-	}
-
-	//for every file from the temporary directory list ...
-	for(iMyList = MyList.begin();iMyList != MyList.end(); iMyList++) {
-		int found = 0;
-		//... it will be compared with all the entries from the input list
-		for (iFileInfo = listFileInfo.begin();iFileInfo != listFileInfo.end(); iFileInfo++) {
+		for (iFileInfo = listFileInfo.begin();iFileInfo != listFileInfo.end(); iFileInfo++)
+		{
 			FileInfo *pFileInfo = (*iFileInfo);
-			cmd = FileUtils::BasePath(pFileInfo->m_sSource)+"/"+FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
-			//if the file exists it will be left alone
-			if(cmd.compare (*iMyList) == 0) {
-				found = 1;
+
+			cmd = FileUtils::BasePath(pFileInfo->m_sSource);
+			pos = cmd.rfind("/");
+			length = cmd.length();
+			cmd = cmd.substr(pos+1,length-pos-1);
+			cmd = cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+			
+			cmd2 = FileUtils::BasePath(*iMyList);
+			pos = cmd2.rfind("/");
+			length = cmd2.length();
+			cmd2 = cmd2.substr(pos+1,length-pos-1);
+			cmd2 = cmd2 + "/" + FileUtils::FilenameWithoutPath(*iMyList);
+
+			cout << cmd.c_str() << "=" << cmd2.c_str() << endl;
+			if(cmd.compare (cmd2) != 0) {
+				cmd = "rm -r -f " + cmd2 + "/" + FileUtils::FilenameWithoutPath(*iMyList);
+				system(cmd.c_str());
+				cout << cmd << endl;
+				cmd = "cvs remove " + cmd2 + "/" + FileUtils::FilenameWithoutPath(*iMyList);
+				system(cmd.c_str());
+				cout << cmd << endl;
 			}
-		}
-		//if the file do not exist in the list, it will be deleted
-		if(found == 0) {
-			cmd = "rm " + *iMyList;
-			system(cmd.c_str());
 		}
 	}
 
-//	iFileInfo = listFileInfo.begin();
-	cout<<"\n Commit";
+	cout<<"\n Commit\n";
 	//Updating files from the server to the sourceforge
 	cmd = "cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/" + pRow_Package_Source->Name_get() + 
 		" commit";
 	system(cmd.c_str());
+	cout << cmd << endl;
 
 	//at the end we delete the temporary directory
 	cmd = "cd ../";
