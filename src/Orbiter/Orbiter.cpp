@@ -498,7 +498,7 @@ void Orbiter::RealRedraw( void *data )
     {
         m_vectObjs_NeedRedraw.clear();
 		m_vectTexts_NeedRedraw.clear();
-		m_vectObjs_Selected.clear();
+		//m_vectObjs_Selected.clear();
 
         RenderScreen(  );
 		m_bRerenderScreen = false;
@@ -952,11 +952,14 @@ g_pPlutoLogger->Write(LV_WARNING,"RenderDataGrid %s %p",pObj->m_ObjectID.c_str()
     clock_t clkAcquired = clock(  );
 #endif
 
-	//clear the background for the grid
-	SolidRectangle( pObj->m_rPosition.X, pObj->m_rPosition.Y, pObj->m_rPosition.Width, pObj->m_rPosition.Height, PlutoColor( 0, 0, 0 ) ); 
-
     if( !pObj->m_pDataGridTable )
         return;
+
+	if(pObj->m_pDataGridTable->m_RowCount > 0)
+	{
+		//clear the background for the grid
+		SolidRectangle( pObj->m_rPosition.X, pObj->m_rPosition.Y, pObj->m_rPosition.Width, pObj->m_rPosition.Height, PlutoColor( 0, 0, 0 ) ); 
+	}
 
     string::size_type pos = 0;
 
@@ -1317,6 +1320,7 @@ void Orbiter::ObjectOffScreen( DesignObj_Orbiter *pObj )
         GraphicOffScreen(&(pObj->m_vectAltGraphics[i]));
 
     pObj->m_pvectCurrentGraphic = NULL;
+	pObj->m_pvectCurrentPlayingGraphic = NULL;
 
     Message *pMessage_GotoScreen = NULL;
     ExecuteCommandsInList( &pObj->m_Action_UnloadList, m_pScreenHistory_Current->m_pObj, pMessage_GotoScreen, 0, 0 );
@@ -4044,7 +4048,7 @@ void *MaintThread(void *p)
 {
 	bMaintThreadIsRunning = true;
 	Orbiter* pOrbiter = (Orbiter *)p;
-	
+
 	pthread_mutex_lock(&pOrbiter->m_MaintThreadMutex.mutex);  // Keep this locked to protect the map
 	while(!pOrbiter->m_bQuit) //
 	{
