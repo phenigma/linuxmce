@@ -537,8 +537,12 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
 		{
 			// We need to get the current rendering devices so that we can send on/off commands
 			map<int,MediaDevice *> mapMediaDevice_Current;
-			pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(pEntertainArea->m_pMediaStream,&mapMediaDevice_Current);
-			HandleOnOffs(PK_MediaType_Prior,pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType,&mapMediaDevice_Prior,&mapMediaDevice_Current);
+			// only do stuff with valid objects
+			if ( pEntertainArea->m_pMediaStream )
+			{
+				pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(pEntertainArea->m_pMediaStream,&mapMediaDevice_Current);
+				HandleOnOffs(PK_MediaType_Prior,pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType,&mapMediaDevice_Prior,&mapMediaDevice_Current);
+			}
 		}
 
         if( pMediaStream->m_iPK_DesignObj_Remote )
@@ -742,9 +746,9 @@ g_pPlutoLogger->Write(LV_STATUS, "Got 2 picture data %p (FK_File: %d)", pMediaSt
 g_pPlutoLogger->Write(LV_STATUS, "Looking got media database file with ID: %d", pMediaFile->m_dwPK_File );
                 Row_File *pRow_File = m_pDatabase_pluto_media->File_get()->GetRow(pMediaFile->m_dwPK_File);
                 vector<Row_Picture_File *> vectRow_Picture_File;
-                if( pRow_File )
+                if ( pRow_File )
                 {
-g_pPlutoLogger->Write(LV_STATUS, "We found a file row %p", pMediaFile->m_dwPK_File );
+g_pPlutoLogger->Write(LV_STATUS, "We found a file row %p", pRow_File );
                     pRow_File->Picture_File_FK_File_getrows(&vectRow_Picture_File);
 
 g_pPlutoLogger->Write(LV_STATUS, "We got %d rows.", vectRow_Picture_File.size() );
