@@ -737,6 +737,12 @@ void Media_Plugin::CMD_Bind_to_Media_Remote(int iPK_Device,string sPK_DesignObj,
         sCMD_Result="Can't find ent area/orbiter";
         return; // Don't know what area it should be played in, or there's no media playing there
     }
+	if( !pEntertainArea->m_pMediaStream )
+	{
+        sCMD_Result="No media stream";
+		g_pPlutoLogger->Write(LV_CRITICAL,"Attempt to bind to a remote in an entertainment area with no media stream");
+        return; // Don't know what area it should be played in, or there's no media playing there
+	}
 
     if( !atoi( sOnOff.c_str( ) ) ) // Off
         pEntertainArea->m_mapBoundRemote_Remove( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device );

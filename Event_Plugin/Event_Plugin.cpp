@@ -16,12 +16,14 @@ using namespace DCE;
 #include "Event.h"
 #include "EventInfo.h"
 #include "EventHandler.h"
+#include "EventInstance.h"
 #include "Criteria.h"
 #include "CriteriaParm.h"
 #include "CriteriaParmNesting.h"
 #include "pluto_main/Table_Installation.h"
 #include "pluto_main/Table_Criteria.h"
 #include "pluto_main/Table_CriteriaParm.h"
+#include "pluto_main/Table_CriteriaParmList.h"
 #include "pluto_main/Table_CriteriaParmNesting.h"
 #include "pluto_main/Table_EventHandler.h"
 
@@ -30,6 +32,7 @@ Event_Plugin::Event_Plugin(int DeviceID, string ServerAddress,bool bConnectEvent
 	: Event_Plugin_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
+	m_dwID_EventInstance=0;
     m_pDatabase_pluto_main = new Database_pluto_main( );
     if( !m_pDatabase_pluto_main->Connect( m_pRouter->sDBHost_get( ), m_pRouter->sDBUser_get( ), m_pRouter->sDBPassword_get( ), m_pRouter->sDBName_get( ), m_pRouter->iDBPort_get( ) ) )
     {
@@ -70,7 +73,7 @@ int k=2;
 		if( !pListEventHandler )
 		{
 			pListEventHandler = new ListEventHandler();
-			m_mapListEventHandler[pRow_EventHandler->FK_Event_get()] = pListEventHandler;
+  			m_mapListEventHandler[pRow_EventHandler->FK_Event_get()] = pListEventHandler;
 		}
 		pListEventHandler->push_back(pEventHandler);
 	}
@@ -95,8 +98,8 @@ CriteriaParmNesting *Event_Plugin::LoadCriteriaParmNesting(CriteriaParmNesting *
 		Row_CriteriaParm *pRow_CriteriaParm = vectRow_CriteriaParm[s];
 		pCriteriaParmNesting->m_vectCriteriaParm.push_back( new CriteriaParm(
 			pRow_CriteriaParm->PK_CriteriaParm_get(),pRow_CriteriaParm->FK_CriteriaParmList_get(),
-			pRow_CriteriaParm->FK_CannedEvents_CriteriaParmList_get(),pRow_CriteriaParm->Operator_get(),
-			pRow_CriteriaParm->Value_get()) );
+			pRow_CriteriaParm->FK_CriteriaParmList_getrow()->FK_ParameterType_get(),pRow_CriteriaParm->Operator_get(),
+			pRow_CriteriaParm->Value_get(),pRow_CriteriaParm->Parm_get()) );
 	}
 
 	return pCriteriaParmNesting;
@@ -146,12 +149,6 @@ void Event_Plugin::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 
 bool Event_Plugin::ProcessEvent(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
-	if( pDeviceFrom==NULL )
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL,"Event #: %d from Unknown device: %d",pMessage->m_dwID,pMessage->m_dwPK_Device_From);
-		return true;
-	}
-
 	ListEventHandler *pListEventHandler = m_mapListEventHandler_Find(pMessage->m_dwID);
 	if( pListEventHandler==NULL ) // No handlers for this type of event
 	{
@@ -190,21 +187,19 @@ bool Event_Plugin::ProcessEvent(class Socket *pSocket,class Message *pMessage,cl
 		g_pPlutoLogger->Write(LV_EVENTHANDLER,"Evaluated Event Handler: %d to: %d",pEventHandler->m_PK_EventHander,(int) bResult);
 		if( bResult ) 
 		{
-//			pEventHandler->m_bExecuted=true;
-//			pEventHandler->m_pEventInstance = new EventInstance(m_dwID_EventInstance++,pEventHandler);
-/*
-			char *Buffer;
-			int Size;
-			pMessage->ToData(Size,Buffer);
-			OCMessage *pMessageCopy = new OCMessage(Size,Buffer);
-			pEventHandler->m_pEventInstance->pMessage = pMessageCopy;
-			pEventHandler->m_pEventInstance->m_PKID_Device_OriginatedThisEvent = pMessage->m_dwPK_Device_From;
-*/
-//			s.Release();
-//			ExecuteEvent(pEventHandler->m_pEventInstance);
+			EventInstance *pEventInstance = new EventInstance(m_dwID_EventInstance++,pEventHandler);
+			pEventInstance->pMessage = new Message(pMessage);
+			pEventInstance->m_PKID_Device_OriginatedThisEvent = pMessage->m_dwPK_Device_From;
+//s.Release();
+			ExecuteEvent(pEventInstance);
 		}
 	}
 	return true;
+}
+
+void Event_Plugin::ExecuteEvent(EventInstance *pEventInstance)
+{
+	ExecCommandGroup(pEventInstance->m_ptrEventHandler->m_pCommandGroup->m_PK_CommandGroup);
 }
 
 //<-dceag-sample-b->!

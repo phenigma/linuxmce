@@ -12,7 +12,7 @@
 class Criteria;
 class CriteriaParmNesting;
 class Row_CriteriaParmNesting;
-
+class EventInstance;
 
 //<-dceag-decl-b->
 namespace DCE
@@ -26,6 +26,7 @@ namespace DCE
 		map<int,ListEventHandler *> m_mapListEventHandler;
 		ListEventHandler *m_mapListEventHandler_Find(int PK_Event) { map<int,ListEventHandler *>::iterator it = m_mapListEventHandler.find(PK_Event); return it==m_mapListEventHandler.end() ? NULL : (*it).second; }
 		Criteria *m_mapCriteria_Find(int PK_Criteria) { map<int,class Criteria *>::iterator it = m_mapCriteria.find(PK_Criteria); return it==m_mapCriteria.end() ? NULL : (*it).second; }
+		int m_dwID_EventInstance;
 
 		// Private methods
 public:
@@ -43,6 +44,7 @@ public:
 
 		bool ProcessEvent(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
 		CriteriaParmNesting *LoadCriteriaParmNesting(CriteriaParmNesting *pCriteriaParmNesting_Parent,Row_CriteriaParmNesting *pRow_CriteriaParmNesting);
+		void ExecuteEvent(EventInstance *pEventInstance);
 
 //<-dceag-h-b->
 	/*

@@ -236,6 +236,12 @@ namespace DCE
 		bool InternalSendCommand( class PreformedCommand &pPreformedCommand, int iConfirmation, string *p_sResponse );
 
 		/**
+		 * @brief
+		 * Tells the router to execute the given command group (ie group of commands)
+		 */
+		bool ExecCommandGroup(int PK_CommandGroup);
+
+		/**
 		 * @brief Register a function that we want to get called back when a message matching a given criteria is received.
 		 * Any of the criteria may be 0, indicating all messages will be a match.
 		 */

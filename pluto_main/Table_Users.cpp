@@ -27,6 +27,7 @@ using namespace std;
 #include "Table_Installation_Users.h"
 #include "Table_Orbiter_Users_PasswordReq.h"
 #include "Table_Package_Users.h"
+#include "Table_Room_Users.h"
 
 
 void Database_pluto_main::CreateTable_Users()
@@ -1571,6 +1572,13 @@ void Row_Users::Package_Users_FK_Users_getrows(vector <class Row_Package_Users*>
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_Package_Users *pTable = table->database->Package_Users_get();
+pTable->GetRows("FK_Users=" + StringUtils::itos(m_PK_Users),rows);
+}
+void Row_Users::Room_Users_FK_Users_getrows(vector <class Row_Room_Users*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Room_Users *pTable = table->database->Room_Users_get();
 pTable->GetRows("FK_Users=" + StringUtils::itos(m_PK_Users),rows);
 }
 

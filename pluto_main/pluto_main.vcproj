@@ -535,6 +535,9 @@
 				RelativePath=".\Table_RoomType.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_Room_Users.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_Schema.cpp">
 			</File>
 			<File

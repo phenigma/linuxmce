@@ -85,19 +85,21 @@ class DLL_EXPORT Row_EntertainArea : public TableRow, public SerializeClass
 long int m_FK_Room;
 short int m_Only1Stream;
 string m_Description;
+short int m_Private;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[9];
+		bool is_null[10];
 	
 	public:
 		long int PK_EntertainArea_get();
 long int FK_Room_get();
 short int Only1Stream_get();
 string Description_get();
+short int Private_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -109,6 +111,7 @@ string psc_mod_get();
 void FK_Room_set(long int val);
 void Only1Stream_set(short int val);
 void Description_set(string val);
+void Private_set(short int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -148,7 +151,7 @@ void Device_EntertainArea_FK_EntertainArea_getrows(vector <class Row_Device_Ente
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_EntertainArea+ m_FK_Room+ m_Only1Stream+ m_Description+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_EntertainArea+ m_FK_Room+ m_Only1Stream+ m_Description+ m_Private+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -157,6 +160,7 @@ void Device_EntertainArea_FK_EntertainArea_getrows(vector <class Row_Device_Ente
 string FK_Room_asSQL();
 string Only1Stream_asSQL();
 string Description_asSQL();
+string Private_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

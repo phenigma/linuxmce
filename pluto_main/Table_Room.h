@@ -154,6 +154,7 @@ class Row_Icon* FK_Icon_getrow();
 		void CommandGroup_Room_FK_Room_getrows(vector <class Row_CommandGroup_Room*> *rows);
 void Device_FK_Room_getrows(vector <class Row_Device*> *rows);
 void EntertainArea_FK_Room_getrows(vector <class Row_EntertainArea*> *rows);
+void Room_Users_FK_Room_getrows(vector <class Row_Room_Users*> *rows);
 
 
 		// Setup binary serialization

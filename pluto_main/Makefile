@@ -148,6 +148,7 @@ Table_RepositorySource_URL.cpp \
 Table_RepositoryType.cpp \
 Table_Room.cpp \
 Table_RoomType.cpp \
+Table_Room_Users.cpp \
 Table_Schema.cpp \
 Table_SetupStep.cpp \
 Table_Size.cpp \

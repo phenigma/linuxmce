@@ -156,6 +156,7 @@ class Table_RepositorySource_URL* tblRepositorySource_URL;
 class Table_RepositoryType* tblRepositoryType;
 class Table_Room* tblRoom;
 class Table_RoomType* tblRoomType;
+class Table_Room_Users* tblRoom_Users;
 class Table_Schema* tblSchema;
 class Table_SetupStep* tblSetupStep;
 class Table_Size* tblSize;
@@ -361,6 +362,7 @@ class Table_RepositorySource_URL* RepositorySource_URL_get() { return tblReposit
 class Table_RepositoryType* RepositoryType_get() { return tblRepositoryType; }
 class Table_Room* Room_get() { return tblRoom; }
 class Table_RoomType* RoomType_get() { return tblRoomType; }
+class Table_Room_Users* Room_Users_get() { return tblRoom_Users; }
 class Table_Schema* Schema_get() { return tblSchema; }
 class Table_SetupStep* SetupStep_get() { return tblSetupStep; }
 class Table_Size* Size_get() { return tblSize; }
@@ -569,6 +571,7 @@ void CreateTable_RepositorySource_URL();
 void CreateTable_RepositoryType();
 void CreateTable_Room();
 void CreateTable_RoomType();
+void CreateTable_Room_Users();
 void CreateTable_Schema();
 void CreateTable_SetupStep();
 void CreateTable_Size();
@@ -773,6 +776,7 @@ void DeleteTable_RepositorySource_URL();
 void DeleteTable_RepositoryType();
 void DeleteTable_Room();
 void DeleteTable_RoomType();
+void DeleteTable_Room_Users();
 void DeleteTable_Schema();
 void DeleteTable_SetupStep();
 void DeleteTable_Size();

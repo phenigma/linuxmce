@@ -321,6 +321,10 @@ public:
 			*****DATA***** accessors inherited from base class
 
 			*****EVENT***** accessors inherited from base class
+	void EVENT_Watching_Media(int iPK_Room);
+	void EVENT_Stopped_Watching_Media(int iPK_Room);
+	void EVENT_Listening_to_Media(int iPK_Room);
+	void EVENT_Stopped_Listening_To_Medi(int iPK_Room);
 
 			*****COMMANDS***** we need to implement
 	*/

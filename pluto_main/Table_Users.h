@@ -214,6 +214,7 @@ void Document_Comment_FK_Users_getrows(vector <class Row_Document_Comment*> *row
 void Installation_Users_FK_Users_getrows(vector <class Row_Installation_Users*> *rows);
 void Orbiter_Users_PasswordReq_FK_Users_getrows(vector <class Row_Orbiter_Users_PasswordReq*> *rows);
 void Package_Users_FK_Users_getrows(vector <class Row_Package_Users*> *rows);
+void Room_Users_FK_Users_getrows(vector <class Row_Room_Users*> *rows);
 
 
 		// Setup binary serialization

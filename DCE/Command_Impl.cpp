@@ -560,3 +560,9 @@ void Command_Impl::InterceptedMessage(Message *pMessage)
 #endif
 }
 
+bool Command_Impl::ExecCommandGroup(int PK_CommandGroup)
+{
+	Message *pMessage = new Message(m_dwPK_Device,DEVICEID_ROUTER,PRIORITY_NORMAL,MESSAGETYPE_EXEC_COMMAND_GROUP,PK_CommandGroup,0);
+	QueueMessage(pMessage);
+}
+

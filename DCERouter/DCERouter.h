@@ -276,6 +276,7 @@ namespace DCE
         void CleanFileName(string &FileName);
         Message *GetActionForInput(int PK_Device,int PK_Input);
         bool DeviceIsRegistered(int PK_Device);
+		void ExecuteCommandGroup(CommandGroup *pCommandGroup);
 
         Database_pluto_main *GetDatabase() { return m_pDatabase_pluto_main; }
         void StartListening() { SocketListener::StartListening(m_Port); }

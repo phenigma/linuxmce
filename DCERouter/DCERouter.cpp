@@ -1790,3 +1790,9 @@ continue;
     }
     return Result;
 }
+
+void Router::ExecuteCommandGroup(CommandGroup *pCommandGroup)
+{
+
+}
+

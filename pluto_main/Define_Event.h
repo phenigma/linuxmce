@@ -19,6 +19,10 @@
 #define EVENT_Security_Breach_CONST 16
 #define EVENT_Fire_Alarm_CONST 17
 #define EVENT_Reset_Alarm_CONST 18
+#define EVENT_Watching_Media_CONST 19
+#define EVENT_Stopped_Watching_Media_CONST 20
+#define EVENT_Listening_to_Media_CONST 21
+#define EVENT_Stopped_Listening_To_Medi_CONST 22
 
 #define EVENT_TABLE "Event"
 #define EVENT_PK_EVENT_FIELD "PK_Event"

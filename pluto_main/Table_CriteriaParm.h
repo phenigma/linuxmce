@@ -84,6 +84,7 @@ class DLL_EXPORT Row_CriteriaParm : public TableRow, public SerializeClass
 		long int m_PK_CriteriaParm;
 long int m_FK_CriteriaParmNesting;
 long int m_FK_CriteriaParmList;
+string m_Parm;
 long int m_Operator;
 string m_Value;
 long int m_FK_CannedEvents_CriteriaParmList;
@@ -93,12 +94,13 @@ long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[11];
+		bool is_null[12];
 	
 	public:
 		long int PK_CriteriaParm_get();
 long int FK_CriteriaParmNesting_get();
 long int FK_CriteriaParmList_get();
+string Parm_get();
 long int Operator_get();
 string Value_get();
 long int FK_CannedEvents_CriteriaParmList_get();
@@ -112,6 +114,7 @@ string psc_mod_get();
 		void PK_CriteriaParm_set(long int val);
 void FK_CriteriaParmNesting_set(long int val);
 void FK_CriteriaParmList_set(long int val);
+void Parm_set(string val);
 void Operator_set(long int val);
 void Value_set(string val);
 void FK_CannedEvents_CriteriaParmList_set(long int val);
@@ -122,14 +125,16 @@ void psc_frozen_set(short int val);
 void psc_mod_set(string val);
 
 		
-		bool FK_CannedEvents_CriteriaParmList_isNull();
+		bool Parm_isNull();
+bool FK_CannedEvents_CriteriaParmList_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
 bool psc_frozen_isNull();
 
 			
-		void FK_CannedEvents_CriteriaParmList_setNull(bool val);
+		void Parm_setNull(bool val);
+void FK_CannedEvents_CriteriaParmList_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -156,7 +161,7 @@ class Row_CannedEvents_CriteriaParmList* FK_CannedEvents_CriteriaParmList_getrow
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_CriteriaParm+ m_FK_CriteriaParmNesting+ m_FK_CriteriaParmList+ m_Operator+ m_Value+ m_FK_CannedEvents_CriteriaParmList+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_CriteriaParm+ m_FK_CriteriaParmNesting+ m_FK_CriteriaParmList+ m_Parm+ m_Operator+ m_Value+ m_FK_CannedEvents_CriteriaParmList+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -164,6 +169,7 @@ class Row_CannedEvents_CriteriaParmList* FK_CannedEvents_CriteriaParmList_getrow
 		string PK_CriteriaParm_asSQL();
 string FK_CriteriaParmNesting_asSQL();
 string FK_CriteriaParmList_asSQL();
+string Parm_asSQL();
 string Operator_asSQL();
 string Value_asSQL();
 string FK_CannedEvents_CriteriaParmList_asSQL();

@@ -128,15 +128,16 @@ m_Operator = 0;
 is_null[5] = false;
 is_null[6] = true;
 is_null[7] = true;
+is_null[8] = true;
 m_Required = 0;
-is_null[8] = false;
-is_null[9] = true;
+is_null[9] = false;
 is_null[10] = true;
 is_null[11] = true;
+is_null[12] = true;
 m_psc_frozen = 0;
-is_null[12] = false;
-m_psc_mod = "00000000000000";
 is_null[13] = false;
+m_psc_mod = "00000000000000";
+is_null[14] = false;
 
 
 	is_added=false;
@@ -162,6 +163,9 @@ return m_Comments;}
 short int Row_CannedEvents_CriteriaParmList::Operator_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Operator;}
+string Row_CannedEvents_CriteriaParmList::Parm_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Parm;}
 string Row_CannedEvents_CriteriaParmList::DefaultValue_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_DefaultValue;}
@@ -206,76 +210,85 @@ m_Comments = val; is_modified=true; is_null[4]=false;}
 void Row_CannedEvents_CriteriaParmList::Operator_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Operator = val; is_modified=true; is_null[5]=false;}
+void Row_CannedEvents_CriteriaParmList::Parm_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Parm = val; is_modified=true; is_null[6]=false;}
 void Row_CannedEvents_CriteriaParmList::DefaultValue_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_DefaultValue = val; is_modified=true; is_null[6]=false;}
+m_DefaultValue = val; is_modified=true; is_null[7]=false;}
 void Row_CannedEvents_CriteriaParmList::ExtraInfo_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_ExtraInfo = val; is_modified=true; is_null[7]=false;}
+m_ExtraInfo = val; is_modified=true; is_null[8]=false;}
 void Row_CannedEvents_CriteriaParmList::Required_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Required = val; is_modified=true; is_null[8]=false;}
+m_Required = val; is_modified=true; is_null[9]=false;}
 void Row_CannedEvents_CriteriaParmList::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_id = val; is_modified=true; is_null[9]=false;}
+m_psc_id = val; is_modified=true; is_null[10]=false;}
 void Row_CannedEvents_CriteriaParmList::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_batch = val; is_modified=true; is_null[10]=false;}
+m_psc_batch = val; is_modified=true; is_null[11]=false;}
 void Row_CannedEvents_CriteriaParmList::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_user = val; is_modified=true; is_null[11]=false;}
+m_psc_user = val; is_modified=true; is_null[12]=false;}
 void Row_CannedEvents_CriteriaParmList::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_frozen = val; is_modified=true; is_null[12]=false;}
+m_psc_frozen = val; is_modified=true; is_null[13]=false;}
 void Row_CannedEvents_CriteriaParmList::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_mod = val; is_modified=true; is_null[13]=false;}
+m_psc_mod = val; is_modified=true; is_null[14]=false;}
 
 		
 bool Row_CannedEvents_CriteriaParmList::Comments_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[4];}
-bool Row_CannedEvents_CriteriaParmList::DefaultValue_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_CannedEvents_CriteriaParmList::Parm_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[6];}
-bool Row_CannedEvents_CriteriaParmList::ExtraInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_CannedEvents_CriteriaParmList::DefaultValue_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[7];}
+bool Row_CannedEvents_CriteriaParmList::ExtraInfo_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[8];}
 bool Row_CannedEvents_CriteriaParmList::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[9];}
+return is_null[10];}
 bool Row_CannedEvents_CriteriaParmList::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[10];}
+return is_null[11];}
 bool Row_CannedEvents_CriteriaParmList::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[11];}
+return is_null[12];}
 bool Row_CannedEvents_CriteriaParmList::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[12];}
+return is_null[13];}
 
 			
 void Row_CannedEvents_CriteriaParmList::Comments_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[4]=val;}
-void Row_CannedEvents_CriteriaParmList::DefaultValue_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CannedEvents_CriteriaParmList::Parm_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[6]=val;}
-void Row_CannedEvents_CriteriaParmList::ExtraInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_CannedEvents_CriteriaParmList::DefaultValue_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[7]=val;}
+void Row_CannedEvents_CriteriaParmList::ExtraInfo_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[8]=val;}
 void Row_CannedEvents_CriteriaParmList::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[9]=val;}
+is_null[10]=val;}
 void Row_CannedEvents_CriteriaParmList::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[10]=val;}
+is_null[11]=val;}
 void Row_CannedEvents_CriteriaParmList::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[11]=val;}
+is_null[12]=val;}
 void Row_CannedEvents_CriteriaParmList::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[12]=val;}
+is_null[13]=val;}
 	
 
 string Row_CannedEvents_CriteriaParmList::PK_CannedEvents_CriteriaParmList_asSQL()
@@ -358,11 +371,25 @@ sprintf(buf, "%hi", m_Operator);
 return buf;
 }
 
-string Row_CannedEvents_CriteriaParmList::DefaultValue_asSQL()
+string Row_CannedEvents_CriteriaParmList::Parm_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[6])
+return "NULL";
+
+char *buf = new char[41];
+mysql_real_escape_string(table->database->db_handle, buf, m_Parm.c_str(), (unsigned long) m_Parm.size());
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
+}
+
+string Row_CannedEvents_CriteriaParmList::DefaultValue_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[7])
 return "NULL";
 
 char *buf = new char[101];
@@ -376,7 +403,7 @@ string Row_CannedEvents_CriteriaParmList::ExtraInfo_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[7])
+if (is_null[8])
 return "NULL";
 
 char *buf = new char[131071];
@@ -390,7 +417,7 @@ string Row_CannedEvents_CriteriaParmList::Required_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[8])
+if (is_null[9])
 return "NULL";
 
 char buf[32];
@@ -403,7 +430,7 @@ string Row_CannedEvents_CriteriaParmList::psc_id_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[9])
+if (is_null[10])
 return "NULL";
 
 char buf[32];
@@ -416,7 +443,7 @@ string Row_CannedEvents_CriteriaParmList::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[10])
+if (is_null[11])
 return "NULL";
 
 char buf[32];
@@ -429,7 +456,7 @@ string Row_CannedEvents_CriteriaParmList::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[11])
+if (is_null[12])
 return "NULL";
 
 char buf[32];
@@ -442,7 +469,7 @@ string Row_CannedEvents_CriteriaParmList::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[12])
+if (is_null[13])
 return "NULL";
 
 char buf[32];
@@ -455,7 +482,7 @@ string Row_CannedEvents_CriteriaParmList::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[13])
+if (is_null[14])
 return "NULL";
 
 char *buf = new char[29];
@@ -503,10 +530,10 @@ bool Table_CannedEvents_CriteriaParmList::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_CannedEvents_CriteriaParmList_asSQL()+", "+pRow->FK_CannedEvents_asSQL()+", "+pRow->FK_CriteriaParmList_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->Operator_asSQL()+", "+pRow->DefaultValue_asSQL()+", "+pRow->ExtraInfo_asSQL()+", "+pRow->Required_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_CannedEvents_CriteriaParmList_asSQL()+", "+pRow->FK_CannedEvents_asSQL()+", "+pRow->FK_CriteriaParmList_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->Operator_asSQL()+", "+pRow->Parm_asSQL()+", "+pRow->DefaultValue_asSQL()+", "+pRow->ExtraInfo_asSQL()+", "+pRow->Required_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into CannedEvents_CriteriaParmList (PK_CannedEvents_CriteriaParmList, FK_CannedEvents, FK_CriteriaParmList, Description, Comments, Operator, DefaultValue, ExtraInfo, Required, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into CannedEvents_CriteriaParmList (PK_CannedEvents_CriteriaParmList, FK_CannedEvents, FK_CriteriaParmList, Description, Comments, Operator, Parm, DefaultValue, ExtraInfo, Required, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -556,7 +583,7 @@ condition = condition + "PK_CannedEvents_CriteriaParmList=" + tmp_PK_CannedEvent
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_CannedEvents_CriteriaParmList="+pRow->PK_CannedEvents_CriteriaParmList_asSQL()+", FK_CannedEvents="+pRow->FK_CannedEvents_asSQL()+", FK_CriteriaParmList="+pRow->FK_CriteriaParmList_asSQL()+", Description="+pRow->Description_asSQL()+", Comments="+pRow->Comments_asSQL()+", Operator="+pRow->Operator_asSQL()+", DefaultValue="+pRow->DefaultValue_asSQL()+", ExtraInfo="+pRow->ExtraInfo_asSQL()+", Required="+pRow->Required_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_CannedEvents_CriteriaParmList="+pRow->PK_CannedEvents_CriteriaParmList_asSQL()+", FK_CannedEvents="+pRow->FK_CannedEvents_asSQL()+", FK_CriteriaParmList="+pRow->FK_CriteriaParmList_asSQL()+", Description="+pRow->Description_asSQL()+", Comments="+pRow->Comments_asSQL()+", Operator="+pRow->Operator_asSQL()+", Parm="+pRow->Parm_asSQL()+", DefaultValue="+pRow->DefaultValue_asSQL()+", ExtraInfo="+pRow->ExtraInfo_asSQL()+", Required="+pRow->Required_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update CannedEvents_CriteriaParmList set " + update_values_list + " where " + condition;
@@ -718,89 +745,100 @@ sscanf(row[5], "%hi", &(pRow->m_Operator));
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_DefaultValue = "";
+pRow->m_Parm = "";
 }
 else
 {
 pRow->is_null[6]=false;
-pRow->m_DefaultValue = string(row[6],lengths[6]);
+pRow->m_Parm = string(row[6],lengths[6]);
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_ExtraInfo = "";
+pRow->m_DefaultValue = "";
 }
 else
 {
 pRow->is_null[7]=false;
-pRow->m_ExtraInfo = string(row[7],lengths[7]);
+pRow->m_DefaultValue = string(row[7],lengths[7]);
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_Required = 0;
+pRow->m_ExtraInfo = "";
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%hi", &(pRow->m_Required));
+pRow->m_ExtraInfo = string(row[8],lengths[8]);
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_psc_id = 0;
+pRow->m_Required = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_psc_id));
+sscanf(row[9], "%hi", &(pRow->m_Required));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_psc_batch));
+sscanf(row[10], "%li", &(pRow->m_psc_id));
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-sscanf(row[11], "%li", &(pRow->m_psc_user));
+sscanf(row[11], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[12]=false;
-sscanf(row[12], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[12], "%li", &(pRow->m_psc_user));
 }
 
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[13]=false;
-pRow->m_psc_mod = string(row[13],lengths[13]);
+sscanf(row[13], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[14] == NULL)
+{
+pRow->is_null[14]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[14]=false;
+pRow->m_psc_mod = string(row[14],lengths[14]);
 }
 
 
@@ -978,89 +1016,100 @@ sscanf(row[5], "%hi", &(pRow->m_Operator));
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_DefaultValue = "";
+pRow->m_Parm = "";
 }
 else
 {
 pRow->is_null[6]=false;
-pRow->m_DefaultValue = string(row[6],lengths[6]);
+pRow->m_Parm = string(row[6],lengths[6]);
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_ExtraInfo = "";
+pRow->m_DefaultValue = "";
 }
 else
 {
 pRow->is_null[7]=false;
-pRow->m_ExtraInfo = string(row[7],lengths[7]);
+pRow->m_DefaultValue = string(row[7],lengths[7]);
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_Required = 0;
+pRow->m_ExtraInfo = "";
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%hi", &(pRow->m_Required));
+pRow->m_ExtraInfo = string(row[8],lengths[8]);
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_psc_id = 0;
+pRow->m_Required = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%li", &(pRow->m_psc_id));
+sscanf(row[9], "%hi", &(pRow->m_Required));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-sscanf(row[10], "%li", &(pRow->m_psc_batch));
+sscanf(row[10], "%li", &(pRow->m_psc_id));
 }
 
 if (row[11] == NULL)
 {
 pRow->is_null[11]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[11]=false;
-sscanf(row[11], "%li", &(pRow->m_psc_user));
+sscanf(row[11], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[12] == NULL)
 {
 pRow->is_null[12]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[12]=false;
-sscanf(row[12], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[12], "%li", &(pRow->m_psc_user));
 }
 
 if (row[13] == NULL)
 {
 pRow->is_null[13]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[13]=false;
-pRow->m_psc_mod = string(row[13],lengths[13]);
+sscanf(row[13], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[14] == NULL)
+{
+pRow->is_null[14]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[14]=false;
+pRow->m_psc_mod = string(row[14],lengths[14]);
 }
 
 

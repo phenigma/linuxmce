@@ -87,6 +87,7 @@ long int m_FK_CriteriaParmList;
 string m_Description;
 string m_Comments;
 short int m_Operator;
+string m_Parm;
 string m_DefaultValue;
 string m_ExtraInfo;
 short int m_Required;
@@ -96,7 +97,7 @@ long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[14];
+		bool is_null[15];
 	
 	public:
 		long int PK_CannedEvents_CriteriaParmList_get();
@@ -105,6 +106,7 @@ long int FK_CriteriaParmList_get();
 string Description_get();
 string Comments_get();
 short int Operator_get();
+string Parm_get();
 string DefaultValue_get();
 string ExtraInfo_get();
 short int Required_get();
@@ -121,6 +123,7 @@ void FK_CriteriaParmList_set(long int val);
 void Description_set(string val);
 void Comments_set(string val);
 void Operator_set(short int val);
+void Parm_set(string val);
 void DefaultValue_set(string val);
 void ExtraInfo_set(string val);
 void Required_set(short int val);
@@ -132,6 +135,7 @@ void psc_mod_set(string val);
 
 		
 		bool Comments_isNull();
+bool Parm_isNull();
 bool DefaultValue_isNull();
 bool ExtraInfo_isNull();
 bool psc_id_isNull();
@@ -141,6 +145,7 @@ bool psc_frozen_isNull();
 
 			
 		void Comments_setNull(bool val);
+void Parm_setNull(bool val);
 void DefaultValue_setNull(bool val);
 void ExtraInfo_setNull(bool val);
 void psc_id_setNull(bool val);
@@ -170,7 +175,7 @@ void CriteriaParm_D_FK_CannedEvents_CriteriaParmList_getrows(vector <class Row_C
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_CannedEvents_CriteriaParmList+ m_FK_CannedEvents+ m_FK_CriteriaParmList+ m_Description+ m_Comments+ m_Operator+ m_DefaultValue+ m_ExtraInfo+ m_Required+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_CannedEvents_CriteriaParmList+ m_FK_CannedEvents+ m_FK_CriteriaParmList+ m_Description+ m_Comments+ m_Operator+ m_Parm+ m_DefaultValue+ m_ExtraInfo+ m_Required+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -181,6 +186,7 @@ string FK_CriteriaParmList_asSQL();
 string Description_asSQL();
 string Comments_asSQL();
 string Operator_asSQL();
+string Parm_asSQL();
 string DefaultValue_asSQL();
 string ExtraInfo_asSQL();
 string Required_asSQL();

@@ -58,7 +58,8 @@ bool Criteria::EvaluateExpression(class CriteriaParm *pCriteriaParm,class EventI
 		iLValue = &pEventInfo->m_pDevice->m_dwPK_DeviceTemplate;
 		break;
 	case CRITERIAPARMLIST_Time_of_day_CONST:
-		break;
+		return true; // Not implemented at the moment
+//		break;
 	case CRITERIAPARMLIST_PK_DeviceCategory_CONST:
 		iLValue = &pEventInfo->m_pDevice->m_dwPK_DeviceCategory;
 		break;
@@ -94,8 +95,7 @@ bool Criteria::EvaluateExpression(class CriteriaParm *pCriteriaParm,class EventI
 		break;
 	case CRITERIAPARMLIST_PK_EventParameter_CONST:
 		{
-			int PK_EventParameter = atoi( StringUtils::Tokenize(sRValue, "~", pos).c_str());;
-			sRValue = StringUtils::Tokenize(sRValue, "~", pos);
+			int PK_EventParameter = atoi( pCriteriaParm->m_sParm.c_str() );
 			temp = pEventInfo->m_pMessage->m_mapParameters[PK_EventParameter];
 			sLValue = &temp;
 		}
