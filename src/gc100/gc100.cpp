@@ -1188,7 +1188,7 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 			timeout_tmp = tv1s;
 		}
 
-		if (! m_bQuit && ! m_bStopLearning && select(learn_fd + 1, &fdset, NULL, NULL, &tv1s) > 0)
+		if (timeout.tv_sec > 0 && ! m_bQuit && ! m_bStopLearning && select(learn_fd + 1, &fdset, NULL, NULL, &tv1s) > 0)
 		{
 			retval = read(learn_fd, learn_buffer, 511);
 
@@ -1259,7 +1259,8 @@ void gc100::LearningThread(LearningInfo * pLearningInfo)
 			SendCommand(CMD_Set_Text);
 		}
 	} // end if is_open_for_learning
-	m_bLearning=false;
+	m_bLearning = false;
+	m_bStopLearning = false;
 
 #pragma warning("TODO: generate screens, complete this function call")
 	//if (pLearningInfo->m_PK_Device_Orbiter)
