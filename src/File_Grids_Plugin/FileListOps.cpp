@@ -54,7 +54,7 @@ void GetDirContents(list<FileDetails *> &listFileNames,string Path, bool bSortBy
     string::size_type pos=0;
     while( (BasePath=StringUtils::Tokenize(Path,",",pos)).length() )
     {
-        if (BasePath[BasePath.length()] != '/')
+        if (BasePath[BasePath.length()-1] != '/')
             BasePath += '/';
 
         g_pPlutoLogger->Write(LV_STATUS,"Scanning dir: %s",BasePath.c_str());

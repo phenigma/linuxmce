@@ -166,6 +166,8 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 	// 1 path off the sSubDirectory and repopulates itself
 	int iDirNumber = atoi(StringUtils::Tokenize(Parms, "|", pos).c_str());
 	string sSubDirectory = StringUtils::Tokenize(Parms, "|", pos);
+	if( sSubDirectory.length()==1 && (sSubDirectory[0]=='/' || sSubDirectory[0]=='\\') )
+		sSubDirectory = "";
 
 	if( Extensions.length()>3 && Extensions.substr(0,3)=="~MT" )
 	{
@@ -198,20 +200,24 @@ g_pPlutoLogger->Write(LV_WARNING,"Starting File list");
 
 	list<FileDetails *> listFileDetails;
 	GetDirContents(listFileDetails,PathsToScan,bSortByDate,Extensions);
-g_pPlutoLogger->Write(LV_WARNING, "Build grid, actions %s GOT %d entries ", Actions.c_str(),(int) listFileDetails.size());
 
 	int iRow=0;
 	if( sSubDirectory.length() )
 	{
 		string sParent = FileUtils::BasePath(sSubDirectory) + "/";
-		pCell = new DataGridCell("Go to parent", "");
 		string newParams = Paths + "|" + Extensions + "|" + Actions + "|" + (bSortByDate ? "1" : "0")
 			+ "|" + StringUtils::itos(iDirNumber)+ "|" + sParent;
 		DCE::CMD_NOREP_Populate_Datagrid_DT CMDPDG(PK_Controller, DEVICETEMPLATE_Datagrid_Plugin_CONST, BL_SameHouse,
 			"", GridID, DATAGRID_Directory_Listing_CONST, newParams);
+		pCell = new DataGridCell("", "");
 		pCell->m_pMessage = CMDPDG.m_pMessage;
-		pCell->m_Colspan = 7;
-		pDataGrid->SetData(0, iRow++, pCell);
+		pDataGrid->SetData(0, iRow, pCell);
+
+		pCell = new DataGridCell("<-- Back (..)  " + FileUtils::FilenameWithoutPath(sSubDirectory), "");
+		pCell->m_pMessage = new Message(CMDPDG.m_pMessage);
+		pCell->m_Colspan = 6;
+		pDataGrid->SetData(1, iRow++, pCell);
+
 		pDataGrid->m_vectFileInfo.push_back(new FileListInfo(true,Paths));
 	}
 
@@ -238,7 +244,6 @@ g_pPlutoLogger->Write(LV_WARNING, "Added '%s' to datagrid", pFileDetails->m_sFil
 		{
 			if( Actions.find('P')!=string::npos )
 			{
-	g_pPlutoLogger->Write(LV_WARNING, "Added file %s with actions to datagrid", pFileDetails->m_sFileName.c_str());
 				// The Orbiter wants us to attach an action to files too
 				DCE::CMD_MH_Play_Media_Cat cmd(PK_Controller, DEVICECATEGORY_Media_Plugins_CONST, false, BL_SameHouse,
 					0 /* any device */,"" /* default remote */,pFileDetails->m_sBaseName + pFileDetails->m_sFileName,0 /* whatever media type the file is */,0 /* any master device */,"" /* current entertain area */);

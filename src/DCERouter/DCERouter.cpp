@@ -840,7 +840,10 @@ bool Router::ReceivedString(Socket *pSocket, string Line)
 		if( pos!=Line.length() && pos!=string::npos )
 		{
 			DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(PK_Device);
-			pDevice->m_sStatus_set( Line.substr(pos) );
+			if( !pDevice )
+				g_pPlutoLogger->Write(LV_CRITICAL,"Invalid Device in %s",Line.c_str());
+			else
+				pDevice->m_sStatus_set( Line.substr(pos) );
 		}
 		else
 			g_pPlutoLogger->Write(LV_CRITICAL,"Invalid Set_Status %s",Line.c_str());
@@ -853,7 +856,10 @@ bool Router::ReceivedString(Socket *pSocket, string Line)
 		if( pos!=Line.length() && pos!=string::npos )
 		{
 			DeviceData_Router *pDevice = m_mapDeviceData_Router_Find(PK_Device);
-			pDevice->m_sState_set( Line.substr(pos) );
+			if( !pDevice )
+				g_pPlutoLogger->Write(LV_CRITICAL,"Invalid Device in %s",Line.c_str());
+			else
+				pDevice->m_sState_set( Line.substr(pos) );
 		}
 		else
 			g_pPlutoLogger->Write(LV_CRITICAL,"Invalid Set_State %s",Line.c_str());

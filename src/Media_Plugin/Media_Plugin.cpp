@@ -440,7 +440,7 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
 		// this will reset the current media stream if the pMediaHandlerBase is different from the original media Handler.
 		// We should also look at the media types. If the current Media type is different then we will also do a new media stream.
 		if ( pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase != pMediaHandlerInfo->m_pMediaHandlerBase ||
-			 pEntertainArea->m_pMediaStream->m_iPK_MediaType != pMediaHandlerInfo->m_PK_MediaType )
+			 pEntertainArea->m_pMediaStream->m_iPK_MediaType != pMediaHandlerInfo->m_PK_MediaType || pMediaHandlerInfo->m_PK_MediaType==MEDIATYPE_pluto_DVD_CONST )
         {
             // We can't queue this.
 			pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );

@@ -77,6 +77,17 @@ public:
 	*/
 
 
+	/** @brief COMMAND: #29 - Simulate Mouse Click */
+	/** Simlate a mouse click at a certain position on the screen */
+		/** @param #11 Position X */
+			/**  */
+		/** @param #12 Position Y */
+			/**  */
+
+	virtual void CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y) { string sCMD_Result; CMD_Simulate_Mouse_Click(iPosition_X,iPosition_Y,sCMD_Result,NULL);};
+	virtual void CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage);
+
+
 	/** @brief COMMAND: #37 - Play Media */
 	/** This command will instruct a Media Player to play a media stream identified by a media descriptor created by the "Create Media" command. */
 		/** @param #13 Filename */
@@ -164,15 +175,6 @@ public:
 	virtual void CMD_Navigate_Prev(int iStreamID,string &sCMD_Result,Message *pMessage);
 
 
-	/** @brief COMMAND: #83 - Select Current Navigable Area */
-	/** Mark the selected area as "clicked". */
-		/** @param #41 StreamID */
-			/** The stream on which to do the navigation. */
-
-	virtual void CMD_Select_Current_Navigable_Area(int iStreamID) { string sCMD_Result; CMD_Select_Current_Navigable_Area(iStreamID,sCMD_Result,NULL);};
-	virtual void CMD_Select_Current_Navigable_Area(int iStreamID,string &sCMD_Result,Message *pMessage);
-
-
 	/** @brief COMMAND: #84 - Get Video Frame */
 	/** Get's the current video frame from the media player. */
 		/** @param #19 Data */
@@ -199,12 +201,47 @@ public:
 		/** @param #64 MenuType */
 			/** The type of menu that the user want to jump to.
 (For DVD handlers usually this applies)
-0 - Root menu
+0 - Root menu 
 1 - Title menu
 2 - Media menu */
 
 	virtual void CMD_Goto_Media_Menu(int iStreamID,int iMenuType) { string sCMD_Result; CMD_Goto_Media_Menu(iStreamID,iMenuType,sCMD_Result,NULL);};
 	virtual void CMD_Goto_Media_Menu(int iStreamID,int iMenuType,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #190 - Enter/Go */
+	/** Select the currently highlighted menu item */
+
+	virtual void CMD_EnterGo() { string sCMD_Result; CMD_EnterGo(sCMD_Result,NULL);};
+	virtual void CMD_EnterGo(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #200 - Move Up */
+	/** Move the highlighter */
+
+	virtual void CMD_Move_Up() { string sCMD_Result; CMD_Move_Up(sCMD_Result,NULL);};
+	virtual void CMD_Move_Up(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #201 - Move Down */
+	/** Move the highlighter */
+
+	virtual void CMD_Move_Down() { string sCMD_Result; CMD_Move_Down(sCMD_Result,NULL);};
+	virtual void CMD_Move_Down(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #202 - Move Left */
+	/** Move the highlighter */
+
+	virtual void CMD_Move_Left() { string sCMD_Result; CMD_Move_Left(sCMD_Result,NULL);};
+	virtual void CMD_Move_Left(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #203 - Move Right */
+	/** Move the highlighter */
+
+	virtual void CMD_Move_Right() { string sCMD_Result; CMD_Move_Right(sCMD_Result,NULL);};
+	virtual void CMD_Move_Right(string &sCMD_Result,Message *pMessage);
 
 
 	/** @brief COMMAND: #243 - Enable Broadcasting */

@@ -1,3 +1,6 @@
+#include "SDLGraphic.h"
+
+
 /*
  Orbiter
 
@@ -569,10 +572,10 @@ void Orbiter::RenderObject( DesignObj_Orbiter *pObj,  DesignObj_Orbiter *pObj_Sc
 if( pObj->m_pParentObject == pObj_Screen )
 g_pPlutoLogger->Write( LV_STATUS, "Rendering top level child %s", pObj->m_ObjectID.c_str() );
 
-    if(  pObj->m_ObjectID.find( "3296" )!=string::npos  )
+    if(  pObj->m_ObjectID.find( "2265.0.0.2038" )!=string::npos  )
         //if(  pObj->m_iBaseObjectID == 2707  )
     {
-        g_pPlutoLogger->Write( LV_STATUS, "Render control: state: %d undo: %p", pObj->m_GraphicToDisplay, pObj->m_pGraphicToUndoSelect );
+g_pPlutoLogger->Write( LV_STATUS, "Object: %s visible: %d", pObj->m_ObjectID.c_str(), (int) pObj->m_bHidden );
         int k=2;
     }
 
@@ -2395,7 +2398,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Checing room: %d ea %d against %d %d",pLocation
 			// If a room/ent area is passed in use that location instead of m_iLocation_Initial
             if( (pLocationInfo->iLocation==m_iLocation_Initial && !m_pLocationInfo_Initial) ||
 				(pLocationInfo->PK_Room==iPK_Room && pLocationInfo->PK_EntertainArea==0) ||
-				pLocationInfo->PK_EntertainArea==iPK_EntertainArea )
+				(iPK_EntertainArea && pLocationInfo->PK_EntertainArea==iPK_EntertainArea) )
             {
 g_pPlutoLogger->Write(LV_STATUS,"using location");
                 m_pLocationInfo_Initial = pLocationInfo;
@@ -3346,13 +3349,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Ignoring click because screen saver was active"
 	if(  m_pScreenHistory_Current && m_pScreenHistory_Current->m_pObj->m_dwTimeoutSeconds  )
 		CallMaintenanceInMiliseconds( m_pScreenHistory_Current->m_pObj->m_dwTimeoutSeconds * 1000, &Orbiter::Timeout, (void *) m_pScreenHistory_Current->m_pObj, true );
 
-	if( m_pDesignObj_Orbiter_ScreenSaveMenu && m_pScreenHistory_Current->m_pObj == m_pDesignObj_Orbiter_ScreenSaveMenu )
-	{
-		CMD_Set_Main_Menu("N");
-		GotoScreen(m_sMainMenu);
-		return false;
-	}
-	else if( m_pDesignObj_Orbiter_ScreenSaveMenu && !m_bBypassScreenSaver && m_pScreenHistory_Current->m_pObj != m_pDesignObj_Orbiter_ScreenSaveMenu && m_iTimeoutScreenSaver )
+	if( m_pDesignObj_Orbiter_ScreenSaveMenu && !m_bBypassScreenSaver && m_pScreenHistory_Current->m_pObj != m_pDesignObj_Orbiter_ScreenSaveMenu && m_iTimeoutScreenSaver )
 		CallMaintenanceInMiliseconds( m_iTimeoutScreenSaver * 1000, &Orbiter::ScreenSaver, NULL, true );
 	return true;
 }
@@ -4345,7 +4342,10 @@ void Orbiter::CMD_Goto_Screen(int iPK_Device,string sPK_DesignObj,string sID,str
 	if(  !pObj_New  )
     {
         g_pPlutoLogger->Write( LV_CRITICAL, "cannot find screen %s in goto", sPK_DesignObj.c_str(  ) );
-        return;
+		// Just go to the main menu since maybe we're stuck!
+		if( m_pScreenHistory_Current->m_pObj==m_pDesignObj_Orbiter_MainMenu )
+	        return;
+		pObj_New = m_pScreenHistory_Current->m_pObj;
     }
 
 	/* Sometimes we layer the same screen on top of each other, such as with new device detection
@@ -4417,6 +4417,7 @@ void Orbiter::CMD_Show_Object(string sPK_DesignObj,int iPK_Variable,string sComp
                 m_pObj_Highlighted=NULL;
 
         pObj->m_bHidden = !bShow;
+g_pPlutoLogger->Write( LV_STATUS, "Object: %s visible: %d", pObj->m_ObjectID.c_str(), (int) pObj->m_bHidden );
 
 	    m_vectObjs_NeedRedraw.push_back( pObj );  // Redraw even if the object was already in this state,  because maybe we're hiding this and something that
 		if( pObj->m_bHidden && pObj->m_pParentObject )
@@ -4953,6 +4954,7 @@ void Orbiter::CMD_Store_Variables(string &sCMD_Result,Message *pMessage)
 void Orbiter::CMD_Update_Object_Image(string sPK_DesignObj,string sType,char *pData,int iData_Size,string sDisable_Aspect_Lock,string &sCMD_Result,Message *pMessage)
 //<-dceag-c32-e->
 {
+    PLUTO_SAFETY_LOCK( cm, m_ScreenMutex );  // We don't want to allow this while we're rendering a screen
     DesignObj_Orbiter *pObj = FindObject( sPK_DesignObj );
     if(  !pObj  )
     {
@@ -5568,8 +5570,8 @@ void Orbiter::ContinuousRefresh( void *data )
 			if( pText  )
 			{
 				pText->m_sText = StringUtils::itos(	m_tTimeoutTime - time(NULL) ) + " seconds";
-				pText->m_rPosition.X = rand() * m_iImageWidth * .5 / RAND_MAX;
-				pText->m_rPosition.Y = rand() * m_iImageHeight *.9 / RAND_MAX;
+				pText->m_rPosition.X = rand() * (float) (m_iImageWidth * .5 / RAND_MAX);
+				pText->m_rPosition.Y = rand() * (float) (m_iImageHeight *.9 / RAND_MAX);
 				g_pPlutoLogger->Write(LV_STATUS,"Rand (%d %d) position (RM: %d) x: %d y: %d w: %d h: %d",rand(), rand(), (int) RAND_MAX,
 					pText->m_rPosition.X, pText->m_rPosition.Y, m_iImageWidth, m_iImageHeight);
 srand(100);
@@ -5721,7 +5723,6 @@ void Orbiter::CMD_Clear_Selected_Devices(string sPK_DesignObj,string &sCMD_Resul
     bool bDeleteSurface=true;  // Will set to false if we're going to cache
 
 	vector<PlutoGraphic*> *pVectorPlutoGraphic = pObj->m_pvectCurrentGraphic;
-
 	if(pVectorPlutoGraphic->size() == 0) //we have nothing to render
 		return;
 

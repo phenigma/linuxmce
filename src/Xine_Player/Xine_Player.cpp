@@ -273,19 +273,6 @@ void Xine_Player::CMD_Navigate_Prev(int iStreamID,string &sCMD_Result,Message *p
     m_pXineSlaveControl->selectPrevButton(iStreamID);
 }
 
-//<-dceag-c83-b->
-
-	/** @brief COMMAND: #83 - Select Current Navigable Area */
-	/** Mark the selected area as "clicked". */
-		/** @param #41 StreamID */
-			/** The stream on which to do the navigation. */
-
-void Xine_Player::CMD_Select_Current_Navigable_Area(int iStreamID,string &sCMD_Result,Message *pMessage)
-//<-dceag-c83-e->
-{
-    m_pXineSlaveControl->pushCurrentButton(iStreamID);
-}
-
 
 //<-dceag-c84-b->
 
@@ -322,7 +309,7 @@ void Xine_Player::CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,
 		/** @param #64 MenuType */
 			/** The type of menu that the user want to jump to.
 (For DVD handlers usually this applies)
-0 - Root menu
+0 - Root menu 
 1 - Title menu
 2 - Media menu */
 
@@ -396,3 +383,67 @@ string Xine_Player::GetMacAddress()
 	return pDeviceData_Base->GetMacAddress();
 }
 //<-dceag-createinst-b->!
+//<-dceag-c29-b->
+
+	/** @brief COMMAND: #29 - Simulate Mouse Click */
+	/** Simlate a mouse click at a certain position on the screen */
+		/** @param #11 Position X */
+			/**  */
+		/** @param #12 Position Y */
+			/**  */
+
+void Xine_Player::CMD_Simulate_Mouse_Click(int iPosition_X,int iPosition_Y,string &sCMD_Result,Message *pMessage)
+//<-dceag-c29-e->
+{
+}
+
+//<-dceag-c190-b->
+
+	/** @brief COMMAND: #190 - Enter/Go */
+	/** Select the currently highlighted menu item */
+
+void Xine_Player::CMD_EnterGo(string &sCMD_Result,Message *pMessage)
+//<-dceag-c190-e->
+{
+    //m_pXineSlaveControl->pushCurrentButton(iStreamID);
+}
+
+//<-dceag-c200-b->
+
+	/** @brief COMMAND: #200 - Move Up */
+	/** Move the highlighter */
+
+void Xine_Player::CMD_Move_Up(string &sCMD_Result,Message *pMessage)
+//<-dceag-c200-e->
+{
+}
+
+//<-dceag-c201-b->
+
+	/** @brief COMMAND: #201 - Move Down */
+	/** Move the highlighter */
+
+void Xine_Player::CMD_Move_Down(string &sCMD_Result,Message *pMessage)
+//<-dceag-c201-e->
+{
+}
+
+//<-dceag-c202-b->
+
+	/** @brief COMMAND: #202 - Move Left */
+	/** Move the highlighter */
+
+void Xine_Player::CMD_Move_Left(string &sCMD_Result,Message *pMessage)
+//<-dceag-c202-e->
+{
+}
+
+//<-dceag-c203-b->
+
+	/** @brief COMMAND: #203 - Move Right */
+	/** Move the highlighter */
+
+void Xine_Player::CMD_Move_Right(string &sCMD_Result,Message *pMessage)
+//<-dceag-c203-e->
+{
+}

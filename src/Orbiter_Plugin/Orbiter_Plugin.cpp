@@ -432,7 +432,7 @@ printf("Mobile orbiter detected\n");
         if(pOH_Orbiter->m_pDevice_CurrentDetected == pDeviceFrom)
         {
             pOH_Orbiter->m_iLastSignalStrength = SignalStrength;
-            g_pPlutoLogger->Write(LV_WARNING, "Redetecting the same device?");
+			g_pPlutoLogger->Write(LV_STATUS, "Redetecting the same device with strength: %d",pOH_Orbiter->m_iLastSignalStrength);
         }
         else
         {
@@ -510,6 +510,7 @@ bool Orbiter_Plugin::MobileOrbiterLinked(class Socket *pSocket,class Message *pM
     Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
     if( pRow_Device->NeedConfigure_get() == 1 || sVersion != VERSION )
     {
+g_pPlutoLogger->Write(LV_STATUS,"Phone needs file - nc: %d version: %s / %s",(int) pRow_Device->NeedConfigure_get(),sVersion.c_str(),VERSION);
         pRow_Device->NeedConfigure_set(0);
         pRow_Device->Table_Device_get()->Commit();
 

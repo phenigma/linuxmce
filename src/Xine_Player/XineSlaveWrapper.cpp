@@ -1190,6 +1190,7 @@ void XineSlaveWrapper::make_snapshot(xine_stream_t *m_pstream, string sFormat, i
 
     FILE * file;
     file = fopen("/tmp/file.png", "wb");
+g_pPlutoLogger->Write(LV_STATUS, "tmp file %p", file);
 
     int BitsPerColor;
     png_bytepp image_rows;
@@ -1215,10 +1216,12 @@ void XineSlaveWrapper::make_snapshot(xine_stream_t *m_pstream, string sFormat, i
         PNG_COLOR_TYPE_RGB,
         PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 
+g_pPlutoLogger->Write(LV_STATUS, "before png write");
     png_write_info(png_ptr, png_info);
     png_write_image(png_ptr, image_rows);
     png_write_end(png_ptr, png_info);
 
+g_pPlutoLogger->Write(LV_STATUS, "before delete");
     delete [] image_rows;
     png_destroy_write_struct(&png_ptr, &png_info);
     fclose(file);
@@ -1239,6 +1242,7 @@ void XineSlaveWrapper::make_snapshot(xine_stream_t *m_pstream, string sFormat, i
 
     read(fileDescriptor, pData, fileStat.st_size);
     close(fileDescriptor);
+g_pPlutoLogger->Write(LV_STATUS, "at end");
 
     return;
 }
