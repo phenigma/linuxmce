@@ -155,7 +155,7 @@ int main(int argc, char* argv[])
 		{
 			g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
 			pSpeech->CreateChildren();
-			pSpeech->Speech();
+			pSpeech->SpeechRun();
 			pthread_join(pSpeech->m_RequestHandlerThread, NULL);
 
 		} 

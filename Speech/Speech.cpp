@@ -68,7 +68,7 @@ void Speech::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 {
 	sCMD_Result = "UNKNOWN DEVICE";
 }
-void Speech::Speech(void) {
+void Speech::SpeechRun(void) {
 	ad_rec_t *ad;
     cont_ad_t *cont;
     int32 k, uttno, ts, uttlen, sps, endsilsamples;
