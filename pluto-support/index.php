@@ -16,9 +16,9 @@
 		case '':
 			$leftFile='documents/leftMenu';
 			$leftParams='';
-			
-			$rightFile='documents/userHome';
-			$rightParams='';
+
+			$rightFile='documents/documentDisplay';
+			$rightParams='&docID=0';
 		break;
 		case 'home':
 			$leftFile='operations/leftHome';

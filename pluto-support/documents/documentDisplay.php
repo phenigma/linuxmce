@@ -10,47 +10,45 @@ $docID=(isset($_REQUEST['docID']))?$_REQUEST['docID']:0;
 $edit=(isset($_SESSION['editVar']))?$_SESSION['editVar']:0;
 
 if($action=='form'){
-	if($docID!=0){
-		$queryDocument='SELECT * FROM Document Where PK_Document=?';
-		$res=$dbADO->Execute($queryDocument,$docID);
-		if($res->RecordCount()==0)
-		$out.='<br><br><br>Document not found';
-		else{
-			$rowDocument=$res->FetchRow();
+	$queryDocument='SELECT * FROM Document Where PK_Document='.$docID;
+	$res=$dbADO->_Execute($queryDocument);
+	if($res->RecordCount()==0)
+	$out.='<br><br><br>Document not found';
+	else{
+		$rowDocument=$res->FetchRow();
 
-			getDocumentChildsNo($docID,$dbADO);
-			$childsToDelete = $GLOBALS['childsDocumentNo'];
+		getDocumentChildsNo($docID,$dbADO);
+		$childsToDelete = $GLOBALS['childsDocumentNo'];
 
-			$out.='
+		$out.='
 		<form action="right.php" method="post" name="documentDisplay" target="_self">
 		<input type="hidden" name="section" value="'.$section.'">	
 		<input type="hidden" name="action" value="edit">
 		<input type="hidden" name="docID" value="'.$docID.'">
 				<table border="0">';
-			if(userIsAdmin(@$_SESSION['userID']) && $edit>0){
-				$out.='
+		if(userIsAdmin(@$_SESSION['userID']) && $edit>0){
+			$out.='
 					<tr>
 						<td><input type="button" name="addChild" value="Add child" onClick="javascript:self.location=\'right.php?section=documents/addDocument&parentID='.$docID.'\'"> <input type="button" name="deleteDocument" value="Delete" onClick="javascript: if (confirm(\'Are you sure you want to delete this document?'.($childsToDelete==1?' There is 1 child to delete!':($childsToDelete>0?'There are '.$childsToDelete.' childs to delete!':'')).'\')) self.location=\'right.php?section=documents/deleteDocument&docID='.$docID.'\';" /></td>
 					</tr>';
-			}
-			$out.='
+		}
+		$out.='
 					<tr>
 						<td><b>'.$rowDocument['Title'].'</b></td>
 					</tr>
 					<tr>
 						<td>'.$rowDocument['Contents'].'</td>
 					</tr>';
-			if(userIsAdmin(@$_SESSION['userID']) && $edit>0){
-				$out.='
+		if(userIsAdmin(@$_SESSION['userID']) && $edit>0){
+			$out.='
 					<tr>
 						<td><input type="submit" name="edit" value="Edit"></td>
 					</tr>';
-			}
-			$out.='
+		}
+		$out.='
 				</table>
 		</form>
 				';
-		}
 	}
 }elseif($action=='edit'){
 	$queryDocument='SELECT * FROM Document Where PK_Document=?';
