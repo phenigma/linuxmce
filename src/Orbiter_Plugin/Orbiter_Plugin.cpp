@@ -316,6 +316,21 @@ g_pPlutoLogger->Write(LV_STATUS,"in process");
     if(NULL == pUnknownDeviceInfos)
         return; //no new unknown device to process
 
+	PhoneDevice pd("",sMacAddress,0);
+	vector<Row_DHCPDevice *> vectRow_DHCPDevice;
+	ostringstream sql;
+	sql << "Mac_Range_Low<=" pd.m_iMacAddress << " AND Mac_Range_High>=" << pd.m_iMacAddress;
+	m_pDatabase_pluto_main->DHCPDevice_get()->GetRows(sql.str(),&vectRow_DHCPDevice);
+    g_pPlutoLogger->Write(LV_WARNING, "search %s returned %d rows", sql.str().c_str(), (int) vectRow_DHCPDevice.size() );
+
+	Row_DHCPDevice *pRow_DHCPDevice = vectRow_DHCPDevice.size() ? vectRow_DHCPDevice[0] : NULL;
+
+	if( pRow_DHCPDevice && pRow_DHCPDevice->FK_DeviceCategory_get()==DEVICECATEGORY_Bluetooth_Dongles_CONST )
+	{
+	    g_pPlutoLogger->Write(LV_STATUS, "skipping detection of %s.  it's just a dongle",sMacAddress.c_str());
+		return;
+	}
+
     g_pPlutoLogger->Write(LV_WARNING, "Detected unknown bluetooth device %s", sMacAddress.c_str());
 
     // A list of all the orbiters we will notify of this device's presence
@@ -335,12 +350,20 @@ g_pPlutoLogger->Write(LV_STATUS,"in process");
 
     g_pPlutoLogger->Write(LV_STATUS,"Orbiter list: %s", sOrbiterIDList.c_str());
 
-    for(itOrbiter = listOrbiter.begin(); itOrbiter != listOrbiter.end(); ++itOrbiter)
+	string Description;
+	if( pRow_DHCPDevice && pRow_DHCPDevice->FK_Manufacturer_get() )
+		Description += "  Manufacturer: " + pRow_DHCPDevice->FK_Manufacturer_getrow()->Description_get();
+	if( pRow_DHCPDevice && pRow_DHCPDevice->FK_DeviceCategory_get() )
+		Description += "  Category: " + pRow_DHCPDevice->FK_DeviceCategory_get()->Description_get();
+	if( pUnknownDeviceInfos->m_sID.length() )
+		Description += "  Bluetooth ID: " + pUnknownDeviceInfos->m_sID;
+
+	for(itOrbiter = listOrbiter.begin(); itOrbiter != listOrbiter.end(); ++itOrbiter)
     {
         int iOrbiterID = *itOrbiter;
 
 		DCE::CMD_Set_Variable CMD_Set_Variable(m_dwPK_Device, iOrbiterID, VARIABLE_Misc_Data_1_CONST, sMacAddress);
-        DCE::CMD_Set_Variable CMD_Set_Variable2(m_dwPK_Device, iOrbiterID, VARIABLE_Misc_Data_2_CONST, pUnknownDeviceInfos->m_sID);
+        DCE::CMD_Set_Variable CMD_Set_Variable2(m_dwPK_Device, iOrbiterID, VARIABLE_Misc_Data_2_CONST, Description);
         DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device, iOrbiterID, 0, StringUtils::itos(DESIGNOBJ_New_phone_detected_CONST), "", "", true);
 
         // Send them all 3 in one message for efficiency

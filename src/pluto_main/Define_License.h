@@ -3,6 +3,7 @@
 
 #define LICENSE_GPL_CONST 1
 #define LICENSE_Pluto_CONST 2
+#define LICENSE_Commercial_CONST 3
 
 #define LICENSE_TABLE "License"
 #define LICENSE_PK_LICENSE_FIELD "PK_License"
@@ -15,6 +16,8 @@
 #define LICENSE_SUMMARY_TABLE_FIELD "License.Summary"
 #define LICENSE_URL_FIELD "URL"
 #define LICENSE_URL_TABLE_FIELD "License.URL"
+#define LICENSE_REQUIRESPAYMENT_FIELD "RequiresPayment"
+#define LICENSE_REQUIRESPAYMENT_TABLE_FIELD "License.RequiresPayment"
 #define LICENSE_PSC_ID_FIELD "psc_id"
 #define LICENSE_PSC_ID_TABLE_FIELD "License.psc_id"
 #define LICENSE_PSC_BATCH_FIELD "psc_batch"

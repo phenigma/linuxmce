@@ -18,6 +18,7 @@ using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_Manufacturer.h"
 
+#include "Table_DHCPDevice.h"
 #include "Table_DeviceTemplate.h"
 #include "Table_InfraredGroup.h"
 #include "Table_Package.h"
@@ -801,6 +802,13 @@ pRow->m_psc_mod = string(row[7],lengths[7]);
 
 
 
+void Row_Manufacturer::DHCPDevice_FK_Manufacturer_getrows(vector <class Row_DHCPDevice*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_DHCPDevice *pTable = table->database->DHCPDevice_get();
+pTable->GetRows("FK_Manufacturer=" + StringUtils::itos(m_PK_Manufacturer),rows);
+}
 void Row_Manufacturer::DeviceTemplate_FK_Manufacturer_getrows(vector <class Row_DeviceTemplate*> *rows)
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);

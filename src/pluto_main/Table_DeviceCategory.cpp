@@ -21,6 +21,7 @@ using namespace std;
 
 #include "Table_CommandGroup_D_Command.h"
 #include "Table_ConfigType.h"
+#include "Table_DHCPDevice.h"
 #include "Table_DeviceCategory.h"
 #include "Table_DeviceCategory_DeviceData.h"
 #include "Table_DeviceCategory_Event.h"
@@ -924,6 +925,13 @@ void Row_DeviceCategory::ConfigType_FK_DeviceCategory_getrows(vector <class Row_
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_ConfigType *pTable = table->database->ConfigType_get();
+pTable->GetRows("FK_DeviceCategory=" + StringUtils::itos(m_PK_DeviceCategory),rows);
+}
+void Row_DeviceCategory::DHCPDevice_FK_DeviceCategory_getrows(vector <class Row_DHCPDevice*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_DHCPDevice *pTable = table->database->DHCPDevice_get();
 pTable->GetRows("FK_DeviceCategory=" + StringUtils::itos(m_PK_DeviceCategory),rows);
 }
 void Row_DeviceCategory::DeviceCategory_FK_DeviceCategory_Parent_getrows(vector <class Row_DeviceCategory*> *rows)

@@ -18,6 +18,8 @@ using namespace std;
 #include "PlutoUtils/StringUtils.h"
 #include "Table_DHCPDevice.h"
 #include "Table_DeviceTemplate.h"
+#include "Table_DeviceCategory.h"
+#include "Table_Manufacturer.h"
 
 #include "Table_DHCPDevice_DeviceData.h"
 
@@ -115,8 +117,7 @@ void Row_DHCPDevice::SetDefaultValues()
 {
 	m_PK_DHCPDevice = 0;
 is_null[0] = false;
-m_FK_DeviceTemplate = 0;
-is_null[1] = false;
+is_null[1] = true;
 m_Mac_Range_Low = 0;
 is_null[2] = false;
 m_Mac_Range_High = 0;
@@ -124,10 +125,13 @@ is_null[3] = false;
 is_null[4] = true;
 is_null[5] = true;
 is_null[6] = true;
+is_null[7] = true;
+is_null[8] = true;
+is_null[9] = true;
 m_psc_frozen = 0;
-is_null[7] = false;
+is_null[10] = false;
 m_psc_mod = "00000000000000";
-is_null[8] = false;
+is_null[11] = false;
 
 
 	is_added=false;
@@ -147,6 +151,15 @@ return m_Mac_Range_Low;}
 u_int64_t Row_DHCPDevice::Mac_Range_High_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Mac_Range_High;}
+long int Row_DHCPDevice::FK_DeviceCategory_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FK_DeviceCategory;}
+long int Row_DHCPDevice::FK_Manufacturer_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_FK_Manufacturer;}
+string Row_DHCPDevice::Description_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Description;}
 long int Row_DHCPDevice::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_id;}
@@ -176,49 +189,82 @@ m_Mac_Range_Low = val; is_modified=true; is_null[2]=false;}
 void Row_DHCPDevice::Mac_Range_High_set(u_int64_t val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Mac_Range_High = val; is_modified=true; is_null[3]=false;}
+void Row_DHCPDevice::FK_DeviceCategory_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_DeviceCategory = val; is_modified=true; is_null[4]=false;}
+void Row_DHCPDevice::FK_Manufacturer_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_FK_Manufacturer = val; is_modified=true; is_null[5]=false;}
+void Row_DHCPDevice::Description_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Description = val; is_modified=true; is_null[6]=false;}
 void Row_DHCPDevice::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_id = val; is_modified=true; is_null[4]=false;}
+m_psc_id = val; is_modified=true; is_null[7]=false;}
 void Row_DHCPDevice::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_batch = val; is_modified=true; is_null[5]=false;}
+m_psc_batch = val; is_modified=true; is_null[8]=false;}
 void Row_DHCPDevice::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_user = val; is_modified=true; is_null[6]=false;}
+m_psc_user = val; is_modified=true; is_null[9]=false;}
 void Row_DHCPDevice::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_frozen = val; is_modified=true; is_null[7]=false;}
+m_psc_frozen = val; is_modified=true; is_null[10]=false;}
 void Row_DHCPDevice::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_mod = val; is_modified=true; is_null[8]=false;}
+m_psc_mod = val; is_modified=true; is_null[11]=false;}
 
 		
-bool Row_DHCPDevice::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DHCPDevice::FK_DeviceTemplate_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[1];}
+bool Row_DHCPDevice::FK_DeviceCategory_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[4];}
-bool Row_DHCPDevice::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DHCPDevice::FK_Manufacturer_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[5];}
-bool Row_DHCPDevice::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DHCPDevice::Description_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[6];}
-bool Row_DHCPDevice::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DHCPDevice::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[7];}
+bool Row_DHCPDevice::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[8];}
+bool Row_DHCPDevice::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[9];}
+bool Row_DHCPDevice::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[10];}
 
 			
-void Row_DHCPDevice::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DHCPDevice::FK_DeviceTemplate_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[1]=val;}
+void Row_DHCPDevice::FK_DeviceCategory_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[4]=val;}
-void Row_DHCPDevice::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DHCPDevice::FK_Manufacturer_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[5]=val;}
-void Row_DHCPDevice::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DHCPDevice::Description_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[6]=val;}
-void Row_DHCPDevice::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DHCPDevice::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[7]=val;}
+void Row_DHCPDevice::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[8]=val;}
+void Row_DHCPDevice::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[9]=val;}
+void Row_DHCPDevice::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[10]=val;}
 	
 
 string Row_DHCPDevice::PK_DHCPDevice_asSQL()
@@ -273,11 +319,51 @@ sprintf(buf, "%I64i", m_Mac_Range_High);
 return buf;
 }
 
-string Row_DHCPDevice::psc_id_asSQL()
+string Row_DHCPDevice::FK_DeviceCategory_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[4])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_DeviceCategory);
+
+return buf;
+}
+
+string Row_DHCPDevice::FK_Manufacturer_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[5])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_FK_Manufacturer);
+
+return buf;
+}
+
+string Row_DHCPDevice::Description_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[6])
+return "NULL";
+
+char *buf = new char[61];
+mysql_real_escape_string(table->database->db_handle, buf, m_Description.c_str(), (unsigned long) m_Description.size());
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
+}
+
+string Row_DHCPDevice::psc_id_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[7])
 return "NULL";
 
 char buf[32];
@@ -290,7 +376,7 @@ string Row_DHCPDevice::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[5])
+if (is_null[8])
 return "NULL";
 
 char buf[32];
@@ -303,7 +389,7 @@ string Row_DHCPDevice::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[6])
+if (is_null[9])
 return "NULL";
 
 char buf[32];
@@ -316,7 +402,7 @@ string Row_DHCPDevice::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[7])
+if (is_null[10])
 return "NULL";
 
 char buf[32];
@@ -329,7 +415,7 @@ string Row_DHCPDevice::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[8])
+if (is_null[11])
 return "NULL";
 
 char *buf = new char[29];
@@ -377,10 +463,10 @@ bool Table_DHCPDevice::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_DHCPDevice_asSQL()+", "+pRow->FK_DeviceTemplate_asSQL()+", "+pRow->Mac_Range_Low_asSQL()+", "+pRow->Mac_Range_High_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_DHCPDevice_asSQL()+", "+pRow->FK_DeviceTemplate_asSQL()+", "+pRow->Mac_Range_Low_asSQL()+", "+pRow->Mac_Range_High_asSQL()+", "+pRow->FK_DeviceCategory_asSQL()+", "+pRow->FK_Manufacturer_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into DHCPDevice (PK_DHCPDevice, FK_DeviceTemplate, Mac_Range_Low, Mac_Range_High, psc_id, psc_batch, psc_user, psc_frozen) values ("+
+		string query = "insert into DHCPDevice (PK_DHCPDevice, FK_DeviceTemplate, Mac_Range_Low, Mac_Range_High, FK_DeviceCategory, FK_Manufacturer, Description, psc_id, psc_batch, psc_user, psc_frozen) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -430,7 +516,7 @@ condition = condition + "PK_DHCPDevice=" + tmp_PK_DHCPDevice;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_DHCPDevice="+pRow->PK_DHCPDevice_asSQL()+", FK_DeviceTemplate="+pRow->FK_DeviceTemplate_asSQL()+", Mac_Range_Low="+pRow->Mac_Range_Low_asSQL()+", Mac_Range_High="+pRow->Mac_Range_High_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "PK_DHCPDevice="+pRow->PK_DHCPDevice_asSQL()+", FK_DeviceTemplate="+pRow->FK_DeviceTemplate_asSQL()+", Mac_Range_Low="+pRow->Mac_Range_Low_asSQL()+", Mac_Range_High="+pRow->Mac_Range_High_asSQL()+", FK_DeviceCategory="+pRow->FK_DeviceCategory_asSQL()+", FK_Manufacturer="+pRow->FK_Manufacturer_asSQL()+", Description="+pRow->Description_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update DHCPDevice set " + update_values_list + " where " + condition;
@@ -570,56 +656,89 @@ sscanf(row[3], "%I64i", &(pRow->m_Mac_Range_High));
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_psc_id = 0;
+pRow->m_FK_DeviceCategory = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%li", &(pRow->m_psc_id));
+sscanf(row[4], "%li", &(pRow->m_FK_DeviceCategory));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_psc_batch = 0;
+pRow->m_FK_Manufacturer = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_psc_batch));
+sscanf(row[5], "%li", &(pRow->m_FK_Manufacturer));
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_psc_user = 0;
+pRow->m_Description = "";
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%li", &(pRow->m_psc_user));
+pRow->m_Description = string(row[6],lengths[6]);
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[7], "%li", &(pRow->m_psc_id));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-pRow->m_psc_mod = string(row[8],lengths[8]);
+sscanf(row[8], "%li", &(pRow->m_psc_batch));
+}
+
+if (row[9] == NULL)
+{
+pRow->is_null[9]=true;
+pRow->m_psc_user = 0;
+}
+else
+{
+pRow->is_null[9]=false;
+sscanf(row[9], "%li", &(pRow->m_psc_user));
+}
+
+if (row[10] == NULL)
+{
+pRow->is_null[10]=true;
+pRow->m_psc_frozen = 0;
+}
+else
+{
+pRow->is_null[10]=false;
+sscanf(row[10], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[11] == NULL)
+{
+pRow->is_null[11]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[11]=false;
+pRow->m_psc_mod = string(row[11],lengths[11]);
 }
 
 
@@ -775,56 +894,89 @@ sscanf(row[3], "%I64i", &(pRow->m_Mac_Range_High));
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_psc_id = 0;
+pRow->m_FK_DeviceCategory = 0;
 }
 else
 {
 pRow->is_null[4]=false;
-sscanf(row[4], "%li", &(pRow->m_psc_id));
+sscanf(row[4], "%li", &(pRow->m_FK_DeviceCategory));
 }
 
 if (row[5] == NULL)
 {
 pRow->is_null[5]=true;
-pRow->m_psc_batch = 0;
+pRow->m_FK_Manufacturer = 0;
 }
 else
 {
 pRow->is_null[5]=false;
-sscanf(row[5], "%li", &(pRow->m_psc_batch));
+sscanf(row[5], "%li", &(pRow->m_FK_Manufacturer));
 }
 
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_psc_user = 0;
+pRow->m_Description = "";
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%li", &(pRow->m_psc_user));
+pRow->m_Description = string(row[6],lengths[6]);
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[7], "%li", &(pRow->m_psc_id));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-pRow->m_psc_mod = string(row[8],lengths[8]);
+sscanf(row[8], "%li", &(pRow->m_psc_batch));
+}
+
+if (row[9] == NULL)
+{
+pRow->is_null[9]=true;
+pRow->m_psc_user = 0;
+}
+else
+{
+pRow->is_null[9]=false;
+sscanf(row[9], "%li", &(pRow->m_psc_user));
+}
+
+if (row[10] == NULL)
+{
+pRow->is_null[10]=true;
+pRow->m_psc_frozen = 0;
+}
+else
+{
+pRow->is_null[10]=false;
+sscanf(row[10], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[11] == NULL)
+{
+pRow->is_null[11]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[11]=false;
+pRow->m_psc_mod = string(row[11],lengths[11]);
 }
 
 
@@ -841,6 +993,20 @@ PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_DeviceTemplate *pTable = table->database->DeviceTemplate_get();
 return pTable->GetRow(m_FK_DeviceTemplate);
+}
+class Row_DeviceCategory* Row_DHCPDevice::FK_DeviceCategory_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_DeviceCategory *pTable = table->database->DeviceCategory_get();
+return pTable->GetRow(m_FK_DeviceCategory);
+}
+class Row_Manufacturer* Row_DHCPDevice::FK_Manufacturer_getrow()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Manufacturer *pTable = table->database->Manufacturer_get();
+return pTable->GetRow(m_FK_Manufacturer);
 }
 
 

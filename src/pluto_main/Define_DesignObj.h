@@ -1149,6 +1149,8 @@
 #define DESIGNOBJ_noconfirmationdelete_CONST 3323
 #define DESIGNOBJ_objAddGC100_CONST 3325
 #define DESIGNOBJ_mnuNewPlugAndPlayDevice_CONST 3326
+#define DESIGNOBJ_arrRooms_CONST 3327
+#define DESIGNOBJ_butRooms_CONST 3328
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

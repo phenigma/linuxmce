@@ -127,6 +127,7 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
         Row_Room *pRow_Room=vectRow_Room[iRoom];
 		if( pRow_Room->ManuallyConfigureEA_get()!=1 )
 		{
+g_pPlutoLogger->Write(LV_STATUS,"Room: %d %s is auto configure",pRow_Room->PK_Room_get(),pRow_Room->Description_get().c_str());
 			// We'll want to configure this room's entertainment area automatically.  See if there's a media director in the room
 			ListDeviceData_Router *pListMediaDirectors = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_Media_Director_CONST);
 			bool bContainsMD = false;
@@ -141,6 +142,7 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
 			bool bContainsOtherVideo=false,bContainsAudio=false;
 			if( !bContainsMD )
 			{
+g_pPlutoLogger->Write(LV_STATUS,"Room: %d %s has no md",pRow_Room->PK_Room_get(),pRow_Room->Description_get().c_str());
 				// See if there is some other video device
 				pListMediaDirectors = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_TVs_CONST);
 				if( pListMediaDirectors )
@@ -149,6 +151,7 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
 							bContainsOtherVideo = true;
 				if( !bContainsOtherVideo )
 				{
+g_pPlutoLogger->Write(LV_STATUS,"Room: %d %s has no video",pRow_Room->PK_Room_get(),pRow_Room->Description_get().c_str());
 					pListMediaDirectors = m_pRouter->m_mapDeviceByCategory_Find(DEVICECATEGORY_AV_CONST);
 					if( pListMediaDirectors )
 						for(ListDeviceData_Router::iterator it=pListMediaDirectors->begin();it!=pListMediaDirectors->end();++it)
@@ -183,6 +186,7 @@ Media_Plugin::Media_Plugin( int DeviceID, string ServerAddress, bool bConnectEve
 					bChangedEAs=true;
 
 					pRow_EntertainArea = m_pDatabase_pluto_main->EntertainArea_get()->AddRow();
+g_pPlutoLogger->Write(LV_STATUS,"set ent area %d %s to Room: %d %s has no video",pRow_EntertainArea->PK_EntertainArea_get(),pRow_EntertainArea->Description_get().c_str(),pRow_Room->PK_Room_get(),pRow_Room->Description_get().c_str());
 					pRow_EntertainArea->FK_Room_set(pRow_Room->PK_Room_get());
 					m_pDatabase_pluto_main->EntertainArea_get()->Commit();
 					AddDefaultCommandsToEntArea(pRow_EntertainArea);
@@ -418,6 +422,7 @@ void Media_Plugin::AddDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea)
 				Row_Device_EntertainArea *pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->GetRow(pDeviceData_Router->m_dwPK_Device,pRow_EntertainArea->PK_EntertainArea_get());
 				if( !pRow_Device_EntertainArea )
 				{
+g_pPlutoLogger->Write( LV_CRITICAL, "adding device %d %s to ent area %d %s",pRow_Device_EntertainArea->FK_Device_get(),pRow_Device_EntertainArea->FK_Device_getrow()->Description_get().c_str(),pRow_EntertainArea->PK_EntertainArea_get(),pRow_EntertainArea->Description_get().c_str());
 					pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->AddRow();
 					pRow_Device_EntertainArea->FK_Device_set(pDeviceData_Router->m_dwPK_Device);
 					pRow_Device_EntertainArea->FK_EntertainArea_set(pRow_EntertainArea->PK_EntertainArea_get());
@@ -439,6 +444,7 @@ void Media_Plugin::AddDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea)
 				Row_Device_EntertainArea *pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->GetRow(pDeviceData_Router->m_dwPK_Device,pRow_EntertainArea->PK_EntertainArea_get());
 				if( !pRow_Device_EntertainArea )
 				{
+g_pPlutoLogger->Write( LV_CRITICAL, "adding device %d %s to ent area %d %s",pRow_Device_EntertainArea->FK_Device_get(),pRow_Device_EntertainArea->FK_Device_getrow()->Description_get().c_str(),pRow_EntertainArea->PK_EntertainArea_get(),pRow_EntertainArea->Description_get().c_str());
 					pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->AddRow();
 					pRow_Device_EntertainArea->FK_Device_set(pDeviceData_Router->m_dwPK_Device);
 					pRow_Device_EntertainArea->FK_EntertainArea_set(pRow_EntertainArea->PK_EntertainArea_get());
@@ -451,6 +457,7 @@ void Media_Plugin::AddDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea)
 					Row_Device_EntertainArea *pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->GetRow(pDeviceData_Router_Child->m_dwPK_Device,pRow_EntertainArea->PK_EntertainArea_get());
 					if( !pRow_Device_EntertainArea )
 					{
+g_pPlutoLogger->Write( LV_CRITICAL, "adding device %d %s to ent area %d %s",pRow_Device_EntertainArea->FK_Device_get(),pRow_Device_EntertainArea->FK_Device_getrow()->Description_get().c_str(),pRow_EntertainArea->PK_EntertainArea_get(),pRow_EntertainArea->Description_get().c_str());
 						pRow_Device_EntertainArea = m_pDatabase_pluto_main->Device_EntertainArea_get()->AddRow();
 						pRow_Device_EntertainArea->FK_Device_set(pDeviceData_Router_Child->m_dwPK_Device);
 						pRow_Device_EntertainArea->FK_EntertainArea_set(pRow_EntertainArea->PK_EntertainArea_get());
@@ -596,6 +603,9 @@ void Media_Plugin::AddDeviceToEntertainArea( EntertainArea *pEntertainArea, Row_
         m_mapMediaDevice[pMediaDevice->m_pDeviceData_Router->m_dwPK_Device]=pMediaDevice;
     }
     pEntertainArea->m_mapMediaDevice[pMediaDevice->m_pDeviceData_Router->m_dwPK_Device]=pMediaDevice;
+
+g_pPlutoLogger->Write( LV_STATUS, "adding device %d %s to map ent area %d %s",pRow_Device->PK_Device_get(),pRow_Device->Description_get().c_str(),
+					  pEntertainArea->m_iPK_EntertainArea,pEntertainArea->m_sDescription.c_str());
 
     map<int, ListMediaDevice *> m_mapMediaDeviceByTemplate;  /** All the media devices in the area by device template */
     ListMediaDevice *pListMediaDevice = pEntertainArea->m_mapMediaDeviceByTemplate_Find(pRow_Device->FK_DeviceTemplate_get());

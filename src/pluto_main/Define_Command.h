@@ -270,6 +270,7 @@
 #define COMMAND_Remove_playlist_entry_CONST 271
 #define COMMAND_Restart_DCERouter_CONST 272
 #define COMMAND_EIB_Write_CONST 273
+#define COMMAND_Set_Room_For_Device_CONST 274
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

@@ -140,7 +140,8 @@ void psc_frozen_setNull(bool val);
 		
 
 		// Return the rows in other tables with foreign keys pointing here
-		void DeviceTemplate_FK_Manufacturer_getrows(vector <class Row_DeviceTemplate*> *rows);
+		void DHCPDevice_FK_Manufacturer_getrows(vector <class Row_DHCPDevice*> *rows);
+void DeviceTemplate_FK_Manufacturer_getrows(vector <class Row_DeviceTemplate*> *rows);
 void InfraredGroup_FK_Manufacturer_getrows(vector <class Row_InfraredGroup*> *rows);
 void Package_FK_Manufacturer_getrows(vector <class Row_Package*> *rows);
 

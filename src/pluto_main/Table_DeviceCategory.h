@@ -153,6 +153,7 @@ void psc_frozen_setNull(bool val);
 		// Return the rows in other tables with foreign keys pointing here
 		void CommandGroup_D_Command_FK_DeviceCategory_getrows(vector <class Row_CommandGroup_D_Command*> *rows);
 void ConfigType_FK_DeviceCategory_getrows(vector <class Row_ConfigType*> *rows);
+void DHCPDevice_FK_DeviceCategory_getrows(vector <class Row_DHCPDevice*> *rows);
 void DeviceCategory_FK_DeviceCategory_Parent_getrows(vector <class Row_DeviceCategory*> *rows);
 void DeviceCategory_DeviceData_FK_DeviceCategory_getrows(vector <class Row_DeviceCategory_DeviceData*> *rows);
 void DeviceCategory_Event_FK_DeviceCategory_getrows(vector <class Row_DeviceCategory_Event*> *rows);
