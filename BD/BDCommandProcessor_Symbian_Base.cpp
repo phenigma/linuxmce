@@ -832,7 +832,7 @@ void BDCommandProcessor_Symbian_Base::ProcessCommands(bool bCriticalRequest /*=t
 			return;
 		}
 
-		if(bCriticalRequest && IsActive()) //the object is already active.
+		if(bCriticalRequest /*&& IsActive()*/) //the object is already active.
 		{
 			LOG("Key was press, but the object is still active. Will just set a flag\n"); 
 			//GotoStage(ESendingCommand); //don't force object activation

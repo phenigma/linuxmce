@@ -73,7 +73,7 @@ void BD_CP_SimulateEvent::ParseCommand(unsigned long size, const char *data)
 
 	LOG("#	Received 'SimulateEvent' command  #\n");
 
-	//((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->SimulateEvent(m_EventType, m_key);
+	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->SimulateEvent(m_EventType, m_key);
 #endif //SYMBIAN
 
 #ifdef VIPDESIGN

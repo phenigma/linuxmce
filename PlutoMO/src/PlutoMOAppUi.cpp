@@ -703,6 +703,7 @@ void CPlutoMOAppUi::LaunchBrowser()
 //----------------------------------------------------------------------------------------------
 void CPlutoMOAppUi::SimulateEvent(long eventType, long key)
 {
+	LOG("CPlutoMOAppUi::SimulateEvent");
 	m_pVMCView->iContainer->SimulateEvent(eventType, key);
 }
 //----------------------------------------------------------------------------------------------

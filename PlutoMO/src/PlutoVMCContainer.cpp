@@ -37,6 +37,7 @@
 #include "PlutoMOAppUi.h"
 
 #include "Pluto_Main/Define_Button.h"
+#include "Logger.h"
 
 #define KEY_TIMER_INTERVAL 500000
 //------------------------------------------------------------------------------------------------------------------
@@ -550,6 +551,8 @@ TKeyResponse CPlutoVMCContainer::OfferKeyEventL(const TKeyEvent& aKeyEvent, TEve
 //------------------------------------------------------------------------------------------------------------------
 TKeyResponse CPlutoVMCContainer::OfferKeyEvent(const TKeyEvent& aKeyEvent, TEventCode aType)
 {
+	LOG("CPlutoVMCContainer::OfferKeyEvent");
+
 	//if the viewer is not visible on the screen, ignore the key pressed
 	if(!((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->m_bVMCViewerVisible)
 		return EKeyWasNotConsumed;
@@ -615,6 +618,8 @@ void CPlutoVMCContainer::HandleControlEventL(
 //------------------------------------------------------------------------------------------------------------------
 int CPlutoVMCContainer::GetSymbianKeyEventFromKeyCode(TKeyEvent& aKeyEvent, TEventCode& aType, long key)
 {
+	LOG("CPlutoVMCContainer::GetSymbianKeyEventFromKeyCode");
+
 	aKeyEvent.iRepeats = 0;
 	aType = EEventKeyDown;
 	
@@ -656,6 +661,8 @@ void CPlutoVMCContainer::SimulateEvent(long eventType, long key)
 {
 	TKeyEvent aKeyEvent;
 	TEventCode aType;
+
+	LOG("CPlutoVMCContainer::SimulateEvent");
 
 	GetSymbianKeyEventFromKeyCode(aKeyEvent, aType, key);
 	OfferKeyEvent(aKeyEvent, aType);
