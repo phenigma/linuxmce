@@ -555,6 +555,7 @@ public:
 		} data;
 	};
 
+	virtual bool PreprocessEvent( Orbiter::Event &event );
 	virtual bool ProcessEvent( Orbiter::Event &event );
 
 	void QueueEventForProcessing( void *eventData );

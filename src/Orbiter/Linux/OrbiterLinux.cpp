@@ -22,6 +22,12 @@
 #include <sstream>
 #include <sys/time.h>
 
+#include <X11/Xutil.h>
+#include <X11/Xproto.h>
+#include <X11/keysym.h>
+
+#include "pluto_main/Define_Button.h"
+
 using namespace std;
 
 OrbiterLinux::OrbiterLinux(int DeviceID,
@@ -47,7 +53,6 @@ OrbiterLinux::OrbiterLinux(int DeviceID,
 
 OrbiterLinux::~OrbiterLinux()
 {
-	m_pRecordHandler->enableRecording(this, false);
 	delete m_pRecordHandler;
 	closeDisplay();
 }
@@ -146,8 +151,8 @@ bool OrbiterLinux::resizeMoveDesktop(int x, int y, int width, int height)
 {
     if ( ! m_bYieldInput )
 	{
-        commandRatPoison(":keystodesktop on");
 		m_pRecordHandler->enableRecording(this, false);
+		commandRatPoison(":keystodesktop on");
 	}
     else
     {
@@ -158,7 +163,6 @@ bool OrbiterLinux::resizeMoveDesktop(int x, int y, int width, int height)
         height = m_nDesktopHeight;
 		m_pRecordHandler->enableRecording(this);
     }
-
 
     g_pPlutoLogger->Write(LV_STATUS, "Resizing desktop to (%d, %d) and dimensions [%dx%d]", x, y, width, height);
 
@@ -320,3 +324,54 @@ void OrbiterLinux::fixNestedDisplayName()
     g_pPlutoLogger->Write(LV_STATUS, "Using %s as the DISPLAY var for the nested server!", m_strDesktopDisplayName.c_str());
 */
 
+
+bool OrbiterLinux::PreprocessEvent(Orbiter::Event &event)
+{
+	if ( event.type != Orbiter::Event::BUTTON_DOWN && event.type != Orbiter::Event::BUTTON_UP )
+		return false;
+
+	XKeyEvent  kevent;
+	KeySym   keysym;
+	char   buf[1];
+
+	kevent.type = KeyPress;
+	kevent.display = getDisplay();
+	kevent.state = 0;
+	kevent.keycode = event.data.button.m_iPK_Button;;
+	XLookupString(&kevent, buf, sizeof(buf), &keysym, 0);
+
+	switch ( keysym )
+	{
+		case XK_F1:		event.data.button.m_iPK_Button = BUTTON_F1_CONST; break;
+		case XK_F2:		event.data.button.m_iPK_Button = BUTTON_F2_CONST; break;
+		case XK_F3:		event.data.button.m_iPK_Button = BUTTON_F3_CONST; break;
+		case XK_F4:		event.data.button.m_iPK_Button = BUTTON_F4_CONST; break;
+		case XK_F5:		event.data.button.m_iPK_Button = BUTTON_F5_CONST; break;
+
+		case XK_0: case XK_KP_0: 	event.data.button.m_iPK_Button = BUTTON_0_CONST; break;
+		case XK_1: case XK_KP_1: 	event.data.button.m_iPK_Button = BUTTON_1_CONST; break;
+		case XK_2: case XK_KP_2: 	event.data.button.m_iPK_Button = BUTTON_2_CONST; break;
+		case XK_3: case XK_KP_3: 	event.data.button.m_iPK_Button = BUTTON_3_CONST; break;
+		case XK_4: case XK_KP_4: 	event.data.button.m_iPK_Button = BUTTON_4_CONST; break;
+		case XK_5: case XK_KP_5: 	event.data.button.m_iPK_Button = BUTTON_5_CONST; break;
+		case XK_6: case XK_KP_6: 	event.data.button.m_iPK_Button = BUTTON_6_CONST; break;
+		case XK_7: case XK_KP_7: 	event.data.button.m_iPK_Button = BUTTON_7_CONST; break;
+		case XK_8: case XK_KP_8: 	event.data.button.m_iPK_Button = BUTTON_8_CONST; break;
+		case XK_9: case XK_KP_9: 	event.data.button.m_iPK_Button = BUTTON_9_CONST; break;
+
+		case XK_Up:			event.data.button.m_iPK_Button = BUTTON_Up_Arrow_CONST; break;
+		case XK_Down:		event.data.button.m_iPK_Button = BUTTON_Down_Arrow_CONST; break;
+		case XK_Left:		event.data.button.m_iPK_Button = BUTTON_Left_Arrow_CONST; break;
+		case XK_Right:		event.data.button.m_iPK_Button = BUTTON_Right_Arrow_CONST; break;
+
+		default:
+			if ( XK_a <= keysym && keysym <= XK_z )
+				event.data.button.m_iPK_Button = BUTTON_a_CONST + keysym - XK_a;
+			else if ( XK_A <= keysym && keysym <= XK_Z )
+				event.data.button.m_iPK_Button = BUTTON_A_CONST + keysym - XK_A;
+			else
+				event.type = Orbiter::Event::NOT_PROCESSED;
+	}
+
+	g_pPlutoLogger->Write(LV_STATUS, "The keysym was %d, the final event type %d", keysym, event.type);
+}

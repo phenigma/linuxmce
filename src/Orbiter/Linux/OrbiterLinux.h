@@ -61,6 +61,8 @@ public:
     virtual void RenderScreen();
     virtual void reinitGraphics();
     virtual void Initialize(GraphicType Type);
+
+	virtual bool PreprocessEvent( Orbiter::Event &event );
     virtual Display *getDisplay();
 	virtual Window getWindow();
 

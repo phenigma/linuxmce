@@ -1,141 +1,158 @@
 
-#include "X11/Xproto.h"
 #include "DCE/Logger.h"
 #include "XRecordExtensionHandler.h"
+
+#include "pluto_main/Define_Button.h"
+
+#include <X11/Xutil.h>
+#include <X11/Xproto.h>
+#include <X11/keysym.h>
+
 
 using namespace DCE;
 using namespace std;
 
 XRecordExtensionHandler::XRecordExtensionHandler(string displayName)
+	: m_strDisplayName(displayName), m_bShouldRecord(false), m_bShouldQuit(false), m_bIsRecording(false)
 {
-	int iMinorVersion, iMajorVersion;
-
-	m_pDisplay = XOpenDisplay(getenv(displayName.c_str()));
-	m_bCanUseRecord = true;
-
-	XLockDisplay(m_pDisplay);
-	XSynchronize(m_pDisplay, True);
-	if ( ! XRecordQueryVersion(m_pDisplay, &iMinorVersion, &iMajorVersion) )
-	{
-		g_pPlutoLogger->Write(LV_STATUS, "XRecord extension not available.");
-		m_bCanUseRecord = false;
-		return;
-	}
-
 	pthread_mutex_init(&m_mutexCondition, NULL);
 	pthread_cond_init(&m_condition, NULL);
 
-	g_pPlutoLogger->Write(LV_STATUS, "Available XRecord extension with version %d.%d.", iMajorVersion, iMinorVersion);
-
-	m_RecordRange = XRecordAllocRange();
-
-	m_RecordClient = XRecordAllClients;
-
-	m_RecordRange->device_events.first = KeyPress;
-    m_RecordRange->device_events.last = ButtonRelease;
-
-//  	m_RecordRange->device_events.first = KeyPress;
-//     m_RecordRange->device_events.last = LASTEvent;
-
-		// see X11/XProto.h for defines (we want nothing)
-    m_RecordRange->core_requests.first = X_NoOperation;
-    m_RecordRange->core_requests.last = X_NoOperation;
-
-    m_RecordRange->core_replies.first = X_NoOperation;
-    m_RecordRange->core_replies.last = X_NoOperation;
-
-		// see X11/X.h for defines (we want nothing)
-	m_RecordRange->errors.first = Success;
-    m_RecordRange->errors.last = Success;
-
-		// no extensions
-    m_RecordRange->ext_requests.ext_major.first = 0;
-	m_RecordRange->ext_requests.ext_major.last = 0;
-	m_RecordRange->ext_requests.ext_minor.first = 0;
-	m_RecordRange->ext_requests.ext_minor.last = 0;
-
-	m_RecordRange->ext_replies.ext_major.first = 0;
-	m_RecordRange->ext_replies.ext_major.last = 0;
-    m_RecordRange->ext_replies.ext_minor.first = 0;
-    m_RecordRange->ext_replies.ext_minor.last = 0;
-
-	m_RecordingContext = XRecordCreateContext(m_pDisplay, 0, &m_RecordClient, 1, &m_RecordRange, 1);
-	XSynchronize(m_pDisplay, False);
-	XUnlockDisplay(m_pDisplay);
-
-	m_bShouldRecord = false;
-	m_bShouldQuit = false;
-	m_bIsRecording = false;
 	pthread_create(&m_processingThread, NULL, recordingThreadMainFunction, this);
 }
 
 XRecordExtensionHandler::~XRecordExtensionHandler()
 {
+	g_pPlutoLogger->Write(LV_STATUS, "Marking as quit");
 	m_bShouldQuit = true;
-	enableRecording(NULL, false);
+
+	g_pPlutoLogger->Write(LV_STATUS, "Disabling recording");
+	enableRecording(NULL, false); // stop any recording taking place. This will not put the thread of the cond_wait if it is there.
+	g_pPlutoLogger->Write(LV_STATUS, "Signaling the condition");
+	pthread_cond_signal(&m_condition); // if it is there it will be put out.
+
+	g_pPlutoLogger->Write(LV_STATUS, "Joining the theread");
 	pthread_join(m_processingThread, NULL);
+	g_pPlutoLogger->Write(LV_STATUS, "Done");
 }
 
 void *XRecordExtensionHandler::recordingThreadMainFunction(void *arguments)
 {
-	XRecordExtensionHandler *pXRecordObject = (XRecordExtensionHandler*)arguments;
+	int 		iMinorVersion, iMajorVersion;
+	XRecordExtensionHandler 	*pXRecordObject;
+	XRecordRange 				*recordRange;
+	XRecordContext 				recordingContext;
+    XRecordClientSpec 			recordClient;
+	Display 					*pDisplay;
 
-	while ( true )
+	pXRecordObject = (XRecordExtensionHandler*)arguments;
+
+	pDisplay = XOpenDisplay(getenv(pXRecordObject->m_strDisplayName.c_str()));
+	if ( ! XRecordQueryVersion(pDisplay, &iMinorVersion, &iMajorVersion) )
 	{
-		if ( pXRecordObject->m_bShouldQuit )
-		{
-			g_pPlutoLogger->Write(LV_STATUS, "XRecord handler thread quitting\n");
-			return NULL;
-		}
-
-		if ( pXRecordObject->m_bShouldRecord )
-		{
-			g_pPlutoLogger->Write(LV_STATUS, "Enabling recording context");
-			if ( XRecordEnableContext(
-						pXRecordObject->m_pDisplay,
-						pXRecordObject->m_RecordingContext,
-						(XRecordInterceptProc)&XRecordExtensionHandler::XRecordingDataCallback,
-						(char*)pXRecordObject) == false)
-				g_pPlutoLogger->Write(LV_STATUS, "Could not enable recording context!");
-		}
-
-		if ( pXRecordObject->m_bShouldQuit )
-		{
-			g_pPlutoLogger->Write(LV_STATUS, "XRecord handler thread quitting\n");
-			return NULL;
-		}
-
-		pthread_mutex_lock(&pXRecordObject->m_mutexCondition);
-		pthread_cond_wait(&pXRecordObject->m_condition, &pXRecordObject->m_mutexCondition);
-		pthread_mutex_unlock(&pXRecordObject->m_mutexCondition);
+		g_pPlutoLogger->Write(LV_STATUS, "XRecord extension not available.");
+		return NULL;
 	}
 
+	g_pPlutoLogger->Write(LV_STATUS, "Available XRecord extension with version %d.%d.", iMajorVersion, iMinorVersion);
+
+	recordRange = XRecordAllocRange();
+
+	recordClient = XRecordAllClients;
+
+	recordRange->device_events.first = KeyPress;
+    recordRange->device_events.last = ButtonRelease;
+
+    recordRange->core_requests.first = X_NoOperation;
+    recordRange->core_requests.last = X_NoOperation;
+
+    recordRange->core_replies.first = X_NoOperation;
+    recordRange->core_replies.last = X_NoOperation;
+
+	recordRange->errors.first = Success;
+    recordRange->errors.last = Success;
+
+    recordRange->ext_requests.ext_major.first = 0;
+	recordRange->ext_requests.ext_major.last = 0;
+	recordRange->ext_requests.ext_minor.first = 0;
+	recordRange->ext_requests.ext_minor.last = 0;
+
+	recordRange->ext_replies.ext_major.first = 0;
+	recordRange->ext_replies.ext_major.last = 0;
+    recordRange->ext_replies.ext_minor.first = 0;
+    recordRange->ext_replies.ext_minor.last = 0;
+
+	recordingContext = XRecordCreateContext(pDisplay, 0, &recordClient, 1, &recordRange, 1);
+
+	pXRecordObject->m_pDisplay = pDisplay;
+
+	XLockDisplay(pDisplay);
+	pXRecordObject->m_bIsRecording = false;
+	while ( true )
+	{
+		if ( pXRecordObject->m_bShouldRecord && ! pXRecordObject->m_bIsRecording )
+		{
+			pXRecordObject->m_bIsRecording = true;
+
+			g_pPlutoLogger->Write(LV_WARNING, " enabling 1 ");
+			if ( XRecordEnableContextAsync( pDisplay, recordingContext, (XRecordInterceptProc)&XRecordExtensionHandler::XRecordingDataCallback, (char*)pXRecordObject) == false)
+			{
+				g_pPlutoLogger->Write(LV_STATUS, "Could not enable recording context!");
+				pXRecordObject->m_bIsRecording = false;
+			}
+			g_pPlutoLogger->Write(LV_WARNING, " enabled 1 ");
+		}
+
+		if ( pXRecordObject->m_bIsRecording )
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "Processing replies");
+			XRecordProcessReplies(pDisplay);
+			usleep(50000);
+			g_pPlutoLogger->Write(LV_CRITICAL, "After processing replies");
+		}
+		else
+		{
+			g_pPlutoLogger->Write(LV_CRITICAL, "Sleeping ... ");
+			pthread_mutex_lock(&pXRecordObject->m_mutexCondition);
+			pthread_cond_wait(&pXRecordObject->m_condition, &pXRecordObject->m_mutexCondition );
+			pthread_mutex_unlock(&pXRecordObject->m_mutexCondition);
+			g_pPlutoLogger->Write(LV_CRITICAL, "Awake... ");
+
+		}
+
+
+		if ( pXRecordObject->m_bShouldQuit )
+		{
+			if ( pXRecordObject->m_bIsRecording )
+			{
+				g_pPlutoLogger->Write(LV_WARNING, " disabling 1 ");
+				XRecordDisableContext( pDisplay, recordingContext );
+				pXRecordObject->m_bIsRecording = false;
+			}
+
+			return NULL;
+		}
+
+		if ( ! pXRecordObject->m_bShouldRecord && pXRecordObject->m_bIsRecording )
+		{
+			g_pPlutoLogger->Write(LV_WARNING, " disabling 2 ");
+			XRecordDisableContext( pDisplay, recordingContext );
+			pXRecordObject->m_bIsRecording = false;
+		}
+	}
+
+	XUnlockDisplay(pDisplay);
 	return NULL;
 }
 
 bool XRecordExtensionHandler::enableRecording(Orbiter *pRecordingOrbiter, bool bEnable)
 {
-	if ( ! m_bCanUseRecord )
-		return m_bCanUseRecord;
+	m_pOrbiter = pRecordingOrbiter;
 
+	m_bShouldRecord = bEnable;
 
-	if ( m_bIsRecording && !bEnable )
-	{
-		m_bShouldRecord = false;
-		m_bIsRecording = false;
-		g_pPlutoLogger->Write(LV_STATUS, "Disabling recording context");
-		XLockDisplay(m_pDisplay);
-		XRecordDisableContext(m_pDisplay, m_RecordingContext);
-		XUnlockDisplay(m_pDisplay);
-		g_pPlutoLogger->Write(LV_STATUS, "Done disabling recording context");
-		m_pOrbiter = pRecordingOrbiter;
-	}
-	else if ( ! m_bIsRecording && bEnable )
-	{
-		m_bShouldRecord = true;
-		m_pOrbiter = pRecordingOrbiter;
-		pthread_cond_signal(&m_condition);
-	}
+	g_pPlutoLogger->Write(LV_STATUS, "Signalling record thread: %d", m_bShouldRecord);
+	pthread_cond_signal(&m_condition);
 
 	return true;
 }
@@ -145,6 +162,8 @@ void XRecordExtensionHandler::XRecordingDataCallback(XPointer pData, XRecordInte
 {
 	XRecordExtensionHandler *pRecordingHandler = (XRecordExtensionHandler*)pData;
 
+	g_pPlutoLogger->Write(LV_WARNING, "Got new event 1.");
+
 	if ( pRecordedData->category == XRecordStartOfData )
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Recording context enabled.", pthread_self());
@@ -152,8 +171,7 @@ void XRecordExtensionHandler::XRecordingDataCallback(XPointer pData, XRecordInte
 		return;
 	}
 
-	g_pPlutoLogger->Write(LV_STATUS, "Processing new event.");
-	pRecordingHandler->processXRecordToOrbiterEvent(pRecordedData, &pRecordingHandler->m_OrbiterEvent);
+	pRecordingHandler->processXRecordToOrbiterEvent(pRecordedData, &pRecordingHandler->m_OrbiterEvent, pRecordingHandler->m_pDisplay);
 	XRecordFreeData(pRecordedData);
 
 	if ( pRecordingHandler->m_pOrbiter )
@@ -164,9 +182,9 @@ void XRecordExtensionHandler::XRecordingDataCallback(XPointer pData, XRecordInte
 	}
 }
 
-void XRecordExtensionHandler::processXRecordToOrbiterEvent(XRecordInterceptData *pRecordedData, Orbiter::Event *orbiterEvent)
+void XRecordExtensionHandler::processXRecordToOrbiterEvent(XRecordInterceptData *pRecordedData, Orbiter::Event *orbiterEvent, Display *pDisplay)
 {
-	g_pPlutoLogger->Write(LV_STATUS, "Got event.");
+	g_pPlutoLogger->Write(LV_WARNING, "Got new event 2.");
 
 	switch (pRecordedData->category )
 	{
@@ -180,6 +198,7 @@ void XRecordExtensionHandler::processXRecordToOrbiterEvent(XRecordInterceptData 
 				case KeyPress: case KeyRelease: // key related events types
 					orbiterEvent->type = pxEvent->u.u.type == KeyPress ? Orbiter::Event::BUTTON_DOWN : Orbiter::Event::BUTTON_UP;
 					orbiterEvent->data.button.m_iPK_Button = pxEvent->u.u.detail;
+					// orbiterEvent->data.button.m_iPK_Button = pxEvent->u.u.detail;
 					break;
 
 				case ButtonPress:  case ButtonRelease: // mouse button related event types
