@@ -376,7 +376,7 @@ void General_Info_Plugin::CMD_Spawn_Application(string sFilename,string sName,st
             //now, exec the process
             g_pPlutoLogger->Write(LV_STATUS, "Spawning");
 
-            if ( execvp(sName, args) == -1)
+            if ( execvp(sName.c_str(), args) == -1)
                 exit(99);
         }
 
