@@ -477,6 +477,7 @@ void Database::ShowChanges()
 			pTable->GetChanges(); // This will get the adds and modifies
 			if( !pTable->DetermineDeletions( ra_Processor, g_GlobalConfig.m_sSqlCVSHost + ":" + StringUtils::itos(g_GlobalConfig.m_iSqlCVSPort), &pSocket ) )
 			{
+				delete pSocket;
 				cerr << "Unable to contact the server to determine what records were deleted" << endl;
 				throw "database error";
 			}
@@ -527,7 +528,10 @@ void Database::ShowChanges()
 		string sRepository;
 		cin >> sRepository;
 		if( sRepository=="q" || sRepository=="Q" )
+		{
+			delete pSocket;
 			return;
+		}
 
 		int iRepository = atoi(sRepository.c_str());
 		if( iRepository < 1 || iRepository > (int) vectRepository.size() )
@@ -536,7 +540,10 @@ void Database::ShowChanges()
 		{
 			Repository *pRepository = vectRepository[ iRepository-1 ];
 			if( !pRepository->ShowChanges() )
+			{
+				delete pSocket;
 				return;
+			}
 		}
 	}
 }
@@ -1370,12 +1377,11 @@ void Database::Approve( )
 		ra_Processor.AddRequest( &r_ApproveBatch );
 		DCE::Socket *pSocket=NULL;
 		while( ra_Processor.SendRequests( g_GlobalConfig.m_sSqlCVSHost + ":" + StringUtils::itos(g_GlobalConfig.m_iSqlCVSPort), &pSocket ) );
-
+		delete pSocket;
 		if( r_ApproveBatch.m_cProcessOutcome!=SUCCESSFULLY_PROCESSED )
 		{
 			ra_Processor.RemoveRequest( &r_ApproveBatch ); /**< It's going to fall out of scope, so we don't want the processor to retry */
 			cerr << "Unable to approve batch" << endl;
-			delete pSocket;
 			return;
 		}
 		cout << "Approved batch in repository: " << pRepository->Name_get() << endl;

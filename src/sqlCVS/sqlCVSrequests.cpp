@@ -35,9 +35,8 @@
 #include "R_ApproveBatch.h"
 
 #include "A_UpdateRow.h"
-
 #include "sqlCVSprocessor.h"
-
+#include "RA/RAServerSocket.h"
 
 RA_Request *RA_Processor::BuildRequestFromData( long dwSize, const char *pcData, unsigned long dwRequestID )
 {
@@ -94,8 +93,16 @@ RA_Action *RA_Processor::BuildActionFromData( long dwSize, const char *pcData, u
 	return pRA_Action;
 }
 
-RA_Processor *RA_Processor::CreateRA_Processor(class RA_Config *pRA_Config/* = NULL*/)
+RA_Processor *RA_Processor::CreateRA_Processor(class RAServerSocket *pRAServerSocket,class RA_Config *pRA_Config/* = NULL*/)
 {
-	return new sqlCVSprocessor( );
+	if( g_psqlCVSprocessor )
+	{
+		pRAServerSocket->SendString("BUSY_RETRY");
+		return NULL;
+	}
+
+	g_psqlCVSprocessor = new sqlCVSprocessor( pRAServerSocket );
+	printf("Setting g_psqlCVSprocessor %p",g_psqlCVSprocessor);
+	return g_psqlCVSprocessor;
 }
 

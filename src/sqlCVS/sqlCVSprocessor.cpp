@@ -32,6 +32,7 @@
 #include <iostream>
 #include <sstream>
 
+sqlCVSprocessor *g_psqlCVSprocessor = NULL;  // There can only be 1 running at a time
 
 int sqlCVSprocessor::UnauthorizedBatch(int psc_user_needs_to_authorize)
 {

@@ -14,13 +14,9 @@
 #include <list>
 #include <map>
 #include "PlutoUtils/MyStl.h"
+#include "DCE/Socket.h"
 
 using namespace std;
-
-namespace DCE
-{
-	class Socket;
-}
 
 /**
  * @brief request action processor class
@@ -51,7 +47,9 @@ public:
 		m_pSocket			= NULL;
     };
 
-	virtual ~RA_Processor() {}
+	virtual ~RA_Processor() 
+	{
+	}
 
     /**
      * @brief adds a request
@@ -127,7 +125,7 @@ public:
 	 * @brief Returns a pointer to the request processor.  The implementation can just return a pointer to an instance of this class unless it needs special data, like session tracking
      * @return the new RequestProcessor to handle this connection
 	 */
-	static RA_Processor *CreateRA_Processor(class RA_Config *pRA_Config = NULL);
+	static RA_Processor *CreateRA_Processor(class RAServerSocket *pRAServerSocket,class RA_Config *pRA_Config = NULL);
 };
 
 #endif

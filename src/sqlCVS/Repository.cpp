@@ -516,11 +516,15 @@ bool Repository::DetermineDeletions( )
 		 */
 		 
 		if( pTable->Repository_get( )==this && !pTable->DetermineDeletions( ra_Processor, g_GlobalConfig.m_sSqlCVSHost + ":" + StringUtils::itos(g_GlobalConfig.m_iSqlCVSPort), &pSocket ) )
+		{
+			delete pSocket;
 			return false;
+		}
 	}
 
 	// Don't need to close since we didn't change anything
 
+	delete pSocket;
 	return true; /**< We succeeded */
 }
 
@@ -556,6 +560,7 @@ bool Repository::CheckIn( )
 		
 		cerr << "Unable to commit repository to server" << endl;
 		delete pSocket;
+		pSocket=NULL;
 		if( r_CommitChanges.m_cProcessOutcome==LOGIN_FAILED )
 		{
 			cout << "The username or password was incorrect." << endl;
@@ -585,7 +590,10 @@ bool Repository::CheckIn( )
 		{
 			Table *pTable = ( *itT ).second;
 			if( pTable->Repository_get( )==this && !pTable->CheckIn( psc_user, ra_Processor, pSocket, toc_New ) )
+			{
+				delete pSocket;
 				return false;
+			}
 		}
 	}
 	
@@ -598,7 +606,10 @@ bool Repository::CheckIn( )
 		{
 			Table *pTable = ( *itT ).second;
 			if( pTable->Repository_get( )==this && !pTable->CheckIn( psc_user, ra_Processor, pSocket, toc_Modify ) )
+			{
+				delete pSocket;
 				return false;
+			}
 		}
 	}
 	
@@ -611,7 +622,10 @@ bool Repository::CheckIn( )
 		{
 			Table *pTable = ( *itT ).second;
 			if( pTable->Repository_get( )==this && !pTable->CheckIn( psc_user, ra_Processor, pSocket, toc_Delete ) )
+			{
+				delete pSocket;
 				return false;
+			}
 		}
 	}
 
@@ -627,7 +641,10 @@ bool Repository::CheckIn( )
 			pTable->m_mapUsers2ChangedRowList.clear(); // Clear it out
 			pTable->GetChanges( ); // Get the changes again, and resend any of them
 			if( pTable->Repository_get( )==this && !pTable->CheckIn( psc_user, ra_Processor, pSocket, toc_Modify ) )
+			{
+				delete pSocket;
 				return false;
+			}
 		}
 	}
 
@@ -635,6 +652,8 @@ bool Repository::CheckIn( )
 	ra_Processor.AddRequest(&r_CloseTransaction);
 	while( ra_Processor.SendRequests( g_GlobalConfig.m_sSqlCVSHost + ":" + StringUtils::itos(g_GlobalConfig.m_iSqlCVSPort), &pSocket ) );
 
+	delete pSocket;
+	pSocket=NULL;
 	if( r_CloseTransaction.m_cProcessOutcome==SUCCESSFULLY_PROCESSED )
 	{
 		// Do the commit first since the server already confirmed
@@ -677,6 +696,7 @@ bool Repository::Update( )
 		ra_Processor.RemoveRequest( &r_UpdateRepository ); /**< It's going to fall out of scope, so we don't want the processor to retry */
 		cerr << "Unable to update repository" << endl;
 		delete pSocket;
+		pSocket=NULL;
 		return false;
 	}
 
@@ -686,12 +706,18 @@ bool Repository::Update( )
 	{
 		Table *pTable = ( *it ).second;
 		if( pTable->Repository_get( )==this && !pTable->Update( ra_Processor, pSocket ) )
+		{
+			delete pSocket;
 			return false;
+		}
 	}
 
 	R_CloseTransaction r_CloseTransaction;
 	ra_Processor.AddRequest(&r_CloseTransaction);
 	while( ra_Processor.SendRequests( g_GlobalConfig.m_sSqlCVSHost + ":" + StringUtils::itos(g_GlobalConfig.m_iSqlCVSPort), &pSocket ) );
+
+	delete pSocket;
+	pSocket=NULL;
 
 	if( r_CloseTransaction.m_cProcessOutcome==SUCCESSFULLY_PROCESSED )
 		st.Commit();

@@ -49,13 +49,33 @@ bool RA_Processor::SendRequests( string sServerAddress, DCE::Socket **ppSocket )
 	if( NULL != ppSocket && NULL != *ppSocket )
 		return SendRequests(*ppSocket);  // We were already passed in a socket
 
-	// Connecting to the server
-	RAClientSocket *pSocket = new RAClientSocket( 1, sServerAddress, "foo" ); // Freed before the endif or any of the returns
-    if( !pSocket->Connect() )
-    {
-    	/** @todo check comment */
-    	//cout << "Could not connect.\n"; }
-        return false; // Connection could not be established
+	RAClientSocket *pSocket;
+	while(true)
+	{
+		// Connecting to the server
+		pSocket = new RAClientSocket( 1, sServerAddress, "foo" ); // Freed before the endif or any of the returns
+		if( !pSocket->Connect() )
+		{
+    		/** @todo check comment */
+    		//cout << "Could not connect.\n"; }
+			return false; // Connection could not be established
+		}
+
+		string sResult;
+		bool bResult = pSocket->ReceiveString(sResult);
+		if( sResult=="OK" )
+			break; // The server is ready
+		if( sResult=="BUSY_RETRY" )
+		{
+			cout << "The server is busy processing another request.  Waiting 5 seconds." << endl;
+			delete pSocket;
+			Sleep(5000);
+			continue;
+		}
+		cerr << "The server cannot process now.  Result was: " << bResult << " " << sResult << endl;
+		cout << "The server cannot process now.  Result was: " << bResult << " " << sResult << endl;
+		delete pSocket;
+		return false;
 	}
 
 	bool bResult = SendRequests(pSocket);

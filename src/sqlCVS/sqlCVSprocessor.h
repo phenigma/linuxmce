@@ -19,6 +19,8 @@ namespace sqlCVS
 	class Repository;
 }
 
+extern sqlCVSprocessor *g_psqlCVSprocessor;
+
 using namespace sqlCVS;
 
 /**
@@ -27,6 +29,8 @@ using namespace sqlCVS;
 class sqlCVSprocessor : public RA_Processor
 {
 public:
+	time_t tTime_Creation;
+	class RAServerSocket *m_pRAServerSocket;
 	sqlCVS::Table *m_pTable;	/**< The table we are currently committing */
 	vector<string> *m_pvectFields;	/**< The fields of the table @todo ask */
 	int m_i_psc_batch;
@@ -41,11 +45,21 @@ public:
 	SafetyTransaction st;
 
 	/** @brief constructor assigning null to all the pointers */
-	sqlCVSprocessor( ) : RA_Processor( 0, 1 ), st(g_GlobalConfig.m_pDatabase) { 
+	sqlCVSprocessor( RAServerSocket *pRAServerSocket ) : RA_Processor( 0, 1 ), st(g_GlobalConfig.m_pDatabase) { 
 		m_pTable=NULL; m_pvectFields=NULL; m_i_psc_batch=1; m_pRepository=NULL; m_bSupervisor=false; m_bAllAnonymous=true; m_iNew=m_iMod=m_iDel=0; 
 		m_psc_bathdr_orig=m_psc_bathdr_auth=m_psc_bathdr_unauth=m_ipsc_user_default=m_psc_user_needs_to_authorize=0;
+		tTime_Creation = time(NULL);  m_pRAServerSocket=pRAServerSocket;
 	}
-	virtual ~sqlCVSprocessor( ) { if( st.m_bIsOpen_get() ) st.Rollback(); }
+	virtual ~sqlCVSprocessor( ) 
+	{ 
+		if( st.m_bIsOpen_get() ) 
+			st.Rollback(); 
+		if( g_psqlCVSprocessor==this )
+		{
+			g_psqlCVSprocessor=NULL; 
+			printf("Clearing g_psqlCVSprocessor %p",this);
+		}
+	}
 
 	/** @brief Creates a batch for holding unauthorized transactions.  psc_user_needs_to_authorize is the user who is needed
 		to authorize the transaction, or if null, that means any user can do it.  The function will return the id of the batch
