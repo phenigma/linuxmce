@@ -180,7 +180,8 @@ function addPackageToMasterDevice($output,$dbADO) {
 					while($rowPackagesDependsOn=$resPackagesDependsOn->FetchRow()){
 						$displayedPackages[]=$rowPackagesDependsOn['FK_Package_DependsOn'];
 						$out.='<tr>
-									<td>'.$rowPackagesDependsOn['Description'].'</td>
+									<td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addPackageToMasterDevice&from=packagesList&PK_Package='.$rowPackagesDependsOn['PK_Package'].'\',\'status=0,resizable=1,width=700,height=700,toolbars=true,scrollbars=1\');">'.$rowPackagesDependsOn['Description'].'</a>
+<!--									<td>'.$rowPackagesDependsOn['Description'].'</td> -->
 									<td><input type="checkbox" name="OnlyToBuild_'.$rowPackagesDependsOn['PK_Package'].'" '.(($rowPackagesDependsOn['OnlyToBuild']==1)?'checked':'').' onClick="javascript:this.form.submit();" value="1"> Building from source</td>
 									<td><input type="submit" class="button" name="del_'.$rowPackagesDependsOn['PK_Package'].'" value="Delete"></td>
 						    	</tr>';
