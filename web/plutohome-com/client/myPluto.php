@@ -45,14 +45,11 @@ function myPluto($output,$dbADO,$conn) {
 	if(isset($_GET['redirect'])){
 		if($_GET['redirect']=='forum'){
 			header("Location: support/phpbb2/login.php?username=".$_SESSION['username']."&password=".$_SESSION['extPassword']."&login=1");
+			exit();
 		}
 		else{
-			//header("Location: ".$MantisHost."login.php?username=".$_SESSION['username']."&password=".$_SESSION['extPassword']."&login=1");
-			echo "
-			<script>
-				window.open('support/mantis/login.php?username=".$_SESSION['username']."&password=".$_SESSION['extPassword']."&login=1','_blank','');
-				self.location='index.php?section=myPluto'
-			</script>";
+			header("Location: ".$MantisHost."login.php?username=".$_SESSION['username']."&password=".$_SESSION['extPassword']."&login=1");
+			exit();
 		}
 	}
 
@@ -68,7 +65,7 @@ function myPluto($output,$dbADO,$conn) {
 					<td class="normaltext" align="right">&nbsp;</td>
       			</tr>
 				<tr>
-					<td class="normaltext" colspan="2">Visit our <a href="/support/index.php"><B>support site</B></a> to access <a href="support/index.php?section=home&package=0"><B>online documentation</B></a>, <a href="index.php?section=myPluto&redirect=forum"><B>forums</B></a>, <a href="index.php?section=myPluto&redirect=mantis"><B>bug reports</B></a>, and our <a href="support/index.php?section=document&docID=11"><B>quick start guide</B></a>.</td>
+					<td class="normaltext" colspan="2">Visit our <a href="/support/index.php"><B>support site</B></a> to access <a href="support/index.php?section=home&package=0"><B>online documentation</B></a>, <a href="index.php?section=myPluto&redirect=forum"><B>forums</B></a>, <a href="index.php?section=myPluto&redirect=mantis" target="_blank"><B>bug reports</B></a>, and our <a href="support/index.php?section=document&docID=11"><B>quick start guide</B></a>.</td>
       			</tr>	
 				<tr>
 					<td class="normaltext">&nbsp;</td>
