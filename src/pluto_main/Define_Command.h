@@ -315,6 +315,10 @@
 #define COMMAND_Wake_Device_CONST 322
 #define COMMAND_Halt_Device_CONST 323
 #define COMMAND_Set_Timeout_CONST 324
+#define COMMAND_Keep_Screen_On_CONST 325
+#define COMMAND_Tuner_3_CONST 326
+#define COMMAND_WB_CONST 327
+#define COMMAND_SW_CONST 328
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

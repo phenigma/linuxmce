@@ -465,7 +465,7 @@
 #define DESIGNOBJ_mnuProblemDevice_CONST 1970
 #define DESIGNOBJ_objYesReset_CONST 1971
 #define DESIGNOBJ_objNoReset_CONST 1972
-#define DESIGNOBJ_mnuPCOptions_CONST 1981
+#define DESIGNOBJ_mnuComputing_CONST 1981
 #define DESIGNOBJ_objCreateDoc_CONST 1982
 #define DESIGNOBJ_objCreateSpreadsheet_CONST 1983
 #define DESIGNOBJ_icoDocument_CONST 1984
@@ -1153,7 +1153,7 @@
 #define DESIGNOBJ_butRegenAllOrbiters_CONST 3329
 #define DESIGNOBJ_objExitController2_CONST 3330
 #define DESIGNOBJ_objResetUniverse2_CONST 3331
-#define DESIGNOBJ_mnuDisplayOptions_CONST 3332
+#define DESIGNOBJ_mnuDisplayPower_CONST 3332
 #define DESIGNOBJ_DisplayON_OtherControlling_CONST 3333
 #define DESIGNOBJ_mnuMyMedia_OFF_CONST 3334
 #define DESIGNOBJ_DisplayOFF_CurrentMedia_CONST 3335
@@ -1165,6 +1165,11 @@
 #define DESIGNOBJ_mnuMyMD_Halt_CONST 3341
 #define DESIGNOBJ_arrUsersPhone_CONST 3342
 #define DESIGNOBJ_butUserPhone_CONST 3343
+#define DESIGNOBJ_mnuBootHD_CONST 3344
+#define DESIGNOBJ_mnuBootNet_CONST 3345
+#define DESIGNOBJ_butMyBootHD_CONST 3346
+#define DESIGNOBJ_butMyBootNet_CONST 3347
+#define DESIGNOBJ_PowerON_OtherControlling_CONST 3348
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

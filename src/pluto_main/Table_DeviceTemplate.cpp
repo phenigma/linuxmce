@@ -175,10 +175,12 @@ is_null[20] = true;
 is_null[21] = true;
 is_null[22] = true;
 is_null[23] = true;
+is_null[24] = true;
+is_null[25] = true;
 m_psc_frozen = 0;
-is_null[24] = false;
+is_null[26] = false;
 m_psc_mod = "00000000000000";
-is_null[25] = false;
+is_null[27] = false;
 
 
 	is_added=false;
@@ -249,6 +251,12 @@ return m_InheritsMacFromPC;}
 string Row_DeviceTemplate::ConfigureScript_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_ConfigureScript;}
+string Row_DeviceTemplate::ManufacturerURL_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_ManufacturerURL;}
+string Row_DeviceTemplate::InternalURLSuffix_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_InternalURLSuffix;}
 long int Row_DeviceTemplate::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_id;}
@@ -329,21 +337,27 @@ m_InheritsMacFromPC = val; is_modified=true; is_null[19]=false;}
 void Row_DeviceTemplate::ConfigureScript_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_ConfigureScript = val; is_modified=true; is_null[20]=false;}
+void Row_DeviceTemplate::ManufacturerURL_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_ManufacturerURL = val; is_modified=true; is_null[21]=false;}
+void Row_DeviceTemplate::InternalURLSuffix_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_InternalURLSuffix = val; is_modified=true; is_null[22]=false;}
 void Row_DeviceTemplate::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_id = val; is_modified=true; is_null[21]=false;}
+m_psc_id = val; is_modified=true; is_null[23]=false;}
 void Row_DeviceTemplate::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_batch = val; is_modified=true; is_null[22]=false;}
+m_psc_batch = val; is_modified=true; is_null[24]=false;}
 void Row_DeviceTemplate::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_user = val; is_modified=true; is_null[23]=false;}
+m_psc_user = val; is_modified=true; is_null[25]=false;}
 void Row_DeviceTemplate::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_frozen = val; is_modified=true; is_null[24]=false;}
+m_psc_frozen = val; is_modified=true; is_null[26]=false;}
 void Row_DeviceTemplate::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_mod = val; is_modified=true; is_null[25]=false;}
+m_psc_mod = val; is_modified=true; is_null[27]=false;}
 
 		
 bool Row_DeviceTemplate::Comments_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -382,18 +396,24 @@ return is_null[19];}
 bool Row_DeviceTemplate::ConfigureScript_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[20];}
-bool Row_DeviceTemplate::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DeviceTemplate::ManufacturerURL_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[21];}
-bool Row_DeviceTemplate::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DeviceTemplate::InternalURLSuffix_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[22];}
-bool Row_DeviceTemplate::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DeviceTemplate::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[23];}
-bool Row_DeviceTemplate::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_DeviceTemplate::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[24];}
+bool Row_DeviceTemplate::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[25];}
+bool Row_DeviceTemplate::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[26];}
 
 			
 void Row_DeviceTemplate::Comments_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -432,18 +452,24 @@ is_null[19]=val;}
 void Row_DeviceTemplate::ConfigureScript_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[20]=val;}
-void Row_DeviceTemplate::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::ManufacturerURL_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[21]=val;}
-void Row_DeviceTemplate::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::InternalURLSuffix_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[22]=val;}
-void Row_DeviceTemplate::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[23]=val;}
-void Row_DeviceTemplate::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_DeviceTemplate::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[24]=val;}
+void Row_DeviceTemplate::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[25]=val;}
+void Row_DeviceTemplate::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[26]=val;}
 	
 
 string Row_DeviceTemplate::PK_DeviceTemplate_asSQL()
@@ -725,11 +751,39 @@ delete buf;
 return s;
 }
 
-string Row_DeviceTemplate::psc_id_asSQL()
+string Row_DeviceTemplate::ManufacturerURL_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[21])
+return "NULL";
+
+char *buf = new char[201];
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_ManufacturerURL.c_str(), (unsigned long) m_ManufacturerURL.size());
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
+}
+
+string Row_DeviceTemplate::InternalURLSuffix_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[22])
+return "NULL";
+
+char *buf = new char[101];
+mysql_real_escape_string(table->database->m_pMySQL, buf, m_InternalURLSuffix.c_str(), (unsigned long) m_InternalURLSuffix.size());
+string s=string()+"\""+buf+"\"";
+delete buf;
+return s;
+}
+
+string Row_DeviceTemplate::psc_id_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[23])
 return "NULL";
 
 char buf[32];
@@ -742,7 +796,7 @@ string Row_DeviceTemplate::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[22])
+if (is_null[24])
 return "NULL";
 
 char buf[32];
@@ -755,7 +809,7 @@ string Row_DeviceTemplate::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[23])
+if (is_null[25])
 return "NULL";
 
 char buf[32];
@@ -768,7 +822,7 @@ string Row_DeviceTemplate::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[24])
+if (is_null[26])
 return "NULL";
 
 char buf[32];
@@ -781,7 +835,7 @@ string Row_DeviceTemplate::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[25])
+if (is_null[27])
 return "NULL";
 
 char *buf = new char[29];
@@ -829,10 +883,10 @@ bool Table_DeviceTemplate::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_DeviceTemplate_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->FK_DeviceCategory_asSQL()+", "+pRow->FK_Manufacturer_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->ImplementsDCE_asSQL()+", "+pRow->IsEmbedded_asSQL()+", "+pRow->CommandLine_asSQL()+", "+pRow->IsPlugAndPlay_asSQL()+", "+pRow->IsIPBased_asSQL()+", "+pRow->IsPlugIn_asSQL()+", "+pRow->IRFrequency_asSQL()+", "+pRow->FK_StabilityStatus_asSQL()+", "+pRow->FK_Package_asSQL()+", "+pRow->DestinationDir_asSQL()+", "+pRow->FK_Users_Maintainer_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->InheritsMacFromPC_asSQL()+", "+pRow->ConfigureScript_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_DeviceTemplate_asSQL()+", "+pRow->Description_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->FK_DeviceCategory_asSQL()+", "+pRow->FK_Manufacturer_asSQL()+", "+pRow->Define_asSQL()+", "+pRow->ImplementsDCE_asSQL()+", "+pRow->IsEmbedded_asSQL()+", "+pRow->CommandLine_asSQL()+", "+pRow->IsPlugAndPlay_asSQL()+", "+pRow->IsIPBased_asSQL()+", "+pRow->IsPlugIn_asSQL()+", "+pRow->IRFrequency_asSQL()+", "+pRow->FK_StabilityStatus_asSQL()+", "+pRow->FK_Package_asSQL()+", "+pRow->DestinationDir_asSQL()+", "+pRow->FK_Users_Maintainer_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->InheritsMacFromPC_asSQL()+", "+pRow->ConfigureScript_asSQL()+", "+pRow->ManufacturerURL_asSQL()+", "+pRow->InternalURLSuffix_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL();
 
 	
-		string query = "insert into DeviceTemplate (`PK_DeviceTemplate`, `Description`, `Comments`, `FK_DeviceCategory`, `FK_Manufacturer`, `Define`, `ImplementsDCE`, `IsEmbedded`, `CommandLine`, `IsPlugAndPlay`, `IsIPBased`, `IsPlugIn`, `IRFrequency`, `FK_StabilityStatus`, `FK_Package`, `DestinationDir`, `FK_Users_Maintainer`, `FK_OperatingSystem`, `FK_Distro`, `InheritsMacFromPC`, `ConfigureScript`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
+		string query = "insert into DeviceTemplate (`PK_DeviceTemplate`, `Description`, `Comments`, `FK_DeviceCategory`, `FK_Manufacturer`, `Define`, `ImplementsDCE`, `IsEmbedded`, `CommandLine`, `IsPlugAndPlay`, `IsIPBased`, `IsPlugIn`, `IRFrequency`, `FK_StabilityStatus`, `FK_Package`, `DestinationDir`, `FK_Users_Maintainer`, `FK_OperatingSystem`, `FK_Distro`, `InheritsMacFromPC`, `ConfigureScript`, `ManufacturerURL`, `InternalURLSuffix`, `psc_id`, `psc_batch`, `psc_user`, `psc_frozen`) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->m_pMySQL, query.c_str()))
@@ -883,7 +937,7 @@ condition = condition + "`PK_DeviceTemplate`=" + tmp_PK_DeviceTemplate;
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "`PK_DeviceTemplate`="+pRow->PK_DeviceTemplate_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Comments`="+pRow->Comments_asSQL()+", `FK_DeviceCategory`="+pRow->FK_DeviceCategory_asSQL()+", `FK_Manufacturer`="+pRow->FK_Manufacturer_asSQL()+", `Define`="+pRow->Define_asSQL()+", `ImplementsDCE`="+pRow->ImplementsDCE_asSQL()+", `IsEmbedded`="+pRow->IsEmbedded_asSQL()+", `CommandLine`="+pRow->CommandLine_asSQL()+", `IsPlugAndPlay`="+pRow->IsPlugAndPlay_asSQL()+", `IsIPBased`="+pRow->IsIPBased_asSQL()+", `IsPlugIn`="+pRow->IsPlugIn_asSQL()+", `IRFrequency`="+pRow->IRFrequency_asSQL()+", `FK_StabilityStatus`="+pRow->FK_StabilityStatus_asSQL()+", `FK_Package`="+pRow->FK_Package_asSQL()+", `DestinationDir`="+pRow->DestinationDir_asSQL()+", `FK_Users_Maintainer`="+pRow->FK_Users_Maintainer_asSQL()+", `FK_OperatingSystem`="+pRow->FK_OperatingSystem_asSQL()+", `FK_Distro`="+pRow->FK_Distro_asSQL()+", `InheritsMacFromPC`="+pRow->InheritsMacFromPC_asSQL()+", `ConfigureScript`="+pRow->ConfigureScript_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
+update_values_list = update_values_list + "`PK_DeviceTemplate`="+pRow->PK_DeviceTemplate_asSQL()+", `Description`="+pRow->Description_asSQL()+", `Comments`="+pRow->Comments_asSQL()+", `FK_DeviceCategory`="+pRow->FK_DeviceCategory_asSQL()+", `FK_Manufacturer`="+pRow->FK_Manufacturer_asSQL()+", `Define`="+pRow->Define_asSQL()+", `ImplementsDCE`="+pRow->ImplementsDCE_asSQL()+", `IsEmbedded`="+pRow->IsEmbedded_asSQL()+", `CommandLine`="+pRow->CommandLine_asSQL()+", `IsPlugAndPlay`="+pRow->IsPlugAndPlay_asSQL()+", `IsIPBased`="+pRow->IsIPBased_asSQL()+", `IsPlugIn`="+pRow->IsPlugIn_asSQL()+", `IRFrequency`="+pRow->IRFrequency_asSQL()+", `FK_StabilityStatus`="+pRow->FK_StabilityStatus_asSQL()+", `FK_Package`="+pRow->FK_Package_asSQL()+", `DestinationDir`="+pRow->DestinationDir_asSQL()+", `FK_Users_Maintainer`="+pRow->FK_Users_Maintainer_asSQL()+", `FK_OperatingSystem`="+pRow->FK_OperatingSystem_asSQL()+", `FK_Distro`="+pRow->FK_Distro_asSQL()+", `InheritsMacFromPC`="+pRow->InheritsMacFromPC_asSQL()+", `ConfigureScript`="+pRow->ConfigureScript_asSQL()+", `ManufacturerURL`="+pRow->ManufacturerURL_asSQL()+", `InternalURLSuffix`="+pRow->InternalURLSuffix_asSQL()+", `psc_id`="+pRow->psc_id_asSQL()+", `psc_batch`="+pRow->psc_batch_asSQL()+", `psc_user`="+pRow->psc_user_asSQL()+", `psc_frozen`="+pRow->psc_frozen_asSQL();
 
 	
 		string query = "update DeviceTemplate set " + update_values_list + " where " + condition;
@@ -1214,56 +1268,78 @@ pRow->m_ConfigureScript = string(row[20],lengths[20]);
 if (row[21] == NULL)
 {
 pRow->is_null[21]=true;
-pRow->m_psc_id = 0;
+pRow->m_ManufacturerURL = "";
 }
 else
 {
 pRow->is_null[21]=false;
-sscanf(row[21], "%li", &(pRow->m_psc_id));
+pRow->m_ManufacturerURL = string(row[21],lengths[21]);
 }
 
 if (row[22] == NULL)
 {
 pRow->is_null[22]=true;
-pRow->m_psc_batch = 0;
+pRow->m_InternalURLSuffix = "";
 }
 else
 {
 pRow->is_null[22]=false;
-sscanf(row[22], "%li", &(pRow->m_psc_batch));
+pRow->m_InternalURLSuffix = string(row[22],lengths[22]);
 }
 
 if (row[23] == NULL)
 {
 pRow->is_null[23]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[23]=false;
-sscanf(row[23], "%li", &(pRow->m_psc_user));
+sscanf(row[23], "%li", &(pRow->m_psc_id));
 }
 
 if (row[24] == NULL)
 {
 pRow->is_null[24]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[24]=false;
-sscanf(row[24], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[24], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[25] == NULL)
 {
 pRow->is_null[25]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[25]=false;
-pRow->m_psc_mod = string(row[25],lengths[25]);
+sscanf(row[25], "%li", &(pRow->m_psc_user));
+}
+
+if (row[26] == NULL)
+{
+pRow->is_null[26]=true;
+pRow->m_psc_frozen = 0;
+}
+else
+{
+pRow->is_null[26]=false;
+sscanf(row[26], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[27] == NULL)
+{
+pRow->is_null[27]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[27]=false;
+pRow->m_psc_mod = string(row[27],lengths[27]);
 }
 
 
@@ -1608,56 +1684,78 @@ pRow->m_ConfigureScript = string(row[20],lengths[20]);
 if (row[21] == NULL)
 {
 pRow->is_null[21]=true;
-pRow->m_psc_id = 0;
+pRow->m_ManufacturerURL = "";
 }
 else
 {
 pRow->is_null[21]=false;
-sscanf(row[21], "%li", &(pRow->m_psc_id));
+pRow->m_ManufacturerURL = string(row[21],lengths[21]);
 }
 
 if (row[22] == NULL)
 {
 pRow->is_null[22]=true;
-pRow->m_psc_batch = 0;
+pRow->m_InternalURLSuffix = "";
 }
 else
 {
 pRow->is_null[22]=false;
-sscanf(row[22], "%li", &(pRow->m_psc_batch));
+pRow->m_InternalURLSuffix = string(row[22],lengths[22]);
 }
 
 if (row[23] == NULL)
 {
 pRow->is_null[23]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[23]=false;
-sscanf(row[23], "%li", &(pRow->m_psc_user));
+sscanf(row[23], "%li", &(pRow->m_psc_id));
 }
 
 if (row[24] == NULL)
 {
 pRow->is_null[24]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[24]=false;
-sscanf(row[24], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[24], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[25] == NULL)
 {
 pRow->is_null[25]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[25]=false;
-pRow->m_psc_mod = string(row[25],lengths[25]);
+sscanf(row[25], "%li", &(pRow->m_psc_user));
+}
+
+if (row[26] == NULL)
+{
+pRow->is_null[26]=true;
+pRow->m_psc_frozen = 0;
+}
+else
+{
+pRow->is_null[26]=false;
+sscanf(row[26], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[27] == NULL)
+{
+pRow->is_null[27]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[27]=false;
+pRow->m_psc_mod = string(row[27],lengths[27]);
 }
 
 

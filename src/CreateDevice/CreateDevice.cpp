@@ -196,7 +196,7 @@ void CreateDevice::CreateChildrenByCategory(int iPK_Device,int iPK_DeviceCategor
 	PlutoSqlResult result,result2;
 	MYSQL_ROW row;
 
-	string SQL = "SELECT FK_DeviceTemplate,RerouteMessagesToParent, FROM DeviceTemplate_DeviceCategory_ControlledVia WHERE AutoCreateChildren=1 AND FK_DeviceCategory=" + StringUtils::itos(iPK_DeviceCategory);
+	string SQL = "SELECT FK_DeviceTemplate,RerouteMessagesToParent,PK_DeviceTemplate_DeviceCategory_ControlledVia FROM DeviceTemplate_DeviceCategory_ControlledVia WHERE AutoCreateChildren=1 AND FK_DeviceCategory=" + StringUtils::itos(iPK_DeviceCategory);
 	if( ( result.r=mysql_query_result( SQL ) ) )
 	{
 		while( row=mysql_fetch_row( result.r ) )
@@ -207,6 +207,21 @@ void CreateDevice::CreateChildrenByCategory(int iPK_Device,int iPK_DeviceCategor
 				// Need to reroute messages to parent
 				SQL = "UPDATE Device SET FK_Device_RouteTo=" + StringUtils::itos(iPK_Device) + " WHERE PK_Device=" + StringUtils::itos(PK_Device);
 				threaded_mysql_query(SQL.c_str());
+
+				PlutoSqlResult result;
+				SQL = "SELECT FK_Pipe,FK_Command_Input,FK_Command_Output,ToChild FROM DeviceTemplate_DeviceCategory_ControlledVia_Pipe WHERE FK_DeviceTemplate_DeviceCategory_ControlledVia="+string(row[2]);
+				if( ( result.r=mysql_query_result( SQL ) ) )
+				{
+					while( row=mysql_fetch_row( result.r ) )
+					{
+						SQL = "INSERT INTO Device_Device_Pipe(FK_Device_From,FK_Device_To,FK_Pipe,FK_Command_Input,FK_Command_Output) VALUES(";
+						if( row[3] && atoi(row[3]) )
+							SQL += StringUtils::itos(PK_Device) + "," + StringUtils::itos(iPK_Device);
+						else
+							SQL += StringUtils::itos(iPK_Device) + "," + StringUtils::itos(PK_Device);
+						SQL += string(",") + (row[0] ? row[0] : "NULL") + "," + (row[1] ? row[1] : "NULL")  + "," + (row[2] ? row[2] : "NULL") + ")";
+					}
+				}
 			}
 		}
 	}
@@ -232,6 +247,21 @@ void CreateDevice::CreateChildrenByTemplate(int iPK_Device,int iPK_DeviceTemplat
 				// Need to reroute messages to parent
 				SQL = "UPDATE Device SET FK_Device_RouteTo=" + StringUtils::itos(iPK_Device) + " WHERE PK_Device=" + StringUtils::itos(PK_Device);
 				threaded_mysql_query(SQL.c_str());
+
+				PlutoSqlResult result;
+				SQL = "SELECT FK_Pipe,FK_Command_Input,FK_Command_Output,ToChild FROM DeviceTemplate_DeviceTemplate_ControlledVia_Pipe WHERE FK_DeviceTemplate_DeviceTemplate_ControlledVia="+string(row[2]);
+				if( ( result.r=mysql_query_result( SQL ) ) )
+				{
+					while( row=mysql_fetch_row( result.r ) )
+					{
+						SQL = "INSERT INTO Device_Device_Pipe(FK_Device_From,FK_Device_To,FK_Pipe,FK_Command_Input,FK_Command_Output) VALUES(";
+						if( row[3] && atoi(row[3]) )
+							SQL += StringUtils::itos(PK_Device) + "," + StringUtils::itos(iPK_Device);
+						else
+							SQL += StringUtils::itos(iPK_Device) + "," + StringUtils::itos(PK_Device);
+						SQL += string(",") + (row[0] ? row[0] : "NULL") + "," + (row[1] ? row[1] : "NULL")  + "," + (row[2] ? row[2] : "NULL") + ")";
+					}
+				}
 			}
 		}
 	}
