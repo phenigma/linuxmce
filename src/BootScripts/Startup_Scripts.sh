@@ -10,6 +10,7 @@ Device="$PK_Device"
 rm /var/log/pluto/running.pids
 rm -rf /tmp/* # I doubt that this is safe to do here
 rm -f /tmp/pluto_spawned_local_devices.txt
+chown mythtv.mythtv /etc/mythtv/mysql.txt &>/dev/null
 
 # clean up locks
 mkdir -p /usr/pluto/locks
