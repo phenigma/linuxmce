@@ -50,6 +50,11 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 
     bool bError=false; // An error parsing the command line
 
+#ifdef WINCE
+	bFullScreen = true; //full-screen by default
+	sLogger = "/Storage card/Orbiter.log";
+#endif
+
 	//parse command line
 	string::size_type pos = 0;
 
