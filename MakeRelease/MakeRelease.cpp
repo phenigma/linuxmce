@@ -1026,9 +1026,7 @@ cout << "Making CVS Checkout to temporary\n";
 
 cout << "Reading files from temporary ";
 	getcwd(direct, 255);
-	cout << "Direct: " << direct << " ";
 	FileUtils::FindFiles(MyList, direct, "*.*", true, "");
-	cout << MyList.size();
 cout << " [Done]\n";
 
 	//reading actual directory list
@@ -1066,7 +1064,7 @@ cout << "Copying Files\n";
 
 			if(cmd.compare (cmd2) == 0) {
 				//if the file exist we overwrite it
-				cout << "Older File Detected <-\n";
+				cout << "Updated File Detected <-\n";
 				cmd = FileUtils::BasePath(pFileInfo->m_sSource);
 				pos = cmd.rfind("/");
 				length = cmd.length();
@@ -1197,7 +1195,7 @@ cout << "Copying Files\n";
 		flag = false;
 	}
 
-	cout<<"\n Making commit ";
+	cout<<"\n\nMaking commit ";
 	//Updating files from the server to the sourceforge
 	cmd = "cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/" + pRow_Package_Source->Name_get() + 
 		" commit -m 'Automatic Update'";
