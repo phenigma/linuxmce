@@ -144,7 +144,7 @@ Socket::Socket(string Name,string sIPAddress) : m_SocketMutex("socket mutex " + 
 Socket::~Socket()
 {
 #ifdef DEBUG
-	g_pPlutoLogger->Write( LV_SOCKET, "deleting socket %p %s", this, m_sName.c_str() );
+	g_pPlutoLogger->Write( LV_SOCKET, "Socket::~Socket(): deleting socket @%p %s (socket id in destructor: %d)", this, m_sName.c_str(), m_Socket );
 #endif
 
 	if ( m_Socket != INVALID_SOCKET )
@@ -713,43 +713,41 @@ bool Socket::ReceiveData( int iSize, char *pcData )
 #ifdef DEBUG
 				g_pPlutoLogger->Write( LV_WARNING, "Socket::ReceiveData failed, bytes left %d start: %d 1: %d 1b: %d 2: %d 2b: %d socket %d %s",
 				m_iSockBufBytesLeft, (int) clk_start, (int) clk_select1, (int) clk_select1b, (int) clk_select2, (int) clk_select2b, m_Socket, m_sName.c_str() );
-#ifdef LL_DEBUG_FILE
 
-	PLUTO_SAFETY_LOCK_ERRORSONLY( ll, (*m_LL_DEBUG_Mutex) );
+	#ifdef LL_DEBUG_FILE
+				PLUTO_SAFETY_LOCK_ERRORSONLY( ll, (*m_LL_DEBUG_Mutex) );
 
-	FILE *file = fopen( m_pcSockLogFile, "a" );
-	if( !file ) // check
-	{
-		cout << "cannot open file13: " << m_pcSockLogFile << ": " << strerror(errno) << endl;
-		cerr << "cannot open file13: " << m_pcSockLogFile << ": " << strerror(errno) << endl;
-		file = fopen( m_pcSockLogErrorFile, "a" );
+				FILE *file = fopen( m_pcSockLogFile, "a" );
+				if( !file ) // check
+				{
+					cout << "cannot open file13: " << m_pcSockLogFile << ": " << strerror(errno) << endl;
+					cerr << "cannot open file13: " << m_pcSockLogFile << ": " << strerror(errno) << endl;
+					file = fopen( m_pcSockLogErrorFile, "a" );
 
-		if( !file )
-		{
-			cout << "cannot open file14: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
-			cerr << "cannot open file14: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
-			system( (string("lsof >> /var/log/pluto/lsof_") + StringUtils::itos((int) time(NULL)) + ".newlog").c_str() );
-		}
-		// Don't check -- if this still fails just throw an exception something is very wrong!
-		fprintf( file, "Cannot write to regular sock log\n" );
-		fprintf( file, "%d-%s\tClosing socket at line 592\n\n", m_Socket, Module );
-		fprintf( file, "Socket::ReceiveData failed, bytes left %d start: %d 1: %d 1b: %d 2: %d 2b: %d socket %d %s",
-				m_iSockBufBytesLeft, (int) clk_start, (int) clk_select1, (int) clk_select1b, (int) clk_select2, (int) clk_select2b, m_Socket, m_sName.c_str() );
-		fclose( file );
-	}
-	else
-	{
-		fprintf( file, "%d-%s\tClosing socket at line 592\n\n", m_Socket, Module);
-		fprintf( file, "Socket::ReceiveData failed, bytes left %d start: %d 1: %d 1b: %d 2: %d 2b: %d socket %d %s",
-				m_iSockBufBytesLeft, (int) clk_start, (int) clk_select1, (int) clk_select1b, (int) clk_select2, (int) clk_select2b, m_Socket, m_sName.c_str() );
-		fclose( file );
-	}
-	ll.Release();
-
-#endif
+					if( !file )
+					{
+						cout << "cannot open file14: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
+						cerr << "cannot open file14: " << m_pcSockLogErrorFile << ": " << strerror(errno) << endl;
+						system( (string("lsof >> /var/log/pluto/lsof_") + StringUtils::itos((int) time(NULL)) + ".newlog").c_str() );
+					}
+					// Don't check -- if this still fails just throw an exception something is very wrong!
+					fprintf( file, "Cannot write to regular sock log\n" );
+					fprintf( file, "%d-%s\tClosing socket at line 592\n\n", m_Socket, Module );
+					fprintf( file, "Socket::ReceiveData failed, bytes left %d start: %d 1: %d 1b: %d 2: %d 2b: %d socket %d %s",
+							m_iSockBufBytesLeft, (int) clk_start, (int) clk_select1, (int) clk_select1b, (int) clk_select2, (int) clk_select2b, m_Socket, m_sName.c_str() );
+					fclose( file );
+				}
+				else
+				{
+					fprintf( file, "%d-%s\tClosing socket at line 592\n\n", m_Socket, Module);
+					fprintf( file, "Socket::ReceiveData failed, bytes left %d start: %d 1: %d 1b: %d 2: %d 2b: %d socket %d %s",
+							m_iSockBufBytesLeft, (int) clk_start, (int) clk_select1, (int) clk_select1b, (int) clk_select2, (int) clk_select2b, m_Socket, m_sName.c_str() );
+					fclose( file );
+				}
+				ll.Release();
+	#endif
 
 #else
-
 				g_pPlutoLogger->Write( LV_STATUS, "Socket::ReceiveData failed, bytes left %d socket %d %s", m_iSockBufBytesLeft, m_Socket, m_sName.c_str() );
 #endif
 				return false;

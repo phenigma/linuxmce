@@ -67,9 +67,9 @@ void *ServerSocket::BeginWapClientThread( void *SvSock )
 }
 
 ServerSocket::ServerSocket( SocketListener *pListener, SOCKET Sock, string sName, string sIPAddress ) :
-	m_ConnectionMutex( "connection " + sName ), Socket( sName, sIPAddress )
+	Socket( sName, sIPAddress ), m_ConnectionMutex( "connection " + sName )
 {
-	m_dwPK_Device = -1;
+	m_dwPK_Device = (long unsigned int)-1;
 	m_Socket = Sock;
 	m_pListener = pListener;
 	m_bThreadRunning=true;
@@ -79,23 +79,19 @@ ServerSocket::ServerSocket( SocketListener *pListener, SOCKET Sock, string sName
 
 ServerSocket::~ServerSocket()
 {
-//	m_pListener->m_bTerminate = true;
-
 #ifdef DEBUG
-	g_pPlutoLogger->Write( LV_STATUS, "Deleting socket %p...", this );
+	g_pPlutoLogger->Write( LV_STATUS, "ServerSocket::~ServerSocket() Deleting socket @%p. Socket id in destructor: %d.", this, m_Socket );
 #endif
-	g_pPlutoLogger->Write( LV_STATUS, "Deleting socket %p...", this );
-
 
 	if( m_Socket != INVALID_SOCKET )
- 	{
 		closesocket( m_Socket );
-		close(m_Socket);
-	}
+
+#ifdef DEBUG
+	g_pPlutoLogger->Write( LV_STATUS, "ServerSocket::~ServerSocket(): @%p Is it running %d?", this, m_bThreadRunning);
+#endif
 
 	while( m_bThreadRunning )
 		Sleep(10);
-
 
 	m_pListener->RemoveSocket(this);
 
@@ -132,7 +128,6 @@ bool ServerSocket::_Run()
 #ifdef DEBUG
 	g_pPlutoLogger->Write( LV_STATUS, "Running socket %p... m_bTerminate: %d", this, m_pListener->m_bTerminate );
 #endif
-	g_pPlutoLogger->Write( LV_STATUS, "Running socket %p... m_bTerminate: %d", this, m_pListener->m_bTerminate );
 
 	string sMessage;
 	while( !m_pListener->m_bTerminate )
@@ -166,7 +161,8 @@ bool ServerSocket::_Run()
 		if ( sMessage.length() >= 5 && sMessage.substr(0,5) == "HELLO")
 		{
 			m_dwPK_Device = atoi( sMessage.substr(6).c_str() );
-			if( m_dwPK_Device==DEVICEID_MESSAGESEND )
+
+			if( m_dwPK_Device == DEVICEID_MESSAGESEND )
 			{
 				SendString("OK");
 				continue;
@@ -270,12 +266,14 @@ bool ServerSocket::_Run()
 		}
 	}
 
-   	if ( !SOCKFAIL( m_Socket ) )
+	// This is handled in the destructor.
+/*   	if ( !SOCKFAIL( m_Socket ) )
 	{
 		closesocket( m_Socket );
 		close(m_Socket);
 		m_Socket = INVALID_SOCKET;
 	}
+*/
 	g_pPlutoLogger->Write( LV_WARNING, "TCPIP: Closing connection to %d (%s)", m_dwPK_Device,m_pListener->m_sName.c_str() );
 
 	m_pListener->OnDisconnected( m_dwPK_Device );

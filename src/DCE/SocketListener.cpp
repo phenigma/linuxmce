@@ -234,7 +234,7 @@ void SocketListener::RemoveSocket( Socket *pSocket )
 	if ( pServerSocket )
 	{
 		int iDeviceID = pServerSocket->m_dwPK_Device;
-		pSocket->m_Socket = INVALID_SOCKET;
+		// pSocket->m_Socket = INVALID_SOCKET;
 		if( iDeviceID >= 0 )
 		{
 			DeviceClientMap::iterator i = m_mapCommandHandlers.find( iDeviceID );
@@ -265,14 +265,18 @@ void SocketListener::RegisterCommandHandler( ServerSocket *Socket, int iDeviceID
 		ll.Release();
 		// the delete line below will also unregister it from the SocketListener.
 		// RemoveSocket( (*iDC).second );
-		// TODO HACK : socket leak
 		delete (*iDC).second;
 		ll.Relock();
 	}
 	m_mapCommandHandlers[iDeviceID] = Socket; // assigning it the new specified socket
 	Socket->SetReceiveTimeout( SOCKET_TIMEOUT );
 	ll.Release();
-	g_pPlutoLogger->Write( LV_REGISTRATION, "Device ID \x1b[34;1m%d's command handler\x1b[0m registered on socket: %d %p", iDeviceID, Socket->m_iSocketCounter, Socket );
+
+	g_pPlutoLogger->Write( LV_REGISTRATION, "Device ID \x1b[34;1m%d's command handler\x1b[0m registered on socket: %d with counter %d %p",
+			iDeviceID,
+			Socket->m_Socket, Socket->m_iSocketCounter,
+			Socket );
+
 	RegisteredCommandHandler( iDeviceID );
 }
 
