@@ -949,12 +949,20 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
     if( Parms.length( )==0 )
         return pDataGrid; // Nothing passed in yet
 
-    string AC = Parms;
+	string::size_type pos=0;
+	int PK_MediaType = atoi(StringUtils::Tokenize(Parms,"|",pos).c_str());
+	string AC = StringUtils::Tokenize(Parms,"|",pos);
+	string sPK_Type="";
+	if( PK_MediaType==MEDIATYPE_pluto_StoredAudio_CONST )
+		sPK_Type="1"; // TYPE_Music_CONST;
+	else if( PK_MediaType==MEDIATYPE_pluto_StoredVideo_CONST )
+		sPK_Type="2,3,5"; // TYPE_Movie_CONST, TYPE_Home_Video_CONST, TYPE_TV_Show_CONST;
 
     string SQL = "select PK_Attribute, Name, FirstName, Description FROM Attribute " \
         "JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "\
         "JOIN Type_AttributeType ON Type_AttributeType.FK_AttributeType=PK_AttributeType "\
-        "WHERE ( Name Like '" + AC + "%' OR FirstName Like '" + AC + "%' ) AND Identifier>0 "\
+        "WHERE ( Name Like '" + AC + "%' OR FirstName Like '" + AC + "%' ) AND Identifier>0 " +
+		(sPK_Type.length() ? " AND FK_Type IN (" + sPK_Type + ") " : "") +
         "ORDER BY Name limit 30;";
 
     PlutoSqlResult result;
@@ -989,7 +997,9 @@ class DataGridTable *Media_Plugin::MediaSearchAutoCompl( string GridID, string P
         "JOIN SearchToken_Attribute ON PK_SearchToken=FK_SearchToken "\
         "JOIN Attribute ON FK_Attribute=PK_Attribute "\
         "JOIN AttributeType ON FK_AttributeType=PK_AttributeType "\
-        "WHERE Token like '" + AC + "%' AND PK_Attribute NOT IN (" + AttributesFirstSearch + ") "\
+        "WHERE Token like '" + AC + "%' " +
+		(AttributesFirstSearch.length() ? "AND PK_Attribute NOT IN (" + AttributesFirstSearch + ") " : "") +
+		" ORDER BY Name "\
         "limit 30;";
 
     if( ( result.r=m_MySqlHelper_Media.mysql_query_result( SQL ) ) )
@@ -1065,6 +1075,9 @@ class DataGridTable *Media_Plugin::MediaAttrCollections( string GridID, string P
     DataGridTable *pDataGrid = new DataGridTable( );
     DataGridCell *pCell;
 
+	if( Parms.length()==0 )
+		return pDataGrid;
+
     string PK_Attribute = Parms;
     if( PK_Attribute.substr( 0, 2 )=="#A" )
         PK_Attribute = PK_Attribute.substr( 2 );
@@ -1114,7 +1127,10 @@ class DataGridTable *Media_Plugin::MediaAttrXref( string GridID, string Parms, v
     DataGridTable *pDataGrid = new DataGridTable( );
     DataGridCell *pCell;
 
-    string PK_Attribute = Parms;
+	if( Parms.length()==0 )
+		return pDataGrid;
+
+	string PK_Attribute = Parms;
     g_pPlutoLogger->Write(LV_STATUS, "Got this PK_Attributte: %s", PK_Attribute.c_str());
 
     if( PK_Attribute.substr( 0, 2 )=="#A" )
@@ -1133,7 +1149,7 @@ class DataGridTable *Media_Plugin::MediaAttrXref( string GridID, string Parms, v
         "JOIN AttributeType ON Attribute.FK_AttributeType=PK_AttributeType "\
         "JOIN Type_AttributeType ON Type_AttributeType.FK_Type=File.FK_Type "\
         "AND Type_AttributeType.FK_AttributeType=Attribute.FK_AttributeType "\
-        "WHERE Identifier=3 ORDER BY Name limit 30;";
+        "WHERE Identifier=3 ORDER BY AttributeType.Description limit 30;";
 
     PlutoSqlResult result;
     MYSQL_ROW row;

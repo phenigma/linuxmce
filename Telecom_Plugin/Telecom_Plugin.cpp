@@ -46,6 +46,8 @@ using namespace DCE;
 #include "pluto_main/Table_Users.h"
 
 #include "callmanager.h"
+
+#ifndef WIN32
 #include "ldapmanager.h"
 
 using namespace LDAPSERVER;
@@ -68,6 +70,7 @@ static struct _PHONEMAPENTRY {
 		{"homePhone", "Home"},
 		{"mobile", "Mobile"},
 };
+#endif
 
 //<-dceag-const-b->
 // The primary constructor when the class is created as a stand-alone device
@@ -192,7 +195,7 @@ class DataGridTable *Telecom_Plugin::PhoneBookAutoCompl(string GridID,string Par
 																				
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
-
+#ifndef WIN32
 	// get uid and filter text 
 	string uid, filtertxt;
 	int index = Parms.find('|');
@@ -258,7 +261,7 @@ class DataGridTable *Telecom_Plugin::PhoneBookAutoCompl(string GridID,string Par
 		g_pPlutoLogger->Write(LV_CRITICAL, "LDAP raised exception: %s.", e.GetErrString());
 	}
 	
-	
+#endif	
 	return pDataGrid;
 }
 
@@ -269,7 +272,7 @@ class DataGridTable *Telecom_Plugin::PhoneBookListOfNos(string GridID,string Par
 	
 	DataGridTable *pDataGrid = new DataGridTable();
 	DataGridCell *pCell;
-
+#ifndef WIN32
 	string uname, cn;
 	
 	int index = Parms.find('|');
@@ -325,9 +328,10 @@ class DataGridTable *Telecom_Plugin::PhoneBookListOfNos(string GridID,string Par
 	} catch(LDAPException e) {
 		g_pPlutoLogger->Write(LV_CRITICAL, "LDAP raised exception: %s.", e.GetErrString());
 	}
-	
+#endif	
 	return pDataGrid;
 }
+
 
 bool 
 Telecom_Plugin::CommandResult( class Socket *pSocket, class Message *pMessage,

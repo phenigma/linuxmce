@@ -1086,6 +1086,15 @@ void Orbiter::ObjectOnScreen( VectDesignObj_Orbiter *pVectDesignObj_Orbiter, Des
     {
         int k=2;
     }
+
+	// Do this again since sometimes there will be several grids with the same name within the application and if
+	// we're going to do a lookup, such as with seek grid, we want to find the one most recently on screen
+	if( pObj->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+	{
+		DesignObj_DataGrid *pObj_Datagrid = (DesignObj_DataGrid *) pObj;
+		m_mapObjs_AllGrids[pObj_Datagrid->m_sGridID] = pObj_Datagrid;
+	}
+
     pVectDesignObj_Orbiter->push_back( pObj );
     pObj->m_bOnScreen=true;
 
@@ -4244,6 +4253,7 @@ void Orbiter::CMD_Seek_Data_Grid(string sText,int iPosition_X,int iPosition_Y,st
         g_pPlutoLogger->Write(LV_CRITICAL,"Cannot seek to unknown grid");
     else
     {
+		pObj_Datagrid->bReAcquire = true;
         pObj_Datagrid->m_sSeek = sText;
         CMD_Refresh(pObj_Datagrid->m_sGridID);
     }
