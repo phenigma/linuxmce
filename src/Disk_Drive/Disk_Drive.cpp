@@ -77,7 +77,7 @@ Disk_Drive::Disk_Drive(int DeviceID, string ServerAddress,bool bConnectEventHand
 Disk_Drive::~Disk_Drive()
 //<-dceag-dest-e->
 {
-	
+
 }
 
 //<-dceag-reg-b->
@@ -1265,3 +1265,19 @@ bool Disk_Drive::internal_reset_drive(bool bFireEvent)
 
 //<-dceag-sample-b->! no sample
 //<-dceag-createinst-b->!
+//<-dceag-c337-b->
+
+	/** @brief COMMAND: #337 - Rip Disk */
+	/** This will try to RIP a DVD to the HDD. */
+		/** @param #50 Name */
+			/** The target disk name. */
+
+void Disk_Drive::CMD_Rip_Disk(string sName,string &sCMD_Result,Message *pMessage)
+//<-dceag-c337-e->
+{
+	if ( m_isRipping )
+	{
+		EVENT_Ripping_Completed(RIP_RESULT_ALREADY_RIPPING, sName);
+		return;
+	}
+}

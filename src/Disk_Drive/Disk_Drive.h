@@ -28,6 +28,13 @@ typedef enum {
     MEDIA_TYPE_ERROR        = 0x99
 } discMediaType;
 
+
+typedef enum {
+	RIP_RESULT_ALREADY_RIPPING	 = 0x00,
+	RIP_RESULT_SUCCESS			 = 0x01,
+	RIP_RESULT_FAILURE			 = 0x02,
+} rippingResult;
+
 //<-dceag-decl-b->
 namespace DCE
 {
@@ -95,6 +102,7 @@ public:
 
 			*****EVENT***** accessors inherited from base class
 	void EVENT_Media_Inserted(int iFK_MediaType,string sMRL);
+	void EVENT_Ripping_Completed(int iResult,string sName);
 
 			*****COMMANDS***** we need to implement
 	*/
@@ -193,6 +201,15 @@ public:
 
 	virtual void CMD_Close_Tray() { string sCMD_Result; CMD_Close_Tray(sCMD_Result,NULL);};
 	virtual void CMD_Close_Tray(string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #337 - Rip Disk */
+	/** This will try to RIP a DVD to the HDD. */
+		/** @param #50 Name */
+			/** The target disk name. */
+
+	virtual void CMD_Rip_Disk(string sName) { string sCMD_Result; CMD_Rip_Disk(sName.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Rip_Disk(string sName,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

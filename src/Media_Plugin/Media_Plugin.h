@@ -75,6 +75,8 @@ private:
     pthread_mutexattr_t m_MutexAttr;
     MapMediaStream m_mapMediaStream; // All active streams
 
+	map<string, int> m_mapRippingJobsToRippingDevices;
+
 	Database_pluto_main *m_pDatabase_pluto_main;
     Database_pluto_media *m_pDatabase_pluto_media;
     class Datagrid_Plugin *m_pDatagrid_Plugin;
@@ -220,7 +222,7 @@ g_pPlutoLogger->Write(LV_STATUS,"FOUND %d records for media type %d %p",(int) ve
 	void AddDefaultCommandsToEntArea(Row_EntertainArea *pRow_EntertainArea);
 	void AddDevicesToEntArea(Row_EntertainArea *pRow_EntertainArea);
 	// Returns 0 if a command group exists for this entarea/template.  Otherwise creates one and returns the id
-	int FindCommandGroupByTemplate(Row_EntertainArea *pRow_EntertainArea,int PK_Template,string sDescription);  
+	int FindCommandGroupByTemplate(Row_EntertainArea *pRow_EntertainArea,int PK_Template,string sDescription);
 	void AddCommand(int PK_CommandGroup,int PK_Device,int PK_Command,int NumParms,...);
 	// For each MD, all it's direct children go in the same room, and if it has an on-screen Orbiter, it's direct children too
 	void PutMDsChildrenInRoom(DeviceData_Router *pDeviceData_Router);
@@ -245,13 +247,11 @@ g_pPlutoLogger->Write(LV_STATUS,"FOUND %d records for media type %d %p",(int) ve
      */
     void MediaInfoChanged(MediaStream *pMediaStream);
 
-
     // We need our own message queue so that if a message comes in we don't know how to handle, we first hand it off to the plug-in, and if
     // that doesn't handle it either, we send it to the actual media device
     bool ReceivedMessage(class Message *pMessage);
 
     // Our message interceptors
-
     /**
      * @brief EVENT_Media_Inserted event interceptor. A removable device should fire this event when it detected a new media inserted.
      */
@@ -274,6 +274,7 @@ g_pPlutoLogger->Write(LV_STATUS,"FOUND %d records for media type %d %p",(int) ve
 	void StreamEnded(MediaStream *pMediaStream);
 	void MediaInEAEnded(EntertainArea *pEntertainArea);
 
+	virtual bool SafeToReload();
 //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION
@@ -445,6 +446,15 @@ g_pPlutoLogger->Write(LV_STATUS,"FOUND %d records for media type %d %p",(int) ve
 
 	virtual void CMD_Get_EntAreas_For_Device(int iPK_Device,string *sText) { string sCMD_Result; CMD_Get_EntAreas_For_Device(iPK_Device,sText,sCMD_Result,NULL);};
 	virtual void CMD_Get_EntAreas_For_Device(int iPK_Device,string *sText,string &sCMD_Result,Message *pMessage);
+
+
+	/** @brief COMMAND: #337 - Rip Disk */
+	/** This will try to RIP a DVD to the HDD. */
+		/** @param #50 Name */
+			/** The target disk name. */
+
+	virtual void CMD_Rip_Disk(string sName) { string sCMD_Result; CMD_Rip_Disk(sName.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Rip_Disk(string sName,string &sCMD_Result,Message *pMessage);
 
 
 //<-dceag-h-e->

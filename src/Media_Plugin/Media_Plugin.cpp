@@ -195,7 +195,7 @@ Media_Plugin::~Media_Plugin()
 		MediaHandlerInfo *pMediaHandlerInfo = m_vectMediaHandlerInfo[s];
 		delete pMediaHandlerInfo;
 	}
-	
+
 }
 
 //<-dceag-reg-b->
@@ -2268,3 +2268,70 @@ bool Media_Plugin::MediaFollowMe( class Socket *pSocket, class Message *pMessage
 {
 	return HandleFollowMe(pMessage);
 }
+//<-dceag-c337-b->
+
+	/** @brief COMMAND: #337 - Rip Disk */
+	/** This will try to RIP a DVD to the HDD. */
+		/** @param #50 Name */
+			/** The target disk name. */
+
+void Media_Plugin::CMD_Rip_Disk(string sName,string &sCMD_Result,Message *pMessage)
+//<-dceag-c337-e->
+{
+	// we only have the sources device. This should be an orbiter
+	// but it should be ok if we get this message from a different device in the same ent area.
+	// (this is not here yet, we can put this to have the above functionality. Don't know about the usefullness yet.
+	//
+	// EntertainArea *pEntertainArea = DetermineEntArea( pMessage->m_dwPK_Device_From, pMessage->m_dwPK_Device_From, 0);
+	EntertainArea *pEntertainArea;
+
+	// is this required here ?!
+	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
+	if ( (pEntertainArea = DetermineEntArea( pMessage->m_dwPK_Device_From, 0, 0)) == NULL )
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): The source device ID in the message is not in an ent area or is not an orbiter. Ignoring request");
+		return;
+	}
+
+	// If we have a proper name (aka. non empty one) we need to look in the current entertainment area for the disk drive and forward the received command to him.
+	MediaDevice *pDiskDriveMediaDevice = NULL;
+	if ( sName.length() != 0 )
+	{
+		map<int, class MediaDevice *>::const_iterator itMediaDevicesInEntArea;
+		for ( itMediaDevicesInEntArea = pEntertainArea->m_mapMediaDevice.begin(); itMediaDevicesInEntArea != pEntertainArea->m_mapMediaDevice.end(); itMediaDevicesInEntArea++ )
+		{
+			MediaDevice * pMediaDevice = (*itMediaDevicesInEntArea).second;
+			if ( pMediaDevice->m_pDeviceData_Router->m_dwPK_DeviceCategory == DEVICECATEGORY_Disc_Drives_CONST )
+			{
+				g_pPlutoLogger->Write(LV_STATUS, "Found a disk drive in the target ent area");
+				pDiskDriveMediaDevice = pMediaDevice;
+				break;
+			}
+		}
+
+		if ( pDiskDriveMediaDevice == NULL )
+		{
+			g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_Rip_Disk(): No disk drive was found in the target ent. area with id: %d. Not ripping anything.", pEntertainArea->m_iPK_EntertainArea);
+			return;
+		}
+
+
+		DCE::CMD_Rip_Disk cmdRipDisk(m_dwPK_Device, pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device, sName);
+		SendCommand(cmdRipDisk);
+		m_mapRippingJobsToRippingDevices[sName] = pDiskDriveMediaDevice->m_pDeviceData_Router->m_dwPK_Device;
+		return;
+	}
+
+	mm.Release();
+
+	// if we are here then this is called in an evil way. We need to ask the user for the name.
+	g_pPlutoLogger->Write(LV_STATUS, "Media plugin got a CMD_Rip_Disk with an empty desired name and needs to ask the user for the name.");
+	DCE::CMD_Goto_Screen gotoScreen(m_dwPK_Device, pMessage->m_dwPK_Device_From, 0, StringUtils::itos(DESIGNOBJ_mnuPVRFileSave_CONST), "", "", false, false);
+	SendCommand(gotoScreen);
+}
+
+bool Media_Plugin::SafeToReload()
+{
+	return m_mapRippingJobsToRippingDevices.size() == 0;
+}
+
