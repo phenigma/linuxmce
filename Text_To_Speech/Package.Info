@@ -1,0 +1,9 @@
+<-dceag-p-b->
+Package = DCE_Destination_Package
+Dir = 
+desc = DCE Implemenation for #57 Text To Speech
+Maintainer = AdministratorName
+Email = 
+Depend = DCE_Dependencies
+<-dceag-p-e->
+
