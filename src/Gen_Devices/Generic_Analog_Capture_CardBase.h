@@ -78,7 +78,7 @@ public:
 	string DATA_Get_Video_Standard() { return GetData()->Get_Video_Standard(); }
 	//Event accessors
 	//Commands - Override these to handle commands from the server
-	virtual void CMD_Get_Video_Frame(string sDisable_Aspect_Lock,int iStreamID,int iWidth,int iHeight,char **pData,int *iData_Size,string *sFormat,string &sCMD_Result,class Message *pMessage) {};
+	virtual void CMD_Get_Capture_Video_Frame(int iCameraID,char **pData,int *iData_Size,string &sCMD_Result,class Message *pMessage) {};
 
 	//This distributes a received message to your handler.
 	virtual bool ReceivedMessage(class Message *pMessageOriginal)
@@ -93,22 +93,17 @@ public:
 			{
 				switch(pMessage->m_dwID)
 				{
-				case 84:
+				case 277:
 					{
 						string sCMD_Result="OK";
-					string sDisable_Aspect_Lock=pMessage->m_mapParameters[23];
-					int iStreamID=atoi(pMessage->m_mapParameters[41].c_str());
-					int iWidth=atoi(pMessage->m_mapParameters[60].c_str());
-					int iHeight=atoi(pMessage->m_mapParameters[61].c_str());
+					int iCameraID=atoi(pMessage->m_mapParameters[112].c_str());
 					char *pData=pMessage->m_mapData_Parameters[19];
 					int iData_Size=pMessage->m_mapData_Lengths[19];
-					string sFormat=pMessage->m_mapParameters[20];
-						CMD_Get_Video_Frame(sDisable_Aspect_Lock.c_str(),iStreamID,iWidth,iHeight,&pData,&iData_Size,&sFormat,sCMD_Result,pMessage);
+						CMD_Get_Capture_Video_Frame(iCameraID,&pData,&iData_Size,sCMD_Result,pMessage);
 						if( pMessage->m_eExpectedResponse==ER_ReplyMessage )
 						{
 							Message *pMessageOut=new Message(m_dwPK_Device,pMessage->m_dwPK_Device_From,PRIORITY_NORMAL,MESSAGETYPE_REPLY,0,0);
 						pMessageOut->m_mapData_Parameters[19]=pData; pMessageOut->m_mapData_Lengths[19]=iData_Size;
-						pMessageOut->m_mapParameters[20]=sFormat;
 							SendMessage(pMessageOut);
 						}
 						else if( pMessage->m_eExpectedResponse==ER_DeliveryConfirmation || pMessage->m_eExpectedResponse==ER_ReplyString )

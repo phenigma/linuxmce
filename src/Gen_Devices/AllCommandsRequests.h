@@ -4765,5 +4765,45 @@ namespace DCE
 	public:
 		CMD_Add_GC100_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,276,0); }
 	};
+	class RESP_Get_Capture_Video_Frame : public PreformedCommandResponse {
+		char **m_pData;int *m_iData_Size;
+	public:
+		RESP_Get_Capture_Video_Frame(char **pData,int *iData_Size) { 
+		m_pData=pData; m_iData_Size=iData_Size; }
+		void ParseResponse(Message *pMessage) {
+			*m_pData=pMessage->m_mapData_Parameters[19]; *m_iData_Size=pMessage->m_mapData_Lengths[19]; };
+	};
+	class CMD_Get_Capture_Video_Frame : public PreformedCommand {
+	public:
+		CMD_Get_Capture_Video_Frame(long DeviceIDFrom, long DeviceIDTo,int iCameraID,char **pData,int *iData_Size) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,277,2,112,StringUtils::itos(iCameraID).c_str(),-19,*pData,*iData_Size);		m_pcResponse = new RESP_Get_Capture_Video_Frame(pData,iData_Size); }
+	};
+	class CMD_Get_Capture_Video_Frame_DL : public PreformedCommand {
+	public:
+		CMD_Get_Capture_Video_Frame_DL(long DeviceIDFrom, string DeviceIDTo,int iCameraID,char **pData,int *iData_Size) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,277,2,112,StringUtils::itos(iCameraID).c_str(),-19,*pData,*iData_Size);		m_pcResponse = new RESP_Get_Capture_Video_Frame(pData,iData_Size); }
+	};
+	class CMD_Get_Capture_Video_Frame_DT : public PreformedCommand {
+	public:
+		CMD_Get_Capture_Video_Frame_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iCameraID,char **pData,int *iData_Size) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,277,2,112,StringUtils::itos(iCameraID).c_str(),-19,*pData,*iData_Size);		m_pcResponse = new RESP_Get_Capture_Video_Frame(pData,iData_Size); }
+	};
+	class CMD_Get_Capture_Video_Frame_Cat : public PreformedCommand {
+	public:
+		CMD_Get_Capture_Video_Frame_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iCameraID,char **pData,int *iData_Size) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,277,2,112,StringUtils::itos(iCameraID).c_str(),-19,*pData,*iData_Size);		m_pcResponse = new RESP_Get_Capture_Video_Frame(pData,iData_Size); }
+	};
+	class CMD_NOREP_Get_Capture_Video_Frame : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Capture_Video_Frame(long DeviceIDFrom, long DeviceIDTo,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,277,1,112,StringUtils::itos(iCameraID).c_str()); }
+	};
+	class CMD_NOREP_Get_Capture_Video_Frame_DL : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Capture_Video_Frame_DL(long DeviceIDFrom, string DeviceIDTo,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceIDTo, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,277,1,112,StringUtils::itos(iCameraID).c_str()); }
+	};
+	class CMD_NOREP_Get_Capture_Video_Frame_DT : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Capture_Video_Frame_DT(long DeviceIDFrom, long MasterDevice, eBroadcastLevel eB,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, MasterDevice, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,277,1,112,StringUtils::itos(iCameraID).c_str()); }
+	};
+	class CMD_NOREP_Get_Capture_Video_Frame_Cat : public PreformedCommand {
+	public:
+		CMD_NOREP_Get_Capture_Video_Frame_Cat(long DeviceIDFrom, long DeviceCategory, bool bIncludeChildren, eBroadcastLevel eB,int iCameraID) { m_pMessage = new Message(DeviceIDFrom, DeviceCategory, bIncludeChildren, eB, MESSAGETYPE_COMMAND, PRIORITY_NORMAL,277,1,112,StringUtils::itos(iCameraID).c_str()); }
+	};
 }
 #endif
