@@ -1014,10 +1014,7 @@ if( sTableName=="DeviceTemplate" )
 
 		bool bUpdate=false; // Make this an update rather than an insert
 		int i_psc_id= iField_psc_id!=-1 ? atoi(str.m_vectString[pos+iField_psc_id].c_str()) : 0; // The psc_id of the row we're importing
-if( i_psc_id==1611 )
-{
-int k=2;
-}
+
 		// Delete any psc_id's that were since deleted on the server
 		for(int ipsc_id_deleted=i_psc_id_prior+1;ipsc_id_deleted<i_psc_id;ipsc_id_deleted++)
 		{
@@ -1042,6 +1039,9 @@ int k=2;
 					continue;
 				}
 			}
+
+			cout << "Deleting row from import " << ipsc_id_deleted << " prior: " << i_psc_id_prior << " ipsc_id:" << i_psc_id << endl;
+
 			sSQL.str( "" );
 			sSQL << "DELETE FROM " << sTableName << " WHERE psc_id=" << ipsc_id_deleted;
 			if( m_pDatabase->threaded_mysql_query( sSQL.str( ) )!=0 )

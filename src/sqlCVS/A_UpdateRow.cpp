@@ -52,5 +52,7 @@ void A_UpdateRow::ProcessAction(class RA_Request *pRequest,class RA_Processor *p
 
 	Table *pTable = g_GlobalConfig.m_pDatabase->m_mapTable_Find(pR_UpdateTable->m_sTableName);
 
+	cout << "A_UpdateRow - table: " << pTable->Name_get() << " psc id:" << m_psc_id << " batch: " << m_psc_batch << " user: " << m_psc_user << endl;
+
 	pTable->UpdateRow(this,pR_UpdateTable,psqlCVSprocessor);
 }
