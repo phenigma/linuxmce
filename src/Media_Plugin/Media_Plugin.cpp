@@ -831,6 +831,12 @@ void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_De
 	pTmpMediaStream = pEntertainArea->m_pMediaStream;
 	mm.Release();
 
+	if ( pTmpMediaStream == NULL )
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::CMD_MH_Stop_Media() called but the found ent area (%d) has no MediaStream in it!",  pEntertainArea->m_iPK_EntertainArea);
+		return;
+	}
+
 	g_pPlutoLogger->Write( LV_STATUS, "Got MH_stop media" );
     pTmpMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pTmpMediaStream );
     g_pPlutoLogger->Write( LV_STATUS, "Called StopMedia" );
@@ -839,6 +845,12 @@ void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_De
 
 void Media_Plugin::StreamEnded(MediaStream *pMediaStream,bool bSendOff)
 {
+	if ( pTmpMediaStream == NULL )
+	{
+		g_pPlutoLogger->Write(LV_WARNING, "Media_Plugin::StreamEnded() called with NULL MediaStream in it! Ignoring");
+		return;
+	}
+
 	PLUTO_SAFETY_LOCK( mm, m_MediaMutex );
 	map<int,MediaDevice *> mapMediaDevice_Prior;
     g_pPlutoLogger->Write( LV_STATUS, "Getting Render Devices" );
@@ -1351,7 +1363,7 @@ class DataGridTable *Media_Plugin::MediaAttrXref( string GridID, string Parms, v
 
 	if( PK_Attribute.substr( 0, 2 )=="#A" )
         PK_Attribute = PK_Attribute.substr( 2 );
-    
+
     int PK_Picture;
     string Extension;
 
