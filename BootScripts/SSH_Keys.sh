@@ -7,8 +7,8 @@ if [ ! -f /etc/diskless.conf ] && ! [ -f $Dir/$Key -a -f $Dir/$Key.pub ]; then
 	echo "Creating SSH keys"
 	mkdir -p /usr/pluto/keys
 	ssh-keygen -t dsa -C "Pluto auto-generated key" -f $Dir/$Key -P ""
-	cp $Dir/$Key $Dir/$Key_apache
-	chown www-data.www-data $Dir/$Key_apache
+	cp $Dir/$Key $Dir/${Key}_apache
+	chown www-data.www-data $Dir/${Key}_apache
 fi
 
 mkdir -m 0700 -p /root/.ssh
