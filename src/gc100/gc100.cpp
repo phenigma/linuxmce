@@ -43,7 +43,8 @@ using namespace DCE;
 
 const timespec LEARNING_TIMEOUT = {40, 0}; // 40 s
 
-const timespec READY_TIMEOUT = {0, 800000000}; // 800 ms
+//const timespec READY_TIMEOUT = {0, 800000000}; // 800 ms
+const timespec READY_TIMEOUT = {3, 0};
 
 #define LEARN_PREFIX "GC-IRL"
 #define GC100_COMMAND_PORT 4998
@@ -303,7 +304,7 @@ bool gc100::ConvertPronto(string ProntoCode, string &gc_code)
 			sscanf(token.c_str(),"%4x",&token_int);
 
 			frequency=(((41450/token_int)+5)/10)*1000;
-			gc_code=gc_code+StringUtils::itos(frequency)+",1"; // Repeat only once
+			gc_code=gc_code+StringUtils::itos(frequency)+",2"; // (Global Cache's IR test program sets this to 3, but 2 seems to be enough)
 
 			// # burst pairs for single sequence
 			token=StringUtils::Tokenize(ProntoCode," ",pos);
@@ -1070,33 +1071,37 @@ void gc100::SendIR_Real(string Port, string IRCode)
 
 			send_cmd = std::string("sendir,") + slot_iter->second.key.c_str() + std::string(",") + StringUtils::itos(ir_cmd_id)
 				+ "," + gc_code;
+			m_bIRComplete = false;
 			send_to_gc100(send_cmd);
+
+			timeval StartTime;
+			gettimeofday(&StartTime, NULL);
+			timespec tsStartTime;
+			timeval_to_timespec(&StartTime, &tsStartTime);
+
+			while (! m_bIRComplete)
+			{
+				timeval CurTime;
+				gettimeofday(&CurTime, NULL);
+				timespec tsCurTime;
+				timeval_to_timespec(&CurTime, &tsCurTime);
+
+				if (tsCurTime > tsStartTime + READY_TIMEOUT)
+				{
+					g_pPlutoLogger->Write(LV_WARNING, "Timed out waiting for completeir");
+					// Do not reissue the previous command, because it may be a sendir command to an ir port
+					// that is configured as discrete input.  In that situation the command will never work
+					// and you'll be forced to retry it forever
+					break;
+				}
+			}
+			// we get here when event thread got a completeir
+			g_pPlutoLogger->Write(LV_STATUS, "Finished sending IR");
+
 			ir_cmd_id++;
 		} // end if it's IR
 	} // end loop through devices
-	timeval StartTime;
-	gettimeofday(&StartTime, NULL);
-	timespec tsStartTime;
-	timeval_to_timespec(&StartTime, &tsStartTime);
-
-	while (! m_bIRComplete)
-	{
-		timeval CurTime;
-		gettimeofday(&CurTime, NULL);
-		timespec tsCurTime;
-		timeval_to_timespec(&CurTime, &tsCurTime);
-
-		if (tsCurTime > tsStartTime + READY_TIMEOUT)
-		{
-			g_pPlutoLogger->Write(LV_WARNING, "Timed out waiting for completeir");
-			// Do not reissue the previous command, because it may be a sendir command to an ir port
-			// that is configured as discrete input.  In that situation the command will never work
-			// and you'll be forced to retry it forever
-			break;
-		}
-	}
-	// we get here when event thread got a completeir
-	g_pPlutoLogger->Write(LV_STATUS, "Finished sending IR");
+	g_pPlutoLogger->Write(LV_STATUS, "Finished sending all IRs");
 }
 
 // Not done
