@@ -311,7 +311,7 @@ bool IRBase::ProcessMessage(Message *pMessage)
 		long Delay=0, Count=1;
 		map<int,string>::iterator param;
 
-		if (pMessage->m_dwID == COMMAND_Generic_On_CONST || pMessage->m_dwID == COMMAND_Generic_Off_CONST || pMessage->m_dwID == COMMAND_Power_CONST)
+		if (pMessage->m_dwID == COMMAND_Generic_On_CONST || pMessage->m_dwID == COMMAND_Generic_Off_CONST || pMessage->m_dwID == COMMAND_Toggle_Power_CONST)
 		{
 			printf("%ld: Got power command: ", TargetDevice);
 			param = m_pCommand_Impl->m_mapCommandImpl_Children[TargetDevice]->m_pData->m_mapParameters.find(DEVICEDATA_IR_Power_Delay_CONST);

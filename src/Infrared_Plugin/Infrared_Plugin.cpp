@@ -173,7 +173,7 @@ class DataGridTable *Infrared_Plugin::CommandsGrid(string GridID,string Parms,vo
 	for(map<int,string>::iterator it=pDevice->m_mapCommands.begin();it!=pDevice->m_mapCommands.end();++it)
 	{
 		// Handle some special cases
-		if( (*it).first == COMMAND_Power_CONST && bUsesIR && pRow_DeviceTemplate_AV->TogglePower_get()==0 )
+		if( (*it).first == COMMAND_Toggle_Power_CONST && bUsesIR && pRow_DeviceTemplate_AV->TogglePower_get()==0 )
 		{
 			// We don't toggle power, we have discrete on and off's
 			pCell = new DataGridCell( "ON",	StringUtils::itos(COMMAND_Generic_On_CONST) );
