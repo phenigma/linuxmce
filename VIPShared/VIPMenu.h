@@ -17,6 +17,7 @@ using namespace std;
 #endif
 
 #include "PlutoUtils/MyStl.h"
+#include "SerializeClass/SerializeClass.h"
 
 class VIPMenuElement
 {
@@ -383,8 +384,6 @@ public:
 #define	VARIABLE_NUMERIC	2
 
 #define VIPMENUCOLL_SECURE_PAYMENT	1
-
-#include "SerializeClass/SerializeClass.h"
 
 class VIPMenuCollection : public SerializeClass
 {

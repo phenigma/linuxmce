@@ -2,11 +2,11 @@
 #define VIPINCLUDES_H
 
 #include "PlutoUtils/MyStl.h"
+#include "SerializeClass/SerializeClass.h"
 
 #ifndef SYMBIAN
 #include "PlutoUtils/CommonIncludes.h"	
 #include "PlutoUtils/MultiThreadIncludes.h"
-#include "SerializeClass/SerializeClass.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

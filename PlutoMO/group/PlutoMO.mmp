@@ -26,6 +26,7 @@ SOURCE  BD_PC_SetVariable.cpp
 SOURCE  PlutoPhoneCommands.cpp
 SOURCE  RenderMenu.cpp
 SOURCE  VIPMenu.cpp
+SOURCE  VIPIncludes.cpp
 
 SOURCEPATH ..\..\BD
 SOURCE  BDCommandProcessor_Symbian_Base.cpp
