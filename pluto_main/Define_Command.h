@@ -242,6 +242,7 @@
 #define COMMAND_Set_Now_Playing_CONST 242
 #define COMMAND_Enable_Broadcasting_CONST 243
 #define COMMAND_Output_Select_CONST 244
+#define COMMAND_Learn_IR_CONST 245
 
 #define COMMAND_TABLE "Command"
 #define COMMAND_PK_COMMAND_FIELD "PK_Command"

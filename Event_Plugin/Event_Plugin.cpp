@@ -45,6 +45,10 @@ Event_Plugin::Event_Plugin(int DeviceID, string ServerAddress,bool bConnectEvent
 	for(size_t s=0;s<vectRow_Criteria.size();++s)
 	{
 		Row_Criteria *pRow_Criteria = vectRow_Criteria[s];
+if( pRow_Criteria->PK_Criteria_get()==508 )
+{
+int k=2;
+}
 		CriteriaParmNesting *pCriteriaParmNesting = LoadCriteriaParmNesting(NULL,pRow_Criteria->FK_CriteriaParmNesting_getrow());
 		Criteria *pCriteria = new Criteria(pRow_Criteria->PK_Criteria_get(),pCriteriaParmNesting);
 		m_mapCriteria[pRow_Criteria->PK_Criteria_get()] = pCriteria;
@@ -56,6 +60,10 @@ Event_Plugin::Event_Plugin(int DeviceID, string ServerAddress,bool bConnectEvent
 	for(size_t s=0;s<vectRow_EventHandler.size();++s)
 	{
 		Row_EventHandler *pRow_EventHandler = vectRow_EventHandler[s];
+if( pRow_EventHandler->PK_EventHandler_get()==15 )
+{
+int k=2;
+}
 		EventHandler *pEventHandler = new EventHandler(pRow_EventHandler->PK_EventHandler_get(),
 			pRow_EventHandler->FK_Event_get(),m_pRouter->mapCommandGroup_Find(pRow_EventHandler->FK_CommandGroup_get()),
 			m_mapCriteria_Find(pRow_EventHandler->FK_Criteria_get()));

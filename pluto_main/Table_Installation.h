@@ -206,6 +206,7 @@ class Row_RepositoryType* FK_RepositoryType_Binaries_getrow();
 
 		// Return the rows in other tables with foreign keys pointing here
 		void CommandGroup_FK_Installation_getrows(vector <class Row_CommandGroup*> *rows);
+void Criteria_FK_Installation_getrows(vector <class Row_Criteria*> *rows);
 void Device_FK_Installation_getrows(vector <class Row_Device*> *rows);
 void DeviceGroup_FK_Installation_getrows(vector <class Row_DeviceGroup*> *rows);
 void EventHandler_FK_Installation_getrows(vector <class Row_EventHandler*> *rows);

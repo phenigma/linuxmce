@@ -28,6 +28,9 @@ using namespace std;
 #include "pluto_main/Table_DeviceData.h"
 #include "pluto_main/Table_CommandParameter.h"
 #include "pluto_main/Table_Command_Pipe.h"
+#include "pluto_main/Table_CommandGroup.h"
+#include "pluto_main/Table_CommandGroup_Command.h"
+#include "pluto_main/Table_CommandGroup_Command_CommandParameter.h"
 #include "pluto_main/Table_Event.h"
 #include "pluto_main/Table_EventParameter.h"
 #include "pluto_main/Table_Device.h"
@@ -1517,6 +1520,37 @@ void Router::Configure()
 			pCommand->m_listPipe.push_back( pRow_Command_Pipe->FK_Pipe_get() );
 		}
         m_mapCommand[pRow_Command->PK_Command_get()]=pCommand;
+    }
+
+	// Build all the command groups
+    vector<Row_CommandGroup *> vectRow_CommandGroup;
+    GetDatabase()->CommandGroup_get()->GetRows("1=1",&vectRow_CommandGroup);  // All rows
+    for(size_t s=0;s<vectRow_CommandGroup.size();++s)
+    {
+        Row_CommandGroup *pRow_CommandGroup = vectRow_CommandGroup[s];
+		CommandGroup *pCommandGroup = new CommandGroup(pRow_CommandGroup->PK_CommandGroup_get(),pRow_CommandGroup->FK_Array_get());
+		m_mapCommandGroup[pRow_CommandGroup->PK_CommandGroup_get()]=pCommandGroup;
+		vector<Row_CommandGroup_Command *> vectRow_CommandGroup_Command;
+		pRow_CommandGroup->CommandGroup_Command_FK_CommandGroup_getrows(&vectRow_CommandGroup_Command);
+		for(size_t s2=0;s2<vectRow_CommandGroup_Command.size();++s2)
+		{
+			Row_CommandGroup_Command *pRow_CommandGroup_Command = vectRow_CommandGroup_Command[s2];
+			CommandGroup_Command *pCommandGroup_Command = new CommandGroup_Command(
+				m_mapCommand[pRow_CommandGroup_Command->FK_Command_get()], 
+				m_mapDeviceData_Router_Find(pRow_CommandGroup_Command->FK_Device_get()));
+			pCommandGroup->m_vectCommandGroup_Command.push_back(pCommandGroup_Command);
+			vector<Row_CommandGroup_Command_CommandParameter *> vectRow_CommandGroup_Command_CommandParameter;
+			pRow_CommandGroup_Command->CommandGroup_Command_CommandParameter_FK_CommandGroup_Command_getrows(&vectRow_CommandGroup_Command_CommandParameter);
+			for(size_t s3=0;s3<vectRow_CommandGroup_Command_CommandParameter.size();++s3)
+			{
+				Row_CommandGroup_Command_CommandParameter *pRow_CommandGroup_Command_CommandParameter = vectRow_CommandGroup_Command_CommandParameter[s3];
+				pCommandGroup_Command->m_mapParameter[pRow_CommandGroup_Command_CommandParameter->FK_CommandParameter_get()]=
+					pRow_CommandGroup_Command_CommandParameter->IK_CommandParameter_get();
+
+			}
+
+		}
+
     }
 
     vector<Row_Event *> vectRow_Event;

@@ -424,6 +424,8 @@ class Table *Database::GetTableFromForeignKey( Field *pField )
 			return pTable;
 
 		string Tail = pField->Table_get( )->GetTrailingString( sTable );	/**< Use the helper function in table */
+		if( Tail.length()==0 )
+			break;
 		sTable = sTable.substr( 0, sTable.length( ) - Tail.length( ) - 1 );	/**< Strip off the last part */
 	}
 

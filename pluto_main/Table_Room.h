@@ -86,14 +86,13 @@ long int m_FK_Installation;
 long int m_FK_RoomType;
 string m_Description;
 long int m_FK_Icon;
-long int m_FK_RoomMode;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[11];
+		bool is_null[10];
 	
 	public:
 		long int PK_Room_get();
@@ -101,7 +100,6 @@ long int FK_Installation_get();
 long int FK_RoomType_get();
 string Description_get();
 long int FK_Icon_get();
-long int FK_RoomMode_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -114,7 +112,6 @@ void FK_Installation_set(long int val);
 void FK_RoomType_set(long int val);
 void Description_set(string val);
 void FK_Icon_set(long int val);
-void FK_RoomMode_set(long int val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -124,7 +121,6 @@ void psc_mod_set(string val);
 		
 		bool FK_RoomType_isNull();
 bool FK_Icon_isNull();
-bool FK_RoomMode_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -133,7 +129,6 @@ bool psc_frozen_isNull();
 			
 		void FK_RoomType_setNull(bool val);
 void FK_Icon_setNull(bool val);
-void FK_RoomMode_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -163,7 +158,7 @@ void EntertainArea_FK_Room_getrows(vector <class Row_EntertainArea*> *rows);
 
 		// Setup binary serialization
 		void SetupSerialization(int iSC_Version) {
-			StartSerializeList() + m_PK_Room+ m_FK_Installation+ m_FK_RoomType+ m_Description+ m_FK_Icon+ m_FK_RoomMode+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_Room+ m_FK_Installation+ m_FK_RoomType+ m_Description+ m_FK_Icon+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -173,7 +168,6 @@ string FK_Installation_asSQL();
 string FK_RoomType_asSQL();
 string Description_asSQL();
 string FK_Icon_asSQL();
-string FK_RoomMode_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

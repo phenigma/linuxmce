@@ -27,28 +27,17 @@ namespace DCE
 		list<int> m_listPipe;
 	};
 
-	class CommandParameter
-	{
-	public:
-		string m_sValue;
-		int m_PK_CommandParameter;
-
-		CommandParameter(int PK_CommandParameter,string sValue) : m_sValue(sValue), m_PK_CommandParameter(PK_CommandParameter) {}
-	};
-
 	class CommandGroup_Command
 	{
 	public:
-		int m_dwPK_Command,m_PK_Device,m_PK_DeviceGroup,m_PK_C_Array;
-		list<class Device_Routing *> m_listDevices;
-		map<int,class CommandParameter *> m_mapCommandParameter;
+		Command *m_pCommand;
+		class DeviceData_Router *m_pDeviceData_Router;
+		map<int,string> m_mapParameter;
 
-		CommandGroup_Command(int PK_Command,int PK_Device,int PK_DeviceGroup,int PK_C_Array)
+		CommandGroup_Command(Command *pCommand,class DeviceData_Router *pDeviceData_Router)
 		{
-			m_dwPK_Command = PK_Command;
-			m_PK_Device = PK_Device;
-			m_PK_DeviceGroup = PK_DeviceGroup;
-			m_PK_C_Array = PK_C_Array;
+			m_pCommand=pCommand;
+			m_pDeviceData_Router=pDeviceData_Router;
 		}
 
 		~CommandGroup_Command();
@@ -58,7 +47,7 @@ namespace DCE
 	{
 	public:
 		int m_PK_CommandGroup;
-		vector<class CommandGroup_Command *> m_vectCommands;
+		vector<class CommandGroup_Command *> m_vectCommandGroup_Command;
 		string m_Description;
 		int m_PK_C_Array;
 
@@ -69,7 +58,7 @@ namespace DCE
 		{
 			vector<class CommandGroup_Command *>::iterator iA;
 
-			for (iA = m_vectCommands.begin(); iA != m_vectCommands.end(); ++iA)
+			for (iA = m_vectCommandGroup_Command.begin(); iA != m_vectCommandGroup_Command.end(); ++iA)
 			{
 				delete (*iA); 
 			}

@@ -16,6 +16,8 @@
 #define CRITERIA_FK_CRITERIAPARMNESTING_TABLE_FIELD "Criteria.FK_CriteriaParmNesting"
 #define CRITERIA_FK_CRITERIALIST_FIELD "FK_CriteriaList"
 #define CRITERIA_FK_CRITERIALIST_TABLE_FIELD "Criteria.FK_CriteriaList"
+#define CRITERIA_FK_INSTALLATION_FIELD "FK_Installation"
+#define CRITERIA_FK_INSTALLATION_TABLE_FIELD "Criteria.FK_Installation"
 #define CRITERIA_DESCRIPTION_FIELD "Description"
 #define CRITERIA_DESCRIPTION_TABLE_FIELD "Criteria.Description"
 #define CRITERIA_DEFINE_FIELD "Define"

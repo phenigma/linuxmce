@@ -23,6 +23,7 @@ using namespace std;
 #include "Table_RepositoryType.h"
 
 #include "Table_CommandGroup.h"
+#include "Table_Criteria.h"
 #include "Table_Device.h"
 #include "Table_DeviceGroup.h"
 #include "Table_EventHandler.h"
@@ -1468,6 +1469,13 @@ void Row_Installation::CommandGroup_FK_Installation_getrows(vector <class Row_Co
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 class Table_CommandGroup *pTable = table->database->CommandGroup_get();
+pTable->GetRows("FK_Installation=" + StringUtils::itos(m_PK_Installation),rows);
+}
+void Row_Installation::Criteria_FK_Installation_getrows(vector <class Row_Criteria*> *rows)
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+class Table_Criteria *pTable = table->database->Criteria_get();
 pTable->GetRows("FK_Installation=" + StringUtils::itos(m_PK_Installation),rows);
 }
 void Row_Installation::Device_FK_Installation_getrows(vector <class Row_Device*> *rows)
