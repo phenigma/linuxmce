@@ -36,6 +36,7 @@ Generic_Analog_Camera::Generic_Analog_Camera(int DeviceID, string ServerAddress,
 	unsigned long int size, iPortNumber, pid;
 
 	iPortNumber = DATA_Get_Port_Number();
+	iPortNumber++;
 	sPath = "/etc/motion/thread" + StringUtils::itos(iPortNumber) + ".conf";
 	FilePath = sPath;
 	g_pPlutoLogger->Write(LV_STATUS, "Looking for camera config file");
@@ -86,15 +87,17 @@ Generic_Analog_Camera::Generic_Analog_Camera(int DeviceID, string ServerAddress,
 	char *pData = new char(size+1);
 	pData[size] = '\0';
 	pData = FileUtils::ReadFileIntoBuffer(sPath,(size_t &)size);
-	sLine = "#thread /etc/motion/thread" + sPortNumber + ".conf";
-	sRep = "thread /etc/motion/thread" + sPortNumber + ".conf";
+	sLine = "#thread /etc/motion/thread" + StringUtils::itos(iPortNumber) + ".conf";
+	sRep = "thread /etc/motion/thread" + StringUtils::itos(iPortNumber) + ".conf";
 	
+	g_pPlutoLogger->Write(LV_STATUS, "Replacing %s",sLine.c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "With %s",sRep.c_str());
 	std::string std = pData;
 	std = StringUtils::Replace(std,sLine,sRep);
 
 	g_pPlutoLogger->Write(LV_STATUS, "Adding child camera to main config file");
 	strcpy(pData,std.c_str());
-	FileUtils::WriteBufferIntoFile(sPath,pData,size-1);
+	FileUtils::WriteBufferIntoFile(sPath,pData,size);
 
 	g_pPlutoLogger->Write(LV_STATUS, "Getting PID of the motion server");
 	sLine = "ps -e | grep motion | awk '{print $1}' > camera_card.temp";
