@@ -38,9 +38,13 @@ while($local_row = $st->fetchrow_hashref()) {
 					$datas = $datas.$data.",";
 				}
 			}
+			$st4->finish();
 		}
+		$st3->finish();
 	}
+	$st2->finish();
 }
+$st->finish();
 
 $db->disconnect();
 
