@@ -45,3 +45,4 @@ if [ -n "$Valgrind" ]; then
 	fi
 fi
 ulimit -c unlimited
+shopt -s nullglob
