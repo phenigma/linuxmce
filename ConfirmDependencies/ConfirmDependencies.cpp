@@ -164,28 +164,65 @@ int main(int argc, char *argv[])
 		}
 
 		c=argv[optnum][1];
+		char * cPointer;
 		switch (c)
 		{
 		case 'h':
-			dceConfig.m_sDBHost = argv[++optnum];
+			if (++optnum != argc)
+				dceConfig.m_sDBHost = argv[optnum];
+			else
+				bError = true;
 			break;
 		case 'u':
-			dceConfig.m_sDBUser = argv[++optnum];
+			if (++optnum != argc)
+				dceConfig.m_sDBUser = argv[optnum];
+			else
+				bError = true;
 			break;
 		case 'p':
-			dceConfig.m_sDBPassword = argv[++optnum];
+			if (++optnum != argc)
+				dceConfig.m_sDBPassword = argv[optnum];
+			else
+				bError = true;
 			break;
 		case 'D':
-			dceConfig.m_sDBName = argv[++optnum];
+			if (++optnum != argc)
+				dceConfig.m_sDBName = argv[optnum];
+			else
+				bError = true;
 			break;
 		case 'P':
-			dceConfig.m_iDBPort = atoi(argv[++optnum]);
+			if (++optnum != argc)
+			{
+				dceConfig.m_iDBPort = strtol(argv[optnum], &cPointer, 10);
+				bError = cPointer == argv[optnum];
+			}
+			else
+			{
+				bError = true;
+			}
 			break;
 		case 'd':
-			iPK_Device = atoi(argv[++optnum]);
+			if (++optnum != argc)
+			{
+				iPK_Device = strtol(argv[optnum], &cPointer, 10);
+				bError = cPointer == argv[optnum];
+			}
+			else
+			{
+				bError = true;
+			}
 			break;
 		case 'o':
-			iPK_Distro = atoi(argv[++optnum]);
+			if (++optnum != argc)
+			{
+				iPK_Distro = strtol(argv[optnum], &cPointer, 10);
+				bError = cPointer == argv[optnum];
+			}
+			else
+			{
+				bError = true;
+			}
 			break;
 		case 'i':
 			bIncludeDisklessMD = false;
