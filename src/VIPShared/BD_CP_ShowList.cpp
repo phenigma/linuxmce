@@ -44,6 +44,7 @@ BD_CP_ShowList::BD_CP_ShowList(
 		unsigned long y, 
 		unsigned long Width, 
 		unsigned long Height,
+		unsigned long SelectedIndex,
 		list<string>  &DataGridList,
 		bool		  bSendSelectedOnMove,
 		bool		  bTurnOn
@@ -53,6 +54,7 @@ BD_CP_ShowList::BD_CP_ShowList(
 	m_y		 = y;
 	m_Width  = Width;
 	m_Height = Height;
+	m_SelectedIndex = SelectedIndex;
 	m_bSendSelectedOnMove = bSendSelectedOnMove;
 	m_bTurnOn = bTurnOn;
 
@@ -82,6 +84,7 @@ void BD_CP_ShowList::ConvertCommandToBinary()
 	Write_long(m_Height);
 	Write_long(m_bSendSelectedOnMove);
 	Write_long(m_bTurnOn);
+	Write_long(m_SelectedIndex);
 
 	Write_long(long(m_DataGridList.size()));
 	for(list<string>::iterator it = m_DataGridList.begin(); it != m_DataGridList.end(); ++it)
@@ -105,6 +108,7 @@ void BD_CP_ShowList::ParseCommand(unsigned long size,const char *data)
 	m_Height = Read_long();
 	m_bSendSelectedOnMove = Read_long();
 	m_bTurnOn = Read_long();
+	m_SelectedIndex = Read_long();
 
 	unsigned long ListSize = Read_long();
 
@@ -118,7 +122,7 @@ void BD_CP_ShowList::ParseCommand(unsigned long size,const char *data)
 
 	LOG("#	Received 'ShowList' command  #\n"); 
 	((CPlutoMOAppUi *)CCoeEnv::Static()->AppUi())->ShowList(m_x, m_y, m_Width, m_Height, m_DataGridList,
-		m_bSendSelectedOnMove, m_bTurnOn);
+		m_bSendSelectedOnMove, m_bTurnOn, m_SelectedIndex);
 
 #endif //SYMBIAN
 
