@@ -63,7 +63,7 @@ long MS_TO_CLK(long miliseconds)
 
 long CLK_TO_MS(long Clocks)
 {
-	return Clocks * xCLOCKS_PER_SEC / 1000;
+	return Clocks * 1000 / xCLOCKS_PER_SEC;
 }
 #endif //#ifndef SYMBIAN
 
