@@ -76,7 +76,7 @@ function editCommandGroupFromMasterDevice($output,$dbADO) {
 							$commandsDisplayed[]=0;
 								if ($res) {
 									while ($row=$res->FetchRow()) {
-										$out.="<tr ".(strlen(trim($row['Description']))==0?" bgColor='green' ":"")."><td>#{$row['C_Description']}<br />#{$row['FK_Command']}</td><td><textarea cols=\"40\" rows=\"5\" name=\"CommandDescription_{$row['FK_Command']}\">".stripslashes($row['Description']).'</textarea></td><td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editCommand&from=editCommandGroupFromMasterDevice&commandID='.$row['FK_Command'].'\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">Edit</a> ';
+										$out.="<tr ".(strlen(trim($row['Description']))==0?" bgColor='lightgreen' ":"")."><td>#{$row['C_Description']}<br />#{$row['FK_Command']}</td><td><textarea cols=\"40\" rows=\"5\" name=\"CommandDescription_{$row['FK_Command']}\">".stripslashes($row['Description']).'</textarea></td><td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=editCommand&from=editCommandGroupFromMasterDevice&commandID='.$row['FK_Command'].'\',\'width=400,height=300,toolbars=true,resizable=1,scrollbars=1\');">Edit</a> ';
 										$out.='<a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=deleteCommandFromMasterDevice&from=editCommandGroupFromMasterDevice&commandGroupID='.$commandGroupID.'&commandID='.$row['FK_Command'].'\',\'width=100,height=100,toolbars=true,resizable=1,scrollbars=1\');">Delete</a>';
 										$out.='</td></tr>';
 										$commandsDisplayed[]=$row['FK_Command'];

@@ -61,7 +61,7 @@ function editTimedEvent($output,$dbADO) {
 		';
 		$out.='
 			<tr>
-				<td><input type="radio" name="timedEventType" value="1" '.(($timedEventType==1)?'checked':'').' onClick="showOptions(1);"> <B>Interval based:</B></td>
+				<td width="200"><input type="radio" name="timedEventType" value="1" '.(($timedEventType==1)?'checked':'').' onClick="showOptions(1);"> <B>Interval based:</B></td>
 				<td>Do something every x minutes, or every other hour</td>
 			</tr>	
 			<tr>
@@ -93,7 +93,7 @@ function editTimedEvent($output,$dbADO) {
 					$oldIntervalType=(ereg('h',$rowOldValues['Value']))?1:((ereg('m',$rowOldValues['Value']))?2:3);	// 3 is error case
 				}
 
-				$out.='<input type="hidden" name="oldInterval" value="'.$rowOldValues['Value'].'">';
+				$out.='<input type="hidden" name="oldInterval" value="'.@$rowOldValues['Value'].'">';
 			break;
 			case 2:
 				$resOldValue=$dbADO->Execute('SELECT * FROM CriteriaParm WHERE FK_CriteriaParmNesting=? AND FK_CriteriaParmList=?',array($FK_CriteriaParmNesting,$GLOBALS['DayOfWeekParmList']));
@@ -252,7 +252,7 @@ function editTimedEvent($output,$dbADO) {
 					if ($resSelectParameters) {
 						$out.='<table border="0">';
 						while ($rowSelectParameters=$resSelectParameters->FetchRow()) {
-							$out.="<tr ".(strlen(trim($rowSelectParameters['CP_Description']))==0?" bgColor='green' ":"").">
+							$out.="<tr ".(strlen(trim($rowSelectParameters['CP_Description']))==0?" bgColor='lightgreen' ":"").">
 												<td>#{$rowSelectParameters['FK_CommandParameter']} <span title=\"{$rowSelectParameters['C_CP_Description']}\">{$rowSelectParameters['CP_Description']}</span> ({$rowSelectParameters['PT_Description']})</td>
 												<td><input type='text' name=\"CommandParameterValue_{$rowCommandAssigned['PK_CommandGroup_Command']}_{$rowSelectParameters['FK_CommandParameter']}\" value=\"{$rowSelectParameters['IK_CommandParameter']}\" >".'</td></tr>';
 						}
