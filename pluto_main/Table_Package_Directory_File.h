@@ -36,11 +36,10 @@ private:
 	struct Key
 	{
 		friend class Row_Package_Directory_File;
-		long int pk_FK_Package_Directory;
-string pk_File;
+		long int pk_PK_Package_Directory_File;
 
 		
-		Key(long int in_FK_Package_Directory, string in_File);
+		Key(long int in_PK_Package_Directory_File);
 	
 		Key(class Row_Package_Directory_File *pRow);
 	};
@@ -62,7 +61,7 @@ public:
 	Database_pluto_main *Database_pluto_main_get() { return database; }
 	
 		
-	class Row_Package_Directory_File* GetRow(long int in_FK_Package_Directory, string in_File);
+	class Row_Package_Directory_File* GetRow(long int in_PK_Package_Directory_File);
 	
 
 private:	
@@ -80,27 +79,30 @@ class DLL_EXPORT Row_Package_Directory_File : public TableRow, public SerializeC
 	private:
 		Table_Package_Directory_File *table;
 		
-		long int m_FK_Package_Directory;
+		long int m_PK_Package_Directory_File;
+long int m_FK_Package_Directory;
 long int m_FK_OperatingSystem;
 long int m_FK_Distro;
 string m_File;
 string m_Search;
 
-		bool is_null[5];
+		bool is_null[6];
 	
 		bool is_deleted;
 		bool is_added;
 		bool is_modified;					
 	
 	public:
-		long int FK_Package_Directory_get();
+		long int PK_Package_Directory_File_get();
+long int FK_Package_Directory_get();
 long int FK_OperatingSystem_get();
 long int FK_Distro_get();
 string File_get();
 string Search_get();
 
 		
-		void FK_Package_Directory_set(long int val);
+		void PK_Package_Directory_File_set(long int val);
+void FK_Package_Directory_set(long int val);
 void FK_OperatingSystem_set(long int val);
 void FK_Distro_set(long int val);
 void File_set(string val);
@@ -137,12 +139,13 @@ class Row_Distro* FK_Distro_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_FK_Package_Directory+ m_FK_OperatingSystem+ m_FK_Distro+ m_File+ m_Search;
+			StartSerializeList() + m_PK_Package_Directory_File+ m_FK_Package_Directory+ m_FK_OperatingSystem+ m_FK_Distro+ m_File+ m_Search;
 		}
 	private:
 		void SetDefaultValues();
 		
-		string FK_Package_Directory_asSQL();
+		string PK_Package_Directory_File_asSQL();
+string FK_Package_Directory_asSQL();
 string FK_OperatingSystem_asSQL();
 string FK_Distro_asSQL();
 string File_asSQL();

@@ -14,7 +14,9 @@
 #include <list>
 
 #ifdef WIN32
+#include <direct.h>
 #include <conio.h>
+#define chdir _chdir  // Why, Microsoft, why?
 #endif
 
 #include "pluto_main/Database_pluto_main.h"
@@ -184,6 +186,9 @@ int main(int argc, char *argv[])
 			sWhere += " AND ";
 		sWhere += "FK_Manufacturer IN (" + g_sManufacturer + ")";
 	}
+
+	if( g_sSourcePath.length() && g_sSourcePath[ g_sSourcePath.length()-1 ]!='/' )
+		g_sSourcePath += "/";
 
 	fstr_compile.open("Compile.script",fstream::out);  // A log of all the commands we executed to do the compile
 	fstr_make_release.open("MakeRelease.script",fstream::out);  // A log of all the commands we executed to make the release
@@ -463,10 +468,10 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 			(pRow_Package_Directory->FK_Directory_get()==DIRECTORY_Binary_Executibles_CONST ||
 			pRow_Package_Directory->FK_Directory_get()==DIRECTORY_Binary_Library_CONST) )
 		{
-			sDirectory = pRow_Package_Directory_CompiledOutput->Path_get();
+			sDirectory = g_sSourcePath + pRow_Package_Directory_CompiledOutput->Path_get();
 		}
 		else 
-			sDirectory = pRow_Package_Directory->Path_get();
+			sDirectory = g_sSourcePath + pRow_Package_Directory->Path_get();
 
 		vector<Row_Package_Directory_File *> vectPackage_Directory_File;
 		pRow_Package_Directory->Package_Directory_File_FK_Package_Directory_getrows(&vectPackage_Directory_File);
@@ -756,7 +761,6 @@ AsksSourceQuests:
 		if( !g_bSimulate )
 		{
 			chdir(sSourceDirectory.c_str());
-//			system(("cd " + sSourceDirectory).c_str());
 		}
 		fstr_compile << "cd " << sSourceDirectory << endl;
 
@@ -854,7 +858,7 @@ AsksSourceQuests:
 		for(size_t s=0;s<vectRow_Package_Directory_File.size();++s)
 		{
 			Row_Package_Directory_File *pRow_Package_Directory_File = vectRow_Package_Directory_File[s];
-			if( !FileUtils::FileExists(sCompiledOutput + "/" + pRow_Package_Directory_File->File_get()) ) 
+			if( !g_bSimulate && !FileUtils::FileExists(sCompiledOutput + "/" + pRow_Package_Directory_File->File_get()) ) 
 			{
 				cout << "**ERROR** The file: " << sCompiledOutput << "/" << pRow_Package_Directory_File->File_get() << " was not created.";
  				return false;
@@ -883,6 +887,7 @@ bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,list<FileI
 {
 	// TODO: make dirname acceptable to dh_make
 	string Dir("/tmp/pluto-build-2.0-1");
+	FILE * f;
 #ifndef WIN32
 	system(("rm -rf " + Dir).c_str());
 	mkdir(Dir.c_str(), 0666);
@@ -896,7 +901,7 @@ string Makefile = "none:\n"
 "install:\n"
 "\tcp -a root/* $(DESTDIR)\n";
 
-	FILE * f = fopen((Dir + "/Makefile").c_str(), "w");
+	f = fopen((Dir + "/Makefile").c_str(), "w");
 	fprintf(f, "%s", Makefile.c_str(), Makefile.length());
 	fclose(f);
 #endif
@@ -912,33 +917,35 @@ string Makefile = "none:\n"
 	}
 
 	f = fopen((Dir + "/root/dummy-file").c_str(), "w");
+	if( !f )
+	{
+		cout << "Error: cannot open dummy-file" << endl;
+		return false;
+	}
 	fclose(f);
 
-	vector<Row_Package_Package *> vect_pRow_Package_Package;
-    pRow_Package_Source->FK_Package_getrow()->Package_Package_FK_Package_getrows(&vect_pRow_Package_Package);
+	// Get a list of all the other packages which we depend on, and which have Debian sources.  We are going to add them to the .deb as dependencies
+	vector<Row_Package_Source *> vect_pRow_Package_Source_Dependencies;
+	pRow_Package_Source->Table_Package_Source_get()->GetRows("JOIN Package_Package ON Package_Package.FK_Package_DependsOn=Package_Source.FK_Package AND Package_Package.FK_Package=" + 
+		StringUtils::itos(pRow_Package_Source->FK_Package_get()) + " WHERE FK_RepositorySource=" + StringUtils::itos(REPOSITORYSOURCE_Pluto_Debian_CONST),
+		&vect_pRow_Package_Source_Dependencies);
 
-	string sDepends = ", libmysqlclient";
+	string sDepends;
 
-	//vector<Row_Package_Package *>::iterator iRow_Package_Package;
-	//for (iRow_Package_Package = vect_pRow_Package_Package.begin(); iRow_Package_Package != vect_pRow_Package_Package.end(); iRow_Package_Package++)
-	//{
-	//	vector<Row_Package_Source *> pRow_Package_Source2;
-	//	Row_Package_Package *pRow_Package_Package_Dependency = *iRow_Package_Package;
-
-	//	cout << "Depends:" << pRow_Package_Package_Dependency->FK_Package_DependsOn_getrow()->Description_get() << endl;
-	//	cout << "PK_Package: " << (*iRow_Package_Package)->FK_Package_DependsOn_getrow()->PK_Package_get() << endl;
-	//	(*iRow_Package_Package)->FK_Package_DependsOn_getrow()->Package_Source_FK_Package_getrows(&pRow_Package_Source2);
-	//	vector<Row_Package_Source *>::iterator iRow_Package_Source;
-	//	for (iRow_Package_Source = pRow_Package_Source2.begin(); iRow_Package_Source != pRow_Package_Source2.begin(); iRow_Package_Source++)
-	//	{
-	//		sDepends += ", " + (*iRow_Package_Source)->Name_get();
-	//	}
-	//}
-	//cout << "Depends list: " << sDepends << endl;
+	for (size_t s=0;s<vect_pRow_Package_Source_Dependencies.size();++s)
+	{
+		Row_Package_Source *pRow_Package_Source_Dependency = vect_pRow_Package_Source_Dependencies[s];
+		sDepends += ", " + pRow_Package_Source_Dependency->Name_get();
+	}
+	cout << "Depends list: " << sDepends << endl;
 
 #ifndef WIN32
 	system(("sed -i 's/^Depends:.*$/Depends: ${shlibs:Depends}, ${misc:Depends}" + sDepends + "/' " + Dir + "/debian/control").c_str());
-	system("dpkg-buildpackage -b");
+	if( system("dpkg-buildpackage -b") )
+	{
+		cout << "dpkg-buildpackage -b failed.  Aborting." << endl;
+		return false;
+	}
 #endif
 
 	cout << "------------DEBIAN PACKAGE OUTPUT" << endl;

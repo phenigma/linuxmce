@@ -110,13 +110,15 @@ Row_Package_Directory_File::Row_Package_Directory_File(Table_Package_Directory_F
 
 void Row_Package_Directory_File::SetDefaultValues()
 {
-	m_FK_Package_Directory = 0;
+	m_PK_Package_Directory_File = 0;
 is_null[0] = false;
-is_null[1] = true;
+m_FK_Package_Directory = 0;
+is_null[1] = false;
 is_null[2] = true;
+is_null[3] = true;
 m_File = "";
-is_null[3] = false;
-is_null[4] = true;
+is_null[4] = false;
+is_null[5] = true;
 
 
 	is_added=false;
@@ -124,6 +126,9 @@ is_null[4] = true;
 	is_modified=false;
 }
 
+long int Row_Package_Directory_File::PK_Package_Directory_File_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_PK_Package_Directory_File;}
 long int Row_Package_Directory_File::FK_Package_Directory_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_FK_Package_Directory;}
@@ -141,50 +146,66 @@ string Row_Package_Directory_File::Search_get(){PLUTO_SAFETY_LOCK(M, table->m_Mu
 return m_Search;}
 
 		
+void Row_Package_Directory_File::PK_Package_Directory_File_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_PK_Package_Directory_File = val; is_modified=true; is_null[0]=false;}
 void Row_Package_Directory_File::FK_Package_Directory_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_FK_Package_Directory = val; is_modified=true; is_null[0]=false;}
+m_FK_Package_Directory = val; is_modified=true; is_null[1]=false;}
 void Row_Package_Directory_File::FK_OperatingSystem_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_FK_OperatingSystem = val; is_modified=true; is_null[1]=false;}
+m_FK_OperatingSystem = val; is_modified=true; is_null[2]=false;}
 void Row_Package_Directory_File::FK_Distro_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_FK_Distro = val; is_modified=true; is_null[2]=false;}
+m_FK_Distro = val; is_modified=true; is_null[3]=false;}
 void Row_Package_Directory_File::File_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_File = val; is_modified=true; is_null[3]=false;}
+m_File = val; is_modified=true; is_null[4]=false;}
 void Row_Package_Directory_File::Search_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_Search = val; is_modified=true; is_null[4]=false;}
+m_Search = val; is_modified=true; is_null[5]=false;}
 
 		
 bool Row_Package_Directory_File::FK_OperatingSystem_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[1];}
+return is_null[2];}
 bool Row_Package_Directory_File::FK_Distro_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[2];}
+return is_null[3];}
 bool Row_Package_Directory_File::Search_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-return is_null[4];}
+return is_null[5];}
 
 			
 void Row_Package_Directory_File::FK_OperatingSystem_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[1]=val;}
+is_null[2]=val;}
 void Row_Package_Directory_File::FK_Distro_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[2]=val;}
+is_null[3]=val;}
 void Row_Package_Directory_File::Search_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-is_null[4]=val;}
+is_null[5]=val;}
 	
+
+string Row_Package_Directory_File::PK_Package_Directory_File_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[0])
+return "NULL";
+
+char buf[32];
+sprintf(buf, "%li", m_PK_Package_Directory_File);
+
+return buf;
+}
 
 string Row_Package_Directory_File::FK_Package_Directory_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[0])
+if (is_null[1])
 return "NULL";
 
 char buf[32];
@@ -197,7 +218,7 @@ string Row_Package_Directory_File::FK_OperatingSystem_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[1])
+if (is_null[2])
 return "NULL";
 
 char buf[32];
@@ -210,7 +231,7 @@ string Row_Package_Directory_File::FK_Distro_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[2])
+if (is_null[3])
 return "NULL";
 
 char buf[32];
@@ -223,7 +244,7 @@ string Row_Package_Directory_File::File_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[3])
+if (is_null[4])
 return "NULL";
 
 char buf[61];
@@ -235,7 +256,7 @@ string Row_Package_Directory_File::Search_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[4])
+if (is_null[5])
 return "NULL";
 
 char buf[511];
@@ -246,10 +267,9 @@ return string()+"\""+buf+"\"";
 
 
 
-Table_Package_Directory_File::Key::Key(long int in_FK_Package_Directory, string in_File)
+Table_Package_Directory_File::Key::Key(long int in_PK_Package_Directory_File)
 {
-			pk_FK_Package_Directory = in_FK_Package_Directory;
-pk_File = in_File;
+			pk_PK_Package_Directory_File = in_PK_Package_Directory_File;
 	
 }
 
@@ -257,18 +277,14 @@ Table_Package_Directory_File::Key::Key(Row_Package_Directory_File *pRow)
 {
 			PLUTO_SAFETY_LOCK(M, pRow->table->m_Mutex);
 
-			pk_FK_Package_Directory = pRow->m_FK_Package_Directory;
-pk_File = pRow->m_File;
+			pk_PK_Package_Directory_File = pRow->m_PK_Package_Directory_File;
 	
 }		
 
 bool Table_Package_Directory_File::Key_Less::operator()(const Table_Package_Directory_File::Key &key1, const Table_Package_Directory_File::Key &key2) const
 {
-			if (key1.pk_FK_Package_Directory!=key2.pk_FK_Package_Directory)
-return key1.pk_FK_Package_Directory<key2.pk_FK_Package_Directory;
-else
-if (key1.pk_File!=key2.pk_File)
-return key1.pk_File<key2.pk_File;
+			if (key1.pk_PK_Package_Directory_File!=key2.pk_PK_Package_Directory_File)
+return key1.pk_PK_Package_Directory_File<key2.pk_PK_Package_Directory_File;
 else
 return false;	
 }	
@@ -286,10 +302,10 @@ void Table_Package_Directory_File::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->FK_Package_Directory_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->File_asSQL()+", "+pRow->Search_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_Package_Directory_File_asSQL()+", "+pRow->FK_Package_Directory_asSQL()+", "+pRow->FK_OperatingSystem_asSQL()+", "+pRow->FK_Distro_asSQL()+", "+pRow->File_asSQL()+", "+pRow->Search_asSQL();
 
 	
-		string query = "insert into Package_Directory_File (FK_Package_Directory, FK_OperatingSystem, FK_Distro, File, Search) values ("+
+		string query = "insert into Package_Directory_File (PK_Package_Directory_File, FK_Package_Directory, FK_OperatingSystem, FK_Distro, File, Search) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -303,7 +319,9 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Package_Dir
 			
 			long int id	= (long int) mysql_insert_id(database->db_handle);
 		
-				
+			if (id!=0)
+pRow->m_PK_Package_Directory_File=id;
+	
 			
 			addedRows.erase(i);
 			Key key(pRow);	
@@ -326,20 +344,17 @@ values_list_comma_separated = values_list_comma_separated + pRow->FK_Package_Dir
 		Row_Package_Directory_File* pRow = (*i).second;	
 		Key key(pRow);	
 
-		char tmp_FK_Package_Directory[32];
-sprintf(tmp_FK_Package_Directory, "%li", key.pk_FK_Package_Directory);
-
-char tmp_File[61];
-mysql_real_escape_string(database->db_handle,tmp_File, key.pk_File.c_str(), (unsigned long) key.pk_File.size());
+		char tmp_PK_Package_Directory_File[32];
+sprintf(tmp_PK_Package_Directory_File, "%li", key.pk_PK_Package_Directory_File);
 
 
 string condition;
-condition = condition + "FK_Package_Directory=" + tmp_FK_Package_Directory+" AND "+"File=" + "\"" + tmp_File+ "\"";
+condition = condition + "PK_Package_Directory_File=" + tmp_PK_Package_Directory_File;
 	
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "FK_Package_Directory="+pRow->FK_Package_Directory_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", FK_Distro="+pRow->FK_Distro_asSQL()+", File="+pRow->File_asSQL()+", Search="+pRow->Search_asSQL();
+update_values_list = update_values_list + "PK_Package_Directory_File="+pRow->PK_Package_Directory_File_asSQL()+", FK_Package_Directory="+pRow->FK_Package_Directory_asSQL()+", FK_OperatingSystem="+pRow->FK_OperatingSystem_asSQL()+", FK_Distro="+pRow->FK_Distro_asSQL()+", File="+pRow->File_asSQL()+", Search="+pRow->Search_asSQL();
 
 	
 		string query = "update Package_Directory_File set " + update_values_list + " where " + condition;
@@ -370,15 +385,12 @@ update_values_list = update_values_list + "FK_Package_Directory="+pRow->FK_Packa
 	
 		Key key = (*i).first;
 	
-		char tmp_FK_Package_Directory[32];
-sprintf(tmp_FK_Package_Directory, "%li", key.pk_FK_Package_Directory);
-
-char tmp_File[61];
-mysql_real_escape_string(database->db_handle,tmp_File, key.pk_File.c_str(), (unsigned long) key.pk_File.size());
+		char tmp_PK_Package_Directory_File[32];
+sprintf(tmp_PK_Package_Directory_File, "%li", key.pk_PK_Package_Directory_File);
 
 
 string condition;
-condition = condition + "FK_Package_Directory=" + tmp_FK_Package_Directory+" AND "+"File=" + "\"" + tmp_File+ "\"";
+condition = condition + "PK_Package_Directory_File=" + tmp_PK_Package_Directory_File;
 
 	
 		string query = "delete from Package_Directory_File where " + condition;
@@ -432,56 +444,67 @@ bool Table_Package_Directory_File::GetRows(string where_statement,vector<class R
 		if (row[0] == NULL)
 {
 pRow->is_null[0]=true;
-pRow->m_FK_Package_Directory = 0;
+pRow->m_PK_Package_Directory_File = 0;
 }
 else
 {
 pRow->is_null[0]=false;
-sscanf(row[0], "%li", &(pRow->m_FK_Package_Directory));
+sscanf(row[0], "%li", &(pRow->m_PK_Package_Directory_File));
 }
 
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_FK_OperatingSystem = 0;
+pRow->m_FK_Package_Directory = 0;
 }
 else
 {
 pRow->is_null[1]=false;
-sscanf(row[1], "%li", &(pRow->m_FK_OperatingSystem));
+sscanf(row[1], "%li", &(pRow->m_FK_Package_Directory));
 }
 
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_FK_Distro = 0;
+pRow->m_FK_OperatingSystem = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-sscanf(row[2], "%li", &(pRow->m_FK_Distro));
+sscanf(row[2], "%li", &(pRow->m_FK_OperatingSystem));
 }
 
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_File = "";
+pRow->m_FK_Distro = 0;
 }
 else
 {
 pRow->is_null[3]=false;
-pRow->m_File = string(row[3],lengths[3]);
+sscanf(row[3], "%li", &(pRow->m_FK_Distro));
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_Search = "";
+pRow->m_File = "";
 }
 else
 {
 pRow->is_null[4]=false;
-pRow->m_Search = string(row[4],lengths[4]);
+pRow->m_File = string(row[4],lengths[4]);
+}
+
+if (row[5] == NULL)
+{
+pRow->is_null[5]=true;
+pRow->m_Search = "";
+}
+else
+{
+pRow->is_null[5]=false;
+pRow->m_Search = string(row[5],lengths[5]);
 }
 
 
@@ -520,11 +543,11 @@ Row_Package_Directory_File* Table_Package_Directory_File::AddRow()
 
 
 
-Row_Package_Directory_File* Table_Package_Directory_File::GetRow(long int in_FK_Package_Directory, string in_File)
+Row_Package_Directory_File* Table_Package_Directory_File::GetRow(long int in_PK_Package_Directory_File)
 {
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
-	Key row_key(in_FK_Package_Directory, in_File);
+	Key row_key(in_PK_Package_Directory_File);
 
 	map<Key, Row_Package_Directory_File*, Key_Less>::iterator i;
 	i = deleted_cachedRows.find(row_key);	
@@ -553,15 +576,12 @@ Row_Package_Directory_File* Table_Package_Directory_File::FetchRow(Table_Package
 	PLUTO_SAFETY_LOCK(M, m_Mutex);
 
 	//defines the string query for the value of key
-	char tmp_FK_Package_Directory[32];
-sprintf(tmp_FK_Package_Directory, "%li", key.pk_FK_Package_Directory);
-
-char tmp_File[61];
-mysql_real_escape_string(database->db_handle,tmp_File, key.pk_File.c_str(), (unsigned long) key.pk_File.size());
+	char tmp_PK_Package_Directory_File[32];
+sprintf(tmp_PK_Package_Directory_File, "%li", key.pk_PK_Package_Directory_File);
 
 
 string condition;
-condition = condition + "FK_Package_Directory=" + tmp_FK_Package_Directory+" AND "+"File=" + "\"" + tmp_File+ "\"";
+condition = condition + "PK_Package_Directory_File=" + tmp_PK_Package_Directory_File;
 
 
 	string query = "select * from Package_Directory_File where " + condition;		
@@ -596,56 +616,67 @@ condition = condition + "FK_Package_Directory=" + tmp_FK_Package_Directory+" AND
 	if (row[0] == NULL)
 {
 pRow->is_null[0]=true;
-pRow->m_FK_Package_Directory = 0;
+pRow->m_PK_Package_Directory_File = 0;
 }
 else
 {
 pRow->is_null[0]=false;
-sscanf(row[0], "%li", &(pRow->m_FK_Package_Directory));
+sscanf(row[0], "%li", &(pRow->m_PK_Package_Directory_File));
 }
 
 if (row[1] == NULL)
 {
 pRow->is_null[1]=true;
-pRow->m_FK_OperatingSystem = 0;
+pRow->m_FK_Package_Directory = 0;
 }
 else
 {
 pRow->is_null[1]=false;
-sscanf(row[1], "%li", &(pRow->m_FK_OperatingSystem));
+sscanf(row[1], "%li", &(pRow->m_FK_Package_Directory));
 }
 
 if (row[2] == NULL)
 {
 pRow->is_null[2]=true;
-pRow->m_FK_Distro = 0;
+pRow->m_FK_OperatingSystem = 0;
 }
 else
 {
 pRow->is_null[2]=false;
-sscanf(row[2], "%li", &(pRow->m_FK_Distro));
+sscanf(row[2], "%li", &(pRow->m_FK_OperatingSystem));
 }
 
 if (row[3] == NULL)
 {
 pRow->is_null[3]=true;
-pRow->m_File = "";
+pRow->m_FK_Distro = 0;
 }
 else
 {
 pRow->is_null[3]=false;
-pRow->m_File = string(row[3],lengths[3]);
+sscanf(row[3], "%li", &(pRow->m_FK_Distro));
 }
 
 if (row[4] == NULL)
 {
 pRow->is_null[4]=true;
-pRow->m_Search = "";
+pRow->m_File = "";
 }
 else
 {
 pRow->is_null[4]=false;
-pRow->m_Search = string(row[4],lengths[4]);
+pRow->m_File = string(row[4],lengths[4]);
+}
+
+if (row[5] == NULL)
+{
+pRow->is_null[5]=true;
+pRow->m_Search = "";
+}
+else
+{
+pRow->is_null[5]=false;
+pRow->m_Search = string(row[5],lengths[5]);
 }
 
 
