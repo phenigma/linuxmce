@@ -848,9 +848,13 @@ void Repository::UpdateSchema(int PriorSchema)
 		 while( ( row = mysql_fetch_row( result_set.r ) ) ) 
 		 {
 			 vector<string> vectCommands;
-			 StringUtils::Tokenize(string(row[0]),"\r\n",vectCommands);
+			 string Input=row[0];
+			 string Tokens="\r\n";
+			 StringUtils::Tokenize(Input,Tokens,vectCommands);
 			 for(size_t s=0;s<vectCommands.size();++s)
 			 {
+				 if( vectCommands[s].length()==0 )
+					 continue;
 				if( m_pDatabase->threaded_mysql_query( vectCommands[s] )!=0 )
 				{
 					cout << "SQL failed: " << vectCommands[s] << endl;
