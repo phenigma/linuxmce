@@ -1,7 +1,5 @@
 #include "VIPShared/VIPIncludes.h"
 #include "PlutoUtils/CommonIncludes.h"	
-#include "VIPShared/PlutoConfig.h"
-#include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
@@ -11,6 +9,11 @@
 #include "VR_ShowMenu.h"
 #include "VA_ForwardRequestToPhone.h"
 #include "VIPShared/VIPMenu.h"
+
+#include "RA/RA_Processor.h"
+#include "DCE/DCEMySqlConfig.h"
+
+#include <assert.h>
 #include <iostream>
 #include <sstream>
 
@@ -30,9 +33,12 @@ VR_RequestPayment::VR_RequestPayment(u_int64_t iMacAddress,long Amount,string In
 	m_FKID_PlutoId_User=FKID_PlutoId_User;
 }
 
-bool VR_RequestPayment::ProcessRequest(class RA_Processor *pRA_Processor)
+bool VR_RequestPayment::ProcessRequest(RA_Processor *pRA_Processor)
 {
 #ifdef VIPSERVER
+
+	DCEMySqlConfig *pDCEMySqlConfig = dynamic_cast<DCEMySqlConfig *>(pRA_Processor->m_pRA_Config);
+	assert(NULL != pDCEMySqlConfig);
 
 	std::ostringstream sql;
 
@@ -43,7 +49,7 @@ bool VR_RequestPayment::ProcessRequest(class RA_Processor *pRA_Processor)
 
 	cout << sql;
 
-	int PKID_PmtTrans = g_pPlutoConfig->threaded_mysql_query_withID(sql.str());
+	int PKID_PmtTrans = pDCEMySqlConfig->ThreadedMysqlQueryWithID(sql.str());
 	if( PKID_PmtTrans==0 )
 	{
 		cout << "FAILED: " << sql; 
@@ -59,7 +65,7 @@ bool VR_RequestPayment::ProcessRequest(class RA_Processor *pRA_Processor)
 			StringUtils::SQLEscape(pInvoiceDetail->m_sProductID) << "','" << StringUtils::SQLEscape(pInvoiceDetail->m_sDescription) << "'," <<
 			pInvoiceDetail->m_iAmount << ");";
 
-		int PKID_PmtTrans_Detail = g_pPlutoConfig->threaded_mysql_query_withID(sql.str());
+		int PKID_PmtTrans_Detail = pDCEMySqlConfig->ThreadedMysqlQueryWithID(sql.str());
 		if( PKID_PmtTrans_Detail==0 )
 		{
 			cout << "FAILED: " << sql; 
@@ -73,7 +79,7 @@ bool VR_RequestPayment::ProcessRequest(class RA_Processor *pRA_Processor)
 	sql << "SELECT Name FROM Establishment WHERE FKID_PlutoId=" << m_FKID_PlutoId_Establishment;
 	
 
-	if( (rsEstablishment.r = g_pPlutoConfig->mysql_query_result(sql.str()))==NULL || 
+	if( (rsEstablishment.r = pDCEMySqlConfig->MySqlQueryResult(sql.str()))==NULL || 
 		(EstablishmentRow=mysql_fetch_row(rsEstablishment.r))==NULL )
 	{
 		cout << "UNKNOWN ESTALIBSHMENT: " << sql; 
@@ -83,7 +89,7 @@ bool VR_RequestPayment::ProcessRequest(class RA_Processor *pRA_Processor)
 
 	sql.str("");
 	sql << "SELECT PKID_CC,Description FROM Users_CC WHERE FKID_PlutoId=" << m_FKID_PlutoId_User;
-	if( (rsPaymentMethods.r = g_pPlutoConfig->mysql_query_result(sql.str()))==NULL || 
+	if( (rsPaymentMethods.r = pDCEMySqlConfig->MySqlQueryResult(sql.str()))==NULL || 
 		(PaymentMethodsRow=mysql_fetch_row(rsPaymentMethods.r))==NULL )
 	{
 		cout << "user Cannot pay: " << sql; 
@@ -100,7 +106,7 @@ bool VR_RequestPayment::ProcessRequest(class RA_Processor *pRA_Processor)
 	}
 
 	m_cProcessOutcome = SUCCESSFULLY_PROCESSED;
-	VR_ShowMenu *pMenu = new VR_ShowMenu((g_pPlutoConfig->m_sMenuPath + "payment.vmc").c_str());
+	VR_ShowMenu *pMenu = new VR_ShowMenu((pDCEMySqlConfig->m_sMenuPath + "payment.vmc").c_str());
 	
 	MYSTL_ADDTO_LIST(pMenu->m_listInputVariables, (new VIPVariable(VIPVAR_PAYMENT_AMOUNT_REQUESTED,0,StringUtils::itos(m_iAmount),0,0)));
 	MYSTL_ADDTO_LIST(pMenu->m_listInputVariables, (new VIPVariable(VIPVAR_INVOICE_NUM,0,m_sInvoiceNumber.c_str(),0,0)));
@@ -128,7 +134,7 @@ bool VR_RequestPayment::ProcessRequest(class RA_Processor *pRA_Processor)
 
 	VIPMenuCollection *pMenuCollection = new VIPMenuCollection(VIPMENUCOLL_SECURE_PAYMENT);
 
-	VIPVariable *pTransVariable = new VIPVariable(VIPVAR_INVOICE_NUM,1,StringUtils::itos(g_pPlutoConfig->m_iTransNumber++),false,0); // Number 1, phone sets value
+	VIPVariable *pTransVariable = new VIPVariable(VIPVAR_INVOICE_NUM,1,StringUtils::itos(pDCEMySqlConfig->m_iTransNumber++),false,0); // Number 1, phone sets value
 	pMenuCollection->AddVariable(pTransVariable);
 
 	VIPVariable *pAmountVariable = new VIPVariable(VIPVAR_PAYMENT_AMOUNT_USER,1,"",false,MENU_VARFORMAT_2_DECIMAL); // Number 1, phone sets value

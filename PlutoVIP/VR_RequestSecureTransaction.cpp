@@ -2,6 +2,10 @@
 #include "VR_RequestSecureTransaction.h"
 #include "VIPShared/PlutoConfig.h"
 #include "VIPShared/VIPMenu.h"
+#include "RA/RA_Processor.h"
+#include "DCE/DCEMySqlConfig.h"
+
+#include <assert.h>
 
 VR_RequestSecureTransaction::VR_RequestSecureTransaction(unsigned long FKID_PlutoId_Establishment,unsigned long FKID_PlutoId_User) 
 	: RA_Request()
@@ -10,8 +14,11 @@ VR_RequestSecureTransaction::VR_RequestSecureTransaction(unsigned long FKID_Plut
 	m_FKID_PlutoId_User=FKID_PlutoId_User;
 }
 
-bool VR_RequestSecureTransaction::ProcessRequest(class RA_Processor *pRA_Processor)
+bool VR_RequestSecureTransaction::ProcessRequest(RA_Processor *pRA_Processor)
 {
+	//DCEMySqlConfig *pDCEMySqlConfig = dynamic_cast<DCEMySqlConfig *>(pRA_Processor->m_pRA_Config);
+	//assert(NULL != pDCEMySqlConfig);
+
 	m_lMacAddress = 1234567890;
 	m_iConfirmEstablishmentId = m_FKID_PlutoId_Establishment;
 	m_pdbKey.m_dwSize = 100;

@@ -1,7 +1,6 @@
 #include "VIPShared/VIPIncludes.h"
 #include "PlutoUtils/CommonIncludes.h"	
 #include "VR_IdentifyPhone.h"
-#include "VIPShared/PlutoConfig.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
@@ -10,8 +9,12 @@
 #include "VR_ShowMenu.h"
 #include "VA_ForwardRequestToPhone.h"
 
+#include "RA/RA_Processor.h"
+#include "DCE/DCEMySqlConfig.h"
+
 #include <iostream>
 #include <sstream>
+#include <assert.h>
 
 #define	PLUTOID_USERNAME	1
 #define	PLUTOID_PASSWORD	2
@@ -57,9 +60,13 @@ VR_IdentifyPhone::VR_IdentifyPhone(unsigned long EstablishmentID,
 	m_iPlutoId=0;
 }
 
-bool VR_IdentifyPhone::ProcessRequest(class RA_Processor *pRA_Processor)
+bool VR_IdentifyPhone::ProcessRequest(RA_Processor *pRA_Processor)
 {
 #ifdef VIPSERVER
+
+	DCEMySqlConfig *pDCEMySqlConfig = dynamic_cast<DCEMySqlConfig *>(pRA_Processor->m_pRA_Config);
+	assert(NULL != pDCEMySqlConfig);
+
 	m_pdbImage.m_dwSize = 0;
 	m_pdbImage.m_pBlock = NULL;
 
@@ -83,10 +90,19 @@ bool VR_IdentifyPhone::ProcessRequest(class RA_Processor *pRA_Processor)
 	MYSQL_ROW UsersRow=NULL,AddressRow=NULL,ExtraDataRow=NULL,ShareRow=NULL,PhoneRow=NULL;
 
 	std::ostringstream s;
-	s << "SELECT FKID_PlutoID,FKID_C_PhoneStatus,FKID_BinaryVersion,BinaryRevision,NoBinary,Revision,BinaryFilename FROM MacAddress LEFT JOIN PhoneModel ON FKID_PhoneModel=PKID_PhoneModel LEFT JOIN BinaryVersion ON FKID_BinaryVersion=PKID_BinaryVersion WHERE PKID_MacAddress=" << m_iMacAddress;
+	s << 
+		"SELECT FKID_PlutoID,FKID_C_PhoneStatus,FKID_BinaryVersion,BinaryRevision,"
+		"NoBinary,Revision,BinaryFilename "
+		"FROM MacAddress "
+		"LEFT JOIN PhoneModel ON FKID_PhoneModel = PKID_PhoneModel "
+		"LEFT JOIN BinaryVersion ON FKID_BinaryVersion = PKID_BinaryVersion "
+		"WHERE PKID_MacAddress = " << m_iMacAddress;
 
 	cout << "Executing: " << s.str() << "\n";
-	if( (rsMacAddress.r = g_pPlutoConfig->mysql_query_result(s.str())) && (MacAddressRow=mysql_fetch_row(rsMacAddress.r)) )
+	if( 
+		(rsMacAddress.r = pDCEMySqlConfig->MySqlQueryResult(s.str())) && 
+		(MacAddressRow = mysql_fetch_row(rsMacAddress.r)) 
+	)
 	{
 		// See if: This phone does take a binary, and NoBinary is not set, and there is revision
 		if( MacAddressRow[2] && (!MacAddressRow[4] || MacAddressRow[4][0]=='0') && MacAddressRow[5] )
@@ -103,7 +119,10 @@ bool VR_IdentifyPhone::ProcessRequest(class RA_Processor *pRA_Processor)
 
 		s.str("");
 		s << "SELECT RecordVersion,Email FROM PlutoId WHERE PKID_PlutoId=" << m_iPlutoId;
-		if( (rsPlutoId.r = g_pPlutoConfig->mysql_query_result(s.str())) && (PlutoIdRow=mysql_fetch_row(rsPlutoId.r)) )
+		if( 
+			(rsPlutoId.r = pDCEMySqlConfig->MySqlQueryResult(s.str())) && 
+			(PlutoIdRow=mysql_fetch_row(rsPlutoId.r)) 
+		)
 		{
 			m_iRecordVersion = atoi(PlutoIdRow[0]);
 			cout << "Request from " << m_iEstablishmentID << 
@@ -134,7 +153,10 @@ bool VR_IdentifyPhone::ProcessRequest(class RA_Processor *pRA_Processor)
 			<< " WHERE PKID_PlutoId=" << m_iIdentifiedPlutoId << " AND PIN='"
 			<< m_sIdentifiedPlutoIdPin << "'";
 
-		if( (rsPlutoId.r = g_pPlutoConfig->mysql_query_result(s.str())) && (PlutoIdRow=mysql_fetch_row(rsPlutoId.r)) )
+		if( 
+			(rsPlutoId.r = pDCEMySqlConfig->MySqlQueryResult(s.str())) && 
+			(PlutoIdRow = mysql_fetch_row(rsPlutoId.r)) 
+		)
 		{
 			cout << "Adding to database Mac " << m_iMacAddress << " ID " << m_iIdentifiedPlutoId << "\n";
 			cout << "Request from " << m_iEstablishmentID << 
@@ -158,7 +180,7 @@ bool VR_IdentifyPhone::ProcessRequest(class RA_Processor *pRA_Processor)
 				")";
 
 			cout << "Executing: " << s << "\n";
-			g_pPlutoConfig->threaded_mysql_query(s.str());
+			pDCEMySqlConfig->ThreadedMysqlQuery(s.str());
 		}
 	}
 
@@ -173,23 +195,23 @@ bool VR_IdentifyPhone::ProcessRequest(class RA_Processor *pRA_Processor)
 
 	s.str("");
 	s << "SELECT Nickname,Gender,BirthDate,FirstName,LastName FROM Users where FKID_PlutoID=" << m_iPlutoId;
-	if( (rsUsers.r = g_pPlutoConfig->mysql_query_result(s.str())) )
+	if( (rsUsers.r = pDCEMySqlConfig->MySqlQueryResult(s.str())) )
 		UsersRow=mysql_fetch_row(rsUsers.r);
 
 	s.str("");
 	s << "SELECT Address,ZipCode,City.Name as City,C_State.Name As State FROM Address LEFT JOIN City on FKID_City=PKID_City LEFT JOIN C_State ON FKID_C_State=PKID_C_State where FKID_PlutoID=" << m_iPlutoId;
-	if( (rsAddress.r = g_pPlutoConfig->mysql_query_result(s.str())) )
+	if( (rsAddress.r = pDCEMySqlConfig->MySqlQueryResult(s.str())) )
 		AddressRow=mysql_fetch_row(rsAddress.r);
 
 	s.str("");
 	s << "SELECT AreaCode,Number,Extension,FKID_PhoneNumberCategory FROM PhoneNumber where FKID_PlutoID=" << m_iPlutoId;
-	rsPhone.r = g_pPlutoConfig->mysql_query_result(s.str());
+	rsPhone.r = pDCEMySqlConfig->MySqlQueryResult(s.str());
 
 	s.str("");
 	s << "SELECT ShareText FROM Users_EstablishmentCategory INNER JOIN Establishment ON Establishment.FKID_EstablishmentCategory=Users_EstablishmentCategory.FKID_EstablishmentCategory WHERE FKID_PlutoId_User="
 		<< m_iEstablishmentID << " AND FKID_PlutoID=" << m_iPlutoId;
 
-	if( (rsExtra.r = g_pPlutoConfig->mysql_query_result(s.str())) )
+	if( (rsExtra.r = pDCEMySqlConfig->MySqlQueryResult(s.str())) )
 	{
 		while( ExtraDataRow=mysql_fetch_row(rsExtra.r) )
 		{
@@ -200,7 +222,7 @@ bool VR_IdentifyPhone::ProcessRequest(class RA_Processor *pRA_Processor)
 	s.str("");
 	s << "SELECT FKID_C_Field FROM ShareWithEstablishment WHERE FKID_PlutoId=" << m_iPlutoId;
 
-	if( (rsShare.r = g_pPlutoConfig->mysql_query_result(s.str())) )
+	if( (rsShare.r = pDCEMySqlConfig->MySqlQueryResult(s.str())) )
 	{
 		while( ShareRow=mysql_fetch_row(rsShare.r) )
 		{
@@ -256,8 +278,8 @@ bool VR_IdentifyPhone::ProcessRequest(class RA_Processor *pRA_Processor)
 				}
 				break;
 			case	_FP_PICTURE:
-				FILE *file = fopen( (g_pPlutoConfig->m_sPicturePath + StringUtils::itos(m_iPlutoId) + ".jpg").c_str(),"rb");
-				cout << "Tried to open " << g_pPlutoConfig->m_sPicturePath << m_iPlutoId << ".jpg result: " << file << "\n";
+				FILE *file = fopen( (pDCEMySqlConfig->m_sPicturePath + StringUtils::itos(m_iPlutoId) + ".jpg").c_str(),"rb");
+				cout << "Tried to open " << pDCEMySqlConfig->m_sPicturePath << m_iPlutoId << ".jpg result: " << file << "\n";
 				m_iImageType=GRAPHICTYPE_JPG;
 				if( file )
 				{
@@ -289,7 +311,10 @@ CheckForVMC:
 		"FKID_PlutoId_User=" << m_iPlutoId << " AND FKID_PlutoId_Establishment=" << m_iEstablishmentID;
 	cout << "Looking up user: " << m_iPlutoId << " establishment: " << m_iEstablishmentID << "\n";
 	PlutoSqlResult rsCustomerDataRow;
-	if( (rsCustomerDataRow.r = g_pPlutoConfig->mysql_query_result(s.str())) && (CustomerDataRow=mysql_fetch_row(rsCustomerDataRow.r)) )
+	if( 
+		(rsCustomerDataRow.r = pDCEMySqlConfig->MySqlQueryResult(s.str())) && 
+		(CustomerDataRow = mysql_fetch_row(rsCustomerDataRow.r)) 
+	)
 	{
 		cout << "Found a record\n";
 		const char *AutoSendVMC=NULL;
@@ -303,12 +328,12 @@ CheckForVMC:
 		if( AutoSendVMC )
 		{
 			cout << "Sending menu " << AutoSendVMC;
-			cout << "Sending menu " << g_pPlutoConfig->m_sMenuPath << AutoSendVMC; 
+			cout << "Sending menu " << pDCEMySqlConfig->m_sMenuPath << AutoSendVMC; 
 
-			VR_ShowMenu *pMenu = new VR_ShowMenu((g_pPlutoConfig->m_sMenuPath + AutoSendVMC).c_str());
+			VR_ShowMenu *pMenu = new VR_ShowMenu((pDCEMySqlConfig->m_sMenuPath + AutoSendVMC).c_str());
 			if( !pMenu->m_pMenuCollection )
 			{
-				cout << "Couldn't send menu " << g_pPlutoConfig->m_sMenuPath << AutoSendVMC; 
+				cout << "Couldn't send menu " << pDCEMySqlConfig->m_sMenuPath << AutoSendVMC; 
 				delete pMenu;   // Menu wasn't found
 			}
 			else
@@ -319,20 +344,25 @@ CheckForVMC:
 		}
 	}
 
-	LogVisit();
+	LogVisit(pRA_Processor);
 
 #endif
 	return true;
 }
 
 
-void VR_IdentifyPhone::LogVisit()
+void VR_IdentifyPhone::LogVisit(RA_Processor *pRA_Processor)
 {
 #ifdef VIPSERVER
+
+	DCEMySqlConfig *pDCEMySqlConfig = dynamic_cast<DCEMySqlConfig *>(pRA_Processor->m_pRA_Config);
+	assert(NULL != pDCEMySqlConfig);
+
 	char sql[100];
 	cout << "Visit Logged\n";
 	sprintf(sql,"INSERT INTO Visit(FKID_PlutoId_User,FKID_PlutoId_Establishment) VALUES(%d,%d)",m_iPlutoId,m_iEstablishmentID);
-	g_pPlutoConfig->threaded_mysql_query(sql);
+
+	pDCEMySqlConfig->ThreadedMysqlQuery(sql);
 #endif
 }
 

@@ -1,5 +1,4 @@
 #include "VIPShared/VIPIncludes.h"
-#include "VIPShared/PlutoConfig.h"
 #include "PlutoUtils/FileUtils.h"
 #include "PlutoUtils/StringUtils.h"
 #include "PlutoUtils/Other.h"
@@ -9,7 +8,11 @@
 #include "VR_ShowMenu.h"
 #include "VIPShared/VIPMenu.h"
 #include "RA/RA_Request.h"
+
 #include "RA/RA_Processor.h"
+#include "DCE/DCEMySqlConfig.h"
+
+#include <assert.h>
 #include <iostream>
 #include <sstream>
 
@@ -27,9 +30,13 @@ VR_PhoneRespondedToRequest::VR_PhoneRespondedToRequest(unsigned long RequestID,u
 
 }
 
-bool VR_PhoneRespondedToRequest::ProcessRequest(class RA_Processor *pRA_Processor)
+bool VR_PhoneRespondedToRequest::ProcessRequest(RA_Processor *pRA_Processor)
 {
 #ifdef VIPSERVER
+
+	DCEMySqlConfig *pDCEMySqlConfig = dynamic_cast<DCEMySqlConfig *>(pRA_Processor->m_pRA_Config);
+	assert(NULL != pDCEMySqlConfig);
+
 	RA_Request *pRequest;
 	if( m_pdbOriginalRequest.m_dwSize )
 		pRequest = pRA_Processor->BuildRequestFromData(m_pdbOriginalRequest.m_dwSize,m_pdbOriginalRequest.m_pBlock, m_iRequestID);
@@ -67,7 +74,7 @@ bool VR_PhoneRespondedToRequest::ProcessRequest(class RA_Processor *pRA_Processo
 			PlutoSqlResult rsTrans;
 			MYSQL_ROW TransRow=NULL;
 			sql << "SELECT Amount FROM PmtTrans WHERE PKID_PmtTrans=" << TransNumber;
-			if( (rsTrans.r = g_pPlutoConfig->mysql_query_result(sql.str()))==NULL || 
+			if( (rsTrans.r = pDCEMySqlConfig->MySqlQueryResult(sql.str()))==NULL || 
 				(TransRow=mysql_fetch_row(rsTrans.r))==NULL )
 			{
 				cout << "CANNOT FIND TRANSACTION: " << sql; 
@@ -82,7 +89,7 @@ bool VR_PhoneRespondedToRequest::ProcessRequest(class RA_Processor *pRA_Processo
 			{
 				sql.str("");
 				sql << "UPDATE PmtTrans SET Result=-3 WHERE PKID_PmtTrans=" << TransNumber;
-				g_pPlutoConfig->threaded_mysql_query(sql.str());
+				pDCEMySqlConfig->ThreadedMysqlQuery(sql.str());
 
 				VA_UpdateTransaction *pUP = new VA_UpdateTransaction(TransNumber,-3,"cancelled");
 				m_listActions.push_back(pUP);
@@ -98,7 +105,7 @@ bool VR_PhoneRespondedToRequest::ProcessRequest(class RA_Processor *pRA_Processo
 				<< TransNumber << ",'" << StringUtils::SQLDateTime() << "'," << Result << ",'"
 				<< StringUtils::SQLEscape(ResultStr) << "');";
 
-			int PKID_PmtTrans_Auth = g_pPlutoConfig->threaded_mysql_query_withID(sql.str());
+			int PKID_PmtTrans_Auth = pDCEMySqlConfig->ThreadedMysqlQueryWithID(sql.str());
 			if( PKID_PmtTrans_Auth==0 )
 			{
 				cout << "FAILED: " << sql; 
@@ -108,7 +115,7 @@ bool VR_PhoneRespondedToRequest::ProcessRequest(class RA_Processor *pRA_Processo
 
 			sql.str("");
 			sql << "UPDATE PmtTrans SET Result=" << Result << " WHERE PKID_PmtTrans=" << TransNumber;
-			g_pPlutoConfig->threaded_mysql_query(sql.str());
+			pDCEMySqlConfig->ThreadedMysqlQuery(sql.str());
 
 
 			VA_UpdateTransaction *pUP = new VA_UpdateTransaction(TransNumber,Result,ResultStr);

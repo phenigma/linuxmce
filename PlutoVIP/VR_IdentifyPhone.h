@@ -45,7 +45,7 @@ public:
 	);
 	VR_IdentifyPhone() {}
 
-	virtual void LogVisit();
+	virtual void LogVisit(class RA_Processor *pRA_Processor);
 
 	virtual unsigned long ID() { return VRS_IDENFITY_PHONE; }
 

@@ -25,7 +25,8 @@
 class VIPPhoneNumber
 {
 public:
-	unsigned char m_iPhoneNumberType;
+	//unsigned char m_iPhoneNumberType; //it seems that m_iPhoneNumberType is serialized as an unsigned long (chris 10.11.2004)
+	unsigned long m_iPhoneNumberType;
 	string m_sNumber;
 };
 

@@ -359,12 +359,6 @@
 				RelativePath="..\Ra\RAClientSocket.cpp">
 			</File>
 			<File
-				RelativePath="..\Ra\RAServer.cpp">
-			</File>
-			<File
-				RelativePath="..\Ra\RAServerSocket.cpp">
-			</File>
-			<File
 				RelativePath=".\RecordError.cpp">
 			</File>
 			<File
@@ -534,10 +528,10 @@
 				RelativePath=".\StaticPicture.h">
 			</File>
 			<File
-				RelativePath=".\StdAfx.h">
+				RelativePath="..\VIPShared\stdafx.h">
 			</File>
 			<File
-				RelativePath="..\VIPShared\stdafx.h">
+				RelativePath=".\StdAfx.h">
 			</File>
 		</Filter>
 		<Filter

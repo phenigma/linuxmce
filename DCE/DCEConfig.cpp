@@ -1,6 +1,6 @@
 #include "DCEConfig.h"
 #include "PlutoUtils/StringUtils.h"
-
+//------------------------------------------------------------------------------------------------------
 DCEConfig::DCEConfig(string sFilename) 
 { 
 	m_sDBHost="dce_router"; m_sDBUser="root"; m_sDBPassword=""; m_sDBName="pluto_main"; m_sDCERouter="dce_router";
@@ -75,24 +75,49 @@ DCEConfig::DCEConfig(string sFilename)
 			break;
 	}
 
-	if( m_mapParameters_Exists("MySqlHost") )
-		m_sDBHost=m_mapParameters_Find("MySqlHost");
-	if( m_mapParameters_Exists("MySqlUser") )
-		m_sDBUser=m_mapParameters_Find("MySqlUser");
-	if( m_mapParameters_Exists("MySqlPassword") )
-		m_sDBPassword=m_mapParameters_Find("MySqlPassword");
-	if( m_mapParameters_Exists("MySqlDBName") )
-		m_sDBName=m_mapParameters_Find("MySqlDBName");
-	if( m_mapParameters_Exists("MySqlPort") )
-		m_iDBPort=atoi(m_mapParameters_Find("MySqlPort").c_str());
-	if( m_mapParameters_Exists("DCERouter") )
-		m_sDBHost=m_mapParameters_Find("DCERouter");
-	if( m_mapParameters_Exists("DCERouterPort") )
-		m_iDCERouterPort=atoi(m_mapParameters_Find("DCERouterPort").c_str());
-	if( m_mapParameters_Exists("PK_Device") )
-		m_iPK_Device_Computer=atoi(m_mapParameters_Find("PK_Device").c_str());
-	if( m_mapParameters_Exists("PK_Installation") )
-		m_iPK_Installation=atoi(m_mapParameters_Find("PK_Installation").c_str());
-	if( m_mapParameters_Exists("PK_Distro") )
-		m_iPK_Distro=atoi(m_mapParameters_Find("PK_Distro").c_str());
+	m_sDBHost				= ReadString("MySqlHost");
+	m_sDBUser				= ReadString("MySqlUser");
+	m_sDBPassword			= ReadString("MySqlPassword");
+	m_sDBName				= ReadString("MySqlDBName");
+	m_sDCERouter			= ReadString("DCERouter");
+	m_iDBPort				= ReadInteger("MySqlPort");
+	m_iDCERouterPort		= ReadInteger("DCERouterPort");
+	m_iPK_Device_Computer	= ReadInteger("PK_Device");
+	m_iPK_Installation		= ReadInteger("PK_Installation");
+	m_iPK_Distro			= ReadInteger("PK_Distro");
+
+	m_sMenuPath				= ReadString("MenuPath");
+	m_sPicturePath			= ReadString("PicturePath");
 }
+//------------------------------------------------------------------------------------------------------
+/*virtual*/ DCEConfig::~DCEConfig()
+{
+	m_mapParameters.clear();
+}
+//------------------------------------------------------------------------------------------------------
+/*inline*/ int DCEConfig::ReadInteger(string sToken, int iDefaultValue/* = 0*/)
+{
+	int iValue = iDefaultValue;
+
+	if( m_mapParameters_Exists(sToken) )
+	{
+		try
+		{
+			iValue = atoi(m_mapParameters_Find(sToken).c_str());
+		}
+		catch(...) {}
+	}
+
+	return iValue;
+}
+//------------------------------------------------------------------------------------------------------
+/*inline*/ string DCEConfig::ReadString(string sToken, string sDefaultValue/* = ""*/)
+{
+	string sValue = sDefaultValue;
+
+	if( m_mapParameters_Exists(sToken) )
+		sValue = m_mapParameters_Find(sToken);
+
+	return sValue;
+}
+//------------------------------------------------------------------------------------------------------

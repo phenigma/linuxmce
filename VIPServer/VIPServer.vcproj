@@ -24,6 +24,7 @@
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
@@ -120,7 +121,10 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
-				RelativePath="..\VIPShared\PlutoConfig.cpp">
+				RelativePath="..\Dce\DCEConfig.cpp">
+			</File>
+			<File
+				RelativePath="..\Dce\DCEMySqlConfig.cpp">
 			</File>
 			<File
 				RelativePath="..\PlutoVIP\PlutoVIPRequests.cpp">
@@ -191,6 +195,12 @@
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
 				RelativePath="CommonFunctions.h">
+			</File>
+			<File
+				RelativePath="..\Dce\DCEMySqlConfig.h">
+			</File>
+			<File
+				RelativePath="..\Ra\RA_Config.h">
 			</File>
 		</Filter>
 		<Filter

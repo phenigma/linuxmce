@@ -106,12 +106,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShopNetUtil", "http://local
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VIPDesign", "VIPDesign\VIPDesign.vcproj", "{A826C96C-9D11-4E4E-8B08-DA706704E823}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PlutoVIP", "PlutoVIP\PlutoVIP.vcproj", "{05A67227-6223-4B99-9C33-44C93CD27DCD}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VIPServer", "VIPServer\VIPServer.vcproj", "{B6EFB531-105E-4A1E-BC46-78C6DF6FA325}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -240,6 +246,10 @@ Global
 		{05A67227-6223-4B99-9C33-44C93CD27DCD}.Debug.Build.0 = Debug|Win32
 		{05A67227-6223-4B99-9C33-44C93CD27DCD}.Release.ActiveCfg = Release|Win32
 		{05A67227-6223-4B99-9C33-44C93CD27DCD}.Release.Build.0 = Release|Win32
+		{B6EFB531-105E-4A1E-BC46-78C6DF6FA325}.Debug.ActiveCfg = Debug|Win32
+		{B6EFB531-105E-4A1E-BC46-78C6DF6FA325}.Debug.Build.0 = Debug|Win32
+		{B6EFB531-105E-4A1E-BC46-78C6DF6FA325}.Release.ActiveCfg = Release|Win32
+		{B6EFB531-105E-4A1E-BC46-78C6DF6FA325}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

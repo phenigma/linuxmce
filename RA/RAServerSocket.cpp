@@ -2,6 +2,7 @@
 #include "PlutoUtils/CommonIncludes.h"	
 #include "PlutoUtils/StringUtils.h"
 #include "DCE/Logger.h"
+#include "DCE/DCEMySqlConfig.h"
 
 #include "RAServer.h"
 #include "RAServerSocket.h"
@@ -30,7 +31,7 @@ RAServerSocket::~RAServerSocket()
 
 void RAServerSocket::Run()
 {
-	RA_Processor *pRA_Processor = RA_Processor::CreateRA_Processor(new DCEConfig());
+	RA_Processor *pRA_Processor = RA_Processor::CreateRA_Processor(new DCEMySqlConfig());
 	while( pRA_Processor->ReceiveRequests(this) );
 
 	if (!SOCKFAIL(m_Socket))
