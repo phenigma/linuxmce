@@ -97,6 +97,8 @@ RA_Processor *RA_Processor::CreateRA_Processor(class RAServerSocket *pRAServerSo
 {
 	if( g_psqlCVSprocessor )
 	{
+		cout << "There is still another processor open for " << (int) (time(NULL) - g_psqlCVSprocessor->tTime_Creation) <<
+			" seconds for IP: " << g_psqlCVSprocessor->m_pRAServerSocket->m_sIPAddress << endl;
 		pRAServerSocket->SendString("BUSY_RETRY");
 		return NULL;
 	}
