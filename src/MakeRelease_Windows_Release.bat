@@ -8,6 +8,7 @@ CALL SET LOG_PATH=c:
 del %LOG_PATH%\Build.log
 
 ren %INPUT_PATH%\src\pluto.sln pluto.sln.temp
+%MAKERELEASE_PATH%\bin\MakeRelease.exe -h 10.0.0.170 -o 7 -s %INPUT_PATH% -n / -c -k 192,193
 %MAKERELEASE_PATH%\bin\MakeRelease.exe -h 10.0.0.170 -o 7 -s %INPUT_PATH% -n / -c -k 119,138
 ren %INPUT_PATH%\src\pluto.sln.temp pluto.sln
 
