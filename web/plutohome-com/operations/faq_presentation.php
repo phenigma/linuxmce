@@ -1,6 +1,5 @@
 <?php
- function faq_presentation($output) {
- 	   session_start('Pluto');	
+ function faq_presentation($output,$conn) {
  		$out = '';
  		$out.='<table width="100%" border="0" cellpadding="0" cellspacing="0" class="maintable">
      <td width="30%" valign="top" align="center" >
@@ -69,7 +68,7 @@
       </td>
       <td width="70%" class="insidetable">';
 		$selectFaqCateg = 'select faqCategID,faqCategName from FAQCategories order by faqCategName asc';
-		$res = mysql_query($selectFaqCateg);
+		$res = mysql_query($selectFaqCateg,$conn);
 		while ($row=mysql_fetch_object($res)) {
  		$selectFaq = "select faqID,faqQuestion,faqAnswer,faqDate,faquserID,faqFAQCategID from FAQ where FAQ.markedDeleted!='1'  and faqFAQCategID='".$row->faqCategID."' order by faqDate asc";
 	 	$rsFaq = mysql_query($selectFaq) or die("Can not grab faq from database!!");

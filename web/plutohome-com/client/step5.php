@@ -97,7 +97,13 @@ if($action=='form'){
 		$resDeviceMD=$dbADO->Execute($queryDeviceMD,array($GLOBALS['rootGenericMediaDirector'],$installationID));
 		if($resDeviceMD->RecordCount()>0){
 			$rowDeviceMD=$resDeviceMD->FetchRow();
-			$_SESSION['coreHybridID']=$rowDeviceMD['PK_Device'];
+			if($_SESSION['sollutionType']==1){
+				deleteDevice($rowDeviceMD['PK_Device'],$dbADO);
+				unset($_SESSION['OrbiterHybridChild']);
+				unset($_SESSION['isHybridFirstTime']);
+				unset($_SESSION['coreHybridID']);
+			}else
+				$_SESSION['coreHybridID']=$rowDeviceMD['PK_Device'];
 		}
 
 		$getDCERouter='SELECT * FROM Device WHERE FK_DeviceTemplate=? AND FK_Device_ControlledVia=?';
@@ -295,33 +301,17 @@ if($action=='form'){
 			$_SESSION['EnableDHCP']=1;
 		}
 
-		if($_SESSION['sollutionType']!=1){
-			$insertDeviceMD='INSERT INTO Device (Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia,FK_Room) VALUES (?,?,?,?,?)';
-			$hybridName=($_SESSION['sollutionType']==3)?'Standalone Core/Hybrid':'The core/hybrid';
-			$dbADO->Execute($insertDeviceMD,array($hybridName,$GLOBALS['rootGenericMediaDirector'],$installationID,$_SESSION['deviceID'],$_SESSION['coreRoom']));
-			$_SESSION['coreHybridID']=$dbADO->Insert_ID();
-
-			// inherit DeviceData for hybrid MD
-			InheritDeviceData($GLOBALS['rootGenericMediaDirector'],$_SESSION['coreHybridID'],$dbADO);
-			createChildsForControledViaDeviceTemplate($GLOBALS['rootGenericMediaDirector'],$_SESSION['installationID'],$_SESSION['coreHybridID'],$dbADO,$_SESSION['coreRoom']);
-			createChildsForControledViaDeviceCategory($GLOBALS['rootGenericMediaDirector'],$_SESSION['installationID'],$_SESSION['coreHybridID'],$dbADO,$_SESSION['coreRoom']);
-
-			// get PK_Device for Orbiter child to Hybrid
-			$OrbiterHybridChild=getMediaDirectorOrbiterChild($_SESSION['coreHybridID'],$dbADO);
-			if(!is_null($OrbiterHybridChild))
-				$_SESSION['OrbiterHybridChild']=$OrbiterHybridChild;
-
-			$insertDeviceMDDeviceData='INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData,IK_DeviceData) VALUES (?,?,?)';
-			$dbADO->Execute($insertDeviceMDDeviceData,array($_SESSION['coreHybridID'],$GLOBALS['rootPK_Distro'],$distro));
-			
-			$_SESSION['isHybridFirstTime']=1;
-		}
-
 		if($_SESSION['dedicated']==1){
 			$dbADO->Execute('INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData, IK_DeviceData) VALUES (?,?,1)',array($_SESSION['deviceID'],$GLOBALS['kickStartCD']));
 		}
-		header("Location: index.php?section=wizard&step=6");
+
 	}else{
+		if($_SESSION['dedicated']==1){
+			$resDD=$dbADO->Execute('SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?',array($_SESSION['deviceID'],$GLOBALS['kickStartCD']));
+			if($resDD->RecordCount()==0)
+				$dbADO->Execute('INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData, IK_DeviceData) VALUES (?,?,1)',array($_SESSION['deviceID'],$GLOBALS['kickStartCD']));
+		}
+		
 		$installSourceCode=(isset($_POST['installSourceCode'])?$_POST['installSourceCode']:0);
 		$oldInstallSourceCode=(isset($_SESSION['installSourceCode'])?$_SESSION['installSourceCode']:0);
 
@@ -371,14 +361,37 @@ if($action=='form'){
 				$dbADO->Execute($insertDHCP,array($_SESSION['deviceID'],$GLOBALS['DHCPDeviceData'],$IPtoDeviceDeviceData));
 				
 				$updateDevice='UPDATE Device SET IPaddress=? WHERE PK_Device=?';
-				$dbADO->Execute($updateDevice,array("$ip_1.$ip_2.$ip_3.1",$_SESSION['deviceID']));
+				$dbADO->Execute($updateDevice,array($IPtoDeviceDeviceData,$_SESSION['deviceID']));
+				$_SESSION['EnableDHCP']=1;
 			}
 		}else{
 			$deleteDeviceDeviceData='DELETE FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?';
 			$dbADO->Execute($deleteDeviceDeviceData,array($_SESSION['deviceID'],$GLOBALS['DHCPDeviceData']));
+			unset($_SESSION['EnableDHCP']);
 		}
-					
-		header("Location: index.php?section=wizard&step=6");
 	}
+	if($_SESSION['sollutionType']!=1 && !isset($_SESSION['coreHybridID'])){
+			$insertDeviceMD='INSERT INTO Device (Description, FK_DeviceTemplate, FK_Installation, FK_Device_ControlledVia,FK_Room) VALUES (?,?,?,?,?)';
+			$hybridName=($_SESSION['sollutionType']==3)?'Standalone Core/Hybrid':'The core/hybrid';
+			$dbADO->Execute($insertDeviceMD,array($hybridName,$GLOBALS['rootGenericMediaDirector'],$installationID,$_SESSION['deviceID'],$_SESSION['coreRoom']));
+			$_SESSION['coreHybridID']=$dbADO->Insert_ID();
+
+			// inherit DeviceData for hybrid MD
+			InheritDeviceData($GLOBALS['rootGenericMediaDirector'],$_SESSION['coreHybridID'],$dbADO);
+			createChildsForControledViaDeviceTemplate($GLOBALS['rootGenericMediaDirector'],$_SESSION['installationID'],$_SESSION['coreHybridID'],$dbADO,$_SESSION['coreRoom']);
+			createChildsForControledViaDeviceCategory($GLOBALS['rootGenericMediaDirector'],$_SESSION['installationID'],$_SESSION['coreHybridID'],$dbADO,$_SESSION['coreRoom']);
+
+			// get PK_Device for Orbiter child to Hybrid
+			$OrbiterHybridChild=getMediaDirectorOrbiterChild($_SESSION['coreHybridID'],$dbADO);
+			if(!is_null($OrbiterHybridChild))
+				$_SESSION['OrbiterHybridChild']=$OrbiterHybridChild;
+
+			$insertDeviceMDDeviceData='INSERT INTO Device_DeviceData (FK_Device, FK_DeviceData,IK_DeviceData) VALUES (?,?,?)';
+			$dbADO->Execute($insertDeviceMDDeviceData,array($_SESSION['coreHybridID'],$GLOBALS['rootPK_Distro'],$distro));
+			
+			$_SESSION['isHybridFirstTime']=1;
+	}
+		
+	header("Location: index.php?section=wizard&step=6");
 }
 ?>

@@ -10,7 +10,7 @@ if($_SESSION['sollutionType']==3){
 					<td colspan="2" align="center" bgcolor="#DADDE4"><B>Step 6 of 8: Media Directors</B></td>
 				</tr>
 				<tr>
-					<td colspan="2" align="left" class="insidetable" height="200">You have selected single PC sollution, that mean other you have a pc that will be a hybrid. You can still use this pc to control your home automation sub-systems (lighting, climate, etc.) and a/v equipment, and it works with both tablet and mobile phone Orbiters. Also it can stream music to other rooms, using audio directors, But you will not be distributing movies and tv to other rooms, since that would require media directors in those rooms.</td>
+					<td colspan="2" align="left" class="insidetable" height="200">You have selected the single PC solution, so you can skip this step by clicking NEXT.  </td>
 				</tr>
 		</table>
 	';
@@ -41,7 +41,7 @@ if($_SESSION['sollutionType']==3){
 	$distroIdArray=array();
 	$distroDescriptionArray=array();
 	while($row=$resDistroOS->FetchRow()){
-		$distroDescriptionArray[]=$row['Description']." / ".$row['OS'];
+		$distroDescriptionArray[$row['PK_Distro']]=$row['Description']." / ".$row['OS'];
 		$distroIdArray[]=$row['PK_Distro'];
 	}
 	$displayedDevicesArray=explode(',',@$_POST['displayedDevices']);
@@ -50,12 +50,7 @@ if($_SESSION['sollutionType']==3){
 		// display form
 	
 	
-		foreach($displayedDevicesArray as $value){
-			if(isset($_POST['delete_'.$value])){
-				deleteDevice($value,$dbADO);
-			}
-		}
-	
+
 		$action=((isset($_POST['newPlatform']) && isset($_POST['newPlatform'])!='0')|| @$_SESSION['EnableDHCP']==1)?'add':$action;
 		$out = '
 					<script>
@@ -71,7 +66,11 @@ if($_SESSION['sollutionType']==3){
 					{
 						document.wizard.action.value="form";
 						document.wizard.submit();
-					}
+					}';
+		if(isset($_POST['Description']) && $_POST['Description']!=''){
+			$out.='self.location=\'#addForm\';';
+		}
+		$out.='				
 					</script>
 						<br>
 					   <form action="index.php" method="POST" name="wizard">
@@ -96,11 +95,11 @@ if($_SESSION['sollutionType']==3){
 									<td colspan="2" class="insidetable">
 									<table align="center">
 										<tr bgcolor="#DADDE4" class="normaltext">
-											<td><B>Name</B></td>
-											<td><B>Room</B></td>
-											<td><B>Type</B></td>
-											<td><B>Platform</B></td>
-											<td><B>Network boot</B></td>
+											<td align="center"><B>Name</B></td>
+											<td align="center"><B>Room</B></td>
+											<td align="center"><B>Type</B></td>
+											<td align="center"><B>Platform</B></td>
+											<td align="center"><B>Network boot</B></td>
 											<td>&nbsp;</td>
 										</tr>';
 		$queryMediaDirectors='
@@ -146,21 +145,15 @@ if($_SESSION['sollutionType']==3){
 				}
 				$out.='	</select>
 											</td>
-											<td><select name="platform_'.$rowMediaDirectors['PK_Device'].'">';
-				foreach ($distroIdArray as $key => $value){
-					$out.='<option value="'.$value.'" '.(($value==@$selectedDistro)?'selected':'').'>'.$distroDescriptionArray[$key].'</option>';
-				}
-				$queryInstallSourceCode='SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?';
-				$resInstallSourceCode=$dbADO->Execute($queryInstallSourceCode,array($rowMediaDirectors['PK_Device'],$GLOBALS['rootDevelopment']));
-	
+											<td class="normaltext">'.$distroDescriptionArray[$selectedDistro];
+
 				$queryDiskless='SELECT * FROM Device_DeviceData WHERE FK_Device=? AND FK_DeviceData=?';
 				$resDiskless=$dbADO->Execute($queryDiskless,array($rowMediaDirectors['PK_Device'],$GLOBALS['rootDisklessBoot']));
 	
-				$out.='</select>';
 				$out .='<input type="hidden" name="oldDisklessBoot_'.$rowMediaDirectors['PK_Device'].'" value="'.(($resDiskless->RecordCount()>0)?'1':'0').'">
 						</td>
-							<td  align="center"><input type="checkbox" name="disklessBoot_'.$rowMediaDirectors['PK_Device'].'" '.(($resDiskless->RecordCount()>0)?'checked':'').' value="1" onClick="showMAC(\''.$rowMediaDirectors['PK_Device'].'\');"><span id="MACBox_'.$rowMediaDirectors['PK_Device'].'" name="MACBox_'.$rowMediaDirectors['PK_Device'].'" style="display:'.(($resDiskless->RecordCount()>0)?'':'none').'" class="normaltext">MAC Address: <input type="text" name="mdMAC_'.$rowMediaDirectors['PK_Device'].'" value="'.$rowMediaDirectors['MACaddress'].'"></span></td>
-							<td class="normaltext">'.'<input type="submit" name="delete_'.$rowMediaDirectors['PK_Device'].'" value="Delete"></td>
+							<td  align="center">'.(($selectedDistro==1)?'<input type="checkbox" name="disklessBoot_'.$rowMediaDirectors['PK_Device'].'" '.(($resDiskless->RecordCount()>0)?'checked':'').' value="1" onClick="showMAC(\''.$rowMediaDirectors['PK_Device'].'\');"><span id="MACBox_'.$rowMediaDirectors['PK_Device'].'" name="MACBox_'.$rowMediaDirectors['PK_Device'].'" style="display:'.(($resDiskless->RecordCount()>0)?'':'none').'" class="normaltext">MAC Address: <input type="text" name="mdMAC_'.$rowMediaDirectors['PK_Device'].'" value="'.$rowMediaDirectors['MACaddress'].'"></span>':'&nbsp;').'</td>
+							<td class="normaltext">'.'<input type="button" name="delete_'.$rowMediaDirectors['PK_Device'].'" value="Delete" onClick="self.location=\'index.php?section=wizard&step=6&did='.$rowMediaDirectors['PK_Device'].'&action=remove\'"></td>
 						</tr>';
 			}
 			else {
@@ -192,7 +185,7 @@ if($_SESSION['sollutionType']==3){
 		}
 		$out.='
 								<tr class="normaltext">
-									<td colspan="2"><B>Add a Media Director</B></td>
+									<td colspan="2"><B>Add a Media Director</B><a name="addForm"></a></td>
 								</tr>
 								<tr class="normaltext">
 									<td>Name</td>
@@ -213,9 +206,9 @@ if($_SESSION['sollutionType']==3){
 								</tr>
 								<tr class="normaltext">
 									<td>Network boot '.((@$_SESSION['EnableDHCP']==1)?'(Recommended)':'').'</td>
-									<td><input type="checkbox" name="disklessBoot_" value="1" '.((@$_POST['disklessBoot_']==1 || @$_SESSION['EnableDHCP']==1)?'checked':'').' onClick="showMAC(\'\');"> <span id="MACBox_" name="MACBox_" style="display:'.((@$_POST['disklessBoot_']==1 || @$_SESSION['EnableDHCP']==1)?'':'none').'">MAC Address: <input type="text" name="mdMAC" value=""></span> <a href="support/index.php?section=document&docID=144" target="_blank">what\'s the MAC address?</a></td>
+									<td><input type="checkbox" name="disklessBoot_" value="1" '.((@$_POST['disklessBoot_']==1 || @$_SESSION['EnableDHCP']==1)?'checked':'').' onClick="'.((@$_SESSION['EnableDHCP']==1)?'showMAC(\'\')':'document.wizard.action.value=\'form\';document.wizard.submit();').';"> <span id="MACBox_" name="MACBox_" style="display:'.((@$_POST['disklessBoot_']==1 || @$_SESSION['EnableDHCP']==1)?'':'none').'">MAC Address: <input type="text" name="mdMAC" value=""></span> <a href="support/index.php?section=document&docID=144" target="_blank">what\'s the MAC address?</a></td>
 								</tr>';
-		if(isset($_SESSION['EnableDHCP']) && $_SESSION['EnableDHCP']==1){
+		if((isset($_SESSION['EnableDHCP']) && $_SESSION['EnableDHCP']==1) || isset($_POST['disklessBoot_'])){
 			$selectedPlatform=1;	// Debian-sarge
 		}
 		else{
@@ -226,8 +219,8 @@ if($_SESSION['sollutionType']==3){
 									<td><select name="newPlatform" onChange="showOptions();">
 										<option value="0">-'.((isset($_POST['newType']))?'Please select':'Select type first').'-</option>';
 			if(isset($_POST['newType'])){
-				foreach ($distroIdArray as $key => $value){
-					$out.='<option value="'.$value.'" '.(($value==@$_POST['newPlatform'])?'selected':'').'>'.$distroDescriptionArray[$key].'</option>';
+				foreach ($distroDescriptionArray as $key => $value){
+					$out.='<option value="'.$key.'" '.(($key==@$_POST['newPlatform'])?'selected':'').'>'.$value.'</option>';
 				}
 			}
 			$out.='</select> Normally Debian Sarge / Linux</td>
@@ -268,9 +261,9 @@ if($_SESSION['sollutionType']==3){
 		if(isset($_POST['continue'])){
 			$description=$_POST['Description'];
 			$FK_DeviceTemplate=$_POST['newType'];
-			$FK_Distro=(isset($_SESSION['EnableDHCP']) && $_SESSION['EnableDHCP']==1)?1:$_POST['newPlatform'];
+			$FK_Distro=((isset($_SESSION['EnableDHCP']) && $_SESSION['EnableDHCP']==1) || isset($_POST['disklessBoot_']))?1:$_POST['newPlatform'];
 			$mdRoom=cleanString($_POST['mdRoom']);
-	
+
 			$queryRoom='SELECT * FROM Room WHERE Description=? AND FK_Installation=?';
 			$resRoom=$dbADO->Execute($queryRoom,array($mdRoom,$installationID));
 			if($resRoom->RecordCount()==0){
@@ -325,11 +318,24 @@ if($_SESSION['sollutionType']==3){
 		header("Location: index.php?section=wizard&step=6");
 	}else{
 		// action =update and jump to next step
-	
+
+		if(isset($_REQUEST['did']) && (int)$_REQUEST['did']>0){
+			$did=(int)$_REQUEST['did'];
+			$isInInstallation=$dbADO->Execute('SELECT * FROM Device WHERE PK_Device=? AND FK_Installation=?',array($did,$installationID));
+			if($isInInstallation->RecordCount()==0){
+				header("Location: index.php?section=wizard&step=6");				
+				exit();
+			}else{
+				deleteDevice($did,$dbADO);
+				header("Location: index.php?section=wizard&step=6");				
+				exit();
+			}
+		}
+		
+		
 		foreach($displayedDevicesArray as $value){
 			$description=@$_POST['description_'.$value];
 			$FK_DeviceTemplate=@$_POST['deviceTemplate_'.$value];
-			$FK_Distro=@$_POST['platform_'.$value];
 			$oldInstallSourceCode=@$_POST['oldInstallSourceCode_'.$value];
 			$oldDisklessBoot=@$_POST['oldDisklessBoot_'.$value];
 			$diskless=(isset($_POST['disklessBoot_'.$value]))?$_POST['disklessBoot_'.$value]:0;
@@ -345,9 +351,6 @@ if($_SESSION['sollutionType']==3){
 				$updateRoom='UPDATE Room SET Description=? WHERE PK_Room=?';
 				$dbADO->Execute($updateRoom,array($mdRoom,$oldRoomID));
 			}
-	
-			$updateDeviceDeviceData='UPDATE Device_DeviceData SET IK_DeviceData=? WHERE FK_Device=? AND FK_DeviceData=?';
-			$dbADO->Execute($updateDeviceDeviceData,array($FK_Distro,$value,$GLOBALS['rootPK_Distro']));
 	
 			if($oldDisklessBoot!=$diskless){
 				if($diskless==1 && $value!=''){

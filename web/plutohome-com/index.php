@@ -392,7 +392,7 @@ switch ($section) {
 		$output = new Template();
 		$output->setTemplateFileType('home');
 	    include_once('operations/faq_presentation.php');
-	    faq_presentation($output);
+	    faq_presentation($output,$conn);
     break;
     case 'contact':
 		$output = new Template();

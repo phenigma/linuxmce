@@ -66,35 +66,11 @@ function myPluto($output,$dbADO,$conn) {
       				<td align="center">
 						<table width="100%">
 							<tr>
-								<td colspan="2" align="left" class="normaltext">Pluto rewards you for spreading the word.  <a href="index.php?section=special_offer">more</a></td>
+								<td colspan="2" align="left" class="normaltext">Pluto has unique and generous rewards for referring both open source and retail customers as well as
+								 dealers and manufacturers who license the Pluto platform for their smarthome appliances.  Send us an email or fill out the contact form for details.
+								 </td>
 							</tr>
-							<tr>
-								<td colspan="2" align="left" class="normaltext">&nbsp;</td>
-							</tr>
-							<tr>
-								<td colspan="2" align="left" class="normaltext">Instant cash for referring Pluto Home customers:</td>
-							</tr>
-							<tr>
-								<td align="right" class="normaltext"><B>Your earnings so far:</B></td>
-								<td align="left" class="normaltext"> $0</td>
-							</tr>
-							<tr>
-								<td colspan="2" align="left" class="normaltext"><br>Commission on licensing deals:</td>
-							</tr>
-							<tr>
-								<td align="right" class="normaltext"><B>Your earnings so far:</B></td>
-								<td align="left" class="normaltext"> $0</td>
-							</tr>
-							<tr>
-								<td colspan="2" align="left" class="normaltext"><br>Refer PlutoVIP users for shares in a future IPO:</td>
-							</tr>
-							<tr>
-								<td align="right" class="normaltext"><B>Your points so far:</B></td>
-								<td align="left" class="normaltext"> 0</td>
-							</tr>	
-							<tr>
-								<td colspan="2" align="left" class="normaltext"></td>
-							</tr>	
+
 						</table>
 					</td>
       				<td align="left" valign="top" class="normaltext">Pluto 2 has been written from the ground up to be a very comfortable development platform for open source programmers.<br><br>

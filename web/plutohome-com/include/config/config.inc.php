@@ -1,7 +1,7 @@
 <?PHP
  	
   	//debuging
-  	$GLOBALS['inDebug']=1;
+  	$GLOBALS['inDebug']=0;
   	
   	if($GLOBALS['inDebug']!=1){
   		// production settings
@@ -104,6 +104,7 @@
 	$GLOBALS['butViewDesignObj']=3283;				// butView
 	$GLOBALS['mnuSecurityCamerasDesignObj']=1414;	// Security cameras
 	$GLOBALS['TelecomMenu']=1323;					// Telecom Menu mnuMakeCallFavorites
+	$GLOBALS['mnuSecurityPanel']=1389;				// mnuSecurityPanel for Arm/Disarm
 	
 	// PK_Device for Local Orbiter
 	$GLOBALS['localOrbiter']=-300;

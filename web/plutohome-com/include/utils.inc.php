@@ -806,7 +806,7 @@ function addScenariosToRoom($roomID, $installationID, $dbADO)
 
 		$dbADO->Execute($insertCG_C,array($armDisarmCG,$GLOBALS['commandGotoScreen'],0,0,$GLOBALS['localOrbiter']));
 		$cg_cID=$dbADO->Insert_ID();
-		$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParamDesignObjCurrentScreen'],$GLOBALS['mnuSecurityCamerasDesignObj']));
+		$dbADO->Execute($insertCG_C_CP,array($cg_cID,$GLOBALS['commandParamDesignObjCurrentScreen'],$GLOBALS['mnuSecurityPanel']));
 	}
 	$dbADO->Execute($insertCG_Room,array($armDisarmCG,$roomID,$armDisarmCG));
 	

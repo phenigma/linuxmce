@@ -47,24 +47,37 @@ if($action=='form'){
 		case 1:
 		case 2:
 			$out.='
-				<p>Since you want a whole-house solution, the computer you will be using as the '.$_SESSION['coreName'].' must always be running--the other media directors will not be functional if the '.$_SESSION['coreName'].' is turned off.</p>
+				<p>Since you want a whole-house solution, the 1 computer you will be using as the '.$_SESSION['coreName'].' must always be running--the 
+				other media directors will not work when the '.$_SESSION['coreName'].' is turned off.  
+				We recommended that you chose the first option below to get a <b>dedicated</b> '.$_SESSION['coreName'].', and 
+				then choose <a href="http://plutohome.com/support/index.php?section=document&docID=144">network boot</a> for your media directors.
+				This is the configuration Pluto\'s testers always use, and the one offered in our commercial product.</p>
+				<p>Dedicated means that for the 1 computer that will be your '.$_SESSION['coreName'].' you do not install the Pluto software on top of your existing operating system, 
+				but rather use our kick-start CD which erases the hard drive, and "takes over" by installing its own operating system.</p>
 
-				<p>It is HIGHLY recommended for whole-house solutions that that the computer you use as your '.$_SESSION['coreName'].' be dedicated.  Dedicated means that instead of installing the Pluto software on top of your existing operating system, you use Pluto\'s kick-start CD and let it take over the computer, cleaning out the hard drive and installing its own operating system.</p>
-
-				<p>The drawback with a dedicated '.$_SESSION['coreName'].' is that you need to have an extra computer that you will dedicate to Pluto.  But there are many advantages.  A dedicated '.$_SESSION['coreName'].' is much simpler to setup--put the CD in and let it take over.  There\'s nothing for you to do and no software to install.  A dedicated '.$_SESSION['coreName'].' is also self-configuring and maintaining and will keep itself up-to-date automatically.</p>
-
-				<p>Plus, a dedicated '.$_SESSION['coreName'].' allows any computer in your home to do a <a href="http://plutohome.com/support/index.php?section=document&docID=144">network boot</a>.  That means these computers can boot up as a Pluto media director without using their own hard drive.  A frequent complaint with media pc\'s is that when you want to watch tv or a movie you don\'t want to mess with a pc--you want an appliance that you hit "play" on the remote control and that\'s it.  With network boot you get the best of both worlds.  Hit a button on the remote and it boots up like a normal pc, like it does now.  Hit another and it turns into a media director appliance--no start button, no software to install, no viruses to worry about.  Also even if you completely mess up the pc side--maybe install a virus or crash Windows--it won\'t affect the media director side since they are kept separate.</p>
-
-				<p>And a dedicated '.$_SESSION['coreName'].' supports plug-and-play.  You can plug all sorts of devices into your home network--telephones, surveillance cameras, interface modules, audio players, etc.--and the dedicated '.$_SESSION['coreName'].' will install the software drivers automatically and configure them without you having to do a thing.</p>
+				<p>The drawback with a dedicated '.$_SESSION['coreName'].' is that you need to have an extra computer that you will dedicate to Pluto.  But there are many advantages:
+				A dedicated '.$_SESSION['coreName'].' is much simpler to setup and more reliable.  Plus it offers a lot of advanced features that you cannot get with a "regular" 
+				operating system, such as <a href="http://plutohome.com/support/index.php?section=document&docID=144">network boot</a>, which makes your media directors much
+				more useable than any normal media pc, and whole-house plug and play so you can plug all sorts of devices like telephones, cameras, and audio players into any network jack 
+				and they start working automatically.</p>
+				
+				<p>A dedicated '.$_SESSION['coreName'].' is self-maintaining and configuring--you won\'t need to touch it.  If you\'re a Linux user, you can still use a 
+				dedicated '.$_SESSION['coreName'].' as a normal pc, based on Debian.  Pluto just adds a lot of extra services that run in the background.</p>
+				<p><b>If you don\'t choose "yes"</b> please read <a href="http://plutohome.com/support/index.php?section=document&docID=145">this</a> to learn about the differences.</p>
 			';
 		break;
 		case 3:
 			$out.='
 				<p>You have 2 choices for installing the Pluto software:
 
-				<p>First, you can use the Kick-Start CD.  This will completely take over the PC--it reformats and partitions the hard drive and installs Pluto\'s software with its native operating environment.  This is the simplest solution--you have nothing to do, put the CD in and boot.  Also, a dedicated Pluto system is self-maintaining and self-configuring.  You turn it on and leave it--like an appliance.
+				<p>First, you can use the Kick-Start CD.  This will completely take over the PC--it reformats and partitions the hard drive and installs Pluto\'s software with 
+				its native operating environment.  This is the simplest solution--you have nothing to do, put the CD in and boot.  
+				Also, a dedicated Pluto system is self-maintaining and self-configuring.  You turn it on and leave it--like an appliance.  It\'s more reliable since this is what
+				Pluto\'s testers use.</p>
 
-				<p>Second, instead of the Kick-start CD, you can install Pluto\'s software on your existing Windows or Linux PC like any other software program.  You will miss out on a lot of the advanced features that a dedicated Pluto '.$_SESSION['coreName'].' offers, like streaming video throughout the house, bandwidth management and so on.  And it won\'t be self-configuring and maintaining like a dedicated '.$_SESSION['coreName'].'. However since you indicated in step 1 that you want single-pc software, rather than a whole-house solution, these advanced features might not be so important for you.
+				<p>Second, instead of the Kick-start CD, you can install Pluto\'s software on your existing Windows or Linux PC like any other software program.  
+				You will miss out on a lot of the advanced features that a dedicated Pluto '.$_SESSION['coreName'].' offers, and all the other devices in your house 
+				will not be plug-and-play.  In this case you may want to read <a href="http://plutohome.com/support/index.php?section=document&docID=145">differences between dedicated and non-dedicated</a>.</p>
 			';		
 		break;
 		case'':
@@ -90,11 +103,11 @@ if($action=='form'){
 					<tr>
 						<td colspan="2" align="left" class="insidetable">
 							<p><input type="radio" name="dedicated" value="1" '.((@$_SESSION['dedicated']==1)?'checked':((!isset($_SESSION['dedicated']))?'checked':'')).' onClick="enableDistro();"> 
-							Yes, I want a dedicated '.$_SESSION['coreName'].'.  I have an extra PC so I will use the Kick-start CD and let it clean out the hard drive.  This gives you the most functionality.
-							<p><input type="radio" name="dedicated" value="2" '.((@$_SESSION['dedicated']==2)?'checked':'').' onClick="enableDistro();"> I don\'t want a dedicated '.$_SESSION['coreName'].'.  Install the software on my existing <b>Windows PC</b>.  You can still use the Orbiter and Mobile Orbiter software, but most of Pluto\'s advanced functionality will not be available, including network boot and streaming video.
-							<p><input type="radio" name="dedicated" value="3" '.((@$_SESSION['dedicated']==3)?'checked':'').' onClick="enableDistro();"> I don\'t want a dedicated '.$_SESSION['coreName'].'.  Install the software on my existing <b>Linux PC</b> which is using: '.$distroPullDown.'  You can get all of Pluto\'s advanced functionality, but since Pluto was built on Debian some tweaking may be needed.
-							If you\'re comfortable with Debian, you might prefer to use the Kick-Start CD anyway since that will set everything up automatically and you can still use the computer as a normal Debian box anyway.</p>
-							<p><a href="http://plutohome.com/support/index.php?section=document&docID=145">More about dedicated vs non-dedicated</a> &nbsp;&nbsp; <a href="http://plutohome.com/support/index.php?section=document&docID=144">More about network boot</a></p>
+							Yes, I want a dedicated '.$_SESSION['coreName'].'.  I have an extra PC so I will use the Kick-start CD and let it clean out the hard drive.  <b>Recommended</b>
+							<p><input type="radio" name="dedicated" value="2" '.((@$_SESSION['dedicated']==2)?'checked':'').' onClick="enableDistro();"> I don\'t want a dedicated '.$_SESSION['coreName'].'.  Install the software on my existing <b>Windows PC</b>.  You can still use the Orbiter and Mobile Orbiter software, but most of Pluto\'s advanced functionality will not be available, including network boot and streaming video.  
+							<b>Note:</b> The Windows installer is still in an early stage.</i>
+							<p><input type="radio" name="dedicated" value="3" '.((@$_SESSION['dedicated']==3)?'checked':'').' onClick="enableDistro();"> I don\'t want a dedicated '.$_SESSION['coreName'].'.  
+							Install the software on my existing <b>Linux PC</b> which is using: '.$distroPullDown.'</p>
 						</td>
 					</tr>	
 					<tr>

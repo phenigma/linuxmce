@@ -17,6 +17,11 @@ if($action=='form'){
 		unset($_SESSION['installationID']);
 		unset($_SESSION['installationDescription']);
 		unset($_SESSION['ActivationCode']);
+		unset($_SESSION['dedicated']);
+		unset($_SESSION['sollutionType']);
+		unset($_SESSION['distro']);
+		unset($_SESSION['coreName']);
+		unset($_SESSION['deviceID']);
 	}
 	// display form
 	$out = '<br>
