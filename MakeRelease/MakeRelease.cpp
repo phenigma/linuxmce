@@ -452,7 +452,7 @@ bool CreateSource(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &list
 			CreateSource_SourceForgeCVS(pRow_Package_Source,listFileInfo);
 			break;
 		default:
-			cout << "***ERROR*** Don't know how to create this source. " ;
+			cout << "***ERROR*** Don't know how to create this source." << endl;
 			return false;
 		}
 	}
@@ -484,7 +484,7 @@ bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileIn
 			if( pRow_Package_Directory->Path_get()[0]=='/' )
 				sDirectory = pRow_Package_Directory->Path_get();
 			else
-				sDirectory += g_sSourcecodePrefix + "/" + pRow_Package_Directory->Path_get();
+				sDirectory += g_sSourcecodePrefix + pRow_Package_Directory->Path_get();
 		}
 
 		vector<Row_Package_Directory_File *> vectPackage_Directory_File;
@@ -496,7 +496,8 @@ bool GetSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFileIn
 			if( File.find('*')!=string::npos || File.find('?')!=string::npos )
 			{
 				list<string> listFiles;
-				cout << "Scanning: " << sDirectory;
+				if( g_bInteractive )
+					cout << "Scanning: " << sDirectory;
 				FileUtils::FindFiles(listFiles,sDirectory,File,true);
 				if( g_bInteractive )
 					cout << "Found: " << listFiles.size() << " files" << endl;
@@ -626,7 +627,8 @@ bool GetNonSourceFilesToMove(Row_Package *pRow_Package,list<FileInfo *> &listFil
 			{
 				list<string> listFiles;
 				
-				cout << "Scanning: " << sInputPath;
+				if( g_bInteractive )
+					cout << "Scanning: " << sInputPath;
 				FileUtils::FindFiles(listFiles,sInputPath,File,true);
 				if( g_bInteractive )
 					cout << "Found: " << listFiles.size() << " files" << endl;
@@ -954,11 +956,6 @@ AsksSourceQuests:
 				if( !AskYNQuestion("Execute command?",false) )
 					return false;
 			}
-
-			// Be sure we compile with debug info
-			if( !g_bSimulate && g_pRow_Version->PK_Version_get()==1 )
-				StringUtils::Replace( "Makefile", "Makefile", "-D_DEVEL_DEFINES", "-DDEBUG -DTHREAD_LOG -DLL_DEBUG_FILE" );
-
 			fstr_compile << pRow_Package_Directory_File->MakeCommand_get() << endl;
 			cout << "Executing: " << pRow_Package_Directory_File->MakeCommand_get() << endl;
 			if( !g_bSimulate && system(pRow_Package_Directory_File->MakeCommand_get().c_str()) )
@@ -988,35 +985,23 @@ bool CreateSource_SourceForgeCVS(Row_Package_Source *pRow_Package_Source,list<Fi
 {
 	// Marius -- here you need to figure out how to take the package and upload it to SourceForge's CVS
 	
-	// 1.	Create a temporary directory
-	// 2.   chdir to the directory and do a cvs co .
-	// 3.   copy the files over one at a time
-	// 4.	Do a cvs add for each sub-directory
-	// 5.   Do a cvs add for each file
-	// 6.   Call FileUtils::GetDirectory(vector<strings)), and see what files are there, that are not in listFileInfo and do a delete
-	// 7.   Do a cvs ci
-
 	cout<<"\n\n SourceForgeCVS : "
 		<<pRow_Package_Source->FK_Package_getrow()->Description_get();
 	cout<<"\n Nr of files : "<<listFileInfo.size();
 	list<FileInfo *>::iterator iFileInfo; int i;
-	
-	string cmd;
-	for (iFileInfo = listFileInfo.begin(),i=1;iFileInfo != listFileInfo.end(); iFileInfo++,i++)
+	for (iFileInfo = listFileInfo.begin(),i=0;iFileInfo != listFileInfo.end(); iFileInfo++,i++)
 	{
-		//cout<<"\n"<<i<<" Ading : "<<FileUtils::FilenameWithoutPath((*iFileInfo)->m_sSource);
-		FileInfo *pFileInfo = (*iFileInfo);
-		chdir(FileUtils::BasePath(pFileInfo->m_sSource).c_str());
-		cmd = " cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/"+
-				pRow_Package_Source->Repository_get() + "/" + pFileInfo->m_pRow_Package_Directory->Path_get()+
-				" add "+FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
-		system(cmd.c_str());
+		cout<<endl<<i<<"\n\t"<<(*iFileInfo)->m_pRow_Package_Directory->Path_get();
+		cout<<endl<<"\t"<<(*iFileInfo)->m_sDestination;
+		cout<<endl<<"\t"<<(*iFileInfo)->m_sSource;
+		//FileUtils::
+		//chdir();
+		File *f;
+		freopen(
+
 	}
-	iFileInfo = listFileInfo.begin();
-	//cout<<"\n Commit";
-	cmd = "cvs -d:ext:plutoinc@cvs.sourceforge.net:/cvsroot/"+(*iFileInfo)->m_pRow_Package_Directory->Path_get()
-		        +" commit ";
-	system(cmd.c_str());
+	//(*iFileInfo)->m_sDestination
+	//system();
 	cout<<endl;
 	return true;
 }
