@@ -192,6 +192,7 @@ MoonNumber=1
 for Client in $DisklessR; do
 	IP=$(Field 1 "$Client")
 	MAC=$(Field 2 "$Client")
+	MOON_ADDRESS="$IP moon$MoonNumber"
 	echo -n "Setting moon '$IP,$MAC':"
 	
 	DlPath="$DlDir/$IP"
