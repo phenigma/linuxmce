@@ -411,6 +411,8 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
     }
     else
     {
+        pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia(pMediaStream);
+		StreamEnded(pMediaStream); // This will delete the stream
         g_pPlutoLogger->Write(LV_STATUS, "Playback completed. At the end of the queue");
     }
 
@@ -441,9 +443,8 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
 			 pEntertainArea->m_pMediaStream->m_iPK_MediaType != pMediaHandlerInfo->m_PK_MediaType )
         {
             // We can't queue this.
-            pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
-            delete pEntertainArea->m_pMediaStream;
-            pEntertainArea->m_pMediaStream=NULL;
+			pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
+			StreamEnded(pEntertainArea->m_pMediaStream);
         }
 		else
 			bNoChanges = true;
@@ -464,6 +465,7 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
     }
     else
     {
+
         OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(PK_Device_Orbiter);
 		if ( (pMediaStream = pMediaHandlerInfo->m_pMediaHandlerBase->CreateMediaStream(pMediaHandlerInfo,pEntertainArea,pMediaDevice,(pOH_Orbiter ? pOH_Orbiter->m_iPK_Users : 0),dequeMediaFile,++m_iStreamID)) == NULL )
 		{
@@ -472,6 +474,11 @@ bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int
 													pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_dwPK_Device);
 			return false;
 		}
+
+		if( pMediaStream->ContainsVideo() )
+			EVENT_Watching_Media(pEntertainArea->m_pRoom->m_dwPK_Room); 
+		else
+			EVENT_Listening_to_Media(pEntertainArea->m_pRoom->m_dwPK_Room); 
 
         pEntertainArea->m_pMediaStream=pMediaStream;
         pMediaStream->m_pOH_Orbiter_StartedMedia = pOH_Orbiter;
@@ -752,20 +759,47 @@ void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_De
 
     g_pPlutoLogger->Write( LV_STATUS, "Got MH_stop media" );
     pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
+	StreamEnded(pEntertainArea->m_pMediaStream);
+}
 
-    for( MapEntertainArea::iterator it=pEntertainArea->m_pMediaStream->m_mapEntertainArea.begin( );it!=pEntertainArea->m_pMediaStream->m_mapEntertainArea.end( );++it )
+void Media_Plugin::StreamEnded(MediaStream *pMediaStream)
+{
+	// This could have been playing in lots of entertainment areas
+    g_pPlutoLogger->Write( LV_STATUS, "Stream %s ended with %d ent areas", pMediaStream->m_sMediaDescription.c_str(), (int) pMediaStream->m_mapEntertainArea.size() );
+    for( MapEntertainArea::iterator it=pMediaStream->m_mapEntertainArea.begin( );it!=pMediaStream->m_mapEntertainArea.end( );++it )
     {
         EntertainArea *pEntertainArea = ( *it ).second;
-        for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
-        {
-            OH_Orbiter *pOH_Orbiter = (*it).second;
-            if( pOH_Orbiter->m_pEntertainArea==pEntertainArea )
-                m_pOrbiter_Plugin->SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, "" );
-        }
+		MediaInEAEnded(pEntertainArea);
     }
 
-    delete pEntertainArea->m_pMediaStream;
-    pEntertainArea->m_pMediaStream=NULL;
+    delete pMediaStream;
+}
+
+void Media_Plugin::MediaInEAEnded(EntertainArea *pEntertainArea)
+{
+	if( pEntertainArea->m_pMediaStream && pEntertainArea->m_pMediaStream->ContainsVideo() )
+		EVENT_Stopped_Watching_Media(pEntertainArea->m_pRoom->m_dwPK_Room); 
+	else
+		EVENT_Stopped_Listening_To_Medi(pEntertainArea->m_pRoom->m_dwPK_Room);
+
+g_pPlutoLogger->Write( LV_STATUS, "Stream in ea %s ended", pEntertainArea->m_sDescription.c_str() );
+	pEntertainArea->m_pMediaStream = NULL;
+
+	// Send all bound remotes back home
+	for( MapBoundRemote::iterator itBR=pEntertainArea->m_mapBoundRemote.begin( );itBR!=pEntertainArea->m_mapBoundRemote.end( );++itBR )
+    {
+        BoundRemote *pBoundRemote = ( *itBR ).second;
+		DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device,pBoundRemote->m_pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,0,"<%=M%>","","",false);
+		SendCommand(CMD_Goto_Screen);
+    }
+
+	// Set all the now playing's to nothing
+    for(map<int,OH_Orbiter *>::iterator it=m_pOrbiter_Plugin->m_mapOH_Orbiter.begin();it!=m_pOrbiter_Plugin->m_mapOH_Orbiter.end();++it)
+    {
+        OH_Orbiter *pOH_Orbiter = (*it).second;
+        if( pOH_Orbiter->m_pEntertainArea==pEntertainArea )
+            m_pOrbiter_Plugin->SetNowPlaying( pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, "" );
+    }
 }
 
 //<-dceag-c73-b->

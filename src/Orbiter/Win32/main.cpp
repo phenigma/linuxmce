@@ -182,7 +182,6 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		Simulator::GetInstance()->LoadConfigurationFile("Orbiter.conf");
 #endif
 
-		g_pPlutoLogger->Write(LV_STATUS, "Starting logger...");
 		g_pPlutoLogger->Write(LV_STATUS, "Device: %d starting.  Connecting to: %s",PK_Device,sRouter_IP.c_str());
 
 		//now it's safe to start orbiter's thread
@@ -204,6 +203,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		Simulator::GetInstance()->SaveConfigurationFile("Orbiter.conf");
 		Simulator::Cleanup();
 
+		g_pPlutoLogger->Write(LV_STATUS, "About to cleanup 2");
 		OrbiterSDL_Win32::Cleanup();
 #endif
 

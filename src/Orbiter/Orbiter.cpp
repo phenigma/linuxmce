@@ -3320,6 +3320,7 @@ bool Orbiter::GotActivity(  )
 	{
 		CMD_Set_Main_Menu("N");
 		GotoScreen(m_sMainMenu);
+		return false;
 	}
 	else if( !m_bBypassScreenSaver && m_pScreenHistory_Current->m_pObj != m_pDesignObj_Orbiter_ScreenSaveMenu && m_iTimeoutScreenSaver )
 		CallMaintenanceInMiliseconds( m_iTimeoutScreenSaver * 1000, &Orbiter::ScreenSaver, NULL, true );

@@ -70,6 +70,7 @@ OrbiterSDL_WinCE* Connect(int PK_Device,string sRouter_IP,string sLocalDirectory
 
 		if(!bConnected)
 		{
+			g_pPlutoLogger->Write(LV_STATUS, "ready to delete instance 2");
 			delete pOrbiter;
 			pOrbiter = NULL;
 		}

@@ -97,6 +97,7 @@ namespace DCE
         virtual void DumpPlaylist();
         virtual void ClearPlaylist();
         virtual bool HaveMoreInQueue();
+		virtual bool ContainsVideo();
 
 		virtual void DeleteEntryFromPlaylist(int position);
 		virtual void MoveEntryInPlaylist(int position, int displacement);

@@ -188,3 +188,17 @@ void MediaStream::MoveEntryInPlaylist(int position, int displacement)
 
 	DumpPlaylist();
 }
+
+bool MediaStream::ContainsVideo()
+{
+	return m_iPK_MediaType==MEDIATYPE_pluto_LiveTV_CONST ||
+		m_iPK_MediaType==MEDIATYPE_pluto_DVD_CONST ||
+		m_iPK_MediaType==MEDIATYPE_pluto_StoredVideo_CONST ||
+		m_iPK_MediaType==MEDIATYPE_pluto_Pictures_CONST ||
+		m_iPK_MediaType==MEDIATYPE_np_LiveTV_CONST ||
+		m_iPK_MediaType==MEDIATYPE_np_DVD_CONST ||
+		m_iPK_MediaType==MEDIATYPE_np_VideoTape_CONST ||
+		m_iPK_MediaType==MEDIATYPE_np_LaserDisc_CONST ||
+		m_iPK_MediaType==MEDIATYPE_np_Game_CONST;
+}
+

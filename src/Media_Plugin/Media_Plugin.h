@@ -241,6 +241,9 @@ public:
 	virtual void FollowMe_EnteredRoom(OH_Orbiter *pOH_Orbiter,class Room *pRoom_Prior,class Room *pRoom_Current) {}
 	virtual void FollowMe_LeftRoom(OH_Orbiter *pOH_Orbiter,class Room *pRoom_Prior,class Room *pRoom_Current) {}
 
+	void StreamEnded(MediaStream *pMediaStream);
+	void MediaInEAEnded(EntertainArea *pEntertainArea);
+
 //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION

@@ -190,7 +190,7 @@ bool Orbiter_Plugin::Register()
 			m_sPK_Device_AllOrbiters += StringUtils::itos(pDeviceData_Router->m_dwPK_Device) + ",";
             if( pDeviceData_Router->m_sMacAddress.size()==0 )
             {
-                g_pPlutoLogger->Write(LV_STATUS,"Mobile Orbiter: %d %s doesn't have a mac address.",
+                g_pPlutoLogger->Write(LV_STATUS,"Orbiter: %d %s doesn't have a mac address.",
                     pDeviceData_Router->m_dwPK_Device,pDeviceData_Router->m_sDescription.c_str());
 
             }
@@ -1054,7 +1054,7 @@ g_pPlutoLogger->Write(LV_STATUS,"Preparing floorplan");
         string s = pRow_Orbiter->FloorplanInfo_get();
         string::size_type pos=0;
 
-        g_pPlutoLogger->Write(LV_STATUS, "This is a valid orbiter: %d fpinfo = ", pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, s.c_str());
+        g_pPlutoLogger->Write(LV_STATUS, "This is a valid orbiter: %d fpinfo = %s", pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device, s.c_str());
         int NumDevices = atoi( StringUtils::Tokenize(s, "\t", pos).c_str());
 g_pPlutoLogger->Write(LV_STATUS,"Preparing floorplan %d devices",NumDevices);
         for(int iDevice=0;iDevice<NumDevices;++iDevice)
@@ -1145,6 +1145,7 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,string &sCMD_Result,Me
 	if( !pOH_Orbiter )
 	{
 		g_pPlutoLogger->Write(LV_CRITICAL,"Received registration from unknown orbiter: %d",pMessage->m_dwPK_Device_From);
+		return;
 	}
 	else
 		pOH_Orbiter->m_bRegistered = sOnOff=="1";

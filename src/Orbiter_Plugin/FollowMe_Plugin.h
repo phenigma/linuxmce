@@ -27,7 +27,7 @@ namespace DCE
 	class FollowMe_Plugin
 	{
 	public:
-		// Some things, like media, climate, etc. can only have 1 thing going.  Others like Telecom don't have that restriction
+		// Some things, like media, climate, etc. can only have 1 thing going.  Others like Telecom don't have that restriction.
 		bool m_bOneAtATime;
 		/* Type is L, C, M, S, or T for the various types of follow-me */
 		virtual void HandleFollowMe(class DeviceData_Router *pDevice_PriorDetector,char Type, class OH_Orbiter *pOH_Orbiter);
