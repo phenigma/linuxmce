@@ -84,14 +84,14 @@ bool Xine_Plugin::Register()
 	// The constructor for this class registers itself, so we don't worry about deleting it or doing anything with it
 
 	// We can play cd's, both discs and stored media
-	MediaPluginInfo *pMediaPluginInfo = new MediaPluginInfo( this, MEDIATYPE_pluto_CD_CONST, DEVICETEMPLATE_Xine_Player_CONST, canjumptrue, usesdcetrue );
+	MediaHandlerInfo *pMediaHandlerInfo = new MediaHandlerInfo( this, MEDIATYPE_pluto_CD_CONST, DEVICETEMPLATE_Xine_Player_CONST, canjumptrue, usesdcetrue );
 
 	// We can play dvd's, both discs and stored media
-	pMediaPluginInfo = new MediaPluginInfo( this, MEDIATYPE_pluto_DVD_CONST, DEVICETEMPLATE_Xine_Player_CONST, true, true );
+	pMediaHandlerInfo = new MediaHandlerInfo( this, MEDIATYPE_pluto_DVD_CONST, DEVICETEMPLATE_Xine_Player_CONST, true, true );
 
 	// We can play stored audio and video of all types
-	pMediaPluginInfo = new MediaPluginInfo( this, MEDIATYPE_pluto_StoredAudio_CONST, DEVICETEMPLATE_Xine_Player_CONST, true, true );
-	pMediaPluginInfo = new MediaPluginInfo( this, MEDIATYPE_pluto_StoredAudio_CONST, DEVICETEMPLATE_Xine_Player_CONST, true, true );
+	pMediaHandlerInfo = new MediaHandlerInfo( this, MEDIATYPE_pluto_StoredAudio_CONST, DEVICETEMPLATE_Xine_Player_CONST, true, true );
+	pMediaHandlerInfo = new MediaHandlerInfo( this, MEDIATYPE_pluto_StoredAudio_CONST, DEVICETEMPLATE_Xine_Player_CONST, true, true );
 	*/
 	/** @todo list<int> m_PK_Broadcast_Send; // What broadcast formats it supports to send */
 	/** @todo list<int> m_PK_Broadcast_Receive;  // What broadcast formats it supports to receive */
@@ -126,7 +126,7 @@ void Xine_Plugin::ReceivedUnknownCommand(string &sCMD_Result,Message *pMessage)
 	sCMD_Result = "UNHANDLED";
 }
 
-class MediaStream *Xine_Plugin::CreateMediaStream( class MediaPluginInfo *pMediaPluginInfo, class EntertainArea *pEntertainArea, MediaDevice *pMediaDevice, int iPK_Users, deque<MediaFile *> *dequeFilenames, int StreamID )
+class MediaStream *Xine_Plugin::CreateMediaStream( class MediaHandlerInfo *pMediaHandlerInfo, class EntertainArea *pEntertainArea, MediaDevice *pMediaDevice, int iPK_Users, deque<MediaFile *> *dequeFilenames, int StreamID )
 {
 	XineMediaStream *pXineMediaStream;
 
@@ -144,9 +144,9 @@ class MediaStream *Xine_Plugin::CreateMediaStream( class MediaPluginInfo *pMedia
 		return NULL;
 	}
 
-	pXineMediaStream = new XineMediaStream( this, pMediaPluginInfo,
+	pXineMediaStream = new XineMediaStream( this, pMediaHandlerInfo,
 							pMediaDevice->m_pDeviceData_Router,
-							pMediaPluginInfo->m_iPK_DesignObj,
+							pMediaHandlerInfo->m_iPK_DesignObj,
 							iPK_Users, st_RemovableMedia, StreamID );
 
 	pXineMediaStream->SetPlaybackDeviceForEntArea(pEntertainArea->m_iPK_EntertainArea, pMediaDevice);

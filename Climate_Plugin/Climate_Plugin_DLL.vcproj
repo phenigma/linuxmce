@@ -137,6 +137,9 @@
 				RelativePath="..\Gen_Devices\Datagrid_PluginBase.cpp">
 			</File>
 			<File
+				RelativePath="..\Orbiter_Plugin\FollowMe_Plugin.cpp">
+			</File>
+			<File
 				RelativePath="Main.cpp">
 			</File>
 		</Filter>

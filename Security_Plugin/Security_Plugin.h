@@ -21,11 +21,12 @@ class Row_ModeChange;
 #include "DeviceData_Router.h"
 #include "AlarmManager.h"
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
+#include "Orbiter_Plugin/FollowMe_Plugin.h"
 
 //<-dceag-decl-b->!
 namespace DCE
 {
-	class Security_Plugin : public Security_Plugin_Command, public DataGridGeneratorPlugIn, public AlarmEvent
+	class Security_Plugin : public Security_Plugin_Command, public DataGridGeneratorPlugIn, public AlarmEvent, public FollowMe_Plugin
 	{
 //<-dceag-decl-e->
 	// Private member variables 
@@ -78,6 +79,9 @@ public:
 	virtual void AlarmCallback(int id, void* param);
 	void ProcessCountdownBeforeAlarm();
 	void SayToDevices(string sText,map<int,DeviceData_Router *> &mapAudioDevices,DeviceData_Router *pDeviceData_Router);
+
+	// Follow-me
+	virtual void ExecuteFollowMe(OH_Orbiter *pOH_Orbiter,class Room *pRoom_Prior,class Room *pRoom_Current) {}
 
 //<-dceag-h-b->
 	/*

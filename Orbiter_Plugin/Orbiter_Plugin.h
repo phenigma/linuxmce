@@ -13,41 +13,10 @@
 #include "Gen_Devices/AllCommandsRequests.h"
 
 class Database_pluto_main;
+#include "OH_Orbiter.h"
 
 namespace DCE
 {
-    // Store an orbiter list within the handler
-    class OH_Orbiter
-    {
-    public:
-        map<int,FloorplanObjectVectorMap *> m_mapFloorplanObjectVector;
-        FloorplanObjectVectorMap *m_mapFloorplanObjectVector_Find(int Page) { map<int,FloorplanObjectVectorMap *>::iterator it = m_mapFloorplanObjectVector.find(Page); return it==m_mapFloorplanObjectVector.end() ? NULL : (*it).second; }
-
-        class DeviceData_Router *m_pDeviceData_Router;
-        class DeviceData_Router *m_pDevice_CurrentDetected;
-
-        int m_iPK_Users;  // The current user
-        class EntertainArea *m_pEntertainArea;  // The current entertain area
-        int m_dwPK_Room;  // The current room
-
-        int m_iLastSignalStrength;
-        int m_iFailedToConnectCount;
-		bool m_bRegistered;
-
-		bool m_bFollowMe_Lighting,m_bFollowMe_Media,m_bFollowMe_Climate,m_bFollowMe_Telecom,m_bFollowMe_Security;
-
-        OH_Orbiter(class DeviceData_Router *pDeviceData_Router)
-        {
-            m_pDeviceData_Router = pDeviceData_Router;
-            m_iPK_Users = m_dwPK_Room = 0;
-			m_pEntertainArea = NULL;
-            m_iLastSignalStrength = 0;
-            m_pDevice_CurrentDetected = NULL;
-            m_iFailedToConnectCount = 0;
-			m_bRegistered=false;
-			m_bFollowMe_Lighting=m_bFollowMe_Media=m_bFollowMe_Climate=m_bFollowMe_Telecom=m_bFollowMe_Security=false;
-        }
-    };
 
 class UnknownDeviceInfos
 {
@@ -101,11 +70,9 @@ public:
 //<-dceag-const-e->
     // Private member variables
     Database_pluto_main *m_pDatabase_pluto_main;
-	class Lighting_Plugin *m_pLighting_Plugin;
-	class Climate_Plugin *m_pClimate_Plugin;
+	class FollowMe_Plugin *m_pLighting_Followme,*m_pMedia_Followme,*m_pClimate_Followme,*m_pSecurity_Followme,*m_pTelecom_Followme;
+	class FloorplanInfoProvider *m_pLighting_Floorplan,*m_pClimate_Floorplan,*m_pMedia_Floorplan,*m_pSecurity_Floorplan,*m_pTelecom_Floorplan;
 	class Media_Plugin *m_pMedia_Plugin;
-	class Security_Plugin *m_pSecurity_Plugin;
-	class Telecom_Plugin *m_pTelecom_Plugin;
 
     // Private methods
     map<string,UnknownDeviceInfos *> m_mapUnknownDevices; // A temporary map to match Bluetooth Dongle's with devices they detect

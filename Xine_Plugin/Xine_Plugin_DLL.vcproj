@@ -131,6 +131,9 @@
 				RelativePath="..\File_Grids_Plugin\FileListGrid.cpp">
 			</File>
 			<File
+				RelativePath="..\Orbiter_Plugin\FollowMe_Plugin.cpp">
+			</File>
+			<File
 				RelativePath="Main.cpp">
 			</File>
 			<File
@@ -143,7 +146,7 @@
 				RelativePath="..\Media_Plugin\MediaAttributes.cpp">
 			</File>
 			<File
-				RelativePath="..\Media_Plugin\MediaPluginInfo.cpp">
+				RelativePath="..\Media_Plugin\MediaHandlerInfo.cpp">
 			</File>
 			<File
 				RelativePath="Xine_Plugin.cpp">

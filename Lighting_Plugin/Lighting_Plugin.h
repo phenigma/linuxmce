@@ -10,12 +10,13 @@
 
 #include "../Orbiter/Floorplan.h"
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
+#include "Orbiter_Plugin/FollowMe_Plugin.h"
 class Database_pluto_main;
 
 //<-dceag-decl-b->!
 namespace DCE
 {
-	class Lighting_Plugin : public Lighting_Plugin_Command, public DataGridGeneratorPlugIn, public FloorplanInfoProvider
+	class Lighting_Plugin : public Lighting_Plugin_Command, public DataGridGeneratorPlugIn, public FloorplanInfoProvider, public FollowMe_Plugin
 	{
 //<-dceag-decl-e->
 	// Private member variables
@@ -43,6 +44,9 @@ public:
 
 	// Datagrids
 	class DataGridTable *LightingScenariosGrid( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage );
+
+	// Follow-me
+	virtual void ExecuteFollowMe(OH_Orbiter *pOH_Orbiter,class Room *pRoom_Prior,class Room *pRoom_Current) {}
 
 //<-dceag-h-b->
 	/*

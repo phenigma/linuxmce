@@ -35,8 +35,8 @@ namespace DCE
     public:
         class MythTV_PlugIn *m_pMythTV_PlugIn;
 
-        MythTvStream(class MythTV_PlugIn *pMythTV_PlugIn,class MediaPluginInfo *pMediaPluginInfo, DeviceData_Router *pDeviceData_Router, int PK_DesignObj_Remote, int PK_Users,enum SourceType sourceType,int iStreamID)
-            : MediaStream(pMediaPluginInfo,pDeviceData_Router,PK_DesignObj_Remote,PK_Users,sourceType,iStreamID) { m_iCurrentShow=-1; m_pMythTV_PlugIn=pMythTV_PlugIn; }
+        MythTvStream(class MythTV_PlugIn *pMythTV_PlugIn,class MediaHandlerInfo *pMediaHandlerInfo, DeviceData_Router *pDeviceData_Router, int PK_DesignObj_Remote, int PK_Users,enum SourceType sourceType,int iStreamID)
+            : MediaStream(pMediaHandlerInfo,pDeviceData_Router,PK_DesignObj_Remote,PK_Users,sourceType,iStreamID) { m_iCurrentShow=-1; m_pMythTV_PlugIn=pMythTV_PlugIn; }
 
         /** Temporary hacks, just populate m_vectRow_Listing with all the shows, and make m_iCurrentShow point to the current one */
         vector<Row_Listing *> m_vectRow_Listing;
@@ -46,7 +46,7 @@ namespace DCE
     };
 
     //<-dceag-decl-b->!
-    class MythTV_PlugIn : public MythTV_PlugIn_Command, public MediaPluginBase // , public MediaPluginBase
+    class MythTV_PlugIn : public MythTV_PlugIn_Command, public MediaHandlerBase // , public MediaHandlerBase
     {
         //<-dceag-decl-e->
         friend class MythTvStream;
@@ -80,7 +80,7 @@ public:
 
     public:
         /** Mandatory implementations */
-        virtual class MediaStream *CreateMediaStream(class MediaPluginInfo *pMediaPluginInfo, class EntertainArea *pEntertainArea, MediaDevice *pMediaDevice, int iPK_Users, deque<MediaFile *> *dequeFilenames,int StreamID);
+        virtual class MediaStream *CreateMediaStream(class MediaHandlerInfo *pMediaHandlerInfo, class EntertainArea *pEntertainArea, MediaDevice *pMediaDevice, int iPK_Users, deque<MediaFile *> *dequeFilenames,int StreamID);
 
         virtual bool StartMedia(class MediaStream *pMediaStream);
 

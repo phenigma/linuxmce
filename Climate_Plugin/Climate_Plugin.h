@@ -7,12 +7,14 @@
 #include "Gen_Devices/Climate_PluginBase.h"
 //<-dceag-d-e->
 
+#include "Orbiter_Plugin/FollowMe_Plugin.h"
+#include "Datagrid_Plugin/Datagrid_Plugin.h"
 class Database_pluto_main;
 
-//<-dceag-decl-b->
+//<-dceag-decl-b->!
 namespace DCE
 {
-	class Climate_Plugin : public Climate_Plugin_Command
+	class Climate_Plugin : public Climate_Plugin_Command, public DataGridGeneratorPlugIn, public FollowMe_Plugin
 	{
 //<-dceag-decl-e->
 	// Private member variables
@@ -38,6 +40,8 @@ public:
 	// Datagrids
 	class DataGridTable *ClimateScenariosGrid(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,class Message *pMessage);
 
+	// Follow-me
+	virtual void ExecuteFollowMe(OH_Orbiter *pOH_Orbiter,class Room *pRoom_Prior,class Room *pRoom_Current) {}
 
 //<-dceag-h-b->
 	/*

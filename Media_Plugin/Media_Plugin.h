@@ -2,7 +2,7 @@
 /**
  *
  * @file Media_Plugin.h
- * @brief header file for the  Media_Plugin, MediaPosition, EntertainArea, MediaDevice, MediaPluginBase classes
+ * @brief header file for the  Media_Plugin, MediaPosition, MediaDevice, MediaHandlerBase classes
  */
 
 //<-dceag-d-b->
@@ -19,7 +19,7 @@
 #include "DeviceData_Router.h"
 #include "DCE/Logger.h"
 #include "DCERouter/DCERouter.h"
-#include "MediaPluginInfo.h"
+#include "MediaHandlerInfo.h"
 #include "pluto_main/Table_DeviceTemplate.h"
 #include "pluto_main/Table_DeviceTemplate_MediaType.h"
 #include "pluto_main/Table_DeviceTemplate_MediaType_DesignObj.h"
@@ -28,147 +28,26 @@
 #include "PlutoUtils/MySQLHelper.h"
 
 #include "../Orbiter/Floorplan.h"
+#include "Orbiter_Plugin/FollowMe_Plugin.h"
+#include "MediaStream.h"
+#include "EntertainArea.h"
 
 class Database_pluto_main;
 class Database_pluto_media;
 class MediaFile;
 
 /**
- * A Media Handler is derived from the Media Handler abstract class.  When it registers, it passes in a MediaPluginInfo pointer indicating
+ * A Media Handler is derived from the Media Handler abstract class.  When it registers, it passes in a MediaHandlerInfo pointer indicating
  * what type of media it can play.  It may register several times with different types of media and different capabilities.
  */
 
-// WARN: MediaPluginBase was moved below because it needed the definition of the EntertainArea object
+// WARN: MediaHandlerBase was moved below because it needed the definition of the EntertainArea object
 namespace DCE
 {
 
-/** @brief This adds media specific information for a device, extending the DeviceData_Router */
-
-class MediaDevice
-{
-public:
-
-    /** @brief constructor */
-    MediaDevice(class Router *pRouter,class Row_Device *pRow_Device);   /** This will store extra information about itself */
-    class DeviceData_Router *m_pDeviceData_Router;          /**< The device in the router */
-    map<int,int> m_mapMediaType_DesignObj;              /** A map of all the remotes for the various screens */
-    list<class EntertainArea *> m_listEntertainArea;
-};
-
-typedef list<MediaDevice *> ListMediaDevice;
-
-/** @brief An entertainment area is a cluster of devices.  It's analogous to a Room, except you can have multiple entertainment areas in a room, like
-  * a 'his' and 'hers' tv in the bedroom.
-  */
-
-class EntertainArea
-{
-public:
-
-    /** @brief constructor*/
-
-    EntertainArea(int iPK_EntertainArea,bool bOnly1Stream,string sDescription)
-    { m_iPK_EntertainArea=iPK_EntertainArea; m_bOnly1Stream=bOnly1Stream; m_pMediaStream=NULL; m_sDescription=sDescription; }
-
-    int m_iPK_EntertainArea;
-	string m_sDescription;
-
-    class MediaStream  *m_pMediaStream;   /** The current media streams in this entertainment area */
-
-    map<int, class MediaDevice *> m_mapMediaDevice;  /** All the media devices in the area */
-    MediaDevice *m_mapMediaDevice_Find(int PK_Device) { map<int,class MediaDevice *>::iterator it = m_mapMediaDevice.find(PK_Device); return it==m_mapMediaDevice.end() ? NULL : (*it).second; }
-    map<int, ListMediaDevice *> m_mapMediaDeviceByTemplate;  /** All the media devices in the area by device template */
-    ListMediaDevice *m_mapMediaDeviceByTemplate_Find(int PK_DeviceTemplate) { map<int,ListMediaDevice *>::iterator it = m_mapMediaDeviceByTemplate.find(PK_DeviceTemplate); return it==m_mapMediaDeviceByTemplate.end() ? NULL : (*it).second; }
-
-    // These are the Orbiters that are currently controling this entertainment area.  When an
-    // orbiter goes to a remote control for an entertainment area it becomes "bound".
-    MapBoundRemote m_mapBoundRemote;
-
-    BoundRemote *m_mapBoundRemote_Find(int iPK_Orbiter)
-    {
-        map<int,class BoundRemote *>::iterator it = m_mapBoundRemote.find(iPK_Orbiter);
-        return it==m_mapBoundRemote.end() ? NULL : (*it).second;
-    }
-
-    void m_mapBoundRemote_Remove(int iPK_Orbiter)
-    {
-        MapBoundRemote::iterator it = m_mapBoundRemote.find(iPK_Orbiter);
-    if( it!=m_mapBoundRemote.end() ) m_mapBoundRemote.erase(it);
-     }
-
-    bool m_bOnly1Stream;
-    /** If true, stop any other media streams in this area when a new one starts.  There can be only 1.  This is the default behavior */
-
-    map<int,List_MediaPluginInfo *> m_mapMediaPluginInfo_MediaType; /** The key is the media type */
-
-    List_MediaPluginInfo *m_mapMediaPluginInfo_MediaType_Find(int PK_MediaType)
-    {
-        map<int,List_MediaPluginInfo *>::iterator it = m_mapMediaPluginInfo_MediaType.find(PK_MediaType);
-        return it==m_mapMediaPluginInfo_MediaType.end() ? NULL : (*it).second;
-    }
-
-    map<string,List_MediaPluginInfo *> m_mapMediaPluginInfo_Extension; // The key is a file extension
-    List_MediaPluginInfo *m_mapMediaPluginInfo_Extension_Find(string Extension) {
-        map<string,List_MediaPluginInfo *>::iterator it = m_mapMediaPluginInfo_Extension.find(Extension);
-        return it==m_mapMediaPluginInfo_Extension.end() ? NULL : (*it).second;
-    }
-};
-
-typedef map<int,class EntertainArea *> MapEntertainArea;
-
-// When a media device can save and restore a position, it must create a derived class that stores the position information.
-// For a CD, this may be a track and timecount.  For a DVD it is more complicated, involving a lot of settings, like sub-title and audio, needed to restore this position/state
-// GetID must return a unique string identifying the format.  This way media devices can see the format based on GetID, and cast MediaPosition to the correct type, handling it accordingly
-class MediaPosition
-{
-public:
-	/**
-	 * @brief A Media position should be able to be reset.
-	 */
-	virtual void Reset() = 0;
-
-	/**
-	 * @brief A media position should be identified.
-	 */
-	virtual string GetID() = 0;
-};
-
-/** All media plugins must implement this class */
-class MediaPluginBase
-{
-public:
-    class Media_Plugin *m_pMedia_Plugin;
-
-    /** @brief constructor */
-    MediaPluginBase() {}
-
-    /** @brief Each Plugin will create its own instance of MediaStream, so it can create a derived version with extra information */
-    virtual class MediaStream *CreateMediaStream(class MediaPluginInfo *pMediaPluginInfo,class EntertainArea *pEntertainArea,MediaDevice *pMediaDevice,int iPK_Users, deque<MediaFile *> *dequeMediaFile,int StreamID)=0;
-    virtual bool StartMedia(class MediaStream *pMediaStream)=0;
-    virtual bool StopMedia(class MediaStream *pMediaStream)=0;
-    virtual bool BroadcastMedia(class MediaStream *pMediaStream)=0;
-    virtual bool MoveMedia(class MediaStream *pMediaStream, list<EntertainArea*> &listStart, list<EntertainArea *> &listStop, list<EntertainArea *> &listChange)=0;
-
-	// Given a stream, what is the rendering device(s).  The source device is stored in the stream.  Normally the source and rendering are the same (dvd player, for example).
-	// But sometimes the source may be a back-end streamer, and the rendering device(s) some network audio players.  The framework needs
-	// to know the rendering devices so it can send on/off's to them.  If the source & dest aren't the same, the plug-in must override this
-	virtual void GetRenderDevices(MediaStream *pMediaStream,map<int,MediaDevice *> *pmapMediaDevice);
-
-    virtual bool isValidStreamForPlugin(class MediaStream *pMediaStream)=0;
-
-    // it can't virtual and static at the same time.
-    virtual MediaDevice *GetMediaDeviceForEntertainArea(EntertainArea *pEntertainArea, int PK_DeviceTemplate)
-    {
-        list<MediaDevice*> *pListMediaDevice = pEntertainArea->m_mapMediaDeviceByTemplate_Find(PK_DeviceTemplate);
-        if( pListMediaDevice && pListMediaDevice->size())
-            return pListMediaDevice->front();
-        else
-            return NULL;
-    }
-};
 
 //<-dceag-decl-b->!
-class Media_Plugin : public Media_Plugin_Command, public DataGridGeneratorPlugIn, public MySqlHelper, public FloorplanInfoProvider
+class Media_Plugin : public Media_Plugin_Command, public DataGridGeneratorPlugIn, public MySqlHelper, public FloorplanInfoProvider, public FollowMe_Plugin
 {
 //<-dceag-decl-e->
     friend class MediaStream;
@@ -184,7 +63,7 @@ public:
 //<-dceag-const-e->
     class MediaAttributes *m_pMediaAttributes;
 
-    friend class MediaPluginInfo;
+    friend class MediaHandlerInfo;
     pluto_pthread_mutex_t m_MediaMutex; // Other classes may need this
 
 private:
@@ -215,16 +94,16 @@ private:
 protected:
     void PlayMediaByDeviceTemplate(int iPK_DeviceTemplate, int iPK_Device, int iPK_Device_Orbiter, EntertainArea *pEntertainArea, string &sCMD_Result);
     void PlayMediaByFileName(string sFilename, int iPK_Device, int iPK_Device_Orbiter, EntertainArea *pEntertainArea, string &sCMD_Result);
-    bool EnsureCorrectMediaStreamForDevice(MediaPluginInfo *pMediaPluginInfo, EntertainArea *pEntertainArea, int iPK_Device);
+    bool EnsureCorrectMediaStreamForDevice(MediaHandlerInfo *pMediaHandlerInfo, EntertainArea *pEntertainArea, int iPK_Device);
 
     /**
      * Find a media plugin info object that will play the specified file.
      */
-    MediaPluginInfo *FindMediaPluginInfoForFileName(EntertainArea *pEntertainArea, string sFileToPlay);
+    MediaHandlerInfo *FindMediaHandlerInfoForFileName(EntertainArea *pEntertainArea, string sFileToPlay);
     /**
      * Find a media plugin info object that will play the specified media type.
      */
-    MediaPluginInfo *FindMediaPluginInfoForMediaType(EntertainArea *pEntertainArea, int iPK_MediaType);
+    MediaHandlerInfo *FindMediaHandlerInfoForMediaType(EntertainArea *pEntertainArea, int iPK_MediaType);
 
     /**
      * Given that media was playing on the Prior list of devices, and now is on the Current list of devices, send the appropriate on/off's
@@ -258,11 +137,11 @@ public:
     void m_mapMediaStream_Remove(int StreamID) { MapMediaStream::iterator it = m_mapMediaStream.find(StreamID); if( it!=m_mapMediaStream.end() ) m_mapMediaStream.erase(it); }
 
     // A MediaPlugIn call call this function, passing in the type of device that it will handle.  This will automatically build MediaPlugInInfo's for all the
-    // types that the device supports, using all the default values from the database.  A plug-in could also call the MediaPluginInfo constructor that will
+    // types that the device supports, using all the default values from the database.  A plug-in could also call the MediaHandlerInfo constructor that will
     // create and register a specific type of media.  This means it is not necessary to call RegisterMediaPlugin.  This allows the plug-in to change
-    // some of the defaults.  The Plugin could also create a MediaPluginInfo type manually for complete control over the parameters, and then call
+    // some of the defaults.  The Plugin could also create a MediaHandlerInfo type manually for complete control over the parameters, and then call
     // RegisterMediaPlugin
-    void RegisterMediaPlugin(class Command_Impl *pCommand_Impl,class MediaPluginBase *pMediaPluginBase,int iPK_MasterDeviceList,bool bUsesDCE)
+    void RegisterMediaPlugin(class Command_Impl *pCommand_Impl,class MediaHandlerBase *pMediaHandlerBase,int iPK_MasterDeviceList,bool bUsesDCE)
     {
         Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(iPK_MasterDeviceList);
         if( !pRow_DeviceTemplate )
@@ -275,22 +154,22 @@ public:
         int iPKDeviceTemplate = pRow_DeviceTemplate->PK_DeviceTemplate_get();
         string strDescription = pRow_DeviceTemplate->Description_get();
 
-        g_pPlutoLogger->Write(LV_STATUS,"Registered media plug in #%d (Template %d) %s (adress %p, plugin base address %p)",iPKDevice,iPKDeviceTemplate,strDescription.c_str(), pCommand_Impl, pMediaPluginBase);
+        g_pPlutoLogger->Write(LV_STATUS,"Registered media plug in #%d (Template %d) %s (adress %p, plugin base address %p)",iPKDevice,iPKDeviceTemplate,strDescription.c_str(), pCommand_Impl, pMediaHandlerBase);
         vector<Row_DeviceTemplate_MediaType *> vectRow_DeviceTemplate_MediaType;
         pRow_DeviceTemplate->DeviceTemplate_MediaType_FK_DeviceTemplate_getrows(&vectRow_DeviceTemplate_MediaType);
         for(size_t mt=0;mt<vectRow_DeviceTemplate_MediaType.size();++mt)
         {
             Row_DeviceTemplate_MediaType *pRow_DeviceTemplate_MediaType = vectRow_DeviceTemplate_MediaType[mt];
-            MediaPluginInfo *pMediaPluginInfo =
-                new MediaPluginInfo(pMediaPluginBase,pCommand_Impl,pRow_DeviceTemplate_MediaType->FK_MediaType_get(),
+            MediaHandlerInfo *pMediaHandlerInfo =
+                new MediaHandlerInfo(pMediaHandlerBase,pCommand_Impl,pRow_DeviceTemplate_MediaType->FK_MediaType_get(),
                     iPK_MasterDeviceList,pRow_DeviceTemplate_MediaType->CanSetPosition_get()==1,bUsesDCE);
 
             vector<Row_DeviceTemplate_MediaType_DesignObj *> vectRow_DeviceTemplate_MediaType_DesignObj;
             pRow_DeviceTemplate_MediaType->DeviceTemplate_MediaType_DesignObj_FK_DeviceTemplate_MediaType_getrows(&vectRow_DeviceTemplate_MediaType_DesignObj);
             if( vectRow_DeviceTemplate_MediaType_DesignObj.size() )
-                pMediaPluginInfo->m_iPK_DesignObj = vectRow_DeviceTemplate_MediaType_DesignObj[0]->FK_DesignObj_get();
+                pMediaHandlerInfo->m_iPK_DesignObj = vectRow_DeviceTemplate_MediaType_DesignObj[0]->FK_DesignObj_get();
             else
-                pMediaPluginInfo->m_iPK_DesignObj = 0;
+                pMediaHandlerInfo->m_iPK_DesignObj = 0;
         }
     }
 
@@ -310,7 +189,7 @@ public:
      */
     virtual void GetFloorplanDeviceInfo(DeviceData_Router *pDeviceData_Router,EntertainArea *pEntertainArea,int iFloorplanObjectType,int &iPK_FloorplanObjectType_Color,int &Color,string &sDescription,string &OSD);
 
-    bool StartMedia(MediaPluginInfo *pMediaPluginInfo, unsigned int PK_Device_Orbiter,EntertainArea *pEntertainArea,int PK_Device_Source,int PK_DesignObj_Remote,deque<MediaFile *> *dequeMediaFile);
+    bool StartMedia(MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter,EntertainArea *pEntertainArea,int PK_Device_Source,int PK_DesignObj_Remote,deque<MediaFile *> *dequeMediaFile);
 
     /**
      * @brief More capable StartMedia. Does not need an actual device since it will search for it at the play time.
@@ -318,7 +197,7 @@ public:
      * It will also take care of moving the playlists when we use another device to play the media. It will also receive and actual device play list and not only
      *  a filename.
      */
-    bool StartMediaOnPlugin(MediaPluginInfo *pMediaPluginInfo, EntertainArea *pEntertainArea);
+    bool StartMediaOnPlugin(MediaHandlerInfo *pMediaHandlerInfo, EntertainArea *pEntertainArea);
 
     /**
      * @brief Whenever the state of the media changes, the plug-in should call this function so we can update all the orbiter's pictures, descriptions, etc.
@@ -341,6 +220,10 @@ public:
      * @brief EVENT_Playback_Completed event interceptor. Called when the router finds an event of this type in the queue.
      */
     bool PlaybackCompleted( class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo);
+
+	// Follow-me
+	virtual void ExecuteFollowMe(OH_Orbiter *pOH_Orbiter,class Room *pRoom_Prior,class Room *pRoom_Current) {}
+	
 //<-dceag-h-b->
 	/*
 				AUTO-GENERATED SECTION

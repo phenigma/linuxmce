@@ -1,5 +1,5 @@
 /*
- MediaPluginInfo
+ MediaHandlerInfo
 
  Copyright (C) 2004 Pluto, Inc., a Florida Corporation
 
@@ -16,7 +16,10 @@
  */
 
 #include "PlutoUtils/CommonIncludes.h"
-#include "MediaPluginInfo.h"
+#include "MediaHandlerInfo.h"
+#include "MediaHandlerBase.h"
+#include "EntertainArea.h"
+#include "MediaPosition.h"
 #include "Media_Plugin.h"
 
 #include "DCERouter/DCERouter.h"
@@ -34,10 +37,10 @@ void operator+= (deque<MediaFile *> &dTarget, deque<MediaFile *> &dAdditional)
         dTarget.push_back(dAdditional[s]);
 }
 
-MediaPluginInfo::MediaPluginInfo( class MediaPluginBase *pMediaPluginBase, class Command_Impl *pCommand_Impl, int PK_MediaType, int PK_DeviceTemplate, bool bCanJumpPosition, bool bUsesDevices, bool bDontRegister )
+MediaHandlerInfo::MediaHandlerInfo( class MediaHandlerBase *pMediaHandlerBase, class Command_Impl *pCommand_Impl, int PK_MediaType, int PK_DeviceTemplate, bool bCanJumpPosition, bool bUsesDevices, bool bDontRegister )
 {
     m_iPK_DesignObj=0;
-    m_pMediaPluginBase=pMediaPluginBase;
+    m_pMediaHandlerBase=pMediaHandlerBase;
     m_pCommand_Impl=pCommand_Impl;
     m_PK_MediaType=PK_MediaType;
     m_bCanJumpPosition=bCanJumpPosition;
@@ -46,11 +49,11 @@ MediaPluginInfo::MediaPluginInfo( class MediaPluginBase *pMediaPluginBase, class
 
     if( PK_DeviceTemplate )
     {
-        ListDeviceData_Router *pListDeviceData_Router=m_pMediaPluginBase->m_pMedia_Plugin->m_pRouter->m_mapDeviceByTemplate_Find( PK_DeviceTemplate );
+        ListDeviceData_Router *pListDeviceData_Router=m_pMediaHandlerBase->m_pMedia_Plugin->m_pRouter->m_mapDeviceByTemplate_Find( PK_DeviceTemplate );
         for( ListDeviceData_Router::iterator it=pListDeviceData_Router->begin( );it!=pListDeviceData_Router->end( );++it )
         {
             DeviceData_Router *pDeviceData_Router = *it;
-            MediaDevice *pMediaDevice = m_pMediaPluginBase->m_pMedia_Plugin->m_mapMediaDevice_Find( pDeviceData_Router->m_dwPK_Device );
+            MediaDevice *pMediaDevice = m_pMediaHandlerBase->m_pMedia_Plugin->m_mapMediaDevice_Find( pDeviceData_Router->m_dwPK_Device );
             if( !pMediaDevice )
                 g_pPlutoLogger->Write( LV_CRITICAL, "Device %d (%s) isn't in an entertainment area", pDeviceData_Router->m_dwPK_Device, pDeviceData_Router->m_sDescription.c_str() );
             else
@@ -62,7 +65,7 @@ MediaPluginInfo::MediaPluginInfo( class MediaPluginBase *pMediaPluginBase, class
     if( PK_DeviceTemplate )
     {
         vector<Row_DeviceTemplate_MediaType *> vectRow_DeviceTemplate_MediaType;
-        pMediaPluginBase->m_pMedia_Plugin->m_pDatabase_pluto_main->DeviceTemplate_MediaType_get( )->GetRows(
+        pMediaHandlerBase->m_pMedia_Plugin->m_pDatabase_pluto_main->DeviceTemplate_MediaType_get( )->GetRows(
                 DEVICETEMPLATE_MEDIATYPE_FK_DEVICETEMPLATE_FIELD + string( "=" ) + StringUtils::itos( PK_DeviceTemplate ) + " AND " +
                 DEVICETEMPLATE_MEDIATYPE_FK_MEDIATYPE_FIELD + "=" + StringUtils::itos( PK_MediaType ), &vectRow_DeviceTemplate_MediaType );
 
@@ -85,7 +88,7 @@ MediaPluginInfo::MediaPluginInfo( class MediaPluginBase *pMediaPluginBase, class
     }
     else
     {
-        Row_MediaType *pRow_MediaType=m_pMediaPluginBase->m_pMedia_Plugin->m_pDatabase_pluto_main->MediaType_get( )->GetRow( m_PK_MediaType );
+        Row_MediaType *pRow_MediaType=m_pMediaHandlerBase->m_pMedia_Plugin->m_pDatabase_pluto_main->MediaType_get( )->GetRow( m_PK_MediaType );
         if( pRow_MediaType )
         {
     //todo      m_bUsesRemovableMedia = pRow_MediaType->UsesRemoveableMedia_get( )==1;
@@ -111,37 +114,37 @@ MediaPluginInfo::MediaPluginInfo( class MediaPluginBase *pMediaPluginBase, class
         for( list<class EntertainArea *>::iterator itEntArea=pMediaDevice->m_listEntertainArea.begin( );itEntArea!=pMediaDevice->m_listEntertainArea.end( );++itEntArea )
         {
             EntertainArea *pEntertainArea = *itEntArea;
-            List_MediaPluginInfo *pList_MediaPluginInfo = pEntertainArea->m_mapMediaPluginInfo_MediaType_Find( m_PK_MediaType );
-            if( !pList_MediaPluginInfo )
+            List_MediaHandlerInfo *pList_MediaHandlerInfo = pEntertainArea->m_mapMediaHandlerInfo_MediaType_Find( m_PK_MediaType );
+            if( !pList_MediaHandlerInfo )
             {
-                pList_MediaPluginInfo = new List_MediaPluginInfo( );
-                pEntertainArea->m_mapMediaPluginInfo_MediaType[m_PK_MediaType] = pList_MediaPluginInfo;
+                pList_MediaHandlerInfo = new List_MediaHandlerInfo( );
+                pEntertainArea->m_mapMediaHandlerInfo_MediaType[m_PK_MediaType] = pList_MediaHandlerInfo;
             }
-            pList_MediaPluginInfo->push_back( this );
+            pList_MediaHandlerInfo->push_back( this );
 
             for( list<string>::iterator itExt=m_listExtensions.begin( );itExt!=m_listExtensions.end( );++itExt )
             {
                 string Extension = *itExt;
 
-                pList_MediaPluginInfo = pEntertainArea->m_mapMediaPluginInfo_Extension_Find( Extension );
-                if( !pList_MediaPluginInfo )
+                pList_MediaHandlerInfo = pEntertainArea->m_mapMediaHandlerInfo_Extension_Find( Extension );
+                if( !pList_MediaHandlerInfo )
                 {
-                    pList_MediaPluginInfo = new List_MediaPluginInfo( );
-                    pEntertainArea->m_mapMediaPluginInfo_Extension[Extension] = pList_MediaPluginInfo;
+                    pList_MediaHandlerInfo = new List_MediaHandlerInfo( );
+                    pEntertainArea->m_mapMediaHandlerInfo_Extension[Extension] = pList_MediaHandlerInfo;
                 }
-                pList_MediaPluginInfo->push_back( this );
+                pList_MediaHandlerInfo->push_back( this );
             }
         }
     }
-// todo m_pMediaPluginBase->m_pMedia_Plugin->RegisterMediaPlugin( this );
+// todo m_pMediaHandlerBase->m_pMedia_Plugin->RegisterMediaPlugin( this );
 }
 
 
-MediaStream::MediaStream( class MediaPluginInfo *pMediaPluginInfo, DeviceData_Router *pDeviceData_Router, int PK_DesignObj_Remote, int PK_Users, enum SourceType sourceType, int iStreamID )
+MediaStream::MediaStream( class MediaHandlerInfo *pMediaHandlerInfo, DeviceData_Router *pDeviceData_Router, int PK_DesignObj_Remote, int PK_Users, enum SourceType sourceType, int iStreamID )
 {
     m_iPK_MediaType = 0; // No media type specified here. The plugin should put the proper media type in here.
     m_iStreamID = iStreamID;
-    m_pMediaPluginInfo=pMediaPluginInfo;
+    m_pMediaHandlerInfo=pMediaHandlerInfo;
     m_iPK_DesignObj_Remote=PK_DesignObj_Remote;
     m_iPK_Users=PK_Users;
     m_eSourceType=sourceType;
@@ -157,11 +160,11 @@ MediaStream::MediaStream( class MediaPluginInfo *pMediaPluginInfo, DeviceData_Ro
 
     m_pDeviceData_Router_Source=pDeviceData_Router;
 
-    if ( m_pMediaPluginInfo ) // If this stream is a "valid stream only"
-        m_pMediaPluginInfo->m_pMediaPluginBase->m_pMedia_Plugin->m_mapMediaStream[m_iStreamID] = this;
+    if ( m_pMediaHandlerInfo ) // If this stream is a "valid stream only"
+        m_pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_mapMediaStream[m_iStreamID] = this;
 
-    if( !m_pDeviceData_Router_Source || !m_pMediaPluginInfo )
-        g_pPlutoLogger->Write( LV_CRITICAL, "Media stream is invalid because of NULL pointers! %p %p", m_pDeviceData_Router_Source, m_pMediaPluginInfo);
+    if( !m_pDeviceData_Router_Source || !m_pMediaHandlerInfo )
+        g_pPlutoLogger->Write( LV_CRITICAL, "Media stream is invalid because of NULL pointers! %p %p", m_pDeviceData_Router_Source, m_pMediaHandlerInfo);
 
 g_pPlutoLogger->Write( LV_STATUS, "create Mediastream %p on menu id: %d type %d", this, m_iStreamID, m_iPK_MediaType );
 g_pPlutoLogger->Write( LV_STATUS, "Mediastream mapea size %d", m_mapEntertainArea.size( ) );
@@ -236,8 +239,8 @@ bool MediaStream::HaveMoreInQueue()
 
 MediaStream::~MediaStream( )
 {
-    if ( m_pMediaPluginInfo )
-        m_pMediaPluginInfo->m_pMediaPluginBase->m_pMedia_Plugin->m_mapMediaStream_Remove( m_iStreamID );
+    if ( m_pMediaHandlerInfo )
+        m_pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_mapMediaStream_Remove( m_iStreamID );
     ClearPlaylist();
 }
 

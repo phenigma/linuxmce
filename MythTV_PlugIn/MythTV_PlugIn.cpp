@@ -192,14 +192,14 @@ bool MythTV_PlugIn::BroadcastMedia(class MediaStream *pMediaStream)
     return true;
 }
 
-class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaPluginInfo *pMediaPluginInfo, class EntertainArea *pEntertainArea, MediaDevice *pMediaDevice,int iPK_Users, deque<MediaFile *> *dequeFilenames,int StreamID)
+class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaHandlerInfo *pMediaHandlerInfo, class EntertainArea *pEntertainArea, MediaDevice *pMediaDevice,int iPK_Users, deque<MediaFile *> *dequeFilenames,int StreamID)
 {
     if ( m_pMedia_Plugin == NULL )
         return NULL;
 
     PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
 
-    if ( pMediaPluginInfo == NULL )
+    if ( pMediaHandlerInfo == NULL )
         return NULL;
 
 
@@ -216,7 +216,7 @@ class MediaStream *MythTV_PlugIn::CreateMediaStream(class MediaPluginInfo *pMedi
         return NULL;
     }
 
-    MythTvStream *pMediaStream = new MythTvStream(this, pMediaPluginInfo, pMediaDevice->m_pDeviceData_Router, pMediaPluginInfo->m_iPK_DesignObj, 0, st_RemovableMedia,StreamID);
+    MythTvStream *pMediaStream = new MythTvStream(this, pMediaHandlerInfo, pMediaDevice->m_pDeviceData_Router, pMediaHandlerInfo->m_iPK_DesignObj, 0, st_RemovableMedia,StreamID);
 
     pMediaStream->m_sMediaDescription = "Not available";
     pMediaStream->m_sSectionDescription = "Not available";

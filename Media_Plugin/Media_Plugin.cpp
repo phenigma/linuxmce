@@ -31,7 +31,8 @@ using namespace DCE;
 
 #include <algorithm>
 
-#include "MediaPluginInfo.h"
+#include "MediaHandlerInfo.h"
+#include "MediaHandlerBase.h"
 #include "DCERouter/DCERouter.h"
 #include "DeviceData_Router.h"
 #include "Orbiter_Plugin/Orbiter_Plugin.h"
@@ -78,7 +79,7 @@ MediaDevice::MediaDevice( class Router *pRouter, class Row_Device *pRow_Device )
 	// do stuff with this
 }
 
-void MediaPluginBase::GetRenderDevices(MediaStream *pMediaStream,map<int,MediaDevice *> *pmapMediaDevice)
+void MediaHandlerBase::GetRenderDevices(MediaStream *pMediaStream,map<int,MediaDevice *> *pmapMediaDevice)
 {
 	if( pMediaStream && pMediaStream->m_pDeviceData_Router_Source )
 		(*pmapMediaDevice)[pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device] = m_pMedia_Plugin->m_mapMediaDevice_Find(pMediaStream->m_pDeviceData_Router_Source->m_dwPK_Device);
@@ -337,27 +338,27 @@ bool Media_Plugin::MediaInserted( class Socket *pSocket, class Message *pMessage
     EntertainArea *pEntertainArea = pMediaDevice->m_listEntertainArea.front( );
 
     // See if there's a media handler for this type of media in this area
-    List_MediaPluginInfo *pList_MediaPluginInfo = pEntertainArea->m_mapMediaPluginInfo_MediaType_Find( PK_MediaType );
-    if( !pList_MediaPluginInfo || pList_MediaPluginInfo->size( )==0 )
+    List_MediaHandlerInfo *pList_MediaHandlerInfo = pEntertainArea->m_mapMediaHandlerInfo_MediaType_Find( PK_MediaType );
+    if( !pList_MediaHandlerInfo || pList_MediaHandlerInfo->size( )==0 )
     {
         g_pPlutoLogger->Write( LV_WARNING, "Media inserted from device %d but nothing to handle it", pDeviceFrom->m_dwPK_Device );
         return false; // Let someone else handle it
     }
 
     // We've got all the plug-ins that can handle this type of media
-    for( List_MediaPluginInfo::iterator itMPI=pList_MediaPluginInfo->begin( );itMPI!=pList_MediaPluginInfo->end( );++itMPI )
+    for( List_MediaHandlerInfo::iterator itMPI=pList_MediaHandlerInfo->begin( );itMPI!=pList_MediaHandlerInfo->end( );++itMPI )
     {
-        MediaPluginInfo *pMediaPluginInfo = *itMPI;
-        if( pMediaPluginInfo->m_bUsesRemovableMedia ) // todo - hack --- this should be a list of removable media devices
+        MediaHandlerInfo *pMediaHandlerInfo = *itMPI;
+        if( pMediaHandlerInfo->m_bUsesRemovableMedia ) // todo - hack --- this should be a list of removable media devices
         {
             deque<MediaFile *> dequeMediaFile;
             dequeMediaFile.push_back(new MediaFile(m_pMediaAttributes,MRL));
-            StartMedia(pMediaPluginInfo,0,pEntertainArea,pDeviceFrom->m_dwPK_Device,0,&dequeMediaFile);
+            StartMedia(pMediaHandlerInfo,0,pEntertainArea,pDeviceFrom->m_dwPK_Device,0,&dequeMediaFile);
             return true;
         }
     }
 
-    g_pPlutoLogger->Write( LV_WARNING, "Nothing knows how to handle removable media here. We have %d Plugins registered", ( int ) pList_MediaPluginInfo->size( ) );
+    g_pPlutoLogger->Write( LV_WARNING, "Nothing knows how to handle removable media here. We have %d Plugins registered", ( int ) pList_MediaHandlerInfo->size( ) );
     return false; // Couldn't handle it//                     g_pPlutoLogger->Write(LV_STATUS, "Filename: %s", sFilename.c_str());
 
 }
@@ -402,7 +403,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
     {
         g_pPlutoLogger->Write(LV_STATUS, "Here 5");
         pMediaStream->ChangePositionInPlaylist(1);
-        pMediaStream->m_pMediaPluginInfo->m_pMediaPluginBase->StartMedia(pMediaStream);
+        pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream);
     }
     else
     {
@@ -413,7 +414,7 @@ bool Media_Plugin::PlaybackCompleted( class Socket *pSocket,class Message *pMess
     return true;
 }
 
-bool Media_Plugin::StartMedia( MediaPluginInfo *pMediaPluginInfo, unsigned int PK_Device_Orbiter, EntertainArea *pEntertainArea, int PK_Device_Source, int PK_DesignObj_Remote, deque<MediaFile *> *dequeMediaFile )
+bool Media_Plugin::StartMedia( MediaHandlerInfo *pMediaHandlerInfo, unsigned int PK_Device_Orbiter, EntertainArea *pEntertainArea, int PK_Device_Source, int PK_DesignObj_Remote, deque<MediaFile *> *dequeMediaFile )
 {
     PLUTO_SAFETY_LOCK(mm,m_MediaMutex);
 
@@ -428,13 +429,13 @@ bool Media_Plugin::StartMedia( MediaPluginInfo *pMediaPluginInfo, unsigned int P
     // file to play is a mounted dvd, then we can't add to the queue, and will need to create a new media stream
     if( pEntertainArea->m_pMediaStream )
     {
-		pEntertainArea->m_pMediaStream->m_pMediaPluginInfo->m_pMediaPluginBase->GetRenderDevices(pEntertainArea->m_pMediaStream,&mapMediaDevice_Prior);
-		PK_MediaType_Prior = pEntertainArea->m_pMediaStream->m_pMediaPluginInfo->m_PK_MediaType;
+		pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(pEntertainArea->m_pMediaStream,&mapMediaDevice_Prior);
+		PK_MediaType_Prior = pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType;
 
-		if( pEntertainArea->m_pMediaStream->m_pMediaPluginInfo->m_pMediaPluginBase != pMediaPluginInfo->m_pMediaPluginBase )
+		if( pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase != pMediaHandlerInfo->m_pMediaHandlerBase )
         {
             // We can't queue this.
-            pEntertainArea->m_pMediaStream->m_pMediaPluginInfo->m_pMediaPluginBase->StopMedia( pEntertainArea->m_pMediaStream );
+            pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
             delete pEntertainArea->m_pMediaStream;
             pEntertainArea->m_pMediaStream=NULL;
         }
@@ -460,11 +461,11 @@ bool Media_Plugin::StartMedia( MediaPluginInfo *pMediaPluginInfo, unsigned int P
     else
     {
         OH_Orbiter *pOH_Orbiter = m_pOrbiter_Plugin->m_mapOH_Orbiter_Find(PK_Device_Orbiter);
-		if ( (pMediaStream = pMediaPluginInfo->m_pMediaPluginBase->CreateMediaStream(pMediaPluginInfo,pEntertainArea,pMediaDevice,(pOH_Orbiter ? pOH_Orbiter->m_iPK_Users : 0),dequeMediaFile,++m_iStreamID)) == NULL )
+		if ( (pMediaStream = pMediaHandlerInfo->m_pMediaHandlerBase->CreateMediaStream(pMediaHandlerInfo,pEntertainArea,pMediaDevice,(pOH_Orbiter ? pOH_Orbiter->m_iPK_Users : 0),dequeMediaFile,++m_iStreamID)) == NULL )
 		{
 			g_pPlutoLogger->Write(LV_CRITICAL, "The plugin %s (%d) returned a NULL media stream object",
-													pMediaPluginInfo->m_pMediaPluginBase->m_pMedia_Plugin->m_sName.c_str(),
-													pMediaPluginInfo->m_pMediaPluginBase->m_pMedia_Plugin->m_dwPK_Device);
+													pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_sName.c_str(),
+													pMediaHandlerInfo->m_pMediaHandlerBase->m_pMedia_Plugin->m_dwPK_Device);
 			return false;
 		}
 
@@ -473,8 +474,8 @@ bool Media_Plugin::StartMedia( MediaPluginInfo *pMediaPluginInfo, unsigned int P
         pMediaStream->m_dequeMediaFile += *dequeMediaFile;
     }
 
-    pMediaStream->m_pMediaPluginInfo = pMediaPluginInfo;
-    pMediaStream->m_iPK_MediaType = pMediaPluginInfo->m_PK_MediaType;
+    pMediaStream->m_pMediaHandlerInfo = pMediaHandlerInfo;
+    pMediaStream->m_iPK_MediaType = pMediaHandlerInfo->m_PK_MediaType;
     pMediaStream->m_mapEntertainArea[pEntertainArea->m_iPK_EntertainArea]=pEntertainArea;
 
     // HACK: get the user if the message originated from an orbiter!
@@ -499,7 +500,7 @@ bool Media_Plugin::StartMedia( MediaPluginInfo *pMediaPluginInfo, unsigned int P
     }
 
     g_pPlutoLogger->Write(LV_STATUS,"Calling Plug-in's start media");
-    if( pMediaPluginInfo->m_pMediaPluginBase->StartMedia(pMediaStream) )
+    if( pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pMediaStream) )
     {
         g_pPlutoLogger->Write(LV_STATUS,"Plug-in started media");
 
@@ -507,8 +508,8 @@ bool Media_Plugin::StartMedia( MediaPluginInfo *pMediaPluginInfo, unsigned int P
 		{
 			// We need to get the current rendering devices so that we can send on/off commands
 			map<int,MediaDevice *> mapMediaDevice_Current;
-			pEntertainArea->m_pMediaStream->m_pMediaPluginInfo->m_pMediaPluginBase->GetRenderDevices(pEntertainArea->m_pMediaStream,&mapMediaDevice_Current);
-			HandleOnOffs(PK_MediaType_Prior,pEntertainArea->m_pMediaStream->m_pMediaPluginInfo->m_PK_MediaType,&mapMediaDevice_Prior,&mapMediaDevice_Current);
+			pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->GetRenderDevices(pEntertainArea->m_pMediaStream,&mapMediaDevice_Current);
+			HandleOnOffs(PK_MediaType_Prior,pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_PK_MediaType,&mapMediaDevice_Prior,&mapMediaDevice_Current);
 		}
 
         if( pMediaStream->m_iPK_DesignObj_Remote )
@@ -630,7 +631,7 @@ bool Media_Plugin::ReceivedMessage( class Message *pMessage )
         pEntertainArea=pOH_Orbiter->m_pEntertainArea;
 
         // We know it's derived from CommandImpl
-        class Command_Impl *pPlugIn = pEntertainArea->m_pMediaStream->m_pMediaPluginInfo->m_pCommand_Impl;
+        class Command_Impl *pPlugIn = pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pCommand_Impl;
         g_pPlutoLogger->Write( LV_STATUS, "Checking to see if the plugin %s will handle it!", pPlugIn->m_sName.c_str());
         pMessage->m_dwPK_Device_To=pPlugIn->m_dwPK_Device;
         if( !pPlugIn->ReceivedMessage( pMessage ) )
@@ -746,7 +747,7 @@ void Media_Plugin::CMD_MH_Stop_Media(int iPK_Device,int iPK_MediaType,int iPK_De
         return; // Don't know what area it should be played in, or there's no media playing there
 
     g_pPlutoLogger->Write( LV_STATUS, "Got MH_stop media" );
-    pEntertainArea->m_pMediaStream->m_pMediaPluginInfo->m_pMediaPluginBase->StopMedia( pEntertainArea->m_pMediaStream );
+    pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StopMedia( pEntertainArea->m_pMediaStream );
 
     for( MapEntertainArea::iterator it=pEntertainArea->m_pMediaStream->m_mapEntertainArea.begin( );it!=pEntertainArea->m_pMediaStream->m_mapEntertainArea.end( );++it )
     {
@@ -1415,27 +1416,27 @@ void Media_Plugin::CMD_MH_Play_Media(int iPK_Device,string sPK_DesignObj,string 
     else if( iPK_MediaType )
     {
         // See if there's a media handler for this type of media in this area
-        List_MediaPluginInfo *pList_MediaPluginInfo = pEntertainArea->m_mapMediaPluginInfo_MediaType_Find(iPK_MediaType);
-        if( !pList_MediaPluginInfo || pList_MediaPluginInfo->size()==0 )
+        List_MediaHandlerInfo *pList_MediaHandlerInfo = pEntertainArea->m_mapMediaHandlerInfo_MediaType_Find(iPK_MediaType);
+        if( !pList_MediaHandlerInfo || pList_MediaHandlerInfo->size()==0 )
         {
             g_pPlutoLogger->Write( LV_WARNING, "Play media type %d in entertain area %d but nothing to handle it", iPK_MediaType, pEntertainArea->m_iPK_EntertainArea);
         }
         else
         {
-            MediaPluginInfo *pMediaPluginInfo = pList_MediaPluginInfo->front();
-            StartMedia(pMediaPluginInfo,iPK_Device_Orbiter,pEntertainArea,iPK_Device,0,&dequeMediaFile);  // We'll let the plug-in figure out the source, and we'll use the default remote
+            MediaHandlerInfo *pMediaHandlerInfo = pList_MediaHandlerInfo->front();
+            StartMedia(pMediaHandlerInfo,iPK_Device_Orbiter,pEntertainArea,iPK_Device,0,&dequeMediaFile);  // We'll let the plug-in figure out the source, and we'll use the default remote
         }
     }
     else if( dequeMediaFile.size() )
     {
         string Extension = StringUtils::ToUpper(FileUtils::FindExtension(dequeMediaFile[0]->m_sFilename));
-        List_MediaPluginInfo *pList_MediaPluginInfo = pEntertainArea->m_mapMediaPluginInfo_Extension_Find(Extension);
-        if( !pList_MediaPluginInfo || pList_MediaPluginInfo->size()==0 )
+        List_MediaHandlerInfo *pList_MediaHandlerInfo = pEntertainArea->m_mapMediaHandlerInfo_Extension_Find(Extension);
+        if( !pList_MediaHandlerInfo || pList_MediaHandlerInfo->size()==0 )
             g_pPlutoLogger->Write(LV_WARNING,"Play media file %s in entertain area %d but nothing to handle it",sFilename.c_str(),pEntertainArea->m_iPK_EntertainArea);
         else
         {
-            MediaPluginInfo *pMediaPluginInfo = pList_MediaPluginInfo->front();
-            StartMedia(pMediaPluginInfo,iPK_Device_Orbiter,pEntertainArea,iPK_Device,0,&dequeMediaFile);  // We'll let the plug-in figure out the source, and we'll use the default remote
+            MediaHandlerInfo *pMediaHandlerInfo = pList_MediaHandlerInfo->front();
+            StartMedia(pMediaHandlerInfo,iPK_Device_Orbiter,pEntertainArea,iPK_Device,0,&dequeMediaFile);  // We'll let the plug-in figure out the source, and we'll use the default remote
         }
     }
     else  // We got nothing -- find a disk drive within the entertainment area and send it a reset
@@ -1492,7 +1493,7 @@ void Media_Plugin::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string 
             break;
     }
 
-    pEntertainArea->m_pMediaStream->m_pMediaPluginInfo->m_pMediaPluginBase->StartMedia(pEntertainArea->m_pMediaStream);
+    pEntertainArea->m_pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->StartMedia(pEntertainArea->m_pMediaStream);
 
 //  StartMediaByPositionInPlaylist(pEntertainArea, pEntertainArea->m_pMediaStream->m_iDequeMediaFile_Pos, 0, 0);
 }
@@ -1571,14 +1572,14 @@ void Media_Plugin::CMD_Load_Playlist(string sPK_EntertainArea,int iEK_Playlist,s
     }
 
     string Extension = StringUtils::ToUpper(FileUtils::FindExtension(dequeMediaFile[0]->m_sFilename));
-    List_MediaPluginInfo *pList_MediaPluginInfo = pEntertainArea->m_mapMediaPluginInfo_Extension_Find(Extension);
-    if( !pList_MediaPluginInfo || pList_MediaPluginInfo->size()==0 )
+    List_MediaHandlerInfo *pList_MediaHandlerInfo = pEntertainArea->m_mapMediaHandlerInfo_Extension_Find(Extension);
+    if( !pList_MediaHandlerInfo || pList_MediaHandlerInfo->size()==0 )
     {
         g_pPlutoLogger->Write(LV_WARNING,"Play playlist %s in entertain area %d but nothing to handle it",sPlaylistName.c_str(),iPK_EntertainArea);
         return;
     }
-    MediaPluginInfo *pMediaPluginInfo = pList_MediaPluginInfo->front();
-    StartMedia(pMediaPluginInfo,pMessage->m_dwPK_Device_From,pEntertainArea,0,0,&dequeMediaFile);  // We'll let the plug-in figure out the source, and we'll use the default remote
+    MediaHandlerInfo *pMediaHandlerInfo = pList_MediaHandlerInfo->front();
+    StartMedia(pMediaHandlerInfo,pMessage->m_dwPK_Device_From,pEntertainArea,0,0,&dequeMediaFile);  // We'll let the plug-in figure out the source, and we'll use the default remote
 }
 
 class DataGridTable *Media_Plugin::FloorplanMediaChoices( string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, class Message *pMessage )
@@ -1815,7 +1816,7 @@ void Media_Plugin::CMD_MH_Move_Media(int iStreamID,string sPK_EntertainArea,stri
 // 		g_pPlutoLogger->Write(LV_STATUS, "The query for current stream position failed!");
 
 	// I'm not going to find the media devices in here. We will let the plugin decide what devices to use in there
-	pMediaStream->m_pMediaPluginInfo->m_pMediaPluginBase->MoveMedia(pMediaStream, listStart, listStop, listChange);
+	pMediaStream->m_pMediaHandlerInfo->m_pMediaHandlerBase->MoveMedia(pMediaStream, listStart, listStop, listChange);
 }
 
 void Media_Plugin::HandleOnOffs(int PK_MediaType_Prior,int PK_MediaType_Current, map<int,MediaDevice *> *pmapMediaDevice_Prior,map<int,MediaDevice *> *pmapMediaDevice_Current)

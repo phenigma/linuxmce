@@ -52,11 +52,9 @@ using namespace DCE;
 
 #define VERSION "<=version=>"
 
-#include "../Security_Plugin/Security_Plugin.h"
-#include "../Lighting_Plugin/Lighting_Plugin.h"
-#include "../Climate_Plugin/Climate_Plugin.h"
+#include "FollowMe_Plugin.h"
+#include "../Media_Plugin/EntertainArea.h"
 #include "../Media_Plugin/Media_Plugin.h"
-#include "../Telecom_Plugin/Telecom_Plugin.h"
 
 //<-dceag-const-b->!
 Orbiter_Plugin::Orbiter_Plugin(int DeviceID, string ServerAddress,bool bConnectEventHandler,bool bLocalMode,class Router *pRouter)
@@ -94,24 +92,30 @@ bool Orbiter_Plugin::Register()
 	// Find all the plugins
 	ListCommand_Impl *pListCommand_Impl;
 
-	m_pLighting_Plugin=NULL;
+	m_pLighting_Floorplan=NULL;
+	m_pLighting_Followme=NULL;
 	pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Lighting_Plugin_CONST );
 	if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
 	{
 		g_pPlutoLogger->Write( LV_CRITICAL, "Orbiter cannot find Lighting plug-in %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
 		return false;
 	}
-	m_pLighting_Plugin=( Lighting_Plugin * ) pListCommand_Impl->front( );
+	m_pLighting_Followme=( FollowMe_Plugin * ) pListCommand_Impl->front( );
+	m_pLighting_Floorplan=( FloorplanInfoProvider * ) pListCommand_Impl->front( );
 
-	m_pClimate_Plugin=NULL;
+	m_pClimate_Floorplan=NULL;
+	m_pClimate_Followme=NULL;
 	pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Climate_Plugin_CONST );
 	if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
 	{
 		g_pPlutoLogger->Write( LV_CRITICAL, "Orbiter cannot find Climate plug-in %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
 		return false;
 	}
-	m_pClimate_Plugin=( Climate_Plugin * ) pListCommand_Impl->front( );
+	m_pClimate_Followme=( FollowMe_Plugin * ) pListCommand_Impl->front( );
+	m_pClimate_Floorplan=( FloorplanInfoProvider * ) pListCommand_Impl->front( );
 
+	m_pMedia_Floorplan=NULL;
+	m_pMedia_Followme=NULL;
 	m_pMedia_Plugin=NULL;
 	pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Media_Plugin_CONST );
 	if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
@@ -119,25 +123,31 @@ bool Orbiter_Plugin::Register()
 		g_pPlutoLogger->Write( LV_CRITICAL, "Orbiter cannot find Media plug-in %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
 		return false;
 	}
+	m_pMedia_Followme=( FollowMe_Plugin * ) pListCommand_Impl->front( );
+	m_pMedia_Floorplan=( FloorplanInfoProvider * ) pListCommand_Impl->front( );
 	m_pMedia_Plugin=( Media_Plugin * ) pListCommand_Impl->front( );
 
-	m_pSecurity_Plugin=NULL;
+	m_pSecurity_Floorplan=NULL;
+	m_pSecurity_Followme=NULL;
 	pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Security_Plugin_CONST );
 	if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
 	{
 		g_pPlutoLogger->Write( LV_CRITICAL, "Orbiter cannot find Security plug-in %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
 		return false;
 	}
-	m_pSecurity_Plugin=( Security_Plugin * ) pListCommand_Impl->front( );
+	m_pSecurity_Followme=( FollowMe_Plugin * ) pListCommand_Impl->front( );
+	m_pSecurity_Floorplan=( FloorplanInfoProvider * ) pListCommand_Impl->front( );
 
-	m_pTelecom_Plugin=NULL;
+	m_pTelecom_Floorplan=NULL;
+	m_pTelecom_Followme=NULL;
 	pListCommand_Impl = m_pRouter->m_mapPlugIn_DeviceTemplate_Find( DEVICETEMPLATE_Telecom_Plugin_CONST );
 	if( !pListCommand_Impl || pListCommand_Impl->size( )!=1 )
 	{
 		g_pPlutoLogger->Write( LV_CRITICAL, "Orbiter cannot find Telecom plug-in %s", ( pListCommand_Impl ? "There were more than 1" : "" ) );
 		return false;
 	}
-	m_pTelecom_Plugin=( Telecom_Plugin * ) pListCommand_Impl->front( );
+	m_pTelecom_Followme=( FollowMe_Plugin * ) pListCommand_Impl->front( );
+	m_pTelecom_Floorplan=( FloorplanInfoProvider * ) pListCommand_Impl->front( );
 
     // Check for all orbiters
     for(map<int,class DeviceData_Router *>::const_iterator it=m_pRouter->m_mapDeviceData_Router_get()->begin();it!=m_pRouter->m_mapDeviceData_Router_get()->end();++it)
@@ -280,7 +290,7 @@ g_pPlutoLogger->Write(LV_STATUS,"in process");
     {
         int iOrbiterID = *itOrbiter;
 
-        DCE::CMD_Set_Variable CMD_Set_Variable(m_dwPK_Device, iOrbiterID, VARIABLE_Misc_Data_1_CONST, sMacAddress);
+		DCE::CMD_Set_Variable CMD_Set_Variable(m_dwPK_Device, iOrbiterID, VARIABLE_Misc_Data_1_CONST, sMacAddress);
         DCE::CMD_Set_Variable CMD_Set_Variable2(m_dwPK_Device, iOrbiterID, VARIABLE_Misc_Data_2_CONST, pUnknownDeviceInfos->m_sID);
         DCE::CMD_Goto_Screen CMD_Goto_Screen(m_dwPK_Device, iOrbiterID, 0, StringUtils::itos(DESIGNOBJ_New_phone_detected_CONST), "", "", true);
 
@@ -419,77 +429,83 @@ g_pPlutoLogger->Write(LV_STATUS,"Need to process.  Bit flag is: %d",(int) m_bNoU
 
 bool Orbiter_Plugin::MobileOrbiterLinked(class Socket *pSocket,class Message *pMessage,class DeviceData_Base *pDeviceFrom,class DeviceData_Base *pDeviceTo)
 {
-    if (!pDeviceFrom)
-    {
-        g_pPlutoLogger->Write(LV_WARNING,"Got orbiter detected, but pDeviceFrom is NULL");
-        return false;
-    }
-
     string sMacAddress = pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST];
     OH_Orbiter *pOH_Orbiter = m_mapOH_Orbiter_Mac_Find(sMacAddress);
 
-    if(!pOH_Orbiter)
+	if (!pDeviceFrom || !pOH_Orbiter)
     {
-        g_pPlutoLogger->Write(LV_WARNING, "Detected unknown bluetooth device %s",pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST].c_str());
+        g_pPlutoLogger->Write(LV_WARNING,"Got orbiter detected, but pDeviceFrom is NULL or unknown dev %s",pMessage->m_mapParameters[EVENTPARAMETER_Mac_Address_CONST].c_str());
+		return false;
     }
-    else
+    string sVersion = pMessage->m_mapParameters[EVENTPARAMETER_Version_CONST];
+
+    Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
+    if( pRow_Device->NeedConfigure_get() == 1 || sVersion != VERSION )
     {
-        string sVersion = pMessage->m_mapParameters[EVENTPARAMETER_Version_CONST];
+        pRow_Device->NeedConfigure_set(0);
+        pRow_Device->Table_Device_get()->Commit();
 
-        Row_Device *pRow_Device = m_pDatabase_pluto_main->Device_get()->GetRow(pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device);
-        if( pRow_Device->NeedConfigure_get() == 1 || sVersion != VERSION )
-        {
-            pRow_Device->NeedConfigure_set(0);
-            pRow_Device->Table_Device_get()->Commit();
+        Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(pRow_Device->FK_DeviceTemplate_get());
+        string PlutoMOInstaller = pRow_DeviceTemplate->CommandLine_get();
 
-            Row_DeviceTemplate *pRow_DeviceTemplate = m_pDatabase_pluto_main->DeviceTemplate_get()->GetRow(pRow_Device->FK_DeviceTemplate_get());
-            string PlutoMOInstaller = pRow_DeviceTemplate->CommandLine_get();
+        DCE::CMD_Send_File_To_Device CMD_Send_File_To_Device(
+            m_dwPK_Device,
+            pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
+            PlutoMOInstaller,
+            sMacAddress,
+            ""
+        );
 
-            DCE::CMD_Send_File_To_Device CMD_Send_File_To_Device(
-                m_dwPK_Device,
-                pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,
-                PlutoMOInstaller,
-                sMacAddress,
-                ""
-            );
+        SendCommand(CMD_Send_File_To_Device);
 
-            SendCommand(CMD_Send_File_To_Device);
+        g_pPlutoLogger->Write(LV_WARNING, "Sending command CMD_Send_File_To_Device... PlutoMO file: %s, mac: %s", PlutoMOInstaller.c_str(), sMacAddress.c_str());
+    }
 
-            g_pPlutoLogger->Write(LV_WARNING, "Sending command CMD_Send_File_To_Device... PlutoMO file: %s, mac: %s", PlutoMOInstaller.c_str(), sMacAddress.c_str());
-        }
+    //pOH_Orbiter->m_iFailedToConnectCount = 0;//reset tries count
 
-        //pOH_Orbiter->m_iFailedToConnectCount = 0;//reset tries count
+    //pMobileOrbiter->m_pController->m_bReady=true;
+    //pMobileOrbiter->m_pController->SetDefaultFlags();
 
-        //pMobileOrbiter->m_pController->m_bReady=true;
-        //pMobileOrbiter->m_pController->SetDefaultFlags();
-
-        if(pOH_Orbiter->m_pDevice_CurrentDetected)
-        {
+    if(pOH_Orbiter->m_pDevice_CurrentDetected)
+    {
 //              pMobileOrbiter->RemovingAssocation();
 
 //              ReceivedOCMessage(NULL,new OCMessage(DEVICEID_DCEROUTER,pMobileOrbiter->m_pDevice_CurrentDetected->m_iPKID_Device,
 //                  PRIORITY_NORMAL,MESSAGETYPE_COMMAND,ACTION_LINK_WITH_MOBILE_ORBITER_CONST,2,C_ACTIONPARAMETER_ID_CONST,pMobileOrbiter->m_sID.c_str(),
 //                  C_ACTIONPARAMETER_ON_OFF_CONST,"0"));
 
-        }
-
-        DeviceData_Router *pDevice_PriorDetected = pOH_Orbiter->m_pDevice_CurrentDetected;
-
-        // Associated with a new media director.  Show the corresponding menu
-        pOH_Orbiter->m_pDevice_CurrentDetected = (DeviceData_Router *) pDeviceFrom;
-
-        DCE::CMD_Create_Mobile_Orbiter CMD_Create_Mobile_Orbiter(-1/*m_Device*/,pDeviceFrom->m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,sMacAddress);
-        SendCommand(CMD_Create_Mobile_Orbiter);
-
-        // See if there's an ent group involved
-
-        //if( pOH_Orbiter->m_pEntGroupAudioZone_LockedOn )
-        //{
-        //  pOH_Orbiter->m_pController->m_pEntGroup = pMobileOrbiter->m_pEntGroupAudioZone_LockedOn->m_pEntGroup;
-        //}
-
-
     }
+
+    DeviceData_Router *pDevice_PriorDetected = pOH_Orbiter->m_pDevice_CurrentDetected;
+
+    // Associated with a new media director.  Show the corresponding menu
+    pOH_Orbiter->m_pDevice_CurrentDetected = (DeviceData_Router *) pDeviceFrom;
+
+    DCE::CMD_Create_Mobile_Orbiter CMD_Create_Mobile_Orbiter(-1/*m_Device*/,pDeviceFrom->m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,sMacAddress);
+    SendCommand(CMD_Create_Mobile_Orbiter);
+
+	if( pOH_Orbiter->m_bFollowMe_Lighting )
+		m_pLighting_Followme->HandleFollowMe( pDevice_PriorDetected, pOH_Orbiter );
+
+	if( pOH_Orbiter->m_bFollowMe_Media )
+		m_pMedia_Followme->HandleFollowMe( pDevice_PriorDetected, pOH_Orbiter );
+
+	if( pOH_Orbiter->m_bFollowMe_Climate )
+		m_pClimate_Followme->HandleFollowMe( pDevice_PriorDetected, pOH_Orbiter );
+
+	if( pOH_Orbiter->m_bFollowMe_Security )
+		m_pSecurity_Followme->HandleFollowMe( pDevice_PriorDetected, pOH_Orbiter );
+
+	if( pOH_Orbiter->m_bFollowMe_Telecom )
+		m_pTelecom_Followme->HandleFollowMe( pDevice_PriorDetected, pOH_Orbiter );
+
+		// See if there's an ent group involved
+
+    //if( pOH_Orbiter->m_pEntGroupAudioZone_LockedOn )
+    //{
+    //  pOH_Orbiter->m_pController->m_pEntGroup = pMobileOrbiter->m_pEntGroupAudioZone_LockedOn->m_pEntGroup;
+    //}
+
 
     /*
     {
@@ -868,10 +884,10 @@ void Orbiter_Plugin::CMD_Get_Current_Floorplan(string sID,int iPK_FloorplanType,
 	switch( iPK_FloorplanType )
 	{
 	case FLOORPLANTYPE_Lighting_Zone_CONST:
-		pFloorplanInfoProvider=m_pLighting_Plugin;
+		pFloorplanInfoProvider=m_pLighting_Floorplan;
 		break;
 	case FLOORPLANTYPE_Entertainment_Zone_CONST:
-		pFloorplanInfoProvider=m_pMedia_Plugin;
+		pFloorplanInfoProvider=m_pMedia_Floorplan;
 //		m_pMedia_Plugin->Populate_CurrentMediaOptions(Page,sValue_To_Assign);
 		break;
 /*
@@ -1039,8 +1055,20 @@ void Orbiter_Plugin::CMD_Orbiter_Registered(string sOnOff,string &sCMD_Result,Me
 
 	if( pOH_Orbiter->m_bRegistered )
 	{
-		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_bFollowMe_Media ? "1" : "0","follow_media");
-		SendCommand(CMD_Set_Bound_Icon);
+		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Iconl(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_bFollowMe_Lighting ? "1" : "0","follow_light");
+		SendCommand(CMD_Set_Bound_Iconl);
+
+		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Iconm(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_bFollowMe_Media ? "1" : "0","follow_media");
+		SendCommand(CMD_Set_Bound_Iconm);
+
+		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Iconc(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_bFollowMe_Climate ? "1" : "0","follow_climate");
+		SendCommand(CMD_Set_Bound_Iconc);
+
+		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icons(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_bFollowMe_Security ? "1" : "0","follow_security");
+		SendCommand(CMD_Set_Bound_Icons);
+
+		DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icont(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_bFollowMe_Telecom ? "1" : "0","follow_telecom");
+		SendCommand(CMD_Set_Bound_Icont);
 	}
 }
 
@@ -1067,10 +1095,37 @@ void Orbiter_Plugin::CMD_Set_FollowMe(int iPK_Device,string sText,int iPK_Users,
 
 	switch( sText[0] )
 	{
+	case 'L':
+		{
+			pOH_Orbiter->m_bFollowMe_Lighting = sText[1]!='1' ? true : false;
+			DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_bFollowMe_Lighting ? "1" : "0","follow_light");
+			SendCommand(CMD_Set_Bound_Icon);
+		}
 	case 'M':
 		{
 			pOH_Orbiter->m_bFollowMe_Media = sText[1]!='1' ? true : false;
 			DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_bFollowMe_Media ? "1" : "0","follow_media");
+			SendCommand(CMD_Set_Bound_Icon);
+		}
+		break;
+	case 'C':
+		{
+			pOH_Orbiter->m_bFollowMe_Climate = sText[1]!='1' ? true : false;
+			DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_bFollowMe_Climate ? "1" : "0","follow_climate");
+			SendCommand(CMD_Set_Bound_Icon);
+		}
+		break;
+	case 'T':
+		{
+			pOH_Orbiter->m_bFollowMe_Telecom = sText[1]!='1' ? true : false;
+			DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_bFollowMe_Telecom ? "1" : "0","follow_telecom");
+			SendCommand(CMD_Set_Bound_Icon);
+		}
+		break;
+	case 'S':
+		{
+			pOH_Orbiter->m_bFollowMe_Security = sText[1]!='1' ? true : false;
+			DCE::CMD_Set_Bound_Icon CMD_Set_Bound_Icon(m_dwPK_Device,pOH_Orbiter->m_pDeviceData_Router->m_dwPK_Device,pOH_Orbiter->m_bFollowMe_Security ? "1" : "0","follow_security");
 			SendCommand(CMD_Set_Bound_Icon);
 		}
 		break;

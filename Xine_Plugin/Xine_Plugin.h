@@ -17,13 +17,16 @@
 //<-dceag-d-e->
 
 #include "../Media_Plugin/Media_Plugin.h"
+#include "../Media_Plugin/MediaStream.h"
+#include "../Media_Plugin/MediaHandlerBase.h"
+#include "../Media_Plugin/MediaPosition.h"
 
 //<-dceag-decl-b->! custom
 
 namespace DCE
 {
 
-class Xine_Plugin : public Xine_Plugin_Command, public MediaPluginBase
+class Xine_Plugin : public Xine_Plugin_Command, public MediaHandlerBase
 {
 //<-dceag-decl-e->
 //<-dceag-const-b->
@@ -49,7 +52,7 @@ public:
     /**
     * @brief
     */
-    virtual class MediaStream *CreateMediaStream( class MediaPluginInfo *pMediaPluginInfo, class EntertainArea *pEntertainArea, MediaDevice *pMediaDevice, int iPK_Users, deque<MediaFile *> *dequeFilenames, int StreamID );
+    virtual class MediaStream *CreateMediaStream( class MediaHandlerInfo *pMediaHandlerInfo, class EntertainArea *pEntertainArea, MediaDevice *pMediaDevice, int iPK_Users, deque<MediaFile *> *dequeFilenames, int StreamID );
 
     /**
     * @brief Start media playback
@@ -120,8 +123,8 @@ class XineMediaStream : public MediaStream
     public:
         class Xine_Plugin *m_pXinePlugin;
 
-        XineMediaStream(class Xine_Plugin *pXinePlugin, class MediaPluginInfo *pMediaPluginInfo, DeviceData_Router *pDeviceData_Router, int PK_DesignObj_Remote, int PK_Users,enum SourceType sourceType,int iStreamID)
-            : MediaStream(pMediaPluginInfo, pDeviceData_Router, PK_DesignObj_Remote, PK_Users,sourceType, iStreamID) { m_pXinePlugin = pXinePlugin; m_bIsStreaming = 0; }
+        XineMediaStream(class Xine_Plugin *pXinePlugin, class MediaHandlerInfo *pMediaHandlerInfo, DeviceData_Router *pDeviceData_Router, int PK_DesignObj_Remote, int PK_Users,enum SourceType sourceType,int iStreamID)
+            : MediaStream(pMediaHandlerInfo, pDeviceData_Router, PK_DesignObj_Remote, PK_Users,sourceType, iStreamID) { m_pXinePlugin = pXinePlugin; m_bIsStreaming = 0; }
 
 		virtual ~XineMediaStream();
         virtual int GetType() { return MEDIASTREAM_TYPE_XINE; }
