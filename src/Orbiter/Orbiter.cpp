@@ -1748,7 +1748,7 @@ void Orbiter::SpecialHandlingObjectSelected(DesignObj_Orbiter *pDesignObj_Orbite
     if( pDesignObj_Orbiter->m_pFloorplanObject )
         SelectedFloorplan(pDesignObj_Orbiter);
 
-	if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_mnuDisplayOptions_CONST )
+	if( pDesignObj_Orbiter->m_iBaseObjectID==DESIGNOBJ_mnuDisplayPower_CONST)
 	{
 		// We're going to hide all the on/off buttons in the 'controlling' area if this is an osd and we're controlling ourselves, or if there is no m/d in this area
 		if( (m_pScreenHistory_Current->m_pLocationInfo == m_pLocationInfo_Initial && m_pData->m_dwPK_DeviceTemplate==DEVICETEMPLATE_OnScreen_Orbiter_CONST) ||
