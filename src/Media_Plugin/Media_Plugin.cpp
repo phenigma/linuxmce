@@ -185,7 +185,7 @@ Media_Plugin::~Media_Plugin()
     delete m_pMediaAttributes;
 	delete m_pDatabase_pluto_main;
 	delete m_pDatabase_pluto_media;
-	for(map<int,MediaDevice *>::iterator it=m_mapMediaDevice.begin();it=m_mapMediaDevice.end();++it)
+	for(map<int,MediaDevice *>::iterator it=m_mapMediaDevice.begin();it!=m_mapMediaDevice.end();++it)
 		delete (*it).second;
 }
 
