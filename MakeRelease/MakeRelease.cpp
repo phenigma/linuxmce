@@ -1388,9 +1388,13 @@ string Makefile = "none:\n"
 
 bool CreateSource_FTPHTTP(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo)
 {
-	string ArchiveFileName;
+	string ArchiveFileName,Username,Password;
 	if( pRow_Package_Source->FK_RepositorySource_get()==REPOSITORYSOURCE_SourceForge_Archives_CONST )
+	{
+		Username = dceConfig.ReadString("SF_User");
+		Password = dceConfig.ReadString("SF_Pass");
 		ArchiveFileName = "/home/sfarch/" + pRow_Package_Source->Repository_get() + "/";
+	}
 	else
 		ArchiveFileName = "/var/www/download/" + pRow_Package_Source->Repository_get() + "/";
 	system(("mkdir -p " + ArchiveFileName).c_str());
@@ -1442,6 +1446,7 @@ bool CreateSource_FTPHTTP(Row_Package_Source *pRow_Package_Source,list<FileInfo 
 	if( pRow_Package_Source->FK_RepositorySource_get()==REPOSITORYSOURCE_SourceForge_Archives_CONST )
 	{
 		// Marius -- ArchiveFileName will be the name of the archive.  Add code here to actually upload it to sourceforge
+		// Initiate an ftp upload using Username & Password
 	}
 	system(("ls -l " + ArchiveFileName + " >> ../dirlist").c_str());
 	chdir("/");
