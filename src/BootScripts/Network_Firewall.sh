@@ -16,19 +16,20 @@ iptables -P INPUT DROP
 iptables -F INPUT
 iptables -t nat -F POSTROUTING
 
-#TODO: use 4 byte netmask in these calculations
-IntNet="$(echo "$IntIP" | cut -d. -f-3).0"
-IntBitmask=24
-
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
-iptables -A INPUT -p udp --dport 67 -j ACCEPT # BOOTP/DHCP
-iptables -A INPUT -s "$IntNet/$IntBitmask" -j ACCEPT
+if [ -n "$IntIP" ]; then
+	#TODO: use 4 byte netmask in these calculations
+	IntNet="$(echo "$IntIP" | cut -d. -f-3).0"
+	IntBitmask=24
+	iptables -A INPUT -p udp --dport 67 -j ACCEPT # BOOTP/DHCP
+	iptables -A INPUT -s "$IntNet/$IntBitmask" -j ACCEPT
 
-if [ "$ExtIP" != "dhcp" ]; then
-	iptables -t nat -A POSTROUTING -s "$IntNet/$IntBitmask" -d \! "$IntNet/$IntBitmask" -o $ExtIf -j SNAT --to-source $ExtIP
-else
-	iptables -t nat -A POSTROUTING -s "$IntNet/$IntBitmask" -d \! "$IntNet/$IntBitmask" -o $ExtIf -j MASQUERADE
+	if [ "$ExtIP" != "dhcp" ]; then
+		iptables -t nat -A POSTROUTING -s "$IntNet/$IntBitmask" -d \! "$IntNet/$IntBitmask" -o $ExtIf -j SNAT --to-source $ExtIP
+	else
+		iptables -t nat -A POSTROUTING -s "$IntNet/$IntBitmask" -d \! "$IntNet/$IntBitmask" -o $ExtIf -j MASQUERADE
+	fi
 fi
 
 echo "Setting up forwarded ports"
@@ -69,7 +70,7 @@ for Port in $R; do
 	fi
 done
 
-echo "Opening specified ports"
+echo "Opening specified ports to exterior"
 Q="SELECT Protocol,SourcePort,SourcePortEnd FROM Firewall WHERE RuleType='core_input' ORDER BY PK_Firewall"
 R=$(RunSQL "$Q")
 

@@ -76,10 +76,10 @@ mv /etc/apt/sources.list.2 /etc/apt/sources.list
 ok=0
 mac=$(/sbin/ifconfig eth0|grep HWaddr|awk '{ print $5; }'|sed s/://g)
 while [ "$ok" -eq 0 ]; do
+	echo "Getting pre-activation data (if any)"
 	answer=$(wget -O - "$activation_url?mac=$mac" 2>/dev/null)
 	if [ "$?" -ne 0 ]; then
-		echo "Failed to contact activation server over the Internet"
-		try_again && continue
+		try_again "Failed to contact activation server over the Internet" && continue
 		echo "$ICS_MSG"
 		break
 	fi
@@ -229,7 +229,7 @@ ff02::3 ip6-allhosts
 fi
 
 chmod +x "$DIR"/activation.sh
-if "$DIR"/activation.sh; then
+if bash -x "$DIR"/activation.sh; then
 	echo "Activation went ok"
 else
 	echo "$ACTIV_MSG" | fmt

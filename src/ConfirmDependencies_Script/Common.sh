@@ -41,6 +41,7 @@ CatMessages()
 }
 
 # TODO: make these work at install time (currently they mess up debconf)
+# the perl scripts that do this read the process stderr directly for the result
 InputBox()
 {
 	whiptail --inputbox "$(CatMessages "$@")" 0 0 --fb --nocancel --title Pluto 2>&1
@@ -67,4 +68,12 @@ ClearBlue()
 {
 	echo "[0;44m"
 	clear
+}
+
+PackageIsInstalled()
+{
+	local Pkg="$1"
+
+	[ -z "$Pkg" ] && return 1
+	dpkg -s "$Pkg" 2>/dev/null | grep -q 'Status: install ok installed'
 }

@@ -22,7 +22,8 @@ InstallKernel()
 {
 	local KERNEL_VERSION="$1"
 
-	if chroot . dpkg --get-selections "kernel-image-$KERNEL_VERSION" 2>/dev/null | grep -q install; then
+	if chroot . dpkg -s "kernel-image-$KERNEL_VERSION" 2>/dev/null | grep -q 'Status: install ok installed'; then
+		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Kernel already installed."
 		return 0
 	fi
 	
@@ -33,7 +34,7 @@ InstallKernel()
 		exit 1
 	elif [ "$words" -gt 1 ]; then
 		kernel="$(echo "$kernel" | cut -d' ' -f1)"
-		Logging "$TYPE" "$SEVERITY_STATUS" "$0" "More than one kernel found (this shouldn't happen). Using '$kernel'."
+		Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "More than one kernel found (this shouldn't happen). Using '$kernel'."
 	fi
 
 	cp "$kernel" tmp/
@@ -51,7 +52,7 @@ if ! cd "$DlPath"; then
 fi
 
 if [ ! -d "$DlPath" -o ! -f "$DlPath/etc/diskless.conf" ]; then
-	Logging "$TYPE" "$SEVERITY_STATUS" "$0" "Extracting filesystem for diskless client '$IP , $MAC' ($Device)"
+	Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Extracting filesystem for diskless client '$IP , $MAC' ($Device)"
 
 	tar -xjvf "/usr/pluto/install/$FSarchive" >/dev/null
 

@@ -36,6 +36,15 @@ ConfGet()
 }
 
 ConfEval
+
+PackageIsInstalled()
+{
+	local Pkg="$1"
+
+	[ -z "$Pkg" ] && return 1
+	dpkg -s "$Pkg" 2>/dev/null | grep -q 'Status: install ok installed'
+}
+
 VGcmd=""
 if [ -n "$Valgrind" ]; then
 	if which valgrind &>/dev/null; then

@@ -3,6 +3,8 @@ echo $0 $*
 
 . /usr/pluto/install/Common.sh
 
+set -x
+
 SECTIONS="main non-free contrib"
 
 #status=$(dpkg -l "$PKG_NAME" | grep '^ii' | awk '{print $1}') #| while read status; do break; done
@@ -64,21 +66,21 @@ case "$URL_TYPE" in
 		results=$(cat /etc/apt/sources.list | sed "$SPACE_SED" | egrep -v "^#" | egrep -c -- "$FilteredRepos.+$REPOS.+$SECTIONS" 2>/dev/null)
 		if [ "$results" -eq 0 ]; then
 			echo "deb http://dcerouter:9999/$FilteredRepos $REPOS $SECTIONS" >>/etc/apt/sources.list
-			if dpkg --get-selections apt-proxy 2>/dev/null | grep -q install; then
+			if PackageIsInstalled apt-proxy; then
 				echo "add_backend /$FilteredRepos \$APT_PROXY_CACHE/$FilteredRepos $EndSlashRepos" >>/etc/apt-proxy/backends.sh
 			fi
 			apt-get update
 #			[ "$Type" == "router" ] && apt-proxy-import-simple /usr/pluto/install/deb-cache
 		fi
 
-		if ! dpkg --get-selections "$PKG_NAME" | grep -q install; then
+		if ! PackageIsInstalled "$PKG_NAME"; then
 			keep_sending_enters | apt-get -t "$REPOS" -y install "$PKG_NAME" || exit $ERR_APT
 			apt-get clean
 		fi
 	;;
 	
 	direct)
-		if [ "$REPOS_TYPE" -eq 1 ] && dpkg --get-selections "${PKG_NAME/_*}" | grep -q install &>/dev/null; then
+		if [ "$REPOS_TYPE" -eq 1 ] && PackageIsInstalled "${PKG_NAME/_*}"; then
 			true
 		else
 			mkdir -p /usr/pluto/download

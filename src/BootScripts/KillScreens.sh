@@ -12,9 +12,10 @@ Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Killing these processes: $*"
 
 Tab="$(echo -e "\t")"
 for Process in "$@"; do
-	Pids="$Pids $(shopt -s nullglob; cd /var/run/screen/S-root/; echo * | grep -F $Process | cut -d. -f1 | cut -d"$Tab" -f2)"
+	Pids="$Pids $(cd /var/run/screen/S-root/; ls -1 | grep -F $Process | cut -d. -f1 | cut -d"$Tab" -f2)"
 done
 
+Pids="$(echo "$Pids" | tr '\n' ' ')"
 Logging "$TYPE" "$SEVERITY_NORMAL" "$0" "Killing these PIDs: $Pids"
 
 for Pid in $Pids; do

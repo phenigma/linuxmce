@@ -30,7 +30,7 @@ EndSection' >>/etc/X11/XF86Config-4.new
 
 	sed -i 's!/dev/mouse!/dev/input/mice!g' /etc/X11/XF86Config-4
 	# only ony standalone MDs, not hybrids
-	if ! dpkg --get-selections pluto-dcerouter 2>/dev/null | grep -q install; then
+	if ! PackageIsInstalled pluto-dcerouter; then
 		sed -i 's/^NTPSERVERS=.*$/NTPSERVERS="dcerouter"/' /etc/default/ntpdate
 	fi
 fi
