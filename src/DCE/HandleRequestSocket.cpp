@@ -207,6 +207,7 @@ g_pPlutoLogger->Write( LV_STATUS, "Closing request handler connection...");
 	}
 	__except( EXCEPTION_EXECUTE_HANDLER )
 	{
+		g_pPlutoLogger->Write(LV_CRITICAL, "Unknown critical error.");
 		/*
 		::PostQuitMessage( 255 );
 		
@@ -217,6 +218,8 @@ g_pPlutoLogger->Write( LV_STATUS, "Closing request handler connection...");
 		*/
 	}
 #endif
+
+	g_pPlutoLogger->Write(LV_CRITICAL, "Ready to quit HandleRequestSocket::RunThread()");
 	return;
 }
 
