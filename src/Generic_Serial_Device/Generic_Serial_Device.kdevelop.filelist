@@ -97,3 +97,9 @@ IOEvent.h
 /BufferedIOConnection.cpp
 /RubySerialIOConnectionWrapper.h
 /RubySerialIOConnectionWrapper.cpp
+/MessageTranslation.h
+/MessageTranslation.cpp
+/GenericSerialMessageTranslator.h
+/GenericSerialMessageTranslator.cpp
+/Generic_Serial_Device_MessageProcessor.h
+/Generic_Serial_Device_MessageProcessor.cpp

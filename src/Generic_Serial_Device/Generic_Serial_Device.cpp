@@ -37,6 +37,8 @@ Generic_Serial_Device::Generic_Serial_Device(int DeviceID, string ServerAddress,
 	
 	sermanager_.setDatabase(m_pdbPlutoMain);
 	sermanager_.setEventDispatcher(GetEvents());
+	
+	Generic_Serial_Device_MessageProcessor::setCommandImpl(this);
 }
 
 //<-dceag-const2-b->!
@@ -78,7 +80,16 @@ void Generic_Serial_Device::ReceivedCommandForChild(DeviceData_Base *pDeviceData
 */	
 	/*We cannot route message to nephew devices or younger. 
 		Must route them to child.*/
+
+	if(Generic_Serial_Device_MessageProcessor::ProcessMessage(pMessage)) {
+	    g_pPlutoLogger->Write(LV_STATUS, "Message processed by Translator.");
+		return;
+	}
+
+	DispatchMessage(pMessage);
+		
 	/*find child*/
+	/*
 	while(pDeviceData_Base != NULL && !sermanager_.hasDevice(pDeviceData_Base)) {
 		pDeviceData_Base =
 			m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pDeviceData_Base->m_dwPK_Device_ControlledVia);
@@ -91,8 +102,10 @@ void Generic_Serial_Device::ReceivedCommandForChild(DeviceData_Base *pDeviceData
 	
     g_pPlutoLogger->Write(LV_STATUS, "Routing message to child device %d.", pDeviceData_Base->m_dwPK_Device);
 	sermanager_.RouteMessageToDevice(pDeviceData_Base, pMessage);
+	*/
 }
 
+/*
 DeviceData_Impl* Generic_Serial_Device::RecursiveFindChildDevice(unsigned dwPK_Device, DeviceData_Impl* pDeviceData_Impl) 
 {	
 	if(pDeviceData_Impl->m_dwPK_Device == dwPK_Device) {
@@ -109,6 +122,7 @@ DeviceData_Impl* Generic_Serial_Device::RecursiveFindChildDevice(unsigned dwPK_D
 
 	return NULL;
 }
+*/
 
 /*
 	When you received a valid command, but it wasn't for one of your children,
@@ -121,11 +135,20 @@ void Generic_Serial_Device::ReceivedUnknownCommand(string &sCMD_Result,Message *
 {
 	sCMD_Result = "UNKNOWN DEVICE";
     g_pPlutoLogger->Write(LV_STATUS, "Received UNKNOWN command.");
+	
+	if(Generic_Serial_Device_MessageProcessor::ProcessMessage(pMessage)) {
+	    g_pPlutoLogger->Write(LV_STATUS, "Message processed by Translator.");
+		return;
+	}
+	
+	DispatchMessage(pMessage);
+/*	
 	if(sermanager_.hasDevice(m_pData)) {
 		sermanager_.RouteMessageToDevice(m_pData, pMessage);
 	} else {
 	    g_pPlutoLogger->Write(LV_WARNING, "Received command for me but I am not registered as Generic Serial Device.");
 	}
+*/	
 }
 
 //<-dceag-sample-b->!
@@ -161,6 +184,25 @@ bool Generic_Serial_Device::ReceivedMessage(class Message *pMessageOriginal)
 */
 void Generic_Serial_Device::Transmit(const char *pData,int iSize)
 {
+}
+
+void Generic_Serial_Device::DispatchMessage(Message* pmsg) {
+	g_pPlutoLogger->Write(LV_STATUS, "Dispatching Message %d...", pmsg->m_dwID);
+
+	/*find child*/
+	DeviceData_Base *pDeviceData_Base = m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pmsg->m_dwPK_Device_To);
+	while(pDeviceData_Base != NULL && !sermanager_.hasDevice(pDeviceData_Base)) {
+		pDeviceData_Base =
+			m_pData->m_AllDevices.m_mapDeviceData_Base_Find(pDeviceData_Base->m_dwPK_Device_ControlledVia);
+	}
+	
+	if(pDeviceData_Base == NULL) {
+	    g_pPlutoLogger->Write(LV_CRITICAL, "Error in parsing Controlled Via hierarchy.");
+		return;
+	}
+	
+    g_pPlutoLogger->Write(LV_STATUS, "Routing message to child device %d.", pDeviceData_Base->m_dwPK_Device);
+	sermanager_.RouteMessageToDevice(pDeviceData_Base, pmsg);
 }
 
 void Generic_Serial_Device::RunThread() {

@@ -22,7 +22,7 @@ LDFLAGS +=
 XTRALDLIBS = -lruby1.8 -lSerial -lpluto_main -lrt
 
 Gen_Dev_Files +=
-sources += $(ROOT)/Serial/GenericIODevice.cpp FileCodeSupplier.cpp IOEvent.cpp IOMutex.cpp IOPool.cpp IOThread.cpp LoopStateMachine.cpp RubyEmbeder.cpp RubyEmbededClass.cpp RubyExceptions.cpp RubyStdStreamRedirector.cpp SerialInterceptorCodeSupplier.cpp SerialIOConnection.cpp SerialIOPool.cpp StateMachine.cpp TestEmbededClass.cpp RubySerialIOPool.cpp TestRubyEmbederCodeSupplier.cpp RubySerialIOWrapper.cpp RubyDeviceWrapper.cpp RubyDCECodeSupplier.cpp RubyDCEEmbededClass.cpp RubySerialIOManager.cpp RubyCommandWrapper.cpp BufferedIOConnection.cpp RubySerialIOConnectionWrapper.cpp
+sources += $(ROOT)/Serial/GenericIODevice.cpp FileCodeSupplier.cpp IOEvent.cpp IOMutex.cpp IOPool.cpp IOThread.cpp LoopStateMachine.cpp RubyEmbeder.cpp RubyEmbededClass.cpp RubyExceptions.cpp RubyStdStreamRedirector.cpp SerialInterceptorCodeSupplier.cpp SerialIOConnection.cpp SerialIOPool.cpp StateMachine.cpp TestEmbededClass.cpp RubySerialIOPool.cpp TestRubyEmbederCodeSupplier.cpp RubySerialIOWrapper.cpp RubyDeviceWrapper.cpp RubyDCECodeSupplier.cpp RubyDCEEmbededClass.cpp RubySerialIOManager.cpp RubyCommandWrapper.cpp BufferedIOConnection.cpp RubySerialIOConnectionWrapper.cpp MessageTranslation.cpp Generic_Serial_Device_MessageProcessor.cpp
 
 #<-dceag-mf-b->!
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
@@ -59,7 +59,7 @@ Ruby_$(MYNAME)_wrap.o: Ruby_$(MYNAME)_wrap.cxx
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) Ruby_$(MYNAME)_wrap.cxx RubySerialIOWrapper.cpp RubyDeviceWrapper.cpp RubyCommandWrapper.cpp RubySerialIOConnectionWrapper.cpp BufferedIOConnection.cpp -I/usr/include/tcl8.4 
 
 Ruby_Generic_Serial_Device_wrap.cxx:
-	swig -ruby -c++ -runtime Ruby_Generic_Serial_Device.i
+	swig -ruby -c++ Ruby_Generic_Serial_Device.i
 
 clean: clean-recursive
 	rm -f $(call cpath,$(sources:.cpp=.o) $(sources:.cpp=.d)) Generic_Serial_Device.bin Generic_Serial_Device.so *.cxx >/dev/null
