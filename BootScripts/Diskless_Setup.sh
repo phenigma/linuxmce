@@ -216,8 +216,8 @@ for Client in $DisklessR; do
 	GRANT ALL PRIVILEGES ON mythconverg.* TO 'root'@'$IP';"
 	echo "$Q" | /usr/bin/mysql
 
-	echo -n " SSH"
-	mkdir -p $DlPath/root/.ssh
+#	echo -n " SSH"
+#	mkdir -p $DlPath/root/.ssh
 
 	echo
 	MoonNumber=$((MoonNumber+1))
