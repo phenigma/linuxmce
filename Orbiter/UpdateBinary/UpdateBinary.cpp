@@ -135,7 +135,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 	ClientSocket *pClientSocket = new ClientSocket( PK_Device, sRouter_IP, 
 		string( "Event Dev #" ) + StringUtils::itos( PK_Device ) );
 
-	pClientSocket->Connect("Event #" + StringUtils::itos(PK_Device));
+	pClientSocket->Connect(0,"Event #" + StringUtils::itos(PK_Device));
 
 	char *pUpdateFile = NULL;
 	int iSizeUpdateFile = 0;	

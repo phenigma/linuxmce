@@ -49,7 +49,7 @@ bool StartOrbiter(int PK_Device,string sRouter_IP,string sLocalDirectory,bool bL
         sLocalDirectory, bLocalMode, Width, Height);
 #endif
 
-    if (bLocalMode || pCLinux->Connect())
+    if (bLocalMode || pCLinux->Connect(PK_DeviceTemplate_get()))
     {
         g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
         pCLinux->Initialize(gtSDLGraphic);

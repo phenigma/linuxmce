@@ -38,7 +38,7 @@ OrbiterSDLBluetooth *StartOrbiterSDLBluetooth(
 				PK_Device, sRouter_IP, 
 				sLocalDirectory, bLocalMode, Width, Height);
 
-	if (bLocalMode || pOrbiterSDLBluetooth->Connect())
+	if (bLocalMode || pOrbiterSDLBluetooth->Connect(PK_DeviceTemplate_get()))
 	{
 		g_pPlutoLogger->Write(LV_STATUS, "Connect OK");
 		pOrbiterSDLBluetooth->Initialize(gtSDLGraphic);

@@ -55,7 +55,7 @@ OrbiterSDL_WinCE* Connect(int PK_Device,string sRouter_IP,string sLocalDirectory
 
 		if(!bLocalMode)
 		{
-			bool bConnected = pOrbiter->Connect();
+			bool bConnected = pOrbiter->Connect(PK_DeviceTemplate_get());
 
 			if(!bConnected)
 			{
