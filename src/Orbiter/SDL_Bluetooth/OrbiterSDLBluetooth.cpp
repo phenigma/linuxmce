@@ -207,7 +207,7 @@ void SaveImageToFile(struct SDL_Surface *pScreenImage, string FileName)
         listGrid.clear();
 
         //TODO: add an ON/OFF param! [HACK :D]
-        BD_CP_ShowList *pBD_CP_ShowList = new BD_CP_ShowList(0, 0, 0, 0, listGrid, false, false);
+        BD_CP_ShowList *pBD_CP_ShowList = new BD_CP_ShowList(0, 0, 0, 0, 0, listGrid, false, false);
         if( m_pBDCommandProcessor )
         {
             m_pBDCommandProcessor->AddCommand(pBD_CP_ShowList);
@@ -289,8 +289,8 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
 		}
 
 		bool bTurnOn = true;
-		g_pPlutoLogger->Write(LV_WARNING, "About to send BD_CP_ShowList command, column %d, turnon %d, items count %d",
-				iSelectedColumn, bTurnOn, pObj->m_pDataGridTable->getTotalRowCount());
+		g_pPlutoLogger->Write(LV_WARNING, "About to send BD_CP_ShowList command, column %d, turnon %d, items count %d, selected item %d",
+				iSelectedColumn, bTurnOn, pObj->m_pDataGridTable->getTotalRowCount(), pObj->m_iHighlightedRow);
 		
         for(int i = 0; i < pObj->m_pDataGridTable->getTotalRowCount(); i++)
         {
@@ -302,7 +302,7 @@ void OrbiterSDLBluetooth::RenderDataGrid(DesignObj_DataGrid *pObj)
             listGrid.push_back(sItem);
         }
 
-        BD_CP_ShowList *pBD_CP_ShowList = new BD_CP_ShowList(x, y, Width, Height, listGrid, 
+        BD_CP_ShowList *pBD_CP_ShowList = new BD_CP_ShowList(x, y, Width, Height, pObj->m_iHighlightedRow, listGrid, 
 			bSendSelectedOnMove, bTurnOn);
 
         if( m_pBDCommandProcessor )
