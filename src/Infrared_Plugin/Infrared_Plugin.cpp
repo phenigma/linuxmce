@@ -542,7 +542,9 @@ void Infrared_Plugin::CMD_Add_GC100(string &sCMD_Result,Message *pMessage)
 {
 #ifndef WIN32
   char *Command;
+  char line[45];
   int returned;
+  file *fp;
 
   Command = "/usr/pluto/bin/gc100-conf.pl";
 
@@ -561,8 +563,38 @@ void Infrared_Plugin::CMD_Add_GC100(string &sCMD_Result,Message *pMessage)
 			if ( returned == -1) {
                 g_pPlutoLogger->Write(LV_STATUS, "Failed Spawning configure script");
 			} else if( returned == 0) {
+				fp = fopen("/var/log/pluto/gc100-conf.log","rt");
+				if(fp != NULL) {
+					while(feof(fp) == 0) {
+						fgets(line, 45, fp);
+						size = strlen(line);
+						if(line[size-1] == 0 || line[size-1] == 10) {
+							line[size-1] = '\0';
+						}
+						strcpy(line,"");
+						if(strcmp(line,"") != 0) {
+							g_pPlutoLogger->Write(LV_STATUS, "GC100-Conf : %s",line);
+						}
+					}
+					fclose(fp);
+				}
 				g_pPlutoLogger->Write(LV_STATUS, "The configure script returned with success");
 			} else {
+				fp = fopen("/var/log/pluto/gc100-conf.log","rt");
+				if(fp != NULL) {
+					while(feof(fp) == 0) {
+						fgets(line, 45, fp);
+						size = strlen(line);
+						if(line[size-1] == 0 || line[size-1] == 10) {
+							line[size-1] = '\0';
+						}
+						strcpy(line,"");
+						if(strcmp(line,"") != 0) {
+							g_pPlutoLogger->Write(LV_STATUS, "GC100-Conf : %s",line);
+						}
+					}
+					fclose(fp);
+				}
 				g_pPlutoLogger->Write(LV_STATUS, "The configure script failed to configure gc100");
 			}
 			break;
