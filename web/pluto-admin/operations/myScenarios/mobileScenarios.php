@@ -348,6 +348,13 @@ else{
 				windowOpen(\'index.php?section=addCommandGroupAsScenario&from=mobileScenarios&arrayID='.$arrayID.'\',\'width=600,height=600,toolbars=true,resizable=1,scrollbars=1\');
 				self.location="index.php?section=mobileScenarios";
 			</script>';
+			$output->setScriptInBody("onLoad=\"javascript:top.treeframe.location.reload();\"");
+			$output->setNavigationMenu(array("My Scenarios"=>'index.php?section=myScenarios',"Mobile Orbiter Scenarios"=>'index.php?section=mobileScenarios'));
+			$output->setScriptCalendar('null');
+			$output->setBody($out);
+			$output->setTitle(APPLICATION_NAME.' :: Mobile Orbiter Scenarios');
+			$output->output();
+			exit();
 		}else{
 			$insertCommandGroup='INSERT INTO CommandGroup (Description,FK_Array,FK_Installation,FK_Template) VALUES (?,?,?,?)';
 			$dbADO->Execute($insertCommandGroup,array('New '.$templateArray[$newScenarioType],$arrayID,$installationID,$newScenarioType));

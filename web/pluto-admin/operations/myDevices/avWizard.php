@@ -358,8 +358,8 @@ function avWizard($output,$dbADO) {
 						}
 					}
 					if($rowD['IsIPBased']==1){
-						$deviceDataBox.='IP <input type="text" name="ip_'.$rowD['PK_Device'].'" value="'.$rowD['IPaddress'].'"><br>
-								MAC <input type="text" name="mac_'.$rowD['PK_Device'].'" value="'.$rowD['MACaddress'].'">';
+						$deviceDataBox.='<B>IP</B> <input type="text" name="ip_'.$rowD['PK_Device'].'" value="'.$rowD['IPaddress'].'"><br>
+								<B>MAC</B> <input type="text" name="mac_'.$rowD['PK_Device'].'" value="'.$rowD['MACaddress'].'">';
 					}
 					
 					$buttons='';
@@ -383,8 +383,9 @@ function avWizard($output,$dbADO) {
 					$controlledByPulldown.='</select>';
 					unset($GLOBALS['DeviceIDControlledVia']);
 					unset($GLOBALS['DeviceControlledVia']);
-				}else 
+				}else {
 					$controlledByPulldown='&nbsp;';
+				}
 
 				$videoOutputPulldown='<select name="videoOutput_'.$rowD['PK_Device'].'" '.((@$childOf[$rowD['PK_Device']]=='')?'':'disabled').'>
 						<option value="0"></option>';
@@ -452,7 +453,7 @@ function avWizard($output,$dbADO) {
 					$out.='
 				<tr>
 					<td align="center"><a name="deviceLink_'.$rowD['PK_Device'].'"></a>'.$deviceName.'</td>
-					<td>'.$roomPulldown.'</td>
+					<td  align="right">'.$roomPulldown.'</td>
 					<td>A: '.$audioOutputPulldown.'</td>
 					<td>'.$audioConnectToPulldown.'</td>
 					<td>'.$audioInputPulldown.'</td>
@@ -461,7 +462,7 @@ function avWizard($output,$dbADO) {
 				</tr>
 				<tr>			
 					<td align="center" title="Category: '.$rowD['CategoryName'].', manufacturer: '.$rowD['ManufacturerName'].'">DT: '.$rowD['TemplateName'].'</td>
-					<td>'.$controlledByPulldown.'</td>
+					<td align="right">'.$controlledByPulldown.'</td>
 					<td>V: '.$videoOutputPulldown.'</td>
 					<td>'.$videoConnectToPulldown.'</td>
 					<td>'.$videoInputPulldown.'</td>

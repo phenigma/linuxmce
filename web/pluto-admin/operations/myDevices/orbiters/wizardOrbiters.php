@@ -111,7 +111,7 @@ function wizardOrbiters($output,$dbADO) {
 				</tr>
 				<tr>
 					<td align="right"><B>Description</B></td>
-					<td align="left"><input type="text" name="description_'.$rowD['PK_Device'].'" value="'.stripslashes($rowD['Description']).'"></td>
+					<td align="left"><input type="text" name="description_'.$rowD['PK_Device'].'" value="'.stripslashes($rowD['Description']).'"> # '.$rowD['PK_Device'].'</td>
 				</tr>';
 				if($rowD['IsIPBased']==1){
 					$out.='

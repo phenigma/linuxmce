@@ -339,11 +339,28 @@ function deleteLine($uniqueID,$name,$delTable,$dbADO,$dontDelDefault=0)
 		$var_val=$rowPL['username'].':'.$rowPL['secret'].'@'.$rowPL['host'].'/'.$rowPL['fromuser'];
 		$dbADO->Execute('DELETE FROM ast_config WHERE var_val=? AND filename=? AND var_name=? AND category=?',array($var_val,'sip.conf', 'register','general'));
 	}
+	
+	// check if the line is international or internal
+	$resCode=$dbADO->Execute('SELECT exten FROM extensions_table WHERE context=? AND appdata LIKE ?',array('outgoing-extern-selectline','INTERNATIONALCODE=%'));
+	if($resCode->RecordCount()>0){
+		$rowCode=$resCode->FetchRow();
+		$fullCode=$rowCode['exten'];
+	}else
+		$fullCode='_9011.';
+
+	$resIsInternational=$dbADO->Execute('SELECT * FROM extensions_table WHERE exten=? AND context=? AND appdata = ?',array($fullCode,'outgoing-extern-selectline','DIALLINE='.$name));
+	if($resIsInternational->RecordCount()>0){
+		$dbADO->Execute('DELETE FROM extensions_table WHERE exten=? AND appdata LIKE?',array($fullCode,'DIALLINETYPE=%'));
+	}
+	$resIsIntern=$dbADO->Execute('SELECT * FROM extensions_table WHERE exten=? AND context=? AND appdata=?',array('_9XXX.','outgoing-extern-selectline','DIALLINE='.$name));
+	if($resIsIntern->RecordCount()>0){
+		$dbADO->Execute('DELETE FROM extensions_table WHERE exten=? AND appdata LIKE ?',array('_9XXX.','DIALLINETYPE=%'));
+	}
 
 	$dbADO->Execute('DELETE FROM '.$delTable.' WHERE uniqueid=?',$uniqueID);
 	if($dontDelDefault!=1)
 		$dbADO->Execute('DELETE FROM extensions_table WHERE appdata=?','DIALLINE='.$name);
-
+	
 }
 
 function setRandomLineDefault($name,$dbADO,$defaultLineID,$defaultLineTypeID)

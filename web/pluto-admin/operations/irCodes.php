@@ -33,7 +33,7 @@ function irCodes($output,$dbADO) {
 		SELECT InfraredGroup_Command_Preferred.*, InfraredGroup_Command.FK_Command
 		FROM InfraredGroup_Command_Preferred 
 		INNER JOIN InfraredGroup_Command ON FK_InfraredGroup_Command=PK_InfraredGroup_Command
-		WHERE InfraredGroup_Command_Preferred.FK_Installation=?',$installationID);
+		WHERE InfraredGroup_Command_Preferred.FK_Installation=? AND FK_DeviceTemplate=?',array($installationID,$dtID));
 	while($rowIGC=$resIGCPrefered->FetchRow()){
 		$GLOBALS['igcPrefered'][$rowIGC['FK_Command']]=$rowIGC['FK_InfraredGroup_Command'];
 	}

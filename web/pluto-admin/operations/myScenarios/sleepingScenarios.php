@@ -63,7 +63,7 @@ if($action=='form') {
 			}
 			$out.='
 				<option value="0">Advanced mode</option>
-			</select> <input type="button" class="button" name="add" value="Add scenario" onClick="javascript:document.sleepingScenarios.action.value=\'addToRoom\';document.sleepingScenarios.roomID.value='.$rowRooms['PK_Room'].';document.sleepingScenarios.roomName.value=\''.$rowRooms['RoomName'].'\';document.sleepingScenarios.submit();"></td>
+			</select> <input type="button" class="button" name="add" value="Add scenario" onClick="javascript:document.sleepingScenarios.action.value=\'addToRoom\';document.sleepingScenarios.roomID.value='.$rowRooms['PK_Room'].';document.sleepingScenarios.roomName.value=\''.urlencode($rowRooms['RoomName']).'\';document.sleepingScenarios.submit();"></td>
 		</tr>';
 		$selectCommandGroups='
 			SELECT * 
@@ -377,13 +377,21 @@ else{
 	if($action=='addToRoom'){
 		$roomID=(int)$_POST['roomID'];
 		$roomName=$_POST['roomName'];
-		$newScenarioType=$_POST['newScenarioType_'.$roomID];
+		$newScenarioType=(int)$_POST['newScenarioType_'.$roomID];
+
 		if($newScenarioType==0){
 			$out.='
 			<script>
 				windowOpen(\'index.php?section=addCommandGroupAsScenario&from=sleepingScenarios&arrayID='.$arrayID.'\',\'width=600,height=600,toolbars=true,resizable=1,scrollbars=1\');
 				self.location="index.php?section=sleepingScenarios";
 			</script>';
+			$output->setScriptInBody("onLoad=\"javascript:top.treeframe.location.reload();\"");
+			$output->setNavigationMenu(array("My Scenarios"=>'index.php?section=myScenarios',"Sleeping Scenarios"=>'index.php?section=sleepingScenarios'));
+			$output->setScriptCalendar('null');
+			$output->setBody($out);
+			$output->setTitle(APPLICATION_NAME.' :: Sleeping Scenarios');
+			$output->output();
+			exit();
 		}else{
 			$insertCommandGroup='INSERT INTO CommandGroup (Description,FK_Array,FK_Installation,FK_Template,Hint) VALUES (?,?,?,?,?)';
 			$dbADO->Execute($insertCommandGroup,array('New '.$templateArray[$newScenarioType],$arrayID,$installationID,$newScenarioType,$roomName));

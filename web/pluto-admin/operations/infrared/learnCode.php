@@ -131,7 +131,7 @@ function learnCode($output,$dbADO) {
 					SELECT * 
 					FROM InfraredGroup_Command_Preferred
 					INNER JOIN InfraredGroup_Command ON FK_InfraredGroup_Command=PK_InfraredGroup_Command
-					WHERE FK_Command=? AND FK_InfraredGroup IS NULL',$commandID);
+					WHERE FK_Command=? AND FK_DeviceTemplate=? AND FK_InfraredGroup IS NULL',array($commandID,$dtID));
 			$isOtherCustomCode=$dbADO->Execute('SELECT * FROM InfraredGroup_Command WHERE FK_InfraredGroup=? AND FK_Command=? AND FK_Device=? AND FK_DeviceTemplate=? AND FK_Users=?',array($infraredGroupID,$commandID, $deviceID,$dtID,$_SESSION['userID']));
 			if($isOtherCustomCode->RecordCount()>0){
 				$rowOther=$isOtherCustomCode->FetchRow();

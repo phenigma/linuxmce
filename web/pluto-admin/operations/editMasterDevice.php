@@ -400,7 +400,7 @@ $out='';
 				$out.='
 						<input type="hidden" name="DeviceCommandGroupDisplayed" value="'.(join(",",$commandsDisplayed)).'">
 						
-						<tr><td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addCommandGroup&from=editMasterDevice\',\'width=300,height=300,toolbars=true\');">Create Command Group</a>&nbsp;&nbsp;&nbsp;&nbsp;
+						<tr><td><a href="javascript:void(0);" onClick="windowOpen(\'index.php?section=addCommandGroup&from=editMasterDevice\',\'width=550,height=300,toolbars=true,scrollbars=1,resizable=1\');">Create Command Group</a>&nbsp;&nbsp;&nbsp;&nbsp;
 						Manually add command group 
 						<select name="addNewCommandGroupToMasterDevice">
 							';

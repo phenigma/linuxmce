@@ -190,9 +190,8 @@ function floorplanWizard($output,$dbADO) {
 				if ($arValues[$intCursor] == $page && $arValues[$intCursor+1]!=-1 && $arValues[$intCursor+2] !=-1)
 				{
 					$item['hascoordinatesthispage'] = true;
-					$item['x'] = floor($arValues[$intCursor+1] * $scaleFactor)-10;
-					$item['y'] = floor($arValues[$intCursor+2] * $scaleFactor)-10;
-					
+					$item['x'] = floor(($arValues[$intCursor+1] * $scaleFactor)-10);
+					$item['y'] = floor(($arValues[$intCursor+2] * $scaleFactor)-10);
 					if($item['x']>$origWidth || $item['y']>$origHeight)
 						$item['hascoordinatesthispage']=false;
 				}
@@ -205,6 +204,7 @@ function floorplanWizard($output,$dbADO) {
 			objSensor.SensorWidth = 20;
 			objSensor.SensorHeight = 20;
 			objSensor.Description = "'.$rowCoord['description'].' #'.$rowCoord['id'].'";
+			//objSensor.Description = "'.$item['x'].' '.$item['y'].'";
 			objSensor.ID = '.$rowCoord['id'].';
 			objSensor.Type = '.$rowCoord['itemtype'].';
 			objSensor.hasCoordinates = '.(($item['hascoordinatesthispage']) ? 'true' : 'false').';
@@ -299,8 +299,8 @@ function floorplanWizard($output,$dbADO) {
 					$key=0;
 					while($rowFloorplans=$resFloorplans->FetchRow()){
 						$deviceCoords[$key]=$rowFloorplans['Page'];
-						$xcoord=($arIncomingCoords[$intCursor+1]!=-1)?floor(($arIncomingCoords[$intCursor+1]+10)/$scaleFactor):-1;
-						$ycoord=($arIncomingCoords[$intCursor+2]!=-1)?floor(($arIncomingCoords[$intCursor+2]+10)/$scaleFactor):-1;
+						$xcoord=($arIncomingCoords[$intCursor+1]!=-1)?ceil(($arIncomingCoords[$intCursor+1]+10)/$scaleFactor):-1;
+						$ycoord=($arIncomingCoords[$intCursor+2]!=-1)?ceil(($arIncomingCoords[$intCursor+2]+10)/$scaleFactor):-1;
 						$deviceCoords[$key+1]=($rowFloorplans['Page']==$page)?$xcoord:(isset($oldCoordsArray[$key+1])?$oldCoordsArray[$key+1]:-1);
 						$deviceCoords[$key+2]=($rowFloorplans['Page']==$page)?$ycoord:(isset($oldCoordsArray[$key+2])?$oldCoordsArray[$key+2]:-1);
 						$key+=3;

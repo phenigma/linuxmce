@@ -1,6 +1,6 @@
 <?php
 function mediaScenarios($output,$dbADO) {
-	
+	global $dbPlutoMainDatabase;	
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	/* @var $output Template */
@@ -124,22 +124,41 @@ function mediaScenarios($output,$dbADO) {
 					}						
 					
 					if(isset($_POST['newType']) && $_POST['newType']!='0'){
+						$remotesArray=array();
+						$secondaryDescription=array();
 						$queryRemotes='				
 							SELECT 
-								FK_DesignObj,DeviceTemplate_MediaType_DesignObj.Description,DesignObj.Description AS dobjDescription
+							FK_DesignObj,DeviceTemplate_MediaType_DesignObj.Description,DesignObj.Description AS dobjDescription,FK_MediaType
 							FROM DeviceTemplate_MediaType_DesignObj
-								JOIN DesignObj ON FK_DesignObj=PK_DesignObj
+							JOIN DesignObj ON FK_DesignObj=PK_DesignObj
+							JOIN DeviceTemplate_MediaType ON FK_DeviceTemplate_MediaType=PK_DeviceTemplate_MediaType
 							WHERE FK_DeviceTemplate_MediaType=?';
-						$resRemotes=$dbADO->Execute($queryRemotes,$_POST['newType']);
-
+						$resRemotes=$dbADO->Execute($queryRemotes,(int)$_POST['newType']);
+						while($rowRemotes=$resRemotes->FetchRow()){
+							$remotesArray[$rowRemotes['FK_DesignObj']]=$rowRemotes['Description'];
+							$secondaryDescription[$rowRemotes['FK_DesignObj']]=$rowRemotes['dobjDescription'];
+							$selectedMediatype=$rowRemotes['FK_MediaType'];
+						}
+						
+						if(isset($selectedMediatype)){
+							$queryOtherRemotes='
+								SELECT DesignObj.Description,PK_DesignObj
+								FROM DesignObj
+								INNER JOIN MediaType_DesignObj ON FK_DesignObj=PK_DesignObj
+								WHERE FK_MediaType=?';
+							$resOtherRemotes=$dbADO->Execute($queryOtherRemotes,$selectedMediatype);
+							while($rowOtherRemotes=$resOtherRemotes->FetchRow()){
+								$remotesArray[$rowOtherRemotes['PK_DesignObj']]=$rowOtherRemotes['Description'];
+							}
+						}						
 						$out.='
 						<tr>
 							<td>Remote</td>
 							<td><select name="newRemote" onChange="document.mediaScenarios.action.value=\'form\';document.mediaScenarios.GoTo.value=\'addMS\';document.mediaScenarios.submit()">
 								<option value="0">Please select</option>
 						';
-						while($rowRemotes=$resRemotes->FetchRow()){
-							$out.='<option value="'.$rowRemotes['FK_DesignObj'].'" '.(($rowRemotes['FK_DesignObj']==@$_POST['newRemote'])?'selected':'').'>'.(($rowRemotes['Description']!='')?$rowRemotes['Description']:$rowRemotes['dobjDescription']).'</option>';
+						foreach ($remotesArray AS $key=>$value){
+							$out.='<option value="'.$key.'" '.(($key==@$_POST['newRemote'])?'selected':'').'>'.(($value!='')?$value:$secondaryDescription[$key]).'</option>';
 						}
 						$out.='</select>
 						</td>
@@ -348,7 +367,10 @@ function mediaScenarios($output,$dbADO) {
 							$rowTemplateID=$resTemplateID->FetchRow();
 							$FK_Template=$rowTemplateID['PK_Template'];
 							$EntAreaDescription=$_POST['EntAreaDescription'];
-												
+							
+							
+							// old code	who set entertain areas and scenarios
+							/*
 							$insertScenario='INSERT INTO CommandGroup (FK_Array, FK_Installation, Description,FK_Template,Hint) VALUES (?,?,?,?,?)';
 							$dbADO->Execute($insertScenario,array($arrayID,$installationID,$optionName,$FK_Template,$EntAreaDescription));
 							$insertID=$dbADO->Insert_ID();
@@ -470,6 +492,10 @@ function mediaScenarios($output,$dbADO) {
 									}
 								break;								
 							}
+							*/
+							// Aaron program
+							$command='/usr/pluto/bin/UpdateEntArea -h localhost -i '.$installationID.' -D '.$dbPlutoMainDatabase.' -e '.$FK_EntertainArea.' -t '.$FK_Template;
+							exec($command);
 								
 							setOrbitersNeedConfigure($installationID,$dbADO);
 							$msg="New Media Scenario was added.";
