@@ -1,12 +1,14 @@
 <?
 //se iau intai cele selectate, din baza de date si apoi se verifica array-ul din DeviceTemplate_DeviceParameter!
 function addMyDevice($output,$dbADO) {
+	global $dbPlutoMainDatabase;
 /* @var $dbADO ADOConnection */
 /* @var $rs ADORecordSet */
 $userID = (int)@$_SESSION['userID'];
 $out='';
 $action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 $parentID = isset($_REQUEST['parentID'])?cleanInteger($_REQUEST['parentID']):0;
+$installationID=(int)$_SESSION['installationID'];
 
 //$dbADO->debug=true;
 //grab the 'controlled via'
@@ -116,7 +118,10 @@ if ($action == 'form') {
 	$MACaddressMyDevice = cleanString($_POST['MACaddress']);
 	$ignoreOnOff = cleanInteger(@$_POST['IgnoreOnOff']);
 	$masterDeviceID = cleanInteger($_POST['masterDevice']);
+	
+
 	if ($masterDeviceID!=0 && $descriptionMyDevice!='') {
+		/*
 		if ($parentID==0) {
 			$queryInsertDevice = "INSERT INTO Device(FK_Installation,Description,IPaddress,MACaddress,IgnoreOnOff, FK_Device_ControlledVia, FK_DeviceTemplate )
 								values(?,?,?,?,?,NULL,?)";
@@ -132,6 +137,10 @@ if ($action == 'form') {
 		InheritDeviceData($masterDeviceID,$insertID,$dbADO);
 		createChildsForControledViaDeviceTemplate($masterDeviceID,$_SESSION['installationID'],$insertID,$dbADO);
 		createChildsForControledViaDeviceCategory($masterDeviceID,$_SESSION['installationID'],$insertID,$dbADO);
+	*/
+		
+		$insertID=exec('CreateDevice -h localhost -D '.$dbPlutoMainDatabase.' -d '.$masterDeviceID.' -i '.$installationID.' -I '.$IPaddressMyDevice.' -M '.$MACaddressMyDevice);
+		$dbADO->Execute('UPDATE Device SET Description=?, IgnoreOnOff=? WHERE PK_Device=?',array($descriptionMyDevice,$ignoreOnOff,$insertID));
 		setDCERouterNeedConfigure($_SESSION['installationID'],$dbADO);
 		
 		$out.="<script>

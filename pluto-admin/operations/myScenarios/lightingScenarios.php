@@ -54,7 +54,8 @@ if($action=='form') {
 			SELECT * 
 			FROM CommandGroup
 			INNER JOIN CommandGroup_Room ON FK_CommandGroup=PK_CommandGroup
-			WHERE FK_Room=? AND FK_Installation=? AND FK_Template=?';
+			WHERE FK_Room=? AND FK_Installation=? AND FK_Template=?
+			ORDER BY Sort ASC';
 		$resCommandGroups=$dbADO->Execute($selectCommandGroups,array($rowRooms['PK_Room'],$installationID,$GLOBALS['LightingScenariosTemplate']));
 		if($resCommandGroups->RecordCount()==0){
 		$out.='
@@ -62,21 +63,31 @@ if($action=='form') {
 				<td colspan="3">No lighting scenarios for this room.</td>
 			</tr>';
 		}
+		$pos=0;
+		$posInRoom=array();
 		while($rowCG=$resCommandGroups->FetchRow()){
-			$displayedCommandGroups[]=$rowCG['PK_CommandGroup'];
+			$posInRoom[$rowCG['PK_CommandGroup']]=$rowCG['Sort'];
+		}
+		$resCommandGroups->MoveFirst();
+		while($rowCG=$resCommandGroups->FetchRow()){
+			$pos++;
 			$out.='
 			<tr>
-				<td>Description: '.(($rowCG['Hint']==$rowRooms['RoomName'])?'<input type="text" name="commandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Description'].'"> Hint: <input type="text" name="hintCommandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Hint'].'">':'<b>'.$rowCG['Description'].': </b>Hint: <b>'.$rowCG['Hint'].'</b>').'</td>
+				<td><input type="button" name="posDown" value="-" onClick="self.location=\'index.php?section=lightingScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&roomID='.$rowRooms['PK_Room'].'&operation=down&posInRoom='.urlencode(serialize($posInRoom)).'\'"> 
+					<input type="button" name="posUp" value="+" onClick="self.location=\'index.php?section=lightingScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=process&roomID='.$rowRooms['PK_Room'].'&operation=up&posInRoom='.urlencode(serialize($posInRoom)).'\'">
+				 Description: '.((!in_array($rowCG['PK_CommandGroup'],$displayedCommandGroups))?'<input type="text" name="commandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Description'].'"> Hint: <input type="text" name="hintCommandGroup_'.$rowCG['PK_CommandGroup'].'" value="'.$rowCG['Hint'].'">':'<b>'.$rowCG['Description'].': </b>Hint: <b>'.$rowCG['Hint'].'</b>').'</td>
+				<td>'.(($pos==1)?'Default ON':'').(($pos==2)?'Default OFF':'').'</td>
 				<td><a href="index.php?section=lightingScenarios&cgID='.$rowCG['PK_CommandGroup'].'&action=edit&roomID='.$rowRooms['PK_Room'].'">Edit</a> <a href="#" onClick="javascript:if(confirm(\'Are you sure you want to delete this scenario?\'))self.location=\'index.php?section=lightingScenarios&cgDelID='.$rowCG['PK_CommandGroup'].'\';">Delete</a></td>
 				<td>&nbsp;</td>
 			</tr>
 			';
+			$displayedCommandGroups[]=$rowCG['PK_CommandGroup'];
 		}
 	}
 	if(count($displayedCommandGroups)>0){
 		$out.='
 		<tr>
-			<td colspan="2" align="center"><input type="submit" name="updateCG" value="Update"></td>
+			<td colspan="3" align="center"><input type="submit" name="updateCG" value="Update"></td>
 			<td>&nbsp;</td>
 		</tr>';
 	}
@@ -219,6 +230,43 @@ if($action=='form') {
 		$msg="Lighting Scenario updated";
 	}
 	
+	if(isset($_REQUEST['operation'])){
+		$fromCgID=$_REQUEST['cgID'];
+		$roomID=$_REQUEST['roomID'];
+		$operation=$_REQUEST['operation'];
+		$posInRoom=unserialize(stripslashes($_REQUEST['posInRoom']));
+		
+		if($operation=='up'){
+			$offset=array_keys($posInRoom);
+			$fromPos=array_search($fromCgID,$offset);
+			if(isset($offset[$fromPos+1])){
+				$toCgID=$offset[$fromPos+1];
+			
+				$fromSort=$posInRoom[$fromCgID];
+				$toSort=$posInRoom[$toCgID];
+	
+				$updateCG_R='UPDATE CommandGroup_Room SET Sort=? WHERE FK_CommandGroup=? AND FK_Room=?';
+				$dbADO->Execute($updateCG_R,array($toSort,$fromCgID,$roomID));
+				$dbADO->Execute($updateCG_R,array($fromSort,$toCgID,$roomID));
+				$msg="Positions was updated";
+			}
+		}else{
+			$offset=array_keys($posInRoom);
+			$fromPos=array_search($fromCgID,$offset);
+			if(isset($offset[$fromPos-1])){
+				$toCgID=$offset[$fromPos-1];
+			
+				$fromSort=$posInRoom[$fromCgID];
+				$toSort=$posInRoom[$toCgID];
+	
+				$updateCG_R='UPDATE CommandGroup_Room SET Sort=? WHERE FK_CommandGroup=? AND FK_Room=?';
+				$dbADO->Execute($updateCG_R,array($toSort,$fromCgID,$roomID));
+				$dbADO->Execute($updateCG_R,array($fromSort,$toCgID,$roomID));
+				$msg="Positions was updated";
+			}
+		}
+	}
+	
 	if(isset($_POST['updateDevices'])){
 		$roomID=$_POST['roomID'];
 		$cgID=$_POST['cgID'];
@@ -268,7 +316,7 @@ if($action=='form') {
 		exit();
 	}
 	
-	header("Location: index.php?section=lightingScenarios&msg={$msg}");
+	header("Location: index.php?section=lightingScenarios&msg=".@$msg);
 }
 
 	$output->setScriptInBody("onLoad=\"javascript:top.treeframe.location.reload();\"");

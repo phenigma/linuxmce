@@ -46,7 +46,7 @@ function phoneLines($output,$dbADO) {
 			<tr bgcolor="'.(($pos%2==0)?'#EEEEEE':'#E5E5E5').'">
 				<td><input type="text" name="name_'.$row['uniqueid'].'" value="'.$row['name'].'"></td>
 				<td><input type="text" name="username_'.$row['uniqueid'].'" value="'.$row['username'].'"></td>
-				<td><input type="text" name="ipaddr_'.$row['uniqueid'].'" value="'.$row['ipaddr'].'"></td>
+				<td><input type="text" name="host_'.$row['uniqueid'].'" value="'.$row['host'].'"></td>
 				<td align="center"><input type="text" name="port_'.$row['uniqueid'].'" value="'.$row['port'].'"></td>
 				<td align="center"><input type="text" name="rtptimeout_'.$row['uniqueid'].'" value="'.$row['rtptimeout'].'"></td>
 				<td align="center"><input type="radio" name="newDefaultLine" value="'.$row['name'].'" '.((@$defaultLineName==$row['name'])?'checked':'').'></td>
@@ -87,7 +87,7 @@ function phoneLines($output,$dbADO) {
 			</tr>
 			<tr>
 				<td><B>Registrar IP</B></td>
-				<td><input type="text" name="ipaddr" value=""></td>
+				<td><input type="text" name="host" value=""></td>
 			</tr>
 			<tr>
 				<td><B>Registrar port</B></td>
@@ -114,7 +114,7 @@ function phoneLines($output,$dbADO) {
 		 	var frmvalidator = new formValidator("addPhoneLines");
  			frmvalidator.addValidation("username","req","Please enter an authentification ID.");
 			frmvalidator.addValidation("secret","req","Please type the password.");
-			frmvalidator.addValidation("ipaddr","req","Please enter the IP address.");
+			frmvalidator.addValidation("host","req","Please enter the IP address.");
 			frmvalidator.addValidation("port","req","Please enter the port.");
 			frmvalidator.addValidation("rtptimeout","req","Please enter the registration timeout.");
 		</script>
@@ -125,7 +125,7 @@ function phoneLines($output,$dbADO) {
 			$username=$_POST['username'];
 			$secret=$_POST['secret'];
 			$name=$_POST['name'];
-			$ipaddr=$_POST['ipaddr'];
+			$host=$_POST['host'];
 			$port=$_POST['port'];
 			$phoneNumber=$_POST['phoneNumber'];
 			$rtptimeout=$_POST['rtptimeout'];
@@ -137,8 +137,8 @@ function phoneLines($output,$dbADO) {
 				exit();
 			}
 			
-			$insertPhoneLine='INSERT INTO sip_buddies (username, secret, name, ipaddr, port, rtptimeout, type) VALUES (?,?,?,?,?,?,?)';
-			$dbADO->Execute($insertPhoneLine,array($username,$secret,$name,$ipaddr,$port,$rtptimeout,'peer'));
+			$insertPhoneLine='INSERT INTO sip_buddies (username, secret, name, host, port, rtptimeout, type) VALUES (?,?,?,?,?,?,?)';
+			$dbADO->Execute($insertPhoneLine,array($username,$secret,$name,$host,$port,$rtptimeout,'peer'));
 			
 			if(!isset($defaultLineID)){
 				$dbADO->Execute('INSERT INTO extensions_table (`context`, `exten`, `priority`, `app`, `appdata`) VALUES (?,?,?,?,?)',array('outgoing-extern-selectline','_.',1,'SetVar','DIALLINE='.$name));
@@ -176,11 +176,11 @@ function phoneLines($output,$dbADO) {
 				$username=@$_POST['username_'.$lineID];
 				$name=@$_POST['name_'.$lineID];
 				$oldName=@$_POST['oldName_'.$lineID];
-				$ipaddr=@$_POST['ipaddr_'.$lineID];
+				$host=@$_POST['host_'.$lineID];
 				$port=@$_POST['port_'.$lineID];
 				$rtptimeout=@$_POST['rtptimeout_'.$lineID];
 								
-				$dbADO->Execute('UPDATE sip_buddies SET username=?, name=?, ipaddr=?, port=?, rtptimeout=? WHERE uniqueid=?',array($username,$name,$ipaddr,$port,$rtptimeout,$lineID));
+				$dbADO->Execute('UPDATE sip_buddies SET username=?, name=?, host=?, port=?, rtptimeout=? WHERE uniqueid=?',array($username,$name,$host,$port,$rtptimeout,$lineID));
 				if($name!=$oldName){
 					$dbADO->Execute('UPDATE extensions_table SET appdata=? WHERE appdata=?',array('DIALLINE='.$name,'DIALLINE='.$oldName));
 				}
