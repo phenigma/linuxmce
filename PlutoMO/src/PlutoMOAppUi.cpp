@@ -228,7 +228,7 @@ void CPlutoMOAppUi::HandleCommandL(TInt aCommand)
 		case EPlutoMOCmdAppTest2:
             {
             CAknInformationNote* informationNote = new (ELeave) CAknInformationNote;
-			informationNote->ExecuteLD(_L("PlutoMO version 1.0.0"));
+			informationNote->ExecuteLD(_L("PlutoMO version 2.0.0.0"));
 			break;
             }
 			

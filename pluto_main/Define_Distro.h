@@ -7,7 +7,7 @@
 #define DISTRO_Fedora_CONST 4
 #define DISTRO_Mandrake_CONST 5
 #define DISTRO_Gentoo_CONST 6
-#define DISTRO_2000,_XP_CONST 7
+#define DISTRO_2000_XP_CONST 7
 #define DISTRO_Series_60_CONST 8
 #define DISTRO_Series_70_CONST 9
 #define DISTRO_Series_80_CONST 10
