@@ -76,7 +76,8 @@ function addCommandGroupAsScenario($output,$dbADO) {
 				</tr>
 				<tr>
 					<td>Template</td><td>
-						<select name="template">';
+						<select name="template">
+							<option value="0"></option>';
 	
 							$queryTemplates = "SELECT * FROM Template order by Description Asc";
 							$resTemplates = $dbADO->Execute($queryTemplates);
@@ -173,9 +174,9 @@ function addCommandGroupAsScenario($output,$dbADO) {
 			
 			
 			$arrayID = cleanInteger($_POST['arrayType']);
-			$designObjID = $_SESSION['addCommandGroupAsScenario']['designObjID'];
+			$designObjID = ($_SESSION['addCommandGroupAsScenario']['designObjID']!=0)?$_SESSION['addCommandGroupAsScenario']['designObjID']:NULL;
 			$iconID = cleanInteger(isset($_POST['icon'])?$_POST['icon']:0);
-			$templateID = cleanInteger($_POST['template']);
+			$templateID = ($_POST['template']!='0')?cleanInteger($_POST['template']):NULL;
 						
 			$insertCommandGroup = "INSERT INTO CommandGroup (Description,FK_Array,FK_DesignObj,FK_Icon,FK_Template,FK_Installation)
 				VALUES(?,?,?,?,?,?)			
@@ -195,7 +196,7 @@ function addCommandGroupAsScenario($output,$dbADO) {
 									(FK_CommandGroup, FK_EntertainArea,Sort)
 								VALUES
 									(?,?,?)';
-							$dbADO->Execute($insertCommandGroupEntArea,array($PK_CommandGroup,$value),$PK_CommandGroup);
+							$dbADO->Execute($insertCommandGroupEntArea,array($PK_CommandGroup,$value,$PK_CommandGroup));
 						}
 					}
 				}

@@ -770,6 +770,16 @@ function isCore($deviceID,$dbADO)
 	return false;
 }
 
+function isOrbiter($deviceID,$dbADO)
+{
+	$orbitersArray=array();
+	$orbitersArray=getValidOrbitersArray($_SESSION['installationID'],$dbADO);
+	if(in_array($deviceID,$orbitersArray))
+		return true;
+	return false;
+}
+
+
 function deleteCommandGroup($PK_CommandGroup,$dbADO)
 {
 	$deleteParameters='
@@ -1007,4 +1017,21 @@ function deleteDevice($PK_Device,$dbADO)
 	}
 
 }
+
+function addDeviceToEntertainArea($deviceID,$entArea,$dbADO)
+{
+	$insertDeviceEntertainArea='INSERT INTO Device_EntertainArea (FK_Device, FK_EntertainArea) VALUES (?,?)';
+	$dbADO->Execute($insertDeviceEntertainArea,array($deviceID,$entArea));
+					
+	if(isOrbiter($deviceID,$dbADO) || isMediaDirector($deviceID,$dbADO)){
+		$queryChilds='SELECT * FROM Device WHERE FK_Device_ControlledVia=? AND FK_Installation=?';
+		$resChilds=$dbADO->Execute($queryChilds,array($deviceID,$_SESSION['installationID']));
+		if($resChilds->RecordCount()>0){
+			while($rowChilds=$resChilds->FetchRow()){
+				addDeviceToEntertainArea($rowChilds['PK_Device'],$entArea,$dbADO);
+			}
+		}
+	}
+}
+
 ?>

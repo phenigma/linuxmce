@@ -580,8 +580,7 @@ $installationID = (int)@$_SESSION['installationID'];
 				$entArea=(isset($_POST['entArea_'.$value]))?(int)@$_POST['entArea_'.$value]:0;
 				if($entArea!=$OldEntAreasArray[$key]){
 					if($entArea==1){
-						$insertDeviceEntertainArea='INSERT INTO Device_EntertainArea (FK_Device, FK_EntertainArea) VALUES (?,?)';
-						$dbADO->Execute($insertDeviceEntertainArea,array($deviceID,$value));
+						addDeviceToEntertainArea($deviceID,$value,$dbADO);
 					}else{
 						$deleteDeviceEntertainArea='DELETE FROM Device_EntertainArea WHERE FK_Device=? AND FK_EntertainArea=?';
 						$dbADO->Execute($deleteDeviceEntertainArea,array($deviceID,$value));

@@ -13,6 +13,7 @@
   	
 	// path where the media pics are uploaded
 	$GLOBALS['mediaPicsPath']=$_SERVER['DOCUMENT_ROOT'].'/pluto-admin/mediapics/';
+	$GLOBALS['floorplansPath']='/var/www/test/floorplans';
 	
 	define("VERSION","0.1");
 	define("APPLICATION_NAME","Pluto");
@@ -111,6 +112,7 @@
   $GLOBALS['SecurityViewOneCameraTemplate']=16;	// PK_Template for Security - View Camera
   $GLOBALS['AsignAtRuntimeCommand']=88;			// PK_Command for Asign at runtime
   $GLOBALS['mnuSingleCameraViewOnlyDesignObj']=1405;	// PK_DesignObj for Single Camera View Only
+  $GLOBALS['localOrbiter']=-300;
   
   // do not change the following lines 
   $addMasterUserUrl=$MasterUsersHost."index.php?section=add_master_user";

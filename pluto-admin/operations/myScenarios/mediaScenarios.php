@@ -49,7 +49,7 @@ function mediaScenarios($output,$dbADO) {
 					WHERE Template.Description=? AND FK_EntertainArea=?';
 				$resOptions=$dbADO->Execute($selectOptions,array('Media Wiz - '.$value,$rowEntAreas['PK_EntertainArea']));
 				
-				$checkBoxes.='<input type="checkbox" name="checkbox" value="1" '.(($resOptions->RecordCount()>0)?'checked':'').' onChange="javascript:document.mediaScenarios.optionEntArea.value=\''.$rowEntAreas['PK_EntertainArea'].'\';document.mediaScenarios.actionType.value=\''.(($resOptions->RecordCount()>0)?'deleteOption':'addOption').'\';document.mediaScenarios.optionName.value=\''.$value.'\';document.mediaScenarios.submit()"> '.$value.'<br>';
+				$checkBoxes.='<input type="checkbox" name="checkbox" value="1" '.(($resOptions->RecordCount()>0)?'checked':'').' onClick="javascript:document.mediaScenarios.optionEntArea.value=\''.$rowEntAreas['PK_EntertainArea'].'\';document.mediaScenarios.actionType.value=\''.(($resOptions->RecordCount()>0)?'deleteOption':'addOption').'\';document.mediaScenarios.optionName.value=\''.$value.'\';document.mediaScenarios.submit()"> '.$value.'<br>';
 			}
 
 			$out.='
@@ -273,8 +273,8 @@ function mediaScenarios($output,$dbADO) {
 						$newType=$_POST['newType'];
 		
 						
-						$insertMediaScenario='INSERT INTO CommandGroup (FK_Array, FK_Installation, Description,FK_DesignObj,FK_Template) VALUES (?,?,?,?,?)';
-						$dbADO->Execute($insertMediaScenario,array($arrayID,$installationID,$newDescription,@$_POST['newRemote'],$templateWizard));
+						$insertMediaScenario='INSERT INTO CommandGroup (FK_Array, FK_Installation, Description,FK_Template) VALUES (?,?,?,?)';
+						$dbADO->Execute($insertMediaScenario,array($arrayID,$installationID,$newDescription,$templateWizard));
 						$insertID=$dbADO->Insert_ID();
 						
 						$insertDeviceCommandGroup='INSERT INTO CommandGroup_EntertainArea (FK_EntertainArea, FK_CommandGroup,Sort) VALUES (?,?,?)';
@@ -300,7 +300,7 @@ function mediaScenarios($output,$dbADO) {
 							$dbADO->Execute($insertCommandParam,array($CG_C_insertID,$GLOBALS['commandParamPK_EntertainArea'],$newEntArea));
 						}
 					}
-					
+
 					if(isset($_POST['optionEntArea']) && $_POST['optionEntArea']!=''){
 						$FK_EntertainArea=$_POST['optionEntArea'];
 						$optionName=$_POST['optionName'];
@@ -320,8 +320,24 @@ function mediaScenarios($output,$dbADO) {
 							$CG_C_insertID=$dbADO->Insert_ID();
 							
 							$queryInsertCommandGroup_Command = "INSERT INTO CommandGroup_Command (FK_CommandGroup,FK_Command,FK_Device) values(?,?,?)";			
-							$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandSetVar'],-300));			
-							$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandGotoScreen'],-300));			
+							$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandSetVar'],$GLOBALS['localOrbiter']));			
+							$CG_C_insertID=$dbADO->Insert_ID();
+							$queryInsertCommandGroup_Command_CParamater = "
+								INSERT INTO CommandGroup_Command_CommandParameter 
+									(FK_CommandGroup_Command,FK_CommandParameter)
+								SELECT 
+									".$CG_C_insertID.",FK_CommandParameter FROM Command_CommandParameter WHERE FK_Command=?";		
+							$dbADO->Execute($queryInsertCommandGroup_Command_CParamater,$GLOBALS['commandSetVar']);
+							
+							$dbADO->Execute($queryInsertCommandGroup_Command,array($insertID,$GLOBALS['commandGotoScreen'],$GLOBALS['localOrbiter']));	
+							$CG_C_insertID=$dbADO->Insert_ID();
+							$queryInsertCommandGroup_Command_CParamater = "
+								INSERT INTO CommandGroup_Command_CommandParameter 
+									(FK_CommandGroup_Command,FK_CommandParameter) 
+								SELECT ".$CG_C_insertID.",FK_CommandParameter FROM Command_CommandParameter
+									WHERE FK_Command=?";		
+							$dbADO->Execute($queryInsertCommandGroup_Command_CParamater,$GLOBALS['commandGotoScreen']);
+							
 						}else{
 							$selectOptions='
 								SELECT PK_CommandGroup FROM CommandGroup

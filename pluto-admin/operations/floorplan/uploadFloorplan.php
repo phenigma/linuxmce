@@ -3,11 +3,11 @@ function uploadFloorplan($output,$dbADO) {
 	/* @var $dbADO ADOConnection */
 	/* @var $rs ADORecordSet */
 	$page=(isset($_REQUEST['fpID']))?cleanInteger($_REQUEST['fpID']):0;
-	$type=cleanInteger(@$_REQUEST['type']);
+	$type=(isset($_REQUEST['type']))?cleanInteger($_REQUEST['type']):1;
 	$strError=(isset($_GET['error']))?$_GET['error']:'';
 	
 	$installationID = (int)@$_SESSION['installationID'];
-	$path=$_SERVER['DOCUMENT_ROOT'].'/pluto-admin/floorplans/inst'.$installationID;
+	$path=$GLOBALS['floorplansPath'].'/inst'.$installationID;
 	$floorplanImage='floorplans/image_not_found.gif';
 	if(file_exists($path.'/'.$page.'.jpg'))
 		$floorplanImage='floorplans/inst'.$installationID.'/'.$page.'.jpg';
@@ -20,12 +20,14 @@ function uploadFloorplan($output,$dbADO) {
 	
 	$queryFloorplan='SELECT Description FROM Floorplan WHERE FK_Installation=? AND Page=?';
 	$resFloorplan=$dbADO->Execute($queryFloorplan,array($installationID,$page));
-	if($resFloorplan->RecordCount()==0){
-		header("Location: index.php?section=uploadFloorplan&error=Invalid floorplan specified");		
+
+	if($resFloorplan->RecordCount()==0 	&& $page!=0){
+		header("Location: index.php?section=floorplanWizard&error=Invalid floorplan specified");		
 		exit();
 	}
 	$rowFloorplan=$resFloorplan->FetchRow();
 	$oldDescription=$rowFloorplan['Description'];
+
 	if($action=='form'){
 		$out='
 			<form action="index.php" method="POST" name="uploadFloorplan" enctype="multipart/form-data">
@@ -79,7 +81,7 @@ function uploadFloorplan($output,$dbADO) {
 	}else{
 		
 		$newDescription=cleanString($_POST['txtDescription']);
-		$path=$_SERVER['DOCUMENT_ROOT'].'/pluto-admin/floorplans/inst'.$installationID;
+		$path=$GLOBALS['floorplansPath'].'/inst'.$installationID;
 		
 		switch($_FILES['fileImage']['type']){
 			case 'image/x-png':
@@ -121,9 +123,10 @@ function uploadFloorplan($output,$dbADO) {
 		}
 		
 		if($page==0){
+			$newPage=(isset($row['newPage']) && $row['newPage']==0)?1:$row['newPage'];
 			$insertFloorplan='INSERT INTO Floorplan (FK_Installation, Page, Description) VALUES (?,?,?)';
-			$dbADO->Execute($insertFloorplan,array($installationID,$row['newPage'],$newDescription));
-			$page=$row['newPage'];
+			$dbADO->Execute($insertFloorplan,array($installationID,$newPage,$newDescription));
+			$page=$newPage;
 		}
 		header("Location: index.php?section=floorplanWizard&page=".$page."&type=".$type);
 	}
