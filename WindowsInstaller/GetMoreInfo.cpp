@@ -173,6 +173,13 @@ void CGetMoreInfo::OnBnClickedMoreinfoInstall()
 		m_Progress.SetPos(int(i + 1));
 	}
 
+	//post install scripts
+	LogInstallAction("Running postinstall scripts");
+	for(int i = 0; i < m_vectPostInstall.size(); i++)
+		LaunchProgram(m_vectPostInstall[i]);
+
+    m_vectPostInstall.clear();
+
 	EndWaitCursor();
 	m_CancelFinishButton.SetWindowText("&Finish");
 }
@@ -269,8 +276,7 @@ void CGetMoreInfo::InstallPackage(int iIndex)
 
 		::MoveFile(sMySQLDirName, sMySQLDirNameDest);
 
-		LaunchProgram(sMySQLDirNameDest + "\\bin\\winmysqladmin.exe", false
-			);
+		LaunchProgram(sMySQLDirNameDest + "\\bin\\winmysqladmin.exe", false);
 	}
 }
 
@@ -359,12 +365,12 @@ void CGetMoreInfo::ParseAndExecuteCommands(CString sServer, CString sURL, CStrin
 	CString sFullUrl = sServer + sURL;
 
 	//check from url type (svn, http, ftp)
-	if(sFullUrl.Find("http://") == 0) 
+	if(sFullUrl.Find("http://svn.") == 0) 
+		urlType = utSVN;
+	else if(sFullUrl.Find("http://") == 0) 
 		urlType = utHTTP;
 	else if(sFullUrl.Find("ftp://") == 0) 
 		urlType = utFTP;
-	else if(sFullUrl.Find("svn.") == 0) 
-		urlType = utSVN;
 	else 
 	{
 		LogInstallAction("WARNING: Unknown url type: " + sURL + ". Assuming that is an http url");
@@ -420,7 +426,10 @@ void CGetMoreInfo::ParseAndExecuteCommands(CString sServer, CString sURL, CStrin
 			else if(vectWords[0] == "RUN")
 				LaunchProgram(sDestinationFile + sFileName);
 			else if(vectWords[0] == "LAUNCH")
-				LaunchProgram(sDrive + vectWords[1].c_str());
+			{
+				LogInstallAction("Scheduling postinstall script" + sDrive + vectWords[1].c_str());
+				m_vectPostInstall.push_back(sDrive + vectWords[1].c_str());
+			}
 
 			vectWords.clear();
         }
@@ -524,7 +533,7 @@ bool CGetMoreInfo::DownloadFileFromSvn(CString sServer, CString sRepository, CSt
 	si.lpReserved = 0;
 
 	string sTempFullPath = sFullURL;
-	StringUtils::Replace(sTempFullPath, "svn.", "svn://");
+	StringUtils::Replace(sTempFullPath, "http://svn.", "svn://");
 	sFullURL = sTempFullPath.c_str();
 
 	CString sSvnCommandLine = "svn co " + sFullURL + " " + sDrive + "/pluto/" + sSourceImplementationPath;

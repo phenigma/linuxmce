@@ -45,6 +45,8 @@ protected:
 
 	bool m_bAboutToCancel;
 
+	vector<CString> m_vectPostInstall;
+
 public:
 	virtual BOOL OnInitDialog();
 	afx_msg void OnBnClickedMoreinfoPrev();
