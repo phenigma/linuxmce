@@ -56,11 +56,13 @@ class MNGHeader
 class PNGCatChunks
 {
 	private:
-		vector<PNGChunk> m_Chunks;
+		vector<const PNGChunk *> m_Chunks;
 		size_t count() const;
 
 	public:
-		bool AddChunk(const PNGChunk & Chunk);
+		~PNGCatChunks();
+
+		bool AddChunk(const PNGChunk * Chunk);
 		size_t CatChunks(char * & MemoryZonePointer) const;
 		void clear();
 };
@@ -73,14 +75,15 @@ class RendererMNG
 
 	public:
 		RendererMNG();
+		RendererMNG(int Width, int Height);
 		~RendererMNG();
 
 		size_t count() const;
 		RendererImage *GetFrame(size_t number) const;
 
-		void ReplaceFrame(size_t number, RendererImage & frame);
-		void InsertFrame(size_t number, RendererImage & frame);
-		void AppendFrame(RendererImage & frame);
+		void ReplaceFrame(size_t number, RendererImage * frame);
+		void InsertFrame(size_t number, RendererImage * frame);
+		void AppendFrame(RendererImage * frame);
 		void DeleteFrame(size_t number);
 
 		const MNGHeader & GetHeader() const;

@@ -60,6 +60,7 @@ bool ReadChunk(FILE * f, PNGChunk * chunk)
 	// Chunk CRC
 	if (fread(&chunk->crc32, 1, 4, f) < 4)
 		return false;
+	ReverseEndian(chunk->crc32);
 
 	return true;
 }
@@ -112,17 +113,27 @@ size_t MNGHeader::BinaryForm(char * & MemoryZonePointer) const
 	CRC32 = crc32(CRC32, (const Bytef *) &P, 4);
 	CRC32 = crc32(CRC32, (const Bytef *) &S, 4);
 
+	ReverseEndian(CRC32);
+
 	memcpy(Position, &CRC32, 4); Position += 4;
 
 	return chunk_size;
 }
 
-bool PNGCatChunks::AddChunk(const PNGChunk & Chunk)
+PNGCatChunks::~PNGCatChunks()
 {
-	if (count() == 0 && Chunk.type != "IHDR")
+	for (int i = 0; i < count(); i++)
+		if (m_Chunks[i])
+			delete m_Chunks[i];
+	m_Chunks.clear();
+}
+
+bool PNGCatChunks::AddChunk(const PNGChunk * Chunk)
+{
+	if (count() == 0 && Chunk->type != "IHDR")
 		return false; // given chunk is not the first one
 
-	if (m_Chunks[count() - 1].type == "IEND")
+	if (count() > 0 && m_Chunks[count() - 1]->type == "IEND")
 		return false; // PNG already complete
 
 	m_Chunks.insert(m_Chunks.end(), Chunk);
@@ -131,29 +142,30 @@ bool PNGCatChunks::AddChunk(const PNGChunk & Chunk)
 
 size_t PNGCatChunks::CatChunks(char * & MemoryZonePointer) const // it is the user's responsibility deleting this pointer
 {
-	size_t Size = 0;
-	const int Chunk_Extra = 3 * 4;
+	size_t Size = 8;
+	const int Chunk_Extra = 3 * sizeof(unsigned long);
 
 	for (size_t i = 0; i < count(); i++)
 	{
-		Size += m_Chunks[i].length + Chunk_Extra; // data length plus 3 32bit chunk values
+		Size += m_Chunks[i]->length + Chunk_Extra; // data length plus 3 32bit chunk values
 	}
 
 	MemoryZonePointer = new char[Size];
 	char * Position = MemoryZonePointer;
 
+	strncpy(Position, PNGsignature, 8); Position += 8;
 	for (size_t i = 0; i < count(); i++)
 	{
-		unsigned long length = m_Chunks[i].length;
-		unsigned long crc32 = m_Chunks[i].crc32;
+		unsigned long ChunkLength = m_Chunks[i]->length;
+		unsigned long ChunkCRC32 = m_Chunks[i]->crc32;
 
-		ReverseEndian(length);
-		ReverseEndian(crc32);
+		ReverseEndian(ChunkLength);
+		ReverseEndian(ChunkCRC32);
 
-		memcpy(Position, &length, 4); Position += 4;
-		memcpy(Position, m_Chunks[i].type.c_str(), 4); Position += 4;
-		memcpy(Position, m_Chunks[i].data, m_Chunks[i].length); Position += m_Chunks[i].length;
-		memcpy(Position, &crc32, 4); Position += 4;
+		memcpy(Position, &ChunkLength, 4); Position += 4;
+		memcpy(Position, m_Chunks[i]->type.c_str(), 4); Position += 4;
+		memcpy(Position, m_Chunks[i]->data, m_Chunks[i]->length); Position += m_Chunks[i]->length;
+		memcpy(Position, &ChunkCRC32, 4); Position += 4;
 	}
 
 	return Size;
@@ -166,11 +178,23 @@ size_t PNGCatChunks::count() const
 
 void PNGCatChunks::clear()
 {
+	for (size_t i = 0; i < count(); i++)
+		if (m_Chunks[i])
+			delete m_Chunks[i];
 	m_Chunks.clear();
 }
 
 RendererMNG::RendererMNG()
 {
+	memset(&m_MNGHeader, 0, sizeof(m_MNGHeader));
+}
+
+RendererMNG::RendererMNG(int Width, int Height)
+{
+	memset(&m_MNGHeader, 0, sizeof(m_MNGHeader));
+	m_MNGHeader.frame_height = Height;
+	m_MNGHeader.frame_width = Width;
+	m_MNGHeader.ticks_per_second = 1000;
 }
 
 RendererMNG::~RendererMNG()
@@ -191,15 +215,15 @@ RendererImage *RendererMNG::GetFrame(size_t number) const
 	return m_vectMNGframes[number];
 }
 
-void RendererMNG::ReplaceFrame(size_t number, RendererImage & frame)
+void RendererMNG::ReplaceFrame(size_t number, RendererImage * frame)
 {
 	if (number >= count())
 		return;
 
-	m_vectMNGframes[number] = &frame;
+	m_vectMNGframes[number] = frame;
 }
 
-void RendererMNG::InsertFrame(size_t number, RendererImage & frame)
+void RendererMNG::InsertFrame(size_t number, RendererImage * frame)
 {
 	if (number >= count())
 		return;
@@ -209,12 +233,12 @@ void RendererMNG::InsertFrame(size_t number, RendererImage & frame)
 
 	// Linux G++ 3.3.4 doesn't like this one
 	// m_vectMNGframes.insert(&m_vectMNGframes[number], frame);
-	m_vectMNGframes.insert(m_vectMNGframes.begin() + number, &frame);
+	m_vectMNGframes.insert(m_vectMNGframes.begin() + number, frame);
 }
 
-void RendererMNG::AppendFrame(RendererImage & frame)
+void RendererMNG::AppendFrame(RendererImage * frame)
 {
-	m_vectMNGframes.insert(m_vectMNGframes.end(), &frame);
+	m_vectMNGframes.insert(m_vectMNGframes.end(), frame);
 }
 
 void RendererMNG::DeleteFrame(size_t number)

@@ -173,6 +173,9 @@
 				RelativePath="..\..\level4\common\CommonIncludes.h">
 			</File>
 			<File
+				RelativePath=".\Renderer.h">
+			</File>
+			<File
 				RelativePath="..\Orbiter\RendererImage.h">
 			</File>
 			<File

@@ -191,10 +191,15 @@ void Renderer::RenderObject(RendererImage *pRenderImage,DesignObj_Generator *pDe
         if( sInputFile.length()>0 )
         {
 			if( StringUtils::ToUpper(FileUtils::FindExtension(sInputFile))=="MNG" )
-return;//TODO - Radu needs to fix this
-//				pRendererMNG = CreateMNGFromFile(sInputFile,pDesignObj_Generator->m_rBackgroundPosition.Size());
+			{
+				pRendererMNG = CreateMNGFromFile(sInputFile,pDesignObj_Generator->m_rBackgroundPosition.Size());
+				string::size_type pos = sInputFile.rfind('/');
+//				SaveMNGToFile("C:/x/" + sInputFile.substr(pos + 1), pRendererMNG);
+			}
 			else
-		        pRenderImage_Child = CreateFromFile(sInputFile,pDesignObj_Generator->m_rBackgroundPosition.Size(),bPreserveAspectRatio,bIsMenu);
+			{
+				pRenderImage_Child = CreateFromFile(sInputFile,pDesignObj_Generator->m_rBackgroundPosition.Size(),bPreserveAspectRatio,bIsMenu);
+			}
 
             if( !pRenderImage_Child && !pRendererMNG )
             {
@@ -211,13 +216,13 @@ return;//TODO - Radu needs to fix this
 			iOnlyVersion_Children = iIteration;
 		}
 
-		for(int iFrame=0;iFrame< (pRendererMNG ? pRendererMNG->count() : 1);iFrame++)
+		for(size_t iFrame=0; iFrame < (pRendererMNG ? pRendererMNG->count() : 1); iFrame++)
 		{
 			// If this is multi-frame, we have to repeat, so we'll need a copy of the image
-			RendererImage *pRenderImageClone = pRenderImage;
+			RendererImage *pRenderImageClone = DuplicateImage(pRenderImage);
 			RendererImage *pRenderImageClone_Child = pRenderImage_Child;
 			if( pRendererMNG )
-				pRenderImageClone_Child = (RendererImage *) pRendererMNG->GetFrame(iFrame);
+				pRenderImageClone_Child = pRendererMNG->GetFrame(iFrame);
 
 			// See if we're supposed to render our children first
 			if( pDesignObj_Generator->m_bChildrenBehind )
@@ -231,7 +236,9 @@ return;//TODO - Radu needs to fix this
 			{
 				if(pRenderImageClone_Child )
 				{
+//					SaveImageToFile(pRenderImageClone, "c:/x/compositea");
 					CompositeImage(pRenderImageClone,pRenderImageClone_Child,pDesignObj_Generator->m_rPosition.Location() + Position);
+//					SaveImageToFile(pRenderImageClone, "c:/x/compositeb");
 				}
 				if( pDesignObj_Generator->m_bChildrenBeforeText )
 				{
@@ -244,8 +251,10 @@ return;//TODO - Radu needs to fix this
 					RenderObjectsChildren(pRenderImageClone,pDesignObj_Generator,Position,bPreserveAspectRatio,iOnlyVersion_Children);
 				}
 			}
+//			SaveImageToFile(pRenderImageClone, "c:/x/compositec");
 			if( pRendererMNG )
-				pRendererMNG->ReplaceFrame(iFrame,*pRenderImageClone);
+				pRendererMNG->ReplaceFrame(iFrame, pRenderImageClone);
+			delete pRenderImageClone;
 		}
         // If this is a screen (ie top level object) then we should always save something even
         // if there was no input file.
@@ -410,11 +419,25 @@ void Renderer::SaveImageToFile(RendererImage * pRendererImage, string sSaveToFil
 // load image from file and possibly scale/stretch it
 RendererImage * Renderer::CreateFromFile(string sFilename, PlutoSize size,bool bPreserveAspectRatio,bool bCrop)
 {
+	FILE * File;
+
+	File = fopen(sFilename.c_str(), "rb");
+	RendererImage * Result = CreateFromFile(File, size, bPreserveAspectRatio, bCrop);
+    if (Result == NULL)
+    {
+        throw "Can't create surface from file: " + sFilename  + ": " + SDL_GetError();
+    }
+
+	fclose(File);
+	return Result;
+}
+
+RendererImage * Renderer::CreateFromRWops(SDL_RWops * rw, bool bFreeRWops, PlutoSize size, bool bPreserveAspectRatio, bool bCrop)
+{
     SDL_Surface * SurfaceFromFile=NULL;
     //  try
     //  {
-    SurfaceFromFile = IMG_Load(sFilename.c_str());
-
+    SurfaceFromFile = IMG_Load_RW(rw, bFreeRWops); // rw is freed here of bFreeRWops is true (=1)
     /*}
     //  catch(...)
     {
@@ -424,7 +447,7 @@ RendererImage * Renderer::CreateFromFile(string sFilename, PlutoSize size,bool b
     */
     if (SurfaceFromFile == NULL)
     {
-        throw "Can't create surface from file: " + sFilename  + ": " + SDL_GetError();
+        throw string("Can't create surface from FILE pointer: ") + SDL_GetError();
     }
 
     //  cout << "Loaded: " << sFilename << endl;
@@ -445,10 +468,10 @@ RendererImage * Renderer::CreateFromFile(string sFilename, PlutoSize size,bool b
     if (RIFromFile == NULL)
     {
         delete SurfaceFromFile;
-        throw "Failed to create new image surface: " + sFilename;
+        throw string("Failed to create new image surface");
     }
 
-    RIFromFile->m_sFilename = sFilename;
+//	RIFromFile->m_sFilename = sFilename;
 
     SDL_Surface * ScaledSurface;
     if (W == SurfaceFromFile->w && H == SurfaceFromFile->h)
@@ -493,6 +516,12 @@ RendererImage * Renderer::CreateFromFile(string sFilename, PlutoSize size,bool b
     SDL_FreeSurface(SurfaceFromFile);
 
     return RIFromFile;
+}
+
+RendererImage * Renderer::CreateFromFile(FILE * File, PlutoSize size, bool bPreserveAspectRatio, bool bCrop)
+{
+	SDL_RWops * rw = SDL_RWFromFP(File, 0);
+	return CreateFromRWops(rw, true, size, bPreserveAspectRatio, bCrop);
 }
 
 void Renderer::CompositeImage(RendererImage * pRenderImage_Parent, RendererImage * pRenderImage_Child, PlutoPoint pos)
@@ -547,10 +576,55 @@ void Renderer::CompositeImage(RendererImage * pRenderImage_Parent, RendererImage
     //Sleep(5000);
 }
 
-// TODO: unify this if CreateFromFile on the streching/scaling section
+RendererImage * Renderer::DuplicateImage(RendererImage * pRendererImage)
+{
+	PlutoSize Size;
+	PlutoPoint Pos(0, 0);
+
+	Size.Width = pRendererImage->m_pSDL_Surface->w;
+	Size.Height = pRendererImage->m_pSDL_Surface->h;
+	RendererImage * Result = CreateBlankCanvas(Size);
+	CompositeImage(Result, pRendererImage, Pos);
+
+	return Result;
+}
+
+RendererMNG * Renderer::CreateMNGFromFiles(const vector<string> & FileNames, PlutoSize Size)
+{
+	int RealW, RealH;
+	MNGHeader Header;
+	int kounter = 0;
+
+	RendererMNG * Result = new RendererMNG;
+
+	for (int i = 0; i < FileNames.size(); i++)
+	{
+		RendererImage * pRendererImage = CreateFromFile(FileNames[i], Size);
+		Result->AppendFrame(pRendererImage);
+//		SaveImageToFile(pRendererImage, "C:/x/frame" + StringUtils::ltos(kounter++) + ".png");
+	}
+
+	Header.ticks_per_second = 1000;
+	Header.frame_height = Size.Height;
+	Header.frame_width = Size.Width;
+	Result->SetHeader(Header);
+	return Result;
+}
+
 RendererMNG * Renderer::CreateMNGFromFile(string FileName, PlutoSize Size)
 {
+//	vector<string> V;
+//	for (int i = 0; i <= 14; i++)
+//	{
+//		V.insert(V.end(), string("c:/x/untitled") + (i < 10 ? "0" : "") + StringUtils::itos(i) + ".png");
+//	}
+
+//	return CreateMNGFromFiles(V, Size);
+
 	FILE * File;
+	int RealW, RealH;
+	MNGHeader Header;
+	int kounter = 0;
 
 	File = fopen(FileName.c_str(), "rb");
 	if (! File)
@@ -559,18 +633,19 @@ RendererMNG * Renderer::CreateMNGFromFile(string FileName, PlutoSize Size)
 	char buffer[1024];
 	fread(buffer, 1, 8, File); // strip signature
 
-	PNGChunk * chunk = new PNGChunk;
+	PNGChunk * chunk;
 	bool BuildingPNG = false;
 	PNGCatChunks * InMemoryPNG = new PNGCatChunks;
 
 	RendererMNG * Result = new RendererMNG;
-	while (ReadChunk(File, chunk))
+	while (ReadChunk(File, chunk = new PNGChunk))
 	{
 		if (chunk->type == "MHDR")
 		{
-			MNGHeader Header;
 			ParseMNGHeader(chunk->data, &Header);
 			Result->SetHeader(Header);
+			RealW = Size.Width == 0 ? Header.frame_width : Size.Width;
+			RealH = Size.Height == 0 ? Header.frame_height : Size.Height;
 		}
 
 		if (chunk->type == "IHDR")
@@ -580,7 +655,7 @@ RendererMNG * Renderer::CreateMNGFromFile(string FileName, PlutoSize Size)
 
 		if (BuildingPNG)
 		{
-			InMemoryPNG->AddChunk(* chunk);
+			InMemoryPNG->AddChunk(chunk);
 			if (chunk->type == "IEND")
 			{
 				BuildingPNG = false;
@@ -588,66 +663,28 @@ RendererMNG * Renderer::CreateMNGFromFile(string FileName, PlutoSize Size)
 				size_t iSizeGraphicFile = InMemoryPNG->CatChunks(pGraphicFile);
 				
 				SDL_RWops * rw = SDL_RWFromMem(pGraphicFile, iSizeGraphicFile);
-				SDL_Surface * pSDL_Surface = IMG_Load_RW(rw, 1); // rw is freed here
+				RendererImage * pRendererImage = CreateFromRWops(rw, true, Size);
+
 				delete [] pGraphicFile;
 
-				int W = Size.Width == 0 ? Result->GetHeader().frame_width : Size.Width;
-				int H = Size.Height == 0 ? Result->GetHeader().frame_height : Size.Height;
-
-				PlutoSize CanvasSize(W, H);
-				RendererImage * pRendererImage = CreateBlankCanvas(CanvasSize);
-
-				SDL_Surface * ScaledSurface;
-				if (W == Result->GetHeader().frame_width && H == Result->GetHeader().frame_height)
-				{
-					// no scaling/stretching needed
-					//SDL_BlitSurface(SurfaceFromFile, NULL, RIFromFile->m_pSDL_Surface, NULL);
-					//sge_transform(SurfaceFromFile, RIFromFile->m_pSDL_Surface, 0, 1, 1, 0, 0, 0, 0, SGE_TSAFE);
-					ScaledSurface = sge_transform_surface(pSDL_Surface, SDL_MapRGBA(pSDL_Surface->format, 0, 0, 0, 0), 0, 1, 1, SGE_TSAFE);
-				}
-				else
-				{
-					// image needs to be streched/scaled
-					// I could use SDL_SoftStretch(), but the SDL developers strongly advise against it for the moment
-					// I use the SGE extension library instead
-					float scaleX = (float) pRendererImage->m_pSDL_Surface->w / Result->GetHeader().frame_width;
-					float scaleY = (float) pRendererImage->m_pSDL_Surface->h / Result->GetHeader().frame_height;
-
-					//if( bPreserveAspectRatio && bCrop )
-					//{
-					//	if( scaleY>scaleX )
-					//		scaleX=scaleY;
-					//	else
-					//		scaleY=scaleX;
-					//}
-					//else if( bPreserveAspectRatio )
-					//{
-						if( scaleY>scaleX )
-							scaleY=scaleX;
-						else
-							scaleX=scaleY;
-					//}
-/*  starting with the mobile phone, we have 'distorted' images because we want to re-use buttons, but the aspect ratios are different  */
-
-					//sge_transform(SurfaceFromFile, RIFromFile->m_pSDL_Surface, 0, scaleX, scaleY, 0, 0, 0, 0, SGE_TSAFE);
-					ScaledSurface = sge_transform_surface(pSDL_Surface, SDL_MapRGBA(pSDL_Surface->format, 0, 0, 0, 0), 0, scaleX, scaleY, SGE_TSAFE);
-				}
-				SDL_SetAlpha(ScaledSurface, 0, 0);
-				SDL_BlitSurface(ScaledSurface, NULL, pRendererImage->m_pSDL_Surface, NULL);
-
-				SDL_FreeSurface(ScaledSurface);
-				SDL_FreeSurface(pSDL_Surface);
-
-				Result->AppendFrame(* pRendererImage);
+//				SaveImageToFile(pRendererImage, "C:/x/frameb" + StringUtils::ltos(kounter++) + ".png");
+				Result->AppendFrame(pRendererImage);
+				InMemoryPNG->clear();
 			}
 		}
-		chunk->clear();
+		else
+		{
+			delete chunk;
+		}
 	}
-	delete chunk;
 	delete InMemoryPNG;
 
 	fclose(File);
 
+	Header = Result->GetHeader();
+	Header.frame_height = RealH;
+	Header.frame_width = RealW;
+	Result->SetHeader(Header);
 	return Result;
 }
 
@@ -655,12 +692,13 @@ void Renderer::SaveMNGToFile(string FileName, RendererMNG * MNG)
 {
 	FILE * File;
 
-	File = fopen(FileName.c_str(), "wb");
+	File = fopen((FileName + ".mng").c_str(), "wb");
 
 	fwrite(MNGsignature, 1, 8, File);
 	char * Header;
 	MNG->GetHeader().BinaryForm(Header);
 	fwrite(Header, 1, 40, File);
+	delete [] Header;
 
 	for (size_t i = 0; i < MNG->count() ; i++)
 	{

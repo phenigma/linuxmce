@@ -213,12 +213,6 @@ int k=2;
 
         string sGraphicFile = o;
 
-        // Todo -- temporarily disable MNG's while we try the new thing
-//        if( sGraphicFile.length()>0 && StringUtils::ToUpper(sGraphicFile).find(".MNG")==sGraphicFile.length()-4 )
-  //      {
-    //        sGraphicFile="";
-//        }
-
         if( sGraphicFile.length()>0 )
         {
             if( m_pOrbiterGenerator->m_bNoEffects )
@@ -288,11 +282,12 @@ Table_Image *p = m_mds->Image_get();
                         unsigned long Height=0;
 						if( StringUtils::ToUpper(FileUtils::FindExtension(sGraphicFile))=="MNG" )
                         {
-break; // TODO - RADU needs to fix this
 							RendererMNG *pRendererMNG = Renderer::CreateMNGFromFile(sGraphicFile, PlutoSize(0,0));
-							RendererImage *pRendererImage = pRendererMNG->GetFrame(0);
-							Width=pRendererImage->m_pSDL_Surface->w;
-							Height=pRendererImage->m_pSDL_Surface->h;
+//							RendererImage *pRendererImage = pRendererMNG->GetFrame(0);
+//							Width=pRendererImage->m_pSDL_Surface->w;
+//							Height=pRendererImage->m_pSDL_Surface->h;
+							Height = pRendererMNG->GetHeader().frame_height;
+							Width = pRendererMNG->GetHeader().frame_width;
 
 							delete pRendererMNG;
 						}
