@@ -1069,8 +1069,10 @@ cout << "Copying Files\n";
 				if(FileUtils::DirExists(cmd) != true) {
 					if(cmd == "") {
 						cmd = "cp -f " + pFileInfo->m_sSource + " " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+						cmd2 = "cvs add " + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 					} else {
-						cmd = "cp -f " + pFileInfo->m_sSource + " " + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+						cmd = "cp -f " + pFileInfo->m_sSource + " " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
+						cmd2 = "cvs add " + cmd + "/" + FileUtils::FilenameWithoutPath(pFileInfo->m_sSource);
 					}
 					system(cmd.c_str());
 				}
