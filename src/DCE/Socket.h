@@ -48,6 +48,7 @@ namespace DCE
 		
 		int m_iSockBufBytesLeft; /** < bytes left in the socket buffer @todo ask */
 		int m_iReceiveTimeout; /** < the interval after witch the sockets stops expecting for an answer in seconds */
+		bool m_bQuit; /** < set when the socket should terminate */
 		
 		/**
 		 * @brief creates a new socket objest with the specified name, and it also writes a log

@@ -33,7 +33,6 @@ public:
 protected:
 	bool m_bConnected;
 
-	bool m_bQuit;
 	pthread_t m_Thread;
 };
 }

@@ -109,7 +109,6 @@ Command_Impl::Command_Impl( int DeviceID, string ServerAddress, bool bLocalMode,
 	m_pcRequestSocket = NULL;
 	m_bLocalMode = bLocalMode;
 	m_bReload = false;
-	m_bQuit = false;
 	m_pPrimaryDeviceCommand = this;
 	m_bHandleChildren = false;
 	m_bMessageQueueThreadRunning = false;
@@ -136,7 +135,6 @@ Command_Impl::Command_Impl( Command_Impl *pPrimaryDeviceCommand, DeviceData_Impl
 	m_pRouter = pRouter;
 	m_pcRequestSocket = NULL;
 	m_bReload = false;
-	m_bQuit = false;
 	m_bLocalMode = false;
 	m_pPrimaryDeviceCommand = pPrimaryDeviceCommand;
 	m_pData = pData;

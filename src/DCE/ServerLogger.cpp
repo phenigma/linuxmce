@@ -43,7 +43,6 @@ ServerLogger::ServerLogger(int DeviceID, int PK_DeviceTemplate, string server) :
 {
 	m_Thread = (pthread_t)0;
 	m_bConnected = false;
-	m_bQuit = false;
 	m_Name = "*DEV* " + StringUtils::itos(DeviceID);
 	Connect(PK_DeviceTemplate, "serv log" + m_Name);
 

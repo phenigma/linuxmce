@@ -70,7 +70,6 @@ namespace DCE
 
 		/** flags */
 		
-		bool m_bQuit; /** < set when DeviceManager wants the app to terminate */
 		bool m_bReload;
 		bool m_bHandleChildren; /** < used by ReceivedMessage() */
 		bool m_bLocalMode; /** < no router */
