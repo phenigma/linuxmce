@@ -485,11 +485,11 @@ bool Table_CommandGroup_Room::GetRows(string where_statement,vector<class Row_Co
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from CommandGroup_Room " + where_statement;
+		query = "select `CommandGroup_Room`.* from CommandGroup_Room " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from CommandGroup_Room where " + where_statement;
+		query = "select `CommandGroup_Room`.* from CommandGroup_Room where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

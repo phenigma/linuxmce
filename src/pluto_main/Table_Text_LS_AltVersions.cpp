@@ -518,11 +518,11 @@ bool Table_Text_LS_AltVersions::GetRows(string where_statement,vector<class Row_
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from Text_LS_AltVersions " + where_statement;
+		query = "select `Text_LS_AltVersions`.* from Text_LS_AltVersions " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from Text_LS_AltVersions where " + where_statement;
+		query = "select `Text_LS_AltVersions`.* from Text_LS_AltVersions where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

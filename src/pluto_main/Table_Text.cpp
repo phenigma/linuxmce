@@ -529,11 +529,11 @@ bool Table_Text::GetRows(string where_statement,vector<class Row_Text*> *rows)
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from Text " + where_statement;
+		query = "select `Text`.* from Text " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from Text where " + where_statement;
+		query = "select `Text`.* from Text where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

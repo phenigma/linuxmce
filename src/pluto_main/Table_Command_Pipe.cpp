@@ -464,11 +464,11 @@ bool Table_Command_Pipe::GetRows(string where_statement,vector<class Row_Command
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from Command_Pipe " + where_statement;
+		query = "select `Command_Pipe`.* from Command_Pipe " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from Command_Pipe where " + where_statement;
+		query = "select `Command_Pipe`.* from Command_Pipe where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

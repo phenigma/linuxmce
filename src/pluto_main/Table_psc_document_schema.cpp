@@ -327,11 +327,11 @@ bool Table_psc_document_schema::GetRows(string where_statement,vector<class Row_
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from psc_document_schema " + where_statement;
+		query = "select `psc_document_schema`.* from psc_document_schema " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from psc_document_schema where " + where_statement;
+		query = "select `psc_document_schema`.* from psc_document_schema where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

@@ -584,11 +584,11 @@ bool Table_Package_Directory_File::GetRows(string where_statement,vector<class R
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from Package_Directory_File " + where_statement;
+		query = "select `Package_Directory_File`.* from Package_Directory_File " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from Package_Directory_File where " + where_statement;
+		query = "select `Package_Directory_File`.* from Package_Directory_File where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

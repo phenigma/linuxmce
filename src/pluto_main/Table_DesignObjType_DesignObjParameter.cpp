@@ -491,11 +491,11 @@ bool Table_DesignObjType_DesignObjParameter::GetRows(string where_statement,vect
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from DesignObjType_DesignObjParameter " + where_statement;
+		query = "select `DesignObjType_DesignObjParameter`.* from DesignObjType_DesignObjParameter " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from DesignObjType_DesignObjParameter where " + where_statement;
+		query = "select `DesignObjType_DesignObjParameter`.* from DesignObjType_DesignObjParameter where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

@@ -580,11 +580,11 @@ bool Table_RepositorySource_URL::GetRows(string where_statement,vector<class Row
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from RepositorySource_URL " + where_statement;
+		query = "select `RepositorySource_URL`.* from RepositorySource_URL " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from RepositorySource_URL where " + where_statement;
+		query = "select `RepositorySource_URL`.* from RepositorySource_URL where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

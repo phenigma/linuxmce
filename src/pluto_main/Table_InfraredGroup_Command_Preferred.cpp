@@ -464,11 +464,11 @@ bool Table_InfraredGroup_Command_Preferred::GetRows(string where_statement,vecto
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from InfraredGroup_Command_Preferred " + where_statement;
+		query = "select `InfraredGroup_Command_Preferred`.* from InfraredGroup_Command_Preferred " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from InfraredGroup_Command_Preferred where " + where_statement;
+		query = "select `InfraredGroup_Command_Preferred`.* from InfraredGroup_Command_Preferred where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

@@ -518,11 +518,11 @@ bool Table_Document_Comment::GetRows(string where_statement,vector<class Row_Doc
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from Document_Comment " + where_statement;
+		query = "select `Document_Comment`.* from Document_Comment " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from Document_Comment where " + where_statement;
+		query = "select `Document_Comment`.* from Document_Comment where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

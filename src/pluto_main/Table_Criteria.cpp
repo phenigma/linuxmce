@@ -546,11 +546,11 @@ bool Table_Criteria::GetRows(string where_statement,vector<class Row_Criteria*> 
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from Criteria " + where_statement;
+		query = "select `Criteria`.* from Criteria " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from Criteria where " + where_statement;
+		query = "select `Criteria`.* from Criteria where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

@@ -561,11 +561,11 @@ bool Table_Firewall::GetRows(string where_statement,vector<class Row_Firewall*> 
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from Firewall " + where_statement;
+		query = "select `Firewall`.* from Firewall " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from Firewall where " + where_statement;
+		query = "select `Firewall`.* from Firewall where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

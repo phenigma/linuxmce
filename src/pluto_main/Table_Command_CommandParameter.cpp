@@ -512,11 +512,11 @@ bool Table_Command_CommandParameter::GetRows(string where_statement,vector<class
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from Command_CommandParameter " + where_statement;
+		query = "select `Command_CommandParameter`.* from Command_CommandParameter " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from Command_CommandParameter where " + where_statement;
+		query = "select `Command_CommandParameter`.* from Command_CommandParameter where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

@@ -491,11 +491,11 @@ bool Table_Event_EventParameter::GetRows(string where_statement,vector<class Row
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from Event_EventParameter " + where_statement;
+		query = "select `Event_EventParameter`.* from Event_EventParameter " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from Event_EventParameter where " + where_statement;
+		query = "select `Event_EventParameter`.* from Event_EventParameter where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

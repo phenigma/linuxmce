@@ -464,11 +464,11 @@ bool Table_CriteriaList_CriteriaParmList::GetRows(string where_statement,vector<
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from CriteriaList_CriteriaParmList " + where_statement;
+		query = "select `CriteriaList_CriteriaParmList`.* from CriteriaList_CriteriaParmList " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from CriteriaList_CriteriaParmList where " + where_statement;
+		query = "select `CriteriaList_CriteriaParmList`.* from CriteriaList_CriteriaParmList where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

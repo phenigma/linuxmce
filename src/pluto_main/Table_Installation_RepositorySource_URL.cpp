@@ -464,11 +464,11 @@ bool Table_Installation_RepositorySource_URL::GetRows(string where_statement,vec
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from Installation_RepositorySource_URL " + where_statement;
+		query = "select `Installation_RepositorySource_URL`.* from Installation_RepositorySource_URL " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from Installation_RepositorySource_URL where " + where_statement;
+		query = "select `Installation_RepositorySource_URL`.* from Installation_RepositorySource_URL where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

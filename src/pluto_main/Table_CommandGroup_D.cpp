@@ -466,11 +466,11 @@ bool Table_CommandGroup_D::GetRows(string where_statement,vector<class Row_Comma
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from CommandGroup_D " + where_statement;
+		query = "select `CommandGroup_D`.* from CommandGroup_D " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from CommandGroup_D where " + where_statement;
+		query = "select `CommandGroup_D`.* from CommandGroup_D where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

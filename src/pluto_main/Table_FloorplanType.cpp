@@ -477,11 +477,11 @@ bool Table_FloorplanType::GetRows(string where_statement,vector<class Row_Floorp
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from FloorplanType " + where_statement;
+		query = "select `FloorplanType`.* from FloorplanType " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from FloorplanType where " + where_statement;
+		query = "select `FloorplanType`.* from FloorplanType where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

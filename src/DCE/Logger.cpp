@@ -302,9 +302,12 @@ void WinOrbiterLogger::WriteEntry( Entry& entry )
 
 	string s = str + "\n";
 	FILE* f = fopen("orbiter_logger.out", "a+");
-	fseek(f, 0, SEEK_END);
-	fwrite(s.c_str(), s.length(), 1, f);
-	fclose(f);
+	if( f )
+	{
+		fseek(f, 0, SEEK_END);
+		fwrite(s.c_str(), s.length(), 1, f);
+		fclose(f);
+	}
 
     //TODO : use entry.m_iLevel to set a color for the output string
 

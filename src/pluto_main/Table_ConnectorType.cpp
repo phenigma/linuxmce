@@ -478,11 +478,11 @@ bool Table_ConnectorType::GetRows(string where_statement,vector<class Row_Connec
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from ConnectorType " + where_statement;
+		query = "select `ConnectorType`.* from ConnectorType " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from ConnectorType where " + where_statement;
+		query = "select `ConnectorType`.* from ConnectorType where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

@@ -803,11 +803,11 @@ bool Table_StartupScript::GetRows(string where_statement,vector<class Row_Startu
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from StartupScript " + where_statement;
+		query = "select `StartupScript`.* from StartupScript " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from StartupScript where " + where_statement;
+		query = "select `StartupScript`.* from StartupScript where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

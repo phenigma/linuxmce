@@ -53,6 +53,8 @@
 #define DEVICEDATA_Purge_Period_CONST 54
 #define DEVICEDATA_Remote_Type_CONST 55
 #define DEVICEDATA_Timeout_CONST 56
+#define DEVICEDATA_CacheFolder_CONST 57
+#define DEVICEDATA_CacheSize_CONST 58
 
 #define DEVICEDATA_TABLE "DeviceData"
 #define DEVICEDATA_PK_DEVICEDATA_FIELD "PK_DeviceData"

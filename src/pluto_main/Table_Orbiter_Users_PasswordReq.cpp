@@ -464,11 +464,11 @@ bool Table_Orbiter_Users_PasswordReq::GetRows(string where_statement,vector<clas
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from Orbiter_Users_PasswordReq " + where_statement;
+		query = "select `Orbiter_Users_PasswordReq`.* from Orbiter_Users_PasswordReq " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from Orbiter_Users_PasswordReq where " + where_statement;
+		query = "select `Orbiter_Users_PasswordReq`.* from Orbiter_Users_PasswordReq where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

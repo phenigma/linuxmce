@@ -1003,11 +1003,11 @@ bool Table_DeviceTemplate::GetRows(string where_statement,vector<class Row_Devic
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from DeviceTemplate " + where_statement;
+		query = "select `DeviceTemplate`.* from DeviceTemplate " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from DeviceTemplate where " + where_statement;
+		query = "select `DeviceTemplate`.* from DeviceTemplate where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

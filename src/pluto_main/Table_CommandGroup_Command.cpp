@@ -578,11 +578,11 @@ bool Table_CommandGroup_Command::GetRows(string where_statement,vector<class Row
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from CommandGroup_Command " + where_statement;
+		query = "select `CommandGroup_Command`.* from CommandGroup_Command " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from CommandGroup_Command where " + where_statement;
+		query = "select `CommandGroup_Command`.* from CommandGroup_Command where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

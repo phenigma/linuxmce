@@ -2708,7 +2708,10 @@ void Orbiter::ParseObject( DesignObj_Orbiter *pObj, DesignObj_Orbiter *pObj_Scre
         pObj->m_iBaseObjectID = atoi( pObj->m_ObjectID.c_str(  ) );
     }
 
-    if ( pObj->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
+	// On any screen all child objects should inherit the screen's priority so the whole screen is cached
+	pObj->m_Priority = pObj_Screen->m_Priority;
+
+	if ( pObj->m_ObjectType==DESIGNOBJTYPE_Datagrid_CONST )
     {
         pObj->m_bContainsDataGrid=true;
         DesignObj_DataGrid *pObj_Datagrid = ( DesignObj_DataGrid * ) pObj;

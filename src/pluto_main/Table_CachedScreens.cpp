@@ -572,11 +572,11 @@ bool Table_CachedScreens::GetRows(string where_statement,vector<class Row_Cached
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from CachedScreens " + where_statement;
+		query = "select `CachedScreens`.* from CachedScreens " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from CachedScreens where " + where_statement;
+		query = "select `CachedScreens`.* from CachedScreens where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

@@ -508,11 +508,11 @@ bool Table_Package_Compat::GetRows(string where_statement,vector<class Row_Packa
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from Package_Compat " + where_statement;
+		query = "select `Package_Compat`.* from Package_Compat " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from Package_Compat where " + where_statement;
+		query = "select `Package_Compat`.* from Package_Compat where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

@@ -486,11 +486,11 @@ bool Table_SetupStep::GetRows(string where_statement,vector<class Row_SetupStep*
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from SetupStep " + where_statement;
+		query = "select `SetupStep`.* from SetupStep " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from SetupStep where " + where_statement;
+		query = "select `SetupStep`.* from SetupStep where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

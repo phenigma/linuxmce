@@ -464,11 +464,11 @@ bool Table_DeviceCommandGroup_DeviceCommandGroup_Parent::GetRows(string where_st
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from DeviceCommandGroup_DeviceCommandGroup_Parent " + where_statement;
+		query = "select `DeviceCommandGroup_DeviceCommandGroup_Parent`.* from DeviceCommandGroup_DeviceCommandGroup_Parent " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from DeviceCommandGroup_DeviceCommandGroup_Parent where " + where_statement;
+		query = "select `DeviceCommandGroup_DeviceCommandGroup_Parent`.* from DeviceCommandGroup_DeviceCommandGroup_Parent where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

@@ -464,11 +464,11 @@ bool Table_DeviceTemplate_PageSetup::GetRows(string where_statement,vector<class
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from DeviceTemplate_PageSetup " + where_statement;
+		query = "select `DeviceTemplate_PageSetup`.* from DeviceTemplate_PageSetup " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from DeviceTemplate_PageSetup where " + where_statement;
+		query = "select `DeviceTemplate_PageSetup`.* from DeviceTemplate_PageSetup where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

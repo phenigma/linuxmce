@@ -513,11 +513,11 @@ bool Table_UnknownDevices::GetRows(string where_statement,vector<class Row_Unkno
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from UnknownDevices " + where_statement;
+		query = "select `UnknownDevices`.* from UnknownDevices " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from UnknownDevices where " + where_statement;
+		query = "select `UnknownDevices`.* from UnknownDevices where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

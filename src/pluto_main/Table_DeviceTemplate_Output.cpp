@@ -512,11 +512,11 @@ bool Table_DeviceTemplate_Output::GetRows(string where_statement,vector<class Ro
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from DeviceTemplate_Output " + where_statement;
+		query = "select `DeviceTemplate_Output`.* from DeviceTemplate_Output " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from DeviceTemplate_Output where " + where_statement;
+		query = "select `DeviceTemplate_Output`.* from DeviceTemplate_Output where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

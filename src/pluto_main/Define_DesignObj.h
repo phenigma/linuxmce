@@ -1170,6 +1170,7 @@
 #define DESIGNOBJ_butMyBootHD_CONST 3346
 #define DESIGNOBJ_butMyBootNet_CONST 3347
 #define DESIGNOBJ_PowerON_OtherControlling_CONST 3348
+#define DESIGNOBJ_appDesktopMozilla_CONST 3349
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

@@ -504,11 +504,11 @@ bool Table_Variable::GetRows(string where_statement,vector<class Row_Variable*> 
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from Variable " + where_statement;
+		query = "select `Variable`.* from Variable " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from Variable where " + where_statement;
+		query = "select `Variable`.* from Variable where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

@@ -498,11 +498,11 @@ bool Table_Array::GetRows(string where_statement,vector<class Row_Array*> *rows)
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from Array " + where_statement;
+		query = "select `Array`.* from Array " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from Array where " + where_statement;
+		query = "select `Array`.* from Array where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

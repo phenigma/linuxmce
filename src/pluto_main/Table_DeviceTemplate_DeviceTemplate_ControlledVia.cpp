@@ -546,11 +546,11 @@ bool Table_DeviceTemplate_DeviceTemplate_ControlledVia::GetRows(string where_sta
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from DeviceTemplate_DeviceTemplate_ControlledVia " + where_statement;
+		query = "select `DeviceTemplate_DeviceTemplate_ControlledVia`.* from DeviceTemplate_DeviceTemplate_ControlledVia " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from DeviceTemplate_DeviceTemplate_ControlledVia where " + where_statement;
+		query = "select `DeviceTemplate_DeviceTemplate_ControlledVia`.* from DeviceTemplate_DeviceTemplate_ControlledVia where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

@@ -438,11 +438,11 @@ bool Table_psc_document_tables::GetRows(string where_statement,vector<class Row_
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from psc_document_tables " + where_statement;
+		query = "select `psc_document_tables`.* from psc_document_tables " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from psc_document_tables where " + where_statement;
+		query = "select `psc_document_tables`.* from psc_document_tables where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

@@ -491,11 +491,11 @@ bool Table_CommandGroup_Command_CommandParameter::GetRows(string where_statement
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from CommandGroup_Command_CommandParameter " + where_statement;
+		query = "select `CommandGroup_Command_CommandParameter`.* from CommandGroup_Command_CommandParameter " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from CommandGroup_Command_CommandParameter where " + where_statement;
+		query = "select `CommandGroup_Command_CommandParameter`.* from CommandGroup_Command_CommandParameter where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

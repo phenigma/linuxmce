@@ -532,11 +532,11 @@ bool Table_ConfigType::GetRows(string where_statement,vector<class Row_ConfigTyp
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from ConfigType " + where_statement;
+		query = "select `ConfigType`.* from ConfigType " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from ConfigType where " + where_statement;
+		query = "select `ConfigType`.* from ConfigType where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

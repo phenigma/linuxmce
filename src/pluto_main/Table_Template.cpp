@@ -482,11 +482,11 @@ bool Table_Template::GetRows(string where_statement,vector<class Row_Template*> 
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from Template " + where_statement;
+		query = "select `Template`.* from Template " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from Template where " + where_statement;
+		query = "select `Template`.* from Template where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

@@ -478,11 +478,11 @@ bool Table_psc_constants_batdet::GetRows(string where_statement,vector<class Row
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from psc_constants_batdet " + where_statement;
+		query = "select `psc_constants_batdet`.* from psc_constants_batdet " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from psc_constants_batdet where " + where_statement;
+		query = "select `psc_constants_batdet`.* from psc_constants_batdet where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

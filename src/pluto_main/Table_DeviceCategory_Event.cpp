@@ -464,11 +464,11 @@ bool Table_DeviceCategory_Event::GetRows(string where_statement,vector<class Row
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from DeviceCategory_Event " + where_statement;
+		query = "select `DeviceCategory_Event`.* from DeviceCategory_Event " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from DeviceCategory_Event where " + where_statement;
+		query = "select `DeviceCategory_Event`.* from DeviceCategory_Event where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	

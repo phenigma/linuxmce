@@ -14,6 +14,8 @@
 #define PACKAGETYPE_3rd_Party_Misc_CONST 11
 #define PACKAGETYPE_Pluto_Skins_CONST 12
 #define PACKAGETYPE_3rd_Party_Core_Programs_CONST 13
+#define PACKAGETYPE_Pluto_Drivers_CONST 14
+#define PACKAGETYPE_3rd_Party_Drivers_CONST 15
 
 #define PACKAGETYPE_TABLE "PackageType"
 #define PACKAGETYPE_PK_PACKAGETYPE_FIELD "PK_PackageType"

@@ -628,11 +628,11 @@ bool Table_Package_Directory::GetRows(string where_statement,vector<class Row_Pa
 
 	string query;
 	if( StringUtils::StartsWith(where_statement,"where ",true) || StringUtils::StartsWith(where_statement,"join ",true) )
-		query = "select * from Package_Directory " + where_statement;
+		query = "select `Package_Directory`.* from Package_Directory " + where_statement;
 	else if( StringUtils::StartsWith(where_statement,"select ",true) )
 		query = where_statement;
 	else
-		query = "select * from Package_Directory where " + where_statement;
+		query = "select `Package_Directory`.* from Package_Directory where " + where_statement;
 		
 	if (mysql_query(database->m_pMySQL, query.c_str()))
 	{	
