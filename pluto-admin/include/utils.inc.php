@@ -951,7 +951,7 @@ function multi_page_format($row, $art_index,$mediadbADO)
 
 	$out='
 		<tr style="background-color:'.(($art_index%2==0)?'#EEEEEE':'#EBEFF9').';">
-			<td title="'.$row['Path'].'" align="left">'.(($row['Missing']!=0)?'<img src="include/images/missing.gif" align="top"> ':'').'<b>Filename:</b> <a href="index.php?section=mainMediaFilesSync&path='.$row['Path'].'&filename='.urlencode($row['Filename']).'">'.$row['Filename'].'</a><br><B>Path:</B> '.$row['Path'].'</td>
+			<td title="'.$row['Path'].'" align="left">'.(($row['Missing']!=0)?'<img src="include/images/missing.gif" align="top"> ':'').'<b>Filename:</b> <a href="index.php?section=editMediaFile&fileID='.$row['PK_File'].'">'.$row['Filename'].'</a><br><B>Path:</B> <a href="index.php?section=mainMediaFilesSync&path='.$row['Path'].'&filename='.urlencode($row['Filename']).'">'.$row['Path'].'</a></td>
 			<td rowspan="2"><a href="#" onClick="self.location=\'index.php?section=mainMediaBrowser&attributeID='.$GLOBALS['attributeID'].'&action=properties&fileID='.$row['PK_File'].'\';">Delete</a></td>
 		</tr>
 		<tr style="background-color:'.(($art_index%2==0)?'#EEEEEE':'#EBEFF9').';">
@@ -1509,5 +1509,144 @@ function formatMySQLDate($mySQLformat,$customFormat)
 {
 	$dataParts=explode('-',$mySQLformat);
 	return date($customFormat,mktime(0,0,0,$dataParts[1],$dataParts[2],$dataParts[0]));
+}
+
+function displayCriteria($FK_CriteriaParmNesting,$eventHandlerID,$installationID,$dbADO)
+{
+	$out='';
+	$cplArray=array();
+	$resCPL=$dbADO->Execute('SELECT * FROM CriteriaParmList ORDER BY Description ASC');
+	while($rowCPL=$resCPL->FetchRow()){
+		$cplArray[$rowCPL['PK_CriteriaParmList']]=$rowCPL['Description'];
+	}
+	
+	$resCPN=$dbADO->Execute('SELECT * FROM CriteriaParmNesting WHERE PK_CriteriaParmNesting=?',$FK_CriteriaParmNesting);
+	$rowCPN=$resCPN->FetchRow();
+	$out.='
+		<table border="0" width="100%">
+			<tr bgcolor="#E7E7E7">
+				<td><B>(</B></td>
+				<td colspan="2"><input type="checkbox" name="nestingNot_'.$FK_CriteriaParmNesting.'" value="1" '.(($rowCPN['IsNot']==1)?'checked':'').' onClick="self.location=\'index.php?section=editCriteria&action=update&ehID='.$eventHandlerID.'&chCPN='.$FK_CriteriaParmNesting.'&setNot='.(($rowCPN['IsNot']==1)?'0':'1').'\'"> Not <input type="checkbox" name="nestingAnd_'.$FK_CriteriaParmNesting.'" value="1" '.(($rowCPN['IsAnd']==1)?'checked':'').' onClick="self.location=\'index.php?section=editCriteria&action=update&ehID='.$eventHandlerID.'&chCPN='.$FK_CriteriaParmNesting.'&setAnd='.(($rowCPN['IsAnd']==1)?'0':'1').'\'"> And </td>
+				<td colspan="3" align="right"><a href="index.php?section=editCriteria&ehID='.$eventHandlerID.'&fkCPN='.$FK_CriteriaParmNesting.'&action=addSegment">Add segment</a> &nbsp;&nbsp;&nbsp;<a href="index.php?section=editCriteria&ehID='.$eventHandlerID.'&parentCPN='.$FK_CriteriaParmNesting.'&action=addNesting">Add nesting</a> &nbsp;&nbsp;<a href="#" onClick="if(confirm(\'Are you sure you want to delete this nesting?\'))self.location=\'index.php?section=editCriteria&ehID='.$eventHandlerID.'&delCPN='.$FK_CriteriaParmNesting.'&action=delNesting\'">Delete</a></td>
+			</tr>';
+	$queryCP='
+			SELECT CriteriaParm.*, CriteriaParmList.Description AS CPL_Description
+			FROM CriteriaParm
+			LEFT JOIN CriteriaParmList ON FK_CriteriaParmList=PK_CriteriaParmList
+			WHERE FK_CriteriaParmNesting=?';
+	$resCP=$dbADO->Execute($queryCP,$FK_CriteriaParmNesting);
+	while($rowCP=$resCP->FetchRow()){
+		$GLOBALS['displayedCriteriaParms'][]=$rowCP['PK_CriteriaParm'];
+		$out.='
+			<tr>
+				<td>&nbsp;&nbsp;';
+			$out.='
+				<select name="CriteriaParmID_'.$rowCP['PK_CriteriaParm'].'" onChange="document.editCriteria.changedCP.value='.$rowCP['PK_CriteriaParm'].';document.editCriteria.submit();">
+					<option value="0">- Please select -</option>';
+				foreach ($cplArray AS $cplID=>$cplDescription){
+					$out.='<option value="'.$cplID.'" '.(($rowCP['FK_CriteriaParmList']==$cplID)?'selected':'').'>'.$cplDescription.'</option>';
+				}
+				$out.='</select></td>
+				<td colspan="3">';
+			// exception: FK_CriteriaParmList=24 EventParameter
+			if($rowCP['FK_CriteriaParmList']==$GLOBALS['PK_EventParameterParmList']){
+					$resEventParameter=$dbADO->Execute('SELECT * FROM EventParameter ORDER BY Description ASC');
+					$out.='Event parameter: <select name="CriteriaParmParm_'.$rowCP['PK_CriteriaParm'].'" onChange="document.editCriteria.changedCP.value='.$rowCP['PK_CriteriaParm'].';document.editCriteria.submit();">
+						<option value="0" ></option>';
+					while($rowEP=$resEventParameter->FetchRow()){
+						if(isset($_POST['CriteriaParmParm_'.$rowCP['PK_CriteriaParm']])){
+							$isSelectedParm=($rowEP['PK_EventParameter']==$_POST['CriteriaParmParm_'.$rowCriteria['PK_CriteriaParm']])?'selected':'';
+						}
+						else{	
+							$isSelectedParm=($rowCP['Parm']==$rowEP['PK_EventParameter'])?'selected':'';	// check old value
+						}
+						$out.='<option value="'.$rowEP['PK_EventParameter'].'" '.$isSelectedParm.'>'.$rowEP['Description'].'</option>';						
+						if($isSelectedParm=='selected')				
+							$selectedEventParameter=$rowEP['Description'];
+					}
+					$out.='</select>';
+				}
+				$out.=' <select name="CriteriaParmOperator_'.$rowCP['PK_CriteriaParm'].'">
+						<option value="1" '.(($rowCP['Operator']==1)?'selected':'').'>=</option>
+						<option value="2" '.(($rowCP['Operator']==2)?'selected':'').'>&lt;&gt;</option>
+				</select> ';
+				if($rowCP['FK_CriteriaParmList']==$GLOBALS['PK_EventParameterParmList']){
+					$out.='Value: ';
+					switch(@$selectedEventParameter){
+						case 'PK_Device':
+						case 'PK_Room':
+						$tableName=substr($selectedEventParameter,3);
+						$out.=generatePullDown('CriteriaParmValue_'.$rowCP['PK_CriteriaParm'],$tableName,'PK_'.$tableName,'Description',$rowCP['Value'],$dbADO,"WHERE FK_Installation='$installationID'");
+						break;
+						default:
+						$out.='<input type="textbox" name="CriteriaParmValue_'.$rowCP['PK_CriteriaParm'].'" value="'.$rowCP['Parm'].'">';
+						break;
+					}
+				}else{
+					if(substr($rowCP['CPL_Description'],0,3)=='PK_'){
+						$out.='<select name="CriteriaParmValue_'.$rowCP['PK_CriteriaParm'].'">
+										<option value="0" ></option>';
+						$tableName=substr($rowCP['CPL_Description'],3);
+						$filterTable=($tableName=='Device' || $tableName=='Room')?" WHERE FK_Installation='".$installationID."' ":'';
+						$queryTable="SELECT * FROM $tableName $filterTable ORDER BY Description ASC";
+						$resTable=$dbADO->Execute($queryTable);
+						while($rowTable=$resTable->FetchRow()){
+							$out.='<option value="'.$rowTable[$rowCP['CPL_Description']].'" '.(($rowCP['Value']==$rowTable[$rowCP['CPL_Description']])?'selected':'').'>'.$rowTable['Description'].'</option>';
+						}
+						$out.='</select>';
+					}elseif($rowCP['CPL_Description']=='State'){
+						$stateArray=array(5=>'Afternoon',1=>'Daylight',6=>'Evening',3=>'Morning',7=>'Night',2=>'Not Daylight',9=>'Weekday',8=>'Weekend');
+						$out.='<select name="CriteriaParmValue_'.$rowCP['PK_CriteriaParm'].'">
+										<option value=""></option>';
+						foreach($stateArray AS $key => $value){
+							$out.='<option value="'.$key.'" '.(($rowCP['Value']==$key)?'selected':'').'>'.$value.'</option>';
+						}
+						$out.='
+									</select>';
+					}
+					else{
+						$out.='<input type="text" name="CriteriaParmValue_'.$rowCP['PK_CriteriaParm'].'" value="'.$rowCP['Value'].'">';
+					}
+				}
+				$out.='
+				</td>
+				<td align="center">'.(($rowCPN['IsAnd']==1)?'And':'Or').'</td>
+				<td align="center"><a href="#" onClick="if(confirm(\'Are you sure you want to delete this criteria parm?\'))self.location=\'index.php?section=editCriteria&action=delete&ehID='.$eventHandlerID.'&dcpID='.$rowCP['PK_CriteriaParm'].'\'">Delete</a></td>			
+			</tr>';
+	}
+	$resNestingChilds=$dbADO->Execute('SELECT * FROM CriteriaParmNesting WHERE FK_CriteriaParmNesting_Parent=?',$FK_CriteriaParmNesting);
+	if($resNestingChilds->RecordCount()!=0){
+		$out.='<tr>
+				<td colspan="6"><table width="100%" border="0">
+					<tr>
+						<td width="20">&nbsp;</td>
+						<td>';
+		while($rowNestingChilds=$resNestingChilds->FetchRow()){
+			$out.=displayCriteria($rowNestingChilds['PK_CriteriaParmNesting'],$eventHandlerID,$installationID,$dbADO);
+		}
+				$out.='</td>
+					</tr>
+				</table>
+				</td>
+			</tr>';
+	}
+	$out.='
+			<tr bgcolor="#E7E7E7">
+				<td colspan="6"><B>)</B></td>
+			</tr>
+	</table>';
+	$out.='<input type="hidden" name="displayedCriteriaParm" value="'.join(',',$GLOBALS['displayedCriteriaParms']).'">';
+	return $out;
+}
+
+function deleteCriteriaParmNesting($cpnID,$dbADO)
+{
+	$dbADO->Execute('DELETE FROM CriteriaParmNesting WHERE PK_CriteriaParmNesting=?',$cpnID);
+	$dbADO->Execute('DELETE FROM CriteriaParm WHERE FK_CriteriaParmNesting=?',$cpnID);
+	
+	$resChilds=$dbADO->Execute('SELECT * FROM CriteriaParmNesting WHERE FK_CriteriaParmNesting_Parent=?',$cpnID);
+	while($rowChilds=$resChilds->FetchRow()){
+		deleteCriteriaParmNesting($rowChilds['PK_CriteriaParmNesting'],$dbADO);
+	}
 }
 ?>

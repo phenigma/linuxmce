@@ -31,7 +31,7 @@ function mainMediaFilesSync($output,$mediadbADO) {
 		else{
 			foreach($physicalFiles as $physicalkey => $filename){
 				$out.='	<tr style="background-color:'.(($physicalkey%2==0)?'#EEEEEE':'#EBEFF9').';">
-							<td>'.((in_array($filename,$dbFiles))?'<img src=include/images/sync.gif align=middle border=0>':'<img src=include/images/disk.gif align=middle border=0>').' <B>'.$filename.'</B></td>
+							<td>'.((in_array($filename,$dbFiles))?'<img src=include/images/sync.gif align=middle border=0>':'<img src=include/images/disk.gif align=middle border=0>').' <a href="index.php?section=editMediaFile&fileID='.$dbPKFiles[$key].'"><B>'.$filename.'</B></a></td>
 						</tr>';
 					if((in_array($filename,$dbFiles))){
 						$key=array_search($filename,$dbFiles);
@@ -45,7 +45,7 @@ function mainMediaFilesSync($output,$mediadbADO) {
 						$resAttributes=$mediadbADO->Execute($queryAttributes,$dbPKFiles[$key]);
 						$attributes='';
 						while($rowAttributes=$resAttributes->FetchRow()){
-							$attributes.='<b>'.$rowAttributes['AttributeName'].'</b>: <a href="index.php?section=mainMediaBrowser&attributeID='.$rowAttributes['PK_Attribute'].'&action=properties" target="_self">'.$rowAttributes['Name'].(($rowAttributes['FirstName']!='')?', '.$rowAttributes['FirstName']:'').'</a> ';
+							$attributes.='<b>'.$rowAttributes['AttributeName'].'</b>: <a href="index.php?section=mainMediaBrowser&attributeID='.$rowAttributes['PK_Attribute'].'&action=properties" target="_self">'.stripslashes($rowAttributes['Name']).(($rowAttributes['FirstName']!='')?', '.$rowAttributes['FirstName']:'').'</a> ';
 						}
 						$out.='
 						<tr style="background-color:'.(($physicalkey%2==0)?'#EEEEEE':'#EBEFF9').';">
@@ -75,7 +75,7 @@ function mainMediaFilesSync($output,$mediadbADO) {
 			$resAttributes=$mediadbADO->Execute($queryAttributes,$dbPKFiles[$dbkey]);
 			$attributes='';
 			while($rowAttributes=$resAttributes->FetchRow()){
-				$attributes.='<b>'.$rowAttributes['AttributeName'].'</b>: <a href="index.php?section=mainMediaBrowser&attributeID='.$rowAttributes['PK_Attribute'].'&action=properties" target="_self">'.$rowAttributes['Name'].(($rowAttributes['FirstName']!='')?', '.$rowAttributes['FirstName']:'').'</a> ';
+				$attributes.='<b>'.$rowAttributes['AttributeName'].'</b>: <a href="index.php?section=mainMediaBrowser&attributeID='.$rowAttributes['PK_Attribute'].'&action=properties" target="_self">'.stripslashes($rowAttributes['Name']).(($rowAttributes['FirstName']!='')?', '.$rowAttributes['FirstName']:'').'</a> ';
 			}
 
 			$out.='	<tr style="background-color:'.(($dbkey%2==0)?'#EEEEEE':'#EBEFF9').';">

@@ -69,13 +69,14 @@ function editRespondToEvent($output,$dbADO) {
 			</tr>';
 			$displayedCE_CP=array();
 			$queryCriteriaParmlist='
-				SELECT CannedEvents_CriteriaParmList.Description, CriteriaParmList.Description AS PK_Table, CriteriaParmList.FK_ParameterType,CannedEvents_CriteriaParmList.Operator,PK_CannedEvents_CriteriaParmList,CannedEvents_CriteriaParmList.FK_CriteriaParmList,DefaultValue,ExtraInfo
+				SELECT CannedEvents_CriteriaParmList.Description, CriteriaParmList.Description AS PK_Table, CriteriaParmList.FK_ParameterType,CannedEvents_CriteriaParmList.Operator,PK_CannedEvents_CriteriaParmList,CannedEvents_CriteriaParmList.FK_CriteriaParmList,DefaultValue,ExtraInfo,Parm
 				FROM CannedEvents_CriteriaParmList 
 					INNER JOIN CriteriaParmList ON CannedEvents_CriteriaParmList.FK_CriteriaParmList=PK_CriteriaParmList 
 				WHERE FK_CannedEvents=?';
 
 			$resCriteriaParmlist=$dbADO->Execute($queryCriteriaParmlist,$parmlistToDisplay);
 			while($rowCriteria=$resCriteriaParmlist->FetchRow()){
+				$defaultParm=$rowCriteria['Parm'];
 				$queryOldValues='SELECT * FROM CriteriaParm WHERE FK_CannedEvents_CriteriaParmList=? AND FK_CriteriaParmNesting=?';
 				$resOldValues=$dbADO->Execute($queryOldValues,array($rowCriteria['PK_CannedEvents_CriteriaParmList'],$FK_CriteriaParmNesting));
 				if($resOldValues->RecordCount()>0){
@@ -101,13 +102,19 @@ function editRespondToEvent($output,$dbADO) {
 					$out.='Event parameter: <select name="CriteriaParmParm_'.$rowCriteria['PK_CannedEvents_CriteriaParmList'].'" onChange="document.editRespondToEvent.action.value=\'form\';document.editRespondToEvent.action.value=\'form\';document.editRespondToEvent.submit();">
 						<option value="0" ></option>';
 					while($rowEP=$resEventParameter->FetchRow()){
-						$isSelectedParm=($oldParm==$rowEP['PK_EventParameter'] && !isset($_POST['CriteriaParmParm_'.$rowCriteria['PK_CannedEvents_CriteriaParmList']]))?'selected':'';
-						$out.='<option value="'.$rowEP['PK_EventParameter'].'" '.(($rowEP['PK_EventParameter']==@$_POST['CriteriaParmParm_'.$rowCriteria['PK_CannedEvents_CriteriaParmList']])?'selected':$isSelectedParm).'>'.$rowEP['Description'].'</option>';						
-						if(!isset($_POST['CriteriaParmParm_'.$rowCriteria['PK_CannedEvents_CriteriaParmList']]) && $rowEP['PK_EventParameter']==$oldParm)
-							$selectedEventParameter=$rowEP['Description'];
-						if(isset($_POST['CriteriaParmParm_'.$rowCriteria['PK_CannedEvents_CriteriaParmList']]) && $rowEP['PK_EventParameter']==$_POST['CriteriaParmParm_'.$rowCriteria['PK_CannedEvents_CriteriaParmList']]){
-							$selectedEventParameter=$rowEP['Description'];
+						if(isset($_POST['CriteriaParmParm_'.$rowCriteria['PK_CannedEvents_CriteriaParmList']])){
+							$isSelectedParm=($rowEP['PK_EventParameter']==$_POST['CriteriaParmParm_'.$rowCriteria['PK_CannedEvents_CriteriaParmList']])?'selected':'';
 						}
+						else{	
+							if($oldParm==''){
+								$isSelectedParm=($defaultParm==$rowEP['PK_EventParameter'])?'selected':'';	// check Default value
+							}
+							else
+								$isSelectedParm=($oldParm==$rowEP['PK_EventParameter'])?'selected':'';	// check old value
+						}
+						$out.='<option value="'.$rowEP['PK_EventParameter'].'" '.$isSelectedParm.'>'.$rowEP['Description'].'</option>';						
+						if($isSelectedParm=='selected')				
+							$selectedEventParameter=$rowEP['Description'];
 					}
 					$out.='</select>';
 				}
@@ -327,7 +334,6 @@ function editRespondToEvent($output,$dbADO) {
 		$description=$_POST['description'];
 		$cannedEvent=(int)$_POST['cannedEvent'];
 		$displayedCE_CPArray=explode(',',$_POST['displayedCE_CP']);
-		
 		foreach($displayedCE_CPArray AS $elem){
 			$operator=@$_POST['CriteriaParmOperator_'.$elem];
 			$value=@$_POST['CriteriaParmValue_'.$elem];
@@ -349,9 +355,10 @@ function editRespondToEvent($output,$dbADO) {
 				$oldCriteriaParmList=$rowOldValues['FK_CriteriaParmList'];
 				$oldOperator=$rowOldValues['Operator'];
 				$oldValue=$rowOldValues['Value'];
+				$oldParm=$rowOldValues['Parm'];
 				// update if changed
 
-				if($criteriaParmList!=$oldCriteriaParmList || $operator!=$oldOperator || $value!=$oldValue){
+				if($criteriaParmList!=$oldCriteriaParmList || $operator!=$oldOperator || $value!=$oldValue || $parm!=$oldParm){
 					$updateCriteriaParm='
 						UPDATE CriteriaParm 
 							SET FK_CriteriaParmNesting=?, FK_CriteriaParmList=?, Operator=?, Value=?,Parm=? 

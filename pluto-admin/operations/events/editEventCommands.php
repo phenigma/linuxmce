@@ -1,17 +1,16 @@
 <?php
-function editTimedEvent($output,$dbADO) {
+function editEventCommands($output,$dbADO) {
 	/* @var $dbADO ADOConnection */
 	$out='';
 	$installationID = (int)@$_SESSION['installationID'];
 	$action = isset($_REQUEST['action'])?cleanString($_REQUEST['action']):'form';
 	$lastAction = isset($_REQUEST['lastAction'])?cleanString($_REQUEST['lastAction']):'';
 	$eventHandlerID=$_REQUEST['ehID'];
-	$dayNamesArray= array(1=>"Monday", 2=>"Tuesday", 3=>"Wensday", 4=>"Thursday", 5=>"Friday", 6=>"Saturday", 7=>"Sunday");
-	$monthNamesArray = array(1=>"January", 2=>"February", 3=>"March", 4=>"April", 5=>"May", 6=>"June", 7=>"July", 8=>"August", 9=>"September", 10=>"October", 11=>"November", 12=>"December"); 	
-	
+
 	$queryEventHandler='
 		SELECT EventHandler.*,Criteria.FK_CriteriaParmNesting 
 		FROM EventHandler
+			INNER JOIN CannedEvents ON FK_CannedEvents=PK_CannedEvents
 			INNER JOIN Criteria ON FK_Criteria=PK_Criteria
 		WHERE EventHandler.FK_Installation=? AND PK_EventHandler=?
 	';
@@ -19,13 +18,12 @@ function editTimedEvent($output,$dbADO) {
 	$rowEH=$resEH->FetchRow();
 	$commandGroupID = $rowEH['FK_CommandGroup'];
 	$FK_CriteriaParmNesting=$rowEH['FK_CriteriaParmNesting'];
-	$timedEventType=$rowEH['TimedEvent'];
 
 	if(isset($_REQUEST['cgcID']) && (int)$_REQUEST['cgcID']!=0){
 		$objID=$_REQUEST['cgcID'];
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
 		if(!$canModifyInstallation){
-			header("Location: index.php?section=editTimedEvent&error=You are not authorised to modify installation.");
+			header("Location: index.php?section=editRespondToEvent&error=You are not authorised to modify installation.");
 			exit();
 		}
 		$deleteObjFromDevice = 'DELETE FROM CommandGroup_Command WHERE PK_CommandGroup_Command = ?';
@@ -37,117 +35,25 @@ function editTimedEvent($output,$dbADO) {
 		$_REQUEST['msg']='The command was deleted from the command group.';
 	}
 	
+	
 	if ($action=='form') {
+		$parmlistToDisplay=(isset($_POST['cannedEvent']) && (int)$_POST['cannedEvent']!=0)?(int)$_POST['cannedEvent']:$rowEH['FK_CannedEvents'];		
 		
 		$out.='
-		<script>
-		function showOptions(val)
-		{
-			for (i=1;i<5;i++){
-				eval("document.getElementById(\'type_"+i+"\').style.display=\'none\';");
-			}
-			eval("document.getElementById(\'type_"+val+"\').style.display=\'\';");
-		}
-		</script>
 		<div align="center" class="err">'.@$_REQUEST['error'].'</div>
 		<div align="center"><B>'.@$_REQUEST['msg'].'</B></div>
-		<form action="index.php" method="post" name="editTimedEvent">
-		<input type="hidden" name="section" value="editTimedEvent">
+		<form action="index.php" method="post" name="editEventCommands">
+		<input type="hidden" name="section" value="editEventCommands">
 		<input type="hidden" name="action" value="update">
 		<input type="hidden" name="ehID" value="'.$eventHandlerID.'">
 		
-		<div align="center"><h3>Edit Timed</h3></div>
-		<table border="0" align="center" width="700">
+		<div align="center"><h3>Edit Event Commands</h3></div>
+		<table border="0" align="center">
 		';
 		$out.='
-			<tr>
-				<td><input type="radio" name="timedEventType" value="1" '.(($timedEventType==1)?'checked':'').' onClick="showOptions(1);"> <B>Interval based:</B></td>
-				<td colspan="2">Do something every x minutes, or every other hour</td>
-			</tr>	
-			<tr>
-				<td><input type="radio" name="timedEventType" value="2" '.(($timedEventType==2)?'checked':'').' onClick="showOptions(2);"> <B>Day of week based:</B></td>
-				<td colspan="2">Do something at 7:00 and 9:00 on Monday, Wednesday and Friday</td>
-			</tr>		
-			<tr>
-				<td><input type="radio" name="timedEventType" value="3" '.(($timedEventType==3)?'checked':'').' onClick="showOptions(3);"> <B>Day of month based:</B></td>
-				<td colspan="2">Do something at 8:00 on the 1st and 15th of each month</td>
-			</tr>		
-			<tr>
-				<td><input type="radio" name="timedEventType" value="4" '.(($timedEventType==4)?'checked':'').' onClick="showOptions(4);"> <B>Absolute:</B></td>
-				<td colspan="2">Do something on 5 Mar 2005 at 11:15</td>
-			</tr>
-		
 			<tr bgcolor="#E7E7E7">
-				<td><B>Description:</B></td>
-				<td><input type="text" name="description" value="'.$rowEH['Description'].'"></td>
-			</tr>
-			<tr>
-				<td colspan="2">';
-		switch($timedEventType){
-			case 1:
-				$resOldValue=$dbADO->Execute('SELECT * FROM CriteriaParm WHERE FK_CriteriaParmNesting=? AND FK_CriteriaParmList=?',array($FK_CriteriaParmNesting,$GLOBALS['TimeOfDayParmList']));
-				if($resOldValue->RecordCount()!=0){
-					$rowOldValues=$resOldValue->FetchRow();
-					$oldIntervalNumber=(ereg('h',$rowOldValues['Value']))?str_replace('h','',$rowOldValues['Value']):$rowOldValues['Value'];
-					$oldIntervalNumber=(ereg('m',$oldIntervalNumber))?str_replace('m','',$oldIntervalNumber):$oldIntervalNumber;
-					$oldIntervalType=(ereg('h',$rowOldValues['Value']))?1:((ereg('m',$rowOldValues['Value']))?2:3);	// 3 is error case
-				}
-
-				$out.='<input type="hidden" name="oldInterval" value="'.$rowOldValues['Value'].'">';
-			break;
-			case 2:
-				$resOldValue=$dbADO->Execute('SELECT * FROM CriteriaParm WHERE FK_CriteriaParmNesting=? AND FK_CriteriaParmList=?',array($FK_CriteriaParmNesting,$GLOBALS['DayOfWeekParmList']));
-				if($resOldValue->RecordCount()!=0){
-					$rowOldValues=$resOldValue->FetchRow();
-					$checkedArray=explode(',',$rowOldValues['Value']);
-				}
-				$resOldTime=$dbADO->Execute('SELECT * FROM CriteriaParm WHERE FK_CriteriaParmNesting=? AND FK_CriteriaParmList=?',array($FK_CriteriaParmNesting,$GLOBALS['TimeOfDayParmList']));
-				if($resOldTime){
-					$rowOldTime=$resOldTime->FetchRow();
-				}
-				$oldDayOfWeek=@$rowOldValues['Value'].@$rowOldTime['Value'];
-				$out.='<input type="hidden" name="oldDayOfWeek" value="'.@$oldDayOfWeek.'">';
-			break;
-			case 3:
-				$resOldValue=$dbADO->Execute('SELECT * FROM CriteriaParm WHERE FK_CriteriaParmNesting=? AND FK_CriteriaParmList=?',array($FK_CriteriaParmNesting,$GLOBALS['DayOfMonthParmList']));
-				if($resOldValue->RecordCount()!=0){
-					$rowOldValues=$resOldValue->FetchRow();
-				}
-				$resOldTime=$dbADO->Execute('SELECT * FROM CriteriaParm WHERE FK_CriteriaParmNesting=? AND FK_CriteriaParmList=?',array($FK_CriteriaParmNesting,$GLOBALS['TimeOfDayParmList']));
-				if($resOldTime){
-					$rowOldTime=$resOldTime->FetchRow();
-				}
-				$oldDayOfMonth=@$rowOldValues['Value'].@$rowOldTime['Value'];
-
-				$out.='<input type="hidden" name="oldDayOfMonth" value="'.@$oldDayOfMonth.'">';
-			break;
-			case 4:
-				$resOldValue=$dbADO->Execute('SELECT * FROM CriteriaParm WHERE FK_CriteriaParmNesting=? AND FK_CriteriaParmList=?',array($FK_CriteriaParmNesting,$GLOBALS['SpecificDateParmList']));
-				if($resOldValue->RecordCount()!=0){
-					$rowOldValues=$resOldValue->FetchRow();
-					$oldAbsolute=$rowOldValues['Value'];
-					$dataParts=explode(' ',$rowOldValues['Value']);
-					echo $rowOldValues['PK_CriteriaParm'];
-				}
-				$out.='<input type="hidden" name="oldAbsolute" value="'.@$oldAbsolute.'">';
-			break;
-		}
-
-		$out.='<span id="type_1" style="display:'.(($timedEventType!=1)?'none':'').';">Every <input type="text" name="intervalNumber" value="'.@$oldIntervalNumber.'" size="2"> <select name="intervalType"><option value="1" '.((@$oldIntervalType==1)?'selected':'').'>Hours</option><option value="2" '.((@$oldIntervalType==2)?'selected':'').'>Minutes</option></select></span>';
-		$out.='<span id="type_2" style="display:'.(($timedEventType!=2)?'none':'').';">';
-		$out.='What days of the week: ';
-			foreach ($dayNamesArray AS $key=>$dayName){
-				$out.='<input type="checkbox" name="dayOfWeek_'.$key.'" '.((is_array(@$checkedArray) && in_array($key,$checkedArray))?'checked':'').'> '.$dayName;
-			}
-		$out.='<br>Time: <input type="text" name="dayOfWeekTime" value="'.((isset($rowOldTime['Value']))?$rowOldTime['Value']:date('h:i')).'"> (comma separated list for multiple values)</span>';
-		$out.='<span id="type_3" style="display:'.(($timedEventType!=3)?'none':'').';">What day of the month (e.g. 2,7)? <input type="text" name="dayOfMonths" value="'.((isset($rowOldValues['Value']))?$rowOldValues['Value']:'').'"> Time: (e.g. 10:00,21:30)<input type="text" name="dayOfMonthTime" value="'.((isset($rowOldTime['Value']))?$rowOldTime['Value']:date('h:i')).'"></span>';
-		$out.='<span id="type_4" style="display:'.(($timedEventType!=4)?'none':'').';">What date day/month/year? <input type="text" name="absoluteDate" size="7" value="'.((isset($dataParts[0]))?formatMySQLDate($dataParts[0],'d/m/Y'):date('d/m/Y')).'">  What time? <input type="text" name="absoluteTime" value="'.((isset($dataParts[1]))?$dataParts[1]:date('h:i')).'"> (comma separated list for multiple values)</span>';
-		$out.='</td>
-			</tr>		
-			';
-			$out.='
-			<tr bgcolor="#E7E7E7">
-				<td colspan="3" align="center"><input type="submit" name="continue" value="Update"></td>
+				<td>Description:</td>
+				<td>'.$rowEH['Description'].'</td>
 			</tr>';
 
 			$selectCommandsAssigned = "
@@ -235,7 +141,7 @@ function editTimedEvent($output,$dbADO) {
 					
 							</td>
 						<td valign="top">
-						<input type="button" name="editA" value="Remove" onClick="self.location=\'index.php?section=editTimedEvent&ehID='.$eventHandlerID.'&cgcID='.$rowCommandAssigned['PK_CommandGroup_Command'].'\'">
+						<input type="button" name="editA" value="Remove" onClick="self.location=\'index.php?section=editEventCommands&ehID='.$eventHandlerID.'&cgcID='.$rowCommandAssigned['PK_CommandGroup_Command'].'\'">
 						</td>						
 					</tr>
 					';
@@ -254,7 +160,7 @@ function editTimedEvent($output,$dbADO) {
 			$out.='
 				<tr>
 					<td><B>Device</B>:</td>
-					<td colspan="2"><select name="device" onChange="document.editTimedEvent.action.value=\'form\';document.editTimedEvent.submit()">
+					<td colspan="2"><select name="device" onChange="document.editEventCommands.action.value=\'form\';document.editEventCommands.submit()">
 							<option value="">Select a device</option>';
 				$queryDevice='
 					SELECT Device.*,DeviceTemplate.Description AS Template FROM Device
@@ -281,7 +187,7 @@ function editTimedEvent($output,$dbADO) {
 					$out.='
 				<tr>
 					<td>Command: </td>
-					<td><select name="addNewDeviceCommand" onChange="document.editTimedEvent.submit()">
+					<td><select name="addNewDeviceCommand" onChange="document.editEventCommands.submit()">
 						<option value="0">-please select-</option>';
 							while ($rowNewCommand = $resNewCommand->FetchRow()) {
 								$out.='<option value="'.$rowNewCommand['PK_Command'].'">'.$rowNewCommand['Description'].'</option>';
@@ -304,92 +210,10 @@ function editTimedEvent($output,$dbADO) {
 		// processing area
 		$canModifyInstallation = getUserCanModifyInstallation($_SESSION['userID'],$installationID,$dbADO);
 		if(!$canModifyInstallation){
-			header("Location: index.php?section=editTimedEvent&ehID=".$eventHandlerID."&error=You are not authorised to modify installation.");
+			header("Location: index.php?section=editEventCommands&ehID=".$eventHandlerID."&error=You are not authorised to modify installation.");
 			exit();
 		}
-		$description=$_POST['description'];
-		$timedEventType=(int)$_POST['timedEventType'];
-		
-		if(isset($_POST['continue'])){
-			$updateEventHandler='UPDATE EventHandler SET Description=?, TimedEvent=? WHERE PK_EventHandler=?';
-			$dbADO->Execute($updateEventHandler,array($description,$timedEventType,$eventHandlerID));
-			
-			switch($timedEventType){
-				case 1:
-					$oldInterval=@$_POST['oldInterval'];
-					$intervalNumber=isset($_POST['intervalNumber'])?$_POST['intervalNumber']:0;
-					$intervalType=(@$_POST['intervalType']==1)?'h':'m';
-					$newInterval=$intervalNumber.$intervalType;
-					if($oldInterval!=$newInterval){
-						$dbADO->Execute('DELETE FROM CriteriaParm WHERE FK_CriteriaParmNesting=? AND FK_CriteriaParmList IN ('.$GLOBALS['TimeOfDayParmList'].','.$GLOBALS['DayOfWeekParmList'].','.$GLOBALS['DayOfMonthParmList'].','.$GLOBALS['SpecificDateParmList'].')',$FK_CriteriaParmNesting);
-						$insertCriteriaParm='
-							INSERT INTO CriteriaParm 
-								(FK_CriteriaParmNesting,FK_CriteriaParmList,Operator,Value)
-							VALUES
-								(?,?,?,?)';
-						$dbADO->Execute($insertCriteriaParm,array($FK_CriteriaParmNesting,$GLOBALS['TimeOfDayParmList'],1,$newInterval));
-					}
-	
-				break;
-				case 2:
-					$newDayOfWeekArray=array();
-					foreach ($dayNamesArray AS $key=>$dayName){
-						if(isset($_POST['dayOfWeek_'.$key]))
-							$newDayOfWeekArray[]=$key;
-					}
-					$dayOfWeekTime=isset($_POST['dayOfWeekTime'])?$_POST['dayOfWeekTime']:date('h:i');
-					$oldDayOfWeek=@$_POST['oldDayOfWeek'];
-					$newDayOfWeek=join(',',$newDayOfWeekArray).$dayOfWeekTime;
-					if($newDayOfWeek!=$oldDayOfWeek){
-						$dbADO->Execute('DELETE FROM CriteriaParm WHERE FK_CriteriaParmNesting=? AND FK_CriteriaParmList IN ('.$GLOBALS['TimeOfDayParmList'].','.$GLOBALS['DayOfWeekParmList'].','.$GLOBALS['DayOfMonthParmList'].','.$GLOBALS['SpecificDateParmList'].')',$FK_CriteriaParmNesting);
-						$insertCriteriaParm='
-							INSERT INTO CriteriaParm 
-								(FK_CriteriaParmNesting,FK_CriteriaParmList,Operator,Value)
-							VALUES
-								(?,?,?,?)';
-						$dbADO->Execute($insertCriteriaParm,array($FK_CriteriaParmNesting,$GLOBALS['DayOfWeekParmList'],1,join(',',$newDayOfWeekArray)));
-						$dbADO->Execute($insertCriteriaParm,array($FK_CriteriaParmNesting,$GLOBALS['TimeOfDayParmList'],1,$dayOfWeekTime));
-					}
 
-				break;
-				case 3:
-					$dayOfMonths=@$_POST['dayOfMonths'];
-					$dayOfMonthTime=isset($_POST['dayOfMonthTime'])?$_POST['dayOfMonthTime']:date('h:i');
-					$oldDayOfMonth=@$_POST['oldDayOfMonth'];
-					$newDayOfMonth=$dayOfMonths.$dayOfMonthTime;
-					if($newDayOfMonth!=$oldDayOfMonth){
-						$dbADO->Execute('DELETE FROM CriteriaParm WHERE FK_CriteriaParmNesting=? AND FK_CriteriaParmList IN ('.$GLOBALS['TimeOfDayParmList'].','.$GLOBALS['DayOfWeekParmList'].','.$GLOBALS['DayOfMonthParmList'].','.$GLOBALS['SpecificDateParmList'].')',$FK_CriteriaParmNesting);
-						$insertCriteriaParm='
-							INSERT INTO CriteriaParm 
-								(FK_CriteriaParmNesting,FK_CriteriaParmList,Operator,Value)
-							VALUES
-								(?,?,?,?)';
-							if($dayOfMonths!=''){
-								$dbADO->Execute($insertCriteriaParm,array($FK_CriteriaParmNesting,$GLOBALS['DayOfMonthParmList'],1,$dayOfMonths));
-								$dbADO->Execute($insertCriteriaParm,array($FK_CriteriaParmNesting,$GLOBALS['TimeOfDayParmList'],1,$dayOfMonthTime));
-							}
-					}
-				break;
-				case 4:
-					$oldAbsolute=@$_POST['oldAbsolute'];
-					$dateArray=explode('/',isset($_POST['absoluteDate'])?$_POST['absoluteDate']:date('d/m/Y'));
-					$absoluteDate=@$dateArray[2].'-'.@$dateArray[1].'-'.@$dateArray[0];
-					$absoluteTime=isset($_POST['absoluteTime'])?$_POST['absoluteTime']:date('h:i');
-					$newAbsolute=$absoluteDate.' '.$absoluteTime;
-					if($newAbsolute!=$oldAbsolute){
-						$dbADO->Execute('DELETE FROM CriteriaParm WHERE FK_CriteriaParmNesting=? AND FK_CriteriaParmList IN ('.$GLOBALS['TimeOfDayParmList'].','.$GLOBALS['DayOfWeekParmList'].','.$GLOBALS['DayOfMonthParmList'].','.$GLOBALS['SpecificDateParmList'].')',$FK_CriteriaParmNesting);
-						$insertCriteriaParm='
-							INSERT INTO CriteriaParm 
-								(FK_CriteriaParmNesting,FK_CriteriaParmList,Operator,Value)
-							VALUES
-								(?,?,?,?)';
-						$dbADO->Execute($insertCriteriaParm,array($FK_CriteriaParmNesting,$GLOBALS['SpecificDateParmList'],1,$newAbsolute));
-					}
-					
-				break;
-			}
-		}
-		
 		// command group process
 		$x=cleanInteger(@$_POST['device']);
 		$y=cleanInteger(@$_POST['addNewDeviceCommand']);
@@ -477,15 +301,11 @@ function editTimedEvent($output,$dbADO) {
 		}
 
 		
-		// update EventHandler
-		$updateEventHandler='UPDATE EventHandler SET Description=?  WHERE PK_EventHandler=?';
-		$dbADO->Execute($updateEventHandler,array($description,$eventHandlerID));
 		
-		
-		header('Location: index.php?section=editTimedEvent&ehID='.$eventHandlerID.'&msg=The event handler was updated');
+		header('Location: index.php?section=editEventCommands&ehID='.$eventHandlerID.'&msg=The event handler was updated');
 	}
 	
-	$output->setNavigationMenu(array("Timed Events"=>'index.php?section=timedEvents'));
+	$output->setNavigationMenu(array("Advanced Events"=>'index.php?section=advancedEvents'));
 	$output->setBody($out);
 	$output->setTitle(APPLICATION_NAME);			
 	$output->output();

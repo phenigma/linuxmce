@@ -627,6 +627,12 @@ switch ($section) {
 	    include_once('operations/mediaBrowser/mainMediaBrowser.php');
 	    mainMediaBrowser($output,$mediadbADO);	    
 	break;
+	case 'editMediaFile':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/mediaBrowser/editMediaFile.php');
+	    editMediaFile($output,$mediadbADO);	    
+	break;
 
 	case 'mediaFilesSync';
 	    include_once('operations/mediaBrowser/mediaFilesSync.php');
@@ -691,7 +697,25 @@ switch ($section) {
 	    include_once('operations/events/editTimedEvent.php');
 	    editTimedEvent($output,$dbADO);
 	break;
-
+	case 'advancedEvents':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/events/advancedEvents.php');
+	    advancedEvents($output,$dbADO);
+	break;
+	case 'editCriteria':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/events/editCriteria.php');
+	    editCriteria($output,$dbADO);
+	break;
+	case 'editEventCommands':
+		$output = new Template($dbADO);
+		$output->setTemplateFileType('large');
+	    include_once('operations/events/editEventCommands.php');
+	    editEventCommands($output,$dbADO);
+	break;
+	
 	case 'securitySettings':
 		$output = new Template($dbADO);
 		$output->setTemplateFileType('large');

@@ -141,44 +141,6 @@ function mainMediaBrowser($output,$mediadbADO) {
 				FROM File_Attribute
 					INNER JOIN File ON File_Attribute.FK_File=PK_File
 				WHERE FK_Attribute=?';
-			/*
-			$resFiles=$mediadbADO->Execute($queryFiles,$attributeID);
-			$out.='<table>
-					<tr bgcolor="lightblue">
-						<td align="center"><B>Files</B></td>
-						<td align="center">&nbsp;</td>
-					</tr>
-			';
-			$lineCount=0;
-			$recordsNo=$resFiles->RecordCount();
-			while($rowFiles=$resFiles->FetchRow()){
-				$lineCount++;
-				$queryOtherAttributes='
-					SELECT PK_Attribute, AttributeType.Description AS AttributeName,Name,FirstName
-					FROM File_Attribute
-						INNER JOIN Attribute ON File_Attribute.FK_Attribute=PK_Attribute
-						INNER JOIN AttributeType ON FK_AttributeType=PK_AttributeType
-					WHERE FK_File=? AND FK_AttributeType!=? ORDER BY AttributeType.Description ASC
-				';
-				
-				$otherAttributes='';
-				if($recordsNo<3000){
-					$resOtherAttributes=$mediadbADO->Execute($queryOtherAttributes,array($rowFiles['FK_File'],$rowAttribute['FK_AttributeType']));
-					while($rowOtherAttributes=$resOtherAttributes->FetchRow()){
-						$otherAttributes.='<b>'.$rowOtherAttributes['AttributeName'].'</b>: <a href="index.php?section=mainMediaBrowser&attributeID='.$rowOtherAttributes['PK_Attribute'].'&action=properties" target="_self">'.$rowOtherAttributes['Name'].(($rowOtherAttributes['FirstName']!='')?', '.$rowOtherAttributes['FirstName']:'').'</a> ';
-						}
-				}
-				$out.='
-					<tr style="background-color:'.(($lineCount%2==0)?'#EEEEEE':'#EBEFF9').';">
-						<td title="'.$rowFiles['Path'].'" align="left">'.(($rowFiles['Missing']!=0)?'<img src="include/images/missing.gif" align="top"> ':'').'<b>Filename:</b> <a href="index.php?section=mainMediaFilesSync&path='.$rowFiles['Path'].'&filename='.urlencode($rowFiles['Filename']).'">'.$rowFiles['Filename'].'</a><br><B>Path:</B> '.$rowFiles['Path'].'</td>
-						<td rowspan="2"><a href="#" onClick="self.location=\'index.php?section=mainMediaBrowser&attributeID='.$attributeID.'&action=properties&fileID='.$rowFiles['PK_File'].'\';">Delete</a></td>
-					</tr>
-					<tr style="background-color:'.(($lineCount%2==0)?'#EEEEEE':'#EBEFF9').';">
-						<td align="left">'.$otherAttributes.'</td>
-					</tr>
-				';
-			}
-			*/
 			$GLOBALS['attrType']=$attrType;
 			$GLOBALS['attributeID']=$attributeID;
 		$out.=multi_page($queryFiles, $attributeID,'index.php?section=mainMediaBrowser&attributeID='.$attributeID.'&action=properties', (isset($_GET['page_no']))?$_GET['page_no']-1:0, 20,$mediadbADO);

@@ -83,30 +83,21 @@ function timedEvents($output,$dbADO) {
 				<td colspan="2"><input type="text" name="Description" value=""></td>
 			</tr>	
 			<tr>
-				<td><B>Interval based:</B></td>
+				<td><input type="radio" name="timedEventType" value="1" checked> <B>Interval based:</B></td>
 				<td colspan="2">Do something every x minutes, or every other hour</td>
 			</tr>	
 			<tr>
-				<td><B>Day of week based:</B></td>
+				<td><input type="radio" name="timedEventType" value="2"> <B>Day of week based:</B></td>
 				<td colspan="2">Do something at 7:00 and 9:00 on Monday, Wednesday and Friday</td>
 			</tr>		
 			<tr>
-				<td><B>Day of month based:</B></td>
+				<td><input type="radio" name="timedEventType" value="3"> <B>Day of month based:</B></td>
 				<td colspan="2">Do something at 8:00 on the 1st and 15th of each month</td>
 			</tr>		
 			<tr>
-				<td><B>Absolute:</B></td>
+				<td><input type="radio" name="timedEventType" value="4"> <B>Absolute:</B></td>
 				<td colspan="2">Do something on 5 Mar 2005 at 11:15</td>
 			</tr>
-			<tr>
-				<td align="right"><B>Add:</B></td>
-				<td colspan="2"><select name="timedEventType">
-					<option value="1">Interval</option>
-					<option value="2">Day of week</option>
-					<option value="3">Day of month</option>
-					<option value="4">Absolute</option>
-				</select></td>
-			</tr>		
 			<tr>
 				<td colspan="3" align="center"><input type="submit" name="continue" value="Add"></td>
 			</tr>';
