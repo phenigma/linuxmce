@@ -32,7 +32,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/pluto_main.lib"/>
+				OutputFile="../lib/pluto_main.lib"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -61,12 +61,12 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				AdditionalIncludeDirectories="..;../DCE;../../libs/Libraries/pthreads-win32/include;/mysql/include"
 				InlineFunctionExpansion="1"
 				OmitFramePointers="TRUE"
+				AdditionalIncludeDirectories="..;../DCE;../../libs/Libraries/pthreads-win32/include;/mysql/include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				StringPooling="TRUE"
-				RuntimeLibrary="4"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -76,7 +76,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/pluto_main-r.lib"/>
+				OutputFile="../lib/pluto_main-r.lib"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -107,9 +107,6 @@
 				RelativePath=".\Database_pluto_main.cpp">
 			</File>
 			<File
-				RelativePath=".\TableRow.cpp">
-			</File>
-			<File
 				RelativePath=".\Table_Array.cpp">
 			</File>
 			<File
@@ -129,6 +126,12 @@
 			</File>
 			<File
 				RelativePath=".\Table_Command.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Command_CommandParameter.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Command_Pipe.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_CommandCategory.cpp">
@@ -161,12 +164,6 @@
 				RelativePath=".\Table_CommandParameter.cpp">
 			</File>
 			<File
-				RelativePath=".\Table_Command_CommandParameter.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Command_Pipe.cpp">
-			</File>
-			<File
 				RelativePath=".\Table_ConfigType.cpp">
 			</File>
 			<File
@@ -188,6 +185,9 @@
 				RelativePath=".\Table_Criteria.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_Criteria_D.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_CriteriaList.cpp">
 			</File>
 			<File
@@ -197,6 +197,9 @@
 				RelativePath=".\Table_CriteriaParm.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_CriteriaParm_D.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_CriteriaParmList.cpp">
 			</File>
 			<File
@@ -204,18 +207,6 @@
 			</File>
 			<File
 				RelativePath=".\Table_CriteriaParmNesting_D.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_CriteriaParm_D.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Criteria_D.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_DHCPDevice.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_DHCPDevice_DeviceData.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_DataGrid.cpp">
@@ -257,6 +248,39 @@
 				RelativePath=".\Table_Device.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_Device_Command.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Device_CommandGroup.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Device_Device_Pipe.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Device_Device_Related.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Device_DeviceData.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Device_DeviceGroup.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Device_EntertainArea.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Device_HouseMode.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Device_Orbiter.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Device_StartupScript.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Device_Users.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_DeviceCategory.cpp">
 			</File>
 			<File
@@ -287,9 +311,6 @@
 				RelativePath=".\Table_DeviceTemplate_AV.cpp">
 			</File>
 			<File
-				RelativePath=".\Table_DeviceTemplate_DSPMode.cpp">
-			</File>
-			<File
 				RelativePath=".\Table_DeviceTemplate_DesignObj.cpp">
 			</File>
 			<File
@@ -314,6 +335,9 @@
 				RelativePath=".\Table_DeviceTemplate_DeviceTemplate_Related.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_DeviceTemplate_DSPMode.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_DeviceTemplate_Event.cpp">
 			</File>
 			<File
@@ -335,37 +359,10 @@
 				RelativePath=".\Table_DeviceTemplate_PageSetup.cpp">
 			</File>
 			<File
-				RelativePath=".\Table_Device_Command.cpp">
+				RelativePath=".\Table_DHCPDevice.cpp">
 			</File>
 			<File
-				RelativePath=".\Table_Device_CommandGroup.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Device_DeviceData.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Device_DeviceGroup.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Device_Device_Pipe.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Device_Device_Related.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Device_EntertainArea.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Device_HouseMode.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Device_Orbiter.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Device_StartupScript.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Device_Users.cpp">
+				RelativePath=".\Table_DHCPDevice_DeviceData.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_Direction.cpp">
@@ -389,6 +386,9 @@
 				RelativePath=".\Table_Event.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_Event_EventParameter.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_EventCategory.cpp">
 			</File>
 			<File
@@ -396,9 +396,6 @@
 			</File>
 			<File
 				RelativePath=".\Table_EventParameter.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Event_EventParameter.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_FAQ.cpp">
@@ -422,13 +419,13 @@
 				RelativePath=".\Table_HorizAlignment.cpp">
 			</File>
 			<File
-				RelativePath=".\Table_HouseMode.cpp">
-			</File>
-			<File
 				RelativePath=".\Table_Household.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_Household_Installation.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_HouseMode.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_Icon.cpp">
@@ -446,12 +443,6 @@
 				RelativePath=".\Table_InfraredGroup_Command_Preferred.cpp">
 			</File>
 			<File
-				RelativePath=".\Table_InstallWizard.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_InstallWizard_Distro.cpp">
-			</File>
-			<File
 				RelativePath=".\Table_Installation.cpp">
 			</File>
 			<File
@@ -459,6 +450,12 @@
 			</File>
 			<File
 				RelativePath=".\Table_Installation_Users.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_InstallWizard.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_InstallWizard_Distro.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_Language.cpp">
@@ -497,9 +494,6 @@
 				RelativePath=".\Table_Package.cpp">
 			</File>
 			<File
-				RelativePath=".\Table_PackageType.cpp">
-			</File>
-			<File
 				RelativePath=".\Table_Package_Compat.cpp">
 			</File>
 			<File
@@ -524,6 +518,9 @@
 				RelativePath=".\Table_Package_Version.cpp">
 			</File>
 			<File
+				RelativePath=".\Table_PackageType.cpp">
+			</File>
+			<File
 				RelativePath=".\Table_PageSetup.cpp">
 			</File>
 			<File
@@ -537,84 +534,6 @@
 			</File>
 			<File
 				RelativePath=".\Table_Pipe.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_RepositorySource.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_RepositorySource_URL.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_RepositoryType.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Room.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_RoomType.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Room_Users.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Schema.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_SetupStep.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Size.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Skin.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_StabilityStatus.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_StartupScript.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Style.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_StyleVariation.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_System.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Template.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Text.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_TextCategory.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Text_LS.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Text_LS_AltVersions.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_UnknownDevices.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_UserMode.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Users.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Variable.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Version.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_VertAlignment.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_psc_constants_batdet.cpp">
@@ -742,7 +661,87 @@
 			<File
 				RelativePath=".\Table_psc_website_tables.cpp">
 			</File>
-
+			<File
+				RelativePath=".\Table_RepositorySource.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_RepositorySource_URL.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_RepositoryType.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Room.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Room_Users.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_RoomType.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Schema.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_SetupStep.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Size.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Skin.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_StabilityStatus.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_StartupScript.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Style.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_StyleVariation.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_System.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Template.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Text.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Text_LS.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Text_LS_AltVersions.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_TextCategory.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_UnknownDevices.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_UserMode.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Users.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Variable.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_Version.cpp">
+			</File>
+			<File
+				RelativePath=".\Table_VertAlignment.cpp">
+			</File>
+			<File
+				RelativePath=".\TableRow.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
