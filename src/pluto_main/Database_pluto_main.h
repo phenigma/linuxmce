@@ -14,9 +14,6 @@ Database_pluto_main();
 ~Database_pluto_main();
 void DeleteAllTables();
 private:
-class Table_Action* tblAction;
-class Table_ActionHistory* tblActionHistory;
-class Table_ActionPending* tblActionPending;
 class Table_Array* tblArray;
 class Table_Broadcast* tblBroadcast;
 class Table_Button* tblButton;
@@ -108,7 +105,6 @@ class Table_Directory* tblDirectory;
 class Table_Distro* tblDistro;
 class Table_Document* tblDocument;
 class Table_Document_Comment* tblDocument_Comment;
-class Table_Employee* tblEmployee;
 class Table_EntertainArea* tblEntertainArea;
 class Table_Event* tblEvent;
 class Table_EventCategory* tblEventCategory;
@@ -136,8 +132,6 @@ class Table_Installation* tblInstallation;
 class Table_Installation_RepositorySource_URL* tblInstallation_RepositorySource_URL;
 class Table_Installation_Users* tblInstallation_Users;
 class Table_Language* tblLanguage;
-class Table_Lead* tblLead;
-class Table_LeadType* tblLeadType;
 class Table_License* tblLicense;
 class Table_Manufacturer* tblManufacturer;
 class Table_MediaType* tblMediaType;
@@ -175,8 +169,6 @@ class Table_Size* tblSize;
 class Table_Skin* tblSkin;
 class Table_StabilityStatus* tblStabilityStatus;
 class Table_StartupScript* tblStartupScript;
-class Table_Status* tblStatus;
-class Table_StatusType* tblStatusType;
 class Table_Style* tblStyle;
 class Table_StyleVariation* tblStyleVariation;
 class Table_System* tblSystem;
@@ -234,9 +226,6 @@ class Table_psc_website_repset* tblpsc_website_repset;
 class Table_psc_website_schema* tblpsc_website_schema;
 class Table_psc_website_tables* tblpsc_website_tables;
 public:
-class Table_Action* Action_get() { if( !tblAction ) CreateTable_Action(); return tblAction; }
-class Table_ActionHistory* ActionHistory_get() { if( !tblActionHistory ) CreateTable_ActionHistory(); return tblActionHistory; }
-class Table_ActionPending* ActionPending_get() { if( !tblActionPending ) CreateTable_ActionPending(); return tblActionPending; }
 class Table_Array* Array_get() { if( !tblArray ) CreateTable_Array(); return tblArray; }
 class Table_Broadcast* Broadcast_get() { if( !tblBroadcast ) CreateTable_Broadcast(); return tblBroadcast; }
 class Table_Button* Button_get() { if( !tblButton ) CreateTable_Button(); return tblButton; }
@@ -328,7 +317,6 @@ class Table_Directory* Directory_get() { if( !tblDirectory ) CreateTable_Directo
 class Table_Distro* Distro_get() { if( !tblDistro ) CreateTable_Distro(); return tblDistro; }
 class Table_Document* Document_get() { if( !tblDocument ) CreateTable_Document(); return tblDocument; }
 class Table_Document_Comment* Document_Comment_get() { if( !tblDocument_Comment ) CreateTable_Document_Comment(); return tblDocument_Comment; }
-class Table_Employee* Employee_get() { if( !tblEmployee ) CreateTable_Employee(); return tblEmployee; }
 class Table_EntertainArea* EntertainArea_get() { if( !tblEntertainArea ) CreateTable_EntertainArea(); return tblEntertainArea; }
 class Table_Event* Event_get() { if( !tblEvent ) CreateTable_Event(); return tblEvent; }
 class Table_EventCategory* EventCategory_get() { if( !tblEventCategory ) CreateTable_EventCategory(); return tblEventCategory; }
@@ -356,8 +344,6 @@ class Table_Installation* Installation_get() { if( !tblInstallation ) CreateTabl
 class Table_Installation_RepositorySource_URL* Installation_RepositorySource_URL_get() { if( !tblInstallation_RepositorySource_URL ) CreateTable_Installation_RepositorySource_URL(); return tblInstallation_RepositorySource_URL; }
 class Table_Installation_Users* Installation_Users_get() { if( !tblInstallation_Users ) CreateTable_Installation_Users(); return tblInstallation_Users; }
 class Table_Language* Language_get() { if( !tblLanguage ) CreateTable_Language(); return tblLanguage; }
-class Table_Lead* Lead_get() { if( !tblLead ) CreateTable_Lead(); return tblLead; }
-class Table_LeadType* LeadType_get() { if( !tblLeadType ) CreateTable_LeadType(); return tblLeadType; }
 class Table_License* License_get() { if( !tblLicense ) CreateTable_License(); return tblLicense; }
 class Table_Manufacturer* Manufacturer_get() { if( !tblManufacturer ) CreateTable_Manufacturer(); return tblManufacturer; }
 class Table_MediaType* MediaType_get() { if( !tblMediaType ) CreateTable_MediaType(); return tblMediaType; }
@@ -395,8 +381,6 @@ class Table_Size* Size_get() { if( !tblSize ) CreateTable_Size(); return tblSize
 class Table_Skin* Skin_get() { if( !tblSkin ) CreateTable_Skin(); return tblSkin; }
 class Table_StabilityStatus* StabilityStatus_get() { if( !tblStabilityStatus ) CreateTable_StabilityStatus(); return tblStabilityStatus; }
 class Table_StartupScript* StartupScript_get() { if( !tblStartupScript ) CreateTable_StartupScript(); return tblStartupScript; }
-class Table_Status* Status_get() { if( !tblStatus ) CreateTable_Status(); return tblStatus; }
-class Table_StatusType* StatusType_get() { if( !tblStatusType ) CreateTable_StatusType(); return tblStatusType; }
 class Table_Style* Style_get() { if( !tblStyle ) CreateTable_Style(); return tblStyle; }
 class Table_StyleVariation* StyleVariation_get() { if( !tblStyleVariation ) CreateTable_StyleVariation(); return tblStyleVariation; }
 class Table_System* System_get() { if( !tblSystem ) CreateTable_System(); return tblSystem; }
@@ -458,9 +442,6 @@ bool Connect(string host, string user, string pass, string sDBName, int port);
 bool Connect(class DCEConfig *pDCEConfig);
 void Disconnect();
 private:
-void CreateTable_Action();
-void CreateTable_ActionHistory();
-void CreateTable_ActionPending();
 void CreateTable_Array();
 void CreateTable_Broadcast();
 void CreateTable_Button();
@@ -552,7 +533,6 @@ void CreateTable_Directory();
 void CreateTable_Distro();
 void CreateTable_Document();
 void CreateTable_Document_Comment();
-void CreateTable_Employee();
 void CreateTable_EntertainArea();
 void CreateTable_Event();
 void CreateTable_EventCategory();
@@ -580,8 +560,6 @@ void CreateTable_Installation();
 void CreateTable_Installation_RepositorySource_URL();
 void CreateTable_Installation_Users();
 void CreateTable_Language();
-void CreateTable_Lead();
-void CreateTable_LeadType();
 void CreateTable_License();
 void CreateTable_Manufacturer();
 void CreateTable_MediaType();
@@ -619,8 +597,6 @@ void CreateTable_Size();
 void CreateTable_Skin();
 void CreateTable_StabilityStatus();
 void CreateTable_StartupScript();
-void CreateTable_Status();
-void CreateTable_StatusType();
 void CreateTable_Style();
 void CreateTable_StyleVariation();
 void CreateTable_System();
@@ -677,9 +653,6 @@ void CreateTable_psc_website_batuser();
 void CreateTable_psc_website_repset();
 void CreateTable_psc_website_schema();
 void CreateTable_psc_website_tables();
-void DeleteTable_Action();
-void DeleteTable_ActionHistory();
-void DeleteTable_ActionPending();
 void DeleteTable_Array();
 void DeleteTable_Broadcast();
 void DeleteTable_Button();
@@ -771,7 +744,6 @@ void DeleteTable_Directory();
 void DeleteTable_Distro();
 void DeleteTable_Document();
 void DeleteTable_Document_Comment();
-void DeleteTable_Employee();
 void DeleteTable_EntertainArea();
 void DeleteTable_Event();
 void DeleteTable_EventCategory();
@@ -799,8 +771,6 @@ void DeleteTable_Installation();
 void DeleteTable_Installation_RepositorySource_URL();
 void DeleteTable_Installation_Users();
 void DeleteTable_Language();
-void DeleteTable_Lead();
-void DeleteTable_LeadType();
 void DeleteTable_License();
 void DeleteTable_Manufacturer();
 void DeleteTable_MediaType();
@@ -838,8 +808,6 @@ void DeleteTable_Size();
 void DeleteTable_Skin();
 void DeleteTable_StabilityStatus();
 void DeleteTable_StartupScript();
-void DeleteTable_Status();
-void DeleteTable_StatusType();
 void DeleteTable_Style();
 void DeleteTable_StyleVariation();
 void DeleteTable_System();

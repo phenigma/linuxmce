@@ -18,9 +18,6 @@ using namespace std;
 
 Database_pluto_main::Database_pluto_main()
 {
-tblAction=NULL;
-tblActionHistory=NULL;
-tblActionPending=NULL;
 tblArray=NULL;
 tblBroadcast=NULL;
 tblButton=NULL;
@@ -112,7 +109,6 @@ tblDirectory=NULL;
 tblDistro=NULL;
 tblDocument=NULL;
 tblDocument_Comment=NULL;
-tblEmployee=NULL;
 tblEntertainArea=NULL;
 tblEvent=NULL;
 tblEventCategory=NULL;
@@ -140,8 +136,6 @@ tblInstallation=NULL;
 tblInstallation_RepositorySource_URL=NULL;
 tblInstallation_Users=NULL;
 tblLanguage=NULL;
-tblLead=NULL;
-tblLeadType=NULL;
 tblLicense=NULL;
 tblManufacturer=NULL;
 tblMediaType=NULL;
@@ -179,8 +173,6 @@ tblSize=NULL;
 tblSkin=NULL;
 tblStabilityStatus=NULL;
 tblStartupScript=NULL;
-tblStatus=NULL;
-tblStatusType=NULL;
 tblStyle=NULL;
 tblStyleVariation=NULL;
 tblSystem=NULL;
@@ -246,9 +238,6 @@ Database_pluto_main::~Database_pluto_main()
 
 void Database_pluto_main::DeleteAllTables()
 {
-DeleteTable_Action();
-DeleteTable_ActionHistory();
-DeleteTable_ActionPending();
 DeleteTable_Array();
 DeleteTable_Broadcast();
 DeleteTable_Button();
@@ -340,7 +329,6 @@ DeleteTable_Directory();
 DeleteTable_Distro();
 DeleteTable_Document();
 DeleteTable_Document_Comment();
-DeleteTable_Employee();
 DeleteTable_EntertainArea();
 DeleteTable_Event();
 DeleteTable_EventCategory();
@@ -368,8 +356,6 @@ DeleteTable_Installation();
 DeleteTable_Installation_RepositorySource_URL();
 DeleteTable_Installation_Users();
 DeleteTable_Language();
-DeleteTable_Lead();
-DeleteTable_LeadType();
 DeleteTable_License();
 DeleteTable_Manufacturer();
 DeleteTable_MediaType();
@@ -407,8 +393,6 @@ DeleteTable_Size();
 DeleteTable_Skin();
 DeleteTable_StabilityStatus();
 DeleteTable_StartupScript();
-DeleteTable_Status();
-DeleteTable_StatusType();
 DeleteTable_Style();
 DeleteTable_StyleVariation();
 DeleteTable_System();

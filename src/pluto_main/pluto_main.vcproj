@@ -109,15 +109,6 @@
 				RelativePath=".\TableRow.cpp">
 			</File>
 			<File
-				RelativePath=".\Table_Action.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_ActionHistory.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_ActionPending.cpp">
-			</File>
-			<File
 				RelativePath=".\Table_Array.cpp">
 			</File>
 			<File
@@ -391,9 +382,6 @@
 				RelativePath=".\Table_Document_Comment.cpp">
 			</File>
 			<File
-				RelativePath=".\Table_Employee.cpp">
-			</File>
-			<File
 				RelativePath=".\Table_EntertainArea.cpp">
 			</File>
 			<File
@@ -473,12 +461,6 @@
 			</File>
 			<File
 				RelativePath=".\Table_Language.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Lead.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_LeadType.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_License.cpp">
@@ -590,12 +572,6 @@
 			</File>
 			<File
 				RelativePath=".\Table_StartupScript.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_Status.cpp">
-			</File>
-			<File
-				RelativePath=".\Table_StatusType.cpp">
 			</File>
 			<File
 				RelativePath=".\Table_Style.cpp">
