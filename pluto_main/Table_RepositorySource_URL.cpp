@@ -127,10 +127,11 @@ is_null[5] = false;
 is_null[6] = true;
 is_null[7] = true;
 is_null[8] = true;
+is_null[9] = true;
 m_psc_frozen = 0;
-is_null[9] = false;
-m_psc_mod = "00000000000000";
 is_null[10] = false;
+m_psc_mod = "00000000000000";
+is_null[11] = false;
 
 
 	is_added=false;
@@ -156,6 +157,9 @@ return m_Username;}
 string Row_RepositorySource_URL::Password_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_Password;}
+string Row_RepositorySource_URL::Comments_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return m_Comments;}
 long int Row_RepositorySource_URL::psc_id_get(){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return m_psc_id;}
@@ -191,21 +195,24 @@ m_Username = val; is_modified=true; is_null[4]=false;}
 void Row_RepositorySource_URL::Password_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 m_Password = val; is_modified=true; is_null[5]=false;}
+void Row_RepositorySource_URL::Comments_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+m_Comments = val; is_modified=true; is_null[6]=false;}
 void Row_RepositorySource_URL::psc_id_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_id = val; is_modified=true; is_null[6]=false;}
+m_psc_id = val; is_modified=true; is_null[7]=false;}
 void Row_RepositorySource_URL::psc_batch_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_batch = val; is_modified=true; is_null[7]=false;}
+m_psc_batch = val; is_modified=true; is_null[8]=false;}
 void Row_RepositorySource_URL::psc_user_set(long int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_user = val; is_modified=true; is_null[8]=false;}
+m_psc_user = val; is_modified=true; is_null[9]=false;}
 void Row_RepositorySource_URL::psc_frozen_set(short int val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_frozen = val; is_modified=true; is_null[9]=false;}
+m_psc_frozen = val; is_modified=true; is_null[10]=false;}
 void Row_RepositorySource_URL::psc_mod_set(string val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-m_psc_mod = val; is_modified=true; is_null[10]=false;}
+m_psc_mod = val; is_modified=true; is_null[11]=false;}
 
 		
 bool Row_RepositorySource_URL::FK_Country_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -214,18 +221,21 @@ return is_null[3];}
 bool Row_RepositorySource_URL::Username_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[4];}
-bool Row_RepositorySource_URL::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_RepositorySource_URL::Comments_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[6];}
-bool Row_RepositorySource_URL::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_RepositorySource_URL::psc_id_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[7];}
-bool Row_RepositorySource_URL::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_RepositorySource_URL::psc_batch_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[8];}
-bool Row_RepositorySource_URL::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+bool Row_RepositorySource_URL::psc_user_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 return is_null[9];}
+bool Row_RepositorySource_URL::psc_frozen_isNull() {PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+return is_null[10];}
 
 			
 void Row_RepositorySource_URL::FK_Country_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
@@ -234,18 +244,21 @@ is_null[3]=val;}
 void Row_RepositorySource_URL::Username_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[4]=val;}
-void Row_RepositorySource_URL::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_RepositorySource_URL::Comments_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[6]=val;}
-void Row_RepositorySource_URL::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_RepositorySource_URL::psc_id_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[7]=val;}
-void Row_RepositorySource_URL::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_RepositorySource_URL::psc_batch_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[8]=val;}
-void Row_RepositorySource_URL::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+void Row_RepositorySource_URL::psc_user_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 is_null[9]=val;}
+void Row_RepositorySource_URL::psc_frozen_setNull(bool val){PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+is_null[10]=val;}
 	
 
 string Row_RepositorySource_URL::PK_RepositorySource_URL_asSQL()
@@ -323,11 +336,23 @@ mysql_real_escape_string(table->database->db_handle, buf, m_Password.c_str(), (u
 return string()+"\""+buf+"\"";
 }
 
-string Row_RepositorySource_URL::psc_id_asSQL()
+string Row_RepositorySource_URL::Comments_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
 if (is_null[6])
+return "NULL";
+
+char buf[61];
+mysql_real_escape_string(table->database->db_handle, buf, m_Comments.c_str(), (unsigned long) m_Comments.size());
+return string()+"\""+buf+"\"";
+}
+
+string Row_RepositorySource_URL::psc_id_asSQL()
+{
+PLUTO_SAFETY_LOCK(M, table->m_Mutex);
+
+if (is_null[7])
 return "NULL";
 
 char buf[32];
@@ -340,7 +365,7 @@ string Row_RepositorySource_URL::psc_batch_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[7])
+if (is_null[8])
 return "NULL";
 
 char buf[32];
@@ -353,7 +378,7 @@ string Row_RepositorySource_URL::psc_user_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[8])
+if (is_null[9])
 return "NULL";
 
 char buf[32];
@@ -366,7 +391,7 @@ string Row_RepositorySource_URL::psc_frozen_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[9])
+if (is_null[10])
 return "NULL";
 
 char buf[32];
@@ -379,7 +404,7 @@ string Row_RepositorySource_URL::psc_mod_asSQL()
 {
 PLUTO_SAFETY_LOCK(M, table->m_Mutex);
 
-if (is_null[10])
+if (is_null[11])
 return "NULL";
 
 char buf[29];
@@ -425,10 +450,10 @@ void Table_RepositorySource_URL::Commit()
 	
 		
 string values_list_comma_separated;
-values_list_comma_separated = values_list_comma_separated + pRow->PK_RepositorySource_URL_asSQL()+", "+pRow->FK_RepositorySource_asSQL()+", "+pRow->URL_asSQL()+", "+pRow->FK_Country_asSQL()+", "+pRow->Username_asSQL()+", "+pRow->Password_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
+values_list_comma_separated = values_list_comma_separated + pRow->PK_RepositorySource_URL_asSQL()+", "+pRow->FK_RepositorySource_asSQL()+", "+pRow->URL_asSQL()+", "+pRow->FK_Country_asSQL()+", "+pRow->Username_asSQL()+", "+pRow->Password_asSQL()+", "+pRow->Comments_asSQL()+", "+pRow->psc_id_asSQL()+", "+pRow->psc_batch_asSQL()+", "+pRow->psc_user_asSQL()+", "+pRow->psc_frozen_asSQL()+", "+pRow->psc_mod_asSQL();
 
 	
-		string query = "insert into RepositorySource_URL (PK_RepositorySource_URL, FK_RepositorySource, URL, FK_Country, Username, Password, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
+		string query = "insert into RepositorySource_URL (PK_RepositorySource_URL, FK_RepositorySource, URL, FK_Country, Username, Password, Comments, psc_id, psc_batch, psc_user, psc_frozen, psc_mod) values ("+
 			values_list_comma_separated+")";
 			
 		if (mysql_query(database->db_handle, query.c_str()))
@@ -477,7 +502,7 @@ condition = condition + "PK_RepositorySource_URL=" + tmp_PK_RepositorySource_URL
 			
 		
 string update_values_list;
-update_values_list = update_values_list + "PK_RepositorySource_URL="+pRow->PK_RepositorySource_URL_asSQL()+", FK_RepositorySource="+pRow->FK_RepositorySource_asSQL()+", URL="+pRow->URL_asSQL()+", FK_Country="+pRow->FK_Country_asSQL()+", Username="+pRow->Username_asSQL()+", Password="+pRow->Password_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
+update_values_list = update_values_list + "PK_RepositorySource_URL="+pRow->PK_RepositorySource_URL_asSQL()+", FK_RepositorySource="+pRow->FK_RepositorySource_asSQL()+", URL="+pRow->URL_asSQL()+", FK_Country="+pRow->FK_Country_asSQL()+", Username="+pRow->Username_asSQL()+", Password="+pRow->Password_asSQL()+", Comments="+pRow->Comments_asSQL()+", psc_id="+pRow->psc_id_asSQL()+", psc_batch="+pRow->psc_batch_asSQL()+", psc_user="+pRow->psc_user_asSQL()+", psc_frozen="+pRow->psc_frozen_asSQL()+", psc_mod="+pRow->psc_mod_asSQL();
 
 	
 		string query = "update RepositorySource_URL set " + update_values_list + " where " + condition;
@@ -634,56 +659,67 @@ pRow->m_Password = string(row[5],lengths[5]);
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_psc_id = 0;
+pRow->m_Comments = "";
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%li", &(pRow->m_psc_id));
+pRow->m_Comments = string(row[6],lengths[6]);
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%li", &(pRow->m_psc_batch));
+sscanf(row[7], "%li", &(pRow->m_psc_id));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_psc_user));
+sscanf(row[8], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[9], "%li", &(pRow->m_psc_user));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-pRow->m_psc_mod = string(row[10],lengths[10]);
+sscanf(row[10], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[11] == NULL)
+{
+pRow->is_null[11]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[11]=false;
+pRow->m_psc_mod = string(row[11],lengths[11]);
 }
 
 
@@ -861,56 +897,67 @@ pRow->m_Password = string(row[5],lengths[5]);
 if (row[6] == NULL)
 {
 pRow->is_null[6]=true;
-pRow->m_psc_id = 0;
+pRow->m_Comments = "";
 }
 else
 {
 pRow->is_null[6]=false;
-sscanf(row[6], "%li", &(pRow->m_psc_id));
+pRow->m_Comments = string(row[6],lengths[6]);
 }
 
 if (row[7] == NULL)
 {
 pRow->is_null[7]=true;
-pRow->m_psc_batch = 0;
+pRow->m_psc_id = 0;
 }
 else
 {
 pRow->is_null[7]=false;
-sscanf(row[7], "%li", &(pRow->m_psc_batch));
+sscanf(row[7], "%li", &(pRow->m_psc_id));
 }
 
 if (row[8] == NULL)
 {
 pRow->is_null[8]=true;
-pRow->m_psc_user = 0;
+pRow->m_psc_batch = 0;
 }
 else
 {
 pRow->is_null[8]=false;
-sscanf(row[8], "%li", &(pRow->m_psc_user));
+sscanf(row[8], "%li", &(pRow->m_psc_batch));
 }
 
 if (row[9] == NULL)
 {
 pRow->is_null[9]=true;
-pRow->m_psc_frozen = 0;
+pRow->m_psc_user = 0;
 }
 else
 {
 pRow->is_null[9]=false;
-sscanf(row[9], "%hi", &(pRow->m_psc_frozen));
+sscanf(row[9], "%li", &(pRow->m_psc_user));
 }
 
 if (row[10] == NULL)
 {
 pRow->is_null[10]=true;
-pRow->m_psc_mod = "";
+pRow->m_psc_frozen = 0;
 }
 else
 {
 pRow->is_null[10]=false;
-pRow->m_psc_mod = string(row[10],lengths[10]);
+sscanf(row[10], "%hi", &(pRow->m_psc_frozen));
+}
+
+if (row[11] == NULL)
+{
+pRow->is_null[11]=true;
+pRow->m_psc_mod = "";
+}
+else
+{
+pRow->is_null[11]=false;
+pRow->m_psc_mod = string(row[11],lengths[11]);
 }
 
 

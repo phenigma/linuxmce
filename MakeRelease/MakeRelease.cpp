@@ -939,6 +939,7 @@ string Makefile = "none:\n"
 		// TODO: Error checks
 		if (sSource.find("mkr_postinst") != string::npos) // NOTE: not right; should check at begining of file name
 		{
+#ifndef WIN32
 			cout << "POSTINST: " << sSource << endl;
 			// put mkr_postinst scripts into control section instead of package contents
 			FILE * g;
@@ -962,9 +963,11 @@ string Makefile = "none:\n"
 			}
 			fclose(g);
 			fclose(f);
+#endif
 		}
 		else if (sSource.find("mkr_preinst") != string::npos) // NOTE: not right; should check at begining of file name
 		{
+#ifndef WIN32
 			cout << "PREINST: " << sSource << endl;
 			// put mkr_preinst scripts into control section instead of package contents
 			FILE * g;
@@ -988,6 +991,7 @@ string Makefile = "none:\n"
 			}
 			fclose(g);
 			fclose(f);
+#endif
 		}
 		else
 		{

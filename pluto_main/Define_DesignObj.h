@@ -1050,6 +1050,8 @@
 #define DESIGNOBJ_vol_up_CONST 3208
 #define DESIGNOBJ_vol_down_CONST 3209
 #define DESIGNOBJ_go_to_dvd_menu_CONST 3210
+#define DESIGNOBJ_go_to_dvd_remote_CONST 3211
+#define DESIGNOBJ_go_to_cd_remote_CONST 3212
 
 #define DESIGNOBJ_TABLE "DesignObj"
 #define DESIGNOBJ_PK_DESIGNOBJ_FIELD "PK_DesignObj"

@@ -84,8 +84,8 @@ int _tmain(int argc, _TCHAR* argv[])
 #else
 int main(int argc, char *argv[])
 {
-#endif
 	setenv("SDL_VIDEODRIVER", "dummy", 1); // force SDL to use its dummy video driver (removed a dependency on the X server)
+#endif
 	g_pPlutoLogger=new FileLogger(stdout);
 
 	string DBHost="dce_router",DBUser="root",DBPassword="",DBName="pluto_main";
@@ -290,7 +290,6 @@ int OrbiterGenerator::DoIt()
 	}
 
 	// Get the no effects flag
-	m_pRow_Language = NULL;
 	pRow_Device_DeviceData = mds.Device_DeviceData_get()->GetRow(m_pRow_Device->PK_Device_get(),DEVICEDATA_No_Effects_CONST);
 	if( pRow_Device_DeviceData )
 		m_bNoEffects = atoi(pRow_Device_DeviceData->Value_get().c_str())!=1;

@@ -87,13 +87,14 @@ string m_URL;
 long int m_FK_Country;
 string m_Username;
 string m_Password;
+string m_Comments;
 long int m_psc_id;
 long int m_psc_batch;
 long int m_psc_user;
 short int m_psc_frozen;
 string m_psc_mod;
 
-		bool is_null[11];
+		bool is_null[12];
 	
 	public:
 		long int PK_RepositorySource_URL_get();
@@ -102,6 +103,7 @@ string URL_get();
 long int FK_Country_get();
 string Username_get();
 string Password_get();
+string Comments_get();
 long int psc_id_get();
 long int psc_batch_get();
 long int psc_user_get();
@@ -115,6 +117,7 @@ void URL_set(string val);
 void FK_Country_set(long int val);
 void Username_set(string val);
 void Password_set(string val);
+void Comments_set(string val);
 void psc_id_set(long int val);
 void psc_batch_set(long int val);
 void psc_user_set(long int val);
@@ -124,6 +127,7 @@ void psc_mod_set(string val);
 		
 		bool FK_Country_isNull();
 bool Username_isNull();
+bool Comments_isNull();
 bool psc_id_isNull();
 bool psc_batch_isNull();
 bool psc_user_isNull();
@@ -132,6 +136,7 @@ bool psc_frozen_isNull();
 			
 		void FK_Country_setNull(bool val);
 void Username_setNull(bool val);
+void Comments_setNull(bool val);
 void psc_id_setNull(bool val);
 void psc_batch_setNull(bool val);
 void psc_user_setNull(bool val);
@@ -158,7 +163,7 @@ class Row_Country* FK_Country_getrow();
 
 		// Setup binary serialization
 		void SetupSerialization() {
-			StartSerializeList() + m_PK_RepositorySource_URL+ m_FK_RepositorySource+ m_URL+ m_FK_Country+ m_Username+ m_Password+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
+			StartSerializeList() + m_PK_RepositorySource_URL+ m_FK_RepositorySource+ m_URL+ m_FK_Country+ m_Username+ m_Password+ m_Comments+ m_psc_id+ m_psc_batch+ m_psc_user+ m_psc_frozen+ m_psc_mod;
 		}
 	private:
 		void SetDefaultValues();
@@ -169,6 +174,7 @@ string URL_asSQL();
 string FK_Country_asSQL();
 string Username_asSQL();
 string Password_asSQL();
+string Comments_asSQL();
 string psc_id_asSQL();
 string psc_batch_asSQL();
 string psc_user_asSQL();

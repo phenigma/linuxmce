@@ -2,8 +2,7 @@
 #define __Define_Country_H__
 
 #define COUNTRY_USA_CONST 1
-#define COUNTRY_Romania_CONST 2
-#define COUNTRY_Congo_CONST 3
+#define COUNTRY_Romania_CONST 40
 
 #define COUNTRY_TABLE "Country"
 #define COUNTRY_PK_COUNTRY_FIELD "PK_Country"

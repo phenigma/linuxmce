@@ -36,7 +36,7 @@ Renderer::Renderer(string FontPath,string OutputDirectory,int Width,int Height)
 	m_Width=Width;
 	m_Height=Height;
 
-	if (SDL_Init(SDL_INIT_VIDEO) == -1)
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == -1)
 	{
 		cerr << "Failed initializing SDL: " << SDL_GetError() << endl;
 		throw "Failed initializing SDL";

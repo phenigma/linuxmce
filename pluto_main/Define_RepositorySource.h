@@ -9,6 +9,9 @@
 #define REPOSITORYSOURCE_Nerimnet_CONST 6
 #define REPOSITORYSOURCE_Pluto_CVS_CONST 7
 #define REPOSITORYSOURCE_Pluto_SVN_CONST 8
+#define REPOSITORYSOURCE_Pluto_Debian_Sarge_Archives_CONST 9
+#define REPOSITORYSOURCE_Pluto_Windows_Archives_CONST 10
+#define REPOSITORYSOURCE_Pluto_Source_Archives_CONST 11
 
 #define REPOSITORYSOURCE_TABLE "RepositorySource"
 #define REPOSITORYSOURCE_PK_REPOSITORYSOURCE_FIELD "PK_RepositorySource"

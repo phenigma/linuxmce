@@ -1,7 +1,7 @@
 #ifndef __Define_Distro_H__
 #define __Define_Distro_H__
 
-#define DISTRO_Debian_Woody_CONST 1
+#define DISTRO_Debian_Sarge_CONST 1
 #define DISTRO_Slackware_CONST 2
 #define DISTRO_RedHat_CONST 3
 #define DISTRO_Fedora_CONST 4

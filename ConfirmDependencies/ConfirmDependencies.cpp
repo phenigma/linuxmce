@@ -122,7 +122,7 @@ string GetCommand()
 	case '4':
 		return "build";
 	case '5':
-		return "build";
+		return "buildall";
 	case 'Q':
 	case 'q':
 		exit(1);
@@ -303,7 +303,15 @@ int main(int argc, char *argv[])
 				<< " \"" << pPackageInfo->m_pRow_Package_Source->Version_get() << "\"" << endl;
 		}
 	}
-
+	else if( sCommand=="list" )
+	{
+		list<PackageInfo *>::iterator it;
+		for(it=listPackageInfo.begin(); it!=listPackageInfo.end(); ++it)
+		{
+			PackageInfo *pPackageInfo = *it;
+			cout << pPackageInfo->m_pRow_Package_Source->FK_Package_get() << "\t" << pPackageInfo->m_pRow_Package_Source->FK_Package_getrow()->Description_get() << endl;
+		}
+	}
 	// The ConfirmDependencies program specific to this distro will be given the following parameters:
 	// 1. Repository Source -- A URL, such as http://ftp.debian.org
 	// 2. Repository -- such as Woody, or Stable
@@ -331,7 +339,6 @@ int main(int argc, char *argv[])
 		}
 	}
 */
-	getch();
 	return 0;
 }
 
@@ -363,7 +370,7 @@ void CheckDevice(Row_Device *pRow_Device,bool bSourceCode)
 void CheckDeviceLoop(Row_Device *pRow_Device,bool bDevelopment)
 {
 	if( pRow_Device->FK_DeviceTemplate_getrow()->FK_Package_isNull() )
-		cout << "#No package info for device: " << pRow_Device->Description_get() << " (" << pRow_Device->FK_DeviceTemplate_getrow()->Description_get() << ")" << endl;
+		cout << "#***ERROR*** I don't know how to get the software for: " << pRow_Device->Description_get() << " (" << pRow_Device->FK_DeviceTemplate_getrow()->Description_get() << ")" << endl;
 	else
 	{
 		string PkgName = pRow_Device->FK_DeviceTemplate_getrow()->FK_Package_getrow()->Description_get();
