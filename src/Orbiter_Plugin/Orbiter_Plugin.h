@@ -243,7 +243,7 @@ public:
 		/** @param #2 PK_Device */
 			/** The Orbiter to regenerate */
 		/** @param #21 Force */
-			/** If this =1 it will force a full regen. */
+			/** Can be -r to force a full regen, or -a for a quick one */
 
 	virtual void CMD_Regen_Orbiter(int iPK_Device,string sForce) { string sCMD_Result; CMD_Regen_Orbiter(iPK_Device,sForce.c_str(),sCMD_Result,NULL);};
 	virtual void CMD_Regen_Orbiter(int iPK_Device,string sForce,string &sCMD_Result,Message *pMessage);

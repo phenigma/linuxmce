@@ -1210,7 +1210,7 @@ void Orbiter_Plugin::CMD_Set_FollowMe(int iPK_Device,string sText,int iPK_Users,
 		/** @param #2 PK_Device */
 			/** The Orbiter to regenerate */
 		/** @param #21 Force */
-			/** If this =1 it will force a full regen. */
+			/** Can be -r to force a full regen, or -a for a quick one */
 
 void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string &sCMD_Result,Message *pMessage)
 //<-dceag-c266-e->
@@ -1223,16 +1223,19 @@ void Orbiter_Plugin::CMD_Regen_Orbiter(int iPK_Device,string sForce,string &sCMD
 	}
 	else if( pOH_Orbiter->m_tRegenTime )
 	{
-		int Minutes = (pOH_Orbiter->m_tRegenTime - time(NULL)) /60;
+		int Minutes = (time(NULL) - pOH_Orbiter->m_tRegenTime) /60;
 		DisplayMessageOnOrbiter(iPK_Device,"We already started regenerating the orbiter " + StringUtils::itos(Minutes) +
-			" ago.  When it is finished, it will return to the main menu automatically.  If you think it is stuck, you may want to reset the Pluto system");
+			" minutes ago.  When it is finished, it will return to the main menu automatically.  If you think it is stuck, you may want to reset the Pluto system");
 		return;
 	}
 
 	pOH_Orbiter->m_tRegenTime = time(NULL);
-	string Cmd = "/usr/pluto/bin/RegenOrbiterOnTheFly.sh " + StringUtils::itos(iPK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " " + sForce;
+
+	// Launch it in the background with &
+	string Cmd = "/usr/pluto/bin/RegenOrbiterOnTheFly.sh " + StringUtils::itos(iPK_Device) + " " + StringUtils::itos(m_dwPK_Device) + " " + sForce + " &";
 	g_pPlutoLogger->Write(LV_STATUS,"Executing: %s",Cmd.c_str());
 	system(Cmd.c_str());
+	g_pPlutoLogger->Write(LV_STATUS,"Execution returned: %s",Cmd.c_str());
 }
 
 //<-dceag-c267-b->

@@ -13,7 +13,7 @@ VERSION = 2.0.0
 MYDEVTEMPLATEID = 12mplateID
 
 Gen_Dev_Files = $(GENDEV)/Orbiter_PluginBase.cpp
-sources = Main.cpp Orbiter_Plugin.cpp PopulateListsInVMC.cpp $(Gen_Dev_Files)
+sources = Main.cpp Orbiter_Plugin.cpp $(Gen_Dev_Files)
 #<-dceag-mh-e->
 
 CXXFLAGS += -fmessage-length=0
@@ -22,7 +22,7 @@ LDFLAGS +=
 XTRALDLIBS = -lpluto_main
 
 Gen_Dev_Files +=
-sources += FollowMe_Plugin.cpp ../CreateDevice/CreateDevice.cpp ../VIPShared/VIPMenu.cpp
+sources += FollowMe_Plugin.cpp ../CreateDevice/CreateDevice.cpp ../VIPShared/VIPMenu.cpp PopulateListsInVMC.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)
