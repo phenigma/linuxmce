@@ -25,8 +25,9 @@ Gen_Dev_Files += $(GENDEV)/Datagrid_PluginBase.cpp
 sources += \
 	../Datagrid_Plugin/Datagrid_Plugin.cpp \
 	../File_Grids_Plugin/FileListGrid.cpp \
-	MediaPluginInfo.cpp \
-	MediaAttributes.cpp
+	MediaHandlerInfo.cpp \
+	MediaAttributes.cpp \
+	../Orbiter_Plugin/FollowMe_Plugin.cpp
 	
 
 #<-dceag-mf-b->!

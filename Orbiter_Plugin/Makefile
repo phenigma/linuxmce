@@ -22,7 +22,7 @@ LDFLAGS +=
 XTRALDLIBS = -lpluto_main
 
 Gen_Dev_Files +=
-sources +=
+sources += FollowMe_Plugin.cpp
 
 #<-dceag-mf-b->
 LDLIBS = $(XTRALDLIBS) $(BASELDLIBS)

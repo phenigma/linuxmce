@@ -15,6 +15,7 @@
 //<-dceag-d-e->
 
 #include "../Media_Plugin/Media_Plugin.h"
+#include "../Media_Plugin/MediaHandlerBase.h"
 #include "Datagrid_Plugin/Datagrid_Plugin.h"
 
 class Database_FakeEPG;
