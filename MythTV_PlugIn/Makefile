@@ -22,7 +22,7 @@ LDFLAGS +=
 LDLIBS += -lpluto_main -lFakeEPG -lPlutoUtils -lSerializeClass
 
 Gen_Dev_Files += $(GENDEV)/Media_PluginBase.cpp $(GENDEV)/Datagrid_PluginBase.cpp
-sources += ../Media_Plugin/MediaPluginInfo.cpp ../Media_Plugin/Media_Plugin.cpp ../Datagrid_Plugin/Datagrid_Plugin.cpp MythTvEPGWrapper.cpp
+sources += ../Media_Plugin/MediaPluginInfo.cpp ../Media_Plugin/Media_Plugin.cpp ../Datagrid_Plugin/Datagrid_Plugin.cpp MythTvWrapper.cpp 
 
 #<-dceag-mf-b->
 whattodo:

@@ -20,7 +20,7 @@ using namespace DCE;
 #include "../pluto_main/Define_DataGrid.h"
 #include "DataGrid.h"
 
-#include "MythTvEPGWrapper.h"
+#include "MythTvWrapper.h"
 
 
 //<-dceag-const-b->
@@ -28,13 +28,15 @@ MythTV_PlugIn::MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEve
     : MythTV_PlugIn_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
-    m_pDatabase_FakeEPG = new Database_FakeEPG();
-    if(!m_pDatabase_FakeEPG->Connect(m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),"FakeEPG",m_pRouter->iDBPort_get()) )
-    {
-        g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
-        m_bQuit=true;
-        return;
-    }
+//     m_pDatabase_FakeEPG = new Database_FakeEPG();
+//     if(!m_pDatabase_FakeEPG->Connect(m_pRouter->sDBHost_get(),m_pRouter->sDBUser_get(),m_pRouter->sDBPassword_get(),"FakeEPG",m_pRouter->iDBPort_get()) )
+//     {
+//         g_pPlutoLogger->Write(LV_CRITICAL, "Cannot connect to database!");
+//         m_bQuit=true;
+//         return;
+//     }
+
+    m_pMythWrapper = new MythTvWrapper();
 }
 
 //<-dceag-dest-b->
@@ -190,10 +192,10 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
     PLUTO_SAFETY_LOCK(mm, m_pMedia_Plugin->m_MediaMutex);
     g_pPlutoLogger->Write(LV_STATUS, "A datagrid for all the shows was requested %s params %s", GridID.c_str(), Parms.c_str());
 
-    if ( ! m_pAllShowsDataGrid )
+    if ( ! m_pMythWrapper )
     {
-        g_pPlutoLogger->Write(LV_STATUS, "Building a new MythTvEPGWrapper object as the datagrid");
-        m_pAllShowsDataGrid = new MythTvEPGWrapper();
+        g_pPlutoLogger->Write(LV_STATUS, "The myth wrapper object wasn't constructed at MythTV_PlugIn contructor time. Ignoring datagrid request!");
+        return NULL;
     }
 
     QDateTime currentTime = QDateTime::currentDateTime();
@@ -209,8 +211,9 @@ class DataGridTable *MythTV_PlugIn::AllShows(string GridID, string Parms, void *
                     nRoundedMinutes,
                     0));
 
-    m_pAllShowsDataGrid->setGridBoundaries(currentTime, currentTime.addDays(14)); // i want 3 days.)
-    return m_pAllShowsDataGrid;
+    return m_pMythWrapper->createShowsDataGrid(GridID, currentTime, currentTime.addDays(14));
+
+//     return m_pAllShowsDataGrid;
 }
 
 class DataGridTable *MythTV_PlugIn::CurrentShows(string GridID,string Parms,void *ExtraData,int *iPK_Variable,string *sValue_To_Assign,Message *pMessage)
@@ -265,29 +268,41 @@ void MythTV_PlugIn::CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string
         return;  // Can't do anything
 
 
-    vector<string> numbers;
-    StringUtils::Tokenize(sValue_To_Assign, "|", numbers);
-
-    if ( numbers.size() != 6 )
+    if ( m_pMythWrapper->ProcessWatchTvRequest(sValue_To_Assign) == WatchTVResult_Tuned )
     {
-        g_pPlutoLogger->Write(LV_STATUS, "We can't decode this: %s", sValue_To_Assign.c_str());
+        pMediaStream->UpdateDescriptions();
+        m_pMedia_Plugin->MediaInfoChanged(pMediaStream);
         return;
     }
 
-    int iChanId = atoi(numbers[0].c_str());
-    int nYear   = atoi(numbers[1].c_str());
-    int nMonth  = atoi(numbers[2].c_str());
-    int nDay    = atoi(numbers[3].c_str());
-    int nHour   = atoi(numbers[4].c_str());
-    int nMinute = atoi(numbers[5].c_str());
+    DCE::CMD_Goto_Screen cmdGotoScreen(m_dwPK_Device, pMessage->m_dwPK_Device_From, 0, "1741", "", "", false);
 
-    ProcessWatchTvRequest(iChanId, QDateTime(QDate(nYear, nMonth, nDay), QTime(nHour, nMinute)));
-
-    pMediaStream->UpdateDescriptions();
-    m_pMedia_Plugin->MediaInfoChanged(pMediaStream);
+    SendCommand(cmdGotoScreen);
 }
 
-void MythTV_PlugIn::ProcessWatchTvRequest(int channelId, QDateTime showStartTime)
+//<-dceag-c185-b->
+/*
+    COMMAND: #185 - Schedule Recording
+    COMMENTS: This will schedule a recording.
+    PARAMETERS:
+        #68 ProgramID
+            The program which will need to be recorded. (The format is defined by the device which created the original datagrid)
+*/
+void MythTV_PlugIn::CMD_Schedule_Recording(string sProgramID,string &sCMD_Result,Message *pMessage)
+//<-dceag-c185-e->
 {
-    //
+    PLUTO_SAFETY_LOCK(mm,m_pMedia_Plugin->m_MediaMutex);
+
+    g_pPlutoLogger->Write(LV_STATUS, "Jump to position called %s", sProgramID.c_str());
+
+    class MythTvStream *pMediaStream =
+        (MythTvStream *) m_pMedia_Plugin->DetermineStreamOnOrbiter(pMessage->m_dwPK_Device_From);
+
+    if( !pMediaStream )
+        return;  // Can't do anything
+
+    if ( m_pMythWrapper->ProcessAddRecordingRequest(sProgramID) == ScheduleRecordTVResult_Success)
+        return;
+
+    sProgramID = "Error";
 }

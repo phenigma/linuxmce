@@ -19,19 +19,19 @@
 #include "Other.h"
 
 #ifndef SYMBIAN
-	#include <stdio.h>
-	#include <time.h>
-	#include <cctype>
-	#include <algorithm>
-	#include <stdarg.h>
-	#include <sys/types.h>
-	#include <sys/stat.h>
-	#ifdef WIN32
-		#include <direct.h>
-	#else
-		#include <dirent.h>
-		#define stricmp(x, y) strcasecmp(x, y)
-	#endif
+    #include <stdio.h>
+    #include <time.h>
+    #include <cctype>
+    #include <algorithm>
+    #include <stdarg.h>
+    #include <sys/types.h>
+    #include <sys/stat.h>
+    #ifdef WIN32
+        #include <direct.h>
+    #else
+        #include <dirent.h>
+        #define stricmp(x, y) strcasecmp(x, y)
+    #endif
 #endif //#ifndef SYMBIAN
 
 string StringUtils::Tokenize( string &sInput, string sToken, string::size_type &CurPos )
@@ -113,36 +113,36 @@ string StringUtils::ltos( long lNum )
 
 void StringUtils::Tokenize(string &Input, string Tokens, vector<string> &vect_strings)
 {
-	string::size_type pos=0;
-	string sToken;
-	while( (sToken=StringUtils::Tokenize(Input,Tokens,pos)).length() )
-		vect_strings.push_back(sToken);
+    string::size_type pos=0;
+    string sToken;
+    while( (sToken=StringUtils::Tokenize(Input,Tokens,pos)).length() )
+        vect_strings.push_back(sToken);
 }
 
 void StringUtils::Tokenize(string &Input, string Tokens, deque<string> &deque_strings, bool bPushToFront)
 {
-	string::size_type pos=0;
-	string sToken;
-	while( (sToken=StringUtils::Tokenize(Input,Tokens,pos)).length() )
-	{
-		if( bPushToFront )
-			deque_strings.push_front(sToken);
-		else
-			deque_strings.push_back(sToken);
-	}
+    string::size_type pos=0;
+    string sToken;
+    while( (sToken=StringUtils::Tokenize(Input,Tokens,pos)).length() )
+    {
+        if( bPushToFront )
+            deque_strings.push_front(sToken);
+        else
+            deque_strings.push_back(sToken);
+    }
 }
 
 
 string StringUtils::RepeatChar(char c,int count)
 {
-	if( count<1 )
-		return "";
+    if( count<1 )
+        return "";
 
-	char *cBuffer = new char[count+1];
-	for(int i=0;i<count;++i)
-		cBuffer[i]=c;
-	cBuffer[count]=0;
-	return cBuffer;
+    char *cBuffer = new char[count+1];
+    for(int i=0;i<count;++i)
+        cBuffer[i]=c;
+    cBuffer[count]=0;
+    return cBuffer;
 }
 
 string StringUtils::TrimSpaces( string &sInput )
@@ -444,18 +444,18 @@ string StringUtils::SQLEscape( string sInput )
 
 bool StringUtils::StartsWith( string sFirst, string sSecond, bool bIgnoreCase )
 {
-	if( bIgnoreCase )
-		return sFirst.length()>=sSecond.length() && StringUtils::ToLower(sFirst.substr(0,sSecond.length()))==StringUtils::ToLower(sSecond);
-	else
-		return sFirst.length()>=sSecond.length() && sFirst.substr(0,sSecond.length())==sSecond;
+    if( bIgnoreCase )
+        return sFirst.length()>=sSecond.length() && StringUtils::ToLower(sFirst.substr(0,sSecond.length()))==StringUtils::ToLower(sSecond);
+    else
+        return sFirst.length()>=sSecond.length() && sFirst.substr(0,sSecond.length())==sSecond;
 }
 
 bool StringUtils::EndsWith( string sFirst, string sSecond, bool bIgnoreCase )
 {
-	if( bIgnoreCase )
-		return sFirst.length()>=sSecond.length() && StringUtils::ToLower(sFirst.substr(sFirst.length()-sSecond.length()))==StringUtils::ToLower(sSecond);
-	else
-		return sFirst.length()>=sSecond.length() && sFirst.substr(sFirst.length()-sSecond.length())==sSecond;
+    if( bIgnoreCase )
+        return sFirst.length()>=sSecond.length() && StringUtils::ToLower(sFirst.substr(sFirst.length()-sSecond.length()))==StringUtils::ToLower(sSecond);
+    else
+        return sFirst.length()>=sSecond.length() && sFirst.substr(sFirst.length()-sSecond.length())==sSecond;
 }
 
 #endif //#ifndef SYMBIAN

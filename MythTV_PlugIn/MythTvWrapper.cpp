@@ -1,4 +1,4 @@
-#include "MythTvEPGWrapper.h"
+#include "MythTvWrapper.h"
 #include "DCE/Logger.h"
 
 #include <qapplication.h>
@@ -8,12 +8,14 @@
 
 #include <mythtv/mythcontext.h>
 #include <mythtv/mythdialogs.h>
+#include <programinfo.h>
 
 using namespace DCE;
 
 MythContext *gContext;
 
-MythTvEPGWrapper::MythTvEPGWrapper()
+
+MythTvWrapper::MythTvWrapper()
 {
     int argc = 1;
     char *argv[] = { "", "", "" };
@@ -29,7 +31,7 @@ MythTvEPGWrapper::MythTvEPGWrapper()
     }
 }
 
-bool MythTvEPGWrapper::initMythTVGlobalContext()
+bool MythTvWrapper::initMythTVGlobalContext()
 {
     gContext = new MythContext(MYTH_BINARY_VERSION);
     gContext->LoadQtConfig();
@@ -50,36 +52,39 @@ bool MythTvEPGWrapper::initMythTVGlobalContext()
     return true;
 }
 
-void MythTvEPGWrapper::setGridBoundaries(QDateTime startTime, QDateTime endTime)
+MythTvWrapper::MythTvEpgGrid::MythTvEpgGrid()
 {
-    g_pPlutoLogger->Write(LV_STATUS,
-            "Setting grid from %s to %s",
+
+}
+
+void MythTvWrapper::MythTvEpgGrid::setGridBoundaries(QDateTime startTime, QDateTime endTime)
+{
+    g_pPlutoLogger->Write(LV_STATUS, "Setting grid boundaries to: [%s -> %s]",
                 startTime.toString().ascii(),
                 endTime.toString().ascii());
 
-    m_timeStart = startTime;
-    m_timeEnd = endTime;
+    m_timeFrom = startTime;
+    m_timeTo   = endTime;
 
     m_iQuantInSecs = 5 * 60; // 15 minutes;
-    m_iColumns = startTime.secsTo(endTime) / m_iQuantInSecs;
+    m_iColumns = m_timeFrom.secsTo(m_timeTo) / m_iQuantInSecs;
 
     readChannelData();
 
     g_pPlutoLogger->Write(LV_STATUS, "Total grid size %dx%d", GetRows(), GetCols());
-//     getProgramData();
 }
 
-int MythTvEPGWrapper::GetRows()
+int MythTvWrapper::MythTvEpgGrid::GetRows()
 {
     return m_vectChannelIds.size();
 }
 
-int MythTvEPGWrapper::GetCols()
+int MythTvWrapper::MythTvEpgGrid::GetCols()
 {
     return m_iColumns;
 }
 
-void MythTvEPGWrapper::readChannelData()
+void MythTvWrapper::MythTvEpgGrid::readChannelData()
 {
     QString strQuery, strTimeFormat;
 
@@ -87,8 +92,8 @@ void MythTvEPGWrapper::readChannelData()
 
     strTimeFormat = "yyyy-MM-dd hh:mm:ss";
 
-    startDataAsString = m_timeStart.toString(strTimeFormat);
-    endDateAsString = m_timeEnd.toString(strTimeFormat);
+    startDataAsString = m_timeFrom.toString(strTimeFormat);
+    endDateAsString   = m_timeTo.toString(strTimeFormat);
 
     strQuery.sprintf("SELECT p.chanid"
                      " FROM program p"
@@ -130,10 +135,10 @@ void MythTvEPGWrapper::readChannelData()
     }
 }
 
-void MythTvEPGWrapper::readProgramInfo(int channelId, QString programName, QDateTime startTime, QDateTime endTime)
+void MythTvWrapper::MythTvEpgGrid::readProgramInfo(int channelId, QString programName, QDateTime startTime, QDateTime endTime)
 {
     int nColumnSpan = startTime.secsTo(endTime) / m_iQuantInSecs;
-    int nColumnStart = m_timeStart.secsTo(startTime) / m_iQuantInSecs;
+    int nColumnStart = m_timeFrom.secsTo(startTime) / m_iQuantInSecs;
 
     DCE::DataGridCell *pDataGridCell = new DCE::DataGridCell(programName.ascii());
     pDataGridCell->m_Colspan = nColumnSpan;
@@ -147,7 +152,7 @@ void MythTvEPGWrapper::readProgramInfo(int channelId, QString programName, QDate
                 endTime.toString().ascii());
 }
 
-void MythTvEPGWrapper::cleanChannelStorage(int channel)
+void MythTvWrapper::MythTvEpgGrid::cleanChannelStorage(int channel)
 {
 /*    if ( m_mapPrograms.find(channel) != m_mapPrograms.end() )
     {
@@ -168,7 +173,7 @@ void MythTvEPGWrapper::cleanChannelStorage(int channel)
     }*/
 }
 
-QString MythTvEPGWrapper::getChannelList(int rowStart, int rowCount)
+QString MythTvWrapper::MythTvEpgGrid::getChannelList(int rowStart, int rowCount)
 {
     QStringList list;
 
@@ -181,7 +186,7 @@ QString MythTvEPGWrapper::getChannelList(int rowStart, int rowCount)
     return list.join(", ");
 }
 
-void MythTvEPGWrapper::readDataGridBlock(int rowStart, int rowCount, int colStart, int colCount)
+void MythTvWrapper::MythTvEpgGrid::readDataGridBlock(int rowStart, int rowCount, int colStart, int colCount)
 {
     QString strQuery, strTimeFormat;
 
@@ -189,11 +194,11 @@ void MythTvEPGWrapper::readDataGridBlock(int rowStart, int rowCount, int colStar
 
     strTimeFormat = "yyyy-MM-dd hh:mm:ss";
 
-    QDateTime periodStart = m_timeStart.addSecs(colStart * m_iQuantInSecs);
-    QDateTime periodEnd = periodStart.addSecs(colCount * m_iQuantInSecs);
+    QDateTime periodStart = m_timeFrom.addSecs(colStart * m_iQuantInSecs);
+    QDateTime periodEnd   = periodStart.addSecs(colCount * m_iQuantInSecs);
 
     startDataAsString = periodStart.toString(strTimeFormat);
-    endDateAsString = periodEnd.toString(strTimeFormat);
+    endDateAsString   = periodEnd.toString(strTimeFormat);
 
     strQuery.sprintf("SELECT p.chanid, p.title, p.starttime, p.endtime"
                      " FROM program p"
@@ -223,10 +228,6 @@ void MythTvEPGWrapper::readDataGridBlock(int rowStart, int rowCount, int colStar
         return;
     }
 
-//     g_pPlutoLogger->Write(LV_STATUS, "Query %s", strQuery.ascii());
-
-    ClearData();
-
     if ( m_bKeepRowHeader )
         MakeTimeRow(colStart, colCount);
 
@@ -236,8 +237,6 @@ void MythTvEPGWrapper::readDataGridBlock(int rowStart, int rowCount, int colStar
         int channelPos = (m_bKeepRowHeader) ? 0 : -1;
         int programColumnSpan = 0;
         int programStartColumn = 0;
-
-        m_gridBlock.clear();
 
         QString programName;
         QDateTime dateStart, dateEnd;
@@ -286,11 +285,11 @@ void MythTvEPGWrapper::readDataGridBlock(int rowStart, int rowCount, int colStar
         g_pPlutoLogger->Write(LV_WARNING, "There are no programs in this timeframe");
     }
 }
-void MythTvEPGWrapper::MakeTimeRow(int ColStart, int ColCount)
+void MythTvWrapper::MythTvEpgGrid::MakeTimeRow(int ColStart, int ColCount)
 {
     QString timeCell;
 
-    QDateTime currentTime = m_timeStart.addSecs(m_iQuantInSecs * ColStart);
+    QDateTime currentTime = m_timeFrom.addSecs(m_iQuantInSecs * ColStart);
 
     while ( ColCount != 0 && ColStart + ColCount < m_iColumns)
     {
@@ -303,13 +302,11 @@ void MythTvEPGWrapper::MakeTimeRow(int ColStart, int ColCount)
 
         if ( ColCount < 0 )
             ColCount = 0;
-
-        g_pPlutoLogger->Write(LV_STATUS, "added time cell: %s", pCell->m_Text);
     }
     return;
 }
 
-void MythTvEPGWrapper::ToData(string GridID,int &Size, char* &Data, int ColStart, int RowStart, int ColCount, int RowCount)
+void MythTvWrapper::MythTvEpgGrid::ToData(string GridID,int &Size, char* &Data, int ColStart, int RowStart, int ColCount, int RowCount)
 {
     readDataGridBlock(RowStart, RowCount, ColStart, ColCount);
 
@@ -319,3 +316,102 @@ void MythTvEPGWrapper::ToData(string GridID,int &Size, char* &Data, int ColStart
 
     DataGridTable::ToData(GridID, Size, Data, ColStart, RowStart, ColCount, RowCount);
 }
+
+void MythTvWrapper::MythTvEpgGrid::setMythWrapper(MythTvWrapper *pWrapper)
+{
+    m_pMythWrapper = pWrapper;
+}
+
+DataGridTable *MythTvWrapper::createShowsDataGrid(string GridID, QDateTime startTime, QDateTime endTime)
+{
+    MythTvEpgGrid *pNewGrid = new MythTvEpgGrid();
+
+    pNewGrid->setMythWrapper(this);
+    pNewGrid->setGridBoundaries(startTime, endTime);
+
+    return pNewGrid;
+}
+
+bool MythTvWrapper::decodeProgramStartTime(string sValue, int &nChanId, int &tmYear, int &tmMonth, int &tmDay, int &tmHour, int &tmMinute)
+{
+    vector<string> numbers;
+    StringUtils::Tokenize(sValue, "|", numbers);
+
+    if ( numbers.size() != 6 )
+    {
+        g_pPlutoLogger->Write(LV_STATUS, "We can't decode this: %s", sValue.c_str());
+        return false;
+    }
+
+    nChanId = atoi(numbers[0].c_str());
+    tmYear   = atoi(numbers[1].c_str());
+    tmMonth  = atoi(numbers[2].c_str());
+    tmDay    = atoi(numbers[3].c_str());
+    tmHour   = atoi(numbers[4].c_str());
+    tmMinute = atoi(numbers[5].c_str());
+
+    return true;
+}
+WatchTVRequestResult MythTvWrapper::ProcessWatchTvRequest(string showStartTimeEncoded)
+{
+    int iChanId;
+    int tmYear, tmMonth, tmDay, tmHour, tmMinute;
+
+    if ( ! decodeProgramStartTime(showStartTimeEncoded,
+                                  iChanId,
+                                  tmYear, tmMonth, tmDay,
+                                  tmHour, tmMinute))
+        return WatchTVResult_Failed;
+
+    return ProcessWatchTvRequest(iChanId, tmYear, tmMonth, tmDay, tmHour, tmMinute);
+}
+
+WatchTVRequestResult MythTvWrapper::ProcessWatchTvRequest(int iChanId, int nYear, int nMonth, int nDay, int nHour, int nMinute)
+{
+    QDateTime programStartTime = QDateTime(QDate(nYear, nMonth, nDay), QTime(nHour, nMinute));
+
+    ProgramInfo *programInfo = ProgramInfo::GetProgramAtDateTime(
+                                                QSqlDatabase::database(),
+                                                QString::number(iChanId),
+                                                programStartTime);
+
+    if ( QDateTime::currentDateTime() > programStartTime )
+    {
+        g_pPlutoLogger->Write(LV_STATUS, "Tunning to channel ID: %d", iChanId);
+        return WatchTVResult_Tuned;
+    }
+    else
+    {
+        g_pPlutoLogger->Write(LV_STATUS, "Program is in the future: need to move the orbiter to a screen");
+        return WatchTVResult_InTheFuture;
+    }
+}
+
+ScheduleRecordTvResult MythTvWrapper::ProcessAddRecordingRequest(string showStartTimeEncoded)
+{
+    int iChanId;
+    int tmYear, tmMonth, tmDay, tmHour, tmMinute;
+
+    if ( ! decodeProgramStartTime(showStartTimeEncoded,
+                                  iChanId,
+                                  tmYear, tmMonth, tmDay,
+                                  tmHour, tmMinute))
+        return ScheduleRecordTVResult_Failed;
+
+    return ProcessAddRecordingRequest(iChanId, tmYear, tmMonth, tmDay, tmHour, tmMinute);
+}
+
+ScheduleRecordTvResult MythTvWrapper::ProcessAddRecordingRequest(int channelId, int year, int month, int day, int hour, int minute)
+{
+    QDateTime programStartTime = QDateTime(QDate(year, month, day), QTime(hour, minute));
+
+    ProgramInfo *programInfo;
+
+    programInfo = ProgramInfo::GetProgramAtDateTime(
+                                        QSqlDatabase::database(),
+                                        QString::number(channelId),
+                                        programStartTime);
+
+    programInfo->ApplyRecordStateChange(QSqlDatabase::database(), kSingleRecord);
+}
+

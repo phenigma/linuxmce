@@ -34,10 +34,12 @@
 #include <sys/stat.h>
 #ifdef WIN32
 #include <direct.h>
+#include <io.h>
 #else
 #include <dirent.h>
 #endif
-#include <io.h>
+
+
 
 #endif //#ifndef SYMBIAN
 
@@ -224,84 +226,84 @@ void FileUtils::MakeDir(string sDirectory)
     string::size_type pos = -1;
     while( (pos = sDirectory.find( '/', pos+1 )) != string::npos )
 #ifdef WIN32
-        mkdir( sDirectory.substr(0,pos).c_str() );
+    mkdir( sDirectory.substr(0,pos).c_str() );
     mkdir( sDirectory.c_str() );
 #else
-        mkdir( sDirectory.substr(0,pos).c_str(),0777 );
+    mkdir( sDirectory.substr(0,pos).c_str(),0777 );
     mkdir( sDirectory.c_str(),0777 );
 #endif
 }
 
 void FileUtils::FindFiles(list<string> &listFiles,string sDirectory,string sFileSpec_CSV)
 {
-	if( !StringUtils::EndsWith(sDirectory,"/") )
-		sDirectory += "/";
+    if( !StringUtils::EndsWith(sDirectory,"/") )
+        sDirectory += "/";
 
 #ifdef WIN32
-	intptr_t ptrFileList;
-	_finddata_t finddata;
+    intptr_t ptrFileList;
+    _finddata_t finddata;
 
-	ptrFileList = _findfirst((sDirectory + "*.*").c_str(), & finddata);
-	while (ptrFileList != -1)
-	{
-		if (finddata.attrib != _A_SUBDIR && finddata.name[0] != '.')
-		{
-			string::size_type pos = 0;
-			for (;;)
-			{
-				string s = StringUtils::Tokenize(sFileSpec_CSV, ",", pos);
-				if (s.substr(0,1) == "*")
-					s = s.substr(1);  // If it's a *.ext drop the *
-				if (s == "")
-					break;
-				if (s == ".*" || StringUtils::EndsWith(finddata.name, s.c_str(),true) )
-				{
-					listFiles.push_back(finddata.name);
-					break;
-				}
-			}
-		}
-		if (_findnext(ptrFileList, & finddata) < 0)
-			break;
-	}
+    ptrFileList = _findfirst((sDirectory + "*.*").c_str(), & finddata);
+    while (ptrFileList != -1)
+    {
+        if (finddata.attrib != _A_SUBDIR && finddata.name[0] != '.')
+        {
+            string::size_type pos = 0;
+            for (;;)
+            {
+                string s = StringUtils::Tokenize(sFileSpec_CSV, ",", pos);
+                if (s.substr(0,1) == "*")
+                    s = s.substr(1);  // If it's a *.ext drop the *
+                if (s == "")
+                    break;
+                if (s == ".*" || StringUtils::EndsWith(finddata.name, s.c_str(),true) )
+                {
+                    listFiles.push_back(finddata.name);
+                    break;
+                }
+            }
+        }
+        if (_findnext(ptrFileList, & finddata) < 0)
+            break;
+    }
 
-	_findclose(ptrFileList);
+    _findclose(ptrFileList);
 #else // Linux
-	DIR * dirp = opendir(sDirectory.c_str());
-	struct dirent entry;
-	struct dirent * direntp = & entry;
-g_pPlutoLogger->Write(LV_STATUS, "opened dir %s", BasePath.c_str());
+    DIR * dirp = opendir(sDirectory.c_str());
+    struct dirent entry;
+    struct dirent * direntp = & entry;
+// g_pPlutoLogger->Write(LV_STATUS, "opened dir %s", BasePath.c_str());
 
-	if (dirp == NULL)
-	{
-		g_pPlutoLogger->Write(LV_CRITICAL, "opendir1 %s failed: %s", BasePath.c_str(), strerror(errno));
-		return;
-	}
+    if (dirp == NULL)
+    {
+//      g_pPlutoLogger->Write(LV_CRITICAL, "opendir1 %s failed: %s", BasePath.c_str(), strerror(errno));
+        return;
+    }
 
-	int x;
-	while (dirp != NULL && (readdir_r(dirp, direntp, & direntp) == 0) && direntp)
-	{
-		if (entry.d_type != DT_DIR && entry.d_name[0] != '.' )
-		{
-g_pPlutoLogger->Write(LV_STATUS, "found file entry %s", entry.d_name);
-			size_t pos = 0;
-			for (;;)
-			{
-				string s = StringUtils::Tokenize(sFileSpec_CSV, string(","), pos);
-g_pPlutoLogger->Write(LV_STATUS, "comparing extension %s", s.c_str());
-				if (s.substr(0,1) == "*")  // If it's a *.ext drop the *
-					s = s.substr(1);
-				if (s == "")
-					break;
-				if (s == ".*" || StringUtils::EndsWith(finddata.name, s.c_str(),true) )
-				{
-g_pPlutoLogger->Write(LV_STATUS, "added file %s", entry.d_name);
-					listFiles.push_back(finddata.name);
-					break;
-				}
-			}
-		}
-	}
-	closedir (dirp);
+    int x;
+    while (dirp != NULL && (readdir_r(dirp, direntp, & direntp) == 0) && direntp)
+    {
+        if (entry.d_type != DT_DIR && entry.d_name[0] != '.' )
+        {
+// g_pPlutoLogger->Write(LV_STATUS, "found file entry %s", entry.d_name);
+            size_t pos = 0;
+            for (;;)
+            {
+                string s = StringUtils::Tokenize(sFileSpec_CSV, string(","), pos);
+// g_pPlutoLogger->Write(LV_STATUS, "comparing extension %s", s.c_str());
+                if (s.substr(0,1) == "*")  // If it's a *.ext drop the *
+                    s = s.substr(1);
+                if (s == "")
+                    break;
+                if (s == ".*" || StringUtils::EndsWith(entry.d_name, s.c_str(),true) )
+                {
+// g_pPlutoLogger->Write(LV_STATUS, "added file %s", entry.d_name);
+                    listFiles.push_back(entry.d_name);
+                    break;
+                }
+            }
+        }
+    }
+    closedir (dirp);
 #endif
 }

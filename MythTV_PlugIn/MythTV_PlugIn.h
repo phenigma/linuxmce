@@ -2,7 +2,7 @@
 #ifndef MythTV_PlugIn_h
 #define MythTV_PlugIn_h
 
-//  DCE Implemenation for #36 MythTV Plug-In
+//	DCE Implemenation for #36 MythTV Plug-In
 
 #include "Gen_Devices/MythTV_PlugInBase.h"
 //<-dceag-d-e->
@@ -13,7 +13,7 @@
 class Database_FakeEPG;
 class Row_Listing;
 
-class MythTvEPGWrapper;
+class MythTvWrapper;
 
 namespace DCE
 {
@@ -41,7 +41,8 @@ namespace DCE
         friend class MythTvStream;
         // Private member variables
 
-        MythTvEPGWrapper *m_pAllShowsDataGrid;
+        MythTvWrapper *m_pMythWrapper;
+//         MythTvEPGWrapper *m_pAllShowsDataGrid;
 
         // Private methods
     public:
@@ -49,14 +50,14 @@ namespace DCE
 
         //<-dceag-const-b->
 public:
-        // Constructors/Destructor
-        MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
-        virtual ~MythTV_PlugIn();
-        virtual bool Register();
+		// Constructors/Destructor
+		MythTV_PlugIn(int DeviceID, string ServerAddress,bool bConnectEventHandler=true,bool bLocalMode=false,class Router *pRouter=NULL);
+		virtual ~MythTV_PlugIn();
+		virtual bool Register();
 //<-dceag-const-e->
 
     private:
-        Database_FakeEPG *m_pDatabase_FakeEPG;
+//         Database_FakeEPG *m_pDatabase_FakeEPG;
         class Datagrid_Plugin *m_pDatagrid_Plugin;
 
     public:
@@ -71,31 +72,42 @@ public:
         class DataGridTable *AllShows(string GridID, string Parms, void *ExtraData, int *iPK_Variable, string *sValue_To_Assign, Message *pMessage);
 
         // custom helper methods
-        void ProcessWatchTvRequest(int channelId, QDateTime showStartTime);
+//         void ProcessWatchTvRequest(int channelId, QDateTime showStartTime);
+//         ProgramInfo *getProgramInfo(int channelId, QDateTime insideTime);
 
         //<-dceag-h-b->
-    /*
-                AUTO-GENERATED SECTION
-                Do not change the declarations
-    */
+	/*
+				AUTO-GENERATED SECTION
+				Do not change the declarations
+	*/
 
-    /*
-            *****DATA***** accessors inherited from base class
+	/*
+			*****DATA***** accessors inherited from base class
 
-            *****EVENT***** accessors inherited from base class
+			*****EVENT***** accessors inherited from base class
 
-            *****COMMANDS***** we need to implement
-    */
+			*****COMMANDS***** we need to implement
+	*/
 
-/*
-    COMMAND: #65 - Jump Position In Playlist
-    COMMENTS: Change channels.  +1 and -1 mean up and down 1 channel.
-    PARAMETERS:
-        #5 Value To Assign
-            The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1.
+/* 
+	COMMAND: #65 - Jump Position In Playlist
+	COMMENTS: Change channels.  +1 and -1 mean up and down 1 channel.
+	PARAMETERS:
+		#5 Value To Assign
+			The track to go to.  A number is considered an absolute.  "+2" means forward 2, "-1" means back 1.
 */
-    virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign) { string sCMD_Result; CMD_Jump_Position_In_Playlist(sValue_To_Assign.c_str(),sCMD_Result,NULL);};
-    virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage);
+	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign) { string sCMD_Result; CMD_Jump_Position_In_Playlist(sValue_To_Assign.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Jump_Position_In_Playlist(string sValue_To_Assign,string &sCMD_Result,Message *pMessage);
+
+/* 
+	COMMAND: #185 - Schedule Recording
+	COMMENTS: This will schedule a recording.
+	PARAMETERS:
+		#68 ProgramID
+			The program which will need to be recorded. (The format is defined by the device which created the original datagrid)
+*/
+	virtual void CMD_Schedule_Recording(string sProgramID) { string sCMD_Result; CMD_Schedule_Recording(sProgramID.c_str(),sCMD_Result,NULL);};
+	virtual void CMD_Schedule_Recording(string sProgramID,string &sCMD_Result,Message *pMessage);
 
 //<-dceag-h-e->
     };
