@@ -1,6 +1,10 @@
 <?php
 	session_start('Pluto');
 
+	if($_SERVER['HTTP_HOST']=='www.plutohome.com'){
+		header('Location: http://plutohome.com'.$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING']);
+	}
+	
 	require('include/config/config.inc.php');
 	require('include/utils.inc.php');
 	require('include/masterusers.inc.php');

@@ -87,7 +87,7 @@ Dependencies: '.((count($dependanciesTxt)==0)?'none':join(', ',$dependanciesTxt)
 	WHERE FK_Package=? ORDER BY Name ASC';
 
 	$resSources=$dbADO->Execute($selectSources,$PK_Package);
-	$out.='<table cellspacing="0" cellpadding="0">';
+	$out.='<table cellspacing="0" cellpadding="2">';
 	$sourcesCount=0;
 	while($rowSources=$resSources->FetchRow()){
 		$sourcesCount++;
@@ -136,10 +136,6 @@ Dependencies: '.((count($dependanciesTxt)==0)?'none':join(', ',$dependanciesTxt)
 	</tr>';
 
 		if($rowSources['FK_RepositorySource']==2 || in_array($rowSources['PK_RepositoryType'],$GLOBALS['HTTPorFTP'])){
-			$out.='
-		<tr bgcolor="'.(($sourcesCount%2==0)?'#DFFFCF':'#FFFFFF').'">
-			<td colspan="8"><B>Links:</B></td>
-		</tr>';
 			$queryRepositoryURLs='
 			SELECT 
 				RepositorySource_URL.*,
@@ -151,13 +147,20 @@ Dependencies: '.((count($dependanciesTxt)==0)?'none':join(', ',$dependanciesTxt)
 			while($rowRepositoryURLs=$resRepositoryURLs->FetchRow()){
 				$out.='
 		<tr bgcolor="'.(($sourcesCount%2==0)?'#DFFFCF':'#FFFFFF').'">
-			<td></td>
-			<td><a href="'.$rowRepositoryURLs['URL'].(($rowSources['Repository']!='')?$rowSources['Repository'].'/':'').$rowSources['Name'].'_'.$rowSources['Version'].$rowSources['Parms'].'">DOWNLOAD</a></td>
-			<td>Location: </td>
+			<td></td>';
+			if( $rowSources['FK_RepositorySource']==2 )
+			{
+				$out.='<td><a href="http://debsarge.plutohome.com/download/debian/main/binary-i386/'.$rowSources['Name'].'_'.$rowSources['Version'].'_i386.deb">DOWNLOAD</a></td>';
+			}
+			else
+			{
+				$out.='<td><a href="'.$rowRepositoryURLs['URL'].(($rowSources['Repository']!='')?$rowSources['Repository'].'/':'').$rowSources['Name'].'_'.$rowSources['Version'].$rowSources['Parms'].'">DOWNLOAD</a></td>';
+			}
+			$out.='<td>Location: </td>
 			<td>'.$rowRepositoryURLs['CountryName'].'</td>
-			<td>Username</td>
+			<td>Username: </td>
 			<td>'.(($rowRepositoryURLs['Username']=='')?'none':$rowRepositoryURLs['Username']).'</td>
-			<td>Password</td>
+			<td>Password: </td>
 			<td>'.(($rowRepositoryURLs['Password']=='')?'none':$rowRepositoryURLs['Password']).'</td>
 		</tr>';
 			}
