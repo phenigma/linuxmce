@@ -93,12 +93,12 @@ function uploadFloorplan($output,$dbADO) {
 		}
 		
 		if(isset($invalidType)){
-			header("Location: index.php?section=uploadFloorplan&error=Invalid file type.");
+			header("Location: index.php?section=uploadFloorplan&error=Invalid file type.&page=".$page);
 			exit();
 		}
 		
 		if(!file_exists($path) && !@mkdir($path)){
-			header("Location: index.php?section=uploadFloorplan&error=Cannot create directory.");
+			header("Location: index.php?section=uploadFloorplan&error=Cannot create directory.&page=".$page);
 			exit();
 		}
 		
@@ -111,7 +111,7 @@ function uploadFloorplan($output,$dbADO) {
 			$newPicName=$page.'.'.$extension;
 		
 		if(!move_uploaded_file($_FILES['fileImage']['tmp_name'],$path.'/'.$newPicName)){
-			header("Location: index.php?section=uploadFloorplan&error=Upload failed. Check the rights for $path");
+			header("Location: index.php?section=uploadFloorplan&error=Upload failed. Check the rights for $path&page=".$page);
 			exit();
 		}else{
 			$otherExtension=($extension=='jpg')?'png':'jpg';
