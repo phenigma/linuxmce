@@ -127,7 +127,7 @@ class DataGridTable *Telecom_Plugin::TelecomScenariosGrid(string GridID,string P
 	DataGridCell *pCell;
 
 	vector<Row_CommandGroup *> vectRowCommandGroup;
-	m_pDatabase_pluto_main->CommandGroup_get()->GetRows( COMMANDGROUP_FK_ARRAY_FIELD + string("=") + StringUtils::itos(ARRAY_Communication_Sceneraios_CONST) + " AND " 
+	m_pDatabase_pluto_main->CommandGroup_get()->GetRows( COMMANDGROUP_FK_ARRAY_FIELD + string("=") + StringUtils::itos(ARRAY_Communication_Scenarios_CONST) + " AND " 
 			+ COMMANDGROUP_FK_INSTALLATION_FIELD + "=" + StringUtils::itos(m_pRouter->iPK_Installation_get()),&vectRowCommandGroup );
 	for(size_t s=0;s<vectRowCommandGroup.size();++s)
 	{
@@ -159,3 +159,5 @@ class DataGridTable *Telecom_Plugin::TelecomScenariosGrid(string GridID,string P
 
 void Telecom_Plugin::CMD_PL_Originate(int iPK_Device,string sPhoneExtension,string &sCMD_Result,Message *pMessage)
 //<-dceag-c232-e->
+{
+}
