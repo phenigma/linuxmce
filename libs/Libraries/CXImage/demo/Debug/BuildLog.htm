@@ -11,17 +11,14 @@ Build Log
 </h3>
 </pre></table><table width=100% bgcolor=#DFDFE5><tr><td><font face=arial size=+2>
 Command Lines
-</font></table><table width=* cellspacing=0 cellpadding=0><tr><td width=0 bgcolor=#EDEDF5>&nbsp;</td><td width=0 bgcolor=#FFFFFF>&nbsp;</td><td width=*><pre>Creating temporary file "c:\pluto\trunk\Libraries\CXImage\demo\Debug\RSP00000B.rsp" with contents
+</font></table><table width=* cellspacing=0 cellpadding=0><tr><td width=0 bgcolor=#EDEDF5>&nbsp;</td><td width=0 bgcolor=#FFFFFF>&nbsp;</td><td width=*><pre>Creating temporary file "c:\pluto\trunk\libs\Libraries\CXImage\demo\Debug\RSP00000D.rsp" with contents
 [
 /Od /I "..\cximage" /I "..\jpeg" /I "..\zlib" /I "..\png" /I "..\mng" /I "..\tiff" /I "..\j2000" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /FD /EHsc /MLd /GR /Fp".\Debug/demo.pch" /Fo".\Debug/" /Fd".\Debug/" /W3 /c /ZI
 .\xTargetButton.cpp
-.\logomdi.cpp
-.\demoView.cpp
-.\demoDoc.cpp
-.\demo.cpp
 .\TwainCpp.cpp
 .\Quantize.cpp
 .\MainFrm.cpp
+.\logomdi.cpp
 .\DlgURL.cpp
 .\DlgThreshold.cpp
 .\DlgRotate.cpp
@@ -39,16 +36,19 @@ Command Lines
 .\DlgCombine.cpp
 .\DlgColorize.cpp
 .\dlgcapture.cpp
+.\demoView.cpp
+.\demoDoc.cpp
+.\demo.cpp
 .\ChildFrm.cpp
 .\BCMenu.cpp
 ]
-Creating command line "cl.exe @c:\pluto\trunk\Libraries\CXImage\demo\Debug\RSP00000B.rsp /nologo"
-Creating temporary file "c:\pluto\trunk\Libraries\CXImage\demo\Debug\RSP00000C.rsp" with contents
+Creating command line "cl.exe @c:\pluto\trunk\libs\Libraries\CXImage\demo\Debug\RSP00000D.rsp /nologo"
+Creating temporary file "c:\pluto\trunk\libs\Libraries\CXImage\demo\Debug\RSP00000E.rsp" with contents
 [
 /Od /I "..\cximage" /I "..\jpeg" /I "..\zlib" /I "..\png" /I "..\mng" /I "..\tiff" /I "..\j2000" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /FD /EHsc /MLd /GR /Yc"stdafx.h" /Fp".\Debug/demo.pch" /Fo".\Debug/" /Fd".\Debug/" /W3 /c /ZI
 .\StdAfx.cpp
 ]
-Creating command line "cl.exe @c:\pluto\trunk\Libraries\CXImage\demo\Debug\RSP00000C.rsp /nologo"
+Creating command line "cl.exe @c:\pluto\trunk\libs\Libraries\CXImage\demo\Debug\RSP00000E.rsp /nologo"
 </pre></table><table width=100% bgcolor=#DFDFE5><tr><td><font face=arial size=+2>
 Output Window
 </font></table><table width=* cellspacing=0 cellpadding=0><tr><td width=0 bgcolor=#EDEDF5>&nbsp;</td><td width=0 bgcolor=#FFFFFF>&nbsp;</td><td width=*><pre>Compiling...
@@ -57,59 +57,16 @@ StdAfx.cpp
 Compiling...
 xTargetButton.cpp
  WINVER not defined. Defaulting to 0x0501 (Windows XP and Windows .NET Server)
-logomdi.cpp
- WINVER not defined. Defaulting to 0x0501 (Windows XP and Windows .NET Server)
-c:\pluto\trunk\Libraries\jpgsrc6b\jmorecfg.h(241) : warning C4005: 'FAR' : macro redefinition
-        c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\PlatformSDK\Include\WinDef.h(135) : see previous definition of 'FAR'
-demoView.cpp
- WINVER not defined. Defaulting to 0x0501 (Windows XP and Windows .NET Server)
-c:\pluto\trunk\Libraries\jpgsrc6b\jmorecfg.h(241) : warning C4005: 'FAR' : macro redefinition
-        c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\PlatformSDK\Include\WinDef.h(135) : see previous definition of 'FAR'
-demoDoc.cpp
- WINVER not defined. Defaulting to 0x0501 (Windows XP and Windows .NET Server)
-c:\pluto\trunk\Libraries\jpgsrc6b\jmorecfg.h(241) : warning C4005: 'FAR' : macro redefinition
-        c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\PlatformSDK\Include\WinDef.h(135) : see previous definition of 'FAR'
-c:\pluto\trunk\Libraries\CXImage\demo\demoDoc.cpp(725) : error C3861: '_endthread': identifier not found, even with argument-dependent lookup
-c:\pluto\trunk\Libraries\CXImage\demo\demoDoc.cpp(742) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
-c:\pluto\trunk\Libraries\CXImage\demo\demoDoc.cpp(893) : error C3861: '_endthread': identifier not found, even with argument-dependent lookup
-c:\pluto\trunk\Libraries\CXImage\demo\demoDoc.cpp(900) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
-c:\pluto\trunk\Libraries\CXImage\demo\demoDoc.cpp(906) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
-c:\pluto\trunk\Libraries\CXImage\demo\demoDoc.cpp(912) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
-c:\pluto\trunk\Libraries\CXImage\demo\demoDoc.cpp(918) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
-c:\pluto\trunk\Libraries\CXImage\demo\demoDoc.cpp(931) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
-c:\pluto\trunk\Libraries\CXImage\demo\demoDoc.cpp(943) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
-c:\pluto\trunk\Libraries\CXImage\demo\demoDoc.cpp(950) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
-c:\pluto\trunk\Libraries\CXImage\demo\demoDoc.cpp(956) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
-c:\pluto\trunk\Libraries\CXImage\demo\demoDoc.cpp(967) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
-c:\pluto\trunk\Libraries\CXImage\demo\demoDoc.cpp(983) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
-c:\pluto\trunk\Libraries\CXImage\demo\demoDoc.cpp(1094) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
-c:\pluto\trunk\Libraries\CXImage\demo\demoDoc.cpp(1106) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
-c:\pluto\trunk\Libraries\CXImage\demo\demoDoc.cpp(1290) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
-c:\pluto\trunk\Libraries\CXImage\demo\demoDoc.cpp(1297) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
-c:\pluto\trunk\Libraries\CXImage\demo\demoDoc.cpp(1303) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
-c:\pluto\trunk\Libraries\CXImage\demo\demoDoc.cpp(1311) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
-c:\pluto\trunk\Libraries\CXImage\demo\demoDoc.cpp(1317) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
-c:\pluto\trunk\Libraries\CXImage\demo\demoDoc.cpp(1323) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
-c:\pluto\trunk\Libraries\CXImage\demo\demoDoc.cpp(1329) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
-c:\pluto\trunk\Libraries\CXImage\demo\demoDoc.cpp(1335) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
-c:\pluto\trunk\Libraries\CXImage\demo\demoDoc.cpp(1341) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
-c:\pluto\trunk\Libraries\CXImage\demo\demoDoc.cpp(1347) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
-c:\pluto\trunk\Libraries\CXImage\demo\demoDoc.cpp(1353) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
-c:\pluto\trunk\Libraries\CXImage\demo\demoDoc.cpp(1422) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
-c:\pluto\trunk\Libraries\CXImage\demo\demoDoc.cpp(1429) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
-c:\pluto\trunk\Libraries\CXImage\demo\demoDoc.cpp(1435) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
-demo.cpp
- WINVER not defined. Defaulting to 0x0501 (Windows XP and Windows .NET Server)
-c:\pluto\trunk\Libraries\jpgsrc6b\jmorecfg.h(241) : warning C4005: 'FAR' : macro redefinition
-        c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\PlatformSDK\Include\WinDef.h(135) : see previous definition of 'FAR'
-c:\pluto\trunk\Libraries\CXImage\demo\demo.cpp(109) : warning C4996: 'CWinApp::Enable3dControlsStatic' was declared deprecated
-        c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\atlmfc\include\afxwin.h(4371) : see declaration of 'CWinApp::Enable3dControlsStatic'
 TwainCpp.cpp
  WINVER not defined. Defaulting to 0x0501 (Windows XP and Windows .NET Server)
 Quantize.cpp
 MainFrm.cpp
  WINVER not defined. Defaulting to 0x0501 (Windows XP and Windows .NET Server)
-c:\pluto\trunk\Libraries\jpgsrc6b\jmorecfg.h(241) : warning C4005: 'FAR' : macro redefinition
+c:\pluto\trunk\libs\Libraries\jpgsrc6b\jmorecfg.h(241) : warning C4005: 'FAR' : macro redefinition
+        c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\PlatformSDK\Include\WinDef.h(135) : see previous definition of 'FAR'
+logomdi.cpp
+ WINVER not defined. Defaulting to 0x0501 (Windows XP and Windows .NET Server)
+c:\pluto\trunk\libs\Libraries\jpgsrc6b\jmorecfg.h(241) : warning C4005: 'FAR' : macro redefinition
         c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\PlatformSDK\Include\WinDef.h(135) : see previous definition of 'FAR'
 DlgURL.cpp
  WINVER not defined. Defaulting to 0x0501 (Windows XP and Windows .NET Server)
@@ -131,49 +88,49 @@ DlgIncBpp.cpp
  WINVER not defined. Defaulting to 0x0501 (Windows XP and Windows .NET Server)
 DlgHisto.cpp
  WINVER not defined. Defaulting to 0x0501 (Windows XP and Windows .NET Server)
-c:\pluto\trunk\Libraries\jpgsrc6b\jmorecfg.h(241) : warning C4005: 'FAR' : macro redefinition
+c:\pluto\trunk\libs\Libraries\jpgsrc6b\jmorecfg.h(241) : warning C4005: 'FAR' : macro redefinition
         c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\PlatformSDK\Include\WinDef.h(135) : see previous definition of 'FAR'
-c:\pluto\trunk\Libraries\CXImage\demo\DlgHisto.cpp(145) : error C2668: 'log10' : ambiguous call to overloaded function
+c:\pluto\trunk\libs\Libraries\CXImage\demo\DlgHisto.cpp(145) : error C2668: 'log10' : ambiguous call to overloaded function
         c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\include\math.h(614): could be 'long double log10(long double)'
         c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\include\math.h(566): or       'float log10(float)'
         c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\include\math.h(194): or       'double log10(double)'
         while trying to match the argument list '(long)'
-c:\pluto\trunk\Libraries\CXImage\demo\DlgHisto.cpp(149) : error C2668: 'log10' : ambiguous call to overloaded function
+c:\pluto\trunk\libs\Libraries\CXImage\demo\DlgHisto.cpp(149) : error C2668: 'log10' : ambiguous call to overloaded function
         c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\include\math.h(614): could be 'long double log10(long double)'
         c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\include\math.h(566): or       'float log10(float)'
         c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\include\math.h(194): or       'double log10(double)'
         while trying to match the argument list '(long)'
-c:\pluto\trunk\Libraries\CXImage\demo\DlgHisto.cpp(151) : error C2668: 'log10' : ambiguous call to overloaded function
+c:\pluto\trunk\libs\Libraries\CXImage\demo\DlgHisto.cpp(151) : error C2668: 'log10' : ambiguous call to overloaded function
         c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\include\math.h(614): could be 'long double log10(long double)'
         c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\include\math.h(566): or       'float log10(float)'
         c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\include\math.h(194): or       'double log10(double)'
         while trying to match the argument list '(long)'
-c:\pluto\trunk\Libraries\CXImage\demo\DlgHisto.cpp(156) : error C2668: 'log10' : ambiguous call to overloaded function
+c:\pluto\trunk\libs\Libraries\CXImage\demo\DlgHisto.cpp(156) : error C2668: 'log10' : ambiguous call to overloaded function
         c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\include\math.h(614): could be 'long double log10(long double)'
         c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\include\math.h(566): or       'float log10(float)'
         c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\include\math.h(194): or       'double log10(double)'
         while trying to match the argument list '(long)'
-c:\pluto\trunk\Libraries\CXImage\demo\DlgHisto.cpp(158) : error C2668: 'log10' : ambiguous call to overloaded function
+c:\pluto\trunk\libs\Libraries\CXImage\demo\DlgHisto.cpp(158) : error C2668: 'log10' : ambiguous call to overloaded function
         c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\include\math.h(614): could be 'long double log10(long double)'
         c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\include\math.h(566): or       'float log10(float)'
         c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\include\math.h(194): or       'double log10(double)'
         while trying to match the argument list '(long)'
-c:\pluto\trunk\Libraries\CXImage\demo\DlgHisto.cpp(163) : error C2668: 'log10' : ambiguous call to overloaded function
+c:\pluto\trunk\libs\Libraries\CXImage\demo\DlgHisto.cpp(163) : error C2668: 'log10' : ambiguous call to overloaded function
         c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\include\math.h(614): could be 'long double log10(long double)'
         c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\include\math.h(566): or       'float log10(float)'
         c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\include\math.h(194): or       'double log10(double)'
         while trying to match the argument list '(long)'
-c:\pluto\trunk\Libraries\CXImage\demo\DlgHisto.cpp(165) : error C2668: 'log10' : ambiguous call to overloaded function
+c:\pluto\trunk\libs\Libraries\CXImage\demo\DlgHisto.cpp(165) : error C2668: 'log10' : ambiguous call to overloaded function
         c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\include\math.h(614): could be 'long double log10(long double)'
         c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\include\math.h(566): or       'float log10(float)'
         c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\include\math.h(194): or       'double log10(double)'
         while trying to match the argument list '(long)'
-c:\pluto\trunk\Libraries\CXImage\demo\DlgHisto.cpp(170) : error C2668: 'log10' : ambiguous call to overloaded function
+c:\pluto\trunk\libs\Libraries\CXImage\demo\DlgHisto.cpp(170) : error C2668: 'log10' : ambiguous call to overloaded function
         c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\include\math.h(614): could be 'long double log10(long double)'
         c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\include\math.h(566): or       'float log10(float)'
         c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\include\math.h(194): or       'double log10(double)'
         while trying to match the argument list '(long)'
-c:\pluto\trunk\Libraries\CXImage\demo\DlgHisto.cpp(172) : error C2668: 'log10' : ambiguous call to overloaded function
+c:\pluto\trunk\libs\Libraries\CXImage\demo\DlgHisto.cpp(172) : error C2668: 'log10' : ambiguous call to overloaded function
         c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\include\math.h(614): could be 'long double log10(long double)'
         c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\include\math.h(566): or       'float log10(float)'
         c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\include\math.h(194): or       'double log10(double)'
@@ -182,18 +139,61 @@ DlgGamma.cpp
  WINVER not defined. Defaulting to 0x0501 (Windows XP and Windows .NET Server)
 DlgFFT.cpp
  WINVER not defined. Defaulting to 0x0501 (Windows XP and Windows .NET Server)
-Generating Code...
-Compiling...
 DlgDither.cpp
  WINVER not defined. Defaulting to 0x0501 (Windows XP and Windows .NET Server)
 DlgDecBpp.cpp
  WINVER not defined. Defaulting to 0x0501 (Windows XP and Windows .NET Server)
 DlgCombine.cpp
  WINVER not defined. Defaulting to 0x0501 (Windows XP and Windows .NET Server)
+Generating Code...
+Compiling...
 DlgColorize.cpp
  WINVER not defined. Defaulting to 0x0501 (Windows XP and Windows .NET Server)
 dlgcapture.cpp
  WINVER not defined. Defaulting to 0x0501 (Windows XP and Windows .NET Server)
+demoView.cpp
+ WINVER not defined. Defaulting to 0x0501 (Windows XP and Windows .NET Server)
+c:\pluto\trunk\libs\Libraries\jpgsrc6b\jmorecfg.h(241) : warning C4005: 'FAR' : macro redefinition
+        c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\PlatformSDK\Include\WinDef.h(135) : see previous definition of 'FAR'
+demoDoc.cpp
+ WINVER not defined. Defaulting to 0x0501 (Windows XP and Windows .NET Server)
+c:\pluto\trunk\libs\Libraries\jpgsrc6b\jmorecfg.h(241) : warning C4005: 'FAR' : macro redefinition
+        c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\PlatformSDK\Include\WinDef.h(135) : see previous definition of 'FAR'
+c:\pluto\trunk\libs\Libraries\CXImage\demo\demoDoc.cpp(725) : error C3861: '_endthread': identifier not found, even with argument-dependent lookup
+c:\pluto\trunk\libs\Libraries\CXImage\demo\demoDoc.cpp(742) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
+c:\pluto\trunk\libs\Libraries\CXImage\demo\demoDoc.cpp(893) : error C3861: '_endthread': identifier not found, even with argument-dependent lookup
+c:\pluto\trunk\libs\Libraries\CXImage\demo\demoDoc.cpp(900) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
+c:\pluto\trunk\libs\Libraries\CXImage\demo\demoDoc.cpp(906) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
+c:\pluto\trunk\libs\Libraries\CXImage\demo\demoDoc.cpp(912) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
+c:\pluto\trunk\libs\Libraries\CXImage\demo\demoDoc.cpp(918) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
+c:\pluto\trunk\libs\Libraries\CXImage\demo\demoDoc.cpp(931) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
+c:\pluto\trunk\libs\Libraries\CXImage\demo\demoDoc.cpp(943) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
+c:\pluto\trunk\libs\Libraries\CXImage\demo\demoDoc.cpp(950) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
+c:\pluto\trunk\libs\Libraries\CXImage\demo\demoDoc.cpp(956) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
+c:\pluto\trunk\libs\Libraries\CXImage\demo\demoDoc.cpp(967) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
+c:\pluto\trunk\libs\Libraries\CXImage\demo\demoDoc.cpp(983) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
+c:\pluto\trunk\libs\Libraries\CXImage\demo\demoDoc.cpp(1094) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
+c:\pluto\trunk\libs\Libraries\CXImage\demo\demoDoc.cpp(1106) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
+c:\pluto\trunk\libs\Libraries\CXImage\demo\demoDoc.cpp(1290) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
+c:\pluto\trunk\libs\Libraries\CXImage\demo\demoDoc.cpp(1297) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
+c:\pluto\trunk\libs\Libraries\CXImage\demo\demoDoc.cpp(1303) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
+c:\pluto\trunk\libs\Libraries\CXImage\demo\demoDoc.cpp(1311) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
+c:\pluto\trunk\libs\Libraries\CXImage\demo\demoDoc.cpp(1317) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
+c:\pluto\trunk\libs\Libraries\CXImage\demo\demoDoc.cpp(1323) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
+c:\pluto\trunk\libs\Libraries\CXImage\demo\demoDoc.cpp(1329) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
+c:\pluto\trunk\libs\Libraries\CXImage\demo\demoDoc.cpp(1335) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
+c:\pluto\trunk\libs\Libraries\CXImage\demo\demoDoc.cpp(1341) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
+c:\pluto\trunk\libs\Libraries\CXImage\demo\demoDoc.cpp(1347) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
+c:\pluto\trunk\libs\Libraries\CXImage\demo\demoDoc.cpp(1353) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
+c:\pluto\trunk\libs\Libraries\CXImage\demo\demoDoc.cpp(1422) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
+c:\pluto\trunk\libs\Libraries\CXImage\demo\demoDoc.cpp(1429) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
+c:\pluto\trunk\libs\Libraries\CXImage\demo\demoDoc.cpp(1435) : error C3861: '_beginthread': identifier not found, even with argument-dependent lookup
+demo.cpp
+ WINVER not defined. Defaulting to 0x0501 (Windows XP and Windows .NET Server)
+c:\pluto\trunk\libs\Libraries\jpgsrc6b\jmorecfg.h(241) : warning C4005: 'FAR' : macro redefinition
+        c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\PlatformSDK\Include\WinDef.h(135) : see previous definition of 'FAR'
+c:\pluto\trunk\libs\Libraries\CXImage\demo\demo.cpp(109) : warning C4996: 'CWinApp::Enable3dControlsStatic' was declared deprecated
+        c:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\atlmfc\include\afxwin.h(4371) : see declaration of 'CWinApp::Enable3dControlsStatic'
 ChildFrm.cpp
  WINVER not defined. Defaulting to 0x0501 (Windows XP and Windows .NET Server)
 BCMenu.cpp
@@ -202,6 +202,6 @@ Generating Code...
 </pre></table><table width=100% bgcolor=#DFDFE5><tr><td><font face=arial size=+2>
 Results
 </font></table><table width=* cellspacing=0 cellpadding=0><tr><td width=0 bgcolor=#EDEDF5>&nbsp;</td><td width=0 bgcolor=#FFFFFF>&nbsp;</td><td width=*><pre>
-Build log was saved at "file://c:\pluto\trunk\Libraries\CXImage\demo\Debug\BuildLog.htm"
+Build log was saved at "file://c:\pluto\trunk\libs\Libraries\CXImage\demo\Debug\BuildLog.htm"
 demo - 38 error(s), 7 warning(s)</pre></table><table   width=100% height=20 bgcolor=#CFCFE5><tr><td><font face=arial size=+2>
 </font></table></body></html>

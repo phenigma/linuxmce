@@ -126,7 +126,7 @@ BSC32=bscmake.exe
 # PROP Target_Dir ""
 CPP=clarm.exe
 # ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /YX /M$(CECrtMTDebug) /c
-# ADD CPP /nologo /W3 /Zi /Od /I "c:\pluto\trunk\CrossPlatform-Libs\freetype-2.1.9\include\\" /D "DEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /D "NO_ERRNO_H" /D "WINCE" /YX /M$(CECrtMTDebug) /c
+# ADD CPP /nologo /W3 /Zi /Od /I ".." /I "." /I "c:\pluto\trunk\libs\CrossPlatform-Libs\freetype-2.1.9\include\\" /D "DEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /D "NO_ERRNO_H" /D "WINCE" /YX /M$(CECrtMTDebug) /c
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo
@@ -203,8 +203,6 @@ DEP_CPP_AUTOH=\
 !ELSEIF  "$(CFG)" == "freetype_wince - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_AUTOH=\
-	"..\include\freetype\config\ftheader.h"\
-	"..\include\ft2build.h"\
 	"..\src\autohint\ahangles.c"\
 	"..\src\autohint\ahangles.h"\
 	"..\src\autohint\aherrors.h"\
@@ -259,8 +257,6 @@ DEP_CPP_BDF_C=\
 !ELSEIF  "$(CFG)" == "freetype_wince - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_BDF_C=\
-	"..\include\freetype\config\ftheader.h"\
-	"..\include\ft2build.h"\
 	"..\src\bdf\bdf.h"\
 	"..\src\bdf\bdfdrivr.c"\
 	"..\src\bdf\bdfdrivr.h"\
@@ -338,8 +334,6 @@ DEP_CPP_CFF_C=\
 !ELSEIF  "$(CFG)" == "freetype_wince - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_CFF_C=\
-	"..\include\freetype\config\ftheader.h"\
-	"..\include\ft2build.h"\
 	"..\src\cff\cffcmap.c"\
 	"..\src\cff\cffcmap.h"\
 	"..\src\cff\cffdrivr.c"\
@@ -433,8 +427,6 @@ NODEP_CPP_FTBAS=\
 !ELSEIF  "$(CFG)" == "freetype_wince - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_FTBAS=\
-	"..\include\freetype\config\ftheader.h"\
-	"..\include\ft2build.h"\
 	"..\src\base\ftcalc.c"\
 	"..\src\base\ftdbgmem.c"\
 	"..\src\base\ftgloadr.c"\
@@ -509,8 +501,6 @@ DEP_CPP_FTCAC=\
 !ELSEIF  "$(CFG)" == "freetype_wince - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_FTCAC=\
-	"..\include\freetype\config\ftheader.h"\
-	"..\include\ft2build.h"\
 	"..\src\cache\ftcbasic.c"\
 	"..\src\cache\ftccache.c"\
 	"..\src\cache\ftccback.h"\
@@ -543,11 +533,6 @@ DEP_CPP_FTDEB=\
 
 !ELSEIF  "$(CFG)" == "freetype_wince - Win32 (WCE ARMV4) Debug"
 
-DEP_CPP_FTDEB=\
-	"..\include\freetype\config\ftheader.h"\
-	"..\include\ft2build.h"\
-	
-
 !ENDIF 
 
 # End Source File
@@ -576,9 +561,8 @@ NODEP_CPP_FTGLY=\
 
 !ELSEIF  "$(CFG)" == "freetype_wince - Win32 (WCE ARMV4) Debug"
 
-DEP_CPP_FTGLY=\
-	"..\include\freetype\config\ftheader.h"\
-	"..\include\ft2build.h"\
+NODEP_CPP_FTGLY=\
+	"..\src\base\ft2build.h"\
 	
 
 !ENDIF 
@@ -651,8 +635,6 @@ DEP_CPP_FTGZI=\
 !ELSEIF  "$(CFG)" == "freetype_wince - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_FTGZI=\
-	"..\include\freetype\config\ftheader.h"\
-	"..\include\ft2build.h"\
 	"..\src\gzip\adler32.c"\
 	"..\src\gzip\infblock.c"\
 	"..\src\gzip\infblock.h"\
@@ -690,11 +672,6 @@ DEP_CPP_FTINI=\
 
 !ELSEIF  "$(CFG)" == "freetype_wince - Win32 (WCE ARMV4) Debug"
 
-DEP_CPP_FTINI=\
-	"..\include\freetype\config\ftheader.h"\
-	"..\include\ft2build.h"\
-	
-
 !ENDIF 
 
 # End Source File
@@ -726,8 +703,6 @@ DEP_CPP_FTLZW=\
 !ELSEIF  "$(CFG)" == "freetype_wince - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_FTLZW=\
-	"..\include\freetype\config\ftheader.h"\
-	"..\include\ft2build.h"\
 	"..\src\lzw\zopen.c"\
 	"..\src\lzw\zopen.h"\
 	
@@ -752,11 +727,6 @@ DEP_CPP_FTMM_=\
 
 !ELSEIF  "$(CFG)" == "freetype_wince - Win32 (WCE ARMV4) Debug"
 
-DEP_CPP_FTMM_=\
-	"..\include\freetype\config\ftheader.h"\
-	"..\include\ft2build.h"\
-	
-
 !ENDIF 
 
 # End Source File
@@ -776,11 +746,6 @@ DEP_CPP_FTSYS=\
 !ELSEIF  "$(CFG)" == "freetype_wince - Win32 (WCE ARMV4) Release"
 
 !ELSEIF  "$(CFG)" == "freetype_wince - Win32 (WCE ARMV4) Debug"
-
-DEP_CPP_FTSYS=\
-	"..\include\freetype\config\ftheader.h"\
-	"..\include\ft2build.h"\
-	
 
 !ENDIF 
 
@@ -831,8 +796,6 @@ DEP_CPP_PCF_C=\
 !ELSEIF  "$(CFG)" == "freetype_wince - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_PCF_C=\
-	"..\include\freetype\config\ftheader.h"\
-	"..\include\ft2build.h"\
 	"..\src\pcf\pcf.h"\
 	"..\src\pcf\pcfdrivr.c"\
 	"..\src\pcf\pcfdrivr.h"\
@@ -910,8 +873,6 @@ DEP_CPP_PFR_C=\
 !ELSEIF  "$(CFG)" == "freetype_wince - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_PFR_C=\
-	"..\include\freetype\config\ftheader.h"\
-	"..\include\ft2build.h"\
 	"..\src\pfr\pfrcmap.c"\
 	"..\src\pfr\pfrcmap.h"\
 	"..\src\pfr\pfrdrivr.c"\
@@ -980,8 +941,6 @@ DEP_CPP_PSAUX=\
 !ELSEIF  "$(CFG)" == "freetype_wince - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_PSAUX=\
-	"..\include\freetype\config\ftheader.h"\
-	"..\include\ft2build.h"\
 	"..\src\psaux\psauxerr.h"\
 	"..\src\psaux\psauxmod.c"\
 	"..\src\psaux\psauxmod.h"\
@@ -1042,8 +1001,6 @@ DEP_CPP_PSHIN=\
 !ELSEIF  "$(CFG)" == "freetype_wince - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_PSHIN=\
-	"..\include\freetype\config\ftheader.h"\
-	"..\include\ft2build.h"\
 	"..\src\pshinter\pshalgo.c"\
 	"..\src\pshinter\pshalgo.h"\
 	"..\src\pshinter\pshglob.c"\
@@ -1088,8 +1045,6 @@ DEP_CPP_PSMOD=\
 !ELSEIF  "$(CFG)" == "freetype_wince - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_PSMOD=\
-	"..\include\freetype\config\ftheader.h"\
-	"..\include\ft2build.h"\
 	"..\src\psnames\psmodule.h"\
 	"..\src\psnames\psnamerr.h"\
 	"..\src\psnames\pstables.h"\
@@ -1135,8 +1090,6 @@ DEP_CPP_RASTE=\
 !ELSEIF  "$(CFG)" == "freetype_wince - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_RASTE=\
-	"..\include\freetype\config\ftheader.h"\
-	"..\include\ft2build.h"\
 	"..\src\raster\ftraster.c"\
 	"..\src\raster\ftraster.h"\
 	"..\src\raster\ftrend1.c"\
@@ -1208,8 +1161,6 @@ DEP_CPP_SFNT_=\
 !ELSEIF  "$(CFG)" == "freetype_wince - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_SFNT_=\
-	"..\include\freetype\config\ftheader.h"\
-	"..\include\ft2build.h"\
 	"..\src\sfnt\sfdriver.c"\
 	"..\src\sfnt\sfdriver.h"\
 	"..\src\sfnt\sferrors.h"\
@@ -1274,8 +1225,6 @@ NODEP_CPP_SMOOT=\
 !ELSEIF  "$(CFG)" == "freetype_wince - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_SMOOT=\
-	"..\include\freetype\config\ftheader.h"\
-	"..\include\ft2build.h"\
 	"..\src\smooth\ftgrays.c"\
 	"..\src\smooth\ftgrays.h"\
 	"..\src\smooth\ftsmerrs.h"\
@@ -1350,8 +1299,6 @@ DEP_CPP_TRUET=\
 !ELSEIF  "$(CFG)" == "freetype_wince - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_TRUET=\
-	"..\include\freetype\config\ftheader.h"\
-	"..\include\ft2build.h"\
 	"..\src\truetype\ttdriver.c"\
 	"..\src\truetype\ttdriver.h"\
 	"..\src\truetype\tterrors.h"\
@@ -1434,8 +1381,6 @@ DEP_CPP_TYPE1=\
 !ELSEIF  "$(CFG)" == "freetype_wince - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_TYPE1=\
-	"..\include\freetype\config\ftheader.h"\
-	"..\include\ft2build.h"\
 	"..\src\type1\t1afm.c"\
 	"..\src\type1\t1afm.h"\
 	"..\src\type1\t1driver.c"\
@@ -1513,8 +1458,6 @@ DEP_CPP_TYPE1C=\
 !ELSEIF  "$(CFG)" == "freetype_wince - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_TYPE1C=\
-	"..\include\freetype\config\ftheader.h"\
-	"..\include\ft2build.h"\
 	"..\src\cid\ciderrs.h"\
 	"..\src\cid\cidgload.c"\
 	"..\src\cid\cidgload.h"\
@@ -1578,8 +1521,6 @@ DEP_CPP_TYPE4=\
 !ELSEIF  "$(CFG)" == "freetype_wince - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_TYPE4=\
-	"..\include\freetype\config\ftheader.h"\
-	"..\include\ft2build.h"\
 	"..\src\type42\t42drivr.c"\
 	"..\src\type42\t42drivr.h"\
 	"..\src\type42\t42error.h"\
@@ -1621,8 +1562,6 @@ DEP_CPP_WINFN=\
 !ELSEIF  "$(CFG)" == "freetype_wince - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_WINFN=\
-	"..\include\freetype\config\ftheader.h"\
-	"..\include\ft2build.h"\
 	"..\src\winfonts\fnterrs.h"\
 	"..\src\winfonts\winfnt.h"\
 	
