@@ -754,7 +754,10 @@ AsksSourceQuests:
 		}
 
 		if( !g_bSimulate )
-			system(("cd " + sSourceDirectory).c_str());
+		{
+			chdir(sSourceDirectory.c_str());
+//			system(("cd " + sSourceDirectory).c_str());
+		}
 		fstr_compile << "cd " << sSourceDirectory << endl;
 
 		// Find the make command for pRow_Package_Source_SVN in the _Compat table.  First look for a match on this distro
@@ -879,22 +882,22 @@ AsksSourceQuests:
 bool CreateSource_PlutoDebian(Row_Package_Source *pRow_Package_Source,list<FileInfo *> &listFileInfo)
 {
 	// TODO: make dirname acceptable to dh_make
-	string Dir("/tmp/pluto-build");
+	string Dir("/tmp/pluto-build-2.0-1");
 #ifndef WIN32
 	system(("rm -rf " + Dir).c_str());
-	mkdir(Dir.c_str());
-	mkdir((Dir + "/root").c_str());
+	mkdir(Dir.c_str(), 0666);
+	mkdir((Dir + "/root").c_str(), 0666);
 	chdir(Dir.c_str());
 	system("echo | dh_make -c gpl -s -n");
 
-string Makefile = "none:\
-\
-install:\
-        cp -a root/* $(DESTDIR)\
-";
+string Makefile = "none:\n"
+"\t\n"
+"\n"
+"install:\n"
+"\tcp -a root/* $(DESTDIR)\n";
 
-	FILE * f = fopen("/tmp/pluto-build/Makefile", "w");
-	fwrite(Makefile.c_str(), Makefile.length(), 1, f);
+	FILE * f = fopen((Dir + "/Makefile").c_str(), "w");
+	fprintf(f, "%s", Makefile.c_str(), Makefile.length());
 	fclose(f);
 #endif
 
@@ -908,10 +911,13 @@ install:\
 #endif
 	}
 
+	f = fopen((Dir + "/root/dummy-file").c_str(), "w");
+	fclose(f);
+
 	vector<Row_Package_Package *> vect_pRow_Package_Package;
     pRow_Package_Source->FK_Package_getrow()->Package_Package_FK_Package_getrows(&vect_pRow_Package_Package);
 
-	string sDepends = "libmysqlclient";
+	string sDepends = ", libmysqlclient";
 
 	//vector<Row_Package_Package *>::iterator iRow_Package_Package;
 	//for (iRow_Package_Package = vect_pRow_Package_Package.begin(); iRow_Package_Package != vect_pRow_Package_Package.end(); iRow_Package_Package++)
@@ -931,8 +937,8 @@ install:\
 	//cout << "Depends list: " << sDepends << endl;
 
 #ifndef WIN32
-	system("sed -i 's/^Depends:.*$/Depends: ${shlibs:Depends}, ${misc:Depends}" + sDepends + "/' " + Dir + "/debian/control");
-	system("dpkg-buildpackage");
+	system(("sed -i 's/^Depends:.*$/Depends: ${shlibs:Depends}, ${misc:Depends}" + sDepends + "/' " + Dir + "/debian/control").c_str());
+	system("dpkg-buildpackage -b");
 #endif
 
 	cout << "------------DEBIAN PACKAGE OUTPUT" << endl;
