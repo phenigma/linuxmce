@@ -30,7 +30,7 @@
 	<!-- END switch_namechange_allowed -->
 	<tr> 
 		<td class="row1"><span class="gen">{L_EMAIL_ADDRESS}: *</span></td>
-		<td class="row2"><span class="gen">{EMAIL}</span></td>
+		<td class="row2"><span class="gen">{EMAIL}</span><input type="hidden" name="email" size="25" maxlength="25" value="{EMAIL}" /></td>
 	</tr>
 	<!-- Visual Confirmation -->
 	<!-- BEGIN switch_confirm -->

@@ -1,6 +1,9 @@
 <?php
-	if(isset($_GET['error'])&& $_GET['error']==1)
-		Header('Location: ../../index.php?section=clientLoginForm');
+	if((isset($_GET['error'])&& $_GET['error']==1) || $_SERVER['QUERY_STRING']=='' || isset($_REQUEST['return'])){
+		$return=(isset($_REQUEST['return']))?'&return='.urlencode($_REQUEST['return']):'';
+		Header('Location: ../../index.php?section=clientLoginForm'.$return);
+		exit();
+	}
 	# Mantis - a php based bugtracking system
 	# Copyright (C) 2000 - 2002  Kenzaburo Ito - kenito@300baud.org
 	# Copyright (C) 2002 - 2004  Mantis Team   - mantisbt-dev@lists.sourceforge.net
