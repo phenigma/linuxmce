@@ -214,12 +214,13 @@ void CreateDevice::CreateChildrenByCategory(int iPK_Device,int iPK_DeviceCategor
 				{
 					while( row=mysql_fetch_row( result.r ) )
 					{
-						SQL = "INSERT INTO Device_Device_Pipe(FK_Device_From,FK_Device_To,FK_Pipe,FK_Command_Input,FK_Command_Output) VALUES(";
+						SQL = "INSERT INTO Device_Device_Pipe(FK_Device_To,FK_Device_From,FK_Pipe,FK_Command_Input,FK_Command_Output) VALUES(";
 						if( row[3] && atoi(row[3]) )
 							SQL += StringUtils::itos(PK_Device) + "," + StringUtils::itos(iPK_Device);
 						else
 							SQL += StringUtils::itos(iPK_Device) + "," + StringUtils::itos(PK_Device);
 						SQL += string(",") + (row[0] ? row[0] : "NULL") + "," + (row[1] ? row[1] : "NULL")  + "," + (row[2] ? row[2] : "NULL") + ")";
+						threaded_mysql_query(SQL.c_str());
 					}
 				}
 			}
@@ -254,12 +255,13 @@ void CreateDevice::CreateChildrenByTemplate(int iPK_Device,int iPK_DeviceTemplat
 				{
 					while( row=mysql_fetch_row( result.r ) )
 					{
-						SQL = "INSERT INTO Device_Device_Pipe(FK_Device_From,FK_Device_To,FK_Pipe,FK_Command_Input,FK_Command_Output) VALUES(";
+						SQL = "INSERT INTO Device_Device_Pipe(FK_Device_To,FK_Device_From,FK_Pipe,FK_Command_Input,FK_Command_Output) VALUES(";
 						if( row[3] && atoi(row[3]) )
 							SQL += StringUtils::itos(PK_Device) + "," + StringUtils::itos(iPK_Device);
 						else
 							SQL += StringUtils::itos(iPK_Device) + "," + StringUtils::itos(PK_Device);
 						SQL += string(",") + (row[0] ? row[0] : "NULL") + "," + (row[1] ? row[1] : "NULL")  + "," + (row[2] ? row[2] : "NULL") + ")";
+						threaded_mysql_query(SQL.c_str());
 					}
 				}
 			}
