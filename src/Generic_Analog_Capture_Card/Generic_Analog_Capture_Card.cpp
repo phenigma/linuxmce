@@ -30,9 +30,10 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(int DeviceID, string Se
 	: Generic_Analog_Capture_Card_Command(DeviceID, ServerAddress,bConnectEventHandler,bLocalMode,pRouter)
 //<-dceag-const-e->
 {
-	const char *filename;
-
+	char *filename, buf[5];
+	int i;
 	FILE *fp;
+	string sLine, sLine2;
 	
     DeviceData_Router *pDeviceData = find_Device(DeviceID);
  	if(!pDeviceData) {
@@ -41,8 +42,9 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(int DeviceID, string Se
 	}
 
 	string sVideoStandard = pDeviceData->mapParameters_Find(DEVICEDATA_Video_Standard_CONST);
+	string sNumberOfPorts = pDeviceData->mapParameters_Find(DEVICEDATA_Number_of_ports_CONST);
 
-	g_pPlutoLogger->Write(LV_STATUS, "Using Generic Analog Capture Card with parameters: VideoStandard=%s",sVideoStandard.c_str());
+	g_pPlutoLogger->Write(LV_STATUS, "Using Generic Analog Capture Card with parameters: VideoStandard=%s Number_of_Ports=%s",sVideoStandard.c_str(),sNumberOfPorts.c_str());
 	
 	g_pPlutoLogger->Write(LV_STATUS, "Writing configuration to motion.conf");
 	fp = fopen("/etc/motion/motion.conf","wt");
@@ -62,6 +64,19 @@ Generic_Analog_Capture_Card::Generic_Analog_Capture_Card(int DeviceID, string Se
 	fprintf(fp,"hue 0\n");
 	//snapshot config
 	fprintf(fp,"snapshot_interval 3600\n");
+	//Output Directory
+	if(FileUtils::DirExists("/var/www/cam") == false) {
+		FileUtils::MakeDir("/var/www/cam");
+	}
+	fprintf(fp,"target_dir /var/www/cam\n");
+
+	for(i = 1 ; i < atoi(sNumberOfPorts.c_str())+1 ; i++) {
+		itoa(i,buf,10);
+		filename = "#thread /etc/motion/thread";
+		strcpy(filename,buf);
+		strcpy(filename,".config");
+		fprintf(fp,"%s\n",sLine.c_str());
+	}
 	fclose(fp);
 	g_pPlutoLogger->Write(LV_STATUS, "Starting motion server");
 	filename="/usr/bin/motion";
@@ -124,6 +139,8 @@ void Generic_Analog_Capture_Card::ReceivedCommandForChild(DeviceData_Base *pDevi
 	// find child device
 	DeviceData_Impl* pDeviceData_Impl = NULL;
 	
+	g_pPlutoLogger->Write(LV_STATUS, "Finding child device...");
+
 	VectDeviceData_Impl& vDeviceData = m_pData->m_vectDeviceData_Impl_Children;
 	for(VectDeviceData_Impl::size_type i = 0; i < vDeviceData.size(); i++) {
 		if(vDeviceData[i]->m_dwPK_Device == pMessage->m_dwPK_Device_To) {
@@ -149,6 +166,7 @@ void Generic_Analog_Capture_Card::ReceivedCommandForChild(DeviceData_Base *pDevi
 				string sPortNumber = pDeviceData->mapParameters_Find(DEVICEDATA_Port_Number_CONST);
 				char *pData = pMessage->m_mapData_Parameters[COMMANDPARAMETER_Data_CONST];
 
+				g_pPlutoLogger->Write(LV_STATUS, "Geting PID of motion server");
 				Command = "ps -e | grep motion | awk '{print $1}' > camera_card.temp";
 				system(Command);
 				fp = fopen("camera_card.temp","rt");
@@ -162,26 +180,20 @@ void Generic_Analog_Capture_Card::ReceivedCommandForChild(DeviceData_Base *pDevi
 					pid[size-1] = '\0';
 				}
 				fclose(fp);
+
+				g_pPlutoLogger->Write(LV_STATUS, "Taking Snapshot");
+
 				Command = "kill -s SIGALRM ";
 				strcat(Command,pid);
 				system(Command);
 
-				FilePath = "/var/www/cam" + sPortNumber + "/lastsnap.jpg";
+				g_pPlutoLogger->Write(LV_STATUS, "Reading and sending snapshot picture");
 
-				fp = fopen(FilePath.c_str(),"rb");
-				size = 0;
-				if(fp == NULL) {
-					g_pPlutoLogger->Write(LV_STATUS, "Cannot open snapshot file");
-				} else {
-					while(feof(fp) == 0) {
-					fseek(fp,1,SEEK_CUR);
-					size++;
-				}
-				fclose(fp);
+				FilePath = "/var/www/cam" + sPortNumber + "/lastsnap.jpg";
+				size = FileUtils::FileSize(FilePath);
 				pData = FileUtils::ReadFileIntoBuffer(FilePath, (size_t &)size);
 			}
 			break;
-		}
 		default:
 			g_pPlutoLogger->Write(LV_CRITICAL, "Unknown command %d received.", pMessage->m_dwID);
 	}
