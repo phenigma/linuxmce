@@ -76,7 +76,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile=".../lib/pluto_main-r.lib"/>
+				OutputFile="../lib/pluto_main-r.lib"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
