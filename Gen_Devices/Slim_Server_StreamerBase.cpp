@@ -5,11 +5,12 @@
 using namespace DCE;
 #include "../Slim_Server_Streamer/Slim_Server_Streamer.h"
 #include "../Slim_Server_Streamer/SqueezeBox_Player.h"
+
 DeviceData_Impl *Slim_Server_Streamer_Data::CreateData(DeviceData_Impl *Parent,char *pDataBlock,unsigned long AllocatedSize,char *CurrentPosition)
 {
 	// Peek ahead in the stream.  We're going to pass in the above pointers anyway so it won't affect the position
 	SerializeClass b;
-	b.ResumeReadWrite(pDataBlock,AllocatedSize,CurrentPosition);
+	b.ResumeReadWrite(pDataBlock, AllocatedSize, CurrentPosition);
 	int iPK_Device = b.Read_unsigned_long();
 	int iPK_Installation = b.Read_unsigned_long();
 	int iPK_DeviceTemplate = b.Read_unsigned_long();
