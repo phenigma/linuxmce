@@ -70,7 +70,6 @@ function myPluto($output,$dbADO,$conn) {
 								 dealers and manufacturers who license the Pluto platform for their smarthome appliances.  Send us an email or fill out the contact form for details.
 								 </td>
 							</tr>
-
 						</table>
 					</td>
       				<td align="left" valign="top" class="normaltext">Pluto 2 has been written from the ground up to be a very comfortable development platform for open source programmers.<br><br>

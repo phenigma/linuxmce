@@ -119,7 +119,7 @@ if($action=='form'){
 	foreach ($orbitersArray as $key => $value){
 		$out.='<option value="'.$key.'" '.(($key==@$_POST['newType'])?'selected':'').'>'.$value.'</option>';
 	}
-	$out.='	</select> "Orbiter" for web pad\'s and PDA\'s, or choose a model of phone</td>
+	$out.='	</select> "Orbiter" for web pad\'s and PDA\'s</td>
 							</tr>';
 	$out.='		<tr>
 					<td colspan="2" align="center"><input type="button" name="continue" value="Add&Continue" onClick="javascript:addOrbiter();"> <input type="button" name="cancel" value="Cancel" onClick="self.location=\'index.php?section=wizard&step=7\'"></td>

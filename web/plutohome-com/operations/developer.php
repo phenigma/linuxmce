@@ -52,7 +52,7 @@ $out.='
 	that you may develop that you would like Pluto to host.  We have a sophisticated build system that allows us to target different platforms and operating systems 
 	simultaneously.<br><br>
 	
-	<a href="index.php?section=letter">What is the open source strategy?</a><br><br>
+	<a href="index.php?section=letter">What is the open source strategy?</a> &nbsp;&nbsp; <a href="support/index.php?section=document&docID=181">Is the Pluto license OSD-approved?</a><br><br>
 	
     <p>Pluto Series 2 was a re-written from scratch to make it conducive to an open source project.  All the code is broken into small plug-ins, and the heart--the DCERouter--is 
     now a general purpose message router.  This means that open source programmers are free to not only add to Pluto, but also use replacement versions for all of Pluto\'s modules.

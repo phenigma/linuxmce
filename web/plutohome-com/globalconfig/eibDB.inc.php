@@ -4,7 +4,7 @@
 	$dbEIBUser = "eib";
 	$dbEIBPass = "";
 	$dbEIBServer = "localhost";
-	$dbEIBDatabase = "asterisk";
+	$dbEIBDatabase = "eib";
 
 	
   	$eibDSN = $dbEIBType.'://'.urlencode($dbEIBUser).':'.urlencode($dbEIBPass).'@'.$dbEIBServer.'/'.urlencode($dbEIBDatabase); 
