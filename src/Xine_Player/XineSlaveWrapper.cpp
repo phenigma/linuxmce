@@ -278,6 +278,8 @@ bool XineSlaveWrapper::playStream(string fileName, int iStreamID, int mediaPosit
     xine_port_send_gui_data(m_pXineVideo, XINE_GUI_SEND_DRAWABLE_CHANGED, (void *) windows[m_iCurrentWindow]);
     xine_port_send_gui_data(m_pXineVideo, XINE_GUI_SEND_VIDEOWIN_VISIBLE, (void *) 1);
 
+	setXineStreamDebugging(iStreamID, true);
+
     if( xine_open(xineStream->m_pStream, fileName.c_str()))
     {
         g_pPlutoLogger->Write(LV_STATUS, "Opened..... ");
@@ -1013,13 +1015,7 @@ void XineSlaveWrapper::stopMedia(int iStreamID)
     XineStream *pStream = getStreamForId(iStreamID, "Can't stop the playback of a non existent stream (%d)!");
 
     if ( pStream == NULL )
-        return;
-
-//	g_pPlutoLogger->Write(LV_STATUS, "Calling xine_stop for stream with id: %d", iStreamID);
-// 	xine_stop(pStream->m_pStream);
-
-//	g_pPlutoLogger->Write(LV_STATUS, "Calling xine_close for stream with id: %d", iStreamID);
-//	xine_close(pStream->m_pStream);
+		return;
 
 	// stop the event thread first
 	if ( pStream->eventLoop )
@@ -1039,6 +1035,12 @@ void XineSlaveWrapper::stopMedia(int iStreamID)
 
 	if ( pStream->m_pStream )
 	{
+		g_pPlutoLogger->Write(LV_STATUS, "Calling xine_stop for stream with id: %d", iStreamID);
+		xine_stop(pStream->m_pStream);
+
+		g_pPlutoLogger->Write(LV_STATUS, "Calling xine_close for stream with id: %d", iStreamID);
+		xine_close(pStream->m_pStream);
+
 		g_pPlutoLogger->Write(LV_STATUS, "Calling xine_dispose for stream with id: %d", iStreamID);
 		xine_dispose(pStream->m_pStream);
 	}
