@@ -82,7 +82,7 @@ bool VR_IdentifyPhone::ProcessRequest(RA_Processor *pRA_Processor)
 
 	m_cProcessOutcome=SUCCESSFULLY_PROCESSED;
 
-	unsigned long PKID_C_PhoneStatus=0,RecordVersion=0;
+	unsigned long PKID_C_PhoneStatus=0,m_iRecordVersion = 0;
 	string FileName; // File to send to the phone
 
 	PlutoSqlResult rsMacAddress,rsPlutoId,rsUsers,rsAddress,rsExtra,rsShare,rsPhone;

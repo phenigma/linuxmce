@@ -43,7 +43,7 @@ public:
 		string IdentiedPlutoIdPin,
 		class Customer *pCustomer
 	);
-	VR_IdentifyPhone() {}
+	VR_IdentifyPhone() { m_iRecordVersion = 0; }
 
 	virtual void LogVisit(class RA_Processor *pRA_Processor);
 
